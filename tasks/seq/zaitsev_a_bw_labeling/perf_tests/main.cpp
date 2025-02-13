@@ -28,7 +28,7 @@ std::vector<int> GenOutVector(int size) {
 }  // namespace
 
 TEST(zaitsev_a_labeling_seq, test_pipeline_run) {
-  constexpr int kW = 999;
+  constexpr int kW = 9999;
   constexpr int kH = 9999;
 
   constexpr int kSize = kW * kH;
@@ -72,7 +72,7 @@ TEST(zaitsev_a_labeling_seq, test_pipeline_run) {
 }
 
 TEST(zaitsev_a_labeling_seq, test_task_run) {
-  constexpr int kW = 999;
+  constexpr int kW = 9999;
   constexpr int kH = 9999;
 
   constexpr int kSize = kW * kH;
