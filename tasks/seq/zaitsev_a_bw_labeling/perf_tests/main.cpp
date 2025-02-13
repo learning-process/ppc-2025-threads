@@ -9,7 +9,7 @@
 #include "core/task/include/task.hpp"
 #include "seq/zaitsev_a_bw_labeling/include/ops_seq.hpp"
 
-namespace zaitsev_a_labeling {
+namespace {
 std::vector<int> GenInVector(int size) {
   std::vector<int> in(size, 0);
   for (int i = 0; i < size; i += 2) {
@@ -25,7 +25,7 @@ std::vector<int> GenOutVector(int size) {
   }
   return out;
 }
-}  // namespace zaitsev_a_labeling
+}  // namespace
 
 TEST(zaitsev_a_labeling_seq, test_pipeline_run) {
   constexpr int kW = 999;
@@ -34,9 +34,9 @@ TEST(zaitsev_a_labeling_seq, test_pipeline_run) {
   constexpr int kSize = kW * kH;
 
   // Create data
-  std::vector<int> in = zaitsev_a_labeling::GenInVector(kSize);
+  std::vector<int> in = ::GenInVector(kSize);
   std::vector<int> out = std::vector<int>(kSize);
-  std::vector<int> expected = zaitsev_a_labeling::GenOutVector(kSize);
+  std::vector<int> expected = ::GenOutVector(kSize);
 
   // Create task_data
 
@@ -78,9 +78,9 @@ TEST(zaitsev_a_labeling_seq, test_task_run) {
   constexpr int kSize = kW * kH;
 
   // Create data
-  std::vector<int> in = zaitsev_a_labeling::GenInVector(kSize);
+  std::vector<int> in = ::GenInVector(kSize);
   std::vector<int> out = std::vector<int>(kSize);
-  std::vector<int> expected = zaitsev_a_labeling::GenOutVector(kSize);
+  std::vector<int> expected = ::GenOutVector(kSize);
 
   // Create task_data
 
