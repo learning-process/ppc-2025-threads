@@ -24,8 +24,8 @@ class Labeler : public ppc::core::Task {
   unsigned int height_;                   // image height
 
   void ComputeLabel(unsigned int i, unsigned int j, int& current_label);
-  void RasterScan();
-  void EquivReplace();
+  void LabelingRasterScan();
+  void EquivReplaceRasterScan();
 };
 
 }  // namespace zaitsev_a_labeling

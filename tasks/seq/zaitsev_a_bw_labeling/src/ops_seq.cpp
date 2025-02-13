@@ -36,7 +36,7 @@ void zaitsev_a_labeling::Labeler::ComputeLabel(unsigned int i, unsigned int j, i
   }
 }
 
-void zaitsev_a_labeling::Labeler::RasterScan() {
+void zaitsev_a_labeling::Labeler::LabelingRasterScan() {
   int current_label = 0;
   for (unsigned int j = 0; j < height_; j++) {
     for (unsigned int i = 0; i < width_; i++) {
@@ -45,26 +45,38 @@ void zaitsev_a_labeling::Labeler::RasterScan() {
   }
 }
 
-void zaitsev_a_labeling::Labeler::EquivReplace() {
+void zaitsev_a_labeling::Labeler::EquivReplaceRasterScan() {
   for (unsigned int j = 0; j < height_; j++) {
     for (unsigned int i = 0; i < width_; i++) {
-      auto replacement = equivalencies_.find(labels_[j][i]);
-      if (replacement != equivalencies_.end()) {
-        labels_[j][i] = replacement->second;
-      }
+      // auto replacement = equivalencies_.find(labels_[j][i]);
+      // if (replacement != equivalencies_.end()) {
+      //   labels_[j][i] = replacement->second;
+      // }
+      auto replacement1 = equivalencies_.find(labels_[j][i]);
+      do {
+        if (replacement1 != equivalencies_.end()) {
+          labels_[j][i] = replacement1->second;
+        }
+        replacement1 = equivalencies_.find(labels_[j][i]);
+      } while (replacement1 != equivalencies_.end());
     }
   }
 }
 
 bool zaitsev_a_labeling::Labeler::RunImpl() {
-  RasterScan();
-  EquivReplace();
+  LabelingRasterScan();
+  EquivReplaceRasterScan();
   return true;
 }
 
 bool zaitsev_a_labeling::Labeler::PostProcessingImpl() {
-  // for (size_t i = 0; i < output_.size(); i++) {
-  //   reinterpret_cast<int*>(task_data->outputs[0])[i] = output_[i];
-  // }
+  std::vector<int> out(width_ * height_);
+  for (unsigned int j = 0; j < height_; j++) {
+    for (unsigned int i = 0; i < width_; i++) {
+      out[j * width_ + i] = labels_[j][i];
+    }
+  }
+  auto* out_ptr = reinterpret_cast<int*>(task_data->outputs[0]);
+  std::copy(out.begin(), out.end(), out_ptr);
   return true;
 }
