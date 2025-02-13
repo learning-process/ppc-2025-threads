@@ -72,8 +72,8 @@ TEST(zaitsev_a_labeling_seq, test_pipeline_run) {
 }
 
 TEST(zaitsev_a_labeling_seq, test_task_run) {
-  constexpr int kW = 99;
-  constexpr int kH = 99;
+  constexpr int kW = 999;
+  constexpr int kH = 9999;
 
   constexpr int kSize = kW * kH;
 
