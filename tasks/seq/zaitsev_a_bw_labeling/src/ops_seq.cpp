@@ -48,10 +48,6 @@ void zaitsev_a_labeling::Labeler::LabelingRasterScan() {
 void zaitsev_a_labeling::Labeler::EquivReplaceRasterScan() {
   for (unsigned int j = 0; j < height_; j++) {
     for (unsigned int i = 0; i < width_; i++) {
-      // auto replacement = equivalencies_.find(labels_[j][i]);
-      // if (replacement != equivalencies_.end()) {
-      //   labels_[j][i] = replacement->second;
-      // }
       auto replacement1 = equivalencies_.find(labels_[j][i]);
       do {
         if (replacement1 != equivalencies_.end()) {
