@@ -34,7 +34,7 @@ TEST(sotskov_a_shell_sorting_with_simple_merging_seq, test_pipeline_run) {
   std::vector<int> out(in.size(), 0);
   std::vector<int> expected = in;
 
-  expected = sotskov_a_shell_sorting_with_simple_merging_seq::ShellSort(expected);
+  sotskov_a_shell_sorting_with_simple_merging_seq::ShellSortWithSimpleMerging(expected);
 
   // Create task_data
   auto task_data_seq = std::make_shared<ppc::core::TaskData>();
@@ -75,7 +75,8 @@ TEST(sotskov_a_shell_sorting_with_simple_merging_seq, test_task_run) {
   std::vector<int> out(in.size(), 0);
   std::vector<int> expected = in;
 
-  expected = sotskov_a_shell_sorting_with_simple_merging_seq::ShellSort(expected);
+  sotskov_a_shell_sorting_with_simple_merging_seq::ShellSortWithSimpleMerging(expected);
+
   // Create task_data
   auto task_data_seq = std::make_shared<ppc::core::TaskData>();
   task_data_seq->inputs.emplace_back(reinterpret_cast<uint8_t *>(in.data()));

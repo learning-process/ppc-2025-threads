@@ -11,7 +11,8 @@ struct RandomVectorParams {
   int min_value;
   int max_value;
 };
-std::vector<int> ShellSort(const std::vector<int>& input_array);
+void ShellSortWithSimpleMerging(std::vector<int>& arr);
+void SimpleMerge(std::vector<int>& arr, std::size_t left, std::size_t mid, std::size_t right);
 std::vector<int> GenerateRandomVector(const RandomVectorParams& params);
 class TestTaskSequential : public ppc::core::Task {
  public:
