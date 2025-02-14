@@ -6,8 +6,13 @@
 #include "core/task/include/task.hpp"
 
 namespace sotskov_a_shell_sorting_with_simple_merging_seq {
+struct RandomVectorParams {
+  int size;
+  int min_value;
+  int max_value;
+};
 std::vector<int> ShellSort(const std::vector<int>& input_array);
-static std::vector<int> GenerateRandomVector(int size, int max_value, int min_value);
+std::vector<int> GenerateRandomVector(const RandomVectorParams& params);
 class TestTaskSequential : public ppc::core::Task {
  public:
   explicit TestTaskSequential(ppc::core::TaskDataPtr task_data) : Task(std::move(task_data)) {}
