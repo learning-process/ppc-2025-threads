@@ -26,7 +26,7 @@ std::vector<int> GenerateRandomVector(const RandomVectorParams &params) {
 }
 namespace {
 
-void RunSortingTest(const std::vector<int>& expected, std::vector<int> in, void (*sort_func)(std::vector<int> &)) {
+void RunSortingTest(const std::vector<int> &expected, std::vector<int> in, void (*sort_func)(std::vector<int> &)) {
   std::vector<int> out(in.size(), 0);
   std::vector<int> sorted_expected = expected;
   std::ranges::sort(sorted_expected.begin(), sorted_expected.end());
