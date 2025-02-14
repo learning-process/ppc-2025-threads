@@ -26,10 +26,10 @@ std::vector<int> GenerateRandomVector(const RandomVectorParams &params) {
 }
 namespace {
 
-void RunSortingTest(std::vector<int> expected, std::vector<int> in, void (*sort_func)(std::vector<int> &)) {
+void RunSortingTest(const std::vector<int> expected, std::vector<int> in, void (*sort_func)(std::vector<int> &)) {
   std::vector<int> out(in.size(), 0);
-
-  std::ranges::sort(expected.begin(), expected.end());
+  std::vector<int> sorted_expected = expected;
+  std::ranges::sort(sorted_expected.begin(), sorted_expected.end());
 
   sort_func(in);
 
@@ -45,7 +45,7 @@ void RunSortingTest(std::vector<int> expected, std::vector<int> in, void (*sort_
   test_task_sequential.RunImpl();
   test_task_sequential.PostProcessingImpl();
 
-  ASSERT_EQ(out, expected);
+  ASSERT_EQ(out, sorted_expected);
 }
 }  // namespace
 }  // namespace sotskov_a_shell_sorting_with_simple_merging_seq
