@@ -16,7 +16,7 @@ struct SortingTestParams {
   std::vector<int> expected;
   std::vector<int> input;
 };
-
+void RunSortingTest(SortingTestParams& params, void (*sort_func)(std::vector<int>&));
 void ShellSortWithSimpleMerging(std::vector<int>& arr);
 void SimpleMerge(std::vector<int>& arr, std::size_t left, std::size_t mid, std::size_t right);
 std::vector<int> GenerateRandomVector(const RandomVectorParams& params);
