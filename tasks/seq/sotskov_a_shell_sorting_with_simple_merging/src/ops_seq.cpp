@@ -7,7 +7,9 @@
 
 void sotskov_a_shell_sorting_with_simple_merging_seq::SimpleMerge(std::vector<int>& arr, std::size_t left,
                                                                   std::size_t mid, std::size_t right) {
-  std::inplace_merge(arr.begin() + left, arr.begin() + mid + 1, arr.begin() + right + 1);
+  std::inplace_merge(arr.begin() + static_cast<std::ptrdiff_t>(left),
+                     arr.begin() + static_cast<std::ptrdiff_t>(mid) + 1,
+                     arr.begin() + static_cast<std::ptrdiff_t>(right) + 1);
 }
 
 void sotskov_a_shell_sorting_with_simple_merging_seq::ShellSortWithSimpleMerging(std::vector<int>& arr) {
@@ -35,7 +37,7 @@ void sotskov_a_shell_sorting_with_simple_merging_seq::ShellSortWithSimpleMerging
   for (std::size_t size = 1; size < array_size; size *= 2) {
     for (std::size_t left = 0; left + size < array_size; left += 2 * size) {
       std::size_t mid = left + size - 1;
-      std::size_t right = std::min(left + 2 * size - 1, array_size - 1);
+      std::size_t right = std::min(left + (2 * size) - 1, array_size - 1);
       SimpleMerge(arr, left, mid, right);
     }
   }

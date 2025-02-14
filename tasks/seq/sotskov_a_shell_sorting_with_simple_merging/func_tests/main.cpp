@@ -4,6 +4,7 @@
 #include <cstdint>
 #include <memory>
 #include <random>
+#include <ranges>
 #include <vector>
 
 #include "core/task/include/task.hpp"
@@ -25,10 +26,10 @@ std::vector<int> GenerateRandomVector(const RandomVectorParams &params) {
   return random_vector;
 }
 
-void RunSortingTest(std::vector<int> in, std::vector<int> expected, void (*sort_func)(std::vector<int> &)) {
+static void RunSortingTest(std::vector<int> in, std::vector<int> expected, void (*sort_func)(std::vector<int> &)) {
   std::vector<int> out(in.size(), 0);
 
-  std::sort(expected.begin(), expected.end());
+  std::ranges::sort(expected.begin(), expected.end());
 
   sort_func(in);
 
@@ -103,7 +104,7 @@ TEST(sotskov_a_shell_sorting_with_simple_merging_seq, test_sort_random_vector) {
   std::vector<int> in = sotskov_a_shell_sorting_with_simple_merging_seq::GenerateRandomVector(params);
   std::vector<int> expected = in;
 
-  std::sort(expected.begin(), expected.end());
+  std::ranges::sort(expected.begin(), expected.end());
 
   sotskov_a_shell_sorting_with_simple_merging_seq::RunSortingTest(
       in, expected, sotskov_a_shell_sorting_with_simple_merging_seq::ShellSortWithSimpleMerging);
