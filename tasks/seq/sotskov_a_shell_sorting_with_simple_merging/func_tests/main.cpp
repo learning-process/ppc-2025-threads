@@ -1,30 +1,26 @@
 #include <gtest/gtest.h>
 
-#include <cstddef>
 #include <cstdint>
-#include <fstream>
 #include <memory>
 #include <random>
-#include <string>
 #include <vector>
 
 #include "core/task/include/task.hpp"
-#include "core/util/include/util.hpp"
 #include "seq/sotskov_a_shell_sorting_with_simple_merging/include/ops_seq.hpp"
 
 namespace sotskov_a_shell_sorting_with_simple_merging_seq {
 
-std::vector<int> GenerateRandomVector(int size, int minValue, int maxValue) {
-  std::random_device randomDevice;
-  std::mt19937 generator(randomDevice());
-  std::uniform_int_distribution<int> distribution(minValue, maxValue);
+std::vector<int> GenerateRandomVector(int size, int min_value, int max_value) {
+  std::random_device random_device;
+  std::mt19937 generator(random_device());
+  std::uniform_int_distribution<int> distribution(min_value, max_value);
 
-  std::vector<int> randomVector(size);
-  for (int &element : randomVector) {
+  std::vector<int> random_vector(size);
+  for (int &element : random_vector) {
     element = distribution(generator);
   }
 
-  return randomVector;
+  return random_vector;
 }
 
 }  // namespace sotskov_a_shell_sorting_with_simple_merging_seq

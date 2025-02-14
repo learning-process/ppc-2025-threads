@@ -1,7 +1,6 @@
 #include <gtest/gtest.h>
 
 #include <chrono>
-#include <cstddef>
 #include <cstdint>
 #include <memory>
 #include <random>
@@ -13,17 +12,17 @@
 
 namespace sotskov_a_shell_sorting_with_simple_merging_seq {
 
-std::vector<int> GenerateRandomVector(int size, int minValue, int maxValue) {
-  std::random_device randomDevice;
-  std::mt19937 generator(randomDevice());
-  std::uniform_int_distribution<int> distribution(minValue, maxValue);
+std::vector<int> GenerateRandomVector(int size, int min_value, int max_value) {
+  std::random_device random_device;
+  std::mt19937 generator(random_device());
+  std::uniform_int_distribution<int> distribution(min_value, max_value);
 
-  std::vector<int> randomVector(size);
-  for (int &element : randomVector) {
+  std::vector<int> random_vector(size);
+  for (int &element : random_vector) {
     element = distribution(generator);
   }
 
-  return randomVector;
+  return random_vector;
 }
 
 }  // namespace sotskov_a_shell_sorting_with_simple_merging_seq
@@ -34,7 +33,7 @@ TEST(sotskov_a_shell_sorting_with_simple_merging_seq, test_pipeline_run) {
   std::vector<int> out(in.size(), 0);
   std::vector<int> expected = in;
 
-  expected = sotskov_a_shell_sorting_with_simple_merging_seq::shellSort(expected);
+  expected = sotskov_a_shell_sorting_with_simple_merging_seq::ShellSort(expected);
 
   // Create task_data
   auto task_data_seq = std::make_shared<ppc::core::TaskData>();
@@ -74,7 +73,7 @@ TEST(sotskov_a_shell_sorting_with_simple_merging_seq, test_task_run) {
   std::vector<int> out(in.size(), 0);
   std::vector<int> expected = in;
 
-  expected = sotskov_a_shell_sorting_with_simple_merging_seq::shellSort(expected);
+  expected = sotskov_a_shell_sorting_with_simple_merging_seq::ShellSort(expected);
   // Create task_data
   auto task_data_seq = std::make_shared<ppc::core::TaskData>();
   task_data_seq->inputs.emplace_back(reinterpret_cast<uint8_t *>(in.data()));
