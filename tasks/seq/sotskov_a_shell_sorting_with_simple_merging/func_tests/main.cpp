@@ -24,18 +24,18 @@ std::vector<int> GenerateRandomVector(const RandomVectorParams &params) {
 
   return random_vector;
 }
-namespace {
 
-void RunSortingTest(const std::vector<int> &expected, std::vector<int> in, void (*sort_func)(std::vector<int> &)) {
-  std::vector<int> out(in.size(), 0);
-  std::vector<int> sorted_expected = expected;
+void RunSortingTest(SortingTestParams &params, void (*sort_func)(std::vector<int> &)) {
+  std::vector<int> out(params.input.size(), 0);
+
+  std::vector<int> sorted_expected = params.expected;
   std::ranges::sort(sorted_expected.begin(), sorted_expected.end());
 
-  sort_func(in);
+  sort_func(params.input);
 
   std::shared_ptr<ppc::core::TaskData> task_data_seq = std::make_shared<ppc::core::TaskData>();
-  task_data_seq->inputs.emplace_back(reinterpret_cast<uint8_t *>(in.data()));
-  task_data_seq->inputs_count.emplace_back(in.size());
+  task_data_seq->inputs.emplace_back(reinterpret_cast<uint8_t *>(params.input.data()));
+  task_data_seq->inputs_count.emplace_back(params.input.size());
   task_data_seq->outputs.emplace_back(reinterpret_cast<uint8_t *>(out.data()));
   task_data_seq->outputs_count.emplace_back(out.size());
 
@@ -47,55 +47,52 @@ void RunSortingTest(const std::vector<int> &expected, std::vector<int> in, void 
 
   ASSERT_EQ(out, sorted_expected);
 }
-}  // namespace
 }  // namespace sotskov_a_shell_sorting_with_simple_merging_seq
 
 TEST(sotskov_a_shell_sorting_with_simple_merging_seq, test_sort_positive_numbers) {
-  std::vector<int> in = {5, 3, 8, 6, 2, 7, 1, 4};
-  std::vector<int> expected = {1, 2, 3, 4, 5, 6, 7, 8};
+  sotskov_a_shell_sorting_with_simple_merging_seq::SortingTestParams params = {.expected = {1, 2, 3, 4, 5, 6, 7, 8},
+                                                                               .input = {5, 3, 8, 6, 2, 7, 1, 4}};
 
   sotskov_a_shell_sorting_with_simple_merging_seq::RunSortingTest(
-      expected, in, sotskov_a_shell_sorting_with_simple_merging_seq::ShellSortWithSimpleMerging);
+      params, sotskov_a_shell_sorting_with_simple_merging_seq::ShellSortWithSimpleMerging);
 }
 
 TEST(sotskov_a_shell_sorting_with_simple_merging_seq, test_sort_negative_numbers) {
-  std::vector<int> in = {-8, -3, -12, -7, -4, -10};
-  std::vector<int> expected = {-12, -10, -8, -7, -4, -3};
+  sotskov_a_shell_sorting_with_simple_merging_seq::SortingTestParams params = {.expected = {-12, -10, -8, -7, -4, -3},
+                                                                               .input = {-8, -3, -12, -7, -4, -10}};
 
   sotskov_a_shell_sorting_with_simple_merging_seq::RunSortingTest(
-      expected, in, sotskov_a_shell_sorting_with_simple_merging_seq::ShellSortWithSimpleMerging);
+      params, sotskov_a_shell_sorting_with_simple_merging_seq::ShellSortWithSimpleMerging);
 }
 
 TEST(sotskov_a_shell_sorting_with_simple_merging_seq, test_sort_ordered_array) {
-  std::vector<int> in = {1, 2, 3, 4, 5, 6, 7, 8};
-  std::vector<int> expected = {1, 2, 3, 4, 5, 6, 7, 8};
+  sotskov_a_shell_sorting_with_simple_merging_seq::SortingTestParams params = {.expected = {1, 2, 3, 4, 5, 6, 7, 8},
+                                                                               .input = {1, 2, 3, 4, 5, 6, 7, 8}};
 
   sotskov_a_shell_sorting_with_simple_merging_seq::RunSortingTest(
-      expected, in, sotskov_a_shell_sorting_with_simple_merging_seq::ShellSortWithSimpleMerging);
+      params, sotskov_a_shell_sorting_with_simple_merging_seq::ShellSortWithSimpleMerging);
 }
 
 TEST(sotskov_a_shell_sorting_with_simple_merging_seq, test_sort_with_duplicates) {
-  std::vector<int> in = {4, 2, 2, 8, 4, 6, 6, 2};
-  std::vector<int> expected = {2, 2, 2, 4, 4, 6, 6, 8};
+  sotskov_a_shell_sorting_with_simple_merging_seq::SortingTestParams params = {.expected = {2, 2, 2, 4, 4, 6, 6, 8},
+                                                                               .input = {4, 2, 2, 8, 4, 6, 6, 2}};
 
   sotskov_a_shell_sorting_with_simple_merging_seq::RunSortingTest(
-      expected, in, sotskov_a_shell_sorting_with_simple_merging_seq::ShellSortWithSimpleMerging);
+      params, sotskov_a_shell_sorting_with_simple_merging_seq::ShellSortWithSimpleMerging);
 }
 
 TEST(sotskov_a_shell_sorting_with_simple_merging_seq, test_sort_single_element) {
-  std::vector<int> in = {77};
-  std::vector<int> expected = {77};
+  sotskov_a_shell_sorting_with_simple_merging_seq::SortingTestParams params = {.expected = {77}, .input = {77}};
 
   sotskov_a_shell_sorting_with_simple_merging_seq::RunSortingTest(
-      expected, in, sotskov_a_shell_sorting_with_simple_merging_seq::ShellSortWithSimpleMerging);
+      params, sotskov_a_shell_sorting_with_simple_merging_seq::ShellSortWithSimpleMerging);
 }
 
 TEST(sotskov_a_shell_sorting_with_simple_merging_seq, test_sort_empty_array) {
-  std::vector<int> in = {};
-  std::vector<int> expected = {};
+  sotskov_a_shell_sorting_with_simple_merging_seq::SortingTestParams params = {.expected = {}, .input = {}};
 
   sotskov_a_shell_sorting_with_simple_merging_seq::RunSortingTest(
-      expected, in, sotskov_a_shell_sorting_with_simple_merging_seq::ShellSortWithSimpleMerging);
+      params, sotskov_a_shell_sorting_with_simple_merging_seq::ShellSortWithSimpleMerging);
 }
 
 TEST(sotskov_a_shell_sorting_with_simple_merging_seq, test_sort_random_vector) {
@@ -106,6 +103,9 @@ TEST(sotskov_a_shell_sorting_with_simple_merging_seq, test_sort_random_vector) {
 
   std::ranges::sort(expected.begin(), expected.end());
 
+  sotskov_a_shell_sorting_with_simple_merging_seq::SortingTestParams sorting_params = {.expected = expected,
+                                                                                       .input = in};
+
   sotskov_a_shell_sorting_with_simple_merging_seq::RunSortingTest(
-      expected, in, sotskov_a_shell_sorting_with_simple_merging_seq::ShellSortWithSimpleMerging);
+      sorting_params, sotskov_a_shell_sorting_with_simple_merging_seq::ShellSortWithSimpleMerging);
 }
