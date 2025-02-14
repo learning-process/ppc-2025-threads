@@ -1,12 +1,11 @@
 #include "seq/sotskov_a_shell_sorting_with_simple_merging/include/ops_seq.hpp"
 
 #include <cmath>
-#include <ranges>
 #include <vector>
 
 std::vector<int> sotskov_a_shell_sorting_with_simple_merging_seq::ShellSort(const std::vector<int>& input_array) {
   std::vector<int> sorted_array = input_array;
-  int array_size = sorted_array.size();
+  std::size_t array_size = sorted_array.size();
 
   std::vector<int> gap_sequence;
   int current_gap = 1;
@@ -15,11 +14,11 @@ std::vector<int> sotskov_a_shell_sorting_with_simple_merging_seq::ShellSort(cons
     current_gap = current_gap * 3 + 1;
   }
 
-  for (int gap_index = gap_sequence.size() - 1; gap_index >= 0; --gap_index) {
+  for (std::size_t gap_index = gap_sequence.size() - 1; gap_index >= 0; --gap_index) {
     int gap = gap_sequence[gap_index];
-    for (int i = gap; i < array_size; ++i) {
+    for (std::size_t i = gap; i < array_size; ++i) {
       int current_element = sorted_array[i];
-      int j = i;
+      std::size_t j = i;
       while (j >= gap && sorted_array[j - gap] > current_element) {
         sorted_array[j] = sorted_array[j - gap];
         j -= gap;
@@ -42,8 +41,8 @@ bool sotskov_a_shell_sorting_with_simple_merging_seq::TestTaskSequential::PrePro
 }
 
 bool sotskov_a_shell_sorting_with_simple_merging_seq::TestTaskSequential::ValidationImpl() {
-  int input_size = task_data->inputs_count[0];
-  int output_size = task_data->outputs_count[0];
+  std::size_t input_size = task_data->inputs_count[0];
+  std::size_t output_size = task_data->outputs_count[0];
 
   return (input_size == output_size);
 }
@@ -54,7 +53,7 @@ bool sotskov_a_shell_sorting_with_simple_merging_seq::TestTaskSequential::RunImp
 }
 
 bool sotskov_a_shell_sorting_with_simple_merging_seq::TestTaskSequential::PostProcessingImpl() {
-  int* output_ = reinterpret_cast<int*>(task_data->outputs[0]);
-  std::ranges::copy(result_.begin(), result_.end(), output_);
+  int* output = reinterpret_cast<int*>(task_data->outputs[0]);
+  std::copy(result_.begin(), result_.end(), output);
   return true;
 }
