@@ -1,5 +1,6 @@
 #pragma once
 
+#include <utility>
 #include <vector>
 
 #include "core/task/include/task.hpp"
@@ -11,7 +12,7 @@ class Point {
   int x;
   int y;
 
-  Point(int x_, int y_) : x(x_), y(y_) {}
+  Point(int x_value, int y_value) : x(x_value), y(y_value) {}
   Point() : x(0), y(0) {}
   bool operator<=(const Point& rhs) const { return y < rhs.y || (y == rhs.y && x <= rhs.x); }
   bool operator==(const Point& rhs) const { return y == rhs.y && x == rhs.x; }

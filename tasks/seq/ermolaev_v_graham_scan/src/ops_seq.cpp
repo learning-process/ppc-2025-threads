@@ -79,6 +79,6 @@ bool ermolaev_v_graham_scan_seq::TestTaskSequential::RunImpl() {
 bool ermolaev_v_graham_scan_seq::TestTaskSequential::PostProcessingImpl() {
   task_data->outputs_count.clear();
   task_data->outputs_count.push_back(output_.size());
-  std::copy(output_.begin(), output_.end(), reinterpret_cast<Point *>(task_data->outputs[0]));
+  std::ranges::copy(output_, reinterpret_cast<Point *>(task_data->outputs[0]));
   return true;
 }
