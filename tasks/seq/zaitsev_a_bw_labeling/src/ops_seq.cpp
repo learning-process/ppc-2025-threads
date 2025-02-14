@@ -3,7 +3,6 @@
 #include <algorithm>
 #include <vector>
 
-
 bool zaitsev_a_labeling::Labeler::PreProcessingImpl() {
   width_ = task_data->inputs_count[0];
   height_ = task_data->inputs_count[1];
