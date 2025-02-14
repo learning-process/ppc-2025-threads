@@ -1,10 +1,14 @@
 #include "seq/zaitsev_a_bw_labeling/include/ops_seq.hpp"
 
+#include <algorithm>
+#include <vector>
+
+
 bool zaitsev_a_labeling::Labeler::PreProcessingImpl() {
-  width_ = task_data->inputs_count[0];                                            // width of input image
-  height_ = task_data->inputs_count[1];                                           // height of input image
-  image_ = std::vector<std::vector<int>>(height_, std::vector<int>(width_));      // preparing image_
-  labels_ = std::vector<std::vector<int>>(height_, std::vector<int>(width_, 0));  // preparing labels_
+  width_ = task_data->inputs_count[0];
+  height_ = task_data->inputs_count[1];
+  image_ = std::vector<std::vector<int>>(height_, std::vector<int>(width_));
+  labels_ = std::vector<std::vector<int>>(height_, std::vector<int>(width_, 0));
   auto* tmp_ptr = reinterpret_cast<int*>(task_data->inputs[0]);
   for (unsigned int j = 0; j < height_; j++) {
     std::copy(tmp_ptr, tmp_ptr + width_, image_[j].begin());
@@ -14,7 +18,8 @@ bool zaitsev_a_labeling::Labeler::PreProcessingImpl() {
 }
 
 bool zaitsev_a_labeling::Labeler::ValidationImpl() {
-  return task_data->inputs_count.size() == 2 && task_data->inputs.size() > 0;  // && task_data->outputs_count[0] == 1;
+  return task_data->inputs_count.size() == 2 && (!task_data->inputs.empty()) &&
+         (task_data->outputs_count[0] == task_data->inputs_count[0] * task_data->inputs_count[1]);
 }
 
 void zaitsev_a_labeling::Labeler::ComputeLabel(unsigned int i, unsigned int j, int& current_label) {
@@ -69,7 +74,7 @@ bool zaitsev_a_labeling::Labeler::PostProcessingImpl() {
   std::vector<int> out(width_ * height_);
   for (unsigned int j = 0; j < height_; j++) {
     for (unsigned int i = 0; i < width_; i++) {
-      out[j * width_ + i] = labels_[j][i];
+      out[(j * width_) + i] = labels_[j][i];
     }
   }
   auto* out_ptr = reinterpret_cast<int*>(task_data->outputs[0]);

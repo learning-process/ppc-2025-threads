@@ -2,12 +2,15 @@
 
 #include <cstdint>
 #include <memory>
+#include <tuple>
 #include <vector>
 
 #include "core/task/include/task.hpp"
 #include "seq/zaitsev_a_bw_labeling/include/ops_seq.hpp"
 
 using Params = std::tuple<int, int, std::vector<int>, std::vector<int>>;
+
+namespace {
 
 class ZaitsevALabelingSeqTest : public ::testing::TestWithParam<Params> {
  protected:
@@ -112,3 +115,5 @@ INSTANTIATE_TEST_SUITE_P(ZaitsevALabelingSeqTest, ZaitsevALabelingSeqTest, ::tes
   )
 );
 //clang-format on
+
+} // namespace

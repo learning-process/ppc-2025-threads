@@ -17,11 +17,11 @@ class Labeler : public ppc::core::Task {
   bool PostProcessingImpl() override;
 
  private:
-  std::vector<std::vector<int>> image_;   // original image
-  std::vector<std::vector<int>> labels_;  // label map
-  std::map<int, int> equivalencies_;      // equvivalency map
-  unsigned int width_;                    // image width
-  unsigned int height_;                   // image height
+  std::vector<std::vector<int>> image_;
+  std::vector<std::vector<int>> labels_;
+  std::map<int, int> equivalencies_;
+  unsigned int width_;
+  unsigned int height_;
 
   void ComputeLabel(unsigned int i, unsigned int j, int& current_label);
   void LabelingRasterScan();
