@@ -10,10 +10,10 @@
 
 namespace sotskov_a_shell_sorting_with_simple_merging_seq {
 
-std::vector<int> GenerateRandomVector(int size, int min_value, int max_value) {
+std::vector<int> GenerateRandomVector(int size, int max_value, int min_value) {
   std::random_device random_device;
   std::mt19937 generator(random_device());
-  std::uniform_int_distribution<int> distribution(min_value, max_value);
+  std::uniform_int_distribution<int> distribution(max_value, min_value);
 
   std::vector<int> random_vector(size);
   for (int &element : random_vector) {

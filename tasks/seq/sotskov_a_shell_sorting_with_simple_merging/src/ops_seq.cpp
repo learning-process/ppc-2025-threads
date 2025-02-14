@@ -10,7 +10,7 @@ std::vector<int> sotskov_a_shell_sorting_with_simple_merging_seq::ShellSort(cons
   std::vector<int> sorted_array = input_array;
   std::size_t array_size = sorted_array.size();
 
-  std::vector<int> gap_sequence;
+  std::vector<std::size_t> gap_sequence;
   std::size_t current_gap = 1;
   while (current_gap < array_size / 3) {
     gap_sequence.push_back(current_gap);
@@ -57,6 +57,6 @@ bool sotskov_a_shell_sorting_with_simple_merging_seq::TestTaskSequential::RunImp
 
 bool sotskov_a_shell_sorting_with_simple_merging_seq::TestTaskSequential::PostProcessingImpl() {
   int* output = reinterpret_cast<int*>(task_data->outputs[0]);
-  std::copy(result_.begin(), result_.end(), output);
+  std::ranges::copy(result_.begin(), result_.end(), output);
   return true;
 }
