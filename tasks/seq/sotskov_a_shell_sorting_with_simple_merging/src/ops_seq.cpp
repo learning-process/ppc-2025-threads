@@ -1,6 +1,9 @@
 #include "seq/sotskov_a_shell_sorting_with_simple_merging/include/ops_seq.hpp"
 
+#include <algorithm>
 #include <cmath>
+#include <cstddef>
+#include <ranges>
 #include <vector>
 
 std::vector<int> sotskov_a_shell_sorting_with_simple_merging_seq::ShellSort(const std::vector<int>& input_array) {
@@ -8,14 +11,14 @@ std::vector<int> sotskov_a_shell_sorting_with_simple_merging_seq::ShellSort(cons
   std::size_t array_size = sorted_array.size();
 
   std::vector<int> gap_sequence;
-  int current_gap = 1;
+  std::size_t current_gap = 1;
   while (current_gap < array_size / 3) {
     gap_sequence.push_back(current_gap);
     current_gap = current_gap * 3 + 1;
   }
 
-  for (std::size_t gap_index = gap_sequence.size() - 1; gap_index >= 0; --gap_index) {
-    int gap = gap_sequence[gap_index];
+  for (std::size_t gap_index = gap_sequence.size() - 1; gap_index != std::size_t(-1); --gap_index) {
+    std::size_t gap = gap_sequence[gap_index];
     for (std::size_t i = gap; i < array_size; ++i) {
       int current_element = sorted_array[i];
       std::size_t j = i;
