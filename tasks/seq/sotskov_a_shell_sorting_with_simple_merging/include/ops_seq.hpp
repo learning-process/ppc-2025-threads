@@ -7,7 +7,7 @@
 
 namespace sotskov_a_shell_sorting_with_simple_merging_seq {
 std::vector<int> ShellSort(const std::vector<int>& input_array);
-std::vector<int> GenerateRandomVector(int size, int max_value, int min_value);
+static std::vector<int> GenerateRandomVector(int size, int max_value, int min_value);
 class TestTaskSequential : public ppc::core::Task {
  public:
   explicit TestTaskSequential(ppc::core::TaskDataPtr task_data) : Task(std::move(task_data)) {}

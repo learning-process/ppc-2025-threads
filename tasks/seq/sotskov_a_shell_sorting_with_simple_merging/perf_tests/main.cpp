@@ -18,7 +18,7 @@ struct RandomVectorParams {
   int max_value;
 };
 
-std::vector<int> GenerateRandomVector(const RandomVectorParams &params) {
+static std::vector<int> GenerateRandomVector(const RandomVectorParams &params) {
   std::random_device random_device;
   std::mt19937 generator(random_device());
   std::uniform_int_distribution<int> distribution(params.min_value, params.max_value);
@@ -34,7 +34,8 @@ std::vector<int> GenerateRandomVector(const RandomVectorParams &params) {
 }  // namespace sotskov_a_shell_sorting_with_simple_merging_seq
 
 TEST(sotskov_a_shell_sorting_with_simple_merging_seq, test_pipeline_run) {
-  sotskov_a_shell_sorting_with_simple_merging_seq::RandomVectorParams params = {150000, 0, 500};
+  sotskov_a_shell_sorting_with_simple_merging_seq::RandomVectorParams params = {
+      .size = 150000, .min_value = 0, .max_value = 500};
   std::vector<int> in = GenerateRandomVector(params);
   std::vector<int> out(in.size(), 0);
   std::vector<int> expected = in;
@@ -74,7 +75,8 @@ TEST(sotskov_a_shell_sorting_with_simple_merging_seq, test_pipeline_run) {
 }
 
 TEST(sotskov_a_shell_sorting_with_simple_merging_seq, test_task_run) {
-  sotskov_a_shell_sorting_with_simple_merging_seq::RandomVectorParams params = {150000, 0, 500};
+  sotskov_a_shell_sorting_with_simple_merging_seq::RandomVectorParams params = {
+      .size = 150000, .min_value = 0, .max_value = 500};
   std::vector<int> in = GenerateRandomVector(params);
   std::vector<int> out(in.size(), 0);
   std::vector<int> expected = in;
