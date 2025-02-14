@@ -3,7 +3,6 @@
 #include <algorithm>
 #include <cmath>
 #include <cstddef>
-#include <ranges>
 #include <vector>
 
 std::vector<int> sotskov_a_shell_sorting_with_simple_merging_seq::ShellSort(const std::vector<int>& input_array) {
