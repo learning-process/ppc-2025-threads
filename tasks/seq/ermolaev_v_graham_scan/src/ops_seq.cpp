@@ -21,32 +21,34 @@ bool ermolaev_v_graham_scan_seq::TestTaskSequential::ValidationImpl() {
 }
 
 bool ermolaev_v_graham_scan_seq::TestTaskSequential::RunImpl() {
-  if (input_.size() < 3) {
-    return false;
-  }
-
-  Point p1 = input_[0];
-  Point p2 = input_[1];
-  bool all_collinear = true;
-  bool all_same = p1 == p2;
-
-  for (size_t i = 2; i < input_.size(); i++) {
-    Point p3 = input_[i];
-    int cross = CrossProduct(p1, p2, p3);
-
-    if (cross != 0) {
-      all_collinear = false;
+  {
+    if (input_.size() < 3) {
+      return false;
     }
-    if (p2 != p3) {
-      all_same = false;
-    }
-    if (!all_collinear && !all_same) {
-      break;
-    }
-  }
 
-  if (all_collinear) {
-    return false;
+    Point p1 = input_[0];
+    Point p2 = input_[1];
+    bool all_collinear = true;
+    bool all_same = p1 == p2;
+
+    for (size_t i = 2; i < input_.size(); i++) {
+      Point p3 = input_[i];
+      int cross = CrossProduct(p1, p2, p3);
+
+      if (cross != 0) {
+        all_collinear = false;
+      }
+      if (p2 != p3) {
+        all_same = false;
+      }
+      if (!all_collinear && !all_same) {
+        break;
+      }
+    }
+
+    if (all_collinear) {
+      return false;
+    }
   }
 
   size_t base = 0;
@@ -71,20 +73,25 @@ bool ermolaev_v_graham_scan_seq::TestTaskSequential::RunImpl() {
   output_.push_back(input_[0]);
   output_.push_back(input_[1]);
 
-  for (size_t i = 2; i < input_.size(); i++) {
-    while (output_.size() >= 2) {
-      Point p1 = output_[output_.size() - 2];
-      Point p2 = output_[output_.size() - 1];
-      Point p3 = input_[i];
+  {
+    Point p1;
+    Point p2;
+    Point p3;
+    for (size_t i = 2; i < input_.size(); i++) {
+      while (output_.size() >= 2) {
+        p1 = output_[output_.size() - 2];
+        p2 = output_[output_.size() - 1];
+        p3 = input_[i];
 
-      int cross = CrossProduct(p1, p2, p3);
+        int cross = CrossProduct(p1, p2, p3);
 
-      if (cross > 0) {
-        break;
+        if (cross > 0) {
+          break;
+        }
+        output_.pop_back();
       }
-      output_.pop_back();
+      output_.push_back(input_[i]);
     }
-    output_.push_back(input_[i]);
   }
 
   return true;
