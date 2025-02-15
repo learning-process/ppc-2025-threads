@@ -62,12 +62,11 @@ bool sotskov_a_shell_sorting_with_simple_merging_seq::TestTaskSequential::Valida
 
 bool sotskov_a_shell_sorting_with_simple_merging_seq::TestTaskSequential::RunImpl() {
   ShellSortWithSimpleMerging(input_);
-  result_ = input_;
   return true;
 }
 
 bool sotskov_a_shell_sorting_with_simple_merging_seq::TestTaskSequential::PostProcessingImpl() {
   int* output = reinterpret_cast<int*>(task_data->outputs[0]);
-  std::ranges::copy(result_.begin(), result_.end(), output);
+  std::ranges::copy(input_.begin(), input_.end(), output);
   return true;
 }
