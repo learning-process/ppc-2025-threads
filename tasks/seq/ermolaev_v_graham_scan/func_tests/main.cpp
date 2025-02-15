@@ -55,18 +55,61 @@ TEST(ermolaev_v_graham_scan_seq, square_with_inner_point) {
   EXPECT_EQ(task_data->outputs_count[0], 4U);
 }
 
+TEST(ermolaev_v_graham_scan_seq, all_same_points) {
+  std::vector<ermolaev_v_graham_scan_seq::Point> input = {{0, 0}, {0, 0}, {0, 0}, {0, 0}, {0, 0}};
+  std::vector<ermolaev_v_graham_scan_seq::Point> output(input.size());
+  auto task_data = CreateTaskData(input, output);
+
+  ermolaev_v_graham_scan_seq::TestTaskSequential task(task_data);
+  ASSERT_TRUE(task.Validation());
+  ASSERT_TRUE(task.PreProcessing());
+  EXPECT_FALSE(task.Run());
+}
+
 TEST(ermolaev_v_graham_scan_seq, collinear_points) {
   std::vector<ermolaev_v_graham_scan_seq::Point> input = {{0, 0}, {1, 1}, {2, 2}, {3, 3}, {4, 4}};
   std::vector<ermolaev_v_graham_scan_seq::Point> output(input.size());
   auto task_data = CreateTaskData(input, output);
 
-  RunTest(task_data);
+  ermolaev_v_graham_scan_seq::TestTaskSequential task(task_data);
+  ASSERT_TRUE(task.Validation());
+  ASSERT_TRUE(task.PreProcessing());
+  EXPECT_FALSE(task.Run());
+}
 
-  EXPECT_EQ(task_data->outputs_count[0], 2U);
+TEST(ermolaev_v_graham_scan_seq, collinear_points_x) {
+  std::vector<ermolaev_v_graham_scan_seq::Point> input = {{0, 0}, {0, 1}, {0, 2}, {0, 3}, {0, 4}};
+  std::vector<ermolaev_v_graham_scan_seq::Point> output(input.size());
+  auto task_data = CreateTaskData(input, output);
+
+  ermolaev_v_graham_scan_seq::TestTaskSequential task(task_data);
+  ASSERT_TRUE(task.Validation());
+  ASSERT_TRUE(task.PreProcessing());
+  EXPECT_FALSE(task.Run());
+}
+
+TEST(ermolaev_v_graham_scan_seq, collinear_points_y) {
+  std::vector<ermolaev_v_graham_scan_seq::Point> input = {{0, 0}, {1, 0}, {2, 0}, {3, 0}, {4, 0}};
+  std::vector<ermolaev_v_graham_scan_seq::Point> output(input.size());
+  auto task_data = CreateTaskData(input, output);
+
+  ermolaev_v_graham_scan_seq::TestTaskSequential task(task_data);
+  ASSERT_TRUE(task.Validation());
+  ASSERT_TRUE(task.PreProcessing());
+  EXPECT_FALSE(task.Run());
 }
 
 TEST(ermolaev_v_graham_scan_seq, invalid_input) {
   std::vector<ermolaev_v_graham_scan_seq::Point> input = {{0, 0}, {0, 0}};
+  std::vector<ermolaev_v_graham_scan_seq::Point> output(input.size());
+  auto task_data = CreateTaskData(input, output);
+
+  ermolaev_v_graham_scan_seq::TestTaskSequential task(task_data);
+  EXPECT_FALSE(task.Validation());
+}
+
+TEST(ermolaev_v_graham_scan_seq, empty_input) {
+  std::vector<ermolaev_v_graham_scan_seq::Point> input;
   std::vector<ermolaev_v_graham_scan_seq::Point> output(input.size());
   auto task_data = CreateTaskData(input, output);
 

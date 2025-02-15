@@ -5,6 +5,10 @@
 #include <cstddef>
 #include <vector>
 
+int ermolaev_v_graham_scan_seq::TestTaskSequential::CrossProduct(const Point &p1, const Point &p2, const Point &p3) {
+  return ((p2.x - p1.x) * (p3.y - p1.y)) - ((p3.x - p1.x) * (p2.y - p1.y));
+}
+
 bool ermolaev_v_graham_scan_seq::TestTaskSequential::PreProcessingImpl() {
   auto *in_ptr = reinterpret_cast<Point *>(task_data->inputs[0]);
   input_ = std::vector<Point>(in_ptr, in_ptr + task_data->inputs_count[0]);
@@ -17,21 +21,31 @@ bool ermolaev_v_graham_scan_seq::TestTaskSequential::ValidationImpl() {
 }
 
 bool ermolaev_v_graham_scan_seq::TestTaskSequential::RunImpl() {
-  bool has_different_x = false;
-  bool has_different_y = false;
-  for (size_t i = 1; i < input_.size(); i++) {
-    if (input_[i].x != input_[0].x) {
-      has_different_x = true;
+  if (input_.size() < 3) {
+    return false;
+  }
+
+  Point p1 = input_[0];
+  Point p2 = input_[1];
+  bool all_collinear = true;
+  bool all_same = p1 == p2;
+
+  for (size_t i = 2; i < input_.size(); i++) {
+    Point p3 = input_[i];
+    int cross = CrossProduct(p1, p2, p3);
+
+    if (cross != 0) {
+      all_collinear = false;
     }
-    if (input_[i].y != input_[0].y) {
-      has_different_y = true;
+    if (p2 != p3) {
+      all_same = false;
     }
-    if (has_different_x && has_different_y) {
+    if (!all_collinear && !all_same) {
       break;
     }
   }
 
-  if (!has_different_x && !has_different_y) {
+  if (all_collinear) {
     return false;
   }
 
@@ -44,7 +58,7 @@ bool ermolaev_v_graham_scan_seq::TestTaskSequential::RunImpl() {
 
   std::swap(input_[0], input_[base]);
   std::sort(input_.begin() + 1, input_.end(), [&](const Point &a, const Point &b) {
-    int cross = ((a.x - input_[0].x) * (b.y - input_[0].y)) - ((b.x - input_[0].x) * (a.y - input_[0].y));
+    int cross = CrossProduct(input_[0], a, b);
     if (cross == 0) {
       return std::pow(a.x - input_[0].x, 2) + std::pow(a.y - input_[0].y, 2) <
              std::pow(b.x - input_[0].x, 2) + std::pow(b.y - input_[0].y, 2);
@@ -63,7 +77,7 @@ bool ermolaev_v_graham_scan_seq::TestTaskSequential::RunImpl() {
       Point p2 = output_[output_.size() - 1];
       Point p3 = input_[i];
 
-      int cross = ((p2.x - p1.x) * (p3.y - p1.y)) - ((p3.x - p1.x) * (p2.y - p1.y));
+      int cross = CrossProduct(p1, p2, p3);
 
       if (cross > 0) {
         break;
