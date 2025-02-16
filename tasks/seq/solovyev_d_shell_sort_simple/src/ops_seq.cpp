@@ -5,7 +5,6 @@
 #include <iostream>
 #include <vector>
 
-
 bool solovyev_d_shell_sort_simple_seq::TaskSequential::PreProcessingImpl() {
   unsigned int input_size = task_data->inputs_count[0];
   auto *in_ptr = reinterpret_cast<int *>(task_data->inputs[0]);
