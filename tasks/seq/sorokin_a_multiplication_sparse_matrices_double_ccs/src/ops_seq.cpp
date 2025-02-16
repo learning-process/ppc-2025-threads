@@ -5,6 +5,7 @@
 #include <cstddef>
 #include <vector>
 
+namespace sorokin_a_multiplication_sparse_matrices_double_ccs_seq {
 void printCCS(const std::vector<double> &values, const std::vector<int> &row_indices, const std::vector<int> &col_ptr) {
   std::cout << "Values: ";
   for (double v : values) std::cout << v << " ";
@@ -51,6 +52,7 @@ void multiplyCCS(int M, int K, int N, const std::vector<double> &A_values, const
   }
   C_col_ptr[N] = C_values.size();
 }
+}  // namespace sorokin_a_multiplication_sparse_matrices_double_ccs_seq
 
 bool sorokin_a_multiplication_sparse_matrices_double_ccs_seq::TestTaskSequential::PreProcessingImpl() {
   // Init value for input and output
