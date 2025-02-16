@@ -78,8 +78,8 @@ TEST(lopatin_i_monte_carlo_seq, highDimensionalIntegration) {
 TEST(lopatin_i_monte_carlo_seq, 1DConstantFunction) {
   const int dimensions = 1;
   const int iterations = 1000000;
-  std::vector<double> bounds = lopatin_i_monte_carlo_seq::generateBounds(dimensions, 2.0, 5.0); // [2, 5]
-  const double expected = 3.0;                                                                  // 5 - 2 = 3
+  std::vector<double> bounds = lopatin_i_monte_carlo_seq::generateBounds(dimensions, 2.0, 5.0);  // [2, 5]
+  const double expected = 3.0;                                                                   // 5 - 2 = 3
 
   auto task_data = std::make_shared<ppc::core::TaskData>();
   task_data->inputs.push_back(reinterpret_cast<uint8_t*>(bounds.data()));
@@ -108,7 +108,7 @@ TEST(lopatin_i_monte_carlo_seq, 3DExponentialFunction) {
   const int iterations = 5000000;
   std::vector<double> bounds = lopatin_i_monte_carlo_seq::generateBounds(dimensions);  // [0,1]^3
   const double expected = std::pow(std::exp(1) - 1, 3);                                // = 5.073
-  
+
   auto task_data = std::make_shared<ppc::core::TaskData>();
   task_data->inputs.push_back(reinterpret_cast<uint8_t*>(bounds.data()));
   task_data->inputs_count.push_back(bounds.size());
