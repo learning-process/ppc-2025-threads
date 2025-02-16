@@ -8,6 +8,8 @@
 
 namespace lopatin_i_monte_carlo_seq {
 
+std::vector<double> generateBounds(int dimensions, double min_val, double max_val);
+
 class TestTaskSequential : public ppc::core::Task {
  public:
   using IntegrandFunction = double(const std::vector<double>&);
