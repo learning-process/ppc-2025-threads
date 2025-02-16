@@ -3,7 +3,6 @@
 #include <algorithm>
 #include <cmath>
 #include <cstdlib>
-#include <ranges>
 #include <vector>
 
 int korovin_n_qsort_batcher_seq::TestTaskSequential::GetRandomIndex(int low, int high) {
