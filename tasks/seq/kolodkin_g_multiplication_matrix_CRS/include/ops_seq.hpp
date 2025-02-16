@@ -33,6 +33,12 @@ struct SparseMatrixCRS {
       rowPtr[i]++;
     }
   }
+  SparseMatrixCRS(const SparseMatrixCRS& other)
+      : numRows(other.numRows),
+        numCols(other.numCols),
+        rowPtr(other.rowPtr),
+        colIndices(other.colIndices),
+        values(other.values) {};
   SparseMatrixCRS& operator=(const SparseMatrixCRS& A) {
     numCols = A.numCols;
     numRows = A.numRows;
