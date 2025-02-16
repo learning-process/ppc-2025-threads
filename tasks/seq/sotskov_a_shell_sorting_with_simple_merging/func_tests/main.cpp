@@ -11,7 +11,6 @@
 
 namespace sotskov_a_shell_sorting_with_simple_merging_seq {
 
-// Генерация случайного вектора
 std::vector<int> GenerateRandomVector(const RandomVectorParams &params) {
   std::random_device random_device;
   std::mt19937 generator(random_device());

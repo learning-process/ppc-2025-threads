@@ -34,6 +34,10 @@ void sotskov_a_shell_sorting_with_simple_merging_seq::ShellSortWithSimpleMerging
     }
   }
 
+  if (std::is_sorted(arr.begin(), arr.end())) {
+    return;
+  }
+
   for (std::size_t size = 1; size < array_size; size *= 2) {
     for (std::size_t left = 0; left + size < array_size; left += 2 * size) {
       std::size_t mid = left + size - 1;
@@ -46,9 +50,7 @@ void sotskov_a_shell_sorting_with_simple_merging_seq::ShellSortWithSimpleMerging
 bool sotskov_a_shell_sorting_with_simple_merging_seq::TestTaskSequential::PreProcessingImpl() {
   input_ = std::vector<int>(task_data->inputs_count[0]);
   auto* temp_ptr = reinterpret_cast<int*>(task_data->inputs[0]);
-  for (unsigned i = 0; i < task_data->inputs_count[0]; i++) {
-    input_[i] = temp_ptr[i];
-  }
+  std::ranges::copy(temp_ptr, temp_ptr + task_data->inputs_count[0], input_.begin());
 
   return true;
 }
