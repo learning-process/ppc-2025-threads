@@ -1,10 +1,10 @@
-#pragma once 
+#pragma once
 
 #include <functional>
-#include <random>
 #include <numeric>
+#include <random>
 
-#include"core/task/include/task.hpp"
+#include "core/task/include/task.hpp"
 
 namespace lopatin_i_monte_carlo_seq {
 
@@ -25,4 +25,4 @@ class TestTaskSequential : public ppc::core::Task {
   int iterations;
 };
 
-} // namespace lopatin_i_monte_carlo_seq
+}  // namespace lopatin_i_monte_carlo_seq

@@ -79,7 +79,7 @@ TEST(lopatin_i_monte_carlo_seq, 1DConstantFunction) {
   const int dimensions = 1;
   const int iterations = 1000000;
   std::vector<double> bounds = lopatin_i_monte_carlo_seq::generateBounds(dimensions, 2.0, 5.0); // [2, 5]
-  const double expected = 3.0; // 5 - 2 = 3
+  const double expected = 3.0;                                                                  // 5 - 2 = 3
 
   auto task_data = std::make_shared<ppc::core::TaskData>();
   task_data->inputs.push_back(reinterpret_cast<uint8_t*>(bounds.data()));
@@ -107,8 +107,8 @@ TEST(lopatin_i_monte_carlo_seq, 3DExponentialFunction) {
   const int dimensions = 3;
   const int iterations = 5000000;
   std::vector<double> bounds = lopatin_i_monte_carlo_seq::generateBounds(dimensions);  // [0,1]^3
-  const double expected = std::pow(std::exp(1) - 1, 3); // = 5.073
-
+  const double expected = std::pow(std::exp(1) - 1, 3);                                // = 5.073
+  
   auto task_data = std::make_shared<ppc::core::TaskData>();
   task_data->inputs.push_back(reinterpret_cast<uint8_t*>(bounds.data()));
   task_data->inputs_count.push_back(bounds.size());
@@ -118,9 +118,8 @@ TEST(lopatin_i_monte_carlo_seq, 3DExponentialFunction) {
   double result = 0.0;
   task_data->outputs.push_back(reinterpret_cast<uint8_t*>(&result));
   task_data->outputs_count.push_back(1);
-
-  lopatin_i_monte_carlo_seq::TestTaskSequential task(task_data,
-                                                   [](const std::vector<double>& x) { return std::exp(x[0] + x[1] + x[2]); });
+  lopatin_i_monte_carlo_seq::TestTaskSequential task(
+      task_data, [](const std::vector<double>& x) { return std::exp(x[0] + x[1] + x[2]); });
 
   ASSERT_TRUE(task.Validation());
   ASSERT_TRUE(task.PreProcessing());
@@ -189,7 +188,6 @@ TEST(lopatin_i_monte_carlo_seq, 3DProductFunction) {
   EXPECT_NEAR(result, expected, tolerance);
 }
 
-
 TEST(lopatin_i_monte_carlo_seq, 4DQuadraticFunction) {
   const int dimensions = 4;
   const int iterations = 5000000;  // increase for 4D
@@ -197,7 +195,7 @@ TEST(lopatin_i_monte_carlo_seq, 4DQuadraticFunction) {
 
   auto task_data = std::make_shared<ppc::core::TaskData>();
   task_data->inputs.push_back(reinterpret_cast<uint8_t*>(bounds.data()));
-  task_data->inputs_count.push_back(bounds.size());  // 8 elems (4D * 2)
+  task_data->inputs_count.push_back(bounds.size());
   task_data->inputs.push_back(reinterpret_cast<uint8_t*>(const_cast<int*>(&iterations)));
   task_data->inputs_count.push_back(1);
 
@@ -230,7 +228,7 @@ TEST(lopatin_i_monte_carlo_seq, 5DExponentialFunction) {
 
   auto task_data = std::make_shared<ppc::core::TaskData>();
   task_data->inputs.push_back(reinterpret_cast<uint8_t*>(bounds.data()));
-  task_data->inputs_count.push_back(bounds.size());  
+  task_data->inputs_count.push_back(bounds.size());
   task_data->inputs.push_back(reinterpret_cast<uint8_t*>(const_cast<int*>(&iterations)));
   task_data->inputs_count.push_back(1);
 
@@ -258,7 +256,7 @@ TEST(lopatin_i_monte_carlo_seq, 5DExponentialFunction) {
 TEST(lopatin_i_monte_carlo_seq, 2DCosineFunction) {
   const int dimensions = 2;
   const int iterations = 1000000;
-  std::vector<double> bounds = lopatin_i_monte_carlo_seq::generateBounds(dimensions, 0.0, 3.14159265358979323846/2);
+  std::vector<double> bounds = lopatin_i_monte_carlo_seq::generateBounds(dimensions, 0.0, 3.14159265358979323846 / 2);
 
   auto task_data = std::make_shared<ppc::core::TaskData>();
   task_data->inputs.push_back(reinterpret_cast<uint8_t*>(bounds.data()));
