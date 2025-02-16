@@ -1,9 +1,10 @@
+#include "seq/solovyev_d_shell_sort_simple/include/ops_seq.hpp"
+
 #include <cmath>
 #include <cstddef>
 #include <iostream>
 #include <vector>
 
-#include "seq/solovyev_d_shell_sort_simple/include/ops_seq.hpp"
 
 bool solovyev_d_shell_sort_simple_seq::TaskSequential::PreProcessingImpl() {
   unsigned int input_size = task_data->inputs_count[0];
