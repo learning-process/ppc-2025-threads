@@ -74,13 +74,13 @@ TEST(sorokin_a_multiplication_sparse_matrices_double_ccs_seq, test_1) {
   std::vector<double> R_values = {8, 14, 4, 6, 12};
   std::vector<double> R_row_indices = {1, 2, 0, 1, 2};
   std::vector<double> R_col_ptr = {0, 2, 2, 5};
-  for (int i = 0; i < R_values.size(); i++) {
+  for (size_t i = 0; i < R_values.size(); i++) {
     ASSERT_NEAR(C_values[i], R_values[i], 1e-9);
   }
-  for (int i = 0; i < R_row_indices.size(); i++) {
+  for (size_t i = 0; i < R_row_indices.size(); i++) {
     ASSERT_NEAR(C_row_indices[i], R_row_indices[i], 1e-9);
   }
-  for (int i = 0; i < R_col_ptr.size(); i++) {
+  for (size_t i = 0; i < R_col_ptr.size(); i++) {
     ASSERT_NEAR(C_col_ptr[i], R_col_ptr[i], 1e-9);
   }
 }
@@ -135,13 +135,13 @@ TEST(sorokin_a_multiplication_sparse_matrices_double_ccs_seq, test_2) {
   std::vector<double> R_values = {2.0, 4.0, 15.0};
   std::vector<double> R_row_indices = {1, 0, 1};
   std::vector<double> R_col_ptr = {0, 1};
-  for (int i = 0; i < R_values.size(); i++) {
+  for (size_t i = 0; i < R_values.size(); i++) {
     ASSERT_NEAR(C_values[i], R_values[i], 1e-9);
   }
-  for (int i = 0; i < R_row_indices.size(); i++) {
+  for (size_t i = 0; i < R_row_indices.size(); i++) {
     ASSERT_NEAR(C_row_indices[i], R_row_indices[i], 1e-9);
   }
-  for (int i = 0; i < R_col_ptr.size(); i++) {
+  for (size_t i = 0; i < R_col_ptr.size(); i++) {
     ASSERT_NEAR(C_col_ptr[i], R_col_ptr[i], 1e-9);
   }
 }
@@ -196,13 +196,13 @@ TEST(sorokin_a_multiplication_sparse_matrices_double_ccs_seq, test_3) {
   std::vector<double> R_values = {8.0, 1.0, 3.0, 10.0};
   std::vector<double> R_row_indices = {0, 1, 2, 0};
   std::vector<double> R_col_ptr = {0, 1, 3, 3, 4};
-  for (int i = 0; i < R_values.size(); i++) {
+  for (size_t i = 0; i < R_values.size(); i++) {
     ASSERT_NEAR(C_values[i], R_values[i], 1e-9);
   }
-  for (int i = 0; i < R_row_indices.size(); i++) {
+  for (size_t i = 0; i < R_row_indices.size(); i++) {
     ASSERT_NEAR(C_row_indices[i], R_row_indices[i], 1e-9);
   }
-  for (int i = 0; i < R_col_ptr.size(); i++) {
+  for (size_t i = 0; i < R_col_ptr.size(); i++) {
     ASSERT_NEAR(C_col_ptr[i], R_col_ptr[i], 1e-9);
   }
 }
