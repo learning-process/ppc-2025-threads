@@ -34,7 +34,7 @@ void sotskov_a_shell_sorting_with_simple_merging_seq::ShellSortWithSimpleMerging
     }
   }
 
-  if (std::is_sorted(arr.begin(), arr.end())) {
+  if (std::ranges::is_sorted(arr.begin(), arr.end())) {
     return;
   }
 
