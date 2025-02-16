@@ -1,32 +1,17 @@
 #include <gtest/gtest.h>
-#include <limits.h>
+#include <climits>
 
-#include <cstddef>
 #include <cstdint>
-#include <fstream>
-#include <iostream>
 #include <memory>
 #include <random>
-#include <string>
 #include <vector>
 
 #include "core/task/include/task.hpp"
-#include "core/util/include/util.hpp"
 #include "seq/solovyev_d_shell_sort_simple/include/ops_seq.hpp"
 
-namespace solovyev_d_shell_sort_simple_seq {
-std::vector<int> getRandomVector(int sz) {
-  std::random_device dev;
-  std::mt19937 gen(dev());
-  std::vector<int> vec(sz);
-  for (int i = 0; i < sz; i++) {
-    vec[i] = gen() % 100;
-  }
-  return vec;
-}
-bool isSorted(std::vector<int> data) {
+static bool IsSorted(std::vector<int> data) {
   int last = INT_MIN;
-  for (int i = 0; i < data.size(); i++) {
+  for (size_t i = 0; i < data.size(); i++) {
     if (data[i] < last) {
       return false;
     }
@@ -34,7 +19,6 @@ bool isSorted(std::vector<int> data) {
   }
   return true;
 }
-}  // namespace solovyev_d_shell_sort_simple_seq
 
 TEST(solovyev_d_shell_sort_simple_seq, sort_10) {
   // Create data
@@ -54,7 +38,7 @@ TEST(solovyev_d_shell_sort_simple_seq, sort_10) {
   task_sequential.PreProcessing();
   task_sequential.Run();
   task_sequential.PostProcessing();
-  ASSERT_TRUE(solovyev_d_shell_sort_simple_seq::isSorted(out));
+  ASSERT_TRUE(IsSorted(out));
 }
 
 TEST(solovyev_d_shell_sort_simple_seq, sort_20) {
@@ -75,7 +59,7 @@ TEST(solovyev_d_shell_sort_simple_seq, sort_20) {
   task_sequential.PreProcessing();
   task_sequential.Run();
   task_sequential.PostProcessing();
-  ASSERT_TRUE(solovyev_d_shell_sort_simple_seq::isSorted(out));
+  ASSERT_TRUE(IsSorted(out));
 }
 
 TEST(solovyev_d_shell_sort_simple_seq, sort_30) {
@@ -97,5 +81,5 @@ TEST(solovyev_d_shell_sort_simple_seq, sort_30) {
   task_sequential.PreProcessing();
   task_sequential.Run();
   task_sequential.PostProcessing();
-  ASSERT_TRUE(solovyev_d_shell_sort_simple_seq::isSorted(out));
+  ASSERT_TRUE(IsSorted(out));
 }

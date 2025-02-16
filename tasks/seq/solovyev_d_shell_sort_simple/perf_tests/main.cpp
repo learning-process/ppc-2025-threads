@@ -1,8 +1,7 @@
 #include <gtest/gtest.h>
-#include <limits.h>
+#include <climits>
 
 #include <chrono>
-#include <cstddef>
 #include <cstdint>
 #include <memory>
 #include <random>
@@ -12,19 +11,19 @@
 #include "core/task/include/task.hpp"
 #include "seq/solovyev_d_shell_sort_simple/include/ops_seq.hpp"
 
-namespace solovyev_d_shell_sort_simple_seq {
-std::vector<int> getRandomVector(int sz) {
+static std::vector<int> GetRandomVector(int sz) {
   std::random_device dev;
   std::mt19937 gen(dev());
   std::vector<int> vec(sz);
   for (int i = 0; i < sz; i++) {
-    vec[i] = gen() % 100;
+    vec[i] = (int)(gen() % 100);
   }
   return vec;
 }
-bool isSorted(std::vector<int> data) {
+
+static bool IsSorted(std::vector<int> data) {
   int last = INT_MIN;
-  for (int i = 0; i < data.size(); i++) {
+  for (size_t i = 0; i < data.size(); i++) {
     if (data[i] < last) {
       return false;
     }
@@ -32,13 +31,12 @@ bool isSorted(std::vector<int> data) {
   }
   return true;
 }
-}  // namespace solovyev_d_shell_sort_simple_seq
 
 TEST(solovyev_d_shell_sort_simple_seq, test_pipeline_run) {
   constexpr int kCount = 500000;
 
   // Create data
-  std::vector<int> in = solovyev_d_shell_sort_simple_seq::getRandomVector(kCount);
+  std::vector<int> in = GetRandomVector(kCount);
   std::vector<int> out(in.size(), 0);
 
   // Create task_data
@@ -68,14 +66,14 @@ TEST(solovyev_d_shell_sort_simple_seq, test_pipeline_run) {
   auto perf_analyzer = std::make_shared<ppc::core::Perf>(task_sequential);
   perf_analyzer->PipelineRun(perf_attr, perf_results);
   ppc::core::Perf::PrintPerfStatistic(perf_results);
-  ASSERT_TRUE(solovyev_d_shell_sort_simple_seq::isSorted(out));
+  ASSERT_TRUE(IsSorted(out));
 }
 
 TEST(solovyev_d_shell_sort_simple_seq, test_task_run) {
   constexpr int kCount = 500000;
 
   // Create data
-  std::vector<int> in = solovyev_d_shell_sort_simple_seq::getRandomVector(kCount);
+  std::vector<int> in = GetRandomVector(kCount);
   std::vector<int> out(in.size(), 0);
 
   // Create task_data
@@ -105,5 +103,5 @@ TEST(solovyev_d_shell_sort_simple_seq, test_task_run) {
   auto perf_analyzer = std::make_shared<ppc::core::Perf>(task_sequential);
   perf_analyzer->TaskRun(perf_attr, perf_results);
   ppc::core::Perf::PrintPerfStatistic(perf_results);
-  ASSERT_TRUE(solovyev_d_shell_sort_simple_seq::isSorted(out));
+  ASSERT_TRUE(IsSorted(out));
 }
