@@ -43,7 +43,6 @@ TEST(lopatin_i_monte_carlo_seq, validationMissingOutputData) {
   task_data->inputs.push_back(reinterpret_cast<uint8_t*>(const_cast<int*>(&iterations)));
   task_data->inputs_count.push_back(1);
 
-  // Нет выходных данных
   lopatin_i_monte_carlo_seq::TestTaskSequential task(task_data, [](const std::vector<double>&) { return 1.0; });
   ASSERT_FALSE(task.Validation());
 }
