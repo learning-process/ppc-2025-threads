@@ -17,7 +17,7 @@ struct SparseMatrixCRS {
   std::vector<int> rowPtr;
   int numRows;
   int numCols;
-  SparseMatrixCRS() : numRows(0), numCols(0){};
+  SparseMatrixCRS() : numRows(0), numCols(0) {};
   SparseMatrixCRS(int rows, int cols) : numRows(rows), numCols(cols) { rowPtr.resize(rows + 1, 0); }
 
   void addValue(int row, int col, Complex value) {
