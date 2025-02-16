@@ -100,7 +100,7 @@ TEST(lopatin_i_monte_carlo_seq, 1DConstantFunction) {
   ASSERT_TRUE(task.Run());
   ASSERT_TRUE(task.PostProcessing());
 
-  EXPECT_NEAR(result, expected, 0.01 * expected);  //error 1%
+  EXPECT_NEAR(result, expected, 0.01 * expected);  // error 1%
 }
 
 TEST(lopatin_i_monte_carlo_seq, 3DExponentialFunction) {
