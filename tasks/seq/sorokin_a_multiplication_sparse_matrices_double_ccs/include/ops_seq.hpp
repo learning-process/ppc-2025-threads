@@ -8,7 +8,6 @@
 
 namespace sorokin_a_multiplication_sparse_matrices_double_ccs_seq {
 
-// Объявление функции printCCS
 void printCCS(const std::vector<double> &values, const std::vector<int> &row_indices, const std::vector<int> &col_ptr);
 
 void multiplyCCS(int M, int K, int N, const std::vector<double> &A_values, const std::vector<int> &A_row_indices,
