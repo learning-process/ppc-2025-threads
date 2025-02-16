@@ -17,28 +17,28 @@ class TestTaskSequential : public ppc::core::Task {
   bool PostProcessingImpl() override;
 
  private:
-  std::vector<double> f_values;
-  Function f;
-  std::vector<double> lower_limits;
-  std::vector<double> upper_limits;
-  double epsilon;
-  int start_n;
-  double result;
+  std::vector<double> f_values_;
+  Function f_;
+  std::vector<double> lower_limits_;
+  std::vector<double> upper_limits_;
+  double epsilon_;
+  int start_n_;
+  double result_;
 
-  size_t dim;
-  size_t sz_values;
-  size_t sz_lower_limits;
-  size_t sz_upper_limits;
+  size_t dim_;
+  size_t sz_values_;
+  size_t sz_lower_limits_;
+  size_t sz_upper_limits_;
 
-  double integrate(const Function& f_, const std::vector<double>& l_limits, const std::vector<double>& u_limits,
-                   const std::vector<double>& h, std::vector<double>& f_values_, size_t curr_index_dim, size_t dim_,
+  double Integrate(const Function& f, const std::vector<double>& l_limits, const std::vector<double>& u_limits,
+                   const std::vector<double>& h, std::vector<double>& f_values, size_t curr_index_dim, size_t dim,
                    size_t n);
-  double integrate_with_rectangle_method(const Function& f_, std::vector<double>& f_values_,
+  double IntegrateWithRectangleMethod(const Function& f, std::vector<double>& f_values,
                                          const std::vector<double>& l_limits, const std::vector<double>& u_limits,
-                                         size_t dim_, size_t n);
-  double run_multistep_scheme_method_rectangle(const Function& f_, std::vector<double>& f_values_,
+                                         size_t dim, size_t n);
+  double RunMultistepSchemeMethodRectangle(const Function& f, std::vector<double>& f_values,
                                                const std::vector<double>& l_limits, const std::vector<double>& u_limits,
-                                               size_t dim_, double epsilon_, int n);
+                                               size_t dim, double epsilon_, int n);
 };
 
 }  // namespace kholin_k_multidimensional_integrals_rectangle_seq

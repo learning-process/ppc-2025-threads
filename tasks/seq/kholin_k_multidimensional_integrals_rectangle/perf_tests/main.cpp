@@ -22,7 +22,7 @@ TEST(kholin_k_multidimensional_integrals_rectangle_seq, test_pipeline_run) {
   std::vector<double> in_upper_limits{8, 8, 2};
   double epsilon = 0.1;
   int n = 1;
-  std::vector<double> out_I(1, 0.0);
+  std::vector<double> out_i(1, 0.0);
 
   auto *f_object = new std::function<double(const std::vector<double> &)>(f);
 
@@ -76,7 +76,7 @@ TEST(kholin_k_multidimensional_integrals_rectangle_seq, test_task_run) {
   std::vector<double> in_upper_limits{8, 8, 2};
   double epsilon = 0.1;
   int n = 1;
-  std::vector<double> out_I(1, 0.0);
+  std::vector<double> out_i(1, 0.0);
 
   auto *f_object = new std::function<double(const std::vector<double> &)>(f);
 

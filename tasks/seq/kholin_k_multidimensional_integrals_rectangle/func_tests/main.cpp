@@ -2,13 +2,10 @@
 
 #include <cstddef>
 #include <cstdint>
-#include <fstream>
 #include <memory>
-#include <string>
 #include <vector>
 
 #include "core/task/include/task.hpp"
-#include "core/util/include/util.hpp"
 #include "seq/kholin_k_multidimensional_integrals_rectangle/include/ops_seq.hpp"
 
 TEST(kholin_k_multidimensional_integrals_rectangle_seq, test_validation) {
@@ -20,7 +17,7 @@ TEST(kholin_k_multidimensional_integrals_rectangle_seq, test_validation) {
   std::vector<double> in_upper_limits{1};
   double epsilon = 0.001;
   int n = 10;
-  std::vector<double> out_I(1, 0.0);
+  std::vector<double> out_i(1, 0.0);
 
   auto *f_object = new std::function<double(const std::vector<double> &)>(f);
 
@@ -36,8 +33,8 @@ TEST(kholin_k_multidimensional_integrals_rectangle_seq, test_validation) {
   task_data_seq->inputs_count.emplace_back(values.size());
   task_data_seq->inputs_count.emplace_back(in_lower_limits.size());
   task_data_seq->inputs_count.emplace_back(in_upper_limits.size());
-  task_data_seq->outputs.emplace_back(reinterpret_cast<uint8_t *>(out_I.data()));
-  task_data_seq->outputs_count.emplace_back(out_I.size());
+  task_data_seq->outputs.emplace_back(reinterpret_cast<uint8_t *>(out_i.data()));
+  task_data_seq->outputs_count.emplace_back(out_i.size());
 
   // Create Task
   kholin_k_multidimensional_integrals_rectangle_seq::TestTaskSequential test_task_sequential(task_data_seq);
@@ -54,7 +51,7 @@ TEST(kholin_k_multidimensional_integrals_rectangle_seq, test_pre_processing) {
   std::vector<double> in_upper_limits{1};
   double epsilon = 0.001;
   int n = 10;
-  std::vector<double> out_I(1, 0.0);
+  std::vector<double> out_i(1, 0.0);
 
   auto *f_object = new std::function<double(const std::vector<double> &)>(f);
 
@@ -70,8 +67,8 @@ TEST(kholin_k_multidimensional_integrals_rectangle_seq, test_pre_processing) {
   task_data_seq->inputs_count.emplace_back(values.size());
   task_data_seq->inputs_count.emplace_back(in_lower_limits.size());
   task_data_seq->inputs_count.emplace_back(in_upper_limits.size());
-  task_data_seq->outputs.emplace_back(reinterpret_cast<uint8_t *>(out_I.data()));
-  task_data_seq->outputs_count.emplace_back(out_I.size());
+  task_data_seq->outputs.emplace_back(reinterpret_cast<uint8_t *>(out_i.data()));
+  task_data_seq->outputs_count.emplace_back(out_i.size());
 
   // Create Task
   kholin_k_multidimensional_integrals_rectangle_seq::TestTaskSequential test_task_sequential(task_data_seq);
@@ -89,7 +86,7 @@ TEST(kholin_k_multidimensional_integrals_rectangle_seq, test_run) {
   std::vector<double> in_upper_limits{1};
   double epsilon = 0.001;
   int n = 10;
-  std::vector<double> out_I(1, 0.0);
+  std::vector<double> out_i(1, 0.0);
 
   auto *f_object = new std::function<double(const std::vector<double> &)>(f);
 
@@ -105,8 +102,8 @@ TEST(kholin_k_multidimensional_integrals_rectangle_seq, test_run) {
   task_data_seq->inputs_count.emplace_back(values.size());
   task_data_seq->inputs_count.emplace_back(in_lower_limits.size());
   task_data_seq->inputs_count.emplace_back(in_upper_limits.size());
-  task_data_seq->outputs.emplace_back(reinterpret_cast<uint8_t *>(out_I.data()));
-  task_data_seq->outputs_count.emplace_back(out_I.size());
+  task_data_seq->outputs.emplace_back(reinterpret_cast<uint8_t *>(out_i.data()));
+  task_data_seq->outputs_count.emplace_back(out_i.size());
 
   // Create Task
   kholin_k_multidimensional_integrals_rectangle_seq::TestTaskSequential test_task_sequential(task_data_seq);
@@ -125,7 +122,7 @@ TEST(kholin_k_multidimensional_integrals_rectangle_seq, test_post_processing) {
   std::vector<double> in_upper_limits{1};
   double epsilon = 0.001;
   int n = 10;
-  std::vector<double> out_I(1, 0.0);
+  std::vector<double> out_i(1, 0.0);
 
   auto *f_object = new std::function<double(const std::vector<double> &)>(f);
 
@@ -141,8 +138,8 @@ TEST(kholin_k_multidimensional_integrals_rectangle_seq, test_post_processing) {
   task_data_seq->inputs_count.emplace_back(values.size());
   task_data_seq->inputs_count.emplace_back(in_lower_limits.size());
   task_data_seq->inputs_count.emplace_back(in_upper_limits.size());
-  task_data_seq->outputs.emplace_back(reinterpret_cast<uint8_t *>(out_I.data()));
-  task_data_seq->outputs_count.emplace_back(out_I.size());
+  task_data_seq->outputs.emplace_back(reinterpret_cast<uint8_t *>(out_i.data()));
+  task_data_seq->outputs_count.emplace_back(out_i.size());
 
   // Create Task
   kholin_k_multidimensional_integrals_rectangle_seq::TestTaskSequential test_task_sequential(task_data_seq);
@@ -162,7 +159,7 @@ TEST(kholin_k_multidimensional_integrals_rectangle_seq, single_integral_one_var)
   std::vector<double> in_upper_limits{1};
   double epsilon = 1e-2;
   int n = 20;
-  std::vector<double> out_I(1, 0.0);
+  std::vector<double> out_i(1, 0.0);
 
   auto *f_object = new std::function<double(const std::vector<double> &)>(f);
 
@@ -178,8 +175,8 @@ TEST(kholin_k_multidimensional_integrals_rectangle_seq, single_integral_one_var)
   task_data_seq->inputs_count.emplace_back(values.size());
   task_data_seq->inputs_count.emplace_back(in_lower_limits.size());
   task_data_seq->inputs_count.emplace_back(in_upper_limits.size());
-  task_data_seq->outputs.emplace_back(reinterpret_cast<uint8_t *>(out_I.data()));
-  task_data_seq->outputs_count.emplace_back(out_I.size());
+  task_data_seq->outputs.emplace_back(reinterpret_cast<uint8_t *>(out_i.data()));
+  task_data_seq->outputs_count.emplace_back(out_i.size());
 
   // Create Task
   kholin_k_multidimensional_integrals_rectangle_seq::TestTaskSequential test_task_sequential(task_data_seq);
@@ -188,8 +185,8 @@ TEST(kholin_k_multidimensional_integrals_rectangle_seq, single_integral_one_var)
   ASSERT_EQ(test_task_sequential.Run(), true);
   ASSERT_EQ(test_task_sequential.PostProcessing(), true);
 
-  double ref_I = 0.46;
-  ASSERT_NEAR(ref_I, out_I[0], epsilon);
+  double ref_i = 0.46;
+  ASSERT_NEAR(ref_i, out_i[0], epsilon);
   delete f_object;
 }
 
@@ -202,7 +199,7 @@ TEST(kholin_k_multidimensional_integrals_rectangle_seq, single_integral_two_var)
   std::vector<double> in_upper_limits{5};
   double epsilon = 1e-1;
   int n = 40;
-  std::vector<double> out_I(1, 0.0);
+  std::vector<double> out_i(1, 0.0);
 
   auto *f_object = new std::function<double(const std::vector<double> &)>(f);
 
@@ -218,8 +215,8 @@ TEST(kholin_k_multidimensional_integrals_rectangle_seq, single_integral_two_var)
   task_data_seq->inputs_count.emplace_back(values.size());
   task_data_seq->inputs_count.emplace_back(in_lower_limits.size());
   task_data_seq->inputs_count.emplace_back(in_upper_limits.size());
-  task_data_seq->outputs.emplace_back(reinterpret_cast<uint8_t *>(out_I.data()));
-  task_data_seq->outputs_count.emplace_back(out_I.size());
+  task_data_seq->outputs.emplace_back(reinterpret_cast<uint8_t *>(out_i.data()));
+  task_data_seq->outputs_count.emplace_back(out_i.size());
 
   // Create Task
   kholin_k_multidimensional_integrals_rectangle_seq::TestTaskSequential test_task_sequential(task_data_seq);
@@ -228,8 +225,8 @@ TEST(kholin_k_multidimensional_integrals_rectangle_seq, single_integral_two_var)
   ASSERT_EQ(test_task_sequential.Run(), true);
   ASSERT_EQ(test_task_sequential.PostProcessing(), true);
 
-  double ref_I = 54.4;
-  ASSERT_NEAR(ref_I, out_I[0], epsilon);
+  double ref_i = 54.4;
+  ASSERT_NEAR(ref_i, out_i[0], epsilon);
   delete f_object;
 }
 
@@ -242,7 +239,7 @@ TEST(kholin_k_multidimensional_integrals_rectangle_seq, double_integral_two_var)
   std::vector<double> in_upper_limits{10, 4};
   double epsilon = 1e-3;
   int n = 47;
-  std::vector<double> out_I(1, 0.0);
+  std::vector<double> out_i(1, 0.0);
 
   auto *f_object = new std::function<double(const std::vector<double> &)>(f);
 
@@ -258,8 +255,8 @@ TEST(kholin_k_multidimensional_integrals_rectangle_seq, double_integral_two_var)
   task_data_seq->inputs_count.emplace_back(values.size());
   task_data_seq->inputs_count.emplace_back(in_lower_limits.size());
   task_data_seq->inputs_count.emplace_back(in_upper_limits.size());
-  task_data_seq->outputs.emplace_back(reinterpret_cast<uint8_t *>(out_I.data()));
-  task_data_seq->outputs_count.emplace_back(out_I.size());
+  task_data_seq->outputs.emplace_back(reinterpret_cast<uint8_t *>(out_i.data()));
+  task_data_seq->outputs_count.emplace_back(out_i.size());
 
   // Create Task
   kholin_k_multidimensional_integrals_rectangle_seq::TestTaskSequential test_task_sequential(task_data_seq);
@@ -268,8 +265,8 @@ TEST(kholin_k_multidimensional_integrals_rectangle_seq, double_integral_two_var)
   ASSERT_EQ(test_task_sequential.Run(), true);
   ASSERT_EQ(test_task_sequential.PostProcessing(), true);
 
-  double ref_I = 913.333;
-  ASSERT_NEAR(ref_I, out_I[0], epsilon);
+  double ref_i = 913.333;
+  ASSERT_NEAR(ref_i, out_i[0], epsilon);
   delete f_object;
 }
 
@@ -282,7 +279,7 @@ TEST(kholin_k_multidimensional_integrals_rectangle_seq, double_integral_one_var)
   std::vector<double> in_upper_limits{10, 4};
   double epsilon = 1e-1;
   int n = 7;
-  std::vector<double> out_I(1, 0.0);
+  std::vector<double> out_i(1, 0.0);
 
   auto *f_object = new std::function<double(const std::vector<double> &)>(f);
 
@@ -298,8 +295,8 @@ TEST(kholin_k_multidimensional_integrals_rectangle_seq, double_integral_one_var)
   task_data_seq->inputs_count.emplace_back(values.size());
   task_data_seq->inputs_count.emplace_back(in_lower_limits.size());
   task_data_seq->inputs_count.emplace_back(in_upper_limits.size());
-  task_data_seq->outputs.emplace_back(reinterpret_cast<uint8_t *>(out_I.data()));
-  task_data_seq->outputs_count.emplace_back(out_I.size());
+  task_data_seq->outputs.emplace_back(reinterpret_cast<uint8_t *>(out_i.data()));
+  task_data_seq->outputs_count.emplace_back(out_i.size());
 
   // Create Task
   kholin_k_multidimensional_integrals_rectangle_seq::TestTaskSequential test_task_sequential(task_data_seq);
@@ -308,8 +305,8 @@ TEST(kholin_k_multidimensional_integrals_rectangle_seq, double_integral_one_var)
   ASSERT_EQ(test_task_sequential.Run(), true);
   ASSERT_EQ(test_task_sequential.PostProcessing(), true);
 
-  double ref_I = 6026.7;
-  ASSERT_NEAR(ref_I, out_I[0], epsilon);
+  double ref_i = 6026.7;
+  ASSERT_NEAR(ref_i, out_i[0], epsilon);
   delete f_object;
 }
 
@@ -322,7 +319,7 @@ TEST(kholin_k_multidimensional_integrals_rectangle_seq, triple_integral_three_va
   std::vector<double> in_upper_limits{4, 13, 8};
   double epsilon = 1e-2;
   int n = 16;
-  std::vector<double> out_I(1, 0.0);
+  std::vector<double> out_i(1, 0.0);
 
   auto *f_object = new std::function<double(const std::vector<double> &)>(f);
 
@@ -338,8 +335,8 @@ TEST(kholin_k_multidimensional_integrals_rectangle_seq, triple_integral_three_va
   task_data_seq->inputs_count.emplace_back(values.size());
   task_data_seq->inputs_count.emplace_back(in_lower_limits.size());
   task_data_seq->inputs_count.emplace_back(in_upper_limits.size());
-  task_data_seq->outputs.emplace_back(reinterpret_cast<uint8_t *>(out_I.data()));
-  task_data_seq->outputs_count.emplace_back(out_I.size());
+  task_data_seq->outputs.emplace_back(reinterpret_cast<uint8_t *>(out_i.data()));
+  task_data_seq->outputs_count.emplace_back(out_i.size());
 
   // Create Task
   kholin_k_multidimensional_integrals_rectangle_seq::TestTaskSequential test_task_sequential(task_data_seq);
@@ -348,8 +345,8 @@ TEST(kholin_k_multidimensional_integrals_rectangle_seq, triple_integral_three_va
   ASSERT_EQ(test_task_sequential.Run(), true);
   ASSERT_EQ(test_task_sequential.PostProcessing(), true);
 
-  double ref_I = 952;
-  ASSERT_NEAR(ref_I, out_I[0], epsilon);
+  double ref_i = 952;
+  ASSERT_NEAR(ref_i, out_i[0], epsilon);
   delete f_object;
 }
 
@@ -362,7 +359,7 @@ TEST(kholin_k_multidimensional_integrals_rectangle_seq, triple_integral_two_var)
   std::vector<double> in_upper_limits{12, 20, 2};
   double epsilon = 1e-2;
   int n = 39;
-  std::vector<double> out_I(1, 0.0);
+  std::vector<double> out_i(1, 0.0);
 
   auto *f_object = new std::function<double(const std::vector<double> &)>(f);
 
@@ -378,8 +375,8 @@ TEST(kholin_k_multidimensional_integrals_rectangle_seq, triple_integral_two_var)
   task_data_seq->inputs_count.emplace_back(values.size());
   task_data_seq->inputs_count.emplace_back(in_lower_limits.size());
   task_data_seq->inputs_count.emplace_back(in_upper_limits.size());
-  task_data_seq->outputs.emplace_back(reinterpret_cast<uint8_t *>(out_I.data()));
-  task_data_seq->outputs_count.emplace_back(out_I.size());
+  task_data_seq->outputs.emplace_back(reinterpret_cast<uint8_t *>(out_i.data()));
+  task_data_seq->outputs_count.emplace_back(out_i.size());
 
   // Create Task
   kholin_k_multidimensional_integrals_rectangle_seq::TestTaskSequential test_task_sequential(task_data_seq);
@@ -388,8 +385,8 @@ TEST(kholin_k_multidimensional_integrals_rectangle_seq, triple_integral_two_var)
   ASSERT_EQ(test_task_sequential.Run(), true);
   ASSERT_EQ(test_task_sequential.PostProcessing(), true);
 
-  double ref_I = 9450;
-  ASSERT_NEAR(ref_I, out_I[0], epsilon);
+  double ref_i = 9450;
+  ASSERT_NEAR(ref_i, out_i[0], epsilon);
   delete f_object;
 }
 
@@ -402,7 +399,7 @@ TEST(kholin_k_multidimensional_integrals_rectangle_seq, triple_integral_one_var)
   std::vector<double> in_upper_limits{12, 20, 2};
   double epsilon = 1e-2;
   int n = 65;
-  std::vector<double> out_I(1, 0.0);
+  std::vector<double> out_i(1, 0.0);
 
   auto *f_object = new std::function<double(const std::vector<double> &)>(f);
 
@@ -418,8 +415,8 @@ TEST(kholin_k_multidimensional_integrals_rectangle_seq, triple_integral_one_var)
   task_data_seq->inputs_count.emplace_back(values.size());
   task_data_seq->inputs_count.emplace_back(in_lower_limits.size());
   task_data_seq->inputs_count.emplace_back(in_upper_limits.size());
-  task_data_seq->outputs.emplace_back(reinterpret_cast<uint8_t *>(out_I.data()));
-  task_data_seq->outputs_count.emplace_back(out_I.size());
+  task_data_seq->outputs.emplace_back(reinterpret_cast<uint8_t *>(out_i.data()));
+  task_data_seq->outputs_count.emplace_back(out_i.size());
 
   // Create Task
   kholin_k_multidimensional_integrals_rectangle_seq::TestTaskSequential test_task_sequential(task_data_seq);
@@ -428,7 +425,7 @@ TEST(kholin_k_multidimensional_integrals_rectangle_seq, triple_integral_one_var)
   ASSERT_EQ(test_task_sequential.Run(), true);
   ASSERT_EQ(test_task_sequential.PostProcessing(), true);
 
-  double ref_I = 900;
-  ASSERT_NEAR(ref_I, out_I[0], epsilon);
+  double ref_i = 900;
+  ASSERT_NEAR(ref_i, out_i[0], epsilon);
   delete f_object;
 }
