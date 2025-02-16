@@ -1,15 +1,16 @@
 #include <gtest/gtest.h>
 
 #include <climits>
+#include <cstddef>
 #include <cstdint>
 #include <memory>
-#include <random>
 #include <vector>
 
 #include "core/task/include/task.hpp"
 #include "seq/solovyev_d_shell_sort_simple/include/ops_seq.hpp"
 
-static bool IsSorted(std::vector<int> data) {
+namespace {
+bool IsSorted(std::vector<int> data) {
   int last = INT_MIN;
   for (size_t i = 0; i < data.size(); i++) {
     if (data[i] < last) {
@@ -19,6 +20,7 @@ static bool IsSorted(std::vector<int> data) {
   }
   return true;
 }
+}  // namespace
 
 TEST(solovyev_d_shell_sort_simple_seq, sort_10) {
   // Create data

@@ -2,6 +2,7 @@
 
 #include <chrono>
 #include <climits>
+#include <cstddef>
 #include <cstdint>
 #include <memory>
 #include <random>
@@ -11,7 +12,8 @@
 #include "core/task/include/task.hpp"
 #include "seq/solovyev_d_shell_sort_simple/include/ops_seq.hpp"
 
-static std::vector<int> GetRandomVector(int sz) {
+namespace {
+std::vector<int> GetRandomVector(int sz) {
   std::random_device dev;
   std::mt19937 gen(dev());
   std::vector<int> vec(sz);
@@ -21,7 +23,7 @@ static std::vector<int> GetRandomVector(int sz) {
   return vec;
 }
 
-static bool IsSorted(std::vector<int> data) {
+bool IsSorted(std::vector<int> data) {
   int last = INT_MIN;
   for (size_t i = 0; i < data.size(); i++) {
     if (data[i] < last) {
@@ -31,7 +33,7 @@ static bool IsSorted(std::vector<int> data) {
   }
   return true;
 }
-
+}  // namespace
 TEST(solovyev_d_shell_sort_simple_seq, test_pipeline_run) {
   constexpr int kCount = 500000;
 
