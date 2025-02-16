@@ -4,6 +4,7 @@
 #include <cstdint>
 #include <cstdlib>
 #include <memory>
+#include <ranges>
 #include <vector>
 
 #include "core/task/include/task.hpp"
@@ -29,7 +30,7 @@ TEST(korovin_n_qsort_batcher_seq, test_unsort) {
   // Create data
   std::vector<int> in = {11, 5, 1, 42, 3, 8, 7, 25, 6};
   std::vector<int> expected(in);
-  std::sort(expected.begin(), expected.end());
+  std::ranges::sort(expected);
   std::vector<int> out(in.size());
 
   // Create task_data
@@ -52,7 +53,7 @@ TEST(korovin_n_qsort_batcher_seq, test_empty_sort) {
   // Create data
   std::vector<int> in = {};
   std::vector<int> expected(in);
-  std::sort(expected.begin(), expected.end());
+  std::ranges::sort(expected);
   std::vector<int> out(in.size());
 
   // Create task_data
@@ -75,7 +76,7 @@ TEST(korovin_n_qsort_batcher_seq, test_one_el_sort) {
   // Create data
   std::vector<int> in = {42};
   std::vector<int> expected(in);
-  std::sort(expected.begin(), expected.end());
+  std::ranges::sort(expected);
   std::vector<int> out(in.size());
 
   // Create task_data
@@ -98,7 +99,7 @@ TEST(korovin_n_qsort_batcher_seq, test_already_sort) {
   // Create data
   std::vector<int> in = {1, 2, 3, 4, 5, 6};
   std::vector<int> expected(in);
-  std::sort(expected.begin(), expected.end());
+  std::ranges::sort(expected);
   std::vector<int> out(in.size());
 
   // Create task_data
@@ -124,7 +125,7 @@ TEST(korovin_n_qsort_batcher_seq, test_random_sort) {
 
   std::vector<int> in = GenerateRndVector(param);
   std::vector<int> expected(in);
-  std::sort(expected.begin(), expected.end());
+  std::ranges::sort(expected);
   std::vector<int> out(in.size());
 
   // Create task_data
