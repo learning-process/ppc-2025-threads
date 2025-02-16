@@ -67,6 +67,6 @@ bool zaitsev_a_labeling::Labeler::RunImpl() {
 
 bool zaitsev_a_labeling::Labeler::PostProcessingImpl() {
   auto* out_ptr = reinterpret_cast<int*>(task_data->outputs[0]);
-  std::copy(labels_.begin(), labels_.end(), out_ptr);
+  std::ranges::copy(labels_, out_ptr);
   return true;
 }
