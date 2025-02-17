@@ -1,11 +1,8 @@
 #include <gtest/gtest.h>
 
-#include <algorithm>
 #include <chrono>
-#include <cstddef>
 #include <cstdint>
 #include <memory>
-#include <random>
 #include <vector>
 
 #include "core/perf/include/perf.hpp"
@@ -13,28 +10,30 @@
 #include "seq/kolodkin_g_multiplication_matrix_CRS/include/ops_seq.hpp"
 
 TEST(kolodkin_g_multiplication_matrix__task_seq, test_pipeline_run) {
-  kolodkin_g_multiplication_matrix_seq::SparseMatrixCRS A(400, 400);
-  kolodkin_g_multiplication_matrix_seq::SparseMatrixCRS B(400, 400);
-  std::vector<Complex> in, in_a, in_b;
-  std::vector<Complex> out(A.numCols * B.numRows * 100, 0);
+  kolodkin_g_multiplication_matrix_seq::SparseMatrixCRS a(400, 400);
+  kolodkin_g_multiplication_matrix_seq::SparseMatrixCRS b(400, 400);
+  std::vector<Complex> in;
+  std::vector<Complex> in_a;
+  std::vector<Complex> in_b;
+  std::vector<Complex> out(a.numCols * b.numRows * 100, 0);
 
   for (unsigned int i = 0; i < 150; i++) {
     for (unsigned int j = 0; j < 150; j++) {
-      A.addValue(i, j, Complex(-100 + rand() % 100, -100 + rand() % 100));
+      a.AddValue((int)i, (int)j, Complex(-100 + (rand() % 100), -100 + (rand() % 100)));
     }
   }
   for (unsigned int i = 50; i < 140; i++) {
     for (unsigned int j = 50; j < 150; j++) {
-      B.addValue(i, j, Complex(-100 + rand() % 100, -100 + rand() % 100));
+      b.AddValue((int)i, (int)j, Complex(-100 + (rand() % 100), -100 + (rand() % 100)));
     }
   }
-  in_a = kolodkin_g_multiplication_matrix_seq::parse_matrix_into_vec(A);
-  in_b = kolodkin_g_multiplication_matrix_seq::parse_matrix_into_vec(B);
+  in_a = kolodkin_g_multiplication_matrix_seq::ParseMatrixIntoVec(a);
+  in_b = kolodkin_g_multiplication_matrix_seq::ParseMatrixIntoVec(b);
   for (unsigned int i = 0; i < in_a.size(); i++) {
-    in.push_back(in_a[i]);
+    in.emplace_back(in_a[i]);
   }
   for (unsigned int i = 0; i < in_b.size(); i++) {
-    in.push_back(in_b[i]);
+    in.emplace_back(in_b[i]);
   }
 
   // Create task_data
@@ -65,32 +64,34 @@ TEST(kolodkin_g_multiplication_matrix__task_seq, test_pipeline_run) {
   perf_analyzer->PipelineRun(perf_attr, perf_results);
   ppc::core::Perf::PrintPerfStatistic(perf_results);
   kolodkin_g_multiplication_matrix_seq::SparseMatrixCRS res =
-      kolodkin_g_multiplication_matrix_seq::parse_vector_into_matrix(out);
+      kolodkin_g_multiplication_matrix_seq::ParseVectorIntoMatrix(out);
 }
 
 TEST(kolodkin_g_multiplication_matrix__task_seq, test_task_run) {
-  kolodkin_g_multiplication_matrix_seq::SparseMatrixCRS A(400, 400);
-  kolodkin_g_multiplication_matrix_seq::SparseMatrixCRS B(400, 400);
-  std::vector<Complex> in, in_a, in_b;
-  std::vector<Complex> out(A.numCols * B.numRows * 100, 0);
+  kolodkin_g_multiplication_matrix_seq::SparseMatrixCRS a(400, 400);
+  kolodkin_g_multiplication_matrix_seq::SparseMatrixCRS b(400, 400);
+  std::vector<Complex> in;
+  std::vector<Complex> in_a;
+  std::vector<Complex> in_b;
+  std::vector<Complex> out(a.numCols * b.numRows * 100, 0);
 
   for (unsigned int i = 0; i < 150; i++) {
     for (unsigned int j = 0; j < 150; j++) {
-      A.addValue(i, j, Complex(-100 + rand() % 100, -100 + rand() % 100));
+      a.AddValue((int)i, (int)j, Complex(-100 + (rand() % 100), -100 + (rand() % 100)));
     }
   }
   for (unsigned int i = 50; i < 140; i++) {
     for (unsigned int j = 50; j < 150; j++) {
-      B.addValue(i, j, Complex(-100 + rand() % 100, -100 + rand() % 100));
+      b.AddValue((int)i, (int)j, Complex(-100 + (rand() % 100), -100 + (rand() % 100)));
     }
   }
-  in_a = kolodkin_g_multiplication_matrix_seq::parse_matrix_into_vec(A);
-  in_b = kolodkin_g_multiplication_matrix_seq::parse_matrix_into_vec(B);
+  in_a = kolodkin_g_multiplication_matrix_seq::ParseMatrixIntoVec(a);
+  in_b = kolodkin_g_multiplication_matrix_seq::ParseMatrixIntoVec(b);
   for (unsigned int i = 0; i < in_a.size(); i++) {
-    in.push_back(in_a[i]);
+    in.emplace_back(in_a[i]);
   }
   for (unsigned int i = 0; i < in_b.size(); i++) {
-    in.push_back(in_b[i]);
+    in.emplace_back(in_b[i]);
   }
 
   // Create task_data
@@ -121,5 +122,5 @@ TEST(kolodkin_g_multiplication_matrix__task_seq, test_task_run) {
   perf_analyzer->TaskRun(perf_attr, perf_results);
   ppc::core::Perf::PrintPerfStatistic(perf_results);
   kolodkin_g_multiplication_matrix_seq::SparseMatrixCRS res =
-      kolodkin_g_multiplication_matrix_seq::parse_vector_into_matrix(out);
+      kolodkin_g_multiplication_matrix_seq::ParseVectorIntoMatrix(out);
 }
