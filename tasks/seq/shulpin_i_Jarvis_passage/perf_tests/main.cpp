@@ -34,7 +34,7 @@ TEST(shulpin_i_jarvis_seq, test_pipeline_run) {
   size_t num_points = 10000;
 
   std::vector<shulpin_i_jarvis_seq::Point> input =
-      shulpin_i_jarvis_seq::GeneratePointsInCircle(center,num_points, radius);
+      shulpin_i_jarvis_seq::GeneratePointsInCircle(center, num_points, radius);
 
   std::vector<shulpin_i_jarvis_seq::Point> out(input.size());
   std::vector<shulpin_i_jarvis_seq::Point> expected = input;

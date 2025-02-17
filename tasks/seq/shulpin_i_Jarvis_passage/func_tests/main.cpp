@@ -16,7 +16,7 @@ static std::vector<shulpin_i_jarvis_seq::Point> GeneratePointsInCircle(const shu
   std::vector<shulpin_i_jarvis_seq::Point> points;
 
   for (size_t i = 0; i < num_points; ++i) {
-    double angle = 2.0 * std::numbers::pi * static_cast<double>(i) / static_cast<double> (num_points);
+    double angle = 2.0 * std::numbers::pi * static_cast<double>(i) / static_cast<double>(num_points);
     double x = center.x + (radius * std::cos(angle));
     double y = center.y + (radius * std::sin(angle));
     points.emplace_back(x, y);
@@ -26,7 +26,7 @@ static std::vector<shulpin_i_jarvis_seq::Point> GeneratePointsInCircle(const shu
 }
 
 void TestBody(std::vector<shulpin_i_jarvis_seq::Point>& input,
-                     std::vector<shulpin_i_jarvis_seq::Point>& expected) {
+              std::vector<shulpin_i_jarvis_seq::Point>& expected) {
   std::vector<shulpin_i_jarvis_seq::Point> result(expected.size());
 
   auto task_data_seq = std::make_shared<ppc::core::TaskData>();
