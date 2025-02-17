@@ -57,12 +57,12 @@ bool shulpin_i_Jarvis_seq::JarvisSequential::ValidationImpl() {
   return (task_data->inputs_count[0] >= 3) && (task_data->inputs[0] != nullptr);
 }
 
-bool shulpin_i_Jarvis_seq::JarvisSequential::RunImpl() { 
+bool shulpin_i_Jarvis_seq::JarvisSequential::RunImpl() {
   makeJarvisPassage(input, output);
   return true;
 }
 
-bool shulpin_i_Jarvis_seq::JarvisSequential::PostProcessingImpl() { 
+bool shulpin_i_Jarvis_seq::JarvisSequential::PostProcessingImpl() {
   int* result = reinterpret_cast<int*>(task_data->outputs[0]);
   std::copy(reinterpret_cast<int*>(output.data()), reinterpret_cast<int*>(output.data() + output.size()), result);
   return true;

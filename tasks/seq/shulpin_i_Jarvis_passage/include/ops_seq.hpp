@@ -21,7 +21,8 @@ class JarvisSequential : public ppc::core::Task {
   bool RunImpl() override;
   bool PostProcessingImpl() override;
   int orientation(const Point& p, const Point& q, const Point& r);
-  void makeJarvisPassage(std::vector<shulpin_i_Jarvis_seq::Point>& input, std::vector<shulpin_i_Jarvis_seq::Point>& output);
+  void makeJarvisPassage(std::vector<shulpin_i_Jarvis_seq::Point>& input,
+                         std::vector<shulpin_i_Jarvis_seq::Point>& output);
  private:
   std::vector<shulpin_i_Jarvis_seq::Point> input, output;
 };
