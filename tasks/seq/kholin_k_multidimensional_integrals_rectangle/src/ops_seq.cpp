@@ -13,8 +13,8 @@ double kholin_k_multidimensional_integrals_rectangle_seq::TestTaskSequential::In
   }
 
   double sum = 0.0;
-  for (double i = 0.0; i < n; ++i) {
-    f_values[curr_index_dim] = l_limits[curr_index_dim] + (i + 0.5) * h[curr_index_dim];
+  for (size_t i = 0.0; i < static_cast<size_t>(n); ++i) {
+    f_values[curr_index_dim] = l_limits[curr_index_dim] + (static_cast<double>(i) + 0.5) * h[curr_index_dim];
     sum += Integrate(f, l_limits, u_limits, h, f_values, curr_index_dim + 1, dim, n);
   }
   return sum * h[curr_index_dim];
