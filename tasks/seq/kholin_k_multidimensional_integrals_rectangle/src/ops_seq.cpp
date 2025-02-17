@@ -1,7 +1,5 @@
 #include "seq/kholin_k_multidimensional_integrals_rectangle/include/ops_seq.hpp"
 
-#include <cmath>
-#include <cstddef>
 #include <vector>
 
 double kholin_k_multidimensional_integrals_rectangle_seq::TestTaskSequential::Integrate(
@@ -13,7 +11,7 @@ double kholin_k_multidimensional_integrals_rectangle_seq::TestTaskSequential::In
 
   double sum = 0.0;
   for (size_t i = 0; i < n; ++i) {
-    f_values[curr_index_dim] = l_limits[curr_index_dim] + (i + 0.5) * h[curr_index_dim];
+    f_values[curr_index_dim] = l_limits[curr_index_dim] + (static_cast<double>(i) + 0.5) * h[curr_index_dim];
     sum += Integrate(f, l_limits, u_limits, h, f_values, curr_index_dim + 1, dim, n);
   }
   return sum * h[curr_index_dim];
@@ -24,7 +22,7 @@ double kholin_k_multidimensional_integrals_rectangle_seq::TestTaskSequential::In
     const std::vector<double>& u_limits, size_t dim, size_t n) {
   std::vector<double> h(dim);
   for (size_t i = 0; i < dim; ++i) {
-    h[i] = (u_limits[i] - l_limits[i]) / n;
+    h[i] = (u_limits[i] - l_limits[i]) / static_cast<double>(n);
   }
 
   return Integrate(f, l_limits, u_limits, h, f_values, 0, dim, n);
@@ -32,7 +30,7 @@ double kholin_k_multidimensional_integrals_rectangle_seq::TestTaskSequential::In
 
 double kholin_k_multidimensional_integrals_rectangle_seq::TestTaskSequential::RunMultistepSchemeMethodRectangle(
     const Function& f, std::vector<double>& f_values, const std::vector<double>& l_limits,
-    const std::vector<double>& u_limits, size_t dim, double epsilon, int n) {
+    const std::vector<double>& u_limits, double epsilon, size_t dim, int n) {
   double i_n = IntegrateWithRectangleMethod(f, f_values, l_limits, u_limits, dim, n);
   double i_2n = 0.0;
   double delta = 0;
@@ -84,7 +82,7 @@ bool kholin_k_multidimensional_integrals_rectangle_seq::TestTaskSequential::Vali
 }
 
 bool kholin_k_multidimensional_integrals_rectangle_seq::TestTaskSequential::RunImpl() {
-  result_ = RunMultistepSchemeMethodRectangle(f_, f_values_, lower_limits_, upper_limits_, dim_, epsilon_, start_n_);
+  result_ = RunMultistepSchemeMethodRectangle(f_, f_values_, lower_limits_, upper_limits_, epsilon_, dim_, start_n_);
   return true;
 }
 

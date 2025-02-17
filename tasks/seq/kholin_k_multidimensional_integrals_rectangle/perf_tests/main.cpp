@@ -1,7 +1,6 @@
 #include <gtest/gtest.h>
 
 #include <chrono>
-#include <cstddef>
 #include <cstdint>
 #include <memory>
 #include <vector>
@@ -38,8 +37,8 @@ TEST(kholin_k_multidimensional_integrals_rectangle_seq, test_pipeline_run) {
   task_data_seq->inputs_count.emplace_back(values.size());
   task_data_seq->inputs_count.emplace_back(in_lower_limits.size());
   task_data_seq->inputs_count.emplace_back(in_upper_limits.size());
-  task_data_seq->outputs.emplace_back(reinterpret_cast<uint8_t *>(out_I.data()));
-  task_data_seq->outputs_count.emplace_back(out_I.size());
+  task_data_seq->outputs.emplace_back(reinterpret_cast<uint8_t *>(out_i.data()));
+  task_data_seq->outputs_count.emplace_back(out_i.size());
 
   // Create Task
   auto test_task_sequential =
@@ -92,8 +91,8 @@ TEST(kholin_k_multidimensional_integrals_rectangle_seq, test_task_run) {
   task_data_seq->inputs_count.emplace_back(values.size());
   task_data_seq->inputs_count.emplace_back(in_lower_limits.size());
   task_data_seq->inputs_count.emplace_back(in_upper_limits.size());
-  task_data_seq->outputs.emplace_back(reinterpret_cast<uint8_t *>(out_I.data()));
-  task_data_seq->outputs_count.emplace_back(out_I.size());
+  task_data_seq->outputs.emplace_back(reinterpret_cast<uint8_t *>(out_i.data()));
+  task_data_seq->outputs_count.emplace_back(out_i.size());
 
   // Create Task
   auto test_task_sequential =

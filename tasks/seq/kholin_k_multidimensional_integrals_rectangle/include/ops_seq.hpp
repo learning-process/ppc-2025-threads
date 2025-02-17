@@ -1,5 +1,7 @@
 #pragma once
 
+#include <cmath>
+#include <cstddef>
 #include <functional>
 #include <utility>
 #include <vector>
@@ -34,11 +36,11 @@ class TestTaskSequential : public ppc::core::Task {
                    const std::vector<double>& h, std::vector<double>& f_values, size_t curr_index_dim, size_t dim,
                    size_t n);
   double IntegrateWithRectangleMethod(const Function& f, std::vector<double>& f_values,
-                                         const std::vector<double>& l_limits, const std::vector<double>& u_limits,
-                                         size_t dim, size_t n);
+                                      const std::vector<double>& l_limits, const std::vector<double>& u_limits,
+                                      size_t dim, size_t n);
   double RunMultistepSchemeMethodRectangle(const Function& f, std::vector<double>& f_values,
-                                               const std::vector<double>& l_limits, const std::vector<double>& u_limits,
-                                               size_t dim, double epsilon_, int n);
+                                           const std::vector<double>& l_limits, const std::vector<double>& u_limits,
+                                           double epsilon, size_t dim, int n);
 };
 
 }  // namespace kholin_k_multidimensional_integrals_rectangle_seq
