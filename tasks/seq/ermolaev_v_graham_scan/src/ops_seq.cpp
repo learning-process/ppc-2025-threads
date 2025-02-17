@@ -18,12 +18,12 @@ bool ermolaev_v_graham_scan_seq::TestTaskSequential::PreProcessingImpl() {
 }
 
 bool ermolaev_v_graham_scan_seq::TestTaskSequential::ValidationImpl() {
-  return task_data->inputs_count[0] >= MIN_INPUT_POINTS && task_data->inputs_count[0] <= task_data->outputs_count[0];
+  return task_data->inputs_count[0] >= kMinInputPoints && task_data->inputs_count[0] <= task_data->outputs_count[0];
 }
 
 bool ermolaev_v_graham_scan_seq::TestTaskSequential::RunImpl() {
   {
-    if (input_.size() < MIN_INPUT_POINTS) {
+    if (input_.size() < kMinInputPoints) {
       return false;
     }
 
@@ -66,8 +66,8 @@ bool ermolaev_v_graham_scan_seq::TestTaskSequential::RunImpl() {
     Point p1;
     Point p2;
     Point p3;
-    for (size_t i = MIN_STACK_POINTS; i < input_.size(); i++) {
-      while (output_.size() >= MIN_STACK_POINTS) {
+    for (size_t i = kMinStackPoints; i < input_.size(); i++) {
+      while (output_.size() >= kMinStackPoints) {
         p1 = output_[output_.size() - 2];
         p2 = output_[output_.size() - 1];
         p3 = input_[i];

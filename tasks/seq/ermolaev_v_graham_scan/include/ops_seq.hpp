@@ -1,6 +1,7 @@
 #pragma once
 
 #include <compare>
+#include <cstddef>
 #include <utility>
 #include <vector>
 
@@ -8,8 +9,8 @@
 
 namespace ermolaev_v_graham_scan_seq {
 
-constexpr size_t MIN_INPUT_POINTS = 3;
-constexpr size_t MIN_STACK_POINTS = 2;
+constexpr size_t kMinInputPoints = 3;
+constexpr size_t kMinStackPoints = 2;
 
 class Point {
  public:
