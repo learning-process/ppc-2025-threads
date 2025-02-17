@@ -35,7 +35,7 @@ bool TestTaskSequential::RunImpl() {
   result_ = 0.0;
   for (int i = 0; i < iterations_; ++i) {
     std::vector<double> point(d);
-    for (int j = 0; j < d; ++j) {
+    for (size_t j = 0; j < d; ++j) {
       const double min = integrationBounds_[2 * j];
       const double max = integrationBounds_[(2 * j) + 1];
       point[j] = min + (max - min) * dis(rnd);
@@ -45,7 +45,7 @@ bool TestTaskSequential::RunImpl() {
 
   // volume of integration region
   double volume = 1.0;
-  for (int j = 0; j < d; ++j) {
+  for (size_t j = 0; j < d; ++j) {
     volume *= (integrationBounds_[(2 * j) + 1] - integrationBounds_[2 * j]);
   }
   result_ = (result_ / iterations_) * volume;

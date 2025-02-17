@@ -1,17 +1,19 @@
 #include <gtest/gtest.h>
 
 #include <chrono>
-#include <cstddef>
 #include <cstdint>
+#include <cmath>
+#include <functional>
 #include <memory>
 #include <vector>
 
+#include "core/task/include/task.hpp"
 #include "core/perf/include/perf.hpp"
 #include "seq/lopatin_i_monte_carlo/include/lopatinMonteCarloSeq.hpp"
 
 namespace lopatin_i_monte_carlo_seq {
 
-std::vector<double> GenerateBounds(int dimensions, double min_val = 0.0, double max_val = 1.0) {
+std::vector<double> GenerateBounds(double min_val, double max_val, int dimensions) {
   std::vector<double> bounds;
   for (int i = 0; i < dimensions; ++i) {
     bounds.push_back(min_val);
@@ -25,7 +27,7 @@ TEST(lopatin_i_monte_carlo_seq, test_pipeline_run) {
   const int dimensions = 5;
   const int iterations = 10000000;
 
-  std::vector<double> bounds = lopatin_i_monte_carlo_seq::GenerateBounds(dimensions, -3.0, 3.0);
+  std::vector<double> bounds = lopatin_i_monte_carlo_seq::GenerateBounds(-3.0, 3.0, dimensions);
 
   auto task_data = std::make_shared<ppc::core::TaskData>();
   task_data->inputs.push_back(reinterpret_cast<uint8_t*>(bounds.data()));
@@ -64,7 +66,7 @@ TEST(lopatin_i_monte_carlo_seq, test_task_run) {
   const int dimensions = 5;
   const int iterations = 10000000;
 
-  std::vector<double> bounds = lopatin_i_monte_carlo_seq::GenerateBounds(dimensions, -3.0, 3.0);
+  std::vector<double> bounds = lopatin_i_monte_carlo_seq::GenerateBounds(-3.0, 3.0, dimensions);
 
   auto task_data = std::make_shared<ppc::core::TaskData>();
   task_data->inputs.push_back(reinterpret_cast<uint8_t*>(bounds.data()));
