@@ -18,9 +18,9 @@ void MultiplyCCS(int m, int k, int n, const std::vector<double> &a_values, const
   std::vector<bool> temp_used(m, false);
 
   for (int j = 0; j < n; ++j) {
-    for (int k = b_col_ptr[j]; k < b_col_ptr[j + 1]; ++k) {
-      int row_b = b_row_indices[k];
-      double val_B = b_values[k];
+    for (int t = b_col_ptr[j]; t < b_col_ptr[j + 1]; ++t) {
+      int row_b = b_row_indices[t];
+      double val_B = b_values[t];
 
       for (int i = a_col_ptr[row_b]; i < a_col_ptr[row_b + 1]; ++i) {
         int row_a = a_row_indices[i];
