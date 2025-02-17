@@ -51,7 +51,7 @@ bool ermolaev_v_graham_scan_seq::TestTaskSequential::RunImpl() {
     }
   }
 
-  auto base_it = std::min_element(input_.begin(), input_.end());
+  auto base_it = std::ranges::min_element(input_, [](const Point &a, const Point &b) { return a < b; });
   std::iter_swap(input_.begin(), base_it);
 
   std::sort(input_.begin() + 1, input_.end(), [&](const Point &a, const Point &b) {
