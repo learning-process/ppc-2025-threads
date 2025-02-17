@@ -3,6 +3,7 @@
 #include <algorithm>
 #include <cmath>
 #include <cstddef>
+#include <ranges>
 #include <vector>
 
 int ermolaev_v_graham_scan_seq::TestTaskSequential::CrossProduct(const Point &p1, const Point &p2, const Point &p3) {
@@ -17,36 +18,24 @@ bool ermolaev_v_graham_scan_seq::TestTaskSequential::PreProcessingImpl() {
 }
 
 bool ermolaev_v_graham_scan_seq::TestTaskSequential::ValidationImpl() {
-  return task_data->inputs_count[0] >= 3 && task_data->inputs_count[0] <= task_data->outputs_count[0];
+  return task_data->inputs_count[0] >= MIN_INPUT_POINTS && task_data->inputs_count[0] <= task_data->outputs_count[0];
 }
 
 bool ermolaev_v_graham_scan_seq::TestTaskSequential::RunImpl() {
   {
-    if (input_.size() < 3) {
+    if (input_.size() < MIN_INPUT_POINTS) {
       return false;
     }
 
     Point p1 = input_[0];
     Point p2 = input_[1];
-    bool all_collinear = true;
-    bool all_same = p1 == p2;
 
-    for (size_t i = 2; i < input_.size(); i++) {
-      Point p3 = input_[i];
-      int cross = CrossProduct(p1, p2, p3);
+    bool all_collinear = std::ranges::all_of(input_.begin() + 2, input_.end(),
+                                             [&](const Point &p3) { return CrossProduct(p1, p2, p3) == 0; });
 
-      if (cross != 0) {
-        all_collinear = false;
-      }
-      if (p2 != p3) {
-        all_same = false;
-      }
-      if (!all_collinear && !all_same) {
-        break;
-      }
-    }
+    bool all_same = std::ranges::equal(input_, std::views::drop(input_, 1));
 
-    if (all_collinear) {
+    if (all_collinear || all_same) {
       return false;
     }
   }
@@ -77,8 +66,8 @@ bool ermolaev_v_graham_scan_seq::TestTaskSequential::RunImpl() {
     Point p1;
     Point p2;
     Point p3;
-    for (size_t i = 2; i < input_.size(); i++) {
-      while (output_.size() >= 2) {
+    for (size_t i = MIN_STACK_POINTS; i < input_.size(); i++) {
+      while (output_.size() >= MIN_STACK_POINTS) {
         p1 = output_[output_.size() - 2];
         p2 = output_[output_.size() - 1];
         p3 = input_[i];
