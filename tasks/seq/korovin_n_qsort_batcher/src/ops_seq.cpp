@@ -3,6 +3,7 @@
 #include <algorithm>
 #include <cmath>
 #include <cstdlib>
+#include <iterator>
 #include <vector>
 
 int korovin_n_qsort_batcher_seq::TestTaskSequential::GetRandomIndex(int low, int high) {
@@ -23,8 +24,8 @@ void korovin_n_qsort_batcher_seq::TestTaskSequential::QuickSort(std::vector<int>
   auto mid_iter = std::partition(arr.begin() + low, partition_iter,
                                  [partition_value](const int& elem) { return elem < partition_value; });
 
-  int i = std::distance(arr.begin(), mid_iter);
-  int j = std::distance(arr.begin(), partition_iter) - 1;
+  int i = static_cast<int>(std::distance(arr.begin(), mid_iter));
+  int j = static_cast<int>(std::distance(arr.begin(), partition_iter) - 1);
 
   if (low < i - 1) {
     QuickSort(arr, low, i - 1);
