@@ -11,18 +11,18 @@
 #include "seq/titov_s_ImageFilter_HorizGaussian3x3/include/ops_seq.hpp"
 
 TEST(titov_s_image_filter_horiz_gaussian3x3_seq, test_pipeline_run) {
-  constexpr size_t width = 8000;
-  constexpr size_t height = 8000;
-  std::vector<double> input_image(width * height, 0.0);
-  std::vector<double> output_image(width * height, 0.0);
+  constexpr size_t kWidth = 8000;
+  constexpr size_t kHeight = 8000;
+  std::vector<double> input_image(kWidth * kHeight, 0.0);
+  std::vector<double> output_image(kWidth * kHeight, 0.0);
   std::vector<int> kernel = {1, 2, 1};
 
-  for (size_t i = 0; i < height; ++i) {
-    for (size_t j = 0; j < width / 2; ++j) {
-      input_image[i * width + j] = 0.0;
+  for (size_t i = 0; i < kHeight; ++i) {
+    for (size_t j = 0; j < kWidth / 2; ++j) {
+      input_image[(i * kWidth) + j] = 0.0;
     }
-    for (size_t j = width / 2; j < width; ++j) {
-      input_image[i * width + j] = 1.0;
+    for (size_t j = kWidth / 2; j < kWidth; ++j) {
+      input_image[(i * kWidth) + j] = 1.0;
     }
   }
 
@@ -57,18 +57,18 @@ TEST(titov_s_image_filter_horiz_gaussian3x3_seq, test_pipeline_run) {
 }
 
 TEST(titov_s_image_filter_horiz_gaussian3x3_seq, test_task_run) {
-  constexpr size_t width = 20000;
-  constexpr size_t height = 20000;
-  std::vector<double> input_image(width * height, 0.0);
-  std::vector<double> output_image(width * height, 0.0);
+  constexpr size_t kWidth = 20000;
+  constexpr size_t kHeight = 20000;
+  std::vector<double> input_image(kWidth * kHeight, 0.0);
+  std::vector<double> output_image(kWidth * kHeight, 0.0);
   std::vector<int> kernel = {1, 2, 1};
 
-  for (size_t i = 0; i < height; ++i) {
-    for (size_t j = 0; j < width / 2; ++j) {
-      input_image[i * width + j] = 0.0;
+  for (size_t i = 0; i < kHeight; ++i) {
+    for (size_t j = 0; j < kWidth / 2; ++j) {
+      input_image[(i * kWidth) + j] = 0.0;
     }
-    for (size_t j = width / 2; j < width; ++j) {
-      input_image[i * width + j] = 1.0;
+    for (size_t j = kWidth / 2; j < kWidth; ++j) {
+      input_image[(i * kWidth) + j] = 1.0;
     }
   }
 
