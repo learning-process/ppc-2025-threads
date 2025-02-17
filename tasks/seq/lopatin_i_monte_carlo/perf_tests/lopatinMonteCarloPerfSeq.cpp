@@ -27,7 +27,7 @@ TEST(lopatin_i_monte_carlo_seq, test_pipeline_run) {
   const int dimensions = 5;
   const int iterations = 10000000;
 
-  std::vector<double> bounds = lopatin_i_monte_carlo_seq::GenerateBounds(dimensions, - 3.0, 3.0);
+  std::vector<double> bounds = lopatin_i_monte_carlo_seq::GenerateBounds(dimensions, -3.0, 3.0);
 
   auto task_data = std::make_shared<ppc::core::TaskData>();
   task_data->inputs.push_back(reinterpret_cast<uint8_t*>(bounds.data()));
@@ -66,7 +66,7 @@ TEST(lopatin_i_monte_carlo_seq, test_task_run) {
   const int dimensions = 5;
   const int iterations = 10000000;
 
-  std::vector<double> bounds = lopatin_i_monte_carlo_seq::GenerateBounds(dimensions, - 3.0, 3.0);
+  std::vector<double> bounds = lopatin_i_monte_carlo_seq::GenerateBounds(dimensions, -3.0, 3.0);
 
   auto task_data = std::make_shared<ppc::core::TaskData>();
   task_data->inputs.push_back(reinterpret_cast<uint8_t*>(bounds.data()));

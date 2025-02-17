@@ -58,7 +58,7 @@ TEST(lopatin_i_monte_carlo_seq, validationMissingOutputData) {
 TEST(lopatin_i_monte_carlo_seq, highDimensionalIntegration) {
   const int dimensions = 7;
   const int iterations = 20000;
-  std::vector<double> bounds = lopatin_i_monte_carlo_seq::GenerateBounds(dimensions,- 1.0, 1.0);
+  std::vector<double> bounds = lopatin_i_monte_carlo_seq::GenerateBounds(dimensions, -1.0, 1.0);
   const double expected = std::pow(2.0, dimensions);  // hypercube
 
   auto task_data = std::make_shared<ppc::core::TaskData>();
@@ -134,7 +134,7 @@ TEST(lopatin_i_monte_carlo_seq, 3DExponentialFunction) {
   ASSERT_TRUE(task.Run());
   ASSERT_TRUE(task.PostProcessing());
 
-  EXPECT_NEAR(result, expected, 0.02 * expected);  // error 2%
+  EXPECT_NEAR(result, expected, 0.01 * expected);  // error 1%
 }
 
 TEST(lopatin_i_monte_carlo_seq, 2DLinearFunction) {
@@ -246,7 +246,8 @@ TEST(lopatin_i_monte_carlo_seq, 5DExponentialFunction) {
 
   // exp(x1 + x2 + x3 + x4 + x5)
   auto function = [](const std::vector<double>& x) {
-      return std::pow(std::numbers::e, x[0] + x[1] + x[2] + x[3] + x[4]); };
+      return std::pow(std::numbers::e, x[0] + x[1] + x[2] + x[3] + x[4]); 
+  };
 
   lopatin_i_monte_carlo_seq::TestTaskSequential task(task_data, function);
   ASSERT_TRUE(task.Validation());
