@@ -7,19 +7,19 @@
 
 std::vector<Complex> kolodkin_g_multiplication_matrix_seq::ParseMatrixIntoVec(const SparseMatrixCRS& mat) {
   std::vector<Complex> res;
-  res.emplace_back(Complex(mat.numRows, 0));
-  res.emplace_back(Complex(mat.numCols, 0));
-  res.emplace_back(Complex(mat.values.size(), 0));
-  res.emplace_back(Complex(mat.colIndices.size(), 0));
-  res.emplace_back(Complex(mat.rowPtr.size(), 0));
+  res.emplace_back((double)mat.numRows);
+  res.emplace_back((double)mat.numCols);
+  res.emplace_back((double)mat.values.size());
+  res.emplace_back((double)mat.colIndices.size());
+  res.emplace_back((double)mat.rowPtr.size());
   for (unsigned int i = 0; i < (unsigned int)mat.values.size(); i++) {
-    res.emplace_back(mat.values[i]);
+    res.push_back(mat.values[i]);
   }
   for (unsigned int i = 0; i < (unsigned int)mat.colIndices.size(); i++) {
-    res.emplace_back(Complex(mat.colIndices[i], 0));
+    res.push_back((double)mat.colIndices[i]);
   }
   for (unsigned int i = 0; i < (unsigned int)mat.rowPtr.size(); i++) {
-    res.emplace_back(Complex(mat.rowPtr[i], 0));
+    res.push_back((double)mat.rowPtr[i]);
   }
   return res;
 }
@@ -59,17 +59,17 @@ kolodkin_g_multiplication_matrix_seq::SparseMatrixCRS kolodkin_g_multiplication_
   SparseMatrixCRS res;
   res.numRows = (int)vec[0].real();
   res.numCols = (int)vec[1].real();
-  unsigned int values_size = (unsigned int)vec[2].real();
-  unsigned int col_indices_size = (unsigned int)vec[3].real();
-  unsigned int row_ptr_size = (unsigned int)vec[4].real();
+  auto values_size = (unsigned int)vec[2].real();
+  auto col_indices_size = (unsigned int)vec[3].real();
+  auto row_ptr_size = (unsigned int)vec[4].real();
   for (unsigned int i = 0; i < values_size; i++) {
-    res.values.emplace_back(vec[5 + i]);
+    res.values.push_back(vec[5 + i]);
   }
   for (unsigned int i = 0; i < col_indices_size; i++) {
-    res.colIndices.emplace_back((int)vec[5 + values_size + i].real());
+    res.colIndices.push_back((int)vec[5 + values_size + i].real());
   }
   for (unsigned int i = 0; i < row_ptr_size; i++) {
-    res.rowPtr.emplace_back((int)vec[5 + values_size + col_indices_size + i].real());
+    res.rowPtr.push_back((int)vec[5 + values_size + col_indices_size + i].real());
   }
   return res;
 }
@@ -82,11 +82,11 @@ bool kolodkin_g_multiplication_matrix_seq::TestTaskSequential::PreProcessingImpl
   std::vector<Complex> matrix_a;
   std::vector<Complex> matrix_b;
   for (unsigned int i = 0; i < (unsigned int)(5 + input_[2].real() + input_[3].real() + input_[4].real()); i++) {
-    matrix_a.emplace_back(input_[i]);
+    matrix_a.push_back(input_[i]);
   }
-  for (unsigned int i = (unsigned int)(5 + input_[2].real() + input_[3].real() + input_[4].real());
+  for (auto i = (unsigned int)(5 + input_[2].real() + input_[3].real() + input_[4].real());
        i < (unsigned int)input_.size(); i++) {
-    matrix_b.emplace_back(input_[i]);
+    matrix_b.push_back(input_[i]);
   }
   A_ = ParseVectorIntoMatrix(matrix_a);
   B_ = ParseVectorIntoMatrix(matrix_b);
@@ -111,7 +111,7 @@ bool kolodkin_g_multiplication_matrix_seq::TestTaskSequential::RunImpl() {
         unsigned int col_b = B_.colIndices[k];
         Complex value_b = B_.values[k];
 
-        c.AddValue((int)i, (int)col_b, value_a * value_b);
+        c.AddValue((int)i, value_a * value_b, (int)col_b);
       }
     }
   }

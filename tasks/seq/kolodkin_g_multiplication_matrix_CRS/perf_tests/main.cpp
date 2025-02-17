@@ -19,21 +19,21 @@ TEST(kolodkin_g_multiplication_matrix__task_seq, test_pipeline_run) {
 
   for (unsigned int i = 0; i < 150; i++) {
     for (unsigned int j = 0; j < 150; j++) {
-      a.AddValue((int)i, (int)j, Complex(-100 + (rand() % 100), -100 + (rand() % 100)));
+      a.AddValue((int)i, Complex(-100 + (rand() % 100), -100 + (rand() % 100)), (int)j);
     }
   }
   for (unsigned int i = 50; i < 140; i++) {
     for (unsigned int j = 50; j < 150; j++) {
-      b.AddValue((int)i, (int)j, Complex(-100 + (rand() % 100), -100 + (rand() % 100)));
+      b.AddValue((int)i, Complex(-100 + (rand() % 100), -100 + (rand() % 100)), (int)j);
     }
   }
   in_a = kolodkin_g_multiplication_matrix_seq::ParseMatrixIntoVec(a);
   in_b = kolodkin_g_multiplication_matrix_seq::ParseMatrixIntoVec(b);
   for (unsigned int i = 0; i < in_a.size(); i++) {
-    in.emplace_back(in_a[i]);
+    in.push_back(in_a[i]);
   }
-  for (unsigned int i = 0; i < in_b.size(); i++) {
-    in.emplace_back(in_b[i]);
+  for (auto i = 0; i < in_b.size(); i++) {
+    in.push_back(in_b[i]);
   }
 
   // Create task_data
@@ -77,21 +77,21 @@ TEST(kolodkin_g_multiplication_matrix__task_seq, test_task_run) {
 
   for (unsigned int i = 0; i < 150; i++) {
     for (unsigned int j = 0; j < 150; j++) {
-      a.AddValue((int)i, (int)j, Complex(-100 + (rand() % 100), -100 + (rand() % 100)));
+      a.AddValue((int)i, Complex(-100 + (rand() % 100), -100 + (rand() % 100)), (int)j);
     }
   }
   for (unsigned int i = 50; i < 140; i++) {
     for (unsigned int j = 50; j < 150; j++) {
-      b.AddValue((int)i, (int)j, Complex(-100 + (rand() % 100), -100 + (rand() % 100)));
+      b.AddValue((int)i, Complex(-100 + (rand() % 100), -100 + (rand() % 100)), (int)j);
     }
   }
   in_a = kolodkin_g_multiplication_matrix_seq::ParseMatrixIntoVec(a);
   in_b = kolodkin_g_multiplication_matrix_seq::ParseMatrixIntoVec(b);
   for (unsigned int i = 0; i < in_a.size(); i++) {
-    in.emplace_back(in_a[i]);
+    in.push_back(in_a[i]);
   }
-  for (unsigned int i = 0; i < in_b.size(); i++) {
-    in.emplace_back(in_b[i]);
+  for (auto i = 0; i < in_b.size(); i++) {
+    in.push_back(in_b[i]);
   }
 
   // Create task_data

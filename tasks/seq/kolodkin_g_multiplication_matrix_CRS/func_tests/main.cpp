@@ -1,14 +1,10 @@
 #include <gtest/gtest.h>
 
-#include <cstddef>
 #include <cstdint>
-#include <fstream>
 #include <memory>
-#include <string>
 #include <vector>
 
 #include "core/task/include/task.hpp"
-#include "core/util/include/util.hpp"
 #include "seq/kolodkin_g_multiplication_matrix_CRS/include/ops_seq.hpp"
 
 TEST(kolodkin_g_multiplication_seq, test_matmul_only_real) {
@@ -21,28 +17,28 @@ TEST(kolodkin_g_multiplication_seq, test_matmul_only_real) {
   std::vector<Complex> in_b;
   std::vector<Complex> out(a.numCols * b.numRows * 100, 0);
 
-  a.AddValue(0, 0, Complex(1, 0));
-  a.AddValue(0, 2, Complex(2, 0));
-  a.AddValue(1, 1, Complex(3, 0));
-  a.AddValue(2, 0, Complex(4, 0));
-  a.AddValue(2, 1, Complex(5, 0));
+  a.AddValue(0, Complex(1, 0), 0);
+  a.AddValue(0, Complex(2, 0), 2);
+  a.AddValue(1, Complex(3, 0), 1);
+  a.AddValue(2, Complex(4, 0), 0);
+  a.AddValue(2, Complex(5, 0), 1);
 
-  b.AddValue(0, 1, Complex(6, 0));
-  b.AddValue(1, 0, Complex(7, 0));
-  b.AddValue(2, 2, Complex(8, 0));
+  b.AddValue(0, Complex(6, 0), 1);
+  b.AddValue(1, Complex(7, 0), 0);
+  b.AddValue(2, Complex(8, 0), 2);
   in_a = kolodkin_g_multiplication_matrix_seq::ParseMatrixIntoVec(a);
   in_b = kolodkin_g_multiplication_matrix_seq::ParseMatrixIntoVec(b);
   for (unsigned int i = 0; i < in_a.size(); i++) {
-    in.emplace_back(in_a[i]);
+    in.push_back(in_a[i]);
   }
-  for (unsigned int i = 0; i < in_b.size(); i++) {
-    in.emplace_back(in_b[i]);
+  for (auto i = 0; i < in_b.size(); i++) {
+    in.push_back(in_b[i]);
   }
-  c.AddValue(0, 1, Complex(6, 0));
-  c.AddValue(0, 2, Complex(16, 0));
-  c.AddValue(1, 0, Complex(21, 0));
-  c.AddValue(2, 1, Complex(24, 0));
-  c.AddValue(2, 0, Complex(35, 0));
+  c.AddValue(0, Complex(6, 0), 1);
+  c.AddValue(0, Complex(16, 0), 2);
+  c.AddValue(1, Complex(21, 0), 0);
+  c.AddValue(2, Complex(24, 0), 1);
+  c.AddValue(2, Complex(35, 0), 0);
   // Create task_data
   auto task_data_seq = std::make_shared<ppc::core::TaskData>();
   task_data_seq->inputs.emplace_back(reinterpret_cast<uint8_t *>(in.data()));
@@ -70,22 +66,22 @@ TEST(kolodkin_g_multiplication_seq, test_matmul_not_equal_rows_and_cols) {
   std::vector<Complex> in_b;
   std::vector<Complex> out(a.numCols * b.numRows * 100, 0);
 
-  a.AddValue(0, 0, Complex(1, 0));
-  a.AddValue(0, 2, Complex(2, 0));
-  a.AddValue(1, 1, Complex(3, 0));
-  a.AddValue(2, 0, Complex(4, 0));
-  a.AddValue(2, 1, Complex(5, 0));
+  a.AddValue(0, Complex(1, 0), 0);
+  a.AddValue(0, Complex(2, 0), 2);
+  a.AddValue(1, Complex(3, 0), 1);
+  a.AddValue(2, Complex(4, 0), 0);
+  a.AddValue(2, Complex(5, 0), 1);
 
-  b.AddValue(0, 1, Complex(6, 0));
-  b.AddValue(1, 0, Complex(7, 0));
-  b.AddValue(2, 2, Complex(8, 0));
+  b.AddValue(0, Complex(6, 0), 1);
+  b.AddValue(1, Complex(7, 0), 0);
+  b.AddValue(2, Complex(8, 0), 2);
   in_a = kolodkin_g_multiplication_matrix_seq::ParseMatrixIntoVec(a);
   in_b = kolodkin_g_multiplication_matrix_seq::ParseMatrixIntoVec(b);
   for (unsigned int i = 0; i < in_a.size(); i++) {
-    in.emplace_back(in_a[i]);
+    in.push_back(in_a[i]);
   }
-  for (unsigned int i = 0; i < in_b.size(); i++) {
-    in.emplace_back(in_b[i]);
+  for (auto i = 0; i < in_b.size(); i++) {
+    in.push_back(in_b[i]);
   }
   // Create task_data
   auto task_data_seq = std::make_shared<ppc::core::TaskData>();
@@ -109,28 +105,28 @@ TEST(kolodkin_g_multiplication_seq, test_matmul_with_imag) {
   std::vector<Complex> in_b;
   std::vector<Complex> out(a.numCols * b.numRows * 100, 0);
 
-  a.AddValue(0, 0, Complex(1, 1));
-  a.AddValue(0, 2, Complex(2, 2));
-  a.AddValue(1, 1, Complex(3, 3));
-  a.AddValue(2, 0, Complex(4, 4));
-  a.AddValue(2, 1, Complex(5, 5));
+  a.AddValue(0, Complex(1, 1), 0);
+  a.AddValue(0, Complex(2, 2), 2);
+  a.AddValue(1, Complex(3, 3), 1);
+  a.AddValue(2, Complex(4, 4), 0);
+  a.AddValue(2, Complex(5, 5), 1);
 
-  b.AddValue(0, 1, Complex(6, 6));
-  b.AddValue(1, 0, Complex(7, 7));
-  b.AddValue(2, 2, Complex(8, 8));
+  b.AddValue(0, Complex(6, 6), 1);
+  b.AddValue(1, Complex(7, 7), 0);
+  b.AddValue(2, Complex(8, 8), 2);
   in_a = kolodkin_g_multiplication_matrix_seq::ParseMatrixIntoVec(a);
   in_b = kolodkin_g_multiplication_matrix_seq::ParseMatrixIntoVec(b);
   for (unsigned int i = 0; i < in_a.size(); i++) {
-    in.emplace_back(in_a[i]);
+    in.push_back(in_a[i]);
   }
-  for (unsigned int i = 0; i < in_b.size(); i++) {
-    in.emplace_back(in_b[i]);
+  for (auto i = 0; i < in_b.size(); i++) {
+    in.push_back(in_b[i]);
   }
-  c.AddValue(0, 1, Complex(0, 12));
-  c.AddValue(0, 2, Complex(0, 32));
-  c.AddValue(1, 0, Complex(0, 42));
-  c.AddValue(2, 1, Complex(0, 48));
-  c.AddValue(2, 0, Complex(0, 70));
+  c.AddValue(0, Complex(0, 12), 1);
+  c.AddValue(0, Complex(0, 32), 2);
+  c.AddValue(1, Complex(0, 42), 0);
+  c.AddValue(2, Complex(0, 48), 1);
+  c.AddValue(2, Complex(0, 70), 0);
   // Create task_data
   auto task_data_seq = std::make_shared<ppc::core::TaskData>();
   task_data_seq->inputs.emplace_back(reinterpret_cast<uint8_t *>(in.data()));
@@ -159,28 +155,28 @@ TEST(kolodkin_g_multiplication_seq, test_matmul_rectangular_matrix) {
   std::vector<Complex> in_b;
   std::vector<Complex> out(a.numCols * b.numRows * 100, 0);
 
-  a.AddValue(0, 1, Complex(1, 0));
-  a.AddValue(0, 2, Complex(2, 0));
-  a.AddValue(1, 1, Complex(3, 0));
+  a.AddValue(0, Complex(1, 0), 1);
+  a.AddValue(0, Complex(2, 0), 2);
+  a.AddValue(1, Complex(3, 0), 1);
 
-  b.AddValue(0, 2, Complex(3, 0));
-  b.AddValue(1, 0, Complex(5, 0));
-  b.AddValue(1, 3, Complex(4, 0));
-  b.AddValue(2, 0, Complex(7, 0));
-  b.AddValue(2, 1, Complex(8, 0));
+  b.AddValue(0, Complex(3, 0), 2);
+  b.AddValue(1, Complex(5, 0), 0);
+  b.AddValue(1, Complex(4, 0), 3);
+  b.AddValue(2, Complex(7, 0), 0);
+  b.AddValue(2, Complex(8, 0), 1);
   in_a = kolodkin_g_multiplication_matrix_seq::ParseMatrixIntoVec(a);
   in_b = kolodkin_g_multiplication_matrix_seq::ParseMatrixIntoVec(b);
   for (unsigned int i = 0; i < in_a.size(); i++) {
-    in.emplace_back(in_a[i]);
+    in.push_back(in_a[i]);
   }
-  for (unsigned int i = 0; i < in_b.size(); i++) {
-    in.emplace_back(in_b[i]);
+  for (auto i = 0; i < in_b.size(); i++) {
+    in.push_back(in_b[i]);
   }
-  c.AddValue(0, 0, Complex(19, 0));
-  c.AddValue(0, 3, Complex(4, 0));
-  c.AddValue(0, 1, Complex(16, 0));
-  c.AddValue(1, 0, Complex(15, 0));
-  c.AddValue(1, 3, Complex(12, 0));
+  c.AddValue(0, Complex(19, 0), 0);
+  c.AddValue(0, Complex(4, 0), 3);
+  c.AddValue(0, Complex(16, 0), 1);
+  c.AddValue(1, Complex(15, 0), 0);
+  c.AddValue(1, Complex(12, 0), 3);
   // Create task_data
   auto task_data_seq = std::make_shared<ppc::core::TaskData>();
   task_data_seq->inputs.emplace_back(reinterpret_cast<uint8_t *>(in.data()));
@@ -209,21 +205,21 @@ TEST(kolodkin_g_multiplication_seq, test_matmul_with_negative_elems) {
   std::vector<Complex> in_b;
   std::vector<Complex> out(a.numCols * b.numRows * 100, 0);
 
-  a.AddValue(0, 0, Complex(-1, -1));
-  a.AddValue(1, 1, Complex(3, 3));
+  a.AddValue(0, Complex(-1, -1), 0);
+  a.AddValue(1, Complex(3, 3), 1);
 
-  b.AddValue(0, 1, Complex(6, 6));
-  b.AddValue(1, 0, Complex(-7, -7));
+  b.AddValue(0, Complex(6, 6), 1);
+  b.AddValue(1, Complex(-7, -7), 0);
   in_a = kolodkin_g_multiplication_matrix_seq::ParseMatrixIntoVec(a);
   in_b = kolodkin_g_multiplication_matrix_seq::ParseMatrixIntoVec(b);
   for (unsigned int i = 0; i < in_a.size(); i++) {
-    in.emplace_back(in_a[i]);
+    in.push_back(in_a[i]);
   }
-  for (unsigned int i = 0; i < in_b.size(); i++) {
-    in.emplace_back(in_b[i]);
+  for (auto i = 0; i < in_b.size(); i++) {
+    in.push_back(in_b[i]);
   }
-  c.AddValue(0, 1, Complex(0, -12));
-  c.AddValue(1, 0, Complex(0, -42));
+  c.AddValue(0, Complex(0, -12), 1);
+  c.AddValue(1, Complex(0, -42), 0);
   // Create task_data
   auto task_data_seq = std::make_shared<ppc::core::TaskData>();
   task_data_seq->inputs.emplace_back(reinterpret_cast<uint8_t *>(in.data()));
