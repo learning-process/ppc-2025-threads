@@ -5,7 +5,7 @@
 
 #include "core/task/include/task.hpp"
 
-namespace titov_s_ImageFilter_HorizGaussian3x3_seq {
+namespace titov_s_image_filter_horiz_gaussian3x3_seq {
 
 class ImageFilterSequential : public ppc::core::Task {
  public:
@@ -21,9 +21,9 @@ class ImageFilterSequential : public ppc::core::Task {
   int width_;
   int height_;
   int kernel_size_ = 3;
-  std::vector<int> kernel;
+  std::vector<int> kernel_;
 
   void ApplyGaussianFilter();
 };
 
-}  // namespace titov_s_ImageFilter_HorizGaussian3x3_seq
+}  // namespace titov_s_image_filter_horiz_gaussian3x3_seq

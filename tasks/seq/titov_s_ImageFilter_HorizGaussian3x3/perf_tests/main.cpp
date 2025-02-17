@@ -10,7 +10,7 @@
 #include "core/task/include/task.hpp"
 #include "seq/titov_s_ImageFilter_HorizGaussian3x3/include/ops_seq.hpp"
 
-TEST(titov_s_ImageFilter_HorizGaussian3x3_seq, test_pipeline_run) {
+TEST(titov_s_image_filter_horiz_gaussian3x3_seq, test_pipeline_run) {
   constexpr size_t width = 8000;
   constexpr size_t height = 8000;
   std::vector<double> input_image(width * height, 0.0);
@@ -35,7 +35,7 @@ TEST(titov_s_ImageFilter_HorizGaussian3x3_seq, test_pipeline_run) {
 
   // Create Task
   auto test_task_sequential =
-      std::make_shared<titov_s_ImageFilter_HorizGaussian3x3_seq::ImageFilterSequential>(task_data_seq);
+      std::make_shared<titov_s_image_filter_horiz_gaussian3x3_seq::ImageFilterSequential>(task_data_seq);
 
   // Create Perf attributes
   auto perf_attr = std::make_shared<ppc::core::PerfAttr>();
@@ -56,7 +56,7 @@ TEST(titov_s_ImageFilter_HorizGaussian3x3_seq, test_pipeline_run) {
   ppc::core::Perf::PrintPerfStatistic(perf_results);
 }
 
-TEST(titov_s_ImageFilter_HorizGaussian3x3_seq, test_task_run) {
+TEST(titov_s_image_filter_horiz_gaussian3x3_seq, test_task_run) {
   constexpr size_t width = 20000;
   constexpr size_t height = 20000;
   std::vector<double> input_image(width * height, 0.0);
@@ -81,7 +81,7 @@ TEST(titov_s_ImageFilter_HorizGaussian3x3_seq, test_task_run) {
 
   // Create Task
   auto test_task_sequential =
-      std::make_shared<titov_s_ImageFilter_HorizGaussian3x3_seq::ImageFilterSequential>(task_data_seq);
+      std::make_shared<titov_s_image_filter_horiz_gaussian3x3_seq::ImageFilterSequential>(task_data_seq);
 
   // Create Perf attributes
   auto perf_attr = std::make_shared<ppc::core::PerfAttr>();
