@@ -94,10 +94,8 @@ bool sorokin_a_multiplication_sparse_matrices_double_ccs_seq::TestTaskSequential
 }
 
 bool sorokin_a_multiplication_sparse_matrices_double_ccs_seq::TestTaskSequential::PostProcessingImpl() {
-  std::vector<double> c_row_indices_d;
-  c_row_indices_d.resize(C_row_indices_.size());
-  std::vector<double> c_col_ptr_d;
-  c_col_ptr_d.resize(C_col_ptr_.size());
+  std::vector<double> c_row_indices_d(C_row_indices_.size());
+  std::vector<double> c_col_ptr_d(C_col_ptr_.size());
   std::transform(C_row_indices_.begin(), C_row_indices_.end(), c_row_indices_d.begin(),
                  [](int x) { return static_cast<double>(x); });
   std::transform(C_col_ptr_.begin(), C_col_ptr_.end(), c_col_ptr_d.begin(),
