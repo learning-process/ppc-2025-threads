@@ -18,7 +18,7 @@ struct SparseMatrixCRS {
   int numRows;
   int numCols;
   SparseMatrixCRS() : numRows(0), numCols(0) {};
-  SparseMatrixCRS(int rows, bool is_quadric, int cols) : numRows(static_cast<int>(rows)), numCols(cols) {
+  SparseMatrixCRS(int rows, bool is_quadric, int cols) : numRows(rows), numCols(cols) {
     rowPtr.resize(rows + 1, 0);
   }
 
