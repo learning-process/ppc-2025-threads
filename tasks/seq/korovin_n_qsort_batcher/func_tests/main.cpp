@@ -2,8 +2,8 @@
 
 #include <algorithm>
 #include <cstdint>
-#include <cstdlib>
 #include <memory>
+#include <random>
 #include <vector>
 
 #include "core/task/include/task.hpp"
@@ -17,9 +17,13 @@ struct GenParams {
 };
 
 std::vector<int> GenerateRndVector(GenParams param) {
+  std::random_device rd;
+  std::mt19937 gen(rd());
+  std::uniform_int_distribution<int> dist(param.lower_bound, param.upper_bound);
+
   std::vector<int> v1(param.size);
   for (auto &num : v1) {
-    num = param.lower_bound + std::rand() % (param.upper_bound - param.lower_bound + 1);
+    num = dist(gen);
   }
   return v1;
 }
@@ -72,6 +76,33 @@ TEST(korovin_n_qsort_batcher_seq, test_random_sort) {
   // Create data
   auto param = GenParams();
   param.size = 20;
+
+  std::vector<int> in = GenerateRndVector(param);
+  RunTest(in);
+}
+
+TEST(korovin_n_qsort_batcher_seq, test_random_sort_100) {
+  // Create data
+  auto param = GenParams();
+  param.size = 100;
+
+  std::vector<int> in = GenerateRndVector(param);
+  RunTest(in);
+}
+
+TEST(korovin_n_qsort_batcher_seq, test_random_sort_500) {
+  // Create data
+  auto param = GenParams();
+  param.size = 500;
+
+  std::vector<int> in = GenerateRndVector(param);
+  RunTest(in);
+}
+
+TEST(korovin_n_qsort_batcher_seq, test_random_sort_1000) {
+  // Create data
+  auto param = GenParams();
+  param.size = 1000;
 
   std::vector<int> in = GenerateRndVector(param);
   RunTest(in);

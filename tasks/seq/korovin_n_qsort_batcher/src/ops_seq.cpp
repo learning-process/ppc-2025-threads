@@ -2,12 +2,15 @@
 
 #include <algorithm>
 #include <cmath>
-#include <cstdlib>
 #include <iterator>
+#include <random>
 #include <vector>
 
 int korovin_n_qsort_batcher_seq::TestTaskSequential::GetRandomIndex(int low, int high) {
-  return low + (std::rand() % (high - low + 1));
+  std::random_device rd;
+  std::mt19937 gen(rd());
+  std::uniform_int_distribution<int> dist(low, high);
+  return dist(gen);
 }
 
 void korovin_n_qsort_batcher_seq::TestTaskSequential::QuickSort(std::vector<int>& arr, int low, int high) {
