@@ -17,8 +17,10 @@ struct SparseMatrixCRS {
   std::vector<int> rowPtr;
   int numRows;
   int numCols;
-  SparseMatrixCRS() : numRows(0), numCols(0) {};
-  SparseMatrixCRS(int rows, bool is_quadric, int cols) : numRows(rows), numCols(cols) { rowPtr.resize(rows + 1, 0); }
+  SparseMatrixCRS() : numRows(0), numCols(0), values({}), colIndices({}), rowPtr({}) {};
+  SparseMatrixCRS(int rows, bool is_quadric, int cols) : numRows(static_cast<int>(rows)), numCols(cols) {
+    rowPtr.resize(rows + 1, 0);
+  }
 
   void AddValue(int row, Complex value, int col) {
     for (int j = rowPtr[row]; j < rowPtr[row + 1]; ++j) {

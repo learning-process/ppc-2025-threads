@@ -6,6 +6,9 @@
 #include <vector>
 
 std::vector<Complex> kolodkin_g_multiplication_matrix_seq::ParseMatrixIntoVec(const SparseMatrixCRS& mat) {
+  if (mat.values.empty() || mat.colIndices.empty() || mat.rowPtr.empty()) {
+    throw "Error !";
+  }
   std::vector<Complex> res(5 + mat.values.size() + mat.colIndices.size() + mat.rowPtr.size());
   res[0] = (double)mat.numRows;
   res[1] = (double)mat.numCols;
