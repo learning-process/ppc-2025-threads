@@ -88,7 +88,7 @@ bool kolodkin_g_multiplication_matrix_seq::TestTaskSequential::PreProcessingImpl
   for (unsigned int i = 0; i < matrix_a.size(); i++) {
     matrix_a[i] = input_[i];
   }
-  for (auto i = 0; i < matrix_b.size(); i++) {
+  for (unsigned int i = 0; i < matrix_b.size(); i++) {
     matrix_b[i] = input_[(unsigned int)(5 + input_[2].real() + input_[3].real() + input_[4].real()) + i];
   }
   A_ = ParseVectorIntoMatrix(matrix_a);
@@ -105,7 +105,7 @@ bool kolodkin_g_multiplication_matrix_seq::TestTaskSequential::ValidationImpl() 
 }
 
 bool kolodkin_g_multiplication_matrix_seq::TestTaskSequential::RunImpl() {
-  SparseMatrixCRS c(A_.numRows, B_.numCols);
+  SparseMatrixCRS c((unsigned long)A_.numRows, B_.numCols);
   for (unsigned int i = 0; i < (unsigned int)A_.numRows; ++i) {
     for (unsigned int j = A_.rowPtr[i]; j < (unsigned int)A_.rowPtr[i + 1]; ++j) {
       unsigned int col_a = A_.colIndices[j];
