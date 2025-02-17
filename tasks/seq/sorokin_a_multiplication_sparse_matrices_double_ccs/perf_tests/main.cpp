@@ -18,20 +18,20 @@ TEST(sorokin_a_multiplication_sparse_matrices_double_ccs_seq, test_pipeline_run)
   std::vector<double> a_values(20000, 1);
   std::vector<double> a_row_indices(20000);
   for (size_t i = 0; i < 20000; i++) {
-    a_row_indices[i] = i;
+    a_row_indices[i] = static_cast<int>(i);
   }
   std::vector<double> a_col_ptr(20001);
   for (size_t i = 0; i <= 20000; i++) {
-    a_col_ptr[i] = i;
+    a_col_ptr[i] = static_cast<int>(i);
   }
   std::vector<double> b_values(20000, 1);
   std::vector<double> b_row_indices(20000);
   for (size_t i = 0; i < 20000; i++) {
-    b_row_indices[i] = 19999 - i;
+    b_row_indices[i] = 19999 - static_cast<int>(i);
   }
   std::vector<double> b_col_ptr(20001);
   for (size_t i = 0; i <= 20000; i++) {
-    b_col_ptr[i] = i;
+    b_col_ptr[i] = static_cast<int>(i);
   }
 
   std::vector<double> c_values(100000);
@@ -93,20 +93,20 @@ TEST(sorokin_a_multiplication_sparse_matrices_double_ccs_seq, test_task_run) {
   std::vector<double> a_values(20000, 1);
   std::vector<double> a_row_indices(20000);
   for (size_t i = 0; i < 20000; i++) {
-    a_row_indices[i] = i;
+    a_row_indices[i] = static_cast<int>(i);
   }
   std::vector<double> a_col_ptr(20001);
   for (size_t i = 0; i <= 20000; i++) {
-    a_col_ptr[i] = i;
+    a_col_ptr[i] = static_cast<int>(i);
   }
   std::vector<double> b_values(20000, 1);
   std::vector<double> b_row_indices(20000);
   for (size_t i = 0; i < 20000; i++) {
-    b_row_indices[i] = 19999 - i;
+    b_row_indices[i] = 19999 - static_cast<int>(i);
   }
   std::vector<double> b_col_ptr(20001);
   for (size_t i = 0; i <= 20000; i++) {
-    b_col_ptr[i] = i;
+    b_col_ptr[i] = static_cast<int>(i);
   }
 
   std::vector<double> c_values(100000);
