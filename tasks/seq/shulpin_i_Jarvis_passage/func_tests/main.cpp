@@ -1,5 +1,6 @@
 #include <gtest/gtest.h>
 
+#include <cmath>
 #include <cstddef>
 #include <cstdint>
 #include <memory>
@@ -11,11 +12,11 @@
 
 namespace shulpin_i_jarvis_seq {
 static std::vector<shulpin_i_jarvis_seq::Point> GeneratePointsInCircle(const shulpin_i_jarvis_seq::Point& center,
-                                                                       double radius, size_t num_points) {
+                                                                       size_t num_points, double radius) {
   std::vector<shulpin_i_jarvis_seq::Point> points;
 
   for (size_t i = 0; i < num_points; ++i) {
-    double angle = 2.0 * std::numbers::pi * i / num_points;
+    double angle = 2.0 * std::numbers::pi * static_cast<double>(i) / static_cast<double> (num_points);
     double x = center.x + (radius * std::cos(angle));
     double y = center.y + (radius * std::sin(angle));
     points.emplace_back(x, y);
@@ -24,7 +25,7 @@ static std::vector<shulpin_i_jarvis_seq::Point> GeneratePointsInCircle(const shu
   return points;
 }
 
-static void TestBody(std::vector<shulpin_i_jarvis_seq::Point>& input,
+void TestBody(std::vector<shulpin_i_jarvis_seq::Point>& input,
                      std::vector<shulpin_i_jarvis_seq::Point>& expected) {
   std::vector<shulpin_i_jarvis_seq::Point> result(expected.size());
 
@@ -65,7 +66,7 @@ static void TestBodyFalse(std::vector<shulpin_i_jarvis_seq::Point>& input,
 }
 
 static void TestBodyRandomCircle(std::vector<shulpin_i_jarvis_seq::Point>& input,
-                                 std::vector<shulpin_i_jarvis_seq::Point>& expected, size_t& numPoints) {
+                                 std::vector<shulpin_i_jarvis_seq::Point>& expected, size_t& num_points) {
   std::vector<shulpin_i_jarvis_seq::Point> result(expected.size());
 
   auto task_data_seq = std::make_shared<ppc::core::TaskData>();
@@ -82,7 +83,7 @@ static void TestBodyRandomCircle(std::vector<shulpin_i_jarvis_seq::Point>& input
   seq_task.Run();
   seq_task.PostProcessing();
 
-  size_t tmp = numPoints >> 1;
+  size_t tmp = num_points >> 1;
 
   for (size_t i = 0; i < result.size(); ++i) {
     size_t idx = (i < tmp) ? (i + tmp) : (i - tmp);
@@ -153,7 +154,7 @@ TEST(shulpin_i_jarvis_seq, circle_r10_p100) {
   double radius = 10.0;
   size_t num_points = 100;
   std::vector<shulpin_i_jarvis_seq::Point> input =
-      shulpin_i_jarvis_seq::GeneratePointsInCircle(center, radius, num_points);
+      shulpin_i_jarvis_seq::GeneratePointsInCircle(center, num_points, radius);
   std::vector<shulpin_i_jarvis_seq::Point> expected = input;
 
   shulpin_i_jarvis_seq::TestBodyRandomCircle(input, expected, num_points);
@@ -164,7 +165,7 @@ TEST(shulpin_i_jarvis_seq, circle_r10_p1000) {
   double radius = 10.0;
   size_t num_points = 1000;
   std::vector<shulpin_i_jarvis_seq::Point> input =
-      shulpin_i_jarvis_seq::GeneratePointsInCircle(center, radius, num_points);
+      shulpin_i_jarvis_seq::GeneratePointsInCircle(center, num_points, radius);
   std::vector<shulpin_i_jarvis_seq::Point> expected = input;
 
   shulpin_i_jarvis_seq::TestBodyRandomCircle(input, expected, num_points);
@@ -175,7 +176,7 @@ TEST(shulpin_i_jarvis_seq, circle_r10_p10000) {
   double radius = 10.0;
   size_t num_points = 10000;
   std::vector<shulpin_i_jarvis_seq::Point> input =
-      shulpin_i_jarvis_seq::GeneratePointsInCircle(center, radius, num_points);
+      shulpin_i_jarvis_seq::GeneratePointsInCircle(center, num_points, radius);
   std::vector<shulpin_i_jarvis_seq::Point> expected = input;
 
   shulpin_i_jarvis_seq::TestBodyRandomCircle(input, expected, num_points);

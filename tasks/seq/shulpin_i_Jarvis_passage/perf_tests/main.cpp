@@ -1,6 +1,7 @@
 #include <gtest/gtest.h>
 
 #include <chrono>
+#include <cmath>
 #include <cstddef>
 #include <cstdint>
 #include <memory>
@@ -13,11 +14,11 @@
 
 namespace shulpin_i_jarvis_seq {
 static std::vector<shulpin_i_jarvis_seq::Point> GeneratePointsInCircle(const shulpin_i_jarvis_seq::Point &center,
-                                                                       double radius, size_t num_points) {
+                                                                       size_t num_points, double radius) {
   std::vector<shulpin_i_jarvis_seq::Point> points;
 
   for (size_t i = 0; i < num_points; ++i) {
-    double angle = 2.0 * std::numbers::pi * i / num_points;
+    double angle = 2.0 * std::numbers::pi * static_cast<double>(i) / static_cast<double>(num_points);
     double x = center.x + (radius * std::cos(angle));
     double y = center.y + (radius * std::sin(angle));
     points.emplace_back(x, y);
@@ -33,7 +34,7 @@ TEST(shulpin_i_jarvis_seq, test_pipeline_run) {
   size_t num_points = 10000;
 
   std::vector<shulpin_i_jarvis_seq::Point> input =
-      shulpin_i_jarvis_seq::GeneratePointsInCircle(center, radius, num_points);
+      shulpin_i_jarvis_seq::GeneratePointsInCircle(center,num_points, radius);
 
   std::vector<shulpin_i_jarvis_seq::Point> out(input.size());
   std::vector<shulpin_i_jarvis_seq::Point> expected = input;
@@ -76,7 +77,7 @@ TEST(shulpin_i_jarvis_seq, test_task_run) {
   size_t num_points = 10000;
 
   std::vector<shulpin_i_jarvis_seq::Point> input =
-      shulpin_i_jarvis_seq::GeneratePointsInCircle(center, radius, num_points);
+      shulpin_i_jarvis_seq::GeneratePointsInCircle(center, num_points, radius);
 
   std::vector<shulpin_i_jarvis_seq::Point> out(input.size());
   std::vector<shulpin_i_jarvis_seq::Point> expected = input;

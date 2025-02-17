@@ -10,7 +10,7 @@ namespace shulpin_i_jarvis_seq {
 struct Point {
   double x, y;
   Point() : x(0), y(0) {}
-  Point(double xCoordinate, double yCoordinate) : x(xCoordinate), y(yCoordinate) {}
+  Point(double x_coordinate, double y_coordinate) : x(x_coordinate), y(y_coordinate) {}
 };
 
 class JarvisSequential : public ppc::core::Task {
@@ -20,9 +20,9 @@ class JarvisSequential : public ppc::core::Task {
   bool ValidationImpl() override;
   bool RunImpl() override;
   bool PostProcessingImpl() override;
-  int Orientation(const Point& p, const Point& q, const Point& r);
-  void MakeJarvisPassage(std::vector<shulpin_i_jarvis_seq::Point>& input_,
-                         std::vector<shulpin_i_jarvis_seq::Point>& output_);
+  static int Orientation(const Point& p, const Point& q, const Point& r);
+  void MakeJarvisPassage(std::vector<shulpin_i_jarvis_seq::Point>& input,
+                         std::vector<shulpin_i_jarvis_seq::Point>& output);
 
  private:
   std::vector<shulpin_i_jarvis_seq::Point> input_, output_;

@@ -2,10 +2,11 @@
 
 #include <algorithm>
 #include <cmath>
+#include <cstddef>
 #include <vector>
 
 int shulpin_i_jarvis_seq::JarvisSequential::Orientation(const Point& p, const Point& q, const Point& r) {
-  int val = ((q.y - p.y) * (r.x - q.x)) - ((q.x - p.x) * (r.y - q.y));
+  int val = static_cast<int>(((q.y - p.y) * (r.x - q.x)) - ((q.x - p.x) * (r.y - q.y)));
   if (val == 0) {
     return 0;
   }
@@ -31,7 +32,7 @@ void shulpin_i_jarvis_seq::JarvisSequential::MakeJarvisPassage(std::vector<shulp
     output_jar.emplace_back(input_jar[active]);
     int candidate = (active + 1) % total;
 
-    for (int index = 0; index < total; ++index) {
+    for (size_t index = 0; index < total; ++index) {
       if (Orientation(input_jar[active], input_jar[index], input_jar[candidate]) == 2) {
         candidate = index;
       }
