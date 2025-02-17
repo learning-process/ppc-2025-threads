@@ -8,11 +8,11 @@
 std::vector<Complex> kolodkin_g_multiplication_matrix_seq::ParseMatrixIntoVec(const SparseMatrixCRS& mat) {
   std::vector<Complex> res = {};
   res.reserve(5 + mat.values.size() + mat.colIndices.size() + mat.rowPtr.size());
-  res.push_back((double)mat.numRows);
-  res.push_back((double)mat.numCols);
-  res.push_back((double)mat.values.size());
-  res.push_back((double)mat.colIndices.size());
-  res.push_back((double)mat.rowPtr.size());
+  res.emplace_back((double)mat.numRows);
+  res.emplace_back((double)mat.numCols);
+  res.emplace_back((double)mat.values.size());
+  res.emplace_back((double)mat.colIndices.size());
+  res.emplace_back((double)mat.rowPtr.size());
   for (unsigned int i = 0; i < (unsigned int)mat.values.size(); i++) {
     res.push_back(mat.values[i]);
   }
@@ -85,12 +85,12 @@ bool kolodkin_g_multiplication_matrix_seq::TestTaskSequential::PreProcessingImpl
   input_ = std::vector<Complex>(in_ptr, in_ptr + input_size);
   std::vector<Complex> matrix_a = {};
   std::vector<Complex> matrix_b = {};
-  matrix_a.reserve(5 + input_[2].real() + input_[3].real() + input_[4].real());
-  matrix_b.reserve(input_.size() - (5 + input_[2].real() + input_[3].real() + input_[4].real()));
+  matrix_a.reserve(5 + (unsigned int)(input_[2].real() + input_[3].real() + input_[4].real()));
+  matrix_b.reserve(input_.size() - (unsigned int)(5 + input_[2].real() + input_[3].real() + input_[4].real()));
   for (unsigned int i = 0; i < (unsigned int)(5 + input_[2].real() + input_[3].real() + input_[4].real()); i++) {
     matrix_a.push_back(input_[i]);
   }
-  for (unsigned int i = (unsigned int)(5 + input_[2].real() + input_[3].real() + input_[4].real());
+  for (auto i = (unsigned int)(5 + input_[2].real() + input_[3].real() + input_[4].real());
        i < (unsigned int)input_.size(); i++) {
     matrix_b.push_back(input_[i]);
   }
