@@ -24,7 +24,7 @@ class JarvisSequential : public ppc::core::Task {
   void makeJarvisPassage(std::vector<shulpin_i_Jarvis_seq::Point>& input,
                          std::vector<shulpin_i_Jarvis_seq::Point>& output);
  
-private:
+ private:
   std::vector<shulpin_i_Jarvis_seq::Point> input, output;
 };
 
