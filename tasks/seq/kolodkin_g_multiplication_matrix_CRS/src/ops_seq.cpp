@@ -6,23 +6,20 @@
 #include <vector>
 
 std::vector<Complex> kolodkin_g_multiplication_matrix_seq::ParseMatrixIntoVec(const SparseMatrixCRS& mat) {
-  if (mat.values.empty() || mat.colIndices.empty() || mat.rowPtr.empty()) {
-    throw "Error !";
-  }
-  std::vector<Complex> res(5 + mat.values.size() + mat.colIndices.size() + mat.rowPtr.size());
-  res[0] = (double)mat.numRows;
-  res[1] = (double)mat.numCols;
-  res[2] = (double)mat.values.size();
-  res[3] = (double)mat.colIndices.size();
-  res[4] = (double)mat.rowPtr.size();
+  std::vector<Complex> res = {};
+  res.push_back((double)mat.numRows);
+  res.push_back((double)mat.numCols);
+  res.push_back((double)mat.values.size());
+  res.push_back((double)mat.colIndices.size());
+  res.push_back((double)mat.rowPtr.size());
   for (unsigned int i = 0; i < (unsigned int)mat.values.size(); i++) {
-    res[5 + i] = mat.values[i];
+    res.push_back(mat.values[i]);
   }
   for (unsigned int i = 0; i < (unsigned int)mat.colIndices.size(); i++) {
-    res[5 + mat.values.size() + i] = mat.colIndices[i];
+    res.push_back(mat.colIndices[i]);
   }
   for (unsigned int i = 0; i < (unsigned int)mat.rowPtr.size(); i++) {
-    res[5 + mat.values.size() + mat.colIndices.size() + i] = mat.rowPtr[i];
+    res.push_back(mat.rowPtr[i]);
   }
   return res;
 }
@@ -62,20 +59,20 @@ kolodkin_g_multiplication_matrix_seq::SparseMatrixCRS kolodkin_g_multiplication_
   SparseMatrixCRS res;
   res.numRows = (int)vec[0].real();
   res.numCols = (int)vec[1].real();
+  res.values = {};
+  res.colIndices = {};
+  res.rowPtr = {};
   auto values_size = (unsigned int)vec[2].real();
   auto col_indices_size = (unsigned int)vec[3].real();
   auto row_ptr_size = (unsigned int)vec[4].real();
-  res.values.resize(values_size);
-  res.colIndices.resize(col_indices_size);
-  res.rowPtr.resize(row_ptr_size);
   for (unsigned int i = 0; i < values_size; i++) {
-    res.values[i] = vec[5 + i];
+    res.values.push_back(vec[5 + i]);
   }
   for (unsigned int i = 0; i < col_indices_size; i++) {
-    res.colIndices[i] = (int)vec[5 + values_size + i].real();
+    res.colIndices.push_back((int)vec[5 + values_size + i].real());
   }
   for (unsigned int i = 0; i < row_ptr_size; i++) {
-    res.rowPtr[i] = (int)vec[5 + values_size + col_indices_size + i].real();
+    res.rowPtr.push_back((int)vec[5 + values_size + col_indices_size + i].real());
   }
   return res;
 }
@@ -85,14 +82,14 @@ bool kolodkin_g_multiplication_matrix_seq::TestTaskSequential::PreProcessingImpl
   unsigned int input_size = task_data->inputs_count[0];
   auto* in_ptr = reinterpret_cast<Complex*>(task_data->inputs[0]);
   input_ = std::vector<Complex>(in_ptr, in_ptr + input_size);
-  std::vector<Complex> matrix_a((unsigned int)(5 + input_[2].real() + input_[3].real() + input_[4].real()));
-  std::vector<Complex> matrix_b((unsigned int)input_.size() -
-                                (unsigned int)(5 + input_[2].real() + input_[3].real() + input_[4].real()));
-  for (unsigned int i = 0; i < matrix_a.size(); i++) {
-    matrix_a[i] = input_[i];
+  std::vector<Complex> matrix_a = {};
+  std::vector<Complex> matrix_b = {};
+  for (unsigned int i = 0; i < (unsigned int)(5 + input_[2].real() + input_[3].real() + input_[4].real()); i++) {
+    matrix_a.push_back(input_[i]);
   }
-  for (unsigned int i = 0; i < matrix_b.size(); i++) {
-    matrix_b[i] = input_[(unsigned int)(5 + input_[2].real() + input_[3].real() + input_[4].real()) + i];
+  for (unsigned int i = (unsigned int)(5 + input_[2].real() + input_[3].real() + input_[4].real());
+       i < (unsigned int)input_.size(); i++) {
+    matrix_b.push_back(input_[i]);
   }
   A_ = ParseVectorIntoMatrix(matrix_a);
   B_ = ParseVectorIntoMatrix(matrix_b);

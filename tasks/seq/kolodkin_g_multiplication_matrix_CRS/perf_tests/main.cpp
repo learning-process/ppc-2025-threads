@@ -13,7 +13,7 @@
 TEST(kolodkin_g_multiplication_matrix__task_seq, test_pipeline_run) {
   kolodkin_g_multiplication_matrix_seq::SparseMatrixCRS a(400, true, 400);
   kolodkin_g_multiplication_matrix_seq::SparseMatrixCRS b(400, true, 400);
-  std::vector<Complex> in;
+  std::vector<Complex> in = {};
   std::vector<Complex> in_a;
   std::vector<Complex> in_b;
   std::vector<Complex> out(a.numCols * b.numRows * 100, 0);
@@ -30,12 +30,11 @@ TEST(kolodkin_g_multiplication_matrix__task_seq, test_pipeline_run) {
   }
   in_a = kolodkin_g_multiplication_matrix_seq::ParseMatrixIntoVec(a);
   in_b = kolodkin_g_multiplication_matrix_seq::ParseMatrixIntoVec(b);
-  in.resize(in_a.size() + in_b.size());
   for (unsigned int i = 0; i < in_a.size(); i++) {
-    in[i] = in_a[i];
+    in.push_back(in_a[i]);
   }
   for (unsigned int i = 0; i < in_b.size(); i++) {
-    in[in_a.size() + i] = in_b[i];
+    in.push_back(in_b[i]);
   }
 
   // Create task_data
@@ -72,7 +71,7 @@ TEST(kolodkin_g_multiplication_matrix__task_seq, test_pipeline_run) {
 TEST(kolodkin_g_multiplication_matrix__task_seq, test_task_run) {
   kolodkin_g_multiplication_matrix_seq::SparseMatrixCRS a(400, true, 400);
   kolodkin_g_multiplication_matrix_seq::SparseMatrixCRS b(400, true, 400);
-  std::vector<Complex> in;
+  std::vector<Complex> in = {};
   std::vector<Complex> in_a;
   std::vector<Complex> in_b;
   std::vector<Complex> out(a.numCols * b.numRows * 100, 0);
@@ -89,12 +88,11 @@ TEST(kolodkin_g_multiplication_matrix__task_seq, test_task_run) {
   }
   in_a = kolodkin_g_multiplication_matrix_seq::ParseMatrixIntoVec(a);
   in_b = kolodkin_g_multiplication_matrix_seq::ParseMatrixIntoVec(b);
-  in.resize(in_a.size() + in_b.size());
   for (unsigned int i = 0; i < in_a.size(); i++) {
-    in[i] = in_a[i];
+    in.push_back(in_a[i]);
   }
   for (unsigned int i = 0; i < in_b.size(); i++) {
-    in[in_a.size() + i] = in_b[i];
+    in.push_back(in_b[i]);
   }
 
   // Create task_data
