@@ -23,7 +23,6 @@ class JarvisSequential : public ppc::core::Task {
   int Orientation(const Point& p, const Point& q, const Point& r);
   void MakeJarvisPassage(std::vector<shulpin_i_jarvis_seq::Point>& input_,
                          std::vector<shulpin_i_jarvis_seq::Point>& output_);
-  /*bool comparePoints(const shulpin_i_jarvis_seq::Point& a, const shulpin_i_jarvis_seq::Point& b);*/
 
  private:
   std::vector<shulpin_i_jarvis_seq::Point> input_, output_;

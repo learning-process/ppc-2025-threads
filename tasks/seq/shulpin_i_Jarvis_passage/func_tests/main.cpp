@@ -3,8 +3,8 @@
 #include <cstddef>
 #include <cstdint>
 #include <memory>
-#include <vector>
 #include <numbers>
+#include <vector>
 
 #include "core/task/include/task.hpp"
 #include "seq/shulpin_i_Jarvis_passage/include/ops_seq.hpp"
@@ -24,7 +24,8 @@ static std::vector<shulpin_i_jarvis_seq::Point> GeneratePointsInCircle(const shu
   return points;
 }
 
-static void TestBody(std::vector<shulpin_i_jarvis_seq::Point>& input, std::vector<shulpin_i_jarvis_seq::Point>& expected) {
+static void TestBody(std::vector<shulpin_i_jarvis_seq::Point>& input,
+                     std::vector<shulpin_i_jarvis_seq::Point>& expected) {
   std::vector<shulpin_i_jarvis_seq::Point> result(expected.size());
 
   auto task_data_seq = std::make_shared<ppc::core::TaskData>();
@@ -48,7 +49,7 @@ static void TestBody(std::vector<shulpin_i_jarvis_seq::Point>& input, std::vecto
 }
 
 static void TestBodyFalse(std::vector<shulpin_i_jarvis_seq::Point>& input,
-                    std::vector<shulpin_i_jarvis_seq::Point>& expected) {
+                          std::vector<shulpin_i_jarvis_seq::Point>& expected) {
   std::vector<shulpin_i_jarvis_seq::Point> result(expected.size());
 
   auto task_data_seq = std::make_shared<ppc::core::TaskData>();
@@ -64,7 +65,7 @@ static void TestBodyFalse(std::vector<shulpin_i_jarvis_seq::Point>& input,
 }
 
 static void TestBodyRandomCircle(std::vector<shulpin_i_jarvis_seq::Point>& input,
-                            std::vector<shulpin_i_jarvis_seq::Point>& expected, size_t& numPoints) {
+                                 std::vector<shulpin_i_jarvis_seq::Point>& expected, size_t& numPoints) {
   std::vector<shulpin_i_jarvis_seq::Point> result(expected.size());
 
   auto task_data_seq = std::make_shared<ppc::core::TaskData>();
@@ -89,7 +90,7 @@ static void TestBodyRandomCircle(std::vector<shulpin_i_jarvis_seq::Point>& input
     EXPECT_EQ(expected[i].y, result[idx].y);
   }
 }
-}  // namespace shulpin_i_Jarvis_seq
+}  // namespace shulpin_i_jarvis_seq
 
 TEST(shulpin_i_jarvis_seq, square_with_point) {
   std::vector<shulpin_i_jarvis_seq::Point> input = {{0, 0}, {2, 0}, {2, 2}, {0, 2}, {1, 1}};

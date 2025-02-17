@@ -4,8 +4,8 @@
 #include <cstddef>
 #include <cstdint>
 #include <memory>
-#include <vector>
 #include <numbers>
+#include <vector>
 
 #include "core/perf/include/perf.hpp"
 #include "core/task/include/task.hpp"
@@ -25,7 +25,7 @@ static std::vector<shulpin_i_jarvis_seq::Point> GeneratePointsInCircle(const shu
 
   return points;
 }
-}  // namespace shulpin_i_Jarvis_seq
+}  // namespace shulpin_i_jarvis_seq
 
 TEST(shulpin_i_jarvis_seq, test_pipeline_run) {
   shulpin_i_jarvis_seq::Point center{0, 0};

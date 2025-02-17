@@ -1,7 +1,7 @@
 #include "seq/shulpin_i_Jarvis_passage/include/ops_seq.hpp"
 
-#include <cmath>
 #include <algorithm>
+#include <cmath>
 #include <vector>
 
 int shulpin_i_jarvis_seq::JarvisSequential::Orientation(const Point& p, const Point& q, const Point& r) {
