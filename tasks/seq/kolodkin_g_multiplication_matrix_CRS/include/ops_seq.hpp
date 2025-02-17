@@ -8,6 +8,8 @@
 #include "core/task/include/task.hpp"
 
 using Complex = std::complex<double>;
+using numRow = int;
+using numCol = int;
 
 namespace kolodkin_g_multiplication_matrix_seq {
 
@@ -18,7 +20,7 @@ struct SparseMatrixCRS {
   int numRows;
   int numCols;
   SparseMatrixCRS() : numRows(0), numCols(0) {};
-  SparseMatrixCRS(double rows, int cols) : numRows((int)rows), numCols(cols) { rowPtr.resize(rows + 1, 0); }
+  SparseMatrixCRS(numRow rows, numCol cols) : numRows((int)rows), numCols(cols) { rowPtr.resize(rows + 1, 0); }
 
   void AddValue(int row, Complex value, int col) {
     for (int j = rowPtr[row]; j < rowPtr[row + 1]; ++j) {
