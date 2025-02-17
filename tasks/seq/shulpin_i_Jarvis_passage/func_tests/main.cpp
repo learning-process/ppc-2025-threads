@@ -25,8 +25,7 @@ static std::vector<shulpin_i_jarvis_seq::Point> GeneratePointsInCircle(const shu
   return points;
 }
 
-void TestBody(std::vector<shulpin_i_jarvis_seq::Point>& input,
-              std::vector<shulpin_i_jarvis_seq::Point>& expected) {
+void TestBody(std::vector<shulpin_i_jarvis_seq::Point>& input, std::vector<shulpin_i_jarvis_seq::Point>& expected) {
   std::vector<shulpin_i_jarvis_seq::Point> result(expected.size());
 
   auto task_data_seq = std::make_shared<ppc::core::TaskData>();
