@@ -38,9 +38,9 @@ class TestTaskSequential : public ppc::core::Task {
   double IntegrateWithRectangleMethod(const Function& f, std::vector<double>& f_values,
                                       const std::vector<double>& l_limits, const std::vector<double>& u_limits,
                                       double dim, double n);
-  double RunMultistepSchemeMethodRectangle(const Function& f, std::vector<double>& f_values,
+  double RunMultistepSchemeMethodRectangle(double epsilon, const Function& f, std::vector<double>& f_values,
                                            const std::vector<double>& l_limits, const std::vector<double>& u_limits,
-                                           double dim, double n, double epsilon);
+                                           double dim, double n);
 };
 
 }  // namespace kholin_k_multidimensional_integrals_rectangle_seq
