@@ -40,7 +40,7 @@ void shulpin_i_Jarvis_seq::JarvisSequential::makeJarvisPassage(std::vector<shulp
 
 bool shulpin_i_Jarvis_seq::JarvisSequential::PreProcessingImpl() {
   std::vector<shulpin_i_Jarvis_seq::Point> tmp_input;
-    
+
   shulpin_i_Jarvis_seq::Point* tmp_data = reinterpret_cast<shulpin_i_Jarvis_seq::Point*>(task_data->inputs[0]);
   int tmp_size = task_data->inputs_count[0];
   tmp_input.assign(tmp_data, tmp_data + tmp_size);
