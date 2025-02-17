@@ -1,45 +1,42 @@
 #include <gtest/gtest.h>
 
-#ifndef M_PI
-#define M_PI 3.14159265358979323846
-#endif
-
 #include <chrono>
 #include <cstddef>
 #include <cstdint>
 #include <memory>
 #include <vector>
+#include <numbers>
 
 #include "core/perf/include/perf.hpp"
 #include "core/task/include/task.hpp"
 #include "seq/shulpin_i_Jarvis_passage/include/ops_seq.hpp"
 
-namespace shulpin_i_Jarvis_seq {
-std::vector<shulpin_i_Jarvis_seq::Point> generatePointsInCircle(const shulpin_i_Jarvis_seq::Point &center,
-                                                                double radius, size_t numPoints) {
-  std::vector<shulpin_i_Jarvis_seq::Point> points;
+namespace shulpin_i_jarvis_seq {
+static std::vector<shulpin_i_jarvis_seq::Point> GeneratePointsInCircle(const shulpin_i_jarvis_seq::Point &center,
+                                                                       double radius, size_t num_points) {
+  std::vector<shulpin_i_jarvis_seq::Point> points;
 
-  for (size_t i = 0; i < numPoints; ++i) {
-    double angle = 2.0 * M_PI * i / numPoints;
-    double x = center.x + radius * cos(angle);
-    double y = center.y + radius * sin(angle);
-    points.push_back({x, y});
+  for (size_t i = 0; i < num_points; ++i) {
+    double angle = 2.0 * std::numbers::pi * i / num_points;
+    double x = center.x + (radius * std::cos(angle));
+    double y = center.y + (radius * std::sin(angle));
+    points.emplace_back(x, y);
   }
 
   return points;
 }
 }  // namespace shulpin_i_Jarvis_seq
 
-TEST(shulpin_i_Jarvis_seq, test_pipeline_run) {
-  shulpin_i_Jarvis_seq::Point center{0, 0};
+TEST(shulpin_i_jarvis_seq, test_pipeline_run) {
+  shulpin_i_jarvis_seq::Point center{0, 0};
   double radius = 10.0;
-  size_t numPoints = 10000;
+  size_t num_points = 10000;
 
-  std::vector<shulpin_i_Jarvis_seq::Point> input =
-      shulpin_i_Jarvis_seq::generatePointsInCircle(center, radius, numPoints);
+  std::vector<shulpin_i_jarvis_seq::Point> input =
+      shulpin_i_jarvis_seq::GeneratePointsInCircle(center, radius, num_points);
 
-  std::vector<shulpin_i_Jarvis_seq::Point> out(input.size());
-  std::vector<shulpin_i_Jarvis_seq::Point> expected = input;
+  std::vector<shulpin_i_jarvis_seq::Point> out(input.size());
+  std::vector<shulpin_i_jarvis_seq::Point> expected = input;
 
   auto task_data_seq = std::make_shared<ppc::core::TaskData>();
   task_data_seq->inputs.emplace_back(reinterpret_cast<uint8_t *>(input.data()));
@@ -47,7 +44,7 @@ TEST(shulpin_i_Jarvis_seq, test_pipeline_run) {
   task_data_seq->outputs.emplace_back(reinterpret_cast<uint8_t *>(out.data()));
   task_data_seq->outputs_count.emplace_back(out.size());
 
-  auto test_task_sequential = std::make_shared<shulpin_i_Jarvis_seq::JarvisSequential>(task_data_seq);
+  auto test_task_sequential = std::make_shared<shulpin_i_jarvis_seq::JarvisSequential>(task_data_seq);
 
   auto perf_attr = std::make_shared<ppc::core::PerfAttr>();
   perf_attr->num_running = 10;
@@ -64,7 +61,7 @@ TEST(shulpin_i_Jarvis_seq, test_pipeline_run) {
   perf_analyzer->PipelineRun(perf_attr, perf_results);
   ppc::core::Perf::PrintPerfStatistic(perf_results);
 
-  size_t tmp = numPoints >> 1;
+  size_t tmp = num_points >> 1;
 
   for (size_t i = 0; i < out.size(); ++i) {
     size_t idx = (i < tmp) ? (i + tmp) : (i - tmp);
@@ -73,16 +70,16 @@ TEST(shulpin_i_Jarvis_seq, test_pipeline_run) {
   }
 }
 
-TEST(shulpin_i_Jarvis_seq, test_task_run) {
-  shulpin_i_Jarvis_seq::Point center{0, 0};
+TEST(shulpin_i_jarvis_seq, test_task_run) {
+  shulpin_i_jarvis_seq::Point center{0, 0};
   double radius = 10.0;
-  size_t numPoints = 10000;
+  size_t num_points = 10000;
 
-  std::vector<shulpin_i_Jarvis_seq::Point> input =
-      shulpin_i_Jarvis_seq::generatePointsInCircle(center, radius, numPoints);
+  std::vector<shulpin_i_jarvis_seq::Point> input =
+      shulpin_i_jarvis_seq::GeneratePointsInCircle(center, radius, num_points);
 
-  std::vector<shulpin_i_Jarvis_seq::Point> out(input.size());
-  std::vector<shulpin_i_Jarvis_seq::Point> expected = input;
+  std::vector<shulpin_i_jarvis_seq::Point> out(input.size());
+  std::vector<shulpin_i_jarvis_seq::Point> expected = input;
 
   auto task_data_seq = std::make_shared<ppc::core::TaskData>();
   task_data_seq->inputs.emplace_back(reinterpret_cast<uint8_t *>(input.data()));
@@ -90,7 +87,7 @@ TEST(shulpin_i_Jarvis_seq, test_task_run) {
   task_data_seq->outputs.emplace_back(reinterpret_cast<uint8_t *>(out.data()));
   task_data_seq->outputs_count.emplace_back(out.size());
 
-  auto test_task_sequential = std::make_shared<shulpin_i_Jarvis_seq::JarvisSequential>(task_data_seq);
+  auto test_task_sequential = std::make_shared<shulpin_i_jarvis_seq::JarvisSequential>(task_data_seq);
 
   auto perf_attr = std::make_shared<ppc::core::PerfAttr>();
   perf_attr->num_running = 10;
@@ -107,7 +104,7 @@ TEST(shulpin_i_Jarvis_seq, test_task_run) {
   perf_analyzer->TaskRun(perf_attr, perf_results);
   ppc::core::Perf::PrintPerfStatistic(perf_results);
 
-  size_t tmp = numPoints >> 1;
+  size_t tmp = num_points >> 1;
 
   for (size_t i = 0; i < out.size(); ++i) {
     size_t idx = (i < tmp) ? (i + tmp) : (i - tmp);

@@ -1,69 +1,73 @@
 #include "seq/shulpin_i_Jarvis_passage/include/ops_seq.hpp"
 
 #include <cmath>
-#include <cstddef>
+#include <algorithm>
 #include <vector>
 
-int shulpin_i_Jarvis_seq::JarvisSequential::orientation(const Point& p, const Point& q, const Point& r) {
-  int val = (q.y - p.y) * (r.x - q.x) - (q.x - p.x) * (r.y - q.y);
-  if (val == 0) return 0;
+int shulpin_i_jarvis_seq::JarvisSequential::Orientation(const Point& p, const Point& q, const Point& r) {
+  int val = ((q.y - p.y) * (r.x - q.x)) - ((q.x - p.x) * (r.y - q.y));
+  if (val == 0) {
+    return 0;
+  }
   return (val > 0) ? 1 : 2;
 }
 
-void shulpin_i_Jarvis_seq::JarvisSequential::makeJarvisPassage(std::vector<shulpin_i_Jarvis_seq::Point>& input_jar,
-                                                               std::vector<shulpin_i_Jarvis_seq::Point>& output_jar) {
-  int total = input_jar.size();
+void shulpin_i_jarvis_seq::JarvisSequential::MakeJarvisPassage(std::vector<shulpin_i_jarvis_seq::Point>& input_jar,
+                                                               std::vector<shulpin_i_jarvis_seq::Point>& output_jar) {
+
+  size_t total = input_jar.size();
   std::vector<bool> used(total, false);
   output_jar.clear();
 
-  int start = std::min_element(input_jar.begin(), input_jar.end(),
-                               [](const auto& a, const auto& b) { return a.x < b.x || (a.x == b.x && a.y < b.y); }) -
-              input_jar.begin();
+  int start = 0;
+  for (size_t i = 1; i < total; ++i) {
+    if (input_jar[i].x < input_jar[start].x ||
+        (input_jar[i].x == input_jar[start].x && input_jar[i].y < input_jar[start].y)) {
+      start = i;
+    }
+  }
 
   int active = start;
-
   do {
     output_jar.emplace_back(input_jar[active]);
-    used[active] = true;
     int candidate = (active + 1) % total;
 
     for (int index = 0; index < total; ++index) {
-      if (!used[index] && orientation(input_jar[active], input_jar[index], input_jar[candidate]) == 2) {
+      if (Orientation(input_jar[active], input_jar[index], input_jar[candidate]) == 2) {
         candidate = index;
       }
     }
 
     active = candidate;
-
   } while (active != start);
 }
 
-bool shulpin_i_Jarvis_seq::JarvisSequential::PreProcessingImpl() {
-  std::vector<shulpin_i_Jarvis_seq::Point> tmp_input;
+bool shulpin_i_jarvis_seq::JarvisSequential::PreProcessingImpl() {
+  std::vector<shulpin_i_jarvis_seq::Point> tmp_input;
 
-  shulpin_i_Jarvis_seq::Point* tmp_data = reinterpret_cast<shulpin_i_Jarvis_seq::Point*>(task_data->inputs[0]);
-  int tmp_size = task_data->inputs_count[0];
+  auto* tmp_data = reinterpret_cast<shulpin_i_jarvis_seq::Point*>(task_data->inputs[0]);
+  size_t tmp_size = task_data->inputs_count[0];
   tmp_input.assign(tmp_data, tmp_data + tmp_size);
 
-  input = tmp_input;
+  input_ = tmp_input;
 
-  int output_size = task_data->outputs_count[0];
-  output.resize(output_size);
+  size_t output_size = task_data->outputs_count[0];
+  output_.resize(output_size);
 
   return true;
 }
 
-bool shulpin_i_Jarvis_seq::JarvisSequential::ValidationImpl() {
+bool shulpin_i_jarvis_seq::JarvisSequential::ValidationImpl() {
   return (task_data->inputs_count[0] >= 3) && (task_data->inputs[0] != nullptr);
 }
 
-bool shulpin_i_Jarvis_seq::JarvisSequential::RunImpl() {
-  makeJarvisPassage(input, output);
+bool shulpin_i_jarvis_seq::JarvisSequential::RunImpl() {
+  MakeJarvisPassage(input_, output_);
   return true;
 }
 
-bool shulpin_i_Jarvis_seq::JarvisSequential::PostProcessingImpl() {
+bool shulpin_i_jarvis_seq::JarvisSequential::PostProcessingImpl() {
   int* result = reinterpret_cast<int*>(task_data->outputs[0]);
-  std::copy(reinterpret_cast<int*>(output.data()), reinterpret_cast<int*>(output.data() + output.size()), result);
+  std::copy(reinterpret_cast<int*>(output_.data()), reinterpret_cast<int*>(output_.data() + output_.size()), result);
   return true;
 }
