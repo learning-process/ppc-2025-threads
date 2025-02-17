@@ -30,9 +30,9 @@ class TestTaskSequential : public ppc::core::Task {
   std::vector<int> C_col_ptr_;
 };
 
-void MultiplyCCS(int m, int k, int n, const std::vector<double> &a_values, const std::vector<int> &a_row_indices,
+void MultiplyCCS(const std::vector<double> &a_values, const std::vector<int> &a_row_indices, int m,
                  const std::vector<int> &a_col_ptr, const std::vector<double> &b_values,
-                 const std::vector<int> &b_row_indices, const std::vector<int> &b_col_ptr,
-                 std::vector<double> &c_values, std::vector<int> &c_row_indices, std::vector<int> &c_col_ptr);
+                 const std::vector<int> &b_row_indices, int k, const std::vector<int> &b_col_ptr,
+                 std::vector<double> &c_values, std::vector<int> &c_row_indices, int n, std::vector<int> &c_col_ptr);
 
 }  // namespace sorokin_a_multiplication_sparse_matrices_double_ccs_seq

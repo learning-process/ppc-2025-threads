@@ -2,9 +2,7 @@
 
 #include <cstddef>
 #include <cstdint>
-#include <fstream>
 #include <memory>
-#include <string>
 #include <vector>
 
 #include "core/task/include/task.hpp"
@@ -58,17 +56,17 @@ TEST(sorokin_a_multiplication_sparse_matrices_double_ccs_seq, test_1) {
   test_task_sequential.PreProcessing();
   test_task_sequential.Run();
   test_task_sequential.PostProcessing();
-  std::vector<double> R_values = {8, 14, 4, 6, 12};
-  std::vector<double> R_row_indices = {1, 2, 0, 1, 2};
-  std::vector<double> R_col_ptr = {0, 2, 2, 5};
-  for (size_t i = 0; i < R_values.size(); i++) {
-    ASSERT_NEAR(c_values[i], R_values[i], 1e-9);
+  std::vector<double> r_values = {8, 14, 4, 6, 12};
+  std::vector<double> r_row_indices = {1, 2, 0, 1, 2};
+  std::vector<double> r_col_ptr = {0, 2, 2, 5};
+  for (size_t i = 0; i < r_values.size(); i++) {
+    ASSERT_NEAR(c_values[i], r_values[i], 1e-9);
   }
-  for (size_t i = 0; i < R_row_indices.size(); i++) {
-    ASSERT_NEAR(c_row_indices[i], R_row_indices[i], 1e-9);
+  for (size_t i = 0; i < r_row_indices.size(); i++) {
+    ASSERT_NEAR(c_row_indices[i], r_row_indices[i], 1e-9);
   }
-  for (size_t i = 0; i < R_col_ptr.size(); i++) {
-    ASSERT_NEAR(c_col_ptr[i], R_col_ptr[i], 1e-9);
+  for (size_t i = 0; i < r_col_ptr.size(); i++) {
+    ASSERT_NEAR(c_col_ptr[i], r_col_ptr[i], 1e-9);
   }
 }
 
@@ -119,17 +117,17 @@ TEST(sorokin_a_multiplication_sparse_matrices_double_ccs_seq, test_2) {
   test_task_sequential.PreProcessing();
   test_task_sequential.Run();
   test_task_sequential.PostProcessing();
-  std::vector<double> R_values = {2.0, 4.0, 15.0};
-  std::vector<double> R_row_indices = {1, 0, 1};
-  std::vector<double> R_col_ptr = {0, 1};
-  for (size_t i = 0; i < R_values.size(); i++) {
-    ASSERT_NEAR(c_values[i], R_values[i], 1e-9);
+  std::vector<double> r_values = {2.0, 4.0, 15.0};
+  std::vector<double> r_row_indices = {1, 0, 1};
+  std::vector<double> r_col_ptr = {0, 1};
+  for (size_t i = 0; i < r_values.size(); i++) {
+    ASSERT_NEAR(c_values[i], r_values[i], 1e-9);
   }
-  for (size_t i = 0; i < R_row_indices.size(); i++) {
-    ASSERT_NEAR(c_row_indices[i], R_row_indices[i], 1e-9);
+  for (size_t i = 0; i < r_row_indices.size(); i++) {
+    ASSERT_NEAR(c_row_indices[i], r_row_indices[i], 1e-9);
   }
-  for (size_t i = 0; i < R_col_ptr.size(); i++) {
-    ASSERT_NEAR(c_col_ptr[i], R_col_ptr[i], 1e-9);
+  for (size_t i = 0; i < r_col_ptr.size(); i++) {
+    ASSERT_NEAR(c_col_ptr[i], r_col_ptr[i], 1e-9);
   }
 }
 
@@ -180,17 +178,17 @@ TEST(sorokin_a_multiplication_sparse_matrices_double_ccs_seq, test_3) {
   test_task_sequential.PreProcessing();
   test_task_sequential.Run();
   test_task_sequential.PostProcessing();
-  std::vector<double> R_values = {8.0, 1.0, 3.0, 10.0};
-  std::vector<double> R_row_indices = {0, 1, 2, 0};
-  std::vector<double> R_col_ptr = {0, 1, 3, 3, 4};
-  for (size_t i = 0; i < R_values.size(); i++) {
-    ASSERT_NEAR(c_values[i], R_values[i], 1e-9);
+  std::vector<double> r_values = {8.0, 1.0, 3.0, 10.0};
+  std::vector<double> r_row_indices = {0, 1, 2, 0};
+  std::vector<double> r_col_ptr = {0, 1, 3, 3, 4};
+  for (size_t i = 0; i < r_values.size(); i++) {
+    ASSERT_NEAR(c_values[i], r_values[i], 1e-9);
   }
-  for (size_t i = 0; i < R_row_indices.size(); i++) {
-    ASSERT_NEAR(c_row_indices[i], R_row_indices[i], 1e-9);
+  for (size_t i = 0; i < r_row_indices.size(); i++) {
+    ASSERT_NEAR(c_row_indices[i], r_row_indices[i], 1e-9);
   }
-  for (size_t i = 0; i < R_col_ptr.size(); i++) {
-    ASSERT_NEAR(c_col_ptr[i], R_col_ptr[i], 1e-9);
+  for (size_t i = 0; i < r_col_ptr.size(); i++) {
+    ASSERT_NEAR(c_col_ptr[i], r_col_ptr[i], 1e-9);
   }
 }
 
