@@ -11,8 +11,8 @@
 #include "seq/kolodkin_g_multiplication_matrix_CRS/include/ops_seq.hpp"
 
 TEST(kolodkin_g_multiplication_matrix__task_seq, test_pipeline_run) {
-  kolodkin_g_multiplication_matrix_seq::SparseMatrixCRS a(400, 400);
-  kolodkin_g_multiplication_matrix_seq::SparseMatrixCRS b(400, 400);
+  kolodkin_g_multiplication_matrix_seq::SparseMatrixCRS a(400, true, 400);
+  kolodkin_g_multiplication_matrix_seq::SparseMatrixCRS b(400, true, 400);
   std::vector<Complex> in;
   std::vector<Complex> in_a;
   std::vector<Complex> in_b;
@@ -70,8 +70,8 @@ TEST(kolodkin_g_multiplication_matrix__task_seq, test_pipeline_run) {
 }
 
 TEST(kolodkin_g_multiplication_matrix__task_seq, test_task_run) {
-  kolodkin_g_multiplication_matrix_seq::SparseMatrixCRS a(400, 400);
-  kolodkin_g_multiplication_matrix_seq::SparseMatrixCRS b(400, 400);
+  kolodkin_g_multiplication_matrix_seq::SparseMatrixCRS a(400, true, 400);
+  kolodkin_g_multiplication_matrix_seq::SparseMatrixCRS b(400, true, 400);
   std::vector<Complex> in;
   std::vector<Complex> in_a;
   std::vector<Complex> in_b;

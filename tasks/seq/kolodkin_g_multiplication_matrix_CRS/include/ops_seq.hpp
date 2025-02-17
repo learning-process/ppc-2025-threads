@@ -1,7 +1,6 @@
 #pragma once
 
 #include <complex>
-#include <cstddef>
 #include <iostream>
 #include <utility>
 #include <vector>
@@ -19,7 +18,7 @@ struct SparseMatrixCRS {
   int numRows;
   int numCols;
   SparseMatrixCRS() : numRows(0), numCols(0) {};
-  SparseMatrixCRS(std::size_t rows, int cols) : numRows(static_cast<int>(rows)), numCols(cols) {
+  SparseMatrixCRS(int rows, bool is_quadric, int cols) : numRows(static_cast<int>(rows)), numCols(cols) {
     rowPtr.resize(rows + 1, 0); }
 
   void AddValue(int row, Complex value, int col) {

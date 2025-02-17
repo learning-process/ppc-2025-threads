@@ -9,9 +9,9 @@
 
 TEST(kolodkin_g_multiplication_seq, test_matmul_only_real) {
   // Create data
-  kolodkin_g_multiplication_matrix_seq::SparseMatrixCRS a(3, 3);
-  kolodkin_g_multiplication_matrix_seq::SparseMatrixCRS b(3, 3);
-  kolodkin_g_multiplication_matrix_seq::SparseMatrixCRS c(3, 3);
+  kolodkin_g_multiplication_matrix_seq::SparseMatrixCRS a(3, true, 3);
+  kolodkin_g_multiplication_matrix_seq::SparseMatrixCRS b(3, true, 3);
+  kolodkin_g_multiplication_matrix_seq::SparseMatrixCRS c(3, true, 3);
   std::vector<Complex> in;
   std::vector<Complex> in_a;
   std::vector<Complex> in_b;
@@ -60,8 +60,8 @@ TEST(kolodkin_g_multiplication_seq, test_matmul_only_real) {
 
 TEST(kolodkin_g_multiplication_seq, test_matmul_not_equal_rows_and_cols) {
   // Create data
-  kolodkin_g_multiplication_matrix_seq::SparseMatrixCRS a(3, 3);
-  kolodkin_g_multiplication_matrix_seq::SparseMatrixCRS b(5, 3);
+  kolodkin_g_multiplication_matrix_seq::SparseMatrixCRS a(3, true, 3);
+  kolodkin_g_multiplication_matrix_seq::SparseMatrixCRS b(5, false, 3);
   std::vector<Complex> in;
   std::vector<Complex> in_a;
   std::vector<Complex> in_b;
@@ -99,9 +99,9 @@ TEST(kolodkin_g_multiplication_seq, test_matmul_not_equal_rows_and_cols) {
 
 TEST(kolodkin_g_multiplication_seq, test_matmul_with_imag) {
   // Create data
-  kolodkin_g_multiplication_matrix_seq::SparseMatrixCRS a(3, 3);
-  kolodkin_g_multiplication_matrix_seq::SparseMatrixCRS b(3, 3);
-  kolodkin_g_multiplication_matrix_seq::SparseMatrixCRS c(3, 3);
+  kolodkin_g_multiplication_matrix_seq::SparseMatrixCRS a(3, true, 3);
+  kolodkin_g_multiplication_matrix_seq::SparseMatrixCRS b(3, true, 3);
+  kolodkin_g_multiplication_matrix_seq::SparseMatrixCRS c(3, true, 3);
   std::vector<Complex> in;
   std::vector<Complex> in_a;
   std::vector<Complex> in_b;
@@ -150,9 +150,9 @@ TEST(kolodkin_g_multiplication_seq, test_matmul_with_imag) {
 
 TEST(kolodkin_g_multiplication_seq, test_matmul_rectangular_matrix) {
   // Create data
-  kolodkin_g_multiplication_matrix_seq::SparseMatrixCRS a(2, 3);
-  kolodkin_g_multiplication_matrix_seq::SparseMatrixCRS b(3, 4);
-  kolodkin_g_multiplication_matrix_seq::SparseMatrixCRS c(2, 4);
+  kolodkin_g_multiplication_matrix_seq::SparseMatrixCRS a(2, false, 3);
+  kolodkin_g_multiplication_matrix_seq::SparseMatrixCRS b(3, false, 4);
+  kolodkin_g_multiplication_matrix_seq::SparseMatrixCRS c(2, false, 4);
   std::vector<Complex> in;
   std::vector<Complex> in_a;
   std::vector<Complex> in_b;
@@ -201,9 +201,9 @@ TEST(kolodkin_g_multiplication_seq, test_matmul_rectangular_matrix) {
 
 TEST(kolodkin_g_multiplication_seq, test_matmul_with_negative_elems) {
   // Create data
-  kolodkin_g_multiplication_matrix_seq::SparseMatrixCRS a(2, 2);
-  kolodkin_g_multiplication_matrix_seq::SparseMatrixCRS b(2, 2);
-  kolodkin_g_multiplication_matrix_seq::SparseMatrixCRS c(2, 2);
+  kolodkin_g_multiplication_matrix_seq::SparseMatrixCRS a(2, true, 2);
+  kolodkin_g_multiplication_matrix_seq::SparseMatrixCRS b(2, true, 2);
+  kolodkin_g_multiplication_matrix_seq::SparseMatrixCRS c(2, true, 2);
   std::vector<Complex> in;
   std::vector<Complex> in_a;
   std::vector<Complex> in_b;

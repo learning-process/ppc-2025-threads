@@ -105,7 +105,8 @@ bool kolodkin_g_multiplication_matrix_seq::TestTaskSequential::ValidationImpl() 
 }
 
 bool kolodkin_g_multiplication_matrix_seq::TestTaskSequential::RunImpl() {
-  SparseMatrixCRS c(A_.numRows, B_.numCols);
+  bool is_quadric = (A_.numRows == B_.numCols);
+  SparseMatrixCRS c(A_.numRows, is_quadric, B_.numCols);
   for (unsigned int i = 0; i < (unsigned int)A_.numRows; ++i) {
     for (unsigned int j = A_.rowPtr[i]; j < (unsigned int)A_.rowPtr[i + 1]; ++j) {
       unsigned int col_a = A_.colIndices[j];
