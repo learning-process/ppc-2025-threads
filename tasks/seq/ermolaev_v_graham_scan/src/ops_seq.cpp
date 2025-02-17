@@ -51,27 +51,27 @@ bool ermolaev_v_graham_scan_seq::TestTaskSequential::RunImpl() {
     }
   }
 
-  size_t base = 0;
-  for (size_t i = 1; i < input_.size(); i++) {
-    if (input_[i] <= input_[base]) {
-      base = i;
-    }
-  }
+  auto base_it = std::min_element(input_.begin(), input_.end());
+  std::iter_swap(input_.begin(), base_it);
 
-  std::swap(input_[0], input_[base]);
   std::sort(input_.begin() + 1, input_.end(), [&](const Point &a, const Point &b) {
+    auto squared_dist = [](const Point &p1, const Point &p2) -> int {
+      int dx = p1.x - p2.x;
+      int dy = p1.y - p2.y;
+      return ((dx * dx) + (dy * dy));
+    };
+
     int cross = CrossProduct(input_[0], a, b);
     if (cross == 0) {
-      return std::pow(a.x - input_[0].x, 2) + std::pow(a.y - input_[0].y, 2) <
-             std::pow(b.x - input_[0].x, 2) + std::pow(b.y - input_[0].y, 2);
+      return squared_dist(a, input_[0]) < squared_dist(b, input_[0]);
     }
 
     return cross > 0;
   });
 
   output_.clear();
-  output_.push_back(input_[0]);
-  output_.push_back(input_[1]);
+  output_.emplace_back(input_[0]);
+  output_.emplace_back(input_[1]);
 
   {
     Point p1;
@@ -90,7 +90,7 @@ bool ermolaev_v_graham_scan_seq::TestTaskSequential::RunImpl() {
         }
         output_.pop_back();
       }
-      output_.push_back(input_[i]);
+      output_.emplace_back(input_[i]);
     }
   }
 

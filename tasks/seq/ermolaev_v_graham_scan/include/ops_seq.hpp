@@ -14,7 +14,8 @@ class Point {
 
   Point(int x_value, int y_value) : x(x_value), y(y_value) {}
   Point() : x(0), y(0) {}
-  bool operator<=(const Point& rhs) const { return y < rhs.y || (y == rhs.y && x <= rhs.x); }
+  bool operator<(const Point& rhs) const { return y < rhs.y || (y == rhs.y && x < rhs.x); }
+  bool operator<=(const Point& rhs) const { return (*this < rhs) || (*this == rhs); }
   bool operator==(const Point& rhs) const { return y == rhs.y && x == rhs.x; }
   bool operator!=(const Point& rhs) const { return !(*this == rhs); }
 };
