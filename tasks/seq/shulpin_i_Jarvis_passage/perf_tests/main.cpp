@@ -42,9 +42,9 @@ TEST(shulpin_i_Jarvis_seq, test_pipeline_run) {
   std::vector<shulpin_i_Jarvis_seq::Point> expected = input;
 
   auto task_data_seq = std::make_shared<ppc::core::TaskData>();
-  task_data_seq->inputs.emplace_back(reinterpret_cast<uint8_t*>(input.data()));
+  task_data_seq->inputs.emplace_back(reinterpret_cast<uint8_t *>(input.data()));
   task_data_seq->inputs_count.emplace_back(input.size());
-  task_data_seq->outputs.emplace_back(reinterpret_cast<uint8_t*>(out.data()));
+  task_data_seq->outputs.emplace_back(reinterpret_cast<uint8_t *>(out.data()));
   task_data_seq->outputs_count.emplace_back(out.size());
 
   auto test_task_sequential = std::make_shared<shulpin_i_Jarvis_seq::JarvisSequential>(task_data_seq);

@@ -34,10 +34,10 @@ void TestBody(std::vector<shulpin_i_Jarvis_seq::Point>& input, std::vector<shulp
 
   auto taskDataSeq = std::make_shared<ppc::core::TaskData>();
 
-  taskDataSeq->inputs.emplace_back(reinterpret_cast<uint8_t *>(input.data()));
+  taskDataSeq->inputs.emplace_back(reinterpret_cast<uint8_t*>(input.data()));
   taskDataSeq->inputs_count.emplace_back(static_cast<uint32_t>(input.size()));
 
-  taskDataSeq->outputs.emplace_back(reinterpret_cast<uint8_t *>(result.data()));
+  taskDataSeq->outputs.emplace_back(reinterpret_cast<uint8_t*>(result.data()));
   taskDataSeq->outputs_count.emplace_back(static_cast<uint32_t>(result.size()));
 
   shulpin_i_Jarvis_seq::JarvisSequential SeqTask(taskDataSeq);
@@ -94,7 +94,6 @@ void TestBody_Random_Circle(std::vector<shulpin_i_Jarvis_seq::Point>& input,
     EXPECT_EQ(expected[i].y, result[idx].y);
   }
 }
-    
 }  // namespace shulpin_i_Jarvis_seq
 
 TEST(shulpin_i_Jarvis_seqq, square_with_point) {
