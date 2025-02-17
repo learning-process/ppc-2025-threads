@@ -11,56 +11,56 @@
 #include "seq/sorokin_a_multiplication_sparse_matrices_double_ccs/include/ops_seq.hpp"
 
 TEST(sorokin_a_multiplication_sparse_matrices_double_ccs_seq, test_pipeline_run) {
-  int M = 20000;
-  int K = 20000;
-  int N = 20000;
+  int m = 20000;
+  int k = 20000;
+  int n = 20000;
 
-  std::vector<double> A_values(20000, 1);
-  std::vector<double> A_row_indices(20000);
+  std::vector<double> a_values(20000, 1);
+  std::vector<double> a_row_indices(20000);
   for (size_t i = 0; i < 20000; i++) {
-    A_row_indices[i] = i;
+    a_row_indices[i] = i;
   }
-  std::vector<double> A_col_ptr(20001);
+  std::vector<double> a_col_ptr(20001);
   for (size_t i = 0; i <= 20000; i++) {
-    A_col_ptr[i] = i;
+    a_col_ptr[i] = i;
   }
-  std::vector<double> B_values(20000, 1);
-  std::vector<double> B_row_indices(20000);
+  std::vector<double> b_values(20000, 1);
+  std::vector<double> b_row_indices(20000);
   for (size_t i = 0; i < 20000; i++) {
-    B_row_indices[i] = 19999 - i;
+    b_row_indices[i] = 19999 - i;
   }
-  std::vector<double> B_col_ptr(20001);
+  std::vector<double> b_col_ptr(20001);
   for (size_t i = 0; i <= 20000; i++) {
-    B_col_ptr[i] = i;
+    b_col_ptr[i] = i;
   }
 
-  std::vector<double> C_values(100000);
-  std::vector<double> C_row_indices(100000);
-  std::vector<double> C_col_ptr(100000);
+  std::vector<double> c_values(100000);
+  std::vector<double> c_row_indices(100000);
+  std::vector<double> c_col_ptr(100000);
 
   // Create task_data
   auto task_data_seq = std::make_shared<ppc::core::TaskData>();
-  task_data_seq->inputs_count.emplace_back(M);
-  task_data_seq->inputs_count.emplace_back(K);
-  task_data_seq->inputs_count.emplace_back(N);
-  task_data_seq->inputs.emplace_back(reinterpret_cast<uint8_t *>(A_values.data()));
-  task_data_seq->inputs_count.emplace_back(A_values.size());
-  task_data_seq->inputs.emplace_back(reinterpret_cast<uint8_t *>(A_row_indices.data()));
-  task_data_seq->inputs_count.emplace_back(A_row_indices.size());
-  task_data_seq->inputs.emplace_back(reinterpret_cast<uint8_t *>(A_col_ptr.data()));
-  task_data_seq->inputs_count.emplace_back(A_col_ptr.size());
-  task_data_seq->inputs.emplace_back(reinterpret_cast<uint8_t *>(B_values.data()));
-  task_data_seq->inputs_count.emplace_back(B_values.size());
-  task_data_seq->inputs.emplace_back(reinterpret_cast<uint8_t *>(B_row_indices.data()));
-  task_data_seq->inputs_count.emplace_back(B_row_indices.size());
-  task_data_seq->inputs.emplace_back(reinterpret_cast<uint8_t *>(B_col_ptr.data()));
-  task_data_seq->inputs_count.emplace_back(B_col_ptr.size());
-  task_data_seq->outputs.emplace_back(reinterpret_cast<uint8_t *>(C_values.data()));
-  task_data_seq->outputs_count.emplace_back(C_values.size());
-  task_data_seq->outputs.emplace_back(reinterpret_cast<uint8_t *>(C_row_indices.data()));
-  task_data_seq->outputs_count.emplace_back(C_row_indices.size());
-  task_data_seq->outputs.emplace_back(reinterpret_cast<uint8_t *>(C_col_ptr.data()));
-  task_data_seq->outputs_count.emplace_back(C_col_ptr.size());
+  task_data_seq->inputs_count.emplace_back(m);
+  task_data_seq->inputs_count.emplace_back(k);
+  task_data_seq->inputs_count.emplace_back(n);
+  task_data_seq->inputs.emplace_back(reinterpret_cast<uint8_t *>(a_values.data()));
+  task_data_seq->inputs_count.emplace_back(a_values.size());
+  task_data_seq->inputs.emplace_back(reinterpret_cast<uint8_t *>(a_row_indices.data()));
+  task_data_seq->inputs_count.emplace_back(a_row_indices.size());
+  task_data_seq->inputs.emplace_back(reinterpret_cast<uint8_t *>(a_col_ptr.data()));
+  task_data_seq->inputs_count.emplace_back(a_col_ptr.size());
+  task_data_seq->inputs.emplace_back(reinterpret_cast<uint8_t *>(b_values.data()));
+  task_data_seq->inputs_count.emplace_back(b_values.size());
+  task_data_seq->inputs.emplace_back(reinterpret_cast<uint8_t *>(b_row_indices.data()));
+  task_data_seq->inputs_count.emplace_back(b_row_indices.size());
+  task_data_seq->inputs.emplace_back(reinterpret_cast<uint8_t *>(b_col_ptr.data()));
+  task_data_seq->inputs_count.emplace_back(b_col_ptr.size());
+  task_data_seq->outputs.emplace_back(reinterpret_cast<uint8_t *>(c_values.data()));
+  task_data_seq->outputs_count.emplace_back(c_values.size());
+  task_data_seq->outputs.emplace_back(reinterpret_cast<uint8_t *>(c_row_indices.data()));
+  task_data_seq->outputs_count.emplace_back(c_row_indices.size());
+  task_data_seq->outputs.emplace_back(reinterpret_cast<uint8_t *>(c_col_ptr.data()));
+  task_data_seq->outputs_count.emplace_back(c_col_ptr.size());
 
   // Create Task
   auto test_task_sequential =
@@ -86,56 +86,56 @@ TEST(sorokin_a_multiplication_sparse_matrices_double_ccs_seq, test_pipeline_run)
 }
 
 TEST(sorokin_a_multiplication_sparse_matrices_double_ccs_seq, test_task_run) {
-  int M = 20000;
-  int K = 20000;
-  int N = 20000;
+  int m = 20000;
+  int k = 20000;
+  int n = 20000;
 
-  std::vector<double> A_values(20000, 1);
-  std::vector<double> A_row_indices(20000);
+  std::vector<double> a_values(20000, 1);
+  std::vector<double> a_row_indices(20000);
   for (size_t i = 0; i < 20000; i++) {
-    A_row_indices[i] = i;
+    a_row_indices[i] = i;
   }
-  std::vector<double> A_col_ptr(20001);
+  std::vector<double> a_col_ptr(20001);
   for (size_t i = 0; i <= 20000; i++) {
-    A_col_ptr[i] = i;
+    a_col_ptr[i] = i;
   }
-  std::vector<double> B_values(20000, 1);
-  std::vector<double> B_row_indices(20000);
+  std::vector<double> b_values(20000, 1);
+  std::vector<double> b_row_indices(20000);
   for (size_t i = 0; i < 20000; i++) {
-    B_row_indices[i] = 19999 - i;
+    b_row_indices[i] = 19999 - i;
   }
-  std::vector<double> B_col_ptr(20001);
+  std::vector<double> b_col_ptr(20001);
   for (size_t i = 0; i <= 20000; i++) {
-    B_col_ptr[i] = i;
+    b_col_ptr[i] = i;
   }
 
-  std::vector<double> C_values(100000);
-  std::vector<double> C_row_indices(100000);
-  std::vector<double> C_col_ptr(100000);
+  std::vector<double> c_values(100000);
+  std::vector<double> c_row_indices(100000);
+  std::vector<double> c_col_ptr(100000);
 
   // Create task_data
   auto task_data_seq = std::make_shared<ppc::core::TaskData>();
-  task_data_seq->inputs_count.emplace_back(M);
-  task_data_seq->inputs_count.emplace_back(K);
-  task_data_seq->inputs_count.emplace_back(N);
-  task_data_seq->inputs.emplace_back(reinterpret_cast<uint8_t *>(A_values.data()));
-  task_data_seq->inputs_count.emplace_back(A_values.size());
-  task_data_seq->inputs.emplace_back(reinterpret_cast<uint8_t *>(A_row_indices.data()));
-  task_data_seq->inputs_count.emplace_back(A_row_indices.size());
-  task_data_seq->inputs.emplace_back(reinterpret_cast<uint8_t *>(A_col_ptr.data()));
-  task_data_seq->inputs_count.emplace_back(A_col_ptr.size());
-  task_data_seq->inputs.emplace_back(reinterpret_cast<uint8_t *>(B_values.data()));
-  task_data_seq->inputs_count.emplace_back(B_values.size());
-  task_data_seq->inputs.emplace_back(reinterpret_cast<uint8_t *>(B_row_indices.data()));
-  task_data_seq->inputs_count.emplace_back(B_row_indices.size());
-  task_data_seq->inputs.emplace_back(reinterpret_cast<uint8_t *>(B_col_ptr.data()));
-  task_data_seq->inputs_count.emplace_back(B_col_ptr.size());
-  task_data_seq->outputs.emplace_back(reinterpret_cast<uint8_t *>(C_values.data()));
-  task_data_seq->outputs_count.emplace_back(C_values.size());
-  task_data_seq->outputs.emplace_back(reinterpret_cast<uint8_t *>(C_row_indices.data()));
-  task_data_seq->outputs_count.emplace_back(C_row_indices.size());
-  task_data_seq->outputs.emplace_back(reinterpret_cast<uint8_t *>(C_col_ptr.data()));
-  task_data_seq->outputs_count.emplace_back(C_col_ptr.size());
+  task_data_seq->inputs_count.emplace_back(m);
+  task_data_seq->inputs_count.emplace_back(k);
+  task_data_seq->inputs_count.emplace_back(n);
+  task_data_seq->inputs.emplace_back(reinterpret_cast<uint8_t *>(a_values.data()));
+  task_data_seq->inputs_count.emplace_back(a_values.size());
+  task_data_seq->inputs.emplace_back(reinterpret_cast<uint8_t *>(a_row_indices.data()));
+  task_data_seq->inputs_count.emplace_back(a_row_indices.size());
+  task_data_seq->inputs.emplace_back(reinterpret_cast<uint8_t *>(a_col_ptr.data()));
+  task_data_seq->inputs_count.emplace_back(a_col_ptr.size());
+  task_data_seq->inputs.emplace_back(reinterpret_cast<uint8_t *>(b_values.data()));
+  task_data_seq->inputs_count.emplace_back(b_values.size());
+  task_data_seq->inputs.emplace_back(reinterpret_cast<uint8_t *>(b_row_indices.data()));
+  task_data_seq->inputs_count.emplace_back(b_row_indices.size());
+  task_data_seq->inputs.emplace_back(reinterpret_cast<uint8_t *>(b_col_ptr.data()));
+  task_data_seq->inputs_count.emplace_back(b_col_ptr.size());
+  task_data_seq->outputs.emplace_back(reinterpret_cast<uint8_t *>(c_values.data()));
+  task_data_seq->outputs_count.emplace_back(c_values.size());
+  task_data_seq->outputs.emplace_back(reinterpret_cast<uint8_t *>(c_row_indices.data()));
+  task_data_seq->outputs_count.emplace_back(c_row_indices.size());
+  task_data_seq->outputs.emplace_back(reinterpret_cast<uint8_t *>(c_col_ptr.data()));
+  task_data_seq->outputs_count.emplace_back(c_col_ptr.size());
 
   // Create Task
   auto test_task_sequential =
