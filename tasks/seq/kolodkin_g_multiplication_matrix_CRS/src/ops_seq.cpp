@@ -7,6 +7,7 @@
 
 std::vector<Complex> kolodkin_g_multiplication_matrix_seq::ParseMatrixIntoVec(const SparseMatrixCRS& mat) {
   std::vector<Complex> res = {};
+  res.reserve(5 + mat.values.size() + mat.colIndices.size() + mat.rowPtr.size());
   res.push_back((double)mat.numRows);
   res.push_back((double)mat.numCols);
   res.push_back((double)mat.values.size());
@@ -59,12 +60,12 @@ kolodkin_g_multiplication_matrix_seq::SparseMatrixCRS kolodkin_g_multiplication_
   SparseMatrixCRS res;
   res.numRows = (int)vec[0].real();
   res.numCols = (int)vec[1].real();
-  res.values = {};
-  res.colIndices = {};
-  res.rowPtr = {};
   auto values_size = (unsigned int)vec[2].real();
   auto col_indices_size = (unsigned int)vec[3].real();
   auto row_ptr_size = (unsigned int)vec[4].real();
+  res.values.reserve(values_size);
+  res.colIndices.reserve(col_indices_size);
+  res.rowPtr.reserve(row_ptr_size);
   for (unsigned int i = 0; i < values_size; i++) {
     res.values.push_back(vec[5 + i]);
   }
@@ -84,6 +85,8 @@ bool kolodkin_g_multiplication_matrix_seq::TestTaskSequential::PreProcessingImpl
   input_ = std::vector<Complex>(in_ptr, in_ptr + input_size);
   std::vector<Complex> matrix_a = {};
   std::vector<Complex> matrix_b = {};
+  matrix_a.reserve(5 + input_[2].real() + input_[3].real() + input_[4].real());
+  matrix_b.reserve(input_.size() - (5 + input_[2].real() + input_[3].real() + input_[4].real()));
   for (unsigned int i = 0; i < (unsigned int)(5 + input_[2].real() + input_[3].real() + input_[4].real()); i++) {
     matrix_a.push_back(input_[i]);
   }

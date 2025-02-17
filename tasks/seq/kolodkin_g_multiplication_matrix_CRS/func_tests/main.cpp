@@ -28,6 +28,7 @@ TEST(kolodkin_g_multiplication_seq, test_matmul_only_real) {
   b.AddValue(2, Complex(8, 0), 2);
   in_a = kolodkin_g_multiplication_matrix_seq::ParseMatrixIntoVec(a);
   in_b = kolodkin_g_multiplication_matrix_seq::ParseMatrixIntoVec(b);
+  in.reserve(in_a.size() + in_b.size());
   for (unsigned int i = 0; i < in_a.size(); i++) {
     in.push_back(in_a[i]);
   }
@@ -77,6 +78,7 @@ TEST(kolodkin_g_multiplication_seq, test_matmul_not_equal_rows_and_cols) {
   b.AddValue(2, Complex(8, 0), 2);
   in_a = kolodkin_g_multiplication_matrix_seq::ParseMatrixIntoVec(a);
   in_b = kolodkin_g_multiplication_matrix_seq::ParseMatrixIntoVec(b);
+  in.reserve(in_a.size() + in_b.size());
   for (unsigned int i = 0; i < in_a.size(); i++) {
     in.push_back(in_a[i]);
   }
@@ -116,6 +118,7 @@ TEST(kolodkin_g_multiplication_seq, test_matmul_with_imag) {
   b.AddValue(2, Complex(8, 8), 2);
   in_a = kolodkin_g_multiplication_matrix_seq::ParseMatrixIntoVec(a);
   in_b = kolodkin_g_multiplication_matrix_seq::ParseMatrixIntoVec(b);
+  in.reserve(in_a.size() + in_b.size());
   for (unsigned int i = 0; i < in_a.size(); i++) {
     in.push_back(in_a[i]);
   }
@@ -166,6 +169,7 @@ TEST(kolodkin_g_multiplication_seq, test_matmul_rectangular_matrix) {
   b.AddValue(2, Complex(8, 0), 1);
   in_a = kolodkin_g_multiplication_matrix_seq::ParseMatrixIntoVec(a);
   in_b = kolodkin_g_multiplication_matrix_seq::ParseMatrixIntoVec(b);
+  in.reserve(in_a.size() + in_b.size());
   for (unsigned int i = 0; i < in_a.size(); i++) {
     in.push_back(in_a[i]);
   }
@@ -212,6 +216,7 @@ TEST(kolodkin_g_multiplication_seq, test_matmul_with_negative_elems) {
   b.AddValue(1, Complex(-7, -7), 0);
   in_a = kolodkin_g_multiplication_matrix_seq::ParseMatrixIntoVec(a);
   in_b = kolodkin_g_multiplication_matrix_seq::ParseMatrixIntoVec(b);
+  in.reserve(in_a.size() + in_b.size());
   for (unsigned int i = 0; i < in_a.size(); i++) {
     in.push_back(in_a[i]);
   }
