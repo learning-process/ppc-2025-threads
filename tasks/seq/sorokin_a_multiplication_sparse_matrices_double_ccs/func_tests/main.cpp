@@ -13,9 +13,17 @@ TEST(sorokin_a_multiplication_sparse_matrices_double_ccs_seq, test_3x3_x_3x3) {
   int k = 3;
   int n = 3;
 
+  // 0 1 0
+  // 2 0 3
+  // 4 0 5
+
   std::vector<double> a_values = {2, 4, 1, 3, 5};
   std::vector<double> a_row_indices = {1, 2, 0, 1, 2};
   std::vector<double> a_col_ptr = {0, 2, 3, 5};
+
+  // 1 0 3
+  // 0 0 4
+  // 2 0 0
 
   std::vector<double> b_values = {1, 2, 3, 4};
   std::vector<double> b_row_indices = {0, 2, 0, 1};
@@ -55,6 +63,11 @@ TEST(sorokin_a_multiplication_sparse_matrices_double_ccs_seq, test_3x3_x_3x3) {
   test_task_sequential.PreProcessing();
   test_task_sequential.Run();
   test_task_sequential.PostProcessing();
+
+  // 0  0  4
+  // 8  0  6
+  // 14 0  12
+
   std::vector<double> r_values = {8, 14, 4, 6, 12};
   std::vector<double> r_row_indices = {1, 2, 0, 1, 2};
   std::vector<double> r_col_ptr = {0, 2, 2, 5};
@@ -74,9 +87,16 @@ TEST(sorokin_a_multiplication_sparse_matrices_double_ccs_seq, test_2x3_x_3x2) {
   int k = 3;
   int n = 2;
 
+  // 1 0 0
+  // 0 2 3
+
   std::vector<double> a_values = {1.0, 2.0, 3.0};
   std::vector<double> a_row_indices = {0, 1, 1};
   std::vector<double> a_col_ptr = {0, 1, 2, 3};
+
+  // 0 4
+  // 1 0
+  // 0 5
 
   std::vector<double> b_values = {1.0, 4.0, 5.0};
   std::vector<double> b_row_indices = {1, 0, 2};
@@ -116,6 +136,10 @@ TEST(sorokin_a_multiplication_sparse_matrices_double_ccs_seq, test_2x3_x_3x2) {
   test_task_sequential.PreProcessing();
   test_task_sequential.Run();
   test_task_sequential.PostProcessing();
+
+  // 0 4
+  // 2 15
+
   std::vector<double> r_values = {2.0, 4.0, 15.0};
   std::vector<double> r_row_indices = {1, 0, 1};
   std::vector<double> r_col_ptr = {0, 1};
@@ -135,9 +159,16 @@ TEST(sorokin_a_multiplication_sparse_matrices_double_ccs_seq, test_3x2_x_2x4) {
   int k = 2;
   int n = 4;
 
+  // 0 2
+  // 1 0
+  // 3 0
+
   std::vector<double> a_values = {1.0, 3.0, 2.0};
   std::vector<double> a_row_indices = {1, 2, 0};
   std::vector<double> a_col_ptr = {0, 2, 3};
+
+  // 0 1 0 0
+  // 4 0 0 5
 
   std::vector<double> b_values = {4.0, 1.0, 5.0};
   std::vector<double> b_row_indices = {1, 0, 1};
@@ -177,6 +208,11 @@ TEST(sorokin_a_multiplication_sparse_matrices_double_ccs_seq, test_3x2_x_2x4) {
   test_task_sequential.PreProcessing();
   test_task_sequential.Run();
   test_task_sequential.PostProcessing();
+
+  // 8 0 0 10
+  // 0 1 0 0
+  // 0 3 0 0
+
   std::vector<double> r_values = {8.0, 1.0, 3.0, 10.0};
   std::vector<double> r_row_indices = {0, 1, 2, 0};
   std::vector<double> r_col_ptr = {0, 1, 3, 3, 4};
