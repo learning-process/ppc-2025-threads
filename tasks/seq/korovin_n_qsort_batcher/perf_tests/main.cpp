@@ -11,7 +11,7 @@
 
 TEST(korovin_n_qsort_batcher_seq, test_pipeline_run) {
   // Create data
-  int n = 2000000;
+  int n = 20000000;
   std::vector<int> in(n);
   std::vector<int> out(in.size());
 
@@ -46,7 +46,7 @@ TEST(korovin_n_qsort_batcher_seq, test_pipeline_run) {
 
 TEST(korovin_n_qsort_batcher_seq, test_task_run) {
   // Create data
-  int n = 2000000;
+  int n = 20000000;
   std::vector<int> in(n);
   std::vector<int> out(in.size());
 

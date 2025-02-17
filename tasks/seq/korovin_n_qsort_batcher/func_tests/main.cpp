@@ -23,98 +23,49 @@ std::vector<int> GenerateRndVector(GenParams param) {
   }
   return v1;
 }
+
+void RunTest(std::vector<int> &in) {
+  std::vector<int> out(in.size());
+
+  // Create task_data
+  auto task_data_seq = std::make_shared<ppc::core::TaskData>();
+  task_data_seq->inputs.emplace_back(reinterpret_cast<uint8_t *>(in.data()));
+  task_data_seq->inputs_count.emplace_back(in.size());
+  task_data_seq->outputs.emplace_back(reinterpret_cast<uint8_t *>(out.data()));
+  task_data_seq->outputs_count.emplace_back(out.size());
+
+  // Create Task
+  korovin_n_qsort_batcher_seq::TestTaskSequential test_task_sequential(task_data_seq);
+  ASSERT_TRUE(test_task_sequential.Validation());
+  ASSERT_TRUE(test_task_sequential.PreProcessing());
+  ASSERT_TRUE(test_task_sequential.Run());
+  ASSERT_TRUE(test_task_sequential.PostProcessing());
+  ASSERT_TRUE(std::ranges::is_sorted(out));
+}
 }  // namespace
 
 TEST(korovin_n_qsort_batcher_seq, test_unsort) {
   // Create data
   std::vector<int> in = {11, 5, 1, 42, 3, 8, 7, 25, 6};
-  std::vector<int> expected(in);
-  std::ranges::sort(expected);
-  std::vector<int> out(in.size());
-
-  // Create task_data
-  auto task_data_seq = std::make_shared<ppc::core::TaskData>();
-  task_data_seq->inputs.emplace_back(reinterpret_cast<uint8_t *>(in.data()));
-  task_data_seq->inputs_count.emplace_back(in.size());
-  task_data_seq->outputs.emplace_back(reinterpret_cast<uint8_t *>(out.data()));
-  task_data_seq->outputs_count.emplace_back(out.size());
-
-  // Create Task
-  korovin_n_qsort_batcher_seq::TestTaskSequential test_task_sequential(task_data_seq);
-  ASSERT_EQ(test_task_sequential.Validation(), true);
-  test_task_sequential.PreProcessing();
-  test_task_sequential.Run();
-  test_task_sequential.PostProcessing();
-  EXPECT_EQ(expected, out);
+  RunTest(in);
 }
 
 TEST(korovin_n_qsort_batcher_seq, test_empty_sort) {
   // Create data
   std::vector<int> in = {};
-  std::vector<int> expected(in);
-  std::ranges::sort(expected);
-  std::vector<int> out(in.size());
-
-  // Create task_data
-  auto task_data_seq = std::make_shared<ppc::core::TaskData>();
-  task_data_seq->inputs.emplace_back(reinterpret_cast<uint8_t *>(in.data()));
-  task_data_seq->inputs_count.emplace_back(in.size());
-  task_data_seq->outputs.emplace_back(reinterpret_cast<uint8_t *>(out.data()));
-  task_data_seq->outputs_count.emplace_back(out.size());
-
-  // Create Task
-  korovin_n_qsort_batcher_seq::TestTaskSequential test_task_sequential(task_data_seq);
-  ASSERT_EQ(test_task_sequential.Validation(), true);
-  test_task_sequential.PreProcessing();
-  test_task_sequential.Run();
-  test_task_sequential.PostProcessing();
-  EXPECT_EQ(expected, out);
+  RunTest(in);
 }
 
 TEST(korovin_n_qsort_batcher_seq, test_one_el_sort) {
   // Create data
   std::vector<int> in = {42};
-  std::vector<int> expected(in);
-  std::ranges::sort(expected);
-  std::vector<int> out(in.size());
-
-  // Create task_data
-  auto task_data_seq = std::make_shared<ppc::core::TaskData>();
-  task_data_seq->inputs.emplace_back(reinterpret_cast<uint8_t *>(in.data()));
-  task_data_seq->inputs_count.emplace_back(in.size());
-  task_data_seq->outputs.emplace_back(reinterpret_cast<uint8_t *>(out.data()));
-  task_data_seq->outputs_count.emplace_back(out.size());
-
-  // Create Task
-  korovin_n_qsort_batcher_seq::TestTaskSequential test_task_sequential(task_data_seq);
-  ASSERT_EQ(test_task_sequential.Validation(), true);
-  test_task_sequential.PreProcessing();
-  test_task_sequential.Run();
-  test_task_sequential.PostProcessing();
-  EXPECT_EQ(expected, out);
+  RunTest(in);
 }
 
 TEST(korovin_n_qsort_batcher_seq, test_already_sort) {
   // Create data
   std::vector<int> in = {1, 2, 3, 4, 5, 6};
-  std::vector<int> expected(in);
-  std::ranges::sort(expected);
-  std::vector<int> out(in.size());
-
-  // Create task_data
-  auto task_data_seq = std::make_shared<ppc::core::TaskData>();
-  task_data_seq->inputs.emplace_back(reinterpret_cast<uint8_t *>(in.data()));
-  task_data_seq->inputs_count.emplace_back(in.size());
-  task_data_seq->outputs.emplace_back(reinterpret_cast<uint8_t *>(out.data()));
-  task_data_seq->outputs_count.emplace_back(out.size());
-
-  // Create Task
-  korovin_n_qsort_batcher_seq::TestTaskSequential test_task_sequential(task_data_seq);
-  ASSERT_EQ(test_task_sequential.Validation(), true);
-  test_task_sequential.PreProcessing();
-  test_task_sequential.Run();
-  test_task_sequential.PostProcessing();
-  EXPECT_EQ(expected, out);
+  RunTest(in);
 }
 
 TEST(korovin_n_qsort_batcher_seq, test_random_sort) {
@@ -123,22 +74,5 @@ TEST(korovin_n_qsort_batcher_seq, test_random_sort) {
   param.size = 20;
 
   std::vector<int> in = GenerateRndVector(param);
-  std::vector<int> expected(in);
-  std::ranges::sort(expected);
-  std::vector<int> out(in.size());
-
-  // Create task_data
-  auto task_data_seq = std::make_shared<ppc::core::TaskData>();
-  task_data_seq->inputs.emplace_back(reinterpret_cast<uint8_t *>(in.data()));
-  task_data_seq->inputs_count.emplace_back(in.size());
-  task_data_seq->outputs.emplace_back(reinterpret_cast<uint8_t *>(out.data()));
-  task_data_seq->outputs_count.emplace_back(out.size());
-
-  // Create Task
-  korovin_n_qsort_batcher_seq::TestTaskSequential test_task_sequential(task_data_seq);
-  ASSERT_EQ(test_task_sequential.Validation(), true);
-  test_task_sequential.PreProcessing();
-  test_task_sequential.Run();
-  test_task_sequential.PostProcessing();
-  EXPECT_EQ(expected, out);
+  RunTest(in);
 }

@@ -16,28 +16,21 @@ void korovin_n_qsort_batcher_seq::TestTaskSequential::QuickSort(std::vector<int>
 
   int partition_index = GetRandomIndex(low, high);
   int partition_value = arr[partition_index];
-  int i = low;
-  int j = high;
 
-  while (i <= j) {
-    while (arr[i] < partition_value) {
-      i++;
-    }
-    while (arr[j] > partition_value) {
-      j--;
-    }
-    if (i <= j) {
-      std::swap(arr[i], arr[j]);
-      i++;
-      j--;
-    }
-  }
+  auto partition_iter = std::partition(arr.begin() + low, arr.begin() + high + 1,
+                                       [partition_value](const int& elem) { return elem <= partition_value; });
 
-  if (j > low) {
-    QuickSort(arr, low, j);
+  auto mid_iter = std::partition(arr.begin() + low, partition_iter,
+                                 [partition_value](const int& elem) { return elem < partition_value; });
+
+  int i = std::distance(arr.begin(), mid_iter);
+  int j = std::distance(arr.begin(), partition_iter) - 1;
+
+  if (low < i - 1) {
+    QuickSort(arr, low, i - 1);
   }
-  if (i < high) {
-    QuickSort(arr, i, high);
+  if (j + 1 < high) {
+    QuickSort(arr, j + 1, high);
   }
 }
 
