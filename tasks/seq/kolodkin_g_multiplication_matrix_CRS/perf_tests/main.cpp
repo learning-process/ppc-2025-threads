@@ -32,10 +32,10 @@ TEST(kolodkin_g_multiplication_matrix__task_seq, test_pipeline_run) {
   in_b = kolodkin_g_multiplication_matrix_seq::ParseMatrixIntoVec(b);
   in.reserve(in_a.size() + in_b.size());
   for (unsigned int i = 0; i < in_a.size(); i++) {
-    in.push_back(in_a[i]);
+    in.emplace_back(in_a[i]);
   }
   for (unsigned int i = 0; i < in_b.size(); i++) {
-    in.push_back(in_b[i]);
+    in.emplace_back(in_b[i]);
   }
 
   // Create task_data
@@ -91,10 +91,10 @@ TEST(kolodkin_g_multiplication_matrix__task_seq, test_task_run) {
   in_b = kolodkin_g_multiplication_matrix_seq::ParseMatrixIntoVec(b);
   in.reserve(in_a.size() + in_b.size());
   for (unsigned int i = 0; i < in_a.size(); i++) {
-    in.push_back(in_a[i]);
+    in.emplace_back(in_a[i]);
   }
   for (unsigned int i = 0; i < in_b.size(); i++) {
-    in.push_back(in_b[i]);
+    in.emplace_back(in_b[i]);
   }
 
   // Create task_data

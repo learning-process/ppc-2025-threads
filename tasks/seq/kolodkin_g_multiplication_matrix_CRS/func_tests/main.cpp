@@ -30,10 +30,10 @@ TEST(kolodkin_g_multiplication_seq, test_matmul_only_real) {
   in_b = kolodkin_g_multiplication_matrix_seq::ParseMatrixIntoVec(b);
   in.reserve(in_a.size() + in_b.size());
   for (unsigned int i = 0; i < in_a.size(); i++) {
-    in.push_back(in_a[i]);
+    in.emplace_back(in_a[i]);
   }
   for (unsigned int i = 0; i < in_b.size(); i++) {
-    in.push_back(in_b[i]);
+    in.emplace_back(in_b[i]);
   }
   c.AddValue(0, Complex(6, 0), 1);
   c.AddValue(0, Complex(16, 0), 2);
@@ -80,10 +80,10 @@ TEST(kolodkin_g_multiplication_seq, test_matmul_not_equal_rows_and_cols) {
   in_b = kolodkin_g_multiplication_matrix_seq::ParseMatrixIntoVec(b);
   in.reserve(in_a.size() + in_b.size());
   for (unsigned int i = 0; i < in_a.size(); i++) {
-    in.push_back(in_a[i]);
+    in.emplace_back(in_a[i]);
   }
   for (unsigned int i = 0; i < in_b.size(); i++) {
-    in.push_back(in_b[i]);
+    in.emplace_back(in_b[i]);
   }
   // Create task_data
   auto task_data_seq = std::make_shared<ppc::core::TaskData>();
@@ -120,10 +120,10 @@ TEST(kolodkin_g_multiplication_seq, test_matmul_with_imag) {
   in_b = kolodkin_g_multiplication_matrix_seq::ParseMatrixIntoVec(b);
   in.reserve(in_a.size() + in_b.size());
   for (unsigned int i = 0; i < in_a.size(); i++) {
-    in.push_back(in_a[i]);
+    in.emplace_back(in_a[i]);
   }
   for (unsigned int i = 0; i < in_b.size(); i++) {
-    in.push_back(in_b[i]);
+    in.emplace_back(in_b[i]);
   }
   c.AddValue(0, Complex(0, 12), 1);
   c.AddValue(0, Complex(0, 32), 2);
@@ -171,10 +171,10 @@ TEST(kolodkin_g_multiplication_seq, test_matmul_rectangular_matrix) {
   in_b = kolodkin_g_multiplication_matrix_seq::ParseMatrixIntoVec(b);
   in.reserve(in_a.size() + in_b.size());
   for (unsigned int i = 0; i < in_a.size(); i++) {
-    in.push_back(in_a[i]);
+    in.emplace_back(in_a[i]);
   }
   for (unsigned int i = 0; i < in_b.size(); i++) {
-    in.push_back(in_b[i]);
+    in.emplace_back(in_b[i]);
   }
   c.AddValue(0, Complex(19, 0), 0);
   c.AddValue(0, Complex(4, 0), 3);
@@ -218,10 +218,10 @@ TEST(kolodkin_g_multiplication_seq, test_matmul_with_negative_elems) {
   in_b = kolodkin_g_multiplication_matrix_seq::ParseMatrixIntoVec(b);
   in.reserve(in_a.size() + in_b.size());
   for (unsigned int i = 0; i < in_a.size(); i++) {
-    in.push_back(in_a[i]);
+    in.emplace_back(in_a[i]);
   }
   for (unsigned int i = 0; i < in_b.size(); i++) {
-    in.push_back(in_b[i]);
+    in.emplace_back(in_b[i]);
   }
   c.AddValue(0, Complex(0, -12), 1);
   c.AddValue(1, Complex(0, -42), 0);

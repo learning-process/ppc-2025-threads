@@ -14,13 +14,13 @@ std::vector<Complex> kolodkin_g_multiplication_matrix_seq::ParseMatrixIntoVec(co
   res.emplace_back((double)mat.colIndices.size());
   res.emplace_back((double)mat.rowPtr.size());
   for (unsigned int i = 0; i < (unsigned int)mat.values.size(); i++) {
-    res.push_back(mat.values[i]);
+    res.emplace_back(mat.values[i]);
   }
   for (unsigned int i = 0; i < (unsigned int)mat.colIndices.size(); i++) {
-    res.push_back(mat.colIndices[i]);
+    res.emplace_back(mat.colIndices[i]);
   }
   for (unsigned int i = 0; i < (unsigned int)mat.rowPtr.size(); i++) {
-    res.push_back(mat.rowPtr[i]);
+    res.emplace_back(mat.rowPtr[i]);
   }
   return res;
 }
@@ -67,13 +67,13 @@ kolodkin_g_multiplication_matrix_seq::SparseMatrixCRS kolodkin_g_multiplication_
   res.colIndices.reserve(col_indices_size);
   res.rowPtr.reserve(row_ptr_size);
   for (unsigned int i = 0; i < values_size; i++) {
-    res.values.push_back(vec[5 + i]);
+    res.values.emplace_back(vec[5 + i]);
   }
   for (unsigned int i = 0; i < col_indices_size; i++) {
-    res.colIndices.push_back((int)vec[5 + values_size + i].real());
+    res.colIndices.emplace_back((int)vec[5 + values_size + i].real());
   }
   for (unsigned int i = 0; i < row_ptr_size; i++) {
-    res.rowPtr.push_back((int)vec[5 + values_size + col_indices_size + i].real());
+    res.rowPtr.emplace_back((int)vec[5 + values_size + col_indices_size + i].real());
   }
   return res;
 }
@@ -88,11 +88,11 @@ bool kolodkin_g_multiplication_matrix_seq::TestTaskSequential::PreProcessingImpl
   matrix_a.reserve(5 + (unsigned int)(input_[2].real() + input_[3].real() + input_[4].real()));
   matrix_b.reserve(input_.size() - (unsigned int)(5 + input_[2].real() + input_[3].real() + input_[4].real()));
   for (unsigned int i = 0; i < (unsigned int)(5 + input_[2].real() + input_[3].real() + input_[4].real()); i++) {
-    matrix_a.push_back(input_[i]);
+    matrix_a.emplace_back(input_[i]);
   }
   for (auto i = (unsigned int)(5 + input_[2].real() + input_[3].real() + input_[4].real());
        i < (unsigned int)input_.size(); i++) {
-    matrix_b.push_back(input_[i]);
+    matrix_b.emplace_back(input_[i]);
   }
   A_ = ParseVectorIntoMatrix(matrix_a);
   B_ = ParseVectorIntoMatrix(matrix_b);
