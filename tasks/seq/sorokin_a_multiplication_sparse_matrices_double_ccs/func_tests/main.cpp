@@ -8,7 +8,7 @@
 #include "core/task/include/task.hpp"
 #include "seq/sorokin_a_multiplication_sparse_matrices_double_ccs/include/ops_seq.hpp"
 
-TEST(sorokin_a_multiplication_sparse_matrices_double_ccs_seq, test_1) {
+TEST(sorokin_a_multiplication_sparse_matrices_double_ccs_seq, test_3x3_x_3x3) {
   int m = 3;
   int k = 3;
   int n = 3;
@@ -69,7 +69,7 @@ TEST(sorokin_a_multiplication_sparse_matrices_double_ccs_seq, test_1) {
   }
 }
 
-TEST(sorokin_a_multiplication_sparse_matrices_double_ccs_seq, test_2) {
+TEST(sorokin_a_multiplication_sparse_matrices_double_ccs_seq, test_2x3_x_3x2) {
   int m = 2;
   int k = 3;
   int n = 2;
@@ -130,7 +130,7 @@ TEST(sorokin_a_multiplication_sparse_matrices_double_ccs_seq, test_2) {
   }
 }
 
-TEST(sorokin_a_multiplication_sparse_matrices_double_ccs_seq, test_3) {
+TEST(sorokin_a_multiplication_sparse_matrices_double_ccs_seq, test_3x2_x_2x4) {
   int m = 3;
   int k = 2;
   int n = 4;
@@ -191,7 +191,7 @@ TEST(sorokin_a_multiplication_sparse_matrices_double_ccs_seq, test_3) {
   }
 }
 
-TEST(sorokin_a_multiplication_sparse_matrices_double_ccs_seq, test_val_1) {
+TEST(sorokin_a_multiplication_sparse_matrices_double_ccs_seq, test_val_k_0) {
   int m = 3;
   int k = 0;
   int n = 4;
@@ -237,7 +237,7 @@ TEST(sorokin_a_multiplication_sparse_matrices_double_ccs_seq, test_val_1) {
   ASSERT_EQ(test_task_sequential.Validation(), false);
 }
 
-TEST(sorokin_a_multiplication_sparse_matrices_double_ccs_seq, test_val_2) {
+TEST(sorokin_a_multiplication_sparse_matrices_double_ccs_seq, test_val_m_0) {
   int m = 0;
   int k = 2;
   int n = 4;
