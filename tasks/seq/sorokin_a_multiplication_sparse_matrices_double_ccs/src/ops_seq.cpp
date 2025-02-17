@@ -6,59 +6,49 @@
 #include <vector>
 
 namespace sorokin_a_multiplication_sparse_matrices_double_ccs_seq {
-void printCCS(const std::vector<double> &values, const std::vector<int> &row_indices, const std::vector<int> &col_ptr) {
-  std::cout << "Values: ";
-  for (double v : values) std::cout << v << " ";
-  std::cout << "\nRow indices: ";
-  for (int r : row_indices) std::cout << r << " ";
-  std::cout << "\nColumn pointers: ";
-  for (int c : col_ptr) std::cout << c << " ";
-  std::cout << "\n";
-}
+void MultiplyCCS(int m, int k, int n, const std::vector<double> &a_values, const std::vector<int> &a_row_indices,
+                 const std::vector<int> &a_col_ptr, const std::vector<double> &b_values,
+                 const std::vector<int> &b_row_indices, const std::vector<int> &b_col_ptr,
+                 std::vector<double> &c_values, std::vector<int> &c_row_indices, std::vector<int> &c_col_ptr) {
+  c_values.clear();
+  c_row_indices.clear();
+  c_col_ptr.assign(n + 1, 0);
 
-void multiplyCCS(int M, int K, int N, const std::vector<double> &A_values, const std::vector<int> &A_row_indices,
-                 const std::vector<int> &A_col_ptr, const std::vector<double> &B_values,
-                 const std::vector<int> &B_row_indices, const std::vector<int> &B_col_ptr,
-                 std::vector<double> &C_values, std::vector<int> &C_row_indices, std::vector<int> &C_col_ptr) {
-  C_values.clear();
-  C_row_indices.clear();
-  C_col_ptr.assign(N + 1, 0);
+  std::vector<double> temp_values(m, 0.0);
+  std::vector<bool> temp_used(m, false);
 
-  std::vector<double> temp_values(M, 0.0);
-  std::vector<bool> temp_used(M, false);
+  for (int j = 0; j < n; ++j) {
+    for (int k = b_col_ptr[j]; k < b_col_ptr[j + 1]; ++k) {
+      int row_b = b_row_indices[k];
+      double val_B = b_values[k];
 
-  for (int j = 0; j < N; ++j) {
-    for (int k = B_col_ptr[j]; k < B_col_ptr[j + 1]; ++k) {
-      int row_B = B_row_indices[k];
-      double val_B = B_values[k];
-
-      for (int i = A_col_ptr[row_B]; i < A_col_ptr[row_B + 1]; ++i) {
-        int row_A = A_row_indices[i];
-        temp_values[row_A] += A_values[i] * val_B;
-        temp_used[row_A] = true;
+      for (int i = a_col_ptr[row_b]; i < a_col_ptr[row_b + 1]; ++i) {
+        int row_a = a_row_indices[i];
+        temp_values[row_a] += a_values[i] * val_B;
+        temp_used[row_a] = true;
       }
     }
 
-    C_col_ptr[j] = C_values.size();
+    c_col_ptr[j] = c_values.size();
 
-    for (int i = 0; i < M; ++i) {
+    for (int i = 0; i < m; ++i) {
       if (temp_used[i]) {
-        C_values.push_back(temp_values[i]);
-        C_row_indices.push_back(i);
+        c_values.push_back(temp_values[i]);
+        c_row_indices.push_back(i);
         temp_values[i] = 0.0;
         temp_used[i] = false;
       }
     }
   }
-  C_col_ptr[N] = C_values.size();
+  c_col_ptr[n] = c_values.size();
 }
 }  // namespace sorokin_a_multiplication_sparse_matrices_double_ccs_seq
 
 bool sorokin_a_multiplication_sparse_matrices_double_ccs_seq::TestTaskSequential::PreProcessingImpl() {
   // Init value for input and output
-  M_ = task_data->inputs_count[0];
-  K_ = task_data->inputs_count[1];
-  N_ = task_data->inputs_count[2];
+  M_ = static_cast<int>(task_data->inputs_count[0]);
+  K_ = static_cast<int>(task_data->inputs_count[1]);
+  N_ = static_cast<int>(task_data->inputs_count[2]);
   auto *current_ptr = reinterpret_cast<double *>(task_data->inputs[0]);
   A_values_ = std::vector<double>(current_ptr, current_ptr + task_data->inputs_count[3]);
   current_ptr = reinterpret_cast<double *>(task_data->inputs[1]);
@@ -88,10 +78,6 @@ bool sorokin_a_multiplication_sparse_matrices_double_ccs_seq::TestTaskSequential
   C_values_ = std::vector<double>(output_size, 0);
   C_row_indices_ = std::vector<int>(output_size, 0);
   C_col_ptr_ = std::vector<int>(output_size, 0);
-
-  // printCCS(A_values, A_row_indices, A_col_ptr);
-  // printCCS(B_values, B_row_indices, B_col_ptr);
-
   return true;
 }
 
@@ -102,38 +88,28 @@ bool sorokin_a_multiplication_sparse_matrices_double_ccs_seq::TestTaskSequential
 
 bool sorokin_a_multiplication_sparse_matrices_double_ccs_seq::TestTaskSequential::RunImpl() {
   // Multiply matrices
-  multiplyCCS(M_, K_, N_, A_values_, A_row_indices_, A_col_ptr_, B_values_, B_row_indices_, B_col_ptr_, C_values_,
+  MultiplyCCS(M_, K_, N_, A_values_, A_row_indices_, A_col_ptr_, B_values_, B_row_indices_, B_col_ptr_, C_values_,
               C_row_indices_, C_col_ptr_);
-  // printCCS(C_values, C_row_indices, C_col_ptr);
   return true;
 }
 
 bool sorokin_a_multiplication_sparse_matrices_double_ccs_seq::TestTaskSequential::PostProcessingImpl() {
-  if (task_data->outputs[0] == nullptr || task_data->outputs[1] == nullptr || task_data->outputs[2] == nullptr) {
-    std::cerr << "Error: Output pointers are null!" << std::endl;
-    return false;
-  }
-  if (C_values_.size() > task_data->outputs_count[0] || C_row_indices_.size() > task_data->outputs_count[1] ||
-      C_col_ptr_.size() > task_data->outputs_count[2]) {
-    std::cerr << "Error: Output arrays are too large!" << std::endl;
-    return false;
-  }
-  std::vector<double> C_row_indices_d;
-  C_row_indices_d.resize(C_row_indices_.size());
-  std::vector<double> C_col_ptr_d;
-  C_col_ptr_d.resize(C_col_ptr_.size());
-  std::transform(C_row_indices_.begin(), C_row_indices_.end(), C_row_indices_d.begin(),
+  std::vector<double> c_row_indices_d;
+  c_row_indices_d.resize(C_row_indices_.size());
+  std::vector<double> c_col_ptr_d;
+  c_col_ptr_d.resize(C_col_ptr_.size());
+  std::transform(C_row_indices_.begin(), C_row_indices_.end(), c_row_indices_d.begin(),
                  [](int x) { return static_cast<double>(x); });
-  std::transform(C_col_ptr_.begin(), C_col_ptr_.end(), C_col_ptr_d.begin(),
+  std::transform(C_col_ptr_.begin(), C_col_ptr_.end(), c_col_ptr_d.begin(),
                  [](int x) { return static_cast<double>(x); });
   for (size_t i = 0; i < C_values_.size(); i++) {
     reinterpret_cast<double *>(task_data->outputs[0])[i] = C_values_[i];
   }
-  for (size_t i = 0; i < C_row_indices_d.size(); i++) {
-    reinterpret_cast<double *>(task_data->outputs[1])[i] = C_row_indices_d[i];
+  for (size_t i = 0; i < c_row_indices_d.size(); i++) {
+    reinterpret_cast<double *>(task_data->outputs[1])[i] = c_row_indices_d[i];
   }
-  for (size_t i = 0; i < C_col_ptr_d.size(); i++) {
-    reinterpret_cast<double *>(task_data->outputs[2])[i] = C_col_ptr_d[i];
+  for (size_t i = 0; i < c_col_ptr_d.size(); i++) {
+    reinterpret_cast<double *>(task_data->outputs[2])[i] = c_col_ptr_d[i];
   }
   return true;
 }

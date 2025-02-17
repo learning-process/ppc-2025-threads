@@ -1,6 +1,5 @@
 #pragma once
 
-#include <iostream>
 #include <utility>
 #include <vector>
 
@@ -31,10 +30,9 @@ class TestTaskSequential : public ppc::core::Task {
   std::vector<int> C_col_ptr_;
 };
 
-void printCCS(const std::vector<double> &values, const std::vector<int> &row_indices, const std::vector<int> &col_ptr);
-void multiplyCCS(int M, int K, int N, const std::vector<double> &A_values, const std::vector<int> &A_row_indices,
-                 const std::vector<int> &A_col_ptr, const std::vector<double> &B_values,
-                 const std::vector<int> &B_row_indices, const std::vector<int> &B_col_ptr,
-                 std::vector<double> &C_values, std::vector<int> &C_row_indices, std::vector<int> &C_col_ptr);
+void MultiplyCCS(int m, int k, int n, const std::vector<double> &a_values, const std::vector<int> &a_row_indices,
+                 const std::vector<int> &a_col_ptr, const std::vector<double> &b_values,
+                 const std::vector<int> &b_row_indices, const std::vector<int> &b_col_ptr,
+                 std::vector<double> &c_values, std::vector<int> &c_row_indices, std::vector<int> &c_col_ptr);
 
 }  // namespace sorokin_a_multiplication_sparse_matrices_double_ccs_seq
