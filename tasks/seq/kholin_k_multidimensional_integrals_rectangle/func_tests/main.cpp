@@ -3,6 +3,7 @@
 #include <cmath>
 #include <cstddef>
 #include <cstdint>
+#include <functional>
 #include <memory>
 #include <vector>
 
@@ -11,13 +12,13 @@
 
 TEST(kholin_k_multidimensional_integrals_rectangle_seq, test_validation) {
   // Create data
-  size_t dim = 1;
+  double dim = 1;
   std::vector<double> values{0.0};
   auto f = [](const std::vector<double> &f_values) { return std::sin(f_values[0]); };
   std::vector<double> in_lower_limits{0};
   std::vector<double> in_upper_limits{1};
   double epsilon = 0.001;
-  int n = 10;
+  double n = 10.0;
   std::vector<double> out_i(1, 0.0);
 
   auto *f_object = new std::function<double(const std::vector<double> &)>(f);
@@ -45,13 +46,13 @@ TEST(kholin_k_multidimensional_integrals_rectangle_seq, test_validation) {
 
 TEST(kholin_k_multidimensional_integrals_rectangle_seq, test_pre_processing) {
   // Create data
-  size_t dim = 1;
+  double dim = 1;
   std::vector<double> values{0.0};
   auto f = [](const std::vector<double> &f_values) { return std::sin(f_values[0]); };
   std::vector<double> in_lower_limits{0};
   std::vector<double> in_upper_limits{1};
   double epsilon = 0.001;
-  int n = 10;
+  double n = 10.0;
   std::vector<double> out_i(1, 0.0);
 
   auto *f_object = new std::function<double(const std::vector<double> &)>(f);
@@ -80,13 +81,13 @@ TEST(kholin_k_multidimensional_integrals_rectangle_seq, test_pre_processing) {
 
 TEST(kholin_k_multidimensional_integrals_rectangle_seq, test_run) {
   // Create data
-  size_t dim = 1;
+  double dim = 1.0;
   std::vector<double> values{0.0};
   auto f = [](const std::vector<double> &f_values) { return std::sin(f_values[0]); };
   std::vector<double> in_lower_limits{0};
   std::vector<double> in_upper_limits{1};
   double epsilon = 0.001;
-  int n = 10;
+  double n = 10.0;
   std::vector<double> out_i(1, 0.0);
 
   auto *f_object = new std::function<double(const std::vector<double> &)>(f);
@@ -116,13 +117,13 @@ TEST(kholin_k_multidimensional_integrals_rectangle_seq, test_run) {
 
 TEST(kholin_k_multidimensional_integrals_rectangle_seq, test_post_processing) {
   // Create data
-  size_t dim = 1;
+  double dim = 1.0;
   std::vector<double> values{0.0};
   auto f = [](const std::vector<double> &f_values) { return std::sin(f_values[0]); };
   std::vector<double> in_lower_limits{0};
   std::vector<double> in_upper_limits{1};
   double epsilon = 0.001;
-  int n = 10;
+  double n = 10.0;
   std::vector<double> out_i(1, 0.0);
 
   auto *f_object = new std::function<double(const std::vector<double> &)>(f);
@@ -153,13 +154,13 @@ TEST(kholin_k_multidimensional_integrals_rectangle_seq, test_post_processing) {
 
 TEST(kholin_k_multidimensional_integrals_rectangle_seq, single_integral_one_var) {
   // Create data
-  size_t dim = 1;
+  double dim = 1.0;
   std::vector<double> values{0.0};
   auto f = [](const std::vector<double> &f_values) { return std::sin(f_values[0]); };
   std::vector<double> in_lower_limits{0};
   std::vector<double> in_upper_limits{1};
   double epsilon = 1e-2;
-  int n = 20;
+  double n = 20.0;
   std::vector<double> out_i(1, 0.0);
 
   auto *f_object = new std::function<double(const std::vector<double> &)>(f);
@@ -193,13 +194,13 @@ TEST(kholin_k_multidimensional_integrals_rectangle_seq, single_integral_one_var)
 
 TEST(kholin_k_multidimensional_integrals_rectangle_seq, single_integral_two_var) {
   // Create data
-  size_t dim = 1;
+  double dim = 1.0;
   std::vector<double> values{0.0, 3.0};
   auto f = [](const std::vector<double> &f_values) { return std::exp(-f_values[0] + f_values[1]); };
   std::vector<double> in_lower_limits{-1};
   std::vector<double> in_upper_limits{5};
   double epsilon = 1e-1;
-  int n = 40;
+  double n = 40.0;
   std::vector<double> out_i(1, 0.0);
 
   auto *f_object = new std::function<double(const std::vector<double> &)>(f);
@@ -233,13 +234,15 @@ TEST(kholin_k_multidimensional_integrals_rectangle_seq, single_integral_two_var)
 
 TEST(kholin_k_multidimensional_integrals_rectangle_seq, double_integral_two_var) {
   // Create data
-  size_t dim = 2;
+  double dim = 2.0;
   std::vector<double> values{0.0, 0.0};
-  auto f = [](const std::vector<double> &f_values) { return (f_values[0] * f_values[0]) + (f_values[1] * f_values[1]); };
+  auto f = [](const std::vector<double> &f_values) {
+    return (f_values[0] * f_values[0]) + (f_values[1] * f_values[1]);
+  };
   std::vector<double> in_lower_limits{-10, 3};
   std::vector<double> in_upper_limits{10, 4};
   double epsilon = 1e-3;
-  int n = 47;
+  double n = 47.0;
   std::vector<double> out_i(1, 0.0);
 
   auto *f_object = new std::function<double(const std::vector<double> &)>(f);
@@ -273,13 +276,13 @@ TEST(kholin_k_multidimensional_integrals_rectangle_seq, double_integral_two_var)
 
 TEST(kholin_k_multidimensional_integrals_rectangle_seq, double_integral_one_var) {
   // Create data
-  size_t dim = 2;
+  double dim = 2.0;
   std::vector<double> values{-17.0, 0.0};
   auto f = [](const std::vector<double> &f_values) { return 289 + (f_values[1] * f_values[1]); };
   std::vector<double> in_lower_limits{-10, 3};
   std::vector<double> in_upper_limits{10, 4};
   double epsilon = 1e-1;
-  int n = 7;
+  double n = 7.0;
   std::vector<double> out_i(1, 0.0);
 
   auto *f_object = new std::function<double(const std::vector<double> &)>(f);
@@ -313,13 +316,13 @@ TEST(kholin_k_multidimensional_integrals_rectangle_seq, double_integral_one_var)
 
 TEST(kholin_k_multidimensional_integrals_rectangle_seq, triple_integral_three_var) {
   // Create data
-  size_t dim = 3;
+  double dim = 3.0;
   std::vector<double> values{0.0, 0.0, 0.0};
   auto f = [](const std::vector<double> &f_values) { return f_values[0] + f_values[1] + f_values[2]; };
   std::vector<double> in_lower_limits{-4, 6, 7};
   std::vector<double> in_upper_limits{4, 13, 8};
   double epsilon = 1e-2;
-  int n = 16;
+  double n = 16.0;
   std::vector<double> out_i(1, 0.0);
 
   auto *f_object = new std::function<double(const std::vector<double> &)>(f);
@@ -353,13 +356,13 @@ TEST(kholin_k_multidimensional_integrals_rectangle_seq, triple_integral_three_va
 
 TEST(kholin_k_multidimensional_integrals_rectangle_seq, triple_integral_two_var) {
   // Create data
-  size_t dim = 3;
+  double dim = 3.0;
   std::vector<double> values{0.0, 5.0, 0.0};
   auto f = [](const std::vector<double> &f_values) { return f_values[0] + 5.0 + f_values[2]; };
   std::vector<double> in_lower_limits{0, 5, -3};
   std::vector<double> in_upper_limits{12, 20, 2};
   double epsilon = 1e-2;
-  int n = 39;
+  double n = 39.0;
   std::vector<double> out_i(1, 0.0);
 
   auto *f_object = new std::function<double(const std::vector<double> &)>(f);
@@ -393,13 +396,13 @@ TEST(kholin_k_multidimensional_integrals_rectangle_seq, triple_integral_two_var)
 
 TEST(kholin_k_multidimensional_integrals_rectangle_seq, triple_integral_one_var) {
   // Create data
-  size_t dim = 3;
+  double dim = 3.0;
   std::vector<double> values{0.0, 5.0, -10.0};
   auto f = [](const std::vector<double> &f_values) { return f_values[0] + 5.0 + (-10.0); };
   std::vector<double> in_lower_limits{0, 5, -3};
   std::vector<double> in_upper_limits{12, 20, 2};
   double epsilon = 1e-2;
-  int n = 65;
+  double n = 65.0;
   std::vector<double> out_i(1, 0.0);
 
   auto *f_object = new std::function<double(const std::vector<double> &)>(f);

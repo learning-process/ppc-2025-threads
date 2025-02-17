@@ -24,23 +24,23 @@ class TestTaskSequential : public ppc::core::Task {
   std::vector<double> lower_limits_;
   std::vector<double> upper_limits_;
   double epsilon_;
-  int start_n_;
+  double start_n_;
   double result_;
 
-  size_t dim_;
+  double dim_;
   size_t sz_values_;
   size_t sz_lower_limits_;
   size_t sz_upper_limits_;
 
   double Integrate(const Function& f, const std::vector<double>& l_limits, const std::vector<double>& u_limits,
-                   const std::vector<double>& h, std::vector<double>& f_values, size_t curr_index_dim, size_t dim,
-                   size_t n);
+                   const std::vector<double>& h, std::vector<double>& f_values, double curr_index_dim, double dim,
+                   double n);
   double IntegrateWithRectangleMethod(const Function& f, std::vector<double>& f_values,
                                       const std::vector<double>& l_limits, const std::vector<double>& u_limits,
-                                      size_t dim, size_t n);
+                                      double dim, double n);
   double RunMultistepSchemeMethodRectangle(const Function& f, std::vector<double>& f_values,
                                            const std::vector<double>& l_limits, const std::vector<double>& u_limits,
-                                           size_t dim, int n, double epsilon);
+                                           double dim, double n, double epsilon);
 };
 
 }  // namespace kholin_k_multidimensional_integrals_rectangle_seq

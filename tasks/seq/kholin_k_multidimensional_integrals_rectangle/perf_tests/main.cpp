@@ -2,6 +2,7 @@
 
 #include <chrono>
 #include <cmath>
+#include <cstddef>
 #include <cstdint>
 #include <functional>
 #include <memory>
@@ -13,7 +14,7 @@
 
 TEST(kholin_k_multidimensional_integrals_rectangle_seq, test_pipeline_run) {
   // Create data
-  size_t dim = 3;
+  double dim = 3.0;
   std::vector<double> values{0.0, 0.0, 0.0};
   auto f = [](const std::vector<double> &f_values) {
     return std::cos((f_values[0] * f_values[0]) + (f_values[1] * f_values[1]) + (f_values[2] * f_values[2])) *
@@ -22,7 +23,7 @@ TEST(kholin_k_multidimensional_integrals_rectangle_seq, test_pipeline_run) {
   std::vector<double> in_lower_limits{-1, 2, -3};
   std::vector<double> in_upper_limits{8, 8, 2};
   double epsilon = 0.1;
-  int n = 1;
+  double n = 1.0;
   std::vector<double> out_i(1, 0.0);
 
   auto *f_object = new std::function<double(const std::vector<double> &)>(f);
@@ -67,7 +68,7 @@ TEST(kholin_k_multidimensional_integrals_rectangle_seq, test_pipeline_run) {
 
 TEST(kholin_k_multidimensional_integrals_rectangle_seq, test_task_run) {
   // Create data
-  size_t dim = 3;
+  double dim = 3.0;
   std::vector<double> values{0.0, 0.0, 0.0};
   auto f = [](const std::vector<double> &f_values) {
     return std::cos((f_values[0] * f_values[0]) + (f_values[1] * f_values[1]) + (f_values[2] * f_values[2])) *
@@ -76,7 +77,7 @@ TEST(kholin_k_multidimensional_integrals_rectangle_seq, test_task_run) {
   std::vector<double> in_lower_limits{-1, 2, -3};
   std::vector<double> in_upper_limits{8, 8, 2};
   double epsilon = 0.1;
-  int n = 1;
+  double n = 1.0;
   std::vector<double> out_i(1, 0.0);
 
   auto *f_object = new std::function<double(const std::vector<double> &)>(f);
