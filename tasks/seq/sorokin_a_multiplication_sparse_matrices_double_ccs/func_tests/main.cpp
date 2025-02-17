@@ -6,7 +6,6 @@
 #include <vector>
 
 #include "core/task/include/task.hpp"
-#include "core/util/include/util.hpp"
 #include "seq/sorokin_a_multiplication_sparse_matrices_double_ccs/include/ops_seq.hpp"
 
 TEST(sorokin_a_multiplication_sparse_matrices_double_ccs_seq, test_1) {
