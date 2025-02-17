@@ -1,6 +1,10 @@
 #include <gtest/gtest.h>
 
 #include <chrono>
+#include <cstddef>
+#include <cstdint>
+#include <memory>
+#include <vector>
 
 #include "core/perf/include/perf.hpp"
 #include "seq/lopatin_i_monte_carlo/include/lopatinMonteCarloSeq.hpp"

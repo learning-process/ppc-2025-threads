@@ -1,5 +1,10 @@
 #include "seq/lopatin_i_monte_carlo/include/lopatinMonteCarloSeq.hpp"
 
+#include <cmath>
+#include <cstddef>
+#include <random>
+#include <vector>
+
 namespace lopatin_i_monte_carlo_seq {
 
 bool TestTaskSequential::ValidationImpl() {
@@ -13,43 +18,43 @@ bool TestTaskSequential::ValidationImpl() {
 bool TestTaskSequential::PreProcessingImpl() {
   auto* bounds_ptr = reinterpret_cast<double*>(task_data->inputs[0]);
   size_t bounds_size = task_data->inputs_count[0];
-  integrationBounds.resize(bounds_size);
-  std::copy(bounds_ptr, bounds_ptr + bounds_size, integrationBounds.begin());
+  integrationBounds_.resize(bounds_size);
+  std::copy(bounds_ptr, bounds_ptr + bounds_size, integrationBounds_.begin());
 
   auto* iter_ptr = reinterpret_cast<int*>(task_data->inputs[1]);
-  iterations = *iter_ptr;
+  iterations_ = *iter_ptr;
   return true;
 }
 
 bool TestTaskSequential::RunImpl() {
-  const int D = integrationBounds.size() / 2;  // dimensions
+  const int d = integrationBounds_.size() / 2;  // dimensions
   std::mt19937 rnd(12);
   std::uniform_real_distribution<> dis(0.0, 1.0);
 
-  result = 0.0;
-  for (int i = 0; i < iterations; ++i) {
-    std::vector<double> point(D);
-    for (int j = 0; j < D; ++j) {
-      const double min = integrationBounds[2 * j];
-      const double max = integrationBounds[2 * j + 1];
+  result_ = 0.0;
+  for (int i = 0; i < iterations_; ++i) {
+    std::vector<double> point(d);
+    for (int j = 0; j < d; ++j) {
+      const double min = integrationBounds_[2 * j];
+      const double max = integrationBounds_[(2 * j) + 1];
       point[j] = min + (max - min) * dis(rnd);
     }
-    result += integrand(point);
+    result_ += integrand_(point);
   }
 
   // volume of integration region
   double volume = 1.0;
-  for (int j = 0; j < D; ++j) {
-    volume *= (integrationBounds[2 * j + 1] - integrationBounds[2 * j]);
+  for (int j = 0; j < d; ++j) {
+    volume *= (integrationBounds_[(2 * j) + 1] - integrationBounds_[2 * j]);
   }
-  result = (result / iterations) * volume;
+  result_ = (result_ / iterations_) * volume;
 
   return true;
 }
 
 bool TestTaskSequential::PostProcessingImpl() {
   auto* output_ptr = reinterpret_cast<double*>(task_data->outputs[0]);
-  *output_ptr = result;
+  *output_ptr = result_;
   return true;
 }
 
