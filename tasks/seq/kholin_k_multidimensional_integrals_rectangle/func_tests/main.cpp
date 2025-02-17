@@ -1,5 +1,7 @@
 #include <gtest/gtest.h>
 
+#include <cmath>
+#include <cstddef>
 #include <cstdint>
 #include <memory>
 #include <vector>
@@ -233,7 +235,7 @@ TEST(kholin_k_multidimensional_integrals_rectangle_seq, double_integral_two_var)
   // Create data
   size_t dim = 2;
   std::vector<double> values{0.0, 0.0};
-  auto f = [](const std::vector<double> &f_values) { return f_values[0] * f_values[0] + f_values[1] * f_values[1]; };
+  auto f = [](const std::vector<double> &f_values) { return (f_values[0] * f_values[0]) + (f_values[1] * f_values[1]); };
   std::vector<double> in_lower_limits{-10, 3};
   std::vector<double> in_upper_limits{10, 4};
   double epsilon = 1e-3;
@@ -273,7 +275,7 @@ TEST(kholin_k_multidimensional_integrals_rectangle_seq, double_integral_one_var)
   // Create data
   size_t dim = 2;
   std::vector<double> values{-17.0, 0.0};
-  auto f = [](const std::vector<double> &f_values) { return 289 + f_values[1] * f_values[1]; };
+  auto f = [](const std::vector<double> &f_values) { return 289 + (f_values[1] * f_values[1]); };
   std::vector<double> in_lower_limits{-10, 3};
   std::vector<double> in_upper_limits{10, 4};
   double epsilon = 1e-1;

@@ -1,5 +1,6 @@
 #include "seq/kholin_k_multidimensional_integrals_rectangle/include/ops_seq.hpp"
 
+#include <functional>
 #include <vector>
 
 double kholin_k_multidimensional_integrals_rectangle_seq::TestTaskSequential::Integrate(
@@ -30,14 +31,14 @@ double kholin_k_multidimensional_integrals_rectangle_seq::TestTaskSequential::In
 
 double kholin_k_multidimensional_integrals_rectangle_seq::TestTaskSequential::RunMultistepSchemeMethodRectangle(
     const Function& f, std::vector<double>& f_values, const std::vector<double>& l_limits,
-    const std::vector<double>& u_limits, double epsilon, size_t dim, int n) {
+    const std::vector<double>& u_limits, size_t dim, int n, double epsilon) {
   double i_n = IntegrateWithRectangleMethod(f, f_values, l_limits, u_limits, dim, n);
   double i_2n = 0.0;
   double delta = 0;
   do {
     n *= 2;
     i_2n = IntegrateWithRectangleMethod(f, f_values, l_limits, u_limits, dim, n);
-    delta = std::abs(i_2n - i_n);
+    delta = std::fabs(i_2n - i_n);
     i_n = i_2n;
 
   } while ((1.0 / 3) * delta >= epsilon);
@@ -82,7 +83,7 @@ bool kholin_k_multidimensional_integrals_rectangle_seq::TestTaskSequential::Vali
 }
 
 bool kholin_k_multidimensional_integrals_rectangle_seq::TestTaskSequential::RunImpl() {
-  result_ = RunMultistepSchemeMethodRectangle(f_, f_values_, lower_limits_, upper_limits_, epsilon_, dim_, start_n_);
+  result_ = RunMultistepSchemeMethodRectangle(f_, f_values_, lower_limits_, upper_limits_, dim_, start_n_, epsilon_);
   return true;
 }
 

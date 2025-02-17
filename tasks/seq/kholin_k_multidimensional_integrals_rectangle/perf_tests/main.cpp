@@ -1,7 +1,9 @@
 #include <gtest/gtest.h>
 
 #include <chrono>
+#include <cmath>
 #include <cstdint>
+#include <functional>
 #include <memory>
 #include <vector>
 
@@ -14,8 +16,8 @@ TEST(kholin_k_multidimensional_integrals_rectangle_seq, test_pipeline_run) {
   size_t dim = 3;
   std::vector<double> values{0.0, 0.0, 0.0};
   auto f = [](const std::vector<double> &f_values) {
-    return std::cos(f_values[0] * f_values[0] + f_values[1] * f_values[1] + f_values[2] * f_values[2]) *
-           (1 + f_values[0] * f_values[0] + f_values[1] * f_values[1] + f_values[2] * f_values[2]);
+    return std::cos((f_values[0] * f_values[0]) + (f_values[1] * f_values[1]) + (f_values[2] * f_values[2])) *
+           (1 + (f_values[0] * f_values[0]) + (f_values[1] * f_values[1]) + (f_values[2] * f_values[2]));
   };
   std::vector<double> in_lower_limits{-1, 2, -3};
   std::vector<double> in_upper_limits{8, 8, 2};
@@ -68,8 +70,8 @@ TEST(kholin_k_multidimensional_integrals_rectangle_seq, test_task_run) {
   size_t dim = 3;
   std::vector<double> values{0.0, 0.0, 0.0};
   auto f = [](const std::vector<double> &f_values) {
-    return std::cos(f_values[0] * f_values[0] + f_values[1] * f_values[1] + f_values[2] * f_values[2]) *
-           (1 + f_values[0] * f_values[0] + f_values[1] * f_values[1] + f_values[2] * f_values[2]);
+    return std::cos((f_values[0] * f_values[0]) + (f_values[1] * f_values[1]) + (f_values[2] * f_values[2])) *
+           (1 + (f_values[0] * f_values[0]) + (f_values[1] * f_values[1]) + (f_values[2] * f_values[2]));
   };
   std::vector<double> in_lower_limits{-1, 2, -3};
   std::vector<double> in_upper_limits{8, 8, 2};
