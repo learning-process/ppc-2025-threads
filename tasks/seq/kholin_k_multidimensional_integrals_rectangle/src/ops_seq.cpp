@@ -7,14 +7,14 @@
 
 double kholin_k_multidimensional_integrals_rectangle_seq::TestTaskSequential::Integrate(
     const Function& f, const std::vector<double>& l_limits, const std::vector<double>& u_limits,
-    const std::vector<double>& h, std::vector<double>& f_values, double curr_index_dim, double dim, double n) {
-  if (curr_index_dim == dim) {
+    const std::vector<double>& h, std::vector<double>& f_values, int curr_index_dim, double dim, double n) {
+  if (curr_index_dim == static_cast<int>(dim)) {
     return f(f_values);
   }
 
   double sum = 0.0;
-  for (size_t i = 0; i < n; ++i) {
-    f_values[curr_index_dim] = l_limits[curr_index_dim] + (static_cast<double>(i) + 0.5) * h[curr_index_dim];
+  for (double i = 0; i < n; ++i) {
+    f_values[curr_index_dim] = l_limits[curr_index_dim] + (i + 0.5) * h[curr_index_dim];
     sum += Integrate(f, l_limits, u_limits, h, f_values, curr_index_dim + 1, dim, n);
   }
   return sum * h[curr_index_dim];
@@ -24,7 +24,7 @@ double kholin_k_multidimensional_integrals_rectangle_seq::TestTaskSequential::In
     const Function& f, std::vector<double>& f_values, const std::vector<double>& l_limits,
     const std::vector<double>& u_limits, double dim, double n) {
   std::vector<double> h(dim);
-  for (size_t i = 0; i < dim; ++i) {
+  for (size_t i = 0; i < static_cast<size_t>(dim); ++i) {
     h[i] = (u_limits[i] - l_limits[i]) / n;
   }
 
