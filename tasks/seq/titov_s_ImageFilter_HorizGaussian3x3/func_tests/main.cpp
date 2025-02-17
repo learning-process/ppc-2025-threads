@@ -22,10 +22,14 @@ TEST(titov_s_image_filter_horiz_gaussian3x3_seq, test_10_diag1) {
 
   for (size_t i = 0; i < kHeight; ++i) {
     for (size_t j = 0; j < kWidth; ++j) {
-      if (((j == 0 && i == 0) || i == j) || (j == kWidth - 1 && i == kHeight - 1)) {
-        expected_output[((i * kWidth)) + j] = 0.5;
-      } else if (j == i + 1 || j == i - 1) {
-        expected_output[((i * kWidth)) + j] = 0.25;
+      bool isMainDiag = (i == j);
+      bool isCorner = (j == 0 && i == 0) || (j == kWidth - 1 && i == kHeight - 1);
+      bool isAdjacent = (j == i + 1) || (j == i - 1);
+
+      if (isMainDiag || isCorner) {
+        expected_output[i * kWidth + j] = 0.5;
+      } else if (isAdjacent) {
+        expected_output[i * kWidth + j] = 0.25;
       }
     }
   }

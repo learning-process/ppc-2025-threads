@@ -18,6 +18,11 @@ bool titov_s_image_filter_horiz_gaussian3x3_seq::ImageFilterSequential::PreProce
 }
 
 bool titov_s_image_filter_horiz_gaussian3x3_seq::ImageFilterSequential::ValidationImpl() {
+  auto *kernel_ptr = reinterpret_cast<int *>(task_data->inputs[1]);
+  kernel_ = std::vector<int>(kernel_ptr, kernel_ptr + 3);
+  if (kernel_.size() != 3) {
+    return false;
+  }
   return task_data->inputs_count[0] == task_data->outputs_count[0];
 }
 
