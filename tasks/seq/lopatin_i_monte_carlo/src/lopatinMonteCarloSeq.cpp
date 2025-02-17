@@ -1,5 +1,6 @@
 #include "seq/lopatin_i_monte_carlo/include/lopatinMonteCarloSeq.hpp"
 
+#include <algorithm>
 #include <cmath>
 #include <cstddef>
 #include <random>
@@ -27,7 +28,7 @@ bool TestTaskSequential::PreProcessingImpl() {
 }
 
 bool TestTaskSequential::RunImpl() {
-  const int d = integrationBounds_.size() / 2;  // dimensions
+  const size_t d = integrationBounds_.size() / 2;  // dimensions
   std::mt19937 rnd(12);
   std::uniform_real_distribution<> dis(0.0, 1.0);
 

@@ -1,14 +1,13 @@
 #include <gtest/gtest.h>
 
-#include <cstddef>
+#include <cassert>
+#include <cmath>
 #include <cstdint>
-#include <fstream>
 #include <memory>
-#include <string>
+#include <numbers>
 #include <vector>
 
 #include "core/task/include/task.hpp"
-#include "core/util/include/util.hpp"
 #include "seq/lopatin_i_monte_carlo/include/lopatinMonteCarloSeq.hpp"
 
 namespace lopatin_i_monte_carlo_seq {
@@ -265,7 +264,7 @@ TEST(lopatin_i_monte_carlo_seq, 5DExponentialFunction) {
 TEST(lopatin_i_monte_carlo_seq, 2DCosineFunction) {
   const int dimensions = 2;
   const int iterations = 100000;
-  std::vector<double> bounds = lopatin_i_monte_carlo_seq::GenerateBounds(dimensions, 0.0, 3.14159265358979323846 / 2);
+  std::vector<double> bounds = lopatin_i_monte_carlo_seq::GenerateBounds(dimensions, 0.0, std::numbers::pi / 2);
 
   auto task_data = std::make_shared<ppc::core::TaskData>();
   task_data->inputs.push_back(reinterpret_cast<uint8_t*>(bounds.data()));

@@ -11,7 +11,7 @@
 
 namespace lopatin_i_monte_carlo_seq {
 
-std::vector<double> generateBounds(int dimensions, double min_val = 0.0, double max_val = 1.0) {
+std::vector<double> GenerateBounds(int dimensions, double min_val = 0.0, double max_val = 1.0) {
   std::vector<double> bounds;
   for (int i = 0; i < dimensions; ++i) {
     bounds.push_back(min_val);
@@ -25,7 +25,7 @@ TEST(lopatin_i_monte_carlo_seq, test_pipeline_run) {
   const int dimensions = 5;
   const int iterations = 10000000;
 
-  std::vector<double> bounds = lopatin_i_monte_carlo_seq::generateBounds(dimensions, -3.0, 3.0);
+  std::vector<double> bounds = lopatin_i_monte_carlo_seq::GenerateBounds(dimensions, -3.0, 3.0);
 
   auto task_data = std::make_shared<ppc::core::TaskData>();
   task_data->inputs.push_back(reinterpret_cast<uint8_t*>(bounds.data()));
@@ -38,7 +38,9 @@ TEST(lopatin_i_monte_carlo_seq, test_pipeline_run) {
   task_data->outputs_count.push_back(1);
 
   // exp(x1 + x2 + x3 + x4 + x5)
-  auto function = [](const std::vector<double>& x) { return std::exp(x[0] + x[1] + x[2] + x[3] + x[4]); };
+  std::function<double(const std::vector<double>&)> function = [](const std::vector<double>& x) {
+    return std::exp(x[0] + x[1] + x[2] + x[3] + x[4]);
+  };
 
   auto test_task = std::make_shared<lopatin_i_monte_carlo_seq::TestTaskSequential>(task_data, function);
 
@@ -62,7 +64,7 @@ TEST(lopatin_i_monte_carlo_seq, test_task_run) {
   const int dimensions = 5;
   const int iterations = 10000000;
 
-  std::vector<double> bounds = lopatin_i_monte_carlo_seq::generateBounds(dimensions, -3.0, 3.0);
+  std::vector<double> bounds = lopatin_i_monte_carlo_seq::GenerateBounds(dimensions, -3.0, 3.0);
 
   auto task_data = std::make_shared<ppc::core::TaskData>();
   task_data->inputs.push_back(reinterpret_cast<uint8_t*>(bounds.data()));
@@ -75,7 +77,9 @@ TEST(lopatin_i_monte_carlo_seq, test_task_run) {
   task_data->outputs_count.push_back(1);
 
   // exp(x1 + x2 + x3 + x4 + x5)
-  auto function = [](const std::vector<double>& x) { return std::exp(x[0] + x[1] + x[2] + x[3] + x[4]); };
+  std::function<double(const std::vector<double>&)> function = [](const std::vector<double>& x) {
+    return std::exp(x[0] + x[1] + x[2] + x[3] + x[4]);
+  };
 
   auto test_task = std::make_shared<lopatin_i_monte_carlo_seq::TestTaskSequential>(task_data, function);
 
