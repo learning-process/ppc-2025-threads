@@ -30,8 +30,7 @@ TEST(shulpin_i_jarvis_seq, test_pipeline_run) {
   shulpin_i_jarvis_seq::Point center{0, 0};
   shulpin_i_jarvis_seq::CircleParams params{10.0, 10000};
 
-  std::vector<shulpin_i_jarvis_seq::Point> input =
-      shulpin_i_jarvis_seq::GeneratePointsInCircle(center, params);
+  std::vector<shulpin_i_jarvis_seq::Point> input = shulpin_i_jarvis_seq::GeneratePointsInCircle(center, params);
 
   std::vector<shulpin_i_jarvis_seq::Point> out(input.size());
   std::vector<shulpin_i_jarvis_seq::Point> expected = input;

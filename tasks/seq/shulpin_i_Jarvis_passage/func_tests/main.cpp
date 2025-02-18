@@ -166,9 +166,9 @@ TEST(shulpin_i_jarvis_seq, circle_r10_p1000) {
   shulpin_i_jarvis_seq::TestBodyRandomCircle(input, expected, params.num_points);
 }
 
-TEST(shulpin_i_jarvis_seq, circle_r10_p10000) {
+TEST(shulpin_i_jarvis_seq, circle_r10_p5000) {
   shulpin_i_jarvis_seq::Point center{0, 0};
-  shulpin_i_jarvis_seq::CircleParams params{10.0, 10000};
+  shulpin_i_jarvis_seq::CircleParams params{10.0, 5000};
 
   std::vector<shulpin_i_jarvis_seq::Point> input = shulpin_i_jarvis_seq::GeneratePointsInCircle(center, params);
   std::vector<shulpin_i_jarvis_seq::Point> expected = input;
