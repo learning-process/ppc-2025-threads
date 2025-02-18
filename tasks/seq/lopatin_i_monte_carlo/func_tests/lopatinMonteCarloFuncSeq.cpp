@@ -258,8 +258,7 @@ TEST(lopatin_i_monte_carlo_seq, 5DExponentialFunction) {
   // analytical (e^3 - e^{-3})^5 = (20.0855 - 0.0498)^5 = 3.2e6
   const double single_dim_integral = std::pow(std::numbers::e, 3.0) - std::pow(std::numbers::e, -3.0);  // =20.0357
   const double expected = std::pow(single_dim_integral, 5);  // =20.0357^5 = 3.28e6
-
-  const double tolerance = 0.07 * expected;  // error 7%
+  const double tolerance = 0.01 * expected;  // error 1%
   EXPECT_NEAR(result, expected, tolerance);
 }
 
@@ -290,6 +289,95 @@ TEST(lopatin_i_monte_carlo_seq, 2DCosineFunction) {
   // analytical = 0
   const double expected = 0.0;
   const double tolerance = 0.01;  // error 1%
+  EXPECT_NEAR(result, expected, tolerance);
+}
 
+TEST(lopatin_i_monte_carlo_seq, 2DSqrtFunction) {
+  const int dimensions = 2;
+  const int iterations = 10000;
+  std::vector<double> bounds = lopatin_i_monte_carlo_seq::GenerateBounds(0.0, 1.0, dimensions);
+
+  auto task_data = std::make_shared<ppc::core::TaskData>();
+  task_data->inputs.push_back(reinterpret_cast<uint8_t*>(bounds.data()));
+  task_data->inputs_count.push_back(bounds.size());
+  task_data->inputs.push_back(reinterpret_cast<uint8_t*>(const_cast<int*>(&iterations)));
+  task_data->inputs_count.push_back(1);
+
+  double result = 0.0;
+  task_data->outputs.push_back(reinterpret_cast<uint8_t*>(&result));
+  task_data->outputs_count.push_back(1);
+
+  // sqrt(x + y)
+  auto function = [](const std::vector<double>& x) { return std::sqrt(x[0] + x[1]); };
+
+  lopatin_i_monte_carlo_seq::TestTaskSequential task(task_data, function);
+  ASSERT_TRUE(task.Validation());
+  ASSERT_TRUE(task.PreProcessing());
+  ASSERT_TRUE(task.Run());
+  ASSERT_TRUE(task.PostProcessing());
+
+  // analytical = 0.975
+  const double expected = 0.975;
+  const double tolerance = 0.01 * expected;  // 1% error
+  EXPECT_NEAR(result, expected, tolerance);
+}
+
+TEST(lopatin_i_monte_carlo_seq, 3DSinFunction) {
+  const int dimensions = 3;
+  const int iterations = 20000;
+  std::vector<double> bounds = lopatin_i_monte_carlo_seq::GenerateBounds(0.0, std::numbers::pi / 6, dimensions);
+
+  auto task_data = std::make_shared<ppc::core::TaskData>();
+  task_data->inputs.push_back(reinterpret_cast<uint8_t*>(bounds.data()));
+  task_data->inputs_count.push_back(bounds.size());
+  task_data->inputs.push_back(reinterpret_cast<uint8_t*>(const_cast<int*>(&iterations)));
+  task_data->inputs_count.push_back(1);
+
+  double result = 0.0;
+  task_data->outputs.push_back(reinterpret_cast<uint8_t*>(&result));
+  task_data->outputs_count.push_back(1);
+
+  // sin(x + y + z)
+  auto function = [](const std::vector<double>& x) { return std::sin(x[0] + x[1] + x[2]); };
+
+  lopatin_i_monte_carlo_seq::TestTaskSequential task(task_data, function);
+  ASSERT_TRUE(task.Validation());
+  ASSERT_TRUE(task.PreProcessing());
+  ASSERT_TRUE(task.Run());
+  ASSERT_TRUE(task.PostProcessing());
+
+  // analytical = 0.098
+  const double expected = 0.098;
+  const double tolerance = 0.01 * expected;  // 1% error
+  EXPECT_NEAR(result, expected, tolerance);
+}
+
+TEST(lopatin_i_monte_carlo_seq, 4DLogFunction) {
+  const int dimensions = 4;
+  const int iterations = 50000;
+  std::vector<double> bounds = lopatin_i_monte_carlo_seq::GenerateBounds(1.0, std::numbers::e, dimensions);
+
+  auto task_data = std::make_shared<ppc::core::TaskData>();
+  task_data->inputs.push_back(reinterpret_cast<uint8_t*>(bounds.data()));
+  task_data->inputs_count.push_back(bounds.size());
+  task_data->inputs.push_back(reinterpret_cast<uint8_t*>(const_cast<int*>(&iterations)));
+  task_data->inputs_count.push_back(1);
+
+  double result = 0.0;
+  task_data->outputs.push_back(reinterpret_cast<uint8_t*>(&result));
+  task_data->outputs_count.push_back(1);
+
+  // ln(x1 + x2 + x3 + x4)
+  auto function = [](const std::vector<double>& x) { return std::log(x[0] + x[1] + x[2] + x[3]); };
+
+  lopatin_i_monte_carlo_seq::TestTaskSequential task(task_data, function);
+  ASSERT_TRUE(task.Validation());
+  ASSERT_TRUE(task.PreProcessing());
+  ASSERT_TRUE(task.Run());
+  ASSERT_TRUE(task.PostProcessing());
+
+  // analytical = 20.0704
+  const double expected = 17.4108;
+  const double tolerance = 0.01 * expected;  // 1% error
   EXPECT_NEAR(result, expected, tolerance);
 }
