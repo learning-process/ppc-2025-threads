@@ -1,9 +1,12 @@
 #pragma once
 
+#include <cstddef>
 #include <utility>
 #include <vector>
 
 #include "core/task/include/task.hpp"
+
+using NumPoint = size_t;
 
 namespace shulpin_i_jarvis_seq {
 
@@ -15,13 +18,11 @@ struct Point {
 
 struct CircleParams {
   double radius;
-  size_t num_points;
+  NumPoint num_points;
 
   CircleParams() : radius(0), num_points(0) {}
-  CircleParams(double new_radius, size_t new_num_points) : radius(new_radius), num_points(new_num_points) {}
+  CircleParams(double new_radius, NumPoint new_num_points) : radius(new_radius), num_points(new_num_points) {}
 };
-
-void TestBody(std::vector<shulpin_i_jarvis_seq::Point>& input, std::vector<shulpin_i_jarvis_seq::Point>& expected);
 
 class JarvisSequential : public ppc::core::Task {
  public:

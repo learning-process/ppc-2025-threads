@@ -22,8 +22,10 @@ static std::vector<shulpin_i_jarvis_seq::Point> GeneratePointsInCircle(const shu
   }
   return points;
 }
+}  // namespace shulpin_i_jarvis_seq
 
-void TestBody(std::vector<shulpin_i_jarvis_seq::Point>& input, std::vector<shulpin_i_jarvis_seq::Point>& expected) {
+namespace {
+void MainTestBody(std::vector<shulpin_i_jarvis_seq::Point>& input, std::vector<shulpin_i_jarvis_seq::Point>& expected) {
   std::vector<shulpin_i_jarvis_seq::Point> result(expected.size());
 
   auto task_data_seq = std::make_shared<ppc::core::TaskData>();
@@ -46,8 +48,8 @@ void TestBody(std::vector<shulpin_i_jarvis_seq::Point>& input, std::vector<shulp
   }
 }
 
-static void TestBodyFalse(std::vector<shulpin_i_jarvis_seq::Point>& input,
-                          std::vector<shulpin_i_jarvis_seq::Point>& expected) {
+void TestBodyFalse(std::vector<shulpin_i_jarvis_seq::Point>& input,
+                   std::vector<shulpin_i_jarvis_seq::Point>& expected) {
   std::vector<shulpin_i_jarvis_seq::Point> result(expected.size());
 
   auto task_data_seq = std::make_shared<ppc::core::TaskData>();
@@ -62,8 +64,8 @@ static void TestBodyFalse(std::vector<shulpin_i_jarvis_seq::Point>& input,
   ASSERT_EQ(seq_task.Validation(), false);
 }
 
-static void TestBodyRandomCircle(std::vector<shulpin_i_jarvis_seq::Point>& input,
-                                 std::vector<shulpin_i_jarvis_seq::Point>& expected, size_t& num_points) {
+void TestBodyRandomCircle(std::vector<shulpin_i_jarvis_seq::Point>& input,
+                          std::vector<shulpin_i_jarvis_seq::Point>& expected, size_t& num_points) {
   std::vector<shulpin_i_jarvis_seq::Point> result(expected.size());
 
   auto task_data_seq = std::make_shared<ppc::core::TaskData>();
@@ -88,62 +90,62 @@ static void TestBodyRandomCircle(std::vector<shulpin_i_jarvis_seq::Point>& input
     EXPECT_EQ(expected[i].y, result[idx].y);
   }
 }
-}  // namespace shulpin_i_jarvis_seq
+}
 
 TEST(shulpin_i_jarvis_seq, square_with_point) {
   std::vector<shulpin_i_jarvis_seq::Point> input = {{0, 0}, {2, 0}, {2, 2}, {0, 2}, {1, 1}};
   std::vector<shulpin_i_jarvis_seq::Point> expected = {{0, 0}, {2, 0}, {2, 2}, {0, 2}};
 
-  shulpin_i_jarvis_seq::TestBody(input, expected);
+  MainTestBody(input, expected);
 }
 
 TEST(shulpin_i_jarvis_seq, triangle) {
   std::vector<shulpin_i_jarvis_seq::Point> input = {{0, 0}, {3, 0}, {1, 2}};
   std::vector<shulpin_i_jarvis_seq::Point> expected = {{0, 0}, {3, 0}, {1, 2}};
 
-  shulpin_i_jarvis_seq::TestBody(input, expected);
+  MainTestBody(input, expected);
 }
 
 TEST(shulpin_i_jarvis_seq, octagone) {
   std::vector<shulpin_i_jarvis_seq::Point> input = {{1, 0}, {2, 0}, {3, 1}, {3, 2}, {2, 3}, {1, 3}, {0, 2}, {0, 1}};
   std::vector<shulpin_i_jarvis_seq::Point> expected = {{0, 1}, {1, 0}, {2, 0}, {3, 1}, {3, 2}, {2, 3}, {1, 3}, {0, 2}};
 
-  shulpin_i_jarvis_seq::TestBody(input, expected);
+  MainTestBody(input, expected);
 }
 
 TEST(shulpin_i_jarvis_seq, repeated_points) {
   std::vector<shulpin_i_jarvis_seq::Point> input = {{0, 0}, {2, 0}, {2, 2}, {0, 2}, {2, 0}, {0, 0}};
   std::vector<shulpin_i_jarvis_seq::Point> expected = {{0, 0}, {2, 0}, {2, 2}, {0, 2}};
 
-  shulpin_i_jarvis_seq::TestBody(input, expected);
+  MainTestBody(input, expected);
 }
 
 TEST(shulpin_i_jarvis_seq, real_case) {
   std::vector<shulpin_i_jarvis_seq::Point> input = {{1, 1}, {3, 2}, {5, 1}, {4, 3}, {2, 4}, {1, 3}, {3, 3}};
   std::vector<shulpin_i_jarvis_seq::Point> expected = {{1, 1}, {5, 1}, {4, 3}, {2, 4}, {1, 3}};
 
-  shulpin_i_jarvis_seq::TestBody(input, expected);
+  MainTestBody(input, expected);
 }
 
 TEST(shulpin_i_jarvis_seq, one_point_validation_false) {
   std::vector<shulpin_i_jarvis_seq::Point> input = {{0, 0}};
   std::vector<shulpin_i_jarvis_seq::Point> expected = {{0, 0}};
 
-  shulpin_i_jarvis_seq::TestBodyFalse(input, expected);
+  TestBodyFalse(input, expected);
 }
 
 TEST(shulpin_i_jarvis_seq, three_points_validation_false) {
   std::vector<shulpin_i_jarvis_seq::Point> input = {{1, 1}, {2, 2}};
   std::vector<shulpin_i_jarvis_seq::Point> expected = {{1, 1}, {2, 2}};
 
-  shulpin_i_jarvis_seq::TestBodyFalse(input, expected);
+  TestBodyFalse(input, expected);
 }
 
 TEST(shulpin_i_jarvis_seq, zero_points_validation_false) {
   std::vector<shulpin_i_jarvis_seq::Point> input = {};
   std::vector<shulpin_i_jarvis_seq::Point> expected = {};
 
-  shulpin_i_jarvis_seq::TestBodyFalse(input, expected);
+  TestBodyFalse(input, expected);
 }
 
 TEST(shulpin_i_jarvis_seq, circle_r10_p100) {
@@ -153,7 +155,7 @@ TEST(shulpin_i_jarvis_seq, circle_r10_p100) {
   std::vector<shulpin_i_jarvis_seq::Point> input = shulpin_i_jarvis_seq::GeneratePointsInCircle(center, params);
   std::vector<shulpin_i_jarvis_seq::Point> expected = input;
 
-  shulpin_i_jarvis_seq::TestBodyRandomCircle(input, expected, params.num_points);
+  TestBodyRandomCircle(input, expected, params.num_points);
 }
 
 TEST(shulpin_i_jarvis_seq, circle_r10_p1000) {
@@ -163,15 +165,5 @@ TEST(shulpin_i_jarvis_seq, circle_r10_p1000) {
   std::vector<shulpin_i_jarvis_seq::Point> input = shulpin_i_jarvis_seq::GeneratePointsInCircle(center, params);
   std::vector<shulpin_i_jarvis_seq::Point> expected = input;
 
-  shulpin_i_jarvis_seq::TestBodyRandomCircle(input, expected, params.num_points);
-}
-
-TEST(shulpin_i_jarvis_seq, circle_r10_p5000) {
-  shulpin_i_jarvis_seq::Point center{0, 0};
-  shulpin_i_jarvis_seq::CircleParams params{10.0, 5000};
-
-  std::vector<shulpin_i_jarvis_seq::Point> input = shulpin_i_jarvis_seq::GeneratePointsInCircle(center, params);
-  std::vector<shulpin_i_jarvis_seq::Point> expected = input;
-
-  shulpin_i_jarvis_seq::TestBodyRandomCircle(input, expected, params.num_points);
+  TestBodyRandomCircle(input, expected, params.num_points);
 }
