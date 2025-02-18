@@ -8,7 +8,7 @@ bool titov_s_image_filter_horiz_gaussian3x3_seq::ImageFilterSequential::PreProce
   unsigned int input_size = task_data->inputs_count[0];
   auto *in_ptr = reinterpret_cast<double *>(task_data->inputs[0]);
   width_ = height_ = static_cast<int>(std::sqrt(input_size));
-  input_ = std::vector<double>(in_ptr, in_ptr + input_size);
+  input_.assign(in_ptr, in_ptr + input_size);
 
   auto *kernel_ptr = reinterpret_cast<int *>(task_data->inputs[1]);
   kernel_ = std::vector<int>(kernel_ptr, kernel_ptr + 3);
@@ -20,13 +20,14 @@ bool titov_s_image_filter_horiz_gaussian3x3_seq::ImageFilterSequential::PreProce
 bool titov_s_image_filter_horiz_gaussian3x3_seq::ImageFilterSequential::ValidationImpl() {
   auto *kernel_ptr = reinterpret_cast<int *>(task_data->inputs[1]);
   kernel_ = std::vector<int>(kernel_ptr, kernel_ptr + 3);
-  if (kernel_.size() != 3) {
+  if (kernel_.size() != 3 || sqrt(input_.size()) * sqrt(input_.size()) != input_.size()) {
     return false;
   }
   return task_data->inputs_count[0] == task_data->outputs_count[0];
 }
 
 bool titov_s_image_filter_horiz_gaussian3x3_seq::ImageFilterSequential::RunImpl() {
+  double sum = kernel_[0] + kernel_[1] + kernel_[2];
   for (int i = 0; i < height_; ++i) {
     for (int j = 0; j < width_; ++j) {
       double filtered_value = 0.0;
@@ -37,7 +38,7 @@ bool titov_s_image_filter_horiz_gaussian3x3_seq::ImageFilterSequential::RunImpl(
         }
       }
 
-      output_[(i * width_) + j] = filtered_value / 4.0;
+      output_[(i * width_) + j] = filtered_value / sum;
     }
   }
 
