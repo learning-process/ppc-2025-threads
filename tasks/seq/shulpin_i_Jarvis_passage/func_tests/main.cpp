@@ -12,8 +12,8 @@
 
 namespace {
 std::vector<shulpin_i_jarvis_seq::Point> GeneratePointsInCircle(size_t num_points,
-                                                                       const shulpin_i_jarvis_seq::Point& center,
-                                                                       double radius) {
+                                                                const shulpin_i_jarvis_seq::Point& center,
+                                                                double radius) {
   std::vector<shulpin_i_jarvis_seq::Point> points;
   for (size_t i = 0; i < num_points; ++i) {
     double angle = 2.0 * std::numbers::pi * static_cast<double>(i) / static_cast<double>(num_points);
