@@ -1,9 +1,9 @@
 ﻿#include "seq/shurigin_s_integrals_square/include/ops_seq.hpp"
 
-#include < cmath>
-#include < cstddef>
-#include < iostream>
-#include < vector>
+#include <cmath>
+#include <cstddef>
+#include <iostream>
+#include <vector>
 
 namespace shurigin_s_integrals_square_seq {
 
