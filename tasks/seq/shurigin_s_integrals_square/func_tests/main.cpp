@@ -1,18 +1,17 @@
-﻿#define _USE_MATH_DEFINES
+﻿#define USE_MATH_DEFINES
 #include <gtest/gtest.h>
 
 #include <cmath>
-#include <cstddef>
 #include <cstdint>
 #include <functional>
 #include <memory>
+#include <numbers>
 #include <vector>
 
 #include "core/task/include/task.hpp"
-#include "core/util/include/util.hpp"
 #include "seq/shurigin_s_integrals_square/include/ops_seq.hpp"
 
-namespace shurigin_s_integrals_square_seq {
+namespace shurigin_s_integrals_square_seq_test {
 
 TEST(shurigin_s_integrals_square_seq, test_integration_x_squared) {
   const double lower_bound = 0.0;
@@ -30,7 +29,7 @@ TEST(shurigin_s_integrals_square_seq, test_integration_x_squared) {
   task_data->outputs_count.push_back(sizeof(double));
 
   shurigin_s_integrals_square_seq::Integral integral_task(task_data);
-  integral_task.setFunction([](double x) { return x * x; });
+  integral_task.SetFunction([](double x) { return x * x; });
 
   ASSERT_TRUE(integral_task.PreProcessingImpl());
   ASSERT_TRUE(integral_task.ValidationImpl());
@@ -56,7 +55,7 @@ TEST(shurigin_s_integrals_square_seq, test_integration_linear) {
   task_data->outputs_count.push_back(sizeof(double));
 
   shurigin_s_integrals_square_seq::Integral integral_task(task_data);
-  integral_task.setFunction([](double x) { return x; });
+  integral_task.SetFunction([](double x) { return x; });
 
   ASSERT_TRUE(integral_task.PreProcessingImpl());
   ASSERT_TRUE(integral_task.ValidationImpl());
@@ -68,7 +67,7 @@ TEST(shurigin_s_integrals_square_seq, test_integration_linear) {
 
 TEST(shurigin_s_integrals_square_seq, test_integration_sine) {
   const double lower_bound = 0.0;
-  const double upper_bound = M_PI;
+  const double upper_bound = std::numbers::pi;
   const int intervals = 1000;
   const double expected_value = 2.0;
 
@@ -82,7 +81,7 @@ TEST(shurigin_s_integrals_square_seq, test_integration_sine) {
   task_data->outputs_count.push_back(sizeof(double));
 
   shurigin_s_integrals_square_seq::Integral integral_task(task_data);
-  integral_task.setFunction([](double x) { return sin(x); });
+  integral_task.SetFunction([](double x) { return sin(x); });
 
   ASSERT_TRUE(integral_task.PreProcessingImpl());
   ASSERT_TRUE(integral_task.ValidationImpl());
@@ -96,7 +95,7 @@ TEST(shurigin_s_integrals_square_seq, test_integration_exponential) {
   const double lower_bound = 0.0;
   const double upper_bound = 1.0;
   const int intervals = 1000;
-  const double expected_value = std::exp(1.0) - 1.0;
+  const double expected_value = std::numbers::e - 1.0;
 
   std::vector<double> input_data = {lower_bound, upper_bound, static_cast<double>(intervals)};
   double output_data = 0.0;
@@ -108,7 +107,7 @@ TEST(shurigin_s_integrals_square_seq, test_integration_exponential) {
   task_data->outputs_count.push_back(sizeof(double));
 
   shurigin_s_integrals_square_seq::Integral integral_task(task_data);
-  integral_task.setFunction([](double x) { return std::exp(x); });
+  integral_task.SetFunction([](double x) { return std::exp(x); });
 
   ASSERT_TRUE(integral_task.PreProcessingImpl());
   ASSERT_TRUE(integral_task.ValidationImpl());
@@ -130,7 +129,7 @@ TEST(shurigin_s_integrals_square_seq, test_function_assignment) {
 
   shurigin_s_integrals_square_seq::Integral integral_task(task_data);
   std::function<double(double)> func = [](double x) { return x * x; };
-  integral_task.setFunction(func);
+  integral_task.SetFunction(func);
 
   double test_value = 2.0;
   double expected_value = 4.0;
@@ -140,7 +139,7 @@ TEST(shurigin_s_integrals_square_seq, test_function_assignment) {
 
 TEST(shurigin_s_integrals_square_seq, test_integration_cosine) {
   const double lower_bound = 0.0;
-  const double upper_bound = M_PI / 2;
+  const double upper_bound = std::numbers::pi / 2;
   const int intervals = 1000;
   const double expected_value = 1.0;
 
@@ -154,7 +153,7 @@ TEST(shurigin_s_integrals_square_seq, test_integration_cosine) {
   task_data->outputs_count.push_back(sizeof(double));
 
   shurigin_s_integrals_square_seq::Integral integral_task(task_data);
-  integral_task.setFunction([](double x) { return cos(x); });
+  integral_task.SetFunction([](double x) { return cos(x); });
 
   ASSERT_TRUE(integral_task.PreProcessingImpl());
   ASSERT_TRUE(integral_task.ValidationImpl());
@@ -168,7 +167,7 @@ TEST(shurigin_s_integrals_square_seq, test_integration_logarithm) {
   const double lower_bound = 1.0;
   const double upper_bound = 2.0;
   const int intervals = 1000;
-  const double expected_value = (2 * std::log(2) - 1);
+  const double expected_value = 2 * std::numbers::ln2 - 1;
 
   std::vector<double> input_data = {lower_bound, upper_bound, static_cast<double>(intervals)};
   double output_data = 0.0;
@@ -180,7 +179,7 @@ TEST(shurigin_s_integrals_square_seq, test_integration_logarithm) {
   task_data->outputs_count.push_back(sizeof(double));
 
   shurigin_s_integrals_square_seq::Integral integral_task(task_data);
-  integral_task.setFunction([](double x) { return std::log(x); });
+  integral_task.SetFunction([](double x) { return std::log(x); });
 
   ASSERT_TRUE(integral_task.PreProcessingImpl());
   ASSERT_TRUE(integral_task.ValidationImpl());
@@ -194,7 +193,7 @@ TEST(shurigin_s_integrals_square_seq, test_integration_reciprocal) {
   const double lower_bound = 1.0;
   const double upper_bound = 2.0;
   const int intervals = 1000;
-  const double expected_value = std::log(2);
+  const double expected_value = std::numbers::ln2;
 
   std::vector<double> input_data = {lower_bound, upper_bound, static_cast<double>(intervals)};
   double output_data = 0.0;
@@ -206,7 +205,7 @@ TEST(shurigin_s_integrals_square_seq, test_integration_reciprocal) {
   task_data->outputs_count.push_back(sizeof(double));
 
   shurigin_s_integrals_square_seq::Integral integral_task(task_data);
-  integral_task.setFunction([](double x) { return 1.0 / x; });
+  integral_task.SetFunction([](double x) { return 1.0 / x; });
 
   ASSERT_TRUE(integral_task.PreProcessingImpl());
   ASSERT_TRUE(integral_task.ValidationImpl());
@@ -232,7 +231,8 @@ TEST(shurigin_s_integrals_square_seq, test_integration_sqrt) {
   task_data->outputs_count.push_back(sizeof(double));
 
   shurigin_s_integrals_square_seq::Integral integral_task(task_data);
-  integral_task.setFunction([](double x) { return std::sqrt(x); });
+  integral_task.SetFunction([](double x) { return std::sqrt(x); });
+
   ASSERT_TRUE(integral_task.PreProcessingImpl());
   ASSERT_TRUE(integral_task.ValidationImpl());
   ASSERT_TRUE(integral_task.RunImpl());
@@ -241,4 +241,4 @@ TEST(shurigin_s_integrals_square_seq, test_integration_sqrt) {
   ASSERT_NEAR(output_data, expected_value, 1e-3);
 }
 
-}  // namespace shurigin_s_integrals_square_seq
+}  // namespace shurigin_s_integrals_square_seq_test

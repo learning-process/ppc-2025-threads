@@ -13,22 +13,22 @@
 namespace shurigin_s_integrals_square_seq {
 
 TEST(shurigin_s_integrals_square_seq, test_pipeline_run) {
-  double down_limit = -1.0;
-  double up_limit = 1.0;
-  int count = 1000;
-  std::vector<double> inputs{down_limit, up_limit, static_cast<double>(count)};
+  double down_limit_ = -1.0;
+  double up_limit_ = 1.0;
+  int count_ = 1000;
+  std::vector<double> inputs{down_limit_, up_limit_, static_cast<double>(count_)};
   double result = 0.0;
 
   auto f = [](double x) { return std::cos(x * x) * (1 + x * x); };
 
   std::shared_ptr<ppc::core::TaskData> task_data_seq = std::make_shared<ppc::core::TaskData>();
-  task_data_seq->inputs.emplace_back(reinterpret_cast<uint8_t *>(inputs.data()));
+  task_data_seq->inputs.emplace_back(reinterpret_cast<uint8_t*>(inputs.data()));
   task_data_seq->inputs_count.emplace_back(inputs.size() * sizeof(double));
-  task_data_seq->outputs.emplace_back(reinterpret_cast<uint8_t *>(&result));
+  task_data_seq->outputs.emplace_back(reinterpret_cast<uint8_t*>(&result));
   task_data_seq->outputs_count.emplace_back(sizeof(double));
 
   auto test_task_sequential = std::make_shared<Integral>(task_data_seq);
-  test_task_sequential->setFunction(f);
+  test_task_sequential->SetFunction(f);
 
   auto perf_attr = std::make_shared<ppc::core::PerfAttr>();
   perf_attr->num_running = 10;
@@ -47,22 +47,22 @@ TEST(shurigin_s_integrals_square_seq, test_pipeline_run) {
 }
 
 TEST(shurigin_s_integrals_square_seq, test_task_run) {
-  double down_limit = -1.0;
-  double up_limit = 1.0;
-  int count = 1000;
-  std::vector<double> inputs{down_limit, up_limit, static_cast<double>(count)};
+  double down_limit_ = -1.0;
+  double up_limit_ = 1.0;
+  int count_ = 1000;
+  std::vector<double> inputs{down_limit_, up_limit_, static_cast<double>(count_)};
   double result = 0.0;
 
   auto f = [](double x) { return std::cos(x * x) * (1 + x * x); };
 
   std::shared_ptr<ppc::core::TaskData> task_data_seq = std::make_shared<ppc::core::TaskData>();
-  task_data_seq->inputs.emplace_back(reinterpret_cast<uint8_t *>(inputs.data()));
+  task_data_seq->inputs.emplace_back(reinterpret_cast<uint8_t*>(inputs.data()));
   task_data_seq->inputs_count.emplace_back(inputs.size() * sizeof(double));
-  task_data_seq->outputs.emplace_back(reinterpret_cast<uint8_t *>(&result));
+  task_data_seq->outputs.emplace_back(reinterpret_cast<uint8_t*>(&result));
   task_data_seq->outputs_count.emplace_back(sizeof(double));
 
   auto test_task_sequential = std::make_shared<Integral>(task_data_seq);
-  test_task_sequential->setFunction(f);
+  test_task_sequential->SetFunction(f);
 
   auto perf_attr = std::make_shared<ppc::core::PerfAttr>();
   perf_attr->num_running = 10;

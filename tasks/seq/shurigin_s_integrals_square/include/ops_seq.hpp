@@ -1,7 +1,6 @@
 ﻿#pragma once
 
 #include <cmath>
-#include <cstddef>
 #include <functional>
 #include <memory>
 
@@ -11,21 +10,21 @@ namespace shurigin_s_integrals_square_seq {
 
 class Integral : public ppc::core::Task {
  public:
-  explicit Integral(std::shared_ptr<ppc::core::TaskData> taskData_);
+  explicit Integral(std::shared_ptr<ppc::core::TaskData> task_data);
   bool PreProcessingImpl() override;
   bool ValidationImpl() override;
   bool RunImpl() override;
   bool PostProcessingImpl() override;
-  void setFunction(const std::function<double(double)>& func);
+  void SetFunction(const std::function<double(double)>& func);
 
  private:
-  double down_limit;
-  double up_limit;
-  int count;
+  double down_limit_;
+  double up_limit_;
+  int count_;
   double result_;
   std::function<double(double)> func_;
-  std::shared_ptr<ppc::core::TaskData> taskData;
-  static double compute(const std::function<double(double)>& f, double a, double b, int n);
+  std::shared_ptr<ppc::core::TaskData> task_data_;
+  static double Compute(const std::function<double(double)>& f, double a, double b, int n);
 };
 
 }  // namespace shurigin_s_integrals_square_seq
