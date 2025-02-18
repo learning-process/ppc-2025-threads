@@ -90,7 +90,7 @@ void TestBodyRandomCircle(std::vector<shulpin_i_jarvis_seq::Point>& input,
     EXPECT_EQ(expected[i].y, result[idx].y);
   }
 }
-}
+}  // namespace
 
 TEST(shulpin_i_jarvis_seq, square_with_point) {
   std::vector<shulpin_i_jarvis_seq::Point> input = {{0, 0}, {2, 0}, {2, 2}, {0, 2}, {1, 1}};
