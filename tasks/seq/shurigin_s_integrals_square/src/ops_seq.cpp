@@ -1,4 +1,4 @@
-#include "seq/shurigin_s_integrals_square/include/ops_seq.hpp"
+п»ї#include "seq/shurigin_s_integrals_square/include/ops_seq.hpp"
 
 #include < cmath>
 #include < cstddef>
@@ -19,13 +19,13 @@ Integral::Integral(std::shared_ptr<ppc::core::TaskData> taskData_)
 bool Integral::PreProcessingImpl() {
   try {
     if (!taskData || taskData->inputs.empty() || taskData->inputs[0] == nullptr) {
-      throw std::invalid_argument("Неверные входные данные.");
+      throw std::invalid_argument("РќРµРІРµСЂРЅС‹Рµ РІС…РѕРґРЅС‹Рµ РґР°РЅРЅС‹Рµ.");
     }
 
     double* inputs = reinterpret_cast<double*>(taskData->inputs[0]);
 
     if (!inputs) {
-      throw std::invalid_argument("Указатель inputs равен nullptr.");
+      throw std::invalid_argument("РЈРєР°Р·Р°С‚РµР»СЊ inputs СЂР°РІРµРЅ nullptr.");
     }
 
     down_limit = inputs[0];
@@ -33,10 +33,10 @@ bool Integral::PreProcessingImpl() {
     count = static_cast<int>(inputs[2]);
 
     if (count <= 0) {
-      throw std::invalid_argument("Количество разбиений должно быть положительным числом.");
+      throw std::invalid_argument("РљРѕР»РёС‡РµСЃС‚РІРѕ СЂР°Р·Р±РёРµРЅРёР№ РґРѕР»Р¶РЅРѕ Р±С‹С‚СЊ РїРѕР»РѕР¶РёС‚РµР»СЊРЅС‹Рј С‡РёСЃР»РѕРј.");
     }
     if (up_limit <= down_limit) {
-      throw std::invalid_argument("Верхний предел должен быть больше нижнего предела.");
+      throw std::invalid_argument("Р’РµСЂС…РЅРёР№ РїСЂРµРґРµР» РґРѕР»Р¶РµРЅ Р±С‹С‚СЊ Р±РѕР»СЊС€Рµ РЅРёР¶РЅРµРіРѕ РїСЂРµРґРµР»Р°.");
     }
 
     result_ = 0.0;
@@ -53,13 +53,13 @@ bool Integral::ValidationImpl() {
       throw std::invalid_argument("taskData is null");
     }
     if (taskData->inputs_count.empty() || taskData->outputs_count.empty()) {
-      throw std::invalid_argument("Неверные размеры входных или выходных данных.");
+      throw std::invalid_argument("РќРµРІРµСЂРЅС‹Рµ СЂР°Р·РјРµСЂС‹ РІС…РѕРґРЅС‹С… РёР»Рё РІС‹С…РѕРґРЅС‹С… РґР°РЅРЅС‹С….");
     }
     if (taskData->inputs_count[0] != 3 * sizeof(double)) {
-      throw std::invalid_argument("Ожидалось 3 числа типа double во входных данных.");
+      throw std::invalid_argument("РћР¶РёРґР°Р»РѕСЃСЊ 3 С‡РёСЃР»Р° С‚РёРїР° double РІРѕ РІС…РѕРґРЅС‹С… РґР°РЅРЅС‹С….");
     }
     if (taskData->outputs_count[0] != sizeof(double)) {
-      throw std::invalid_argument("Ожидалось одно число типа double в выходных данных.");
+      throw std::invalid_argument("РћР¶РёРґР°Р»РѕСЃСЊ РѕРґРЅРѕ С‡РёСЃР»Рѕ С‚РёРїР° double РІ РІС‹С…РѕРґРЅС‹С… РґР°РЅРЅС‹С….");
     }
     return true;
   } catch (const std::exception& e) {
@@ -71,7 +71,7 @@ bool Integral::ValidationImpl() {
 bool Integral::RunImpl() {
   try {
     if (!func_) {
-      throw std::runtime_error("Функция не задана. Используйте setFunction() для задания функции.");
+      throw std::runtime_error("Р¤СѓРЅРєС†РёСЏ РЅРµ Р·Р°РґР°РЅР°. РСЃРїРѕР»СЊР·СѓР№С‚Рµ setFunction() РґР»СЏ Р·Р°РґР°РЅРёСЏ С„СѓРЅРєС†РёРё.");
     }
     result_ = compute(func_, down_limit, up_limit, count);
     return true;
@@ -84,7 +84,7 @@ bool Integral::RunImpl() {
 bool Integral::PostProcessingImpl() {
   try {
     if (!taskData || taskData->outputs.empty() || taskData->outputs[0] == nullptr) {
-      throw std::invalid_argument("Неверные выходные данные.");
+      throw std::invalid_argument("РќРµРІРµСЂРЅС‹Рµ РІС‹С…РѕРґРЅС‹Рµ РґР°РЅРЅС‹Рµ.");
     }
     double* outputs = reinterpret_cast<double*>(taskData->outputs[0]);
     outputs[0] = result_;
