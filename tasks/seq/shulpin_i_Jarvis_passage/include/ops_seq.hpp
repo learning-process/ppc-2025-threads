@@ -1,6 +1,5 @@
 #pragma once
 
-#include <cstddef>
 #include <utility>
 #include <vector>
 
@@ -14,14 +13,6 @@ struct Point {
   double x, y;
   Point() : x(0), y(0) {}
   Point(double x_coordinate, double y_coordinate) : x(x_coordinate), y(y_coordinate) {}
-};
-
-struct CircleParams {
-  double radius;
-  NumPoint num_points;
-
-  CircleParams() : radius(0), num_points(0) {}
-  CircleParams(double new_radius, NumPoint new_num_points) : radius(new_radius), num_points(new_num_points) {}
 };
 
 class JarvisSequential : public ppc::core::Task {

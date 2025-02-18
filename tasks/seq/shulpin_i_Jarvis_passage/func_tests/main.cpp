@@ -11,13 +11,14 @@
 #include "seq/shulpin_i_Jarvis_passage/include/ops_seq.hpp"
 
 namespace shulpin_i_jarvis_seq {
-static std::vector<shulpin_i_jarvis_seq::Point> GeneratePointsInCircle(const shulpin_i_jarvis_seq::Point& center,
-                                                                       const CircleParams& params) {
+static std::vector<shulpin_i_jarvis_seq::Point> GeneratePointsInCircle(size_t num_points,
+                                                                       const shulpin_i_jarvis_seq::Point& center,
+                                                                       double radius) {
   std::vector<shulpin_i_jarvis_seq::Point> points;
-  for (size_t i = 0; i < params.num_points; ++i) {
-    double angle = 2.0 * std::numbers::pi * static_cast<double>(i) / static_cast<double>(params.num_points);
-    double x = center.x + (params.radius * std::cos(angle));
-    double y = center.y + (params.radius * std::sin(angle));
+  for (size_t i = 0; i < num_points; ++i) {
+    double angle = 2.0 * std::numbers::pi * static_cast<double>(i) / static_cast<double>(num_points);
+    double x = center.x + (radius * std::cos(angle));
+    double y = center.y + (radius * std::sin(angle));
     points.emplace_back(x, y);
   }
   return points;
@@ -150,20 +151,26 @@ TEST(shulpin_i_jarvis_seq, zero_points_validation_false) {
 
 TEST(shulpin_i_jarvis_seq, circle_r10_p100) {
   shulpin_i_jarvis_seq::Point center{0, 0};
-  shulpin_i_jarvis_seq::CircleParams params{10.0, 100};
 
-  std::vector<shulpin_i_jarvis_seq::Point> input = shulpin_i_jarvis_seq::GeneratePointsInCircle(center, params);
+  double radius = 10.0;
+  size_t num_points = 100;
+
+  std::vector<shulpin_i_jarvis_seq::Point> input =
+      shulpin_i_jarvis_seq::GeneratePointsInCircle(num_points, center, radius);
   std::vector<shulpin_i_jarvis_seq::Point> expected = input;
 
-  TestBodyRandomCircle(input, expected, params.num_points);
+  TestBodyRandomCircle(input, expected, num_points);
 }
 
 TEST(shulpin_i_jarvis_seq, circle_r10_p1000) {
   shulpin_i_jarvis_seq::Point center{0, 0};
-  shulpin_i_jarvis_seq::CircleParams params{10.0, 1000};
 
-  std::vector<shulpin_i_jarvis_seq::Point> input = shulpin_i_jarvis_seq::GeneratePointsInCircle(center, params);
+  double radius = 10.0;
+  size_t num_points = 1000;
+
+  std::vector<shulpin_i_jarvis_seq::Point> input =
+      shulpin_i_jarvis_seq::GeneratePointsInCircle(num_points, center, radius);
   std::vector<shulpin_i_jarvis_seq::Point> expected = input;
 
-  TestBodyRandomCircle(input, expected, params.num_points);
+  TestBodyRandomCircle(input, expected, num_points);
 }
