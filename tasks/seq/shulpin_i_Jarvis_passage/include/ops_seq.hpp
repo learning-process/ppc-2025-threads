@@ -5,8 +5,6 @@
 
 #include "core/task/include/task.hpp"
 
-using NumPoint = size_t;
-
 namespace shulpin_i_jarvis_seq {
 
 struct Point {

@@ -12,7 +12,7 @@
 #include "core/task/include/task.hpp"
 #include "seq/shulpin_i_Jarvis_passage/include/ops_seq.hpp"
 
-namespace shulpin_i_jarvis_seq {
+namespace {
 static std::vector<shulpin_i_jarvis_seq::Point> GeneratePointsInCircle(size_t num_points,
                                                                        const shulpin_i_jarvis_seq::Point &center,
                                                                        double radius) {
@@ -25,14 +25,13 @@ static std::vector<shulpin_i_jarvis_seq::Point> GeneratePointsInCircle(size_t nu
   }
   return points;
 }
-}  // namespace shulpin_i_jarvis_seq
+}  // namespace
 
 TEST(shulpin_i_jarvis_seq, test_pipeline_run) {
   shulpin_i_jarvis_seq::Point center{0, 0};
   double radius = 10.0;
   size_t num_points = 10000;
-  std::vector<shulpin_i_jarvis_seq::Point> input =
-      shulpin_i_jarvis_seq::GeneratePointsInCircle(num_points, center, radius);
+  std::vector<shulpin_i_jarvis_seq::Point> input = GeneratePointsInCircle(num_points, center, radius);
 
   std::vector<shulpin_i_jarvis_seq::Point> out(input.size());
   std::vector<shulpin_i_jarvis_seq::Point> expected = input;
@@ -74,8 +73,7 @@ TEST(shulpin_i_jarvis_seq, test_task_run) {
   double radius = 10.0;
   size_t num_points = 10000;
 
-  std::vector<shulpin_i_jarvis_seq::Point> input =
-      shulpin_i_jarvis_seq::GeneratePointsInCircle(num_points, center, radius);
+  std::vector<shulpin_i_jarvis_seq::Point> input = GeneratePointsInCircle(num_points, center, radius);
 
   std::vector<shulpin_i_jarvis_seq::Point> out(input.size());
   std::vector<shulpin_i_jarvis_seq::Point> expected = input;
