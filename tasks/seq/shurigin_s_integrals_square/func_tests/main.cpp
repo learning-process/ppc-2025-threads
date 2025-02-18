@@ -16,7 +16,7 @@ namespace shurigin_s_integrals_square_seq_test {
 TEST(shurigin_s_integrals_square_seq, test_integration_x_squared) {
   const double lower_bound = 0.0;
   const double upper_bound = 1.0;
-  const int intervals = 1000;
+  const int intervals = 1000000;
   const double expected_value = 1.0 / 3.0;
 
   std::vector<double> input_data = {lower_bound, upper_bound, static_cast<double>(intervals)};
@@ -42,7 +42,7 @@ TEST(shurigin_s_integrals_square_seq, test_integration_x_squared) {
 TEST(shurigin_s_integrals_square_seq, test_integration_linear) {
   const double lower_bound = 0.0;
   const double upper_bound = 1.0;
-  const int intervals = 1000;
+  const int intervals = 1000000;
   const double expected_value = 0.5;
 
   std::vector<double> input_data = {lower_bound, upper_bound, static_cast<double>(intervals)};
