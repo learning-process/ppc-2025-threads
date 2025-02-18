@@ -1,14 +1,14 @@
 ﻿#include "seq/shurigin_s_integrals_square/include/ops_seq.hpp"
 
 #include <cmath>
-#include <exception>
+#include <exception>  // Для std::exception, std::invalid_argument и std::runtime_error
 #include <functional>
 #include <iostream>
 #include <memory>
-#include <utility>
+#include <utility>  // Для std::move
 #include <vector>
 
-#include "core/task/include/task.hpp"
+#include "core/task/include/task.hpp"  // Для ppc::core::Task и ppc::core::TaskData
 
 namespace shurigin_s_integrals_square_seq {
 
