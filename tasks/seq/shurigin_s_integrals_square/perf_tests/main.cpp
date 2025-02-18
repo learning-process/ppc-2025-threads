@@ -15,7 +15,7 @@ namespace shurigin_s_integrals_square_seq {
 TEST(shurigin_s_integrals_square_seq, test_pipeline_run) {
   double down_limit = -1.0;
   double up_limit = 1.0;
-  int count = 1000;
+  int count = 1000000;
   std::vector<double> inputs{down_limit, up_limit, static_cast<double>(count)};
   double result = 0.0;
 
@@ -49,7 +49,7 @@ TEST(shurigin_s_integrals_square_seq, test_pipeline_run) {
 TEST(shurigin_s_integrals_square_seq, test_task_run) {
   double down_limit = -1.0;
   double up_limit = 1.0;
-  int count = 1000;
+  int count = 1000000;
   std::vector<double> inputs{down_limit, up_limit, static_cast<double>(count)};
   double result = 0.0;
 
