@@ -20,7 +20,9 @@ bool titov_s_image_filter_horiz_gaussian3x3_seq::ImageFilterSequential::PreProce
 bool titov_s_image_filter_horiz_gaussian3x3_seq::ImageFilterSequential::ValidationImpl() {
   auto *kernel_ptr = reinterpret_cast<int *>(task_data->inputs[1]);
   kernel_ = std::vector<int>(kernel_ptr, kernel_ptr + 3);
-  if (kernel_.size() != 3 || sqrt(input_.size()) * sqrt(input_.size()) != input_.size()) {
+  size_t size = input_.size();
+  size_t sqrt_size = static_cast<size_t>(std::sqrt(size));
+  if (kernel_.size() != 3 || sqrt_size * sqrt_size != size) {
     return false;
   }
   return task_data->inputs_count[0] == task_data->outputs_count[0];
