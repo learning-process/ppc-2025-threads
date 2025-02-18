@@ -258,7 +258,7 @@ TEST(lopatin_i_monte_carlo_seq, 5DExponentialFunction) {
   // analytical (e^3 - e^{-3})^5 = (20.0855 - 0.0498)^5 = 3.2e6
   const double single_dim_integral = std::pow(std::numbers::e, 3.0) - std::pow(std::numbers::e, -3.0);  // =20.0357
   const double expected = std::pow(single_dim_integral, 5);  // =20.0357^5 = 3.28e6
-  const double tolerance = 0.01 * expected;  // error 1%
+  const double tolerance = 0.01 * expected;                  // error 1%
   EXPECT_NEAR(result, expected, tolerance);
 }
 
