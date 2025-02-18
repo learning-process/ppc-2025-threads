@@ -8,7 +8,7 @@
 
 namespace lopatin_i_monte_carlo_seq {
 
-static std::vector<double> GenerateBounds(double min_val, double max_val, int dimensions);
+std::vector<double> GenerateBounds(double min_val, double max_val, int dimensions);
 
 class TestTaskSequential : public ppc::core::Task {
  public:

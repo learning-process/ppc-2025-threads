@@ -12,7 +12,7 @@
 
 namespace lopatin_i_monte_carlo_seq {
 
-static std::vector<double> GenerateBounds(double min_val, double max_val, int dimensions) {
+std::vector<double> GenerateBounds(double min_val, double max_val, int dimensions) {
   std::vector<double> bounds;
   for (int i = 0; i < dimensions; ++i) {
     bounds.push_back(min_val);
