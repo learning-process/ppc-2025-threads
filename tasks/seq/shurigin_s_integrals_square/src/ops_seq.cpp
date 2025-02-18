@@ -1,11 +1,14 @@
 ﻿#include "seq/shurigin_s_integrals_square/include/ops_seq.hpp"
 
 #include <cmath>
+#include <exception>
 #include <functional>
 #include <iostream>
 #include <memory>
-#include <stdexcept>
+#include <utility>
 #include <vector>
+
+#include "core/task/include/task.hpp"
 
 namespace shurigin_s_integrals_square_seq {
 
@@ -24,7 +27,7 @@ bool Integral::PreProcessingImpl() {
       throw std::invalid_argument("Invalid input data.");
     }
 
-    auto inputs = reinterpret_cast<double*>(task_data_->inputs[0]);
+    auto* inputs = reinterpret_cast<double*>(task_data_->inputs[0]);
 
     if (inputs == nullptr) {
       throw std::invalid_argument("Pointer to inputs is null.");
@@ -88,7 +91,7 @@ bool Integral::PostProcessingImpl() {
     if (!task_data_ || task_data_->outputs.empty() || task_data_->outputs[0] == nullptr) {
       throw std::invalid_argument("Invalid output data.");
     }
-    auto outputs = reinterpret_cast<double*>(task_data_->outputs[0]);
+    auto* outputs = reinterpret_cast<double*>(task_data_->outputs[0]);
     outputs[0] = result_;
     return true;
   } catch (const std::exception& e) {
@@ -104,7 +107,7 @@ double Integral::Compute(const std::function<double(double)>& f, double a, doubl
   double area = 0.0;
 
   for (int i = 0; i < n; ++i) {
-    double x = a + (i + 0.5) * step;
+    double x = a + ((i + 0.5) * step);
     area += f(x) * step;
   }
 

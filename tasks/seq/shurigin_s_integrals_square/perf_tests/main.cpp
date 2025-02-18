@@ -1,7 +1,7 @@
 ﻿#include <gtest/gtest.h>
 
 #include <chrono>
-#include <cstddef>
+#include <cmath>
 #include <cstdint>
 #include <memory>
 #include <vector>
@@ -13,10 +13,10 @@
 namespace shurigin_s_integrals_square_seq {
 
 TEST(shurigin_s_integrals_square_seq, test_pipeline_run) {
-  double down_limit_ = -1.0;
-  double up_limit_ = 1.0;
-  int count_ = 1000;
-  std::vector<double> inputs{down_limit_, up_limit_, static_cast<double>(count_)};
+  double down_limit = -1.0;
+  double up_limit = 1.0;
+  int count = 1000;
+  std::vector<double> inputs{down_limit, up_limit, static_cast<double>(count)};
   double result = 0.0;
 
   auto f = [](double x) { return std::cos(x * x) * (1 + x * x); };
@@ -47,10 +47,10 @@ TEST(shurigin_s_integrals_square_seq, test_pipeline_run) {
 }
 
 TEST(shurigin_s_integrals_square_seq, test_task_run) {
-  double down_limit_ = -1.0;
-  double up_limit_ = 1.0;
-  int count_ = 1000;
-  std::vector<double> inputs{down_limit_, up_limit_, static_cast<double>(count_)};
+  double down_limit = -1.0;
+  double up_limit = 1.0;
+  int count = 1000;
+  std::vector<double> inputs{down_limit, up_limit, static_cast<double>(count)};
   double result = 0.0;
 
   auto f = [](double x) { return std::cos(x * x) * (1 + x * x); };
