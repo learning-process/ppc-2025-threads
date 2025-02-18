@@ -3,6 +3,7 @@
 #include <cmath>
 #include <functional>
 #include <memory>
+#include <stdexcept>
 
 #include "core/task/include/task.hpp"
 
