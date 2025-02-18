@@ -19,7 +19,7 @@ void shulpin_i_jarvis_seq::JarvisSequential::MakeJarvisPassage(std::vector<shulp
   std::vector<bool> used(total, false);
   output_jar.clear();
 
-  int start = 0;
+  size_t start = 0;
   for (size_t i = 1; i < total; ++i) {
     if (input_jar[i].x < input_jar[start].x ||
         (input_jar[i].x == input_jar[start].x && input_jar[i].y < input_jar[start].y)) {
@@ -27,7 +27,7 @@ void shulpin_i_jarvis_seq::JarvisSequential::MakeJarvisPassage(std::vector<shulp
     }
   }
 
-  int active = start;
+  size_t active = start;
   do {
     output_jar.emplace_back(input_jar[active]);
     int candidate = (active + 1) % total;
