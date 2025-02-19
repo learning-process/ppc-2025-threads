@@ -88,4 +88,3 @@ TEST(odintsov_m_multmatrix_cannon_seq, test_task_run) {
   ppc::core::Perf::PrintPerfStatistic(perf_results);
   EXPECT_EQ(out, matrixC);
 }
-
