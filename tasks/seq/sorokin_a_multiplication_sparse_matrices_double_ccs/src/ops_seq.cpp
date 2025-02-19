@@ -10,6 +10,9 @@ void MultiplyCCS(const std::vector<double> &a_values, const std::vector<int> &a_
                  const std::vector<int> &a_col_ptr, const std::vector<double> &b_values,
                  const std::vector<int> &b_row_indices, int k, const std::vector<int> &b_col_ptr,
                  std::vector<double> &c_values, std::vector<int> &c_row_indices, int n, std::vector<int> &c_col_ptr) {
+  if (a_col_ptr.size() < m + 1 || b_col_ptr.size() < k + 1) {
+    throw std::invalid_argument("Invalid column pointer size");
+  }
   c_values.clear();
   c_row_indices.clear();
   c_col_ptr.assign(n + 1, 0);
@@ -33,8 +36,8 @@ void MultiplyCCS(const std::vector<double> &a_values, const std::vector<int> &a_
 
     for (int i = 0; i < m; ++i) {
       if (temp_used[i]) {
-        c_values.push_back(temp_values[i]);
-        c_row_indices.push_back(i);
+        c_values.emplace_back(temp_values[i]);
+        c_row_indices.emplace_back(i);
         temp_values[i] = 0.0;
         temp_used[i] = false;
       }
@@ -73,11 +76,6 @@ bool sorokin_a_multiplication_sparse_matrices_double_ccs_seq::TestTaskSequential
   B_col_ptr_.resize(b_col_ptr_d.size());
   std::ranges::transform(b_col_ptr_d.begin(), b_col_ptr_d.end(), B_col_ptr_.begin(),
                          [](double x) { return static_cast<int>(x); });
-
-  unsigned int output_size = task_data->outputs_count[0];
-  C_values_ = std::vector<double>(output_size, 0);
-  C_row_indices_ = std::vector<int>(output_size, 0);
-  C_col_ptr_ = std::vector<int>(output_size, 0);
   return true;
 }
 
