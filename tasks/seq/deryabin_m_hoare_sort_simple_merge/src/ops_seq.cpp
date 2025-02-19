@@ -5,7 +5,7 @@
 #include <vector>
 
 bool deryabin_m_hoare_sort_simple_merge_seq::HoareSortTaskSequential::PreProcessingImpl() {
-  input_matrix_A_ = std::vector<double>(task_data->inputs_count[0]);
+  input_array_A_ = std::vector<double>(task_data->inputs_count[0]);
   input_matrix_B_ = std::vector<double>(task_data->inputs_count[1]);
   auto* tmp_ptr_a = reinterpret_cast<double*>(task_data->inputs[0]);
   auto* tmp_ptr_b = reinterpret_cast<double*>(task_data->inputs[1]);
