@@ -432,3 +432,87 @@ TEST(kholin_k_multidimensional_integrals_rectangle_seq, triple_integral_one_var)
   ASSERT_NEAR(ref_i, out_i[0], epsilon);
   delete f_object;
 }
+
+TEST(kholin_k_multidimensional_integrals_rectangle_seq, triple_integral_three_var_high_acc) {
+  // Create data
+  double dim = 3.0;
+  std::vector<double> values{0.0, 0.0, 0.0};
+  auto f = [](const std::vector<double> &f_values) {
+    return f_values[0] * f_values[1] * f_values[2] + std::cos(f_values[1]);
+  };
+  std::vector<double> in_lower_limits{2, -2, 0};
+  std::vector<double> in_upper_limits{7, -1, 2};
+  double epsilon = 1e-6;
+  double n = 15.0;
+  std::vector<double> out_i(1, 0.0);
+
+  auto *f_object = new std::function<double(const std::vector<double> &)>(f);
+
+  // Create task_data
+  std::shared_ptr<ppc::core::TaskData> task_data_seq = std::make_shared<ppc::core::TaskData>();
+  task_data_seq->inputs.emplace_back(reinterpret_cast<uint8_t *>(&dim));
+  task_data_seq->inputs.emplace_back(reinterpret_cast<uint8_t *>(values.data()));
+  task_data_seq->inputs.emplace_back(reinterpret_cast<uint8_t *>(f_object));
+  task_data_seq->inputs.emplace_back(reinterpret_cast<uint8_t *>(in_lower_limits.data()));
+  task_data_seq->inputs.emplace_back(reinterpret_cast<uint8_t *>(in_upper_limits.data()));
+  task_data_seq->inputs.emplace_back(reinterpret_cast<uint8_t *>(&epsilon));
+  task_data_seq->inputs.emplace_back(reinterpret_cast<uint8_t *>(&n));
+  task_data_seq->inputs_count.emplace_back(values.size());
+  task_data_seq->inputs_count.emplace_back(in_lower_limits.size());
+  task_data_seq->inputs_count.emplace_back(in_upper_limits.size());
+  task_data_seq->outputs.emplace_back(reinterpret_cast<uint8_t *>(out_i.data()));
+  task_data_seq->outputs_count.emplace_back(out_i.size());
+
+  // Create Task
+  kholin_k_multidimensional_integrals_rectangle_seq::TestTaskSequential test_task_sequential(task_data_seq);
+  ASSERT_EQ(test_task_sequential.Validation(), true);
+  ASSERT_EQ(test_task_sequential.PreProcessing(), true);
+  ASSERT_EQ(test_task_sequential.Run(), true);
+  ASSERT_EQ(test_task_sequential.PostProcessing(), true);
+
+  double ref_i = -66.82173558;
+  ASSERT_NEAR(ref_i, out_i[0], epsilon);
+  delete f_object;
+}
+
+TEST(kholin_k_multidimensional_integrals_rectangle_seq, double_integral_two_var_high_acc) {
+  // Create data
+  double dim = 2.0;
+  std::vector<double> values{0.0, 0.0};
+  auto f = [](const std::vector<double> &f_values) {
+    return 2.158 * f_values[0] * f_values[0] - 3.56 * f_values[1] * f_values[1] - f_values[0] * f_values[1];
+  };
+  std::vector<double> in_lower_limits{-2, 9};
+  std::vector<double> in_upper_limits{2, 10};
+  double epsilon = 1e-6;
+  double n = 33.0;
+  std::vector<double> out_i(1, 0.0);
+
+  auto *f_object = new std::function<double(const std::vector<double> &)>(f);
+
+  // Create task_data
+  std::shared_ptr<ppc::core::TaskData> task_data_seq = std::make_shared<ppc::core::TaskData>();
+  task_data_seq->inputs.emplace_back(reinterpret_cast<uint8_t *>(&dim));
+  task_data_seq->inputs.emplace_back(reinterpret_cast<uint8_t *>(values.data()));
+  task_data_seq->inputs.emplace_back(reinterpret_cast<uint8_t *>(f_object));
+  task_data_seq->inputs.emplace_back(reinterpret_cast<uint8_t *>(in_lower_limits.data()));
+  task_data_seq->inputs.emplace_back(reinterpret_cast<uint8_t *>(in_upper_limits.data()));
+  task_data_seq->inputs.emplace_back(reinterpret_cast<uint8_t *>(&epsilon));
+  task_data_seq->inputs.emplace_back(reinterpret_cast<uint8_t *>(&n));
+  task_data_seq->inputs_count.emplace_back(values.size());
+  task_data_seq->inputs_count.emplace_back(in_lower_limits.size());
+  task_data_seq->inputs_count.emplace_back(in_upper_limits.size());
+  task_data_seq->outputs.emplace_back(reinterpret_cast<uint8_t *>(out_i.data()));
+  task_data_seq->outputs_count.emplace_back(out_i.size());
+
+  // Create Task
+  kholin_k_multidimensional_integrals_rectangle_seq::TestTaskSequential test_task_sequential(task_data_seq);
+  ASSERT_EQ(test_task_sequential.Validation(), true);
+  ASSERT_EQ(test_task_sequential.PreProcessing(), true);
+  ASSERT_EQ(test_task_sequential.Run(), true);
+  ASSERT_EQ(test_task_sequential.PostProcessing(), true);
+
+  double ref_i = -1274.837333;
+  ASSERT_NEAR(ref_i, out_i[0], epsilon);
+  delete f_object;
+}
