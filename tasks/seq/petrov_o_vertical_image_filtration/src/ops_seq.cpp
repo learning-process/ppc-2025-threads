@@ -24,8 +24,8 @@ bool petrov_o_vertical_image_filtration_seq::TaskSequential::ValidationImpl() {
 
 bool petrov_o_vertical_image_filtration_seq::TaskSequential::RunImpl() {
   // Apply Gaussian filter
-  for (int i = 1; i < rc_size_ - 1; ++i) {
-    for (int j = 1; j < rc_size_ - 1; ++j) {
+  for (size_t i = 1; i < rc_size_ - 1; ++i) {
+    for (size_t j = 1; j < rc_size_ - 1; ++j) {
       float sum = 0.0f;
       for (int ki = -1; ki <= 1; ++ki) {
         for (int kj = -1; kj <= 1; ++kj) {
