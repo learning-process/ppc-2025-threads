@@ -17,7 +17,6 @@ class RadixSequential : public ppc::core::Task {
 
  private:
   std::vector<int> input_, output_;
-  int rc_size_{};
 };
 
 }  // namespace burykin_m_radix_seq
