@@ -15,7 +15,7 @@ namespace gnitienko_k_matrix_func {
 double minVal = -50.0;
 double maxVal = 50.0;
 std::vector<double> genMatrix(size_t size);
-void TrivialMultiply(const std::vector<double> &A, const std::vector<double> &B, std::vector<double> &C, int size);
+void TrivialMultiply(const std::vector<double> &A, const std::vector<double> &B, std::vector<double> &C, size_t size);
 
 std::vector<double> genMatrix(size_t size) {
   std::vector<double> matrix(size * size);
