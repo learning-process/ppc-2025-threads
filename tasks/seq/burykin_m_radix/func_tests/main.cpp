@@ -48,7 +48,7 @@ TEST(burykin_m_radix_seq, AlreadySorted) {
 TEST(burykin_m_radix_seq, ReverseSorted) {
   std::vector<int> input = {10, 3, 2, 0, -3, -5};
   std::vector<int> expected = input;
-  std::sort(expected.begin(), expected.end());
+  std::ranges::sort(expected);
   std::vector<int> output(input.size(), 0);
 
   auto task_data = std::make_shared<ppc::core::TaskData>();
