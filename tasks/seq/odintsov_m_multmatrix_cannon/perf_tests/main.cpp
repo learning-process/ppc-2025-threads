@@ -3,7 +3,6 @@
 
 #include <chrono>
 #include <cstddef>
-#include <cstdint>
 #include <memory>
 #include <vector>
 
@@ -52,17 +51,17 @@ TEST(odintsov_m_multmatrix_cannon_seq, test_pipeline_run) {
 
 TEST(odintsov_m_multmatrix_cannon_seq, test_task_run) {
   // Create data
-  std::vector<double> matrixA(90000, 1);
-  std::vector<double> matrixB(90000, 1);
+  std::vector<double> matrix_a(90000, 1);
+  std::vector<double> matrix_b(90000, 1);
   std::vector<double> out(90000, 0);
-  std::vector<double> matrixC(90000, 300);
+  std::vector<double> matrix_c(90000, 300);
 
   // Create task_data
   auto task_data_seq = std::make_shared<ppc::core::TaskData>();
-  task_data_seq->inputs.emplace_back(reinterpret_cast<uint8_t *>(matrixA.data()));
-  task_data_seq->inputs.emplace_back(reinterpret_cast<uint8_t *>(matrixB.data()));
-  task_data_seq->inputs_count.emplace_back(matrixA.size());
-  task_data_seq->inputs_count.emplace_back(matrixA.size());
+  task_data_seq->inputs.emplace_back(reinterpret_cast<uint8_t *>(matrix_a.data()));
+  task_data_seq->inputs.emplace_back(reinterpret_cast<uint8_t *>(matrix_b.data()));
+  task_data_seq->inputs_count.emplace_back(matrix_a.size());
+  task_data_seq->inputs_count.emplace_back(matrix_a.size());
   task_data_seq->outputs.emplace_back(reinterpret_cast<uint8_t *>(out.data()));
 
   // Create Task
@@ -86,5 +85,5 @@ TEST(odintsov_m_multmatrix_cannon_seq, test_task_run) {
   auto perf_analyzer = std::make_shared<ppc::core::Perf>(test_task_sequential);
   perf_analyzer->TaskRun(perf_attr, perf_results);
   ppc::core::Perf::PrintPerfStatistic(perf_results);
-  EXPECT_EQ(out, matrixC);
+  EXPECT_EQ(out, matrix_c);
 }
