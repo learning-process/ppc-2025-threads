@@ -46,6 +46,8 @@ bool kondratev_ya_ccs_complex_multiplication_seq::TestTaskSequential::PostProces
 kondratev_ya_ccs_complex_multiplication_seq::CCSMatrix
 kondratev_ya_ccs_complex_multiplication_seq::CCSMatrix::operator*(const CCSMatrix &other) const {
   CCSMatrix result({rows, other.cols});
+  result.values.reserve(std::min(rows * other.cols, static_cast<int>(values.size() * other.values.size())));
+  result.row_index.reserve(result.values.capacity());
 
   std::vector<std::complex<double>> temp_col(rows, std::complex<double>(0.0, 0.0));
 

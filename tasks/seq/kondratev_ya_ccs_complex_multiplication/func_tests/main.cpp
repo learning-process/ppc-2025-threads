@@ -1,5 +1,6 @@
 #include <gtest/gtest.h>
 
+#include <algorithm>
 #include <cmath>
 #include <complex>
 #include <cstddef>
@@ -21,26 +22,13 @@ std::vector<std::complex<double>> GenerateRandomSparseMatrix(std::pair<int, int>
 
   std::random_device rd;
   std::mt19937 gen(rd());
-
-  std::uniform_real_distribution<double> value_dist(-10.0, 10.0);
-  std::uniform_real_distribution<double> density_dist(0.0, 1.0);
+  std::uniform_real_distribution<double> dist(-10.0, 10.0);
 
   auto count_not_zero_elements = static_cast<int>(rows * cols * density);
-  int current_not_zero_elements = 0;
+  std::transform(matrix.begin(), matrix.begin() + count_not_zero_elements, matrix.begin(),
+                 [&](auto &) { return std::complex<double>(dist(gen), dist(gen)); });
 
-  while (current_not_zero_elements < count_not_zero_elements) {
-    auto pos = gen() % (rows * cols);
-
-    if (!kondratev_ya_ccs_complex_multiplication_seq::IsZero(matrix[pos])) {
-      continue;
-    }
-
-    double real = value_dist(gen);
-    double imag = value_dist(gen);
-
-    matrix[pos] = std::complex<double>(real, imag);
-    current_not_zero_elements++;
-  }
+  std::shuffle(matrix.begin(), matrix.end(), gen);
 
   return matrix;
 }
@@ -70,12 +58,9 @@ kondratev_ya_ccs_complex_multiplication_seq::CCSMatrix ConvertToCCS(
 }
 
 bool IsComplexVectorEqual(const std::vector<std::complex<double>> &a, const std::vector<std::complex<double>> &b) {
-  for (size_t i = 0; i < a.size(); i++) {
-    if (!kondratev_ya_ccs_complex_multiplication_seq::IsEqual(a[i], b[i])) {
-      return false;
-    }
-  }
-  return true;
+  return std::equal(a.begin(), a.end(), b.begin(), b.end(), [](const auto &x, const auto &y) {
+    return kondratev_ya_ccs_complex_multiplication_seq::IsEqual(x, y);
+  });
 }
 
 std::vector<std::complex<double>> ClassicMultiplyMatrices(const std::vector<std::complex<double>> &a,
