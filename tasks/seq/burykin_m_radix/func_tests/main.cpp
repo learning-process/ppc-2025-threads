@@ -23,7 +23,7 @@ std::vector<int> GenerateRandomVector(size_t size, int min_val = -1000, int max_
   return vec;
 }
 
-} // namespace
+}  // namespace
 
 TEST(burykin_m_radix_seq, AlreadySorted) {
   std::vector<int> input = {-5, -3, 0, 2, 3, 10};
