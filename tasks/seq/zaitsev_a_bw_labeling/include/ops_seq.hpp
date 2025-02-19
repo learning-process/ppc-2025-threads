@@ -1,6 +1,5 @@
 #pragma once
 
-#include <map>
 #include <utility>
 #include <vector>
 
@@ -19,14 +18,17 @@ class Labeler : public ppc::core::Task {
  private:
   std::vector<int> image_;
   std::vector<int> labels_;
-  std::map<int, int> equivalencies_;
+  std::vector<int> equivalences_;
+  std::vector<int> replacements_;
   unsigned int width_;
   unsigned int height_;
   unsigned int size_;
+  int current_label_;
 
-  void ComputeLabel(unsigned int i, int& current_label);
+  void ComputeLabel(unsigned int i);
   void LabelingRasterScan();
-  void EquivReplaceRasterScan();
+  void PrepareReplacements();
+  void PerformReplacements();
 };
 
 }  // namespace zaitsev_a_labeling
