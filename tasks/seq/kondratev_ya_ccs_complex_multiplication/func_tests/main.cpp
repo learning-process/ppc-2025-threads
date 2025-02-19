@@ -236,7 +236,7 @@ TEST(kondratev_ya_ccs_complex_multiplication_seq, test_single_element) {
   expected.col_ptrs = {0, 1};
 
   kondratev_ya_ccs_complex_multiplication_seq::CCSMatrix c({2, 2});
-  RunTest({a, b, c});
+  RunTest({.in1 = a, .in2 = b, .out = c});
   CCSExpectEqual(c, expected);
 }
 
@@ -267,7 +267,7 @@ TEST(kondratev_ya_ccs_complex_multiplication_seq, test_small_ccs_multiplication)
   expected.col_ptrs = {0, 1, 3};
 
   kondratev_ya_ccs_complex_multiplication_seq::CCSMatrix c({2, 2});
-  RunTest({a, b, c});
+  RunTest({.in1 = a, .in2 = b, .out = c});
   CCSExpectEqual(c, expected);
 }
 
@@ -286,6 +286,6 @@ TEST(kondratev_ya_ccs_complex_multiplication_seq, random_matrix_multiplication) 
   auto expected = ClassicMultiplyMatrices(a, {rows, cols}, b, {rows, cols});
   auto ccs_expected = ConvertToCCS(expected, {rows, cols});
 
-  RunTest({ccs_a, ccs_b, ccs_c});
+  RunTest({.in1 = ccs_a, .in2 = ccs_b, .out = ccs_c});
   CCSExpectEqual(ccs_c, ccs_expected);
 }
