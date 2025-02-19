@@ -10,7 +10,7 @@
 #include "seq/kondratev_ya_ccs_complex_multiplication/include/ops_seq.hpp"
 
 TEST(kondratev_ya_ccs_complex_multiplication_seq, test_pipeline_run) {
-  constexpr int kCount = 10000;
+  constexpr int kCount = 27000;
 
   kondratev_ya_ccs_complex_multiplication_seq::CCSMatrix a({kCount, kCount});
   kondratev_ya_ccs_complex_multiplication_seq::CCSMatrix b({kCount, kCount});
@@ -45,7 +45,7 @@ TEST(kondratev_ya_ccs_complex_multiplication_seq, test_pipeline_run) {
 }
 
 TEST(kondratev_ya_ccs_complex_multiplication_seq, test_task_run) {
-  constexpr int kCount = 10000;
+  constexpr int kCount = 27000;
 
   kondratev_ya_ccs_complex_multiplication_seq::CCSMatrix a({kCount, kCount});
   kondratev_ya_ccs_complex_multiplication_seq::CCSMatrix b({kCount, kCount});

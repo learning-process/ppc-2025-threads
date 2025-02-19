@@ -273,3 +273,24 @@ TEST(kondratev_ya_ccs_complex_multiplication_seq, random_matrix_multiplication) 
   RunTest({.in1 = ccs_a, .in2 = ccs_b, .out = ccs_c});
   CCSExpectEqual(ccs_c, ccs_expected);
 }
+
+TEST(kondratev_ya_ccs_complex_multiplication_seq, test_incompatible_matrix_sizes) {
+  auto a = GenerateRandomSparseMatrix({3, 2}, 0.2);
+  auto b = GenerateRandomSparseMatrix({3, 4}, 0.2);
+
+  auto ccs_a = ConvertToCCS(a, {3, 2});
+  auto ccs_b = ConvertToCCS(b, {3, 4});
+  kondratev_ya_ccs_complex_multiplication_seq::CCSMatrix c({3, 4});
+
+  auto task_data = std::make_shared<ppc::core::TaskData>();
+  task_data->inputs.emplace_back(reinterpret_cast<uint8_t *>(&ccs_a));
+  task_data->inputs.emplace_back(reinterpret_cast<uint8_t *>(&ccs_b));
+  task_data->inputs_count.emplace_back(2);
+  task_data->outputs.emplace_back(reinterpret_cast<uint8_t *>(&c));
+  task_data->outputs_count.emplace_back(1);
+
+  kondratev_ya_ccs_complex_multiplication_seq::TestTaskSequential task(task_data);
+
+  EXPECT_TRUE(task.ValidationImpl());
+  EXPECT_FALSE(task.PreProcessingImpl());
+}

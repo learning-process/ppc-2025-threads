@@ -6,12 +6,12 @@
 #include <vector>
 
 bool kondratev_ya_ccs_complex_multiplication_seq::IsZero(const std::complex<double> &value) {
-  return std::abs(value.real()) < kEpsilon && std::abs(value.imag()) < kEpsilon;
+  return std::norm(value) < kEpsilonForZero;
 }
 
 bool kondratev_ya_ccs_complex_multiplication_seq::IsEqual(const std::complex<double> &a,
                                                           const std::complex<double> &b) {
-  return std::abs(a.real() - b.real()) <= kEpsilon && std::abs(a.imag() - b.imag()) <= kEpsilon;
+  return std::norm(a - b) <= kEpsilonForZero;
 }
 
 bool kondratev_ya_ccs_complex_multiplication_seq::TestTaskSequential::PreProcessingImpl() {

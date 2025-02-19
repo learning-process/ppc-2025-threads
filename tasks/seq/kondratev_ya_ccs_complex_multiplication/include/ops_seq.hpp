@@ -9,6 +9,7 @@
 namespace kondratev_ya_ccs_complex_multiplication_seq {
 
 constexpr double kEpsilon = 1e-10;
+constexpr double kEpsilonForZero = kEpsilon * kEpsilon;
 
 bool IsZero(const std::complex<double>& value);
 bool IsEqual(const std::complex<double>& a, const std::complex<double>& b);
