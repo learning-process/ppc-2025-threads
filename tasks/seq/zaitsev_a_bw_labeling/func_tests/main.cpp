@@ -12,11 +12,27 @@ using Params = std::tuple<int, int, std::vector<int>, std::vector<int>>;
 
 namespace {
 
-class ZaitsevALabelingSeqTest : public ::testing::TestWithParam<Params> {
+class zaitsev_a_labeling_test_seq  // NOLINT(readability-identifier-naming)
+    : public ::testing::TestWithParam<Params> {
  protected:
 };
 
-TEST_P(ZaitsevALabelingSeqTest, returns_correct_label_map) {
+TEST_F(zaitsev_a_labeling_test_seq, validation_fails_on_incorrect_input) {
+  const int width = 16;
+  std::vector<int> in(width, 0);
+  std::vector<int> out(in.size(), -1);
+
+  auto task_data_seq = std::make_shared<ppc::core::TaskData>();
+  task_data_seq->inputs.emplace_back(const_cast<uint8_t*>(reinterpret_cast<const uint8_t*>(in.data())));
+  task_data_seq->inputs_count.emplace_back(width);
+  task_data_seq->outputs_count.emplace_back(out.size());
+  task_data_seq->outputs.emplace_back(reinterpret_cast<uint8_t*>(out.data()));
+
+  zaitsev_a_labeling::Labeler intask(task_data_seq);
+  EXPECT_FALSE(intask.ValidationImpl());
+}
+
+TEST_P(zaitsev_a_labeling_test_seq, returns_correct_label_map) {
   const auto& [width, height, in, expected] = GetParam();
   std::vector<int> out(in.size(), -1);
 
@@ -37,7 +53,41 @@ TEST_P(ZaitsevALabelingSeqTest, returns_correct_label_map) {
 }
 
 // clang-format off
-INSTANTIATE_TEST_SUITE_P(ZaitsevALabelingSeqTest, ZaitsevALabelingSeqTest, ::testing::Values(
+INSTANTIATE_TEST_SUITE_P(zaitsev_a_labeling_test_seq, zaitsev_a_labeling_test_seq, ::testing::Values(
+    Params(
+      5, 5,
+      {
+        0, 0, 0, 0, 0, 
+        0, 0, 0, 0, 0, 
+        0, 0, 0, 0, 0, 
+        0, 0, 0, 0, 0, 
+        0, 0, 0, 0, 0, 
+      },
+      {
+        0, 0, 0, 0, 0, 
+        0, 0, 0, 0, 0, 
+        0, 0, 0, 0, 0, 
+        0, 0, 0, 0, 0, 
+        0, 0, 0, 0, 0, 
+      }
+    ),
+    Params(
+      4, 5,
+      {
+        1, 1, 1, 1, 
+        1, 1, 1, 1, 
+        1, 1, 1, 1, 
+        1, 1, 1, 1, 
+        1, 1, 1, 1, 
+      },
+      {
+        1, 1, 1, 1, 
+        1, 1, 1, 1, 
+        1, 1, 1, 1, 
+        1, 1, 1, 1, 
+        1, 1, 1, 1, 
+      }
+    ),
     Params(
       3, 3, 
       {
