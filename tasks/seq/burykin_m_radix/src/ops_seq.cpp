@@ -19,7 +19,8 @@ bool burykin_m_radix_seq::RadixSequential::ValidationImpl() {
 }
 
 bool burykin_m_radix_seq::RadixSequential::RunImpl() {
-  if (input_.empty()) { return true;
+  if (input_.empty()) {
+	return true;
 }
 
   // Будем сортировать копию входного массива

@@ -9,7 +9,7 @@
 #include "core/task/include/task.hpp"
 #include "seq/burykin_m_radix/include/ops_seq.hpp"
 
-namespace burykin_m_radix_seq{
+namespace burykin_m_radix_seq {
 
 std::vector<int> GenerateRandomVector(size_t size, int min_val = -1000, int max_val = 1000) {
   std::vector<int> vec(size);
@@ -25,7 +25,7 @@ std::vector<int> GenerateRandomVector(size_t size, int min_val = -1000, int max_
 }  // namespace burykin_m_radix_seq
 
 TEST(burykin_m_radix_seq, AlreadySorted) {
-  std::vector<int> input = { -5, -3, 0, 2, 3, 10 };
+  std::vector<int> input = {-5, -3, 0, 2, 3, 10};
   std::vector<int> expected = input;  // уже отсортирован
   std::vector<int> output(input.size(), 0);
 
@@ -45,7 +45,7 @@ TEST(burykin_m_radix_seq, AlreadySorted) {
 }
 
 TEST(burykin_m_radix_seq, ReverseSorted) {
-  std::vector<int> input = { 10, 3, 2, 0, -3, -5 };
+  std::vector<int> input = {10, 3, 2, 0, -3, -5};
   std::vector<int> expected = input;
   std::sort(expected.begin(), expected.end());
   std::vector<int> output(input.size(), 0);

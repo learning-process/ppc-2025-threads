@@ -12,7 +12,7 @@
 #include "core/task/include/task.hpp"
 #include "seq/burykin_m_radix/include/ops_seq.hpp"
 
-namespace burykin_m_radix_seq{
+namespace burykin_m_radix_seq {
 
 std::vector<int> GenerateRandomVector(size_t size, int min_val = -10000, int max_val = 10000) {
   std::vector<int> vec(size);
