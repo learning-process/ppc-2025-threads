@@ -11,26 +11,25 @@
 #include "seq/kolokolova_d_integral_simpson_method_seq/include/ops_seq.hpp"
 
 TEST(kolokolova_d_integral_simpson_method_seq, test_pipeline_run) {
-  constexpr int kCount = 500;
-
-  // Create data
-  std::vector<int> in(kCount * kCount, 0);
-  std::vector<int> out(kCount * kCount, 0);
-
-  for (size_t i = 0; i < kCount; i++) {
-    in[(i * kCount) + i] = 1;
-  }
+  auto func = [](std::vector<double> vec) { return 2 * vec[2] + pow(vec[1], 2) / 5 + 4 * pow(vec[0], 3) - 100; };
+  std::vector<int> step = {90, 90, 90};
+  std::vector<int> bord = {10, 11, 8, 10, 0, 2};
+  double func_result = 0.0;
 
   // Create task_data
   auto task_data_seq = std::make_shared<ppc::core::TaskData>();
-  task_data_seq->inputs.emplace_back(reinterpret_cast<uint8_t *>(in.data()));
-  task_data_seq->inputs_count.emplace_back(in.size());
-  task_data_seq->outputs.emplace_back(reinterpret_cast<uint8_t *>(out.data()));
-  task_data_seq->outputs_count.emplace_back(out.size());
+  task_data_seq->inputs.emplace_back(reinterpret_cast<uint8_t *>(step.data()));
+  task_data_seq->inputs_count.emplace_back(step.size());
+
+  task_data_seq->inputs.emplace_back(reinterpret_cast<uint8_t *>(bord.data()));
+  task_data_seq->inputs_count.emplace_back(bord.size());
+
+  task_data_seq->outputs.emplace_back(reinterpret_cast<uint8_t *>(&func_result));
+  task_data_seq->outputs_count.emplace_back(1);
 
   // Create Task
   auto test_task_sequential =
-      std::make_shared<kolokolova_d_integral_simpson_method_seq::TestTaskSequential>(task_data_seq);
+      std::make_shared<kolokolova_d_integral_simpson_method_seq::TestTaskSequential>(task_data_seq, func);
 
   // Create Perf attributes
   auto perf_attr = std::make_shared<ppc::core::PerfAttr>();
@@ -49,30 +48,34 @@ TEST(kolokolova_d_integral_simpson_method_seq, test_pipeline_run) {
   auto perf_analyzer = std::make_shared<ppc::core::Perf>(test_task_sequential);
   perf_analyzer->PipelineRun(perf_attr, perf_results);
   ppc::core::Perf::PrintPerfStatistic(perf_results);
-  ASSERT_EQ(in, out);
+
+  double ans = 18235.7;
+  double error = 0.1;
+  ASSERT_NEAR(func_result, ans, error);
 }
 
 TEST(kolokolova_d_integral_simpson_method_seq, test_task_run) {
-  constexpr int kCount = 500;
-
-  // Create data
-  std::vector<int> in(kCount * kCount, 0);
-  std::vector<int> out(kCount * kCount, 0);
-
-  for (size_t i = 0; i < kCount; i++) {
-    in[(i * kCount) + i] = 1;
-  }
+  auto func = [](std::vector<double> vec) {
+    return pow(vec[2], 3) * pow(vec[1], 2) / 10 + 4 * pow(vec[0], 2) - 10 * vec[2];
+  };
+  std::vector<int> step = {90, 90, 90};
+  std::vector<int> bord = {10, 11, 8, 10, 0, 2};
+  double func_result = 0.0;
 
   // Create task_data
   auto task_data_seq = std::make_shared<ppc::core::TaskData>();
-  task_data_seq->inputs.emplace_back(reinterpret_cast<uint8_t *>(in.data()));
-  task_data_seq->inputs_count.emplace_back(in.size());
-  task_data_seq->outputs.emplace_back(reinterpret_cast<uint8_t *>(out.data()));
-  task_data_seq->outputs_count.emplace_back(out.size());
+  task_data_seq->inputs.emplace_back(reinterpret_cast<uint8_t *>(step.data()));
+  task_data_seq->inputs_count.emplace_back(step.size());
+
+  task_data_seq->inputs.emplace_back(reinterpret_cast<uint8_t *>(bord.data()));
+  task_data_seq->inputs_count.emplace_back(bord.size());
+
+  task_data_seq->outputs.emplace_back(reinterpret_cast<uint8_t *>(&func_result));
+  task_data_seq->outputs_count.emplace_back(1);
 
   // Create Task
   auto test_task_sequential =
-      std::make_shared<kolokolova_d_integral_simpson_method_seq::TestTaskSequential>(task_data_seq);
+      std::make_shared<kolokolova_d_integral_simpson_method_seq::TestTaskSequential>(task_data_seq, func);
 
   // Create Perf attributes
   auto perf_attr = std::make_shared<ppc::core::PerfAttr>();
@@ -91,5 +94,7 @@ TEST(kolokolova_d_integral_simpson_method_seq, test_task_run) {
   auto perf_analyzer = std::make_shared<ppc::core::Perf>(test_task_sequential);
   perf_analyzer->TaskRun(perf_attr, perf_results);
   ppc::core::Perf::PrintPerfStatistic(perf_results);
-  ASSERT_EQ(in, out);
+  double ans = 1790.2;
+  double error = 0.1;
+  ASSERT_NEAR(func_result, ans, error);
 }
