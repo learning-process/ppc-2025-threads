@@ -83,7 +83,6 @@ TEST(gnitienko_k_strassen_alg_seq, test_pipeline_run) {
 }
 
 TEST(gnitienko_k_strassen_alg_seq, test_task_run) {
-
   size_t size = 512;
   // Create data
   std::vector<double> A = gnitienko_k_matrix_func::genMatrix(size);

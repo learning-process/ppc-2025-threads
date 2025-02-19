@@ -4,12 +4,12 @@
 #include <cstdint>
 #include <fstream>
 #include <memory>
+#include <random>
 #include <string>
 #include <vector>
 
 #include "core/task/include/task.hpp"
 #include "core/util/include/util.hpp"
-#include <random>
 #include "seq/gnitienko_k_strassen_alg/include/ops_seq.hpp"
 
 namespace gnitienko_k_matrix_func {
@@ -40,10 +40,9 @@ void TrivialMultiply(const std::vector<double> &A, const std::vector<double> &B,
     }
   }
 }
-}  // namespace gnitienko_k_generate_matrix
+}  // namespace gnitienko_k_matrix_func
 
 TEST(gnitienko_k_strassen_alg_seq, test_2x2_matrix) {
-
   // Create data
   std::vector<double> A = {2.4, 3.5, -4.1, 13.3};
   std::vector<double> B = {1.4, -0.5, 1.1, 2.3};

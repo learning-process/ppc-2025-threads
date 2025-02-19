@@ -6,7 +6,7 @@
 
 bool gnitienko_k_strassen_algorithm::StrassenAlgSeq::PreProcessingImpl() {
   int input_size = task_data->inputs_count[0];
-  auto *in_ptr = reinterpret_cast<double *>(task_data->inputs[0]);
+  auto* in_ptr = reinterpret_cast<double*>(task_data->inputs[0]);
   input_1 = std::vector<double>(in_ptr, in_ptr + input_size);
 
   in_ptr = reinterpret_cast<double*>(task_data->inputs[1]);
@@ -14,7 +14,7 @@ bool gnitienko_k_strassen_algorithm::StrassenAlgSeq::PreProcessingImpl() {
 
   unsigned int output_size = task_data->outputs_count[0];
   output_ = std::vector<double>(output_size, 0.0);
-  
+
   size_ = static_cast<int>(std::sqrt(input_size));
 
   if (!((input_size > 0) && ((input_size & (input_size - 1)) == 0))) {
@@ -33,7 +33,7 @@ bool gnitienko_k_strassen_algorithm::StrassenAlgSeq::PreProcessingImpl() {
 
     input_1 = std::move(extended_input_1);
     input_2 = std::move(extended_input_2);
-    
+
     size_ = new_size;
   }
   return true;
@@ -52,8 +52,8 @@ void gnitienko_k_strassen_algorithm::StrassenAlgSeq::AddMatrix(const std::vector
 }
 
 void gnitienko_k_strassen_algorithm::StrassenAlgSeq::SubMatrix(const std::vector<double>& A,
-                                                                   const std::vector<double>& B, std::vector<double>& C,
-                                                                   int size) {
+                                                               const std::vector<double>& B, std::vector<double>& C,
+                                                               int size) {
   for (int i = 0; i < size * size; ++i) {
     C[i] = A[i] - B[i];
   }
