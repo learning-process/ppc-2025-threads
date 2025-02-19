@@ -6,19 +6,20 @@
 
 bool deryabin_m_hoare_sort_simple_merge_seq::HoareSortTaskSequential::PreProcessingImpl() {
   input_array_A_ = std::vector<double>(task_data->inputs_count[0]);
-  input_matrix_B_ = std::vector<double>(task_data->inputs_count[1]);
   auto* tmp_ptr_a = reinterpret_cast<double*>(task_data->inputs[0]);
-  auto* tmp_ptr_b = reinterpret_cast<double*>(task_data->inputs[1]);
   std::copy(tmp_ptr_a, tmp_ptr_a + task_data->inputs_count[0], input_matrix_A_.begin());
-  std::copy(tmp_ptr_b, tmp_ptr_b + task_data->inputs_count[1], input_matrix_B_.begin());
-  output_matrix_C_ = std::vector<double>(input_matrix_A_.size());
+  dimension_ = input_array_A_.size();
+  X_ = reinterpret_cast<size_type>(taskData->inputs[1]);
+  min_chunk_size_ = reinterpret_cast<size_type>(taskData->inputs[2]);
+  chunk_count_ = dimension_ / min_chunk_size_;
   return true;
 }
 
 bool deryabin_m_hoare_sort_simple_merge_seq::HoareSortTaskSequential::ValidationImpl() {
-  return task_data->inputs_count[0] == task_data->inputs_count[1] &&
-         task_data->inputs_count[1] == pow((unsigned short)sqrt(task_data->inputs_count[0]), 2) &&
-         task_data->outputs_count[0] == 1;
+  return task_data->inputs_count[0] > 2 &&
+         task_data->inputs[0] > 0 && task_data->inputs[0] < (task_data->inputs_count[0] - 1) &&
+         task_data->inputs[1] == task_data->inputs_count[0] &&
+         task_data->inputs_count[0] == task_data->outputs_count[0];
 }
 
 bool deryabin_m_hoare_sort_simple_merge_seq::HoareSortTaskSequential::RunImpl() {
