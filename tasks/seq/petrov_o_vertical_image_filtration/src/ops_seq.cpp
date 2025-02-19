@@ -27,7 +27,7 @@ bool petrov_o_vertical_image_filtration_seq::TaskSequential::RunImpl() {
       float sum = 0.0F;
       for (int ki = -1; ki <= 1; ++ki) {
         for (int kj = -1; kj <= 1; ++kj) {
-          sum += static_cast<float>(input_[((i + ki) * rc_size_) + (j + kj)]) * 
+          sum += static_cast<float>(input_[((i + ki) * rc_size_) + (j + kj)]) *
                  gaussian_kernel_[((ki + 1) * 3) + (kj + 1)];
         }
       }
