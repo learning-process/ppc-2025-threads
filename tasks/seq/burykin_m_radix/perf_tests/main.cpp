@@ -28,15 +28,15 @@ std::vector<int> GenerateRandomVector(size_t size, int min_val = -10000, int max
 }  // namespace
 
 TEST(burykin_m_radix_seq, test_pipeline_run) {
-  constexpr size_t num_elements = 10000000;
+  constexpr size_t kNumElements = 10000000;
 
   // Создаём входной случайный вектор и вычисляем ожидаемый результат (отсортированный)
-  std::vector<int> input = GenerateRandomVector(num_elements);
+  std::vector<int> input = GenerateRandomVector(kNumElements);
   std::vector<int> expected = input;
-  std::sort(expected.begin(), expected.end());
+  std::ranges::sort(expected);
 
   // Выделяем память под результат (заполняем нулями)
-  std::vector<int> output(num_elements, 0);
+  std::vector<int> output(kNumElements, 0);
 
   // Создаём task_data и заполняем указатели на входные/выходные данные
   auto task_data = std::make_shared<ppc::core::TaskData>();
@@ -70,15 +70,15 @@ TEST(burykin_m_radix_seq, test_pipeline_run) {
 }
 
 TEST(burykin_m_radix_seq, test_task_run) {
-  constexpr size_t num_elements = 10000000;
+  constexpr size_t kNumElements = 10000000;
 
   // Создаём входной случайный вектор и вычисляем ожидаемый результат (отсортированный)
-  std::vector<int> input = GenerateRandomVector(num_elements);
+  std::vector<int> input = GenerateRandomVector(kNumElements);
   std::vector<int> expected = input;
-  std::sort(expected.begin(), expected.end());
+  std::ranges::sort(expected);
 
   // Выделяем память под результат (заполняем нулями)
-  std::vector<int> output(num_elements, 0);
+  std::vector<int> output(kNumElements, 0);
 
   // Создаём task_data и заполняем указатели на входные/выходные данные
   auto task_data = std::make_shared<ppc::core::TaskData>();

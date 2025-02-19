@@ -70,7 +70,7 @@ TEST(burykin_m_radix_seq, RandomVector) {
   const size_t size = 1000;
   std::vector<int> input = GenerateRandomVector(size);
   std::vector<int> expected = input;
-  std::sort(expected.begin(), expected.end());
+  std::ranges::sort(expected);
   std::vector<int> output(size, 0);
 
   auto task_data = std::make_shared<ppc::core::TaskData>();
