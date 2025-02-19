@@ -11,7 +11,6 @@
 #include "core/util/include/util.hpp"
 #include "seq/smirnov_i_radix_sort_simple_merge/include/ops_seq.hpp"
 
-
 TEST(smirnov_i_radix_sort_simple_merge_seq, test_scalar) {
   constexpr size_t kCount = 1;
   
