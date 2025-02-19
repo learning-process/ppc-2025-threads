@@ -4,7 +4,6 @@
 #include <vector>
 
 #include "core/task/include/task.hpp"
-#include "core/util/include/util.hpp"
 #include "seq/odintsov_m_multmatrix_cannon/include/ops_seq.hpp"
 
 TEST(odintsov_m_mulmatix_cannon_seq, test_matrix_4) {
