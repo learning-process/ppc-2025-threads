@@ -12,7 +12,7 @@
 #include "core/task/include/task.hpp"
 #include "seq/burykin_m_radix/include/ops_seq.hpp"
 
-namespace burykin_m_radix_seq {
+namespace {
 
 std::vector<int> GenerateRandomVector(size_t size, int min_val = -10000, int max_val = 10000) {
   std::vector<int> vec(size);
@@ -25,13 +25,13 @@ std::vector<int> GenerateRandomVector(size_t size, int min_val = -10000, int max
   return vec;
 }
 
-}  // namespace burykin_m_radix_seq
+}  // namespace
 
 TEST(burykin_m_radix_seq_perf, test_pipeline_run) {
   constexpr size_t num_elements = 100000;
 
   // Создаём входной случайный вектор и вычисляем ожидаемый результат (отсортированный)
-  std::vector<int> input = burykin_m_radix_seq::GenerateRandomVector(num_elements);
+  std::vector<int> input = GenerateRandomVector(num_elements);
   std::vector<int> expected = input;
   std::sort(expected.begin(), expected.end());
 
@@ -73,7 +73,7 @@ TEST(burykin_m_radix_seq_perf, test_task_run) {
   constexpr size_t num_elements = 100000;
 
   // Создаём входной случайный вектор и вычисляем ожидаемый результат (отсортированный)
-  std::vector<int> input = burykin_m_radix_seq::GenerateRandomVector(num_elements);
+  std::vector<int> input = GenerateRandomVector(num_elements);
   std::vector<int> expected = input;
   std::sort(expected.begin(), expected.end());
 
