@@ -90,9 +90,6 @@ TEST(burykin_m_radix_seq, test_task_run) {
   // Создаём задачу поразрядной сортировки
   auto task = std::make_shared<burykin_m_radix_seq::RadixSequential>(task_data);
 
-  // Необходимо выполнить предварительную обработку, чтобы внутренние структуры задачи были инициализированы
-  ASSERT_TRUE(task->PreProcessing());
-
   // Настраиваем параметры измерения производительности для Run() функции
   auto perf_attr = std::make_shared<ppc::core::PerfAttr>();
   perf_attr->num_running = 10;
@@ -109,9 +106,6 @@ TEST(burykin_m_radix_seq, test_task_run) {
   auto perf_analyzer = std::make_shared<ppc::core::Perf>(task);
   perf_analyzer->TaskRun(perf_attr, perf_results);
   ppc::core::Perf::PrintPerfStatistic(perf_results);
-
-  // После измерения Run() вызываем PostProcessing(), чтобы результат был скопирован в выходной буфер
-  ASSERT_TRUE(task->PostProcessing());
 
   EXPECT_EQ(output, expected);
 }
