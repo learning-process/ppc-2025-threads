@@ -58,9 +58,8 @@ kondratev_ya_ccs_complex_multiplication_seq::CCSMatrix ConvertToCCS(
 }
 
 bool IsComplexVectorEqual(const std::vector<std::complex<double>> &a, const std::vector<std::complex<double>> &b) {
-  return std::equal(a.begin(), a.end(), b.begin(), b.end(), [](const auto &x, const auto &y) {
-    return kondratev_ya_ccs_complex_multiplication_seq::IsEqual(x, y);
-  });
+  return std::ranges::equal(
+      a, b, [](const auto &x, const auto &y) { return kondratev_ya_ccs_complex_multiplication_seq::IsEqual(x, y); });
 }
 
 std::vector<std::complex<double>> ClassicMultiplyMatrices(const std::vector<std::complex<double>> &a,

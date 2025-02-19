@@ -1,5 +1,6 @@
 #include "seq/kondratev_ya_ccs_complex_multiplication/include/ops_seq.hpp"
 
+#include <algorithm>
 #include <cmath>
 #include <complex>
 #include <vector>
