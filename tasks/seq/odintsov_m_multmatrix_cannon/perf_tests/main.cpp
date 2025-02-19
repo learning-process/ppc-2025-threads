@@ -13,10 +13,10 @@
 
 TEST(odintsov_m_multmatrix_cannon_seq, test_pipeline_run) {
   // Create data
-  std::vector<double> matrixA(900, 1);
-  std::vector<double> matrixB(900, 1);
-  std::vector<double> out(900, 0);
-  std::vector<double> matrixC(900, 30);
+  std::vector<double> matrixA(10000, 1);
+  std::vector<double> matrixB(10000, 1);
+  std::vector<double> out(10000, 0);
+  std::vector<double> matrixC(10000, 100);
 
   // Create task_data
   auto task_data_seq = std::make_shared<ppc::core::TaskData>();
@@ -32,7 +32,7 @@ TEST(odintsov_m_multmatrix_cannon_seq, test_pipeline_run) {
 
   // Create Perf attributes
   auto perf_attr = std::make_shared<ppc::core::PerfAttr>();
-  perf_attr->num_running = 50;
+  perf_attr->num_running = 100;
   const auto t0 = std::chrono::high_resolution_clock::now();
   perf_attr->current_timer = [&] {
     auto current_time_point = std::chrono::high_resolution_clock::now();
@@ -52,10 +52,10 @@ TEST(odintsov_m_multmatrix_cannon_seq, test_pipeline_run) {
 
 TEST(odintsov_m_multmatrix_cannon_seq, test_task_run) {
   // Create data
-  std::vector<double> matrixA(900, 1);
-  std::vector<double> matrixB(900, 1);
-  std::vector<double> out(900, 0);
-  std::vector<double> matrixC(900, 30);
+  std::vector<double> matrixA(10000, 1);
+  std::vector<double> matrixB(10000, 1);
+  std::vector<double> out(10000, 0);
+  std::vector<double> matrixC(10000, 100);
 
   // Create task_data
   auto task_data_seq = std::make_shared<ppc::core::TaskData>();
@@ -71,7 +71,7 @@ TEST(odintsov_m_multmatrix_cannon_seq, test_task_run) {
 
   // Create Perf attributes
   auto perf_attr = std::make_shared<ppc::core::PerfAttr>();
-  perf_attr->num_running = 50;
+  perf_attr->num_running = 100;
   const auto t0 = std::chrono::high_resolution_clock::now();
   perf_attr->current_timer = [&] {
     auto current_time_point = std::chrono::high_resolution_clock::now();
