@@ -1,6 +1,7 @@
 #include "seq/burykin_m_radix/include/ops_seq.hpp"
 
 #include <array>
+#include <vector>
 
 bool burykin_m_radix_seq::RadixSequential::PreProcessingImpl() {
   // Считываем входные данные как массив int

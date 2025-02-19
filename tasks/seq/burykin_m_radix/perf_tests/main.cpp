@@ -27,7 +27,7 @@ std::vector<int> GenerateRandomVector(size_t size, int min_val = -10000, int max
 
 }  // namespace
 
-TEST(burykin_m_radix_seq_perf, test_pipeline_run) {
+TEST(burykin_m_radix_seq, test_pipeline_run) {
   constexpr size_t num_elements = 100000;
 
   // Создаём входной случайный вектор и вычисляем ожидаемый результат (отсортированный)
@@ -69,7 +69,7 @@ TEST(burykin_m_radix_seq_perf, test_pipeline_run) {
   EXPECT_EQ(output, expected);
 }
 
-TEST(burykin_m_radix_seq_perf, test_task_run) {
+TEST(burykin_m_radix_seq, test_task_run) {
   constexpr size_t num_elements = 100000;
 
   // Создаём входной случайный вектор и вычисляем ожидаемый результат (отсортированный)
