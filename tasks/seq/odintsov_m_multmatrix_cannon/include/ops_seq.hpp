@@ -19,8 +19,8 @@ class MulMatrixCannonSequential : public ppc::core::Task {
  private:
   static void ShiftRow(std::vector<double>& matrix, int root, int row, int shift);
   static void ShiftColumn(std::vector<double>& matrix, int root, int col, int shift);
-  const void ShiftBlocksUp(std::vector<double>& matrix, int root, int block_sz);
-  const void ShiftBlocksLeft(std::vector<double>& matrix, int root, int block_sz);
+  void ShiftBlocksUp(std::vector<double>& matrix, int root, int block_sz) const;
+  void ShiftBlocksLeft(std::vector<double>& matrix, int root, int block_sz) const;
   static bool IsSquere(unsigned int num);
   static int GetBlockSize(int n);
   static void CopyBlock(const std::vector<double>& matrix, std::vector<double>& block, int start, int root,

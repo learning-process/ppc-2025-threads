@@ -28,8 +28,8 @@ void odintsov_m_mulmatix_cannon_seq::MulMatrixCannonSequential::ShiftColumn(std:
     matrix[(i * root) + col] = tmp[i];
   }
 }
-const void odintsov_m_mulmatix_cannon_seq::MulMatrixCannonSequential::ShiftBlocksUp(std::vector<double>& matrix,
-                                                                                    int root, int sz) {
+void odintsov_m_mulmatix_cannon_seq::MulMatrixCannonSequential::ShiftBlocksUp(std::vector<double>& matrix, int root,
+                                                                              int sz) const {
   int p = root / block_sz_;
   for (int bj = 0; bj < p; bj++) {
     std::vector<double> first_block(block_sz_ * block_sz_);
@@ -57,8 +57,8 @@ const void odintsov_m_mulmatix_cannon_seq::MulMatrixCannonSequential::ShiftBlock
   }
 }
 
-const void odintsov_m_mulmatix_cannon_seq::MulMatrixCannonSequential::ShiftBlocksLeft(std::vector<double>& matrix,
-                                                                                      int root, int sz) {
+void odintsov_m_mulmatix_cannon_seq::MulMatrixCannonSequential::ShiftBlocksLeft(std::vector<double>& matrix, int root,
+                                                                                int sz) const {
   int p = root / block_sz_;
   for (int bi = 0; bi < p; bi++) {
     std::vector<double> first_block(block_sz_ * block_sz_);
