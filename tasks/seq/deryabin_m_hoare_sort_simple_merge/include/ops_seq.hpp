@@ -17,7 +17,7 @@ class HoareSortTaskSequential : public ppc::core::Task {
   bool PostProcessingImpl() override;
 
  private:
-  std::vector<double> input_matrix_A_; // входной массив
+  std::vector<double> input_array_A_; // входной массив
   size_type dimension_; // его размер
   size_type X_; // позиция опорного элемента
   size_type min_chunk_size_; // размер частей на которые будет разбиваться исходный массив
