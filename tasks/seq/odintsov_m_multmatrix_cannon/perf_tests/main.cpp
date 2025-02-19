@@ -13,10 +13,10 @@
 
 TEST(odintsov_m_multmatrix_cannon_seq, test_pipeline_run) {
   // Create data
-  std::vector<double> matrixA(10000, 1);
-  std::vector<double> matrixB(10000, 1);
-  std::vector<double> out(10000, 0);
-  std::vector<double> matrixC(10000, 100);
+  std::vector<double> matrixA(90000, 1);
+  std::vector<double> matrixB(90000, 1);
+  std::vector<double> out(90000, 0);
+  std::vector<double> matrixC(90000, 300);
 
   // Create task_data
   auto task_data_seq = std::make_shared<ppc::core::TaskData>();
@@ -52,10 +52,10 @@ TEST(odintsov_m_multmatrix_cannon_seq, test_pipeline_run) {
 
 TEST(odintsov_m_multmatrix_cannon_seq, test_task_run) {
   // Create data
-  std::vector<double> matrixA(10000, 1);
-  std::vector<double> matrixB(10000, 1);
-  std::vector<double> out(10000, 0);
-  std::vector<double> matrixC(10000, 100);
+  std::vector<double> matrixA(90000, 1);
+  std::vector<double> matrixB(90000, 1);
+  std::vector<double> out(90000, 0);
+  std::vector<double> matrixC(90000, 300);
 
   // Create task_data
   auto task_data_seq = std::make_shared<ppc::core::TaskData>();
