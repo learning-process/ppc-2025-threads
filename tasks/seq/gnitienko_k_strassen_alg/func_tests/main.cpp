@@ -15,25 +15,28 @@
 namespace gnitienko_k_matrix_func {
 double minVal = -50.0;
 double maxVal = 50.0;
+std::vector<double> genMatrix(size_t size);
+void TrivialMultiply(const std::vector<double> &A, const std::vector<double> &B, std::vector<double> &C, int size);
+
 std::vector<double> genMatrix(size_t size) {
   std::vector<double> matrix(size * size);
   std::random_device rd;
   std::mt19937 gen(rd());
   std::uniform_real_distribution<double> dist(minVal, maxVal);
 
-  for (int i = 0; i < size; ++i) {
-    for (int j = 0; j < size; ++j) {
+  for (size_t i = 0; i < size; ++i) {
+    for (size_t j = 0; j < size; ++j) {
       matrix[i * size + j] = dist(gen);
     }
   }
   return matrix;
 }
 
-void TrivialMultiply(const std::vector<double> &A, const std::vector<double> &B, std::vector<double> &C, int size) {
-  for (int i = 0; i < size; ++i) {
-    for (int j = 0; j < size; ++j) {
+void TrivialMultiply(const std::vector<double> &A, const std::vector<double> &B, std::vector<double> &C, size_t size) {
+  for (size_t i = 0; i < size; ++i) {
+    for (size_t j = 0; j < size; ++j) {
       C[i * size + j] = 0;
-      for (int k = 0; k < size; ++k) {
+      for (size_t k = 0; k < size; ++k) {
         C[i * size + j] += A[i * size + k] * B[k * size + j];
         C[i * size + j] = round(C[i * size + j] * 10000) / 10000;
       }
