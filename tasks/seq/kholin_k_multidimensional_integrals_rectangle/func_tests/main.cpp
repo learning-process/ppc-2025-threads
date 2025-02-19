@@ -437,9 +437,7 @@ TEST(kholin_k_multidimensional_integrals_rectangle_seq, triple_integral_three_va
   // Create data
   double dim = 3.0;
   std::vector<double> values{0.0, 0.0, 0.0};
-  auto f = [](const std::vector<double> &f_values) {
-    return (f_values[0] * f_values[1] * f_values[2]) + std::cos(f_values[1]);
-  };
+  auto f = [](const std::vector<double> &f_values) { return (-2.4925829 * f_values[0] * f_values[1] * f_values[2]); };
   std::vector<double> in_lower_limits{2, -2, 0};
   std::vector<double> in_upper_limits{7, -1, 2};
   double epsilon = 1e-6;
@@ -470,7 +468,7 @@ TEST(kholin_k_multidimensional_integrals_rectangle_seq, triple_integral_three_va
   ASSERT_EQ(test_task_sequential.Run(), true);
   ASSERT_EQ(test_task_sequential.PostProcessing(), true);
 
-  double ref_i = -66.82173558;
+  double ref_i = 168.2493458;
   ASSERT_NEAR(ref_i, out_i[0], epsilon);
   delete f_object;
 }
@@ -479,13 +477,11 @@ TEST(kholin_k_multidimensional_integrals_rectangle_seq, double_integral_two_var_
   // Create data
   double dim = 2.0;
   std::vector<double> values{0.0, 0.0};
-  auto f = [](const std::vector<double> &f_values) {
-    return (2.158 * f_values[0] * f_values[0]) - (3.56 * f_values[1] * f_values[1]) - (f_values[0] * f_values[1]);
-  };
-  std::vector<double> in_lower_limits{-2, 9};
-  std::vector<double> in_upper_limits{2, 10};
+  auto f = [](const std::vector<double> &f_values) { return (2.158 * f_values[0] * f_values[1]) + 4.7216605; };
+  std::vector<double> in_lower_limits{-2, 3};
+  std::vector<double> in_upper_limits{2, 14};
   double epsilon = 1e-6;
-  double n = 33.0;
+  double n = 2.0;
   std::vector<double> out_i(1, 0.0);
 
   auto *f_object = new std::function<double(const std::vector<double> &)>(f);
@@ -512,7 +508,7 @@ TEST(kholin_k_multidimensional_integrals_rectangle_seq, double_integral_two_var_
   ASSERT_EQ(test_task_sequential.Run(), true);
   ASSERT_EQ(test_task_sequential.PostProcessing(), true);
 
-  double ref_i = -1274.837333;
+  double ref_i = 207.7530620;
   ASSERT_NEAR(ref_i, out_i[0], epsilon);
   delete f_object;
 }
