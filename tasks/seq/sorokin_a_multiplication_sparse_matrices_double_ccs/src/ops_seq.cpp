@@ -4,6 +4,7 @@
 #include <cmath>
 #include <cstddef>
 #include <vector>
+#include <stdexcept>
 
 namespace sorokin_a_multiplication_sparse_matrices_double_ccs_seq {
 void MultiplyCCS(const std::vector<double> &a_values, const std::vector<int> &a_row_indices, int m,
