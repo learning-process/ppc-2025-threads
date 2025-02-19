@@ -1,8 +1,6 @@
 #include "seq/petrov_o_vertical_image_filtration/include/ops_seq.hpp"
 
 #include <cmath>
-#include <cstddef>
-#include <iostream>
 #include <vector>
 
 bool petrov_o_vertical_image_filtration_seq::TaskSequential::PreProcessingImpl() {
@@ -18,7 +16,7 @@ bool petrov_o_vertical_image_filtration_seq::TaskSequential::PreProcessingImpl()
 }
 
 bool petrov_o_vertical_image_filtration_seq::TaskSequential::ValidationImpl() {
-  size_t dim = static_cast<size_t>(std::sqrt(task_data->inputs_count[0]));
+  auto dim = static_cast<size_t>(std::sqrt(task_data->inputs_count[0]));
   return task_data->outputs_count[0] == (dim - 2) * (dim - 2);  // No pooling
 }
 
@@ -26,13 +24,14 @@ bool petrov_o_vertical_image_filtration_seq::TaskSequential::RunImpl() {
   // Apply Gaussian filter
   for (size_t i = 1; i < rc_size_ - 1; ++i) {
     for (size_t j = 1; j < rc_size_ - 1; ++j) {
-      float sum = 0.0f;
+      float sum = 0.0F;
       for (int ki = -1; ki <= 1; ++ki) {
         for (int kj = -1; kj <= 1; ++kj) {
-          sum += input_[(i + ki) * rc_size_ + (j + kj)] * gaussian_kernel_[(ki + 1) * 3 + (kj + 1)];
+          sum += static_cast<float>(input_[((i + ki) * rc_size_) + (j + kj)]) * 
+                 gaussian_kernel_[((ki + 1) * 3) + (kj + 1)];
         }
       }
-      output_[(i - 1) * (rc_size_ - 2) + (j - 1)] = static_cast<int>(sum);
+      output_[((i - 1) * (rc_size_ - 2)) + (j - 1)] = static_cast<int>(sum);
     }
   }
   return true;

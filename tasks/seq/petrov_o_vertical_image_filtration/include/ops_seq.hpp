@@ -1,6 +1,5 @@
 #pragma once
 
-#include <memory>
 #include <vector>
 
 #include "core/task/include/task.hpp"
@@ -18,8 +17,8 @@ class TaskSequential : public ppc::core::Task {
  private:
   std::vector<int> input_, output_;
   size_t rc_size_{};
-  std::vector<float> gaussian_kernel_ = {1.0f / 16.0f, 2.0f / 16.0f, 1.0f / 16.0f, 2.0f / 16.0f, 4.0f / 16.0f,
-                                         2.0f / 16.0f, 1.0f / 16.0f, 2.0f / 16.0f, 1.0f / 16.0f};
+  std::vector<float> gaussian_kernel_ = {1.0F / 16.0F, 2.0F / 16.0F, 1.0F / 16.0F, 2.0F / 16.0F, 4.0F / 16.0F,
+                                         2.0F / 16.0F, 1.0F / 16.0F, 2.0F / 16.0F, 1.0F / 16.0F};
 };
 
 }  // namespace petrov_o_vertical_image_filtration_seq
