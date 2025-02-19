@@ -438,7 +438,7 @@ TEST(kholin_k_multidimensional_integrals_rectangle_seq, triple_integral_three_va
   double dim = 3.0;
   std::vector<double> values{0.0, 0.0, 0.0};
   auto f = [](const std::vector<double> &f_values) {
-    return f_values[0] * f_values[1] * f_values[2] + std::cos(f_values[1]);
+    return (f_values[0] * f_values[1] * f_values[2]) + std::cos(f_values[1]);
   };
   std::vector<double> in_lower_limits{2, -2, 0};
   std::vector<double> in_upper_limits{7, -1, 2};
@@ -480,7 +480,7 @@ TEST(kholin_k_multidimensional_integrals_rectangle_seq, double_integral_two_var_
   double dim = 2.0;
   std::vector<double> values{0.0, 0.0};
   auto f = [](const std::vector<double> &f_values) {
-    return 2.158 * f_values[0] * f_values[0] - 3.56 * f_values[1] * f_values[1] - f_values[0] * f_values[1];
+    return (2.158 * f_values[0] * f_values[0]) - (3.56 * f_values[1] * f_values[1]) - (f_values[0] * f_values[1]);
   };
   std::vector<double> in_lower_limits{-2, 9};
   std::vector<double> in_upper_limits{2, 10};
