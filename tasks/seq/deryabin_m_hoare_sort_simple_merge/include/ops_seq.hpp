@@ -2,8 +2,6 @@ bool deryabin_m_hoare_sort_simple_merge_seq::HoareSortTaskSequential
 
 #pragma once
 
-#include <utility>
-
 #include "core/task/include/task.hpp"
 
 namespace deryabin_m_hoare_sort_simple_merge_seq {
@@ -18,7 +16,7 @@ class HoareSortTaskSequential : public ppc::core::Task {
 
  private:
   // сортировка Хоара
-  void HoaraSort(double* a, size_type first, size_type last);
+  void HoaraSort(double* a, size_t first, size_t last);
 
   double* input_array_A_; // входной массив
   size_t dimension_; // его размер
