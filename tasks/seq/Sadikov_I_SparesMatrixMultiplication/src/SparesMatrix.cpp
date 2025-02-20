@@ -107,15 +107,15 @@ std::vector<double> FromSparesMatrix(const SparesMatrix& matrix) {
 
 std::ostream& operator<<(std::ostream& os, const SparesMatrix& matrix) {
   os << "VALUES" << std::endl;
-  for (auto i = 0; i < matrix.GetValues().size(); ++i) {
+  for (auto i = 0; i < static_cast<int>(matrix.GetValues().size()); ++i) {
     os << matrix.GetValues()[i] << " ";
   }
   os << std::endl << "ROWS" << std::endl;
-  for (auto i = 0; i < matrix.GetRows().size(); ++i) {
+  for (auto i = 0; i < static_cast<int>(matrix.GetRows().size()); ++i) {
     os << matrix.GetRows()[i] << " ";
   }
   os << std::endl << "ElementsSum" << std::endl;
-  for (auto i = 0; i < matrix.GetElementsSum().size(); ++i) {
+  for (auto i = 0; i < static_cast<int>(matrix.GetElementsSum().size()); ++i) {
     os << matrix.GetElementsSum()[i] << " ";
   }
   os << std::endl;
