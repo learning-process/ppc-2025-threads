@@ -149,9 +149,10 @@ double kolokolova_d_integral_simpson_method_seq::TestTaskSequential::createOutpu
   return sum;
 }
 bool kolokolova_d_integral_simpson_method_seq::TestTaskSequential::checkBorders(std::vector<int> vec) {
-  for (size_t i = 0; i < vec.size(); i++) {
+  size_t i = 0;
+  while (i < vec.size()) {
     if (vec[i] > vec[i + 1]) return false;
-    i++;
+    i += 2;
   }
   return true;
 }

@@ -11,7 +11,9 @@
 #include "seq/kolokolova_d_integral_simpson_method_seq/include/ops_seq.hpp"
 
 TEST(kolokolova_d_integral_simpson_method_seq, test_pipeline_run) {
-  auto func = [](std::vector<double> vec) { return 2 * vec[2] + pow(vec[1], 2) / 5 + 4 * pow(vec[0], 3) - 100; };
+  auto func = [](std::vector<double> vec) {
+    return 2 * vec[2] + vec[1] * vec[1] / 5 + 4 * vec[0] * vec[0] * vec[0] - 100;
+  };
   std::vector<int> step = {90, 90, 90};
   std::vector<int> bord = {10, 11, 8, 10, 0, 2};
   double func_result = 0.0;
@@ -56,7 +58,7 @@ TEST(kolokolova_d_integral_simpson_method_seq, test_pipeline_run) {
 
 TEST(kolokolova_d_integral_simpson_method_seq, test_task_run) {
   auto func = [](std::vector<double> vec) {
-    return pow(vec[2], 3) * pow(vec[1], 2) / 10 + 4 * pow(vec[0], 2) - 10 * vec[2];
+    return vec[2] * vec[2] * vec[2] * vec[1] * vec[1] / 10 + 4 * vec[0] * vec[0] - 10 * vec[2];
   };
   std::vector<int> step = {90, 90, 90};
   std::vector<int> bord = {10, 11, 8, 10, 0, 2};

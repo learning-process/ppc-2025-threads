@@ -41,7 +41,7 @@ TEST(kolokolova_d_integral_simpson_method_seq, test_easy_func) {
 }
 
 TEST(kolokolova_d_integral_simpson_method_seq, test_func_two_value1) {
-  auto func = [](std::vector<double> vec) { return 3 * pow(vec[0], 2) * pow(vec[1], 2); };
+  auto func = [](std::vector<double> vec) { return 3 * vec[0] * vec[0] * vec[1] * vec[1]; };
   std::vector<int> step = {10, 10};
   std::vector<int> bord = {4, 6, 3, 6};
   double func_result = 0.0;
