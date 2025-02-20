@@ -21,4 +21,4 @@ class CCSMatrixSequential : public ppc::core::Task {
   bool PostProcessingImpl() override;
 };
 
-}  // namespace Sadikov_I_SparseMatrixMultiplication_task_seq
+}  // namespace sadikov_i_sparse_matrix_multiplication_task_seq
