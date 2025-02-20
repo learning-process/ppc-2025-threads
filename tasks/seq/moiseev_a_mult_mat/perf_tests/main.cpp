@@ -24,6 +24,7 @@ namespace {
     }
     return matrix;
   }
+  
 }
 
 TEST(moiseev_a_mult_mat_seq, test_pipeline_run) {
