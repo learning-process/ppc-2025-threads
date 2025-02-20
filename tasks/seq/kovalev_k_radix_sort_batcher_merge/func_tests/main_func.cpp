@@ -7,11 +7,9 @@
 #include <limits>
 #include <memory>
 #include <random>
-#include <ranges>
 #include <vector>
 
 #include "core/task/include/task.hpp"
-#include "core/util/include/util.hpp"
 #include "seq/kovalev_k_radix_sort_batcher_merge/include/header.hpp"
 
 const long long int kMinLl = std::numeric_limits<long long>::lowest(), kMaxLl = std::numeric_limits<long long>::max();
