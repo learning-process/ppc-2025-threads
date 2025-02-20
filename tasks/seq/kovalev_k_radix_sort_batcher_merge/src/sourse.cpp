@@ -1,7 +1,5 @@
 #include <cstdlib>
 #include <cstring>
-#include <memory>
-#include <utility>
 #include <vector>
 
 #include "seq/kovalev_k_radix_sort_batcher_merge/include/header.hpp"

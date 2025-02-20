@@ -81,7 +81,9 @@ TEST(kovalev_k_radix_sort_batcher_merge_seq, test_task_run) {
   auto *tmp = reinterpret_cast<long long int *>(out.data());
   int count_viol = 0;
   for (unsigned int i = 0; i < length; i++) {
-    if (tmp[i] != etalon[i]) count_viol++;
+    if (tmp[i] != etalon[i]) {
+      count_viol++;
+    }
   }
   ASSERT_EQ(count_viol, 0);
 }
