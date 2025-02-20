@@ -19,7 +19,6 @@ class HoareSortTaskSequential : public ppc::core::Task {
  private:
   std::vector<double> input_array_A_; // входной массив
   size_type dimension_; // его размер
-  size_type X_; // позиция опорного элемента
   size_type min_chunk_size_; // размер частей на которые будет разбиваться исходный массив
   size_type chunk_count_; // число таких частей
 };
