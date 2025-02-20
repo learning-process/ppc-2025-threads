@@ -1,25 +1,33 @@
 #include "seq/kovalev_k_radix_sort_batcher_merge/include/header.hpp"
 
-bool kovalev_k_radix_sort_batcher_merge_seq::RadixSortBatcherMerge::radix_unsigned(unsigned long long* inp_arr,
-                                                                                   unsigned long long* mas_tmp) {
-  unsigned char* masc = reinterpret_cast<unsigned char*>(inp_arr);
+bool kovalev_k_radix_sort_batcher_merge_seq::RadixSortBatcherMerge::RadixUnsigned(unsigned long long* inp_arr,
+                                                                                  unsigned long long* mas_tmp) {
+  auto masc = reinterpret_cast<unsigned char*>(inp_arr);
   int count[256];
-  size_t sizetype = sizeof(unsigned long long), j, i;
-  for (i = 0; i < sizetype; i++) {
-    countbyte(inp_arr, count, i);
-    for (j = 0; j < n_; j++) mas_tmp[count[masc[j * sizetype + i]]++] = inp_arr[j];
+  unsigned int sizetype = sizeof(unsigned long long);
+  for (unsigned int i = 0; i < sizetype; i++) {
+    Countbyte(inp_arr, count, i);
+    for (unsigned int j = 0; j < n_; j++) {
+      mas_tmp[count[masc[(j * sizetype) + i]]++] = inp_arr[j];
+    }
     memcpy(inp_arr, mas_tmp, sizeof(unsigned long long) * n_);
   }
   return true;
 }
 
-bool kovalev_k_radix_sort_batcher_merge_seq::RadixSortBatcherMerge::countbyte(unsigned long long* inp_arr, int* count,
-                                                                              unsigned int byte) {
-  unsigned char* masc = reinterpret_cast<unsigned char*>(inp_arr);
-  unsigned int i, bias = sizeof(unsigned long long);
-  int tmp1, tmp2;
-  for (i = 0; i < 256; i++) count[i] = 0;
-  for (i = 0; i < n_; i++) count[masc[i * bias + byte]]++;
+bool kovalev_k_radix_sort_batcher_merge_seq::RadixSortBatcherMerge::Countbyte(unsigned long long* inp_arr, int* count,
+                                                                              unsigned int byte) const {
+  auto masc = reinterpret_cast<unsigned char*>(inp_arr);
+  unsigned int i;
+  unsigned int bias = sizeof(unsigned long long);
+  int tmp1;
+  int tmp2;
+  for (i = 0; i < 256; i++) {
+    count[i] = 0;
+  }
+  for (i = 0; i < n_; i++) {
+    count[masc[(i * bias) + byte]]++;
+  }
   tmp1 = count[0];
   count[0] = 0;
   for (i = 1; i < 256; i++) {
@@ -45,15 +53,24 @@ bool kovalev_k_radix_sort_batcher_merge_seq::RadixSortBatcherMerge::PreProcessin
 }
 
 bool kovalev_k_radix_sort_batcher_merge_seq::RadixSortBatcherMerge::RunImpl() {
-  unsigned int count = 0, i = 0;
-  bool ret = radix_unsigned(reinterpret_cast<unsigned long long*>(mas_.data()),
-                            reinterpret_cast<unsigned long long*>(tmp_.data()));
-  while (count < n_ && mas_[count++] >= 0);
-  if (count == n_) return ret;
+  unsigned int count = 0;
+  unsigned int i = 0;
+  bool ret = RadixUnsigned(reinterpret_cast<unsigned long long*>(mas_.data()),
+                           reinterpret_cast<unsigned long long*>(tmp_.data()));
+  while (count < n_ && mas_[count] >= 0) {
+    count++;
+  }
+  if (count == n_) {
+    return ret;
+  }
   count--;
-  for (; count < n_; count++) tmp_[i++] = mas_[count];
+  for (; count < n_; count++) {
+    tmp_[i++] = mas_[count];
+  }
   count = 0;
-  for (; i < n_; i++) tmp_[i] = mas_[count++];
+  for (; i < n_; i++) {
+    tmp_[i] = mas_[count++];
+  }
   memcpy(mas_.data(), tmp_.data(), sizeof(long long int) * n_);
   return ret;
 }

@@ -18,8 +18,8 @@ class RadixSortBatcherMerge : public ppc::core::Task {
 
  public:
   explicit RadixSortBatcherMerge(std::shared_ptr<ppc::core::TaskData> task_data) : Task(std::move(task_data)) {}
-  bool radix_unsigned(unsigned long long*, unsigned long long*);
-  bool countbyte(unsigned long long*, int*, unsigned int);
+  bool RadixUnsigned(unsigned long long*, unsigned long long*);
+  bool Countbyte(unsigned long long*, int*, unsigned int) const;
   bool PreProcessingImpl() override;
   bool ValidationImpl() override;
   bool RunImpl() override;
