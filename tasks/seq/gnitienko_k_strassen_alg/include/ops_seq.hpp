@@ -23,10 +23,11 @@ class StrassenAlgSeq : public ppc::core::Task {
   int TRIVIAL_MULTIPLICATION_BOUND_ = 8;
   int extend_ = 0;
 
-  void TrivialMultiply(const std::vector<double>& a, const std::vector<double>& b, std::vector<double>& c, int size);
+  static void TrivialMultiply(const std::vector<double>& a, const std::vector<double>& b, std::vector<double>& c,
+                              int size);
   void StrassenMultiply(const std::vector<double>& a, const std::vector<double>& b, std::vector<double>& c, int size);
-  void AddMatrix(const std::vector<double>& a, const std::vector<double>& b, std::vector<double>& c, int size);
-  void SubMatrix(const std::vector<double>& a, const std::vector<double>& b, std::vector<double>& c, int size);
+  static void AddMatrix(const std::vector<double>& a, const std::vector<double>& b, std::vector<double>& c, int size);
+  static void SubMatrix(const std::vector<double>& a, const std::vector<double>& b, std::vector<double>& c, int size);
 };
 
 }  // namespace gnitienko_k_strassen_algorithm

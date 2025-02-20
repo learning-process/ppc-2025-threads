@@ -83,93 +83,95 @@ void gnitienko_k_strassen_algorithm::StrassenAlgSeq::StrassenMultiply(const std:
 
   int half_size = size / 2;
 
-  std::vector<double> A11(half_size * half_size);
-  std::vector<double> A12(half_size * half_size);
-  std::vector<double> A21(half_size * half_size);
-  std::vector<double> A22(half_size * half_size);
-  std::vector<double> B11(half_size * half_size);
-  std::vector<double> B12(half_size * half_size);
-  std::vector<double> B21(half_size * half_size);
-  std::vector<double> B22(half_size * half_size);
+  std::vector<double> a11(half_size * half_size);
+  std::vector<double> a12(half_size * half_size);
+  std::vector<double> a21(half_size * half_size);
+  std::vector<double> a22(half_size * half_size);
+  std::vector<double> b11(half_size * half_size);
+  std::vector<double> b12(half_size * half_size);
+  std::vector<double> b21(half_size * half_size);
+  std::vector<double> b22(half_size * half_size);
 
   for (int i = 0; i < half_size; ++i) {
     for (int j = 0; j < half_size; ++j) {
-      A11[(i * half_size) + j] = a[(i * size) + j];
-      A12[(i * half_size) + j] = a[(i * size) + j + half_size];
-      A21[(i * half_size) + j] = a[((i + half_size) * size) + j];
-      A22[(i * half_size) + j] = a[((i + half_size) * size) + j + half_size];
+      a11[(i * half_size) + j] = a[(i * size) + j];
+      a12[(i * half_size) + j] = a[(i * size) + j + half_size];
+      a21[(i * half_size) + j] = a[((i + half_size) * size) + j];
+      a22[(i * half_size) + j] = a[((i + half_size) * size) + j + half_size];
     }
   }
 
   for (int i = 0; i < half_size; ++i) {
     for (int j = 0; j < half_size; ++j) {
-      B11[(i * half_size) + j] = b[(i * size) + j];
-      B12[(i * half_size) + j] = b[(i * size) + j + half_size];
-      B21[(i * half_size) + j] = b[((i + half_size) * size) + j];
-      B22[(i * half_size) + j] = b[((i + half_size) * size) + j + half_size];
+      b11[(i * half_size) + j] = b[(i * size) + j];
+      b12[(i * half_size) + j] = b[(i * size) + j + half_size];
+      b21[(i * half_size) + j] = b[((i + half_size) * size) + j];
+      b22[(i * half_size) + j] = b[((i + half_size) * size) + j + half_size];
     }
   }
 
-  std::vector<double> D(half_size * half_size);
-  std::vector<double> D1(half_size * half_size);
-  std::vector<double> D2(half_size * half_size);
-  std::vector<double> H1(half_size * half_size);
-  std::vector<double> H2(half_size * half_size);
-  std::vector<double> V1(half_size * half_size);
-  std::vector<double> V2(half_size * half_size);
+  std::vector<double> d(half_size * half_size);
+  std::vector<double> d1(half_size * half_size);
+  std::vector<double> d2(half_size * half_size);
+  std::vector<double> h1(half_size * half_size);
+  std::vector<double> h2(half_size * half_size);
+  std::vector<double> v1(half_size * half_size);
+  std::vector<double> v2(half_size * half_size);
 
-  // D = (A11 + A22) * (B11 + B22)
-  std::vector<double> tempA(half_size * half_size), tempB(half_size * half_size);
-  AddMatrix(A11, A22, tempA, half_size);
-  AddMatrix(B11, B22, tempB, half_size);
-  StrassenMultiply(tempA, tempB, D, half_size);
+  // d = (a11 + a22) * (b11 + b22)
+  std::vector<double> temp_a(half_size * half_size);
+  std::vector<double> temp_b(half_size * half_size);
 
-  // D1 = (A12 - A22) * (B21 + B22)
-  SubMatrix(A12, A22, tempA, half_size);
-  AddMatrix(B21, B22, tempB, half_size);
-  StrassenMultiply(tempA, tempB, D1, half_size);
+  AddMatrix(a11, a22, temp_a, half_size);
+  AddMatrix(b11, b22, temp_b, half_size);
+  StrassenMultiply(temp_a, temp_b, d, half_size);
 
-  // D2 = (A21 - A11) * (B11 + B12)
-  SubMatrix(A21, A11, tempA, half_size);
-  AddMatrix(B11, B12, tempB, half_size);
-  StrassenMultiply(tempA, tempB, D2, half_size);
+  // d1 = (a12 - a22) * (b21 + b22)
+  SubMatrix(a12, a22, temp_a, half_size);
+  AddMatrix(b21, b22, temp_b, half_size);
+  StrassenMultiply(temp_a, temp_b, d1, half_size);
 
-  // H1 = (A11 + A12) * B22
-  AddMatrix(A11, A12, tempA, half_size);
-  StrassenMultiply(tempA, B22, H1, half_size);
+  // d2 = (a21 - a11) * (b11 + b12)
+  SubMatrix(a21, a11, temp_a, half_size);
+  AddMatrix(b11, b12, temp_b, half_size);
+  StrassenMultiply(temp_a, temp_b, d2, half_size);
 
-  // H2 = (A21 + A22) * B11
-  AddMatrix(A21, A22, tempA, half_size);
-  StrassenMultiply(tempA, B11, H2, half_size);
+  // h1 = (a11 + a12) * b22
+  AddMatrix(a11, a12, temp_a, half_size);
+  StrassenMultiply(temp_a, b22, h1, half_size);
 
-  // V1 = A22 * (B21 - B11)
-  SubMatrix(B21, B11, tempB, half_size);
-  StrassenMultiply(A22, tempB, V1, half_size);
+  // h2 = (a21 + a22) * b11
+  AddMatrix(a21, a22, temp_a, half_size);
+  StrassenMultiply(temp_a, b11, h2, half_size);
 
-  // V2 = A11 * (B12 - B22)
-  SubMatrix(B12, B22, tempB, half_size);
-  StrassenMultiply(A11, tempB, V2, half_size);
+  // v1 = a22 * (b21 - b11)
+  SubMatrix(b21, b11, temp_b, half_size);
+  StrassenMultiply(a22, temp_b, v1, half_size);
 
-  std::vector<double> C11(half_size * half_size);
-  std::vector<double> C12(half_size * half_size);
-  std::vector<double> C21(half_size * half_size);
-  std::vector<double> C22(half_size * half_size);
+  // v2 = a11 * (b12 - b22)
+  SubMatrix(b12, b22, temp_b, half_size);
+  StrassenMultiply(a11, temp_b, v2, half_size);
 
-  AddMatrix(D, D1, C11, half_size);
-  AddMatrix(C11, V1, C11, half_size);
-  SubMatrix(C11, H1, C11, half_size);
-  AddMatrix(V2, H1, C12, half_size);
-  AddMatrix(V1, H2, C21, half_size);
-  AddMatrix(D, D2, C22, half_size);
-  AddMatrix(C22, V2, C22, half_size);
-  SubMatrix(C22, H2, C22, half_size);
+  std::vector<double> c11(half_size * half_size);
+  std::vector<double> c12(half_size * half_size);
+  std::vector<double> c21(half_size * half_size);
+  std::vector<double> c22(half_size * half_size);
+
+  AddMatrix(d, d1, c11, half_size);
+  AddMatrix(c11, v1, c11, half_size);
+  SubMatrix(c11, h1, c11, half_size);
+  AddMatrix(v2, h1, c12, half_size);
+  AddMatrix(v1, h2, c21, half_size);
+  AddMatrix(d, d2, c22, half_size);
+  AddMatrix(c22, v2, c22, half_size);
+  SubMatrix(c22, h2, c22, half_size);
 
   for (int i = 0; i < half_size; ++i) {
     for (int j = 0; j < half_size; ++j) {
-      c[(i * size) + j] = C11[(i * half_size) + j];
-      c[(i * size) + j + half_size] = C12[(i * half_size) + j];
-      c[((i + half_size) * size) + j] = C21[(i * half_size) + j];
-      c[((i + half_size) * size) + j + half_size] = C22[(i * half_size) + j];
+      c[(i * size) + j] = c11[(i * half_size) + j];
+      c[(i * size) + j + half_size] = c12[(i * half_size) + j];
+      c[((i + half_size) * size) + j] = c21[(i * half_size) + j];
+      c[((i + half_size) * size) + j + half_size] = c22[(i * half_size) + j];
     }
   }
 }
@@ -178,15 +180,15 @@ bool gnitienko_k_strassen_algorithm::StrassenAlgSeq::RunImpl() {
   StrassenMultiply(input_1_, input_2_, output_, size_);
   if (extend_ != 0) {
     int original_size = size_ - extend_;
-    std::vector<double> res_(original_size * original_size);
+    std::vector<double> res(original_size * original_size);
 
     for (int i = 0; i < original_size; ++i) {
       for (int j = 0; j < original_size; ++j) {
-        res_[(i * original_size) + j] = output_[(i * size_) + j];
+        res[(i * original_size) + j] = output_[(i * size_) + j];
       }
     }
 
-    output_ = std::move(res_);
+    output_ = std::move(res);
   }
   return true;
 }

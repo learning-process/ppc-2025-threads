@@ -1,6 +1,7 @@
 #include <gtest/gtest.h>
 
 #include <chrono>
+#include <cmath>
 #include <cstddef>
 #include <cstdint>
 #include <memory>
@@ -11,7 +12,6 @@
 #include "core/task/include/task.hpp"
 #include "seq/gnitienko_k_strassen_alg/include/ops_seq.hpp"
 
-namespace gnitienko_k_matrix_func {
 static double min_val = -50.0;
 static double max_val = 50.0;
 static std::vector<double> GenMatrix(size_t size);
@@ -43,16 +43,15 @@ void TrivialMultiply(const std::vector<double> &a, const std::vector<double> &b,
     }
   }
 }
-}  // namespace gnitienko_k_matrix_func
 
 TEST(gnitienko_k_strassen_alg_seq, test_pipeline_run) {
   size_t size = 512;
 
   // Create data
-  std::vector<double> a = gnitienko_k_matrix_func::GenMatrix(size);
-  std::vector<double> b = gnitienko_k_matrix_func::GenMatrix(size);
+  std::vector<double> a = GenMatrix(size);
+  std::vector<double> b = GenMatrix(size);
   std::vector<double> expected(size * size);
-  gnitienko_k_matrix_func::TrivialMultiply(a, b, expected, size);
+  TrivialMultiply(a, b, expected, size);
   std::vector<double> out(size * size);
 
   // Create task_data
@@ -91,10 +90,10 @@ TEST(gnitienko_k_strassen_alg_seq, test_pipeline_run) {
 TEST(gnitienko_k_strassen_alg_seq, test_task_run) {
   size_t size = 512;
   // Create data
-  std::vector<double> a = gnitienko_k_matrix_func::GenMatrix(size);
-  std::vector<double> b = gnitienko_k_matrix_func::GenMatrix(size);
+  std::vector<double> a = GenMatrix(size);
+  std::vector<double> b = GenMatrix(size);
   std::vector<double> expected(size * size);
-  gnitienko_k_matrix_func::TrivialMultiply(a, b, expected, size);
+  TrivialMultiply(a, b, expected, size);
   std::vector<double> out(size * size);
   // Create task_data
   auto task_data_seq = std::make_shared<ppc::core::TaskData>();
