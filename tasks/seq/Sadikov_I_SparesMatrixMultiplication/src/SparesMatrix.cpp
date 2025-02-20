@@ -33,7 +33,7 @@ SparesMatrix SparesMatrix::Transpose(const SparesMatrix& matrix) {
   return SparesMatrix(matrix.GetColumnsCount(), matrix.GetRowsCount(), val, rows, elem_sum);
 }
 
-SparesMatrix SparesMatrix::operator*(const SparesMatrix& smatrix) {
+SparesMatrix SparesMatrix::operator*(const SparesMatrix& smatrix) const {
   std::vector<double> values;
   std::vector<int> rows;
   std::vector<int> elements_sum(smatrix.GetColumnsCount());
@@ -44,8 +44,8 @@ SparesMatrix SparesMatrix::operator*(const SparesMatrix& smatrix) {
   for (auto i = 0; i < static_cast<int>(selements_sum.size()); ++i) {
     for (auto j = 0; j < static_cast<int>(felements_sum.size()); ++j) {
       auto sum = 0.0;
-      auto fmatrix_elements_count = j == 0 ? felements_sum[j] : felements_sum[j] - felements_sum[j - 1];
-      auto smatrix_elements_count = i == 0 ? selements_sum[i] : selements_sum[i] - selements_sum[i - 1];
+      auto fmatrix_elements_count = GetElementsCount(j, felements_sum);
+      auto smatrix_elements_count = GetElementsCount(i, selements_sum);
       auto fmatrix_start_index = j != 0 ? felements_sum[j] - fmatrix_elements_count : 0;
       auto smatrix_start_index = i != 0 ? selements_sum[i] - smatrix_elements_count : 0;
 
@@ -120,4 +120,12 @@ std::ostream& operator<<(std::ostream& os, const SparesMatrix& matrix) {
   }
   os << '\n';
   return os;
+}
+
+int SparesMatrix::GetElementsCount(int index, const std::vector<int>& elements_sum) {
+  if (index == 0) {
+    return elements_sum[index];
+  } else {
+    return elements_sum[index] - elements_sum[index - 1];
+  }
 }

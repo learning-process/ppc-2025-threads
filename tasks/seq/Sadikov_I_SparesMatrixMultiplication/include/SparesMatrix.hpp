@@ -11,7 +11,7 @@ class SparesMatrix {
   std::vector<int> m_rows_;
   std::vector<int> m_elementsSum_;
   static SparesMatrix Transpose(const SparesMatrix& matrix);
-
+  static int GetElementsCount(int index, const std::vector<int>& elements_sum);
  public:
   SparesMatrix() = default;
   explicit SparesMatrix(int rows_count, int columns_count, const std::vector<double>& values,
@@ -20,13 +20,13 @@ class SparesMatrix {
         m_columnsCount_(columns_count),
         m_values_(values),
         m_rows_(rows),
-        m_elementsSum_(element_sum) {};
+        m_elementsSum_(element_sum){};
   [[nodiscard]] const std::vector<double>& GetValues() const noexcept { return m_values_; }
   [[nodiscard]] const std::vector<int>& GetRows() const noexcept { return m_rows_; }
   [[nodiscard]] const std::vector<int>& GetElementsSum() const noexcept { return m_elementsSum_; }
   [[nodiscard]] int GetColumnsCount() const noexcept { return m_columnsCount_; }
   [[nodiscard]] int GetRowsCount() const noexcept { return m_rowsCount_; }
-  SparesMatrix operator*(const SparesMatrix& smatrix) noexcept(false);
+  SparesMatrix operator*(const SparesMatrix& smatrix) const noexcept(false);
 };
 
 SparesMatrix MatrixToSpares(int rows_count, int columns_count, const std::vector<double>& values);
