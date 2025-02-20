@@ -4,28 +4,28 @@
 #include <vector>
 
 class SparesMatrix {
-  constexpr static double m_epsilon = 0.000001;
-  int m_rowsCount = 0;
-  int m_columnsCount = 0;
-  std::vector<double> m_values;
-  std::vector<int> m_rows;
-  std::vector<int> m_elementsSum;
+  constexpr static double kMEpsilon = 0.000001;
+  int m_rowsCount_ = 0;
+  int m_columnsCount_ = 0;
+  std::vector<double> m_values_;
+  std::vector<int> m_rows_;
+  std::vector<int> m_elementsSum_;
   SparesMatrix Transpose(const SparesMatrix& matrix);
 
  public:
   SparesMatrix() = default;
-  explicit SparesMatrix(int rowsCount, int ColumnsCount, const std::vector<double>& values,
-                        const std::vector<int>& rows, const std::vector<int>& elementSum) noexcept
-      : m_rowsCount(rowsCount),
-        m_columnsCount(ColumnsCount),
-        m_values(values),
-        m_rows(rows),
-        m_elementsSum(elementSum) {};
-  const std::vector<double>& GetValues() const noexcept { return m_values; }
-  const std::vector<int>& GetRows() const noexcept { return m_rows; }
-  const std::vector<int>& GetElementsSum() const noexcept { return m_elementsSum; }
-  int GetColumnsCount() const noexcept { return m_columnsCount; }
-  int GetRowsCount() const noexcept { return m_rowsCount; }
+  explicit SparesMatrix(int rows_count, int columns_count, const std::vector<double>& values,
+                        const std::vector<int>& rows, const std::vector<int>& element_sum) noexcept
+      : m_rowsCount_(rows_count),
+        m_columnsCount_(columns_count),
+        m_values_(values),
+        m_rows_(rows),
+        m_elementsSum_(element_sum){};
+  [[nodiscard]] const std::vector<double>& GetValues() const noexcept { return m_values_; }
+  [[nodiscard]] const std::vector<int>& GetRows() const noexcept { return m_rows_; }
+  [[nodiscard]] const std::vector<int>& GetElementsSum() const noexcept { return m_elementsSum_; }
+  [[nodiscard]] int GetColumnsCount() const noexcept { return m_columnsCount_; }
+  [[nodiscard]] int GetRowsCount() const noexcept { return m_rowsCount_; }
   SparesMatrix operator*(const SparesMatrix& smatrix) noexcept(false);
 };
 

@@ -10,7 +10,7 @@
 #include "core/task/include/task.hpp"
 #include "seq/Sadikov_I_SparesMatrixMultiplication/include/ops_seq.hpp"
 
-TEST(Sadikov_I_SparseMatrixMultiplication_task_seq, test_pipeline_run) {
+TEST(sadikov_i_sparse_matrix_multiplication_task_seq, test_pipeline_run) {
   constexpr int kCount = 2800;
 
   std::vector<double> in(kCount * kCount, 0);
@@ -34,7 +34,7 @@ TEST(Sadikov_I_SparseMatrixMultiplication_task_seq, test_pipeline_run) {
   task_data_seq->outputs.emplace_back(reinterpret_cast<uint8_t *>(out.data()));
   task_data_seq->outputs_count.emplace_back(out.size());
   auto test_task_sequential =
-      std::make_shared<Sadikov_I_SparseMatrixMultiplication_task_seq::CCSMatrixSequential>(task_data_seq);
+      std::make_shared<sadikov_i_sparse_matrix_multiplication_task_seq::CCSMatrixSequential>(task_data_seq);
   auto perf_attr = std::make_shared<ppc::core::PerfAttr>();
   perf_attr->num_running = 10;
   const auto t0 = std::chrono::high_resolution_clock::now();
@@ -50,7 +50,7 @@ TEST(Sadikov_I_SparseMatrixMultiplication_task_seq, test_pipeline_run) {
   ASSERT_EQ(in.size(), out.size());
 }
 
-TEST(Sadikov_I_SparseMatrixMultiplication_task_seq, test_task_run) {
+TEST(sadikov_i_sparse_matrix_multiplication_task_seq, test_task_run) {
   constexpr int kCount = 2000;
 
   std::vector<double> in(kCount * kCount, 0);
@@ -75,7 +75,7 @@ TEST(Sadikov_I_SparseMatrixMultiplication_task_seq, test_task_run) {
   task_data_seq->outputs.emplace_back(reinterpret_cast<uint8_t *>(out.data()));
   task_data_seq->outputs_count.emplace_back(out.size());
   auto test_task_sequential =
-      std::make_shared<Sadikov_I_SparseMatrixMultiplication_task_seq::CCSMatrixSequential>(task_data_seq);
+      std::make_shared<sadikov_i_sparse_matrix_multiplication_task_seq::CCSMatrixSequential>(task_data_seq);
   auto perf_attr = std::make_shared<ppc::core::PerfAttr>();
   perf_attr->num_running = 10;
   const auto t0 = std::chrono::high_resolution_clock::now();

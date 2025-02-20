@@ -1,123 +1,126 @@
 #include "seq/Sadikov_I_SparesMatrixMultiplication/include/SparesMatrix.hpp"
 
+#include <iostream>
+#include <vector>
+
 SparesMatrix SparesMatrix::Transpose(const SparesMatrix& matrix) {
   std::vector<double> val;
   std::vector<int> rows;
-  std::vector<int> elemSum;
-  std::vector<std::vector<double>> intermediateValues(matrix.GetRowsCount());
-  std::vector<std::vector<int>> intermediateIndexes(matrix.GetColumnsCount());
-  auto columnNumber = 0;
-  auto columnCounter = 0;
+  std::vector<int> elem_sum;
+  std::vector<std::vector<double>> intermediate_values(matrix.GetRowsCount());
+  std::vector<std::vector<int>> intermediate_indexes(matrix.GetColumnsCount());
+  auto column_number = 0;
+  auto column_counter = 0;
   for (auto i = 0; i < static_cast<int>(matrix.GetValues().size()); ++i) {
-    if (columnCounter == matrix.GetElementsSum()[columnNumber]) {
-      columnNumber++;
+    if (column_counter == matrix.GetElementsSum()[column_number]) {
+      column_number++;
     }
-    columnCounter++;
-    intermediateValues[matrix.GetRows()[i]].emplace_back(matrix.GetValues()[i]);
-    intermediateIndexes[matrix.GetRows()[i]].emplace_back(columnNumber);
+    column_counter++;
+    intermediate_values[matrix.GetRows()[i]].emplace_back(matrix.GetValues()[i]);
+    intermediate_indexes[matrix.GetRows()[i]].emplace_back(column_number);
   }
-  for (auto i = 0; i < static_cast<int>(intermediateValues.size()); ++i) {
-    for (auto j = 0; j < static_cast<int>(intermediateValues[i].size()); ++j) {
-      val.emplace_back(intermediateValues[i][j]);
-      rows.emplace_back(intermediateIndexes[i][j]);
+  for (auto i = 0; i < static_cast<int>(intermediate_values.size()); ++i) {
+    for (auto j = 0; j < static_cast<int>(intermediate_values[i].size()); ++j) {
+      val.emplace_back(intermediate_values[i][j]);
+      rows.emplace_back(intermediate_indexes[i][j]);
     }
     if (i > 0) {
-      elemSum.emplace_back(intermediateValues[i].size() + elemSum[i - 1]);
+      elem_sum.emplace_back(intermediate_values[i].size() + elem_sum[i - 1]);
     } else {
-      elemSum.emplace_back(intermediateValues[i].size());
+      elem_sum.emplace_back(intermediate_values[i].size());
     }
   }
-  return SparesMatrix(matrix.GetColumnsCount(), matrix.GetRowsCount(), val, rows, elemSum);
+  return SparesMatrix(matrix.GetColumnsCount(), matrix.GetRowsCount(), val, rows, elem_sum);
 }
 
 SparesMatrix SparesMatrix::operator*(const SparesMatrix& smatrix) {
   if (smatrix.GetColumnsCount() == 0 || smatrix.GetRowsCount() == 0 || this->GetColumnsCount() == 0 ||
       this->GetRowsCount() == 0) {
-    return SparesMatrix();
+    return {};
   }
   std::vector<double> values;
   std::vector<int> rows;
-  std::vector<int> elementsSum(smatrix.GetColumnsCount());
+  std::vector<int> elements_sum(smatrix.GetColumnsCount());
   auto fmatrix = Transpose(*this);
   for (auto i = 0; i < static_cast<int>(smatrix.GetElementsSum().size()); ++i) {
     for (auto j = 0; j < static_cast<int>(fmatrix.GetElementsSum().size()); ++j) {
       auto sum = 0.0;
-      auto fmatrixElementsCount =
+      auto fmatrix_elements_count =
           j == 0 ? fmatrix.GetElementsSum()[j] : fmatrix.GetElementsSum()[j] - fmatrix.GetElementsSum()[j - 1];
-      auto smatrixElementsCount =
+      auto smatrix_elements_count =
           i == 0 ? smatrix.GetElementsSum()[i] : smatrix.GetElementsSum()[i] - smatrix.GetElementsSum()[i - 1];
-      auto fmatrixStartIndex = j != 0 ? fmatrix.GetElementsSum()[j] - fmatrixElementsCount : 0;
-      auto smatrixStartIndex = i != 0 ? smatrix.GetElementsSum()[i] - smatrixElementsCount : 0;
-      for (auto n = 0; n < fmatrixElementsCount; n++) {
-        for (auto n2 = 0; n2 < smatrixElementsCount; n2++) {
-          if (fmatrix.GetRows()[fmatrixStartIndex + n] == smatrix.GetRows()[smatrixStartIndex + n2]) {
-            sum += fmatrix.GetValues()[n + fmatrixStartIndex] * smatrix.GetValues()[n2 + smatrixStartIndex];
+      auto fmatrix_start_index = j != 0 ? fmatrix.GetElementsSum()[j] - fmatrix_elements_count : 0;
+      auto smatrix_start_index = i != 0 ? smatrix.GetElementsSum()[i] - smatrix_elements_count : 0;
+      for (auto n = 0; n < fmatrix_elements_count; n++) {
+        for (auto n2 = 0; n2 < smatrix_elements_count; n2++) {
+          if (fmatrix.GetRows()[fmatrix_start_index + n] == smatrix.GetRows()[smatrix_start_index + n2]) {
+            sum += fmatrix.GetValues()[n + fmatrix_start_index] * smatrix.GetValues()[n2 + smatrix_start_index];
           }
         }
       }
-      if (sum > m_epsilon) {
+      if (sum > kMEpsilon) {
         // Write sum data
         values.emplace_back(sum);
         rows.emplace_back(j);
-        elementsSum[i]++;
+        elements_sum[i]++;
       }
     }
   }
-  for (auto i = 1; i < static_cast<int>(elementsSum.size()); ++i) {
-    elementsSum[i] = elementsSum[i] + elementsSum[i - 1];
+  for (auto i = 1; i < static_cast<int>(elements_sum.size()); ++i) {
+    elements_sum[i] = elements_sum[i] + elements_sum[i - 1];
   }
-  return SparesMatrix(smatrix.GetColumnsCount(), smatrix.GetColumnsCount(), values, rows, elementsSum);
+  return SparesMatrix(smatrix.GetColumnsCount(), smatrix.GetColumnsCount(), values, rows, elements_sum);
 }
 
-SparesMatrix MatrixToSpares(int rowsCount, int columnsCount, const std::vector<double>& values) {
+SparesMatrix MatrixToSpares(int rows_count, int columns_count, const std::vector<double>& values) {
   std::vector<double> val;
-  std::vector<int> sums(columnsCount, 0);
+  std::vector<int> sums(columns_count, 0);
   std::vector<int> rows;
-  for (auto i = 0; i < columnsCount; ++i) {
-    for (auto j = 0; j < rowsCount; ++j) {
-      if (values[i + columnsCount * j] != 0) {
-        val.emplace_back(values[i + columnsCount * j]);
+  for (auto i = 0; i < columns_count; ++i) {
+    for (auto j = 0; j < rows_count; ++j) {
+      if (values[i + (columns_count * j)] != 0) {
+        val.emplace_back(values[i + (columns_count * j)]);
         rows.emplace_back(j);
         sums[i] += 1;
       }
     }
-    if (i != columnsCount - 1) {
+    if (i != columns_count - 1) {
       sums[i + 1] = sums[i];
     }
   }
-  return SparesMatrix(rowsCount, columnsCount, val, rows, sums);
+  return SparesMatrix(rows_count, columns_count, val, rows, sums);
 }
 
 std::vector<double> FromSparesMatrix(const SparesMatrix& matrix) {
-  std::vector<double> simplMatrix(matrix.GetRowsCount() * matrix.GetColumnsCount(), 0.0);
-  auto columnNumber = 0;
-  auto columnCounter = 0;
+  std::vector<double> simpl_matrix(matrix.GetRowsCount() * matrix.GetColumnsCount(), 0.0);
+  auto column_number = 0;
+  auto column_counter = 0;
   for (auto i = 0; i < static_cast<int>(matrix.GetValues().size()); ++i) {
-    if (columnCounter >= matrix.GetElementsSum()[columnNumber]) {
-      columnNumber++;
+    if (column_counter >= matrix.GetElementsSum()[column_number]) {
+      column_number++;
     }
-    columnCounter++;
-    if (columnNumber > 0 && matrix.GetElementsSum()[columnNumber] - matrix.GetElementsSum()[columnNumber - 1] == 0) {
-      columnNumber++;
+    column_counter++;
+    if (column_number > 0 && matrix.GetElementsSum()[column_number] - matrix.GetElementsSum()[column_number - 1] == 0) {
+      column_number++;
     }
-    simplMatrix[columnNumber + matrix.GetRows()[i] * matrix.GetColumnsCount()] = matrix.GetValues()[i];
+    simpl_matrix[column_number + (matrix.GetRows()[i] * matrix.GetColumnsCount())] = matrix.GetValues()[i];
   }
-  return simplMatrix;
+  return simpl_matrix;
 }
 
 std::ostream& operator<<(std::ostream& os, const SparesMatrix& matrix) {
-  os << "VALUES" << std::endl;
+  os << "VALUES" << '\n';
   for (auto i = 0; i < static_cast<int>(matrix.GetValues().size()); ++i) {
     os << matrix.GetValues()[i] << " ";
   }
-  os << std::endl << "ROWS" << std::endl;
+  os << '\n' << "ROWS" << '\n';
   for (auto i = 0; i < static_cast<int>(matrix.GetRows().size()); ++i) {
     os << matrix.GetRows()[i] << " ";
   }
-  os << std::endl << "ElementsSum" << std::endl;
+  os << '\n' << "ElementsSum" << '\n';
   for (auto i = 0; i < static_cast<int>(matrix.GetElementsSum().size()); ++i) {
     os << matrix.GetElementsSum()[i] << " ";
   }
-  os << std::endl;
+  os << '\n';
   return os;
 }
