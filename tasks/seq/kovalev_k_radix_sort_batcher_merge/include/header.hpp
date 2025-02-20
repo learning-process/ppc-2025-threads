@@ -4,6 +4,7 @@
 #include <cstdlib>
 #include <cstring>
 #include <utility>
+#include <vector>
 
 #include "core/task/include/task.hpp"
 
@@ -11,8 +12,8 @@ namespace kovalev_k_radix_sort_batcher_merge_seq {
 
 class RadixSortBatcherMerge : public ppc::core::Task {
  private:
-  std::vector<long long int> mas, tmp;
-  unsigned int n;
+  std::vector<long long int> mas_, tmp_;
+  unsigned int n_;
 
  public:
   explicit RadixSortBatcherMerge(std::shared_ptr<ppc::core::TaskData> task_data) : Task(std::move(task_data)) {}
