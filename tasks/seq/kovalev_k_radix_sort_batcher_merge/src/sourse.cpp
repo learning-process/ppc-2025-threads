@@ -1,14 +1,14 @@
-#include "seq/kovalev_k_radix_sort_batcher_merge/include/header.hpp"
-
 #include <cstdlib>
 #include <cstring>
 #include <memory>
 #include <utility>
 #include <vector>
 
+#include "seq/kovalev_k_radix_sort_batcher_merge/include/header.hpp"
+
 bool kovalev_k_radix_sort_batcher_merge_seq::RadixSortBatcherMerge::RadixUnsigned(unsigned long long* inp_arr,
                                                                                   unsigned long long* mas_tmp) const {
-  auto *masc = reinterpret_cast<unsigned char*>(inp_arr);
+  auto* masc = reinterpret_cast<unsigned char*>(inp_arr);
   int count[256];
   unsigned int sizetype = sizeof(unsigned long long);
   for (unsigned int i = 0; i < sizetype; i++) {
@@ -23,7 +23,7 @@ bool kovalev_k_radix_sort_batcher_merge_seq::RadixSortBatcherMerge::RadixUnsigne
 
 bool kovalev_k_radix_sort_batcher_merge_seq::RadixSortBatcherMerge::Countbyte(unsigned long long* inp_arr, int* count,
                                                                               unsigned int byte) const {
-  auto *masc = reinterpret_cast<unsigned char*>(inp_arr);
+  auto* masc = reinterpret_cast<unsigned char*>(inp_arr);
   unsigned int bias = sizeof(unsigned long long);
   for (unsigned int i = 0; i < 256; i++) {
     count[i] = 0;
