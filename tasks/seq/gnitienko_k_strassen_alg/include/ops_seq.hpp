@@ -16,15 +16,17 @@ class StrassenAlgSeq : public ppc::core::Task {
   bool PostProcessingImpl() override;
 
  private:
-  std::vector<double> input_1, input_2, output_;
+  std::vector<double> input_1_;
+  std::vector<double> input_2_;
+  std::vector<double> output_;
   int size_{};
-  int TRIVIAL_MULTIPLICATION_BOUND = 8;
-  int extend = 0;
+  int TRIVIAL_MULTIPLICATION_BOUND_ = 8;
+  int extend_ = 0;
 
-  void TrivialMultiply(const std::vector<double>& A, const std::vector<double>& B, std::vector<double>& C, int size);
-  void StrassenMultiply(const std::vector<double>& A, const std::vector<double>& B, std::vector<double>& C, int size);
-  void AddMatrix(const std::vector<double>& A, const std::vector<double>& B, std::vector<double>& C, int size);
-  void SubMatrix(const std::vector<double>& A, const std::vector<double>& B, std::vector<double>& C, int size);
+  void TrivialMultiply(const std::vector<double>& a, const std::vector<double>& b, std::vector<double>& c, int size);
+  void StrassenMultiply(const std::vector<double>& a, const std::vector<double>& b, std::vector<double>& c, int size);
+  void AddMatrix(const std::vector<double>& a, const std::vector<double>& b, std::vector<double>& c, int size);
+  void SubMatrix(const std::vector<double>& a, const std::vector<double>& b, std::vector<double>& c, int size);
 };
 
 }  // namespace gnitienko_k_strassen_algorithm

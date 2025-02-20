@@ -12,32 +12,33 @@
 #include "seq/gnitienko_k_strassen_alg/include/ops_seq.hpp"
 
 namespace gnitienko_k_matrix_func {
-double minVal = -50.0;
-double maxVal = 50.0;
-std::vector<double> genMatrix(size_t size);
-void TrivialMultiply(const std::vector<double> &A, const std::vector<double> &B, std::vector<double> &C, size_t size);
+static double min_val = -50.0;
+static double max_val = 50.0;
+static std::vector<double> GenMatrix(size_t size);
+static void TrivialMultiply(const std::vector<double> &a, const std::vector<double> &b, std::vector<double> &c,
+                            size_t size);
 
-std::vector<double> genMatrix(size_t size) {
+std::vector<double> GenMatrix(size_t size) {
   std::vector<double> matrix(size * size);
   std::random_device rd;
   std::mt19937 gen(rd());
-  std::uniform_real_distribution<double> dist(minVal, maxVal);
+  std::uniform_real_distribution<double> dist(min_val, max_val);
 
   for (size_t i = 0; i < size; ++i) {
     for (size_t j = 0; j < size; ++j) {
-      matrix[i * size + j] = dist(gen);
+      matrix[(i * size) + j] = dist(gen);
     }
   }
   return matrix;
 }
 
-void TrivialMultiply(const std::vector<double> &A, const std::vector<double> &B, std::vector<double> &C, size_t size) {
+void TrivialMultiply(const std::vector<double> &a, const std::vector<double> &b, std::vector<double> &c, size_t size) {
   for (size_t i = 0; i < size; ++i) {
     for (size_t j = 0; j < size; ++j) {
-      C[i * size + j] = 0;
+      c[(i * size) + j] = 0;
       for (size_t k = 0; k < size; ++k) {
-        C[i * size + j] += A[i * size + k] * B[k * size + j];
-        C[i * size + j] = round(C[i * size + j] * 10000) / 10000;
+        c[(i * size) + j] += a[(i * size) + k] * b[(k * size) + j];
+        c[(i * size) + j] = round(c[(i * size) + j] * 10000) / 10000;
       }
     }
   }
@@ -48,17 +49,17 @@ TEST(gnitienko_k_strassen_alg_seq, test_pipeline_run) {
   size_t size = 512;
 
   // Create data
-  std::vector<double> A = gnitienko_k_matrix_func::genMatrix(size);
-  std::vector<double> B = gnitienko_k_matrix_func::genMatrix(size);
+  std::vector<double> a = gnitienko_k_matrix_func::GenMatrix(size);
+  std::vector<double> b = gnitienko_k_matrix_func::GenMatrix(size);
   std::vector<double> expected(size * size);
-  gnitienko_k_matrix_func::TrivialMultiply(A, B, expected, size);
+  gnitienko_k_matrix_func::TrivialMultiply(a, b, expected, size);
   std::vector<double> out(size * size);
 
   // Create task_data
   auto task_data_seq = std::make_shared<ppc::core::TaskData>();
-  task_data_seq->inputs.emplace_back(reinterpret_cast<uint8_t *>(A.data()));
-  task_data_seq->inputs.emplace_back(reinterpret_cast<uint8_t *>(B.data()));
-  task_data_seq->inputs_count.emplace_back(A.size());
+  task_data_seq->inputs.emplace_back(reinterpret_cast<uint8_t *>(a.data()));
+  task_data_seq->inputs.emplace_back(reinterpret_cast<uint8_t *>(b.data()));
+  task_data_seq->inputs_count.emplace_back(a.size());
   task_data_seq->outputs.emplace_back(reinterpret_cast<uint8_t *>(out.data()));
   task_data_seq->outputs_count.emplace_back(out.size());
 
@@ -82,22 +83,24 @@ TEST(gnitienko_k_strassen_alg_seq, test_pipeline_run) {
   auto perf_analyzer = std::make_shared<ppc::core::Perf>(test_task_sequential);
   perf_analyzer->PipelineRun(perf_attr, perf_results);
   ppc::core::Perf::PrintPerfStatistic(perf_results);
-  for (size_t i = 0; i < size * size; i++) EXPECT_NEAR(expected[i], out[i], 1e-2);
+  for (size_t i = 0; i < size * size; i++) {
+    EXPECT_NEAR(expected[i], out[i], 1e-2);
+  }
 }
 
 TEST(gnitienko_k_strassen_alg_seq, test_task_run) {
   size_t size = 512;
   // Create data
-  std::vector<double> A = gnitienko_k_matrix_func::genMatrix(size);
-  std::vector<double> B = gnitienko_k_matrix_func::genMatrix(size);
+  std::vector<double> a = gnitienko_k_matrix_func::GenMatrix(size);
+  std::vector<double> b = gnitienko_k_matrix_func::GenMatrix(size);
   std::vector<double> expected(size * size);
-  gnitienko_k_matrix_func::TrivialMultiply(A, B, expected, size);
+  gnitienko_k_matrix_func::TrivialMultiply(a, b, expected, size);
   std::vector<double> out(size * size);
   // Create task_data
   auto task_data_seq = std::make_shared<ppc::core::TaskData>();
-  task_data_seq->inputs.emplace_back(reinterpret_cast<uint8_t *>(A.data()));
-  task_data_seq->inputs.emplace_back(reinterpret_cast<uint8_t *>(B.data()));
-  task_data_seq->inputs_count.emplace_back(A.size());
+  task_data_seq->inputs.emplace_back(reinterpret_cast<uint8_t *>(a.data()));
+  task_data_seq->inputs.emplace_back(reinterpret_cast<uint8_t *>(b.data()));
+  task_data_seq->inputs_count.emplace_back(a.size());
   task_data_seq->outputs.emplace_back(reinterpret_cast<uint8_t *>(out.data()));
   task_data_seq->outputs_count.emplace_back(out.size());
 
@@ -121,5 +124,7 @@ TEST(gnitienko_k_strassen_alg_seq, test_task_run) {
   auto perf_analyzer = std::make_shared<ppc::core::Perf>(test_task_sequential);
   perf_analyzer->TaskRun(perf_attr, perf_results);
   ppc::core::Perf::PrintPerfStatistic(perf_results);
-  for (size_t i = 0; i < size * size; i++) EXPECT_NEAR(expected[i], out[i], 1e-2);
+  for (size_t i = 0; i < size * size; i++) {
+    EXPECT_NEAR(expected[i], out[i], 1e-2);
+  }
 }
