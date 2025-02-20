@@ -1,15 +1,17 @@
-#include "core/task/include/task.hpp"
-#include "core/util/include/util.hpp"
-#include "seq/moiseev_a_mult_mat/include/ops_seq.hpp"
+#include <gtest/gtest.h>
+
 #include <cmath>
 #include <cstddef>
 #include <cstdint>
 #include <fstream>
-#include <gtest/gtest.h>
 #include <memory>
 #include <random>
 #include <string>
 #include <vector>
+
+#include "core/task/include/task.hpp"
+#include "core/util/include/util.hpp"
+#include "seq/moiseev_a_mult_mat/include/ops_seq.hpp"
 
 std::vector<double> GenerateRandomMatrix(size_t rows, size_t cols) {
   std::vector<double> matrix(rows * cols);
