@@ -19,10 +19,10 @@ TEST(sadikov_i_sparse_matrix_multiplication_task_seq, test_pipeline_run) {
 
   for (size_t i = 0; i < kCount; i++) {
     if (i % 6 == 0) {
-      in[(i * kCount) + i] = i;
+      in[(i * kCount) + i] = static_cast<double>(i);
     }
     if (i % 5 == 0) {
-      in2[(i * kCount) + i] = i;
+      in2[(i * kCount) + i] = static_cast<double>(i);
     }
   }
   auto task_data_seq = std::make_shared<ppc::core::TaskData>();
@@ -59,10 +59,10 @@ TEST(sadikov_i_sparse_matrix_multiplication_task_seq, test_task_run) {
 
   for (size_t i = 0; i < kCount; i++) {
     if (i % 3 == 0) {
-      in[(i * kCount) + i] = i;
+      in[(i * kCount) + i] = static_cast<double>(i);
     }
     if (i % 8 == 0) {
-      in2[(i * kCount) + i] = i;
+      in2[(i * kCount) + i] = static_cast<double>(i);
     }
   }
 

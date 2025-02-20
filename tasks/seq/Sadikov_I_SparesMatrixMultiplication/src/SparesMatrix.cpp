@@ -34,16 +34,12 @@ SparesMatrix SparesMatrix::Transpose(const SparesMatrix& matrix) {
 }
 
 SparesMatrix SparesMatrix::operator*(const SparesMatrix& smatrix) {
-  if (smatrix.GetColumnsCount() == 0 || smatrix.GetRowsCount() == 0 || this->GetColumnsCount() == 0 ||
-      this->GetRowsCount() == 0) {
-    return {};
-  }
   std::vector<double> values;
   std::vector<int> rows;
   std::vector<int> elements_sum(smatrix.GetColumnsCount());
   auto fmatrix = Transpose(*this);
-  auto felements_sum = fmatrix.GetElementsSum();
-  auto selements_sum = smatrix.GetElementsSum();
+  const auto& felements_sum = fmatrix.GetElementsSum();
+  const auto& selements_sum = smatrix.GetElementsSum();
 
   for (auto i = 0; i < static_cast<int>(selements_sum.size()); ++i) {
     for (auto j = 0; j < static_cast<int>(felements_sum.size()); ++j) {
