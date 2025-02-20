@@ -33,7 +33,7 @@ TEST(Sadikov_I_SparseMatrixMultiplication_task_seq, test_rect_matrixes) {
   test_task_sequential.PreProcessing();
   test_task_sequential.Run();
   test_task_sequential.PostProcessing();
-  for (auto i = 0; i < out.size(); ++i) {
+  for (auto i = 0; i < static_cast<int>(out.size()); ++i) {
     EXPECT_NEAR(out[i], testOut[i], epsilon);
   }
 }
@@ -59,7 +59,7 @@ TEST(Sadikov_I_SparseMatrixMultiplication_task_seq, test_square_matrixes) {
   test_task_sequential.PreProcessing();
   test_task_sequential.Run();
   test_task_sequential.PostProcessing();
-  for (auto i = 0; i < out.size(); ++i) {
+  for (auto i = 0; i < static_cast<int>(out.size()); ++i) {
     EXPECT_NEAR(out[i], testOut[i], epsilon);
   }
 }
@@ -86,7 +86,7 @@ TEST(Sadikov_I_SparseMatrixMultiplication_task_seq, test_empty_matrixes) {
   test_task_sequential.PreProcessing();
   test_task_sequential.Run();
   test_task_sequential.PostProcessing();
-  for (auto i = 0; i < out.size(); ++i) {
+  for (auto i = 0; i < static_cast<int>(out.size()); ++i) {
     EXPECT_NEAR(out[i], testOut[i], epsilon);
   }
 }
