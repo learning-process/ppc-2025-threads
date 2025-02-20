@@ -1,6 +1,7 @@
 #include "seq/odintsov_m_multmatrix_cannon/include/ops_seq.hpp"
 
 #include <cmath>
+#include <cstddef>
 #include <vector>
 using namespace std;
 void odintsov_m_mulmatrix_cannon_seq::MulMatrixCannonSequential::ShiftRow(std::vector<double>& matrix, int root,
@@ -187,7 +188,7 @@ bool odintsov_m_mulmatrix_cannon_seq::MulMatrixCannonSequential::RunImpl() {
 
 bool odintsov_m_mulmatrix_cannon_seq::MulMatrixCannonSequential::PostProcessingImpl() {
   std::size_t sz_c = matrixC_.size();
-  for (int i = 0; i < sz_c; i++) {
+  for (std::size_t i = 0; i < sz_c; i++) {
     reinterpret_cast<double*>(task_data->outputs[0])[i] = matrixC_[i];
   }
   return true;
