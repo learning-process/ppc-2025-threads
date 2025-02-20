@@ -14,12 +14,12 @@ bool Sadikov_I_SparseMatrixMultiplication_task_seq::CCSMatrixSequential::PreProc
   for (auto i = 0; i < fmatrixRowsCount * fmatrxixColumnsCount; ++i) {
     fmatrix.emplace_back(in_ptr[i]);
   }
-  m_fMatrix = std::move(MatrixToSpares(fmatrixRowsCount, fmatrxixColumnsCount, fmatrix));
+  m_fMatrix = MatrixToSpares(fmatrixRowsCount, fmatrxixColumnsCount, fmatrix);
   auto *in_ptr2 = reinterpret_cast<double *>(task_data->inputs[1]);
   for (auto i = 0; i < smatrixRowsCount * smatrixColumnsCount; ++i) {
     smatrix.emplace_back(in_ptr2[i]);
   }
-  m_sMatrix = std::move(MatrixToSpares(smatrixRowsCount, smatrixColumnsCount, smatrix));
+  m_sMatrix = MatrixToSpares(smatrixRowsCount, smatrixColumnsCount, smatrix);
   return true;
 }
 
