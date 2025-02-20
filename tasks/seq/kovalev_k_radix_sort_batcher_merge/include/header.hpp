@@ -1,10 +1,7 @@
 #pragma once
 
-#include <cmath>
-#include <cstdlib>
-#include <cstring>
-#include <memory>
 #include <utility>
+#include <memory>
 #include <vector>
 
 #include "core/task/include/task.hpp"
@@ -18,7 +15,7 @@ class RadixSortBatcherMerge : public ppc::core::Task {
 
  public:
   explicit RadixSortBatcherMerge(std::shared_ptr<ppc::core::TaskData> task_data) : Task(std::move(task_data)) {}
-  bool RadixUnsigned(unsigned long long*, unsigned long long*);
+  bool RadixUnsigned(unsigned long long*, unsigned long long*) const;
   bool Countbyte(unsigned long long*, int*, unsigned int) const;
   bool PreProcessingImpl() override;
   bool ValidationImpl() override;
