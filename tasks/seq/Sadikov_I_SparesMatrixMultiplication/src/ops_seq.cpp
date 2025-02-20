@@ -35,7 +35,7 @@ bool Sadikov_I_SparseMatrixMultiplication_task_seq::CCSMatrixSequential::RunImpl
 
 bool Sadikov_I_SparseMatrixMultiplication_task_seq::CCSMatrixSequential::PostProcessingImpl() {
   auto answer = FromSparesMatrix(m_answerMatrix);
-  for (auto i = 0; i < answer.size(); ++i) {
+  for (auto i = 0; i < static_cast<int>(answer.size()); ++i) {
     reinterpret_cast<double *>(task_data->outputs[0])[i] = answer[i];
   }
   return true;

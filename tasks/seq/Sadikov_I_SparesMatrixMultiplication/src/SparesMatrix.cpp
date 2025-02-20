@@ -8,7 +8,7 @@ SparesMatrix SparesMatrix::Transpose(const SparesMatrix& matrix) {
   std::vector<std::vector<int>> intermediateIndexes(matrix.GetColumnsCount());
   auto columnNumber = 0;
   auto columnCounter = 0;
-  for (auto i = 0; i < matrix.GetValues().size(); ++i) {
+  for (auto i = 0; i < static_cast<int>(matrix.GetValues().size()); ++i) {
     if (columnCounter == matrix.GetElementsSum()[columnNumber]) {
       columnNumber++;
     }
@@ -16,8 +16,8 @@ SparesMatrix SparesMatrix::Transpose(const SparesMatrix& matrix) {
     intermediateValues[matrix.GetRows()[i]].emplace_back(matrix.GetValues()[i]);
     intermediateIndexes[matrix.GetRows()[i]].emplace_back(columnNumber);
   }
-  for (auto i = 0; i < intermediateValues.size(); ++i) {
-    for (auto j = 0; j < intermediateValues[i].size(); ++j) {
+  for (auto i = 0; i < static_cast<int>(intermediateValues.size()); ++i) {
+    for (auto j = 0; j < static_cast<int>(intermediateValues[i].size()); ++j) {
       val.emplace_back(intermediateValues[i][j]);
       rows.emplace_back(intermediateIndexes[i][j]);
     }
@@ -39,8 +39,8 @@ SparesMatrix SparesMatrix::operator*(const SparesMatrix& smatrix) {
   std::vector<int> rows;
   std::vector<int> elementsSum(smatrix.GetColumnsCount());
   auto fmatrix = Transpose(*this);
-  for (auto i = 0; i < smatrix.GetElementsSum().size(); ++i) {
-    for (auto j = 0; j < fmatrix.GetElementsSum().size(); ++j) {
+  for (auto i = 0; i < static_cast<int>(smatrix.GetElementsSum().size()); ++i) {
+    for (auto j = 0; j < static_cast<int>(fmatrix.GetElementsSum().size()); ++j) {
       auto sum = 0.0;
       auto fmatrixElementsCount =
           j == 0 ? fmatrix.GetElementsSum()[j] : fmatrix.GetElementsSum()[j] - fmatrix.GetElementsSum()[j - 1];
@@ -63,7 +63,7 @@ SparesMatrix SparesMatrix::operator*(const SparesMatrix& smatrix) {
       }
     }
   }
-  for (auto i = 1; i < elementsSum.size(); ++i) {
+  for (auto i = 1; i < static_cast<int>(elementsSum.size()); ++i) {
     elementsSum[i] = elementsSum[i] + elementsSum[i - 1];
   }
   return SparesMatrix(smatrix.GetColumnsCount(), smatrix.GetColumnsCount(), values, rows, elementsSum);
@@ -92,7 +92,7 @@ std::vector<double> FromSparesMatrix(const SparesMatrix& matrix) {
   std::vector<double> simplMatrix(matrix.GetRowsCount() * matrix.GetColumnsCount(), 0.0);
   auto columnNumber = 0;
   auto columnCounter = 0;
-  for (auto i = 0; i < matrix.GetValues().size(); ++i) {
+  for (auto i = 0; i < static_cast<int>(matrix.GetValues().size()); ++i) {
     if (columnCounter >= matrix.GetElementsSum()[columnNumber]) {
       columnNumber++;
     }
