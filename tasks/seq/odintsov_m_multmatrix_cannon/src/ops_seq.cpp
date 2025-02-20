@@ -3,8 +3,8 @@
 #include <cmath>
 #include <vector>
 using namespace std;
-void odintsov_m_mulmatix_cannon_seq::MulMatrixCannonSequential::ShiftRow(std::vector<double>& matrix, int root, int row,
-                                                                         int shift) {
+void odintsov_m_mulmatrix_cannon_seq::MulMatrixCannonSequential::ShiftRow(std::vector<double>& matrix, int root,
+                                                                          int row, int shift) {
   shift = shift % root;
   std::vector<double> tmp(root);
   for (int j = 0; j < root; j++) {
@@ -15,8 +15,8 @@ void odintsov_m_mulmatix_cannon_seq::MulMatrixCannonSequential::ShiftRow(std::ve
   }
 }
 
-void odintsov_m_mulmatix_cannon_seq::MulMatrixCannonSequential::ShiftColumn(std::vector<double>& matrix, int root,
-                                                                            int col, int shift) {
+void odintsov_m_mulmatrix_cannon_seq::MulMatrixCannonSequential::ShiftColumn(std::vector<double>& matrix, int root,
+                                                                             int col, int shift) {
   shift = shift % root;
   std::vector<double> tmp(root);
 
@@ -27,8 +27,8 @@ void odintsov_m_mulmatix_cannon_seq::MulMatrixCannonSequential::ShiftColumn(std:
     matrix[(i * root) + col] = tmp[i];
   }
 }
-void odintsov_m_mulmatix_cannon_seq::MulMatrixCannonSequential::ShiftBlocksUp(std::vector<double>& matrix, int root,
-                                                                              int sz) const {
+void odintsov_m_mulmatrix_cannon_seq::MulMatrixCannonSequential::ShiftBlocksUp(std::vector<double>& matrix, int root,
+                                                                               int sz) const {
   int p = root / block_sz_;
   for (int bj = 0; bj < p; bj++) {
     std::vector<double> first_block(block_sz_ * block_sz_);
@@ -57,8 +57,8 @@ void odintsov_m_mulmatix_cannon_seq::MulMatrixCannonSequential::ShiftBlocksUp(st
   }
 }
 
-void odintsov_m_mulmatix_cannon_seq::MulMatrixCannonSequential::ShiftBlocksLeft(std::vector<double>& matrix, int root,
-                                                                                int sz) const {
+void odintsov_m_mulmatrix_cannon_seq::MulMatrixCannonSequential::ShiftBlocksLeft(std::vector<double>& matrix, int root,
+                                                                                 int sz) const {
   int p = root / block_sz_;
   for (int bi = 0; bi < p; bi++) {
     std::vector<double> first_block(block_sz_ * block_sz_);
@@ -86,12 +86,12 @@ void odintsov_m_mulmatix_cannon_seq::MulMatrixCannonSequential::ShiftBlocksLeft(
   }
 }
 
-bool odintsov_m_mulmatix_cannon_seq::MulMatrixCannonSequential::IsSquere(unsigned int num) {
+bool odintsov_m_mulmatrix_cannon_seq::MulMatrixCannonSequential::IsSquere(unsigned int num) {
   auto root = static_cast<unsigned int>(std::sqrt(num));
   return (root * root) == num;
 }
 
-int odintsov_m_mulmatix_cannon_seq::MulMatrixCannonSequential::GetBlockSize(int n) {
+int odintsov_m_mulmatrix_cannon_seq::MulMatrixCannonSequential::GetBlockSize(int n) {
   for (int k = (n / 2); k >= 2; k--) {
     if ((n % k) == 0) {
       return k;
@@ -99,9 +99,9 @@ int odintsov_m_mulmatix_cannon_seq::MulMatrixCannonSequential::GetBlockSize(int 
   }
   return 1;
 }
-void odintsov_m_mulmatix_cannon_seq::MulMatrixCannonSequential::CopyBlock(const std::vector<double>& matrix,
-                                                                          std::vector<double>& block, int start,
-                                                                          int root, int block_sz) {
+void odintsov_m_mulmatrix_cannon_seq::MulMatrixCannonSequential::CopyBlock(const std::vector<double>& matrix,
+                                                                           std::vector<double>& block, int start,
+                                                                           int root, int block_sz) {
   for (int i = 0; i < block_sz; i++) {
     for (int j = 0; j < block_sz; j++) {
       int index = start + (i * root) + j;
@@ -109,9 +109,9 @@ void odintsov_m_mulmatix_cannon_seq::MulMatrixCannonSequential::CopyBlock(const 
     }
   }
 }
-void odintsov_m_mulmatix_cannon_seq::MulMatrixCannonSequential::InitializeShift(std::vector<double>& matrix, int root,
-                                                                                int grid_size, int block_sz,
-                                                                                bool is_row_shift) {
+void odintsov_m_mulmatrix_cannon_seq::MulMatrixCannonSequential::InitializeShift(std::vector<double>& matrix, int root,
+                                                                                 int grid_size, int block_sz,
+                                                                                 bool is_row_shift) {
   for (int b = 0; b < grid_size; ++b) {
     for (int index = b * block_sz; index < (b + 1) * block_sz; ++index) {
       for (int shift = 0; shift < b; ++shift) {
@@ -124,7 +124,7 @@ void odintsov_m_mulmatix_cannon_seq::MulMatrixCannonSequential::InitializeShift(
     }
   }
 }
-bool odintsov_m_mulmatix_cannon_seq::MulMatrixCannonSequential::PreProcessingImpl() {
+bool odintsov_m_mulmatrix_cannon_seq::MulMatrixCannonSequential::PreProcessingImpl() {
   szA_ = task_data->inputs_count[0];
   szB_ = task_data->inputs_count[1];
   matrixA_.assign(reinterpret_cast<double*>(task_data->inputs[0]),
@@ -137,7 +137,7 @@ bool odintsov_m_mulmatix_cannon_seq::MulMatrixCannonSequential::PreProcessingImp
   return true;
 }
 
-bool odintsov_m_mulmatix_cannon_seq::MulMatrixCannonSequential::ValidationImpl() {
+bool odintsov_m_mulmatrix_cannon_seq::MulMatrixCannonSequential::ValidationImpl() {
   if (task_data->inputs_count[0] != task_data->inputs_count[1]) {
     return false;
   }
@@ -148,7 +148,7 @@ bool odintsov_m_mulmatix_cannon_seq::MulMatrixCannonSequential::ValidationImpl()
   return true;
 }
 
-bool odintsov_m_mulmatix_cannon_seq::MulMatrixCannonSequential::RunImpl() {
+bool odintsov_m_mulmatrix_cannon_seq::MulMatrixCannonSequential::RunImpl() {
   int root = static_cast<int>(sqrt(szA_));
 
   std::vector<double> block_a(block_sz_ * block_sz_, 0);
@@ -185,8 +185,8 @@ bool odintsov_m_mulmatix_cannon_seq::MulMatrixCannonSequential::RunImpl() {
   return true;
 }
 
-bool odintsov_m_mulmatix_cannon_seq::MulMatrixCannonSequential::PostProcessingImpl() {
-  int sz_c = matrixC_.size();
+bool odintsov_m_mulmatrix_cannon_seq::MulMatrixCannonSequential::PostProcessingImpl() {
+  std::size_t sz_c = matrixC_.size();
   for (int i = 0; i < sz_c; i++) {
     reinterpret_cast<double*>(task_data->outputs[0])[i] = matrixC_[i];
   }

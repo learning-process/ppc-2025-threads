@@ -5,7 +5,7 @@
 
 #include "core/task/include/task.hpp"
 
-namespace odintsov_m_mulmatix_cannon_seq {
+namespace odintsov_m_mulmatrix_cannon_seq {
 
 class MulMatrixCannonSequential : public ppc::core::Task {
  public:
@@ -25,11 +25,11 @@ class MulMatrixCannonSequential : public ppc::core::Task {
   static int GetBlockSize(int n);
   static void CopyBlock(const std::vector<double>& matrix, std::vector<double>& block, int start, int root,
                         int block_sz);
-  static void InitializeShift(std::vector<double>& matrix, int root, int grid_size, int block_sz, bool isRowShift);
+  static void InitializeShift(std::vector<double>& matrix, int root, int grid_size, int block_sz, bool is_row_shift);
   std::vector<double> matrixA_, matrixB_;
   unsigned int szA_ = 0, szB_ = 0;
   int block_sz_ = 0;
   std::vector<double> matrixC_;
 };
 
-}  // namespace odintsov_m_mulmatix_cannon_seq
+}  // namespace odintsov_m_mulmatrix_cannon_seq

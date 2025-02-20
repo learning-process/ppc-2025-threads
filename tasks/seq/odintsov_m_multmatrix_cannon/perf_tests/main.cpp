@@ -2,7 +2,7 @@
 #include <gtest/gtest.h>
 
 #include <chrono>
-#include <cstddef>
+#include <cstdint>
 #include <memory>
 #include <vector>
 
@@ -27,7 +27,7 @@ TEST(odintsov_m_multmatrix_cannon_seq, test_pipeline_run) {
 
   // Create Task
   auto test_task_sequential =
-      std::make_shared<odintsov_m_mulmatix_cannon_seq::MulMatrixCannonSequential>(task_data_seq);
+      std::make_shared<odintsov_m_mulmatrix_cannon_seq::MulMatrixCannonSequential>(task_data_seq);
 
   // Create Perf attributes
   auto perf_attr = std::make_shared<ppc::core::PerfAttr>();
@@ -66,7 +66,7 @@ TEST(odintsov_m_multmatrix_cannon_seq, test_task_run) {
 
   // Create Task
   auto test_task_sequential =
-      std::make_shared<odintsov_m_mulmatix_cannon_seq::MulMatrixCannonSequential>(task_data_seq);
+      std::make_shared<odintsov_m_mulmatrix_cannon_seq::MulMatrixCannonSequential>(task_data_seq);
 
   // Create Perf attributes
   auto perf_attr = std::make_shared<ppc::core::PerfAttr>();
