@@ -20,6 +20,7 @@ class HoareSortTaskSequential : public ppc::core::Task {
   std::vector<double> input_array_A_; // входной массив
   size_type dimension_; // его размер
   size_type min_chunk_size_; // размер частей на которые будет разбиваться исходный массив
+  size_type remainder_; // остаток
   size_type chunk_count_; // число таких частей
 };
 }  // namespace deryabin_m_hoare_sort_simple_merge_seq
