@@ -42,15 +42,17 @@ SparesMatrix SparesMatrix::operator*(const SparesMatrix& smatrix) {
   std::vector<int> rows;
   std::vector<int> elements_sum(smatrix.GetColumnsCount());
   auto fmatrix = Transpose(*this);
-  for (auto i = 0; i < static_cast<int>(smatrix.GetElementsSum().size()); ++i) {
-    for (auto j = 0; j < static_cast<int>(fmatrix.GetElementsSum().size()); ++j) {
+  auto felements_sum = fmatrix.GetElementsSum();
+  auto selements_sum = smatrix.GetElementsSum();
+
+  for (auto i = 0; i < static_cast<int>(selements_sum.size()); ++i) {
+    for (auto j = 0; j < static_cast<int>(felements_sum.size()); ++j) {
       auto sum = 0.0;
-      auto fmatrix_elements_count =
-          j == 0 ? fmatrix.GetElementsSum()[j] : fmatrix.GetElementsSum()[j] - fmatrix.GetElementsSum()[j - 1];
-      auto smatrix_elements_count =
-          i == 0 ? smatrix.GetElementsSum()[i] : smatrix.GetElementsSum()[i] - smatrix.GetElementsSum()[i - 1];
-      auto fmatrix_start_index = j != 0 ? fmatrix.GetElementsSum()[j] - fmatrix_elements_count : 0;
-      auto smatrix_start_index = i != 0 ? smatrix.GetElementsSum()[i] - smatrix_elements_count : 0;
+      auto fmatrix_elements_count = j == 0 ? felements_sum[j] : felements_sum[j] - felements_sum[j - 1];
+      auto smatrix_elements_count = i == 0 ? selements_sum[i] : selements_sum[i] - selements_sum[i - 1];
+      auto fmatrix_start_index = j != 0 ? felements_sum[j] - fmatrix_elements_count : 0;
+      auto smatrix_start_index = i != 0 ? selements_sum[i] - smatrix_elements_count : 0;
+
       for (auto n = 0; n < fmatrix_elements_count; n++) {
         for (auto n2 = 0; n2 < smatrix_elements_count; n2++) {
           if (fmatrix.GetRows()[fmatrix_start_index + n] == smatrix.GetRows()[smatrix_start_index + n2]) {
@@ -59,7 +61,6 @@ SparesMatrix SparesMatrix::operator*(const SparesMatrix& smatrix) {
         }
       }
       if (sum > kMEpsilon) {
-        // Write sum data
         values.emplace_back(sum);
         rows.emplace_back(j);
         elements_sum[i]++;
