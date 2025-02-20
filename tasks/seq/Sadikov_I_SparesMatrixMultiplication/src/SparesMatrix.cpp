@@ -125,7 +125,6 @@ std::ostream& operator<<(std::ostream& os, const SparesMatrix& matrix) {
 int SparesMatrix::GetElementsCount(int index, const std::vector<int>& elements_sum) {
   if (index == 0) {
     return elements_sum[index];
-  } else {
-    return elements_sum[index] - elements_sum[index - 1];
   }
+  return elements_sum[index] - elements_sum[index - 1];
 }
