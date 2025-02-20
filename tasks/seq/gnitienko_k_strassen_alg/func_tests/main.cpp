@@ -10,6 +10,7 @@
 #include "core/task/include/task.hpp"
 #include "seq/gnitienko_k_strassen_alg/include/ops_seq.hpp"
 
+namespace {
 static double min_val = -50.0;
 static double max_val = 50.0;
 static std::vector<double> GenMatrix(size_t size);
@@ -41,6 +42,7 @@ void TrivialMultiply(const std::vector<double> &a, const std::vector<double> &b,
     }
   }
 }
+}  // namespace
 
 TEST(gnitienko_k_strassen_alg_seq, test_2x2_matrix) {
   // Create data
