@@ -143,7 +143,7 @@ bool odintsov_m_mulmatrix_cannon_seq::MulMatrixCannonSequential::ValidationImpl(
     return false;
   }
 
-  if ((!(IsSquere(task_data->inputs_count[0]))) || (!(IsSquere(task_data->inputs_count[0])))) {
+  if ((!(IsSquere(task_data->inputs_count[0]))) || (!(IsSquere(task_data->inputs_count[1])))) {
     return false;
   }
   return true;
@@ -169,10 +169,11 @@ bool odintsov_m_mulmatrix_cannon_seq::MulMatrixCannonSequential::RunImpl() {
         CopyBlock(matrixB_, block_b, start, root, block_sz_);
 
         for (int i = 0; i < block_sz_; i++) {
-          for (int j = 0; j < block_sz_; j++) {
-            for (int k = 0; k < block_sz_; k++) {
+          for (int k = 0; k < block_sz_; k++) {
+            double a_ik = block_a[(i * block_sz_) + k];
+            for (int j = 0; j < block_sz_; j++) {
               int index = (((bi * block_sz_) + i) * root) + ((bj * block_sz_) + j);
-              matrixC_[index] += block_a[(i * block_sz_) + k] * block_b[(k * block_sz_) + j];
+              matrixC_[index] += a_ik * block_b[(k * block_sz_) + j];
             }
           }
         }
