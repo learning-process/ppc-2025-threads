@@ -20,7 +20,7 @@ class SparesMatrix {
         m_columnsCount(ColumnsCount),
         m_values(values),
         m_rows(rows),
-        m_elementsSum(elementSum){};
+        m_elementsSum(elementSum) {};
   const std::vector<double>& GetValues() const noexcept { return m_values; }
   const std::vector<int>& GetRows() const noexcept { return m_rows; }
   const std::vector<int>& GetElementsSum() const noexcept { return m_elementsSum; }
