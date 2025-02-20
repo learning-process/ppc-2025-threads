@@ -17,6 +17,9 @@ class HoareSortTaskSequential : public ppc::core::Task {
   bool PostProcessingImpl() override;
 
  private:
+  // сортировка Хоара
+  void HoaraSort(double* a, size_type first, size_type last);
+
   std::vector<double> input_array_A_; // входной массив
   size_type dimension_; // его размер
   size_type min_chunk_size_; // размер частей на которые будет разбиваться исходный массив
