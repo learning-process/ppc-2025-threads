@@ -1,7 +1,7 @@
 # Build OpenCV components
 # core highgui imgcodecs imgproc videoio
 
-#[===[if(NOT USE_SEQ AND NOT USE_MPI AND NOT USE_OMP AND NOT USE_TBB AND NOT USE_STL)
+if(NOT USE_SEQ AND NOT USE_MPI AND NOT USE_OMP AND NOT USE_TBB AND NOT USE_STL)
     return()
 endif()
 
@@ -43,4 +43,3 @@ else()
 endif()
 install(DIRECTORY "${CMAKE_CURRENT_BINARY_DIR}/ppc_opencv/install/"
     DESTINATION "${CMAKE_INSTALL_PREFIX}")
-]===]#
