@@ -1,7 +1,9 @@
 #include <gtest/gtest.h>
 
 #include <algorithm>
+#include <cstddef>
 #include <cstdint>
+#include <memory>
 #ifndef _WIN32
 #include <opencv2/opencv.hpp>
 #endif
@@ -176,7 +178,7 @@ TEST(malyshev_a_increase_contrast_by_histogram_seq, preserve_order) {
   ASSERT_TRUE(task.Run());
   ASSERT_TRUE(task.PostProcessing());
 
-  EXPECT_LT(output[0], output[1]);
-  EXPECT_LT(output[1], output[2]);
-  EXPECT_LT(output[2], output[3]);
+  for (size_t i = 0; i < input.size() - 1; ++i) {
+    EXPECT_LT(output[i], output[i + 1]);
+  }
 }
