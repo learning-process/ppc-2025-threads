@@ -3,6 +3,7 @@
 #include <iostream>
 #include <utility>
 #include <vector>
+#include <algorithm>
 
 #include "core/task/include/task.hpp"
 
