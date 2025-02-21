@@ -51,7 +51,7 @@ TEST(sadikov_i_sparse_matrix_multiplication_task_seq, test_pipeline_run) {
 }
 
 TEST(sadikov_i_sparse_matrix_multiplication_task_seq, test_task_run) {
-  constexpr int kCount = 2000;
+  constexpr int kCount = 5000;
 
   std::vector<double> in(kCount * kCount, 0);
   std::vector<double> in2(kCount * kCount, 0);
