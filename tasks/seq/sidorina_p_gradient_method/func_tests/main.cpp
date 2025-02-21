@@ -12,7 +12,7 @@
 #include "core/util/include/util.hpp"
 #include "seq/sidorina_p_gradient_method/include/ops_seq.hpp"
 
-using Params = std::tuple<int, std::vector<double>, std::vector<double>, std::vector<double>, std::vector<double>, int>;
+using Params = std::tuple<int, std::vector<double>, std::vector<double>, std::vector<double>, std::vector<double>, double>;
 
 namespace sidorina_p_gradient_method_seq {
 class sidorina_p_gradient_method_seq_test : public ::testing::TestWithParam<Params> {
@@ -48,7 +48,7 @@ INSTANTIATE_TEST_SUITE_P(sidorina_p_gradient_method_seq_test, sidorina_p_gradien
                          ::testing::Values(Params(1, {2}, {4}, {0}, {2}, 1e-6)));
 
 using Params_val =
-    std::tuple<int, std::vector<double>, std::vector<double>, std::vector<double>, std::vector<double>, int>;
+    std::tuple<int, std::vector<double>, std::vector<double>, std::vector<double>, std::vector<double>, double>;
 
 class sidorina_p_gradient_method_seq_test_val : public ::testing::TestWithParam<Params_val> {
  protected:
