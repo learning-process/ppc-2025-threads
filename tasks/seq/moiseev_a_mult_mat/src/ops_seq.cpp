@@ -50,10 +50,8 @@ bool moiseev_a_mult_mat_seq::MultMatSequential::RunImpl() {
           for (int j = 0; j < block_size_; ++j) {
             double sum = 0.0;
             for (int k = 0; k < block_size_; ++k) {
-              double a_val =
-                  matrix_A_[(i_start + i) * matrix_size_ + (a_j_start + k)];
-              double b_val =
-                  matrix_B_[(b_i_start + k) * matrix_size_ + (j_start + j)];
+              double a_val = matrix_A_[(i_start + i) * matrix_size_ + (a_j_start + k)];
+              double b_val = matrix_B_[(b_i_start + k) * matrix_size_ + (j_start + j)];
               sum += a_val * b_val;
             }
             matrix_C_[(i_start + i) * matrix_size_ + (j_start + j)] += sum;

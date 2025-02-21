@@ -4,8 +4,8 @@
 #include <cstddef>
 #include <cstdint>
 #include <memory>
-#include <vector>
 #include <random>
+#include <vector>
 
 #include "core/perf/include/perf.hpp"
 #include "core/task/include/task.hpp"
@@ -25,7 +25,7 @@ std::vector<double> GenerateRandomMatrix(size_t rows, size_t cols) {
   return matrix;
 }
 
-} // namespace
+}  // namespace
 
 TEST(moiseev_a_mult_mat_seq, test_pipeline_run) {
   constexpr int kCount = 500;
@@ -35,13 +35,13 @@ TEST(moiseev_a_mult_mat_seq, test_pipeline_run) {
   std::vector<double> matrix_C(kCount * kCount, 0.0);
 
   auto task_data_seq = std::make_shared<ppc::core::TaskData>();
-  
+
   task_data_seq->inputs.emplace_back(reinterpret_cast<uint8_t *>(matrix_A.data()));
   task_data_seq->inputs_count.emplace_back(matrix_A.size());
-  
+
   task_data_seq->inputs.emplace_back(reinterpret_cast<uint8_t *>(matrix_B.data()));
   task_data_seq->inputs_count.emplace_back(matrix_B.size());
-  
+
   task_data_seq->outputs.emplace_back(reinterpret_cast<uint8_t *>(matrix_C.data()));
   task_data_seq->outputs_count.emplace_back(matrix_C.size());
 
@@ -52,7 +52,7 @@ TEST(moiseev_a_mult_mat_seq, test_pipeline_run) {
   const auto t0 = std::chrono::high_resolution_clock::now();
   perf_attr->current_timer = [&] {
     auto current_time_point = std::chrono::high_resolution_clock::now();
-    
+
     auto duration = std::chrono::duration_cast<std::chrono::nanoseconds>(current_time_point - t0).count();
     return static_cast<double>(duration) * 1e-9;
   };
@@ -71,13 +71,13 @@ TEST(moiseev_a_mult_mat_seq, test_task_run) {
   std::vector<double> matrix_C(kCount * kCount, 0.0);
 
   auto task_data_seq = std::make_shared<ppc::core::TaskData>();
-  
+
   task_data_seq->inputs.emplace_back(reinterpret_cast<uint8_t *>(matrix_A.data()));
   task_data_seq->inputs_count.emplace_back(matrix_A.size());
-  
+
   task_data_seq->inputs.emplace_back(reinterpret_cast<uint8_t *>(matrix_B.data()));
   task_data_seq->inputs_count.emplace_back(matrix_B.size());
-  
+
   task_data_seq->outputs.emplace_back(reinterpret_cast<uint8_t *>(matrix_C.data()));
   task_data_seq->outputs_count.emplace_back(matrix_C.size());
 
