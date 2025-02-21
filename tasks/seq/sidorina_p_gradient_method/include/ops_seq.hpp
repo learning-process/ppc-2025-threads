@@ -1,10 +1,10 @@
 #pragma once
 
 #include <algorithm>
+#include <cmath>
 #include <iostream>
 #include <utility>
 #include <vector>
-#include <cmath>
 
 #include "core/task/include/task.hpp"
 
