@@ -23,13 +23,11 @@ class TrapezoidalMethodSequential : public ppc::core::Task {
   bool ValidationImpl() override;
   bool RunImpl() override;
   bool PostProcessingImpl() override;
-  ~TrapezoidalMethodSequential() override;
 
-  static void CreateTaskData(std::shared_ptr<ppc::core::TaskData>&, const IntegrateFunction&, const IntegrateBounds&,
-                             double, double*);
+  static void CreateTaskData(std::shared_ptr<ppc::core::TaskData> &, TaskContext &context, double *);
 
  private:
-  TaskContext* data_{};
+  TaskContext data_;
   double res_{};
 };
 

@@ -24,14 +24,14 @@ TEST(khasanyanov_k_trapezoid_method_seq, test_integrator_linear_function) {
 
 TEST(khasanyanov_k_trapezoid_method_seq, test_integrator_quad_function) {
   // (x^2 + 2y - 6.5z^2)dxdydz;
-  auto f = [](const std::vector<double>& x) -> double { return (x[0] * x[0]) + (2 * x[1]) - (6.5 * x[2] * x[2]); };
+  auto f = [](const std::vector<double>& x) -> double { return (x[0] * x[0]) + (2 * x[1]) - (6.5 * x[2]); };
 
-  IntegrateBounds bounds = {{-3, 1.0}, {0.0, 2.0}, {0.5, 1.0}};
+  IntegrateBounds bounds = {{-3.0, -2.0}, {0.0, 2.0}, {0.5, 1.0}};
 
   double precision = 0.01;
   double result = Integrator<kSequential>{}(f, bounds, precision);
 
-  ASSERT_NEAR(2.16666, result, precision);
+  ASSERT_NEAR(3.4583, result, precision);
 }
 
 TEST(khasanyanov_k_trapezoid_method_seq, test_integrator_mixed_function) {
@@ -82,7 +82,8 @@ TEST(khasanyanov_k_trapezoid_method_seq, test_integrate_1) {
   IntegrateBounds bounds = {{-3, 1.0}, {0.0, 2.0}, {0.5, 1.0}};
 
   auto task_data_seq = std::make_shared<ppc::core::TaskData>();
-  TrapezoidalMethodSequential::CreateTaskData(task_data_seq, f, bounds, kPrecision, &result);
+  TaskContext context{.function = f, .bounds = bounds, .precision = kPrecision};
+  TrapezoidalMethodSequential::CreateTaskData(task_data_seq, context, &result);
   TrapezoidalMethodSequential task(task_data_seq);
 
   ASSERT_TRUE(task.Validation());
@@ -96,12 +97,13 @@ TEST(khasanyanov_k_trapezoid_method_seq, test_integrate_1) {
 TEST(khasanyanov_k_trapezoid_method_seq, test_integrate_2) {
   constexpr double kPrecision = 0.01;
   double result{};
-  auto f = [](const std::vector<double>& x) -> double { return (x[0] * x[0]) + (2 * x[1]) - (6.5 * x[2] * x[2]); };
+  auto f = [](const std::vector<double>& x) -> double { return (x[0] * x[0]) + (2 * x[1]) - (6.5 * x[2]); };
 
-  IntegrateBounds bounds = {{-3, 1.0}, {0.0, 2.0}, {0.5, 1.0}};
+  IntegrateBounds bounds = {{-3, -2.0}, {0.0, 2.0}, {0.5, 1.0}};
 
   auto task_data_seq = std::make_shared<ppc::core::TaskData>();
-  TrapezoidalMethodSequential::CreateTaskData(task_data_seq, f, bounds, kPrecision, &result);
+  TaskContext context{.function = f, .bounds = bounds, .precision = kPrecision};
+  TrapezoidalMethodSequential::CreateTaskData(task_data_seq, context, &result);
   TrapezoidalMethodSequential task(task_data_seq);
 
   ASSERT_TRUE(task.Validation());
@@ -109,7 +111,7 @@ TEST(khasanyanov_k_trapezoid_method_seq, test_integrate_2) {
   task.PreProcessing();
   task.Run();
   task.PostProcessing();
-  ASSERT_NEAR(2.16666, result, kPrecision);
+  ASSERT_NEAR(3.4583, result, kPrecision);
 }
 
 TEST(khasanyanov_k_trapezoid_method_seq, test_integrate_3) {
@@ -120,7 +122,8 @@ TEST(khasanyanov_k_trapezoid_method_seq, test_integrate_3) {
   IntegrateBounds bounds = {{0.0, 1.0}, {0.0, 2.0}};
 
   auto task_data_seq = std::make_shared<ppc::core::TaskData>();
-  TrapezoidalMethodSequential::CreateTaskData(task_data_seq, f, bounds, kPrecision, &result);
+  TaskContext context{.function = f, .bounds = bounds, .precision = kPrecision};
+  TrapezoidalMethodSequential::CreateTaskData(task_data_seq, context, &result);
   TrapezoidalMethodSequential task(task_data_seq);
 
   ASSERT_TRUE(task.Validation());
@@ -138,7 +141,8 @@ TEST(khasanyanov_k_trapezoid_method_seq, test_invalid_input) {
   IntegrateBounds bounds;
 
   auto task_data_seq = std::make_shared<ppc::core::TaskData>();
-  TrapezoidalMethodSequential::CreateTaskData(task_data_seq, f, bounds, kPrecision, nullptr);
+  TaskContext context{.function = f, .bounds = bounds, .precision = kPrecision};
+  TrapezoidalMethodSequential::CreateTaskData(task_data_seq, context, nullptr);
   TrapezoidalMethodSequential task(task_data_seq);
 
   ASSERT_FALSE(task.Validation());

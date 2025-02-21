@@ -19,7 +19,8 @@ TEST(khasanyanov_k_trapezoid_method_seq, test_pipeline_run) {
   IntegrateBounds bounds = {{-3, 1.0}, {0.0, 2.0}, {0.5, 1.0}};
 
   auto task_data_seq = std::make_shared<ppc::core::TaskData>();
-  TrapezoidalMethodSequential::CreateTaskData(task_data_seq, f, bounds, kPrecision, &result);
+  TaskContext context{.function = f, .bounds = bounds, .precision = kPrecision};
+  TrapezoidalMethodSequential::CreateTaskData(task_data_seq, context, &result);
 
   auto task = std::make_shared<TrapezoidalMethodSequential>(task_data_seq);
 
@@ -47,7 +48,8 @@ TEST(khasanyanov_k_trapezoid_method_seq, test_task_run) {
   IntegrateBounds bounds = {{-3, 1.0}, {0.0, 2.0}, {0.5, 1.0}};
 
   auto task_data_seq = std::make_shared<ppc::core::TaskData>();
-  TrapezoidalMethodSequential::CreateTaskData(task_data_seq, f, bounds, kPrecision, &result);
+  TaskContext context{.function = f, .bounds = bounds, .precision = kPrecision};
+  TrapezoidalMethodSequential::CreateTaskData(task_data_seq, context, &result);
 
   auto task = std::make_shared<TrapezoidalMethodSequential>(task_data_seq);
 
