@@ -13,6 +13,8 @@
 #include "core/util/include/util.hpp"
 #include "seq/moiseev_a_mult_mat/include/ops_seq.hpp"
 
+namespace {
+
 std::vector<double> GenerateRandomMatrix(size_t rows, size_t cols) {
   std::vector<double> matrix(rows * cols);
   std::random_device rd;
@@ -24,6 +26,8 @@ std::vector<double> GenerateRandomMatrix(size_t rows, size_t cols) {
   }
   return matrix;
 }
+
+}  // namespace
 
 TEST(moiseev_a_mult_mat_seq, test_large_matrix) {
   constexpr size_t kSize = 100;
