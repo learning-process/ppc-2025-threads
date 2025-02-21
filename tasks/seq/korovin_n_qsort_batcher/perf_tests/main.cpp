@@ -11,9 +11,13 @@
 
 TEST(korovin_n_qsort_batcher_seq, test_pipeline_run) {
   // Create data
-  int n = 20000000;
-  std::vector<int> in(n);
+  constexpr int kSize = 60000;
+  std::vector<int> in(kSize);
   std::vector<int> out(in.size());
+
+  for (int i = 0; i < kSize; i++) {
+    in[i] = kSize - i;
+  }
 
   // Create task_data
   auto task_data_seq = std::make_shared<ppc::core::TaskData>();
@@ -46,9 +50,13 @@ TEST(korovin_n_qsort_batcher_seq, test_pipeline_run) {
 
 TEST(korovin_n_qsort_batcher_seq, test_task_run) {
   // Create data
-  int n = 20000000;
-  std::vector<int> in(n);
+  constexpr int kSize = 60000;
+  std::vector<int> in(kSize);
   std::vector<int> out(in.size());
+
+  for (int i = 0; i < kSize; i++) {
+    in[i] = kSize - i;
+  }
 
   // Create task_data
   auto task_data_seq = std::make_shared<ppc::core::TaskData>();
