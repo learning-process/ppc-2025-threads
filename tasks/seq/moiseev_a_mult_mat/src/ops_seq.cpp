@@ -5,19 +5,19 @@
 #include <vector>
 
 bool moiseev_a_mult_mat_seq::MultMatSequential::PreProcessingImpl() {
-  unsigned int input_size_A = task_data->inputs_count[0];
-  unsigned int input_size_B = task_data->inputs_count[1];
+  unsigned int input_size_a = task_data->inputs_count[0];
+  unsigned int input_size_b = task_data->inputs_count[1];
 
-  auto *in_ptr_A = reinterpret_cast<double *>(task_data->inputs[0]);
-  auto *in_ptr_B = reinterpret_cast<double *>(task_data->inputs[1]);
+  auto *in_ptr_a = reinterpret_cast<double *>(task_data->inputs[0]);
+  auto *in_ptr_b = reinterpret_cast<double *>(task_data->inputs[1]);
 
-  matrix_A_ = std::vector<double>(in_ptr_A, in_ptr_A + input_size_A);
-  matrix_B_ = std::vector<double>(in_ptr_B, in_ptr_B + input_size_B);
+  matrix_a_ = std::vector<double>(in_ptr_a, in_ptr_a + input_size_a);
+  matrix_b_ = std::vector<double>(in_ptr_b, in_ptr_b + input_size_b);
 
   unsigned int output_size = task_data->outputs_count[0];
-  matrix_C_ = std::vector<double>(output_size, 0.0);
+  matrix_c_ = std::vector<double>(output_size, 0.0);
 
-  matrix_size_ = static_cast<int>(std::sqrt(input_size_A));
+  matrix_size_ = static_cast<int>(std::sqrt(input_size_a));
 
   block_size_ = static_cast<int>(std::sqrt(matrix_size_));
   if (matrix_size_ % block_size_ != 0) {
@@ -50,11 +50,11 @@ bool moiseev_a_mult_mat_seq::MultMatSequential::RunImpl() {
           for (int j = 0; j < block_size_; ++j) {
             double sum = 0.0;
             for (int k = 0; k < block_size_; ++k) {
-              double a_val = matrix_A_[(i_start + i) * matrix_size_ + (a_j_start + k)];
-              double b_val = matrix_B_[(b_i_start + k) * matrix_size_ + (j_start + j)];
+              double a_val = matrix_A_[((i_start + i) * matrix_size_) + (a_j_start + k)];
+              double b_val = matrix_B_[((b_i_start + k) * matrix_size_) + (j_start + j)];
               sum += a_val * b_val;
             }
-            matrix_C_[(i_start + i) * matrix_size_ + (j_start + j)] += sum;
+            matrix_c_[((i_start + i) * matrix_size_) + (j_start + j)] += sum;
           }
         }
       }
@@ -64,8 +64,8 @@ bool moiseev_a_mult_mat_seq::MultMatSequential::RunImpl() {
 }
 
 bool moiseev_a_mult_mat_seq::MultMatSequential::PostProcessingImpl() {
-  for (size_t i = 0; i < matrix_C_.size(); i++) {
-    reinterpret_cast<double *>(task_data->outputs[0])[i] = matrix_C_[i];
+  for (size_t i = 0; i < matrix_c_.size(); i++) {
+    reinterpret_cast<double *>(task_data->outputs[0])[i] = matrix_c_[i];
   }
   return true;
 }

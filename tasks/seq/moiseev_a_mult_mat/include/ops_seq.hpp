@@ -16,7 +16,7 @@ class MultMatSequential : public ppc::core::Task {
   bool PostProcessingImpl() override;
 
  private:
-  std::vector<double> matrix_A_, matrix_B_, matrix_C_;
+  std::vector<double> matrix_a_, matrix_b_, matrix_c_;
   int matrix_size_{};
   int num_blocks_{};
   int block_size_{};

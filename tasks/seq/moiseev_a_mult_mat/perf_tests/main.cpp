@@ -30,20 +30,20 @@ std::vector<double> GenerateRandomMatrix(size_t rows, size_t cols) {
 TEST(moiseev_a_mult_mat_seq, test_pipeline_run) {
   constexpr int kCount = 500;
 
-  auto matrix_A = GenerateRandomMatrix(kCount, kCount);
-  auto matrix_B = GenerateRandomMatrix(kCount, kCount);
-  std::vector<double> matrix_C(kCount * kCount, 0.0);
+  auto matrix_a = GenerateRandomMatrix(kCount, kCount);
+  auto matrix_b = GenerateRandomMatrix(kCount, kCount);
+  std::vector<double> matrix_c(kCount * kCount, 0.0);
 
   auto task_data_seq = std::make_shared<ppc::core::TaskData>();
 
-  task_data_seq->inputs.emplace_back(reinterpret_cast<uint8_t *>(matrix_A.data()));
-  task_data_seq->inputs_count.emplace_back(matrix_A.size());
+  task_data_seq->inputs.emplace_back(reinterpret_cast<uint8_t *>(matrix_a.data()));
+  task_data_seq->inputs_count.emplace_back(matrix_a.size());
 
-  task_data_seq->inputs.emplace_back(reinterpret_cast<uint8_t *>(matrix_B.data()));
-  task_data_seq->inputs_count.emplace_back(matrix_B.size());
+  task_data_seq->inputs.emplace_back(reinterpret_cast<uint8_t *>(matrix_b.data()));
+  task_data_seq->inputs_count.emplace_back(matrix_b.size());
 
-  task_data_seq->outputs.emplace_back(reinterpret_cast<uint8_t *>(matrix_C.data()));
-  task_data_seq->outputs_count.emplace_back(matrix_C.size());
+  task_data_seq->outputs.emplace_back(reinterpret_cast<uint8_t *>(matrix_c.data()));
+  task_data_seq->outputs_count.emplace_back(matrix_c.size());
 
   auto test_task_sequential = std::make_shared<moiseev_a_mult_mat_seq::MultMatSequential>(task_data_seq);
 
@@ -66,20 +66,20 @@ TEST(moiseev_a_mult_mat_seq, test_pipeline_run) {
 TEST(moiseev_a_mult_mat_seq, test_task_run) {
   constexpr int kCount = 500;
 
-  auto matrix_A = GenerateRandomMatrix(kCount, kCount);
-  auto matrix_B = GenerateRandomMatrix(kCount, kCount);
-  std::vector<double> matrix_C(kCount * kCount, 0.0);
+  auto matrix_a = GenerateRandomMatrix(kCount, kCount);
+  auto matrix_b = GenerateRandomMatrix(kCount, kCount);
+  std::vector<double> matrix_c(kCount * kCount, 0.0);
 
   auto task_data_seq = std::make_shared<ppc::core::TaskData>();
 
-  task_data_seq->inputs.emplace_back(reinterpret_cast<uint8_t *>(matrix_A.data()));
-  task_data_seq->inputs_count.emplace_back(matrix_A.size());
+  task_data_seq->inputs.emplace_back(reinterpret_cast<uint8_t *>(matrix_a.data()));
+  task_data_seq->inputs_count.emplace_back(matrix_a.size());
 
-  task_data_seq->inputs.emplace_back(reinterpret_cast<uint8_t *>(matrix_B.data()));
-  task_data_seq->inputs_count.emplace_back(matrix_B.size());
+  task_data_seq->inputs.emplace_back(reinterpret_cast<uint8_t *>(matrix_b.data()));
+  task_data_seq->inputs_count.emplace_back(matrix_b.size());
 
-  task_data_seq->outputs.emplace_back(reinterpret_cast<uint8_t *>(matrix_C.data()));
-  task_data_seq->outputs_count.emplace_back(matrix_C.size());
+  task_data_seq->outputs.emplace_back(reinterpret_cast<uint8_t *>(matrix_c.data()));
+  task_data_seq->outputs_count.emplace_back(matrix_c.size());
 
   auto test_task_sequential = std::make_shared<moiseev_a_mult_mat_seq::MultMatSequential>(task_data_seq);
 
