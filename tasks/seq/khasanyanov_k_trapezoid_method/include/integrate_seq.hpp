@@ -1,9 +1,8 @@
-#ifndef _INTEGRATE_SEQ_HPP_
-#define _INTEGRATE_SEQ_HPP_
+#ifndef INTEGRATE_SEQ_HPP
+#define INTEGRATE_SEQ_HPP
 
 #include <memory>
 #include <utility>
-#include <vector>
 
 #include "core/task/include/task.hpp"
 #include "seq/khasanyanov_k_trapezoid_method/include/integrator.hpp"
