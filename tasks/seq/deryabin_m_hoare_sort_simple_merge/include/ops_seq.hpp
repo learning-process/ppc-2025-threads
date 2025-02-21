@@ -17,6 +17,8 @@ class HoareSortTaskSequential : public ppc::core::Task {
  private:
   // сортировка Хоара
   void HoaraSort(double* a, size_t first, size_t last);
+  // слияние отсортированных частей
+  void Merge();
 
   double* input_array_A_; // входной массив
   size_t dimension_; // его размер
