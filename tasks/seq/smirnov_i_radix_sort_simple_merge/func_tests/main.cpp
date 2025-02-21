@@ -39,7 +39,6 @@ TEST(smirnov_i_radix_sort_simple_merge_seq, test_scalar) {
 }
 
 TEST(smirnov_i_radix_sort_simple_merge_seq, test_17_elem) {
-  constexpr size_t kCount = 17;
 
   // Create data
   std::vector<int> in{6, 134, 0, 6, 7, 1, 2, 4, 5, 3268, 6, 1, 8, 4, 234, 123120, 4};
