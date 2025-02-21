@@ -19,7 +19,6 @@ void TrapezoidalMethodSequential::CreateTaskData(std::shared_ptr<ppc::core::Task
 
 bool TrapezoidalMethodSequential::ValidationImpl() {
   auto *data = reinterpret_cast<TaskContext *>(task_data->inputs[0]);
-  std::cout << data;
   return data != nullptr && task_data->inputs_count[0] > 0 && task_data->outputs[0] != nullptr;
 }
 
