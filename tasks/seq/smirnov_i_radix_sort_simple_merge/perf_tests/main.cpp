@@ -57,7 +57,7 @@ TEST(smirnov_i_radix_sort_simple_merge_seq, test_task_run) {
   // Create data
   std::vector<int> in(kCount, 0);
   std::vector<int> out(kCount, 0);
- 
+
   for (size_t i = 0; i < kCount; i++) {
     in[(i * kCount) + i] = 1;
   }
@@ -70,7 +70,6 @@ TEST(smirnov_i_radix_sort_simple_merge_seq, test_task_run) {
   task_data_seq->outputs_count.emplace_back(out.size());
 
   // Create Task
-  auto test_task_sequential = std::make_shared<smirnov_i_radix_sort_simple_merge_seq::TestTaskSequential>(task_data_seq);
   auto test_task_sequential =
       std::make_shared<smirnov_i_radix_sort_simple_merge_seq::TestTaskSequential>(task_data_seq);
   // Create Perf attributes
