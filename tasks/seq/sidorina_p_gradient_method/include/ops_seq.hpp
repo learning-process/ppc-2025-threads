@@ -23,9 +23,9 @@ inline std::vector<double> MultiplyMatrixByVector(const std::vector<double>& a, 
 inline double VectorNorm(const std::vector<double>& vec) {
   double sum = 0;
   for (double value : vec) {
-    sum += pow(value, 2);
+    sum += std::pow(value, 2);
   }
-  return sqrt(sum);
+  return std::sqrt(sum);
 }
 
 inline double Dot(const std::vector<double>& vec1, const std::vector<double>& vec2) {
@@ -39,7 +39,7 @@ inline double Dot(const std::vector<double>& vec1, const std::vector<double>& ve
 inline double Dot(const std::vector<double>& vec) {
   double sum = 0;
   for (size_t i = 0; i < vec.size(); i++) {
-    sum += pow(vec[i], 2);
+    sum += std::pow(vec[i], 2);
   }
   return sum;
 }
@@ -55,12 +55,12 @@ inline std::vector<double> ConjugateGradientMethod(std::vector<double>& a, std::
                  [&matrixTimesSolution](const double& val) { return val - matrixTimesSolution[0]; });
 
   double residualNormSquared = Dot(residual);
-  if (sqrt(residualNormSquared) < tolerance) {
+  if (std::sqrt(residualNormSquared) < tolerance) {
     return solution;
   }
   direction = residual;
   std::vector<double> matrixTimesDirection(size);
-  while (sqrt(residualNormSquared) > tolerance) {
+  while (std::sqrt(residualNormSquared) > tolerance) {
     matrixTimesDirection = MultiplyMatrixByVector(a, direction, size);
     double directionDotMatrixTimesDirection = Dot(direction, matrixTimesDirection);
     double alpha = residualNormSquared / directionDotMatrixTimesDirection;
@@ -97,7 +97,7 @@ inline double calculateDeterminant(const double* a, int size) {
         }
       }
 
-      det += pow(-1, i) * a[i] * calculateDeterminant(a + (size * 1), size - 1);
+      det += std::pow(-1, i) * a[i] * calculateDeterminant(a + (size * 1), size - 1);
     }
     return det;
   }
