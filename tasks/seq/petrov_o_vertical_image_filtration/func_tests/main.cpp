@@ -6,7 +6,6 @@
 #include <vector>
 
 #include "core/task/include/task.hpp"
-#include "core/util/include/util.hpp"
 #include "seq/petrov_o_vertical_image_filtration/include/ops_seq.hpp"
 
 TEST(petrov_o_vertical_image_filtration_seq, test_gaussian_filter_3x3) {
