@@ -10,10 +10,18 @@
 #include "seq/malyshev_a_increase_contrast_by_histogram/include/ops_seq.hpp"
 
 TEST(malyshev_a_increase_contrast_by_histogram_seq, test_pipeline_run) {
-  constexpr int kCount = 300000000;
+  constexpr int kCount = 150000000;
 
-  std::vector<int> in(kCount, 0);
-  std::vector<int> out(kCount, 0);
+  std::vector<int> in(kCount);
+  std::vector<int> out(kCount);
+
+  uint8_t tmp = 20;
+  for (int i = 0; i < kCount; i++) {
+    in[i] = tmp++;
+    if (tmp == 240) {
+      tmp = 20;
+    }
+  }
 
   auto task_data_seq = std::make_shared<ppc::core::TaskData>();
   task_data_seq->inputs.emplace_back(reinterpret_cast<uint8_t *>(in.data()));
@@ -41,10 +49,18 @@ TEST(malyshev_a_increase_contrast_by_histogram_seq, test_pipeline_run) {
 }
 
 TEST(malyshev_a_increase_contrast_by_histogram_seq, test_task_run) {
-  constexpr int kCount = 300000000;
+  constexpr int kCount = 150000000;
 
-  std::vector<int> in(kCount, 0);
-  std::vector<int> out(kCount, 0);
+  std::vector<int> in(kCount);
+  std::vector<int> out(kCount);
+
+  uint8_t tmp = 20;
+  for (int i = 0; i < kCount; i++) {
+    in[i] = tmp++;
+    if (tmp == 240) {
+      tmp = 20;
+    }
+  }
 
   auto task_data_seq = std::make_shared<ppc::core::TaskData>();
   task_data_seq->inputs.emplace_back(reinterpret_cast<uint8_t *>(in.data()));
