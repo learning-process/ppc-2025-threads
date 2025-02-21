@@ -17,11 +17,7 @@ TEST(smirnov_i_radix_sort_simple_merge_seq, test_scalar) {
   // Create data
   std::vector<int> in(kCount, 0);
   std::vector<int> exp_out(kCount, 0);
-  std::vector<int> out;
-
-  for (size_t i = 0; i < kCount; i++) {
-    in[(i * kCount) + i] = 1;
-  }
+  std::vector<int> out(kCount);
 
   // Create task_data
   auto task_data_seq = std::make_shared<ppc::core::TaskData>();
@@ -43,7 +39,7 @@ TEST(smirnov_i_radix_sort_simple_merge_seq, test_17_elem) {
   // Create data
   std::vector<int> in{6, 134, 0, 6, 7, 1, 2, 4, 5, 3268, 6, 1, 8, 4, 234, 123120, 4};
   std::vector<int> exp_out{0, 1, 1, 2, 4, 4, 4, 5, 6, 6, 6, 7, 8, 134, 234, 3268, 123120};
-  std::vector<int> out;
+  std::vector<int> out(17);
   // Create task_data
   auto task_data_seq = std::make_shared<ppc::core::TaskData>();
   task_data_seq->inputs.emplace_back(reinterpret_cast<uint8_t*>(in.data()));
@@ -63,7 +59,7 @@ TEST(smirnov_i_radix_sort_simple_merge_seq, test_17_elem) {
 TEST(smirnov_i_radix_sort_simple_merge_seq, test_10_elem) {
   std::vector<int> in{1, 6, 6, 1, 8, 1, 8, 1, 8, 1};
   std::vector<int> exp_out{1, 1, 1, 1, 1, 6, 6, 8, 8, 8};
-  std::vector<int> out;
+  std::vector<int> out(10);
 
   // Create task_data
   auto task_data_seq = std::make_shared<ppc::core::TaskData>();
@@ -87,7 +83,7 @@ TEST(smirnov_i_radix_sort_simple_merge_seq, test_256_elem) {
   // Create data
   std::vector<int> in(kCount, 0);
   std::vector<int> exp_out(kCount, 0);
-  std::vector<int> out;
+  std::vector<int> out(kCount);
   for (size_t i = 0; i < kCount; i++) {
     in[i] = i;
     exp_out[i] = i;
