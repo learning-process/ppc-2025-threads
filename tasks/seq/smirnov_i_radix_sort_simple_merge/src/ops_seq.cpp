@@ -1,10 +1,10 @@
+#include "seq/smirnov_i_radix_sort_simple_merge/include/ops_seq.hpp"
+
 #include <algorithm>
 #include <cmath>
 #include <cstddef>
 #include <numeric>
 #include <vector>
-
-#include "seq/smirnov_i_radix_sort_simple_merge/include/ops_seq.hpp"
 
 bool smirnov_i_radix_sort_simple_merge_seq::TestTaskSequential::PreProcessingImpl() {
   unsigned int input_size = task_data->inputs_count[0];
