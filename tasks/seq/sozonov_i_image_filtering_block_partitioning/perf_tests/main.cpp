@@ -11,8 +11,8 @@
 #include "seq/sozonov_i_image_filtering_block_partitioning/include/ops_seq.hpp"
 
 TEST(sozonov_i_image_filtering_block_partitioning_seq, test_pipeline_run) {
-  constexpr size_t width = 5000;
-  constexpr size_t height = 5000;
+  const int width = 5000;
+  const int height = 5000;
 
   // Create data
   std::vector<double> in(width * height, 1);
@@ -62,8 +62,8 @@ TEST(sozonov_i_image_filtering_block_partitioning_seq, test_pipeline_run) {
 }
 
 TEST(sozonov_i_image_filtering_block_partitioning_seq, test_task_run) {
-  constexpr size_t width = 5000;
-  constexpr size_t height = 5000;
+  const int width = 5000;
+  const int height = 5000;
 
   // Create data
   std::vector<double> in(width * height, 1);

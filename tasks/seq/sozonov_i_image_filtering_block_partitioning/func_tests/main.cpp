@@ -13,8 +13,8 @@
 #include "seq/sozonov_i_image_filtering_block_partitioning/include/ops_seq.hpp"
 
 TEST(sozonov_i_image_filtering_block_partitioning_seq, test_image_less_than_3x3) {
-  constexpr size_t width = 2;
-  constexpr size_t height = 2;
+  const int width = 2;
+  const int height = 2;
 
   // Create data
   std::vector<double> in = {4, 6, 8, 24};
@@ -35,8 +35,8 @@ TEST(sozonov_i_image_filtering_block_partitioning_seq, test_image_less_than_3x3)
 }
 
 TEST(sozonov_i_image_filtering_block_partitioning_seq, test_wrong_pixels) {
-  constexpr size_t width = 5;
-  constexpr size_t height = 3;
+  const int width = 5;
+  const int height = 3;
 
   // Create data
   std::vector<double> in = {143, 6, 853, -24, 31, -25, 1, 5, -7, 361, 28, 98, -45, 982, 461};
@@ -57,8 +57,8 @@ TEST(sozonov_i_image_filtering_block_partitioning_seq, test_wrong_pixels) {
 }
 
 TEST(sozonov_i_image_filtering_block_partitioning_seq, test_3x3) {
-  constexpr size_t width = 3;
-  constexpr size_t height = 3;
+  const int width = 3;
+  const int height = 3;
 
   // Create data
   std::vector<double> in = {4, 6, 8, 24, 31, 25, 1, 5, 7};
@@ -84,8 +84,8 @@ TEST(sozonov_i_image_filtering_block_partitioning_seq, test_3x3) {
 }
 
 TEST(sozonov_i_image_filtering_block_partitioning_seq, test_5x3) {
-  constexpr size_t width = 5;
-  constexpr size_t height = 3;
+  const int width = 5;
+  const int height = 3;
 
   // Create data
   std::vector<double> in = {34, 24, 27, 67, 42, 48, 93, 26, 47, 2, 34, 13, 81, 24, 32};
@@ -111,8 +111,8 @@ TEST(sozonov_i_image_filtering_block_partitioning_seq, test_5x3) {
 }
 
 TEST(sozonov_i_image_filtering_block_partitioning_seq, test_5x5) {
-  constexpr size_t width = 5;
-  constexpr size_t height = 5;
+  const int width = 5;
+  const int height = 5;
 
   // Create data
   std::vector<double> in(width * height);
@@ -139,8 +139,8 @@ TEST(sozonov_i_image_filtering_block_partitioning_seq, test_5x5) {
 }
 
 TEST(sozonov_i_image_filtering_block_partitioning_seq, test_5x7) {
-  constexpr size_t width = 5;
-  constexpr size_t height = 7;
+  const int width = 5;
+  const int height = 7;
 
   // Create data
   std::vector<double> in(width * height);
@@ -168,8 +168,8 @@ TEST(sozonov_i_image_filtering_block_partitioning_seq, test_5x7) {
 }
 
 TEST(sozonov_i_image_filtering_block_partitioning_seq, test_10x4) {
-  constexpr size_t width = 10;
-  constexpr size_t height = 4;
+  const int width = 10;
+  const int height = 4;
 
   // Create data
   std::vector<double> in(width * height);
@@ -197,8 +197,8 @@ TEST(sozonov_i_image_filtering_block_partitioning_seq, test_10x4) {
 }
 
 TEST(sozonov_i_image_filtering_block_partitioning_seq, test_100x100) {
-  constexpr size_t width = 100;
-  constexpr size_t height = 100;
+  const int width = 100;
+  const int height = 100;
 
   // Create data
   std::vector<double> in(width * height, 1);
@@ -233,8 +233,8 @@ TEST(sozonov_i_image_filtering_block_partitioning_seq, test_100x100) {
 }
 
 TEST(sozonov_i_image_filtering_block_partitioning_seq, test_150x100) {
-  constexpr size_t width = 150;
-  constexpr size_t height = 100;
+  const int width = 150;
+  const int height = 100;
 
   // Create data
   std::vector<double> in(width * height, 1);
@@ -269,8 +269,8 @@ TEST(sozonov_i_image_filtering_block_partitioning_seq, test_150x100) {
 }
 
 TEST(sozonov_i_image_filtering_block_partitioning_seq, test_120x200) {
-  constexpr size_t width = 120;
-  constexpr size_t height = 200;
+  const int width = 120;
+  const int height = 200;
 
   // Create data
   std::vector<double> in(width * height, 1);
