@@ -10,7 +10,6 @@
 #include "core/task/include/task.hpp"
 #include "seq/sidorina_p_gradient_method/include/ops_seq.hpp"
 
-
 TEST(sidorina_p_gradient_method_seq, test_pipeline_run) {
   int size = pow(2, 10);
   std::vector<double> a(size * size);

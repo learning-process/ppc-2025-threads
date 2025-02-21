@@ -1,15 +1,15 @@
 #pragma once
 
-#include <utility>
 #include <iostream>
+#include <utility>
 #include <vector>
 
 #include "core/task/include/task.hpp"
 
 namespace sidorina_p_gradient_method_seq {
 
-inline std::vector<double> MultiplyMatrixByVector(const std::vector<double>& a,
-                                                  const std::vector<double>& vec, int size) {
+inline std::vector<double> MultiplyMatrixByVector(const std::vector<double>& a, const std::vector<double>& vec,
+                                                  int size) {
   std::vector<double> result(size, 0);
   for (int i = 0; i < size; i++) {
     for (int j = 0; j < size; j++) {
@@ -50,8 +50,9 @@ inline std::vector<double> ConjugateGradientMethod(std::vector<double>& a, std::
   auto residual = std::vector<double>(size);
   auto direction = std::vector<double>(size);
 
-  std::transform(b.begin(), b.end(), residual.begin(), 
-  [&matrixTimesSolution](const double& val) { return val - matrixTimesSolution[0]; });
+std::transform(
+      b.begin(), b.end(), residual.begin(),
+      [&matrixTimesSolution](const double& val) { return val - matrixTimesSolution[0]; });
 
 
   double residualNormSquared = Dot(residual);
@@ -64,10 +65,11 @@ inline std::vector<double> ConjugateGradientMethod(std::vector<double>& a, std::
     matrixTimesDirection = MultiplyMatrixByVector(a, direction, size);
     double directionDotMatrixTimesDirection = Dot(direction, matrixTimesDirection);
     double alpha = residualNormSquared / directionDotMatrixTimesDirection;
-    std::transform(solution.begin(), solution.end(), solution.begin(), 
+    std::transform(solution.begin(), solution.end(), solution.begin(),
                    [&alpha, &direction](const double& val) { return val + alpha * direction[0]; });
-    std::transform(residual.begin(), residual.end(), residual.begin(), 
-                   [&alpha, &matrixTimesDirection](const double& val) { return val - alpha * matrixTimesDirection[0]; });
+    std::transform(
+        residual.begin(), residual.end(), residual.begin(),
+        [&alpha, &matrixTimesDirection](const double& val) { return val - alpha * matrixTimesDirection[0]; });
 
     double newResidualNormSquared = Dot(residual);
     double beta = newResidualNormSquared / residualNormSquared;
