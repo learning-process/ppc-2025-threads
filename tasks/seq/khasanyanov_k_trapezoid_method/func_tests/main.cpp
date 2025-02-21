@@ -48,7 +48,7 @@ TEST(khasanyanov_k_trapezoid_method_seq, test_integrator_mixed_function) {
 
 TEST(khasanyanov_k_trapezoid_method_seq, test_integrator_trigonometric_function) {
   // (sin(x)-y)dxdy;
-  auto f = [](const std::vector<double>& x) -> double { return (sin(x[0]))-x[1]; };
+  auto f = [](const std::vector<double>& x) -> double { return sin(x[0]) - x[1]; };
 
   IntegrateBounds bounds = {{0.0, 1.0}, {0.0, 2.0}};
 
@@ -115,7 +115,7 @@ TEST(khasanyanov_k_trapezoid_method_seq, test_integrate_2) {
 TEST(khasanyanov_k_trapezoid_method_seq, test_integrate_3) {
   constexpr double kPrecision = 0.001;
   double result{};
-  auto f = [](const std::vector<double>& x) -> double { return (sin(x[0]))-x[1]; };
+  auto f = [](const std::vector<double>& x) -> double { return sin(x[0]) - x[1]; };
 
   IntegrateBounds bounds = {{0.0, 1.0}, {0.0, 2.0}};
 
@@ -133,7 +133,7 @@ TEST(khasanyanov_k_trapezoid_method_seq, test_integrate_3) {
 
 TEST(khasanyanov_k_trapezoid_method_seq, test_invalid_input) {
   constexpr double kPrecision = 0.001;
-  auto f = [](const std::vector<double>& x) -> double { return (sin(x[0]))-x[1]; };
+  auto f = [](const std::vector<double>& x) -> double { return sin(x[0]) - x[1]; };
 
   IntegrateBounds bounds;
 
