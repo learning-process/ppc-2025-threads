@@ -53,7 +53,6 @@ inline std::vector<double> ConjugateGradientMethod(std::vector<double>& a, std::
   std::transform(b.begin(), b.end(), residual.begin(),
                  [&matrixTimesSolution](const double& val) { return val - matrixTimesSolution[0]; });
 
-
   double residualNormSquared = Dot(residual);
   if (sqrt(residualNormSquared) < tolerance) {
     return solution;
