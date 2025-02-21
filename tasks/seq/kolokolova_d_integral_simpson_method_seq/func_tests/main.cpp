@@ -1,15 +1,11 @@
 #include <gtest/gtest.h>
-#include <math.h>
 
-#include <cstddef>
+#include <cmath>
 #include <cstdint>
-#include <fstream>
 #include <memory>
-#include <string>
 #include <vector>
 
 #include "core/task/include/task.hpp"
-#include "core/util/include/util.hpp"
 #include "seq/kolokolova_d_integral_simpson_method_seq/include/ops_seq.hpp"
 
 TEST(kolokolova_d_integral_simpson_method_seq, test_easy_func) {
@@ -97,7 +93,7 @@ TEST(kolokolova_d_integral_simpson_method_seq, test_func_two_value2) {
 }
 
 TEST(kolokolova_d_integral_simpson_method_seq, test_func_two_value3) {
-  auto func = [](std::vector<double> vec) { return vec[0] * vec[1] / 6 + 2 * vec[0]; };
+  auto func = [](std::vector<double> vec) { return (vec[0] * vec[1] / 6) + (2 * vec[0]); };
   std::vector<int> step = {8, 8};
   std::vector<int> bord = {3, 8, 1, 5};
   double func_result = 0.0;
@@ -152,7 +148,7 @@ TEST(kolokolova_d_integral_simpson_method_seq, test_func_three_value1) {
   ASSERT_NEAR(func_result, ans, error);
 }
 TEST(kolokolova_d_integral_simpson_method_seq, test_func_three_value2) {
-  auto func = [](std::vector<double> vec) { return 2 * vec[2] + vec[1] / 5 + 4 * vec[0]; };
+  auto func = [](std::vector<double> vec) { return (2 * vec[2]) + (vec[1] / 5) + (4 * vec[0]); };
   std::vector<int> step = {30, 30, 30};
   std::vector<int> bord = {0, 1, 0, 3, 0, 2};
   double func_result = 0.0;

@@ -1,7 +1,6 @@
 #include <gtest/gtest.h>
 
 #include <chrono>
-#include <cstddef>
 #include <cstdint>
 #include <memory>
 #include <vector>
@@ -12,7 +11,7 @@
 
 TEST(kolokolova_d_integral_simpson_method_seq, test_pipeline_run) {
   auto func = [](std::vector<double> vec) {
-    return 2 * vec[2] + vec[1] * vec[1] / 5 + 4 * vec[0] * vec[0] * vec[0] - 100;
+    return (2 * vec[2]) + (vec[1] * vec[1] / 5) + (4 * vec[0] * vec[0] * vec[0]) - 100;
   };
   std::vector<int> step = {90, 90, 90};
   std::vector<int> bord = {10, 11, 8, 10, 0, 2};
@@ -58,7 +57,7 @@ TEST(kolokolova_d_integral_simpson_method_seq, test_pipeline_run) {
 
 TEST(kolokolova_d_integral_simpson_method_seq, test_task_run) {
   auto func = [](std::vector<double> vec) {
-    return vec[2] * vec[2] * vec[2] * vec[1] * vec[1] / 10 + 4 * vec[0] * vec[0] - 10 * vec[2];
+    return (vec[2] * vec[2] * vec[2] * vec[1] * vec[1] / 10) + (4 * vec[0] * vec[0]) - (10 * vec[2]);
   };
   std::vector<int> step = {90, 90, 90};
   std::vector<int> bord = {10, 11, 8, 10, 0, 2};

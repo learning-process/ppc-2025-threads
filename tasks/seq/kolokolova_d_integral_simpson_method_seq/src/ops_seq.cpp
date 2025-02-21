@@ -1,28 +1,26 @@
 #include "seq/kolokolova_d_integral_simpson_method_seq/include/ops_seq.hpp"
 
-#include <math.h>
-
 #include <cmath>
 #include <cstddef>
-#include <iostream>
+#include <functional>
 #include <vector>
 
 bool kolokolova_d_integral_simpson_method_seq::TestTaskSequential::PreProcessingImpl() {
-  nums_variables = task_data->inputs_count[0];
+  nums_variables_ = int(task_data->inputs_count[0]);
 
-  steps = std::vector<int>(task_data->inputs_count[0]);
+  steps_ = std::vector<int>(task_data->inputs_count[0]);
   auto* input_steps = reinterpret_cast<int*>(task_data->inputs[0]);
   for (unsigned i = 0; i < task_data->inputs_count[0]; i++) {
-    steps[i] = input_steps[i];
+    steps_[i] = input_steps[i];
   }
 
-  borders = std::vector<int>(task_data->inputs_count[1]);
+  borders_ = std::vector<int>(task_data->inputs_count[1]);
   auto* input_borders = reinterpret_cast<int*>(task_data->inputs[1]);
   for (unsigned i = 0; i < task_data->inputs_count[1]; i++) {
-    borders[i] = input_borders[i];
+    borders_[i] = input_borders[i];
   }
 
-  result_output = 0;
+  result_output_ = 0;
   return true;
 }
 
@@ -34,69 +32,69 @@ bool kolokolova_d_integral_simpson_method_seq::TestTaskSequential::ValidationImp
     bord[i] = input_bord[i];
   }
   return (task_data->inputs_count[0] != 0 && task_data->inputs_count[1] != 0 && task_data->outputs_count[0] != 0 &&
-          checkBorders(bord));
+          CheckBorders(bord));
   return true;
 }
 
 bool kolokolova_d_integral_simpson_method_seq::TestTaskSequential::RunImpl() {
   //  Find size of step
-  std::vector<double> size_step(nums_variables);
-  for (int i = 0; i < nums_variables; i++) {
-    double a = (double((borders[2 * i + 1] - borders[2 * i])) / double(steps[i]));
+  std::vector<double> size_step(nums_variables_);
+  for (int i = 0; i < nums_variables_; i++) {
+    double a = (double((borders_[(2 * i) + 1] - borders_[2 * i])) / double(steps_[i]));
     size_step[i] = a;
   }
 
   std::vector<std::vector<double>> points;
 
   //  Create vector of points
-  for (int i = 0; i < nums_variables; i++) {
+  for (int i = 0; i < nums_variables_; i++) {
     std::vector<double> vec;
-    for (double j = 0.0; j < steps[i] + 1; j++) {
-      double num = double(borders[2 * i] + j * size_step[i]);
+    for (int j = 0; j < steps_[i] + 1; j++) {
+      auto num = double(borders_[2 * i] + (double(j) * size_step[i]));
       vec.push_back(num);
     }
     points.push_back(vec);
   }
 
-  std::vector<double> results_func = findFunctionValue(points, func);
-  std::vector<double> coeff = findCoeff(steps[0]);
-  multiplyCoeffandFunctionValue(results_func, coeff, nums_variables);
-  result_output = createOutputResult(results_func, size_step);
+  std::vector<double> results_func = FindFunctionValue(points, func_);
+  std::vector<double> coeff = FindCoeff(steps_[0]);
+  MultiplyCoeffandFunctionValue(results_func, coeff, nums_variables_);
+  result_output_ = CreateOutputResult(results_func, size_step);
   return true;
 }
 
 bool kolokolova_d_integral_simpson_method_seq::TestTaskSequential::PostProcessingImpl() {
-  reinterpret_cast<double*>(task_data->outputs[0])[0] = result_output;
+  reinterpret_cast<double*>(task_data->outputs[0])[0] = result_output_;
   return true;
 }
 
-std::vector<double> kolokolova_d_integral_simpson_method_seq::TestTaskSequential::findFunctionValue(
-    const std::vector<std::vector<double>>& coordinates, std::function<double(std::vector<double>)> f) {
-  std::vector<double> results;                                        // result of function
-  std::vector<double> current;                                        // current point
-  generatePointsAndEvaluate(coordinates, 0, current, results, func);  // recursive function
+std::vector<double> kolokolova_d_integral_simpson_method_seq::TestTaskSequential::FindFunctionValue(
+    const std::vector<std::vector<double>>& coordinates, const std::function<double(std::vector<double>)>& f) {
+  std::vector<double> results;                                         // result of function
+  std::vector<double> current;                                         // current point
+  GeneratePointsAndEvaluate(coordinates, 0, current, results, func_);  // recursive function
   return results;
 }
 
-void kolokolova_d_integral_simpson_method_seq::TestTaskSequential::generatePointsAndEvaluate(
+void kolokolova_d_integral_simpson_method_seq::TestTaskSequential::GeneratePointsAndEvaluate(
     const std::vector<std::vector<double>>& coordinates, int index, std::vector<double>& current,
-    std::vector<double>& results, const std::function<double(const std::vector<double>)> f) {
+    std::vector<double>& results, const std::function<double(const std::vector<double>)>& f) {
   // if it the end of vector
   if (index == int(coordinates.size())) {
-    double result = func(current);  // find value of function
-    results.push_back(result);      // save result
+    double result = func_(current);  // find value of function
+    results.push_back(result);       // save result
     return;
   }
 
   // sort through the coordinates
   for (double coord : coordinates[index]) {
     current.push_back(coord);
-    generatePointsAndEvaluate(coordinates, index + 1, current, results, func);  // recursive
-    current.pop_back();                                                         // delete for next coordinat
+    GeneratePointsAndEvaluate(coordinates, index + 1, current, results, func_);  // recursive
+    current.pop_back();                                                          // delete for next coordinat
   }
 }
 
-std::vector<double> kolokolova_d_integral_simpson_method_seq::TestTaskSequential::findCoeff(int count_step) {
+std::vector<double> kolokolova_d_integral_simpson_method_seq::TestTaskSequential::FindCoeff(int count_step) {
   std::vector<double> result_coeff(1, 1.0);  // first coeff is always 1
   for (int i = 1; i < count_step; i++) {
     if (i % 2 != 0) {
@@ -109,10 +107,10 @@ std::vector<double> kolokolova_d_integral_simpson_method_seq::TestTaskSequential
   return result_coeff;
 }
 
-void kolokolova_d_integral_simpson_method_seq::TestTaskSequential::multiplyCoeffandFunctionValue(
+void kolokolova_d_integral_simpson_method_seq::TestTaskSequential::MultiplyCoeffandFunctionValue(
     std::vector<double>& function_val, const std::vector<double>& coeff_vec, int a) {
-  int coeff_vec_size = coeff_vec.size();
-  int function_vec_size = function_val.size();
+  int coeff_vec_size = int(coeff_vec.size());
+  int function_vec_size = int(function_val.size());
 
   // initial multiplication
   for (int i = 0; i < function_vec_size; ++i) {
@@ -122,15 +120,15 @@ void kolokolova_d_integral_simpson_method_seq::TestTaskSequential::multiplyCoeff
   // perform additional iterations on a
   for (int iteration = 1; iteration < a; ++iteration) {
     for (int i = 0; i < function_vec_size; ++i) {
-      int blockSize = iteration * coeff_vec_size;
-      int currentNIndex = (i / blockSize) % coeff_vec_size;
-      function_val[i] *= coeff_vec[currentNIndex];
+      int block_size = iteration * coeff_vec_size;
+      int current_n_index = (i / block_size) % coeff_vec_size;
+      function_val[i] *= coeff_vec[current_n_index];
     }
   }
 }
 
-double kolokolova_d_integral_simpson_method_seq::TestTaskSequential::createOutputResult(
-    std::vector<double> vec, std::vector<double> size_steps) {
+double kolokolova_d_integral_simpson_method_seq::TestTaskSequential::CreateOutputResult(
+    std::vector<double> vec, std::vector<double> size_steps) const {
   double sum = 0;
 
   // sum all of vector elements
@@ -144,14 +142,16 @@ double kolokolova_d_integral_simpson_method_seq::TestTaskSequential::createOutpu
   }
 
   // divided by 3 to the power
-  sum /= pow(3, nums_variables);
+  sum /= pow(3, nums_variables_);
 
   return sum;
 }
-bool kolokolova_d_integral_simpson_method_seq::TestTaskSequential::checkBorders(std::vector<int> vec) {
+bool kolokolova_d_integral_simpson_method_seq::TestTaskSequential::CheckBorders(std::vector<int> vec) {
   size_t i = 0;
   while (i < vec.size()) {
-    if (vec[i] > vec[i + 1]) return false;
+    if (vec[i] > vec[i + 1]) {
+      return false;
+    }
     i += 2;
   }
   return true;
