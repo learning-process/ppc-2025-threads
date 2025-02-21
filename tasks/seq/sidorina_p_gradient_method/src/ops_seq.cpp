@@ -21,9 +21,8 @@ bool sidorina_p_gradient_method_seq::GradientMethod::PreProcessingImpl() {
 }
 
 bool sidorina_p_gradient_method_seq::GradientMethod::ValidationImpl() {
-  if (*reinterpret_cast<int*>(task_data->inputs[0]) <= 0 ||
-      static_cast<int>(task_data->inputs_count[2]) <= 0 || static_cast<int>(task_data->inputs_count[3]) <= 0 ||
-      static_cast<int>(task_data->inputs_count[4]) <= 0)
+  if (*reinterpret_cast<int*>(task_data->inputs[0]) <= 0 || static_cast<int>(task_data->inputs_count[2]) <= 0 ||
+      static_cast<int>(task_data->inputs_count[3]) <= 0 || static_cast<int>(task_data->inputs_count[4]) <= 0)
     return false;
 
   if (*reinterpret_cast<int*>(task_data->inputs[0]) != static_cast<int>(task_data->inputs_count[3]) ||
