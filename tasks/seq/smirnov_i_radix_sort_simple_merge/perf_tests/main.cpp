@@ -15,10 +15,12 @@ TEST(smirnov_i_radix_sort_simple_merge_seq, test_pipeline_run) {
 
   // Create data
   std::vector<int> in(kCount, 0);
-  std::vector<int> out(kCount, 0);
+  std::vector<int> exp_out(kCount, 0);
+  std::vector<int> out;
 
   for (size_t i = 0; i < kCount; i++) {
-    in[(i * kCount) + i] = 1;
+    in[i] = 1;
+    exp_out[i] = 1;
   }
 
   // Create task_data
@@ -48,7 +50,7 @@ TEST(smirnov_i_radix_sort_simple_merge_seq, test_pipeline_run) {
   auto perf_analyzer = std::make_shared<ppc::core::Perf>(test_task_sequential);
   perf_analyzer->PipelineRun(perf_attr, perf_results);
   ppc::core::Perf::PrintPerfStatistic(perf_results);
-  ASSERT_EQ(in, out);
+  ASSERT_EQ(exp_out, out);
 }
 
 TEST(smirnov_i_radix_sort_simple_merge_seq, test_task_run) {
@@ -56,10 +58,12 @@ TEST(smirnov_i_radix_sort_simple_merge_seq, test_task_run) {
 
   // Create data
   std::vector<int> in(kCount, 0);
-  std::vector<int> out(kCount, 0);
+  std::vector<int> exp_out(kCount, 0);
+  std::vector<int> out;
 
   for (size_t i = 0; i < kCount; i++) {
-    in[(i * kCount) + i] = 1;
+    in[i] = 1;
+    exp_out[i] = 1;
   }
 
   // Create task_data
@@ -89,5 +93,5 @@ TEST(smirnov_i_radix_sort_simple_merge_seq, test_task_run) {
   auto perf_analyzer = std::make_shared<ppc::core::Perf>(test_task_sequential);
   perf_analyzer->TaskRun(perf_attr, perf_results);
   ppc::core::Perf::PrintPerfStatistic(perf_results);
-  ASSERT_EQ(in, out);
+  ASSERT_EQ(exp_out, out);
 }
