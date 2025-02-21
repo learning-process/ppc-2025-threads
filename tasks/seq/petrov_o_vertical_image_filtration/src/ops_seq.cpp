@@ -1,6 +1,7 @@
 #include "seq/petrov_o_vertical_image_filtration/include/ops_seq.hpp"
 
 #include <cmath>
+#include <cstddef>
 #include <vector>
 
 bool petrov_o_vertical_image_filtration_seq::TaskSequential::PreProcessingImpl() {
