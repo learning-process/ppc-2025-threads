@@ -2,7 +2,9 @@
 
 #include <algorithm>
 #include <cstdint>
+#ifndef _WIN32
 #include <opencv2/opencv.hpp>
+#endif
 #include <vector>
 
 #include "core/task/include/task.hpp"
@@ -84,6 +86,7 @@ TEST(malyshev_a_increase_contrast_by_histogram_seq, low_contrast) {
   EXPECT_GE(*output_max, *input_max);
 }
 
+#ifndef _WIN32
 TEST(malyshev_a_increase_contrast_by_histogram_seq, pic_from_file) {
   cv::Mat img = cv::imread(ppc::util::GetAbsolutePath("seq/malyshev_a_increase_contrast_by_histogram/data/pic.jpg"),
                            cv::IMREAD_GRAYSCALE);
@@ -108,6 +111,7 @@ TEST(malyshev_a_increase_contrast_by_histogram_seq, pic_from_file) {
   EXPECT_LE(*output_min, *input_min);
   EXPECT_GE(*output_max, *input_max);
 }
+#endif
 
 TEST(malyshev_a_increase_contrast_by_histogram_seq, invalid_input) {
   std::vector<uint8_t> input = {1, 2, 3};
