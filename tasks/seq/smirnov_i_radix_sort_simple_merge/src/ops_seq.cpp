@@ -40,13 +40,10 @@ bool smirnov_i_radix_sort_simple_merge_seq::TestTaskSequential::RunImpl() {
     std::swap(mas, sorting);
   }
   output_ = mas;
-  printf("mas %d %d %d %d", mas[0], mas[1], mas[2], mas[3]);
-  printf("output_ %d %d %d %d", output_[0], output_[1], output_[2], output_[3]);
   return true;
 }
 
 bool smirnov_i_radix_sort_simple_merge_seq::TestTaskSequential::PostProcessingImpl() {
-  printf("output_ %d %d %d %d", output_[0], output_[1], output_[2], output_[3]);
   for (size_t i = 0; i < output_.size(); i++) {
     reinterpret_cast<int*>(task_data->outputs[0])[i] = output_[i];
   }
