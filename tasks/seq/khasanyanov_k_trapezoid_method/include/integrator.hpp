@@ -1,45 +1,57 @@
-#ifndef _INTEGRATOR_H_
-#define _INTEGRATOR_H_
+#ifndef INTEGRATOR_HPP
+#define INTEGRATOR_HPP
+#include <cstddef>
 #include <cstdint>
+#include <cstdlib>
 #include <functional>
 #include <stdexcept>
+#include <utility>
+#include <vector>
 namespace khasanyanov_k_trapezoid_method_seq {
 
 enum IntegrateTechnology : std::uint8_t { kSequential, kOpenMP, kTBB, kSTL, kMPI };
 
 using IntegrateFunction = std::function<double(const std::vector<double>&)>;
-using IntegrateBounds = std::pair<double, double>;
+using Bounds = std::pair<double, double>;
+using IntegrateBounds = std::vector<Bounds>;
 
 template <IntegrateTechnology technology>
 class Integrator {
-  static const int kDefaultParts;
+  static const int kDefaultSteps, kMaxSteps;
 
   [[nodiscard]] static double calculate_weight(  // NOLINT(readability-identifier-naming)
       const std::vector<int>& indices, int steps);
 
   [[nodiscard]] static double trapezoidal_method(  // NOLINT(readability-identifier-naming)
-      const IntegrateFunction& f, const std::vector<IntegrateBounds>& bounds, int steps);
+      const IntegrateFunction& f, const IntegrateBounds& bounds, int steps);
 
   [[nodiscard]] static double trapezoidal_method_sequential(  // NOLINT(readability-identifier-naming)
-      const IntegrateFunction&, const std::vector<IntegrateBounds>&, double, int, int);
+      const IntegrateFunction&, const IntegrateBounds&, double, int, int);
 
  public:
-  double operator()(const IntegrateFunction&, const std::vector<IntegrateBounds>&, double, int = kDefaultParts,
-                    int = 1024) const;
+  double operator()(const IntegrateFunction&, const IntegrateBounds&, double, int = kDefaultSteps,
+                    int = kMaxSteps) const;
 };
 
 //----------------------------------------------------------------------------------------------------------
 
 template <IntegrateTechnology technology>
-const int Integrator<technology>::kDefaultParts = 5;
+const int Integrator<technology>::kDefaultSteps = 10;
 
 template <IntegrateTechnology technology>
-double Integrator<technology>::operator()(const IntegrateFunction& f, const std::vector<IntegrateBounds>& bounds,
+const int Integrator<technology>::kMaxSteps = 250;
+
+template <IntegrateTechnology technology>
+double Integrator<technology>::operator()(const IntegrateFunction& f, const IntegrateBounds& bounds,
                                           double precision,  // NOLINT(bugprone-easily-swappable-parameters)
                                           int init_steps, int max_steps) const {
   switch (technology) {
     case kSequential:
       return trapezoidal_method_sequential(f, bounds, precision, init_steps, max_steps);
+    case kTBB:
+    case kMPI:
+    case kOpenMP:
+    case kSTL:
     default:
       throw std::runtime_error("Technology not available");
   }
@@ -47,7 +59,7 @@ double Integrator<technology>::operator()(const IntegrateFunction& f, const std:
 
 template <IntegrateTechnology technology>
 double Integrator<technology>::trapezoidal_method_sequential(
-    const IntegrateFunction& f, const std::vector<IntegrateBounds>& bounds,
+    const IntegrateFunction& f, const IntegrateBounds& bounds,
     double precision,  // NOLINT(bugprone-easily-swappable-parameters)
     int init_steps, int max_steps) {
   int steps = init_steps;
@@ -64,8 +76,8 @@ double Integrator<technology>::trapezoidal_method_sequential(
 }
 
 template <IntegrateTechnology technology>
-double Integrator<technology>::trapezoidal_method(const IntegrateFunction& f,
-                                                  const std::vector<IntegrateBounds>& bounds, int steps) {
+double Integrator<technology>::trapezoidal_method(const IntegrateFunction& f, const IntegrateBounds& bounds,
+                                                  int steps) {
   size_t dims = bounds.size();
   std::vector<double> dx(dims);
 
@@ -86,7 +98,7 @@ double Integrator<technology>::trapezoidal_method(const IntegrateFunction& f,
     double weight = calculate_weight(indices, steps);
     total += weight * f(point);
 
-    int j = 0;
+    size_t j = 0;
     while (j < dims) {
       indices[j]++;
       if (indices[j] <= steps) {
@@ -102,7 +114,7 @@ double Integrator<technology>::trapezoidal_method(const IntegrateFunction& f,
   }
 
   double factor = 1.0;
-  for (int i = 0; i < dims; ++i) {
+  for (size_t i = 0; i < dims; ++i) {
     factor *= dx[i];
   }
   return total * factor;
