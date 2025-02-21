@@ -50,9 +50,8 @@ inline std::vector<double> ConjugateGradientMethod(std::vector<double>& a, std::
   auto residual = std::vector<double>(size);
   auto direction = std::vector<double>(size);
 
-std::transform(
-      b.begin(), b.end(), residual.begin(),
-      [&matrixTimesSolution](const double& val) { return val - matrixTimesSolution[0]; });
+  std::transform(b.begin(), b.end(), residual.begin(),
+                 [&matrixTimesSolution](const double& val) { return val - matrixTimesSolution[0]; });
 
 
   double residualNormSquared = Dot(residual);
@@ -106,7 +105,7 @@ inline double calculateDeterminant(const double* a, int size) {
 
 inline bool matrixSimmPositive(const double* a, int size) {
   std::vector<double> a0(size * size);
-  std::copy(a, a + size * size, a0.begin()); 
+  std::copy(a, a + size * size, a0.begin());
 
   for (int i = 0; i < size; i++) {
     for (int j = i + 1; j < size; j++) {
@@ -118,14 +117,14 @@ inline bool matrixSimmPositive(const double* a, int size) {
 
   std::vector<double> minors(size);
   for (int i = 1; i <= size; i++) {
-    double* submatrix = new double[i * i]; 
+    double* submatrix = new double[i * i];
     for (int j = 0; j < i; j++) {
       for (int k = 0; k < i; k++) {
         submatrix[j * i + k] = a[j * size + k];
       }
     }
 
-    minors[i - 1] = calculateDeterminant(submatrix, i); 
+    minors[i - 1] = calculateDeterminant(submatrix, i);
     delete[] submatrix;
   }
   for (double minor : minors) {
@@ -135,7 +134,6 @@ inline bool matrixSimmPositive(const double* a, int size) {
   }
   return true;
 }
-
 
 class GradientMethod : public ppc::core::Task {
  public:
