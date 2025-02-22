@@ -1,5 +1,6 @@
 #include <gtest/gtest.h>
 
+#include <algorithm>
 #include <cstddef>
 #include <cstdint>
 #include <memory>
@@ -133,7 +134,7 @@ TEST(smirnov_i_radix_sort_simple_merge_seq, test_771_elem) {
     num = dist(gen);
   }
   std::vector<int> exp_out = in;
-  std::sort(exp_out.begin(), exp_out.end());
+  std::ranges::sort(exp_out);
   // Create task_data
   auto task_data_seq = std::make_shared<ppc::core::TaskData>();
   task_data_seq->inputs.emplace_back(reinterpret_cast<uint8_t *>(in.data()));
