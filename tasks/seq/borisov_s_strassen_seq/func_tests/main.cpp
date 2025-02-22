@@ -27,7 +27,6 @@ std::vector<double> MultiplyNaiveDouble(const std::vector<double>& a, const std:
   return c;
 }
 
-// Вынесем генерацию случайной матрицы:
 std::vector<double> GenerateRandomMatrix(int rows, int cols, std::mt19937& rng, double min_val = 0.0,
                                          double max_val = 1.0) {
   std::uniform_real_distribution<double> dist(min_val, max_val);
@@ -149,8 +148,6 @@ TEST(borisov_s_strassen_seq, Square5x5_Random) {
   const int n = 5;
   int tmp = 7777;
   std::mt19937 rng(tmp);
-  // Вместо std::uniform_real_distribution везде, используем GenerateRandomMatrix:
-  // Но оставим пример, если нужно:
   std::uniform_real_distribution<double> dist(0.0, 10.0);
 
   std::vector<double> a(n * n);
