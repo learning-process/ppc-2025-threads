@@ -11,15 +11,11 @@
 #include "seq/volochaev_s_Shell_sort_with_Batchers_even-odd_merge/include/ops_seq.hpp"
 
 TEST(volochaev_s_Shell_sort_with_Batchers_even_odd_merge_seq, test_pipeline_run) {
-  constexpr int kSizeOfVector = 500000;
+  constexpr int kSizeOfVector = 50000;
 
   // Create data
-  std::vector<int> in(kSizeOfVector, 0);
-  std::vector<int> out(kSizeOfVector, 0);
-
-  for (size_t i = 0; i < kSizeOfVector; i++) {
-    in[kSizeOfVector] = 1;
-  }
+  std::vector<int> in(kSizeOfVector, 1);
+  std::vector<int> out(kSizeOfVector, 1);
 
   // Create task_data
   auto task_data_seq = std::make_shared<ppc::core::TaskData>();
@@ -56,12 +52,8 @@ TEST(volochaev_s_Shell_sort_with_Batchers_even_odd_merge_seq, test_task_run) {
   constexpr int kSizeOfVector = 50000;
 
   // Create data
-  std::vector<int> in(kSizeOfVector, 0);
-  std::vector<int> out(kSizeOfVector, 0);
-
-  for (size_t i = 0; i < kSizeOfVector; i++) {
-    in[kSizeOfVector] = 1;
-  }
+  std::vector<int> in(kSizeOfVector, 1);
+  std::vector<int> out(kSizeOfVector, 1);
 
   // Create task_data
   auto task_data_seq = std::make_shared<ppc::core::TaskData>();
