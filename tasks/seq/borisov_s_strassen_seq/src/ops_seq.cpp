@@ -109,10 +109,6 @@ bool SequentialStrassenSeq::PreProcessingImpl() {
   auto *double_ptr = reinterpret_cast<double *>(task_data->inputs[0]);
   input_.assign(double_ptr, double_ptr + input_count);
 
-  //  for (int i = 0; i < input_count; i++) {
-  //    std::cout << input_[i] << " " << input_[2];
-  //  }
-
   size_t output_count = task_data->outputs_count[0];
   output_.resize(output_count, 0.0);
 
