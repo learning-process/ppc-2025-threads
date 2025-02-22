@@ -10,7 +10,7 @@
 #include "core/perf/include/perf.hpp"
 #include "core/task/include/task.hpp"
 #include "seq/lysov_i_matrix_multiplication_Fox_algorithm/include/ops_seq.hpp"
-
+namespace {
 std::vector<double> getRandomMatrix(size_t size) {
   std::vector<double> matrix(size * size);
   std::random_device rd;
@@ -24,7 +24,7 @@ std::vector<double> getRandomMatrix(size_t size) {
   }
   return matrix;
 }
-
+}  // namespace
 TEST(lysov_i_matrix_multiplication_Fox_algorithm_seq, test_pipeline_run) {
   // Create data
   size_t N = 512;
