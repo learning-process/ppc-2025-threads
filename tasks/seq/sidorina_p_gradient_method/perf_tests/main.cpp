@@ -2,7 +2,6 @@
 
 #include <chrono>
 #include <cstdint>
-#include <memory>
 #include <random>
 #include <vector>
 
@@ -28,13 +27,13 @@ TEST(sidorina_p_gradient_method_seq, test_pipeline_run) {
     a0[i] = dist(gen);
     for (int j = i; j < size; j++) {
       double value = dist(gen);
-      a[i * size + j] = value;
-      a[j * size + i] = value;
+      a[(i * size) + j] = value;
+      a[(j * size) + i] = value;
     }
   }
 
   for (int i = 0; i < size; i++) {
-    a[i * size + i] += size * 10.0f;
+    a[(i * size) + i] += size * 10.0f;
   }
 
   std::shared_ptr<ppc::core::TaskData> task = std::make_shared<ppc::core::TaskData>();
@@ -50,7 +49,7 @@ TEST(sidorina_p_gradient_method_seq, test_pipeline_run) {
   task->inputs_count.emplace_back(solution.size());
   task->outputs.emplace_back(reinterpret_cast<uint8_t *>(result.data()));
 
-  auto GradientMethod = std::make_shared<sidorina_p_gradient_method_seq::GradientMethod>(task);
+  auto gradient_method = std::make_shared<sidorina_p_gradient_method_seq::GradientMethod>(task);
 
   auto perf_attr = std::make_shared<ppc::core::PerfAttr>();
   perf_attr->num_running = 10;
@@ -63,13 +62,13 @@ TEST(sidorina_p_gradient_method_seq, test_pipeline_run) {
 
   auto perf_results = std::make_shared<ppc::core::PerfResults>();
 
-  auto perf_analyzer = std::make_shared<ppc::core::Perf>(GradientMethod);
+  auto perf_analyzer = std::make_shared<ppc::core::Perf>(gradient_method);
   perf_analyzer->PipelineRun(perf_attr, perf_results);
   ppc::core::Perf::PrintPerfStatistic(perf_results);
   for (int i = 0; i < size; ++i) {
     double sum = 0.0;
     for (int j = 0; j < size; ++j) {
-      sum += a[i * size + j] * solution[j];
+      sum += a[(i * size) + j] * solution[j];
     }
     EXPECT_NEAR(sum, b[i], tolerance);
   }
@@ -93,13 +92,13 @@ TEST(sidorina_p_gradient_method_seq, test_task_run) {
     a0[i] = dist(gen);
     for (int j = i; j < size; j++) {
       double value = dist(gen);
-      a[i * size + j] = value;
-      a[j * size + i] = value;
+      a[(i * size) + j] = value;
+      a[(j * size) + i] = value;
     }
   }
 
   for (int i = 0; i < size; i++) {
-    a[i * size + i] += size * 10.0f;
+    a[(i * size) + i] += size * 10.0f;
   }
 
   std::shared_ptr<ppc::core::TaskData> task = std::make_shared<ppc::core::TaskData>();
@@ -115,7 +114,7 @@ TEST(sidorina_p_gradient_method_seq, test_task_run) {
   task->inputs_count.emplace_back(solution.size());
   task->outputs.emplace_back(reinterpret_cast<uint8_t *>(result.data()));
 
-  auto GradientMethod = std::make_shared<sidorina_p_gradient_method_seq::GradientMethod>(task);
+  auto gradient_method = std::make_shared<sidorina_p_gradient_method_seq::GradientMethod>(task);
 
   auto perf_attr = std::make_shared<ppc::core::PerfAttr>();
   perf_attr->num_running = 10;
@@ -128,13 +127,13 @@ TEST(sidorina_p_gradient_method_seq, test_task_run) {
 
   auto perf_results = std::make_shared<ppc::core::PerfResults>();
 
-  auto perf_analyzer = std::make_shared<ppc::core::Perf>(GradientMethod);
+  auto perf_analyzer = std::make_shared<ppc::core::Perf>(gradient_method);
   perf_analyzer->TaskRun(perf_attr, perf_results);
   ppc::core::Perf::PrintPerfStatistic(perf_results);
   for (int i = 0; i < size; i++) {
     double sum = 0.0;
     for (int j = 0; j < size; j++) {
-      sum += a[i * size + j] * solution[j];
+      sum += a[(i * size) + j] * solution[j];
     }
     EXPECT_NEAR(sum, b[i], tolerance);
   }

@@ -1,22 +1,18 @@
 #include "seq/sidorina_p_gradient_method/include/ops_seq.hpp"
 
-#include <cmath>
-#include <cstddef>
-#include <vector>
-
 bool sidorina_p_gradient_method_seq::GradientMethod::PreProcessingImpl() {
-  size = *reinterpret_cast<int*>(task_data->inputs[0]);
-  tolerance = *reinterpret_cast<double*>(task_data->inputs[1]);
+  size_ = *reinterpret_cast<int*>(task_data->inputs[0]);
+  tolerance_ = *reinterpret_cast<double*>(task_data->inputs[1]);
   auto* a_ptr = reinterpret_cast<double*>(task_data->inputs[2]);
   int a_size = task_data->inputs_count[2];
-  a.assign(a_ptr, a_ptr + a_size);
+  a_.assign(a_ptr, a_ptr + a_size);
   auto* b_ptr = reinterpret_cast<double*>(task_data->inputs[3]);
   int b_size = task_data->inputs_count[3];
-  b.assign(b_ptr, b_ptr + b_size);
+  b_.assign(b_ptr, b_ptr + b_size);
   auto* solution_ptr = reinterpret_cast<double*>(task_data->inputs[4]);
   int solution_size = task_data->inputs_count[4];
-  solution.assign(solution_ptr, solution_ptr + solution_size);
-  result.resize(size);
+  solution_.assign(solution_ptr, solution_ptr + solution_size);
+  result_.resize(size_);
   return true;
 }
 
@@ -39,12 +35,12 @@ bool sidorina_p_gradient_method_seq::GradientMethod::ValidationImpl() {
 }
 
 bool sidorina_p_gradient_method_seq::GradientMethod::RunImpl() {
-  result = ConjugateGradientMethod(a, b, solution, tolerance, size);
+  result_ = ConjugateGradientMethod(a_, b_, solution_, tolerance_, size_);
   return true;
 }
 
 bool sidorina_p_gradient_method_seq::GradientMethod::PostProcessingImpl() {
   auto* result_ptr = reinterpret_cast<double*>(task_data->outputs[0]);
-  std::copy(result.begin(), result.end(), result_ptr);
+  std::copy(result_.begin(), result_.end(), result_ptr);
   return true;
 }

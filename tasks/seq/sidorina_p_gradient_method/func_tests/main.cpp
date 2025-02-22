@@ -1,10 +1,6 @@
 #include <gtest/gtest.h>
 
 #include <cstddef>
-#include <cstdint>
-#include <fstream>
-#include <memory>
-#include <string>
 #include <tuple>
 #include <vector>
 
@@ -36,12 +32,12 @@ TEST_P(sidorina_p_gradient_method_seq_test, Test_matrix) {
   task->inputs_count.emplace_back(solution.size());
   task->outputs.emplace_back(reinterpret_cast<uint8_t *>(result.data()));
 
-  sidorina_p_gradient_method_seq::GradientMethod GradientMethod(task);
+  sidorina_p_gradient_method_seq::GradientMethod gradient_method(task);
 
-  ASSERT_TRUE(GradientMethod.ValidationImpl());
-  GradientMethod.PreProcessingImpl();
-  GradientMethod.RunImpl();
-  GradientMethod.PostProcessingImpl();
+  ASSERT_TRUE(gradient_method.ValidationImpl());
+  gradient_method.PreProcessingImpl();
+  gradient_method.RunImpl();
+  gradient_method.PostProcessingImpl();
   for (size_t i = 0; i < expected.size(); i++) ASSERT_NEAR(result[i], expected[i], tolerance);
 }
 
@@ -71,9 +67,9 @@ TEST_P(sidorina_p_gradient_method_seq_test_val, Test_validation) {
   task->inputs_count.emplace_back(solution.size());
   task->outputs.emplace_back(reinterpret_cast<uint8_t *>(result.data()));
 
-  sidorina_p_gradient_method_seq::GradientMethod GradientMethod(task);
+  sidorina_p_gradient_method_seq::GradientMethod gradient_method(task);
 
-  ASSERT_FALSE(GradientMethod.ValidationImpl());
+  ASSERT_FALSE(gradient_method.ValidationImpl());
 }
 
 INSTANTIATE_TEST_SUITE_P(sidorina_p_gradient_method_seq_test_val, sidorina_p_gradient_method_seq_test_val,
