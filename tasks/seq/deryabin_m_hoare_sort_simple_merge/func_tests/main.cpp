@@ -163,9 +163,9 @@ TEST(deryabin_m_hoare_sort_simple_merge_seq, test_partially_sorted_array) {
   std::random_device rd;
   std::mt19937 gen(rd());
   std::vector<double> input_array(500);
-  double f ( ) {
-    static double i; 
-    return  ++i;
+  double f() {
+    static double i;
+    return ++i;
   }
   std::generate(input_array.begin(), input_array.end(), f);
   const auto half = input_array.size() / 2u;
