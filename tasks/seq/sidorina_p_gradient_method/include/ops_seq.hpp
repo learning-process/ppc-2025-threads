@@ -88,20 +88,12 @@ inline double CalculateDeterminant(const double* a, int size) {
   } else if (size == 2) {
     d = (a[0] * a[3]) - (a[1] * a[2]);
   } else {
-    double det = 0;
-    for (int i = 0; i < size; i++) {
-      std::vector<std::vector<double>> submatrix(size - 1, std::vector<double>(size - 1));
-      for (int j = 1; j < size; j++) {
-        for (int k = 0; k < size; k++) {
-          if (k != i) {
-            submatrix[j - 1][k] = a[(j * size) + k];
-          }
-        }
-      }
-
-      det += std::pow(-1, i) * a[i] * CalculateDeterminant(a + (size * 1), size - 1);
+    double determinant = 0;
+    for (int i = 0; i < size; ++i) {
+      double cofactor = std::pow(-1, i) * CalculateDeterminant(a + (size * 1), size - 1);
+      determinant += a[i] * cofactor;
     }
-    d = det;
+    d = determinant;
   }
   return d;
 }
