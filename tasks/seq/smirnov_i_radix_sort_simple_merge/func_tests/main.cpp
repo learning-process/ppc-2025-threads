@@ -16,9 +16,9 @@ TEST(smirnov_i_radix_sort_simple_merge_seq, test_wrong_size) {
 
   // Create task_data
   auto task_data_seq = std::make_shared<ppc::core::TaskData>();
-  task_data_seq->inputs.emplace_back(reinterpret_cast<uint8_t*>(in.data()));
+  task_data_seq->inputs.emplace_back(reinterpret_cast<uint8_t *>(in.data()));
   task_data_seq->inputs_count.emplace_back(in.size());
-  task_data_seq->outputs.emplace_back(reinterpret_cast<uint8_t*>(out.data()));
+  task_data_seq->outputs.emplace_back(reinterpret_cast<uint8_t *>(out.data()));
   task_data_seq->outputs_count.emplace_back(out.size());
 
   // Create Task
@@ -35,9 +35,9 @@ TEST(smirnov_i_radix_sort_simple_merge_seq, test_scalar) {
 
   // Create task_data
   auto task_data_seq = std::make_shared<ppc::core::TaskData>();
-  task_data_seq->inputs.emplace_back(reinterpret_cast<uint8_t*>(in.data()));
+  task_data_seq->inputs.emplace_back(reinterpret_cast<uint8_t *>(in.data()));
   task_data_seq->inputs_count.emplace_back(in.size());
-  task_data_seq->outputs.emplace_back(reinterpret_cast<uint8_t*>(out.data()));
+  task_data_seq->outputs.emplace_back(reinterpret_cast<uint8_t *>(out.data()));
   task_data_seq->outputs_count.emplace_back(out.size());
 
   // Create Task
@@ -56,9 +56,9 @@ TEST(smirnov_i_radix_sort_simple_merge_seq, test_17_elem) {
   std::vector<int> out(17);
   // Create task_data
   auto task_data_seq = std::make_shared<ppc::core::TaskData>();
-  task_data_seq->inputs.emplace_back(reinterpret_cast<uint8_t*>(in.data()));
+  task_data_seq->inputs.emplace_back(reinterpret_cast<uint8_t *>(in.data()));
   task_data_seq->inputs_count.emplace_back(in.size());
-  task_data_seq->outputs.emplace_back(reinterpret_cast<uint8_t*>(out.data()));
+  task_data_seq->outputs.emplace_back(reinterpret_cast<uint8_t *>(out.data()));
   task_data_seq->outputs_count.emplace_back(out.size());
 
   // Create Task
@@ -77,9 +77,9 @@ TEST(smirnov_i_radix_sort_simple_merge_seq, test_10_elem) {
 
   // Create task_data
   auto task_data_seq = std::make_shared<ppc::core::TaskData>();
-  task_data_seq->inputs.emplace_back(reinterpret_cast<uint8_t*>(in.data()));
+  task_data_seq->inputs.emplace_back(reinterpret_cast<uint8_t *>(in.data()));
   task_data_seq->inputs_count.emplace_back(in.size());
-  task_data_seq->outputs.emplace_back(reinterpret_cast<uint8_t*>(out.data()));
+  task_data_seq->outputs.emplace_back(reinterpret_cast<uint8_t *>(out.data()));
   task_data_seq->outputs_count.emplace_back(out.size());
 
   // Create Task
@@ -105,9 +105,9 @@ TEST(smirnov_i_radix_sort_simple_merge_seq, test_256_elem_sorted) {
 
   // Create task_data
   auto task_data_seq = std::make_shared<ppc::core::TaskData>();
-  task_data_seq->inputs.emplace_back(reinterpret_cast<uint8_t*>(in.data()));
+  task_data_seq->inputs.emplace_back(reinterpret_cast<uint8_t *>(in.data()));
   task_data_seq->inputs_count.emplace_back(in.size());
-  task_data_seq->outputs.emplace_back(reinterpret_cast<uint8_t*>(out.data()));
+  task_data_seq->outputs.emplace_back(reinterpret_cast<uint8_t *>(out.data()));
   task_data_seq->outputs_count.emplace_back(out.size());
 
   // Create Task
@@ -122,22 +122,22 @@ TEST(smirnov_i_radix_sort_simple_merge_seq, test_771_elem) {
   constexpr size_t kCount = 771;
 
   // Create data
-  std::vector<int> in(kCount,0);
+  std::vector<int> in(kCount, 0);
   std::vector<int> out(kCount);
   std::random_device rd;
   std::mt19937 gen(rd());
   std::uniform_int_distribution<int> dist(0, 1000);
 
   for (auto &num : in) {
-      num = dist(gen);
+    num = dist(gen);
   }
   std::vector<int> exp_out = in;
   std::sort(exp_out.begin(), exp_out.end());
   // Create task_data
   auto task_data_seq = std::make_shared<ppc::core::TaskData>();
-  task_data_seq->inputs.emplace_back(reinterpret_cast<uint8_t*>(in.data()));
+  task_data_seq->inputs.emplace_back(reinterpret_cast<uint8_t *>(in.data()));
   task_data_seq->inputs_count.emplace_back(in.size());
-  task_data_seq->outputs.emplace_back(reinterpret_cast<uint8_t*>(out.data()));
+  task_data_seq->outputs.emplace_back(reinterpret_cast<uint8_t *>(out.data()));
   task_data_seq->outputs_count.emplace_back(out.size());
 
   // Create Task
