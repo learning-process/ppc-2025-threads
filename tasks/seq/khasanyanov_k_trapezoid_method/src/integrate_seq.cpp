@@ -1,7 +1,6 @@
 #include "../include/integrate_seq.hpp"
 
 #include <cstdint>
-#include <iostream>
 #include <memory>
 
 #include "core/task/include/task.hpp"
