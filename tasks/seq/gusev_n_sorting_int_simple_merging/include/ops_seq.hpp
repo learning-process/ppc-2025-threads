@@ -15,7 +15,7 @@ class TestTaskSequential : public ppc::core::Task {
   bool RunImpl() override;
   bool PostProcessingImpl() override;
 
-  static void CountingSort(std::vector<int>& arr, int exp);  // Добавлено static
+  static void CountingSort(std::vector<int>& arr, int exp);
   void RadixSort(std::vector<int>& arr);
   void RadixSortForNonNegative(std::vector<int>& arr);
 
