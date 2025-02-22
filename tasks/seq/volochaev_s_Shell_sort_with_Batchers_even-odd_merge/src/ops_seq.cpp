@@ -4,7 +4,7 @@
 #include <cstddef>
 #include <vector>
 
-bool volochaev_s_Shell_sort_with_Batchers_even_odd_merge_seq::ShellSortSequential::PreProcessingImpl() {
+bool volochaev_s_shell_sort_with_batchers_even_odd_merge_seq::ShellSortSequential::PreProcessingImpl() {
   // Init value for input and output
   unsigned int size = task_data->inputs_count[0];
   auto* input_pointer = reinterpret_cast<int*>(task_data->inputs[0]);
@@ -13,19 +13,19 @@ bool volochaev_s_Shell_sort_with_Batchers_even_odd_merge_seq::ShellSortSequentia
   return true;
 }
 
-bool volochaev_s_Shell_sort_with_Batchers_even_odd_merge_seq::ShellSortSequential::ValidationImpl() {
+bool volochaev_s_shell_sort_with_batchers_even_odd_merge_seq::ShellSortSequential::ValidationImpl() {
   // Check equality of counts elements
   return task_data->inputs_count[0] > 0 && task_data->inputs_count[0] == task_data->outputs_count[0];
 }
 
-bool volochaev_s_Shell_sort_with_Batchers_even_odd_merge_seq::ShellSortSequential::RunImpl() {
-  shellSort(array_);
+bool volochaev_s_shell_sort_with_batchers_even_odd_merge_seq::ShellSortSequential::RunImpl() {
+  ShellSort(array_);
 
   return true;
 }
 
-void volochaev_s_Shell_sort_with_Batchers_even_odd_merge_seq::ShellSortSequential::shellSort(std::vector<int>& arr) {
-  int n = arr.size();
+void volochaev_s_shell_sort_with_batchers_even_odd_merge_seq::ShellSortSequential::ShellSort(std::vector<int>& arr) {
+  int n = static_cast<int>(arr.size());
   int gap = n / 2;
 
   while (gap > 0) {
@@ -42,7 +42,7 @@ void volochaev_s_Shell_sort_with_Batchers_even_odd_merge_seq::ShellSortSequentia
   }
 }
 
-bool volochaev_s_Shell_sort_with_Batchers_even_odd_merge_seq::ShellSortSequential::PostProcessingImpl() {
+bool volochaev_s_shell_sort_with_batchers_even_odd_merge_seq::ShellSortSequential::PostProcessingImpl() {
   for (size_t i = 0; i < array_.size(); i++) {
     reinterpret_cast<int*>(task_data->outputs[0])[i] = array_[i];
   }

@@ -11,14 +11,14 @@
 #include "seq/volochaev_s_Shell_sort_with_Batchers_even-odd_merge/include/ops_seq.hpp"
 
 TEST(volochaev_s_Shell_sort_with_Batchers_even_odd_merge_seq, test_pipeline_run) {
-  constexpr int size_of_vector = 500000;
+  constexpr int kSizeOfVector = 500000;
 
   // Create data
-  std::vector<int> in(size_of_vector, 0);
-  std::vector<int> out(size_of_vector, 0);
+  std::vector<int> in(kSizeOfVector, 0);
+  std::vector<int> out(kSizeOfVector, 0);
 
-  for (size_t i = 0; i < size_of_vector; i++) {
-    in[size_of_vector] = 1;
+  for (size_t i = 0; i < kSizeOfVector; i++) {
+    in[kSizeOfVector] = 1;
   }
 
   // Create task_data
@@ -30,7 +30,7 @@ TEST(volochaev_s_Shell_sort_with_Batchers_even_odd_merge_seq, test_pipeline_run)
 
   // Create Task
   auto test_task_sequential =
-      std::make_shared<volochaev_s_Shell_sort_with_Batchers_even_odd_merge_seq::ShellSortSequential>(task_data_seq);
+      std::make_shared<volochaev_s_shell_sort_with_batchers_even_odd_merge_seq::ShellSortSequential>(task_data_seq);
 
   // Create Perf attributes
   auto perf_attr = std::make_shared<ppc::core::PerfAttr>();
@@ -53,14 +53,14 @@ TEST(volochaev_s_Shell_sort_with_Batchers_even_odd_merge_seq, test_pipeline_run)
 }
 
 TEST(volochaev_s_Shell_sort_with_Batchers_even_odd_merge_seq, test_task_run) {
-  constexpr int size_of_vector = 50000;
+  constexpr int kSizeOfVector = 50000;
 
   // Create data
-  std::vector<int> in(size_of_vector, 0);
-  std::vector<int> out(size_of_vector, 0);
+  std::vector<int> in(kSizeOfVector, 0);
+  std::vector<int> out(kSizeOfVector, 0);
 
-  for (size_t i = 0; i < size_of_vector; i++) {
-    in[size_of_vector] = 1;
+  for (size_t i = 0; i < kSizeOfVector; i++) {
+    in[kSizeOfVector] = 1;
   }
 
   // Create task_data
@@ -72,7 +72,7 @@ TEST(volochaev_s_Shell_sort_with_Batchers_even_odd_merge_seq, test_task_run) {
 
   // Create Task
   auto test_task_sequential =
-      std::make_shared<volochaev_s_Shell_sort_with_Batchers_even_odd_merge_seq::ShellSortSequential>(task_data_seq);
+      std::make_shared<volochaev_s_shell_sort_with_batchers_even_odd_merge_seq::ShellSortSequential>(task_data_seq);
 
   // Create Perf attributes
   auto perf_attr = std::make_shared<ppc::core::PerfAttr>();

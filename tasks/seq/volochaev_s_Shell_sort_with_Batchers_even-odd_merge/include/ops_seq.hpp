@@ -5,7 +5,7 @@
 
 #include "core/task/include/task.hpp"
 
-namespace volochaev_s_Shell_sort_with_Batchers_even_odd_merge_seq {
+namespace volochaev_s_shell_sort_with_batchers_even_odd_merge_seq {
 class ShellSortSequential : public ppc::core::Task {
  public:
   explicit ShellSortSequential(ppc::core::TaskDataPtr task_data) : Task(std::move(task_data)) {}
@@ -16,7 +16,7 @@ class ShellSortSequential : public ppc::core::Task {
 
  private:
   std::vector<int> array_;
-  void shellSort(std::vector<int>& arr);
+  void ShellSort(std::vector<int>& arr);
 };
 
-}  // namespace volochaev_s_Shell_sort_with_Batchers_even_odd_merge_seq
+}  // namespace volochaev_s_shell_sort_with_batchers_even_odd_merge_seq
