@@ -62,8 +62,8 @@ void deryabin_m_hoare_sort_simple_merge_seq::HoareSortTaskSequential::MergeTwoPa
   size_t r_cur = middle + 1;
   double* l_buff{new double[right - left + 1]{}};
   double* r_buff{new double[right - left + 1]{}};
-  std::copy(a.begin() + left, a.begin() + r_cur, l_buff);
-  std::copy(a.begin() + r_cur, a.begin() + right + 1, r_buff + r_cur);
+  std::copy((size_t)a.begin() + left, (size_t)a.begin() + r_cur, l_buff);
+  std::copy((size_t)a.begin() + r_cur, (size_t)a.begin() + right + 1, r_buff + r_cur);
   for (size_t i = left; i <= right; i++) {
     if (l_cur <= middle && r_cur <= right) {
       if (l_buff[l_cur] < r_buff[r_cur]) {
@@ -119,7 +119,6 @@ bool deryabin_m_hoare_sort_simple_merge_seq::HoareSortTaskSequential::RunImpl() 
 }
 
 bool deryabin_m_hoare_sort_simple_merge_seq::HoareSortTaskSequential::PostProcessingImpl() {
-  reinterpret_cast<std::vector<double>*>(task_data->outputs[0])[0];
-  = input_array_A_;
+  reinterpret_cast<std::vector<double>*>(task_data->outputs[0])[0] = input_array_A_;
   return true;
 }
