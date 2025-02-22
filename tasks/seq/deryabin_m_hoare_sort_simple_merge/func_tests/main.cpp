@@ -10,7 +10,7 @@
 TEST(deryabin_m_hoare_sort_simple_merge_seq, test_short_array) {
   // Create data
   double input_array[6] = {-1, -2, -3, -11, -22, -33};
-  std::vector<double*> in_array(1, output_array);
+  std::vector<double*> in_array(1, input_array);
   size_t chunk_count = 2;
   double output_array[6]{};
   std::vector<double*> out_array(1, output_array);
