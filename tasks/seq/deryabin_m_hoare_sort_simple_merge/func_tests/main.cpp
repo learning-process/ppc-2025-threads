@@ -28,5 +28,5 @@ TEST(deryabin_m_hoare_sort_simple_merge_seq, test_short_array) {
   hoare_sort_task_sequential.PreProcessing();
   hoare_sort_task_sequential.Run();
   hoare_sort_task_sequential.PostProcessing();
-  ASSERT_EQ(true_solution, output_array);
+  ASSERT_EQ(true_solution, out_array[0]);
 }
