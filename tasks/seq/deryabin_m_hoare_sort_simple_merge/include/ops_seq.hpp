@@ -2,6 +2,7 @@
 
 #include <cstddef>
 #include <utility>
+#include <vector>
 
 #include "core/task/include/task.hpp"
 
@@ -17,11 +18,11 @@ class HoareSortTaskSequential : public ppc::core::Task {
 
  private:
   // сортировка Хоара
-  void HoaraSort(double* a, size_t first, size_t last);
+  void HoaraSort(std::vector<double>& a, size_t first, size_t last);
   // слияние двух отсортированных частей
-  void MergeTwoParts(double* a, size_t left, size_t right);
+  void MergeTwoParts(std::vector<double>& a, size_t left, size_t right);
 
-  double* input_array_A_;  // входной массив
+  std::vector<double> input_array_A_;  // входной массив
   size_t dimension_;       // его размер
   size_t min_chunk_size_;  // размер частей на которые будет разбиваться исходный массив
   size_t remainder_;    // остаток
