@@ -107,7 +107,7 @@ TEST(lopatin_i_monte_carlo_seq, 1DConstantFunction) {
   ASSERT_TRUE(task.Run());
   ASSERT_TRUE(task.PostProcessing());
 
-  const double expected = 3.0; 
+  const double expected = 3.0;
   const double tolerance = 0.01 * expected;
   EXPECT_NEAR(result, expected, tolerance);  // error 1%
 }
@@ -134,7 +134,7 @@ TEST(lopatin_i_monte_carlo_seq, 3DExponentialFunction) {
   ASSERT_TRUE(task.Run());
   ASSERT_TRUE(task.PostProcessing());
 
-  const double expected = std::pow(std::numbers::e - 1, 3);  // = 5.073 
+  const double expected = std::pow(std::numbers::e - 1, 3);  // = 5.073
   const double tolerance = 0.01 * expected;
   EXPECT_NEAR(result, expected, tolerance);  // error 1%
 }
@@ -259,7 +259,7 @@ TEST(lopatin_i_monte_carlo_seq, 5DExponentialFunction) {
 
   // analytical (e^3 - e^{-3})^5 = (20.0855 - 0.0498)^5 = 3.2e6
   const double single_dim_integral = std::pow(std::numbers::e, 3.0) - std::pow(std::numbers::e, -3.0);  // =20.0357
-  const double expected = std::pow(single_dim_integral, 5);                                             // =20.0357^5 = 3.28e6
+  const double expected = std::pow(single_dim_integral, 5);  // =20.0357^5 = 3.28e6
   const double tolerance = 0.04 * expected;
   EXPECT_NEAR(result, expected, tolerance);  // error 4%
 }
@@ -291,7 +291,7 @@ TEST(lopatin_i_monte_carlo_seq, 2DCosineFunction) {
   // analytical = 0
   const double expected = 0.0;
   const double tolerance = 0.01;
-  EXPECT_NEAR(result, expected, tolerance);   // error 1%
+  EXPECT_NEAR(result, expected, tolerance);  // error 1%
 }
 
 TEST(lopatin_i_monte_carlo_seq, 2DSqrtFunction) {
