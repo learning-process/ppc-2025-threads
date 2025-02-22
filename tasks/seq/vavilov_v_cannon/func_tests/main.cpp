@@ -1,18 +1,17 @@
-#include "seq/vavilov_v_cannon/include/ops_seq.hpp"
-
 #include <gtest/gtest.h>
 
 #include <cstddef>
 #include <cstdint>
 #include <fstream>
 #include <memory>
+#include <random>
 #include <string>
 #include <vector>
-#include <random>
 
 #include "core/task/include/task.hpp"
 #include "core/util/include/util.hpp"
 
+#include "seq/vavilov_v_cannon/include/ops_seq.hpp"
 
 std::vector<double> GenerateRandomMatrix(size_t N, double min_val = -10.0, double max_val = 10.0) {
   std::vector<double> matrix(N * N);
@@ -37,7 +36,6 @@ std::vector<double> MultiplyMatrices(const std::vector<double>& A, const std::ve
   }
   return C;
 }
-
 
 TEST(vavilov_v_cannon_seq, test_fixed_4x4) {
   constexpr size_t N = 4;
