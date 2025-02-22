@@ -5,8 +5,8 @@
 
 bool deryabin_m_hoare_sort_simple_merge_seq::HoareSortTaskSequential::PreProcessingImpl() {
   input_array_A_ = reinterpret_cast<double*>(task_data->inputs[0]);
-  dimension_ = sizeof(input_array_A_) / sizeof(input_array_A_[0]);
-  chunk_count_ = reinterpret_cast<size_t>(task_data->inputs[1]);
+  dimension_ = reinterpret_cast<size_t>(task_data->inputs_count[0]);
+  chunk_count_ = reinterpret_cast<size_t>(task_data->inputs_count[1]);
   min_chunk_size_ = dimension_ / chunk_count_;
   remainder_ = dimension_ % chunk_count_;
   return true;
@@ -14,7 +14,7 @@ bool deryabin_m_hoare_sort_simple_merge_seq::HoareSortTaskSequential::PreProcess
 
 bool deryabin_m_hoare_sort_simple_merge_seq::HoareSortTaskSequential::ValidationImpl() {
   return static_cast<unsigned short>(task_data->inputs_count[0]) > 2 &&
-         static_cast<unsigned short>(task_data->inputs[1]) >= 2 &&
+         static_cast<unsigned short>(task_data->inputs_count[1]) >= 2 &&
          task_data->inputs_count[0] == task_data->outputs_count[0];
 }
 
