@@ -2,8 +2,10 @@
 
 #include <chrono>
 #include <cmath>
+#include <cstddef>
 #include <cstdint>
 #include <random>
+#include <memory>
 #include <vector>
 
 #include "core/perf/include/perf.hpp"
@@ -11,7 +13,7 @@
 #include "seq/sidorina_p_gradient_method/include/ops_seq.hpp"
 
 TEST(sidorina_p_gradient_method_seq, test_pipeline_run) {
-  int size = std::pow(2, 10);
+  double size = std::pow(2, 10);
   std::vector<double> a(size * size);
   std::vector<double> a0(size * size);
   std::vector<double> b(size, 0);
@@ -22,7 +24,7 @@ TEST(sidorina_p_gradient_method_seq, test_pipeline_run) {
 
   std::random_device rd;
   std::mt19937 gen(rd());
-  std::uniform_real_distribution<double> dist(-10.0f, 10.0f);
+  std::uniform_real_distribution<double> dist(-10.0F, 10.0F);
 
   for (int i = 0; i < size; i++) {
     a0[i] = dist(gen);
@@ -34,7 +36,7 @@ TEST(sidorina_p_gradient_method_seq, test_pipeline_run) {
   }
 
   for (int i = 0; i < size; i++) {
-    a[(i * size) + i] += size * 10.0f;
+    a[(i * size) + i] += size * 10.0F;
   }
 
   std::shared_ptr<ppc::core::TaskData> task = std::make_shared<ppc::core::TaskData>();
@@ -87,7 +89,7 @@ TEST(sidorina_p_gradient_method_seq, test_task_run) {
 
   std::random_device rd;
   std::mt19937 gen(rd());
-  std::uniform_real_distribution<double> dist(-10.0f, 10.0f);
+  std::uniform_real_distribution<double> dist(-10.0F, 10.0F);
 
   for (int i = 0; i < size; i++) {
     a0[i] = dist(gen);
@@ -99,7 +101,7 @@ TEST(sidorina_p_gradient_method_seq, test_task_run) {
   }
 
   for (int i = 0; i < size; i++) {
-    a[(i * size) + i] += size * 10.0f;
+    a[(i * size) + i] += size * 10.0F;
   }
 
   std::shared_ptr<ppc::core::TaskData> task = std::make_shared<ppc::core::TaskData>();

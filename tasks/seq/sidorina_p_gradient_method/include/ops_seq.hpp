@@ -1,5 +1,6 @@
 #pragma once
 
+#include <utility>
 #include <algorithm>
 #include <cmath>
 #include <vector>
@@ -82,9 +83,11 @@ inline std::vector<double> ConjugateGradientMethod(std::vector<double>& a, std::
 inline double CalculateDeterminant(const double* a, int size) {
   if (size == 1) {
     return a[0];
-  } else if (size == 2) {
+  }
+  if (size == 2) {
     return (a[0] * a[3]) - (a[1] * a[2]);
-  } else {
+  }
+  if (size > 2) {
     double det = 0;
     for (int i = 0; i < size; i++) {
       std::vector<std::vector<double>> submatrix(size - 1, std::vector<double>(size - 1));

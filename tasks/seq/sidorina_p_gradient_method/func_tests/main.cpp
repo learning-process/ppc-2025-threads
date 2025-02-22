@@ -5,7 +5,6 @@
 #include <vector>
 
 #include "core/task/include/task.hpp"
-#include "core/util/include/util.hpp"
 #include "seq/sidorina_p_gradient_method/include/ops_seq.hpp"
 
 using Params =
@@ -38,7 +37,9 @@ TEST_P(sidorina_p_gradient_method_seq_test, Test_matrix) {
   gradient_method.PreProcessingImpl();
   gradient_method.RunImpl();
   gradient_method.PostProcessingImpl();
-  for (size_t i = 0; i < expected.size(); i++) ASSERT_NEAR(result[i], expected[i], tolerance);
+  for (size_t i = 0; i < expected.size(); i++) {
+    ASSERT_NEAR(result[i], expected[i], tolerance);
+  }
 }
 
 INSTANTIATE_TEST_SUITE_P(sidorina_p_gradient_method_seq_test, sidorina_p_gradient_method_seq_test,
