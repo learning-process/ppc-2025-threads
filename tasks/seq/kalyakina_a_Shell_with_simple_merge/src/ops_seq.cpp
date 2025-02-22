@@ -11,9 +11,9 @@ std::vector<unsigned int> kalyakina_a_shell_with_simple_merge_seq::ShellSortSequ
   for (unsigned int i = 1; (local_res * 3 <= size) || (local_res == 1); i++) {
     result.push_back(local_res);
     if (i % 2 != 0) {
-      local_res = (unsigned int)(8 * pow(2, i) - 6 * pow(2, (float)(i + 1) / 2) + 1);
+      local_res = (unsigned int)((8 * pow(2, i)) - (6 * pow(2, (float)(i + 1) / 2)) + 1);
     } else {
-      local_res = (unsigned int)(9 * pow(2, i) - 9 * pow(2, (float)i / 2) + 1);
+      local_res = (unsigned int)((9 * pow(2, i)) - (9 * pow(2, (float)i / 2)) + 1);
     }
   }
   return result;
