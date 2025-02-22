@@ -12,6 +12,7 @@
 #include "core/util/include/util.hpp"
 #include "seq/kalyakina_a_Shell_with_simple_merge/include/ops_seq.hpp"
 
+namespace kalyakina_a_Shell_with_simple_merge_seq_perf_tests {
 std::vector<int> CreateReverseSortedVector(unsigned int size, const int left) {
   std::vector<int> result;
   while (size--) {
@@ -31,6 +32,7 @@ bool IsSorted(const std::vector<int> vec) {
   }
   return true;
 }
+}  // namespace kalyakina_a_Shell_with_simple_merge_seq_perf_tests
 
 void TestOfFunction(std::vector<int>& in) {
   std::vector<int> out(in.size());
@@ -50,7 +52,7 @@ void TestOfFunction(std::vector<int>& in) {
   TaskSequential.Run();
   TaskSequential.PostProcessing();
 
-  ASSERT_TRUE(std::is_sorted(out.begin(), out.end()));
+  ASSERT_TRUE(kalyakina_a_Shell_with_simple_merge_seq_perf_tests::IsSorted(out));
 }
 
 TEST(kalyakina_a_Shell_with_simple_merge_seq, test_of_Validation1) {
@@ -116,21 +118,21 @@ TEST(kalyakina_a_Shell_with_simple_merge_seq, medium_fixed_vector) {
 }
 
 TEST(kalyakina_a_Shell_with_simple_merge_seq, reverse_sorted_vector_50) {
-  std::vector<int> in = CreateReverseSortedVector(50, -10);
+  std::vector<int> in = kalyakina_a_Shell_with_simple_merge_seq_perf_tests::CreateReverseSortedVector(50, -10);
   TestOfFunction(in);
 }
 
 TEST(kalyakina_a_Shell_with_simple_merge_seq, reverse_sorted_vector_100) {
-  std::vector<int> in = CreateReverseSortedVector(100, -10);
+  std::vector<int> in = kalyakina_a_Shell_with_simple_merge_seq_perf_tests::CreateReverseSortedVector(100, -10);
   TestOfFunction(in);
 }
 
 TEST(kalyakina_a_Shell_with_simple_merge_seq, reverse_sorted_vector_1000) {
-  std::vector<int> in = CreateReverseSortedVector(1000, -10);
+  std::vector<int> in = kalyakina_a_Shell_with_simple_merge_seq_perf_tests::CreateReverseSortedVector(1000, -10);
   TestOfFunction(in);
 }
 
 TEST(kalyakina_a_Shell_with_simple_merge_seq, reverse_sorted_vector_10000) {
-  std::vector<int> in = CreateReverseSortedVector(10000, -10);
+  std::vector<int> in = kalyakina_a_Shell_with_simple_merge_seq_perf_tests::CreateReverseSortedVector(10000, -10);
   TestOfFunction(in);
 }
