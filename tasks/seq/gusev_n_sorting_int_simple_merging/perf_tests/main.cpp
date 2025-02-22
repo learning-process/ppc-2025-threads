@@ -5,6 +5,7 @@
 #include <cstddef>
 #include <cstdint>
 #include <memory>
+#include <random>
 #include <vector>
 
 #include "core/perf/include/perf.hpp"
@@ -17,7 +18,7 @@ TEST(gusev_n_sorting_int_simple_merging_seq, test_pipeline_run) {
   std::vector<int> in(kCount);
   std::vector<int> out(kCount);
 
-  std::generate(in.begin(), in.end(), []() { return rand() % 1000; });
+  std::generate(in.begin(), in.end(), []() { return std::rand() % 1000; });
 
   auto task_data_seq = std::make_shared<ppc::core::TaskData>();
   task_data_seq->inputs.emplace_back(reinterpret_cast<uint8_t *>(in.data()));
@@ -42,10 +43,6 @@ TEST(gusev_n_sorting_int_simple_merging_seq, test_pipeline_run) {
   auto perf_analyzer = std::make_shared<ppc::core::Perf>(test_task_sequential);
   perf_analyzer->PipelineRun(perf_attr, perf_results);
   ppc::core::Perf::PrintPerfStatistic(perf_results);
-
-  /*std::vector<int> expected = in;
-  std::sort(expected.begin(), expected.end());
-  ASSERT_EQ(expected, out);*/
 }
 
 TEST(gusev_n_sorting_int_simple_merging_seq, test_task_run) {
@@ -54,7 +51,7 @@ TEST(gusev_n_sorting_int_simple_merging_seq, test_task_run) {
   std::vector<int> in(kCount);
   std::vector<int> out(kCount);
 
-  std::generate(in.begin(), in.end(), []() { return rand() % 1000; });
+  std::generate(in.begin(), in.end(), []() { return std::rand() % 1000; });
 
   auto task_data_seq = std::make_shared<ppc::core::TaskData>();
   task_data_seq->inputs.emplace_back(reinterpret_cast<uint8_t *>(in.data()));
@@ -79,8 +76,4 @@ TEST(gusev_n_sorting_int_simple_merging_seq, test_task_run) {
   auto perf_analyzer = std::make_shared<ppc::core::Perf>(test_task_sequential);
   perf_analyzer->TaskRun(perf_attr, perf_results);
   ppc::core::Perf::PrintPerfStatistic(perf_results);
-
-  // std::vector<int> expected = in;
-  // std::sort(expected.begin(), expected.end());
-  // ASSERT_EQ(expected, out);
 }

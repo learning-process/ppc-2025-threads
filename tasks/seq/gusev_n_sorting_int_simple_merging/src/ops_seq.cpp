@@ -1,5 +1,6 @@
 #include "seq/gusev_n_sorting_int_simple_merging/include/ops_seq.hpp"
 
+#include <algorithm>
 #include <cmath>
 #include <cstddef>
 #include <vector>
@@ -9,7 +10,9 @@ void gusev_n_sorting_int_simple_merging_seq::TestTaskSequential::RadixSort(std::
     return;
   }
 
-  std::vector<int> negatives, positives;
+  std::vector<int> negatives;
+  std::vector<int> positives;
+
   for (int num : arr) {
     if (num < 0) {
       negatives.push_back(-num);
