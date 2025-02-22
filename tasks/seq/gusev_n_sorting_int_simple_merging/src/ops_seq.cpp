@@ -2,7 +2,7 @@
 
 #include <algorithm>
 #include <cmath>
-#include <cstddef>
+#include <ranges>
 #include <vector>
 
 void gusev_n_sorting_int_simple_merging_seq::TestTaskSequential::RadixSort(std::vector<int>& arr) {
@@ -23,7 +23,7 @@ void gusev_n_sorting_int_simple_merging_seq::TestTaskSequential::RadixSort(std::
 
   if (!negatives.empty()) {
     RadixSortForNonNegative(negatives);
-    std::reverse(negatives.begin(), negatives.end());
+    std::ranges::reverse(negatives.begin(), negatives.end());
     for (int& num : negatives) {
       num = -num;
     }
@@ -43,7 +43,7 @@ void gusev_n_sorting_int_simple_merging_seq::TestTaskSequential::RadixSortForNon
     return;
   }
 
-  int max = *std::max_element(arr.begin(), arr.end());
+  int max = *std::ranges::max_element(arr.begin(), arr.end());
   for (int exp = 1; max / exp > 0; exp *= 10) {
     CountingSort(arr, exp);
   }
@@ -58,7 +58,7 @@ void gusev_n_sorting_int_simple_merging_seq::TestTaskSequential::CountingSort(st
     count[digit]++;
   }
 
-  for (int i = 1; i < 10; i++) {
+  for (size_t i = 1; i < 10; i++) {
     count[i] += count[i - 1];
   }
 

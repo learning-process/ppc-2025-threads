@@ -1,11 +1,8 @@
 #include <gtest/gtest.h>
 
 #include <algorithm>
-#include <cstddef>
-#include <cstdint>
-#include <fstream>
 #include <memory>
-#include <string>
+#include <ranges>
 #include <vector>
 
 #include "core/task/include/task.hpp"
@@ -29,7 +26,7 @@ TEST(gusev_n_sorting_int_simple_merging_seq, test_radix_sort_basic) {
   test_task_sequential.PostProcessing();
 
   std::vector<int> expected = in;
-  std::sort(expected.begin(), expected.end());
+  std::ranges::sort(expected.begin(), expected.end());
   EXPECT_EQ(expected, out);
 }
 
@@ -88,6 +85,6 @@ TEST(gusev_n_sorting_int_simple_merging_seq, test_radix_sort_negative_numbers) {
   test_task_sequential.PostProcessing();
 
   std::vector<int> expected = in;
-  std::sort(expected.begin(), expected.end());
+  std::ranges::sort(expected.begin(), expected.end());
   EXPECT_EQ(expected, out);
 }

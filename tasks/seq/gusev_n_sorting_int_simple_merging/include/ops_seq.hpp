@@ -15,13 +15,12 @@ class TestTaskSequential : public ppc::core::Task {
   bool RunImpl() override;
   bool PostProcessingImpl() override;
 
-  void CountingSort(std::vector<int>& arr, int exp);
+  static void CountingSort(std::vector<int>& arr, int exp);  // Добавлено static
   void RadixSort(std::vector<int>& arr);
   void RadixSortForNonNegative(std::vector<int>& arr);
 
  private:
   std::vector<int> input_, output_;
-  int rc_size_{};
 };
 
 }  // namespace gusev_n_sorting_int_simple_merging_seq

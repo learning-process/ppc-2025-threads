@@ -2,10 +2,9 @@
 
 #include <algorithm>
 #include <chrono>
-#include <cstddef>
-#include <cstdint>
 #include <memory>
 #include <random>
+#include <ranges>
 #include <vector>
 
 #include "core/perf/include/perf.hpp"
@@ -18,7 +17,7 @@ TEST(gusev_n_sorting_int_simple_merging_seq, test_pipeline_run) {
   std::vector<int> in(kCount);
   std::vector<int> out(kCount);
 
-  std::generate(in.begin(), in.end(), []() { return std::rand() % 1000; });
+  std::ranges::generate(in.begin(), in.end(), []() { return std::rand() % 1000; });
 
   auto task_data_seq = std::make_shared<ppc::core::TaskData>();
   task_data_seq->inputs.emplace_back(reinterpret_cast<uint8_t *>(in.data()));
@@ -51,7 +50,7 @@ TEST(gusev_n_sorting_int_simple_merging_seq, test_task_run) {
   std::vector<int> in(kCount);
   std::vector<int> out(kCount);
 
-  std::generate(in.begin(), in.end(), []() { return std::rand() % 1000; });
+  std::ranges::generate(in.begin(), in.end(), []() { return std::rand() % 1000; });
 
   auto task_data_seq = std::make_shared<ppc::core::TaskData>();
   task_data_seq->inputs.emplace_back(reinterpret_cast<uint8_t *>(in.data()));
