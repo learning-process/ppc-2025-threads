@@ -1,6 +1,5 @@
 #pragma once
 
-#include <cmath>
 #include <utility>
 
 #include "core/task/include/task.hpp"
