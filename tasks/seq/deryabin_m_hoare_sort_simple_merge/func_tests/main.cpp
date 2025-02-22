@@ -72,7 +72,7 @@ TEST(deryabin_m_hoare_sort_simple_merge_seq, test_shuffle_array) {
   std::random_device rd;
   std::mt19937 gen(rd());
   std::vector<double> input_array(500);
-  std::generate(input_array.begin(), input_array.end(), [value = 0] () mutable { return value++; });
+  std::generate(input_array.begin(), input_array.end(), [value = 0]() mutable { return value++; });
   std::shuffle(input_array.begin(), input_array.end(), gen);
   std::vector<std::vector<double>> in_array(1, input_array);
   size_t chunk_count = 10;
@@ -163,7 +163,7 @@ TEST(deryabin_m_hoare_sort_simple_merge_seq, test_partially_sorted_array) {
   std::random_device rd;
   std::mt19937 gen(rd());
   std::vector<double> input_array(500);
-  std::generate(input_array.begin(), input_array.end(), [value = 0] () mutable { return value++; });
+  std::generate(input_array.begin(), input_array.end(), [value = 0]() mutable { return value++; });
   std::shuffle((input_array.begin() + input_array.end()) / 2, input_array.end(), gen);
   std::vector<std::vector<double>> in_array(1, input_array);
   size_t chunk_count = 10;
