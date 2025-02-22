@@ -1,4 +1,5 @@
 #include "seq/yasakova_t_sparse_matrix_multiplication/include/ops_seq.hpp"
+
 #include <cmath>
 #include <complex>
 #include <cstddef>
@@ -90,8 +91,10 @@ bool SequentialMatrixMultiplicationTest::PreProcessingImpl() {
   std::vector<Complex> matrix_a = {};
   std::vector<Complex> matrix_b = {};
   matrix_a.reserve(5 + (unsigned int)(input_data_[2].real() + input_data_[3].real() + input_data_[4].real()));
-  matrix_b.reserve(input_data_.size() - (unsigned int)(5 + input_data_[2].real() + input_data_[3].real() + input_data_[4].real()));
-  for (unsigned int i = 0; i < (unsigned int)(5 + input_data_[2].real() + input_data_[3].real() + input_data_[4].real()); i++) {
+  matrix_b.reserve(input_data_.size() -
+                  (unsigned int)(5 + input_data_[2].real() + input_data_[3].real() + input_data_[4].real()));
+  for (unsigned int i = 0;
+       i < (unsigned int)(5 + input_data_[2].real() + input_data_[3].real() + input_data_[4].real()); i++) {
     matrix_a.emplace_back(input_data_[i]);
   }
   for (auto i = (unsigned int)(5 + input_data_[2].real() + input_data_[3].real() + input_data_[4].real());

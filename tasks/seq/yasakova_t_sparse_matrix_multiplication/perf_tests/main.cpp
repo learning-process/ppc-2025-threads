@@ -20,12 +20,14 @@ TEST(yasakova_t_sparse_matrix_multiplication_seq, test_pipeline_run) {
 
   for (unsigned int row = 0; row < 150; row++) {
     for (unsigned int col = 0; col < 150; col++) {
-      sparseMatrixA.InsertElement(static_cast<int>(row), Complex(-50 + (rand() % 50), -50 + (rand() % 50)), static_cast<int>(col));
+      sparseMatrixA.InsertElement(static_cast<int>(row), Complex(-50 + (rand() % 50), -50 + (rand() % 50)),
+                                  static_cast<int>(col));
     }
   }
   for (unsigned int row = 50; row < 140; row++) {
     for (unsigned int col = 50; col < 150; col++) {
-      sparseMatrixB.InsertElement(static_cast<int>(row), Complex(-50 + (rand() % 50), -50 + (rand() % 50)), static_cast<int>(col));
+      sparseMatrixB.InsertElement(static_cast<int>(row), Complex(-50 + (rand() % 50), -50 + (rand() % 50)),
+                                  static_cast<int>(col));
     }
   }
   vectorA = yasakova_t_sparse_matrix_multiplication_seq::ConvertMatrixToVector(sparseMatrixA);
@@ -42,7 +44,8 @@ TEST(yasakova_t_sparse_matrix_multiplication_seq, test_pipeline_run) {
   taskData->outputs_count.emplace_back(resultVector.size());
 
   // Create Task
-  auto sequentialTask = std::make_shared<yasakova_t_sparse_matrix_multiplication_seq::SequentialMatrixMultiplicationTest>(taskData);
+  auto sequentialTask =
+      std::make_shared<yasakova_t_sparse_matrix_multiplication_seq::SequentialMatrixMultiplicationTest>(taskData);
 
   // Create Performance attributes
   auto performanceAttributes = std::make_shared<ppc::core::PerfAttr>();
@@ -75,12 +78,14 @@ TEST(yasakova_t_sparse_matrix_multiplication_seq, test_task_run) {
 
   for (unsigned int row = 0; row < 150; row++) {
     for (unsigned int col = 0; col < 150; col++) {
-      sparseMatrixA.InsertElement(static_cast<int>(row), Complex(-50 + (rand() % 50), -50 + (rand() % 50)), static_cast<int>(col));
+      sparseMatrixA.InsertElement(static_cast<int>(row), Complex(-50 + (rand() % 50), -50 + (rand() % 50)),
+                                  static_cast<int>(col));
     }
   }
   for (unsigned int row = 50; row < 140; row++) {
     for (unsigned int col = 50; col < 150; col++) {
-      sparseMatrixB.InsertElement(static_cast<int>(row), Complex(-50 + (rand() % 50), -50 + (rand() % 50)), static_cast<int>(col));
+      sparseMatrixB.InsertElement(static_cast<int>(row), Complex(-50 + (rand() % 50), -50 + (rand() % 50)),
+                                  static_cast<int>(col));
     }
   }
   vectorA = yasakova_t_sparse_matrix_multiplication_seq::ConvertMatrixToVector(sparseMatrixA);
@@ -97,7 +102,8 @@ TEST(yasakova_t_sparse_matrix_multiplication_seq, test_task_run) {
   taskData->outputs_count.emplace_back(resultVector.size());
 
   // Create Task
-  auto sequentialTask = std::make_shared<yasakova_t_sparse_matrix_multiplication_seq::SequentialMatrixMultiplicationTest>(taskData);
+  auto sequentialTask =
+      std::make_shared<yasakova_t_sparse_matrix_multiplication_seq::SequentialMatrixMultiplicationTest>(taskData);
 
   // Create Performance attributes
   auto performanceAttributes = std::make_shared<ppc::core::PerfAttr>();

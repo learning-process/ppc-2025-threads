@@ -12,11 +12,11 @@ using Complex = std::complex<double>;
 namespace yasakova_t_sparse_matrix_multiplication_seq {
 
 struct SparseMatrixCRS {
-  std::vector<Complex> data;          // Значения ненулевых элементов
-  std::vector<int> columnIndices;     // Индексы столбцов для ненулевых элементов
-  std::vector<int> rowPointers;       // Указатели на начало строк в данных
-  int rowCount;                       // Количество строк
-  int columnCount;                    // Количество столбцов
+  std::vector<Complex> data;
+  std::vector<int> columnIndices;
+  std::vector<int> rowPointers;
+  int rowCount;
+  int columnCount;
 
   // Конструктор по умолчанию
   SparseMatrixCRS() : data({}), columnIndices({}), rowPointers({}), rowCount(0), columnCount(0) {}
