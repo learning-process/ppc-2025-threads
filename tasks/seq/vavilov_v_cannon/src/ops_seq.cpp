@@ -8,7 +8,7 @@
 #include "core/task/include/task.hpp"
 
 bool vavilov_v_cannon_seq::CannonSequential::PreProcessingImpl() {
-  N = static_cast<unsigned int>(std::sqrt(task_data->inputs_count[0] / 2));
+  N = static_cast<unsigned int>(std::sqrt(task_data->inputs_count[0]));
   num_blocks = static_cast<unsigned int>(std::sqrt(N));
   block_size = N / num_blocks;
 
@@ -26,16 +26,14 @@ void vavilov_v_cannon_seq::CannonSequential::InitialShift() {
   std::vector<double> A_tmp = A_;
   std::vector<double> B_tmp = B_;
 
-  unsigned int blockSize = N / std::sqrt(N * N);
-
-  for (unsigned int bi = 0; bi < gridSize; ++bi) {
-    for (unsigned int bj = 0; bj < gridSize; ++bj) {
-      unsigned int src_row = (bi + bj) % gridSize;
-      unsigned int src_col = (bj + bi) % gridSize;
-      for (unsigned int i = 0; i < blockSize; ++i) {
-        for (unsigned int j = 0; j < blockSize; ++j) {
-          B_[(bi * blockSize + i) * N + (bj * blockSize + j)] = B_tmp[(src_row * blockSize + i) * N + (bj * blockSize + j)];
-          A_[(bi * blockSize + i) * N + (bj * blockSize + j)] = A_tmp[(bi * blockSize + i) * N + (src_col * blockSize + j)];
+  for (unsigned int bi = 0; bi < num_blocks; ++bi) {
+    for (unsigned int bj = 0; bj < num_blocks; ++bj) {
+      unsigned int src_row = (bi + bj) % num_blocks;
+      unsigned int src_col = (bj + bi) % num_blocks;
+      for (unsigned int i = 0; i < block_size; ++i) {
+        for (unsigned int j = 0; j < block_size; ++j) {
+          B_[(bi * block_size + i) * N + (bj * block_size + j)] = B_tmp[(src_row * block_size + i) * N + (bj * block_size + j)];
+          A_[(bi * block_size + i) * N + (bj * block_size + j)] = A_tmp[(bi * block_size + i) * N + (src_col * block_size + j)];
         }
       }
     }
@@ -61,16 +59,14 @@ void vavilov_v_cannon_seq::CannonSequential::ShiftBlocks() {
   std::vector<double> A_tmp = A_;
   std::vector<double> B_tmp = B_;
 
-  unsigned int blockSize = N / std::sqrt(N * N);
-
-  for (unsigned int bi = 0; bi < gridSize; ++bi) {
-    for (unsigned int bj = 0; bj < gridSize; ++bj) {
-      unsigned int src_row = (bi + 1) % gridSize;
-      unsigned int src_col = (bj + 1) % gridSize;
-      for (unsigned int i = 0; i < blockSize; ++i) {
-        for (unsigned int j = 0; j < blockSize; ++j) {
-          B_[(bi * blockSize + i) * N + (bj * blockSize + j)] = B_tmp[(src_row * blockSize + i) * N + (bj * blockSize + j)];
-          A_[(bi * blockSize + i) * N + (bj * blockSize + j)] = A_tmp[(bi * blockSize + i) * N + (src_col * blockSize + j)];
+  for (unsigned int bi = 0; bi < num_blocks; ++bi) {
+    for (unsigned int bj = 0; bj < num_blocks; ++bj) {
+      unsigned int src_row = (bi + 1) % num_blocks;
+      unsigned int src_col = (bj + 1) % num_blocks;
+      for (unsigned int i = 0; i < block_size; ++i) {
+        for (unsigned int j = 0; j < block_size; ++j) {
+          B_[(bi * block_size + i) * N + (bj * block_size + j)] = B_tmp[(src_row * block_size + i) * N + (bj * block_size + j)];
+          A_[(bi * block_size + i) * N + (bj * block_size + j)] = A_tmp[(bi * block_size + i) * N + (src_col * block_size + j)];
         }
       }
     }
