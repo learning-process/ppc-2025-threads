@@ -45,39 +45,41 @@ inline double Dot(const std::vector<double>& vec) {
 }
 
 inline std::vector<double> ConjugateGradientMethod(std::vector<double>& a, std::vector<double>& b,
-                                                   std::vector<double> solution, double tolerance, int size) {
-  std::vector<double> matrix_times_solution = MultiplyMatrixByVector(a, solution, size);
+    std::vector<double> solution, double tolerance, int size) {
+    std::vector<double> matrix_times_solution = MultiplyMatrixByVector(a, solution, size);
 
-  auto residual = std::vector<double>(size);
-  auto direction = std::vector<double>(size);
+    auto residual = std::vector<double>(size);
+    auto direction = std::vector<double>(size);
 
-  std::transform(b.begin(), b.end(), residual.begin(),
-                 [&matrix_times_solution](const double& val) { return val - matrix_times_solution[0]; });
-
-  double residual_norm_squared = Dot(residual);
-  if (std::sqrt(residual_norm_squared) < tolerance) {
-    return solution;
-  }
-  direction = residual;
-  std::vector<double> matrix_times_direction(size);
-  while (std::sqrt(residual_norm_squared) > tolerance) {
-    matrix_times_direction = MultiplyMatrixByVector(a, direction, size);
-    double direction_dot_matrix_times_direction = Dot(direction, matrix_times_direction);
-    double alpha = residual_norm_squared / direction_dot_matrix_times_direction;
-    std::transform(solution.begin(), solution.end(), solution.begin(),
-                   [&alpha, &direction](const double& val) { return val + (alpha * direction[0]); });
-    std::transform(
-        residual.begin(), residual.end(), residual.begin(),
-        [&alpha, &matrix_times_direction](const double& val) { return val - (alpha * matrix_times_direction[0]); });
-
-    double new_residual_norm_squared = Dot(residual);
-    double beta = new_residual_norm_squared / residual_norm_squared;
-    residual_norm_squared = new_residual_norm_squared;
-    for (int i = 0; i < size; i++) {
-      direction[i] = residual[i] + beta * direction[i];
+    for (int i = 0; i < size; ++i) {
+        residual[i] = b[i] - matrix_times_solution[i];
     }
-  }
-  return solution;
+
+    double residual_norm_squared = Dot(residual);
+    if (std::sqrt(residual_norm_squared) < tolerance) {
+        return solution;
+    }
+    direction = residual;
+    std::vector<double> matrix_times_direction(size);
+    while (std::sqrt(residual_norm_squared) > tolerance) {
+        matrix_times_direction = MultiplyMatrixByVector(a, direction, size);
+        double direction_dot_matrix_times_direction = Dot(direction, matrix_times_direction);
+        double alpha = residual_norm_squared / direction_dot_matrix_times_direction;
+        for (int i = 0; i < size; ++i) {
+            solution[i] += alpha * direction[i];
+        }
+        for (int i = 0; i < size; ++i) {
+            residual[i] -= alpha * matrix_times_direction[i];
+        }
+
+        double new_residual_norm_squared = Dot(residual);
+        double beta = new_residual_norm_squared / residual_norm_squared;
+        residual_norm_squared = new_residual_norm_squared;
+        for (int i = 0; i < size; ++i) {
+            direction[i] = residual[i] + beta * direction[i];
+        }
+    }
+    return solution;
 }
 
 inline double CalculateDeterminant(const double* a, int size) {
@@ -102,12 +104,16 @@ inline double CalculateDeterminant(const double* a, int size) {
       det += std::pow(-1, i) * a[i] * CalculateDeterminant(a + (size * 1), size - 1);
     }
     return det;
+  } else {
+    return false;
   }
-}
+} 
 
 inline bool MatrixSimmPositive(const double* a, int size) {
   std::vector<double> a0(size * size);
-  std::copy(a, a + (size * size), a0.begin());
+  for (int i = 0; i < size * size; ++i) {
+    a0[i] = a[i];
+  }
 
   for (int i = 0; i < size; i++) {
     for (int j = i + 1; j < size; j++) {

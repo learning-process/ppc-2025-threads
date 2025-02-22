@@ -12,7 +12,7 @@
 #include "seq/sidorina_p_gradient_method/include/ops_seq.hpp"
 
 TEST(sidorina_p_gradient_method_seq, test_pipeline_run) {
-  int size = int(std::pow(2, 10));
+  int size = std::pow(2, 10);
   std::vector<double> a(size * size);
   std::vector<double> a0(size * size);
   std::vector<double> b(size, 0);
@@ -77,7 +77,7 @@ TEST(sidorina_p_gradient_method_seq, test_pipeline_run) {
 }
 
 TEST(sidorina_p_gradient_method_seq, test_task_run) {
-  int size = int(std::pow(2, 10));
+  int size = std::pow(2, 10);
   std::vector<double> a(size * size);
   std::vector<double> a0(size * size);
   std::vector<double> b(size, 0);
