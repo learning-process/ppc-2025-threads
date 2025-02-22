@@ -25,7 +25,7 @@ void GenerateRandomMatrix(int rows, int cols, std::vector<double>& matrix) {
 
 }  // namespace
 
-TEST(borisov_s_seq_strassen_perf, test_pipeline_run) {
+TEST(borisov_s_strassen_perf_seq, test_pipeline_run) {
   constexpr int kRowsA = 1024;
   constexpr int kColsA = 512;
   constexpr int kRowsB = 512;
@@ -68,7 +68,7 @@ TEST(borisov_s_seq_strassen_perf, test_pipeline_run) {
   ppc::core::Perf::PrintPerfStatistic(perf_results);
 }
 
-TEST(borisov_s_seq_strassen_perf, test_task_run) {
+TEST(borisov_s_strassen_perf_seq, test_task_run) {
   constexpr int kRowsA = 1024;
   constexpr int kColsA = 512;
   constexpr int kRowsB = 512;
