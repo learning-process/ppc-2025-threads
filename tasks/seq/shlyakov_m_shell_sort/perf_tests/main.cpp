@@ -5,12 +5,13 @@
 #include <cstdint>
 #include <memory>
 #include <vector>
+#include<random>
 
 #include "core/perf/include/perf.hpp"
 #include "core/task/include/task.hpp"
 #include "seq/shlyakov_m_shell_sort/include/ops_seq.hpp"
 
-std::vector<int> GenerateRandomArray(size_t size) {
+std::vector<int> static GenerateRandomArray(size_t size) {
   std::vector<int> arr(size);
   for (size_t i = 0; i < size; ++i) {
     arr[i] = rand() % 100;
@@ -23,7 +24,7 @@ TEST(shlyakov_m_shell_sort_seq, test_pipeline_run) {
 
   std::vector<int> in = GenerateRandomArray(kCount);
   std::vector<int> expected = in;
-  std::sort(expected.begin(), expected.end());
+  std::ranges::sort(expected.begin(), expected.end());
   std::vector<int> out(in.size());
 
   auto task_data_seq = std::make_shared<ppc::core::TaskData>();
@@ -55,7 +56,7 @@ TEST(shlyakov_m_shell_sort_seq, test_task_run) {
 
   std::vector<int> in = GenerateRandomArray(kCount);
   std::vector<int> expected = in;
-  std::sort(expected.begin(), expected.end());
+  std::ranges::sort(expected.begin(), expected.end());
   std::vector<int> out(in.size());
 
   auto task_data_seq = std::make_shared<ppc::core::TaskData>();

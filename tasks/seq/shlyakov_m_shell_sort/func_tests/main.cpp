@@ -2,8 +2,7 @@
 
 #include <cstddef>
 #include <cstdint>
-#include <fstream>
-#include <memory>
+#include <random>
 #include <string>
 #include <vector>
 
@@ -11,7 +10,7 @@
 #include "core/util/include/util.hpp"
 #include "seq/shlyakov_m_shell_sort/include/ops_seq.hpp"
 
-std::vector<int> generate_random_array(size_t size) {
+std::vector<int> static GenerateRandomArray(size_t size) {
   std::vector<int> arr(size);
   for (size_t i = 0; i < size; ++i) {
     arr[i] = rand() % 100;
@@ -20,9 +19,13 @@ std::vector<int> generate_random_array(size_t size) {
 }
 
 bool is_sorted(const std::vector<int>& arr) {
-  if (arr.empty()) return true;
+  if (arr.empty()) {
+    return true;
+  }
   for (size_t i = 1; i < arr.size(); ++i) {
-    if (arr[i - 1] > arr[i]) return false;
+    if (arr[i - 1] > arr[i]) {
+      return false;
+    }
   }
   return true;
 }
@@ -88,7 +91,7 @@ TEST(shlyakov_m_shell_sort_seq, Test_Reverse_Sorted_Array) {
 }
 
 TEST(shlyakov_m_shell_sort_seq, Test_Random_Array_Small) {
-  std::vector<int> in = generate_random_array(10);
+  std::vector<int> in = GenerateRandomArray(10);
   std::vector<int> out(in.size());
 
   auto task_data_seq = std::make_shared<ppc::core::TaskData>();
@@ -105,13 +108,13 @@ TEST(shlyakov_m_shell_sort_seq, Test_Random_Array_Small) {
 
   EXPECT_TRUE(is_sorted(out));
   std::vector<int> expected = in;
-  std::sort(expected.begin(), expected.end());
+  std::ranges::sort(expected.begin(), expected.end());
   EXPECT_EQ(expected, out);
 }
 
 TEST(shlyakov_m_shell_sort_seq, Test_Random_Array_Large) {
   size_t array_size = 200;
-  std::vector<int> in = generate_random_array(array_size);
+  std::vector<int> in = GenerateRandomArray(array_size);
   std::vector<int> out(in.size());
 
   auto task_data_seq = std::make_shared<ppc::core::TaskData>();
@@ -128,6 +131,6 @@ TEST(shlyakov_m_shell_sort_seq, Test_Random_Array_Large) {
 
   EXPECT_TRUE(is_sorted(out));
   std::vector<int> expected = in;
-  std::sort(expected.begin(), expected.end());
+  std::ranges::sort(expected.begin(), expected.end());
   EXPECT_EQ(expected, out);
 }

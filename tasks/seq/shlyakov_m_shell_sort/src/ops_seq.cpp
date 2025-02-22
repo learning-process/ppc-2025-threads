@@ -5,18 +5,19 @@
 #include <vector>
 
 bool shlyakov_m_shell_sort_seq::TestTaskSequential::PreProcessingImpl() {
-  unsigned int input_size = task_data->inputs_count[0];
+  std::size_t input_size = task_data->inputs_count[0];
   auto* in_ptr = reinterpret_cast<int*>(task_data->inputs[0]);
   input_ = std::vector<int>(in_ptr, in_ptr + input_size);
 
-  unsigned int output_size = task_data->outputs_count[0];
+  std::size_t output_size = task_data->outputs_count[0];
   output_ = std::vector<int>(output_size, 0);
 
-  rc_size_ = static_cast<int>(std::sqrt(input_size));
   return true;
 }
 
-bool TestTaskSequential::ValidationImpl() { return task_data->inputs_count[0] == task_data->outputs_count[0]; }
+bool shlyakov_m_shell_sort_seq::TestTaskSequential::ValidationImpl() {
+  return task_data->inputs_count[0] == task_data->outputs_count[0];
+}
 
 bool shlyakov_m_shell_sort_seq::TestTaskSequential::RunImpl() {
   int n = input_.size();
@@ -29,7 +30,7 @@ bool shlyakov_m_shell_sort_seq::TestTaskSequential::RunImpl() {
     }
   }
 
-  for (int k = gaps.size() - 1; k >= 0; --k) {
+  for (int k = int(gaps.size() - 1); k >= 0; --k) {
     int gap = gaps[k];
     for (int start = 0; start < gap; ++start) {
       for (int i = start + gap; i < n; i += gap) {
