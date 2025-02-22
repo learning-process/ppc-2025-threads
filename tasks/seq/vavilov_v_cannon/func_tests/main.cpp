@@ -66,12 +66,14 @@ TEST(vavilov_v_cannon_seq, test_500) {
 
 TEST(vavilov_v_cannon_seq, test_500_from_file) {
   std::string line;
-  std::ifstream test_file("seq/vavilov_v_cannon/data/test.txt");
+  std::ifstream test_file(ppc::util::GetAbsolutePath("seq/vavilov_v_cannon/data/test.txt"));
   size_t N = 0;
-  if (test_file.is_open() && std::getline(test_file, line)) {
-    count = std::stoi(line);
+  if (test_file.is_open()) {
+    getline(test_file, line);
   }
   test_file.close();
+  
+  N = std::stoi(line);
 
   std::vector<double> A(N * N, 1.0);
   std::vector<double> B(N * N, 1.0);
