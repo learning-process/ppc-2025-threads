@@ -34,7 +34,7 @@ TEST(vavilov_v_cannon_seq, test_fixed_4x4) {
   task_seq.PostProcessing();
 
   for (size_t i = 0; i < N * N; i++) {
-    EXPECT_NEAR(expected_output[i], C[i], 1e-6);
+    EXPECT_EQ(expected_output[i], C[i]);
   }
 }
 
