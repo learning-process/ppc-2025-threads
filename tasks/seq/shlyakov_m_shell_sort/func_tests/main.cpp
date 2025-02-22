@@ -9,7 +9,7 @@
 
 #include "core/task/include/task.hpp"
 #include "core/util/include/util.hpp"
-#include "seq/example/include/ops_seq.hpp"
+#include "seq/shlyakov_m_shell_sort/include/ops_seq.hpp"
 
 std::vector<int> generate_random_array(size_t size) {
   std::vector<int> arr(size);

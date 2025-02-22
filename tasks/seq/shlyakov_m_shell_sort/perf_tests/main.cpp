@@ -8,7 +8,7 @@
 
 #include "core/perf/include/perf.hpp"
 #include "core/task/include/task.hpp"
-#include "seq/example/include/ops_seq.hpp"
+#include "seq/shlyakov_m_shell_sort/include/ops_seq.hpp"
 
 std::vector<int> GenerateRandomArray(size_t size) {
   std::vector<int> arr(size);
