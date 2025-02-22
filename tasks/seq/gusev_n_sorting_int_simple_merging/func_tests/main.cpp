@@ -6,7 +6,6 @@
 #include <vector>
 
 #include "core/task/include/task.hpp"
-#include "core/util/include/util.hpp"
 #include "seq/gusev_n_sorting_int_simple_merging/include/ops_seq.hpp"
 
 TEST(gusev_n_sorting_int_simple_merging_seq, test_radix_sort_basic) {
@@ -46,7 +45,7 @@ TEST(gusev_n_sorting_int_simple_merging_seq, test_radix_sort_empty) {
   test_task_sequential.Run();
   test_task_sequential.PostProcessing();
 
-  EXPECT_EQ(out.size(), 0u);
+  EXPECT_EQ(out.size(), 0U);
 }
 
 TEST(gusev_n_sorting_int_simple_merging_seq, test_radix_sort_single_element) {
