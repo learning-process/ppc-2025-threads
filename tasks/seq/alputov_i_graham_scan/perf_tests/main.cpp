@@ -59,7 +59,7 @@ TEST(alputov_i_graham_scan_seq, test_pipeline_run) {
   ppc::core::Perf::PrintPerfStatistic(perf_results);
 
   const auto& convex_hull = task->GetConvexHull();
-  ASSERT_GT(convex_hull.size(), 3);
+  ASSERT_GT(convex_hull.size(), 3u);
   ASSERT_LE(convex_hull.size(), input.size());
 }
 

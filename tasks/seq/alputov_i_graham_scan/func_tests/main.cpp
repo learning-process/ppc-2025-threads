@@ -39,7 +39,7 @@ TEST(alputov_i_graham_scan_seq, minimal_triangle_case) {
   ASSERT_TRUE(task.Run());
   ASSERT_TRUE(task.PostProcessing());
 
-  EXPECT_EQ(task.GetConvexHull().size(), 3);
+  EXPECT_EQ(task.GetConvexHull().size(), 3u);
 }
 
 TEST(alputov_i_graham_scan_seq, collinear_points) {
@@ -82,7 +82,7 @@ TEST(alputov_i_graham_scan_seq, perfect_square_case) {
   ASSERT_TRUE(task.PostProcessing());
 
   const auto& convex_hull = task.GetConvexHull();
-  EXPECT_EQ(convex_hull.size(), 4);
+  EXPECT_EQ(convex_hull.size(), 4u);
   std::set<alputov_i_graham_scan_seq::Point> hull_set(convex_hull.begin(), convex_hull.end());
   for (const auto& p : input) {
     EXPECT_TRUE(hull_set.count(p));
@@ -138,5 +138,5 @@ TEST(alputov_i_graham_scan_seq, duplicate_points) {
 
   const auto& convex_hull = task.GetConvexHull();
   std::set<alputov_i_graham_scan_seq::Point> unique_hull(convex_hull.begin(), convex_hull.end());
-  EXPECT_EQ(unique_hull.size(), 4);
+  EXPECT_EQ(unique_hull.size(), 4u);
 }
