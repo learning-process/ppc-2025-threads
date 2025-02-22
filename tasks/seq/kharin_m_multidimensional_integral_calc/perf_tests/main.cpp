@@ -1,21 +1,21 @@
 #include <gtest/gtest.h>
 
 #include <chrono>
+#include <cmath>
 #include <cstdint>
 #include <memory>
 #include <vector>
-#include <cmath>
 
 #include "core/perf/include/perf.hpp"
 #include "core/task/include/task.hpp"
 #include "include/ops_seq.hpp"
 
 TEST(kharin_m_multidimensional_integral_calc_seq, test_pipeline_run) {
-  constexpr int kDim = 5000; // Размер стороны сетки: 5000 x 5000
+  constexpr int kDim = 5000;  // Размер стороны сетки: 5000 x 5000
   // Создаём входные данные: все элементы равны 1.
   std::vector<int> in(kDim * kDim, 1);
   std::vector<int> out(1, 0);
-  std::vector<int> expected_out = { static_cast<int>(kDim * kDim) }; // 5000*5000 = 25000000
+  std::vector<int> expected_out = {static_cast<int>(kDim * kDim)};  // 5000*5000 = 25000000
 
   auto task_data_seq = std::make_shared<ppc::core::TaskData>();
   task_data_seq->inputs.emplace_back(reinterpret_cast<uint8_t *>(in.data()));
@@ -48,7 +48,7 @@ TEST(kharin_m_multidimensional_integral_calc_seq, test_task_run) {
   constexpr int kDim = 5000;
   std::vector<int> in(kDim * kDim, 1);
   std::vector<int> out(1, 0);
-  std::vector<int> expected_out = { static_cast<int>(kDim * kDim) };
+  std::vector<int> expected_out = {static_cast<int>(kDim * kDim)};
 
   auto task_data_seq = std::make_shared<ppc::core::TaskData>();
   task_data_seq->inputs.emplace_back(reinterpret_cast<uint8_t *>(in.data()));

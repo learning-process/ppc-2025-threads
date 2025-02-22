@@ -1,10 +1,10 @@
 #include <gtest/gtest.h>
 
+#include <cmath>
 #include <cstddef>
 #include <cstdint>
 #include <memory>
 #include <vector>
-#include <cmath>
 
 #include "core/task/include/task.hpp"
 #include "include/ops_seq.hpp"
@@ -15,13 +15,9 @@
 // Для 3x3 сетки сумма равна 1+2+...+9 = 45.
 TEST(kharin_m_multidimensional_integral_calc_seq, test_integral_3x3) {
   constexpr size_t kDim = 3;
-  std::vector<int> in = {
-      1, 2, 3,
-      4, 5, 6,
-      7, 8, 9
-  }; // Сумма = 45
+  std::vector<int> in = {1, 2, 3, 4, 5, 6, 7, 8, 9};  // Сумма = 45
 
-  std::vector<int> out(1, 0); // Результат – одно число (интеграл)
+  std::vector<int> out(1, 0);  // Результат – одно число (интеграл)
   std::vector<int> expected_out = {45};
 
   auto task_data_seq = std::make_shared<ppc::core::TaskData>();
@@ -46,7 +42,7 @@ TEST(kharin_m_multidimensional_integral_calc_seq, test_integral_5x5) {
   std::vector<int> in;
   for (int i = 1; i <= 25; ++i) {
     in.push_back(i);
-  } // Сумма = 325
+  }  // Сумма = 325
 
   std::vector<int> out(1, 0);
   std::vector<int> expected_out = {325};
@@ -96,7 +92,7 @@ TEST(kharin_m_multidimensional_integral_calc_seq, test_integral_negative_data) {
   std::vector<int> in;
   for (int i = 1; i <= 25; ++i) {
     in.push_back(-i);
-  } // Сумма = -325
+  }  // Сумма = -325
 
   std::vector<int> out(1, 0);
   std::vector<int> expected_out = {-325};
@@ -122,7 +118,7 @@ TEST(kharin_m_multidimensional_integral_calc_seq, test_integral_large_data) {
   constexpr size_t kDim = 500;
   std::vector<int> in(kDim * kDim, 1);
   std::vector<int> out(1, 0);
-  std::vector<int> expected_out = { static_cast<int>(kDim * kDim) };
+  std::vector<int> expected_out = {static_cast<int>(kDim * kDim)};
 
   auto task_data_seq = std::make_shared<ppc::core::TaskData>();
   task_data_seq->inputs.emplace_back(reinterpret_cast<uint8_t *>(in.data()));
