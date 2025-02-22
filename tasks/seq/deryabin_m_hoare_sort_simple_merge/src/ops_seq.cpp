@@ -26,10 +26,7 @@ void deryabin_m_hoare_sort_simple_merge_seq::HoareSortTaskSequential::HoaraSort(
   size_t i = first;
   size_t j = last;
   double tmp = 0;
-  double x =
-      std::max(std::min(a[first], a[(first + last) / 2]),
-               std::min(std::max(a[first], a[(first + last) / 2]),
-                        a[last]));  // выбор опорного элемента как медианы первого, среднего и последнего элементов
+  double x = a[(first + last) / 2];
   do {
     while (a[i] < x) {
       ++i;
