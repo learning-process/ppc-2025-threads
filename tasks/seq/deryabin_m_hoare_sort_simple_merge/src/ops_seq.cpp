@@ -1,6 +1,7 @@
 #include "seq/deryabin_m_cannons_algorithm/include/ops_seq.hpp"
 
 #include <algorithm>
+#include <cmath>
 
 bool deryabin_m_hoare_sort_simple_merge_seq::HoareSortTaskSequential::PreProcessingImpl() {
   input_array_A_ = reinterpret_cast<double*>(task_data->inputs[0]);
@@ -39,6 +40,34 @@ void deryabin_m_hoare_sort_simple_merge_seq::HoareSortTaskSequential::HoaraSort(
     if (first < j) HoaraSort(a, first, j);
 }
 
+void deryabin_m_hoare_sort_simple_merge_seq::HoareSortTaskSequential::MergeTwoParts(double* a, size_t left, size_t right) {
+  size_t middle = left + (right - left) / 2;
+  size_t l_cur = left;
+  size_t r_cur = middle + 1;
+  double* l_buff{new double[right - left + 1]{}};
+  double* r_buff{new double[right - left + 1]{}};
+  std::copy(a + left, a + r_cur, l_buff);
+  std::copy(a + r_cur, a + right + 1, r_buff + r_cur);
+  for (size_t i = left; i <= right; i++) {
+    if (l_cur <= middle && r_cur <= right) {
+      if (l_buff[l_cur] < r_buff[r_cur]) {
+        a[i] = l_buff[l_cur];
+        l_cur++;
+      } else {
+        a[i] = r_buff[r_cur];
+        r_cur++;
+      }
+    } else if (l_cur <= middle) {
+      a[i] = l_buff[l_cur];
+      l_cur++;
+    } else {
+      a[i] = r_buff[r_cur];
+      r_cur++;
+    }
+  }
+  chunk_count_--;
+}
+
 bool deryabin_m_hoare_sort_simple_merge_seq::HoareSortTaskSequential::RunImpl() {
   size_t count_ = 0;
   while (count_ != chunk_count_) {
@@ -49,26 +78,30 @@ bool deryabin_m_hoare_sort_simple_merge_seq::HoareSortTaskSequential::RunImpl() 
     }
     count_++;
   }
-
-  
-  auto dimension = (unsigned short)sqrt(static_cast<unsigned short>(input_matrix_A_.size()));
-  while (i != dimension) {
-    j = 0;
-    while (j != dimension) {
-      count = 0;
-      while (count != dimension) {
-        output_matrix_C_[(i * dimension) + j] +=
-            input_matrix_A_[(i * dimension) + count] * input_matrix_B_[(count * dimension) + j];
-        count++;
+  for (size_t i = 0; i < (size_t)(log((double)chunk_count_) / log(2)); i++) {
+    for (size_t j = 0; j < chunk_count_; j++) {
+      if (j = 0) {
+        if (chunk_count_ % 2 != 0) {
+          MergeTwoParts(input_array_A_, dimension_ - 1 - (2 * min_chunk_size_ * (i + 1)) - remainder_, dimension_ - 1);
+          j--;
+        } if (i == (size_t)(log((double)chunk_count_) / log(2)) - 1) {
+          MergeTwoParts(input_array_A_, 0, dimension_ - 1);
+        } else {
+          MergeTwoParts(input_array_A_, 0, 2 * min_chunk_size_ * (i + 1) - 1);
+        }
+      } else {
+        if (chunk_count_ - j == 2) {
+          MergeTwoParts(input_array_A_, min_chunk_size_ * (i + 1) * (j + 1), dimension_ - 1);
+        } else {
+          MergeTwoParts(input_array_A_, min_chunk_size_ * (i + 1) * (j + 1), min_chunk_size_ * (i + 1) * (j + 3) - 1);
+        }
       }
-      j++;
     }
-    i++;
   }
   return true;
 }
 
 bool deryabin_m_hoare_sort_simple_merge_seq::HoareSortTaskSequential::PostProcessingImpl() {
-  reinterpret_cast<std::vector<double>*>(task_data->outputs[0])[0] = output_matrix_C_;
+  reinterpret_cast<double*>(task_data->outputs[0]) = input_array_A_;
   return true;
 }
