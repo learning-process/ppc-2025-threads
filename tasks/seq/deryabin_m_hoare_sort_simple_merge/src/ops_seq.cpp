@@ -32,10 +32,10 @@ void deryabin_m_hoare_sort_simple_merge_seq::HoareSortTaskSequential::HoaraSort(
                         a[last]));  // выбор опорного элемента как медианы первого, среднего и последнего элементов
   do {
     while (a[i] < x) {
-      i++;
+      ++i;
     }
     while (a[j] > x) {
-      j--;
+      --j;
     }
     if (i <= j) {
       if (i < j) {
