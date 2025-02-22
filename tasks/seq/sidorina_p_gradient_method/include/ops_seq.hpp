@@ -29,7 +29,7 @@ inline double VectorNorm(const std::vector<double>& vec) {
 
 inline double Dot(const std::vector<double>& vec1, const std::vector<double>& vec2) {
   double sum = 0;
-  for (size_t i = 0; i < vec1.size(); i++) {
+  for (int i = 0; i < vec1.size(); i++) {
     sum += vec1[i] * vec2[i];
   }
   return sum;
@@ -37,7 +37,7 @@ inline double Dot(const std::vector<double>& vec1, const std::vector<double>& ve
 
 inline double Dot(const std::vector<double>& vec) {
   double sum = 0;
-  for (size_t i = 0; i < vec.size(); i++) {
+  for (int i = 0; i < vec.size(); i++) {
     sum += std::pow(vec[i], 2);
   }
   return sum;
@@ -79,7 +79,7 @@ inline std::vector<double> ConjugateGradientMethod(std::vector<double>& a, std::
   return solution;
 }
 
-inline double calculateDeterminant(const double* a, int size) {
+inline double CalculateDeterminant(const double* a, int size) {
   if (size == 1) {
     return a[0];
   } else if (size == 2) {
@@ -96,13 +96,13 @@ inline double calculateDeterminant(const double* a, int size) {
         }
       }
 
-      det += std::pow(-1, i) * a[i] * calculateDeterminant(a + (size * 1), size - 1);
+      det += std::pow(-1, i) * a[i] * CalculateDeterminant(a + (size * 1), size - 1);
     }
     return det;
   }
 }
 
-inline bool matrixSimmPositive(const double* a, int size) {
+inline bool MatrixSimmPositive(const double* a, int size) {
   std::vector<double> a0(size * size);
   std::copy(a, a + (size * size), a0.begin());
 
@@ -123,7 +123,7 @@ inline bool matrixSimmPositive(const double* a, int size) {
       }
     }
 
-    minors[i - 1] = calculateDeterminant(submatrix, i);
+    minors[i - 1] = CalculateDeterminant(submatrix, i);
     delete[] submatrix;
   }
   for (double minor : minors) {

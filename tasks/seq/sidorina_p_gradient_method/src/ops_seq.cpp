@@ -4,13 +4,13 @@ bool sidorina_p_gradient_method_seq::GradientMethod::PreProcessingImpl() {
   size_ = *reinterpret_cast<int*>(task_data->inputs[0]);
   tolerance_ = *reinterpret_cast<double*>(task_data->inputs[1]);
   auto* a_ptr = reinterpret_cast<double*>(task_data->inputs[2]);
-  int a_size = task_data->inputs_count[2];
+  unsigned int a_size = task_data->inputs_count[2];
   a_.assign(a_ptr, a_ptr + a_size);
   auto* b_ptr = reinterpret_cast<double*>(task_data->inputs[3]);
-  int b_size = task_data->inputs_count[3];
+  unsigned int b_size = task_data->inputs_count[3];
   b_.assign(b_ptr, b_ptr + b_size);
   auto* solution_ptr = reinterpret_cast<double*>(task_data->inputs[4]);
-  int solution_size = task_data->inputs_count[4];
+  unsigned int solution_size = task_data->inputs_count[4];
   solution_.assign(solution_ptr, solution_ptr + solution_size);
   result_.resize(size_);
   return true;
@@ -31,7 +31,7 @@ bool sidorina_p_gradient_method_seq::GradientMethod::ValidationImpl() {
 
   const auto* matrix = reinterpret_cast<const double*>(task_data->inputs[2]);
 
-  return matrixSimmPositive(matrix, *reinterpret_cast<int*>(task_data->inputs[0]));
+  return MatrixSimmPositive(matrix, *reinterpret_cast<int*>(task_data->inputs[0]));
 }
 
 bool sidorina_p_gradient_method_seq::GradientMethod::RunImpl() {

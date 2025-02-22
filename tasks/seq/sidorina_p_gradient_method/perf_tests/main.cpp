@@ -1,5 +1,6 @@
 #include <gtest/gtest.h>
 
+#include <cmath>
 #include <chrono>
 #include <cstdint>
 #include <random>
