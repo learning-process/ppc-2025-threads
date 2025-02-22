@@ -32,8 +32,10 @@ void vavilov_v_cannon_seq::CannonSequential::InitialShift() {
       unsigned int src_col = (bj + bi) % num_blocks;
       for (unsigned int i = 0; i < block_size; ++i) {
         for (unsigned int j = 0; j < block_size; ++j) {
-          B_[(bi * block_size + i) * N + (bj * block_size + j)] = B_tmp[(src_row * block_size + i) * N + (bj * block_size + j)];
-          A_[(bi * block_size + i) * N + (bj * block_size + j)] = A_tmp[(bi * block_size + i) * N + (src_col * block_size + j)];
+          B_[(bi * block_size + i) * N + (bj * block_size + j)] =
+              B_tmp[(src_row * block_size + i) * N + (bj * block_size + j)];
+          A_[(bi * block_size + i) * N + (bj * block_size + j)] =
+              A_tmp[(bi * block_size + i) * N + (src_col * block_size + j)];
         }
       }
     }
@@ -65,8 +67,10 @@ void vavilov_v_cannon_seq::CannonSequential::ShiftBlocks() {
       unsigned int src_col = (bj + 1) % num_blocks;
       for (unsigned int i = 0; i < block_size; ++i) {
         for (unsigned int j = 0; j < block_size; ++j) {
-          B_[(bi * block_size + i) * N + (bj * block_size + j)] = B_tmp[(src_row * block_size + i) * N + (bj * block_size + j)];
-          A_[(bi * block_size + i) * N + (bj * block_size + j)] = A_tmp[(bi * block_size + i) * N + (src_col * block_size + j)];
+          B_[(bi * block_size + i) * N + (bj * block_size + j)] =
+              B_tmp[(src_row * block_size + i) * N + (bj * block_size + j)];
+          A_[(bi * block_size + i) * N + (bj * block_size + j)] =
+              A_tmp[(bi * block_size + i) * N + (src_col * block_size + j)];
         }
       }
     }
