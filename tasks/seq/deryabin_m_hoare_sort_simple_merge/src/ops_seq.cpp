@@ -4,6 +4,7 @@
 #include <cmath>
 #include <cstddef>
 #include <numbers>
+#include <vector>
 
 bool deryabin_m_hoare_sort_simple_merge_seq::HoareSortTaskSequential::PreProcessingImpl() {
   input_array_A_ = reinterpret_cast<double**>(task_data->outputs[0])[0];
@@ -20,7 +21,7 @@ bool deryabin_m_hoare_sort_simple_merge_seq::HoareSortTaskSequential::Validation
          task_data->inputs_count[0] == task_data->outputs_count[0];
 }
 
-void deryabin_m_hoare_sort_simple_merge_seq::HoareSortTaskSequential::HoaraSort(double* a, size_t first, size_t last) {
+void deryabin_m_hoare_sort_simple_merge_seq::HoareSortTaskSequential::HoaraSort(std::vector<double>& a, size_t first, size_t last) {
   size_t i = first;
   size_t j = last;
   double tmp = 0;
@@ -53,15 +54,15 @@ void deryabin_m_hoare_sort_simple_merge_seq::HoareSortTaskSequential::HoaraSort(
   }
 }
 
-void deryabin_m_hoare_sort_simple_merge_seq::HoareSortTaskSequential::MergeTwoParts(double* a, size_t left,
+void deryabin_m_hoare_sort_simple_merge_seq::HoareSortTaskSequential::MergeTwoParts(std::vector<double>& a, size_t left,
                                                                                     size_t right) {
   size_t middle = left + ((right - left) / 2);
   size_t l_cur = left;
   size_t r_cur = middle + 1;
   double* l_buff{new double[right - left + 1]{}};
   double* r_buff{new double[right - left + 1]{}};
-  std::copy(a + left, a + r_cur, l_buff);
-  std::copy(a + r_cur, a + right + 1, r_buff + r_cur);
+  std::copy(a.begin() + left, a.begin() + r_cur, l_buff);
+  std::copy(a.begin() + r_cur, a.begin() + right + 1, r_buff + r_cur);
   for (size_t i = left; i <= right; i++) {
     if (l_cur <= middle && r_cur <= right) {
       if (l_buff[l_cur] < r_buff[r_cur]) {
