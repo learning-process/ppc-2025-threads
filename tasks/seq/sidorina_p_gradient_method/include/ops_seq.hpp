@@ -132,7 +132,7 @@ inline bool MatrixSimmPositive(const double* a, int size) {
     minors[i - 1] = CalculateDeterminant(submatrix, i);
     delete[] submatrix;
   }
-  for (int i = 0; i < minors.size(); ++i) {
+  for (unsigned long i = 0; i < minors.size(); ++i) {
     if (minors[i] <= 0) {
       return false;
     }
