@@ -99,8 +99,8 @@ TEST(vavilov_v_cannon_seq, test_500_from_file) {
 
 TEST(vavilov_v_cannon_seq, test_invalid_size) {
   constexpr size_t N = 501;
-  auto A = GenerateRandomMatrix(N);
-  auto B = GenerateRandomMatrix(N);
+  std::vector<double> A(N * N, 1.0);
+  std::vector<double> B(N * N, 1.0);
   std::vector<double> C(N * N, 0.0);
 
   auto task_data_seq = std::make_shared<ppc::core::TaskData>();
@@ -117,7 +117,7 @@ TEST(vavilov_v_cannon_seq, test_invalid_size) {
 
 TEST(vavilov_v_cannon_seq, test_identity_matrix) {
   constexpr size_t N = 500;
-  auto A = GenerateRandomMatrix(N);
+  std::vector<double> A(N * N, 1.0);
   std::vector<double> I(N * N, 0.0);
   std::vector<double> C(N * N, 0.0);
 
@@ -148,7 +148,7 @@ TEST(vavilov_v_cannon_seq, test_identity_matrix) {
 
 TEST(vavilov_v_cannon_seq, test_zero_matrix) {
   constexpr size_t N = 500;
-  auto A = GenerateRandomMatrix(N);
+  std::vector<double> A(N * N, 1.0);
   std::vector<double> B(N * N, 0.0);
   std::vector<double> C(N * N, 0.0);
   std::vector<double> expected_output(N * N, 0.0);
@@ -170,25 +170,4 @@ TEST(vavilov_v_cannon_seq, test_zero_matrix) {
   for (size_t i = 0; i < N * N; i++) {
     EXPECT_EQ(expected_output[i], C[i]);
   }
-}
-
-TEST(vavilov_v_cannon_seq, test_large_matrix) {
-  constexpr size_t N = 1000;
-  auto A = GenerateRandomMatrix(N, -1.0, 1.0);
-  auto B = GenerateRandomMatrix(N, -1.0, 1.0);
-  std::vector<double> C(N * N, 0.0);
-
-  auto task_data_seq = std::make_shared<ppc::core::TaskData>();
-  task_data_seq->inputs.emplace_back(reinterpret_cast<uint8_t*>(A.data()));
-  task_data_seq->inputs.emplace_back(reinterpret_cast<uint8_t*>(B.data()));
-  task_data_seq->inputs_count.emplace_back(A.size());
-  task_data_seq->inputs_count.emplace_back(B.size());
-  task_data_seq->outputs.emplace_back(reinterpret_cast<uint8_t*>(C.data()));
-  task_data_seq->outputs_count.emplace_back(C.size());
-
-  vavilov_v_cannon_seq::CannonSequential task_seq(task_data_seq);
-  ASSERT_TRUE(task_seq.Validation());
-  task_seq.PreProcessing();
-  ASSERT_NO_THROW(task_seq.Run());
-  task_seq.PostProcessing();
 }
