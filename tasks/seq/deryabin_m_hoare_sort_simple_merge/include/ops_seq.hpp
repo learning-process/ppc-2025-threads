@@ -1,6 +1,6 @@
-bool deryabin_m_hoare_sort_simple_merge_seq::HoareSortTaskSequential
-
 #pragma once
+
+#include <utility>
 
 #include "core/task/include/task.hpp"
 
