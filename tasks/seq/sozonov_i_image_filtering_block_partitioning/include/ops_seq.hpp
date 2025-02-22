@@ -16,8 +16,8 @@ class TestTaskSequential : public ppc::core::Task {
   bool PostProcessingImpl() override;
 
  private:
-  std::vector<double> image, filtered_image;
-  int width{}, height{};
+  std::vector<double> image_, filtered_image_;
+  int width_{}, height_{};
 };
 
 }  // namespace sozonov_i_image_filtering_block_partitioning_seq

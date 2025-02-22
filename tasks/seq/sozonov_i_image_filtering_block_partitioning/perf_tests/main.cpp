@@ -1,7 +1,6 @@
 #include <gtest/gtest.h>
 
 #include <chrono>
-#include <cstddef>
 #include <cstdint>
 #include <memory>
 #include <vector>
@@ -21,11 +20,11 @@ TEST(sozonov_i_image_filtering_block_partitioning_seq, test_pipeline_run) {
 
   for (int i = 0; i < width; ++i) {
     ans[i] = 0;
-    ans[(height - 1) * width + i] = 0;
+    ans[((height - 1) * width) + i] = 0;
   }
   for (int i = 1; i < height - 1; ++i) {
     ans[i * width] = 0;
-    ans[i * width + width - 1] = 0;
+    ans[(i * width) + width - 1] = 0;
   }
 
   // Create task_data
@@ -72,11 +71,11 @@ TEST(sozonov_i_image_filtering_block_partitioning_seq, test_task_run) {
 
   for (int i = 0; i < width; ++i) {
     ans[i] = 0;
-    ans[(height - 1) * width + i] = 0;
+    ans[((height - 1) * width) + i] = 0;
   }
   for (int i = 1; i < height - 1; ++i) {
     ans[i * width] = 0;
-    ans[i * width + width - 1] = 0;
+    ans[(i * width) + width - 1] = 0;
   }
 
   // Create task_data

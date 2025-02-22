@@ -1,15 +1,11 @@
 #include <gtest/gtest.h>
 
-#include <cstddef>
 #include <cstdint>
-#include <fstream>
 #include <memory>
 #include <numeric>
-#include <string>
 #include <vector>
 
 #include "core/task/include/task.hpp"
-#include "core/util/include/util.hpp"
 #include "seq/sozonov_i_image_filtering_block_partitioning/include/ops_seq.hpp"
 
 TEST(sozonov_i_image_filtering_block_partitioning_seq, test_image_less_than_3x3) {
@@ -207,11 +203,11 @@ TEST(sozonov_i_image_filtering_block_partitioning_seq, test_100x100) {
 
   for (int i = 0; i < width; ++i) {
     ans[i] = 0;
-    ans[(height - 1) * width + i] = 0;
+    ans[((height - 1) * width) + i] = 0;
   }
   for (int i = 1; i < height - 1; ++i) {
     ans[i * width] = 0;
-    ans[i * width + width - 1] = 0;
+    ans[(i * width) + width - 1] = 0;
   }
 
   // Create task_data
@@ -243,11 +239,11 @@ TEST(sozonov_i_image_filtering_block_partitioning_seq, test_150x100) {
 
   for (int i = 0; i < width; ++i) {
     ans[i] = 0;
-    ans[(height - 1) * width + i] = 0;
+    ans[((height - 1) * width) + i] = 0;
   }
   for (int i = 1; i < height - 1; ++i) {
     ans[i * width] = 0;
-    ans[i * width + width - 1] = 0;
+    ans[(i * width) + width - 1] = 0;
   }
 
   // Create task_data
@@ -279,11 +275,11 @@ TEST(sozonov_i_image_filtering_block_partitioning_seq, test_120x200) {
 
   for (int i = 0; i < width; ++i) {
     ans[i] = 0;
-    ans[(height - 1) * width + i] = 0;
+    ans[((height - 1) * width) + i] = 0;
   }
   for (int i = 1; i < height - 1; ++i) {
     ans[i * width] = 0;
-    ans[i * width + width - 1] = 0;
+    ans[(i * width) + width - 1] = 0;
   }
 
   // Create task_data
