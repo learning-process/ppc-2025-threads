@@ -13,34 +13,37 @@ bool deryabin_m_hoare_sort_simple_merge_seq::HoareSortTaskSequential::PreProcess
 }
 
 bool deryabin_m_hoare_sort_simple_merge_seq::HoareSortTaskSequential::ValidationImpl() {
-  return task_data->inputs_count[0] > 2 &&
-         task_data->inputs[1] >= 2 &&
+  return task_data->inputs_count[0] > 2 && task_data->inputs[1] >= 2 &&
          task_data->inputs_count[0] == task_data->outputs_count[0];
 }
 
 void deryabin_m_hoare_sort_simple_merge_seq::HoareSortTaskSequential::HoaraSort(double* a, size_t first, size_t last) {
-    size_t i = first;
-    size_t j = last;
-    double tmp;
-    double x = std::max(std::min(a[first], a[(first + last) / 2]), std::min(std::max(a[first], a[(first + last) / 2]), a[last])); // выбор опорного элемента как медианы первого, среднего и последнего элементов
-    do {
-      while (a[i] < x) i++;
-      while (a[j] > x) j--;
-      if (i <= j) {
-        if (i < j) {
-          tmp = a[i];
-          a[i] = a[j];
-          a[j] = tmp;
-        }
-        i++;
-        j--;
+  size_t i = first;
+  size_t j = last;
+  double tmp;
+  double x =
+      std::max(std::min(a[first], a[(first + last) / 2]),
+               std::min(std::max(a[first], a[(first + last) / 2]),
+                        a[last]));  // выбор опорного элемента как медианы первого, среднего и последнего элементов
+  do {
+    while (a[i] < x) i++;
+    while (a[j] > x) j--;
+    if (i <= j) {
+      if (i < j) {
+        tmp = a[i];
+        a[i] = a[j];
+        a[j] = tmp;
       }
-    } while (i <= j);
-    if (i < last) HoaraSort(a, i, last);
-    if (first < j) HoaraSort(a, first, j);
+      i++;
+      j--;
+    }
+  } while (i <= j);
+  if (i < last) HoaraSort(a, i, last);
+  if (first < j) HoaraSort(a, first, j);
 }
 
-void deryabin_m_hoare_sort_simple_merge_seq::HoareSortTaskSequential::MergeTwoParts(double* a, size_t left, size_t right) {
+void deryabin_m_hoare_sort_simple_merge_seq::HoareSortTaskSequential::MergeTwoParts(double* a, size_t left,
+                                                                                    size_t right) {
   size_t middle = left + (right - left) / 2;
   size_t l_cur = left;
   size_t r_cur = middle + 1;
@@ -84,7 +87,8 @@ bool deryabin_m_hoare_sort_simple_merge_seq::HoareSortTaskSequential::RunImpl() 
         if (chunk_count_ % 2 != 0) {
           MergeTwoParts(input_array_A_, dimension_ - 1 - (2 * min_chunk_size_ * (i + 1)) - remainder_, dimension_ - 1);
           j--;
-        } if (i == (size_t)(log((double)chunk_count_) / log(2)) - 1) {
+        }
+        if (i == (size_t)(log((double)chunk_count_) / log(2)) - 1) {
           MergeTwoParts(input_array_A_, 0, dimension_ - 1);
         } else {
           MergeTwoParts(input_array_A_, 0, 2 * min_chunk_size_ * (i + 1) - 1);
