@@ -44,9 +44,6 @@ TEST_P(SidorinaPGradientMethodSeqTest, Test_matrix) {
   }
 }
 
-INSTANTIATE_TEST_SUITE_P(SidorinaPGradientMethodSeqTest, SidorinaPGradientMethodSeqTest,
-                         ::testing::Values(Params(1, {2}, {4}, {0}, {2}, 1e-6)));
-
 using ParamsVal =
     std::tuple<int, std::vector<double>, std::vector<double>, std::vector<double>, std::vector<double>, double>;
 
@@ -75,6 +72,12 @@ TEST_P(SidorinaPGradientMethodSeqTestVal, Test_validation) {
   ASSERT_FALSE(gradient_method.ValidationImpl());
 }
 
+// clang-format off
+INSTANTIATE_TEST_SUITE_P(SidorinaPGradientMethodSeqTest, SidorinaPGradientMethodSeqTest,
+                         ::testing::Values(Params(1, {2}, {4}, {0}, {2}, 1e-6)));
+
 INSTANTIATE_TEST_SUITE_P(SidorinaPGradientMethodSeqTestVal, SidorinaPGradientMethodSeqTestVal,
                          ::testing::Values(Params(0, {2}, {4}, {0}, {2}, 1e-6)));
+//clang-format on
+
 }  // namespace sidorina_p_gradient_method_seq
