@@ -1,20 +1,22 @@
 #include <gtest/gtest.h>
 
+#include <algorithm>
 #include <chrono>
 #include <cstddef>
 #include <cstdint>
+#include <cstdlib>
 #include <memory>
-#include <random>
+#include <ranges>
 #include <vector>
 
 #include "core/perf/include/perf.hpp"
 #include "core/task/include/task.hpp"
 #include "seq/shlyakov_m_shell_sort/include/ops_seq.hpp"
 
-std::vector<int> static GenerateRandomArray(size_t size) {
+static std::vector<int> GenerateRandomArray(size_t size) {
   std::vector<int> arr(size);
   for (size_t i = 0; i < size; ++i) {
-    arr[i] = rand() % 100;
+    arr[i] = std::rand() % 100;
   }
   return arr;
 }
@@ -24,7 +26,7 @@ TEST(shlyakov_m_shell_sort_seq, test_pipeline_run) {
 
   std::vector<int> in = GenerateRandomArray(kCount);
   std::vector<int> expected = in;
-  std::ranges::sort(expected.begin(), expected.end());
+  std::ranges::sort(expected);
   std::vector<int> out(in.size());
 
   auto task_data_seq = std::make_shared<ppc::core::TaskData>();
@@ -45,8 +47,8 @@ TEST(shlyakov_m_shell_sort_seq, test_pipeline_run) {
   };
 
   auto perf_results = std::make_shared<ppc::core::PerfResults>();
-
   auto perf_analyzer = std::make_shared<ppc::core::Perf>(test_task_sequential);
+
   perf_analyzer->PipelineRun(perf_attr, perf_results);
   ppc::core::Perf::PrintPerfStatistic(perf_results);
 }
@@ -56,7 +58,7 @@ TEST(shlyakov_m_shell_sort_seq, test_task_run) {
 
   std::vector<int> in = GenerateRandomArray(kCount);
   std::vector<int> expected = in;
-  std::ranges::sort(expected.begin(), expected.end());
+  std::ranges::sort(expected);
   std::vector<int> out(in.size());
 
   auto task_data_seq = std::make_shared<ppc::core::TaskData>();
@@ -77,8 +79,8 @@ TEST(shlyakov_m_shell_sort_seq, test_task_run) {
   };
 
   auto perf_results = std::make_shared<ppc::core::PerfResults>();
-
   auto perf_analyzer = std::make_shared<ppc::core::Perf>(test_task_sequential);
+
   perf_analyzer->TaskRun(perf_attr, perf_results);
   ppc::core::Perf::PrintPerfStatistic(perf_results);
 }

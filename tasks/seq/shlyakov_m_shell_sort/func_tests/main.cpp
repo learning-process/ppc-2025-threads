@@ -1,24 +1,24 @@
 #include <gtest/gtest.h>
 
+#include <algorithm>
 #include <cstddef>
 #include <cstdint>
-#include <random>
-#include <string>
+#include <cstdlib>
+#include <ranges>
 #include <vector>
 
 #include "core/task/include/task.hpp"
-#include "core/util/include/util.hpp"
 #include "seq/shlyakov_m_shell_sort/include/ops_seq.hpp"
 
-std::vector<int> static GenerateRandomArray(size_t size) {
+static std::vector<int> GenerateRandomArray(size_t size) {
   std::vector<int> arr(size);
   for (size_t i = 0; i < size; ++i) {
-    arr[i] = rand() % 100;
+    arr[i] = std::rand() % 100;
   }
   return arr;
 }
 
-bool is_sorted(const std::vector<int>& arr) {
+static bool IsSorted(const std::vector<int>& arr) {
   if (arr.empty()) {
     return true;
   }
@@ -46,7 +46,7 @@ TEST(shlyakov_m_shell_sort_seq, Test_Empty_Array) {
   ASSERT_TRUE(test_task_sequential.Run());
   ASSERT_TRUE(test_task_sequential.PostProcessing());
 
-  EXPECT_TRUE(is_sorted(out));
+  EXPECT_TRUE(IsSorted(out));
 }
 
 TEST(shlyakov_m_shell_sort_seq, Test_Already_Sorted_Array) {
@@ -65,7 +65,7 @@ TEST(shlyakov_m_shell_sort_seq, Test_Already_Sorted_Array) {
   ASSERT_TRUE(test_task_sequential.Run());
   ASSERT_TRUE(test_task_sequential.PostProcessing());
 
-  EXPECT_TRUE(is_sorted(out));
+  EXPECT_TRUE(IsSorted(out));
   EXPECT_EQ(in, out);
 }
 
@@ -85,7 +85,7 @@ TEST(shlyakov_m_shell_sort_seq, Test_Reverse_Sorted_Array) {
   ASSERT_TRUE(test_task_sequential.Run());
   ASSERT_TRUE(test_task_sequential.PostProcessing());
 
-  EXPECT_TRUE(is_sorted(out));
+  EXPECT_TRUE(IsSorted(out));
   std::vector<int> expected = {1, 2, 3, 4, 5};
   EXPECT_EQ(expected, out);
 }
@@ -106,9 +106,9 @@ TEST(shlyakov_m_shell_sort_seq, Test_Random_Array_Small) {
   ASSERT_TRUE(test_task_sequential.Run());
   ASSERT_TRUE(test_task_sequential.PostProcessing());
 
-  EXPECT_TRUE(is_sorted(out));
+  EXPECT_TRUE(IsSorted(out));
   std::vector<int> expected = in;
-  std::ranges::sort(expected.begin(), expected.end());
+  std::ranges::sort(expected);
   EXPECT_EQ(expected, out);
 }
 
@@ -129,8 +129,8 @@ TEST(shlyakov_m_shell_sort_seq, Test_Random_Array_Large) {
   ASSERT_TRUE(test_task_sequential.Run());
   ASSERT_TRUE(test_task_sequential.PostProcessing());
 
-  EXPECT_TRUE(is_sorted(out));
+  EXPECT_TRUE(IsSorted(out));
   std::vector<int> expected = in;
-  std::ranges::sort(expected.begin(), expected.end());
+  std::ranges::sort(expected);
   EXPECT_EQ(expected, out);
 }

@@ -9,8 +9,7 @@ bool shlyakov_m_shell_sort_seq::TestTaskSequential::PreProcessingImpl() {
   auto* in_ptr = reinterpret_cast<int*>(task_data->inputs[0]);
   input_ = std::vector<int>(in_ptr, in_ptr + input_size);
 
-  std::size_t output_size = task_data->outputs_count[0];
-  output_ = std::vector<int>(output_size, 0);
+  output_ = input_;
 
   return true;
 }
@@ -20,17 +19,17 @@ bool shlyakov_m_shell_sort_seq::TestTaskSequential::ValidationImpl() {
 }
 
 bool shlyakov_m_shell_sort_seq::TestTaskSequential::RunImpl() {
-  int n = input_.size();
+  int n = static_cast<int>(input_.size());
 
   std::vector<int> gaps;
-  for (int i = 1; i <= static_cast<int>(sqrt(n)) + 1; ++i) {
-    int gap = n / (int)pow(2, i);
+  for (int i = 1; i <= static_cast<int>(std::sqrt(n)) + 1; ++i) {
+    int gap = static_cast<int>(n / std::pow(2.0, i));
     if (gap > 0) {
       gaps.push_back(gap);
     }
   }
 
-  for (int k = int(gaps.size() - 1); k >= 0; --k) {
+  for (int k = static_cast<int>(gaps.size()) - 1; k >= 0; --k) {
     int gap = gaps[k];
     for (int start = 0; start < gap; ++start) {
       for (int i = start + gap; i < n; i += gap) {
@@ -43,13 +42,8 @@ bool shlyakov_m_shell_sort_seq::TestTaskSequential::RunImpl() {
         output_[j + gap] = key;
       }
     }
-
-    //  for (int i = 0; i < n - gap; ++i) {
-    //    if (output_[i] > output_[i + gap]) {
-    //      swap(output_[i], output_[i + gap]);
-    //    }
-    //  }
   }
+  return true;
 }
 
 bool shlyakov_m_shell_sort_seq::TestTaskSequential::PostProcessingImpl() {
