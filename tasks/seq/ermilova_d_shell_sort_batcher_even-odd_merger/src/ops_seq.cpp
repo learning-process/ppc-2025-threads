@@ -15,7 +15,7 @@ std::vector<int> ermilova_d_shell_sort_batcher_even_odd_merger_seq::TestTaskSequ
       gap = 8 * (1 << k) - 6 * (1 << ((k + 1) / 2)) + 1;
     }
 
-    if (gap >= n) break;
+    if (gap >= n || gap*3 >= n) break;
 
     gaps.push_back(gap);
     k++;
