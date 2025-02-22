@@ -32,7 +32,6 @@ TEST(lysov_i_matrix_multiplication_Fox_algorithm_seq, test_pipeline_run) {
   std::vector<double> A = getRandomMatrix(N);
   std::vector<double> B = getRandomMatrix(N);
   std::vector<double> C(N * N, 0);
-
   std::shared_ptr<ppc::core::TaskData> taskDataSeq = std::make_shared<ppc::core::TaskData>();
   taskDataSeq->inputs.emplace_back(reinterpret_cast<uint8_t *>(&N));
   taskDataSeq->inputs.emplace_back(reinterpret_cast<uint8_t *>(A.data()));
