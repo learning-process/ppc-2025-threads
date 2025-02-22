@@ -43,7 +43,6 @@ bool shlyakov_m_shell_sort_seq::TestTaskSequential::RunImpl() {
       }
     }
 
-    // Простое слияние
     //  for (int i = 0; i < n - gap; ++i) {
     //    if (output_[i] > output_[i + gap]) {
     //      swap(output_[i], output_[i + gap]);
