@@ -1,8 +1,6 @@
 #pragma once
 
-#include <algorithm>
 #include <cmath>
-#include <numeric>
 #include <utility>
 #include <vector>
 
@@ -19,7 +17,7 @@ class TestTaskSequential : public ppc::core::Task {
   bool PostProcessingImpl() override;
 
  private:
-  std::vector<int> mas, output_;
+  std::vector<int> mas_, output_;
 };
 
 }  // namespace smirnov_i_radix_sort_simple_merge_seq

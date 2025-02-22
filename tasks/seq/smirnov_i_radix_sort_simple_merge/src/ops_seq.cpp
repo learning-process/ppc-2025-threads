@@ -9,7 +9,7 @@
 bool smirnov_i_radix_sort_simple_merge_seq::TestTaskSequential::PreProcessingImpl() {
   unsigned int input_size = task_data->inputs_count[0];
   auto* in_ptr = reinterpret_cast<int*>(task_data->inputs[0]);
-  mas = std::vector<int>(in_ptr, in_ptr + input_size);
+  mas_ = std::vector<int>(in_ptr, in_ptr + input_size);
 
   unsigned int output_size = task_data->outputs_count[0];
   output_ = std::vector<int>(output_size, 0);
@@ -22,24 +22,24 @@ bool smirnov_i_radix_sort_simple_merge_seq::TestTaskSequential::ValidationImpl()
 }
 
 bool smirnov_i_radix_sort_simple_merge_seq::TestTaskSequential::RunImpl() {
-  int longest = *std::max_element(mas.begin(), mas.end());
+  int longest = *std::ranges::max_element(mas_.begin(), mas_.end());
   int len = std::ceil(std::log10(longest + 1));
-  std::vector<int> sorting(mas.size());
+  std::vector<int> sorting(mas_.size());
 
   for (int j = 0; j < len; j++) {
     std::vector<int> counting(10, 0);
-    for (size_t i = 0; i < mas.size(); i++) {
-      counting[mas[i] / int(pow(10, j)) % 10]++;
+    for (size_t i = 0; i < mas_.size(); i++) {
+      counting[mas_[i] / int(pow(10, j)) % 10]++;
     }
     std::partial_sum(counting.begin(), counting.end(), counting.begin());
-    for (int i = mas.size() - 1; i >= 0; i--) {
-      int pos = counting[mas[i] / int(pow(10, j)) % 10] - 1;
-      sorting[pos] = mas[i];
-      counting[mas[i] / int(pow(10, j)) % 10]--;
+    for (int i = static_cast<int>(mas.size() - 1); i >= 0; i--) {
+      int pos = counting[mas_[i] / int(pow(10, j)) % 10] - 1;
+      sorting[pos] = mas_[i];
+      counting[mas_[i] / int(pow(10, j)) % 10]--;
     }
-    std::swap(mas, sorting);
+    std::swap(mas_, sorting);
   }
-  output_ = mas;
+  output_ = mas_;
   return true;
 }
 

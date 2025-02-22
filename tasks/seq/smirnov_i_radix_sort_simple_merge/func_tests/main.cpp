@@ -2,13 +2,10 @@
 
 #include <cstddef>
 #include <cstdint>
-#include <fstream>
 #include <memory>
-#include <string>
 #include <vector>
 
 #include "core/task/include/task.hpp"
-#include "core/util/include/util.hpp"
 #include "seq/smirnov_i_radix_sort_simple_merge/include/ops_seq.hpp"
 
 TEST(smirnov_i_radix_sort_simple_merge_seq, test_scalar) {
@@ -85,8 +82,8 @@ TEST(smirnov_i_radix_sort_simple_merge_seq, test_256_elem) {
   std::vector<int> exp_out(kCount, 0);
   std::vector<int> out(kCount);
   for (size_t i = 0; i < kCount; i++) {
-    in[i] = i;
-    exp_out[i] = i;
+    in[i] = static_cast<int>(i);
+    exp_out[i] = static_cast<int>(i);
   }
 
   // Create task_data

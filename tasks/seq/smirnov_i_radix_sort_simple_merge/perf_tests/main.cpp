@@ -19,8 +19,8 @@ TEST(smirnov_i_radix_sort_simple_merge_seq, test_pipeline_run) {
   std::vector<int> out(kCount);
 
   for (size_t i = 0; i < kCount; i++) {
-    in[i] = 1;
-    exp_out[i] = 1;
+    in[i] = static_cast<int>(i);
+    exp_out[i] = static_cast<int>(i);
   }
 
   // Create task_data
@@ -62,8 +62,8 @@ TEST(smirnov_i_radix_sort_simple_merge_seq, test_task_run) {
   std::vector<int> out(kCount);
 
   for (size_t i = 0; i < kCount; i++) {
-    in[i] = 1;
-    exp_out[i] = 1;
+    in[i] = static_cast<int>(i);
+    exp_out[i] = static_cast<int>(i);
   }
 
   // Create task_data
