@@ -1,7 +1,5 @@
 #include "seq/deryabin_m_hoare_sort_simple_merge/include/ops_seq.hpp"
 
-#include <cstdint>
-
 #include <algorithm>
 #include <cmath>
 #include <cstddef>
