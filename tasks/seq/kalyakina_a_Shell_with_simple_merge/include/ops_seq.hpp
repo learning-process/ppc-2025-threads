@@ -5,10 +5,10 @@
 
 #include "core/task/include/task.hpp"
 
-namespace kalyakina_a_Shell_with_simple_merge_seq {
+namespace kalyakina_a_shell_with_simple_merge_seq {
 
 class ShellSortSequential : public ppc::core::Task {
-  std::vector<unsigned int> CalculationOfGapLengths(const unsigned int& size);
+  static std::vector<unsigned int> CalculationOfGapLengths(const unsigned int& size);
   void ShellSort(std::vector<int>& vec);
 
  public:
@@ -21,7 +21,7 @@ class ShellSortSequential : public ppc::core::Task {
 
  private:
   std::vector<int> input_;
-  std::vector<unsigned int> Sedgwick_sequence;
+  std::vector<unsigned int> Sedgwick_sequence_;
 };
 
-}  // namespace kalyakina_a_Shell_with_simple_merge_seq
+}  // namespace kalyakina_a_shell_with_simple_merge_seq
