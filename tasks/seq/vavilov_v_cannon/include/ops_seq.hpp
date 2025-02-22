@@ -1,9 +1,10 @@
 #pragma once
 
+#include <cmath>
+#include <memory>
 #include <utility>
 #include <vector>
-#include <memory>
-#include <cmath>
+
 #include "core/task/include/task.hpp"
 
 namespace vavilov_v_cannon_seq {
@@ -28,5 +29,5 @@ class CannonSequential : public ppc::core::Task {
   void InitialShift();
   void BlockMultiply();
   void ShiftBlocks();
- };
+};
 }  // namespace vavilov_v_cannon_seq
