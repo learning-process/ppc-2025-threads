@@ -10,7 +10,11 @@
 #include "core/task/include/task.hpp"
 #include "seq/kalyakina_a_Shell_with_simple_merge/include/ops_seq.hpp"
 
-namespace kalyakina_a_Shell_with_simple_merge_seq_func_tests {
+namespace kalyakina_a_Shell_with_simple_merge_seq_perf_tests {
+
+std::vector<int> CreateReverseSortedVector(unsigned int size, int left);
+bool IsSorted(const std::vector<int> vec);
+
 std::vector<int> CreateReverseSortedVector(unsigned int size, int left) {
   std::vector<int> result;
   while (size--) {
@@ -30,11 +34,11 @@ bool IsSorted(const std::vector<int> vec) {
   }
   return true;
 }
-}  // namespace kalyakina_a_Shell_with_simple_merge_seq_func_tests
+}  // namespace kalyakina_a_Shell_with_simple_merge_seq_perf_tests
 
 TEST(kalyakina_a_Shell_with_simple_merge_seq, test_pipeline_run) {
   // Create data
-  std::vector<int> in = kalyakina_a_Shell_with_simple_merge_seq_func_tests::CreateReverseSortedVector(10000, -5000);
+  std::vector<int> in = kalyakina_a_Shell_with_simple_merge_seq_perf_tests::CreateReverseSortedVector(10000, -5000);
   std::vector<int> out(in.size());
 
   // Create task_data
@@ -65,12 +69,12 @@ TEST(kalyakina_a_Shell_with_simple_merge_seq, test_pipeline_run) {
   auto perf_analyzer = std::make_shared<ppc::core::Perf>(test_task_sequential);
   perf_analyzer->PipelineRun(perf_attr, perf_results);
   ppc::core::Perf::PrintPerfStatistic(perf_results);
-  ASSERT_TRUE(kalyakina_a_Shell_with_simple_merge_seq_func_tests::IsSorted(out));
+  ASSERT_TRUE(kalyakina_a_Shell_with_simple_merge_seq_perf_tests::IsSorted(out));
 }
 
 TEST(kalyakina_a_Shell_with_simple_merge_seq, test_task_run) {
   // Create data
-  std::vector<int> in = kalyakina_a_Shell_with_simple_merge_seq_func_tests::CreateReverseSortedVector(10000, -5000);
+  std::vector<int> in = kalyakina_a_Shell_with_simple_merge_seq_perf_tests::CreateReverseSortedVector(10000, -5000);
   std::vector<int> out(in.size());
 
   // Create task_data
@@ -101,5 +105,5 @@ TEST(kalyakina_a_Shell_with_simple_merge_seq, test_task_run) {
   auto perf_analyzer = std::make_shared<ppc::core::Perf>(test_task_sequential);
   perf_analyzer->TaskRun(perf_attr, perf_results);
   ppc::core::Perf::PrintPerfStatistic(perf_results);
-  ASSERT_TRUE(kalyakina_a_Shell_with_simple_merge_seq_func_tests::IsSorted(out));
+  ASSERT_TRUE(kalyakina_a_Shell_with_simple_merge_seq_perf_tests::IsSorted(out));
 }

@@ -12,7 +12,12 @@
 #include "core/util/include/util.hpp"
 #include "seq/kalyakina_a_Shell_with_simple_merge/include/ops_seq.hpp"
 
-namespace kalyakina_a_Shell_with_simple_merge_seq_perf_tests {
+namespace kalyakina_a_Shell_with_simple_merge_seq_func_tests {
+
+std::vector<int> CreateReverseSortedVector(unsigned int size, const int left);
+bool IsSorted(const std::vector<int> vec);
+void TestOfFunction(std::vector<int>& in);
+
 std::vector<int> CreateReverseSortedVector(unsigned int size, const int left) {
   std::vector<int> result;
   while (size--) {
@@ -32,7 +37,6 @@ bool IsSorted(const std::vector<int> vec) {
   }
   return true;
 }
-}  // namespace kalyakina_a_Shell_with_simple_merge_seq_perf_tests
 
 void TestOfFunction(std::vector<int>& in) {
   std::vector<int> out(in.size());
@@ -52,8 +56,9 @@ void TestOfFunction(std::vector<int>& in) {
   TaskSequential.Run();
   TaskSequential.PostProcessing();
 
-  ASSERT_TRUE(kalyakina_a_Shell_with_simple_merge_seq_perf_tests::IsSorted(out));
+  ASSERT_TRUE(kalyakina_a_Shell_with_simple_merge_seq_func_tests::IsSorted(out));
 }
+}  // namespace kalyakina_a_Shell_with_simple_merge_seq_func_tests
 
 TEST(kalyakina_a_Shell_with_simple_merge_seq, test_of_Validation1) {
   std::vector<int> in = {2, 9, 5, 1, 4, 8, 3};
@@ -108,31 +113,31 @@ TEST(kalyakina_a_Shell_with_simple_merge_seq, test_of_Validation3) {
 
 TEST(kalyakina_a_Shell_with_simple_merge_seq, small_fixed_vector) {
   std::vector<int> in = {2, 9, 5, 1, 4, 8, 3, 2};
-  TestOfFunction(in);
+  kalyakina_a_Shell_with_simple_merge_seq_func_tests::TestOfFunction(in);
 }
 
 TEST(kalyakina_a_Shell_with_simple_merge_seq, medium_fixed_vector) {
   std::vector<int> in = {2,  9,  5,  1,  4,  8,  3,  11, 34, 12, 6,  29,  13,   7,     56,     32,      88,
                          90, 94, 78, 54, 47, 37, 77, 22, 44, 55, 66, 123, 1234, 12345, 123456, 1234567, 0};
-  TestOfFunction(in);
+  kalyakina_a_Shell_with_simple_merge_seq_func_tests::TestOfFunction(in);
 }
 
 TEST(kalyakina_a_Shell_with_simple_merge_seq, reverse_sorted_vector_50) {
-  std::vector<int> in = kalyakina_a_Shell_with_simple_merge_seq_perf_tests::CreateReverseSortedVector(50, -10);
-  TestOfFunction(in);
+  std::vector<int> in = kalyakina_a_Shell_with_simple_merge_seq_func_tests::CreateReverseSortedVector(50, -10);
+  kalyakina_a_Shell_with_simple_merge_seq_func_tests::TestOfFunction(in);
 }
 
 TEST(kalyakina_a_Shell_with_simple_merge_seq, reverse_sorted_vector_100) {
-  std::vector<int> in = kalyakina_a_Shell_with_simple_merge_seq_perf_tests::CreateReverseSortedVector(100, -10);
-  TestOfFunction(in);
+  std::vector<int> in = kalyakina_a_Shell_with_simple_merge_seq_func_tests::CreateReverseSortedVector(100, -10);
+  kalyakina_a_Shell_with_simple_merge_seq_func_tests::TestOfFunction(in);
 }
 
 TEST(kalyakina_a_Shell_with_simple_merge_seq, reverse_sorted_vector_1000) {
-  std::vector<int> in = kalyakina_a_Shell_with_simple_merge_seq_perf_tests::CreateReverseSortedVector(1000, -10);
-  TestOfFunction(in);
+  std::vector<int> in = kalyakina_a_Shell_with_simple_merge_seq_func_tests::CreateReverseSortedVector(1000, -10);
+  kalyakina_a_Shell_with_simple_merge_seq_func_tests::TestOfFunction(in);
 }
 
 TEST(kalyakina_a_Shell_with_simple_merge_seq, reverse_sorted_vector_10000) {
-  std::vector<int> in = kalyakina_a_Shell_with_simple_merge_seq_perf_tests::CreateReverseSortedVector(10000, -10);
-  TestOfFunction(in);
+  std::vector<int> in = kalyakina_a_Shell_with_simple_merge_seq_func_tests::CreateReverseSortedVector(10000, -10);
+  kalyakina_a_Shell_with_simple_merge_seq_func_tests::TestOfFunction(in);
 }
