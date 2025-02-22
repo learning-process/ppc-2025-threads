@@ -1,8 +1,11 @@
 #include "seq/vavilov_v_cannon/include/ops_seq.hpp"
+
 #include <gtest/gtest.h>
+
 #include <fstream>
-#include "core/task/include/task.hpp"
+
 #include "core/perf/include/perf.hpp"
+#include "core/task/include/task.hpp"
 
 bool vavilov_v_cannon_seq::CannonSequential::PreProcessingImpl() {
   N = static_cast<unsigned int>(std::sqrt(task_data->inputs_count[0] / 2));
