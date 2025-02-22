@@ -1,7 +1,8 @@
 #include "seq/borisov_s_strassen_seq/include/ops_seq.hpp"
 
-#include <cmath>
-#include <iostream>
+#include <algorithm>
+#include <cstddef>
+#include <vector>
 
 namespace borisov_s_strassen_seq {
 
@@ -55,42 +56,42 @@ void SetSubMatrix(std::vector<double> &m, const std::vector<double> &sub, int n,
   }
 }
 
-std::vector<double> StrassenRecursive(const std::vector<double> &A, const std::vector<double> &B, int n) {
+std::vector<double> StrassenRecursive(const std::vector<double> &a, const std::vector<double> &b, int n) {
   if (n <= 16) {
-    return MultiplyNaive(A, B, n);
+    return MultiplyNaive(a, b, n);
   }
   int k = n / 2;
-  auto A11 = SubMatrix(A, n, 0, 0, k);
-  auto A12 = SubMatrix(A, n, 0, k, k);
-  auto A21 = SubMatrix(A, n, k, 0, k);
-  auto A22 = SubMatrix(A, n, k, k, k);
+  auto a11 = SubMatrix(a, n, 0, 0, k);
+  auto a12 = SubMatrix(a, n, 0, k, k);
+  auto a21 = SubMatrix(a, n, k, 0, k);
+  auto a22 = SubMatrix(a, n, k, k, k);
 
-  auto B11 = SubMatrix(B, n, 0, 0, k);
-  auto B12 = SubMatrix(B, n, 0, k, k);
-  auto B21 = SubMatrix(B, n, k, 0, k);
-  auto B22 = SubMatrix(B, n, k, k, k);
+  auto b11 = SubMatrix(b, n, 0, 0, k);
+  auto b12 = SubMatrix(b, n, 0, k, k);
+  auto b21 = SubMatrix(b, n, k, 0, k);
+  auto b22 = SubMatrix(b, n, k, k, k);
 
-  auto M1 = StrassenRecursive(AddMatr(A11, A22, k), AddMatr(B11, B22, k), k);
-  auto M2 = StrassenRecursive(AddMatr(A21, A22, k), B11, k);
-  auto M3 = StrassenRecursive(A11, SubMatr(B12, B22, k), k);
-  auto M4 = StrassenRecursive(A22, SubMatr(B21, B11, k), k);
-  auto M5 = StrassenRecursive(AddMatr(A11, A12, k), B22, k);
-  auto M6 = StrassenRecursive(SubMatr(A21, A11, k), AddMatr(B11, B12, k), k);
-  auto M7 = StrassenRecursive(SubMatr(A12, A22, k), AddMatr(B21, B22, k), k);
+  auto m1 = StrassenRecursive(AddMatr(a11, a22, k), AddMatr(b11, b22, k), k);
+  auto m2 = StrassenRecursive(AddMatr(a21, a22, k), b11, k);
+  auto m3 = StrassenRecursive(a11, SubMatr(b12, b22, k), k);
+  auto m4 = StrassenRecursive(a22, SubMatr(b21, b11, k), k);
+  auto m5 = StrassenRecursive(AddMatr(a11, a12, k), b22, k);
+  auto m6 = StrassenRecursive(SubMatr(a21, a11, k), AddMatr(b11, b12, k), k);
+  auto m7 = StrassenRecursive(SubMatr(a12, a22, k), AddMatr(b21, b22, k), k);
 
-  std::vector<double> C(n * n, 0.0);
+  std::vector<double> c(n * n, 0.0);
 
-  auto C11 = AddMatr(SubMatr(AddMatr(M1, M4, k), M5, k), M7, k);
-  auto C12 = AddMatr(M3, M5, k);
-  auto C21 = AddMatr(M2, M4, k);
-  auto C22 = AddMatr(AddMatr(SubMatr(M1, M2, k), M3, k), M6, k);
+  auto c11 = AddMatr(SubMatr(AddMatr(m1, m4, k), m5, k), m7, k);
+  auto c12 = AddMatr(m3, m5, k);
+  auto c21 = AddMatr(m2, m4, k);
+  auto c22 = AddMatr(AddMatr(SubMatr(m1, m2, k), m3, k), m6, k);
 
-  SetSubMatrix(C, C11, n, 0, 0, k);
-  SetSubMatrix(C, C12, n, 0, k, k);
-  SetSubMatrix(C, C21, n, k, 0, k);
-  SetSubMatrix(C, C22, n, k, k, k);
+  SetSubMatrix(c, c11, n, 0, 0, k);
+  SetSubMatrix(c, c12, n, 0, k, k);
+  SetSubMatrix(c, c21, n, k, 0, k);
+  SetSubMatrix(c, c22, n, k, k, k);
 
-  return C;
+  return c;
 }
 
 int NextPowerOfTwo(int n) {
@@ -134,55 +135,52 @@ bool SequentialStrassenSeq::ValidationImpl() {
 
   size_t needed = 4 + (static_cast<size_t>(rowsA_) * colsA_) + (static_cast<size_t>(rowsB_) * colsB_);
 
-  if (input_.size() < needed) {
-    return false;
-  }
-  return true;
+  return input_.size() >= needed;
 }
 
 bool SequentialStrassenSeq::RunImpl() {
   size_t offset = 4;
-  std::vector<double> A(rowsA_ * colsA_);
+  std::vector<double> a(rowsA_ * colsA_);
   for (int i = 0; i < rowsA_ * colsA_; ++i) {
-    A[i] = input_[offset + i];
+    a[i] = input_[offset + i];
   }
   offset += static_cast<size_t>(rowsA_ * colsA_);
 
-  std::vector<double> B(rowsB_ * colsB_);
+  std::vector<double> b(rowsB_ * colsB_);
   for (int i = 0; i < rowsB_ * colsB_; ++i) {
-    B[i] = input_[offset + i];
+    b[i] = input_[offset + i];
   }
 
-  int maxDim = std::max({rowsA_, colsA_, colsB_});
-  int M = NextPowerOfTwo(maxDim);
+  int max_dim = std::max({rowsA_, colsA_, colsB_});
+  int m = NextPowerOfTwo(max_dim);
 
-  std::vector<double> Aexp(M * M, 0.0);
-  std::vector<double> Bexp(M * M, 0.0);
+  std::vector<double> a_exp(m * m, 0.0);
+  std::vector<double> b_exp(m * m, 0.0);
 
   for (int i = 0; i < rowsA_; ++i) {
     for (int j = 0; j < colsA_; ++j) {
-      Aexp[(i * M) + j] = A[(i * colsA_) + j];
+      a_exp[(i * m) + j] = a[(i * colsA_) + j];
     }
   }
   for (int i = 0; i < rowsB_; ++i) {
     for (int j = 0; j < colsB_; ++j) {
-      Bexp[(i * M) + j] = B[(i * colsB_) + j];
+      b_exp[(i * m) + j] = b[(i * colsB_) + j];
     }
   }
 
-  auto Cexp = StrassenRecursive(Aexp, Bexp, M);
+  auto c_exp = StrassenRecursive(a_exp, b_exp, m);
 
-  std::vector<double> C(rowsA_ * colsB_, 0.0);
+  std::vector<double> c(rowsA_ * colsB_, 0.0);
   for (int i = 0; i < rowsA_; ++i) {
     for (int j = 0; j < colsB_; ++j) {
-      C[(i * colsB_) + j] = Cexp[(i * M) + j];
+      c[(i * colsB_) + j] = c_exp[(i * m) + j];
     }
   }
 
   output_[0] = static_cast<double>(rowsA_);
   output_[1] = static_cast<double>(colsB_);
   for (int i = 0; i < rowsA_ * colsB_; ++i) {
-    output_[2 + i] = C[i];
+    output_[2 + i] = c[i];
   }
 
   return true;

@@ -13,7 +13,8 @@
 namespace {
 
 void GenerateRandomMatrix(int rows, int cols, std::vector<double>& matrix) {
-  std::mt19937 rng(7777);
+  int tmp = 7777;
+  std::mt19937 rng(tmp);
   std::uniform_real_distribution<double> dist(0.0, 1.0);
   matrix.resize(rows * cols);
   for (auto& value : matrix) {
@@ -24,22 +25,22 @@ void GenerateRandomMatrix(int rows, int cols, std::vector<double>& matrix) {
 }  // namespace
 
 TEST(borisov_s_seq_strassen_perf, test_pipeline_run) {
-  constexpr int rowsA = 1024;
-  constexpr int colsA = 512;
-  constexpr int rowsB = 512;
-  constexpr int colsB = 1024;
+  constexpr int kRowsA = 1024;
+  constexpr int kColsA = 512;
+  constexpr int kRowsB = 512;
+  constexpr int kColsB = 1024;
 
-  std::vector<double> A;
-  std::vector<double> B;
-  GenerateRandomMatrix(rowsA, colsA, A);
-  GenerateRandomMatrix(rowsB, colsB, B);
+  std::vector<double> a;
+  std::vector<double> b;
+  GenerateRandomMatrix(kRowsA, kColsA, a);
+  GenerateRandomMatrix(kRowsB, kColsB, b);
 
-  std::vector<double> in_data = {static_cast<double>(rowsA), static_cast<double>(colsA), static_cast<double>(rowsB),
-                                 static_cast<double>(colsB)};
-  in_data.insert(in_data.end(), A.begin(), A.end());
-  in_data.insert(in_data.end(), B.begin(), B.end());
+  std::vector<double> in_data = {static_cast<double>(kRowsA), static_cast<double>(kColsA), static_cast<double>(kRowsB),
+                                 static_cast<double>(kColsB)};
+  in_data.insert(in_data.end(), a.begin(), a.end());
+  in_data.insert(in_data.end(), b.begin(), b.end());
 
-  size_t output_count = 2 + (rowsA * colsB);
+  size_t output_count = 2 + (kRowsA * kColsB);
   std::vector<double> out(output_count, 0.0);
 
   auto task_data_seq = std::make_shared<ppc::core::TaskData>();
@@ -67,22 +68,22 @@ TEST(borisov_s_seq_strassen_perf, test_pipeline_run) {
 }
 
 TEST(borisov_s_seq_strassen_perf, test_task_run) {
-  constexpr int rowsA = 1024;
-  constexpr int colsA = 512;
-  constexpr int rowsB = 512;
-  constexpr int colsB = 1024;
+  constexpr int kRowsA = 1024;
+  constexpr int kColsA = 512;
+  constexpr int kRowsB = 512;
+  constexpr int kColsB = 1024;
 
-  std::vector<double> A;
-  std::vector<double> B;
-  GenerateRandomMatrix(rowsA, colsA, A);
-  GenerateRandomMatrix(rowsB, colsB, B);
+  std::vector<double> a;
+  std::vector<double> b;
+  GenerateRandomMatrix(kRowsA, kColsA, a);
+  GenerateRandomMatrix(kRowsB, kColsB, b);
 
-  std::vector<double> in_data = {static_cast<double>(rowsA), static_cast<double>(colsA), static_cast<double>(rowsB),
-                                 static_cast<double>(colsB)};
-  in_data.insert(in_data.end(), A.begin(), A.end());
-  in_data.insert(in_data.end(), B.begin(), B.end());
+  std::vector<double> in_data = {static_cast<double>(kRowsA), static_cast<double>(kColsA), static_cast<double>(kRowsB),
+                                 static_cast<double>(kColsB)};
+  in_data.insert(in_data.end(), a.begin(), a.end());
+  in_data.insert(in_data.end(), b.begin(), b.end());
 
-  size_t output_count = 2 + (rowsA * colsB);
+  size_t output_count = 2 + (kRowsA * kColsB);
   std::vector<double> out(output_count, 0.0);
 
   auto task_data_seq = std::make_shared<ppc::core::TaskData>();

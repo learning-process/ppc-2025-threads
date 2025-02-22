@@ -10,19 +10,19 @@
 
 namespace {
 
-std::vector<double> MultiplyNaiveDouble(const std::vector<double>& A, const std::vector<double>& B, int rowsA,
-                                        int colsA, int colsB) {
-  std::vector<double> C(rowsA * colsB, 0.0);
-  for (int i = 0; i < rowsA; ++i) {
-    for (int j = 0; j < colsB; ++j) {
+std::vector<double> MultiplyNaiveDouble(const std::vector<double>& a, const std::vector<double>& b, int rows_a,
+                                        int cols_a, int cols_b) {
+  std::vector<double> c(rows_a * cols_b, 0.0);
+  for (int i = 0; i < rows_a; ++i) {
+    for (int j = 0; j < cols_b; ++j) {
       double sum = 0.0;
-      for (int k = 0; k < colsA; ++k) {
-        sum += A[(i * colsA) + k] * B[(k * colsB) + j];
+      for (int k = 0; k < cols_a; ++k) {
+        sum += a[(i * cols_a) + k] * b[(k * cols_b) + j];
       }
-      C[(i * colsB) + j] = sum;
+      c[(i * cols_b) + j] = sum;
     }
   }
-  return C;
+  return c;
 }
 
 }  // namespace
@@ -34,7 +34,7 @@ TEST(borisov_s_strassen_seq, OneByOne) {
 
   auto task_data = std::make_shared<ppc::core::TaskData>();
   task_data->inputs.push_back(reinterpret_cast<uint8_t*>(in_data.data()));
-  task_data->inputs_count.push_back(in_data.size());  // Число элементов (double)
+  task_data->inputs_count.push_back(in_data.size());
 
   auto* out_ptr = new double[output_count]();
   task_data->outputs.push_back(reinterpret_cast<uint8_t*>(out_ptr));
@@ -55,13 +55,13 @@ TEST(borisov_s_strassen_seq, OneByOne) {
 }
 
 TEST(borisov_s_strassen_seq, TwoByTwo) {
-  std::vector<double> A = {1.0, 2.5, 3.0, 4.0};
-  std::vector<double> B = {1.5, 2.0, 0.5, 3.5};
-  std::vector<double> C_expected = {2.75, 10.75, 6.5, 20.0};
+  std::vector<double> a = {1.0, 2.5, 3.0, 4.0};
+  std::vector<double> b = {1.5, 2.0, 0.5, 3.5};
+  std::vector<double> c_expected = {2.75, 10.75, 6.5, 20.0};
 
   std::vector<double> in_data = {2.0, 2.0, 2.0, 2.0};
-  in_data.insert(in_data.end(), A.begin(), A.end());
-  in_data.insert(in_data.end(), B.begin(), B.end());
+  in_data.insert(in_data.end(), a.begin(), a.end());
+  in_data.insert(in_data.end(), b.begin(), b.end());
 
   size_t output_count = 2 + 4;
 
@@ -83,21 +83,21 @@ TEST(borisov_s_strassen_seq, TwoByTwo) {
   EXPECT_DOUBLE_EQ(out_ptr[0], 2.0);
   EXPECT_DOUBLE_EQ(out_ptr[1], 2.0);
   for (int i = 0; i < 4; ++i) {
-    EXPECT_NEAR(out_ptr[2 + i], C_expected[i], 1e-9);
+    EXPECT_NEAR(out_ptr[2 + i], c_expected[i], 1e-9);
   }
 
   delete[] out_ptr;
 }
 
 TEST(borisov_s_strassen_seq, Rectangular2x3_3x4) {
-  std::vector<double> A = {1.0, 2.5, 3.0, 4.0, 5.5, 6.0};
-  std::vector<double> B = {0.5, 1.0, 2.0, 1.5, 2.0, 0.5, 1.0, 3.0, 4.0, 2.5, 0.5, 1.0};
+  std::vector<double> a = {1.0, 2.5, 3.0, 4.0, 5.5, 6.0};
+  std::vector<double> b = {0.5, 1.0, 2.0, 1.5, 2.0, 0.5, 1.0, 3.0, 4.0, 2.5, 0.5, 1.0};
 
-  auto C_expected = MultiplyNaiveDouble(A, B, 2, 3, 4);
+  auto c_expected = MultiplyNaiveDouble(a, b, 2, 3, 4);
 
   std::vector<double> in_data = {2.0, 3.0, 3.0, 4.0};
-  in_data.insert(in_data.end(), A.begin(), A.end());
-  in_data.insert(in_data.end(), B.begin(), B.end());
+  in_data.insert(in_data.end(), a.begin(), a.end());
+  in_data.insert(in_data.end(), b.begin(), b.end());
 
   size_t output_count = 2 + (2 * 4);
 
@@ -119,14 +119,14 @@ TEST(borisov_s_strassen_seq, Rectangular2x3_3x4) {
   EXPECT_DOUBLE_EQ(out_ptr[0], 2.0);
   EXPECT_DOUBLE_EQ(out_ptr[1], 4.0);
 
-  std::vector<double> C_result(2 * 4);
+  std::vector<double> c_result(2 * 4);
   for (int i = 0; i < 2 * 4; ++i) {
-    C_result[i] = out_ptr[2 + i];
+    c_result[i] = out_ptr[2 + i];
   }
 
-  ASSERT_EQ(C_expected.size(), C_result.size());
-  for (size_t i = 0; i < C_expected.size(); ++i) {
-    EXPECT_NEAR(C_expected[i], C_result[i], 1e-9);
+  ASSERT_EQ(c_expected.size(), c_result.size());
+  for (size_t i = 0; i < c_expected.size(); ++i) {
+    EXPECT_NEAR(c_expected[i], c_result[i], 1e-9);
   }
 
   delete[] out_ptr;
@@ -134,22 +134,23 @@ TEST(borisov_s_strassen_seq, Rectangular2x3_3x4) {
 
 TEST(borisov_s_strassen_seq, Square5x5_Random) {
   const int n = 5;
-  std::mt19937 rng(12345);
+  int tmp = 7777;
+  std::mt19937 rng(tmp);
   std::uniform_real_distribution<double> dist(0.0, 10.0);
 
-  std::vector<double> A(n * n);
-  std::vector<double> B(n * n);
+  std::vector<double> a(n * n);
+  std::vector<double> b(n * n);
   for (int i = 0; i < n * n; ++i) {
-    A[i] = dist(rng);
-    B[i] = dist(rng);
+    a[i] = dist(rng);
+    b[i] = dist(rng);
   }
 
-  auto C_expected = MultiplyNaiveDouble(A, B, n, n, n);
+  auto c_expected = MultiplyNaiveDouble(a, b, n, n, n);
 
   std::vector<double> in_data = {static_cast<double>(n), static_cast<double>(n), static_cast<double>(n),
                                  static_cast<double>(n)};
-  in_data.insert(in_data.end(), A.begin(), A.end());
-  in_data.insert(in_data.end(), B.begin(), B.end());
+  in_data.insert(in_data.end(), a.begin(), a.end());
+  in_data.insert(in_data.end(), b.begin(), b.end());
 
   size_t output_count = 2 + (n * n);
 
@@ -171,14 +172,14 @@ TEST(borisov_s_strassen_seq, Square5x5_Random) {
   EXPECT_DOUBLE_EQ(out_ptr[0], 5.0);
   EXPECT_DOUBLE_EQ(out_ptr[1], 5.0);
 
-  std::vector<double> C_result(n * n);
+  std::vector<double> c_result(n * n);
   for (int i = 0; i < n * n; ++i) {
-    C_result[i] = out_ptr[2 + i];
+    c_result[i] = out_ptr[2 + i];
   }
 
-  ASSERT_EQ(C_expected.size(), C_result.size());
-  for (size_t i = 0; i < C_expected.size(); ++i) {
-    EXPECT_NEAR(C_expected[i], C_result[i], 1e-9);
+  ASSERT_EQ(c_expected.size(), c_result.size());
+  for (size_t i = 0; i < c_expected.size(); ++i) {
+    EXPECT_NEAR(c_expected[i], c_result[i], 1e-9);
   }
 
   delete[] out_ptr;
@@ -186,22 +187,23 @@ TEST(borisov_s_strassen_seq, Square5x5_Random) {
 
 TEST(borisov_s_strassen_seq, Square20x20_Random) {
   const int n = 20;
-  std::mt19937 rng(7777);
+  int tmp = 7777;
+  std::mt19937 rng(tmp);
   std::uniform_real_distribution<double> dist(0.0, 1.0);
 
-  std::vector<double> A(n * n);
-  std::vector<double> B(n * n);
+  std::vector<double> a(n * n);
+  std::vector<double> b(n * n);
   for (int i = 0; i < n * n; ++i) {
-    A[i] = dist(rng);
-    B[i] = dist(rng);
+    a[i] = dist(rng);
+    b[i] = dist(rng);
   }
 
-  auto C_expected = MultiplyNaiveDouble(A, B, n, n, n);
+  auto c_expected = MultiplyNaiveDouble(a, b, n, n, n);
 
   std::vector<double> in_data = {static_cast<double>(n), static_cast<double>(n), static_cast<double>(n),
                                  static_cast<double>(n)};
-  in_data.insert(in_data.end(), A.begin(), A.end());
-  in_data.insert(in_data.end(), B.begin(), B.end());
+  in_data.insert(in_data.end(), a.begin(), a.end());
+  in_data.insert(in_data.end(), b.begin(), b.end());
 
   size_t output_count = 2 + (n * n);
 
@@ -223,14 +225,14 @@ TEST(borisov_s_strassen_seq, Square20x20_Random) {
   EXPECT_DOUBLE_EQ(out_ptr[0], static_cast<double>(n));
   EXPECT_DOUBLE_EQ(out_ptr[1], static_cast<double>(n));
 
-  std::vector<double> C_result(n * n);
+  std::vector<double> c_result(n * n);
   for (int i = 0; i < n * n; ++i) {
-    C_result[i] = out_ptr[2 + i];
+    c_result[i] = out_ptr[2 + i];
   }
 
-  ASSERT_EQ(C_expected.size(), C_result.size());
-  for (size_t i = 0; i < C_expected.size(); ++i) {
-    EXPECT_NEAR(C_expected[i], C_result[i], 1e-9);
+  ASSERT_EQ(c_expected.size(), c_result.size());
+  for (size_t i = 0; i < c_expected.size(); ++i) {
+    EXPECT_NEAR(c_expected[i], c_result[i], 1e-9);
   }
 
   delete[] out_ptr;
@@ -238,22 +240,23 @@ TEST(borisov_s_strassen_seq, Square20x20_Random) {
 
 TEST(borisov_s_strassen_seq, Square32x32_Random) {
   const int n = 32;
-  std::mt19937 rng(7777);
+  int tmp = 7777;
+  std::mt19937 rng(tmp);
   std::uniform_real_distribution<double> dist(0.0, 1.0);
 
-  std::vector<double> A(n * n);
-  std::vector<double> B(n * n);
+  std::vector<double> a(n * n);
+  std::vector<double> b(n * n);
   for (int i = 0; i < n * n; ++i) {
-    A[i] = dist(rng);
-    B[i] = dist(rng);
+    a[i] = dist(rng);
+    b[i] = dist(rng);
   }
 
-  auto C_expected = MultiplyNaiveDouble(A, B, n, n, n);
+  auto c_expected = MultiplyNaiveDouble(a, b, n, n, n);
 
   std::vector<double> in_data = {static_cast<double>(n), static_cast<double>(n), static_cast<double>(n),
                                  static_cast<double>(n)};
-  in_data.insert(in_data.end(), A.begin(), A.end());
-  in_data.insert(in_data.end(), B.begin(), B.end());
+  in_data.insert(in_data.end(), a.begin(), a.end());
+  in_data.insert(in_data.end(), b.begin(), b.end());
 
   size_t output_count = 2 + (n * n);
 
@@ -275,14 +278,14 @@ TEST(borisov_s_strassen_seq, Square32x32_Random) {
   EXPECT_DOUBLE_EQ(out_ptr[0], static_cast<double>(n));
   EXPECT_DOUBLE_EQ(out_ptr[1], static_cast<double>(n));
 
-  std::vector<double> C_result(n * n);
+  std::vector<double> c_result(n * n);
   for (int i = 0; i < n * n; ++i) {
-    C_result[i] = out_ptr[2 + i];
+    c_result[i] = out_ptr[2 + i];
   }
 
-  ASSERT_EQ(C_expected.size(), C_result.size());
-  for (size_t i = 0; i < C_expected.size(); ++i) {
-    EXPECT_NEAR(C_expected[i], C_result[i], 1e-9);
+  ASSERT_EQ(c_expected.size(), c_result.size());
+  for (size_t i = 0; i < c_expected.size(); ++i) {
+    EXPECT_NEAR(c_expected[i], c_result[i], 1e-9);
   }
 
   delete[] out_ptr;
@@ -290,22 +293,23 @@ TEST(borisov_s_strassen_seq, Square32x32_Random) {
 
 TEST(borisov_s_strassen_seq, Square128x128_Random) {
   const int n = 128;
-  std::mt19937 rng(7777);
+  int tmp = 7777;
+  std::mt19937 rng(tmp);
   std::uniform_real_distribution<double> dist(0.0, 1.0);
 
-  std::vector<double> A(n * n);
-  std::vector<double> B(n * n);
+  std::vector<double> a(n * n);
+  std::vector<double> b(n * n);
   for (int i = 0; i < n * n; ++i) {
-    A[i] = dist(rng);
-    B[i] = dist(rng);
+    a[i] = dist(rng);
+    b[i] = dist(rng);
   }
 
-  auto C_expected = MultiplyNaiveDouble(A, B, n, n, n);
+  auto c_expected = MultiplyNaiveDouble(a, b, n, n, n);
 
   std::vector<double> in_data = {static_cast<double>(n), static_cast<double>(n), static_cast<double>(n),
                                  static_cast<double>(n)};
-  in_data.insert(in_data.end(), A.begin(), A.end());
-  in_data.insert(in_data.end(), B.begin(), B.end());
+  in_data.insert(in_data.end(), a.begin(), a.end());
+  in_data.insert(in_data.end(), b.begin(), b.end());
 
   size_t output_count = 2 + (n * n);
 
@@ -327,14 +331,14 @@ TEST(borisov_s_strassen_seq, Square128x128_Random) {
   EXPECT_DOUBLE_EQ(out_ptr[0], static_cast<double>(n));
   EXPECT_DOUBLE_EQ(out_ptr[1], static_cast<double>(n));
 
-  std::vector<double> C_result(n * n);
+  std::vector<double> c_result(n * n);
   for (int i = 0; i < n * n; ++i) {
-    C_result[i] = out_ptr[2 + i];
+    c_result[i] = out_ptr[2 + i];
   }
 
-  ASSERT_EQ(C_expected.size(), C_result.size());
-  for (size_t i = 0; i < C_expected.size(); ++i) {
-    EXPECT_NEAR(C_expected[i], C_result[i], 1e-9);
+  ASSERT_EQ(c_expected.size(), c_result.size());
+  for (size_t i = 0; i < c_expected.size(); ++i) {
+    EXPECT_NEAR(c_expected[i], c_result[i], 1e-9);
   }
 
   delete[] out_ptr;
@@ -342,22 +346,23 @@ TEST(borisov_s_strassen_seq, Square128x128_Random) {
 
 TEST(borisov_s_strassen_seq, Square129x129_Random) {
   const int n = 129;
-  std::mt19937 rng(7777);
+  int tmp = 7777;
+  std::mt19937 rng(tmp);
   std::uniform_real_distribution<double> dist(0.0, 1.0);
 
-  std::vector<double> A(n * n);
-  std::vector<double> B(n * n);
+  std::vector<double> a(n * n);
+  std::vector<double> b(n * n);
   for (int i = 0; i < n * n; ++i) {
-    A[i] = dist(rng);
-    B[i] = dist(rng);
+    a[i] = dist(rng);
+    b[i] = dist(rng);
   }
 
-  auto C_expected = MultiplyNaiveDouble(A, B, n, n, n);
+  auto c_expected = MultiplyNaiveDouble(a, b, n, n, n);
 
   std::vector<double> in_data = {static_cast<double>(n), static_cast<double>(n), static_cast<double>(n),
                                  static_cast<double>(n)};
-  in_data.insert(in_data.end(), A.begin(), A.end());
-  in_data.insert(in_data.end(), B.begin(), B.end());
+  in_data.insert(in_data.end(), a.begin(), a.end());
+  in_data.insert(in_data.end(), b.begin(), b.end());
 
   size_t output_count = 2 + (n * n);
 
@@ -379,14 +384,14 @@ TEST(borisov_s_strassen_seq, Square129x129_Random) {
   EXPECT_DOUBLE_EQ(out_ptr[0], static_cast<double>(n));
   EXPECT_DOUBLE_EQ(out_ptr[1], static_cast<double>(n));
 
-  std::vector<double> C_result(n * n);
+  std::vector<double> c_result(n * n);
   for (int i = 0; i < n * n; ++i) {
-    C_result[i] = out_ptr[2 + i];
+    c_result[i] = out_ptr[2 + i];
   }
 
-  ASSERT_EQ(C_expected.size(), C_result.size());
-  for (size_t i = 0; i < C_expected.size(); ++i) {
-    EXPECT_NEAR(C_expected[i], C_result[i], 1e-9);
+  ASSERT_EQ(c_expected.size(), c_result.size());
+  for (size_t i = 0; i < c_expected.size(); ++i) {
+    EXPECT_NEAR(c_expected[i], c_result[i], 1e-9);
   }
 
   delete[] out_ptr;
@@ -394,22 +399,23 @@ TEST(borisov_s_strassen_seq, Square129x129_Random) {
 
 TEST(borisov_s_strassen_seq, Square240x240_Random) {
   const int n = 240;
-  std::mt19937 rng(7777);
+  int tmp = 7777;
+  std::mt19937 rng(tmp);
   std::uniform_real_distribution<double> dist(0.0, 1.0);
 
-  std::vector<double> A(n * n);
-  std::vector<double> B(n * n);
+  std::vector<double> a(n * n);
+  std::vector<double> b(n * n);
   for (int i = 0; i < n * n; ++i) {
-    A[i] = dist(rng);
-    B[i] = dist(rng);
+    a[i] = dist(rng);
+    b[i] = dist(rng);
   }
 
-  auto C_expected = MultiplyNaiveDouble(A, B, n, n, n);
+  auto c_expected = MultiplyNaiveDouble(a, b, n, n, n);
 
   std::vector<double> in_data = {static_cast<double>(n), static_cast<double>(n), static_cast<double>(n),
                                  static_cast<double>(n)};
-  in_data.insert(in_data.end(), A.begin(), A.end());
-  in_data.insert(in_data.end(), B.begin(), B.end());
+  in_data.insert(in_data.end(), a.begin(), a.end());
+  in_data.insert(in_data.end(), b.begin(), b.end());
 
   size_t output_count = 2 + (n * n);
 
@@ -431,14 +437,14 @@ TEST(borisov_s_strassen_seq, Square240x240_Random) {
   EXPECT_DOUBLE_EQ(out_ptr[0], static_cast<double>(n));
   EXPECT_DOUBLE_EQ(out_ptr[1], static_cast<double>(n));
 
-  std::vector<double> C_result(n * n);
+  std::vector<double> c_result(n * n);
   for (int i = 0; i < n * n; ++i) {
-    C_result[i] = out_ptr[2 + i];
+    c_result[i] = out_ptr[2 + i];
   }
 
-  ASSERT_EQ(C_expected.size(), C_result.size());
-  for (size_t i = 0; i < C_expected.size(); ++i) {
-    EXPECT_NEAR(C_expected[i], C_result[i], 1e-9);
+  ASSERT_EQ(c_expected.size(), c_result.size());
+  for (size_t i = 0; i < c_expected.size(); ++i) {
+    EXPECT_NEAR(c_expected[i], c_result[i], 1e-9);
   }
 
   delete[] out_ptr;
@@ -505,30 +511,31 @@ TEST(borisov_s_strassen_seq, NotEnoughDataCase) {
 }
 
 TEST(borisov_s_strassen_seq, Rectangular16x17_Random) {
-  const int rowsA = 32;
-  const int colsA = 34;
-  const int colsB = 35;
+  const int rows_a = 32;
+  const int cols_a = 34;
+  const int cols_b = 35;
 
-  std::mt19937 rng(7777);
+  int tmp = 7777;
+  std::mt19937 rng(tmp);
   std::uniform_real_distribution<double> dist(0.0, 1.0);
 
-  std::vector<double> A(rowsA * colsA);
-  std::vector<double> B(colsA * colsB);
-  for (double& x : A) {
+  std::vector<double> a(rows_a * cols_a);
+  std::vector<double> b(cols_a * cols_b);
+  for (double& x : a) {
     x = dist(rng);
   }
-  for (double& x : B) {
+  for (double& x : b) {
     x = dist(rng);
   }
 
-  auto C_expected = MultiplyNaiveDouble(A, B, rowsA, colsA, colsB);
+  auto c_expected = MultiplyNaiveDouble(a, b, rows_a, cols_a, cols_b);
 
-  std::vector<double> in_data = {static_cast<double>(rowsA), static_cast<double>(colsA), static_cast<double>(colsA),
-                                 static_cast<double>(colsB)};
-  in_data.insert(in_data.end(), A.begin(), A.end());
-  in_data.insert(in_data.end(), B.begin(), B.end());
+  std::vector<double> in_data = {static_cast<double>(rows_a), static_cast<double>(cols_a), static_cast<double>(cols_a),
+                                 static_cast<double>(cols_b)};
+  in_data.insert(in_data.end(), a.begin(), a.end());
+  in_data.insert(in_data.end(), b.begin(), b.end());
 
-  size_t output_count = 2 + (rowsA * colsB);
+  size_t output_count = 2 + (rows_a * cols_b);
 
   auto task_data = std::make_shared<ppc::core::TaskData>();
   task_data->inputs.push_back(reinterpret_cast<uint8_t*>(in_data.data()));
@@ -545,47 +552,48 @@ TEST(borisov_s_strassen_seq, Rectangular16x17_Random) {
   task.RunImpl();
   task.PostProcessingImpl();
 
-  EXPECT_DOUBLE_EQ(out_ptr[0], static_cast<double>(rowsA));
-  EXPECT_DOUBLE_EQ(out_ptr[1], static_cast<double>(colsB));
+  EXPECT_DOUBLE_EQ(out_ptr[0], static_cast<double>(rows_a));
+  EXPECT_DOUBLE_EQ(out_ptr[1], static_cast<double>(cols_b));
 
-  std::vector<double> C_result(rowsA * colsB);
-  for (int i = 0; i < rowsA * colsB; ++i) {
-    C_result[i] = out_ptr[2 + i];
+  std::vector<double> c_result(rows_a * cols_b);
+  for (int i = 0; i < rows_a * cols_b; ++i) {
+    c_result[i] = out_ptr[2 + i];
   }
 
-  ASSERT_EQ(C_expected.size(), C_result.size());
-  for (size_t i = 0; i < C_expected.size(); ++i) {
-    EXPECT_NEAR(C_expected[i], C_result[i], 1e-9);
+  ASSERT_EQ(c_expected.size(), c_result.size());
+  for (size_t i = 0; i < c_expected.size(); ++i) {
+    EXPECT_NEAR(c_expected[i], c_result[i], 1e-9);
   }
 
   delete[] out_ptr;
 }
 
 TEST(borisov_s_strassen_seq, Rectangular19x23_Random) {
-  const int rowsA = 19;
-  const int colsA = 23;
-  const int colsB = 21;
+  const int rows_a = 19;
+  const int cols_a = 23;
+  const int cols_b = 21;
 
-  std::mt19937 rng(777);
+  int tmp = 7777;
+  std::mt19937 rng(tmp);
   std::uniform_real_distribution<double> dist(0.0, 1.0);
 
-  std::vector<double> A(rowsA * colsA);
-  std::vector<double> B(colsA * colsB);
-  for (double& x : A) {
+  std::vector<double> a(rows_a * cols_a);
+  std::vector<double> b(cols_a * cols_b);
+  for (double& x : a) {
     x = dist(rng);
   }
-  for (double& x : B) {
+  for (double& x : b) {
     x = dist(rng);
   }
 
-  auto C_expected = MultiplyNaiveDouble(A, B, rowsA, colsA, colsB);
+  auto c_expected = MultiplyNaiveDouble(a, b, rows_a, cols_a, cols_b);
 
-  std::vector<double> in_data = {static_cast<double>(rowsA), static_cast<double>(colsA), static_cast<double>(colsA),
-                                 static_cast<double>(colsB)};
-  in_data.insert(in_data.end(), A.begin(), A.end());
-  in_data.insert(in_data.end(), B.begin(), B.end());
+  std::vector<double> in_data = {static_cast<double>(rows_a), static_cast<double>(cols_a), static_cast<double>(cols_a),
+                                 static_cast<double>(cols_b)};
+  in_data.insert(in_data.end(), a.begin(), a.end());
+  in_data.insert(in_data.end(), b.begin(), b.end());
 
-  size_t output_count = 2 + (rowsA * colsB);
+  size_t output_count = 2 + (rows_a * cols_b);
 
   auto task_data = std::make_shared<ppc::core::TaskData>();
   task_data->inputs.push_back(reinterpret_cast<uint8_t*>(in_data.data()));
@@ -602,47 +610,48 @@ TEST(borisov_s_strassen_seq, Rectangular19x23_Random) {
   task.RunImpl();
   task.PostProcessingImpl();
 
-  EXPECT_DOUBLE_EQ(out_ptr[0], static_cast<double>(rowsA));
-  EXPECT_DOUBLE_EQ(out_ptr[1], static_cast<double>(colsB));
+  EXPECT_DOUBLE_EQ(out_ptr[0], static_cast<double>(rows_a));
+  EXPECT_DOUBLE_EQ(out_ptr[1], static_cast<double>(cols_b));
 
-  std::vector<double> C_result(rowsA * colsB);
-  for (int i = 0; i < rowsA * colsB; ++i) {
-    C_result[i] = out_ptr[2 + i];
+  std::vector<double> c_result(rows_a * cols_b);
+  for (int i = 0; i < rows_a * cols_b; ++i) {
+    c_result[i] = out_ptr[2 + i];
   }
 
-  ASSERT_EQ(C_expected.size(), C_result.size());
-  for (size_t i = 0; i < C_expected.size(); ++i) {
-    EXPECT_NEAR(C_expected[i], C_result[i], 1e-9);
+  ASSERT_EQ(c_expected.size(), c_result.size());
+  for (size_t i = 0; i < c_expected.size(); ++i) {
+    EXPECT_NEAR(c_expected[i], c_result[i], 1e-9);
   }
 
   delete[] out_ptr;
 }
 
 TEST(borisov_s_strassen_seq, Rectangular32x64_Random) {
-  const int rowsA = 32;
-  const int colsA = 64;
-  const int colsB = 32;
+  const int rows_a = 32;
+  const int cols_a = 64;
+  const int cols_b = 32;
 
-  std::mt19937 rng(7777);
+  int tmp = 7777;
+  std::mt19937 rng(tmp);
   std::uniform_real_distribution<double> dist(0.0, 1.0);
 
-  std::vector<double> A(rowsA * colsA);
-  std::vector<double> B(colsA * colsB);
-  for (double& x : A) {
+  std::vector<double> a(rows_a * cols_a);
+  std::vector<double> b(cols_a * cols_b);
+  for (double& x : a) {
     x = dist(rng);
   }
-  for (double& x : B) {
+  for (double& x : b) {
     x = dist(rng);
   }
 
-  auto C_expected = MultiplyNaiveDouble(A, B, rowsA, colsA, colsB);
+  auto c_expected = MultiplyNaiveDouble(a, b, rows_a, cols_a, cols_b);
 
-  std::vector<double> in_data = {static_cast<double>(rowsA), static_cast<double>(colsA), static_cast<double>(colsA),
-                                 static_cast<double>(colsB)};
-  in_data.insert(in_data.end(), A.begin(), A.end());
-  in_data.insert(in_data.end(), B.begin(), B.end());
+  std::vector<double> in_data = {static_cast<double>(rows_a), static_cast<double>(cols_a), static_cast<double>(cols_a),
+                                 static_cast<double>(cols_b)};
+  in_data.insert(in_data.end(), a.begin(), a.end());
+  in_data.insert(in_data.end(), b.begin(), b.end());
 
-  size_t output_count = 2 + (rowsA * colsB);
+  size_t output_count = 2 + (rows_a * cols_b);
 
   auto task_data = std::make_shared<ppc::core::TaskData>();
   task_data->inputs.push_back(reinterpret_cast<uint8_t*>(in_data.data()));
@@ -659,17 +668,17 @@ TEST(borisov_s_strassen_seq, Rectangular32x64_Random) {
   task.RunImpl();
   task.PostProcessingImpl();
 
-  EXPECT_DOUBLE_EQ(out_ptr[0], static_cast<double>(rowsA));
-  EXPECT_DOUBLE_EQ(out_ptr[1], static_cast<double>(colsB));
+  EXPECT_DOUBLE_EQ(out_ptr[0], static_cast<double>(rows_a));
+  EXPECT_DOUBLE_EQ(out_ptr[1], static_cast<double>(cols_b));
 
-  std::vector<double> C_result(rowsA * colsB);
-  for (int i = 0; i < rowsA * colsB; ++i) {
-    C_result[i] = out_ptr[2 + i];
+  std::vector<double> c_result(rows_a * cols_b);
+  for (int i = 0; i < rows_a * cols_b; ++i) {
+    c_result[i] = out_ptr[2 + i];
   }
 
-  ASSERT_EQ(C_expected.size(), C_result.size());
-  for (size_t i = 0; i < C_expected.size(); ++i) {
-    EXPECT_NEAR(C_expected[i], C_result[i], 1e-9);
+  ASSERT_EQ(c_expected.size(), c_result.size());
+  for (size_t i = 0; i < c_expected.size(); ++i) {
+    EXPECT_NEAR(c_expected[i], c_result[i], 1e-9);
   }
 
   delete[] out_ptr;
