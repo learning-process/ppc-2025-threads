@@ -33,6 +33,15 @@ bool sidorina_p_gradient_method_seq::GradientMethod::ValidationImpl() {
     return false;
   }
 
+  if (static_cast<int>(task_data->inputs_count[2]) !=
+      (static_cast<int>(task_data->inputs_count[3]) * static_cast<int>(task_data->inputs_count[3]))) {
+    return false;
+  }
+
+  if (task_data->outputs_count[0] != task_data->inputs_count[4]) {
+    return false;
+  }
+
   const auto* matrix = reinterpret_cast<const double*>(task_data->inputs[2]);
 
   return MatrixSimmPositive(matrix, *reinterpret_cast<int*>(task_data->inputs[0]));
