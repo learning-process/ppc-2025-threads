@@ -23,14 +23,14 @@ bool deryabin_m_hoare_sort_simple_merge_seq::HoareSortTaskSequential::Validation
 void deryabin_m_hoare_sort_simple_merge_seq::HoareSortTaskSequential::HoaraSort(double* a, size_t first, size_t last) {
   size_t i = first;
   size_t j = last;
-  double tmp;
+  double tmp = 0;
   double x =
       std::max(std::min(a[first], a[(first + last) / 2]),
                std::min(std::max(a[first], a[(first + last) / 2]),
                         a[last]));  // выбор опорного элемента как медианы первого, среднего и последнего элементов
   do {
-    while (a[i] < x) i++;
-    while (a[j] > x) j--;
+    while (a[i] < x) {i++;}
+    while (a[j] > x) {j--;}
     if (i <= j) {
       if (i < j) {
         tmp = a[i];
@@ -41,13 +41,13 @@ void deryabin_m_hoare_sort_simple_merge_seq::HoareSortTaskSequential::HoaraSort(
       j--;
     }
   } while (i <= j);
-  if (i < last) HoaraSort(a, i, last);
-  if (first < j) HoaraSort(a, first, j);
+  if (i < last) {HoaraSort(a, i, last);}
+  if (first < j) {HoaraSort(a, first, j);}
 }
 
 void deryabin_m_hoare_sort_simple_merge_seq::HoareSortTaskSequential::MergeTwoParts(double* a, size_t left,
                                                                                     size_t right) {
-  size_t middle = left + (right - left) / 2;
+  size_t middle = left + ((right - left) / 2);
   size_t l_cur = left;
   size_t r_cur = middle + 1;
   double* l_buff{new double[right - left + 1]{}};
@@ -75,32 +75,32 @@ void deryabin_m_hoare_sort_simple_merge_seq::HoareSortTaskSequential::MergeTwoPa
 }
 
 bool deryabin_m_hoare_sort_simple_merge_seq::HoareSortTaskSequential::RunImpl() {
-  size_t count_ = 0;
-  while (count_ != chunk_count_) {
-    if (count_ < chunk_count_ - 1) {
-      HoaraSort(input_array_A_, count_ * min_chunk_size_, ((count_ + 1) * min_chunk_size_) - 1);
+  size_t count = 0;
+  while (count != chunk_count_) {
+    if (count < chunk_count_ - 1) {
+      HoaraSort(input_array_A_, count * min_chunk_size_, ((count + 1) * min_chunk_size_) - 1);
     } else {
-      HoaraSort(input_array_A_, count_ * min_chunk_size_, ((count_ + 1) * min_chunk_size_) - 1 + remainder_);
+      HoaraSort(input_array_A_, count * min_chunk_size_, ((count + 1) * min_chunk_size_) - 1 + remainder_);
     }
-    count_++;
+    count++;
   }
-  for (size_t i = 0; i < (size_t)(log((double)chunk_count_) / log(2)); i++) {
+  for (size_t i = 0; i < (size_t)(log((double)chunk_count_) / std::numbers::ln2); i++) {
     for (size_t j = 0; j < chunk_count_; j++) {
       if (j == 0) {
         if (chunk_count_ % 2 != 0) {
           MergeTwoParts(input_array_A_, dimension_ - 1 - (2 * min_chunk_size_ * (i + 1)) - remainder_, dimension_ - 1);
           j--;
         }
-        if (i == (size_t)(log((double)chunk_count_) / log(2)) - 1) {
+        if (i == (size_t)(log((double)chunk_count_) / std::numbers::ln2) - 1) {
           MergeTwoParts(input_array_A_, 0, dimension_ - 1);
         } else {
-          MergeTwoParts(input_array_A_, 0, 2 * min_chunk_size_ * (i + 1) - 1);
+          MergeTwoParts(input_array_A_, 0, (2 * min_chunk_size_ * (i + 1)) - 1);
         }
       } else {
         if (chunk_count_ - j == 2) {
           MergeTwoParts(input_array_A_, min_chunk_size_ * (i + 1) * (j + 1), dimension_ - 1);
         } else {
-          MergeTwoParts(input_array_A_, min_chunk_size_ * (i + 1) * (j + 1), min_chunk_size_ * (i + 1) * (j + 3) - 1);
+          MergeTwoParts(input_array_A_, min_chunk_size_ * (i + 1) * (j + 1), (min_chunk_size_ * (i + 1) * (j + 3)) - 1);
         }
       }
     }
