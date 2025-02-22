@@ -31,8 +31,10 @@ bool kolokolova_d_integral_simpson_method_seq::TestTaskSequential::ValidationImp
   for (unsigned i = 0; i < task_data->inputs_count[1]; i++) {
     bord[i] = input_bord[i];
   }
+  int num_var = int(task_data->inputs_count[0]);
+  int num_bord = int(task_data->inputs_count[1]) / 2;
   return (task_data->inputs_count[0] != 0 && task_data->inputs_count[1] != 0 && task_data->outputs_count[0] != 0 &&
-          CheckBorders(bord));
+          CheckBorders(bord) && num_var == num_bord);
   return true;
 }
 
