@@ -12,7 +12,10 @@
 using Params =
     std::tuple<int, std::vector<double>, std::vector<double>, std::vector<double>, std::vector<double>, double>;
 
-namespace sidorina_p_gradient_method_seq {
+using ParamsVal =
+    std::tuple<int, std::vector<double>, std::vector<double>, std::vector<double>, std::vector<double>, double>;
+
+namespace {
 class SidorinaPGradientMethodSeqTest : public ::testing::TestWithParam<Params> {
  protected:
 };
@@ -43,9 +46,6 @@ TEST_P(SidorinaPGradientMethodSeqTest, Test_matrix) {
     ASSERT_NEAR(result[i], expected[i], tolerance);
   }
 }
-
-using ParamsVal =
-    std::tuple<int, std::vector<double>, std::vector<double>, std::vector<double>, std::vector<double>, double>;
 
 class SidorinaPGradientMethodSeqTestVal : public ::testing::TestWithParam<ParamsVal> {
  protected:
@@ -80,4 +80,4 @@ INSTANTIATE_TEST_SUITE_P(SidorinaPGradientMethodSeqTestVal, SidorinaPGradientMet
                          ::testing::Values(Params(0, {2}, {4}, {0}, {2}, 1e-6)));
 //clang-format on
 
-}  // namespace sidorina_p_gradient_method_seq
+}  // namespace
