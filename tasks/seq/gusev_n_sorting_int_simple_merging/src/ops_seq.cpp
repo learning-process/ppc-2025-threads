@@ -2,7 +2,7 @@
 
 #include <algorithm>
 #include <cmath>
-#include <ranges>
+#include <cstddef>
 #include <vector>
 
 void gusev_n_sorting_int_simple_merging_seq::TestTaskSequential::RadixSort(std::vector<int>& arr) {
@@ -62,9 +62,9 @@ void gusev_n_sorting_int_simple_merging_seq::TestTaskSequential::CountingSort(st
     count[i] += count[i - 1];
   }
 
-  for (int i = arr.size() - 1; i >= 0; i--) {
-    int digit = (arr[i] / exp) % 10;
-    output[count[digit] - 1] = arr[i];
+  for (std::vector<int>::size_type i = arr.size(); i > 0; i--) {
+    int digit = (arr[i - 1] / exp) % 10;
+    output[count[digit] - 1] = arr[i - 1];
     count[digit]--;
   }
 

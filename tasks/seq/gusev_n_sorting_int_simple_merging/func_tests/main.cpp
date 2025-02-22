@@ -1,8 +1,8 @@
 #include <gtest/gtest.h>
 
 #include <algorithm>
+#include <cstdint>
 #include <memory>
-#include <ranges>
 #include <vector>
 
 #include "core/task/include/task.hpp"
@@ -46,7 +46,7 @@ TEST(gusev_n_sorting_int_simple_merging_seq, test_radix_sort_empty) {
   test_task_sequential.Run();
   test_task_sequential.PostProcessing();
 
-  EXPECT_EQ(out.size(), 0);
+  EXPECT_EQ(out.size(), 0u);
 }
 
 TEST(gusev_n_sorting_int_simple_merging_seq, test_radix_sort_single_element) {
