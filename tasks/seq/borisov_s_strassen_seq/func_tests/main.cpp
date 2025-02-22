@@ -648,6 +648,10 @@ TEST(borisov_s_strassen_seq, Rectangular32x64_Random) {
   task_data->inputs.push_back(reinterpret_cast<uint8_t*>(in_data.data()));
   task_data->inputs_count.push_back(in_data.size());
 
+  auto* out_ptr = new double[output_count]();
+  task_data->outputs.push_back(reinterpret_cast<uint8_t*>(out_ptr));
+  task_data->outputs_count.push_back(output_count);
+
   borisov_s_strassen_seq::SequentialStrassenSeq task(task_data);
 
   task.PreProcessingImpl();
