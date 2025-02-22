@@ -12,7 +12,7 @@
 #include "seq/volochaev_s_Shell_sort_with_Batchers_even-odd_merge/include/ops_seq.hpp"
 
 namespace {
-void static GetRandomVector(std::vector<int> &v, int a, int b) {
+void GetRandomVector(std::vector<int> &v, int a, int b) {
   std::random_device dev;
   std::mt19937 gen(dev());
 
