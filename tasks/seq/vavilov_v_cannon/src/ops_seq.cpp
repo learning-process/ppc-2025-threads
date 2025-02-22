@@ -30,21 +30,12 @@ void vavilov_v_cannon_seq::CannonSequential::InitialShift() {
 
   for (unsigned int bi = 0; bi < gridSize; ++bi) {
     for (unsigned int bj = 0; bj < gridSize; ++bj) {
+      unsigned int src_row = (bi + bj) % gridSize;
       unsigned int src_col = (bj + bi) % gridSize;
       for (unsigned int i = 0; i < blockSize; ++i) {
         for (unsigned int j = 0; j < blockSize; ++j) {
-          A_[(bi * blockSize + i) * N + (bj * blockSize + j)] = A_tmp[(bi * blockSize + i) * N + (src_col * blockSize + j)];
-        }
-      }
-    }
-  }
-
-  for (unsigned int bi = 0; bi < gridSize; ++bi) {
-    for (unsigned int bj = 0; bj < gridSize; ++bj) {
-      unsigned int src_row = (bi + bj) % gridSize;
-      for (unsigned int i = 0; i < blockSize; ++i) {
-        for (unsigned int j = 0; j < blockSize; ++j) {
           B_[(bi * blockSize + i) * N + (bj * blockSize + j)] = B_tmp[(src_row * blockSize + i) * N + (bj * blockSize + j)];
+          A_[(bi * blockSize + i) * N + (bj * blockSize + j)] = A_tmp[(bi * blockSize + i) * N + (src_col * blockSize + j)];
         }
       }
     }
