@@ -21,7 +21,7 @@ void GenerateRandomData(std::vector<alputov_i_graham_scan_seq::Point>& data, siz
     data.emplace_back(dist(gen), dist(gen));
   }
 }
-}
+}  // namespace
 
 TEST(alputov_i_graham_scan_seq, minimal_triangle_case) {
   std::vector<alputov_i_graham_scan_seq::Point> input = {{0, 0}, {2, 0}, {1, 2}};
