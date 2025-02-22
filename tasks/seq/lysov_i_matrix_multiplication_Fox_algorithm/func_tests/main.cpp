@@ -11,6 +11,10 @@
 #include "core/task/include/task.hpp"
 #include "core/util/include/util.hpp"
 #include "seq/lysov_i_matrix_multiplication_Fox_algorithm/include/ops_seq.hpp"
+namespace {
+void MatrixMultiplication(const std::vector<double> &matrixA, const std::vector<double> &matrixB,
+                          std::vector<double> &resultMatrix, size_t matrixSize);
+std::vector<double> getRandomMatrix(size_t size);
 
 std::vector<double> getRandomMatrix(size_t size) {
   std::vector<double> matrix(size * size);
@@ -38,7 +42,7 @@ void MatrixMultiplication(const std::vector<double> &matrixA, const std::vector<
     }
   }
 }
-
+}  // namespace
 TEST(lysov_i_matrix_multiplication_Fox_algorithm_seq, Test_Matrix_Multiplication_Identity) {
   size_t N = 3;
   size_t block_size = 2;
