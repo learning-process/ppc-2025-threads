@@ -27,12 +27,7 @@ bool TrapezoidalMethodSequential::PreProcessingImpl() {
   return true;
 }
 bool TrapezoidalMethodSequential::RunImpl() {
-  try {
-    res_ = Integrator<kSequential>{}(data_.function, data_.bounds, data_.precision);
-  } catch (const std::exception &e) {
-    std::cerr << e.what() << '\n';
-    return false;
-  }
+  res_ = Integrator<kSequential>{}(data_.function, data_.bounds, data_.precision);
   return true;
 }
 bool TrapezoidalMethodSequential::PostProcessingImpl() {

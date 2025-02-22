@@ -158,7 +158,7 @@ TEST(khasanyanov_k_trapezoid_method_seq, test_integrate_3) {
 TEST(khasanyanov_k_trapezoid_method_seq, test_integrate_4) {
   constexpr double kPrecision = 0.001;
   double result{};
-  auto f = [](const std::vector<double>& x) -> double { return 7.4 * x[0] - x[1] * x[1]; };
+  auto f = [](const std::vector<double>& x) -> double { return (7.4 * x[0]) - (x[1] * x[1]); };
 
   IntegrationBounds bounds = {{-50.0, -47.0}, {-2.0, -1.0}};
 

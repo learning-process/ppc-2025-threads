@@ -5,7 +5,6 @@
 #include <cstdint>
 #include <cstdlib>
 #include <functional>
-#include <limits>
 #include <stdexcept>
 #include <utility>
 #include <vector>
@@ -101,10 +100,6 @@ double Integrator<technology>::trapezoidal_method(const IntegrationFunction& f, 
     }
 
     double weight = calculate_weight(indices, steps);
-    double res = f(point);
-    if (std::abs(res) == std::numeric_limits<double>::infinity()) {
-      throw std::runtime_error("The integral diverges");
-    }
     total += weight * f(point);
 
     size_t j = 0;
