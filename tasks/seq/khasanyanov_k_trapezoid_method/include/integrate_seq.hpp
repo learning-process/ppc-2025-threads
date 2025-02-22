@@ -10,8 +10,8 @@
 namespace khasanyanov_k_trapezoid_method_seq {
 
 struct TaskContext {
-  IntegrateFunction function;
-  IntegrateBounds bounds;
+  IntegrationFunction function;
+  IntegrationBounds bounds;
   double precision;
 };
 

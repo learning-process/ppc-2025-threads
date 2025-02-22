@@ -1,21 +1,23 @@
 #ifndef INTEGRATOR_HPP
 #define INTEGRATOR_HPP
+#include <cmath>
 #include <cstddef>
 #include <cstdint>
 #include <cstdlib>
 #include <functional>
+#include <limits>
 #include <stdexcept>
 #include <utility>
 #include <vector>
 namespace khasanyanov_k_trapezoid_method_seq {
 
-enum IntegrateTechnology : std::uint8_t { kSequential, kOpenMP, kTBB, kSTL, kMPI };
+enum IntegrationTechnology : std::uint8_t { kSequential, kOpenMP, kTBB, kSTL, kMPI };
 
-using IntegrateFunction = std::function<double(const std::vector<double>&)>;
+using IntegrationFunction = std::function<double(const std::vector<double>&)>;
 using Bounds = std::pair<double, double>;
-using IntegrateBounds = std::vector<Bounds>;
+using IntegrationBounds = std::vector<Bounds>;
 
-template <IntegrateTechnology technology>
+template <IntegrationTechnology technology>
 class Integrator {
   static const int kDefaultSteps, kMaxSteps;
 
@@ -23,26 +25,26 @@ class Integrator {
       const std::vector<int>& indices, int steps);
 
   [[nodiscard]] static double trapezoidal_method(  // NOLINT(readability-identifier-naming)
-      const IntegrateFunction& f, const IntegrateBounds& bounds, int steps);
+      const IntegrationFunction& f, const IntegrationBounds& bounds, int steps);
 
   [[nodiscard]] static double trapezoidal_method_sequential(  // NOLINT(readability-identifier-naming)
-      const IntegrateFunction&, const IntegrateBounds&, double, int, int);
+      const IntegrationFunction&, const IntegrationBounds&, double, int, int);
 
  public:
-  double operator()(const IntegrateFunction&, const IntegrateBounds&, double, int = kDefaultSteps,
+  double operator()(const IntegrationFunction&, const IntegrationBounds&, double, int = kDefaultSteps,
                     int = kMaxSteps) const;
 };
 
 //----------------------------------------------------------------------------------------------------------
 
-template <IntegrateTechnology technology>
+template <IntegrationTechnology technology>
 const int Integrator<technology>::kDefaultSteps = 10;
 
-template <IntegrateTechnology technology>
+template <IntegrationTechnology technology>
 const int Integrator<technology>::kMaxSteps = 250;
 
-template <IntegrateTechnology technology>
-double Integrator<technology>::operator()(const IntegrateFunction& f, const IntegrateBounds& bounds,
+template <IntegrationTechnology technology>
+double Integrator<technology>::operator()(const IntegrationFunction& f, const IntegrationBounds& bounds,
                                           double precision,  // NOLINT(bugprone-easily-swappable-parameters)
                                           int init_steps, int max_steps) const {
   switch (technology) {
@@ -57,9 +59,9 @@ double Integrator<technology>::operator()(const IntegrateFunction& f, const Inte
   }
 }
 
-template <IntegrateTechnology technology>
+template <IntegrationTechnology technology>
 double Integrator<technology>::trapezoidal_method_sequential(
-    const IntegrateFunction& f, const IntegrateBounds& bounds,
+    const IntegrationFunction& f, const IntegrationBounds& bounds,
     double precision,  // NOLINT(bugprone-easily-swappable-parameters)
     int init_steps, int max_steps) {
   int steps = init_steps;
@@ -75,13 +77,16 @@ double Integrator<technology>::trapezoidal_method_sequential(
   return prev_result;
 }
 
-template <IntegrateTechnology technology>
-double Integrator<technology>::trapezoidal_method(const IntegrateFunction& f, const IntegrateBounds& bounds,
+template <IntegrationTechnology technology>
+double Integrator<technology>::trapezoidal_method(const IntegrationFunction& f, const IntegrationBounds& bounds,
                                                   int steps) {
   size_t dims = bounds.size();
   std::vector<double> dx(dims);
 
   for (size_t i = 0; i < dims; ++i) {
+    if (bounds[i].second < bounds[i].first) {
+      throw std::runtime_error("Wrong bounds");
+    }
     dx[i] = (bounds[i].second - bounds[i].first) / steps;
   }
 
@@ -96,6 +101,10 @@ double Integrator<technology>::trapezoidal_method(const IntegrateFunction& f, co
     }
 
     double weight = calculate_weight(indices, steps);
+    double res = f(point);
+    if (res == std::numeric_limits<double>::infinity()) {
+      throw std::runtime_error("The integral diverges");
+    }
     total += weight * f(point);
 
     size_t j = 0;
@@ -120,7 +129,7 @@ double Integrator<technology>::trapezoidal_method(const IntegrateFunction& f, co
   return total * factor;
 }
 
-template <IntegrateTechnology technology>
+template <IntegrationTechnology technology>
 double Integrator<technology>::calculate_weight(const std::vector<int>& indices, int steps) {
   double weight = 1.0;
   for (int idx : indices) {
