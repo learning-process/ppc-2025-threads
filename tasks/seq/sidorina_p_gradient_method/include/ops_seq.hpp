@@ -1,6 +1,5 @@
 #pragma once
 
-#include <algorithm>
 #include <cmath>
 #include <utility>
 #include <vector>
@@ -45,51 +44,50 @@ inline double Dot(const std::vector<double>& vec) {
 }
 
 inline std::vector<double> ConjugateGradientMethod(std::vector<double>& a, std::vector<double>& b,
-    std::vector<double> solution, double tolerance, int size) {
-    std::vector<double> matrix_times_solution = MultiplyMatrixByVector(a, solution, size);
+                                                   std::vector<double> solution, double tolerance, int size) {
+  std::vector<double> matrix_times_solution = MultiplyMatrixByVector(a, solution, size);
 
-    auto residual = std::vector<double>(size);
-    auto direction = std::vector<double>(size);
+  auto residual = std::vector<double>(size);
+  auto direction = std::vector<double>(size);
 
-    for (int i = 0; i < size; ++i) {
-        residual[i] = b[i] - matrix_times_solution[i];
-    }
+  for (int i = 0; i < size; ++i) {
+    residual[i] = b[i] - matrix_times_solution[i];
+  }
 
-    double residual_norm_squared = Dot(residual);
-    if (std::sqrt(residual_norm_squared) < tolerance) {
-        return solution;
-    }
-    direction = residual;
-    std::vector<double> matrix_times_direction(size);
-    while (std::sqrt(residual_norm_squared) > tolerance) {
-        matrix_times_direction = MultiplyMatrixByVector(a, direction, size);
-        double direction_dot_matrix_times_direction = Dot(direction, matrix_times_direction);
-        double alpha = residual_norm_squared / direction_dot_matrix_times_direction;
-        for (int i = 0; i < size; ++i) {
-            solution[i] += alpha * direction[i];
-        }
-        for (int i = 0; i < size; ++i) {
-            residual[i] -= alpha * matrix_times_direction[i];
-        }
-
-        double new_residual_norm_squared = Dot(residual);
-        double beta = new_residual_norm_squared / residual_norm_squared;
-        residual_norm_squared = new_residual_norm_squared;
-        for (int i = 0; i < size; ++i) {
-            direction[i] = residual[i] + beta * direction[i];
-        }
-    }
+  double residual_norm_squared = Dot(residual);
+  if (std::sqrt(residual_norm_squared) < tolerance) {
     return solution;
+  }
+  direction = residual;
+  std::vector<double> matrix_times_direction(size);
+  while (std::sqrt(residual_norm_squared) > tolerance) {
+    matrix_times_direction = MultiplyMatrixByVector(a, direction, size);
+    double direction_dot_matrix_times_direction = Dot(direction, matrix_times_direction);
+    double alpha = residual_norm_squared / direction_dot_matrix_times_direction;
+    for (int i = 0; i < size; ++i) {
+      solution[i] += alpha * direction[i];
+    }
+    for (int i = 0; i < size; ++i) {
+      residual[i] -= alpha * matrix_times_direction[i];
+    }
+
+    double new_residual_norm_squared = Dot(residual);
+    double beta = new_residual_norm_squared / residual_norm_squared;
+    residual_norm_squared = new_residual_norm_squared;
+    for (int i = 0; i < size; ++i) {
+      direction[i] = residual[i] + beta * direction[i];
+    }
+  }
+  return solution;
 }
 
 inline double CalculateDeterminant(const double* a, int size) {
+  int d = 0;
   if (size == 1) {
-    return a[0];
-  }
-  if (size == 2) {
-    return (a[0] * a[3]) - (a[1] * a[2]);
-  }
-  if (size > 2) {
+    d = a[0];
+  } else if (size == 2) {
+    d = (a[0] * a[3]) - (a[1] * a[2]);
+  } else {
     double det = 0;
     for (int i = 0; i < size; i++) {
       std::vector<std::vector<double>> submatrix(size - 1, std::vector<double>(size - 1));
@@ -103,11 +101,10 @@ inline double CalculateDeterminant(const double* a, int size) {
 
       det += std::pow(-1, i) * a[i] * CalculateDeterminant(a + (size * 1), size - 1);
     }
-    return det;
-  } else {
-    return false;
+    d = det;
   }
-} 
+  return d;
+}
 
 inline bool MatrixSimmPositive(const double* a, int size) {
   std::vector<double> a0(size * size);

@@ -1,7 +1,5 @@
 #include "seq/sidorina_p_gradient_method/include/ops_seq.hpp"
 
-#include <iostream>
-
 bool sidorina_p_gradient_method_seq::GradientMethod::PreProcessingImpl() {
   size_ = *reinterpret_cast<int*>(task_data->inputs[0]);
   tolerance_ = *reinterpret_cast<double*>(task_data->inputs[1]);
@@ -47,7 +45,7 @@ bool sidorina_p_gradient_method_seq::GradientMethod::RunImpl() {
 
 bool sidorina_p_gradient_method_seq::GradientMethod::PostProcessingImpl() {
   auto* result_ptr = reinterpret_cast<double*>(task_data->outputs[0]);
-  for (size_t i = 0; i < result_.size(); ++i) {
+  for (int i = 0; i < result_.size(); i++) {
     result_ptr[i] = result_[i];
   }
   return true;
