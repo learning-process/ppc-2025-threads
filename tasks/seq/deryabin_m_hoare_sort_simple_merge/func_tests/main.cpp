@@ -76,7 +76,7 @@ TEST(deryabin_m_hoare_sort_simple_merge_seq, test_shuffle_array) {
   std::ranges::generate(input_array.begin(), input_array.end(), [value = 0]() mutable { return value++; });
   std::shuffle(input_array.begin(), input_array.end(), gen);
   std::vector<std::vector<double>> in_array(1, input_array);
-  size_t chunk_count = 16;
+  size_t chunk_count = 8;
   std::vector<double> output_array(128, 0);
   std::vector<std::vector<double>> out_array(1, output_array);
   std::vector<double> true_solution(input_array);
