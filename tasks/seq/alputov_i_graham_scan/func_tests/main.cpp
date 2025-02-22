@@ -59,7 +59,7 @@ TEST(alputov_i_graham_scan_seq, collinear_points) {
   ASSERT_TRUE(task.PostProcessing());
 
   const auto& convex_hull = task.GetConvexHull();
-  EXPECT_EQ(convex_hull.size(), 2);
+  EXPECT_EQ(convex_hull.size(), 2u);
   bool order1 = (convex_hull[0].x == 0 && convex_hull[1].x == 3);
   bool order2 = (convex_hull[0].x == 3 && convex_hull[1].x == 0);
   EXPECT_TRUE(order1 || order2);
