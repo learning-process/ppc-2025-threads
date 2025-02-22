@@ -12,7 +12,7 @@
 #include "seq/gusev_n_sorting_int_simple_merging/include/ops_seq.hpp"
 
 TEST(gusev_n_sorting_int_simple_merging_seq, test_pipeline_run) {
-  constexpr int kCount = 50000;
+  constexpr int kCount = 500000;
 
   std::vector<int> in(kCount);
   std::vector<int> out(kCount);
@@ -45,7 +45,7 @@ TEST(gusev_n_sorting_int_simple_merging_seq, test_pipeline_run) {
 }
 
 TEST(gusev_n_sorting_int_simple_merging_seq, test_task_run) {
-  constexpr int kCount = 50000;
+  constexpr int kCount = 500000;
 
   std::vector<int> in(kCount);
   std::vector<int> out(kCount);
