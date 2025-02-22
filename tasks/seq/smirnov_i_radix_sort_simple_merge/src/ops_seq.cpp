@@ -25,7 +25,7 @@ bool smirnov_i_radix_sort_simple_merge_seq::TestTaskSequential::RunImpl() {
   int longest = *std::ranges::max_element(mas_.begin(), mas_.end());
   int len = std::ceil(std::log10(longest + 1));
   std::vector<int> sorting(mas_.size());
-  base = 1;
+  int base = 1;
   for (int j = 0; j < len; j++, base *= 10) {
     std::vector<int> counting(10, 0);
     for (size_t i = 0; i < mas_.size(); i++) {
