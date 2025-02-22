@@ -1,5 +1,6 @@
 #include <gtest/gtest.h>
 
+#include <algorithm>
 #include <cstddef>
 #include <cstdint>
 #include <memory>
@@ -10,7 +11,7 @@
 #include "core/task/include/task.hpp"
 #include "seq/volochaev_s_Shell_sort_with_Batchers_even-odd_merge/include/ops_seq.hpp"
 
-namespace volochaev_s_shell_sort_with_batchers_even_odd_merge_seq {
+namespace {
 void static GetRandomVector(std::vector<int> &v, int a, int b) {
   std::random_device dev;
   std::mt19937 gen(dev());
@@ -25,7 +26,7 @@ void static GetRandomVector(std::vector<int> &v, int a, int b) {
     v[i] = dis(gen);
   }
 }
-}  // namespace volochaev_s_shell_sort_with_batchers_even_odd_merge_seq
+}  // namespace
 
 TEST(volochaev_s_Shell_sort_with_Batchers_even_odd_merge_seq, test_error_in_val) {
   constexpr size_t kSizeOfVector = 0;
@@ -51,7 +52,7 @@ TEST(volochaev_s_Shell_sort_with_Batchers_even_odd_merge_seq, test_error_in_gene
 
   // Create data
   std::vector<int> in(kSizeOfVector, 0);
-  ASSERT_ANY_THROW(volochaev_s_shell_sort_with_batchers_even_odd_merge_seq::GetRandomVector(in, 1000, -1000));
+  ASSERT_ANY_THROW(GetRandomVector(in, 1000, -1000));
 }
 
 TEST(volochaev_s_Shell_sort_with_Batchers_even_odd_merge_seq, test_with_small_vector) {
@@ -59,7 +60,7 @@ TEST(volochaev_s_Shell_sort_with_Batchers_even_odd_merge_seq, test_with_small_ve
 
   // Create data
   std::vector<int> in(kSizeOfVector, 0);
-  volochaev_s_shell_sort_with_batchers_even_odd_merge_seq::GetRandomVector(in, -100, 100);
+  GetRandomVector(in, -100, 100);
   std::vector<int> out(kSizeOfVector, 0);
   std::vector<int> answer(in);
   std::ranges::sort(answer);
@@ -84,7 +85,7 @@ TEST(volochaev_s_Shell_sort_with_Batchers_even_odd_merge_seq, test_with_small_ve
 
   // Create data
   std::vector<int> in(kSizeOfVector, 0);
-  volochaev_s_shell_sort_with_batchers_even_odd_merge_seq::GetRandomVector(in, -100, 100);
+  GetRandomVector(in, -100, 100);
   std::vector<int> out(kSizeOfVector, 0);
   std::vector<int> answer(in);
   std::ranges::sort(answer);
@@ -110,7 +111,7 @@ TEST(volochaev_s_Shell_sort_with_Batchers_even_odd_merge_seq, test_with_small_ve
 
   // Create data
   std::vector<int> in(kSizeOfVector, 0);
-  volochaev_s_shell_sort_with_batchers_even_odd_merge_seq::GetRandomVector(in, -100, 100);
+  GetRandomVector(in, -100, 100);
   std::vector<int> out(kSizeOfVector, 0);
   std::vector<int> answer(in);
   std::ranges::sort(answer);
@@ -136,7 +137,7 @@ TEST(volochaev_s_Shell_sort_with_Batchers_even_odd_merge_seq, test_with_small_ve
 
   // Create data
   std::vector<int> in(kSizeOfVector, 0);
-  volochaev_s_shell_sort_with_batchers_even_odd_merge_seq::GetRandomVector(in, -100, 100);
+  GetRandomVector(in, -100, 100);
   std::vector<int> out(kSizeOfVector, 0);
   std::vector<int> answer(in);
   std::ranges::sort(answer);
@@ -162,7 +163,7 @@ TEST(volochaev_s_Shell_sort_with_Batchers_even_odd_merge_seq, test_with_medium_v
 
   // Create data
   std::vector<int> in(kSizeOfVector, 0);
-  volochaev_s_shell_sort_with_batchers_even_odd_merge_seq::GetRandomVector(in, -100, 100);
+  GetRandomVector(in, -100, 100);
   std::vector<int> out(kSizeOfVector, 0);
   std::vector<int> answer(in);
   std::ranges::sort(answer);
@@ -188,7 +189,7 @@ TEST(volochaev_s_Shell_sort_with_Batchers_even_odd_merge_seq, test_with_medium_v
 
   // Create data
   std::vector<int> in(kSizeOfVector, 0);
-  volochaev_s_shell_sort_with_batchers_even_odd_merge_seq::GetRandomVector(in, -100, 100);
+  GetRandomVector(in, -100, 100);
   std::vector<int> out(kSizeOfVector, 0);
   std::vector<int> answer(in);
   std::ranges::sort(answer);
@@ -214,7 +215,7 @@ TEST(volochaev_s_Shell_sort_with_Batchers_even_odd_merge_seq, test_with_medium_v
 
   // Create data
   std::vector<int> in(kSizeOfVector, 0);
-  volochaev_s_shell_sort_with_batchers_even_odd_merge_seq::GetRandomVector(in, -100, 100);
+  GetRandomVector(in, -100, 100);
   std::vector<int> out(kSizeOfVector, 0);
   std::vector<int> answer(in);
   std::ranges::sort(answer);
@@ -240,7 +241,7 @@ TEST(volochaev_s_Shell_sort_with_Batchers_even_odd_merge_seq, test_with_medium_v
 
   // Create data
   std::vector<int> in(kSizeOfVector, 0);
-  volochaev_s_shell_sort_with_batchers_even_odd_merge_seq::GetRandomVector(in, -100, 100);
+  GetRandomVector(in, -100, 100);
   std::vector<int> out(kSizeOfVector, 0);
   std::vector<int> answer(in);
   std::ranges::sort(answer);
@@ -266,7 +267,7 @@ TEST(volochaev_s_Shell_sort_with_Batchers_even_odd_merge_seq, test_with_medium_v
 
   // Create data
   std::vector<int> in(kSizeOfVector, 0);
-  volochaev_s_shell_sort_with_batchers_even_odd_merge_seq::GetRandomVector(in, -100, 100);
+  GetRandomVector(in, -100, 100);
   std::vector<int> out(kSizeOfVector, 0);
   std::vector<int> answer(in);
   std::ranges::sort(answer);
@@ -292,7 +293,7 @@ TEST(volochaev_s_Shell_sort_with_Batchers_even_odd_merge_seq, test_with_big_vect
 
   // Create data
   std::vector<int> in(kSizeOfVector, 0);
-  volochaev_s_shell_sort_with_batchers_even_odd_merge_seq::GetRandomVector(in, -100, 100);
+  GetRandomVector(in, -100, 100);
   std::vector<int> out(kSizeOfVector, 0);
   std::vector<int> answer(in);
   std::ranges::sort(answer);
@@ -318,7 +319,7 @@ TEST(volochaev_s_Shell_sort_with_Batchers_even_odd_merge_seq, test_with_big_vect
 
   // Create data
   std::vector<int> in(kSizeOfVector, 0);
-  volochaev_s_shell_sort_with_batchers_even_odd_merge_seq::GetRandomVector(in, -100, 100);
+  GetRandomVector(in, -100, 100);
   std::vector<int> out(kSizeOfVector, 0);
   std::vector<int> answer(in);
   std::ranges::sort(answer);
@@ -344,7 +345,7 @@ TEST(volochaev_s_Shell_sort_with_Batchers_even_odd_merge_seq, test_with_big_vect
 
   // Create data
   std::vector<int> in(kSizeOfVector, 0);
-  volochaev_s_shell_sort_with_batchers_even_odd_merge_seq::GetRandomVector(in, -100, 100);
+  GetRandomVector(in, -100, 100);
   std::vector<int> out(kSizeOfVector, 0);
   std::vector<int> answer(in);
   std::ranges::sort(answer);
@@ -370,7 +371,7 @@ TEST(volochaev_s_Shell_sort_with_Batchers_even_odd_merge_seq, test_with_big_vect
 
   // Create data
   std::vector<int> in(kSizeOfVector, 0);
-  volochaev_s_shell_sort_with_batchers_even_odd_merge_seq::GetRandomVector(in, -100, 100);
+  GetRandomVector(in, -100, 100);
   std::vector<int> out(kSizeOfVector, 0);
   std::vector<int> answer(in);
   std::ranges::sort(answer);
@@ -396,7 +397,7 @@ TEST(volochaev_s_Shell_sort_with_Batchers_even_odd_merge_seq, test_with_extra_bi
 
   // Create data
   std::vector<int> in(kSizeOfVector, 0);
-  volochaev_s_shell_sort_with_batchers_even_odd_merge_seq::GetRandomVector(in, -100, 100);
+  GetRandomVector(in, -100, 100);
   std::vector<int> out(kSizeOfVector, 0);
   std::vector<int> answer(in);
   std::ranges::sort(answer);
