@@ -1,6 +1,7 @@
 #include <gtest/gtest.h>
 
 #include <cmath>
+#include <cstddef>
 #include <cstdint>
 #include <memory>
 #include <random>
@@ -25,12 +26,23 @@ std::vector<double> MultiplyNaiveDouble(const std::vector<double>& a, const std:
   return c;
 }
 
+// Вынесем генерацию случайной матрицы:
+std::vector<double> GenerateRandomMatrix(int rows, int cols, std::mt19937& rng, double min_val = 0.0,
+                                         double max_val = 1.0) {
+  std::uniform_real_distribution<double> dist(min_val, max_val);
+  std::vector<double> matrix(rows * cols);
+  for (double& x : matrix) {
+    x = dist(rng);
+  }
+  return matrix;
+}
+
 }  // namespace
 
 TEST(borisov_s_strassen_seq, OneByOne) {
   std::vector<double> in_data = {1.0, 1.0, 1.0, 1.0, 7.5, 2.5};
 
-  size_t output_count = 3;
+  std::size_t output_count = 3;
 
   auto task_data = std::make_shared<ppc::core::TaskData>();
   task_data->inputs.push_back(reinterpret_cast<uint8_t*>(in_data.data()));
@@ -63,7 +75,7 @@ TEST(borisov_s_strassen_seq, TwoByTwo) {
   in_data.insert(in_data.end(), a.begin(), a.end());
   in_data.insert(in_data.end(), b.begin(), b.end());
 
-  size_t output_count = 2 + 4;
+  std::size_t output_count = 2 + 4;
 
   auto task_data = std::make_shared<ppc::core::TaskData>();
   task_data->inputs.push_back(reinterpret_cast<uint8_t*>(in_data.data()));
@@ -99,7 +111,7 @@ TEST(borisov_s_strassen_seq, Rectangular2x3_3x4) {
   in_data.insert(in_data.end(), a.begin(), a.end());
   in_data.insert(in_data.end(), b.begin(), b.end());
 
-  size_t output_count = 2 + (2 * 4);
+  std::size_t output_count = 2 + (2 * 4);
 
   auto task_data = std::make_shared<ppc::core::TaskData>();
   task_data->inputs.push_back(reinterpret_cast<uint8_t*>(in_data.data()));
@@ -125,7 +137,7 @@ TEST(borisov_s_strassen_seq, Rectangular2x3_3x4) {
   }
 
   ASSERT_EQ(c_expected.size(), c_result.size());
-  for (size_t i = 0; i < c_expected.size(); ++i) {
+  for (std::size_t i = 0; i < c_expected.size(); ++i) {
     EXPECT_NEAR(c_expected[i], c_result[i], 1e-9);
   }
 
@@ -136,6 +148,8 @@ TEST(borisov_s_strassen_seq, Square5x5_Random) {
   const int n = 5;
   int tmp = 7777;
   std::mt19937 rng(tmp);
+  // Вместо std::uniform_real_distribution везде, используем GenerateRandomMatrix:
+  // Но оставим пример, если нужно:
   std::uniform_real_distribution<double> dist(0.0, 10.0);
 
   std::vector<double> a(n * n);
@@ -152,7 +166,7 @@ TEST(borisov_s_strassen_seq, Square5x5_Random) {
   in_data.insert(in_data.end(), a.begin(), a.end());
   in_data.insert(in_data.end(), b.begin(), b.end());
 
-  size_t output_count = 2 + (n * n);
+  std::size_t output_count = 2 + (n * n);
 
   auto task_data = std::make_shared<ppc::core::TaskData>();
   task_data->inputs.push_back(reinterpret_cast<uint8_t*>(in_data.data()));
@@ -169,8 +183,8 @@ TEST(borisov_s_strassen_seq, Square5x5_Random) {
   task.RunImpl();
   task.PostProcessingImpl();
 
-  EXPECT_DOUBLE_EQ(out_ptr[0], 5.0);
-  EXPECT_DOUBLE_EQ(out_ptr[1], 5.0);
+  EXPECT_DOUBLE_EQ(out_ptr[0], static_cast<double>(n));
+  EXPECT_DOUBLE_EQ(out_ptr[1], static_cast<double>(n));
 
   std::vector<double> c_result(n * n);
   for (int i = 0; i < n * n; ++i) {
@@ -178,7 +192,7 @@ TEST(borisov_s_strassen_seq, Square5x5_Random) {
   }
 
   ASSERT_EQ(c_expected.size(), c_result.size());
-  for (size_t i = 0; i < c_expected.size(); ++i) {
+  for (std::size_t i = 0; i < c_expected.size(); ++i) {
     EXPECT_NEAR(c_expected[i], c_result[i], 1e-9);
   }
 
@@ -205,7 +219,7 @@ TEST(borisov_s_strassen_seq, Square20x20_Random) {
   in_data.insert(in_data.end(), a.begin(), a.end());
   in_data.insert(in_data.end(), b.begin(), b.end());
 
-  size_t output_count = 2 + (n * n);
+  std::size_t output_count = 2 + (n * n);
 
   auto task_data = std::make_shared<ppc::core::TaskData>();
   task_data->inputs.push_back(reinterpret_cast<uint8_t*>(in_data.data()));
@@ -231,7 +245,7 @@ TEST(borisov_s_strassen_seq, Square20x20_Random) {
   }
 
   ASSERT_EQ(c_expected.size(), c_result.size());
-  for (size_t i = 0; i < c_expected.size(); ++i) {
+  for (std::size_t i = 0; i < c_expected.size(); ++i) {
     EXPECT_NEAR(c_expected[i], c_result[i], 1e-9);
   }
 
@@ -258,7 +272,7 @@ TEST(borisov_s_strassen_seq, Square32x32_Random) {
   in_data.insert(in_data.end(), a.begin(), a.end());
   in_data.insert(in_data.end(), b.begin(), b.end());
 
-  size_t output_count = 2 + (n * n);
+  std::size_t output_count = 2 + (n * n);
 
   auto task_data = std::make_shared<ppc::core::TaskData>();
   task_data->inputs.push_back(reinterpret_cast<uint8_t*>(in_data.data()));
@@ -284,7 +298,7 @@ TEST(borisov_s_strassen_seq, Square32x32_Random) {
   }
 
   ASSERT_EQ(c_expected.size(), c_result.size());
-  for (size_t i = 0; i < c_expected.size(); ++i) {
+  for (std::size_t i = 0; i < c_expected.size(); ++i) {
     EXPECT_NEAR(c_expected[i], c_result[i], 1e-9);
   }
 
@@ -311,7 +325,7 @@ TEST(borisov_s_strassen_seq, Square128x128_Random) {
   in_data.insert(in_data.end(), a.begin(), a.end());
   in_data.insert(in_data.end(), b.begin(), b.end());
 
-  size_t output_count = 2 + (n * n);
+  std::size_t output_count = 2 + (n * n);
 
   auto task_data = std::make_shared<ppc::core::TaskData>();
   task_data->inputs.push_back(reinterpret_cast<uint8_t*>(in_data.data()));
@@ -337,7 +351,7 @@ TEST(borisov_s_strassen_seq, Square128x128_Random) {
   }
 
   ASSERT_EQ(c_expected.size(), c_result.size());
-  for (size_t i = 0; i < c_expected.size(); ++i) {
+  for (std::size_t i = 0; i < c_expected.size(); ++i) {
     EXPECT_NEAR(c_expected[i], c_result[i], 1e-9);
   }
 
@@ -364,7 +378,7 @@ TEST(borisov_s_strassen_seq, Square129x129_Random) {
   in_data.insert(in_data.end(), a.begin(), a.end());
   in_data.insert(in_data.end(), b.begin(), b.end());
 
-  size_t output_count = 2 + (n * n);
+  std::size_t output_count = 2 + (n * n);
 
   auto task_data = std::make_shared<ppc::core::TaskData>();
   task_data->inputs.push_back(reinterpret_cast<uint8_t*>(in_data.data()));
@@ -390,7 +404,7 @@ TEST(borisov_s_strassen_seq, Square129x129_Random) {
   }
 
   ASSERT_EQ(c_expected.size(), c_result.size());
-  for (size_t i = 0; i < c_expected.size(); ++i) {
+  for (std::size_t i = 0; i < c_expected.size(); ++i) {
     EXPECT_NEAR(c_expected[i], c_result[i], 1e-9);
   }
 
@@ -417,7 +431,7 @@ TEST(borisov_s_strassen_seq, Square240x240_Random) {
   in_data.insert(in_data.end(), a.begin(), a.end());
   in_data.insert(in_data.end(), b.begin(), b.end());
 
-  size_t output_count = 2 + (n * n);
+  std::size_t output_count = 2 + (n * n);
 
   auto task_data = std::make_shared<ppc::core::TaskData>();
   task_data->inputs.push_back(reinterpret_cast<uint8_t*>(in_data.data()));
@@ -443,7 +457,7 @@ TEST(borisov_s_strassen_seq, Square240x240_Random) {
   }
 
   ASSERT_EQ(c_expected.size(), c_result.size());
-  for (size_t i = 0; i < c_expected.size(); ++i) {
+  for (std::size_t i = 0; i < c_expected.size(); ++i) {
     EXPECT_NEAR(c_expected[i], c_result[i], 1e-9);
   }
 
@@ -511,22 +525,15 @@ TEST(borisov_s_strassen_seq, NotEnoughDataCase) {
 }
 
 TEST(borisov_s_strassen_seq, Rectangular16x17_Random) {
-  const int rows_a = 32;
-  const int cols_a = 34;
-  const int cols_b = 35;
+  const int rows_a = 16;
+  const int cols_a = 17;
+  const int cols_b = 18;
 
   int tmp = 7777;
   std::mt19937 rng(tmp);
-  std::uniform_real_distribution<double> dist(0.0, 1.0);
 
-  std::vector<double> a(rows_a * cols_a);
-  std::vector<double> b(cols_a * cols_b);
-  for (double& x : a) {
-    x = dist(rng);
-  }
-  for (double& x : b) {
-    x = dist(rng);
-  }
+  std::vector<double> a = GenerateRandomMatrix(rows_a, cols_a, rng);
+  std::vector<double> b = GenerateRandomMatrix(cols_a, cols_b, rng);
 
   auto c_expected = MultiplyNaiveDouble(a, b, rows_a, cols_a, cols_b);
 
@@ -535,7 +542,7 @@ TEST(borisov_s_strassen_seq, Rectangular16x17_Random) {
   in_data.insert(in_data.end(), a.begin(), a.end());
   in_data.insert(in_data.end(), b.begin(), b.end());
 
-  size_t output_count = 2 + (rows_a * cols_b);
+  std::size_t output_count = 2 + (rows_a * cols_b);
 
   auto task_data = std::make_shared<ppc::core::TaskData>();
   task_data->inputs.push_back(reinterpret_cast<uint8_t*>(in_data.data()));
@@ -561,7 +568,7 @@ TEST(borisov_s_strassen_seq, Rectangular16x17_Random) {
   }
 
   ASSERT_EQ(c_expected.size(), c_result.size());
-  for (size_t i = 0; i < c_expected.size(); ++i) {
+  for (std::size_t i = 0; i < c_expected.size(); ++i) {
     EXPECT_NEAR(c_expected[i], c_result[i], 1e-9);
   }
 
@@ -575,16 +582,9 @@ TEST(borisov_s_strassen_seq, Rectangular19x23_Random) {
 
   int tmp = 7777;
   std::mt19937 rng(tmp);
-  std::uniform_real_distribution<double> dist(0.0, 1.0);
 
-  std::vector<double> a(rows_a * cols_a);
-  std::vector<double> b(cols_a * cols_b);
-  for (double& x : a) {
-    x = dist(rng);
-  }
-  for (double& x : b) {
-    x = dist(rng);
-  }
+  std::vector<double> a = GenerateRandomMatrix(rows_a, cols_a, rng);
+  std::vector<double> b = GenerateRandomMatrix(cols_a, cols_b, rng);
 
   auto c_expected = MultiplyNaiveDouble(a, b, rows_a, cols_a, cols_b);
 
@@ -593,7 +593,7 @@ TEST(borisov_s_strassen_seq, Rectangular19x23_Random) {
   in_data.insert(in_data.end(), a.begin(), a.end());
   in_data.insert(in_data.end(), b.begin(), b.end());
 
-  size_t output_count = 2 + (rows_a * cols_b);
+  std::size_t output_count = 2 + (rows_a * cols_b);
 
   auto task_data = std::make_shared<ppc::core::TaskData>();
   task_data->inputs.push_back(reinterpret_cast<uint8_t*>(in_data.data()));
@@ -619,7 +619,7 @@ TEST(borisov_s_strassen_seq, Rectangular19x23_Random) {
   }
 
   ASSERT_EQ(c_expected.size(), c_result.size());
-  for (size_t i = 0; i < c_expected.size(); ++i) {
+  for (std::size_t i = 0; i < c_expected.size(); ++i) {
     EXPECT_NEAR(c_expected[i], c_result[i], 1e-9);
   }
 
@@ -633,16 +633,9 @@ TEST(borisov_s_strassen_seq, Rectangular32x64_Random) {
 
   int tmp = 7777;
   std::mt19937 rng(tmp);
-  std::uniform_real_distribution<double> dist(0.0, 1.0);
 
-  std::vector<double> a(rows_a * cols_a);
-  std::vector<double> b(cols_a * cols_b);
-  for (double& x : a) {
-    x = dist(rng);
-  }
-  for (double& x : b) {
-    x = dist(rng);
-  }
+  std::vector<double> a = GenerateRandomMatrix(rows_a, cols_a, rng);
+  std::vector<double> b = GenerateRandomMatrix(cols_a, cols_b, rng);
 
   auto c_expected = MultiplyNaiveDouble(a, b, rows_a, cols_a, cols_b);
 
@@ -651,7 +644,7 @@ TEST(borisov_s_strassen_seq, Rectangular32x64_Random) {
   in_data.insert(in_data.end(), a.begin(), a.end());
   in_data.insert(in_data.end(), b.begin(), b.end());
 
-  size_t output_count = 2 + (rows_a * cols_b);
+  std::size_t output_count = 2 + (rows_a * cols_b);
 
   auto task_data = std::make_shared<ppc::core::TaskData>();
   task_data->inputs.push_back(reinterpret_cast<uint8_t*>(in_data.data()));
@@ -677,7 +670,7 @@ TEST(borisov_s_strassen_seq, Rectangular32x64_Random) {
   }
 
   ASSERT_EQ(c_expected.size(), c_result.size());
-  for (size_t i = 0; i < c_expected.size(); ++i) {
+  for (std::size_t i = 0; i < c_expected.size(); ++i) {
     EXPECT_NEAR(c_expected[i], c_result[i], 1e-9);
   }
 
