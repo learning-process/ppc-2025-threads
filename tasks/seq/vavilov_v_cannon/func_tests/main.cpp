@@ -10,7 +10,6 @@
 
 #include "core/task/include/task.hpp"
 #include "core/util/include/util.hpp"
-
 #include "seq/vavilov_v_cannon/include/ops_seq.hpp"
 
 std::vector<double> GenerateRandomMatrix(size_t N, double min_val = -10.0, double max_val = 10.0) {
