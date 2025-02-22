@@ -1,4 +1,4 @@
-#include "seq/deryabin_m_cannons_algorithm/include/ops_seq.hpp"
+#include "seq/deryabin_m_hoare_sort_simple_merge/include/ops_seq.hpp"
 
 #include <algorithm>
 #include <cmath>
