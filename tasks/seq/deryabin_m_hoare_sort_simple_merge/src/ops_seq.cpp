@@ -83,7 +83,7 @@ bool deryabin_m_hoare_sort_simple_merge_seq::HoareSortTaskSequential::RunImpl() 
   }
   for (size_t i = 0; i < (size_t)(log((double)chunk_count_) / log(2)); i++) {
     for (size_t j = 0; j < chunk_count_; j++) {
-      if (j = 0) {
+      if (j == 0) {
         if (chunk_count_ % 2 != 0) {
           MergeTwoParts(input_array_A_, dimension_ - 1 - (2 * min_chunk_size_ * (i + 1)) - remainder_, dimension_ - 1);
           j--;
