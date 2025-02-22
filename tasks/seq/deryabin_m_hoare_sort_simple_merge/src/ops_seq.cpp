@@ -21,7 +21,8 @@ bool deryabin_m_hoare_sort_simple_merge_seq::HoareSortTaskSequential::Validation
          task_data->inputs_count[0] == task_data->outputs_count[0];
 }
 
-void deryabin_m_hoare_sort_simple_merge_seq::HoareSortTaskSequential::HoaraSort(std::vector<double>& a, size_t first, size_t last) {
+void deryabin_m_hoare_sort_simple_merge_seq::HoareSortTaskSequential::HoaraSort(std::vector<double>& a, size_t first,
+                                                                                size_t last) {
   size_t i = first;
   size_t j = last;
   double tmp = 0;
