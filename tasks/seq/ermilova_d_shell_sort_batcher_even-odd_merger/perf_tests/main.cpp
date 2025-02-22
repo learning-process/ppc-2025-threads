@@ -27,6 +27,8 @@ TEST(ermilova_d_shell_sort_batcher_even_odd_merger_seq, test_pipeline_run) {
   const int lower_border_test = -1000;
   const int size = 10000;
 
+  bool is_resersed = false;
+
   // Create data
 
   std::vector<int> in = getRandomVector(size, upper_border_test, lower_border_test);
@@ -38,6 +40,7 @@ TEST(ermilova_d_shell_sort_batcher_even_odd_merger_seq, test_pipeline_run) {
   // Create task_data
   auto task_data_seq = std::make_shared<ppc::core::TaskData>();
   task_data_seq->inputs.emplace_back(reinterpret_cast<uint8_t *>(in.data()));
+  task_data_seq->inputs.emplace_back(reinterpret_cast<uint8_t *>(&is_resersed));
   task_data_seq->inputs_count.emplace_back(in.size());
   task_data_seq->outputs.emplace_back(reinterpret_cast<uint8_t *>(out.data()));
   task_data_seq->outputs_count.emplace_back(out.size());
@@ -71,6 +74,8 @@ TEST(ermilova_d_shell_sort_batcher_even_odd_merger_seq, test_task_run) {
   const int lower_border_test = -1000;
   const int size = 10000;
 
+  bool is_resersed = false;
+
   // Create data
   std::vector<int> in = getRandomVector(size, upper_border_test, lower_border_test);
   std::vector<int> out(in.size(), 0);
@@ -81,6 +86,7 @@ TEST(ermilova_d_shell_sort_batcher_even_odd_merger_seq, test_task_run) {
   // Create task_data
   auto task_data_seq = std::make_shared<ppc::core::TaskData>();
   task_data_seq->inputs.emplace_back(reinterpret_cast<uint8_t *>(in.data()));
+  task_data_seq->inputs.emplace_back(reinterpret_cast<uint8_t *>(&is_resersed));
   task_data_seq->inputs_count.emplace_back(in.size());
   task_data_seq->outputs.emplace_back(reinterpret_cast<uint8_t *>(out.data()));
   task_data_seq->outputs_count.emplace_back(out.size());

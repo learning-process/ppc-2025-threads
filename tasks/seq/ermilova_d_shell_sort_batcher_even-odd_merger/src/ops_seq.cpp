@@ -15,7 +15,7 @@ std::vector<int> ermilova_d_shell_sort_batcher_even_odd_merger_seq::TestTaskSequ
       gap = 8 * (1 << k) - 6 * (1 << ((k + 1) / 2)) + 1;
     }
 
-    if (gap >= n || gap * 3 >= n) break;
+    if (gap * 3 >= n) break;
 
     gaps.push_back(gap);
     k++;
@@ -23,7 +23,8 @@ std::vector<int> ermilova_d_shell_sort_batcher_even_odd_merger_seq::TestTaskSequ
   return gaps;
 }
 
-void ermilova_d_shell_sort_batcher_even_odd_merger_seq::TestTaskSequential::ShellSort(std::vector<int> &vec) {
+void ermilova_d_shell_sort_batcher_even_odd_merger_seq::TestTaskSequential::ShellSort(
+    std::vector<int> &vec, const std::function<bool(int, int)> &comp) {
   int n = vec.size();
   std::vector<int> gaps = SedgwickSequence(n);
 
@@ -32,7 +33,7 @@ void ermilova_d_shell_sort_batcher_even_odd_merger_seq::TestTaskSequential::Shel
     for (int i = gap; i < n; i++) {
       int temp = vec[i];
       int j;
-      for (j = i; j >= gap && vec[j - gap] > temp; j -= gap) {
+      for (j = i; j >= gap && comp(vec[j - gap], temp); j -= gap) {
         vec[j] = vec[j - gap];
       }
       vec[j] = temp;
@@ -44,6 +45,7 @@ bool ermilova_d_shell_sort_batcher_even_odd_merger_seq::TestTaskSequential::PreP
   // Init value for input and output
   unsigned int input_size = task_data->inputs_count[0];
   auto *in_ptr = reinterpret_cast<int *>(task_data->inputs[0]);
+  is_descending = *reinterpret_cast<bool *>(task_data->inputs[1]);
   input_.assign(in_ptr, in_ptr + input_size);
 
   unsigned int output_size = task_data->outputs_count[0];
@@ -58,7 +60,11 @@ bool ermilova_d_shell_sort_batcher_even_odd_merger_seq::TestTaskSequential::Vali
 }
 
 bool ermilova_d_shell_sort_batcher_even_odd_merger_seq::TestTaskSequential::RunImpl() {
-  ShellSort(input_);
+  if (is_descending) {
+    ShellSort(input_, std::less());
+  } else {
+    ShellSort(input_, std::greater());
+  }
   return true;
 }
 
