@@ -14,7 +14,6 @@
 // и интеграл считается как сумма всех ячеек (при шаге равном 1).
 // Для 3x3 сетки сумма равна 1+2+...+9 = 45.
 TEST(kharin_m_multidimensional_integral_calc_seq, test_integral_3x3) {
-  constexpr size_t kDim = 3;
   std::vector<int> in = {1, 2, 3, 4, 5, 6, 7, 8, 9};  // Сумма = 45
 
   std::vector<int> out(1, 0);  // Результат – одно число (интеграл)
@@ -38,7 +37,6 @@ TEST(kharin_m_multidimensional_integral_calc_seq, test_integral_3x3) {
 // Тест для интегрирования 5x5-сетки с последовательными значениями от 1 до 25.
 // Сумма чисел от 1 до 25 равна 325.
 TEST(kharin_m_multidimensional_integral_calc_seq, test_integral_5x5) {
-  constexpr size_t kDim = 5;
   std::vector<int> in;
   for (int i = 1; i <= 25; ++i) {
     in.push_back(i);
@@ -88,7 +86,6 @@ TEST(kharin_m_multidimensional_integral_calc_seq, test_integral_const_data) {
 // Тест с отрицательными данными: 5x5-сетка, содержащая значения от -1 до -25.
 // Сумма чисел от 1 до 25 равна 325, следовательно, ожидаемый интеграл = -325.
 TEST(kharin_m_multidimensional_integral_calc_seq, test_integral_negative_data) {
-  constexpr size_t kDim = 5;
   std::vector<int> in;
   for (int i = 1; i <= 25; ++i) {
     in.push_back(-i);
