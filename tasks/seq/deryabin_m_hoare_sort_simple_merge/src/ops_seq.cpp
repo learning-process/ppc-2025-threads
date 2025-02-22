@@ -82,6 +82,8 @@ void deryabin_m_hoare_sort_simple_merge_seq::HoareSortTaskSequential::MergeTwoPa
     }
   }
   chunk_count_--;
+  l_buff.clear();
+  r_buff.clear();
 }
 
 bool deryabin_m_hoare_sort_simple_merge_seq::HoareSortTaskSequential::RunImpl() {
