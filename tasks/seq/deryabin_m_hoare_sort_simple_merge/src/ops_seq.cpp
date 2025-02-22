@@ -1,9 +1,10 @@
 #include "seq/deryabin_m_hoare_sort_simple_merge/include/ops_seq.hpp"
 
-#include <cstddef>
 #include <stdint.h>
+
 #include <algorithm>
 #include <cmath>
+#include <cstddef>
 
 bool deryabin_m_hoare_sort_simple_merge_seq::HoareSortTaskSequential::PreProcessingImpl() {
   input_array_A_ = reinterpret_cast<double*>(task_data->inputs[0]);
@@ -29,8 +30,12 @@ void deryabin_m_hoare_sort_simple_merge_seq::HoareSortTaskSequential::HoaraSort(
                std::min(std::max(a[first], a[(first + last) / 2]),
                         a[last]));  // выбор опорного элемента как медианы первого, среднего и последнего элементов
   do {
-    while (a[i] < x) {i++;}
-    while (a[j] > x) {j--;}
+    while (a[i] < x) {
+      i++;
+    }
+    while (a[j] > x) {
+      j--;
+    }
     if (i <= j) {
       if (i < j) {
         tmp = a[i];
@@ -41,8 +46,12 @@ void deryabin_m_hoare_sort_simple_merge_seq::HoareSortTaskSequential::HoaraSort(
       j--;
     }
   } while (i <= j);
-  if (i < last) {HoaraSort(a, i, last);}
-  if (first < j) {HoaraSort(a, first, j);}
+  if (i < last) {
+    HoaraSort(a, i, last);
+  }
+  if (first < j) {
+    HoaraSort(a, first, j);
+  }
 }
 
 void deryabin_m_hoare_sort_simple_merge_seq::HoareSortTaskSequential::MergeTwoParts(double* a, size_t left,
