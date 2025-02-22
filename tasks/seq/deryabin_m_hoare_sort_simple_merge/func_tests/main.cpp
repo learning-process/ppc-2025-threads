@@ -10,20 +10,20 @@
 
 TEST(deryabin_m_hoare_sort_simple_merge_seq, test_short_array) {
   // Create data
-  double input_array[6] = {-1, -2, -3, -11, -22, -33};
-  std::vector<double*> in_array(1, input_array);
+  std::vector<double> input_array{-1, -2, -3, -11, -22, -33};
+  std::vector<std::vector<double>> in_array(1, input_array);
   size_t chunk_count = 2;
-  double output_array[6]{};
-  std::vector<double*> out_array(1, output_array);
-  double true_solution[6] = {-33, -22, -11, -3, -2, -1};
+  std::vector<double> output_array(6, 0);
+  std::vector<std::vector<double>> out_array(1, output_array);
+  std::vector<double> true_solution{-33, -22, -11, -3, -2, -1};
 
   // Create TaskData
   auto task_data_seq = std::make_shared<ppc::core::TaskData>();
   task_data_seq->inputs.emplace_back(reinterpret_cast<uint8_t*>(in_array.data()));
-  task_data_seq->inputs_count.emplace_back(sizeof(input_array) / sizeof(input_array[0]));
-  task_data_seq->inputs_count.emplace_back(reinterpret_cast<uint8_t*>(chunk_count));
+  task_data_seq->inputs_count.emplace_back(input_array.size());
+  task_data_seq->inputs_count.emplace_back(chunk_count);
   task_data_seq->outputs.emplace_back(reinterpret_cast<uint8_t*>(out_array.data()));
-  task_data_seq->outputs_count.emplace_back(sizeof(output_array) / sizeof(output_array[0]));
+  task_data_seq->outputs_count.emplace_back(output_array.size());
 
   // Create Task
   deryabin_m_hoare_sort_simple_merge_seq::HoareSortTaskSequential hoare_sort_task_sequential(task_data_seq);
