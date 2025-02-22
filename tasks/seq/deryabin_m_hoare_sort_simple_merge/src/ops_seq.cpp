@@ -1,10 +1,11 @@
 #include "seq/deryabin_m_hoare_sort_simple_merge/include/ops_seq.hpp"
 
-#include <stdint.h>
+#include <cstdint>
 
 #include <algorithm>
 #include <cmath>
 #include <cstddef>
+#include <numbers>
 
 bool deryabin_m_hoare_sort_simple_merge_seq::HoareSortTaskSequential::PreProcessingImpl() {
   input_array_A_ = reinterpret_cast<double**>(task_data->outputs[0])[0];
