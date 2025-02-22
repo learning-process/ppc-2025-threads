@@ -41,9 +41,9 @@ std::vector<double> MultiplyMatrices(const std::vector<double>& A, const std::ve
 
 TEST(vavilov_v_cannon_seq, test_fixed_4x4) {
   constexpr size_t N = 4;
-  std::vector<double> A = { 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16 };
-  std::vector<double> B = { 1, 0, 0, 1, 0, 1, 1, 0, 1, 0, 0, 1, 0, 1, 1, 0 };
-  std::vector<double> expected_output = { 4, 6, 6, 4, 12, 14, 14, 12, 20, 22, 22, 20, 28, 30, 30, 28 };
+  std::vector<double> A = {1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16};
+  std::vector<double> B = {1, 0, 0, 1, 0, 1, 1, 0, 1, 0, 0, 1, 0, 1, 1, 0};
+  std::vector<double> expected_output = {4, 6, 6, 4, 12, 14, 14, 12, 20, 22, 22, 20, 28, 30, 30, 28};
   std::vector<double> C(N * N, 0.0);
 
   auto task_data_seq = std::make_shared<ppc::core::TaskData>();
@@ -64,7 +64,6 @@ TEST(vavilov_v_cannon_seq, test_fixed_4x4) {
     EXPECT_NEAR(expected_output[i], C[i], 1e-6);
   }
 }
-
 
 TEST(vavilov_v_cannon_seq, test_random_500) {
   constexpr size_t N = 500;
