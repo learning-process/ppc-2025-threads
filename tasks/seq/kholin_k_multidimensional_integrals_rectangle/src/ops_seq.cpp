@@ -7,7 +7,7 @@
 
 double kholin_k_multidimensional_integrals_rectangle_seq::TestTaskSequential::Integrate(
     const Function& f, const std::vector<double>& l_limits, const std::vector<double>& u_limits,
-    const std::vector<double>& h, std::vector<double>& f_values, int curr_index_dim, double dim, double n) {
+    const std::vector<double>& h, std::vector<double>& f_values, int curr_index_dim, size_t dim, double n) {
   if (curr_index_dim == static_cast<int>(dim)) {
     return f(f_values);
   }
@@ -22,9 +22,9 @@ double kholin_k_multidimensional_integrals_rectangle_seq::TestTaskSequential::In
 
 double kholin_k_multidimensional_integrals_rectangle_seq::TestTaskSequential::IntegrateWithRectangleMethod(
     const Function& f, std::vector<double>& f_values, const std::vector<double>& l_limits,
-    const std::vector<double>& u_limits, double dim, double n) {
-  std::vector<double> h(static_cast<size_t>(dim));
-  for (size_t i = 0; i < static_cast<size_t>(dim); ++i) {
+    const std::vector<double>& u_limits, size_t dim, double n) {
+  std::vector<double> h(dim);
+  for (size_t i = 0; i < dim; ++i) {
     h[i] = (u_limits[i] - l_limits[i]) / n;
   }
 
@@ -33,10 +33,10 @@ double kholin_k_multidimensional_integrals_rectangle_seq::TestTaskSequential::In
 
 double kholin_k_multidimensional_integrals_rectangle_seq::TestTaskSequential::RunMultistepSchemeMethodRectangle(
     double epsilon, const Function& f, std::vector<double>& f_values, const std::vector<double>& l_limits,
-    const std::vector<double>& u_limits, double dim, double n) {
+    const std::vector<double>& u_limits, size_t dim, double n) {
   double i_n = IntegrateWithRectangleMethod(f, f_values, l_limits, u_limits, dim, n);
   double i_2n = 0.0;
-  double delta = 0;
+  double delta = 0.0;
   do {
     n *= 2;
     i_2n = IntegrateWithRectangleMethod(f, f_values, l_limits, u_limits, dim, n);
@@ -54,7 +54,7 @@ bool kholin_k_multidimensional_integrals_rectangle_seq::TestTaskSequential::PreP
   sz_lower_limits_ = task_data->inputs_count[1];
   sz_upper_limits_ = task_data->inputs_count[2];
 
-  auto* ptr_dim = reinterpret_cast<double*>(task_data->inputs[0]);
+  auto* ptr_dim = reinterpret_cast<size_t*>(task_data->inputs[0]);
   dim_ = *ptr_dim;
 
   auto* ptr_f_values = reinterpret_cast<double*>(task_data->inputs[1]);

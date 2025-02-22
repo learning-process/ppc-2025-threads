@@ -13,7 +13,7 @@
 
 TEST(kholin_k_multidimensional_integrals_rectangle_seq, test_pipeline_run) {
   // Create data
-  double dim = 3.0;
+  size_t dim = 3;
   std::vector<double> values{0.0, 0.0, 0.0};
   auto f = [](const std::vector<double> &f_values) {
     return std::cos((f_values[0] * f_values[0]) + (f_values[1] * f_values[1]) + (f_values[2] * f_values[2])) *
@@ -67,7 +67,7 @@ TEST(kholin_k_multidimensional_integrals_rectangle_seq, test_pipeline_run) {
 
 TEST(kholin_k_multidimensional_integrals_rectangle_seq, test_task_run) {
   // Create data
-  double dim = 3.0;
+  size_t dim = 3;
   std::vector<double> values{0.0, 0.0, 0.0};
   auto f = [](const std::vector<double> &f_values) {
     return std::cos((f_values[0] * f_values[0]) + (f_values[1] * f_values[1]) + (f_values[2] * f_values[2])) *
