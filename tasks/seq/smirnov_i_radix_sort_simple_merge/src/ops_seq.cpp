@@ -25,17 +25,17 @@ bool smirnov_i_radix_sort_simple_merge_seq::TestTaskSequential::RunImpl() {
   int longest = *std::ranges::max_element(mas_.begin(), mas_.end());
   int len = std::ceil(std::log10(longest + 1));
   std::vector<int> sorting(mas_.size());
-
-  for (int j = 0; j < len; j++) {
+  base = 1;
+  for (int j = 0; j < len; j++, base*=10) {
     std::vector<int> counting(10, 0);
     for (size_t i = 0; i < mas_.size(); i++) {
-      counting[mas_[i] / int(pow(10, j)) % 10]++;
+      counting[mas_[i] / base % 10]++;
     }
     std::partial_sum(counting.begin(), counting.end(), counting.begin());
     for (int i = static_cast<int>(mas_.size() - 1); i >= 0; i--) {
-      int pos = counting[mas_[i] / int(pow(10, j)) % 10] - 1;
+      int pos = counting[mas_[i] / base % 10] - 1;
       sorting[pos] = mas_[i];
-      counting[mas_[i] / int(pow(10, j)) % 10]--;
+      counting[mas_[i] / base % 10]--;
     }
     std::swap(mas_, sorting);
   }
