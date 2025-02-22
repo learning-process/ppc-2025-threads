@@ -2,6 +2,7 @@
 
 #include <cstdint>
 #include <memory>
+#include <vector>
 
 #include "core/task/include/task.hpp"
 #include "seq/deryabin_m_hoare_sort_simple_merge/include/ops_seq.hpp"
