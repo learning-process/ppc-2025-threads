@@ -45,7 +45,7 @@ bool sidorina_p_gradient_method_seq::GradientMethod::RunImpl() {
 
 bool sidorina_p_gradient_method_seq::GradientMethod::PostProcessingImpl() {
   auto* result_ptr = reinterpret_cast<double*>(task_data->outputs[0]);
-  for (int i = 0; i < result_.size(); i++) {
+  for (unsigned long i = 0; i < result_.size(); i++) {
     result_ptr[i] = result_[i];
   }
   return true;

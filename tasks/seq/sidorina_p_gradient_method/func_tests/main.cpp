@@ -13,11 +13,11 @@ using Params =
     std::tuple<int, std::vector<double>, std::vector<double>, std::vector<double>, std::vector<double>, double>;
 
 namespace sidorina_p_gradient_method_seq {
-class sidorina_p_gradient_method_seq_test : public ::testing::TestWithParam<Params> {
+class SidorinaPGradientMethodSeqTest : public ::testing::TestWithParam<Params> {
  protected:
 };
 
-TEST_P(sidorina_p_gradient_method_seq_test, Test_matrix) {
+TEST_P(SidorinaPGradientMethodSeqTest, Test_matrix) {
   const auto &[size, a, b, solution, expected, tolerance] = GetParam();
   std::vector<double> result(expected.size());
   std::shared_ptr<ppc::core::TaskData> task = std::make_shared<ppc::core::TaskData>();
@@ -44,17 +44,17 @@ TEST_P(sidorina_p_gradient_method_seq_test, Test_matrix) {
   }
 }
 
-INSTANTIATE_TEST_SUITE_P(sidorina_p_gradient_method_seq_test, sidorina_p_gradient_method_seq_test,
+INSTANTIATE_TEST_SUITE_P(SidorinaPGradientMethodSeqTest, SidorinaPGradientMethodSeqTest,
                          ::testing::Values(Params(1, {2}, {4}, {0}, {2}, 1e-6)));
 
 using ParamsVal =
     std::tuple<int, std::vector<double>, std::vector<double>, std::vector<double>, std::vector<double>, double>;
 
-class sidorina_p_gradient_method_seq_test_val : public ::testing::TestWithParam<ParamsVal> {
+class SidorinaPGradientMethodSeqTestVal : public ::testing::TestWithParam<ParamsVal> {
  protected:
 };
 
-TEST_P(sidorina_p_gradient_method_seq_test_val, Test_validation) {
+TEST_P(SidorinaPGradientMethodSeqTestVal, Test_validation) {
   const auto &[size, a, b, solution, expected, tolerance] = GetParam();
   std::vector<double> result(expected.size());
   std::shared_ptr<ppc::core::TaskData> task = std::make_shared<ppc::core::TaskData>();
@@ -75,6 +75,6 @@ TEST_P(sidorina_p_gradient_method_seq_test_val, Test_validation) {
   ASSERT_FALSE(gradient_method.ValidationImpl());
 }
 
-INSTANTIATE_TEST_SUITE_P(sidorina_p_gradient_method_seq_test_val, sidorina_p_gradient_method_seq_test_val,
+INSTANTIATE_TEST_SUITE_P(SidorinaPGradientMethodSeqTestVal, SidorinaPGradientMethodSeqTestVal,
                          ::testing::Values(Params(0, {2}, {4}, {0}, {2}, 1e-6)));
 }  // namespace sidorina_p_gradient_method_seq

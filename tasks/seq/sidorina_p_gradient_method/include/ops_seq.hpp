@@ -64,17 +64,17 @@ inline std::vector<double> ConjugateGradientMethod(std::vector<double>& a, std::
     matrix_times_direction = MultiplyMatrixByVector(a, direction, size);
     double direction_dot_matrix_times_direction = Dot(direction, matrix_times_direction);
     double alpha = residual_norm_squared / direction_dot_matrix_times_direction;
-    for (int i = 0; i < size; ++i) {
+    for (int i = 0; i < size; i++) {
       solution[i] += alpha * direction[i];
     }
-    for (int i = 0; i < size; ++i) {
+    for (int i = 0; i < size; i++) {
       residual[i] -= alpha * matrix_times_direction[i];
     }
 
     double new_residual_norm_squared = Dot(residual);
     double beta = new_residual_norm_squared / residual_norm_squared;
     residual_norm_squared = new_residual_norm_squared;
-    for (int i = 0; i < size; ++i) {
+    for (int i = 0; i < size; i++) {
       direction[i] = residual[i] + beta * direction[i];
     }
   }
@@ -82,7 +82,7 @@ inline std::vector<double> ConjugateGradientMethod(std::vector<double>& a, std::
 }
 
 inline double CalculateDeterminant(const double* a, int size) {
-  int d = 0;
+  double d = 0;
   if (size == 1) {
     d = a[0];
   } else if (size == 2) {
@@ -108,7 +108,7 @@ inline double CalculateDeterminant(const double* a, int size) {
 
 inline bool MatrixSimmPositive(const double* a, int size) {
   std::vector<double> a0(size * size);
-  for (int i = 0; i < size * size; ++i) {
+  for (int i = 0; i < size * size; i++) {
     a0[i] = a[i];
   }
 
@@ -132,8 +132,8 @@ inline bool MatrixSimmPositive(const double* a, int size) {
     minors[i - 1] = CalculateDeterminant(submatrix, i);
     delete[] submatrix;
   }
-  for (double minor : minors) {
-    if (minor <= 0) {
+  for (int i = 0; i < minors.size(); ++i) {
+    if (minors[i] <= 0) {
       return false;
     }
   }

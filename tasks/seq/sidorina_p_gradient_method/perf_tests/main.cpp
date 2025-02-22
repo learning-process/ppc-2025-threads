@@ -12,7 +12,7 @@
 #include "seq/sidorina_p_gradient_method/include/ops_seq.hpp"
 
 TEST(sidorina_p_gradient_method_seq, test_pipeline_run) {
-  int size = std::pow(2, 10);
+  int size = static_cast<int>(std::pow(2, 10));
   std::vector<double> a(size * size);
   std::vector<double> a0(size * size);
   std::vector<double> b(size, 0);
@@ -35,7 +35,7 @@ TEST(sidorina_p_gradient_method_seq, test_pipeline_run) {
   }
 
   for (int i = 0; i < size; i++) {
-    a[(i * size) + i] += size * 10.0F;
+    a[(i * size) + i] += static_cast<float>(size) * 10.0F;
   }
 
   std::shared_ptr<ppc::core::TaskData> task = std::make_shared<ppc::core::TaskData>();
@@ -77,7 +77,7 @@ TEST(sidorina_p_gradient_method_seq, test_pipeline_run) {
 }
 
 TEST(sidorina_p_gradient_method_seq, test_task_run) {
-  int size = std::pow(2, 10);
+  int size = static_cast<int>(std::pow(2, 10));
   std::vector<double> a(size * size);
   std::vector<double> a0(size * size);
   std::vector<double> b(size, 0);
@@ -100,7 +100,7 @@ TEST(sidorina_p_gradient_method_seq, test_task_run) {
   }
 
   for (int i = 0; i < size; i++) {
-    a[(i * size) + i] += size * 10.0F;
+    a[(i * size) + i] += static_cast<float>(size) * 10.0F;
   }
 
   std::shared_ptr<ppc::core::TaskData> task = std::make_shared<ppc::core::TaskData>();
