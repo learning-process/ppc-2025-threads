@@ -44,10 +44,10 @@ TEST_P(sidorina_p_gradient_method_seq_test, Test_matrix) {
 INSTANTIATE_TEST_SUITE_P(sidorina_p_gradient_method_seq_test, sidorina_p_gradient_method_seq_test,
                          ::testing::Values(Params(1, {2}, {4}, {0}, {2}, 1e-6)));
 
-using Params_val =
+using ParamsVal =
     std::tuple<int, std::vector<double>, std::vector<double>, std::vector<double>, std::vector<double>, double>;
 
-class sidorina_p_gradient_method_seq_test_val : public ::testing::TestWithParam<Params_val> {
+class sidorina_p_gradient_method_seq_test_val : public ::testing::TestWithParam<ParamsVal> {
  protected:
 };
 

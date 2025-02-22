@@ -29,7 +29,7 @@ inline double VectorNorm(const std::vector<double>& vec) {
 
 inline double Dot(const std::vector<double>& vec1, const std::vector<double>& vec2) {
   double sum = 0;
-  for (int i = 0; i < vec1.size(); i++) {
+  for (unsigned long i = 0; i < vec1.size(); i++) {
     sum += vec1[i] * vec2[i];
   }
   return sum;
@@ -37,7 +37,7 @@ inline double Dot(const std::vector<double>& vec1, const std::vector<double>& ve
 
 inline double Dot(const std::vector<double>& vec) {
   double sum = 0;
-  for (int i = 0; i < vec.size(); i++) {
+  for (unsigned long i = 0; i < vec.size(); i++) {
     sum += std::pow(vec[i], 2);
   }
   return sum;

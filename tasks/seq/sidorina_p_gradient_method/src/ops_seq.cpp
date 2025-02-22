@@ -18,16 +18,20 @@ bool sidorina_p_gradient_method_seq::GradientMethod::PreProcessingImpl() {
 
 bool sidorina_p_gradient_method_seq::GradientMethod::ValidationImpl() {
   if (*reinterpret_cast<int*>(task_data->inputs[0]) <= 0 || static_cast<int>(task_data->inputs_count[2]) <= 0 ||
-      static_cast<int>(task_data->inputs_count[3]) <= 0 || static_cast<int>(task_data->inputs_count[4]) <= 0)
+      static_cast<int>(task_data->inputs_count[3]) <= 0 || static_cast<int>(task_data->inputs_count[4]) <= 0) {
     return false;
+  }
 
   if (*reinterpret_cast<int*>(task_data->inputs[0]) != static_cast<int>(task_data->inputs_count[3]) ||
       *reinterpret_cast<int*>(task_data->inputs[0]) != static_cast<int>(task_data->inputs_count[4]) ||
       *reinterpret_cast<int*>(task_data->inputs[0]) * *reinterpret_cast<int*>(task_data->inputs[0]) !=
-          static_cast<int>(task_data->inputs_count[2]))
+          static_cast<int>(task_data->inputs_count[2])) {
     return false;
+  }
 
-  if (task_data->inputs_count.size() < 5 || task_data->inputs.size() < 5 || task_data->outputs.empty()) return false;
+  if (task_data->inputs_count.size() < 5 || task_data->inputs.size() < 5 || task_data->outputs.empty()) {
+    return false;
+  }
 
   const auto* matrix = reinterpret_cast<const double*>(task_data->inputs[2]);
 

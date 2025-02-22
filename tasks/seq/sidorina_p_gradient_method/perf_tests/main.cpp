@@ -1,7 +1,7 @@
 #include <gtest/gtest.h>
 
-#include <cmath>
 #include <chrono>
+#include <cmath>
 #include <cstdint>
 #include <random>
 #include <vector>
