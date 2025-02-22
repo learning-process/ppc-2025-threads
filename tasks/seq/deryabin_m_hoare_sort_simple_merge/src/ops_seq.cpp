@@ -13,7 +13,8 @@ bool deryabin_m_hoare_sort_simple_merge_seq::HoareSortTaskSequential::PreProcess
 }
 
 bool deryabin_m_hoare_sort_simple_merge_seq::HoareSortTaskSequential::ValidationImpl() {
-  return static_cast<unsigned short>(task_data->inputs_count[0]) > 2 && static_cast<unsigned short>(task_data->inputs[1]) >= 2 &&
+  return static_cast<unsigned short>(task_data->inputs_count[0]) > 2 &&
+         static_cast<unsigned short>(task_data->inputs[1]) >= 2 &&
          task_data->inputs_count[0] == task_data->outputs_count[0];
 }
 
