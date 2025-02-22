@@ -11,7 +11,7 @@ bool kharin_m_multidimensional_integral_calc_seq::TaskSequential::PreProcessingI
 
   // Результат пока равен 0.
   output_result_ = 0;
-  
+
   // Определяем размер квадратной сетки: grid_size = sqrt(input_size).
   grid_size_ = static_cast<size_t>(std::sqrt(input_size));
   return true;
