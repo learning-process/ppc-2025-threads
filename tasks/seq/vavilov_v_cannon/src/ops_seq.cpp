@@ -26,10 +26,27 @@ void vavilov_v_cannon_seq::CannonSequential::InitialShift() {
   std::vector<double> A_tmp = A_;
   std::vector<double> B_tmp = B_;
 
-  for (unsigned int i = 0; i < N; ++i) {
-    for (unsigned int j = 0; j < N; ++j) {
-      A_[i * N + j] = A_tmp[i * N + (j + i) % N];
-      B_[i * N + j] = B_tmp[((i + j) % N) * N + j];
+  unsigned int blockSize = N / std::sqrt(N * N);
+
+  for (unsigned int bi = 0; bi < gridSize; ++bi) {
+    for (unsigned int bj = 0; bj < gridSize; ++bj) {
+      unsigned int src_col = (bj + bi) % gridSize;
+      for (unsigned int i = 0; i < blockSize; ++i) {
+        for (unsigned int j = 0; j < blockSize; ++j) {
+          A_[(bi * blockSize + i) * N + (bj * blockSize + j)] = A_tmp[(bi * blockSize + i) * N + (src_col * blockSize + j)];
+        }
+      }
+    }
+  }
+
+  for (unsigned int bi = 0; bi < gridSize; ++bi) {
+    for (unsigned int bj = 0; bj < gridSize; ++bj) {
+      unsigned int src_row = (bi + bj) % gridSize;
+      for (unsigned int i = 0; i < blockSize; ++i) {
+        for (unsigned int j = 0; j < blockSize; ++j) {
+          B_[(bi * blockSize + i) * N + (bj * blockSize + j)] = B_tmp[(src_row * blockSize + i) * N + (bj * blockSize + j)];
+        }
+      }
     }
   }
 }
