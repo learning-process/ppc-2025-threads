@@ -16,11 +16,11 @@ TEST(deryabin_m_hoare_sort_simple_merge_seq, test_short_array) {
 
   // Create TaskData
   auto task_data_seq = std::make_shared<ppc::core::TaskData>();
-  task_data_seq->inputs.emplace_back(reinterpret_cast<uint8_t*>(input_array.data()));
-  task_data_seq->inputs_count.emplace_back(input_array.size());
+  task_data_seq->inputs.emplace_back(reinterpret_cast<uint8_t*>(input_array));
+  task_data_seq->inputs_count.emplace_back(sizeof(input_array) / sizeof(input_array[0]));
   task_data_seq->inputs_count.emplace_back(reinterpret_cast<uint8_t*>(chunk_count));
   task_data_seq->outputs.emplace_back(reinterpret_cast<uint8_t*>(out_array.data()));
-  task_data_seq->outputs_count.emplace_back(output_array.size());
+  task_data_seq->outputs_count.emplace_back(sizeof(output_array) / sizeof(output_array[0]));
 
   // Create Task
   deryabin_m_hoare_sort_simple_merge_seq::HoareSortTaskSequential hoare_sort_task_sequential(task_data_seq);
