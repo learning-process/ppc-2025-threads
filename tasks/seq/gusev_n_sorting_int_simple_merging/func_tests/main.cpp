@@ -1,12 +1,12 @@
 #include <gtest/gtest.h>
 
+#include <algorithm>
 #include <cstddef>
 #include <cstdint>
 #include <fstream>
 #include <memory>
 #include <string>
 #include <vector>
-#include <algorithm>
 
 #include "core/task/include/task.hpp"
 #include "core/util/include/util.hpp"

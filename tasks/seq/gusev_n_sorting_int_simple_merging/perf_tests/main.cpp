@@ -1,11 +1,11 @@
 #include <gtest/gtest.h>
 
+#include <algorithm>
 #include <chrono>
 #include <cstddef>
 #include <cstdint>
 #include <memory>
 #include <vector>
-#include <algorithm>
 
 #include "core/perf/include/perf.hpp"
 #include "core/task/include/task.hpp"
@@ -80,7 +80,7 @@ TEST(gusev_n_sorting_int_simple_merging_seq, test_task_run) {
   perf_analyzer->TaskRun(perf_attr, perf_results);
   ppc::core::Perf::PrintPerfStatistic(perf_results);
 
-  //std::vector<int> expected = in;
-  //std::sort(expected.begin(), expected.end());
-  //ASSERT_EQ(expected, out);
+  // std::vector<int> expected = in;
+  // std::sort(expected.begin(), expected.end());
+  // ASSERT_EQ(expected, out);
 }

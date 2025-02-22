@@ -70,7 +70,7 @@ void gusev_n_sorting_int_simple_merging_seq::TestTaskSequential::CountingSort(st
 
 bool gusev_n_sorting_int_simple_merging_seq::TestTaskSequential::PreProcessingImpl() {
   unsigned int input_size = task_data->inputs_count[0];
-  auto *in_ptr = reinterpret_cast<int *>(task_data->inputs[0]);
+  auto* in_ptr = reinterpret_cast<int*>(task_data->inputs[0]);
   input_ = std::vector<int>(in_ptr, in_ptr + input_size);
   output_ = std::vector<int>(input_size);
 
@@ -89,7 +89,7 @@ bool gusev_n_sorting_int_simple_merging_seq::TestTaskSequential::RunImpl() {
 
 bool gusev_n_sorting_int_simple_merging_seq::TestTaskSequential::PostProcessingImpl() {
   for (size_t i = 0; i < output_.size(); i++) {
-    reinterpret_cast<int *>(task_data->outputs[0])[i] = output_[i];
+    reinterpret_cast<int*>(task_data->outputs[0])[i] = output_[i];
   }
   return true;
 }

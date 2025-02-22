@@ -18,6 +18,7 @@ class TestTaskSequential : public ppc::core::Task {
   void CountingSort(std::vector<int>& arr, int exp);
   void RadixSort(std::vector<int>& arr);
   void RadixSortForNonNegative(std::vector<int>& arr);
+
  private:
   std::vector<int> input_, output_;
   int rc_size_{};
