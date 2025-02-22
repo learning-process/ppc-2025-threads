@@ -72,7 +72,7 @@ TEST(vavilov_v_cannon_seq, test_500_from_file) {
     getline(test_file, line);
   }
   test_file.close();
-  
+
   N = std::stoi(line);
 
   std::vector<double> A(N * N, 1.0);
