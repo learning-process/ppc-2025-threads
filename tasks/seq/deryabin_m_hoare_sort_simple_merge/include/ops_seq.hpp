@@ -20,10 +20,10 @@ class HoareSortTaskSequential : public ppc::core::Task {
   // слияние двух отсортированных частей
   void MergeTwoParts(double* a, size_t left, size_t right);
 
-  double* input_array_A_; // входной массив
-  size_t dimension_; // его размер
-  size_t min_chunk_size_; // размер частей на которые будет разбиваться исходный массив
-  size_t remainder_; // остаток
-  size_t chunk_count_; // число таких частей
+  double* input_array_A_;  // входной массив
+  size_t dimension_;       // его размер
+  size_t min_chunk_size_;  // размер частей на которые будет разбиваться исходный массив
+  size_t remainder_;    // остаток
+  size_t chunk_count_;  // число таких частей
 };
 }  // namespace deryabin_m_hoare_sort_simple_merge_seq
