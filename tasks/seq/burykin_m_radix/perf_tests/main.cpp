@@ -30,25 +30,20 @@ std::vector<int> GenerateRandomVector(size_t size, int min_val = -10000, int max
 TEST(burykin_m_radix_seq, test_pipeline_run) {
   constexpr size_t kNumElements = 10000000;
 
-  // Создаём входной случайный вектор и вычисляем ожидаемый результат (отсортированный)
   std::vector<int> input = GenerateRandomVector(kNumElements);
   std::vector<int> expected = input;
   std::ranges::sort(expected);
 
-  // Выделяем память под результат (заполняем нулями)
   std::vector<int> output(kNumElements, 0);
 
-  // Создаём task_data и заполняем указатели на входные/выходные данные
   auto task_data = std::make_shared<ppc::core::TaskData>();
   task_data->inputs.emplace_back(reinterpret_cast<uint8_t *>(input.data()));
   task_data->inputs_count.emplace_back(static_cast<std::uint32_t>(input.size()));
   task_data->outputs.emplace_back(reinterpret_cast<uint8_t *>(output.data()));
   task_data->outputs_count.emplace_back(static_cast<std::uint32_t>(output.size()));
 
-  // Создаём задачу поразрядной сортировки
   auto task = std::make_shared<burykin_m_radix_seq::RadixSequential>(task_data);
 
-  // Настраиваем параметры измерения производительности
   auto perf_attr = std::make_shared<ppc::core::PerfAttr>();
   perf_attr->num_running = 10;
   const auto t0 = std::chrono::high_resolution_clock::now();
@@ -60,37 +55,30 @@ TEST(burykin_m_radix_seq, test_pipeline_run) {
 
   auto perf_results = std::make_shared<ppc::core::PerfResults>();
 
-  // Анализ производительности полного конвейера
   auto perf_analyzer = std::make_shared<ppc::core::Perf>(task);
   perf_analyzer->PipelineRun(perf_attr, perf_results);
   ppc::core::Perf::PrintPerfStatistic(perf_results);
 
-  // После полного конвейера в task_data->outputs обновлён результат сортировки
   EXPECT_EQ(output, expected);
 }
 
 TEST(burykin_m_radix_seq, test_task_run) {
-  constexpr size_t kNumElements = 10000000;
+  constexpr size_t kNumElements = 100000000;
 
-  // Создаём входной случайный вектор и вычисляем ожидаемый результат (отсортированный)
   std::vector<int> input = GenerateRandomVector(kNumElements);
   std::vector<int> expected = input;
   std::ranges::sort(expected);
 
-  // Выделяем память под результат (заполняем нулями)
   std::vector<int> output(kNumElements, 0);
 
-  // Создаём task_data и заполняем указатели на входные/выходные данные
   auto task_data = std::make_shared<ppc::core::TaskData>();
   task_data->inputs.emplace_back(reinterpret_cast<uint8_t *>(input.data()));
   task_data->inputs_count.emplace_back(static_cast<std::uint32_t>(input.size()));
   task_data->outputs.emplace_back(reinterpret_cast<uint8_t *>(output.data()));
   task_data->outputs_count.emplace_back(static_cast<std::uint32_t>(output.size()));
 
-  // Создаём задачу поразрядной сортировки
   auto task = std::make_shared<burykin_m_radix_seq::RadixSequential>(task_data);
 
-  // Настраиваем параметры измерения производительности для Run() функции
   auto perf_attr = std::make_shared<ppc::core::PerfAttr>();
   perf_attr->num_running = 10;
   const auto t0 = std::chrono::high_resolution_clock::now();
@@ -102,7 +90,6 @@ TEST(burykin_m_radix_seq, test_task_run) {
 
   auto perf_results = std::make_shared<ppc::core::PerfResults>();
 
-  // Анализ производительности только функции Run()
   auto perf_analyzer = std::make_shared<ppc::core::Perf>(task);
   perf_analyzer->TaskRun(perf_attr, perf_results);
   ppc::core::Perf::PrintPerfStatistic(perf_results);

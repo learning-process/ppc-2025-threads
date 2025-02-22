@@ -27,7 +27,7 @@ std::vector<int> GenerateRandomVector(size_t size, int min_val = -1000, int max_
 
 TEST(burykin_m_radix_seq, AlreadySorted) {
   std::vector<int> input = {-5, -3, 0, 2, 3, 10};
-  std::vector<int> expected = input;  // уже отсортирован
+  std::vector<int> expected = input;
   std::vector<int> output(input.size(), 0);
 
   auto task_data = std::make_shared<ppc::core::TaskData>();
@@ -67,11 +67,11 @@ TEST(burykin_m_radix_seq, ReverseSorted) {
 }
 
 TEST(burykin_m_radix_seq, RandomVector) {
-  const size_t size = 1000;
-  std::vector<int> input = GenerateRandomVector(size);
+  constexpr size_t kSize = 1000;
+  std::vector<int> input = GenerateRandomVector(kSize);
   std::vector<int> expected = input;
   std::ranges::sort(expected);
-  std::vector<int> output(size, 0);
+  std::vector<int> output(kSize, 0);
 
   auto task_data = std::make_shared<ppc::core::TaskData>();
   task_data->inputs.push_back(reinterpret_cast<uint8_t*>(input.data()));
@@ -89,10 +89,10 @@ TEST(burykin_m_radix_seq, RandomVector) {
 }
 
 TEST(burykin_m_radix_seq, AllEqual) {
-  const size_t size = 100;
-  std::vector<int> input(size, 42);
+  constexpr size_t kSize = 100;
+  std::vector<int> input(kSize, 42);
   std::vector<int> expected = input;
-  std::vector<int> output(size, 0);
+  std::vector<int> output(kSize, 0);
 
   auto task_data = std::make_shared<ppc::core::TaskData>();
   task_data->inputs.push_back(reinterpret_cast<uint8_t*>(input.data()));
@@ -115,7 +115,6 @@ TEST(burykin_m_radix_seq, EmptyVector) {
   std::vector<int> output;
 
   auto task_data = std::make_shared<ppc::core::TaskData>();
-  // Даже если вектор пустой, data() возвращает корректное значение для передачи в задачу
   task_data->inputs.push_back(reinterpret_cast<uint8_t*>(input.data()));
   task_data->inputs_count.push_back(static_cast<std::uint32_t>(input.size()));
   task_data->outputs.push_back(reinterpret_cast<uint8_t*>(output.data()));
