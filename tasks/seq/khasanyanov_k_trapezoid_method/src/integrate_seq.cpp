@@ -1,6 +1,7 @@
 #include "../include/integrate_seq.hpp"
 
 #include <cstdint>
+#include <iostream>
 #include <memory>
 
 #include "core/task/include/task.hpp"
@@ -26,7 +27,12 @@ bool TrapezoidalMethodSequential::PreProcessingImpl() {
   return true;
 }
 bool TrapezoidalMethodSequential::RunImpl() {
-  res_ = Integrator<kSequential>{}(data_.function, data_.bounds, data_.precision);
+  try {
+    res_ = Integrator<kSequential>{}(data_.function, data_.bounds, data_.precision);
+  } catch (const std::exception &e) {
+    std::cerr << e.what() << '\n';
+    return false;
+  }
   return true;
 }
 bool TrapezoidalMethodSequential::PostProcessingImpl() {

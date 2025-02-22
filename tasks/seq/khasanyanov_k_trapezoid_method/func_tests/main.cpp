@@ -93,6 +93,15 @@ TEST(khasanyanov_k_trapezoid_method_seq, test_integrator_constant_function) {
   ASSERT_NEAR(45.0, result, precision);
 }
 
+TEST(khasanyanov_k_trapezoid_method_seq, test_integrator_diverge_function) {
+  auto f = [](const std::vector<double>& x) -> double { return 1 / x[0]; };
+
+  IntegrationBounds bounds = {{-1.0, 1.0}};
+
+  double precision = 0.001;
+  ASSERT_ANY_THROW(Integrator<kSequential>{}(f, bounds, precision));
+}
+
 //-----------------------------------------------------------------------------------------------------------------------------------------//
 
 TEST(khasanyanov_k_trapezoid_method_seq, test_integrate_1) {
@@ -188,9 +197,8 @@ TEST(khasanyanov_k_trapezoid_method_seq, test_integrate_5) {
   TrapezoidalMethodSequential task(task_data_seq);
 
   ASSERT_TRUE(task.Validation());
-
   task.PreProcessing();
-  ASSERT_ANY_THROW(task.Run());
+  ASSERT_FALSE(task.Run());
 }
 
 TEST(khasanyanov_k_trapezoid_method_seq, test_invalid_input) {
