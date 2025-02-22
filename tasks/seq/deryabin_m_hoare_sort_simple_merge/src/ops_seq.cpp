@@ -62,8 +62,8 @@ void deryabin_m_hoare_sort_simple_merge_seq::HoareSortTaskSequential::MergeTwoPa
   size_t r_cur = middle + 1;
   std::vector<double> l_buff(right - left + 1, 0);
   std::vector<double> r_buff(right - left + 1, 0);
-  std::copy(a.begin() + left, a.begin() + r_cur, l_buff.begin());
-  std::copy(a.begin() + r_cur, a.begin() + right + 1, r_buff.begin() + r_cur);
+  std::copy(a.begin() + (long)left, a.begin() + (long)r_cur, l_buff.begin());
+  std::copy(a.begin() + (long)r_cur, a.begin() + (long)right + 1, r_buff.begin() + (long)r_cur);
   for (size_t i = left; i <= right; i++) {
     if (l_cur <= middle && r_cur <= right) {
       if (l_buff[l_cur] < r_buff[r_cur]) {
