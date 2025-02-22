@@ -7,7 +7,7 @@
 #include <vector>
 
 #include "core/task/include/task.hpp"
-#include "include/ops_seq.hpp"
+#include "seq/kharin_m_multidimensional_integral_calc/include/ops_seq.hpp"
 
 // Тест для интегрирования 3x3-сетки.
 // В данном случае входные данные – значения функции, расположенные на равномерной квадратной сетке,

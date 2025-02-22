@@ -1,4 +1,4 @@
-#include "include/ops_seq.hpp"
+#include "seq/kharin_m_multidimensional_integral_calc/include/ops_seq.hpp"
 
 #include <cmath>
 #include <vector>

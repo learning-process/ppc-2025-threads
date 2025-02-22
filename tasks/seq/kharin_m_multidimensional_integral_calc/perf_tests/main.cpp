@@ -8,7 +8,7 @@
 
 #include "core/perf/include/perf.hpp"
 #include "core/task/include/task.hpp"
-#include "include/ops_seq.hpp"
+#include "seq/kharin_m_multidimensional_integral_calc/include/ops_seq.hpp"
 
 TEST(kharin_m_multidimensional_integral_calc_seq, test_pipeline_run) {
   constexpr int kDim = 5000;  // Размер стороны сетки: 5000 x 5000
