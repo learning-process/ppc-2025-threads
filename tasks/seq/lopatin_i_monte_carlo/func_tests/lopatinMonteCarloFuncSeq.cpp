@@ -24,7 +24,7 @@ std::vector<double> GenerateBounds(double min_val, double max_val, int dimension
 
 TEST(lopatin_i_monte_carlo_seq, validationInvalidInputOddBoundsCount) {
   std::vector<double> bounds = {0.0, 1.0, 2.0};  // even num of bounds
-  const int iterations = 1000;
+  const int iterations = 10;
 
   auto task_data = std::make_shared<ppc::core::TaskData>();
   task_data->inputs.push_back(reinterpret_cast<uint8_t*>(bounds.data()));
@@ -41,11 +41,10 @@ TEST(lopatin_i_monte_carlo_seq, validationInvalidInputOddBoundsCount) {
 }
 
 TEST(lopatin_i_monte_carlo_seq, validationMissingOutputData) {
-  auto task_data = std::make_shared<ppc::core::TaskData>();
-
   std::vector<double> bounds = lopatin_i_monte_carlo_seq::GenerateBounds(0.0, 1.0, 2);
-  const int iterations = 1000;
+  const int iterations = 10;
 
+  auto task_data = std::make_shared<ppc::core::TaskData>();
   task_data->inputs.push_back(reinterpret_cast<uint8_t*>(bounds.data()));
   task_data->inputs_count.push_back(4);
   task_data->inputs.push_back(reinterpret_cast<uint8_t*>(const_cast<int*>(&iterations)));
@@ -59,7 +58,6 @@ TEST(lopatin_i_monte_carlo_seq, highDimensionalIntegration) {
   const int dimensions = 7;
   const int iterations = 20000;
   std::vector<double> bounds = lopatin_i_monte_carlo_seq::GenerateBounds(-1.0, 1.0, dimensions);
-  const double expected = std::pow(2.0, dimensions);  // hypercube
 
   auto task_data = std::make_shared<ppc::core::TaskData>();
   task_data->inputs.push_back(reinterpret_cast<uint8_t*>(bounds.data()));
@@ -80,14 +78,15 @@ TEST(lopatin_i_monte_carlo_seq, highDimensionalIntegration) {
   ASSERT_TRUE(task.Run());
   ASSERT_TRUE(task.PostProcessing());
 
-  EXPECT_NEAR(result, expected, 0.02 * expected);  // error 2%
+  const double expected = std::pow(2.0, dimensions);  // hypercube
+  const double tolerance = 0.02 * expected;
+  EXPECT_NEAR(result, expected, tolerance);  // error 2%
 }
 
 TEST(lopatin_i_monte_carlo_seq, 1DConstantFunction) {
   const int dimensions = 1;
   const int iterations = 100000;
   std::vector<double> bounds = lopatin_i_monte_carlo_seq::GenerateBounds(2.0, 5.0, dimensions);  // [2, 5]
-  const double expected = 3.0;                                                                   // 5 - 2 = 3
 
   auto task_data = std::make_shared<ppc::core::TaskData>();
   task_data->inputs.push_back(reinterpret_cast<uint8_t*>(bounds.data()));
@@ -108,14 +107,15 @@ TEST(lopatin_i_monte_carlo_seq, 1DConstantFunction) {
   ASSERT_TRUE(task.Run());
   ASSERT_TRUE(task.PostProcessing());
 
-  EXPECT_NEAR(result, expected, 0.01 * expected);  // error 1%
+  const double expected = 3.0; 
+  const double tolerance = 0.01 * expected;
+  EXPECT_NEAR(result, expected, tolerance);  // error 1%
 }
 
 TEST(lopatin_i_monte_carlo_seq, 3DExponentialFunction) {
   const int dimensions = 3;
   const int iterations = 50000;
   std::vector<double> bounds = lopatin_i_monte_carlo_seq::GenerateBounds(0.0, 1.0, dimensions);  // [0,1]^3
-  const double expected = std::pow(std::numbers::e - 1, 3);                                      // = 5.073
 
   auto task_data = std::make_shared<ppc::core::TaskData>();
   task_data->inputs.push_back(reinterpret_cast<uint8_t*>(bounds.data()));
@@ -134,7 +134,9 @@ TEST(lopatin_i_monte_carlo_seq, 3DExponentialFunction) {
   ASSERT_TRUE(task.Run());
   ASSERT_TRUE(task.PostProcessing());
 
-  EXPECT_NEAR(result, expected, 0.01 * expected);  // error 1%
+  const double expected = std::pow(std::numbers::e - 1, 3);  // = 5.073 
+  const double tolerance = 0.01 * expected;
+  EXPECT_NEAR(result, expected, tolerance);  // error 1%
 }
 
 TEST(lopatin_i_monte_carlo_seq, 2DLinearFunction) {
@@ -257,9 +259,9 @@ TEST(lopatin_i_monte_carlo_seq, 5DExponentialFunction) {
 
   // analytical (e^3 - e^{-3})^5 = (20.0855 - 0.0498)^5 = 3.2e6
   const double single_dim_integral = std::pow(std::numbers::e, 3.0) - std::pow(std::numbers::e, -3.0);  // =20.0357
-  const double expected = std::pow(single_dim_integral, 5);  // =20.0357^5 = 3.28e6
-  const double tolerance = 0.04 * expected;                  // error 4%
-  EXPECT_NEAR(result, expected, tolerance);
+  const double expected = std::pow(single_dim_integral, 5);                                             // =20.0357^5 = 3.28e6
+  const double tolerance = 0.04 * expected;
+  EXPECT_NEAR(result, expected, tolerance);  // error 4%
 }
 
 TEST(lopatin_i_monte_carlo_seq, 2DCosineFunction) {
@@ -288,8 +290,8 @@ TEST(lopatin_i_monte_carlo_seq, 2DCosineFunction) {
 
   // analytical = 0
   const double expected = 0.0;
-  const double tolerance = 0.01;  // error 1%
-  EXPECT_NEAR(result, expected, tolerance);
+  const double tolerance = 0.01;
+  EXPECT_NEAR(result, expected, tolerance);   // error 1%
 }
 
 TEST(lopatin_i_monte_carlo_seq, 2DSqrtFunction) {
@@ -318,8 +320,8 @@ TEST(lopatin_i_monte_carlo_seq, 2DSqrtFunction) {
 
   // analytical = 0.975
   const double expected = 0.975;
-  const double tolerance = 0.01 * expected;  // 1% error
-  EXPECT_NEAR(result, expected, tolerance);
+  const double tolerance = 0.01 * expected;
+  EXPECT_NEAR(result, expected, tolerance);  // error 1%
 }
 
 TEST(lopatin_i_monte_carlo_seq, 3DSinFunction) {
@@ -348,8 +350,8 @@ TEST(lopatin_i_monte_carlo_seq, 3DSinFunction) {
 
   // analytical = 0.098
   const double expected = 0.098;
-  const double tolerance = 0.01 * expected;  // 1% error
-  EXPECT_NEAR(result, expected, tolerance);
+  const double tolerance = 0.01 * expected;
+  EXPECT_NEAR(result, expected, tolerance);  // error 1%
 }
 
 TEST(lopatin_i_monte_carlo_seq, 4DLogFunction) {
@@ -378,6 +380,6 @@ TEST(lopatin_i_monte_carlo_seq, 4DLogFunction) {
 
   // analytical = 20.0704
   const double expected = 17.4108;
-  const double tolerance = 0.01 * expected;  // 1% error
-  EXPECT_NEAR(result, expected, tolerance);
+  const double tolerance = 0.01 * expected;
+  EXPECT_NEAR(result, expected, tolerance);  // error 1%
 }
