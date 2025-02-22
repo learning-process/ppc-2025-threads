@@ -163,6 +163,7 @@ foreach(TASK_TYPE ${LIST_OF_TASKS})
               opencv_imgcodecs${OCV_VERSION}
               opencv_imgproc${OCV_VERSION}
               opencv_videoio${OCV_VERSION})
+
       add_dependencies(${EXEC_FUNC} ppc_googletest)
       target_link_directories(${EXEC_FUNC} PUBLIC "${CMAKE_BINARY_DIR}/ppc_googletest/install/lib")
       target_link_libraries(${EXEC_FUNC} PUBLIC gtest gtest_main)
