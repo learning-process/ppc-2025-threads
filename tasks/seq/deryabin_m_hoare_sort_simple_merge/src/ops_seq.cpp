@@ -7,7 +7,7 @@
 #include <vector>
 
 bool deryabin_m_hoare_sort_simple_merge_seq::HoareSortTaskSequential::PreProcessingImpl() {
-  input_array_A_ = reinterpret_cast<std::vector<double> *>(task_data->inputs[0])[0];
+  input_array_A_ = reinterpret_cast<std::vector<double>*>(task_data->inputs[0])[0];
   dimension_ = task_data->inputs_count[0];
   chunk_count_ = task_data->inputs_count[1];
   min_chunk_size_ = dimension_ / chunk_count_;
@@ -54,8 +54,8 @@ void deryabin_m_hoare_sort_simple_merge_seq::HoareSortTaskSequential::HoaraSort(
   }
 }
 
-void deryabin_m_hoare_sort_simple_merge_seq::HoareSortTaskSequential::MergeTwoParts(std::vector<double>& a, size_t left,
-                                                                                    size_t right) {
+void deryabin_m_hoare_sort_simple_merge_seq::HoareSortTaskSequential::HoaraSort(std::vector<double>& a, size_t first,
+                                                                                size_t last) {
   size_t middle = left + ((right - left) / 2);
   size_t l_cur = left;
   size_t r_cur = middle + 1;
@@ -118,6 +118,7 @@ bool deryabin_m_hoare_sort_simple_merge_seq::HoareSortTaskSequential::RunImpl() 
 }
 
 bool deryabin_m_hoare_sort_simple_merge_seq::HoareSortTaskSequential::PostProcessingImpl() {
-  reinterpret_cast<std::vector<double> *>(task_data->outputs[0])[0]; = input_array_A_;
+  reinterpret_cast<std::vector<double>*>(task_data->outputs[0])[0];
+  = input_array_A_;
   return true;
 }
