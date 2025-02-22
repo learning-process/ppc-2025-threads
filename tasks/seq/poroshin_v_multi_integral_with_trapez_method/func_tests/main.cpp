@@ -8,11 +8,11 @@ namespace poroshin_v_multi_integral_with_trapez_method_seq {
 double area(std::vector<double> &arguments) { return 1.0 + arguments.at(0) * 0.0; }
 
 double f1(std::vector<double> &arguments) { return arguments.at(0); }
-double f1cos(std::vector<double> &arguments) { return std::cos(arguments.at(0)); }
-double f1Euler(std::vector<double> &arguments) { return 2 * std::cos(arguments.at(0)) * std::sin(arguments.at(0)); }
+double f1cos(std::vector<double> &arguments) { return cos(arguments.at(0)); }
+double f1Euler(std::vector<double> &arguments) { return 2 * cos(arguments.at(0)) * sin(arguments.at(0)); }
 double f3(std::vector<double> &arguments) { return arguments.at(0) * arguments.at(1) * arguments.at(2); }
 double f3advanced(std::vector<double> &arguments) {
-  return std::sin(arguments.at(0)) * std::tan(arguments.at(1)) * std::log(arguments.at(2));
+  return sin(arguments.at(0)) * tan(arguments.at(1)) * log(arguments.at(2));
 }
 }  // namespace poroshin_v_multi_integral_with_trapez_method_seq
 

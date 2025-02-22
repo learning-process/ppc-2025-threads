@@ -7,7 +7,7 @@
 
 namespace poroshin_v_multi_integral_with_trapez_method_seq {
 double f3advanced(std::vector<double> &arguments) {
-  return std::sin(arguments.at(0)) * std::tan(arguments.at(1)) * std::log(arguments.at(2));
+  return sin(arguments.at(0)) * tan(arguments.at(1)) * log(arguments.at(2));
 }
 }  // namespace poroshin_v_multi_integral_with_trapez_method_seq
 
