@@ -18,14 +18,14 @@ TEST(deryabin_m_hoare_sort_simple_merge_seq, test_pipeline_run_Seq) {
   std::random_device rd;
   std::mt19937 gen(rd());
   std::vector<double> input_array(25000);
-  std::generate(input_array.begin(), input_array.end(), [value = 0]() mutable { return value++; });
+  std::ranges::generate(input_array.begin(), input_array.end(), [value = 0]() mutable { return value++; });
   std::shuffle(input_array.begin(), input_array.end(), gen);
   std::vector<std::vector<double>> in_array(1, input_array);
   size_t chunk_count = 100;
   std::vector<double> output_array(25000, 0);
   std::vector<std::vector<double>> out_array(1, output_array);
   std::vector<double> true_solution = input_array;
-  std::sort(true_solution.begin(), true_solution.end());
+  std::ranges::sort(true_solution.begin(), true_solution.end());
 
   auto task_data_seq = std::make_shared<ppc::core::TaskData>();
   task_data_seq->inputs.emplace_back(reinterpret_cast<uint8_t*>(in_array.data()));
@@ -59,14 +59,14 @@ TEST(deryabin_m_hoare_sort_simple_merge_seq, test_task_run_Seq) {
   std::random_device rd;
   std::mt19937 gen(rd());
   std::vector<double> input_array(25000);
-  std::generate(input_array.begin(), input_array.end(), [value = 0]() mutable { return value++; });
+  std::ranges::generate(input_array.begin(), input_array.end(), [value = 0]() mutable { return value++; });
   std::shuffle(input_array.begin(), input_array.end(), gen);
   std::vector<std::vector<double>> in_array(1, input_array);
   size_t chunk_count = 100;
   std::vector<double> output_array(25000, 0);
   std::vector<std::vector<double>> out_array(1, output_array);
   std::vector<double> true_solution = input_array;
-  std::sort(true_solution.begin(), true_solution.end());
+  std::ranges::sort(true_solution.begin(), true_solution.end());
 
   auto task_data_seq = std::make_shared<ppc::core::TaskData>();
   task_data_seq->inputs.emplace_back(reinterpret_cast<uint8_t*>(in_array.data()));
