@@ -1,5 +1,6 @@
 #include "seq/kalyakina_a_Shell_with_simple_merge/include/ops_seq.hpp"
 
+#include <algorithm>
 #include <cmath>
 #include <cstddef>
 #include <vector>
