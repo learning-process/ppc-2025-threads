@@ -16,7 +16,7 @@ class ShellSortSequential : public ppc::core::Task {
 
  private:
   std::vector<int> array_;
-  void ShellSort(std::vector<int>& arr);
+  static void ShellSort(std::vector<int>& arr);
 };
 
 }  // namespace volochaev_s_shell_sort_with_batchers_even_odd_merge_seq

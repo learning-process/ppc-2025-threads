@@ -4,15 +4,14 @@
 #include <cstdint>
 #include <memory>
 #include <random>
-#include <string>
+#include <stdexcept>
 #include <vector>
 
 #include "core/task/include/task.hpp"
-#include "core/util/include/util.hpp"
 #include "seq/volochaev_s_Shell_sort_with_Batchers_even-odd_merge/include/ops_seq.hpp"
 
 namespace volochaev_s_shell_sort_with_batchers_even_odd_merge_seq {
-void GetRandomVector(std::vector<int> &v, int a, int b) {
+void static GetRandomVector(std::vector<int> &v, int a, int b) {
   std::random_device dev;
   std::mt19937 gen(dev());
 
@@ -63,8 +62,7 @@ TEST(volochaev_s_Shell_sort_with_Batchers_even_odd_merge_seq, test_with_small_ve
   volochaev_s_shell_sort_with_batchers_even_odd_merge_seq::GetRandomVector(in, -100, 100);
   std::vector<int> out(kSizeOfVector, 0);
   std::vector<int> answer(in);
-  std::sort(answer.begin(), answer.end());
-
+  std::ranges::sort(answer);
   // Create task_data
   auto task_data_seq = std::make_shared<ppc::core::TaskData>();
   task_data_seq->inputs.emplace_back(reinterpret_cast<uint8_t *>(in.data()));
@@ -89,7 +87,7 @@ TEST(volochaev_s_Shell_sort_with_Batchers_even_odd_merge_seq, test_with_small_ve
   volochaev_s_shell_sort_with_batchers_even_odd_merge_seq::GetRandomVector(in, -100, 100);
   std::vector<int> out(kSizeOfVector, 0);
   std::vector<int> answer(in);
-  std::sort(answer.begin(), answer.end());
+  std::ranges::sort(answer);
 
   // Create task_data
   auto task_data_seq = std::make_shared<ppc::core::TaskData>();
@@ -115,7 +113,7 @@ TEST(volochaev_s_Shell_sort_with_Batchers_even_odd_merge_seq, test_with_small_ve
   volochaev_s_shell_sort_with_batchers_even_odd_merge_seq::GetRandomVector(in, -100, 100);
   std::vector<int> out(kSizeOfVector, 0);
   std::vector<int> answer(in);
-  std::sort(answer.begin(), answer.end());
+  std::ranges::sort(answer);
 
   // Create task_data
   auto task_data_seq = std::make_shared<ppc::core::TaskData>();
@@ -141,7 +139,7 @@ TEST(volochaev_s_Shell_sort_with_Batchers_even_odd_merge_seq, test_with_small_ve
   volochaev_s_shell_sort_with_batchers_even_odd_merge_seq::GetRandomVector(in, -100, 100);
   std::vector<int> out(kSizeOfVector, 0);
   std::vector<int> answer(in);
-  std::sort(answer.begin(), answer.end());
+  std::ranges::sort(answer);
 
   // Create task_data
   auto task_data_seq = std::make_shared<ppc::core::TaskData>();
@@ -167,7 +165,7 @@ TEST(volochaev_s_Shell_sort_with_Batchers_even_odd_merge_seq, test_with_medium_v
   volochaev_s_shell_sort_with_batchers_even_odd_merge_seq::GetRandomVector(in, -100, 100);
   std::vector<int> out(kSizeOfVector, 0);
   std::vector<int> answer(in);
-  std::sort(answer.begin(), answer.end());
+  std::ranges::sort(answer);
 
   // Create task_data
   auto task_data_seq = std::make_shared<ppc::core::TaskData>();
@@ -193,7 +191,7 @@ TEST(volochaev_s_Shell_sort_with_Batchers_even_odd_merge_seq, test_with_medium_v
   volochaev_s_shell_sort_with_batchers_even_odd_merge_seq::GetRandomVector(in, -100, 100);
   std::vector<int> out(kSizeOfVector, 0);
   std::vector<int> answer(in);
-  std::sort(answer.begin(), answer.end());
+  std::ranges::sort(answer);
 
   // Create task_data
   auto task_data_seq = std::make_shared<ppc::core::TaskData>();
@@ -219,7 +217,7 @@ TEST(volochaev_s_Shell_sort_with_Batchers_even_odd_merge_seq, test_with_medium_v
   volochaev_s_shell_sort_with_batchers_even_odd_merge_seq::GetRandomVector(in, -100, 100);
   std::vector<int> out(kSizeOfVector, 0);
   std::vector<int> answer(in);
-  std::sort(answer.begin(), answer.end());
+  std::ranges::sort(answer);
 
   // Create task_data
   auto task_data_seq = std::make_shared<ppc::core::TaskData>();
@@ -245,7 +243,7 @@ TEST(volochaev_s_Shell_sort_with_Batchers_even_odd_merge_seq, test_with_medium_v
   volochaev_s_shell_sort_with_batchers_even_odd_merge_seq::GetRandomVector(in, -100, 100);
   std::vector<int> out(kSizeOfVector, 0);
   std::vector<int> answer(in);
-  std::sort(answer.begin(), answer.end());
+  std::ranges::sort(answer);
 
   // Create task_data
   auto task_data_seq = std::make_shared<ppc::core::TaskData>();
@@ -271,7 +269,7 @@ TEST(volochaev_s_Shell_sort_with_Batchers_even_odd_merge_seq, test_with_medium_v
   volochaev_s_shell_sort_with_batchers_even_odd_merge_seq::GetRandomVector(in, -100, 100);
   std::vector<int> out(kSizeOfVector, 0);
   std::vector<int> answer(in);
-  std::sort(answer.begin(), answer.end());
+  std::ranges::sort(answer);
 
   // Create task_data
   auto task_data_seq = std::make_shared<ppc::core::TaskData>();
@@ -297,7 +295,7 @@ TEST(volochaev_s_Shell_sort_with_Batchers_even_odd_merge_seq, test_with_big_vect
   volochaev_s_shell_sort_with_batchers_even_odd_merge_seq::GetRandomVector(in, -100, 100);
   std::vector<int> out(kSizeOfVector, 0);
   std::vector<int> answer(in);
-  std::sort(answer.begin(), answer.end());
+  std::ranges::sort(answer);
 
   // Create task_data
   auto task_data_seq = std::make_shared<ppc::core::TaskData>();
@@ -323,7 +321,7 @@ TEST(volochaev_s_Shell_sort_with_Batchers_even_odd_merge_seq, test_with_big_vect
   volochaev_s_shell_sort_with_batchers_even_odd_merge_seq::GetRandomVector(in, -100, 100);
   std::vector<int> out(kSizeOfVector, 0);
   std::vector<int> answer(in);
-  std::sort(answer.begin(), answer.end());
+  std::ranges::sort(answer);
 
   // Create task_data
   auto task_data_seq = std::make_shared<ppc::core::TaskData>();
@@ -349,7 +347,7 @@ TEST(volochaev_s_Shell_sort_with_Batchers_even_odd_merge_seq, test_with_big_vect
   volochaev_s_shell_sort_with_batchers_even_odd_merge_seq::GetRandomVector(in, -100, 100);
   std::vector<int> out(kSizeOfVector, 0);
   std::vector<int> answer(in);
-  std::sort(answer.begin(), answer.end());
+  std::ranges::sort(answer);
 
   // Create task_data
   auto task_data_seq = std::make_shared<ppc::core::TaskData>();
@@ -375,7 +373,7 @@ TEST(volochaev_s_Shell_sort_with_Batchers_even_odd_merge_seq, test_with_big_vect
   volochaev_s_shell_sort_with_batchers_even_odd_merge_seq::GetRandomVector(in, -100, 100);
   std::vector<int> out(kSizeOfVector, 0);
   std::vector<int> answer(in);
-  std::sort(answer.begin(), answer.end());
+  std::ranges::sort(answer);
 
   // Create task_data
   auto task_data_seq = std::make_shared<ppc::core::TaskData>();
@@ -401,7 +399,7 @@ TEST(volochaev_s_Shell_sort_with_Batchers_even_odd_merge_seq, test_with_extra_bi
   volochaev_s_shell_sort_with_batchers_even_odd_merge_seq::GetRandomVector(in, -100, 100);
   std::vector<int> out(kSizeOfVector, 0);
   std::vector<int> answer(in);
-  std::sort(answer.begin(), answer.end());
+  std::ranges::sort(answer);
 
   // Create task_data
   auto task_data_seq = std::make_shared<ppc::core::TaskData>();
