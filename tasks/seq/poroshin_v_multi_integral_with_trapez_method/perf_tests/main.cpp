@@ -1,7 +1,5 @@
 #include <gtest/gtest.h>
 
-#include <numbers>
-
 #include "core/perf/include/perf.hpp"
 #include "seq/poroshin_v_multi_integral_with_trapez_method/include/ops_seq.hpp"
 
