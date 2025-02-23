@@ -1,10 +1,8 @@
 #include <gtest/gtest.h>
 
-#include <cstddef>
 #include <cstdint>
 #include <fstream>
 #include <memory>
-#include <random>
 #include <string>
 #include <vector>
 
@@ -13,11 +11,11 @@
 #include "seq/vavilov_v_cannon/include/ops_seq.hpp"
 
 TEST(vavilov_v_cannon_seq, test_fixed_4x4) {
-  constexpr unsigned int n = 4;
+  constexpr unsigned int kN = 4;
   std::vector<double> a = {1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16};
   std::vector<double> b = {1, 0, 0, 1, 0, 1, 1, 0, 1, 0, 0, 1, 0, 1, 1, 0};
   std::vector<double> expected_output = {4, 6, 6, 4, 12, 14, 14, 12, 20, 22, 22, 20, 28, 30, 30, 28};
-  std::vector<double> c(n * n, 0.0);
+  std::vector<double> c(kN * kN, 0.0);
 
   auto task_data_seq = std::make_shared<ppc::core::TaskData>();
   task_data_seq->inputs.emplace_back(reinterpret_cast<uint8_t*>(a.data()));
@@ -33,17 +31,17 @@ TEST(vavilov_v_cannon_seq, test_fixed_4x4) {
   task_seq.Run();
   task_seq.PostProcessing();
 
-  for (unsigned int i = 0; i < n * n; i++) {
+  for (unsigned int i = 0; i < kN * kN; i++) {
     EXPECT_EQ(expected_output[i], c[i]);
   }
 }
 
 TEST(vavilov_v_cannon_seq, test_225) {
-  constexpr unsigned int n = 225;
-  std::vector<double> a(n * n, 1.0);
-  std::vector<double> b(n * n, 1.0);
-  std::vector<double> c(n * n, 0.0);
-  std::vector<double> expected_output(n * n, n);
+  constexpr unsigned int kN = 225;
+  std::vector<double> a(kN * kN, 1.0);
+  std::vector<double> b(kN * kN, 1.0);
+  std::vector<double> c(kN * kN, 0.0);
+  std::vector<double> expected_output(kN * kN, kN);
 
   auto task_data_seq = std::make_shared<ppc::core::TaskData>();
   task_data_seq->inputs.emplace_back(reinterpret_cast<uint8_t*>(a.data()));
@@ -59,7 +57,7 @@ TEST(vavilov_v_cannon_seq, test_225) {
   task_seq.Run();
   task_seq.PostProcessing();
 
-  for (unsigned int i = 0; i < n * n; i++) {
+  for (unsigned int i = 0; i < kN * kN; i++) {
     EXPECT_EQ(expected_output[i], c[i]);
   }
 }
@@ -67,18 +65,18 @@ TEST(vavilov_v_cannon_seq, test_225) {
 TEST(vavilov_v_cannon_seq, test_225_from_file) {
   std::string line;
   std::ifstream test_file(ppc::util::GetAbsolutePath("seq/vavilov_v_cannon/data/test.TXT"));
-  unsigned int n = 0;
+  unsigned int kN = 0;
   if (test_file.is_open()) {
     getline(test_file, line);
   }
   test_file.close();
 
-  n = std::stoi(line);
+  kN = std::stoi(line);
 
-  std::vector<double> a(n * n, 1.0);
-  std::vector<double> b(n * n, 1.0);
-  std::vector<double> c(n * n, 0.0);
-  std::vector<double> expected_output(n * n, n);
+  std::vector<double> a(kN * kN, 1.0);
+  std::vector<double> b(kN * kN, 1.0);
+  std::vector<double> c(kN * kN, 0.0);
+  std::vector<double> expected_output(kN * kN, kN);
 
   auto task_data_seq = std::make_shared<ppc::core::TaskData>();
   task_data_seq->inputs.emplace_back(reinterpret_cast<uint8_t*>(a.data()));
@@ -94,19 +92,19 @@ TEST(vavilov_v_cannon_seq, test_225_from_file) {
   task_seq.Run();
   task_seq.PostProcessing();
 
-  for (unsigned int i = 0; i < n * n; i++) {
+  for (unsigned int i = 0; i < kN * kN; i++) {
     EXPECT_EQ(expected_output[i], c[i]);
   }
 }
 
 TEST(vavilov_v_cannon_seq, test_identity_matrix) {
-  constexpr unsigned int n = 225;
-  std::vector<double> a(n * n, 1.0);
-  std::vector<double> b(n * n, 0.0);
-  std::vector<double> c(n * n, 0.0);
+  constexpr unsigned int kN = 225;
+  std::vector<double> a(kN * kN, 1.0);
+  std::vector<double> b(kN * kN, 0.0);
+  std::vector<double> c(kN * kN, 0.0);
 
-  for (unsigned int i = 0; i < n; i++) {
-    b[i * n + i] = 1.0;
+  for (unsigned int i = 0; i < kN; i++) {
+    b[(i * kN) + i] = 1.0;
   }
 
   auto expected_output = a;
@@ -125,17 +123,17 @@ TEST(vavilov_v_cannon_seq, test_identity_matrix) {
   task_seq.Run();
   task_seq.PostProcessing();
 
-  for (unsigned int i = 0; i < n * n; i++) {
+  for (unsigned int i = 0; i < kN * kN; i++) {
     EXPECT_EQ(expected_output[i], c[i]);
   }
 }
 
 TEST(vavilov_v_cannon_seq, test_zero_matrix) {
-  constexpr unsigned int n = 225;
-  std::vector<double> a(n * n, 1.0);
-  std::vector<double> b(n * n, 0.0);
-  std::vector<double> c(n * n, 0.0);
-  std::vector<double> expected_output(n * n, 0.0);
+  constexpr unsigned int kN = 225;
+  std::vector<double> a(kN * kN, 1.0);
+  std::vector<double> b(kN * kN, 0.0);
+  std::vector<double> c(kN * kN, 0.0);
+  std::vector<double> expected_output(kN * kN, 0.0);
 
   auto task_data_seq = std::make_shared<ppc::core::TaskData>();
   task_data_seq->inputs.emplace_back(reinterpret_cast<uint8_t*>(a.data()));
@@ -151,7 +149,7 @@ TEST(vavilov_v_cannon_seq, test_zero_matrix) {
   task_seq.Run();
   task_seq.PostProcessing();
 
-  for (unsigned int i = 0; i < n * n; i++) {
+  for (unsigned int i = 0; i < kN * kN; i++) {
     EXPECT_EQ(expected_output[i], c[i]);
   }
 }
