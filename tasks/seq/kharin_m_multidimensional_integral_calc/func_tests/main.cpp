@@ -1,28 +1,27 @@
 #include <gtest/gtest.h>
 
-#include <cmath>
-#include <cstddef>
-#include <cstdint>
-#include <memory>
 #include <vector>
+#include <random>
 
 #include "core/task/include/task.hpp"
 #include "seq/kharin_m_multidimensional_integral_calc/include/ops_seq.hpp"
 
-// Тест для интегрирования 3x3-сетки.
-// В данном случае входные данные – значения функции, расположенные на равномерной квадратной сетке,
-// и интеграл считается как сумма всех ячеек (при шаге равном 1).
-// Для 3x3 сетки сумма равна 1+2+...+9 = 45.
+// Тест для 2D интеграла (3x3 сетка)
 TEST(kharin_m_multidimensional_integral_calc_seq, test_integral_3x3) {
-  std::vector<int> in = {1, 2, 3, 4, 5, 6, 7, 8, 9};  // Сумма = 45
-
-  std::vector<int> out(1, 0);  // Результат – одно число (интеграл)
-  std::vector<int> expected_out = {45};
+  std::vector<double> in = {1.0, 2.0, 3.0, 4.0, 5.0, 6.0, 7.0, 8.0, 9.0};
+  std::vector<size_t> grid_sizes = {3, 3};
+  std::vector<double> step_sizes = {1.0, 1.0};
+  std::vector<double> out(1, 0.0);
+  double expected_out = 45.0; // Сумма 1+2+...+9 = 45 * 1.0 * 1.0
 
   auto task_data_seq = std::make_shared<ppc::core::TaskData>();
-  task_data_seq->inputs.emplace_back(reinterpret_cast<uint8_t *>(in.data()));
+  task_data_seq->inputs.emplace_back(reinterpret_cast<uint8_t*>(in.data()));
   task_data_seq->inputs_count.emplace_back(in.size());
-  task_data_seq->outputs.emplace_back(reinterpret_cast<uint8_t *>(out.data()));
+  task_data_seq->inputs.emplace_back(reinterpret_cast<uint8_t*>(grid_sizes.data()));
+  task_data_seq->inputs_count.emplace_back(grid_sizes.size());
+  task_data_seq->inputs.emplace_back(reinterpret_cast<uint8_t*>(step_sizes.data()));
+  task_data_seq->inputs_count.emplace_back(step_sizes.size());
+  task_data_seq->outputs.emplace_back(reinterpret_cast<uint8_t*>(out.data()));
   task_data_seq->outputs_count.emplace_back(out.size());
 
   kharin_m_multidimensional_integral_calc_seq::TaskSequential task(task_data_seq);
@@ -31,24 +30,25 @@ TEST(kharin_m_multidimensional_integral_calc_seq, test_integral_3x3) {
   task.Run();
   task.PostProcessing();
 
-  EXPECT_EQ(out, expected_out);
+  EXPECT_DOUBLE_EQ(out[0], expected_out);
 }
 
-// Тест для интегрирования 5x5-сетки с последовательными значениями от 1 до 25.
-// Сумма чисел от 1 до 25 равна 325.
-TEST(kharin_m_multidimensional_integral_calc_seq, test_integral_5x5) {
-  std::vector<int> in;
-  for (int i = 1; i <= 25; ++i) {
-    in.push_back(i);
-  }  // Сумма = 325
-
-  std::vector<int> out(1, 0);
-  std::vector<int> expected_out = {325};
+// Тест для 1D интеграла
+TEST(kharin_m_multidimensional_integral_calc_seq, test_integral_1d) {
+  std::vector<double> in = {1.0, 2.0, 3.0};
+  std::vector<size_t> grid_sizes = {3};
+  std::vector<double> step_sizes = {0.5};
+  std::vector<double> out(1, 0.0);
+  double expected_out = (1.0 + 2.0 + 3.0) * 0.5; // 6.0 * 0.5 = 3.0
 
   auto task_data_seq = std::make_shared<ppc::core::TaskData>();
-  task_data_seq->inputs.emplace_back(reinterpret_cast<uint8_t *>(in.data()));
+  task_data_seq->inputs.emplace_back(reinterpret_cast<uint8_t*>(in.data()));
   task_data_seq->inputs_count.emplace_back(in.size());
-  task_data_seq->outputs.emplace_back(reinterpret_cast<uint8_t *>(out.data()));
+  task_data_seq->inputs.emplace_back(reinterpret_cast<uint8_t*>(grid_sizes.data()));
+  task_data_seq->inputs_count.emplace_back(grid_sizes.size());
+  task_data_seq->inputs.emplace_back(reinterpret_cast<uint8_t*>(step_sizes.data()));
+  task_data_seq->inputs_count.emplace_back(step_sizes.size());
+  task_data_seq->outputs.emplace_back(reinterpret_cast<uint8_t*>(out.data()));
   task_data_seq->outputs_count.emplace_back(out.size());
 
   kharin_m_multidimensional_integral_calc_seq::TaskSequential task(task_data_seq);
@@ -57,21 +57,25 @@ TEST(kharin_m_multidimensional_integral_calc_seq, test_integral_5x5) {
   task.Run();
   task.PostProcessing();
 
-  EXPECT_EQ(out, expected_out);
+  EXPECT_DOUBLE_EQ(out[0], expected_out);
 }
 
-// Тест с постоянными данными: 5x5-сетка, заполненная числом 3.
-// Ожидаемый интеграл: 25 * 3 = 75.
-TEST(kharin_m_multidimensional_integral_calc_seq, test_integral_const_data) {
-  constexpr size_t kDim = 5;
-  std::vector<int> in(kDim * kDim, 3);
-  std::vector<int> out(1, 0);
-  std::vector<int> expected_out = {75};
+// Тест для 3D интеграла (2x2x2 сетка)
+TEST(kharin_m_multidimensional_integral_calc_seq, test_integral_3d) {
+  std::vector<double> in(8, 1.0); // 2x2x2 сетка, все значения = 1.0
+  std::vector<size_t> grid_sizes = {2, 2, 2};
+  std::vector<double> step_sizes = {1.0, 1.0, 1.0};
+  std::vector<double> out(1, 0.0);
+  double expected_out = 8.0 * 1.0 * 1.0 * 1.0; // 8.0
 
   auto task_data_seq = std::make_shared<ppc::core::TaskData>();
-  task_data_seq->inputs.emplace_back(reinterpret_cast<uint8_t *>(in.data()));
+  task_data_seq->inputs.emplace_back(reinterpret_cast<uint8_t*>(in.data()));
   task_data_seq->inputs_count.emplace_back(in.size());
-  task_data_seq->outputs.emplace_back(reinterpret_cast<uint8_t *>(out.data()));
+  task_data_seq->inputs.emplace_back(reinterpret_cast<uint8_t*>(grid_sizes.data()));
+  task_data_seq->inputs_count.emplace_back(grid_sizes.size());
+  task_data_seq->inputs.emplace_back(reinterpret_cast<uint8_t*>(step_sizes.data()));
+  task_data_seq->inputs_count.emplace_back(step_sizes.size());
+  task_data_seq->outputs.emplace_back(reinterpret_cast<uint8_t*>(out.data()));
   task_data_seq->outputs_count.emplace_back(out.size());
 
   kharin_m_multidimensional_integral_calc_seq::TaskSequential task(task_data_seq);
@@ -80,47 +84,108 @@ TEST(kharin_m_multidimensional_integral_calc_seq, test_integral_const_data) {
   task.Run();
   task.PostProcessing();
 
-  EXPECT_EQ(out, expected_out);
+  EXPECT_DOUBLE_EQ(out[0], expected_out);
 }
 
-// Тест с отрицательными данными: 5x5-сетка, содержащая значения от -1 до -25.
-// Сумма чисел от 1 до 25 равна 325, следовательно, ожидаемый интеграл = -325.
-TEST(kharin_m_multidimensional_integral_calc_seq, test_integral_negative_data) {
-  std::vector<int> in;
-  for (int i = 1; i <= 25; ++i) {
-    in.push_back(-i);
-  }  // Сумма = -325
-
-  std::vector<int> out(1, 0);
-  std::vector<int> expected_out = {-325};
-
+TEST(kharin_m_multidimensional_integral_calc_seq, test_invalid_input_count) {
   auto task_data_seq = std::make_shared<ppc::core::TaskData>();
-  task_data_seq->inputs.emplace_back(reinterpret_cast<uint8_t *>(in.data()));
-  task_data_seq->inputs_count.emplace_back(in.size());
-  task_data_seq->outputs.emplace_back(reinterpret_cast<uint8_t *>(out.data()));
-  task_data_seq->outputs_count.emplace_back(out.size());
+  // Добавляем только два входа вместо трех
+  task_data_seq->inputs.emplace_back(nullptr);
+  task_data_seq->inputs_count.emplace_back(0);
+  task_data_seq->inputs.emplace_back(nullptr);
+  task_data_seq->inputs_count.emplace_back(0);
+  task_data_seq->outputs.emplace_back(nullptr);
+  task_data_seq->outputs_count.emplace_back(1);
 
   kharin_m_multidimensional_integral_calc_seq::TaskSequential task(task_data_seq);
-  ASSERT_TRUE(task.Validation());
-  task.PreProcessing();
-  task.Run();
-  task.PostProcessing();
-
-  EXPECT_EQ(out, expected_out);
+  EXPECT_FALSE(task.Validation());
 }
 
-// Тест для большого объёма данных: 500x500-сетка, заполненная единицами.
-// Ожидаемый интеграл = 500 * 500 = 250000.
-TEST(kharin_m_multidimensional_integral_calc_seq, test_integral_large_data) {
-  constexpr size_t kDim = 500;
-  std::vector<int> in(kDim * kDim, 1);
-  std::vector<int> out(1, 0);
-  std::vector<int> expected_out = {static_cast<int>(kDim * kDim)};
+TEST(kharin_m_multidimensional_integral_calc_seq, test_invalid_output_count) {
+  std::vector<double> in = {1.0, 2.0, 3.0};
+  std::vector<size_t> grid_sizes = {3};
+  std::vector<double> step_sizes = {0.5};
+  std::vector<double> out(2, 0.0);  // Некорректно: должно быть 1 выходное значение
 
   auto task_data_seq = std::make_shared<ppc::core::TaskData>();
-  task_data_seq->inputs.emplace_back(reinterpret_cast<uint8_t *>(in.data()));
+  task_data_seq->inputs.emplace_back(reinterpret_cast<uint8_t*>(in.data()));
   task_data_seq->inputs_count.emplace_back(in.size());
-  task_data_seq->outputs.emplace_back(reinterpret_cast<uint8_t *>(out.data()));
+  task_data_seq->inputs.emplace_back(reinterpret_cast<uint8_t*>(grid_sizes.data()));
+  task_data_seq->inputs_count.emplace_back(grid_sizes.size());
+  task_data_seq->inputs.emplace_back(reinterpret_cast<uint8_t*>(step_sizes.data()));
+  task_data_seq->inputs_count.emplace_back(step_sizes.size());
+  task_data_seq->outputs.emplace_back(reinterpret_cast<uint8_t*>(out.data()));
+  task_data_seq->outputs_count.emplace_back(out.size());  // 2 вместо 1
+
+  kharin_m_multidimensional_integral_calc_seq::TaskSequential task(task_data_seq);
+  EXPECT_FALSE(task.Validation());
+}
+
+TEST(kharin_m_multidimensional_integral_calc_seq, test_mismatch_grid_step_sizes) {
+  std::vector<double> in = {1.0, 2.0, 3.0};
+  std::vector<size_t> grid_sizes = {3};      // 1 измерение
+  std::vector<double> step_sizes = {0.5, 0.5};  // 2 шага — несоответствие
+  std::vector<double> out(1, 0.0);
+
+  auto task_data_seq = std::make_shared<ppc::core::TaskData>();
+  task_data_seq->inputs.emplace_back(reinterpret_cast<uint8_t*>(in.data()));
+  task_data_seq->inputs_count.emplace_back(in.size());
+  task_data_seq->inputs.emplace_back(reinterpret_cast<uint8_t*>(grid_sizes.data()));
+  task_data_seq->inputs_count.emplace_back(grid_sizes.size());
+  task_data_seq->inputs.emplace_back(reinterpret_cast<uint8_t*>(step_sizes.data()));
+  task_data_seq->inputs_count.emplace_back(step_sizes.size());
+  task_data_seq->outputs.emplace_back(reinterpret_cast<uint8_t*>(out.data()));
+  task_data_seq->outputs_count.emplace_back(out.size());
+
+  kharin_m_multidimensional_integral_calc_seq::TaskSequential task(task_data_seq);
+  EXPECT_FALSE(task.Validation());
+}
+
+TEST(kharin_m_multidimensional_integral_calc_seq, test_invalid_input_size) {
+  std::vector<double> in = {1.0, 2.0};  // 2 элемента, но для сетки 3x3 нужно 9
+  std::vector<size_t> grid_sizes = {3, 3};
+  std::vector<double> step_sizes = {1.0, 1.0};
+  std::vector<double> out(1, 0.0);
+
+  auto task_data_seq = std::make_shared<ppc::core::TaskData>();
+  task_data_seq->inputs.emplace_back(reinterpret_cast<uint8_t*>(in.data()));
+  task_data_seq->inputs_count.emplace_back(in.size());
+  task_data_seq->inputs.emplace_back(reinterpret_cast<uint8_t*>(grid_sizes.data()));
+  task_data_seq->inputs_count.emplace_back(grid_sizes.size());
+  task_data_seq->inputs.emplace_back(reinterpret_cast<uint8_t*>(step_sizes.data()));
+  task_data_seq->inputs_count.emplace_back(step_sizes.size());
+  task_data_seq->outputs.emplace_back(reinterpret_cast<uint8_t*>(out.data()));
+  task_data_seq->outputs_count.emplace_back(out.size());
+
+  kharin_m_multidimensional_integral_calc_seq::TaskSequential task(task_data_seq);
+  ASSERT_TRUE(task.Validation());  // Валидация должна пройти, так как размеры входов проверяются в PreProcessing
+  EXPECT_FALSE(task.PreProcessing());
+}
+
+TEST(kharin_m_multidimensional_integral_calc_seq, test_random_data) {
+  constexpr size_t kDim = 100;
+  std::vector<double> in(kDim * kDim);
+  std::random_device rd;
+  std::mt19937 gen(rd());
+  std::uniform_real_distribution<> dis(0.0, 1.0);
+  double expected_sum = 0.0;
+  for (auto& val : in) {
+      val = dis(gen);
+      expected_sum += val;
+  }
+  std::vector<size_t> grid_sizes = {kDim, kDim};
+  std::vector<double> step_sizes = {0.1, 0.1};
+  std::vector<double> out(1, 0.0);
+  double expected_out = expected_sum * 0.1 * 0.1;
+
+  auto task_data_seq = std::make_shared<ppc::core::TaskData>();
+  task_data_seq->inputs.emplace_back(reinterpret_cast<uint8_t*>(in.data()));
+  task_data_seq->inputs_count.emplace_back(in.size());
+  task_data_seq->inputs.emplace_back(reinterpret_cast<uint8_t*>(grid_sizes.data()));
+  task_data_seq->inputs_count.emplace_back(grid_sizes.size());
+  task_data_seq->inputs.emplace_back(reinterpret_cast<uint8_t*>(step_sizes.data()));
+  task_data_seq->inputs_count.emplace_back(step_sizes.size());
+  task_data_seq->outputs.emplace_back(reinterpret_cast<uint8_t*>(out.data()));
   task_data_seq->outputs_count.emplace_back(out.size());
 
   kharin_m_multidimensional_integral_calc_seq::TaskSequential task(task_data_seq);
@@ -129,5 +194,5 @@ TEST(kharin_m_multidimensional_integral_calc_seq, test_integral_large_data) {
   task.Run();
   task.PostProcessing();
 
-  EXPECT_EQ(out, expected_out);
+  EXPECT_NEAR(out[0], expected_out, 1e-6);
 }
