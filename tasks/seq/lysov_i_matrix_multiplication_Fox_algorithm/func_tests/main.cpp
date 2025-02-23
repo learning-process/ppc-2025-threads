@@ -239,3 +239,31 @@ TEST(lysov_i_matrix_multiplication_fox_algorithm_seq, Test_Matrix_Multiplication
   lysov_i_matrix_multiplication_fox_algorithm_seq::TestTaskSequential matrix_multiplication(task_data_sequential);
   ASSERT_EQ(matrix_multiplication.ValidationImpl(), false);
 }
+
+TEST(lysov_i_matrix_multiplication_fox_algorithm_seq, Test_Matrix_Multiplication_Negative_Values) {
+  size_t n = 3;
+  size_t block_size = 2;
+  std::vector<double> a = {-1, -3, -1, -4, 0, -5, -1, -2, -3};
+  std::vector<double> b = {-1, -2, -3, 0, -1, 0, -4, 0, -1};
+  std::vector<double> c(n * n, 0);
+  std::vector<double> c_expected(n * n, 0);
+  TrivialMatrixMultiplication(a, b, c_expected, n);
+  std::shared_ptr<ppc::core::TaskData> task_data_sequential = std::make_shared<ppc::core::TaskData>();
+  task_data_sequential->inputs.emplace_back(reinterpret_cast<uint8_t *>(&n));
+  task_data_sequential->inputs.emplace_back(reinterpret_cast<uint8_t *>(a.data()));
+  task_data_sequential->inputs.emplace_back(reinterpret_cast<uint8_t *>(b.data()));
+  task_data_sequential->inputs.emplace_back(reinterpret_cast<uint8_t *>(&block_size));
+  task_data_sequential->outputs.emplace_back(reinterpret_cast<uint8_t *>(c.data()));
+  task_data_sequential->inputs_count.emplace_back(n * n);
+  task_data_sequential->inputs_count.emplace_back(n * n);
+  task_data_sequential->inputs_count.emplace_back(1);
+  task_data_sequential->outputs_count.emplace_back(n * n);
+  lysov_i_matrix_multiplication_fox_algorithm_seq::TestTaskSequential matrix_multiplication(task_data_sequential);
+  ASSERT_EQ(matrix_multiplication.ValidationImpl(), true);
+  matrix_multiplication.PreProcessingImpl();
+  matrix_multiplication.RunImpl();
+  matrix_multiplication.PostProcessingImpl();
+  for (size_t i = 0; i < n * n; i++) {
+    EXPECT_NEAR(c_expected[i], c[i], 1e-3);
+  }
+}
