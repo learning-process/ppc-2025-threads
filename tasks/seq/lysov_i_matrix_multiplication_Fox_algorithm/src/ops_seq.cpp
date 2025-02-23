@@ -4,7 +4,7 @@
 #include <cmath>
 #include <cstddef>
 #include <vector>
-
+namespace {
 void ProcessBlock(const std::vector<double> &a, const std::vector<double> &b, std::vector<double> &c, std::size_t i,
                   std::size_t j, std::size_t a_block_row, std::size_t block_size, std::size_t n) {
   std::size_t block_h = std::min(block_size, n - (i * block_size));
@@ -29,7 +29,7 @@ void ProcessBlock(const std::vector<double> &a, const std::vector<double> &b, st
     }
   }
 }
-
+}  // namespace
 bool lysov_i_matrix_multiplication_fox_algorithm_seq::TestTaskSequential::PreProcessingImpl() {
   n_ = reinterpret_cast<std::size_t *>(task_data->inputs[0])[0];
   block_size_ = reinterpret_cast<std::size_t *>(task_data->inputs[3])[0];

@@ -1,5 +1,6 @@
 #include <gtest/gtest.h>
 
+#include <cmath>
 #include <cstddef>
 #include <cstdint>
 #include <memory>
@@ -7,11 +8,10 @@
 #include <vector>
 
 #include "core/task/include/task.hpp"
-#include "core/util/include/util.hpp"
 #include "seq/lysov_i_matrix_multiplication_Fox_algorithm/include/ops_seq.hpp"
 namespace {
-void trivial_matrix_multiplication(const std::vector<double> &matrixA, const std::vector<double> &matrixB,
-                                   std::vector<double> &resultMatrix, size_t matrixSize);
+void TrivialMatrixMultiplication(const std::vector<double> &matrix_a, const std::vector<double> &matrix_b,
+                                 std::vector<double> &result_matrix, size_t matrix_size);
 std::vector<double> GetRandomMatrix(size_t size);
 
 std::vector<double> GetRandomMatrix(size_t size) {
@@ -28,13 +28,14 @@ std::vector<double> GetRandomMatrix(size_t size) {
   return matrix;
 }
 
-void trivial_matrix_multiplication(const std::vector<double> &matrix_a, const std::vector<double> &matrix_b,
-                                   std::vector<double> &result_matrix, size_t matrix_size) {
+void TrivialMatrixMultiplication(const std::vector<double> &matrix_a, const std::vector<double> &matrix_b,
+                                 std::vector<double> &result_matrix, size_t matrix_size) {
   for (size_t row = 0; row < matrix_size; ++row) {
     for (size_t col = 0; col < matrix_size; ++col) {
-      result_matrix[row * matrix_size + col] = 0.0;
+      result_matrix[(row * matrix_size) + col] = 0.0;
       for (size_t k = 0; k < matrix_size; ++k) {
-        result_matrix[row * matrix_size + col] += matrix_a[(row * matrix_size) + k] * matrix_b[(k * matrix_size) + col];
+        result_matrix[(row * matrix_size) + col] +=
+            matrix_a[(row * matrix_size) + k] * matrix_b[(k * matrix_size) + col];
       }
       result_matrix[(row * matrix_size) + col] = round(result_matrix[(row * matrix_size) + col] * 10000) / 10000;
     }
@@ -97,7 +98,7 @@ TEST(lysov_i_matrix_multiplication_fox_algorithm_seq, Test_matrix_7x7) {
   std::vector<double> b = GetRandomMatrix(n);
   std::vector<double> c(n * n, 0);
   std::vector<double> c_expected(n * n, 0);
-  trivial_matrix_multiplication(a, b, c_expected, n);
+  TrivialMatrixMultiplication(a, b, c_expected, n);
   std::shared_ptr<ppc::core::TaskData> task_data_sequential = std::make_shared<ppc::core::TaskData>();
   task_data_sequential->inputs.emplace_back(reinterpret_cast<uint8_t *>(&n));
   task_data_sequential->inputs.emplace_back(reinterpret_cast<uint8_t *>(a.data()));
@@ -125,7 +126,7 @@ TEST(lysov_i_matrix_multiplication_fox_algorithm_seq, Test_matrix_16x16) {
   std::vector<double> b = GetRandomMatrix(n);
   std::vector<double> c(n * n, 0);
   std::vector<double> c_expected(n * n, 0);
-  trivial_matrix_multiplication(a, b, c_expected, n);
+  TrivialMatrixMultiplication(a, b, c_expected, n);
   std::shared_ptr<ppc::core::TaskData> task_data_sequential = std::make_shared<ppc::core::TaskData>();
   task_data_sequential->inputs.emplace_back(reinterpret_cast<uint8_t *>(&n));
   task_data_sequential->inputs.emplace_back(reinterpret_cast<uint8_t *>(a.data()));
@@ -153,7 +154,7 @@ TEST(lysov_i_matrix_multiplication_fox_algorithm_seq, Test_matrix_11x11) {
   std::vector<double> b = GetRandomMatrix(n);
   std::vector<double> c(n * n, 0);
   std::vector<double> c_expected(n * n, 0);
-  trivial_matrix_multiplication(a, b, c_expected, n);
+  TrivialMatrixMultiplication(a, b, c_expected, n);
   std::shared_ptr<ppc::core::TaskData> task_data_sequential = std::make_shared<ppc::core::TaskData>();
   task_data_sequential->inputs.emplace_back(reinterpret_cast<uint8_t *>(&n));
   task_data_sequential->inputs.emplace_back(reinterpret_cast<uint8_t *>(a.data()));
