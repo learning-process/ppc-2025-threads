@@ -21,13 +21,13 @@ TEST(yasakova_t_sparse_matrix_multiplication_seq, test_pipeline_run) {
   for (unsigned int row = 0; row < 150; row++) {
     for (unsigned int col = 0; col < 150; col++) {
       sparse_matrix_a.InsertElement(static_cast<int>(row), Complex(-50 + (rand() % 50), -50 + (rand() % 50)),
-                                  static_cast<int>(col));
+                                    static_cast<int>(col));
     }
   }
   for (unsigned int row = 50; row < 140; row++) {
     for (unsigned int col = 50; col < 150; col++) {
       sparse_matrix_b.InsertElement(static_cast<int>(row), Complex(-50 + (rand() % 50), -50 + (rand() % 50)),
-                                  static_cast<int>(col));
+                                    static_cast<int>(col));
     }
   }
   vector_a = yasakova_t_sparse_matrix_multiplication_seq::ConvertMatrixToVector(sparse_matrix_a);
@@ -79,13 +79,13 @@ TEST(yasakova_t_sparse_matrix_multiplication_seq, test_task_run) {
   for (unsigned int row = 0; row < 150; row++) {
     for (unsigned int col = 0; col < 150; col++) {
       sparse_matrix_a.InsertElement(static_cast<int>(row), Complex(-50 + (rand() % 50), -50 + (rand() % 50)),
-                                  static_cast<int>(col));
+                                    static_cast<int>(col));
     }
   }
   for (unsigned int row = 50; row < 140; row++) {
     for (unsigned int col = 50; col < 150; col++) {
       sparse_matrix_b.InsertElement(static_cast<int>(row), Complex(-50 + (rand() % 50), -50 + (rand() % 50)),
-                                  static_cast<int>(col));
+                                    static_cast<int>(col));
     }
   }
   vector_a = yasakova_t_sparse_matrix_multiplication_seq::ConvertMatrixToVector(sparse_matrix_a);
