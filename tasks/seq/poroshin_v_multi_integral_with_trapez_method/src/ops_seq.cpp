@@ -1,5 +1,8 @@
 #include "seq/poroshin_v_multi_integral_with_trapez_method/include/ops_seq.hpp"
 
+#include <memory>
+#include <vector>
+
 void poroshin_v_multi_integral_with_trapez_method_seq::TestTaskSequential::CountMultiIntegralTrapezMethodSeq() {
   int dimensions = static_cast<int>(limits_.size());
   std::vector<double> h(dimensions);
