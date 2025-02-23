@@ -1,12 +1,16 @@
 #pragma once
 
-#include <utility>
+#include <algorithm>
+#include <cmath>
+#include <cstdint>
+#include <iostream>
+#include <numeric>
 #include <vector>
 
 #include "core/task/include/task.hpp"
 
 namespace kudryashova_i_radix_batcher_seq {
-
+void radix_double_sort(std::vector<double> &data, int first, int last);
 class TestTaskSequential : public ppc::core::Task {
  public:
   explicit TestTaskSequential(ppc::core::TaskDataPtr task_data) : Task(std::move(task_data)) {}
@@ -16,7 +20,7 @@ class TestTaskSequential : public ppc::core::Task {
   bool PostProcessingImpl() override;
 
  private:
-  std::vector<int> input_, output_;
+  std::vector<double> input_data;
   int rc_size_{};
 };
 

@@ -1,42 +1,78 @@
 #include "seq/kudryashova_i_radix_batcher/include/kudryashovaRadixBatcherSeq.hpp"
 
+#include <algorithm>
 #include <cmath>
 #include <cstddef>
+#include <cstring>
 #include <vector>
 
+void kudryashova_i_radix_batcher_seq::radix_double_sort(std::vector<double> &data, int first, int last) {
+  const int sort_size = last - first;
+  std::vector<uint64_t> converted(sort_size);
+  // Convert each double to uint64_t representation
+  for (int i = 0; i < sort_size; ++i) {
+    double value = data[first + i];
+    uint64_t bits;
+    std::memcpy(&bits, &value, sizeof(value));
+    converted[i] = (bits & (1ULL << 63)) ? ~bits : bits ^ (1ULL << 63);  // sign of the number
+  }
+  std::vector<uint64_t> buffer(sort_size);
+  int bits_int_byte = 8;
+  int total_passes = sizeof(uint64_t);  // Total number of passes based on uint64_t size
+  int max_byte_value = 255;
+
+  for (int shift = 0; shift < total_passes; ++shift) {
+    size_t count[256] = {0};                      // Array to count occurrences of each byte
+    const int shift_loc = shift * bits_int_byte;  // Determine how much to shift for the current pass
+
+    // Count occurrences of each byte in the current shift position
+    for (const auto &num : converted) {
+      ++count[(num >> shift_loc) & max_byte_value];
+    }
+
+    size_t total = 0;
+    // Convert the count array to a prefix sum array
+    for (auto &safe : count) {
+      size_t old = safe;
+      safe = total;
+      total += old;
+    }
+    // Rearrange the elements based on the prefix sums
+    for (const auto &num : converted) {
+      const uint8_t byte = (num >> shift_loc) & max_byte_value;
+      buffer[count[byte]++] = num;
+    }
+    converted.swap(buffer);
+  }
+  // Convert the sorted uint64_t representations back to double
+  for (int i = 0; i < sort_size; ++i) {
+    uint64_t bits = converted[i];
+    bits = (bits & (1ULL << 63)) ? (bits ^ (1ULL << 63)) : ~bits;
+    std::memcpy(&data[first + i], &bits, sizeof(double));
+  }
+}
+
 bool kudryashova_i_radix_batcher_seq::TestTaskSequential::PreProcessingImpl() {
-  // Init value for input and output
-  unsigned int input_size = task_data->inputs_count[0];
-  auto *in_ptr = reinterpret_cast<int *>(task_data->inputs[0]);
-  input_ = std::vector<int>(in_ptr, in_ptr + input_size);
-
-  unsigned int output_size = task_data->outputs_count[0];
-  output_ = std::vector<int>(output_size, 0);
-
-  rc_size_ = static_cast<int>(std::sqrt(input_size));
+  input_data.resize(task_data->inputs_count[0]);
+  if (task_data->inputs[0] == nullptr || task_data->inputs_count[0] == 0) {
+    return false;
+  }
+  auto *tmp_ptr = reinterpret_cast<double *>(task_data->inputs[0]);
+  std::copy(tmp_ptr, tmp_ptr + task_data->inputs_count[0], input_data.begin());
   return true;
 }
 
 bool kudryashova_i_radix_batcher_seq::TestTaskSequential::ValidationImpl() {
-  // Check equality of counts elements
-  return task_data->inputs_count[0] == task_data->outputs_count[0];
+  return task_data->inputs_count[0] > 0 && task_data->outputs_count[0] == task_data->inputs_count[0];
 }
 
 bool kudryashova_i_radix_batcher_seq::TestTaskSequential::RunImpl() {
-  // Multiply matrices
-  for (int i = 0; i < rc_size_; ++i) {
-    for (int j = 0; j < rc_size_; ++j) {
-      for (int k = 0; k < rc_size_; ++k) {
-        output_[(i * rc_size_) + j] += input_[(i * rc_size_) + k] * input_[(k * rc_size_) + j];
-      }
-    }
-  }
+  radix_double_sort(input_data, 0, input_data.size());
   return true;
 }
 
 bool kudryashova_i_radix_batcher_seq::TestTaskSequential::PostProcessingImpl() {
-  for (size_t i = 0; i < output_.size(); i++) {
-    reinterpret_cast<int *>(task_data->outputs[0])[i] = output_[i];
-  }
+  auto *output = reinterpret_cast<double *>(task_data->outputs[0]);
+  std::copy(input_data.begin(), input_data.end(), output);
   return true;
 }
