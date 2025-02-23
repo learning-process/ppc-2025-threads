@@ -105,23 +105,6 @@ std::vector<double> FromSparesMatrix(const SparesMatrix& matrix) {
   return simpl_matrix;
 }
 
-std::ostream& operator<<(std::ostream& os, const SparesMatrix& matrix) {
-  os << "VALUES" << '\n';
-  for (auto i = 0; i < static_cast<int>(matrix.GetValues().size()); ++i) {
-    os << matrix.GetValues()[i] << " ";
-  }
-  os << '\n' << "ROWS" << '\n';
-  for (auto i = 0; i < static_cast<int>(matrix.GetRows().size()); ++i) {
-    os << matrix.GetRows()[i] << " ";
-  }
-  os << '\n' << "ElementsSum" << '\n';
-  for (auto i = 0; i < static_cast<int>(matrix.GetElementsSum().size()); ++i) {
-    os << matrix.GetElementsSum()[i] << " ";
-  }
-  os << '\n';
-  return os;
-}
-
 int SparesMatrix::GetElementsCount(int index, const std::vector<int>& elements_sum) {
   if (index == 0) {
     return elements_sum[index];

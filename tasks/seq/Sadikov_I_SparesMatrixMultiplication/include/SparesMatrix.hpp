@@ -33,5 +33,3 @@ class SparesMatrix {
 SparesMatrix MatrixToSpares(int rows_count, int columns_count, const std::vector<double>& values);
 
 std::vector<double> FromSparesMatrix(const SparesMatrix& matrix);
-
-std::ostream& operator<<(std::ostream& os, const SparesMatrix& matrix);
