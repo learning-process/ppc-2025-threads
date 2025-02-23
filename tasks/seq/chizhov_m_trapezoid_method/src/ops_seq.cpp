@@ -1,11 +1,11 @@
-#include <thread>
-
 #include "seq/chizhov_m_trapezoid_method/include/ops_seq.hpp"
+
+#include <thread>
 
 using namespace std::chrono_literals;
 
-double chizhov_m_trapezoid_method_seq::Trapezoid_method(const Function f, int div,
-                                                        int dim, std::vector<double>& lower_limits,
+double chizhov_m_trapezoid_method_seq::Trapezoid_method(const Function f, int div, int dim,
+                                                        std::vector<double>& lower_limits,
                                                         std::vector<double>& upper_limits) {
   std::vector<double> h(dim);
   std::vector<int> steps(dim);
@@ -49,7 +49,6 @@ double chizhov_m_trapezoid_method_seq::Trapezoid_method(const Function f, int di
   }
 
   return std::round(result * 100.0) / 100.0;
-
 }
 
 bool chizhov_m_trapezoid_method_seq::TestTaskSequential::PreProcessingImpl() {
@@ -60,9 +59,9 @@ bool chizhov_m_trapezoid_method_seq::TestTaskSequential::PreProcessingImpl() {
   dim = static_cast<size_t>(*dimensionPtr);
 
   auto* limitPtr = reinterpret_cast<double*>(task_data->inputs[2]);
-  for (int i = 0; i < static_cast<int>(task_data->inputs_count[2]); i+=2) {
+  for (int i = 0; i < static_cast<int>(task_data->inputs_count[2]); i += 2) {
     lower_limits.push_back(limitPtr[i]);
-    upper_limits.push_back(limitPtr[i+1]);
+    upper_limits.push_back(limitPtr[i + 1]);
   }
   auto* ptr_f = reinterpret_cast<std::function<double(const std::vector<double>&)>*>(task_data->inputs[3]);
   f = *ptr_f;

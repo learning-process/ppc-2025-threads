@@ -1,7 +1,7 @@
 #include <gtest/gtest.h>
 
-#include <vector>
 #include <functional>
+#include <vector>
 
 #include "seq/chizhov_m_trapezoid_method/include/ops_seq.hpp"
 

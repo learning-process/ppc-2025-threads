@@ -1,17 +1,17 @@
 #pragma once
 
+#include <functional>
 #include <random>
 #include <string>
 #include <vector>
-#include <functional>
 
 #include "core/task/include/task.hpp"
 
 namespace chizhov_m_trapezoid_method_seq {
 using Function = std::function<double(const std::vector<double>&)>;
 
-double Trapezoid_method(const Function f, int div, int dim,
-                        std::vector<double>& lower_limits, std::vector<double>& upper_limits);
+double Trapezoid_method(const Function f, int div, int dim, std::vector<double>& lower_limits,
+                        std::vector<double>& upper_limits);
 
 class TestTaskSequential : public ppc::core::Task {
  public:
