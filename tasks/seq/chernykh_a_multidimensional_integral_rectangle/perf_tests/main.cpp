@@ -1,6 +1,8 @@
 #include <gtest/gtest.h>
 
 #include <chrono>
+#include <cmath>
+#include <cstddef>
 #include <cstdint>
 #include <memory>
 #include <numbers>
@@ -10,7 +12,9 @@
 #include "core/task/include/task.hpp"
 #include "seq/chernykh_a_multidimensional_integral_rectangle/include/ops_seq.hpp"
 
-namespace chernykh_a_multidimensional_integral_rectangle_seq {
+namespace {
+
+using namespace chernykh_a_multidimensional_integral_rectangle_seq;
 
 enum class RunType : uint8_t { kTask, kPipeline };
 
@@ -52,34 +56,32 @@ void RunTask(const RunType run_type, const Func& func, BoundsPerDim& bounds_per_
   EXPECT_NEAR(want, output, 1e-4);
 }
 
-}  // namespace chernykh_a_multidimensional_integral_rectangle_seq
-
-namespace chernykh_a_mir_seq = chernykh_a_multidimensional_integral_rectangle_seq;
-
 TEST(chernykh_a_multidimensional_integral_rectangle_seq, test_pipeline_run) {
-  auto func = [](const chernykh_a_mir_seq::Point& point) -> double {
+  auto func = [](const Point& point) -> double {
     return std::exp(-point[0] - point[1] - point[2]) * std::sin(point[0]) * std::sin(point[1]) * std::sin(point[2]);
   };
-  auto bounds_per_dim = chernykh_a_mir_seq::BoundsPerDim{
+  auto bounds_per_dim = BoundsPerDim{
       {0.0, std::numbers::pi},
       {0.0, std::numbers::pi},
       {0.0, std::numbers::pi},
   };
-  auto steps_per_dim = chernykh_a_mir_seq::StepsPerDim{150, 150, 150};
+  auto steps_per_dim = StepsPerDim{150, 150, 150};
   double want = std::pow((1.0 + std::exp(-std::numbers::pi)) / 2.0, 3);
-  chernykh_a_mir_seq::RunTask(chernykh_a_mir_seq::RunType::kPipeline, func, bounds_per_dim, steps_per_dim, want);
+  RunTask(RunType::kPipeline, func, bounds_per_dim, steps_per_dim, want);
 }
 
 TEST(chernykh_a_multidimensional_integral_rectangle_seq, test_task_run) {
-  auto func = [](const chernykh_a_mir_seq::Point& point) -> double {
+  auto func = [](const Point& point) -> double {
     return std::exp(-point[0] - point[1] - point[2]) * std::sin(point[0]) * std::sin(point[1]) * std::sin(point[2]);
   };
-  auto bounds_per_dim = chernykh_a_mir_seq::BoundsPerDim{
+  auto bounds_per_dim = BoundsPerDim{
       {0.0, std::numbers::pi},
       {0.0, std::numbers::pi},
       {0.0, std::numbers::pi},
   };
-  auto steps_per_dim = chernykh_a_mir_seq::StepsPerDim{150, 150, 150};
+  auto steps_per_dim = StepsPerDim{150, 150, 150};
   double want = std::pow((1.0 + std::exp(-std::numbers::pi)) / 2.0, 3);
-  chernykh_a_mir_seq::RunTask(chernykh_a_mir_seq::RunType::kTask, func, bounds_per_dim, steps_per_dim, want);
+  RunTask(RunType::kTask, func, bounds_per_dim, steps_per_dim, want);
 }
+
+}  // namespace

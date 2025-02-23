@@ -31,7 +31,7 @@ class SequentialTask final : public ppc::core::Task {
 
   [[nodiscard]] std::vector<double> GetStepSizePerDim() const;
   [[nodiscard]] int GetTotalPoints() const;
-  [[nodiscard]] Point GetPoint(int p, const std::vector<double>& step_size_per_dim) const;
+  [[nodiscard]] Point GetPoint(int idx, const std::vector<double>& step_size_per_dim) const;
   [[nodiscard]] double GetScalingFactor(const std::vector<double>& step_size_per_dim) const;
 };
 

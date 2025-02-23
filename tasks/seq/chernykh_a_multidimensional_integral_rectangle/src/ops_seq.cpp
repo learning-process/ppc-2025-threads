@@ -1,7 +1,9 @@
 #include "seq/chernykh_a_multidimensional_integral_rectangle/include/ops_seq.hpp"
 
+#include <algorithm>
 #include <cstddef>
-#include <iostream>
+#include <cstdint>
+#include <functional>
 #include <vector>
 
 namespace chernykh_a_multidimensional_integral_rectangle_seq {
@@ -64,12 +66,12 @@ int SequentialTask::GetTotalPoints() const {
   return total_points;
 }
 
-Point SequentialTask::GetPoint(int p, const std::vector<double> &step_size_per_dim) const {
+Point SequentialTask::GetPoint(int idx, const std::vector<double> &step_size_per_dim) const {
   auto point = std::vector<double>(bounds_per_dim_.size());
   for (size_t i = 0; i < bounds_per_dim_.size(); i++) {
-    int coordinate_index = p % steps_per_dim_[i];
-    point[i] = bounds_per_dim_[i].first + (coordinate_index + 1) * step_size_per_dim[i];
-    p /= steps_per_dim_[i];
+    int coordinate_idx = idx % steps_per_dim_[i];
+    point[i] = bounds_per_dim_[i].first + (coordinate_idx + 1) * step_size_per_dim[i];
+    idx /= steps_per_dim_[i];
   }
   return point;
 }
