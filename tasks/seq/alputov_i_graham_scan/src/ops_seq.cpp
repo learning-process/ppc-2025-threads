@@ -2,8 +2,8 @@
 
 #include <algorithm>
 #include <cmath>
-#include <vector>
 #include <cstddef>
+#include <vector>
 
 namespace alputov_i_graham_scan_seq {
 
@@ -17,9 +17,7 @@ bool TestTaskSequential::ValidationImpl() {
   return (task_data->inputs_count[0] <= task_data->outputs_count[0] && task_data->inputs_count[0] >= 3);
 }
 
-
 double TestTaskSequential::Cross(const Point& o, const Point& a, const Point& b) {
-
   return ((a.x - o.x) * (b.y - o.y)) - ((a.y - o.y) * (b.x - o.x));
 }
 
