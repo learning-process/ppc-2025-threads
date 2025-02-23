@@ -50,7 +50,7 @@ void deryabin_m_hoare_sort_simple_merge_seq::HoareSortTaskSequential::HoaraSort(
   }
 }
 
-void deryabin_m_hoare_sort_simple_merge_seq::HoareSortTaskSequential::MergeTwoParts(std::vector<double>& a, size_t left,
+void deryabin_m_hoare_sort_simple_merge_seq::HoareSortTaskSequential::const MergeTwoParts(std::vector<double>& a, size_t left,
                                                                                     size_t right) {
   size_t middle = left + ((right - left) / 2);
   size_t l_cur = left;
@@ -87,7 +87,7 @@ bool deryabin_m_hoare_sort_simple_merge_seq::HoareSortTaskSequential::RunImpl() 
   }
   for (size_t i = 0; i < (size_t)(log((double)chunk_count) / std::numbers::ln2); i++) {
     for (size_t j = 0; j < chunk_count_; j++) {
-      if (i == (size_t)(log((double)chunk_count_) / log((double)2)) - 1) {
+      if (i == (size_t)(log((double)chunk_count_) / std::numbers::ln2) - 1) {
         MergeTwoParts(input_array_A_, 0, dimension_ - 1);
       } else {
         MergeTwoParts(input_array_A_, 2 * j * min_chunk_size_ * (i + 1), (2 * (j + 1) * min_chunk_size_ * (i + 1)) - 1);
