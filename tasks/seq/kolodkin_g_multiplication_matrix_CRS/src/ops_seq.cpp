@@ -5,6 +5,32 @@
 #include <cstddef>
 #include <vector>
 
+void kolodkin_g_multiplication_matrix_seq::SparseMatrixCRS::AddValue(int row, Complex value, int col) {
+  for (int j = rowPtr[row]; j < rowPtr[row + 1]; ++j) {
+    if (colIndices[j] == col) {
+      values[j] += value;
+      return;
+    }
+  }
+  colIndices.emplace_back(col);
+  values.emplace_back(value);
+  for (int i = row + 1; i <= numRows; ++i) {
+    rowPtr[i]++;
+  }
+}
+void kolodkin_g_multiplication_matrix_seq::SparseMatrixCRS::PrintSparseMatrix(
+    const kolodkin_g_multiplication_matrix_seq::SparseMatrixCRS& matrix) {
+  for (int i = 0; i < matrix.numRows; ++i) {
+    for (int j = matrix.rowPtr[i]; j < matrix.rowPtr[i + 1]; ++j) {
+      std::cout << "Element at (" << i << ", " << matrix.colIndices[j] << ") = " << matrix.values[j] << '\n';
+    }
+  }
+}
+
+bool kolodkin_g_multiplication_matrix_seq::areEqualElems(const Complex& a, const Complex& b, double epsilon) {
+  return std::abs(a.real() - b.real()) < epsilon && std::abs(a.imag() - b.imag()) < epsilon;
+}
+
 std::vector<Complex> kolodkin_g_multiplication_matrix_seq::ParseMatrixIntoVec(const SparseMatrixCRS& mat) {
   std::vector<Complex> res = {};
   res.reserve(5 + mat.values.size() + mat.colIndices.size() + mat.rowPtr.size());
@@ -35,15 +61,13 @@ bool kolodkin_g_multiplication_matrix_seq::CheckMatrixesEquality(
     unsigned int this_row_end = a.rowPtr[i + 1];
     unsigned int other_row_start = b.rowPtr[i];
     unsigned int other_row_end = b.rowPtr[i + 1];
-
     if ((this_row_end - this_row_start) != (other_row_end - other_row_start)) {
       return false;
     }
-
     for (unsigned int j = this_row_start; j < this_row_end; ++j) {
       bool found = false;
       for (unsigned int k = other_row_start; k < other_row_end; ++k) {
-        if (a.colIndices[j] == b.colIndices[k] && a.values[j] == b.values[k]) {
+        if (a.colIndices[j] == b.colIndices[k] && areEqualElems(a.values[j], b.values[k], 0.000001)) {
           found = true;
           break;
         }
@@ -108,8 +132,7 @@ bool kolodkin_g_multiplication_matrix_seq::TestTaskSequential::ValidationImpl() 
 }
 
 bool kolodkin_g_multiplication_matrix_seq::TestTaskSequential::RunImpl() {
-  bool is_quadric = (A_.numRows == B_.numCols);
-  SparseMatrixCRS c(A_.numRows, is_quadric, B_.numCols);
+  SparseMatrixCRS c(A_.numRows, B_.numCols);
   for (unsigned int i = 0; i < (unsigned int)A_.numRows; ++i) {
     for (unsigned int j = A_.rowPtr[i]; j < (unsigned int)A_.rowPtr[i + 1]; ++j) {
       unsigned int col_a = A_.colIndices[j];
