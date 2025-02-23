@@ -1,9 +1,13 @@
 #include <gtest/gtest.h>
 
+#include <chrono>
+#include <cmath>
+#include <numbers>
+
 #include "core/perf/include/perf.hpp"
 #include "seq/poroshin_v_multi_integral_with_trapez_method/include/ops_seq.hpp"
 
-double poroshin_v_multi_integral_with_trapez_method_seq::TestTaskSequential::f3advanced(
+double poroshin_v_multi_integral_with_trapez_method_seq::TestTaskSequential::F3advanced(
     std::vector<double> &arguments) {
   return sin(arguments.at(0)) * tan(arguments.at(1)) * log(arguments.at(2));
 }
@@ -22,7 +26,7 @@ TEST(poroshin_v_multi_integral_with_trapez_method_seq, test_pipeline_run) {
   task_seq->outputs.emplace_back(reinterpret_cast<uint8_t *>(out.data()));
   task_seq->outputs_count.emplace_back(out.size());
   auto test_task_sequential = std::make_shared<poroshin_v_multi_integral_with_trapez_method_seq::TestTaskSequential>(
-      task_seq, poroshin_v_multi_integral_with_trapez_method_seq::TestTaskSequential::f3advanced);
+      task_seq, poroshin_v_multi_integral_with_trapez_method_seq::TestTaskSequential::F3advanced);
   auto perf_attr = std::make_shared<ppc::core::PerfAttr>();
   perf_attr->num_running = 10;
   const auto t0 = std::chrono::high_resolution_clock::now();
@@ -52,7 +56,7 @@ TEST(poroshin_v_multi_integral_with_trapez_method_seq, test_task_run) {
   task_seq->outputs.emplace_back(reinterpret_cast<uint8_t *>(out.data()));
   task_seq->outputs_count.emplace_back(out.size());
   auto test_task_sequential = std::make_shared<poroshin_v_multi_integral_with_trapez_method_seq::TestTaskSequential>(
-      task_seq, poroshin_v_multi_integral_with_trapez_method_seq::TestTaskSequential::f3advanced);
+      task_seq, poroshin_v_multi_integral_with_trapez_method_seq::TestTaskSequential::F3advanced);
   auto perf_attr = std::make_shared<ppc::core::PerfAttr>();
   perf_attr->num_running = 10;
   const auto t0 = std::chrono::high_resolution_clock::now();
