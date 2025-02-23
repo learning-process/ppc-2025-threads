@@ -4,17 +4,25 @@
 
 #include "seq/poroshin_v_multi_integral_with_trapez_method/include/ops_seq.hpp"
 
-namespace poroshin_v_multi_integral_with_trapez_method_seq {
-double area(std::vector<double> &arguments) { return 1.0 + arguments.at(0) * 0.0; }
-
-double f1(std::vector<double> &arguments) { return arguments.at(0); }
-double f1cos(std::vector<double> &arguments) { return cos(arguments.at(0)); }
-double f1Euler(std::vector<double> &arguments) { return 2 * cos(arguments.at(0)) * sin(arguments.at(0)); }
-double f3(std::vector<double> &arguments) { return arguments.at(0) * arguments.at(1) * arguments.at(2); }
-double f3advanced(std::vector<double> &arguments) {
+double poroshin_v_multi_integral_with_trapez_method_seq::TestTaskSequential::area(std::vector<double> &arguments) {
+  return 1.0 + arguments.at(0) * 0.0;
+}
+double poroshin_v_multi_integral_with_trapez_method_seq::TestTaskSequential::f1(std::vector<double> &arguments) {
+  return arguments.at(0);
+}
+double poroshin_v_multi_integral_with_trapez_method_seq::TestTaskSequential::f1cos(std::vector<double> &arguments) {
+  return cos(arguments.at(0));
+}
+double poroshin_v_multi_integral_with_trapez_method_seq::TestTaskSequential::f1Euler(std::vector<double> &arguments) {
+  return 2 * cos(arguments.at(0)) * sin(arguments.at(0));
+}
+double poroshin_v_multi_integral_with_trapez_method_seq::TestTaskSequential::f3(std::vector<double> &arguments) {
+  return arguments.at(0) * arguments.at(1) * arguments.at(2);
+}
+double poroshin_v_multi_integral_with_trapez_method_seq::TestTaskSequential::f3advanced(
+    std::vector<double> &arguments) {
   return sin(arguments.at(0)) * tan(arguments.at(1)) * log(arguments.at(2));
 }
-}  // namespace poroshin_v_multi_integral_with_trapez_method_seq
 
 TEST(poroshin_v_multi_integral_with_trapez_method_seq, invalid_size) {
   std::vector<int> n;
@@ -29,7 +37,7 @@ TEST(poroshin_v_multi_integral_with_trapez_method_seq, invalid_size) {
   taskSeq->outputs.emplace_back(reinterpret_cast<uint8_t *>(out.data()));
   taskSeq->outputs_count.emplace_back(out.size());
   poroshin_v_multi_integral_with_trapez_method_seq::TestTaskSequential tmpTaskSeq(
-      taskSeq, poroshin_v_multi_integral_with_trapez_method_seq::f1);
+      taskSeq, poroshin_v_multi_integral_with_trapez_method_seq::TestTaskSequential::f1);
   ASSERT_FALSE(tmpTaskSeq.ValidationImpl());
 }
 
@@ -47,7 +55,7 @@ TEST(poroshin_v_multi_integral_with_trapez_method_seq, invalid_out) {
   taskSeq->outputs.emplace_back(reinterpret_cast<uint8_t *>(out.data()));
   taskSeq->outputs_count.emplace_back(out.size());
   poroshin_v_multi_integral_with_trapez_method_seq::TestTaskSequential tmpTaskSeq(
-      taskSeq, poroshin_v_multi_integral_with_trapez_method_seq::f1);
+      taskSeq, poroshin_v_multi_integral_with_trapez_method_seq::TestTaskSequential::f1);
   ASSERT_FALSE(tmpTaskSeq.ValidationImpl());
 }
 
@@ -65,7 +73,7 @@ TEST(poroshin_v_multi_integral_with_trapez_method_seq, minus_0_5_pi_0_5_pi_cos) 
   taskSeq->outputs.emplace_back(reinterpret_cast<uint8_t *>(out.data()));
   taskSeq->outputs_count.emplace_back(out.size());
   poroshin_v_multi_integral_with_trapez_method_seq::TestTaskSequential tmpTaskSeq(
-      taskSeq, poroshin_v_multi_integral_with_trapez_method_seq::f1cos);
+      taskSeq, poroshin_v_multi_integral_with_trapez_method_seq::TestTaskSequential::f1cos);
   ASSERT_TRUE(tmpTaskSeq.ValidationImpl());
   tmpTaskSeq.PreProcessingImpl();
   tmpTaskSeq.RunImpl();
@@ -87,7 +95,7 @@ TEST(poroshin_v_multi_integral_with_trapez_method_seq, Eulers_integral) {
   taskSeq->outputs.emplace_back(reinterpret_cast<uint8_t *>(out.data()));
   taskSeq->outputs_count.emplace_back(out.size());
   poroshin_v_multi_integral_with_trapez_method_seq::TestTaskSequential tmpTaskSeq(
-      taskSeq, poroshin_v_multi_integral_with_trapez_method_seq::f1Euler);
+      taskSeq, poroshin_v_multi_integral_with_trapez_method_seq::TestTaskSequential::f1Euler);
   ASSERT_TRUE(tmpTaskSeq.ValidationImpl());
   tmpTaskSeq.PreProcessingImpl();
   tmpTaskSeq.RunImpl();
@@ -109,7 +117,7 @@ TEST(poroshin_v_multi_integral_with_trapez_method_seq, 05x05_area) {
   taskSeq->outputs.emplace_back(reinterpret_cast<uint8_t *>(out.data()));
   taskSeq->outputs_count.emplace_back(out.size());
   poroshin_v_multi_integral_with_trapez_method_seq::TestTaskSequential tmpTaskSeq(
-      taskSeq, poroshin_v_multi_integral_with_trapez_method_seq::area);
+      taskSeq, poroshin_v_multi_integral_with_trapez_method_seq::TestTaskSequential::area);
   ASSERT_TRUE(tmpTaskSeq.ValidationImpl());
   tmpTaskSeq.PreProcessingImpl();
   tmpTaskSeq.RunImpl();
@@ -131,7 +139,7 @@ TEST(poroshin_v_multi_integral_with_trapez_method_seq, 2x2_area) {
   taskSeq->outputs.emplace_back(reinterpret_cast<uint8_t *>(out.data()));
   taskSeq->outputs_count.emplace_back(out.size());
   poroshin_v_multi_integral_with_trapez_method_seq::TestTaskSequential tmpTaskSeq(
-      taskSeq, poroshin_v_multi_integral_with_trapez_method_seq::area);
+      taskSeq, poroshin_v_multi_integral_with_trapez_method_seq::TestTaskSequential::area);
   ASSERT_TRUE(tmpTaskSeq.ValidationImpl());
   tmpTaskSeq.PreProcessingImpl();
   tmpTaskSeq.RunImpl();
@@ -153,7 +161,7 @@ TEST(poroshin_v_multi_integral_with_trapez_method_seq, 2_3x1_4_area) {
   taskSeq->outputs.emplace_back(reinterpret_cast<uint8_t *>(out.data()));
   taskSeq->outputs_count.emplace_back(out.size());
   poroshin_v_multi_integral_with_trapez_method_seq::TestTaskSequential tmpTaskSeq(
-      taskSeq, poroshin_v_multi_integral_with_trapez_method_seq::area);
+      taskSeq, poroshin_v_multi_integral_with_trapez_method_seq::TestTaskSequential::area);
   ASSERT_TRUE(tmpTaskSeq.ValidationImpl());
   tmpTaskSeq.PreProcessingImpl();
   tmpTaskSeq.RunImpl();
@@ -175,7 +183,7 @@ TEST(poroshin_v_multi_integral_with_trapez_method_seq, _0_2xminus2_0_area) {
   taskSeq->outputs.emplace_back(reinterpret_cast<uint8_t *>(out.data()));
   taskSeq->outputs_count.emplace_back(out.size());
   poroshin_v_multi_integral_with_trapez_method_seq::TestTaskSequential tmpTaskSeq(
-      taskSeq, poroshin_v_multi_integral_with_trapez_method_seq::area);
+      taskSeq, poroshin_v_multi_integral_with_trapez_method_seq::TestTaskSequential::area);
   ASSERT_TRUE(tmpTaskSeq.ValidationImpl());
   tmpTaskSeq.PreProcessingImpl();
   tmpTaskSeq.RunImpl();
@@ -197,7 +205,7 @@ TEST(poroshin_v_multi_integral_with_trapez_method_seq, minus03_0_x_15_17_x_2_21_
   taskSeq->outputs.emplace_back(reinterpret_cast<uint8_t *>(out.data()));
   taskSeq->outputs_count.emplace_back(out.size());
   poroshin_v_multi_integral_with_trapez_method_seq::TestTaskSequential tmpTaskSeq(
-      taskSeq, poroshin_v_multi_integral_with_trapez_method_seq::area);
+      taskSeq, poroshin_v_multi_integral_with_trapez_method_seq::TestTaskSequential::area);
   ASSERT_TRUE(tmpTaskSeq.ValidationImpl());
   tmpTaskSeq.PreProcessingImpl();
   tmpTaskSeq.RunImpl();
@@ -219,7 +227,7 @@ TEST(poroshin_v_multi_integral_with_trapez_method_seq, 08_1_x_15_17_x_18_2_xyz) 
   taskSeq->outputs.emplace_back(reinterpret_cast<uint8_t *>(out.data()));
   taskSeq->outputs_count.emplace_back(out.size());
   poroshin_v_multi_integral_with_trapez_method_seq::TestTaskSequential tmpTaskSeq(
-      taskSeq, poroshin_v_multi_integral_with_trapez_method_seq::f3);
+      taskSeq, poroshin_v_multi_integral_with_trapez_method_seq::TestTaskSequential::f3);
   ASSERT_TRUE(tmpTaskSeq.ValidationImpl());
   tmpTaskSeq.PreProcessingImpl();
   tmpTaskSeq.RunImpl();
@@ -241,7 +249,7 @@ TEST(poroshin_v_multi_integral_with_trapez_method_seq, 08_1_x_19_2_x_29_3_sinx_t
   taskSeq->outputs.emplace_back(reinterpret_cast<uint8_t *>(out.data()));
   taskSeq->outputs_count.emplace_back(out.size());
   poroshin_v_multi_integral_with_trapez_method_seq::TestTaskSequential tmpTaskSeq(
-      taskSeq, poroshin_v_multi_integral_with_trapez_method_seq::f3advanced);
+      taskSeq, poroshin_v_multi_integral_with_trapez_method_seq::TestTaskSequential::f3advanced);
   ASSERT_TRUE(tmpTaskSeq.ValidationImpl());
   tmpTaskSeq.PreProcessingImpl();
   tmpTaskSeq.RunImpl();

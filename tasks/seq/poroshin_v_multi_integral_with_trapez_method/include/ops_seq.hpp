@@ -20,14 +20,14 @@ class TestTaskSequential : public ppc::core::Task {
   bool ValidationImpl() override;
   bool RunImpl() override;
   bool PostProcessingImpl() override;
+  static double area(std::vector<double> &arguments);
+  static double f1(std::vector<double> &arguments);
+  static double f1cos(std::vector<double> &arguments);
+  static double f1Euler(std::vector<double> &arguments);
+  static double f3(std::vector<double> &arguments);
+  static double f3advanced(std::vector<double> &arguments);
 
  private:
-  double area(std::vector<double> &arguments);
-  double f1(std::vector<double> &arguments);
-  double f1cos(std::vector<double> &arguments);
-  double f1Euler(std::vector<double> &arguments);
-  double f3(std::vector<double> &arguments);
-  double f3advanced(std::vector<double> &arguments);
   void count_multi_integral_trapez_method_seq();
   std::vector<std::pair<double, double>> limits;
   size_t dim;
