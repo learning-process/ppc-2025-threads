@@ -5,7 +5,7 @@
 #include <vector>
 
 void poroshin_v_multi_integral_with_trapez_method_seq::TestTaskSequential::count_multi_integral_trapez_method_seq() {
-  int dimensions = limits.size();
+  int dimensions = static_cast<int>(limits.size());
   std::vector<double> h(dimensions);
   for (int i = 0; i < dimensions; ++i) {
     h[i] = (limits[i].second - limits[i].first) / n[i];

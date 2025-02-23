@@ -13,8 +13,8 @@ namespace poroshin_v_multi_integral_with_trapez_method_seq {
 
 class TestTaskSequential : public ppc::core::Task {
  public:
-  explicit TestTaskSequential(std::shared_ptr<ppc::core::TaskData>& taskData,
-                              std::function<double(std::vector<double>& args)> func)
+  explicit TestTaskSequential(std::shared_ptr<ppc::core::TaskData> &taskData,
+                              std::function<double(std::vector<double> &args)> func)
       : Task(taskData), dim(taskData->inputs_count[0]), func(std::move(func)) {}
   bool PreProcessingImpl() override;
   bool ValidationImpl() override;
@@ -22,10 +22,16 @@ class TestTaskSequential : public ppc::core::Task {
   bool PostProcessingImpl() override;
 
  private:
+  double area(std::vector<double> &arguments);
+  double f1(std::vector<double> &arguments);
+  double f1cos(std::vector<double> &arguments);
+  double f1Euler(std::vector<double> &arguments);
+  double f3(std::vector<double> &arguments);
+  double f3advanced(std::vector<double> &arguments);
   void count_multi_integral_trapez_method_seq();
   std::vector<std::pair<double, double>> limits;
   size_t dim;
-  std::function<double(std::vector<double>& args)> func;
+  std::function<double(std::vector<double> &args)> func;
   std::vector<int> n;
   double res{};
 };
