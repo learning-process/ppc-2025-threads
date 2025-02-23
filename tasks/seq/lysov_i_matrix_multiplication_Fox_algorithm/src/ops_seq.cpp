@@ -3,8 +3,32 @@
 #include <algorithm>
 #include <cmath>
 #include <cstddef>
-#include <iostream>
 #include <vector>
+
+void ProcessBlock(const std::vector<double> &a, const std::vector<double> &b, std::vector<double> &c, std::size_t i,
+                  std::size_t j, std::size_t a_block_row, std::size_t block_size, std::size_t n) {
+  std::size_t block_h = std::min(block_size, n - (i * block_size));
+  std::size_t block_w = std::min(block_size, n - (j * block_size));
+  for (std::size_t ii = 0; ii < block_h; ++ii) {
+    for (std::size_t jj = 0; jj < block_w; ++jj) {
+      double sum = 0.0;
+      for (std::size_t kk = 0; kk < std::min(block_size, n - (a_block_row * block_size)); ++kk) {
+        std::size_t row_a = (i * block_size) + ii;
+        std::size_t col_a = (a_block_row * block_size) + kk;
+        std::size_t row_b = (a_block_row * block_size) + kk;
+        std::size_t col_b = (j * block_size) + jj;
+        if (row_a < n && col_a < n && row_b < n && col_b < n) {
+          sum += a[(row_a * n) + col_a] * b[(row_b * n) + col_b];
+        }
+      }
+      std::size_t row_c = (i * block_size) + ii;
+      std::size_t col_c = (j * block_size) + jj;
+      if (row_c < n && col_c < n) {
+        c[(row_c * n) + col_c] += sum;
+      }
+    }
+  }
+}
 
 bool lysov_i_matrix_multiplication_fox_algorithm_seq::TestTaskSequential::PreProcessingImpl() {
   n_ = reinterpret_cast<std::size_t *>(task_data->inputs[0])[0];
@@ -36,35 +60,11 @@ bool lysov_i_matrix_multiplication_fox_algorithm_seq::TestTaskSequential::RunImp
   for (std::size_t step = 0; step < num_blocks; ++step) {
     for (std::size_t i = 0; i < num_blocks; ++i) {
       std::size_t a_block_row = (i + step) % num_blocks;
-
       for (std::size_t j = 0; j < num_blocks; ++j) {
-        std::size_t block_h = std::min(block_size_, n_ - i * block_size_);
-        std::size_t block_w = std::min(block_size_, n_ - j * block_size_);
-
-        for (std::size_t ii = 0; ii < block_h; ++ii) {
-          for (std::size_t jj = 0; jj < block_w; ++jj) {
-            double sum = 0.0;
-            for (std::size_t kk = 0; kk < std::min(block_size_, n_ - a_block_row * block_size_); ++kk) {
-              std::size_t row_a = i * block_size_ + ii;
-              std::size_t col_a = a_block_row * block_size_ + kk;
-              std::size_t row_b = a_block_row * block_size_ + kk;
-              std::size_t col_b = j * block_size_ + jj;
-
-              if (row_a < n_ && col_a < n_ && row_b < n_ && col_b < n_) {
-                sum += a_[row_a * n_ + col_a] * b_[row_b * n_ + col_b];
-              }
-            }
-            std::size_t row_c = i * block_size_ + ii;
-            std::size_t col_c = j * block_size_ + jj;
-            if (row_c < n_ && col_c < n_) {
-              c_[row_c * n_ + col_c] += sum;
-            }
-          }
-        }
+        ProcessBlock(a_, b_, c_, i, j, a_block_row, block_size_, n_);
       }
     }
   }
-
   return true;
 }
 

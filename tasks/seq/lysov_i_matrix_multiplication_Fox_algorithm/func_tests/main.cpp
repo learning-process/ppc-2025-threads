@@ -10,8 +10,8 @@
 #include "core/util/include/util.hpp"
 #include "seq/lysov_i_matrix_multiplication_Fox_algorithm/include/ops_seq.hpp"
 namespace {
-void natrix_multiplication(const std::vector<double> &matrixA, const std::vector<double> &matrixB,
-                           std::vector<double> &resultMatrix, size_t matrixSize);
+void trivial_matrix_multiplication(const std::vector<double> &matrixA, const std::vector<double> &matrixB,
+                                   std::vector<double> &resultMatrix, size_t matrixSize);
 std::vector<double> GetRandomMatrix(size_t size);
 
 std::vector<double> GetRandomMatrix(size_t size) {
@@ -28,8 +28,8 @@ std::vector<double> GetRandomMatrix(size_t size) {
   return matrix;
 }
 
-void natrix_multiplication(const std::vector<double> &matrix_a, const std::vector<double> &matrix_b,
-                           std::vector<double> &result_matrix, size_t matrix_size) {
+void trivial_matrix_multiplication(const std::vector<double> &matrix_a, const std::vector<double> &matrix_b,
+                                   std::vector<double> &result_matrix, size_t matrix_size) {
   for (size_t row = 0; row < matrix_size; ++row) {
     for (size_t col = 0; col < matrix_size; ++col) {
       result_matrix[row * matrix_size + col] = 0.0;
@@ -57,11 +57,11 @@ TEST(lysov_i_matrix_multiplication_fox_algorithm_seq, Test_Matrix_Multiplication
   task_data_sequential->inputs_count.emplace_back(n * n);
   task_data_sequential->inputs_count.emplace_back(1);
   task_data_sequential->outputs_count.emplace_back(n * n);
-  lysov_i_matrix_multiplication_fox_algorithm_seq::TestTaskSequential matrixMultiplication(task_data_sequential);
-  ASSERT_EQ(matrixMultiplication.Validation(), true);
-  matrixMultiplication.PreProcessing();
-  matrixMultiplication.Run();
-  matrixMultiplication.PostProcessing();
+  lysov_i_matrix_multiplication_fox_algorithm_seq::TestTaskSequential matrix_multiplication(task_data_sequential);
+  ASSERT_EQ(matrix_multiplication.Validation(), true);
+  matrix_multiplication.PreProcessing();
+  matrix_multiplication.Run();
+  matrix_multiplication.PostProcessing();
   EXPECT_EQ(c, a);
 }
 
@@ -82,11 +82,11 @@ TEST(lysov_i_matrix_multiplication_fox_algorithm_seq, Test_Matrix_Multiplication
   task_data_sequential->inputs_count.emplace_back(n * n);
   task_data_sequential->inputs_count.emplace_back(1);
   task_data_sequential->outputs_count.emplace_back(n * n);
-  lysov_i_matrix_multiplication_fox_algorithm_seq::TestTaskSequential matrixMultiplication(task_data_sequential);
-  ASSERT_EQ(matrixMultiplication.ValidationImpl(), true);
-  matrixMultiplication.PreProcessingImpl();
-  matrixMultiplication.RunImpl();
-  matrixMultiplication.PostProcessingImpl();
+  lysov_i_matrix_multiplication_fox_algorithm_seq::TestTaskSequential matrix_multiplication(task_data_sequential);
+  ASSERT_EQ(matrix_multiplication.ValidationImpl(), true);
+  matrix_multiplication.PreProcessingImpl();
+  matrix_multiplication.RunImpl();
+  matrix_multiplication.PostProcessingImpl();
   EXPECT_EQ(c, c_expected);
 }
 
@@ -97,7 +97,7 @@ TEST(lysov_i_matrix_multiplication_fox_algorithm_seq, Test_matrix_7x7) {
   std::vector<double> b = GetRandomMatrix(n);
   std::vector<double> c(n * n, 0);
   std::vector<double> c_expected(n * n, 0);
-  natrix_multiplication(a, b, c_expected, n);
+  trivial_matrix_multiplication(a, b, c_expected, n);
   std::shared_ptr<ppc::core::TaskData> task_data_sequential = std::make_shared<ppc::core::TaskData>();
   task_data_sequential->inputs.emplace_back(reinterpret_cast<uint8_t *>(&n));
   task_data_sequential->inputs.emplace_back(reinterpret_cast<uint8_t *>(a.data()));
@@ -108,11 +108,11 @@ TEST(lysov_i_matrix_multiplication_fox_algorithm_seq, Test_matrix_7x7) {
   task_data_sequential->inputs_count.emplace_back(n * n);
   task_data_sequential->inputs_count.emplace_back(1);
   task_data_sequential->outputs_count.emplace_back(n * n);
-  lysov_i_matrix_multiplication_fox_algorithm_seq::TestTaskSequential matrixMultiplication(task_data_sequential);
-  ASSERT_EQ(matrixMultiplication.ValidationImpl(), true);
-  matrixMultiplication.PreProcessingImpl();
-  matrixMultiplication.RunImpl();
-  matrixMultiplication.PostProcessingImpl();
+  lysov_i_matrix_multiplication_fox_algorithm_seq::TestTaskSequential matrix_multiplication(task_data_sequential);
+  ASSERT_EQ(matrix_multiplication.ValidationImpl(), true);
+  matrix_multiplication.PreProcessingImpl();
+  matrix_multiplication.RunImpl();
+  matrix_multiplication.PostProcessingImpl();
   for (size_t i = 0; i < n * n; i++) {
     EXPECT_NEAR(c_expected[i], c[i], 1e-3);
   }
@@ -125,7 +125,7 @@ TEST(lysov_i_matrix_multiplication_fox_algorithm_seq, Test_matrix_16x16) {
   std::vector<double> b = GetRandomMatrix(n);
   std::vector<double> c(n * n, 0);
   std::vector<double> c_expected(n * n, 0);
-  natrix_multiplication(a, b, c_expected, n);
+  trivial_matrix_multiplication(a, b, c_expected, n);
   std::shared_ptr<ppc::core::TaskData> task_data_sequential = std::make_shared<ppc::core::TaskData>();
   task_data_sequential->inputs.emplace_back(reinterpret_cast<uint8_t *>(&n));
   task_data_sequential->inputs.emplace_back(reinterpret_cast<uint8_t *>(a.data()));
@@ -136,11 +136,11 @@ TEST(lysov_i_matrix_multiplication_fox_algorithm_seq, Test_matrix_16x16) {
   task_data_sequential->inputs_count.emplace_back(n * n);
   task_data_sequential->inputs_count.emplace_back(1);
   task_data_sequential->outputs_count.emplace_back(n * n);
-  lysov_i_matrix_multiplication_fox_algorithm_seq::TestTaskSequential matrixMultiplication(task_data_sequential);
-  ASSERT_EQ(matrixMultiplication.ValidationImpl(), true);
-  matrixMultiplication.PreProcessingImpl();
-  matrixMultiplication.RunImpl();
-  matrixMultiplication.PostProcessingImpl();
+  lysov_i_matrix_multiplication_fox_algorithm_seq::TestTaskSequential matrix_multiplication(task_data_sequential);
+  ASSERT_EQ(matrix_multiplication.ValidationImpl(), true);
+  matrix_multiplication.PreProcessingImpl();
+  matrix_multiplication.RunImpl();
+  matrix_multiplication.PostProcessingImpl();
   for (size_t i = 0; i < n * n; i++) {
     EXPECT_NEAR(c_expected[i], c[i], 1e-3);
   }
@@ -153,7 +153,7 @@ TEST(lysov_i_matrix_multiplication_fox_algorithm_seq, Test_matrix_11x11) {
   std::vector<double> b = GetRandomMatrix(n);
   std::vector<double> c(n * n, 0);
   std::vector<double> c_expected(n * n, 0);
-  natrix_multiplication(a, b, c_expected, n);
+  trivial_matrix_multiplication(a, b, c_expected, n);
   std::shared_ptr<ppc::core::TaskData> task_data_sequential = std::make_shared<ppc::core::TaskData>();
   task_data_sequential->inputs.emplace_back(reinterpret_cast<uint8_t *>(&n));
   task_data_sequential->inputs.emplace_back(reinterpret_cast<uint8_t *>(a.data()));
@@ -164,11 +164,11 @@ TEST(lysov_i_matrix_multiplication_fox_algorithm_seq, Test_matrix_11x11) {
   task_data_sequential->inputs_count.emplace_back(n * n);
   task_data_sequential->inputs_count.emplace_back(1);
   task_data_sequential->outputs_count.emplace_back(n * n);
-  lysov_i_matrix_multiplication_fox_algorithm_seq::TestTaskSequential matrixMultiplication(task_data_sequential);
-  ASSERT_EQ(matrixMultiplication.ValidationImpl(), true);
-  matrixMultiplication.PreProcessingImpl();
-  matrixMultiplication.RunImpl();
-  matrixMultiplication.PostProcessingImpl();
+  lysov_i_matrix_multiplication_fox_algorithm_seq::TestTaskSequential matrix_multiplication(task_data_sequential);
+  ASSERT_EQ(matrix_multiplication.ValidationImpl(), true);
+  matrix_multiplication.PreProcessingImpl();
+  matrix_multiplication.RunImpl();
+  matrix_multiplication.PostProcessingImpl();
   for (size_t i = 0; i < n * n; i++) {
     EXPECT_NEAR(c_expected[i], c[i], 1e-3);
   }
@@ -191,11 +191,11 @@ TEST(lysov_i_matrix_multiplication_fox_algorithm_seq, Test_matrix_1x1) {
   task_data_sequential->inputs_count.emplace_back(n * n);
   task_data_sequential->inputs_count.emplace_back(1);
   task_data_sequential->outputs_count.emplace_back(n * n);
-  lysov_i_matrix_multiplication_fox_algorithm_seq::TestTaskSequential matrixMultiplication(task_data_sequential);
-  ASSERT_EQ(matrixMultiplication.ValidationImpl(), true);
-  matrixMultiplication.PreProcessingImpl();
-  matrixMultiplication.RunImpl();
-  matrixMultiplication.PostProcessingImpl();
+  lysov_i_matrix_multiplication_fox_algorithm_seq::TestTaskSequential matrix_multiplication(task_data_sequential);
+  ASSERT_EQ(matrix_multiplication.ValidationImpl(), true);
+  matrix_multiplication.PreProcessingImpl();
+  matrix_multiplication.RunImpl();
+  matrix_multiplication.PostProcessingImpl();
   EXPECT_EQ(c, c_expected);
 }
 
@@ -215,8 +215,8 @@ TEST(lysov_i_matrix_multiplication_fox_algorithm_seq, Test_Matrix_Multiplication
   task_data_sequential->inputs_count.emplace_back(n * n);
   task_data_sequential->inputs_count.emplace_back(1);
   task_data_sequential->outputs_count.emplace_back(n * n);
-  lysov_i_matrix_multiplication_fox_algorithm_seq::TestTaskSequential matrixMultiplication(task_data_sequential);
-  ASSERT_EQ(matrixMultiplication.ValidationImpl(), false);
+  lysov_i_matrix_multiplication_fox_algorithm_seq::TestTaskSequential matrix_multiplication(task_data_sequential);
+  ASSERT_EQ(matrix_multiplication.ValidationImpl(), false);
 }
 
 TEST(lysov_i_matrix_multiplication_fox_algorithm_seq, Test_Matrix_Multiplication_Empty_MatrixB) {
@@ -235,6 +235,6 @@ TEST(lysov_i_matrix_multiplication_fox_algorithm_seq, Test_Matrix_Multiplication
   task_data_sequential->inputs_count.emplace_back(b.size());
   task_data_sequential->inputs_count.emplace_back(1);
   task_data_sequential->outputs_count.emplace_back(n * n);
-  lysov_i_matrix_multiplication_fox_algorithm_seq::TestTaskSequential matrixMultiplication(task_data_sequential);
-  ASSERT_EQ(matrixMultiplication.ValidationImpl(), false);
+  lysov_i_matrix_multiplication_fox_algorithm_seq::TestTaskSequential matrix_multiplication(task_data_sequential);
+  ASSERT_EQ(matrix_multiplication.ValidationImpl(), false);
 }
