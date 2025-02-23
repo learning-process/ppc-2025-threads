@@ -10,6 +10,7 @@
 #include "core/task/include/task.hpp"
 
 namespace kudryashova_i_radix_batcher_seq {
+std::vector<double> GetRandomDoubleVector(int size);
 void radix_double_sort(std::vector<double> &data, int first, int last);
 class TestTaskSequential : public ppc::core::Task {
  public:

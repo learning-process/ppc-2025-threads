@@ -11,7 +11,7 @@
 #include "core/util/include/util.hpp"
 #include "seq/kudryashova_i_radix_batcher/include/kudryashovaRadixBatcherSeq.hpp"
 
-std::vector<double> GetRandomDoubleVector(int size) {
+std::vector<double> kudryashova_i_radix_batcher_seq::GetRandomDoubleVector(int size) {
   std::vector<double> vector(size);
   std::mt19937 generator(static_cast<unsigned>(std::time(nullptr)));
   std::uniform_real_distribution<double> distribution(-1000.0, 1000.0);
@@ -97,7 +97,7 @@ TEST(kudryashova_i_radix_batcher_seq, seq_radix_empty_test) {
 
 TEST(kudryashova_i_radix_batcher_seq, seq_radix_random_test_1) {
   int global_vector_size = 10;
-  std::vector<double> global_vector = GetRandomDoubleVector(global_vector_size);
+  std::vector<double> global_vector = kudryashova_i_radix_batcher_seq::GetRandomDoubleVector(global_vector_size);
   std::vector<double> result(global_vector_size);
   std::shared_ptr<ppc::core::TaskData> taskData = std::make_shared<ppc::core::TaskData>();
   taskData->inputs.emplace_back(reinterpret_cast<uint8_t *>(global_vector.data()));
@@ -116,7 +116,7 @@ TEST(kudryashova_i_radix_batcher_seq, seq_radix_random_test_1) {
 
 TEST(kudryashova_i_radix_batcher_seq, seq_radix_random_test_2) {
   int global_vector_size = 50;
-  std::vector<double> global_vector = GetRandomDoubleVector(global_vector_size);
+  std::vector<double> global_vector = kudryashova_i_radix_batcher_seq::GetRandomDoubleVector(global_vector_size);
   std::vector<double> result(global_vector_size);
   std::shared_ptr<ppc::core::TaskData> taskData = std::make_shared<ppc::core::TaskData>();
   taskData->inputs.emplace_back(reinterpret_cast<uint8_t *>(global_vector.data()));
@@ -135,7 +135,7 @@ TEST(kudryashova_i_radix_batcher_seq, seq_radix_random_test_2) {
 
 TEST(kudryashova_i_radix_batcher_seq, seq_radix_random_test_3) {
   int global_vector_size = 512;
-  std::vector<double> global_vector = GetRandomDoubleVector(global_vector_size);
+  std::vector<double> global_vector = kudryashova_i_radix_batcher_seq::GetRandomDoubleVector(global_vector_size);
   std::vector<double> result(global_vector_size);
   std::shared_ptr<ppc::core::TaskData> taskData = std::make_shared<ppc::core::TaskData>();
   taskData->inputs.emplace_back(reinterpret_cast<uint8_t *>(global_vector.data()));
