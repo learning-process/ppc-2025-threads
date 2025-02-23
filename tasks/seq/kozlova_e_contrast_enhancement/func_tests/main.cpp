@@ -7,6 +7,8 @@
 #include "core/util/include/util.hpp"
 #include "seq/kozlova_e_contrast_enhancement/include/ops_seq.hpp"
 
+std::vector<int> generate_vector(int length);
+
 std::vector<int> generate_vector(int length) {
   std::vector<int> vec;
   for (int i = 0; i < length; ++i) {
