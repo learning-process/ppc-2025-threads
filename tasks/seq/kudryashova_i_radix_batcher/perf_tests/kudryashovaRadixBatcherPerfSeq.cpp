@@ -26,12 +26,12 @@ TEST(kudryashova_i_radix_batcher_seq, test_pipeline_run) {
   int global_vector_size = 3000000;
   std::vector<double> global_vector = kudryashova_i_radix_batcher_seq::GetRandomDoubleVector(global_vector_size);
   std::vector<double> result(global_vector_size);
-  std::shared_ptr<ppc::core::TaskData> taskData = std::make_shared<ppc::core::TaskData>();
-  taskData->inputs.emplace_back(reinterpret_cast<uint8_t *>(global_vector.data()));
-  taskData->inputs_count.emplace_back(global_vector.size());
-  taskData->outputs.emplace_back(reinterpret_cast<uint8_t *>(result.data()));
-  taskData->outputs_count.emplace_back(result.size());
-  auto testTaskSequential = std::make_shared<kudryashova_i_radix_batcher_seq::TestTaskSequential>(taskData);
+  std::shared_ptr<ppc::core::TaskData> task_data = std::make_shared<ppc::core::TaskData>();
+  task_data->inputs.emplace_back(reinterpret_cast<uint8_t *>(global_vector.data()));
+  task_data->inputs_count.emplace_back(global_vector.size());
+  task_data->outputs.emplace_back(reinterpret_cast<uint8_t *>(result.data()));
+  task_data->outputs_count.emplace_back(result.size());
+  auto test_task_sequential = std::make_shared<kudryashova_i_radix_batcher_seq::TestTaskSequential>(task_data);
 
   auto perf_attr = std::make_shared<ppc::core::PerfAttr>();
   perf_attr->num_running = 10;
@@ -42,7 +42,7 @@ TEST(kudryashova_i_radix_batcher_seq, test_pipeline_run) {
     return static_cast<double>(duration) * 1e-9;
   };
   auto perf_results = std::make_shared<ppc::core::PerfResults>();
-  auto perf_analyzer = std::make_shared<ppc::core::Perf>(testTaskSequential);
+  auto perf_analyzer = std::make_shared<ppc::core::Perf>(test_task_sequential);
   perf_analyzer->PipelineRun(perf_attr, perf_results);
   ppc::core::Perf::PrintPerfStatistic(perf_results);
   for (std::vector<double>::size_type i = 1; i < result.size(); i++) {
@@ -54,12 +54,12 @@ TEST(kudryashova_i_radix_batcher_seq, test_task_run) {
   int global_vector_size = 3000000;
   std::vector<double> global_vector = kudryashova_i_radix_batcher_seq::GetRandomDoubleVector(global_vector_size);
   std::vector<double> result(global_vector_size);
-  std::shared_ptr<ppc::core::TaskData> taskData = std::make_shared<ppc::core::TaskData>();
-  taskData->inputs.emplace_back(reinterpret_cast<uint8_t *>(global_vector.data()));
-  taskData->inputs_count.emplace_back(global_vector.size());
-  taskData->outputs.emplace_back(reinterpret_cast<uint8_t *>(result.data()));
-  taskData->outputs_count.emplace_back(result.size());
-  auto testTaskSequential = std::make_shared<kudryashova_i_radix_batcher_seq::TestTaskSequential>(taskData);
+  std::shared_ptr<ppc::core::TaskData> task_data = std::make_shared<ppc::core::TaskData>();
+  task_data->inputs.emplace_back(reinterpret_cast<uint8_t *>(global_vector.data()));
+  task_data->inputs_count.emplace_back(global_vector.size());
+  task_data->outputs.emplace_back(reinterpret_cast<uint8_t *>(result.data()));
+  task_data->outputs_count.emplace_back(result.size());
+  auto test_task_sequential = std::make_shared<kudryashova_i_radix_batcher_seq::TestTaskSequential>(task_data);
   auto perf_attr = std::make_shared<ppc::core::PerfAttr>();
   perf_attr->num_running = 10;
   const auto t0 = std::chrono::high_resolution_clock::now();
@@ -69,7 +69,7 @@ TEST(kudryashova_i_radix_batcher_seq, test_task_run) {
     return static_cast<double>(duration) * 1e-9;
   };
   auto perf_results = std::make_shared<ppc::core::PerfResults>();
-  auto perf_analyzer = std::make_shared<ppc::core::Perf>(testTaskSequential);
+  auto perf_analyzer = std::make_shared<ppc::core::Perf>(test_task_sequential);
   perf_analyzer->TaskRun(perf_attr, perf_results);
   ppc::core::Perf::PrintPerfStatistic(perf_results);
   for (std::vector<double>::size_type i = 1; i < result.size(); i++) {

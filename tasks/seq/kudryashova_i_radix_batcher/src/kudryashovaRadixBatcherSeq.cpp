@@ -3,10 +3,11 @@
 #include <algorithm>
 #include <cmath>
 #include <cstddef>
+#include <cstdint>
 #include <cstring>
 #include <vector>
 
-void kudryashova_i_radix_batcher_seq::radix_double_sort(std::vector<double> &data, int first, int last) {
+void kudryashova_i_radix_batcher_seq::RadixDoubleSort(std::vector<double> &data, int first, int last) {
   const int sort_size = last - first;
   std::vector<uint64_t> converted(sort_size);
   // Convert each double to uint64_t representation
@@ -53,12 +54,12 @@ void kudryashova_i_radix_batcher_seq::radix_double_sort(std::vector<double> &dat
 }
 
 bool kudryashova_i_radix_batcher_seq::TestTaskSequential::PreProcessingImpl() {
-  input_data.resize(task_data->inputs_count[0]);
+  input_data_.resize(task_data->inputs_count[0]);
   if (task_data->inputs[0] == nullptr || task_data->inputs_count[0] == 0) {
     return false;
   }
   auto *tmp_ptr = reinterpret_cast<double *>(task_data->inputs[0]);
-  std::copy(tmp_ptr, tmp_ptr + task_data->inputs_count[0], input_data.begin());
+  std::copy(tmp_ptr, tmp_ptr + task_data->inputs_count[0], input_data_.begin());
   return true;
 }
 
@@ -67,12 +68,12 @@ bool kudryashova_i_radix_batcher_seq::TestTaskSequential::ValidationImpl() {
 }
 
 bool kudryashova_i_radix_batcher_seq::TestTaskSequential::RunImpl() {
-  radix_double_sort(input_data, 0, input_data.size());
+  RadixDoubleSort(input_data_, 0, input_data_.size());
   return true;
 }
 
 bool kudryashova_i_radix_batcher_seq::TestTaskSequential::PostProcessingImpl() {
   auto *output = reinterpret_cast<double *>(task_data->outputs[0]);
-  std::copy(input_data.begin(), input_data.end(), output);
+  std::copy(input_data_.begin(), input_data_.end(), output);
   return true;
 }
