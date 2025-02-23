@@ -4,12 +4,13 @@
 #include <cstddef>
 #include <cstdint>
 #include <cstdlib>
-#include <ranges>
+#include <memory>
 #include <vector>
 
 #include "core/task/include/task.hpp"
 #include "seq/shlyakov_m_shell_sort/include/ops_seq.hpp"
 
+namespace {
 static std::vector<int> GenerateRandomArray(size_t size) {
   std::vector<int> arr(size);
   for (size_t i = 0; i < size; ++i) {
@@ -29,6 +30,7 @@ static bool IsSorted(const std::vector<int>& arr) {
   }
   return true;
 }
+}  // namespace
 
 TEST(shlyakov_m_shell_sort_seq, Test_Empty_Array) {
   std::vector<int> in;

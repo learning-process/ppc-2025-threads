@@ -6,13 +6,13 @@
 #include <cstdint>
 #include <cstdlib>
 #include <memory>
-#include <ranges>
 #include <vector>
 
 #include "core/perf/include/perf.hpp"
 #include "core/task/include/task.hpp"
 #include "seq/shlyakov_m_shell_sort/include/ops_seq.hpp"
 
+namespace {
 static std::vector<int> GenerateRandomArray(size_t size) {
   std::vector<int> arr(size);
   for (size_t i = 0; i < size; ++i) {
@@ -20,9 +20,10 @@ static std::vector<int> GenerateRandomArray(size_t size) {
   }
   return arr;
 }
+}  // namespace
 
 TEST(shlyakov_m_shell_sort_seq, test_pipeline_run) {
-  constexpr size_t kCount = 1000;
+  constexpr size_t kCount = 50000;
 
   std::vector<int> in = GenerateRandomArray(kCount);
   std::vector<int> expected = in;
@@ -54,7 +55,7 @@ TEST(shlyakov_m_shell_sort_seq, test_pipeline_run) {
 }
 
 TEST(shlyakov_m_shell_sort_seq, test_task_run) {
-  constexpr size_t kCount = 1000;
+  constexpr size_t kCount = 50000;
 
   std::vector<int> in = GenerateRandomArray(kCount);
   std::vector<int> expected = in;
