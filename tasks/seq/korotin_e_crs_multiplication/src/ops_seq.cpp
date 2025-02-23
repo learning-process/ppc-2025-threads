@@ -40,8 +40,8 @@ bool korotin_e_crs_multiplication_seq::CrsMultiplicationSequential::ValidationIm
   return task_data->inputs_count[1] == task_data->inputs_count[2] &&
          task_data->inputs_count[4] == task_data->inputs_count[5] &&
          task_data->inputs_count[0] == task_data->outputs_count[0] &&
-         *std::max_element(reinterpret_cast<unsigned int>(task_data->inputs[1]),
-                           reinterpret_cast<unsigned int>(task_data->inputs[1]) + task_data->inputs_count[1]) ==
+         *std::max_element(reinterpret_cast<unsigned int *>(task_data->inputs[1]),
+                           reinterpret_cast<unsigned int *>(task_data->inputs[1]) + task_data->inputs_count[1]) ==
              task_data->inputs_count[3] - 2;
 }
 
