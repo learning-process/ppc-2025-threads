@@ -262,3 +262,57 @@ TEST(kolokolova_d_integral_simpson_method_seq, test_validation4) {
   kolokolova_d_integral_simpson_method_seq::TestTaskSequential test_task_sequential(task_data_seq, func);
   ASSERT_EQ(test_task_sequential.Validation(), false);
 }
+
+TEST(kolokolova_d_integral_simpson_method_seq, test_difficult_func1) {
+  auto func = [](std::vector<double> vec) { return (std::cos(vec[0]) * std::sin(vec[1])); };
+  std::vector<int> step = {20, 20};
+  std::vector<int> bord = {0, 1, 0, 3};
+  double func_result = 0.0;
+
+  // Create task_data
+  auto task_data_seq = std::make_shared<ppc::core::TaskData>();
+  task_data_seq->inputs.emplace_back(reinterpret_cast<uint8_t *>(step.data()));
+  task_data_seq->inputs_count.emplace_back(step.size());
+
+  task_data_seq->inputs.emplace_back(reinterpret_cast<uint8_t *>(bord.data()));
+  task_data_seq->inputs_count.emplace_back(bord.size());
+
+  task_data_seq->outputs.emplace_back(reinterpret_cast<uint8_t *>(&func_result));
+  task_data_seq->outputs_count.emplace_back(1);
+  // Create Task
+  kolokolova_d_integral_simpson_method_seq::TestTaskSequential test_task_sequential(task_data_seq, func);
+  ASSERT_EQ(test_task_sequential.Validation(), true);
+  test_task_sequential.PreProcessing();
+  test_task_sequential.Run();
+  test_task_sequential.PostProcessing();
+  double ans = 1.6745;
+  double error = 0.0001;
+  ASSERT_NEAR(func_result, ans, error);
+}
+
+TEST(kolokolova_d_integral_simpson_method_seq, test_difficult_func2) {
+  auto func = [](std::vector<double> vec) { return std::exp(vec[1] + vec[0]); };
+  std::vector<int> step = {20, 20};
+  std::vector<int> bord = {0, 3, 1, 5};
+  double func_result = 0.0;
+
+  // Create task_data
+  auto task_data_seq = std::make_shared<ppc::core::TaskData>();
+  task_data_seq->inputs.emplace_back(reinterpret_cast<uint8_t *>(step.data()));
+  task_data_seq->inputs_count.emplace_back(step.size());
+
+  task_data_seq->inputs.emplace_back(reinterpret_cast<uint8_t *>(bord.data()));
+  task_data_seq->inputs_count.emplace_back(bord.size());
+
+  task_data_seq->outputs.emplace_back(reinterpret_cast<uint8_t *>(&func_result));
+  task_data_seq->outputs_count.emplace_back(1);
+  // Create Task
+  kolokolova_d_integral_simpson_method_seq::TestTaskSequential test_task_sequential(task_data_seq, func);
+  ASSERT_EQ(test_task_sequential.Validation(), true);
+  test_task_sequential.PreProcessing();
+  test_task_sequential.Run();
+  test_task_sequential.PostProcessing();
+  double ans = 2780.6973;
+  double error = 0.0001;
+  ASSERT_NEAR(func_result, ans, error);
+}
