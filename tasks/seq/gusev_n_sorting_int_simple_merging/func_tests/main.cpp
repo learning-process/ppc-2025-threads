@@ -77,12 +77,12 @@ TEST(gusev_n_sorting_int_simple_merging_seq, test_radix_sort_negative_numbers) {
 }
 
 TEST(gusev_n_sorting_int_simple_merging_seq, test_radix_sort_random) {
-  size_t SIZE = 1000;
+  size_t size = 1000;
   std::random_device rd;
   std::mt19937 gen(rd());
   std::uniform_int_distribution<int> dist(-10000, 10000);
 
-  std::vector<int> in(SIZE);
+  std::vector<int> in(size);
   std::ranges::generate(in, [&]() { return dist(gen); });
   std::vector<int> out(in.size());
 
