@@ -6,6 +6,7 @@
 #include <cstdint>
 #include <cstring>
 #include <vector>
+#include <ranges>
 
 void kudryashova_i_radix_batcher_seq::RadixDoubleSort(std::vector<double> &data, int first, int last) {
   const int sort_size = last - first;
@@ -13,9 +14,9 @@ void kudryashova_i_radix_batcher_seq::RadixDoubleSort(std::vector<double> &data,
   // Convert each double to uint64_t representation
   for (int i = 0; i < sort_size; ++i) {
     double value = data[first + i];
-    uint64_t bits;
+    uint64_t bits = 0;
     std::memcpy(&bits, &value, sizeof(value));
-    converted[i] = (bits & (1ULL << 63)) ? ~bits : bits ^ (1ULL << 63);  // sign of the number
+    converted[i] = ((bits & (1ULL << 63)) != 0) ? ~bits : bits ^ (1ULL << 63);  // sign of the number
   }
   std::vector<uint64_t> buffer(sort_size);
   int bits_int_byte = 8;
@@ -68,12 +69,12 @@ bool kudryashova_i_radix_batcher_seq::TestTaskSequential::ValidationImpl() {
 }
 
 bool kudryashova_i_radix_batcher_seq::TestTaskSequential::RunImpl() {
-  RadixDoubleSort(input_data_, 0, input_data_.size());
+  RadixDoubleSort(input_data_, 0, static_cast<int>(input_data_.size()));
   return true;
 }
 
 bool kudryashova_i_radix_batcher_seq::TestTaskSequential::PostProcessingImpl() {
-  auto *output = reinterpret_cast<double *>(task_data->outputs[0]);
-  std::copy(input_data_.begin(), input_data_.end(), output);
+  std::vector<double> output(input_data_.size());
+  std::ranges::copy(input_data_, output.begin());
   return true;
 }
