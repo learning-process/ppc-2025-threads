@@ -13,7 +13,7 @@
 #include "seq/shlyakov_m_shell_sort/include/ops_seq.hpp"
 
 namespace {
-static std::vector<int> GenerateRandomArray(size_t size) {
+std::vector<int> GenerateRandomArray(size_t size) {
   std::vector<int> arr(size);
   for (size_t i = 0; i < size; ++i) {
     arr[i] = std::rand() % 100;

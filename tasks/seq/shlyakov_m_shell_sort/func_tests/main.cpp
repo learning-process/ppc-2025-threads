@@ -11,7 +11,7 @@
 #include "seq/shlyakov_m_shell_sort/include/ops_seq.hpp"
 
 namespace {
-static std::vector<int> GenerateRandomArray(size_t size) {
+std::vector<int> GenerateRandomArray(size_t size) {
   std::vector<int> arr(size);
   for (size_t i = 0; i < size; ++i) {
     arr[i] = std::rand() % 100;
@@ -19,7 +19,7 @@ static std::vector<int> GenerateRandomArray(size_t size) {
   return arr;
 }
 
-static bool IsSorted(const std::vector<int>& arr) {
+bool IsSorted(const std::vector<int>& arr) {
   if (arr.empty()) {
     return true;
   }
