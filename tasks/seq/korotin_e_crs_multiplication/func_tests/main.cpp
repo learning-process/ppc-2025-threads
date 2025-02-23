@@ -71,7 +71,7 @@ TEST(korotin_e_crs_multiplication_seq, test_rnd_50_50_50) {
       }
     }
   std::cout << "hmm\n";
-  for (unsigned int i = 0; i <= M; i++) {
+  for (unsigned int i = 1; i <= M; i++) {
     A_rI[i] += A_rI[i - 1];
   }
   B_rI = std::vector<unsigned int>(N + 1, 0);
@@ -85,7 +85,7 @@ TEST(korotin_e_crs_multiplication_seq, test_rnd_50_50_50) {
       }
     }
   std::cout << "hmm\n";
-  for (unsigned int i = 0; i <= M; i++) {
+  for (unsigned int i = 1; i <= M; i++) {
     B_rI[i] += B_rI[i - 1];
   }
   std::cout << "What?\n";
