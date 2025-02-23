@@ -9,18 +9,18 @@
 #include "seq/petrov_o_vertical_image_filtration/include/ops_seq.hpp"
 
 TEST(petrov_o_vertical_image_filtration_seq, test_gaussian_filter_3x3) {
-  constexpr size_t width = 3;
-  constexpr size_t height = 3;
+  constexpr size_t kWidth = 3;
+  constexpr size_t kHeight = 3;
 
   // Create data
   std::vector<int> in = {1, 2, 3, 4, 5, 6, 7, 8, 9};
-  std::vector<int> out((width - 2) * (height - 2), 0);
+  std::vector<int> out((kWidth - 2) * (kHeight - 2), 0);
 
   // Create task_data
   auto task_data_seq = std::make_shared<ppc::core::TaskData>();
   task_data_seq->inputs.emplace_back(reinterpret_cast<uint8_t *>(in.data()));
-  task_data_seq->inputs_count.emplace_back(width);
-  task_data_seq->inputs_count.emplace_back(height);
+  task_data_seq->inputs_count.emplace_back(kWidth);
+  task_data_seq->inputs_count.emplace_back(kHeight);
   task_data_seq->outputs.emplace_back(reinterpret_cast<uint8_t *>(out.data()));
   task_data_seq->outputs_count.emplace_back(out.size());
 
@@ -37,18 +37,18 @@ TEST(petrov_o_vertical_image_filtration_seq, test_gaussian_filter_3x3) {
 }
 
 TEST(petrov_o_vertical_image_filtration_seq, test_gaussian_filter_5x5) {
-  constexpr size_t width = 5;
-  constexpr size_t height = 5;
+  constexpr size_t kWidth = 5;
+  constexpr size_t kHeight = 5;
 
   // Create data
   std::vector<int> in = {1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25};
-  std::vector<int> out((width - 2) * (height - 2), 0);
+  std::vector<int> out((kWidth - 2) * (kHeight - 2), 0);
 
   // Create task_data
   auto task_data_seq = std::make_shared<ppc::core::TaskData>();
   task_data_seq->inputs.emplace_back(reinterpret_cast<uint8_t *>(in.data()));
-  task_data_seq->inputs_count.emplace_back(width);
-  task_data_seq->inputs_count.emplace_back(height);
+  task_data_seq->inputs_count.emplace_back(kWidth);
+  task_data_seq->inputs_count.emplace_back(kHeight);
   task_data_seq->outputs.emplace_back(reinterpret_cast<uint8_t *>(out.data()));
   task_data_seq->outputs_count.emplace_back(out.size());
 
@@ -65,19 +65,19 @@ TEST(petrov_o_vertical_image_filtration_seq, test_gaussian_filter_5x5) {
 }
 
 TEST(petrov_o_vertical_image_filtration_seq, test_gaussian_filter_const_data) {
-  constexpr size_t width = 5;
-  constexpr size_t height = 5;
+  constexpr size_t kWidth = 5;
+  constexpr size_t kHeight = 5;
 
   // Create data
-  std::vector<int> in(width * height, 3);
-  std::vector<int> out((width - 2) * (height - 2), 0);
-  std::vector<int> expected_out((width - 2) * (height - 2), 3);
+  std::vector<int> in(kWidth * kHeight, 3);
+  std::vector<int> out((kWidth - 2) * (kHeight - 2), 0);
+  std::vector<int> expected_out((kWidth - 2) * (kHeight - 2), 3);
 
   // Create task_data
   auto task_data_seq = std::make_shared<ppc::core::TaskData>();
   task_data_seq->inputs.emplace_back(reinterpret_cast<uint8_t *>(in.data()));
-  task_data_seq->inputs_count.emplace_back(width);
-  task_data_seq->inputs_count.emplace_back(height);
+  task_data_seq->inputs_count.emplace_back(kWidth);
+  task_data_seq->inputs_count.emplace_back(kHeight);
   task_data_seq->outputs.emplace_back(reinterpret_cast<uint8_t *>(out.data()));
   task_data_seq->outputs_count.emplace_back(out.size());
 
@@ -93,19 +93,19 @@ TEST(petrov_o_vertical_image_filtration_seq, test_gaussian_filter_const_data) {
 }
 
 TEST(petrov_o_vertical_image_filtration_seq, test_gaussian_filter_negative_data) {
-  constexpr size_t width = 5;
-  constexpr size_t height = 5;
+  constexpr size_t kWidth = 5;
+  constexpr size_t kHeight = 5;
 
   // Create data
   std::vector<int> in = {-1,  -2,  -3,  -4,  -5,  -6,  -7,  -8,  -9,  -10, -11, -12, -13,
                          -14, -15, -16, -17, -18, -19, -20, -21, -22, -23, -24, -25};
-  std::vector<int> out((width - 2) * (height - 2), 0);
+  std::vector<int> out((kWidth - 2) * (kHeight - 2), 0);
 
   // Create task_data
   auto task_data_seq = std::make_shared<ppc::core::TaskData>();
   task_data_seq->inputs.emplace_back(reinterpret_cast<uint8_t *>(in.data()));
-  task_data_seq->inputs_count.emplace_back(width);
-  task_data_seq->inputs_count.emplace_back(height);
+  task_data_seq->inputs_count.emplace_back(kWidth);
+  task_data_seq->inputs_count.emplace_back(kHeight);
   task_data_seq->outputs.emplace_back(reinterpret_cast<uint8_t *>(out.data()));
   task_data_seq->outputs_count.emplace_back(out.size());
 
@@ -122,19 +122,19 @@ TEST(petrov_o_vertical_image_filtration_seq, test_gaussian_filter_negative_data)
 }
 
 TEST(petrov_o_vertical_image_filtration_seq, test_gaussian_filter_large_data) {
-  constexpr size_t width = 500;
-  constexpr size_t height = 500;
+  constexpr size_t kWidth = 500;
+  constexpr size_t kHeight = 500;
 
   // Create data
-  std::vector<int> in(width * height, 1);
-  std::vector<int> out((width - 2) * (height - 2), 0);
-  std::vector<int> expected_out((width - 2) * (height - 2), 1);
+  std::vector<int> in(kWidth * kHeight, 1);
+  std::vector<int> out((kWidth - 2) * (kHeight - 2), 0);
+  std::vector<int> expected_out((kWidth - 2) * (kHeight - 2), 1);
 
   // Create task_data
   auto task_data_seq = std::make_shared<ppc::core::TaskData>();
   task_data_seq->inputs.emplace_back(reinterpret_cast<uint8_t *>(in.data()));
-  task_data_seq->inputs_count.emplace_back(width);
-  task_data_seq->inputs_count.emplace_back(height);
+  task_data_seq->inputs_count.emplace_back(kWidth);
+  task_data_seq->inputs_count.emplace_back(kHeight);
   task_data_seq->outputs.emplace_back(reinterpret_cast<uint8_t *>(out.data()));
   task_data_seq->outputs_count.emplace_back(out.size());
 
@@ -150,18 +150,18 @@ TEST(petrov_o_vertical_image_filtration_seq, test_gaussian_filter_large_data) {
 }
 
 TEST(petrov_o_vertical_image_filtration_seq, test_gaussian_filter_rectangular) {
-  constexpr size_t width = 4;
-  constexpr size_t height = 3;
+  constexpr size_t kWidth = 4;
+  constexpr size_t kHeight = 3;
 
   // Create data
   std::vector<int> in = {1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12};
-  std::vector<int> out((width - 2) * (height - 2), 0);
+  std::vector<int> out((kWidth - 2) * (kHeight - 2), 0);
 
   // Create task_data
   auto task_data_seq = std::make_shared<ppc::core::TaskData>();
   task_data_seq->inputs.emplace_back(reinterpret_cast<uint8_t *>(in.data()));
-  task_data_seq->inputs_count.emplace_back(width);
-  task_data_seq->inputs_count.emplace_back(height);
+  task_data_seq->inputs_count.emplace_back(kWidth);
+  task_data_seq->inputs_count.emplace_back(kHeight);
   task_data_seq->outputs.emplace_back(reinterpret_cast<uint8_t *>(out.data()));
   task_data_seq->outputs_count.emplace_back(out.size());
 
@@ -178,8 +178,8 @@ TEST(petrov_o_vertical_image_filtration_seq, test_gaussian_filter_rectangular) {
 }
 
 TEST(petrov_o_vertical_image_filtration_seq, test_gaussian_filter_1x1) {
-  constexpr size_t width = 1;
-  constexpr size_t height = 1;
+  constexpr size_t kWidth = 1;
+  constexpr size_t kHeight = 1;
 
   // Create data
   std::vector<int> in = {1};
@@ -188,8 +188,8 @@ TEST(petrov_o_vertical_image_filtration_seq, test_gaussian_filter_1x1) {
   // Create task_data
   auto task_data_seq = std::make_shared<ppc::core::TaskData>();
   task_data_seq->inputs.emplace_back(reinterpret_cast<uint8_t *>(in.data()));
-  task_data_seq->inputs_count.emplace_back(width);
-  task_data_seq->inputs_count.emplace_back(height);
+  task_data_seq->inputs_count.emplace_back(kWidth);
+  task_data_seq->inputs_count.emplace_back(kHeight);
   task_data_seq->outputs.emplace_back(reinterpret_cast<uint8_t *>(out.data()));
   task_data_seq->outputs_count.emplace_back(out.size());
 
@@ -200,8 +200,8 @@ TEST(petrov_o_vertical_image_filtration_seq, test_gaussian_filter_1x1) {
 }
 
 TEST(petrov_o_vertical_image_filtration_seq, test_gaussian_filter_empty) {
-  constexpr size_t width = 0;
-  constexpr size_t height = 0;
+  constexpr size_t kWidth = 0;
+  constexpr size_t kHeight = 0;
 
   // Create data
   std::vector<int> in;
@@ -210,8 +210,8 @@ TEST(petrov_o_vertical_image_filtration_seq, test_gaussian_filter_empty) {
   // Create task_data
   auto task_data_seq = std::make_shared<ppc::core::TaskData>();
   task_data_seq->inputs.emplace_back(reinterpret_cast<uint8_t *>(in.data()));
-  task_data_seq->inputs_count.emplace_back(width);
-  task_data_seq->inputs_count.emplace_back(height);
+  task_data_seq->inputs_count.emplace_back(kWidth);
+  task_data_seq->inputs_count.emplace_back(kHeight);
   task_data_seq->outputs.emplace_back(reinterpret_cast<uint8_t *>(out.data()));
   task_data_seq->outputs_count.emplace_back(out.size());
 
