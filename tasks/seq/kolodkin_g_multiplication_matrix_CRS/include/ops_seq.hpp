@@ -27,7 +27,7 @@ struct SparseMatrixCRS {
 std::vector<Complex> ParseMatrixIntoVec(const SparseMatrixCRS& mat);
 SparseMatrixCRS ParseVectorIntoMatrix(std::vector<Complex>& vec);
 bool CheckMatrixesEquality(const SparseMatrixCRS& a, const SparseMatrixCRS& b);
-bool areEqualElems(const Complex& a, const Complex& b, double epsilon);
+bool AreEqualElems(const Complex& a, const Complex& b, double epsilon);
 class TestTaskSequential : public ppc::core::Task {
  public:
   explicit TestTaskSequential(ppc::core::TaskDataPtr task_data) : Task(std::move(task_data)) {}

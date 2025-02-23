@@ -68,7 +68,7 @@ bool kolodkin_g_multiplication_matrix_seq::CheckMatrixesEquality(
     for (unsigned int j = this_row_start; j < this_row_end; ++j) {
       bool found = false;
       for (unsigned int k = other_row_start; k < other_row_end; ++k) {
-        if (a.colIndices[j] == b.colIndices[k] && areEqualElems(a.values[j], b.values[k], 0.000001)) {
+        if (a.colIndices[j] == b.colIndices[k] && AreEqualElems(a.values[j], b.values[k], 0.000001)) {
           found = true;
           break;
         }
