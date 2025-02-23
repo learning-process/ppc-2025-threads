@@ -29,7 +29,10 @@ bool TestTaskSequential::PreProcessingImpl() {
 
 bool TestTaskSequential::RunImpl() {
   const size_t d = integrationBounds_.size() / 2;  // dimensions
-  std::mt19937 rnd(12);
+
+  std::random_device rd;
+  std::seed_seq seed{rd(), static_cast<unsigned int>(std::time(nullptr))};
+  std::mt19937 rnd(seed);
   std::uniform_real_distribution<> dis(0.0, 1.0);
 
   result_ = 0.0;
