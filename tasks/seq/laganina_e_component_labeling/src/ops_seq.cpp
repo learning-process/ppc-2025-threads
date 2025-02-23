@@ -1,35 +1,21 @@
-
-#include "seq/laganina_e_component_labeling/include/ops_seq.hpp"
-
 #include <utility>
 #include <vector>
+#include "seq/laganina_e_component_labeling/include/ops_seq.hpp"
 
-std::pair<int, int> laganina_e_component_labeling_seq::TestTaskSequential::find(int x) {
-  int index;  // ”брали const
-  while (x > 0) {
-    bool found = false;  // ‘лаг дл¤ проверки, найдена ли вершина x
-    for (index = 0; index < parent.size(); ++index) {
-      if (parent[index].first == x) {
-        x = parent[index].second;  // ѕереходим к родителю
-        found = true;
-        break;
-      }
-    }
-    if (!found) {
-      return std::make_pair(-1, -1);  // ¬ершина x не найдена
-    }
+int laganina_e_component_labeling_seq::TestTaskSequential::find(int x) {
+  int j = x;
+  while (parent[j] != 0) {
+    j = parent[j];
   }
-  return std::make_pair(x, index);  // x теперь корень 1111
+  return j;
 }
 
 bool laganina_e_component_labeling_seq::TestTaskSequential::Union_sets(int x, int y) {
-  int j = find(x).first;
-  int k = find(y).first;
-  if ((j == -1) || (k == -1)) {
-    return false;
-  }
-  if (j != k) {
-    parent[find(y).second].second = j;
+  int rootX = find(x);  // Находим корень множества, содержащего X
+  int rootY = find(y);  // Находим корень множества, содержащего Y
+
+  if (rootX != rootY) {
+    parent[rootY] = rootX;  // Объединяем множества
   }
   return true;
 }
@@ -67,36 +53,38 @@ std::vector<int> laganina_e_component_labeling_seq::TestTaskSequential::neighbor
 }
 
 bool laganina_e_component_labeling_seq::TestTaskSequential::ValidationImpl() {
-  internal_order_test();
-  if ((taskData->inputs_count[0] <= 0) || (taskData->inputs_count[1] <= 0)) {
+  if (!task_data || !task_data->inputs[0] || !task_data->inputs_count[0] || !task_data->outputs[0]||!task_data->inputs_count[1]) {
     return false;
   }
-  for (int i = 0; i < n * m; ++i) {
-    if (!(taskData->inputs[0][i] == 0 || taskData->inputs[0][i] == 1)) {
+  if ((task_data->inputs_count[0] <= 0) || (task_data->inputs_count[1] <= 0)) {
+    return false;
+  }
+  int size = task_data->inputs_count[0] * task_data->inputs_count[0];
+  for (int i = 0; i < size; i++) {
+    if ((task_data->inputs[0][i] != 0) && (task_data->inputs[0][i] != 1)) {
       return false;
     }
   }
   return true;
 }
 
-bool laganina_e_component_labeling_seq::TestTaskSequential::PreprocessingImpl() {
-  internal_order_test();
-  m = static_cast<int>(taskData->inputs_count[0]);
-  n = static_cast<int>(taskData->inputs_count[1]);
+bool laganina_e_component_labeling_seq::TestTaskSequential::PreProcessingImpl() {
+  m = static_cast<int>(task_data->inputs_count[0]);
+  n = static_cast<int>(task_data->inputs_count[1]);
   step1.resize(m * n, 0);
   labeled_binary.resize(m * n, 0);
-  parent.resize(m * n);
-  for (int i = 0; i < m * n; ++i) {
-    parent[i] = {i, i};  // »значально каждый элемент ¤вл¤етс¤ своим родителем
+  parent.resize((m * n)+1);
+  for (int i = 0; i < (m * n)+1; ++i) {
+    parent[i] = 0;  // »значально каждый элемент ¤вл¤етс¤ своим родителем
   }
   binary.resize(m * n);
   for (int i = 0; i < m * n; ++i) {
-    binary[i] = reinterpret_cast<int*>(taskData->inputs[0])[i];
+    binary[i] = reinterpret_cast<int*>(task_data->inputs[0])[i];
   }
+  return true;
 }
 
 bool laganina_e_component_labeling_seq::TestTaskSequential::RunImpl() {
-  internal_order_test();
   int label = 1;  // Ќачальна¤ метка
 
   // ѕервый проход: маркировка компонент
@@ -116,7 +104,7 @@ bool laganina_e_component_labeling_seq::TestTaskSequential::RunImpl() {
           // ќбъедин¤ем метки
           for (int neighborLabel : neighbors) {
             if (neighborLabel != minLabel) {
-              Union(minLabel, neighborLabel);
+              Union_sets(minLabel, neighborLabel);
             }
           }
         }
@@ -128,17 +116,16 @@ bool laganina_e_component_labeling_seq::TestTaskSequential::RunImpl() {
   for (int l = 0; l < m; ++l) {
     for (int p = 0; p < n; ++p) {
       if (binary[l * n + p]) {
-        labeled_binary[l * n + p] = find(step1[l * n + p]).first;
+        labeled_binary[l * n + p] = find(step1[l * n + p]);
       }
     }
   }
   return true;
 }
 
-bool laganina_e_component_labeling_seq::TestTaskSequential::Postprocessing() {
-  internal_order_test();
+bool laganina_e_component_labeling_seq::TestTaskSequential::PostProcessingImpl() {
   for (int i = 0; i < m * n; ++i) {
-    reinterpret_cast<int*>(taskData->outputs[0])[i] = labeled_binary[i];
+    reinterpret_cast<int*>(task_data->outputs[0])[i] = labeled_binary[i];
   }
   return true;
 }
