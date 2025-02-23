@@ -1,10 +1,10 @@
-
-#include "core/task/include/task.hpp"
 #include <algorithm>
 #include <utility>
 #include <vector>
 
-namespace laganina_e_component_labeling_seq{
+#include "core/task/include/task.hpp"
+
+namespace laganina_e_component_labeling_seq {
 
 class TestTaskSequential : public ppc::core::Task {
  public:
@@ -21,7 +21,7 @@ class TestTaskSequential : public ppc::core::Task {
   std::vector<int> labaled_binary;
   std::vector<std::pair<int, int>> parent;
   std ::vector<int> step1;
-  std::pair<int,int> find(int x);
+  std::pair<int, int> find(int x);
   bool Union_sets(int x, int y);
   std::vector<int> neighbors_labels(int x, int y);
 };
