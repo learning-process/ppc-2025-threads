@@ -43,7 +43,7 @@ void MakeCRS(std::vector<unsigned int> &rI, std::vector<unsigned int> &col, std:
       }
     }
   std::cout << "hmm\n";
-  for (unsigned int i = 0; i <= M; i++) {
+  for (unsigned int i = 1; i <= M; i++) {
     rI[i] += rI[i - 1];
   }
 }
@@ -97,12 +97,16 @@ TEST(korotin_e_crs_multiplication_seq, test_rnd_50_50_50) {
   task_data_seq->inputs_count.emplace_back(A_col.size());
   task_data_seq->inputs_count.emplace_back(A_val.size());
 
+  std::cout << "Inputed A" << std::endl;
+
   task_data_seq->inputs.emplace_back(reinterpret_cast<uint8_t *>(B_rI.data()));
   task_data_seq->inputs.emplace_back(reinterpret_cast<uint8_t *>(B_col.data()));
   task_data_seq->inputs.emplace_back(reinterpret_cast<uint8_t *>(B_val.data()));
   task_data_seq->inputs_count.emplace_back(B_rI.size());
   task_data_seq->inputs_count.emplace_back(B_col.size());
   task_data_seq->inputs_count.emplace_back(B_val.size());
+
+  std::cout << "Inputed B" << std::endl;
 
   std::vector<unsigned int> out_rI(A_rI.size(), 0), out_col(M * P);
   std::vector<double> out_val(M * P);
@@ -111,11 +115,18 @@ TEST(korotin_e_crs_multiplication_seq, test_rnd_50_50_50) {
   task_data_seq->outputs.emplace_back(reinterpret_cast<uint8_t *>(out_val.data()));
   task_data_seq->outputs_count.emplace_back(out_rI.size());
 
+  std::cout << "Outed" << std::endl;
+
   korotin_e_crs_multiplication_seq::CrsMultiplicationSequential test_task_sequential(task_data_seq);
+  std::cout << "Start" << std::endl;
   ASSERT_EQ(test_task_sequential.Validation(), true);
+  std::cout << "Valid" << std::endl;
   test_task_sequential.PreProcessing();
+  std::cout << "PreProc" << std::endl;
   test_task_sequential.Run();
+  std::cout << "Run" << std::endl;
   test_task_sequential.PostProcessing();
+  std::cout << "PostProc"
 
   std::vector<double> C(M * P, 0), C_val;
   std::vector<unsigned int> C_rI, C_col;
@@ -126,8 +137,9 @@ TEST(korotin_e_crs_multiplication_seq, test_rnd_50_50_50) {
       }
     }
   }
+  std::cout << "Done C" << std::endl;
   korotin_e_crs_multiplication_seq::MakeCRS(C_rI, C_col, C_val, C, M, P);
-
+  stdLLcout << "Done CRS C" << std::endl;
   EXPECT_EQ(C_rI, out_rI);
   EXPECT_EQ(C_col, out_col);
   EXPECT_EQ(C_val, out_val);
