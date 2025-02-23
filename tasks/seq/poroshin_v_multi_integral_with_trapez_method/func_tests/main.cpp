@@ -41,8 +41,8 @@ double poroshin_v_multi_integral_with_trapez_method_seq::TestTaskSequential::F4(
 }
 double poroshin_v_multi_integral_with_trapez_method_seq::TestTaskSequential::F4advanced(
     std::vector<double> &arguments) {
-  return arguments.at(0) * arguments.at(0) + arguments.at(1) * arguments.at(1) + arguments.at(2) * arguments.at(2) +
-         arguments.at(3) * arguments.at(3);
+  return (arguments.at(0) * arguments.at(0)) + (arguments.at(1) * arguments.at(1)) +
+         (arguments.at(2) * arguments.at(2)) + (arguments.at(3) * arguments.at(3));
 }
 
 TEST(poroshin_v_multi_integral_with_trapez_method_seq, invalid_size) {
