@@ -11,7 +11,6 @@ bool deryabin_m_hoare_sort_simple_merge_seq::HoareSortTaskSequential::PreProcess
   dimension_ = task_data->inputs_count[0];
   chunk_count_ = task_data->inputs_count[1];
   min_chunk_size_ = dimension_ / chunk_count_;
-  remainder_ = dimension_ % chunk_count_;
   return true;
 }
 
@@ -56,8 +55,8 @@ void deryabin_m_hoare_sort_simple_merge_seq::HoareSortTaskSequential::MergeTwoPa
   size_t middle = left + ((right - left) / 2);
   size_t l_cur = left;
   size_t r_cur = middle + 1;
-  std::vector<double> l_buff(dimension_, 0);
-  std::vector<double> r_buff(dimension_, 0);
+  std::vector<double> l_buff(dimension_);
+  std::vector<double> r_buff(dimension_);
   std::copy(a.begin() + (long)l_cur, a.begin() + (long)r_cur, l_buff.begin() + (long)l_cur);
   std::copy(a.begin() + (long)r_cur, a.begin() + (long)right + 1, r_buff.begin() + (long)r_cur);
   for (size_t i = left; i <= right; i++) {
@@ -82,6 +81,7 @@ void deryabin_m_hoare_sort_simple_merge_seq::HoareSortTaskSequential::MergeTwoPa
 
 bool deryabin_m_hoare_sort_simple_merge_seq::HoareSortTaskSequential::RunImpl() {
   size_t count = 0;
+  size_t chunk_count = chunk_count_;
   while (count != chunk_count_) {
     if (count < chunk_count_ - 1) {
       HoaraSort(input_array_A_, count * min_chunk_size_, ((count + 1) * min_chunk_size_) - 1);
@@ -90,26 +90,10 @@ bool deryabin_m_hoare_sort_simple_merge_seq::HoareSortTaskSequential::RunImpl() 
     }
     count++;
   }
-  size_t chunk_count = chunk_count_;
   for (size_t i = 0; i < (size_t)(log((double)chunk_count) / std::numbers::ln2); i++) {
     for (size_t j = 0; j < chunk_count_; j++) {
-      if (j == 0) {
-        if (chunk_count_ % 2 != 0) {
-          MergeTwoParts(input_array_A_, dimension_ - 1 - (2 * min_chunk_size_ * (i + 1)) - remainder_, dimension_ - 1);
-          j--;
-        }
-        if (i == (size_t)(log((double)chunk_count_) / std::numbers::ln2) - 1) {
-          MergeTwoParts(input_array_A_, 0, dimension_ - 1);
-        } else {
-          MergeTwoParts(input_array_A_, 0, (2 * min_chunk_size_ * (i + 1)) - 1);
-        }
-      } else {
-        if (chunk_count_ - j == 2) {
-          MergeTwoParts(input_array_A_, min_chunk_size_ * (i + 1) * (j + 1), dimension_ - 1);
-        } else {
-          MergeTwoParts(input_array_A_, min_chunk_size_ * (i + 1) * (j + 1), (min_chunk_size_ * (i + 1) * (j + 3)) - 1);
-        }
-      }
+      MergeTwoParts(input_array_A_, 2 * j * min_chunk_size_ * (i + 1),
+                    (2 * (j + 1) * min_chunk_size_ * (i + 1)) - 1);
     }
   }
   return true;
