@@ -1,8 +1,10 @@
 #include <gtest/gtest.h>
 
 #include <cmath>
+#include <cstddef>
 #include <memory>
 #include <numbers>
+#include <vector>
 
 #include "seq/poroshin_v_multi_integral_with_trapez_method/include/ops_seq.hpp"
 

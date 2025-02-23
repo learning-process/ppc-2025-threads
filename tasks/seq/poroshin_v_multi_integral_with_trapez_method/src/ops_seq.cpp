@@ -1,6 +1,6 @@
 #include "seq/poroshin_v_multi_integral_with_trapez_method/include/ops_seq.hpp"
 
-#include <memory>
+#include <cstddef>
 #include <vector>
 
 void poroshin_v_multi_integral_with_trapez_method_seq::TestTaskSequential::CountMultiIntegralTrapezMethodSeq() {
