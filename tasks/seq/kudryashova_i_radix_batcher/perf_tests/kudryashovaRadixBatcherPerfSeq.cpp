@@ -45,7 +45,7 @@ TEST(kudryashova_i_radix_batcher_seq, test_pipeline_run) {
   auto perf_analyzer = std::make_shared<ppc::core::Perf>(testTaskSequential);
   perf_analyzer->PipelineRun(perf_attr, perf_results);
   ppc::core::Perf::PrintPerfStatistic(perf_results);
-  for (int i = 1; i < result.size(); i++) {
+  for (std::vector<double>::size_type i = 1; i < result.size(); i++) {
     ASSERT_LE(result[i - 1], result[i]);
   }
 }
@@ -72,7 +72,7 @@ TEST(kudryashova_i_radix_batcher_seq, test_task_run) {
   auto perf_analyzer = std::make_shared<ppc::core::Perf>(testTaskSequential);
   perf_analyzer->TaskRun(perf_attr, perf_results);
   ppc::core::Perf::PrintPerfStatistic(perf_results);
-  for (int i = 1; i < result.size(); i++) {
+  for (std::vector<double>::size_type i = 1; i < result.size(); i++) {
     ASSERT_LE(result[i - 1], result[i]);
   }
 }

@@ -35,7 +35,7 @@ TEST(kudryashova_i_radix_batcher_seq, seq_radix_test_0) {
   testTaskSequential.PreProcessingImpl();
   testTaskSequential.RunImpl();
   testTaskSequential.PostProcessingImpl();
-  for (int i = 1; i < result.size(); i++) {
+  for (std::vector<double>::size_type i = 1; i < result.size(); i++) {
     ASSERT_LE(result[i - 1], result[i]);
   }
 }
@@ -54,7 +54,7 @@ TEST(kudryashova_i_radix_batcher_seq, seq_radix_test_1) {
   testTaskSequential.PreProcessingImpl();
   testTaskSequential.RunImpl();
   testTaskSequential.PostProcessingImpl();
-  for (int i = 1; i < result.size(); i++) {
+  for (std::vector<double>::size_type i = 1; i < result.size(); i++) {
     ASSERT_LE(result[i - 1], result[i]);
   }
 }
@@ -74,7 +74,7 @@ TEST(kudryashova_i_radix_batcher_seq, seq_radix_test_2) {
   testTaskSequential.PreProcessingImpl();
   testTaskSequential.RunImpl();
   testTaskSequential.PostProcessingImpl();
-  for (int i = 1; i < result.size(); i++) {
+  for (std::vector<double>::size_type i = 1; i < result.size(); i++) {
     ASSERT_LE(result[i - 1], result[i]);
   }
 }
@@ -109,7 +109,7 @@ TEST(kudryashova_i_radix_batcher_seq, seq_radix_random_test_1) {
   testTaskSequential.PreProcessingImpl();
   testTaskSequential.RunImpl();
   testTaskSequential.PostProcessingImpl();
-  for (int i = 1; i < result.size(); i++) {
+  for (std::vector<double>::size_type i = 1; i < result.size(); i++) {
     ASSERT_LE(result[i - 1], result[i]);
   }
 }
@@ -128,7 +128,7 @@ TEST(kudryashova_i_radix_batcher_seq, seq_radix_random_test_2) {
   testTaskSequential.PreProcessingImpl();
   testTaskSequential.RunImpl();
   testTaskSequential.PostProcessingImpl();
-  for (int i = 1; i < result.size(); i++) {
+  for (std::vector<double>::size_type i = 1; i < result.size(); i++) {
     ASSERT_LE(result[i - 1], result[i]);
   }
 }
@@ -147,7 +147,7 @@ TEST(kudryashova_i_radix_batcher_seq, seq_radix_random_test_3) {
   testTaskSequential.PreProcessingImpl();
   testTaskSequential.RunImpl();
   testTaskSequential.PostProcessingImpl();
-  for (int i = 1; i < result.size(); i++) {
+  for (std::vector<double>::size_type i = 1; i < result.size(); i++) {
     ASSERT_LE(result[i - 1], result[i]);
   }
 }
