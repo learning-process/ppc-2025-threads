@@ -4,6 +4,7 @@
 #include <cstdint>
 #include <memory>
 #include <random>
+#include <ranges>
 #include <set>
 #include <vector>
 
@@ -105,7 +106,7 @@ TEST(alputov_i_graham_scan_seq, random_1000_points) {
 
   const auto& convex_hull = task.GetConvexHull();
   auto contains = [&](double x, double y) {
-    return std::any_of(convex_hull.begin(), convex_hull.end(), [x, y](const auto& p) { return p.x == x && p.y == y; });
+    return std::ranges::any_of(hull, [x, y](const auto& p) { return p.x == x && p.y == y; });
   };
 
   EXPECT_TRUE(contains(-1500, -1500));

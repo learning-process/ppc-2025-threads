@@ -5,6 +5,7 @@
 #include <cstdint>
 #include <memory>
 #include <random>
+#include <ranges>
 #include <vector>
 
 #include "core/perf/include/perf.hpp"
@@ -94,7 +95,7 @@ TEST(alputov_i_graham_scan_seq, test_task_run) {
 
   const auto& hull = task->GetConvexHull();
   auto contains = [&hull](double x, double y) {
-    return std::any_of(hull.begin(), hull.end(), [x, y](const auto& p) { return p.x == x && p.y == y; });
+    return std::ranges::any_of(hull, [x, y](const auto& p) { return p.x == x && p.y == y; });
   };
 
   ASSERT_TRUE(contains(-1000.0, -1000.0));
