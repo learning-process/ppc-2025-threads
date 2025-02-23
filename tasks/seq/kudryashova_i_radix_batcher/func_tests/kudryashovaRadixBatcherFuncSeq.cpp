@@ -59,7 +59,7 @@ TEST(kudryashova_i_radix_batcher_seq, seq_radix_test_1) {
 
 TEST(kudryashova_i_radix_batcher_seq, seq_radix_test_2) {
   int global_vector_size = 11;
-  std::vector<double> global_vector = {-8.55,   1.85,   -4.0,   2.81828, 8.77,  -5.56562,
+  std::vector<double> global_vector = {-8.55,   1.85,   -4.0,   2.81828, 8.77,   -5.56562,
                                        -15.823, -6.971, 3.1615, 0.0,     10.1415};
   std::vector<double> result(global_vector_size);
   std::shared_ptr<ppc::core::TaskData> task_data = std::make_shared<ppc::core::TaskData>();

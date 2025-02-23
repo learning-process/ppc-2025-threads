@@ -5,8 +5,8 @@
 #include <cstddef>
 #include <cstdint>
 #include <cstring>
-#include <vector>
 #include <ranges>
+#include <vector>
 
 void kudryashova_i_radix_batcher_seq::RadixDoubleSort(std::vector<double> &data, int first, int last) {
   const int sort_size = last - first;
