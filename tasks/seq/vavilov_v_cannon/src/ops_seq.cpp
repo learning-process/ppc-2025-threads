@@ -48,14 +48,20 @@ bool vavilov_v_cannon_seq::CannonSequential::ValidationImpl() {
 }
 
 void vavilov_v_cannon_seq::CannonSequential::BlockMultiply() {
-  for (unsigned int jj = 0; jj < N; jj += block_size) {
-    for (unsigned int kk = 0; kk < N; kk += block_size) {
-      for (unsigned int i = jj; i < std::min(jj + block_size, N); i++) {
-        for (unsigned int j = kk; j < std::min(kk + block_size, N); j++) {
+  for (unsigned int bi = 0; bi < N; bi += block_size) {
+    for (unsigned int bj = 0; bj < N; bj += block_size) {
+      for (unsigned int i = bi; i < bi + block_size; i++) {
+        for (unsigned int j = bj; j < bj + block_size; j++) {
           double temp = 0.0;
-          for (unsigned int k = 0; k < block_size && kk + k < N; k++) {
-            temp += A_[i * N + (kk + k)] * B_[(kk + k) * N + j];
+          for (unsigned int k = 0; k < block_size; k++) {
+            unsigned int row_A = bi + (i - bi);  // row_A index
+            unsigned int col_A = bj + k;         // col_A index
+            unsigned int row_B = bi + k;         // row_B index
+            unsigned int col_B = bj + (j - bj);  // col_B index
+
+            temp += A_[row_A * N + col_A] * B_[row_B * N + col_B];
           }
+
           C_[i * N + j] += temp;
         }
       }
