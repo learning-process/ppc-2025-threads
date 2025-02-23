@@ -5,7 +5,6 @@
 #include <cstddef>
 #include <cstdint>
 #include <cstring>
-#include <ranges>
 #include <vector>
 
 void kudryashova_i_radix_batcher_seq::RadixDoubleSort(std::vector<double> &data, int first, int last) {
@@ -49,7 +48,7 @@ void kudryashova_i_radix_batcher_seq::RadixDoubleSort(std::vector<double> &data,
   // Convert the sorted uint64_t representations back to double
   for (int i = 0; i < sort_size; ++i) {
     uint64_t bits = converted[i];
-    bits = (bits & (1ULL << 63)) ? (bits ^ (1ULL << 63)) : ~bits;
+    bits = ((bits & (1ULL << 63)) != 0) ? (bits ^ (1ULL << 63)) : ~bits;
     std::memcpy(&data[first + i], &bits, sizeof(double));
   }
 }
