@@ -37,16 +37,12 @@ void deryabin_m_hoare_sort_simple_merge_seq::HoareSortTaskSequential::HoaraSort(
     while (a[j] > x) {
       --j;
     }
-    if (i <= j) {
-      if (i < j) {
-        tmp = a[i];
-        a[i] = a[j];
-        a[j] = tmp;
-      }
-      i++;
-      j--;
+    if (i < j && a[i] > a[j]) {
+      tmp = a[i];
+      a[i] = a[j];
+      a[j] = tmp;
     }
-  } while (i <= j);
+  } while (i < j);
   if (i < last) {
     HoaraSort(a, i, last);
   }
@@ -82,8 +78,6 @@ void deryabin_m_hoare_sort_simple_merge_seq::HoareSortTaskSequential::MergeTwoPa
     }
   }
   chunk_count_--;
-  l_buff.clear();
-  r_buff.clear();
 }
 
 bool deryabin_m_hoare_sort_simple_merge_seq::HoareSortTaskSequential::RunImpl() {
@@ -122,6 +116,5 @@ bool deryabin_m_hoare_sort_simple_merge_seq::HoareSortTaskSequential::RunImpl() 
 
 bool deryabin_m_hoare_sort_simple_merge_seq::HoareSortTaskSequential::PostProcessingImpl() {
   reinterpret_cast<std::vector<double>*>(task_data->outputs[0])[0] = input_array_A_;
-  input_array_A_.clear();
   return true;
 }
