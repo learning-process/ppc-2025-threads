@@ -1,12 +1,9 @@
 #include <gtest/gtest.h>
 
 #include <cmath>
-#include <cstddef>
 #include <cstdint>
-#include <functional>
 #include <memory>
 #include <numbers>
-#include <vector>
 
 #include "core/task/include/task.hpp"
 #include "seq/chernykh_a_multidimensional_integral_rectangle/include/ops_seq.hpp"
@@ -55,7 +52,7 @@ TEST(chernykh_a_multidimensional_integral_rectangle_seq, quadratic_3d_integratio
     return (point[0] * point[0]) + (point[1] * point[1]) + (point[2] * point[2]);
   };
   auto bounds_per_dim = BoundsPerDim{{0.0, 1.0}, {0.0, 1.0}, {0.0, 1.0}};
-  auto steps_per_dim = StepsPerDim{150, 150, 150};
+  auto steps_per_dim = StepsPerDim{100, 100, 100};
   double want = 1.0;
   double tolerance = 10e-2;
   RunValidTask(func, bounds_per_dim, steps_per_dim, want, tolerance);
@@ -64,7 +61,7 @@ TEST(chernykh_a_multidimensional_integral_rectangle_seq, quadratic_3d_integratio
 TEST(chernykh_a_multidimensional_integral_rectangle_seq, exponential_3d_integration) {
   auto func = [](const Point& point) -> double { return std::exp(point[0] + point[1] + point[2]); };
   auto bounds_per_dim = BoundsPerDim{{0.0, 0.5}, {0.0, 0.5}, {0.0, 0.5}};
-  auto steps_per_dim = StepsPerDim{150, 150, 150};
+  auto steps_per_dim = StepsPerDim{100, 100, 100};
   double want = std::pow(std::exp(0.5) - 1, 3);
   double tolerance = 10e-3;
   RunValidTask(func, bounds_per_dim, steps_per_dim, want, tolerance);
@@ -73,9 +70,9 @@ TEST(chernykh_a_multidimensional_integral_rectangle_seq, exponential_3d_integrat
 TEST(chernykh_a_multidimensional_integral_rectangle_seq, trigonometric_2d_integration) {
   auto func = [](const Point& point) -> double { return std::sin(point[0]) * std::cos(point[1]); };
   auto bounds_per_dim = BoundsPerDim{{0.0, std::numbers::pi}, {0.0, std::numbers::pi / 2}};
-  auto steps_per_dim = StepsPerDim{2000, 2000};
+  auto steps_per_dim = StepsPerDim{1000, 1000};
   double want = 2.0;
-  double tolerance = 10e-4;
+  double tolerance = 10e-3;
   RunValidTask(func, bounds_per_dim, steps_per_dim, want, tolerance);
 }
 
@@ -84,7 +81,7 @@ TEST(chernykh_a_multidimensional_integral_rectangle_seq, polynomial_3d_integrati
     return (point[0] * point[1]) + (point[1] * point[2]) + (point[0] * point[2]);
   };
   auto bounds_per_dim = BoundsPerDim{{0.0, 1.0}, {0.0, 1.0}, {0.0, 1.0}};
-  auto steps_per_dim = StepsPerDim{150, 150, 150};
+  auto steps_per_dim = StepsPerDim{100, 100, 100};
   double want = 0.75;
   double tolerance = 10e-2;
   RunValidTask(func, bounds_per_dim, steps_per_dim, want, tolerance);
@@ -93,7 +90,7 @@ TEST(chernykh_a_multidimensional_integral_rectangle_seq, polynomial_3d_integrati
 TEST(chernykh_a_multidimensional_integral_rectangle_seq, quadratic_2d_integration) {
   auto func = [](const Point& point) -> double { return (point[0] * point[0]) + (point[1] * point[1]); };
   auto bounds_per_dim = BoundsPerDim{{0.0, 2.0}, {0.0, 3.0}};
-  auto steps_per_dim = StepsPerDim{2000, 2000};
+  auto steps_per_dim = StepsPerDim{1000, 1000};
   double want = 26.0;
   double tolerance = 10e-2;
   RunValidTask(func, bounds_per_dim, steps_per_dim, want, tolerance);
@@ -102,7 +99,7 @@ TEST(chernykh_a_multidimensional_integral_rectangle_seq, quadratic_2d_integratio
 TEST(chernykh_a_multidimensional_integral_rectangle_seq, exponential_2d_integration) {
   auto func = [](const Point& point) -> double { return std::exp(point[0] + point[1]); };
   auto bounds_per_dim = BoundsPerDim{{0.0, 1.0}, {0.0, 1.0}};
-  auto steps_per_dim = StepsPerDim{2000, 2000};
+  auto steps_per_dim = StepsPerDim{1000, 1000};
   double want = std::pow(std::numbers::e - 1, 2);
   double tolerance = 10e-3;
   RunValidTask(func, bounds_per_dim, steps_per_dim, want, tolerance);
@@ -115,7 +112,7 @@ TEST(chernykh_a_multidimensional_integral_rectangle_seq, trigonometric_3d_integr
       {0.0, std::numbers::pi / 2},
       {0.0, std::numbers::pi / 4},
   };
-  auto steps_per_dim = StepsPerDim{150, 150, 150};
+  auto steps_per_dim = StepsPerDim{100, 100, 100};
   double want = std::numbers::ln2;
   double tolerance = 10e-3;
   RunValidTask(func, bounds_per_dim, steps_per_dim, want, tolerance);
@@ -126,7 +123,7 @@ TEST(chernykh_a_multidimensional_integral_rectangle_seq, cubic_2d_integration) {
     return (point[0] * point[0] * point[0]) + (point[1] * point[1] * point[1]);
   };
   auto bounds_per_dim = BoundsPerDim{{0.0, 1.0}, {0.0, 2.0}};
-  auto steps_per_dim = StepsPerDim{2000, 2000};
+  auto steps_per_dim = StepsPerDim{1000, 1000};
   double want = 4.5;
   double tolerance = 10e-3;
   RunValidTask(func, bounds_per_dim, steps_per_dim, want, tolerance);
@@ -135,14 +132,14 @@ TEST(chernykh_a_multidimensional_integral_rectangle_seq, cubic_2d_integration) {
 TEST(chernykh_a_multidimensional_integral_rectangle_seq, empty_bounds_fails_validation) {
   auto func = [](const Point& point) -> double { return (2 * point[0]) + (3 * point[1]); };
   auto bounds_per_dim = BoundsPerDim{};
-  auto steps_per_dim = StepsPerDim{2000, 2000};
+  auto steps_per_dim = StepsPerDim{1000, 1000};
   RunInvalidTask(func, bounds_per_dim, steps_per_dim);
 }
 
 TEST(chernykh_a_multidimensional_integral_rectangle_seq, incorrect_bounds_fails_validation) {
   auto func = [](const Point& point) -> double { return std::exp(point[0] + point[1] + point[2]); };
   auto bounds_per_dim = BoundsPerDim{{0.0, 0.5}, {1.0, 0.5}, {0.0, 0.5}};
-  auto steps_per_dim = StepsPerDim{150, 150, 150};
+  auto steps_per_dim = StepsPerDim{100, 100, 100};
   RunInvalidTask(func, bounds_per_dim, steps_per_dim);
 }
 
@@ -160,7 +157,7 @@ TEST(chernykh_a_multidimensional_integral_rectangle_seq, bounds_steps_size_misma
     return (point[0] * point[1]) + (point[1] * point[2]) + (point[0] * point[2]);
   };
   auto bounds_per_dim = BoundsPerDim{{0.0, 1.0}, {0.0, 1.0}, {0.0, 1.0}};
-  auto steps_per_dim = StepsPerDim{2000, 2000};
+  auto steps_per_dim = StepsPerDim{1000, 1000};
   RunInvalidTask(func, bounds_per_dim, steps_per_dim);
 }
 

@@ -2,11 +2,9 @@
 
 #include <chrono>
 #include <cmath>
-#include <cstddef>
 #include <cstdint>
 #include <memory>
 #include <numbers>
-#include <vector>
 
 #include "core/perf/include/perf.hpp"
 #include "core/task/include/task.hpp"
@@ -65,7 +63,7 @@ TEST(chernykh_a_multidimensional_integral_rectangle_seq, test_pipeline_run) {
       {0.0, std::numbers::pi},
       {0.0, std::numbers::pi},
   };
-  auto steps_per_dim = StepsPerDim{150, 150, 150};
+  auto steps_per_dim = StepsPerDim{125, 125, 125};
   double want = std::pow((1.0 + std::exp(-std::numbers::pi)) / 2.0, 3);
   RunTask(RunType::kPipeline, func, bounds_per_dim, steps_per_dim, want);
 }
@@ -79,7 +77,7 @@ TEST(chernykh_a_multidimensional_integral_rectangle_seq, test_task_run) {
       {0.0, std::numbers::pi},
       {0.0, std::numbers::pi},
   };
-  auto steps_per_dim = StepsPerDim{150, 150, 150};
+  auto steps_per_dim = StepsPerDim{125, 125, 125};
   double want = std::pow((1.0 + std::exp(-std::numbers::pi)) / 2.0, 3);
   RunTask(RunType::kTask, func, bounds_per_dim, steps_per_dim, want);
 }

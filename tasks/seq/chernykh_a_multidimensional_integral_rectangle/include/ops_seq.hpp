@@ -1,6 +1,8 @@
 #pragma once
 
 #include <functional>
+#include <memory>
+#include <utility>
 #include <vector>
 
 #include "core/task/include/task.hpp"

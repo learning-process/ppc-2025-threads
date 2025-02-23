@@ -3,7 +3,6 @@
 #include <algorithm>
 #include <cstddef>
 #include <cstdint>
-#include <functional>
 #include <vector>
 
 namespace chernykh_a_multidimensional_integral_rectangle_seq {
