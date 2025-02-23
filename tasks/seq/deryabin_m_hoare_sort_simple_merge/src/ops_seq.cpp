@@ -44,7 +44,7 @@ void deryabin_m_hoare_sort_simple_merge_seq::HoareSortTaskSequential::HoaraSort(
     }
   } while (i < j);
   if (i < last) {
-    HoaraSort(a, i, last);
+    HoaraSort(a, i + 1, last);
   }
   if (first < j) {
     HoaraSort(a, first, j);
