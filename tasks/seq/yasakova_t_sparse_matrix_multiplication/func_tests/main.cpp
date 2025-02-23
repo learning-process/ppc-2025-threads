@@ -388,3 +388,52 @@ TEST(yasakova_t_sparse_matrix_multiplication_seq, test_multiply_identity_matrix)
       yasakova_t_sparse_matrix_multiplication_seq::ConvertVectorToMatrix(output_data);
   ASSERT_TRUE(yasakova_t_sparse_matrix_multiplication_seq::AreMatricesEqual(result, expected_result));
 }
+
+TEST(yasakova_t_sparse_matrix_multiplication_seq, test_multiply_matrix_with_single_non_zero_element) {
+  // Create data
+  yasakova_t_sparse_matrix_multiplication_seq::SparseMatrixCRS mat_a(3, true, 3);
+  yasakova_t_sparse_matrix_multiplication_seq::SparseMatrixCRS mat_b(3, true, 3);
+  yasakova_t_sparse_matrix_multiplication_seq::SparseMatrixCRS expected_result(3, true, 3);
+  std::vector<Complex> input_data = {};
+  std::vector<Complex> vec_a;
+  std::vector<Complex> vec_b;
+  std::vector<Complex> output_data(mat_a.columnCount * mat_b.rowCount * 100, 0);
+
+  // mat_a has only one non-zero element at (1, 1)
+  mat_a.InsertElement(1, Complex(5, 0), 1);
+
+  // mat_b is a regular matrix
+  mat_b.InsertElement(0, Complex(1, 0), 0);
+  mat_b.InsertElement(1, Complex(2, 0), 1);
+  mat_b.InsertElement(2, Complex(3, 0), 2);
+
+  // Expected result: only one non-zero row (row 1)
+  expected_result.InsertElement(1, Complex(10, 0), 1);
+
+  vec_a = yasakova_t_sparse_matrix_multiplication_seq::ConvertMatrixToVector(mat_a);
+  vec_b = yasakova_t_sparse_matrix_multiplication_seq::ConvertMatrixToVector(mat_b);
+  input_data.reserve(vec_a.size() + vec_b.size());
+  for (unsigned int i = 0; i < vec_a.size(); i++) {
+    input_data.emplace_back(vec_a[i]);
+  }
+  for (unsigned int i = 0; i < vec_b.size(); i++) {
+    input_data.emplace_back(vec_b[i]);
+  }
+
+  // Create task_data
+  auto task_data = std::make_shared<ppc::core::TaskData>();
+  task_data->inputs.emplace_back(reinterpret_cast<uint8_t *>(input_data.data()));
+  task_data->inputs_count.emplace_back(input_data.size());
+  task_data->outputs.emplace_back(reinterpret_cast<uint8_t *>(output_data.data()));
+  task_data->outputs_count.emplace_back(output_data.size());
+
+  // Create Task
+  yasakova_t_sparse_matrix_multiplication_seq::SequentialMatrixMultiplicationTest test_task(task_data);
+  ASSERT_EQ(test_task.Validation(), true);
+  test_task.PreProcessing();
+  test_task.Run();
+  test_task.PostProcessing();
+  yasakova_t_sparse_matrix_multiplication_seq::SparseMatrixCRS result =
+      yasakova_t_sparse_matrix_multiplication_seq::ConvertVectorToMatrix(output_data);
+  ASSERT_TRUE(yasakova_t_sparse_matrix_multiplication_seq::AreMatricesEqual(result, expected_result));
+}
