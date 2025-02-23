@@ -40,7 +40,7 @@ bool korotin_e_crs_multiplication_seq::CrsMultiplicationSequential::ValidationIm
   return task_data->inputs_count[1] == task_data->inputs_count[2] &&
          task_data->inputs_count[4] == task_data->inputs_count[5] &&
          task_data->inputs_count[0] == task_data->outputs_count[0] &&
-         *std::max_element(task_data->inputs[1].begin(), task_data->inputs[1].end()) == task_data->inputs_count[3] - 2;
+         *std::max_element(reinterpret_cast<unsigned int>(task_data->inputs[1]), reinterpret_cast<unsigned int>(task_data->inputs[1]) + task_data->inputs_count[1]) == task_data->inputs_count[3] - 2;
 }
 
 bool korotin_e_crs_multiplication_seq::CrsMultiplicationSequential::RunImpl() {
@@ -74,7 +74,7 @@ bool korotin_e_crs_multiplication_seq::CrsMultiplicationSequential::RunImpl() {
           sum += A_val_[ai] * tval[bt];
           ai++;
           bt++;
-        } else if (col[ai] < tcol[bt])
+        } else if (A_col_[ai] < tcol[bt])
           ai++;
         else
           bt++;
