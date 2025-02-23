@@ -1,10 +1,10 @@
 #include <gtest/gtest.h>
 
+#include <cstddef>
+#include <cstdint>
+#include <memory>
 #include <random>
 #include <vector>
-#include <cstddef>
-#include <memory>
-#include <cstdint>
 
 #include "core/task/include/task.hpp"
 #include "seq/kharin_m_multidimensional_integral_calc/include/ops_seq.hpp"
