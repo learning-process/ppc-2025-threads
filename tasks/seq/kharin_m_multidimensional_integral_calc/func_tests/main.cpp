@@ -1,7 +1,7 @@
 #include <gtest/gtest.h>
 
-#include <vector>
 #include <random>
+#include <vector>
 
 #include "core/task/include/task.hpp"
 #include "seq/kharin_m_multidimensional_integral_calc/include/ops_seq.hpp"
@@ -12,7 +12,7 @@ TEST(kharin_m_multidimensional_integral_calc_seq, test_integral_3x3) {
   std::vector<size_t> grid_sizes = {3, 3};
   std::vector<double> step_sizes = {1.0, 1.0};
   std::vector<double> out(1, 0.0);
-  double expected_out = 45.0; // Сумма 1+2+...+9 = 45 * 1.0 * 1.0
+  double expected_out = 45.0;  // Сумма 1+2+...+9 = 45 * 1.0 * 1.0
 
   auto task_data_seq = std::make_shared<ppc::core::TaskData>();
   task_data_seq->inputs.emplace_back(reinterpret_cast<uint8_t*>(in.data()));
@@ -39,7 +39,7 @@ TEST(kharin_m_multidimensional_integral_calc_seq, test_integral_1d) {
   std::vector<size_t> grid_sizes = {3};
   std::vector<double> step_sizes = {0.5};
   std::vector<double> out(1, 0.0);
-  double expected_out = (1.0 + 2.0 + 3.0) * 0.5; // 6.0 * 0.5 = 3.0
+  double expected_out = (1.0 + 2.0 + 3.0) * 0.5;  // 6.0 * 0.5 = 3.0
 
   auto task_data_seq = std::make_shared<ppc::core::TaskData>();
   task_data_seq->inputs.emplace_back(reinterpret_cast<uint8_t*>(in.data()));
@@ -62,11 +62,11 @@ TEST(kharin_m_multidimensional_integral_calc_seq, test_integral_1d) {
 
 // Тест для 3D интеграла (2x2x2 сетка)
 TEST(kharin_m_multidimensional_integral_calc_seq, test_integral_3d) {
-  std::vector<double> in(8, 1.0); // 2x2x2 сетка, все значения = 1.0
+  std::vector<double> in(8, 1.0);  // 2x2x2 сетка, все значения = 1.0
   std::vector<size_t> grid_sizes = {2, 2, 2};
   std::vector<double> step_sizes = {1.0, 1.0, 1.0};
   std::vector<double> out(1, 0.0);
-  double expected_out = 8.0 * 1.0 * 1.0 * 1.0; // 8.0
+  double expected_out = 8.0 * 1.0 * 1.0 * 1.0;  // 8.0
 
   auto task_data_seq = std::make_shared<ppc::core::TaskData>();
   task_data_seq->inputs.emplace_back(reinterpret_cast<uint8_t*>(in.data()));
@@ -123,7 +123,7 @@ TEST(kharin_m_multidimensional_integral_calc_seq, test_invalid_output_count) {
 
 TEST(kharin_m_multidimensional_integral_calc_seq, test_mismatch_grid_step_sizes) {
   std::vector<double> in = {1.0, 2.0, 3.0};
-  std::vector<size_t> grid_sizes = {3};      // 1 измерение
+  std::vector<size_t> grid_sizes = {3};         // 1 измерение
   std::vector<double> step_sizes = {0.5, 0.5};  // 2 шага — несоответствие
   std::vector<double> out(1, 0.0);
 
@@ -170,8 +170,8 @@ TEST(kharin_m_multidimensional_integral_calc_seq, test_random_data) {
   std::uniform_real_distribution<> dis(0.0, 1.0);
   double expected_sum = 0.0;
   for (auto& val : in) {
-      val = dis(gen);
-      expected_sum += val;
+    val = dis(gen);
+    expected_sum += val;
   }
   std::vector<size_t> grid_sizes = {kDim, kDim};
   std::vector<double> step_sizes = {0.1, 0.1};
