@@ -50,7 +50,7 @@ void deryabin_m_hoare_sort_simple_merge_seq::HoareSortTaskSequential::HoaraSort(
   }
 }
 
-void deryabin_m_hoare_sort_simple_merge_seq::HoareSortTaskSequential:: const MergeTwoParts(std::vector<double>& a, size_t left,
+void deryabin_m_hoare_sort_simple_merge_seq::HoareSortTaskSequential::MergeTwoParts(std::vector<double>& a, size_t left,
                                                                                     size_t right) {
   size_t middle = left + ((right - left) / 2);
   size_t l_cur = left;
