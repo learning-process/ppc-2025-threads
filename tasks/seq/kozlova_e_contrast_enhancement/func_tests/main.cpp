@@ -1,16 +1,20 @@
 #include <gtest/gtest.h>
 
 #include <algorithm>
+#include <cstddef>
+#include <memory>
+#include <random>
+#include <ranges>
 #include <vector>
 
 #include "core/task/include/task.hpp"
-#include "core/util/include/util.hpp"
 #include "seq/kozlova_e_contrast_enhancement/include/ops_seq.hpp"
 
-std::vector<int> generate_vector(int length);
+static std::vector<int> GenerateVector(int length);
 
-std::vector<int> generate_vector(int length) {
+std::vector<int> GenerateVector(int length) {
   std::vector<int> vec;
+  vec.reserve(length);
   for (int i = 0; i < length; ++i) {
     vec.push_back(rand() % 256);
   }
@@ -42,7 +46,7 @@ TEST(kozlova_e_contrast_enhancement_seq, test_1st_image) {
 
 TEST(kozlova_e_contrast_enhancement_seq, test_image2) {
   int size = 400;
-  std::vector<int> in = generate_vector(size);
+  std::vector<int> in = GenerateVector(size);
   std::vector<int> out(size, 0);
   std::vector<int> expect(size, 0);
 
@@ -58,8 +62,8 @@ TEST(kozlova_e_contrast_enhancement_seq, test_image2) {
   test_task_sequential.Run();
   test_task_sequential.PostProcessing();
 
-  int min_value = *std::min_element(in.begin(), in.end());
-  int max_value = *std::max_element(in.begin(), in.end());
+  int min_value = *std::ranges::min_element(in);
+  int max_value = *std::ranges::max_element(in);
 
   for (size_t i = 0; i < in.size(); ++i) {
     int expected = static_cast<int>(((in[i] - min_value) / (double)(max_value - min_value)) * 255);
@@ -117,8 +121,8 @@ TEST(kozlova_e_contrast_enhancement_seq, test_difference_input) {
   test_task_sequential.Run();
   test_task_sequential.PostProcessing();
 
-  int min_value = *std::min_element(in.begin(), in.end());
-  int max_value = *std::max_element(in.begin(), in.end());
+  int min_value = *std::ranges::min_element(in);
+  int max_value = *std::ranges::max_element(in);
 
   for (size_t i = 0; i < in.size(); ++i) {
     int expected = static_cast<int>(((in[i] - min_value) / (double)(max_value - min_value)) * 255);

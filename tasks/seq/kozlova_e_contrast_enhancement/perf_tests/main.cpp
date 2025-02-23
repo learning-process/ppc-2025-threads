@@ -2,16 +2,21 @@
 
 #include <algorithm>
 #include <chrono>
+#include <cstddef>
+#include <memory>
+#include <random>
+#include <ranges>
 #include <vector>
 
 #include "core/perf/include/perf.hpp"
 #include "core/task/include/task.hpp"
 #include "seq/kozlova_e_contrast_enhancement/include/ops_seq.hpp"
 
-std::vector<int> generate_vector(int length);
+static std::vector<int> GenerateVector(int length);
 
-std::vector<int> generate_vector(int length) {
+std::vector<int> GenerateVector(int length) {
   std::vector<int> vec;
+  vec.reserve(length);
   for (int i = 0; i < length; ++i) {
     vec.push_back(rand() % 256);
   }
@@ -19,11 +24,11 @@ std::vector<int> generate_vector(int length) {
 }
 
 TEST(kozlova_e_contrast_enhancement_seq, test_pipeline_run) {
-  constexpr int size = 20000000;
+  constexpr int kSize = 20000000;
 
   // Create data
-  std::vector<int> in = generate_vector(size);
-  std::vector<int> out(size, 0);
+  std::vector<int> in = GenerateVector(kSize);
+  std::vector<int> out(kSize, 0);
 
   // Create task_data
   auto task_data_seq = std::make_shared<ppc::core::TaskData>();
@@ -53,8 +58,8 @@ TEST(kozlova_e_contrast_enhancement_seq, test_pipeline_run) {
   perf_analyzer->PipelineRun(perf_attr, perf_results);
   ppc::core::Perf::PrintPerfStatistic(perf_results);
 
-  int min_value = *std::min_element(in.begin(), in.end());
-  int max_value = *std::max_element(in.begin(), in.end());
+  int min_value = *std::ranges::min_element(in);
+  int max_value = *std::ranges::max_element(in);
 
   for (size_t i = 0; i < in.size(); ++i) {
     int expected = static_cast<int>(((in[i] - min_value) / (double)(max_value - min_value)) * 255);
@@ -64,11 +69,11 @@ TEST(kozlova_e_contrast_enhancement_seq, test_pipeline_run) {
 }
 
 TEST(kozlova_e_contrast_enhancement_seq, test_task_run) {
-  constexpr int size = 20000000;
+  constexpr int kSize = 20000000;
 
   // Create data
-  std::vector<int> in = generate_vector(size);
-  std::vector<int> out(size, 0);
+  std::vector<int> in = GenerateVector(kSize);
+  std::vector<int> out(kSize, 0);
 
   // Create task_data
   auto task_data_seq = std::make_shared<ppc::core::TaskData>();
@@ -98,8 +103,8 @@ TEST(kozlova_e_contrast_enhancement_seq, test_task_run) {
   perf_analyzer->TaskRun(perf_attr, perf_results);
   ppc::core::Perf::PrintPerfStatistic(perf_results);
 
-  int min_value = *std::min_element(in.begin(), in.end());
-  int max_value = *std::max_element(in.begin(), in.end());
+  int min_value = *std::ranges::min_element(in);
+  int max_value = *std::ranges::max_element(in);
 
   for (size_t i = 0; i < in.size(); ++i) {
     int expected = static_cast<int>(((in[i] - min_value) / (double)(max_value - min_value)) * 255);

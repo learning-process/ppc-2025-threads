@@ -2,7 +2,7 @@
 
 #include <algorithm>
 #include <cstddef>
-#include <memory>
+#include <ranges>
 #include <vector>
 
 bool kozlova_e_contrast_enhancement_seq::TestTaskSequential::PreProcessingImpl() {
@@ -20,11 +20,11 @@ bool kozlova_e_contrast_enhancement_seq::TestTaskSequential::ValidationImpl() {
 }
 
 bool kozlova_e_contrast_enhancement_seq::TestTaskSequential::RunImpl() {
-  int min_value = *std::min_element(input_.begin(), input_.end());
-  int max_value = *std::max_element(input_.begin(), input_.end());
+  int min_value = *std::ranges::min_element(input_);
+  int max_value = *std::ranges::max_element(input_);
 
   if (min_value == max_value) {
-    std::copy(input_.begin(), input_.end(), output_.begin());
+    std::ranges::copy(input_, output_.begin());
     return true;
   }
 
