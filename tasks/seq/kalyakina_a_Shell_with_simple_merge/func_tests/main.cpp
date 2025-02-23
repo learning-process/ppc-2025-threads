@@ -2,6 +2,7 @@
 
 #include <cstdint>
 #include <memory>
+#include <random>
 #include <vector>
 
 #include "core/task/include/task.hpp"
@@ -11,6 +12,7 @@ namespace {
 
 std::vector<int> CreateReverseSortedVector(unsigned int size, int left);
 bool IsSorted(std::vector<int>& vec);
+std::vector<int> CreateRandomVector(unsigned int size, int left, int right);
 void TestOfFunction(std::vector<int>& in);
 
 std::vector<int> CreateReverseSortedVector(unsigned int size, const int left) {
@@ -31,6 +33,16 @@ bool IsSorted(std::vector<int>& vec) {
     }
   }
   return true;
+}
+
+std::vector<int> CreateRandomVector(unsigned int size, const int left, const int right) {
+  std::vector<int> result;
+  std::random_device dev;
+  std::mt19937 gen(dev());
+  while (size--) {
+    result.push_back(gen() % (int)(right - left) + left);
+  }
+  return result;
 }
 
 void TestOfFunction(std::vector<int>& in) {
@@ -134,5 +146,25 @@ TEST(kalyakina_a_Shell_with_simple_merge_seq, reverse_sorted_vector_1000) {
 
 TEST(kalyakina_a_Shell_with_simple_merge_seq, reverse_sorted_vector_10000) {
   std::vector<int> in = CreateReverseSortedVector(10000, -10);
+  TestOfFunction(in);
+}
+
+TEST(kalyakina_a_Shall_with_simple_merge_seq, random_vector_50) {
+  std::vector<int> in = CreateRandomVector(50, -7000, 7000);
+  TestOfFunction(in);
+}
+
+TEST(kalyakina_a_Shall_with_simple_merge_seq, random_vector_100) {
+  std::vector<int> in = CreateRandomVector(100, -7000, 7000);
+  TestOfFunction(in);
+}
+
+TEST(kalyakina_a_Shall_with_simple_merge_seq, random_vector_1000) {
+  std::vector<int> in = CreateRandomVector(1000, -7000, 7000);
+  TestOfFunction(in);
+}
+
+TEST(kalyakina_a_Shall_with_simple_merge_seq, random_vector_10000) {
+  std::vector<int> in = CreateRandomVector(10000, -7000, 7000);
   TestOfFunction(in);
 }
