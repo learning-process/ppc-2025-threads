@@ -1,6 +1,5 @@
 #include "seq/poroshin_v_multi_integral_with_trapez_method/include/ops_seq.hpp"
 
-#include <cmath>
 #include <cstddef>
 #include <vector>
 
