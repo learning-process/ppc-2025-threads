@@ -49,7 +49,7 @@ TEST(deryabin_m_hoare_sort_simple_merge_seq, test_random_array) {
   std::vector<double> output_array(32, 0);
   std::vector<std::vector<double>> out_array(1, output_array);
   std::vector<double> true_solution(input_array);
-  std::ranges::sort(true_solution.begin(), true_solution.end() + 1);
+  std::ranges::sort(true_solution.begin(), true_solution.end());
 
   // Create TaskData
   auto task_data_seq = std::make_shared<ppc::core::TaskData>();
@@ -80,7 +80,7 @@ TEST(deryabin_m_hoare_sort_simple_merge_seq, test_shuffle_array) {
   std::vector<double> output_array(32, 0);
   std::vector<std::vector<double>> out_array(1, output_array);
   std::vector<double> true_solution(input_array);
-  std::ranges::sort(true_solution.begin(), true_solution.end() + 1);
+  std::ranges::sort(true_solution.begin(), true_solution.end());
 
   // Create TaskData
   auto task_data_seq = std::make_shared<ppc::core::TaskData>();
@@ -111,7 +111,7 @@ TEST(deryabin_m_hoare_sort_simple_merge_seq, test_random_array_small_pieces) {
   std::vector<double> output_array(32, 0);
   std::vector<std::vector<double>> out_array(1, output_array);
   std::vector<double> true_solution(input_array);
-  std::ranges::sort(true_solution.begin(), true_solution.end() + 1);
+  std::ranges::sort(true_solution.begin(), true_solution.end());
 
   // Create TaskData
   auto task_data_seq = std::make_shared<ppc::core::TaskData>();
@@ -142,7 +142,7 @@ TEST(deryabin_m_hoare_sort_simple_merge_seq, test_random_array_large_pieces) {
   std::vector<double> output_array(32, 0);
   std::vector<std::vector<double>> out_array(1, output_array);
   std::vector<double> true_solution(input_array);
-  std::ranges::sort(true_solution.begin(), true_solution.end() + 1);
+  std::ranges::sort(true_solution.begin(), true_solution.end());
 
   // Create TaskData
   auto task_data_seq = std::make_shared<ppc::core::TaskData>();
@@ -174,7 +174,7 @@ TEST(deryabin_m_hoare_sort_simple_merge_seq, test_partially_sorted_array) {
   std::vector<double> output_array(32, 0);
   std::vector<std::vector<double>> out_array(1, output_array);
   std::vector<double> true_solution(input_array);
-  std::ranges::sort(true_solution.begin(), true_solution.end() + 1);
+  std::ranges::sort(true_solution.begin(), true_solution.end());
 
   // Create TaskData
   auto task_data_seq = std::make_shared<ppc::core::TaskData>();
