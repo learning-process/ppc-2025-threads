@@ -2,7 +2,6 @@
 
 #include <algorithm>
 #include <cmath>
-#include <ranges>
 #include <vector>
 
 bool vavilov_v_cannon_seq::CannonSequential::PreProcessingImpl() {
