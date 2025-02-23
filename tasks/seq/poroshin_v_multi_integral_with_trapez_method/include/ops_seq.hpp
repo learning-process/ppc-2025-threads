@@ -14,7 +14,7 @@ class TestTaskSequential : public ppc::core::Task {
  public:
   explicit TestTaskSequential(std::shared_ptr<ppc::core::TaskData> &task_data,
                               std::function<double(std::vector<double> &args)> func)
-      : Task(task_data), dim(task_data->inputs_count[0]), func(std::move(func)) {}
+      : Task(task_data), dim_(task_data->inputs_count[0]), func_(std::move(func)) {}
   bool PreProcessingImpl() override;
   bool ValidationImpl() override;
   bool RunImpl() override;
@@ -27,12 +27,12 @@ class TestTaskSequential : public ppc::core::Task {
   static double F3advanced(std::vector<double> &arguments);
 
  private:
-  void count_multi_integral_trapez_method_seq();
-  std::vector<std::pair<double, double>> limits;
-  size_t dim;
-  std::function<double(std::vector<double> &args)> func;
-  std::vector<int> n;
-  double res{};
+  void CountMultiIntegralTrapezMethodSeq();
+  std::vector<std::pair<double, double>> limits_;
+  size_t dim_;
+  std::function<double(std::vector<double> &args)> func_;
+  std::vector<int> n_;
+  double res_{};
 };
 
 }  // namespace poroshin_v_multi_integral_with_trapez_method_seq
