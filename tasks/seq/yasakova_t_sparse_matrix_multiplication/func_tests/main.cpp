@@ -9,24 +9,24 @@
 
 TEST(yasakova_t_sparse_matrix_multiplication_seq, test_multiply_real_matrices) {
   // Create data
-  yasakova_t_sparse_matrix_multiplication_seq::SparseMatrixCRS matA(3, true, 3);
+  yasakova_t_sparse_matrix_multiplication_seq::SparseMatrixCRS mat_a(3, true, 3);
   yasakova_t_sparse_matrix_multiplication_seq::SparseMatrixCRS mat_b(3, true, 3);
   yasakova_t_sparse_matrix_multiplication_seq::SparseMatrixCRS expected_result(3, true, 3);
   std::vector<Complex> input_data = {};
   std::vector<Complex> vec_a;
   std::vector<Complex> vec_b;
-  std::vector<Complex> output_data(matA.columnCount * mat_b.rowCount * 100, 0);
+  std::vector<Complex> output_data(mat_a.columnCount * mat_b.rowCount * 100, 0);
 
-  matA.InsertElement(0, Complex(1, 0), 0);
-  matA.InsertElement(0, Complex(2, 0), 2);
-  matA.InsertElement(1, Complex(3, 0), 1);
-  matA.InsertElement(2, Complex(4, 0), 0);
-  matA.InsertElement(2, Complex(5, 0), 1);
+  mat_a.InsertElement(0, Complex(1, 0), 0);
+  mat_a.InsertElement(0, Complex(2, 0), 2);
+  mat_a.InsertElement(1, Complex(3, 0), 1);
+  mat_a.InsertElement(2, Complex(4, 0), 0);
+  mat_a.InsertElement(2, Complex(5, 0), 1);
 
   mat_b.InsertElement(0, Complex(6, 0), 1);
   mat_b.InsertElement(1, Complex(7, 0), 0);
   mat_b.InsertElement(2, Complex(8, 0), 2);
-  vec_a = yasakova_t_sparse_matrix_multiplication_seq::ConvertMatrixToVector(matA);
+  vec_a = yasakova_t_sparse_matrix_multiplication_seq::ConvertMatrixToVector(mat_a);
   vec_b = yasakova_t_sparse_matrix_multiplication_seq::ConvertMatrixToVector(mat_b);
   input_data.reserve(vec_a.size() + vec_b.size());
   for (unsigned int i = 0; i < vec_a.size(); i++) {
@@ -61,24 +61,24 @@ TEST(yasakova_t_sparse_matrix_multiplication_seq, test_multiply_real_matrices) {
 
 TEST(yasakova_t_sparse_matrix_multiplication_seq, test_multiply_matrices_with_imaginary_parts) {
   // Create data
-  yasakova_t_sparse_matrix_multiplication_seq::SparseMatrixCRS matA(3, true, 3);
+  yasakova_t_sparse_matrix_multiplication_seq::SparseMatrixCRS mat_a(3, true, 3);
   yasakova_t_sparse_matrix_multiplication_seq::SparseMatrixCRS mat_b(3, true, 3);
   yasakova_t_sparse_matrix_multiplication_seq::SparseMatrixCRS expected_result(3, true, 3);
   std::vector<Complex> input_data = {};
   std::vector<Complex> vec_a;
   std::vector<Complex> vec_b;
-  std::vector<Complex> output_data(matA.columnCount * mat_b.rowCount * 100, 0);
+  std::vector<Complex> output_data(mat_a.columnCount * mat_b.rowCount * 100, 0);
 
-  matA.InsertElement(0, Complex(1, 1), 0);
-  matA.InsertElement(0, Complex(2, 2), 2);
-  matA.InsertElement(1, Complex(3, 3), 1);
-  matA.InsertElement(2, Complex(4, 4), 0);
-  matA.InsertElement(2, Complex(5, 5), 1);
+  mat_a.InsertElement(0, Complex(1, 1), 0);
+  mat_a.InsertElement(0, Complex(2, 2), 2);
+  mat_a.InsertElement(1, Complex(3, 3), 1);
+  mat_a.InsertElement(2, Complex(4, 4), 0);
+  mat_a.InsertElement(2, Complex(5, 5), 1);
 
   mat_b.InsertElement(0, Complex(6, 6), 1);
   mat_b.InsertElement(1, Complex(7, 7), 0);
   mat_b.InsertElement(2, Complex(8, 8), 2);
-  vec_a = yasakova_t_sparse_matrix_multiplication_seq::ConvertMatrixToVector(matA);
+  vec_a = yasakova_t_sparse_matrix_multiplication_seq::ConvertMatrixToVector(mat_a);
   vec_b = yasakova_t_sparse_matrix_multiplication_seq::ConvertMatrixToVector(mat_b);
   input_data.reserve(vec_a.size() + vec_b.size());
   for (unsigned int i = 0; i < vec_a.size(); i++) {
@@ -113,24 +113,24 @@ TEST(yasakova_t_sparse_matrix_multiplication_seq, test_multiply_matrices_with_im
 
 TEST(yasakova_t_sparse_matrix_multiplication_seq, test_multiply_rectangular_matrices) {
   // Create data
-  yasakova_t_sparse_matrix_multiplication_seq::SparseMatrixCRS matA(2, false, 3);
+  yasakova_t_sparse_matrix_multiplication_seq::SparseMatrixCRS mat_a(2, false, 3);
   yasakova_t_sparse_matrix_multiplication_seq::SparseMatrixCRS mat_b(3, false, 4);
   yasakova_t_sparse_matrix_multiplication_seq::SparseMatrixCRS expected_result(2, false, 4);
   std::vector<Complex> input_data = {};
   std::vector<Complex> vec_a;
   std::vector<Complex> vec_b;
-  std::vector<Complex> output_data(matA.columnCount * mat_b.rowCount * 100, 0);
+  std::vector<Complex> output_data(mat_a.columnCount * mat_b.rowCount * 100, 0);
 
-  matA.InsertElement(0, Complex(1, 0), 1);
-  matA.InsertElement(0, Complex(2, 0), 2);
-  matA.InsertElement(1, Complex(3, 0), 1);
+  mat_a.InsertElement(0, Complex(1, 0), 1);
+  mat_a.InsertElement(0, Complex(2, 0), 2);
+  mat_a.InsertElement(1, Complex(3, 0), 1);
 
   mat_b.InsertElement(0, Complex(3, 0), 2);
   mat_b.InsertElement(1, Complex(5, 0), 0);
   mat_b.InsertElement(1, Complex(4, 0), 3);
   mat_b.InsertElement(2, Complex(7, 0), 0);
   mat_b.InsertElement(2, Complex(8, 0), 1);
-  vec_a = yasakova_t_sparse_matrix_multiplication_seq::ConvertMatrixToVector(matA);
+  vec_a = yasakova_t_sparse_matrix_multiplication_seq::ConvertMatrixToVector(mat_a);
   vec_b = yasakova_t_sparse_matrix_multiplication_seq::ConvertMatrixToVector(mat_b);
   input_data.reserve(vec_a.size() + vec_b.size());
   for (unsigned int i = 0; i < vec_a.size(); i++) {
@@ -165,20 +165,20 @@ TEST(yasakova_t_sparse_matrix_multiplication_seq, test_multiply_rectangular_matr
 
 TEST(yasakova_t_sparse_matrix_multiplication_seq, test_multiply_matrices_with_negative_elements) {
   // Create data
-  yasakova_t_sparse_matrix_multiplication_seq::SparseMatrixCRS matA(2, true, 2);
+  yasakova_t_sparse_matrix_multiplication_seq::SparseMatrixCRS mat_a(2, true, 2);
   yasakova_t_sparse_matrix_multiplication_seq::SparseMatrixCRS mat_b(2, true, 2);
   yasakova_t_sparse_matrix_multiplication_seq::SparseMatrixCRS expected_result(2, true, 2);
   std::vector<Complex> input_data = {};
   std::vector<Complex> vec_a;
   std::vector<Complex> vec_b;
-  std::vector<Complex> output_data(matA.columnCount * mat_b.rowCount * 100, 0);
+  std::vector<Complex> output_data(mat_a.columnCount * mat_b.rowCount * 100, 0);
 
-  matA.InsertElement(0, Complex(-1, -1), 0);
-  matA.InsertElement(1, Complex(3, 3), 1);
+  mat_a.InsertElement(0, Complex(-1, -1), 0);
+  mat_a.InsertElement(1, Complex(3, 3), 1);
 
   mat_b.InsertElement(0, Complex(6, 6), 1);
   mat_b.InsertElement(1, Complex(-7, -7), 0);
-  vec_a = yasakova_t_sparse_matrix_multiplication_seq::ConvertMatrixToVector(matA);
+  vec_a = yasakova_t_sparse_matrix_multiplication_seq::ConvertMatrixToVector(mat_a);
   vec_b = yasakova_t_sparse_matrix_multiplication_seq::ConvertMatrixToVector(mat_b);
   input_data.reserve(vec_a.size() + vec_b.size());
   for (unsigned int i = 0; i < vec_a.size(); i++) {
@@ -210,20 +210,20 @@ TEST(yasakova_t_sparse_matrix_multiplication_seq, test_multiply_matrices_with_ne
 
 TEST(yasakova_t_sparse_matrix_multiplication_seq, test_multiply_matrices_with_zero_elements) {
   // Create data
-  yasakova_t_sparse_matrix_multiplication_seq::SparseMatrixCRS matA(2, true, 2);
+  yasakova_t_sparse_matrix_multiplication_seq::SparseMatrixCRS mat_a(2, true, 2);
   yasakova_t_sparse_matrix_multiplication_seq::SparseMatrixCRS mat_b(2, true, 2);
   yasakova_t_sparse_matrix_multiplication_seq::SparseMatrixCRS expected_result(2, true, 2);
   std::vector<Complex> input_data = {};
   std::vector<Complex> vec_a;
   std::vector<Complex> vec_b;
-  std::vector<Complex> output_data(matA.columnCount * mat_b.rowCount * 100, 0);
+  std::vector<Complex> output_data(mat_a.columnCount * mat_b.rowCount * 100, 0);
 
-  matA.InsertElement(0, Complex(0, 0), 0);
-  matA.InsertElement(1, Complex(0, 0), 1);
+  mat_a.InsertElement(0, Complex(0, 0), 0);
+  mat_a.InsertElement(1, Complex(0, 0), 1);
 
   mat_b.InsertElement(0, Complex(0, 0), 1);
   mat_b.InsertElement(1, Complex(0, 0), 0);
-  vec_a = yasakova_t_sparse_matrix_multiplication_seq::ConvertMatrixToVector(matA);
+  vec_a = yasakova_t_sparse_matrix_multiplication_seq::ConvertMatrixToVector(mat_a);
   vec_b = yasakova_t_sparse_matrix_multiplication_seq::ConvertMatrixToVector(mat_b);
   input_data.reserve(vec_a.size() + vec_b.size());
   for (unsigned int i = 0; i < vec_a.size(); i++) {
@@ -255,23 +255,23 @@ TEST(yasakova_t_sparse_matrix_multiplication_seq, test_multiply_matrices_with_ze
 
 TEST(yasakova_t_sparse_matrix_multiplication_seq, test_multiply_matrices_with_different_dimensions) {
   // Create data
-  yasakova_t_sparse_matrix_multiplication_seq::SparseMatrixCRS matA(3, true, 3);
+  yasakova_t_sparse_matrix_multiplication_seq::SparseMatrixCRS mat_a(3, true, 3);
   yasakova_t_sparse_matrix_multiplication_seq::SparseMatrixCRS mat_b(5, false, 3);
   std::vector<Complex> input_data = {};
   std::vector<Complex> vec_a;
   std::vector<Complex> vec_b;
-  std::vector<Complex> output_data(matA.columnCount * mat_b.rowCount * 100, 0);
+  std::vector<Complex> output_data(mat_a.columnCount * mat_b.rowCount * 100, 0);
 
-  matA.InsertElement(0, Complex(1, 0), 0);
-  matA.InsertElement(0, Complex(2, 0), 2);
-  matA.InsertElement(1, Complex(3, 0), 1);
-  matA.InsertElement(2, Complex(4, 0), 0);
-  matA.InsertElement(2, Complex(5, 0), 1);
+  mat_a.InsertElement(0, Complex(1, 0), 0);
+  mat_a.InsertElement(0, Complex(2, 0), 2);
+  mat_a.InsertElement(1, Complex(3, 0), 1);
+  mat_a.InsertElement(2, Complex(4, 0), 0);
+  mat_a.InsertElement(2, Complex(5, 0), 1);
 
   mat_b.InsertElement(0, Complex(6, 0), 1);
   mat_b.InsertElement(1, Complex(7, 0), 0);
   mat_b.InsertElement(2, Complex(8, 0), 2);
-  vec_a = yasakova_t_sparse_matrix_multiplication_seq::ConvertMatrixToVector(matA);
+  vec_a = yasakova_t_sparse_matrix_multiplication_seq::ConvertMatrixToVector(mat_a);
   vec_b = yasakova_t_sparse_matrix_multiplication_seq::ConvertMatrixToVector(mat_b);
   input_data.reserve(vec_a.size() + vec_b.size());
   for (unsigned int i = 0; i < vec_a.size(); i++) {
@@ -295,20 +295,20 @@ TEST(yasakova_t_sparse_matrix_multiplication_seq, test_multiply_matrices_with_di
 
 TEST(yasakova_t_sparse_matrix_multiplication_seq, test_multiply_zero_matrix) {
   // Create data
-  yasakova_t_sparse_matrix_multiplication_seq::SparseMatrixCRS matA(3, true, 3);
+  yasakova_t_sparse_matrix_multiplication_seq::SparseMatrixCRS mat_a(3, true, 3);
   yasakova_t_sparse_matrix_multiplication_seq::SparseMatrixCRS mat_b(3, true, 3);
   yasakova_t_sparse_matrix_multiplication_seq::SparseMatrixCRS expected_result(3, true, 3);
   std::vector<Complex> input_data = {};
   std::vector<Complex> vec_a;
   std::vector<Complex> vec_b;
-  std::vector<Complex> output_data(matA.columnCount * mat_b.rowCount * 100, 0);
+  std::vector<Complex> output_data(mat_a.columnCount * mat_b.rowCount * 100, 0);
 
-  // matA is zero matrix
+  // mat_a is zero matrix
   mat_b.InsertElement(0, Complex(1, 0), 0);
   mat_b.InsertElement(1, Complex(2, 0), 1);
   mat_b.InsertElement(2, Complex(3, 0), 2);
 
-  vec_a = yasakova_t_sparse_matrix_multiplication_seq::ConvertMatrixToVector(matA);
+  vec_a = yasakova_t_sparse_matrix_multiplication_seq::ConvertMatrixToVector(mat_a);
   vec_b = yasakova_t_sparse_matrix_multiplication_seq::ConvertMatrixToVector(mat_b);
   input_data.reserve(vec_a.size() + vec_b.size());
   for (unsigned int i = 0; i < vec_a.size(); i++) {
@@ -339,18 +339,18 @@ TEST(yasakova_t_sparse_matrix_multiplication_seq, test_multiply_zero_matrix) {
 
 TEST(yasakova_t_sparse_matrix_multiplication_seq, test_multiply_identity_matrix) {
   // Create data
-  yasakova_t_sparse_matrix_multiplication_seq::SparseMatrixCRS matA(3, true, 3);
+  yasakova_t_sparse_matrix_multiplication_seq::SparseMatrixCRS mat_a(3, true, 3);
   yasakova_t_sparse_matrix_multiplication_seq::SparseMatrixCRS mat_b(3, true, 3);
   yasakova_t_sparse_matrix_multiplication_seq::SparseMatrixCRS expected_result(3, true, 3);
   std::vector<Complex> input_data = {};
   std::vector<Complex> vec_a;
   std::vector<Complex> vec_b;
-  std::vector<Complex> output_data(matA.columnCount * mat_b.rowCount * 100, 0);
+  std::vector<Complex> output_data(mat_a.columnCount * mat_b.rowCount * 100, 0);
 
-  // matA is identity matrix
-  matA.InsertElement(0, Complex(1, 0), 0);
-  matA.InsertElement(1, Complex(1, 0), 1);
-  matA.InsertElement(2, Complex(1, 0), 2);
+  // mat_a is identity matrix
+  mat_a.InsertElement(0, Complex(1, 0), 0);
+  mat_a.InsertElement(1, Complex(1, 0), 1);
+  mat_a.InsertElement(2, Complex(1, 0), 2);
 
   mat_b.InsertElement(0, Complex(2, 0), 0);
   mat_b.InsertElement(1, Complex(3, 0), 1);
@@ -361,7 +361,7 @@ TEST(yasakova_t_sparse_matrix_multiplication_seq, test_multiply_identity_matrix)
   expected_result.InsertElement(1, Complex(3, 0), 1);
   expected_result.InsertElement(2, Complex(4, 0), 2);
 
-  vec_a = yasakova_t_sparse_matrix_multiplication_seq::ConvertMatrixToVector(matA);
+  vec_a = yasakova_t_sparse_matrix_multiplication_seq::ConvertMatrixToVector(mat_a);
   vec_b = yasakova_t_sparse_matrix_multiplication_seq::ConvertMatrixToVector(mat_b);
   input_data.reserve(vec_a.size() + vec_b.size());
   for (unsigned int i = 0; i < vec_a.size(); i++) {

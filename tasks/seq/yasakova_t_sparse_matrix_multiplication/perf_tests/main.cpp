@@ -15,7 +15,7 @@ TEST(yasakova_t_sparse_matrix_multiplication_seq, test_pipeline_run) {
   yasakova_t_sparse_matrix_multiplication_seq::SparseMatrixCRS sparse_matrix_b(400, true, 400);
   std::vector<Complex> input_data = {};
   std::vector<Complex> vector_a;
-  std::vector<Complex> vectorB;
+  std::vector<Complex> vector_b;
   std::vector<Complex> result_vector(sparse_matrix_a.columnCount * sparse_matrix_b.rowCount * 100, 0);
 
   for (unsigned int row = 0; row < 150; row++) {
@@ -31,10 +31,10 @@ TEST(yasakova_t_sparse_matrix_multiplication_seq, test_pipeline_run) {
     }
   }
   vector_a = yasakova_t_sparse_matrix_multiplication_seq::ConvertMatrixToVector(sparse_matrix_a);
-  vectorB = yasakova_t_sparse_matrix_multiplication_seq::ConvertMatrixToVector(sparse_matrix_b);
-  input_data.reserve(vector_a.size() + vectorB.size());
+  vector_b = yasakova_t_sparse_matrix_multiplication_seq::ConvertMatrixToVector(sparse_matrix_b);
+  input_data.reserve(vector_a.size() + vector_b.size());
   input_data.insert(input_data.end(), vector_a.begin(), vector_a.end());
-  input_data.insert(input_data.end(), vectorB.begin(), vectorB.end());
+  input_data.insert(input_data.end(), vector_b.begin(), vector_b.end());
 
   // Initialize task data structure
   auto task_data = std::make_shared<ppc::core::TaskData>();
@@ -73,7 +73,7 @@ TEST(yasakova_t_sparse_matrix_multiplication_seq, test_task_run) {
   yasakova_t_sparse_matrix_multiplication_seq::SparseMatrixCRS sparse_matrix_b(400, true, 400);
   std::vector<Complex> input_data = {};
   std::vector<Complex> vector_a;
-  std::vector<Complex> vectorB;
+  std::vector<Complex> vector_b;
   std::vector<Complex> result_vector(sparse_matrix_a.columnCount * sparse_matrix_b.rowCount * 100, 0);
 
   for (unsigned int row = 0; row < 150; row++) {
@@ -89,10 +89,10 @@ TEST(yasakova_t_sparse_matrix_multiplication_seq, test_task_run) {
     }
   }
   vector_a = yasakova_t_sparse_matrix_multiplication_seq::ConvertMatrixToVector(sparse_matrix_a);
-  vectorB = yasakova_t_sparse_matrix_multiplication_seq::ConvertMatrixToVector(sparse_matrix_b);
-  input_data.reserve(vector_a.size() + vectorB.size());
+  vector_b = yasakova_t_sparse_matrix_multiplication_seq::ConvertMatrixToVector(sparse_matrix_b);
+  input_data.reserve(vector_a.size() + vector_b.size());
   input_data.insert(input_data.end(), vector_a.begin(), vector_a.end());
-  input_data.insert(input_data.end(), vectorB.begin(), vectorB.end());
+  input_data.insert(input_data.end(), vector_b.begin(), vector_b.end());
 
   // Initialize task data structure
   auto task_data = std::make_shared<ppc::core::TaskData>();
