@@ -51,17 +51,17 @@ void MakeCRS(std::vector<unsigned int> &rI, std::vector<unsigned int> &col, std:
 }  // namespace korotin_e_crs_multiplication_seq
 
 TEST(korotin_e_crs_multiplication_seq, test_rnd_50_50_50) {
-  std::cout << "Hello\n";
+  std::cout << "Hello" << std::endl;
   const unsigned int M = 50, N = 50, P = 50;
-  std::cout << "I'm here\n";
+  std::cout << "I'm here" << std::endl;
   std::vector<double> A, B, A_val, B_val;
   std::vector<unsigned int> A_rI, A_col, B_rI, B_col;
-  std::cout << "Pupupu\n";
+  std::cout << "Pupupu" << std::endl;
   A = korotin_e_crs_multiplication_seq::GetRandomMatrix(M, N);
   B = korotin_e_crs_multiplication_seq::GetRandomMatrix(N, P);
-  std::cout << "A, B created\n";
+  std::cout << "A, B created" << std::endl;
   A_rI = std::vector<unsigned int>(M + 1, 0);
-  std::cout << "Initialized\n";
+  std::cout << "Initialized" << std::endl;
   for (unsigned int i = 0; i < M; i++)
     for (unsigned int j = 0; j < N; j++) {
       if (A[i * N + j] != 0) {
@@ -70,25 +70,25 @@ TEST(korotin_e_crs_multiplication_seq, test_rnd_50_50_50) {
         A_rI[i + 1]++;
       }
     }
-  std::cout << "hmm\n";
+  std::cout << "hmm" << std::endl;
   for (unsigned int i = 1; i <= M; i++) {
     A_rI[i] += A_rI[i - 1];
   }
   B_rI = std::vector<unsigned int>(N + 1, 0);
-  std::cout << "Initialized\n";
+  std::cout << "Initialized" << std::endl;
   for (unsigned int i = 0; i < N; i++)
     for (unsigned int j = 0; j < P; j++) {
-      if (B[i * N + j] != 0) {
+      if (B[i * P + j] != 0) {
         B_val.push_back(B[i * P + j]);
         B_col.push_back(j);
         B_rI[i + 1]++;
       }
     }
-  std::cout << "hmm\n";
-  for (unsigned int i = 1; i <= M; i++) {
+  std::cout << "hmm" << std::endl;
+  for (unsigned int i = 1; i <= N; i++) {
     B_rI[i] += B_rI[i - 1];
   }
-  std::cout << "What?\n";
+  std::cout << "What?" << std::endl;
   auto task_data_seq = std::make_shared<ppc::core::TaskData>();
   task_data_seq->inputs.emplace_back(reinterpret_cast<uint8_t *>(A_rI.data()));
   task_data_seq->inputs.emplace_back(reinterpret_cast<uint8_t *>(A_col.data()));
