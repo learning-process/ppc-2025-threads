@@ -23,6 +23,6 @@ class CrsMultiplicationSequential : public ppc::core::Task {
 std::vector<double> GetRandomMatrix(unsigned int M, unsigned int N);
 
 void MakeCRS(std::vector<unsigned int> &rI, std::vector<unsigned int> &col, std::vector<double> &val,
-             std::vector<double> src, unsigned int M, unsigned int N);
+             const std::vector<double> &src, unsigned int M, unsigned int N);
 
 }  // namespace korotin_e_crs_multiplication_seq

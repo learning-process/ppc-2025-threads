@@ -3,6 +3,7 @@
 #include <cstddef>
 #include <cstdint>
 #include <fstream>
+#include <iostream>
 #include <memory>
 #include <random>
 #include <string>
@@ -27,10 +28,12 @@ std::vector<double> GetRandomMatrix(unsigned int M, unsigned int N) {
 }
 
 void MakeCRS(std::vector<unsigned int> &rI, std::vector<unsigned int> &col, std::vector<double> &val,
-             std::vector<double> src, unsigned int M, unsigned int N) {
+             const std::vector<double> &src, unsigned int M, unsigned int N) {
+  std::cout << "Entered\n";
   rI = std::vector<unsigned int>(M + 1, 0);
   col.clear();
   val.clear();
+  std::cout << "Initialized\n";
   for (unsigned int i = 0; i < M; i++)
     for (unsigned int j = 0; j < N; j++) {
       if (src[i * N + j] != 0) {
@@ -39,6 +42,7 @@ void MakeCRS(std::vector<unsigned int> &rI, std::vector<unsigned int> &col, std:
         rI[i + 1]++;
       }
     }
+  std::cout << "hmm\n";
   for (unsigned int i = 0; i <= M; i++) {
     rI[i] += rI[i - 1];
   }
