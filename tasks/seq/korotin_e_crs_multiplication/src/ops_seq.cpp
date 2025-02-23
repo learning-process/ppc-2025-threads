@@ -38,22 +38,24 @@ bool korotin_e_crs_multiplication_seq::CrsMultiplicationSequential::PreProcessin
 }
 
 bool korotin_e_crs_multiplication_seq::CrsMultiplicationSequential::ValidationImpl() {
-  return task_data->inputs_count[1] == task_data->inputs_count[2] &&  task_data->inputs_count[4] == task_data->inputs_count[5] && task_data->inputs_count[0] == task_data->outputs_count[0] && *std::max_element(task_data->inputs_[1].begin(), task_data->inpouts[1].end()) == task_data->inputs_count[3]-2;
+  return task_data->inputs_count[1] == task_data->inputs_count[2] &&
+         task_data->inputs_count[4] == task_data->inputs_count[5] &&
+         task_data->inputs_count[0] == task_data->outputs_count[0] &&
+         *std::max_element(task_data->inputs_[1].begin(), task_data->inpouts[1].end()) ==
+             task_data->inputs_count[3] - 2;
 }
 
 bool korotin_e_crs_multiplication_seq::CrsMultiplicationSequential::RunImpl() {
   std::vector<unsigned int> trI(*std::max_element(B_col_.begin(), B_col_.end()) + 2, 0);
   unsigned int i;
   unsigned int j;
-  for (i = 0; i < B_Nz_; i++)
-    trI[B_col_[i] + 1]++;
-  for (i = 1; i < trI.size(); i++)
-    trI[i] += trI[i - 1];
+  for (i = 0; i < B_Nz_; i++) trI[B_col_[i] + 1]++;
+  for (i = 1; i < trI.size(); i++) trI[i] += trI[i - 1];
 
   std::vector<unsigned int> tcol(B_Nz_, 0);
   std::vector<double> tval(B_Nz_, 0);
   for (i = 0; i < B_N_ - 1; i++)
-    for (j = B_rI_[i]; i < B_rI_[i + 1]; j++} {
+    for (j = B_rI_[i]; j < B_rI_[i + 1]; j++) {
       tval[trI[B_col_[j]]] = B_val_[j];
       tcol[trI[B_col_[j]]] = i;
       trI[B_col_[j]]++;
@@ -94,7 +96,7 @@ bool korotin_e_crs_multiplication_seq::CrsMultiplicationSequential::PostProcessi
   for (size_t i = 0; i < output_rI_.size(); i++) {
     reinterpret_cast<unsigned int *>(task_data->outputs[0])[i] = output_rI_[i];
   }
-  for (size_t i = 0; i < output_col_,size(); i++) {
+  for (size_t i = 0; i < output_col_.size(); i++) {
     reinterpret_cast<unsigned int *>(task_data->outputs[1])[i] = output_col_[i];
     reinterpret_cast<double *>(task_data->outputs[2])[i] = output_val_[i];
   }

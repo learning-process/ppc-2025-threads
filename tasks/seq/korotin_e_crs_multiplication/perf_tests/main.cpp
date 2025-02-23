@@ -50,7 +50,8 @@ TEST(korotin_e_crs_multiplication_seq, test_pipeline_run) {
   task_data_seq->outputs_count.emplace_back(out_rI.size());
 
   // Create Task
-  auto test_task_sequential = std::make_shared<korotin_e_crs_multiplication_seq::CrsMultiplicationSequential>(task_data_seq);
+  auto test_task_sequential =
+      std::make_shared<korotin_e_crs_multiplication_seq::CrsMultiplicationSequential>(task_data_seq);
 
   // Create Perf attributes
   auto perf_attr = std::make_shared<ppc::core::PerfAttr>();
@@ -115,7 +116,8 @@ TEST(korotin_e_crs_multiplication_seq, test_task_run) {
   task_data_seq->outputs_count.emplace_back(out_rI.size());
 
   // Create Task
-  auto test_task_sequential = std::make_shared<korotin_e_crs_multiplication_seq::CrsMultiplicationSequential>(task_data_seq);
+  auto test_task_sequential =
+      std::make_shared<korotin_e_crs_multiplication_seq::CrsMultiplicationSequential>(task_data_seq);
 
   // Create Perf attributes
   auto perf_attr = std::make_shared<ppc::core::PerfAttr>();

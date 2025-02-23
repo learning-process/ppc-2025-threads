@@ -25,7 +25,8 @@ std::vector<double> GetRandomMatrix(unsigned int M, unsigned int N) {
   return res;
 }
 
-void MakeCRS(std::vector<unsigned int>& rI, std::vector<unsigned int>& col, std::vector<double>& val, std::vector<double> src, unsigned int M, unsigned int N) {
+void MakeCRS(std::vector<unsigned int> &rI, std::vector<unsigned int> &col, std::vector<double> &val,
+             std::vector<double> src, unsigned int M, unsigned int N) {
   rI = std::vector<unsigned int>(M + 1, 0);
   col.clear();
   val.clear();
@@ -42,7 +43,7 @@ void MakeCRS(std::vector<unsigned int>& rI, std::vector<unsigned int>& col, std:
   }
 }
 
-}
+}  // namespace korotin_e_crs_multiplication_seq
 
 TEST(korotin_e_crs_multiplication_seq, test_rnd_50_50_50) {
   const unsigned int M = 50, N = 50, P = 50;
@@ -77,7 +78,7 @@ TEST(korotin_e_crs_multiplication_seq, test_rnd_50_50_50) {
   task_data_seq->outputs.emplace_back(reinterpret_cast<uint8_t *>(out_val.data()));
   task_data_seq->outputs_count.emplace_back(out_rI.size());
 
-  korotin_e_crs_multiplication_seq::CrsMultiplicationSeqrential test_task_sequential(task_data_seq);
+  korotin_e_crs_multiplication_seq::CrsMultiplicationSequential test_task_sequential(task_data_seq); 
   ASSERT_EQ(test_task_sequential.Validation(), true);
   test_task_sequential.PreProcessing();
   test_task_sequential.Run();
