@@ -1,4 +1,4 @@
-#include "seq/example/include/ops_seq.hpp"
+#include "seq/korotin_e_crs_multiplication/include/ops_seq.hpp"
 
 #include <algorithm>
 #include <cmath>
