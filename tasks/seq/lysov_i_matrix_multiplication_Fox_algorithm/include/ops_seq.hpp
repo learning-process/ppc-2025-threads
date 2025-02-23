@@ -1,11 +1,11 @@
 #pragma once
-
+#include <cstddef>
 #include <utility>
 #include <vector>
 
 #include "core/task/include/task.hpp"
 
-namespace lysov_i_matrix_multiplication_Fox_algorithm_seq {
+namespace lysov_i_matrix_multiplication_fox_algorithm_seq {
 
 class TestTaskSequential : public ppc::core::Task {
  public:
@@ -16,11 +16,11 @@ class TestTaskSequential : public ppc::core::Task {
   bool PostProcessingImpl() override;
 
  private:
-  std::vector<double> A;
-  std::vector<double> B;
-  std::vector<double> C;
-  std::size_t N;
-  std::size_t block_size;
+  std::vector<double> a_;
+  std::vector<double> b_;
+  std::vector<double> c_;
+  std::size_t n_;
+  std::size_t block_size_;
 };
 
-}  // namespace lysov_i_matrix_multiplication_Fox_algorithm_seq
+}  // namespace lysov_i_matrix_multiplication_fox_algorithm_seq

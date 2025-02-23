@@ -1,62 +1,63 @@
 #include "seq/lysov_i_matrix_multiplication_Fox_algorithm/include/ops_seq.hpp"
 
+#include <algorithm>
 #include <cmath>
 #include <cstddef>
 #include <iostream>
 #include <vector>
 
-bool lysov_i_matrix_multiplication_Fox_algorithm_seq::TestTaskSequential::PreProcessingImpl() {
-  N = reinterpret_cast<std::size_t *>(task_data->inputs[0])[0];
-  block_size = reinterpret_cast<std::size_t *>(task_data->inputs[3])[0];
-  A.resize(N * N);
-  B.resize(N * N);
-  C.resize(N * N, 0.0);
-  std::copy(reinterpret_cast<double *>(task_data->inputs[1]), reinterpret_cast<double *>(task_data->inputs[1]) + N * N,
-            A.begin());
-  std::copy(reinterpret_cast<double *>(task_data->inputs[2]), reinterpret_cast<double *>(task_data->inputs[2]) + N * N,
-            B.begin());
+bool lysov_i_matrix_multiplication_fox_algorithm_seq::TestTaskSequential::PreProcessingImpl() {
+  n_ = reinterpret_cast<std::size_t *>(task_data->inputs[0])[0];
+  block_size_ = reinterpret_cast<std::size_t *>(task_data->inputs[3])[0];
+  a_.resize(n_ * n_);
+  b_.resize(n_ * n_);
+  c_.resize(n_ * n_, 0.0);
+  std::copy(reinterpret_cast<double *>(task_data->inputs[1]),
+            reinterpret_cast<double *>(task_data->inputs[1]) + (n_ * n_), a_.begin());
+  std::copy(reinterpret_cast<double *>(task_data->inputs[2]),
+            reinterpret_cast<double *>(task_data->inputs[2]) + (n_ * n_), b_.begin());
   return true;
 }
 
-bool lysov_i_matrix_multiplication_Fox_algorithm_seq::TestTaskSequential::ValidationImpl() {
-  N = reinterpret_cast<std::size_t *>(task_data->inputs[0])[0];
-  block_size = reinterpret_cast<std::size_t *>(task_data->inputs[3])[0];
+bool lysov_i_matrix_multiplication_fox_algorithm_seq::TestTaskSequential::ValidationImpl() {
+  n_ = reinterpret_cast<std::size_t *>(task_data->inputs[0])[0];
+  block_size_ = reinterpret_cast<std::size_t *>(task_data->inputs[3])[0];
   if (task_data->inputs_count.size() != 3 || task_data->outputs_count.size() != 1) {
     return false;
   }
-  if (task_data->inputs_count[1] != N * N || task_data->inputs_count[0] != N * N) {
+  if (task_data->inputs_count[1] != n_ * n_ || task_data->inputs_count[0] != n_ * n_) {
     return false;
   }
-  return task_data->outputs_count[0] == N * N && block_size > 0;
+  return task_data->outputs_count[0] == n_ * n_ && block_size_ > 0;
 }
 
-bool lysov_i_matrix_multiplication_Fox_algorithm_seq::TestTaskSequential::RunImpl() {
-  std::size_t numBlocks = (N + block_size - 1) / block_size;
-  for (std::size_t step = 0; step < numBlocks; ++step) {
-    for (std::size_t i = 0; i < numBlocks; ++i) {
-      std::size_t aBlockRow = (i + step) % numBlocks;
+bool lysov_i_matrix_multiplication_fox_algorithm_seq::TestTaskSequential::RunImpl() {
+  std::size_t num_blocks = (n_ + block_size_ - 1) / block_size_;
+  for (std::size_t step = 0; step < num_blocks; ++step) {
+    for (std::size_t i = 0; i < num_blocks; ++i) {
+      std::size_t a_block_row = (i + step) % num_blocks;
 
-      for (std::size_t j = 0; j < numBlocks; ++j) {
-        std::size_t block_h = std::min(block_size, N - i * block_size);
-        std::size_t block_w = std::min(block_size, N - j * block_size);
+      for (std::size_t j = 0; j < num_blocks; ++j) {
+        std::size_t block_h = std::min(block_size_, n_ - i * block_size_);
+        std::size_t block_w = std::min(block_size_, n_ - j * block_size_);
 
         for (std::size_t ii = 0; ii < block_h; ++ii) {
           for (std::size_t jj = 0; jj < block_w; ++jj) {
             double sum = 0.0;
-            for (std::size_t kk = 0; kk < std::min(block_size, N - aBlockRow * block_size); ++kk) {
-              std::size_t rowA = i * block_size + ii;
-              std::size_t colA = aBlockRow * block_size + kk;
-              std::size_t rowB = aBlockRow * block_size + kk;
-              std::size_t colB = j * block_size + jj;
+            for (std::size_t kk = 0; kk < std::min(block_size_, n_ - a_block_row * block_size_); ++kk) {
+              std::size_t row_a = i * block_size_ + ii;
+              std::size_t col_a = a_block_row * block_size_ + kk;
+              std::size_t row_b = a_block_row * block_size_ + kk;
+              std::size_t col_b = j * block_size_ + jj;
 
-              if (rowA < N && colA < N && rowB < N && colB < N) {
-                sum += A[rowA * N + colA] * B[rowB * N + colB];
+              if (row_a < n_ && col_a < n_ && row_b < n_ && col_b < n_) {
+                sum += a_[row_a * n_ + col_a] * b_[row_b * n_ + col_b];
               }
             }
-            std::size_t rowC = i * block_size + ii;
-            std::size_t colC = j * block_size + jj;
-            if (rowC < N && colC < N) {
-              C[rowC * N + colC] += sum;
+            std::size_t row_c = i * block_size_ + ii;
+            std::size_t col_c = j * block_size_ + jj;
+            if (row_c < n_ && col_c < n_) {
+              c_[row_c * n_ + col_c] += sum;
             }
           }
         }
@@ -67,7 +68,7 @@ bool lysov_i_matrix_multiplication_Fox_algorithm_seq::TestTaskSequential::RunImp
   return true;
 }
 
-bool lysov_i_matrix_multiplication_Fox_algorithm_seq::TestTaskSequential::PostProcessingImpl() {
-  std::copy(C.begin(), C.end(), reinterpret_cast<double *>(task_data->outputs[0]));
+bool lysov_i_matrix_multiplication_fox_algorithm_seq::TestTaskSequential::PostProcessingImpl() {
+  std::ranges::copy(c_, reinterpret_cast<double *>(task_data->outputs[0]));
   return true;
 }

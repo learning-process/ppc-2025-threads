@@ -11,7 +11,7 @@
 #include "core/task/include/task.hpp"
 #include "seq/lysov_i_matrix_multiplication_Fox_algorithm/include/ops_seq.hpp"
 namespace {
-std::vector<double> getRandomMatrix(size_t size) {
+std::vector<double> GetRandomMatrix(size_t size) {
   std::vector<double> matrix(size * size);
   std::random_device rd;
   std::mt19937 gen(rd());
@@ -27,25 +27,25 @@ std::vector<double> getRandomMatrix(size_t size) {
 }  // namespace
 TEST(lysov_i_matrix_multiplication_Fox_algorithm_seq, test_pipeline_run) {
   // Create data
-  size_t N = 512;
+  size_t n = 512;
   size_t block_size = 100;
-  std::vector<double> A = getRandomMatrix(N);
-  std::vector<double> B = getRandomMatrix(N);
-  std::vector<double> C(N * N, 0);
-  std::shared_ptr<ppc::core::TaskData> taskDataSeq = std::make_shared<ppc::core::TaskData>();
-  taskDataSeq->inputs.emplace_back(reinterpret_cast<uint8_t *>(&N));
-  taskDataSeq->inputs.emplace_back(reinterpret_cast<uint8_t *>(A.data()));
-  taskDataSeq->inputs.emplace_back(reinterpret_cast<uint8_t *>(B.data()));
-  taskDataSeq->inputs.emplace_back(reinterpret_cast<uint8_t *>(&block_size));
-  taskDataSeq->outputs.emplace_back(reinterpret_cast<uint8_t *>(C.data()));
-  taskDataSeq->inputs_count.emplace_back(N * N);
-  taskDataSeq->inputs_count.emplace_back(N * N);
-  taskDataSeq->inputs_count.emplace_back(1);
-  taskDataSeq->outputs_count.emplace_back(N * N);
+  std::vector<double> a = GetRandomMatrix(n);
+  std::vector<double> b = GetRandomMatrix(n);
+  std::vector<double> c(n * n, 0);
+  std::shared_ptr<ppc::core::TaskData> task_data_sequential = std::make_shared<ppc::core::TaskData>();
+  task_data_sequential->inputs.emplace_back(reinterpret_cast<uint8_t *>(&n));
+  task_data_sequential->inputs.emplace_back(reinterpret_cast<uint8_t *>(a.data()));
+  task_data_sequential->inputs.emplace_back(reinterpret_cast<uint8_t *>(b.data()));
+  task_data_sequential->inputs.emplace_back(reinterpret_cast<uint8_t *>(&block_size));
+  task_data_sequential->outputs.emplace_back(reinterpret_cast<uint8_t *>(c.data()));
+  task_data_sequential->inputs_count.emplace_back(n * n);
+  task_data_sequential->inputs_count.emplace_back(n * n);
+  task_data_sequential->inputs_count.emplace_back(1);
+  task_data_sequential->outputs_count.emplace_back(n * n);
 
   // Create Task
   auto test_task_sequential =
-      std::make_shared<lysov_i_matrix_multiplication_Fox_algorithm_seq::TestTaskSequential>(taskDataSeq);
+      std::make_shared<lysov_i_matrix_multiplication_fox_algorithm_seq::TestTaskSequential>(task_data_sequential);
 
   // Create Perf attributes
   auto perf_attr = std::make_shared<ppc::core::PerfAttr>();
@@ -67,26 +67,26 @@ TEST(lysov_i_matrix_multiplication_Fox_algorithm_seq, test_pipeline_run) {
 }
 
 TEST(lysov_i_matrix_multiplication_Fox_algorithm_seq, test_task_run) {
-  size_t N = 512;
+  size_t n = 512;
   size_t block_size = 100;
-  std::vector<double> A = getRandomMatrix(N);
-  std::vector<double> B = getRandomMatrix(N);
-  std::vector<double> C(N * N, 0);
+  std::vector<double> a = GetRandomMatrix(n);
+  std::vector<double> b = GetRandomMatrix(n);
+  std::vector<double> c(n * n, 0);
 
-  std::shared_ptr<ppc::core::TaskData> taskDataSeq = std::make_shared<ppc::core::TaskData>();
-  taskDataSeq->inputs.emplace_back(reinterpret_cast<uint8_t *>(&N));
-  taskDataSeq->inputs.emplace_back(reinterpret_cast<uint8_t *>(A.data()));
-  taskDataSeq->inputs.emplace_back(reinterpret_cast<uint8_t *>(B.data()));
-  taskDataSeq->inputs.emplace_back(reinterpret_cast<uint8_t *>(&block_size));
-  taskDataSeq->outputs.emplace_back(reinterpret_cast<uint8_t *>(C.data()));
-  taskDataSeq->inputs_count.emplace_back(N * N);
-  taskDataSeq->inputs_count.emplace_back(N * N);
-  taskDataSeq->inputs_count.emplace_back(1);
-  taskDataSeq->outputs_count.emplace_back(N * N);
+  std::shared_ptr<ppc::core::TaskData> task_data_sequential = std::make_shared<ppc::core::TaskData>();
+  task_data_sequential->inputs.emplace_back(reinterpret_cast<uint8_t *>(&n));
+  task_data_sequential->inputs.emplace_back(reinterpret_cast<uint8_t *>(a.data()));
+  task_data_sequential->inputs.emplace_back(reinterpret_cast<uint8_t *>(b.data()));
+  task_data_sequential->inputs.emplace_back(reinterpret_cast<uint8_t *>(&block_size));
+  task_data_sequential->outputs.emplace_back(reinterpret_cast<uint8_t *>(c.data()));
+  task_data_sequential->inputs_count.emplace_back(n * n);
+  task_data_sequential->inputs_count.emplace_back(n * n);
+  task_data_sequential->inputs_count.emplace_back(1);
+  task_data_sequential->outputs_count.emplace_back(n * n);
 
   // Create Task
   auto test_task_sequential =
-      std::make_shared<lysov_i_matrix_multiplication_Fox_algorithm_seq::TestTaskSequential>(taskDataSeq);
+      std::make_shared<lysov_i_matrix_multiplication_fox_algorithm_seq::TestTaskSequential>(task_data_sequential);
 
   // Create Perf attributes
   auto perf_attr = std::make_shared<ppc::core::PerfAttr>();
