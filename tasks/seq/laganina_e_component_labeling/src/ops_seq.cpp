@@ -1,6 +1,6 @@
 #include "seq/laganina_e_component_labeling/include/ops_seq.hpp"
 
-#include <utility>
+#include <ranges>
 #include <vector>
 
 int laganina_e_component_labeling_seq::TestTaskSequential::find(int x) {
@@ -12,11 +12,11 @@ int laganina_e_component_labeling_seq::TestTaskSequential::find(int x) {
 }
 
 bool laganina_e_component_labeling_seq::TestTaskSequential::Union_sets(int x, int y) {
-  int rootX = find(x);  // Находим корень множества, содержащего X
-  int rootY = find(y);  // Находим корень множества, содержащего Y
+  int root_x = find(x);  // Находим корень множества, содержащего X
+  int root_y = find(y);  // Находим корень множества, содержащего Y
 
-  if (rootX != rootY) {
-    parent[rootY] = rootX;  // Объединяем множества
+  if (root_x != root_y) {
+    parent[root_y] = root_x;  // Объединяем множества
   }
   return true;
 }
@@ -29,21 +29,21 @@ std::vector<int> laganina_e_component_labeling_seq::TestTaskSequential::neighbor
     // (0, 0) Ч нет соседей
   } else if (x == 0) {
     // (0, y) Ч только левый сосед
-    if (step1[x * n + (y - 1)] != 0) {
-      labels[count++] = step1[x * n + (y - 1)];
+    if (step1[(x * n) + (y - 1)] != 0) {
+      labels[count++] = step1[(x * n) + (y - 1)];
     }
   } else if (y == 0) {
     // (x, 0) Ч только верхний сосед
-    if (step1[(x - 1) * n + y] != 0) {
-      labels[count++] = step1[(x - 1) * n + y];
+    if (step1[((x - 1) * n) + y] != 0) {
+      labels[count++] = step1[((x - 1) * n) + y];
     }
   } else {
     // (x, y) Ч левый и верхний сосед
-    if (step1[x * n + (y - 1)] != 0) {
-      labels[count++] = step1[x * n + (y - 1)];
+    if (step1[(x * n) + (y - 1)] != 0) {
+      labels[count++] = step1[(x * n) + (y - 1)];
     }
-    if (step1[(x - 1) * n + y] != 0) {
-      labels[count++] = step1[(x - 1) * n + y];
+    if (step1[((x - 1) * n) + y] != 0) {
+      labels[count++] = step1[((x - 1) * n) + y];
     }
   }
 
@@ -54,14 +54,13 @@ std::vector<int> laganina_e_component_labeling_seq::TestTaskSequential::neighbor
 }
 
 bool laganina_e_component_labeling_seq::TestTaskSequential::ValidationImpl() {
-  if (!task_data || !task_data->inputs[0] || !task_data->inputs_count[0] || !task_data->outputs[0] ||
-      !task_data->inputs_count[1]) {
+  if ((task_data == nullptr) || (task_data->inputs[0] == nullptr) || (task_data->outputs[0] == nullptr)) {
     return false;
   }
   if ((task_data->inputs_count[0] <= 0) || (task_data->inputs_count[1] <= 0)) {
     return false;
   }
-  int size = task_data->inputs_count[0] * task_data->inputs_count[0];
+  int size = static_cast<int>((task_data->inputs_count[0]) * (task_data->inputs_count[0]));
   for (int i = 0; i < size; i++) {
     if ((task_data->inputs[0][i] != 0) && (task_data->inputs[0][i] != 1)) {
       return false;
@@ -92,21 +91,21 @@ bool laganina_e_component_labeling_seq::TestTaskSequential::RunImpl() {
   // ѕервый проход: маркировка компонент
   for (int l = 0; l < m; ++l) {
     for (int p = 0; p < n; ++p) {
-      if (binary[l * n + p]) {
+      if (binary[(l * n) + p]) {
         auto neighbors = neighbors_labels(l, p);
         if (neighbors.empty()) {
           // Ќова¤ метка
-          step1[l * n + p] = label;
+          step1[(l * n) + p] = label;
           label++;
         } else {
           // Ќазначаем минимальную метку из соседей
-          int minLabel = *std::min_element(neighbors.begin(), neighbors.end());
-          step1[l * n + p] = minLabel;
+          int min_label = *std::ranges::min_element (neighbors);
+          step1[(l * n) + p] = min_label;
 
           // ќбъедин¤ем метки
-          for (int neighborLabel : neighbors) {
-            if (neighborLabel != minLabel) {
-              Union_sets(minLabel, neighborLabel);
+          for (int neighbor_label : neighbors) {
+            if (neighbor_label != min_label) {
+              Union_sets(min_label, neighbor_label);
             }
           }
         }
@@ -117,8 +116,8 @@ bool laganina_e_component_labeling_seq::TestTaskSequential::RunImpl() {
   // ¬торой проход: замена меток на корневые значени¤
   for (int l = 0; l < m; ++l) {
     for (int p = 0; p < n; ++p) {
-      if (binary[l * n + p]) {
-        labeled_binary[l * n + p] = find(step1[l * n + p]);
+      if (binary[(l * n) + p] != 0) {
+        labeled_binary[(l * n) + p] = find(step1[(l * n) + p]);
       }
     }
   }

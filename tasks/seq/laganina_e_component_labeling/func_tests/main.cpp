@@ -3,23 +3,22 @@
 #include <vector>
 
 #include "core/task/include/task.hpp"
-#include "core/util/include/util.hpp"
 #include "seq/laganina_e_component_labeling/include/ops_seq.hpp"
 
 TEST(laganina_e_component_labeling_seq, validation_test1) {
-  int m_ = 0;
-  int n_ = -1;
+  int m = 0;
+  int n = -1;
   // Create data
-  std::vector<int> in(m_ * n_, 0);
-  std::vector<int> out(m_ * n_, 0);
+  std::vector<int> in(m * n, 0);
+  std::vector<int> out(m * n, 0);
   // Create task_data
   auto task_data_seq = std::make_shared<ppc::core::TaskData>();
   task_data_seq->inputs.emplace_back(reinterpret_cast<uint8_t *>(in.data()));
-  task_data_seq->inputs_count.emplace_back(m_);
-  task_data_seq->inputs_count.emplace_back(n_);
+  task_data_seq->inputs_count.emplace_back(m);
+  task_data_seq->inputs_count.emplace_back(n);
   task_data_seq->outputs.emplace_back(reinterpret_cast<uint8_t *>(out.data()));
-  task_data_seq->outputs_count.emplace_back(m_);
-  task_data_seq->outputs_count.emplace_back(n_);
+  task_data_seq->outputs_count.emplace_back(m);
+  task_data_seq->outputs_count.emplace_back(n);
 
   // Create Task
   laganina_e_component_labeling_seq::TestTaskSequential test_task_sequential(task_data_seq);
@@ -28,19 +27,19 @@ TEST(laganina_e_component_labeling_seq, validation_test1) {
 }
 
 TEST(laganina_e_component_labeling_seq, validation_test2) {
-  int m_ = 3;
-  int n_ = 2;
+  int m = 3;
+  int n = 2;
   // Create data
-  std::vector<int> in(m_ * n_, 3);
-  std::vector<int> out(m_ * n_, 0);
+  std::vector<int> in(m * n, 3);
+  std::vector<int> out(m * n, 0);
   // Create task_data
   auto task_data_seq = std::make_shared<ppc::core::TaskData>();
   task_data_seq->inputs.emplace_back(reinterpret_cast<uint8_t *>(in.data()));
-  task_data_seq->inputs_count.emplace_back(m_);
-  task_data_seq->inputs_count.emplace_back(n_);
+  task_data_seq->inputs_count.emplace_back(m);
+  task_data_seq->inputs_count.emplace_back(n);
   task_data_seq->outputs.emplace_back(reinterpret_cast<uint8_t *>(out.data()));
-  task_data_seq->outputs_count.emplace_back(m_);
-  task_data_seq->outputs_count.emplace_back(n_);
+  task_data_seq->outputs_count.emplace_back(m);
+  task_data_seq->outputs_count.emplace_back(n);
 
   // Create Task
   laganina_e_component_labeling_seq::TestTaskSequential test_task_sequential(task_data_seq);
@@ -49,19 +48,19 @@ TEST(laganina_e_component_labeling_seq, validation_test2) {
 }
 
 TEST(laganina_e_component_labeling_seq, all_one) {
-  int m_ = 3;
-  int n_ = 2;
+  int m = 3;
+  int n = 2;
   // Create data
-  std::vector<int> in(m_ * n_, 1);
-  std::vector<int> out(m_ * n_, 0);
+  std::vector<int> in(m * n, 1);
+  std::vector<int> out(m * n, 0);
   // Create task_data
   auto task_data_seq = std::make_shared<ppc::core::TaskData>();
   task_data_seq->inputs.emplace_back(reinterpret_cast<uint8_t *>(in.data()));
-  task_data_seq->inputs_count.emplace_back(m_);
-  task_data_seq->inputs_count.emplace_back(n_);
+  task_data_seq->inputs_count.emplace_back(m);
+  task_data_seq->inputs_count.emplace_back(n);
   task_data_seq->outputs.emplace_back(reinterpret_cast<uint8_t *>(out.data()));
-  task_data_seq->outputs_count.emplace_back(m_);
-  task_data_seq->outputs_count.emplace_back(n_);
+  task_data_seq->outputs_count.emplace_back(m);
+  task_data_seq->outputs_count.emplace_back(n);
 
   // Create Task
   laganina_e_component_labeling_seq::TestTaskSequential test_task_sequential(task_data_seq);
@@ -73,19 +72,19 @@ TEST(laganina_e_component_labeling_seq, all_one) {
 }
 
 TEST(laganina_e_component_labeling_seq, all_zero) {
-  int m_ = 3;
-  int n_ = 2;
+  int m = 3;
+  int n = 2;
   // Create data
-  std::vector<int> in(m_ * n_, 0);
-  std::vector<int> out(m_ * n_, 0);
+  std::vector<int> in(m * n, 0);
+  std::vector<int> out(m * n, 0);
   // Create task_data
   auto task_data_seq = std::make_shared<ppc::core::TaskData>();
   task_data_seq->inputs.emplace_back(reinterpret_cast<uint8_t *>(in.data()));
-  task_data_seq->inputs_count.emplace_back(m_);
-  task_data_seq->inputs_count.emplace_back(n_);
+  task_data_seq->inputs_count.emplace_back(m);
+  task_data_seq->inputs_count.emplace_back(n);
   task_data_seq->outputs.emplace_back(reinterpret_cast<uint8_t *>(out.data()));
-  task_data_seq->outputs_count.emplace_back(m_);
-  task_data_seq->outputs_count.emplace_back(n_);
+  task_data_seq->outputs_count.emplace_back(m);
+  task_data_seq->outputs_count.emplace_back(n);
 
   // Create Task
   laganina_e_component_labeling_seq::TestTaskSequential test_task_sequential(task_data_seq);
@@ -97,20 +96,20 @@ TEST(laganina_e_component_labeling_seq, all_zero) {
 }
 
 TEST(laganina_e_component_labeling_seq, test1) {
-  int m_ = 3;
-  int n_ = 3;
+  int m = 3;
+  int n = 3;
   // Create data
   std::vector<int> in = {1, 0, 1, 0, 1, 0, 1, 0, 1};
   std::vector<int> exp_out = {1, 0, 2, 0, 3, 0, 4, 0, 5};
-  std::vector<int> out(m_ * n_, 0);
+  std::vector<int> out(m * n, 0);
   // Create task_data
   auto task_data_seq = std::make_shared<ppc::core::TaskData>();
   task_data_seq->inputs.emplace_back(reinterpret_cast<uint8_t *>(in.data()));
-  task_data_seq->inputs_count.emplace_back(m_);
-  task_data_seq->inputs_count.emplace_back(n_);
+  task_data_seq->inputs_count.emplace_back(m);
+  task_data_seq->inputs_count.emplace_back(n);
   task_data_seq->outputs.emplace_back(reinterpret_cast<uint8_t *>(out.data()));
-  task_data_seq->outputs_count.emplace_back(m_);
-  task_data_seq->outputs_count.emplace_back(n_);
+  task_data_seq->outputs_count.emplace_back(m);
+  task_data_seq->outputs_count.emplace_back(n);
 
   // Create Task
   laganina_e_component_labeling_seq::TestTaskSequential test_task_sequential(task_data_seq);
@@ -122,20 +121,20 @@ TEST(laganina_e_component_labeling_seq, test1) {
 }
 
 TEST(laganina_e_component_labeling_seq, test2) {
-  int m_ = 4;
-  int n_ = 5;
+  int m = 4;
+  int n = 5;
   // Create data
   std::vector<int> in = {1, 1, 0, 0, 0, 0, 1, 1, 0, 0, 0, 0, 1, 1, 0, 0, 0, 0, 1, 1};
   std::vector<int> exp_out = {1, 1, 0, 0, 0, 0, 1, 1, 0, 0, 0, 0, 1, 1, 0, 0, 0, 0, 1, 1};
-  std::vector<int> out(m_ * n_, 0);
+  std::vector<int> out(m * n, 0);
   // Create task_data
   auto task_data_seq = std::make_shared<ppc::core::TaskData>();
   task_data_seq->inputs.emplace_back(reinterpret_cast<uint8_t *>(in.data()));
-  task_data_seq->inputs_count.emplace_back(m_);
-  task_data_seq->inputs_count.emplace_back(n_);
+  task_data_seq->inputs_count.emplace_back(m);
+  task_data_seq->inputs_count.emplace_back(n);
   task_data_seq->outputs.emplace_back(reinterpret_cast<uint8_t *>(out.data()));
-  task_data_seq->outputs_count.emplace_back(m_);
-  task_data_seq->outputs_count.emplace_back(n_);
+  task_data_seq->outputs_count.emplace_back(m);
+  task_data_seq->outputs_count.emplace_back(n);
 
   // Create Task
   laganina_e_component_labeling_seq::TestTaskSequential test_task_sequential(task_data_seq);
@@ -147,20 +146,20 @@ TEST(laganina_e_component_labeling_seq, test2) {
 }
 
 TEST(laganina_e_component_labeling_seq, test3) {
-  int m_ = 4;
-  int n_ = 5;
+  int m = 4;
+  int n = 5;
   // Create data
   std::vector<int> in = {1, 1, 0, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0};
   std::vector<int> exp_out = {1, 1, 0, 0, 2, 0, 1, 0, 3, 0, 4, 0, 5, 0, 6, 0, 7, 0, 8, 0};
-  std::vector<int> out(m_ * n_, 0);
+  std::vector<int> out(m * n, 0);
   // Create task_data
   auto task_data_seq = std::make_shared<ppc::core::TaskData>();
   task_data_seq->inputs.emplace_back(reinterpret_cast<uint8_t *>(in.data()));
-  task_data_seq->inputs_count.emplace_back(m_);
-  task_data_seq->inputs_count.emplace_back(n_);
+  task_data_seq->inputs_count.emplace_back(m);
+  task_data_seq->inputs_count.emplace_back(n);
   task_data_seq->outputs.emplace_back(reinterpret_cast<uint8_t *>(out.data()));
-  task_data_seq->outputs_count.emplace_back(m_);
-  task_data_seq->outputs_count.emplace_back(n_);
+  task_data_seq->outputs_count.emplace_back(m);
+  task_data_seq->outputs_count.emplace_back(n);
 
   // Create Task
   laganina_e_component_labeling_seq::TestTaskSequential test_task_sequential(task_data_seq);
@@ -172,20 +171,20 @@ TEST(laganina_e_component_labeling_seq, test3) {
 }
 
 TEST(laganina_e_component_labeling_seq, one_row) {
-  int m_ = 1;
-  int n_ = 6;
+  int m = 1;
+  int n = 6;
   // Create data
   std::vector<int> in = {1, 0, 1, 1, 0, 1};
   std::vector<int> exp_out = {1, 0, 2, 2, 0, 3};
-  std::vector<int> out(m_ * n_, 0);
+  std::vector<int> out(m * n, 0);
   // Create task_data
   auto task_data_seq = std::make_shared<ppc::core::TaskData>();
   task_data_seq->inputs.emplace_back(reinterpret_cast<uint8_t *>(in.data()));
-  task_data_seq->inputs_count.emplace_back(m_);
-  task_data_seq->inputs_count.emplace_back(n_);
+  task_data_seq->inputs_count.emplace_back(m);
+  task_data_seq->inputs_count.emplace_back(n);
   task_data_seq->outputs.emplace_back(reinterpret_cast<uint8_t *>(out.data()));
-  task_data_seq->outputs_count.emplace_back(m_);
-  task_data_seq->outputs_count.emplace_back(n_);
+  task_data_seq->outputs_count.emplace_back(m);
+  task_data_seq->outputs_count.emplace_back(n);
 
   // Create Task
   laganina_e_component_labeling_seq::TestTaskSequential test_task_sequential(task_data_seq);
@@ -197,20 +196,20 @@ TEST(laganina_e_component_labeling_seq, one_row) {
 }
 
 TEST(laganina_e_component_labeling_seq, test4) {
-  int m_ = 4;
-  int n_ = 5;
+  int m = 4;
+  int n = 5;
   // Create data
   std::vector<int> in = {1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0};
   std::vector<int> exp_out = {1, 0, 2, 0, 3, 0, 4, 0, 5, 0, 6, 0, 7, 0, 8, 0, 9, 0, 10, 0};
-  std::vector<int> out(m_ * n_, 0);
+  std::vector<int> out(m * n, 0);
   // Create task_data
   auto task_data_seq = std::make_shared<ppc::core::TaskData>();
   task_data_seq->inputs.emplace_back(reinterpret_cast<uint8_t *>(in.data()));
-  task_data_seq->inputs_count.emplace_back(m_);
-  task_data_seq->inputs_count.emplace_back(n_);
+  task_data_seq->inputs_count.emplace_back(m);
+  task_data_seq->inputs_count.emplace_back(n);
   task_data_seq->outputs.emplace_back(reinterpret_cast<uint8_t *>(out.data()));
-  task_data_seq->outputs_count.emplace_back(m_);
-  task_data_seq->outputs_count.emplace_back(n_);
+  task_data_seq->outputs_count.emplace_back(m);
+  task_data_seq->outputs_count.emplace_back(n);
 
   // Create Task
   laganina_e_component_labeling_seq::TestTaskSequential test_task_sequential(task_data_seq);
@@ -222,20 +221,20 @@ TEST(laganina_e_component_labeling_seq, test4) {
 }
 
 TEST(laganina_e_component_labeling_seq, test5) {
-  int m_ = 3;
-  int n_ = 3;
+  int m = 3;
+  int n= 3;
   // Create data
   std::vector<int> in = {1, 1, 1, 1, 0, 1, 1, 1, 1};
   std::vector<int> exp_out = {1, 1, 1, 1, 0, 1, 1, 1, 1};
-  std::vector<int> out(m_ * n_, 0);
+  std::vector<int> out(m * n, 0);
   // Create task_data
   auto task_data_seq = std::make_shared<ppc::core::TaskData>();
   task_data_seq->inputs.emplace_back(reinterpret_cast<uint8_t *>(in.data()));
-  task_data_seq->inputs_count.emplace_back(m_);
-  task_data_seq->inputs_count.emplace_back(n_);
+  task_data_seq->inputs_count.emplace_back(m);
+  task_data_seq->inputs_count.emplace_back(n);
   task_data_seq->outputs.emplace_back(reinterpret_cast<uint8_t *>(out.data()));
-  task_data_seq->outputs_count.emplace_back(m_);
-  task_data_seq->outputs_count.emplace_back(n_);
+  task_data_seq->outputs_count.emplace_back(m);
+  task_data_seq->outputs_count.emplace_back(n);
 
   // Create Task
   laganina_e_component_labeling_seq::TestTaskSequential test_task_sequential(task_data_seq);
