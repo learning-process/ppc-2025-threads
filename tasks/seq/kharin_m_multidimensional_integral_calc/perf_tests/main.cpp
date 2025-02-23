@@ -4,6 +4,7 @@
 #include <cstdint>
 #include <memory>
 #include <vector>
+#include <cstddef>
 
 #include "core/perf/include/perf.hpp"
 #include "core/task/include/task.hpp"
