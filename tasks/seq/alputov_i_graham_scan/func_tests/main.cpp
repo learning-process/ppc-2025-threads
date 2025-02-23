@@ -2,14 +2,12 @@
 
 #include <cstddef>
 #include <cstdint>
-#include <fstream>
 #include <memory>
 #include <random>
 #include <set>
 #include <vector>
 
 #include "core/task/include/task.hpp"
-#include "core/util/include/util.hpp"
 #include "seq/alputov_i_graham_scan/include/ops_seq.hpp"
 
 namespace {
@@ -112,7 +110,7 @@ TEST(alputov_i_graham_scan_seq, random_1000_points) {
 
   const auto& convex_hull = task.GetConvexHull();
   auto contains = [&](double x, double y) {
-    return std::any_of(convex_hull.begin(), convex_hull.end(), [x, y](const auto& p) { return p.x == x && p.y == y; });
+    return std::ranges::any_of(convex_hull, [x, y](const auto& p) { return p.x == x && p.y == y; });
   };
 
   EXPECT_TRUE(contains(-1500, -1500));
