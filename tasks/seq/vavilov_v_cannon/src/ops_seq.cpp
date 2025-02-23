@@ -1,11 +1,9 @@
 #include "seq/vavilov_v_cannon/include/ops_seq.hpp"
 
-#include <gtest/gtest.h>
-
-#include <fstream>
-
-#include "core/perf/include/perf.hpp"
-#include "core/task/include/task.hpp"
+#include <algorithm>
+#include <cmath>
+#include <ranges>
+#include <vector>
 
 bool vavilov_v_cannon_seq::CannonSequential::PreProcessingImpl() {
   // Matrix with dim = (N * N). P - the total number of blocks. Each block have dim = (N/sqrt(P) * N/sqrt(P))
@@ -100,6 +98,6 @@ bool vavilov_v_cannon_seq::CannonSequential::RunImpl() {
 }
 
 bool vavilov_v_cannon_seq::CannonSequential::PostProcessingImpl() {
-  std::copy(C_.begin(), C_.end(), reinterpret_cast<double*>(task_data->outputs[0]));
+  std::ranges::copy(C_, reinterpret_cast<double*>(task_data->outputs[0]));
   return true;
 }
