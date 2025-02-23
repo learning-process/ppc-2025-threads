@@ -4,9 +4,9 @@
 #include <climits>
 #include <cstddef>
 #include <cstdint>
-#include <iostream>
+#include <cstdlib>
 #include <memory>
-#include <queue>
+#include <utility>
 #include <vector>
 
 #include "core/perf/include/perf.hpp"
@@ -22,8 +22,8 @@ TEST(muhina_m_dijkstra_seq, test_pipeline_run) {
     for (size_t j = 0; j < kNumVertices; ++j) {
       if (i != j) {
         if (rand() % 3 == 0) {
-          int weight = rand() % 10 + 1;
-          adj_list[i].push_back({j, weight});
+          int weight = (rand() % 10) + 1;
+          adj_list[i].emplace_back(j, weight);
         }
       }
     }
@@ -32,7 +32,7 @@ TEST(muhina_m_dijkstra_seq, test_pipeline_run) {
   std::vector<int> graph_data;
   for (const auto& vertex_edges : adj_list) {
     for (const auto& edge : vertex_edges) {
-      graph_data.push_back(edge.first);
+      graph_data.push_back(static_cast<int>(edge.first));
       graph_data.push_back(edge.second);
     }
     graph_data.push_back(-1);
@@ -77,8 +77,8 @@ TEST(muhina_m_dijkstra_seq, test_task_run) {
     for (size_t j = 0; j < kNumVertices; ++j) {
       if (i != j) {
         if (rand() % 3 == 0) {
-          int weight = rand() % 10 + 1;
-          adj_list[i].push_back({j, weight});
+          int weight = (rand() % 10) + 1;
+          adj_list[i].emplace_back(j, weight);
         }
       }
     }
@@ -87,7 +87,7 @@ TEST(muhina_m_dijkstra_seq, test_task_run) {
   std::vector<int> graph_data;
   for (const auto& vertex_edges : adj_list) {
     for (const auto& edge : vertex_edges) {
-      graph_data.push_back(edge.first);
+      graph_data.push_back(static_cast<int>(edge.first));
       graph_data.push_back(edge.second);
     }
     graph_data.push_back(-1);

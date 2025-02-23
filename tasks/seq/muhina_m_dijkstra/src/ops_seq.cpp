@@ -1,8 +1,10 @@
 #include "seq/muhina_m_dijkstra/include/ops_seq.hpp"
 
-#include <algorithm>
 #include <climits>
+#include <cstddef>
+#include <functional>
 #include <queue>
+#include <utility>
 #include <vector>
 
 bool muhina_m_dijkstra_seq::TestTaskSequential::PreProcessingImpl() {
@@ -55,10 +57,9 @@ bool muhina_m_dijkstra_seq::TestTaskSequential::RunImpl() {
     i += 2;
   }
 
-  std::priority_queue<std::pair<int, size_t>, std::vector<std::pair<int, size_t>>, std::greater<std::pair<int, size_t>>>
-      pq;
+  std::priority_queue<std::pair<int, size_t>, std::vector<std::pair<int, size_t>>, std::greater<>> pq;
 
-  pq.push({0, start_vertex_});
+  pq.emplace(0, start_vertex_);
 
   while (!pq.empty()) {
     size_t u = pq.top().second;
@@ -75,7 +76,7 @@ bool muhina_m_dijkstra_seq::TestTaskSequential::RunImpl() {
 
       if (distances_[u] != INT_MAX && distances_[u] + weight < distances_[v]) {
         distances_[v] = distances_[u] + weight;
-        pq.push({distances_[v], v});
+        pq.emplace(distances_[v], v);
       }
     }
   }

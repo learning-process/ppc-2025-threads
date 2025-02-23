@@ -1,30 +1,24 @@
 #include <gtest/gtest.h>
 
-#include <algorithm>
 #include <climits>
 #include <cstddef>
 #include <cstdint>
-#include <fstream>
-#include <limits>
 #include <memory>
-#include <queue>
-#include <string>
 #include <vector>
 
 #include "core/task/include/task.hpp"
-#include "core/util/include/util.hpp"
 #include "seq/muhina_m_dijkstra/include/ops_seq.hpp"
 
 TEST(muhina_m_dijkstra_seq, test_dijkstra_small_graph) {
   constexpr size_t kNumVertices = 5;
   std::vector<std::vector<std::pair<size_t, int>>> adj_list(kNumVertices);
-  adj_list[0].push_back({1, 4});
-  adj_list[0].push_back({2, 2});
-  adj_list[1].push_back({2, 5});
-  adj_list[1].push_back({3, 10});
-  adj_list[2].push_back({3, 3});
-  adj_list[3].push_back({4, 4});
-  adj_list[2].push_back({4, 1});
+  adj_list[0].emplace_back(1, 4);
+  adj_list[0].emplace_back(2, 2);
+  adj_list[1].emplace_back(2, 5);
+  adj_list[1].emplace_back(3, 10);
+  adj_list[2].emplace_back(3, 3);
+  adj_list[3].emplace_back(4, 4);
+  adj_list[2].emplace_back(4, 1);
 
   size_t start_vertex = 0;
 
@@ -32,7 +26,7 @@ TEST(muhina_m_dijkstra_seq, test_dijkstra_small_graph) {
   std::vector<int> graph_data;
   for (const auto& vertex_edges : adj_list) {
     for (const auto& edge : vertex_edges) {
-      graph_data.push_back(edge.first);
+      graph_data.push_back(static_cast<int>(edge.first));
       graph_data.push_back(edge.second);
     }
     graph_data.push_back(-1);
@@ -55,11 +49,7 @@ TEST(muhina_m_dijkstra_seq, test_dijkstra_small_graph) {
 
   std::vector<int> expected_distances = {0, 4, 2, 5, 3};
   for (size_t i = 0; i < kNumVertices; ++i) {
-    if (expected_distances[i] == INT_MAX) {
-      EXPECT_EQ(distances[i], INT_MAX);
-    } else {
-      EXPECT_EQ(distances[i], expected_distances[i]);
-    }
+    EXPECT_EQ(distances[i], expected_distances[i]);
   }
 }
 
@@ -87,15 +77,15 @@ TEST(muhina_m_dijkstra_seq, test_dijkstra_validation_failure) {
 TEST(muhina_m_dijkstra_seq, test_dijkstra_small_graph_non_zero_start) {
   constexpr size_t kNumVertices = 5;
   std::vector<std::vector<std::pair<size_t, int>>> adj_list(kNumVertices);
-  adj_list[0].push_back({1, 4});
-  adj_list[0].push_back({2, 2});
-  adj_list[1].push_back({2, 5});
-  adj_list[1].push_back({3, 10});
-  adj_list[2].push_back({3, 3});
-  adj_list[3].push_back({4, 4});
-  adj_list[2].push_back({4, 1});
-  adj_list[2].push_back({0, 2});
-  adj_list[2].push_back({1, 5});
+  adj_list[0].emplace_back(1, 4);
+  adj_list[0].emplace_back(2, 2);
+  adj_list[1].emplace_back(2, 5);
+  adj_list[1].emplace_back(3, 10);
+  adj_list[2].emplace_back(3, 3);
+  adj_list[3].emplace_back(4, 4);
+  adj_list[2].emplace_back(4, 1);
+  adj_list[2].emplace_back(0, 2);
+  adj_list[2].emplace_back(1, 5);
 
   size_t start_vertex = 2;
 
@@ -103,7 +93,7 @@ TEST(muhina_m_dijkstra_seq, test_dijkstra_small_graph_non_zero_start) {
   std::vector<int> graph_data;
   for (const auto& vertex_edges : adj_list) {
     for (const auto& edge : vertex_edges) {
-      graph_data.push_back(edge.first);
+      graph_data.push_back(static_cast<int>(edge.first));
       graph_data.push_back(edge.second);
     }
     graph_data.push_back(-1);
@@ -127,10 +117,6 @@ TEST(muhina_m_dijkstra_seq, test_dijkstra_small_graph_non_zero_start) {
 
   std::vector<int> expected_distances = {2, 5, 0, 3, 1};
   for (size_t i = 0; i < kNumVertices; ++i) {
-    if (expected_distances[i] == INT_MAX) {
-      EXPECT_EQ(distances[i], INT_MAX);
-    } else {
-      EXPECT_EQ(distances[i], expected_distances[i]);
-    }
+    EXPECT_EQ(distances[i], expected_distances[i]);
   }
 }
