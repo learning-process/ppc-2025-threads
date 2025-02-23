@@ -11,117 +11,117 @@
 #include "seq/yasakova_t_sparse_matrix_multiplication/include/ops_seq.hpp"
 
 TEST(yasakova_t_sparse_matrix_multiplication_seq, test_pipeline_run) {
-  yasakova_t_sparse_matrix_multiplication_seq::SparseMatrixCRS sparseMatrixA(400, true, 400);
-  yasakova_t_sparse_matrix_multiplication_seq::SparseMatrixCRS sparseMatrixB(400, true, 400);
-  std::vector<Complex> inputData = {};
-  std::vector<Complex> vectorA;
+  yasakova_t_sparse_matrix_multiplication_seq::SparseMatrixCRS sparse_matrix_a(400, true, 400);
+  yasakova_t_sparse_matrix_multiplication_seq::SparseMatrixCRS sparse_matrix_b(400, true, 400);
+  std::vector<Complex> input_data = {};
+  std::vector<Complex> vector_a;
   std::vector<Complex> vectorB;
-  std::vector<Complex> resultVector(sparseMatrixA.columnCount * sparseMatrixB.rowCount * 100, 0);
+  std::vector<Complex> result_vector(sparse_matrix_a.columnCount * sparse_matrix_b.rowCount * 100, 0);
 
   for (unsigned int row = 0; row < 150; row++) {
     for (unsigned int col = 0; col < 150; col++) {
-      sparseMatrixA.InsertElement(static_cast<int>(row), Complex(-50 + (rand() % 50), -50 + (rand() % 50)),
+      sparse_matrix_a.InsertElement(static_cast<int>(row), Complex(-50 + (rand() % 50), -50 + (rand() % 50)),
                                   static_cast<int>(col));
     }
   }
   for (unsigned int row = 50; row < 140; row++) {
     for (unsigned int col = 50; col < 150; col++) {
-      sparseMatrixB.InsertElement(static_cast<int>(row), Complex(-50 + (rand() % 50), -50 + (rand() % 50)),
+      sparse_matrix_b.InsertElement(static_cast<int>(row), Complex(-50 + (rand() % 50), -50 + (rand() % 50)),
                                   static_cast<int>(col));
     }
   }
-  vectorA = yasakova_t_sparse_matrix_multiplication_seq::ConvertMatrixToVector(sparseMatrixA);
-  vectorB = yasakova_t_sparse_matrix_multiplication_seq::ConvertMatrixToVector(sparseMatrixB);
-  inputData.reserve(vectorA.size() + vectorB.size());
-  inputData.insert(inputData.end(), vectorA.begin(), vectorA.end());
-  inputData.insert(inputData.end(), vectorB.begin(), vectorB.end());
+  vector_a = yasakova_t_sparse_matrix_multiplication_seq::ConvertMatrixToVector(sparse_matrix_a);
+  vectorB = yasakova_t_sparse_matrix_multiplication_seq::ConvertMatrixToVector(sparse_matrix_b);
+  input_data.reserve(vector_a.size() + vectorB.size());
+  input_data.insert(input_data.end(), vector_a.begin(), vector_a.end());
+  input_data.insert(input_data.end(), vectorB.begin(), vectorB.end());
 
   // Initialize task data structure
-  auto taskData = std::make_shared<ppc::core::TaskData>();
-  taskData->inputs.emplace_back(reinterpret_cast<uint8_t *>(inputData.data()));
-  taskData->inputs_count.emplace_back(inputData.size());
-  taskData->outputs.emplace_back(reinterpret_cast<uint8_t *>(resultVector.data()));
-  taskData->outputs_count.emplace_back(resultVector.size());
+  auto task_data = std::make_shared<ppc::core::TaskData>();
+  task_data->inputs.emplace_back(reinterpret_cast<uint8_t *>(input_data.data()));
+  task_data->inputs_count.emplace_back(input_data.size());
+  task_data->outputs.emplace_back(reinterpret_cast<uint8_t *>(result_vector.data()));
+  task_data->outputs_count.emplace_back(result_vector.size());
 
   // Create Task
-  auto sequentialTask =
-      std::make_shared<yasakova_t_sparse_matrix_multiplication_seq::SequentialMatrixMultiplicationTest>(taskData);
+  auto sequential_task =
+      std::make_shared<yasakova_t_sparse_matrix_multiplication_seq::SequentialMatrixMultiplicationTest>(task_data);
 
   // Create Performance attributes
-  auto performanceAttributes = std::make_shared<ppc::core::PerfAttr>();
-  performanceAttributes->num_running = 10;
-  const auto startTime = std::chrono::high_resolution_clock::now();
-  performanceAttributes->current_timer = [&] {
-    auto currentTime = std::chrono::high_resolution_clock::now();
-    auto duration = std::chrono::duration_cast<std::chrono::nanoseconds>(currentTime - startTime).count();
+  auto performance_attributes = std::make_shared<ppc::core::PerfAttr>();
+  performance_attributes->num_running = 10;
+  const auto start_time = std::chrono::high_resolution_clock::now();
+  performance_attributes->current_timer = [&] {
+    auto current_time = std::chrono::high_resolution_clock::now();
+    auto duration = std::chrono::duration_cast<std::chrono::nanoseconds>(current_time - start_time).count();
     return static_cast<double>(duration) * 1e-9;
   };
 
   // Initialize performance results
-  auto performanceResults = std::make_shared<ppc::core::PerfResults>();
+  auto performance_results = std::make_shared<ppc::core::PerfResults>();
 
   // Create Performance analyzer
-  auto performanceAnalyzer = std::make_shared<ppc::core::Perf>(sequentialTask);
-  performanceAnalyzer->PipelineRun(performanceAttributes, performanceResults);
-  ppc::core::Perf::PrintPerfStatistic(performanceResults);
-  yasakova_t_sparse_matrix_multiplication_seq::SparseMatrixCRS finalResult =
-      yasakova_t_sparse_matrix_multiplication_seq::ConvertVectorToMatrix(resultVector);
+  auto performance_analyzer = std::make_shared<ppc::core::Perf>(sequential_task);
+  performance_analyzer->PipelineRun(performance_attributes, performance_results);
+  ppc::core::Perf::PrintPerfStatistic(performance_results);
+  yasakova_t_sparse_matrix_multiplication_seq::SparseMatrixCRS final_result =
+      yasakova_t_sparse_matrix_multiplication_seq::ConvertVectorToMatrix(result_vector);
 }
 
 TEST(yasakova_t_sparse_matrix_multiplication_seq, test_task_run) {
-  yasakova_t_sparse_matrix_multiplication_seq::SparseMatrixCRS sparseMatrixA(400, true, 400);
-  yasakova_t_sparse_matrix_multiplication_seq::SparseMatrixCRS sparseMatrixB(400, true, 400);
-  std::vector<Complex> inputData = {};
-  std::vector<Complex> vectorA;
+  yasakova_t_sparse_matrix_multiplication_seq::SparseMatrixCRS sparse_matrix_a(400, true, 400);
+  yasakova_t_sparse_matrix_multiplication_seq::SparseMatrixCRS sparse_matrix_b(400, true, 400);
+  std::vector<Complex> input_data = {};
+  std::vector<Complex> vector_a;
   std::vector<Complex> vectorB;
-  std::vector<Complex> resultVector(sparseMatrixA.columnCount * sparseMatrixB.rowCount * 100, 0);
+  std::vector<Complex> result_vector(sparse_matrix_a.columnCount * sparse_matrix_b.rowCount * 100, 0);
 
   for (unsigned int row = 0; row < 150; row++) {
     for (unsigned int col = 0; col < 150; col++) {
-      sparseMatrixA.InsertElement(static_cast<int>(row), Complex(-50 + (rand() % 50), -50 + (rand() % 50)),
+      sparse_matrix_a.InsertElement(static_cast<int>(row), Complex(-50 + (rand() % 50), -50 + (rand() % 50)),
                                   static_cast<int>(col));
     }
   }
   for (unsigned int row = 50; row < 140; row++) {
     for (unsigned int col = 50; col < 150; col++) {
-      sparseMatrixB.InsertElement(static_cast<int>(row), Complex(-50 + (rand() % 50), -50 + (rand() % 50)),
+      sparse_matrix_b.InsertElement(static_cast<int>(row), Complex(-50 + (rand() % 50), -50 + (rand() % 50)),
                                   static_cast<int>(col));
     }
   }
-  vectorA = yasakova_t_sparse_matrix_multiplication_seq::ConvertMatrixToVector(sparseMatrixA);
-  vectorB = yasakova_t_sparse_matrix_multiplication_seq::ConvertMatrixToVector(sparseMatrixB);
-  inputData.reserve(vectorA.size() + vectorB.size());
-  inputData.insert(inputData.end(), vectorA.begin(), vectorA.end());
-  inputData.insert(inputData.end(), vectorB.begin(), vectorB.end());
+  vector_a = yasakova_t_sparse_matrix_multiplication_seq::ConvertMatrixToVector(sparse_matrix_a);
+  vectorB = yasakova_t_sparse_matrix_multiplication_seq::ConvertMatrixToVector(sparse_matrix_b);
+  input_data.reserve(vector_a.size() + vectorB.size());
+  input_data.insert(input_data.end(), vector_a.begin(), vector_a.end());
+  input_data.insert(input_data.end(), vectorB.begin(), vectorB.end());
 
   // Initialize task data structure
-  auto taskData = std::make_shared<ppc::core::TaskData>();
-  taskData->inputs.emplace_back(reinterpret_cast<uint8_t *>(inputData.data()));
-  taskData->inputs_count.emplace_back(inputData.size());
-  taskData->outputs.emplace_back(reinterpret_cast<uint8_t *>(resultVector.data()));
-  taskData->outputs_count.emplace_back(resultVector.size());
+  auto task_data = std::make_shared<ppc::core::TaskData>();
+  task_data->inputs.emplace_back(reinterpret_cast<uint8_t *>(input_data.data()));
+  task_data->inputs_count.emplace_back(input_data.size());
+  task_data->outputs.emplace_back(reinterpret_cast<uint8_t *>(result_vector.data()));
+  task_data->outputs_count.emplace_back(result_vector.size());
 
   // Create Task
-  auto sequentialTask =
-      std::make_shared<yasakova_t_sparse_matrix_multiplication_seq::SequentialMatrixMultiplicationTest>(taskData);
+  auto sequential_task =
+      std::make_shared<yasakova_t_sparse_matrix_multiplication_seq::SequentialMatrixMultiplicationTest>(task_data);
 
   // Create Performance attributes
-  auto performanceAttributes = std::make_shared<ppc::core::PerfAttr>();
-  performanceAttributes->num_running = 10;
-  const auto startTime = std::chrono::high_resolution_clock::now();
-  performanceAttributes->current_timer = [&] {
-    auto currentTime = std::chrono::high_resolution_clock::now();
-    auto duration = std::chrono::duration_cast<std::chrono::nanoseconds>(currentTime - startTime).count();
+  auto performance_attributes = std::make_shared<ppc::core::PerfAttr>();
+  performance_attributes->num_running = 10;
+  const auto start_time = std::chrono::high_resolution_clock::now();
+  performance_attributes->current_timer = [&] {
+    auto current_time = std::chrono::high_resolution_clock::now();
+    auto duration = std::chrono::duration_cast<std::chrono::nanoseconds>(current_time - start_time).count();
     return static_cast<double>(duration) * 1e-9;
   };
 
   // Initialize performance results
-  auto performanceResults = std::make_shared<ppc::core::PerfResults>();
+  auto performance_results = std::make_shared<ppc::core::PerfResults>();
 
   // Create Performance analyzer
-  auto performanceAnalyzer = std::make_shared<ppc::core::Perf>(sequentialTask);
-  performanceAnalyzer->TaskRun(performanceAttributes, performanceResults);
-  ppc::core::Perf::PrintPerfStatistic(performanceResults);
-  yasakova_t_sparse_matrix_multiplication_seq::SparseMatrixCRS finalResult =
-      yasakova_t_sparse_matrix_multiplication_seq::ConvertVectorToMatrix(resultVector);
+  auto performance_analyzer = std::make_shared<ppc::core::Perf>(sequential_task);
+  performance_analyzer->TaskRun(performance_attributes, performance_results);
+  ppc::core::Perf::PrintPerfStatistic(performance_results);
+  yasakova_t_sparse_matrix_multiplication_seq::SparseMatrixCRS final_result =
+      yasakova_t_sparse_matrix_multiplication_seq::ConvertVectorToMatrix(result_vector);
 }
