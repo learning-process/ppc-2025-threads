@@ -39,8 +39,8 @@ std::vector<int> CreateRandomVector(unsigned int size, const int left, const int
   std::vector<int> result;
   std::random_device dev;
   std::mt19937 gen(dev());
-  while (size--) {
-    result.push_back(gen() % (int)(right - left) + left);
+  while (size-- != 0) {
+    result.push_back((int)(gen() % (int)(right - left)) + left);
   }
   return result;
 }
