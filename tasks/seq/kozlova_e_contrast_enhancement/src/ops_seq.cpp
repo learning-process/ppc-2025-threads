@@ -1,7 +1,6 @@
 #include "seq/kozlova_e_contrast_enhancement/include/ops_seq.hpp"
 
 #include <algorithm>
-#include <cmath>
 #include <cstddef>
 #include <memory>
 #include <vector>

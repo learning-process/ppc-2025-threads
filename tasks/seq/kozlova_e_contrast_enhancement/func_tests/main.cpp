@@ -1,11 +1,6 @@
 #include <gtest/gtest.h>
 
 #include <algorithm>
-#include <cstddef>
-#include <cstdint>
-#include <fstream>
-#include <memory>
-#include <string>
 #include <vector>
 
 #include "core/task/include/task.hpp"
