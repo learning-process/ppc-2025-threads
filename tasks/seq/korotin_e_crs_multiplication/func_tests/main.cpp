@@ -51,16 +51,18 @@ void MakeCRS(std::vector<unsigned int> &rI, std::vector<unsigned int> &col, std:
 }  // namespace korotin_e_crs_multiplication_seq
 
 TEST(korotin_e_crs_multiplication_seq, test_rnd_50_50_50) {
+  std::cout << "Hello\n";
   const unsigned int M = 50, N = 50, P = 50;
-
+  std::cout << "I'm here\n";
   std::vector<double> A, B, A_val, B_val;
   std::vector<unsigned int> A_rI, A_col, B_rI, B_col;
-
+  std::cout << "Pupupu\n";
   A = korotin_e_crs_multiplication_seq::GetRandomMatrix(M, N);
   B = korotin_e_crs_multiplication_seq::GetRandomMatrix(N, P);
+  std::cout << "A, B created\n";
   korotin_e_crs_multiplication_seq::MakeCRS(A_rI, A_col, A_val, A, M, N);
   korotin_e_crs_multiplication_seq::MakeCRS(B_rI, B_col, B_val, B, N, P);
-
+  std::cout << "What?\n";
   auto task_data_seq = std::make_shared<ppc::core::TaskData>();
   task_data_seq->inputs.emplace_back(reinterpret_cast<uint8_t *>(A_rI.data()));
   task_data_seq->inputs.emplace_back(reinterpret_cast<uint8_t *>(A_col.data()));
