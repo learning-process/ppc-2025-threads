@@ -60,8 +60,34 @@ TEST(korotin_e_crs_multiplication_seq, test_rnd_50_50_50) {
   A = korotin_e_crs_multiplication_seq::GetRandomMatrix(M, N);
   B = korotin_e_crs_multiplication_seq::GetRandomMatrix(N, P);
   std::cout << "A, B created\n";
-  korotin_e_crs_multiplication_seq::MakeCRS(A_rI, A_col, A_val, A, M, N);
-  korotin_e_crs_multiplication_seq::MakeCRS(B_rI, B_col, B_val, B, N, P);
+  A_rI = std::vector<unsigned int>(M + 1, 0);
+  std::cout << "Initialized\n";
+  for (unsigned int i = 0; i < M; i++)
+    for (unsigned int j = 0; j < N; j++) {
+      if (A[i * N + j] != 0) {
+        A_val.push_back(A[i * N + j]);
+        A_col.push_back(j);
+        A_rI[i + 1]++;
+      }
+    }
+  std::cout << "hmm\n";
+  for (unsigned int i = 0; i <= M; i++) {
+    A_rI[i] += A_rI[i - 1];
+  }
+  B_rI = std::vector<unsigned int>(N + 1, 0);
+  std::cout << "Initialized\n";
+  for (unsigned int i = 0; i < N; i++)
+    for (unsigned int j = 0; j < P; j++) {
+      if (B[i * N + j] != 0) {
+        B_val.push_back(B[i * P + j]);
+        B_col.push_back(j);
+        B_rI[i + 1]++;
+      }
+    }
+  std::cout << "hmm\n";
+  for (unsigned int i = 0; i <= M; i++) {
+    B_rI[i] += B_rI[i - 1];
+  }
   std::cout << "What?\n";
   auto task_data_seq = std::make_shared<ppc::core::TaskData>();
   task_data_seq->inputs.emplace_back(reinterpret_cast<uint8_t *>(A_rI.data()));
