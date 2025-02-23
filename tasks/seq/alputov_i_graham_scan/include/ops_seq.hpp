@@ -24,17 +24,17 @@ class TestTaskSequential : public ppc::core::Task {
   bool RunImpl() override;
   bool PostProcessingImpl() override;
 
-  const std::vector<Point>& GetConvexHull() const { return convex_hull_; }
+  [[nodiscard]] const std::vector<Point>& GetConvexHull() const { return convex_hull_; }
 
  private:
   std::vector<Point> input_points_;
   std::vector<Point> convex_hull_;
 
-  Point FindPivot() const;
-  std::vector<Point> SortPoints(const Point& pivot) const;
-  std::vector<Point> BuildHull(const std::vector<Point>& sorted_points) const;
+  [[nodiscard]] Point FindPivot() const;
+  [[nodiscard]] std::vector<Point> SortPoints(const Point& pivot) const;
+  [[nodiscard]] std::vector<Point> BuildHull(const std::vector<Point>& sorted_points) const;
 
-  static double Cross(const Point& O, const Point& A, const Point& B);
+  static double Cross(const Point& o, const Point& a, const Point& b);
 };
 
 }  // namespace alputov_i_graham_scan_seq

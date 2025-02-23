@@ -1,5 +1,7 @@
 #include <gtest/gtest.h>
 
+#include <cstddef>
+#include <cstdint>
 #include <fstream>
 #include <memory>
 #include <random>
@@ -39,7 +41,7 @@ TEST(alputov_i_graham_scan_seq, minimal_triangle_case) {
   ASSERT_TRUE(task.Run());
   ASSERT_TRUE(task.PostProcessing());
 
-  EXPECT_EQ(task.GetConvexHull().size(), 3u);
+  EXPECT_EQ(task.GetConvexHull().size(), 3U);
 }
 
 TEST(alputov_i_graham_scan_seq, collinear_points) {
@@ -59,7 +61,7 @@ TEST(alputov_i_graham_scan_seq, collinear_points) {
   ASSERT_TRUE(task.PostProcessing());
 
   const auto& convex_hull = task.GetConvexHull();
-  EXPECT_EQ(convex_hull.size(), 2u);
+  EXPECT_EQ(convex_hull.size(), 2U);
   bool order1 = (convex_hull[0].x == 0 && convex_hull[1].x == 3);
   bool order2 = (convex_hull[0].x == 3 && convex_hull[1].x == 0);
   EXPECT_TRUE(order1 || order2);
@@ -82,7 +84,7 @@ TEST(alputov_i_graham_scan_seq, perfect_square_case) {
   ASSERT_TRUE(task.PostProcessing());
 
   const auto& convex_hull = task.GetConvexHull();
-  EXPECT_EQ(convex_hull.size(), 4u);
+  EXPECT_EQ(convex_hull.size(), 4U);
   std::set<alputov_i_graham_scan_seq::Point> hull_set(convex_hull.begin(), convex_hull.end());
   for (const auto& p : input) {
     EXPECT_TRUE(hull_set.count(p));
@@ -138,5 +140,5 @@ TEST(alputov_i_graham_scan_seq, duplicate_points) {
 
   const auto& convex_hull = task.GetConvexHull();
   std::set<alputov_i_graham_scan_seq::Point> unique_hull(convex_hull.begin(), convex_hull.end());
-  EXPECT_EQ(unique_hull.size(), 4u);
+  EXPECT_EQ(unique_hull.size(), 4U);
 }
