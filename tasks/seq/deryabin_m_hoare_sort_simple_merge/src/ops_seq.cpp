@@ -90,7 +90,8 @@ bool deryabin_m_hoare_sort_simple_merge_seq::HoareSortTaskSequential::RunImpl() 
     }
     count++;
   }
-  for (size_t i = 0; i < (size_t)(log((double)chunk_count_) / std::numbers::ln2); i++) {
+  size_t chunk_count = chunk_count_;
+  for (size_t i = 0; i < (size_t)(log((double)chunk_count) / std::numbers::ln2); i++) {
     for (size_t j = 0; j < chunk_count_; j++) {
       if (j == 0) {
         if (chunk_count_ % 2 != 0) {
