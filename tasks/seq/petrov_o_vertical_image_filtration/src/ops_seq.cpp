@@ -2,12 +2,14 @@
 
 #include <cmath>
 #include <cstddef>
+// #include <iostream>
 #include <vector>
 
 bool petrov_o_vertical_image_filtration_seq::TaskSequential::PreProcessingImpl() {
   width_ = task_data->inputs_count[0];
   height_ = task_data->inputs_count[1];
   size_t input_size = width_ * height_;
+  // std::cout << "Input size: " << input_size << std::endl;
 
   auto *in_ptr = reinterpret_cast<int *>(task_data->inputs[0]);
   input_ = std::vector<int>(in_ptr, in_ptr + input_size);
