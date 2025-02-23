@@ -1,5 +1,6 @@
 #include <gtest/gtest.h>
 
+#include <algorithm>
 #include <cstdint>
 #include <memory>
 #include <random>
@@ -11,7 +12,6 @@
 namespace {
 
 std::vector<int> CreateReverseSortedVector(unsigned int size, int left);
-bool IsSorted(std::vector<int>& vec);
 std::vector<int> CreateRandomVector(unsigned int size, int left, int right);
 void TestOfFunction(std::vector<int>& in);
 
@@ -21,18 +21,6 @@ std::vector<int> CreateReverseSortedVector(unsigned int size, const int left) {
     result.push_back(left + (int)size);
   }
   return result;
-}
-
-bool IsSorted(std::vector<int>& vec) {
-  if (vec.size() < 2) {
-    return true;
-  }
-  for (unsigned int i = 1; i < vec.size(); i++) {
-    if (vec[i - 1] > vec[i]) {
-      return false;
-    }
-  }
-  return true;
 }
 
 std::vector<int> CreateRandomVector(unsigned int size, const int left, const int right) {
@@ -63,7 +51,7 @@ void TestOfFunction(std::vector<int>& in) {
   task_sequential.Run();
   task_sequential.PostProcessing();
 
-  ASSERT_TRUE(IsSorted(out));
+  ASSERT_TRUE(std::is_sorted(out.begin(), out.end()));
 }
 }  // namespace
 
