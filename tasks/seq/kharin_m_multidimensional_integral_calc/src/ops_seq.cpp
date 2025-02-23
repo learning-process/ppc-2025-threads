@@ -1,7 +1,7 @@
 #include "seq/kharin_m_multidimensional_integral_calc/include/ops_seq.hpp"
 
-#include <vector>
 #include <cstddef>
+#include <vector>
 
 bool kharin_m_multidimensional_integral_calc_seq::TaskSequential::ValidationImpl() {
   // Проверяем, что предоставлено ровно 3 входа и 1 выход
