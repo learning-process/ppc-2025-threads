@@ -64,9 +64,8 @@ bool kovalev_k_radix_sort_batcher_merge_seq::RadixSortBatcherMerge::RunImpl() {
   if (count == n_) {
     return ret;
   }
-  for (; count < n_; count++) {
-    tmp_[i++] = mas_[count];
-  }
+  memcpy(tmp_.data(), mas_.data() + count, sizeof(long long int) * (n_-count));
+  i = (n_ - count);
   count = 0;
   for (; i < n_; i++) {
     tmp_[i] = mas_[count++];
