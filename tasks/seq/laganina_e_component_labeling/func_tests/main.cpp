@@ -1,36 +1,70 @@
 #include <gtest/gtest.h>
 
-#include <cstddef>
-#include <cstdint>
-#include <fstream>
-#include <memory>
-#include <string>
 #include <vector>
 
 #include "core/task/include/task.hpp"
 #include "core/util/include/util.hpp"
-#include "seq/example/include/ops_seq.hpp"
+#include "seq/laganina_e_component_labeling/include/ops_seq.hpp"
 
-TEST(nesterov_a_test_task_seq, test_matmul_50) {
-  constexpr size_t kCount = 50;
-
+TEST(laganina_e_component_labeling_seq, validation_test1) {
+  int m_ = 0;
+  int n_ = -1;
   // Create data
-  std::vector<int> in(kCount * kCount, 0);
-  std::vector<int> out(kCount * kCount, 0);
-
-  for (size_t i = 0; i < kCount; i++) {
-    in[(i * kCount) + i] = 1;
-  }
-
+  std::vector<int> in(m_ * n_, 0);
+  std::vector<int> out(m_ * n_, 0);
   // Create task_data
   auto task_data_seq = std::make_shared<ppc::core::TaskData>();
   task_data_seq->inputs.emplace_back(reinterpret_cast<uint8_t *>(in.data()));
-  task_data_seq->inputs_count.emplace_back(in.size());
+  task_data_seq->inputs_count.emplace_back(m_);
+  task_data_seq->inputs_count.emplace_back(n_);
   task_data_seq->outputs.emplace_back(reinterpret_cast<uint8_t *>(out.data()));
-  task_data_seq->outputs_count.emplace_back(out.size());
+  task_data_seq->outputs_count.emplace_back(m_);
+  task_data_seq->outputs_count.emplace_back(n_);
 
   // Create Task
-  nesterov_a_test_task_seq::TestTaskSequential test_task_sequential(task_data_seq);
+  laganina_e_component_labeling_seq::TestTaskSequential test_task_sequential(task_data_seq);
+  ASSERT_EQ(test_task_sequential.Validation(), false);
+  test_task_sequential.PreProcessing();
+}
+
+TEST(laganina_e_component_labeling_seq, validation_test2) {
+  int m_ = 3;
+  int n_ = 2;
+  // Create data
+  std::vector<int> in(m_ * n_, 3);
+  std::vector<int> out(m_ * n_, 0);
+  // Create task_data
+  auto task_data_seq = std::make_shared<ppc::core::TaskData>();
+  task_data_seq->inputs.emplace_back(reinterpret_cast<uint8_t *>(in.data()));
+  task_data_seq->inputs_count.emplace_back(m_);
+  task_data_seq->inputs_count.emplace_back(n_);
+  task_data_seq->outputs.emplace_back(reinterpret_cast<uint8_t *>(out.data()));
+  task_data_seq->outputs_count.emplace_back(m_);
+  task_data_seq->outputs_count.emplace_back(n_);
+
+  // Create Task
+  laganina_e_component_labeling_seq::TestTaskSequential test_task_sequential(task_data_seq);
+  ASSERT_EQ(test_task_sequential.Validation(), false);
+  test_task_sequential.PreProcessing();
+}
+
+TEST(laganina_e_component_labeling_seq, all_one) {
+  int m_ = 3;
+  int n_ = 2;
+  // Create data
+  std::vector<int> in(m_ * n_, 1);
+  std::vector<int> out(m_ * n_, 0);
+  // Create task_data
+  auto task_data_seq = std::make_shared<ppc::core::TaskData>();
+  task_data_seq->inputs.emplace_back(reinterpret_cast<uint8_t *>(in.data()));
+  task_data_seq->inputs_count.emplace_back(m_);
+  task_data_seq->inputs_count.emplace_back(n_);
+  task_data_seq->outputs.emplace_back(reinterpret_cast<uint8_t *>(out.data()));
+  task_data_seq->outputs_count.emplace_back(m_);
+  task_data_seq->outputs_count.emplace_back(n_);
+
+  // Create Task
+  laganina_e_component_labeling_seq::TestTaskSequential test_task_sequential(task_data_seq);
   ASSERT_EQ(test_task_sequential.Validation(), true);
   test_task_sequential.PreProcessing();
   test_task_sequential.Run();
@@ -38,36 +72,176 @@ TEST(nesterov_a_test_task_seq, test_matmul_50) {
   EXPECT_EQ(in, out);
 }
 
-TEST(nesterov_a_test_task_seq, test_matmul_100_from_file) {
-  std::string line;
-  std::ifstream test_file(ppc::util::GetAbsolutePath("seq/example/data/test.txt"));
-  if (test_file.is_open()) {
-    getline(test_file, line);
-  }
-  test_file.close();
-
-  const size_t count = std::stoi(line);
-
+TEST(laganina_e_component_labeling_seq, all_zero) {
+  int m_ = 3;
+  int n_ = 2;
   // Create data
-  std::vector<int> in(count * count, 0);
-  std::vector<int> out(count * count, 0);
-
-  for (size_t i = 0; i < count; i++) {
-    in[(i * count) + i] = 1;
-  }
-
+  std::vector<int> in(m_ * n_, 0);
+  std::vector<int> out(m_ * n_, 0);
   // Create task_data
   auto task_data_seq = std::make_shared<ppc::core::TaskData>();
   task_data_seq->inputs.emplace_back(reinterpret_cast<uint8_t *>(in.data()));
-  task_data_seq->inputs_count.emplace_back(in.size());
+  task_data_seq->inputs_count.emplace_back(m_);
+  task_data_seq->inputs_count.emplace_back(n_);
   task_data_seq->outputs.emplace_back(reinterpret_cast<uint8_t *>(out.data()));
-  task_data_seq->outputs_count.emplace_back(out.size());
+  task_data_seq->outputs_count.emplace_back(m_);
+  task_data_seq->outputs_count.emplace_back(n_);
 
   // Create Task
-  nesterov_a_test_task_seq::TestTaskSequential test_task_sequential(task_data_seq);
+  laganina_e_component_labeling_seq::TestTaskSequential test_task_sequential(task_data_seq);
   ASSERT_EQ(test_task_sequential.Validation(), true);
   test_task_sequential.PreProcessing();
   test_task_sequential.Run();
   test_task_sequential.PostProcessing();
   EXPECT_EQ(in, out);
+}
+
+TEST(laganina_e_component_labeling_seq, test1) {
+  int m_ = 3;
+  int n_ = 3;
+  // Create data
+  std::vector<int> in = {1, 0, 1, 0, 1, 0, 1, 0, 1};
+  std::vector<int> exp_out = {1, 0, 2, 0, 3, 0, 4, 0, 5};
+  std::vector<int> out(m_ * n_, 0);
+  // Create task_data
+  auto task_data_seq = std::make_shared<ppc::core::TaskData>();
+  task_data_seq->inputs.emplace_back(reinterpret_cast<uint8_t *>(in.data()));
+  task_data_seq->inputs_count.emplace_back(m_);
+  task_data_seq->inputs_count.emplace_back(n_);
+  task_data_seq->outputs.emplace_back(reinterpret_cast<uint8_t *>(out.data()));
+  task_data_seq->outputs_count.emplace_back(m_);
+  task_data_seq->outputs_count.emplace_back(n_);
+
+  // Create Task
+  laganina_e_component_labeling_seq::TestTaskSequential test_task_sequential(task_data_seq);
+  ASSERT_EQ(test_task_sequential.Validation(), true);
+  test_task_sequential.PreProcessing();
+  test_task_sequential.Run();
+  test_task_sequential.PostProcessing();
+  EXPECT_EQ(out, exp_out);
+}
+
+TEST(laganina_e_component_labeling_seq, test2) {
+  int m_ = 4;
+  int n_ = 5;
+  // Create data
+  std::vector<int> in = {1, 1, 0, 0, 0, 0, 1, 1, 0, 0, 0, 0, 1, 1, 0, 0, 0, 0, 1, 1};
+  std::vector<int> exp_out = {1, 1, 0, 0, 0, 0, 1, 1, 0, 0, 0, 0, 1, 1, 0, 0, 0, 0, 1, 1};
+  std::vector<int> out(m_ * n_, 0);
+  // Create task_data
+  auto task_data_seq = std::make_shared<ppc::core::TaskData>();
+  task_data_seq->inputs.emplace_back(reinterpret_cast<uint8_t *>(in.data()));
+  task_data_seq->inputs_count.emplace_back(m_);
+  task_data_seq->inputs_count.emplace_back(n_);
+  task_data_seq->outputs.emplace_back(reinterpret_cast<uint8_t *>(out.data()));
+  task_data_seq->outputs_count.emplace_back(m_);
+  task_data_seq->outputs_count.emplace_back(n_);
+
+  // Create Task
+  laganina_e_component_labeling_seq::TestTaskSequential test_task_sequential(task_data_seq);
+  ASSERT_EQ(test_task_sequential.Validation(), true);
+  test_task_sequential.PreProcessing();
+  test_task_sequential.Run();
+  test_task_sequential.PostProcessing();
+  EXPECT_EQ(out, exp_out);
+}
+
+TEST(laganina_e_component_labeling_seq, test3) {
+  int m_ = 4;
+  int n_ = 5;
+  // Create data
+  std::vector<int> in = {1, 1, 0, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0};
+  std::vector<int> exp_out = {1, 1, 0, 0, 2, 0, 1, 0, 3, 0, 4, 0, 5, 0, 6, 0, 7, 0, 8, 0};
+  std::vector<int> out(m_ * n_, 0);
+  // Create task_data
+  auto task_data_seq = std::make_shared<ppc::core::TaskData>();
+  task_data_seq->inputs.emplace_back(reinterpret_cast<uint8_t *>(in.data()));
+  task_data_seq->inputs_count.emplace_back(m_);
+  task_data_seq->inputs_count.emplace_back(n_);
+  task_data_seq->outputs.emplace_back(reinterpret_cast<uint8_t *>(out.data()));
+  task_data_seq->outputs_count.emplace_back(m_);
+  task_data_seq->outputs_count.emplace_back(n_);
+
+  // Create Task
+  laganina_e_component_labeling_seq::TestTaskSequential test_task_sequential(task_data_seq);
+  ASSERT_EQ(test_task_sequential.Validation(), true);
+  test_task_sequential.PreProcessing();
+  test_task_sequential.Run();
+  test_task_sequential.PostProcessing();
+  EXPECT_EQ(out, exp_out);
+}
+
+TEST(laganina_e_component_labeling_seq, one_row) {
+  int m_ = 1;
+  int n_ = 6;
+  // Create data
+  std::vector<int> in = {1, 0, 1, 1, 0, 1};
+  std::vector<int> exp_out = {1, 0, 2, 2, 0, 3};
+  std::vector<int> out(m_ * n_, 0);
+  // Create task_data
+  auto task_data_seq = std::make_shared<ppc::core::TaskData>();
+  task_data_seq->inputs.emplace_back(reinterpret_cast<uint8_t *>(in.data()));
+  task_data_seq->inputs_count.emplace_back(m_);
+  task_data_seq->inputs_count.emplace_back(n_);
+  task_data_seq->outputs.emplace_back(reinterpret_cast<uint8_t *>(out.data()));
+  task_data_seq->outputs_count.emplace_back(m_);
+  task_data_seq->outputs_count.emplace_back(n_);
+
+  // Create Task
+  laganina_e_component_labeling_seq::TestTaskSequential test_task_sequential(task_data_seq);
+  ASSERT_EQ(test_task_sequential.Validation(), true);
+  test_task_sequential.PreProcessing();
+  test_task_sequential.Run();
+  test_task_sequential.PostProcessing();
+  EXPECT_EQ(out, exp_out);
+}
+
+TEST(laganina_e_component_labeling_seq, test4) {
+  int m_ = 4;
+  int n_ = 5;
+  // Create data
+  std::vector<int> in = {1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0};
+  std::vector<int> exp_out = {1, 0, 2, 0, 3, 0, 4, 0, 5, 0, 6, 0, 7, 0, 8, 0, 9, 0, 10, 0};
+  std::vector<int> out(m_ * n_, 0);
+  // Create task_data
+  auto task_data_seq = std::make_shared<ppc::core::TaskData>();
+  task_data_seq->inputs.emplace_back(reinterpret_cast<uint8_t *>(in.data()));
+  task_data_seq->inputs_count.emplace_back(m_);
+  task_data_seq->inputs_count.emplace_back(n_);
+  task_data_seq->outputs.emplace_back(reinterpret_cast<uint8_t *>(out.data()));
+  task_data_seq->outputs_count.emplace_back(m_);
+  task_data_seq->outputs_count.emplace_back(n_);
+
+  // Create Task
+  laganina_e_component_labeling_seq::TestTaskSequential test_task_sequential(task_data_seq);
+  ASSERT_EQ(test_task_sequential.Validation(), true);
+  test_task_sequential.PreProcessing();
+  test_task_sequential.Run();
+  test_task_sequential.PostProcessing();
+  EXPECT_EQ(out, exp_out);
+}
+
+TEST(laganina_e_component_labeling_seq, test5) {
+  int m_ = 3;
+  int n_ = 3;
+  // Create data
+  std::vector<int> in = {1, 1, 1, 1, 0, 1, 1, 1, 1};
+  std::vector<int> exp_out = {1, 1, 1, 1, 0, 1, 1, 1, 1};
+  std::vector<int> out(m_ * n_, 0);
+  // Create task_data
+  auto task_data_seq = std::make_shared<ppc::core::TaskData>();
+  task_data_seq->inputs.emplace_back(reinterpret_cast<uint8_t *>(in.data()));
+  task_data_seq->inputs_count.emplace_back(m_);
+  task_data_seq->inputs_count.emplace_back(n_);
+  task_data_seq->outputs.emplace_back(reinterpret_cast<uint8_t *>(out.data()));
+  task_data_seq->outputs_count.emplace_back(m_);
+  task_data_seq->outputs_count.emplace_back(n_);
+
+  // Create Task
+  laganina_e_component_labeling_seq::TestTaskSequential test_task_sequential(task_data_seq);
+  ASSERT_EQ(test_task_sequential.Validation(), true);
+  test_task_sequential.PreProcessing();
+  test_task_sequential.Run();
+  test_task_sequential.PostProcessing();
+  EXPECT_EQ(out, exp_out);
 }
