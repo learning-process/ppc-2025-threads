@@ -11,7 +11,7 @@
 #include "seq/vavilov_v_cannon/include/ops_seq.hpp"
 
 TEST(vavilov_v_cannon_seq, test_pipeline_run) {
-  constexpr int N = 500;
+  constexpr int N = 625;
   std::vector<double> A(N * N, 1.0);
   std::vector<double> B(N * N, 1.0);
   std::vector<double> C(N * N, 0.0);
@@ -47,7 +47,7 @@ TEST(vavilov_v_cannon_seq, test_pipeline_run) {
 }
 
 TEST(vavilov_v_cannon_seq, test_task_run) {
-  constexpr int N = 500;
+  constexpr int N = 625;
   std::vector<double> A(N * N, 1.0);
   std::vector<double> B(N * N, 1.0);
   std::vector<double> C(N * N, 0.0);
