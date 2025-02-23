@@ -65,18 +65,18 @@ TEST(vavilov_v_cannon_seq, test_225) {
 TEST(vavilov_v_cannon_seq, test_225_from_file) {
   std::string line;
   std::ifstream test_file(ppc::util::GetAbsolutePath("seq/vavilov_v_cannon/data/test.TXT"));
-  unsigned int kN = 0;
+  unsigned int k_n = 0;
   if (test_file.is_open()) {
     getline(test_file, line);
   }
   test_file.close();
 
-  kN = std::stoi(line);
+  k_n = std::stoi(line);
 
-  std::vector<double> a(kN * kN, 1.0);
-  std::vector<double> b(kN * kN, 1.0);
-  std::vector<double> c(kN * kN, 0.0);
-  std::vector<double> expected_output(kN * kN, kN);
+  std::vector<double> a(k_n * k_n, 1.0);
+  std::vector<double> b(k_n * k_n, 1.0);
+  std::vector<double> c(k_n * k_n, 0.0);
+  std::vector<double> expected_output(k_n * k_n, k_n);
 
   auto task_data_seq = std::make_shared<ppc::core::TaskData>();
   task_data_seq->inputs.emplace_back(reinterpret_cast<uint8_t*>(a.data()));
@@ -92,7 +92,7 @@ TEST(vavilov_v_cannon_seq, test_225_from_file) {
   task_seq.Run();
   task_seq.PostProcessing();
 
-  for (unsigned int i = 0; i < kN * kN; i++) {
+  for (unsigned int i = 0; i < k_n * k_n; i++) {
     EXPECT_EQ(expected_output[i], c[i]);
   }
 }
