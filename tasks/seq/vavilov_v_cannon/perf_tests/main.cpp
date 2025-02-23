@@ -11,19 +11,19 @@
 #include "seq/vavilov_v_cannon/include/ops_seq.hpp"
 
 TEST(vavilov_v_cannon_seq, test_pipeline_run) {
-  constexpr int N = 625;
-  std::vector<double> A(N * N, 1.0);
-  std::vector<double> B(N * N, 1.0);
-  std::vector<double> C(N * N, 0.0);
-  std::vector<double> expected_output(N * N, N);
+  constexpr unsigned int n = 625;
+  std::vector<double> a(n * n, 1.0);
+  std::vector<double> b(n * n, 1.0);
+  std::vector<double> c(n * n, 0.0);
+  std::vector<double> expected_output(n * n, n);
 
   auto task_data_seq = std::make_shared<ppc::core::TaskData>();
-  task_data_seq->inputs.emplace_back(reinterpret_cast<uint8_t*>(A.data()));
-  task_data_seq->inputs.emplace_back(reinterpret_cast<uint8_t*>(B.data()));
-  task_data_seq->inputs_count.emplace_back(A.size());
-  task_data_seq->inputs_count.emplace_back(B.size());
-  task_data_seq->outputs.emplace_back(reinterpret_cast<uint8_t*>(C.data()));
-  task_data_seq->outputs_count.emplace_back(C.size());
+  task_data_seq->inputs.emplace_back(reinterpret_cast<uint8_t*>(a.data()));
+  task_data_seq->inputs.emplace_back(reinterpret_cast<uint8_t*>(b.data()));
+  task_data_seq->inputs_count.emplace_back(a.size());
+  task_data_seq->inputs_count.emplace_back(b.size());
+  task_data_seq->outputs.emplace_back(reinterpret_cast<uint8_t*>(c.data()));
+  task_data_seq->outputs_count.emplace_back(c.size());
 
   auto task_seq = std::make_shared<vavilov_v_cannon_seq::CannonSequential>(task_data_seq);
 
@@ -41,25 +41,25 @@ TEST(vavilov_v_cannon_seq, test_pipeline_run) {
   auto perf_analyzer = std::make_shared<ppc::core::Perf>(task_seq);
   perf_analyzer->PipelineRun(perf_attr, perf_results);
   ppc::core::Perf::PrintPerfStatistic(perf_results);
-  for (size_t i = 0; i < N * N; i++) {
-    ASSERT_EQ(expected_output[i], C[i]);
+  for (unsigned int i = 0; i < n * n; i++) {
+    ASSERT_EQ(expected_output[i], c[i]);
   }
 }
 
 TEST(vavilov_v_cannon_seq, test_task_run) {
-  constexpr int N = 625;
-  std::vector<double> A(N * N, 1.0);
-  std::vector<double> B(N * N, 1.0);
-  std::vector<double> C(N * N, 0.0);
-  std::vector<double> expected_output(N * N, N);
+  constexpr unsigned int n = 625;
+  std::vector<double> a(n * n, 1.0);
+  std::vector<double> b(n * n, 1.0);
+  std::vector<double> c(n * n, 0.0);
+  std::vector<double> expected_output(n * n, n);
 
   auto task_data_seq = std::make_shared<ppc::core::TaskData>();
-  task_data_seq->inputs.emplace_back(reinterpret_cast<uint8_t*>(A.data()));
-  task_data_seq->inputs.emplace_back(reinterpret_cast<uint8_t*>(B.data()));
-  task_data_seq->inputs_count.emplace_back(A.size());
-  task_data_seq->inputs_count.emplace_back(B.size());
-  task_data_seq->outputs.emplace_back(reinterpret_cast<uint8_t*>(C.data()));
-  task_data_seq->outputs_count.emplace_back(C.size());
+  task_data_seq->inputs.emplace_back(reinterpret_cast<uint8_t*>(a.data()));
+  task_data_seq->inputs.emplace_back(reinterpret_cast<uint8_t*>(b.data()));
+  task_data_seq->inputs_count.emplace_back(a.size());
+  task_data_seq->inputs_count.emplace_back(b.size());
+  task_data_seq->outputs.emplace_back(reinterpret_cast<uint8_t*>(c.data()));
+  task_data_seq->outputs_count.emplace_back(c.size());
 
   auto task_seq = std::make_shared<vavilov_v_cannon_seq::CannonSequential>(task_data_seq);
 
@@ -77,7 +77,7 @@ TEST(vavilov_v_cannon_seq, test_task_run) {
   auto perf_analyzer = std::make_shared<ppc::core::Perf>(task_seq);
   perf_analyzer->TaskRun(perf_attr, perf_results);
   ppc::core::Perf::PrintPerfStatistic(perf_results);
-  for (size_t i = 0; i < N * N; i++) {
-    ASSERT_EQ(expected_output[i], C[i]);
+  for (unsigned int i = 0; i < n * n; i++) {
+    ASSERT_EQ(expected_output[i], c[i]);
   }
 }
