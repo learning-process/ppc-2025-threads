@@ -21,4 +21,4 @@ class CrsMultiplicationSeqrential : public ppc::core::Task {
   unsigned int A_N_, A_Nz_, B_N_, B_Nz_;
 };
 
-}  // namespace orotin_e_crs_multiplication_seq
+}  // namespace korotin_e_crs_multiplication_seq

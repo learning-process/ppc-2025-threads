@@ -60,8 +60,7 @@ bool korotin_e_crs_multiplication_seq::CrsMultiplicationSequential::RunImpl() {
       tcol[trI[B_col_[j]]] = i;
       trI[B_col_[j]]++;
     }
-  for (i = trI.size() - 1; i > 0; i--)
-    trI[i] = trI[i-1];
+  for (i = trI.size() - 1; i > 0; i--) trI[i] = trI[i - 1];
   trI[0] = 0;
 
   unsigned int ai;
@@ -74,21 +73,21 @@ bool korotin_e_crs_multiplication_seq::CrsMultiplicationSequential::RunImpl() {
       bt = trI[j];
       while (ai < A_rI_[i + 1] && bt < trI[j + 1]) {
         if (A_col_[ai] == tcol[bt]) {
-	  sum += A_val_[ai] * tval[bt];
-	  ai++;
-	  bt++;
-	}
-	else if (col[ai] < tcol[bt]) ai++;
-	else bt++;
+          sum += A_val_[ai] * tval[bt];
+          ai++;
+          bt++;
+        } else if (col[ai] < tcol[bt])
+          ai++;
+        else
+          bt++;
       }
       if (sum != 0) {
         output_val_.push_back(sum);
-	output_col_.push_back(j);
-	output_rI_[i + 1]++;
+        output_col_.push_back(j);
+        output_rI_[i + 1]++;
       }
     }
-  for (i = 1; i < A_N_; i++)
-    output_rI_[i] += output_rI_[i - 1];
+  for (i = 1; i < A_N_; i++) output_rI_[i] += output_rI_[i - 1];
   return true;
 }
 
