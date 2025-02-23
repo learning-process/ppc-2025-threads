@@ -23,7 +23,7 @@ void kudryashova_i_radix_batcher_seq::radix_double_sort(std::vector<double> &dat
 
   for (int shift = 0; shift < total_passes; ++shift) {
     size_t count[256] = {0};                      // Array to count occurrences of each byte
-    const int shift_loc = shift * bits_int_byte;  // Determine how much to shift for the current pass
+    const int shift_loc = shift * bits_int_byte;  // Determine shift for the current pass
 
     // Count occurrences of each byte in the current shift position
     for (const auto &num : converted) {
