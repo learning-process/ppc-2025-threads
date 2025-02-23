@@ -139,7 +139,7 @@ TEST(korotin_e_crs_multiplication_seq, test_rnd_50_50_50) {
   }
   std::cout << "Done C" << std::endl;
   korotin_e_crs_multiplication_seq::MakeCRS(C_rI, C_col, C_val, C, M, P);
-  stdLLcout << "Done CRS C" << std::endl;
+  std::cout << "Done CRS C" << std::endl;
   EXPECT_EQ(C_rI, out_rI);
   EXPECT_EQ(C_col, out_col);
   EXPECT_EQ(C_val, out_val);
