@@ -3,7 +3,6 @@
 #include <algorithm>
 #include <cmath>
 #include <cstddef>
-#include <ranges>
 #include <vector>
 
 namespace alputov_i_graham_scan_seq {
@@ -32,7 +31,7 @@ std::vector<Point> TestTaskSequential::SortPoints(const Point& pivot) const {
   points.erase(new_end, points.end());
 
   std::ranges::sort(points, [](const Point& a, const Point& b) { return a < b; });
-  auto [unique_end, __] = std::ranges::unique(points);
+  auto [unique_end, discarded] = std::ranges::unique(points);
   points.erase(unique_end, points.end());
 
   std::ranges::sort(points, [&pivot](const Point& a, const Point& b) {
