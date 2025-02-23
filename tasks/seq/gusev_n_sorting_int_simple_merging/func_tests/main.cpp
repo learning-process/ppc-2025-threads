@@ -9,6 +9,7 @@
 #include "core/task/include/task.hpp"
 #include "seq/gusev_n_sorting_int_simple_merging/include/ops_seq.hpp"
 
+namespace {
 ppc::core::TaskDataPtr CreateTaskData(std::vector<int> &input, std::vector<int> &output) {
   auto task_data_seq = std::make_shared<ppc::core::TaskData>();
 
@@ -27,7 +28,7 @@ void RunT(ppc::core::TaskDataPtr &task_data) {
   ASSERT_TRUE(task.Run());
   ASSERT_TRUE(task.PostProcessing());
 }
-
+}  // namespace
 TEST(gusev_n_sorting_int_simple_merging_seq, test_radix_sort_basic) {
   std::vector<int> in = {170, 45, 75, 90, 802, 24, 2, 66};
   std::vector<int> out(in.size());
@@ -76,7 +77,7 @@ TEST(gusev_n_sorting_int_simple_merging_seq, test_radix_sort_negative_numbers) {
 }
 
 TEST(gusev_n_sorting_int_simple_merging_seq, test_radix_sort_random) {
-  constexpr size_t SIZE = 1000;
+  size_t SIZE = 1000;
   std::random_device rd;
   std::mt19937 gen(rd());
   std::uniform_int_distribution<int> dist(-10000, 10000);
