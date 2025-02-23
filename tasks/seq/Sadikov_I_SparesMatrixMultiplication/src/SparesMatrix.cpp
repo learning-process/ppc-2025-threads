@@ -1,6 +1,5 @@
 #include "seq/Sadikov_I_SparesMatrixMultiplication/include/SparesMatrix.hpp"
 
-#include <iostream>
 #include <vector>
 
 SparesMatrix SparesMatrix::Transpose(const SparesMatrix& matrix) {
