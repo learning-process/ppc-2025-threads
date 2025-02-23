@@ -2,10 +2,12 @@
 
 #include <cmath>
 #include <cstddef>
+#include <cstdint>
 #include <memory>
 #include <numbers>
 #include <vector>
 
+#include "core/task/include/task.hpp"
 #include "seq/poroshin_v_multi_integral_with_trapez_method/include/ops_seq.hpp"
 
 double poroshin_v_multi_integral_with_trapez_method_seq::TestTaskSequential::Area(std::vector<double> &arguments) {
