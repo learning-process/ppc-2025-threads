@@ -20,7 +20,8 @@ TEST(petrov_o_vertical_image_filtration_seq, test_pipeline_run) {
   // Create task_data
   auto task_data_seq = std::make_shared<ppc::core::TaskData>();
   task_data_seq->inputs.emplace_back(reinterpret_cast<uint8_t *>(in.data()));
-  task_data_seq->inputs_count.emplace_back(in.size());
+  task_data_seq->inputs_count.emplace_back(kCount);
+  task_data_seq->inputs_count.emplace_back(kCount);
   task_data_seq->outputs.emplace_back(reinterpret_cast<uint8_t *>(out.data()));
   task_data_seq->outputs_count.emplace_back(out.size());
 
@@ -58,7 +59,8 @@ TEST(petrov_o_vertical_image_filtration_seq, test_task_run) {
   // Create task_data
   auto task_data_seq = std::make_shared<ppc::core::TaskData>();
   task_data_seq->inputs.emplace_back(reinterpret_cast<uint8_t *>(in.data()));
-  task_data_seq->inputs_count.emplace_back(in.size());
+  task_data_seq->inputs_count.emplace_back(kCount);
+  task_data_seq->inputs_count.emplace_back(kCount);
   task_data_seq->outputs.emplace_back(reinterpret_cast<uint8_t *>(out.data()));
   task_data_seq->outputs_count.emplace_back(out.size());
 
