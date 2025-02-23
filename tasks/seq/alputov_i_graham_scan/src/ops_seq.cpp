@@ -22,18 +22,20 @@ double TestTaskSequential::Cross(const Point& o, const Point& a, const Point& b)
   return ((a.x - o.x) * (b.y - o.y)) - ((a.y - o.y) * (b.x - o.x));
 }
 
-Point TestTaskSequential::FindPivot() const { return *std::min_element(input_points_.begin(), input_points_.end()); }
+Point TestTaskSequential::FindPivot() const {
+  return *std::ranges::min_element(input_points_, [](const Point& a, const Point& b) { return a < b; });
+}
 
 std::vector<Point> TestTaskSequential::SortPoints(const Point& pivot) const {
   std::vector<Point> points = input_points_;
-  auto new_end = std::remove(points.begin(), points.end(), pivot);
+  auto [new_end, _] = std::ranges::remove(points, pivot);
   points.erase(new_end, points.end());
 
-  std::sort(points.begin(), points.end());
+  std::ranges::sort(points, [](const Point& a, const Point& b) { return a < b; });
   auto [unique_end, __] = std::ranges::unique(points);
   points.erase(unique_end, points.end());
 
-  std::sort(points.begin(), points.end(), [&pivot](const Point& a, const Point& b) {
+  std::ranges::sort(points, [&pivot](const Point& a, const Point& b) {
     const double angle_a = atan2(a.y - pivot.y, a.x - pivot.x);
     const double angle_b = atan2(b.y - pivot.y, b.x - pivot.x);
     return (angle_a < angle_b) || (angle_a == angle_b && a.x < b.x);
