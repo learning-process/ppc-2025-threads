@@ -15,6 +15,7 @@
 namespace korotin_e_crs_multiplication_seq {
 
 std::vector<double> GetRandomMatrix(unsigned int M, unsigned int N) {
+  std::random_device rd;
   std::mt19937 gen(rd());
   std::uniform_real_distribution<double> distrib(-100.0, 100.0);
   std::vector<double> res(M * N);
@@ -51,7 +52,7 @@ TEST(korotin_e_crs_multiplication_seq, test_rnd_50_50_50) {
   std::vector<double> A, B, A_val, B_val;
   std::vector<unsigned int> A_rI, A_col, B_rI, B_col;
 
-  A = korotin_e_crs_multiplication_seq::GetRandimMatrix(M, N);
+  A = korotin_e_crs_multiplication_seq::GetRandomMatrix(M, N);
   B = korotin_e_crs_multiplication_seq::GetRandomMatrix(N, P);
   korotin_e_crs_multiplication_seq::MakeCRS(A_rI, A_col, A_val, A, M, N);
   korotin_e_crs_multiplication_seq::MakeCRS(B_rI, B_col, B_val, B, N, P);
@@ -86,9 +87,9 @@ TEST(korotin_e_crs_multiplication_seq, test_rnd_50_50_50) {
 
   std::vector<double> C(M * P, 0), C_val;
   std::vector<unsigned int> C_rI, C_col;
-  for (int i = 0; i < M; i++) {
-    for (int k = 0; k < N; k++) {
-      for (int j = 0; j < P; j++) {
+  for (unsigned int i = 0; i < M; i++) {
+    for (unsigned int k = 0; k < N; k++) {
+      for (unsigned int j = 0; j < P; j++) {
         C[i * P + j] += A[i * N + k] * B[k * P + j];
       }
     }

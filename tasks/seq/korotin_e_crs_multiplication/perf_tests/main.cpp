@@ -16,8 +16,8 @@ TEST(korotin_e_crs_multiplication_seq, test_pipeline_run) {
   std::vector<double> A_val(N * N, 1), B_val(N * N, 1), C_val(N * N, N);
   std::vector<unsigned int> A_rI(N + 1, 0), A_col(N * N), B_rI(N + 1, 0), B_col(N * N), C_rI(N + 1, 0), C_col(N * N);
 
-  for (int i = 0; i < N; i++) {
-    for (int j = 0; j < N; j++) {
+  for (unsigned int i = 0; i < N; i++) {
+    for (unsigned int j = 0; j < N; j++) {
       A_col[i * N + j] = j;
       B_col[i * N + j] = j;
       C_col[i * N + j] = j;
@@ -82,8 +82,8 @@ TEST(korotin_e_crs_multiplication_seq, test_task_run) {
   std::vector<double> A_val(N * N, 1), B_val(N * N, 1), C_val(N * N, N);
   std::vector<unsigned int> A_rI(N + 1, 0), A_col(N * N), B_rI(N + 1, 0), B_col(N * N), C_rI(N + 1, 0), C_col(N * N);
 
-  for (int i = 0; i < N; i++) {
-    for (int j = 0; j < N; j++) {
+  for (unsigned int i = 0; i < N; i++) {
+    for (unsigned int j = 0; j < N; j++) {
       A_col[i * N + j] = j;
       B_col[i * N + j] = j;
       C_col[i * N + j] = j;
