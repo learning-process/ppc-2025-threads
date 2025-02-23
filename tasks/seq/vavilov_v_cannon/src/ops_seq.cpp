@@ -16,8 +16,8 @@ bool vavilov_v_cannon_seq::CannonSequential::PreProcessingImpl() {
 
   auto* a = reinterpret_cast<double*>(task_data->inputs[0]);
   auto* b = reinterpret_cast<double*>(task_data->inputs[1]);
-  A_.assign(a, a + N_ * N_);
-  B_.assign(b, b + N_ * N_);
+  A_.assign(a, a + (N_ * N_));
+  B_.assign(b, b + (N_ * N_));
   C_.assign(N_ * N_, 0);
 
   InitialShift();
@@ -25,8 +25,8 @@ bool vavilov_v_cannon_seq::CannonSequential::PreProcessingImpl() {
 }
 
 void vavilov_v_cannon_seq::CannonSequential::InitialShift() {
-  std::vector<double> A_tmp = A_;
-  std::vector<double> B_tmp = B_;
+  std::vector<double> a_tmp = A_;
+  std::vector<double> b_tmp = B_;
 
   for (unsigned int bi = 0; bi < num_blocks_; ++bi) {
     for (unsigned int bj = 0; bj < num_blocks_; ++bj) {
@@ -34,10 +34,10 @@ void vavilov_v_cannon_seq::CannonSequential::InitialShift() {
       unsigned int src_col = (bj + bi) % num_blocks_;
       for (unsigned int i = 0; i < block_size_; ++i) {
         for (unsigned int j = 0; j < block_size_; ++j) {
-          B_[(bi * block_size_ + i) * N_ + (bj * block_size_ + j)] =
-              B_tmp[(src_row * block_size_ + i) * N_ + (bj * block_size_ + j)];
-          A_[(bi * block_size_ + i) * N_ + (bj * block_size_ + j)] =
-              A_tmp[(bi * block_size_ + i) * N_ + (src_col * block_size_ + j)];
+          B_[(((bi * block_size_) + i) * N_) + ((bj * block_size_) + j)] =
+              b_tmp[(((src_row * block_size_) + i) * N_) + ((bj * block_size_) + j)];
+          A_[(((bi * block_size_) + i) * N_) + ((bj * block_size_) + j)] =
+              a_tmp[(((bi * block_size_) + i) * N_) + ((src_col * block_size_) + j)];
         }
       }
     }
@@ -56,15 +56,15 @@ void vavilov_v_cannon_seq::CannonSequential::BlockMultiply() {
         for (unsigned int j = bj; j < bj + block_size_; j++) {
           double temp = 0.0;
           for (unsigned int k = 0; k < block_size_; k++) {
-            unsigned int row_A = bi + (i - bi);  // row_A index
-            unsigned int col_A = bj + k;         // col_A index
-            unsigned int row_B = bi + k;         // row_B index
-            unsigned int col_B = bj + (j - bj);  // col_B index
+            unsigned int row_a = bi + (i - bi);  // row_A index
+            unsigned int col_a = bj + k;         // col_A index
+            unsigned int row_b = bi + k;         // row_B index
+            unsigned int col_b = bj + (j - bj);  // col_B index
 
-            temp += A_[row_A * N_ + col_A] * B_[row_B * N_ + col_B];
+            temp += A_[(row_a * N_) + col_a] * B_[(row_b * N_) + col_b];
           }
 
-          C_[i * N_ + j] += temp;
+          C_[(i * N_) + j] += temp;
         }
       }
     }
@@ -72,8 +72,8 @@ void vavilov_v_cannon_seq::CannonSequential::BlockMultiply() {
 }
 
 void vavilov_v_cannon_seq::CannonSequential::ShiftBlocks() {
-  std::vector<double> A_tmp = A_;
-  std::vector<double> B_tmp = B_;
+  std::vector<double> a_tmp = A_;
+  std::vector<double> b_tmp = B_;
 
   for (unsigned int bi = 0; bi < num_blocks_; ++bi) {
     for (unsigned int bj = 0; bj < num_blocks_; ++bj) {
@@ -81,10 +81,10 @@ void vavilov_v_cannon_seq::CannonSequential::ShiftBlocks() {
       unsigned int src_col = (bj + 1) % num_blocks_;
       for (unsigned int i = 0; i < block_size_; ++i) {
         for (unsigned int j = 0; j < block_size_; ++j) {
-          B_[(bi * block_size_ + i) * N_ + (bj * block_size_ + j)] =
-              B_tmp[(src_row * block_size_ + i) * N_ + (bj * block_size_ + j)];
-          A_[(bi * block_size_ + i) * N_ + (bj * block_size_ + j)] =
-              A_tmp[(bi * block_size_ + i) * N_ + (src_col * block_size_ + j)];
+          B_[(((bi * block_size_) + i) * N_) + ((bj * block_size_) + j)] =
+              b_tmp[(((src_row * block_size_) + i) * N_) + ((bj * block_size_) + j)];
+          A_[(((bi * block_size_) + i) * N_) + ((bj * block_size_) + j)] =
+              a_tmp[(((bi * block_size_) + i) * N_) + ((src_col * block_size_) + j)];
         }
       }
     }
