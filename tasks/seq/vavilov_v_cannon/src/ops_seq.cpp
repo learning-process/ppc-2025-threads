@@ -8,7 +8,7 @@
 #include "core/task/include/task.hpp"
 
 bool vavilov_v_cannon_seq::CannonSequential::PreProcessingImpl() {
-  // Two matrix with (N * N) dimenshion. P - the total number of blocks. Each block have (N/sqrt(P) * N/sqrt(P)) dimenshion
+  // Matrix with dim = (N * N). P - the total number of blocks. Each block have dim = (N/sqrt(P) * N/sqrt(P))
   // Without limitation of generality P = N
   N = static_cast<unsigned int>(std::sqrt(task_data->inputs_count[0]));
   num_blocks = static_cast<unsigned int>(std::sqrt(N));  // num_blocks in row/col. Not the total number of blocks
