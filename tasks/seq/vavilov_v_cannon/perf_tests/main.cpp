@@ -1,7 +1,6 @@
 #include <gtest/gtest.h>
 
 #include <chrono>
-#include <cstddef>
 #include <cstdint>
 #include <memory>
 #include <vector>
@@ -11,11 +10,11 @@
 #include "seq/vavilov_v_cannon/include/ops_seq.hpp"
 
 TEST(vavilov_v_cannon_seq, test_pipeline_run) {
-  constexpr unsigned int n = 625;
-  std::vector<double> a(n * n, 1.0);
-  std::vector<double> b(n * n, 1.0);
-  std::vector<double> c(n * n, 0.0);
-  std::vector<double> expected_output(n * n, n);
+  constexpr unsigned int kN = 625;
+  std::vector<double> a(kN * kN, 1.0);
+  std::vector<double> b(kN * kN, 1.0);
+  std::vector<double> c(kN * kN, 0.0);
+  std::vector<double> expected_output(kN * kN, kN);
 
   auto task_data_seq = std::make_shared<ppc::core::TaskData>();
   task_data_seq->inputs.emplace_back(reinterpret_cast<uint8_t*>(a.data()));
@@ -41,17 +40,17 @@ TEST(vavilov_v_cannon_seq, test_pipeline_run) {
   auto perf_analyzer = std::make_shared<ppc::core::Perf>(task_seq);
   perf_analyzer->PipelineRun(perf_attr, perf_results);
   ppc::core::Perf::PrintPerfStatistic(perf_results);
-  for (unsigned int i = 0; i < n * n; i++) {
+  for (unsigned int i = 0; i < kN * kN; i++) {
     ASSERT_EQ(expected_output[i], c[i]);
   }
 }
 
 TEST(vavilov_v_cannon_seq, test_task_run) {
-  constexpr unsigned int n = 625;
-  std::vector<double> a(n * n, 1.0);
-  std::vector<double> b(n * n, 1.0);
-  std::vector<double> c(n * n, 0.0);
-  std::vector<double> expected_output(n * n, n);
+  constexpr unsigned int kN = 625;
+  std::vector<double> a(kN * kN, 1.0);
+  std::vector<double> b(kN * kN, 1.0);
+  std::vector<double> c(kN * kN, 0.0);
+  std::vector<double> expected_output(kN * kN, kN);
 
   auto task_data_seq = std::make_shared<ppc::core::TaskData>();
   task_data_seq->inputs.emplace_back(reinterpret_cast<uint8_t*>(a.data()));
@@ -77,7 +76,7 @@ TEST(vavilov_v_cannon_seq, test_task_run) {
   auto perf_analyzer = std::make_shared<ppc::core::Perf>(task_seq);
   perf_analyzer->TaskRun(perf_attr, perf_results);
   ppc::core::Perf::PrintPerfStatistic(perf_results);
-  for (unsigned int i = 0; i < n * n; i++) {
+  for (unsigned int i = 0; i < kN * kN; i++) {
     ASSERT_EQ(expected_output[i], c[i]);
   }
 }
