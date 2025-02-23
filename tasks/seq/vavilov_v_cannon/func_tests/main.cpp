@@ -66,7 +66,7 @@ TEST(vavilov_v_cannon_seq, test_225) {
 
 TEST(vavilov_v_cannon_seq, test_225_from_file) {
   std::string line;
-  std::ifstream test_file(ppc::util::GetAbsolutePath("seq/vavilov_v_cannon/data/test.txt"));
+  std::ifstream test_file(ppc::util::GetAbsolutePath("seq/vavilov_v_cannon/data/test.TXT"));
   unsigned int N = 0;
   if (test_file.is_open()) {
     getline(test_file, line);
