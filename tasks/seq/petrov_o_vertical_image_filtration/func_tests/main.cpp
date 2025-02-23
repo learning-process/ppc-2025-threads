@@ -11,7 +11,7 @@
 
 namespace {
 
-std::vector<int> generateRandomInput(size_t width, size_t height) {
+std::vector<int> GenerateRandomInput(size_t width, size_t height) {
   std::random_device rd;
   std::mt19937 gen(rd());
   std::uniform_int_distribution<int> dist(-100, 100);
@@ -23,7 +23,7 @@ std::vector<int> generateRandomInput(size_t width, size_t height) {
   return input;
 }
 
-std::vector<int> computeReference(const std::vector<int> &in, size_t width, size_t height,
+std::vector<int> ComputeReference(const std::vector<int> &in, size_t width, size_t height,
                                   const std::vector<float> &kernel) {
   std::vector<int> result((width - 2) * (height - 2), 0);
 
@@ -262,7 +262,7 @@ TEST(petrov_o_vertical_image_filtration_seq, test_gaussian_filter_random) {
   constexpr size_t kWidth = 10;
   constexpr size_t kHeight = 10;
 
-  std::vector<int> in = generateRandomInput(kWidth, kHeight);
+  std::vector<int> in = GenerateRandomInput(kWidth, kHeight);
   std::vector<int> out((kWidth - 2) * (kHeight - 2), 0);
 
   auto task_data_seq = std::make_shared<ppc::core::TaskData>();
@@ -281,7 +281,7 @@ TEST(petrov_o_vertical_image_filtration_seq, test_gaussian_filter_random) {
   const std::vector<float> gaussian_kernel = {1.0F / 16.0F, 2.0F / 16.0F, 1.0F / 16.0F, 2.0F / 16.0F, 4.0F / 16.0F,
                                               2.0F / 16.0F, 1.0F / 16.0F, 2.0F / 16.0F, 1.0F / 16.0F};
 
-  std::vector<int> out_ref = computeReference(in, kWidth, kHeight, gaussian_kernel);
+  std::vector<int> out_ref = ComputeReference(in, kWidth, kHeight, gaussian_kernel);
 
   EXPECT_EQ(out.size(), out_ref.size());
   for (size_t idx = 0; idx < out.size(); ++idx) {
