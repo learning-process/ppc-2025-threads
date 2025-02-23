@@ -222,7 +222,7 @@ TEST(laganina_e_component_labeling_seq, test4) {
 
 TEST(laganina_e_component_labeling_seq, test5) {
   int m = 3;
-  int n= 3;
+  int n = 3;
   // Create data
   std::vector<int> in = {1, 1, 1, 1, 0, 1, 1, 1, 1};
   std::vector<int> exp_out = {1, 1, 1, 1, 0, 1, 1, 1, 1};

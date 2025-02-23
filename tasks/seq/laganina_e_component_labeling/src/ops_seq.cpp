@@ -99,7 +99,7 @@ bool laganina_e_component_labeling_seq::TestTaskSequential::RunImpl() {
           label++;
         } else {
           // Ќазначаем минимальную метку из соседей
-          int min_label = *std::ranges::min_element (neighbors);
+          int min_label = *std::ranges::min_element(neighbors);
           step1[(l * n) + p] = min_label;
 
           // ќбъедин¤ем метки
