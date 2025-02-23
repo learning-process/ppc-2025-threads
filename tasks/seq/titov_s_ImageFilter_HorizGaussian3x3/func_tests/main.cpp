@@ -322,8 +322,10 @@ TEST(titov_s_image_filter_horiz_gaussian3x3_seq, test_random_invariant_mean) {
   image_filter_sequential.Run();
   image_filter_sequential.PostProcessing();
 
-  double avg_input = std::accumulate(input_image.begin(), input_image.end(), 0.0) / input_image.size();
-  double avg_output = std::accumulate(output_image.begin(), output_image.end(), 0.0) / output_image.size();
+  double avg_input =
+      std::accumulate(input_image.begin(), input_image.end(), 0.0) / static_cast<double>(input_image.size());
+  double avg_output =
+      std::accumulate(output_image.begin(), output_image.end(), 0.0) / static_cast<double>(output_image.size());
 
   ASSERT_NEAR(avg_input, avg_output, 1);
 }
