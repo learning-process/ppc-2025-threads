@@ -1,6 +1,5 @@
 #include "../include/ops_seq.hpp"
 
-#include <cmath>
 #include <random>
 
 bool nikolaev_r_hoare_sort_simple_merge_seq::HoareSortSimpleMergeSequential::PreProcessingImpl() {
