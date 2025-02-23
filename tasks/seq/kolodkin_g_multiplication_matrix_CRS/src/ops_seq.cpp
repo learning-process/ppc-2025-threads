@@ -3,6 +3,7 @@
 #include <cmath>
 #include <complex>
 #include <cstddef>
+#include <iostream>
 #include <vector>
 
 void kolodkin_g_multiplication_matrix_seq::SparseMatrixCRS::AddValue(int row, Complex value, int col) {
