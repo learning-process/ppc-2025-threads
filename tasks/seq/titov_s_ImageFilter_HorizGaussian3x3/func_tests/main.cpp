@@ -3,9 +3,9 @@
 #include <cstddef>
 #include <cstdint>
 #include <memory>
-#include <vector>
-#include <random>
 #include <numeric>
+#include <random>
+#include <vector>
 
 #include "core/task/include/task.hpp"
 #include "seq/titov_s_ImageFilter_HorizGaussian3x3/include/ops_seq.hpp"
