@@ -51,7 +51,7 @@ void TestOfFunction(std::vector<int>& in) {
   task_sequential.Run();
   task_sequential.PostProcessing();
 
-  ASSERT_TRUE(std::is_sorted(out.begin(), out.end()));
+  ASSERT_TRUE(std::ranges::is_sorted(out.begin(), out.end()));
 }
 }  // namespace
 
