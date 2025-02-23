@@ -12,18 +12,18 @@ bool korotin_e_crs_multiplication_seq::CrsMultiplicationSequential::PreProcessin
 
   A_Nz_ = task_data->inputs_count[1];
   in_ptr = reinterpret_cast<unsigned int *>(task_data->inputs[1]);
-  A_col_ = std::vector<int>(in_ptr, in_ptr + A_Nz_);
+  A_col_ = std::vector<unsigned int>(in_ptr, in_ptr + A_Nz_);
 
   auto *val_ptr = reinterpret_cast<double *>(task_data->inputs[2]);
   A_val_ = std::vector<double>(val_ptr, val_ptr + A_Nz_);
 
   B_N_ = task_data->inputs_count[3];
   in_ptr = reinterpret_cast<unsigned int *>(task_data->inputs[3]);
-  B_rI_ = std::vector<int>(in_ptr, in_ptr + B_N_);
+  B_rI_ = std::vector<unsigned int>(in_ptr, in_ptr + B_N_);
 
   B_Nz_ = task_data->inputs_count[4];
   in_ptr = reinterpret_cast<unsigned int *>(task_data->inputs[4]);
-  B_col_ = std::vector<int>(in_ptr, in_ptr + B_Nz_);
+  B_col_ = std::vector<unsigned int>(in_ptr, in_ptr + B_Nz_);
 
   val_ptr = reinterpret_cast<double *>(task_data->inputs[5]);
   B_val_ = std::vector<double>(val_ptr, val_ptr + B_Nz_);
@@ -40,7 +40,7 @@ bool korotin_e_crs_multiplication_seq::CrsMultiplicationSequential::ValidationIm
   return task_data->inputs_count[1] == task_data->inputs_count[2] &&
          task_data->inputs_count[4] == task_data->inputs_count[5] &&
          task_data->inputs_count[0] == task_data->outputs_count[0] &&
-         *std::max_element(task_data->inputs_[1].begin(), task_data->inpouts[1].end()) ==
+         *std::max_element(task_data->inputs[1].begin(), task_data->inputs[1].end()) ==
              task_data->inputs_count[3] - 2;
 }
 
