@@ -19,9 +19,9 @@ class CannonSequential : public ppc::core::Task {
   bool PostProcessingImpl() override;
 
  private:
-  unsigned int N;
-  unsigned int block_size;
-  unsigned int num_blocks;
+  unsigned int N_;
+  unsigned int block_size_;
+  unsigned int num_blocks_;
   std::vector<double> A_;
   std::vector<double> B_;
   std::vector<double> C_;
