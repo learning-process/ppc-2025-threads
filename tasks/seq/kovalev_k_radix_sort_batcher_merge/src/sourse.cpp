@@ -55,7 +55,6 @@ bool kovalev_k_radix_sort_batcher_merge_seq::RadixSortBatcherMerge::PreProcessin
 
 bool kovalev_k_radix_sort_batcher_merge_seq::RadixSortBatcherMerge::RunImpl() {
   unsigned int count = 0;
-  unsigned int i = 0;
   bool ret = RadixUnsigned(reinterpret_cast<unsigned long long*>(mas_.data()),
                            reinterpret_cast<unsigned long long*>(tmp_.data()));
   while (count < n_ && mas_[count] >= 0) {
@@ -65,11 +64,7 @@ bool kovalev_k_radix_sort_batcher_merge_seq::RadixSortBatcherMerge::RunImpl() {
     return ret;
   }
   memcpy(tmp_.data(), mas_.data() + count, sizeof(long long int) * (n_ - count));
-  i = (n_ - count);
-  count = 0;
-  for (; i < n_; i++) {
-    tmp_[i] = mas_[count++];
-  }
+  memcpy(tmp_.data() + (n_ - count), mas_.data(), sizeof(long long int) * (count));
   memcpy(mas_.data(), tmp_.data(), sizeof(long long int) * n_);
   return ret;
 }
