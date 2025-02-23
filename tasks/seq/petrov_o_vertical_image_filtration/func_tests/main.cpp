@@ -9,6 +9,42 @@
 #include "core/task/include/task.hpp"
 #include "seq/petrov_o_vertical_image_filtration/include/ops_seq.hpp"
 
+namespace {
+
+std::vector<int> generateRandomInput(size_t width, size_t height) {
+  std::random_device rd;
+  std::mt19937 gen(rd());
+  std::uniform_int_distribution<int> dist(-100, 100);
+
+  std::vector<int> input(width * height);
+  for (auto &val : input) {
+    val = dist(gen);
+  }
+  return input;
+}
+
+std::vector<int> computeReference(const std::vector<int> &in, size_t width, size_t height,
+                                  const std::vector<float> &kernel) {
+  std::vector<int> result((width - 2) * (height - 2), 0);
+
+  for (size_t i = 1; i < height - 1; ++i) {
+    for (size_t j = 1; j < width - 1; ++j) {
+      float sum = 0.0F;
+      for (int ki = -1; ki <= 1; ++ki) {
+        for (int kj = -1; kj <= 1; ++kj) {
+          const int input_val = in[((i + ki) * width) + (j + kj)];
+          const float weight = kernel[((ki + 1) * 3) + (kj + 1)];
+          sum += static_cast<float>(input_val) * weight;
+        }
+      }
+      result[((i - 1) * (width - 2)) + (j - 1)] = static_cast<int>(sum);
+    }
+  }
+  return result;
+}
+
+}  // namespace
+
 TEST(petrov_o_vertical_image_filtration_seq, test_gaussian_filter_3x3) {
   constexpr size_t kWidth = 3;
   constexpr size_t kHeight = 3;
@@ -223,38 +259,6 @@ TEST(petrov_o_vertical_image_filtration_seq, test_gaussian_filter_empty) {
 }
 
 TEST(petrov_o_vertical_image_filtration_seq, test_gaussian_filter_random) {
-  auto generateRandomInput = [](size_t width, size_t height) {
-    std::random_device rd;
-    std::mt19937 gen(rd());
-    std::uniform_int_distribution<int> dist(-100, 100);
-
-    std::vector<int> input(width * height);
-    for (auto &val : input) {
-      val = dist(gen);
-    }
-    return input;
-  };
-
-  auto computeReference = [](const std::vector<int> &in, size_t width, size_t height,
-                             const std::vector<float> &kernel) {
-    std::vector<int> result((width - 2) * (height - 2), 0);
-
-    for (size_t i = 1; i < height - 1; ++i) {
-      for (size_t j = 1; j < width - 1; ++j) {
-        float sum = 0.0F;
-        for (int ki = -1; ki <= 1; ++ki) {
-          for (int kj = -1; kj <= 1; ++kj) {
-            const int input_val = in[((i + ki) * width) + (j + kj)];
-            const float weight = kernel[((ki + 1) * 3) + (kj + 1)];
-            sum += static_cast<float>(input_val) * weight;
-          }
-        }
-        result[((i - 1) * (width - 2)) + (j - 1)] = static_cast<int>(sum);
-      }
-    }
-    return result;
-  };
-
   constexpr size_t kWidth = 10;
   constexpr size_t kHeight = 10;
 
