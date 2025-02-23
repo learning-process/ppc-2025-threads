@@ -4,6 +4,8 @@
 #include <cstdint>
 #include <memory>
 #include <vector>
+#include <random>
+#include <numeric>
 
 #include "core/task/include/task.hpp"
 #include "seq/titov_s_ImageFilter_HorizGaussian3x3/include/ops_seq.hpp"
@@ -286,4 +288,42 @@ TEST(titov_s_image_filter_horiz_gaussian3x3_seq, test_all_max) {
       ASSERT_NEAR(output_image[(i * kWidth) + j], expected_output[(i * kWidth) + j], 1e-5);
     }
   }
+}
+
+TEST(titov_s_image_filter_horiz_gaussian3x3_seq, test_random_invariant_mean) {
+  constexpr size_t kWidth = 100;
+  constexpr size_t kHeight = 100;
+
+  std::vector<double> input_image(kWidth * kHeight);
+  std::random_device rd;
+  std::mt19937 gen(rd());
+  std::uniform_real_distribution<> dis(0.0, 255.0);
+
+  for (size_t i = 0; i < kWidth * kHeight; ++i) {
+    input_image[i] = dis(gen);
+  }
+
+  std::vector<int> kernel = {1, 2, 1};
+
+  std::vector<double> output_image(kWidth * kHeight, 0.0);
+
+  auto task_data_seq = std::make_shared<ppc::core::TaskData>();
+  task_data_seq->inputs.emplace_back(reinterpret_cast<uint8_t*>(input_image.data()));
+  task_data_seq->inputs.emplace_back(reinterpret_cast<uint8_t*>(kernel.data()));
+  task_data_seq->inputs_count.emplace_back(input_image.size());
+  task_data_seq->outputs.emplace_back(reinterpret_cast<uint8_t*>(output_image.data()));
+  task_data_seq->outputs_count.emplace_back(output_image.size());
+
+  titov_s_image_filter_horiz_gaussian3x3_seq::ImageFilterSequential image_filter_sequential(task_data_seq);
+
+  ASSERT_EQ(image_filter_sequential.Validation(), true);
+
+  image_filter_sequential.PreProcessing();
+  image_filter_sequential.Run();
+  image_filter_sequential.PostProcessing();
+
+  double avg_input = std::accumulate(input_image.begin(), input_image.end(), 0.0) / input_image.size();
+  double avg_output = std::accumulate(output_image.begin(), output_image.end(), 0.0) / output_image.size();
+
+  ASSERT_NEAR(avg_input, avg_output, 1);
 }
