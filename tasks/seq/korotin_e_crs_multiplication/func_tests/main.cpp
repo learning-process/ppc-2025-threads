@@ -126,7 +126,7 @@ TEST(korotin_e_crs_multiplication_seq, test_rnd_50_50_50) {
   test_task_sequential.Run();
   std::cout << "Run" << std::endl;
   test_task_sequential.PostProcessing();
-  std::cout << "PostProc"
+  std::cout << "PostProc" << std::endl;
 
   std::vector<double> C(M * P, 0), C_val;
   std::vector<unsigned int> C_rI, C_col;
