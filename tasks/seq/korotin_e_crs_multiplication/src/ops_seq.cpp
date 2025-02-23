@@ -3,7 +3,6 @@
 #include <algorithm>
 #include <cmath>
 #include <cstddef>
-#include <cstdint>
 #include <vector>
 
 bool korotin_e_crs_multiplication_seq::CrsMultiplicationSequential::PreProcessingImpl() {

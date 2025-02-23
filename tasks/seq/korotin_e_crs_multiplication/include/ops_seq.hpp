@@ -1,15 +1,14 @@
 #pragma once
 
-#include <utility>
 #include <vector>
 
 #include "core/task/include/task.hpp"
 
 namespace korotin_e_crs_multiplication_seq {
 
-class CrsMultiplicationSeqrential : public ppc::core::Task {
+class CrsMultiplicationSequential : public ppc::core::Task {
  public:
-  explicit TestTaskSequential(ppc::core::TaskDataPtr task_data) : Task(std::move(task_data)) {}
+  explicit CrsMultiplicationSequential(ppc::core::TaskDataPtr task_data) : Task(std::move(task_data)) {}
   bool PreProcessingImpl() override;
   bool ValidationImpl() override;
   bool RunImpl() override;
