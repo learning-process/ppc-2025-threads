@@ -11,7 +11,7 @@
 #include "seq/korotin_e_crs_multiplication/include/ops_seq.hpp"
 
 TEST(korotin_e_crs_multiplication_seq, test_pipeline_run) {
-  const unsigned int N = 100;
+  const unsigned int N = 1000;
 
   std::vector<double> A_val(N * N, 1), B_val(N * N, 1), C_val(N * N, N);
   std::vector<unsigned int> A_rI(N + 1, 0), A_col(N * N), B_rI(N + 1, 0), B_col(N * N), C_rI(N + 1, 0), C_col(N * N);
@@ -77,7 +77,7 @@ TEST(korotin_e_crs_multiplication_seq, test_pipeline_run) {
 }
 
 TEST(korotin_e_crs_multiplication_seq, test_task_run) {
-  const unsigned int N = 100;
+  const unsigned int N = 1000;
 
   std::vector<double> A_val(N * N, 1), B_val(N * N, 1), C_val(N * N, N);
   std::vector<unsigned int> A_rI(N + 1, 0), A_col(N * N), B_rI(N + 1, 0), B_col(N * N), C_rI(N + 1, 0), C_col(N * N);
