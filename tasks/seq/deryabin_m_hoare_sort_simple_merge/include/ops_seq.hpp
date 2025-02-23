@@ -20,7 +20,7 @@ class HoareSortTaskSequential : public ppc::core::Task {
   // сортировка Хоара
   void HoaraSort(std::vector<double>& a, size_t first, size_t last);
   // слияние двух отсортированных частей
-  void MergeTwoParts(std::vector<double>& a, size_t left, size_t right);
+  void MergeTwoParts(std::vector<double>& a, size_t left, size_t right) const;
 
   std::vector<double> input_array_A_;  // входной массив
   size_t dimension_;                   // его размер
