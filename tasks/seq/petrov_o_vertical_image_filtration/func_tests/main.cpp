@@ -223,18 +223,42 @@ TEST(petrov_o_vertical_image_filtration_seq, test_gaussian_filter_empty) {
 }
 
 TEST(petrov_o_vertical_image_filtration_seq, test_gaussian_filter_random) {
+  auto generateRandomInput = [](size_t width, size_t height) {
+    std::random_device rd;
+    std::mt19937 gen(rd());
+    std::uniform_int_distribution<int> dist(-100, 100);
+
+    std::vector<int> input(width * height);
+    for (auto &val : input) {
+      val = dist(gen);
+    }
+    return input;
+  };
+
+  auto computeReference = [](const std::vector<int> &in, size_t width, size_t height,
+                             const std::vector<float> &kernel) {
+    std::vector<int> result((width - 2) * (height - 2), 0);
+
+    for (size_t i = 1; i < height - 1; ++i) {
+      for (size_t j = 1; j < width - 1; ++j) {
+        float sum = 0.0F;
+        for (int ki = -1; ki <= 1; ++ki) {
+          for (int kj = -1; kj <= 1; ++kj) {
+            const int input_val = in[((i + ki) * width) + (j + kj)];
+            const float weight = kernel[((ki + 1) * 3) + (kj + 1)];
+            sum += static_cast<float>(input_val) * weight;
+          }
+        }
+        result[((i - 1) * (width - 2)) + (j - 1)] = static_cast<int>(sum);
+      }
+    }
+    return result;
+  };
+
   constexpr size_t kWidth = 10;
   constexpr size_t kHeight = 10;
 
-  std::random_device rd;
-  std::mt19937 gen(rd());
-  std::uniform_int_distribution<int> dist(-100, 100);
-
-  std::vector<int> in(kWidth * kHeight);
-  for (auto &val : in) {
-    val = dist(gen);
-  }
-
+  std::vector<int> in = generateRandomInput(kWidth, kHeight);
   std::vector<int> out((kWidth - 2) * (kHeight - 2), 0);
 
   auto task_data_seq = std::make_shared<ppc::core::TaskData>();
@@ -245,31 +269,15 @@ TEST(petrov_o_vertical_image_filtration_seq, test_gaussian_filter_random) {
   task_data_seq->outputs_count.emplace_back(out.size());
 
   petrov_o_vertical_image_filtration_seq::TaskSequential test_task_sequential(task_data_seq);
-
   ASSERT_TRUE(test_task_sequential.Validation());
-
   test_task_sequential.PreProcessing();
   test_task_sequential.Run();
   test_task_sequential.PostProcessing();
 
-  std::vector<float> gaussian_kernel = {1.F / 16.F, 2.F / 16.F, 1.F / 16.F, 2.F / 16.F, 4.F / 16.F,
-                                        2.F / 16.F, 1.F / 16.F, 2.F / 16.F, 1.F / 16.F};
+  const std::vector<float> gaussian_kernel = {1.0F / 16.0F, 2.0F / 16.0F, 1.0F / 16.0F, 2.0F / 16.0F, 4.0F / 16.0F,
+                                              2.0F / 16.0F, 1.0F / 16.0F, 2.0F / 16.0F, 1.0F / 16.0F};
 
-  std::vector<int> out_ref(out.size(), 0);
-
-  for (size_t i = 1; i < kHeight - 1; ++i) {
-    for (size_t j = 1; j < kWidth - 1; ++j) {
-      float sum = 0.f;
-      for (int ki = -1; ki <= 1; ++ki) {
-        for (int kj = -1; kj <= 1; ++kj) {
-          const int input_val = in[(i + ki) * kWidth + (j + kj)];
-          const float weight = gaussian_kernel[(ki + 1) * 3 + (kj + 1)];
-          sum += input_val * weight;
-        }
-      }
-      out_ref[(i - 1) * (kWidth - 2) + (j - 1)] = static_cast<int>(sum);
-    }
-  }
+  std::vector<int> out_ref = computeReference(in, kWidth, kHeight, gaussian_kernel);
 
   EXPECT_EQ(out.size(), out_ref.size());
   for (size_t idx = 0; idx < out.size(); ++idx) {
