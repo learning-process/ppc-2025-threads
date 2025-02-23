@@ -3,6 +3,7 @@
 #include <algorithm>
 #include <cmath>
 #include <cstddef>
+#include <numeric>
 #include <vector>
 
 void gusev_n_sorting_int_simple_merging_seq::TestTaskSequential::RadixSort(std::vector<int>& arr) {
@@ -24,9 +25,7 @@ void gusev_n_sorting_int_simple_merging_seq::TestTaskSequential::RadixSort(std::
   if (!negatives.empty()) {
     RadixSortForNonNegative(negatives);
     std::ranges::reverse(negatives.begin(), negatives.end());
-    for (int& num : negatives) {
-      num = -num;
-    }
+    std::ranges::for_each(negatives, [](int& num) { num = -num; });
   }
 
   if (!positives.empty()) {
@@ -58,9 +57,7 @@ void gusev_n_sorting_int_simple_merging_seq::TestTaskSequential::CountingSort(st
     count[digit]++;
   }
 
-  for (size_t i = 1; i < 10; i++) {
-    count[i] += count[i - 1];
-  }
+  std::partial_sum(count.begin(), count.end(), count.begin());
 
   for (std::vector<int>::size_type i = arr.size(); i > 0; i--) {
     int digit = (arr[i - 1] / exp) % 10;
@@ -86,13 +83,10 @@ bool gusev_n_sorting_int_simple_merging_seq::TestTaskSequential::ValidationImpl(
 
 bool gusev_n_sorting_int_simple_merging_seq::TestTaskSequential::RunImpl() {
   gusev_n_sorting_int_simple_merging_seq::TestTaskSequential::RadixSort(input_);
-  output_ = input_;
   return true;
 }
 
 bool gusev_n_sorting_int_simple_merging_seq::TestTaskSequential::PostProcessingImpl() {
-  for (size_t i = 0; i < output_.size(); i++) {
-    reinterpret_cast<int*>(task_data->outputs[0])[i] = output_[i];
-  }
+  std::ranges::copy(input_, reinterpret_cast<int*>(task_data->outputs[0]));
   return true;
 }
