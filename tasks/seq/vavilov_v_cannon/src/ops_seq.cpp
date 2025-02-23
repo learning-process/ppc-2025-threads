@@ -61,10 +61,10 @@ void vavilov_v_cannon_seq::CannonSequential::BlockMultiply() {
             unsigned int row_B = bi + k;         // row_B index
             unsigned int col_B = bj + (j - bj);  // col_B index
 
-            temp += A_[row_A * N + col_A] * B_[row_B * N + col_B];
+            temp += A_[row_A * N_ + col_A] * B_[row_B * N_ + col_B];
           }
 
-          C_[i * N + j] += temp;
+          C_[i * N_ + j] += temp;
         }
       }
     }
@@ -82,9 +82,9 @@ void vavilov_v_cannon_seq::CannonSequential::ShiftBlocks() {
       for (unsigned int i = 0; i < block_size_; ++i) {
         for (unsigned int j = 0; j < block_size_; ++j) {
           B_[(bi * block_size_ + i) * N_ + (bj * block_size_ + j)] =
-              B_tmp[(src_row * block_size_ + i) * N + (bj * block_size_ + j)];
-          A_[(bi * block_size_ + i) * N + (bj * block_size_ + j)] =
-              A_tmp[(bi * block_size_ + i) * N + (src_col * block_size_ + j)];
+              B_tmp[(src_row * block_size_ + i) * N_ + (bj * block_size_ + j)];
+          A_[(bi * block_size_ + i) * N_ + (bj * block_size_ + j)] =
+              A_tmp[(bi * block_size_ + i) * N_ + (src_col * block_size_ + j)];
         }
       }
     }
