@@ -28,7 +28,7 @@ void kolodkin_g_multiplication_matrix_seq::SparseMatrixCRS::PrintSparseMatrix(
   }
 }
 
-bool kolodkin_g_multiplication_matrix_seq::areEqualElems(const Complex& a, const Complex& b, double epsilon) {
+bool kolodkin_g_multiplication_matrix_seq::AreEqualElems(const Complex& a, const Complex& b, double epsilon) {
   return std::abs(a.real() - b.real()) < epsilon && std::abs(a.imag() - b.imag()) < epsilon;
 }
 
