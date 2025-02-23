@@ -1,6 +1,7 @@
+#include "seq/laganina_e_component_labeling/include/ops_seq.hpp"
+
 #include <utility>
 #include <vector>
-#include "seq/laganina_e_component_labeling/include/ops_seq.hpp"
 
 int laganina_e_component_labeling_seq::TestTaskSequential::find(int x) {
   int j = x;
@@ -53,7 +54,8 @@ std::vector<int> laganina_e_component_labeling_seq::TestTaskSequential::neighbor
 }
 
 bool laganina_e_component_labeling_seq::TestTaskSequential::ValidationImpl() {
-  if (!task_data || !task_data->inputs[0] || !task_data->inputs_count[0] || !task_data->outputs[0]||!task_data->inputs_count[1]) {
+  if (!task_data || !task_data->inputs[0] || !task_data->inputs_count[0] || !task_data->outputs[0] ||
+      !task_data->inputs_count[1]) {
     return false;
   }
   if ((task_data->inputs_count[0] <= 0) || (task_data->inputs_count[1] <= 0)) {
@@ -73,8 +75,8 @@ bool laganina_e_component_labeling_seq::TestTaskSequential::PreProcessingImpl() 
   n = static_cast<int>(task_data->inputs_count[1]);
   step1.resize(m * n, 0);
   labeled_binary.resize(m * n, 0);
-  parent.resize((m * n)+1);
-  for (int i = 0; i < (m * n)+1; ++i) {
+  parent.resize((m * n) + 1);
+  for (int i = 0; i < (m * n) + 1; ++i) {
     parent[i] = 0;  // »значально каждый элемент ¤вл¤етс¤ своим родителем
   }
   binary.resize(m * n);
