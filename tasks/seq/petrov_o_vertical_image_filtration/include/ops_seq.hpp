@@ -18,7 +18,6 @@ class TaskSequential : public ppc::core::Task {
 
  private:
   std::vector<int> input_, output_;
-  // size_t rc_size_{};
   size_t width_{}, height_{};
   std::vector<float> gaussian_kernel_ = {1.0F / 16.0F, 2.0F / 16.0F, 1.0F / 16.0F, 2.0F / 16.0F, 4.0F / 16.0F,
                                          2.0F / 16.0F, 1.0F / 16.0F, 2.0F / 16.0F, 1.0F / 16.0F};
