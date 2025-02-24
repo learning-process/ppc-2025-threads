@@ -61,6 +61,7 @@ TEST(alputov_i_graham_scan_seq, test_pipeline_run) {
   perf_analyzer->PipelineRun(perf_attr, perf_results);
   ppc::core::Perf::PrintPerfStatistic(perf_results);
 
+  EXPECT_FALSE(task->GetConvexHull().empty());
   const auto& convex_hull = task->GetConvexHull();
   ASSERT_GT(convex_hull.size(), 3U);
   ASSERT_LE(convex_hull.size(), input.size());
@@ -93,6 +94,7 @@ TEST(alputov_i_graham_scan_seq, test_task_run) {
   perf_analyzer->TaskRun(perf_attr, perf_results);
   ppc::core::Perf::PrintPerfStatistic(perf_results);
 
+  EXPECT_FALSE(task->GetConvexHull().empty());
   const auto& hull = task->GetConvexHull();
   auto contains = [&hull](double x, double y) {
     return std::ranges::any_of(hull, [x, y](const auto& p) { return p.x == x && p.y == y; });

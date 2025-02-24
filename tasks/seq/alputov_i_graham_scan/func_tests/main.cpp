@@ -79,7 +79,7 @@ TEST(alputov_i_graham_scan_seq, perfect_square_case) {
 
   alputov_i_graham_scan_seq::TestTaskSequential task(task_data);
   ValidateTask(task);
-
+  EXPECT_FALSE(task.GetConvexHull().empty());
   const auto& convex_hull = task.GetConvexHull();
   EXPECT_EQ(convex_hull.size(), 4U);
   std::set<alputov_i_graham_scan_seq::Point> hull_set(convex_hull.begin(), convex_hull.end());
@@ -104,6 +104,7 @@ TEST(alputov_i_graham_scan_seq, random_1000_points) {
   alputov_i_graham_scan_seq::TestTaskSequential task(task_data);
   ValidateTask(task);
 
+  EXPECT_FALSE(task.GetConvexHull().empty());
   const auto& convex_hull = task.GetConvexHull();
   auto contains = [&](double x, double y) {
     return std::ranges::any_of(convex_hull, [x, y](const auto& p) { return p.x == x && p.y == y; });
@@ -129,6 +130,7 @@ TEST(alputov_i_graham_scan_seq, duplicate_points) {
   alputov_i_graham_scan_seq::TestTaskSequential task(task_data);
   ValidateTask(task);
 
+  EXPECT_FALSE(task.GetConvexHull().empty());
   const auto& convex_hull = task.GetConvexHull();
   std::set<alputov_i_graham_scan_seq::Point> unique_hull(convex_hull.begin(), convex_hull.end());
   EXPECT_EQ(unique_hull.size(), 4U);
