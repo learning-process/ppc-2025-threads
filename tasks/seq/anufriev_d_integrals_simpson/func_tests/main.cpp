@@ -1,24 +1,17 @@
 #include <gtest/gtest.h>
+
+#include <cmath>
 #include <cstddef>
 #include <cstdint>
 #include <memory>
 #include <vector>
-#include <cmath>
 
 #include "core/task/include/task.hpp"
 #include "core/util/include/util.hpp"
 #include "seq/anufriev_d_integrals_simpson/include/ops_seq.hpp"
 
 TEST(anufriev_d_integrals_simpson_seq, test_x2_plus_y2) {
-  std::vector<double> in = {
-      0.0,
-      1.0,
-      100,
-      0.0,
-      1.0,
-      100,
-      0
-  };
+  std::vector<double> in = {0.0, 1.0, 100, 0.0, 1.0, 100, 0};
   std::vector<double> out(1, 0.0);
 
   auto task_data_seq = std::make_shared<ppc::core::TaskData>();
@@ -44,15 +37,7 @@ TEST(anufriev_d_integrals_simpson_seq, test_x2_plus_y2) {
 }
 
 TEST(anufriev_d_integrals_simpson_seq, test_x2_plus_y2_x_not_equal_y) {
-  std::vector<double> in = {
-      0.0,
-      1.0,
-      100,
-      0.0,
-      1.0,
-      80,
-      0
-  };
+  std::vector<double> in = {0.0, 1.0, 100, 0.0, 1.0, 80, 0};
   std::vector<double> out(1, 0.0);
 
   auto task_data_seq = std::make_shared<ppc::core::TaskData>();
@@ -78,15 +63,7 @@ TEST(anufriev_d_integrals_simpson_seq, test_x2_plus_y2_x_not_equal_y) {
 }
 
 TEST(anufriev_d_integrals_simpson_seq, test_sin_cos_x_not_equal_y) {
-  std::vector<double> in = {
-      0.0,
-      std::acos(-1) / 2.0,
-      100,
-      0.0,
-      std::acos(-1) / 2.0,
-      80,
-      1
-  };
+  std::vector<double> in = {0.0, std::acos(-1) / 2.0, 100, 0.0, std::acos(-1) / 2.0, 80, 1};
   std::vector<double> out(1, 0.0);
 
   auto task_data_seq = std::make_shared<ppc::core::TaskData>();
@@ -112,15 +89,7 @@ TEST(anufriev_d_integrals_simpson_seq, test_sin_cos_x_not_equal_y) {
 }
 
 TEST(anufriev_d_integrals_simpson_seq, test_sin_cos) {
-  std::vector<double> in = {
-      0.0,
-      std::acos(-1) / 2.0,
-      100,
-      0.0,
-      std::acos(-1) / 2.0,
-      100,
-      1
-  };
+  std::vector<double> in = {0.0, std::acos(-1) / 2.0, 100, 0.0, std::acos(-1) / 2.0, 100, 1};
   std::vector<double> out(1, 0.0);
 
   auto task_data_seq = std::make_shared<ppc::core::TaskData>();

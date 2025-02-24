@@ -9,8 +9,8 @@ namespace anufriev_d_integrals_simpson_seq {
 
 class IntegralsSimpsonSequential : public ppc::core::Task {
  public:
-  explicit IntegralsSimpsonSequential(ppc::core::TaskDataPtr task_data)
-      : Task(std::move(task_data)) {}
+  explicit IntegralsSimpsonSequential(ppc::core::TaskDataPtr task_data) : 
+Task(std::move(task_data)) {}
 
   bool PreProcessingImpl() override;
   bool ValidationImpl() override;

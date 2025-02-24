@@ -1,9 +1,9 @@
 #include "seq/anufriev_d_integrals_simpson/include/ops_seq.hpp"
+
 #include <cmath>
 #include <cstddef>
-#include <vector>
 #include <stdexcept>
-#include <iostream>
+#include <vector>
 
 namespace anufriev_d_integrals_simpson_seq {
 
@@ -32,7 +32,7 @@ bool IntegralsSimpsonSequential::PreProcessingImpl() {
   if (task_data->inputs.empty()) {
     return false;
   }
-  
+
   auto* in_ptr = reinterpret_cast<double*>(task_data->inputs[0]);
   size_t in_size = task_data->inputs_count[0];
 
@@ -77,7 +77,6 @@ bool IntegralsSimpsonSequential::ValidationImpl() {
 }
 
 bool IntegralsSimpsonSequential::RunImpl() {
-
   double hx = (bx_ - ax_) / nx_;
   double hy = (by_ - ay_) / ny_;
 
