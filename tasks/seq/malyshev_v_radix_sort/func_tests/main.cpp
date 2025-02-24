@@ -50,7 +50,7 @@ TEST(malyshev_v_radix_sort, random_vector_test) {
   std::vector<double> input_vector = malyshev_v_radix_sort::GenerateRandomVector(100, 0.0, 1000.0);
   std::vector<double> out(100, 0.0);
   std::vector<double> reference = input_vector;
-  std::sort(reference.begin(), reference.end());
+  std::ranges::sort(reference);
 
   std::shared_ptr<ppc::core::TaskData> task_data_seq = std::make_shared<ppc::core::TaskData>();
   task_data_seq->inputs.emplace_back(reinterpret_cast<uint8_t*>(input_vector.data()));

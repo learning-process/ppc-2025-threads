@@ -1,5 +1,6 @@
 #include <gtest/gtest.h>
 
+#include <algorithm>
 #include <chrono>
 #include <cstdint>
 #include <cstdlib>
@@ -28,9 +29,9 @@ std::vector<double> GenerateRandomVector(int size, double min_value, double max_
 }  // namespace malyshev_v_radix_sort
 
 TEST(malyshev_v_radix_sort, test_pipeline_run) {
-  const int SIZE = 1000000;
-  std::vector<double> input_vector = malyshev_v_radix_sort::GenerateRandomVector(SIZE, -1000.0, 1000.0);
-  std::vector<double> out(SIZE, 0.0);
+  const int size = 1000000;
+  std::vector<double> input_vector = malyshev_v_radix_sort::GenerateRandomVector(size, -1000.0, 1000.0);
+  std::vector<double> out(size, 0.0);
 
   std::shared_ptr<ppc::core::TaskData> task_data_seq = std::make_shared<ppc::core::TaskData>();
   task_data_seq->inputs.emplace_back(reinterpret_cast<uint8_t*>(input_vector.data()));
@@ -55,14 +56,14 @@ TEST(malyshev_v_radix_sort, test_pipeline_run) {
   ppc::core::Perf::PrintPerfStatistic(perf_results);
 
   std::vector<double> reference = input_vector;
-  std::sort(reference.begin(), reference.end());
+  std::ranges::sort(reference);
   ASSERT_EQ(out, reference);
 }
 
 TEST(malyshev_v_radix_sort, test_task_run) {
-  const int SIZE = 1000000;
-  std::vector<double> input_vector = malyshev_v_radix_sort::GenerateRandomVector(SIZE, -1000.0, 1000.0);
-  std::vector<double> out(SIZE, 0.0);
+  const int size = 1000000;
+  std::vector<double> input_vector = malyshev_v_radix_sort::GenerateRandomVector(size, -1000.0, 1000.0);
+  std::vector<double> out(size, 0.0);
 
   std::shared_ptr<ppc::core::TaskData> task_data_seq = std::make_shared<ppc::core::TaskData>();
   task_data_seq->inputs.emplace_back(reinterpret_cast<uint8_t*>(input_vector.data()));
@@ -87,6 +88,6 @@ TEST(malyshev_v_radix_sort, test_task_run) {
   ppc::core::Perf::PrintPerfStatistic(perf_results);
 
   std::vector<double> reference = input_vector;
-  std::sort(reference.begin(), reference.end());
+  std::ranges::sort(reference);
   ASSERT_EQ(out, reference);
 }

@@ -3,6 +3,7 @@
 #include <algorithm>
 #include <cmath>
 #include <cstddef>
+#include <cstdint>
 #include <vector>
 
 namespace malyshev_v_radix_sort {
@@ -13,28 +14,28 @@ union DoubleWrapper {
 };
 
 void CountingSort(std::vector<double>& arr, int exp) {
-  const int RADIX = 256;
+  const int radix = 256;
   size_t n = arr.size();
   std::vector<double> output(n);
-  std::vector<int> count(RADIX, 0);
+  std::vector<int> count(radix, 0);
 
   for (size_t i = 0; i < n; i++) {
     DoubleWrapper dw;
     dw.d = arr[i];
     uint64_t value = dw.u;
-    int index = (value >> (8 * exp)) & 0xFF;
+    auto index = static_cast<int>((value >> (8 * exp)) & 0xFF;
     count[index]++;
   }
 
-  for (int i = 1; i < RADIX; i++) {
+  for (int i = 1; i < radix; i++) {
     count[i] += count[i - 1];
   }
 
-  for (int i = n - 1; i >= 0; i--) {
+  for (auto i = static_cast<int>(n - 1); i >= 0; i--) {
     DoubleWrapper dw;
     dw.d = arr[i];
     uint64_t value = dw.u;
-    int index = (value >> (8 * exp)) & 0xFF;
+    auto index = static_cast<int>((value >> (8 * exp)) & 0xFF;
     output[count[index] - 1] = arr[i];
     count[index]--;
   }
@@ -43,15 +44,16 @@ void CountingSort(std::vector<double>& arr, int exp) {
 }
 
 void RadixSort(std::vector<double>& arr) {
-  if (arr.empty()) return;
+  if (arr.empty()) {
+    return;
+  }
 
-  const int BYTES = sizeof(uint64_t);
-  for (int exp = 0; exp < BYTES; exp++) {
+  const int bytes = sizeof(uint64_t);
+  for (int exp = 0; exp < bytes; exp++) {
     CountingSort(arr, exp);
   }
 
-  // Handle negative numbers
-  std::partition(arr.begin(), arr.end(), [](double x) { return std::signbit(x); });
+  std::ranges::partition(arr, [](double x) { return std::signbit(x); });
 }
 }  // namespace
 
@@ -71,7 +73,7 @@ bool RadixSortSequential::RunImpl() {
 }
 
 bool RadixSortSequential::PostProcessingImpl() {
-  double* output = reinterpret_cast<double*>(task_data->outputs[0]);
+  auto* output = reinterpret_cast<double*>(task_data->outputs[0]);
   for (size_t i = 0; i < res_.size(); i++) {
     output[i] = res_[i];
   }
