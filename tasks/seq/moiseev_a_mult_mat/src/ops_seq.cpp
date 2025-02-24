@@ -1,7 +1,7 @@
 #include "seq/moiseev_a_mult_mat/include/ops_seq.hpp"
 
+#include <algorithm>
 #include <cmath>
-#include <cstddef>
 #include <vector>
 
 bool moiseev_a_mult_mat_seq::MultMatSequential::PreProcessingImpl() {
