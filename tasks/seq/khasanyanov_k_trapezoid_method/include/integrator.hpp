@@ -44,8 +44,7 @@ const int Integrator<technology>::kMaxSteps = 250;
 
 template <IntegrationTechnology technology>
 double Integrator<technology>::operator()(const IntegrationFunction& f, const IntegrationBounds& bounds,
-                                          double precision,  // NOLINT(bugprone-easily-swappable-parameters)
-                                          int init_steps, int max_steps) const {
+                                          double precision, int init_steps, int max_steps) const {
   switch (technology) {
     case kSequential:
       return trapezoidal_method_sequential(f, bounds, precision, init_steps, max_steps);
@@ -59,10 +58,9 @@ double Integrator<technology>::operator()(const IntegrationFunction& f, const In
 }
 
 template <IntegrationTechnology technology>
-double Integrator<technology>::trapezoidal_method_sequential(
-    const IntegrationFunction& f, const IntegrationBounds& bounds,
-    double precision,  // NOLINT(bugprone-easily-swappable-parameters)
-    int init_steps, int max_steps) {
+double Integrator<technology>::trapezoidal_method_sequential(const IntegrationFunction& f,
+                                                             const IntegrationBounds& bounds, double precision,
+                                                             int init_steps, int max_steps) {
   int steps = init_steps;
   double prev_result = trapezoidal_method(f, bounds, steps);
   while (steps <= max_steps) {
