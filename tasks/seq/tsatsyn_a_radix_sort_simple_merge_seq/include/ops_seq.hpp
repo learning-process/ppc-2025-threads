@@ -6,7 +6,7 @@
 #include "core/task/include/task.hpp"
 
 namespace tsatsyn_a_radix_sort_simple_merge_seq {
-std::vector<double> GetRandomVector(int size, int a, int b);
+std::vector<double> GetRandomVector(int sz, int a, int b);
 class TestTaskSequential : public ppc::core::Task {
  public:
   explicit TestTaskSequential(ppc::core::TaskDataPtr task_data) : Task(std::move(task_data)) {}

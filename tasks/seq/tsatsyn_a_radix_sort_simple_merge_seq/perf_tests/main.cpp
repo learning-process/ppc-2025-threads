@@ -5,6 +5,7 @@
 #include <memory>
 #include <random>
 #include <vector>
+#include <algorithm>
 
 #include "core/perf/include/perf.hpp"
 #include "core/task/include/task.hpp"

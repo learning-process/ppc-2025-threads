@@ -30,7 +30,7 @@ bool tsatsyn_a_radix_sort_simple_merge_seq::TestTaskSequential::RunImpl() {
     std::vector<uint64_t> group0;
     std::vector<uint64_t> group1;
     for (uint64_t b : pozitive_copy) {
-      if (((b >> bit) & 1) != 0u) {
+      if (((b >> bit) & 1) != 0U) {
         group1.push_back(b);
       } else {
         group0.push_back(b);
@@ -45,7 +45,7 @@ bool tsatsyn_a_radix_sort_simple_merge_seq::TestTaskSequential::RunImpl() {
     std::vector<uint64_t> group0;
     std::vector<uint64_t> group1;
     for (uint64_t b : negative_copy) {
-      if (((b >> bit) & 1) != 0u) {
+      if (((b >> bit) & 1) != 0U) {
         group1.push_back(b);
       } else {
         group0.push_back(b);

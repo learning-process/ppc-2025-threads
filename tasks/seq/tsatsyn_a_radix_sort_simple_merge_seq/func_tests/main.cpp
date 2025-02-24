@@ -7,6 +7,7 @@
 #include <random>
 #include <string>
 #include <vector>
+#include <algorithm>
 
 #include "core/task/include/task.hpp"
 #include "core/util/include/util.hpp"
@@ -40,7 +41,7 @@ TEST(tsatsyn_a_radix_sort_simple_merge_seq, negative_double_100) {
   test_task_sequential.PreProcessing();
   test_task_sequential.Run();
   test_task_sequential.PostProcessing();
-  std::sort(in.begin(), in.end());
+  std::ranges::sort(in);
   EXPECT_EQ(in, out);
 }
 TEST(tsatsyn_a_radix_sort_simple_merge_seq, negative_double_1000) {
@@ -62,7 +63,7 @@ TEST(tsatsyn_a_radix_sort_simple_merge_seq, negative_double_1000) {
   test_task_sequential.PreProcessing();
   test_task_sequential.Run();
   test_task_sequential.PostProcessing();
-  std::sort(in.begin(), in.end());
+  std::ranges::sort(in);
   EXPECT_EQ(in, out);
 }
 TEST(tsatsyn_a_radix_sort_simple_merge_seq, negative_double_10000) {
