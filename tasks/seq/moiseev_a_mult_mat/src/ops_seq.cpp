@@ -64,8 +64,6 @@ bool moiseev_a_mult_mat_seq::MultMatSequential::RunImpl() {
 }
 
 bool moiseev_a_mult_mat_seq::MultMatSequential::PostProcessingImpl() {
-  for (size_t i = 0; i < matrix_c_.size(); i++) {
-    reinterpret_cast<double *>(task_data->outputs[0])[i] = matrix_c_[i];
-  }
+  std::ranges::copy(matrix_c_, task_data->outputs[0]);
   return true;
 }
