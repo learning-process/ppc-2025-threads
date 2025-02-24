@@ -78,9 +78,9 @@ TEST(korotin_e_crs_multiplication_seq, test_pipeline_run) {
   perf_analyzer->PipelineRun(perf_attr, perf_results);
   ppc::core::Perf::PrintPerfStatistic(perf_results);
 
-  ASSERT_EQ(c_ri, out_ri);
-  ASSERT_EQ(c_col, out_col);
-  ASSERT_EQ(c_val, out_val);
+  ASSERT_DOUBLE_EQ(c_ri, out_ri);
+  ASSERT_DOUBLE_EQ(c_col, out_col);
+  ASSERT_DOUBLE_EQ(c_val, out_val);
 }
 
 TEST(korotin_e_crs_multiplication_seq, test_task_run) {
@@ -152,7 +152,7 @@ TEST(korotin_e_crs_multiplication_seq, test_task_run) {
   perf_analyzer->TaskRun(perf_attr, perf_results);
   ppc::core::Perf::PrintPerfStatistic(perf_results);
 
-  ASSERT_EQ(c_ri, out_ri);
-  ASSERT_EQ(c_col, out_col);
-  ASSERT_EQ(c_val, out_val);
+  ASSERT_DOUBLE_EQ(c_ri, out_ri);
+  ASSERT_DOUBLE_EQ(c_col, out_col);
+  ASSERT_DOUBLE_EQ(c_val, out_val);
 }
