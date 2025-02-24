@@ -1,7 +1,6 @@
 #include "omp/moiseev_a_mult_mat/include/ops_omp.hpp"
 
 #include <cmath>
-#include <cstddef>
 #include <vector>
 
 bool moiseev_a_mult_mat_omp::MultMatOMP::PreProcessingImpl() {
@@ -35,7 +34,7 @@ bool moiseev_a_mult_mat_omp::MultMatOMP::ValidationImpl() {
 }
 
 bool moiseev_a_mult_mat_omp::MultMatOMP::RunImpl() {
-#pragma omp parallel for collapse(2)
+#pragma omp parallel for
   for (int i_block = 0; i_block < num_blocks_; ++i_block) {
     for (int j_block = 0; j_block < num_blocks_; ++j_block) {
       for (int s = 0; s < num_blocks_; ++s) {
