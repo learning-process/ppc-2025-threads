@@ -50,7 +50,7 @@ TEST(anufriev_d_integrals_simpson_seq, test_pipeline_run) {
   ASSERT_NEAR(result, 2.0 / 3.0, 1e-3);
 }
 
-TEST(anufriev_d_integrals_simpson_seq_perf, test_task_run) {
+TEST(anufriev_d_integrals_simpson_seq, test_task_run) {
   double ax = 0.0;
   double bx = 1.0;
   double ay = 0.0;
