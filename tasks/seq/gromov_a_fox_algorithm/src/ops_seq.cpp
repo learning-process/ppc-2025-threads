@@ -1,4 +1,5 @@
 #include "seq/gromov_a_fox_algorithm/include/ops_seq.hpp"
+
 #include <cmath>
 #include <cstddef>
 #include <vector>
