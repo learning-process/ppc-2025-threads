@@ -15,12 +15,11 @@ class TestTaskSequential : public ppc::core::Task {
   bool ValidationImpl() override;
   bool RunImpl() override;
   bool PostProcessingImpl() override;
-  std::vector<int> SedgwickSequence(int n);
   void ShellSort(std::vector<int>& vec, const std::function<bool(int, int)>& comp);
 
  private:
   std::vector<int> input_, output_;
-  bool is_descending;
+  bool is_descending_;
   int rc_size_{};
 };
 

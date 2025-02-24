@@ -1,26 +1,30 @@
 #include <gtest/gtest.h>
 
 #include <chrono>
-#include <cstddef>
 #include <cstdint>
 #include <memory>
 #include <random>
+#include <ranges>
 #include <vector>
 
 #include "core/perf/include/perf.hpp"
 #include "core/task/include/task.hpp"
 #include "seq/ermilova_d_shell_sort_batcher_even-odd_merger/include/ops_seq.hpp"
 
-static std::vector<int> getRandomVector(int size, int upper_border, int lower_border) {
+namespace {
+std::vector<int> GetRandomVector(int size, int upper_border, int lower_border) {
   std::random_device dev;
   std::mt19937 gen(dev());
-  if (size <= 0) throw "Incorrect size";
+  if (size <= 0) {
+    throw "Incorrect size";
+  }
   std::vector<int> vec(size);
   for (int i = 0; i < size; i++) {
-    vec[i] = lower_border + gen() % (upper_border - lower_border + 1);
+    vec[i] = static_cast<int>(lower_border + gen() % (upper_border - lower_border + 1));
   }
   return vec;
 }
+}  // namespace
 
 TEST(ermilova_d_shell_sort_batcher_even_odd_merger_seq, test_pipeline_run) {
   const int upper_border_test = 1000;
@@ -31,11 +35,11 @@ TEST(ermilova_d_shell_sort_batcher_even_odd_merger_seq, test_pipeline_run) {
 
   // Create data
 
-  std::vector<int> in = getRandomVector(size, upper_border_test, lower_border_test);
+  std::vector<int> in = GetRandomVector(size, upper_border_test, lower_border_test);
   std::vector<int> out(in.size(), 0);
 
   std::vector<int> ref = in;
-  std::sort(ref.begin(), ref.end());
+  std::ranges::sort(ref);
 
   // Create task_data
   auto task_data_seq = std::make_shared<ppc::core::TaskData>();
@@ -77,11 +81,11 @@ TEST(ermilova_d_shell_sort_batcher_even_odd_merger_seq, test_task_run) {
   bool is_resersed = false;
 
   // Create data
-  std::vector<int> in = getRandomVector(size, upper_border_test, lower_border_test);
+  std::vector<int> in = GetRandomVector(size, upper_border_test, lower_border_test);
   std::vector<int> out(in.size(), 0);
 
   std::vector<int> ref = in;
-  std::sort(ref.begin(), ref.end());
+  std::ranges::sort(ref);
 
   // Create task_data
   auto task_data_seq = std::make_shared<ppc::core::TaskData>();

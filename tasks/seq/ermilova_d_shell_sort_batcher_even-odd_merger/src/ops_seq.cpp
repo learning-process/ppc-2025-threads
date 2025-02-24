@@ -1,21 +1,25 @@
 #include "seq/ermilova_d_shell_sort_batcher_even-odd_merger/include/ops_seq.hpp"
 
+#include <algorithm>
 #include <cmath>
-#include <cstddef>
+#include <functional>
+#include <ranges>
 #include <vector>
 
-std::vector<int> ermilova_d_shell_sort_batcher_even_odd_merger_seq::TestTaskSequential::SedgwickSequence(int n) {
+static std::vector<int> SedgwickSequence(int n) {
   std::vector<int> gaps;
   int k = 0;
   while (true) {
-    int gap;
+    int gap = 0;
     if (k % 2 == 0) {
       gap = 9 * (1 << (2 * k)) - 9 * (1 << k) + 1;
     } else {
       gap = 8 * (1 << k) - 6 * (1 << ((k + 1) / 2)) + 1;
     }
 
-    if (gap * 3 >= n) break;
+    if (gap * 3 >= n) {
+      break;
+    }
 
     gaps.push_back(gap);
     k++;
@@ -28,11 +32,11 @@ void ermilova_d_shell_sort_batcher_even_odd_merger_seq::TestTaskSequential::Shel
   int n = vec.size();
   std::vector<int> gaps = SedgwickSequence(n);
 
-  for (int k = gaps.size() - 1; k >= 0; k--) {
+  for (int k = static_cast<int> (gaps.size()) - 1; k >= 0; k--) {
     int gap = gaps[k];
     for (int i = gap; i < n; i++) {
       int temp = vec[i];
-      int j;
+      int j = 0;
       for (j = i; j >= gap && comp(vec[j - gap], temp); j -= gap) {
         vec[j] = vec[j - gap];
       }
@@ -45,7 +49,7 @@ bool ermilova_d_shell_sort_batcher_even_odd_merger_seq::TestTaskSequential::PreP
   // Init value for input and output
   unsigned int input_size = task_data->inputs_count[0];
   auto *in_ptr = reinterpret_cast<int *>(task_data->inputs[0]);
-  is_descending = *reinterpret_cast<bool *>(task_data->inputs[1]);
+  is_descending_ = *reinterpret_cast<bool *>(task_data->inputs[1]);
   input_.assign(in_ptr, in_ptr + input_size);
 
   unsigned int output_size = task_data->outputs_count[0];
@@ -60,7 +64,7 @@ bool ermilova_d_shell_sort_batcher_even_odd_merger_seq::TestTaskSequential::Vali
 }
 
 bool ermilova_d_shell_sort_batcher_even_odd_merger_seq::TestTaskSequential::RunImpl() {
-  if (is_descending) {
+  if (is_descending_) {
     ShellSort(input_, std::less());
   } else {
     ShellSort(input_, std::greater());
@@ -70,6 +74,6 @@ bool ermilova_d_shell_sort_batcher_even_odd_merger_seq::TestTaskSequential::RunI
 
 bool ermilova_d_shell_sort_batcher_even_odd_merger_seq::TestTaskSequential::PostProcessingImpl() {
   auto *data = reinterpret_cast<int *>(task_data->outputs[0]);
-  std::copy(input_.begin(), input_.end(), data);
+  std::ranges::copy(input_, data);
   return true;
 }

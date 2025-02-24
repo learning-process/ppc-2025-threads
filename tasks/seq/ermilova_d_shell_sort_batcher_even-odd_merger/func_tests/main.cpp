@@ -1,40 +1,41 @@
 #include <gtest/gtest.h>
 
-#include <cstddef>
 #include <cstdint>
-#include <fstream>
 #include <memory>
 #include <random>
-#include <string>
+#include <ranges>
 #include <vector>
 
 #include "core/task/include/task.hpp"
-#include "core/util/include/util.hpp"
 #include "seq/ermilova_d_shell_sort_batcher_even-odd_merger/include/ops_seq.hpp"
 
-static std::vector<int> getRandomVector(int size, int upper_border, int lower_border) {
+namespace {
+std::vector<int> GetRandomVector(int size, int upper_border, int lower_border) {
   std::random_device dev;
   std::mt19937 gen(dev());
-  if (size <= 0) throw "Incorrect size";
+  if (size <= 0) {
+    throw "Incorrect size";
+  }
   std::vector<int> vec(size);
   for (int i = 0; i < size; i++) {
-    vec[i] = lower_border + gen() % (upper_border - lower_border + 1);
+    vec[i] = static_cast<int>(lower_border + gen() % (upper_border - lower_border + 1));
   }
   return vec;
 }
+}  // namespace
 
 TEST(ermilova_d_shell_sort_batcher_even_odd_merger_seq, Can_create_vector) {
   const int size_test = 10;
   const int upper_border_test = 100;
   const int lower_border_test = -100;
-  EXPECT_NO_THROW(getRandomVector(size_test, upper_border_test, lower_border_test));
+  EXPECT_NO_THROW(GetRandomVector(size_test, upper_border_test, lower_border_test));
 }
 
 TEST(ermilova_d_shell_sort_batcher_even_odd_merger_seq, Cant_create_incorrect_vector) {
   const int size_test = -10;
   const int upper_border_test = 100;
   const int lower_border_test = -100;
-  EXPECT_ANY_THROW(getRandomVector(size_test, upper_border_test, lower_border_test));
+  EXPECT_ANY_THROW(GetRandomVector(size_test, upper_border_test, lower_border_test));
 }
 
 TEST(ermilova_d_shell_sort_batcher_even_odd_merger_seq, vec_10) {
@@ -45,11 +46,11 @@ TEST(ermilova_d_shell_sort_batcher_even_odd_merger_seq, vec_10) {
 
   bool is_resersed = false;
 
-  std::vector<int> in = getRandomVector(size, upper_border_test, lower_border_test);
+  std::vector<int> in = GetRandomVector(size, upper_border_test, lower_border_test);
   std::vector<int> out(in.size(), 0);
 
   std::vector<int> ref = in;
-  std::sort(ref.begin(), ref.end());
+  std::ranges::sort(ref);
 
   // Create task_data
   auto task_data_seq = std::make_shared<ppc::core::TaskData>();
@@ -76,11 +77,11 @@ TEST(ermilova_d_shell_sort_batcher_even_odd_merger_seq, vec_100) {
 
   bool is_resersed = false;
 
-  std::vector<int> in = getRandomVector(size, upper_border_test, lower_border_test);
+  std::vector<int> in = GetRandomVector(size, upper_border_test, lower_border_test);
   std::vector<int> out(in.size(), 0);
 
   std::vector<int> ref = in;
-  std::sort(ref.begin(), ref.end());
+  std::ranges::sort(ref);
 
   // Create task_data
   auto task_data_seq = std::make_shared<ppc::core::TaskData>();
@@ -107,11 +108,11 @@ TEST(ermilova_d_shell_sort_batcher_even_odd_merger_seq, vec_1000) {
 
   bool is_resersed = false;
 
-  std::vector<int> in = getRandomVector(size, upper_border_test, lower_border_test);
+  std::vector<int> in = GetRandomVector(size, upper_border_test, lower_border_test);
   std::vector<int> out(in.size(), 0);
 
   std::vector<int> ref = in;
-  std::sort(ref.begin(), ref.end());
+  std::ranges::sort(ref);
 
   // Create task_data
   auto task_data_seq = std::make_shared<ppc::core::TaskData>();
@@ -138,11 +139,11 @@ TEST(ermilova_d_shell_sort_batcher_even_odd_merger_seq, vec_10000) {
 
   bool is_resersed = false;
 
-  std::vector<int> in = getRandomVector(size, upper_border_test, lower_border_test);
+  std::vector<int> in = GetRandomVector(size, upper_border_test, lower_border_test);
   std::vector<int> out(in.size(), 0);
 
   std::vector<int> ref = in;
-  std::sort(ref.begin(), ref.end());
+  std::ranges::sort(ref);
 
   // Create task_data
   auto task_data_seq = std::make_shared<ppc::core::TaskData>();
@@ -169,11 +170,11 @@ TEST(ermilova_d_shell_sort_batcher_even_odd_merger_seq, vec_8) {
 
   bool is_resersed = false;
 
-  std::vector<int> in = getRandomVector(size, upper_border_test, lower_border_test);
+  std::vector<int> in = GetRandomVector(size, upper_border_test, lower_border_test);
   std::vector<int> out(in.size(), 0);
 
   std::vector<int> ref = in;
-  std::sort(ref.begin(), ref.end());
+  std::ranges::sort(ref);
 
   // Create task_data
   auto task_data_seq = std::make_shared<ppc::core::TaskData>();
@@ -200,11 +201,11 @@ TEST(ermilova_d_shell_sort_batcher_even_odd_merger_seq, vec_128) {
 
   bool is_resersed = false;
 
-  std::vector<int> in = getRandomVector(size, upper_border_test, lower_border_test);
+  std::vector<int> in = GetRandomVector(size, upper_border_test, lower_border_test);
   std::vector<int> out(in.size(), 0);
 
   std::vector<int> ref = in;
-  std::sort(ref.begin(), ref.end());
+  std::ranges::sort(ref);
 
   // Create task_data
   auto task_data_seq = std::make_shared<ppc::core::TaskData>();
@@ -231,11 +232,11 @@ TEST(ermilova_d_shell_sort_batcher_even_odd_merger_seq, vec_27) {
 
   bool is_resersed = false;
 
-  std::vector<int> in = getRandomVector(size, upper_border_test, lower_border_test);
+  std::vector<int> in = GetRandomVector(size, upper_border_test, lower_border_test);
   std::vector<int> out(in.size(), 0);
 
   std::vector<int> ref = in;
-  std::sort(ref.begin(), ref.end());
+  std::ranges::sort(ref);
 
   // Create task_data
   auto task_data_seq = std::make_shared<ppc::core::TaskData>();
@@ -262,11 +263,11 @@ TEST(ermilova_d_shell_sort_batcher_even_odd_merger_seq, vec_729) {
 
   bool is_resersed = false;
 
-  std::vector<int> in = getRandomVector(size, upper_border_test, lower_border_test);
+  std::vector<int> in = GetRandomVector(size, upper_border_test, lower_border_test);
   std::vector<int> out(in.size(), 0);
 
   std::vector<int> ref = in;
-  std::sort(ref.begin(), ref.end());
+  std::ranges::sort(ref);
 
   // Create task_data
   auto task_data_seq = std::make_shared<ppc::core::TaskData>();
@@ -293,11 +294,11 @@ TEST(ermilova_d_shell_sort_batcher_even_odd_merger_seq, vec_457) {
 
   bool is_resersed = false;
 
-  std::vector<int> in = getRandomVector(size, upper_border_test, lower_border_test);
+  std::vector<int> in = GetRandomVector(size, upper_border_test, lower_border_test);
   std::vector<int> out(in.size(), 0);
 
   std::vector<int> ref = in;
-  std::sort(ref.begin(), ref.end());
+  std::ranges::sort(ref);
 
   // Create task_data
   auto task_data_seq = std::make_shared<ppc::core::TaskData>();
@@ -324,11 +325,11 @@ TEST(ermilova_d_shell_sort_batcher_even_odd_merger_seq, vec_809) {
 
   bool is_resersed = false;
 
-  std::vector<int> in = getRandomVector(size, upper_border_test, lower_border_test);
+  std::vector<int> in = GetRandomVector(size, upper_border_test, lower_border_test);
   std::vector<int> out(in.size(), 0);
 
   std::vector<int> ref = in;
-  std::sort(ref.begin(), ref.end());
+  std::ranges::sort(ref);
 
   // Create task_data
   auto task_data_seq = std::make_shared<ppc::core::TaskData>();
@@ -355,11 +356,11 @@ TEST(ermilova_d_shell_sort_batcher_even_odd_merger_seq, reverse_sort_vec_500) {
 
   bool is_resersed = true;
 
-  std::vector<int> in = getRandomVector(size, upper_border_test, lower_border_test);
+  std::vector<int> in = GetRandomVector(size, upper_border_test, lower_border_test);
   std::vector<int> out(in.size(), 0);
 
   std::vector<int> ref = in;
-  std::sort(ref.begin(), ref.end(), std::greater<>());
+  std::ranges::sort(ref, std::greater<>());
 
   // Create task_data
   auto task_data_seq = std::make_shared<ppc::core::TaskData>();
@@ -386,11 +387,11 @@ TEST(ermilova_d_shell_sort_batcher_even_odd_merger_seq, reverse_sort_vec_347) {
 
   bool is_resersed = true;
 
-  std::vector<int> in = getRandomVector(size, upper_border_test, lower_border_test);
+  std::vector<int> in = GetRandomVector(size, upper_border_test, lower_border_test);
   std::vector<int> out(in.size(), 0);
 
   std::vector<int> ref = in;
-  std::sort(ref.begin(), ref.end(), std::greater<>());
+  std::ranges::sort(ref, std::greater<>());
 
   // Create task_data
   auto task_data_seq = std::make_shared<ppc::core::TaskData>();
