@@ -26,7 +26,7 @@ TEST(tsatsyn_a_radix_sort_simple_merge_seq, test_pipeline_run) {
   constexpr int kCount = 500;
 
   // Create data
-  std::vector<double> in=getRandomVector(kCount * kCount, 0,100);
+  std::vector<double> in = getRandomVector(kCount * kCount, 0, 100);
   std::vector<double> out(kCount * kCount, 0);
 
   // Create task_data
