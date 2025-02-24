@@ -1,6 +1,7 @@
 #include <gtest/gtest.h>
 
 #include <cstdint>
+#include <functional>
 #include <memory>
 #include <random>
 #include <ranges>
@@ -18,7 +19,7 @@ std::vector<int> GetRandomVector(int size, int upper_border, int lower_border) {
   }
   std::vector<int> vec(size);
   for (int i = 0; i < size; i++) {
-    vec[i] = static_cast<int>(lower_border + gen() % (upper_border - lower_border + 1));
+    vec[i] = static_cast<int>(lower_border + (gen() % (upper_border - lower_border + 1)));
   }
   return vec;
 }
