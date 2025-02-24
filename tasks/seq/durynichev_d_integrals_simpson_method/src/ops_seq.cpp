@@ -1,6 +1,7 @@
 #include "seq/durynichev_d_integrals_simpson_method/include/ops_seq.hpp"
 
 #include <cmath>
+#include <cstddef>
 #include <vector>
 
 bool durynichev_d_integrals_simpson_method_seq::SimpsonIntegralSequential::PreProcessingImpl() {
@@ -36,7 +37,7 @@ bool durynichev_d_integrals_simpson_method_seq::SimpsonIntegralSequential::PostP
 double durynichev_d_integrals_simpson_method_seq::SimpsonIntegralSequential::Func1D(double x) { return x * x; }
 
 double durynichev_d_integrals_simpson_method_seq::SimpsonIntegralSequential::Func2D(double x, double y) {
-  return x * x + y * y;
+  return (x * x) + (y * y);
 }
 
 double durynichev_d_integrals_simpson_method_seq::SimpsonIntegralSequential::Simpson1D(double a, double b) const {
@@ -44,10 +45,10 @@ double durynichev_d_integrals_simpson_method_seq::SimpsonIntegralSequential::Sim
   double sum = Func1D(a) + Func1D(b);
 
   for (int i = 1; i < n_; i += 2) {
-    sum += 4 * Func1D(a + i * h);
+    sum += 4 * Func1D(a + (i * h));
   }
   for (int i = 2; i < n_ - 1; i += 2) {
-    sum += 2 * Func1D(a + i * h);
+    sum += 2 * Func1D(a + (i * h));
   }
 
   return sum * h / 3.0;
@@ -60,7 +61,7 @@ double durynichev_d_integrals_simpson_method_seq::SimpsonIntegralSequential::Sim
   double sum = 0.0;
 
   for (int i = 0; i <= n_; i++) {
-    double x = x0 + i * hx;
+    double x = x0 + (i * hx);
     double coef_x = NAN;
 
     if (i == 0 || i == n_) {
@@ -72,7 +73,7 @@ double durynichev_d_integrals_simpson_method_seq::SimpsonIntegralSequential::Sim
     }
 
     for (int j = 0; j <= n_; j++) {
-      double y = y0 + j * hy;
+      double y = y0 + (j * hy);
       double coef_y = NAN;
 
       if (j == 0 || j == n_) {
