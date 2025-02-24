@@ -57,7 +57,7 @@ TEST(tsatsyn_a_radix_sort_simple_merge_seq, test_pipeline_run) {
   auto perf_analyzer = std::make_shared<ppc::core::Perf>(test_task_sequential);
   perf_analyzer->PipelineRun(perf_attr, perf_results);
   ppc::core::Perf::PrintPerfStatistic(perf_results);
-  std::sort(in.begin(), in.end());
+  std::ranges::sort(in);
   ASSERT_EQ(in, out);
 }
 
@@ -96,6 +96,6 @@ TEST(tsatsyn_a_radix_sort_simple_merge_seq, test_task_run) {
   auto perf_analyzer = std::make_shared<ppc::core::Perf>(test_task_sequential);
   perf_analyzer->TaskRun(perf_attr, perf_results);
   ppc::core::Perf::PrintPerfStatistic(perf_results);
-  std::sort(in.begin(), in.end());
+  std::ranges::sort(in);
   ASSERT_EQ(in, out);
 }
