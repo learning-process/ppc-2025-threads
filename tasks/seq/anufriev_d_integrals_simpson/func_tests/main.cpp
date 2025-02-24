@@ -20,9 +20,9 @@ TEST(anufriev_d_integrals_simpson_seq, test_x2_plus_y2) {
   task_data_seq->outputs_count.emplace_back(out.size());
 
   anufriev_d_integrals_simpson_seq::IntegralsSimpsonSequential task(task_data_seq);
-
-  auto *in_ptr = new double[in.size()];
-  memcpy(in_ptr, in.data(), in.size() * sizeof(double));
+  
+  std::unique_ptr<double[]> in_ptr(new double[in.size()]);
+  memcpy(in_ptr.get(), in.data(), in.size() * sizeof(double));
 
   ASSERT_TRUE(task.Validation());
   task.PreProcessing();
@@ -31,8 +31,6 @@ TEST(anufriev_d_integrals_simpson_seq, test_x2_plus_y2) {
 
   double result = out[0];
   ASSERT_NEAR(result, 2.0 / 3.0, 1e-3);
-
-  delete[] in_ptr;
 }
 
 TEST(anufriev_d_integrals_simpson_seq, test_x2_plus_y2_x_not_equal_y) {
@@ -46,9 +44,9 @@ TEST(anufriev_d_integrals_simpson_seq, test_x2_plus_y2_x_not_equal_y) {
   task_data_seq->outputs_count.emplace_back(out.size());
 
   anufriev_d_integrals_simpson_seq::IntegralsSimpsonSequential task(task_data_seq);
-
-  auto *in_ptr = new double[in.size()];
-  memcpy(in_ptr, in.data(), in.size() * sizeof(double));
+  
+  std::unique_ptr<double[]> in_ptr(new double[in.size()]);
+  memcpy(in_ptr.get(), in.data(), in.size() * sizeof(double));
 
   ASSERT_TRUE(task.Validation());
   task.PreProcessing();
@@ -57,8 +55,6 @@ TEST(anufriev_d_integrals_simpson_seq, test_x2_plus_y2_x_not_equal_y) {
 
   double result = out[0];
   ASSERT_NEAR(result, 2.0 / 3.0, 1e-3);
-
-  delete[] in_ptr;
 }
 
 TEST(anufriev_d_integrals_simpson_seq, test_sin_cos_x_not_equal_y) {
@@ -73,8 +69,8 @@ TEST(anufriev_d_integrals_simpson_seq, test_sin_cos_x_not_equal_y) {
 
   anufriev_d_integrals_simpson_seq::IntegralsSimpsonSequential task(task_data_seq);
 
-  auto *in_ptr = new double[in.size()];
-  memcpy(in_ptr, in.data(), in.size() * sizeof(double));
+  std::unique_ptr<double[]> in_ptr(new double[in.size()]);
+  memcpy(in_ptr.get(), in.data(), in.size() * sizeof(double));
 
   ASSERT_TRUE(task.Validation());
   task.PreProcessing();
@@ -83,8 +79,6 @@ TEST(anufriev_d_integrals_simpson_seq, test_sin_cos_x_not_equal_y) {
 
   double result = out[0];
   ASSERT_NEAR(result, 1.0, 1e-3);
-
-  delete[] in_ptr;
 }
 
 TEST(anufriev_d_integrals_simpson_seq, test_sin_cos) {
@@ -99,8 +93,8 @@ TEST(anufriev_d_integrals_simpson_seq, test_sin_cos) {
 
   anufriev_d_integrals_simpson_seq::IntegralsSimpsonSequential task(task_data_seq);
 
-  auto *in_ptr = new double[in.size()];
-  memcpy(in_ptr, in.data(), in.size() * sizeof(double));
+  std::unique_ptr<double[]> in_ptr(new double[in.size()]);
+  memcpy(in_ptr.get(), in.data(), in.size() * sizeof(double));
 
   ASSERT_TRUE(task.Validation());
   task.PreProcessing();
@@ -109,6 +103,4 @@ TEST(anufriev_d_integrals_simpson_seq, test_sin_cos) {
 
   double result = out[0];
   ASSERT_NEAR(result, 1.0, 1e-3);
-
-  delete[] in_ptr;
 }

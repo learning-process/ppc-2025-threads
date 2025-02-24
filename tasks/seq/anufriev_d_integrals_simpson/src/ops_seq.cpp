@@ -63,7 +63,6 @@ bool IntegralsSimpsonSequential::PreProcessingImpl() {
   }
 
   result_ = 0.0;
-  delete[] in_ptr;
 
   return true;
 }
