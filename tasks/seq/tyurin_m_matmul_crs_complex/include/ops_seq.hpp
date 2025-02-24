@@ -1,6 +1,7 @@
 #pragma once
 
 #include <complex>
+#include <cstdint>
 #include <utility>
 #include <vector>
 
@@ -11,7 +12,7 @@ struct Matrix {
   uint32_t cols;
   std::vector<std::complex<double>> data;
 
-  std::complex<double>& Get(uint32_t row, uint32_t col) { return data[row * cols + col]; }
+  std::complex<double>& Get(uint32_t row, uint32_t col) { return data[(row * cols) + col]; }
 
   bool operator==(const Matrix& other) const noexcept {
     return rows == other.rows && cols == other.cols && data == other.data;
@@ -19,7 +20,7 @@ struct Matrix {
 };
 
 inline Matrix MultiplyMat(Matrix& lhs, Matrix& rhs) {
-  Matrix res{lhs.rows, rhs.cols, std::vector<std::complex<double>>(lhs.rows * rhs.cols)};
+  Matrix res{.rows = lhs.rows, .cols = rhs.cols, .data = std::vector<std::complex<double>>(lhs.rows * rhs.cols)};
   for (uint32_t i = 0; i < lhs.rows; i++) {
     for (uint32_t j = 0; j < rhs.cols; j++) {
       res.Get(i, j) = 0;
@@ -70,7 +71,7 @@ inline MatrixCRS RegularToCRS(const Matrix& matrix) {
 }
 
 inline Matrix CRSToRegular(const MatrixCRS& crs) {
-  Matrix matrix{crs.GetRows(), crs.GetCols(), std::vector<std::complex<double>>(crs.GetRows() * crs.GetCols())};
+  Matrix matrix{.rows = crs.GetRows(), .cols = crs.GetCols(), .data = std::vector<std::complex<double>>(crs.GetRows() * crs.GetCols())};
   for (uint32_t row = 0; row < matrix.rows; ++row) {
     for (uint32_t i = crs.rowptr[row]; i < crs.rowptr[row + 1]; ++i) {
       matrix.Get(row, crs.colind[i]) = crs.data[i];
