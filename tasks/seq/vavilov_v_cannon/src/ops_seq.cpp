@@ -27,11 +27,6 @@ bool vavilov_v_cannon_seq::CannonSequential::ValidationImpl() {
          sqrt_n * sqrt_n == n;
 }
 
-bool vavilov_v_cannon_seq::CannonSequential::ValidationImpl() {
-  return task_data->inputs_count[0] == task_data->inputs_count[1] &&
-         task_data->outputs_count[0] == task_data->inputs_count[0];
-}
-
 void vavilov_v_cannon_seq::CannonSequential::InitialShift() {
   std::vector<double> a_tmp = A_;
   std::vector<double> b_tmp = B_;
