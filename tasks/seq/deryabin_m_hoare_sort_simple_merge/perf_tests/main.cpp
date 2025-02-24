@@ -25,7 +25,7 @@ TEST(deryabin_m_hoare_sort_simple_merge_seq, test_pipeline_run_Seq) {
   size_t chunk_count = 256;
   std::vector<double> output_array(64000);
   std::vector<std::vector<double>> out_array(1, output_array);
-  std::vector<double> true_solution = input_array;
+  std::vector<double> true_solution(input_array);
   std::ranges::sort(true_solution.begin(), true_solution.end());
 
   auto task_data_seq = std::make_shared<ppc::core::TaskData>();
@@ -67,7 +67,7 @@ TEST(deryabin_m_hoare_sort_simple_merge_seq, test_task_run_Seq) {
   size_t chunk_count = 256;
   std::vector<double> output_array(64000);
   std::vector<std::vector<double>> out_array(1, output_array);
-  std::vector<double> true_solution = input_array;
+  std::vector<double> true_solution(input_array);
   std::ranges::sort(true_solution.begin(), true_solution.end());
 
   auto task_data_seq = std::make_shared<ppc::core::TaskData>();
