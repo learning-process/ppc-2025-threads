@@ -86,7 +86,7 @@ TEST(odintsov_m_mulmatrix_cannon_seq, test_sz_block_1) {
   std::vector<double> matrix_a(9, 1);
   std::vector<double> matrix_b(9, 1);
   std::vector<double> out(9, 0);
-  std::vector<double> matrix_c(9,3);
+  std::vector<double> matrix_c(9, 3);
 
   // Create task_data
   auto task_data_seq = std::make_shared<ppc::core::TaskData>();
@@ -123,5 +123,4 @@ TEST(odintsov_m_mulmatrix_cannon_seq, test_validation) {
   // Create Task
   odintsov_m_mulmatrix_cannon_seq::MulMatrixCannonSequential test_task_sequential(task_data_seq);
   ASSERT_EQ(test_task_sequential.Validation(), false);
- 
 }
