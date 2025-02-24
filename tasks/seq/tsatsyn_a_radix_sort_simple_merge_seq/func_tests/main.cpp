@@ -64,7 +64,7 @@ TEST(tsatsyn_a_radix_sort_simple_merge_seq, negative_double_1000) {
   test_task_sequential.Run();
   test_task_sequential.PostProcessing();
   std::sort(in.begin(), in.end());
-  EXPECT_EQ(in, out);
+     EXPECT_EQ(in, out);
 }
 TEST(tsatsyn_a_radix_sort_simple_merge_seq, negative_double_10000) {
   // Create data
