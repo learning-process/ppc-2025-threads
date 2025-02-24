@@ -21,6 +21,7 @@ class TestTaskSequential : public ppc::core::Task {
   std::vector<int> distances_;
   size_t start_vertex_;
   size_t num_vertices_;
+  static const int kEndOfVertexList;
 };
 
 }  // namespace muhina_m_dijkstra_seq

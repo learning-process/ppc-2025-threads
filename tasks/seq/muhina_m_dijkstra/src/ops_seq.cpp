@@ -7,6 +7,8 @@
 #include <utility>
 #include <vector>
 
+const int muhina_m_dijkstra_seq::TestTaskSequential::kEndOfVertexList = -1;
+
 bool muhina_m_dijkstra_seq::TestTaskSequential::PreProcessingImpl() {
   unsigned int input_size = task_data->inputs_count[0];
   auto *in_ptr = reinterpret_cast<int *>(task_data->inputs[0]);
@@ -28,6 +30,7 @@ bool muhina_m_dijkstra_seq::TestTaskSequential::PreProcessingImpl() {
 }
 
 bool muhina_m_dijkstra_seq::TestTaskSequential::ValidationImpl() {
+  return !task_data->inputs_count.empty() && task_data->inputs_count[0] > 0;
   return !task_data->outputs_count.empty() && task_data->outputs_count[0] > 0;
 }
 
@@ -37,7 +40,7 @@ bool muhina_m_dijkstra_seq::TestTaskSequential::RunImpl() {
   size_t i = 0;
 
   while (i < graph_data_.size() && current_vertex < num_vertices_) {
-    if (graph_data_[i] == -1) {
+    if (graph_data_[i] == kEndOfVertexList) {
       current_vertex++;
       i++;
       continue;
@@ -49,6 +52,9 @@ bool muhina_m_dijkstra_seq::TestTaskSequential::RunImpl() {
 
     size_t dest = graph_data_[i];
     int weight = graph_data_[i + 1];
+    if (weight < 0) {
+      return false;
+    }
 
     if (dest < num_vertices_) {
       adj_list[current_vertex].emplace_back(dest, weight);
