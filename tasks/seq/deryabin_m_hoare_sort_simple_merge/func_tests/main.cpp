@@ -107,7 +107,7 @@ TEST(deryabin_m_hoare_sort_simple_merge_seq, test_random_array_small_pieces) {
   std::vector<double> input_array(320);
   std::ranges::generate(input_array.begin(), input_array.end(), [&] { return distribution(gen); });
   std::vector<std::vector<double>> in_array(1, input_array);
-  size_t chunk_count = 16;
+  size_t chunk_count = 32;
   std::vector<double> output_array(320);
   std::vector<std::vector<double>> out_array(1, output_array);
   std::vector<double> true_solution(input_array);
