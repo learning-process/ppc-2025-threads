@@ -1,6 +1,7 @@
 #include "omp/moiseev_a_mult_mat/include/ops_omp.hpp"
 
 #include <cmath>
+#include <cstddef>
 #include <vector>
 
 bool moiseev_a_mult_mat_omp::MultMatOMP::PreProcessingImpl() {
