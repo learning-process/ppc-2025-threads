@@ -3,6 +3,7 @@
 #include <algorithm>
 #include <cstddef>
 #include <cstdint>
+#include <numeric>
 #include <vector>
 
 namespace chernykh_a_multidimensional_integral_rectangle_seq {
@@ -51,36 +52,28 @@ bool SequentialTask::PostProcessingImpl() {
 
 std::vector<double> SequentialTask::GetStepSizePerDim() const {
   auto step_size_per_dim = std::vector<double>(bounds_per_dim_.size());
-  for (size_t i = 0; i < bounds_per_dim_.size(); i++) {
+  for (size_t i = 0; i < step_size_per_dim.size(); i++) {
     step_size_per_dim[i] = (bounds_per_dim_[i].second - bounds_per_dim_[i].first) / steps_per_dim_[i];
   }
   return step_size_per_dim;
 }
 
 int SequentialTask::GetTotalPoints() const {
-  int total_points = 1;
-  for (size_t i = 0; i < bounds_per_dim_.size(); i++) {
-    total_points *= steps_per_dim_[i];
-  }
-  return total_points;
+  return std::accumulate(steps_per_dim_.begin(), steps_per_dim_.end(), 1, std::multiplies());
 }
 
-Point SequentialTask::GetPoint(int idx, const std::vector<double> &step_size_per_dim) const {
+Point SequentialTask::GetPoint(int point_idx, const std::vector<double> &step_size_per_dim) const {
   auto point = std::vector<double>(bounds_per_dim_.size());
-  for (size_t i = 0; i < bounds_per_dim_.size(); i++) {
-    int coordinate_idx = idx % steps_per_dim_[i];
+  for (size_t i = 0; i < point.size(); i++) {
+    int coordinate_idx = point_idx % steps_per_dim_[i];
     point[i] = bounds_per_dim_[i].first + (coordinate_idx + 1) * step_size_per_dim[i];
-    idx /= steps_per_dim_[i];
+    point_idx /= steps_per_dim_[i];
   }
   return point;
 }
 
-double SequentialTask::GetScalingFactor(const std::vector<double> &step_size_per_dim) const {
-  double scaling_factor = 1.0;
-  for (size_t i = 0; i < bounds_per_dim_.size(); i++) {
-    scaling_factor *= step_size_per_dim[i];
-  }
-  return scaling_factor;
+double SequentialTask::GetScalingFactor(const std::vector<double> &step_size_per_dim) {
+  return std::accumulate(step_size_per_dim.begin(), step_size_per_dim.end(), 1.0, std::multiplies());
 }
 
 }  // namespace chernykh_a_multidimensional_integral_rectangle_seq
