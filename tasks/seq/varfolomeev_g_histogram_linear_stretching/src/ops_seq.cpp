@@ -1,6 +1,7 @@
 #include "seq/varfolomeev_g_histogram_linear_stretching/include/ops_seq.hpp"
 
 #include <algorithm>
+#include <cmath>
 #include <cstddef>
 #include <vector>
 
@@ -27,7 +28,7 @@ bool varfolomeev_g_histogram_linear_stretching_seq::TestTaskSequential::Validati
 }
 
 bool varfolomeev_g_histogram_linear_stretching_seq::TestTaskSequential::RunImpl() {
-  if (img_.size() < 1) {
+  if (img_.empty()) {
     return false;
   }
   int min = *std::ranges::min_element(img_);
@@ -35,7 +36,7 @@ bool varfolomeev_g_histogram_linear_stretching_seq::TestTaskSequential::RunImpl(
 
   if (max != min) {
     for (size_t i = 0; i < img_.size(); i++) {
-      img_[i] = static_cast<int>(round(((img_[i] - min) / static_cast<double>(max - min)) * 255.0));
+      img_[i] = static_cast<int>(round((img_[i] - min) / static_cast<double>(max - min) * 255));
     }
   }
   return true;

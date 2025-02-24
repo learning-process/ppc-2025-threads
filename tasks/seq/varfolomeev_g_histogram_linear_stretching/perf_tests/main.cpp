@@ -1,9 +1,10 @@
 #include <gtest/gtest.h>
 
+#include <algorithm>
 #include <chrono>
+#include <cmath>
 #include <cstddef>
 #include <cstdint>
-#include <memory>
 #include <random>
 #include <vector>
 
@@ -29,7 +30,7 @@ TEST(varfolomeev_g_histogram_linear_stretching_seq, test_pipeline_run) {
   int max_val = *std::ranges::max_element(in);
   if (min_val != max_val) {
     for (size_t i = 0; i < in.size(); ++i) {
-      expected_out[i] = static_cast<int>(round(((in[i] - min_val) / static_cast<double>(max_val - min_val)) * 255.0));
+      expected_out[i] = static_cast<int>(round((in[i] - min_val) / static_cast<double>(max_val - min_val) * 255));
     }
   }
 
@@ -82,7 +83,7 @@ TEST(varfolomeev_g_histogram_linear_stretching_seq, test_task_run) {
   int max_val = *std::ranges::max_element(in);
   if (min_val != max_val) {
     for (size_t i = 0; i < in.size(); ++i) {
-      expected_out[i] = static_cast<int>(round(((in[i] - min_val) / static_cast<double>(max_val - min_val)) * 255.0));
+      expected_out[i] = static_cast<int>(round((in[i] - min_val) / static_cast<double>(max_val - min_val) * 255));
     }
   }
 
