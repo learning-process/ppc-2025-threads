@@ -42,6 +42,13 @@ bool kharin_m_multidimensional_integral_calc_seq::TaskSequential::PreProcessingI
   auto* steps_ptr = reinterpret_cast<double*>(task_data->inputs[2]);
   step_sizes_ = std::vector<double>(steps_ptr, steps_ptr + d);
 
+  // Проверка на отрицательные шаги
+  for (const auto& h : step_sizes_) {
+    if (h <= 0.0) {
+      return false;  // Отрицательный или нулевой шаг недопустим
+    }
+  }
+
   output_result_ = 0.0;
   return true;
 }

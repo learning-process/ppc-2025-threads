@@ -199,3 +199,24 @@ TEST(kharin_m_multidimensional_integral_calc_seq, test_random_data) {
 
   EXPECT_NEAR(out[0], expected_out, 1e-6);
 }
+
+TEST(kharin_m_multidimensional_integral_calc_seq, test_negative_step) {
+  std::vector<double> in = {1.0, 2.0, 3.0};
+  std::vector<size_t> grid_sizes = {3};
+  std::vector<double> step_sizes = {-0.5};  // Отрицательный шаг
+  std::vector<double> out(1, 0.0);
+
+  auto task_data_seq = std::make_shared<ppc::core::TaskData>();
+  task_data_seq->inputs.emplace_back(reinterpret_cast<uint8_t*>(in.data()));
+  task_data_seq->inputs_count.emplace_back(in.size());
+  task_data_seq->inputs.emplace_back(reinterpret_cast<uint8_t*>(grid_sizes.data()));
+  task_data_seq->inputs_count.emplace_back(grid_sizes.size());
+  task_data_seq->inputs.emplace_back(reinterpret_cast<uint8_t*>(step_sizes.data()));
+  task_data_seq->inputs_count.emplace_back(step_sizes.size());
+  task_data_seq->outputs.emplace_back(reinterpret_cast<uint8_t*>(out.data()));
+  task_data_seq->outputs_count.emplace_back(out.size());
+
+  kharin_m_multidimensional_integral_calc_seq::TaskSequential task(task_data_seq);
+  ASSERT_TRUE(task.Validation());      // Валидация структуры входов проходит
+  EXPECT_FALSE(task.PreProcessing());  // Предобработка должна завершиться неудачно из-за отрицательного шага
+}
