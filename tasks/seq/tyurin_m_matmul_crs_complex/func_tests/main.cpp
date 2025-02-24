@@ -14,7 +14,7 @@ namespace {
 Matrix RandMatrix(uint32_t rows, uint32_t cols, double percentage) {  // NOLINT(bugprone-easily-swappable-parameters)
   std::mt19937 gen(std::random_device{}());
   std::uniform_real_distribution<double> distr(-100, 100);
-  Matrix res{.rows=rows, .cols=cols, .data=std::vector<std::complex<double>>(rows * cols)};
+  Matrix res{.rows = rows, .cols = cols, .data = std::vector<std::complex<double>>(rows * cols)};
   std::ranges::generate(res.data, [&]() {
     const auto el = distr(gen);
     const auto re = (el < (distr.min() + ((distr.max() - distr.min()) * percentage))) ? el : 0;
