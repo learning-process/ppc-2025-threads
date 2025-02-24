@@ -12,27 +12,27 @@
 #include "seq/vavilov_v_cannon/include/ops_seq.hpp"
 
 static std::vector<double> GenerateRandomMatrix(unsigned int n, double min_val = -10.0, double max_val = 10.0) {
-    std::vector<double> matrix(n * n);
-    std::random_device rd;
-    std::mt19937 gen(rd());
-    std::uniform_real_distribution<double> dist(min_val, max_val);
+  std::vector<double> matrix(n * n);
+  std::random_device rd;
+  std::mt19937 gen(rd());
+  std::uniform_real_distribution<double> dist(min_val, max_val);
 
-    for (unsigned int i = 0; i < n * n; i++) {
-        matrix[i] = dist(gen);
-    }
-    return matrix;
+  for (unsigned int i = 0; i < n * n; i++) {
+    matrix[i] = dist(gen);
+  }
+  return matrix;
 }
 
 static std::vector<double> MultiplyMatrices(const std::vector<double>& a, const std::vector<double>& b, unsigned int n) {
-    std::vector<double> c(n * n, 0.0);
-    for (unsigned int i = 0; i < n; i++) {
-        for (unsigned int j = 0; j < n; j++) {
-            for (unsigned int k = 0; k < n; k++) {
-                c[(i * n) + j] += a[(i * n) + k] * b[(k * n) + j];
-            }
-        }
+  std::vector<double> c(n * n, 0.0);
+  for (unsigned int i = 0; i < n; i++) {
+    for (unsigned int j = 0; j < n; j++) {
+      for (unsigned int k = 0; k < n; k++) {
+        c[(i * n) + j] += a[(i * n) + k] * b[(k * n) + j];
+      }
     }
-    return c;
+  }
+  return c;
 }
 
 TEST(vavilov_v_cannon_seq, test_random) {
