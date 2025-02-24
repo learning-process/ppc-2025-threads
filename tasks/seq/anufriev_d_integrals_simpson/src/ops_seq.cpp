@@ -4,7 +4,6 @@
 #include <cstddef>
 #include <vector>
 
-namespace anufriev_d_integrals_simpson_seq {
 namespace {
 
 int SimpsonCoeff(int i, int n) {
@@ -18,6 +17,8 @@ int SimpsonCoeff(int i, int n) {
 }
 }  // namespace
 
+namespace anufriev_d_integrals_simpson_seq {
+  
 double IntegralsSimpsonSequential::Function(double x, double y) const {
   switch (func_code_) {
     case 0:
