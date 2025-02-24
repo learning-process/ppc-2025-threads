@@ -14,7 +14,7 @@ namespace {
 Matrix RandMatrix(uint32_t rows, uint32_t cols, double percentage) {  // NOLINT(bugprone-easily-swappable-parameters)
   std::mt19937 gen(std::random_device{}());
   std::uniform_real_distribution<double> distr(-100, 100);
-  Matrix res{rows, cols, std::vector<std::complex<double>>(rows * cols)};
+  Matrix res{.rows=rows, .cols=cols, .data=std::vector<std::complex<double>>(rows * cols)};
   std::ranges::generate(res.data, [&]() {
     const auto el = distr(gen);
     const auto re = (el < (distr.min() + ((distr.max() - distr.min()) * percentage))) ? el : 0;
@@ -53,21 +53,21 @@ void TestMatrixCRS(Matrix &&lhs, Matrix &&rhs) {
 
 // clang-format off
 TEST(tyurin_m_matmul_crs_complex_seq, test_regular_matrix_mult_1) {
-  Matrix lhs{ 5, 5, {
+  Matrix lhs{ .rows=5, .cols=5, .data={
     43, 46, 21, 21, 87,
     39, 26, 82, 65, 62,
     97, 47, 32, 16, 61,
     76, 43, 78, 50, 63,
     18, 14, 84, 22, 55
   }};
-  Matrix rhs{ 5, 5, {
+  Matrix rhs{ .rows=5, .cols=5, .data={
     43, 46, 21, 21, 87,
     39, 26, 82, 65, 62,
     97, 47, 32, 16, 61,
     76, 43, 78, 50, 63,
     18, 14, 84, 22, 55
   }};
-  Matrix ref{ 5, 5, {
+  Matrix ref{ .rows=5, .cols=5, .data={
     8842, 6282, 14293, 7193, 13982,
     16701, 9987, 15853, 8435, 17512,
     11422, 8730, 13287, 7746, 17668,
@@ -77,20 +77,20 @@ TEST(tyurin_m_matmul_crs_complex_seq, test_regular_matrix_mult_1) {
   EXPECT_EQ(MultiplyMat(lhs, rhs), ref);
 }
 TEST(tyurin_m_matmul_crs_complex_seq, test_regular_matrix_mult_2) {
-  Matrix lhs{ 5, 4, {
+  Matrix lhs{ .rows=5, .cols=4, .data={
     43, 46, 21, 21,
     39, 26, 82, 65,
     97, 47, 32, 16,
     76, 43, 78, 50,
     18, 14, 84, 22
   }};
-  Matrix rhs{ 4, 5, {
+  Matrix rhs{ .rows=4, .cols=5, .data={
     43, 46, 21, 21, 87,
     39, 26, 82, 65, 62,
     97, 47, 32, 16, 61,
     76, 43, 78, 50, 63
   }};
-  Matrix ref{ 5, 5, {
+  Matrix ref{ .rows=5, .cols=5, .data={
     7276, 5064, 6985, 5279, 9197,
     15585, 9119, 10645, 7071, 14102,
     10324, 7876, 8163, 6404, 14313,
