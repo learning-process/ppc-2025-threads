@@ -32,7 +32,7 @@ void ermilova_d_shell_sort_batcher_even_odd_merger_seq::TestTaskSequential::Shel
   int n = vec.size();
   std::vector<int> gaps = SedgwickSequence(n);
 
-  for (int k = static_cast<int> (gaps.size()) - 1; k >= 0; k--) {
+  for (int k = static_cast<int>(gaps.size()) - 1; k >= 0; k--) {
     int gap = gaps[k];
     for (int i = gap; i < n; i++) {
       int temp = vec[i];

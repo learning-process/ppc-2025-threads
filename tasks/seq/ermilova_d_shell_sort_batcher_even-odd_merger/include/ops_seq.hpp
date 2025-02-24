@@ -20,7 +20,6 @@ class TestTaskSequential : public ppc::core::Task {
  private:
   std::vector<int> input_, output_;
   bool is_descending_;
-  int rc_size_{};
 };
 
 }  // namespace ermilova_d_shell_sort_batcher_even_odd_merger_seq
