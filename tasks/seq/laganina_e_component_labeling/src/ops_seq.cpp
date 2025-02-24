@@ -86,34 +86,49 @@ bool laganina_e_component_labeling_seq::TestTaskSequential::PreProcessingImpl() 
 }
 
 bool laganina_e_component_labeling_seq::TestTaskSequential::RunImpl() {
-  int label = 1;  // Ќачальна¤ метка
+  FirstPass();
+  SecondPass();
+  return true;
+}
 
-  // ѕервый проход: маркировка компонент
+void laganina_e_component_labeling_seq::TestTaskSequential::FirstPass() {
+  int label = 1;  // Начальная метка
+
   for (int l = 0; l < m_; ++l) {
     for (int p = 0; p < n_; ++p) {
       if (binary_[(l * n_) + p] != 0) {
-        auto neighbors = NeighborsLabels(l, p);
-        if (neighbors.empty()) {
-          // Ќова¤ метка
-          step1_[(l * n_) + p] = label;
-          label++;
-        } else {
-          // Ќазначаем минимальную метку из соседей
-          int min_label = *std::ranges::min_element(neighbors);
-          step1_[(l * n_) + p] = min_label;
-
-          // ќбъедин¤ем метки
-          for (int neighbor_label : neighbors) {
-            if (neighbor_label != min_label) {
-              UnionSets(min_label, neighbor_label);
-            }
-          }
-        }
+        ProcessPixel(l, p, label);
       }
     }
   }
+}
 
-  // ¬торой проход: замена меток на корневые значени¤
+void laganina_e_component_labeling_seq::TestTaskSequential::ProcessPixel(int l, int p, int& label) {
+  auto neighbors = NeighborsLabels(l, p);
+  if (neighbors.empty()) {
+    // Новая метка
+    step1_[(l * n_) + p] = label;
+    label++;
+  } else {
+    // Назначаем минимальную метку из соседей
+    int min_label = *std::ranges::min_element(neighbors);
+    step1_[(l * n_) + p] = min_label;
+
+    // Объединяем метки
+    MergeLabels(min_label, neighbors);
+  }
+}
+
+void laganina_e_component_labeling_seq::TestTaskSequential::MergeLabels(int min_label,
+                                                                        const std::vector<int>& neighbors) {
+  for (int neighbor_label : neighbors) {
+    if (neighbor_label != min_label) {
+      UnionSets(min_label, neighbor_label);
+    }
+  }
+}
+
+void laganina_e_component_labeling_seq::TestTaskSequential::SecondPass() {
   for (int l = 0; l < m_; ++l) {
     for (int p = 0; p < n_; ++p) {
       if (binary_[(l * n_) + p] != 0) {
@@ -121,9 +136,7 @@ bool laganina_e_component_labeling_seq::TestTaskSequential::RunImpl() {
       }
     }
   }
-  return true;
 }
-
 bool laganina_e_component_labeling_seq::TestTaskSequential::PostProcessingImpl() {
   for (int i = 0; i < m_ * n_; ++i) {
     reinterpret_cast<int*>(task_data->outputs[0])[i] = labeled_binary_[i];

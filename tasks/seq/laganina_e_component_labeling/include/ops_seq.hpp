@@ -21,6 +21,10 @@ class TestTaskSequential : public ppc::core::Task {
   std::vector<int> parent_;
   std ::vector<int> step1_;
   int Find(int x);
+  void FirstPass();
+  void ProcessPixel(int l, int p, int& label);
+  void MergeLabels(int min_label, const std::vector<int>& neighbors);
+  void SecondPass();
   bool UnionSets(int x, int y);
   std::vector<int> NeighborsLabels(int x, int y);
 };
