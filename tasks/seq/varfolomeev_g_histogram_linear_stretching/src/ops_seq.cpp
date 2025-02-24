@@ -2,20 +2,22 @@
 
 #include <cmath>
 #include <cstddef>
-#include <iostream>
 #include <vector>
 
 bool varfolomeev_g_histogram_linear_stretching_seq::TestTaskSequential::PreProcessingImpl() {
   // Init value for input and output
   unsigned int input_size = task_data->inputs_count[0];
   auto *in_ptr = reinterpret_cast<int *>(task_data->inputs[0]);
-  img = std::vector<int>(in_ptr, in_ptr + input_size);
+  img_ = std::vector<int>(in_ptr, in_ptr + input_size);
   return true;
 }
 
 bool varfolomeev_g_histogram_linear_stretching_seq::TestTaskSequential::ValidationImpl() {
   // Check equality of counts elements
   if (task_data->inputs_count[0] == 0 || task_data->outputs_count[0] == 0) {
+    return false;
+  }
+  if (task_data->inputs_count[0] != task_data->outputs_count[0]) {
     return false;
   }
   if (task_data->inputs_count[0] == task_data->outputs_count[0]) {
@@ -31,32 +33,23 @@ bool varfolomeev_g_histogram_linear_stretching_seq::TestTaskSequential::Validati
 }
 
 bool varfolomeev_g_histogram_linear_stretching_seq::TestTaskSequential::RunImpl() {
-  int min = 255;
-  int max = 0;
-  for (size_t i = 0; i < img.size(); i++) {
-    int pixel = img[i];
-    if (pixel < min) {
-      min = pixel;
+  if (img_.size() < 1) {
+    return false;
+  }
+  int min = *std::ranges::min_element(img_);
+  int max = *std::ranges::max_element(img_);
+
+  if (max != min) {
+    for (size_t i = 0; i < img_.size(); i++) {
+      img_[i] = static_cast<int>(round(((img_[i] - min) / static_cast<double>(max - min)) * 255.0));
     }
-    if (pixel > max) {
-      max = pixel;
-    }
   }
-
-  if (max == min) {
-    return true;
-  }
-
-  for (size_t i = 0; i < img.size(); i++) {
-    img[i] = round(((img[i] - min) * 255.0) / (max - min));
-  }
-
   return true;
 }
 
 bool varfolomeev_g_histogram_linear_stretching_seq::TestTaskSequential::PostProcessingImpl() {
-  for (size_t i = 0; i < img.size(); i++) {
-    reinterpret_cast<int *>(task_data->outputs[0])[i] = img[i];
+  for (size_t i = 0; i < img_.size(); i++) {
+    reinterpret_cast<int *>(task_data->outputs[0])[i] = img_[i];
   }
   return true;
 }
