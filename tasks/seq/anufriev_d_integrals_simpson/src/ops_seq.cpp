@@ -9,11 +9,9 @@ namespace anufriev_d_integrals_simpson_seq {
 int SimpsonCoeff(int i, int n) {
   if (i == 0 || i == n) {
     return 1;
-
   } 
   if (i % 2 != 0) {
     return 4;
-    
   } 
   return 2;
 }
