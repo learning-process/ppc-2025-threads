@@ -11,8 +11,8 @@
 #include "seq/lysov_i_matrix_multiplication_Fox_algorithm/include/ops_seq.hpp"
 
 namespace lysov_i_matrix_multiplication_fox_algorithm_seq_ft {
-void TrivialMatrixMultiplication(const std::vector<double> &matrix_a, const std::vector<double> &matrix_b,
-                                 std::vector<double> &result_matrix, size_t matrix_size);
+void static TrivialMatrixMultiplication(const std::vector<double> &matrix_a, const std::vector<double> &matrix_b,
+                                        std::vector<double> &result_matrix, size_t matrix_size);
 std::vector<double> GetRandomMatrix(size_t size);
 std::vector<double> GetRandomMatrix(size_t size) {
   std::vector<double> matrix(size * size);
@@ -28,8 +28,8 @@ std::vector<double> GetRandomMatrix(size_t size) {
   return matrix;
 }
 
-void TrivialMatrixMultiplication(const std::vector<double> &matrix_a, const std::vector<double> &matrix_b,
-                                 std::vector<double> &result_matrix, size_t matrix_size) {
+void static TrivialMatrixMultiplication(const std::vector<double> &matrix_a, const std::vector<double> &matrix_b,
+                                        std::vector<double> &result_matrix, size_t matrix_size) {
   for (size_t row = 0; row < matrix_size; ++row) {
     for (size_t col = 0; col < matrix_size; ++col) {
       result_matrix[(row * matrix_size) + col] = 0.0;
