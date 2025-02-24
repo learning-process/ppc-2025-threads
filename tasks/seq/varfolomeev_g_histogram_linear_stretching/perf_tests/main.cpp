@@ -4,6 +4,7 @@
 #include <cstddef>
 #include <cstdint>
 #include <memory>
+#include <random>
 #include <vector>
 
 #include "core/perf/include/perf.hpp"
@@ -11,14 +12,26 @@
 #include "seq/varfolomeev_g_histogram_linear_stretching/include/ops_seq.hpp"
 
 TEST(varfolomeev_g_histogram_linear_stretching_seq, test_pipeline_run) {
-  constexpr int kCount = 500;
+  constexpr int kCount = 10000000;
 
   // Create data
-  std::vector<int> in(kCount * kCount, 0);
-  std::vector<int> out(kCount * kCount, 0);
+  std::vector<int> in(kCount, 0);
+  std::vector<int> out(kCount, 0);
+  std::vector<int> expected_out(kCount, 0);
 
-  for (size_t i = 0; i < kCount; i++) {
-    in[(i * kCount) + i] = 1;
+  std::mt19937 gen(42);  // Генератор случайных чисел с фиксированным seed
+  std::uniform_int_distribution<> dis(0, 255);
+  for (size_t i = 0; i < in.size(); ++i) {
+    in[i] = dis(gen);
+  }
+
+  int min_val = *std::min_element(in.begin(), in.end());
+  int max_val = *std::max_element(in.begin(), in.end());
+  if (min_val != max_val) {
+    for (size_t i = 0; i < in.size(); ++i) {
+      expected_out[i] =
+          static_cast<int>(std::round(((in[i] - min_val) / static_cast<double>(max_val - min_val)) * 255.0));
+    }
   }
 
   // Create task_data
@@ -49,18 +62,30 @@ TEST(varfolomeev_g_histogram_linear_stretching_seq, test_pipeline_run) {
   auto perf_analyzer = std::make_shared<ppc::core::Perf>(test_task_sequential);
   perf_analyzer->PipelineRun(perf_attr, perf_results);
   ppc::core::Perf::PrintPerfStatistic(perf_results);
-  ASSERT_EQ(in, out);
+  ASSERT_EQ(expected_out, out);
 }
 
 TEST(varfolomeev_g_histogram_linear_stretching_seq, test_task_run) {
-  constexpr int kCount = 500;
+  constexpr int kCount = 10000000;
 
   // Create data
-  std::vector<int> in(kCount * kCount, 0);
-  std::vector<int> out(kCount * kCount, 0);
+  std::vector<int> in(kCount, 0);
+  std::vector<int> out(kCount, 0);
+  std::vector<int> expected_out(kCount, 0);
 
-  for (size_t i = 0; i < kCount; i++) {
-    in[(i * kCount) + i] = 1;
+  std::mt19937 gen(42);  // Генератор случайных чисел с фиксированным seed
+  std::uniform_int_distribution<> dis(0, 255);
+  for (size_t i = 0; i < in.size(); ++i) {
+    in[i] = dis(gen);
+  }
+
+  int min_val = *std::min_element(in.begin(), in.end());
+  int max_val = *std::max_element(in.begin(), in.end());
+  if (min_val != max_val) {
+    for (size_t i = 0; i < in.size(); ++i) {
+      expected_out[i] =
+          static_cast<int>(std::round(((in[i] - min_val) / static_cast<double>(max_val - min_val)) * 255.0));
+    }
   }
 
   // Create task_data
@@ -91,5 +116,5 @@ TEST(varfolomeev_g_histogram_linear_stretching_seq, test_task_run) {
   auto perf_analyzer = std::make_shared<ppc::core::Perf>(test_task_sequential);
   perf_analyzer->TaskRun(perf_attr, perf_results);
   ppc::core::Perf::PrintPerfStatistic(perf_results);
-  ASSERT_EQ(in, out);
+  ASSERT_EQ(expected_out, out);
 }

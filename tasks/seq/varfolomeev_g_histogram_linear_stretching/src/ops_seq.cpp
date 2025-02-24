@@ -33,7 +33,7 @@ bool varfolomeev_g_histogram_linear_stretching_seq::TestTaskSequential::Validati
 bool varfolomeev_g_histogram_linear_stretching_seq::TestTaskSequential::RunImpl() {
   int min = 255;
   int max = 0;
-  for (int i = 0; i < img.size(); i++) {
+  for (size_t i = 0; i < img.size(); i++) {
     int pixel = img[i];
     if (pixel < min) {
       min = pixel;
@@ -47,7 +47,7 @@ bool varfolomeev_g_histogram_linear_stretching_seq::TestTaskSequential::RunImpl(
     return true;
   }
 
-  for (int i = 0; i < img.size(); i++) {
+  for (size_t i = 0; i < img.size(); i++) {
     img[i] = round(((img[i] - min) * 255.0) / (max - min));
   }
 
