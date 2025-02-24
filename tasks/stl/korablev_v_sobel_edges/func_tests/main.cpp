@@ -83,7 +83,7 @@ TEST(korablev_v_sobel_edges_test_stl, test_random) {
 
   std::random_device dev;
   std::mt19937 gen(dev());
-  std::uniform_int_distribution<uint8_t> dist(0, 255);
+  std::uniform_int_distribution<> dist(0, 255);
 
   std::vector<uint8_t> in(width * height * 3);
   std::ranges::generate(in.begin(), in.end(), [&] { return dist(gen); });
