@@ -1,13 +1,11 @@
 #include <gtest/gtest.h>
 
 #include <cmath>
-#include <cstddef>
-#include <cstdint>
+#include <cstring>
 #include <memory>
 #include <vector>
 
 #include "core/task/include/task.hpp"
-#include "core/util/include/util.hpp"
 #include "seq/anufriev_d_integrals_simpson/include/ops_seq.hpp"
 
 TEST(anufriev_d_integrals_simpson_seq, test_x2_plus_y2) {
@@ -22,8 +20,8 @@ TEST(anufriev_d_integrals_simpson_seq, test_x2_plus_y2) {
 
   anufriev_d_integrals_simpson_seq::IntegralsSimpsonSequential task(task_data_seq);
 
-  double* in_ptr = new double[in.size()];
-  std::memcpy(in_ptr, in.data(), in.size() * sizeof(double));
+  auto in_ptr = new double[in.size()];
+  memcpy(in_ptr, in.data(), in.size() * sizeof(double));
 
   ASSERT_TRUE(task.Validation());
   task.PreProcessing();
@@ -48,8 +46,8 @@ TEST(anufriev_d_integrals_simpson_seq, test_x2_plus_y2_x_not_equal_y) {
 
   anufriev_d_integrals_simpson_seq::IntegralsSimpsonSequential task(task_data_seq);
 
-  double* in_ptr = new double[in.size()];
-  std::memcpy(in_ptr, in.data(), in.size() * sizeof(double));
+  auto in_ptr = new double[in.size()];
+  memcpy(in_ptr, in.data(), in.size() * sizeof(double));
 
   ASSERT_TRUE(task.Validation());
   task.PreProcessing();
@@ -74,8 +72,8 @@ TEST(anufriev_d_integrals_simpson_seq, test_sin_cos_x_not_equal_y) {
 
   anufriev_d_integrals_simpson_seq::IntegralsSimpsonSequential task(task_data_seq);
 
-  double* in_ptr = new double[in.size()];
-  std::memcpy(in_ptr, in.data(), in.size() * sizeof(double));
+  auto in_ptr = new double[in.size()];
+  memcpy(in_ptr, in.data(), in.size() * sizeof(double));
 
   ASSERT_TRUE(task.Validation());
   task.PreProcessing();
@@ -100,8 +98,8 @@ TEST(anufriev_d_integrals_simpson_seq, test_sin_cos) {
 
   anufriev_d_integrals_simpson_seq::IntegralsSimpsonSequential task(task_data_seq);
 
-  double* in_ptr = new double[in.size()];
-  std::memcpy(in_ptr, in.data(), in.size() * sizeof(double));
+  auto in_ptr = new double[in.size()];
+  memcpy(in_ptr, in.data(), in.size() * sizeof(double));
 
   ASSERT_TRUE(task.Validation());
   task.PreProcessing();

@@ -2,25 +2,24 @@
 
 #include <cmath>
 #include <cstddef>
-#include <stdexcept>
 #include <vector>
 
 namespace anufriev_d_integrals_simpson_seq {
 
-static int SimpsonCoeff(int i, int n) {
+int SimpsonCoeff(int i, int n) {
   if (i == 0 || i == n) {
     return 1;
-  } else if (i % 2 != 0) {
+  } 
+  if (i % 2 != 0) {
     return 4;
-  } else {
-    return 2;
-  }
+  } 
+  return 2;
 }
 
 double IntegralsSimpsonSequential::Function(double x, double y) const {
   switch (func_code_) {
     case 0:
-      return x * x + y * y;
+      return (x * x) + (y * y);
     case 1:
       return std::sin(x) * std::cos(y);
     default:
@@ -66,7 +65,7 @@ bool IntegralsSimpsonSequential::PreProcessingImpl() {
 }
 
 bool IntegralsSimpsonSequential::ValidationImpl() {
-  if (task_data->outputs.size() < 1) {
+  if (task_data->outputs.empty()) {
     return false;
   }
   if (task_data->outputs_count[0] < 1) {
@@ -82,11 +81,11 @@ bool IntegralsSimpsonSequential::RunImpl() {
 
   double sum = 0.0;
   for (int j = 0; j <= ny_; ++j) {
-    double yj = ay_ + j * hy;
+    double yj = ay_ + (j * hy);
     int cj = SimpsonCoeff(j, ny_);
 
     for (int i = 0; i <= nx_; ++i) {
-      double xi = ax_ + i * hx;
+      double xi = ax_ + (i * hx);
       int ci = SimpsonCoeff(i, nx_);
 
       sum += ci * cj * Function(xi, yj);
