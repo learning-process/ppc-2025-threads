@@ -18,7 +18,7 @@ bool tsatsyn_a_radix_sort_simple_merge_seq::TestTaskSequential::ValidationImpl()
 
 bool tsatsyn_a_radix_sort_simple_merge_seq::TestTaskSequential::RunImpl() {
   std::vector<uint64_t> pozitive_copy, negative_copy;
-  for (int i = 0; i < input_data.size(); i++) {
+  for (int i = 0; i < static_cast<int>(input_data.size()); i++) {
     if (input_data[i] > 0.0) {
       pozitive_copy.emplace_back(*reinterpret_cast<uint64_t *>(&input_data[i]));
     } else {
@@ -53,10 +53,10 @@ bool tsatsyn_a_radix_sort_simple_merge_seq::TestTaskSequential::RunImpl() {
     negative_copy.insert(negative_copy.end(), group1.begin(), group1.end());
     negative_copy.insert(negative_copy.end(), group0.begin(), group0.end());
   }
-  for (int i = 0; i < negative_copy.size(); i++) {
+  for (int i = 0; i < static_cast<int>(negative_copy.size()); i++) {
     output[i] = *reinterpret_cast<double *>(&negative_copy[i]);
   }
-  for (int i = 0; i < pozitive_copy.size(); i++) {
+  for (int i = 0; i < static_cast<int>(pozitive_copy.size()); i++) {
     output[negative_copy.size() + i] = *reinterpret_cast<double *>(&pozitive_copy[i]);
   }
   return true;
