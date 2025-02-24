@@ -11,6 +11,8 @@
 #include "core/util/include/util.hpp"
 #include "seq/vavilov_v_cannon/include/ops_seq.hpp"
 
+namespace vavilov_v_cannon_seq {
+
 static std::vector<double> GenerateRandomMatrix(unsigned int n, double min_val = -10.0, double max_val = 10.0) {
   std::vector<double> matrix(n * n);
   std::random_device rd;
@@ -34,12 +36,13 @@ static std::vector<double> MultMat(const std::vector<double>& a, const std::vect
   }
   return c;
 }
+}
 
 TEST(vavilov_v_cannon_seq, test_random) {
   constexpr unsigned int kN = 16;
-  auto a = GenerateRandomMatrix(kN);
-  auto b = GenerateRandomMatrix(kN);
-  std::vector<double> expected_output = MultMat(a, b, kN);
+  auto a = vavilov_v_cannon_seq::GenerateRandomMatrix(kN);
+  auto b = vavilov_v_cannon_seq::GenerateRandomMatrix(kN);
+  std::vector<double> expected_output = vavilov_v_cannon_seq::MultMat(a, b, kN);
   std::vector<double> c(kN * kN, 0.0);
 
   auto task_data_seq = std::make_shared<ppc::core::TaskData>();
