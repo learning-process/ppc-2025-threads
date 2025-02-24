@@ -30,12 +30,12 @@ bool tsatsyn_a_radix_sort_simple_merge_seq::TestTaskSequential::RunImpl() {
   }
   int positive_bits = 0;
   if (!pozitive_copy.empty()) {
-    uint64_t max_positive = *std::max_element(pozitive_copy.begin(), pozitive_copy.end());
+    uint64_t max_positive = *std::ranges::max_element(pozitive_copy);
     positive_bits = std::bit_width(max_positive);
   }
   int negative_bits = 0;
   if (!negative_copy.empty()) {
-    uint64_t min_negative = *std::min_element(negative_copy.begin(), negative_copy.end());
+    uint64_t min_negative = *std::ranges::min_element(negative_copy);
     negative_bits = min_negative == 0 ? 0 : std::bit_width(min_negative);
   }
   for (int bit = 0; bit < positive_bits; bit++) {

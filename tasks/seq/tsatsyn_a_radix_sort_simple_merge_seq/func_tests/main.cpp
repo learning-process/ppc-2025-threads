@@ -1,16 +1,12 @@
 #include <gtest/gtest.h>
 
 #include <algorithm>
-#include <cstddef>
 #include <cstdint>
-#include <fstream>
 #include <memory>
 #include <random>
-#include <string>
 #include <vector>
 
 #include "core/task/include/task.hpp"
-#include "core/util/include/util.hpp"
 #include "seq/tsatsyn_a_radix_sort_simple_merge_seq/include/ops_seq.hpp"
 std::vector<double> tsatsyn_a_radix_sort_simple_merge_seq::GetRandomVector(int sz, int a, int b) {
   std::random_device dev;
