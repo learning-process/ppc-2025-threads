@@ -2,7 +2,6 @@
 
 #include <algorithm>
 #include <cstddef>
-#include <ranges>
 #include <vector>
 
 bool kozlova_e_contrast_enhancement_seq::TestTaskSequential::PreProcessingImpl() {

@@ -1,18 +1,19 @@
 #include <gtest/gtest.h>
+#include <stdlib.h>
 
 #include <algorithm>
 #include <chrono>
 #include <cstddef>
+#include <cstdint>
 #include <memory>
-#include <random>
-#include <ranges>
 #include <vector>
 
 #include "core/perf/include/perf.hpp"
 #include "core/task/include/task.hpp"
 #include "seq/kozlova_e_contrast_enhancement/include/ops_seq.hpp"
 
-static std::vector<int> GenerateVector(int length);
+namespace {
+std::vector<int> GenerateVector(int length);
 
 std::vector<int> GenerateVector(int length) {
   std::vector<int> vec;
@@ -22,6 +23,7 @@ std::vector<int> GenerateVector(int length) {
   }
   return vec;
 }
+}  // namespace
 
 TEST(kozlova_e_contrast_enhancement_seq, test_pipeline_run) {
   constexpr int kSize = 20000000;
