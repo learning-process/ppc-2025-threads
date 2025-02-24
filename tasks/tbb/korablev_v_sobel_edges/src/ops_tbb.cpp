@@ -57,7 +57,7 @@ bool korablev_v_sobel_edges_tbb::TestTask::RunImpl() {  // NOLINT(readability-fu
 
   oneapi::tbb::task_arena arena(ppc::util::GetPPCNumThreads());
   arena.execute([&] {
-    return oneapi::tbb::parallel_for(
+    oneapi::tbb::parallel_for(
         oneapi::tbb::blocked_range<std::size_t>(1, height - 1), [&](const tbb::blocked_range<std::size_t>& r) {
           for (std::size_t y = r.begin(); y < r.end(); ++y) {
             for (std::size_t x = 1; x < width - 1; ++x) {
