@@ -14,22 +14,16 @@ bool varfolomeev_g_histogram_linear_stretching_seq::TestTaskSequential::PreProce
 
 bool varfolomeev_g_histogram_linear_stretching_seq::TestTaskSequential::ValidationImpl() {
   // Check equality of counts elements
-  if (task_data->inputs_count[0] == 0 || task_data->outputs_count[0] == 0) {
+  if (task_data->inputs_count[0] == 0 || task_data->inputs_count[0] != task_data->outputs_count[0]) {
     return false;
   }
-  if (task_data->inputs_count[0] != task_data->outputs_count[0]) {
-    return false;
-  }
-  if (task_data->inputs_count[0] == task_data->outputs_count[0]) {
-    auto *in_ptr = reinterpret_cast<int *>(task_data->inputs[0]);
-    for (size_t i = 0; i < task_data->inputs_count[0]; ++i) {
-      if (in_ptr[i] < 0 || in_ptr[i] > 255) {
-        return false;
-      }
+  auto *in_ptr = reinterpret_cast<int *>(task_data->inputs[0]);
+  for (size_t i = 0; i < task_data->inputs_count[0]; ++i) {
+    if (in_ptr[i] < 0 || in_ptr[i] > 255) {
+      return false;
     }
-    return true;
   }
-  return false;
+  return true;
 }
 
 bool varfolomeev_g_histogram_linear_stretching_seq::TestTaskSequential::RunImpl() {

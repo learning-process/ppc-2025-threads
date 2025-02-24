@@ -237,9 +237,22 @@ TEST(varfolomeev_g_histogram_linear_stretching_seq, test_empty) {
   // Create Task
   varfolomeev_g_histogram_linear_stretching_seq::TestTaskSequential test_task_sequential(task_data_seq);
   ASSERT_EQ(test_task_sequential.Validation(), false);
-  test_task_sequential.PreProcessing();
-  test_task_sequential.Run();
-  test_task_sequential.PostProcessing();
+}
+
+TEST(varfolomeev_g_histogram_linear_stretching_seq, test_in_out_NE) {
+  // Create data
+  std::vector<int> in(12, 0);
+  std::vector<int> out(11, 0);
+  // Create task_data
+  auto task_data_seq = std::make_shared<ppc::core::TaskData>();
+  task_data_seq->inputs.emplace_back(reinterpret_cast<uint8_t *>(in.data()));
+  task_data_seq->inputs_count.emplace_back(in.size());
+  task_data_seq->outputs.emplace_back(reinterpret_cast<uint8_t *>(out.data()));
+  task_data_seq->outputs_count.emplace_back(out.size());
+
+  // Create Task
+  varfolomeev_g_histogram_linear_stretching_seq::TestTaskSequential test_task_sequential(task_data_seq);
+  ASSERT_EQ(test_task_sequential.Validation(), false);
 }
 
 TEST(varfolomeev_g_histogram_linear_stretching_seq, test_negative_values) {
