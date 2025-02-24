@@ -7,9 +7,9 @@
 
 bool sozonov_i_image_filtering_block_partitioning_seq::TestTaskSequential::PreProcessingImpl() {
   // Init image
-  unsigned int image_size = task_data->inputs_count[0];
+  image_ = std::vector<double>(task_data->inputs_count[0]);
   auto *image_ptr = reinterpret_cast<double *>(task_data->inputs[0]);
-  image_ = std::vector<double>(image_ptr, image_ptr + image_size);
+  std::ranges::copy(image_ptr, image_ptr + task_data->inputs_count[0], image_.begin());
 
   width_ = static_cast<int>(task_data->inputs_count[1]);
   height_ = static_cast<int>(task_data->inputs_count[2]);
@@ -21,9 +21,9 @@ bool sozonov_i_image_filtering_block_partitioning_seq::TestTaskSequential::PrePr
 
 bool sozonov_i_image_filtering_block_partitioning_seq::TestTaskSequential::ValidationImpl() {
   // Init image
-  unsigned int image_size = task_data->inputs_count[0];
+  image_ = std::vector<double>(task_data->inputs_count[0]);
   auto *image_ptr = reinterpret_cast<double *>(task_data->inputs[0]);
-  image_ = std::vector<double>(image_ptr, image_ptr + image_size);
+  std::ranges::copy(image_ptr, image_ptr + task_data->inputs_count[0], image_.begin());
 
   size_t img_size = task_data->inputs_count[1] * task_data->inputs_count[2];
 
@@ -35,8 +35,8 @@ bool sozonov_i_image_filtering_block_partitioning_seq::TestTaskSequential::Valid
   }
 
   // Check size of image
-  return task_data->inputs_count[0] == img_size && task_data->outputs_count[0] == img_size &&
-         task_data->inputs_count[1] >= 3 && task_data->inputs_count[2] >= 3;
+  return task_data->inputs_count[0] > 0 && task_data->inputs_count[0] == img_size &&
+         task_data->outputs_count[0] == img_size && task_data->inputs_count[1] >= 3 && task_data->inputs_count[2] >= 3;
 }
 
 bool sozonov_i_image_filtering_block_partitioning_seq::TestTaskSequential::RunImpl() {
