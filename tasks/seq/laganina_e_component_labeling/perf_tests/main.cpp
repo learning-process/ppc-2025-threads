@@ -11,7 +11,7 @@
 #include "seq/laganina_e_component_labeling/include/ops_seq.hpp"
 
 TEST(laganina_e_component_labeling_seq, test_pipeline_run) {
-  constexpr int kCount = 500;
+  constexpr int kCount = 1500;
 
   // Create data
   std::vector<int> in(kCount * kCount, 0);
@@ -35,7 +35,7 @@ TEST(laganina_e_component_labeling_seq, test_pipeline_run) {
 
   // Create Perf attributes
   auto perf_attr = std::make_shared<ppc::core::PerfAttr>();
-  perf_attr->num_running = 10;
+  perf_attr->num_running = 15;
   const auto t0 = std::chrono::high_resolution_clock::now();
   perf_attr->current_timer = [&] {
     auto current_time_point = std::chrono::high_resolution_clock::now();
@@ -54,7 +54,7 @@ TEST(laganina_e_component_labeling_seq, test_pipeline_run) {
 }
 
 TEST(laganina_e_component_labeling_seq, test_task_run) {
-  constexpr int kCount = 500;
+  constexpr int kCount = 1500;
 
   // Create data
   std::vector<int> in(kCount * kCount, 0);
@@ -78,7 +78,7 @@ TEST(laganina_e_component_labeling_seq, test_task_run) {
 
   // Create Perf attributes
   auto perf_attr = std::make_shared<ppc::core::PerfAttr>();
-  perf_attr->num_running = 10;
+  perf_attr->num_running = 15;
   const auto t0 = std::chrono::high_resolution_clock::now();
   perf_attr->current_timer = [&] {
     auto current_time_point = std::chrono::high_resolution_clock::now();

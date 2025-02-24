@@ -1,4 +1,3 @@
-#include <algorithm>
 #include <utility>
 #include <vector>
 
@@ -15,15 +14,15 @@ class TestTaskSequential : public ppc::core::Task {
   bool PostProcessingImpl() override;
 
  private:
-  int m;  // строки
-  int n;  // столбцы
-  std::vector<int> binary;
-  std::vector<int> labeled_binary;
-  std::vector<int> parent;
-  std ::vector<int> step1;
-  int find(int x);
-  bool Union_sets(int x, int y);
-  std::vector<int> neighbors_labels(int x, int y);
+  int m_;  // строки
+  int n_;  // столбцы
+  std::vector<int> binary_;
+  std::vector<int> labeled_binary_;
+  std::vector<int> parent_;
+  std ::vector<int> step1_;
+  int Find(int x);
+  bool UnionSets(int x, int y);
+  std::vector<int> NeighborsLabels(int x, int y);
 };
 
 }  // namespace laganina_e_component_labeling_seq
