@@ -23,7 +23,7 @@ void CountingSort(std::vector<double>& arr, int exp) {
     DoubleWrapper dw;
     dw.d = arr[i];
     uint64_t value = dw.u;
-    auto index = static_cast<int>((value >> (8 * exp)) & 0xFF;
+    auto index = static_cast<int>((value >> (8 * exp)) & 0xFF);
     count[index]++;
   }
 
@@ -35,7 +35,7 @@ void CountingSort(std::vector<double>& arr, int exp) {
     DoubleWrapper dw;
     dw.d = arr[i];
     uint64_t value = dw.u;
-    auto index = static_cast<int>((value >> (8 * exp)) & 0xFF;
+    auto index = static_cast<int>((value >> (8 * exp)) & 0xFF);
     output[count[index] - 1] = arr[i];
     count[index]--;
   }
