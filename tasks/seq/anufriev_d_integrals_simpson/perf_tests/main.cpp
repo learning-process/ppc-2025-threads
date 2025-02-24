@@ -9,10 +9,12 @@
 #include "seq/anufriev_d_integrals_simpson/include/ops_seq.hpp"
 
 TEST(anufriev_d_integrals_simpson_seq, test_pipeline_run) {
+
   double ax = 0.0; 
   double bx = 1.0;
   double ay = 0.0;
   double by = 1.0;
+
   int nx = 10000; 
   int ny = 10000;
   int func_code = 0;
@@ -50,11 +52,13 @@ TEST(anufriev_d_integrals_simpson_seq, test_pipeline_run) {
 }
 
 TEST(anufriev_d_integrals_simpson_seq_perf, test_task_run) {
+
   double ax = 0.0;
   double bx = 1.0;
   double ay = 0.0;
   double by = 1.0;
-  int nx = 10000,
+
+  int nx = 10000;
   int ny = 10000;
   int func_code = 0;
 

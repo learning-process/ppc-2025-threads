@@ -22,7 +22,7 @@ class IntegralsSimpsonSequential : public ppc::core::Task {
   int func_code_{};
   double result_{};
 
-  [[nodiscard]]  double Function(double x, double y) const;
+  [[nodiscard]] double Function(double x, double y) const;
 };
 
 }  // namespace anufriev_d_integrals_simpson_seq
