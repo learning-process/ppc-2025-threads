@@ -1,6 +1,6 @@
 #include "seq/varfolomeev_g_histogram_linear_stretching/include/ops_seq.hpp"
 
-#include <cmath>
+#include <algorithm>
 #include <cstddef>
 #include <vector>
 
