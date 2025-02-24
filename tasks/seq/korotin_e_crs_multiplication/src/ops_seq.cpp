@@ -85,8 +85,7 @@ bool korotin_e_crs_multiplication_seq::CrsMultiplicationSequential::RunImpl() {
           bt++;
         } else if (A_col_[ai] < tcol[bt]) {
           ai++;
-          }
-        else {
+        } else {
           bt++;
         }
       }

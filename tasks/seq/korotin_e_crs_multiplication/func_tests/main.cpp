@@ -48,8 +48,14 @@ TEST(korotin_e_crs_multiplication_seq, test_rnd_50_50_50) {
   const unsigned int m = 50;
   const unsigned int n = 50;
   const unsigned int p = 50;
-  std::vector<double> a, b, a_val, b_val;
-  std::vector<unsigned int> a_ri, a_col, b_ri, b_col;
+  std::vector<double> a;
+  std::vector<double> b;
+  std::vector<double> a_val;
+  std::vector<double> b_val;
+  std::vector<unsigned int> a_ri;
+  std::vector<unsigned int> a_col;
+  std::vector<unsigned int> b_ri;
+  std::vector<unsigned int> b_col;
   a = korotin_e_crs_multiplication_seq::GetRandomMatrix(m, n);
   b = korotin_e_crs_multiplication_seq::GetRandomMatrix(n, p);
   korotin_e_crs_multiplication_seq::MakeCRS(a_ri, a_col, a_val, a, m, n);
@@ -97,7 +103,7 @@ TEST(korotin_e_crs_multiplication_seq, test_rnd_50_50_50) {
   }
 
   korotin_e_crs_multiplication_seq::MakeCRS(c_ri, c_col, c_val, c, m, p);
-  EXpECT_EQ(c_ri, out_ri);
-  EXpECT_EQ(c_col, out_col);
-  EXpECT_EQ(c_val, out_val);
+  EXPECT_EQ(c_ri, out_ri);
+  EXPECT_EQ(c_col, out_col);
+  EXPECT_EQ(c_val, out_val);
 }
