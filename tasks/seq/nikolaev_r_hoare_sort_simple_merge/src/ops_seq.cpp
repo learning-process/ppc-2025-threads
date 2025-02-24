@@ -1,6 +1,9 @@
 #include "../include/ops_seq.hpp"
 
+#include <algorithm>
+#include <cstddef>
 #include <random>
+#include <vector>
 
 bool nikolaev_r_hoare_sort_simple_merge_seq::HoareSortSimpleMergeSequential::PreProcessingImpl() {
   vect_size_ = task_data->inputs_count[0];
@@ -30,7 +33,7 @@ bool nikolaev_r_hoare_sort_simple_merge_seq::HoareSortSimpleMergeSequential::Pos
 size_t nikolaev_r_hoare_sort_simple_merge_seq::HoareSortSimpleMergeSequential::Partition(size_t low, size_t high) {
   std::random_device rd;
   std::mt19937 gen(rd());
-  std::uniform_int_distribution<> dist(low, high);
+  std::uniform_int_distribution<int> dist(static_cast<int>(low), static_cast<int>(high));
 
   size_t random_pivot_index = dist(gen);
   double pivot = vect_[random_pivot_index];

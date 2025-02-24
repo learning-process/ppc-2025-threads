@@ -1,10 +1,18 @@
 #include <gtest/gtest.h>
 
+#include <algorithm>
+#include <cstddef>
+#include <cstdint>
+#include <memory>
 #include <random>
+#include <ranges>
+#include <vector>
 
 #include "../include/ops_seq.hpp"
+#include "core/task/include/task.hpp"
 
-static std::vector<double> GenerateRandomVector(size_t len, double min_val = -1000.0, double max_val = 1000.0) {
+namespace {
+std::vector<double> GenerateRandomVector(size_t len, double min_val = -1000.0, double max_val = 1000.0) {
   std::vector<double> vect(len);
 
   std::random_device rd;
@@ -36,13 +44,15 @@ static void CreateTest(size_t len) {
   ASSERT_TRUE(hoare_sort_simple_merge_sequential.PostProcessing());
 
   std::vector<double> ref(len);
-  std::copy(in.begin(), in.end(), ref.begin());
-  std::sort(ref.begin(), ref.end());
+  std::ranges::copy(in, ref.begin());
+  std::ranges::sort(ref);
 
   for (size_t i = 0; i < len; i++) {
     EXPECT_EQ(out[i], ref[i]);
   }
 }
+
+}  // namespace
 
 TEST(nikolaev_r_hoare_sort_simple_merge_seq, test_empty_vect) {
   std::vector<double> in = {};

@@ -1,12 +1,18 @@
 #include <gtest/gtest.h>
 
+#include <chrono>
+#include <cstddef>
+#include <cstdint>
+#include <memory>
 #include <random>
+#include <vector>
 
 #include "../include/ops_seq.hpp"
 #include "core/perf/include/perf.hpp"
 #include "core/task/include/task.hpp"
 
-static std::vector<double> GenerateRandomVector(size_t len, double min_val = -1000.0, double max_val = 1000.0) {
+namespace {
+std::vector<double> GenerateRandomVector(size_t len, double min_val = -1000.0, double max_val = 1000.0) {
   std::vector<double> vect(len);
 
   std::random_device rd;
@@ -20,11 +26,13 @@ static std::vector<double> GenerateRandomVector(size_t len, double min_val = -10
   return vect;
 }
 
-TEST(nikolaev_r_hoare_sort_simple_merge_seq, test_pipeline_run) {
-  constexpr size_t len = 250000;
+}  // namespace
 
-  std::vector<double> in = GenerateRandomVector(len);
-  std::vector<double> out(len, 0.0);
+TEST(nikolaev_r_hoare_sort_simple_merge_seq, test_pipeline_run) {
+  constexpr size_t kLen = 250000;
+
+  std::vector<double> in = GenerateRandomVector(kLen);
+  std::vector<double> out(kLen, 0.0);
 
   auto task_data_seq = std::make_shared<ppc::core::TaskData>();
   task_data_seq->inputs.emplace_back(reinterpret_cast<uint8_t *>(in.data()));
@@ -52,10 +60,10 @@ TEST(nikolaev_r_hoare_sort_simple_merge_seq, test_pipeline_run) {
 }
 
 TEST(nikolaev_r_hoare_sort_simple_merge_seq, test_task_run) {
-  constexpr size_t len = 250000;
+  constexpr size_t kLen = 250000;
 
-  std::vector<double> in = GenerateRandomVector(len);
-  std::vector<double> out(len, 0.0);
+  std::vector<double> in = GenerateRandomVector(kLen);
+  std::vector<double> out(kLen, 0.0);
 
   auto task_data_seq = std::make_shared<ppc::core::TaskData>();
   task_data_seq->inputs.emplace_back(reinterpret_cast<uint8_t *>(in.data()));
