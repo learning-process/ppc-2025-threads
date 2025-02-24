@@ -10,7 +10,6 @@
 #include "core/task/include/task.hpp"
 #include "seq/varfolomeev_g_histogram_linear_stretching/include/ops_seq.hpp"
 
-
 TEST(varfolomeev_g_histogram_linear_stretching_seq, test_manual_9) {
   // Create data
   std::vector<int> in = {100, 50, 200, 75, 150, 25, 175, 125, 225};
