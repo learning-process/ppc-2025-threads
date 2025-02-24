@@ -5,7 +5,6 @@
 #include <cstdint>
 #include <memory>
 #include <random>
-#include <ranges>
 #include <vector>
 
 #include "../include/ops_seq.hpp"
@@ -26,7 +25,7 @@ std::vector<double> GenerateRandomVector(size_t len, double min_val = -1000.0, d
   return vect;
 }
 
-static void CreateTest(size_t len) {
+void CreateTest(size_t len) {
   std::vector<double> in = GenerateRandomVector(len);
   std::vector<double> out(len, 0.0);
 
