@@ -1,7 +1,6 @@
 #include "seq/durynichev_d_integrals_simpson_method/include/ops_seq.hpp"
 
 #include <cmath>
-#include <cstddef>
 #include <vector>
 
 bool durynichev_d_integrals_simpson_method_seq::SimpsonIntegralSequential::PreProcessingImpl() {
