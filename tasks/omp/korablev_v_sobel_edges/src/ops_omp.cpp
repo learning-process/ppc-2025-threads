@@ -52,14 +52,14 @@ bool korablev_v_sobel_edges_omp::TestTask::RunImpl() {
   auto& image = in_.data;
 
 #pragma omp parallel for
-  for (std::size_t y = 1; y < height - 1; ++y) {
-    for (std::size_t x = 1; x < width - 1; ++x) {
+  for (int y = 1; y < static_cast<int>(height) - 1; ++y) {
+    for (int x = 1; x < static_cast<int>(width) - 1; ++x) {
       std::array<int32_t, 3> sum_x{0};
       std::array<int32_t, 3> sum_y{0};
 
       for (int ky = -1; ky <= 1; ++ky) {
         for (int kx = -1; kx <= 1; ++kx) {
-          int idx = ((y + ky) * width + (x + kx)) * 3;  // NOLINT(bugprone-narrowing-conversions)
+          int idx = ((y + ky) * static_cast<int>(width) + (x + kx)) * 3;
           for (int j = 0; j < 3; j++) {
             sum_x[j] += kSobelKernelX[ky + 1][kx + 1] * image[idx + j];
             sum_y[j] += kSobelKernelY[ky + 1][kx + 1] * image[idx + j];
@@ -68,7 +68,7 @@ bool korablev_v_sobel_edges_omp::TestTask::RunImpl() {
       }
 
       for (int i = 0; i < 3; ++i) {
-        out_.data[((y * width + x) * 3) + i] = static_cast<uint8_t>(
+        out_.data[((y * static_cast<int>(width) + x) * 3) + i] = static_cast<uint8_t>(
             std::min(static_cast<int32_t>(std::sqrt((sum_x[i] * sum_x[i]) + (sum_y[i] * sum_y[i]))), 255));
       }
     }
