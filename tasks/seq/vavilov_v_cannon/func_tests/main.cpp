@@ -36,6 +36,7 @@ std::vector<double> MultMat(const std::vector<double>& a, const std::vector<doub
   }
   return c;
 }
+
 } // namespace vavilov_v_cannon_seq
 
 TEST(vavilov_v_cannon_seq, test_random) {
