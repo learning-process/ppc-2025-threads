@@ -25,8 +25,7 @@ TEST(anufriev_d_integrals_simpson_seq, test_pipeline_run) {
   task_data_seq->outputs.emplace_back(reinterpret_cast<uint8_t*>(out.data()));
   task_data_seq->outputs_count.emplace_back(out.size());
 
-  auto task_seq = std::make_shared<anufriev_d_integrals_simpson_seq::IntegralsSimpsonSequential>
-(task_data_seq);
+  auto task_seq = std::make_shared<anufriev_d_integrals_simpson_seq::IntegralsSimpsonSequential>(task_data_seq);
 
   auto perf_attr = std::make_shared<ppc::core::PerfAttr>();
   perf_attr->num_running = 15;
@@ -34,8 +33,7 @@ TEST(anufriev_d_integrals_simpson_seq, test_pipeline_run) {
   const auto t0 = std::chrono::high_resolution_clock::now();
   perf_attr->current_timer = [&] {
     auto current_time_point = std::chrono::high_resolution_clock::now();
-    auto duration = std::chrono::duration_cast<std::chrono::nanoseconds>(current_time_point - 
-t0).count();
+    auto duration = std::chrono::duration_cast<std::chrono::nanoseconds>(current_time_point - t0).count();
     return static_cast<double>(duration) * 1e-9;
   };
 
@@ -65,8 +63,7 @@ TEST(anufriev_d_integrals_simpson_seq_perf, test_task_run) {
   task_data_seq->outputs.emplace_back(reinterpret_cast<uint8_t*>(out.data()));
   task_data_seq->outputs_count.emplace_back(out.size());
 
-  auto task_seq = std::make_shared<anufriev_d_integrals_simpson_seq::IntegralsSimpsonSequential>
-(task_data_seq);
+  auto task_seq = std::make_shared<anufriev_d_integrals_simpson_seq::IntegralsSimpsonSequential>(task_data_seq);
 
   auto perf_attr = std::make_shared<ppc::core::PerfAttr>();
   perf_attr->num_running = 15;
@@ -74,8 +71,7 @@ TEST(anufriev_d_integrals_simpson_seq_perf, test_task_run) {
   const auto t0 = std::chrono::high_resolution_clock::now();
   perf_attr->current_timer = [&] {
     auto current_time_point = std::chrono::high_resolution_clock::now();
-    auto duration = std::chrono::duration_cast<std::chrono::nanoseconds>(current_time_point - 
-t0).count();
+    auto duration = std::chrono::duration_cast<std::chrono::nanoseconds>(current_time_point - t0).count();
     return static_cast<double>(duration) * 1e-9;
   };
 
