@@ -10,7 +10,7 @@
 #include "core/perf/include/perf.hpp"
 #include "core/task/include/task.hpp"
 #include "seq/lysov_i_matrix_multiplication_Fox_algorithm/include/ops_seq.hpp"
-namespace {
+namespace lysov_i_matrix_multiplication_fox_algorithm_seq_pt {
 std::vector<double> GetRandomMatrix(size_t size) {
   std::vector<double> matrix(size * size);
   std::random_device rd;
@@ -24,13 +24,13 @@ std::vector<double> GetRandomMatrix(size_t size) {
   }
   return matrix;
 }
-}  // namespace
+}  // namespace lysov_i_matrix_multiplication_fox_algorithm_seq_pt
 TEST(lysov_i_matrix_multiplication_Fox_algorithm_seq, test_pipeline_run) {
   // Create data
   size_t n = 512;
   size_t block_size = 100;
-  std::vector<double> a = GetRandomMatrix(n);
-  std::vector<double> b = GetRandomMatrix(n);
+  std::vector<double> a = lysov_i_matrix_multiplication_fox_algorithm_seq_pt::GetRandomMatrix(n);
+  std::vector<double> b = lysov_i_matrix_multiplication_fox_algorithm_seq_pt::GetRandomMatrix(n);
   std::vector<double> c(n * n, 0);
   std::shared_ptr<ppc::core::TaskData> task_data_sequential = std::make_shared<ppc::core::TaskData>();
   task_data_sequential->inputs.emplace_back(reinterpret_cast<uint8_t *>(&n));
@@ -69,8 +69,8 @@ TEST(lysov_i_matrix_multiplication_Fox_algorithm_seq, test_pipeline_run) {
 TEST(lysov_i_matrix_multiplication_Fox_algorithm_seq, test_task_run) {
   size_t n = 512;
   size_t block_size = 100;
-  std::vector<double> a = GetRandomMatrix(n);
-  std::vector<double> b = GetRandomMatrix(n);
+  std::vector<double> a = lysov_i_matrix_multiplication_fox_algorithm_seq_pt::GetRandomMatrix(n);
+  std::vector<double> b = lysov_i_matrix_multiplication_fox_algorithm_seq_pt::GetRandomMatrix(n);
   std::vector<double> c(n * n, 0);
 
   std::shared_ptr<ppc::core::TaskData> task_data_sequential = std::make_shared<ppc::core::TaskData>();
