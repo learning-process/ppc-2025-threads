@@ -2,7 +2,9 @@
 
 #include <cstdint>
 #include <memory>
+#ifndef _WIN32
 #include <opencv2/opencv.hpp>
+#endif
 #include <string>
 #include <vector>
 
@@ -15,6 +17,7 @@
 class korablev_v_sobel_edges_test_seq  // NOLINT(readability-identifier-naming)
     : public ::testing::TestWithParam<std::string> {};
 
+#ifndef _WIN32
 TEST_P(korablev_v_sobel_edges_test_seq, compare_with_fixture) {
   const auto path = [](const std::string& f) { return "seq/korablev_v_sobel_edges/data/" + f + ".png"; };
 
@@ -68,3 +71,4 @@ INSTANTIATE_TEST_SUITE_P(                 // NOLINT(misc-use-anonymous-namespace
   )
 );
 // clang-format on
+#endif
