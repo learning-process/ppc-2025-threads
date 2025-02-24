@@ -20,7 +20,7 @@ TEST(anufriev_d_integrals_simpson_seq, test_x2_plus_y2) {
   task_data_seq->outputs_count.emplace_back(out.size());
 
   anufriev_d_integrals_simpson_seq::IntegralsSimpsonSequential task(task_data_seq);
-  
+
   std::unique_ptr<double[]> in_ptr(new double[in.size()]);
   memcpy(in_ptr.get(), in.data(), in.size() * sizeof(double));
 
@@ -44,7 +44,7 @@ TEST(anufriev_d_integrals_simpson_seq, test_x2_plus_y2_x_not_equal_y) {
   task_data_seq->outputs_count.emplace_back(out.size());
 
   anufriev_d_integrals_simpson_seq::IntegralsSimpsonSequential task(task_data_seq);
-  
+
   std::unique_ptr<double[]> in_ptr(new double[in.size()]);
   memcpy(in_ptr.get(), in.data(), in.size() * sizeof(double));
 
