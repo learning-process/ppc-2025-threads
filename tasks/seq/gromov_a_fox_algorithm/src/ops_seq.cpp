@@ -1,5 +1,4 @@
 #include "seq/gromov_a_fox_algorithm/include/ops_seq.hpp"
-
 #include <cmath>
 #include <cstddef>
 #include <vector>
@@ -34,7 +33,7 @@ bool gromov_a_fox_algorithm_seq::TestTaskSequential::ValidationImpl() {
     return false;
   }
   unsigned int matrix_size = input_size / 2;
-  unsigned int sqrt_matrix_size = static_cast<unsigned int>(std::sqrt(matrix_size));
+  auto sqrt_matrix_size = static_cast<unsigned int>(std::sqrt(matrix_size));
   return matrix_size == task_data->outputs_count[0] && sqrt_matrix_size * sqrt_matrix_size == matrix_size;
 }
 
@@ -47,7 +46,7 @@ bool gromov_a_fox_algorithm_seq::TestTaskSequential::RunImpl() {
         for (int bi = i; bi < i + block_size_ && bi < n_; ++bi) {
           for (int bj = j; bj < j + block_size_ && bj < n_; ++bj) {
             for (int bk = stage * block_size_; bk < (stage + 1) * block_size_ && bk < n_; ++bk) {
-              output_[bi * n_ + bj] += A_[bi * n_ + bk] * B_[bk * n_ + bj];
+              output_[(bi * n_) + bj] += A_[(bi * n_) + bk] * B_[(bk * n_) + bj];
             }
           }
         }
