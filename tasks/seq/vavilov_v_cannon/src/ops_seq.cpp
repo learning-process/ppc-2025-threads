@@ -20,7 +20,7 @@ bool vavilov_v_cannon_seq::CannonSequential::PreProcessingImpl() {
 
 bool vavilov_v_cannon_seq::CannonSequential::ValidationImpl() {
   unsigned int n = task_data->inputs_count[0];
-  unsigned int sqrt_n = static_cast<unsigned int>(std::sqrt(n));
+  auto sqrt_n = static_cast<unsigned int>(std::sqrt(n));
 
   return n == task_data->inputs_count[1] && task_data->outputs_count[0] == task_data->inputs_count[0] &&
          sqrt_n * sqrt_n == n;
