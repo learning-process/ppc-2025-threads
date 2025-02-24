@@ -105,7 +105,7 @@ TEST(korotin_e_crs_multiplication_seq, test_rnd_50_50_50) {
   korotin_e_crs_multiplication_seq::MakeCRS(c_ri, c_col, c_val, c, m, p);
   ASSERT_EQ(c_ri, out_ri);
   ASSERT_EQ(c_col, out_col);
-  ASSERT_DOUBLE_EQ(c_val, out_val);
+  ASSERT_EQ(c_val, out_val);
 }
 
 TEST(korotin_e_crs_multiplication_seq, test_rndcrs_stat_zeroes) {
@@ -180,7 +180,7 @@ TEST(korotin_e_crs_multiplication_seq, test_rndcrs_stat_zeroes) {
   korotin_e_crs_multiplication_seq::MakeCRS(c_ri, c_col, c_val, c, m, p);
   ASSERT_EQ(c_ri, out_ri);
   ASSERT_EQ(c_col, out_col);
-  ASSERT_DOUBLE_EQ(c_val, out_val);
+  ASSERT_EQ(c_val, out_val);
 }
 
 TEST(korotin_e_crs_multiplication_seq, test_rndcrs) {
@@ -255,5 +255,5 @@ TEST(korotin_e_crs_multiplication_seq, test_rndcrs) {
   korotin_e_crs_multiplication_seq::MakeCRS(c_ri, c_col, c_val, c, m, p);
   ASSERT_EQ(c_ri, out_ri);
   ASSERT_EQ(c_col, out_col);
-  ASSERT_DOUBLE_EQ(c_val, out_val);
+  ASSERT_EQ(c_val, out_val);
 }

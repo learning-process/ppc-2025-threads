@@ -80,7 +80,7 @@ TEST(korotin_e_crs_multiplication_seq, test_pipeline_run) {
 
   ASSERT_EQ(c_ri, out_ri);
   ASSERT_EQ(c_col, out_col);
-  ASSERT_DOUBLE_EQ(c_val, out_val);
+  ASSERT_EQ(c_val, out_val);
 }
 
 TEST(korotin_e_crs_multiplication_seq, test_task_run) {
@@ -154,5 +154,5 @@ TEST(korotin_e_crs_multiplication_seq, test_task_run) {
 
   ASSERT_EQ(c_ri, out_ri);
   ASSERT_EQ(c_col, out_col);
-  ASSERT_DOUBLE_EQ(c_val, out_val);
+  ASSERT_EQ(c_val, out_val);
 }
