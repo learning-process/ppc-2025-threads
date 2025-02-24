@@ -5,10 +5,8 @@
 #include <vector>
 
 bool vavilov_v_cannon_seq::CannonSequential::PreProcessingImpl() {
-  // Matrix with dim = (N * N). P - the total number of blocks. Each block have dim = (N/sqrt(P) * N/sqrt(P))
-  // Without limitation of generality P = N
   N_ = static_cast<unsigned int>(std::sqrt(task_data->inputs_count[0]));
-  num_blocks_ = static_cast<unsigned int>(std::sqrt(N_));  // num_blocks in row/col. Not the total number of blocks
+  num_blocks_ = static_cast<unsigned int>(std::sqrt(N_));
   block_size_ = N_ / num_blocks_;
 
   auto* a = reinterpret_cast<double*>(task_data->inputs[0]);
@@ -17,8 +15,12 @@ bool vavilov_v_cannon_seq::CannonSequential::PreProcessingImpl() {
   B_.assign(b, b + (N_ * N_));
   C_.assign(N_ * N_, 0);
 
-  InitialShift();
   return true;
+}
+
+bool vavilov_v_cannon_seq::CannonSequential::ValidationImpl() {
+  return task_data->inputs_count[0] == task_data->inputs_count[1] &&
+         task_data->outputs_count[0] == task_data->inputs_count[0];
 }
 
 void vavilov_v_cannon_seq::CannonSequential::InitialShift() {
@@ -41,11 +43,6 @@ void vavilov_v_cannon_seq::CannonSequential::InitialShift() {
   }
 }
 
-bool vavilov_v_cannon_seq::CannonSequential::ValidationImpl() {
-  return task_data->inputs_count[0] == task_data->inputs_count[1] &&
-         task_data->outputs_count[0] == task_data->inputs_count[0];
-}
-
 void vavilov_v_cannon_seq::CannonSequential::BlockMultiply() {
   for (unsigned int bi = 0; bi < N_; bi += block_size_) {
     for (unsigned int bj = 0; bj < N_; bj += block_size_) {
@@ -53,10 +50,10 @@ void vavilov_v_cannon_seq::CannonSequential::BlockMultiply() {
         for (unsigned int j = bj; j < bj + block_size_; j++) {
           double temp = 0.0;
           for (unsigned int k = 0; k < block_size_; k++) {
-            unsigned int row_a = bi + (i - bi);  // row_A index
-            unsigned int col_a = bj + k;         // col_A index
-            unsigned int row_b = bi + k;         // row_B index
-            unsigned int col_b = bj + (j - bj);  // col_B index
+            unsigned int row_a = bi + (i - bi);
+            unsigned int col_a = bj + k;
+            unsigned int row_b = bi + k;
+            unsigned int col_b = bj + (j - bj);
 
             temp += A_[(row_a * N_) + col_a] * B_[(row_b * N_) + col_b];
           }
@@ -89,6 +86,7 @@ void vavilov_v_cannon_seq::CannonSequential::ShiftBlocks() {
 }
 
 bool vavilov_v_cannon_seq::CannonSequential::RunImpl() {
+  InitialShift();
   for (unsigned int iter = 0; iter < num_blocks_; ++iter) {
     BlockMultiply();
     ShiftBlocks();
