@@ -13,7 +13,7 @@
 
 namespace vavilov_v_cannon_seq {
 
-static std::vector<double> GenerateRandomMatrix(unsigned int n, double min_val = -10.0, double max_val = 10.0) {
+std::vector<double> GenerateRandomMatrix(unsigned int n, double min_val = -10.0, double max_val = 10.0) {
   std::vector<double> matrix(n * n);
   std::random_device rd;
   std::mt19937 gen(rd());
@@ -25,7 +25,7 @@ static std::vector<double> GenerateRandomMatrix(unsigned int n, double min_val =
   return matrix;
 }
 
-static std::vector<double> MultMat(const std::vector<double>& a, const std::vector<double>& b, unsigned int n) {
+std::vector<double> MultMat(const std::vector<double>& a, const std::vector<double>& b, unsigned int n) {
   std::vector<double> c(n * n, 0.0);
   for (unsigned int i = 0; i < n; i++) {
     for (unsigned int j = 0; j < n; j++) {
@@ -36,7 +36,7 @@ static std::vector<double> MultMat(const std::vector<double>& a, const std::vect
   }
   return c;
 }
-}
+} // namespace vavilov_v_cannon_seq
 
 TEST(vavilov_v_cannon_seq, test_random) {
   constexpr unsigned int kN = 16;
