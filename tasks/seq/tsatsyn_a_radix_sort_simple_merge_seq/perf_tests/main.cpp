@@ -1,7 +1,6 @@
 #include <gtest/gtest.h>
 
 #include <chrono>
-#include <cstddef>
 #include <cstdint>
 #include <memory>
 #include <random>
@@ -11,7 +10,7 @@
 #include "core/task/include/task.hpp"
 #include "seq/tsatsyn_a_radix_sort_simple_merge_seq/include/ops_seq.hpp"
 
-static std::vector<double> getRandomVector(int sz, int a, int b) {
+std::vector<double> tsatsyn_a_radix_sort_simple_merge_seq::GetRandomVector(int sz, int a, int b) {
   std::random_device dev;
   std::mt19937 gen(dev());
   std::uniform_real_distribution<> dis(a, b);
@@ -26,7 +25,7 @@ TEST(tsatsyn_a_radix_sort_simple_merge_seq, test_pipeline_run) {
   constexpr int kCount = 500;
 
   // Create data
-  std::vector<double> in = getRandomVector(kCount * kCount, 0, 100);
+  std::vector<double> in = tsatsyn_a_radix_sort_simple_merge_seq::GetRandomVector(kCount * kCount, 0, 100);
   std::vector<double> out(kCount * kCount, 0);
 
   // Create task_data
@@ -65,7 +64,7 @@ TEST(tsatsyn_a_radix_sort_simple_merge_seq, test_task_run) {
   constexpr int kCount = 500;
 
   // Create data
-  std::vector<double> in = getRandomVector(kCount * kCount, 0, 100);
+  std::vector<double> in = tsatsyn_a_radix_sort_simple_merge_seq::GetRandomVector(kCount * kCount, 0, 100);
   std::vector<double> out(kCount * kCount, 0);
 
   // Create task_data
