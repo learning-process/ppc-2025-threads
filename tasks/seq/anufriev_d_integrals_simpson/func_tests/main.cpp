@@ -1,6 +1,7 @@
 #include <gtest/gtest.h>
 
 #include <cmath>
+#include <cstdint>
 #include <cstring>
 #include <memory>
 #include <vector>
@@ -20,7 +21,7 @@ TEST(anufriev_d_integrals_simpson_seq, test_x2_plus_y2) {
 
   anufriev_d_integrals_simpson_seq::IntegralsSimpsonSequential task(task_data_seq);
 
-  auto in_ptr = new double[in.size()];
+  auto *in_ptr = new double[in.size()];
   memcpy(in_ptr, in.data(), in.size() * sizeof(double));
 
   ASSERT_TRUE(task.Validation());
@@ -46,7 +47,7 @@ TEST(anufriev_d_integrals_simpson_seq, test_x2_plus_y2_x_not_equal_y) {
 
   anufriev_d_integrals_simpson_seq::IntegralsSimpsonSequential task(task_data_seq);
 
-  auto in_ptr = new double[in.size()];
+  auto *in_ptr = new double[in.size()];
   memcpy(in_ptr, in.data(), in.size() * sizeof(double));
 
   ASSERT_TRUE(task.Validation());
@@ -72,7 +73,7 @@ TEST(anufriev_d_integrals_simpson_seq, test_sin_cos_x_not_equal_y) {
 
   anufriev_d_integrals_simpson_seq::IntegralsSimpsonSequential task(task_data_seq);
 
-  auto in_ptr = new double[in.size()];
+  auto *in_ptr = new double[in.size()];
   memcpy(in_ptr, in.data(), in.size() * sizeof(double));
 
   ASSERT_TRUE(task.Validation());
@@ -98,7 +99,7 @@ TEST(anufriev_d_integrals_simpson_seq, test_sin_cos) {
 
   anufriev_d_integrals_simpson_seq::IntegralsSimpsonSequential task(task_data_seq);
 
-  auto in_ptr = new double[in.size()];
+  auto *in_ptr = new double[in.size()];
   memcpy(in_ptr, in.data(), in.size() * sizeof(double));
 
   ASSERT_TRUE(task.Validation());
