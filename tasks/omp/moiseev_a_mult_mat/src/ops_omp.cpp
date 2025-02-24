@@ -65,7 +65,7 @@ bool moiseev_a_mult_mat_omp::MultMatOMP::RunImpl() {
 }
 
 bool moiseev_a_mult_mat_omp::MultMatOMP::PostProcessingImpl() {
-  auto *out_ptr = reinterpret_cast<double*>(task_data->outputs[0]);
+  auto* out_ptr = reinterpret_cast<double*>(task_data->outputs[0]);
   std::ranges::copy(matrix_c_, out_ptr);
   return true;
 }
