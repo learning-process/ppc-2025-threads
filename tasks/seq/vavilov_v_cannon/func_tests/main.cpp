@@ -3,36 +3,36 @@
 #include <cstdint>
 #include <fstream>
 #include <memory>
+#include <random>
 #include <string>
 #include <vector>
-#include <random>
 
 #include "core/task/include/task.hpp"
 #include "core/util/include/util.hpp"
 #include "seq/vavilov_v_cannon/include/ops_seq.hpp"
 
-std::vector<double> GenerateRandomMatrix(unsigned int N, double min_val = -10.0, double max_val = 10.0) {
-    std::vector<double> matrix(N * N);
+static std::vector<double> GenerateRandomMatrix(unsigned int n, double min_val = -10.0, double max_val = 10.0) {
+    std::vector<double> matrix(n * n);
     std::random_device rd;
     std::mt19937 gen(rd());
     std::uniform_real_distribution<double> dist(min_val, max_val);
 
-    for (unsigned int i = 0; i < N * N; i++) {
+    for (unsigned int i = 0; i < n * n; i++) {
         matrix[i] = dist(gen);
     }
     return matrix;
 }
 
-std::vector<double> MultiplyMatrices(const std::vector<double>& A, const std::vector<double>& B, unsigned int N) {
-    std::vector<double> C(N * N, 0.0);
-    for (unsigned int i = 0; i < N; i++) {
-        for (unsigned int j = 0; j < N; j++) {
-            for (unsigned int k = 0; k < N; k++) {
-                C[(i * N) + j] += A[(i * N) + k] * B[(k * N) + j];
+static std::vector<double> MultiplyMatrices(const std::vector<double>& a, const std::vector<double>& b, unsigned int n) {
+    std::vector<double> c(n * n, 0.0);
+    for (unsigned int i = 0; i < n; i++) {
+        for (unsigned int j = 0; j < n; j++) {
+            for (unsigned int k = 0; k < n; k++) {
+                c[(i * n) + j] += a[(i * n) + k] * b[(k * n) + j];
             }
         }
     }
-    return C;
+    return c;
 }
 
 TEST(vavilov_v_cannon_seq, test_random) {
