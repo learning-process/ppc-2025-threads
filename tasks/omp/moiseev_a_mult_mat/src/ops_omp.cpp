@@ -1,7 +1,7 @@
 #include "omp/moiseev_a_mult_mat/include/ops_omp.hpp"
 
+#include <algorithm>
 #include <cmath>
-#include <cstddef>
 #include <vector>
 
 bool moiseev_a_mult_mat_omp::MultMatOMP::PreProcessingImpl() {
@@ -65,8 +65,7 @@ bool moiseev_a_mult_mat_omp::MultMatOMP::RunImpl() {
 }
 
 bool moiseev_a_mult_mat_omp::MultMatOMP::PostProcessingImpl() {
-  for (size_t i = 0; i < matrix_c_.size(); i++) {
-    reinterpret_cast<double*>(task_data->outputs[0])[i] = matrix_c_[i];
-  }
+  auto *out_ptr = reinterpret_cast<double *>(task_data->outputs[0]);
+  std::ranges::copy(matrix_c_, out_ptr);
   return true;
 }
