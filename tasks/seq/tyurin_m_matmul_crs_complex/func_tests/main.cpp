@@ -128,3 +128,30 @@ TEST(tyurin_m_matmul_crs_complex_seq, test_crs_random_30x1p70mul1x1p63) {
 TEST(tyurin_m_matmul_crs_complex_seq, test_crs_random_30x1p38mul1x1p63) {
   TestMatrixCRS(RandMatrix(30, 1, .38), RandMatrix(1, 30, .63));
 }
+TEST(tyurin_m_matmul_crs_complex_seq, test_regular_matrix_mult_inv) {
+  Matrix lhs{.rows = 3, .cols = 3, .data = {1, 0, 0, 1, -1, 0, 1, 0, 1}};
+  Matrix rhs{.rows = 3, .cols = 3, .data = {1, 0, 0, 1, -1, 0, -1, 0, 1}};
+  Matrix ref{.rows = 3, .cols = 3, .data = {1, 0, 0, 0, 1, 0, 0, 0, 1}};
+  EXPECT_EQ(MultiplyMat(lhs, rhs), ref);
+}
+TEST(tyurin_m_matmul_crs_complex_seq, test_crs_random_inv) {
+  TestMatrixCRS({.rows = 3, .cols = 3, .data = {1, 0, 0, 1, -1, 0, 1, 0, 1}},
+                {.rows = 3, .cols = 3, .data = {1, 0, 0, 1, -1, 0, -1, 0, 1}});
+}
+TEST(tyurin_m_matmul_crs_complex_seq, validation_failure) {
+  const auto lhs = RandMatrix(30, 40, .70);
+  const auto rhs = RandMatrix(50, 50, .70);
+
+  MatrixCRS crs_lhs = RegularToCRS(lhs);
+  MatrixCRS crs_rhs = RegularToCRS(rhs);
+  MatrixCRS crs_out;
+
+  auto data = std::make_shared<ppc::core::TaskData>();
+  data->inputs = {reinterpret_cast<uint8_t *>(&crs_lhs), reinterpret_cast<uint8_t *>(&crs_rhs)};
+  data->inputs_count = {lhs.rows, lhs.cols, rhs.rows, rhs.cols};
+  data->outputs = {reinterpret_cast<uint8_t *>(&crs_out)};
+  data->outputs_count = {1};
+
+  tyurin_m_matmul_crs_complex_seq::TestTaskSequential task(data);
+  EXPECT_FALSE(task.Validation());
+}
