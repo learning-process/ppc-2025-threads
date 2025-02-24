@@ -1,5 +1,7 @@
 #include "seq/tsatsyn_a_radix_sort_simple_merge_seq/include/ops_seq.hpp"
 
+#include <algorithm>
+#include <bit>
 #include <cmath>
 #include <cstddef>
 #include <cstdint>
@@ -26,7 +28,17 @@ bool tsatsyn_a_radix_sort_simple_merge_seq::TestTaskSequential::RunImpl() {
       negative_copy.emplace_back(*reinterpret_cast<uint64_t *>(&input_data_[i]));
     }
   }
-  for (int bit = 0; bit < 64; bit++) {
+  int positive_bits = 0;
+  if (!pozitive_copy.empty()) {
+    uint64_t max_positive = *std::max_element(pozitive_copy.begin(), pozitive_copy.end());
+    positive_bits = std::bit_width(max_positive);
+  }
+  int negative_bits = 0;
+  if (!negative_copy.empty()) {
+    uint64_t min_negative = *std::min_element(negative_copy.begin(), negative_copy.end());
+    negative_bits = min_negative == 0 ? 0 : std::bit_width(min_negative);
+  }
+  for (int bit = 0; bit < positive_bits; bit++) {
     std::vector<uint64_t> group0;
     std::vector<uint64_t> group1;
     for (uint64_t b : pozitive_copy) {
@@ -41,22 +53,24 @@ bool tsatsyn_a_radix_sort_simple_merge_seq::TestTaskSequential::RunImpl() {
     pozitive_copy.insert(pozitive_copy.end(), group0.begin(), group0.end());
     pozitive_copy.insert(pozitive_copy.end(), group1.begin(), group1.end());
   }
-  for (int bit = 0; bit < 64; bit++) {
-    std::vector<uint64_t> group0;
-    std::vector<uint64_t> group1;
-    for (uint64_t b : negative_copy) {
-      if (((b >> bit) & 1) != 0U) {
-        group1.push_back(b);
-      } else {
-        group0.push_back(b);
+  if (!negative_copy.empty()) {
+    for (int bit = 0; bit < negative_bits; bit++) {
+      std::vector<uint64_t> group0;
+      std::vector<uint64_t> group1;
+      for (uint64_t b : negative_copy) {
+        if (((b >> bit) & 1) != 0U) {
+          group1.push_back(b);
+        } else {
+          group0.push_back(b);
+        }
       }
+      negative_copy.clear();
+      negative_copy.insert(negative_copy.end(), group1.begin(), group1.end());
+      negative_copy.insert(negative_copy.end(), group0.begin(), group0.end());
     }
-    negative_copy.clear();
-    negative_copy.insert(negative_copy.end(), group1.begin(), group1.end());
-    negative_copy.insert(negative_copy.end(), group0.begin(), group0.end());
-  }
-  for (int i = 0; i < static_cast<int>(negative_copy.size()); i++) {
-    output_[i] = *reinterpret_cast<double *>(&negative_copy[i]);
+    for (int i = 0; i < static_cast<int>(negative_copy.size()); i++) {
+      output_[i] = *reinterpret_cast<double *>(&negative_copy[i]);
+    }
   }
   for (int i = 0; i < static_cast<int>(pozitive_copy.size()); i++) {
     output_[negative_copy.size() + i] = *reinterpret_cast<double *>(&pozitive_copy[i]);

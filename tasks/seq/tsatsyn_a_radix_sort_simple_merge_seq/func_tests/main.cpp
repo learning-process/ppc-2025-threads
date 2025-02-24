@@ -198,35 +198,3 @@ TEST(tsatsyn_a_radix_sort_simple_merge_seq, pozitive_double_100000) {
   std::ranges::sort(in);
   EXPECT_EQ(in, out);
 }
-
-TEST(tsatsyn_a_radix_sort_simple_merge_seq, test_matmul_from_file) {
-  std::string line;
-  std::ifstream test_file(ppc::util::GetAbsolutePath("seq/tsatsyn_a_radix_sort_simple_merge_seq/data/test.txt"));
-  if (test_file.is_open()) {
-    getline(test_file, line);
-  }
-  test_file.close();
-
-  const size_t count = std::stoi(line);
-
-  // Create data
-  std::vector<double> in =
-      tsatsyn_a_radix_sort_simple_merge_seq::GetRandomVector(static_cast<int>(count * count), 0, 100);
-  std::vector<double> out(count * count, 0);
-
-  // Create task_data
-  auto task_data_seq = std::make_shared<ppc::core::TaskData>();
-  task_data_seq->inputs.emplace_back(reinterpret_cast<uint8_t *>(in.data()));
-  task_data_seq->inputs_count.emplace_back(in.size());
-  task_data_seq->outputs.emplace_back(reinterpret_cast<uint8_t *>(out.data()));
-  task_data_seq->outputs_count.emplace_back(out.size());
-
-  // Create Task
-  tsatsyn_a_radix_sort_simple_merge_seq::TestTaskSequential test_task_sequential(task_data_seq);
-  ASSERT_EQ(test_task_sequential.Validation(), true);
-  test_task_sequential.PreProcessing();
-  test_task_sequential.Run();
-  test_task_sequential.PostProcessing();
-  std::ranges::sort(in);
-  EXPECT_EQ(in, out);
-}
