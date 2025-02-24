@@ -6,6 +6,7 @@
 #include <complex>
 #include <cstddef>
 #include <iostream>
+#include <utility>
 #include <vector>
 
 void kolodkin_g_multiplication_matrix_omp::SparseMatrixCRS::AddValue(int row, Complex value, int col) {
@@ -166,7 +167,7 @@ bool kolodkin_g_multiplication_matrix_omp::TestTaskOpenMP::RunImpl() {
 
   for (int i = 0; i < A_.numRows; i++) {
     for (const auto& result : local_results[i]) {
-      c.AddValue(i, result.second, result.first);
+      c.AddValue(i, result.second, (int)result.first);
     }
   }
 
