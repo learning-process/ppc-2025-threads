@@ -46,40 +46,49 @@ bool korotin_e_crs_multiplication_seq::CrsMultiplicationSequential::ValidationIm
 }
 
 bool korotin_e_crs_multiplication_seq::CrsMultiplicationSequential::RunImpl() {
-  std::vector<unsigned int> trI(*std::max_element(B_col_.begin(), B_col_.end()) + 2, 0);
-  unsigned int i;
-  unsigned int j;
-  for (i = 0; i < B_Nz_; i++) trI[B_col_[i] + 1]++;
-  for (i = 1; i < trI.size(); i++) trI[i] += trI[i - 1];
+  std::vector<unsigned int> tr_i(*std::ranges::max_element(B_col_.begin(), B_col_.end()) + 2, 0);
+  unsigned int i = 0;
+  unsigned int j = 0;
+  for (i = 0; i < B_Nz_; i++) {
+    tr_i[B_col_[i] + 1]++;
+  }
+  for (i = 1; i < tr_i.size(); i++) {
+    tr_i[i] += tr_i[i - 1];
+  }
 
   std::vector<unsigned int> tcol(B_Nz_, 0);
   std::vector<double> tval(B_Nz_, 0);
-  for (i = 0; i < B_N_ - 1; i++)
+  for (i = 0; i < B_N_ - 1; i++) {
     for (j = B_rI_[i]; j < B_rI_[i + 1]; j++) {
-      tval[trI[B_col_[j]]] = B_val_[j];
-      tcol[trI[B_col_[j]]] = i;
-      trI[B_col_[j]]++;
+      tval[tr_i[B_col_[j]]] = B_val_[j];
+      tcol[tr_i[B_col_[j]]] = i;
+      tr_i[B_col_[j]]++;
     }
-  for (i = trI.size() - 1; i > 0; i--) trI[i] = trI[i - 1];
-  trI[0] = 0;
+  }
+  for (i = tr_i.size() - 1; i > 0; i--) {
+    tr_i[i] = tr_i[i - 1];
+  }
+  tr_i[0] = 0;
 
-  unsigned int ai;
-  unsigned int bt;
-  double sum;
-  for (i = 0; i < A_N_ - 1; i++)
-    for (j = 0; j < trI.size() - 1; j++) {
+  unsigned int ai = 0;
+  unsigned int bt = 0;
+  double sum = 0;
+  for (i = 0; i < A_N_ - 1; i++) {
+    for (j = 0; j < tr_i.size() - 1; j++) {
       sum = 0;
       ai = A_rI_[i];
-      bt = trI[j];
-      while (ai < A_rI_[i + 1] && bt < trI[j + 1]) {
+      bt = tr_i[j];
+      while (ai < A_rI_[i + 1] && bt < tr_i[j + 1]) {
         if (A_col_[ai] == tcol[bt]) {
           sum += A_val_[ai] * tval[bt];
           ai++;
           bt++;
-        } else if (A_col_[ai] < tcol[bt])
+        } else if (A_col_[ai] < tcol[bt]) {
           ai++;
-        else
+          }
+        else {
           bt++;
+        }
       }
       if (sum != 0) {
         output_val_.push_back(sum);
@@ -87,7 +96,10 @@ bool korotin_e_crs_multiplication_seq::CrsMultiplicationSequential::RunImpl() {
         output_rI_[i + 1]++;
       }
     }
-  for (i = 1; i < A_N_; i++) output_rI_[i] += output_rI_[i - 1];
+  }
+  for (i = 1; i < A_N_; i++) {
+    output_rI_[i] += output_rI_[i - 1];
+  }
   return true;
 }
 

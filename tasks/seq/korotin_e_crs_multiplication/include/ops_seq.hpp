@@ -1,6 +1,7 @@
 #pragma once
 
 #include <vector>
+#include <utility>
 
 #include "core/task/include/task.hpp"
 
@@ -20,9 +21,9 @@ class CrsMultiplicationSequential : public ppc::core::Task {
   unsigned int A_N_, A_Nz_, B_N_, B_Nz_;
 };
 
-std::vector<double> GetRandomMatrix(unsigned int M, unsigned int N);
+std::vector<double> GetRandomMatrix(unsigned int m, unsigned int n);
 
-void MakeCRS(std::vector<unsigned int> &rI, std::vector<unsigned int> &col, std::vector<double> &val,
-             const std::vector<double> &src, unsigned int M, unsigned int N);
+void MakeCRS(std::vector<unsigned int> &r_i, std::vector<unsigned int> &col, std::vector<double> &val,
+             const std::vector<double> &src, unsigned int m, unsigned int n);
 
 }  // namespace korotin_e_crs_multiplication_seq

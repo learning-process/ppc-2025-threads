@@ -1,7 +1,6 @@
 #include <gtest/gtest.h>
 
 #include <chrono>
-#include <cstddef>
 #include <cstdint>
 #include <memory>
 #include <vector>
@@ -11,43 +10,51 @@
 #include "seq/korotin_e_crs_multiplication/include/ops_seq.hpp"
 
 TEST(korotin_e_crs_multiplication_seq, test_pipeline_run) {
-  const unsigned int N = 1000;
+  const unsigned int n = 1000;
 
-  std::vector<double> A_val(N * N, 1), B_val(N * N, 1), C_val(N * N, N);
-  std::vector<unsigned int> A_rI(N + 1, 0), A_col(N * N), B_rI(N + 1, 0), B_col(N * N), C_rI(N + 1, 0), C_col(N * N);
+  std::vector<double> a_val(n * n, 1);
+  std::vector<double> b_val(n * n, 1);
+  std::vector<double> c_val(n * n, n);
+  std::vector<unsigned int> a_ri(n + 1, 0);
+  std::vector<unsigned int> a_col(n * n);
+  std::vector<unsigned int> b_ri(n + 1, 0);
+  std::vector<unsigned int> b_col(n * n);
+  std::vector<unsigned int> c_ri(n + 1, 0);
+  std::vector<unsigned int> c_col(n * n);
 
-  for (unsigned int i = 0; i < N; i++) {
-    for (unsigned int j = 0; j < N; j++) {
-      A_col[i * N + j] = j;
-      B_col[i * N + j] = j;
-      C_col[i * N + j] = j;
+  for (unsigned int i = 0; i < n; i++) {
+    for (unsigned int j = 0; j < n; j++) {
+      a_col[(i * n) + j] = j;
+      b_col[(i * n) + j] = j;
+      c_col[(i * n) + j] = j;
     }
-    A_rI[i + 1] = N * (i + 1);
-    B_rI[i + 1] = N * (i + 1);
-    C_rI[i + 1] = N * (i + 1);
+    a_ri[i + 1] = n * (i + 1);
+    b_ri[i + 1] = n * (i + 1);
+    c_ri[i + 1] = n * (i + 1);
   }
 
   auto task_data_seq = std::make_shared<ppc::core::TaskData>();
-  task_data_seq->inputs.emplace_back(reinterpret_cast<uint8_t *>(A_rI.data()));
-  task_data_seq->inputs.emplace_back(reinterpret_cast<uint8_t *>(A_col.data()));
-  task_data_seq->inputs.emplace_back(reinterpret_cast<uint8_t *>(A_val.data()));
-  task_data_seq->inputs_count.emplace_back(A_rI.size());
-  task_data_seq->inputs_count.emplace_back(A_col.size());
-  task_data_seq->inputs_count.emplace_back(A_val.size());
+  task_data_seq->inputs.emplace_back(reinterpret_cast<uint8_t *>(a_ri.data()));
+  task_data_seq->inputs.emplace_back(reinterpret_cast<uint8_t *>(a_col.data()));
+  task_data_seq->inputs.emplace_back(reinterpret_cast<uint8_t *>(a_val.data()));
+  task_data_seq->inputs_count.emplace_back(a_ri.size());
+  task_data_seq->inputs_count.emplace_back(a_col.size());
+  task_data_seq->inputs_count.emplace_back(a_val.size());
 
-  task_data_seq->inputs.emplace_back(reinterpret_cast<uint8_t *>(B_rI.data()));
-  task_data_seq->inputs.emplace_back(reinterpret_cast<uint8_t *>(B_col.data()));
-  task_data_seq->inputs.emplace_back(reinterpret_cast<uint8_t *>(B_val.data()));
-  task_data_seq->inputs_count.emplace_back(B_rI.size());
-  task_data_seq->inputs_count.emplace_back(B_col.size());
-  task_data_seq->inputs_count.emplace_back(B_val.size());
+  task_data_seq->inputs.emplace_back(reinterpret_cast<uint8_t *>(b_ri.data()));
+  task_data_seq->inputs.emplace_back(reinterpret_cast<uint8_t *>(b_col.data()));
+  task_data_seq->inputs.emplace_back(reinterpret_cast<uint8_t *>(b_val.data()));
+  task_data_seq->inputs_count.emplace_back(b_ri.size());
+  task_data_seq->inputs_count.emplace_back(b_col.size());
+  task_data_seq->inputs_count.emplace_back(b_val.size());
 
-  std::vector<unsigned int> out_rI(A_rI.size(), 0), out_col(N * N);
-  std::vector<double> out_val(N * N);
-  task_data_seq->outputs.emplace_back(reinterpret_cast<uint8_t *>(out_rI.data()));
+  std::vector<unsigned int> out_ri(a_ri.size(), 0);
+  std::vector<unsigned int> out_col(n * n);
+  std::vector<double> out_val(n * n);
+  task_data_seq->outputs.emplace_back(reinterpret_cast<uint8_t *>(out_ri.data()));
   task_data_seq->outputs.emplace_back(reinterpret_cast<uint8_t *>(out_col.data()));
   task_data_seq->outputs.emplace_back(reinterpret_cast<uint8_t *>(out_val.data()));
-  task_data_seq->outputs_count.emplace_back(out_rI.size());
+  task_data_seq->outputs_count.emplace_back(out_ri.size());
 
   // Create Task
   auto test_task_sequential =
@@ -71,49 +78,57 @@ TEST(korotin_e_crs_multiplication_seq, test_pipeline_run) {
   perf_analyzer->PipelineRun(perf_attr, perf_results);
   ppc::core::Perf::PrintPerfStatistic(perf_results);
 
-  ASSERT_EQ(C_rI, out_rI);
-  ASSERT_EQ(C_col, out_col);
-  ASSERT_EQ(C_val, out_val);
+  ASSERT_EQ(c_ri, out_ri);
+  ASSERT_EQ(c_col, out_col);
+  ASSERT_EQ(c_val, out_val);
 }
 
 TEST(korotin_e_crs_multiplication_seq, test_task_run) {
-  const unsigned int N = 1000;
+  const unsigned int n = 1000;
 
-  std::vector<double> A_val(N * N, 1), B_val(N * N, 1), C_val(N * N, N);
-  std::vector<unsigned int> A_rI(N + 1, 0), A_col(N * N), B_rI(N + 1, 0), B_col(N * N), C_rI(N + 1, 0), C_col(N * N);
+  std::vector<double> a_val(n * n, 1);
+  std::vector<double> b_val(n * n, 1);
+  std::vector<double> c_val(n * n, n);
+  std::vector<unsigned int> a_ri(n + 1, 0);
+  std::vector<unsigned int> a_col(n * n);
+  std::vector<unsigned int> b_ri(n + 1, 0);
+  std::vector<unsigned int> b_col(n * n);
+  std::vector<unsigned int> c_ri(n + 1, 0);
+  std::vector<unsigned int> c_col(n * n);
 
-  for (unsigned int i = 0; i < N; i++) {
-    for (unsigned int j = 0; j < N; j++) {
-      A_col[i * N + j] = j;
-      B_col[i * N + j] = j;
-      C_col[i * N + j] = j;
+  for (unsigned int i = 0; i < n; i++) {
+    for (unsigned int j = 0; j < n; j++) {
+      a_col[(i * n) + j] = j;
+      b_col[(i * n) + j] = j;
+      c_col[(i * n) + j] = j;
     }
-    A_rI[i + 1] = N * (i + 1);
-    B_rI[i + 1] = N * (i + 1);
-    C_rI[i + 1] = N * (i + 1);
+    a_ri[i + 1] = n * (i + 1);
+    b_ri[i + 1] = n * (i + 1);
+    c_ri[i + 1] = n * (i + 1);
   }
 
   auto task_data_seq = std::make_shared<ppc::core::TaskData>();
-  task_data_seq->inputs.emplace_back(reinterpret_cast<uint8_t *>(A_rI.data()));
-  task_data_seq->inputs.emplace_back(reinterpret_cast<uint8_t *>(A_col.data()));
-  task_data_seq->inputs.emplace_back(reinterpret_cast<uint8_t *>(A_val.data()));
-  task_data_seq->inputs_count.emplace_back(A_rI.size());
-  task_data_seq->inputs_count.emplace_back(A_col.size());
-  task_data_seq->inputs_count.emplace_back(A_val.size());
+  task_data_seq->inputs.emplace_back(reinterpret_cast<uint8_t *>(a_ri.data()));
+  task_data_seq->inputs.emplace_back(reinterpret_cast<uint8_t *>(a_col.data()));
+  task_data_seq->inputs.emplace_back(reinterpret_cast<uint8_t *>(a_val.data()));
+  task_data_seq->inputs_count.emplace_back(a_ri.size());
+  task_data_seq->inputs_count.emplace_back(a_col.size());
+  task_data_seq->inputs_count.emplace_back(a_val.size());
 
-  task_data_seq->inputs.emplace_back(reinterpret_cast<uint8_t *>(B_rI.data()));
-  task_data_seq->inputs.emplace_back(reinterpret_cast<uint8_t *>(B_col.data()));
-  task_data_seq->inputs.emplace_back(reinterpret_cast<uint8_t *>(B_val.data()));
-  task_data_seq->inputs_count.emplace_back(B_rI.size());
-  task_data_seq->inputs_count.emplace_back(B_col.size());
-  task_data_seq->inputs_count.emplace_back(B_val.size());
+  task_data_seq->inputs.emplace_back(reinterpret_cast<uint8_t *>(b_ri.data()));
+  task_data_seq->inputs.emplace_back(reinterpret_cast<uint8_t *>(b_col.data()));
+  task_data_seq->inputs.emplace_back(reinterpret_cast<uint8_t *>(b_val.data()));
+  task_data_seq->inputs_count.emplace_back(b_ri.size());
+  task_data_seq->inputs_count.emplace_back(b_col.size());
+  task_data_seq->inputs_count.emplace_back(b_val.size());
 
-  std::vector<unsigned int> out_rI(A_rI.size(), 0), out_col(N * N);
-  std::vector<double> out_val(N * N);
-  task_data_seq->outputs.emplace_back(reinterpret_cast<uint8_t *>(out_rI.data()));
+  std::vector<unsigned int> out_ri(a_ri.size(), 0);
+  std::vector<unsigned int> out_col(n * n);
+  std::vector<double> out_val(n * n);
+  task_data_seq->outputs.emplace_back(reinterpret_cast<uint8_t *>(out_ri.data()));
   task_data_seq->outputs.emplace_back(reinterpret_cast<uint8_t *>(out_col.data()));
   task_data_seq->outputs.emplace_back(reinterpret_cast<uint8_t *>(out_val.data()));
-  task_data_seq->outputs_count.emplace_back(out_rI.size());
+  task_data_seq->outputs_count.emplace_back(out_ri.size());
 
   // Create Task
   auto test_task_sequential =
@@ -137,7 +152,7 @@ TEST(korotin_e_crs_multiplication_seq, test_task_run) {
   perf_analyzer->TaskRun(perf_attr, perf_results);
   ppc::core::Perf::PrintPerfStatistic(perf_results);
 
-  ASSERT_EQ(C_rI, out_rI);
-  ASSERT_EQ(C_col, out_col);
-  ASSERT_EQ(C_val, out_val);
+  ASSERT_EQ(c_ri, out_ri);
+  ASSERT_EQ(c_col, out_col);
+  ASSERT_EQ(c_val, out_val);
 }
