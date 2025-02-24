@@ -23,7 +23,7 @@ static std::vector<double> GenerateRandomMatrix(unsigned int n, double min_val =
   return matrix;
 }
 
-static std::vector<double> MultiplyMatrices(const std::vector<double>& a, const std::vector<double>& b, unsigned int n) {
+static std::vector<double> MultMat(const std::vector<double>& a, const std::vector<double>& b, unsigned int n) {
   std::vector<double> c(n * n, 0.0);
   for (unsigned int i = 0; i < n; i++) {
     for (unsigned int j = 0; j < n; j++) {
@@ -39,7 +39,7 @@ TEST(vavilov_v_cannon_seq, test_random) {
   constexpr unsigned int kN = 16;
   auto a = GenerateRandomMatrix(kN);
   auto b = GenerateRandomMatrix(kN);
-  std::vector<double> expected_output = MultiplyMatrices(a, b, kN);
+  std::vector<double> expected_output = MultMat(a, b, kN);
   std::vector<double> c(kN * kN, 0.0);
 
   auto task_data_seq = std::make_shared<ppc::core::TaskData>();
