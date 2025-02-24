@@ -82,8 +82,11 @@ TEST(malyshev_a_increase_contrast_by_histogram_seq, low_contrast) {
 
 #ifndef _WIN32
 TEST(malyshev_a_increase_contrast_by_histogram_seq, pic_from_file) {
-  cv::Mat img = cv::imread(ppc::util::GetAbsolutePath("seq/malyshev_a_increase_contrast_by_histogram/data/pic.jpg"),
+  cv::Mat img = cv::imread(ppc::util::GetAbsolutePath("seq/malyshev_a_increase_contrast_by_histogram/data/input.jpg"),
                            cv::IMREAD_GRAYSCALE);
+  cv::Mat reference =
+      cv::imread(ppc::util::GetAbsolutePath("seq/malyshev_a_increase_contrast_by_histogram/data/reference.jpg"),
+                 cv::IMREAD_GRAYSCALE);
 
   std::vector<uint8_t> input(img.data, img.data + img.total());
   std::vector<uint8_t> output(input.size());
@@ -95,6 +98,10 @@ TEST(malyshev_a_increase_contrast_by_histogram_seq, pic_from_file) {
   auto [output_min, output_max] = std::ranges::minmax_element(output);
   EXPECT_LE(*output_min, *input_min);
   EXPECT_GE(*output_max, *input_max);
+
+  cv::Mat result(img.rows, img.cols, CV_8UC1, output.data());
+  double mse = cv::norm(result, reference, cv::NORM_L2) / (result.rows * result.cols);
+  EXPECT_LE(mse, 0.01);
 }
 #endif
 
