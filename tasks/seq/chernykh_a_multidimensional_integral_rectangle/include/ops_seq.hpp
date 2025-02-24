@@ -9,15 +9,20 @@
 namespace chernykh_a_multidimensional_integral_rectangle_seq {
 
 using Point = std::vector<double>;
-using Func = std::function<double(const Point&)>;
-using Bounds = std::pair<double, double>;
-using BoundsPerDim = std::vector<Bounds>;
-using Steps = int;
-using StepsPerDim = std::vector<int>;
+using Function = std::function<double(const Point &)>;
+
+struct Dimension {
+  double lower_bound_{};
+  double upper_bound_{};
+  int steps_count_{};
+
+  bool IsValid() const;
+  double GetStepSize() const;
+};
 
 class SequentialTask final : public ppc::core::Task {
  public:
-  explicit SequentialTask(ppc::core::TaskDataPtr task_data, Func func)
+  explicit SequentialTask(ppc::core::TaskDataPtr task_data, Function func)
       : Task(std::move(task_data)), func_(std::move(func)) {}
   bool ValidationImpl() override;
   bool PreProcessingImpl() override;
@@ -25,15 +30,13 @@ class SequentialTask final : public ppc::core::Task {
   bool PostProcessingImpl() override;
 
  private:
-  Func func_;
-  BoundsPerDim bounds_per_dim_;
-  StepsPerDim steps_per_dim_;
+  Function func_;
+  std::vector<Dimension> dims_;
   double result_{};
 
-  [[nodiscard]] std::vector<double> GetStepSizePerDim() const;
-  [[nodiscard]] int GetTotalPoints() const;
-  [[nodiscard]] Point GetPoint(int point_idx, const std::vector<double>& step_size_per_dim) const;
-  [[nodiscard]] static double GetScalingFactor(const std::vector<double>& step_size_per_dim);
+  int GetTotalPoints() const;
+  Point GetPoint(int index) const;
+  double GetScalingFactor() const;
 };
 
 }  // namespace chernykh_a_multidimensional_integral_rectangle_seq

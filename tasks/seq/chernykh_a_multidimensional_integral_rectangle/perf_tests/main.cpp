@@ -16,15 +16,12 @@ using namespace chernykh_a_multidimensional_integral_rectangle_seq;
 
 enum class RunType : uint8_t { kTask, kPipeline };
 
-void RunTask(const RunType run_type, const Func& func, BoundsPerDim& bounds_per_dim, StepsPerDim& steps_per_dim,
-             const double want) {
+void RunTask(const RunType run_type, const Function& func, std::vector<Dimension>& dims, const double want) {
   double output = 0.0;
 
   auto task_data = std::make_shared<ppc::core::TaskData>();
-  task_data->inputs.emplace_back(reinterpret_cast<uint8_t*>(bounds_per_dim.data()));
-  task_data->inputs_count.emplace_back(bounds_per_dim.size());
-  task_data->inputs.emplace_back(reinterpret_cast<uint8_t*>(steps_per_dim.data()));
-  task_data->inputs_count.emplace_back(steps_per_dim.size());
+  task_data->inputs.emplace_back(reinterpret_cast<uint8_t*>(dims.data()));
+  task_data->inputs_count.emplace_back(dims.size());
   task_data->outputs.emplace_back(reinterpret_cast<uint8_t*>(&output));
   task_data->outputs_count.emplace_back(1);
 
@@ -55,31 +52,23 @@ void RunTask(const RunType run_type, const Func& func, BoundsPerDim& bounds_per_
 }
 
 TEST(chernykh_a_multidimensional_integral_rectangle_seq, test_pipeline_run) {
-  auto func = [](const Point& point) -> double {
+  Function func = [](const Point& point) -> double {
     return std::exp(-point[0] - point[1] - point[2]) * std::sin(point[0]) * std::sin(point[1]) * std::sin(point[2]);
   };
-  auto bounds_per_dim = BoundsPerDim{
-      {0.0, std::numbers::pi},
-      {0.0, std::numbers::pi},
-      {0.0, std::numbers::pi},
-  };
-  auto steps_per_dim = StepsPerDim{125, 125, 125};
+  std::vector<Dimension> dims = {
+      {0.0, std::numbers::pi, 125}, {0.0, std::numbers::pi, 125}, {0.0, std::numbers::pi, 125}};
   double want = std::pow((1.0 + std::exp(-std::numbers::pi)) / 2.0, 3);
-  RunTask(RunType::kPipeline, func, bounds_per_dim, steps_per_dim, want);
+  RunTask(RunType::kPipeline, func, dims, want);
 }
 
 TEST(chernykh_a_multidimensional_integral_rectangle_seq, test_task_run) {
-  auto func = [](const Point& point) -> double {
+  Function func = [](const Point& point) -> double {
     return std::exp(-point[0] - point[1] - point[2]) * std::sin(point[0]) * std::sin(point[1]) * std::sin(point[2]);
   };
-  auto bounds_per_dim = BoundsPerDim{
-      {0.0, std::numbers::pi},
-      {0.0, std::numbers::pi},
-      {0.0, std::numbers::pi},
-  };
-  auto steps_per_dim = StepsPerDim{125, 125, 125};
+  std::vector<Dimension> dims = {
+      {0.0, std::numbers::pi, 125}, {0.0, std::numbers::pi, 125}, {0.0, std::numbers::pi, 125}};
   double want = std::pow((1.0 + std::exp(-std::numbers::pi)) / 2.0, 3);
-  RunTask(RunType::kTask, func, bounds_per_dim, steps_per_dim, want);
+  RunTask(RunType::kTask, func, dims, want);
 }
 
 }  // namespace

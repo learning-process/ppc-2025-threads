@@ -9,40 +9,30 @@
 
 namespace chernykh_a_multidimensional_integral_rectangle_seq {
 
+bool Dimension::IsValid() const { return lower_bound_ < upper_bound_ && steps_count_ > 0; }
+
+double Dimension::GetStepSize() const { return (upper_bound_ - lower_bound_) / steps_count_; }
+
 bool SequentialTask::ValidationImpl() {
-  auto *bounds_ptr = reinterpret_cast<Bounds *>(task_data->inputs[0]);
-  uint32_t bounds_size = task_data->inputs_count[0];
-  auto *steps_ptr = reinterpret_cast<Steps *>(task_data->inputs[1]);
-  uint32_t steps_size = task_data->inputs_count[1];
-
-  bool is_correct_bounds =
-      std::all_of(bounds_ptr, bounds_ptr + bounds_size, [](const Bounds &b) -> bool { return b.first < b.second; });
-  bool is_correct_steps = std::all_of(steps_ptr, steps_ptr + steps_size, [](const Steps &s) -> bool { return s > 0; });
-
-  return bounds_size > 0 && is_correct_bounds && steps_size > 0 && is_correct_steps && bounds_size == steps_size;
+  auto *dims_ptr = reinterpret_cast<Dimension *>(task_data->inputs[0]);
+  uint32_t dims_size = task_data->inputs_count[0];
+  return dims_size > 0 &&
+         std::all_of(dims_ptr, dims_ptr + dims_size, [](const Dimension &dim) -> bool { return dim.IsValid(); });
 }
 
 bool SequentialTask::PreProcessingImpl() {
-  auto *bounds_ptr = reinterpret_cast<Bounds *>(task_data->inputs[0]);
-  uint32_t bounds_size = task_data->inputs_count[0];
-  auto *steps_ptr = reinterpret_cast<Steps *>(task_data->inputs[1]);
-  uint32_t steps_size = task_data->inputs_count[1];
-
-  bounds_per_dim_.assign(bounds_ptr, bounds_ptr + bounds_size);
-  steps_per_dim_.assign(steps_ptr, steps_ptr + steps_size);
+  auto *dims_ptr = reinterpret_cast<Dimension *>(task_data->inputs[0]);
+  uint32_t dims_size = task_data->inputs_count[0];
+  dims_.assign(dims_ptr, dims_ptr + dims_size);
   return true;
 }
 
 bool SequentialTask::RunImpl() {
-  std::vector<double> step_size_per_dim = GetStepSizePerDim();
   int total_points = GetTotalPoints();
-
-  double sum = 0.0;
-  for (int p = 0; p < total_points; p++) {
-    sum += func_(GetPoint(p, step_size_per_dim));
+  for (int i = 0; i < total_points; i++) {
+    result_ += func_(GetPoint(i));
   }
-
-  result_ = sum * GetScalingFactor(step_size_per_dim);
+  result_ *= GetScalingFactor();
   return true;
 }
 
@@ -51,30 +41,24 @@ bool SequentialTask::PostProcessingImpl() {
   return true;
 }
 
-std::vector<double> SequentialTask::GetStepSizePerDim() const {
-  auto step_size_per_dim = std::vector<double>(bounds_per_dim_.size());
-  for (size_t i = 0; i < step_size_per_dim.size(); i++) {
-    step_size_per_dim[i] = (bounds_per_dim_[i].second - bounds_per_dim_[i].first) / steps_per_dim_[i];
-  }
-  return step_size_per_dim;
-}
-
 int SequentialTask::GetTotalPoints() const {
-  return std::accumulate(steps_per_dim_.begin(), steps_per_dim_.end(), 1, std::multiplies());
+  return std::accumulate(dims_.begin(), dims_.end(), 1,
+                         [](const int accum, const Dimension &dim) -> int { return accum * dim.steps_count_; });
 }
 
-Point SequentialTask::GetPoint(int point_idx, const std::vector<double> &step_size_per_dim) const {
-  auto point = std::vector<double>(bounds_per_dim_.size());
+Point SequentialTask::GetPoint(int index) const {
+  auto point = Point(dims_.size());
   for (size_t i = 0; i < point.size(); i++) {
-    int coordinate_idx = point_idx % steps_per_dim_[i];
-    point[i] = bounds_per_dim_[i].first + (coordinate_idx + 1) * step_size_per_dim[i];
-    point_idx /= steps_per_dim_[i];
+    int coordinate_index = index % dims_[i].steps_count_;
+    point[i] = dims_[i].lower_bound_ + (coordinate_index + 1) * dims_[i].GetStepSize();
+    index /= dims_[i].steps_count_;
   }
   return point;
 }
 
-double SequentialTask::GetScalingFactor(const std::vector<double> &step_size_per_dim) {
-  return std::accumulate(step_size_per_dim.begin(), step_size_per_dim.end(), 1.0, std::multiplies());
+double SequentialTask::GetScalingFactor() const {
+  return std::accumulate(dims_.begin(), dims_.end(), 1.0,
+                         [](const double accum, const Dimension &dim) -> double { return accum * dim.GetStepSize(); });
 }
 
 }  // namespace chernykh_a_multidimensional_integral_rectangle_seq
