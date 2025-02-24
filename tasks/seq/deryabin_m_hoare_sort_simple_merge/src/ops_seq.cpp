@@ -91,7 +91,7 @@ bool deryabin_m_hoare_sort_simple_merge_seq::HoareSortTaskSequential::RunImpl() 
         MergeTwoParts(input_array_A_, 0, dimension_ - 1);
       } else {
         MergeTwoParts(input_array_A_, 2 * j * min_chunk_size_ * (i + 1), (2 * (j + 1) * min_chunk_size_ * (i + 1)) - 1);
-        chunk_count--;
+        chunk_count_--;
       }
     }
   }
