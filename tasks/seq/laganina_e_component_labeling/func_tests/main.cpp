@@ -91,6 +91,31 @@ TEST(laganina_e_component_labeling_seq, validation_test3) {
   test_task_sequential.PreProcessing();
 }
 
+TEST(laganina_e_component_labeling_seq, Find_test) {
+  int m = 3;
+  int n = 3;
+  // Create data
+  std::vector<int> in = {1, 0, 1, 1, 1, 0, 0, 1, 1};
+  std::vector<int> out(m * n, 0);
+  std::vector<int> exp_out = {1, 0, 2, 1, 1, 0, 0, 1, 1};
+  // Create task_data
+  auto task_data_seq = std::make_shared<ppc::core::TaskData>();
+  task_data_seq->inputs.emplace_back(reinterpret_cast<uint8_t *>(in.data()));
+  task_data_seq->inputs_count.emplace_back(m);
+  task_data_seq->inputs_count.emplace_back(n);
+  task_data_seq->outputs.emplace_back(reinterpret_cast<uint8_t *>(out.data()));
+  task_data_seq->outputs_count.emplace_back(m);
+  task_data_seq->outputs_count.emplace_back(n);
+
+  // Create Task
+  laganina_e_component_labeling_seq::TestTaskSequential test_task_sequential(task_data_seq);
+  ASSERT_EQ(test_task_sequential.Validation(), true);
+  test_task_sequential.PreProcessing();
+  test_task_sequential.Run();
+  test_task_sequential.PostProcessing();
+  EXPECT_EQ(out, exp_out);
+}
+
 TEST(laganina_e_component_labeling_seq, all_one) {
   int m = 3;
   int n = 2;
