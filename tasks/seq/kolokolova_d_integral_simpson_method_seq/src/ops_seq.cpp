@@ -72,9 +72,9 @@ bool kolokolova_d_integral_simpson_method_seq::TestTaskSequential::PostProcessin
 
 std::vector<double> kolokolova_d_integral_simpson_method_seq::TestTaskSequential::FindFunctionValue(
     const std::vector<std::vector<double>>& coordinates, const std::function<double(std::vector<double>)>& f) {
-  std::vector<double> results;                                         // result of function
-  std::vector<double> current;                                         // current point
-  GeneratePointsAndEvaluate(coordinates, 0, current, results, func_);  // recursive function
+  std::vector<double> results;                                     // result of function
+  std::vector<double> current;                                     // current point
+  GeneratePointsAndEvaluate(coordinates, 0, current, results, f);  // recursive function
   return results;
 }
 
@@ -83,8 +83,8 @@ void kolokolova_d_integral_simpson_method_seq::TestTaskSequential::GeneratePoint
     std::vector<double>& results, const std::function<double(const std::vector<double>)>& f) {
   // if it the end of vector
   if (index == int(coordinates.size())) {
-    double result = func_(current);  // find value of function
-    results.push_back(result);       // save result
+    double result = f(current);  // find value of function
+    results.push_back(result);   // save result
     return;
   }
 
