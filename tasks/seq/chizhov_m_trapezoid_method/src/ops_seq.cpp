@@ -7,7 +7,7 @@
 
 using namespace std::chrono_literals;
 
-double chizhov_m_trapezoid_method_seq::TrapezoidMethod(Function& f, int div, int dim,
+double chizhov_m_trapezoid_method_seq::TrapezoidMethod(Function& f, size_t div, size_t dim,
                                                        std::vector<double>& lower_limits,
                                                        std::vector<double>& upper_limits) {
   std::vector<double> h(dim);
