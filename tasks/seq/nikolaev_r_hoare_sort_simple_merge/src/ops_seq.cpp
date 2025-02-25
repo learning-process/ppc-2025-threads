@@ -14,8 +14,8 @@ bool nikolaev_r_hoare_sort_simple_merge_seq::HoareSortSimpleMergeSequential::Pre
 }
 
 bool nikolaev_r_hoare_sort_simple_merge_seq::HoareSortSimpleMergeSequential::ValidationImpl() {
-  return task_data->inputs_count[0] != 0 && task_data->outputs_count[0] != 0 &&
-         task_data->inputs_count[0] == task_data->outputs_count[0];
+  return task_data->inputs_count[0] != 0 && task_data->outputs_count[0] != 0 && task_data->inputs[0] != nullptr &&
+         task_data->outputs[0] != nullptr && task_data->inputs_count[0] == task_data->outputs_count[0];
 }
 
 bool nikolaev_r_hoare_sort_simple_merge_seq::HoareSortSimpleMergeSequential::RunImpl() {
