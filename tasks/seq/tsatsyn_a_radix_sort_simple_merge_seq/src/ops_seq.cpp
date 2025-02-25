@@ -53,8 +53,8 @@ bool tsatsyn_a_radix_sort_simple_merge_seq::TestTaskSequential::RunImpl() {
   std::pair<std::vector<uint64_t>, std::vector<uint64_t>> temp = ParseOrigin(input_data_);
   pozitive_copy = temp.first;
   negative_copy = temp.second;
-  int positive_bits = positive_bits = CalculateBits(pozitive_copy, true);
-  int negative_bits = negative_bits = CalculateBits(negative_copy, false);
+  int positive_bits = CalculateBits(pozitive_copy, true);
+  int negative_bits = CalculateBits(negative_copy, false);
 
   for (int bit = 0; bit < positive_bits; bit++) {
     std::vector<uint64_t> group0;
