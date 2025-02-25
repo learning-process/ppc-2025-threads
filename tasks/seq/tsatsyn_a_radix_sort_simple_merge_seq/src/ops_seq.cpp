@@ -8,7 +8,7 @@
 #include <utility>
 #include <vector>
 
-static std::pair<std::vector<uint64_t>, std::vector<uint64_t>> ParseOrigin(std::vector<double> &input_data) {
+std::pair<std::vector<uint64_t>, std::vector<uint64_t>> static ParseOrigin(std::vector<double> &input_data) {
   std::vector<uint64_t> pozitive_copy;
   std::vector<uint64_t> negative_copy;
   for (int i = 0; i < static_cast<int>(input_data.size()); i++) {
@@ -20,7 +20,7 @@ static std::pair<std::vector<uint64_t>, std::vector<uint64_t>> ParseOrigin(std::
   }
   return {pozitive_copy, negative_copy};
 }
-static int CalculateBits(const std::vector<uint64_t> &data, bool is_pozitive) {
+int static CalculateBits(const std::vector<uint64_t> &data, bool is_pozitive) {
   if (data.empty()) {
     return 0;
   }
