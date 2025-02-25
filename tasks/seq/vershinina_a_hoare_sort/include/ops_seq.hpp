@@ -6,7 +6,7 @@
 #include "core/task/include/task.hpp"
 
 namespace vershinina_a_hoare_sort {
-
+std::vector<int> GetRandomVector(int len);
 class TestTaskSequential : public ppc::core::Task {
  public:
   explicit TestTaskSequential(ppc::core::TaskDataPtr task_data) : Task(std::move(task_data)) {}
@@ -17,10 +17,9 @@ class TestTaskSequential : public ppc::core::Task {
 
  private:
   int *input_{};
-  int n{};
+  int n_{};
   std::vector<int> output_;
-  int index;
-  int value;
+  int value_;
   void HoareSort(int *s_vec, int first, int last);
   int Partition(int *s_vec, int first, int last);
 };
