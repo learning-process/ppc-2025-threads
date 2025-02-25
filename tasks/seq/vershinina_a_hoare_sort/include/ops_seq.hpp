@@ -6,7 +6,7 @@
 #include "core/task/include/task.hpp"
 
 namespace vershinina_a_hoare_sort {
-std::vector<int> GetRandomVector(int len);
+
 class TestTaskSequential : public ppc::core::Task {
  public:
   explicit TestTaskSequential(ppc::core::TaskDataPtr task_data) : Task(std::move(task_data)) {}
