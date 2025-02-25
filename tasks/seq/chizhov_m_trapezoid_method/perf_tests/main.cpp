@@ -2,8 +2,8 @@
 
 #include <chrono>
 #include <cmath>
-#include <cstddef>
 #include <cstdint>
+#include <functional>
 #include <memory>
 #include <vector>
 
@@ -23,24 +23,24 @@ TEST(chizhov_m_trapezoid_method_seq, test_pipeline_run) {
   auto *f_object = new std::function<double(const std::vector<double> &)>(f);
 
   // Create task_data
-  std::shared_ptr<ppc::core::TaskData> taskDataSeq = std::make_shared<ppc::core::TaskData>();
+  std::shared_ptr<ppc::core::TaskData> task_data_seq = std::make_shared<ppc::core::TaskData>();
 
-  taskDataSeq->inputs.emplace_back(reinterpret_cast<uint8_t *>(&div));
-  taskDataSeq->inputs_count.emplace_back(sizeof(div));
+  task_data_seq->inputs.emplace_back(reinterpret_cast<uint8_t *>(&div));
+  task_data_seq->inputs_count.emplace_back(sizeof(div));
 
-  taskDataSeq->inputs.emplace_back(reinterpret_cast<uint8_t *>(&dim));
-  taskDataSeq->inputs_count.emplace_back(sizeof(dim));
+  task_data_seq->inputs.emplace_back(reinterpret_cast<uint8_t *>(&dim));
+  task_data_seq->inputs_count.emplace_back(sizeof(dim));
 
-  taskDataSeq->inputs.emplace_back(reinterpret_cast<uint8_t *>(limits.data()));
-  taskDataSeq->inputs_count.emplace_back(limits.size());
+  task_data_seq->inputs.emplace_back(reinterpret_cast<uint8_t *>(limits.data()));
+  task_data_seq->inputs_count.emplace_back(limits.size());
 
-  taskDataSeq->inputs.emplace_back(reinterpret_cast<uint8_t *>(f_object));
+  task_data_seq->inputs.emplace_back(reinterpret_cast<uint8_t *>(f_object));
 
-  taskDataSeq->outputs.emplace_back(reinterpret_cast<uint8_t *>(res.data()));
-  taskDataSeq->outputs_count.emplace_back(res.size() * sizeof(double));
+  task_data_seq->outputs.emplace_back(reinterpret_cast<uint8_t *>(res.data()));
+  task_data_seq->outputs_count.emplace_back(res.size() * sizeof(double));
 
   // Create Task
-  auto test_task_sequential = std::make_shared<chizhov_m_trapezoid_method_seq::TestTaskSequential>(taskDataSeq);
+  auto test_task_sequential = std::make_shared<chizhov_m_trapezoid_method_seq::TestTaskSequential>(task_data_seq);
 
   // Create Perf attributes
   auto perf_attr = std::make_shared<ppc::core::PerfAttr>();
@@ -74,24 +74,24 @@ TEST(chizhov_m_trapezoid_method_seq, test_task_run) {
   auto *f_object = new std::function<double(const std::vector<double> &)>(f);
 
   // Create task_data
-  std::shared_ptr<ppc::core::TaskData> taskDataSeq = std::make_shared<ppc::core::TaskData>();
+  std::shared_ptr<ppc::core::TaskData> task_data_seq = std::make_shared<ppc::core::TaskData>();
 
-  taskDataSeq->inputs.emplace_back(reinterpret_cast<uint8_t *>(&div));
-  taskDataSeq->inputs_count.emplace_back(sizeof(div));
+  task_data_seq->inputs.emplace_back(reinterpret_cast<uint8_t *>(&div));
+  task_data_seq->inputs_count.emplace_back(sizeof(div));
 
-  taskDataSeq->inputs.emplace_back(reinterpret_cast<uint8_t *>(&dim));
-  taskDataSeq->inputs_count.emplace_back(sizeof(dim));
+  task_data_seq->inputs.emplace_back(reinterpret_cast<uint8_t *>(&dim));
+  task_data_seq->inputs_count.emplace_back(sizeof(dim));
 
-  taskDataSeq->inputs.emplace_back(reinterpret_cast<uint8_t *>(limits.data()));
-  taskDataSeq->inputs_count.emplace_back(limits.size());
+  task_data_seq->inputs.emplace_back(reinterpret_cast<uint8_t *>(limits.data()));
+  task_data_seq->inputs_count.emplace_back(limits.size());
 
-  taskDataSeq->inputs.emplace_back(reinterpret_cast<uint8_t *>(f_object));
+  task_data_seq->inputs.emplace_back(reinterpret_cast<uint8_t *>(f_object));
 
-  taskDataSeq->outputs.emplace_back(reinterpret_cast<uint8_t *>(res.data()));
-  taskDataSeq->outputs_count.emplace_back(res.size() * sizeof(double));
+  task_data_seq->outputs.emplace_back(reinterpret_cast<uint8_t *>(res.data()));
+  task_data_seq->outputs_count.emplace_back(res.size() * sizeof(double));
 
   // Create Task
-  auto test_task_sequential = std::make_shared<chizhov_m_trapezoid_method_seq::TestTaskSequential>(taskDataSeq);
+  auto test_task_sequential = std::make_shared<chizhov_m_trapezoid_method_seq::TestTaskSequential>(task_data_seq);
 
   // Create Perf attributes
   auto perf_attr = std::make_shared<ppc::core::PerfAttr>();

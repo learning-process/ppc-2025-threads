@@ -1,6 +1,7 @@
 #include <gtest/gtest.h>
 
 #include <functional>
+#include <memory>
 #include <vector>
 
 #include "seq/chizhov_m_trapezoid_method/include/ops_seq.hpp"
@@ -14,28 +15,28 @@ TEST(chizhov_m_trapezoid_method_seq, one_variable_squared) {
   auto f = [](const std::vector<double> &f_val) { return f_val[0] * f_val[0]; };
   auto *f_object = new std::function<double(const std::vector<double> &)>(f);
 
-  std::shared_ptr<ppc::core::TaskData> taskDataSeq = std::make_shared<ppc::core::TaskData>();
+  std::shared_ptr<ppc::core::TaskData> task_data_seq = std::make_shared<ppc::core::TaskData>();
 
-  taskDataSeq->inputs.emplace_back(reinterpret_cast<uint8_t *>(&div));
-  taskDataSeq->inputs_count.emplace_back(sizeof(div));
+  task_data_seq->inputs.emplace_back(reinterpret_cast<uint8_t *>(&div));
+  task_data_seq->inputs_count.emplace_back(sizeof(div));
 
-  taskDataSeq->inputs.emplace_back(reinterpret_cast<uint8_t *>(&dim));
-  taskDataSeq->inputs_count.emplace_back(sizeof(dim));
+  task_data_seq->inputs.emplace_back(reinterpret_cast<uint8_t *>(&dim));
+  task_data_seq->inputs_count.emplace_back(sizeof(dim));
 
-  taskDataSeq->inputs.emplace_back(reinterpret_cast<uint8_t *>(limits.data()));
-  taskDataSeq->inputs_count.emplace_back(limits.size());
+  task_data_seq->inputs.emplace_back(reinterpret_cast<uint8_t *>(limits.data()));
+  task_data_seq->inputs_count.emplace_back(limits.size());
 
-  taskDataSeq->inputs.emplace_back(reinterpret_cast<uint8_t *>(f_object));
+  task_data_seq->inputs.emplace_back(reinterpret_cast<uint8_t *>(f_object));
 
-  taskDataSeq->outputs.emplace_back(reinterpret_cast<uint8_t *>(res.data()));
-  taskDataSeq->outputs_count.emplace_back(res.size() * sizeof(double));
+  task_data_seq->outputs.emplace_back(reinterpret_cast<uint8_t *>(res.data()));
+  task_data_seq->outputs_count.emplace_back(res.size() * sizeof(double));
 
-  chizhov_m_trapezoid_method_seq::TestTaskSequential testTaskSequential(taskDataSeq);
+  chizhov_m_trapezoid_method_seq::TestTaskSequential test_task_sequential(task_data_seq);
 
-  ASSERT_TRUE(testTaskSequential.ValidationImpl());
-  testTaskSequential.PreProcessingImpl();
-  testTaskSequential.RunImpl();
-  testTaskSequential.PostProcessingImpl();
+  ASSERT_TRUE(test_task_sequential.ValidationImpl());
+  test_task_sequential.PreProcessingImpl();
+  test_task_sequential.RunImpl();
+  test_task_sequential.PostProcessingImpl();
   ASSERT_NEAR(res[0], 41.66, 0.1);
   delete f_object;
 }
@@ -49,28 +50,28 @@ TEST(chizhov_m_trapezoid_method_seq, one_variable_cube) {
   auto f = [](const std::vector<double> &f_val) { return f_val[0] * f_val[0] * f_val[0]; };
   auto *f_object = new std::function<double(const std::vector<double> &)>(f);
 
-  std::shared_ptr<ppc::core::TaskData> taskDataSeq = std::make_shared<ppc::core::TaskData>();
+  std::shared_ptr<ppc::core::TaskData> task_data_seq = std::make_shared<ppc::core::TaskData>();
 
-  taskDataSeq->inputs.emplace_back(reinterpret_cast<uint8_t *>(&div));
-  taskDataSeq->inputs_count.emplace_back(sizeof(div));
+  task_data_seq->inputs.emplace_back(reinterpret_cast<uint8_t *>(&div));
+  task_data_seq->inputs_count.emplace_back(sizeof(div));
 
-  taskDataSeq->inputs.emplace_back(reinterpret_cast<uint8_t *>(&dim));
-  taskDataSeq->inputs_count.emplace_back(sizeof(dim));
+  task_data_seq->inputs.emplace_back(reinterpret_cast<uint8_t *>(&dim));
+  task_data_seq->inputs_count.emplace_back(sizeof(dim));
 
-  taskDataSeq->inputs.emplace_back(reinterpret_cast<uint8_t *>(limits.data()));
-  taskDataSeq->inputs_count.emplace_back(limits.size());
+  task_data_seq->inputs.emplace_back(reinterpret_cast<uint8_t *>(limits.data()));
+  task_data_seq->inputs_count.emplace_back(limits.size());
 
-  taskDataSeq->inputs.emplace_back(reinterpret_cast<uint8_t *>(f_object));
+  task_data_seq->inputs.emplace_back(reinterpret_cast<uint8_t *>(f_object));
 
-  taskDataSeq->outputs.emplace_back(reinterpret_cast<uint8_t *>(res.data()));
-  taskDataSeq->outputs_count.emplace_back(res.size() * sizeof(double));
+  task_data_seq->outputs.emplace_back(reinterpret_cast<uint8_t *>(res.data()));
+  task_data_seq->outputs_count.emplace_back(res.size() * sizeof(double));
 
-  chizhov_m_trapezoid_method_seq::TestTaskSequential testTaskSequential(taskDataSeq);
+  chizhov_m_trapezoid_method_seq::TestTaskSequential test_task_sequential(task_data_seq);
 
-  ASSERT_TRUE(testTaskSequential.ValidationImpl());
-  testTaskSequential.PreProcessingImpl();
-  testTaskSequential.RunImpl();
-  testTaskSequential.PostProcessingImpl();
+  ASSERT_TRUE(test_task_sequential.ValidationImpl());
+  test_task_sequential.PreProcessingImpl();
+  test_task_sequential.RunImpl();
+  test_task_sequential.PostProcessingImpl();
   ASSERT_NEAR(res[0], 156.25, 0.1);
   delete f_object;
 }
@@ -84,28 +85,28 @@ TEST(chizhov_m_trapezoid_method_seq, mul_two_variables) {
   auto f = [](const std::vector<double> &f_val) { return f_val[0] * f_val[1]; };
   auto *f_object = new std::function<double(const std::vector<double> &)>(f);
 
-  std::shared_ptr<ppc::core::TaskData> taskDataSeq = std::make_shared<ppc::core::TaskData>();
+  std::shared_ptr<ppc::core::TaskData> task_data_seq = std::make_shared<ppc::core::TaskData>();
 
-  taskDataSeq->inputs.emplace_back(reinterpret_cast<uint8_t *>(&div));
-  taskDataSeq->inputs_count.emplace_back(sizeof(div));
+  task_data_seq->inputs.emplace_back(reinterpret_cast<uint8_t *>(&div));
+  task_data_seq->inputs_count.emplace_back(sizeof(div));
 
-  taskDataSeq->inputs.emplace_back(reinterpret_cast<uint8_t *>(&dim));
-  taskDataSeq->inputs_count.emplace_back(sizeof(dim));
+  task_data_seq->inputs.emplace_back(reinterpret_cast<uint8_t *>(&dim));
+  task_data_seq->inputs_count.emplace_back(sizeof(dim));
 
-  taskDataSeq->inputs.emplace_back(reinterpret_cast<uint8_t *>(limits.data()));
-  taskDataSeq->inputs_count.emplace_back(limits.size());
+  task_data_seq->inputs.emplace_back(reinterpret_cast<uint8_t *>(limits.data()));
+  task_data_seq->inputs_count.emplace_back(limits.size());
 
-  taskDataSeq->inputs.emplace_back(reinterpret_cast<uint8_t *>(f_object));
+  task_data_seq->inputs.emplace_back(reinterpret_cast<uint8_t *>(f_object));
 
-  taskDataSeq->outputs.emplace_back(reinterpret_cast<uint8_t *>(res.data()));
-  taskDataSeq->outputs_count.emplace_back(res.size() * sizeof(double));
+  task_data_seq->outputs.emplace_back(reinterpret_cast<uint8_t *>(res.data()));
+  task_data_seq->outputs_count.emplace_back(res.size() * sizeof(double));
 
-  chizhov_m_trapezoid_method_seq::TestTaskSequential testTaskSequential(taskDataSeq);
+  chizhov_m_trapezoid_method_seq::TestTaskSequential test_task_sequential(task_data_seq);
 
-  ASSERT_TRUE(testTaskSequential.ValidationImpl());
-  testTaskSequential.PreProcessingImpl();
-  testTaskSequential.RunImpl();
-  testTaskSequential.PostProcessingImpl();
+  ASSERT_TRUE(test_task_sequential.ValidationImpl());
+  test_task_sequential.PreProcessingImpl();
+  test_task_sequential.RunImpl();
+  test_task_sequential.PostProcessingImpl();
   ASSERT_NEAR(res[0], 56.25, 0.1);
   delete f_object;
 }
@@ -119,28 +120,28 @@ TEST(chizhov_m_trapezoid_method_seq, sum_two_variables) {
   auto f = [](const std::vector<double> &f_val) { return f_val[0] + f_val[1]; };
   auto *f_object = new std::function<double(const std::vector<double> &)>(f);
 
-  std::shared_ptr<ppc::core::TaskData> taskDataSeq = std::make_shared<ppc::core::TaskData>();
+  std::shared_ptr<ppc::core::TaskData> task_data_seq = std::make_shared<ppc::core::TaskData>();
 
-  taskDataSeq->inputs.emplace_back(reinterpret_cast<uint8_t *>(&div));
-  taskDataSeq->inputs_count.emplace_back(sizeof(div));
+  task_data_seq->inputs.emplace_back(reinterpret_cast<uint8_t *>(&div));
+  task_data_seq->inputs_count.emplace_back(sizeof(div));
 
-  taskDataSeq->inputs.emplace_back(reinterpret_cast<uint8_t *>(&dim));
-  taskDataSeq->inputs_count.emplace_back(sizeof(dim));
+  task_data_seq->inputs.emplace_back(reinterpret_cast<uint8_t *>(&dim));
+  task_data_seq->inputs_count.emplace_back(sizeof(dim));
 
-  taskDataSeq->inputs.emplace_back(reinterpret_cast<uint8_t *>(limits.data()));
-  taskDataSeq->inputs_count.emplace_back(limits.size());
+  task_data_seq->inputs.emplace_back(reinterpret_cast<uint8_t *>(limits.data()));
+  task_data_seq->inputs_count.emplace_back(limits.size());
 
-  taskDataSeq->inputs.emplace_back(reinterpret_cast<uint8_t *>(f_object));
+  task_data_seq->inputs.emplace_back(reinterpret_cast<uint8_t *>(f_object));
 
-  taskDataSeq->outputs.emplace_back(reinterpret_cast<uint8_t *>(res.data()));
-  taskDataSeq->outputs_count.emplace_back(res.size() * sizeof(double));
+  task_data_seq->outputs.emplace_back(reinterpret_cast<uint8_t *>(res.data()));
+  task_data_seq->outputs_count.emplace_back(res.size() * sizeof(double));
 
-  chizhov_m_trapezoid_method_seq::TestTaskSequential testTaskSequential(taskDataSeq);
+  chizhov_m_trapezoid_method_seq::TestTaskSequential test_task_sequential(task_data_seq);
 
-  ASSERT_TRUE(testTaskSequential.ValidationImpl());
-  testTaskSequential.PreProcessingImpl();
-  testTaskSequential.RunImpl();
-  testTaskSequential.PostProcessingImpl();
+  ASSERT_TRUE(test_task_sequential.ValidationImpl());
+  test_task_sequential.PreProcessingImpl();
+  test_task_sequential.RunImpl();
+  test_task_sequential.PostProcessingImpl();
   ASSERT_NEAR(res[0], 60, 0.1);
   delete f_object;
 }
@@ -154,28 +155,28 @@ TEST(chizhov_m_trapezoid_method_seq, dif_two_variables) {
   auto f = [](const std::vector<double> &f_val) { return f_val[1] - f_val[0]; };
   auto *f_object = new std::function<double(const std::vector<double> &)>(f);
 
-  std::shared_ptr<ppc::core::TaskData> taskDataSeq = std::make_shared<ppc::core::TaskData>();
+  std::shared_ptr<ppc::core::TaskData> task_data_seq = std::make_shared<ppc::core::TaskData>();
 
-  taskDataSeq->inputs.emplace_back(reinterpret_cast<uint8_t *>(&div));
-  taskDataSeq->inputs_count.emplace_back(sizeof(div));
+  task_data_seq->inputs.emplace_back(reinterpret_cast<uint8_t *>(&div));
+  task_data_seq->inputs_count.emplace_back(sizeof(div));
 
-  taskDataSeq->inputs.emplace_back(reinterpret_cast<uint8_t *>(&dim));
-  taskDataSeq->inputs_count.emplace_back(sizeof(dim));
+  task_data_seq->inputs.emplace_back(reinterpret_cast<uint8_t *>(&dim));
+  task_data_seq->inputs_count.emplace_back(sizeof(dim));
 
-  taskDataSeq->inputs.emplace_back(reinterpret_cast<uint8_t *>(limits.data()));
-  taskDataSeq->inputs_count.emplace_back(limits.size());
+  task_data_seq->inputs.emplace_back(reinterpret_cast<uint8_t *>(limits.data()));
+  task_data_seq->inputs_count.emplace_back(limits.size());
 
-  taskDataSeq->inputs.emplace_back(reinterpret_cast<uint8_t *>(f_object));
+  task_data_seq->inputs.emplace_back(reinterpret_cast<uint8_t *>(f_object));
 
-  taskDataSeq->outputs.emplace_back(reinterpret_cast<uint8_t *>(res.data()));
-  taskDataSeq->outputs_count.emplace_back(res.size() * sizeof(double));
+  task_data_seq->outputs.emplace_back(reinterpret_cast<uint8_t *>(res.data()));
+  task_data_seq->outputs_count.emplace_back(res.size() * sizeof(double));
 
-  chizhov_m_trapezoid_method_seq::TestTaskSequential testTaskSequential(taskDataSeq);
+  chizhov_m_trapezoid_method_seq::TestTaskSequential test_task_sequential(task_data_seq);
 
-  ASSERT_TRUE(testTaskSequential.ValidationImpl());
-  testTaskSequential.PreProcessingImpl();
-  testTaskSequential.RunImpl();
-  testTaskSequential.PostProcessingImpl();
+  ASSERT_TRUE(test_task_sequential.ValidationImpl());
+  test_task_sequential.PreProcessingImpl();
+  test_task_sequential.RunImpl();
+  test_task_sequential.PostProcessingImpl();
   ASSERT_NEAR(res[0], -15, 0.1);
   delete f_object;
 }
@@ -185,20 +186,20 @@ TEST(chizhov_m_trapezoid_method_seq, invalid_value_dim) {
   int dim = -2;
   std::vector<double> limits = {0.0, 5.0, 0.0, 3.0};
 
-  std::shared_ptr<ppc::core::TaskData> taskDataSeq = std::make_shared<ppc::core::TaskData>();
+  std::shared_ptr<ppc::core::TaskData> task_data_seq = std::make_shared<ppc::core::TaskData>();
 
-  taskDataSeq->inputs.emplace_back(reinterpret_cast<uint8_t *>(&div));
-  taskDataSeq->inputs_count.emplace_back(sizeof(div));
+  task_data_seq->inputs.emplace_back(reinterpret_cast<uint8_t *>(&div));
+  task_data_seq->inputs_count.emplace_back(sizeof(div));
 
-  taskDataSeq->inputs.emplace_back(reinterpret_cast<uint8_t *>(&dim));
-  taskDataSeq->inputs_count.emplace_back(sizeof(dim));
+  task_data_seq->inputs.emplace_back(reinterpret_cast<uint8_t *>(&dim));
+  task_data_seq->inputs_count.emplace_back(sizeof(dim));
 
-  taskDataSeq->inputs.emplace_back(reinterpret_cast<uint8_t *>(limits.data()));
-  taskDataSeq->inputs_count.emplace_back(limits.size());
+  task_data_seq->inputs.emplace_back(reinterpret_cast<uint8_t *>(limits.data()));
+  task_data_seq->inputs_count.emplace_back(limits.size());
 
-  chizhov_m_trapezoid_method_seq::TestTaskSequential testTaskSequential(taskDataSeq);
+  chizhov_m_trapezoid_method_seq::TestTaskSequential test_task_sequential(task_data_seq);
 
-  ASSERT_FALSE(testTaskSequential.ValidationImpl());
+  ASSERT_FALSE(test_task_sequential.ValidationImpl());
 }
 
 TEST(chizhov_m_trapezoid_method_seq, invalid_value_div) {
@@ -206,20 +207,20 @@ TEST(chizhov_m_trapezoid_method_seq, invalid_value_div) {
   int dim = 2;
   std::vector<double> limits = {0.0, 5.0, 0.0, 3.0};
 
-  std::shared_ptr<ppc::core::TaskData> taskDataSeq = std::make_shared<ppc::core::TaskData>();
+  std::shared_ptr<ppc::core::TaskData> task_data_seq = std::make_shared<ppc::core::TaskData>();
 
-  taskDataSeq->inputs.emplace_back(reinterpret_cast<uint8_t *>(&div));
-  taskDataSeq->inputs_count.emplace_back(sizeof(div));
+  task_data_seq->inputs.emplace_back(reinterpret_cast<uint8_t *>(&div));
+  task_data_seq->inputs_count.emplace_back(sizeof(div));
 
-  taskDataSeq->inputs.emplace_back(reinterpret_cast<uint8_t *>(&dim));
-  taskDataSeq->inputs_count.emplace_back(sizeof(dim));
+  task_data_seq->inputs.emplace_back(reinterpret_cast<uint8_t *>(&dim));
+  task_data_seq->inputs_count.emplace_back(sizeof(dim));
 
-  taskDataSeq->inputs.emplace_back(reinterpret_cast<uint8_t *>(limits.data()));
-  taskDataSeq->inputs_count.emplace_back(limits.size());
+  task_data_seq->inputs.emplace_back(reinterpret_cast<uint8_t *>(limits.data()));
+  task_data_seq->inputs_count.emplace_back(limits.size());
 
-  chizhov_m_trapezoid_method_seq::TestTaskSequential testTaskSequential(taskDataSeq);
+  chizhov_m_trapezoid_method_seq::TestTaskSequential test_task_sequential(task_data_seq);
 
-  ASSERT_FALSE(testTaskSequential.ValidationImpl());
+  ASSERT_FALSE(test_task_sequential.ValidationImpl());
 }
 
 TEST(chizhov_m_trapezoid_method_seq, invalid_limit_size) {
@@ -227,18 +228,18 @@ TEST(chizhov_m_trapezoid_method_seq, invalid_limit_size) {
   int dim = 2;
   std::vector<double> limits = {0.0, 5.0, 0.0};
 
-  std::shared_ptr<ppc::core::TaskData> taskDataSeq = std::make_shared<ppc::core::TaskData>();
+  std::shared_ptr<ppc::core::TaskData> task_data_seq = std::make_shared<ppc::core::TaskData>();
 
-  taskDataSeq->inputs.emplace_back(reinterpret_cast<uint8_t *>(&div));
-  taskDataSeq->inputs_count.emplace_back(sizeof(div));
+  task_data_seq->inputs.emplace_back(reinterpret_cast<uint8_t *>(&div));
+  task_data_seq->inputs_count.emplace_back(sizeof(div));
 
-  taskDataSeq->inputs.emplace_back(reinterpret_cast<uint8_t *>(&dim));
-  taskDataSeq->inputs_count.emplace_back(sizeof(dim));
+  task_data_seq->inputs.emplace_back(reinterpret_cast<uint8_t *>(&dim));
+  task_data_seq->inputs_count.emplace_back(sizeof(dim));
 
-  taskDataSeq->inputs.emplace_back(reinterpret_cast<uint8_t *>(limits.data()));
-  taskDataSeq->inputs_count.emplace_back(limits.size());
+  task_data_seq->inputs.emplace_back(reinterpret_cast<uint8_t *>(limits.data()));
+  task_data_seq->inputs_count.emplace_back(limits.size());
 
-  chizhov_m_trapezoid_method_seq::TestTaskSequential testTaskSequential(taskDataSeq);
+  chizhov_m_trapezoid_method_seq::TestTaskSequential test_task_sequential(task_data_seq);
 
-  ASSERT_FALSE(testTaskSequential.ValidationImpl());
+  ASSERT_FALSE(test_task_sequential.ValidationImpl());
 }
