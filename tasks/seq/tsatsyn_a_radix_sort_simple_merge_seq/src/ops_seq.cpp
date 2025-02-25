@@ -8,7 +8,8 @@
 #include <utility>
 #include <vector>
 
-std::pair<std::vector<uint64_t>, std::vector<uint64_t>> static ParseOrigin(std::vector<double> &input_data) {
+std::pair<std::vector<uint64_t>, std::vector<uint64_t>> tsatsyn_a_radix_sort_simple_merge_seq::ParseOrigin(
+    std::vector<double> &input_data) {
   std::vector<uint64_t> pozitive_copy;
   std::vector<uint64_t> negative_copy;
   for (int i = 0; i < static_cast<int>(input_data.size()); i++) {
@@ -20,7 +21,7 @@ std::pair<std::vector<uint64_t>, std::vector<uint64_t>> static ParseOrigin(std::
   }
   return {pozitive_copy, negative_copy};
 }
-int static CalculateBits(const std::vector<uint64_t> &data, bool is_pozitive) {
+int tsatsyn_a_radix_sort_simple_merge_seq::CalculateBits(const std::vector<uint64_t> &data, bool is_pozitive) {
   if (data.empty()) {
     return 0;
   }
