@@ -3,6 +3,8 @@
 #include <omp.h>
 
 #include <algorithm>
+#include <cstddef>
+#include <ranges>
 #include <vector>
 
 void sotskov_a_shell_sorting_with_simple_merging_omp::ShellSort(std::vector<int>& arr, int left, int right) {
@@ -31,7 +33,9 @@ void sotskov_a_shell_sorting_with_simple_merging_omp::ShellSort(std::vector<int>
 void sotskov_a_shell_sorting_with_simple_merging_omp::ParallelMerge(std::vector<int>& arr, int left, int mid,
                                                                     int right) {
   std::vector<int> temp(right - left + 1);
-  int i = left, j = mid + 1, k = 0;
+  int i = left;
+  int j = mid + 1;
+  int k = 0;
 
   while (i <= mid && j <= right) {
     temp[k++] = (arr[i] < arr[j]) ? arr[i++] : arr[j++];
@@ -45,7 +49,7 @@ void sotskov_a_shell_sorting_with_simple_merging_omp::ParallelMerge(std::vector<
     temp[k++] = arr[j++];
   }
 
-  std::copy(temp.begin(), temp.end(), arr.begin() + left);
+  std::ranges::copy(temp.begin(), temp.end(), arr.begin() + left);
 }
 
 void sotskov_a_shell_sorting_with_simple_merging_omp::ShellSortWithSimpleMerging(std::vector<int>& arr) {
@@ -67,7 +71,7 @@ void sotskov_a_shell_sorting_with_simple_merging_omp::ShellSortWithSimpleMerging
 #pragma omp parallel for schedule(dynamic)
     for (int left = 0; left < array_size; left += 2 * size) {
       int mid = std::min(left + size - 1, array_size - 1);
-      int right = std::min(left + 2 * size - 1, array_size - 1);
+      int right = std::min(left + (2 * size) - 1, array_size - 1);
 
       if (mid < right) {
         ParallelMerge(arr, left, mid, right);
