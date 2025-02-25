@@ -2,6 +2,7 @@
 
 #include <vector>
 
+namespace sadikov_i_sparse_matrix_multiplication_task_seq {
 class SparesMatrix {
   constexpr static double kMEpsilon = 0.000001;
   int m_rowsCount_ = 0;
@@ -32,3 +33,8 @@ class SparesMatrix {
 SparesMatrix MatrixToSpares(int rows_count, int columns_count, const std::vector<double>& values);
 
 std::vector<double> FromSparesMatrix(const SparesMatrix& matrix);
+
+std::vector<double> BaseMatrixMultiplication(const std::vector<double>& fmatrix, int fmatrix_rows_count,
+                                             int fmatrix_columns_count, const std::vector<double>& smatrix,
+                                             int smatrix_rows_count, int smatrix_columns_count);
+}  // namespace sadikov_i_sparse_matrix_multiplication_task_seq

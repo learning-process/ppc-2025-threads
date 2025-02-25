@@ -1,13 +1,15 @@
 #include "seq/Sadikov_I_SparesMatrixMultiplication/include/SparesMatrix.hpp"
 
+#include <iostream>
 #include <vector>
-
+namespace sadikov_i_sparse_matrix_multiplication_task_seq {
 SparesMatrix SparesMatrix::Transpose(const SparesMatrix& matrix) {
   std::vector<double> val;
   std::vector<int> rows;
   std::vector<int> elem_sum;
-  std::vector<std::vector<double>> intermediate_values(matrix.GetRowsCount());
-  std::vector<std::vector<int>> intermediate_indexes(matrix.GetColumnsCount());
+  auto maxSize = std::max(matrix.GetRowsCount(), matrix.GetColumnsCount());
+  std::vector<std::vector<double>> intermediate_values(maxSize);
+  std::vector<std::vector<int>> intermediate_indexes(maxSize);
   auto column_number = 0;
   auto column_counter = 0;
   for (auto i = 0; i < static_cast<int>(matrix.GetValues().size()); ++i) {
@@ -39,7 +41,6 @@ SparesMatrix SparesMatrix::operator*(const SparesMatrix& smatrix) const {
   auto fmatrix = Transpose(*this);
   const auto& felements_sum = fmatrix.GetElementsSum();
   const auto& selements_sum = smatrix.GetElementsSum();
-
   for (auto i = 0; i < static_cast<int>(selements_sum.size()); ++i) {
     for (auto j = 0; j < static_cast<int>(felements_sum.size()); ++j) {
       auto sum = 0.0;
@@ -110,3 +111,19 @@ int SparesMatrix::GetElementsCount(int index, const std::vector<int>& elements_s
   }
   return elements_sum[index] - elements_sum[index - 1];
 }
+
+std::vector<double> BaseMatrixMultiplication(const std::vector<double>& fmatrix, int fmatrix_rows_count,
+                                             int fmatrix_columns_count, const std::vector<double>& smatrix,
+                                             int smatrix_rows_count, int smatrix_columns_count) {
+  std::vector<double> answer(fmatrix_rows_count * smatrix_columns_count);
+  for (auto i = 0; i < fmatrix_rows_count; i++) {
+    for (auto j = 0; j < smatrix_columns_count; j++) {
+      for (auto n = 0; n < smatrix_rows_count; n++) {
+        answer[j + i * smatrix_columns_count] +=
+            fmatrix[i * fmatrix_columns_count + n] * smatrix[n * smatrix_columns_count + j];
+      }
+    }
+  }
+  return answer;
+}
+}  // namespace sadikov_i_sparse_matrix_multiplication_task_seq

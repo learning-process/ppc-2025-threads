@@ -46,3 +46,16 @@ bool sadikov_i_sparse_matrix_multiplication_task_seq::CCSMatrixSequential::PostP
   }
   return true;
 }
+
+std::vector<double> sadikov_i_sparse_matrix_multiplication_task_seq::GetRandomMatrix(int size) {
+  std::vector<double> data(size);
+  std::random_device dev;
+  std::mt19937 gen(dev());
+  for (auto i = 0; i < size; ++i) {
+    data[i] = gen() % 500;
+    if (data[i] > 250.0) {
+      data[i] = 0.0;
+    }
+  }
+  return data;
+}

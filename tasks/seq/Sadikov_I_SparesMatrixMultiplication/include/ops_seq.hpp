@@ -1,6 +1,7 @@
 #pragma once
 
 #include <cmath>
+#include <random>
 #include <utility>
 
 #include "core/task/include/task.hpp"
@@ -8,6 +9,7 @@
 
 namespace sadikov_i_sparse_matrix_multiplication_task_seq {
 
+std::vector<double> GetRandomMatrix(int size);
 class CCSMatrixSequential : public ppc::core::Task {
   SparesMatrix m_fMatrix_;
   SparesMatrix m_sMatrix_;
