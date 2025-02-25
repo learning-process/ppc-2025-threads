@@ -7,6 +7,7 @@
 
 #include "core/perf/include/perf.hpp"
 #include "core/task/include/task.hpp"
+#include "seq/Sadikov_I_SparesMatrixMultiplication/include/SparesMatrix.hpp"
 #include "seq/Sadikov_I_SparesMatrixMultiplication/include/ops_seq.hpp"
 
 TEST(sadikov_i_sparse_matrix_multiplication_task_seq, test_pipeline_run) {
