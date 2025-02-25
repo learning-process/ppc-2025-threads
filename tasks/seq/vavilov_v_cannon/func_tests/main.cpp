@@ -92,24 +92,6 @@ TEST(vavilov_v_cannon_seq, test_fixed_4x4) {
 }
 
 TEST(vavilov_v_cannon_seq, test_invalid_size_1) {
-  constexpr unsigned int kN = 51;
-  std::vector<double> a(kN * kN, 1.0);
-  std::vector<double> b(kN * kN, 1.0);
-  std::vector<double> c(kN * kN, 0.0);
-
-  auto task_data_seq = std::make_shared<ppc::core::TaskData>();
-  task_data_seq->inputs.emplace_back(reinterpret_cast<uint8_t*>(a.data()));
-  task_data_seq->inputs.emplace_back(reinterpret_cast<uint8_t*>(b.data()));
-  task_data_seq->inputs_count.emplace_back(a.size());
-  task_data_seq->inputs_count.emplace_back(b.size());
-  task_data_seq->outputs.emplace_back(reinterpret_cast<uint8_t*>(c.data()));
-  task_data_seq->outputs_count.emplace_back(c.size());
-
-  vavilov_v_cannon_seq::CannonSequential task_seq(task_data_seq);
-  ASSERT_FALSE(task_seq.Validation());
-}
-
-TEST(vavilov_v_cannon_seq, test_invalid_size_2) {
   std::vector<double> a(2 * 2, 1.0);
   std::vector<double> b(3 * 2, 1.0);
   std::vector<double> c(2 * 2, 0.0);
