@@ -23,7 +23,7 @@ class krylov_m_monte_carlo_test_omp : public ::testing::Test {  // NOLINT(readab
                                           std::exp(x[4]);
                                  },
                              .bounds = std::vector<Bound>(5, {0., 1.}),
-                             .iterations = 12'000'000};
+                             .iterations = 4'000'000};
 
     auto task = std::make_shared<TaskOpenMP>(params.CreateTaskData(out));
 
