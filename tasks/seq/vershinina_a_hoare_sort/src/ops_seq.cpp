@@ -1,0 +1,51 @@
+#include "seq/vershinina_a_hoare_sort/include/ops_seq.hpp"
+
+#include <cmath>
+#include <cstddef>
+#include <iostream>
+#include <vector>
+
+int vershinina_a_hoare_sort::TestTaskSequential::Partition(int *s_vec, int first, int last) {
+  int i = first - 1;
+  value = s_vec[last];
+
+  for (int j = first; j <= last - 1; j++) {
+    if (s_vec[j] <= value) {
+      i++;
+      std::swap(s_vec[i], s_vec[j]);
+    }
+  }
+  std::swap(s_vec[i + 1], s_vec[last]);
+  return i + 1;
+}
+
+void vershinina_a_hoare_sort::TestTaskSequential::HoareSort(int *s_vec, int first, int last) {
+  if (first < last) {
+    int iter = Partition(s_vec, first, last);
+    HoareSort(s_vec, first, iter - 1);
+    HoareSort(s_vec, iter + 1, last);
+  }
+}
+
+bool vershinina_a_hoare_sort::TestTaskSequential::PreProcessingImpl() {
+  input_ = reinterpret_cast<int *>(task_data->inputs[0]);
+  n = task_data->inputs_count[0];
+  return true;
+}
+
+bool vershinina_a_hoare_sort::TestTaskSequential::ValidationImpl() {
+  return task_data->inputs.size() == 1 && task_data->inputs_count.size() == 1 && task_data->outputs.size() == 1;
+}
+
+bool vershinina_a_hoare_sort::TestTaskSequential::RunImpl() {
+  if (n <= 1) {
+    return true;
+  }
+  HoareSort(input_, 0, n - 1);
+  return true;
+}
+
+bool vershinina_a_hoare_sort::TestTaskSequential::PostProcessingImpl() {
+  std::copy(input_, input_ + n, reinterpret_cast<int *>(task_data->outputs[0]));
+  return true;
+}
