@@ -25,7 +25,7 @@ std::vector<int> GetRandomVector(int len) {
 }
 }  // namespace
 
-TEST(vershinina_a_hoare_sort, test_pipeline_run) {
+TEST(vershinina_a_hoare_sort, test_pipeline_run_seq) {
   std::vector<int> in;
   std::vector<int> out(16000);
   in = GetRandomVector(16000);
@@ -55,7 +55,7 @@ TEST(vershinina_a_hoare_sort, test_pipeline_run) {
   ASSERT_TRUE(std::ranges::is_sorted(out));
 }
 
-TEST(vershinina_a_hoare_sort, test_task_run) {
+TEST(vershinina_a_hoare_sort, test_task_run_seq) {
   std::vector<int> in;
   std::vector<int> out(16000);
   in = GetRandomVector(16000);
