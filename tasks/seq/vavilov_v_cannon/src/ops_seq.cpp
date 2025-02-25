@@ -19,12 +19,8 @@ bool vavilov_v_cannon_seq::CannonSequential::PreProcessingImpl() {
 }
 
 bool vavilov_v_cannon_seq::CannonSequential::ValidationImpl() {
-  unsigned int n = task_data->inputs_count[0];
-  auto sqrt_n = static_cast<unsigned int>(std::sqrt(n));
-  unsigned int k = std::sqrt(sqrt_n);  
-
-  return n == task_data->inputs_count[1] && task_data->outputs_count[0] == task_data->inputs_count[0] &&
-         k * k == sqrt_n;
+   return task_data->inputs_count[0] == task_data->inputs_count[1] &&
+          task_data->outputs_count[0] == task_data->inputs_count[0];
 }
 
 void vavilov_v_cannon_seq::CannonSequential::InitialShift() {
