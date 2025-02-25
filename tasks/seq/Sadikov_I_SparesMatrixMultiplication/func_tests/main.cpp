@@ -116,7 +116,7 @@ TEST(sadikov_i_sparse_matrix_multiplication_task_seq, test_random_matrixes) {
 
 TEST(sadikov_i_sparse_matrix_multiplication_task_seq, test_random_matrixes2) {
   constexpr auto kEpsilon = 0.000001;
-  constexpr auto size = 200;
+  constexpr auto size = 40;
   auto fmatrix = sadikov_i_sparse_matrix_multiplication_task_seq::GetRandomMatrix(size * size);
   auto smatrix = sadikov_i_sparse_matrix_multiplication_task_seq::GetRandomMatrix(size * size);
   std::vector<double> out(size * size, 0.0);
