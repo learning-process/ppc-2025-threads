@@ -2,6 +2,7 @@
 
 #include <chrono>
 #include <cstdint>
+#include <iostream>
 #include <memory>
 #include <random>
 #include <vector>
@@ -10,12 +11,12 @@
 #include "core/task/include/task.hpp"
 #include "seq/vershinina_a_hoare_sort/include/ops_seq.hpp"
 
-std::vector<int> GetRandomVector(int len) {
+static std::vector<int> GetRandomVector(int len) {
   std::random_device dev;
   std::mt19937 gen(dev());
   std::uniform_int_distribution<> distr(0, 100);
   std::vector<int> vec(len);
-  int vec_size = vec.size();
+  size_t vec_size = vec.size();
   for (int i = 0; i < vec_size; i++) {
     vec[i] = distr(gen);
   }
