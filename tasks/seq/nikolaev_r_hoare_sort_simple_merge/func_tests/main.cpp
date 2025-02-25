@@ -27,7 +27,7 @@ std::vector<double> GenerateRandomVector(size_t len, double min_val = -1000.0, d
 
 class HoareSortTest : public testing::TestWithParam<size_t> {
  protected:
-  void CreateTest(size_t len) {
+  static void CreateTest(size_t len) {
     std::vector<double> in = GenerateRandomVector(len);
     std::vector<double> out(len, 0.0);
 
@@ -52,12 +52,12 @@ class HoareSortTest : public testing::TestWithParam<size_t> {
   }
 };
 
-}  // namespace
-
 TEST_P(HoareSortTest, sort_test) { CreateTest(GetParam()); }
 
 INSTANTIATE_TEST_SUITE_P(nikolaev_r_hoare_sort_simple_merge_seq, HoareSortTest,
                          testing::Values(1, 2, 10, 100, 150, 200, 1000, 2000, 5000));
+
+}  // namespace
 
 TEST(nikolaev_r_hoare_sort_simple_merge_seq, test_empty_vect) {
   std::vector<double> in = {};
