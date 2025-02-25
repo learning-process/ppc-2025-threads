@@ -9,7 +9,8 @@
 #include "core/task/include/task.hpp"
 #include "seq/vershinina_a_hoare_sort/include/ops_seq.hpp"
 
-static std::vector<int> GetRandomVector(size_t len) {
+namespace {
+std::vector<int> GetRandomVector(size_t len) {
   std::random_device dev;
   std::mt19937 gen(dev());
   std::uniform_int_distribution<> distr(0, 100);
@@ -20,6 +21,7 @@ static std::vector<int> GetRandomVector(size_t len) {
   }
   return vec;
 }
+}  // namespace
 
 TEST(vershinina_a_hoare_sort, Test_empty_seq) {
   std::vector<int> in;

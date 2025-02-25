@@ -17,7 +17,7 @@ class TestTaskSequential : public ppc::core::Task {
 
  private:
   int *input_{};
-  int n_{};
+  unsigned int n_{};
   std::vector<int> output_;
   int value_;
   void HoareSort(int *s_vec, int first, int last);
