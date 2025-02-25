@@ -11,7 +11,7 @@
 #include "core/task/include/task.hpp"
 #include "seq/varfolomeev_g_histogram_linear_stretching/include/ops_seq.hpp"
 
-namespace varfolomeev_g_histogram_linear_stretching_seq {
+namespace {
 static std::vector<int> GetRandomImage(int sz, int min_gen = 0, int max_gen = 255) {
   std::random_device dev;
   std::mt19937 gen(dev());
@@ -24,7 +24,7 @@ static std::vector<int> GetRandomImage(int sz, int min_gen = 0, int max_gen = 25
 
   return res;
 }
-}  // namespace varfolomeev_g_histogram_linear_stretching_seq
+}  // namespace
 
 TEST(varfolomeev_g_histogram_linear_stretching_seq, test_manual_9) {
   // Create data
