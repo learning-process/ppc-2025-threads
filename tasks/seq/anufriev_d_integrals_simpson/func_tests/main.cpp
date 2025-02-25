@@ -1,9 +1,11 @@
 #define _USE_MATH_DEFINES
 
 #include <gtest/gtest.h>
+
+#include <cmath>
 #include <memory>
 #include <vector>
-#include <cmath>
+
 #include "core/task/include/task.hpp"
 #include "seq/anufriev_d_integrals_simpson/include/ops_seq.hpp"
 
@@ -26,7 +28,7 @@ double GetResultFromTaskData(std::shared_ptr<ppc::core::TaskData> td) {
   double* res_ptr = reinterpret_cast<double*>(td->outputs[0]);
   return res_ptr[0];
 }
-} // namespace
+}  // namespace
 
 TEST(anufriev_d_integrals_simpson_seq, test_1D_sin) {
   std::vector<double> in = {1, 0.0, M_PI / 2.0, 100, 1};
@@ -55,11 +57,11 @@ TEST(anufriev_d_integrals_simpson_seq, test_2D_sum_of_squares) {
   task.PostProcessing();
 
   double result = GetResultFromTaskData(td);
-  EXPECT_NEAR(result, 2.0/3.0, 1e-3);
+  EXPECT_NEAR(result, 2.0 / 3.0, 1e-3);
 }
 
 TEST(anufriev_d_integrals_simpson_seq, test_2D_sin_cos) {
-  std::vector<double> in = {2, 0.0, M_PI/2.0, 100, 0.0, M_PI/2.0, 100, 1};
+  std::vector<double> in = {2, 0.0, M_PI / 2.0, 100, 0.0, M_PI / 2.0, 100, 1};
 
   auto td = MakeTaskData(in, 1);
   anufriev_d_integrals_simpson_seq::IntegralsSimpsonSequential task(td);
@@ -107,7 +109,9 @@ TEST(anufriev_d_integrals_simpson_seq, test_invalid_dimension_zero) {
 }
 
 TEST(anufriev_d_integrals_simpson_seq, test_invalid_not_enough_data) {
-  std::vector<double> in = {2, 0.0, 1.0, 2.0, 999.0, };
+  std::vector<double> in = {
+      2, 0.0, 1.0, 2.0, 999.0,
+  };
   auto td = MakeTaskData(in, 1);
 
   anufriev_d_integrals_simpson_seq::IntegralsSimpsonSequential task(td);

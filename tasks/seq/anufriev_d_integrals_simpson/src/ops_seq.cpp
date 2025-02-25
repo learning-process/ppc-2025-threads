@@ -2,9 +2,9 @@
 
 #include <cmath>
 #include <cstddef>
-#include <vector>
-#include <stdexcept>
 #include <iostream>
+#include <stdexcept>
+#include <vector>
 
 namespace {
 
@@ -46,8 +46,7 @@ double IntegralsSimpsonSequential::FunctionN(const std::vector<double>& coords) 
   }
 }
 
-double IntegralsSimpsonSequential::RecursiveSimpsonSum(int dim_index,
-                                                       std::vector<int>& idx,
+double IntegralsSimpsonSequential::RecursiveSimpsonSum(int dim_index, std::vector<int>& idx,
                                                        const std::vector<double>& steps) const {
   if (dim_index == dimension_) {
     double coeff = 1.0;
