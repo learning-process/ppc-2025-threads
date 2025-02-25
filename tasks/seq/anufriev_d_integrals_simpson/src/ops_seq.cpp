@@ -3,30 +3,67 @@
 #include <cmath>
 #include <cstddef>
 #include <vector>
+#include <stdexcept>
+#include <iostream>
 
 namespace {
 
 int SimpsonCoeff(int i, int n) {
   if (i == 0 || i == n) {
     return 1;
-  }
-  if (i % 2 != 0) {
+  } else if (i % 2 != 0) {
     return 4;
+  } else {
+    return 2;
   }
-  return 2;
 }
 }  // namespace
 
 namespace anufriev_d_integrals_simpson_seq {
 
-double IntegralsSimpsonSequential::Function(double x, double y) const {
+double IntegralsSimpsonSequential::FunctionN(const std::vector<double>& coords) const {
   switch (func_code_) {
-    case 0:
-      return (x * x) + (y * y);
-    case 1:
-      return std::sin(x) * std::cos(y);
+    case 0: {
+      double s = 0.0;
+      for (double c : coords) {
+        s += c * c;
+      }
+      return s;
+    }
+    case 1: {
+      double val = 1.0;
+      for (size_t i = 0; i < coords.size(); i++) {
+        if (i % 2 == 0) {
+          val *= std::sin(coords[i]);
+        } else {
+          val *= std::cos(coords[i]);
+        }
+      }
+      return val;
+    }
     default:
       return 0.0;
+  }
+}
+
+double IntegralsSimpsonSequential::RecursiveSimpsonSum(int dim_index,
+                                                       std::vector<int>& idx,
+                                                       const std::vector<double>& steps) const {
+  if (dim_index == dimension_) {
+    double coeff = 1.0;
+    std::vector<double> coords(dimension_);
+    for (int d = 0; d < dimension_; ++d) {
+      coords[d] = a_[d] + idx[d] * steps[d];
+      coeff *= SimpsonCoeff(idx[d], n_[d]);
+    }
+    return coeff * FunctionN(coords);
+  } else {
+    double sum = 0.0;
+    for (int i = 0; i <= n_[dim_index]; ++i) {
+      idx[dim_index] = i;
+      sum += RecursiveSimpsonSum(dim_index + 1, idx, steps);
+    }
+    return sum;
   }
 }
 
@@ -38,29 +75,36 @@ bool IntegralsSimpsonSequential::PreProcessingImpl() {
   auto* in_ptr = reinterpret_cast<double*>(task_data->inputs[0]);
   size_t in_size = task_data->inputs_count[0];
 
-  if (in_size < 6) {
+  if (in_size < 5) {
     return false;
   }
 
-  ax_ = in_ptr[0];
-  bx_ = in_ptr[1];
-  nx_ = static_cast<int>(in_ptr[2]);
-  ay_ = in_ptr[3];
-  by_ = in_ptr[4];
-  ny_ = static_cast<int>(in_ptr[5]);
-
-  if (nx_ <= 0 || ny_ <= 0) {
-    return false;
-  }
-  if ((nx_ % 2) != 0 || (ny_ % 2) != 0) {
+  int d = static_cast<int>(in_ptr[0]);
+  if (d < 1) {
     return false;
   }
 
-  if (in_size >= 7) {
-    func_code_ = static_cast<int>(in_ptr[6]);
-  } else {
-    func_code_ = 0;
+  int needed_count = 3 * d + 2;
+  if (static_cast<int>(in_size) < needed_count) {
+    return false;
   }
+
+  dimension_ = d;
+  a_.resize(dimension_);
+  b_.resize(dimension_);
+  n_.resize(dimension_);
+
+  int idx_ptr = 1;
+  for (int i = 0; i < dimension_; i++) {
+    a_[i] = in_ptr[idx_ptr++];
+    b_[i] = in_ptr[idx_ptr++];
+    n_[i] = static_cast<int>(in_ptr[idx_ptr++]);
+    if (n_[i] <= 0 || (n_[i] % 2) != 0) {
+      return false;
+    }
+  }
+
+  func_code_ = static_cast<int>(in_ptr[3 * dimension_ + 1]);
 
   result_ = 0.0;
 
@@ -71,40 +115,33 @@ bool IntegralsSimpsonSequential::ValidationImpl() {
   if (task_data->outputs.empty()) {
     return false;
   }
-  if (task_data->outputs_count[0] < 1) {
+  if (task_data->outputs_count.empty() || task_data->outputs_count[0] < 1) {
     return false;
   }
-
   return true;
 }
 
 bool IntegralsSimpsonSequential::RunImpl() {
-  double hx = (bx_ - ax_) / nx_;
-  double hy = (by_ - ay_) / ny_;
-
-  double sum = 0.0;
-  for (int j = 0; j <= ny_; ++j) {
-    double yj = ay_ + (j * hy);
-    int cj = SimpsonCoeff(j, ny_);
-
-    for (int i = 0; i <= nx_; ++i) {
-      double xi = ax_ + (i * hx);
-      int ci = SimpsonCoeff(i, nx_);
-
-      sum += ci * cj * Function(xi, yj);
-    }
+  std::vector<double> steps(dimension_);
+  for (int i = 0; i < dimension_; i++) {
+    steps[i] = (b_[i] - a_[i]) / n_[i];
   }
 
-  double coeff = (hx * hy) / 9.0;
-  result_ = coeff * sum;
+  std::vector<int> idx(dimension_, 0);
+  double sum = RecursiveSimpsonSum(0, idx, steps);
 
+  double coeff = 1.0;
+  for (int i = 0; i < dimension_; i++) {
+    coeff *= steps[i] / 3.0;
+  }
+
+  result_ = coeff * sum;
   return true;
 }
 
 bool IntegralsSimpsonSequential::PostProcessingImpl() {
   auto* out_ptr = reinterpret_cast<double*>(task_data->outputs[0]);
   out_ptr[0] = result_;
-
   return true;
 }
 
