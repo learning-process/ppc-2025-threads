@@ -1,6 +1,8 @@
 #include "seq/vershinina_a_hoare_sort/include/ops_seq.hpp"
 
+#include <algorithm>
 #include <cmath>
+#include <iostream>
 #include <vector>
 
 int vershinina_a_hoare_sort::TestTaskSequential::Partition(int *s_vec, int first, int last) {
