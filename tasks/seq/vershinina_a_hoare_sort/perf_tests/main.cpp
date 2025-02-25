@@ -1,7 +1,6 @@
 #include <gtest/gtest.h>
 
 #include <chrono>
-#include <cstddef>
 #include <cstdint>
 #include <memory>
 #include <random>
@@ -11,7 +10,7 @@
 #include "core/task/include/task.hpp"
 #include "seq/vershinina_a_hoare_sort/include/ops_seq.hpp"
 
-std::vector<int> getRandomVector(int len) {
+std::vector<int> GetRandomVector(int len) {
   std::random_device dev;
   std::mt19937 gen(dev());
   std::uniform_int_distribution<> distr(0, 100);
@@ -26,7 +25,7 @@ std::vector<int> getRandomVector(int len) {
 TEST(vershinina_a_hoare_sort, test_pipeline_run) {
   std::vector<int> in;
   std::vector<int> out(16000);
-  in = getRandomVector(16000);
+  in = GetRandomVector(16000);
 
   auto task_data_seq = std::make_shared<ppc::core::TaskData>();
   task_data_seq->inputs.emplace_back(reinterpret_cast<uint8_t *>(in.data()));
@@ -57,7 +56,7 @@ TEST(vershinina_a_hoare_sort, test_pipeline_run) {
 TEST(vershinina_a_hoare_sort, test_task_run) {
   std::vector<int> in;
   std::vector<int> out(16000);
-  in = getRandomVector(16000);
+  in = GetRandomVector(16000);
 
   auto task_data_seq = std::make_shared<ppc::core::TaskData>();
   task_data_seq->inputs.emplace_back(reinterpret_cast<uint8_t *>(in.data()));
