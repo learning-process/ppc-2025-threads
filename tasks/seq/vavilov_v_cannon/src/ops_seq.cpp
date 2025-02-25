@@ -19,7 +19,7 @@ bool vavilov_v_cannon_seq::CannonSequential::PreProcessingImpl() {
 }
 
 bool vavilov_v_cannon_seq::CannonSequential::ValidationImpl() {
-   return task_data->inputs_count[0] == task_data->inputs_count[1] &&
+  return task_data->inputs_count[0] == task_data->inputs_count[1] &&
           task_data->outputs_count[0] == task_data->inputs_count[0];
 }
 
