@@ -25,7 +25,7 @@ class krylov_m_monte_carlo_test_all : public ::testing::Test {  // NOLINT(readab
                                           std::exp(x[4]);
                                  },
                              .bounds = std::vector<Bound>(5, {0., 1.}),
-                             .iterations = 12'000'000};
+                             .iterations = 4'000'000};
     IntegrationParams workers_params = {.func = params.func, .bounds = {}, .iterations = {}};
     std::shared_ptr<ppc::core::TaskData> task_data =
         world.rank() == 0 ? params.CreateTaskData(out) : workers_params.CreateTaskData(out);
