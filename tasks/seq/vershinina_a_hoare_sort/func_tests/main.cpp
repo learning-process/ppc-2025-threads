@@ -12,7 +12,7 @@
 #include "core/util/include/util.hpp"
 #include "seq/vershinina_a_hoare_sort/include/ops_seq.hpp"
 
-std::vector<int> getRandomVector(int len) {
+std::vector<int> GetRandomVector(int len) {
   std::random_device dev;
   std::mt19937 gen(dev());
   std::uniform_int_distribution<> distr(0, 100);
@@ -45,7 +45,7 @@ TEST(vershinina_a_hoare_sort, Test_empty_seq) {
 TEST(vershinina_a_hoare_sort, Test_len_20_seq) {
   std::vector<int> in;
   std::vector<int> out(20);
-  in = getRandomVector(20);
+  in = GetRandomVector(20);
 
   auto task_data_seq = std::make_shared<ppc::core::TaskData>();
   task_data_seq->inputs.emplace_back(reinterpret_cast<uint8_t *>(in.data()));
@@ -65,7 +65,7 @@ TEST(vershinina_a_hoare_sort, Test_len_20_seq) {
 TEST(vershinina_a_hoare_sort, Test_len_50_seq) {
   std::vector<int> in;
   std::vector<int> out(50);
-  in = getRandomVector(50);
+  in = GetRandomVector(50);
 
   auto task_data_seq = std::make_shared<ppc::core::TaskData>();
   task_data_seq->inputs.emplace_back(reinterpret_cast<uint8_t *>(in.data()));
@@ -85,7 +85,7 @@ TEST(vershinina_a_hoare_sort, Test_len_50_seq) {
 TEST(vershinina_a_hoare_sort, Test_len_100_seq) {
   std::vector<int> in;
   std::vector<int> out(100);
-  in = getRandomVector(100);
+  in = GetRandomVector(100);
 
   auto task_data_seq = std::make_shared<ppc::core::TaskData>();
   task_data_seq->inputs.emplace_back(reinterpret_cast<uint8_t *>(in.data()));
@@ -105,7 +105,7 @@ TEST(vershinina_a_hoare_sort, Test_len_100_seq) {
 TEST(vershinina_a_hoare_sort, Test_len_200_seq) {
   std::vector<int> in;
   std::vector<int> out(200);
-  in = getRandomVector(200);
+  in = GetRandomVector(200);
 
   auto task_data_seq = std::make_shared<ppc::core::TaskData>();
   task_data_seq->inputs.emplace_back(reinterpret_cast<uint8_t *>(in.data()));
