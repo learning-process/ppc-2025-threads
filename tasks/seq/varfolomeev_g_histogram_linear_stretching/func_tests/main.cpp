@@ -12,7 +12,7 @@
 #include "seq/varfolomeev_g_histogram_linear_stretching/include/ops_seq.hpp"
 
 namespace {
-static std::vector<int> GetRandomImage(int sz, int min_gen = 0, int max_gen = 255) {
+std::vector<int> GetRandomImage(int sz, int min_gen = 0, int max_gen = 255) {
   std::random_device dev;
   std::mt19937 gen(dev());
   std::uniform_int_distribution<> dis(min_gen, max_gen);
