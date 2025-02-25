@@ -28,7 +28,7 @@ std::vector<double> GenerateRandomVector(int size, double min_value, double max_
 }  // namespace
 }  // namespace malyshev_v_radix_sort
 
-TEST(malyshev_v_radix_sort, test_pipeline_run) {
+TEST(malyshev_v_radix_sort_seq, test_pipeline_run) {
   const int size = 1000000;
   std::vector<double> input_vector = malyshev_v_radix_sort::GenerateRandomVector(size, -1000.0, 1000.0);
   std::vector<double> out(size, 0.0);
@@ -60,7 +60,7 @@ TEST(malyshev_v_radix_sort, test_pipeline_run) {
   ASSERT_EQ(out, reference);
 }
 
-TEST(malyshev_v_radix_sort, test_task_run_seq) {
+TEST(malyshev_v_radix_sort_seq, test_task_run) {
   const int size = 1000000;
   std::vector<double> input_vector = malyshev_v_radix_sort::GenerateRandomVector(size, -1000.0, 1000.0);
   std::vector<double> out(size, 0.0);
