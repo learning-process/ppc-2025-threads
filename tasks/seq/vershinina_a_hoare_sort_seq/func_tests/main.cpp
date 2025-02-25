@@ -79,7 +79,7 @@ TEST(vershinina_a_hoare_sort_seq, Test_len_50) {
   ASSERT_TRUE(std::ranges::is_sorted(out));
 }
 
-TEST(vershinina_a_hoare_sort_seq, Test_len_100 {
+TEST(vershinina_a_hoare_sort_seq, Test_len_100) {
   std::vector<int> in;
   std::vector<int> out(100);
   in = GetRandomVector(100);
