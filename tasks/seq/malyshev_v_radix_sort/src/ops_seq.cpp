@@ -6,7 +6,7 @@
 #include <cstdint>
 #include <vector>
 
-namespace malyshev_v_radix_sort {
+namespace malyshev_v_radix_sort_seq {
 namespace {
 union DoubleWrapper {
   double d;
@@ -79,4 +79,4 @@ bool RadixSortSequential::PostProcessingImpl() {
   }
   return true;
 }
-}  // namespace malyshev_v_radix_sort
+}  // namespace malyshev_v_radix_sort_seq

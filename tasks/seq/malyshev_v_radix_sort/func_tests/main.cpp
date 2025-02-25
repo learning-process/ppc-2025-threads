@@ -11,7 +11,7 @@
 #include "core/task/include/task.hpp"
 #include "seq/malyshev_v_radix_sort/include/ops_seq.hpp"
 
-namespace malyshev_v_radix_sort {
+namespace malyshev_v_radix_sort_seq {
 namespace {
 std::vector<double> GenerateRandomVector(int size, double min_value, double max_value) {
   std::vector<double> random_vector(size);
@@ -24,9 +24,9 @@ std::vector<double> GenerateRandomVector(int size, double min_value, double max_
   return random_vector;
 }
 }  // namespace
-}  // namespace malyshev_v_radix_sort
+}  // namespace malyshev_v_radix_sort_seq
 
-TEST(malyshev_v_radix_sort, ordinary_test) {
+TEST(malyshev_v_radix_sort_seq, ordinary_test) {
   std::vector<double> input_vector = {3.4, 1.2, 0.5, 7.8, 2.3, 4.5, 6.7, 8.9, 1.0, 0.2, 5.6, 4.3, 9.1, 1.5, 3.0};
   std::vector<double> out(15, 0.0);
   std::vector<double> sorted_vector = {0.2, 0.5, 1.0, 1.2, 1.5, 2.3, 3.0, 3.4, 4.3, 4.5, 5.6, 6.7, 7.8, 8.9, 9.1};
@@ -37,7 +37,7 @@ TEST(malyshev_v_radix_sort, ordinary_test) {
   task_data_seq->outputs.emplace_back(reinterpret_cast<uint8_t*>(out.data()));
   task_data_seq->outputs_count.emplace_back(out.size());
 
-  malyshev_v_radix_sort::RadixSortSequential test_task_sequential(task_data_seq);
+  malyshev_v_radix_sort_seq::RadixSortSequential test_task_sequential(task_data_seq);
   ASSERT_TRUE(test_task_sequential.Validation());
   test_task_sequential.PreProcessing();
   test_task_sequential.Run();
@@ -46,8 +46,8 @@ TEST(malyshev_v_radix_sort, ordinary_test) {
   ASSERT_EQ(out, sorted_vector);
 }
 
-TEST(malyshev_v_radix_sort, random_vector_test) {
-  std::vector<double> input_vector = malyshev_v_radix_sort::GenerateRandomVector(100, 0.0, 1000.0);
+TEST(malyshev_v_radix_sort_seq, random_vector_test) {
+  std::vector<double> input_vector = malyshev_v_radix_sort_seq::GenerateRandomVector(100, 0.0, 1000.0);
   std::vector<double> out(100, 0.0);
   std::vector<double> reference = input_vector;
   std::ranges::sort(reference);
@@ -58,7 +58,7 @@ TEST(malyshev_v_radix_sort, random_vector_test) {
   task_data_seq->outputs.emplace_back(reinterpret_cast<uint8_t*>(out.data()));
   task_data_seq->outputs_count.emplace_back(out.size());
 
-  malyshev_v_radix_sort::RadixSortSequential test_task_sequential(task_data_seq);
+  malyshev_v_radix_sort_seq::RadixSortSequential test_task_sequential(task_data_seq);
   ASSERT_TRUE(test_task_sequential.Validation());
   test_task_sequential.PreProcessing();
   test_task_sequential.Run();
@@ -67,7 +67,7 @@ TEST(malyshev_v_radix_sort, random_vector_test) {
   ASSERT_EQ(out, reference);
 }
 
-TEST(malyshev_v_radix_sort, Validation_test) {
+TEST(malyshev_v_radix_sort_seq, Validation_test) {
   std::vector<double> input_vector;
   std::vector<double> out(1, 0.0);
 
@@ -77,6 +77,6 @@ TEST(malyshev_v_radix_sort, Validation_test) {
   task_data_seq->outputs.emplace_back(reinterpret_cast<uint8_t*>(out.data()));
   task_data_seq->outputs_count.emplace_back(out.size());
 
-  malyshev_v_radix_sort::RadixSortSequential test_task_sequential(task_data_seq);
+  malyshev_v_radix_sort_seq::RadixSortSequential test_task_sequential(task_data_seq);
   ASSERT_FALSE(test_task_sequential.Validation());
 }

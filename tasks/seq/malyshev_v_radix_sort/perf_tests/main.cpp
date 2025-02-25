@@ -13,7 +13,7 @@
 #include "core/task/include/task.hpp"
 #include "seq/malyshev_v_radix_sort/include/ops_seq.hpp"
 
-namespace malyshev_v_radix_sort {
+namespace malyshev_v_radix_sort_seq {
 namespace {
 std::vector<double> GenerateRandomVector(int size, double min_value, double max_value) {
   std::vector<double> random_vector(size);
@@ -26,11 +26,11 @@ std::vector<double> GenerateRandomVector(int size, double min_value, double max_
   return random_vector;
 }
 }  // namespace
-}  // namespace malyshev_v_radix_sort
+}  // namespace malyshev_v_radix_sort_seq
 
 TEST(malyshev_v_radix_sort_seq, test_pipeline_run) {
   const int size = 1000000;
-  std::vector<double> input_vector = malyshev_v_radix_sort::GenerateRandomVector(size, -1000.0, 1000.0);
+  std::vector<double> input_vector = malyshev_v_radix_sort_seq::GenerateRandomVector(size, -1000.0, 1000.0);
   std::vector<double> out(size, 0.0);
 
   std::shared_ptr<ppc::core::TaskData> task_data_seq = std::make_shared<ppc::core::TaskData>();
@@ -39,7 +39,7 @@ TEST(malyshev_v_radix_sort_seq, test_pipeline_run) {
   task_data_seq->outputs.emplace_back(reinterpret_cast<uint8_t*>(out.data()));
   task_data_seq->outputs_count.emplace_back(out.size());
 
-  auto test_task_sequential = std::make_shared<malyshev_v_radix_sort::RadixSortSequential>(task_data_seq);
+  auto test_task_sequential = std::make_shared<malyshev_v_radix_sort_seq::RadixSortSequential>(task_data_seq);
 
   auto perf_attr = std::make_shared<ppc::core::PerfAttr>();
   perf_attr->num_running = 10;
@@ -62,7 +62,7 @@ TEST(malyshev_v_radix_sort_seq, test_pipeline_run) {
 
 TEST(malyshev_v_radix_sort_seq, test_task_run) {
   const int size = 1000000;
-  std::vector<double> input_vector = malyshev_v_radix_sort::GenerateRandomVector(size, -1000.0, 1000.0);
+  std::vector<double> input_vector = malyshev_v_radix_sort_seq::GenerateRandomVector(size, -1000.0, 1000.0);
   std::vector<double> out(size, 0.0);
 
   std::shared_ptr<ppc::core::TaskData> task_data_seq = std::make_shared<ppc::core::TaskData>();
@@ -71,7 +71,7 @@ TEST(malyshev_v_radix_sort_seq, test_task_run) {
   task_data_seq->outputs.emplace_back(reinterpret_cast<uint8_t*>(out.data()));
   task_data_seq->outputs_count.emplace_back(out.size());
 
-  auto test_task_sequential = std::make_shared<malyshev_v_radix_sort::RadixSortSequential>(task_data_seq);
+  auto test_task_sequential = std::make_shared<malyshev_v_radix_sort_seq::RadixSortSequential>(task_data_seq);
 
   auto perf_attr = std::make_shared<ppc::core::PerfAttr>();
   perf_attr->num_running = 10;

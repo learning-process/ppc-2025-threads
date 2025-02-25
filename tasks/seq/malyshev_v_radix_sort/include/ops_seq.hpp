@@ -6,7 +6,7 @@
 
 #include "core/task/include/task.hpp"
 
-namespace malyshev_v_radix_sort {
+namespace malyshev_v_radix_sort_seq {
 
 class RadixSortSequential : public ppc::core::Task {
  public:
@@ -19,4 +19,4 @@ class RadixSortSequential : public ppc::core::Task {
  private:
   std::vector<double> res_;
 };
-}  // namespace malyshev_v_radix_sort
+}  // namespace malyshev_v_radix_sort_seq
