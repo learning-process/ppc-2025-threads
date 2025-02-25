@@ -14,13 +14,13 @@
 #include "seq/varfolomeev_g_histogram_linear_stretching/include/ops_seq.hpp"
 
 namespace varfolomeev_g_histogram_linear_stretching_seq {
-static std::vector<int> getRandomImage(int sz, int min_gen = 0, int max_gen = 255) {
+static std::vector<int> GetRandomImage(int sz, int min_gen = 0, int max_gen = 255) {
   std::random_device dev;
   std::mt19937 gen(dev());
   std::uniform_int_distribution<> dis(min_gen, max_gen);
   std::vector<int> res(sz);
 
-  for (size_t i = 0; i < sz; ++i) {
+  for (int i = 0; i < sz; ++i) {
     res[i] = dis(gen);
   }
 
@@ -32,7 +32,7 @@ TEST(varfolomeev_g_histogram_linear_stretching_seq, test_pipeline_run) {
   constexpr int kCount = 10000000;
 
   // Create data
-  std::vector<int> in = varfolomeev_g_histogram_linear_stretching_seq::getRandomImage(kCount);
+  std::vector<int> in = varfolomeev_g_histogram_linear_stretching_seq::GetRandomImage(kCount);
   std::vector<int> out(kCount);
   std::vector<int> expected_out(kCount);
 
@@ -79,7 +79,7 @@ TEST(varfolomeev_g_histogram_linear_stretching_seq, test_task_run) {
   constexpr int kCount = 10000000;
 
   // Create data
-  std::vector<int> in = varfolomeev_g_histogram_linear_stretching_seq::getRandomImage(kCount);
+  std::vector<int> in = varfolomeev_g_histogram_linear_stretching_seq::GetRandomImage(kCount);
   std::vector<int> out(kCount, 0);
   std::vector<int> expected_out(kCount, 0);
 

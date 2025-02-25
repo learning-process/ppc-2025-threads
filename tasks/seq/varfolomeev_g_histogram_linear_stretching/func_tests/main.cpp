@@ -12,13 +12,13 @@
 #include "seq/varfolomeev_g_histogram_linear_stretching/include/ops_seq.hpp"
 
 namespace varfolomeev_g_histogram_linear_stretching_seq {
-static std::vector<int> getRandomImage(int sz, int min_gen = 0, int max_gen = 255) {
+static std::vector<int> GetRandomImage(int sz, int min_gen = 0, int max_gen = 255) {
   std::random_device dev;
   std::mt19937 gen(dev());
   std::uniform_int_distribution<> dis(min_gen, max_gen);
   std::vector<int> res(sz);
 
-  for (size_t i = 0; i < sz; ++i) {
+  for (int i = 0; i < sz; ++i) {
     res[i] = dis(gen);
   }
 
@@ -206,7 +206,7 @@ TEST(varfolomeev_g_histogram_linear_stretching_seq, test_single_non_flat_pixel_2
 TEST(varfolomeev_g_histogram_linear_stretching_seq, test_10k_generated) {
   // Create data
   const int sz = 10000;
-  std::vector<int> in = varfolomeev_g_histogram_linear_stretching_seq::getRandomImage(sz);
+  std::vector<int> in = varfolomeev_g_histogram_linear_stretching_seq::GetRandomImage(sz);
   std::vector<int> out(sz);
   std::vector<int> expected_out(sz);
 
