@@ -16,7 +16,7 @@ class TestTaskSequential : public ppc::core::Task {
   bool PostProcessingImpl() override;
 
  private:
-  std::vector<int> img_;
+  std::vector<int> img_, res_;
 };
 
 }  // namespace varfolomeev_g_histogram_linear_stretching_seq

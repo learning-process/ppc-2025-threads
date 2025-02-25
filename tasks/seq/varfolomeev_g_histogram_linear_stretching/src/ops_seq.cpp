@@ -10,6 +10,7 @@ bool varfolomeev_g_histogram_linear_stretching_seq::TestTaskSequential::PreProce
   unsigned int input_size = task_data->inputs_count[0];
   auto *in_ptr = reinterpret_cast<int *>(task_data->inputs[0]);
   img_ = std::vector<int>(in_ptr, in_ptr + input_size);
+  res_.resize(img_.size());
   return true;
 }
 
@@ -28,23 +29,22 @@ bool varfolomeev_g_histogram_linear_stretching_seq::TestTaskSequential::Validati
 }
 
 bool varfolomeev_g_histogram_linear_stretching_seq::TestTaskSequential::RunImpl() {
-  if (img_.empty()) {
-    return false;
-  }
   int min = *std::ranges::min_element(img_);
   int max = *std::ranges::max_element(img_);
 
   if (max != min) {
     for (size_t i = 0; i < img_.size(); i++) {
-      img_[i] = static_cast<int>(round((img_[i] - min) / static_cast<double>(max - min) * 255));
+      res_[i] = static_cast<int>(std::round((img_[i] - min) / static_cast<double>(max - min) * 255));
     }
+  } else {
+    std::ranges::fill(res_.begin(), res_.end(), min);
   }
   return true;
 }
 
 bool varfolomeev_g_histogram_linear_stretching_seq::TestTaskSequential::PostProcessingImpl() {
-  for (size_t i = 0; i < img_.size(); i++) {
-    reinterpret_cast<int *>(task_data->outputs[0])[i] = img_[i];
+  for (size_t i = 0; i < res_.size(); i++) {
+    reinterpret_cast<int *>(task_data->outputs[0])[i] = res_[i];
   }
   return true;
 }

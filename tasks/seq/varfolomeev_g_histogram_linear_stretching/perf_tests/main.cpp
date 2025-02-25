@@ -13,25 +13,34 @@
 #include "core/task/include/task.hpp"
 #include "seq/varfolomeev_g_histogram_linear_stretching/include/ops_seq.hpp"
 
+namespace varfolomeev_g_histogram_linear_stretching_seq {
+static std::vector<int> getRandomImage(int sz, int min_gen = 0, int max_gen = 255) {
+  std::random_device dev;
+  std::mt19937 gen(dev());
+  std::uniform_int_distribution<> dis(min_gen, max_gen);
+  std::vector<int> res(sz);
+
+  for (size_t i = 0; i < sz; ++i) {
+    res[i] = dis(gen);
+  }
+
+  return res;
+}
+}  // namespace varfolomeev_g_histogram_linear_stretching_seq
+
 TEST(varfolomeev_g_histogram_linear_stretching_seq, test_pipeline_run) {
   constexpr int kCount = 10000000;
 
   // Create data
-  std::vector<int> in(kCount, 0);
-  std::vector<int> out(kCount, 0);
-  std::vector<int> expected_out(kCount, 0);
-
-  std::mt19937 gen(42);  // Генератор случайных чисел с фиксированным seed
-  std::uniform_int_distribution<> dis(0, 255);
-  for (size_t i = 0; i < in.size(); ++i) {
-    in[i] = dis(gen);
-  }
+  std::vector<int> in = varfolomeev_g_histogram_linear_stretching_seq::getRandomImage(kCount);
+  std::vector<int> out(kCount);
+  std::vector<int> expected_out(kCount);
 
   int min_val = *std::ranges::min_element(in);
   int max_val = *std::ranges::max_element(in);
   if (min_val != max_val) {
     for (size_t i = 0; i < in.size(); ++i) {
-      expected_out[i] = static_cast<int>(round((in[i] - min_val) / static_cast<double>(max_val - min_val) * 255));
+      expected_out[i] = static_cast<int>(std::round((in[i] - min_val) / static_cast<double>(max_val - min_val) * 255));
     }
   }
 
@@ -70,21 +79,15 @@ TEST(varfolomeev_g_histogram_linear_stretching_seq, test_task_run) {
   constexpr int kCount = 10000000;
 
   // Create data
-  std::vector<int> in(kCount, 0);
+  std::vector<int> in = varfolomeev_g_histogram_linear_stretching_seq::getRandomImage(kCount);
   std::vector<int> out(kCount, 0);
   std::vector<int> expected_out(kCount, 0);
-
-  std::mt19937 gen(42);  // Генератор случайных чисел с фиксированным seed
-  std::uniform_int_distribution<> dis(0, 255);
-  for (size_t i = 0; i < in.size(); ++i) {
-    in[i] = dis(gen);
-  }
 
   int min_val = *std::ranges::min_element(in);
   int max_val = *std::ranges::max_element(in);
   if (min_val != max_val) {
     for (size_t i = 0; i < in.size(); ++i) {
-      expected_out[i] = static_cast<int>(round((in[i] - min_val) / static_cast<double>(max_val - min_val) * 255));
+      expected_out[i] = static_cast<int>(std::round((in[i] - min_val) / static_cast<double>(max_val - min_val) * 255));
     }
   }
 

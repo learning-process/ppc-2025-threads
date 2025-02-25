@@ -11,6 +11,21 @@
 #include "core/task/include/task.hpp"
 #include "seq/varfolomeev_g_histogram_linear_stretching/include/ops_seq.hpp"
 
+namespace varfolomeev_g_histogram_linear_stretching_seq {
+static std::vector<int> getRandomImage(int sz, int min_gen = 0, int max_gen = 255) {
+  std::random_device dev;
+  std::mt19937 gen(dev());
+  std::uniform_int_distribution<> dis(min_gen, max_gen);
+  std::vector<int> res(sz);
+
+  for (size_t i = 0; i < sz; ++i) {
+    res[i] = dis(gen);
+  }
+
+  return res;
+}
+}  // namespace varfolomeev_g_histogram_linear_stretching_seq
+
 TEST(varfolomeev_g_histogram_linear_stretching_seq, test_manual_9) {
   // Create data
   std::vector<int> in = {100, 50, 200, 75, 150, 25, 175, 125, 225};
@@ -190,22 +205,16 @@ TEST(varfolomeev_g_histogram_linear_stretching_seq, test_single_non_flat_pixel_2
 
 TEST(varfolomeev_g_histogram_linear_stretching_seq, test_10k_generated) {
   // Create data
-  std::vector<int> in(10000);
-  std::vector<int> out(10000);
-  std::vector<int> expected_out(10000);
+  const int sz = 10000;
+  std::vector<int> in = varfolomeev_g_histogram_linear_stretching_seq::getRandomImage(sz);
+  std::vector<int> out(sz);
+  std::vector<int> expected_out(sz);
 
-  std::mt19937 gen(25);
-  std::uniform_int_distribution<> dis(0, 255);
-  for (size_t i = 0; i < in.size(); ++i) {
-    in[i] = dis(gen);
-  }
-
-  int min_val = *std::ranges::min_element(in);
-  int max_val = *std::ranges::max_element(in);
-  if (min_val != max_val) {
+  int min_pix = *std::ranges::min_element(in);
+  int max_pix = *std::ranges::max_element(in);
+  if (min_pix != max_pix) {
     for (size_t i = 0; i < in.size(); ++i) {
-      expected_out[i] = static_cast<int>(round((in[i] - min_val) / static_cast<double>(max_val - min_val) * 255));
-      ;
+      expected_out[i] = static_cast<int>(std::round((in[i] - min_pix) / static_cast<double>(max_pix - min_pix) * 255));
     }
   }
 
