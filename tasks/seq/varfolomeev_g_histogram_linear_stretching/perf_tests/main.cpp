@@ -32,7 +32,7 @@ TEST(varfolomeev_g_histogram_linear_stretching_seq, test_pipeline_run) {
   constexpr int kCount = 10000000;
 
   // Create data
-  std::vector<int> in = varfolomeev_g_histogram_linear_stretching_seq::GetRandomImage(kCount);
+  std::vector<int> in = GetRandomImage(kCount);
   std::vector<int> out(kCount);
   std::vector<int> expected_out(kCount);
 
@@ -79,7 +79,7 @@ TEST(varfolomeev_g_histogram_linear_stretching_seq, test_task_run) {
   constexpr int kCount = 10000000;
 
   // Create data
-  std::vector<int> in = varfolomeev_g_histogram_linear_stretching_seq::GetRandomImage(kCount);
+  std::vector<int> in = GetRandomImage(kCount);
   std::vector<int> out(kCount, 0);
   std::vector<int> expected_out(kCount, 0);
 

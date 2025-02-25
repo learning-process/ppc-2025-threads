@@ -206,7 +206,7 @@ TEST(varfolomeev_g_histogram_linear_stretching_seq, test_single_non_flat_pixel_2
 TEST(varfolomeev_g_histogram_linear_stretching_seq, test_10k_generated) {
   // Create data
   const int sz = 10000;
-  std::vector<int> in = varfolomeev_g_histogram_linear_stretching_seq::GetRandomImage(sz);
+  std::vector<int> in = GetRandomImage(sz);
   std::vector<int> out(sz);
   std::vector<int> expected_out(sz);
 
