@@ -7,6 +7,34 @@
 #include <cstdint>
 #include <vector>
 
+std::pair<std::vector<uint64_t>, std::vector<uint64_t>> ParseOrigin(std::vector<double> &input_data_) {
+  std::vector<uint64_t> pozitive_copy;
+  std::vector<uint64_t> negative_copy;
+  for (int i = 0; i < static_cast<int>(input_data_.size()); i++) {
+    if (input_data_[i] > 0.0) {
+      pozitive_copy.emplace_back(*reinterpret_cast<uint64_t *>(&input_data_[i]));
+    } else {
+      negative_copy.emplace_back(*reinterpret_cast<uint64_t *>(&input_data_[i]));
+    }
+  }
+  return {pozitive_copy, negative_copy};
+}
+int calculateBits(const std::vector<uint64_t> &data, bool is_pozitive) {
+  if (data.empty()) {
+    return 0;
+  }
+  uint64_t extreme_val;
+  int num_bits;
+  if (is_pozitive) {
+    extreme_val = *std::ranges::max_element(data);
+    num_bits = std::bit_width(extreme_val);
+  } else {
+    extreme_val = *std::ranges::min_element(data);
+    num_bits = (extreme_val == 0) ? 0 : std::bit_width(extreme_val);
+  }
+
+  return num_bits;
+}
 bool tsatsyn_a_radix_sort_simple_merge_seq::TestTaskSequential::PreProcessingImpl() {
   auto *temp_ptr = reinterpret_cast<double *>(task_data->inputs[0]);
   input_data_ = std::vector<double>(temp_ptr, temp_ptr + task_data->inputs_count[0]);
@@ -21,23 +49,14 @@ bool tsatsyn_a_radix_sort_simple_merge_seq::TestTaskSequential::ValidationImpl()
 bool tsatsyn_a_radix_sort_simple_merge_seq::TestTaskSequential::RunImpl() {
   std::vector<uint64_t> pozitive_copy;
   std::vector<uint64_t> negative_copy;
-  for (int i = 0; i < static_cast<int>(input_data_.size()); i++) {
-    if (input_data_[i] > 0.0) {
-      pozitive_copy.emplace_back(*reinterpret_cast<uint64_t *>(&input_data_[i]));
-    } else {
-      negative_copy.emplace_back(*reinterpret_cast<uint64_t *>(&input_data_[i]));
-    }
-  }
-  int positive_bits = 0;
-  if (!pozitive_copy.empty()) {
-    uint64_t max_positive = *std::ranges::max_element(pozitive_copy);
-    positive_bits = std::bit_width(max_positive);
-  }
-  int negative_bits = 0;
-  if (!negative_copy.empty()) {
-    uint64_t min_negative = *std::ranges::min_element(negative_copy);
-    negative_bits = min_negative == 0 ? 0 : std::bit_width(min_negative);
-  }
+  std::pair<std::vector<uint64_t>, std::vector<uint64_t>> temp = ParseOrigin(input_data_);
+  pozitive_copy = temp.first;
+  negative_copy = temp.second;
+  int positive_bits;
+  positive_bits = calculateBits(pozitive_copy, true);
+  int negative_bits;
+  negative_bits = calculateBits(negative_copy, false);
+
   for (int bit = 0; bit < positive_bits; bit++) {
     std::vector<uint64_t> group0;
     std::vector<uint64_t> group1;
