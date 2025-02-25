@@ -9,9 +9,9 @@
 
 namespace chernykh_a_multidimensional_integral_rectangle_seq {
 
-bool Dimension::IsValid() const { return lower_bound_ < upper_bound_ && steps_count_ > 0; }
+bool Dimension::IsValid() const { return lower_bound < upper_bound && steps_count > 0; }
 
-double Dimension::GetStepSize() const { return (upper_bound_ - lower_bound_) / steps_count_; }
+double Dimension::GetStepSize() const { return (upper_bound - lower_bound) / steps_count; }
 
 bool SequentialTask::ValidationImpl() {
   auto *dims_ptr = reinterpret_cast<Dimension *>(task_data->inputs[0]);
@@ -43,15 +43,15 @@ bool SequentialTask::PostProcessingImpl() {
 
 int SequentialTask::GetTotalPoints() const {
   return std::accumulate(dims_.begin(), dims_.end(), 1,
-                         [](const int accum, const Dimension &dim) -> int { return accum * dim.steps_count_; });
+                         [](const int accum, const Dimension &dim) -> int { return accum * dim.steps_count; });
 }
 
 Point SequentialTask::GetPoint(int index) const {
   auto point = Point(dims_.size());
   for (size_t i = 0; i < point.size(); i++) {
-    int coordinate_index = index % dims_[i].steps_count_;
-    point[i] = dims_[i].lower_bound_ + (coordinate_index + 1) * dims_[i].GetStepSize();
-    index /= dims_[i].steps_count_;
+    int coordinate_index = index % dims_[i].steps_count;
+    point[i] = dims_[i].lower_bound + (coordinate_index + 1) * dims_[i].GetStepSize();
+    index /= dims_[i].steps_count;
   }
   return point;
 }

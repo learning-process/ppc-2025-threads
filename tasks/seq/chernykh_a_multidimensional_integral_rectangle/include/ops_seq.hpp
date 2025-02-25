@@ -12,12 +12,14 @@ using Point = std::vector<double>;
 using Function = std::function<double(const Point &)>;
 
 struct Dimension {
-  double lower_bound_{};
-  double upper_bound_{};
-  int steps_count_{};
+  Dimension(const double lower_bound, const double upper_bound, const int steps_count)
+      : lower_bound(lower_bound), upper_bound(upper_bound), steps_count(steps_count) {}
+  double lower_bound{};
+  double upper_bound{};
+  int steps_count{};
 
-  bool IsValid() const;
-  double GetStepSize() const;
+  [[nodiscard]] bool IsValid() const;
+  [[nodiscard]] double GetStepSize() const;
 };
 
 class SequentialTask final : public ppc::core::Task {
@@ -34,9 +36,9 @@ class SequentialTask final : public ppc::core::Task {
   std::vector<Dimension> dims_;
   double result_{};
 
-  int GetTotalPoints() const;
-  Point GetPoint(int index) const;
-  double GetScalingFactor() const;
+  [[nodiscard]] int GetTotalPoints() const;
+  [[nodiscard]] Point GetPoint(int index) const;
+  [[nodiscard]] double GetScalingFactor() const;
 };
 
 }  // namespace chernykh_a_multidimensional_integral_rectangle_seq

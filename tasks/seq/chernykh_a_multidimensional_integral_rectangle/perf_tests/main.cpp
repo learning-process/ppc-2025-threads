@@ -5,6 +5,7 @@
 #include <cstdint>
 #include <memory>
 #include <numbers>
+#include <vector>
 
 #include "core/perf/include/perf.hpp"
 #include "core/task/include/task.hpp"
@@ -16,15 +17,18 @@ using namespace chernykh_a_multidimensional_integral_rectangle_seq;
 
 enum class RunType : uint8_t { kTask, kPipeline };
 
-void RunTask(const RunType run_type, const Function& func, std::vector<Dimension>& dims, const double want) {
-  double output = 0.0;
-
+std::shared_ptr<ppc::core::TaskData> CreateTaskData(std::vector<Dimension>& dims, double& output) {
   auto task_data = std::make_shared<ppc::core::TaskData>();
   task_data->inputs.emplace_back(reinterpret_cast<uint8_t*>(dims.data()));
   task_data->inputs_count.emplace_back(dims.size());
   task_data->outputs.emplace_back(reinterpret_cast<uint8_t*>(&output));
   task_data->outputs_count.emplace_back(1);
+  return task_data;
+}
 
+void RunTask(const RunType run_type, const Function& func, std::vector<Dimension>& dims, const double want) {
+  double output = 0.0;
+  auto task_data = CreateTaskData(dims, output);
   auto task = std::make_shared<SequentialTask>(task_data, func);
 
   auto perf_attributes = std::make_shared<ppc::core::PerfAttr>();
@@ -56,7 +60,10 @@ TEST(chernykh_a_multidimensional_integral_rectangle_seq, test_pipeline_run) {
     return std::exp(-point[0] - point[1] - point[2]) * std::sin(point[0]) * std::sin(point[1]) * std::sin(point[2]);
   };
   std::vector<Dimension> dims = {
-      {0.0, std::numbers::pi, 125}, {0.0, std::numbers::pi, 125}, {0.0, std::numbers::pi, 125}};
+      Dimension(0.0, std::numbers::pi, 125),
+      Dimension(0.0, std::numbers::pi, 125),
+      Dimension(0.0, std::numbers::pi, 125),
+  };
   double want = std::pow((1.0 + std::exp(-std::numbers::pi)) / 2.0, 3);
   RunTask(RunType::kPipeline, func, dims, want);
 }
@@ -66,7 +73,10 @@ TEST(chernykh_a_multidimensional_integral_rectangle_seq, test_task_run) {
     return std::exp(-point[0] - point[1] - point[2]) * std::sin(point[0]) * std::sin(point[1]) * std::sin(point[2]);
   };
   std::vector<Dimension> dims = {
-      {0.0, std::numbers::pi, 125}, {0.0, std::numbers::pi, 125}, {0.0, std::numbers::pi, 125}};
+      Dimension(0.0, std::numbers::pi, 125),
+      Dimension(0.0, std::numbers::pi, 125),
+      Dimension(0.0, std::numbers::pi, 125),
+  };
   double want = std::pow((1.0 + std::exp(-std::numbers::pi)) / 2.0, 3);
   RunTask(RunType::kTask, func, dims, want);
 }
