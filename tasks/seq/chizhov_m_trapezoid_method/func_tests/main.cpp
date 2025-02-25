@@ -1,9 +1,11 @@
 #include <gtest/gtest.h>
 
+#include <cstdint>
 #include <functional>
 #include <memory>
 #include <vector>
 
+#include "core/task/include/task.hpp"
 #include "seq/chizhov_m_trapezoid_method/include/ops_seq.hpp"
 
 TEST(chizhov_m_trapezoid_method_seq, one_variable_squared) {

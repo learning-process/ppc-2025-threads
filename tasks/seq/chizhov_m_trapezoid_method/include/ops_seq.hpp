@@ -9,8 +9,8 @@
 namespace chizhov_m_trapezoid_method_seq {
 using Function = std::function<double(const std::vector<double>&)>;
 
-double TrapezoidMethod(const Function f, int div, int dim, std::vector<double>& lower_limits,
-                        std::vector<double>& upper_limits);
+double TrapezoidMethod(Function& f, int div, int dim, std::vector<double>& lower_limits,
+                       std::vector<double>& upper_limits);
 
 class TestTaskSequential : public ppc::core::Task {
  public:
@@ -25,8 +25,8 @@ class TestTaskSequential : public ppc::core::Task {
   Function f_;
   std::vector<double> lower_limits_;
   std::vector<double> upper_limits_;
-  int div_;
-  int dim_;
+  size_t div_;
+  size_t dim_;
   double res_;
 };
 }  // namespace chizhov_m_trapezoid_method_seq

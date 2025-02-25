@@ -2,13 +2,14 @@
 
 #include <cmath>
 #include <cstddef>
+#include <functional>
 #include <vector>
 
 using namespace std::chrono_literals;
 
-double chizhov_m_trapezoid_method_seq::TrapezoidMethod(const Function f, int div, int dim,
-                                                        std::vector<double>& lower_limits,
-                                                        std::vector<double>& upper_limits) {
+double chizhov_m_trapezoid_method_seq::TrapezoidMethod(Function& f, int div, int dim,
+                                                       std::vector<double>& lower_limits,
+                                                       std::vector<double>& upper_limits) {
   std::vector<double> h(dim);
   std::vector<int> steps(dim);
 
