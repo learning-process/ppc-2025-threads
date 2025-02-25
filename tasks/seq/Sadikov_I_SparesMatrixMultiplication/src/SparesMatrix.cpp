@@ -1,15 +1,16 @@
 #include "seq/Sadikov_I_SparesMatrixMultiplication/include/SparesMatrix.hpp"
 
-#include <iostream>
+#include <algorithm>
 #include <vector>
+
 namespace sadikov_i_sparse_matrix_multiplication_task_seq {
 SparesMatrix SparesMatrix::Transpose(const SparesMatrix& matrix) {
   std::vector<double> val;
   std::vector<int> rows;
   std::vector<int> elem_sum;
-  auto maxSize = std::max(matrix.GetRowsCount(), matrix.GetColumnsCount());
-  std::vector<std::vector<double>> intermediate_values(maxSize);
-  std::vector<std::vector<int>> intermediate_indexes(maxSize);
+  auto max_size = std::max(matrix.GetRowsCount(), matrix.GetColumnsCount());
+  std::vector<std::vector<double>> intermediate_values(max_size);
+  std::vector<std::vector<int>> intermediate_indexes(max_size);
   auto column_number = 0;
   auto column_counter = 0;
   for (auto i = 0; i < static_cast<int>(matrix.GetValues().size()); ++i) {
@@ -119,8 +120,8 @@ std::vector<double> BaseMatrixMultiplication(const std::vector<double>& fmatrix,
   for (auto i = 0; i < fmatrix_rows_count; i++) {
     for (auto j = 0; j < smatrix_columns_count; j++) {
       for (auto n = 0; n < smatrix_rows_count; n++) {
-        answer[j + i * smatrix_columns_count] +=
-            fmatrix[i * fmatrix_columns_count + n] * smatrix[n * smatrix_columns_count + j];
+        answer[j + (i * smatrix_columns_count)] +=
+            fmatrix[(i * fmatrix_columns_count) + n] * smatrix[(n * smatrix_columns_count) + j];
       }
     }
   }

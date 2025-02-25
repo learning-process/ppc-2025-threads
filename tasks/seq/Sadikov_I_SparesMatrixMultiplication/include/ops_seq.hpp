@@ -3,6 +3,7 @@
 #include <cmath>
 #include <random>
 #include <utility>
+#include <vector>
 
 #include "core/task/include/task.hpp"
 #include "seq/Sadikov_I_SparesMatrixMultiplication/include/SparesMatrix.hpp"

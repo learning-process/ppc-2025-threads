@@ -1,10 +1,8 @@
 #include <gtest/gtest.h>
 
 #include <chrono>
-#include <cstddef>
 #include <cstdint>
 #include <memory>
-#include <random>
 #include <vector>
 
 #include "core/perf/include/perf.hpp"
@@ -13,21 +11,21 @@
 
 TEST(sadikov_i_sparse_matrix_multiplication_task_seq, test_pipeline_run) {
   constexpr auto kEpsilon = 0.000001;
-  constexpr auto size = 200;
-  auto fmatrix = sadikov_i_sparse_matrix_multiplication_task_seq::GetRandomMatrix(size * size);
-  auto smatrix = sadikov_i_sparse_matrix_multiplication_task_seq::GetRandomMatrix(size * size);
-  std::vector<double> out(size * size, 0.0);
+  constexpr auto kSize = 200;
+  auto fmatrix = sadikov_i_sparse_matrix_multiplication_task_seq::GetRandomMatrix(kSize * kSize);
+  auto smatrix = sadikov_i_sparse_matrix_multiplication_task_seq::GetRandomMatrix(kSize * kSize);
+  std::vector<double> out(kSize * kSize, 0.0);
   auto task_data_seq = std::make_shared<ppc::core::TaskData>();
   task_data_seq->inputs.emplace_back(reinterpret_cast<uint8_t *>(fmatrix.data()));
   task_data_seq->inputs.emplace_back(reinterpret_cast<uint8_t *>(smatrix.data()));
-  task_data_seq->inputs_count.emplace_back(size);
-  task_data_seq->inputs_count.emplace_back(size);
-  task_data_seq->inputs_count.emplace_back(size);
-  task_data_seq->inputs_count.emplace_back(size);
+  task_data_seq->inputs_count.emplace_back(kSize);
+  task_data_seq->inputs_count.emplace_back(kSize);
+  task_data_seq->inputs_count.emplace_back(kSize);
+  task_data_seq->inputs_count.emplace_back(kSize);
   task_data_seq->outputs.emplace_back(reinterpret_cast<uint8_t *>(out.data()));
   task_data_seq->outputs_count.emplace_back(out.size());
-  auto checkOut = sadikov_i_sparse_matrix_multiplication_task_seq::BaseMatrixMultiplication(fmatrix, size, size,
-                                                                                            smatrix, size, size);
+  auto check_out = sadikov_i_sparse_matrix_multiplication_task_seq::BaseMatrixMultiplication(fmatrix, kSize, kSize,
+                                                                                             smatrix, kSize, kSize);
   auto test_task_sequential =
       std::make_shared<sadikov_i_sparse_matrix_multiplication_task_seq::CCSMatrixSequential>(task_data_seq);
   auto perf_attr = std::make_shared<ppc::core::PerfAttr>();
@@ -43,27 +41,27 @@ TEST(sadikov_i_sparse_matrix_multiplication_task_seq, test_pipeline_run) {
   perf_analyzer->PipelineRun(perf_attr, perf_results);
   ppc::core::Perf::PrintPerfStatistic(perf_results);
   for (auto i = 0; i < static_cast<int>(out.size()); ++i) {
-    EXPECT_NEAR(out[i], checkOut[i], kEpsilon);
+    EXPECT_NEAR(out[i], check_out[i], kEpsilon);
   }
 }
 
 TEST(sadikov_i_sparse_matrix_multiplication_task_seq, test_task_run) {
   constexpr auto kEpsilon = 0.000001;
-  constexpr auto size = 200;
-  auto fmatrix = sadikov_i_sparse_matrix_multiplication_task_seq::GetRandomMatrix(size * size);
-  auto smatrix = sadikov_i_sparse_matrix_multiplication_task_seq::GetRandomMatrix(size * size);
-  std::vector<double> out(size * size, 0.0);
+  constexpr auto kSize = 200;
+  auto fmatrix = sadikov_i_sparse_matrix_multiplication_task_seq::GetRandomMatrix(kSize * kSize);
+  auto smatrix = sadikov_i_sparse_matrix_multiplication_task_seq::GetRandomMatrix(kSize * kSize);
+  std::vector<double> out(kSize * kSize, 0.0);
   auto task_data_seq = std::make_shared<ppc::core::TaskData>();
   task_data_seq->inputs.emplace_back(reinterpret_cast<uint8_t *>(fmatrix.data()));
   task_data_seq->inputs.emplace_back(reinterpret_cast<uint8_t *>(smatrix.data()));
-  task_data_seq->inputs_count.emplace_back(size);
-  task_data_seq->inputs_count.emplace_back(size);
-  task_data_seq->inputs_count.emplace_back(size);
-  task_data_seq->inputs_count.emplace_back(size);
+  task_data_seq->inputs_count.emplace_back(kSize);
+  task_data_seq->inputs_count.emplace_back(kSize);
+  task_data_seq->inputs_count.emplace_back(kSize);
+  task_data_seq->inputs_count.emplace_back(kSize);
   task_data_seq->outputs.emplace_back(reinterpret_cast<uint8_t *>(out.data()));
   task_data_seq->outputs_count.emplace_back(out.size());
-  auto checkOut = sadikov_i_sparse_matrix_multiplication_task_seq::BaseMatrixMultiplication(fmatrix, size, size,
-                                                                                            smatrix, size, size);
+  auto check_out = sadikov_i_sparse_matrix_multiplication_task_seq::BaseMatrixMultiplication(fmatrix, kSize, kSize,
+                                                                                             smatrix, kSize, kSize);
   auto test_task_sequential =
       std::make_shared<sadikov_i_sparse_matrix_multiplication_task_seq::CCSMatrixSequential>(task_data_seq);
   auto perf_attr = std::make_shared<ppc::core::PerfAttr>();
@@ -80,6 +78,6 @@ TEST(sadikov_i_sparse_matrix_multiplication_task_seq, test_task_run) {
   perf_analyzer->TaskRun(perf_attr, perf_results);
   ppc::core::Perf::PrintPerfStatistic(perf_results);
   for (auto i = 0; i < static_cast<int>(out.size()); ++i) {
-    EXPECT_NEAR(out[i], checkOut[i], kEpsilon);
+    EXPECT_NEAR(out[i], check_out[i], kEpsilon);
   }
 }

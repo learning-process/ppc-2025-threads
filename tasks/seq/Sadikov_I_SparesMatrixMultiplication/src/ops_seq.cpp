@@ -1,5 +1,8 @@
 #include "seq/Sadikov_I_SparesMatrixMultiplication/include/ops_seq.hpp"
 
+#include <algorithm>
+#include <cstdint>
+#include <random>
 #include <vector>
 
 #include "seq/Sadikov_I_SparesMatrixMultiplication/include/SparesMatrix.hpp"
