@@ -29,7 +29,7 @@ std::vector<int> GenerateRandomVector(const RandomVectorParams &params) {
 
 TEST(sotskov_a_shell_sorting_with_simple_merging_seq, test_pipeline_run) {
   sotskov_a_shell_sorting_with_simple_merging_seq::RandomVectorParams params = {
-      .size = 1000000, .min_value = 0, .max_value = 500};
+      .size = 2000000, .min_value = 0, .max_value = 500};
   std::vector<int> in = GenerateRandomVector(params);
   std::vector<int> out(in.size(), 0);
   std::vector<int> expected = in;
@@ -70,7 +70,7 @@ TEST(sotskov_a_shell_sorting_with_simple_merging_seq, test_pipeline_run) {
 
 TEST(sotskov_a_shell_sorting_with_simple_merging_seq, test_task_run) {
   sotskov_a_shell_sorting_with_simple_merging_seq::RandomVectorParams params = {
-      .size = 1000000, .min_value = 0, .max_value = 500};
+      .size = 2000000, .min_value = 0, .max_value = 500};
   std::vector<int> in = GenerateRandomVector(params);
   std::vector<int> out(in.size(), 0);
   std::vector<int> expected = in;
