@@ -16,12 +16,12 @@ class TestTaskSequential : public ppc::core::Task {
   bool PostProcessingImpl() override;
 
  private:
-  unsigned int *input_{};
-  unsigned int n_{};
+  int *input_{};
+  int n_{};
   std::vector<int> output_;
-  unsigned int value_;
-  void HoareSort(unsigned int *s_vec, int first, int last);
-  int Partition(unsigned int *s_vec, int first, int last);
+  int value_;
+  void HoareSort(int *s_vec, int first, int last);
+  int Partition(int *s_vec, int first, int last);
 };
 
 }  // namespace vershinina_a_hoare_sort
