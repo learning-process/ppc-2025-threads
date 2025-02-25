@@ -5,26 +5,27 @@
 #include <cmath>
 #include <cstddef>
 #include <cstdint>
+#include <utility>
 #include <vector>
 
-std::pair<std::vector<uint64_t>, std::vector<uint64_t>> ParseOrigin(std::vector<double> &input_data_) {
+static std::pair<std::vector<uint64_t>, std::vector<uint64_t>> ParseOrigin(std::vector<double> &input_data) {
   std::vector<uint64_t> pozitive_copy;
   std::vector<uint64_t> negative_copy;
-  for (int i = 0; i < static_cast<int>(input_data_.size()); i++) {
-    if (input_data_[i] > 0.0) {
-      pozitive_copy.emplace_back(*reinterpret_cast<uint64_t *>(&input_data_[i]));
+  for (int i = 0; i < static_cast<int>(input_data.size()); i++) {
+    if (input_data[i] > 0.0) {
+      pozitive_copy.emplace_back(*reinterpret_cast<uint64_t *>(&input_data[i]));
     } else {
-      negative_copy.emplace_back(*reinterpret_cast<uint64_t *>(&input_data_[i]));
+      negative_copy.emplace_back(*reinterpret_cast<uint64_t *>(&input_data[i]));
     }
   }
   return {pozitive_copy, negative_copy};
 }
-int calculateBits(const std::vector<uint64_t> &data, bool is_pozitive) {
+static int CalculateBits(const std::vector<uint64_t> &data, bool is_pozitive) {
   if (data.empty()) {
     return 0;
   }
-  uint64_t extreme_val;
-  int num_bits;
+  uint64_t extreme_val = 0;
+  int num_bits = 0;
   if (is_pozitive) {
     extreme_val = *std::ranges::max_element(data);
     num_bits = std::bit_width(extreme_val);
@@ -52,10 +53,8 @@ bool tsatsyn_a_radix_sort_simple_merge_seq::TestTaskSequential::RunImpl() {
   std::pair<std::vector<uint64_t>, std::vector<uint64_t>> temp = ParseOrigin(input_data_);
   pozitive_copy = temp.first;
   negative_copy = temp.second;
-  int positive_bits;
-  positive_bits = calculateBits(pozitive_copy, true);
-  int negative_bits;
-  negative_bits = calculateBits(negative_copy, false);
+  int positive_bits = positive_bits = CalculateBits(pozitive_copy, true);
+  int negative_bits = negative_bits = CalculateBits(negative_copy, false);
 
   for (int bit = 0; bit < positive_bits; bit++) {
     std::vector<uint64_t> group0;
