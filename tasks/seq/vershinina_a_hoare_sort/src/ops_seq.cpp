@@ -4,7 +4,7 @@
 #include <cmath>
 #include <vector>
 
-int vershinina_a_hoare_sort::TestTaskSequential::Partition(int *s_vec, int first, int last) {
+int vershinina_a_hoare_sort::TestTaskSequential::Partition(unsigned int *s_vec, int first, int last) {
   int i = first - 1;
   value_ = s_vec[last];
 
@@ -18,7 +18,7 @@ int vershinina_a_hoare_sort::TestTaskSequential::Partition(int *s_vec, int first
   return i + 1;
 }
 
-void vershinina_a_hoare_sort::TestTaskSequential::HoareSort(int *s_vec, int first, int last) {
+void vershinina_a_hoare_sort::TestTaskSequential::HoareSort(unsigned int *s_vec, int first, int last) {
   if (first < last) {
     int iter = Partition(s_vec, first, last);
     HoareSort(s_vec, first, iter - 1);
@@ -27,7 +27,7 @@ void vershinina_a_hoare_sort::TestTaskSequential::HoareSort(int *s_vec, int firs
 }
 
 bool vershinina_a_hoare_sort::TestTaskSequential::PreProcessingImpl() {
-  input_ = reinterpret_cast<int *>(task_data->inputs[0]);
+  input_ = reinterpret_cast<unsigned int *>(task_data->inputs[0]);
   n_ = task_data->inputs_count[0];
   return true;
 }

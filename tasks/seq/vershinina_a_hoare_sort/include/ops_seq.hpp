@@ -19,9 +19,9 @@ class TestTaskSequential : public ppc::core::Task {
   unsigned int *input_{};
   unsigned int n_{};
   std::vector<int> output_;
-  int value_;
-  void HoareSort(int *s_vec, int first, int last);
-  int Partition(int *s_vec, int first, int last);
+  unsigned int value_;
+  void HoareSort(unsigned int *s_vec, int first, int last);
+  int Partition(unsigned int *s_vec, int first, int last);
 };
 
 }  // namespace vershinina_a_hoare_sort
