@@ -2,6 +2,7 @@
 
 #include <algorithm>
 #include <chrono>
+#include <cstddef>
 #include <cstdint>
 #include <memory>
 #include <random>
@@ -11,7 +12,7 @@
 #include "core/task/include/task.hpp"
 #include "seq/vershinina_a_hoare_sort/include/ops_seq.hpp"
 namespace {
-std::vector<int> GetRandomVector(size_t len) {
+std::vector<int> GetRandomVector(int len) {
   std::random_device dev;
   std::mt19937 gen(dev());
   std::uniform_int_distribution<> distr(0, 100);
