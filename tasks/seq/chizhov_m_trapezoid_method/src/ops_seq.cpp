@@ -1,14 +1,12 @@
 #include "seq/chizhov_m_trapezoid_method/include/ops_seq.hpp"
 
 #include <cmath>
-#include <cstddef>
 #include <functional>
 #include <vector>
 
 using namespace std::chrono_literals;
 
-double chizhov_m_trapezoid_method_seq::TrapezoidMethod(Function& f, int div, int dim,
-                                                       std::vector<double>& lower_limits,
+double chizhov_m_trapezoid_method_seq::TrapezoidMethod(Function& f, int div, int dim, std::vector<double>& lower_limits,
                                                        std::vector<double>& upper_limits) {
   std::vector<double> h(dim);
   std::vector<int> steps(dim);
@@ -56,10 +54,10 @@ double chizhov_m_trapezoid_method_seq::TrapezoidMethod(Function& f, int div, int
 
 bool chizhov_m_trapezoid_method_seq::TestTaskSequential::PreProcessingImpl() {
   int* divisions_ptr = reinterpret_cast<int*>(task_data->inputs[0]);
-  div_ = static_cast<int>(*divisions_ptr);
+  div_ = *divisions_ptr;
 
   int* dimension_ptr = reinterpret_cast<int*>(task_data->inputs[1]);
-  dim_ = static_cast<int>(*dimension_ptr);
+  dim_ = *dimension_ptr;
 
   auto* limit_ptr = reinterpret_cast<double*>(task_data->inputs[2]);
   for (int i = 0; i < static_cast<int>(task_data->inputs_count[2]); i += 2) {
