@@ -7,18 +7,18 @@
 
 using namespace std::chrono_literals;
 
-double chizhov_m_trapezoid_method_seq::TrapezoidMethod(Function& f, size_t div, size_t dim,
+double chizhov_m_trapezoid_method_seq::TrapezoidMethod(Function& f, int div, int dim,
                                                        std::vector<double>& lower_limits,
                                                        std::vector<double>& upper_limits) {
   std::vector<double> h(dim);
-  std::vector<size_t> steps(dim);
+  std::vector<int> steps(dim);
 
-  for (size_t i = 0; i < dim; i++) {
+  for (int i = 0; i < dim; i++) {
     steps[i] = div;
     h[i] = (upper_limits[i] - lower_limits[i]) / steps[i];
   }
 
-  size_t total_nodes = 1;
+  int total_nodes = 1;
   for (const auto& step : steps) {
     total_nodes *= (step + 1);
   }
@@ -29,14 +29,14 @@ double chizhov_m_trapezoid_method_seq::TrapezoidMethod(Function& f, size_t div, 
   for (int i = 0; i < total_nodes; i++) {
     int temp = i;
 
-    for (size_t j = 0; j < dim; j++) {
-      size_t node_index = temp % (steps[j] + 1);
+    for (int j = 0; j < dim; j++) {
+      int node_index = temp % (steps[j] + 1);
       point[j] = lower_limits[j] + node_index * h[j];
       temp /= (steps[j] + 1);
     }
 
     double weight = 1.0;
-    for (size_t j = 0; j < dim; j++) {
+    for (int j = 0; j < dim; j++) {
       if (point[j] == lower_limits[j] || point[j] == upper_limits[j]) {
         weight *= 1.0;
       } else {
@@ -47,7 +47,7 @@ double chizhov_m_trapezoid_method_seq::TrapezoidMethod(Function& f, size_t div, 
     result += weight * f(point);
   }
 
-  for (size_t i = 0; i < dim; i++) {
+  for (int i = 0; i < dim; i++) {
     result *= h[i] / 2.0;
   }
 
@@ -56,10 +56,10 @@ double chizhov_m_trapezoid_method_seq::TrapezoidMethod(Function& f, size_t div, 
 
 bool chizhov_m_trapezoid_method_seq::TestTaskSequential::PreProcessingImpl() {
   int* divisions_ptr = reinterpret_cast<int*>(task_data->inputs[0]);
-  div_ = static_cast<size_t>(*divisions_ptr);
+  div_ = static_cast<int>(*divisions_ptr);
 
   int* dimension_ptr = reinterpret_cast<int*>(task_data->inputs[1]);
-  dim_ = static_cast<size_t>(*dimension_ptr);
+  dim_ = static_cast<int>(*dimension_ptr);
 
   auto* limit_ptr = reinterpret_cast<double*>(task_data->inputs[2]);
   for (int i = 0; i < static_cast<int>(task_data->inputs_count[2]); i += 2) {
