@@ -13,7 +13,7 @@
 
 namespace vavilov_v_cannon_seq {
 
-std::vector<double> GenerateRandomMatrix(unsigned int n, double min_val = -10.0, double max_val = 10.0) {
+std::vector<double> GenerateRandomMatrix(unsigned int n, double min_val, double max_val) {
   std::vector<double> matrix(n * n);
   std::random_device rd;
   std::mt19937 gen(rd());
