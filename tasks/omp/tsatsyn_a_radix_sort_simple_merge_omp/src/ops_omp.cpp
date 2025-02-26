@@ -21,7 +21,7 @@ inline std::vector<uint64_t> tsatsyn_a_radix_sort_simple_merge_omp::MainSort(std
   return data;
 }
 
-int tsatsyn_a_radix_sort_simple_merge_omp::CalculateBits(const std::vector<uint64_t> &data, bool is_pozitive) {
+inline int tsatsyn_a_radix_sort_simple_merge_omp::CalculateBits(const std::vector<uint64_t> &data, bool is_pozitive) {
   if (data.empty()) {
     return 0;
   }
