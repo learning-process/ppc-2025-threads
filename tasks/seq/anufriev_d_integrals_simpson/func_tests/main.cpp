@@ -14,8 +14,8 @@ const double kPi = std::numbers::pi;
 std::shared_ptr<ppc::core::TaskData> MakeTaskData(const std::vector<double>& elements,
                                                   std::vector<double>& out_buffer) {
   auto task_data = std::make_shared<ppc::core::TaskData>();
-  auto input_ptr = reinterpret_cast<uint8_t*>(const_cast<double*>(elements.data()));
-  auto output_ptr = reinterpret_cast<uint8_t*>(out_buffer.data());
+  auto *input_ptr = reinterpret_cast<uint8_t*>(const_cast<double*>(elements.data()));
+  auto *output_ptr = reinterpret_cast<uint8_t*>(out_buffer.data());
   task_data->inputs.push_back(input_ptr);
   task_data->inputs_count.push_back(static_cast<uint32_t>(elements.size() * sizeof(double)));
   task_data->outputs.push_back(output_ptr);
