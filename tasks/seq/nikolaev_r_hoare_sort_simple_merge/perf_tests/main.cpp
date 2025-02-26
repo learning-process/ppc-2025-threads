@@ -29,7 +29,7 @@ std::vector<double> GenerateRandomVector(size_t len, double min_val = -1000.0, d
 }  // namespace
 
 TEST(nikolaev_r_hoare_sort_simple_merge_seq, test_pipeline_run) {
-  constexpr size_t kLen = 250000;
+  constexpr size_t kLen = 1000000;
 
   std::vector<double> in = GenerateRandomVector(kLen);
   std::vector<double> out(kLen, 0.0);
@@ -44,7 +44,7 @@ TEST(nikolaev_r_hoare_sort_simple_merge_seq, test_pipeline_run) {
       std::make_shared<nikolaev_r_hoare_sort_simple_merge_seq::HoareSortSimpleMergeSequential>(task_data_seq);
 
   auto perf_attr = std::make_shared<ppc::core::PerfAttr>();
-  perf_attr->num_running = 10;
+  perf_attr->num_running = 3;
   const auto t0 = std::chrono::high_resolution_clock::now();
   perf_attr->current_timer = [&] {
     auto current_time_point = std::chrono::high_resolution_clock::now();
@@ -60,7 +60,7 @@ TEST(nikolaev_r_hoare_sort_simple_merge_seq, test_pipeline_run) {
 }
 
 TEST(nikolaev_r_hoare_sort_simple_merge_seq, test_task_run) {
-  constexpr size_t kLen = 250000;
+  constexpr size_t kLen = 1000000;
 
   std::vector<double> in = GenerateRandomVector(kLen);
   std::vector<double> out(kLen, 0.0);
@@ -75,7 +75,7 @@ TEST(nikolaev_r_hoare_sort_simple_merge_seq, test_task_run) {
       std::make_shared<nikolaev_r_hoare_sort_simple_merge_seq::HoareSortSimpleMergeSequential>(task_data_seq);
 
   auto perf_attr = std::make_shared<ppc::core::PerfAttr>();
-  perf_attr->num_running = 10;
+  perf_attr->num_running = 3;
   const auto t0 = std::chrono::high_resolution_clock::now();
   perf_attr->current_timer = [&] {
     auto current_time_point = std::chrono::high_resolution_clock::now();

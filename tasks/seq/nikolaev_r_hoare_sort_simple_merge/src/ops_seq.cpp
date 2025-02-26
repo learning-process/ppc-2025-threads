@@ -56,9 +56,9 @@ void nikolaev_r_hoare_sort_simple_merge_seq::HoareSortSimpleMergeSequential::Qui
   if (low >= high) {
     return;
   }
-  size_t pi = Partition(low, high);
-  if (pi > low) {
-    QuickSort(low, pi - 1);
+  size_t pivot = Partition(low, high);
+  if (pivot > low) {
+    QuickSort(low, pivot - 1);
   }
-  QuickSort(pi + 1, high);
+  QuickSort(pivot + 1, high);
 }
