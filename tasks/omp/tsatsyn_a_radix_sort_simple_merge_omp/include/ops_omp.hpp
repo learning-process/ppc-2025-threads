@@ -6,7 +6,7 @@
 #include "core/task/include/task.hpp"
 
 namespace tsatsyn_a_radix_sort_simple_merge_omp {
-
+std::vector<double> GetRandomVector(int sz, int a, int b);
 class TestTaskOpenMP : public ppc::core::Task {
  public:
   explicit TestTaskOpenMP(ppc::core::TaskDataPtr task_data) : Task(std::move(task_data)) {}
@@ -16,8 +16,8 @@ class TestTaskOpenMP : public ppc::core::Task {
   bool PostProcessingImpl() override;
 
  private:
-  std::vector<int> input_, output_;
-  int rc_size_{};
+  std::vector<double> input_data_;
+  std::vector<double> output_;
 };
 
-}  // namespace nesterov_a_test_task_omp
+}  // namespace tsatsyn_a_radix_sort_simple_merge_omp

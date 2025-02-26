@@ -1,25 +1,31 @@
 #include <gtest/gtest.h>
 
+#include <algorithm>
 #include <chrono>
-#include <cstddef>
 #include <cstdint>
 #include <memory>
+#include <random>
 #include <vector>
 
 #include "core/perf/include/perf.hpp"
 #include "core/task/include/task.hpp"
 #include "omp/tsatsyn_a_radix_sort_simple_merge_omp/include/ops_omp.hpp"
 
-TEST(tsatsyn_a_radix_sort_simple_merge_omp, test_pipeline_run) {
-  constexpr int kCount = 300;
-
-  // Create data
-  std::vector<int> in(kCount * kCount, 0);
-  std::vector<int> out(kCount * kCount, 0);
-
-  for (size_t i = 0; i < kCount; i++) {
-    in[(i * kCount) + i] = 1;
+std::vector<double> tsatsyn_a_radix_sort_simple_merge_omp::GetRandomVector(int sz, int a, int b) {
+  std::random_device dev;
+  std::mt19937 gen(dev());
+  std::uniform_real_distribution<> dis(a, b);
+  std::vector<double> vec(sz);
+  for (int i = 0; i < sz; ++i) {
+    vec[i] = dis(gen);
   }
+  return vec;
+}
+TEST(tsatsyn_a_radix_sort_simple_merge_omp, test_pipeline_run) {
+  constexpr int kCount = 500;
+  // Create data
+  std::vector<double> in = tsatsyn_a_radix_sort_simple_merge_omp::GetRandomVector(kCount * kCount, 0, 100);
+  std::vector<double> out(kCount * kCount, 0);
 
   // Create task_data
   auto task_data_omp = std::make_shared<ppc::core::TaskData>();
@@ -48,19 +54,15 @@ TEST(tsatsyn_a_radix_sort_simple_merge_omp, test_pipeline_run) {
   auto perf_analyzer = std::make_shared<ppc::core::Perf>(test_task_omp);
   perf_analyzer->PipelineRun(perf_attr, perf_results);
   ppc::core::Perf::PrintPerfStatistic(perf_results);
+  std::ranges::sort(in);
   ASSERT_EQ(in, out);
 }
 
 TEST(tsatsyn_a_radix_sort_simple_merge_omp, test_task_run) {
-  constexpr int kCount = 300;
-
+  constexpr int kCount = 500;
   // Create data
-  std::vector<int> in(kCount * kCount, 0);
-  std::vector<int> out(kCount * kCount, 0);
-
-  for (size_t i = 0; i < kCount; i++) {
-    in[(i * kCount) + i] = 1;
-  }
+  std::vector<double> in = tsatsyn_a_radix_sort_simple_merge_omp::GetRandomVector(kCount * kCount, 0, 100);
+  std::vector<double> out(kCount * kCount, 0);
 
   // Create task_data
   auto task_data_omp = std::make_shared<ppc::core::TaskData>();
@@ -89,5 +91,6 @@ TEST(tsatsyn_a_radix_sort_simple_merge_omp, test_task_run) {
   auto perf_analyzer = std::make_shared<ppc::core::Perf>(test_task_omp);
   perf_analyzer->TaskRun(perf_attr, perf_results);
   ppc::core::Perf::PrintPerfStatistic(perf_results);
+  std::ranges::sort(in);
   ASSERT_EQ(in, out);
 }
