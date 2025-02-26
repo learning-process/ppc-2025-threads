@@ -10,7 +10,7 @@
 #include "seq/oturin_a_gift_wrapping/include/ops_seq.hpp"
 
 TEST(oturin_a_gift_wrapping_seq, test_pipeline_run) {
-  int count = 100000;
+  int count = 250000;
   using namespace oturin_a_gift_wrapping_seq;
 
   // Create data
@@ -53,7 +53,7 @@ TEST(oturin_a_gift_wrapping_seq, test_pipeline_run) {
 }
 
 TEST(oturin_a_gift_wrapping_seq, test_task_run) {
-  int count = 100000;
+  int count = 250000;
   using namespace oturin_a_gift_wrapping_seq;
 
   // Create data

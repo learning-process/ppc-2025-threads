@@ -38,6 +38,7 @@ bool oturin_a_gift_wrapping_seq::TestTaskSequential::PreProcessingImpl() {
       return true;
     }
   }
+
   return false;
 }
 
@@ -46,6 +47,9 @@ bool oturin_a_gift_wrapping_seq::TestTaskSequential::ValidationImpl() {
 }
 
 bool oturin_a_gift_wrapping_seq::TestTaskSequential::RunImpl() {
+  if (output_.size() > 0) output_.clear();
+  // this .clear() used ONLY for perftest TaskRun. for some reason output_ has something in it
+
   // find most left point (priority to top)
   Coord most_left = input_[0];
   int start_index = 0;
@@ -82,7 +86,7 @@ bool oturin_a_gift_wrapping_seq::TestTaskSequential::RunImpl() {
     output_.push_back(input_[search_index]);
     line_angle = -5;
     for (int i = 0; i < n_; i++) {
-      double t = ABTP(output_[output_.size() - 2], output_[output_.size() - 1], input_[i]);
+      double t = ABTP(output_[output_.size() - 2], output_.back(), input_[i]);
       if (t > line_angle) {
         if (output_.back() != input_[i] && output_[output_.size() - 2] != input_[i]) {
           search_index = i;
