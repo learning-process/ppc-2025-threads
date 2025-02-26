@@ -1,12 +1,12 @@
 #include <gtest/gtest.h>
 
+#include <algorithm>
 #include <cstdint>
 #include <functional>
 #include <memory>
 #include <random>
 #include <ranges>
 #include <vector>
-#include <algorithm>
 
 #include "core/task/include/task.hpp"
 #include "seq/ermilova_d_shell_sort_batcher_even-odd_merger/include/ops_seq.hpp"
