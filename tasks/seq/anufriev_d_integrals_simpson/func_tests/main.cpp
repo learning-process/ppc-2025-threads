@@ -15,11 +15,11 @@ std::shared_ptr<ppc::core::TaskData> MakeTaskData(const std::vector<double>& ele
   task_data->inputs.push_back(reinterpret_cast<uint8_t*>(const_cast<double*>(elements.data())));
   task_data->inputs_count.push_back(static_cast<std::uint32_t>(elements.size()));
   std::vector<double> out_buffer(out_size, 0.0);
-  auto out_ptr = new double[out_size];
+  std::unique_ptr<double[]> out_ptr(new double[out_size]);
   for (size_t i = 0; i < out_size; i++) {
     out_ptr[i] = 0.0;
   }
-  task_data->outputs.push_back(reinterpret_cast<uint8_t*>(out_ptr));
+  task_data->outputs.push_back(reinterpret_cast<uint8_t*>(out_ptr.get()));
   task_data->outputs_count.push_back(static_cast<std::uint32_t>(out_size));
   return task_data;
 }
