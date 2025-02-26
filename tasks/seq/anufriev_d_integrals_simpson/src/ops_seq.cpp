@@ -2,8 +2,6 @@
 
 #include <cmath>
 #include <cstddef>
-#include <iostream>
-#include <stdexcept>
 #include <vector>
 
 namespace {
@@ -11,11 +9,11 @@ namespace {
 int SimpsonCoeff(int i, int n) {
   if (i == 0 || i == n) {
     return 1;
-  } else if (i % 2 != 0) {
-    return 4;
-  } else {
-    return 2;
   }
+  if (i % 2 != 0) {
+    return 4;
+  }
+  return 2;
 }
 }  // namespace
 
@@ -56,14 +54,13 @@ double IntegralsSimpsonSequential::RecursiveSimpsonSum(int dim_index, std::vecto
       coeff *= SimpsonCoeff(idx[d], n_[d]);
     }
     return coeff * FunctionN(coords);
-  } else {
-    double sum = 0.0;
-    for (int i = 0; i <= n_[dim_index]; ++i) {
-      idx[dim_index] = i;
-      sum += RecursiveSimpsonSum(dim_index + 1, idx, steps);
-    }
-    return sum;
   }
+  double sum = 0.0;
+  for (int i = 0; i <= n_[dim_index]; ++i) {
+    idx[dim_index] = i;
+    sum += RecursiveSimpsonSum(dim_index + 1, idx, steps);
+  }
+  return sum;
 }
 
 bool IntegralsSimpsonSequential::PreProcessingImpl() {
@@ -83,7 +80,7 @@ bool IntegralsSimpsonSequential::PreProcessingImpl() {
     return false;
   }
 
-  int needed_count = 3 * d + 2;
+  int needed_count = (3 * d) + 2;
   if (static_cast<int>(in_size) < needed_count) {
     return false;
   }
@@ -103,7 +100,7 @@ bool IntegralsSimpsonSequential::PreProcessingImpl() {
     }
   }
 
-  func_code_ = static_cast<int>(in_ptr[3 * dimension_ + 1]);
+  func_code_ = static_cast<int>(in_ptr[(3 * dimension_) + 1]);
 
   result_ = 0.0;
 

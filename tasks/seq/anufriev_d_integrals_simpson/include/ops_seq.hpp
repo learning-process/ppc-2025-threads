@@ -1,5 +1,6 @@
 #pragma once
 
+#include <utility>
 #include <vector>
 
 #include "core/task/include/task.hpp"
@@ -23,7 +24,7 @@ class IntegralsSimpsonSequential : public ppc::core::Task {
   int func_code_{};
   double result_{};
 
-  double FunctionN(const std::vector<double>& coords) const;
+  [[nodiscard]] double FunctionN(const std::vector<double>& coords) const;
 
   double RecursiveSimpsonSum(int dim_index, std::vector<int>& idx, const std::vector<double>& steps) const;
 };

@@ -1,8 +1,9 @@
-#define _USE_MATH_DEFINES
-
 #include <gtest/gtest.h>
 
+#define USE_MATH_DEFINES
 #include <cmath>
+#include <cstddef>
+#include <cstdint>
 #include <memory>
 #include <vector>
 
@@ -24,8 +25,8 @@ std::shared_ptr<ppc::core::TaskData> MakeTaskData(const std::vector<double>& ele
   return task_data;
 }
 
-double GetResultFromTaskData(std::shared_ptr<ppc::core::TaskData> td) {
-  double* res_ptr = reinterpret_cast<double*>(td->outputs[0]);
+double GetResultFromTaskData(const std::shared_ptr<ppc::core::TaskData>& td) {
+  auto res_ptr = reinterpret_cast<double*>(td->outputs[0]);
   return res_ptr[0];
 }
 }  // namespace
