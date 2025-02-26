@@ -13,18 +13,16 @@
 namespace {
 std::shared_ptr<ppc::core::TaskData> MakeTaskData(const std::vector<double>& elements, size_t out_size = 1) {
   auto task_data = std::make_shared<ppc::core::TaskData>();
-  task_data->inputs.push_back(reinterpret_cast<uint8_t*>(const_cast<double*>(elements.data())));
-  task_data->inputs_count.push_back(static_cast<std::uint32_t>(elements.size()));
+
   std::vector<double> out_buffer(out_size, 0.0);
-  std::unique_ptr<double[]> out_ptr(new double[out_size]);
-  for (size_t i = 0; i < out_size; i++) {
-    out_ptr[i] = 0.0;
-  }
-  task_data->outputs.push_back(reinterpret_cast<uint8_t*>(out_ptr.get()));
+
+  task_data->inputs.emplace_back(reinterpret_cast<uint8_t*>(const_cast<double*>(elements.data())), elements.size() * sizeof(double));
+  task_data->inputs_count.push_back(static_cast<std::uint32_t>(elements.size()));
+  task_data->outputs.emplace_back(reinterpret_cast<uint8_t*>(out_buffer.data()), out_buffer.size() * sizeof(double)); // Теперь передаём не просто указатель, но и размер, чтобы таск знал сколько памяти у него есть
   task_data->outputs_count.push_back(static_cast<std::uint32_t>(out_size));
+
   return task_data;
 }
-
 double GetResultFromTaskData(const std::shared_ptr<ppc::core::TaskData>& td) {
   auto res_ptr = reinterpret_cast<double*>(td->outputs[0]);
   return res_ptr[0];
