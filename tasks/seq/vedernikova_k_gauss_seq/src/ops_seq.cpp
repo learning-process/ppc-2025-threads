@@ -3,6 +3,8 @@
 #include <algorithm>
 #include <cmath>
 #include <cstddef>
+#include <cstdint>
+#include <numbers>
 #include <numeric>
 #include <vector>
 
@@ -39,11 +41,11 @@ bool vedernikova_k_gauss_seq::Gauss::PostProcessingImpl() {
 
 void vedernikova_k_gauss_seq::Gauss::ComputeKernel(double sigma) {
   // For 3x3 kernel sigma from [1/3; 1/2] is required
-  const auto& gen = [sigma](int i, int j) {
-    return std::exp(-1.0 * (i * i + j * j) / (2 * sigma * sigma)) / (2 * std::numbers::pi * sigma * sigma);
-  };
   for (int i = 0; i < 9; i++) {
-    kernel_[i] = gen((i % 3) - 1, (i / 3) - 1);
+    int ik = (i % 3) - 1;
+    int jk = (i / 3) - 1;
+    kernel_[i] = std::exp(-1.0 * (ik * ik + jk * jk) / (2 * sigma * sigma)) / (2 * std::numbers::pi * sigma * sigma);
+    ;
   }
   double amount = std::accumulate(kernel_.begin(), kernel_.end(), 0.0);
   for (auto&& it : kernel_) {

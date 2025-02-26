@@ -2,6 +2,7 @@
 
 #include <cstdint>
 #include <memory>
+#include <tuple>
 #include <vector>
 
 #include "core/task/include/task.hpp"

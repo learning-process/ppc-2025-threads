@@ -3,6 +3,7 @@
 #include <chrono>
 #include <cstdint>
 #include <memory>
+#include <tuple>
 #include <vector>
 
 #include "core/perf/include/perf.hpp"
