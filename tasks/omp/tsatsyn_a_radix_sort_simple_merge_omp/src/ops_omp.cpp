@@ -35,13 +35,10 @@ bool tsatsyn_a_radix_sort_simple_merge_omp::TestTaskOpenMP::RunImpl() {
   for (int bit = 0; bit < 64; bit++) {
     std::vector<uint64_t> group0;
     std::vector<uint64_t> group1;
-#pragma omp parallel for
     for (int i = 0; i < static_cast<int>(pozitive_copy.size()); ++i) {
       if (((pozitive_copy[i] >> bit) & 1) != 0U) {
-#pragma omp critical
         group1.push_back(pozitive_copy[i]);
       } else {
-#pragma omp critical
         group0.push_back(pozitive_copy[i]);
       }
     }
