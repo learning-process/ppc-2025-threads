@@ -2,6 +2,7 @@
 #define OPS_SEQ_HPP
 
 #include <cmath>
+#include <cstddef>
 #include <memory>
 #include <utility>
 #include <vector>
