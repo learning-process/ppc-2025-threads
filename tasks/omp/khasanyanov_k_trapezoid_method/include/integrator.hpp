@@ -1,5 +1,7 @@
 #ifndef INTEGRATOR_HPP
 #define INTEGRATOR_HPP
+#include <sys/types.h>
+
 #include <cmath>
 #include <cstddef>
 #include <cstdint>
@@ -130,7 +132,7 @@ double Integrator<technology>::TrapezoidalMethodOmp(const IntegrationFunction& f
   size_t dims = bounds.size();
   std::vector<double> dx(dims);
 #pragma omp parallel for
-  for (size_t i = 0; i < dims; ++i) {
+  for (ssize_t i = 0; i < static_cast<ssize_t>(dims); ++i) {
     if (bounds[i].second < bounds[i].first) {
       throw std::runtime_error("Wrong bounds");
     }
@@ -166,7 +168,7 @@ double Integrator<technology>::TrapezoidalMethodOmp(const IntegrationFunction& f
 
   double factor = 1.0;
 #pragma omp parallel for reduction(* : factor)
-  for (size_t i = 0; i < dims; ++i) {
+  for (ssize_t i = 0; i < static_cast<ssize_t>(dims); ++i) {
     factor *= dx[i];
   }
   return total * factor;
