@@ -15,7 +15,6 @@ class TestTaskSequential : public ppc::core::Task {
   bool ValidationImpl() override;
   bool RunImpl() override;
   bool PostProcessingImpl() override;
-  void ShellSort(std::vector<int>& vec, const std::function<bool(int, int)>& comp);
 
  private:
   std::vector<int> input_, output_;

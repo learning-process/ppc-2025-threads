@@ -26,10 +26,10 @@ std::vector<int> SedgwickSequence(int n) {
   }
   return gaps;
 }
+
 }  // namespace
 
-void ermilova_d_shell_sort_batcher_even_odd_merger_seq::TestTaskSequential::ShellSort(
-    std::vector<int> &vec, const std::function<bool(int, int)> &comp) {
+static void ShellSort(std::vector<int> &vec, const std::function<bool(int, int)> &comp) {
   int n = static_cast<int>(vec.size());
   std::vector<int> gaps = SedgwickSequence(n);
 
