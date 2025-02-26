@@ -3,7 +3,7 @@
 #include <cmath>
 #include <cstddef>
 #include <cstdint>
-#include <iostream>
+#include <utility>
 #include <vector>
 
 bool tsatsyn_a_radix_sort_simple_merge_omp::TestTaskOpenMP::ValidationImpl() { return task_data->inputs_count[0] != 0; }
