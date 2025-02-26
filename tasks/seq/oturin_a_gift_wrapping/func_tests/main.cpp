@@ -1,11 +1,9 @@
 #include <gtest/gtest.h>
 
-#include <cstddef>
+#include <algorithm>
 #include <cstdint>
-#include <fstream>
 #include <memory>
 #include <random>
-#include <string>
 #include <vector>
 
 #include "core/task/include/task.hpp"
@@ -13,7 +11,7 @@
 #include "seq/oturin_a_gift_wrapping/include/ops_seq.hpp"
 
 namespace oturin_a_gift_wrapping_seq {
-coord randCoord(int r) {
+Coord RandCoord(int r) {
   std::random_device dev;
   std::mt19937 rng(dev());
   std::uniform_int_distribution<int> dist(-r, r);
@@ -22,8 +20,8 @@ coord randCoord(int r) {
 }  // namespace oturin_a_gift_wrapping_seq
 
 TEST(oturin_a_gift_wrapping_seq, test_empty) {
-  std::vector<oturin_a_gift_wrapping_seq::coord> in = {};
-  std::vector<oturin_a_gift_wrapping_seq::coord> out(0);
+  std::vector<oturin_a_gift_wrapping_seq::Coord> in = {};
+  std::vector<oturin_a_gift_wrapping_seq::Coord> out(0);
 
   // Create task_data
   auto task_data_seq = std::make_shared<ppc::core::TaskData>();
@@ -38,8 +36,8 @@ TEST(oturin_a_gift_wrapping_seq, test_empty) {
 }
 
 TEST(oturin_a_gift_wrapping_seq, test_too_small) {
-  std::vector<oturin_a_gift_wrapping_seq::coord> in = {{-4, 4}, {-2, 4}};
-  std::vector<oturin_a_gift_wrapping_seq::coord> out(0);
+  std::vector<oturin_a_gift_wrapping_seq::Coord> in = {{-4, 4}, {-2, 4}};
+  std::vector<oturin_a_gift_wrapping_seq::Coord> out(0);
 
   // Create task_data
   auto task_data_seq = std::make_shared<ppc::core::TaskData>();
@@ -54,8 +52,8 @@ TEST(oturin_a_gift_wrapping_seq, test_too_small) {
 }
 
 TEST(oturin_a_gift_wrapping_seq, test_same_points) {
-  std::vector<oturin_a_gift_wrapping_seq::coord> in = {{0, 0}, {0, 0}, {0, 0}};
-  std::vector<oturin_a_gift_wrapping_seq::coord> out(0);
+  std::vector<oturin_a_gift_wrapping_seq::Coord> in = {{0, 0}, {0, 0}, {0, 0}};
+  std::vector<oturin_a_gift_wrapping_seq::Coord> out(0);
 
   // Create task_data
   auto task_data_seq = std::make_shared<ppc::core::TaskData>();
@@ -71,9 +69,9 @@ TEST(oturin_a_gift_wrapping_seq, test_same_points) {
 }
 
 TEST(oturin_a_gift_wrapping_seq, test_on_line) {
-  std::vector<oturin_a_gift_wrapping_seq::coord> in = {{0, 4}, {0, 3}, {0, 2}};
-  std::vector<oturin_a_gift_wrapping_seq::coord> answer = {{0, 4}, {0, 3}, {0, 2}};
-  std::vector<oturin_a_gift_wrapping_seq::coord> out(answer.size());
+  std::vector<oturin_a_gift_wrapping_seq::Coord> in = {{0, 4}, {0, 3}, {0, 2}};
+  std::vector<oturin_a_gift_wrapping_seq::Coord> answer = {{0, 4}, {0, 3}, {0, 2}};
+  std::vector<oturin_a_gift_wrapping_seq::Coord> out(answer.size());
 
   // Create task_data
   auto task_data_seq = std::make_shared<ppc::core::TaskData>();
@@ -89,16 +87,16 @@ TEST(oturin_a_gift_wrapping_seq, test_on_line) {
   test_task_sequential.Run();
   test_task_sequential.PostProcessing();
 
-  for (typeof(answer.size()) i = 0; i < answer.size(); i++) {
+  for (size_t i = 0; i < answer.size(); i++) {
     EXPECT_EQ(answer[i].x, out[i].x);
     EXPECT_EQ(answer[i].y, out[i].y);
   }
 }
 
 TEST(oturin_a_gift_wrapping_seq, test_triangle) {
-  std::vector<oturin_a_gift_wrapping_seq::coord> in = {{0, 10}, {10, -10}, {-10, -10}};
-  std::vector<oturin_a_gift_wrapping_seq::coord> answer = {{-10, -10}, {0, 10}, {10, -10}};
-  std::vector<oturin_a_gift_wrapping_seq::coord> out(answer.size());
+  std::vector<oturin_a_gift_wrapping_seq::Coord> in = {{0, 10}, {10, -10}, {-10, -10}};
+  std::vector<oturin_a_gift_wrapping_seq::Coord> answer = {{-10, -10}, {0, 10}, {10, -10}};
+  std::vector<oturin_a_gift_wrapping_seq::Coord> out(answer.size());
 
   // Create task_data
   auto task_data_seq = std::make_shared<ppc::core::TaskData>();
@@ -114,18 +112,18 @@ TEST(oturin_a_gift_wrapping_seq, test_triangle) {
   test_task_sequential.Run();
   test_task_sequential.PostProcessing();
 
-  for (typeof(answer.size()) i = 0; i < answer.size(); i++) {
+  for (size_t i = 0; i < answer.size(); i++) {
     EXPECT_EQ(answer[i].x, out[i].x);
     EXPECT_EQ(answer[i].y, out[i].y);
   }
 }
 
 TEST(oturin_a_gift_wrapping_seq, test_predefined1) {
-  std::vector<oturin_a_gift_wrapping_seq::coord> in = {{-4, 4}, {-2, 4},  {1, 2},  {-3, 2}, {-1, 0},
+  std::vector<oturin_a_gift_wrapping_seq::Coord> in = {{-4, 4}, {-2, 4},  {1, 2},  {-3, 2}, {-1, 0},
                                                        {-4, 1}, {-2, -2}, {1, -3}, {0, -1}, {2, 0}};
-  std::vector<oturin_a_gift_wrapping_seq::coord> answer = {{-4, 4}, {-2, 4},  {1, 2}, {2, 0},
+  std::vector<oturin_a_gift_wrapping_seq::Coord> answer = {{-4, 4}, {-2, 4},  {1, 2}, {2, 0},
                                                            {1, -3}, {-2, -2}, {-4, 1}};
-  std::vector<oturin_a_gift_wrapping_seq::coord> out(answer.size());
+  std::vector<oturin_a_gift_wrapping_seq::Coord> out(answer.size());
 
   // Create task_data
   auto task_data_seq = std::make_shared<ppc::core::TaskData>();
@@ -141,7 +139,7 @@ TEST(oturin_a_gift_wrapping_seq, test_predefined1) {
   test_task_sequential.Run();
   test_task_sequential.PostProcessing();
 
-  for (typeof(answer.size()) i = 0; i < answer.size(); i++) {
+  for (size_t i = 0; i < answer.size(); i++) {
     EXPECT_EQ(answer[i].x, out[i].x);
     EXPECT_EQ(answer[i].y, out[i].y);
   }
@@ -149,12 +147,12 @@ TEST(oturin_a_gift_wrapping_seq, test_predefined1) {
 
 TEST(oturin_a_gift_wrapping_seq, test_random_10plus4) {
   // Create data
-  auto gen = [&]() { return oturin_a_gift_wrapping_seq::randCoord(5); };
-  std::vector<oturin_a_gift_wrapping_seq::coord> in(10);
+  auto gen = [&]() { return oturin_a_gift_wrapping_seq::RandCoord(5); };
+  std::vector<oturin_a_gift_wrapping_seq::Coord> in(10);
   std::generate(in.begin(), in.end(), gen);
-  std::vector<oturin_a_gift_wrapping_seq::coord> answer = {{-6, 6}, {6, 6}, {6, -6}, {-6, -6}};
+  std::vector<oturin_a_gift_wrapping_seq::Coord> answer = {{-6, 6}, {6, 6}, {6, -6}, {-6, -6}};
   in.insert(in.end(), answer.begin(), answer.end());
-  std::vector<oturin_a_gift_wrapping_seq::coord> out(answer.size());
+  std::vector<oturin_a_gift_wrapping_seq::Coord> out(answer.size());
   std::random_device rd;
   std::mt19937 g(rd());
   std::shuffle(in.begin(), in.end(), g);
@@ -173,7 +171,7 @@ TEST(oturin_a_gift_wrapping_seq, test_random_10plus4) {
   test_task_sequential.Run();
   test_task_sequential.PostProcessing();
 
-  for (typeof(answer.size()) i = 0; i < answer.size(); i++) {
+  for (size_t i = 0; i < answer.size(); i++) {
     EXPECT_EQ(answer[i].x, out[i].x);
     EXPECT_EQ(answer[i].y, out[i].y);
   }
@@ -181,16 +179,16 @@ TEST(oturin_a_gift_wrapping_seq, test_random_10plus4) {
 
 TEST(oturin_a_gift_wrapping_seq, test_random_20plus11) {
   // Create data
-  auto gen = [&]() { return oturin_a_gift_wrapping_seq::randCoord(10); };
-  std::vector<oturin_a_gift_wrapping_seq::coord> in(20);
+  auto gen = [&]() { return oturin_a_gift_wrapping_seq::RandCoord(10); };
+  std::vector<oturin_a_gift_wrapping_seq::Coord> in(20);
   std::generate(in.begin(), in.end(), gen);
-  std::vector<oturin_a_gift_wrapping_seq::coord> answer = {
+  std::vector<oturin_a_gift_wrapping_seq::Coord> answer = {
       {-20, 10}, {-10, 14}, {8, 13}, {16, 6}, {16, 5}, {16, 0}, {16, -14}, {0, -19}, {-12, -22}, {-15, -15}, {-19, 0}};
   std::random_device rd;
   std::mt19937 g(rd());
   in.insert(in.end(), answer.begin(), answer.end());
-  in.push_back(oturin_a_gift_wrapping_seq::randCoord(10));
-  std::vector<oturin_a_gift_wrapping_seq::coord> out(answer.size());
+  in.push_back(oturin_a_gift_wrapping_seq::RandCoord(10));
+  std::vector<oturin_a_gift_wrapping_seq::Coord> out(answer.size());
   std::shuffle(in.begin(), in.end(), g);
 
   // Create task_data
@@ -207,7 +205,7 @@ TEST(oturin_a_gift_wrapping_seq, test_random_20plus11) {
   test_task_sequential.Run();
   test_task_sequential.PostProcessing();
 
-  for (typeof(answer.size()) i = 0; i < answer.size(); i++) {
+  for (size_t i = 0; i < answer.size(); i++) {
     EXPECT_EQ(answer[i].x, out[i].x) << out[i].x << '_' << out[i].y << ' ' << answer[i].x << '_' << answer[i].y;
     EXPECT_EQ(answer[i].y, out[i].y) << out[i].x << '_' << out[i].y << ' ' << answer[i].x << '_' << answer[i].y;
   }

@@ -7,21 +7,21 @@
 
 namespace oturin_a_gift_wrapping_seq {
 
-struct coord {
+struct Coord {
   int x, y;
-  bool operator==(coord o) { return (x == o.x && y == o.y); }
-  bool operator!=(coord o) { return !(x == o.x && y == o.y); }
+  bool operator==(const Coord o) { return (x == o.x && y == o.y); }
+  bool operator!=(const Coord o) { return x != o.x || y != o.y; }
 };
 
-coord randCoord(int r);
+Coord RandCoord(int r);
 
-double distance(coord a, coord b);
+double Distance(Coord a, Coord b);
 
 // Angle Between Three Points
-double ABTP(coord c, coord b, coord a);
+double ABTP(Coord a, Coord b, Coord c);
 
 // Angle Between Three Points for leftmost point
-double ABTP(coord a, coord c);
+double ABTP(Coord a, Coord c);
 
 class TestTaskSequential : public ppc::core::Task {
  public:
@@ -32,8 +32,8 @@ class TestTaskSequential : public ppc::core::Task {
   bool PostProcessingImpl() override;
 
  private:
-  std::vector<coord> input_, output_;
-  int n;
+  std::vector<Coord> input_, output_;
+  int n_;
 };
 
 }  // namespace oturin_a_gift_wrapping_seq

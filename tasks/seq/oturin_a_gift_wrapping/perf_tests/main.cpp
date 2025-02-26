@@ -1,7 +1,6 @@
 #include <gtest/gtest.h>
 
 #include <chrono>
-#include <cstddef>
 #include <cstdint>
 #include <memory>
 #include <vector>
@@ -11,15 +10,15 @@
 #include "seq/oturin_a_gift_wrapping/include/ops_seq.hpp"
 
 TEST(oturin_a_gift_wrapping_seq, test_pipeline_run) {
-  int kCount = 100000;
+  int count = 100000;
   using namespace oturin_a_gift_wrapping_seq;
 
   // Create data
-  std::vector<coord> in(kCount, {0, 0});
+  std::vector<Coord> in(count, {0, 0});
   in.push_back({0, 1});
   in.push_back({1, -1});
   in.push_back({-1, -1});
-  std::vector<coord> out(3);
+  std::vector<Coord> out(3);
 
   // Create task_data
   auto task_data_seq = std::make_shared<ppc::core::TaskData>();
@@ -54,15 +53,15 @@ TEST(oturin_a_gift_wrapping_seq, test_pipeline_run) {
 }
 
 TEST(oturin_a_gift_wrapping_seq, test_task_run) {
-  int kCount = 100000;
+  int count = 100000;
   using namespace oturin_a_gift_wrapping_seq;
 
   // Create data
-  std::vector<coord> in(kCount, {0, 0});
+  std::vector<Coord> in(count, {0, 0});
   in.push_back({0, 1});
   in.push_back({1, -1});
   in.push_back({-1, -1});
-  std::vector<coord> out(3);
+  std::vector<Coord> out(3);
 
   // Create task_data
   auto task_data_seq = std::make_shared<ppc::core::TaskData>();
