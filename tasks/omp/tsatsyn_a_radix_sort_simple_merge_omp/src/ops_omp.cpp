@@ -1,7 +1,5 @@
 #include "omp/tsatsyn_a_radix_sort_simple_merge_omp/include/ops_omp.hpp"
 
-#include <omp.h>
-
 #include <cmath>
 #include <cstddef>
 #include <cstdint>
@@ -23,7 +21,8 @@ bool tsatsyn_a_radix_sort_simple_merge_omp::TestTaskOpenMP::RunImpl() {
 
 #pragma omp parallel
   {
-    std::vector<uint64_t> local_positive, local_negative;
+    std::vector<uint64_t> local_positive;
+    std::vector<uint64_t> local_negative;
 
 #pragma omp for nowait
     for (int i = 0; i < static_cast<int>(input_data_.size()); ++i) {
@@ -51,8 +50,12 @@ bool tsatsyn_a_radix_sort_simple_merge_omp::TestTaskOpenMP::RunImpl() {
         group0.reserve(pozitive_copy.size());
         group1.reserve(pozitive_copy.size());
 
-        for (uint64_t num : pozitive_copy) {
-          ((num >> bit) & 1) ? group1.push_back(num) : group0.push_back(num);
+        for (int i = 0; i < static_cast<int>(pozitive_copy.size()); i++) {
+          if (((pozitive_copy[i] >> bit) & 1) != 0U) {
+            group1.push_back(pozitive_copy[i]);
+          } else {
+            group0.push_back(pozitive_copy[i]);
+          }
         }
         pozitive_copy = std::move(group0);
         pozitive_copy.insert(pozitive_copy.end(), group1.begin(), group1.end());
@@ -70,8 +73,12 @@ bool tsatsyn_a_radix_sort_simple_merge_omp::TestTaskOpenMP::RunImpl() {
         group0.reserve(negative_copy.size());
         group1.reserve(negative_copy.size());
 
-        for (uint64_t num : negative_copy) {
-          ((num >> bit) & 1) ? group1.push_back(num) : group0.push_back(num);
+        for (int i = 0; i < static_cast<int>(negative_copy.size()); i++) {
+          if (((negative_copy[i] >> bit) & 1) != 0U) {
+            group1.push_back(negative_copy[i]);
+          } else {
+            group0.push_back(negative_copy[i]);
+          }
         }
         negative_copy = std::move(group0);
         negative_copy.insert(negative_copy.end(), group1.begin(), group1.end());
