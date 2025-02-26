@@ -18,7 +18,7 @@ struct SortingTestParams {
 void RunSortingTest(SortingTestParams& params, void (*sort_func)(std::vector<int>&));
 void ShellSortWithSimpleMerging(std::vector<int>& arr);
 void ShellSort(std::vector<int>& arr, int left, int right);
-void ParallelMerge(std::vector<int>& arr, int left, int mid, int right);
+void ParallelMerge(std::vector<int>& arr, int left, int mid, int right, std::vector<int>& temp);
 std::vector<int> GenerateRandomVector(const RandomVectorParams& params);
 class TestTaskOpenMP : public ppc::core::Task {
  public:

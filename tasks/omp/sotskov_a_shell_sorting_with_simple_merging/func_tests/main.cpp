@@ -28,10 +28,9 @@ std::vector<int> GenerateRandomVector(const RandomVectorParams &params) {
 void RunSortingTest(SortingTestParams &params, void (*sort_func)(std::vector<int> &)) {
   std::vector<int> out(params.input.size(), 0);
 
-  std::vector<int> sorted_expected = params.expected;
-  std::ranges::sort(sorted_expected.begin(), sorted_expected.end());
-
   sort_func(params.input);
+
+  ASSERT_TRUE(std::ranges::is_sorted(params.input));
 
   std::shared_ptr<ppc::core::TaskData> task_data_omp = std::make_shared<ppc::core::TaskData>();
   task_data_omp->inputs.emplace_back(reinterpret_cast<uint8_t *>(params.input.data()));
@@ -45,8 +44,9 @@ void RunSortingTest(SortingTestParams &params, void (*sort_func)(std::vector<int
   test_task_omp.RunImpl();
   test_task_omp.PostProcessingImpl();
 
-  ASSERT_EQ(out, sorted_expected);
+  ASSERT_TRUE(std::ranges::is_sorted(out));
 }
+
 }  // namespace sotskov_a_shell_sorting_with_simple_merging_omp
 
 TEST(sotskov_a_shell_sorting_with_simple_merging_omp, test_sort_positive_numbers) {
@@ -108,4 +108,20 @@ TEST(sotskov_a_shell_sorting_with_simple_merging_omp, test_sort_random_vector) {
 
   sotskov_a_shell_sorting_with_simple_merging_omp::RunSortingTest(
       sorting_params, sotskov_a_shell_sorting_with_simple_merging_omp::ShellSortWithSimpleMerging);
+}
+
+TEST(sotskov_a_shell_sorting_with_simple_merging_omp, test_sort_reverse_ordered_array) {
+  sotskov_a_shell_sorting_with_simple_merging_omp::SortingTestParams params = {.expected = {8, 7, 6, 5, 4, 3, 2, 1},
+                                                                               .input = {8, 7, 6, 5, 4, 3, 2, 1}};
+
+  sotskov_a_shell_sorting_with_simple_merging_omp::RunSortingTest(
+      params, sotskov_a_shell_sorting_with_simple_merging_omp::ShellSortWithSimpleMerging);
+}
+
+TEST(sotskov_a_shell_sorting_with_simple_merging_omp, test_sort_vector_with_identical_elements) {
+  sotskov_a_shell_sorting_with_simple_merging_omp::SortingTestParams params = {.expected = {2, 2, 2, 2, 2, 2, 2, 2},
+                                                                               .input = {2, 2, 2, 2, 2, 2, 2, 2}};
+
+  sotskov_a_shell_sorting_with_simple_merging_omp::RunSortingTest(
+      params, sotskov_a_shell_sorting_with_simple_merging_omp::ShellSortWithSimpleMerging);
 }

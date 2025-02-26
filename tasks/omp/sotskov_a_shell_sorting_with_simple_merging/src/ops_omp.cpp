@@ -29,9 +29,8 @@ void sotskov_a_shell_sorting_with_simple_merging_omp::ShellSort(std::vector<int>
   }
 }
 
-void sotskov_a_shell_sorting_with_simple_merging_omp::ParallelMerge(std::vector<int>& arr, int left, int mid,
-                                                                    int right) {
-  std::vector<int> temp(right - left + 1);
+void sotskov_a_shell_sorting_with_simple_merging_omp::ParallelMerge(std::vector<int>& arr, int left, int mid, int right,
+                                                                    std::vector<int>& temp) {
   int i = left;
   int j = mid + 1;
   int k = 0;
@@ -48,13 +47,15 @@ void sotskov_a_shell_sorting_with_simple_merging_omp::ParallelMerge(std::vector<
     temp[k++] = arr[j++];
   }
 
-  std::ranges::copy(temp.begin(), temp.end(), arr.begin() + left);
+  std::ranges::copy(temp.begin(), temp.begin() + k, arr.begin() + left);
 }
 
 void sotskov_a_shell_sorting_with_simple_merging_omp::ShellSortWithSimpleMerging(std::vector<int>& arr) {
   int array_size = static_cast<int>(arr.size());
   int num_threads = omp_get_max_threads();
   int chunk_size = (array_size + num_threads - 1) / num_threads;
+
+  std::vector<std::vector<int>> temp_buffers(num_threads, std::vector<int>(array_size));
 
 #pragma omp parallel for schedule(dynamic)
   for (int i = 0; i < num_threads; ++i) {
@@ -73,16 +74,16 @@ void sotskov_a_shell_sorting_with_simple_merging_omp::ShellSortWithSimpleMerging
       int right = std::min(left + (2 * size) - 1, array_size - 1);
 
       if (mid < right) {
-        ParallelMerge(arr, left, mid, right);
+        int thread_id = omp_get_thread_num();
+        ParallelMerge(arr, left, mid, right, temp_buffers[thread_id]);
       }
     }
   }
 }
 
 bool sotskov_a_shell_sorting_with_simple_merging_omp::TestTaskOpenMP::PreProcessingImpl() {
-  input_ = std::vector<int>(task_data->inputs_count[0]);
-  auto* temp_ptr = reinterpret_cast<int*>(task_data->inputs[0]);
-  std::ranges::copy(temp_ptr, temp_ptr + task_data->inputs_count[0], input_.begin());
+  input_ = std::vector<int>(reinterpret_cast<int*>(task_data->inputs[0]),
+                            reinterpret_cast<int*>(task_data->inputs[0]) + task_data->inputs_count[0]);
 
   return true;
 }
