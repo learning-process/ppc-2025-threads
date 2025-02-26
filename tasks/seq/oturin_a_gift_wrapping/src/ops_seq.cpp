@@ -5,10 +5,12 @@
 #include <vector>
 
 double oturin_a_gift_wrapping_seq::ABTP(Coord a, Coord b, Coord c) {
+  // NOLINTBEGIN(modernize-use-designated-initializers)
   Coord ab = {b.x - a.x, b.y - a.y};
   Coord cb = {b.x - c.x, b.y - c.y};
-  double dot = (ab.x * cb.x + ab.y * cb.y);
-  double cross = (ab.x * cb.y - ab.y * cb.x);
+  double dot = ((ab.x * cb.x) + (ab.y * cb.y));
+  double cross = ((ab.x * cb.y) - (ab.y * cb.x));
+  // NOLINTEND(modernize-use-designated-initializers)
   return fabs(atan2(cross, dot));
 }
 
@@ -20,7 +22,7 @@ double oturin_a_gift_wrapping_seq::ABTP(Coord a, Coord c) {
 double oturin_a_gift_wrapping_seq::Distance(Coord a, Coord b) {
   int t1 = a.x - b.x;
   int t2 = a.y - b.y;
-  return sqrt(t1 * t1 + t2 * t2);
+  return sqrt((t1 * t1) + (t2 * t2));
 }
 
 bool oturin_a_gift_wrapping_seq::TestTaskSequential::PreProcessingImpl() {
@@ -46,18 +48,17 @@ bool oturin_a_gift_wrapping_seq::TestTaskSequential::ValidationImpl() {
   return task_data->inputs_count[0] >= 3;  // task requires 3 or more points to wrap
 }
 
-bool oturin_a_gift_wrapping_seq::TestTaskSequential::RunImpl() {
-  if (output_.size() > 0) output_.clear();
+bool oturin_a_gift_wrapping_seq::TestTaskSequential::RunImpl() {  // NOLINT(readability-function-cognitive-complexity)
+  if (!output_.empty()) {
+    output_.clear();
+  }
   // this .clear() used ONLY for perftest TaskRun. for some reason output_ has something in it
 
   // find most left point (priority to top)
   Coord most_left = input_[0];
   int start_index = 0;
   for (int i = 1; i < n_; i++) {
-    if (input_[i].x < most_left.x) {
-      start_index = i;
-      most_left = input_[i];
-    } else if (input_[i].x == most_left.x && input_[i].y > most_left.y) {
+    if (input_[i].x < most_left.x || (input_[i].x == most_left.x && input_[i].y > most_left.y)) {
       start_index = i;
       most_left = input_[i];
     }
@@ -107,6 +108,6 @@ bool oturin_a_gift_wrapping_seq::TestTaskSequential::RunImpl() {
 
 bool oturin_a_gift_wrapping_seq::TestTaskSequential::PostProcessingImpl() {
   auto *result_ptr = reinterpret_cast<Coord *>(task_data->outputs[0]);
-  std::copy(output_.begin(), output_.end(), result_ptr);
+  std::ranges::copy(output_.begin(), output_.end(), result_ptr);
   return true;
 }

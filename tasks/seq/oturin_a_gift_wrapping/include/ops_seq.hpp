@@ -9,8 +9,8 @@ namespace oturin_a_gift_wrapping_seq {
 
 struct Coord {
   int x, y;
-  bool operator==(const Coord o) { return (x == o.x && y == o.y); }
-  bool operator!=(const Coord o) { return x != o.x || y != o.y; }
+  bool operator==(const Coord o) const { return (x == o.x && y == o.y); }
+  bool operator!=(const Coord o) const { return x != o.x || y != o.y; }
 };
 
 Coord RandCoord(int r);

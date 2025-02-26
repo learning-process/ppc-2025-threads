@@ -1,4 +1,5 @@
 #include <gtest/gtest.h>
+#include <stddef.h>  // size_t
 
 #include <algorithm>
 #include <cstdint>
@@ -7,7 +8,6 @@
 #include <vector>
 
 #include "core/task/include/task.hpp"
-#include "core/util/include/util.hpp"
 #include "seq/oturin_a_gift_wrapping/include/ops_seq.hpp"
 
 namespace oturin_a_gift_wrapping_seq {
@@ -15,7 +15,7 @@ Coord RandCoord(int r) {
   std::random_device dev;
   std::mt19937 rng(dev());
   std::uniform_int_distribution<int> dist(-r, r);
-  return {dist(rng), dist(rng)};
+  return {.x = dist(rng), .y = dist(rng)};
 }
 }  // namespace oturin_a_gift_wrapping_seq
 
@@ -35,6 +35,7 @@ TEST(oturin_a_gift_wrapping_seq, test_empty) {
   ASSERT_FALSE(test_task_sequential.Validation());
 }
 
+// NOLINTBEGIN(modernize-use-designated-initializers)
 TEST(oturin_a_gift_wrapping_seq, test_too_small) {
   std::vector<oturin_a_gift_wrapping_seq::Coord> in = {{-4, 4}, {-2, 4}};
   std::vector<oturin_a_gift_wrapping_seq::Coord> out(0);
@@ -210,3 +211,4 @@ TEST(oturin_a_gift_wrapping_seq, test_random_20plus11) {
     EXPECT_EQ(answer[i].y, out[i].y) << out[i].x << '_' << out[i].y << ' ' << answer[i].x << '_' << answer[i].y;
   }
 }
+// NOLINTEND(modernize-use-designated-initializers)
