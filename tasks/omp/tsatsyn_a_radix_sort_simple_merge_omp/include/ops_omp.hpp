@@ -16,7 +16,7 @@ class TestTaskOpenMP : public ppc::core::Task {
   bool PostProcessingImpl() override;
 
  private:
-  std::vector<double> input_data_; 
+  std::vector<double> input_data_;
   std::vector<double> output_;
 };
 

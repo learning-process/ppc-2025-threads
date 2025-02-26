@@ -8,25 +8,19 @@
 #include <iostream>
 #include <vector>
 
+bool tsatsyn_a_radix_sort_simple_merge_omp::TestTaskOpenMP::ValidationImpl() { return task_data->inputs_count[0] != 0; }
+
 bool tsatsyn_a_radix_sort_simple_merge_omp::TestTaskOpenMP::PreProcessingImpl() {
   auto *temp_ptr = reinterpret_cast<double *>(task_data->inputs[0]);
   input_data_ = std::vector<double>(temp_ptr, temp_ptr + task_data->inputs_count[0]);
   output_.resize(task_data->inputs_count[0]);
-  // #pragma omp parallel
-  //   {
-  //     std::cout << "Hello from thread " << omp_get_thread_num() << std::endl; 
-  //     // Выполняем другие действия
-  //   }
   return true;
 }
-
-bool tsatsyn_a_radix_sort_simple_merge_omp::TestTaskOpenMP::ValidationImpl() { return task_data->inputs_count[0] != 0; }
 
 bool tsatsyn_a_radix_sort_simple_merge_omp::TestTaskOpenMP::RunImpl() {
   std::vector<uint64_t> pozitive_copy;
   std::vector<uint64_t> negative_copy;
 
-// 1. Параллельное разделение данных без критических секций
 #pragma omp parallel
   {
     std::vector<uint64_t> local_positive, local_negative;
