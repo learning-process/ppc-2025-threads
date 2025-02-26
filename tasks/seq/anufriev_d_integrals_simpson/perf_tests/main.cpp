@@ -15,9 +15,9 @@ TEST(anufriev_d_integrals_simpson_seq, test_pipeline_run) {
 
   auto task_data_seq = std::make_shared<ppc::core::TaskData>();
   task_data_seq->inputs.push_back(reinterpret_cast<uint8_t*>(in.data()));
-  task_data_seq->inputs_count.push_back(static_cast<std::uint32_t>(in.size()));
+  task_data_seq->inputs_count.push_back(static_cast<std::uint32_t>(in.size() * sizeof(double)));
   task_data_seq->outputs.push_back(reinterpret_cast<uint8_t*>(out.data()));
-  task_data_seq->outputs_count.push_back(static_cast<std::uint32_t>(out.size()));
+  task_data_seq->outputs_count.push_back(static_cast<std::uint32_t>(out.size() * sizeof(double)));
 
   auto task_seq = std::make_shared<anufriev_d_integrals_simpson_seq::IntegralsSimpsonSequential>(task_data_seq);
 
@@ -47,9 +47,9 @@ TEST(anufriev_d_integrals_simpson_seq, test_task_run) {
 
   auto task_data_seq = std::make_shared<ppc::core::TaskData>();
   task_data_seq->inputs.push_back(reinterpret_cast<uint8_t*>(in.data()));
-  task_data_seq->inputs_count.push_back(static_cast<std::uint32_t>(in.size()));
+  task_data_seq->inputs_count.push_back(static_cast<std::uint32_t>(in.size() * sizeof(double)));
   task_data_seq->outputs.push_back(reinterpret_cast<uint8_t*>(out.data()));
-  task_data_seq->outputs_count.push_back(static_cast<std::uint32_t>(out.size()));
+  task_data_seq->outputs_count.push_back(static_cast<std::uint32_t>(out.size() * sizeof(double)));
 
   auto task_seq = std::make_shared<anufriev_d_integrals_simpson_seq::IntegralsSimpsonSequential>(task_data_seq);
 

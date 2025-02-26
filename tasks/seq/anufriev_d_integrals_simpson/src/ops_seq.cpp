@@ -69,9 +69,10 @@ bool IntegralsSimpsonSequential::PreProcessingImpl() {
   }
 
   auto* in_ptr = reinterpret_cast<double*>(task_data->inputs[0]);
-  size_t in_size = task_data->inputs_count[0];
+  size_t in_size_bytes = task_data->inputs_count[0];
+  size_t num_doubles = in_size_bytes / sizeof(double);
 
-  if (in_size < 5) {
+  if (num_doubles < 1) {
     return false;
   }
 
@@ -80,8 +81,8 @@ bool IntegralsSimpsonSequential::PreProcessingImpl() {
     return false;
   }
 
-  int needed_count = (3 * d) + 2;
-  if (static_cast<int>(in_size) < needed_count) {
+  size_t needed_count = static_cast<size_t>(3 * d) + 2;
+  if (num_doubles < needed_count) {
     return false;
   }
 
@@ -100,7 +101,7 @@ bool IntegralsSimpsonSequential::PreProcessingImpl() {
     }
   }
 
-  func_code_ = static_cast<int>(in_ptr[(3 * dimension_) + 1]);
+  func_code_ = static_cast<int>(in_ptr[idx_ptr]);
 
   result_ = 0.0;
 

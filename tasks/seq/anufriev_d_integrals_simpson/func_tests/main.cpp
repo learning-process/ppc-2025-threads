@@ -1,15 +1,15 @@
 #include <gtest/gtest.h>
 
-#include <cstddef>
 #include <cstdint>
 #include <memory>
+#include <numbers>
 #include <vector>
 
 #include "core/task/include/task.hpp"
 #include "seq/anufriev_d_integrals_simpson/include/ops_seq.hpp"
 
 namespace {
-const double pi = 3.14159265358979323846;
+const double kPi = std::numbers::pi;
 
 std::shared_ptr<ppc::core::TaskData> MakeTaskData(const std::vector<double>& elements,
                                                   std::vector<double>& out_buffer) {
@@ -25,7 +25,7 @@ std::shared_ptr<ppc::core::TaskData> MakeTaskData(const std::vector<double>& ele
 }  // namespace
 
 TEST(anufriev_d_integrals_simpson_seq, test_1D_sin) {
-  std::vector<double> in = {1, 0.0, pi / 2.0, 100, 1};
+  std::vector<double> in = {1, 0.0, kPi / 2.0, 100, 1};
   std::vector<double> out_buffer(1, 0.0);
   auto td = MakeTaskData(in, out_buffer);
   anufriev_d_integrals_simpson_seq::IntegralsSimpsonSequential task(td);
@@ -51,7 +51,7 @@ TEST(anufriev_d_integrals_simpson_seq, test_2D_sum_of_squares) {
 }
 
 TEST(anufriev_d_integrals_simpson_seq, test_2D_sin_cos) {
-  std::vector<double> in = {2, 0.0, pi / 2.0, 100, 0.0, pi / 2.0, 100, 1};
+  std::vector<double> in = {2, 0.0, kPi / 2.0, 100, 0.0, kPi / 2.0, 100, 1};
   std::vector<double> out_buffer(1, 0.0);
   auto td = MakeTaskData(in, out_buffer);
   anufriev_d_integrals_simpson_seq::IntegralsSimpsonSequential task(td);
