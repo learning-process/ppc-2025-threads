@@ -132,7 +132,7 @@ double Integrator<technology>::TrapezoidalMethodOmp(const IntegrationFunction& f
   size_t dims = bounds.size();
   std::vector<double> dx(dims);
 #pragma omp parallel for
-  for (ssize_t i = 0; i < static_cast<ssize_t>(dims); ++i) {
+  for (int64_t i = 0; i < static_cast<int64_t>(dims); ++i) {
     if (bounds[i].second < bounds[i].first) {
       throw std::runtime_error("Wrong bounds");
     }
@@ -168,7 +168,7 @@ double Integrator<technology>::TrapezoidalMethodOmp(const IntegrationFunction& f
 
   double factor = 1.0;
 #pragma omp parallel for reduction(* : factor)
-  for (ssize_t i = 0; i < static_cast<ssize_t>(dims); ++i) {
+  for (int64_t i = 0; i < static_cast<int64_t>(dims); ++i) {
     factor *= dx[i];
   }
   return total * factor;
