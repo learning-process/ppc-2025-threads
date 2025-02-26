@@ -26,9 +26,9 @@ TEST(anufriev_d_integrals_simpson_seq, test_pipeline_run) {
 
   const auto t0 = std::chrono::high_resolution_clock::now();
   perf_attr->current_timer = [&] {
-    auto current_time_point = std::chrono::high_resolution_clock::now();
-    auto duration = std::chrono::duration_cast<std::chrono::nanoseconds>(current_time_point - t0).count();
-    return static_cast<double>(duration) * 1e-9;
+      auto current_time_point = std::chrono::high_resolution_clock::now();
+      auto duration = std::chrono::duration_cast<std::chrono::nanoseconds>(current_time_point - t0).count();
+      return static_cast<double>(duration) * 1e-9;
   };
 
   auto perf_results = std::make_shared<ppc::core::PerfResults>();
@@ -58,9 +58,9 @@ TEST(anufriev_d_integrals_simpson_seq, test_task_run) {
 
   const auto t0 = std::chrono::high_resolution_clock::now();
   perf_attr->current_timer = [&] {
-    auto current_time_point = std::chrono::high_resolution_clock::now();
-    auto duration = std::chrono::duration_cast<std::chrono::nanoseconds>(current_time_point - t0).count();
-    return static_cast<double>(duration) * 1e-9;
+      auto current_time_point = std::chrono::high_resolution_clock::now();
+      auto duration = std::chrono::duration_cast<std::chrono::nanoseconds>(current_time_point - t0).count();
+      return static_cast<double>(duration) * 1e-9;
   };
 
   auto perf_results = std::make_shared<ppc::core::PerfResults>();
