@@ -14,8 +14,8 @@
 namespace {
 
 void GenerateRandomMatrix(int rows, int cols, std::vector<double>& matrix) {
-  int tmp = 7777;
-  std::mt19937 rng(tmp);
+  std::random_device rd;
+  std::mt19937 rng(rd());
   std::uniform_real_distribution<double> dist(0.0, 1.0);
   matrix.resize(rows * cols);
   for (auto& value : matrix) {
