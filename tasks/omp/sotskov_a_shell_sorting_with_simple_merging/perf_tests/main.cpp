@@ -18,7 +18,7 @@ std::vector<int> GenerateRandomVector(const RandomVectorParams &params) {
   std::uniform_int_distribution<int> distribution(params.min_value, params.max_value);
 
   std::vector<int> random_vector(params.size);
-  std::ranges::generate(random_vector, [&]() { return distribution(generator); });
+  std::generate(std::begin(random_vector), std::end(random_vector), [&]() { return distribution(generator); });
 
   return random_vector;
 }
