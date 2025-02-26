@@ -7,6 +7,9 @@
 
 namespace tsatsyn_a_radix_sort_simple_merge_omp {
 std::vector<double> GetRandomVector(int sz, int a, int b);
+int CalculateBits(const std::vector<uint64_t> &data, bool is_pozitive);
+inline std::vector<uint64_t> MainSort(std::vector<uint64_t> &data, int bit);
+
 class TestTaskOpenMP : public ppc::core::Task {
  public:
   explicit TestTaskOpenMP(ppc::core::TaskDataPtr task_data) : Task(std::move(task_data)) {}
