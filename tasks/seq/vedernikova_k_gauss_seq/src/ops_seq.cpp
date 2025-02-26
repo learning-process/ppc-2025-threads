@@ -3,7 +3,6 @@
 #include <algorithm>
 #include <cmath>
 #include <cstddef>
-#include <cstdint>
 #include <numbers>
 #include <numeric>
 #include <vector>
