@@ -15,7 +15,7 @@ double oturin_a_gift_wrapping_seq::ABTP(Coord a, Coord b, Coord c) {
 }
 
 double oturin_a_gift_wrapping_seq::ABTP(Coord a, Coord c) {
-  Coord b{a.x, a.y - 1};
+  Coord b{.x = a.x, .y = (a.y - 1)};
   return ABTP(b, a, c);
 }
 

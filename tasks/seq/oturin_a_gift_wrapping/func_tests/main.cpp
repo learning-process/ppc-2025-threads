@@ -1,7 +1,7 @@
 #include <gtest/gtest.h>
-#include <stddef.h>  // size_t
 
 #include <algorithm>
+#include <cstddef>
 #include <cstdint>
 #include <memory>
 #include <random>
@@ -88,7 +88,7 @@ TEST(oturin_a_gift_wrapping_seq, test_on_line) {
   test_task_sequential.Run();
   test_task_sequential.PostProcessing();
 
-  for (size_t i = 0; i < answer.size(); i++) {
+  for (std::size_t i = 0; i < answer.size(); i++) {
     EXPECT_EQ(answer[i].x, out[i].x);
     EXPECT_EQ(answer[i].y, out[i].y);
   }
@@ -113,7 +113,7 @@ TEST(oturin_a_gift_wrapping_seq, test_triangle) {
   test_task_sequential.Run();
   test_task_sequential.PostProcessing();
 
-  for (size_t i = 0; i < answer.size(); i++) {
+  for (std::size_t i = 0; i < answer.size(); i++) {
     EXPECT_EQ(answer[i].x, out[i].x);
     EXPECT_EQ(answer[i].y, out[i].y);
   }
@@ -140,7 +140,7 @@ TEST(oturin_a_gift_wrapping_seq, test_predefined1) {
   test_task_sequential.Run();
   test_task_sequential.PostProcessing();
 
-  for (size_t i = 0; i < answer.size(); i++) {
+  for (std::size_t i = 0; i < answer.size(); i++) {
     EXPECT_EQ(answer[i].x, out[i].x);
     EXPECT_EQ(answer[i].y, out[i].y);
   }
@@ -150,7 +150,7 @@ TEST(oturin_a_gift_wrapping_seq, test_random_10plus4) {
   // Create data
   auto gen = [&]() { return oturin_a_gift_wrapping_seq::RandCoord(5); };
   std::vector<oturin_a_gift_wrapping_seq::Coord> in(10);
-  std::generate(in.begin(), in.end(), gen);
+  std::ranges::generate(in.begin(), in.end(), gen);
   std::vector<oturin_a_gift_wrapping_seq::Coord> answer = {{-6, 6}, {6, 6}, {6, -6}, {-6, -6}};
   in.insert(in.end(), answer.begin(), answer.end());
   std::vector<oturin_a_gift_wrapping_seq::Coord> out(answer.size());
@@ -172,7 +172,7 @@ TEST(oturin_a_gift_wrapping_seq, test_random_10plus4) {
   test_task_sequential.Run();
   test_task_sequential.PostProcessing();
 
-  for (size_t i = 0; i < answer.size(); i++) {
+  for (std::size_t i = 0; i < answer.size(); i++) {
     EXPECT_EQ(answer[i].x, out[i].x);
     EXPECT_EQ(answer[i].y, out[i].y);
   }
@@ -182,7 +182,7 @@ TEST(oturin_a_gift_wrapping_seq, test_random_20plus11) {
   // Create data
   auto gen = [&]() { return oturin_a_gift_wrapping_seq::RandCoord(10); };
   std::vector<oturin_a_gift_wrapping_seq::Coord> in(20);
-  std::generate(in.begin(), in.end(), gen);
+  std::ranges::generate(in.begin(), in.end(), gen);
   std::vector<oturin_a_gift_wrapping_seq::Coord> answer = {
       {-20, 10}, {-10, 14}, {8, 13}, {16, 6}, {16, 5}, {16, 0}, {16, -14}, {0, -19}, {-12, -22}, {-15, -15}, {-19, 0}};
   std::random_device rd;
@@ -206,7 +206,7 @@ TEST(oturin_a_gift_wrapping_seq, test_random_20plus11) {
   test_task_sequential.Run();
   test_task_sequential.PostProcessing();
 
-  for (size_t i = 0; i < answer.size(); i++) {
+  for (std::size_t i = 0; i < answer.size(); i++) {
     EXPECT_EQ(answer[i].x, out[i].x) << out[i].x << '_' << out[i].y << ' ' << answer[i].x << '_' << answer[i].y;
     EXPECT_EQ(answer[i].y, out[i].y) << out[i].x << '_' << out[i].y << ' ' << answer[i].x << '_' << answer[i].y;
   }
