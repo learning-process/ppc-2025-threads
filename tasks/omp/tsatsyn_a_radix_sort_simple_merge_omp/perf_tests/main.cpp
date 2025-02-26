@@ -15,7 +15,7 @@ std::vector<double> tsatsyn_a_radix_sort_simple_merge_omp::GetRandomVector(int s
   std::random_device dev;
   std::mt19937 gen(dev());
   std::uniform_real_distribution<> dis(a, b);
-  std::vector<double> vec(sz);
+  std::vector<double> vec(sz); 
   for (int i = 0; i < sz; ++i) {
     vec[i] = dis(gen);
   }

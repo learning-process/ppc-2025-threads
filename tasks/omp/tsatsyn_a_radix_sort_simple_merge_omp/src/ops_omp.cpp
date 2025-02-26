@@ -14,7 +14,7 @@ bool tsatsyn_a_radix_sort_simple_merge_omp::TestTaskOpenMP::PreProcessingImpl() 
   output_.resize(task_data->inputs_count[0]);
   // #pragma omp parallel
   //   {
-  //     std::cout << "Hello from thread " << omp_get_thread_num() << std::endl;
+  //     std::cout << "Hello from thread " << omp_get_thread_num() << std::endl; 
   //     // Выполняем другие действия
   //   }
   return true;
