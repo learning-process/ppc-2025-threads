@@ -30,24 +30,29 @@ void sotskov_a_shell_sorting_with_simple_merging_omp::ShellSort(std::vector<int>
 }
 
 void sotskov_a_shell_sorting_with_simple_merging_omp::ParallelMerge(std::vector<int>& arr, int left, int mid, int right,
-                                                                    std::vector<int>& temp) {
+                                                                    std::vector<int>& temp_buffer) {
   int i = left;
   int j = mid + 1;
   int k = 0;
+  const int merge_size = right - left + 1;
+
+  if (temp_buffer.size() < merge_size) {
+    temp_buffer.resize(merge_size);
+  }
 
   while (i <= mid && j <= right) {
-    temp[k++] = (arr[i] < arr[j]) ? arr[i++] : arr[j++];
+    temp_buffer[k++] = (arr[i] < arr[j]) ? arr[i++] : arr[j++];
   }
 
   while (i <= mid) {
-    temp[k++] = arr[i++];
+    temp_buffer[k++] = arr[i++];
   }
 
   while (j <= right) {
-    temp[k++] = arr[j++];
+    temp_buffer[k++] = arr[j++];
   }
 
-  std::ranges::copy(temp.begin(), temp.begin() + k, arr.begin() + left);
+  std::ranges::copy(temp_buffer.begin(), temp_buffer.begin() + k, arr.begin() + left);
 }
 
 void sotskov_a_shell_sorting_with_simple_merging_omp::ShellSortWithSimpleMerging(std::vector<int>& arr) {
@@ -55,27 +60,29 @@ void sotskov_a_shell_sorting_with_simple_merging_omp::ShellSortWithSimpleMerging
   int num_threads = omp_get_max_threads();
   int chunk_size = (array_size + num_threads - 1) / num_threads;
 
-  std::vector<std::vector<int>> temp_buffers(num_threads, std::vector<int>(array_size));
+#pragma omp parallel
+  {
+    std::vector<int> temp_buffer(chunk_size * 2);
 
-#pragma omp parallel for schedule(dynamic)
-  for (int i = 0; i < num_threads; ++i) {
-    int left = i * chunk_size;
-    int right = std::min(left + chunk_size - 1, array_size - 1);
+#pragma omp for schedule(dynamic)
+    for (int i = 0; i < num_threads; ++i) {
+      int left = i * chunk_size;
+      int right = std::min(left + chunk_size - 1, array_size - 1);
 
-    if (left < right) {
-      ShellSort(arr, left, right);
+      if (left < right) {
+        ShellSort(arr, left, right);
+      }
     }
-  }
 
-  for (int size = chunk_size; size < array_size; size *= 2) {
-#pragma omp parallel for schedule(dynamic)
-    for (int left = 0; left < array_size; left += 2 * size) {
-      int mid = std::min(left + size - 1, array_size - 1);
-      int right = std::min(left + (2 * size) - 1, array_size - 1);
+    for (int size = chunk_size; size < array_size; size *= 2) {
+#pragma omp for schedule(dynamic)
+      for (int left = 0; left < array_size; left += 2 * size) {
+        int mid = std::min(left + size - 1, array_size - 1);
+        int right = std::min(left + (2 * size) - 1, array_size - 1);
 
-      if (mid < right) {
-        int thread_id = omp_get_thread_num();
-        ParallelMerge(arr, left, mid, right, temp_buffers[thread_id]);
+        if (mid < right) {
+          ParallelMerge(arr, left, mid, right, temp_buffer);
+        }
       }
     }
   }
