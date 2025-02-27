@@ -36,8 +36,8 @@ void sotskov_a_shell_sorting_with_simple_merging_omp::ParallelMerge(std::vector<
   int k = 0;
   const int merge_size = right - left + 1;
 
-  if (temp_buffer.size() < merge_size) {
-    temp_buffer.resize(merge_size);
+  if (temp_buffer.size() < static_cast<std::size_t>(merge_size)) {
+    temp_buffer.resize(static_cast<std::size_t>(merge_size));
   }
 
   while (i <= mid && j <= right) {
