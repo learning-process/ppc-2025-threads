@@ -77,9 +77,7 @@ bool tsatsyn_a_radix_sort_simple_merge_omp::TestTaskOpenMP::RunImpl() {
 #pragma omp parallel
     {
 #pragma omp single
-      {
-        pozitive_copy = MainSort(pozitive_copy, bit);
-      }
+      { pozitive_copy = MainSort(pozitive_copy, bit); }
     }
   }
   if (!negative_copy.empty()) {
@@ -87,9 +85,7 @@ bool tsatsyn_a_radix_sort_simple_merge_omp::TestTaskOpenMP::RunImpl() {
 #pragma omp parallel
       {
 #pragma omp single
-        {
-          negative_copy = MainSort(negative_copy, bit);
-        }
+        { negative_copy = MainSort(negative_copy, bit); }
       }
     }
 
