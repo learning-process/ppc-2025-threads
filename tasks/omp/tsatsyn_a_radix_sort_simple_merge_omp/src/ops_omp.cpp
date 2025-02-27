@@ -9,12 +9,13 @@
 #include <vector>
 
 inline std::vector<uint64_t> tsatsyn_a_radix_sort_simple_merge_omp::MainSort(std::vector<uint64_t> &data, int bit) {
-  std::vector<uint64_t> group0, group1;
+  std::vector<uint64_t> group0;
+  std::vector<uint64_t> group1;
   group0.reserve(data.size());
   group1.reserve(data.size());
 
   for (uint64_t num : data) {
-    ((num >> bit) & 1) ? group1.push_back(num) : group0.push_back(num);
+    (((num >> bit) & 1) != 0U) ? group1.push_back(num) : group0.push_back(num);
   }
   data = std::move(group0);
   data.insert(data.end(), group1.begin(), group1.end());
