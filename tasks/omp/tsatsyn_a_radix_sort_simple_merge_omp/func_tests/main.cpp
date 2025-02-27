@@ -197,7 +197,7 @@ TEST(tsatsyn_a_radix_sort_simple_merge_omp, pozitive_double_10000) {
   int arrsize = 10000;
   std::vector<double> in;
   std::vector<double> out(arrsize, 0);
-  in = tsatsyn_a_radix_sort_simple_merge_omp::GetRandomVector(arrsize, 0, 100);
+  in = tsatsyn_a_radix_sort_simple_merge_omp::GetRandomVector(arrsize, 0, 10000);
   // Create task_data
   auto task_data_omp = std::make_shared<ppc::core::TaskData>();
   task_data_omp->inputs.emplace_back(reinterpret_cast<uint8_t *>(in.data()));
