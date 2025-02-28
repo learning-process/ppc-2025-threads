@@ -16,8 +16,8 @@ class TestTaskSequential : public ppc::core::Task {
   bool PostProcessingImpl() override;
 
  private:
-  std::vector<std::vector<double>> input_, res;
-  int n, m;
+  std::vector<std::vector<double>> input_, res_;
+  int n_, m_;
 };
 
 }  // namespace morozov_e_lineare_image_filtering_block_gaussian
