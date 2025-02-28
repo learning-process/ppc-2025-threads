@@ -13,8 +13,8 @@ bool morozov_e_lineare_image_filtering_block_gaussian::TestTaskSequential::PrePr
     input_.push_back(std::vector<double>(in_ptr, in_ptr + m_));
   }
 
-  int n_res = static_cast<int> (task_data->outputs_count[0]);
-  int m_res = static_cast<int> (task_data->outputs_count[1]);
+  int n_res = static_cast<int>(task_data->outputs_count[0]);
+  int m_res = static_cast<int>(task_data->outputs_count[1]);
   res_ = std::vector<std::vector<double>>(n_res, std::vector<double>(m_res));
 
   return true;
