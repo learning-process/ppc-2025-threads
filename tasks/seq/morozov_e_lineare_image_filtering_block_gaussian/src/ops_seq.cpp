@@ -1,7 +1,6 @@
 #include "seq/morozov_e_lineare_image_filtering_block_gaussian/include/ops_seq.hpp"
 
 #include <cmath>
-#include <cstddef>
 #include <vector>
 
 bool morozov_e_lineare_image_filtering_block_gaussian::TestTaskSequential::PreProcessingImpl() {
@@ -10,7 +9,7 @@ bool morozov_e_lineare_image_filtering_block_gaussian::TestTaskSequential::PrePr
   m_ = static_cast<int>(task_data->inputs_count[0]);
   for (int i = 0; i < n_; ++i) {
     auto *in_ptr = reinterpret_cast<double *>(task_data->inputs[i]);
-    input_.push_back(std::vector<double>(in_ptr, in_ptr + m_));
+    input_.emplace_back(std::vector<double>(in_ptr, in_ptr + m_));
   }
 
   int n_res = static_cast<int>(task_data->outputs_count[0]);
