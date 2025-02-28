@@ -9,7 +9,8 @@ bool morozov_e_lineare_image_filtering_block_gaussian::TestTaskSequential::PrePr
   m_ = static_cast<int>(task_data->inputs_count[0]);
   for (int i = 0; i < n_; ++i) {
     auto *in_ptr = reinterpret_cast<double *>(task_data->inputs[i]);
-    input_.emplace_back(std::vector<double>(in_ptr, in_ptr + m_));
+    std::vector<double> vec(in_ptr, in_ptr + m_);
+    input_.emplace_back(vec);
   }
 
   int n_res = static_cast<int>(task_data->outputs_count[0]);
