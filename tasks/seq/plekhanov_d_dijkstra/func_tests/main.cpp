@@ -11,9 +11,7 @@
 #include "seq/plekhanov_d_dijkstra/include/ops_seq.hpp"
 namespace plekhanov_d_dijkstra_seq {
 
-namespace plekhanov_d_dijkstra_seq {
 void RunValidationFailureTest();
-}  // namespace plekhanov_d_dijkstra_seq
 
 template <typename ExpectedResultType>
 void RunTest(  // NOLINT
