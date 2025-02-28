@@ -83,17 +83,17 @@ TEST(plekhanov_d_dijkstra_seq, test_dijkstra_Complete_Graph) {
 }
 
 TEST(plekhanov_d_dijkstra_seq, test_dijkstra_Disconnected_Graph) {
-    std::vector<std::vector<std::pair<size_t, int>>> adj_list = {{{1, 5}, {2, 3}}, {{0, 5}, {2, 1}}, {{0, 3}, {1, 1}},
-                                                                 {{4, 2}, {5, 8}}, {{3, 2}, {5, 1}}, {{3, 8}, {4, 1}}};
-    std::vector<int> expected = {0, 4, 3, INT_MAX, INT_MAX, INT_MAX};
-    plekhanov_d_dijkstra_seq::runTest(adj_list, 0, expected);
+  std::vector<std::vector<std::pair<size_t, int>>> adj_list = {{{1, 5}, {2, 3}}, {{0, 5}, {2, 1}}, {{0, 3}, {1, 1}},
+                                                               {{4, 2}, {5, 8}}, {{3, 2}, {5, 1}}, {{3, 8}, {4, 1}}};
+  std::vector<int> expected = {0, 4, 3, INT_MAX, INT_MAX, INT_MAX};
+  plekhanov_d_dijkstra_seq::runTest(adj_list, 0, expected);
 }
 
 TEST(plekhanov_d_dijkstra_seq, test_dijkstra_Large_Sparse_Graph) {
-    std::vector<std::vector<std::pair<size_t, int>>> adj_list = {
-        {{1, 4}, {2, 2}}, {{3, 5}, {4, 10}}, {{5, 3}, {6, 2}}, {{7, 4}}, {{8, 11}},
-        {{8, 1}},         {{9, 3}},          {{9, 5}},         {{9, 7}}, {}};
-    
-    std::vector<int> expected = {0, 4, 2, 9, 14, 5, 4, 13, 6, 7};
-    plekhanov_d_dijkstra_seq::runTest(adj_list, 0, expected);
+  std::vector<std::vector<std::pair<size_t, int>>> adj_list = {
+      {{1, 4}, {2, 2}}, {{3, 5}, {4, 10}}, {{5, 3}, {6, 2}}, {{7, 4}}, {{8, 11}},
+      {{8, 1}},         {{9, 3}},          {{9, 5}},         {{9, 7}}, {}};
+
+  std::vector<int> expected = {0, 4, 2, 9, 14, 5, 4, 13, 6, 7};
+  plekhanov_d_dijkstra_seq::runTest(adj_list, 0, expected);
 }
