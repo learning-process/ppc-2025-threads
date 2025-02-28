@@ -29,7 +29,7 @@ bool morozov_e_lineare_image_filtering_block_gaussian::TestTaskSequential::Valid
 }
 
 bool morozov_e_lineare_image_filtering_block_gaussian::TestTaskSequential::RunImpl() {
-  // Ядро Гаусса 3x3
+  // РЇРґСЂРѕ Р“Р°СѓСЃСЃР° 3x3
   const std::vector<std::vector<double>> kernel = {
       {1.0 / 16, 2.0 / 16, 1.0 / 16}, {2.0 / 16, 4.0 / 16, 2.0 / 16}, {1.0 / 16, 2.0 / 16, 1.0 / 16}};
   for (int i = 0; i < n; ++i) {
@@ -39,7 +39,7 @@ bool morozov_e_lineare_image_filtering_block_gaussian::TestTaskSequential::RunIm
       } else {
         // std::cout<<i<<''<<j<<"\n";
         double sum = 0.0f;
-        // Применяем ядро к текущему пикселю и его соседям
+        // РџСЂРёРјРµРЅСЏРµРј СЏРґСЂРѕ Рє С‚РµРєСѓС‰РµРјСѓ РїРёРєСЃРµР»СЋ Рё РµРіРѕ СЃРѕСЃРµРґСЏРј
         for (int ki = -1; ki <= 1; ++ki) {
           for (int kj = -1; kj <= 1; ++kj) {
             sum += input_[i + ki][j + kj] * kernel[ki + 1][kj + 1];
