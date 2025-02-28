@@ -11,7 +11,7 @@
 #include "seq/plekhanov_d_dijkstra/include/ops_seq.hpp"
 namespace plekhanov_d_dijkstra_seq {
 
-void RunValidationFailureTest();
+void static RunValidationFailureTest();
 
 template <typename ExpectedResultType>
 void RunTest(  // NOLINT
@@ -49,7 +49,7 @@ void RunTest(  // NOLINT
   }
 }
 
-void RunValidationFailureTest() {  // NOLINT
+void static RunValidationFailureTest() {  // NOLINT
   std::vector<int> graph_data;
   size_t start_vertex = 0;
   size_t num_vertices = 0;
