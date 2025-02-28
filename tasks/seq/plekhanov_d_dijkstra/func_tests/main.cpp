@@ -9,9 +9,8 @@
 
 #include "core/task/include/task.hpp"
 #include "seq/plekhanov_d_dijkstra/include/ops_seq.hpp"
-
-namespace plekhanov_d_dijkstra_seq {
 // NOLINT
+namespace plekhanov_d_dijkstra_seq {
 template <typename ExpectedResultType>
 static void RunTest(const std::vector<std::vector<std::pair<size_t, int>>> &adj_list, size_t start_vertex,
                     const std::vector<ExpectedResultType> &expected_result, bool expect_success = true) {
