@@ -11,8 +11,10 @@
 #include "seq/plekhanov_d_dijkstra/include/ops_seq.hpp"
 namespace plekhanov_d_dijkstra_seq {
 template <typename ExpectedResultType>
-static void RunTest(const std::vector<std::vector<std::pair<size_t, int>>> &adj_list, size_t start_vertex, // NOLINT(misc-use-anonymous-namespace) NOLINT(readability-function-cognitive-complexity)
-                    const std::vector<ExpectedResultType> &expected_result, bool expect_success = true) {
+static void RunTest(
+    const std::vector<std::vector<std::pair<size_t, int>>> &adj_list,
+    size_t start_vertex,  // NOLINT(misc-use-anonymous-namespace) NOLINT(readability-function-cognitive-complexity)
+    const std::vector<ExpectedResultType> &expected_result, bool expect_success = true) {
   const size_t kNumVertices = adj_list.size();
   std::vector<int> distances(kNumVertices, INT_MAX);
   std::vector<int> graph_data;
