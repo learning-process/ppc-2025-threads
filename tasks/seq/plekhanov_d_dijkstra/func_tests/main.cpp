@@ -12,7 +12,7 @@
 namespace plekhanov_d_dijkstra_seq {
 template <typename ExpectedResultType>
 void RunTest(  // NOLINT
-    const std::vector<std::vector<std::pair<size_t, int>>> &adj_list, size_t start_vertex, 
+    const std::vector<std::vector<std::pair<size_t, int>>> &adj_list, size_t start_vertex,
     const std::vector<ExpectedResultType> &expected_result, bool expect_success = true) {
   const size_t k_num_vertices = adj_list.size();
   std::vector<int> distances(k_num_vertices, INT_MAX);
