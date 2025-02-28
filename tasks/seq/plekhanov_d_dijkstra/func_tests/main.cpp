@@ -11,12 +11,12 @@
 #include "seq/plekhanov_d_dijkstra/include/ops_seq.hpp"
 namespace plekhanov_d_dijkstra_seq {
 template <typename ExpectedResultType>
-static void RunTest(
+void RunTest( // NOLINT(misc-use-anonymous-namespace) NOLINT(readability-function-cognitive-complexity)
     const std::vector<std::vector<std::pair<size_t, int>>> &adj_list,
-    size_t start_vertex,  // NOLINT(misc-use-anonymous-namespace) NOLINT(readability-function-cognitive-complexity)
+    size_t start_vertex,  
     const std::vector<ExpectedResultType> &expected_result, bool expect_success = true) {
-  const size_t kNumVertices = adj_list.size();
-  std::vector<int> distances(kNumVertices, INT_MAX);
+  const size_t k_num_vertices = adj_list.size();
+  std::vector<int> distances(k_num_vertices, INT_MAX);
   std::vector<int> graph_data;
   for (const auto &vertex_edges : adj_list) {
     for (const auto &edge : vertex_edges) {
@@ -31,14 +31,14 @@ static void RunTest(
   task_data_seq->inputs.emplace_back(reinterpret_cast<uint8_t *>(&start_vertex));
   task_data_seq->inputs_count.emplace_back(sizeof(start_vertex));
   task_data_seq->outputs.emplace_back(reinterpret_cast<uint8_t *>(distances.data()));
-  task_data_seq->outputs_count.emplace_back(kNumVertices);
+  task_data_seq->outputs_count.emplace_back(k_num_vertices);
   TestTaskSequential test_task_sequential(task_data_seq);
   ASSERT_TRUE(test_task_sequential.Validation());
   test_task_sequential.PreProcessing();
   if (expect_success) {
     ASSERT_TRUE(test_task_sequential.Run());
     test_task_sequential.PostProcessing();
-    for (size_t i = 0; i < kNumVertices; ++i) {
+    for (size_t i = 0; i < k_num_vertices; ++i) {
       EXPECT_EQ(distances[i], expected_result[i]);
     }
   } else {
@@ -47,7 +47,7 @@ static void RunTest(
   }
 }
 
-static void RunValidationFailureTest() {
+void RunValidationFailureTest() {
   std::vector<int> graph_data;
   size_t start_vertex = 0;
   size_t num_vertices = 0;
