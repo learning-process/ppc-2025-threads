@@ -47,21 +47,21 @@ void static RunTest(const std::vector<std::vector<std::pair<size_t, int>>> &adj_
   }
 }
 
- static void RunValidationFailureTest() {
-   std::vector<int> graph_data;
-   size_t start_vertex = 0;
-   size_t num_vertices = 0;
-   std::vector<int> distances(num_vertices, INT_MAX);
-   auto task_data_seq = std::make_shared<ppc::core::TaskData>();
-   task_data_seq->inputs.emplace_back(reinterpret_cast<uint8_t *>(graph_data.data()));
-   task_data_seq->inputs_count.emplace_back(graph_data.size());
-   task_data_seq->inputs.emplace_back(reinterpret_cast<uint8_t *>(&start_vertex));
-   task_data_seq->inputs_count.emplace_back(sizeof(start_vertex));
-   task_data_seq->outputs.emplace_back(reinterpret_cast<uint8_t *>(distances.data()));
-   task_data_seq->outputs_count.emplace_back(num_vertices);
-   TestTaskSequential test_task_sequential(task_data_seq);
-   ASSERT_FALSE(test_task_sequential.Validation());
- }
+static void RunValidationFailureTest() {
+  std::vector<int> graph_data;
+  size_t start_vertex = 0;
+  size_t num_vertices = 0;
+  std::vector<int> distances(num_vertices, INT_MAX);
+  auto task_data_seq = std::make_shared<ppc::core::TaskData>();
+  task_data_seq->inputs.emplace_back(reinterpret_cast<uint8_t *>(graph_data.data()));
+  task_data_seq->inputs_count.emplace_back(graph_data.size());
+  task_data_seq->inputs.emplace_back(reinterpret_cast<uint8_t *>(&start_vertex));
+  task_data_seq->inputs_count.emplace_back(sizeof(start_vertex));
+  task_data_seq->outputs.emplace_back(reinterpret_cast<uint8_t *>(distances.data()));
+  task_data_seq->outputs_count.emplace_back(num_vertices);
+  TestTaskSequential test_task_sequential(task_data_seq);
+  ASSERT_FALSE(test_task_sequential.Validation());
+}
 
 }  // namespace plekhanov_d_dijkstra_seq
 
