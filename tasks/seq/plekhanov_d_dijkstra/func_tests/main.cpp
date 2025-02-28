@@ -9,10 +9,9 @@
 
 #include "core/task/include/task.hpp"
 #include "seq/plekhanov_d_dijkstra/include/ops_seq.hpp"
-// NOLINT
 namespace plekhanov_d_dijkstra_seq {
 template <typename ExpectedResultType>
-static void RunTest(const std::vector<std::vector<std::pair<size_t, int>>> &adj_list, size_t start_vertex,
+static void RunTest(const std::vector<std::vector<std::pair<size_t, int>>> &adj_list, size_t start_vertex, // NOLINT(misc-use-anonymous-namespace) NOLINT(readability-function-cognitive-complexity)
                     const std::vector<ExpectedResultType> &expected_result, bool expect_success = true) {
   const size_t kNumVertices = adj_list.size();
   std::vector<int> distances(kNumVertices, INT_MAX);
