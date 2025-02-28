@@ -1,8 +1,7 @@
 #include "seq/chizhov_m_trapezoid_method/include/ops_seq.hpp"
 
-#include <stddef.h>
-
 #include <cmath>
+#include <cstddef>
 #include <functional>
 #include <vector>
 

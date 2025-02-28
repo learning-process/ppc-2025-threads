@@ -1,7 +1,6 @@
 #pragma once
 
-#include <stddef.h>
-
+#include <cstddef>
 #include <functional>
 #include <utility>
 #include <vector>
