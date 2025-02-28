@@ -3,7 +3,6 @@
 #include <cmath>
 #include <cstddef>
 #include <vector>
-#include <iostream>
 typedef unsigned int uint;
 
 bool morozov_e_lineare_image_filtering_block_gaussian::TestTaskSequential::PreProcessingImpl() {
