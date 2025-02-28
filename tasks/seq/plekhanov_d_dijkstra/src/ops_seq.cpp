@@ -79,7 +79,7 @@ bool plekhanov_d_dijkstra_seq::TestTaskSequential::RunImpl() {
 bool plekhanov_d_dijkstra_seq::TestTaskSequential::PostProcessingImpl() {
   auto *output = reinterpret_cast<int *>(task_data->outputs[0]);
   for (size_t i = 0; i < distances_.size(); ++i) {
-        output[i] = distances_[i];
-    }
+    output[i] = distances_[i];
+  }
   return true;
 }
