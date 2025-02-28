@@ -10,6 +10,11 @@
 #include "core/task/include/task.hpp"
 #include "seq/plekhanov_d_dijkstra/include/ops_seq.hpp"
 namespace plekhanov_d_dijkstra_seq {
+
+namespace plekhanov_d_dijkstra_seq {
+void RunValidationFailureTest();
+}  // namespace plekhanov_d_dijkstra_seq
+
 template <typename ExpectedResultType>
 void RunTest(  // NOLINT
     const std::vector<std::vector<std::pair<size_t, int>>> &adj_list, size_t start_vertex,
