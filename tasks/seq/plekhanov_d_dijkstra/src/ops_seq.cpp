@@ -3,8 +3,6 @@
 #include <algorithm>
 #include <climits>
 #include <cstddef>
-#include <functional>
-#include <queue>
 #include <set>
 #include <utility>
 #include <vector>
@@ -17,7 +15,7 @@ bool plekhanov_d_dijkstra_seq::TestTaskSequential::PreProcessingImpl() {
   graph_data_.assign(in_ptr, in_ptr + input_size);
   num_vertices_ = task_data->outputs_count[0];
   distances_.resize(num_vertices_);
-  std::fill(distances_.begin(), distances_.end(), INT_MAX);
+  distances_.assign(num_vertices_, INT_MAX);
   if (task_data->inputs.size() > 1 && task_data->inputs[1] != nullptr) {
     start_vertex_ = *reinterpret_cast<int *>(task_data->inputs[1]);
   } else {
@@ -80,6 +78,8 @@ bool plekhanov_d_dijkstra_seq::TestTaskSequential::RunImpl() {
 
 bool plekhanov_d_dijkstra_seq::TestTaskSequential::PostProcessingImpl() {
   auto *output = reinterpret_cast<int *>(task_data->outputs[0]);
-  std::copy(distances_.begin(), distances_.end(), output);
+  for (size_t i = 0; i < distances_.size(); ++i) {
+        output[i] = distances_[i];
+    }
   return true;
 }
