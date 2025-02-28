@@ -46,7 +46,7 @@ void RunTest(  // NOLINT
   }
 }
 
-void RunValidationFailureTest() {
+void RunValidationFailureTest() { // NOLINT
   std::vector<int> graph_data;
   size_t start_vertex = 0;
   size_t num_vertices = 0;
