@@ -1,18 +1,20 @@
 #include "seq/chizhov_m_trapezoid_method/include/ops_seq.hpp"
 
 #include <cmath>
+#include <stddef.h>
 #include <functional>
 #include <vector>
 
-using namespace std::chrono_literals;
-
-double chizhov_m_trapezoid_method_seq::TrapezoidMethod(Function& f, int div, int dim, std::vector<double>& lower_limits,
+double chizhov_m_trapezoid_method_seq::TrapezoidMethod(Function& f, size_t div, size_t dim,
+                                                       std::vector<double>& lower_limits,
                                                        std::vector<double>& upper_limits) {
-  std::vector<double> h(dim);
-  std::vector<int> steps(dim);
+  int int_div = static_cast<int>(div);
+  int int_dim = static_cast<int>(dim);
+  std::vector<double> h(int_dim);
+  std::vector<int> steps(int_dim);
 
-  for (int i = 0; i < dim; i++) {
-    steps[i] = div;
+  for (int i = 0; i < int_dim; i++) {
+    steps[i] = int_div;
     h[i] = (upper_limits[i] - lower_limits[i]) / steps[i];
   }
 
@@ -22,19 +24,19 @@ double chizhov_m_trapezoid_method_seq::TrapezoidMethod(Function& f, int div, int
   }
 
   double result = 0.0;
-  std::vector<double> point(dim);
+  std::vector<double> point(int_dim);
 
   for (int i = 0; i < total_nodes; i++) {
     int temp = i;
 
-    for (int j = 0; j < dim; j++) {
+    for (int j = 0; j < int_dim; j++) {
       int node_index = temp % (steps[j] + 1);
       point[j] = lower_limits[j] + node_index * h[j];
       temp /= (steps[j] + 1);
     }
 
     double weight = 1.0;
-    for (int j = 0; j < dim; j++) {
+    for (int j = 0; j < int_dim; j++) {
       if (point[j] == lower_limits[j] || point[j] == upper_limits[j]) {
         weight *= 1.0;
       } else {
@@ -45,7 +47,7 @@ double chizhov_m_trapezoid_method_seq::TrapezoidMethod(Function& f, int div, int
     result += weight * f(point);
   }
 
-  for (int i = 0; i < dim; i++) {
+  for (int i = 0; i < int_dim; i++) {
     result *= h[i] / 2.0;
   }
 
