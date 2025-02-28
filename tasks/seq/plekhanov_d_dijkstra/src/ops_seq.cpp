@@ -29,7 +29,7 @@ bool plekhanov_d_dijkstra_seq::TestTaskSequential::PreProcessingImpl() {
 
 bool plekhanov_d_dijkstra_seq::TestTaskSequential::ValidationImpl() {
   return !task_data->inputs_count.empty() && task_data->inputs_count[0] > 0 && !task_data->outputs_count.empty() &&
-          task_data->outputs_count[0] > 0;
+         task_data->outputs_count[0] > 0;
 }
 
 bool plekhanov_d_dijkstra_seq::TestTaskSequential::RunImpl() {
