@@ -52,8 +52,8 @@ bool morozov_e_lineare_image_filtering_block_gaussian::TestTaskSequential::RunIm
 }
 
 bool morozov_e_lineare_image_filtering_block_gaussian::TestTaskSequential::PostProcessingImpl() {
-  for (size_t i = 0; i < n; i++) {
-    for (size_t j = 0; j < m; j++) {
+  for (int i = 0; i < n; i++) {
+    for (int j = 0; j < m; j++) {
       reinterpret_cast<double *>(task_data->outputs[i])[j] = res[i][j];
     }
   }
