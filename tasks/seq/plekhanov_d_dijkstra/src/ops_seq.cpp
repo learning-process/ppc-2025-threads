@@ -1,6 +1,5 @@
 #include "seq/plekhanov_d_dijkstra/include/ops_seq.hpp"
 
-#include <algorithm>
 #include <climits>
 #include <cstddef>
 #include <set>
