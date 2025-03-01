@@ -9,7 +9,7 @@
 #include "core/task/include/task.hpp"
 #include "seq/morozov_e_lineare_image_filtering_block_gaussian/include/ops_seq.hpp"
 
-TEST(morozov_e_lineare_image_filtering_block_gaussian, test_pipeline_run) {
+TEST(morozov_e_lineare_image_filtering_block_gaussian_seq, test_pipeline_run) {
   int n = 4000;
   int m = 4000;
   std::vector<std::vector<double>> image(n, std::vector<double>(m, 1));
@@ -58,7 +58,7 @@ TEST(morozov_e_lineare_image_filtering_block_gaussian, test_pipeline_run) {
   ASSERT_EQ(image_res, real_res);
 }
 
-TEST(morozov_e_lineare_image_filtering_block_gaussian, test_task_run) {
+TEST(morozov_e_lineare_image_filtering_block_gaussian_seq, test_task_run) {
   int n = 4000;
   int m = 4000;
   std::vector<std::vector<double>> image(n, std::vector<double>(m, 1));
