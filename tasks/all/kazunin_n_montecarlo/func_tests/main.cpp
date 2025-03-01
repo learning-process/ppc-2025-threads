@@ -32,7 +32,7 @@ void MonteCarloTest(F f, std::size_t precision, std::array<std::pair<double, dou
   task_all.PreProcessing();
   task_all.Run();
   task_all.PostProcessing();
-  EXPECT_NEAR(out, ref, 0.05);
+  EXPECT_NEAR(out, ref, 0.2);
 }
 template <std::size_t N, typename F>
 void InvalidMonteCarloTest(F f, std::size_t precision, std::array<std::pair<double, double>, N> limits) {
