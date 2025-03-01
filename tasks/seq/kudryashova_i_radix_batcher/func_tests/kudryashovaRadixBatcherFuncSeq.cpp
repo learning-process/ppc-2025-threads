@@ -29,7 +29,7 @@ TEST(kudryashova_i_radix_batcher_seq, seq_radix_test_0) {
   task_data->outputs.emplace_back(reinterpret_cast<uint8_t *>(result.data()));
   task_data->outputs_count.emplace_back(result.size());
   kudryashova_i_radix_batcher_seq::TestTaskSequential test_task_sequential(task_data);
-  test_task_sequential.ValidationImpl();
+  ASSERT_TRUE(test_task_sequential.ValidationImpl());
   test_task_sequential.PreProcessingImpl();
   test_task_sequential.RunImpl();
   test_task_sequential.PostProcessingImpl();
@@ -48,7 +48,7 @@ TEST(kudryashova_i_radix_batcher_seq, seq_radix_test_1) {
   task_data->outputs.emplace_back(reinterpret_cast<uint8_t *>(result.data()));
   task_data->outputs_count.emplace_back(result.size());
   kudryashova_i_radix_batcher_seq::TestTaskSequential test_task_sequential(task_data);
-  test_task_sequential.ValidationImpl();
+  ASSERT_TRUE(test_task_sequential.ValidationImpl());
   test_task_sequential.PreProcessingImpl();
   test_task_sequential.RunImpl();
   test_task_sequential.PostProcessingImpl();
@@ -68,7 +68,7 @@ TEST(kudryashova_i_radix_batcher_seq, seq_radix_test_2) {
   task_data->outputs.emplace_back(reinterpret_cast<uint8_t *>(result.data()));
   task_data->outputs_count.emplace_back(result.size());
   kudryashova_i_radix_batcher_seq::TestTaskSequential test_task_sequential(task_data);
-  test_task_sequential.ValidationImpl();
+  ASSERT_TRUE(test_task_sequential.ValidationImpl());
   test_task_sequential.PreProcessingImpl();
   test_task_sequential.RunImpl();
   test_task_sequential.PostProcessingImpl();
@@ -87,10 +87,7 @@ TEST(kudryashova_i_radix_batcher_seq, seq_radix_empty_test) {
   task_data->outputs.emplace_back(reinterpret_cast<uint8_t *>(result.data()));
   task_data->outputs_count.emplace_back(result.size());
   kudryashova_i_radix_batcher_seq::TestTaskSequential test_task_sequential(task_data);
-  test_task_sequential.ValidationImpl();
-  test_task_sequential.PreProcessingImpl();
-  test_task_sequential.RunImpl();
-  test_task_sequential.PostProcessingImpl();
+  ASSERT_FALSE(test_task_sequential.ValidationImpl());
 }
 
 TEST(kudryashova_i_radix_batcher_seq, seq_radix_random_test_1) {
@@ -103,7 +100,7 @@ TEST(kudryashova_i_radix_batcher_seq, seq_radix_random_test_1) {
   task_data->outputs.emplace_back(reinterpret_cast<uint8_t *>(result.data()));
   task_data->outputs_count.emplace_back(result.size());
   kudryashova_i_radix_batcher_seq::TestTaskSequential test_task_sequential(task_data);
-  test_task_sequential.ValidationImpl();
+  ASSERT_TRUE(test_task_sequential.ValidationImpl());
   test_task_sequential.PreProcessingImpl();
   test_task_sequential.RunImpl();
   test_task_sequential.PostProcessingImpl();
@@ -122,7 +119,7 @@ TEST(kudryashova_i_radix_batcher_seq, seq_radix_random_test_2) {
   task_data->outputs.emplace_back(reinterpret_cast<uint8_t *>(result.data()));
   task_data->outputs_count.emplace_back(result.size());
   kudryashova_i_radix_batcher_seq::TestTaskSequential test_task_sequential(task_data);
-  test_task_sequential.ValidationImpl();
+  ASSERT_TRUE(test_task_sequential.ValidationImpl());
   test_task_sequential.PreProcessingImpl();
   test_task_sequential.RunImpl();
   test_task_sequential.PostProcessingImpl();
@@ -141,7 +138,7 @@ TEST(kudryashova_i_radix_batcher_seq, seq_radix_random_test_3) {
   task_data->outputs.emplace_back(reinterpret_cast<uint8_t *>(result.data()));
   task_data->outputs_count.emplace_back(result.size());
   kudryashova_i_radix_batcher_seq::TestTaskSequential test_task_sequential(task_data);
-  test_task_sequential.ValidationImpl();
+  ASSERT_TRUE(test_task_sequential.ValidationImpl());
   test_task_sequential.PreProcessingImpl();
   test_task_sequential.RunImpl();
   test_task_sequential.PostProcessingImpl();

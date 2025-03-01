@@ -73,7 +73,7 @@ bool kudryashova_i_radix_batcher_seq::TestTaskSequential::RunImpl() {
 }
 
 bool kudryashova_i_radix_batcher_seq::TestTaskSequential::PostProcessingImpl() {
-  std::vector<double> output(input_data_.size());
-  std::ranges::copy(input_data_, output.begin());
+  output_data_.resize(task_data->outputs_count[0]);
+  std::ranges::copy(input_data_, output_data_.begin());
   return true;
 }
