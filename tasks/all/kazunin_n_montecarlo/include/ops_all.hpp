@@ -29,8 +29,9 @@ class MonteCarloAll : public ppc::core::Task {
   explicit MonteCarloAll(ppc::core::TaskDataPtr task_data, F f) : Task(std::move(task_data)), f_(f) {}
 
   bool ValidationImpl() override {
-    return task_data->inputs_count[0] == 1 && task_data->inputs_count[1] == N && task_data->outputs_count[0] == 1 &&
-           (*reinterpret_cast<std::size_t*>(task_data->inputs[0]) > 0);
+    return world_.rank() != 0 ||
+           (task_data->inputs_count[0] == 1 && task_data->inputs_count[1] == N && task_data->outputs_count[0] == 1 &&
+            (*reinterpret_cast<std::size_t*>(task_data->inputs[0]) > 0));
   }
 
   bool PreProcessingImpl() override {
