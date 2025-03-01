@@ -20,6 +20,9 @@ bool kozlova_e_contrast_enhancement_seq::TestTaskSequential::ValidationImpl() {
 
 bool kozlova_e_contrast_enhancement_seq::TestTaskSequential::RunImpl() {
   int min_value = *std::ranges::min_element(input_);
+  if (min_value < 0) {
+    throw "incorrect value";
+  }
   int max_value = *std::ranges::max_element(input_);
 
   if (min_value == max_value) {

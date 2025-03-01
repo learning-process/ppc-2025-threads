@@ -132,3 +132,19 @@ TEST(kozlova_e_contrast_enhancement_seq, test_difference_input) {
     EXPECT_EQ(out[i], expected);
   }
 }
+
+TEST(kozlova_e_contrast_enhancement_seq, test_negative_values) {
+  std::vector<int> in{-10, -20, -30, -100, -200, -250};
+  std::vector<int> out(6, 0);
+
+  auto task_data_seq = std::make_shared<ppc::core::TaskData>();
+  task_data_seq->inputs.emplace_back(reinterpret_cast<uint8_t *>(in.data()));
+  task_data_seq->inputs_count.emplace_back(in.size());
+  task_data_seq->outputs.emplace_back(reinterpret_cast<uint8_t *>(out.data()));
+  task_data_seq->outputs_count.emplace_back(out.size());
+
+  kozlova_e_contrast_enhancement_seq::TestTaskSequential test_task_sequential(task_data_seq);
+  ASSERT_EQ(test_task_sequential.Validation(), true);
+  test_task_sequential.PreProcessing();
+  ASSERT_ANY_THROW(test_task_sequential.Run());
+}
