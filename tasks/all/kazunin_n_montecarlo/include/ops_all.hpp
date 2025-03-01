@@ -58,7 +58,7 @@ class MonteCarloAll : public ppc::core::Task {
     oneapi::tbb::task_arena arena(ppc::util::GetPPCNumThreads());
     double proc_sum = arena.execute([&] {
       return oneapi::tbb::parallel_reduce(
-          oneapi::tbb::blocked_range<std::size_t>(0, iters), 0.0,
+          oneapi::tbb::blocked_range<std::size_t>(0, iters, iters / arena.max_concurrency()), 0.0,
           [&](const tbb::blocked_range<std::size_t>& range, double sum) {
             std::array<double, N> random_args;
             const auto generators = generators_;

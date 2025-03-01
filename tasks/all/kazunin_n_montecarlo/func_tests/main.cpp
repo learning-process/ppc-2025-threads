@@ -48,7 +48,7 @@ void MonteCarloTest(F f, std::size_t precision, std::array<std::pair<double, dou
     task_seq.Run();
     task_seq.PostProcessing();
 
-    EXPECT_NEAR(out, ref, 0.25);
+    EXPECT_NEAR(out, ref, 0.2);
   }
 }
 template <std::size_t N, typename F>
