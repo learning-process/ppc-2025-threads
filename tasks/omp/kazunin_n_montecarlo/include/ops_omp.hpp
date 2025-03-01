@@ -3,6 +3,7 @@
 #include <algorithm>
 #include <array>
 #include <cstddef>
+#include <cstdint>
 #include <functional>
 #include <numeric>
 #include <random>
@@ -96,7 +97,7 @@ class MonteCarloSeq : public ppc::core::Task {
     double sum = 0.0;
 
     std::array<double, N> random_args;
-    for (std::size_t iter = 0; iter < precision_; ++iter) {
+    for (int64_t iter = 0; iter < static_cast<int64_t>(precision_); ++iter) {
       std::ranges::generate(random_args, [this, j = 0]() mutable { return generators_[j++](); });
       sum += f_(random_args);
     }
