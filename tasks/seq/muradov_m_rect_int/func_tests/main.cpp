@@ -101,3 +101,51 @@ TEST(muradov_m_rect_int_seq, polynomial_sum_2) {
   MuradovMRectIntTest(100, {{0, 2}, {0, 3}}, 27,
                       [](const auto &args) { return (args[0] * args[1]) + std::pow(args[1], 2); });
 }
+
+TEST(muradov_m_rect_int_seq, invalid_task_data_inputs_1) {
+  std::size_t iterations = 1;
+  std::vector<std::pair<double, double>> bounds = {{1.0, 2.0}};
+
+  double out = 0.0;
+  auto task_data = std::make_shared<ppc::core::TaskData>();
+  task_data->inputs.emplace_back(reinterpret_cast<uint8_t *>(&iterations));
+  task_data->inputs.emplace_back(reinterpret_cast<uint8_t *>(bounds.data()));
+  task_data->inputs_count.emplace_back(0);
+  task_data->inputs_count.emplace_back(bounds.size());
+  task_data->outputs.emplace_back(reinterpret_cast<uint8_t *>(&out));
+  task_data->outputs_count.emplace_back(1);
+  muradov_m_rect_int_seq::RectIntTaskSequential task(task_data, [](const auto &) { return 1; });
+  ASSERT_EQ(task.Validation(), false);
+}
+
+TEST(muradov_m_rect_int_seq, invalid_task_data_outputs) {
+  std::size_t iterations = 1;
+  std::vector<std::pair<double, double>> bounds = {{1.0, 2.0}};
+
+  double out = 0.0;
+  auto task_data = std::make_shared<ppc::core::TaskData>();
+  task_data->inputs.emplace_back(reinterpret_cast<uint8_t *>(&iterations));
+  task_data->inputs.emplace_back(reinterpret_cast<uint8_t *>(bounds.data()));
+  task_data->inputs_count.emplace_back(1);
+  task_data->inputs_count.emplace_back(bounds.size());
+  task_data->outputs.emplace_back(reinterpret_cast<uint8_t *>(&out));
+  task_data->outputs_count.emplace_back(0);
+  muradov_m_rect_int_seq::RectIntTaskSequential task(task_data, [](const auto &) { return 1; });
+  ASSERT_EQ(task.Validation(), false);
+}
+
+TEST(muradov_m_rect_int_seq, invalid_task_data_bounds) {
+  std::size_t iterations = 5;
+  std::vector<std::pair<double, double>> bounds = {};
+
+  double out = 0.0;
+  auto task_data = std::make_shared<ppc::core::TaskData>();
+  task_data->inputs.emplace_back(reinterpret_cast<uint8_t *>(&iterations));
+  task_data->inputs.emplace_back(reinterpret_cast<uint8_t *>(bounds.data()));
+  task_data->inputs_count.emplace_back(1);
+  task_data->inputs_count.emplace_back(bounds.size());
+  task_data->outputs.emplace_back(reinterpret_cast<uint8_t *>(&out));
+  task_data->outputs_count.emplace_back(1);
+  muradov_m_rect_int_seq::RectIntTaskSequential task(task_data, [](const auto &) { return 1; });
+  ASSERT_EQ(task.Validation(), false);
+}
