@@ -34,7 +34,36 @@ void MonteCarloTest(F f, std::size_t precision, std::array<std::pair<double, dou
   task_seq.PostProcessing();
   EXPECT_NEAR(out, ref, 0.05);
 }
+template <std::size_t N, typename F>
+void InvalidMonteCarloTest(F f, std::size_t precision, std::array<std::pair<double, double>, N> limits) {
+  double out = 0.0;
+
+  auto task_data = std::make_shared<ppc::core::TaskData>();
+  task_data->inputs = {reinterpret_cast<uint8_t *>(&precision), reinterpret_cast<uint8_t *>(&limits)};
+  task_data->inputs_count = {1, N};
+  task_data->outputs = {reinterpret_cast<uint8_t *>(&out)};
+  task_data->outputs_count = {1};
+
+  // Create Task
+  kazunin_n_montecarlo_seq::MonteCarloSeq<N, F> task_seq(task_data, f);
+  EXPECT_FALSE(task_seq.Validation());
+}
 }  // namespace
+
+TEST(kazunin_n_montecarlo_seq, zero_precision) {
+  const std::size_t n = 2;
+  InvalidMonteCarloTest<n>(
+      [](const std::array<double, n> &args) {
+        return std::accumulate(args.begin(), args.end(), 1.0,
+                               [](const double acc, double component) { return acc * sin(component); });
+      },
+      0, {{{0.0, 1.0}, {-1.0, 0.0}}});
+}
+
+TEST(kazunin_n_montecarlo_seq, no_bounds) {
+  const std::size_t n = 2;
+  InvalidMonteCarloTest<n>([](const std::array<double, n> &args) { return -1; }, 0, {});
+}
 
 TEST(kazunin_n_montecarlo_seq, sin_prod_2d) {
   const std::size_t n = 2;
@@ -150,4 +179,13 @@ TEST(kazunin_n_montecarlo_seq, sum_3d_degenerate) {
         return std::accumulate(args.begin(), args.end(), 1.0, std::multiplies<>());
       },
       5000, {{{0.0, 0.0}, {0.0, 0.0}, {0.0, 0.0}}}, 0);
+}
+
+TEST(kazunin_n_montecarlo_seq, sum_3d_coinciding_bounds) {
+  const std::size_t n = 3;
+  MonteCarloTest<n>(
+      [](const std::array<double, n> &args) {
+        return std::accumulate(args.begin(), args.end(), 1.0, std::multiplies<>());
+      },
+      5000, {{{1.0, 1.0}, {5.0, 5.0}, {9.0, 9.0}}}, 0);
 }
