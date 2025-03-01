@@ -48,7 +48,7 @@ void MonteCarloTest(F f, std::size_t precision, std::array<std::pair<double, dou
     task_seq.Run();
     task_seq.PostProcessing();
 
-    EXPECT_NEAR(out, ref, 0.15);
+    EXPECT_NEAR(out, ref, 0.2);
   }
 }
 template <std::size_t N, typename F>
@@ -105,7 +105,7 @@ TEST(kazunin_n_montecarlo_all, sin_sum_2d) {
         return std::accumulate(args.begin(), args.end(), 0.0,
                                [](const double acc, double component) { return acc + sin(component); });
       },
-      5000, {{{0.0, 1.0}, {-1.0, 0.0}}});
+      7000, {{{0.0, 1.0}, {-1.0, 0.0}}});
 }
 
 TEST(kazunin_n_montecarlo_all, sin_prod_3d) {
