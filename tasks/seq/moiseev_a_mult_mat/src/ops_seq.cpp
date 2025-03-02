@@ -35,26 +35,28 @@ bool moiseev_a_mult_mat_seq::MultMatSequential::ValidationImpl() {
 }
 
 bool moiseev_a_mult_mat_seq::MultMatSequential::RunImpl() {
-  for (int i_block = 0; i_block < num_blocks_; ++i_block) {
-    for (int j_block = 0; j_block < num_blocks_; ++j_block) {
-      for (int s = 0; s < num_blocks_; ++s) {
-        int a_block_j = (i_block + s) % num_blocks_;
-        int b_block_i = a_block_j;
+  for (int block_row = 0; block_row < num_blocks_; ++block_row) {
+    for (int block_col = 0; block_col < num_blocks_; ++block_col) {
+      for (int block_step = 0; block_step < num_blocks_; ++block_step) {
+        int a_block_col = (block_row + block_step) % num_blocks_;
+        int b_block_row = a_block_col;
 
-        int i_start = i_block * block_size_;
-        int j_start = j_block * block_size_;
-        int a_j_start = a_block_j * block_size_;
-        int b_i_start = b_block_i * block_size_;
+        int block_row_start = block_row * block_size_;
+        int block_col_start = block_col * block_size_;
+        int a_col_start = a_block_col * block_size_;
+        int b_row_start = b_block_row * block_size_;
 
-        for (int i = 0; i < block_size_; ++i) {
-          for (int j = 0; j < block_size_; ++j) {
-            double sum = 0.0;
-            for (int k = 0; k < block_size_; ++k) {
-              double a_val = matrix_a_[((i_start + i) * matrix_size_) + (a_j_start + k)];
-              double b_val = matrix_b_[((b_i_start + k) * matrix_size_) + (j_start + j)];
-              sum += a_val * b_val;
+        for (int row_offset = 0; row_offset < block_size_; ++row_offset) {
+          for (int col_offset = 0; col_offset < block_size_; ++col_offset) {
+            double block_result = 0.0;
+            for (int inner_dim_offset = 0; inner_dim_offset < block_size_; ++inner_dim_offset) {
+              double a_element =
+                  matrix_a_[((block_row_start + row_offset) * matrix_size_) + (a_col_start + inner_dim_offset)];
+              double b_element =
+                  matrix_b_[((b_row_start + inner_dim_offset) * matrix_size_) + (block_col_start + col_offset)];
+              block_result += a_element * b_element;
             }
-            matrix_c_[((i_start + i) * matrix_size_) + (j_start + j)] += sum;
+            matrix_c_[((block_row_start + row_offset) * matrix_size_) + (block_col_start + col_offset)] += block_result;
           }
         }
       }
