@@ -11,7 +11,7 @@
 #include "seq/tyurin_m_matmul_crs_complex/include/ops_seq.hpp"
 
 namespace {
-Matrix RandMatrix(uint32_t rows, uint32_t cols, double percentage) {  // NOLINT(bugprone-easily-swappable-parameters)
+Matrix RandMatrix(uint32_t rows, uint32_t cols, double percentage) {
   std::mt19937 gen(std::random_device{}());
   std::uniform_real_distribution<double> distr(-100, 100);
   Matrix res{.rows = rows, .cols = cols, .data = std::vector<std::complex<double>>(rows * cols)};
