@@ -186,7 +186,7 @@ TEST(lopatin_i_monte_carlo_omp, 3DProductFunction) {
   task_data->outputs_count.push_back(1);
 
   lopatin_i_monte_carlo_omp::TestTaskOMP task(task_data,
-                                                     [](const std::vector<double>& x) { return x[0] * x[1] * x[2]; });
+                                              [](const std::vector<double>& x) { return x[0] * x[1] * x[2]; });
 
   ASSERT_TRUE(task.Validation());
   ASSERT_TRUE(task.PreProcessing());
