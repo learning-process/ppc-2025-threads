@@ -1,7 +1,7 @@
 #include "seq/gromov_a_fox_algorithm/include/ops_seq.hpp"
 
 #include <cmath>
-#include <cstddef>
+#include <ranges>
 #include <vector>
 
 bool gromov_a_fox_algorithm_seq::TestTaskSequential::PreProcessingImpl() {
@@ -58,6 +58,6 @@ bool gromov_a_fox_algorithm_seq::TestTaskSequential::RunImpl() {
 }
 
 bool gromov_a_fox_algorithm_seq::TestTaskSequential::PostProcessingImpl() {
-  std::copy(output_.begin(), output_.end(), reinterpret_cast<double *>(task_data->outputs[0]));
+  std::ranges::copy(output_, reinterpret_cast<double *>(task_data->outputs[0]));
   return true;
 }
