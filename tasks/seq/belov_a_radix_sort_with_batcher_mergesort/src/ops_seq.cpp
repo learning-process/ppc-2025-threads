@@ -6,19 +6,17 @@
 #include <cstdlib>
 #include <vector>
 
-using namespace std;
-
 namespace belov_a_radix_batcher_mergesort_seq {
 int RadixBatcherMergesortSequential::GetNumberDigitCapacity(Bigint num) {
-  return (num == 0 ? 1 : static_cast<int>(log10(abs(num))) + 1);
+  return (num == 0 ? 1 : static_cast<int>(log10(std::fabs(num))) + 1);
 }
 
-void RadixBatcherMergesortSequential::Sort(vector<Bigint>& arr) {
-  vector<Bigint> pos;
-  vector<Bigint> neg;
+void RadixBatcherMergesortSequential::Sort(std::vector<Bigint>& arr) {
+  std::vector<Bigint> pos;
+  std::vector<Bigint> neg;
 
   for (const auto& num : arr) {
-    (num >= 0 ? pos : neg).push_back(abs(num));
+    (num >= 0 ? pos : neg).push_back(std::abs(num));
   }
 
   RadixSort(pos, false);
@@ -32,7 +30,7 @@ void RadixBatcherMergesortSequential::Sort(vector<Bigint>& arr) {
   arr.insert(arr.end(), pos.begin(), pos.end());
 }
 
-void RadixBatcherMergesortSequential::RadixSort(vector<Bigint>& arr, bool invert) {
+void RadixBatcherMergesortSequential::RadixSort(std::vector<Bigint>& arr, bool invert) {
   if (arr.empty()) {
     return;
   }
@@ -50,8 +48,8 @@ void RadixBatcherMergesortSequential::RadixSort(vector<Bigint>& arr, bool invert
   }
 }
 
-void RadixBatcherMergesortSequential::CountingSort(vector<Bigint>& arr, Bigint digit_place) {
-  vector<Bigint> output(arr.size());
+void RadixBatcherMergesortSequential::CountingSort(std::vector<Bigint>& arr, Bigint digit_place) {
+  std::vector<Bigint> output(arr.size());
   int count[10] = {};
 
   for (const auto& num : arr) {
