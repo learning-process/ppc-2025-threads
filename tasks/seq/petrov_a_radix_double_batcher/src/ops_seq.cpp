@@ -7,6 +7,18 @@
 #include <ranges>
 #include <vector>
 
+namespace {
+auto Translate(double e, size_t i) {  // NOLINT(bugprone-easily-swappable-parameters)
+  const uint64_t mask = 1ULL << ((sizeof(uint64_t) * 8) - 1);
+  const union {
+    double dbl;
+    uint64_t uint64;
+  } uni{.dbl = e};
+  const uint64_t u = ((uni.uint64 & mask) == 0U) ? (uni.uint64 | mask) : (~uni.uint64);
+  return (u >> (i * 8)) & 0xFF;
+}
+}  // namespace
+
 bool petrov_a_radix_double_batcher_seq::TestTaskSequential::ValidationImpl() {
   return task_data->inputs_count[0] == task_data->outputs_count[0];
 }
@@ -29,25 +41,13 @@ bool petrov_a_radix_double_batcher_seq::TestTaskSequential::RunImpl() {
       c = 0;
     }
     for (auto &e : res_) {
-      const uint64_t mask = 1ULL << ((sizeof(uint64_t) * 8) - 1);
-      const union {
-        double dbl;
-        uint64_t uint64;
-      } uni{.dbl = e};
-      const uint64_t u = ((uni.uint64 & mask) == 0U) ? (uni.uint64 | mask) : (~uni.uint64);
-      ++cnt[(u >> (i * 8)) & 0xFF];
+      ++cnt[Translate(e, i)];
     }
     for (size_t j = 1; j < cnt.size(); ++j) {
       cnt[j] += cnt[j - 1];
     }
     for (auto &e : res_ | std::views::reverse) {
-      const uint64_t mask = 1ULL << ((sizeof(uint64_t) * 8) - 1);
-      const union {
-        double dbl;
-        uint64_t uint64;
-      } uni{.dbl = e};
-      const uint64_t u = ((uni.uint64 & mask) == 0U) ? (uni.uint64 | mask) : (~uni.uint64);
-      const auto nidx = --cnt[(u >> (i * 8)) & 0xFF];
+      const auto nidx = --cnt[Translate(e, i)];
       tmp[nidx] = e;
     }
     std::swap(res_, tmp);
