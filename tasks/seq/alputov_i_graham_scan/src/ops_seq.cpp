@@ -66,10 +66,6 @@ std::vector<Point> TestTaskSequential::BuildHull(const std::vector<Point>& sorte
 }
 
 bool TestTaskSequential::RunImpl() {
-  if (input_points_.size() < 3) {
-    return false;
-  }
-
   const Point pivot = FindPivot();
   const auto sorted_points = SortPoints(pivot);
   convex_hull_ = BuildHull(sorted_points);
