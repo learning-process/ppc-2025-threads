@@ -35,12 +35,12 @@ void TestSort(std::vector<T> &&in, Comparator cmp) {
   dat->outputs_count.emplace_back(out.size());
 
   auto tt = tyshkevich_a_hoare_simple_merge_seq::CreateHoareTestTask<T>(dat, cmp);
-  ASSERT_EQ(tt.Validation(), true);
+  ASSERT_TRUE(tt.Validation());
   tt.PreProcessing();
   tt.Run();
   tt.PostProcessing();
 
-  ASSERT_EQ(std::ranges::is_sorted(out, cmp), true);
+  ASSERT_TRUE(std::ranges::is_sorted(out, cmp));
 }
 
 template <typename T, typename Comparator>
@@ -48,6 +48,20 @@ void TestSort(std::size_t size, Comparator cmp) {
   TestSort(GenRandVec<T>(size), cmp);
 }
 }  // namespace
+
+TEST(tyshkevich_a_hoare_simple_merge_seq, invalid) {
+  std::vector<int> in(5);
+  std::vector<int> out(in.size() + 1);
+
+  auto dat = std::make_shared<ppc::core::TaskData>();
+  dat->inputs.emplace_back(reinterpret_cast<uint8_t *>(in.data()));
+  dat->inputs_count.emplace_back(in.size());
+  dat->outputs.emplace_back(reinterpret_cast<uint8_t *>(out.data()));
+  dat->outputs_count.emplace_back(out.size());
+
+  auto tt = tyshkevich_a_hoare_simple_merge_seq::CreateHoareTestTask<int>(dat, std::greater<>());
+  ASSERT_FALSE(tt.Validation());
+}
 
 TEST(tyshkevich_a_hoare_simple_merge_seq, test_0_gt) { TestSort<int>(0, std::greater<>()); }
 TEST(tyshkevich_a_hoare_simple_merge_seq, test_0_lt) { TestSort<int>(0, std::less<>()); }
