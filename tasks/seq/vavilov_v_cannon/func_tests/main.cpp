@@ -189,4 +189,4 @@ TEST(vavilov_v_cannon_seq, test_zero_matrix) {
     EXPECT_EQ(expected_output[i], c[i]);
   }
 }
-} // namespace
+}  // namespace
