@@ -1,13 +1,12 @@
 #pragma once
 
 #include <utility>
-#include <vector>
 
 #include "core/task/include/task.hpp"
 
 namespace filateva_e_simpson_seq {
 
-typedef double (*func)(double x);
+using Func = double (*)(double);
 
 class Simpson : public ppc::core::Task {
  public:
@@ -22,6 +21,6 @@ class Simpson : public ppc::core::Task {
   double alfa_{};
   double res_{};
 
-  func f_;
+  Func f_;
 };
 }  // namespace filateva_e_simpson_seq
