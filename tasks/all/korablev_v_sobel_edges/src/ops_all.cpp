@@ -3,6 +3,7 @@
 #include <omp.h>
 
 #include <algorithm>
+#include <array>
 #include <boost/mpi/collectives/gatherv.hpp>
 #include <boost/mpi/collectives/scatterv.hpp>
 #include <boost/serialization/vector.hpp>  // NOLINT(*-include-cleaner)
