@@ -3,6 +3,7 @@
 #include <algorithm>
 #include <cmath>
 #include <cstddef>
+#include <tuple>
 #include <vector>
 
 namespace alputov_i_graham_scan_seq {
