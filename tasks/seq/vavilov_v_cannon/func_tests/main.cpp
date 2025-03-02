@@ -10,9 +10,11 @@
 #include "core/util/include/util.hpp"
 #include "seq/vavilov_v_cannon/include/ops_seq.hpp"
 
-namespace vavilov_v_cannon_seq {
+namespace {
 
-std::vector<double> GenerateRandomMatrix(unsigned int n, double min_val, double max_val) {
+using namespace vavilov_v_cannon_seq;
+
+std::vector<double> GenerateRandomMatrix(unsigned int n, double min_val = -10.0, double max_val = 10.0) {
   std::vector<double> matrix(n * n);
   std::random_device rd;
   std::mt19937 gen(rd());
@@ -35,8 +37,6 @@ std::vector<double> MultMat(const std::vector<double>& a, const std::vector<doub
   }
   return c;
 }
-
-}  // namespace vavilov_v_cannon_seq
 
 TEST(vavilov_v_cannon_seq, test_random) {
   constexpr unsigned int kN = 16;
@@ -189,3 +189,4 @@ TEST(vavilov_v_cannon_seq, test_zero_matrix) {
     EXPECT_EQ(expected_output[i], c[i]);
   }
 }
+} // namespace
