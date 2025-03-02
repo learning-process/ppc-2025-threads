@@ -84,6 +84,7 @@ INSTANTIATE_TEST_SUITE_P(                 // NOLINT(misc-use-anonymous-namespace
 #endif
 
 TEST(korablev_v_sobel_edges_test_all, test_random) {
+  boost::mpi::communicator world;
   const std::size_t height = 1'000;
   const std::size_t width = 100;
 
@@ -96,10 +97,12 @@ TEST(korablev_v_sobel_edges_test_all, test_random) {
   std::vector<uint8_t> out(width * height * 3);
 
   std::shared_ptr<ppc::core::TaskData> task_data = std::make_shared<ppc::core::TaskData>();
-  task_data->inputs = {in.data()};
-  task_data->inputs_count = {static_cast<uint32_t>(width), static_cast<uint32_t>(height)};
-  task_data->outputs = {out.data()};
-  task_data->outputs_count.emplace_back(out.size());
+  if (world.rank() == 0) {
+    task_data->inputs = {in.data()};
+    task_data->inputs_count = {static_cast<uint32_t>(width), static_cast<uint32_t>(height)};
+    task_data->outputs = {out.data()};
+    task_data->outputs_count.emplace_back(out.size());
+  }
 
   korablev_v_sobel_edges_all::TestTask task(task_data);
   ASSERT_TRUE(task.Validation());
@@ -108,12 +111,13 @@ TEST(korablev_v_sobel_edges_test_all, test_random) {
   task.PostProcessing();
 
   std::vector<uint8_t> ref(width * height * 3);
-  task_data->outputs = {ref.data()};
-  korablev_v_sobel_edges_all::TestTaskSeq task_seq(task_data);
-  ASSERT_TRUE(task_seq.Validation());
-  task_seq.PreProcessing();
-  task_seq.Run();
-  task_seq.PostProcessing();
-
+  if (world.rank() == 0) {
+    task_data->outputs = {ref.data()};
+    korablev_v_sobel_edges_all::TestTaskSeq task_seq(task_data);
+    ASSERT_TRUE(task_seq.Validation());
+    task_seq.PreProcessing();
+    task_seq.Run();
+    task_seq.PostProcessing();
+  }
   EXPECT_EQ(out, ref);
 }
