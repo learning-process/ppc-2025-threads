@@ -1,10 +1,11 @@
 #include "omp/lopatin_i_monte_carlo/include/lopatinMonteCarloOMP.hpp"
 
+#include <omp.h>
+
 #include <algorithm>
 #include <cmath>
 #include <cstddef>
 #include <ctime>
-#include <omp.h>
 #include <random>
 #include <vector>
 
@@ -75,4 +76,4 @@ bool TestTaskOMP::PostProcessingImpl() {
   return true;
 }
 
-}  // namespace lopatin_i_monte_carlo_seq
+}  // namespace lopatin_i_monte_carlo_omp
