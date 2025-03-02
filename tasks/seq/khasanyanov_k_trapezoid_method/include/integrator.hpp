@@ -20,14 +20,13 @@ template <IntegrationTechnology technology>
 class Integrator {
   static const int kDefaultSteps, kMaxSteps;
 
-  [[nodiscard]] static double calculate_weight(  // NOLINT(readability-identifier-naming)
-      const std::vector<int>& indices, int steps);
+  [[nodiscard]] static double CalculateWeight(const std::vector<int>& indices, int steps);
 
-  [[nodiscard]] static double trapezoidal_method(  // NOLINT(readability-identifier-naming)
-      const IntegrationFunction& f, const IntegrationBounds& bounds, int steps);
+  [[nodiscard]] static double TrapezoidalMethodSequential(const IntegrationFunction& f, const IntegrationBounds& bounds,
+                                                          int steps);
 
-  [[nodiscard]] static double trapezoidal_method_sequential(  // NOLINT(readability-identifier-naming)
-      const IntegrationFunction&, const IntegrationBounds&, double, int, int);
+  [[nodiscard]] static double TrapezoidalMethod(const IntegrationFunction&, const IntegrationBounds&, double, int, int,
+                                                auto ref_func);
 
  public:
   double operator()(const IntegrationFunction&, const IntegrationBounds&, double, int = kDefaultSteps,
@@ -47,7 +46,7 @@ double Integrator<technology>::operator()(const IntegrationFunction& f, const In
                                           double precision, int init_steps, int max_steps) const {
   switch (technology) {
     case kSequential:
-      return trapezoidal_method_sequential(f, bounds, precision, init_steps, max_steps);
+      return TrapezoidalMethod(f, bounds, precision, init_steps, max_steps, &TrapezoidalMethodSequential);
     case kTBB:
     case kMPI:
     case kOpenMP:
@@ -58,14 +57,13 @@ double Integrator<technology>::operator()(const IntegrationFunction& f, const In
 }
 
 template <IntegrationTechnology technology>
-double Integrator<technology>::trapezoidal_method_sequential(const IntegrationFunction& f,
-                                                             const IntegrationBounds& bounds, double precision,
-                                                             int init_steps, int max_steps) {
+double Integrator<technology>::TrapezoidalMethod(const IntegrationFunction& f, const IntegrationBounds& bounds,
+                                                 double precision, int init_steps, int max_steps, auto ref_func) {
   int steps = init_steps;
-  double prev_result = trapezoidal_method(f, bounds, steps);
+  double prev_result = ref_func(f, bounds, steps);
   while (steps <= max_steps) {
     steps *= 2;
-    double current_result = trapezoidal_method(f, bounds, steps);
+    double current_result = ref_func(f, bounds, steps);
     if (std::abs(current_result - prev_result) < precision) {
       return current_result;
     }
@@ -75,8 +73,8 @@ double Integrator<technology>::trapezoidal_method_sequential(const IntegrationFu
 }
 
 template <IntegrationTechnology technology>
-double Integrator<technology>::trapezoidal_method(const IntegrationFunction& f, const IntegrationBounds& bounds,
-                                                  int steps) {
+double Integrator<technology>::TrapezoidalMethodSequential(const IntegrationFunction& f,
+                                                           const IntegrationBounds& bounds, int steps) {
   size_t dims = bounds.size();
   std::vector<double> dx(dims);
 
@@ -97,7 +95,7 @@ double Integrator<technology>::trapezoidal_method(const IntegrationFunction& f, 
       point[i] = bounds[i].first + indices[i] * dx[i];
     }
 
-    double weight = calculate_weight(indices, steps);
+    double weight = CalculateWeight(indices, steps);
     total += weight * f(point);
 
     size_t j = 0;
