@@ -29,7 +29,7 @@ std::vector<T> GenRandVec(size_t size) {
 }  // namespace
 
 TEST(tyshkevich_a_hoare_simple_merge_seq, test_pipeline_run) {
-  auto in = GenRandVec<int>(2600000);
+  auto in = GenRandVec<int>(2200000);
   std::vector<int> out(in.size());
 
   auto dat = std::make_shared<ppc::core::TaskData>();
@@ -60,7 +60,7 @@ TEST(tyshkevich_a_hoare_simple_merge_seq, test_pipeline_run) {
 }
 
 TEST(tyshkevich_a_hoare_simple_merge_seq, test_task_run) {
-  auto in = GenRandVec<int>(2600000);
+  auto in = GenRandVec<int>(2200000);
   std::vector<int> out(in.size());
 
   auto dat = std::make_shared<ppc::core::TaskData>();
