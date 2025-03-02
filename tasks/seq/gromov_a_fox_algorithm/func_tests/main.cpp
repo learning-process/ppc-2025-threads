@@ -2,8 +2,8 @@
 
 #include <cstddef>
 #include <cstdint>
-#include <ranges>
 #include <memory>
+#include <ranges>
 #include <vector>
 
 #include "core/task/include/task.hpp"
