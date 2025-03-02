@@ -58,8 +58,6 @@ bool gromov_a_fox_algorithm_seq::TestTaskSequential::RunImpl() {
 }
 
 bool gromov_a_fox_algorithm_seq::TestTaskSequential::PostProcessingImpl() {
-  for (size_t i = 0; i < output_.size(); i++) {
-    reinterpret_cast<double *>(task_data->outputs[0])[i] = output_[i];
-  }
+  std::copy(output_.begin(), output_.end(), reinterpret_cast<double *>(task_data->outputs[0]));
   return true;
 }
