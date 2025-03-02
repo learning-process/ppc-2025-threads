@@ -121,7 +121,7 @@ double Integrator<technology>::TrapezoidalMethodSequential(const IntegrationFunc
 }
 
 template <IntegrationTechnology technology>
-double Integrator<technology>::calculate_weight(const std::vector<int>& indices, int steps) {
+double Integrator<technology>::CalculateWeight(const std::vector<int>& indices, int steps) {
   double weight = 1.0;
   for (int idx : indices) {
     weight *= (idx == 0 || idx == steps) ? 0.5 : 1.0;
