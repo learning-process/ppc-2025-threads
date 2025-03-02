@@ -41,6 +41,7 @@ std::vector<Point> TestTaskSequential::SortPoints(const Point& pivot) const {
   });
   return points;
 }
+const std::vector<Point>& TestTaskSequential::GetConvexHull() const { return convex_hull_; }
 
 std::vector<Point> TestTaskSequential::BuildHull(const std::vector<Point>& sorted_points) const {
   std::vector<Point> hull;

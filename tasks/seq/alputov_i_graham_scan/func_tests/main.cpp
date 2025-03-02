@@ -135,3 +135,83 @@ TEST(alputov_i_graham_scan_seq, duplicate_points) {
   std::set<alputov_i_graham_scan_seq::Point> unique_hull(convex_hull.begin(), convex_hull.end());
   EXPECT_EQ(unique_hull.size(), 4U);
 }
+TEST(alputov_i_graham_scan_seq, convex_polygon) {
+  std::vector<alputov_i_graham_scan_seq::Point> input = {{0, 0}, {4, 0}, {4, 4}, {2, 6}, {0, 4}};
+  std::vector<alputov_i_graham_scan_seq::Point> output(input.size());
+
+  auto task_data = std::make_shared<ppc::core::TaskData>();
+  task_data->inputs.emplace_back(reinterpret_cast<uint8_t*>(input.data()));
+  task_data->inputs_count.emplace_back(input.size());
+  task_data->outputs.emplace_back(reinterpret_cast<uint8_t*>(output.data()));
+  task_data->outputs_count.emplace_back(output.size());
+
+  alputov_i_graham_scan_seq::TestTaskSequential task(task_data);
+  ValidateTask(task);
+
+  EXPECT_FALSE(task.GetConvexHull().empty());
+  const auto& convex_hull = task.GetConvexHull();
+  EXPECT_EQ(convex_hull.size(), 5U);
+  std::set<alputov_i_graham_scan_seq::Point> hull_set(convex_hull.begin(), convex_hull.end());
+  for (const auto& p : input) {
+    EXPECT_TRUE(hull_set.count(p));
+  }
+}
+
+TEST(alputov_i_graham_scan_seq, concave_polygon) {
+  std::vector<alputov_i_graham_scan_seq::Point> input = {{0, 0}, {4, 0}, {4, 4}, {2, 2}, {0, 4}};
+  std::vector<alputov_i_graham_scan_seq::Point> output(input.size());
+
+  auto task_data = std::make_shared<ppc::core::TaskData>();
+  task_data->inputs.emplace_back(reinterpret_cast<uint8_t*>(input.data()));
+  task_data->inputs_count.emplace_back(input.size());
+  task_data->outputs.emplace_back(reinterpret_cast<uint8_t*>(output.data()));
+  task_data->outputs_count.emplace_back(output.size());
+
+  alputov_i_graham_scan_seq::TestTaskSequential task(task_data);
+  ValidateTask(task);
+
+  EXPECT_FALSE(task.GetConvexHull().empty());
+  const auto& convex_hull = task.GetConvexHull();
+  EXPECT_EQ(convex_hull.size(), 4U);
+  std::set<alputov_i_graham_scan_seq::Point> hull_set(convex_hull.begin(), convex_hull.end());
+  EXPECT_TRUE(hull_set.count({0, 0}));
+  EXPECT_TRUE(hull_set.count({4, 0}));
+  EXPECT_TRUE(hull_set.count({4, 4}));
+  EXPECT_TRUE(hull_set.count({0, 4}));
+}
+
+TEST(alputov_i_graham_scan_seq, regular_polygon) {
+  std::vector<alputov_i_graham_scan_seq::Point> input = {{0, 0}, {2, 0}, {3, 1}, {2, 2}, {0, 2}, {-1, 1}};
+  std::vector<alputov_i_graham_scan_seq::Point> output(input.size());
+
+  auto task_data = std::make_shared<ppc::core::TaskData>();
+  task_data->inputs.emplace_back(reinterpret_cast<uint8_t*>(input.data()));
+  task_data->inputs_count.emplace_back(input.size());
+  task_data->outputs.emplace_back(reinterpret_cast<uint8_t*>(output.data()));
+  task_data->outputs_count.emplace_back(output.size());
+
+  alputov_i_graham_scan_seq::TestTaskSequential task(task_data);
+  ValidateTask(task);
+
+  EXPECT_FALSE(task.GetConvexHull().empty());
+  const auto& convex_hull = task.GetConvexHull();
+  EXPECT_EQ(convex_hull.size(), 6U);
+  std::set<alputov_i_graham_scan_seq::Point> hull_set(convex_hull.begin(), convex_hull.end());
+  for (const auto& p : input) {
+    EXPECT_TRUE(hull_set.count(p));
+  }
+}
+
+TEST(alputov_i_graham_scan_seq, single_point) {
+  std::vector<alputov_i_graham_scan_seq::Point> input = {{0, 0}};
+  std::vector<alputov_i_graham_scan_seq::Point> output(input.size());
+
+  auto task_data = std::make_shared<ppc::core::TaskData>();
+  task_data->inputs.emplace_back(reinterpret_cast<uint8_t*>(input.data()));
+  task_data->inputs_count.emplace_back(input.size());
+  task_data->outputs.emplace_back(reinterpret_cast<uint8_t*>(output.data()));
+  task_data->outputs_count.emplace_back(output.size());
+
+  alputov_i_graham_scan_seq::TestTaskSequential task(task_data);
+  EXPECT_FALSE(task.Validation());
+}

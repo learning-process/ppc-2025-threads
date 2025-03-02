@@ -24,7 +24,7 @@ class TestTaskSequential : public ppc::core::Task {
   bool RunImpl() override;
   bool PostProcessingImpl() override;
 
-  [[nodiscard]] const std::vector<Point>& GetConvexHull() const { return convex_hull_; }
+  [[nodiscard]] const std::vector<Point>& GetConvexHull() const;
 
  private:
   std::vector<Point> input_points_;
