@@ -3,9 +3,9 @@
 #include <algorithm>
 #include <cstddef>
 #include <cstdint>
+#include <iterator>
 #include <memory>
 #include <vector>
-#include <iterator>
 
 #include "core/task/include/task.hpp"
 #include "seq/gromov_a_fox_algorithm/include/ops_seq.hpp"
