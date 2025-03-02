@@ -1,7 +1,7 @@
 #include "seq/gromov_a_fox_algorithm/include/ops_seq.hpp"
 
+#include <algorithm>
 #include <cmath>
-#include <ranges>
 #include <vector>
 
 bool gromov_a_fox_algorithm_seq::TestTaskSequential::PreProcessingImpl() {
