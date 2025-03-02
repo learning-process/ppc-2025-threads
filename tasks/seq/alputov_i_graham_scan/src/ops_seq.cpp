@@ -7,6 +7,12 @@
 
 namespace alputov_i_graham_scan_seq {
 
+Point::Point(double x, double y) : x(x), y(y) {}
+
+bool Point::operator<(const Point& other) const { return std::tie(y, x) < std::tie(other.y, other.x); }
+
+bool Point::operator==(const Point& other) const { return std::tie(x, y) == std::tie(other.x, other.y); }
+
 bool TestTaskSequential::PreProcessingImpl() {
   auto* input_ptr = reinterpret_cast<Point*>(task_data->inputs[0]);
   input_points_ = std::vector<Point>(input_ptr, input_ptr + task_data->inputs_count[0]);

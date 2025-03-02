@@ -10,9 +10,9 @@ namespace alputov_i_graham_scan_seq {
 
 struct Point {
   double x, y;
-  Point(double x = 0, double y = 0) : x(x), y(y) {}
-  bool operator<(const Point& other) const { return std::tie(y, x) < std::tie(other.y, other.x); }
-  bool operator==(const Point& other) const { return std::tie(x, y) == std::tie(other.x, other.y); }
+  Point(double x = 0, double y = 0);
+  bool operator<(const Point& other) const;
+  bool operator==(const Point& other) const;
 };
 
 class TestTaskSequential : public ppc::core::Task {
