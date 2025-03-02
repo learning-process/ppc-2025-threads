@@ -22,7 +22,7 @@ bool filateva_e_simpson_seq::Simpson::ValidationImpl() {
 bool filateva_e_simpson_seq::Simpson::RunImpl() {
   double max_z = 0;
   for (int i = 0; i < (int)((b_ - a_) / alfa_) + 1; ++i) {
-    double x = a_ + i * alfa_;
+    double x = a_ + (i * alfa_);
     double temp =
         std::abs((f_(x - (2 * alfa_)) - 4 * f_(x - alfa_) + 6 * f_(x) - 4 * f_(x + alfa_) + f_(x + (2 * alfa_))) /
                  pow(alfa_, 4));
