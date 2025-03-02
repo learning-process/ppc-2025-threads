@@ -124,6 +124,7 @@ double Integrator<technology>::TrapezoidalMethodSequential(const IntegrationFunc
     factor *= dx[i];
   }
   return total * factor;
+  return 0.0;
 }
 
 template <IntegrationTechnology technology>
