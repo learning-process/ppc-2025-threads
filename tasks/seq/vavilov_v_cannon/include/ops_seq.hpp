@@ -8,9 +8,6 @@
 #include "core/task/include/task.hpp"
 
 namespace vavilov_v_cannon_seq {
-std::vector<double> GenerateRandomMatrix(unsigned int n, double min_val = -10.0, double max_val = 10.0);
-std::vector<double> MultMat(const std::vector<double>& a, const std::vector<double>& b, unsigned int n);
-
 class CannonSequential : public ppc::core::Task {
  public:
   explicit CannonSequential(std::shared_ptr<ppc::core::TaskData> task_data) : Task(std::move(task_data)) {}
