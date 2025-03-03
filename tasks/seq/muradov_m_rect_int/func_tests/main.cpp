@@ -68,6 +68,11 @@ TEST(muradov_m_rect_int_seq, sin_plus_cos_1) {
                       [](const auto &args) { return std::sin(args[0]) + std::cos(args[0]); });
 }
 
+TEST(muradov_m_rect_int_seq, sin_plus_cos_1_negative_bounds) {
+  MuradovMRectIntTest(100, {std::make_pair(-2, -1)}, -0.89,
+                      [](const auto &args) { return std::sin(args[0]) + std::cos(args[0]); });
+}
+
 TEST(muradov_m_rect_int_seq, sin_mul_cos_2) {
   MuradovMRectIntTest(100, {{0, std::numbers::pi}, {0, std::numbers::pi}}, 0,
                       [](const auto &args) { return std::sin(args[0]) * std::cos(args[1]); });
