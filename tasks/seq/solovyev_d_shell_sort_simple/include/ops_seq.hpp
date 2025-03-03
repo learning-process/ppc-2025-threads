@@ -17,7 +17,6 @@ class TaskSequential : public ppc::core::Task {
 
  private:
   std::vector<int> input_, output_;
-  unsigned int vectorSize_{};
 };
 
 }  // namespace solovyev_d_shell_sort_simple_seq

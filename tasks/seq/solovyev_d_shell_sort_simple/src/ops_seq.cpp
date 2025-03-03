@@ -8,8 +8,6 @@ bool solovyev_d_shell_sort_simple_seq::TaskSequential::PreProcessingImpl() {
   unsigned int input_size = task_data->inputs_count[0];
   auto *in_ptr = reinterpret_cast<int *>(task_data->inputs[0]);
   input_ = std::vector<int>(in_ptr, in_ptr + input_size);
-  vectorSize_ = input_size;
-
   unsigned int output_size = task_data->outputs_count[0];
   output_ = std::vector<int>(output_size, 0);
 
@@ -21,9 +19,9 @@ bool solovyev_d_shell_sort_simple_seq::TaskSequential::ValidationImpl() {
 }
 
 bool solovyev_d_shell_sort_simple_seq::TaskSequential::RunImpl() {
-  unsigned int gap = vectorSize_ / 2;
+  unsigned int gap = input_.size() / 2;
   while (gap > 0) {
-    for (size_t i = gap; i < vectorSize_; i++) {
+    for (size_t i = gap; i < input_.size(); i++) {
       int val = input_[i];
       size_t j = i;
       while (j >= gap && input_[j - gap] > val) {
