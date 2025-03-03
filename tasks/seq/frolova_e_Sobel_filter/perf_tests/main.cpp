@@ -93,5 +93,5 @@ TEST(frolova_e_Sobel_filter_seq, test_task_run) {
   auto perf_analyzer = std::make_shared<ppc::core::Perf>(test_task_sequential);
   perf_analyzer->TaskRun(perf_attr, perf_results);
   ppc::core::Perf::PrintPerfStatistic(perf_results);
-  ASSERT_EQ(4000000, res.size());
+  ASSERT_EQ(4000000, static_cast<int>(res.size()));
 }
