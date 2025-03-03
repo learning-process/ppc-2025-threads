@@ -12,7 +12,7 @@
 
 namespace oturin_a_gift_wrapping_seq {
 // NOLINTNEXTLINE(misc-use-anonymous-namespace) : -Werror=missing-declarations if not static
-static Coord RandCoord(int r) { 
+static Coord RandCoord(int r) {
   std::random_device dev;
   std::mt19937 rng(dev());
   std::uniform_int_distribution<int> dist(-r, r);
