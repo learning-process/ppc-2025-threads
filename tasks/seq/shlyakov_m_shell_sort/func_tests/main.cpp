@@ -1,10 +1,12 @@
 #include <gtest/gtest.h>
 
 #include <algorithm>
+#include <chrono>
 #include <cstddef>
 #include <cstdint>
 #include <cstdlib>
 #include <memory>
+#include <random>
 #include <vector>
 
 #include "core/task/include/task.hpp"
@@ -12,9 +14,13 @@
 
 namespace {
 std::vector<int> GenerateRandomArray(size_t size) {
+  unsigned seed = std::chrono::system_clock::now().time_since_epoch().count();
+  std::default_random_engine generator(seed);
+  std::uniform_int_distribution<int> distribution(-100, 100);
+
   std::vector<int> arr(size);
   for (size_t i = 0; i < size; ++i) {
-    arr[i] = std::rand() % 100;
+    arr[i] = distribution(generator);
   }
   return arr;
 }
@@ -116,6 +122,29 @@ TEST(shlyakov_m_shell_sort_seq, Test_Random_Array_Small) {
 
 TEST(shlyakov_m_shell_sort_seq, Test_Random_Array_Large) {
   size_t array_size = 200;
+  std::vector<int> in = GenerateRandomArray(array_size);
+  std::vector<int> out(in.size());
+
+  auto task_data_seq = std::make_shared<ppc::core::TaskData>();
+  task_data_seq->inputs.emplace_back(reinterpret_cast<uint8_t*>(in.data()));
+  task_data_seq->inputs_count.emplace_back(in.size());
+  task_data_seq->outputs.emplace_back(reinterpret_cast<uint8_t*>(out.data()));
+  task_data_seq->outputs_count.emplace_back(out.size());
+
+  shlyakov_m_shell_sort_seq::TestTaskSequential test_task_sequential(task_data_seq);
+  ASSERT_TRUE(test_task_sequential.Validation());
+  ASSERT_TRUE(test_task_sequential.PreProcessing());
+  ASSERT_TRUE(test_task_sequential.Run());
+  ASSERT_TRUE(test_task_sequential.PostProcessing());
+
+  EXPECT_TRUE(IsSorted(out));
+  std::vector<int> expected = in;
+  std::ranges::sort(expected);
+  EXPECT_EQ(expected, out);
+}
+
+TEST(shlyakov_m_shell_sort_seq, Test_Random_Array_With_Simple_Size) {
+  size_t array_size = 241;
   std::vector<int> in = GenerateRandomArray(array_size);
   std::vector<int> out(in.size());
 

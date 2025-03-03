@@ -6,6 +6,7 @@
 #include <cstdint>
 #include <cstdlib>
 #include <memory>
+#include <random>
 #include <vector>
 
 #include "core/perf/include/perf.hpp"
@@ -14,9 +15,13 @@
 
 namespace {
 std::vector<int> GenerateRandomArray(size_t size) {
+  unsigned seed = std::chrono::system_clock::now().time_since_epoch().count();
+  std::default_random_engine generator(seed);
+  std::uniform_int_distribution<int> distribution(-100, 100);
+
   std::vector<int> arr(size);
   for (size_t i = 0; i < size; ++i) {
-    arr[i] = std::rand() % 100;
+    arr[i] = distribution(generator);
   }
   return arr;
 }
