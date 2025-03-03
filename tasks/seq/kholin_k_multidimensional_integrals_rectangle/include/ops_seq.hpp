@@ -36,7 +36,7 @@ class TestTaskSequential : public ppc::core::Task {
                    double n);
   double IntegrateWithRectangleMethod(const Function& f, std::vector<double>& f_values,
                                       const std::vector<double>& l_limits, const std::vector<double>& u_limits,
-                                      size_t dim, double n);
+                                      size_t dim, double n, const std::vector<double> h);
   double RunMultistepSchemeMethodRectangle(const Function& f, std::vector<double> f_values,
                                            const std::vector<double>& l_limits, const std::vector<double>& u_limits,
                                            size_t dim, double n);
