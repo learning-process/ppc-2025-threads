@@ -209,9 +209,9 @@ TEST(filateva_e_simpson_seq, test_sum_integral) {
   simpson.Run();
   simpson.PostProcessing();
 
-  filateva_e_simpson_seq::Func integral_f = [](double x) { 
-  return (pow(x, 4) / 4) + (pow(x, 3) / 3) + (pow(x, 2) / 2); 
-  }; 
+  filateva_e_simpson_seq::Func integral_f = [](double x) {
+    return (pow(x, 4) / 4) + (pow(x, 3) / 3) + (pow(x, 2) / 2);
+  };
 
   ASSERT_NEAR(res[0], integral_f(param[1]) - integral_f(param[0]), param[2]);
 }
