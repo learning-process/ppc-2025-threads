@@ -13,8 +13,6 @@ struct Coord {
   bool operator!=(const Coord o) const { return x != o.x || y != o.y; }
 };
 
-Coord RandCoord(int r);
-
 double Distance(Coord a, Coord b);
 
 // Angle Between Three Points
@@ -34,6 +32,9 @@ class TestTaskSequential : public ppc::core::Task {
  private:
   std::vector<Coord> input_, output_;
   int n_;
+
+  int FindMostLeft();
+  void PointSearch(const double t, double &line_angle, int &search_index, const int i);
 };
 
 }  // namespace oturin_a_gift_wrapping_seq
