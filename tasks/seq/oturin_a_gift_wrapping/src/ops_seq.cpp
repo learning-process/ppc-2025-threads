@@ -32,14 +32,12 @@ bool oturin_a_gift_wrapping_seq::TestTaskSequential::PreProcessingImpl() {
   output_ = std::vector<Coord>(0);
   output_.reserve(n_);
 
-  Coord t = input_[0];
-  for (int i = 1; i < n_; i++) {  // check if all points are same
-    if (t != input_[i]) {
-      return true;
-    }
+  // check if all points are same
+  auto are_same = [&](const auto &p) { return p == input_[0]; };
+  if (std::all_of(input_.begin(), input_.end(), are_same)) {
+    return false;
   }
-
-  return false;
+  return true;
 }
 
 bool oturin_a_gift_wrapping_seq::TestTaskSequential::ValidationImpl() {
