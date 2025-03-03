@@ -40,9 +40,9 @@ std::vector<double> MultMat(const std::vector<double>& a, const std::vector<doub
 
 TEST(vavilov_v_cannon_seq, test_random) {
   constexpr unsigned int kN = 16;
-  auto a = vavilov_v_cannon_seq::GenerateRandomMatrix(kN);
-  auto b = vavilov_v_cannon_seq::GenerateRandomMatrix(kN);
-  std::vector<double> expected_output = vavilov_v_cannon_seq::MultMat(a, b, kN);
+  auto a = GenerateRandomMatrix(kN);
+  auto b = GenerateRandomMatrix(kN);
+  std::vector<double> expected_output = MultMat(a, b, kN);
   std::vector<double> c(kN * kN, 0.0);
 
   auto task_data_seq = std::make_shared<ppc::core::TaskData>();
