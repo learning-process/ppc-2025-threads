@@ -95,15 +95,15 @@ bool frolova_e_Sobel_filter_seq::SobelFilterSequential::ValidationImpl() {
 bool frolova_e_Sobel_filter_seq::SobelFilterSequential::RunImpl() {
   const std::vector<int> Gx = {-1, 0, 1, -2, 0, 2, -1, 0, 1};
   const std::vector<int> Gy = {-1, -2, -1, 0, 0, 0, 1, 2, 1};
-  for (int y = 0; y < height; y++) {
-    for (int x = 0; x < width; x++) {
+  for (size_t y = 0; y < height; y++) {
+    for (size_t x = 0; x < width; x++) {
       int resX = 0;
       int resY = 0;
 
-      for (int ky = -1; ky <= 1; ky++) {
-        for (int kx = -1; kx <= 1; kx++) {
-          int px = x + kx;
-          int py = y + ky;
+      for (size_t ky = -1; ky <= 1; ky++) {
+        for (size_t kx = -1; kx <= 1; kx++) {
+          size_t px = x + kx;
+          size_t py = y + ky;
 
           int pixelValue = 0;
 
@@ -111,7 +111,7 @@ bool frolova_e_Sobel_filter_seq::SobelFilterSequential::RunImpl() {
             pixelValue = grayscaleImage[py * width + px];
           }
 
-          int kernelInd = (ky + 1) * 3 + (kx + 1);
+          size_t kernelInd = (ky + 1) * 3 + (kx + 1);
           resX += pixelValue * Gx[kernelInd];
           resY += pixelValue * Gy[kernelInd];
         }
