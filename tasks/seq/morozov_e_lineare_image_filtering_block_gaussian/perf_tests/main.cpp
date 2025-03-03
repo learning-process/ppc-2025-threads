@@ -16,7 +16,7 @@ TEST(morozov_e_lineare_image_filtering_block_gaussian_seq, test_pipeline_run) {
   std::vector<double> image_res(n * m);
   for (int i = 0; i < n; ++i) {
     for (int j = 0; j < m; j++) {
-      image_res[i * m + j] = 1.0;
+      image_res[(i * m) + j] = 1.0;
     }
   }
   std::vector real_res(n * m, 1.0);
@@ -61,7 +61,7 @@ TEST(morozov_e_lineare_image_filtering_block_gaussian_seq, test_task_run) {
   std::vector<double> image_res(n * m);
   for (int i = 0; i < n; ++i) {
     for (int j = 0; j < m; j++) {
-      image_res[i * m + j] = 1.0;
+      image_res[(i * m) + j] = 1.0;
     }
   }
   std::vector real_res(n * m, 1.0);
