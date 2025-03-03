@@ -8,11 +8,9 @@
 namespace frolova_e_Sobel_filter_seq {
 
 struct RGB {
-
   int R{};
   int G{};
   int B{};
-
 };
 
 std::vector<int> toGrayScaleImg(std::vector<RGB>& colorImg, size_t width, size_t height);
@@ -28,13 +26,11 @@ class SobelFilterSequential : public ppc::core::Task {
   bool PostProcessingImpl() override;
 
  private:
-
   std::vector<RGB> picture{};
   std::vector<int> grayscaleImage;
   size_t width{};
   size_t height{};
   std::vector<int> resImage;
-
 };	
 
 }  // namespace frolova_e_Sobel_filter_seq

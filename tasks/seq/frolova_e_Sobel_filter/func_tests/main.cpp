@@ -24,7 +24,7 @@ TEST(frolova_e_Sobel_filter_seq, test_1) {
       186, 127, 23,  187, 130, 121, 98,  62,  163, 222, 123, 195, 82,  174, 227, 148, 209, 50,  155, 14,  41,  58,
       193, 36,  10,  86,  43,  104, 11,  2,   51,  80,  32,  182, 128, 38,  19,  174, 42,  115, 184, 188, 232, 77,
       30,  24,  125, 2,   3,   94,  226, 107, 13,  112, 40,  72,  19,  95,  72,  154, 194, 248, 180, 67,  236, 61,
-      14,  96,   4,   195, 237, 139, 252, 86,  205, 121, 109, 75,  184, 16,  152, 157, 149, 110, 25,  208, 188, 121,
+      14,  96, 4, 195, 237, 139, 252, 86, 205, 121, 109, 75, 184, 16, 152, 157, 149, 110, 25, 208, 188, 121,
       118, 117, 189, 83,  161, 104, 160, 228, 251, 251, 121, 70,  213, 31,  13,  71,  184, 152, 79,  41,  18,  40,
       182, 207, 11,  166, 111, 93,  249, 129, 223, 118, 44,  216, 125, 24,  67,  210, 239, 3,   234, 204, 230, 35,
       214, 254, 189, 197, 215, 43,  32,  11,  104, 212, 138, 182, 235, 165};
@@ -61,8 +61,8 @@ TEST(frolova_e_Sobel_filter_seq, test_1) {
 
 TEST(frolova_e_Sobel_filter_seq, small_image_1) {
   std::vector<int> value_1 = {3, 3};
-  std::vector<int> pict = {172, 47, 117, 192, 67, 251, 195, 103, 9, 211, 21, 242, 3, 87, 70,
-      216, 88, 140, 58, 193, 230, 39, 87, 174, 88, 81, 165};
+  std::vector<int> pict = {172, 47,  117, 192, 67, 251, 195, 103, 9,  211, 21, 242, 3,  87,
+                           70,  216, 88,  140, 58, 193, 230, 39,  87, 174, 88, 81,  165};
 
   std::vector<int> res(9, 0);
 
@@ -122,110 +122,109 @@ TEST(frolova_e_Sobel_filter_seq, small_image_2) {
   EXPECT_EQ(reference, res);
 }
 
-
 TEST(frolova_e_Sobel_filter_seq, one_pixel) {
   std::vector<int> value_1 = {1, 1};
   std::vector<int> pict = {100, 0, 0};
 
   std::vector<int> res(1, 0);
-
   std::vector<int> reference = {0};
-  
-    // Create task_data
-    auto task_data_seq = std::make_shared<ppc::core::TaskData>();
 
-    task_data_seq->inputs.emplace_back(reinterpret_cast<uint8_t *>(value_1.data()));
-    task_data_seq->inputs_count.emplace_back(value_1.size());
+  // Create task_data
+  auto task_data_seq = std::make_shared<ppc::core::TaskData>();
 
-    task_data_seq->inputs.emplace_back(reinterpret_cast<uint8_t *>(pict.data()));
-    task_data_seq->inputs_count.emplace_back(pict.size());
+  task_data_seq->inputs.emplace_back(reinterpret_cast<uint8_t *>(value_1.data()));
+  task_data_seq->inputs_count.emplace_back(value_1.size());
 
-    task_data_seq->outputs.emplace_back(reinterpret_cast<uint8_t *>(res.data()));
-    task_data_seq->outputs_count.emplace_back(res.size());
+  task_data_seq->inputs.emplace_back(reinterpret_cast<uint8_t *>(pict.data()));
+  task_data_seq->inputs_count.emplace_back(pict.size());
 
-    // Create Task
-    frolova_e_Sobel_filter_seq::SobelFilterSequential test_task_sequential(task_data_seq);
-    ASSERT_EQ(test_task_sequential.Validation(), true);
-    test_task_sequential.PreProcessing();
-    test_task_sequential.Run();
-    test_task_sequential.PostProcessing();
-    EXPECT_EQ(reference, res);
+  task_data_seq->outputs.emplace_back(reinterpret_cast<uint8_t *>(res.data()));
+  task_data_seq->outputs_count.emplace_back(res.size());
+
+  // Create Task
+  frolova_e_Sobel_filter_seq::SobelFilterSequential test_task_sequential(task_data_seq);
+  ASSERT_EQ(test_task_sequential.Validation(), true);
+
+  test_task_sequential.PreProcessing();
+  test_task_sequential.Run();
+  test_task_sequential.PostProcessing();
+
+  EXPECT_EQ(reference, res);
 }
 
 //______ASSERT_FALSE________________
 
 TEST(frolova_e_Sobel_filter_seq, not_correct_value) {
-    std::vector<int> value_1 = {-1, 1};
-    std::vector<int> pict = {100, 0, 0};
+  std::vector<int> value_1 = {-1, 1};
+  std::vector<int> pict = {100, 0, 0};
 
-    std::vector<int> res(1, 0);
+  std::vector<int> res(1, 0);
+  std::vector<int> reference = {0};
 
-    std::vector<int> reference = {0};
+  // Create task_data
+  auto task_data_seq = std::make_shared<ppc::core::TaskData>();
 
-    // Create task_data
-    auto task_data_seq = std::make_shared<ppc::core::TaskData>();
+  task_data_seq->inputs.emplace_back(reinterpret_cast<uint8_t *>(value_1.data()));
+  task_data_seq->inputs_count.emplace_back(value_1.size());
 
-    task_data_seq->inputs.emplace_back(reinterpret_cast<uint8_t *>(value_1.data()));
-    task_data_seq->inputs_count.emplace_back(value_1.size());
+  task_data_seq->inputs.emplace_back(reinterpret_cast<uint8_t *>(pict.data()));
+  task_data_seq->inputs_count.emplace_back(pict.size());
 
-    task_data_seq->inputs.emplace_back(reinterpret_cast<uint8_t *>(pict.data()));
-    task_data_seq->inputs_count.emplace_back(pict.size());
+  task_data_seq->outputs.emplace_back(reinterpret_cast<uint8_t *>(res.data()));
+  task_data_seq->outputs_count.emplace_back(res.size());
 
-    task_data_seq->outputs.emplace_back(reinterpret_cast<uint8_t *>(res.data()));
-    task_data_seq->outputs_count.emplace_back(res.size());
-
-    // Create Task
-    frolova_e_Sobel_filter_seq::SobelFilterSequential test_task_sequential(task_data_seq);
-    ASSERT_EQ(test_task_sequential.Validation(), false);
-
+  // Create Task
+  frolova_e_Sobel_filter_seq::SobelFilterSequential test_task_sequential(task_data_seq);
+  ASSERT_EQ(test_task_sequential.Validation(), false);
 }
 
+
 TEST(frolova_e_Sobel_filter_seq, vector_is_not_multiple_of_three) {
-    std::vector<int> value_1 = {1, 1};
-    std::vector<int> pict = {100, 0};
+  std::vector<int> value_1 = {1, 1};
+  std::vector<int> pict = {100, 0};
 
-    std::vector<int> res(1, 0);
+  std::vector<int> res(1, 0);
 
-    std::vector<int> reference = {0};
+  std::vector<int> reference = {0};
 
-    // Create task_data
-    auto task_data_seq = std::make_shared<ppc::core::TaskData>();
+  // Create task_data
+  auto task_data_seq = std::make_shared<ppc::core::TaskData>();
 
-    task_data_seq->inputs.emplace_back(reinterpret_cast<uint8_t *>(value_1.data()));
-    task_data_seq->inputs_count.emplace_back(value_1.size());
+  task_data_seq->inputs.emplace_back(reinterpret_cast<uint8_t *>(value_1.data()));
+  task_data_seq->inputs_count.emplace_back(value_1.size());
 
-    task_data_seq->inputs.emplace_back(reinterpret_cast<uint8_t *>(pict.data()));
-    task_data_seq->inputs_count.emplace_back(pict.size());
+  task_data_seq->inputs.emplace_back(reinterpret_cast<uint8_t *>(pict.data()));
+  task_data_seq->inputs_count.emplace_back(pict.size());
 
-    task_data_seq->outputs.emplace_back(reinterpret_cast<uint8_t *>(res.data()));
-    task_data_seq->outputs_count.emplace_back(res.size());
+  task_data_seq->outputs.emplace_back(reinterpret_cast<uint8_t *>(res.data()));
+  task_data_seq->outputs_count.emplace_back(res.size());
 
-    // Create Task
-    frolova_e_Sobel_filter_seq::SobelFilterSequential test_task_sequential(task_data_seq);
-    ASSERT_EQ(test_task_sequential.Validation(), false);
+  // Create Task
+  frolova_e_Sobel_filter_seq::SobelFilterSequential test_task_sequential(task_data_seq);
+  ASSERT_EQ(test_task_sequential.Validation(), false);
 }
 
 TEST(frolova_e_Sobel_filter_seq, vector_element_is_not_included_the_range) {
-    std::vector<int> value_1 = {1, 1};
-    std::vector<int> pict = {100, 0, 270};
+  std::vector<int> value_1 = {1, 1};
+  std::vector<int> pict = {100, 0, 270};
 
-    std::vector<int> res(1, 0);
+  std::vector<int> res(1, 0);
 
-    std::vector<int> reference = {0};
+  std::vector<int> reference = {0};
 
-    // Create task_data
-    auto task_data_seq = std::make_shared<ppc::core::TaskData>();
+  // Create task_data
+  auto task_data_seq = std::make_shared<ppc::core::TaskData>();
 
-    task_data_seq->inputs.emplace_back(reinterpret_cast<uint8_t *>(value_1.data()));
-    task_data_seq->inputs_count.emplace_back(value_1.size());
+  task_data_seq->inputs.emplace_back(reinterpret_cast<uint8_t *>(value_1.data()));
+  task_data_seq->inputs_count.emplace_back(value_1.size());
 
-    task_data_seq->inputs.emplace_back(reinterpret_cast<uint8_t *>(pict.data()));
-    task_data_seq->inputs_count.emplace_back(pict.size());
+  task_data_seq->inputs.emplace_back(reinterpret_cast<uint8_t *>(pict.data()));
+  task_data_seq->inputs_count.emplace_back(pict.size());
 
-    task_data_seq->outputs.emplace_back(reinterpret_cast<uint8_t *>(res.data()));
-    task_data_seq->outputs_count.emplace_back(res.size());
+  task_data_seq->outputs.emplace_back(reinterpret_cast<uint8_t *>(res.data()));
+  task_data_seq->outputs_count.emplace_back(res.size());
 
-    // Create Task
-    frolova_e_Sobel_filter_seq::SobelFilterSequential test_task_sequential(task_data_seq);
-    ASSERT_EQ(test_task_sequential.Validation(), false);
+  // Create Task
+  frolova_e_Sobel_filter_seq::SobelFilterSequential test_task_sequential(task_data_seq);
+  ASSERT_EQ(test_task_sequential.Validation(), false);
 }
