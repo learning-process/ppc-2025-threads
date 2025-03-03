@@ -151,7 +151,7 @@ TEST(kholin_k_multidimensional_integrals_rectangle_seq, single_integral_one_var)
   auto f = [](const std::vector<double> &f_values) { return f_values[0]; };
   std::vector<double> in_lower_limits{2};
   std::vector<double> in_upper_limits{4};
-  double n = 4002.0;
+  double n = 1002.0;
   std::vector<double> out_i(1, 0.0);
 
   auto *f_object = new std::function<double(const std::vector<double> &)>(f);
@@ -189,7 +189,7 @@ TEST(kholin_k_multidimensional_integrals_rectangle_seq, single_integral_two_var)
   auto f = [](const std::vector<double> &f_values) { return f_values[0] + f_values[1]; };
   std::vector<double> in_lower_limits{0};
   std::vector<double> in_upper_limits{2};
-  double n = 4000.0;
+  double n = 1000.0;
   std::vector<double> out_i(1, 0.0);
 
   auto *f_object = new std::function<double(const std::vector<double> &)>(f);
@@ -303,7 +303,7 @@ TEST(kholin_k_multidimensional_integrals_rectangle_seq, triple_integral_three_va
   auto f = [](const std::vector<double> &f_values) { return f_values[0] + f_values[1] + f_values[2]; };
   std::vector<double> in_lower_limits{0, 0, 0};
   std::vector<double> in_upper_limits{2, 2, 2};
-  double n = 150.0;
+  double n = 100.0;
   std::vector<double> out_i(1, 0.0);
 
   auto *f_object = new std::function<double(const std::vector<double> &)>(f);
@@ -341,7 +341,7 @@ TEST(kholin_k_multidimensional_integrals_rectangle_seq, triple_integral_two_var)
   auto f = [](const std::vector<double> &f_values) { return f_values[0] + f_values[1]; };
   std::vector<double> in_lower_limits{0, 0, 0};
   std::vector<double> in_upper_limits{2, 2, 1};
-  double n = 100.0;
+  double n = 10.0;
   std::vector<double> out_i(1, 0.0);
 
   auto *f_object = new std::function<double(const std::vector<double> &)>(f);
@@ -379,7 +379,7 @@ TEST(kholin_k_multidimensional_integrals_rectangle_seq, triple_integral_one_var)
   auto f = [](const std::vector<double> &f_values) { return f_values[0] + 5.0 + (-10.0); };
   std::vector<double> in_lower_limits{0, 0, 0};
   std::vector<double> in_upper_limits{2, 1, 3};
-  double n = 100.0;
+  double n = 10.0;
   std::vector<double> out_i(1, 0.0);
 
   auto *f_object = new std::function<double(const std::vector<double> &)>(f);
