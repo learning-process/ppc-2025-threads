@@ -58,11 +58,11 @@ TEST(varfolomeev_g_histogram_linear_stretching_seq, test_opencv_manual_64x64) {
 
   std::vector<uint8_t> input_vector(input_image.total());
   std::vector<uint8_t> output_vector(input_image.total());
-  std::vector<uint8_t> expectedOutputVector(reference_image.total());
+  std::vector<uint8_t> expected_output_vector(reference_image.total());
 
   for (size_t i = 0; i < input_image.total(); ++i) {
     input_vector[i] = static_cast<uint8_t>(input_image.data[i]);
-    expectedOutputVector[i] = static_cast<uint8_t>(reference_image.data[i]);
+    expected_output_vector[i] = static_cast<uint8_t>(reference_image.data[i]);
   }
 
   auto task_data_seq = std::make_shared<ppc::core::TaskData>();
