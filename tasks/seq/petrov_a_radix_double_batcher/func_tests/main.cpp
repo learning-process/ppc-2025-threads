@@ -19,270 +19,51 @@ std::vector<double> RandomVector(size_t size) {
   std::ranges::generate(vec, [&dist, &gen] { return dist(gen); });
   return vec;
 }
+
+void STest(size_t size) {
+  auto in = RandomVector(size);
+  std::vector<double> out(in.size());
+
+  auto task_data = std::make_shared<ppc::core::TaskData>();
+  task_data->inputs.emplace_back(reinterpret_cast<uint8_t *>(in.data()));
+  task_data->inputs_count.emplace_back(in.size());
+  task_data->outputs.emplace_back(reinterpret_cast<uint8_t *>(out.data()));
+  task_data->outputs_count.emplace_back(out.size());
+
+  auto task = petrov_a_radix_double_batcher_seq::TestTaskSequential(task_data);
+  ASSERT_TRUE(task.Validation());
+  task.PreProcessing();
+  task.Run();
+  task.PostProcessing();
+
+  ASSERT_TRUE(std::ranges::is_sorted(out));
+}
 }  // namespace
 
-TEST(petrov_a_radix_double_batcher_seq, test_0) {
-  auto in = RandomVector(0);
-  std::vector<double> out(in.size());
+TEST(petrov_a_radix_double_batcher_seq, test_0) { STest(0); }
 
-  auto task_data = std::make_shared<ppc::core::TaskData>();
-  task_data->inputs.emplace_back(reinterpret_cast<uint8_t *>(in.data()));
-  task_data->inputs_count.emplace_back(in.size());
-  task_data->outputs.emplace_back(reinterpret_cast<uint8_t *>(out.data()));
-  task_data->outputs_count.emplace_back(out.size());
+TEST(petrov_a_radix_double_batcher_seq, test_1) { STest(1); }
 
-  auto task = petrov_a_radix_double_batcher_seq::TestTaskSequential(task_data);
-  ASSERT_EQ(task.Validation(), true);
-  task.PreProcessing();
-  task.Run();
-  task.PostProcessing();
+TEST(petrov_a_radix_double_batcher_seq, test_2) { STest(2); }
 
-  ASSERT_TRUE(std::ranges::is_sorted(out));
-}
+TEST(petrov_a_radix_double_batcher_seq, test_3) { STest(3); }
 
-TEST(petrov_a_radix_double_batcher_seq, test_1) {
-  auto in = RandomVector(1);
-  std::vector<double> out(in.size());
+TEST(petrov_a_radix_double_batcher_seq, test_4) { STest(4); }
 
-  auto task_data = std::make_shared<ppc::core::TaskData>();
-  task_data->inputs.emplace_back(reinterpret_cast<uint8_t *>(in.data()));
-  task_data->inputs_count.emplace_back(in.size());
-  task_data->outputs.emplace_back(reinterpret_cast<uint8_t *>(out.data()));
-  task_data->outputs_count.emplace_back(out.size());
+TEST(petrov_a_radix_double_batcher_seq, test_5) { STest(5); }
 
-  auto task = petrov_a_radix_double_batcher_seq::TestTaskSequential(task_data);
-  ASSERT_EQ(task.Validation(), true);
-  task.PreProcessing();
-  task.Run();
-  task.PostProcessing();
+TEST(petrov_a_radix_double_batcher_seq, test_6) { STest(6); }
 
-  ASSERT_TRUE(std::ranges::is_sorted(out));
-}
+TEST(petrov_a_radix_double_batcher_seq, test_7) { STest(7); }
 
-TEST(petrov_a_radix_double_batcher_seq, test_2) {
-  auto in = RandomVector(2);
-  std::vector<double> out(in.size());
+TEST(petrov_a_radix_double_batcher_seq, test_8) { STest(8); }
 
-  auto task_data = std::make_shared<ppc::core::TaskData>();
-  task_data->inputs.emplace_back(reinterpret_cast<uint8_t *>(in.data()));
-  task_data->inputs_count.emplace_back(in.size());
-  task_data->outputs.emplace_back(reinterpret_cast<uint8_t *>(out.data()));
-  task_data->outputs_count.emplace_back(out.size());
+TEST(petrov_a_radix_double_batcher_seq, test_9) { STest(9); }
 
-  auto task = petrov_a_radix_double_batcher_seq::TestTaskSequential(task_data);
-  ASSERT_EQ(task.Validation(), true);
-  task.PreProcessing();
-  task.Run();
-  task.PostProcessing();
+TEST(petrov_a_radix_double_batcher_seq, test_10) { STest(10); }
 
-  ASSERT_TRUE(std::ranges::is_sorted(out));
-}
+TEST(petrov_a_radix_double_batcher_seq, test_11) { STest(11); }
 
-TEST(petrov_a_radix_double_batcher_seq, test_3) {
-  auto in = RandomVector(3);
-  std::vector<double> out(in.size());
+TEST(petrov_a_radix_double_batcher_seq, test_111) { STest(111); }
 
-  auto task_data = std::make_shared<ppc::core::TaskData>();
-  task_data->inputs.emplace_back(reinterpret_cast<uint8_t *>(in.data()));
-  task_data->inputs_count.emplace_back(in.size());
-  task_data->outputs.emplace_back(reinterpret_cast<uint8_t *>(out.data()));
-  task_data->outputs_count.emplace_back(out.size());
-
-  auto task = petrov_a_radix_double_batcher_seq::TestTaskSequential(task_data);
-  ASSERT_EQ(task.Validation(), true);
-  task.PreProcessing();
-  task.Run();
-  task.PostProcessing();
-
-  ASSERT_TRUE(std::ranges::is_sorted(out));
-}
-
-TEST(petrov_a_radix_double_batcher_seq, test_4) {
-  auto in = RandomVector(4);
-  std::vector<double> out(in.size());
-
-  auto task_data = std::make_shared<ppc::core::TaskData>();
-  task_data->inputs.emplace_back(reinterpret_cast<uint8_t *>(in.data()));
-  task_data->inputs_count.emplace_back(in.size());
-  task_data->outputs.emplace_back(reinterpret_cast<uint8_t *>(out.data()));
-  task_data->outputs_count.emplace_back(out.size());
-
-  auto task = petrov_a_radix_double_batcher_seq::TestTaskSequential(task_data);
-  ASSERT_EQ(task.Validation(), true);
-  task.PreProcessing();
-  task.Run();
-  task.PostProcessing();
-
-  ASSERT_TRUE(std::ranges::is_sorted(out));
-}
-
-TEST(petrov_a_radix_double_batcher_seq, test_5) {
-  auto in = RandomVector(5);
-  std::vector<double> out(in.size());
-
-  auto task_data = std::make_shared<ppc::core::TaskData>();
-  task_data->inputs.emplace_back(reinterpret_cast<uint8_t *>(in.data()));
-  task_data->inputs_count.emplace_back(in.size());
-  task_data->outputs.emplace_back(reinterpret_cast<uint8_t *>(out.data()));
-  task_data->outputs_count.emplace_back(out.size());
-
-  auto task = petrov_a_radix_double_batcher_seq::TestTaskSequential(task_data);
-  ASSERT_EQ(task.Validation(), true);
-  task.PreProcessing();
-  task.Run();
-  task.PostProcessing();
-
-  ASSERT_TRUE(std::ranges::is_sorted(out));
-}
-
-TEST(petrov_a_radix_double_batcher_seq, test_6) {
-  auto in = RandomVector(6);
-  std::vector<double> out(in.size());
-
-  auto task_data = std::make_shared<ppc::core::TaskData>();
-  task_data->inputs.emplace_back(reinterpret_cast<uint8_t *>(in.data()));
-  task_data->inputs_count.emplace_back(in.size());
-  task_data->outputs.emplace_back(reinterpret_cast<uint8_t *>(out.data()));
-  task_data->outputs_count.emplace_back(out.size());
-
-  auto task = petrov_a_radix_double_batcher_seq::TestTaskSequential(task_data);
-  ASSERT_EQ(task.Validation(), true);
-  task.PreProcessing();
-  task.Run();
-  task.PostProcessing();
-
-  ASSERT_TRUE(std::ranges::is_sorted(out));
-}
-
-TEST(petrov_a_radix_double_batcher_seq, test_7) {
-  auto in = RandomVector(7);
-  std::vector<double> out(in.size());
-
-  auto task_data = std::make_shared<ppc::core::TaskData>();
-  task_data->inputs.emplace_back(reinterpret_cast<uint8_t *>(in.data()));
-  task_data->inputs_count.emplace_back(in.size());
-  task_data->outputs.emplace_back(reinterpret_cast<uint8_t *>(out.data()));
-  task_data->outputs_count.emplace_back(out.size());
-
-  auto task = petrov_a_radix_double_batcher_seq::TestTaskSequential(task_data);
-  ASSERT_EQ(task.Validation(), true);
-  task.PreProcessing();
-  task.Run();
-  task.PostProcessing();
-
-  ASSERT_TRUE(std::ranges::is_sorted(out));
-}
-
-TEST(petrov_a_radix_double_batcher_seq, test_8) {
-  auto in = RandomVector(8);
-  std::vector<double> out(in.size());
-
-  auto task_data = std::make_shared<ppc::core::TaskData>();
-  task_data->inputs.emplace_back(reinterpret_cast<uint8_t *>(in.data()));
-  task_data->inputs_count.emplace_back(in.size());
-  task_data->outputs.emplace_back(reinterpret_cast<uint8_t *>(out.data()));
-  task_data->outputs_count.emplace_back(out.size());
-
-  auto task = petrov_a_radix_double_batcher_seq::TestTaskSequential(task_data);
-  ASSERT_EQ(task.Validation(), true);
-  task.PreProcessing();
-  task.Run();
-  task.PostProcessing();
-
-  ASSERT_TRUE(std::ranges::is_sorted(out));
-}
-
-TEST(petrov_a_radix_double_batcher_seq, test_9) {
-  auto in = RandomVector(9);
-  std::vector<double> out(in.size());
-
-  auto task_data = std::make_shared<ppc::core::TaskData>();
-  task_data->inputs.emplace_back(reinterpret_cast<uint8_t *>(in.data()));
-  task_data->inputs_count.emplace_back(in.size());
-  task_data->outputs.emplace_back(reinterpret_cast<uint8_t *>(out.data()));
-  task_data->outputs_count.emplace_back(out.size());
-
-  auto task = petrov_a_radix_double_batcher_seq::TestTaskSequential(task_data);
-  ASSERT_EQ(task.Validation(), true);
-  task.PreProcessing();
-  task.Run();
-  task.PostProcessing();
-
-  ASSERT_TRUE(std::ranges::is_sorted(out));
-}
-
-TEST(petrov_a_radix_double_batcher_seq, test_10) {
-  auto in = RandomVector(10);
-  std::vector<double> out(in.size());
-
-  auto task_data = std::make_shared<ppc::core::TaskData>();
-  task_data->inputs.emplace_back(reinterpret_cast<uint8_t *>(in.data()));
-  task_data->inputs_count.emplace_back(in.size());
-  task_data->outputs.emplace_back(reinterpret_cast<uint8_t *>(out.data()));
-  task_data->outputs_count.emplace_back(out.size());
-
-  auto task = petrov_a_radix_double_batcher_seq::TestTaskSequential(task_data);
-  ASSERT_EQ(task.Validation(), true);
-  task.PreProcessing();
-  task.Run();
-  task.PostProcessing();
-
-  ASSERT_TRUE(std::ranges::is_sorted(out));
-}
-
-TEST(petrov_a_radix_double_batcher_seq, test_11) {
-  auto in = RandomVector(11);
-  std::vector<double> out(in.size());
-
-  auto task_data = std::make_shared<ppc::core::TaskData>();
-  task_data->inputs.emplace_back(reinterpret_cast<uint8_t *>(in.data()));
-  task_data->inputs_count.emplace_back(in.size());
-  task_data->outputs.emplace_back(reinterpret_cast<uint8_t *>(out.data()));
-  task_data->outputs_count.emplace_back(out.size());
-
-  auto task = petrov_a_radix_double_batcher_seq::TestTaskSequential(task_data);
-  ASSERT_EQ(task.Validation(), true);
-  task.PreProcessing();
-  task.Run();
-  task.PostProcessing();
-
-  ASSERT_TRUE(std::ranges::is_sorted(out));
-}
-
-TEST(petrov_a_radix_double_batcher_seq, test_111) {
-  auto in = RandomVector(111);
-  std::vector<double> out(in.size());
-
-  auto task_data = std::make_shared<ppc::core::TaskData>();
-  task_data->inputs.emplace_back(reinterpret_cast<uint8_t *>(in.data()));
-  task_data->inputs_count.emplace_back(in.size());
-  task_data->outputs.emplace_back(reinterpret_cast<uint8_t *>(out.data()));
-  task_data->outputs_count.emplace_back(out.size());
-
-  auto task = petrov_a_radix_double_batcher_seq::TestTaskSequential(task_data);
-  ASSERT_EQ(task.Validation(), true);
-  task.PreProcessing();
-  task.Run();
-  task.PostProcessing();
-
-  ASSERT_TRUE(std::ranges::is_sorted(out));
-}
-
-TEST(petrov_a_radix_double_batcher_seq, test_213) {
-  auto in = RandomVector(213);
-  std::vector<double> out(in.size());
-
-  auto task_data = std::make_shared<ppc::core::TaskData>();
-  task_data->inputs.emplace_back(reinterpret_cast<uint8_t *>(in.data()));
-  task_data->inputs_count.emplace_back(in.size());
-  task_data->outputs.emplace_back(reinterpret_cast<uint8_t *>(out.data()));
-  task_data->outputs_count.emplace_back(out.size());
-
-  auto task = petrov_a_radix_double_batcher_seq::TestTaskSequential(task_data);
-  ASSERT_EQ(task.Validation(), true);
-  task.PreProcessing();
-  task.Run();
-  task.PostProcessing();
-
-  ASSERT_TRUE(std::ranges::is_sorted(out));
-}
+TEST(petrov_a_radix_double_batcher_seq, test_213) { STest(213); }
