@@ -25,7 +25,7 @@ class TestTaskOpenMP : public ppc::core::Task {
   std::vector<int> input_;
   static int GetRandomIndex(int low, int high);
   static void QuickSort(std::vector<int>& arr, int low, int high, int depth = 0);
-  static bool InPlaceMerge(std::vector<int>& arr, const BlockRange& A, const BlockRange& B, std::vector<int>& buffer);
+  static bool InPlaceMerge(std::vector<int>& arr, const BlockRange& a, const BlockRange& b, std::vector<int>& buffer);
   static std::vector<BlockRange> PartitionBlocks(int n, int p);
   void OddEvenMerge(std::vector<BlockRange>& blocks);
 };
