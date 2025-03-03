@@ -13,13 +13,14 @@ struct RGB {
   int B{};
 };
 
-std::vector<int> toGrayScaleImg(std::vector<RGB>& colorImg, size_t width, size_t height);
+std::vector<int> toGrayScaleImg(std::vector<RGB> &colorImg, size_t width, size_t height);
 int Clamp(int value, int minVal, int maxVal);
 std::vector<int> genRGBpicture(size_t width, size_t height, size_t seed = 0);
 
 class SobelFilterSequential : public ppc::core::Task {
  public:
   explicit SobelFilterSequential(ppc::core::TaskDataPtr task_data) : Task(std::move(task_data)) {}
+
   bool PreProcessingImpl() override;
   bool ValidationImpl() override;
   bool RunImpl() override;
@@ -31,6 +32,6 @@ class SobelFilterSequential : public ppc::core::Task {
   size_t width{};
   size_t height{};
   std::vector<int> resImage;
-};	
+};
 
 }  // namespace frolova_e_Sobel_filter_seq

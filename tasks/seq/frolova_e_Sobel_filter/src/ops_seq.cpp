@@ -3,7 +3,7 @@
 #include <cmath>
 #include <cstddef>
 #include <iostream>
-#include<random>
+#include <random>
 #include <vector>
 
 std::vector<int> frolova_e_Sobel_filter_seq::genRGBpicture(size_t width, size_t height, size_t seed) {
@@ -63,7 +63,7 @@ bool frolova_e_Sobel_filter_seq::SobelFilterSequential::PreProcessingImpl() {
   return true;
 }
 
-bool frolova_e_Sobel_filter_seq::SobelFilterSequential::ValidationImpl() {  
+bool frolova_e_Sobel_filter_seq::SobelFilterSequential::ValidationImpl() {
   int* value_1 = reinterpret_cast<int*>(task_data->inputs[0]);
 
   if (task_data->inputs_count[0] != 2) {
@@ -95,7 +95,7 @@ bool frolova_e_Sobel_filter_seq::SobelFilterSequential::ValidationImpl() {
 
 bool frolova_e_Sobel_filter_seq::SobelFilterSequential::RunImpl() {
   const std::vector<int> Gx = {-1, 0, 1, -2, 0, 2, -1, 0, 1};
-  const std::vector<int> Gy = {-1, -2, -1, 0, 0, 0, 1, 2, 1};  
+  const std::vector<int> Gy = {-1, -2, -1, 0, 0, 0, 1, 2, 1};
   for (int y = 0; y < height; y++) {
     for (int x = 0; x < width; x++) {
       int resX = 0;
@@ -124,8 +124,7 @@ bool frolova_e_Sobel_filter_seq::SobelFilterSequential::RunImpl() {
   return true;
 }
 
-bool frolova_e_Sobel_filter_seq::SobelFilterSequential::PostProcessingImpl() {
- 
+bool frolova_e_Sobel_filter_seq::SobelFilterSequential::PostProcessingImpl() { 
   for (size_t i = 0; i < width * height; i++) {
     reinterpret_cast<int*>(task_data->outputs[0])[i] = resImage[i];
   }
