@@ -34,10 +34,7 @@ bool oturin_a_gift_wrapping_seq::TestTaskSequential::PreProcessingImpl() {
 
   // check if all points are same
   auto are_same = [&](const auto &p) { return p == input_[0]; };
-  if (std::all_of(input_.begin(), input_.end(), are_same)) {
-    return false;
-  }
-  return true;
+  return !std::ranges::all_of(input_.begin(), input_.end(), are_same);
 }
 
 bool oturin_a_gift_wrapping_seq::TestTaskSequential::ValidationImpl() {
