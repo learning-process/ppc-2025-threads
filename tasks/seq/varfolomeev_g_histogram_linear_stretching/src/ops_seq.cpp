@@ -8,8 +8,8 @@
 bool varfolomeev_g_histogram_linear_stretching_seq::TestTaskSequential::PreProcessingImpl() {
   // Init value for input and output
   unsigned int input_size = task_data->inputs_count[0];
-  auto *in_ptr = reinterpret_cast<int *>(task_data->inputs[0]);
-  img_ = std::vector<int>(in_ptr, in_ptr + input_size);
+  auto *in_ptr = reinterpret_cast<uint8_t *>(task_data->inputs[0]);
+  img_ = std::vector<uint8_t>(in_ptr, in_ptr + input_size);
   res_.resize(img_.size());
   return true;
 }
@@ -19,22 +19,16 @@ bool varfolomeev_g_histogram_linear_stretching_seq::TestTaskSequential::Validati
   if (task_data->inputs_count[0] == 0 || task_data->inputs_count[0] != task_data->outputs_count[0]) {
     return false;
   }
-  auto *in_ptr = reinterpret_cast<int *>(task_data->inputs[0]);
-  for (size_t i = 0; i < task_data->inputs_count[0]; ++i) {
-    if (in_ptr[i] < 0 || in_ptr[i] > 255) {
-      return false;
-    }
-  }
   return true;
 }
 
 bool varfolomeev_g_histogram_linear_stretching_seq::TestTaskSequential::RunImpl() {
-  int min = *std::ranges::min_element(img_);
-  int max = *std::ranges::max_element(img_);
+  uint8_t min = *std::ranges::min_element(img_);
+  uint8_t max = *std::ranges::max_element(img_);
 
   if (max != min) {
     for (size_t i = 0; i < img_.size(); i++) {
-      res_[i] = static_cast<int>(std::round((img_[i] - min) / static_cast<double>(max - min) * 255));
+      res_[i] = static_cast<uint8_t>(((img_[i] - min) * 255 + (max - min) / 2) / (max - min));
     }
   } else {
     std::ranges::fill(res_.begin(), res_.end(), min);
@@ -44,7 +38,7 @@ bool varfolomeev_g_histogram_linear_stretching_seq::TestTaskSequential::RunImpl(
 
 bool varfolomeev_g_histogram_linear_stretching_seq::TestTaskSequential::PostProcessingImpl() {
   for (size_t i = 0; i < res_.size(); i++) {
-    reinterpret_cast<int *>(task_data->outputs[0])[i] = res_[i];
+    reinterpret_cast<uint8_t *>(task_data->outputs[0])[i] = res_[i];
   }
   return true;
 }
