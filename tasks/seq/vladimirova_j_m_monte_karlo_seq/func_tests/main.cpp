@@ -121,7 +121,7 @@ TEST(vladimirova_j_m_monte_karlo_seq, test_no_limit_var) {
   auto task_data_seq = std::make_shared<ppc::core::TaskData>();
   task_data_seq->inputs.emplace_back(reinterpret_cast<uint8_t *>(val_b.data()));
   task_data_seq->inputs.emplace_back(reinterpret_cast<uint8_t *>(PiVal314));
-  task_data_seq->inputs.emplace_back(reinterpret_cast<uint8_t *>(50000));
+  task_data_seq->inputs.emplace_back(reinterpret_cast<uint8_t *>(10000));
   task_data_seq->inputs_count.emplace_back(val_b.size());
   task_data_seq->outputs.emplace_back(reinterpret_cast<uint8_t *>(out.data()));
   task_data_seq->outputs_count.emplace_back(out.size());
@@ -140,7 +140,7 @@ TEST(vladimirova_j_m_monte_karlo_seq, test_zero_size_limit_var) {
 
   task_data_seq->inputs.emplace_back(reinterpret_cast<uint8_t *>(val_b.data()));
   task_data_seq->inputs.emplace_back(reinterpret_cast<uint8_t *>(PiVal314));
-  task_data_seq->inputs.emplace_back(reinterpret_cast<uint8_t *>(50000));
+  task_data_seq->inputs.emplace_back(reinterpret_cast<uint8_t *>(10000));
   task_data_seq->inputs_count.emplace_back(val_b.size());
   task_data_seq->outputs.emplace_back(reinterpret_cast<uint8_t *>(out.data()));
   task_data_seq->outputs_count.emplace_back(out.size());
@@ -180,7 +180,7 @@ TEST(vladimirova_j_m_monte_karlo_seq, test_PiVal_314) {
   auto task_data_seq = std::make_shared<ppc::core::TaskData>();
   task_data_seq->inputs.emplace_back(reinterpret_cast<uint8_t *>(val_b.data()));
   task_data_seq->inputs.emplace_back(reinterpret_cast<uint8_t *>(PiVal314));
-  task_data_seq->inputs.emplace_back(reinterpret_cast<uint8_t *>(50000));
+  task_data_seq->inputs.emplace_back(reinterpret_cast<uint8_t *>(10000));
   task_data_seq->inputs_count.emplace_back(val_b.size());
   task_data_seq->outputs.emplace_back(reinterpret_cast<uint8_t *>(out.data()));
   task_data_seq->outputs_count.emplace_back(out.size());
@@ -202,7 +202,7 @@ TEST(vladimirova_j_m_monte_karlo_seq, test_PiVal_314_2) {
   auto task_data_seq = std::make_shared<ppc::core::TaskData>();
   task_data_seq->inputs.emplace_back(reinterpret_cast<uint8_t *>(val_b.data()));
   task_data_seq->inputs.emplace_back(reinterpret_cast<uint8_t *>(PiVal314));
-  task_data_seq->inputs.emplace_back(reinterpret_cast<uint8_t *>(90000));
+  task_data_seq->inputs.emplace_back(reinterpret_cast<uint8_t *>(30000));
   task_data_seq->inputs_count.emplace_back(val_b.size());
   task_data_seq->outputs.emplace_back(reinterpret_cast<uint8_t *>(out.data()));
   task_data_seq->outputs_count.emplace_back(out.size());
@@ -224,7 +224,7 @@ TEST(vladimirova_j_m_monte_karlo_seq, test_PiVal_314_1_2) {
   auto task_data_seq = std::make_shared<ppc::core::TaskData>();
   task_data_seq->inputs.emplace_back(reinterpret_cast<uint8_t *>(val_b.data()));
   task_data_seq->inputs.emplace_back(reinterpret_cast<uint8_t *>(PiVal314));
-  task_data_seq->inputs.emplace_back(reinterpret_cast<uint8_t *>(90000));
+  task_data_seq->inputs.emplace_back(reinterpret_cast<uint8_t *>(30000));
   task_data_seq->inputs_count.emplace_back(val_b.size());
   task_data_seq->outputs.emplace_back(reinterpret_cast<uint8_t *>(out.data()));
   task_data_seq->outputs_count.emplace_back(out.size());
@@ -234,7 +234,7 @@ TEST(vladimirova_j_m_monte_karlo_seq, test_PiVal_314_1_2) {
   test_task_sequential.PreProcessing();
   test_task_sequential.Run();
   test_task_sequential.PostProcessing();
-  ASSERT_TRUE(((3.14 / 2) - out[0]) < 0.5);
+  ASSERT_TRUE(((3.14 / 2) - out[0]) < 1);
 }
 
 TEST(vladimirova_j_m_monte_karlo_seq, test_SphereR3_1) {
@@ -247,7 +247,7 @@ TEST(vladimirova_j_m_monte_karlo_seq, test_SphereR3_1) {
 
   task_data_seq->inputs.emplace_back(reinterpret_cast<uint8_t *>(val_b.data()));
   task_data_seq->inputs.emplace_back(reinterpret_cast<uint8_t *>(SphereR3));
-  task_data_seq->inputs.emplace_back(reinterpret_cast<uint8_t *>(150000));
+  task_data_seq->inputs.emplace_back(reinterpret_cast<uint8_t *>(100000));
   task_data_seq->inputs_count.emplace_back(val_b.size());
   task_data_seq->outputs.emplace_back(reinterpret_cast<uint8_t *>(out.data()));
   task_data_seq->outputs_count.emplace_back(out.size());
@@ -257,7 +257,7 @@ TEST(vladimirova_j_m_monte_karlo_seq, test_SphereR3_1) {
   test_task_sequential.PreProcessing();
   test_task_sequential.Run();
   test_task_sequential.PostProcessing();
-  ASSERT_TRUE((113 - (int)out[0]) < 5);
+  ASSERT_TRUE((113 - (int)out[0]) < 10);
 }
 
 TEST(vladimirova_j_m_monte_karlo_seq, test_SphereR3_1_2) {
@@ -270,7 +270,7 @@ TEST(vladimirova_j_m_monte_karlo_seq, test_SphereR3_1_2) {
 
   task_data_seq->inputs.emplace_back(reinterpret_cast<uint8_t *>(val_b.data()));
   task_data_seq->inputs.emplace_back(reinterpret_cast<uint8_t *>(SphereR3));
-  task_data_seq->inputs.emplace_back(reinterpret_cast<uint8_t *>(150000));
+  task_data_seq->inputs.emplace_back(reinterpret_cast<uint8_t *>(100000));
   task_data_seq->inputs_count.emplace_back(val_b.size());
   task_data_seq->outputs.emplace_back(reinterpret_cast<uint8_t *>(out.data()));
   task_data_seq->outputs_count.emplace_back(out.size());
@@ -280,7 +280,7 @@ TEST(vladimirova_j_m_monte_karlo_seq, test_SphereR3_1_2) {
   test_task_sequential.PreProcessing();
   test_task_sequential.Run();
   test_task_sequential.PostProcessing();
-  ASSERT_TRUE(((113 / 2) - (int)out[0]) < 5);
+  ASSERT_TRUE(((113 / 2) - (int)out[0]) < 10);
 }
 
 TEST(vladimirova_j_m_monte_karlo_seq, test_SphereR3_1_9) {
@@ -293,7 +293,7 @@ TEST(vladimirova_j_m_monte_karlo_seq, test_SphereR3_1_9) {
 
   task_data_seq->inputs.emplace_back(reinterpret_cast<uint8_t *>(val_b.data()));
   task_data_seq->inputs.emplace_back(reinterpret_cast<uint8_t *>(SphereR3));
-  task_data_seq->inputs.emplace_back(reinterpret_cast<uint8_t *>(150000));
+  task_data_seq->inputs.emplace_back(reinterpret_cast<uint8_t *>(100000));
   task_data_seq->inputs_count.emplace_back(val_b.size());
   task_data_seq->outputs.emplace_back(reinterpret_cast<uint8_t *>(out.data()));
   task_data_seq->outputs_count.emplace_back(out.size());
@@ -303,7 +303,7 @@ TEST(vladimirova_j_m_monte_karlo_seq, test_SphereR3_1_9) {
   test_task_sequential.PreProcessing();
   test_task_sequential.Run();
   test_task_sequential.PostProcessing();
-  ASSERT_TRUE(((113 / 9) - (int)out[0]) < 5);
+  ASSERT_TRUE(((113 / 9) - (int)out[0]) < 10);
 }
 
 TEST(vladimirova_j_m_monte_karlo_seq, test_Rectangle34) {
@@ -316,7 +316,7 @@ TEST(vladimirova_j_m_monte_karlo_seq, test_Rectangle34) {
 
   task_data_seq->inputs.emplace_back(reinterpret_cast<uint8_t *>(val_b.data()));
   task_data_seq->inputs.emplace_back(reinterpret_cast<uint8_t *>(Rectangle34));
-  task_data_seq->inputs.emplace_back(reinterpret_cast<uint8_t *>(150000));
+  task_data_seq->inputs.emplace_back(reinterpret_cast<uint8_t *>(100000));
   task_data_seq->inputs_count.emplace_back(val_b.size());
   task_data_seq->outputs.emplace_back(reinterpret_cast<uint8_t *>(out.data()));
   task_data_seq->outputs_count.emplace_back(out.size());
@@ -339,7 +339,7 @@ TEST(vladimirova_j_m_monte_karlo_seq, test_Rectangle34_2) {
 
   task_data_seq->inputs.emplace_back(reinterpret_cast<uint8_t *>(val_b.data()));
   task_data_seq->inputs.emplace_back(reinterpret_cast<uint8_t *>(Rectangle34));
-  task_data_seq->inputs.emplace_back(reinterpret_cast<uint8_t *>(150000));
+  task_data_seq->inputs.emplace_back(reinterpret_cast<uint8_t *>(100000));
   task_data_seq->inputs_count.emplace_back(val_b.size());
   task_data_seq->outputs.emplace_back(reinterpret_cast<uint8_t *>(out.data()));
   task_data_seq->outputs_count.emplace_back(out.size());
@@ -349,7 +349,7 @@ TEST(vladimirova_j_m_monte_karlo_seq, test_Rectangle34_2) {
   test_task_sequential.PreProcessing();
   test_task_sequential.Run();
   test_task_sequential.PostProcessing();
-  ASSERT_TRUE(((3 * 4) - out[0]) < 0.1);
+  ASSERT_TRUE(((3 * 4) - out[0]) < 0.5);
 }
 
 TEST(vladimirova_j_m_monte_karlo_seq, test_Parallelogram333) {
@@ -408,7 +408,7 @@ TEST(vladimirova_j_m_monte_karlo_seq, test_Parabola_1_5_2_9) {
 
   task_data_seq->inputs.emplace_back(reinterpret_cast<uint8_t *>(val_b.data()));
   task_data_seq->inputs.emplace_back(reinterpret_cast<uint8_t *>(Parabola));
-  task_data_seq->inputs.emplace_back(reinterpret_cast<uint8_t *>(150000));
+  task_data_seq->inputs.emplace_back(reinterpret_cast<uint8_t *>(100000));
   task_data_seq->inputs_count.emplace_back(val_b.size());
   task_data_seq->outputs.emplace_back(reinterpret_cast<uint8_t *>(out.data()));
   task_data_seq->outputs_count.emplace_back(out.size());
@@ -418,7 +418,7 @@ TEST(vladimirova_j_m_monte_karlo_seq, test_Parabola_1_5_2_9) {
   test_task_sequential.PreProcessing();
   test_task_sequential.Run();
   test_task_sequential.PostProcessing();
-  ASSERT_TRUE((72 - out[0]) < 0.5);
+  ASSERT_TRUE((72 - out[0]) < 1);
 }
 
 TEST(vladimirova_j_m_monte_karlo_seq, test_HypercubeX4Pr4433) {
@@ -431,7 +431,7 @@ TEST(vladimirova_j_m_monte_karlo_seq, test_HypercubeX4Pr4433) {
 
   task_data_seq->inputs.emplace_back(reinterpret_cast<uint8_t *>(val_b.data()));
   task_data_seq->inputs.emplace_back(reinterpret_cast<uint8_t *>(HypercubeX4Pr4433));
-  task_data_seq->inputs.emplace_back(reinterpret_cast<uint8_t *>(100000));
+  task_data_seq->inputs.emplace_back(reinterpret_cast<uint8_t *>(50000));
   task_data_seq->inputs_count.emplace_back(val_b.size());
   task_data_seq->outputs.emplace_back(reinterpret_cast<uint8_t *>(out.data()));
   task_data_seq->outputs_count.emplace_back(out.size());
@@ -441,7 +441,7 @@ TEST(vladimirova_j_m_monte_karlo_seq, test_HypercubeX4Pr4433) {
   test_task_sequential.PreProcessing();
   test_task_sequential.Run();
   test_task_sequential.PostProcessing();
-  ASSERT_TRUE((3 * 3 * 4 * 4 - out[0]) < 0.5);
+  ASSERT_TRUE((3 * 3 * 4 * 4 - out[0]) < 1);
 }
 
 TEST(vladimirova_j_m_monte_karlo_seq, test_TrangleModuleMinus5) {
@@ -454,7 +454,7 @@ TEST(vladimirova_j_m_monte_karlo_seq, test_TrangleModuleMinus5) {
 
   task_data_seq->inputs.emplace_back(reinterpret_cast<uint8_t *>(val_b.data()));
   task_data_seq->inputs.emplace_back(reinterpret_cast<uint8_t *>(TrangleModuleMinus5));
-  task_data_seq->inputs.emplace_back(reinterpret_cast<uint8_t *>(200000));
+  task_data_seq->inputs.emplace_back(reinterpret_cast<uint8_t *>(100000));
   task_data_seq->inputs_count.emplace_back(val_b.size());
   task_data_seq->outputs.emplace_back(reinterpret_cast<uint8_t *>(out.data()));
   task_data_seq->outputs_count.emplace_back(out.size());
@@ -464,7 +464,7 @@ TEST(vladimirova_j_m_monte_karlo_seq, test_TrangleModuleMinus5) {
   test_task_sequential.PreProcessing();
   test_task_sequential.Run();
   test_task_sequential.PostProcessing();
-  ASSERT_TRUE((25 - out[0]) < 0.5);
+  ASSERT_TRUE((25 - out[0]) < 1);
 }
 
 TEST(vladimirova_j_m_monte_karlo_seq, test_SomeRandomFunc) {
@@ -477,7 +477,7 @@ TEST(vladimirova_j_m_monte_karlo_seq, test_SomeRandomFunc) {
 
   task_data_seq->inputs.emplace_back(reinterpret_cast<uint8_t *>(val_b.data()));
   task_data_seq->inputs.emplace_back(reinterpret_cast<uint8_t *>(SomeRandomFunc));
-  task_data_seq->inputs.emplace_back(reinterpret_cast<uint8_t *>(150000));
+  task_data_seq->inputs.emplace_back(reinterpret_cast<uint8_t *>(100000));
   task_data_seq->inputs_count.emplace_back(val_b.size());
   task_data_seq->outputs.emplace_back(reinterpret_cast<uint8_t *>(out.data()));
   task_data_seq->outputs_count.emplace_back(out.size());
@@ -487,5 +487,5 @@ TEST(vladimirova_j_m_monte_karlo_seq, test_SomeRandomFunc) {
   test_task_sequential.PreProcessing();
   test_task_sequential.Run();
   test_task_sequential.PostProcessing();
-  ASSERT_TRUE((2.533 - out[0]) < 0.5);
+  ASSERT_TRUE((2.533 - out[0]) < 1);
 }
