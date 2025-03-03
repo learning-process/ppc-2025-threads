@@ -125,7 +125,7 @@ TEST(filateva_e_simpson_seq, test_x_del) {
 }
 
 TEST(filateva_e_simpson_seq, test_x_sin) {
-  std::vector<double> param = {0, 3.14, 0.1};
+  std::vector<double> param = {0, std::numbers::pi, 0.1};
   std::vector<double> res(1, 0);
   filateva_e_simpson_seq::Func f = [](double x) { return std::sin(x); };
 
@@ -148,7 +148,7 @@ TEST(filateva_e_simpson_seq, test_x_sin) {
 }
 
 TEST(filateva_e_simpson_seq, test_x_cos) {
-  std::vector<double> param = {0, 1.57, 0.1};
+  std::vector<double> param = {0, std::numbers::pi / 2, 0.1};
   std::vector<double> res(1, 0);
   filateva_e_simpson_seq::Func f = [](double x) { return std::cos(x); };
 
