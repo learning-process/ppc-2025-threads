@@ -6,7 +6,6 @@
 
 #include "core/task/include/task.hpp"
 
-
 namespace varfolomeev_g_histogram_linear_stretching_seq {
 
 class TestTaskSequential : public ppc::core::Task {
