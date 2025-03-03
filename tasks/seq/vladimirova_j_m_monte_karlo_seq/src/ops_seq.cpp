@@ -18,7 +18,7 @@ double CreateRandomVal(double min_v, double max_v) {
   return dis(gen);
 }
 
-}
+}  // namespace
 
 bool vladimirova_j_m_monte_karlo_seq::TestTaskSequential::PreProcessingImpl() {
   // Init value for input and output

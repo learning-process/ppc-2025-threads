@@ -13,7 +13,7 @@ bool PiVal314(std::vector<double> arr, size_t size = 2) {
   double x = arr[0];
   double y = arr[1];
   return (((x * x) + (y * y)) <= 1);
-};
+}  // namespace
 
 bool SphereR3(std::vector<double> arr, size_t size = 3) {
   double x = arr[0];

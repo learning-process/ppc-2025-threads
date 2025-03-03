@@ -17,7 +17,7 @@ bool PiVal314(std::vector<double> arr, size_t size = 2) {
   double y = arr[1];
   return (((x * x) + (y * y) - 1) <= 0);
 };
-} 
+}  // namespace
 
 TEST(vladimirova_j_m_monte_karlo_seq, test_pipeline_run) {
   // Create data

@@ -29,4 +29,4 @@ class TestTaskSequential : public ppc::core::Task {
   size_t accuracy_;
 };
 
-}
+}  // namespace vladimirova_j_m_monte_karlo_seq
