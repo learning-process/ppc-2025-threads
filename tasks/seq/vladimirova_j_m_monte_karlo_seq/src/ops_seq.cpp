@@ -3,17 +3,14 @@
 
 #include <cmath>
 #include <cstddef>
-// #include <iostream>
 #include <random>
 #include <vector>
 
 namespace {
 
-std::random_device dev;
-std::mt19937 random(dev());
+std::random_device rd;
+std::mt19937 gen(rd());
 double CreateRandomVal(double min_v, double max_v) {
-  std::random_device rd;
-  std::mt19937 gen(rd());
   std::uniform_real_distribution<double> dis(min_v, max_v);
   return dis(gen);
 }
@@ -65,15 +62,8 @@ bool vladimirova_j_m_monte_karlo_seq::TestTaskSequential::RunImpl() {
     successful_point += (int)(func_(random_val, var_size_));
   }
   double s = 1;
-  int flag = 1;
   for (size_t i = 0; i < var_size_; i++) {
     s *= (var_integr_[i].max - var_integr_[i].min);
-    if ((flag > 0) && (s < 0)) {
-      flag *= -1;
-    }
-  }
-  if (s < 0) {
-    s *= -1;
   }
   s *= ((double)(successful_point) / (double)accuracy_);
   output_.push_back(s);
