@@ -100,14 +100,14 @@ bool frolova_e_Sobel_filter_seq::SobelFilterSequential::RunImpl() {
       int resX = 0;
       int resY = 0;
 
-      for (size_t ky = -1; ky <= 1; ky++) {
-        for (size_t kx = -1; kx <= 1; kx++) {
-          size_t px = x + kx;
-          size_t py = y + ky;
+      for (int ky = -1; ky <= 1; ky++) {
+        for (int kx = -1; kx <= 1; kx++) {
+          int px = x + kx;
+          int py = y + ky;
 
           int pixelValue = 0;
 
-          if (px >= 0 && px < width && py >= 0 && py < height) {
+          if (px >= 0 && px < static_cast<int>(width) && py >= 0 && py < static_cast<int>(height)) {
             pixelValue = grayscaleImage[py * width + px];
           }
 
