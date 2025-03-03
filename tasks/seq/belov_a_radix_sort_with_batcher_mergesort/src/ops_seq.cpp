@@ -22,12 +22,15 @@ void RadixBatcherMergesortSequential::Sort(std::vector<Bigint>& arr) {
   RadixSort(pos, false);
   RadixSort(neg, true);
 
-  arr.clear();
-  arr.reserve(neg.size() + pos.size());
+  size_t index = 0;
+
   for (const auto& num : neg) {
-    arr.push_back(-num);
+    arr[index++] = -num;
   }
-  arr.insert(arr.end(), pos.begin(), pos.end());
+
+  for (const auto& num : pos) {
+    arr[index++] = num;
+  }
 }
 
 void RadixBatcherMergesortSequential::RadixSort(std::vector<Bigint>& arr, bool invert) {
@@ -62,7 +65,7 @@ void RadixBatcherMergesortSequential::CountingSort(std::vector<Bigint>& arr, Big
   }
 
   for (size_t i = arr.size() - 1; i < arr.size(); i--) {
-    Bigint num = arr[i];
+    const Bigint& num = arr[i];
     Bigint index = (num / digit_place) % 10;
     output[--count[index]] = num;
   }

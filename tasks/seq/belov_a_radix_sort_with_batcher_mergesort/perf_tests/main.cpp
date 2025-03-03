@@ -27,11 +27,11 @@ std::vector<Bigint> GenerateMixedValuesArray(int n) {
 
   for (int i = 0; i < n; ++i) {
     if (choice(gen) == 0) {
-      arr.push_back(small_range(gen));
+      arr.push_back(large_range(gen));
     } else if (choice(gen) == 1) {
       arr.push_back(medium_range(gen));
     } else {
-      arr.push_back(large_range(gen));
+      arr.push_back(small_range(gen));
     }
   }
   return arr;
