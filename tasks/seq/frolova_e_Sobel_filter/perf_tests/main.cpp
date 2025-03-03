@@ -94,5 +94,5 @@ TEST(frolova_e_Sobel_filter_seq, test_task_run) {
   perf_analyzer->TaskRun(perf_attr, perf_results);
   ppc::core::Perf::PrintPerfStatistic(perf_results);
   unsigned long exp_size = 4000000;
-  ASSERT_EQ(exp_size, res.size());
+  ASSERT_EQ(exp_size, static_cast<unsigned int>(res.size()));
 }
