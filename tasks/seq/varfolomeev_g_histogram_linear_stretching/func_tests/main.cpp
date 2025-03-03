@@ -30,28 +30,28 @@ std::vector<uint8_t> GetRandomImage(int sz) {
 
 TEST(varfolomeev_g_histogram_linear_stretching_seq, test_manual_opencv_64x64) {
   // loading template orginal img
-  cv::Mat inputImage =
+  cv::Mat input_image =
       cv::imread(ppc::util::GetAbsolutePath("seq/varfolomeev_g_histogram_linear_stretching/data/cobble_orig.jpg"),
                  cv::IMREAD_GRAYSCALE);
-  ASSERT_FALSE(inputImage.empty());
+  ASSERT_FALSE(input_image.empty());
 
   // loading template modified img
-  cv::Mat referenceImage =
+  cv::Mat reference_image =
       cv::imread(ppc::util::GetAbsolutePath("seq/varfolomeev_g_histogram_linear_stretching/data/cobble_mod.jpg"),
                  cv::IMREAD_GRAYSCALE);
-  ASSERT_FALSE(referenceImage.empty());
+  ASSERT_FALSE(reference_image.empty());
 
   // images validation
-  ASSERT_EQ(inputImage.size(), referenceImage.size());
-  ASSERT_EQ(inputImage.type(), referenceImage.type());
+  ASSERT_EQ(input_image.size(), reference_image.size());
+  ASSERT_EQ(input_image.type(), reference_image.type());
 
-  std::vector<uint8_t> inputVector(inputImage.total());
-  std::vector<uint8_t> outputVector(inputImage.total());
-  std::vector<uint8_t> expectedOutputVector(referenceImage.total());
+  std::vector<uint8_t> inputVector(input_image.total());
+  std::vector<uint8_t> outputVector(input_image.total());
+  std::vector<uint8_t> expectedOutputVector(reference_image.total());
 
-  for (size_t i = 0; i < inputImage.total(); ++i) {
-    inputVector[i] = static_cast<uint8_t>(inputImage.data[i]);
-    expectedOutputVector[i] = static_cast<uint8_t>(referenceImage.data[i]);
+  for (size_t i = 0; i < input_image.total(); ++i) {
+    inputVector[i] = static_cast<uint8_t>(input_image.data[i]);
+    expectedOutputVector[i] = static_cast<uint8_t>(reference_image.data[i]);
   }
 
   auto task_data_seq = std::make_shared<ppc::core::TaskData>();
@@ -67,9 +67,10 @@ TEST(varfolomeev_g_histogram_linear_stretching_seq, test_manual_opencv_64x64) {
   test_task_sequential.PostProcessingImpl();
 
   // check quality
-  cv::Mat resultImage(inputImage.rows, inputImage.cols, CV_8UC1, outputVector.data());
-  double mse = cv::norm(resultImage, referenceImage, cv::NORM_L2) / (resultImage.rows * resultImage.cols);
+  cv::Mat resultImage(input_image.rows, input_image.cols, CV_8UC1, outputVector.data());
+  double mse = cv::norm(resultImage, reference_image, cv::NORM_L2) / (resultImage.rows * resultImage.cols);
   double psnr = 10.0 * log10((255.0 * 255.0) / mse);
+  EXPECT_GT(psnr, 100);
   EXPECT_GT(psnr, 30.0);
 }
 
