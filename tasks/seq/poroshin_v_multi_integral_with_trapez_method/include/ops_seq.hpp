@@ -19,16 +19,6 @@ class TestTaskSequential : public ppc::core::Task {
   bool ValidationImpl() override;
   bool RunImpl() override;
   bool PostProcessingImpl() override;
-  static double Area(std::vector<double> &arguments);
-  static double F1(std::vector<double> &arguments);
-  static double F1cos(std::vector<double> &arguments);
-  static double F1Euler(std::vector<double> &arguments);
-  static double F2(std::vector<double> &arguments);
-  static double F2advanced(std::vector<double> &arguments);
-  static double F3(std::vector<double> &arguments);
-  static double F3advanced(std::vector<double> &arguments);
-  static double F4(std::vector<double> &arguments);
-  static double F4advanced(std::vector<double> &arguments);
 
  private:
   void CountMultiIntegralTrapezMethodSeq();
