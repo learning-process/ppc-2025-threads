@@ -172,3 +172,27 @@ TEST(gnitienko_k_strassen_alg_seq, test_empty) {
   test_task_sequential.PostProcessing();
   EXPECT_EQ(expected, out);
 }
+
+TEST(gnitienko_k_strassen_alg_seq, test_single_element) {
+  // Create data
+  std::vector<double> a = {2};
+  std::vector<double> b = {5};
+  std::vector<double> expected = {10};
+  std::vector<double> out = {0};
+
+  // Create task_data
+  auto task_data_seq = std::make_shared<ppc::core::TaskData>();
+  task_data_seq->inputs.emplace_back(reinterpret_cast<uint8_t *>(a.data()));
+  task_data_seq->inputs.emplace_back(reinterpret_cast<uint8_t *>(b.data()));
+  task_data_seq->inputs_count.emplace_back(a.size());
+  task_data_seq->outputs.emplace_back(reinterpret_cast<uint8_t *>(out.data()));
+  task_data_seq->outputs_count.emplace_back(out.size());
+
+  // Create Task
+  gnitienko_k_strassen_algorithm::StrassenAlgSeq test_task_sequential(task_data_seq);
+  ASSERT_EQ(test_task_sequential.Validation(), true);
+  test_task_sequential.PreProcessing();
+  test_task_sequential.Run();
+  test_task_sequential.PostProcessing();
+  EXPECT_EQ(expected, out);
+}
