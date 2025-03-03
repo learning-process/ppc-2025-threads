@@ -5,7 +5,9 @@
 #include <cstddef>
 #include <cstdint>
 #include <memory>
+#ifndef _WIN32
 #include <opencv2/opencv.hpp>
+#endif
 #include <random>
 #include <vector>
 
