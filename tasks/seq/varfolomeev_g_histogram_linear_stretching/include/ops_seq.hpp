@@ -1,9 +1,12 @@
 #pragma once
 
+#include <cstddef>
+#include <cstdint>
 #include <utility>
 #include <vector>
 
 #include "core/task/include/task.hpp"
+
 
 namespace varfolomeev_g_histogram_linear_stretching_seq {
 

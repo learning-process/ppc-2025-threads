@@ -3,6 +3,7 @@
 #include <algorithm>
 #include <cmath>
 #include <cstddef>
+#include <cstdint>
 #include <vector>
 
 bool varfolomeev_g_histogram_linear_stretching_seq::TestTaskSequential::PreProcessingImpl() {
@@ -16,10 +17,7 @@ bool varfolomeev_g_histogram_linear_stretching_seq::TestTaskSequential::PreProce
 
 bool varfolomeev_g_histogram_linear_stretching_seq::TestTaskSequential::ValidationImpl() {
   // Check equality of counts elements
-  if (task_data->inputs_count[0] == 0 || task_data->inputs_count[0] != task_data->outputs_count[0]) {
-    return false;
-  }
-  return true;
+  return task_data->inputs_count[0] != 0 && task_data->inputs_count[0] == task_data->outputs_count[0];
 }
 
 bool varfolomeev_g_histogram_linear_stretching_seq::TestTaskSequential::RunImpl() {

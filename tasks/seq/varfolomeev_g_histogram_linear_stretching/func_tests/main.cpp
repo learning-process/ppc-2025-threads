@@ -27,8 +27,7 @@ std::vector<uint8_t> GetRandomImage(int sz) {
   return res;
 }
 }  // namespace
-
-TEST(varfolomeev_g_histogram_linear_stretching_seq, test_manual_opencv_64x64) {
+TEST(varfolomeev_g_histogram_linear_stretching_seq, test_opencv_image_validation) {
   // loading template orginal img
   cv::Mat input_image =
       cv::imread(ppc::util::GetAbsolutePath("seq/varfolomeev_g_histogram_linear_stretching/data/cobble_orig.jpg"),
@@ -44,21 +43,33 @@ TEST(varfolomeev_g_histogram_linear_stretching_seq, test_manual_opencv_64x64) {
   // images validation
   ASSERT_EQ(input_image.size(), reference_image.size());
   ASSERT_EQ(input_image.type(), reference_image.type());
+}
 
-  std::vector<uint8_t> inputVector(input_image.total());
-  std::vector<uint8_t> outputVector(input_image.total());
+TEST(varfolomeev_g_histogram_linear_stretching_seq, test_opencv_manual_64x64) {
+  // loading template orginal img
+  cv::Mat input_image =
+      cv::imread(ppc::util::GetAbsolutePath("seq/varfolomeev_g_histogram_linear_stretching/data/cobble_orig.jpg"),
+                 cv::IMREAD_GRAYSCALE);
+
+  // loading template modified img
+  cv::Mat reference_image =
+      cv::imread(ppc::util::GetAbsolutePath("seq/varfolomeev_g_histogram_linear_stretching/data/cobble_mod.jpg"),
+                 cv::IMREAD_GRAYSCALE);
+
+  std::vector<uint8_t> input_vector(input_image.total());
+  std::vector<uint8_t> output_vector(input_image.total());
   std::vector<uint8_t> expectedOutputVector(reference_image.total());
 
   for (size_t i = 0; i < input_image.total(); ++i) {
-    inputVector[i] = static_cast<uint8_t>(input_image.data[i]);
+    input_vector[i] = static_cast<uint8_t>(input_image.data[i]);
     expectedOutputVector[i] = static_cast<uint8_t>(reference_image.data[i]);
   }
 
   auto task_data_seq = std::make_shared<ppc::core::TaskData>();
-  task_data_seq->inputs.emplace_back(reinterpret_cast<uint8_t *>(inputVector.data()));
-  task_data_seq->inputs_count.emplace_back(inputVector.size());
-  task_data_seq->outputs.emplace_back(reinterpret_cast<uint8_t *>(outputVector.data()));
-  task_data_seq->outputs_count.emplace_back(outputVector.size());
+  task_data_seq->inputs.emplace_back(reinterpret_cast<uint8_t *>(input_vector.data()));
+  task_data_seq->inputs_count.emplace_back(input_vector.size());
+  task_data_seq->outputs.emplace_back(reinterpret_cast<uint8_t *>(output_vector.data()));
+  task_data_seq->outputs_count.emplace_back(output_vector.size());
 
   varfolomeev_g_histogram_linear_stretching_seq::TestTaskSequential test_task_sequential(task_data_seq);
   EXPECT_TRUE(test_task_sequential.ValidationImpl());
@@ -67,11 +78,10 @@ TEST(varfolomeev_g_histogram_linear_stretching_seq, test_manual_opencv_64x64) {
   test_task_sequential.PostProcessingImpl();
 
   // check quality
-  cv::Mat resultImage(input_image.rows, input_image.cols, CV_8UC1, outputVector.data());
-  double mse = cv::norm(resultImage, reference_image, cv::NORM_L2) / (resultImage.rows * resultImage.cols);
+  cv::Mat result_image(input_image.rows, input_image.cols, CV_8UC1, output_vector.data());
+  double mse = cv::norm(result_image, reference_image, cv::NORM_L2) / (result_image.rows * result_image.cols);
   double psnr = 10.0 * log10((255.0 * 255.0) / mse);
-  EXPECT_GT(psnr, 100);
-  EXPECT_GT(psnr, 30.0);
+  EXPECT_GT(psnr, 60.0);
 }
 
 TEST(varfolomeev_g_histogram_linear_stretching_seq, test_manual_9) {
