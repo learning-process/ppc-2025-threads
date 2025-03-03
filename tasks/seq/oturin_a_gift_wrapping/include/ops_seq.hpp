@@ -34,7 +34,7 @@ class TestTaskSequential : public ppc::core::Task {
   int n_;
 
   int FindMostLeft();
-  void PointSearch(const double t, double &line_angle, int &search_index, const int i);
+  void PointSearch(double t, double &line_angle, int &search_index, int i);
 };
 
 }  // namespace oturin_a_gift_wrapping_seq

@@ -104,9 +104,11 @@ int oturin_a_gift_wrapping_seq::TestTaskSequential::FindMostLeft() {
   return start_index;
 }
 
-void oturin_a_gift_wrapping_seq::TestTaskSequential::PointSearch(const double t, double &line_angle, int &search_index, const int i) {
-  if (t < line_angle)
+void oturin_a_gift_wrapping_seq::TestTaskSequential::PointSearch(const double t, double &line_angle, int &search_index,
+                                                                 const int i) {
+  if (t < line_angle) {
     return;
+  }
   if (output_.back() != input_[i] && output_[output_.size() - 2] != input_[i]) {
     if (t == line_angle && Distance(output_.back(), input_[i]) >= Distance(output_.back(), input_[search_index])) {
       return;

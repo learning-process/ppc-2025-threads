@@ -11,9 +11,9 @@
 #include "seq/oturin_a_gift_wrapping/include/ops_seq.hpp"
 
 namespace oturin_a_gift_wrapping_seq {
-  Coord RandCoord(int r);
+static Coord RandCoord(int r);
 
-Coord RandCoord(int r) {
+static Coord RandCoord(int r) {
   std::random_device dev;
   std::mt19937 rng(dev());
   std::uniform_int_distribution<int> dist(-r, r);
