@@ -10,7 +10,7 @@
 #include "seq/filateva_e_simpson/include/ops_seq.hpp"
 
 TEST(filateva_e_simpson_seq, test_pipeline_run) {
-  std::vector<double> param = {1, 150, 0.00001};
+  std::vector<double> param = {1, 10000, 0.001};
   std::vector<double> res(1, 0);
   filateva_e_simpson_seq::Func f = [](double x) { return x * x; };
 
@@ -43,7 +43,7 @@ TEST(filateva_e_simpson_seq, test_pipeline_run) {
 }
 
 TEST(filateva_e_simpson_seq, test_task_run) {
-  std::vector<double> param = {1, 150, 0.00001};
+  std::vector<double> param = {1, 10000, 0.001};
   std::vector<double> res(1, 0);
   filateva_e_simpson_seq::Func f = [](double x) { return x * x; };
 

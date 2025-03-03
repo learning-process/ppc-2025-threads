@@ -10,6 +10,7 @@ bool filateva_e_simpson_seq::Simpson::PreProcessingImpl() {
   b_ = temp[1];
   alfa_ = temp[2];
   f_ = reinterpret_cast<Func>(task_data->inputs[1]);
+  
   return true;
 }
 
