@@ -12,25 +12,21 @@
 TEST(morozov_e_lineare_image_filtering_block_gaussian_seq, test_pipeline_run) {
   int n = 4000;
   int m = 4000;
-  std::vector<std::vector<double>> image(n, std::vector<double>(m, 1));
-  std::vector image_res(n, std::vector<double>(m, 1));
+  std::vector<double> image(n * m, 1.0);
+  std::vector<double> image_res(n * m);
   for (int i = 0; i < n; ++i) {
     for (int j = 0; j < m; j++) {
-      image_res[i][j] = 1;
+      image_res[i * m + j] = 1.0;
     }
   }
-  std::vector real_res(n, std::vector<double>(m, 1));
+  std::vector real_res(n * m, 1.0);
 
   // Create task_data
   auto task_data_seq = std::make_shared<ppc::core::TaskData>();
-  for (int i = 0; i < n; ++i) {
-    task_data_seq->inputs.emplace_back(reinterpret_cast<uint8_t *>(image[i].data()));
-  }
+  task_data_seq->inputs.emplace_back(reinterpret_cast<uint8_t *>(image.data()));
   task_data_seq->inputs_count.emplace_back(n);
   task_data_seq->inputs_count.emplace_back(m);
-  for (int i = 0; i < n; ++i) {
-    task_data_seq->outputs.emplace_back(reinterpret_cast<uint8_t *>(image_res[i].data()));
-  }
+  task_data_seq->outputs.emplace_back(reinterpret_cast<uint8_t *>(image_res.data()));
   task_data_seq->outputs_count.emplace_back(n);
   task_data_seq->outputs_count.emplace_back(m);
 
@@ -61,25 +57,21 @@ TEST(morozov_e_lineare_image_filtering_block_gaussian_seq, test_pipeline_run) {
 TEST(morozov_e_lineare_image_filtering_block_gaussian_seq, test_task_run) {
   int n = 4000;
   int m = 4000;
-  std::vector<std::vector<double>> image(n, std::vector<double>(m, 1));
-  std::vector image_res(n, std::vector<double>(m, 1));
+  std::vector<double> image(n * m, 1.0);
+  std::vector<double> image_res(n * m);
   for (int i = 0; i < n; ++i) {
     for (int j = 0; j < m; j++) {
-      image_res[i][j] = 1;
+      image_res[i * m + j] = 1.0;
     }
   }
-  std::vector real_res(n, std::vector<double>(m, 1));
+  std::vector real_res(n * m, 1.0);
 
   // Create task_data
   auto task_data_seq = std::make_shared<ppc::core::TaskData>();
-  for (int i = 0; i < n; ++i) {
-    task_data_seq->inputs.emplace_back(reinterpret_cast<uint8_t *>(image[i].data()));
-  }
+  task_data_seq->inputs.emplace_back(reinterpret_cast<uint8_t *>(image.data()));
   task_data_seq->inputs_count.emplace_back(n);
   task_data_seq->inputs_count.emplace_back(m);
-  for (int i = 0; i < n; ++i) {
-    task_data_seq->outputs.emplace_back(reinterpret_cast<uint8_t *>(image_res[i].data()));
-  }
+  task_data_seq->outputs.emplace_back(reinterpret_cast<uint8_t *>(image_res.data()));
   task_data_seq->outputs_count.emplace_back(n);
   task_data_seq->outputs_count.emplace_back(m);
 

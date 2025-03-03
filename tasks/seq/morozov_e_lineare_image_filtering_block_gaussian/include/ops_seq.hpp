@@ -16,7 +16,7 @@ class TestTaskSequential : public ppc::core::Task {
   bool PostProcessingImpl() override;
 
  private:
-  std::vector<std::vector<double>> input_, res_;
+  std::vector<double> input_, res_;
   int n_, m_;
 };
 
