@@ -7,13 +7,13 @@
 
 double kholin_k_multidimensional_integrals_rectangle_seq::TestTaskSequential::Integrate(
     const Function& f, const std::vector<double>& l_limits, const std::vector<double>& u_limits,
-    const std::vector<double>& h, std::vector<double>& f_values, int curr_index_dim, size_t dim, double n) {
+    const std::vector<double>& h, std::vector<double> f_values, int curr_index_dim, size_t dim, double n) {
   if (curr_index_dim == static_cast<int>(dim)) {
     return f(f_values);
   }
 
   double sum = 0.0;
-  for (size_t i = 0.0; i < static_cast<size_t>(n); ++i) {
+  for (int i = 0.0; i < static_cast<int>(n); ++i) {
     f_values[curr_index_dim] = l_limits[curr_index_dim] + (static_cast<double>(i) + 0.5) * h[curr_index_dim];
     sum += Integrate(f, l_limits, u_limits, h, f_values, curr_index_dim + 1, dim, n);
   }
@@ -32,20 +32,10 @@ double kholin_k_multidimensional_integrals_rectangle_seq::TestTaskSequential::In
 }
 
 double kholin_k_multidimensional_integrals_rectangle_seq::TestTaskSequential::RunMultistepSchemeMethodRectangle(
-    double epsilon, const Function& f, std::vector<double>& f_values, const std::vector<double>& l_limits,
+    const Function& f, std::vector<double> f_values, const std::vector<double>& l_limits,
     const std::vector<double>& u_limits, size_t dim, double n) {
-  double i_n = IntegrateWithRectangleMethod(f, f_values, l_limits, u_limits, dim, n);
-  double i_2n = 0.0;
-  double delta = 0.0;
-  do {
-    n *= 2;
-    i_2n = IntegrateWithRectangleMethod(f, f_values, l_limits, u_limits, dim, n);
-    delta = std::fabs(i_2n - i_n);
-    i_n = i_2n;
-
-  } while ((1.0 / 3) * delta >= epsilon);
-
-  return i_2n;
+  double i = IntegrateWithRectangleMethod(f, f_values, l_limits, u_limits, dim, n);
+  return i;
 }
 
 bool kholin_k_multidimensional_integrals_rectangle_seq::TestTaskSequential::PreProcessingImpl() {
@@ -69,10 +59,7 @@ bool kholin_k_multidimensional_integrals_rectangle_seq::TestTaskSequential::PreP
   auto* ptr_upper_limits = reinterpret_cast<double*>(task_data->inputs[4]);
   upper_limits_.assign(ptr_upper_limits, ptr_upper_limits + sz_upper_limits_);
 
-  auto* ptr_epsilon = reinterpret_cast<double*>(task_data->inputs[5]);
-  epsilon_ = *ptr_epsilon;
-
-  auto* ptr_start_n = reinterpret_cast<double*>(task_data->inputs[6]);
+  auto* ptr_start_n = reinterpret_cast<double*>(task_data->inputs[5]);
   start_n_ = *ptr_start_n;
 
   result_ = 0.0;
@@ -85,7 +72,7 @@ bool kholin_k_multidimensional_integrals_rectangle_seq::TestTaskSequential::Vali
 }
 
 bool kholin_k_multidimensional_integrals_rectangle_seq::TestTaskSequential::RunImpl() {
-  result_ = RunMultistepSchemeMethodRectangle(epsilon_, f_, f_values_, lower_limits_, upper_limits_, dim_, start_n_);
+  result_ = RunMultistepSchemeMethodRectangle(f_, f_values_, lower_limits_, upper_limits_, dim_, start_n_);
   return true;
 }
 

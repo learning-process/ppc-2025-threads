@@ -23,7 +23,6 @@ class TestTaskSequential : public ppc::core::Task {
   Function f_;
   std::vector<double> lower_limits_;
   std::vector<double> upper_limits_;
-  double epsilon_;
   double start_n_;
   double result_;
 
@@ -33,12 +32,12 @@ class TestTaskSequential : public ppc::core::Task {
   size_t sz_upper_limits_;
 
   double Integrate(const Function& f, const std::vector<double>& l_limits, const std::vector<double>& u_limits,
-                   const std::vector<double>& h, std::vector<double>& f_values, int curr_index_dim, size_t dim,
+                   const std::vector<double>& h, std::vector<double> f_values, int curr_index_dim, size_t dim,
                    double n);
   double IntegrateWithRectangleMethod(const Function& f, std::vector<double>& f_values,
                                       const std::vector<double>& l_limits, const std::vector<double>& u_limits,
                                       size_t dim, double n);
-  double RunMultistepSchemeMethodRectangle(double epsilon, const Function& f, std::vector<double>& f_values,
+  double RunMultistepSchemeMethodRectangle(const Function& f, std::vector<double> f_values,
                                            const std::vector<double>& l_limits, const std::vector<double>& u_limits,
                                            size_t dim, double n);
 };
