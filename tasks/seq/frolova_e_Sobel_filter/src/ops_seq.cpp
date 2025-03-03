@@ -46,7 +46,7 @@ bool frolova_e_Sobel_filter_seq::SobelFilterSequential::PreProcessingImpl() {
 
   int* value_2 = reinterpret_cast<int*>(task_data->inputs[1]);
   std::vector<int> pictureVector;
-  pictureVector.assign(value_2, value_2 + task_data->inputs_count[1]);  
+  pictureVector.assign(value_2, value_2 + task_data->inputs_count[1]);
   for (size_t i = 0; i < pictureVector.size(); i += 3) {
     RGB pixel;
     pixel.R = pictureVector[i];
