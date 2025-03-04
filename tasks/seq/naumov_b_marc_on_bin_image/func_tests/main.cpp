@@ -9,9 +9,9 @@
 
 #include "core/task/include/task.hpp"
 #include "core/util/include/util.hpp"
-#include "seq/example/include/ops_seq.hpp"
+#include "seq/naumov_b_marc_on_bin_image/include/ops_seq.hpp"
 
-TEST(nesterov_a_test_task_seq, test_matmul_50) {
+TEST(naumov_b_marc_on_bin_image_seq, test_matmul_50) {
   constexpr size_t kCount = 50;
 
   // Create data
@@ -30,7 +30,7 @@ TEST(nesterov_a_test_task_seq, test_matmul_50) {
   task_data_seq->outputs_count.emplace_back(out.size());
 
   // Create Task
-  nesterov_a_test_task_seq::TestTaskSequential test_task_sequential(task_data_seq);
+  naumov_b_marc_on_bin_image_seq::TestTaskSequential test_task_sequential(task_data_seq);
   ASSERT_EQ(test_task_sequential.Validation(), true);
   test_task_sequential.PreProcessing();
   test_task_sequential.Run();
@@ -38,7 +38,7 @@ TEST(nesterov_a_test_task_seq, test_matmul_50) {
   EXPECT_EQ(in, out);
 }
 
-TEST(nesterov_a_test_task_seq, test_matmul_100_from_file) {
+TEST(naumov_b_marc_on_bin_image_seq, test_matmul_100_from_file) {
   std::string line;
   std::ifstream test_file(ppc::util::GetAbsolutePath("seq/example/data/test.txt"));
   if (test_file.is_open()) {
@@ -64,7 +64,7 @@ TEST(nesterov_a_test_task_seq, test_matmul_100_from_file) {
   task_data_seq->outputs_count.emplace_back(out.size());
 
   // Create Task
-  nesterov_a_test_task_seq::TestTaskSequential test_task_sequential(task_data_seq);
+  naumov_b_marc_on_bin_image_seq::TestTaskSequential test_task_sequential(task_data_seq);
   ASSERT_EQ(test_task_sequential.Validation(), true);
   test_task_sequential.PreProcessing();
   test_task_sequential.Run();

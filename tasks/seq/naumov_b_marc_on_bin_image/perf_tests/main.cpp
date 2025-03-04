@@ -8,9 +8,9 @@
 
 #include "core/perf/include/perf.hpp"
 #include "core/task/include/task.hpp"
-#include "seq/example/include/ops_seq.hpp"
+#include "seq/naumov_b_marc_on_bin_image/include/ops_seq.hpp"
 
-TEST(nesterov_a_test_task_seq, test_pipeline_run) {
+TEST(naumov_b_marc_on_bin_image_seq, test_pipeline_run) {
   constexpr int kCount = 500;
 
   // Create data
@@ -29,7 +29,7 @@ TEST(nesterov_a_test_task_seq, test_pipeline_run) {
   task_data_seq->outputs_count.emplace_back(out.size());
 
   // Create Task
-  auto test_task_sequential = std::make_shared<nesterov_a_test_task_seq::TestTaskSequential>(task_data_seq);
+  auto test_task_sequential = std::make_shared<naumov_b_marc_on_bin_image_seq::TestTaskSequential>(task_data_seq);
 
   // Create Perf attributes
   auto perf_attr = std::make_shared<ppc::core::PerfAttr>();
@@ -51,7 +51,7 @@ TEST(nesterov_a_test_task_seq, test_pipeline_run) {
   ASSERT_EQ(in, out);
 }
 
-TEST(nesterov_a_test_task_seq, test_task_run) {
+TEST(naumov_b_marc_on_bin_image_seq, test_task_run) {
   constexpr int kCount = 500;
 
   // Create data
@@ -70,7 +70,7 @@ TEST(nesterov_a_test_task_seq, test_task_run) {
   task_data_seq->outputs_count.emplace_back(out.size());
 
   // Create Task
-  auto test_task_sequential = std::make_shared<nesterov_a_test_task_seq::TestTaskSequential>(task_data_seq);
+  auto test_task_sequential = std::make_shared<naumov_b_marc_on_bin_image_seq::TestTaskSequential>(task_data_seq);
 
   // Create Perf attributes
   auto perf_attr = std::make_shared<ppc::core::PerfAttr>();

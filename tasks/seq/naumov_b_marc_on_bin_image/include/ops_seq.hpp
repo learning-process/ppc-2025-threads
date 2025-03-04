@@ -5,7 +5,7 @@
 
 #include "core/task/include/task.hpp"
 
-namespace nesterov_a_test_task_seq {
+namespace naumov_b_marc_on_bin_image_seq {
 
 class TestTaskSequential : public ppc::core::Task {
  public:

@@ -1,10 +1,10 @@
-#include "seq/example/include/ops_seq.hpp"
+#include "seq/naumov_b_marc_on_bin_image/include/ops_seq.hpp"
 
 #include <cmath>
 #include <cstddef>
 #include <vector>
 
-bool nesterov_a_test_task_seq::TestTaskSequential::PreProcessingImpl() {
+bool naumov_b_marc_on_bin_image_seq::TestTaskSequential::PreProcessingImpl() {
   // Init value for input and output
   unsigned int input_size = task_data->inputs_count[0];
   auto *in_ptr = reinterpret_cast<int *>(task_data->inputs[0]);
@@ -17,12 +17,12 @@ bool nesterov_a_test_task_seq::TestTaskSequential::PreProcessingImpl() {
   return true;
 }
 
-bool nesterov_a_test_task_seq::TestTaskSequential::ValidationImpl() {
+bool naumov_b_marc_on_bin_image_seq::TestTaskSequential::ValidationImpl() {
   // Check equality of counts elements
   return task_data->inputs_count[0] == task_data->outputs_count[0];
 }
 
-bool nesterov_a_test_task_seq::TestTaskSequential::RunImpl() {
+bool naumov_b_marc_on_bin_image_seq::TestTaskSequential::RunImpl() {
   // Multiply matrices
   for (int i = 0; i < rc_size_; ++i) {
     for (int j = 0; j < rc_size_; ++j) {
@@ -34,7 +34,7 @@ bool nesterov_a_test_task_seq::TestTaskSequential::RunImpl() {
   return true;
 }
 
-bool nesterov_a_test_task_seq::TestTaskSequential::PostProcessingImpl() {
+bool naumov_b_marc_on_bin_image_seq::TestTaskSequential::PostProcessingImpl() {
   for (size_t i = 0; i < output_.size(); i++) {
     reinterpret_cast<int *>(task_data->outputs[0])[i] = output_[i];
   }
