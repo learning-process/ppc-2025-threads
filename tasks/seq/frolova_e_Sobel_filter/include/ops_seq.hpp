@@ -14,7 +14,7 @@ struct RGB {
   int B{};
 };
 
-std::vector<int> ToGrayScaleImg(std::vector<RGB> &colorImg, size_t width, size_t height);
+std::vector<int> ToGrayScaleImg(std::vector<RGB> &color_img, size_t width, size_t height);
 int Clamp(int value, int min_val, int max_val);
 std::vector<int> GenRgbPicture(size_t width, size_t height, size_t seed = 0);
 

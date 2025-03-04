@@ -23,13 +23,13 @@ std::vector<int> frolova_e_sobel_filter_seq::GenRgbPicture(size_t width, size_t 
 }
 
 std::vector<int> frolova_e_sobel_filter_seq::ToGrayScaleImg(std::vector<RGB>& color_img, size_t width, size_t height) {
-  std::vector<int> grayScaleImage(width * height);
+  std::vector<int> gray_scale_image(width * height);
   for (size_t i = 0; i < width * height; i++) {
-    grayScaleImage[i] =
+    gray_scale_image[i] =
         static_cast<int>((0.299 * color_img[i].R) + (0.587 * color_img[i].G) + (0.114 * color_img[i].B));
   }
 
-  return grayScaleImage;
+  return gray_scale_image;
 }
 
 int frolova_e_sobel_filter_seq::Clamp(int value, int min_val, int max_val) {
@@ -81,14 +81,14 @@ bool frolova_e_sobel_filter_seq::SobelFilterSequential::ValidationImpl() {
   auto height_1 = static_cast<size_t>(value_1[1]);
 
   int* value_2 = reinterpret_cast<int*>(task_data->inputs[1]);
-  std::vector<int> pictureVector;
-  pictureVector.assign(value_2, value_2 + task_data->inputs_count[1]);
+  std::vector<int> picture_vector;
+  picture_vector.assign(value_2, value_2 + task_data->inputs_count[1]);
   if (task_data->inputs_count[1] != width_1 * height_1 * 3) {
     return false;
   }
 
-  for (size_t i = 0; i < pictureVector.size(); i++) {
-    if (pictureVector[i] < 0 || pictureVector[i] > 255) {
+  for (size_t i = 0; i < picture_vector.size(); i++) {
+    if (picture_vector[i] < 0 || picture_vector[i] > 255) {
       return false;
     }
   }
@@ -112,10 +112,10 @@ bool frolova_e_sobel_filter_seq::SobelFilterSequential::RunImpl() {
           int pixel_value = 0;
 
           if (px >= 0 && px < static_cast<int>(width_) && py >= 0 && py < static_cast<int>(height_)) {
-            pixel_value = grayscale_image_[py * width_ + px];
+            pixel_value = grayscale_image_[(py * width_) + px];
           }
 
-          size_t kernel_ind = (ky + 1) * 3 + (kx + 1);
+          size_t kernel_ind = ((ky + 1) * 3) + (kx + 1);
           res_x += pixel_value * gx[kernel_ind];
           res_y += pixel_value * gy[kernel_ind];
         }
