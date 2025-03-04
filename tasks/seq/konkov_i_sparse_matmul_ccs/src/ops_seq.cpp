@@ -18,9 +18,7 @@ bool SparseMatmulTask::ValidationImpl() {
   return true;
 }
 
-bool SparseMatmulTask::PreProcessingImpl() {
-  return true;
-}
+bool SparseMatmulTask::PreProcessingImpl() { return true; }
 
 bool SparseMatmulTask::RunImpl() {
   C_values.resize(rowsA * colsB, 0.0);
