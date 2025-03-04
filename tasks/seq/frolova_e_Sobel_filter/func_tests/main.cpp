@@ -5,7 +5,6 @@
 #include <vector>
 
 #include "core/task/include/task.hpp"
-#include "core/util/include/util.hpp"
 #include "seq/frolova_e_Sobel_filter/include/ops_seq.hpp"
 
 TEST(frolova_e_sobel_filter_seq, test_1) {
