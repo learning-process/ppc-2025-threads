@@ -5,7 +5,7 @@
 #include "seq/kapustin_i_jarv_alg/include/ops_seq.hpp"
 
 TEST(kapustin_i_jarv_alg_seq, test_pipeline_run) {
-  constexpr int Count = 1000000;
+  constexpr int Count = 10000000;
 
   std::vector<std::pair<int, int>> expected_result = {{0, 0}, {1000, 0}, {1000, 1000}, {0, 1000}};
 
@@ -49,7 +49,7 @@ TEST(kapustin_i_jarv_alg_seq, test_pipeline_run) {
 }
 
 TEST(kapustin_i_jarv_alg_seq, test_task_run) {
-  constexpr int Count = 1000000;
+  constexpr int Count = 10000000;
 
   std::vector<std::pair<int, int>> input_points(Count, {500, 500});
 
