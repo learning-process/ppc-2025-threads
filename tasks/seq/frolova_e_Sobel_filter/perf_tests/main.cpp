@@ -3,15 +3,33 @@
 #include <chrono>
 #include <cstdint>
 #include <memory>
+#include <random>
 #include <vector>
 
 #include "core/perf/include/perf.hpp"
 #include "core/task/include/task.hpp"
 #include "seq/frolova_e_Sobel_filter/include/ops_seq.hpp"
 
+std::vector<int> GenRgbPicture(size_t width, size_t height, size_t seed) {
+  std::vector<int> image(width * height * 3);
+  std::mt19937 gen(seed);
+  std::uniform_int_distribution<int> rgb(0, 255);
+
+  for (size_t y = 0; y < height; y++) {
+    for (size_t x = 0; x < width; x++) {
+      size_t index = (y * width + x) * 3;
+      image[index] = rgb(gen);
+      image[index + 1] = rgb(gen);
+      image[index + 2] = rgb(gen);
+    }
+  }
+
+  return image;
+}
+
 TEST(frolova_e_sobel_filter_seq, test_pipeline_run) {
   std::vector<int> value_1 = {2000, 2000};
-  std::vector<int> pict = frolova_e_sobel_filter_seq::GenRgbPicture(2000, 2000, 0);
+  std::vector<int> pict = GenRgbPicture(2000, 2000, 0);
 
   std::vector<int> res(4000000, 0);
 
@@ -54,7 +72,7 @@ TEST(frolova_e_sobel_filter_seq, test_pipeline_run) {
 
 TEST(frolova_e_sobel_filter_seq, test_task_run) {
   std::vector<int> value_1 = {2000, 2000};
-  std::vector<int> pict = frolova_e_sobel_filter_seq::GenRgbPicture(2000, 2000, 0);
+  std::vector<int> pict = GenRgbPicture(2000, 2000, 0);
 
   std::vector<int> res(4000000, 0);
 

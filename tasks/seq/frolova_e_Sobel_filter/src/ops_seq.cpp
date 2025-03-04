@@ -5,23 +5,6 @@
 #include <random>
 #include <vector>
 
-std::vector<int> frolova_e_sobel_filter_seq::GenRgbPicture(size_t width, size_t height, size_t seed) {
-  std::vector<int> image(width * height * 3);
-  std::mt19937 gen(seed);
-  std::uniform_int_distribution<int> rgb(0, 255);
-
-  for (size_t y = 0; y < height; y++) {
-    for (size_t x = 0; x < width; x++) {
-      size_t index = (y * width + x) * 3;
-      image[index] = rgb(gen);
-      image[index + 1] = rgb(gen);
-      image[index + 2] = rgb(gen);
-    }
-  }
-
-  return image;
-}
-
 std::vector<int> frolova_e_sobel_filter_seq::ToGrayScaleImg(std::vector<RGB>& color_img, size_t width, size_t height) {
   std::vector<int> gray_scale_image(width * height);
   for (size_t i = 0; i < width * height; i++) {
