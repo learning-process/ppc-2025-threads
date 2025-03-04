@@ -11,7 +11,8 @@
 #include "core/task/include/task.hpp"
 #include "seq/frolova_e_Sobel_filter/include/ops_seq.hpp"
 
-static std::vector<int> GenRgbPicture(size_t width, size_t height, size_t seed) {
+namespace {
+std::vector<int> GenRgbPicture(size_t width, size_t height, size_t seed) {
   std::vector<int> image(width * height * 3);
   std::mt19937 gen(seed);
   std::uniform_int_distribution<int> rgb(0, 255);
@@ -27,6 +28,7 @@ static std::vector<int> GenRgbPicture(size_t width, size_t height, size_t seed) 
 
   return image;
 }
+}  // namespace
 
 TEST(frolova_e_sobel_filter_seq, test_pipeline_run) {
   std::vector<int> value_1 = {2000, 2000};
