@@ -35,4 +35,4 @@ class SobelFilterSequential : public ppc::core::Task {
   std::vector<int> res_image_;
 };
 
-}  // namespace frolova_e_Sobel_filter_seq
+}  // namespace frolova_e_sobel_filter_seq

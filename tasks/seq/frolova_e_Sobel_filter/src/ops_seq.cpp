@@ -25,7 +25,8 @@ std::vector<int> frolova_e_sobel_filter_seq::GenRgbPicture(size_t width, size_t 
 std::vector<int> frolova_e_sobel_filter_seq::ToGrayScaleImg(std::vector<RGB>& color_img, size_t width, size_t height) {
   std::vector<int> grayScaleImage(width * height);
   for (size_t i = 0; i < width * height; i++) {
-    grayScaleImage[i] = static_cast<int>((0.299 * color_img[i].R) + (0.587 * color_img[i].G) + (0.114 * color_img[i].B));
+    grayScaleImage[i] =
+        static_cast<int>((0.299 * color_img[i].R) + (0.587 * color_img[i].G) + (0.114 * color_img[i].B));
   }
 
   return grayScaleImage;
