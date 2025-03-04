@@ -6,7 +6,7 @@
 #include "core/task/include/task.hpp"
 #include "seq/konkov_i_sparse_matmul_ccs/include/ops_seq.hpp"
 
-TEST(konkov_i_SparseMatmulTest, SimpleTest_seq) {
+TEST(konkov_i_SparseMatmulTest_seq, SimpleTest) {
   ppc::core::TaskDataPtr task_data = std::make_shared<ppc::core::TaskData>();
   konkov_i_sparse_matmul_ccs::SparseMatmulTask task(task_data);
 
@@ -31,7 +31,7 @@ TEST(konkov_i_SparseMatmulTest, SimpleTest_seq) {
   EXPECT_TRUE(task.PostProcessingImpl());
 }
 
-TEST(konkov_i_SparseMatmulTest, EmptyMatrixTest_seq) {
+TEST(konkov_i_SparseMatmulTest_seq, EmptyMatrixTest) {
   ppc::core::TaskDataPtr task_data = std::make_shared<ppc::core::TaskData>();
   konkov_i_sparse_matmul_ccs::SparseMatmulTask task(task_data);
 
@@ -56,7 +56,7 @@ TEST(konkov_i_SparseMatmulTest, EmptyMatrixTest_seq) {
   EXPECT_TRUE(task.PostProcessingImpl());
 }
 
-TEST(konkov_i_SparseMatmulTest, ComplexTest_seq) {
+TEST(konkov_i_SparseMatmulTest_seq, ComplexTest) {
   ppc::core::TaskDataPtr task_data = std::make_shared<ppc::core::TaskData>();
   konkov_i_sparse_matmul_ccs::SparseMatmulTask task(task_data);
 

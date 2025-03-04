@@ -8,7 +8,7 @@
 #include "core/task/include/task.hpp"
 #include "seq/konkov_i_sparse_matmul_ccs/include/ops_seq.hpp"
 
-TEST(konkov_i_SparseMatmulPerfTest, test_pipeline_run) {
+TEST(konkov_i_SparseMatmulPerfTest_seq, test_pipeline_run) {
   ppc::core::TaskDataPtr task_data = std::make_shared<ppc::core::TaskData>();
   konkov_i_sparse_matmul_ccs::SparseMatmulTask task(task_data);
 
@@ -38,7 +38,7 @@ TEST(konkov_i_SparseMatmulPerfTest, test_pipeline_run) {
   std::cout << "Pipeline run duration: " << duration.count() << " seconds\n";
 }
 
-TEST(konkov_i_SparseMatmulPerfTest, test_task_run) {
+TEST(konkov_i_SparseMatmulPerfTest_seq, test_task_run) {
   ppc::core::TaskDataPtr task_data = std::make_shared<ppc::core::TaskData>();
   konkov_i_sparse_matmul_ccs::SparseMatmulTask task(task_data);
 
