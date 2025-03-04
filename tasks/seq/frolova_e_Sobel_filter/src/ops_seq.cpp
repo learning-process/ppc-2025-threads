@@ -2,11 +2,10 @@
 
 #include <cmath>
 #include <cstddef>
-#include <iostream>
 #include <random>
 #include <vector>
 
-std::vector<int> frolova_e_Sobel_filter_seq::genRGBpicture(size_t width, size_t height, size_t seed) {
+std::vector<int> frolova_e_sobel_filter_seq::GenRgbPicture(size_t width, size_t height, size_t seed) {
   std::vector<int> image(width * height * 3);
   std::mt19937 gen(seed);
   std::uniform_int_distribution<int> rgb(0, 255);
@@ -23,46 +22,50 @@ std::vector<int> frolova_e_Sobel_filter_seq::genRGBpicture(size_t width, size_t 
   return image;
 }
 
-std::vector<int> frolova_e_Sobel_filter_seq::toGrayScaleImg(std::vector<RGB>& colorImg, size_t width, size_t height) {
+std::vector<int> frolova_e_sobel_filter_seq::ToGrayScaleImg(std::vector<RGB>& color_img, size_t width, size_t height) {
   std::vector<int> grayScaleImage(width * height);
   for (size_t i = 0; i < width * height; i++) {
-    grayScaleImage[i] = static_cast<int>(0.299 * colorImg[i].R + 0.587 * colorImg[i].G + 0.114 * colorImg[i].B);
+    grayScaleImage[i] = static_cast<int>((0.299 * color_img[i].R) + (0.587 * color_img[i].G) + (0.114 * color_img[i].B));
   }
 
   return grayScaleImage;
 }
 
-int frolova_e_Sobel_filter_seq::Clamp(int value, int minVal, int maxVal) {
-  if (value < minVal) return minVal;
-  if (value > maxVal) return maxVal;
+int frolova_e_sobel_filter_seq::Clamp(int value, int min_val, int max_val) {
+  if (value < min_val) {
+    return min_val;
+  }
+  if (value > max_val) {
+    return max_val;
+  }
   return value;
 }
 
-bool frolova_e_Sobel_filter_seq::SobelFilterSequential::PreProcessingImpl() {
+bool frolova_e_sobel_filter_seq::SobelFilterSequential::PreProcessingImpl() {
   int* value_1 = reinterpret_cast<int*>(task_data->inputs[0]);
-  width = static_cast<size_t>(value_1[0]);
+  width_ = static_cast<size_t>(value_1[0]);
 
-  height = static_cast<size_t>(value_1[1]);
+  height_ = static_cast<size_t>(value_1[1]);
 
   int* value_2 = reinterpret_cast<int*>(task_data->inputs[1]);
-  std::vector<int> pictureVector;
-  pictureVector.assign(value_2, value_2 + task_data->inputs_count[1]);
-  for (size_t i = 0; i < pictureVector.size(); i += 3) {
+  std::vector<int> picture_vector;
+  picture_vector.assign(value_2, value_2 + task_data->inputs_count[1]);
+  for (size_t i = 0; i < picture_vector.size(); i += 3) {
     RGB pixel;
-    pixel.R = pictureVector[i];
-    pixel.G = pictureVector[i + 1];
-    pixel.B = pictureVector[i + 2];
+    pixel.R = picture_vector[i];
+    pixel.G = picture_vector[i + 1];
+    pixel.B = picture_vector[i + 2];
 
-    picture.push_back(pixel);
+    picture_.push_back(pixel);
   }
 
-  grayscaleImage = frolova_e_Sobel_filter_seq::toGrayScaleImg(picture, width, height);
-  resImage.resize(width * height);
+  grayscale_image_ = frolova_e_sobel_filter_seq::ToGrayScaleImg(picture_, width_, height_);
+  res_image_.resize(width_ * height_);
 
   return true;
 }
 
-bool frolova_e_Sobel_filter_seq::SobelFilterSequential::ValidationImpl() {
+bool frolova_e_sobel_filter_seq::SobelFilterSequential::ValidationImpl() {
   int* value_1 = reinterpret_cast<int*>(task_data->inputs[0]);
 
   if (task_data->inputs_count[0] != 2) {
@@ -92,40 +95,40 @@ bool frolova_e_Sobel_filter_seq::SobelFilterSequential::ValidationImpl() {
   return true;
 }
 
-bool frolova_e_Sobel_filter_seq::SobelFilterSequential::RunImpl() {
-  const std::vector<int> Gx = {-1, 0, 1, -2, 0, 2, -1, 0, 1};
-  const std::vector<int> Gy = {-1, -2, -1, 0, 0, 0, 1, 2, 1};
-  for (size_t y = 0; y < height; y++) {
-    for (size_t x = 0; x < width; x++) {
-      int resX = 0;
-      int resY = 0;
+bool frolova_e_sobel_filter_seq::SobelFilterSequential::RunImpl() {
+  const std::vector<int> gx = {-1, 0, 1, -2, 0, 2, -1, 0, 1};
+  const std::vector<int> gy = {-1, -2, -1, 0, 0, 0, 1, 2, 1};
+  for (size_t y = 0; y < height_; y++) {
+    for (size_t x = 0; x < width_; x++) {
+      int res_x = 0;
+      int res_y = 0;
 
       for (int ky = -1; ky <= 1; ky++) {
         for (int kx = -1; kx <= 1; kx++) {
-          int px = x + kx;
-          int py = y + ky;
+          int px = static_cast<int>(x) + kx;
+          int py = static_cast<int>(y) + ky;
 
-          int pixelValue = 0;
+          int pixel_value = 0;
 
-          if (px >= 0 && px < static_cast<int>(width) && py >= 0 && py < static_cast<int>(height)) {
-            pixelValue = grayscaleImage[py * width + px];
+          if (px >= 0 && px < static_cast<int>(width_) && py >= 0 && py < static_cast<int>(height_)) {
+            pixel_value = grayscale_image_[py * width_ + px];
           }
 
-          size_t kernelInd = (ky + 1) * 3 + (kx + 1);
-          resX += pixelValue * Gx[kernelInd];
-          resY += pixelValue * Gy[kernelInd];
+          size_t kernel_ind = (ky + 1) * 3 + (kx + 1);
+          res_x += pixel_value * gx[kernel_ind];
+          res_y += pixel_value * gy[kernel_ind];
         }
       }
-      int gradient = static_cast<int>(sqrt(resX * resX + resY * resY));
-      resImage[y * width + x] = Clamp(gradient, 0, 255);
+      int gradient = static_cast<int>(sqrt((res_x * res_x) + (res_y * res_y)));
+      res_image_[(y * width_) + x] = Clamp(gradient, 0, 255);
     }
   }
   return true;
 }
 
-bool frolova_e_Sobel_filter_seq::SobelFilterSequential::PostProcessingImpl() {
-  for (size_t i = 0; i < width * height; i++) {
-    reinterpret_cast<int*>(task_data->outputs[0])[i] = resImage[i];
+bool frolova_e_sobel_filter_seq::SobelFilterSequential::PostProcessingImpl() {
+  for (size_t i = 0; i < width_ * height_; i++) {
+    reinterpret_cast<int*>(task_data->outputs[0])[i] = res_image_[i];
   }
   return true;
 }

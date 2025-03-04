@@ -11,7 +11,7 @@
 #include "core/util/include/util.hpp"
 #include "seq/frolova_e_Sobel_filter/include/ops_seq.hpp"
 
-TEST(frolova_e_Sobel_filter_seq, test_1) {
+TEST(frolova_e_sobel_filter_seq, test_1) {
   std::vector<int> value_1 = {10, 10};
   std::vector<int> pict = {
       172, 47,  117, 192, 67,  251, 195, 103, 9,   211, 21,  242, 36,  87,  70,  216, 88,  140, 58,  193, 230, 39,
@@ -51,7 +51,7 @@ TEST(frolova_e_Sobel_filter_seq, test_1) {
   task_data_seq->outputs_count.emplace_back(res.size());
 
   // Create Task
-  frolova_e_Sobel_filter_seq::SobelFilterSequential test_task_sequential(task_data_seq);
+  frolova_e_sobel_filter_seq::SobelFilterSequential test_task_sequential(task_data_seq);
   ASSERT_EQ(test_task_sequential.Validation(), true);
   test_task_sequential.PreProcessing();
   test_task_sequential.Run();
@@ -59,7 +59,7 @@ TEST(frolova_e_Sobel_filter_seq, test_1) {
   EXPECT_EQ(reference, res);
 }
 
-TEST(frolova_e_Sobel_filter_seq, small_image_1) {
+TEST(frolova_e_sobel_filter_seq, small_image_1) {
   std::vector<int> value_1 = {3, 3};
   std::vector<int> pict = {172, 47,  117, 192, 67, 251, 195, 103, 9,  211, 21, 242, 3,  87,
                            70,  216, 88,  140, 58, 193, 230, 39,  87, 174, 88, 81,  165};
@@ -81,7 +81,7 @@ TEST(frolova_e_Sobel_filter_seq, small_image_1) {
   task_data_seq->outputs_count.emplace_back(res.size());
 
   // Create Task
-  frolova_e_Sobel_filter_seq::SobelFilterSequential test_task_sequential(task_data_seq);
+  frolova_e_sobel_filter_seq::SobelFilterSequential test_task_sequential(task_data_seq);
   ASSERT_EQ(test_task_sequential.Validation(), true);
   test_task_sequential.PreProcessing();
   test_task_sequential.Run();
@@ -89,7 +89,7 @@ TEST(frolova_e_Sobel_filter_seq, small_image_1) {
   EXPECT_EQ(reference, res);
 }
 
-TEST(frolova_e_Sobel_filter_seq, small_image_2) {
+TEST(frolova_e_sobel_filter_seq, small_image_2) {
   std::vector<int> value_1 = {5, 5};
   std::vector<int> pict = {172, 47,  117, 192, 67,  251, 195, 103, 9,   211, 21,  242, 36,  87,  70,  216, 88,  140, 58,
                            193, 230, 39,  87,  174, 88,  81,  165, 25,  77,  72,  9,   148, 115, 208, 243, 197, 254, 79,
@@ -114,7 +114,7 @@ TEST(frolova_e_Sobel_filter_seq, small_image_2) {
   task_data_seq->outputs_count.emplace_back(res.size());
 
   // Create Task
-  frolova_e_Sobel_filter_seq::SobelFilterSequential test_task_sequential(task_data_seq);
+  frolova_e_sobel_filter_seq::SobelFilterSequential test_task_sequential(task_data_seq);
   ASSERT_EQ(test_task_sequential.Validation(), true);
   test_task_sequential.PreProcessing();
   test_task_sequential.Run();
@@ -122,7 +122,7 @@ TEST(frolova_e_Sobel_filter_seq, small_image_2) {
   EXPECT_EQ(reference, res);
 }
 
-TEST(frolova_e_Sobel_filter_seq, one_pixel) {
+TEST(frolova_e_sobel_filter_seq, one_pixel) {
   std::vector<int> value_1 = {1, 1};
   std::vector<int> pict = {100, 0, 0};
 
@@ -142,7 +142,7 @@ TEST(frolova_e_Sobel_filter_seq, one_pixel) {
   task_data_seq->outputs_count.emplace_back(res.size());
 
   // Create Task
-  frolova_e_Sobel_filter_seq::SobelFilterSequential test_task_sequential(task_data_seq);
+  frolova_e_sobel_filter_seq::SobelFilterSequential test_task_sequential(task_data_seq);
   ASSERT_EQ(test_task_sequential.Validation(), true);
 
   test_task_sequential.PreProcessing();
@@ -154,7 +154,7 @@ TEST(frolova_e_Sobel_filter_seq, one_pixel) {
 
 //______ASSERT_FALSE________________
 
-TEST(frolova_e_Sobel_filter_seq, not_correct_value) {
+TEST(frolova_e_sobel_filter_seq, not_correct_value) {
   std::vector<int> value_1 = {-1, 1};
   std::vector<int> pict = {100, 0, 0};
 
@@ -174,11 +174,11 @@ TEST(frolova_e_Sobel_filter_seq, not_correct_value) {
   task_data_seq->outputs_count.emplace_back(res.size());
 
   // Create Task
-  frolova_e_Sobel_filter_seq::SobelFilterSequential test_task_sequential(task_data_seq);
+  frolova_e_sobel_filter_seq::SobelFilterSequential test_task_sequential(task_data_seq);
   ASSERT_EQ(test_task_sequential.Validation(), false);
 }
 
-TEST(frolova_e_Sobel_filter_seq, vector_is_not_multiple_of_three) {
+TEST(frolova_e_sobel_filter_seq, vector_is_not_multiple_of_three) {
   std::vector<int> value_1 = {1, 1};
   std::vector<int> pict = {100, 0};
 
@@ -199,11 +199,11 @@ TEST(frolova_e_Sobel_filter_seq, vector_is_not_multiple_of_three) {
   task_data_seq->outputs_count.emplace_back(res.size());
 
   // Create Task
-  frolova_e_Sobel_filter_seq::SobelFilterSequential test_task_sequential(task_data_seq);
+  frolova_e_sobel_filter_seq::SobelFilterSequential test_task_sequential(task_data_seq);
   ASSERT_EQ(test_task_sequential.Validation(), false);
 }
 
-TEST(frolova_e_Sobel_filter_seq, vector_element_is_not_included_the_range) {
+TEST(frolova_e_sobel_filter_seq, vector_element_is_not_included_the_range) {
   std::vector<int> value_1 = {1, 1};
   std::vector<int> pict = {100, 0, 270};
 
@@ -224,6 +224,6 @@ TEST(frolova_e_Sobel_filter_seq, vector_element_is_not_included_the_range) {
   task_data_seq->outputs_count.emplace_back(res.size());
 
   // Create Task
-  frolova_e_Sobel_filter_seq::SobelFilterSequential test_task_sequential(task_data_seq);
+  frolova_e_sobel_filter_seq::SobelFilterSequential test_task_sequential(task_data_seq);
   ASSERT_EQ(test_task_sequential.Validation(), false);
 }

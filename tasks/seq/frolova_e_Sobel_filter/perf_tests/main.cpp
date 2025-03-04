@@ -10,9 +10,9 @@
 #include "core/task/include/task.hpp"
 #include "seq/frolova_e_Sobel_filter/include/ops_seq.hpp"
 
-TEST(frolova_e_Sobel_filter_seq, test_pipeline_run) {
+TEST(frolova_e_sobel_filter_seq, test_pipeline_run) {
   std::vector<int> value_1 = {2000, 2000};
-  std::vector<int> pict = frolova_e_Sobel_filter_seq::genRGBpicture(2000, 2000, 0);
+  std::vector<int> pict = frolova_e_sobel_filter_seq::GenRgbPicture(2000, 2000, 0);
 
   std::vector<int> res(4000000, 0);
 
@@ -31,7 +31,7 @@ TEST(frolova_e_Sobel_filter_seq, test_pipeline_run) {
   task_data_seq->outputs_count.emplace_back(res.size());
 
   // Create Task
-  auto test_task_sequential = std::make_shared<frolova_e_Sobel_filter_seq::SobelFilterSequential>(task_data_seq);
+  auto test_task_sequential = std::make_shared<frolova_e_sobel_filter_seq::SobelFilterSequential>(task_data_seq);
 
   // Create Perf attributes
   auto perf_attr = std::make_shared<ppc::core::PerfAttr>();
@@ -53,9 +53,9 @@ TEST(frolova_e_Sobel_filter_seq, test_pipeline_run) {
   ASSERT_EQ(reference.size(), res.size());
 }
 
-TEST(frolova_e_Sobel_filter_seq, test_task_run) {
+TEST(frolova_e_sobel_filter_seq, test_task_run) {
   std::vector<int> value_1 = {2000, 2000};
-  std::vector<int> pict = frolova_e_Sobel_filter_seq::genRGBpicture(2000, 2000, 0);
+  std::vector<int> pict = frolova_e_sobel_filter_seq::GenRgbPicture(2000, 2000, 0);
 
   std::vector<int> res(4000000, 0);
 
@@ -74,7 +74,7 @@ TEST(frolova_e_Sobel_filter_seq, test_task_run) {
   task_data_seq->outputs_count.emplace_back(res.size());
 
   // Create Task
-  auto test_task_sequential = std::make_shared<frolova_e_Sobel_filter_seq::SobelFilterSequential>(task_data_seq);
+  auto test_task_sequential = std::make_shared<frolova_e_sobel_filter_seq::SobelFilterSequential>(task_data_seq);
 
   // Create Perf attributes
   auto perf_attr = std::make_shared<ppc::core::PerfAttr>();
