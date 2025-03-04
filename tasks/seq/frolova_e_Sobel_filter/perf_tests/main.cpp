@@ -10,6 +10,7 @@
 #include "core/task/include/task.hpp"
 #include "seq/frolova_e_Sobel_filter/include/ops_seq.hpp"
 
+namespace frolova_e_sobel_seq_test {
 std::vector<int> GenRgbPicture(size_t width, size_t height, size_t seed) {
   std::vector<int> image(width * height * 3);
   std::mt19937 gen(seed);
@@ -26,10 +27,11 @@ std::vector<int> GenRgbPicture(size_t width, size_t height, size_t seed) {
 
   return image;
 }
+}  // namespace frolova_e_sobel_seq_test
 
 TEST(frolova_e_sobel_filter_seq, test_pipeline_run) {
   std::vector<int> value_1 = {2000, 2000};
-  std::vector<int> pict = GenRgbPicture(2000, 2000, 0);
+  std::vector<int> pict = frolova_e_sobel_seq_test::GenRgbPicture(2000, 2000, 0);
 
   std::vector<int> res(4000000, 0);
 
@@ -72,7 +74,7 @@ TEST(frolova_e_sobel_filter_seq, test_pipeline_run) {
 
 TEST(frolova_e_sobel_filter_seq, test_task_run) {
   std::vector<int> value_1 = {2000, 2000};
-  std::vector<int> pict = GenRgbPicture(2000, 2000, 0);
+  std::vector<int> pict = frolova_e_sobel_seq_test::GenRgbPicture(2000, 2000, 0);
 
   std::vector<int> res(4000000, 0);
 

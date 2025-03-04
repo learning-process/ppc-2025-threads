@@ -2,7 +2,6 @@
 
 #include <cmath>
 #include <cstddef>
-#include <random>
 #include <vector>
 
 std::vector<int> frolova_e_sobel_filter_seq::ToGrayScaleImg(std::vector<RGB>& color_img, size_t width, size_t height) {
