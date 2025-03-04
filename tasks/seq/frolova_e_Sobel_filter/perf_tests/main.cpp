@@ -12,7 +12,7 @@
 #include "seq/frolova_e_Sobel_filter/include/ops_seq.hpp"
 
 namespace frolova_e_sobel_seq_test {
-static std::vector<int> GenRgbPicture(size_t width, size_t height, size_t seed) {
+std::vector<int> GenRgbPicture(size_t width, size_t height, size_t seed) {
   std::vector<int> image(width * height * 3);
   std::mt19937 gen(seed);
   std::uniform_int_distribution<int> rgb(0, 255);
