@@ -1,13 +1,17 @@
 #include "seq/konkov_i_sparse_matmul_ccs/include/ops_seq.hpp"
 
+#include <cstddef>
 #include <iostream>
+#include <utility>
+
+#include "core/task/include/task.hpp"
 
 namespace konkov_i_sparse_matmul_ccs {
 
-SparseMatmulTask::SparseMatmulTask(ppc::core::TaskDataPtr task_data) : ppc::core::Task(task_data) {}
+SparseMatmulTask::SparseMatmulTask(ppc::core::TaskDataPtr task_data) : ppc::core::Task(std::move(task_data)) {}
 
 bool SparseMatmulTask::ValidationImpl() {
-  if (A_values.size() == 0 || B_values.size() == 0) {
+  if (A_values.empty() || B_values.empty()) {
     std::cerr << "Error: Empty matrix data\n";
     return false;
   }
@@ -36,7 +40,7 @@ bool SparseMatmulTask::PostProcessingImpl() {
   for (const auto& value : C_values) {
     std::cout << value << " ";
   }
-  std::cout << std::endl;
+  std::cout << '\\n';
   return true;
 }
 
