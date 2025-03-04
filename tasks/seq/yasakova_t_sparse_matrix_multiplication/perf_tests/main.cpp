@@ -77,7 +77,8 @@ TEST(yasakova_t_sparse_matrix_multiplication_seq, test_pipeline_run) {
       yasakova_t_sparse_matrix_multiplication_seq::ConvertVectorToMatrix(result_vector);
 
   // Умножение матриц вручную для сравнения
-  yasakova_t_sparse_matrix_multiplication_seq::SparseMatrixCRS expected_result(sparse_matrix_a.rowCount, false, sparse_matrix_b.columnCount);
+  yasakova_t_sparse_matrix_multiplication_seq::SparseMatrixCRS expected_result(sparse_matrix_a.rowCount, false,
+                                                                               sparse_matrix_b.columnCount);
   for (int i = 0; i < sparse_matrix_a.rowCount; ++i) {
     for (int j = 0; j < sparse_matrix_b.columnCount; ++j) {
       Complex sum(0, 0);
