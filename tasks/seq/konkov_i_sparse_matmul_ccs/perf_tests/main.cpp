@@ -1,9 +1,9 @@
 #include <gtest/gtest.h>
 
-#include <memory>
-#include <vector>
 #include <chrono>
 #include <iostream>
+#include <memory>
+#include <vector>
 
 #include "core/task/include/task.hpp"
 #include "seq/konkov_i_sparse_matmul_ccs/include/ops_seq.hpp"
