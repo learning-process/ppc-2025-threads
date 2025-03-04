@@ -16,10 +16,9 @@ class SparseMatmulTask : public ppc::core::Task {
   bool RunImpl() override;
   bool PostProcessingImpl() override;
 
-  // Разреженные матрицы A и B
   std::vector<double> A_values, B_values, C_values;
   std::vector<int> A_columns, B_columns, C_columns;
   int rowsA, colsA, rowsB, colsB;
 };
 
-}  // namespace seq
+}  // namespace konkov_i_sparse_matmul_ccs
