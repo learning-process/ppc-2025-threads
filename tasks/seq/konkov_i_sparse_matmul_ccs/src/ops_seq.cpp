@@ -40,7 +40,7 @@ bool SparseMatmulTask::PostProcessingImpl() {
   for (const auto& value : C_values) {
     std::cout << value << " ";
   }
-  std::cout << '\\n';
+  std::cout << '\n';
   return true;
 }
 
