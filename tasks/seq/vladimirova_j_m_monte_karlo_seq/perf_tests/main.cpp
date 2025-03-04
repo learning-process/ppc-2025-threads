@@ -29,7 +29,7 @@ TEST(vladimirova_j_m_monte_karlo_seq, test_pipeline_run) {
 
   task_data_seq->inputs.emplace_back(reinterpret_cast<uint8_t*>(val_b.data()));
   task_data_seq->inputs.emplace_back(reinterpret_cast<uint8_t*>(PiVal314));
-  task_data_seq->inputs.emplace_back(reinterpret_cast<uint8_t*>(200000));
+  task_data_seq->inputs.emplace_back(reinterpret_cast<uint8_t*>(2500000));
   task_data_seq->inputs_count.emplace_back(val_b.size());
   task_data_seq->outputs.emplace_back(reinterpret_cast<uint8_t*>(out.data()));
   task_data_seq->outputs_count.emplace_back(out.size());
@@ -53,7 +53,7 @@ TEST(vladimirova_j_m_monte_karlo_seq, test_pipeline_run) {
   auto perf_analyzer = std::make_shared<ppc::core::Perf>(test_task_sequential);
   perf_analyzer->PipelineRun(perf_attr, perf_results);
   ppc::core::Perf::PrintPerfStatistic(perf_results);
-  ASSERT_TRUE((3.14 - out[0]) < 0.005);
+  ASSERT_TRUE((3.14159265359 - out[0]) < 0.005);
 }
 
 TEST(vladimirova_j_m_monte_karlo_seq, test_task_run) {
@@ -66,7 +66,7 @@ TEST(vladimirova_j_m_monte_karlo_seq, test_task_run) {
 
   task_data_seq->inputs.emplace_back(reinterpret_cast<uint8_t*>(val_b.data()));
   task_data_seq->inputs.emplace_back(reinterpret_cast<uint8_t*>(PiVal314));
-  task_data_seq->inputs.emplace_back(reinterpret_cast<uint8_t*>(200000));
+  task_data_seq->inputs.emplace_back(reinterpret_cast<uint8_t*>(2500000));
   task_data_seq->inputs_count.emplace_back(val_b.size());
   task_data_seq->outputs.emplace_back(reinterpret_cast<uint8_t*>(out.data()));
   task_data_seq->outputs_count.emplace_back(out.size());
@@ -91,6 +91,6 @@ TEST(vladimirova_j_m_monte_karlo_seq, test_task_run) {
   auto perf_analyzer = std::make_shared<ppc::core::Perf>(test_task_sequential);
   perf_analyzer->TaskRun(perf_attr, perf_results);
   ppc::core::Perf::PrintPerfStatistic(perf_results);
-  ASSERT_TRUE((3.14 - out[0]) < 0.005);
+  ASSERT_TRUE((3.14159265359 - out[0]) < 0.005);
   ;
 }
