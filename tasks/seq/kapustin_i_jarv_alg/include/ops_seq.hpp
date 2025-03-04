@@ -27,4 +27,4 @@ class TestTaskSequential : public ppc::core::Task {
   int Orientation(const std::pair<int, int>& p, const std::pair<int, int>& q, const std::pair<int, int>& r) const;
 };
 
-}  // namespace kapustin_i_jarv_alg_seq
+}  // namespace kapustin_i_jarv_alg_seqq
