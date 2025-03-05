@@ -3,6 +3,7 @@
 #include <algorithm>
 #include <cmath>
 #include <utility>
+#include <cstddef>
 #include <vector>
 
 int kapustin_i_jarv_alg_seq::TestTaskSequential::Orientation(const std::pair<int, int>& p, const std::pair<int, int>& q,
