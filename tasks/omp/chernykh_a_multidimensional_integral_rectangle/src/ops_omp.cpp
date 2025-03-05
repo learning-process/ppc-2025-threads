@@ -31,11 +31,12 @@ bool OMPTask::PreProcessingImpl() {
 
 bool OMPTask::RunImpl() {
   int total_points = GetTotalPoints();
-#pragma omp parallel for reduction(+ : result_) default(none) shared(func_, dims_, total_points)
+  double sum = 0.0;
+#pragma omp parallel for reduction(+ : sum) default(none) shared(total_points)
   for (int i = 0; i < total_points; i++) {
-    result_ += func_(GetPoint(i));
+    sum += func_(GetPoint(i));
   }
-  result_ *= GetScalingFactor();
+  result_ = sum * GetScalingFactor();
   return true;
 }
 
