@@ -1,21 +1,28 @@
 #include <gtest/gtest.h>
 
+#include <chrono>
+#include <cmath>
+#include <cstdint>
+#include <memory>
+#include <utility>
+#include <vector>
+
 #include "core/perf/include/perf.hpp"
 #include "core/task/include/task.hpp"
 #include "seq/kapustin_i_jarv_alg/include/ops_seq.hpp"
 
 TEST(kapustin_i_jarv_alg_seq, test_pipeline_run) {
-  constexpr int Count = 10000000;
+  constexpr int kCount = 10000000;
 
   std::vector<std::pair<int, int>> expected_result = {{0, 0}, {1000, 0}, {1000, 1000}, {0, 1000}};
 
-  std::vector<std::pair<int, int>> input_points(Count, {500, 500});
+  std::vector<std::pair<int, int>> input_points(kCount, {500, 500});
   input_points[0] = {0, 0};
   input_points[1] = {1000, 0};
   input_points[2] = {1000, 1000};
   input_points[3] = {0, 1000};
 
-  std::vector<std::pair<int, int>> output_result(Count);
+  std::vector<std::pair<int, int>> output_result(kCount);
 
   auto task_data_seq = std::make_shared<ppc::core::TaskData>();
   task_data_seq->inputs.emplace_back(reinterpret_cast<uint8_t *>(input_points.data()));
@@ -49,16 +56,16 @@ TEST(kapustin_i_jarv_alg_seq, test_pipeline_run) {
 }
 
 TEST(kapustin_i_jarv_alg_seq, test_task_run) {
-  constexpr int Count = 10000000;
+  constexpr int kCount = 10000000;
 
-  std::vector<std::pair<int, int>> input_points(Count, {500, 500});
+  std::vector<std::pair<int, int>> input_points(kCount, {500, 500});
 
   input_points[0] = {0, 0};
   input_points[1] = {1000, 0};
   input_points[2] = {1000, 1000};
   input_points[3] = {0, 1000};
 
-  for (int i = 4; i < Count; ++i) {
+  for (int i = 4; i < kCount; ++i) {
     input_points[i] = {500, 500};
   }
 

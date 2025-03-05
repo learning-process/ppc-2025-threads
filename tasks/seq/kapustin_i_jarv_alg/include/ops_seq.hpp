@@ -1,6 +1,6 @@
 #pragma once
 
-#include <iostream>
+#include <cstddef>
 #include <utility>
 #include <vector>
 
@@ -24,7 +24,8 @@ class TestTaskSequential : public ppc::core::Task {
   std::pair<int, int> next_point_;
   size_t leftmost_index_;
 
-  int Orientation(const std::pair<int, int>& p, const std::pair<int, int>& q, const std::pair<int, int>& r) const;
+  [[nodiscard]] static int Orientation(const std::pair<int, int>& p, const std::pair<int, int>& q,
+                                       const std::pair<int, int>& r);
 };
 
 }  // namespace kapustin_i_jarv_alg_seq

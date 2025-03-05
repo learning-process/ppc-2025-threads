@@ -1,15 +1,12 @@
 #include <gtest/gtest.h>
 
-#include <algorithm>
 #include <cstddef>
 #include <cstdint>
-#include <fstream>
 #include <memory>
-#include <string>
+#include <utility>
 #include <vector>
 
 #include "core/task/include/task.hpp"
-#include "core/util/include/util.hpp"
 #include "seq/kapustin_i_jarv_alg/include/ops_seq.hpp"
 
 TEST(KapustinJarvAlgSeqTest, HexagonWithInnerPoints) {
