@@ -30,7 +30,7 @@ bool nikolaev_r_hoare_sort_simple_merge_omp::HoareSortSimpleMergeOpenMP::RunImpl
   size_t seg_size = vect_size_ / num_threads;
   size_t remainder = vect_size_ % num_threads;
   size_t start = 0;
-  for (int i = 0; i < num_threads; ++i) {
+  for (size_t i = 0; i < num_threads; ++i) {
     size_t extra = (i < remainder ? 1 : 0);
     size_t end = start + seg_size + extra - 1;
     segments.push_back({start, end});
