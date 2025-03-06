@@ -99,7 +99,6 @@ double Integrator<technology>::TrapezoidalMethodSequential(const IntegrationFunc
 
   double total_sum = 0.0;
 
-#pragma omp parallel for reduction(+ : total_sum)
   for (int idx = 0; idx < total_points; ++idx) {
     std::vector<double> point(dimension);
     int temp = idx;
@@ -148,6 +147,7 @@ double Integrator<technology>::TrapezoidalMethodOmp(const IntegrationFunction& f
 
   double total_sum = 0.0;
 
+#pragma omp parallel for reduction(+ : total_sum)
   for (int idx = 0; idx < total_points; ++idx) {
     std::vector<double> point(dimension);
     int temp = idx;
