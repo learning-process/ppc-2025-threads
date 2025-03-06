@@ -36,7 +36,7 @@ bool vladimirova_j_m_monte_karlo_seq::TestTaskSequential::ValidationImpl() {
   // Check equality of counts elements
   var_size_ = task_data->inputs_count[0];
 
-  if ((var_size_ == 0) || (var_size_ % 2 != 0) || (var_size_ < 3)) {
+  if ((var_size_ % 2 != 0) || (var_size_ < 3)) {
     return false;
   }  // has variables
   auto* in_ptr = reinterpret_cast<double*>(task_data->inputs[0]);
