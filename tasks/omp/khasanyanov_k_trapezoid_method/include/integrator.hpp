@@ -81,10 +81,6 @@ double Integrator<technology>::TrapezoidalMethodSequential(const IntegrationFunc
                                                            const IntegrationBounds& bounds, int steps) {
   const size_t dimension = bounds.size();
 
-  if (steps <= 0) {
-    throw std::runtime_error("Number of steps must be positive");
-  }
-
   std::vector<double> h(dimension);
   double cell_volume = 1.0;
   for (size_t i = 0; i < dimension; ++i) {
@@ -98,9 +94,6 @@ double Integrator<technology>::TrapezoidalMethodSequential(const IntegrationFunc
 
   int total_points = 1;
   for (size_t i = 0; i < dimension; ++i) {
-    if (steps + 1 > INT_MAX / total_points) {
-      throw std::runtime_error("Too many integration points");
-    }
     total_points *= (steps + 1);
   }
 
@@ -137,10 +130,6 @@ double Integrator<technology>::TrapezoidalMethodOmp(const IntegrationFunction& f
                                                     int steps) {
   const size_t dimension = bounds.size();
 
-  if (steps <= 0) {
-    throw std::runtime_error("Number of steps must be positive");
-  }
-
   std::vector<double> h(dimension);
   double cell_volume = 1.0;
   for (size_t i = 0; i < dimension; ++i) {
@@ -154,9 +143,6 @@ double Integrator<technology>::TrapezoidalMethodOmp(const IntegrationFunction& f
 
   int total_points = 1;
   for (size_t i = 0; i < dimension; ++i) {
-    if (steps + 1 > INT_MAX / total_points) {
-      throw std::runtime_error("Too many integration points");
-    }
     total_points *= (steps + 1);
   }
 
