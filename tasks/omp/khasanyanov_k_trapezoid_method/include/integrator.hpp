@@ -2,6 +2,7 @@
 #define INTEGRATOR_HPP
 #include <sys/types.h>
 
+#include <climits>
 #include <cmath>
 #include <cstddef>
 #include <cstdint>
@@ -21,8 +22,6 @@ using IntegrationBounds = std::vector<Bounds>;
 template <IntegrationTechnology technology>
 class Integrator {
   static const int kDefaultSteps, kMaxSteps;
-
-  [[nodiscard]] static double CalculateWeight(const std::vector<int>& indices, int steps);
 
   [[nodiscard]] static double TrapezoidalMethodSequential(const IntegrationFunction& f, const IntegrationBounds& bounds,
                                                           int steps);
@@ -81,107 +80,112 @@ double Integrator<technology>::TrapezoidalMethod(const IntegrationFunction& f, c
 template <IntegrationTechnology technology>
 double Integrator<technology>::TrapezoidalMethodSequential(const IntegrationFunction& f,
                                                            const IntegrationBounds& bounds, int steps) {
-  size_t dims = bounds.size();
-  std::vector<double> dx(dims);
+  const size_t dimension = bounds.size();
 
-  for (size_t i = 0; i < dims; ++i) {
-    if (bounds[i].second < bounds[i].first) {
+  if (steps <= 0) {
+    throw std::runtime_error("Number of steps must be positive");
+  }
+
+  std::vector<double> h(dimension);
+  double cell_volume = 1.0;
+  for (size_t i = 0; i < dimension; ++i) {
+    const auto& [a, b] = bounds[i];
+    if (b < a) {
       throw std::runtime_error("Wrong bounds");
     }
-    dx[i] = (bounds[i].second - bounds[i].first) / steps;
+    h[i] = (b - a) / steps;
+    cell_volume *= h[i];
   }
 
-  double total = 0.0;
-  std::vector<int> indices(dims, 0);
-  bool done = false;
-
-  while (!done) {
-    std::vector<double> point(dims);
-    for (size_t i = 0; i < dims; ++i) {
-      point[i] = bounds[i].first + indices[i] * dx[i];
+  int total_points = 1;
+  for (size_t i = 0; i < dimension; ++i) {
+    if (steps + 1 > INT_MAX / total_points) {
+      throw std::runtime_error("Too many integration points");
     }
+    total_points *= (steps + 1);
+  }
 
-    double weight = CalculateWeight(indices, steps);
-    total += weight * f(point);
+  double total_sum = 0.0;
 
-    size_t j = 0;
-    while (j < dims) {
-      indices[j]++;
-      if (indices[j] <= steps) {
-        break;
+#pragma omp parallel for reduction(+ : total_sum)
+  for (int idx = 0; idx < total_points; ++idx) {
+    std::vector<double> point(dimension);
+    int temp = idx;
+    int boundary_count = 0;
+
+    for (size_t dim = 0; dim < dimension; ++dim) {
+      const int steps_per_dim = steps + 1;
+      const int step = temp % steps_per_dim;
+      temp /= steps_per_dim;
+
+      const auto& [a, _] = bounds[dim];
+      point[dim] = a + step * h[dim];
+
+      if (step == 0 || step == steps) {
+        boundary_count++;
       }
+    }
 
-      indices[j] = 0;
-      ++j;
-    }
-    if (j == dims) {
-      done = true;
-    }
+    const double weight = std::pow(0.5, boundary_count);
+    total_sum += f(point) * weight;
   }
 
-  double factor = 1.0;
-  for (size_t i = 0; i < dims; ++i) {
-    factor *= dx[i];
-  }
-  return total * factor;
-  return 0.0;
+  return total_sum * cell_volume;
 }
 
 template <IntegrationTechnology technology>
 double Integrator<technology>::TrapezoidalMethodOmp(const IntegrationFunction& f, const IntegrationBounds& bounds,
                                                     int steps) {
-  size_t dims = bounds.size();
-  std::vector<double> dx(dims);
-#pragma omp parallel for
-  for (int64_t i = 0; i < static_cast<int64_t>(dims); ++i) {
-    if (bounds[i].second < bounds[i].first) {
+  const size_t dimension = bounds.size();
+
+  if (steps <= 0) {
+    throw std::runtime_error("Number of steps must be positive");
+  }
+
+  std::vector<double> h(dimension);
+  double cell_volume = 1.0;
+  for (size_t i = 0; i < dimension; ++i) {
+    const auto& [a, b] = bounds[i];
+    if (b < a) {
       throw std::runtime_error("Wrong bounds");
     }
-    dx[i] = (bounds[i].second - bounds[i].first) / steps;
+    h[i] = (b - a) / steps;
+    cell_volume *= h[i];
   }
 
-  double total = 0.0;
-  std::vector<int> indices(dims, 0);
-  bool done = false;
-  while (!done) {
-    std::vector<double> point(dims);
-    for (size_t i = 0; i < dims; ++i) {
-      point[i] = bounds[i].first + indices[i] * dx[i];
+  int total_points = 1;
+  for (size_t i = 0; i < dimension; ++i) {
+    if (steps + 1 > INT_MAX / total_points) {
+      throw std::runtime_error("Too many integration points");
     }
+    total_points *= (steps + 1);
+  }
 
-    double weight = CalculateWeight(indices, steps);
-    total += weight * f(point);
+  double total_sum = 0.0;
 
-    size_t j = 0;
-    while (j < dims) {
-      indices[j]++;
-      if (indices[j] <= steps) {
-        break;
+  for (int idx = 0; idx < total_points; ++idx) {
+    std::vector<double> point(dimension);
+    int temp = idx;
+    int boundary_count = 0;
+
+    for (size_t dim = 0; dim < dimension; ++dim) {
+      const int steps_per_dim = steps + 1;
+      const int step = temp % steps_per_dim;
+      temp /= steps_per_dim;
+
+      const auto& [a, _] = bounds[dim];
+      point[dim] = a + step * h[dim];
+
+      if (step == 0 || step == steps) {
+        boundary_count++;
       }
-
-      indices[j] = 0;
-      ++j;
     }
-    if (j == dims) {
-      done = true;
-    }
+
+    const double weight = std::pow(0.5, boundary_count);
+    total_sum += f(point) * weight;
   }
 
-  double factor = 1.0;
-#pragma omp parallel for reduction(* : factor)
-  for (int64_t i = 0; i < static_cast<int64_t>(dims); ++i) {
-    factor *= dx[i];
-  }
-  return total * factor;
-}
-
-template <IntegrationTechnology technology>
-double Integrator<technology>::CalculateWeight(const std::vector<int>& indices, int steps) {
-  double weight = 1.0;
-  for (int idx : indices) {
-    weight *= (idx == 0 || idx == steps) ? 0.5 : 1.0;
-  }
-  return weight;
+  return total_sum * cell_volume;
 }
 
 }  // namespace khasanyanov_k_trapezoid_method_omp
