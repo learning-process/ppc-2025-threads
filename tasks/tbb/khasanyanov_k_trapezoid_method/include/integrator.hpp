@@ -8,6 +8,9 @@
 #include <cstdlib>
 #include <functional>
 #include <stdexcept>
+#include <tbb/tbb.h>
+#include <tbb/blocked_range.h>
+#include <tbb/parallel_reduce.h>
 #include <utility>
 #include <vector>
 namespace khasanyanov_k_trapezoid_method_tbb {
@@ -54,7 +57,7 @@ double Integrator<technology>::operator()(const IntegrationFunction& f, const In
     case kSequential:
       return TrapezoidalMethod(f, bounds, precision, init_steps, max_steps, &TrapezoidalMethodSequential);
     case kTBB:
-    return TrapezoidalMethod(f, bounds, precision, init_steps, max_steps, &TrapezoidalMethodTbb);
+      return TrapezoidalMethod(f, bounds, precision, init_steps, max_steps, &TrapezoidalMethodTbb);
     case kMPI:
     case kOpenMP:
       return TrapezoidalMethod(f, bounds, precision, init_steps, max_steps, &TrapezoidalMethodOmp);
@@ -177,9 +180,6 @@ double Integrator<technology>::TrapezoidalMethodOmp(const IntegrationFunction& f
   return total_sum * cell_volume;
 }
 
-#include <tbb/tbb.h>
-#include <tbb/blocked_range.h>
-#include <tbb/parallel_reduce.h>
 
 template <IntegrationTechnology technology>
 double Integrator<technology>::TrapezoidalMethodTbb(const IntegrationFunction& f, const IntegrationBounds& bounds,
