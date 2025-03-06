@@ -5,6 +5,7 @@
 #include <algorithm>
 #include <cstddef>
 #include <random>
+#include <utility>
 #include <vector>
 
 bool nikolaev_r_hoare_sort_simple_merge_omp::HoareSortSimpleMergeOpenMP::PreProcessingImpl() {
@@ -22,7 +23,9 @@ bool nikolaev_r_hoare_sort_simple_merge_omp::HoareSortSimpleMergeOpenMP::Validat
 
 bool nikolaev_r_hoare_sort_simple_merge_omp::HoareSortSimpleMergeOpenMP::RunImpl() {
   int num_threads = omp_get_max_threads();
-  if (vect_size_ < static_cast<size_t>(num_threads)) num_threads = static_cast<int>(vect_size_);
+  if (vect_size_ < static_cast<size_t>(num_threads)) {
+    num_threads = static_cast<int>(vect_size_);
+  }
 
   std::vector<std::pair<size_t, size_t>> segments;
   segments.reserve(num_threads);
@@ -33,7 +36,7 @@ bool nikolaev_r_hoare_sort_simple_merge_omp::HoareSortSimpleMergeOpenMP::RunImpl
   for (int i = 0; i < num_threads; ++i) {
     size_t extra = (i < static_cast<int>(remainder) ? 1 : 0);
     size_t end = start + seg_size + extra - 1;
-    segments.push_back({start, end});
+    segments.emplace_back(start, end);
     start = end + 1;
   }
 
@@ -52,23 +55,30 @@ bool nikolaev_r_hoare_sort_simple_merge_omp::HoareSortSimpleMergeOpenMP::RunImpl
       size_t left_start = segments[2 * i].first;
       size_t left_end = segments[2 * i].second;
 
-      size_t right_start = segments[2 * i + 1].first;
-      size_t right_end = segments[2 * i + 1].second;
+      size_t right_start = segments[(2 * i) + 1].first;
+      size_t right_end = segments[(2 * i) + 1].second;
 
       size_t merged_size = right_end - left_start + 1;
       std::vector<double> merged(merged_size);
 
-      size_t i1 = left_start, i2 = right_start, k = 0;
+      size_t i1 = left_start;
+      size_t i2 = right_start;
+      size_t k = 0;
       while (i1 <= left_end && i2 <= right_end) {
-        if (vect_[i1] < vect_[i2])
+        if (vect_[i1] < vect_[i2]) {
           merged[k++] = vect_[i1++];
-        else
+        } else {
           merged[k++] = vect_[i2++];
+        }
       }
-      while (i1 <= left_end) merged[k++] = vect_[i1++];
-      while (i2 <= right_end) merged[k++] = vect_[i2++];
+      while (i1 <= left_end) {
+        merged[k++] = vect_[i1++];
+      }
+      while (i2 <= right_end) {
+        merged[k++] = vect_[i2++];
+      }
 
-      std::copy(merged.begin(), merged.end(), vect_.begin() + left_start);
+      std::ranges::copy(merged, vect_.begin() + static_cast<std::ptrdiff_t>(left_start));
       new_segments[i] = {left_start, right_end};
     }
     if (segments.size() % 2 == 1) {
