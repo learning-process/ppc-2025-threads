@@ -206,9 +206,6 @@ double Integrator<technology>::TrapezoidalMethodTbb(const IntegrationFunction& f
     double sum{0};
     std::vector<double> point;
     ReduceData(int dim) : point(dim) {}
-    ReduceData(const ReduceData& other, tbb::split) : point(other.point.size()) {}
-
-    void join(const ReduceData& rhs) { sum += rhs.sum; }  // NOLINT(readability-identifier-naming)
   };
 
   auto result = tbb::parallel_reduce(
