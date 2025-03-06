@@ -1,6 +1,10 @@
 #ifndef INTEGRATOR_HPP
 #define INTEGRATOR_HPP
 
+#include <tbb/tbb.h>
+#include <tbb/blocked_range.h>
+#include <tbb/parallel_reduce.h>
+
 #include <climits>
 #include <cmath>
 #include <cstddef>
@@ -8,9 +12,6 @@
 #include <cstdlib>
 #include <functional>
 #include <stdexcept>
-#include <tbb/tbb.h>
-#include <tbb/blocked_range.h>
-#include <tbb/parallel_reduce.h>
 #include <utility>
 #include <vector>
 namespace khasanyanov_k_trapezoid_method_tbb {
