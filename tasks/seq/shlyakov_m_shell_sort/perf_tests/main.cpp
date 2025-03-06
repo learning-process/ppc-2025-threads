@@ -25,6 +25,18 @@ std::vector<int> GenerateRandomArray(size_t size) {
   }
   return arr;
 }
+
+bool IsSorted(const std::vector<int>& arr) {
+  if (arr.empty()) {
+    return true;
+  }
+  for (size_t i = 1; i < arr.size(); ++i) {
+    if (arr[i - 1] > arr[i]) {
+      return false;
+    }
+  }
+  return true;
+}
 }  // namespace
 
 TEST(shlyakov_m_shell_sort_seq, test_pipeline_run) {
@@ -57,6 +69,8 @@ TEST(shlyakov_m_shell_sort_seq, test_pipeline_run) {
 
   perf_analyzer->PipelineRun(perf_attr, perf_results);
   ppc::core::Perf::PrintPerfStatistic(perf_results);
+
+  EXPECT_TRUE(IsSorted(out));
 }
 
 TEST(shlyakov_m_shell_sort_seq, test_task_run) {
@@ -89,4 +103,6 @@ TEST(shlyakov_m_shell_sort_seq, test_task_run) {
 
   perf_analyzer->TaskRun(perf_attr, perf_results);
   ppc::core::Perf::PrintPerfStatistic(perf_results);
+
+  EXPECT_TRUE(IsSorted(out));
 }
