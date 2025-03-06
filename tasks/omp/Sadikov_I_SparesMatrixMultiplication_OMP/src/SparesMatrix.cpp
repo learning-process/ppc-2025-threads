@@ -4,6 +4,7 @@
 
 #include <algorithm>
 #include <cstddef>
+#include <utility>
 #include <vector>
 
 namespace sadikov_i_sparse_matrix_multiplication_task_omp {

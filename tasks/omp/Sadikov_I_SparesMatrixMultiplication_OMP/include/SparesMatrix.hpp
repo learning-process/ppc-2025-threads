@@ -2,7 +2,7 @@
 
 #include <omp.h>
 
-#include <cstddef>
+#include <utility>
 #include <vector>
 
 namespace sadikov_i_sparse_matrix_multiplication_task_omp {
@@ -15,8 +15,8 @@ class SparesMatrix {
   std::vector<int> m_elementsSum_;
   static SparesMatrix Transpose(const SparesMatrix& matrix);
   static int GetElementsCount(int index, const std::vector<int>& elements_sum);
-  double CalculateSum(SparesMatrix& fmatrix, SparesMatrix& smatrix, const std::vector<int>& felements_sum,
-                      const std::vector<int>& selements_sum, int i_index, int j_index);
+  static double CalculateSum(SparesMatrix& fmatrix, SparesMatrix& smatrix, const std::vector<int>& felements_sum,
+                             const std::vector<int>& selements_sum, int i_index, int j_index);
 
  public:
   SparesMatrix() = default;
