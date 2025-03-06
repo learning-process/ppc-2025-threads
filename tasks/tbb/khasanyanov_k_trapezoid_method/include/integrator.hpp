@@ -29,9 +29,6 @@ class Integrator {
   [[nodiscard]] static double TrapezoidalMethodSequential(const IntegrationFunction& f, const IntegrationBounds& bounds,
                                                           int steps);
 
-  [[nodiscard]] static double TrapezoidalMethodOmp(const IntegrationFunction& f, const IntegrationBounds& bounds,
-                                                   int steps);
-
   [[nodiscard]] static double TrapezoidalMethodTbb(const IntegrationFunction& f, const IntegrationBounds& bounds,
                                                    int steps);
 
@@ -61,7 +58,6 @@ double Integrator<technology>::operator()(const IntegrationFunction& f, const In
       return TrapezoidalMethod(f, bounds, precision, init_steps, max_steps, &TrapezoidalMethodTbb);
     case kMPI:
     case kOpenMP:
-      return TrapezoidalMethod(f, bounds, precision, init_steps, max_steps, &TrapezoidalMethodOmp);
     case kSTL:
     default:
       throw std::runtime_error("Technology not available");
@@ -87,55 +83,6 @@ double Integrator<technology>::TrapezoidalMethod(const IntegrationFunction& f, c
 template <IntegrationTechnology technology>
 double Integrator<technology>::TrapezoidalMethodSequential(const IntegrationFunction& f,
                                                            const IntegrationBounds& bounds, int steps) {
-  const size_t dimension = bounds.size();
-
-  std::vector<double> h(dimension);
-  double cell_volume = 1.0;
-  for (size_t i = 0; i < dimension; ++i) {
-    const auto& [a, b] = bounds[i];
-    if (b < a) {
-      throw std::runtime_error("Wrong bounds");
-    }
-    h[i] = (b - a) / steps;
-    cell_volume *= h[i];
-  }
-
-  int total_points = 1;
-  for (size_t i = 0; i < dimension; ++i) {
-    total_points *= (steps + 1);
-  }
-
-  double total_sum = 0.0;
-
-#pragma omp parallel for reduction(+ : total_sum)
-  for (int idx = 0; idx < total_points; ++idx) {
-    std::vector<double> point(dimension);
-    int temp = idx;
-    int boundary_count = 0;
-
-    for (size_t dim = 0; dim < dimension; ++dim) {
-      const int steps_per_dim = steps + 1;
-      const int step = temp % steps_per_dim;
-      temp /= steps_per_dim;
-
-      const auto& [a, _] = bounds[dim];
-      point[dim] = a + step * h[dim];
-
-      if (step == 0 || step == steps) {
-        boundary_count++;
-      }
-    }
-
-    const double weight = std::pow(0.5, boundary_count);
-    total_sum += f(point) * weight;
-  }
-
-  return total_sum * cell_volume;
-}
-
-template <IntegrationTechnology technology>
-double Integrator<technology>::TrapezoidalMethodOmp(const IntegrationFunction& f, const IntegrationBounds& bounds,
-                                                    int steps) {
   const size_t dimension = bounds.size();
 
   std::vector<double> h(dimension);
