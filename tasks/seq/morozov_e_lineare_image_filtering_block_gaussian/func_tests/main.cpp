@@ -67,7 +67,14 @@ TEST(morozov_e_lineare_image_filtering_block_gaussian, size_input_not_equal_size
 TEST(morozov_e_lineare_image_filtering_block_gaussian, main_test1) {
   int n = 5;
   int m = 5;
-  std::vector<double> image = {1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1};
+  // clang-format off
+  std::vector<double> image = 
+  {1, 1, 1, 1, 1,
+   1, 1, 1, 1, 1,
+   1, 1, 1, 1, 1,
+   1, 1, 1, 1, 1,
+   1, 1, 1, 1, 1};
+  // clang-format on
   std::vector image_res(n * m, 0.0);
 
   // Create task_data
@@ -90,7 +97,14 @@ TEST(morozov_e_lineare_image_filtering_block_gaussian, main_test1) {
 TEST(morozov_e_lineare_image_filtering_block_gaussian, main_test2) {
   int n = 5;
   int m = 5;
-  std::vector<double> image = {2, 2, 3, 2, 2, 2, 2, 3, 2, 2, 2, 2, 3, 2, 2, 2, 2, 3, 2, 2, 2, 2, 3, 2, 2};
+  // clang-format off
+  std::vector<double> image = 
+  {2, 2, 3, 2, 2,
+   2, 2, 3, 2, 2,
+   2, 2, 3, 2, 2,
+   2, 2, 3, 2, 2,
+   2, 2, 3, 2, 2};
+  // clang-format on
   std::vector image_res(n * m, 0.0);
 
   // Create task_data
@@ -108,14 +122,27 @@ TEST(morozov_e_lineare_image_filtering_block_gaussian, main_test2) {
   test_task_sequential.PreProcessing();
   test_task_sequential.Run();
   test_task_sequential.PostProcessing();
-  std::vector<double> real_res = {2,    2, 3, 2,    2,   2,    2.25, 2.5, 2.25, 2, 2, 2.25, 2.5,
-                                  2.25, 2, 2, 2.25, 2.5, 2.25, 2,    2,   2,    3, 2, 2};
+  // clang-format off
+  std::vector<double> real_res = 
+  {2, 2, 3, 2, 2,
+   2, 2.25, 2.5, 2.25, 2,
+   2, 2.25, 2.5, 2.25, 2,
+   2, 2.25, 2.5, 2.25, 2,
+   2, 2, 3, 2, 2};
+  // clang-format on
   EXPECT_EQ(real_res, image_res);
 }
 TEST(morozov_e_lineare_image_filtering_block_gaussian, main_test3) {
   int n = 5;
   int m = 5;
-  std::vector<double> image = {1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 1, 2, 3, 4, 5, 1, 2, 3, 4, 5, 1, 2, 3, 4, 5};
+  // clang-format off
+  std::vector<double> image = 
+  {1, 2, 3, 4, 5,
+   6, 7, 8, 9, 10,
+   1, 2, 3, 4, 5,
+   1, 2, 3, 4, 5,
+   1, 2, 3, 4, 5};
+  // clang-format on
   std::vector image_res(n * m, 0.0);
 
   // Create task_data
@@ -133,14 +160,27 @@ TEST(morozov_e_lineare_image_filtering_block_gaussian, main_test3) {
   test_task_sequential.PreProcessing();
   test_task_sequential.Run();
   test_task_sequential.PostProcessing();
-  std::vector<double> real_res = {1,    2, 3, 4, 5, 6, 4.5, 5.5, 6.5, 10, 1, 3.25, 4.25,
-                                  5.25, 5, 1, 2, 3, 4, 5,   1,   2,   3,  4, 5};
+  // clang-format off
+  std::vector<double> real_res = 
+  {1, 2, 3, 4, 5,
+   6, 4.5, 5.5, 6.5, 10,
+   1, 3.25, 4.25, 5.25, 5,
+   1, 2, 3, 4, 5,
+   1, 2, 3, 4, 5};
+  // clang-format on
   EXPECT_EQ(real_res, image_res);
 }
 TEST(morozov_e_lineare_image_filtering_block_gaussian, main_test4) {
   int n = 5;
   int m = 5;
-  std::vector<double> image = {5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5};
+  // clang-format off
+  std::vector<double> image = 
+  {5, 5, 5, 5, 5,
+   5, 5, 5, 5, 5,
+   5, 5, 5, 5, 5,
+   5, 5, 5, 5, 5,
+   5, 5, 5, 5, 5};
+  // clang-format on
   std::vector image_res(n * m, 0.0);
 
   // Create task_data
@@ -163,7 +203,14 @@ TEST(morozov_e_lineare_image_filtering_block_gaussian, main_test4) {
 TEST(morozov_e_lineare_image_filtering_block_gaussian, main_test5) {
   int n = 5;
   int m = 5;
-  std::vector<double> image = {1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 10, 9, 8, 7, 6, 5, 4, 3, 2, 1, 1, 1, 1, 1, 1};
+  // clang-format off
+  std::vector<double> image = 
+  {1, 2, 3, 4, 5,
+   6, 7, 8, 9, 10,
+   10, 9, 8, 7, 6,
+   5, 4, 3, 2, 1,
+   1, 1, 1, 1, 1};
+  // clang-format on
   std::vector image_res(n * m, 0.0);
 
   // Create task_data
@@ -181,14 +228,25 @@ TEST(morozov_e_lineare_image_filtering_block_gaussian, main_test5) {
   test_task_sequential.PreProcessing();
   test_task_sequential.Run();
   test_task_sequential.PostProcessing();
-  std::vector<double> real_res = {1,    2, 3, 4,   5,    6, 6.25, 6.75, 7.25, 10, 10, 7.25, 6.75,
-                                  6.25, 6, 5, 4.5, 3.75, 3, 1,    1,    1,    1,  1,  1};
+  // clang-format off
+  std::vector<double> real_res = 
+  {1, 2, 3, 4, 5,
+   6, 6.25, 6.75, 7.25, 10,
+   10, 7.25, 6.75, 6.25, 6,
+   5, 4.5, 3.75, 3, 1,
+   1, 1, 1, 1, 1};
+  // clang-format on
   EXPECT_EQ(real_res, image_res);
 }
 TEST(morozov_e_lineare_image_filtering_block_gaussian, main_test6) {
   int n = 3;
   int m = 3;
-  std::vector<double> image = {1, 6, 7, 8, 2, 1, 8, 2, 4};
+  // clang-format off
+  std::vector<double> image = 
+   {1, 6, 7,
+	8, 2, 1,
+	8, 2, 4};
+  // clang-format on
   std::vector image_res(n * m, 0.0);
 
   // Create task_data
@@ -206,6 +264,11 @@ TEST(morozov_e_lineare_image_filtering_block_gaussian, main_test6) {
   test_task_sequential.PreProcessing();
   test_task_sequential.Run();
   test_task_sequential.PostProcessing();
-  std::vector<double> real_res = {1, 6, 7, 8, 3.875, 1, 8, 2, 4};
+  // clang-format off
+  std::vector<double> real_res = 
+  {1, 6, 7,
+   8, 3.875, 1,
+   8, 2, 4};
+  // clang-format on
   EXPECT_EQ(real_res, image_res);
 }
