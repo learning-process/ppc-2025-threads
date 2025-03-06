@@ -13,6 +13,7 @@ static uint64_t DoubleToKey(double d) {
   uint64_t u;
   std::memcpy(&u, &d, sizeof(d));
   
+
   if (u >> 63) {
     return ~u;
   } else {

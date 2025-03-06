@@ -21,6 +21,5 @@ class RadixSortBatcherSeq : public ppc::core::Task {
   std::vector<double> mas_, output_;
   void RadixSort(std::vector<double>& arr);
   void BatcherOddEvenMerge(std::vector<double>& arr, int low, int high);
-
 };
 }  // namespace konstantinov_i_sort_batcher_seq
