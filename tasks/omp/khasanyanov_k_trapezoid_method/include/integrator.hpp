@@ -1,6 +1,5 @@
 #ifndef INTEGRATOR_HPP
 #define INTEGRATOR_HPP
-#include <sys/types.h>
 
 #include <climits>
 #include <cmath>
