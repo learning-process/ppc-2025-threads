@@ -137,15 +137,11 @@ std::vector<double> BaseMatrixMultiplication(const std::vector<double>& fmatrix,
                                              int fmatrix_columns_count, const std::vector<double>& smatrix,
                                              int smatrix_rows_count, int smatrix_columns_count) {
   std::vector<double> answer(fmatrix_rows_count * smatrix_columns_count);
-#pragma omp parallel
-  {
-#pragma omp for
-    for (auto i = 0; i < fmatrix_rows_count; i++) {
-      for (auto j = 0; j < smatrix_columns_count; j++) {
-        for (auto n = 0; n < smatrix_rows_count; n++) {
-          answer[j + (i * smatrix_columns_count)] +=
-              fmatrix[(i * fmatrix_columns_count) + n] * smatrix[(n * smatrix_columns_count) + j];
-        }
+  for (auto i = 0; i < fmatrix_rows_count; i++) {
+    for (auto j = 0; j < smatrix_columns_count; j++) {
+      for (auto n = 0; n < smatrix_rows_count; n++) {
+        answer[j + (i * smatrix_columns_count)] +=
+            fmatrix[(i * fmatrix_columns_count) + n] * smatrix[(n * smatrix_columns_count) + j];
       }
     }
   }
