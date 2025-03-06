@@ -1,9 +1,9 @@
 #ifndef INTEGRATOR_HPP
 #define INTEGRATOR_HPP
 
-#include <tbb/tbb.h>
 #include <tbb/blocked_range.h>
 #include <tbb/parallel_reduce.h>
+#include <tbb/tbb.h>
 
 #include <climits>
 #include <cmath>
@@ -181,7 +181,6 @@ double Integrator<technology>::TrapezoidalMethodOmp(const IntegrationFunction& f
   return total_sum * cell_volume;
 }
 
-
 template <IntegrationTechnology technology>
 double Integrator<technology>::TrapezoidalMethodTbb(const IntegrationFunction& f, const IntegrationBounds& bounds,
                                                     int steps) {
@@ -206,33 +205,43 @@ double Integrator<technology>::TrapezoidalMethodTbb(const IntegrationFunction& f
   struct ReduceData {
     double sum{0};
     std::vector<double> point;
-    uint64_t temp{0};
-    int boundary_count{0};
+    ReduceData(int dim) : point(dim) {}
+    ReduceData(const ReduceData& other, tbb::split) : point(other.point.size()) {}
+
+    void join(const ReduceData& rhs) { sum += rhs.sum; }  // NOLINT(readability-identifier-naming)
   };
 
   auto result = tbb::parallel_reduce(
-      tbb::blocked_range<int>(0, total_points), ReduceData(),
+      tbb::blocked_range<uint64_t>(0, total_points), ReduceData(dimension),
       [&](const tbb::blocked_range<uint64_t>& r, ReduceData init) {
         init.point.resize(dimension);
         for (uint64_t idx = r.begin(); idx != r.end(); ++idx) {
-          const int steps_per_dim = steps + 1;
-          const int step = temp % steps_per_dim;
-          temp /= steps_per_dim;
-          const auto& [a, _] = bounds[dim];
-          point[dim] = a + step * h[dim];
+          uint64_t temp = idx;
+          int boundary_count = 0;
 
-          if (step == 0 || step == steps) {
-            boundary_count++;
+          for (size_t dim = 0; dim < dimension; ++dim) {
+            const int steps_per_dim = steps + 1;
+            const uint64_t step = temp % steps_per_dim;
+            temp /= steps_per_dim;
+
+            const auto& [a, _] = bounds[dim];
+            init.point[dim] = a + static_cast<int>(step) * h[dim];
+
+            if (step == 0 || static_cast<int>(step) == steps) {
+              boundary_count++;
+            }
           }
-          const double weight = std::pow(0.5, init.boundary_count);
-          init.sum += func(init.point) * weight;
+
+          const double weight = std::pow(0.5, boundary_count);
+          init.sum += f(init.point) * weight;
         }
         return init;
       },
       [](ReduceData a, const ReduceData& b) {
         a.sum += b.sum;
         return a;
-      });
+      },
+      tbb::auto_partitioner());
 
   return result.sum * cell_volume;
 }
