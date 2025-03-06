@@ -233,7 +233,7 @@ TEST(lopatin_i_monte_carlo_omp, 4DQuadraticFunction) {
 
 TEST(lopatin_i_monte_carlo_omp, 5DExponentialFunction) {
   const int dimensions = 5;
-  const int iterations = 260000;  // increase for 5D
+  const int iterations = 300000;  // increase for 5D
   std::vector<double> bounds = lopatin_i_monte_carlo_omp::GenerateBounds(-3.0, 3.0, dimensions);
 
   auto task_data = std::make_shared<ppc::core::TaskData>();
