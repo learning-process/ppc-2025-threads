@@ -20,7 +20,7 @@ TEST(Konstantinov_I_Sort_Batcher_seq, test_wrong_size) {
   task_data_seq->outputs.emplace_back(reinterpret_cast<uint8_t *>(out.data()));
   task_data_seq->outputs_count.emplace_back(out.size());
 
-  konstantinov_i_sort_batcher::RadixSortBatcherSeq test_task_sequential(task_data_seq);
+  konstantinov_i_sort_batcher_seq::RadixSortBatcherSeq test_task_sequential(task_data_seq);
   ASSERT_EQ(test_task_sequential.ValidationImpl(), false);
 }
 
@@ -35,7 +35,7 @@ TEST(Konstantinov_I_Sort_Batcher_seq, test_scalar) {
   task_data_seq->outputs.emplace_back(reinterpret_cast<uint8_t *>(out.data()));
   task_data_seq->outputs_count.emplace_back(out.size());
 
-  konstantinov_i_sort_batcher::RadixSortBatcherSeq test_task_sequential(task_data_seq);
+  konstantinov_i_sort_batcher_seq::RadixSortBatcherSeq test_task_sequential(task_data_seq);
   ASSERT_EQ(test_task_sequential.ValidationImpl(), true);
   test_task_sequential.PreProcessingImpl();
   test_task_sequential.RunImpl();
@@ -63,7 +63,7 @@ TEST(Konstantinov_I_Sort_Batcher_seq, test_random_100_values) {
   task_data_seq->outputs.emplace_back(reinterpret_cast<uint8_t *>(out.data()));
   task_data_seq->outputs_count.emplace_back(out.size());
 
-  konstantinov_i_sort_batcher::RadixSortBatcherSeq test_task_sequential(task_data_seq);
+  konstantinov_i_sort_batcher_seq::RadixSortBatcherSeq test_task_sequential(task_data_seq);
   ASSERT_EQ(test_task_sequential.ValidationImpl(), true);
   test_task_sequential.PreProcessingImpl();
   test_task_sequential.RunImpl();
@@ -91,7 +91,7 @@ TEST(Konstantinov_I_Sort_Batcher_seq, test_random_1000_values) {
   task_data_seq->outputs.emplace_back(reinterpret_cast<uint8_t *>(out.data()));
   task_data_seq->outputs_count.emplace_back(out.size());
 
-  konstantinov_i_sort_batcher::RadixSortBatcherSeq test_task_sequential(task_data_seq);
+  konstantinov_i_sort_batcher_seq::RadixSortBatcherSeq test_task_sequential(task_data_seq);
   ASSERT_EQ(test_task_sequential.ValidationImpl(), true);
   test_task_sequential.PreProcessingImpl();
   test_task_sequential.RunImpl();
@@ -119,7 +119,7 @@ TEST(Konstantinov_I_Sort_Batcher_seq, test_random_100000_values) {
   task_data_seq->outputs.emplace_back(reinterpret_cast<uint8_t *>(out.data()));
   task_data_seq->outputs_count.emplace_back(out.size());
 
-  konstantinov_i_sort_batcher::RadixSortBatcherSeq test_task_sequential(task_data_seq);
+  konstantinov_i_sort_batcher_seq::RadixSortBatcherSeq test_task_sequential(task_data_seq);
   ASSERT_EQ(test_task_sequential.ValidationImpl(), true);
   test_task_sequential.PreProcessingImpl();
   test_task_sequential.RunImpl();
@@ -147,7 +147,7 @@ TEST(Konstantinov_I_Sort_Batcher_seq, test_random_1000000_values) {
   task_data_seq->outputs.emplace_back(reinterpret_cast<uint8_t *>(out.data()));
   task_data_seq->outputs_count.emplace_back(out.size());
 
-  konstantinov_i_sort_batcher::RadixSortBatcherSeq test_task_sequential(task_data_seq);
+  konstantinov_i_sort_batcher_seq::RadixSortBatcherSeq test_task_sequential(task_data_seq);
   ASSERT_EQ(test_task_sequential.ValidationImpl(), true);
   test_task_sequential.PreProcessingImpl();
   test_task_sequential.RunImpl();
@@ -175,7 +175,7 @@ TEST(Konstantinov_I_Sort_Batcher_seq, test_random_5000000_values) {
   task_data_seq->outputs.emplace_back(reinterpret_cast<uint8_t *>(out.data()));
   task_data_seq->outputs_count.emplace_back(out.size());
 
-  konstantinov_i_sort_batcher::RadixSortBatcherSeq test_task_sequential(task_data_seq);
+  konstantinov_i_sort_batcher_seq::RadixSortBatcherSeq test_task_sequential(task_data_seq);
   ASSERT_EQ(test_task_sequential.ValidationImpl(), true);
   test_task_sequential.PreProcessingImpl();
   test_task_sequential.RunImpl();

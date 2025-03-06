@@ -6,7 +6,7 @@
 
 #include "core/task/include/task.hpp"
 
-namespace konstantinov_i_sort_batcher {
+namespace konstantinov_i_sort_batcher_seq {
 
 class RadixSortBatcherSeq : public ppc::core::Task {
  public:
@@ -23,4 +23,4 @@ class RadixSortBatcherSeq : public ppc::core::Task {
   void BatcherOddEvenMerge(std::vector<double>& arr, int low, int high);
 
 };
-}  // namespace konstantinov_i_sort_batcher
+}  // namespace konstantinov_i_sort_batcher_seq

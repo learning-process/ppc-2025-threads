@@ -7,7 +7,7 @@
 #include <ranges>
 #include <vector>
 
-namespace konstantinov_i_sort_batcher {
+namespace konstantinov_i_sort_batcher_seq {
 
 static uint64_t DoubleToKey(double d) {
   uint64_t u;
@@ -76,13 +76,13 @@ void RadixSortBatcherSeq::BatcherOddEvenMerge(std::vector<double>& arr, int low,
 }
 
 void RadixSortBatcherSeq::RadixSort(std::vector<double>& arr) {
-  konstantinov_i_sort_batcher::RadixSorted(arr);
+  konstantinov_i_sort_batcher_seq::RadixSorted(arr);
   BatcherOddEvenMerge(arr, 0, static_cast<int>(arr.size()));
 }
 
-}  // namespace konstantinov_i_sort_batcher
+}  // namespace konstantinov_i_sort_batcher_seq
 
-bool konstantinov_i_sort_batcher::RadixSortBatcherSeq::PreProcessingImpl() {
+bool konstantinov_i_sort_batcher_seq::RadixSortBatcherSeq::PreProcessingImpl() {
   unsigned int input_size = task_data->inputs_count[0];
   auto* in_ptr = reinterpret_cast<double*>(task_data->inputs[0]);
   mas_ = std::vector<double>(in_ptr, in_ptr + input_size);
@@ -93,17 +93,17 @@ bool konstantinov_i_sort_batcher::RadixSortBatcherSeq::PreProcessingImpl() {
   return true;
 }
 
-bool konstantinov_i_sort_batcher::RadixSortBatcherSeq::ValidationImpl() {
+bool konstantinov_i_sort_batcher_seq::RadixSortBatcherSeq::ValidationImpl() {
   return task_data->inputs_count[0] == task_data->outputs_count[0];
 }
 
-bool konstantinov_i_sort_batcher::RadixSortBatcherSeq::RunImpl() {
+bool konstantinov_i_sort_batcher_seq::RadixSortBatcherSeq::RunImpl() {
   output_ = mas_;
-  konstantinov_i_sort_batcher::RadixSortBatcherSeq::RadixSort(output_);
+  konstantinov_i_sort_batcher_seq::RadixSortBatcherSeq::RadixSort(output_);
   return true;
 }
 
-bool konstantinov_i_sort_batcher::RadixSortBatcherSeq::PostProcessingImpl() {
+bool konstantinov_i_sort_batcher_seq::RadixSortBatcherSeq::PostProcessingImpl() {
   for (size_t i = 0; i < output_.size(); i++) {
     reinterpret_cast<double*>(task_data->outputs[0])[i] = output_[i];
   }

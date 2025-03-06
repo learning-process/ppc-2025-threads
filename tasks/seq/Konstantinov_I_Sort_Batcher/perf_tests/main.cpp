@@ -36,7 +36,7 @@ TEST(Konstantinov_I_Sort_Batcher_seq, test_pipeline_run) {
   task_data_seq->outputs.emplace_back(reinterpret_cast<uint8_t*>(out.data()));
   task_data_seq->outputs_count.emplace_back(out.size());
 
-  auto test_task_sequential = std::make_shared<konstantinov_i_sort_batcher::RadixSortBatcherSeq>(task_data_seq);
+  auto test_task_sequential = std::make_shared<konstantinov_i_sort_batcher_seq::RadixSortBatcherSeq>(task_data_seq);
 
   auto perf_attr = std::make_shared<ppc::core::PerfAttr>();
   perf_attr->num_running = 10;
@@ -80,7 +80,7 @@ TEST(Konstantinov_I_Sort_Batcher_seq, test_task_run) {
   task_data_seq->outputs.emplace_back(reinterpret_cast<uint8_t*>(out.data()));
   task_data_seq->outputs_count.emplace_back(out.size());
 
-  auto test_task_sequential = std::make_shared<konstantinov_i_sort_batcher::RadixSortBatcherSeq>(task_data_seq);
+  auto test_task_sequential = std::make_shared<konstantinov_i_sort_batcher_seq::RadixSortBatcherSeq>(task_data_seq);
 
   auto perf_attr = std::make_shared<ppc::core::PerfAttr>();
   perf_attr->num_running = 10;
