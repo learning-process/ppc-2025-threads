@@ -1,6 +1,5 @@
 #include "omp/Sadikov_I_SparesMatrixMultiplication_OMP/include/ops_omp.hpp"
 
-#include <iostream>
 #include <random>
 #include <vector>
 

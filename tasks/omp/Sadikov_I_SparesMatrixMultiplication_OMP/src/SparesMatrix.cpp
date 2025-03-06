@@ -3,6 +3,7 @@
 #include <omp.h>
 
 #include <algorithm>
+#include <cstddef>
 #include <vector>
 
 namespace sadikov_i_sparse_matrix_multiplication_task_omp {
@@ -37,11 +38,11 @@ SparesMatrix SparesMatrix::Transpose(const SparesMatrix& matrix) {
   return SparesMatrix(matrix.GetColumnsCount(), matrix.GetRowsCount(), val, rows, elem_sum);
 }
 double SparesMatrix::CalculateSum(SparesMatrix& fmatrix, SparesMatrix& smatrix, const std::vector<int>& felements_sum,
-                                  const std::vector<int>& selements_sum, int iIndex, int jIndex) {
-  auto fmatrix_elements_count = GetElementsCount(jIndex, felements_sum);
-  auto smatrix_elements_count = GetElementsCount(iIndex, selements_sum);
-  auto fmatrix_start_index = jIndex != 0 ? felements_sum[jIndex] - fmatrix_elements_count : 0;
-  auto smatrix_start_index = iIndex != 0 ? selements_sum[iIndex] - smatrix_elements_count : 0;
+                                  const std::vector<int>& selements_sum, int i_index, int j_index) {
+  auto fmatrix_elements_count = GetElementsCount(j_index, felements_sum);
+  auto smatrix_elements_count = GetElementsCount(i_index, selements_sum);
+  auto fmatrix_start_index = j_index != 0 ? felements_sum[j_index] - fmatrix_elements_count : 0;
+  auto smatrix_start_index = i_index != 0 ? selements_sum[i_index] - smatrix_elements_count : 0;
   double sum = 0.0;
   for (auto n = 0; n < fmatrix_elements_count; n++) {
     for (auto n2 = 0; n2 < smatrix_elements_count; n2++) {
@@ -60,23 +61,23 @@ SparesMatrix SparesMatrix::operator*(SparesMatrix& smatrix) {
   auto fmatrix = Transpose(*this);
   const auto& felements_sum = fmatrix.GetElementsSum();
   const auto& selements_sum = smatrix.GetElementsSum();
-  std::vector<std::vector<std::pair<double, int>>> intermediate_Values(20);
+  std::vector<std::vector<std::pair<double, int>>> intermediate_values(18);
 #pragma omp parallel
   {
-    std::vector<std::pair<double, int>> thread_Data;
+    std::vector<std::pair<double, int>> thread_data;
 #pragma omp for
     for (auto i = 0; i < static_cast<int>(selements_sum.size()); ++i) {
       for (auto j = 0; j < static_cast<int>(felements_sum.size()); ++j) {
         double sum = CalculateSum(fmatrix, smatrix, felements_sum, selements_sum, i, j);
         if (sum > kMEpsilon) {
-          thread_Data.emplace_back(std::pair<double, int>{sum, j});
+          thread_data.emplace_back(sum, j);
           elements_sum[i]++;
         }
       }
     }
-    intermediate_Values[omp_get_thread_num()] = thread_Data;
+    intermediate_values[omp_get_thread_num()] = thread_data;
   }
-  for (auto&& it : intermediate_Values) {
+  for (auto&& it : intermediate_values) {
     for (auto&& it2 : it) {
       values.emplace_back(it2.first);
       rows.emplace_back(it2.second);
