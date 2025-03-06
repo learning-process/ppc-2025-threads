@@ -13,7 +13,7 @@ class CCSMatrixOMP : public ppc::core::Task {
   SparesMatrix m_fMatrix_;
   SparesMatrix m_sMatrix_;
   SparesMatrix m_answerMatrix_;
-
+  // restart tests
  public:
   explicit CCSMatrixOMP(ppc::core::TaskDataPtr task_data) : Task(std::move(task_data)) {}
   bool PreProcessingImpl() override;
