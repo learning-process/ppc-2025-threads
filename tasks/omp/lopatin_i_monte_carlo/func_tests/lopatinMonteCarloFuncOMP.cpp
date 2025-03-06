@@ -249,7 +249,9 @@ TEST(lopatin_i_monte_carlo_omp, 7DQuadraticFunction) {
   // (x1)^2 + (x2)^2 + (x3)^2 + ... + (x7)^2
   auto function = [](const std::vector<double>& x) {
     double sum = 0.0;
-    for (double xi : x) sum += xi * xi;
+    for (double xi : x) {
+      sum += xi * xi;
+    }
     return sum;
   };
 
