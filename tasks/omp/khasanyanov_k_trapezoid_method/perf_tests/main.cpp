@@ -14,9 +14,9 @@ using namespace khasanyanov_k_trapezoid_method_omp;
 TEST(khasanyanov_k_trapezoid_method_omp, test_pipeline_run) {
   constexpr double kPrecision = 0.01;
   double result{};
-  auto f = [](const std::vector<double>& x) -> double { return (x[0] * x[0]) + (2 * x[1]) - (6.5 * x[2] * x[2]); };
+  auto f = [](const std::vector<double>& x) -> double { return (x[0] * x[0]) + (2 * x[1]) - (6.5 * x[2]); };
 
-  IntegrationBounds bounds = {{-3, 1.0}, {0.0, 2.0}, {0.5, 1.0}};
+  IntegrationBounds bounds = {{-3.0, -2.0}, {0.0, 2.0}, {0.5, 1.0}};
 
   auto task_data_seq = std::make_shared<ppc::core::TaskData>();
   TaskContext context{.function = f, .bounds = bounds, .precision = kPrecision};
@@ -43,9 +43,9 @@ TEST(khasanyanov_k_trapezoid_method_omp, test_pipeline_run) {
 TEST(khasanyanov_k_trapezoid_method_omp, test_task_run) {
   constexpr double kPrecision = 0.01;
   double result{};
-  auto f = [](const std::vector<double>& x) -> double { return (x[0] * x[0]) + (2 * x[1]) - (6.5 * x[2] * x[2]); };
+  auto f = [](const std::vector<double>& x) -> double { return (x[0] * x[0]) + (2 * x[1]) - (6.5 * x[2]); };
 
-  IntegrationBounds bounds = {{-3, 1.0}, {0.0, 2.0}, {0.5, 1.0}};
+  IntegrationBounds bounds = {{-3.0, -2.0}, {0.0, 2.0}, {0.5, 1.0}};
 
   auto task_data_seq = std::make_shared<ppc::core::TaskData>();
   TaskContext context{.function = f, .bounds = bounds, .precision = kPrecision};
