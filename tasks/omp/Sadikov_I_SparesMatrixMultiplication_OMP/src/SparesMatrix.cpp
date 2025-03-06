@@ -55,7 +55,7 @@ double SparesMatrix::CalculateSum(SparesMatrix& fmatrix, SparesMatrix& smatrix, 
   return sum;
 }
 
-SparesMatrix SparesMatrix::operator*(SparesMatrix& smatrix) {
+SparesMatrix SparesMatrix::operator*(SparesMatrix& smatrix) const {
   std::vector<double> values;
   std::vector<int> rows;
   std::vector<int> elements_sum(smatrix.GetColumnsCount());

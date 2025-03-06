@@ -2,7 +2,6 @@
 
 #include <omp.h>
 
-#include <utility>
 #include <vector>
 
 namespace sadikov_i_sparse_matrix_multiplication_task_omp {
@@ -32,7 +31,7 @@ class SparesMatrix {
   [[nodiscard]] const std::vector<int>& GetElementsSum() const noexcept { return m_elementsSum_; }
   [[nodiscard]] int GetColumnsCount() const noexcept { return m_columnsCount_; }
   [[nodiscard]] int GetRowsCount() const noexcept { return m_rowsCount_; }
-  SparesMatrix operator*(SparesMatrix& smatrix) noexcept(false);
+  SparesMatrix operator*(SparesMatrix& smatrix) const noexcept(false);
 };
 
 SparesMatrix MatrixToSpares(int rows_count, int columns_count, const std::vector<double>& values);
