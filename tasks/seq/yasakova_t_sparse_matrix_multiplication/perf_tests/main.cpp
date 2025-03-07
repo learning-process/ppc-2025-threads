@@ -14,7 +14,6 @@ namespace yasakova_t_sparse_matrix_multiplication_seq {
 
 SparseMatrixCRS MultiplyMatrices(const SparseMatrixCRS& a, const SparseMatrixCRS& b) {
   SparseMatrixCRS result(a.rowCount, false, b.columnCount);
-  
   for (int i = 0; i < a.rowCount; ++i) {
     for (int j = 0; j < b.columnCount; ++j) {
       Complex sum(0, 0);
@@ -26,7 +25,6 @@ SparseMatrixCRS MultiplyMatrices(const SparseMatrixCRS& a, const SparseMatrixCRS
       }
     }
   }
-  
   return result;
 }
 
@@ -34,7 +32,6 @@ bool operator==(const SparseMatrixCRS& a, const SparseMatrixCRS& b) {
   if (a.rowCount != b.rowCount || a.columnCount != b.columnCount) {
     return false;
   }
-  
   for (int i = 0; i < a.rowCount; ++i) {
     for (int j = 0; j < a.columnCount; ++j) {
       if (a.GetElement(i, j) != b.GetElement(i, j)) {
@@ -42,7 +39,6 @@ bool operator==(const SparseMatrixCRS& a, const SparseMatrixCRS& b) {
       }
     }
   }
-  
   return true;
 }
 }  // namespace yasakova_t_sparse_matrix_multiplication_seq
@@ -75,9 +71,9 @@ TEST(yasakova_t_sparse_matrix_multiplication_seq, test_pipeline_run) {
 
   // Initialize task data structure
   auto task_data = std::make_shared<ppc::core::TaskData>();
-  task_data->inputs.emplace_back(reinterpret_cast<uint8_t *>(input_data.data()));
+  task_data->inputs.emplace_back(reinterpret_cast<uint8_t*>(input_data.data()));
   task_data->inputs_count.emplace_back(input_data.size());
-  task_data->outputs.emplace_back(reinterpret_cast<uint8_t *>(result_vector.data()));
+  task_data->outputs.emplace_back(reinterpret_cast<uint8_t*>(result_vector.data()));
   task_data->outputs_count.emplace_back(result_vector.size());
 
   // Create Task
@@ -144,9 +140,9 @@ TEST(yasakova_t_sparse_matrix_multiplication_seq, test_task_run) {
 
   // Initialize task data structure
   auto task_data = std::make_shared<ppc::core::TaskData>();
-  task_data->inputs.emplace_back(reinterpret_cast<uint8_t *>(input_data.data()));
+  task_data->inputs.emplace_back(reinterpret_cast<uint8_t*>(input_data.data()));
   task_data->inputs_count.emplace_back(input_data.size());
-  task_data->outputs.emplace_back(reinterpret_cast<uint8_t *>(result_vector.data()));
+  task_data->outputs.emplace_back(reinterpret_cast<uint8_t*>(result_vector.data()));
   task_data->outputs_count.emplace_back(result_vector.size());
 
   // Create Task
