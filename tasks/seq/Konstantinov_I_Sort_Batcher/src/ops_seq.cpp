@@ -42,7 +42,7 @@ void RadixSorted(std::vector<double>& arr) {
     std::vector<size_t> count(radix, 0);
     int shift = pass * 8;
     for (size_t i = 0; i < n; i++) {
-       auto byte = static_cast<uint8_t>((keys[i] >> shift) & 0xFF);
+      auto byte = static_cast<uint8_t>((keys[i] >> shift) & 0xFF);
       count[byte]++;
     }
     for (int j = 1; j < radix; j++) {
