@@ -1,8 +1,8 @@
+#include "omp/vavilov_v_cannon/include/ops_omp.hpp"
+
 #include <algorithm>
 #include <cmath>
 #include <vector>
-
-#include "omp/vavilov_v_cannon/include/ops_omp.hpp"
 
 bool vavilov_v_cannon_omp::CannonOMP::PreProcessingImpl() {
   N_ = static_cast<unsigned int>(std::sqrt(task_data->inputs_count[0]));
