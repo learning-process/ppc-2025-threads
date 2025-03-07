@@ -82,7 +82,33 @@ TEST(sadikov_i_sparse_matrix_multiplication_task_omp, test_empty_matrixes) {
   }
 }
 
-TEST(sadikov_i_sparse_matrix_multiplication_task_omp, test_random_matrix) {
+TEST(sadikov_i_sparse_matrix_multiplication_task_seq, test_random_matrixes) {
+  constexpr auto kEpsilon = 0.000001;
+  auto fmatrix = sadikov_i_sparse_matrix_multiplication_task_omp::GetRandomMatrix(240);
+  auto smatrix = sadikov_i_sparse_matrix_multiplication_task_omp::GetRandomMatrix(240);
+  std::vector<double> out(144, 0.0);
+  auto task_data_seq = std::make_shared<ppc::core::TaskData>();
+  task_data_seq->inputs.emplace_back(reinterpret_cast<uint8_t *>(fmatrix.data()));
+  task_data_seq->inputs.emplace_back(reinterpret_cast<uint8_t *>(smatrix.data()));
+  task_data_seq->inputs_count.emplace_back(12);
+  task_data_seq->inputs_count.emplace_back(20);
+  task_data_seq->inputs_count.emplace_back(20);
+  task_data_seq->inputs_count.emplace_back(12);
+  task_data_seq->outputs.emplace_back(reinterpret_cast<uint8_t *>(out.data()));
+  task_data_seq->outputs_count.emplace_back(out.size());
+  auto check_out =
+      sadikov_i_sparse_matrix_multiplication_task_omp::BaseMatrixMultiplication(fmatrix, 12, 20, smatrix, 20, 12);
+  sadikov_i_sparse_matrix_multiplication_task_omp::CCSMatrixOMP test_task_sequential(task_data_seq);
+  ASSERT_EQ(test_task_sequential.Validation(), true);
+  test_task_sequential.PreProcessing();
+  test_task_sequential.Run();
+  test_task_sequential.PostProcessing();
+  for (auto i = 0; i < static_cast<int>(out.size()); ++i) {
+    EXPECT_NEAR(out[i], check_out[i], kEpsilon);
+  }
+}
+
+TEST(sadikov_i_sparse_matrix_multiplication_task_omp, test_random_matrixes2) {
   constexpr auto kEpsilon = 0.000001;
   constexpr auto kSize = 40;
   auto fmatrix = sadikov_i_sparse_matrix_multiplication_task_omp::GetRandomMatrix(kSize * kSize);

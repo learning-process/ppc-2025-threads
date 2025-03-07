@@ -63,12 +63,12 @@ SparesMatrix SparesMatrix::operator*(SparesMatrix& smatrix) const {
   const auto& felements_sum = fmatrix.GetElementsSum();
   const auto& selements_sum = smatrix.GetElementsSum();
   std::vector<std::vector<std::pair<double, int>>> intermediate_values(18);
-#pragma omp parallel
+#pragma omp parallel num_threads(5)
   {
     std::vector<std::pair<double, int>> thread_data;
 #pragma omp for
-    for (auto i = 0; i < static_cast<int>(selements_sum.size()); ++i) {
-      for (auto j = 0; j < static_cast<int>(felements_sum.size()); ++j) {
+    for (int i = 0; i < static_cast<int>(selements_sum.size()); ++i) {
+      for (size_t j = 0; j < felements_sum.size(); ++j) {
         double sum = CalculateSum(fmatrix, smatrix, felements_sum, selements_sum, i, j);
         if (sum > kMEpsilon) {
           thread_data.emplace_back(sum, j);
