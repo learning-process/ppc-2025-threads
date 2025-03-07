@@ -3,16 +3,16 @@
 #include <algorithm>
 #include <vector>
 
+#include "seq/zaitsev_a_bw_labeling/include/disjoint_set.hpp"
+
 bool zaitsev_a_labeling::Labeler::PreProcessingImpl() {
   width_ = task_data->inputs_count[0];
   height_ = task_data->inputs_count[1];
   size_ = height_ * width_;
   current_label_ = 0;
-  equivalences_.push_back(0);
-  image_ = std::vector<int>(size_);
-  labels_ = std::vector<int>(size_);
-  auto* tmp_ptr = reinterpret_cast<int*>(task_data->inputs[0]);
-  std::copy(tmp_ptr, tmp_ptr + size_, image_.begin());
+  image_.resize(size_, 0);
+  labels_.resize(size_, 0);
+  std::copy(task_data->inputs[0], task_data->inputs[0] + size_, image_.begin());
   return true;
 }
 
@@ -23,63 +23,85 @@ bool zaitsev_a_labeling::Labeler::ValidationImpl() {
 
 void zaitsev_a_labeling::Labeler::ComputeLabel(unsigned int i) {
   if (image_[i] == 0) {
-    labels_[i] = 0;
     return;
   }
+  std::vector<uint16_t> neighbours;
+  neighbours.reserve(4);
 
-  int top = (i % width_ > 0) ? labels_[i - 1] : 0;
-  int left = (i >= width_) ? labels_[i - width_] : 0;
+  for (int shift = 0; shift < 4; shift++) {
+    long x = ((long)i % width_) + (shift % 3 - 1);
+    long y = ((long)i / width_) + (shift / 3 - 1);
+    long neighbour_index = x + y * width_;
+    uint16_t value = 0;
+    if (x >= 0 && x < width_ && y >= 0) {
+      value = labels_[neighbour_index];
+    }
+    if (value != 0) {
+      neighbours.push_back(value);
+    }
+  }
 
-  if (top == 0 && left == 0) {
+  if (neighbours.empty()) {
     labels_[i] = ++current_label_;
-    equivalences_.push_back(current_label_);
-  } else if (top == 0 && left != 0) {
-    labels_[i] = left;
-  } else if ((top != 0 && left == 0) || top == left) {
-    labels_[i] = top;
+    eqs_[current_label_].insert(current_label_);
   } else {
-    labels_[i] = std::min(top, left);
-    equivalences_[std::max(top, left)] = equivalences_[std::min(top, left)];
-  }
-}
-
-void zaitsev_a_labeling::Labeler::LabelingRasterScan() {
-  current_label_ = 0;
-  for (unsigned int i = 0; i < size_; i++) {
-    ComputeLabel(i);
-  }
-}
-
-void zaitsev_a_labeling::Labeler::PrepareReplacements() {
-  if (equivalences_.empty()) {
-    return;
-  }
-  int label = -1;
-  replacements_ = std::vector<int>(equivalences_.size(), -1);
-  for (unsigned int i = 0; i < equivalences_.size(); i++) {
-    if (replacements_[equivalences_[i]] == -1) {
-      replacements_[i] = ++label;
-    } else {
-      replacements_[i] = replacements_[equivalences_[i]];
+    labels_[i] = *std::min(neighbours.begin(), neighbours.end());
+    for (auto& first : neighbours) {
+      for (auto& second : neighbours) {
+        eqs_[first].insert(second);
+      }
     }
   }
 }
 
+void zaitsev_a_labeling::Labeler::LabelingRasterScan() {
+  for (uint32_t i = 0; i < image_.size(); i++) {
+    ComputeLabel(i);
+  }
+}
+
+void zaitsev_a_labeling::Labeler::CalculateReplacements() {
+  zaitsev_a_disjoint_set::DisjointSet<uint16_t> disjoint_labels(current_label_);
+  for (auto& statement : eqs_) {
+    for (const auto& equal : statement.second) {
+      disjoint_labels.UnionRank(statement.first, equal);
+    }
+  }
+
+  replacements_.resize(current_label_ + 1);
+  std::set<uint16_t> unique_labels;
+
+  for (uint16_t tmp_label = 1; tmp_label < current_label_ + 1; tmp_label++) {
+    replacements_[tmp_label] = disjoint_labels.FindParent(tmp_label);
+    unique_labels.insert(replacements_[tmp_label]);
+  }
+
+  uint16_t true_label = 0;
+  std::map<uint16_t, uint16_t> reps;
+  for (const auto& it : unique_labels) {
+    reps[it] = ++true_label;
+  }
+
+  for (uint32_t i = 0; i < replacements_.size(); i++) {
+    replacements_[i] = reps[replacements_[i]];
+  }
+}
+
 void zaitsev_a_labeling::Labeler::PerformReplacements() {
-  for (int i = 0; i < (int)size_; i++) {
+  for (uint32_t i = 0; i < size_; i++) {
     labels_[i] = replacements_[labels_[i]];
   }
 }
 
 bool zaitsev_a_labeling::Labeler::RunImpl() {
   LabelingRasterScan();
-  PrepareReplacements();
+  CalculateReplacements();
   PerformReplacements();
   return true;
 }
 
 bool zaitsev_a_labeling::Labeler::PostProcessingImpl() {
-  auto* out_ptr = reinterpret_cast<int*>(task_data->outputs[0]);
+  auto* out_ptr = reinterpret_cast<uint16_t*>(task_data->outputs[0]);
   std::ranges::copy(labels_, out_ptr);
   return true;
 }

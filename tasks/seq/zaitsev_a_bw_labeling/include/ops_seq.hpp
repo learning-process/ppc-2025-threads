@@ -1,5 +1,7 @@
 #pragma once
 
+#include <map>
+#include <set>
 #include <utility>
 #include <vector>
 
@@ -16,18 +18,20 @@ class Labeler : public ppc::core::Task {
   bool PostProcessingImpl() override;
 
  private:
-  std::vector<int> image_;
-  std::vector<int> labels_;
-  std::vector<int> equivalences_;
-  std::vector<int> replacements_;
+  std::vector<uint8_t> image_;
+  std::vector<uint16_t> labels_;
+  std::map<uint16_t, std::set<uint16_t>> eqs_;
+  std::vector<uint16_t> replacements_;
   unsigned int width_;
   unsigned int height_;
   unsigned int size_;
-  int current_label_;
 
+  uint16_t current_label_;
+
+  void GetNeighbours(unsigned int i, std::vector<uint16_t>& neighbours);
   void ComputeLabel(unsigned int i);
   void LabelingRasterScan();
-  void PrepareReplacements();
+  void CalculateReplacements();
   void PerformReplacements();
 };
 

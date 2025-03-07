@@ -1,26 +1,117 @@
 #include <gtest/gtest.h>
 
 #include <cstdint>
+#include <fstream>
+#include <iomanip>
 #include <memory>
+#include <opencv2/opencv.hpp>
+#include <random>
+#include <string>
 #include <tuple>
 #include <vector>
 
 #include "core/task/include/task.hpp"
+#include "core/util/include/util.hpp"
+#include "opencv2/core.hpp"
+#include "opencv2/core/hal/interface.h"
+#include "opencv2/imgproc.hpp"
 #include "seq/zaitsev_a_bw_labeling/include/ops_seq.hpp"
 
-using Params = std::tuple<int, int, std::vector<int>, std::vector<int>>;
+using TestData = std::tuple<std::vector<uint8_t>, std::vector<uint16_t>, unsigned int, unsigned int>;
 
 namespace {
 
-class zaitsev_a_labeling_test_seq  // NOLINT(readability-identifier-naming)
-    : public ::testing::TestWithParam<Params> {
+// NOLINTNEXTLINE(readability-identifier-naming)
+class zaitsev_a_labeling_test_seq : public ::testing::TestWithParam<std::string> {
  protected:
+  template <typename type>
+  void Mat2vec(cv::Mat& src, std::vector<type>& dst) {
+    dst.resize(src.total());
+    std::ranges::copy(src.begin<type>(), src.end<type>(), dst.begin());
+  }
+
+  TestData GenerateImage() {
+    int max_size = 500;
+    int min_size = 100;
+
+    std::random_device rd;
+    std::mt19937 gen(rd());
+    std::uniform_int_distribution<> distr(min_size, max_size);
+
+    int width = distr(gen);
+    int height = distr(gen);
+
+    cv::Mat img_raw(height, width, CV_8UC1);
+    cv::randn(img_raw, 128, 64);
+
+    cv::Mat img;
+    cv::threshold(img_raw, img, 128, 1, cv::THRESH_BINARY);
+
+    std::vector<uint8_t> in;
+    Mat2vec(img, in);
+
+    cv::Mat labels;
+    cv::connectedComponents(img, labels, 8, CV_16U);
+
+    std::vector<uint16_t> exp;
+    Mat2vec<uint16_t>(labels, exp);
+
+    return std::make_tuple(in, exp, width, height);
+  }
+
+  TestData PrepareImages(const std::string& filename) {
+    cv::Mat img_raw = cv::imread(ppc::util::GetAbsolutePath("seq/zaitsev_a_bw_labeling/data/" + filename));
+    unsigned int width = img_raw.cols;
+    unsigned int height = img_raw.rows;
+
+    cv::Mat img_gray;
+    cv::cvtColor(img_raw, img_gray, cv::COLOR_RGB2GRAY);
+
+    cv::Mat img;
+    cv::threshold(img_gray, img, 128, 1, cv::THRESH_BINARY_INV);
+
+    std::vector<uint8_t> in;
+    Mat2vec<uint8_t>(img, in);
+
+    cv::Mat labels;
+    cv::connectedComponents(img, labels, 8, CV_16U);
+
+    std::vector<uint16_t> out;
+    Mat2vec<uint16_t>(labels, out);
+
+    return std::make_tuple(in, out, width, height);
+  }
+
+  static bool IsIsomorphic(const std::vector<uint16_t>& first, std::vector<uint16_t>& second) {
+    std::map<uint16_t, uint16_t> concordance;
+    std::set<uint16_t> already_been;
+
+    if (first.size() != second.size()) {
+      return false;
+    }
+
+    for (uint32_t i = 0; i < first.size(); i++) {
+      if (first[i] != second[i]) {
+        if (!concordance.contains(first[i]) && !already_been.contains(second[i])) {
+          concordance[first[i]] = second[i];
+          already_been.insert(second[i]);
+        } else if (concordance.contains(first[i]) && already_been.contains(second[i])) {
+          if (second[i] != concordance[first[i]]) {
+            return false;
+          }
+        } else {
+          return false;
+        }
+      }
+    }
+    return true;
+  }
 };
 
 TEST_F(zaitsev_a_labeling_test_seq, validation_fails_on_incorrect_input) {
   const int width = 16;
-  std::vector<int> in(width, 0);
-  std::vector<int> out(in.size(), -1);
+  std::vector<uint8_t> in(width, 0);
+  std::vector<uint32_t> out(in.size(), -1);
 
   auto task_data_seq = std::make_shared<ppc::core::TaskData>();
   task_data_seq->inputs.emplace_back(const_cast<uint8_t*>(reinterpret_cast<const uint8_t*>(in.data())));
@@ -33,11 +124,13 @@ TEST_F(zaitsev_a_labeling_test_seq, validation_fails_on_incorrect_input) {
 }
 
 TEST_P(zaitsev_a_labeling_test_seq, returns_correct_label_map) {
-  const auto& [width, height, in, expected] = GetParam();
-  std::vector<int> out(in.size(), -1);
+  const auto testcase = GetParam();
+  const auto& [in, exp, width, height] = (testcase == "rand") ? GenerateImage() : PrepareImages(testcase);
+
+  std::vector<uint16_t> out(in.size());
 
   auto task_data_seq = std::make_shared<ppc::core::TaskData>();
-  task_data_seq->inputs.emplace_back(const_cast<uint8_t*>(reinterpret_cast<const uint8_t*>(in.data())));
+  task_data_seq->inputs.emplace_back(const_cast<uint8_t*>(in.data()));
   task_data_seq->inputs_count.emplace_back(width);
   task_data_seq->inputs_count.emplace_back(height);
   task_data_seq->outputs_count.emplace_back(out.size());
@@ -49,121 +142,22 @@ TEST_P(zaitsev_a_labeling_test_seq, returns_correct_label_map) {
   task.RunImpl();
   task.PostProcessingImpl();
 
-  EXPECT_EQ(expected, out);
+  EXPECT_TRUE(IsIsomorphic(exp, out));
 }
 
 // clang-format off
 INSTANTIATE_TEST_SUITE_P(zaitsev_a_labeling_test_seq, zaitsev_a_labeling_test_seq, ::testing::Values(
-    Params(
-      5, 5,
-      {
-        0, 0, 0, 0, 0, 
-        0, 0, 0, 0, 0, 
-        0, 0, 0, 0, 0, 
-        0, 0, 0, 0, 0, 
-        0, 0, 0, 0, 0, 
-      },
-      {
-        0, 0, 0, 0, 0, 
-        0, 0, 0, 0, 0, 
-        0, 0, 0, 0, 0, 
-        0, 0, 0, 0, 0, 
-        0, 0, 0, 0, 0, 
-      }
-    ),
-    Params(
-      4, 5,
-      {
-        1, 1, 1, 1, 
-        1, 1, 1, 1, 
-        1, 1, 1, 1, 
-        1, 1, 1, 1, 
-        1, 1, 1, 1, 
-      },
-      {
-        1, 1, 1, 1, 
-        1, 1, 1, 1, 
-        1, 1, 1, 1, 
-        1, 1, 1, 1, 
-        1, 1, 1, 1, 
-      }
-    ),
-    Params(
-      3, 3, 
-      {
-        0, 1, 0, 
-        1, 0, 1, 
-        0, 1, 0
-      },
-      {
-        0, 1, 0,
-        2, 0, 3, 
-        0, 4, 0
-      }
-    ),
-    Params(
-      4, 4,
-      {
-        0, 1, 1, 0,
-        1, 1, 0, 1,
-        1, 0, 1, 1,
-        0, 1, 1, 0
-      },
-      {
-        0, 1, 1, 0,
-        1, 1, 0, 2, 
-        1, 0, 2, 2, 
-        0, 2, 2, 0
-      }
-    ), 
-    Params(
-      7, 7,
-      {
-        1, 0, 1, 0, 1, 0, 1,
-        1, 1, 1, 1, 1, 1, 1,
-        1, 1, 0, 0, 0, 0, 0, 
-        0, 0, 1, 1, 1, 0, 0, 
-        0, 1, 1, 0, 1, 1, 0,
-        1, 0, 0, 1, 0, 1, 1,
-        0, 1, 1, 1, 1, 0, 0
-      },
-      {
-        1, 0, 1, 0, 1, 0, 1,
-        1, 1, 1, 1, 1, 1, 1, 
-        1, 1, 0, 0, 0, 0, 0,
-        0, 0, 2, 2, 2, 0, 0,
-        0, 2, 2, 0, 2, 2, 0,
-        3, 0, 0, 4, 0, 2, 2, 
-        0, 4, 4, 4, 4, 0, 0
-      }
-    ),
-    Params(
-      9, 9, 
-      {
-        0, 0, 0, 1, 1, 1, 0, 0, 0,
-        0, 1, 1, 1, 0, 1, 1, 1, 0, 
-        0, 1, 0, 0, 0, 0, 0, 1, 0, 
-        1, 1, 0, 1, 1, 1, 0, 1, 1, 
-        1, 0, 0, 1, 0, 1, 0, 0, 1, 
-        1, 1, 0, 1, 1, 1, 0, 1, 1, 
-        0, 1, 0, 0, 0, 0, 0, 1, 0,
-        0, 1, 1, 1, 0, 1, 1, 1, 0, 
-        0, 0, 0, 1, 1, 1, 0, 0, 0
-      }, 
-      {
-        0, 0, 0, 1, 1, 1, 0, 0, 0,
-        0, 1, 1, 1, 0, 1, 1, 1, 0, 
-        0, 1, 0, 0, 0, 0, 0, 1, 0, 
-        1, 1, 0, 2, 2, 2, 0, 1, 1, 
-        1, 0, 0, 2, 0, 2, 0, 0, 1, 
-        1, 1, 0, 2, 2, 2, 0, 1, 1, 
-        0, 1, 0, 0, 0, 0, 0, 1, 0,
-        0, 1, 1, 1, 0, 1, 1, 1, 0, 
-        0, 0, 0, 1, 1, 1, 0, 0, 0
-      }
-    )
+    "lungs.bmp",
+    "kittens.bmp",
+    "rosenrot.bmp",
+    "rombs.bmp",
+    "rand",
+    "rand",
+    "rand",
+    "rand",
+    "rand"
   )
 );
-//clang-format on
+// clang-format on
 
-} // namespace
+}  // namespace
