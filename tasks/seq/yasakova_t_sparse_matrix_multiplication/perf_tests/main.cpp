@@ -63,9 +63,20 @@ TEST(yasakova_t_sparse_matrix_multiplication_seq, test_pipeline_run) {
   // Create Performance analyzer
   auto performance_analyzer = std::make_shared<ppc::core::Perf>(sequential_task);
   performance_analyzer->PipelineRun(performance_attributes, performance_results);
+
+  p// Print performance statistics
   ppc::core::Perf::PrintPerfStatistic(performance_results);
+
+  // Convert the result vector back to a matrix
   yasakova_t_sparse_matrix_multiplication_seq::SparseMatrixCRS final_result =
       yasakova_t_sparse_matrix_multiplication_seq::ConvertVectorToMatrix(result_vector);
+
+  // Compute the expected result using a known correct method
+  yasakova_t_sparse_matrix_multiplication_seq::SparseMatrixCRS expected_result =
+      yasakova_t_sparse_matrix_multiplication_seq::MultiplyMatrices(sparse_matrix_a, sparse_matrix_b);
+
+  // Check if the final_result matches the expected_result
+  ASSERT_TRUE(final_result == expected_result);
 }
 
 TEST(yasakova_t_sparse_matrix_multiplication_seq, test_task_run) {
@@ -121,7 +132,18 @@ TEST(yasakova_t_sparse_matrix_multiplication_seq, test_task_run) {
   // Create Performance analyzer
   auto performance_analyzer = std::make_shared<ppc::core::Perf>(sequential_task);
   performance_analyzer->TaskRun(performance_attributes, performance_results);
+
+  // Print performance statistics
   ppc::core::Perf::PrintPerfStatistic(performance_results);
+
+  // Convert the result vector back to a matrix
   yasakova_t_sparse_matrix_multiplication_seq::SparseMatrixCRS final_result =
       yasakova_t_sparse_matrix_multiplication_seq::ConvertVectorToMatrix(result_vector);
+
+  // Compute the expected result using a known correct method
+  yasakova_t_sparse_matrix_multiplication_seq::SparseMatrixCRS expected_result =
+      yasakova_t_sparse_matrix_multiplication_seq::MultiplyMatrices(sparse_matrix_a, sparse_matrix_b);
+
+  // Check if the final_result matches the expected_result
+  ASSERT_TRUE(final_result == expected_result);
 }
