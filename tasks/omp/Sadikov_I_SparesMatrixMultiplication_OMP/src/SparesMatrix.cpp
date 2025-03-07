@@ -63,7 +63,7 @@ SparesMatrix SparesMatrix::operator*(SparesMatrix& smatrix) const {
   const auto& felements_sum = fmatrix.GetElementsSum();
   const auto& selements_sum = smatrix.GetElementsSum();
   std::vector<std::vector<std::pair<double, int>>> intermediate_values(18);
-#pragma omp parallel num_threads(5)
+#pragma omp parallel
   {
     std::vector<std::pair<double, int>> thread_data;
 #pragma omp for
