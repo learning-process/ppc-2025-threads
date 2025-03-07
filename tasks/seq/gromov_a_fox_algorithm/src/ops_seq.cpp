@@ -25,6 +25,12 @@ bool gromov_a_fox_algorithm_seq::TestTaskSequential::PreProcessingImpl() {
   }
 
   block_size_ = n_ / 2;
+  for (int i = 1; i <= n_; ++i) {
+    if (n_ % i == 0) {
+      block_size_ = i;
+      break;
+    }
+  }
   return block_size_ > 0;
 }
 
@@ -39,14 +45,16 @@ bool gromov_a_fox_algorithm_seq::TestTaskSequential::ValidationImpl() {
 }
 
 bool gromov_a_fox_algorithm_seq::TestTaskSequential::RunImpl() {
-  int num_blocks = n_ / block_size_;
+  int num_blocks = (n_ + block_size_ - 1) / block_size_;  // Ceiling division to ensure all indices are covered
 
   for (int stage = 0; stage < num_blocks; ++stage) {
     for (int i = 0; i < n_; i += block_size_) {
       for (int j = 0; j < n_; j += block_size_) {
         for (int bi = i; bi < i + block_size_ && bi < n_; ++bi) {
           for (int bj = j; bj < j + block_size_ && bj < n_; ++bj) {
-            for (int bk = stage * block_size_; bk < (stage + 1) * block_size_ && bk < n_; ++bk) {
+            // Ensure the bk range covers all indices up to n_
+            int start_k = stage * block_size_;
+            for (int bk = start_k; bk < std::min((stage + 1) * block_size_, n_); ++bk) {
               output_[(bi * n_) + bj] += A_[(bi * n_) + bk] * B_[(bk * n_) + bj];
             }
           }

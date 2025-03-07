@@ -5,10 +5,99 @@
 #include <cstdint>
 #include <iterator>
 #include <memory>
+#include <random>
 #include <vector>
 
 #include "core/task/include/task.hpp"
 #include "seq/gromov_a_fox_algorithm/include/ops_seq.hpp"
+
+std::vector<double> generate_random_matrix(size_t n, double min_val, double max_val) {
+  std::random_device rd;
+  std::mt19937 gen(rd());
+  std::uniform_real_distribution<> dis(min_val, max_val);
+
+  std::vector<double> matrix(n * n);
+  for (size_t i = 0; i < n * n; ++i) {
+    matrix[i] = dis(gen);
+  }
+  return matrix;
+}
+
+TEST(gromov_a_fox_algorithm_seq, test_random_5x5) {
+  constexpr size_t kN = 5;
+
+  std::vector<double> a = generate_random_matrix(kN, -10.0, 10.0);
+  std::vector<double> b = generate_random_matrix(kN, -10.0, 10.0);
+  std::vector<double> out(kN * kN, 0.0);
+
+  std::vector<double> expected(kN * kN, 0.0);
+  for (size_t i = 0; i < kN; ++i) {
+    for (size_t j = 0; j < kN; ++j) {
+      for (size_t k = 0; k < kN; ++k) {
+        expected[(i * kN) + j] += a[(i * kN) + k] * b[(k * kN) + j];
+      }
+    }
+  }
+
+  std::vector<double> input;
+  input.reserve(a.size() + b.size());
+  std::ranges::copy(a, std::back_inserter(input));
+  std::ranges::copy(b, std::back_inserter(input));
+
+  auto task_data_seq = std::make_shared<ppc::core::TaskData>();
+  task_data_seq->inputs.emplace_back(reinterpret_cast<uint8_t *>(input.data()));
+  task_data_seq->inputs_count.emplace_back(input.size());
+  task_data_seq->outputs.emplace_back(reinterpret_cast<uint8_t *>(out.data()));
+  task_data_seq->outputs_count.emplace_back(out.size());
+
+  gromov_a_fox_algorithm_seq::TestTaskSequential test_task_sequential(task_data_seq);
+  ASSERT_TRUE(test_task_sequential.Validation());
+  test_task_sequential.PreProcessing();
+  test_task_sequential.Run();
+  test_task_sequential.PostProcessing();
+
+  for (size_t i = 0; i < out.size(); ++i) {
+    EXPECT_NEAR(out[i], expected[i], 1e-9);
+  }
+}
+
+TEST(gromov_a_fox_algorithm_seq, test_random_10x10) {
+  constexpr size_t kN = 10;
+
+  std::vector<double> a = generate_random_matrix(kN, -10.0, 10.0);
+  std::vector<double> b = generate_random_matrix(kN, -10.0, 10.0);
+  std::vector<double> out(kN * kN, 0.0);
+
+  std::vector<double> expected(kN * kN, 0.0);
+  for (size_t i = 0; i < kN; ++i) {
+    for (size_t j = 0; j < kN; ++j) {
+      for (size_t k = 0; k < kN; ++k) {
+        expected[(i * kN) + j] += a[(i * kN) + k] * b[(k * kN) + j];
+      }
+    }
+  }
+
+  std::vector<double> input;
+  input.reserve(a.size() + b.size());
+  std::ranges::copy(a, std::back_inserter(input));
+  std::ranges::copy(b, std::back_inserter(input));
+
+  auto task_data_seq = std::make_shared<ppc::core::TaskData>();
+  task_data_seq->inputs.emplace_back(reinterpret_cast<uint8_t *>(input.data()));
+  task_data_seq->inputs_count.emplace_back(input.size());
+  task_data_seq->outputs.emplace_back(reinterpret_cast<uint8_t *>(out.data()));
+  task_data_seq->outputs_count.emplace_back(out.size());
+
+  gromov_a_fox_algorithm_seq::TestTaskSequential test_task_sequential(task_data_seq);
+  ASSERT_TRUE(test_task_sequential.Validation());
+  test_task_sequential.PreProcessing();
+  test_task_sequential.Run();
+  test_task_sequential.PostProcessing();
+
+  for (size_t i = 0; i < out.size(); ++i) {
+    EXPECT_NEAR(out[i], expected[i], 1e-9);
+  }
+}
 
 TEST(gromov_a_fox_algorithm_seq, test_4x4) {
   constexpr size_t kN = 4;
