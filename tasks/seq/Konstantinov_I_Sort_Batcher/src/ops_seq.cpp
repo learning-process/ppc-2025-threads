@@ -1,5 +1,6 @@
 #include "seq/Konstantinov_I_Sort_Batcher/include/ops_seq.hpp"
 
+#include <algorithm>
 #include <cmath>
 #include <cstddef>
 #include <cstdint>
