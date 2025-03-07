@@ -21,7 +21,8 @@ void Mat2vec(cv::Mat& src, std::vector<type>& dst) {
   std::ranges::copy(src.begin<type>(), src.end<type>(), dst.begin());
 }
 
-void GenerateImage(std::vector<uint8_t>& in, std::vector<uint16_t>& exp, uint16_t width, uint16_t height) {
+void GenerateImage(std::vector<std::uint8_t>& in, std::vector<std::uint16_t>& exp, std::uint16_t width,
+                   std::uint16_t height) {
   cv::Mat img_raw(height, width, CV_8UC1);
   cv::randn(img_raw, 128, 64);
 
@@ -33,12 +34,12 @@ void GenerateImage(std::vector<uint8_t>& in, std::vector<uint16_t>& exp, uint16_
   cv::Mat labels;
   cv::connectedComponents(img, labels, 8, CV_16U);
 
-  Mat2vec<uint16_t>(labels, exp);
+  Mat2vec<std::uint16_t>(labels, exp);
 }
 
-bool IsIsomorphic(const std::vector<uint16_t>& first, std::vector<uint16_t>& second) {
-  std::map<uint16_t, uint16_t> concordance;
-  std::set<uint16_t> already_been;
+bool IsIsomorphic(const std::vector<std::uint16_t>& first, std::vector<std::uint16_t>& second) {
+  std::map<std::uint16_t, std::uint16_t> concordance;
+  std::set<std::uint16_t> already_been;
 
   if (first.size() != second.size()) {
     return false;
@@ -65,19 +66,19 @@ bool IsIsomorphic(const std::vector<uint16_t>& first, std::vector<uint16_t>& sec
 TEST(zaitsev_a_labeling_seq, test_pipeline_run) {
   const int width = 1000;
   const int height = 1000;
-  std::vector<uint8_t> in(width * height);
-  std::vector<uint16_t> out(width * height);
-  std::vector<uint16_t> exp(width * height);
+  std::vector<std::uint8_t> in(width * height);
+  std::vector<std::uint16_t> out(width * height);
+  std::vector<std::uint16_t> exp(width * height);
   GenerateImage(in, exp, width, height);
 
   // Create task_data
 
   auto task_data_seq = std::make_shared<ppc::core::TaskData>();
-  task_data_seq->inputs.emplace_back(const_cast<uint8_t*>(reinterpret_cast<const uint8_t*>(in.data())));
+  task_data_seq->inputs.emplace_back(const_cast<std::uint8_t*>(reinterpret_cast<const std::uint8_t*>(in.data())));
   task_data_seq->inputs_count.emplace_back(width);
   task_data_seq->inputs_count.emplace_back(height);
   task_data_seq->outputs_count.emplace_back(out.size());
-  task_data_seq->outputs.emplace_back(reinterpret_cast<uint8_t*>(out.data()));
+  task_data_seq->outputs.emplace_back(reinterpret_cast<std::uint8_t*>(out.data()));
 
   // Create Task
   auto test_task_sequential = std::make_shared<zaitsev_a_labeling::Labeler>(task_data_seq);
@@ -105,19 +106,19 @@ TEST(zaitsev_a_labeling_seq, test_pipeline_run) {
 TEST(zaitsev_a_labeling_seq, test_task_run) {
   const int width = 1000;
   const int height = 900;
-  std::vector<uint8_t> in(width * height);
-  std::vector<uint16_t> out(width * height);
-  std::vector<uint16_t> exp(width * height);
+  std::vector<std::uint8_t> in(width * height);
+  std::vector<std::uint16_t> out(width * height);
+  std::vector<std::uint16_t> exp(width * height);
   GenerateImage(in, exp, width, height);
 
   // Create task_data
 
   auto task_data_seq = std::make_shared<ppc::core::TaskData>();
-  task_data_seq->inputs.emplace_back(const_cast<uint8_t*>(reinterpret_cast<const uint8_t*>(in.data())));
+  task_data_seq->inputs.emplace_back(const_cast<std::uint8_t*>(reinterpret_cast<const std::uint8_t*>(in.data())));
   task_data_seq->inputs_count.emplace_back(width);
   task_data_seq->inputs_count.emplace_back(height);
   task_data_seq->outputs_count.emplace_back(out.size());
-  task_data_seq->outputs.emplace_back(reinterpret_cast<uint8_t*>(out.data()));
+  task_data_seq->outputs.emplace_back(reinterpret_cast<std::uint8_t*>(out.data()));
 
   // Create Task
   auto test_task_sequential = std::make_shared<zaitsev_a_labeling::Labeler>(task_data_seq);

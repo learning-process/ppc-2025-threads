@@ -18,7 +18,7 @@
 #include "opencv2/imgproc.hpp"
 #include "seq/zaitsev_a_bw_labeling/include/ops_seq.hpp"
 
-using TestData = std::tuple<std::vector<uint8_t>, std::vector<uint16_t>, unsigned int, unsigned int>;
+using TestData = std::tuple<std::vector<std::uint8_t>, std::vector<std::uint16_t>, unsigned int, unsigned int>;
 
 namespace {
 
@@ -48,14 +48,14 @@ class zaitsev_a_labeling_test_seq : public ::testing::TestWithParam<std::string>
     cv::Mat img;
     cv::threshold(img_raw, img, 128, 1, cv::THRESH_BINARY);
 
-    std::vector<uint8_t> in;
+    std::vector<std::uint8_t> in;
     Mat2vec(img, in);
 
     cv::Mat labels;
     cv::connectedComponents(img, labels, 8, CV_16U);
 
-    std::vector<uint16_t> exp;
-    Mat2vec<uint16_t>(labels, exp);
+    std::vector<std::uint16_t> exp;
+    Mat2vec<std::uint16_t>(labels, exp);
 
     return std::make_tuple(in, exp, width, height);
   }
@@ -71,21 +71,21 @@ class zaitsev_a_labeling_test_seq : public ::testing::TestWithParam<std::string>
     cv::Mat img;
     cv::threshold(img_gray, img, 128, 1, cv::THRESH_BINARY_INV);
 
-    std::vector<uint8_t> in;
-    Mat2vec<uint8_t>(img, in);
+    std::vector<std::uint8_t> in;
+    Mat2vec<std::uint8_t>(img, in);
 
     cv::Mat labels;
     cv::connectedComponents(img, labels, 8, CV_16U);
 
-    std::vector<uint16_t> out;
-    Mat2vec<uint16_t>(labels, out);
+    std::vector<std::uint16_t> out;
+    Mat2vec<std::uint16_t>(labels, out);
 
     return std::make_tuple(in, out, width, height);
   }
 
-  static bool IsIsomorphic(const std::vector<uint16_t>& first, std::vector<uint16_t>& second) {
-    std::map<uint16_t, uint16_t> concordance;
-    std::set<uint16_t> already_been;
+  static bool IsIsomorphic(const std::vector<std::uint16_t>& first, std::vector<std::uint16_t>& second) {
+    std::map<std::uint16_t, std::uint16_t> concordance;
+    std::set<std::uint16_t> already_been;
 
     if (first.size() != second.size()) {
       return false;
@@ -111,14 +111,14 @@ class zaitsev_a_labeling_test_seq : public ::testing::TestWithParam<std::string>
 
 TEST_F(zaitsev_a_labeling_test_seq, validation_fails_on_incorrect_input) {
   const int width = 16;
-  std::vector<uint8_t> in(width, 0);
+  std::vector<std::uint8_t> in(width, 0);
   std::vector<uint32_t> out(in.size(), -1);
 
   auto task_data_seq = std::make_shared<ppc::core::TaskData>();
-  task_data_seq->inputs.emplace_back(const_cast<uint8_t*>(reinterpret_cast<const uint8_t*>(in.data())));
+  task_data_seq->inputs.emplace_back(const_cast<std::uint8_t*>(reinterpret_cast<const std::uint8_t*>(in.data())));
   task_data_seq->inputs_count.emplace_back(width);
   task_data_seq->outputs_count.emplace_back(out.size());
-  task_data_seq->outputs.emplace_back(reinterpret_cast<uint8_t*>(out.data()));
+  task_data_seq->outputs.emplace_back(reinterpret_cast<std::uint8_t*>(out.data()));
 
   zaitsev_a_labeling::Labeler intask(task_data_seq);
   EXPECT_FALSE(intask.ValidationImpl());
@@ -128,14 +128,14 @@ TEST_P(zaitsev_a_labeling_test_seq, returns_correct_label_map) {
   const auto testcase = GetParam();
   const auto& [in, exp, width, height] = (testcase == "rand") ? GenerateImage() : PrepareImages(testcase);
 
-  std::vector<uint16_t> out(in.size());
+  std::vector<std::uint16_t> out(in.size());
 
   auto task_data_seq = std::make_shared<ppc::core::TaskData>();
-  task_data_seq->inputs.emplace_back(const_cast<uint8_t*>(in.data()));
+  task_data_seq->inputs.emplace_back(const_cast<std::uint8_t*>(in.data()));
   task_data_seq->inputs_count.emplace_back(width);
   task_data_seq->inputs_count.emplace_back(height);
   task_data_seq->outputs_count.emplace_back(out.size());
-  task_data_seq->outputs.emplace_back(reinterpret_cast<uint8_t*>(out.data()));
+  task_data_seq->outputs.emplace_back(reinterpret_cast<std::uint8_t*>(out.data()));
 
   zaitsev_a_labeling::Labeler task(task_data_seq);
   ASSERT_TRUE(task.ValidationImpl());

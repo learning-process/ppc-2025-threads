@@ -1,5 +1,6 @@
 #pragma once
 
+#include <cstdint>
 #include <map>
 #include <set>
 #include <utility>
@@ -18,18 +19,20 @@ class Labeler : public ppc::core::Task {
   bool PostProcessingImpl() override;
 
  private:
-  std::vector<uint8_t> image_;
-  std::vector<uint16_t> labels_;
+  std::vector<std::uint8_t> image_;
+  std::vector<std::uint16_t> labels_;
   unsigned int width_;
   unsigned int height_;
   unsigned int size_;
 
-  void GetNeighbours(unsigned int i, std::vector<uint16_t>& neighbours);
-  void ComputeLabel(unsigned int i, std::map<uint16_t, std::set<uint16_t>>& eqs, uint16_t& current_label);
-  void LabelingRasterScan(std::map<uint16_t, std::set<uint16_t>>& eqs, uint16_t& current_label);
-  static void CalculateReplacements(std::vector<uint16_t>& replacements, std::map<uint16_t, std::set<uint16_t>>& eqs,
-                                    uint16_t& current_label);
-  void PerformReplacements(std::vector<uint16_t>& replacements);
+  void GetNeighbours(unsigned int i, std::vector<std::uint16_t>& neighbours);
+  void ComputeLabel(unsigned int i, std::map<std::uint16_t, std::set<std::uint16_t>>& eqs,
+                    std::uint16_t& current_label);
+  void LabelingRasterScan(std::map<std::uint16_t, std::set<std::uint16_t>>& eqs, std::uint16_t& current_label);
+  static void CalculateReplacements(std::vector<std::uint16_t>& replacements,
+                                    std::map<std::uint16_t, std::set<std::uint16_t>>& eqs,
+                                    std::uint16_t& current_label);
+  void PerformReplacements(std::vector<std::uint16_t>& replacements);
 };
 
 }  // namespace zaitsev_a_labeling
