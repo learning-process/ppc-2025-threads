@@ -25,10 +25,12 @@ bool TrapezoidalMethodSTL::PreProcessingImpl() {
   data_ = *reinterpret_cast<TaskContext *>(task_data->inputs[0]);
   return true;
 }
+
 bool TrapezoidalMethodSTL::RunImpl() {
   res_ = Integrator<kSTL>{}(data_.function, data_.bounds, data_.precision);
   return true;
 }
+
 bool TrapezoidalMethodSTL::PostProcessingImpl() {
   *reinterpret_cast<double *>(task_data->outputs[0]) = res_;
   return true;
