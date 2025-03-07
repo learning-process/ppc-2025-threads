@@ -1,9 +1,12 @@
 #include <gtest/gtest.h>
 
+#include <algorithm>
 #include <chrono>
 #include <cstdint>
+#include <map>
 #include <memory>
 #include <opencv2/opencv.hpp>
+#include <set>
 #include <vector>
 
 #include "core/perf/include/perf.hpp"

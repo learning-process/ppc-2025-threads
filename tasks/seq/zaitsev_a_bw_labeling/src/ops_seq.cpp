@@ -1,6 +1,9 @@
 #include "seq/zaitsev_a_bw_labeling/include/ops_seq.hpp"
 
 #include <algorithm>
+#include <cstdint>
+#include <map>
+#include <set>
 #include <vector>
 
 #include "seq/zaitsev_a_bw_labeling/include/disjoint_set.hpp"

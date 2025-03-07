@@ -1,9 +1,12 @@
 #include <gtest/gtest.h>
 
+#include <algorithm>
 #include <cstdint>
+#include <map>
 #include <memory>
 #include <opencv2/opencv.hpp>
 #include <random>
+#include <set>
 #include <string>
 #include <tuple>
 #include <vector>
