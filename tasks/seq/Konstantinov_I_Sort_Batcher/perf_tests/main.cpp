@@ -72,9 +72,8 @@ TEST(Konstantinov_I_Sort_Batcher_seq, test_task_run) {
     in[i] = dist(gen);
     exp_out[i] = in[i];
   }
-
   std::ranges::sort(exp_out);
-  
+
   auto task_data_seq = std::make_shared<ppc::core::TaskData>();
   task_data_seq->inputs.emplace_back(reinterpret_cast<uint8_t*>(in.data()));
   task_data_seq->inputs_count.emplace_back(in.size());
