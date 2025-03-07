@@ -1,7 +1,6 @@
 #ifndef INTEGRATOR_HPP
 #define INTEGRATOR_HPP
 
-#include <atomic>
 #include <climits>
 #include <cmath>
 #include <cstddef>
