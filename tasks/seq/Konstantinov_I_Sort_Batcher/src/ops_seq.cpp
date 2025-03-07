@@ -30,6 +30,9 @@ double KeyToDouble(uint64_t key) {
 }
 
 void RadixSorted(std::vector<double>& arr) {
+  if (arr.empty()) {
+    return;
+  }
   size_t n = arr.size();
   std::vector<uint64_t> keys(n);
   for (size_t i = 0; i < n; i++) {

@@ -43,6 +43,25 @@ TEST(Konstantinov_I_Sort_Batcher_seq, test_scalar) {
   EXPECT_EQ(exp_out, out);
 }
 
+TEST(Konstantinov_I_Sort_Batcher_seq, test_negative_values) {
+  std::vector<double> in{-3.14, -1.0, -100.5, -0.1, -999.99};
+  std::vector<double> exp_out{-999.99, -100.5, -3.14, -1.0, -0.1};
+  std::vector<double> out(5);
+
+  auto task_data_seq = std::make_shared<ppc::core::TaskData>();
+  task_data_seq->inputs.emplace_back(reinterpret_cast<uint8_t *>(in.data()));
+  task_data_seq->inputs_count.emplace_back(in.size());
+  task_data_seq->outputs.emplace_back(reinterpret_cast<uint8_t *>(out.data()));
+  task_data_seq->outputs_count.emplace_back(out.size());
+
+  konstantinov_i_sort_batcher_seq::RadixSortBatcherSeq test_task_sequential(task_data_seq);
+  ASSERT_EQ(test_task_sequential.ValidationImpl(), true);
+  test_task_sequential.PreProcessingImpl();
+  test_task_sequential.RunImpl();
+  test_task_sequential.PostProcessingImpl();
+  EXPECT_EQ(exp_out, out);
+}
+
 TEST(Konstantinov_I_Sort_Batcher_seq, test_random_100_values) {
   constexpr size_t kCount = 100;
   std::vector<double> in(kCount);
