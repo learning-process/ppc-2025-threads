@@ -13,14 +13,14 @@
 namespace {
 using namespace oturin_a_gift_wrapping_seq;
 
-static Coord RandCoord(int r) {
+Coord RandCoord(int r) {
   std::random_device dev;
   std::mt19937 rng(dev());
   std::uniform_int_distribution<int> dist(-r, r);
   return {.x = dist(rng), .y = dist(rng)};
 }
 
-static void DoCommonTest(std::vector<Coord> &in, std::vector<Coord> &answer, std::vector<Coord> &out) {
+void DoCommonTest(std::vector<Coord> &in, std::vector<Coord> &answer, std::vector<Coord> &out) {
   auto task_data_seq = std::make_shared<ppc::core::TaskData>();
   task_data_seq->inputs.emplace_back(reinterpret_cast<uint8_t *>(in.data()));
   task_data_seq->inputs_count.emplace_back(in.size());

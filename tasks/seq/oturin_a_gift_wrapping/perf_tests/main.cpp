@@ -2,6 +2,7 @@
 
 #include <algorithm>
 #include <chrono>
+#include <cstddef>
 #include <cstdint>
 #include <memory>
 #include <random>
@@ -12,7 +13,7 @@
 #include "seq/oturin_a_gift_wrapping/include/ops_seq.hpp"
 
 namespace {
-static oturin_a_gift_wrapping_seq::Coord RandCoord(int r) {
+oturin_a_gift_wrapping_seq::Coord RandCoord(int r) {
   std::random_device dev;
   std::mt19937 rng(dev());
   std::uniform_int_distribution<int> dist(-r, r);
@@ -27,7 +28,7 @@ TEST(oturin_a_gift_wrapping_seq, test_pipeline_run) {
   // Create data
   std::vector<Coord> in(count);
   std::vector<Coord> out(4);
-  std::vector<Coord> ans = {{-5, 5}, {5, 5}, {5, -5}, {-5, -5}};
+  std::vector<Coord> ans = {{.x = -5, .y = 5}, {.x = 5, .y = 5}, {.x = 5, .y = -5}, {.x = -5, .y = -5}};
   auto gen = [&]() { return RandCoord(4); };
   std::ranges::generate(in.begin(), in.end(), gen);
   in.insert(in.end(), ans.begin(), ans.end());
@@ -72,7 +73,7 @@ TEST(oturin_a_gift_wrapping_seq, test_task_run) {
   // Create data
   std::vector<Coord> in(count);
   std::vector<Coord> out(4);
-  std::vector<Coord> ans = {{-5, 5}, {5, 5}, {5, -5}, {-5, -5}};
+  std::vector<Coord> ans = {{.x = -5, .y = 5}, {.x = 5, .y = 5}, {.x = 5, .y = -5}, {.x = -5, .y = -5}};
   auto gen = [&]() { return RandCoord(4); };
   std::ranges::generate(in.begin(), in.end(), gen);
   in.insert(in.end(), ans.begin(), ans.end());
