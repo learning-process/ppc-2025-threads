@@ -1,24 +1,36 @@
 #include <gtest/gtest.h>
 
+#include <algorithm>
 #include <chrono>
 #include <cstdint>
 #include <memory>
+#include <random>
 #include <vector>
 
 #include "core/perf/include/perf.hpp"
 #include "core/task/include/task.hpp"
 #include "seq/oturin_a_gift_wrapping/include/ops_seq.hpp"
 
+namespace {
+static oturin_a_gift_wrapping_seq::Coord RandCoord(int r) {
+  std::random_device dev;
+  std::mt19937 rng(dev());
+  std::uniform_int_distribution<int> dist(-r, r);
+  return {.x = dist(rng), .y = dist(rng)};
+}
+}  // namespace
+
 TEST(oturin_a_gift_wrapping_seq, test_pipeline_run) {
   int count = 250000;
   using namespace oturin_a_gift_wrapping_seq;
 
   // Create data
-  std::vector<Coord> in(count, {0, 0});
-  in.push_back({0, 1});
-  in.push_back({1, -1});
-  in.push_back({-1, -1});
-  std::vector<Coord> out(3);
+  std::vector<Coord> in(count);
+  std::vector<Coord> out(4);
+  std::vector<Coord> ans = {{-5, 5}, {5, 5}, {5, -5}, {-5, -5}};
+  auto gen = [&]() { return RandCoord(4); };
+  std::ranges::generate(in.begin(), in.end(), gen);
+  in.insert(in.end(), ans.begin(), ans.end());
 
   // Create task_data
   auto task_data_seq = std::make_shared<ppc::core::TaskData>();
@@ -47,9 +59,10 @@ TEST(oturin_a_gift_wrapping_seq, test_pipeline_run) {
   auto perf_analyzer = std::make_shared<ppc::core::Perf>(test_task_sequential);
   perf_analyzer->PipelineRun(perf_attr, perf_results);
   ppc::core::Perf::PrintPerfStatistic(perf_results);
-  ASSERT_EQ(out[0].x, -1);
-  ASSERT_EQ(out[1].x, 0);
-  ASSERT_EQ(out[2].x, 1);
+  for (std::size_t i = 0; i < ans.size(); i++) {
+    EXPECT_EQ(ans[i].x, out[i].x);
+    EXPECT_EQ(ans[i].y, out[i].y);
+  }
 }
 
 TEST(oturin_a_gift_wrapping_seq, test_task_run) {
@@ -57,11 +70,12 @@ TEST(oturin_a_gift_wrapping_seq, test_task_run) {
   using namespace oturin_a_gift_wrapping_seq;
 
   // Create data
-  std::vector<Coord> in(count, {0, 0});
-  in.push_back({0, 1});
-  in.push_back({1, -1});
-  in.push_back({-1, -1});
-  std::vector<Coord> out(3);
+  std::vector<Coord> in(count);
+  std::vector<Coord> out(4);
+  std::vector<Coord> ans = {{-5, 5}, {5, 5}, {5, -5}, {-5, -5}};
+  auto gen = [&]() { return RandCoord(4); };
+  std::ranges::generate(in.begin(), in.end(), gen);
+  in.insert(in.end(), ans.begin(), ans.end());
 
   // Create task_data
   auto task_data_seq = std::make_shared<ppc::core::TaskData>();
@@ -91,7 +105,8 @@ TEST(oturin_a_gift_wrapping_seq, test_task_run) {
   perf_analyzer->TaskRun(perf_attr, perf_results);
   ppc::core::Perf::PrintPerfStatistic(perf_results);
 
-  ASSERT_EQ(out[0].x, -1);
-  ASSERT_EQ(out[1].x, 0);
-  ASSERT_EQ(out[2].x, 1);
+  for (std::size_t i = 0; i < ans.size(); i++) {
+    EXPECT_EQ(ans[i].x, out[i].x);
+    EXPECT_EQ(ans[i].y, out[i].y);
+  }
 }

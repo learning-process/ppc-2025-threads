@@ -10,8 +10,9 @@
 #include "core/task/include/task.hpp"
 #include "seq/oturin_a_gift_wrapping/include/ops_seq.hpp"
 
-namespace oturin_a_gift_wrapping_seq {
-// NOLINTNEXTLINE(misc-use-anonymous-namespace) : -Werror=missing-declarations if not static
+namespace {
+using namespace oturin_a_gift_wrapping_seq;
+
 static Coord RandCoord(int r) {
   std::random_device dev;
   std::mt19937 rng(dev());
@@ -19,7 +20,6 @@ static Coord RandCoord(int r) {
   return {.x = dist(rng), .y = dist(rng)};
 }
 
-// NOLINTNEXTLINE(misc-use-anonymous-namespace) : -Werror=missing-declarations if not static
 static void DoCommonTest(std::vector<Coord> &in, std::vector<Coord> &answer, std::vector<Coord> &out) {
   auto task_data_seq = std::make_shared<ppc::core::TaskData>();
   task_data_seq->inputs.emplace_back(reinterpret_cast<uint8_t *>(in.data()));
@@ -28,7 +28,7 @@ static void DoCommonTest(std::vector<Coord> &in, std::vector<Coord> &answer, std
   task_data_seq->outputs_count.emplace_back(out.size());
 
   // Create Task
-  oturin_a_gift_wrapping_seq::TestTaskSequential test_task_sequential(task_data_seq);
+  TestTaskSequential test_task_sequential(task_data_seq);
   ASSERT_TRUE(test_task_sequential.Validation());
   test_task_sequential.PreProcessing();
   test_task_sequential.Run();
@@ -39,7 +39,8 @@ static void DoCommonTest(std::vector<Coord> &in, std::vector<Coord> &answer, std
     EXPECT_EQ(answer[i].y, out[i].y) << out[i].x << '_' << out[i].y << ' ' << answer[i].x << '_' << answer[i].y;
   }
 }
-}  // namespace oturin_a_gift_wrapping_seq
+
+}  // namespace
 
 TEST(oturin_a_gift_wrapping_seq, test_empty) {
   std::vector<oturin_a_gift_wrapping_seq::Coord> in = {};
@@ -119,7 +120,7 @@ TEST(oturin_a_gift_wrapping_seq, test_predefined1) {
 
 TEST(oturin_a_gift_wrapping_seq, test_random_10plus4) {
   // Create data
-  auto gen = [&]() { return oturin_a_gift_wrapping_seq::RandCoord(5); };
+  auto gen = [&]() { return RandCoord(5); };
   std::vector<oturin_a_gift_wrapping_seq::Coord> in(10);
   std::ranges::generate(in.begin(), in.end(), gen);
   std::vector<oturin_a_gift_wrapping_seq::Coord> answer = {{-6, 6}, {6, 6}, {6, -6}, {-6, -6}};
@@ -134,7 +135,7 @@ TEST(oturin_a_gift_wrapping_seq, test_random_10plus4) {
 
 TEST(oturin_a_gift_wrapping_seq, test_random_30plus11) {
   // Create data
-  auto gen = [&]() { return oturin_a_gift_wrapping_seq::RandCoord(10); };
+  auto gen = [&]() { return RandCoord(10); };
   std::vector<oturin_a_gift_wrapping_seq::Coord> in(30);
   std::ranges::generate(in.begin(), in.end(), gen);
   std::vector<oturin_a_gift_wrapping_seq::Coord> answer = {
