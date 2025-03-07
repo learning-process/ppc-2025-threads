@@ -6,6 +6,7 @@
 #include <cstdint>
 #include <memory>
 #include <random>
+#include <ranges>
 #include <vector>
 
 #include "core/perf/include/perf.hpp"
@@ -28,7 +29,7 @@ TEST(Konstantinov_I_Sort_Batcher_seq, test_pipeline_run) {
     exp_out[i] = in[i];
   }
 
-  std::sort(exp_out.begin(), exp_out.end());
+  std::ranges::sort(exp_out);
 
   auto task_data_seq = std::make_shared<ppc::core::TaskData>();
   task_data_seq->inputs.emplace_back(reinterpret_cast<uint8_t*>(in.data()));
@@ -72,8 +73,8 @@ TEST(Konstantinov_I_Sort_Batcher_seq, test_task_run) {
     exp_out[i] = in[i];
   }
 
-  std::sort(exp_out.begin(), exp_out.end());
-
+  std::ranges::sort(exp_out);
+  
   auto task_data_seq = std::make_shared<ppc::core::TaskData>();
   task_data_seq->inputs.emplace_back(reinterpret_cast<uint8_t*>(in.data()));
   task_data_seq->inputs_count.emplace_back(in.size());

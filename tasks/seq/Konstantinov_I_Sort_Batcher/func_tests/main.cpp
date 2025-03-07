@@ -55,7 +55,7 @@ TEST(Konstantinov_I_Sort_Batcher_seq, test_random_100_values) {
     num = dist(gen);
   }
   std::vector<double> exp_out = in;
-  std::sort(exp_out.begin(), exp_out.end());
+  std::ranges::sort(exp_out);
 
   auto task_data_seq = std::make_shared<ppc::core::TaskData>();
   task_data_seq->inputs.emplace_back(reinterpret_cast<uint8_t *>(in.data()));
@@ -83,7 +83,7 @@ TEST(Konstantinov_I_Sort_Batcher_seq, test_random_1000_values) {
     num = dist(gen);
   }
   std::vector<double> exp_out = in;
-  std::sort(exp_out.begin(), exp_out.end());
+  std::ranges::sort(exp_out);
 
   auto task_data_seq = std::make_shared<ppc::core::TaskData>();
   task_data_seq->inputs.emplace_back(reinterpret_cast<uint8_t *>(in.data()));
@@ -111,7 +111,7 @@ TEST(Konstantinov_I_Sort_Batcher_seq, test_random_100000_values) {
     num = dist(gen);
   }
   std::vector<double> exp_out = in;
-  std::sort(exp_out.begin(), exp_out.end());
+  std::ranges::sort(exp_out);
 
   auto task_data_seq = std::make_shared<ppc::core::TaskData>();
   task_data_seq->inputs.emplace_back(reinterpret_cast<uint8_t *>(in.data()));
@@ -139,7 +139,7 @@ TEST(Konstantinov_I_Sort_Batcher_seq, test_random_1000000_values) {
     num = dist(gen);
   }
   std::vector<double> exp_out = in;
-  std::sort(exp_out.begin(), exp_out.end());
+  std::ranges::sort(exp_out);
 
   auto task_data_seq = std::make_shared<ppc::core::TaskData>();
   task_data_seq->inputs.emplace_back(reinterpret_cast<uint8_t *>(in.data()));
@@ -167,7 +167,7 @@ TEST(Konstantinov_I_Sort_Batcher_seq, test_random_5000000_values) {
     num = dist(gen);
   }
   std::vector<double> exp_out = in;
-  std::sort(exp_out.begin(), exp_out.end());
+  std::ranges::sort(exp_out);
 
   auto task_data_seq = std::make_shared<ppc::core::TaskData>();
   task_data_seq->inputs.emplace_back(reinterpret_cast<uint8_t *>(in.data()));

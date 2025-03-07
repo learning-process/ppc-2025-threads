@@ -5,57 +5,55 @@
 #include <cstddef>
 #include <cstdint>
 #include <cstring>
-#include <ranges>
 #include <vector>
 
 namespace konstantinov_i_sort_batcher_seq {
-
-static uint64_t DoubleToKey(double d) {
-  uint64_t u;
+namespace {
+uint64_t DoubleToKey(double d) {
+  uint64_t u = 0;
   std::memcpy(&u, &d, sizeof(d));
 
-  if (u >> 63) {
+  if ((u >> 63) != 0) {
     return ~u;
-  } else {
-    return u ^ 0x8000000000000000ULL;
   }
+  return u ^ 0x8000000000000000ULL;
 }
-static double KeyToDouble(uint64_t key) {
-  if (key >> 63) {
+double KeyToDouble(uint64_t key) {
+  if ((key >> 63) != 0) {
     key = key ^ 0x8000000000000000ULL;
   } else {
     key = ~key;
   }
-  double d;
+  double d = NAN;
   std::memcpy(&d, &key, sizeof(d));
   return d;
 }
 
-static void RadixSorted(std::vector<double>& arr) {
+void RadixSorted(std::vector<double>& arr) {
   size_t n = arr.size();
   std::vector<uint64_t> keys(n);
   for (size_t i = 0; i < n; i++) {
     keys[i] = DoubleToKey(arr[i]);
   }
 
-  const int RADIX = 256;
-  std::vector<uint64_t> outputKeys(n);
+  const int radix = 256;
+  std::vector<uint64_t> output_keys(n);
 
   for (int pass = 0; pass < 8; pass++) {
-    std::vector<size_t> count(RADIX, 0);
+    std::vector<size_t> count(radix, 0);
     int shift = pass * 8;
     for (size_t i = 0; i < n; i++) {
-      int byte = (keys[i] >> shift) & 0xFF;
+      uint8_t byte = static_cast<uint8_t>((keys[i] >> shift) & 0xFF);
       count[byte]++;
     }
-    for (int j = 1; j < RADIX; j++) {
+    for (int j = 1; j < radix; j++) {
       count[j] += count[j - 1];
     }
     for (int i = static_cast<int>(n) - 1; i >= 0; i--) {
-      int byte = (keys[i] >> shift) & 0xFF;
-      outputKeys[--count[byte]] = keys[i];
+      uint8_t byte = static_cast<uint8_t>((keys[i] >> shift) & 0xFF);
+      output_keys[--count[byte]] = keys[i];
     }
-    keys.swap(outputKeys);
+    keys.swap(output_keys);
   }
 
   for (size_t i = 0; i < n; i++) {
@@ -64,7 +62,9 @@ static void RadixSorted(std::vector<double>& arr) {
 }
 
 void RadixSortBatcherSeq::BatcherOddEvenMerge(std::vector<double>& arr, int low, int high) {
-  if (high - low <= 1) return;
+  if (high - low <= 1) {
+    return;
+  }
   int mid = (low + high) / 2;
   RadixSortBatcherSeq::BatcherOddEvenMerge(arr, low, mid);
   RadixSortBatcherSeq::BatcherOddEvenMerge(arr, mid, high);
@@ -80,7 +80,7 @@ void RadixSortBatcherSeq::RadixSort(std::vector<double>& arr) {
   konstantinov_i_sort_batcher_seq::RadixSorted(arr);
   BatcherOddEvenMerge(arr, 0, static_cast<int>(arr.size()));
 }
-
+}  // namespace
 }  // namespace konstantinov_i_sort_batcher_seq
 
 bool konstantinov_i_sort_batcher_seq::RadixSortBatcherSeq::PreProcessingImpl() {
