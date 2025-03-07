@@ -37,9 +37,7 @@ bool filateva_e_simpson_omp::Simpson::RunImpl() {
     }
 
 #pragma omp critical
-    {
-      max_z = std::max(local_max, max_z);
-    }
+    { max_z = std::max(local_max, max_z); }
   }
 
   int n_2 = (int)pow((pow((b_ - a_), 4) * max_z) / (180 * alfa_), 0.25);
