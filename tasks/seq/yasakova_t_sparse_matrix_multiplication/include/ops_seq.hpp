@@ -1,7 +1,6 @@
 #pragma once
 
 #include <complex>
-#include <iostream>
 #include <utility>
 #include <vector>
 
@@ -49,15 +48,6 @@ struct SparseMatrixCRS {
 
   // Оператор присваивания
   SparseMatrixCRS& operator=(const SparseMatrixCRS& other) = default;
-
-  // Отображение матрицы
-  static void DisplayMatrix(const SparseMatrixCRS& matrix) {
-    for (int i = 0; i < matrix.rowCount; ++i) {
-      for (int j = matrix.rowPointers[i]; j < matrix.rowPointers[i + 1]; ++j) {
-        std::cout << "Element at (" << i << ", " << matrix.columnIndices[j] << ") = " << matrix.data[j] << '\n';
-      }
-    }
-  }
 };
 
 // Преобразование матрицы в вектор
