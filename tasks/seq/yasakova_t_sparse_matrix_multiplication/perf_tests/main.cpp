@@ -10,6 +10,46 @@
 #include "core/task/include/task.hpp"
 #include "seq/yasakova_t_sparse_matrix_multiplication/include/ops_seq.hpp"
 
+namespace yasakova_t_sparse_matrix_multiplication_seq {
+
+  // Function to multiply two sparse matrices (naive implementation)
+  SparseMatrixCRS MultiplyMatrices(const SparseMatrixCRS& a, const SparseMatrixCRS& b) {
+    SparseMatrixCRS result(a.rowCount, false, b.columnCount);
+  
+    for (int i = 0; i < a.rowCount; ++i) {
+      for (int j = 0; j < b.columnCount; ++j) {
+        Complex sum(0, 0);
+        for (int k = 0; k < a.columnCount; ++k) {
+          sum += a.GetElement(i, k) * b.GetElement(k, j);
+        }
+        if (sum != Complex(0, 0)) {
+          result.InsertElement(i, sum, j);
+        }
+      }
+    }
+  
+    return result;
+  }
+  
+  // Equality operator for SparseMatrixCRS
+  bool operator==(const SparseMatrixCRS& a, const SparseMatrixCRS& b) {
+    if (a.rowCount != b.rowCount || a.columnCount != b.columnCount) {
+      return false;
+    }
+  
+    for (int i = 0; i < a.rowCount; ++i) {
+      for (int j = 0; j < a.columnCount; ++j) {
+        if (a.GetElement(i, j) != b.GetElement(i, j)) {
+          return false;
+        }
+      }
+    }
+  
+    return true;
+  }
+  
+  }  // namespace yasakova_t_sparse_matrix_multiplication_seq
+
 TEST(yasakova_t_sparse_matrix_multiplication_seq, test_pipeline_run) {
   yasakova_t_sparse_matrix_multiplication_seq::SparseMatrixCRS sparse_matrix_a(400, true, 400);
   yasakova_t_sparse_matrix_multiplication_seq::SparseMatrixCRS sparse_matrix_b(400, true, 400);
