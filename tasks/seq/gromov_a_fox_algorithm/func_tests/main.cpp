@@ -11,7 +11,7 @@
 #include "core/task/include/task.hpp"
 #include "seq/gromov_a_fox_algorithm/include/ops_seq.hpp"
 
-std::vector<double> generate_random_matrix(size_t n, double min_val, double max_val) {
+static std::vector<double> GenerateRandomMatrix(size_t n, double min_val, double max_val) {
   std::random_device rd;
   std::mt19937 gen(rd());
   std::uniform_real_distribution<> dis(min_val, max_val);
@@ -26,8 +26,8 @@ std::vector<double> generate_random_matrix(size_t n, double min_val, double max_
 TEST(gromov_a_fox_algorithm_seq, test_random_5x5) {
   constexpr size_t kN = 5;
 
-  std::vector<double> a = generate_random_matrix(kN, -10.0, 10.0);
-  std::vector<double> b = generate_random_matrix(kN, -10.0, 10.0);
+  std::vector<double> a = GenerateRandomMatrix(kN, -10.0, 10.0);
+  std::vector<double> b = GenerateRandomMatrix(kN, -10.0, 10.0);
   std::vector<double> out(kN * kN, 0.0);
 
   std::vector<double> expected(kN * kN, 0.0);
@@ -64,8 +64,8 @@ TEST(gromov_a_fox_algorithm_seq, test_random_5x5) {
 TEST(gromov_a_fox_algorithm_seq, test_random_10x10) {
   constexpr size_t kN = 10;
 
-  std::vector<double> a = generate_random_matrix(kN, -10.0, 10.0);
-  std::vector<double> b = generate_random_matrix(kN, -10.0, 10.0);
+  std::vector<double> a = GenerateRandomMatrix(kN, -10.0, 10.0);
+  std::vector<double> b = GenerateRandomMatrix(kN, -10.0, 10.0);
   std::vector<double> out(kN * kN, 0.0);
 
   std::vector<double> expected(kN * kN, 0.0);
