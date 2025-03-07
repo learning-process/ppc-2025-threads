@@ -32,7 +32,7 @@ void zaitsev_a_labeling::Labeler::ComputeLabel(unsigned int i, std::map<uint16_t
     long y = ((long)i / width_) + (shift / 3 - 1);
     long neighbour_index = x + y * width_;
     uint16_t value = 0;
-    if (x >= 0 && x < width_ && y >= 0) {
+    if (x >= 0 && x < (long)width_ && y >= 0) {
       value = labels_[neighbour_index];
     }
     if (value != 0) {
