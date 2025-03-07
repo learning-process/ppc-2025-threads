@@ -9,9 +9,7 @@ bool zaitsev_a_labeling::Labeler::PreProcessingImpl() {
   width_ = task_data->inputs_count[0];
   height_ = task_data->inputs_count[1];
   size_ = height_ * width_;
-  current_label_ = 0;
   image_.resize(size_, 0);
-  labels_.resize(size_, 0);
   std::copy(task_data->inputs[0], task_data->inputs[0] + size_, image_.begin());
   return true;
 }
@@ -21,7 +19,8 @@ bool zaitsev_a_labeling::Labeler::ValidationImpl() {
          (task_data->outputs_count[0] == task_data->inputs_count[0] * task_data->inputs_count[1]);
 }
 
-void zaitsev_a_labeling::Labeler::ComputeLabel(unsigned int i) {
+void zaitsev_a_labeling::Labeler::ComputeLabel(unsigned int i, std::map<uint16_t, std::set<uint16_t>>& eqs,
+                                               uint16_t& current_label) {
   if (image_[i] == 0) {
     return;
   }
@@ -42,38 +41,41 @@ void zaitsev_a_labeling::Labeler::ComputeLabel(unsigned int i) {
   }
 
   if (neighbours.empty()) {
-    labels_[i] = ++current_label_;
-    eqs_[current_label_].insert(current_label_);
+    labels_[i] = ++current_label;
+    eqs[current_label].insert(current_label);
   } else {
     labels_[i] = *std::min(neighbours.begin(), neighbours.end());
     for (auto& first : neighbours) {
       for (auto& second : neighbours) {
-        eqs_[first].insert(second);
+        eqs[first].insert(second);
       }
     }
   }
 }
 
-void zaitsev_a_labeling::Labeler::LabelingRasterScan() {
+void zaitsev_a_labeling::Labeler::LabelingRasterScan(std::map<uint16_t, std::set<uint16_t>>& eqs,
+                                                     uint16_t& current_label) {
   for (uint32_t i = 0; i < image_.size(); i++) {
-    ComputeLabel(i);
+    ComputeLabel(i, eqs, current_label);
   }
 }
 
-void zaitsev_a_labeling::Labeler::CalculateReplacements() {
-  zaitsev_a_disjoint_set::DisjointSet<uint16_t> disjoint_labels(current_label_);
-  for (auto& statement : eqs_) {
+void zaitsev_a_labeling::Labeler::CalculateReplacements(std::vector<uint16_t>& replacements,
+                                                        std::map<uint16_t, std::set<uint16_t>>& eqs,
+                                                        uint16_t& current_label) {
+  zaitsev_a_disjoint_set::DisjointSet<uint16_t> disjoint_labels(current_label + 1);
+  for (auto& statement : eqs) {
     for (const auto& equal : statement.second) {
       disjoint_labels.UnionRank(statement.first, equal);
     }
   }
 
-  replacements_.resize(current_label_ + 1);
+  replacements.resize(current_label + 1);
   std::set<uint16_t> unique_labels;
 
-  for (uint16_t tmp_label = 1; tmp_label < current_label_ + 1; tmp_label++) {
-    replacements_[tmp_label] = disjoint_labels.FindParent(tmp_label);
-    unique_labels.insert(replacements_[tmp_label]);
+  for (uint16_t tmp_label = 1; tmp_label < current_label + 1; tmp_label++) {
+    replacements[tmp_label] = disjoint_labels.FindParent(tmp_label);
+    unique_labels.insert(replacements[tmp_label]);
   }
 
   uint16_t true_label = 0;
@@ -82,21 +84,26 @@ void zaitsev_a_labeling::Labeler::CalculateReplacements() {
     reps[it] = ++true_label;
   }
 
-  for (uint32_t i = 0; i < replacements_.size(); i++) {
-    replacements_[i] = reps[replacements_[i]];
+  for (uint32_t i = 0; i < replacements.size(); i++) {
+    replacements[i] = reps[replacements[i]];
   }
 }
 
-void zaitsev_a_labeling::Labeler::PerformReplacements() {
+void zaitsev_a_labeling::Labeler::PerformReplacements(std::vector<uint16_t>& replacements) {
   for (uint32_t i = 0; i < size_; i++) {
-    labels_[i] = replacements_[labels_[i]];
+    labels_[i] = replacements[labels_[i]];
   }
 }
 
 bool zaitsev_a_labeling::Labeler::RunImpl() {
-  LabelingRasterScan();
-  CalculateReplacements();
-  PerformReplacements();
+  labels_.clear();
+  labels_.resize(size_);
+  std::map<uint16_t, std::set<uint16_t>> eqs;
+  std::vector<uint16_t> replacements;
+  uint16_t current_label = 0;
+  LabelingRasterScan(eqs, current_label);
+  CalculateReplacements(replacements, eqs, current_label);
+  PerformReplacements(replacements);
   return true;
 }
 

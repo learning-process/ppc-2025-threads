@@ -1,8 +1,6 @@
 #include <gtest/gtest.h>
 
 #include <cstdint>
-#include <fstream>
-#include <iomanip>
 #include <memory>
 #include <opencv2/opencv.hpp>
 #include <random>
