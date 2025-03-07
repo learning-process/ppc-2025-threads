@@ -38,9 +38,7 @@ bool filateva_e_simpson_omp::Simpson::RunImpl() {
 
 #pragma omp critical
     {
-      if (local_max > max_z) {
-        max_z = local_max;
-      }
+      max_z = std::max(local_max, max_z);
     }
   }
 
