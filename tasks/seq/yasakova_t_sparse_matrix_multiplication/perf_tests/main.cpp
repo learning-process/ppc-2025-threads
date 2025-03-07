@@ -64,7 +64,7 @@ TEST(yasakova_t_sparse_matrix_multiplication_seq, test_pipeline_run) {
   auto performance_analyzer = std::make_shared<ppc::core::Perf>(sequential_task);
   performance_analyzer->PipelineRun(performance_attributes, performance_results);
 
-  p// Print performance statistics
+  // Print performance statistics
   ppc::core::Perf::PrintPerfStatistic(performance_results);
 
   // Convert the result vector back to a matrix
