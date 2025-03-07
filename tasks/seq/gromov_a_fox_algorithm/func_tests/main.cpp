@@ -11,7 +11,8 @@
 #include "core/task/include/task.hpp"
 #include "seq/gromov_a_fox_algorithm/include/ops_seq.hpp"
 
-static std::vector<double> GenerateRandomMatrix(size_t n, double min_val, double max_val) {
+namespace {
+std::vector<double> GenerateRandomMatrix(size_t n, double min_val, double max_val) {
   std::random_device rd;
   std::mt19937 gen(rd());
   std::uniform_real_distribution<> dis(min_val, max_val);
@@ -22,6 +23,7 @@ static std::vector<double> GenerateRandomMatrix(size_t n, double min_val, double
   }
   return matrix;
 }
+}  // namespace
 
 TEST(gromov_a_fox_algorithm_seq, test_random_5x5) {
   constexpr size_t kN = 5;
