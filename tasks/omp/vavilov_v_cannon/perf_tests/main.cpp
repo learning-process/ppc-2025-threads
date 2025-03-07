@@ -10,7 +10,7 @@
 #include "omp/vavilov_v_cannon/include/ops_omp.hpp"
 
 TEST(vavilov_v_cannon_omp, test_pipeline_run) {
-  constexpr unsigned int kN = 625;
+  constexpr int kN = 625;
   std::vector<double> a(kN * kN, 1.0);
   std::vector<double> b(kN * kN, 1.0);
   std::vector<double> c(kN * kN, 0.0);
@@ -40,13 +40,13 @@ TEST(vavilov_v_cannon_omp, test_pipeline_run) {
   auto perf_analyzer = std::make_shared<ppc::core::Perf>(task_omp);
   perf_analyzer->PipelineRun(perf_attr, perf_results);
   ppc::core::Perf::PrintPerfStatistic(perf_results);
-  for (unsigned int i = 0; i < kN * kN; i++) {
+  for (int i = 0; i < kN * kN; i++) {
     ASSERT_EQ(expected_output[i], c[i]);
   }
 }
 
 TEST(vavilov_v_cannon_omp, test_task_run) {
-  constexpr unsigned int kN = 625;
+  constexpr int kN = 625;
   std::vector<double> a(kN * kN, 1.0);
   std::vector<double> b(kN * kN, 1.0);
   std::vector<double> c(kN * kN, 0.0);
@@ -76,7 +76,7 @@ TEST(vavilov_v_cannon_omp, test_task_run) {
   auto perf_analyzer = std::make_shared<ppc::core::Perf>(task_omp);
   perf_analyzer->TaskRun(perf_attr, perf_results);
   ppc::core::Perf::PrintPerfStatistic(perf_results);
-  for (unsigned int i = 0; i < kN * kN; i++) {
+  for (int i = 0; i < kN * kN; i++) {
     ASSERT_EQ(expected_output[i], c[i]);
   }
 }
