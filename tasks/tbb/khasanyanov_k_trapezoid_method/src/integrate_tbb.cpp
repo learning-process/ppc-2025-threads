@@ -3,8 +3,8 @@
 #include <cstdint>
 #include <memory>
 
+#include "../include/integrator.hpp"
 #include "core/task/include/task.hpp"
-#include "omp/khasanyanov_k_trapezoid_method/include/integrator.hpp"
 
 using namespace khasanyanov_k_trapezoid_method_tbb;
 
