@@ -68,7 +68,7 @@ SparesMatrix SparesMatrix::operator*(SparesMatrix& smatrix) const {
     std::vector<std::pair<double, int>> thread_data;
 #pragma omp for
     for (int i = 0; i < static_cast<int>(selements_sum.size()); ++i) {
-      for (size_t j = 0; j < felements_sum.size(); ++j) {
+      for (int j = 0; j < static_cast<int>(felements_sum.size()); ++j) {
         double sum = CalculateSum(fmatrix, smatrix, felements_sum, selements_sum, i, j);
         if (sum > kMEpsilon) {
           thread_data.emplace_back(sum, j);
