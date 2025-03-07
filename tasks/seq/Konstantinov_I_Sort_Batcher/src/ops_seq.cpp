@@ -1,6 +1,5 @@
 #include "seq/Konstantinov_I_Sort_Batcher/include/ops_seq.hpp"
 
-#include <algorithm>
 #include <cmath>
 #include <cstddef>
 #include <cstdint>
@@ -43,14 +42,14 @@ void RadixSorted(std::vector<double>& arr) {
     std::vector<size_t> count(radix, 0);
     int shift = pass * 8;
     for (size_t i = 0; i < n; i++) {
-      uint8_t byte = static_cast<uint8_t>((keys[i] >> shift) & 0xFF);
+       auto byte = static_cast<uint8_t>((keys[i] >> shift) & 0xFF);
       count[byte]++;
     }
     for (int j = 1; j < radix; j++) {
       count[j] += count[j - 1];
     }
     for (int i = static_cast<int>(n) - 1; i >= 0; i--) {
-      uint8_t byte = static_cast<uint8_t>((keys[i] >> shift) & 0xFF);
+      auto byte = static_cast<uint8_t>((keys[i] >> shift) & 0xFF);
       output_keys[--count[byte]] = keys[i];
     }
     keys.swap(output_keys);
@@ -61,13 +60,14 @@ void RadixSorted(std::vector<double>& arr) {
   }
 }
 
-void RadixSortBatcherSeq::BatcherOddEvenMerge(std::vector<double>& arr, int low, int high) {
+void konstantinov_i_sort_batcher_seq::RadixSortBatcherSeq::BatcherOddEvenMerge(std::vector<double>& arr, int low,
+                                                                               int high) {
   if (high - low <= 1) {
     return;
   }
   int mid = (low + high) / 2;
-  RadixSortBatcherSeq::BatcherOddEvenMerge(arr, low, mid);
-  RadixSortBatcherSeq::BatcherOddEvenMerge(arr, mid, high);
+  konstantinov_i_sort_batcher_seq::RadixSortBatcherSeq::BatcherOddEvenMerge(arr, low, mid);
+  konstantinov_i_sort_batcher_seq::RadixSortBatcherSeq::BatcherOddEvenMerge(arr, mid, high);
 
   for (int i = low; i < mid; ++i) {
     if (arr[i] > arr[i + mid - low]) {
@@ -76,9 +76,9 @@ void RadixSortBatcherSeq::BatcherOddEvenMerge(std::vector<double>& arr, int low,
   }
 }
 
-void RadixSortBatcherSeq::RadixSort(std::vector<double>& arr) {
+void konstantinov_i_sort_batcher_seq::RadixSortBatcherSeq::RadixSort(std::vector<double>& arr) {
   konstantinov_i_sort_batcher_seq::RadixSorted(arr);
-  BatcherOddEvenMerge(arr, 0, static_cast<int>(arr.size()));
+  konstantinov_i_sort_batcher_seq::RadixSortBatcherSeq::BatcherOddEvenMerge(arr, 0, static_cast<int>(arr.size()));
 }
 }  // namespace
 }  // namespace konstantinov_i_sort_batcher_seq
