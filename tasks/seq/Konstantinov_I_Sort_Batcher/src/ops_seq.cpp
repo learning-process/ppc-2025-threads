@@ -60,14 +60,13 @@ void RadixSorted(std::vector<double>& arr) {
   }
 }
 
-void konstantinov_i_sort_batcher_seq::RadixSortBatcherSeq::BatcherOddEvenMerge(std::vector<double>& arr, int low,
-                                                                               int high) {
+void BatcherOddEvenMerge(std::vector<double>& arr, int low, int high) {
   if (high - low <= 1) {
     return;
   }
   int mid = (low + high) / 2;
-  konstantinov_i_sort_batcher_seq::RadixSortBatcherSeq::BatcherOddEvenMerge(arr, low, mid);
-  konstantinov_i_sort_batcher_seq::RadixSortBatcherSeq::BatcherOddEvenMerge(arr, mid, high);
+  BatcherOddEvenMerge(arr, low, mid);
+  BatcherOddEvenMerge(arr, mid, high);
 
   for (int i = low; i < mid; ++i) {
     if (arr[i] > arr[i + mid - low]) {
@@ -76,9 +75,9 @@ void konstantinov_i_sort_batcher_seq::RadixSortBatcherSeq::BatcherOddEvenMerge(s
   }
 }
 
-void konstantinov_i_sort_batcher_seq::RadixSortBatcherSeq::RadixSort(std::vector<double>& arr) {
-  konstantinov_i_sort_batcher_seq::RadixSorted(arr);
-  konstantinov_i_sort_batcher_seq::RadixSortBatcherSeq::BatcherOddEvenMerge(arr, 0, static_cast<int>(arr.size()));
+void RadixSort(std::vector<double>& arr) {
+  RadixSorted(arr);
+  BatcherOddEvenMerge(arr, 0, static_cast<int>(arr.size()));
 }
 }  // namespace
 }  // namespace konstantinov_i_sort_batcher_seq
@@ -100,7 +99,7 @@ bool konstantinov_i_sort_batcher_seq::RadixSortBatcherSeq::ValidationImpl() {
 
 bool konstantinov_i_sort_batcher_seq::RadixSortBatcherSeq::RunImpl() {
   output_ = mas_;
-  konstantinov_i_sort_batcher_seq::RadixSortBatcherSeq::RadixSort(output_);
+  konstantinov_i_sort_batcher_seq::RadixSort(output_);
   return true;
 }
 
