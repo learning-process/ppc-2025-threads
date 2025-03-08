@@ -92,3 +92,66 @@ TEST(polikanov_v_rectangles_seq, exp_arg_pow_2_pow_2__3D) {
     return std::pow(std::pow(p[0], 2), 2) * std::pow(std::pow(p[1], 2), 2) * std::pow(std::pow(p[2], 2), 2);
   });
 }
+
+TEST(polikanov_v_rectangles_seq, sin) {
+  RunFuncTest(std::vector<polikanov_v_rectangles::IntegrationBound>(1, {0, 1}), 75, 0.454,
+              [](const auto &p) { return std::sin(p[0]); });
+}
+
+TEST(polikanov_v_rectangles_seq, sin_pow_2) {
+  RunFuncTest(std::vector<polikanov_v_rectangles::IntegrationBound>(1, {0, 1}), 75, 0.267,
+              [](const auto &p) { return std::pow(std::sin(p[0]), 2); });
+}
+
+TEST(polikanov_v_rectangles_seq, sin_arg_pow_2) {
+  RunFuncTest(std::vector<polikanov_v_rectangles::IntegrationBound>(1, {0, 1}), 75, 0.304,
+              [](const auto &p) { return std::sin(std::pow(p[0], 2)); });
+}
+
+TEST(polikanov_v_rectangles_seq, sin_arg_pow_2_pow_2) {
+  RunFuncTest(std::vector<polikanov_v_rectangles::IntegrationBound>(1, {0, 1}), 75, 0.0,
+              [](const auto &p) { return std::pow(std::pow(p[0], 2), 2); });
+}
+
+TEST(polikanov_v_rectangles_seq, sin__2D) {
+  RunFuncTest(std::vector<polikanov_v_rectangles::IntegrationBound>(2, {0, 1}), 75, 0.206,
+              [](const auto &p) { return std::sin(p[0]) * std::sin(p[1]); });
+}
+
+TEST(polikanov_v_rectangles_seq, sin_pow_2__2D) {
+  RunFuncTest(std::vector<polikanov_v_rectangles::IntegrationBound>(2, {0, 1}), 75, 0.071,
+              [](const auto &p) { return std::pow(std::sin(p[0]), 2) * std::pow(std::sin(p[1]), 2); });
+}
+
+TEST(polikanov_v_rectangles_seq, sin_arg_pow_2__2D) {
+  RunFuncTest(std::vector<polikanov_v_rectangles::IntegrationBound>(2, {0, 1}), 75, 0.092,
+              [](const auto &p) { return std::sin(std::pow(p[0], 2)) * std::sin(std::pow(p[1], 2)); });
+}
+
+TEST(polikanov_v_rectangles_seq, sin_arg_pow_2_pow_2__2D) {
+  RunFuncTest(std::vector<polikanov_v_rectangles::IntegrationBound>(2, {0, 1}), 75, 0.0,
+              [](const auto &p) { return std::pow(std::pow(p[0], 2), 2) * std::pow(std::pow(p[1], 2), 2); });
+}
+
+TEST(polikanov_v_rectangles_seq, sin__3D) {
+  RunFuncTest(std::vector<polikanov_v_rectangles::IntegrationBound>(3, {0, 1}), 75, 0.0936,
+              [](const auto &p) { return std::sin(p[0]) * std::sin(p[1]) * std::sin(p[2]); });
+}
+
+TEST(polikanov_v_rectangles_seq, sin_pow_2__3D) {
+  RunFuncTest(std::vector<polikanov_v_rectangles::IntegrationBound>(3, {0, 1}), 75, 0.0192, [](const auto &p) {
+    return std::pow(std::sin(p[0]), 2) * std::pow(std::sin(p[1]), 2) * std::pow(std::sin(p[2]), 2);
+  });
+}
+
+TEST(polikanov_v_rectangles_seq, sin_arg_pow_2__3D) {
+  RunFuncTest(std::vector<polikanov_v_rectangles::IntegrationBound>(3, {0, 1}), 75, 0.0282, [](const auto &p) {
+    return std::sin(std::pow(p[0], 2)) * std::sin(std::pow(p[1], 2)) * std::sin(std::pow(p[2], 2));
+  });
+}
+
+TEST(polikanov_v_rectangles_seq, sin_arg_pow_2_pow_2__3D) {
+  RunFuncTest(std::vector<polikanov_v_rectangles::IntegrationBound>(3, {0, 1}), 75, 0.0, [](const auto &p) {
+    return std::pow(std::pow(p[0], 2), 2) * std::pow(std::pow(p[1], 2), 2) * std::pow(std::pow(p[2], 2), 2);
+  });
+}

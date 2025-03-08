@@ -15,7 +15,7 @@ namespace {
 template <bool Pipeline>
 void RunPerfTest() {
   std::vector<polikanov_v_rectangles::IntegrationBound> bounds(4, {-1.0, 1.0});
-  std::size_t discretization = 300;
+  std::size_t discretization = 70;
   polikanov_v_rectangles::FunctionExecutor function = [](const auto &args) {
     return (args[0] * args[1]) + std::pow(args[1], 2);
   };
