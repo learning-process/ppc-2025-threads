@@ -61,9 +61,11 @@ bool filateva_e_simpson_stl::Simpson::RunImpl() {
   int ost = n % num_threads;
 
   for (int i = 1; i < num_threads; i++) {
-    int start = i * del + std::min(i - 1, ost);
-    int end = (i + 1) * del + std::min(i, ost);
-    threads[i] = std::thread([&, i]() { temp[i] = Max_z(start, end); });
+    threads[i] = std::thread([&, i]() { 
+      int start = i * del + std::min(i - 1, ost);
+      int end = (i + 1) * del + std::min(i, ost);
+      temp[i] = Max_z(start, end); 
+    });
   }
 
   max_z = Max_z(0, del);
@@ -108,6 +110,7 @@ bool filateva_e_simpson_stl::Simpson::RunImpl() {
       res_ += 2 * f_(x);
     }
   }
+
 
   res_ *= (h / 3);
 
