@@ -10,6 +10,8 @@
 #include "../include/ops_seq.hpp"
 #include "core/task/include/task.hpp"
 
+namespace vasilev_s_simpson_multidim_test {
+
 struct IntegrationTest {
   std::size_t approxs;
   vasilev_s_simpson_multidim::IntegrandFunction ifun;
@@ -17,7 +19,9 @@ struct IntegrationTest {
   double ref;
 };
 
-class PresetTests : public ::testing::TestWithParam<IntegrationTest> {};
+}  // namespace vasilev_s_simpson_multidim_test
+
+class PresetTests : public ::testing::TestWithParam<vasilev_s_simpson_multidim_test::IntegrationTest> {};
 
 TEST_P(PresetTests, run_and_verify) {
   auto test = GetParam();
@@ -41,7 +45,7 @@ TEST_P(PresetTests, run_and_verify) {
 
 // clang-format off
 INSTANTIATE_TEST_SUITE_P(vasilev_s_simpson_multidim_test_seq, PresetTests, ::testing::Values( // NOLINT
-    IntegrationTest{
+    vasilev_s_simpson_multidim_test::IntegrationTest{
       .approxs = 32,
       .ifun = [](const auto &coord) { return std::sin(coord[0]); },
       .bounds = {
@@ -49,7 +53,7 @@ INSTANTIATE_TEST_SUITE_P(vasilev_s_simpson_multidim_test_seq, PresetTests, ::tes
       },
       .ref = 1 - std::cos(1),
     },
-    IntegrationTest{
+    vasilev_s_simpson_multidim_test::IntegrationTest{
       .approxs = 32,
       .ifun = [](const auto &coord) { return std::sin(coord[0]); },
       .bounds = {
@@ -58,7 +62,7 @@ INSTANTIATE_TEST_SUITE_P(vasilev_s_simpson_multidim_test_seq, PresetTests, ::tes
       },
       .ref = 1 - std::cos(1),
     },
-    IntegrationTest{
+    vasilev_s_simpson_multidim_test::IntegrationTest{
       .approxs = 32,
       .ifun = [](const auto &coord) { return std::sin(coord[0]); },
       .bounds = {
@@ -68,7 +72,7 @@ INSTANTIATE_TEST_SUITE_P(vasilev_s_simpson_multidim_test_seq, PresetTests, ::tes
       },
       .ref = 1 - std::cos(1),
     },
-    IntegrationTest{
+    vasilev_s_simpson_multidim_test::IntegrationTest{
       .approxs = 32,
       .ifun = [](const auto &coord) { return std::cos(coord[0]); },
       .bounds = {
@@ -76,7 +80,7 @@ INSTANTIATE_TEST_SUITE_P(vasilev_s_simpson_multidim_test_seq, PresetTests, ::tes
       },
       .ref = std::sin(1),
     },
-    IntegrationTest{
+    vasilev_s_simpson_multidim_test::IntegrationTest{
       .approxs = 32,
       .ifun = [](const auto &coord) { return std::cos(coord[0]); },
       .bounds = {
@@ -85,7 +89,7 @@ INSTANTIATE_TEST_SUITE_P(vasilev_s_simpson_multidim_test_seq, PresetTests, ::tes
       },
       .ref = std::sin(1),
     },
-    IntegrationTest{
+    vasilev_s_simpson_multidim_test::IntegrationTest{
       .approxs = 32,
       .ifun = [](const auto &coord) { return std::cos(coord[0]); },
       .bounds = {
