@@ -74,6 +74,7 @@ bool smirnov_i_radix_sort_simple_merge_omp::TestTaskOpenMP::RunImpl() {
   std::vector<int> sort_res;
 #pragma omp parallel
   {
+    printf("fff\n");
     int num = omp_get_thread_num();
     int all = omp_get_num_threads();
     std::vector<int> local_mas;
@@ -83,6 +84,9 @@ bool smirnov_i_radix_sort_simple_merge_omp::TestTaskOpenMP::RunImpl() {
       local_mas.push_back(mas_[i]);
     }
     radix_sort(local_mas);
+    if (!local_mas.empty()) {
+      printf("first %d %ld %d \n", num, local_mas.size(), local_mas[0]);
+    }
 #pragma omp critical
     {
       if (!local_mas.empty()) A.push_back(local_mas);
@@ -91,6 +95,7 @@ bool smirnov_i_radix_sort_simple_merge_omp::TestTaskOpenMP::RunImpl() {
 #pragma omp barrier
     while (static_cast<int>(A.size()) != 1) {
       std::vector<int> mas1{}, mas2{}, merge_mas{};
+      printf("ssss %d\n", num);
 #pragma omp critical
       {
         if (static_cast<int>(A.size()) >= 2) {
@@ -122,15 +127,21 @@ bool smirnov_i_radix_sort_simple_merge_omp::TestTaskOpenMP::RunImpl() {
     }
 #pragma omp single
     {
+      printf("ttt3 %d %ld\n", num, A.size());
       if (static_cast<int>(A.size()) == 1) {
         sort_res.resize(A[0].size());
         std::copy(A[0].begin(), A[0].end(), sort_res.begin());
       }
     }
-    printf("second %d %d %d %d\n", num, sort_res[0], sort_res[1], sort_res[2]);
+    printf("second %d %ld\n", num, sort_res.size());
 #pragma omp single
-    { output_ = sort_res; }
+    {
+      output_ = sort_res;
+      printf("third %d %ld\n", num, sort_res.size());
+      printf("fourth %d %ld\n", num, output_.size());
+    }
   }
+  printf("fifth %d %ld\n", num, output_.size());
   return true;
 }
 bool smirnov_i_radix_sort_simple_merge_omp::TestTaskOpenMP::PostProcessingImpl() {
