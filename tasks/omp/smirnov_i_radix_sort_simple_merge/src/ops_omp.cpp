@@ -54,7 +54,6 @@ void smirnov_i_radix_sort_simple_merge_omp::TestTaskOpenMP::radix_sort(std::vect
     }
     std::swap(mas, sorting);
   }
-
 }
 bool smirnov_i_radix_sort_simple_merge_omp::TestTaskOpenMP::PreProcessingImpl() {
   unsigned int input_size = task_data->inputs_count[0];
