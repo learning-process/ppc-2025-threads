@@ -2,9 +2,9 @@
 
 #include <algorithm>
 #include <cmath>
+#include <iostream>
 #include <thread>
 #include <vector>
-#include <iostream>
 
 #include "core/util/include/util.hpp"
 
