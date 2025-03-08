@@ -78,7 +78,7 @@ bool filateva_e_simpson_stl::Simpson::RunImpl() {
   int n_2 = (int)pow((pow((b_ - a_), 4) * max_z) / (180 * alfa_), 0.25);
 
   n_2 += ((n_2 % 2) != 0) ? 1 : 0;
-  n_2 = (n_2 != 0) ? n_2 : 10;
+  n_2 = std::max(n_2, 100);
 
   double h = (b_ - a_) / n_2;
   res_ = f_(a_) + f_(b_);

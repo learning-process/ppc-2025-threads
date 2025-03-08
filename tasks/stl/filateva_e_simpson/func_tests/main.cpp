@@ -10,7 +10,7 @@
 #include "stl/filateva_e_simpson/include/ops_stl.hpp"
 
 TEST(filateva_e_simpson_stl, test_x_pow_2) {
-  std::vector<double> param = {1, 10, 0.01};
+  std::vector<double> param = {1, 10, 0.001};
   std::vector<double> res(1, 0);
   filateva_e_simpson_stl::Func f = [](double x) { return x * x; };
 
@@ -33,7 +33,7 @@ TEST(filateva_e_simpson_stl, test_x_pow_2) {
 }
 
 TEST(filateva_e_simpson_stl, test_x_pow_2_negative) {
-  std::vector<double> param = {-10, 10, 0.01};
+  std::vector<double> param = {-10, 10, 0.001};
   std::vector<double> res(1, 0);
   filateva_e_simpson_stl::Func f = [](double x) { return x * x; };
 
@@ -56,7 +56,7 @@ TEST(filateva_e_simpson_stl, test_x_pow_2_negative) {
 }
 
 TEST(filateva_e_simpson_stl, test_x) {
-  std::vector<double> param = {1, 100, 0.01};
+  std::vector<double> param = {1, 10, 0.001};
   std::vector<double> res(1, 0);
   filateva_e_simpson_stl::Func f = [](double x) { return x; };
 
@@ -79,7 +79,7 @@ TEST(filateva_e_simpson_stl, test_x) {
 }
 
 TEST(filateva_e_simpson_stl, test_x_pow_3) {
-  std::vector<double> param = {1, 100, 0.01};
+  std::vector<double> param = {1, 10, 0.001};
   std::vector<double> res(1, 0);
   filateva_e_simpson_stl::Func f = [](double x) { return x * x * x; };
 
