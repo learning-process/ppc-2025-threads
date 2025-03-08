@@ -5,7 +5,6 @@
 #include <memory>
 #include <numbers>
 #include <vector>
-#include <iostream>
 
 #include "core/task/include/task.hpp"
 #include "stl/filateva_e_simpson/include/ops_stl.hpp"

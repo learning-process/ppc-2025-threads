@@ -40,7 +40,7 @@ TEST(filateva_e_simpson_stl, test_pipeline_run) {
 
   filateva_e_simpson_stl::Func integral_f = [](double x) { return x * x * x / 3; };
 
-  //std::cerr << "\n" << integral_f(param[1]) - integral_f(param[0]) - res[0] << "\n";
+  // std::cerr << "\n" << integral_f(param[1]) - integral_f(param[0]) - res[0] << "\n";
 
   ASSERT_NEAR(res[0], integral_f(param[1]) - integral_f(param[0]), param[2]);
 }

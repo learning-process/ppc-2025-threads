@@ -4,7 +4,6 @@
 #include <cmath>
 #include <thread>
 #include <vector>
-#include <iostream>
 
 #include "core/util/include/util.hpp"
 
@@ -14,7 +13,7 @@ double filateva_e_simpson_stl::Simpson::Max_z(int start, int end) {
     double x = a_ + (i * alfa_);
     double temp =
         std::abs((f_(x - (2 * alfa_)) - 4 * f_(x - alfa_) + 6 * f_(x) - 4 * f_(x + alfa_) + f_(x + (2 * alfa_))) /
-                  pow(alfa_, 4));
+                 pow(alfa_, 4));
     max_z = std::max(max_z, temp);
   }
   return max_z;
@@ -63,12 +62,10 @@ bool filateva_e_simpson_stl::Simpson::RunImpl() {
   for (int i = 1; i < num_threads; i++) {
     int start = i * del + std::min(i - 1, ost);
     int end = (i + 1) * del + std::min(i, ost);
-    threads[i] = std::thread([&, i]() {
-      temp[i] = Max_z(start, end);
-    });
+    threads[i] = std::thread([&, i]() { temp[i] = Max_z(start, end); });
   }
 
-  max_z = Max_z(0,del);
+  max_z = Max_z(0, del);
 
   for (int i = 1; i < num_threads; i++) {
     threads[i].join();
@@ -90,11 +87,11 @@ bool filateva_e_simpson_stl::Simpson::RunImpl() {
     threads[i] = std::thread([&, i]() {
       int start = i * del + std::min(i - 1, ost) + 1;
       int end = (i + 1) * del + std::min(i, ost) + 1;
-      //std::cerr << "\n th: " << i << " start: " << start << " end: " << end << "\n";
+      // std::cerr << "\n th: " << i << " start: " << start << " end: " << end << "\n";
       temp[i] = Res(start, end, h);
     });
   }
-  
+
   res_ += Res(1, del + 1, h);
 
   for (int i = 1; i < num_threads; i++) {
