@@ -1,63 +1,89 @@
 #include <gtest/gtest.h>
 
+#include <chrono>
+#include <memory>
+#include <vector>
+
+#include "core/perf/include/perf.hpp"
+#include "core/task/include/task.hpp"
 #include "seq/konkov_i_sparse_matmul_ccs/include/ops_seq.hpp"
 
 TEST(konkov_i_SparseMatmulPerfTest_seq, test_pipeline_run) {
+  constexpr int kSize = 5000;
+
   ppc::core::TaskDataPtr task_data = std::make_shared<ppc::core::TaskData>();
-  konkov_i_sparse_matmul_ccs::SparseMatmulTask task(task_data);
+  auto task = std::make_shared<konkov_i_sparse_matmul_ccs::SparseMatmulTask>(task_data);
 
-  std::vector<double> A_values = {1.0, 2.0};
-  std::vector<int> A_columns = {0, 1};
+  std::vector<double> a_values(kSize, 1.0);
+  std::vector<int> a_columns(kSize);
+  std::vector<double> b_values(kSize, 1.0);
+  std::vector<int> b_columns(kSize);
 
-  std::vector<double> B_values = {3.0, 4.0};
-  std::vector<int> B_columns = {0, 1};
+  for (int i = 0; i < kSize; i++) {
+    a_columns[i] = i % kSize;
+    b_columns[i] = i % kSize;
+  }
 
-  task.A_values = A_values;
-  task.A_columns = A_columns;
-  task.B_values = B_values;
-  task.B_columns = B_columns;
-  task.rowsA = 3;
-  task.colsA = 2;
-  task.rowsB = 2;
-  task.colsB = 2;
+  task->A_values = a_values;
+  task->A_columns = a_columns;
+  task->B_values = b_values;
+  task->B_columns = b_columns;
+  task->rowsA = kSize;
+  task->colsA = kSize;
+  task->rowsB = kSize;
+  task->colsB = kSize;
 
-  auto start = std::chrono::high_resolution_clock::now();
-  task.ValidationImpl();
-  task.PreProcessingImpl();
-  task.RunImpl();
-  task.PostProcessingImpl();
-  auto end = std::chrono::high_resolution_clock::now();
+  auto perf_attr = std::make_shared<ppc::core::PerfAttr>();
+  perf_attr->num_running = 10;
+  const auto t0 = std::chrono::high_resolution_clock::now();
+  perf_attr->current_timer = [&] {
+    auto current_time_point = std::chrono::high_resolution_clock::now();
+    auto duration = std::chrono::duration_cast<std::chrono::nanoseconds>(current_time_point - t0).count();
+    return static_cast<double>(duration) * 1e-9;
+  };
 
-  std::chrono::duration<double> duration = end - start;
-  std::cout << "Pipeline run duration: " << duration.count() << " seconds\n";
+  auto perf_results = std::make_shared<ppc::core::PerfResults>();
+  auto perf_analyzer = std::make_shared<ppc::core::Perf>(task);
+  perf_analyzer->PipelineRun(perf_attr, perf_results);
+  ppc::core::Perf::PrintPerfStatistic(perf_results);
 }
 
 TEST(konkov_i_SparseMatmulPerfTest_seq, test_task_run) {
+  constexpr int kSize = 5000;
+
   ppc::core::TaskDataPtr task_data = std::make_shared<ppc::core::TaskData>();
-  konkov_i_sparse_matmul_ccs::SparseMatmulTask task(task_data);
+  auto task = std::make_shared<konkov_i_sparse_matmul_ccs::SparseMatmulTask>(task_data);
 
-  std::vector<double> A_values = {1.0, 2.0, 3.0};
-  std::vector<int> A_columns = {0, 1, 2};
+  std::vector<double> a_values(kSize, 1.0);
+  std::vector<int> a_columns(kSize);
+  std::vector<double> b_values(kSize, 1.0);
+  std::vector<int> b_columns(kSize);
 
-  std::vector<double> B_values = {4.0, 5.0, 6.0};
-  std::vector<int> B_columns = {0, 1, 2};
+  for (int i = 0; i < kSize; i++) {
+    a_columns[i] = i % kSize;
+    b_columns[i] = i % kSize;
+  }
 
-  task.A_values = A_values;
-  task.A_columns = A_columns;
-  task.B_values = B_values;
-  task.B_columns = B_columns;
-  task.rowsA = 3;
-  task.colsA = 3;
-  task.rowsB = 3;
-  task.colsB = 3;
+  task->A_values = a_values;
+  task->A_columns = a_columns;
+  task->B_values = b_values;
+  task->B_columns = b_columns;
+  task->rowsA = kSize;
+  task->colsA = kSize;
+  task->rowsB = kSize;
+  task->colsB = kSize;
 
-  auto start = std::chrono::high_resolution_clock::now();
-  task.ValidationImpl();
-  task.PreProcessingImpl();
-  task.RunImpl();
-  task.PostProcessingImpl();
-  auto end = std::chrono::high_resolution_clock::now();
+  auto perf_attr = std::make_shared<ppc::core::PerfAttr>();
+  perf_attr->num_running = 10;
+  const auto t0 = std::chrono::high_resolution_clock::now();
+  perf_attr->current_timer = [&] {
+    auto current_time_point = std::chrono::high_resolution_clock::now();
+    auto duration = std::chrono::duration_cast<std::chrono::nanoseconds>(current_time_point - t0).count();
+    return static_cast<double>(duration) * 1e-9;
+  };
 
-  std::chrono::duration<double> duration = end - start;
-  std::cout << "Task run duration: " << duration.count() << " seconds\n";
+  auto perf_results = std::make_shared<ppc::core::PerfResults>();
+  auto perf_analyzer = std::make_shared<ppc::core::Perf>(task);
+  perf_analyzer->TaskRun(perf_attr, perf_results);
+  ppc::core::Perf::PrintPerfStatistic(perf_results);
 }
