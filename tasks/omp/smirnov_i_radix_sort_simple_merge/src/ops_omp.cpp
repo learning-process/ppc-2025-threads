@@ -47,7 +47,7 @@ void smirnov_i_radix_sort_simple_merge_omp::TestTaskOpenMP::radix_sort(std::vect
       counting[mas_[i] / base % 10]++;
     }
     std::partial_sum(counting.begin(), counting.end(), counting.begin());
-    for (int i = static_cast<int> (mas_.size() - 1); i >= 0; i--) {
+    for (int i = static_cast<int>(mas_.size() - 1); i >= 0; i--) {
       int pos = counting[mas_[i] / base % 10] - 1;
       sorting[pos] = mas_[i];
       counting[mas_[i] / base % 10]--;
