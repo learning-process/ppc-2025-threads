@@ -86,6 +86,8 @@ bool filateva_e_simpson_stl::Simpson::RunImpl() {
   del = (n_2 - 1) / num_threads;
   ost = (n_2 - 1) % num_threads;
 
+  // std::cerr << "\n" << n_2 << "\n";
+
   for (int i = 1; i < num_threads; i++) {
     threads[i] = std::thread([&, i]() {
       int start = i * del + std::min(i - 1, ost) + 1;
