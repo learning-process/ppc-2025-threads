@@ -37,6 +37,7 @@ std::vector<int> smirnov_i_radix_sort_simple_merge_omp::TestTaskOpenMP::merge(st
   return res;
 }
 void smirnov_i_radix_sort_simple_merge_omp::TestTaskOpenMP::radix_sort(std::vector<int>& mas) {
+  if (mas.empty()) return;
   int longest = *std::ranges::max_element(mas.begin(), mas.end());
   int len = std::ceil(std::log10(longest + 1));
   std::vector<int> sorting(mas.size());
@@ -87,6 +88,11 @@ bool smirnov_i_radix_sort_simple_merge_omp::TestTaskOpenMP::RunImpl() {
     for (int i = start; i < end; i++) {
       local_mas.push_back(mas_[i]);
     }
+    if (!local_mas.empty()) {
+      printf("zeroth %d %ld %d \n", num, local_mas.size(), local_mas[0]);
+      fflush(stdout);
+    }
+    printf("qqqqq");
     radix_sort(local_mas);
     if (!local_mas.empty()) {
       printf("first %d %ld %d \n", num, local_mas.size(), local_mas[0]);
