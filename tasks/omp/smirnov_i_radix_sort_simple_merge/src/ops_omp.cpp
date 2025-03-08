@@ -37,24 +37,24 @@ std::vector<int> smirnov_i_radix_sort_simple_merge_omp::TestTaskOpenMP::merge(st
   return res;
 }
 void smirnov_i_radix_sort_simple_merge_omp::TestTaskOpenMP::radix_sort(std::vector<int>& mas) {
-  int longest = *std::ranges::max_element(mas_.begin(), mas_.end());
+  int longest = *std::ranges::max_element(mas.begin(), mas.end());
   int len = std::ceil(std::log10(longest + 1));
-  std::vector<int> sorting(mas_.size());
+  std::vector<int> sorting(mas.size());
   int base = 1;
   for (int j = 0; j < len; j++, base *= 10) {
     std::vector<int> counting(10, 0);
-    for (size_t i = 0; i < mas_.size(); i++) {
-      counting[mas_[i] / base % 10]++;
+    for (size_t i = 0; i < mas.size(); i++) {
+      counting[mas[i] / base % 10]++;
     }
     std::partial_sum(counting.begin(), counting.end(), counting.begin());
-    for (int i = static_cast<int>(mas_.size() - 1); i >= 0; i--) {
-      int pos = counting[mas_[i] / base % 10] - 1;
-      sorting[pos] = mas_[i];
-      counting[mas_[i] / base % 10]--;
+    for (int i = static_cast<int>(mas.size() - 1); i >= 0; i--) {
+      int pos = counting[mas[i] / base % 10] - 1;
+      sorting[pos] = mas[i];
+      counting[mas[i] / base % 10]--;
     }
-    std::swap(mas_, sorting);
+    std::swap(mas, sorting);
   }
-  output_ = mas_;
+
 }
 bool smirnov_i_radix_sort_simple_merge_omp::TestTaskOpenMP::PreProcessingImpl() {
   unsigned int input_size = task_data->inputs_count[0];
