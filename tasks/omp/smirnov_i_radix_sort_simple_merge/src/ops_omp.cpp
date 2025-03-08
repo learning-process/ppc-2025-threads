@@ -130,10 +130,10 @@ bool smirnov_i_radix_sort_simple_merge_omp::TestTaskOpenMP::RunImpl() {
       if (static_cast<int>(A.size()) == 1) {
         sort_res.resize(A[0].size());
         std::copy(A[0].begin(), A[0].end(), sort_res.begin());
-        printf("second %d %ld %ld %ld\n", num, A[0][0], A[0][1], A[0][2]);
+        printf("second %d %d %d %d\n", num, A[0][0], A[0][1], A[0][2]);
       }
     }
-    printf("second %d %ld %ld %ld\n", num, sort_res[0], sort_res[1], sort_res[2]);
+    printf("second %d %d %d %d\n", num, sort_res[0], sort_res[1], sort_res[2]);
 #pragma omp single
     { output_ = sort_res; }
   }
