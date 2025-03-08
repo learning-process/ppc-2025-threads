@@ -1,17 +1,18 @@
 #include "omp/smirnov_i_radix_sort_simple_merge/include/ops_omp.hpp"
 
+#include <omp.h>
+
 #include <algorithm>
 #include <cmath>
 #include <cstddef>
 #include <numeric>
-#include <omp.h>
 #include <vector>
 
 std::vector<int> smirnov_i_radix_sort_simple_merge_omp::TestTaskOpenMP::merge(std::vector<int> mas1,
                                                                               std::vector<int> mas2) {
   std::vector<int> res;
   int p1 = 0, p2 = 0;
-  while (static_cast<int>mas1.size() != p1 && static_cast<int>mas2.size() != p2) {
+  while (static_cast<int> mas1.size() != p1 && static_cast<int> mas2.size() != p2) {
     if (mas1[p1] < mas2[p2]) {
       res.push_back(mas1[p1]);
       p1++;
@@ -25,11 +26,11 @@ std::vector<int> smirnov_i_radix_sort_simple_merge_omp::TestTaskOpenMP::merge(st
       p2++;
     }
   }
-  while (static_cast<int>mas1.size() != p1) {
+  while (static_cast<int> mas1.size() != p1) {
     res.push_back(mas1[p1]);
     p1++;
   }
-  while (static_cast<int>mas2.size() != p2) {
+  while (static_cast<int> mas2.size() != p2) {
     res.push_back(mas2[p2]);
     p2++;
   }
@@ -46,7 +47,7 @@ void smirnov_i_radix_sort_simple_merge_omp::TestTaskOpenMP::radix_sort(std::vect
       counting[mas_[i] / base % 10]++;
     }
     std::partial_sum(counting.begin(), counting.end(), counting.begin());
-    for (int i = static_cast<int>(mas_.size() - 1); i >= 0; i--) {
+    for (int i = static_cast<int> (mas_.size() - 1); i >= 0; i--) {
       int pos = counting[mas_[i] / base % 10] - 1;
       sorting[pos] = mas_[i];
       counting[mas_[i] / base % 10]--;
@@ -89,11 +90,11 @@ bool smirnov_i_radix_sort_simple_merge_omp::TestTaskOpenMP::RunImpl() {
     }
 
 #pragma omp barrier
-    while (static_cast<int>A.size() != 1) {
+    while (static_cast<int> A.size() != 1) {
       std::vector<int> mas1{}, mas2{}, merge_mas{};
 #pragma omp critical
       {
-        if (static_cast<int>A.size() >= 2) {
+        if (static_cast<int> A.size() >= 2) {
           mas1 = A[0];
           A.erase(A.begin());
           mas2 = A[0];
@@ -110,7 +111,7 @@ bool smirnov_i_radix_sort_simple_merge_omp::TestTaskOpenMP::RunImpl() {
       }
 #pragma omp critical
       {
-        if (static_cast<int>A.size() == 1) {
+        if (static_cast<int> A.size() == 1) {
           B.push_back(A[0]);
           A.erase(A.begin());
         }
@@ -122,7 +123,7 @@ bool smirnov_i_radix_sort_simple_merge_omp::TestTaskOpenMP::RunImpl() {
     }
 #pragma omp single
     {
-      if (static_cast<int>A.size() == 1) {
+      if (static_cast<int> A.size() == 1) {
         sort_res.resize(A[0].size());
         std::copy(A[0].begin(), A[0].end(), sort_res.begin());
       }
