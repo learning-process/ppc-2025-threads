@@ -35,10 +35,8 @@ class HoareSortTask : public ppc::core::Task {
   }
 
  private:
-  void HoareSort(std::span<T> arr, int64_t low, int64_t high) {  // NOLINT(bugprone-easily-swappable-parameters)
-    const auto partition = [&cmp = this->cmp_](std::span<T> region,
-                                               int64_t plo,  // NOLINT(bugprone-easily-swappable-parameters)
-                                               int64_t phi) -> int64_t {
+  void HoareSort(std::span<T> arr, int64_t low, int64_t high) {
+    const auto partition = [&cmp = this->cmp_](std::span<T> region, int64_t plo, int64_t phi) -> int64_t {
       const auto& pivot = region[phi];
       int64_t e = plo - 1;
       for (int64_t j = plo; j <= phi - 1; j++) {
