@@ -131,7 +131,7 @@ bool smirnov_i_radix_sort_simple_merge_omp::TestTaskOpenMP::RunImpl() {
         printf("second %d %d %d %d\n", omp_get_thread_num(), A[0], A[1], A[2]);
       }
     }
-  printf("second %d %d %d %d\n", omp_get_thread_num(), sort_res[0], sort_res[1], sort_res[2]);
+    printf("second %d %d %d %d\n", omp_get_thread_num(), sort_res[0], sort_res[1], sort_res[2]);
 #pragma omp single
     { output_ = sort_res; }
   }
