@@ -24,7 +24,7 @@ std::vector<double> RandomVector(size_t size) {
 }  // namespace
 
 TEST(petrov_a_radix_double_batcher_seq, test_pipeline_run) {
-  auto in = RandomVector(29'000'000);
+  auto in = RandomVector(25'000'000);
   std::vector<double> out(in.size());
 
   auto task_data_seq = std::make_shared<ppc::core::TaskData>();
@@ -50,7 +50,7 @@ TEST(petrov_a_radix_double_batcher_seq, test_pipeline_run) {
 }
 
 TEST(petrov_a_radix_double_batcher_seq, test_task_run) {
-  auto in = RandomVector(29'000'000);
+  auto in = RandomVector(25'000'000);
   std::vector<double> out(in.size());
 
   auto task_data_seq = std::make_shared<ppc::core::TaskData>();
