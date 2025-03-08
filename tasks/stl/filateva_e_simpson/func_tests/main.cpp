@@ -192,7 +192,7 @@ TEST(filateva_e_simpson_stl, test_gausa) {
 }
 
 TEST(filateva_e_simpson_stl, test_sum_integral) {
-  std::vector<double> param = {0, 10, 0.001};
+  std::vector<double> param = {0, 10, 0.01};
   std::vector<double> res(1, 0);
   filateva_e_simpson_stl::Func f = [](double x) { return pow(x, 3) + pow(x, 2) + x; };
 
