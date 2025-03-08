@@ -112,7 +112,7 @@ class zaitsev_a_labeling_test_seq : public ::testing::TestWithParam<std::string>
 TEST_F(zaitsev_a_labeling_test_seq, validation_fails_on_incorrect_input) {
   const int width = 16;
   std::vector<std::uint8_t> in(width, 0);
-  std::vector<uint32_t> out(in.size(), -1);
+  std::vector<uint32_t> out(in.size(), 0);
 
   auto task_data_seq = std::make_shared<ppc::core::TaskData>();
   task_data_seq->inputs.emplace_back(const_cast<std::uint8_t*>(reinterpret_cast<const std::uint8_t*>(in.data())));
