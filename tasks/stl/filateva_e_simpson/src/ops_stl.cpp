@@ -83,32 +83,23 @@ bool filateva_e_simpson_stl::Simpson::RunImpl() {
   double h = (b_ - a_) / n_2;
   res_ = f_(a_) + f_(b_);
 
-  // del = (n_2 - 1) / num_threads;
-  // ost = (n_2 - 1) % num_threads;
+  del = (n_2 - 1) / num_threads;
+  ost = (n_2 - 1) % num_threads;
 
-  // for (int i = 1; i < num_threads; i++) {
-  //   threads[i] = std::thread([&, i]() {
-  //     int start = i * del + std::min(i - 1, ost) + 1;
-  //     int end = (i + 1) * del + std::min(i, ost) + 1;
-  //     // std::cerr << "\n th: " << i << " start: " << start << " end: " << end << "\n";
-  //     temp[i] = Res(start, end, h);
-  //   });
-  // }
+  for (int i = 1; i < num_threads; i++) {
+    threads[i] = std::thread([&, i]() {
+      int start = i * del + std::min(i - 1, ost) + 1;
+      int end = (i + 1) * del + std::min(i, ost) + 1;
+      // std::cerr << "\n th: " << i << " start: " << start << " end: " << end << "\n";
+      temp[i] = Res(start, end, h);
+    });
+  }
 
-  // res_ += Res(1, del + 1, h);
+  res_ += Res(1, del + 1, h);
 
-  // for (int i = 1; i < num_threads; i++) {
-  //   threads[i].join();
-  //   res_ += temp[i];
-  // }
-
-  for (int i = 1; i < n_2; i++) {
-    double x = a_ + (i * h);
-    if (i % 2 == 1) {
-      res_ += 4 * f_(x);
-    } else {
-      res_ += 2 * f_(x);
-    }
+  for (int i = 1; i < num_threads; i++) {
+    threads[i].join();
+    res_ += temp[i];
   }
 
   res_ *= (h / 3);
