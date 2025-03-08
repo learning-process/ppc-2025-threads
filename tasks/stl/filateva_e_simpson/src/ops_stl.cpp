@@ -111,7 +111,6 @@ bool filateva_e_simpson_stl::Simpson::RunImpl() {
     }
   }
 
-
   res_ *= (h / 3);
 
   return true;
