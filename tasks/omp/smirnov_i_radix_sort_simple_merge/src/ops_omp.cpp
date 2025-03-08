@@ -86,7 +86,7 @@ bool smirnov_i_radix_sort_simple_merge_omp::TestTaskOpenMP::RunImpl() {
     radix_sort(local_mas);
     if (!local_mas.empty()) {
       printf("first %d %d \n", num, local_mas[0]);
-    } 
+    }
 #pragma omp critical
     {
       if (!local_mas.empty()) A.push_back(local_mas);
