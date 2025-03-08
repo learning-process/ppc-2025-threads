@@ -17,7 +17,7 @@ namespace {
 
 template <typename type>
 void Mat2vec(cv::Mat& src, std::vector<type>& dst) {
-  dst.resize(src.total());
+  dst.resize(src.total() * src.channels());
   std::ranges::copy(src.begin<type>(), src.end<type>(), dst.begin());
 }
 
