@@ -141,7 +141,7 @@ bool smirnov_i_radix_sort_simple_merge_omp::TestTaskOpenMP::RunImpl() {
       printf("fourth %d %ld\n", num, output_.size());
     }
   }
-  printf("fifth %d %ld\n", num, output_.size());
+  printf("fifth %ld\n", output_.size());
   return true;
 }
 bool smirnov_i_radix_sort_simple_merge_omp::TestTaskOpenMP::PostProcessingImpl() {
