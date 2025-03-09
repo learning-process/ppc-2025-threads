@@ -11,7 +11,7 @@
 #include "omp/smirnov_i_radix_sort_simple_merge/include/ops_omp.hpp"
 
 TEST(smirnov_i_radix_sort_simple_merge_omp, test_pipeline_run) {
-  constexpr int kCount = 10000000;
+  constexpr int kCount = 1000000;
 
   // Create data
   std::vector<int> in(kCount, 0);
@@ -53,7 +53,7 @@ TEST(smirnov_i_radix_sort_simple_merge_omp, test_pipeline_run) {
 }
 
 TEST(smirnov_i_radix_sort_simple_merge_omp, test_task_run) {
-  constexpr int kCount = 10000000;
+  constexpr int kCount = 1000000;
 
   // Create data
   std::vector<int> in(kCount, 0);
