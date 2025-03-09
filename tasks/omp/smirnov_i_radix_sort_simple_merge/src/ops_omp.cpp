@@ -116,8 +116,12 @@ bool smirnov_i_radix_sort_simple_merge_omp::TestTaskOpenMP::RunImpl() {
         }
       }
 #pragma omp barrier
+      printf("111 %d", num);
+      fflush(stdout);
 #pragma omp single
       { std::swap(A, B); }
+      printf("222 %d", num);
+      fflush(stdout);
 #pragma omp barrier
     }
 #pragma omp single
