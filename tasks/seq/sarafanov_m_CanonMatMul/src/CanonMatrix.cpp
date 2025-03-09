@@ -50,7 +50,7 @@ void CanonMatrix::FullShift() {
 void CanonMatrix::Shift() {
   if (shift_counts == 0) {
     StairShift();
-  } else if (shift_counts < size) {
+  } else if (shift_counts < static_cast<int>(size)) {
     FullShift();
   }
   shift_counts++;
