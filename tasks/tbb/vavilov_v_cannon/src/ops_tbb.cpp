@@ -74,8 +74,8 @@ void vavilov_v_cannon_tbb::CannonTBB::BlockMultiply() {
 }
 
 void vavilov_v_cannon_tbb::CannonTBB::ShiftBlocks() {
-    std::vector<double> a_tmp = A_;
-    std::vector<double> b_tmp = B_;
+  std::vector<double> a_tmp = A_;
+  std::vector<double> b_tmp = B_;
 
   tbb::parallel_for(0, num_blocks_, [&](int bi) {
     for (int bj = 0; bj < num_blocks_; ++bj) {
@@ -94,15 +94,15 @@ void vavilov_v_cannon_tbb::CannonTBB::ShiftBlocks() {
 }
 
 bool vavilov_v_cannon_tbb::CannonTBB::RunImpl() {
-    InitialShift();
-    for (int iter = 0; iter < num_blocks_; ++iter) {
-      BlockMultiply();
-      ShiftBlocks();
-    }
-    return true;
+  InitialShift();
+  for (int iter = 0; iter < num_blocks_; ++iter) {
+    BlockMultiply();
+    ShiftBlocks();
+  }
+  return true;
 }
 
 bool vavilov_v_cannon_tbb::CannonTBB::PostProcessingImpl() {
-    std::ranges::copy(C_, reinterpret_cast<double*>(task_data->outputs[0]));
-    return true;
+  std::ranges::copy(C_, reinterpret_cast<double*>(task_data->outputs[0]));
+  return true;
 }
