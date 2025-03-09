@@ -22,7 +22,7 @@ std::shared_ptr<ppc::core::TaskData> CreateTaskData(std::vector<Dimension>& dims
   return task_data;
 }
 
-void RunValidTask(const Function& func, std::vector<Dimension>& dims, const double want) {
+void RunValidTask(const Function& func, std::vector<Dimension>& dims, double want) {
   double output = 0.0;
   auto task_data = CreateTaskData(dims, output);
   auto task = SequentialTask(task_data, func);
