@@ -1,6 +1,5 @@
 #include <gtest/gtest.h>
 
-#include <algorithm>
 #include <chrono>
 #include <cstdint>
 #include <map>
@@ -14,13 +13,6 @@
 #include "seq/zaitsev_a_bw_labeling/include/ops_seq.hpp"
 
 namespace {
-
-template <typename type>
-void Mat2vec(cv::Mat& src, std::vector<type>& dst) {
-  dst.resize(src.total() * src.channels());
-  std::ranges::copy(src.begin<type>(), src.end<type>(), dst.begin());
-}
-
 void GenerateImage(std::vector<std::uint8_t>& in, std::vector<std::uint16_t>& exp, std::uint16_t width,
                    std::uint16_t height) {
   cv::Mat img_raw(height, width, CV_8UC1);
@@ -28,13 +20,11 @@ void GenerateImage(std::vector<std::uint8_t>& in, std::vector<std::uint16_t>& ex
 
   cv::Mat img;
   cv::threshold(img_raw, img, 128, 1, cv::THRESH_BINARY);
-
-  in = std::vector<uint8_t>(img.reshape(1, static_cast<int>(img.total() * img.channels())));
+  in = std::vector<uint8_t>(img.reshape(1, static_cast<int>(img.total()) * img.channels()));
 
   cv::Mat labels;
   cv::connectedComponents(img, labels, 8, CV_16U);
-
-  Mat2vec<std::uint16_t>(labels, exp);
+  exp = std::vector<uint16_t>(labels.reshape(1, static_cast<int>(labels.total()) * labels.channels()));
 }
 
 bool IsIsomorphic(const std::vector<std::uint16_t>& first, std::vector<std::uint16_t>& second) {
@@ -55,6 +45,7 @@ bool IsIsomorphic(const std::vector<std::uint16_t>& first, std::vector<std::uint
           return false;
         }
       } else {
+        std::cout << std::format("{} {} {} {} {}", i, first[i], second[i], concordance[i], 0);
         return false;
       }
     }

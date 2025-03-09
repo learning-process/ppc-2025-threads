@@ -25,13 +25,7 @@ namespace {
 // NOLINTNEXTLINE(readability-identifier-naming)
 class zaitsev_a_labeling_test_seq : public ::testing::TestWithParam<std::string> {
  protected:
-  template <typename type>
-  void Mat2vec(cv::Mat& src, std::vector<type>& dst) {
-    dst.resize(src.total() * src.channels());
-    std::ranges::copy(src.begin<type>(), src.end<type>(), dst.begin());
-  }
-
-  TestData GenerateImage() {
+  static TestData GenerateImage() {
     int max_size = 500;
     int min_size = 100;
 
@@ -48,19 +42,17 @@ class zaitsev_a_labeling_test_seq : public ::testing::TestWithParam<std::string>
     cv::Mat img;
     cv::threshold(img_raw, img, 128, 1, cv::THRESH_BINARY);
 
-    std::vector<std::uint8_t> in;
-    Mat2vec<std::uint8_t>(img, in);
+    std::vector<std::uint8_t> in(img.reshape(1, static_cast<int>(img.total()) * img.channels()));
 
     cv::Mat labels;
     cv::connectedComponents(img, labels, 8, CV_16U);
 
-    std::vector<std::uint16_t> exp;
-    Mat2vec<std::uint16_t>(labels, exp);
+    std::vector<std::uint16_t> exp(labels.reshape(1, static_cast<int>(labels.total()) * labels.channels()));
 
     return std::make_tuple(in, exp, width, height);
   }
 
-  TestData PrepareImages(const std::string& filename) {
+  static TestData PrepareImages(const std::string& filename) {
     cv::Mat img_raw = cv::imread(ppc::util::GetAbsolutePath("seq/zaitsev_a_bw_labeling/data/" + filename));
     unsigned int width = img_raw.cols;
     unsigned int height = img_raw.rows;
@@ -71,14 +63,12 @@ class zaitsev_a_labeling_test_seq : public ::testing::TestWithParam<std::string>
     cv::Mat img;
     cv::threshold(img_gray, img, 128, 1, cv::THRESH_BINARY_INV);
 
-    std::vector<std::uint8_t> in;
-    Mat2vec<std::uint8_t>(img, in);
+    std::vector<std::uint8_t> in(img.reshape(1, static_cast<int>(img.total()) * img.channels()));
 
     cv::Mat labels;
     cv::connectedComponents(img, labels, 8, CV_16U);
 
-    std::vector<std::uint16_t> out;
-    Mat2vec<std::uint16_t>(labels, out);
+    std::vector<std::uint16_t> out(labels.reshape(1, static_cast<int>(labels.total()) * labels.channels()));
 
     return std::make_tuple(in, out, width, height);
   }
