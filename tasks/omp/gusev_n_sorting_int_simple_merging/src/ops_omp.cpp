@@ -19,8 +19,8 @@ void gusev_n_sorting_int_simple_merging_omp::TestTaskOpenMP::RadixSort(std::vect
     std::vector<int> local_neg;
     std::vector<int> local_pos;
 #pragma omp for nowait
-    for (std::vector<int>::size_type i = 0; i < arr.size(); ++i) {
-      int num = arr[i];
+    for (int i = 0; i < static_cast<int>(arr.size()); ++i) {
+      int num = arr[static_cast<size_t>(i)];
       if (num < 0) {
         local_neg.push_back(-num);
       } else {
@@ -66,13 +66,24 @@ void gusev_n_sorting_int_simple_merging_omp::TestTaskOpenMP::RadixSortForNonNega
   }
 
   int max_val = arr[0];
-#pragma omp parallel for reduction(max : max_val)
-  for (std::vector<int>::size_type i = 0; i < arr.size(); ++i) {
-    max_val = std::max(arr[i], max_val);
+#pragma omp parallel
+  {
+    int local_max = max_val;
+#pragma omp for nowait
+    for (int i = 0; i < static_cast<int>(arr.size()); ++i) {
+      if (arr[static_cast<size_t>(i)] > local_max) {
+        local_max = arr[static_cast<size_t>(i)];
+      }
+    }
+#pragma omp critical
+    {
+      if (local_max > max_val) {
+        max_val = local_max;
+      }
+    }
   }
-  int max = max_val;
 
-  for (int exp = 1; max / exp > 0; exp *= 10) {
+  for (int exp = 1; max_val / exp > 0; exp *= 10) {
     CountingSort(arr, exp);
   }
 }
@@ -85,26 +96,26 @@ void gusev_n_sorting_int_simple_merging_omp::TestTaskOpenMP::CountingSort(std::v
   {
     std::vector<int> local_count(10, 0);
 #pragma omp for
-    for (std::vector<int>::size_type i = 0; i < arr.size(); ++i) {
-      int num = arr[i];
+    for (int i = 0; i < static_cast<int>(arr.size()); ++i) {
+      int num = arr[static_cast<size_t>(i)];
       int digit = (num / exp) % 10;
-      local_count[digit]++;
+      local_count[static_cast<size_t>(digit)]++;
     }
 
 #pragma omp critical
     {
       for (int j = 0; j < 10; ++j) {
-        count[j] += local_count[j];
+        count[static_cast<size_t>(j)] += local_count[static_cast<size_t>(j)];
       }
     }
   }
 
   std::partial_sum(count.begin(), count.end(), count.begin());
 
-  for (size_t i = arr.size(); i > 0; --i) {
-    int digit = (arr[i - 1] / exp) % 10;
-    output[count[digit] - 1] = arr[i - 1];
-    count[digit]--;
+  for (int i = static_cast<int>(arr.size()); i > 0; --i) {
+    int digit = (arr[static_cast<size_t>(i - 1)] / exp) % 10;
+    output[static_cast<size_t>(count[static_cast<size_t>(digit)] - 1)] = arr[static_cast<size_t>(i - 1)];
+    count[static_cast<size_t>(digit)]--;
   }
 
   arr = output;
