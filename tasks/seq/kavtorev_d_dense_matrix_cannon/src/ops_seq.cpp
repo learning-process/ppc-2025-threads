@@ -41,7 +41,7 @@ std::vector<double> kavtorev_d_dense_matrix_cannon_seq::CannonMatrixMultiplicati
 std::vector<double> kavtorev_d_dense_matrix_cannon_seq::MultiplyMatrix(const std::vector<double>& a,
                                                                        const std::vector<double>& b, int rows_a,
                                                                        int col_b) {
-  int col_A = rows_a;
+  int col_a = rows_a;
   std::vector<double> mtrx_c(rows_a * col_b, 0.0);
 
   if (rows_a == 0 || col_b == 0) {
@@ -50,8 +50,8 @@ std::vector<double> kavtorev_d_dense_matrix_cannon_seq::MultiplyMatrix(const std
 
   for (int i = 0; i < rows_a; ++i) {
     for (int j = 0; j < col_b; ++j) {
-      for (int k = 0; k < col_A; ++k) {
-        mtrx_c[(i * col_b) + j] += a[(i * col_A) + k] * b[(k * col_b) + j];
+      for (int k = 0; k < col_a; ++k) {
+        mtrx_c[(i * col_b) + j] += a[(i * col_a) + k] * b[(k * col_b) + j];
       }
     }
   }

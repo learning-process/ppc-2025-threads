@@ -11,7 +11,7 @@
 #include "seq/kavtorev_d_dense_matrix_cannon/include/ops_seq.hpp"
 
 namespace {
-std::vector<double> getRandomMatrix(int rows, int cols) {
+std::vector<double> GetRandomMatrix(int rows, int cols) {
   std::random_device dev;
   std::mt19937 gen(dev());
   std::uniform_real_distribution<double> dis(1.0, 20.0);
@@ -98,9 +98,9 @@ TEST(kavtorev_d_dense_matrix_cannon_seq, Multiplication_5x5) {
   int n = 5;
   int m = 5;
 
-  std::vector<double> in_mtrx_a = getRandomMatrix(n, m);
+  std::vector<double> in_mtrx_a = GetRandomMatrix(n, m);
 
-  std::vector<double> in_mtrx_b = getRandomMatrix(n, m);
+  std::vector<double> in_mtrx_b = GetRandomMatrix(n, m);
   std::vector<double> out(n * m);
 
   auto task_data_seq = std::make_shared<ppc::core::TaskData>();
@@ -132,8 +132,8 @@ TEST(kavtorev_d_dense_matrix_cannon_seq, Multiplication_0x0) {
   int n = 0;
   int m = 0;
 
-  std::vector<double> in_mtrx_a = getRandomMatrix(n, m);
-  std::vector<double> in_mtrx_b = getRandomMatrix(n, m);
+  std::vector<double> in_mtrx_a = GetRandomMatrix(n, m);
+  std::vector<double> in_mtrx_b = GetRandomMatrix(n, m);
   std::vector<double> out(n * m);
 
   auto task_data_seq = std::make_shared<ppc::core::TaskData>();
@@ -165,8 +165,8 @@ TEST(kavtorev_d_dense_matrix_cannon_seq, Multiplication_100x100) {
   int n = 100;
   int m = 100;
 
-  std::vector<double> in_mtrx_a = getRandomMatrix(n, m);
-  std::vector<double> in_mtrx_b = getRandomMatrix(n, m);
+  std::vector<double> in_mtrx_a = GetRandomMatrix(n, m);
+  std::vector<double> in_mtrx_b = GetRandomMatrix(n, m);
   std::vector<double> out(n * m);
 
   auto task_data_seq = std::make_shared<ppc::core::TaskData>();
@@ -264,8 +264,8 @@ TEST(kavtorev_d_dense_matrix_cannon_seq, Multiplication_6x6) {
   int n = 6;
   int m = 6;
 
-  std::vector<double> in_mtrx_a = getRandomMatrix(n, m);
-  std::vector<double> in_mtrx_b = getRandomMatrix(n, m);
+  std::vector<double> in_mtrx_a = GetRandomMatrix(n, m);
+  std::vector<double> in_mtrx_b = GetRandomMatrix(n, m);
   std::vector<double> out(n * m);
 
   auto task_data_seq = std::make_shared<ppc::core::TaskData>();
@@ -307,8 +307,8 @@ TEST(kavtorev_d_dense_matrix_cannon_seq, Multiplication_10x10) {
   int n = 10;
   int m = 10;
 
-  std::vector<double> in_mtrx_a = getRandomMatrix(n, m);
-  std::vector<double> in_mtrx_b = getRandomMatrix(n, m);
+  std::vector<double> in_mtrx_a = GetRandomMatrix(n, m);
+  std::vector<double> in_mtrx_b = GetRandomMatrix(n, m);
   std::vector<double> out(n * m);
 
   auto task_data_seq = std::make_shared<ppc::core::TaskData>();
