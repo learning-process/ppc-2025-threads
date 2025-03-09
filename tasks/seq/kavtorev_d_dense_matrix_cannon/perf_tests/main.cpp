@@ -111,4 +111,3 @@ TEST(kavtorev_d_dense_matrix_cannon_seq, test_task_run) {
     ASSERT_EQ(res[i], out[i]);
   }
 }
-
