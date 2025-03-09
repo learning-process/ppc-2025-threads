@@ -63,9 +63,10 @@ void vavilov_v_cannon_tbb::CannonTBB::BlockMultiply() {
               int col_b = bj + (j - bj);
 
               temp += A_[(row_a * N_) + col_a] * B_[(row_b * N_) + col_b];
-          }
+            }
 
             C_[(i * N_) + j] += temp;
+          }
         }
       }
     }
@@ -73,8 +74,8 @@ void vavilov_v_cannon_tbb::CannonTBB::BlockMultiply() {
 }
 
 void vavilov_v_cannon_tbb::CannonTBB::ShiftBlocks() {
-  std::vector<double> a_tmp = A_;
-  std::vector<double> b_tmp = B_;
+    std::vector<double> a_tmp = A_;
+    std::vector<double> b_tmp = B_;
 
   tbb::parallel_for(0, num_blocks_, [&](int bi) {
     for (int bj = 0; bj < num_blocks_; ++bj) {
