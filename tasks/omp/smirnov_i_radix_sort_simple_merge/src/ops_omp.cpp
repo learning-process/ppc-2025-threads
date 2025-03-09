@@ -3,6 +3,7 @@
 #include <omp.h>
 
 #include <algorithm>
+#include <deque>
 #include <cmath>
 #include <cstddef>
 #include <numeric>
@@ -70,7 +71,7 @@ bool smirnov_i_radix_sort_simple_merge_omp::TestTaskOpenMP::ValidationImpl() {
   return task_data->inputs_count[0] == task_data->outputs_count[0];
 }
 bool smirnov_i_radix_sort_simple_merge_omp::TestTaskOpenMP::RunImpl() {
-  std::vector<std::vector<int>> A, B;
+  std::deque<std::vector<int>> A, B;
   std::vector<int> sort_res;
   bool flag = false;
 #pragma omp parallel shared(flag)
@@ -98,10 +99,10 @@ bool smirnov_i_radix_sort_simple_merge_omp::TestTaskOpenMP::RunImpl() {
 #pragma omp critical
       {
         if (static_cast<int>(A.size()) >= 2) {
-          mas1 = A[0];
-          A.erase(A.begin());
-          mas2 = A[0];
-          A.erase(A.begin());
+          mas1 = std::move(A.front());
+          A.pop_front();
+          mas2 = std::move(A.front());
+          A.pop_front();
         }
       }
       if (!mas1.empty() && !mas2.empty()) {
@@ -116,8 +117,8 @@ bool smirnov_i_radix_sort_simple_merge_omp::TestTaskOpenMP::RunImpl() {
 #pragma omp single
       {
         if (static_cast<int>(A.size()) == 1) {
-          B.push_back(A[0]);
-          A.erase(A.begin());
+          B.push_back(std::move(A.front()));
+          A.pop_front();
         }
         std::swap(A, B);
         flag = static_cast<int>(A.size()) != 1;
@@ -127,8 +128,7 @@ bool smirnov_i_radix_sort_simple_merge_omp::TestTaskOpenMP::RunImpl() {
 #pragma omp barrier
 #pragma omp single
     {
-      sort_res.resize(A[0].size());
-      std::copy(A[0].begin(), A[0].end(), sort_res.begin());
+      sort_res = std::move(A.front());
       output_ = sort_res;
     }
   }
