@@ -1,9 +1,6 @@
 // Copyright 2025 Kalinin Dmitry
 #pragma once
 
-#include <algorithm>
-#include <iostream>
-#include <string>
 #include <vector>
 
 #include "core/task/include/task.hpp"
@@ -31,8 +28,8 @@ class TestTaskSequential : public ppc::core::Task {
   bool PostProcessingImpl() override;
 
  private:
-  std::vector<Point> points;
-  std::vector<Point> convexHullPoints;
+  std::vector<Point> points_;
+  std::vector<Point> convexHullPoints_;
 };
 
 std::vector<Point> Jarvis(const std::vector<Point>& points);

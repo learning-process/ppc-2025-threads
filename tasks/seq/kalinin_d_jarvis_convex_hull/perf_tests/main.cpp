@@ -1,9 +1,13 @@
 // Copyright 2025 Kalinin Dmitry
-
 #include <gtest/gtest.h>
 
+#include <chrono>
+#include <cstdint>
+#include <cstdlib>
+#include <memory>
 #include <vector>
 
+#include "core/include/task_data.hpp"
 #include "core/perf/include/perf.hpp"
 #include "seq/kalinin_d_jarvis_convex_hull/include/ops_seq.hpp"
 
@@ -14,13 +18,13 @@ TEST(kalinin_d_jarvis_convex_hull_seq, test_pipeline_run) {
   for (int i = 0; i < size; i++) {
     points.push_back({i % 100, i % 200});
   }
-  std::vector<kalinin_d_jarvis_convex_hull_seq::Point> resHull(points.size());
+  std::vector<kalinin_d_jarvis_convex_hull_seq::Point> res_hull(points.size());
   // Create TaskData
   auto task_data_seq = std::make_shared<ppc::core::TaskData>();
   task_data_seq->inputs.emplace_back(reinterpret_cast<uint8_t *>(points.data()));
   task_data_seq->inputs_count.emplace_back(points.size());
-  task_data_seq->outputs.emplace_back(reinterpret_cast<uint8_t *>(resHull.data()));
-  task_data_seq->outputs_count.emplace_back(resHull.size());
+  task_data_seq->outputs.emplace_back(reinterpret_cast<uint8_t *>(res_hull.data()));
+  task_data_seq->outputs_count.emplace_back(res_hull.size());
 
   // Create Task
   auto test_task_sequential = std::make_shared<kalinin_d_jarvis_convex_hull_seq::TestTaskSequential>(task_data_seq);
@@ -46,19 +50,19 @@ TEST(kalinin_d_jarvis_convex_hull_seq, test_pipeline_run) {
 
 TEST(kalinin_d_jarvis_convex_hull_seq, test_task_run) {
   std::vector<kalinin_d_jarvis_convex_hull_seq::Point> points;
-  const int size = 666'666;
+  const int size = 10000000;
   points.reserve(size);
   for (int i = 0; i < size; i++) {
     points.push_back({rand() % 100, rand() % 200});
   }
 
-  std::vector<kalinin_d_jarvis_convex_hull_seq::Point> resHull(points.size());
+  std::vector<kalinin_d_jarvis_convex_hull_seq::Point> res_hull(points.size());
   // Create TaskData
   auto task_data_seq = std::make_shared<ppc::core::TaskData>();
   task_data_seq->inputs.emplace_back(reinterpret_cast<uint8_t *>(points.data()));
   task_data_seq->inputs_count.emplace_back(points.size());
-  task_data_seq->outputs.emplace_back(reinterpret_cast<uint8_t *>(resHull.data()));
-  task_data_seq->outputs_count.emplace_back(resHull.size());
+  task_data_seq->outputs.emplace_back(reinterpret_cast<uint8_t *>(res_hull.data()));
+  task_data_seq->outputs_count.emplace_back(res_hull.size());
 
   // Create Task
   auto test_task_sequential = std::make_shared<kalinin_d_jarvis_convex_hull_seq::TestTaskSequential>(task_data_seq);
