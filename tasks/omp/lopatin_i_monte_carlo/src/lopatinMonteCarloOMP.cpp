@@ -16,7 +16,12 @@ bool TestTaskOMP::ValidationImpl() {
   const bool inputs_valid = task_data->inputs_count.size() == 2 &&
                             (task_data->inputs_count[0] % 2 == 0) &&  // odd num of bounds
                             task_data->inputs_count[1] == 1;          // iterations num
-  return outputs_valid && inputs_valid;
+
+  auto* iter_ptr = reinterpret_cast<int*>(task_data->inputs[1]);
+  const int iterations = *iter_ptr;
+  const bool iter_valid = iterations > 0;
+
+  return outputs_valid && inputs_valid && iter_valid;
 }
 
 bool TestTaskOMP::PreProcessingImpl() {

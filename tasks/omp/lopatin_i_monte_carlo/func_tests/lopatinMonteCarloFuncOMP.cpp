@@ -54,6 +54,20 @@ TEST(lopatin_i_monte_carlo_omp, validationMissingOutputData) {
   ASSERT_FALSE(task.Validation());
 }
 
+TEST(lopatin_i_monte_carlo_omp, validationZeroIterations) {
+  std::vector<double> bounds = lopatin_i_monte_carlo_omp::GenerateBounds(0.0, 1.0, 2);
+  const int iterations = 0;
+
+  auto task_data = std::make_shared<ppc::core::TaskData>();
+  task_data->inputs.push_back(reinterpret_cast<uint8_t*>(bounds.data()));
+  task_data->inputs_count.push_back(4);
+  task_data->inputs.push_back(reinterpret_cast<uint8_t*>(const_cast<int*>(&iterations)));
+  task_data->inputs_count.push_back(1);
+
+  lopatin_i_monte_carlo_omp::TestTaskOMP task(task_data, [](const std::vector<double>&) { return 1.0; });
+  ASSERT_FALSE(task.Validation());
+}
+
 TEST(lopatin_i_monte_carlo_omp, highDimensionalIntegration) {
   const int dimensions = 7;
   const int iterations = 20000;
