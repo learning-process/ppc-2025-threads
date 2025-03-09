@@ -6,12 +6,12 @@
 #include <memory>
 #include <vector>
 
-#include "all/example/include/ops_all.hpp"
+#include "all/tsatsyn_a_radix_sort_simple_merge_all/include/ops_all.hpp"
 #include "boost/mpi/communicator.hpp"
 #include "core/perf/include/perf.hpp"
 #include "core/task/include/task.hpp"
 
-TEST(nesterov_a_test_task_all, test_pipeline_run) {
+TEST(tsatsyn_a_radix_sort_simple_merge_all, test_pipeline_run) {
   constexpr int kCount = 400;
 
   // Create data
@@ -30,7 +30,7 @@ TEST(nesterov_a_test_task_all, test_pipeline_run) {
   task_data_all->outputs_count.emplace_back(out.size());
 
   // Create Task
-  auto test_task_all = std::make_shared<nesterov_a_test_task_all::TestTaskALL>(task_data_all);
+  auto test_task_all = std::make_shared<tsatsyn_a_radix_sort_simple_merge_all::TestTaskALL>(task_data_all);
 
   // Create Perf attributes
   auto perf_attr = std::make_shared<ppc::core::PerfAttr>();
@@ -56,7 +56,7 @@ TEST(nesterov_a_test_task_all, test_pipeline_run) {
   ASSERT_EQ(in, out);
 }
 
-TEST(nesterov_a_test_task_all, test_task_run) {
+TEST(tsatsyn_a_radix_sort_simple_merge_all, test_task_run) {
   constexpr int kCount = 400;
 
   // Create data
@@ -75,7 +75,7 @@ TEST(nesterov_a_test_task_all, test_task_run) {
   task_data_all->outputs_count.emplace_back(out.size());
 
   // Create Task
-  auto test_task_all = std::make_shared<nesterov_a_test_task_all::TestTaskALL>(task_data_all);
+  auto test_task_all = std::make_shared<tsatsyn_a_radix_sort_simple_merge_all::TestTaskALL>(task_data_all);
 
   // Create Perf attributes
   auto perf_attr = std::make_shared<ppc::core::PerfAttr>();

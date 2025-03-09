@@ -7,72 +7,100 @@
 #include <vector>
 
 #include "core/util/include/util.hpp"
-#include "oneapi/tbb/task_arena.h"
-#include "oneapi/tbb/task_group.h"
-
-namespace {
-void MatMul(const std::vector<int> &in_vec, int rc_size, std::vector<int> &out_vec) {
-  for (int i = 0; i < rc_size; ++i) {
-    for (int j = 0; j < rc_size; ++j) {
-      out_vec[(i * rc_size) + j] = 0;
-      for (int k = 0; k < rc_size; ++k) {
-        out_vec[(i * rc_size) + j] += in_vec[(i * rc_size) + k] * in_vec[(k * rc_size) + j];
-      }
-    }
-  }
-}
-}  // namespace
 
 bool tsatsyn_a_radix_sort_simple_merge_all::TestTaskALL::PreProcessingImpl() {
   // Init value for input and output
-  unsigned int input_size = task_data->inputs_count[0];
-  auto *in_ptr = reinterpret_cast<int *>(task_data->inputs[0]);
-  input_ = std::vector<int>(in_ptr, in_ptr + input_size);
-
-  unsigned int output_size = task_data->outputs_count[0];
-  output_ = std::vector<int>(output_size, 0);
-
-  rc_size_ = static_cast<int>(std::sqrt(input_size));
+  auto *temp_ptr = reinterpret_cast<double *>(task_data->inputs[0]);
+  input_data_ = std::vector<double>(temp_ptr, temp_ptr + task_data->inputs_count[0]);
+  output_.resize(task_data->inputs_count[0]);
   return true;
 }
 
 bool tsatsyn_a_radix_sort_simple_merge_all::TestTaskALL::ValidationImpl() {
   // Check equality of counts elements
-  return task_data->inputs_count[0] == task_data->outputs_count[0];
+  return task_data->inputs_count[0] != 0;
 }
 
 bool tsatsyn_a_radix_sort_simple_merge_all::TestTaskALL::RunImpl() {
-  if (world_.rank() == 0) {
-#pragma omp parallel default(none)
-    {
-#pragma omp critical
-      { MatMul(input_, rc_size_, output_); }
-    }
-  } else {
-    oneapi::tbb::task_arena arena(1);
-    arena.execute([&] {
-      tbb::task_group tg;
-      for (int i = 0; i < ppc::util::GetPPCNumThreads(); ++i) {
-        tg.run([&] { MatMul(input_, rc_size_, output_); });
+  std::vector<uint64_t> pozitive_copy;
+  std::vector<uint64_t> negative_copy;
+#pragma omp parallel
+  {
+    std::vector<uint64_t> local_positive;
+    std::vector<uint64_t> local_negative;
+#pragma omp for nowait
+    for (int i = 0; i < static_cast<int>(input_data_.size()); ++i) {
+      if (input_data_[i] > 0.0) {
+        local_positive.push_back(*reinterpret_cast<const uint64_t *>(&input_data_[i]));
+      } else {
+        local_negative.push_back(*reinterpret_cast<const uint64_t *>(&input_data_[i]));
       }
-      tg.wait();
-    });
+    }
+#pragma omp critical
+    {
+      pozitive_copy.insert(pozitive_copy.end(), local_positive.begin(), local_positive.end());
+      negative_copy.insert(negative_copy.end(), local_negative.begin(), local_negative.end());
+    }
+  }
+  for (int bit = 0; bit < 64; bit++) {
+#pragma omp parallel
+    {
+#pragma omp single
+      {
+        std::vector<uint64_t> group0;
+        std::vector<uint64_t> group1;
+        group0.reserve(pozitive_copy.size());
+        group1.reserve(pozitive_copy.size());
+
+        for (int i = 0; i < static_cast<int>(pozitive_copy.size()); i++) {
+          if (((pozitive_copy[i] >> bit) & 1) != 0U) {
+            group1.push_back(pozitive_copy[i]);
+          } else {
+            group0.push_back(pozitive_copy[i]);
+          }
+        }
+        pozitive_copy = std::move(group0);
+        pozitive_copy.insert(pozitive_copy.end(), group1.begin(), group1.end());
+      }
+    }
   }
 
-  const int num_threads = ppc::util::GetPPCNumThreads();
-  std::vector<std::thread> threads(num_threads);
-  for (int i = 0; i < num_threads; i++) {
-    threads[i] = std::thread(MatMul, std::cref(input_), rc_size_, std::ref(output_));
-    threads[i].join();
-  }
+  for (int bit = 0; bit < 64; bit++) {
+#pragma omp parallel
+    {
+#pragma omp single
+      {
+        std::vector<uint64_t> group0;
+        std::vector<uint64_t> group1;
+        group0.reserve(negative_copy.size());
+        group1.reserve(negative_copy.size());
 
-  world_.barrier();
+        for (int i = 0; i < static_cast<int>(negative_copy.size()); i++) {
+          if (((negative_copy[i] >> bit) & 1) != 0U) {
+            group1.push_back(negative_copy[i]);
+          } else {
+            group0.push_back(negative_copy[i]);
+          }
+        }
+        negative_copy = std::move(group0);
+        negative_copy.insert(negative_copy.end(), group1.begin(), group1.end());
+      }
+    }
+  }
+#pragma omp parallel for
+  for (int i = 0; i < static_cast<int>(negative_copy.size()); i++) {
+    output_[static_cast<int>(negative_copy.size()) - 1 - i] = *reinterpret_cast<const double *>(&negative_copy[i]);
+  }
+#pragma omp parallel for
+  for (int i = 0; i < static_cast<int>(pozitive_copy.size()); ++i) {
+    output_[negative_copy.size() + i] = *reinterpret_cast<const double *>(&pozitive_copy[i]);
+  }
   return true;
 }
 
 bool tsatsyn_a_radix_sort_simple_merge_all::TestTaskALL::PostProcessingImpl() {
   for (size_t i = 0; i < output_.size(); i++) {
-    reinterpret_cast<int *>(task_data->outputs[0])[i] = output_[i];
+    reinterpret_cast<double *>(task_data->outputs[0])[i] = output_[i];
   }
   return true;
 }

@@ -8,7 +8,7 @@
 #include "core/task/include/task.hpp"
 
 namespace tsatsyn_a_radix_sort_simple_merge_all {
-
+std::vector<double> GetRandomVector(int sz, int a, int b);
 class TestTaskALL : public ppc::core::Task {
  public:
   explicit TestTaskALL(ppc::core::TaskDataPtr task_data) : Task(std::move(task_data)) {}
@@ -18,7 +18,8 @@ class TestTaskALL : public ppc::core::Task {
   bool PostProcessingImpl() override;
 
  private:
-  std::vector<int> input_, output_;
+  std::vector<double> input_data_;
+  std::vector<double> output_;
   int rc_size_{};
   boost::mpi::communicator world_;
 };
