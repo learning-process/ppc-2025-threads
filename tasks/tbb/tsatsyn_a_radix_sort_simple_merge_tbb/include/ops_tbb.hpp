@@ -5,7 +5,7 @@
 
 #include "core/task/include/task.hpp"
 
-namespace nesterov_a_test_task_tbb {
+namespace tsatsyn_a_radix_sort_simple_merge_tbb {
 
 class TestTaskTBB : public ppc::core::Task {
  public:
@@ -20,4 +20,4 @@ class TestTaskTBB : public ppc::core::Task {
   int rc_size_{};
 };
 
-}  // namespace nesterov_a_test_task_tbb
+}  // namespace tsatsyn_a_radix_sort_simple_merge_tbb

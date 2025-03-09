@@ -8,9 +8,9 @@
 
 #include "core/perf/include/perf.hpp"
 #include "core/task/include/task.hpp"
-#include "tbb/example/include/ops_tbb.hpp"
+#include "tbb/tsatsyn_a_radix_sort_simple_merge_tbb/include/ops_tbb.hpp"
 
-TEST(nesterov_a_test_task_tbb, test_pipeline_run) {
+TEST(tsatsyn_a_radix_sort_simple_merge_tbb, test_pipeline_run) {
   constexpr int kCount = 700;
 
   // Create data
@@ -29,7 +29,7 @@ TEST(nesterov_a_test_task_tbb, test_pipeline_run) {
   task_data_tbb->outputs_count.emplace_back(out.size());
 
   // Create Task
-  auto test_task_tbb = std::make_shared<nesterov_a_test_task_tbb::TestTaskTBB>(task_data_tbb);
+  auto test_task_tbb = std::make_shared<tsatsyn_a_radix_sort_simple_merge_tbb::TestTaskTBB>(task_data_tbb);
 
   // Create Perf attributes
   auto perf_attr = std::make_shared<ppc::core::PerfAttr>();
@@ -51,7 +51,7 @@ TEST(nesterov_a_test_task_tbb, test_pipeline_run) {
   ASSERT_EQ(in, out);
 }
 
-TEST(nesterov_a_test_task_tbb, test_task_run) {
+TEST(tsatsyn_a_radix_sort_simple_merge_tbb, test_task_run) {
   constexpr int kCount = 700;
 
   // Create data
@@ -70,7 +70,7 @@ TEST(nesterov_a_test_task_tbb, test_task_run) {
   task_data_tbb->outputs_count.emplace_back(out.size());
 
   // Create Task
-  auto test_task_tbb = std::make_shared<nesterov_a_test_task_tbb::TestTaskTBB>(task_data_tbb);
+  auto test_task_tbb = std::make_shared<tsatsyn_a_radix_sort_simple_merge_tbb::TestTaskTBB>(task_data_tbb);
 
   // Create Perf attributes
   auto perf_attr = std::make_shared<ppc::core::PerfAttr>();

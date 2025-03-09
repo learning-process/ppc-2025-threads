@@ -9,9 +9,9 @@
 
 #include "core/task/include/task.hpp"
 #include "core/util/include/util.hpp"
-#include "tbb/example/include/ops_tbb.hpp"
+#include "tbb/tsatsyn_a_radix_sort_simple_merge_tbb/include/ops_tbb.hpp"
 
-TEST(nesterov_a_test_task_tbb, test_matmul_50) {
+TEST(tsatsyn_a_radix_sort_simple_merge_tbb, test_matmul_50) {
   constexpr size_t kCount = 50;
 
   // Create data
@@ -30,7 +30,7 @@ TEST(nesterov_a_test_task_tbb, test_matmul_50) {
   task_data_tbb->outputs_count.emplace_back(out.size());
 
   // Create Task
-  nesterov_a_test_task_tbb::TestTaskTBB test_task_tbb(task_data_tbb);
+  tsatsyn_a_radix_sort_simple_merge_tbb::TestTaskTBB test_task_tbb(task_data_tbb);
   ASSERT_EQ(test_task_tbb.Validation(), true);
   test_task_tbb.PreProcessing();
   test_task_tbb.Run();
@@ -38,9 +38,9 @@ TEST(nesterov_a_test_task_tbb, test_matmul_50) {
   EXPECT_EQ(in, out);
 }
 
-TEST(nesterov_a_test_task_tbb, test_matmul_100_from_file) {
+TEST(tsatsyn_a_radix_sort_simple_merge_tbb, test_matmul_100_from_file) {
   std::string line;
-  std::ifstream test_file(ppc::util::GetAbsolutePath("tbb/example/data/test.txt"));
+  std::ifstream test_file(ppc::util::GetAbsolutePath("tbb/tsatsyn_a_radix_sort_simple_merge_tbb/data/test.txt"));
   if (test_file.is_open()) {
     getline(test_file, line);
   }
@@ -64,7 +64,7 @@ TEST(nesterov_a_test_task_tbb, test_matmul_100_from_file) {
   task_data_tbb->outputs_count.emplace_back(out.size());
 
   // Create Task
-  nesterov_a_test_task_tbb::TestTaskTBB test_task_tbb(task_data_tbb);
+  tsatsyn_a_radix_sort_simple_merge_tbb::TestTaskTBB test_task_tbb(task_data_tbb);
   ASSERT_EQ(test_task_tbb.Validation(), true);
   test_task_tbb.PreProcessing();
   test_task_tbb.Run();
