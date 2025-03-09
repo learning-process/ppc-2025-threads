@@ -14,7 +14,7 @@ TEST(kalinin_d_jarvis_convex_hull_seq, test_pipeline_run) {
   for (int i = 0; i < size; i++) {
     points.push_back({i % 100, i % 200});
   }
-  std::vector<Point> resHull(points.size());
+  std::vector<kalinin_d_jarvis_convex_hull_seq::Point> resHull(points.size());
   // Create TaskData
   auto task_data_seq = std::make_shared<ppc::core::TaskData>();
   task_data_seq->inputs.emplace_back(reinterpret_cast<uint8_t *>(points.data()));
@@ -45,14 +45,14 @@ TEST(kalinin_d_jarvis_convex_hull_seq, test_pipeline_run) {
 }
 
 TEST(kalinin_d_jarvis_convex_hull_seq, test_task_run) {
-  std::vector<Point> points;
+  std::vector<kalinin_d_jarvis_convex_hull_seq::Point> points;
   const int size = 666'666;
   points.reserve(size);
   for (int i = 0; i < size; i++) {
     points.push_back({rand() % 100, rand() % 200});
   }
 
-  std::vector<Point> resHull(points.size());
+  std::vector<kalinin_d_jarvis_convex_hull_seq::Point> resHull(points.size());
   // Create TaskData
   auto task_data_seq = std::make_shared<ppc::core::TaskData>();
   task_data_seq->inputs.emplace_back(reinterpret_cast<uint8_t *>(points.data()));
