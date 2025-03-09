@@ -8,7 +8,7 @@
 using namespace std::chrono_literals;
 
 std::vector<kalinin_d_jarvis_convex_hull_seq::Point> kalinin_d_jarvis_convex_hull_seq::Jarvis(
-    const std::vector<kalinin_d_jarvis_convex_hull_seq::Point>& points) {
+    const std::vector<kalinin_d_jarvis_convex_hull_seq::Point>&) {
   if (points.size() < 3) {
     return points;
   }
@@ -55,7 +55,7 @@ bool kalinin_d_jarvis_convex_hull_seq::TestTaskSequential::PreProcessingImpl() {
   // Init value for input and output
   points_.resize(task_data->inputs_count[0]);
   auto* tmp_ptr_a = reinterpret_cast<kalinin_d_jarvis_convex_hull_seq::Point*>(task_data->inputs[0]);
-  std::copy_n(tmp_ptr_a, task_data->inputs_count[0], points.begin());
+  std::copy_n(tmp_ptr_a, task_data->inputs_count[0], points_.begin());
   return true;
 }
 
@@ -64,8 +64,8 @@ bool kalinin_d_jarvis_convex_hull_seq::TestTaskSequential::ValidationImpl() {
     return false;
   }
 
-  std::ranges::sort(points.begin(), points_.end());
-  return std::ranges::unique(points.begin(), points.end()) == points.end();
+  std::ranges::sort(points_.begin(), points_.end());
+  return std::ranges::unique(points_.begin(), points_.end()) == points_.end();
 }
 
 bool kalinin_d_jarvis_convex_hull_seq::TestTaskSequential::RunImpl() {
