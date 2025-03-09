@@ -72,11 +72,11 @@ bool smirnov_i_radix_sort_simple_merge_omp::TestTaskOpenMP::ValidationImpl() {
 bool smirnov_i_radix_sort_simple_merge_omp::TestTaskOpenMP::RunImpl() {
   std::vector<std::vector<int>> A, B;
   std::vector<int> sort_res;
+  bool flag = false;
 #pragma omp parallel shared(flag)
   {
     int num = omp_get_thread_num();
     int all = omp_get_num_threads();
-    bool flag = false;
     std::vector<int> local_mas;
     int start = num * mas_.size() / all;
     int end = std::min((num + 1) * mas_.size() / all, mas_.size());
