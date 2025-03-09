@@ -24,8 +24,8 @@ TEST(kalinin_d_jarvis_convex_hull_seq, Empty_Input) {
 }
 
 TEST(kalinin_d_jarvis_convex_hull_seq, Single_Point) {
-  std::vector<kalinin_d_jarvis_convex_hull_seq::Point> points = {{0, 0}};
-  std::vector<kalinin_d_jarvis_convex_hull_seq::Point> hull = {{0, 0}};
+  std::vector<kalinin_d_jarvis_convex_hull_seq::Point> points = {{.x = 0, .y = 0}};
+  std::vector<kalinin_d_jarvis_convex_hull_seq::Point> hull = {{.x = 0, .y = 0}};
   std::vector<kalinin_d_jarvis_convex_hull_seq::Point> res_hull(hull.size());
 
   // Create TaskData
@@ -46,8 +46,8 @@ TEST(kalinin_d_jarvis_convex_hull_seq, Single_Point) {
 }
 
 TEST(kalinin_d_jarvis_convex_hull_seq, Two_Points) {
-  std::vector<kalinin_d_jarvis_convex_hull_seq::Point> points = {{0, 0}, {1, 1}};
-  std::vector<kalinin_d_jarvis_convex_hull_seq::Point> hull = {{0, 0}, {1, 1}};
+  std::vector<kalinin_d_jarvis_convex_hull_seq::Point> points = {{.x = 0, .y = 0}, {.x = 1, .y = 1}};
+  std::vector<kalinin_d_jarvis_convex_hull_seq::Point> hull = {{.x = 0, .y = 0}, {.x = 1, .y = 1}};
   std::vector<kalinin_d_jarvis_convex_hull_seq::Point> res_hull(hull.size());
 
   // Create TaskData
@@ -69,8 +69,9 @@ TEST(kalinin_d_jarvis_convex_hull_seq, Two_Points) {
 }
 
 TEST(kalinin_d_jarvis_convex_hull_seq, Duplicate_Points) {
-  std::vector<kalinin_d_jarvis_convex_hull_seq::Point> points = {{0, 0}, {1, 1}, {2, 2}, {0, 0}, {1, 1}, {2, 2}};
-  std::vector<kalinin_d_jarvis_convex_hull_seq::Point> hull = {{0, 0}, {2, 2}};
+  std::vector<kalinin_d_jarvis_convex_hull_seq::Point> points = {{.x = 0, .y = 0}, {.x = 1, .y = 1}, {.x = 2, .y = 2},
+                                                                 {.x = 0, .y = 0}, {.x = 1, .y = 1}, {.x = 2, .y = 2}};
+  std::vector<kalinin_d_jarvis_convex_hull_seq::Point> hull = {{.x = 0, .y = 0}, {.x = 2, .y = 2}};
   std::vector<kalinin_d_jarvis_convex_hull_seq::Point> res_hull(hull.size());
 
   // Create TaskData
@@ -91,8 +92,10 @@ TEST(kalinin_d_jarvis_convex_hull_seq, Duplicate_Points) {
 }
 
 TEST(kalinin_d_jarvis_convex_hull_seq, Random_Points) {
-  std::vector<kalinin_d_jarvis_convex_hull_seq::Point> points = {{1, 4}, {3, 8}, {8, 2}, {5, 5}, {9, 1}, {4, 7}};
-  std::vector<kalinin_d_jarvis_convex_hull_seq::Point> hull = {{1, 4}, {3, 8}, {4, 7}, {9, 1}};
+  std::vector<kalinin_d_jarvis_convex_hull_seq::Point> points = {{.x = 1, .y = 4}, {.x = 3, .y = 8}, {.x = 8, .y = 2},
+                                                                 {.x = 5, .y = 5}, {.x = 9, .y = 1}, {.x = 4, .y = 7}};
+  std::vector<kalinin_d_jarvis_convex_hull_seq::Point> hull = {
+      {.x = 1, .y = 4}, {.x = 3, .y = 8}, {.x = 4, .y = 7}, {.x = 9, .y = 1}};
   std::vector<kalinin_d_jarvis_convex_hull_seq::Point> res_hull(hull.size());
   // Create TaskData
   auto task_data_seq = std::make_shared<ppc::core::TaskData>();
@@ -114,9 +117,11 @@ TEST(kalinin_d_jarvis_convex_hull_seq, Random_Points) {
 }
 
 TEST(kalinin_d_jarvis_convex_hull_seq, Rectangle_Points) {
-  std::vector<kalinin_d_jarvis_convex_hull_seq::Point> points = {{0, 0}, {0, 5}, {5, 5}, {5, 0},
-                                                                 {1, 1}, {1, 4}, {4, 4}, {4, 1}};
-  std::vector<kalinin_d_jarvis_convex_hull_seq::Point> hull = {{0, 0}, {0, 5}, {5, 5}, {5, 0}};
+  std::vector<kalinin_d_jarvis_convex_hull_seq::Point> points = {{.x = 0, .y = 0}, {.x = 0, .y = 5}, {.x = 5, .y = 5},
+                                                                 {.x = 5, .y = 0}, {.x = 1, .y = 1}, {.x = 1, .y = 4},
+                                                                 {.x = 4, .y = 4}, {.x = 4, .y = 1}};
+  std::vector<kalinin_d_jarvis_convex_hull_seq::Point> hull = {
+      {.x = 0, .y = 0}, {.x = 0, .y = 5}, {.x = 5, .y = 5}, {.x = 5, .y = 0}};
   std::vector<kalinin_d_jarvis_convex_hull_seq::Point> res_hull(hull.size());
 
   // Create TaskData

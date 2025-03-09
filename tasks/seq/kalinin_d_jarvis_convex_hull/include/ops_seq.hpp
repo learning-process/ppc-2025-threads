@@ -1,6 +1,7 @@
 // Copyright 2025 Kalinin Dmitry
 #pragma once
 
+#include <utility>
 #include <vector>
 
 #include "core/task/include/task.hpp"
