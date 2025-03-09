@@ -2,6 +2,7 @@
 #include <cmath>
 #include <numeric>
 #include <vector>
+#include <cstddef>
 
 #include "omp/gusev_n_sorting_int_simple_merging/include/ops_omp.hpp"
 
@@ -15,9 +16,10 @@ void gusev_n_sorting_int_simple_merging_omp::TestTaskOpenMP::RadixSort(std::vect
 
 #pragma omp parallel
   {
-    std::vector<int> local_neg, local_pos;
+    std::vector<int> local_neg;
+    std::vector<int> local_pos;
 #pragma omp for nowait
-    for (int i = 0; i < arr.size(); ++i) {
+    for (std::vector<int>::size_type i = 0; i < arr.size(); ++i) {
       int num = arr[i];
       if (num < 0) {
         local_neg.push_back(-num);
@@ -40,7 +42,9 @@ void gusev_n_sorting_int_simple_merging_omp::TestTaskOpenMP::RadixSort(std::vect
       if (!negatives.empty()) {
         RadixSortForNonNegative(negatives);
         std::reverse(negatives.begin(), negatives.end());
-        for (auto& num : negatives) num = -num;
+        for (auto& num : negatives) {
+          num = -num;
+        }
       }
     }
 #pragma omp section
@@ -63,8 +67,8 @@ void gusev_n_sorting_int_simple_merging_omp::TestTaskOpenMP::RadixSortForNonNega
 
   int max_val = arr[0];
 #pragma omp parallel for reduction(max : max_val)
-  for (int i = 0; i < arr.size(); ++i) {
-    if (arr[i] > max_val) max_val = arr[i];
+  for (std::vector<int>::size_type i = 0; i < arr.size(); ++i) {
+    max_val = std::max(arr[i], max_val);
   }
   int max = max_val;
 
@@ -81,7 +85,7 @@ void gusev_n_sorting_int_simple_merging_omp::TestTaskOpenMP::CountingSort(std::v
   {
     std::vector<int> local_count(10, 0);
 #pragma omp for
-    for (int i = 0; i < arr.size(); ++i) {
+    for (std::vector<int>::size_type i = 0; i < arr.size(); ++i) {
       int num = arr[i];
       int digit = (num / exp) % 10;
       local_count[digit]++;
@@ -89,7 +93,9 @@ void gusev_n_sorting_int_simple_merging_omp::TestTaskOpenMP::CountingSort(std::v
 
 #pragma omp critical
     {
-      for (int j = 0; j < 10; ++j) count[j] += local_count[j];
+      for (int j = 0; j < 10; ++j) {
+        count[j] += local_count[j];
+      }
     }
   }
 

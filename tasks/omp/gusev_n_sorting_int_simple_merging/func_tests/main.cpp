@@ -8,7 +8,6 @@
 #include <vector>
 
 #include "core/task/include/task.hpp"
-#include "core/util/include/util.hpp"
 #include "omp/gusev_n_sorting_int_simple_merging/include/ops_omp.hpp"
 
 namespace {
