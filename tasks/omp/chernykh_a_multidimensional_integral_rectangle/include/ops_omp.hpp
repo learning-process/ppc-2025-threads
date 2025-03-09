@@ -11,15 +11,21 @@ namespace chernykh_a_multidimensional_integral_rectangle_omp {
 using Point = std::vector<double>;
 using Function = std::function<double(const Point &)>;
 
-struct Dimension {
-  explicit Dimension(const double lower_bound, const double upper_bound, const int steps_count)
-      : lower_bound(lower_bound), upper_bound(upper_bound), steps_count(steps_count) {}
-  double lower_bound{};
-  double upper_bound{};
-  int steps_count{};
+class Dimension {
+ public:
+  explicit Dimension(double lower_bound, double upper_bound, int steps_count)
+      : lower_bound_(lower_bound), upper_bound_(upper_bound), steps_count_(steps_count) {}
 
-  [[nodiscard]] bool IsValid() const;
+  [[nodiscard]] double GetLowerBound() const;
+  [[nodiscard]] double GetUpperBound() const;
+  [[nodiscard]] int GetStepsCount() const;
   [[nodiscard]] double GetStepSize() const;
+  [[nodiscard]] bool IsValid() const;
+
+ private:
+  double lower_bound_{};
+  double upper_bound_{};
+  int steps_count_{};
 };
 
 class OMPTask final : public ppc::core::Task {

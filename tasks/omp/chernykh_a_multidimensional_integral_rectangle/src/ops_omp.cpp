@@ -11,9 +11,15 @@
 
 namespace chernykh_a_multidimensional_integral_rectangle_omp {
 
-bool Dimension::IsValid() const { return lower_bound < upper_bound && steps_count > 0; }
+double Dimension::GetLowerBound() const { return lower_bound_; }
 
-double Dimension::GetStepSize() const { return (upper_bound - lower_bound) / steps_count; }
+double Dimension::GetUpperBound() const { return upper_bound_; }
+
+int Dimension::GetStepsCount() const { return steps_count_; }
+
+double Dimension::GetStepSize() const { return (upper_bound_ - lower_bound_) / steps_count_; }
+
+bool Dimension::IsValid() const { return lower_bound_ < upper_bound_ && steps_count_ > 0; }
 
 bool OMPTask::ValidationImpl() {
   auto *dims_ptr = reinterpret_cast<Dimension *>(task_data->inputs[0]);
@@ -30,8 +36,8 @@ bool OMPTask::PreProcessingImpl() {
 }
 
 bool OMPTask::RunImpl() {
-  int total_points = GetTotalPoints();
   double sum = 0.0;
+  int total_points = GetTotalPoints();
 #pragma omp parallel for reduction(+ : sum) default(none) shared(total_points)
   for (int i = 0; i < total_points; i++) {
     sum += func_(GetPoint(i));
@@ -47,15 +53,15 @@ bool OMPTask::PostProcessingImpl() {
 
 int OMPTask::GetTotalPoints() const {
   return std::accumulate(dims_.begin(), dims_.end(), 1,
-                         [](const int accum, const Dimension &dim) -> int { return accum * dim.steps_count; });
+                         [](const int accum, const Dimension &dim) -> int { return accum * dim.GetStepsCount(); });
 }
 
 Point OMPTask::GetPoint(int index) const {
   auto point = Point(dims_.size());
   for (size_t i = 0; i < point.size(); i++) {
-    int coordinate_index = index % dims_[i].steps_count;
-    point[i] = dims_[i].lower_bound + (coordinate_index + 1) * dims_[i].GetStepSize();
-    index /= dims_[i].steps_count;
+    int coordinate_index = index % dims_[i].GetStepsCount();
+    point[i] = dims_[i].GetLowerBound() + (coordinate_index + 1) * dims_[i].GetStepSize();
+    index /= dims_[i].GetStepsCount();
   }
   return point;
 }
