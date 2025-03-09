@@ -1,8 +1,13 @@
 #include "tbb/vavilov_v_cannon/include/ops_tbb.hpp"
 
+#include <tbb/tbb.h>
+
 #include <algorithm>
 #include <cmath>
 #include <vector>
+
+#include "oneapi/tbb/task_arena.h"
+#include "oneapi/tbb/task_group.h"
 
 bool vavilov_v_cannon_tbb::CannonTBB::PreProcessingImpl() {
   N_ = static_cast<int>(std::sqrt(task_data->inputs_count[0]));
@@ -44,23 +49,23 @@ void vavilov_v_cannon_tbb::CannonTBB::InitialShift() {
 }
 
 void vavilov_v_cannon_tbb::CannonTBB::BlockMultiply() {
- tbb::parallel_for(tbb::blocked_range2d<int>(0, N_, block_size_, 0, N_, block_size_),
-                   [&](const tbb::blocked_range2d<int>& range) {
-  for (int bi = range.rows().begin(); bi < range.rows().end(); bi += block_size_) {
-    for (int bj = range.cols().begin(); bj < range.cols().end(); bj += block_size_) {
-      for (int i = bi; i < bi + block_size_; i++) {
-        for (int j = bj; j < bj + block_size_; j++) {
-          double temp = 0.0;
-          for (int k = 0; k < block_size_; k++) {
-            int row_a = bi + (i - bi);
-            int col_a = bj + k;
-            int row_b = bi + k;
-            int col_b = bj + (j - bj);
+  tbb::parallel_for(tbb::blocked_range2d<int>(0, N_, block_size_, 0, N_, block_size_),
+                    [&](const tbb::blocked_range2d<int>& range) {
+    for (int bi = range.rows().begin(); bi < range.rows().end(); bi += block_size_) {
+      for (int bj = range.cols().begin(); bj < range.cols().end(); bj += block_size_) {
+        for (int i = bi; i < bi + block_size_; i++) {
+          for (int j = bj; j < bj + block_size_; j++) {
+            double temp = 0.0;
+            for (int k = 0; k < block_size_; k++) {
+              int row_a = bi + (i - bi);
+              int col_a = bj + k;
+              int row_b = bi + k;
+              int col_b = bj + (j - bj);
 
-            temp += A_[(row_a * N_) + col_a] * B_[(row_b * N_) + col_b];
+              temp += A_[(row_a * N_) + col_a] * B_[(row_b * N_) + col_b];
           }
 
-          C_[(i * N_) + j] += temp;
+            C_[(i * N_) + j] += temp;
         }
       }
     }
