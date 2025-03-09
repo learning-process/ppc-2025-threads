@@ -3,9 +3,9 @@
 #include <omp.h>
 
 #include <algorithm>
-#include <deque>
 #include <cmath>
 #include <cstddef>
+#include <deque>
 #include <numeric>
 #include <vector>
 
