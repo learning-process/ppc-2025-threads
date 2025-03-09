@@ -49,7 +49,7 @@ class zaitsev_a_labeling_test_seq : public ::testing::TestWithParam<std::string>
     cv::threshold(img_raw, img, 128, 1, cv::THRESH_BINARY);
 
     std::vector<std::uint8_t> in;
-    Mat2vec(img, in);
+    Mat2vec<std::uint8_t>(img, in);
 
     cv::Mat labels;
     cv::connectedComponents(img, labels, 8, CV_16U);
@@ -112,7 +112,7 @@ class zaitsev_a_labeling_test_seq : public ::testing::TestWithParam<std::string>
 TEST_F(zaitsev_a_labeling_test_seq, validation_fails_on_incorrect_input) {
   const int width = 16;
   std::vector<std::uint8_t> in(width, 0);
-  std::vector<uint32_t> out(in.size(), 0);
+  std::vector<uint16_t> out(in.size(), 0);
 
   auto task_data_seq = std::make_shared<ppc::core::TaskData>();
   task_data_seq->inputs.emplace_back(const_cast<std::uint8_t*>(reinterpret_cast<const std::uint8_t*>(in.data())));

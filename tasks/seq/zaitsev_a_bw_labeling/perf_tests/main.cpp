@@ -29,7 +29,7 @@ void GenerateImage(std::vector<std::uint8_t>& in, std::vector<std::uint16_t>& ex
   cv::Mat img;
   cv::threshold(img_raw, img, 128, 1, cv::THRESH_BINARY);
 
-  Mat2vec(img, in);
+  in = std::vector<uint8_t>(img.reshape(1, static_cast<int>(img.total() * img.channels())));
 
   cv::Mat labels;
   cv::connectedComponents(img, labels, 8, CV_16U);
