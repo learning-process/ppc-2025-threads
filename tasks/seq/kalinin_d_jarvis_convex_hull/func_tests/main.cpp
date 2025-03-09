@@ -5,7 +5,7 @@
 #include <memory>
 #include <vector>
 
-#include "core/include/task_data.hpp"
+#include "core/task/include/task.hpp"
 #include "seq/kalinin_d_jarvis_convex_hull/include/ops_seq.hpp"
 TEST(kalinin_d_jarvis_convex_hull_seq, Empty_Input) {
   std::vector<kalinin_d_jarvis_convex_hull_seq::Point> points = {};
