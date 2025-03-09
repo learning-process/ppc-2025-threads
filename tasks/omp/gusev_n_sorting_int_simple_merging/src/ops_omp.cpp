@@ -71,16 +71,10 @@ void gusev_n_sorting_int_simple_merging_omp::TestTaskOpenMP::RadixSortForNonNega
     int local_max = max_val;
 #pragma omp for nowait
     for (int i = 0; i < static_cast<int>(arr.size()); ++i) {
-      if (arr[static_cast<size_t>(i)] > local_max) {
-        local_max = arr[static_cast<size_t>(i)];
-      }
+      local_max = std::max(arr[static_cast<size_t>(i)], local_max);
     }
 #pragma omp critical
-    {
-      if (local_max > max_val) {
-        max_val = local_max;
-      }
-    }
+    { max_val = std::max(local_max, max_val); }
   }
 
   for (int exp = 1; max_val / exp > 0; exp *= 10) {
