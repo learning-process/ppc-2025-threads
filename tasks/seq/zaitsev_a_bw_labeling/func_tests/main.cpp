@@ -1,6 +1,5 @@
 #include <gtest/gtest.h>
 
-#include <algorithm>
 #include <cstdint>
 #include <map>
 #include <memory>
@@ -58,7 +57,7 @@ class zaitsev_a_labeling_test_seq : public ::testing::TestWithParam<std::string>
     unsigned int height = img_raw.rows;
 
     cv::Mat img_gray;
-    cv::cvtColor(img_raw, img_gray, cv::COLOR_RGB2GRAY);
+    cv::cvtColor(img_raw, img_gray, cv::COLOR_BGR2GRAY);
 
     cv::Mat img;
     cv::threshold(img_gray, img, 128, 1, cv::THRESH_BINARY_INV);
@@ -138,10 +137,12 @@ TEST_P(zaitsev_a_labeling_test_seq, returns_correct_label_map) {
 
 // clang-format off
 INSTANTIATE_TEST_SUITE_P(zaitsev_a_labeling_test_seq, zaitsev_a_labeling_test_seq, ::testing::Values(
-    "lungs.bmp",
-    "kittens.bmp",
-    "rosenrot.bmp",
-    "rombs.bmp",
+    "help.jpg",
+    "kittens.jpg",
+    "lungs.jpg",
+    "rombs.jpg",
+    "rosenrot.jpg",
+    "small.jpg",
     "rand",
     "rand",
     "rand",
