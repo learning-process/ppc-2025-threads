@@ -3,12 +3,12 @@
 
 #include <algorithm>
 #include <cmath>
+#include <ranges>  // NOLINT
 #include <vector>
-
 using namespace std::chrono_literals;
 
 std::vector<kalinin_d_jarvis_convex_hull_seq::Point> kalinin_d_jarvis_convex_hull_seq::Jarvis(
-    const std::vector<kalinin_d_jarvis_convex_hull_seq::Point>&) {
+    const std::vector<kalinin_d_jarvis_convex_hull_seq::Point>& points) {
   if (points.size() < 3) {
     return points;
   }
