@@ -61,7 +61,7 @@ bool kalinin_d_jarvis_convex_hull_seq::TestTaskSequential::ValidationImpl() {
 }
 
 bool kalinin_d_jarvis_convex_hull_seq::TestTaskSequential::RunImpl() {
-  convexHullPoints = Jarvis(points);
+  convexHullPoints = kalinin_d_jarvis_convex_hull_seq::Jarvis(points);
   return true;
 }
 
