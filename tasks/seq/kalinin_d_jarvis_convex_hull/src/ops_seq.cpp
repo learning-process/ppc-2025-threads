@@ -64,8 +64,8 @@ bool kalinin_d_jarvis_convex_hull_seq::TestTaskSequential::ValidationImpl() {
     return false;
   }
 
-  std::ranges::sort(points_.begin(), points_.end());
-  return std::ranges::unique(points_.begin(), points_.end()) == points_.end();
+  std::ranges::sort(points_);
+  return std::ranges::unique(points_).begin() == points_.end();
 }
 
 bool kalinin_d_jarvis_convex_hull_seq::TestTaskSequential::RunImpl() {
