@@ -76,6 +76,7 @@ bool smirnov_i_radix_sort_simple_merge_omp::TestTaskOpenMP::RunImpl() {
   {
     int num = omp_get_thread_num();
     int all = omp_get_num_threads();
+    bool flag;
     std::vector<int> local_mas;
     int start = num * mas_.size() / all;
     int end = std::min((num + 1) * mas_.size() / all, mas_.size());
@@ -89,7 +90,10 @@ bool smirnov_i_radix_sort_simple_merge_omp::TestTaskOpenMP::RunImpl() {
     }
 
 #pragma omp barrier
-    while (static_cast<int>(A.size()) != 1) {
+#pragma omp single
+    { flag = static_cast<int>(A.size()) != 1; }
+#pragma omp barrier
+    while (flag) {
       std::vector<int> mas1{}, mas2{}, merge_mas{};
 #pragma omp critical
       {
@@ -108,31 +112,25 @@ bool smirnov_i_radix_sort_simple_merge_omp::TestTaskOpenMP::RunImpl() {
 #pragma omp critical
         B.push_back(merge_mas);
       }
-#pragma omp critical
+#pragma omp barrier
+#pragma omp single
       {
         if (static_cast<int>(A.size()) == 1) {
           B.push_back(A[0]);
           A.erase(A.begin());
         }
+        std::swap(A, B);
+        flag = static_cast<int>(A.size()) != 1;
       }
 #pragma omp barrier
-      printf("111 %d", num);
-      fflush(stdout);
-#pragma omp single
-      { std::swap(A, B); }
-      printf("222 %d", num);
-      fflush(stdout);
-#pragma omp barrier
     }
+#pragma omp barrier
 #pragma omp single
     {
-      if (static_cast<int>(A.size()) == 1) {
-        sort_res.resize(A[0].size());
-        std::copy(A[0].begin(), A[0].end(), sort_res.begin());
-      }
+      sort_res.resize(A[0].size());
+      std::copy(A[0].begin(), A[0].end(), sort_res.begin());
+      output_ = sort_res;
     }
-#pragma omp single
-    { output_ = sort_res; }
   }
   return true;
 }
