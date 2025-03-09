@@ -11,7 +11,7 @@ TEST(kalinin_d_jarvis_convex_hull_seq, test_pipeline_run) {
   std::vector<Point> points;
   const int size = 666'666;
   points.reserve(size);
-  for (int i = 0; i < size; i++) {
+  for (int i = 0; i < siыze; i++) {
     points.push_back({i % 100, i % 200});
   }
   std::vector<Point> resHull(points.size());

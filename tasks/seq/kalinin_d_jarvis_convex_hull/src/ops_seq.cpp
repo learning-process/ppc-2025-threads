@@ -8,18 +8,19 @@
 
 using namespace std::chrono_literals;
 
-std::vector<Point> Jarvis(const std::vector<Point>& Points) {
+std::vector<kalinin_d_jarvis_convex_hull_seq::Point> kalinin_d_jarvis_convex_hull_seq::Jarvis(
+    const std::vector<kalinin_d_jarvis_convex_hull_seq::Point>& Points) {
   if (Points.size() < 3) return Points;
 
-  Point p0 = Points[0];
+  kalinin_d_jarvis_convex_hull_seq::Point p0 = Points[0];
   for (const auto& p : Points) {
     if (p.x < p0.x || (p.x == p0.x && p.y < p0.y)) p0 = p;
   }
-  std::vector<Point> convexHull = {p0};
-  Point prevPoint = p0;
+  std::vector<kalinin_d_jarvis_convex_hull_seq::Point> convexHull = {p0};
+  kalinin_d_jarvis_convex_hull_seq::Point prevPoint = p0;
 
   while (true) {
-    Point nextPoint = Points[0];
+    kalinin_d_jarvis_convex_hull_seq::Point nextPoint = Points[0];
     for (const auto& point : Points) {
       if (point == prevPoint) continue;
 
@@ -43,17 +44,15 @@ std::vector<Point> Jarvis(const std::vector<Point>& Points) {
 }
 
 bool kalinin_d_jarvis_convex_hull_seq::TestTaskSequential::PreProcessingImpl() {
-  internal_order_test();
   // Init value for input and output
-  points.resize(taskData->inputs_count[0]);
-  auto* tmp_ptr_A = reinterpret_cast<Point*>(taskData->inputs[0]);
-  std::copy_n(tmp_ptr_A, taskData->inputs_count[0], points.begin());
+  points.resize(task_data->inputs_count[0]);
+  auto* tmp_ptr_A = reinterpret_cast<kalinin_d_jarvis_convex_hull_seq::Point*>(task_data->inputs[0]);
+  std::copy_n(tmp_ptr_A, task_data->inputs_count[0], points.begin());
   return true;
 }
 
 bool kalinin_d_jarvis_convex_hull_seq::TestTaskSequential::ValidationImpl() {
-  internal_order_test();
-  if (taskData->inputs_count[0] == 0) {
+  if (task_data->inputs_count[0] == 0) {
     return false;
   }
 
@@ -62,14 +61,12 @@ bool kalinin_d_jarvis_convex_hull_seq::TestTaskSequential::ValidationImpl() {
 }
 
 bool kalinin_d_jarvis_convex_hull_seq::TestTaskSequential::RunImpl() {
-  internal_order_test();
   convexHullPoints = Jarvis(points);
   return true;
 }
 
 bool kalinin_d_jarvis_convex_hull_seq::TestTaskSequential::PostProcessingImpl() {
-  internal_order_test();
-  auto* output_ptr = reinterpret_cast<Point*>(taskData->outputs[0]);
+  auto* output_ptr = reinterpret_cast<kalinin_d_jarvis_convex_hull_seq::Point*>(task_data->outputs[0]);
   std::copy_n(convexHullPoints.begin(), convexHullPoints.size(), output_ptr);
   return true;
 }
