@@ -8,14 +8,13 @@
 
 #include "core/perf/include/perf.hpp"
 #include "core/task/include/task.hpp"
-#include "seq/sarafanov_m_CanonMatMul/include/CanonMatrix.hpp"
 #include "seq/sarafanov_m_CanonMatMul/include/ops_seq.hpp"
 
-TEST(sarafanov_m_CanonMatMul_seq, test_pipeline_run) {
+TEST(sarafanov_m_canon_mat_mul_seq, test_pipeline_run) {
   constexpr size_t kCount = 40000;
   constexpr double kInaccuracy = 0.001;
-  auto a_matrix = sarafanov_m_CanonMatMul_seq::GenerateRandomData(static_cast<int>(kCount));
-  auto single_matrix = sarafanov_m_CanonMatMul_seq::GenerateSingleMatrix(static_cast<int>(kCount));
+  auto a_matrix = sarafanov_m_canon_mat_mul_seq::GenerateRandomData(static_cast<int>(kCount));
+  auto single_matrix = sarafanov_m_canon_mat_mul_seq::GenerateSingleMatrix(static_cast<int>(kCount));
   std::vector<double> out(kCount, 0);
   auto task_data_seq = std::make_shared<ppc::core::TaskData>();
   task_data_seq->inputs.emplace_back(reinterpret_cast<uint8_t *>(a_matrix.data()));
@@ -23,7 +22,7 @@ TEST(sarafanov_m_CanonMatMul_seq, test_pipeline_run) {
   task_data_seq->inputs_count.emplace_back(kCount);
   task_data_seq->outputs.emplace_back(reinterpret_cast<uint8_t *>(out.data()));
   task_data_seq->outputs_count.emplace_back(kCount);
-  auto test_task_sequential = std::make_shared<sarafanov_m_CanonMatMul_seq::CanonMatMulSequential>(task_data_seq);
+  auto test_task_sequential = std::make_shared<sarafanov_m_canon_mat_mul_seq::CanonMatMulSequential>(task_data_seq);
   auto perf_attr = std::make_shared<ppc::core::PerfAttr>();
   perf_attr->num_running = 10;
   const auto t0 = std::chrono::high_resolution_clock::now();
@@ -43,11 +42,11 @@ TEST(sarafanov_m_CanonMatMul_seq, test_pipeline_run) {
   }
 }
 
-TEST(sarafanov_m_CanonMatMul_seq, test_task_run) {
+TEST(sarafanov_m_canon_mat_mul_seq, test_task_run) {
   constexpr size_t kCount = 40000;
   constexpr double kInaccuracy = 0.001;
-  auto a_matrix = sarafanov_m_CanonMatMul_seq::GenerateRandomData(static_cast<int>(kCount));
-  auto single_matrix = sarafanov_m_CanonMatMul_seq::GenerateSingleMatrix(static_cast<int>(kCount));
+  auto a_matrix = sarafanov_m_canon_mat_mul_seq::GenerateRandomData(static_cast<int>(kCount));
+  auto single_matrix = sarafanov_m_canon_mat_mul_seq::GenerateSingleMatrix(static_cast<int>(kCount));
   std::vector<double> out(kCount, 0);
   auto task_data_seq = std::make_shared<ppc::core::TaskData>();
   task_data_seq->inputs.emplace_back(reinterpret_cast<uint8_t *>(a_matrix.data()));
@@ -56,7 +55,7 @@ TEST(sarafanov_m_CanonMatMul_seq, test_task_run) {
   task_data_seq->outputs.emplace_back(reinterpret_cast<uint8_t *>(out.data()));
   task_data_seq->outputs_count.emplace_back(kCount);
 
-  auto test_task_sequential = std::make_shared<sarafanov_m_CanonMatMul_seq::CanonMatMulSequential>(task_data_seq);
+  auto test_task_sequential = std::make_shared<sarafanov_m_canon_mat_mul_seq::CanonMatMulSequential>(task_data_seq);
 
   auto perf_attr = std::make_shared<ppc::core::PerfAttr>();
   perf_attr->num_running = 10;
