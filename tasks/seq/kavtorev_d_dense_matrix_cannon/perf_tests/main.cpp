@@ -1,13 +1,19 @@
 // Copyright 2025 Kavtorev Dmitry
 #include <gtest/gtest.h>
 
+#include <chrono>
+#include <cstddef>
+#include <cstdint>
+#include <memory>
+#include <random>
 #include <vector>
 
 #include "core/perf/include/perf.hpp"
+#include "core/task/include/task.hpp"
 #include "seq/kavtorev_d_dense_matrix_cannon/include/ops_seq.hpp"
 
 namespace {
-std::vector<double> getRandomMatrix(int rows, int cols) {
+std::vector<double> GetRandomMatrix(int rows, int cols) {
   std::random_device dev;
   std::mt19937 gen(dev());
   std::uniform_real_distribution<double> dis(1.0, 20.0);
@@ -16,7 +22,7 @@ std::vector<double> getRandomMatrix(int rows, int cols) {
 
   for (int i = 0; i < rows; ++i) {
     for (int j = 0; j < cols; ++j) {
-      matrix[i * cols + j] = dis(gen);
+      matrix[(i * cols) + j] = dis(gen);
     }
   }
 
@@ -28,15 +34,15 @@ TEST(kavtorev_d_dense_matrix_cannon_seq, test_pipeline_run) {
   int n = 500;
   int m = 500;
 
-  std::vector<double> in_mtrx_A = getRandomMatrix(n, m);
-  std::vector<double> in_mtrx_B = getRandomMatrix(n, m);
+  std::vector<double> in_mtrx_a = GetRandomMatrix(n, m);
+  std::vector<double> in_mtrx_b = GetRandomMatrix(n, m);
   std::vector<double> out(n * m);
 
   auto task_data_seq = std::make_shared<ppc::core::TaskData>();
-  task_data_seq->inputs.emplace_back(reinterpret_cast<uint8_t *>(in_mtrx_A.data()));
-  task_data_seq->inputs_count.emplace_back(in_mtrx_A.size());
-  task_data_seq->inputs.emplace_back(reinterpret_cast<uint8_t *>(in_mtrx_B.data()));
-  task_data_seq->inputs_count.emplace_back(in_mtrx_B.size());
+  task_data_seq->inputs.emplace_back(reinterpret_cast<uint8_t *>(in_mtrx_a.data()));
+  task_data_seq->inputs_count.emplace_back(in_mtrx_a.size());
+  task_data_seq->inputs.emplace_back(reinterpret_cast<uint8_t *>(in_mtrx_b.data()));
+  task_data_seq->inputs_count.emplace_back(in_mtrx_b.size());
 
   task_data_seq->inputs.emplace_back(reinterpret_cast<uint8_t *>(&n));
   task_data_seq->inputs.emplace_back(reinterpret_cast<uint8_t *>(&m));
@@ -44,7 +50,7 @@ TEST(kavtorev_d_dense_matrix_cannon_seq, test_pipeline_run) {
   task_data_seq->outputs.emplace_back(reinterpret_cast<uint8_t *>(out.data()));
   task_data_seq->outputs_count.emplace_back(out.size());
 
-  std::vector<double> res = kavtorev_d_dense_matrix_cannon_seq::multiplyMatrix(in_mtrx_A, in_mtrx_B, n, m);
+  std::vector<double> res = kavtorev_d_dense_matrix_cannon_seq::MultiplyMatrix(in_mtrx_a, in_mtrx_b, n, m);
 
   auto test_task_sequential = std::make_shared<kavtorev_d_dense_matrix_cannon_seq::TestTaskSequential>(task_data_seq);
 
@@ -72,15 +78,15 @@ TEST(kavtorev_d_dense_matrix_cannon_seq, test_task_run) {
   int n = 500;
   int m = 500;
 
-  std::vector<double> in_mtrx_A = getRandomMatrix(n, m);
-  std::vector<double> in_mtrx_B = getRandomMatrix(n, m);
+  std::vector<double> in_mtrx_a = GetRandomMatrix(n, m);
+  std::vector<double> in_mtrx_b = GetRandomMatrix(n, m);
   std::vector<double> out(n * m);
 
   auto task_data_seq = std::make_shared<ppc::core::TaskData>();
-  task_data_seq->inputs.emplace_back(reinterpret_cast<uint8_t *>(in_mtrx_A.data()));
-  task_data_seq->inputs_count.emplace_back(in_mtrx_A.size());
-  task_data_seq->inputs.emplace_back(reinterpret_cast<uint8_t *>(in_mtrx_B.data()));
-  task_data_seq->inputs_count.emplace_back(in_mtrx_B.size());
+  task_data_seq->inputs.emplace_back(reinterpret_cast<uint8_t *>(in_mtrx_a.data()));
+  task_data_seq->inputs_count.emplace_back(in_mtrx_a.size());
+  task_data_seq->inputs.emplace_back(reinterpret_cast<uint8_t *>(in_mtrx_b.data()));
+  task_data_seq->inputs_count.emplace_back(in_mtrx_b.size());
 
   task_data_seq->inputs.emplace_back(reinterpret_cast<uint8_t *>(&n));
   task_data_seq->inputs.emplace_back(reinterpret_cast<uint8_t *>(&m));
@@ -88,7 +94,7 @@ TEST(kavtorev_d_dense_matrix_cannon_seq, test_task_run) {
   task_data_seq->outputs.emplace_back(reinterpret_cast<uint8_t *>(out.data()));
   task_data_seq->outputs_count.emplace_back(out.size());
 
-  std::vector<double> res = kavtorev_d_dense_matrix_cannon_seq::multiplyMatrix(in_mtrx_A, in_mtrx_B, n, m);
+  std::vector<double> res = kavtorev_d_dense_matrix_cannon_seq::MultiplyMatrix(in_mtrx_a, in_mtrx_b, n, m);
 
   auto test_task_sequential = std::make_shared<kavtorev_d_dense_matrix_cannon_seq::TestTaskSequential>(task_data_seq);
 

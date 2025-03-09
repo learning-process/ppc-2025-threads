@@ -2,8 +2,6 @@
 #pragma once
 
 #include <memory>
-#include <random>
-#include <string>
 #include <utility>
 #include <vector>
 
@@ -11,21 +9,21 @@
 namespace kavtorev_d_dense_matrix_cannon_seq {
 class TestTaskSequential : public ppc::core::Task {
  public:
-  explicit TestTaskSequential(std::shared_ptr<ppc::core::TaskData> taskData_) : Task(std::move(taskData_)) {}
+  explicit TestTaskSequential(std::shared_ptr<ppc::core::TaskData> task_data) : Task(std::move(task_data)) {}
   bool PreProcessingImpl() override;
   bool ValidationImpl() override;
   bool RunImpl() override;
   bool PostProcessingImpl() override;
 
  private:
-  std::vector<double> A;
-  std::vector<double> B;
-  std::vector<double> res;
-  int n = 0, m = 0;
+  std::vector<double> A_;
+  std::vector<double> B_;
+  std::vector<double> res_;
+  int n_ = 0, m_ = 0;
 };
 
-std::vector<double> multiplyMatrix(const std::vector<double>& A, const std::vector<double>& B, int rows_A, int col_B);
-std::vector<double> cannonMatrixMultiplication(const std::vector<double>& A, const std::vector<double>& B, int n,
+std::vector<double> MultiplyMatrix(const std::vector<double>& a, const std::vector<double>& b, int rows_a, int col_b);
+std::vector<double> CannonMatrixMultiplication(const std::vector<double>& a, const std::vector<double>& b, int n,
                                                int m);
 
 }  // namespace kavtorev_d_dense_matrix_cannon_seq
