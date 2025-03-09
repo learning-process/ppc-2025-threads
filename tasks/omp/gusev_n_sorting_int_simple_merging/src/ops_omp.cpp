@@ -1,10 +1,10 @@
+#include "omp/gusev_n_sorting_int_simple_merging/include/ops_omp.hpp"
+
 #include <algorithm>
 #include <cmath>
+#include <cstddef>
 #include <numeric>
 #include <vector>
-#include <cstddef>
-
-#include "omp/gusev_n_sorting_int_simple_merging/include/ops_omp.hpp"
 
 void gusev_n_sorting_int_simple_merging_omp::TestTaskOpenMP::RadixSort(std::vector<int>& arr) {
   if (arr.empty()) {
@@ -41,7 +41,7 @@ void gusev_n_sorting_int_simple_merging_omp::TestTaskOpenMP::RadixSort(std::vect
     {
       if (!negatives.empty()) {
         RadixSortForNonNegative(negatives);
-        std::reverse(negatives.begin(), negatives.end());
+        std::ranges::reverse(negatives);
         for (auto& num : negatives) {
           num = -num;
         }
