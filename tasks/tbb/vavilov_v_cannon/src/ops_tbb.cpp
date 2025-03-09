@@ -49,7 +49,7 @@ void vavilov_v_cannon_tbb::CannonTBB::InitialShift() {
 }
 
 void vavilov_v_cannon_tbb::CannonTBB::BlockMultiply() {
-  for (int bi = 0; bi < N_; bi += block_size_) {
+  tbb::parallel_for(0, N_, block_size_, [&](int bi) {
     for (int bj = 0; bj < N_; bj += block_size_) {
       for (int i = bi; i < bi + block_size_; i++) {
         for (int j = bj; j < bj + block_size_; j++) {
@@ -62,12 +62,11 @@ void vavilov_v_cannon_tbb::CannonTBB::BlockMultiply() {
 
             temp += A_[(row_a * N_) + col_a] * B_[(row_b * N_) + col_b];
           }
-
           C_[(i * N_) + j] += temp;
         }
       }
     }
-  }
+  });
 }
 
 void vavilov_v_cannon_tbb::CannonTBB::ShiftBlocks() {
