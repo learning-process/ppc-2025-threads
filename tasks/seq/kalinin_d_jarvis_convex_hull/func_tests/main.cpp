@@ -3,7 +3,7 @@
 
 #include <vector>
 
-#include "seq/kalinin_d_jarvis_convex_hull/ops_seq.hpp"
+#include "seq/kalinin_d_jarvis_convex_hull/include/ops_seq.hpp"
 
 TEST(kalinin_d_jarvis_convex_hull_seq, Empty_Input) {
   std::vector<Point> points = {};

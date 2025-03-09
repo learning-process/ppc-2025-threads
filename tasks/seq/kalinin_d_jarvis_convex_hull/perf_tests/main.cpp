@@ -8,10 +8,10 @@
 #include "seq/kalinin_d_jarvis_convex_hull/include/ops_seq.hpp"
 
 TEST(kalinin_d_jarvis_convex_hull_seq, test_pipeline_run) {
-  std::vector<Point> points;
+  std::vector<kalinin_d_jarvis_convex_hull_seq::Point> points;
   const int size = 666'666;
   points.reserve(size);
-  for (int i = 0; i < siыze; i++) {
+  for (int i = 0; i < size; i++) {
     points.push_back({i % 100, i % 200});
   }
   std::vector<Point> resHull(points.size());
