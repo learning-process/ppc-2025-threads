@@ -223,3 +223,28 @@ TEST(frolova_e_sobel_filter_seq, vector_element_is_not_included_the_range) {
   frolova_e_sobel_filter_seq::SobelFilterSequential test_task_sequential(task_data_seq);
   ASSERT_EQ(test_task_sequential.Validation(), false);
 }
+
+TEST(frolova_e_sobel_filter_seq, negative_value_of_element_int_RGBvector) {
+  std::vector<int> value_1 = {1, 1};
+  std::vector<int> pict = {100, 0, -1};
+
+  std::vector<int> res(1, 0);
+
+  std::vector<int> reference = {0};
+
+  // Create task_data
+  auto task_data_seq = std::make_shared<ppc::core::TaskData>();
+
+  task_data_seq->inputs.emplace_back(reinterpret_cast<uint8_t *>(value_1.data()));
+  task_data_seq->inputs_count.emplace_back(value_1.size());
+
+  task_data_seq->inputs.emplace_back(reinterpret_cast<uint8_t *>(pict.data()));
+  task_data_seq->inputs_count.emplace_back(pict.size());
+
+  task_data_seq->outputs.emplace_back(reinterpret_cast<uint8_t *>(res.data()));
+  task_data_seq->outputs_count.emplace_back(res.size());
+
+  // Create Task
+  frolova_e_sobel_filter_seq::SobelFilterSequential test_task_sequential(task_data_seq);
+  ASSERT_EQ(test_task_sequential.Validation(), false);
+}
