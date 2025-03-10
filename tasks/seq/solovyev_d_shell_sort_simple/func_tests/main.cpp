@@ -118,7 +118,7 @@ TEST(solovyev_d_shell_sort_simple_seq, sort_20) {
 
 TEST(solovyev_d_shell_sort_simple_seq, sort_30_negative) {
   // Create data
-  std::vector<int> in = {1,  5,  7, 3,  7,  3,  -8,   4,  1,   6,   4,  6, 7,   3, -12,  21,
+  std::vector<int> in = {1,   5,   7, 3,  7,  3,  -8,   4,  1,   6,   4,  6, 7,   3, -12, 21,
                          -65, -43, 1, 54, 34, 76, -345, 21, 765, 346, 34, 1, 434, 8, 343, -88};
   std::vector<int> out(in.size(), 0);
 
