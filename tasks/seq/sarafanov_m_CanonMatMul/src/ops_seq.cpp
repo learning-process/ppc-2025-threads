@@ -23,6 +23,7 @@ bool sarafanov_m_canon_mat_mul_seq::CanonMatMulSequential::PreProcessingImpl() {
   }
   b_matrix_.SetBaseMatrix(matrix_b);
   return true;
+  b_matrix_.Transpose();
 }
 
 bool sarafanov_m_canon_mat_mul_seq::CanonMatMulSequential::ValidationImpl() {
@@ -32,7 +33,6 @@ bool sarafanov_m_canon_mat_mul_seq::CanonMatMulSequential::ValidationImpl() {
 }
 
 bool sarafanov_m_canon_mat_mul_seq::CanonMatMulSequential::RunImpl() {
-  b_matrix_.Transpose();
   for (size_t i = 0; i < a_matrix_.GetSize(); ++i) {
     a_matrix_.Shift();
     b_matrix_.Shift();
