@@ -1,7 +1,5 @@
 #include "tbb/lopatin_i_monte_carlo/include/lopatinMonteCarloTBB.hpp"
-
-#include "oneapi/tbb/parallel_reduce.h"
-#include "oneapi/tbb/task_arena.h"
+"
 #include <tbb/tbb.h>
 
 #include <algorithm>
@@ -13,6 +11,8 @@
 
 #include "core/task/include/task.hpp"
 #include "core/util/include/util.hpp"
+#include "oneapi/tbb/parallel_reduce.h"
+#include "oneapi/tbb/task_arena.h"
 
 namespace lopatin_i_monte_carlo_tbb {
 
