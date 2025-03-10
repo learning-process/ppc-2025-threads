@@ -1,5 +1,5 @@
 #include "tbb/lopatin_i_monte_carlo/include/lopatinMonteCarloTBB.hpp"
-"
+
 #include <tbb/tbb.h>
 
 #include <algorithm>
