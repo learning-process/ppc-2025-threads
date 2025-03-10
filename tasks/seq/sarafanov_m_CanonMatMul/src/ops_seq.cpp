@@ -22,8 +22,8 @@ bool sarafanov_m_canon_mat_mul_seq::CanonMatMulSequential::PreProcessingImpl() {
     matrix_b[i] = in2[i];
   }
   b_matrix_.SetBaseMatrix(matrix_b);
-  return true;
   b_matrix_.Transpose();
+  return true;
 }
 
 bool sarafanov_m_canon_mat_mul_seq::CanonMatMulSequential::ValidationImpl() {
