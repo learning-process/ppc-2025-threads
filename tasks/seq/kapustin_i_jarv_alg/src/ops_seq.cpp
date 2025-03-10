@@ -23,11 +23,8 @@ bool kapustin_i_jarv_alg_seq::TestTaskSequential::PreProcessingImpl() {
     auto* data = reinterpret_cast<std::pair<int, int>*>(task_data->inputs[i]);
     size_t count = task_data->inputs_count[i];
 
-    for (size_t j = 0; j < count; ++j) {
-      points.push_back(data[j]);
-    }
+    points.assign(data, data + count);
   }
-
   input_ = points;
 
   leftmost_index_ = 0;
