@@ -14,8 +14,8 @@
 #include "core/task/include/task.hpp"
 #include "seq/zaitsev_a_bw_labeling/include/ops_seq.hpp"
 
-namespace {
 #ifndef _WIN32
+namespace {
 void GenerateImage(std::vector<std::uint8_t>& in, std::vector<std::uint16_t>& exp, std::uint16_t width,
                    std::uint16_t height) {
   cv::Mat img_raw(height, width, CV_8UC1);
