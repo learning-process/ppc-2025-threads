@@ -21,11 +21,11 @@ void CanonMatrix::SetBaseMatrix(const std::vector<double>& initial_vector) {
 void CanonMatrix::StairShift() {
   std::vector<double> new_matrix(matrix_.size());
   std::copy(matrix_.begin(), matrix_.begin() + static_cast<int>(size_), new_matrix.begin());
-  for (int i = 1; i < static_cast<int>(size_); ++i) {
-    std::copy(matrix_.begin() + static_cast<int>(size_) * i + i, matrix_.begin() + static_cast<int>(size_) * (i + 1),
-              new_matrix.begin() + static_cast<int>(size_) * i);
-    for (int j = size_ * i; j < static_cast<int>(size_) * i + i; ++j) {
-      new_matrix[j + static_cast<int>(size_) - i] = matrix_[j];
+  int s_size = static_cast<int>(size_);
+  for (int i = 1; i < s_size; ++i) {
+    std::copy(matrix_.begin() + s_size * i + i, matrix_.begin() + s_size * (i + 1), new_matrix.begin() + s_size * i);
+    for (int j = s_size * i; j < s_size * i + i; ++j) {
+      new_matrix[j + s_size - i] = matrix_[j];
     }
   }
   matrix_ = std::move(new_matrix);
