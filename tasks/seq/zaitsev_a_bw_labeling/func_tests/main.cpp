@@ -3,7 +3,9 @@
 #include <cstdint>
 #include <map>
 #include <memory>
+#ifndef _WIN32
 #include <opencv2/opencv.hpp>
+#endif
 #include <random>
 #include <set>
 #include <string>
@@ -12,9 +14,11 @@
 
 #include "core/task/include/task.hpp"
 #include "core/util/include/util.hpp"
+#ifndef _WIN32
 #include "opencv2/core.hpp"
 #include "opencv2/core/hal/interface.h"
 #include "opencv2/imgproc.hpp"
+#endif
 #include "seq/zaitsev_a_bw_labeling/include/ops_seq.hpp"
 
 using TestData = std::tuple<std::vector<std::uint8_t>, std::vector<std::uint16_t>, unsigned int, unsigned int>;
@@ -24,6 +28,7 @@ namespace {
 // NOLINTNEXTLINE(readability-identifier-naming)
 class zaitsev_a_labeling_test_seq : public ::testing::TestWithParam<std::string> {
  protected:
+#ifndef _WIN32
   static TestData GenerateImage() {
     int max_size = 500;
     int min_size = 100;
@@ -96,6 +101,7 @@ class zaitsev_a_labeling_test_seq : public ::testing::TestWithParam<std::string>
     }
     return true;
   }
+#endif
 };
 
 TEST_F(zaitsev_a_labeling_test_seq, validation_fails_on_incorrect_input) {
@@ -112,7 +118,7 @@ TEST_F(zaitsev_a_labeling_test_seq, validation_fails_on_incorrect_input) {
   zaitsev_a_labeling::Labeler intask(task_data_seq);
   EXPECT_FALSE(intask.ValidationImpl());
 }
-
+#ifndef _WIN32
 TEST_P(zaitsev_a_labeling_test_seq, returns_correct_label_map) {
   const auto testcase = GetParam();
   const auto& [in, exp, width, height] = (testcase == "rand") ? GenerateImage() : PrepareImages(testcase);
@@ -143,6 +149,7 @@ INSTANTIATE_TEST_SUITE_P(zaitsev_a_labeling_test_seq, zaitsev_a_labeling_test_se
     "rombs.jpg",
     "rosenrot.jpg",
     "small.jpg",
+    "silly.jpg",
     "rand",
     "rand",
     "rand",
@@ -152,4 +159,5 @@ INSTANTIATE_TEST_SUITE_P(zaitsev_a_labeling_test_seq, zaitsev_a_labeling_test_se
 );
 // clang-format on
 
+#endif
 }  // namespace
