@@ -32,6 +32,30 @@ TEST(sarafanov_m_canon_mat_mul_seq, test_clear_matrix) {
   }
 }
 
+TEST(sarafanov_m_canon_mat_mul_seq, test_1x1_matrix) {
+  constexpr size_t kCount = 1;
+  constexpr double kInaccuracy = 0.001;
+  std::vector<double> a_matrix{18.0};
+  std::vector<double> b_matrix{18.0};
+  std::vector<double> test_data{324.0};
+  std::vector<double> out(kCount, 0);
+  auto task_data_seq = std::make_shared<ppc::core::TaskData>();
+  task_data_seq->inputs.emplace_back(reinterpret_cast<uint8_t *>(a_matrix.data()));
+  task_data_seq->inputs.emplace_back(reinterpret_cast<uint8_t *>(b_matrix.data()));
+  task_data_seq->inputs_count.emplace_back(kCount);
+  task_data_seq->outputs.emplace_back(reinterpret_cast<uint8_t *>(out.data()));
+  task_data_seq->outputs_count.emplace_back(kCount);
+
+  sarafanov_m_canon_mat_mul_seq::CanonMatMulSequential test_task_sequential(task_data_seq);
+  ASSERT_EQ(test_task_sequential.Validation(), true);
+  test_task_sequential.PreProcessing();
+  test_task_sequential.Run();
+  test_task_sequential.PostProcessing();
+  for (size_t i = 0; i < kCount; ++i) {
+    EXPECT_NEAR(out[i], test_data[i], kInaccuracy);
+  }
+}
+
 TEST(sarafanov_m_canon_mat_mul_seq, test_2x2_matrix) {
   constexpr size_t kCount = 4;
   constexpr double kInaccuracy = 0.001;

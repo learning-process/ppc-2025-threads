@@ -14,8 +14,10 @@ CanonMatrix::CanonMatrix(const std::vector<double>& initial_vector) : matrix_(in
 void CanonMatrix::CalculateSize(size_t s) { size_ = static_cast<int>(std::sqrt(s)); }
 
 void CanonMatrix::SetBaseMatrix(const std::vector<double>& initial_vector) {
-  CalculateSize(initial_vector.size());
-  matrix_ = initial_vector;
+  if (matrix_.empty()) {
+    CalculateSize(initial_vector.size());
+    matrix_ = initial_vector;
+  }
 }
 
 void CanonMatrix::StairShift() {
