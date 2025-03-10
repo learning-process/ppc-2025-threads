@@ -1,6 +1,7 @@
 // Copyright 2025 Dmitry Kalinin
 #include <gtest/gtest.h>
 
+#include <cstddef>
 #include <cstdint>
 #include <memory>
 #include <vector>
