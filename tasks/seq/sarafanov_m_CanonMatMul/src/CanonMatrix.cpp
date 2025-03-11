@@ -3,7 +3,6 @@
 #include <algorithm>
 #include <cmath>
 #include <cstddef>
-#include <iostream>
 #include <vector>
 
 #include "utility"
@@ -15,7 +14,7 @@ CanonMatrix::CanonMatrix(const std::vector<double>& initial_vector) : matrix_(in
 void CanonMatrix::CalculateSize(size_t s) { size_ = static_cast<int>(std::sqrt(s)); }
 
 void CanonMatrix::PreRoutine(MatrixType type) {
-  if (type == MatrixType::ColumnMatrix) {
+  if (type == MatrixType::kColumnMatrix) {
     Transpose();
   }
   StairShift();
@@ -28,20 +27,20 @@ void CanonMatrix::SetBaseMatrix(const std::vector<double>& initial_vector) {
   }
 }
 
-size_t CanonMatrix::GetRowIndex(size_t index, size_t row_number) {
+size_t CanonMatrix::GetRowIndex(size_t index, size_t row_number) const {
   if (index < size_ * row_number) {
     return index;
   }
-  auto shift = index - size_ * row_number;
-  return row_number * size_ - size_ + shift;
+  auto shift = index - (size_ * row_number);
+  return (row_number * size_) - size_ + shift;
 }
 
-size_t CanonMatrix::GetColumnIndex(size_t index, size_t column_index, size_t offset) {
+size_t CanonMatrix::GetColumnIndex(size_t index, size_t column_index, size_t offset) const {
   if (index + offset < size_ * column_index) {
     return index + offset;
   }
-  auto shift = index + offset - size_ * column_index;
-  return size_ * (column_index - 1) + shift;
+  auto shift = index + offset - (size_ * column_index);
+  return (size_ * (column_index - 1)) + shift;
 }
 
 void CanonMatrix::StairShift() {
@@ -64,7 +63,7 @@ CanonMatrix CanonMatrix::MultiplicateMatrix(const CanonMatrix& canon_matrix, siz
   const auto& b_matrix = canon_matrix.GetMatrix();
   for (size_t i = 0; i < size_; ++i) {
     for (size_t j = 0; j < size_; ++j) {
-      c_matrix[(i * size_) + j] = matrix_[GetRowIndex(i * size_ + j + offset, i + 1)] *
+      c_matrix[(i * size_) + j] = matrix_[GetRowIndex((i * size_) + j + offset, i + 1)] *
                                   b_matrix[GetColumnIndex((j * size_) + i, j + 1, offset)];
     }
   }

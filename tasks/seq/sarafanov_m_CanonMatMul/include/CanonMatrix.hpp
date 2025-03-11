@@ -3,7 +3,7 @@
 #include <cstddef>
 #include <vector>
 
-enum class MatrixType { RowMatrix, ColumnMatrix };
+enum class MatrixType { kRowMatrix, kColumnMatrix };
 
 namespace sarafanov_m_canon_mat_mul_seq {
 class CanonMatrix {
@@ -11,8 +11,8 @@ class CanonMatrix {
   size_t size_ = 0;
 
   void CalculateSize(size_t s);
-  size_t GetRowIndex(size_t index, size_t row_number);
-  size_t GetColumnIndex(size_t index, size_t column_number, size_t offset);
+  size_t GetRowIndex(size_t index, size_t row_number) const;
+  size_t GetColumnIndex(size_t index, size_t column_index, size_t offset) const;
 
  public:
   CanonMatrix() = default;

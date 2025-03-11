@@ -2,9 +2,11 @@
 
 #include <cmath>
 #include <cstddef>
-#include <iostream>
 #include <random>
 #include <vector>
+
+#include "seq/sarafanov_m_CanonMatMul/include/CanonMatrix.hpp"
+
 bool sarafanov_m_canon_mat_mul_seq::CanonMatMulSequential::PreProcessingImpl() {
   a_matrix_.ClearMatrix();
   b_matrix_.ClearMatrix();
@@ -16,14 +18,14 @@ bool sarafanov_m_canon_mat_mul_seq::CanonMatMulSequential::PreProcessingImpl() {
     matrix_a[i] = in[i];
   }
   a_matrix_.SetBaseMatrix(matrix_a);
-  a_matrix_.PreRoutine(MatrixType::RowMatrix);
+  a_matrix_.PreRoutine(MatrixType::kRowMatrix);
   std::vector<double> matrix_b(size);
   auto *in2 = reinterpret_cast<double *>(task_data->inputs[1]);
   for (int i = 0; i < size; ++i) {
     matrix_b[i] = in2[i];
   }
   b_matrix_.SetBaseMatrix(matrix_b);
-  b_matrix_.PreRoutine(MatrixType::ColumnMatrix);
+  b_matrix_.PreRoutine(MatrixType::kColumnMatrix);
   return true;
 }
 
