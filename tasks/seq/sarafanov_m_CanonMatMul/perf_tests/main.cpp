@@ -11,7 +11,7 @@
 #include "seq/sarafanov_m_CanonMatMul/include/ops_seq.hpp"
 
 TEST(sarafanov_m_canon_mat_mul_seq, test_pipeline_run) {
-  constexpr size_t kCount = 40000;
+  constexpr size_t kCount = 62500;
   constexpr double kInaccuracy = 0.001;
   auto a_matrix = sarafanov_m_canon_mat_mul_seq::GenerateRandomData(static_cast<int>(kCount));
   auto single_matrix = sarafanov_m_canon_mat_mul_seq::GenerateSingleMatrix(static_cast<int>(kCount));
@@ -43,7 +43,7 @@ TEST(sarafanov_m_canon_mat_mul_seq, test_pipeline_run) {
 }
 
 TEST(sarafanov_m_canon_mat_mul_seq, test_task_run) {
-  constexpr size_t kCount = 40000;
+  constexpr size_t kCount = 62500;
   constexpr double kInaccuracy = 0.001;
   auto a_matrix = sarafanov_m_canon_mat_mul_seq::GenerateRandomData(static_cast<int>(kCount));
   auto single_matrix = sarafanov_m_canon_mat_mul_seq::GenerateSingleMatrix(static_cast<int>(kCount));

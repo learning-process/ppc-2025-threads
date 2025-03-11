@@ -2,9 +2,9 @@
 
 #include <cmath>
 #include <cstddef>
+#include <iostream>
 #include <random>
 #include <vector>
-
 bool sarafanov_m_canon_mat_mul_seq::CanonMatMulSequential::PreProcessingImpl() {
   a_matrix_.ClearMatrix();
   b_matrix_.ClearMatrix();
@@ -16,13 +16,14 @@ bool sarafanov_m_canon_mat_mul_seq::CanonMatMulSequential::PreProcessingImpl() {
     matrix_a[i] = in[i];
   }
   a_matrix_.SetBaseMatrix(matrix_a);
+  a_matrix_.PreRoutine(MatrixType::RowMatrix);
   std::vector<double> matrix_b(size);
   auto *in2 = reinterpret_cast<double *>(task_data->inputs[1]);
   for (int i = 0; i < size; ++i) {
     matrix_b[i] = in2[i];
   }
   b_matrix_.SetBaseMatrix(matrix_b);
-  b_matrix_.Transpose();
+  b_matrix_.PreRoutine(MatrixType::ColumnMatrix);
   return true;
 }
 
@@ -33,10 +34,12 @@ bool sarafanov_m_canon_mat_mul_seq::CanonMatMulSequential::ValidationImpl() {
 }
 
 bool sarafanov_m_canon_mat_mul_seq::CanonMatMulSequential::RunImpl() {
+  std::vector<CanonMatrix> mul_results(a_matrix_.GetSize());
   for (size_t i = 0; i < a_matrix_.GetSize(); ++i) {
-    a_matrix_.Shift();
-    b_matrix_.Shift();
-    c_matrix_ = c_matrix_ + a_matrix_ * b_matrix_;
+    mul_results[i] = a_matrix_.MultiplicateMatrix(b_matrix_, i);
+  }
+  for (auto i = 0; i < static_cast<int>(mul_results.size()); ++i) {
+    c_matrix_ = c_matrix_ + mul_results[i];
   }
   c_matrix_.Transpose();
   return true;

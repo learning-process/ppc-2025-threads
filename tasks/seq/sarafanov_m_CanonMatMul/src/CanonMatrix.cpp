@@ -3,6 +3,7 @@
 #include <algorithm>
 #include <cmath>
 #include <cstddef>
+#include <iostream>
 #include <vector>
 
 #include "utility"
@@ -13,11 +14,34 @@ CanonMatrix::CanonMatrix(const std::vector<double>& initial_vector) : matrix_(in
 }
 void CanonMatrix::CalculateSize(size_t s) { size_ = static_cast<int>(std::sqrt(s)); }
 
+void CanonMatrix::PreRoutine(MatrixType type) {
+  if (type == MatrixType::ColumnMatrix) {
+    Transpose();
+  }
+  StairShift();
+}
+
 void CanonMatrix::SetBaseMatrix(const std::vector<double>& initial_vector) {
   if (matrix_.empty()) {
     CalculateSize(initial_vector.size());
     matrix_ = initial_vector;
   }
+}
+
+size_t CanonMatrix::GetRowIndex(size_t index, size_t row_number) {
+  if (index < size_ * row_number) {
+    return index;
+  }
+  auto shift = index - size_ * row_number;
+  return row_number * size_ - size_ + shift;
+}
+
+size_t CanonMatrix::GetColumnIndex(size_t index, size_t column_index, size_t offset) {
+  if (index + offset < size_ * column_index) {
+    return index + offset;
+  }
+  auto shift = index + offset - size_ * column_index;
+  return size_ * (column_index - 1) + shift;
 }
 
 void CanonMatrix::StairShift() {
@@ -33,47 +57,21 @@ void CanonMatrix::StairShift() {
   matrix_ = std::move(new_matrix);
 }
 
-void CanonMatrix::FullShift() {
-  std::vector<double> new_matrix(matrix_.size());
-  double value = 0.0;
-  bool swap_flag = false;
-  for (size_t i = 0; i < matrix_.size(); ++i) {
-    if (i % size_ == 0) {
-      if (swap_flag) {
-        new_matrix[i - 1] = value;
-      }
-      value = matrix_[i];
-      swap_flag = true;
-    } else {
-      new_matrix[i - 1] = matrix_[i];
-    }
-  }
-  matrix_ = std::move(new_matrix);
-  matrix_.back() = value;
-}
-
-void CanonMatrix::Shift() {
-  if (shift_counts_ == 0) {
-    StairShift();
-  } else if (shift_counts_ < static_cast<int>(size_)) {
-    FullShift();
-  }
-  shift_counts_++;
-}
-
 const std::vector<double>& CanonMatrix::GetMatrix() const { return matrix_; }
 
-size_t CanonMatrix::GetSize() const { return size_; }
-CanonMatrix CanonMatrix::operator*(const CanonMatrix& canon_matrix) const {
+CanonMatrix CanonMatrix::MultiplicateMatrix(const CanonMatrix& canon_matrix, size_t offset) {
   std::vector<double> c_matrix(size_ * size_);
   const auto& b_matrix = canon_matrix.GetMatrix();
   for (size_t i = 0; i < size_; ++i) {
     for (size_t j = 0; j < size_; ++j) {
-      c_matrix[(i * size_) + j] = matrix_[(i * size_) + j] * b_matrix[(j * size_) + i];
+      c_matrix[(i * size_) + j] = matrix_[GetRowIndex(i * size_ + j + offset, i + 1)] *
+                                  b_matrix[GetColumnIndex((j * size_) + i, j + 1, offset)];
     }
   }
   return {c_matrix};
 }
+
+size_t CanonMatrix::GetSize() const { return size_; }
 
 CanonMatrix CanonMatrix::operator+(const CanonMatrix& canon_matrix) {
   std::vector<double> c_matrix(canon_matrix.GetSize() * canon_matrix.GetSize());
@@ -102,6 +100,5 @@ void CanonMatrix::Transpose() {
 void CanonMatrix::ClearMatrix() {
   matrix_.clear();
   size_ = 0;
-  shift_counts_ = 0;
 }
 }  // namespace sarafanov_m_canon_mat_mul_seq
