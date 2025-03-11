@@ -2,6 +2,7 @@
 #include <gtest/gtest.h>
 
 #include <chrono>
+#include <cmath>
 #include <cstddef>
 #include <cstdint>
 #include <memory>
@@ -20,7 +21,7 @@ std::vector<int> GenRandomVector(size_t size, int min, int max) {
   std::uniform_int_distribution<int> dis(min, max);
   std::vector<int> random_vector(size);
   for (size_t i = 0; i < size; i++) {
-    random_vector[i] = (double)(dis(gen));
+    random_vector[i] = dis(gen);
   }
 
   return random_vector;
@@ -29,7 +30,7 @@ std::vector<double> GenRandomVectorArea(size_t size, int min, int r, double& ans
   ans = 1;
   std::random_device rd;
   std::mt19937 gen(rd());
-  double max = min + r;
+  int max = min + r;
   std::uniform_int_distribution<int> dis(min, max);
   std::vector<double> random_vector(size * 2);
   for (size_t i = 0; i < size; i += 2) {
@@ -84,6 +85,9 @@ bool RandomFunc(std::vector<double> arr, size_t size = 0) {
       }
       case 9: {
         sum *= 2;
+        break;
+      }
+      default: {
         break;
       }
     }
