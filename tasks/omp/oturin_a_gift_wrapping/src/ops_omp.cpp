@@ -71,40 +71,28 @@ bool oturin_a_gift_wrapping_omp::TestTaskOMP::RunImpl() {
     }
   }
 
-  std::vector<std::pair<int, double>> thread_values;
-
   // main loop
   do {
     output_.push_back(input_[search_index]);
-#pragma omp parallel private(line_angle)
+    line_angle = -5;
+#pragma omp parallel
     {
       int search_index_par = -1;
-      line_angle = -5;
-#pragma omp master
-      thread_values = std::vector<std::pair<int, double>>(omp_get_num_threads());
+      double line_angle_private = -5;
 #pragma omp for
       for (int i = 0; i < n_; i++) {
         double t = ABTP(output_[output_.size() - 2], output_.back(), input_[i]);
-        PointSearch(t, line_angle, search_index_par, i);
+        PointSearch(t, line_angle_private, search_index_par, i);
       }
-      thread_values[omp_get_thread_num()].first = search_index_par;
-      thread_values[omp_get_thread_num()].second = line_angle;
 #pragma omp barrier
 
-#pragma omp master
+#pragma omp critical
       {
-        search_index = thread_values[0].first;
-        line_angle = thread_values[0].second;
-        for (int i = 1; i < omp_get_num_threads(); i++) {
-          if (line_angle > thread_values[i].second) {
-            continue;
-          }
-          if (line_angle == thread_values[i].second && Distance(output_.back(), input_[thread_values[i].first]) >=
-                                                           Distance(output_.back(), input_[search_index])) {
-            continue;
-          }
-          search_index = thread_values[i].first;
-          line_angle = thread_values[i].second;
+        if (!(line_angle > line_angle_private ||
+              (line_angle_private == line_angle &&
+               Distance(output_.back(), input_[search_index_par]) >= Distance(output_.back(), input_[search_index])))) {
+          search_index = search_index_par;
+          line_angle = line_angle_private;
         }
       }
     }
