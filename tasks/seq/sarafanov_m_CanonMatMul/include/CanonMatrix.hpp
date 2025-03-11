@@ -1,11 +1,9 @@
 #pragma once
 
-#include <stdint.h>
-
 #include <cstddef>
 #include <vector>
 
-enum class MatrixType : std::uint8_t { kRowMatrix, kColumnMatrix };
+enum class MatrixType : char { kRowMatrix, kColumnMatrix };
 
 namespace sarafanov_m_canon_mat_mul_seq {
 class CanonMatrix {
