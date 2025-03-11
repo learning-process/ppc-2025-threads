@@ -23,8 +23,7 @@ double kholin_k_multidimensional_integrals_rectangle_omp::TestTaskOpenMP::Integr
 
 double kholin_k_multidimensional_integrals_rectangle_omp::TestTaskOpenMP::IntegrateWithRectangleMethod(
     const Function& f, std::vector<double>& f_values, const std::vector<double>& l_limits,
-    const std::vector<double>& u_limits, size_t dim, double n) {
-  std::vector<double> h(dim);
+    const std::vector<double>& u_limits, size_t dim, double n, std::vector<double> h) {
   for (size_t i = 0; i < dim; ++i) {
     h[i] = (u_limits[i] - l_limits[i]) / n;
   }
@@ -35,9 +34,10 @@ double kholin_k_multidimensional_integrals_rectangle_omp::TestTaskOpenMP::Integr
 double kholin_k_multidimensional_integrals_rectangle_omp::TestTaskOpenMP::RunMultistepSchemeMethodRectangle(
     const Function& f, std::vector<double> f_values, const std::vector<double>& l_limits,
     const std::vector<double>& u_limits, size_t dim, double n) {
-  double i = 0.0;
-  i = IntegrateWithRectangleMethod(f, f_values, l_limits, u_limits, dim, n);
-  return i;
+  std::vector<double> h(dim);
+  double i_n = 0.0;
+  i_n = IntegrateWithRectangleMethod(f, f_values, l_limits, u_limits, dim, n, h);
+  return i_n;
 }
 
 bool kholin_k_multidimensional_integrals_rectangle_omp::TestTaskOpenMP::PreProcessingImpl() {
