@@ -4,6 +4,7 @@
 
 #include <algorithm>
 #include <cmath>
+#include <utility>
 #include <vector>
 
 double oturin_a_gift_wrapping_omp::ABTP(Coord a, Coord b, Coord c) {
