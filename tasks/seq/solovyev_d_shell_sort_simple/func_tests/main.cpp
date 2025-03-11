@@ -16,11 +16,11 @@ std::vector<int> GetRandomVector(int sz) {
   std::mt19937 gen(dev());
   std::vector<int> vec(sz);
   for (int i = 0; i < sz; i++) {
-	int negative_factor=(int)(gen() % 100);
+    int negative_factor = (int)(gen() % 100);
     vec[i] = (int)(gen() % 100);
-	if (negative_factor%2==0){
-		vec[i]=vec[i]*-1;
-	}
+    if (negative_factor % 2 == 0) {
+      vec[i] = vec[i] * -1;
+    }
   }
   return vec;
 }
