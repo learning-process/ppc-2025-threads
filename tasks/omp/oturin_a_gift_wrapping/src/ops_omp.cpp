@@ -74,25 +74,26 @@ bool oturin_a_gift_wrapping_omp::TestTaskOMP::RunImpl() {
   // main loop
   do {
     output_.push_back(input_[search_index]);
-    line_angle = -5;
+    line_angle = -4;
 #pragma omp parallel
     {
       int search_index_par = -1;
       double line_angle_private = -5;
-#pragma omp for
+
+#pragma omp for nowait
       for (int i = 0; i < n_; i++) {
         double t = ABTP(output_[output_.size() - 2], output_.back(), input_[i]);
         PointSearch(t, line_angle_private, search_index_par, i);
       }
-#pragma omp barrier
 
 #pragma omp critical
       {
-        if (!(line_angle > line_angle_private ||
-              (line_angle_private == line_angle &&
-               Distance(output_.back(), input_[search_index_par]) >= Distance(output_.back(), input_[search_index])))) {
+        if (line_angle <= line_angle_private &&
+            (line_angle_private != line_angle ||
+             Distance(output_.back(), input_[search_index_par]) < Distance(output_.back(), input_[search_index]))) {
           search_index = search_index_par;
-          line_angle = line_angle_private;
+          line_angle = line_angle_private;  // NOLINT(clang-analyzer-deadcode.DeadStores): line_angle will be read in
+                                            // the next critical iteration
         }
       }
     }
