@@ -57,7 +57,7 @@ bool HypercubeX4Pr4433(std::vector<double> arr, size_t size = 4) {
   return ((x >= 0) && (x <= 4) && (y >= 0) && (y <= 4) && (z >= 0) && (z <= 3) && (w >= 0) && (w <= 3));
 }
 
-bool TrangleModuleMinus5(std::vector<double> arr, size_t size = 2) {
+bool TriangleModuleMinus5(std::vector<double> arr, size_t size = 2) {
   double x = arr[0];
   double y = arr[1];
   if (x > 0) {
@@ -445,7 +445,7 @@ TEST(vladimirova_j_m_monte_karlo_seq, test_HypercubeX4Pr4433) {
   ASSERT_TRUE((3 * 3 * 4 * 4 - out[0]) < 5);
 }
 
-TEST(vladimirova_j_m_monte_karlo_seq, test_TrangleModuleMinus5) {
+TEST(vladimirova_j_m_monte_karlo_seq, test_TriangleModuleMinus5) {
   // Create data
   std::vector<double> val_b = {-5, 5, 0, 5};
   std::vector<double> out(1, 0);
@@ -454,7 +454,7 @@ TEST(vladimirova_j_m_monte_karlo_seq, test_TrangleModuleMinus5) {
   auto task_data_seq = std::make_shared<ppc::core::TaskData>();
 
   task_data_seq->inputs.emplace_back(reinterpret_cast<uint8_t *>(val_b.data()));
-  task_data_seq->inputs.emplace_back(reinterpret_cast<uint8_t *>(TrangleModuleMinus5));
+  task_data_seq->inputs.emplace_back(reinterpret_cast<uint8_t *>(TriangleModuleMinus5));
   task_data_seq->inputs.emplace_back(reinterpret_cast<uint8_t *>(25000));
   task_data_seq->inputs_count.emplace_back(val_b.size());
   task_data_seq->outputs.emplace_back(reinterpret_cast<uint8_t *>(out.data()));
