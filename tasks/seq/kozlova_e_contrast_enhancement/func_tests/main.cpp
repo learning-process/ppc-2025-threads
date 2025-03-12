@@ -24,8 +24,8 @@ std::vector<int> GenerateVector(int length) {
 }  // namespace
 
 TEST(kozlova_e_contrast_enhancement_seq, test_1st_image) {
-  std::vector<int> in{10, 0, 50, 100, 200};
-  std::vector<int> out(5, 0);
+  std::vector<int> in{10, 0, 50, 100, 200, 34};
+  std::vector<int> out(6, 0);
 
   auto task_data_seq = std::make_shared<ppc::core::TaskData>();
   task_data_seq->inputs.emplace_back(reinterpret_cast<uint8_t *>(in.data()));
@@ -44,6 +44,7 @@ TEST(kozlova_e_contrast_enhancement_seq, test_1st_image) {
   EXPECT_EQ(out[2], 63);
   EXPECT_EQ(out[3], 127);
   EXPECT_EQ(out[4], 255);
+  EXPECT_EQ(out[5], 43);
 }
 
 TEST(kozlova_e_contrast_enhancement_seq, test_image2) {
@@ -89,8 +90,8 @@ TEST(kozlova_e_contrast_enhancement_seq, test_empty_input) {
 }
 
 TEST(kozlova_e_contrast_enhancement_seq, test_same_values_input) {
-  std::vector<int> in(5, 100);
-  std::vector<int> out(5, 0);
+  std::vector<int> in(6, 100);
+  std::vector<int> out(6, 0);
 
   auto task_data_seq = std::make_shared<ppc::core::TaskData>();
   task_data_seq->inputs.emplace_back(reinterpret_cast<uint8_t *>(in.data()));
@@ -147,4 +148,18 @@ TEST(kozlova_e_contrast_enhancement_seq, test_negative_values) {
   ASSERT_EQ(test_task_sequential.Validation(), true);
   test_task_sequential.PreProcessing();
   ASSERT_ANY_THROW(test_task_sequential.Run());
+}
+
+TEST(kozlova_e_contrast_enhancement_seq, test_incorrect_input_size) {
+  std::vector<int> in = {3, 3, 3};
+  std::vector<int> out(0, 0);
+
+  auto task_data_seq = std::make_shared<ppc::core::TaskData>();
+  task_data_seq->inputs.emplace_back(reinterpret_cast<uint8_t *>(in.data()));
+  task_data_seq->inputs_count.emplace_back(in.size());
+  task_data_seq->outputs.emplace_back(reinterpret_cast<uint8_t *>(out.data()));
+  task_data_seq->outputs_count.emplace_back(out.size());
+
+  kozlova_e_contrast_enhancement_seq::TestTaskSequential test_task_sequential(task_data_seq);
+  ASSERT_FALSE(test_task_sequential.Validation());
 }

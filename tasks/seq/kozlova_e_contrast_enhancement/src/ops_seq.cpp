@@ -15,7 +15,7 @@ bool kozlova_e_contrast_enhancement_seq::TestTaskSequential::PreProcessingImpl()
 }
 
 bool kozlova_e_contrast_enhancement_seq::TestTaskSequential::ValidationImpl() {
-  return task_data->inputs_count[0] == task_data->outputs_count[0] && task_data->inputs_count[0] > 0;
+  return task_data->inputs_count[0] == task_data->outputs_count[0] && task_data->inputs_count[0] > 0 && (task_data->inputs_count[0] % 2 == 0);
 }
 
 bool kozlova_e_contrast_enhancement_seq::TestTaskSequential::RunImpl() {
