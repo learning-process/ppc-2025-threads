@@ -90,10 +90,8 @@ bool smirnov_i_radix_sort_simple_merge_omp::TestTaskOpenMP::RunImpl() {
       if (!local_mas.empty()) A.push_back(local_mas);
     }
 
-#pragma omp barrier
 #pragma omp single
     { flag = static_cast<int>(A.size()) != 1; }
-#pragma omp barrier
     while (flag) {
       std::vector<int> mas1{}, mas2{}, merge_mas{};
 #pragma omp critical
@@ -113,7 +111,6 @@ bool smirnov_i_radix_sort_simple_merge_omp::TestTaskOpenMP::RunImpl() {
 #pragma omp critical
         B.push_back(merge_mas);
       }
-#pragma omp barrier
 #pragma omp single
       {
         if (static_cast<int>(A.size()) == 1) {
@@ -123,9 +120,7 @@ bool smirnov_i_radix_sort_simple_merge_omp::TestTaskOpenMP::RunImpl() {
         std::swap(A, B);
         flag = static_cast<int>(A.size()) != 1;
       }
-#pragma omp barrier
     }
-#pragma omp barrier
 #pragma omp single
     {
       sort_res = std::move(A.front());
