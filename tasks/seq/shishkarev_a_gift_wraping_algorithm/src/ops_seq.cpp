@@ -34,7 +34,9 @@ bool shishkarev_a_gift_wraping_algorithm_seq::TestTaskSequential::ValidationImpl
 bool shishkarev_a_gift_wraping_algorithm_seq::TestTaskSequential::RunImpl() {
   if (input_.size() < 3) {
     output_.clear();
-    output_ = input_;
+    for (size_t i = 1; i < input_.size(); ++i) {
+      output_[i] = input_[i];
+    }
     return true;
   }
 
