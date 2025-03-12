@@ -16,12 +16,8 @@ struct Vertex {
   }
   bool operator==(const Vertex& v) const { return (x == v.x) && (y == v.y); }
   bool operator!=(const Vertex& v) const { return (x != v.x) || (y != v.y); }
-  int length(const Vertex& v) const {
-    return (x - v.x) * (x - v.x) + (y - v.y) * (y - v.y);
-  }
-  double angle(const Vertex& v, const Vertex& w) const {
-    return (v.x - x) * (w.y - y) - (v.y - y) * (w.x - x);
-  }
+  int length(const Vertex& v) const { return (x - v.x) * (x - v.x) + (y - v.y) * (y - v.y); }
+  double angle(const Vertex& v, const Vertex& w) const { return (v.x - x) * (w.y - y) - (v.y - y) * (w.x - x); }
 };
 
 std::vector<Vertex> remove_duplicates(const std::vector<Vertex>& points);

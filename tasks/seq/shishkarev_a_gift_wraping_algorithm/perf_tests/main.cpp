@@ -26,7 +26,8 @@ TEST(shishkarev_a_gift_wraping_algorithm_seq, test_pipeline_run) {
   task_data_seq->outputs.emplace_back(reinterpret_cast<uint8_t*>(out.data()));
   task_data_seq->outputs_count.emplace_back(out.size());
 
-  auto test_task_sequential = std::make_shared<shishkarev_a_gift_wraping_algorithm_seq::TestTaskSequential>(task_data_seq);
+  auto test_task_sequential =
+      std::make_shared<shishkarev_a_gift_wraping_algorithm_seq::TestTaskSequential>(task_data_seq);
 
   auto perf_attr = std::make_shared<ppc::core::PerfAttr>();
   perf_attr->num_running = 10;
@@ -60,7 +61,8 @@ TEST(shishkarev_a_gift_wraping_algorithm_seq, test_task_run) {
   task_data_seq->outputs.emplace_back(reinterpret_cast<uint8_t*>(out.data()));
   task_data_seq->outputs_count.emplace_back(out.size());
 
-  auto test_task_sequential = std::make_shared<shishkarev_a_gift_wraping_algorithm_seq::TestTaskSequential>(task_data_seq);
+  auto test_task_sequential =
+      std::make_shared<shishkarev_a_gift_wraping_algorithm_seq::TestTaskSequential>(task_data_seq);
 
   auto perf_attr = std::make_shared<ppc::core::PerfAttr>();
   perf_attr->num_running = 10;

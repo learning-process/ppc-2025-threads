@@ -40,7 +40,7 @@ TEST(shishkarev_a_gift_wraping_algorithm_seq, test_convex_hull_simple) {
 TEST(shishkarev_a_gift_wraping_algorithm_seq, test_convex_hull_from_file) {
   std::string line;
   std::ifstream test_file(ppc::util::GetAbsolutePath("seq/shishkarev_a_gift_wraping_algorithm/data/test.txt"));
-  
+
   getline(test_file, line);
   test_file.close();
 
