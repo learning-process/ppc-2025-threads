@@ -249,7 +249,6 @@ TEST(kholin_k_multidimensional_integrals_rectangle_omp, double_integral_two_var)
   ASSERT_EQ(test_task_omp.PostProcessing(), true);
 
   double ref_i = 2.0;
-  std::cout << "       " << out_i[0] << '\n';
   ASSERT_EQ(ref_i, std::round(out_i[0]));
 }
 
@@ -326,7 +325,6 @@ TEST(kholin_k_multidimensional_integrals_rectangle_omp, triple_integral_three_va
   ASSERT_EQ(test_task_omp.PostProcessing(), true);
 
   double ref_i = 1;
-  std::cout << "       " << out_i[0] << '\n';
   ASSERT_EQ(ref_i, std::round(out_i[0]));
 }
 
@@ -364,7 +362,6 @@ TEST(kholin_k_multidimensional_integrals_rectangle_omp, triple_integral_two_var)
   ASSERT_EQ(test_task_omp.PostProcessing(), true);
 
   double ref_i = 8;
-  std::cout << "       " << out_i[0] << '\n';
   ASSERT_EQ(ref_i, std::round(out_i[0]));
 }
 
@@ -402,7 +399,6 @@ TEST(kholin_k_multidimensional_integrals_rectangle_omp, triple_integral_one_var)
   ASSERT_EQ(test_task_omp.PostProcessing(), true);
 
   double ref_i = -24;
-  std::cout << "       " << out_i[0] << '\n';
   ASSERT_EQ(ref_i, std::round(out_i[0]));
 }
 
@@ -440,7 +436,5 @@ TEST(kholin_k_multidimensional_integrals_rectangle_omp, double_integral_two_var_
   ASSERT_EQ(test_task_omp.PostProcessing(), true);
 
   double ref_i = 0.00003;
-  std::cout << "       " << out_i[0] << '\n';
   ASSERT_NEAR(ref_i, out_i[0], 1e-3);
 }
-////
