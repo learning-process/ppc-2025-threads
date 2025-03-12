@@ -31,7 +31,7 @@ void CountingSort(std::vector<double>& arr, int exp) {
     count[i] += count[i - 1];
   }
 
-  for (auto i = static_cast<int>(n - 1); i >= 0; i--) {
+  for (int i = static_cast<int>(n) - 1; i >= 0; i--) {
     DoubleWrapper dw;
     dw.d = arr[i];
     uint64_t value = dw.u;
@@ -48,12 +48,37 @@ void RadixSort(std::vector<double>& arr) {
     return;
   }
 
-  const int bytes = sizeof(uint64_t);
-  for (int exp = 0; exp < bytes; exp++) {
-    CountingSort(arr, exp);
+  auto middle = std::ranges::partition(arr, [](double x) { return x < 0.0; });
+
+  std::vector<double> neg_part(arr.begin(), middle.begin());
+  for (auto& num : neg_part) {
+    DoubleWrapper dw;
+    dw.d = num;
+    dw.u ^= 0x8000000000000000;
+    num = dw.d;
   }
 
-  std::ranges::partition(arr, [](double x) { return std::signbit(x); });
+  for (int exp = 0; exp < static_cast<int>(sizeof(uint64_t)); ++exp) {
+    CountingSort(neg_part, exp);
+  }
+
+  for (auto& num : neg_part) {
+    DoubleWrapper dw;
+    dw.d = num;
+    dw.u ^= 0x8000000000000000;
+    num = dw.d;
+  }
+  std::ranges::reverse(neg_part);
+
+  std::vector<double> pos_part(middle.begin(), arr.end());
+  for (int exp = 0; exp < static_cast<int>(sizeof(uint64_t)); ++exp) {
+    CountingSort(pos_part, exp);
+  }
+
+  arr.clear();
+  arr.reserve(neg_part.size() + pos_part.size());
+  arr.insert(arr.end(), neg_part.begin(), neg_part.end());
+  arr.insert(arr.end(), pos_part.begin(), pos_part.end());
 }
 }  // namespace
 
