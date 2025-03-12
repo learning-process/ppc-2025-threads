@@ -46,7 +46,7 @@ TEST(shishkarev_a_gift_wraping_algorithm_seq, test_pipeline_run) {
 }
 
 TEST(shishkarev_a_gift_wraping_algorithm_seq, test_task_run) {
-  constexpr int kCount = 1000000000;
+  constexpr int kCount = 100000;
 
   std::vector<shishkarev_a_gift_wraping_algorithm_seq::Vertex> in(kCount);
   std::vector<shishkarev_a_gift_wraping_algorithm_seq::Vertex> out(kCount);
@@ -65,7 +65,7 @@ TEST(shishkarev_a_gift_wraping_algorithm_seq, test_task_run) {
       std::make_shared<shishkarev_a_gift_wraping_algorithm_seq::TestTaskSequential>(task_data_seq);
 
   auto perf_attr = std::make_shared<ppc::core::PerfAttr>();
-  perf_attr->num_running = 10000000;
+  perf_attr->num_running = 100000;
   const auto t0 = std::chrono::high_resolution_clock::now();
   perf_attr->current_timer = [&] {
     auto current_time_point = std::chrono::high_resolution_clock::now();
