@@ -33,6 +33,7 @@ bool shishkarev_a_gift_wraping_algorithm_seq::TestTaskSequential::ValidationImpl
 
 bool shishkarev_a_gift_wraping_algorithm_seq::TestTaskSequential::RunImpl() {
   if (input_.size() < 3) {
+    output_.clear();
     output_ = input_;
     return true;
   }
