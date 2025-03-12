@@ -49,30 +49,27 @@ void vavilov_v_cannon_tbb::CannonTBB::InitialShift() {
 }
 
 void vavilov_v_cannon_tbb::CannonTBB::BlockMultiply() {
-  tbb::parallel_for(tbb::blocked_range2d<int>(0, num_blocks_, 1, 0, num_blocks_, 1),
-                    [&](const tbb::blocked_range2d<int>& range) {
-                      for (int bi = range.rows().begin(); bi < range.rows().end(); ++bi) {
-                        for (int bj = range.cols().begin(); bj < range.cols().end(); ++bj) {
-                          // Compute block offsets
-                          int row_offset = bi * block_size_;
-                          int col_offset = bj * block_size_;
-                          for (int i = 0; i < block_size_; ++i) {
-                            for (int j = 0; j < block_size_; ++j) {
-                              double temp = 0.0;
-                              for (int k = 0; k < block_size_; ++k) {
-                                int row_a = row_offset + i;
-                                int col_a = col_offset + k;
-                                int row_b = row_offset + k;
-                                int col_b = col_offset + j;
+  tbb::parallel_for(0, num_blocks_, [&](int bi) {
+    for (int bj = 0; bj < num_blocks_; ++bj) {
+      // Compute block offsets
+      int row_offset = bi * block_size_;
+      int col_offset = bj * block_size_;
+      for (int i = 0; i < block_size_; ++i) {
+        for (int j = 0; j < block_size_; ++j) {
+          double temp = 0.0;
+          for (int k = 0; k < block_size_; ++k) {
+            int row_a = row_offset + i;
+            int col_a = col_offset + k;
+            int row_b = row_offset + k;
+            int col_b = col_offset + j;
 
-                                temp += A_[row_a * N_ + col_a] * B_[row_b * N_ + col_b];
-                              }
-                              C_[(row_offset + i) * N_ + (col_offset + j)] += temp;
-                            }
-                          }
-                        }
-                      }
-                    });
+            temp += A_[row_a * N_ + col_a] * B_[row_b * N_ + col_b];
+          }
+          C_[(row_offset + i) * N_ + (col_offset + j)] += temp;
+        }
+      }
+    }
+  });
 }
 
 void vavilov_v_cannon_tbb::CannonTBB::ShiftBlocks() {
