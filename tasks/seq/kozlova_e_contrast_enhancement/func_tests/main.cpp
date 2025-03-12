@@ -26,6 +26,7 @@ std::vector<int> GenerateVector(int length) {
 TEST(kozlova_e_contrast_enhancement_seq, test_1st_image) {
   std::vector<int> in{10, 0, 50, 100, 200, 34};
   std::vector<int> out(6, 0);
+  std::vector<int> expected{12, 0, 63, 127, 255, 43};
 
   auto task_data_seq = std::make_shared<ppc::core::TaskData>();
   task_data_seq->inputs.emplace_back(reinterpret_cast<uint8_t *>(in.data()));
@@ -39,12 +40,9 @@ TEST(kozlova_e_contrast_enhancement_seq, test_1st_image) {
   test_task_sequential.Run();
   test_task_sequential.PostProcessing();
 
-  EXPECT_EQ(out[0], 12);
-  EXPECT_EQ(out[1], 0);
-  EXPECT_EQ(out[2], 63);
-  EXPECT_EQ(out[3], 127);
-  EXPECT_EQ(out[4], 255);
-  EXPECT_EQ(out[5], 43);
+  for (size_t i = 0; i < out.size(); ++i) {
+    EXPECT_EQ(out[i], expected[i]);
+  }
 }
 
 TEST(kozlova_e_contrast_enhancement_seq, test_image2) {
