@@ -58,8 +58,7 @@ bool shishkarev_a_gift_wraping_algorithm_seq::TestTaskSequential::RunImpl() {
       const auto angle = input_[p].Angle(input_[q], input_[i]);
       if (angle < 0) {
         q = static_cast<int>(i);
-      } else if ((angle == 0) &&
-                 (input_[p].Length(input_[i]) > input_[p].Length(input_[q]))) {
+      } else if ((angle == 0) && (input_[p].Length(input_[i]) > input_[p].Length(input_[q]))) {
         q = static_cast<int>(i);
       }
     }
