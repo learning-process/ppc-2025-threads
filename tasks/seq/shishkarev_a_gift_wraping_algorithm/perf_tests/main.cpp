@@ -2,8 +2,8 @@
 
 #include <chrono>
 #include <cstdint>
+#include <cstdlib>
 #include <memory>
-#include <random>
 #include <vector>
 
 #include "core/perf/include/perf.hpp"
@@ -17,7 +17,7 @@ TEST(shishkarev_a_gift_wraping_algorithm_seq, test_pipeline_run) {
   std::vector<shishkarev_a_gift_wraping_algorithm_seq::Vertex> out(kCount);
 
   for (int i = 0; i < kCount; ++i) {
-    in[i] = {.x = (static_cast<int>(rand() % 100)), .y = (static_cast<int>(rand() % 100))};
+    in[i] = {.x = rand() % 100, .y = rand() % 100};
   }
 
   auto task_data_seq = std::make_shared<ppc::core::TaskData>();
@@ -52,7 +52,7 @@ TEST(shishkarev_a_gift_wraping_algorithm_seq, test_task_run) {
   std::vector<shishkarev_a_gift_wraping_algorithm_seq::Vertex> out(kCount);
 
   for (int i = 0; i < kCount; ++i) {
-    in[i] = {.x = (static_cast<int>(rand() % 100)), .y = (static_cast<int>(rand() % 100))};
+    in[i] = {.x = rand() % 100, .y = rand() % 100};
   }
 
   auto task_data_seq = std::make_shared<ppc::core::TaskData>();

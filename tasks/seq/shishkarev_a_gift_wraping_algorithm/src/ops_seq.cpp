@@ -52,17 +52,17 @@ bool shishkarev_a_gift_wraping_algorithm_seq::TestTaskSequential::RunImpl() {
   int p = start_point;
   do {
     output_.push_back(input_[p]);
-    int q = (p + 1) % input_.size();
+    size_t q = (p + 1) % input_.size();
 
     for (size_t i = 0; i < input_.size(); ++i) {
       const auto angle = input_[p].Angle(input_[q], input_[i]);
       if (angle < 0) {
-        q = static_cast<int>(i);
+        q = i;
       } else if ((angle == 0) && (input_[p].Length(input_[i]) > input_[p].Length(input_[q]))) {
-        q = static_cast<int>(i);
+        q = i;
       }
     }
-    p = q;
+    p = static_cast<int>(q);
   } while (p != start_point);
 
   return true;

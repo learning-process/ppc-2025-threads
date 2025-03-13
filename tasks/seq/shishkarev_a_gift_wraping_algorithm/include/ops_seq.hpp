@@ -11,8 +11,10 @@ namespace shishkarev_a_gift_wraping_algorithm_seq {
 struct Vertex {
   int x, y;
   bool operator<(const Vertex& other) const {
-    if (x != other.x) { return {x < other.x}; }
-    return {y < other.y};
+    if (x != other.x) {
+      return x < other.x;
+    }
+    return y < other.y;
   }
   bool operator==(const Vertex& v) const { return (x == v.x) && (y == v.y); }
   bool operator!=(const Vertex& v) const { return (x != v.x) || (y != v.y); }
