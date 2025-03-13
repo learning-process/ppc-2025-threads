@@ -1,9 +1,12 @@
 #include "tbb/sotskov_a_shell_sorting_with_simple_merging/include/ops_tbb.hpp"
 
+#include <oneapi/tbb/info.h>
 #include <oneapi/tbb/parallel_for.h>
 #include <oneapi/tbb/task_arena.h>
 
 #include <algorithm>
+#include <cstddef>
+#include <ranges>
 #include <vector>
 
 void sotskov_a_shell_sorting_with_simple_merging_tbb::ShellSort(std::vector<int>& arr, int left, int right) {
@@ -30,7 +33,9 @@ void sotskov_a_shell_sorting_with_simple_merging_tbb::ShellSort(std::vector<int>
 void sotskov_a_shell_sorting_with_simple_merging_tbb::ParallelMerge(std::vector<int>& arr, int left, int mid,
                                                                     int right) {
   std::vector<int> temp(right - left + 1);
-  int i = left, j = mid + 1, k = 0;
+  int i = left;
+  int j = mid + 1;
+  int k = 0;
 
   while (i <= mid && j <= right) {
     temp[k++] = (arr[i] < arr[j]) ? arr[i++] : arr[j++];
@@ -41,7 +46,7 @@ void sotskov_a_shell_sorting_with_simple_merging_tbb::ParallelMerge(std::vector<
   while (j <= right) {
     temp[k++] = arr[j++];
   }
-  std::copy(temp.begin(), temp.end(), arr.begin() + left);
+  std::ranges::copy(temp, arr.begin() + left);
 }
 
 void sotskov_a_shell_sorting_with_simple_merging_tbb::ShellSortWithSimpleMerging(std::vector<int>& arr) {
@@ -63,7 +68,7 @@ void sotskov_a_shell_sorting_with_simple_merging_tbb::ShellSortWithSimpleMerging
       oneapi::tbb::parallel_for(0, (array_size + 2 * size - 1) / (2 * size), [&](int i) {
         int left = i * 2 * size;
         int mid = std::min(left + size - 1, array_size - 1);
-        int right = std::min(left + 2 * size - 1, array_size - 1);
+        int right = std::min(left + (2 * size - 1), array_size - 1);
         if (mid < right) {
           ParallelMerge(arr, left, mid, right);
         }
@@ -82,7 +87,9 @@ bool sotskov_a_shell_sorting_with_simple_merging_tbb::TestTaskTBB::PreProcessing
 bool sotskov_a_shell_sorting_with_simple_merging_tbb::TestTaskTBB::ValidationImpl() {
   std::size_t input_size = task_data->inputs_count[0];
   std::size_t output_size = task_data->outputs_count[0];
-  if (input_size != output_size) return false;
+  if (input_size != output_size) {
+    return false;
+  }
 
   for (std::size_t i = 1; i < output_size; ++i) {
     if (task_data->outputs[0][i] < task_data->outputs[0][i - 1]) {
