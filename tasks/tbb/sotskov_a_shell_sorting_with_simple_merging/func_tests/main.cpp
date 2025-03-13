@@ -3,6 +3,7 @@
 #include <oneapi/tbb/task_arena.h>
 
 #include <algorithm>
+#include <cstdint>
 #include <memory>
 #include <random>
 #include <vector>

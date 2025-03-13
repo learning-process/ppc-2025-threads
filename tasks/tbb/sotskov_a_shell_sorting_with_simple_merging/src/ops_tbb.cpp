@@ -6,7 +6,6 @@
 
 #include <algorithm>
 #include <cstddef>
-#include <ranges>
 #include <vector>
 
 void sotskov_a_shell_sorting_with_simple_merging_tbb::ShellSort(std::vector<int>& arr, int left, int right) {
