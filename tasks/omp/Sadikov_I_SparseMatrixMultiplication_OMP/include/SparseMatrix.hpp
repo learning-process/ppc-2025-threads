@@ -5,21 +5,21 @@
 #include <vector>
 
 namespace sadikov_i_sparse_matrix_multiplication_task_omp {
-class SparesMatrix {
+class SparseMatrix {
   constexpr static double kMEpsilon = 0.000001;
   int m_rowsCount_ = 0;
   int m_columnsCount_ = 0;
   std::vector<double> m_values_;
   std::vector<int> m_rows_;
   std::vector<int> m_elementsSum_;
-  static SparesMatrix Transpose(const SparesMatrix& matrix);
+  static SparseMatrix Transpose(const SparseMatrix& matrix);
   static int GetElementsCount(int index, const std::vector<int>& elements_sum);
-  static double CalculateSum(SparesMatrix& fmatrix, SparesMatrix& smatrix, const std::vector<int>& felements_sum,
+  static double CalculateSum(SparseMatrix& fmatrix, SparseMatrix& smatrix, const std::vector<int>& felements_sum,
                              const std::vector<int>& selements_sum, int i_index, int j_index);
 
  public:
-  SparesMatrix() = default;
-  explicit SparesMatrix(int rows_count, int columns_count, const std::vector<double>& values,
+  SparseMatrix() = default;
+  explicit SparseMatrix(int rows_count, int columns_count, const std::vector<double>& values,
                         const std::vector<int>& rows, const std::vector<int>& element_sum) noexcept
       : m_rowsCount_(rows_count),
         m_columnsCount_(columns_count),
@@ -31,12 +31,12 @@ class SparesMatrix {
   [[nodiscard]] const std::vector<int>& GetElementsSum() const noexcept { return m_elementsSum_; }
   [[nodiscard]] int GetColumnsCount() const noexcept { return m_columnsCount_; }
   [[nodiscard]] int GetRowsCount() const noexcept { return m_rowsCount_; }
-  SparesMatrix operator*(SparesMatrix& smatrix) const noexcept(false);
+  SparseMatrix operator*(SparseMatrix& smatrix) const noexcept(false);
 };
 
-SparesMatrix MatrixToSpares(int rows_count, int columns_count, const std::vector<double>& values);
+SparseMatrix MatrixToSparse(int rows_count, int columns_count, const std::vector<double>& values);
 
-std::vector<double> FromSparesMatrix(const SparesMatrix& matrix);
+std::vector<double> FromSparseMatrix(const SparseMatrix& matrix);
 
 std::vector<double> BaseMatrixMultiplication(const std::vector<double>& fmatrix, int fmatrix_rows_count,
                                              int fmatrix_columns_count, const std::vector<double>& smatrix,

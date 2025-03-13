@@ -5,8 +5,8 @@
 #include <vector>
 
 #include "core/task/include/task.hpp"
-#include "omp/Sadikov_I_SparesMatrixMultiplication_OMP/include/SparesMatrix.hpp"
-#include "omp/Sadikov_I_SparesMatrixMultiplication_OMP/include/ops_omp.hpp"
+#include "omp/Sadikov_I_SparseMatrixMultiplication_OMP/include/SparseMatrix.hpp"
+#include "omp/Sadikov_I_SparseMatrixMultiplication_OMP/include/ops_omp.hpp"
 
 TEST(sadikov_i_sparse_matrix_multiplication_task_omp, test_rect_matrixes) {
   constexpr auto kEpsilon = 0.000001;
