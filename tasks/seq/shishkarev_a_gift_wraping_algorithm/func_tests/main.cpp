@@ -18,7 +18,7 @@ TEST(shishkarev_a_gift_wraping_algorithm_seq, test_convex_hull_simple) {
   std::vector<shishkarev_a_gift_wraping_algorithm_seq::Vertex> out(kCount);
 
   for (size_t i = 0; i < kCount; i++) {
-    in[i] = {static_cast<int>(rand() % 100), static_cast<int>(rand() % 100)};
+    in[i] = {.x = (static_cast<int>(rand() % 100)), .y = (static_cast<int>(rand() % 100))};
   }
 
   auto task_data_seq = std::make_shared<ppc::core::TaskData>();
@@ -50,7 +50,7 @@ TEST(shishkarev_a_gift_wraping_algorithm_seq, test_convex_hull_from_file) {
   std::vector<shishkarev_a_gift_wraping_algorithm_seq::Vertex> out(count);
 
   for (size_t i = 0; i < count; i++) {
-    in[i] = {static_cast<int>(rand() % 100), static_cast<int>(rand() % 100)};
+    in[i] = {.x = (static_cast<int>(rand() % 100)), .y = (static_cast<int>(rand() % 100))};
   }
 
   auto task_data_seq = std::make_shared<ppc::core::TaskData>();

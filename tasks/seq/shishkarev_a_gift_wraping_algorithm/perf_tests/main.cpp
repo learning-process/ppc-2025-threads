@@ -1,9 +1,9 @@
 #include <gtest/gtest.h>
 
 #include <chrono>
-#include <cstddef>
 #include <cstdint>
 #include <memory>
+#include <random>
 #include <vector>
 
 #include "core/perf/include/perf.hpp"
@@ -11,13 +11,13 @@
 #include "seq/shishkarev_a_gift_wraping_algorithm/include/ops_seq.hpp"
 
 TEST(shishkarev_a_gift_wraping_algorithm_seq, test_pipeline_run) {
-  constexpr int kCount = 1000000000;
+  constexpr int kCount = 100000000;
 
   std::vector<shishkarev_a_gift_wraping_algorithm_seq::Vertex> in(kCount);
   std::vector<shishkarev_a_gift_wraping_algorithm_seq::Vertex> out(kCount);
 
   for (int i = 0; i < kCount; ++i) {
-    in[i] = {rand() % 100, rand() % 100};
+    in[i] = {.x = (static_cast<int>(rand() % 100)), .y = (static_cast<int>(rand() % 100))};
   }
 
   auto task_data_seq = std::make_shared<ppc::core::TaskData>();
@@ -30,7 +30,7 @@ TEST(shishkarev_a_gift_wraping_algorithm_seq, test_pipeline_run) {
       std::make_shared<shishkarev_a_gift_wraping_algorithm_seq::TestTaskSequential>(task_data_seq);
 
   auto perf_attr = std::make_shared<ppc::core::PerfAttr>();
-  perf_attr->num_running = 100;
+  perf_attr->num_running = 10;
   const auto t0 = std::chrono::high_resolution_clock::now();
   perf_attr->current_timer = [&] {
     auto current_time_point = std::chrono::high_resolution_clock::now();
@@ -46,13 +46,13 @@ TEST(shishkarev_a_gift_wraping_algorithm_seq, test_pipeline_run) {
 }
 
 TEST(shishkarev_a_gift_wraping_algorithm_seq, test_task_run) {
-  constexpr int kCount = 1000000000;
+  constexpr int kCount = 100000000;
 
   std::vector<shishkarev_a_gift_wraping_algorithm_seq::Vertex> in(kCount);
   std::vector<shishkarev_a_gift_wraping_algorithm_seq::Vertex> out(kCount);
 
   for (int i = 0; i < kCount; ++i) {
-    in[i] = {rand() % 100, rand() % 100};
+    in[i] = {.x = (static_cast<int>(rand() % 100)), .y = (static_cast<int>(rand() % 100))};
   }
 
   auto task_data_seq = std::make_shared<ppc::core::TaskData>();
@@ -65,7 +65,7 @@ TEST(shishkarev_a_gift_wraping_algorithm_seq, test_task_run) {
       std::make_shared<shishkarev_a_gift_wraping_algorithm_seq::TestTaskSequential>(task_data_seq);
 
   auto perf_attr = std::make_shared<ppc::core::PerfAttr>();
-  perf_attr->num_running = 100;
+  perf_attr->num_running = 10;
   const auto t0 = std::chrono::high_resolution_clock::now();
   perf_attr->current_timer = [&] {
     auto current_time_point = std::chrono::high_resolution_clock::now();

@@ -11,16 +11,16 @@ namespace shishkarev_a_gift_wraping_algorithm_seq {
 struct Vertex {
   int x, y;
   bool operator<(const Vertex& other) const {
-    if (x != other.x) return x < other.x;
-    return y < other.y;
+    if (x != other.x) return { x < other.x };
+    return { y < other.y };
   }
   bool operator==(const Vertex& v) const { return (x == v.x) && (y == v.y); }
   bool operator!=(const Vertex& v) const { return (x != v.x) || (y != v.y); }
-  int length(const Vertex& v) const { return (x - v.x) * (x - v.x) + (y - v.y) * (y - v.y); }
-  double angle(const Vertex& v, const Vertex& w) const { return (v.x - x) * (w.y - y) - (v.y - y) * (w.x - x); }
+  [[nodiscard]] int Length(const Vertex& v) const { return ((x - v.x) * (x - v.x)) + ((y - v.y) * (y - v.y)); }
+  [[nodiscard]] double Angle(const Vertex& v, const Vertex& w) const { return ((v.x - x) * (w.y - y)) - ((v.y - y) * (w.x - x)); }
 };
 
-std::vector<Vertex> remove_duplicates(const std::vector<Vertex>& points);
+std::vector<Vertex> RemoveDuplicates(const std::vector<Vertex>& points);
 
 class TestTaskSequential : public ppc::core::Task {
  public:
