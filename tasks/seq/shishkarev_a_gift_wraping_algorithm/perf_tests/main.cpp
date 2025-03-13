@@ -46,7 +46,7 @@ TEST(shishkarev_a_gift_wraping_algorithm_seq, test_pipeline_run) {
 }
 
 TEST(shishkarev_a_gift_wraping_algorithm_seq, test_task_run) {
-  constexpr int kCount = 10000000;
+  constexpr int kCount = 100000000;
 
   std::vector<shishkarev_a_gift_wraping_algorithm_seq::Vertex> in(kCount);
   std::vector<shishkarev_a_gift_wraping_algorithm_seq::Vertex> out(kCount);
