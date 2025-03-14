@@ -1,4 +1,5 @@
 #include "all/vavilov_v_cannon/include/ops_all.hpp"
+
 #include <algorithm>
 #include <boost/mpi.hpp>
 #include <cmath>
@@ -114,10 +115,8 @@ bool vavilov_v_cannon_all::CannonALL::RunImpl() {
         int proc = i * grid_size_ + j;
         for (int bi = 0; bi < block_size_; ++bi) {
           for (int bj = 0; bj < block_size_; ++bj) {
-            tmp_a[bi * block_size_ + bj] =
-                A_[(i * block_size_ + bi) * N_ + (j * block_size_ + bj)];
-            tmp_b[bi * block_size_ + bj] =
-                B_[(i * block_size_ + bi) * N_ + (j * block_size_ + bj)];
+            tmp_a[bi * block_size_ + bj] = A_[(i * block_size_ + bi) * N_ + (j * block_size_ + bj)];
+            tmp_b[bi * block_size_ + bj] = B_[(i * block_size_ + bi) * N_ + (j * block_size_ + bj)];
           }
         }
         if (proc == 0) {
@@ -147,8 +146,7 @@ bool vavilov_v_cannon_all::CannonALL::RunImpl() {
         if (proc == 0) {
           for (int bi = 0; bi < block_size_; ++bi) {
             for (int bj = 0; bj < block_size_; ++bj) {
-              C_[(i * block_size_ + bi) * N_ + (j * block_size_ + bj)] =
-                  local_C_[bi * block_size_ + bj];
+              C_[(i * block_size_ + bi) * N_ + (j * block_size_ + bj)] = local_C_[bi * block_size_ + bj];
             }
           }
         } else {
@@ -156,8 +154,7 @@ bool vavilov_v_cannon_all::CannonALL::RunImpl() {
           world.recv(proc, 0, tmp);
           for (int bi = 0; bi < block_size_; ++bi) {
             for (int bj = 0; bj < block_size_; ++bj) {
-              C_[(i * block_size_ + bi) * N_ + (j * block_size_ + bj)] =
-                  tmp[bi * block_size_ + bj];
+              C_[(i * block_size_ + bi) * N_ + (j * block_size_ + bj)] = tmp[bi * block_size_ + bj];
             }
           }
         }
