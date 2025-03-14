@@ -105,8 +105,8 @@ TEST(vavilov_v_cannon_tbb, test_invalid_size_1) {
   ASSERT_FALSE(task_tbb.Validation());
 }
 
-TEST(vavilov_v_cannon_tbb, test_225) {
-  constexpr int kN = 225;
+TEST(vavilov_v_cannon_tbb, test_256) {
+  constexpr int kN = 256;
   std::vector<double> a(kN * kN, 1.0);
   std::vector<double> b(kN * kN, 1.0);
   std::vector<double> c(kN * kN, 0.0);
@@ -132,7 +132,7 @@ TEST(vavilov_v_cannon_tbb, test_225) {
 }
 
 TEST(vavilov_v_cannon_tbb, test_identity_matrix) {
-  constexpr int kN = 225;
+  constexpr int kN = 256;
   std::vector<double> a(kN * kN, 1.0);
   std::vector<double> b(kN * kN, 0.0);
   std::vector<double> c(kN * kN, 0.0);
@@ -163,7 +163,7 @@ TEST(vavilov_v_cannon_tbb, test_identity_matrix) {
 }
 
 TEST(vavilov_v_cannon_tbb, test_zero_matrix) {
-  constexpr int kN = 225;
+  constexpr int kN = 256;
   std::vector<double> a(kN * kN, 1.0);
   std::vector<double> b(kN * kN, 0.0);
   std::vector<double> c(kN * kN, 0.0);
