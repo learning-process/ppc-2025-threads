@@ -26,7 +26,7 @@ bool vavilov_v_cannon_all::CannonALL::ValidationImpl() {
          task_data->outputs_count[0] == task_data->inputs_count[0];
 }
 
-void vavilov_v_cannon_all::CannonALL::InitialShift(mpi::communicator &world) {
+void vavilov_v_cannon_all::CannonALL::InitialShift() {
   int row = rank_ / grid_size_;
   int col = rank_ % grid_size_;
 
@@ -58,7 +58,7 @@ void vavilov_v_cannon_all::CannonALL::BlockMultiply() {
   }
 }
 
-void vavilov_v_cannon_all::CannonALL::ShiftBlocks(mpi::communicator &world) {
+void vavilov_v_cannon_all::CannonALL::ShiftBlocks() {
   int row = rank_ / grid_size_;
   int col = rank_ % grid_size_;
 
@@ -133,10 +133,10 @@ bool vavilov_v_cannon_all::CannonALL::RunImpl() {
     world.recv(0, 1, local_B_);
   }
 
-  InitialShift(world);
+  InitialShift();
   for (int iter = 0; iter < grid_size_; ++iter) {
     BlockMultiply();
-    ShiftBlocks(world);
+    ShiftBlocks();
   }
 
   if (rank_ == 0) {
