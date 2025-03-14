@@ -5,9 +5,9 @@
 #include <memory>
 #include <vector>
 
+#include "all/vavilov_v_cannon/include/ops_all.hpp"
 #include "core/perf/include/perf.hpp"
 #include "core/task/include/task.hpp"
-#include "all/vavilov_v_cannon/include/ops_all.hpp"
 
 TEST(vavilov_v_cannon_all, test_pipeline_run) {
   constexpr int kN = 625;
