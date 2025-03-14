@@ -51,28 +51,30 @@ bool filatev_v_foks_omp::Focks::RunImpl() {
   int grid_size = (int)(size_ / size_block_);
 
 #pragma omp parallel for
-  for (int step = 0; step < grid_size; ++step) {
-    for (int i = 0; i < grid_size; ++i) {
-      for (int j = 0; j < grid_size; ++j) {
-        size_t root = (i + step) % grid_size;
-        std::vector<double> local_block(size_block_ * size_block_, 0);
-        for (size_t bi = 0; bi < size_block_; ++bi) {
-          for (size_t bj = 0; bj < size_block_; ++bj) {
-            for (size_t bk = 0; bk < size_block_; ++bk) {
-              local_block[(bi * size_block_) + bj] +=
-                  matrix_a_[((i * size_block_ + bi) * size_) + (root * size_block_) + bk] *
-                  matrix_b_[((root * size_block_ + bk) * size_) + (j * size_block_) + bj];
-            }
-          }
+  for (int step_i_j = 0; step_i_j < grid_size * grid_size * grid_size; ++step_i_j) {
+    int step = step_i_j / (grid_size * grid_size);
+    int i = (step_i_j % (grid_size * grid_size)) / grid_size;
+    int j = step_i_j % grid_size;
+
+    size_t root = (i + step) % grid_size;
+    std::vector<double> local_block(size_block_ * size_block_, 0);
+
+    for (size_t bi = 0; bi < size_block_; ++bi) {
+      for (size_t bj = 0; bj < size_block_; ++bj) {
+        for (size_t bk = 0; bk < size_block_; ++bk) {
+          local_block[bi * size_block_ + bj] +=
+            matrix_a_[((i * size_block_ + bi) * size_) + (root * size_block_) + bk] *
+            matrix_b_[((root * size_block_ + bk) * size_) + (j * size_block_) + bj];
         }
+      }
+    }
+
 #pragma omp critical
-        {
-          for (size_t bi = 0; bi < size_block_; ++bi) {
-            for (size_t bj = 0; bj < size_block_; ++bj) {
-              matrix_c_[((i * size_block_ + bi) * size_) + (j * size_block_) + bj] +=
-                  local_block[(bi * size_block_) + bj];
-            }
-          }
+    {
+      for (size_t bi = 0; bi < size_block_; ++bi) {
+        for (size_t bj = 0; bj < size_block_; ++bj) {
+          matrix_c_[((i * size_block_ + bi) * size_) + (j * size_block_) + bj] +=
+            local_block[bi * size_block_ + bj];
         }
       }
     }
