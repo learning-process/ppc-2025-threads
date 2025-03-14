@@ -16,7 +16,7 @@ struct MatrixSize {
     n = 0;
     m = 0;
   }
-  MatrixSize(size_t n_, size_t m_) : n(n_), m(m_) {}
+  MatrixSize(size_t n, size_t m) : n(n), m(m) {}
 };
 
 class Focks : public ppc::core::Task {

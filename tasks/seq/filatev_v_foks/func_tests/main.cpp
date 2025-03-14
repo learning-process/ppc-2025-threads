@@ -3,17 +3,18 @@
 #include <cstddef>
 #include <cstdint>
 #include <random>
+#include <memory> 
 #include <vector>
 
 #include "core/task/include/task.hpp"
 #include "seq/filatev_v_foks/include/ops_seq.hpp"
 
-namespace filatev_v_foks_seq {
+namespace {
 
-std::vector<double> static GeneratMatrix(filatev_v_foks_seq::MatrixSize size);
-std::vector<double> static IdentityMatrix(size_t size);
+std::vector<double> GeneratMatrix(filatev_v_foks_seq::MatrixSize size);
+std::vector<double> IdentityMatrix(size_t size);
 
-std::vector<double> static GeneratMatrix(filatev_v_foks_seq::MatrixSize size) {
+std::vector<double> GeneratMatrix(filatev_v_foks_seq::MatrixSize size) {
   std::vector<double> matrix(size.n * size.m);
 
   std::random_device rd;
@@ -27,7 +28,7 @@ std::vector<double> static GeneratMatrix(filatev_v_foks_seq::MatrixSize size) {
   return matrix;
 }
 
-std::vector<double> static IdentityMatrix(size_t size) {
+std::vector<double> IdentityMatrix(size_t size) {
   std::vector<double> matrix(size * size, 0);
 
   for (size_t i = 0; i < size; i++) {
@@ -37,7 +38,7 @@ std::vector<double> static IdentityMatrix(size_t size) {
   return matrix;
 }
 
-}  // namespace filatev_v_foks_seq
+}  // namespace
 
 TEST(filatev_v_foks_seq, test_1) {
   filatev_v_foks_seq::MatrixSize size_a(4, 4);
@@ -156,8 +157,8 @@ TEST(filatev_v_foks_seq, test_10) {
 
   size_t size_block = 2;
 
-  std::vector<double> matrix_a = filatev_v_foks_seq::GeneratMatrix(size_a);
-  std::vector<double> matrix_b = filatev_v_foks_seq::IdentityMatrix(size_b.n);
+  std::vector<double> matrix_a = GeneratMatrix(size_a);
+  std::vector<double> matrix_b = IdentityMatrix(size_b.n);
   std::vector<double> matrix_c(size_c.n * size_c.m, 0.0);
 
   auto task_data = std::make_shared<ppc::core::TaskData>();
@@ -191,8 +192,8 @@ TEST(filatev_v_foks_seq, test_10_5) {
 
   size_t size_block = 5;
 
-  std::vector<double> matrix_a = filatev_v_foks_seq::GeneratMatrix(size_a);
-  std::vector<double> matrix_b = filatev_v_foks_seq::IdentityMatrix(size_b.n);
+  std::vector<double> matrix_a = GeneratMatrix(size_a);
+  std::vector<double> matrix_b = IdentityMatrix(size_b.n);
   std::vector<double> matrix_c(size_c.n * size_c.m, 0.0);
 
   auto task_data = std::make_shared<ppc::core::TaskData>();
