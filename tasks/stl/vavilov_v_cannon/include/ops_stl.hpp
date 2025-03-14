@@ -10,8 +10,7 @@
 namespace vavilov_v_cannon_stl {
 class CannonSTL : public ppc::core::Task {
  public:
-  explicit CannonSTL(std::shared_ptr<ppc::core::TaskData> task_data)
-      : Task(std::move(task_data)) {}
+  explicit CannonSTL(std::shared_ptr<ppc::core::TaskData> task_data) : Task(std::move(task_data)) {}
 
   bool PreProcessingImpl() override;
   bool ValidationImpl() override;
