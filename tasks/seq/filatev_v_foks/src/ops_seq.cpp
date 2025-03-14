@@ -47,15 +47,15 @@ bool filatev_v_foks_seq::Focks::ValidationImpl() {
 bool filatev_v_foks_seq::Focks::RunImpl() {
   matrix_c_.assign(size_ * size_, 0);
 
-  int gridSize = size_ / size_block_;
+  size_t gridSize = size_ / size_block_;
 
-  for (int step = 0; step < gridSize; ++step) {
-    for (int i = 0; i < gridSize; ++i) {
-      for (int j = 0; j < gridSize; ++j) {
-        int root = (i + step) % gridSize;
-        for (int bi = 0; bi < size_block_; ++bi) {
-          for (int bj = 0; bj < size_block_; ++bj) {
-            for (int bk = 0; bk < size_block_; ++bk) {
+  for (size_t step = 0; step < gridSize; ++step) {
+    for (size_t i = 0; i < gridSize; ++i) {
+      for (size_t j = 0; j < gridSize; ++j) {
+        size_t root = (i + step) % gridSize;
+        for (size_t bi = 0; bi < size_block_; ++bi) {
+          for (size_t bj = 0; bj < size_block_; ++bj) {
+            for (size_t bk = 0; bk < size_block_; ++bk) {
               matrix_c_[(i * size_block_ + bi) * size_ + j * size_block_ + bj] +=
                   matrix_a_[(i * size_block_ + bi) * size_ + root * size_block_ + bk] *
                   matrix_b_[(root * size_block_ + bk) * size_ + j * size_block_ + bj];
