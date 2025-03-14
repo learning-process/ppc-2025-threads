@@ -11,7 +11,7 @@
 
 bool vavilov_v_cannon_tbb::CannonTBB::PreProcessingImpl() {
   N_ = static_cast<int>(std::sqrt(task_data->inputs_count[0]));
-  num_blocks_ = static_cast<int>(std::sqrt(N_));;
+  num_blocks_ = static_cast<int>(std::sqrt(N_));
   block_size_ = N_ / num_blocks_;
 
   auto* a = reinterpret_cast<double*>(task_data->inputs[0]);
