@@ -10,58 +10,49 @@
 #include <span>
 #include <vector>
 
-int korovin_n_qsort_batcher_omp::TestTaskOpenMP::GetRandomIndex(int low, int high) {
+namespace korovin_n_qsort_batcher_omp {
+
+int TestTaskOpenMP::GetRandomIndex(int low, int high) {
   static thread_local std::mt19937 gen(std::random_device{}());
   std::uniform_int_distribution<int> dist(low, high);
   return dist(gen);
 }
 
-void korovin_n_qsort_batcher_omp::TestTaskOpenMP::QuickSort(std::vector<int>& arr, int low, int high, int depth) {
-  if (low >= high) {
+void TestTaskOpenMP::QuickSort(std::vector<int>::iterator low, std::vector<int>::iterator high, int depth) {
+  if (std::distance(low, high) <= 1) {
     return;
   }
 
-  int partition_index = GetRandomIndex(low, high);
-  int partition_value = arr[partition_index];
-
-  auto partition_iter = std::partition(arr.begin() + low, arr.begin() + high + 1,
-                                       [partition_value](const int& elem) { return elem <= partition_value; });
-  auto mid_iter = std::partition(arr.begin() + low, partition_iter,
-                                 [partition_value](const int& elem) { return elem < partition_value; });
-
-  int i = static_cast<int>(std::distance(arr.begin(), mid_iter));
-  int j = static_cast<int>(std::distance(arr.begin(), partition_iter) - 1);
+  int n = static_cast<int>(std::distance(low, high));
+  int random_index = GetRandomIndex(0, n - 1);
+  auto pivot_iter = low + random_index;
+  int pivot = *pivot_iter;
+  auto partition_iter = std::partition(low, high, [pivot](int elem) { return elem <= pivot; });
+  auto mid_iter = std::partition(low, partition_iter, [pivot](int elem) { return elem < pivot; });
 
   int max_depth = static_cast<int>(std::log2(omp_get_num_threads())) + 1;
 
   if (depth < max_depth) {
-#ifdef _MSC_VER
 #pragma omp parallel sections
     {
 #pragma omp section
-      { QuickSort(arr, low, i - 1, depth + 1); }
+      { QuickSort(low, mid_iter, depth + 1); }
 #pragma omp section
-      { QuickSort(arr, j + 1, high, depth + 1); }
+      { QuickSort(partition_iter, high, depth + 1); }
     }
-#else
-#pragma omp task shared(arr)
-    QuickSort(arr, low, i - 1, depth + 1);
-#pragma omp task shared(arr)
-    QuickSort(arr, j + 1, high, depth + 1);
-#pragma omp taskwait
-#endif
   } else {
-    QuickSort(arr, low, i - 1, depth + 1);
-    QuickSort(arr, j + 1, high, depth + 1);
+    QuickSort(low, mid_iter, depth + 1);
+    QuickSort(partition_iter, high, depth + 1);
   }
 }
 
-bool korovin_n_qsort_batcher_omp::TestTaskOpenMP::InPlaceMerge(std::vector<int>& arr, const BlockRange& a,
-                                                               const BlockRange& b, std::vector<int>& buffer) {
+bool TestTaskOpenMP::InPlaceMerge(const BlockRange& a, const BlockRange& b, std::vector<int>& buffer) {
   bool changed = false;
+  int len_a = static_cast<int>(std::distance(a.low, a.high));
+  int len_b = static_cast<int>(std::distance(b.low, b.high));
 
-  std::span<int> span_a{arr.begin() + a.start, static_cast<size_t>(a.length)};
-  std::span<int> span_b{arr.begin() + b.start, static_cast<size_t>(b.length)};
+  std::span<int> span_a{a.low, static_cast<size_t>(len_a)};
+  std::span<int> span_b{b.low, static_cast<size_t>(len_b)};
 
   size_t i = 0;
   size_t j = 0;
@@ -82,28 +73,28 @@ bool korovin_n_qsort_batcher_omp::TestTaskOpenMP::InPlaceMerge(std::vector<int>&
     changed = true;
     buffer[k++] = span_b[j++];
   }
-  std::ranges::copy(buffer.begin(), buffer.begin() + a.length, span_a.begin());
-  std::ranges::copy(buffer.begin() + a.length, buffer.begin() + a.length + b.length, span_b.begin());
+  std::ranges::copy(buffer.begin(), buffer.begin() + len_a, a.low);
+  std::ranges::copy(buffer.begin() + len_a, buffer.begin() + len_a + len_b, b.low);
 
   return changed;
 }
 
-std::vector<korovin_n_qsort_batcher_omp::BlockRange> korovin_n_qsort_batcher_omp::TestTaskOpenMP::PartitionBlocks(
-    int n, int p) {
+std::vector<BlockRange> TestTaskOpenMP::PartitionBlocks(std::vector<int>& arr, int p) {
   std::vector<BlockRange> blocks;
   blocks.reserve(p);
+  int n = static_cast<int>(arr.size());
   int chunk_size = n / p;
   int remainder = n % p;
-  int start = 0;
+  auto it = arr.begin();
   for (int i = 0; i < p; i++) {
     int size = chunk_size + (i < remainder ? 1 : 0);
-    blocks.push_back({start, size});
-    start += size;
+    blocks.push_back({it, it + size});
+    it += size;
   }
   return blocks;
 }
 
-void korovin_n_qsort_batcher_omp::TestTaskOpenMP::OddEvenMerge(std::vector<BlockRange>& blocks) {
+void TestTaskOpenMP::OddEvenMerge(std::vector<BlockRange>& blocks) {
   if (blocks.size() <= 1) {
     return;
   }
@@ -111,7 +102,7 @@ void korovin_n_qsort_batcher_omp::TestTaskOpenMP::OddEvenMerge(std::vector<Block
   int max_iters = p * 2;
   int max_block_len = 0;
   for (const auto& b : blocks) {
-    max_block_len = std::max(max_block_len, b.length);
+    max_block_len = std::max(max_block_len, static_cast<int>(std::distance(b.low, b.high)));
   }
   int buffer_size = max_block_len * 2;
 
@@ -125,7 +116,7 @@ void korovin_n_qsort_batcher_omp::TestTaskOpenMP::OddEvenMerge(std::vector<Block
 #pragma omp parallel for schedule(static) reduction(|| : changed_global)
         for (int b = iter % 2; b < p; b += 2) {
           if (b + 1 < p) {
-            bool changed_local = InPlaceMerge(input_, blocks[b], blocks[b + 1], buffer);
+            bool changed_local = InPlaceMerge(blocks[b], blocks[b + 1], buffer);
             changed_global = changed_global || changed_local;
           }
         }
@@ -137,38 +128,37 @@ void korovin_n_qsort_batcher_omp::TestTaskOpenMP::OddEvenMerge(std::vector<Block
   }
 }
 
-bool korovin_n_qsort_batcher_omp::TestTaskOpenMP::PreProcessingImpl() {
+bool TestTaskOpenMP::PreProcessingImpl() {
   unsigned int input_size = task_data->inputs_count[0];
   auto* in_ptr = reinterpret_cast<int*>(task_data->inputs[0]);
   input_.assign(in_ptr, in_ptr + input_size);
   return true;
 }
 
-bool korovin_n_qsort_batcher_omp::TestTaskOpenMP::ValidationImpl() {
+bool TestTaskOpenMP::ValidationImpl() {
   return (!task_data->inputs.empty()) && (!task_data->outputs.empty()) &&
          (task_data->inputs_count[0] == task_data->outputs_count[0]);
 }
 
-bool korovin_n_qsort_batcher_omp::TestTaskOpenMP::RunImpl() {
+bool TestTaskOpenMP::RunImpl() {
   int n = static_cast<int>(input_.size());
   if (n <= 1) {
     return true;
   }
   int num_threads = omp_get_max_threads();
   int p = std::max(num_threads / 2, 1);
-  std::vector<BlockRange> blocks = PartitionBlocks(n, p);
+  std::vector<BlockRange> blocks = PartitionBlocks(input_, p);
 
 #pragma omp parallel for schedule(static)
   for (int i = 0; i < p; i++) {
-    int start = blocks[i].start;
-    int end = start + blocks[i].length - 1;
-    QuickSort(input_, start, end, 0);
+    QuickSort(blocks[i].low, blocks[i].high, 0);
   }
   OddEvenMerge(blocks);
   return true;
 }
 
-bool korovin_n_qsort_batcher_omp::TestTaskOpenMP::PostProcessingImpl() {
+bool TestTaskOpenMP::PostProcessingImpl() {
   std::ranges::copy(input_, reinterpret_cast<int*>(task_data->outputs[0]));
   return true;
 }
+}  // namespace korovin_n_qsort_batcher_omp

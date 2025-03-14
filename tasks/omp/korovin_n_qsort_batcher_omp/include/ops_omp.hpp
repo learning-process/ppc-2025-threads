@@ -8,8 +8,8 @@
 namespace korovin_n_qsort_batcher_omp {
 
 struct BlockRange {
-  int start;
-  int length;
+  std::vector<int>::iterator low;
+  std::vector<int>::iterator high;
 };
 
 class TestTaskOpenMP : public ppc::core::Task {
@@ -24,9 +24,9 @@ class TestTaskOpenMP : public ppc::core::Task {
  private:
   std::vector<int> input_;
   static int GetRandomIndex(int low, int high);
-  static void QuickSort(std::vector<int>& arr, int low, int high, int depth = 0);
-  static bool InPlaceMerge(std::vector<int>& arr, const BlockRange& a, const BlockRange& b, std::vector<int>& buffer);
-  static std::vector<BlockRange> PartitionBlocks(int n, int p);
+  static void QuickSort(std::vector<int>::iterator low, std::vector<int>::iterator high, int depth = 0);
+  static bool InPlaceMerge(const BlockRange& a, const BlockRange& b, std::vector<int>& buffer);
+  static std::vector<BlockRange> PartitionBlocks(std::vector<int>& arr, int p);
   void OddEvenMerge(std::vector<BlockRange>& blocks);
 };
 

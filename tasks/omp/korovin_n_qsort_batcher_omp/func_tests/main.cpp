@@ -31,14 +31,12 @@ std::vector<int> GenerateRndVector(GenParams param) {
 void RunTest(std::vector<int> &in) {
   std::vector<int> out(in.size());
 
-  // Create task_data
   auto task_data_omp = std::make_shared<ppc::core::TaskData>();
   task_data_omp->inputs.emplace_back(reinterpret_cast<uint8_t *>(in.data()));
   task_data_omp->inputs_count.emplace_back(in.size());
   task_data_omp->outputs.emplace_back(reinterpret_cast<uint8_t *>(out.data()));
   task_data_omp->outputs_count.emplace_back(out.size());
 
-  // Create Task
   korovin_n_qsort_batcher_omp::TestTaskOpenMP test_task_omp(task_data_omp);
   ASSERT_TRUE(test_task_omp.Validation());
   ASSERT_TRUE(test_task_omp.PreProcessing());
@@ -49,31 +47,26 @@ void RunTest(std::vector<int> &in) {
 }  // namespace
 
 TEST(korovin_n_qsort_batcher_omp, test_unsort) {
-  // Create data
   std::vector<int> in = {11, 5, 1, 42, 3, 8, 7, 25, 6};
   RunTest(in);
 }
 
 TEST(korovin_n_qsort_batcher_omp, test_empty_sort) {
-  // Create data
   std::vector<int> in = {};
   RunTest(in);
 }
 
 TEST(korovin_n_qsort_batcher_omp, test_one_el_sort) {
-  // Create data
   std::vector<int> in = {42};
   RunTest(in);
 }
 
 TEST(korovin_n_qsort_batcher_omp, test_already_sort) {
-  // Create data
   std::vector<int> in = {1, 2, 3, 4, 5, 6};
   RunTest(in);
 }
 
 TEST(korovin_n_qsort_batcher_omp, test_random_sort) {
-  // Create data
   auto param = GenParams();
   param.size = 20;
 
@@ -82,7 +75,6 @@ TEST(korovin_n_qsort_batcher_omp, test_random_sort) {
 }
 
 TEST(korovin_n_qsort_batcher_omp, test_random_sort_100) {
-  // Create data
   auto param = GenParams();
   param.size = 100;
 
@@ -91,7 +83,6 @@ TEST(korovin_n_qsort_batcher_omp, test_random_sort_100) {
 }
 
 TEST(korovin_n_qsort_batcher_omp, test_random_sort_500) {
-  // Create data
   auto param = GenParams();
   param.size = 500;
 
@@ -100,7 +91,6 @@ TEST(korovin_n_qsort_batcher_omp, test_random_sort_500) {
 }
 
 TEST(korovin_n_qsort_batcher_omp, test_random_sort_1000) {
-  // Create data
   auto param = GenParams();
   param.size = 1000;
 
