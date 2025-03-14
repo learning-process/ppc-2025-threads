@@ -27,10 +27,10 @@ bool filatev_v_foks_seq::Focks::PreProcessingImpl() {
   auto *temp_a = reinterpret_cast<double *>(task_data->inputs[0]);
   auto *temp_b = reinterpret_cast<double *>(task_data->inputs[1]);
 
-  for (int i = 0; i < size_a_.m; ++i) {
+  for (size_t i = 0; i < size_a_.m; ++i) {
     std::copy(temp_a + i * size_a_.n, temp_a + (i + 1) * size_a_.n, matrix_a_.data() + i * size_);
   }
-  for (int i = 0; i < size_b_.m; ++i) {
+  for (size_t i = 0; i < size_b_.m; ++i) {
     std::copy(temp_b + i * size_b_.n, temp_b + (i + 1) * size_b_.n, matrix_b_.data() + i * size_);
   }
 
@@ -71,7 +71,7 @@ bool filatev_v_foks_seq::Focks::RunImpl() {
 
 bool filatev_v_foks_seq::Focks::PostProcessingImpl() {
   auto *temp = reinterpret_cast<double *>(task_data->outputs[0]);
-  for (int i = 0; i < size_c_.m; ++i) {
+  for (size_t i = 0; i < size_c_.m; ++i) {
     std::copy(matrix_c_.data() + i * size_, matrix_c_.data() + i * size_ + size_c_.n, temp + i * size_c_.n);
   }
   return true;
