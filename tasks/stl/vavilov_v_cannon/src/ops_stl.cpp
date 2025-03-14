@@ -38,11 +38,9 @@ void vavilov_v_cannon_stl::CannonSTL::InitialShift() {
         for (int i = 0; i < block_size_; ++i) {
           for (int j = 0; j < block_size_; ++j) {
             B_[(((bi * block_size_) + i) * N_) + ((bj * block_size_) + j)] =
-                b_tmp[(((src_row * block_size_) + i) * N_) +
-                      ((bj * block_size_) + j)];
+                b_tmp[(((src_row * block_size_) + i) * N_) + ((bj * block_size_) + j)];
             A_[(((bi * block_size_) + i) * N_) + ((bj * block_size_) + j)] =
-                a_tmp[(((bi * block_size_) + i) * N_) +
-                      ((src_col * block_size_) + j)];
+                a_tmp[(((bi * block_size_) + i) * N_) + ((src_col * block_size_) + j)];
           }
         }
       }
@@ -50,7 +48,7 @@ void vavilov_v_cannon_stl::CannonSTL::InitialShift() {
   };
 
   int num_threads = std::thread::hardware_concurrency();
-  int blocks_per_thread = (num_blocks_ + num_threads - 1) / num_threads; // Ceiling division
+  int blocks_per_thread = (num_blocks_ + num_threads - 1) / num_threads;
   for (int t = 0; t < num_threads; ++t) {
     int start = t * blocks_per_thread;
     int end = std::min(start + blocks_per_thread, num_blocks_);
@@ -91,7 +89,7 @@ void vavilov_v_cannon_stl::CannonSTL::BlockMultiply() {
   };
 
   int num_threads = std::thread::hardware_concurrency();
-  int blocks_per_thread = (num_blocks_ + num_threads - 1) / num_threads; // Ceiling division
+  int blocks_per_thread = (num_blocks_ + num_threads - 1) / num_threads;
   for (int t = 0; t < num_threads; ++t) {
     int start = t * blocks_per_thread;
     int end = std::min(start + blocks_per_thread, num_blocks_);
@@ -117,11 +115,9 @@ void vavilov_v_cannon_stl::CannonSTL::ShiftBlocks() {
         for (int i = 0; i < block_size_; ++i) {
           for (int j = 0; j < block_size_; ++j) {
             B_[(((bi * block_size_) + i) * N_) + ((bj * block_size_) + j)] =
-                b_tmp[(((src_row * block_size_) + i) * N_) +
-                      ((bj * block_size_) + j)];
+                b_tmp[(((src_row * block_size_) + i) * N_) + ((bj * block_size_) + j)];
             A_[(((bi * block_size_) + i) * N_) + ((bj * block_size_) + j)] =
-                a_tmp[(((bi * block_size_) + i) * N_) +
-                      ((src_col * block_size_) + j)];
+                a_tmp[(((bi * block_size_) + i) * N_) + ((src_col * block_size_) + j)];
           }
         }
       }
@@ -129,7 +125,7 @@ void vavilov_v_cannon_stl::CannonSTL::ShiftBlocks() {
   };
 
   int num_threads = std::thread::hardware_concurrency();
-  int blocks_per_thread = (num_blocks_ + num_threads - 1) / num_threads; // Ceiling division
+  int blocks_per_thread = (num_blocks_ + num_threads - 1) / num_threads;
   for (int t = 0; t < num_threads; ++t) {
     int start = t * blocks_per_thread;
     int end = std::min(start + blocks_per_thread, num_blocks_);
