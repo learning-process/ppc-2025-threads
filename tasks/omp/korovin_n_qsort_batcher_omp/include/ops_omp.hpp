@@ -27,7 +27,7 @@ class TestTaskOpenMP : public ppc::core::Task {
   static void QuickSort(std::vector<int>::iterator low, std::vector<int>::iterator high, int depth = 0);
   static bool InPlaceMerge(const BlockRange& a, const BlockRange& b, std::vector<int>& buffer);
   static std::vector<BlockRange> PartitionBlocks(std::vector<int>& arr, int p);
-  void OddEvenMerge(std::vector<BlockRange>& blocks);
+  static void OddEvenMerge(std::vector<BlockRange>& blocks);
 };
 
 }  // namespace korovin_n_qsort_batcher_omp
