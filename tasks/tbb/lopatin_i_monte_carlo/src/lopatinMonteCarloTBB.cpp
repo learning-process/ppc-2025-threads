@@ -5,11 +5,12 @@
 #include <algorithm>
 #include <cmath>
 #include <cstddef>
+#include <cstdint>
 #include <ctime>
+#include <functional>
 #include <random>
 #include <vector>
 
-#include "core/task/include/task.hpp"
 #include "core/util/include/util.hpp"
 #include "oneapi/tbb/parallel_reduce.h"
 #include "oneapi/tbb/task_arena.h"
