@@ -12,10 +12,10 @@
 
 namespace filatev_v_foks_seq {
 
-std::vector<double> GeneratMatrix(filatev_v_foks_seq::matrix_size size);
-std::vector<double> IdentityMatrix(size_t size);
+std::vector<double> static GeneratMatrix(filatev_v_foks_seq::MatrixSize size);
+std::vector<double> static IdentityMatrix(size_t size);
 
-std::vector<double> GeneratMatrix(filatev_v_foks_seq::matrix_size size) {
+std::vector<double> static GeneratMatrix(filatev_v_foks_seq::MatrixSize size) {
   std::vector<double> matrix(size.n * size.m);
 
   std::random_device rd;
@@ -29,11 +29,11 @@ std::vector<double> GeneratMatrix(filatev_v_foks_seq::matrix_size size) {
   return matrix;
 }
 
-std::vector<double> IdentityMatrix(size_t size) {
+std::vector<double> static IdentityMatrix(size_t size) {
   std::vector<double> matrix(size * size, 0);
 
   for (size_t i = 0; i < size; i++) {
-    matrix[i * size + i] = 1;
+    matrix[(i * size) + i] = 1;
   }
 
   return matrix;
@@ -44,9 +44,9 @@ std::vector<double> IdentityMatrix(size_t size) {
 TEST(filatev_v_foks_seq, test_pipeline_run) {
   constexpr int kCount = 500;
 
-  filatev_v_foks_seq::matrix_size size_a{kCount, kCount};
-  filatev_v_foks_seq::matrix_size size_b{kCount, kCount};
-  filatev_v_foks_seq::matrix_size size_c{kCount, kCount};
+  filatev_v_foks_seq::MatrixSize size_a(kCount, kCount);
+  filatev_v_foks_seq::MatrixSize size_b(kCount, kCount);
+  filatev_v_foks_seq::MatrixSize size_c(kCount, kCount);
 
   size_t size_block = 30;
 
@@ -96,9 +96,9 @@ TEST(filatev_v_foks_seq, test_pipeline_run) {
 TEST(filatev_v_foks_seq, test_task_run) {
   constexpr int kCount = 500;
 
-  filatev_v_foks_seq::matrix_size size_a{kCount, kCount};
-  filatev_v_foks_seq::matrix_size size_b{kCount, kCount};
-  filatev_v_foks_seq::matrix_size size_c{kCount, kCount};
+  filatev_v_foks_seq::MatrixSize size_a(kCount, kCount);
+  filatev_v_foks_seq::MatrixSize size_b(kCount, kCount);
+  filatev_v_foks_seq::MatrixSize size_c(kCount, kCount);
 
   size_t size_block = 30;
 

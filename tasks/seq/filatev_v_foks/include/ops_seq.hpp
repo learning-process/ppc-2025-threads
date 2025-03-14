@@ -1,5 +1,6 @@
 #pragma once
 
+#include <cstddef>
 #include <utility>
 #include <vector>
 
@@ -7,9 +8,15 @@
 
 namespace filatev_v_foks_seq {
 
-struct matrix_size {
+struct MatrixSize {
   size_t n;
   size_t m;
+
+  MatrixSize() {
+    n = 0;
+    m = 0;
+  }
+  MatrixSize(size_t n_, size_t m_) : n(n_), m(m_) {}
 };
 
 class Focks : public ppc::core::Task {
@@ -21,9 +28,9 @@ class Focks : public ppc::core::Task {
   bool PostProcessingImpl() override;
 
  private:
-  matrix_size size_a_{};
-  matrix_size size_b_{};
-  matrix_size size_c_{};
+  MatrixSize size_a_;
+  MatrixSize size_b_;
+  MatrixSize size_c_;
 
   size_t size_block_{};
   size_t size_{};

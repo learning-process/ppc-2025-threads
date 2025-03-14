@@ -6,15 +6,14 @@
 #include <vector>
 
 #include "core/task/include/task.hpp"
-#include "core/util/include/util.hpp"
 #include "seq/filatev_v_foks/include/ops_seq.hpp"
 
 namespace filatev_v_foks_seq {
 
-std::vector<double> GeneratMatrix(filatev_v_foks_seq::matrix_size size);
-std::vector<double> IdentityMatrix(size_t size);
+std::vector<double> static GeneratMatrix(filatev_v_foks_seq::MatrixSize size);
+std::vector<double> static IdentityMatrix(size_t size);
 
-std::vector<double> GeneratMatrix(filatev_v_foks_seq::matrix_size size) {
+std::vector<double> static GeneratMatrix(filatev_v_foks_seq::MatrixSize size) {
   std::vector<double> matrix(size.n * size.m);
 
   std::random_device rd;
@@ -28,11 +27,11 @@ std::vector<double> GeneratMatrix(filatev_v_foks_seq::matrix_size size) {
   return matrix;
 }
 
-std::vector<double> IdentityMatrix(size_t size) {
+std::vector<double> static IdentityMatrix(size_t size) {
   std::vector<double> matrix(size * size, 0);
 
   for (size_t i = 0; i < size; i++) {
-    matrix[i * size + i] = 1;
+    matrix[(i * size) + i] = 1;
   }
 
   return matrix;
@@ -41,9 +40,9 @@ std::vector<double> IdentityMatrix(size_t size) {
 }  // namespace filatev_v_foks_seq
 
 TEST(filatev_v_foks_seq, test_1) {
-  filatev_v_foks_seq::matrix_size size_a{4, 4};
-  filatev_v_foks_seq::matrix_size size_b{4, 4};
-  filatev_v_foks_seq::matrix_size size_c{4, 4};
+  filatev_v_foks_seq::MatrixSize size_a(4, 4);
+  filatev_v_foks_seq::MatrixSize size_b(4, 4);
+  filatev_v_foks_seq::MatrixSize size_c(4, 4);
 
   size_t size_block = 2;
 
@@ -79,9 +78,9 @@ TEST(filatev_v_foks_seq, test_1) {
 }
 
 TEST(filatev_v_foks_seq, test_2) {
-  filatev_v_foks_seq::matrix_size size_a{4, 4};
-  filatev_v_foks_seq::matrix_size size_b{4, 4};
-  filatev_v_foks_seq::matrix_size size_c{4, 4};
+  filatev_v_foks_seq::MatrixSize size_a(4, 4);
+  filatev_v_foks_seq::MatrixSize size_b(4, 4);
+  filatev_v_foks_seq::MatrixSize size_c(4, 4);
 
   size_t size_block = 3;
 
@@ -116,9 +115,9 @@ TEST(filatev_v_foks_seq, test_2) {
 }
 
 TEST(filatev_v_foks_seq, test_3) {
-  filatev_v_foks_seq::matrix_size size_a{4, 4};
-  filatev_v_foks_seq::matrix_size size_b{4, 4};
-  filatev_v_foks_seq::matrix_size size_c{4, 4};
+  filatev_v_foks_seq::MatrixSize size_a(4, 4);
+  filatev_v_foks_seq::MatrixSize size_b(4, 4);
+  filatev_v_foks_seq::MatrixSize size_c(4, 4);
 
   size_t size_block = 2;
 
@@ -151,9 +150,9 @@ TEST(filatev_v_foks_seq, test_3) {
 }
 
 TEST(filatev_v_foks_seq, test_10) {
-  filatev_v_foks_seq::matrix_size size_a{10, 10};
-  filatev_v_foks_seq::matrix_size size_b{10, 10};
-  filatev_v_foks_seq::matrix_size size_c{10, 10};
+  filatev_v_foks_seq::MatrixSize size_a(10, 10);
+  filatev_v_foks_seq::MatrixSize size_b(10, 10);
+  filatev_v_foks_seq::MatrixSize size_c(10, 10);
 
   size_t size_block = 2;
 
@@ -186,9 +185,9 @@ TEST(filatev_v_foks_seq, test_10) {
 }
 
 TEST(filatev_v_foks_seq, test_10_5) {
-  filatev_v_foks_seq::matrix_size size_a{10, 10};
-  filatev_v_foks_seq::matrix_size size_b{10, 10};
-  filatev_v_foks_seq::matrix_size size_c{10, 10};
+  filatev_v_foks_seq::MatrixSize size_a(10, 10);
+  filatev_v_foks_seq::MatrixSize size_b(10, 10);
+  filatev_v_foks_seq::MatrixSize size_c(10, 10);
 
   size_t size_block = 5;
 
@@ -221,9 +220,9 @@ TEST(filatev_v_foks_seq, test_10_5) {
 }
 
 TEST(filatev_v_foks_seq, test_4_3) {
-  filatev_v_foks_seq::matrix_size size_a{3, 4};
-  filatev_v_foks_seq::matrix_size size_b{4, 3};
-  filatev_v_foks_seq::matrix_size size_c{4, 4};
+  filatev_v_foks_seq::MatrixSize size_a(3, 4);
+  filatev_v_foks_seq::MatrixSize size_b(4, 3);
+  filatev_v_foks_seq::MatrixSize size_c(4, 4);
 
   size_t size_block = 2;
 
@@ -258,9 +257,9 @@ TEST(filatev_v_foks_seq, test_4_3) {
 }
 
 TEST(filatev_v_foks_seq, test_4_1) {
-  filatev_v_foks_seq::matrix_size size_a{1, 4};
-  filatev_v_foks_seq::matrix_size size_b{4, 1};
-  filatev_v_foks_seq::matrix_size size_c{4, 4};
+  filatev_v_foks_seq::MatrixSize size_a(1, 4);
+  filatev_v_foks_seq::MatrixSize size_b(4, 1);
+  filatev_v_foks_seq::MatrixSize size_c(4, 4);
 
   size_t size_block = 2;
 
@@ -295,9 +294,9 @@ TEST(filatev_v_foks_seq, test_4_1) {
 }
 
 TEST(filatev_v_foks_seq, test_error_1) {
-  filatev_v_foks_seq::matrix_size size_a{1, 4};
-  filatev_v_foks_seq::matrix_size size_b{1, 4};
-  filatev_v_foks_seq::matrix_size size_c{4, 4};
+  filatev_v_foks_seq::MatrixSize size_a(1, 4);
+  filatev_v_foks_seq::MatrixSize size_b(1, 4);
+  filatev_v_foks_seq::MatrixSize size_c(4, 4);
 
   size_t size_block = 2;
 
@@ -325,9 +324,9 @@ TEST(filatev_v_foks_seq, test_error_1) {
 }
 
 TEST(filatev_v_foks_seq, test_error_2) {
-  filatev_v_foks_seq::matrix_size size_a{1, 4};
-  filatev_v_foks_seq::matrix_size size_b{4, 1};
-  filatev_v_foks_seq::matrix_size size_c{1, 1};
+  filatev_v_foks_seq::MatrixSize size_a(1, 4);
+  filatev_v_foks_seq::MatrixSize size_b(4, 1);
+  filatev_v_foks_seq::MatrixSize size_c(1, 1);
 
   size_t size_block = 2;
 
@@ -355,9 +354,9 @@ TEST(filatev_v_foks_seq, test_error_2) {
 }
 
 TEST(filatev_v_foks_seq, test_error_3) {
-  filatev_v_foks_seq::matrix_size size_a{1, 4};
-  filatev_v_foks_seq::matrix_size size_b{4, 1};
-  filatev_v_foks_seq::matrix_size size_c{4, 4};
+  filatev_v_foks_seq::MatrixSize size_a(1, 4);
+  filatev_v_foks_seq::MatrixSize size_b(4, 1);
+  filatev_v_foks_seq::MatrixSize size_c(4, 4);
 
   size_t size_block = 0;
 
