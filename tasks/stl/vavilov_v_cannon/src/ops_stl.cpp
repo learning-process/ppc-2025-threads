@@ -56,7 +56,7 @@ void vavilov_v_cannon_stl::CannonSTL::InitialShift() {
 void vavilov_v_cannon_stl::CannonSTL::BlockMultiply() {
   std::vector<std::vector<double>> C_temp(num_blocks_ * num_blocks_, std::vector<double>(block_size_ * block_size_, 0));
   std::vector<std::thread> threads;
-  
+
   auto multiply_work = [&](int bi, int bj) {
     std::vector<double> &C_local = C_temp[bi * num_blocks_ + bj];
     for (int bk = 0; bk < num_blocks_; ++bk) {
