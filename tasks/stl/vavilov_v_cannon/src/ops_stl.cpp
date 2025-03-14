@@ -95,12 +95,12 @@ void vavilov_v_cannon_stl::CannonSTL::BlockMultiply() {
   }
 }
 
-  for (int bi = 0; bi < num_blocks_; ++bi) {
-    threads.emplace_back(multiply_work, bi);
-  }
-  for (auto &thread : threads) {
-    thread.join();
-  }
+for (int bi = 0; bi < num_blocks_; ++bi) {
+  threads.emplace_back(multiply_work, bi);
+}
+for (auto &thread : threads) {
+  thread.join();
+}
 }
 
 void vavilov_v_cannon_stl::CannonSTL::ShiftBlocks() {
