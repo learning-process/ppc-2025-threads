@@ -31,7 +31,7 @@ std::vector<double> GeneratMatrix(filatev_v_foks_seq::matrix_size size) {
 std::vector<double> IdentityMatrix(size_t size) {
   std::vector<double> matrix(size * size, 0);
 
-  for (auto i = 0; i < size; i++) {
+  for (size_t i = 0; i < size; i++) {
     matrix[i * size + i] = 1;
   }
 
