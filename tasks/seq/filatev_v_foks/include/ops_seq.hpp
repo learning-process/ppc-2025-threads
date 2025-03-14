@@ -31,7 +31,6 @@ class Focks : public ppc::core::Task {
   std::vector<double> matrix_a_;
   std::vector<double> matrix_b_;
   std::vector<double> matrix_c_;
-
 };
 
 }  // namespace filatev_v_foks_seq

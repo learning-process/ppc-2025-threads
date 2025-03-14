@@ -22,7 +22,7 @@ bool filatev_v_foks_seq::Focks::PreProcessingImpl() {
 
   matrix_a_.assign(size_ * size_, 0);
   matrix_b_.assign(size_ * size_, 0);
-  //matrix_c_.resize(size_ * size_, 0);
+  // matrix_c_.resize(size_ * size_, 0);
 
   auto *temp_a = reinterpret_cast<double *>(task_data->inputs[0]);
   auto *temp_b = reinterpret_cast<double *>(task_data->inputs[1]);
@@ -39,14 +39,12 @@ bool filatev_v_foks_seq::Focks::PreProcessingImpl() {
 
 bool filatev_v_foks_seq::Focks::ValidationImpl() {
   return task_data->inputs_count[0] == task_data->inputs_count[3] &&
-          task_data->inputs_count[1] == task_data->inputs_count[2] &&
-          task_data->outputs_count[0] == task_data->inputs_count[2] &&
-          task_data->outputs_count[1] == task_data->inputs_count[1] &&
-          task_data->inputs_count[4] > 0;
+         task_data->inputs_count[1] == task_data->inputs_count[2] &&
+         task_data->outputs_count[0] == task_data->inputs_count[2] &&
+         task_data->outputs_count[1] == task_data->inputs_count[1] && task_data->inputs_count[4] > 0;
 }
 
 bool filatev_v_foks_seq::Focks::RunImpl() {
-
   matrix_c_.assign(size_ * size_, 0);
 
   int gridSize = size_ / size_block_;
@@ -59,15 +57,15 @@ bool filatev_v_foks_seq::Focks::RunImpl() {
           for (int bj = 0; bj < size_block_; ++bj) {
             for (int bk = 0; bk < size_block_; ++bk) {
               matrix_c_[(i * size_block_ + bi) * size_ + j * size_block_ + bj] +=
-                matrix_a_[(i * size_block_ + bi) * size_ + root * size_block_ + bk] *
-                matrix_b_[(root * size_block_ + bk) * size_ + j * size_block_ + bj];
+                  matrix_a_[(i * size_block_ + bi) * size_ + root * size_block_ + bk] *
+                  matrix_b_[(root * size_block_ + bk) * size_ + j * size_block_ + bj];
             }
           }
         }
       }
     }
   }
-  
+
   return true;
 }
 

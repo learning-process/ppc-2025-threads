@@ -3,8 +3,8 @@
 #include <chrono>
 #include <cstddef>
 #include <cstdint>
-#include <vector>
 #include <random>
+#include <vector>
 
 #include "core/perf/include/perf.hpp"
 #include "core/task/include/task.hpp"
@@ -41,9 +41,9 @@ std::vector<double> IdentityMatrix(size_t size) {
 TEST(filatev_v_foks_seq, test_pipeline_run) {
   constexpr int kCount = 500;
 
-  filatev_v_foks_seq::matrix_size size_a{ kCount,kCount };
-  filatev_v_foks_seq::matrix_size size_b{ kCount,kCount };
-  filatev_v_foks_seq::matrix_size size_c{ kCount,kCount };
+  filatev_v_foks_seq::matrix_size size_a{kCount, kCount};
+  filatev_v_foks_seq::matrix_size size_b{kCount, kCount};
+  filatev_v_foks_seq::matrix_size size_c{kCount, kCount};
 
   size_t size_block = 30;
 
@@ -93,31 +93,31 @@ TEST(filatev_v_foks_seq, test_pipeline_run) {
 TEST(filatev_v_foks_seq, test_task_run) {
   constexpr int kCount = 500;
 
-  filatev_v_foks_seq::matrix_size size_a{ kCount,kCount };
-  filatev_v_foks_seq::matrix_size size_b{ kCount,kCount };
-  filatev_v_foks_seq::matrix_size size_c{ kCount,kCount };
-  
+  filatev_v_foks_seq::matrix_size size_a{kCount, kCount};
+  filatev_v_foks_seq::matrix_size size_b{kCount, kCount};
+  filatev_v_foks_seq::matrix_size size_c{kCount, kCount};
+
   size_t size_block = 30;
-  
+
   std::vector<double> matrix_a = filatev_v_foks_seq::GeneratMatrix(size_a);
   std::vector<double> matrix_b = filatev_v_foks_seq::IdentityMatrix(size_b.n);
   std::vector<double> matrix_c(size_c.n * size_c.m, 0.0);
-  
+
   auto task_data = std::make_shared<ppc::core::TaskData>();
   task_data->inputs_count.emplace_back(size_a.n);
   task_data->inputs_count.emplace_back(size_a.m);
   task_data->inputs_count.emplace_back(size_b.n);
   task_data->inputs_count.emplace_back(size_b.m);
   task_data->inputs_count.emplace_back(size_block);
-  
+
   task_data->inputs.emplace_back(reinterpret_cast<uint8_t *>(matrix_a.data()));
   task_data->inputs.emplace_back(reinterpret_cast<uint8_t *>(matrix_b.data()));
-  
+
   task_data->outputs_count.emplace_back(size_c.n);
   task_data->outputs_count.emplace_back(size_c.m);
-  
+
   task_data->outputs.emplace_back(reinterpret_cast<uint8_t *>(matrix_c.data()));
-  
+
   // Create Task
   auto task = std::make_shared<filatev_v_foks_seq::Focks>(task_data);
 
