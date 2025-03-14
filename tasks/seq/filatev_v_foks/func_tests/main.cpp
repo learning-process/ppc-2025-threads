@@ -66,10 +66,11 @@ TEST(filatev_v_foks_seq, test_1) {
   filatev_v_foks_seq::Focks focks(task_data);
   ASSERT_EQ(focks.Validation(), true);
   focks.PreProcessing();
-  focks.Run();  focks.Run();
+  focks.Run();
+  focks.Run();
   focks.PostProcessing();
 
-  std::vector<double> matrix_ans = {35, 28, 12, 56, 107, 64, 28, 140, 179, 100, 44, 224, 251, 136, 60, 308 };
+  std::vector<double> matrix_ans = {35, 28, 12, 56, 107, 64, 28, 140, 179, 100, 44, 224, 251, 136, 60, 308};
 
   EXPECT_EQ(matrix_ans, matrix_c);
 }
