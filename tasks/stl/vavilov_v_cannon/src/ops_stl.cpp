@@ -2,8 +2,8 @@
 
 #include <algorithm>
 #include <cmath>
-#include <vector>
 #include <thread>
+#include <vector>
 
 bool vavilov_v_cannon_stl::CannonSTL::PreProcessingImpl() {
   N_ = static_cast<int>(std::sqrt(task_data->inputs_count[0]));
@@ -15,7 +15,7 @@ bool vavilov_v_cannon_stl::CannonSTL::PreProcessingImpl() {
   A_.assign(a, a + (N_ * N_));
   B_.assign(b, b + (N_ * N_));
   C_.assign(N_ * N_, 0);
-  
+
   return true;
 }
 
@@ -27,7 +27,7 @@ bool vavilov_v_cannon_stl::CannonSTL::ValidationImpl() {
 void vavilov_v_cannon_stl::CannonSTL::BlockMultiply() {
   std::vector<std::vector<double>> C_temp(num_blocks_ * num_blocks_, std::vector<double>(block_size_ * block_size_, 0));
   std::vector<std::thread> threads;
-  
+
   auto multiply_work = [&](int bi, int bj) {
     std::vector<double> &C_local = C_temp[bi * num_blocks_ + bj];
     for (int bk = 0; bk < num_blocks_; ++bk) {
@@ -44,7 +44,7 @@ void vavilov_v_cannon_stl::CannonSTL::BlockMultiply() {
       }
     }
   };
-  
+
   for (int bi = 0; bi < num_blocks_; ++bi) {
     for (int bj = 0; bj < num_blocks_; ++bj) {
       threads.emplace_back(multiply_work, bi, bj);
@@ -53,7 +53,7 @@ void vavilov_v_cannon_stl::CannonSTL::BlockMultiply() {
   for (auto &thread : threads) {
     thread.join();
   }
-  
+
   for (int bi = 0; bi < num_blocks_; ++bi) {
     for (int bj = 0; bj < num_blocks_; ++bj) {
       std::vector<double> &C_local = C_temp[bi * num_blocks_ + bj];
