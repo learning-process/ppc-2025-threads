@@ -24,7 +24,7 @@ std::vector<double> GenerateRandomMatrix(int n, double min_val = -10.0, double m
   return matrix;
 }
 
-std::vector<double> MultMat(const std::vector<double>& a, const std::vector<double>& b, int n) {
+std::vector<double> MultMat(const std::vector<double> &a, const std::vector<double> &b, int n) {
   std::vector<double> c(n * n, 0.0);
   for (int i = 0; i < n; i++) {
     for (int j = 0; j < n; j++) {
