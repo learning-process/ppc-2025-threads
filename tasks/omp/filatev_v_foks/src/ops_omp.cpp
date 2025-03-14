@@ -62,7 +62,7 @@ bool filatev_v_foks_omp::Focks::RunImpl() {
     for (size_t bi = 0; bi < size_block_; ++bi) {
       for (size_t bj = 0; bj < size_block_; ++bj) {
         for (size_t bk = 0; bk < size_block_; ++bk) {
-          local_block[bi * size_block_ + bj] +=
+          local_block[(bi * size_block_) + bj] +=
               matrix_a_[((i * size_block_ + bi) * size_) + (root * size_block_) + bk] *
               matrix_b_[((root * size_block_ + bk) * size_) + (j * size_block_) + bj];
         }
@@ -73,7 +73,7 @@ bool filatev_v_foks_omp::Focks::RunImpl() {
     {
       for (size_t bi = 0; bi < size_block_; ++bi) {
         for (size_t bj = 0; bj < size_block_; ++bj) {
-          matrix_c_[((i * size_block_ + bi) * size_) + (j * size_block_) + bj] += local_block[bi * size_block_ + bj];
+          matrix_c_[((i * size_block_ + bi) * size_) + (j * size_block_) + bj] += local_block[(bi * size_block_) + bj];
         }
       }
     }
