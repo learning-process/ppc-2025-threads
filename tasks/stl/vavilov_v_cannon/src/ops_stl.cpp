@@ -68,20 +68,19 @@ void vavilov_v_cannon_stl::CannonSTL::BlockMultiply() {
   auto multiply_work = [&](int bi_start, int bi_end) {
     for (int bi = bi_start; bi < bi_end; ++bi) {
       for (int bj = 0; bj < num_blocks_; ++bj) {
-        for (int bk = 0; bk < num_blocks_; ++bk) {
-          for (int i = 0; i < block_size_; ++i) {
-            for (int j = 0; j < block_size_; ++j) {
-              double temp = 0.0;
-              for (int k = 0; k < block_size_; ++k) {
-                int row_a = bi * block_size_ + i;
-                int col_a = bk * block_size_ + k;
-                int row_b = bk * block_size_ + k;
-                int col_b = bj * block_size_ + j;
-                temp += A_[row_a * N_ + col_a] * B_[row_b * N_ + col_b];
-              }
-              std::lock_guard<std::mutex> lock(mtx);
-              C_[(bi * block_size_ + i) * N_ + (bj * block_size_ + j)] += temp;
+        int bk = (bi + bj) % num_blocks_;
+        for (int i = 0; i < block_size_; ++i) {
+          for (int j = 0; j < block_size_; ++j) {
+            double temp = 0.0;
+            for (int k = 0; k < block_size_; ++k) {
+              int row_a = bi * block_size_ + i;
+              int col_a = bk * block_size_ + k;
+              int row_b = bk * block_size_ + k;
+              int col_b = bj * block_size_ + j;
+              temp += A_[row_a * N_ + col_a] * B_[row_b * N_ + col_b];
             }
+            std::lock_guard<std::mutex> lock(mtx);
+            C_[(bi * block_size_ + i) * N_ + (bj * block_size_ + j)] += temp;
           }
         }
       }
