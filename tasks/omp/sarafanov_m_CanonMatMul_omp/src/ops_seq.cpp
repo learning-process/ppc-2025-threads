@@ -18,13 +18,14 @@ bool sarafanov_m_canon_mat_mul_omp::CanonMatMulOMP::PreProcessingImpl() {
     matrix_a[i] = in[i];
   }
   a_matrix_.SetBaseMatrix(matrix_a);
+  a_matrix_.PreRoutine(MatrixType::kRowMatrix);
   std::vector<double> matrix_b(size);
   auto *in2 = reinterpret_cast<double *>(task_data->inputs[1]);
   for (int i = 0; i < size; ++i) {
     matrix_b[i] = in2[i];
   }
   b_matrix_.SetBaseMatrix(matrix_b);
-  b_matrix_.Transpose();
+  b_matrix_.PreRoutine(MatrixType::kColumnMatrix);
   return true;
 }
 
@@ -36,29 +37,17 @@ bool sarafanov_m_canon_mat_mul_omp::CanonMatMulOMP::ValidationImpl() {
 
 bool sarafanov_m_canon_mat_mul_omp::CanonMatMulOMP::RunImpl() {
   std::vector<CanonMatrix> mul_results(a_matrix_.GetSize());
-  for (size_t i = 0; i < a_matrix_.GetSize(); ++i) {
-    a_matrix_.Shift();
-    b_matrix_.Shift();
-    mul_results[i] = std::move(a_matrix_ * b_matrix_);
+#pragma omp parallel
+  {
+#pragma omp for
+    for (int i = 0; i < static_cast<int>(a_matrix_.GetSize()); ++i) {
+      mul_results[i] = a_matrix_.MultiplicateMatrix(b_matrix_, i);
+    }
   }
-  std::vector<CanonMatrix> intermediate_results(20);
-// #pragma omp parallel
-//   {
-// #pragma omp for
-//     for (int i = 0; i < static_cast<int>(mul_results.size()); ++i) {
-//       intermediate_results[omp_get_thread_num()] = std::move(intermediate_results[omp_get_thread_num()] +
-//       mul_results[i]);
-//     }
-//   }
-//   for (int i = 0; i < static_cast<int>(intermediate_results.size()); ++i) {
-//     if (intermediate_results[i].GetSize() > 0) {
-//       c_matrix_ = std::move(c_matrix_ + intermediate_results[i]);
-//     }
-//   }
-   for (auto i = 0; i < mul_results.size(); ++i) {
-     c_matrix_ = c_matrix_ + mul_results[i];
-   }
-   c_matrix_.Transpose();
+  for (auto i = 0; i < static_cast<int>(mul_results.size()); ++i) {
+    c_matrix_ = c_matrix_ + mul_results[i];
+  }
+  c_matrix_.Transpose();
   return true;
 }
 
