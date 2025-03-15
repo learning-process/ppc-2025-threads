@@ -47,6 +47,7 @@ TEST(petrov_a_radix_double_batcher_seq, test_pipeline_run) {
   auto perf_analyzer = std::make_shared<ppc::core::Perf>(task);
   perf_analyzer->PipelineRun(perf_attr, perf_results);
   ppc::core::Perf::PrintPerfStatistic(perf_results);
+  ASSERT_TRUE(std::ranges::is_sorted(out));
 }
 
 TEST(petrov_a_radix_double_batcher_seq, test_task_run) {
@@ -73,4 +74,5 @@ TEST(petrov_a_radix_double_batcher_seq, test_task_run) {
   auto perf_analyzer = std::make_shared<ppc::core::Perf>(task);
   perf_analyzer->TaskRun(perf_attr, perf_results);
   ppc::core::Perf::PrintPerfStatistic(perf_results);
+  ASSERT_TRUE(std::ranges::is_sorted(out));
 }
