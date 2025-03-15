@@ -33,7 +33,6 @@ bool morozov_e_lineare_image_filtering_block_gaussian::TestTaskSequential::RunIm
       if (i == 0 || j == 0 || i == n_ - 1 || j == m_ - 1) {
         res_[(i * m_) + j] = input_[(i * m_) + j];
       } else {
-        // std::cout<<i<<''<<j<<"\n";
         double sum = 0.0;
         // Применяем ядро к текущему пикселю и его соседям
         for (int ki = -1; ki <= 1; ++ki) {

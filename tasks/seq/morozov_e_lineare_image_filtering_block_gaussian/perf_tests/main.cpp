@@ -3,6 +3,7 @@
 #include <chrono>
 #include <cstdint>
 #include <memory>
+#include <random>
 #include <vector>
 
 #include "core/perf/include/perf.hpp"
@@ -14,9 +15,13 @@ TEST(morozov_e_lineare_image_filtering_block_gaussian_seq, test_pipeline_run) {
   int m = 4000;
   std::vector<double> image(n * m, 1.0);
   std::vector<double> image_res(n * m);
+  std::random_device rd;
+  std::mt19937 gen(rd());
+  std::uniform_real_distribution<> distrib(0.0, 100.0);
+
   for (int i = 0; i < n; ++i) {
     for (int j = 0; j < m; j++) {
-      image_res[(i * m) + j] = 0.0;
+      image_res[(i * m) + j] = distrib(gen);
     }
   }
   std::vector real_res(n * m, 1.0);
@@ -59,9 +64,13 @@ TEST(morozov_e_lineare_image_filtering_block_gaussian_seq, test_task_run) {
   int m = 4000;
   std::vector<double> image(n * m, 1.0);
   std::vector<double> image_res(n * m);
+  std::random_device rd;
+  std::mt19937 gen(rd());
+  std::uniform_real_distribution<> distrib(0.0, 100.0);
+
   for (int i = 0; i < n; ++i) {
     for (int j = 0; j < m; j++) {
-      image_res[(i * m) + j] = 0.0;
+      image_res[(i * m) + j] = distrib(gen);
     }
   }
   std::vector real_res(n * m, 1.0);
