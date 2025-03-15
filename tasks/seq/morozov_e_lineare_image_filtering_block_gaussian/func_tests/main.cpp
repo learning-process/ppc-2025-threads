@@ -287,7 +287,7 @@ TEST(morozov_e_lineare_image_filtering_block_gaussian, random_test) {
   // Заполнение матрицы случайными числами
   for (int i = 0; i < n; ++i) {
     for (int j = 0; j < m; ++j) {
-      image[i * n + j] = distrib(gen);  // Генерация случайного числа
+      image[(i * n) + j] = distrib(gen);  // Генерация случайного числа
     }
   }
   // Create task_data
