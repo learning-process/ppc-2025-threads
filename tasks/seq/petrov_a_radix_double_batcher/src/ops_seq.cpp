@@ -8,7 +8,7 @@
 #include <vector>
 
 namespace {
-auto Translate(double e, size_t i) {  // NOLINT(bugprone-easily-swappable-parameters)
+auto Translate(double e, size_t i) {
   const uint64_t mask = 1ULL << ((sizeof(uint64_t) * 8) - 1);
   const union {
     double dbl;
