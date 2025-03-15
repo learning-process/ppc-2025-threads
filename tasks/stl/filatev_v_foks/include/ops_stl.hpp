@@ -27,7 +27,7 @@ class Focks : public ppc::core::Task {
   bool ValidationImpl() override;
   bool RunImpl() override;
   bool PostProcessingImpl() override;
-  void Worker(size_t start_step, size_t end_step, size_t grid_size_, std::mutex& mtx);
+  void Worker(size_t start_step, size_t end_step, size_t grid_size, std::mutex& mtx);
 
  private:
   MatrixSize size_a_;

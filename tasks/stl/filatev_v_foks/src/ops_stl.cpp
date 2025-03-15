@@ -6,6 +6,7 @@
 #include <mutex>
 #include <thread>
 #include <vector>
+#include <functional>
 
 #include "core/util/include/util.hpp"
 
@@ -49,13 +50,13 @@ bool filatev_v_foks_stl::Focks::ValidationImpl() {
          task_data->outputs_count[1] == task_data->inputs_count[1] && task_data->inputs_count[4] > 0;
 }
 
-void filatev_v_foks_stl::Focks::Worker(size_t start_step, size_t end_step, size_t grid_size_, std::mutex &mtx) {
+void filatev_v_foks_stl::Focks::Worker(size_t start_step, size_t end_step, size_t grid_size, std::mutex &mtx) {
   for (size_t step_i_j = start_step; step_i_j < end_step; ++step_i_j) {
-    int step = step_i_j / (grid_size_ * grid_size_);
-    int i = (step_i_j % (grid_size_ * grid_size_)) / grid_size_;
-    int j = step_i_j % grid_size_;
+    size_t step = step_i_j / (grid_size * grid_size);
+    size_t i = (step_i_j % (grid_size * grid_size)) / grid_size;
+    size_t j = step_i_j % grid_size;
 
-    size_t root = (i + step) % grid_size_;
+    size_t root = (i + step) % grid_size;
     std::vector<double> local_block(size_block_ * size_block_, 0);
 
     for (size_t bi = 0; bi < size_block_; ++bi) {
@@ -80,25 +81,25 @@ void filatev_v_foks_stl::Focks::Worker(size_t start_step, size_t end_step, size_
 bool filatev_v_foks_stl::Focks::RunImpl() {
   matrix_c_.assign(size_ * size_, 0);
 
-  size_t grid_size_ = size_ / size_block_;
-  size_t num_threads_ = ppc::util::GetPPCNumThreads();
+  size_t grid_size = size_ / size_block_;
+  size_t num_threads = ppc::util::GetPPCNumThreads();
   std::mutex mtx;
 
-  if (grid_size_ * grid_size_ * grid_size_ >= num_threads_) {
-    std::vector<std::thread> threads(num_threads_);
+  if (grid_size * grid_size * grid_size >= num_threads) {
+    std::vector<std::thread> threads(num_threads);
 
-    size_t steps_per_thread = grid_size_ * grid_size_ * grid_size_ / num_threads_;
-    for (size_t t = 0; t < num_threads_; ++t) {
+    size_t steps_per_thread = grid_size * grid_size * grid_size / num_threads;
+    for (size_t t = 0; t < num_threads; ++t) {
       size_t start_step = t * steps_per_thread;
-      size_t end_step = (t == num_threads_ - 1) ? grid_size_ * grid_size_ * grid_size_ : start_step + steps_per_thread;
-      threads[t] = std::thread(&Focks::Worker, this, start_step, end_step, grid_size_, std::ref(mtx));
+      size_t end_step = (t == num_threads - 1) ? grid_size * grid_size * grid_size : start_step + steps_per_thread;
+      threads[t] = std::thread(&Focks::Worker, this, start_step, end_step, grid_size, std::ref(mtx));
     }
 
     for (auto &thread : threads) {
       thread.join();
     }
   } else {
-    Worker(0, grid_size_ * grid_size_ * grid_size_, grid_size_, mtx);
+    Worker(0, grid_size * grid_size * grid_size, grid_size, mtx);
   }
 
   return true;
