@@ -64,12 +64,49 @@ TEST(filatev_v_foks_seq, test_matrix_4_4_block_2) {
   task_data->outputs.emplace_back(reinterpret_cast<uint8_t *>(matrix_c.data()));
 
   filatev_v_foks_seq::Focks focks(task_data);
-  ASSERT_EQ(focks.Validation(), true);
+  ASSERT_TRUE(focks.Validation());
   focks.PreProcessing();
   focks.Run();
   focks.PostProcessing();
 
   std::vector<double> matrix_ans = {35, 28, 12, 56, 107, 64, 28, 140, 179, 100, 44, 224, 251, 136, 60, 308};
+
+  EXPECT_EQ(matrix_ans, matrix_c);
+}
+
+TEST(filatev_v_foks_seq, test_matrix_1_1_block_2) {
+  filatev_v_foks_seq::MatrixSize size_a(1, 1);
+  filatev_v_foks_seq::MatrixSize size_b(1, 1);
+  filatev_v_foks_seq::MatrixSize size_c(1, 1);
+
+  size_t size_block = 2;
+
+  std::vector<double> matrix_a = {4};
+  std::vector<double> matrix_b = {6};
+  std::vector<double> matrix_c(size_c.n * size_c.m, 0.0);
+
+  auto task_data = std::make_shared<ppc::core::TaskData>();
+  task_data->inputs_count.emplace_back(size_a.n);
+  task_data->inputs_count.emplace_back(size_a.m);
+  task_data->inputs_count.emplace_back(size_b.n);
+  task_data->inputs_count.emplace_back(size_b.m);
+  task_data->inputs_count.emplace_back(size_block);
+
+  task_data->inputs.emplace_back(reinterpret_cast<uint8_t *>(matrix_a.data()));
+  task_data->inputs.emplace_back(reinterpret_cast<uint8_t *>(matrix_b.data()));
+
+  task_data->outputs_count.emplace_back(size_c.n);
+  task_data->outputs_count.emplace_back(size_c.m);
+
+  task_data->outputs.emplace_back(reinterpret_cast<uint8_t *>(matrix_c.data()));
+
+  filatev_v_foks_seq::Focks focks(task_data);
+  ASSERT_TRUE(focks.Validation());
+  focks.PreProcessing();
+  focks.Run();
+  focks.PostProcessing();
+
+  std::vector<double> matrix_ans = {24};
 
   EXPECT_EQ(matrix_ans, matrix_c);
 }
@@ -101,7 +138,7 @@ TEST(filatev_v_foks_seq, test_matrix_4_4_block_3) {
   task_data->outputs.emplace_back(reinterpret_cast<uint8_t *>(matrix_c.data()));
 
   filatev_v_foks_seq::Focks focks(task_data);
-  ASSERT_EQ(focks.Validation(), true);
+  ASSERT_TRUE(focks.Validation());
   focks.PreProcessing();
   focks.Run();
   focks.PostProcessing();
@@ -119,7 +156,7 @@ TEST(filatev_v_foks_seq, test_matrix_4_4_block_2_IdentityMatrix) {
   size_t size_block = 2;
 
   std::vector<double> matrix_a = {1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16};
-  std::vector<double> matrix_b = {1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1};
+  std::vector<double> matrix_b = IdentityMatrix(size_b.n);
   std::vector<double> matrix_c(size_c.n * size_c.m, 0.0);
 
   auto task_data = std::make_shared<ppc::core::TaskData>();
@@ -138,7 +175,7 @@ TEST(filatev_v_foks_seq, test_matrix_4_4_block_2_IdentityMatrix) {
   task_data->outputs.emplace_back(reinterpret_cast<uint8_t *>(matrix_c.data()));
 
   filatev_v_foks_seq::Focks focks(task_data);
-  ASSERT_EQ(focks.Validation(), true);
+  ASSERT_TRUE(focks.Validation());
   focks.PreProcessing();
   focks.Run();
   focks.PostProcessing();
@@ -173,7 +210,7 @@ TEST(filatev_v_foks_seq, test_matrix_10_10_block_2_IdentityMatrix) {
   task_data->outputs.emplace_back(reinterpret_cast<uint8_t *>(matrix_c.data()));
 
   filatev_v_foks_seq::Focks focks(task_data);
-  ASSERT_EQ(focks.Validation(), true);
+  ASSERT_TRUE(focks.Validation());
   focks.PreProcessing();
   focks.Run();
   focks.PostProcessing();
@@ -208,7 +245,7 @@ TEST(filatev_v_foks_seq, test_matrix_10_10_block_5_IdentityMatrix) {
   task_data->outputs.emplace_back(reinterpret_cast<uint8_t *>(matrix_c.data()));
 
   filatev_v_foks_seq::Focks focks(task_data);
-  ASSERT_EQ(focks.Validation(), true);
+  ASSERT_TRUE(focks.Validation());
   focks.PreProcessing();
   focks.Run();
   focks.PostProcessing();
@@ -243,7 +280,7 @@ TEST(filatev_v_foks_seq, test_matrix_4_3_block_2) {
   task_data->outputs.emplace_back(reinterpret_cast<uint8_t *>(matrix_c.data()));
 
   filatev_v_foks_seq::Focks focks(task_data);
-  ASSERT_EQ(focks.Validation(), true);
+  ASSERT_TRUE(focks.Validation());
   focks.PreProcessing();
   focks.Run();
   focks.PostProcessing();
@@ -280,7 +317,7 @@ TEST(filatev_v_foks_seq, test_matrix_4_1_block_2) {
   task_data->outputs.emplace_back(reinterpret_cast<uint8_t *>(matrix_c.data()));
 
   filatev_v_foks_seq::Focks focks(task_data);
-  ASSERT_EQ(focks.Validation(), true);
+  ASSERT_TRUE(focks.Validation());
   focks.PreProcessing();
   focks.Run();
   focks.PostProcessing();
@@ -317,7 +354,7 @@ TEST(filatev_v_foks_seq, test_error_matrix_size_b) {
   task_data->outputs.emplace_back(reinterpret_cast<uint8_t *>(matrix_c.data()));
 
   filatev_v_foks_seq::Focks focks(task_data);
-  ASSERT_EQ(focks.Validation(), false);
+  ASSERT_FALSE(focks.Validation());
 }
 
 TEST(filatev_v_foks_seq, test_error_matrix_size_c) {
@@ -347,7 +384,7 @@ TEST(filatev_v_foks_seq, test_error_matrix_size_c) {
   task_data->outputs.emplace_back(reinterpret_cast<uint8_t *>(matrix_c.data()));
 
   filatev_v_foks_seq::Focks focks(task_data);
-  ASSERT_EQ(focks.Validation(), false);
+  ASSERT_FALSE(focks.Validation());
 }
 
 TEST(filatev_v_foks_seq, test_error_size_block) {
@@ -377,5 +414,5 @@ TEST(filatev_v_foks_seq, test_error_size_block) {
   task_data->outputs.emplace_back(reinterpret_cast<uint8_t *>(matrix_c.data()));
 
   filatev_v_foks_seq::Focks focks(task_data);
-  ASSERT_EQ(focks.Validation(), false);
+  ASSERT_FALSE(focks.Validation());
 }
