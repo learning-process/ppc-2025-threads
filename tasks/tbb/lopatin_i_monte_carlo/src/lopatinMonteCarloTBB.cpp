@@ -27,7 +27,14 @@ bool TestTaskTBB::ValidationImpl() {
   const int iterations = *iter_ptr;
   const bool iter_valid = iterations > 0;
 
-  return outputs_valid && inputs_valid && iter_valid;
+  bool bounds_valid = true;
+  for (size_t j = 0; j < integrationBounds_.size(); j += 2) {
+    if (integrationBounds_[j] >= integrationBounds_[j + 1]) {
+      bounds_valid = false;
+    }
+  }
+
+  return outputs_valid && inputs_valid && iter_valid && bounds_valid;
 }
 
 bool TestTaskTBB::PreProcessingImpl() {
@@ -73,7 +80,7 @@ bool TestTaskTBB::RunImpl() {
           std::uniform_real_distribution<> dis(0.0, 1.0);
           std::vector<double> point(d);
 
-          for (std::size_t i = range.begin(); i < range.end(); ++i) {
+          for (size_t i = range.begin(); i < range.end(); ++i) {
             for (size_t j = 0; j < d; ++j) {
               const double min = integrationBounds_[2 * j];
               const double max = integrationBounds_[(2 * j) + 1];
