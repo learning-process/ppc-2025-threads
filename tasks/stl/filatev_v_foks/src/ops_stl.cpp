@@ -50,8 +50,7 @@ bool filatev_v_foks_stl::Focks::ValidationImpl() {
 }
 
 void filatev_v_foks_stl::Focks::Worker(size_t start_step, size_t end_step, size_t grid_size_, std::mutex &mtx) {
-  for (size_t step_i_j  = start_step; step_i_j  < end_step; ++step_i_j ) {
-
+  for (size_t step_i_j = start_step; step_i_j < end_step; ++step_i_j) {
     int step = step_i_j / (grid_size_ * grid_size_);
     int i = (step_i_j % (grid_size_ * grid_size_)) / grid_size_;
     int j = step_i_j % grid_size_;
@@ -72,8 +71,7 @@ void filatev_v_foks_stl::Focks::Worker(size_t start_step, size_t end_step, size_
     std::lock_guard<std::mutex> lock(mtx);
     for (size_t bi = 0; bi < size_block_; ++bi) {
       for (size_t bj = 0; bj < size_block_; ++bj) {
-        matrix_c_[((i * size_block_ + bi) * size_) + (j * size_block_) + bj] +=
-            local_block[(bi * size_block_) + bj];
+        matrix_c_[((i * size_block_ + bi) * size_) + (j * size_block_) + bj] += local_block[(bi * size_block_) + bj];
       }
     }
   }
