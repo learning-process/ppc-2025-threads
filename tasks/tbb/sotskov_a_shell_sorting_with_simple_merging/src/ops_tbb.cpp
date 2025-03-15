@@ -8,6 +8,8 @@
 #include <cstddef>
 #include <vector>
 
+#include "core/util/include/util.hpp"
+
 void sotskov_a_shell_sorting_with_simple_merging_tbb::ShellSort(std::vector<int>& arr, int left, int right) {
   int array_size = right - left + 1;
   int gap = 1;
@@ -50,7 +52,7 @@ void sotskov_a_shell_sorting_with_simple_merging_tbb::ParallelMerge(std::vector<
 
 void sotskov_a_shell_sorting_with_simple_merging_tbb::ShellSortWithSimpleMerging(std::vector<int>& arr) {
   int array_size = static_cast<int>(arr.size());
-  int num_threads = oneapi::tbb::info::default_concurrency();
+  int num_threads = ppc::util::GetPPCNumThreads();
   int chunk_size = std::max(1, (array_size + num_threads - 1) / num_threads);
 
   oneapi::tbb::task_arena arena(num_threads);
@@ -99,7 +101,8 @@ bool sotskov_a_shell_sorting_with_simple_merging_tbb::TestTaskTBB::ValidationImp
 }
 
 bool sotskov_a_shell_sorting_with_simple_merging_tbb::TestTaskTBB::RunImpl() {
-  oneapi::tbb::task_arena arena(oneapi::tbb::info::default_concurrency());
+  int num_threads = ppc::util::GetPPCNumThreads();
+  oneapi::tbb::task_arena arena(num_threads);
   arena.execute([&] { ShellSortWithSimpleMerging(input_); });
   return true;
 }

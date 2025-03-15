@@ -15,11 +15,10 @@ struct SortingTestParams {
   std::vector<int> expected;
   std::vector<int> input;
 };
-void RunSortingTest(SortingTestParams& params, void (*sort_func)(std::vector<int>&));
+
 void ShellSortWithSimpleMerging(std::vector<int>& arr);
 void ShellSort(std::vector<int>& arr, int left, int right);
 void ParallelMerge(std::vector<int>& arr, int left, int mid, int right);
-std::vector<int> GenerateRandomVector(const RandomVectorParams& params);
 class TestTaskTBB : public ppc::core::Task {
  public:
   explicit TestTaskTBB(ppc::core::TaskDataPtr task_data) : Task(std::move(task_data)) {}
