@@ -3,9 +3,9 @@
 #include <algorithm>
 #include <cmath>
 #include <cstddef>
-#include <vector>
-#include <thread>
 #include <mutex>
+#include <thread>
+#include <vector>
 
 #include "core/util/include/util.hpp"
 
@@ -49,7 +49,7 @@ bool filatev_v_foks_stl::Focks::ValidationImpl() {
          task_data->outputs_count[1] == task_data->inputs_count[1] && task_data->inputs_count[4] > 0;
 }
 
-void filatev_v_foks_stl::Focks::Worker(size_t start_step, size_t end_step, size_t grid_size_, std::mutex& mtx) {
+void filatev_v_foks_stl::Focks::Worker(size_t start_step, size_t end_step, size_t grid_size_, std::mutex  &mtx) {
   for (size_t step = start_step; step < end_step; ++step) {
     for (size_t i = 0; i < grid_size_; ++i) {
       for (size_t j = 0; j < grid_size_; ++j) {
@@ -79,7 +79,6 @@ void filatev_v_foks_stl::Focks::Worker(size_t start_step, size_t end_step, size_
 }
 
 bool filatev_v_foks_stl::Focks::RunImpl() {
-
   matrix_c_.assign(size_ * size_, 0);
 
   size_t grid_size_ = size_ / size_block_;
@@ -87,7 +86,6 @@ bool filatev_v_foks_stl::Focks::RunImpl() {
 
   std::vector<std::thread> threads(num_threads_);
   std::mutex mtx;
-
 
   size_t steps_per_thread = grid_size_ / num_threads_;
   for (size_t t = 0; t < num_threads_; ++t) {

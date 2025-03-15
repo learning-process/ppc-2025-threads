@@ -1,9 +1,9 @@
 #pragma once
 
 #include <cstddef>
+#include <mutex>
 #include <utility>
 #include <vector>
-#include <mutex>
 
 #include "core/task/include/task.hpp"
 
