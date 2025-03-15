@@ -11,9 +11,6 @@
 
 namespace {
 
-std::vector<double> GeneratMatrix(filatev_v_foks_seq::MatrixSize size);
-std::vector<double> IdentityMatrix(size_t size);
-
 std::vector<double> GeneratMatrix(filatev_v_foks_seq::MatrixSize size) {
   std::vector<double> matrix(size.n * size.m);
 
@@ -40,7 +37,7 @@ std::vector<double> IdentityMatrix(size_t size) {
 
 }  // namespace
 
-TEST(filatev_v_foks_seq, test_1) {
+TEST(filatev_v_foks_seq, test_matrix_4_4_block_2) {
   filatev_v_foks_seq::MatrixSize size_a(4, 4);
   filatev_v_foks_seq::MatrixSize size_b(4, 4);
   filatev_v_foks_seq::MatrixSize size_c(4, 4);
@@ -70,7 +67,6 @@ TEST(filatev_v_foks_seq, test_1) {
   ASSERT_EQ(focks.Validation(), true);
   focks.PreProcessing();
   focks.Run();
-  focks.Run();
   focks.PostProcessing();
 
   std::vector<double> matrix_ans = {35, 28, 12, 56, 107, 64, 28, 140, 179, 100, 44, 224, 251, 136, 60, 308};
@@ -78,7 +74,7 @@ TEST(filatev_v_foks_seq, test_1) {
   EXPECT_EQ(matrix_ans, matrix_c);
 }
 
-TEST(filatev_v_foks_seq, test_2) {
+TEST(filatev_v_foks_seq, test_matrix_4_4_block_3) {
   filatev_v_foks_seq::MatrixSize size_a(4, 4);
   filatev_v_foks_seq::MatrixSize size_b(4, 4);
   filatev_v_foks_seq::MatrixSize size_c(4, 4);
@@ -115,7 +111,7 @@ TEST(filatev_v_foks_seq, test_2) {
   EXPECT_EQ(matrix_ans, matrix_c);
 }
 
-TEST(filatev_v_foks_seq, test_3) {
+TEST(filatev_v_foks_seq, test_matrix_4_4_block_2_IdentityMatrix) {
   filatev_v_foks_seq::MatrixSize size_a(4, 4);
   filatev_v_foks_seq::MatrixSize size_b(4, 4);
   filatev_v_foks_seq::MatrixSize size_c(4, 4);
@@ -150,7 +146,7 @@ TEST(filatev_v_foks_seq, test_3) {
   EXPECT_EQ(matrix_a, matrix_c);
 }
 
-TEST(filatev_v_foks_seq, test_10) {
+TEST(filatev_v_foks_seq, test_matrix_10_10_block_2_IdentityMatrix) {
   filatev_v_foks_seq::MatrixSize size_a(10, 10);
   filatev_v_foks_seq::MatrixSize size_b(10, 10);
   filatev_v_foks_seq::MatrixSize size_c(10, 10);
@@ -185,7 +181,7 @@ TEST(filatev_v_foks_seq, test_10) {
   EXPECT_EQ(matrix_a, matrix_c);
 }
 
-TEST(filatev_v_foks_seq, test_10_5) {
+TEST(filatev_v_foks_seq, test_matrix_10_10_block_5_IdentityMatrix) {
   filatev_v_foks_seq::MatrixSize size_a(10, 10);
   filatev_v_foks_seq::MatrixSize size_b(10, 10);
   filatev_v_foks_seq::MatrixSize size_c(10, 10);
@@ -220,7 +216,7 @@ TEST(filatev_v_foks_seq, test_10_5) {
   EXPECT_EQ(matrix_a, matrix_c);
 }
 
-TEST(filatev_v_foks_seq, test_4_3) {
+TEST(filatev_v_foks_seq, test_matrix_4_3_block_2) {
   filatev_v_foks_seq::MatrixSize size_a(3, 4);
   filatev_v_foks_seq::MatrixSize size_b(4, 3);
   filatev_v_foks_seq::MatrixSize size_c(4, 4);
@@ -257,7 +253,7 @@ TEST(filatev_v_foks_seq, test_4_3) {
   EXPECT_EQ(matrix_ans, matrix_c);
 }
 
-TEST(filatev_v_foks_seq, test_4_1) {
+TEST(filatev_v_foks_seq, test_matrix_4_1_block_2) {
   filatev_v_foks_seq::MatrixSize size_a(1, 4);
   filatev_v_foks_seq::MatrixSize size_b(4, 1);
   filatev_v_foks_seq::MatrixSize size_c(4, 4);
@@ -294,7 +290,7 @@ TEST(filatev_v_foks_seq, test_4_1) {
   EXPECT_EQ(matrix_ans, matrix_c);
 }
 
-TEST(filatev_v_foks_seq, test_error_1) {
+TEST(filatev_v_foks_seq, test_error_matrix_size_b) {
   filatev_v_foks_seq::MatrixSize size_a(1, 4);
   filatev_v_foks_seq::MatrixSize size_b(1, 4);
   filatev_v_foks_seq::MatrixSize size_c(4, 4);
@@ -324,7 +320,7 @@ TEST(filatev_v_foks_seq, test_error_1) {
   ASSERT_EQ(focks.Validation(), false);
 }
 
-TEST(filatev_v_foks_seq, test_error_2) {
+TEST(filatev_v_foks_seq, test_error_matrix_size_c) {
   filatev_v_foks_seq::MatrixSize size_a(1, 4);
   filatev_v_foks_seq::MatrixSize size_b(4, 1);
   filatev_v_foks_seq::MatrixSize size_c(1, 1);
@@ -354,7 +350,7 @@ TEST(filatev_v_foks_seq, test_error_2) {
   ASSERT_EQ(focks.Validation(), false);
 }
 
-TEST(filatev_v_foks_seq, test_error_3) {
+TEST(filatev_v_foks_seq, test_error_size_block) {
   filatev_v_foks_seq::MatrixSize size_a(1, 4);
   filatev_v_foks_seq::MatrixSize size_b(4, 1);
   filatev_v_foks_seq::MatrixSize size_c(4, 4);
