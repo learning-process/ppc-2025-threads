@@ -12,7 +12,7 @@
 
 namespace sotskov_a_shell_sorting_with_simple_merging_tbb {
 
-static std::vector<int> GenerateRandomVector(const RandomVectorParams &params) {
+std::vector<int> GenerateRandomVector(const RandomVectorParams &params) {
   std::random_device random_device;
   std::mt19937 generator(random_device());
   std::uniform_int_distribution<int> distribution(params.min_value, params.max_value);
