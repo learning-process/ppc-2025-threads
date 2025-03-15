@@ -1,5 +1,4 @@
 #include <gtest/gtest.h>
-#include <oneapi/tbb/info.h>
 #include <oneapi/tbb/task_arena.h>
 
 #include <algorithm>
@@ -13,7 +12,7 @@
 
 namespace sotskov_a_shell_sorting_with_simple_merging_tbb {
 
-std::vector<int> GenerateRandomVector(const RandomVectorParams &params) {
+static std::vector<int> GenerateRandomVector(const RandomVectorParams &params) {
   std::random_device random_device;
   std::mt19937 generator(random_device());
   std::uniform_int_distribution<int> distribution(params.min_value, params.max_value);
@@ -27,7 +26,7 @@ std::vector<int> GenerateRandomVector(const RandomVectorParams &params) {
   return random_vector;
 }
 
-void RunSortingTest(SortingTestParams &params, void (*sort_func)(std::vector<int> &)) {
+static void RunSortingTest(SortingTestParams &params, void (*sort_func)(std::vector<int> &)) {
   std::vector<int> out(params.input.size(), 0);
 
   std::vector<int> sorted_expected = params.expected;

@@ -1,6 +1,5 @@
 #include "tbb/sotskov_a_shell_sorting_with_simple_merging/include/ops_tbb.hpp"
 
-#include <oneapi/tbb/info.h>
 #include <oneapi/tbb/parallel_for.h>
 #include <oneapi/tbb/task_arena.h>
 
