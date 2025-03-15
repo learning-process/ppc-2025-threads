@@ -1,24 +1,16 @@
 #include "stl/tsatsyn_a_radix_sort_simple_merge_stl/include/ops_stl.hpp"
 
+#include <algorithm>
 #include <cmath>
 #include <cstddef>
+#include <cstdint>
+#include <execution>
+#include <iterator>
+#include <mutex>
 #include <thread>
 #include <vector>
 
 #include "core/util/include/util.hpp"
-
-namespace {
-void MatMul(const std::vector<int> &in_vec, int rc_size, std::vector<int> &out_vec) {
-  for (int i = 0; i < rc_size; ++i) {
-    for (int j = 0; j < rc_size; ++j) {
-      out_vec[(i * rc_size) + j] = 0;
-      for (int k = 0; k < rc_size; ++k) {
-        out_vec[(i * rc_size) + j] += in_vec[(i * rc_size) + k] * in_vec[(k * rc_size) + j];
-      }
-    }
-  }
-}
-}  // namespace
 
 bool tsatsyn_a_radix_sort_simple_merge_stl::TestTaskSTL::PreProcessingImpl() {
   // Init value for input and output
@@ -36,6 +28,7 @@ bool tsatsyn_a_radix_sort_simple_merge_stl::TestTaskSTL::ValidationImpl() {
 bool tsatsyn_a_radix_sort_simple_merge_stl::TestTaskSTL::RunImpl() {
   std::vector<uint64_t> pozitive_copy;
   std::vector<uint64_t> negative_copy;
+  std::execution::
   for (int i = 0; i < static_cast<int>(input_data_.size()); i++) {
     if (input_data_[i] > 0.0) {
       pozitive_copy.emplace_back(*reinterpret_cast<uint64_t *>(&input_data_[i]));
