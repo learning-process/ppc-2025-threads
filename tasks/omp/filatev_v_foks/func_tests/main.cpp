@@ -111,7 +111,6 @@ TEST(filatev_v_foks_omp, test_matrix_1_1_block_2) {
   EXPECT_EQ(matrix_ans, matrix_c);
 }
 
-
 TEST(filatev_v_foks_omp, test_matrix_4_4_block_3) {
   filatev_v_foks_omp::MatrixSize size_a(4, 4);
   filatev_v_foks_omp::MatrixSize size_b(4, 4);
