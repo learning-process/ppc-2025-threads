@@ -23,7 +23,6 @@ bool filatev_v_foks_omp::Focks::PreProcessingImpl() {
 
   matrix_a_.assign(size_ * size_, 0);
   matrix_b_.assign(size_ * size_, 0);
-  // matrix_c_.resize(size_ * size_, 0);
 
   auto *temp_a = reinterpret_cast<double *>(task_data->inputs[0]);
   auto *temp_b = reinterpret_cast<double *>(task_data->inputs[1]);
