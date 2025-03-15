@@ -273,7 +273,7 @@ TEST(morozov_e_lineare_image_filtering_block_gaussian, main_test6) {
   // clang-format on
   EXPECT_EQ(real_res, image_res);
 }
-TEST(morozov_e_lineare_image_filtering_block_gaussian, random_test) {
+TEST(morozov_e_lineare_image_filtering_block_gaussian, random_test1) {
   int n = 3;
   int m = 3;
   std::vector image_res(n * m, 0.0);
@@ -329,5 +329,5 @@ TEST(morozov_e_lineare_image_filtering_block_gaussian, random_test) {
     }
   }
   // clang-format on
-  EXPECT_EQ(res, image_res);
+  EXPECT_EQ(image_res, res);
 }
