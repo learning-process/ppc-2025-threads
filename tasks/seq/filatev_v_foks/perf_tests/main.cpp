@@ -40,13 +40,13 @@ std::vector<double> IdentityMatrix(size_t size) {
 }  // namespace
 
 TEST(filatev_v_foks_seq, test_pipeline_run) {
-  constexpr int kCount = 500;
+  constexpr int kCount = 800;
 
   filatev_v_foks_seq::MatrixSize size_a(kCount, kCount);
   filatev_v_foks_seq::MatrixSize size_b(kCount, kCount);
   filatev_v_foks_seq::MatrixSize size_c(kCount, kCount);
 
-  size_t size_block = 30;
+  size_t size_block = 40;
 
   std::vector<double> matrix_a = GeneratMatrix(size_a);
   std::vector<double> matrix_b = IdentityMatrix(size_b.n);
@@ -92,13 +92,13 @@ TEST(filatev_v_foks_seq, test_pipeline_run) {
 }
 
 TEST(filatev_v_foks_seq, test_task_run) {
-  constexpr int kCount = 500;
+  constexpr int kCount = 800;
 
   filatev_v_foks_seq::MatrixSize size_a(kCount, kCount);
   filatev_v_foks_seq::MatrixSize size_b(kCount, kCount);
   filatev_v_foks_seq::MatrixSize size_c(kCount, kCount);
 
-  size_t size_block = 30;
+  size_t size_block = 40;
 
   std::vector<double> matrix_a = GeneratMatrix(size_a);
   std::vector<double> matrix_b = IdentityMatrix(size_b.n);
