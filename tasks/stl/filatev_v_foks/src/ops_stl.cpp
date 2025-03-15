@@ -82,7 +82,7 @@ bool filatev_v_foks_stl::Focks::RunImpl() {
   matrix_c_.assign(size_ * size_, 0);
 
   size_t grid_size_ = size_ / size_block_;
-  int num_threads_ = ppc::util::GetPPCNumThreads();
+  size_t num_threads_ = ppc::util::GetPPCNumThreads();
 
   std::vector<std::thread> threads(num_threads_);
   std::mutex mtx;
