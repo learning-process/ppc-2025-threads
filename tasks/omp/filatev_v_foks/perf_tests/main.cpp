@@ -13,9 +13,6 @@
 
 namespace {
 
-std::vector<double> GeneratMatrix(filatev_v_foks_omp::MatrixSize size);
-std::vector<double> IdentityMatrix(size_t size);
-
 std::vector<double> GeneratMatrix(filatev_v_foks_omp::MatrixSize size) {
   std::vector<double> matrix(size.n * size.m);
 
