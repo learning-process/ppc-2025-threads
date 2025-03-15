@@ -49,7 +49,7 @@ bool filatev_v_foks_stl::Focks::ValidationImpl() {
          task_data->outputs_count[1] == task_data->inputs_count[1] && task_data->inputs_count[4] > 0;
 }
 
-void filatev_v_foks_stl::Focks::Worker(size_t start_step, size_t end_step, size_t grid_size_, std::mutex  &mtx) {
+void filatev_v_foks_stl::Focks::Worker(size_t start_step, size_t end_step, size_t grid_size_, std::mutex &mtx) {
   for (size_t step = start_step; step < end_step; ++step) {
     for (size_t i = 0; i < grid_size_; ++i) {
       for (size_t j = 0; j < grid_size_; ++j) {
