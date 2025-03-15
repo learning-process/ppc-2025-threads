@@ -3,10 +3,10 @@
 #include <algorithm>
 #include <cmath>
 #include <cstddef>
+#include <functional>
 #include <mutex>
 #include <thread>
 #include <vector>
-#include <functional>
 
 #include "core/util/include/util.hpp"
 
