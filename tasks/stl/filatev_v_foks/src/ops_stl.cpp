@@ -85,7 +85,6 @@ bool filatev_v_foks_stl::Focks::RunImpl() {
   std::mutex mtx;
 
   if (grid_size_ * grid_size_ * grid_size_ >= num_threads_) {
-
     std::vector<std::thread> threads(num_threads_);
 
     size_t steps_per_thread = grid_size_ * grid_size_ * grid_size_ / num_threads_;
