@@ -27,6 +27,7 @@ std::vector<int> GenerateRandomVector(const RandomVectorParams &params) {
   return random_vector;
 }
 
+namespace {
 void RunSortingTest(SortingTestParams &params, void (*sort_func)(std::vector<int> &)) {
   std::vector<int> out(params.input.size(), 0);
 
@@ -50,46 +51,53 @@ void RunSortingTest(SortingTestParams &params, void (*sort_func)(std::vector<int
 
   ASSERT_EQ(out, sorted_expected);
 }
+}  // namespace
 }  // namespace sotskov_a_shell_sorting_with_simple_merging_tbb
 
 TEST(sotskov_a_shell_sorting_with_simple_merging_tbb, test_sort_positive_numbers) {
   sotskov_a_shell_sorting_with_simple_merging_tbb::SortingTestParams params = {.expected = {1, 1, 2, 4, 5, 6, 7, 8},
                                                                                .input = {5, 1, 8, 6, 2, 7, 1, 4}};
 
-  RunSortingTest(params, sotskov_a_shell_sorting_with_simple_merging_tbb::ShellSortWithSimpleMerging);
+  sotskov_a_shell_sorting_with_simple_merging_tbb::RunSortingTest(
+      params, sotskov_a_shell_sorting_with_simple_merging_tbb::ShellSortWithSimpleMerging);
 }
 
 TEST(sotskov_a_shell_sorting_with_simple_merging_tbb, test_sort_negative_numbers) {
   sotskov_a_shell_sorting_with_simple_merging_tbb::SortingTestParams params = {.expected = {-12, -10, -8, -7, -4, -3},
                                                                                .input = {-8, -3, -12, -7, -4, -10}};
 
-  RunSortingTest(params, sotskov_a_shell_sorting_with_simple_merging_tbb::ShellSortWithSimpleMerging);
+  sotskov_a_shell_sorting_with_simple_merging_tbb::RunSortingTest(
+      params, sotskov_a_shell_sorting_with_simple_merging_tbb::ShellSortWithSimpleMerging);
 }
 
 TEST(sotskov_a_shell_sorting_with_simple_merging_tbb, test_sort_ordered_array) {
   sotskov_a_shell_sorting_with_simple_merging_tbb::SortingTestParams params = {.expected = {1, 2, 3, 4, 5, 6, 7, 8},
                                                                                .input = {1, 2, 3, 4, 5, 6, 7, 8}};
 
-  RunSortingTest(params, sotskov_a_shell_sorting_with_simple_merging_tbb::ShellSortWithSimpleMerging);
+  sotskov_a_shell_sorting_with_simple_merging_tbb::RunSortingTest(
+      params, sotskov_a_shell_sorting_with_simple_merging_tbb::ShellSortWithSimpleMerging);
 }
 
 TEST(sotskov_a_shell_sorting_with_simple_merging_tbb, test_sort_with_duplicates) {
   sotskov_a_shell_sorting_with_simple_merging_tbb::SortingTestParams params = {.expected = {2, 2, 2, 4, 4, 6, 6, 8},
                                                                                .input = {4, 2, 2, 8, 4, 6, 6, 2}};
 
-  RunSortingTest(params, sotskov_a_shell_sorting_with_simple_merging_tbb::ShellSortWithSimpleMerging);
+  sotskov_a_shell_sorting_with_simple_merging_tbb::RunSortingTest(
+      params, sotskov_a_shell_sorting_with_simple_merging_tbb::ShellSortWithSimpleMerging);
 }
 
 TEST(sotskov_a_shell_sorting_with_simple_merging_tbb, test_sort_single_element) {
   sotskov_a_shell_sorting_with_simple_merging_tbb::SortingTestParams params = {.expected = {77}, .input = {77}};
 
-  RunSortingTest(params, sotskov_a_shell_sorting_with_simple_merging_tbb::ShellSortWithSimpleMerging);
+  sotskov_a_shell_sorting_with_simple_merging_tbb::RunSortingTest(
+      params, sotskov_a_shell_sorting_with_simple_merging_tbb::ShellSortWithSimpleMerging);
 }
 
 TEST(sotskov_a_shell_sorting_with_simple_merging_tbb, test_sort_empty_array) {
   sotskov_a_shell_sorting_with_simple_merging_tbb::SortingTestParams params = {.expected = {}, .input = {}};
 
-  RunSortingTest(params, sotskov_a_shell_sorting_with_simple_merging_tbb::ShellSortWithSimpleMerging);
+  sotskov_a_shell_sorting_with_simple_merging_tbb::RunSortingTest(
+      params, sotskov_a_shell_sorting_with_simple_merging_tbb::ShellSortWithSimpleMerging);
 }
 
 TEST(sotskov_a_shell_sorting_with_simple_merging_tbb, test_sort_random_vector) {
@@ -103,5 +111,6 @@ TEST(sotskov_a_shell_sorting_with_simple_merging_tbb, test_sort_random_vector) {
   sotskov_a_shell_sorting_with_simple_merging_tbb::SortingTestParams sorting_params = {.expected = expected,
                                                                                        .input = in};
 
-  RunSortingTest(sorting_params, sotskov_a_shell_sorting_with_simple_merging_tbb::ShellSortWithSimpleMerging);
+  sotskov_a_shell_sorting_with_simple_merging_tbb::RunSortingTest(
+      sorting_params, sotskov_a_shell_sorting_with_simple_merging_tbb::ShellSortWithSimpleMerging);
 }
