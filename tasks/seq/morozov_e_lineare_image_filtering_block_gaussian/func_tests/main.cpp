@@ -8,7 +8,7 @@
 #include "core/task/include/task.hpp"
 #include "seq/morozov_e_lineare_image_filtering_block_gaussian/include/ops_seq.hpp"
 namespace morozov_e_lineare_image_filtering_block_gaussian {
-std::vector<double> GenerateRandomVector(int n, int m) {
+std::vector<double> static GenerateRandomVector(int n, int m) {
   std::random_device rd;
   std::mt19937 gen(rd());
   std::uniform_real_distribution<> distrib(0, 100);
