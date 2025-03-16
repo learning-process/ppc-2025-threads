@@ -11,7 +11,7 @@
 #include "tbb/sotskov_a_shell_sorting_with_simple_merging/include/ops_tbb.hpp"
 
 namespace sotskov_a_shell_sorting_with_simple_merging_tbb {
-
+namespace {
 std::vector<int> GenerateRandomVector(const RandomVectorParams &params) {
   std::random_device random_device;
   std::mt19937 generator(random_device());
@@ -24,13 +24,13 @@ std::vector<int> GenerateRandomVector(const RandomVectorParams &params) {
 
   return random_vector;
 }
-
+}  // namespace
 }  // namespace sotskov_a_shell_sorting_with_simple_merging_tbb
 
 TEST(sotskov_a_shell_sorting_with_simple_merging_tbb, test_pipeline_run) {
   sotskov_a_shell_sorting_with_simple_merging_tbb::RandomVectorParams params = {
       .size = 2000000, .min_value = 0, .max_value = 500};
-  std::vector<int> in = GenerateRandomVector(params);
+  std::vector<int> in = sotskov_a_shell_sorting_with_simple_merging_tbb::GenerateRandomVector(params);
   std::vector<int> out(in.size(), 0);
   std::vector<int> expected = in;
 
@@ -70,7 +70,7 @@ TEST(sotskov_a_shell_sorting_with_simple_merging_tbb, test_pipeline_run) {
 TEST(sotskov_a_shell_sorting_with_simple_merging_tbb, test_task_run) {
   sotskov_a_shell_sorting_with_simple_merging_tbb::RandomVectorParams params = {
       .size = 2000000, .min_value = 0, .max_value = 500};
-  std::vector<int> in = GenerateRandomVector(params);
+  std::vector<int> in = sotskov_a_shell_sorting_with_simple_merging_tbb::GenerateRandomVector(params);
   std::vector<int> out(in.size(), 0);
   std::vector<int> expected = in;
 
