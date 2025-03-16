@@ -37,7 +37,7 @@ bool IsSorted(std::vector<int> &vec) {
 
 TEST(kalyakina_a_Shell_with_simple_merge_seq, test_pipeline_run) {
   // Create data
-  std::vector<int> in = CreateReverseSortedVector(20000, -10000);
+  std::vector<int> in = CreateReverseSortedVector(100000, -50000);
   std::vector<int> out(in.size());
 
   // Create task_data
@@ -73,7 +73,7 @@ TEST(kalyakina_a_Shell_with_simple_merge_seq, test_pipeline_run) {
 
 TEST(kalyakina_a_Shell_with_simple_merge_seq, test_task_run) {
   // Create data
-  std::vector<int> in = CreateReverseSortedVector(20000, -10000);
+  std::vector<int> in = CreateReverseSortedVector(100000, -50000);
   std::vector<int> out(in.size());
 
   // Create task_data
