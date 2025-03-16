@@ -2,7 +2,7 @@
 
 #include <random>
 #include <vector>
-#include <iostream>
+
 #include "core/util/include/util.hpp"
 
 bool sadikov_i_sparse_matrix_multiplication_task_tbb::CCSMatrixTBB::PreProcessingImpl() {
@@ -47,17 +47,4 @@ bool sadikov_i_sparse_matrix_multiplication_task_tbb::CCSMatrixTBB::PostProcessi
     reinterpret_cast<double *>(task_data->outputs[0])[i] = answer[i];
   }
   return true;
-}
-
-std::vector<double> sadikov_i_sparse_matrix_multiplication_task_tbb::GetRandomMatrix(int size) {
-  std::vector<double> data(size);
-  std::random_device dev;
-  std::mt19937 gen(dev());
-  for (int i = 0; i < size; ++i) {
-    data[i] = static_cast<double>(gen() % 500);
-    if (data[i] > 250.0) {
-      data[i] = 0.0;
-    }
-  }
-  return data;
 }
