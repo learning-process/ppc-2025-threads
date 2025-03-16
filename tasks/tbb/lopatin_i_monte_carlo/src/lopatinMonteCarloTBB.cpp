@@ -28,9 +28,11 @@ bool TestTaskTBB::ValidationImpl() {
   const bool iter_valid = iterations > 0;
 
   bool bounds_valid = true;
-  for (size_t j = 0; j < integrationBounds_.size(); j += 2) {
-    if (integrationBounds_[j] >= integrationBounds_[j + 1]) {
+  auto* bounds_ptr = reinterpret_cast<double*>(task_data->inputs[0]);
+  for (size_t j = 0; j < task_data->inputs_count[0]; j += 2) {
+    if (bounds_ptr[j] >= bounds_ptr[j + 1]) {
       bounds_valid = false;
+      break;
     }
   }
 
