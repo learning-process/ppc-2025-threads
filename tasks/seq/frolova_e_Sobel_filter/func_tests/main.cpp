@@ -5,7 +5,6 @@
 #include <random>
 #include <vector>
 
-
 #include "core/task/include/task.hpp"
 #include "seq/frolova_e_Sobel_filter/include/ops_seq.hpp"
 
