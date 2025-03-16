@@ -4,6 +4,7 @@
 #include <memory>
 #include <random>
 #include <vector>
+#include <cmath>
 
 #include "core/task/include/task.hpp"
 #include "seq/frolova_e_Sobel_filter/include/ops_seq.hpp"
@@ -25,6 +26,22 @@ std::vector<int> GenRgbPicture(size_t width, size_t height, size_t seed) {
 
   return image;
 }
+
+std::vector<frolova_e_sobel_filter_seq::RGB> ConvertToRGB(const std::vector<int> &pict) {
+  std::vector<frolova_e_sobel_filter_seq::RGB> picture_;
+  size_t pixel_count = pict.size() / 3;
+
+  for (size_t i = 0; i < pixel_count; i++) {
+    frolova_e_sobel_filter_seq::RGB pixel;
+    pixel.R = pict[i * 3];
+    pixel.G = pict[i * 3 + 1];
+    pixel.B = pict[i * 3 + 2];
+
+    picture_.push_back(pixel);
+  }
+  return picture_;
+}
+
 }  // namespace
 
 TEST(frolova_e_sobel_filter_seq, test_1) {
@@ -191,21 +208,10 @@ TEST(frolova_e_sobel_filter_seq, _1000_1000_picture) {
   frolova_e_sobel_filter_seq::SobelFilterSequential test_task_sequential(task_data_seq);
   ASSERT_EQ(test_task_sequential.Validation(), true);
 
-  std::vector<frolova_e_sobel_filter_seq::RGB> picture_;
-  for (size_t i = 0; i < pict.size(); i += 3) {
-    frolova_e_sobel_filter_seq::RGB pixel;
-    pixel.R = pict[i];
-    pixel.G = pict[i + 1];
-    pixel.B = pict[i + 2];
-
-    picture_.push_back(pixel);
-  }
-
-  std::vector<int> gray_scale_image_(1000000);
-  for (size_t i = 0; i < static_cast<size_t>(value_1[0]) * static_cast<size_t>(value_1[1]); i++) {
-    gray_scale_image_[i] =
-        static_cast<int>((0.299 * picture_[i].R) + (0.587 * picture_[i].G) + (0.114 * picture_[i].B));
-  }
+  std::vector<frolova_e_sobel_filter_seq::RGB> picture = ConvertToRGB(pict);
+  
+  std::vector<int> gray_scale_image = frolova_e_sobel_filter_seq::ToGrayScaleImg(
+      picture, static_cast<size_t>(value_1[0]), static_cast<size_t>(value_1[1]));
 
   const std::vector<int> gx = {-1, 0, 1, -2, 0, 2, -1, 0, 1};
   const std::vector<int> gy = {-1, -2, -1, 0, 0, 0, 1, 2, 1};
@@ -222,7 +228,7 @@ TEST(frolova_e_sobel_filter_seq, _1000_1000_picture) {
           int pixel_value = 0;
 
           if (px >= 0 && px < static_cast<int>(value_1[0]) && py >= 0 && py < static_cast<int>(value_1[1])) {
-            pixel_value = gray_scale_image_[(py * value_1[0]) + px];
+            pixel_value = gray_scale_image[(py * value_1[0]) + px];
           }
 
           size_t kernel_ind = ((ky + 1) * 3) + (kx + 1);
