@@ -7,7 +7,6 @@
 #include <vector>
 
 #include "core/task/include/task.hpp"
-#include "core/util/include/util.hpp"
 #include "stl/sotskov_a_shell_sorting_with_simple_merging/include/ops_stl.hpp"
 
 namespace sotskov_a_shell_sorting_with_simple_merging_stl {

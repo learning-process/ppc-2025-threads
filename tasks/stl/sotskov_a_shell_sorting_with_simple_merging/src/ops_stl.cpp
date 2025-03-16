@@ -1,10 +1,9 @@
 #include "stl/sotskov_a_shell_sorting_with_simple_merging/include/ops_stl.hpp"
 
 #include <algorithm>
-#include <condition_variable>
 #include <cstddef>
-#include <mutex>
-#include <ranges>  // Для std::ranges::for_each
+#include <functional>
+#include <ranges>
 #include <thread>
 #include <vector>
 
@@ -73,7 +72,7 @@ void sotskov_a_shell_sorting_with_simple_merging_stl::ShellSortWithSimpleMerging
     for (int i = 0; i < array_size; i += 2 * size) {
       int left = i;
       int mid = std::min(i + size - 1, array_size - 1);
-      int right = std::min(i + 2 * size - 1, array_size - 1);
+      int right = std::min(i + (2 * size) - 1, array_size - 1);
       if (mid < right) {
         merge_threads.emplace_back(ParallelMerge, std::ref(arr), left, mid, right);
       }
