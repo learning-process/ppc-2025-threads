@@ -1,10 +1,9 @@
-#include "omp/Sadikov_I_SparseMatrixMultiplication_OMP/func_tests/main.cpp"
-
 #include <gtest/gtest.h>
 
 #include <chrono>
 #include <cstdint>
 #include <memory>
+#include <random>
 #include <vector>
 
 #include "core/perf/include/perf.hpp"
@@ -12,11 +11,26 @@
 #include "omp/Sadikov_I_SparseMatrixMultiplication_OMP/include/SparseMatrix.hpp"
 #include "omp/Sadikov_I_SparseMatrixMultiplication_OMP/include/ops_omp.hpp"
 
+namespace {
+std::vector<double> GetRandomMatrix(int size) {
+  std::vector<double> data(size);
+  std::random_device dev;
+  std::mt19937 gen(dev());
+  for (int i = 0; i < size; ++i) {
+    data[i] = static_cast<double>(gen() % 500);
+    if (data[i] > 250.0) {
+      data[i] = 0.0;
+    }
+  }
+  return data;
+}
+}  // namespace
+
 TEST(sadikov_i_sparse_matrix_multiplication_task_omp, test_pipeline_run) {
   constexpr auto kEpsilon = 0.000001;
   constexpr auto kSize = 300;
-  auto fmatrix = sadikov_i_sparse_matrix_multiplication_task_omp::GetRandomMatrix(kSize * kSize);
-  auto smatrix = sadikov_i_sparse_matrix_multiplication_task_omp::GetRandomMatrix(kSize * kSize);
+  auto fmatrix = GetRandomMatrix(kSize * kSize);
+  auto smatrix = GetRandomMatrix(kSize * kSize);
   std::vector<double> out(kSize * kSize, 0.0);
   auto task_data_seq = std::make_shared<ppc::core::TaskData>();
   task_data_seq->inputs.emplace_back(reinterpret_cast<uint8_t *>(fmatrix.data()));
@@ -51,8 +65,8 @@ TEST(sadikov_i_sparse_matrix_multiplication_task_omp, test_pipeline_run) {
 TEST(sadikov_i_sparse_matrix_multiplication_task_omp, test_task_run) {
   constexpr auto kEpsilon = 0.000001;
   constexpr auto kSize = 300;
-  auto fmatrix = sadikov_i_sparse_matrix_multiplication_task_omp::GetRandomMatrix(kSize * kSize);
-  auto smatrix = sadikov_i_sparse_matrix_multiplication_task_omp::GetRandomMatrix(kSize * kSize);
+  auto fmatrix = GetRandomMatrix(kSize * kSize);
+  auto smatrix = GetRandomMatrix(kSize * kSize);
   std::vector<double> out(kSize * kSize, 0.0);
   auto task_data_seq = std::make_shared<ppc::core::TaskData>();
   task_data_seq->inputs.emplace_back(reinterpret_cast<uint8_t *>(fmatrix.data()));
