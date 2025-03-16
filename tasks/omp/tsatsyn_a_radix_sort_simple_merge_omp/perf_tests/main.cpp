@@ -11,6 +11,7 @@
 #include "core/task/include/task.hpp"
 #include "omp/tsatsyn_a_radix_sort_simple_merge_omp/include/ops_omp.hpp"
 
+namespace {
 std::vector<double> GetRandomVector(int sz, int a, int b) {
   std::random_device dev;
   std::mt19937 gen(dev());
@@ -21,6 +22,8 @@ std::vector<double> GetRandomVector(int sz, int a, int b) {
   }
   return vec;
 }
+}  // namespace
+
 TEST(tsatsyn_a_radix_sort_simple_merge_omp, test_pipeline_run) {
   constexpr int kCount = 500;
   // Create data

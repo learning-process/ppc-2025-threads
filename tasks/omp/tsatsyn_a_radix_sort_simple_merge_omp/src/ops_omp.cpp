@@ -8,15 +8,16 @@
 #include <utility>
 #include <vector>
 
-#define CHUNK 100
-
+namespace constants {
+constexpr int CHUNK = 100;
+}
 inline std::vector<uint64_t> tsatsyn_a_radix_sort_simple_merge_omp::MainSort(std::vector<uint64_t> &data, int bit) {
   std::vector<uint64_t> group0;
   std::vector<uint64_t> group1;
 
   group0.reserve(data.size());
   group1.reserve(data.size());
-#pragma omp for schedule(guided, CHUNK) nowait
+#pragma omp for schedule(guided, constants::CHUNK) nowait
   for (int i = 0; i < static_cast<int>(data.size()); i++) {
     (((data[i] >> bit) & 1) != 0U) ? group1.push_back(data[i]) : group0.push_back(data[i]);
   }
@@ -54,7 +55,7 @@ bool tsatsyn_a_radix_sort_simple_merge_omp::TestTaskOpenMP::ValidationImpl() { r
 bool tsatsyn_a_radix_sort_simple_merge_omp::TestTaskOpenMP::RunImpl() {
   std::vector<uint64_t> pozitive_copy;
   std::vector<uint64_t> negative_copy;
-  int i;
+  int i = 0;
 #pragma omp parallel private(i)
   {
     std::vector<uint64_t> local_positive;
@@ -86,12 +87,12 @@ bool tsatsyn_a_radix_sort_simple_merge_omp::TestTaskOpenMP::RunImpl() {
       negative_copy = MainSort(negative_copy, bit);
     }
 
-#pragma omp parallel for schedule(guided, CHUNK)
+#pragma omp parallel for schedule(guided, constants::CHUNK)
     for (i = 0; i < static_cast<int>(negative_copy.size()); i++) {
       output_[static_cast<int>(negative_copy.size()) - 1 - i] = *reinterpret_cast<const double *>(&negative_copy[i]);
     }
   }
-#pragma omp parallel for schedule(guided, CHUNK)
+#pragma omp parallel for schedule(guided, constants::CHUNK)
   for (i = 0; i < static_cast<int>(pozitive_copy.size()); ++i) {
     output_[negative_copy.size() + i] = *reinterpret_cast<const double *>(&pozitive_copy[i]);
   }
