@@ -41,7 +41,8 @@ TEST(lopatin_i_monte_carlo_tbb, validationInvalidInputOddBoundsCount) {
 }
 
 TEST(lopatin_i_monte_carlo_tbb, validationInvalidInputBounds) {
-  std::vector<double> bounds = lopatin_i_monte_carlo_tbb::GenerateBounds(4.0, 1.0, 2);  // lower bound is greater than upper one
+  std::vector<double> bounds =
+      lopatin_i_monte_carlo_tbb::GenerateBounds(4.0, 1.0, 2);  // lower bound is greater than upper one
   const int iterations = 10;
 
   auto task_data = std::make_shared<ppc::core::TaskData>();
