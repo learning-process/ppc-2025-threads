@@ -3,7 +3,6 @@
 #include <algorithm>
 #include <cstddef>
 #include <functional>
-#include <ranges>
 #include <thread>
 #include <vector>
 
