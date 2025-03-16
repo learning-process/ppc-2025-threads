@@ -40,6 +40,24 @@ TEST(lopatin_i_monte_carlo_tbb, validationInvalidInputOddBoundsCount) {
   ASSERT_FALSE(task.Validation());
 }
 
+TEST(lopatin_i_monte_carlo_tbb, validationInvalidInputBounds) {
+  std::vector<double> bounds = lopatin_i_monte_carlo_tbb::GenerateBounds(4.0, 1.0, 2);  // lower bound is greater than upper one
+  const int iterations = 10;
+
+  auto task_data = std::make_shared<ppc::core::TaskData>();
+  task_data->inputs.push_back(reinterpret_cast<uint8_t*>(bounds.data()));
+  task_data->inputs_count.push_back(bounds.size());
+  task_data->inputs.push_back(reinterpret_cast<uint8_t*>(const_cast<int*>(&iterations)));
+  task_data->inputs_count.push_back(1);
+
+  double result = 0.0;
+  task_data->outputs.push_back(reinterpret_cast<uint8_t*>(&result));
+  task_data->outputs_count.push_back(1);
+
+  lopatin_i_monte_carlo_tbb::TestTaskTBB task(task_data, [](const std::vector<double>&) { return 1.0; });
+  ASSERT_FALSE(task.Validation());
+}
+
 TEST(lopatin_i_monte_carlo_tbb, validationMissingOutputData) {
   std::vector<double> bounds = lopatin_i_monte_carlo_tbb::GenerateBounds(0.0, 1.0, 2);
   const int iterations = 10;
