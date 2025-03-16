@@ -2,8 +2,10 @@
 
 #include <omp.h>
 
+#include <algorithm>
 #include <cmath>
 #include <cstddef>
+#include <utility>
 #include <vector>
 
 std::vector<unsigned int> kalyakina_a_shell_with_simple_merge_omp::ShellSortOpenMP::CalculationOfGapLengths(
@@ -44,10 +46,10 @@ void kalyakina_a_shell_with_simple_merge_omp::ShellSortOpenMP::SimpleMergeSort(s
                                                                                unsigned int &right) {
   std::vector<int> first_part(middle - left);
   std::copy(vec.begin() + left, vec.begin() + middle, first_part.begin());
-  unsigned int l;
-  unsigned int r;
-  unsigned int j;
-  for (l = 0, r = middle, j = left; (l < first_part.size()) && (r < right); j++) {
+  unsigned int l = 0;
+  unsigned int r = middle;
+  unsigned int j = left;
+  for (; (l < first_part.size()) && (r < right); j++) {
     if (first_part[l] < vec[r]) {
       vec[j] = first_part[l++];
     } else {
@@ -66,7 +68,7 @@ bool kalyakina_a_shell_with_simple_merge_omp::ShellSortOpenMP::PreProcessingImpl
   // Init value for input and output
   input_ = std::vector<int>(task_data->inputs_count[0]);
   auto *in_ptr = reinterpret_cast<int *>(task_data->inputs[0]);
-  std::ranges::copy(in_ptr, in_ptr + task_data->inputs_count[0], input_.begin());
+  std::copy(in_ptr, in_ptr + task_data->inputs_count[0], input_.begin());
 
   return true;
 }
@@ -87,7 +89,7 @@ bool kalyakina_a_shell_with_simple_merge_omp::ShellSortOpenMP::RunImpl() {
   Sedgwick_sequence_ = CalculationOfGapLengths(input_.size() / num);
   for (unsigned int i = 0; i < num; i++) {
     unsigned int right = (i < reminder) ? left + part + 1 : left + part;
-    bounds.push_back(std::pair(left, right));
+    bounds.emplace_back(std::pair(left, right));
     left = right;
   }
 #pragma omp parallel for schedule(static)
@@ -100,11 +102,11 @@ bool kalyakina_a_shell_with_simple_merge_omp::ShellSortOpenMP::RunImpl() {
     step *= 2;
 #pragma omp parallel for schedule(static)
     for (int i = 0; i < (int)num; i++) {
-      unsigned int middle = step / 2 + step * i;
+      unsigned int middle = (step / 2) + (step * i);
       if (middle < bounds.size()) {
         SimpleMergeSort(
             input_, bounds[i * step].first, bounds[middle].first,
-            bounds[(bounds.size() - 1 < (i + 1) * step - 1) ? bounds.size() - 1 : (i + 1) * step - 1].second);
+            bounds[(bounds.size() - 1 < (i + 1) * step - 1) ? bounds.size() - 1 : ((i + 1) * step) - 1].second);
       }
     }
     num = std::ceil((double)num / 2);
