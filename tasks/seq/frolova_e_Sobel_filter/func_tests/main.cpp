@@ -28,18 +28,18 @@ std::vector<int> GenRgbPicture(size_t width, size_t height, size_t seed) {
 }
 
 std::vector<frolova_e_sobel_filter_seq::RGB> ConvertToRGB(const std::vector<int> &pict) {
-  std::vector<frolova_e_sobel_filter_seq::RGB> picture_;
+  std::vector<frolova_e_sobel_filter_seq::RGB> picture;
   size_t pixel_count = pict.size() / 3;
 
   for (size_t i = 0; i < pixel_count; i++) {
     frolova_e_sobel_filter_seq::RGB pixel;
     pixel.R = pict[i * 3];
-    pixel.G = pict[i * 3 + 1];
-    pixel.B = pict[i * 3 + 2];
+    pixel.G = pict[(i * 3) + 1];
+    pixel.B = pict[(i * 3) + 2];
 
-    picture_.push_back(pixel);
+    picture.push_back(pixel);
   }
-  return picture_;
+  return picture;
 }
 
 }  // namespace
