@@ -89,7 +89,7 @@ bool kalyakina_a_shell_with_simple_merge_omp::ShellSortOpenMP::RunImpl() {
   Sedgwick_sequence_ = CalculationOfGapLengths(input_.size() / num);
   for (unsigned int i = 0; i < num; i++) {
     unsigned int right = (i < reminder) ? left + part + 1 : left + part;
-    bounds.emplace_back(std::pair(left, right));
+    bounds.emplace_back(left, right);
     left = right;
   }
 #pragma omp parallel for schedule(static)
