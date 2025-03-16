@@ -27,7 +27,7 @@ bool TestTaskTBB::ValidationImpl() {
   const int iterations = *iter_ptr;
   const bool iter_valid = iterations > 0;
 
-  bool bounds_valid = true;
+  bool bounds_valid = true;  // bounds
   auto* bounds_ptr = reinterpret_cast<double*>(task_data->inputs[0]);
   for (size_t j = 0; j < task_data->inputs_count[0]; j += 2) {
     if (bounds_ptr[j] >= bounds_ptr[j + 1]) {
