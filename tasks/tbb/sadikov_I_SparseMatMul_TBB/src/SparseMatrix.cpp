@@ -1,12 +1,11 @@
 #include "tbb/sadikov_I_SparseMatMul_TBB/include/SparseMatrix.hpp"
 
-#include <tbb/task_arena.h>
+#include <oneapi/tbb/task_arena.h>
 #include <tbb/tbb.h>
 
 #include <algorithm>
 #include <cstddef>
 #include <iterator>
-#include <ranges>
 #include <vector>
 
 #include "core/util/include/util.hpp"
