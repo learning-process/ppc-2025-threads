@@ -7,7 +7,22 @@
 
 #include "core/task/include/task.hpp"
 #include "seq/morozov_e_lineare_image_filtering_block_gaussian/include/ops_seq.hpp"
+namespace morozov_e_lineare_image_filtering_block_gaussian {
+std::vector<double> generateRandomVector(int n, int m) {
+  std::random_device rd;
+  std::mt19937 gen(rd());
+  std::uniform_real_distribution<> distrib(0, 100);
+  std::vector<double> vector(n * m);
+  // Создание матрицы
 
+  // Заполнение матрицы случайными числами
+  for (int i = 0; i < n; ++i) {
+    for (int j = 0; j < m; ++j) {
+      vector[(i * n) + j] = distrib(gen);  // Генерация случайного числа
+    }
+  }
+}
+}  // namespace morozov_e_lineare_image_filtering_block_gaussian
 TEST(morozov_e_lineare_image_filtering_block_gaussian, empty_image_test) {
   int n = 0;
   int m = 0;
@@ -277,19 +292,7 @@ TEST(morozov_e_lineare_image_filtering_block_gaussian, random_test1) {
   int n = 3;
   int m = 3;
   std::vector image_res(n * m, 0.0);
-  std::random_device rd;
-  std::mt19937 gen(rd());
-  std::uniform_int_distribution<> distrib(0, 100);
-
-  // Создание матрицы
-  std::vector<double> image(n * m);
-
-  // Заполнение матрицы случайными числами
-  for (int i = 0; i < n; ++i) {
-    for (int j = 0; j < m; ++j) {
-      image[(i * n) + j] = distrib(gen);  // Генерация случайного числа
-    }
-  }
+  std::vector<double> image = morozov_e_lineare_image_filtering_block_gaussian::generateRandomVector(n, m);
   // Create task_data
   auto task_data_seq = std::make_shared<ppc::core::TaskData>();
   task_data_seq->inputs.emplace_back(reinterpret_cast<uint8_t *>(image.data()));
