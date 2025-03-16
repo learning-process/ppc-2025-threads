@@ -2,7 +2,6 @@
 
 #include <cmath>
 #include <utility>
-#include <vector>
 
 #include "core/task/include/task.hpp"
 #include "omp/Sadikov_I_SparseMatrixMultiplication_OMP/include/SparseMatrix.hpp"
