@@ -202,15 +202,15 @@ TEST(frolova_e_sobel_filter_seq, _1000_1000_picture) {
   }
 
   std::vector<int> gray_scale_image_(1000000);
-  for (size_t i = 0; i < value_1[0] * value_1[1]; i++) {
+  for (size_t i = 0; i < static_cast<size_t>(value_1[0]) * static_cast<size_t>(value_1[1]); i++) {
     gray_scale_image_[i] =
         static_cast<int>((0.299 * picture_[i].R) + (0.587 * picture_[i].G) + (0.114 * picture_[i].B));
   }
 
   const std::vector<int> gx = {-1, 0, 1, -2, 0, 2, -1, 0, 1};
   const std::vector<int> gy = {-1, -2, -1, 0, 0, 0, 1, 2, 1};
-  for (size_t y = 0; y < value_1[0]; y++) {
-    for (size_t x = 0; x < value_1[1]; x++) {
+  for (size_t y = 0; y < static_cast<size_t>(value_1[0]); y++) {
+    for (size_t x = 0; x < static_cast<size_t>(value_1[1]); x++) {
       int res_x = 0;
       int res_y = 0;
 
