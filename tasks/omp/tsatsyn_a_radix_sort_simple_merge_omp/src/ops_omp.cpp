@@ -8,17 +8,21 @@
 #include <utility>
 #include <vector>
 
+#define CHUNK 100
+
 inline std::vector<uint64_t> tsatsyn_a_radix_sort_simple_merge_omp::MainSort(std::vector<uint64_t> &data, int bit) {
   std::vector<uint64_t> group0;
   std::vector<uint64_t> group1;
+
   group0.reserve(data.size());
   group1.reserve(data.size());
-
-  for (uint64_t num : data) {
-    (((num >> bit) & 1) != 0U) ? group1.push_back(num) : group0.push_back(num);
+#pragma omp for schedule(guided, CHUNK) nowait
+  for (int i = 0; i < static_cast<int>(data.size()); i++) {
+    (((data[i] >> bit) & 1) != 0U) ? group1.push_back(data[i]) : group0.push_back(data[i]);
   }
   data = std::move(group0);
   data.insert(data.end(), group1.begin(), group1.end());
+
   return data;
 }
 
@@ -50,21 +54,20 @@ bool tsatsyn_a_radix_sort_simple_merge_omp::TestTaskOpenMP::ValidationImpl() { r
 bool tsatsyn_a_radix_sort_simple_merge_omp::TestTaskOpenMP::RunImpl() {
   std::vector<uint64_t> pozitive_copy;
   std::vector<uint64_t> negative_copy;
-
-#pragma omp parallel
+  int i;
+#pragma omp parallel private(i)
   {
     std::vector<uint64_t> local_positive;
     std::vector<uint64_t> local_negative;
 
 #pragma omp for nowait
-    for (int i = 0; i < static_cast<int>(input_data_.size()); ++i) {
+    for (i = 0; i < static_cast<int>(input_data_.size()); ++i) {
       if (input_data_[i] > 0.0) {
         local_positive.push_back(*reinterpret_cast<const uint64_t *>(&input_data_[i]));
       } else {
         local_negative.push_back(*reinterpret_cast<const uint64_t *>(&input_data_[i]));
       }
     }
-
 #pragma omp critical
     {
       pozitive_copy.insert(pozitive_copy.end(), local_positive.begin(), local_positive.end());
@@ -73,29 +76,23 @@ bool tsatsyn_a_radix_sort_simple_merge_omp::TestTaskOpenMP::RunImpl() {
   }
   int pozitive_bits = CalculateBits(pozitive_copy, true);
   int negative_bits = CalculateBits(negative_copy, false);
+
   for (int bit = 0; bit < pozitive_bits; bit++) {
-#pragma omp parallel
-    {
-#pragma omp single
-      { pozitive_copy = MainSort(pozitive_copy, bit); }
-    }
+    pozitive_copy = MainSort(pozitive_copy, bit);
   }
+
   if (!negative_copy.empty()) {
     for (int bit = 0; bit < negative_bits; bit++) {
-#pragma omp parallel
-      {
-#pragma omp single
-        { negative_copy = MainSort(negative_copy, bit); }
-      }
+      negative_copy = MainSort(negative_copy, bit);
     }
 
-#pragma omp parallel for
-    for (int i = 0; i < static_cast<int>(negative_copy.size()); i++) {
+#pragma omp parallel for schedule(guided, CHUNK)
+    for (i = 0; i < static_cast<int>(negative_copy.size()); i++) {
       output_[static_cast<int>(negative_copy.size()) - 1 - i] = *reinterpret_cast<const double *>(&negative_copy[i]);
     }
   }
-#pragma omp parallel for
-  for (int i = 0; i < static_cast<int>(pozitive_copy.size()); ++i) {
+#pragma omp parallel for schedule(guided, CHUNK)
+  for (i = 0; i < static_cast<int>(pozitive_copy.size()); ++i) {
     output_[negative_copy.size() + i] = *reinterpret_cast<const double *>(&pozitive_copy[i]);
   }
 

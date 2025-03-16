@@ -7,7 +7,6 @@
 #include "core/task/include/task.hpp"
 
 namespace tsatsyn_a_radix_sort_simple_merge_omp {
-std::vector<double> GetRandomVector(int sz, int a, int b);
 inline int CalculateBits(const std::vector<uint64_t> &data, bool is_pozitive);
 inline std::vector<uint64_t> MainSort(std::vector<uint64_t> &data, int bit);
 
