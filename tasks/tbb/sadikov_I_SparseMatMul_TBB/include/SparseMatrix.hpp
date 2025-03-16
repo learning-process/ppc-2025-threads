@@ -11,11 +11,11 @@ class SparseMatrix {
     std::vector<double> m_values_;
     std::vector<int> m_rows_;
     std::vector<int> m_elementsSum_;
-    void ClearCompontents() noexcept {
-      m_values_.clear();
-      m_rows_.clear();
-      m_elementsSum_.clear();
-    };
+    void Resize(size_t values_size, size_t sums_size) noexcept {
+      m_values_.resize(values_size);
+      m_rows_.resize(values_size);
+      m_elementsSum_.resize(sums_size);
+    }
   };
   int m_rowsCount_ = 0;
   int m_columnsCount_ = 0;
@@ -37,7 +37,6 @@ class SparseMatrix {
   [[nodiscard]] int GetColumnsCount() const noexcept { return m_columnsCount_; }
   [[nodiscard]] int GetRowsCount() const noexcept { return m_rowsCount_; }
   static SparseMatrix MatrixToSparse(int rows_count, int columns_count, const std::vector<double>& values);
-  void Clear() noexcept { m_compontents_.ClearCompontents(); }
   SparseMatrix operator*(SparseMatrix& smatrix) const noexcept(false);
 };
 

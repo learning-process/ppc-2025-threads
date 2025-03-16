@@ -4,9 +4,13 @@
 
 #include <algorithm>
 #include <cstddef>
+#include <iostream>
 #include <map>
 #include <utility>
 #include <vector>
+
+#include "core/util/include/util.hpp"
+#include "oneapi/tbb/parallel_for.h"
 
 namespace sadikov_i_sparse_matrix_multiplication_task_tbb {
 SparseMatrix SparseMatrix::Transpose(const SparseMatrix& matrix) {
@@ -56,35 +60,42 @@ double SparseMatrix::CalculateSum(const SparseMatrix& fmatrix, const SparseMatri
 }
 
 SparseMatrix SparseMatrix::operator*(SparseMatrix& smatrix) const {
-  std::map<int, MatrixComponents> components;
   auto fmatrix = Transpose(*this);
   const auto& felements_sum = fmatrix.GetElementsSum();
   const auto& selements_sum = smatrix.GetElementsSum();
-  tbb::parallel_for(tbb::blocked_range<size_t>(0, (selements_sum.size())),
-                    [&](const tbb::blocked_range<size_t>& range) {
-                      MatrixComponents component;
-                      component.m_elementsSum_.resize(smatrix.GetColumnsCount());
-                      for (auto i = range.begin(); i < range.end(); ++i) {
-                        for (int j = 0; j < static_cast<int>(felements_sum.size()); ++j) {
-                          double sum = CalculateSum(fmatrix, smatrix, felements_sum, selements_sum, i, j);
-                          if (sum > kMEpsilon) {
-                            component.m_values_.push_back(sum);
-                            component.m_rows_.push_back(j);
-                            component.m_elementsSum_[i]++;
-                          }
-                        }
-                      }
-                      for (size_t i = 1; i < component.m_elementsSum_.size(); ++i) {
-                        component.m_elementsSum_[i] = component.m_elementsSum_[i] + component.m_elementsSum_[i - 1];
-                      }
-                      components[tbb::this_task_arena::current_thread_index()] = std::move(component);
-                    });
-  MatrixComponents result;
-  for (const auto& [thread_num, data] : components) {
-    std::copy(data.m_values_.begin(), data.m_values_.end(), std::back_inserter(result.m_values_));
-    std::copy(data.m_rows_.begin(), data.m_rows_.end(), std::back_inserter(result.m_rows_));
-    std::copy(data.m_elementsSum_.begin(), data.m_elementsSum_.end(), std::back_inserter(result.m_elementsSum_));
+  MatrixComponents component;
+  component.Resize(selements_sum.size() * felements_sum.size(), smatrix.GetElementsSum().size());
+  oneapi::tbb::task_arena arena(ppc::util::GetPPCNumThreads());
+  arena.execute([&] {
+    oneapi::tbb::parallel_for(
+        oneapi::tbb::blocked_range<size_t>(0, selements_sum.size(),
+                                           selements_sum.size() / tbb::this_task_arena::max_concurrency()),
+        [&](const oneapi::tbb::blocked_range<size_t>& range) {
+          for (size_t i = range.begin(); i != range.end(); ++i) {
+            for (size_t j = 0; j < felements_sum.size(); ++j) {
+              double sum = CalculateSum(fmatrix, smatrix, felements_sum, selements_sum, static_cast<int>(i),
+                                        static_cast<int>(j));
+              if (sum > kMEpsilon) {
+                component.m_values_[i * felements_sum.size() + j] = sum;
+                component.m_rows_[i * felements_sum.size() + j] = j;
+                component.m_elementsSum_[i]++;
+              }
+            }
+          }
+        });
+  });
+  for (size_t i = 1; i < component.m_elementsSum_.size(); ++i) {
+    component.m_elementsSum_[i] = component.m_elementsSum_[i] + component.m_elementsSum_[i - 1];
   }
+  MatrixComponents result;
+  for (size_t i = 0; i < component.m_values_.size(); ++i) {
+    if (component.m_values_[i] != 0.0) {
+      result.m_values_.push_back(component.m_values_[i]);
+      result.m_rows_.push_back(component.m_rows_[i]);
+    }
+  }
+  std::copy(component.m_elementsSum_.begin(), component.m_elementsSum_.end(),
+            std::back_inserter(result.m_elementsSum_));
   return SparseMatrix(smatrix.GetColumnsCount(), smatrix.GetColumnsCount(), result);
 }
 
@@ -96,7 +107,7 @@ SparseMatrix SparseMatrix::MatrixToSparse(int rows_count, int columns_count, con
       if (values[i + (columns_count * j)] != 0) {
         compontents.m_values_.emplace_back(values[i + (columns_count * j)]);
         compontents.m_rows_.emplace_back(j);
-        compontents.m_elementsSum_[i] += 1;
+        compontents.m_elementsSum_[i]++;
       }
     }
     if (i != columns_count - 1) {
@@ -107,7 +118,7 @@ SparseMatrix SparseMatrix::MatrixToSparse(int rows_count, int columns_count, con
 }
 
 std::vector<double> FromSparseMatrix(const SparseMatrix& matrix) {
-  std::vector<double> simpl_matrix(matrix.GetRowsCount() * matrix.GetColumnsCount(), 0.0);
+  std::vector<double> simple_matrix(matrix.GetRowsCount() * matrix.GetColumnsCount(), 0.0);
   int column_number = 0;
   int column_counter = 0;
   for (size_t i = 0; i < matrix.GetValues().size(); ++i) {
@@ -118,9 +129,9 @@ std::vector<double> FromSparseMatrix(const SparseMatrix& matrix) {
     if (column_number > 0 && matrix.GetElementsSum()[column_number] - matrix.GetElementsSum()[column_number - 1] == 0) {
       column_number++;
     }
-    simpl_matrix[column_number + (matrix.GetRows()[i] * matrix.GetColumnsCount())] = matrix.GetValues()[i];
+    simple_matrix[column_number + (matrix.GetRows()[i] * matrix.GetColumnsCount())] = matrix.GetValues()[i];
   }
-  return simpl_matrix;
+  return simple_matrix;
 }
 
 int SparseMatrix::GetElementsCount(int index, const std::vector<int>& elements_sum) {
