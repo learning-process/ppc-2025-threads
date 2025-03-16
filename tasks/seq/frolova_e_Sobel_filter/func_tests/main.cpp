@@ -1,10 +1,10 @@
 #include <gtest/gtest.h>
 
+#include <cmath>
 #include <cstdint>
 #include <memory>
 #include <random>
 #include <vector>
-#include <cmath>
 
 #include "core/task/include/task.hpp"
 #include "seq/frolova_e_Sobel_filter/include/ops_seq.hpp"
@@ -208,8 +208,7 @@ TEST(frolova_e_sobel_filter_seq, _1000_1000_picture) {
   frolova_e_sobel_filter_seq::SobelFilterSequential test_task_sequential(task_data_seq);
   ASSERT_EQ(test_task_sequential.Validation(), true);
 
-  std::vector<frolova_e_sobel_filter_seq::RGB> picture = ConvertToRGB(pict);
-  
+  std::vector<frolova_e_sobel_filter_seq::RGB> picture = ConvertToRGB(pict);  
   std::vector<int> gray_scale_image = frolova_e_sobel_filter_seq::ToGrayScaleImg(
       picture, static_cast<size_t>(value_1[0]), static_cast<size_t>(value_1[1]));
 
