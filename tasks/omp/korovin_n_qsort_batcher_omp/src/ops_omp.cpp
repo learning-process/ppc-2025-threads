@@ -105,25 +105,21 @@ void TestTaskOpenMP::OddEvenMerge(std::vector<BlockRange>& blocks) {
     max_block_len = std::max(max_block_len, static_cast<int>(std::distance(b.low, b.high)));
   }
   int buffer_size = max_block_len * 2;
-
-#pragma omp parallel
-  {
-    std::vector<int> buffer(buffer_size);
-#pragma omp single
-    {
-      for (int iter = 0; iter < max_iters; iter++) {
-        bool changed_global = false;
+  for (int iter = 0; iter < max_iters; iter++) {
+    bool changed_global = false;
 #pragma omp parallel for schedule(static) reduction(|| : changed_global)
-        for (int b = iter % 2; b < p; b += 2) {
-          if (b + 1 < p) {
-            bool changed_local = InPlaceMerge(blocks[b], blocks[b + 1], buffer);
-            changed_global = changed_global || changed_local;
-          }
-        }
-        if (!changed_global) {
-          break;
-        }
+    for (int b = iter % 2; b < p; b += 2) {
+      static thread_local std::vector<int> buffer;
+      if (static_cast<int>(buffer.size()) < buffer_size) {
+        buffer.resize(buffer_size);
       }
+      if (b + 1 < p) {
+        bool changed_local = InPlaceMerge(blocks[b], blocks[b + 1], buffer);
+        changed_global = changed_global || changed_local;
+      }
+    }
+    if (!changed_global) {
+      break;
     }
   }
 }
