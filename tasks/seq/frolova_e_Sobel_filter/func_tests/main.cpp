@@ -2,10 +2,31 @@
 
 #include <cstdint>
 #include <memory>
+#include <random>
 #include <vector>
+
 
 #include "core/task/include/task.hpp"
 #include "seq/frolova_e_Sobel_filter/include/ops_seq.hpp"
+
+namespace {
+std::vector<int> GenRgbPicture(size_t width, size_t height, size_t seed) {
+  std::vector<int> image(width * height * 3);
+  std::mt19937 gen(seed);
+  std::uniform_int_distribution<int> rgb(0, 255);
+
+  for (size_t y = 0; y < height; y++) {
+    for (size_t x = 0; x < width; x++) {
+      size_t index = (y * width + x) * 3;
+      image[index] = rgb(gen);
+      image[index + 1] = rgb(gen);
+      image[index + 2] = rgb(gen);
+    }
+  }
+
+  return image;
+}
+}  // namespace
 
 TEST(frolova_e_sobel_filter_seq, test_1) {
   std::vector<int> value_1 = {10, 10};
@@ -140,6 +161,80 @@ TEST(frolova_e_sobel_filter_seq, one_pixel) {
   // Create Task
   frolova_e_sobel_filter_seq::SobelFilterSequential test_task_sequential(task_data_seq);
   ASSERT_EQ(test_task_sequential.Validation(), true);
+
+  test_task_sequential.PreProcessing();
+  test_task_sequential.Run();
+  test_task_sequential.PostProcessing();
+
+  EXPECT_EQ(reference, res);
+}
+
+TEST(frolova_e_sobel_filter_seq, _1000_1000_picture) {
+  std::vector<int> value_1 = {1000, 1000};
+  std::vector<int> pict = GenRgbPicture(1000, 1000, 0);
+
+  std::vector<int> res(1000000, 0);
+  std::vector<int> reference(1000000, 0);
+
+  // Create task_data
+  auto task_data_seq = std::make_shared<ppc::core::TaskData>();
+
+  task_data_seq->inputs.emplace_back(reinterpret_cast<uint8_t *>(value_1.data()));
+  task_data_seq->inputs_count.emplace_back(value_1.size());
+
+  task_data_seq->inputs.emplace_back(reinterpret_cast<uint8_t *>(pict.data()));
+  task_data_seq->inputs_count.emplace_back(pict.size());
+
+  task_data_seq->outputs.emplace_back(reinterpret_cast<uint8_t *>(res.data()));
+  task_data_seq->outputs_count.emplace_back(res.size());
+
+  // Create Task
+  frolova_e_sobel_filter_seq::SobelFilterSequential test_task_sequential(task_data_seq);
+  ASSERT_EQ(test_task_sequential.Validation(), true);
+
+  std::vector<frolova_e_sobel_filter_seq::RGB> picture_;
+  for (size_t i = 0; i < pict.size(); i += 3) {
+    frolova_e_sobel_filter_seq::RGB pixel;
+    pixel.R = pict[i];
+    pixel.G = pict[i + 1];
+    pixel.B = pict[i + 2];
+
+    picture_.push_back(pixel);
+  }
+
+  std::vector<int> gray_scale_image_(1000000);
+  for (size_t i = 0; i < value_1[0] * value_1[1]; i++) {
+    gray_scale_image_[i] =
+        static_cast<int>((0.299 * picture_[i].R) + (0.587 * picture_[i].G) + (0.114 * picture_[i].B));
+  }
+
+  const std::vector<int> gx = {-1, 0, 1, -2, 0, 2, -1, 0, 1};
+  const std::vector<int> gy = {-1, -2, -1, 0, 0, 0, 1, 2, 1};
+  for (size_t y = 0; y < value_1[0]; y++) {
+    for (size_t x = 0; x < value_1[1]; x++) {
+      int res_x = 0;
+      int res_y = 0;
+
+      for (int ky = -1; ky <= 1; ky++) {
+        for (int kx = -1; kx <= 1; kx++) {
+          int px = static_cast<int>(x) + kx;
+          int py = static_cast<int>(y) + ky;
+
+          int pixel_value = 0;
+
+          if (px >= 0 && px < static_cast<int>(value_1[0]) && py >= 0 && py < static_cast<int>(value_1[1])) {
+            pixel_value = gray_scale_image_[(py * value_1[0]) + px];
+          }
+
+          size_t kernel_ind = ((ky + 1) * 3) + (kx + 1);
+          res_x += pixel_value * gx[kernel_ind];
+          res_y += pixel_value * gy[kernel_ind];
+        }
+      }
+      int gradient = static_cast<int>(sqrt((res_x * res_x) + (res_y * res_y)));
+      reference[(y * value_1[0]) + x] = frolova_e_sobel_filter_seq::Clamp(gradient, 0, 255);
+    }
+  }
 
   test_task_sequential.PreProcessing();
   test_task_sequential.Run();
