@@ -24,7 +24,7 @@ void kalyakina_a_shell_with_simple_merge_seq::ShellSortSequential::ShellSort(std
   for (unsigned int k = Sedgwick_sequence_.size(); k > 0;) {
     unsigned int gap = Sedgwick_sequence_[--k];
     for (unsigned int i = 0; i < gap; i++) {
-      for (unsigned int j = i; j < vec.size(); j += gap + i) {
+      for (unsigned int j = i; j < vec.size(); j += gap) {
         unsigned int index = j;
         int tmp = vec[index];
         while ((index >= gap) && (tmp < vec[index - gap])) {
