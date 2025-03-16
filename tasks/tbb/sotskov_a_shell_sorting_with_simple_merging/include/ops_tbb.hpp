@@ -19,7 +19,7 @@ struct SortingTestParams {
 void ShellSortWithSimpleMerging(std::vector<int>& arr);
 void ShellSort(std::vector<int>& arr, int left, int right);
 void ParallelMerge(std::vector<int>& arr, int left, int mid, int right);
-std::vector<int> GenerateRandomVector(const RandomVectorParams& params);
+
 class TestTaskTBB : public ppc::core::Task {
  public:
   explicit TestTaskTBB(ppc::core::TaskDataPtr task_data) : Task(std::move(task_data)) {}

@@ -12,7 +12,7 @@
 #include "tbb/sotskov_a_shell_sorting_with_simple_merging/include/ops_tbb.hpp"
 
 namespace sotskov_a_shell_sorting_with_simple_merging_tbb {
-
+namespace {
 std::vector<int> GenerateRandomVector(const RandomVectorParams &params) {
   std::random_device random_device;
   std::mt19937 generator(random_device());
@@ -27,7 +27,6 @@ std::vector<int> GenerateRandomVector(const RandomVectorParams &params) {
   return random_vector;
 }
 
-namespace {
 void RunSortingTest(SortingTestParams &params, void (*sort_func)(std::vector<int> &)) {
   std::vector<int> out(params.input.size(), 0);
 
@@ -103,7 +102,7 @@ TEST(sotskov_a_shell_sorting_with_simple_merging_tbb, test_sort_empty_array) {
 TEST(sotskov_a_shell_sorting_with_simple_merging_tbb, test_sort_random_vector) {
   sotskov_a_shell_sorting_with_simple_merging_tbb::RandomVectorParams params = {
       .size = 20, .min_value = -100, .max_value = 100};
-  std::vector<int> in = GenerateRandomVector(params);
+  std::vector<int> in = sotskov_a_shell_sorting_with_simple_merging_tbb::GenerateRandomVector(params);
   std::vector<int> expected = in;
 
   std::ranges::sort(expected.begin(), expected.end());
