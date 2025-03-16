@@ -62,6 +62,8 @@ TEST(kholin_k_multidimensional_integrals_rectangle_omp, test_pipeline_run) {
   auto perf_analyzer = std::make_shared<ppc::core::Perf>(test_task_omp);
   perf_analyzer->PipelineRun(perf_attr, perf_results);
   ppc::core::Perf::PrintPerfStatistic(perf_results);
+  double ref_i = 12;
+  ASSERT_EQ(ref_i, std::trunc(out_i[0]));
 }
 
 TEST(kholin_k_multidimensional_integrals_rectangle_omp, test_task_run) {
@@ -114,4 +116,6 @@ TEST(kholin_k_multidimensional_integrals_rectangle_omp, test_task_run) {
   auto perf_analyzer = std::make_shared<ppc::core::Perf>(test_task_omp);
   perf_analyzer->TaskRun(perf_attr, perf_results);
   ppc::core::Perf::PrintPerfStatistic(perf_results);
+  double ref_i = 12;
+  ASSERT_EQ(ref_i, std::trunc(out_i[0]));
 }
