@@ -10,7 +10,7 @@
 
 #include "core/task/include/task.hpp"
 #include "core/util/include/util.hpp"
-#include "omp/kalyakina_a_shell_with_simple_merge/include/ops_omp.hpp"
+#include "omp/kalyakina_a_Shell_with_simple_merge/include/ops_omp.hpp"
 
 namespace {
 
