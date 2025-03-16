@@ -79,7 +79,8 @@ bool kalyakina_a_shell_with_simple_merge_omp::ShellSortOpenMP::ValidationImpl() 
 
 bool kalyakina_a_shell_with_simple_merge_omp::ShellSortOpenMP::RunImpl() {
   std::vector<std::pair<unsigned int, unsigned int>> bounds;
-  unsigned int num = (omp_get_max_threads() > input_.size()) ? input_.size() : omp_get_max_threads();
+  unsigned int num =
+      ((unsigned int)omp_get_max_threads() > input_.size()) ? input_.size() : (unsigned int)omp_get_max_threads();
   unsigned int part = input_.size() / num;
   unsigned int reminder = input_.size() % num;
   unsigned int left = 0;
@@ -90,7 +91,7 @@ bool kalyakina_a_shell_with_simple_merge_omp::ShellSortOpenMP::RunImpl() {
     left = right;
   }
 #pragma omp parallel for schedule(static)
-  for (int i = 0; (unsigned int)i < num; i++) {
+  for (int i = 0; i < (int)num; i++) {
     ShellSort(input_, bounds[i].first, bounds[i].second);
   }
   num = std::ceil((double)num / 2);
@@ -98,7 +99,7 @@ bool kalyakina_a_shell_with_simple_merge_omp::ShellSortOpenMP::RunImpl() {
   while (step < bounds.size()) {
     step *= 2;
 #pragma omp parallel for schedule(static)
-    for (int i = 0; (unsigned int)i < num; i++) {
+    for (int i = 0; i < (int)num; i++) {
       unsigned int middle = step / 2 + step * i;
       if (middle < bounds.size()) {
         SimpleMergeSort(
