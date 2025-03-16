@@ -1,7 +1,7 @@
 #include "tbb/sadikov_I_SparseMatMul_TBB/include/ops_tbb.hpp"
 
-#include <vector>
 #include <cstddef>
+#include <vector>
 
 #include "tbb/sadikov_I_SparseMatMul_TBB/include/SparseMatrix.hpp"
 
