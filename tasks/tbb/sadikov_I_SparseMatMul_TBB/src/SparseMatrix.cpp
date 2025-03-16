@@ -1,12 +1,12 @@
 #include "tbb/sadikov_I_SparseMatMul_TBB/include/SparseMatrix.hpp"
 
+#include <tbb/task_arena.h>
 #include <tbb/tbb.h>
 
 #include <algorithm>
 #include <cstddef>
-#include <iostream>
-#include <map>
-#include <utility>
+#include <iterator>
+#include <ranges>
 #include <vector>
 
 #include "core/util/include/util.hpp"
@@ -30,13 +30,13 @@ SparseMatrix SparseMatrix::Transpose(const SparseMatrix& matrix) {
   }
   for (size_t i = 0; i < intermediate_values.size(); ++i) {
     for (size_t j = 0; j < intermediate_values[i].size(); ++j) {
-      components.m_values_.emplace_back(intermediate_values[i][j]);
-      components.m_rows_.emplace_back(intermediate_indexes[i][j]);
+      components.m_values.emplace_back(intermediate_values[i][j]);
+      components.m_rows.emplace_back(intermediate_indexes[i][j]);
     }
     if (i > 0) {
-      components.m_elementsSum_.emplace_back(intermediate_values[i].size() + components.m_elementsSum_[i - 1]);
+      components.m_elementsSum.emplace_back(intermediate_values[i].size() + components.m_elementsSum[i - 1]);
     } else {
-      components.m_elementsSum_.emplace_back(intermediate_values[i].size());
+      components.m_elementsSum.emplace_back(intermediate_values[i].size());
     }
   }
   return SparseMatrix(matrix.GetColumnsCount(), matrix.GetRowsCount(), components);
@@ -76,42 +76,41 @@ SparseMatrix SparseMatrix::operator*(SparseMatrix& smatrix) const {
               double sum = CalculateSum(fmatrix, smatrix, felements_sum, selements_sum, static_cast<int>(i),
                                         static_cast<int>(j));
               if (sum > kMEpsilon) {
-                component.m_values_[i * felements_sum.size() + j] = sum;
-                component.m_rows_[i * felements_sum.size() + j] = j;
-                component.m_elementsSum_[i]++;
+                component.m_values[(i * felements_sum.size()) + j] = sum;
+                component.m_rows[(i * felements_sum.size()) + j] = static_cast<int>(j);
+                component.m_elementsSum[i]++;
               }
             }
           }
         });
   });
-  for (size_t i = 1; i < component.m_elementsSum_.size(); ++i) {
-    component.m_elementsSum_[i] = component.m_elementsSum_[i] + component.m_elementsSum_[i - 1];
+  for (size_t i = 1; i < component.m_elementsSum.size(); ++i) {
+    component.m_elementsSum[i] = component.m_elementsSum[i] + component.m_elementsSum[i - 1];
   }
   MatrixComponents result;
-  for (size_t i = 0; i < component.m_values_.size(); ++i) {
-    if (component.m_values_[i] != 0.0) {
-      result.m_values_.push_back(component.m_values_[i]);
-      result.m_rows_.push_back(component.m_rows_[i]);
+  for (size_t i = 0; i < component.m_values.size(); ++i) {
+    if (component.m_values[i] != 0.0) {
+      result.m_values.push_back(component.m_values[i]);
+      result.m_rows.push_back(component.m_rows[i]);
     }
   }
-  std::copy(component.m_elementsSum_.begin(), component.m_elementsSum_.end(),
-            std::back_inserter(result.m_elementsSum_));
+  std::ranges::copy(component.m_elementsSum, std::back_inserter(result.m_elementsSum));
   return SparseMatrix(smatrix.GetColumnsCount(), smatrix.GetColumnsCount(), result);
 }
 
 SparseMatrix SparseMatrix::MatrixToSparse(int rows_count, int columns_count, const std::vector<double>& values) {
   MatrixComponents compontents;
-  compontents.m_elementsSum_.resize(columns_count);
+  compontents.m_elementsSum.resize(columns_count);
   for (int i = 0; i < columns_count; ++i) {
     for (int j = 0; j < rows_count; ++j) {
       if (values[i + (columns_count * j)] != 0) {
-        compontents.m_values_.emplace_back(values[i + (columns_count * j)]);
-        compontents.m_rows_.emplace_back(j);
-        compontents.m_elementsSum_[i]++;
+        compontents.m_values.emplace_back(values[i + (columns_count * j)]);
+        compontents.m_rows.emplace_back(j);
+        compontents.m_elementsSum[i]++;
       }
     }
     if (i != columns_count - 1) {
-      compontents.m_elementsSum_[i + 1] = compontents.m_elementsSum_[i];
+      compontents.m_elementsSum[i + 1] = compontents.m_elementsSum[i];
     }
   }
   return SparseMatrix(rows_count, columns_count, compontents);

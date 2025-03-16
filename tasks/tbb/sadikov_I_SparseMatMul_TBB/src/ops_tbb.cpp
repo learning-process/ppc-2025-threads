@@ -1,9 +1,9 @@
 #include "tbb/sadikov_I_SparseMatMul_TBB/include/ops_tbb.hpp"
 
-#include <random>
 #include <vector>
+#include <cstddef>
 
-#include "core/util/include/util.hpp"
+#include "tbb/sadikov_I_SparseMatMul_TBB/include/SparseMatrix.hpp"
 
 bool sadikov_i_sparse_matrix_multiplication_task_tbb::CCSMatrixTBB::PreProcessingImpl() {
   auto fmatrix_rows_count = static_cast<int>(task_data->inputs_count[0]);
