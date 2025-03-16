@@ -84,4 +84,5 @@ TEST(vasilev_s_simpson_multidim_seq, test_task_run) {
   auto perf_analyzer = std::make_shared<ppc::core::Perf>(task);
   perf_analyzer->TaskRun(perf_attr, perf_results);
   ppc::core::Perf::PrintPerfStatistic(perf_results);
+  EXPECT_NEAR(out, 1.5, 0.3);
 }
