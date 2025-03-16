@@ -68,7 +68,7 @@ void vavilov_v_cannon_stl::CannonSTL::BlockMultiply() {
   auto multiply_work = [&](int bi_start, int bi_end) {
     for (int bi = bi_start; bi < bi_end; ++bi) {
       for (int bj = 0; bj < num_blocks_; ++bj) {
-        int bk = (bi + bj) % num_blocks_; // Select block based on current alignment
+        int bk = (bi + bj) % num_blocks_;
         for (int i = 0; i < block_size_; ++i) {
           for (int j = 0; j < block_size_; ++j) {
             double temp = 0.0;
