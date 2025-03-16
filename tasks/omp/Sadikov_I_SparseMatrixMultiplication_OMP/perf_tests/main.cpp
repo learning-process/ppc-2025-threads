@@ -1,3 +1,5 @@
+#include "omp/Sadikov_I_SparseMatrixMultiplication_OMP/func_tests/main.cpp"
+
 #include <gtest/gtest.h>
 
 #include <chrono>

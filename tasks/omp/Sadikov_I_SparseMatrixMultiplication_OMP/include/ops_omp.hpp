@@ -6,9 +6,9 @@
 
 #include "core/task/include/task.hpp"
 #include "omp/Sadikov_I_SparseMatrixMultiplication_OMP/include/SparseMatrix.hpp"
+
 namespace sadikov_i_sparse_matrix_multiplication_task_omp {
 
-std::vector<double> GetRandomMatrix(int size);
 class CCSMatrixOMP : public ppc::core::Task {
   SparseMatrix m_fMatrix_;
   SparseMatrix m_sMatrix_;

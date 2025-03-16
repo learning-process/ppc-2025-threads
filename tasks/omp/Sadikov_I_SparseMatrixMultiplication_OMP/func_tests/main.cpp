@@ -2,11 +2,27 @@
 
 #include <cstdint>
 #include <memory>
+#include <random>
 #include <vector>
 
 #include "core/task/include/task.hpp"
 #include "omp/Sadikov_I_SparseMatrixMultiplication_OMP/include/SparseMatrix.hpp"
 #include "omp/Sadikov_I_SparseMatrixMultiplication_OMP/include/ops_omp.hpp"
+
+namespace sadikov_i_sparse_matrix_multiplication_task_omp {
+std::vector<double> GetRandomMatrix(int size) {
+  std::vector<double> data(size);
+  std::random_device dev;
+  std::mt19937 gen(dev());
+  for (int i = 0; i < size; ++i) {
+    data[i] = static_cast<double>(gen() % 500);
+    if (data[i] > 250.0) {
+      data[i] = 0.0;
+    }
+  }
+  return data;
+}
+}  // namespace sadikov_i_sparse_matrix_multiplication_task_omp
 
 TEST(sadikov_i_sparse_matrix_multiplication_task_omp, test_rect_matrixes) {
   constexpr auto kEpsilon = 0.000001;
