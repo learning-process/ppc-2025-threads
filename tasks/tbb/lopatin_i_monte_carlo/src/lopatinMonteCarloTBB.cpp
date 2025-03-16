@@ -29,11 +29,8 @@ bool TestTaskTBB::ValidationImpl() {
 
   bool bounds_valid = true;  // bounds
   auto* bounds_ptr = reinterpret_cast<double*>(task_data->inputs[0]);
-  for (size_t j = 0; j < task_data->inputs_count[0]; j += 2) {
-    if (bounds_ptr[j] >= bounds_ptr[j + 1]) {
-      bounds_valid = false;
-      break;
-    }
+  if (bounds_ptr[0] >= bounds_ptr[1]) {
+    bounds_valid = false;
   }
 
   return outputs_valid && inputs_valid && iter_valid && bounds_valid;
