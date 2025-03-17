@@ -6,15 +6,6 @@
 #include "core/task/include/task.hpp"
 
 namespace sotskov_a_shell_sorting_with_simple_merging_tbb {
-struct RandomVectorParams {
-  int size;
-  int min_value;
-  int max_value;
-};
-struct SortingTestParams {
-  std::vector<int> expected;
-  std::vector<int> input;
-};
 
 void ShellSortWithSimpleMerging(std::vector<int>& arr);
 void ShellSort(std::vector<int>& arr, int left, int right);

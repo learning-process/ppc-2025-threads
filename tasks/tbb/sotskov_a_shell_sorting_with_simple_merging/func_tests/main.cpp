@@ -13,6 +13,17 @@
 
 namespace sotskov_a_shell_sorting_with_simple_merging_tbb {
 namespace {
+
+struct RandomVectorParams {
+  int size;
+  int min_value;
+  int max_value;
+};
+struct SortingTestParams {
+  std::vector<int> expected;
+  std::vector<int> input;
+};
+
 std::vector<int> GenerateRandomVector(const RandomVectorParams &params) {
   std::random_device random_device;
   std::mt19937 generator(random_device());
