@@ -15,7 +15,6 @@ class Dimension {
  public:
   explicit Dimension(double lower_bound, double upper_bound, int steps_count)
       : lower_bound_(lower_bound), upper_bound_(upper_bound), steps_count_(steps_count) {}
-
   [[nodiscard]] double GetLowerBound() const;
   [[nodiscard]] double GetUpperBound() const;
   [[nodiscard]] int GetStepsCount() const;
@@ -42,8 +41,8 @@ class OMPTask final : public ppc::core::Task {
   std::vector<Dimension> dims_;
   double result_{};
 
+  void FillPoint(int index, Point &point) const;
   [[nodiscard]] int GetTotalPoints() const;
-  [[nodiscard]] Point GetPoint(int index) const;
   [[nodiscard]] double GetScalingFactor() const;
 };
 

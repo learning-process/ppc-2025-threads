@@ -38,9 +38,14 @@ bool OMPTask::PreProcessingImpl() {
 bool OMPTask::RunImpl() {
   double sum = 0.0;
   int total_points = GetTotalPoints();
-#pragma omp parallel for reduction(+ : sum) default(none) shared(total_points)
-  for (int i = 0; i < total_points; i++) {
-    sum += func_(GetPoint(i));
+#pragma omp parallel default(none) shared(sum, total_points)
+  {
+    auto thread_point = Point(dims_.size());
+#pragma omp for reduction(+ : sum)
+    for (int i = 0; i < total_points; i++) {
+      FillPoint(i, thread_point);
+      sum += func_(thread_point);
+    }
   }
   result_ = sum * GetScalingFactor();
   return true;
@@ -51,24 +56,22 @@ bool OMPTask::PostProcessingImpl() {
   return true;
 }
 
-int OMPTask::GetTotalPoints() const {
-  return std::accumulate(dims_.begin(), dims_.end(), 1,
-                         [](const int accum, const Dimension &dim) -> int { return accum * dim.GetStepsCount(); });
-}
-
-Point OMPTask::GetPoint(int index) const {
-  auto point = Point(dims_.size());
-  for (size_t i = 0; i < point.size(); i++) {
+void OMPTask::FillPoint(int index, Point &point) const {
+  for (size_t i = 0; i < dims_.size(); i++) {
     int coordinate_index = index % dims_[i].GetStepsCount();
     point[i] = dims_[i].GetLowerBound() + (coordinate_index + 1) * dims_[i].GetStepSize();
     index /= dims_[i].GetStepsCount();
   }
-  return point;
+}
+
+int OMPTask::GetTotalPoints() const {
+  return std::accumulate(dims_.begin(), dims_.end(), 1,
+                         [](int accum, const Dimension &dim) -> int { return accum * dim.GetStepsCount(); });
 }
 
 double OMPTask::GetScalingFactor() const {
   return std::accumulate(dims_.begin(), dims_.end(), 1.0,
-                         [](const double accum, const Dimension &dim) -> double { return accum * dim.GetStepSize(); });
+                         [](double accum, const Dimension &dim) -> double { return accum * dim.GetStepSize(); });
 }
 
 }  // namespace chernykh_a_multidimensional_integral_rectangle_omp
