@@ -1,7 +1,7 @@
 #include <gtest/gtest.h>
 
-#include <boost/graph/adjacency_list.hpp>
-#include <boost/graph/dijkstra_shortest_paths.hpp>
+#include <boost/graph/adjacency_list.hpp>  // NOLINT(misc-include-cleaner)
+#include <boost/graph/dijkstra_shortest_paths.hpp>  // NOLINT(misc-include-cleaner)
 #include <climits>
 #include <cstddef>
 #include <cstdint>
@@ -88,18 +88,18 @@ std::vector<std::vector<std::pair<size_t, int>>> GenerateRandomGraph(size_t num_
 std::vector<int> CalculateExpectedResult(const std::vector<std::vector<std::pair<size_t, int>>> &adj_list,
                                          size_t start_vertex) {
   using Graph = boost::adjacency_list<boost::vecS, boost::vecS, boost::directedS, boost::no_property,
-                                      boost::property<boost::edge_weight_t, int>>;
+                                      boost::property<boost::edge_weight_t, int>>;  // NOLINT(misc-include-cleaner)
   Graph graph(adj_list.size());
 
   for (size_t i = 0; i < adj_list.size(); ++i) {
     for (const auto &edge : adj_list[i]) {
-      boost::add_edge(i, edge.first, edge.second, graph);
+      boost::add_edge(i, edge.first, edge.second, graph);  // NOLINT(misc-include-cleaner)
     }
   }
 
   std::vector<int> distances(boost::num_vertices(graph), INT_MAX);
-  boost::dijkstra_shortest_paths(graph, start_vertex, boost::distance_map(&distances[0]));
-
+  boost::dijkstra_shortest_paths(graph, start_vertex,
+                                 boost::distance_map(distances.data()));  // NOLINT(misc-include-cleaner)
   return distances;
 }
 
