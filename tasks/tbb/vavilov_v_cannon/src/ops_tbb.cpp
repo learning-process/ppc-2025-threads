@@ -32,8 +32,7 @@ void vavilov_v_cannon_tbb::CannonTBB::InitialShift() {
   std::vector<double> a_tmp = A_;
   std::vector<double> b_tmp = B_;
 
-  tbb::parallel_for(tbb::blocked_range2d<int>(0, num_blocks_, 0, num_blocks_),
-                    [&](const tbb::blocked_range2d<int>& r) {
+  tbb::parallel_for(tbb::blocked_range2d<int>(0, num_blocks_, 0, num_blocks_), [&](const tbb::blocked_range2d<int>& r) {
     for (int bi = r.rows().begin(); bi != r.rows().end(); ++bi) {
       for (int bj = r.cols().begin(); bj != r.cols().end(); ++bj) {
         int src_row = (bi + bj) % num_blocks_;
@@ -78,8 +77,7 @@ void vavilov_v_cannon_tbb::CannonTBB::ShiftBlocks() {
   std::vector<double> a_tmp = A_;
   std::vector<double> b_tmp = B_;
 
-  tbb::parallel_for(tbb::blocked_range2d<int>(0, num_blocks_, 0, num_blocks_),
-                    [&](const tbb::blocked_range2d<int>& r) {
+  tbb::parallel_for(tbb::blocked_range2d<int>(0, num_blocks_, 0, num_blocks_), [&](const tbb::blocked_range2d<int>& r) {
     for (int bi = r.rows().begin(); bi != r.rows().end(); ++bi) {
       for (int bj = r.cols().begin(); bj != r.cols().end(); ++bj) {
         int src_row = (bi + 1) % num_blocks_;
