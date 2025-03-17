@@ -3,9 +3,7 @@
 #include <oneapi/tbb/task_arena.h>
 #include <tbb/tbb.h>
 
-#include <algorithm>
 #include <cstddef>
-#include <iterator>
 #include <vector>
 
 #include "core/util/include/util.hpp"
@@ -93,7 +91,7 @@ SparseMatrix SparseMatrix::operator*(SparseMatrix& smatrix) const {
       result.m_rows.push_back(component.m_rows[i]);
     }
   }
-  std::ranges::copy(component.m_elementsSum, std::back_inserter(result.m_elementsSum));
+  result.m_elementsSum = std::move(component.m_elementsSum);
   return SparseMatrix(smatrix.GetColumnsCount(), smatrix.GetColumnsCount(), result);
 }
 
