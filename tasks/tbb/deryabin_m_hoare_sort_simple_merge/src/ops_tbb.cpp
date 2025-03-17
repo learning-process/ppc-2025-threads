@@ -1,4 +1,6 @@
-#include "omp/deryabin_m_hoare_sort_simple_merge/include/ops_omp.hpp"
+#include "tbb/deryabin_m_hoare_sort_simple_merge/include/ops_tbb.hpp"
+
+#include <tbb/tbb.h>
 
 #include <algorithm>
 #include <cmath>
@@ -6,7 +8,10 @@
 #include <numbers>
 #include <vector>
 
-void deryabin_m_hoare_sort_simple_merge_omp::HoaraSort(std::vector<double>& a, size_t first, size_t last) {
+#include "oneapi/tbb/task_arena.h"
+#include "oneapi/tbb/task_group.h"
+
+void deryabin_m_hoare_sort_simple_merge_tbb::HoaraSort(std::vector<double>& a, size_t first, size_t last) {
   size_t i = first;
   size_t j = last;
   double tmp = 0;
@@ -35,7 +40,7 @@ void deryabin_m_hoare_sort_simple_merge_omp::HoaraSort(std::vector<double>& a, s
   }
 }
 
-void deryabin_m_hoare_sort_simple_merge_omp::MergeTwoParts(std::vector<double>& a, size_t left, size_t right,
+void deryabin_m_hoare_sort_simple_merge_tbb::MergeTwoParts(std::vector<double>& a, size_t left, size_t right,
                                                            size_t dimension) {
   size_t middle = (right - left) / 2;
   size_t l_cur = 0;
@@ -63,7 +68,7 @@ void deryabin_m_hoare_sort_simple_merge_omp::MergeTwoParts(std::vector<double>& 
   }
 }
 
-bool deryabin_m_hoare_sort_simple_merge_omp::HoareSortTaskSequential::PreProcessingImpl() {
+bool deryabin_m_hoare_sort_simple_merge_tbb::HoareSortTaskSequential::PreProcessingImpl() {
   input_array_A_ = reinterpret_cast<std::vector<double>*>(task_data->inputs[0])[0];
   dimension_ = task_data->inputs_count[0];
   chunk_count_ = task_data->inputs_count[1];
@@ -71,13 +76,13 @@ bool deryabin_m_hoare_sort_simple_merge_omp::HoareSortTaskSequential::PreProcess
   return true;
 }
 
-bool deryabin_m_hoare_sort_simple_merge_omp::HoareSortTaskSequential::ValidationImpl() {
+bool deryabin_m_hoare_sort_simple_merge_tbb::HoareSortTaskSequential::ValidationImpl() {
   return static_cast<unsigned short>(task_data->inputs_count[0]) > 2 &&
          static_cast<unsigned short>(task_data->inputs_count[1]) >= 2 &&
          task_data->inputs_count[0] == task_data->outputs_count[0];
 }
 
-bool deryabin_m_hoare_sort_simple_merge_omp::HoareSortTaskSequential::RunImpl() {
+bool deryabin_m_hoare_sort_simple_merge_tbb::HoareSortTaskSequential::RunImpl() {
   size_t count = 0;
   size_t chunk_count = chunk_count_;
   while (count != chunk_count_) {
@@ -94,12 +99,12 @@ bool deryabin_m_hoare_sort_simple_merge_omp::HoareSortTaskSequential::RunImpl() 
   return true;
 }
 
-bool deryabin_m_hoare_sort_simple_merge_omp::HoareSortTaskSequential::PostProcessingImpl() {
+bool deryabin_m_hoare_sort_simple_merge_tbb::HoareSortTaskSequential::PostProcessingImpl() {
   reinterpret_cast<std::vector<double>*>(task_data->outputs[0])[0] = input_array_A_;
   return true;
 }
 
-bool deryabin_m_hoare_sort_simple_merge_omp::HoareSortTaskOpenMP::PreProcessingImpl() {
+bool deryabin_m_hoare_sort_simple_merge_tbb::HoareSortTaskTBB::PreProcessingImpl() {
   input_array_A_ = reinterpret_cast<std::vector<double>*>(task_data->inputs[0])[0];
   dimension_ = task_data->inputs_count[0];
   chunk_count_ = task_data->inputs_count[1];
@@ -107,13 +112,13 @@ bool deryabin_m_hoare_sort_simple_merge_omp::HoareSortTaskOpenMP::PreProcessingI
   return true;
 }
 
-bool deryabin_m_hoare_sort_simple_merge_omp::HoareSortTaskOpenMP::ValidationImpl() {
+bool deryabin_m_hoare_sort_simple_merge_tbb::HoareSortTaskTBB::ValidationImpl() {
   return static_cast<unsigned short>(task_data->inputs_count[0]) > 2 &&
          static_cast<unsigned short>(task_data->inputs_count[1]) >= 2 &&
          task_data->inputs_count[0] == task_data->outputs_count[0];
 }
 
-bool deryabin_m_hoare_sort_simple_merge_omp::HoareSortTaskOpenMP::RunImpl() {
+bool deryabin_m_hoare_sort_simple_merge_tbb::HoareSortTaskTBB::RunImpl() {
   auto chunk_count = (short)chunk_count_;
 #pragma omp parallel for
   for (short count = 0; count < chunk_count; count++) {
@@ -135,7 +140,7 @@ bool deryabin_m_hoare_sort_simple_merge_omp::HoareSortTaskOpenMP::RunImpl() {
   return true;
 }
 
-bool deryabin_m_hoare_sort_simple_merge_omp::HoareSortTaskOpenMP::PostProcessingImpl() {
+bool deryabin_m_hoare_sort_simple_merge_tbb::HoareSortTaskTBB::PostProcessingImpl() {
   reinterpret_cast<std::vector<double>*>(task_data->outputs[0])[0] = input_array_A_;
   return true;
 }
