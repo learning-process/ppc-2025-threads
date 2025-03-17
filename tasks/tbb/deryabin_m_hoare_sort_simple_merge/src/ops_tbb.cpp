@@ -120,23 +120,32 @@ bool deryabin_m_hoare_sort_simple_merge_tbb::HoareSortTaskTBB::ValidationImpl() 
 
 bool deryabin_m_hoare_sort_simple_merge_tbb::HoareSortTaskTBB::RunImpl() {
   auto chunk_count = (short)chunk_count_;
-#pragma omp parallel for
-  for (short count = 0; count < chunk_count; count++) {
-    HoaraSort(input_array_A_, count * (short)min_chunk_size_, ((count + 1) * (short)min_chunk_size_) - 1);
-  }
-#pragma omp barrier
-#pragma omp parallel for ordered
-  for (short i = 0; i < (short)(log((double)chunk_count_) / std::numbers::ln2); i++) {
-#pragma omp ordered
-    {
-      for (short j = 0; j < chunk_count; j++) {
-        MergeTwoParts(input_array_A_, j * (short)min_chunk_size_ << (i + 1),
-                      ((j + 1) * (short)min_chunk_size_ << (i + 1)) - 1, dimension_);
-        chunk_count--;
-      }
+  oneapi::tbb::task_arena arena1(1);
+  arena1.execute([&] {
+    tbb::task_group tg;
+    for (int thr = 0; thr < ppc::util::GetPPCNumThreads(); ++thr) {
+      tg.run([&] {
+        for (short count = 0; count < chunk_count; count++) {
+          HoaraSort(input_array_A_, count * (short)min_chunk_size_, ((count + 1) * (short)min_chunk_size_) - 1);
+        }; });
     }
+    tg.wait();
   }
-#pragma omp barrier
+  for (short i = 0; i < (short)(log((double)chunk_count_) / std::numbers::ln2); i++) {
+    oneapi::tbb::task_arena arena2(1);
+    arena2.execute([&] {
+      tbb::task_group tg;
+      for (int thr = 0; thr < ppc::util::GetPPCNumThreads(); ++thr) {
+        tg.run([&] {
+          for (short j = 0; j < chunk_count; j++) {
+            MergeTwoParts(input_array_A_, j * (short)min_chunk_size_ << (i + 1),
+              ((j + 1) * (short)min_chunk_size_ << (i + 1)) - 1, dimension_);
+            chunk_count--;
+          }; });
+      }
+      tg.wait();
+    });
+  }
   return true;
 }
 
