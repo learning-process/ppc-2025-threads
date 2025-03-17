@@ -44,7 +44,7 @@ bool sarafanov_m_canon_mat_mul_omp::CanonMatMulOMP::RunImpl() {
   {
 #pragma omp for
     for (int i = 0; i < static_cast<int>(a_matrix_.GetSize()); ++i) {
-      mul_results[i] = std::move(a_matrix_.MultiplicateMatrix(b_matrix_, i));
+      mul_results[i] = a_matrix_.MultiplicateMatrix(b_matrix_, i);
     }
   }
   for (auto &it : mul_results) {
