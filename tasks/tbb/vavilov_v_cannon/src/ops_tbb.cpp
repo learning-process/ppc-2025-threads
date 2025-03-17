@@ -51,31 +51,38 @@ void vavilov_v_cannon_tbb::CannonTBB::InitialShift() {
 }
 
 void vavilov_v_cannon_tbb::CannonTBB::BlockMultiply() {
-  std::vector<std::vector<double>> local_C(num_blocks_ * num_blocks_,
-                                           std::vector<double>(block_size_ * block_size_, 0.0));
-  tbb::parallel_for(tbb::blocked_range2d<int>(0, num_blocks_, 0, num_blocks_), [&](const tbb::blocked_range2d<int>& r) {
-    for (int bi = r.rows().begin(); bi != r.rows().end(); ++bi) {
-      for (int bj = r.cols().begin(); bj != r.cols().end(); ++bj) {
-        int block_idx = bi * num_blocks_ + bj;
-        std::vector<double>& local_block = local_C[block_idx];
-        int row_offset = bi * block_size_;
-        int col_offset = bj * block_size_;
-        for (int i = 0; i < block_size_; ++i) {
-          for (int j = 0; j < block_size_; ++j) {
-            double temp = 0.0;
-            for (int k = 0; k < block_size_; ++k) {
-              int row_a = row_offset + i;
-              int col_a = col_offset + k;
-              int row_b = row_offset + k;
-              int col_b = col_offset + j;
-              temp += A_[row_a * N_ + col_a] * B_[row_b * N_ + col_b];
-            }
-            local_block[i * block_size_ + j] += temp;
+  for (auto& vec : local_C_) {
+    std::fill(vec.begin(), vec.end(), 0.0);
+  }
+
+  tbb::parallel_for(0, num_blocks_, [&](int bi) {
+    std::vector<double>& local = local_C_[bi];
+    for (int bj = 0; bj < N_; bj += block_size_) {
+      int row_offset = bi * block_size_;
+      int col_offset = bj;
+      for (int i = 0; i < block_size_; ++i) {
+        for (int j = 0; j < block_size_; ++j) {
+          double temp = 0.0;
+          for (int k = 0; k < block_size_; ++k) {
+            int row_a = row_offset + i;
+            int col_a = col_offset + k;
+            int row_b = row_offset + k;
+            int col_b = col_offset + j;
+            temp += A_[row_a * N_ + col_a] * B_[row_b * N_ + col_b];
           }
+          local[i * N_ + (col_offset + j)] = temp;
         }
       }
     }
+
+    int row_offset = bi * block_size_;
+    for (int i = 0; i < block_size_; ++i) {
+      for (int j = 0; j < N_; ++j) {
+        C_[(row_offset + i) * N_ + j] += local[i * N_ + j];
+      }
+    }
   });
+}
 
   tbb::parallel_for(tbb::blocked_range2d<int>(0, num_blocks_, 0, num_blocks_), [&](const tbb::blocked_range2d<int>& r) {
     for (int bi = r.rows().begin(); bi != r.rows().end(); ++bi) {
