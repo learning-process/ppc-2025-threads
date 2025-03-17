@@ -4,12 +4,12 @@
 
 #include <algorithm>
 #include <cmath>
+#include <core/util/include/util.hpp>
 #include <cstddef>
 #include <numbers>
 #include <vector>
 
 #include "oneapi/tbb/task_arena.h"
-#include "oneapi/tbb/task_group.h"
 
 void deryabin_m_hoare_sort_simple_merge_tbb::HoaraSort(std::vector<double>& a, size_t first, size_t last) {
   size_t i = first;
@@ -131,7 +131,7 @@ bool deryabin_m_hoare_sort_simple_merge_tbb::HoareSortTaskTBB::RunImpl() {
       });
     }
     tg.wait();
-  }
+  });
   for (short i = 0; i < (short)(log((double)chunk_count_) / std::numbers::ln2); i++) {
     oneapi::tbb::task_arena arena2(1);
     arena2.execute([&] {
