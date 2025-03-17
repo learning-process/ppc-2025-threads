@@ -1,13 +1,13 @@
-#include "omp/sarafanov_m_CanonMatMul_omp/include/ops_seq.hpp"
+#include "omp/sarafanov_m_CanonMatMul_omp/include/ops_omp.hpp"
 
 #include <omp.h>
 
 #include <cmath>
 #include <cstddef>
-#include <iostream>
 #include <random>
-#include <utility>
 #include <vector>
+
+#include "omp/sarafanov_m_CanonMatMul_omp/include/CanonMatrix.hpp"
 
 bool sarafanov_m_canon_mat_mul_omp::CanonMatMulOMP::PreProcessingImpl() {
   a_matrix_.ClearMatrix();
