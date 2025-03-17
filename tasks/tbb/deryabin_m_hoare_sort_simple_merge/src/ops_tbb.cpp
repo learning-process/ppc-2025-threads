@@ -133,22 +133,22 @@ bool deryabin_m_hoare_sort_simple_merge_tbb::HoareSortTaskTBB::RunImpl() {
     }
     tg.wait();
   });
-  for (short i = 0; i < (short)(log((double)chunk_count_) / std::numbers::ln2); i++) {
-    oneapi::tbb::task_arena arena2(1);
-    arena2.execute([&] {
-      tbb::task_group tg;
-      for (int thr = 0; thr < ppc::util::GetPPCNumThreads(); ++thr) {
-        tg.run([&] {
+  oneapi::tbb::task_arena arena2(1);
+  arena2.execute([&] {
+    tbb::task_group tg;
+    for (int thr = 0; thr < ppc::util::GetPPCNumThreads(); ++thr) {
+      tg.run([&] {
+        for (short i = 0; i < (short)(log((double)chunk_count_) / std::numbers::ln2); i++) {
           for (short j = 0; j < chunk_count; j++) {
             MergeTwoParts(input_array_A_, j * (short)min_chunk_size_ << (i + 1),
                           ((j + 1) * (short)min_chunk_size_ << (i + 1)) - 1, dimension_);
             chunk_count--;
-          };
-        });
-      }
+          }
+        }
+      });
       tg.wait();
-    });
-  }
+    }
+  });
   return true;
 }
 
