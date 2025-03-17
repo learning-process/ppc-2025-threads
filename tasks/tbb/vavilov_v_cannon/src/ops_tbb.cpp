@@ -84,24 +84,6 @@ void vavilov_v_cannon_tbb::CannonTBB::BlockMultiply() {
   });
 }
 
-  tbb::parallel_for(tbb::blocked_range2d<int>(0, num_blocks_, 0, num_blocks_), [&](const tbb::blocked_range2d<int>& r) {
-    for (int bi = r.rows().begin(); bi != r.rows().end(); ++bi) {
-      for (int bj = r.cols().begin(); bj != r.cols().end(); ++bj) {
-        int block_idx = bi * num_blocks_ + bj;
-        const std::vector<double>& local_block = local_C[block_idx];
-        int row_offset = bi * block_size_;
-        int col_offset = bj * block_size_;
-
-        for (int i = 0; i < block_size_; ++i) {
-          for (int j = 0; j < block_size_; ++j) {
-            C_[(row_offset + i) * N_ + (col_offset + j)] += local_block[i * block_size_ + j];
-          }
-        }
-      }
-    }
-  });
-}
-
 void vavilov_v_cannon_tbb::CannonTBB::ShiftBlocks() {
   std::vector<double> a_tmp = A_;
   std::vector<double> b_tmp = B_;
