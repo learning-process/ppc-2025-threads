@@ -63,9 +63,13 @@ void vavilov_v_cannon_stl::CannonSTL::InitialShift() {
 
 void vavilov_v_cannon_stl::CannonSTL::BlockMultiply() {
   std::vector<std::thread> threads;
-  std::mutex mtx;
+  std::vector<std::vector<double>> local_C;
+  int num_threads_ = num_blocks_;
 
-  auto multiply_work = [&](int bi_start, int bi_end) {
+  auto multiply_work = [&](int bi_start, int bi_end, int thread_id) {
+    std::vector<double>& local = local_C[thread_id];
+    local.resize((bi_end - bi_start) * N_, 0.0);
+
     for (int bi = bi_start; bi < bi_end; bi += block_size_) {
       for (int bj = 0; bj < N_; bj += block_size_) {
         for (int i = bi; i < bi + block_size_; i++) {
@@ -78,30 +82,43 @@ void vavilov_v_cannon_stl::CannonSTL::BlockMultiply() {
               int col_b = bj + (j - bj);
               temp += A_[(row_a * N_) + col_a] * B_[(row_b * N_) + col_b];
             }
-            std::lock_guard<std::mutex> lock(mtx);
-            C_[(i * N_) + j] += temp;
+            local[(i - bi_start) * N_ + j] += temp;
           }
         }
       }
     }
   };
 
-  int num_threads = std::min(std::thread::hardware_concurrency(), static_cast<unsigned int>(num_blocks_));
-  int blocks_per_thread = (num_blocks_ + num_threads - 1) / num_threads;
+  num_threads_ = std::min(std::thread::hardware_concurrency(), static_cast<unsigned int>(num_blocks_));
+  local_C.resize(num_threads_);
+  int blocks_per_thread = (num_blocks_ + num_threads_ - 1) / num_threads_;
   int bi_range = blocks_per_thread * block_size_;
 
-  for (int t = 0; t < num_threads; ++t) {
+  for (int t = 0; t < num_threads_; ++t) {
     int bi_start = t * bi_range;
     int bi_end = std::min(bi_start + bi_range, N_);
     if (bi_start < N_) {
-      threads.emplace_back(multiply_work, bi_start, bi_end);
+      threads.emplace_back(multiply_work, bi_start, bi_end, t);
     }
   }
 
   for (auto &thread : threads) {
     thread.join();
   }
-};
+
+  for (int t = 0; t < num_threads_; ++t) {
+    int bi_start = t * bi_range;
+    int bi_end = std::min(bi_start + bi_range, N_);
+    if (bi_start < N_) {
+      const std::vector<double>& local = local_C[t];
+      for (int i = bi_start; i < bi_end; ++i) {
+        for (int j = 0; j < N_; ++j) {
+          C_[i * N_ + j] += local[(i - bi_start) * N_ + j];
+        }
+      }
+    }
+  }
+}
 
 void vavilov_v_cannon_stl::CannonSTL::ShiftBlocks() {
   std::vector<double> a_tmp = A_;
