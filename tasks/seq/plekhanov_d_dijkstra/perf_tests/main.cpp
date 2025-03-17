@@ -1,7 +1,7 @@
-#include "seq/plekhanov_d_dijkstra/func_tests/main.cpp"
-
 #include <gtest/gtest.h>
 
+#include <boost/graph/adjacency_list.hpp>
+#include <boost/graph/dijkstra_shortest_paths.hpp>
 #include <chrono>
 #include <climits>
 #include <cstddef>
@@ -14,6 +14,28 @@
 #include "core/perf/include/perf.hpp"
 #include "core/task/include/task.hpp"
 #include "seq/plekhanov_d_dijkstra/include/ops_seq.hpp"
+
+namespace plekhanov_d_dijkstra_seq {
+
+std::vector<int> CalculateExpectedResult(const std::vector<std::vector<std::pair<size_t, int>>> &adj_list,
+                                         size_t start_vertex) {
+  using Graph = boost::adjacency_list<boost::vecS, boost::vecS, boost::directedS, boost::no_property,
+                                      boost::property<boost::edge_weight_t, int>>;
+  Graph graph(adj_list.size());
+
+  for (size_t i = 0; i < adj_list.size(); ++i) {
+    for (const auto &edge : adj_list[i]) {
+      boost::add_edge(i, edge.first, edge.second, graph);
+    }
+  }
+
+  std::vector<int> distances(boost::num_vertices(graph), INT_MAX);
+  boost::dijkstra_shortest_paths(graph, start_vertex, boost::distance_map(&distances[0]));
+
+  return distances;
+}
+
+}  // namespace plekhanov_d_dijkstra_seq
 
 TEST(plekhanov_d_dijkstra_seq, test_pipeline_run) {
   constexpr size_t kNumVertices = 6000;
