@@ -14,7 +14,7 @@
 #include "seq/fyodorov_m_shell_sort_with_even_odd_batcher_merge_seq/include/ops_seq.hpp"
 
 TEST(fyodorov_m_shell_sort_with_even_odd_batcher_merge_seq, test_pipeline_run) {
-  constexpr int kCount = 100000;
+  constexpr int kCount = 120000;
 
   std::vector<int> input(kCount, 0);
   std::vector<int> output(kCount, 0);
@@ -55,7 +55,7 @@ TEST(fyodorov_m_shell_sort_with_even_odd_batcher_merge_seq, test_pipeline_run) {
 }
 
 TEST(fyodorov_m_shell_sort_with_even_odd_batcher_merge_seq, test_task_run) {
-  constexpr int kCount = 100000;
+  constexpr int kCount = 120000;
 
   std::vector<int> input(kCount, 0);
   std::vector<int> output(kCount, 0);
