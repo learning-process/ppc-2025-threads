@@ -56,33 +56,36 @@ void vavilov_v_cannon_tbb::CannonTBB::BlockMultiply() {
     std::fill(vec.begin(), vec.end(), 0.0);
   }
 
-  tbb::parallel_for(0, num_blocks_, [&](int bi) {
-    std::vector<double>& local = local_C_[bi];
-    for (int bj = 0; bj < N_; bj += block_size_) {
-      int row_offset = bi * block_size_;
-      int col_offset = bj;
-      for (int i = 0; i < block_size_; ++i) {
-        for (int j = 0; j < block_size_; ++j) {
-          double temp = 0.0;
-          for (int k = 0; k < block_size_; ++k) {
-            int row_a = row_offset + i;
-            int col_a = col_offset + k;
-            int row_b = row_offset + k;
-            int col_b = col_offset + j;
-            temp += A_[row_a * N_ + col_a] * B_[row_b * N_ + col_b];
+  tbb::task_group tg;
+  for (int bi = 0; bi < num_blocks_; ++bi) {
+    tg.run([&, bi]() {
+      std::vector<double>& local = local_C[bi];
+      for (int bj = 0; bj < N_; bj += block_size_) {
+        int row_offset = bi * block_size_;
+        int col_offset = bj;
+        for (int i = 0; i < block_size_; ++i) {
+          for (int j = 0; j < block_size_; ++j) {
+            double temp = 0.0;
+            for (int k = 0; k < block_size_; ++k) {
+              int row_a = row_offset + i;
+              int col_a = col_offset + k;
+              int row_b = row_offset + k;
+              int col_b = col_offset + j;
+              temp += A_[row_a * N_ + col_a] * B_[row_b * N_ + col_b];
+            }
+            local[i * N_ + (col_offset + j)] = temp;
           }
-          local[i * N_ + (col_offset + j)] = temp;
         }
       }
-    }
-
-    int row_offset = bi * block_size_;
-    for (int i = 0; i < block_size_; ++i) {
-      for (int j = 0; j < N_; ++j) {
-        C_[(row_offset + i) * N_ + j] += local[i * N_ + j];
+      int row_offset = bi * block_size_;
+      for (int i = 0; i < block_size_; ++i) {
+        for (int j = 0; j < N_; ++j) {
+          C_[(row_offset + i) * N_ + j] += local[i * N_ + j];
+        }
       }
-    }
-  });
+    });
+  }
+  tg.wait();
 }
 
 void vavilov_v_cannon_tbb::CannonTBB::ShiftBlocks() {
