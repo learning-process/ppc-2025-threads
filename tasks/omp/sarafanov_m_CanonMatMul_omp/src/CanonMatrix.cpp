@@ -1,5 +1,7 @@
 #include "omp/sarafanov_m_CanonMatMul_omp/include/CanonMatrix.hpp"
 
+#include <omp.h>
+
 #include <algorithm>
 #include <cmath>
 #include <cstddef>
@@ -72,18 +74,21 @@ CanonMatrix CanonMatrix::MultiplicateMatrix(const CanonMatrix& canon_matrix, siz
 
 size_t CanonMatrix::GetSize() const { return size_; }
 
-CanonMatrix CanonMatrix::operator+(const CanonMatrix& canon_matrix) {
-  std::vector<double> c_matrix(canon_matrix.GetSize() * canon_matrix.GetSize());
-  if (this->GetMatrix().empty()) {
-    SetBaseMatrix(c_matrix);
+void CanonMatrix::operator+=(const CanonMatrix& canon_matrix) {
+  if (matrix_.empty()) {
+    size_ = canon_matrix.GetSize();
+    matrix_.resize(size_ * size_);
   }
   const auto& b_matrix = canon_matrix.GetMatrix();
-  for (size_t i = 0; i < size_; ++i) {
-    for (size_t j = 0; j < size_; ++j) {
-      c_matrix[(i * size_) + j] = matrix_[(i * size_) + j] + b_matrix[(j * size_) + i];
+#pragma omp parallel
+  {
+#pragma omp for
+    for (int i = 0; i < static_cast<int>(size_); ++i) {
+      for (int j = 0; j < static_cast<int>(size_); ++j) {
+        matrix_[(i * size_) + j] += b_matrix[(j * size_) + i];
+      }
     }
   }
-  return {c_matrix};
 }
 
 void CanonMatrix::Transpose() {

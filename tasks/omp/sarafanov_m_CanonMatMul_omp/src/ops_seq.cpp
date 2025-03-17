@@ -6,7 +6,9 @@
 #include <cstddef>
 #include <iostream>
 #include <random>
+#include <utility>
 #include <vector>
+
 bool sarafanov_m_canon_mat_mul_omp::CanonMatMulOMP::PreProcessingImpl() {
   a_matrix_.ClearMatrix();
   b_matrix_.ClearMatrix();
@@ -36,16 +38,17 @@ bool sarafanov_m_canon_mat_mul_omp::CanonMatMulOMP::ValidationImpl() {
 }
 
 bool sarafanov_m_canon_mat_mul_omp::CanonMatMulOMP::RunImpl() {
+  c_matrix_.ClearMatrix();
   std::vector<CanonMatrix> mul_results(a_matrix_.GetSize());
 #pragma omp parallel
   {
 #pragma omp for
     for (int i = 0; i < static_cast<int>(a_matrix_.GetSize()); ++i) {
-      mul_results[i] = a_matrix_.MultiplicateMatrix(b_matrix_, i);
+      mul_results[i] = std::move(a_matrix_.MultiplicateMatrix(b_matrix_, i));
     }
   }
-  for (auto i = 0; i < static_cast<int>(mul_results.size()); ++i) {
-    c_matrix_ = c_matrix_ + mul_results[i];
+  for (auto &it : mul_results) {
+    c_matrix_ += it;
   }
   c_matrix_.Transpose();
   return true;

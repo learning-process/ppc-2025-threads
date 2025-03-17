@@ -126,3 +126,26 @@ TEST(sarafanov_m_canon_mat_mul_omp, test_random_5x5_matrix) {
     EXPECT_NEAR(out[i], a_matrix[i], kInaccuracy);
   }
 }
+
+TEST(sarafanov_m_canon_mat_mul_omp, test_random_30x30_matrix) {
+  constexpr size_t kCount = 900;
+  constexpr double kInaccuracy = 0.001;
+  auto a_matrix = sarafanov_m_canon_mat_mul_omp::GenerateRandomData(static_cast<int>(kCount));
+  auto single_matrix = sarafanov_m_canon_mat_mul_omp::GenerateSingleMatrix(static_cast<int>(kCount));
+  std::vector<double> out(kCount, 0);
+  auto task_data_omp = std::make_shared<ppc::core::TaskData>();
+  task_data_omp->inputs.emplace_back(reinterpret_cast<uint8_t *>(a_matrix.data()));
+  task_data_omp->inputs.emplace_back(reinterpret_cast<uint8_t *>(single_matrix.data()));
+  task_data_omp->inputs_count.emplace_back(kCount);
+  task_data_omp->outputs.emplace_back(reinterpret_cast<uint8_t *>(out.data()));
+  task_data_omp->outputs_count.emplace_back(kCount);
+
+  sarafanov_m_canon_mat_mul_omp::CanonMatMulOMP test_task_omp(task_data_omp);
+  ASSERT_EQ(test_task_omp.Validation(), true);
+  test_task_omp.PreProcessing();
+  test_task_omp.Run();
+  test_task_omp.PostProcessing();
+  for (size_t i = 0; i < kCount; ++i) {
+    EXPECT_NEAR(out[i], a_matrix[i], kInaccuracy);
+  }
+}

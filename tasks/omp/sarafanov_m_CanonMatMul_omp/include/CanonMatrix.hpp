@@ -24,7 +24,7 @@ class CanonMatrix {
   [[nodiscard]] const std::vector<double>& GetMatrix() const;
   [[nodiscard]] size_t GetSize() const;
   CanonMatrix MultiplicateMatrix(const CanonMatrix& canon_matrix, size_t offset);
-  CanonMatrix operator+(const CanonMatrix& canon_matrix);
+  void operator+=(const CanonMatrix& canon_matrix);
   void ClearMatrix();
 };
-}  // namespace sarafanov_m_canon_mat_mul_seq
+}  // namespace sarafanov_m_canon_mat_mul_omp
