@@ -27,7 +27,7 @@ void vavilov_v_cannon_omp::CannonOMP::InitialShift() {
   std::vector<double> a_tmp = A_;
   std::vector<double> b_tmp = B_;
 
-#pragma omp parallel for collapse(2)
+#pragma omp parallel for
   for (int bi = 0; bi < num_blocks_; ++bi) {
     for (int bj = 0; bj < num_blocks_; ++bj) {
       int src_row = (bi + bj) % num_blocks_;
@@ -45,13 +45,12 @@ void vavilov_v_cannon_omp::CannonOMP::InitialShift() {
 }
 
 void vavilov_v_cannon_omp::CannonOMP::BlockMultiply() {
-#pragma omp parallel for collapse(2)
+#pragma omp parallel
   for (int bi = 0; bi < N_; bi += block_size_) {
     for (int bj = 0; bj < N_; bj += block_size_) {
       for (int i = bi; i < bi + block_size_; i++) {
         for (int j = bj; j < bj + block_size_; j++) {
           double temp = 0.0;
-#pragma omp simd reduction(+ : temp)
           for (int k = 0; k < block_size_; k++) {
             int row_a = bi + (i - bi);
             int col_a = bj + k;
@@ -72,7 +71,7 @@ void vavilov_v_cannon_omp::CannonOMP::ShiftBlocks() {
   std::vector<double> a_tmp = A_;
   std::vector<double> b_tmp = B_;
 
-#pragma omp parallel for collapse(2)
+#pragma omp parallel for
   for (int bi = 0; bi < num_blocks_; ++bi) {
     for (int bj = 0; bj < num_blocks_; ++bj) {
       int src_row = (bi + 1) % num_blocks_;
