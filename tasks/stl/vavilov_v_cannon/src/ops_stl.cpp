@@ -62,24 +62,44 @@ void vavilov_v_cannon_stl::CannonSTL::InitialShift() {
 }
 
 void vavilov_v_cannon_stl::CannonSTL::BlockMultiply() {
-  for (int bi = 0; bi < N_; bi += block_size_) {
-    for (int bj = 0; bj < N_; bj += block_size_) {
-      for (int i = bi; i < bi + block_size_; i++) {
-        for (int j = bj; j < bj + block_size_; j++) {
-          double temp = 0.0;
-          for (int k = 0; k < block_size_; k++) {
-            int row_a = bi + (i - bi);
-            int col_a = bj + k;
-            int row_b = bi + k;
-            int col_b = bj + (j - bj);
+  std::vector<std::thread> threads;
+  std::mutex mtx;
 
-            temp += A_[(row_a * N_) + col_a] * B_[(row_b * N_) + col_b];
+  auto multiply_work = [&](int bi_start, int bi_end) {
+    for (int bi = bi_start; bi < bi_end; bi += block_size_) {
+      for (int bj = 0; bj < N_; bj += block_size_) {
+        for (int i = bi; i < bi + block_size_; i++) {
+          for (int j = bj; j < bj + block_size_; j++) {
+            double temp = 0.0;
+            for (int k = 0; k < block_size_; k++) {
+              int row_a = bi + (i - bi);
+              int col_a = bj + k;
+              int row_b = bi + k;
+              int col_b = bj + (j - bj);
+              temp += A_[(row_a * N_) + col_a] * B_[(row_b * N_) + col_b];
+            }
+            std::lock_guard<std::mutex> lock(mtx);
+            C_[(i * N_) + j] += temp;
           }
-
-          C_[(i * N_) + j] += temp;
         }
       }
     }
+  };
+
+  int num_threads = std::min(std::thread::hardware_concurrency(), static_cast<unsigned int>(num_blocks_));
+  int blocks_per_thread = (num_blocks_ + num_threads - 1) / num_threads;
+  int bi_range = blocks_per_thread * block_size_;
+
+  for (int t = 0; t < num_threads; ++t) {
+    int bi_start = t * bi_range;
+    int bi_end = std::min(bi_start + bi_range, N_);
+    if (bi_start < N_) {
+      threads.emplace_back(multiply_work, bi_start, bi_end);
+    }
+  }
+
+  for (auto &thread : threads) {
+    thread.join();
   }
 };
 
