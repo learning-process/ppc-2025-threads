@@ -6,15 +6,19 @@
 #include <memory>
 #include <utility>
 #include <vector>
+#include <random>
 
 #include "core/task/include/task.hpp"
+#include <boost/graph/adjacency_list.hpp>
+#include <boost/graph/dijkstra_shortest_paths.hpp>
 #include "seq/plekhanov_d_dijkstra/include/ops_seq.hpp"
+
 namespace plekhanov_d_dijkstra_seq {
 
-void static RunValidationFailureTest();  // NOLINT
+void static RunValidationFailureTest();
 
 template <typename ExpectedResultType>
-void RunTest(  // NOLINT
+void RunTest(
     const std::vector<std::vector<std::pair<size_t, int>>> &adj_list, size_t start_vertex,
     const std::vector<ExpectedResultType> &expected_result, bool expect_success = true) {
   const size_t k_num_vertices = adj_list.size();
@@ -49,7 +53,7 @@ void RunTest(  // NOLINT
   }
 }
 
-void static RunValidationFailureTest() {  // NOLINT
+void static RunValidationFailureTest() {
   std::vector<int> graph_data;
   size_t start_vertex = 0;
   size_t num_vertices = 0;
@@ -63,6 +67,41 @@ void static RunValidationFailureTest() {  // NOLINT
   task_data_seq->outputs_count.emplace_back(num_vertices);
   TestTaskSequential test_task_sequential(task_data_seq);
   ASSERT_FALSE(test_task_sequential.Validation());
+}
+
+std::vector<std::vector<std::pair<size_t, int>>> GenerateRandomGraph(size_t num_vertices) {
+  std::random_device rd;
+  std::mt19937 gen(rd());
+  std::uniform_int_distribution<> dis(1, 10);
+
+  std::vector<std::vector<std::pair<size_t, int>>> adj_list(num_vertices);
+  for (size_t i = 0; i < num_vertices; ++i) {
+    for (size_t j = i + 1; j < num_vertices; ++j) {
+      if (gen() % 2 == 0) {
+        adj_list[i].emplace_back(j, dis(gen));
+        adj_list[j].emplace_back(i, dis(gen));
+      }
+    }
+  }
+  return adj_list;
+}
+
+std::vector<int> CalculateExpectedResult(const std::vector<std::vector<std::pair<size_t, int>>> &adj_list,
+                                         size_t start_vertex) {
+  using Graph = boost::adjacency_list<boost::vecS, boost::vecS, boost::directedS, boost::no_property,
+                                      boost::property<boost::edge_weight_t, int>>;
+  Graph graph(adj_list.size());
+
+  for (size_t i = 0; i < adj_list.size(); ++i) {
+    for (const auto &edge : adj_list[i]) {
+      boost::add_edge(i, edge.first, edge.second, graph);
+    }
+  }
+
+  std::vector<int> distances(boost::num_vertices(graph), INT_MAX);
+  boost::dijkstra_shortest_paths(graph, start_vertex, boost::distance_map(&distances[0]));
+
+  return distances;
 }
 
 }  // namespace plekhanov_d_dijkstra_seq
@@ -108,4 +147,26 @@ TEST(plekhanov_d_dijkstra_seq, test_dijkstra_Negative_Edges) {
   std::vector<std::vector<std::pair<size_t, int>>> adj_list = {{{1, 4}, {2, -2}}, {{0, 4}, {2, 3}}, {{0, -2}, {1, 3}}};
   std::vector<int> expected = {0, 0, 0};
   plekhanov_d_dijkstra_seq::RunTest(adj_list, 0, expected, false);
+}
+
+TEST(plekhanov_d_dijkstra_seq, test_dijkstra_Random_Graph_10) {
+  size_t num_vertices = 10;
+  std::vector<std::vector<std::pair<size_t, int>>> adj_list =
+      plekhanov_d_dijkstra_seq::GenerateRandomGraph(num_vertices);
+  size_t start_vertex = 0;
+
+  std::vector<int> expected = plekhanov_d_dijkstra_seq::CalculateExpectedResult(adj_list, start_vertex);
+
+  plekhanov_d_dijkstra_seq::RunTest(adj_list, start_vertex, expected);
+}
+
+TEST(plekhanov_d_dijkstra_seq, test_dijkstra_Random_Graph_30) {
+  size_t num_vertices = 30;
+  std::vector<std::vector<std::pair<size_t, int>>> adj_list =
+      plekhanov_d_dijkstra_seq::GenerateRandomGraph(num_vertices);
+  size_t start_vertex = 0;
+
+  std::vector<int> expected = plekhanov_d_dijkstra_seq::CalculateExpectedResult(adj_list, start_vertex);
+
+  plekhanov_d_dijkstra_seq::RunTest(adj_list, start_vertex, expected);
 }

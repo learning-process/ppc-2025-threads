@@ -12,6 +12,7 @@
 #include "core/perf/include/perf.hpp"
 #include "core/task/include/task.hpp"
 #include "seq/plekhanov_d_dijkstra/include/ops_seq.hpp"
+#include "seq/plekhanov_d_dijkstra/func_tests/main.cpp"
 
 TEST(plekhanov_d_dijkstra_seq, test_pipeline_run) {
   constexpr size_t kNumVertices = 6000;
@@ -66,6 +67,8 @@ TEST(plekhanov_d_dijkstra_seq, test_pipeline_run) {
   auto perf_analyzer = std::make_shared<ppc::core::Perf>(test_task_sequential);
   perf_analyzer->PipelineRun(perf_attr, perf_results);
   ppc::core::Perf::PrintPerfStatistic(perf_results);
+  std::vector<int> expected = plekhanov_d_dijkstra_seq::CalculateExpectedResult(adj_list, start_vertex);
+  EXPECT_EQ(distances, expected);
 }
 
 TEST(plekhanov_d_dijkstra_seq, test_task_run) {
@@ -120,4 +123,6 @@ TEST(plekhanov_d_dijkstra_seq, test_task_run) {
   auto perf_analyzer = std::make_shared<ppc::core::Perf>(test_task_sequential);
   perf_analyzer->TaskRun(perf_attr, perf_results);
   ppc::core::Perf::PrintPerfStatistic(perf_results);
+  std::vector<int> expected = plekhanov_d_dijkstra_seq::CalculateExpectedResult(adj_list, start_vertex);
+  EXPECT_EQ(distances, expected);
 }
