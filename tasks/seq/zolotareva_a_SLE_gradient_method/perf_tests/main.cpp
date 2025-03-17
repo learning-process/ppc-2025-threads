@@ -1,5 +1,8 @@
 #include <gtest/gtest.h>
 
+#include <chrono>
+#include <cstdint>
+#include <memory>
 #include <vector>
 
 #include "core/perf/include/perf.hpp"
@@ -13,7 +16,7 @@ TEST(sequential_zolotareva_a_sle_gradient_method_seq, test_pipeline_run) {
   std::vector<double> x(n);
 
   auto task_data_seq = std::make_shared<ppc::core::TaskData>();
-  task_data_seq->inputs.push_back(reinterpret_cast<uint8_t *>(A.data()));
+  task_data_seq->inputs.push_back(reinterpret_cast<uint8_t *>(a.data()));
   task_data_seq->inputs.push_back(reinterpret_cast<uint8_t *>(b.data()));
   task_data_seq->inputs_count.push_back(n * n);
   task_data_seq->inputs_count.push_back(n);
@@ -37,7 +40,7 @@ TEST(sequential_zolotareva_a_sle_gradient_method_seq, test_pipeline_run) {
   perf_analyzer->PipelineRun(perf_attr, perf_results);
   ppc::core::Perf::PrintPerfStatistic(perf_results);
 
-  aSSERT_EQ(n, task_data_seq->inputs_count[1]);
+  ASSERT_EQ(b, x);
 }
 
 TEST(sequential_zolotareva_a_sle_gradient_method_seq, test_task_run) {
@@ -47,7 +50,7 @@ TEST(sequential_zolotareva_a_sle_gradient_method_seq, test_task_run) {
   std::vector<double> x(n);
 
   auto task_data_seq = std::make_shared<ppc::core::TaskData>();
-  task_data_seq->inputs.push_back(reinterpret_cast<uint8_t *>(A.data()));
+  task_data_seq->inputs.push_back(reinterpret_cast<uint8_t *>(a.data()));
   task_data_seq->inputs.push_back(reinterpret_cast<uint8_t *>(b.data()));
   task_data_seq->inputs_count.push_back(n * n);
   task_data_seq->inputs_count.push_back(n);
@@ -70,5 +73,5 @@ TEST(sequential_zolotareva_a_sle_gradient_method_seq, test_task_run) {
   auto perf_analyzer = std::make_shared<ppc::core::Perf>(test_task_sequential);
   perf_analyzer->TaskRun(perf_attr, perf_results);
   ppc::core::Perf::PrintPerfStatistic(perf_results);
-  aSSERT_EQ(n, task_data_seq->inputs_count[1]);
+  ASSERT_EQ(b, x);
 }

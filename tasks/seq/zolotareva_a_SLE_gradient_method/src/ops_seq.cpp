@@ -2,8 +2,6 @@
 
 #include <algorithm>
 #include <cmath>
-#include <cstddef>
-#include <numeric>
 #include <vector>
 
 bool zolotareva_a_sle_gradient_method_seq::TestTaskSequential::PreProcessingImpl() {
@@ -44,11 +42,11 @@ bool zolotareva_a_sle_gradient_method_seq::TestTaskSequential::ValidationImpl() 
   // проверка симметрии и положительной определённости
   const auto* a = reinterpret_cast<const double*>(task_data->inputs[0]);
 
-  return IsPositiveAndSimm(A, static_cast<int>(task_data->inputs_count[1]));
+  return IsPositiveAndSimm(a, static_cast<int>(task_data->inputs_count[1]));
 }
 
 bool zolotareva_a_sle_gradient_method_seq::TestTaskSequential::RunImpl() {
-  ConjugateGradient(A_, b_, x_, n_);
+  ConjugateGradient(a_, b_, x_, n_);
   return true;
 }
 
@@ -72,8 +70,8 @@ void zolotareva_a_sle_gradient_method_seq::TestTaskSequential::ConjugateGradient
   DotProduct(rs_old, r, r, n);
 
   for (int s = 0; s <= n; ++s) {
-    std::vector<double> ap(N, 0.0);
-    MatrixVectorMult(A, p, ap, n);
+    std::vector<double> ap(n, 0.0);
+    MatrixVectorMult(a, p, ap, n);
     double p_ap = 0.0;
     DotProduct(p_ap, p, ap, n);
     if (p_ap == 0.0) {
@@ -119,12 +117,12 @@ void zolotareva_a_sle_gradient_method_seq::TestTaskSequential::MatrixVectorMult(
 }
 
 bool zolotareva_a_sle_gradient_method_seq::TestTaskSequential::IsPositiveAndSimm(const double* a, int n) {
-  std::vector<double> M(n * n);
+  std::vector<double> m(n * n);
   // копируем и проверяем симметричность
   for (int i = 0; i < n; ++i) {
     for (int j = 0; j < n; ++j) {
       double val = a[(i * n) + j];
-      M[(i * n) + j] = val;
+      m[(i * n) + j] = val;
       if (j > i) {
         if (val != a[(j * n) + i]) {
           return false;
@@ -135,18 +133,18 @@ bool zolotareva_a_sle_gradient_method_seq::TestTaskSequential::IsPositiveAndSimm
   // проверяем позитивную определенность
   for (int i = 0; i < n; ++i) {
     for (int j = 0; j <= i; ++j) {
-      double sum = M[(i * n) + j];
+      double sum = m[(i * n) + j];
       for (int k = 0; k < j; k++) {
-        sum -= M[(i * n) + k] * M[(j * n) + k];
+        sum -= m[(i * n) + k] * m[(j * n) + k];
       }
 
       if (i == j) {
         if (sum <= 1e-15) {
           return false;
         }
-        M[(i * n) + j] = std::sqrt(sum);
+        m[(i * n) + j] = std::sqrt(sum);
       } else {
-        M[(i * n) + j] = sum / M[(j * n) + j];
+        m[(i * n) + j] = sum / m[(j * n) + j];
       }
     }
   }
