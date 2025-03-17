@@ -6,7 +6,7 @@
 #include <vector>
 
 #include "core/task/include/task.hpp"
-#include "omp/sarafanov_m_CanonMatMul_omp/include/ops_seq.hpp"
+#include "omp/sarafanov_m_CanonMatMul_omp/include/ops_omp.hpp"
 
 TEST(sarafanov_m_canon_mat_mul_seq, test_clear_matrix) {
   constexpr size_t kCount = 0;

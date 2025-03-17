@@ -8,7 +8,7 @@
 
 #include "core/perf/include/perf.hpp"
 #include "core/task/include/task.hpp"
-#include "omp/sarafanov_m_CanonMatMul_omp/include/ops_seq.hpp"
+#include "omp/sarafanov_m_CanonMatMul_omp/include/ops_omp.hpp"
 
 TEST(sarafanov_m_canon_mat_mul_omp, test_pipeline_run) {
   constexpr size_t kCount = 122500;
