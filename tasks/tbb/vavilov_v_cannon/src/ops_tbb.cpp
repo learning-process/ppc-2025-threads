@@ -59,7 +59,7 @@ void vavilov_v_cannon_tbb::CannonTBB::BlockMultiply() {
   tbb::task_group tg;
   for (int bi = 0; bi < num_blocks_; ++bi) {
     tg.run([&, bi]() {
-      std::vector<double>& local = local_C[bi];
+      std::vector<double>& local = local_C_[bi];
       for (int bj = 0; bj < N_; bj += block_size_) {
         int row_offset = bi * block_size_;
         int col_offset = bj;
