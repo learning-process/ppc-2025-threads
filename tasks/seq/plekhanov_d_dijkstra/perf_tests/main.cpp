@@ -15,7 +15,6 @@
 #include "core/task/include/task.hpp"
 #include "seq/plekhanov_d_dijkstra/include/ops_seq.hpp"
 
-
 TEST(plekhanov_d_dijkstra_seq, test_pipeline_run) {
   constexpr size_t kNumVertices = 6000;
   size_t start_vertex = 0;
