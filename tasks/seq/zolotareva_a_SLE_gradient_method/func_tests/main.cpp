@@ -7,7 +7,7 @@
 #include "core/util/include/util.hpp"
 #include "seq/zolotareva_a_SLE_gradient_method/include/ops_seq.hpp"
 
-namespace zolotareva_a_SLE_gradient_method_seq {
+namespace zolotareva_a_sle_gradient_method_seq {
 void generateSLE(std::vector<double> &A, std::vector<double> &b, int n) {
   std::random_device rd;
   std::mt19937 gen(rd());
@@ -42,7 +42,7 @@ void form(int n_) {
   taskDataSeq->outputs.push_back(reinterpret_cast<uint8_t *>(x.data()));
   taskDataSeq->outputs_count.push_back(x.size());
 
-  zolotareva_a_SLE_gradient_method_seq::TestTaskSequential task(taskDataSeq);
+  zolotareva_a_sle_gradient_method_seq::TestTaskSequential task(taskDataSeq);
   ASSERT_EQ(task.ValidationImpl(), true);
   task.PreProcessingImpl();
   task.RunImpl();
@@ -56,9 +56,9 @@ void form(int n_) {
     EXPECT_NEAR(sum, b[i], 1e-5);
   }
 }
-}  // namespace zolotareva_a_SLE_gradient_method_seq
+}  // namespace zolotareva_a_sle_gradient_method_seq
 
-TEST(zolotareva_a_SLE_gradient_method_seq, invalid_input_sizes) {
+TEST(zolotareva_a_sle_gradient_method_seq, invalid_input_sizes) {
   int n = 2;
   std::vector<double> A = {2, -1, -1, 2};
   std::vector<double> b = {1, 3, 4};  // Неправильный размер b
@@ -72,11 +72,11 @@ TEST(zolotareva_a_SLE_gradient_method_seq, invalid_input_sizes) {
   taskDataSeq->outputs.push_back(reinterpret_cast<uint8_t *>(x.data()));
   taskDataSeq->outputs_count.push_back(n);
 
-  zolotareva_a_SLE_gradient_method_seq::TestTaskSequential task(taskDataSeq);
+  zolotareva_a_sle_gradient_method_seq::TestTaskSequential task(taskDataSeq);
   ASSERT_FALSE(task.ValidationImpl());
 }
 
-TEST(zolotareva_a_SLE_gradient_method_seq, non_symmetric_matrix) {
+TEST(zolotareva_a_sle_gradient_method_seq, non_symmetric_matrix) {
   int n = 2;
   std::vector<double> A = {2, -1, 0, 2};  // A[0][1] != A[1][0]
   std::vector<double> b = {1, 3};
@@ -90,11 +90,11 @@ TEST(zolotareva_a_SLE_gradient_method_seq, non_symmetric_matrix) {
   taskDataSeq->outputs.push_back(reinterpret_cast<uint8_t *>(x.data()));
   taskDataSeq->outputs_count.push_back(n);
 
-  zolotareva_a_SLE_gradient_method_seq::TestTaskSequential task(taskDataSeq);
+  zolotareva_a_sle_gradient_method_seq::TestTaskSequential task(taskDataSeq);
   ASSERT_EQ(task.ValidationImpl(), false);
 }
 
-TEST(zolotareva_a_SLE_gradient_method_seq, not_positive_definite_matrix) {
+TEST(zolotareva_a_sle_gradient_method_seq, not_positive_definite_matrix) {
   int n = 2;
   std::vector<double> A = {0, 0, 0, 0};
   std::vector<double> b = {0, 0};
@@ -108,11 +108,11 @@ TEST(zolotareva_a_SLE_gradient_method_seq, not_positive_definite_matrix) {
   taskDataSeq->outputs.push_back(reinterpret_cast<uint8_t *>(x.data()));
   taskDataSeq->outputs_count.push_back(n);
 
-  zolotareva_a_SLE_gradient_method_seq::TestTaskSequential task(taskDataSeq);
+  zolotareva_a_sle_gradient_method_seq::TestTaskSequential task(taskDataSeq);
   ASSERT_EQ(task.ValidationImpl(), false);
 }
 
-TEST(zolotareva_a_SLE_gradient_method_seq, negative_definite_matrix) {
+TEST(zolotareva_a_sle_gradient_method_seq, negative_definite_matrix) {
   int n = 2;
   std::vector<double> A = {-1, 0, 0, -2};
   std::vector<double> b = {1, 1};
@@ -126,11 +126,11 @@ TEST(zolotareva_a_SLE_gradient_method_seq, negative_definite_matrix) {
   taskDataSeq->outputs.push_back(reinterpret_cast<uint8_t *>(x.data()));
   taskDataSeq->outputs_count.push_back(n);
 
-  zolotareva_a_SLE_gradient_method_seq::TestTaskSequential task(taskDataSeq);
+  zolotareva_a_sle_gradient_method_seq::TestTaskSequential task(taskDataSeq);
   ASSERT_EQ(task.ValidationImpl(), false);
 }
 
-TEST(zolotareva_a_SLE_gradient_method_seq, zero_dimension) {
+TEST(zolotareva_a_sle_gradient_method_seq, zero_dimension) {
   std::vector<double> A;
   std::vector<double> b;
   std::vector<double> x;
@@ -140,11 +140,11 @@ TEST(zolotareva_a_SLE_gradient_method_seq, zero_dimension) {
   taskDataSeq->inputs_count.push_back(0);
   taskDataSeq->outputs_count.push_back(0);
 
-  zolotareva_a_SLE_gradient_method_seq::TestTaskSequential task(taskDataSeq);
+  zolotareva_a_sle_gradient_method_seq::TestTaskSequential task(taskDataSeq);
   ASSERT_EQ(task.ValidationImpl(), false);
 }
 
-TEST(zolotareva_a_SLE_gradient_method_seq, singular_matrix) {
+TEST(zolotareva_a_sle_gradient_method_seq, singular_matrix) {
   int n = 2;
   std::vector<double> A = {1, 1, 1, 1};  // Сингулярная матрица
   std::vector<double> b = {2, 2};
@@ -158,11 +158,11 @@ TEST(zolotareva_a_SLE_gradient_method_seq, singular_matrix) {
   taskDataSeq->outputs.push_back(reinterpret_cast<uint8_t *>(x.data()));
   taskDataSeq->outputs_count.push_back(n);
 
-  zolotareva_a_SLE_gradient_method_seq::TestTaskSequential task(taskDataSeq);
+  zolotareva_a_sle_gradient_method_seq::TestTaskSequential task(taskDataSeq);
   ASSERT_EQ(task.ValidationImpl(), false);
 }
 
-TEST(zolotareva_a_SLE_gradient_method_seq, zero_vector_solution) {
+TEST(zolotareva_a_sle_gradient_method_seq, zero_vector_solution) {
   int n = 2;
   std::vector<double> A = {1, 0, 0, 1};
   std::vector<double> b = {0, 0};
@@ -176,7 +176,7 @@ TEST(zolotareva_a_SLE_gradient_method_seq, zero_vector_solution) {
   taskDataSeq->outputs.push_back(reinterpret_cast<uint8_t *>(x.data()));
   taskDataSeq->outputs_count.push_back(n);
 
-  zolotareva_a_SLE_gradient_method_seq::TestTaskSequential task(taskDataSeq);
+  zolotareva_a_sle_gradient_method_seq::TestTaskSequential task(taskDataSeq);
   ASSERT_EQ(task.ValidationImpl(), true);
   task.PreProcessingImpl();
   task.RunImpl();
@@ -187,7 +187,7 @@ TEST(zolotareva_a_SLE_gradient_method_seq, zero_vector_solution) {
   }
 }
 
-TEST(zolotareva_a_SLE_gradient_method_seq, n_equals_one) {
+TEST(zolotareva_a_sle_gradient_method_seq, n_equals_one) {
   int n = 1;
   std::vector<double> A = {2};
   std::vector<double> b = {4};
@@ -201,7 +201,7 @@ TEST(zolotareva_a_SLE_gradient_method_seq, n_equals_one) {
   taskDataSeq->outputs.push_back(reinterpret_cast<uint8_t *>(x.data()));
   taskDataSeq->outputs_count.push_back(n);
 
-  zolotareva_a_SLE_gradient_method_seq::TestTaskSequential task(taskDataSeq);
+  zolotareva_a_sle_gradient_method_seq::TestTaskSequential task(taskDataSeq);
   ASSERT_EQ(task.ValidationImpl(), true);
   task.PreProcessingImpl();
   task.RunImpl();
@@ -210,7 +210,7 @@ TEST(zolotareva_a_SLE_gradient_method_seq, n_equals_one) {
   EXPECT_NEAR(x[0], 2.0, 1e-1);  // Ожидаемое решение x = 2
 }
 
-TEST(zolotareva_a_SLE_gradient_method_seq, test_correct_answer1) {
+TEST(zolotareva_a_sle_gradient_method_seq, test_correct_answer1) {
   int n = 3;
   std::vector<double> A = {4, -1, 2, -1, 6, -2, 2, -2, 5};
   std::vector<double> b = {-1, 9, -10};
@@ -226,7 +226,7 @@ TEST(zolotareva_a_SLE_gradient_method_seq, test_correct_answer1) {
   taskDataSeq->outputs.push_back(reinterpret_cast<uint8_t *>(x.data()));
   taskDataSeq->outputs_count.push_back(x.size());
 
-  zolotareva_a_SLE_gradient_method_seq::TestTaskSequential task(taskDataSeq);
+  zolotareva_a_sle_gradient_method_seq::TestTaskSequential task(taskDataSeq);
   ASSERT_EQ(task.ValidationImpl(), true);
   task.PreProcessingImpl();
   task.RunImpl();
@@ -235,7 +235,7 @@ TEST(zolotareva_a_SLE_gradient_method_seq, test_correct_answer1) {
     EXPECT_NEAR(x[i], ref_x[i], 1e-12);
   }
 }
-TEST(zolotareva_a_SLE_gradient_method_seq, Test_Image_random_n_3) { zolotareva_a_SLE_gradient_method_seq::form(3); };
-TEST(zolotareva_a_SLE_gradient_method_seq, Test_Image_random_n_5) { zolotareva_a_SLE_gradient_method_seq::form(5); };
-TEST(zolotareva_a_SLE_gradient_method_seq, Test_Image_random_n_7) { zolotareva_a_SLE_gradient_method_seq::form(7); };
-TEST(zolotareva_a_SLE_gradient_method_seq, Test_Image_random_n_20) { zolotareva_a_SLE_gradient_method_seq::form(591); };
+TEST(zolotareva_a_sle_gradient_method_seq, Test_Image_random_n_3) { zolotareva_a_sle_gradient_method_seq::form(3); };
+TEST(zolotareva_a_sle_gradient_method_seq, Test_Image_random_n_5) { zolotareva_a_sle_gradient_method_seq::form(5); };
+TEST(zolotareva_a_sle_gradient_method_seq, Test_Image_random_n_7) { zolotareva_a_sle_gradient_method_seq::form(7); };
+TEST(zolotareva_a_sle_gradient_method_seq, Test_Image_random_n_20) { zolotareva_a_sle_gradient_method_seq::form(591); };
