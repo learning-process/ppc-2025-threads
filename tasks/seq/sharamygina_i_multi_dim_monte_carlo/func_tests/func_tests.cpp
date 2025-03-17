@@ -1,8 +1,10 @@
 #include <gtest/gtest.h>
 
+#include <cassert>
+#include <cmath>
+#include <cstdint>
 #include <functional>
 #include <memory>
-#include <random>
 #include <vector>
 
 #include "core/task/include/task.hpp"
@@ -14,7 +16,7 @@ std::vector<double> GetBoundaries(double left, double right, int dimension) {
   std::vector<double> v(dimension * 2);
   for (int i = 0; i < dimension; i++) {
     v[i * 2] = left;
-    v[i * 2 + 1] = right;
+    v[(i * 2) + 1] = right;
   }
   return v;
 }
@@ -267,7 +269,7 @@ TEST(sharamygina_i_multi_dim_monte_carlo_seq, 4DFunction) {
   std::vector<double> boundaries = sharamygina_i_multi_dim_monte_carlo_seq::GetBoundaries(-1.0, 5.0, 4);
   auto test_function = [](const std::vector<double>& values) {
     assert(values.size() == 3);
-    return values[0] * values[3] + values[2] - 0.3 * values[1];
+    return (values[0] * values[3]) + values[2] - (0.3 * values[1]);
   };
   std::function<double(const std::vector<double>&)> function_ptr = test_function;
   std::shared_ptr<ppc::core::TaskData> task_data = std::make_shared<ppc::core::TaskData>();

@@ -1,7 +1,9 @@
 #include <gtest/gtest.h>
 
 #include <chrono>
+#include <cmath>
 #include <cstdint>
+#include <functional>
 #include <memory>
 #include <random>
 #include <vector>
@@ -16,7 +18,7 @@ std::vector<double> GetBoundaries(double left, double right, int dimension) {
   std::vector<double> v(dimension * 2);
   for (int i = 0; i < dimension; i++) {
     v[i * 2] = left;
-    v[i * 2 + 1] = right;
+    v[(i * 2) + 1] = right;
   }
   return v;
 }
@@ -28,7 +30,8 @@ TEST(sharamygina_i_multi_dim_monte_carlo_seq, test_pipeline_run) {
   std::vector<double> boundaries = sharamygina_i_multi_dim_monte_carlo_seq::GetBoundaries(0.0, 1.2, 7);
   auto test_function = [](const std::vector<double>& values) {
     assert(values.size() == 3);
-    return values[0] * values[3] + values[2] - 0.3 * values[1] + std::sin(values[4]) + std::exp(values[5] + values[6]);
+    return (values[0] * values[3]) + values[2] - (0.3 * values[1]) + std::sin(values[4]) +
+           std::exp(values[5] + values[6]);
   };
   std::function<double(const std::vector<double>&)> function_ptr = test_function;
 
@@ -69,7 +72,8 @@ TEST(sharamygina_i_multi_dim_monte_carlo_seq, test_task_run) {
   std::vector<double> boundaries = sharamygina_i_multi_dim_monte_carlo_seq::GetBoundaries(0.0, 1.2, 7);
   auto test_function = [](const std::vector<double>& values) {
     assert(values.size() == 3);
-    return values[0] * values[3] + values[2] - 0.3 * values[1] + std::sin(values[4]) + std::exp(values[5] + values[6]);
+    return (values[0] * values[3]) + values[2] - (0.3 * values[1]) + std::sin(values[4]) +
+           std::exp(values[5] + values[6]);
   };
   std::function<double(const std::vector<double>&)> function_ptr = test_function;
 

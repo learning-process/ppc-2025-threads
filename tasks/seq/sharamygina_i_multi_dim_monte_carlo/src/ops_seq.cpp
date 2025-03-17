@@ -1,15 +1,18 @@
 #include "seq/sharamygina_i_multi_dim_monte_carlo/include/ops_seq.h"
 
 #include <algorithm>
+#include <cstdlib>
+#include <ctime>
 #include <functional>
 #include <random>
+#include <vector>
 
 bool sharamygina_i_multi_dim_monte_carlo_seq::MultiDimMonteCarloTask::PreProcessingImpl() {
-  double* raw_bounds = reinterpret_cast<double*>(task_data->inputs[0]);
+  auto* raw_bounds = reinterpret_cast<double*>(task_data->inputs[0]);
   size_t total_bounds_count = task_data->inputs_count[0];
   boundaries_.resize(total_bounds_count);
   std::copy(raw_bounds, raw_bounds + total_bounds_count, boundaries_.begin());
-  auto function_ptr = reinterpret_cast<std::function<double(const std::vector<double>&)>*>(task_data->inputs[2]);
+  auto* function_ptr = reinterpret_cast<std::function<double(const std::vector<double>&)>*>(task_data->inputs[2]);
   integrating_function_ = *function_ptr;
   int* iter_ptr = reinterpret_cast<int*>(task_data->inputs[1]);
   number_of_iterations_ = *iter_ptr;
@@ -55,7 +58,7 @@ bool sharamygina_i_multi_dim_monte_carlo_seq::MultiDimMonteCarloTask::RunImpl() 
 }
 
 bool sharamygina_i_multi_dim_monte_carlo_seq::MultiDimMonteCarloTask::PostProcessingImpl() {
-  double* output_ptr = reinterpret_cast<double*>(task_data->outputs[0]);
+  auto* output_ptr = reinterpret_cast<double*>(task_data->outputs[0]);
   output_ptr[0] = final_result_;
   return true;
 }
