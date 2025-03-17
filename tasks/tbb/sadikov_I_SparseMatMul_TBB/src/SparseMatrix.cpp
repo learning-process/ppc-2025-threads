@@ -3,7 +3,9 @@
 #include <oneapi/tbb/task_arena.h>
 #include <tbb/tbb.h>
 
+#include <algorithm>
 #include <cstddef>
+#include <utility>
 #include <vector>
 
 #include "core/util/include/util.hpp"
