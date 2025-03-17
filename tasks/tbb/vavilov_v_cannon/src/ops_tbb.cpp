@@ -51,7 +51,6 @@ void vavilov_v_cannon_tbb::CannonTBB::InitialShift() {
 }
 
 void vavilov_v_cannon_tbb::CannonTBB::BlockMultiply() {
-
   std::vector<double> local_C_;
   local_C_.resize(num_blocks_, std::vector<double>(N_ * block_size_, 0.0));
   for (auto& vec : local_C_) {
