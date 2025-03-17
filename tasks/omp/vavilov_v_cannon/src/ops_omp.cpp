@@ -51,7 +51,7 @@ void vavilov_v_cannon_omp::CannonOMP::BlockMultiply() {
       for (int i = bi; i < bi + block_size_; i++) {
         for (int j = bj; j < bj + block_size_; j++) {
           double temp = 0.0;
-          #pragma omp simd reduction(+:temp)
+#pragma omp simd reduction(+:temp)
           for (int k = 0; k < block_size_; k++) {
             int row_a = bi + (i - bi);
             int col_a = bj + k;
