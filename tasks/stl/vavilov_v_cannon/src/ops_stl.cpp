@@ -62,44 +62,26 @@ void vavilov_v_cannon_stl::CannonSTL::InitialShift() {
 }
 
 void vavilov_v_cannon_stl::CannonSTL::BlockMultiply() {
-  std::vector<std::thread> threads;
-  std::mutex mtx;
+  for (int bi = 0; bi < N_; bi += block_size_) {
+    for (int bj = 0; bj < N_; bj += block_size_) {
+      for (int i = bi; i < bi + block_size_; i++) {
+        for (int j = bj; j < bj + block_size_; j++) {
+          double temp = 0.0;
+          for (int k = 0; k < block_size_; k++) {
+            int row_a = bi + (i - bi);
+            int col_a = bj + k;
+            int row_b = bi + k;
+            int col_b = bj + (j - bj);
 
-  auto multiply_work = [&](int bi_start, int bi_end) {
-    for (int bi = bi_start; bi < bi_end; ++bi) {
-      for (int bj = 0; bj < num_blocks_; ++bj) {
-        int bk = (bi + bj) % num_blocks_;
-        for (int i = 0; i < block_size_; ++i) {
-          for (int j = 0; j < block_size_; ++j) {
-            double temp = 0.0;
-            for (int k = 0; k < block_size_; ++k) {
-              int row_a = bi * block_size_ + i;
-              int col_a = bk * block_size_ + k;
-              int row_b = bk * block_size_ + k;
-              int col_b = bj * block_size_ + j;
-              temp += A_[row_a * N_ + col_a] * B_[row_b * N_ + col_b];
-            }
-            std::lock_guard<std::mutex> lock(mtx);
-            C_[(bi * block_size_ + i) * N_ + (bj * block_size_ + j)] += temp;
+            temp += A_[(row_a * N_) + col_a] * B_[(row_b * N_) + col_b];
           }
+
+          C_[(i * N_) + j] += temp;
         }
       }
     }
+  }
   };
-
-  int num_threads = std::min(std::thread::hardware_concurrency(), static_cast<unsigned int>(num_blocks_));
-  int blocks_per_thread = (num_blocks_ + num_threads - 1) / num_threads;
-  for (int t = 0; t < num_threads; ++t) {
-    int start = t * blocks_per_thread;
-    int end = std::min(start + blocks_per_thread, num_blocks_);
-    if (start < end) {
-      threads.emplace_back(multiply_work, start, end);
-    }
-  }
-  for (auto &thread : threads) {
-    thread.join();
-  }
-}
 
 void vavilov_v_cannon_stl::CannonSTL::ShiftBlocks() {
   std::vector<double> a_tmp = A_;
