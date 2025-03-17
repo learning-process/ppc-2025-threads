@@ -1,3 +1,5 @@
+#include "seq/plekhanov_d_dijkstra/func_tests/main.cpp"
+
 #include <gtest/gtest.h>
 
 #include <chrono>
@@ -12,7 +14,7 @@
 #include "core/perf/include/perf.hpp"
 #include "core/task/include/task.hpp"
 #include "seq/plekhanov_d_dijkstra/include/ops_seq.hpp"
-#include "seq/plekhanov_d_dijkstra/func_tests/main.cpp"
+
 
 TEST(plekhanov_d_dijkstra_seq, test_pipeline_run) {
   constexpr size_t kNumVertices = 6000;

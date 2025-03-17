@@ -1,16 +1,16 @@
 #include <gtest/gtest.h>
 
+#include <boost/graph/adjacency_list.hpp>
+#include <boost/graph/dijkstra_shortest_paths.hpp>
 #include <climits>
 #include <cstddef>
 #include <cstdint>
 #include <memory>
+#include <random>
 #include <utility>
 #include <vector>
-#include <random>
 
 #include "core/task/include/task.hpp"
-#include <boost/graph/adjacency_list.hpp>
-#include <boost/graph/dijkstra_shortest_paths.hpp>
 #include "seq/plekhanov_d_dijkstra/include/ops_seq.hpp"
 
 namespace plekhanov_d_dijkstra_seq {
@@ -18,9 +18,8 @@ namespace plekhanov_d_dijkstra_seq {
 void static RunValidationFailureTest();
 
 template <typename ExpectedResultType>
-void RunTest(
-    const std::vector<std::vector<std::pair<size_t, int>>> &adj_list, size_t start_vertex,
-    const std::vector<ExpectedResultType> &expected_result, bool expect_success = true) {
+void RunTest(const std::vector<std::vector<std::pair<size_t, int>>> &adj_list, size_t start_vertex,
+             const std::vector<ExpectedResultType> &expected_result, bool expect_success = true) {
   const size_t k_num_vertices = adj_list.size();
   std::vector<int> distances(k_num_vertices, INT_MAX);
   std::vector<int> graph_data;
