@@ -81,7 +81,7 @@ void vavilov_v_cannon_stl::CannonSTL::BlockMultiply() {
       }
     }
   }
-  };
+};
 
 void vavilov_v_cannon_stl::CannonSTL::ShiftBlocks() {
   std::vector<double> a_tmp = A_;
