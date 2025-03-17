@@ -1,11 +1,11 @@
 #include <gtest/gtest.h>
 
+#include <cassert>
 #include <chrono>
 #include <cmath>
 #include <cstdint>
 #include <functional>
 #include <memory>
-#include <random>
 #include <vector>
 
 #include "core/perf/include/perf.hpp"
