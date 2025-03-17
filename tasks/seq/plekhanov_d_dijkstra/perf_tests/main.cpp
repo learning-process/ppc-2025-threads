@@ -1,6 +1,6 @@
 #include <gtest/gtest.h>
 
-#include <boost/graph/adjacency_list.hpp>  // NOLINT(misc-include-cleaner)
+#include <boost/graph/adjacency_list.hpp>           // NOLINT(misc-include-cleaner)
 #include <boost/graph/dijkstra_shortest_paths.hpp>  // NOLINT(misc-include-cleaner)
 #include <chrono>
 #include <climits>
