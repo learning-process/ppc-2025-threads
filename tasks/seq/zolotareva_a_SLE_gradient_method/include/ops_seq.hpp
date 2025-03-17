@@ -16,10 +16,10 @@ class TestTaskSequential : public ppc::core::Task {
   bool PostProcessingImpl() override;
 
   inline static void ConjugateGradient(const std::vector<double>& A, const std::vector<double>& b,
-                                        std::vector<double>& x, int N);
+                                       std::vector<double>& x, int N);
   inline static void DotProduct(double& sum, const std::vector<double>& vec1, const std::vector<double>& vec2, int n);
   inline static void MatrixVectorMult(const std::vector<double>& matrix, const std::vector<double>& vector,
-                                        std::vector<double>& result, int n);
+                                      std::vector<double>& result, int n);
   inline static bool IsPositiveAndSimm(const double* A, int n);
 
  private:
