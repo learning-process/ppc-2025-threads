@@ -38,7 +38,7 @@ bool OMPTask::PreProcessingImpl() {
 bool OMPTask::RunImpl() {
   double sum = 0.0;
   int total_points = GetTotalPoints();
-#pragma omp parallel default(none) shared(sum, total_points)
+#pragma omp parallel
   {
     auto thread_point = Point(dims_.size());
 #pragma omp for reduction(+ : sum)
