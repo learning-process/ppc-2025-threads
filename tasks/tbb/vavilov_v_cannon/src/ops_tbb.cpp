@@ -51,7 +51,8 @@ void vavilov_v_cannon_tbb::CannonTBB::InitialShift() {
 }
 
 void vavilov_v_cannon_tbb::CannonTBB::BlockMultiply() {
-  std::vector<std::vector<double>> local_C(num_blocks_ * num_blocks_, std::vector<double>(block_size_ * block_size_, 0.0));
+  std::vector<std::vector<double>> local_C(num_blocks_ * num_blocks_,
+                                           std::vector<double>(block_size_ * block_size_, 0.0));
   tbb::parallel_for(tbb::blocked_range2d<int>(0, num_blocks_, 0, num_blocks_), [&](const tbb::blocked_range2d<int>& r) {
     for (int bi = r.rows().begin(); bi != r.rows().end(); ++bi) {
       for (int bj = r.cols().begin(); bj != r.cols().end(); ++bj) {
