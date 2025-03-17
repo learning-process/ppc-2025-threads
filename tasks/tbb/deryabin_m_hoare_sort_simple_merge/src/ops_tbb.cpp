@@ -127,7 +127,8 @@ bool deryabin_m_hoare_sort_simple_merge_tbb::HoareSortTaskTBB::RunImpl() {
       tg.run([&] {
         for (short count = 0; count < chunk_count; count++) {
           HoaraSort(input_array_A_, count * (short)min_chunk_size_, ((count + 1) * (short)min_chunk_size_) - 1);
-        }; });
+        };
+      });
     }
     tg.wait();
   }
@@ -139,9 +140,10 @@ bool deryabin_m_hoare_sort_simple_merge_tbb::HoareSortTaskTBB::RunImpl() {
         tg.run([&] {
           for (short j = 0; j < chunk_count; j++) {
             MergeTwoParts(input_array_A_, j * (short)min_chunk_size_ << (i + 1),
-              ((j + 1) * (short)min_chunk_size_ << (i + 1)) - 1, dimension_);
+                          ((j + 1) * (short)min_chunk_size_ << (i + 1)) - 1, dimension_);
             chunk_count--;
-          }; });
+          };
+        });
       }
       tg.wait();
     });
