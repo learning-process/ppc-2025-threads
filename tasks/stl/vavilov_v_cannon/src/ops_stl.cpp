@@ -67,7 +67,7 @@ void vavilov_v_cannon_stl::CannonSTL::BlockMultiply() {
   int num_threads_ = num_blocks_;
 
   auto multiply_work = [&](int bi_start, int bi_end, int thread_id) {
-    std::vector<double>& local = local_C[thread_id];
+    std::vector<double> &local = local_C[thread_id];
     local.resize((bi_end - bi_start) * N_, 0.0);
 
     for (int bi = bi_start; bi < bi_end; bi += block_size_) {
@@ -110,7 +110,7 @@ void vavilov_v_cannon_stl::CannonSTL::BlockMultiply() {
     int bi_start = t * bi_range;
     int bi_end = std::min(bi_start + bi_range, N_);
     if (bi_start < N_) {
-      const std::vector<double>& local = local_C[t];
+      const std::vector<double> &local = local_C[t];
       for (int i = bi_start; i < bi_end; ++i) {
         for (int j = 0; j < N_; ++j) {
           C_[i * N_ + j] += local[(i - bi_start) * N_ + j];
