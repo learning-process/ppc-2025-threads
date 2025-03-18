@@ -49,7 +49,7 @@ void RadixSorted(std::vector<double>& arr) {
   for (int pass = 0; pass < 8; pass++) {
     std::vector<size_t> count(radix, 0);
     int shift = pass * 8;
-  #pragma omp parallel for
+    #pragma omp parallel for
     for (size_t i = 0; i < n; i++) {
       auto byte = static_cast<uint8_t>((keys[i] >> shift) & 0xFF);
       #pragma omp atomic
