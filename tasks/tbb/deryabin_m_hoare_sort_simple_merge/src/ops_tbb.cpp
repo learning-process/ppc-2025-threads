@@ -9,6 +9,7 @@
 #include <numbers>
 #include <vector>
 
+#include "oneapi/tbb/parallel_for.h"
 #include "oneapi/tbb/parallel_invoke.h"
 #include "oneapi/tbb/task_arena.h"
 #include "oneapi/tbb/task_group.h"
@@ -121,18 +122,9 @@ bool deryabin_m_hoare_sort_simple_merge_tbb::HoareSortTaskTBB::ValidationImpl() 
 
 bool deryabin_m_hoare_sort_simple_merge_tbb::HoareSortTaskTBB::RunImpl() {
   auto chunk_count = (short)chunk_count_;
-  oneapi::tbb::task_arena arena1(1);
-  arena1.execute([&] {
-    tbb::task_group tg;
-    for (int thr = 0; thr < ppc::util::GetPPCNumThreads(); ++thr) {
-      tg.run([&] {
-        for (short count = 0; count < chunk_count; count++) {
-          HoaraSort(input_array_A_, count * (short)min_chunk_size_, ((count + 1) * (short)min_chunk_size_) - 1);
-        };
-      });
-    }
-    tg.wait();
-  });
+  oneapi::tbb::parallel_for(0, chunk_count, 1, [=](count)) {
+    HoaraSort(input_array_A_, count * (short)min_chunk_size_, ((count + 1) * (short)min_chunk_size_) - 1);
+  }
   oneapi::tbb::task_arena arena2(1);
   arena2.execute([&] {
     tbb::task_group tg;
