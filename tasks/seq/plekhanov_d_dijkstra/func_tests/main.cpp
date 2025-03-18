@@ -15,7 +15,7 @@
 
 namespace plekhanov_d_dijkstra_seq {
 
-void static RunValidationFailureTest(); 
+void static RunValidationFailureTest();
 
 template <typename ExpectedResultType>
 void RunTest(const std::vector<std::vector<std::pair<size_t, int>>> &adj_list, size_t start_vertex,
@@ -89,8 +89,8 @@ std::vector<std::vector<std::pair<size_t, int>>> static GenerateRandomGraph(
 std::vector<int> static CalculateExpectedResult(
     const std::vector<std::vector<std::pair<size_t, int>>> &adj_list,  // NOLINT(misc-use-anonymous-namespace)
     size_t start_vertex) {
-  using Graph = boost::adjacency_list<boost::vecS, boost::vecS, boost::directedS,
-                                      boost::no_property,                          // NOLINT(misc-include-cleaner)
+  using Graph = boost::adjacency_list<boost::vecS, boost::vecS, boost::directedS,   // NOLINT(misc-include-cleaner)
+                                      boost::no_property,                           // NOLINT(misc-include-cleaner)
                                       boost::property<boost::edge_weight_t, int>>;  // NOLINT(misc-include-cleaner)
   Graph graph(adj_list.size());                                                     // NOLINT(misc-include-cleaner)
 

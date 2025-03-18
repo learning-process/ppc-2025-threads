@@ -19,8 +19,9 @@ namespace plekhanov_d_dijkstra_seq {
 
 std::vector<int> static CalculateExpectedResult(
     const std::vector<std::vector<std::pair<size_t, int>>> &adj_list,  // NOLINT(misc-use-anonymous-namespace)
-                                                size_t start_vertex) {
-  using Graph = boost::adjacency_list<boost::vecS, boost::vecS, boost::directedS, boost::no_property,  // NOLINT(misc-include-cleaner)
+    size_t start_vertex) {
+  using Graph = boost::adjacency_list<boost::vecS, boost::vecS, boost::directedS,
+                                      boost::no_property,                           // NOLINT(misc-include-cleaner)
                                       boost::property<boost::edge_weight_t, int>>;  // NOLINT(misc-include-cleaner)
   Graph graph(adj_list.size());
 
