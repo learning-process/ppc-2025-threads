@@ -68,7 +68,7 @@ void static RunValidationFailureTest() {  // NOLINT(misc-use-anonymous-namespace
   ASSERT_FALSE(test_task_sequential.Validation());
 }
 
-std::vector<std::vector<std::pair<size_t, int>>> static GenerateRandomGraph(
+std::vector<std::vector<std::pair<size_t, int>>> static GenerateRandomGraph(  // NOLINT(misc-use-anonymous-namespace)
     size_t num_vertices) {  // NOLINT(misc-use-anonymous-namespace)
   std::random_device rd;
   std::mt19937 gen(rd());
@@ -86,7 +86,7 @@ std::vector<std::vector<std::pair<size_t, int>>> static GenerateRandomGraph(
   return adj_list;
 }
 
-std::vector<int> static CalculateExpectedResult(
+std::vector<int> static CalculateExpectedResult(                       // NOLINT(misc-use-anonymous-namespace)
     const std::vector<std::vector<std::pair<size_t, int>>> &adj_list,  // NOLINT(misc-use-anonymous-namespace)
     size_t start_vertex) {
   using Graph = boost::adjacency_list<boost::vecS, boost::vecS, boost::directedS,   // NOLINT(misc-include-cleaner)
