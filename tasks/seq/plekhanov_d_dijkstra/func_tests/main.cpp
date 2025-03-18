@@ -100,7 +100,7 @@ std::vector<int> static CalculateExpectedResult(
     }
   }
 
-  std::vector<int> distances(boost::num_vertices(graph), INT_MAX);
+  std::vector<int> distances(boost::num_vertices(graph), INT_MAX);  // NOLINT(misc-include-cleaner)
   boost::dijkstra_shortest_paths(graph, start_vertex,
                                  boost::distance_map(distances.data()));  // NOLINT(misc-include-cleaner)
   return distances;
