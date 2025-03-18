@@ -10,7 +10,7 @@
 #include "seq/vavilov_v_cannon/include/ops_seq.hpp"
 
 TEST(vavilov_v_cannon_seq, test_pipeline_run) {
-  constexpr unsigned int kN = 625;
+  constexpr unsigned int kN = 1024;
   std::vector<double> a(kN * kN, 1.0);
   std::vector<double> b(kN * kN, 1.0);
   std::vector<double> c(kN * kN, 0.0);
@@ -46,7 +46,7 @@ TEST(vavilov_v_cannon_seq, test_pipeline_run) {
 }
 
 TEST(vavilov_v_cannon_seq, test_task_run) {
-  constexpr unsigned int kN = 625;
+  constexpr unsigned int kN = 1024;
   std::vector<double> a(kN * kN, 1.0);
   std::vector<double> b(kN * kN, 1.0);
   std::vector<double> c(kN * kN, 0.0);
