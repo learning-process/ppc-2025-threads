@@ -39,7 +39,7 @@ void RadixSorted(std::vector<double>& arr) {
   size_t n = arr.size();
   std::vector<uint64_t> keys(n);
 #pragma omp parallel for
-  for (size_t i = 0; i < n; i++) {
+  for (int i = 0; i < static_cast<int>(n); i++) {
     keys[i] = DoubleToKey(arr[i]);
   }
 
@@ -50,7 +50,7 @@ void RadixSorted(std::vector<double>& arr) {
     std::vector<size_t> count(radix, 0);
     int shift = pass * 8;
 #pragma omp parallel for
-    for (size_t i = 0; i < n; i++) {
+    for (int i = 0; i < static_cast<int>(n); i++) {
       auto byte = static_cast<uint8_t>((keys[i] >> shift) & 0xFF);
 #pragma omp atomic
       count[byte]++;
@@ -65,7 +65,7 @@ void RadixSorted(std::vector<double>& arr) {
     keys.swap(output_keys);
   }
 #pragma omp parallel for
-  for (size_t i = 0; i < n; i++) {
+  for (int i = 0; i < static_cast<int>(n); i++) {
     arr[i] = KeyToDouble(keys[i]);
   }
 }
