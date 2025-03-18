@@ -378,7 +378,7 @@ TEST(lopatin_i_monte_carlo_seq, 4DLogFunction) {
   ASSERT_TRUE(task.Run());
   ASSERT_TRUE(task.PostProcessing());
 
-  // analytical = 20.0704
+  // analytical = 17.4108
   const double expected = 17.4108;
   const double tolerance = 0.03 * expected;
   EXPECT_NEAR(result, expected, tolerance);  // error 3%
