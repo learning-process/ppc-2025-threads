@@ -1,6 +1,7 @@
 #include "omp/Konstantinov_I_Sort_Batcher/include/ops_omp.hpp"
 
 #include <omp.h>
+
 #include <algorithm>
 #include <cmath>
 #include <cstddef>
@@ -37,7 +38,7 @@ void RadixSorted(std::vector<double>& arr) {
   }
   size_t n = arr.size();
   std::vector<uint64_t> keys(n);
-  #pragma omp parallel for
+#pragma omp parallel for
   for (size_t i = 0; i < n; i++) {
     keys[i] = DoubleToKey(arr[i]);
   }
@@ -48,10 +49,10 @@ void RadixSorted(std::vector<double>& arr) {
   for (int pass = 0; pass < 8; pass++) {
     std::vector<size_t> count(radix, 0);
     int shift = pass * 8;
-    #pragma omp parallel for 
+  #pragma omp parallel for 
     for (size_t i = 0; i < n; i++) {
       auto byte = static_cast<uint8_t>((keys[i] >> shift) & 0xFF);
-      #pragma omp atomic
+    #pragma omp atomic
       count[byte]++;
     }
     for (int j = 1; j < radix; j++) {
@@ -63,7 +64,7 @@ void RadixSorted(std::vector<double>& arr) {
     }
     keys.swap(output_keys);
   }
-  #pragma omp parallel for
+#pragma omp parallel for
   for (size_t i = 0; i < n; i++) {
     arr[i] = KeyToDouble(keys[i]);
   }
@@ -76,7 +77,7 @@ void BatcherOddEvenMerge(std::vector<double>& arr, int low, int high) {
   int mid = (low + high) / 2;
   BatcherOddEvenMerge(arr, low, mid);
   BatcherOddEvenMerge(arr, mid, high);
-  #pragma omp parallel for
+#pragma omp parallel for
   for (int i = low; i < mid; ++i) {
     if (arr[i] > arr[i + mid - low]) {
       std::swap(arr[i], arr[i + mid - low]);
