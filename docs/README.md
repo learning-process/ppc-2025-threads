@@ -4,7 +4,7 @@
 
 1. Navigate to the documentation directory:
 ```bash
-cd parallel_programming_course/docs
+cd ppc-2025-threads/docs
 ```
 
 2. (Optional) Create a virtual environment:
