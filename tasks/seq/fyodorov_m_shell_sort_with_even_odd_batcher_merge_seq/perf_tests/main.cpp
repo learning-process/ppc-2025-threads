@@ -1,12 +1,11 @@
-
 #include <gtest/gtest.h>
 
 #include <algorithm>
 #include <chrono>
 #include <cstddef>
 #include <cstdint>
+#include <cstdlib>
 #include <ctime>
-#include <memory>
 #include <vector>
 
 #include "core/perf/include/perf.hpp"
@@ -50,7 +49,7 @@ TEST(fyodorov_m_shell_sort_with_even_odd_batcher_merge_seq, test_pipeline_run) {
   ppc::core::Perf::PrintPerfStatistic(perf_results);
 
   std::vector<int> expected_output = input;
-  std::sort(expected_output.begin(), expected_output.end());
+  std::ranges::sort(expected_output);
   ASSERT_EQ(output, expected_output);
 }
 
@@ -91,6 +90,6 @@ TEST(fyodorov_m_shell_sort_with_even_odd_batcher_merge_seq, test_task_run) {
   ppc::core::Perf::PrintPerfStatistic(perf_results);
 
   std::vector<int> expected_output = input;
-  std::sort(expected_output.begin(), expected_output.end());
+  std::ranges::sort(expected_output);
   ASSERT_EQ(output, expected_output);
 }
