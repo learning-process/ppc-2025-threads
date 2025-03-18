@@ -7,7 +7,6 @@
 #include <cstddef>
 #include <cstdint>
 #include <cstring>
-#include <stdexcept>
 #include <vector>
 
 namespace konstantinov_i_sort_batcher_omp {
