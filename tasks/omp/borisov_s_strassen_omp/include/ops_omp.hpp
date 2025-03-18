@@ -27,4 +27,4 @@ class ParallelStrassenOMP : public ppc::core::Task {
   int colsB_ = 0;
 };
 
-}  // namespace borisov_s_strassen_seq
+}  // namespace borisov_s_strassen_omp

@@ -81,33 +81,19 @@ std::vector<double> StrassenRecursive(const std::vector<double> &a, const std::v
 #pragma omp parallel sections
   {
 #pragma omp section
-    {
-      m1 = StrassenRecursive(AddMatr(a11, a22, k), AddMatr(b11, b22, k), k);
-    }
+    { m1 = StrassenRecursive(AddMatr(a11, a22, k), AddMatr(b11, b22, k), k); }
 #pragma omp section
-    {
-      m2 = StrassenRecursive(AddMatr(a21, a22, k), b11, k);
-    }
+    { m2 = StrassenRecursive(AddMatr(a21, a22, k), b11, k); }
 #pragma omp section
-    {
-      m3 = StrassenRecursive(a11, SubMatr(b12, b22, k), k);
-    }
+    { m3 = StrassenRecursive(a11, SubMatr(b12, b22, k), k); }
 #pragma omp section
-    {
-      m4 = StrassenRecursive(a22, SubMatr(b21, b11, k), k);
-    }
+    { m4 = StrassenRecursive(a22, SubMatr(b21, b11, k), k); }
 #pragma omp section
-    {
-      m5 = StrassenRecursive(AddMatr(a11, a12, k), b22, k);
-    }
+    { m5 = StrassenRecursive(AddMatr(a11, a12, k), b22, k); }
 #pragma omp section
-    {
-      m6 = StrassenRecursive(SubMatr(a21, a11, k), AddMatr(b11, b12, k), k);
-    }
+    { m6 = StrassenRecursive(SubMatr(a21, a11, k), AddMatr(b11, b12, k), k); }
 #pragma omp section
-    {
-      m7 = StrassenRecursive(SubMatr(a12, a22, k), AddMatr(b21, b22, k), k);
-    }
+    { m7 = StrassenRecursive(SubMatr(a12, a22, k), AddMatr(b21, b22, k), k); }
   }
 
   std::vector<double> c(n * n, 0.0);
