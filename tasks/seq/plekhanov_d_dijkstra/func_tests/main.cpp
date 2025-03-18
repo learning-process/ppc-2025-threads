@@ -68,7 +68,7 @@ void static RunValidationFailureTest() {
   ASSERT_FALSE(test_task_sequential.Validation());
 }
 
-std::vector<std::vector<std::pair<size_t, int>>> GenerateRandomGraph(size_t num_vertices) {
+std::vector<std::vector<std::pair<size_t, int>>> static GenerateRandomGraph(size_t num_vertices) {
   std::random_device rd;
   std::mt19937 gen(rd());
   std::uniform_int_distribution<> dis(1, 10);
@@ -85,7 +85,7 @@ std::vector<std::vector<std::pair<size_t, int>>> GenerateRandomGraph(size_t num_
   return adj_list;
 }
 
-std::vector<int> CalculateExpectedResult(const std::vector<std::vector<std::pair<size_t, int>>> &adj_list,
+std::vector<int> static CalculateExpectedResult(const std::vector<std::vector<std::pair<size_t, int>>> &adj_list,
                                          size_t start_vertex) {
   using Graph = boost::adjacency_list<boost::vecS, boost::vecS, boost::directedS, boost::no_property,
                                       boost::property<boost::edge_weight_t, int>>;  // NOLINT(misc-include-cleaner)
