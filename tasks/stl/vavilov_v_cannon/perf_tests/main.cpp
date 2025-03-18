@@ -10,7 +10,7 @@
 #include "stl/vavilov_v_cannon/include/ops_stl.hpp"
 
 TEST(vavilov_v_cannon_stl, test_pipeline_run) {
-  constexpr int kN = 625;
+  constexpr int kN = 900;
   std::vector<double> a(kN * kN, 1.0);
   std::vector<double> b(kN * kN, 1.0);
   std::vector<double> c(kN * kN, 0.0);
@@ -46,7 +46,7 @@ TEST(vavilov_v_cannon_stl, test_pipeline_run) {
 }
 
 TEST(vavilov_v_cannon_stl, test_task_run) {
-  constexpr int kN = 625;
+  constexpr int kN = 900;
   std::vector<double> a(kN * kN, 1.0);
   std::vector<double> b(kN * kN, 1.0);
   std::vector<double> c(kN * kN, 0.0);
