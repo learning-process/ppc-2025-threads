@@ -69,7 +69,7 @@ void static RunValidationFailureTest() {  // NOLINT(misc-use-anonymous-namespace
 }
 
 std::vector<std::vector<std::pair<size_t, int>>> static GenerateRandomGraph(  // NOLINT(misc-use-anonymous-namespace)
-    size_t num_vertices) {  // NOLINT(misc-use-anonymous-namespace)
+    size_t num_vertices) {                                                    // NOLINT(misc-use-anonymous-namespace)
   std::random_device rd;
   std::mt19937 gen(rd());
   std::uniform_int_distribution<> dis(1, 10);
