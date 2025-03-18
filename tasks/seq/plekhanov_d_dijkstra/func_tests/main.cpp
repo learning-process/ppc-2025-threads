@@ -15,7 +15,7 @@
 
 namespace plekhanov_d_dijkstra_seq {
 
-void static RunValidationFailureTest();
+void static RunValidationFailureTest();  // NOLINT(misc-use-anonymous-namespace)
 
 template <typename ExpectedResultType>
 void RunTest(const std::vector<std::vector<std::pair<size_t, int>>> &adj_list, size_t start_vertex,
@@ -68,7 +68,7 @@ void static RunValidationFailureTest() {
   ASSERT_FALSE(test_task_sequential.Validation());
 }
 
-std::vector<std::vector<std::pair<size_t, int>>> static GenerateRandomGraph(size_t num_vertices) {
+std::vector<std::vector<std::pair<size_t, int>>> static GenerateRandomGraph(size_t num_vertices) {  // NOLINT(misc-use-anonymous-namespace)
   std::random_device rd;
   std::mt19937 gen(rd());
   std::uniform_int_distribution<> dis(1, 10);
@@ -85,8 +85,9 @@ std::vector<std::vector<std::pair<size_t, int>>> static GenerateRandomGraph(size
   return adj_list;
 }
 
-std::vector<int> static CalculateExpectedResult(const std::vector<std::vector<std::pair<size_t, int>>> &adj_list,
-                                                size_t start_vertex) {
+std::vector<int> static CalculateExpectedResult(
+    const std::vector<std::vector<std::pair<size_t, int>>> &adj_list,  // NOLINT(misc-use-anonymous-namespace)
+                                            size_t start_vertex) {
   using Graph = boost::adjacency_list<boost::vecS, boost::vecS, boost::directedS, boost::no_property,
                                       boost::property<boost::edge_weight_t, int>>;  // NOLINT(misc-include-cleaner)
   Graph graph(adj_list.size());

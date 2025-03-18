@@ -17,9 +17,10 @@
 
 namespace plekhanov_d_dijkstra_seq {
 
-std::vector<int> static CalculateExpectedResult(const std::vector<std::vector<std::pair<size_t, int>>> &adj_list,
+std::vector<int> static CalculateExpectedResult(
+    const std::vector<std::vector<std::pair<size_t, int>>> &adj_list,  // NOLINT(misc-use-anonymous-namespace)
                                                 size_t start_vertex) {
-  using Graph = boost::adjacency_list<boost::vecS, boost::vecS, boost::directedS, boost::no_property,
+  using Graph = boost::adjacency_list<boost::vecS, boost::vecS, boost::directedS, boost::no_property,  // NOLINT(misc-include-cleaner)
                                       boost::property<boost::edge_weight_t, int>>;  // NOLINT(misc-include-cleaner)
   Graph graph(adj_list.size());
 
@@ -29,7 +30,7 @@ std::vector<int> static CalculateExpectedResult(const std::vector<std::vector<st
     }
   }
 
-  std::vector<int> distances(boost::num_vertices(graph), INT_MAX);
+  std::vector<int> distances(boost::num_vertices(graph), INT_MAX);  // NOLINT(misc-include-cleaner)
   boost::dijkstra_shortest_paths(graph, start_vertex,
                                  boost::distance_map(distances.data()));  // NOLINT(misc-include-cleaner)
   return distances;
