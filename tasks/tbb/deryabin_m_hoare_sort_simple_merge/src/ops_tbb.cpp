@@ -1,6 +1,5 @@
 #include "tbb/deryabin_m_hoare_sort_simple_merge/include/ops_tbb.hpp"
 
-#include <tbb/parallel_invoke.h>
 #include <tbb/tbb.h>
 
 #include <algorithm>
@@ -12,6 +11,7 @@
 
 #include "oneapi/tbb/task_arena.h"
 #include "oneapi/tbb/task_group.h"
+#include "oneapi/tbb/parallel_invoke.h"
 
 void deryabin_m_hoare_sort_simple_merge_tbb::HoaraSort(std::vector<double>& a, size_t first, size_t last) {
   if (first >= last) {
