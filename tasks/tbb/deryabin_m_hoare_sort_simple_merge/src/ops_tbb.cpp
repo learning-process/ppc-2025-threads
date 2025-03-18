@@ -13,6 +13,7 @@
 #include "oneapi/tbb/task_group.h"
 
 void deryabin_m_hoare_sort_simple_merge_tbb::HoaraSort(std::vector<double>& a, size_t first, size_t last) {
+  if (first >= last) return;
   size_t i = first;
   size_t j = last;
   double tmp = 0;
@@ -34,7 +35,8 @@ void deryabin_m_hoare_sort_simple_merge_tbb::HoaraSort(std::vector<double>& a, s
     }
   } while (i < j);
   tbb::parallel_invoke(
-      if (i < last) { [&a]() { HoaraSort(a, i + 1, last); }, } if (first < j){[&a]() { HoaraSort(a, first, j); }});
+  { [&a]() { HoaraSort(a, i + 1, last); }, }
+  { [&a]() { HoaraSort(a, first, j); } });
 }
 
 void deryabin_m_hoare_sort_simple_merge_tbb::MergeTwoParts(std::vector<double>& a, size_t left, size_t right,
