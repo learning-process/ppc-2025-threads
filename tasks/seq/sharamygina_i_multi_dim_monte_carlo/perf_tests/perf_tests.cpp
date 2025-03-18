@@ -12,22 +12,20 @@
 #include "core/task/include/task.hpp"
 #include "seq/sharamygina_i_multi_dim_monte_carlo/include/ops_seq.h"
 
-namespace sharamygina_i_multi_dim_monte_carlo_seq {
 namespace {
-std::vector<double> GetBoundaries(double left, double right, int dimension) {
+std::vector<double> GetBoundaries(double left, double right, unsigned int dimension) {
   std::vector<double> v(dimension * 2);
-  for (int i = 0; i < dimension; i++) {
+  for (unsigned int i = 0; i < dimension; i++) {
     v[i * 2] = left;
     v[(i * 2) + 1] = right;
   }
   return v;
 }
 }  // namespace
-}  // namespace sharamygina_i_multi_dim_monte_carlo_seq
 
 TEST(sharamygina_i_multi_dim_monte_carlo_seq, test_pipeline_run) {
   int iterations = 15000000;
-  std::vector<double> boundaries = sharamygina_i_multi_dim_monte_carlo_seq::GetBoundaries(0.0, 1.2, 7);
+  std::vector<double> boundaries = GetBoundaries(0.0, 1.2, 7);
   auto test_function = [](const std::vector<double>& values) {
     assert(values.size() == 3);
     return (values[0] * values[3]) + values[2] - (0.3 * values[1]) + std::sin(values[4]) +
@@ -69,7 +67,7 @@ TEST(sharamygina_i_multi_dim_monte_carlo_seq, test_pipeline_run) {
 
 TEST(sharamygina_i_multi_dim_monte_carlo_seq, test_task_run) {
   int iterations = 15000000;
-  std::vector<double> boundaries = sharamygina_i_multi_dim_monte_carlo_seq::GetBoundaries(0.0, 1.2, 7);
+  std::vector<double> boundaries = GetBoundaries(0.0, 1.2, 7);
   auto test_function = [](const std::vector<double>& values) {
     assert(values.size() == 3);
     return (values[0] * values[3]) + values[2] - (0.3 * values[1]) + std::sin(values[4]) +
