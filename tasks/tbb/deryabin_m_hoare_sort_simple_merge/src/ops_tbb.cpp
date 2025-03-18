@@ -38,7 +38,7 @@ void deryabin_m_hoare_sort_simple_merge_tbb::HoaraSort(std::vector<double>& a, s
     }
   } while (i < j);
   oneapi::tbb::parallel_invoke([&a, &i, &last]() { HoaraSort(a, i + 1, last); },
-                       [&a, &first, &j]() { HoaraSort(a, first, j); });
+                               [&a, &first, &j]() { HoaraSort(a, first, j); });
 }
 
 void deryabin_m_hoare_sort_simple_merge_tbb::MergeTwoParts(std::vector<double>& a, size_t left, size_t right,
