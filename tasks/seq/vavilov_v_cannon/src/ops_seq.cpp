@@ -21,10 +21,10 @@ bool vavilov_v_cannon_seq::CannonSequential::PreProcessingImpl() {
 bool vavilov_v_cannon_seq::CannonSequential::ValidationImpl() {
   if (task_data->inputs_count[0] != task_data->inputs_count[1] ||
       task_data->outputs_count[0] != task_data->inputs_count[0]) {
-      return false;
+    return false;
   }
 
-  unsigned int N = static_cast<unsigned int>(std::sqrt(task_data->inputs_count[0])); 
+  unsigned int N = static_cast<unsigned int>(std::sqrt(task_data->inputs_count[0]));
   unsigned int num_blocks = static_cast<unsigned int>(task_data->inputs_count[2]);
   return N % num_blocks == 0;
 }
