@@ -291,7 +291,7 @@ TEST(kolokolova_d_integral_simpson_method_seq, test_difficult_func1) {
 }
 
 TEST(kolokolova_d_integral_simpson_method_seq, test_difficult_func2) {
-  auto func = [](std::vector<double> vec) { return std::exp(vec[1] + vec[0]); };
+  auto func = [](std::vector<double> vec) { return std::exp(vec[1] + vec[0]) + std::sin(vec[1]) - std::cos(vec[0]); };
   std::vector<int> step = {20, 20};
   std::vector<int> bord = {0, 3, 1, 5};
   double func_result = 0.0;
@@ -312,7 +312,7 @@ TEST(kolokolova_d_integral_simpson_method_seq, test_difficult_func2) {
   test_task_sequential.PreProcessing();
   test_task_sequential.Run();
   test_task_sequential.PostProcessing();
-  double ans = 2780.6973;
+  double ans = 2780.9028;
   double error = 0.0001;
   ASSERT_NEAR(func_result, ans, error);
 }
