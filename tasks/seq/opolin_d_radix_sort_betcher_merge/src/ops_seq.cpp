@@ -4,7 +4,7 @@
 #include <cmath>
 #include <vector>
 
-bool opolin_d_radix_betcher_sort_seq::TestTaskSequential::PreProcessingImpl() {
+bool opolin_d_radix_betcher_sort_seq::RadixBetcherSortTaskSequential::PreProcessingImpl() {
   // Init value for input and output
   size_ = task_data->inputs_count[0];
   auto *in_ptr = reinterpret_cast<int *>(task_data->inputs[0]);
@@ -15,7 +15,7 @@ bool opolin_d_radix_betcher_sort_seq::TestTaskSequential::PreProcessingImpl() {
   return true;
 }
 
-bool opolin_d_radix_betcher_sort_seq::TestTaskSequential::ValidationImpl() {
+bool opolin_d_radix_betcher_sort_seq::RadixBetcherSortTaskSequential::ValidationImpl() {
   // Check equality of counts elements
   if (size_ <= 0 || task_data->inputs[0].empty()) {
     return false;
@@ -23,7 +23,7 @@ bool opolin_d_radix_betcher_sort_seq::TestTaskSequential::ValidationImpl() {
   return task_data->inputs_count[0] == task_data->outputs_count[0];
 }
 
-bool opolin_d_radix_betcher_sort_seq::TestTaskSequential::RunImpl() {
+bool opolin_d_radix_betcher_sort_seq::RadixBetcherSortTaskSequential::RunImpl() {
   if (input_.empty()) {
     return;
   }
@@ -73,7 +73,7 @@ bool opolin_d_radix_betcher_sort_seq::TestTaskSequential::RunImpl() {
   return true;
 }
 
-bool opolin_d_radix_betcher_sort_seq::TestTaskSequential::PostProcessingImpl() {
+bool opolin_d_radix_betcher_sort_seq::RadixBetcherSortTaskSequential::PostProcessingImpl() {
   for (size_t i = 0; i < output_.size(); i++) {
     reinterpret_cast<int *>(task_data->outputs[0])[i] = output_[i];
   }
