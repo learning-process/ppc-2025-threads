@@ -496,7 +496,7 @@ TEST(laganina_e_component_labeling_seq, diagonal_line_100) {
 TEST(laganina_e_component_labeling_seq, u_shaped_shape_100) {
   int m = 100;
   int n = 100;
-  // Create data
+  // Create data data
   std::vector<int> in(m * n, 0);
   std::vector<int> out(m * n, 0);
   std::vector<int> exp_out(m * n, 0);
