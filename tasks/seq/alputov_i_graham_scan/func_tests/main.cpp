@@ -1,4 +1,3 @@
-#define _USE_MATH_DEFINES
 #include <gtest/gtest.h>
 
 #include <algorithm>
@@ -6,6 +5,7 @@
 #include <cstddef>
 #include <cstdint>
 #include <memory>
+#include <numbers>
 #include <random>
 #include <set>
 #include <vector>
@@ -208,7 +208,7 @@ TEST(alputov_i_graham_scan_seq, circle_figure) {
   std::vector<alputov_i_graham_scan_seq::Point> input;
   size_t num_points = 36;
   for (size_t i = 0; i < num_points; ++i) {
-    double angle = 2.0 * M_PI * static_cast<double>(i) / num_points;
+    double angle = 2.0 * std::numbers::pi * static_cast<double>(i) / num_points;
     input.emplace_back(10.0 * cos(angle), 10.0 * sin(angle));
   }
   std::vector<alputov_i_graham_scan_seq::Point> output(input.size());
@@ -235,9 +235,10 @@ TEST(alputov_i_graham_scan_seq, star_figure) {
   std::vector<alputov_i_graham_scan_seq::Point> input;
   size_t num_points_star = 10;
   for (size_t i = 0; i < num_points_star; ++i) {
-    double angle = 2.0 * M_PI * static_cast<double>(i) / num_points_star;
+    double angle = 2.0 * std::numbers::pi * static_cast<double>(i) / static_cast<double>(num_points_star);
     input.emplace_back(20.0 * cos(angle), 20.0 * sin(angle));
-    input.emplace_back(5.0 * cos(angle + M_PI / num_points_star), 5.0 * sin(angle + M_PI / num_points_star));
+    input.emplace_back(5.0 * cos(angle + std::numbers::pi / static_cast<double>(num_points_star)),
+                       5.0 * sin(angle + std::numbers::pi / static_cast<double>(num_points_star)));
   }
 
   std::vector<alputov_i_graham_scan_seq::Point> output(input.size());
@@ -259,7 +260,7 @@ TEST(alputov_i_graham_scan_seq, star_figure) {
   EXPECT_EQ(hull_set.size(), convex_hull.size());
   EXPECT_EQ(hull_set.size(), num_points_star);
   for (size_t i = 0; i < num_points_star; ++i) {
-    double angle = 2.0 * M_PI * static_cast<double>(i) / num_points_star;
+    double angle = 2.0 * std::numbers::pi * static_cast<double>(i) / static_cast<double>(num_points_star);
     EXPECT_TRUE(hull_set.count({20.0 * cos(angle), 20.0 * sin(angle)}));
   }
 }
