@@ -122,13 +122,12 @@ bool deryabin_m_hoare_sort_simple_merge_tbb::HoareSortTaskTBB::RunImpl() {
   oneapi::tbb::parallel_for(0, (int)chunk_count, 1, [=, this](int count) {
     HoaraSort(input_array_A_, (short)count * (short)min_chunk_size_, ((count + 1) * (short)min_chunk_size_) - 1);
   });
-  for (short i = 0; i < (short)(log((double)chunk_count_) / std::numbers::ln2); i++) {
-    oneapi::tbb::parallel_for(0, (int)chunk_count, 1, [=, this](int j) {
-      MergeTwoParts(input_array_A_, (short)j * (short)min_chunk_size_ << (i + 1),
-                    (((short)j + 1) * (short)min_chunk_size_ << (i + 1)) - 1, dimension_);
-    });
-    chunk_count = (short)(chunk_count >> 1);
-  }
+  oneapi::tbb::parallel_for(0, (int)(log((double)chunk_count_) / std::numbers::ln2), 1, [=, this](int i) {
+    for (size_t j = 0; j < chunk_count; j++) {
+      MergeTwoParts(input_array_A_, j * min_chunk_size_ << ((size_t)i + 1), ((j + 1) * min_chunk_size_ << ((size_t)i + 1)) - 1);
+      chunk_count--;
+    }
+  });
   return true;
 }
 
