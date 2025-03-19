@@ -18,7 +18,7 @@ SparseMatrix SparseMatrix::Transpose(const SparseMatrix& matrix) {
   int counter = 0;
   for (size_t i = 0; i < matrix.GetElementsSum().size(); ++i) {
     auto limit = i == 0 ? matrix.GetElementsSum()[0] : matrix.GetElementsSum()[i] - matrix.GetElementsSum()[i - 1];
-    for (size_t j = 0; j < limit; ++j) {
+    for (int j = 0; j < limit; ++j) {
       intermediate_values[matrix.GetRows()[counter]].emplace_back(matrix.GetValues()[counter]);
       intermediate_indexes[matrix.GetRows()[counter]].emplace_back(i);
       counter++;
