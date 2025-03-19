@@ -78,12 +78,12 @@ TEST(opolin_d_radix_betcher_sort_seq, test_empty) {
   int size = 0;
   std::vector<int> expected;
   std::vector<int> input;
-  std::vector<int> out(size);
+  std::vector<int> out;
   auto task_data_seq = std::make_shared<ppc::core::TaskData>();
   task_data_seq->inputs.emplace_back(reinterpret_cast<uint8_t *>(input.data()));
-  task_data_seq->inputs_count.emplace_back(out.size());
+  task_data_seq->inputs_count.emplace_back(size);
   task_data_seq->outputs.emplace_back(reinterpret_cast<uint8_t *>(out.data()));
-  task_data_seq->outputs_count.emplace_back(out.size());
+  task_data_seq->outputs_count.emplace_back(size);
 
   auto test_task_sequential =
       std::make_shared<opolin_d_radix_betcher_sort_seq::RadixBetcherSortTaskSequential>(task_data_seq);

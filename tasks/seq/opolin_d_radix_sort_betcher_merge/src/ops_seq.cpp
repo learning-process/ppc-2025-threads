@@ -6,7 +6,6 @@
 
 bool opolin_d_radix_betcher_sort_seq::RadixBetcherSortTaskSequential::PreProcessingImpl() {
   // Init value for input and output
-  size_ = task_data->inputs_count[0];
   auto *in_ptr = reinterpret_cast<int *>(task_data->inputs[0]);
   input_ = std::vector<int>(in_ptr, in_ptr + size_);
 
@@ -17,6 +16,7 @@ bool opolin_d_radix_betcher_sort_seq::RadixBetcherSortTaskSequential::PreProcess
 
 bool opolin_d_radix_betcher_sort_seq::RadixBetcherSortTaskSequential::ValidationImpl() {
   // Check equality of counts elements
+  size_ = task_data->inputs_count[0];
   if (size_ <= 0 || task_data->inputs.empty()) {
     return false;
   }
