@@ -47,7 +47,7 @@ void TrivialMultiply(const std::vector<double> &a, const std::vector<double> &b,
 }  // namespace
 
 TEST(gnitienko_k_strassen_alg_seq, test_pipeline_run) {
-  size_t size = 512;
+  size_t size = 1024;
 
   // Create data
   std::vector<double> a = GenMatrix(size);
@@ -90,7 +90,7 @@ TEST(gnitienko_k_strassen_alg_seq, test_pipeline_run) {
 }
 
 TEST(gnitienko_k_strassen_alg_seq, test_task_run) {
-  size_t size = 512;
+  size_t size = 1024;
   // Create data
   std::vector<double> a = GenMatrix(size);
   std::vector<double> b = GenMatrix(size);

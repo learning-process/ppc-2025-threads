@@ -20,7 +20,7 @@ class StrassenAlgSeq : public ppc::core::Task {
   std::vector<double> input_2_;
   std::vector<double> output_;
   int size_{};
-  int TRIVIAL_MULTIPLICATION_BOUND_ = 8;
+  int TRIVIAL_MULTIPLICATION_BOUND_ = 32;
   int extend_ = 0;
 
   static void TrivialMultiply(const std::vector<double>& a, const std::vector<double>& b, std::vector<double>& c,
