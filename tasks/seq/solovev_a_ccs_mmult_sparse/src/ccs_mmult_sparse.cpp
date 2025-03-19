@@ -74,6 +74,4 @@ bool solovev_a_matrix::Seq_MatMultCCS::RunImpl() {
   return true;
 }
 
-bool solovev_a_matrix::Seq_MatMultCCS::PostProcessingImpl() {
-  return true;
-}
+bool solovev_a_matrix::Seq_MatMultCCS::PostProcessingImpl() { return true; }
