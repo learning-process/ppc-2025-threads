@@ -23,9 +23,7 @@ std::vector<shulpin_i_jarvis_seq::Point> GeneratePointsInCircle(size_t num_point
   }
   return points;
 }
-}  // namespace
 
-namespace {
 void MainTestBody(std::vector<shulpin_i_jarvis_seq::Point>& input, std::vector<shulpin_i_jarvis_seq::Point>& expected) {
   std::vector<shulpin_i_jarvis_seq::Point> result(expected.size());
 
@@ -96,6 +94,13 @@ void TestBodyRandomCircle(std::vector<shulpin_i_jarvis_seq::Point>& input,
 TEST(shulpin_i_jarvis_seq, square_with_point) {
   std::vector<shulpin_i_jarvis_seq::Point> input = {{0, 0}, {2, 0}, {2, 2}, {0, 2}, {1, 1}};
   std::vector<shulpin_i_jarvis_seq::Point> expected = {{0, 0}, {2, 0}, {2, 2}, {0, 2}};
+
+  MainTestBody(input, expected);
+}
+
+TEST(shulpin_i_jarvis_seq, ox_line) {
+  std::vector<shulpin_i_jarvis_seq::Point> input = {{0, 0}, {1, 0}, {2, 0}, {3, 0}, {4, 0}};
+  std::vector<shulpin_i_jarvis_seq::Point> expected = {{0, 0}, {1, 0}, {2, 0}, {3, 0}, {4, 0}};
 
   MainTestBody(input, expected);
 }

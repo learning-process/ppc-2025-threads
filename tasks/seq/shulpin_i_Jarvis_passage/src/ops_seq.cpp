@@ -16,7 +16,6 @@ int shulpin_i_jarvis_seq::JarvisSequential::Orientation(const Point& p, const Po
 void shulpin_i_jarvis_seq::JarvisSequential::MakeJarvisPassage(std::vector<shulpin_i_jarvis_seq::Point>& input_jar,
                                                                std::vector<shulpin_i_jarvis_seq::Point>& output_jar) {
   size_t total = input_jar.size();
-  std::vector<bool> used(total, false);
   output_jar.clear();
 
   size_t start = 0;
@@ -68,6 +67,7 @@ bool shulpin_i_jarvis_seq::JarvisSequential::RunImpl() {
 
 bool shulpin_i_jarvis_seq::JarvisSequential::PostProcessingImpl() {
   int* result = reinterpret_cast<int*>(task_data->outputs[0]);
-  std::copy(reinterpret_cast<int*>(output_.data()), reinterpret_cast<int*>(output_.data() + output_.size()), result);
+  std::ranges::copy(reinterpret_cast<int*>(output_.data()), reinterpret_cast<int*>(output_.data() + output_.size()),
+                    result);
   return true;
 }
