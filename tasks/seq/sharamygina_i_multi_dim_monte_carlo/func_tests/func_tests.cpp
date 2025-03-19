@@ -357,3 +357,35 @@ TEST(sharamygina_i_multi_dim_monte_carlo_seq, 3DFunctionWithDifferentBoundaries)
   double tol = 0.03 * expected;
   EXPECT_NEAR(result, expected, tol);
 }
+
+TEST(sharamygina_i_multi_dim_monte_carlo_seq, 3DSinFunctionWithDifferentBoundaries) {
+  int iterations = 30000;
+  std::vector<double> boundaries = {1.0, 2.0, 1.3, 4.4, 0.5, 0.98};
+  auto test_function = [](const std::vector<double>& values) {
+    assert(values.size() == 3);
+    return std::sin(values[0]) + std::cos(values[1]) + std::exp(values[2]);
+  };
+  std::function<double(const std::vector<double>&)> function_ptr = test_function;
+  std::shared_ptr<ppc::core::TaskData> task_data = std::make_shared<ppc::core::TaskData>();
+
+  task_data->inputs.emplace_back(reinterpret_cast<uint8_t*>(boundaries.data()));
+  task_data->inputs_count.emplace_back(boundaries.size());
+  task_data->inputs.emplace_back(reinterpret_cast<uint8_t*>(&iterations));
+  task_data->inputs_count.emplace_back(1);
+  task_data->inputs.emplace_back(reinterpret_cast<uint8_t*>(&function_ptr));
+  task_data->inputs_count.emplace_back(1);
+
+  double result = 0.0;
+  task_data->outputs.emplace_back(reinterpret_cast<uint8_t*>(&result));
+  task_data->outputs_count.emplace_back(1);
+
+  sharamygina_i_multi_dim_monte_carlo_seq::MultiDimMonteCarloTask test_task(task_data);
+  ASSERT_TRUE(test_task.ValidationImpl());
+  ASSERT_TRUE(test_task.PreProcessingImpl());
+  ASSERT_TRUE(test_task.RunImpl());
+  ASSERT_TRUE(test_task.PostProcessingImpl());
+
+  double expected = 3.652697810257515;
+  double tol = 0.03 * expected;
+  EXPECT_NEAR(result, expected, tol);
+}

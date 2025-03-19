@@ -63,6 +63,10 @@ TEST(sharamygina_i_multi_dim_monte_carlo_seq, test_pipeline_run) {
 
   perf->PipelineRun(perf_attr, perf_results);
   ppc::core::Perf::PrintPerfStatistic(perf_results);
+
+  double expected = 18.093354135967223;
+  double tol = 0.03 * expected;
+  EXPECT_NEAR(result, expected, tol);
 }
 
 TEST(sharamygina_i_multi_dim_monte_carlo_seq, test_task_run) {
@@ -105,4 +109,8 @@ TEST(sharamygina_i_multi_dim_monte_carlo_seq, test_task_run) {
 
   perf->TaskRun(perf_attr, perf_results);
   ppc::core::Perf::PrintPerfStatistic(perf_results);
+
+  double expected = 18.093354135967223;
+  double tol = 0.03 * expected;
+  EXPECT_NEAR(result, expected, tol);
 }
