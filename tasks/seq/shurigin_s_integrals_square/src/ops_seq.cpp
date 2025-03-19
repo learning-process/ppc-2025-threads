@@ -29,7 +29,7 @@ bool Integral::PreProcessingImpl() {
     if (!task_data_ || task_data_->inputs.empty() || task_data_->inputs[0] == nullptr) {
       throw std::invalid_argument("Invalid input data.");
     }
-
+    auto* inputs = reinterpret_cast<double*>(task_data_->inputs[0]);
     if (dimensions_ > 1) {
       down_limits_.resize(dimensions_);
       up_limits_.resize(dimensions_);
