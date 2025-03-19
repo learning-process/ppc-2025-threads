@@ -7,6 +7,8 @@
 bool kozlova_e_contrast_enhancement_seq::TestTaskSequential::PreProcessingImpl() {
   auto* input_ptr = reinterpret_cast<int*>(task_data->inputs[0]);
   size_t size = task_data->inputs_count[0];
+  width = task_data->inputs_count[1];
+  height = task_data->inputs_count[2];
   output_.resize(size, 0);
   input_.resize(size);
   std::copy(input_ptr, input_ptr + size, input_.begin());
@@ -15,8 +17,11 @@ bool kozlova_e_contrast_enhancement_seq::TestTaskSequential::PreProcessingImpl()
 }
 
 bool kozlova_e_contrast_enhancement_seq::TestTaskSequential::ValidationImpl() {
-  return task_data->inputs_count[0] == task_data->outputs_count[0] && task_data->inputs_count[0] > 0 &&
-         (task_data->inputs_count[0] % 2 == 0);
+  size_t size = task_data->inputs_count[0];
+  size_t check_width = task_data->inputs_count[1];
+  size_t check_height = task_data->inputs_count[2];
+  return size == task_data->outputs_count[0] && size > 0 && (size % 2 == 0) && check_width >= 1 && check_height >= 1 &&
+         (size == check_height * check_width);
 }
 
 bool kozlova_e_contrast_enhancement_seq::TestTaskSequential::RunImpl() {

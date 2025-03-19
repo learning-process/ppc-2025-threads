@@ -26,8 +26,9 @@ std::vector<int> GenerateVector(int length) {
 }  // namespace
 
 TEST(kozlova_e_contrast_enhancement_seq, test_pipeline_run) {
-  constexpr int kSize = 20000000;
-
+  constexpr int kSize = 19875000;
+  size_t width = 7500;
+  size_t height = 2650;
   // Create data
   std::vector<int> in = GenerateVector(kSize);
   std::vector<int> out(kSize, 0);
@@ -36,6 +37,8 @@ TEST(kozlova_e_contrast_enhancement_seq, test_pipeline_run) {
   auto task_data_seq = std::make_shared<ppc::core::TaskData>();
   task_data_seq->inputs.emplace_back(reinterpret_cast<uint8_t *>(in.data()));
   task_data_seq->inputs_count.emplace_back(in.size());
+  task_data_seq->inputs_count.emplace_back(width);
+  task_data_seq->inputs_count.emplace_back(height);
   task_data_seq->outputs.emplace_back(reinterpret_cast<uint8_t *>(out.data()));
   task_data_seq->outputs_count.emplace_back(out.size());
 
@@ -71,8 +74,9 @@ TEST(kozlova_e_contrast_enhancement_seq, test_pipeline_run) {
 }
 
 TEST(kozlova_e_contrast_enhancement_seq, test_task_run) {
-  constexpr int kSize = 20000000;
-
+  constexpr int kSize = 19875000;
+  size_t width = 7500;
+  size_t height = 2650;
   // Create data
   std::vector<int> in = GenerateVector(kSize);
   std::vector<int> out(kSize, 0);
@@ -81,6 +85,8 @@ TEST(kozlova_e_contrast_enhancement_seq, test_task_run) {
   auto task_data_seq = std::make_shared<ppc::core::TaskData>();
   task_data_seq->inputs.emplace_back(reinterpret_cast<uint8_t *>(in.data()));
   task_data_seq->inputs_count.emplace_back(in.size());
+  task_data_seq->inputs_count.emplace_back(width);
+  task_data_seq->inputs_count.emplace_back(height);
   task_data_seq->outputs.emplace_back(reinterpret_cast<uint8_t *>(out.data()));
   task_data_seq->outputs_count.emplace_back(out.size());
 
