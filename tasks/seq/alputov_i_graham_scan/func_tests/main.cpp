@@ -31,6 +31,33 @@ void ValidateTask(alputov_i_graham_scan_seq::TestTaskSequential& task) {
   ASSERT_TRUE(task.Run());
   ASSERT_TRUE(task.PostProcessing());
 }
+
+std::vector<alputov_i_graham_scan_seq::Point> GenerateStarPoints(size_t num_points_star) {
+  std::vector<alputov_i_graham_scan_seq::Point> input;
+  for (size_t i = 0; i < num_points_star; ++i) {
+    double angle = 2.0 * std::numbers::pi * static_cast<double>(i) / static_cast<double>(num_points_star);
+    input.emplace_back(20.0 * cos(angle), 20.0 * sin(angle));
+    input.emplace_back(5.0 * cos(angle + (std::numbers::pi / static_cast<double>(num_points_star))),
+                       5.0 * sin(angle + (std::numbers::pi / static_cast<double>(num_points_star))));
+  }
+  return input;
+}
+
+void ValidateStarConvexHull(alputov_i_graham_scan_seq::TestTaskSequential& task,
+                            const std::vector<alputov_i_graham_scan_seq::Point>& input, size_t num_points_star) {
+  ValidateTask(task);
+
+  EXPECT_FALSE(task.GetConvexHull().empty());
+  const auto& convex_hull = task.GetConvexHull();
+  EXPECT_LE(convex_hull.size(), input.size());
+  EXPECT_GE(convex_hull.size(), 3U);
+  std::set<alputov_i_graham_scan_seq::Point> hull_set(convex_hull.begin(), convex_hull.end());
+  EXPECT_EQ(hull_set.size(), convex_hull.size());
+  EXPECT_EQ(hull_set.size(), num_points_star);
+  for (size_t i = 0; i < num_points_star; ++i) {
+    double angle = 2.0 * std::numbers::pi * static_cast<double>(i) / static_cast<double>(num_points_star);
+    EXPECT_TRUE(hull_set.count({20.0 * cos(angle), 20.0 * sin(angle)}));
+  }
 }  // namespace
 
 TEST(alputov_i_graham_scan_seq, minimal_triangle_case) {
@@ -232,15 +259,8 @@ TEST(alputov_i_graham_scan_seq, circle_figure) {
 }
 
 TEST(alputov_i_graham_scan_seq, star_figure) {
-  std::vector<alputov_i_graham_scan_seq::Point> input;
   size_t num_points_star = 10;
-  for (size_t i = 0; i < num_points_star; ++i) {
-    double angle = 2.0 * std::numbers::pi * static_cast<double>(i) / static_cast<double>(num_points_star);
-    input.emplace_back(20.0 * cos(angle), 20.0 * sin(angle));
-    input.emplace_back(5.0 * cos(angle + (std::numbers::pi / static_cast<double>(num_points_star))),
-                       5.0 * sin(angle + (std::numbers::pi / static_cast<double>(num_points_star))));
-  }
-
+  std::vector<alputov_i_graham_scan_seq::Point> input = GenerateStarPoints(num_points_star);
   std::vector<alputov_i_graham_scan_seq::Point> output(input.size());
 
   auto task_data = std::make_shared<ppc::core::TaskData>();
@@ -250,19 +270,21 @@ TEST(alputov_i_graham_scan_seq, star_figure) {
   task_data->outputs_count.emplace_back(output.size());
 
   alputov_i_graham_scan_seq::TestTaskSequential task(task_data);
-  ValidateTask(task);
+  ValidateStarConvexHull(task, input, num_points_star);
+}
 
-  EXPECT_FALSE(task.GetConvexHull().empty());
-  const auto& convex_hull = task.GetConvexHull();
-  EXPECT_LE(convex_hull.size(), input.size());
-  EXPECT_GE(convex_hull.size(), 3U);
-  std::set<alputov_i_graham_scan_seq::Point> hull_set(convex_hull.begin(), convex_hull.end());
-  EXPECT_EQ(hull_set.size(), convex_hull.size());
-  EXPECT_EQ(hull_set.size(), num_points_star);
-  for (size_t i = 0; i < num_points_star; ++i) {
-    double angle = 2.0 * std::numbers::pi * static_cast<double>(i) / static_cast<double>(num_points_star);
-    EXPECT_TRUE(hull_set.count({20.0 * cos(angle), 20.0 * sin(angle)}));
-  }
+TEST(alputov_i_graham_scan_seq, single_point) {
+  std::vector<alputov_i_graham_scan_seq::Point> input = {{0, 0}};
+  std::vector<alputov_i_graham_scan_seq::Point> output(input.size());
+
+  auto task_data = std::make_shared<ppc::core::TaskData>();
+  task_data->inputs.emplace_back(reinterpret_cast<uint8_t*>(input.data()));
+  task_data->inputs_count.emplace_back(input.size());
+  task_data->outputs.emplace_back(reinterpret_cast<uint8_t*>(output.data()));
+  task_data->outputs_count.emplace_back(output.size());
+
+  alputov_i_graham_scan_seq::TestTaskSequential task(task_data);
+  EXPECT_FALSE(task.Validation());
 }
 
 TEST(alputov_i_graham_scan_seq, single_point) {
