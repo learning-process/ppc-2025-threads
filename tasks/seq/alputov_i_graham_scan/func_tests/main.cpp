@@ -208,7 +208,7 @@ TEST(alputov_i_graham_scan_seq, circle_figure) {
   std::vector<alputov_i_graham_scan_seq::Point> input;
   size_t num_points = 36;
   for (size_t i = 0; i < num_points; ++i) {
-    double angle = 2.0 * std::numbers::pi * static_cast<double>(i) / num_points;
+    double angle = 2.0 * std::numbers::pi * static_cast<double>(i) / static_cast<double>(num_points);
     input.emplace_back(10.0 * cos(angle), 10.0 * sin(angle));
   }
   std::vector<alputov_i_graham_scan_seq::Point> output(input.size());
@@ -237,8 +237,8 @@ TEST(alputov_i_graham_scan_seq, star_figure) {
   for (size_t i = 0; i < num_points_star; ++i) {
     double angle = 2.0 * std::numbers::pi * static_cast<double>(i) / static_cast<double>(num_points_star);
     input.emplace_back(20.0 * cos(angle), 20.0 * sin(angle));
-    input.emplace_back(5.0 * cos(angle + std::numbers::pi / static_cast<double>(num_points_star)),
-                       5.0 * sin(angle + std::numbers::pi / static_cast<double>(num_points_star)));
+    input.emplace_back(5.0 * cos(angle + (std::numbers::pi / static_cast<double>(num_points_star))),
+                       5.0 * sin(angle + (std::numbers::pi / static_cast<double>(num_points_star))));
   }
 
   std::vector<alputov_i_graham_scan_seq::Point> output(input.size());
