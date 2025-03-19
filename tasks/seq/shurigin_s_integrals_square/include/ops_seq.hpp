@@ -14,10 +14,10 @@ class Integral : public ppc::core::Task {
   void SetFunction(const std::function<double(double)>& func);
   void SetFunction(const std::function<double(const std::vector<double>&)>& func, int dimensions = 1);
 
-  bool PreProcessingImpl();
-  bool ValidationImpl();
-  bool RunImpl();
-  bool PostProcessingImpl();
+  bool PreProcessingImpl() override;
+  bool ValidationImpl() override;
+  bool RunImpl() override;
+  bool PostProcessingImpl() override;
 
  private:
   std::vector<double> down_limits_;

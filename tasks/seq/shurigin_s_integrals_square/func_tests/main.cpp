@@ -297,8 +297,8 @@ TEST(shurigin_s_integrals_square_seq, test_integration_2d_square_sum) {
   task_data->outputs_count.push_back(sizeof(double));
 
   shurigin_s_integrals_square_seq::Integral integral_task(task_data);
-  integral_task.SetFunction([](const std::vector<double>& point) { return point[0] * point[0] + point[1] * point[1]; },
-                            2);
+  integral_task.SetFunction(
+      [](const std::vector<double>& point) { return (point[0] * point[0]) + (point[1] * point[1]); }, 2);
 
   ASSERT_TRUE(integral_task.PreProcessingImpl());
   ASSERT_TRUE(integral_task.ValidationImpl());

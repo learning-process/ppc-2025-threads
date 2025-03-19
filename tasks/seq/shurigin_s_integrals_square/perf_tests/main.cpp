@@ -25,7 +25,7 @@ TEST(shurigin_s_integrals_square_seq, test_pipeline_run) {
   auto f = [](const std::vector<double>& point) {
     double x = point[0];
     double y = point[1];
-    return std::cos(x * x + y * y) * (1 + x * x + y * y);
+    return std::cos((x * x) + (y * y)) * (1 + (x * x) + (y * y));
   };
 
   std::shared_ptr<ppc::core::TaskData> task_data_seq = std::make_shared<ppc::core::TaskData>();
@@ -67,7 +67,7 @@ TEST(shurigin_s_integrals_square_seq, test_task_run) {
   auto f = [](const std::vector<double>& point) {
     double x = point[0];
     double y = point[1];
-    return std::cos(x * x + y * y) * (1 + x * x + y * y);
+    return std::cos((x * x) + (y * y)) * (1 + (x * x) + (y * y));
   };
 
   std::shared_ptr<ppc::core::TaskData> task_data_seq = std::make_shared<ppc::core::TaskData>();

@@ -1,11 +1,13 @@
 ﻿#include "seq/shurigin_s_integrals_square/include/ops_seq.hpp"
 
 #include <cmath>
+#include <cstddef>
 #include <exception>
 #include <functional>
 #include <iostream>
 #include <memory>
 #include <stdexcept>
+#include <string>
 #include <utility>
 #include <vector>
 
@@ -40,7 +42,7 @@ bool Integral::PreProcessingImpl() {
       for (int i = 0; i < dimensions_; ++i) {
         down_limits_[i] = inputs[i];
         up_limits_[i] = inputs[i + dimensions_];
-        counts_[i] = static_cast<int>(inputs[i + 2 * dimensions_]);
+        counts_[i] = static_cast<int>(inputs[i + (2 * dimensions_)]);
 
         if (counts_[i] <= 0) {
           throw std::invalid_argument("Number of intervals must be positive for all dimensions.");
@@ -107,7 +109,7 @@ bool Integral::RunImpl() {
       double step = (up_limits_[0] - down_limits_[0]) / counts_[0];
       result_ = 0.0;
       for (int i = 0; i < counts_[0]; ++i) {
-        double x = down_limits_[0] + (i + 0.5) * step;
+        double x = down_limits_[0] + ((i + 0.5) * step);
         result_ += func_(std::vector<double>{x}) * step;
       }
     }
