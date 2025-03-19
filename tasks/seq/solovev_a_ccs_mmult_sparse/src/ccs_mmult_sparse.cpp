@@ -39,7 +39,7 @@ bool solovev_a_matrix::SeqMatMultCcs::RunImpl() {
     M3_->col_p[m2_c + 1] = n_z_c_cnt + M3_->col_p[m2_c];
   }
 
-  int n_z_full = M3_->col_p[M3->c_n];
+  int n_z_full = M3_->col_p[M3_->c_n];
   M3_->n_z = n_z_full;
   M3_->row.resize(n_z_full);
   M3_->val.resize(n_z_full);
