@@ -516,10 +516,10 @@ TEST(yasakova_t_sparse_matrix_multiplication_seq, test_multiply_real_matrices_co
   }
 
   // Expected Result (Real part only)
-  expected_result.InsertElement(0, Complex(19, 0), 0); // 1*5 + 2*7 = 19
-  expected_result.InsertElement(0, Complex(22, 0), 1); // 1*6 + 2*8 = 22
-  expected_result.InsertElement(1, Complex(43, 0), 0); // 3*5 + 4*7 = 43
-  expected_result.InsertElement(1, Complex(50, 0), 1); // 3*6 + 4*8 = 50
+  expected_result.InsertElement(0, Complex(19, 0), 0);  // 1*5 + 2*7 = 19
+  expected_result.InsertElement(0, Complex(22, 0), 1);  // 1*6 + 2*8 = 22
+  expected_result.InsertElement(1, Complex(43, 0), 0);  // 3*5 + 4*7 = 43
+  expected_result.InsertElement(1, Complex(50, 0), 1);  // 3*6 + 4*8 = 50
 
   // Create task_data
   auto task_data = std::make_shared<ppc::core::TaskData>();
