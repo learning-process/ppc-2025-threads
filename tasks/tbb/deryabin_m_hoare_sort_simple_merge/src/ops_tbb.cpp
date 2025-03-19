@@ -38,8 +38,7 @@ void deryabin_m_hoare_sort_simple_merge_tbb::HoaraSort(std::vector<double>& a, s
       a[j] = tmp;
     }
   } while (i < j);
-  oneapi::tbb::parallel_invoke([=, this]() { HoaraSort(a, i + 1, last); },
-                               [=, this]() { HoaraSort(a, first, j); });
+  oneapi::tbb::parallel_invoke([=, this]() { HoaraSort(a, i + 1, last); }, [=, this]() { HoaraSort(a, first, j); });
 }
 
 void deryabin_m_hoare_sort_simple_merge_tbb::MergeTwoParts(std::vector<double>& a, size_t left, size_t right,
@@ -128,7 +127,7 @@ bool deryabin_m_hoare_sort_simple_merge_tbb::HoareSortTaskTBB::RunImpl() {
   for (short i = 0; i < (short)(log((double)chunk_count_) / std::numbers::ln2); i++) {
     oneapi::tbb::parallel_for(0, (int)chunk_count, 1, [=, this](int j) {
       MergeTwoParts(input_array_A_, (short)j * (short)min_chunk_size_ << (i + 1),
-                          (((short)j + 1) * (short)min_chunk_size_ << (i + 1)) - 1, dimension_);
+                    (((short)j + 1) * (short)min_chunk_size_ << (i + 1)) - 1, dimension_);
       chunk_count--;
     }
   }
