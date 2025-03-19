@@ -7,8 +7,8 @@
 bool kozlova_e_contrast_enhancement_seq::TestTaskSequential::PreProcessingImpl() {
   auto* input_ptr = reinterpret_cast<int*>(task_data->inputs[0]);
   size_t size = task_data->inputs_count[0];
-  width = task_data->inputs_count[1];
-  height = task_data->inputs_count[2];
+  width_ = task_data->inputs_count[1];
+  height_ = task_data->inputs_count[2];
   output_.resize(size, 0);
   input_.resize(size);
   std::copy(input_ptr, input_ptr + size, input_.begin());
