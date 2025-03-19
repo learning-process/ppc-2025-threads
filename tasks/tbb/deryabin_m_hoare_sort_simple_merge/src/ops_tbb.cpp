@@ -124,7 +124,8 @@ bool deryabin_m_hoare_sort_simple_merge_tbb::HoareSortTaskTBB::RunImpl() {
   });
   auto num_of_lvls = (int)(log((double)chunk_count_) / std::numbers::ln2);
   oneapi::tbb::parallel_for(0, num_of_lvls, 1, [=, this](int i) {
-    for (size_t j = 0; j < (size_t)chunk_count--; j++) {
+    auto tmp_chunk_count = (size_t)chunk_count >> i;
+    for (size_t j = 0; j < (size_t)chunk_count; j++) {
       MergeTwoParts(input_array_A_, j * min_chunk_size_ << ((size_t)i + 1),
                     ((j + 1) * min_chunk_size_ << ((size_t)i + 1)) - 1, dimension_);
     }
