@@ -17,7 +17,7 @@ bool opolin_d_radix_betcher_sort_seq::RadixBetcherSortTaskSequential::PreProcess
 
 bool opolin_d_radix_betcher_sort_seq::RadixBetcherSortTaskSequential::ValidationImpl() {
   // Check equality of counts elements
-  size_ =  static_cast<int>(task_data->inputs_count[0]);
+  size_ = static_cast<int>(task_data->inputs_count[0]);
   if (size_ <= 0 || task_data->inputs.empty()) {
     return false;
   }
