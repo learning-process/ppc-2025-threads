@@ -7,7 +7,6 @@
 #include "core/task/include/task.hpp"
 #include "seq/fyodorov_m_shell_sort_with_even_odd_batcher_merge_seq/include/ops_seq.hpp"
 
-
 TEST(fyodorov_m_shell_sort_with_even_odd_batcher_merge_seq, test_small_array) {
   std::vector<int> input = {35, 33, 42, 10, 14, 19, 27, 44};
   std::vector<int> expected_output = {10, 14, 19, 27, 33, 35, 42, 44};
