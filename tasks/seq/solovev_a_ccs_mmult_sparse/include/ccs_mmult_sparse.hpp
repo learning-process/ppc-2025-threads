@@ -17,10 +17,10 @@ struct MatrixInCcsSparse {
   int c_n;
   int n_z;
 
-  MatrixInCcsSparse(int r_n_ = 0, int c_n_ = 0, int n_z_ = 0) {
-    c_n = c_n_;
-    r_n = r_n_;
-    n_z = n_z_;
+  MatrixInCcsSparse(int r_nn = 0, int c_nn = 0, int n_zz = 0) {
+    c_n = c_nn;
+    r_n = r_nn;
+    n_z = n_zz;
     row.resize(n_z);
     col_p.resize(r_n + 1);
     val.resize(n_z);
