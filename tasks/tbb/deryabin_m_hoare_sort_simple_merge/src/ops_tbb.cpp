@@ -122,7 +122,7 @@ bool deryabin_m_hoare_sort_simple_merge_tbb::HoareSortTaskTBB::ValidationImpl() 
 
 bool deryabin_m_hoare_sort_simple_merge_tbb::HoareSortTaskTBB::RunImpl() {
   auto chunk_count = (short)chunk_count_;
-  oneapi::tbb::parallel_for(0, (int)chunk_count, 1, [=](int count) {
+  oneapi::tbb::parallel_for(0, (int)chunk_count, 1, [=, this](int count) {
     HoaraSort(input_array_A_, (short)count * (short)min_chunk_size_, ((count + 1) * (short)min_chunk_size_) - 1);
   });
   oneapi::tbb::task_arena arena2(1);
