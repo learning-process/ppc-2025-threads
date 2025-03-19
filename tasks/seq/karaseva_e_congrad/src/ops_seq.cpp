@@ -7,11 +7,11 @@
 bool karaseva_e_congrad_seq::TestTaskSequential::PreProcessingImpl() {
   // Set the system size based on the length of vector b
   size_ = task_data->inputs_count[1];
-  auto* A_ptr = reinterpret_cast<double*>(task_data->inputs[0]);
+  auto* a_ptr = reinterpret_cast<double*>(task_data->inputs[0]);
   auto* b_ptr = reinterpret_cast<double*>(task_data->inputs[1]);
 
   // Initialize matrix A, vector b and initial guess x (all zeros)
-  A_ = std::vector<double>(A_ptr, A_ptr + size_ * size_);
+  A_ = std::vector<double>(a_ptr, a_ptr + (size_ * size_));
   b_ = std::vector<double>(b_ptr, b_ptr + size_);
   x_ = std::vector<double>(size_, 0.0);  // Initial guess
 
@@ -28,7 +28,7 @@ bool karaseva_e_congrad_seq::TestTaskSequential::ValidationImpl() {
 bool karaseva_e_congrad_seq::TestTaskSequential::RunImpl() {
   std::vector<double> r(size_);
   std::vector<double> p(size_);
-  std::vector<double> Ap(size_);
+  std::vector<double> ap(size_);
 
   // Compute initial residual: r = b - A*x (x is initially zero)
   for (size_t i = 0; i < size_; ++i) {
@@ -45,28 +45,28 @@ bool karaseva_e_congrad_seq::TestTaskSequential::RunImpl() {
   const size_t max_iterations = size_;  // Maximum iterations to prevent infinite loops
 
   for (size_t k = 0; k < max_iterations; ++k) {
-    // Compute Ap = A * p
+    // Compute ap = A * p
     for (size_t i = 0; i < size_; ++i) {
-      Ap[i] = 0.0;
+      ap[i] = 0.0;
       for (size_t j = 0; j < size_; ++j) {
-        Ap[i] += A_[i * size_ + j] * p[j];
+        ap[i] += A_[(i * size_) + j] * p[j];
       }
     }
 
-    // Compute alpha = rs_old / (p^T * Ap)
-    double pAp = 0.0;
+    // Compute alpha = rs_old / (p^T * ap)
+    double p_ap = 0.0;
     for (size_t i = 0; i < size_; ++i) {
-      pAp += p[i] * Ap[i];
+      p_ap += p[i] * ap[i];
     }
-    if (std::fabs(pAp) < 1e-15) {
+    if (std::fabs(p_ap) < 1e-15) {
       break;  // Avoid division by zero
     }
-    const double alpha = rs_old / pAp;
+    const double alpha = rs_old / p_ap;
 
     // Update solution vector x and residual r
     for (size_t i = 0; i < size_; ++i) {
       x_[i] += alpha * p[i];
-      r[i] -= alpha * Ap[i];
+      r[i] -= alpha * ap[i];
     }
 
     // Check convergence by computing the norm of the residual

@@ -11,21 +11,21 @@
 #include "seq/karaseva_e_congrad/include/ops_seq.hpp"
 
 TEST(karaseva_e_congrad_seq, test_pipeline_run) {
-  constexpr int n = 10000;
+  constexpr int kSize = 10000;
 
-  // Create matrix A (identity matrix) and vector b (all ones)
-  std::vector<double> A(n * n, 0.0);
-  std::vector<double> b(n, 1.0);
-  std::vector<double> x(n, 0.0);  // output vector for the solution
+  // Create matrix a (identity matrix) and vector b (all ones)
+  std::vector<double> a(kSize * kSize, 0.0);
+  std::vector<double> b(kSize, 1.0);
+  std::vector<double> x(kSize, 0.0);  // output vector for the solution
 
-  for (int i = 0; i < n; ++i) {
-    A[i * n + i] = 1.0;
+  for (int i = 0; i < kSize; ++i) {
+    a[(i * kSize) + i] = 1.0;
   }
 
   // Create task_data
   auto task_data_seq = std::make_shared<ppc::core::TaskData>();
-  task_data_seq->inputs.emplace_back(reinterpret_cast<uint8_t*>(A.data()));
-  task_data_seq->inputs_count.emplace_back(A.size());
+  task_data_seq->inputs.emplace_back(reinterpret_cast<uint8_t*>(a.data()));
+  task_data_seq->inputs_count.emplace_back(a.size());
   task_data_seq->inputs.emplace_back(reinterpret_cast<uint8_t*>(b.data()));
   task_data_seq->inputs_count.emplace_back(b.size());
   task_data_seq->outputs.emplace_back(reinterpret_cast<uint8_t*>(x.data()));
@@ -56,21 +56,21 @@ TEST(karaseva_e_congrad_seq, test_pipeline_run) {
 }
 
 TEST(karaseva_e_congrad_seq, test_task_run) {
-  constexpr int n = 12000;
+  constexpr int kSize = 12000;
 
-  // Create matrix A (identity matrix) and vector b (all ones)
-  std::vector<double> A(n * n, 0.0);
-  std::vector<double> b(n, 1.0);
-  std::vector<double> x(n, 0.0);  // output vector for the solution
+  // Create matrix a (identity matrix) and vector b (all ones)
+  std::vector<double> a(kSize * kSize, 0.0);
+  std::vector<double> b(kSize, 1.0);
+  std::vector<double> x(kSize, 0.0);  // output vector for the solution
 
-  for (int i = 0; i < n; ++i) {
-    A[i * n + i] = 1.0;
+  for (int i = 0; i < kSize; ++i) {
+    a[(i * kSize) + i] = 1.0;
   }
 
   // Create task_data
   auto task_data_seq = std::make_shared<ppc::core::TaskData>();
-  task_data_seq->inputs.emplace_back(reinterpret_cast<uint8_t*>(A.data()));
-  task_data_seq->inputs_count.emplace_back(A.size());
+  task_data_seq->inputs.emplace_back(reinterpret_cast<uint8_t*>(a.data()));
+  task_data_seq->inputs_count.emplace_back(a.size());
   task_data_seq->inputs.emplace_back(reinterpret_cast<uint8_t*>(b.data()));
   task_data_seq->inputs_count.emplace_back(b.size());
   task_data_seq->outputs.emplace_back(reinterpret_cast<uint8_t*>(x.data()));

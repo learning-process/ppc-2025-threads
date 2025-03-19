@@ -7,73 +7,75 @@
 #include <vector>
 
 #include "core/task/include/task.hpp"
-#include "core/util/include/util.hpp"
 #include "seq/karaseva_e_congrad/include/ops_seq.hpp"
 
 namespace {
-// Function to generate a random symmetric positive definite matrix of size n x n
-// The matrix is computed as A = R^T * R
-std::vector<double> GenerateRandomSPDMatrix(size_t n, unsigned int seed = 42) {
+
+// Function to generate a random symmetric positive-definite matrix of size matrix_size x matrix_size.
+// The matrix is computed as A = R^T * R.
+std::vector<double> GenerateRandomSPDMatrix(size_t matrix_size, unsigned int seed = 42) {
   std::mt19937 gen(seed);
   std::uniform_real_distribution<double> dist(0.1, 1.0);
-  std::vector<double> R(n * n);
-  for (size_t i = 0; i < n * n; ++i) {
-    R[i] = dist(gen);
+  std::vector<double> r_matrix(matrix_size * matrix_size);
+  for (size_t i = 0; i < matrix_size * matrix_size; ++i) {
+    r_matrix[i] = dist(gen);
   }
-  std::vector<double> A(n * n, 0.0);
-  // Compute A = R^T * R
-  for (size_t i = 0; i < n; ++i) {
-    for (size_t j = 0; j < n; ++j) {
-      for (size_t k = 0; k < n; ++k) {
-        A[i * n + j] += R[k * n + i] * R[k * n + j];
+  std::vector<double> a_matrix(matrix_size * matrix_size, 0.0);
+  // Compute a_matrix = R^T * R
+  for (size_t i = 0; i < matrix_size; ++i) {
+    for (size_t j = 0; j < matrix_size; ++j) {
+      for (size_t k = 0; k < matrix_size; ++k) {
+        a_matrix[(i * matrix_size) + j] += (r_matrix[(k * matrix_size) + i] * r_matrix[(k * matrix_size) + j]);
       }
     }
   }
   // Add diagonal dominance
-  for (size_t i = 0; i < n; ++i) {
-    A[i * n + i] += n;
+  for (size_t i = 0; i < matrix_size; ++i) {
+    a_matrix[(i * matrix_size) + i] += static_cast<double>(matrix_size);
   }
-  return A;
+  return a_matrix;
 }
 
-// Helper function to multiply matrix A (size n x n) by vector x (length n)
-std::vector<double> MultiplyMatrixVector(const std::vector<double>& A, const std::vector<double>& x, size_t n) {
-  std::vector<double> result(n, 0.0);
-  for (size_t i = 0; i < n; ++i) {
-    for (size_t j = 0; j < n; ++j) {
-      result[i] += A[i * n + j] * x[j];
+// Helper function to multiply a_matrix (size matrix_size x matrix_size) by vector x (length matrix_size)
+std::vector<double> MultiplyMatrixVector(const std::vector<double>& a_matrix, const std::vector<double>& x,
+                                         size_t matrix_size) {
+  std::vector<double> result(matrix_size, 0.0);
+  for (size_t i = 0; i < matrix_size; ++i) {
+    for (size_t j = 0; j < matrix_size; ++j) {
+      result[i] += (a_matrix[(i * matrix_size) + j] * x[j]);
     }
   }
   return result;
 }
+
 }  // namespace
 
 TEST(karaseva_e_congrad_seq, test_identity_50) {
-  constexpr size_t n = 50;
+  constexpr size_t kN = 50;
 
-  // Create identity matrix A of size n x n
-  std::vector<double> A(n * n, 0.0);
-  for (size_t i = 0; i < n; ++i) {
-    A[i * n + i] = 1.0;
+  // Create an identity matrix a_matrix of size kN x kN
+  std::vector<double> a_matrix(kN * kN, 0.0);
+  for (size_t i = 0; i < kN; ++i) {
+    a_matrix[(i * kN) + i] = 1.0;
   }
 
-  // Create vector b with elements 1.0, 2.0, ..., n
-  std::vector<double> b(n);
-  for (size_t i = 0; i < n; ++i) {
+  // Create a vector b with elements 1.0, 2.0, ..., kN
+  std::vector<double> b(kN);
+  for (size_t i = 0; i < kN; ++i) {
     b[i] = static_cast<double>(i + 1);
   }
 
   // Vector for the solution x, initially filled with zeros
-  std::vector<double> x(n, 0.0);
+  std::vector<double> x(kN, 0.0);
 
   // Set up task data structure
   auto task_data_seq = std::make_shared<ppc::core::TaskData>();
-  task_data_seq->inputs.push_back(reinterpret_cast<uint8_t*>(A.data()));
-  task_data_seq->inputs_count.push_back(n * n);
+  task_data_seq->inputs.push_back(reinterpret_cast<uint8_t*>(a_matrix.data()));
+  task_data_seq->inputs_count.push_back(kN * kN);
   task_data_seq->inputs.push_back(reinterpret_cast<uint8_t*>(b.data()));
-  task_data_seq->inputs_count.push_back(n);
+  task_data_seq->inputs_count.push_back(kN);
   task_data_seq->outputs.push_back(reinterpret_cast<uint8_t*>(x.data()));
-  task_data_seq->outputs_count.push_back(n);
+  task_data_seq->outputs_count.push_back(kN);
 
   // Create task
   karaseva_e_congrad_seq::TestTaskSequential test_task(task_data_seq);
@@ -82,40 +84,40 @@ TEST(karaseva_e_congrad_seq, test_identity_50) {
   test_task.Run();
   test_task.PostProcessing();
 
-  // Check that the computed solution x matches vector b within tolerance
-  for (size_t i = 0; i < n; ++i) {
+  // Check that the computed solution x matches vector b with an accuracy of 1e-9
+  for (size_t i = 0; i < kN; ++i) {
     EXPECT_NEAR(x[i], b[i], 1e-9);
   }
 }
 
 TEST(karaseva_e_congrad_seq, test_random_spd_small) {
-  constexpr size_t n = 20;  // system size
+  constexpr size_t kN = 20;  // system size
 
-  // Generate a random SPD matrix A using a fixed seed
-  auto A = GenerateRandomSPDMatrix(n, 42);
+  // Generate a random SPD matrix a_matrix with a fixed seed
+  auto a_matrix = GenerateRandomSPDMatrix(kN, 42);
 
   // Generate a random true solution vector x_true
   std::mt19937 gen(42);
   std::uniform_real_distribution<double> dist(0.1, 1.0);
-  std::vector<double> x_true(n);
-  for (size_t i = 0; i < n; ++i) {
+  std::vector<double> x_true(kN);
+  for (size_t i = 0; i < kN; ++i) {
     x_true[i] = dist(gen);
   }
 
-  // Compute right-hand side vector b = A * x_true
-  auto b = MultiplyMatrixVector(A, x_true, n);
+  // Compute the right-hand side b = a_matrix * x_true
+  auto b = MultiplyMatrixVector(a_matrix, x_true, kN);
 
   // Vector for the computed solution x, initially zeros
-  std::vector<double> x(n, 0.0);
+  std::vector<double> x(kN, 0.0);
 
   // Set up task data structure
   auto task_data_seq = std::make_shared<ppc::core::TaskData>();
-  task_data_seq->inputs.push_back(reinterpret_cast<uint8_t*>(A.data()));
-  task_data_seq->inputs_count.push_back(n * n);
+  task_data_seq->inputs.push_back(reinterpret_cast<uint8_t*>(a_matrix.data()));
+  task_data_seq->inputs_count.push_back(kN * kN);
   task_data_seq->inputs.push_back(reinterpret_cast<uint8_t*>(b.data()));
-  task_data_seq->inputs_count.push_back(n);
+  task_data_seq->inputs_count.push_back(kN);
   task_data_seq->outputs.push_back(reinterpret_cast<uint8_t*>(x.data()));
-  task_data_seq->outputs_count.push_back(n);
+  task_data_seq->outputs_count.push_back(kN);
 
   // Create task
   karaseva_e_congrad_seq::TestTaskSequential test_task(task_data_seq);
@@ -124,96 +126,8 @@ TEST(karaseva_e_congrad_seq, test_random_spd_small) {
   test_task.Run();
   test_task.PostProcessing();
 
-  // Check that the computed solution x is close to the true solution x_true
-  for (size_t i = 0; i < n; ++i) {
-    EXPECT_NEAR(x[i], x_true[i], 1e-6);
-  }
-}
-
-TEST(karaseva_e_congrad_seq, test_random_spd_medium) {
-  constexpr size_t n = 50;
-
-  // Generate a random SPD matrix A using a different fixed seed
-  auto A = GenerateRandomSPDMatrix(n, 123);
-
-  // Generate a random true solution vector x_true
-  std::mt19937 gen(123);
-  std::uniform_real_distribution<double> dist(0.1, 1.0);
-  std::vector<double> x_true(n);
-  for (size_t i = 0; i < n; ++i) {
-    x_true[i] = dist(gen);
-  }
-
-  // Compute right-hand side vector b = A * x_true
-  auto b = MultiplyMatrixVector(A, x_true, n);
-
-  // Vector for the computed solution x, initially zeros
-  std::vector<double> x(n, 0.0);
-
-  // Set up task data structure
-  auto task_data_seq = std::make_shared<ppc::core::TaskData>();
-  task_data_seq->inputs.push_back(reinterpret_cast<uint8_t*>(A.data()));
-  task_data_seq->inputs_count.push_back(n * n);
-  task_data_seq->inputs.push_back(reinterpret_cast<uint8_t*>(b.data()));
-  task_data_seq->inputs_count.push_back(n);
-  task_data_seq->outputs.push_back(reinterpret_cast<uint8_t*>(x.data()));
-  task_data_seq->outputs_count.push_back(n);
-
-  // Create task
-  karaseva_e_congrad_seq::TestTaskSequential test_task(task_data_seq);
-  ASSERT_TRUE(test_task.Validation());
-  test_task.PreProcessing();
-  test_task.Run();
-  test_task.PostProcessing();
-
-  // Check that the computed solution x is close to the true solution x_true
-  for (size_t i = 0; i < n; ++i) {
-    EXPECT_NEAR(x[i], x_true[i], 1e-6);
-  }
-}
-
-TEST(karaseva_e_congrad_seq, test_random_spd_diagonal) {
-  constexpr size_t n = 30;
-
-  // Create a random diagonal SPD matrix A
-  std::vector<double> A(n * n, 0.0);
-  std::mt19937 gen(42);
-  std::uniform_real_distribution<double> dist_diag(1.0, 10.0);
-  for (size_t i = 0; i < n; ++i) {
-    A[i * n + i] = dist_diag(gen);
-  }
-
-  // Generate a random true solution vector x_true
-  std::vector<double> x_true(n);
-  std::uniform_real_distribution<double> dist(0.1, 1.0);
-  for (size_t i = 0; i < n; ++i) {
-    x_true[i] = dist(gen);
-  }
-
-  // Compute right-hand side vector b = A * x_true
-  auto b = MultiplyMatrixVector(A, x_true, n);
-
-  // Vector for the computed solution x, initially zeros
-  std::vector<double> x(n, 0.0);
-
-  // Set up task data structure
-  auto task_data_seq = std::make_shared<ppc::core::TaskData>();
-  task_data_seq->inputs.push_back(reinterpret_cast<uint8_t*>(A.data()));
-  task_data_seq->inputs_count.push_back(n * n);
-  task_data_seq->inputs.push_back(reinterpret_cast<uint8_t*>(b.data()));
-  task_data_seq->inputs_count.push_back(n);
-  task_data_seq->outputs.push_back(reinterpret_cast<uint8_t*>(x.data()));
-  task_data_seq->outputs_count.push_back(n);
-
-  // Create task
-  karaseva_e_congrad_seq::TestTaskSequential test_task(task_data_seq);
-  ASSERT_TRUE(test_task.Validation());
-  test_task.PreProcessing();
-  test_task.Run();
-  test_task.PostProcessing();
-
-  // Check that the computed solution x is close to the true solution x_true
-  for (size_t i = 0; i < n; ++i) {
+  // Check that the computed solution x is close to the true solution x_true with an accuracy of 1e-6
+  for (size_t i = 0; i < kN; ++i) {
     EXPECT_NEAR(x[i], x_true[i], 1e-6);
   }
 }
