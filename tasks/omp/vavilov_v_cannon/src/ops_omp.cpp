@@ -43,24 +43,21 @@ void vavilov_v_cannon_omp::CannonOMP::InitialShift() {
     }
   }
 }
-
 void vavilov_v_cannon_omp::CannonOMP::BlockMultiply() {
-#pragma omp parallel
-  for (int bi = 0; bi < N_; bi += block_size_) {
-    for (int bj = 0; bj < N_; bj += block_size_) {
-      for (int i = bi; i < bi + block_size_; i++) {
-        for (int j = bj; j < bj + block_size_; j++) {
+#pragma omp parallel for
+  for (int bi = 0; bi < num_blocks_; ++bi) {
+    for (int bj = 0; bj < num_blocks_; ++bj) {
+      for (int i = 0; i < block_size_; ++i) {
+        for (int j = 0; j < block_size_; ++j) {
           double temp = 0.0;
-          for (int k = 0; k < block_size_; k++) {
-            int row_a = bi + (i - bi);
-            int col_a = bj + k;
-            int row_b = bi + k;
-            int col_b = bj + (j - bj);
-
-            temp += A_[(row_a * N_) + col_a] * B_[(row_b * N_) + col_b];
+          for (int k = 0; k < block_size_; ++k) {
+            int row = bi * block_size_ + i;
+            int col = bj * block_size_ + j;
+            int k_idx = k + bi * block_size_;
+            int k_col = k + bj * block_size_;
+            temp += A_[row * N_ + k_idx] * B_[k_idx * N_ + col];
           }
-
-          C_[(i * N_) + j] += temp;
+          C_[(bi * block_size_ + i) * N_ + (bj * block_size_ + j)] += temp;
         }
       }
     }
