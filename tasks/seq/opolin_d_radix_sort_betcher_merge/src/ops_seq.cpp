@@ -3,6 +3,7 @@
 #include <algorithm>
 #include <cmath>
 #include <cstddef>
+#include <ranges>
 #include <vector>
 
 bool opolin_d_radix_betcher_sort_seq::RadixBetcherSortTaskSequential::PreProcessingImpl() {
@@ -57,7 +58,7 @@ bool opolin_d_radix_betcher_sort_seq::RadixBetcherSortTaskSequential::RunImpl() 
   }
 
   if (!negatives.empty()) {
-    std::reverse(negatives.begin(), negatives.end());
+    std::ranges::reverse(negatives);
   }
 
   output_.clear();
