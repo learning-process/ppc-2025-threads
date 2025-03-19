@@ -12,7 +12,7 @@
 TEST(karaseva_e_congrad_seq, test_pipeline_run) {
   constexpr int kSize = 10000;
 
-  // Create matrix a (identity matrix) and vector b (all ones)
+  // Create matrix a (identity matrix) and vector b (all 1)
   std::vector<double> a(kSize * kSize, 0.0);
   std::vector<double> b(kSize, 1.0);
   std::vector<double> x(kSize, 0.0);  // output vector for the solution
