@@ -65,7 +65,6 @@ void kalyakina_a_shell_with_simple_merge_omp::ShellSortOpenMP::SimpleMergeSort(s
 }
 
 bool kalyakina_a_shell_with_simple_merge_omp::ShellSortOpenMP::PreProcessingImpl() {
-  // Init value for input and output
   input_ = std::vector<int>(task_data->inputs_count[0]);
   auto *in_ptr = reinterpret_cast<int *>(task_data->inputs[0]);
   std::copy(in_ptr, in_ptr + task_data->inputs_count[0], input_.begin());
@@ -74,7 +73,6 @@ bool kalyakina_a_shell_with_simple_merge_omp::ShellSortOpenMP::PreProcessingImpl
 }
 
 bool kalyakina_a_shell_with_simple_merge_omp::ShellSortOpenMP::ValidationImpl() {
-  // Check equality of counts elements
   return (task_data->inputs_count[0] > 0) && (task_data->outputs_count[0] > 0) &&
          (task_data->inputs_count[0] == task_data->outputs_count[0]);
 }
