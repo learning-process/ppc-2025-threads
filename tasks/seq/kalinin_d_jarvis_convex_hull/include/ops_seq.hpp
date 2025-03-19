@@ -1,4 +1,4 @@
-// Copyright 2025 Kalinin Dmitriy
+// Copyright 2025 Kalinin Dmitry
 #pragma once
 
 #include <utility>

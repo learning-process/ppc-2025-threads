@@ -1,7 +1,6 @@
 // Copyright 2025 Dmitry Kalinin
 #include <gtest/gtest.h>
 
-#include <cstddef>
 #include <cstdint>
 #include <memory>
 #include <vector>
@@ -21,7 +20,7 @@ TEST(kalinin_d_jarvis_convex_hull_seq, Empty_Input) {
 
   // Create Task
   kalinin_d_jarvis_convex_hull_seq::TestTaskSequential test_task_sequential(task_data_seq);
-  ASSERT_EQ(test_task_sequential.ValidationImpl(), false);
+  ASSERT_FALSE(test_task_sequential.ValidationImpl());
 }
 
 TEST(kalinin_d_jarvis_convex_hull_seq, Single_Point) {
@@ -38,7 +37,7 @@ TEST(kalinin_d_jarvis_convex_hull_seq, Single_Point) {
 
   // Create Task
   kalinin_d_jarvis_convex_hull_seq::TestTaskSequential test_task_sequential(task_data_seq);
-  ASSERT_EQ(test_task_sequential.ValidationImpl(), true);
+  ASSERT_TRUE(test_task_sequential.ValidationImpl());
   test_task_sequential.PreProcessingImpl();
   test_task_sequential.RunImpl();
   test_task_sequential.PostProcessingImpl();
@@ -60,7 +59,7 @@ TEST(kalinin_d_jarvis_convex_hull_seq, Two_Points) {
 
   // Create Task
   kalinin_d_jarvis_convex_hull_seq::TestTaskSequential test_task_sequential(task_data_seq);
-  ASSERT_EQ(test_task_sequential.ValidationImpl(), true);
+  ASSERT_TRUE(test_task_sequential.ValidationImpl());
   test_task_sequential.PreProcessingImpl();
   test_task_sequential.RunImpl();
   test_task_sequential.PostProcessingImpl();
@@ -83,7 +82,7 @@ TEST(kalinin_d_jarvis_convex_hull_seq, Duplicate_Points) {
   task_data_seq->outputs_count.emplace_back(res_hull.size());
   // Create Task
   kalinin_d_jarvis_convex_hull_seq::TestTaskSequential test_task_sequential(task_data_seq);
-  ASSERT_EQ(test_task_sequential.ValidationImpl(), true);
+  ASSERT_TRUE(test_task_sequential.ValidationImpl());
   test_task_sequential.PreProcessingImpl();
   test_task_sequential.RunImpl();
   test_task_sequential.PostProcessingImpl();
@@ -107,7 +106,7 @@ TEST(kalinin_d_jarvis_convex_hull_seq, Random_Points) {
 
   // Create Task
   kalinin_d_jarvis_convex_hull_seq::TestTaskSequential test_task_sequential(task_data_seq);
-  ASSERT_EQ(test_task_sequential.ValidationImpl(), true);
+  ASSERT_TRUE(test_task_sequential.ValidationImpl());
   test_task_sequential.PreProcessingImpl();
   test_task_sequential.RunImpl();
   test_task_sequential.PostProcessingImpl();
@@ -134,7 +133,7 @@ TEST(kalinin_d_jarvis_convex_hull_seq, Rectangle_Points) {
 
   // Create Task
   kalinin_d_jarvis_convex_hull_seq::TestTaskSequential test_task_sequential(task_data_seq);
-  ASSERT_EQ(test_task_sequential.ValidationImpl(), true);
+  ASSERT_TRUE(test_task_sequential.ValidationImpl());
   test_task_sequential.PreProcessingImpl();
   test_task_sequential.RunImpl();
   test_task_sequential.PostProcessingImpl();
