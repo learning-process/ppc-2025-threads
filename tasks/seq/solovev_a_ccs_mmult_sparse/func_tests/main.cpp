@@ -7,6 +7,7 @@
 #include <memory>
 #include <vector>
 
+#include "core/task/include/task.hpp"
 #include "seq/solovev_a_ccs_mmult_sparse/include/ccs_mmult_sparse.hpp"
 
 TEST(solovev_a_ccs_mmult_sparse, test_I) {
@@ -49,7 +50,7 @@ TEST(solovev_a_ccs_mmult_sparse, test_II) {
     m2.col_p.push_back(i);
   }
   for (int i = 0; i < 50; i++) {
-    m1.row.push_back((double)i);
+    m1.row.push_back(i);
     m1.val.emplace_back(vvector);
     m2.row.push_back(0.0);
     m2.val.emplace_back(vvector);
