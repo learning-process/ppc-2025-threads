@@ -629,3 +629,31 @@ TEST(ermilova_d_shell_sort_batcher_even_odd_merger_seq, reverse_sort_vec_10000) 
   test_task_sequential.PostProcessing();
   EXPECT_EQ(ref, out);
 }
+
+TEST(ermilova_d_shell_sort_batcher_even_odd_merger_seq, reverse_duplicates_vec) {
+  // Create data
+
+  bool is_resersed = false;
+
+  std::vector<int> in = {5, 4, 3, 2, 1, 5, 4, 3, 2, 1};
+  std::vector<int> out(in.size(), 0);
+
+  std::vector<int> ref = in;
+  std::ranges::sort(ref);
+
+  // Create task_data
+  auto task_data_seq = std::make_shared<ppc::core::TaskData>();
+  task_data_seq->inputs.emplace_back(reinterpret_cast<uint8_t *>(in.data()));
+  task_data_seq->inputs.emplace_back(reinterpret_cast<uint8_t *>(&is_resersed));
+  task_data_seq->inputs_count.emplace_back(in.size());
+  task_data_seq->outputs.emplace_back(reinterpret_cast<uint8_t *>(out.data()));
+  task_data_seq->outputs_count.emplace_back(out.size());
+
+  // Create Task
+  ermilova_d_shell_sort_batcher_even_odd_merger_seq::TestTaskSequential test_task_sequential(task_data_seq);
+  ASSERT_EQ(test_task_sequential.Validation(), true);
+  test_task_sequential.PreProcessing();
+  test_task_sequential.Run();
+  test_task_sequential.PostProcessing();
+  EXPECT_EQ(ref, out);
+}
