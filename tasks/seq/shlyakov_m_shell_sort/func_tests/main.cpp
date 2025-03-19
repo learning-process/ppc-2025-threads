@@ -16,7 +16,16 @@ namespace {
 std::vector<int> GenerateRandomArray(size_t size) {
   unsigned seed = std::chrono::system_clock::now().time_since_epoch().count();
   std::default_random_engine generator(seed);
-  std::uniform_int_distribution<int> distribution(-100, 100);
+
+  std::uniform_int_distribution<int> distribution_range(-1000, 1000);
+  int min_val = distribution_range(generator);
+  int max_val = distribution_range(generator);
+
+  if (min_val > max_val) {
+    std::swap(min_val, max_val);
+  }
+
+  std::uniform_int_distribution<int> distribution(min_val, max_val);
 
   std::vector<int> arr(size);
   for (size_t i = 0; i < size; ++i) {
