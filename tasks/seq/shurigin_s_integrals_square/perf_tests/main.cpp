@@ -11,15 +11,22 @@
 #include "seq/shurigin_s_integrals_square/include/ops_seq.hpp"
 
 namespace shurigin_s_integrals_square_seq {
-
 TEST(shurigin_s_integrals_square_seq, test_pipeline_run) {
-  double down_limit = -1.0;
-  double up_limit = 1.0;
-  int count = 10000000;
-  std::vector<double> inputs{down_limit, up_limit, static_cast<double>(count)};
+  double down_limit_x = -1.0;
+  double up_limit_x = 1.0;
+  double down_limit_y = -1.0;
+  double up_limit_y = 1.0;
+  int count_x = 1000;
+  int count_y = 1000;
+  std::vector<double> inputs{
+      down_limit_x, down_limit_y, up_limit_x, up_limit_y, static_cast<double>(count_x), static_cast<double>(count_y)};
   double result = 0.0;
 
-  auto f = [](double x) { return std::cos(x * x) * (1 + x * x); };
+  auto f = [](const std::vector<double>& point) {
+    double x = point[0];
+    double y = point[1];
+    return std::cos(x * x + y * y) * (1 + x * x + y * y);
+  };
 
   std::shared_ptr<ppc::core::TaskData> task_data_seq = std::make_shared<ppc::core::TaskData>();
   task_data_seq->inputs.emplace_back(reinterpret_cast<uint8_t*>(inputs.data()));
@@ -28,7 +35,7 @@ TEST(shurigin_s_integrals_square_seq, test_pipeline_run) {
   task_data_seq->outputs_count.emplace_back(sizeof(double));
 
   auto test_task_sequential = std::make_shared<Integral>(task_data_seq);
-  test_task_sequential->SetFunction(f);
+  test_task_sequential->SetFunction(f, 2);  // Указываем размерность 2
 
   auto perf_attr = std::make_shared<ppc::core::PerfAttr>();
   perf_attr->num_running = 10;
@@ -47,13 +54,21 @@ TEST(shurigin_s_integrals_square_seq, test_pipeline_run) {
 }
 
 TEST(shurigin_s_integrals_square_seq, test_task_run) {
-  double down_limit = -1.0;
-  double up_limit = 1.0;
-  int count = 10000000;
-  std::vector<double> inputs{down_limit, up_limit, static_cast<double>(count)};
+  double down_limit_x = -1.0;
+  double up_limit_x = 1.0;
+  double down_limit_y = -1.0;
+  double up_limit_y = 1.0;
+  int count_x = 1000;
+  int count_y = 1000;
+  std::vector<double> inputs{
+      down_limit_x, down_limit_y, up_limit_x, up_limit_y, static_cast<double>(count_x), static_cast<double>(count_y)};
   double result = 0.0;
 
-  auto f = [](double x) { return std::cos(x * x) * (1 + x * x); };
+  auto f = [](const std::vector<double>& point) {
+    double x = point[0];
+    double y = point[1];
+    return std::cos(x * x + y * y) * (1 + x * x + y * y);
+  };
 
   std::shared_ptr<ppc::core::TaskData> task_data_seq = std::make_shared<ppc::core::TaskData>();
   task_data_seq->inputs.emplace_back(reinterpret_cast<uint8_t*>(inputs.data()));
@@ -62,7 +77,7 @@ TEST(shurigin_s_integrals_square_seq, test_task_run) {
   task_data_seq->outputs_count.emplace_back(sizeof(double));
 
   auto test_task_sequential = std::make_shared<Integral>(task_data_seq);
-  test_task_sequential->SetFunction(f);
+  test_task_sequential->SetFunction(f, 2);  // Указываем размерность 2
 
   auto perf_attr = std::make_shared<ppc::core::PerfAttr>();
   perf_attr->num_running = 10;
