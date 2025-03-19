@@ -1,5 +1,6 @@
 #include <gtest/gtest.h>
 
+#include <algorithm>
 #include <cstdint>
 #include <ctime>
 #include <memory>
@@ -34,7 +35,7 @@ TEST(kudryashova_i_radix_batcher_seq, seq_radix_test_0) {
   test_task_sequential.RunImpl();
   test_task_sequential.PostProcessingImpl();
   std::vector<double> sorted_global_vector = global_vector;
-  std::sort(sorted_global_vector.begin(), sorted_global_vector.end());
+  std::ranges::sort(sorted_global_vector);
   ASSERT_EQ(result, sorted_global_vector);
 }
 
@@ -53,7 +54,7 @@ TEST(kudryashova_i_radix_batcher_seq, seq_radix_test_1) {
   test_task_sequential.RunImpl();
   test_task_sequential.PostProcessingImpl();
   std::vector<double> sorted_global_vector = global_vector;
-  std::sort(sorted_global_vector.begin(), sorted_global_vector.end());
+  std::ranges::sort(sorted_global_vector);
   ASSERT_EQ(result, sorted_global_vector);
 }
 
@@ -73,7 +74,7 @@ TEST(kudryashova_i_radix_batcher_seq, seq_radix_test_2) {
   test_task_sequential.RunImpl();
   test_task_sequential.PostProcessingImpl();
   std::vector<double> sorted_global_vector = global_vector;
-  std::sort(sorted_global_vector.begin(), sorted_global_vector.end());
+  std::ranges::sort(sorted_global_vector);
   ASSERT_EQ(result, sorted_global_vector);
 }
 
@@ -105,7 +106,7 @@ TEST(kudryashova_i_radix_batcher_seq, seq_radix_random_test_1) {
   test_task_sequential.RunImpl();
   test_task_sequential.PostProcessingImpl();
   std::vector<double> sorted_global_vector = global_vector;
-  std::sort(sorted_global_vector.begin(), sorted_global_vector.end());
+  std::ranges::sort(sorted_global_vector);
   ASSERT_EQ(result, sorted_global_vector);
 }
 
@@ -124,7 +125,7 @@ TEST(kudryashova_i_radix_batcher_seq, seq_radix_random_test_2) {
   test_task_sequential.RunImpl();
   test_task_sequential.PostProcessingImpl();
   std::vector<double> sorted_global_vector = global_vector;
-  std::sort(sorted_global_vector.begin(), sorted_global_vector.end());
+  std::ranges::sort(sorted_global_vector);
   ASSERT_EQ(result, sorted_global_vector);
 }
 
@@ -143,6 +144,6 @@ TEST(kudryashova_i_radix_batcher_seq, seq_radix_random_test_3) {
   test_task_sequential.RunImpl();
   test_task_sequential.PostProcessingImpl();
   std::vector<double> sorted_global_vector = global_vector;
-  std::sort(sorted_global_vector.begin(), sorted_global_vector.end());
+  std::ranges::sort(sorted_global_vector);
   ASSERT_EQ(result, sorted_global_vector);
 }
