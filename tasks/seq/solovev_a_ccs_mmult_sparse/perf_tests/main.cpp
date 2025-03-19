@@ -5,7 +5,7 @@
 #include "core/perf/include/perf.hpp"
 #include "seq/solovev_a_ccs_mmult_sparse/include/ccs_mmult_sparse.hpp"
 
-TEST(solovev_a_ccs_mmult_sparse, test_pipeline_run) {
+TEST(solovev_a_ccs_mmult_sparse_seq, test_pipeline_run) {
   solovev_a_matrix::MatrixInCCS_Sparse M1(2000000, 2000000);
   solovev_a_matrix::MatrixInCCS_Sparse M2(2000000, 1);
   solovev_a_matrix::MatrixInCCS_Sparse M3(2000000, 1);
@@ -60,7 +60,7 @@ TEST(solovev_a_ccs_mmult_sparse, test_pipeline_run) {
   ppc::core::Perf::PrintPerfStatistic(perfResults);
 }
 
-TEST(solovev_a_ccs_mmult_sparse, test_task_run) {
+TEST(solovev_a_ccs_mmult_sparse_seq, test_task_run) {
   solovev_a_matrix::MatrixInCCS_Sparse M1(2000000, 2000000);
   solovev_a_matrix::MatrixInCCS_Sparse M2(2000000, 1);
   solovev_a_matrix::MatrixInCCS_Sparse M3(2000000, 1);
