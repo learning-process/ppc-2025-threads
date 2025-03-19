@@ -79,7 +79,8 @@ bool kavtorev_d_dense_matrix_cannon_seq::TestTaskSequential::PreProcessingImpl()
 bool kavtorev_d_dense_matrix_cannon_seq::TestTaskSequential::ValidationImpl() {
   return task_data->inputs_count[0] == task_data->inputs_count[1] &&
          task_data->inputs_count[0] == task_data->outputs_count[0] &&
-         task_data->inputs_count[1] == task_data->outputs_count[0];
+         task_data->inputs_count[1] == task_data->outputs_count[0] && task_data->inputs_count[1] > 0 &&
+         task_data->inputs_count[0] > 0;
 }
 
 bool kavtorev_d_dense_matrix_cannon_seq::TestTaskSequential::RunImpl() {

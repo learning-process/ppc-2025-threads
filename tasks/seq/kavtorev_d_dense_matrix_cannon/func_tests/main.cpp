@@ -51,7 +51,7 @@ TEST(kavtorev_d_dense_matrix_cannon_seq, Multiplication_3x3) {
   std::vector<double> result = kavtorev_d_dense_matrix_cannon_seq::MultiplyMatrix(in_mtrx_a, in_mtrx_b, n, m);
 
   kavtorev_d_dense_matrix_cannon_seq::TestTaskSequential test_task_sequential(task_data_seq);
-  ASSERT_EQ(test_task_sequential.ValidationImpl(), true);
+  ASSERT_TRUE(test_task_sequential.ValidationImpl());
   test_task_sequential.PreProcessingImpl();
   test_task_sequential.RunImpl();
   test_task_sequential.PostProcessingImpl();
@@ -84,7 +84,7 @@ TEST(kavtorev_d_dense_matrix_cannon_seq, Multiplication_2x2) {
   std::vector<double> res = kavtorev_d_dense_matrix_cannon_seq::MultiplyMatrix(in_mtrx_a, in_mtrx_b, n, m);
 
   kavtorev_d_dense_matrix_cannon_seq::TestTaskSequential test_task_sequential(task_data_seq);
-  ASSERT_EQ(test_task_sequential.ValidationImpl(), true);
+  ASSERT_TRUE(test_task_sequential.ValidationImpl());
   test_task_sequential.PreProcessingImpl();
   test_task_sequential.RunImpl();
   test_task_sequential.PostProcessingImpl();
@@ -118,7 +118,7 @@ TEST(kavtorev_d_dense_matrix_cannon_seq, Multiplication_5x5) {
   std::vector<double> res = kavtorev_d_dense_matrix_cannon_seq::MultiplyMatrix(in_mtrx_a, in_mtrx_b, n, m);
 
   kavtorev_d_dense_matrix_cannon_seq::TestTaskSequential test_task_sequential(task_data_seq);
-  ASSERT_EQ(test_task_sequential.ValidationImpl(), true);
+  ASSERT_TRUE(test_task_sequential.ValidationImpl());
   test_task_sequential.PreProcessingImpl();
   test_task_sequential.RunImpl();
   test_task_sequential.PostProcessingImpl();
@@ -151,14 +151,7 @@ TEST(kavtorev_d_dense_matrix_cannon_seq, Multiplication_0x0) {
   std::vector<double> res = kavtorev_d_dense_matrix_cannon_seq::MultiplyMatrix(in_mtrx_a, in_mtrx_b, n, m);
 
   kavtorev_d_dense_matrix_cannon_seq::TestTaskSequential test_task_sequential(task_data_seq);
-  ASSERT_EQ(test_task_sequential.ValidationImpl(), true);
-  test_task_sequential.PreProcessingImpl();
-  test_task_sequential.RunImpl();
-  test_task_sequential.PostProcessingImpl();
-
-  for (size_t i = 0; i < res.size(); ++i) {
-    ASSERT_EQ(res[i], out[i]);
-  }
+  ASSERT_FALSE(test_task_sequential.ValidationImpl());
 }
 
 TEST(kavtorev_d_dense_matrix_cannon_seq, Multiplication_100x100) {
@@ -184,7 +177,7 @@ TEST(kavtorev_d_dense_matrix_cannon_seq, Multiplication_100x100) {
   std::vector<double> res = kavtorev_d_dense_matrix_cannon_seq::MultiplyMatrix(in_mtrx_a, in_mtrx_b, n, m);
 
   kavtorev_d_dense_matrix_cannon_seq::TestTaskSequential test_task_sequential(task_data_seq);
-  ASSERT_EQ(test_task_sequential.ValidationImpl(), true);
+  ASSERT_TRUE(test_task_sequential.ValidationImpl());
   test_task_sequential.PreProcessingImpl();
   test_task_sequential.RunImpl();
   test_task_sequential.PostProcessingImpl();
@@ -217,7 +210,7 @@ TEST(kavtorev_d_dense_matrix_cannon_seq, Multiplication_1x1) {
   std::vector<double> res = kavtorev_d_dense_matrix_cannon_seq::MultiplyMatrix(in_mtrx_a, in_mtrx_b, n, m);
 
   kavtorev_d_dense_matrix_cannon_seq::TestTaskSequential test_task_sequential(task_data_seq);
-  ASSERT_EQ(test_task_sequential.ValidationImpl(), true);
+  ASSERT_TRUE(test_task_sequential.ValidationImpl());
   test_task_sequential.PreProcessingImpl();
   test_task_sequential.RunImpl();
   test_task_sequential.PostProcessingImpl();
@@ -248,7 +241,7 @@ TEST(kavtorev_d_dense_matrix_cannon_seq, Multiplication_4x4) {
   std::vector<double> res = kavtorev_d_dense_matrix_cannon_seq::MultiplyMatrix(in_mtrx_a, in_mtrx_b, n, m);
 
   kavtorev_d_dense_matrix_cannon_seq::TestTaskSequential test_task_sequential(task_data_seq);
-  ASSERT_EQ(test_task_sequential.ValidationImpl(), true);
+  ASSERT_TRUE(test_task_sequential.ValidationImpl());
   test_task_sequential.PreProcessingImpl();
   test_task_sequential.RunImpl();
   test_task_sequential.PostProcessingImpl();
@@ -283,7 +276,7 @@ TEST(kavtorev_d_dense_matrix_cannon_seq, Multiplication_6x6) {
   std::vector<double> res = kavtorev_d_dense_matrix_cannon_seq::MultiplyMatrix(in_mtrx_a, in_mtrx_b, n, m);
 
   kavtorev_d_dense_matrix_cannon_seq::TestTaskSequential test_task_sequential(task_data_seq);
-  ASSERT_EQ(test_task_sequential.ValidationImpl(), true);
+  ASSERT_TRUE(test_task_sequential.ValidationImpl());
   test_task_sequential.PreProcessingImpl();
   test_task_sequential.RunImpl();
   test_task_sequential.PostProcessingImpl();
@@ -326,7 +319,7 @@ TEST(kavtorev_d_dense_matrix_cannon_seq, Multiplication_10x10) {
   std::vector<double> res = kavtorev_d_dense_matrix_cannon_seq::MultiplyMatrix(in_mtrx_a, in_mtrx_b, n, m);
 
   kavtorev_d_dense_matrix_cannon_seq::TestTaskSequential test_task_sequential(task_data_seq);
-  ASSERT_EQ(test_task_sequential.ValidationImpl(), true);
+  ASSERT_TRUE(test_task_sequential.ValidationImpl());
   test_task_sequential.PreProcessingImpl();
   test_task_sequential.RunImpl();
   test_task_sequential.PostProcessingImpl();
@@ -343,5 +336,120 @@ TEST(kavtorev_d_dense_matrix_cannon_seq, Multiplication_10x10) {
 
   for (size_t i = 0; i < res.size(); ++i) {
     ASSERT_NEAR(res[i], expected_c[i], 1e-12);
+  }
+}
+
+TEST(kavtorev_d_dense_matrix_cannon_seq, Multiplication_AllOnes) {
+  int n = 4;
+  int m = 4;
+
+  std::vector<double> in_mtrx_a(n * m, 1.0);
+  std::vector<double> in_mtrx_b(n * m, 1.0);
+  std::vector<double> out(n * m);
+
+  auto task_data_seq = std::make_shared<ppc::core::TaskData>();
+  task_data_seq->inputs.emplace_back(reinterpret_cast<uint8_t *>(in_mtrx_a.data()));
+  task_data_seq->inputs_count.emplace_back(in_mtrx_a.size());
+  task_data_seq->inputs.emplace_back(reinterpret_cast<uint8_t *>(in_mtrx_b.data()));
+  task_data_seq->inputs_count.emplace_back(in_mtrx_b.size());
+
+  task_data_seq->inputs.emplace_back(reinterpret_cast<uint8_t *>(&n));
+  task_data_seq->inputs.emplace_back(reinterpret_cast<uint8_t *>(&m));
+
+  task_data_seq->outputs.emplace_back(reinterpret_cast<uint8_t *>(out.data()));
+  task_data_seq->outputs_count.emplace_back(out.size());
+
+  std::vector<double> res = kavtorev_d_dense_matrix_cannon_seq::MultiplyMatrix(in_mtrx_a, in_mtrx_b, n, m);
+
+  kavtorev_d_dense_matrix_cannon_seq::TestTaskSequential test_task_sequential(task_data_seq);
+  ASSERT_TRUE(test_task_sequential.ValidationImpl());
+  test_task_sequential.PreProcessingImpl();
+  test_task_sequential.RunImpl();
+  test_task_sequential.PostProcessingImpl();
+
+  std::vector<double> expected_c(n * m, static_cast<double>(n));
+
+  for (size_t i = 0; i < res.size(); ++i) {
+    ASSERT_EQ(res[i], expected_c[i]);
+  }
+}
+
+TEST(kavtorev_d_dense_matrix_cannon_seq, Validation_ZeroSizes) {
+  int n = 0;
+  int m = 0;
+
+  std::vector<double> in_mtrx_a;
+  std::vector<double> in_mtrx_b;
+  std::vector<double> out;
+
+  auto task_data_seq = std::make_shared<ppc::core::TaskData>();
+  task_data_seq->inputs.emplace_back(reinterpret_cast<uint8_t *>(in_mtrx_a.data()));
+  task_data_seq->inputs_count.emplace_back(in_mtrx_a.size());
+  task_data_seq->inputs.emplace_back(reinterpret_cast<uint8_t *>(in_mtrx_b.data()));
+  task_data_seq->inputs_count.emplace_back(in_mtrx_b.size());
+
+  task_data_seq->inputs.emplace_back(reinterpret_cast<uint8_t *>(&n));
+  task_data_seq->inputs.emplace_back(reinterpret_cast<uint8_t *>(&m));
+
+  task_data_seq->outputs.emplace_back(reinterpret_cast<uint8_t *>(out.data()));
+  task_data_seq->outputs_count.emplace_back(out.size());
+
+  kavtorev_d_dense_matrix_cannon_seq::TestTaskSequential test_task_sequential(task_data_seq);
+  ASSERT_FALSE(test_task_sequential.ValidationImpl());
+}
+
+TEST(kavtorev_d_dense_matrix_cannon_seq, Validation_MismatchedSizes) {
+  int n = 3;
+  int m = 3;
+
+  std::vector<double> in_mtrx_a{1, 2, 3, 4, 5, 6, 7, 8, 9};
+  std::vector<double> in_mtrx_b{1, 2, 3, 4, 5, 6};  // Размеры не совпадают
+  std::vector<double> out(n * m);
+
+  auto task_data_seq = std::make_shared<ppc::core::TaskData>();
+  task_data_seq->inputs.emplace_back(reinterpret_cast<uint8_t *>(in_mtrx_a.data()));
+  task_data_seq->inputs_count.emplace_back(in_mtrx_a.size());
+  task_data_seq->inputs.emplace_back(reinterpret_cast<uint8_t *>(in_mtrx_b.data()));
+  task_data_seq->inputs_count.emplace_back(in_mtrx_b.size());
+
+  task_data_seq->inputs.emplace_back(reinterpret_cast<uint8_t *>(&n));
+  task_data_seq->inputs.emplace_back(reinterpret_cast<uint8_t *>(&m));
+
+  task_data_seq->outputs.emplace_back(reinterpret_cast<uint8_t *>(out.data()));
+  task_data_seq->outputs_count.emplace_back(out.size());
+
+  kavtorev_d_dense_matrix_cannon_seq::TestTaskSequential test_task_sequential(task_data_seq);
+  ASSERT_FALSE(test_task_sequential.ValidationImpl());
+}
+TEST(kavtorev_d_dense_matrix_cannon_seq, Multiplication_WithZeros) {
+  int n = 3;
+  int m = 3;
+
+  std::vector<double> in_mtrx_a{0, 0, 0, 0, 0, 0, 0, 0, 0};
+  std::vector<double> in_mtrx_b{1, 2, 3, 4, 5, 6, 7, 8, 9};
+  std::vector<double> out(n * m);
+
+  auto task_data_seq = std::make_shared<ppc::core::TaskData>();
+  task_data_seq->inputs.emplace_back(reinterpret_cast<uint8_t *>(in_mtrx_a.data()));
+  task_data_seq->inputs_count.emplace_back(in_mtrx_a.size());
+  task_data_seq->inputs.emplace_back(reinterpret_cast<uint8_t *>(in_mtrx_b.data()));
+  task_data_seq->inputs_count.emplace_back(in_mtrx_b.size());
+
+  task_data_seq->inputs.emplace_back(reinterpret_cast<uint8_t *>(&n));
+  task_data_seq->inputs.emplace_back(reinterpret_cast<uint8_t *>(&m));
+
+  task_data_seq->outputs.emplace_back(reinterpret_cast<uint8_t *>(out.data()));
+  task_data_seq->outputs_count.emplace_back(out.size());
+
+  std::vector<double> res = kavtorev_d_dense_matrix_cannon_seq::MultiplyMatrix(in_mtrx_a, in_mtrx_b, n, m);
+
+  kavtorev_d_dense_matrix_cannon_seq::TestTaskSequential test_task_sequential(task_data_seq);
+  ASSERT_TRUE(test_task_sequential.ValidationImpl());
+  test_task_sequential.PreProcessingImpl();
+  test_task_sequential.RunImpl();
+  test_task_sequential.PostProcessingImpl();
+
+  for (size_t i = 0; i < res.size(); ++i) {
+    ASSERT_EQ(res[i], 0);
   }
 }
