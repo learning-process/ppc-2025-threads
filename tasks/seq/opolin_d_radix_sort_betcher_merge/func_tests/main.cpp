@@ -16,7 +16,7 @@ namespace {
 void GenDataRadixSort(size_t size, std::vector<int> &vec, std::vector<int> &expected) {
   std::random_device rd;
   std::mt19937 gen(rd());
-  std::uniform_real_distribution<int> dis(-1000, 1000);
+  std::uniform_int_distribution<int> dis(-1000, 1000);
   vec.clear();
   expected.clear();
   vec.reserve(size);
