@@ -43,14 +43,14 @@ std::vector<alputov_i_graham_scan_seq::Point> GenerateStarPoints(size_t num_poin
   return input;
 }
 
-void ValidateStarConvexHull(alputov_i_graham_scan_seq::TestTaskSequential& task,
-                            const std::vector<alputov_i_graham_scan_seq::Point>& input, size_t num_points_star) {
-  ValidateTask(task);
-
-  EXPECT_FALSE(task.GetConvexHull().empty());
-  const auto& convex_hull = task.GetConvexHull();
+void AssertConvexHullSize(const std::vector<alputov_i_graham_scan_seq::Point>& convex_hull,
+                          const std::vector<alputov_i_graham_scan_seq::Point>& input, size_t expected_min_size) {
   EXPECT_LE(convex_hull.size(), input.size());
-  EXPECT_GE(convex_hull.size(), 3U);
+  EXPECT_GE(convex_hull.size(), expected_min_size);
+}
+
+void AssertStarConvexHullPoints(const std::vector<alputov_i_graham_scan_seq::Point>& convex_hull,
+                                size_t num_points_star) {
   std::set<alputov_i_graham_scan_seq::Point> hull_set(convex_hull.begin(), convex_hull.end());
   EXPECT_EQ(hull_set.size(), convex_hull.size());
   EXPECT_EQ(hull_set.size(), num_points_star);
@@ -58,6 +58,17 @@ void ValidateStarConvexHull(alputov_i_graham_scan_seq::TestTaskSequential& task,
     double angle = 2.0 * std::numbers::pi * static_cast<double>(i) / static_cast<double>(num_points_star);
     EXPECT_TRUE(hull_set.count({20.0 * cos(angle), 20.0 * sin(angle)}));
   }
+}
+
+void ValidateStarConvexHull(alputov_i_graham_scan_seq::TestTaskSequential& task,
+                            const std::vector<alputov_i_graham_scan_seq::Point>& input, size_t num_points_star) {
+  ValidateTask(task);
+
+  EXPECT_FALSE(task.GetConvexHull().empty());
+  const auto& convex_hull = task.GetConvexHull();
+
+  AssertConvexHullSize(convex_hull, input, 3U);
+  AssertStarConvexHullPoints(convex_hull, num_points_star);
 }
 }  // namespace
 
@@ -252,8 +263,7 @@ TEST(alputov_i_graham_scan_seq, circle_figure) {
 
   EXPECT_FALSE(task.GetConvexHull().empty());
   const auto& convex_hull = task.GetConvexHull();
-  EXPECT_LE(convex_hull.size(), input.size());
-  EXPECT_GE(convex_hull.size(), 3U);
+  AssertConvexHullSize(convex_hull, input, 3U);
   std::set<alputov_i_graham_scan_seq::Point> hull_set(convex_hull.begin(), convex_hull.end());
   EXPECT_EQ(hull_set.size(), convex_hull.size());
   EXPECT_EQ(hull_set.size(), input.size());
