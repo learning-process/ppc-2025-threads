@@ -11,83 +11,73 @@
 #include "seq/naumov_b_marc_on_bin_image/include/ops_seq.hpp"
 
 TEST(naumov_b_marc_on_bin_image_seq, test_pipeline_run) {
-  constexpr int kCount = 500;
+  constexpr int co = 5000;
 
-  // Create data
-  std::vector<int> in(kCount * kCount, 0);
-  std::vector<int> out(kCount * kCount, 0);
+  std::vector<int> in(co * co, 0);
+  std::vector<int> out(co * co, 0);
 
-  for (size_t i = 0; i < kCount; i++) {
-    in[(i * kCount) + i] = 1;
+  for (size_t i = 0; i < co; i++) {
+    in[i * co + i] = 1;
   }
 
-  // Create task_data
   auto task_data_seq = std::make_shared<ppc::core::TaskData>();
   task_data_seq->inputs.emplace_back(reinterpret_cast<uint8_t *>(in.data()));
-  task_data_seq->inputs_count.emplace_back(in.size());
+  task_data_seq->inputs_count.emplace_back(co);
+  task_data_seq->inputs_count.emplace_back(co);
   task_data_seq->outputs.emplace_back(reinterpret_cast<uint8_t *>(out.data()));
-  task_data_seq->outputs_count.emplace_back(out.size());
+  task_data_seq->outputs_count.emplace_back(co);
+  task_data_seq->outputs_count.emplace_back(co);
 
-  // Create Task
   auto test_task_sequential = std::make_shared<naumov_b_marc_on_bin_image_seq::TestTaskSequential>(task_data_seq);
 
-  // Create Perf attributes
   auto perf_attr = std::make_shared<ppc::core::PerfAttr>();
-  perf_attr->num_running = 10;
+  perf_attr->num_running = 15;
   const auto t0 = std::chrono::high_resolution_clock::now();
   perf_attr->current_timer = [&] {
     auto current_time_point = std::chrono::high_resolution_clock::now();
-    auto duration = std::chrono::duration_cast<std::chrono::nanoseconds>(current_time_point - t0).count();
-    return static_cast<double>(duration) * 1e-9;
+    auto dur = std::chrono::duration_cast<std::chrono::nanoseconds>(current_time_point - t0).count();
+    return static_cast<double>(dur) * 1e-9;
   };
-
-  // Create and init perf results
   auto perf_results = std::make_shared<ppc::core::PerfResults>();
 
-  // Create Perf analyzer
   auto perf_analyzer = std::make_shared<ppc::core::Perf>(test_task_sequential);
   perf_analyzer->PipelineRun(perf_attr, perf_results);
   ppc::core::Perf::PrintPerfStatistic(perf_results);
-  ASSERT_EQ(in, out);
+  ASSERT_GT(*std::max_element(out.begin(), out.end()), 0);
 }
 
 TEST(naumov_b_marc_on_bin_image_seq, test_task_run) {
-  constexpr int kCount = 500;
+  constexpr int co = 7500;
 
-  // Create data
-  std::vector<int> in(kCount * kCount, 0);
-  std::vector<int> out(kCount * kCount, 0);
+  std::vector<int> in(co * co, 0);
+  std::vector<int> out(co * co, 0);
 
-  for (size_t i = 0; i < kCount; i++) {
-    in[(i * kCount) + i] = 1;
+  for (size_t i = 0; i < co; i++) {
+    in[i * co + (co - i - 1)] = 1;
   }
 
-  // Create task_data
   auto task_data_seq = std::make_shared<ppc::core::TaskData>();
   task_data_seq->inputs.emplace_back(reinterpret_cast<uint8_t *>(in.data()));
-  task_data_seq->inputs_count.emplace_back(in.size());
+  task_data_seq->inputs_count.emplace_back(co);
+  task_data_seq->inputs_count.emplace_back(co);
   task_data_seq->outputs.emplace_back(reinterpret_cast<uint8_t *>(out.data()));
-  task_data_seq->outputs_count.emplace_back(out.size());
+  task_data_seq->outputs_count.emplace_back(co);
+  task_data_seq->outputs_count.emplace_back(co);
 
-  // Create Task
   auto test_task_sequential = std::make_shared<naumov_b_marc_on_bin_image_seq::TestTaskSequential>(task_data_seq);
 
-  // Create Perf attributes
   auto perf_attr = std::make_shared<ppc::core::PerfAttr>();
-  perf_attr->num_running = 10;
+  perf_attr->num_running = 20;
   const auto t0 = std::chrono::high_resolution_clock::now();
   perf_attr->current_timer = [&] {
     auto current_time_point = std::chrono::high_resolution_clock::now();
-    auto duration = std::chrono::duration_cast<std::chrono::nanoseconds>(current_time_point - t0).count();
-    return static_cast<double>(duration) * 1e-9;
+    auto dur = std::chrono::duration_cast<std::chrono::nanoseconds>(current_time_point - t0).count();
+    return static_cast<double>(dur) * 1e-9;
   };
-
-  // Create and init perf results
   auto perf_results = std::make_shared<ppc::core::PerfResults>();
 
-  // Create Perf analyzer
   auto perf_analyzer = std::make_shared<ppc::core::Perf>(test_task_sequential);
   perf_analyzer->TaskRun(perf_attr, perf_results);
   ppc::core::Perf::PrintPerfStatistic(perf_results);
-  ASSERT_EQ(in, out);
+  ASSERT_GT(*std::max_element(out.begin(), out.end()), 0);
 }

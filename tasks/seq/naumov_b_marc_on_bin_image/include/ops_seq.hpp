@@ -16,8 +16,22 @@ class TestTaskSequential : public ppc::core::Task {
   bool PostProcessingImpl() override;
 
  private:
-  std::vector<int> input_, output_;
-  int rc_size_{};
+  void ProcessBlock(int start_row, int start_col, int block_rows, int block_cols);
+  void MergeLabels();
+
+  std::vector<int> FindAdjacentLabels(int row, int col);
+  void AssignLabel(int row, int col, int& current_label);
+  int FindRoot(int label);
+  void UnionLabels(int label1, int label2);
+  void CalculateBlockSize();
+
+  int rows_{};
+  int cols_{};
+  std::vector<int> input_image_;
+  std::vector<int> output_image_;
+  std::vector<int> label_parent_;
+  int block_size_ = 64;
+  int current_label_ = 0;
 };
 
 }  // namespace naumov_b_marc_on_bin_image_seq
