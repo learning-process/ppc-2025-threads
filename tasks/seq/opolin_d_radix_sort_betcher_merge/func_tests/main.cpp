@@ -4,18 +4,19 @@
 #include <cstdint>
 #include <fstream>
 #include <memory>
+#include <random>
 #include <string>
 #include <vector>
 
 #include "core/task/include/task.hpp"
 #include "seq/opolin_d_radix_sort_betcher_merge/include/ops_seq.hpp"
 
-namespace opolin_d_radix_sort_betcher_merge_seq {
+namespace opolin_d_radix_betcher_sort_seq {
 namespace {
 void GenDataRadixSort(size_t size, std::vector<int> &vec, std::vector<int> &expected) {
   std::random_device rd;
   std::mt19937 gen(rd());
-  std::uniform_real_distribution<double> dis(-1000.0, 1000.0);
+  std::uniform_real_distribution<int> dis(-1000.0, 1000.0);
   vec.clear();
   expected.clear();
   vec.reserve(size);
@@ -26,7 +27,7 @@ void GenDataRadixSort(size_t size, std::vector<int> &vec, std::vector<int> &expe
   std::sort(expected.begin(), expected.end());
 }
 }  // namespace
-}  // namespace opolin_d_radix_sort_betcher_merge_seq
+}  // namespace opolin_d_radix_betcher_sort_seq
 
 TEST(opolin_d_radix_sort_betcher_merge_seq, test_size_3) {
   int size = 3;
@@ -34,7 +35,6 @@ TEST(opolin_d_radix_sort_betcher_merge_seq, test_size_3) {
   std::vector<int> input;
   input = {2, 1, 10};
   expected = {1, 2, 10};
-  opolin_d_radix_sort_betcher_merge_seq::GenDataRadixSort(size, input, expected);
 
   std::vector<int> out(size, 0);
   auto task_data_seq = std::make_shared<ppc::core::TaskData>();

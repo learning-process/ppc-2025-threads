@@ -12,12 +12,12 @@
 #include "core/task/include/task.hpp"
 #include "seq/opolin_d_radix_sort_betcher_merge/include/ops_seq.hpp"
 
-namespace opolin_d_radix_sort_betcher_merge_seq {
+namespace opolin_d_radix_betcher_sort_seq {
 namespace {
 void GenDataRadixSort(size_t size, std::vector<int> &vec, std::vector<int> &expected) {
   std::random_device rd;
   std::mt19937 gen(rd());
-  std::uniform_real_distribution<double> dis(-1000.0, 1000.0);
+  std::uniform_real_distribution<int> dis(-1000.0, 1000.0);
   vec.clear();
   expected.clear();
   vec.reserve(size);
@@ -28,13 +28,13 @@ void GenDataRadixSort(size_t size, std::vector<int> &vec, std::vector<int> &expe
   std::sort(expected.begin(), expected.end());
 }
 }  // namespace
-}  // namespace opolin_d_radix_sort_betcher_merge_seq
+}  // namespace opolin_d_radix_betcher_sort_seq
 
-TEST(opolin_d_radix_sort_betcher_merge_seq, test_pipeline_run) {
+TEST(opolin_d_radix_betcher_sort_seq, test_pipeline_run) {
   int size = 800;
   std::vector<int> input;
   std::vector<int> expected;
-  opolin_d_radix_sort_betcher_merge_seq::GenDataRadixSort(size, a, b, x);
+  opolin_d_radix_betcher_sort_seq::GenDataRadixSort(size, input, expected);
   std::vector<int> out(size, 0);
   // Create TaskData
   auto task_data_seq = std::make_shared<ppc::core::TaskData>();
@@ -45,7 +45,7 @@ TEST(opolin_d_radix_sort_betcher_merge_seq, test_pipeline_run) {
 
   // Create Task
   auto test_task_sequential =
-      std::make_shared<opolin_d_radix_sort_betcher_merge_seq::RadixBetcherSortTaskSequential>(task_data_seq);
+      std::make_shared<opolin_d_radix_betcher_sort_seq::RadixBetcherSortTaskSequential>(task_data_seq);
   ASSERT_EQ(test_task_sequential->Validation(), true);
   test_task_sequential->PreProcessing();
   test_task_sequential->Run();
@@ -73,7 +73,7 @@ TEST(opolin_d_radix_sort_betcher_merge_seq, test_task_run) {
   int size = 800;
   std::vector<int> input;
   std::vector<int> expected;
-  opolin_d_radix_sort_betcher_merge_seq::GenDataRadixSort(size, a, b, x);
+  opolin_d_radix_sort_betcher_merge_seq::GenDataRadixSort(size, input, expected);
   std::vector<int> out(size, 0);
   // Create TaskData
   auto task_data_seq = std::make_shared<ppc::core::TaskData>();
