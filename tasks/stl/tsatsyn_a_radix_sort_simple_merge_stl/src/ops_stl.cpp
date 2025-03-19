@@ -28,7 +28,6 @@ bool tsatsyn_a_radix_sort_simple_merge_stl::TestTaskSTL::ValidationImpl() {
 bool tsatsyn_a_radix_sort_simple_merge_stl::TestTaskSTL::RunImpl() {
   std::vector<uint64_t> pozitive_copy;
   std::vector<uint64_t> negative_copy;
-  std::execution::
   for (int i = 0; i < static_cast<int>(input_data_.size()); i++) {
     if (input_data_[i] > 0.0) {
       pozitive_copy.emplace_back(*reinterpret_cast<uint64_t *>(&input_data_[i]));
