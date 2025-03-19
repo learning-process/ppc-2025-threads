@@ -31,7 +31,7 @@ TEST_F(vedernikova_k_gauss_test_seq, validation_fails_not_enough_params) {
 }
 
 TEST_F(vedernikova_k_gauss_test_seq, validation_fails_no_input_image) {
-  Image in(15, 128);
+  Image in(13, 100);
   Image out(in.size());
   auto task_data = std::make_shared<ppc::core::TaskData>();
   task_data->inputs_count.emplace_back(5);
@@ -46,7 +46,7 @@ TEST_F(vedernikova_k_gauss_test_seq, validation_fails_no_input_image) {
 }
 
 TEST_F(vedernikova_k_gauss_test_seq, validation_fails_no_output_buffer) {
-  Image in(15, 128);
+  Image in(17, 137);
   Image out(in.size());
   auto task_data = std::make_shared<ppc::core::TaskData>();
   task_data->inputs.emplace_back(const_cast<uint8_t *>(reinterpret_cast<const uint8_t *>(in.data())));
@@ -61,7 +61,7 @@ TEST_F(vedernikova_k_gauss_test_seq, validation_fails_no_output_buffer) {
 }
 
 TEST_F(vedernikova_k_gauss_test_seq, validation_fails_in_and_out_sizes_are_different) {
-  Image in(15, 128);
+  Image in(37, 128);
   Image out(in.size());
   auto task_data = std::make_shared<ppc::core::TaskData>();
   task_data->inputs.emplace_back(const_cast<uint8_t *>(reinterpret_cast<const uint8_t *>(in.data())));
