@@ -12,7 +12,7 @@
 #include "core/task/include/task.hpp"
 #include "seq/muradov_m_rect_int/include/ops_seq.hpp"
 
-constexpr double kAbsErr = 0.5;
+constexpr double kAbsErr = 0.1;
 
 namespace {
 void MuradovMRectIntTest(std::size_t iterations, std::vector<std::pair<double, double>> bounds, double ref,
