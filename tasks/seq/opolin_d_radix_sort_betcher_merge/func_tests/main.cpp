@@ -210,7 +210,7 @@ TEST(opolin_d_radix_sort_betcher_merge_seq, test_size_100) {
   task_data_seq->outputs_count.emplace_back(out.size());
 
   auto test_task_sequential =
-  std::make_shared<opolin_d_radix_sort_betcher_merge_seq::RadixBetcherSortTaskSequential>(task_data_seq);
+      std::make_shared<opolin_d_radix_sort_betcher_merge_seq::RadixBetcherSortTaskSequential>(task_data_seq);
   ASSERT_EQ(test_task_sequential->Validation(), true);
   test_task_sequential->PreProcessing();
   test_task_sequential->Run();
