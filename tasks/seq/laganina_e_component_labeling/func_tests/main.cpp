@@ -416,18 +416,18 @@ TEST(laganina_e_component_labeling_seq, simple_rectangles_100) {
   int m = 100;
   int n = 100;
   // Create data
-  std::vector<int> in(m*n,0);
-  std::vector<int> out(m*n,0);
-  std::vector<int> exp_out(m*n,0);
+  std::vector<int> in(m * n, 0);
+  std::vector<int> out(m * n, 0);
+  std::vector<int> exp_out(m * n, 0);
   for (int i = 10; i < 40; ++i) {
     for (int j = 20; j < 60; ++j) {
-      in[(i*n)+j] = 1;
+      in[(i * n) + j] = 1;
     }
   }
 
   for (int i = 60; i < 90; ++i) {
     for (int j = 50; j < 80; ++j) {
-      in[(i*n)+j] = 1;
+      in[(i * n) + j] = 1;
     }
   }
 
@@ -469,10 +469,10 @@ TEST(laganina_e_component_labeling_seq, diagonal_line_100) {
   std::vector<int> out(m * n, 0);
   std::vector<int> exp_out(m * n, 0);
   for (int i = 0; i < n; i += 2) {
-    in[(i*n)+i] = 1;
+    in[(i * n) + i] = 1;
   }
   for (int i = 0; i < n; i += 2) {
-    exp_out[(i * n) + i] = 1+(i/2);
+    exp_out[(i * n) + i] = 1 + (i / 2);
   }
 
   // Create task_data
@@ -502,12 +502,12 @@ TEST(laganina_e_component_labeling_seq, u_shaped_shape_100) {
   std::vector<int> exp_out(m * n, 0);
   for (int i = 10; i < 90; ++i) {
     for (int j = 10; j < 90; ++j) {
-      in[(i*n)+j] = 1;
+      in[(i * n) + j] = 1;
     }
   }
   for (int i = 40; i < 60; ++i) {
     for (int j = 40; j < 60; ++j) {
-      in[(i*n)+j] = 0;
+      in[(i * n) + j] = 0;
     }
   }
 
@@ -539,7 +539,7 @@ TEST(laganina_e_component_labeling_seq, u_shaped_shape_100) {
   test_task_sequential.PostProcessing();
   EXPECT_EQ(exp_out, out);
 }
- 
+
 TEST(laganina_e_component_labeling_seq, ring_with_a_hole_100) {
   int m = 100;
   int n = 100;
@@ -550,7 +550,7 @@ TEST(laganina_e_component_labeling_seq, ring_with_a_hole_100) {
   for (int i = 0; i < n; ++i) {
     for (int j = 0; j < n; ++j) {
       if (i < 10 || i >= 90 || j < 10 || j >= 90) {
-        in[(i*n)+j] = 1;
+        in[(i * n) + j] = 1;
       }
     }
   }
