@@ -1,5 +1,6 @@
 #include <gtest/gtest.h>
 
+#define _USE_MATH_DEFINES  // NOLINT(bugprone-reserved-identifier): no header providing "M_PI" is directly included
 #include <algorithm>
 #include <cmath>
 #include <cstddef>
@@ -171,9 +172,11 @@ TEST(oturin_a_gift_wrapping_seq, test_star) {
   std::vector<oturin_a_gift_wrapping_seq::Coord> answer;
   std::vector<oturin_a_gift_wrapping_seq::Coord> out(points);
   for (int i = 0; i < points; i++) {
-    in[i] = {int(-std::cos(2 * i * M_PI / points + M_PI / points) * star_radius / (i % 2 + 1)),
-             int(std::sin(2 * i * M_PI / points + M_PI / points) * star_radius / (i % 2 + 1))};
-    if (points % 2) answer.push_back(in[i]);
+    in[i] = {int(-std::cos((2 * i * M_PI / points) + (M_PI / points)) * star_radius / (i % 2 + 1)),
+             int(std::sin((2 * i * M_PI / points) + (M_PI / points)) * star_radius / (i % 2 + 1))};
+    if ((points % 2) != 0) {
+      answer.push_back(in[i]);
+    }
   }
 
   DoCommonTest(in, answer, out);
@@ -187,9 +190,11 @@ TEST(oturin_a_gift_wrapping_seq, test_star_bigAndShuffled) {
   std::vector<oturin_a_gift_wrapping_seq::Coord> answer;
   std::vector<oturin_a_gift_wrapping_seq::Coord> out(points);
   for (int i = 0; i < points; i++) {
-    in[i] = {int(-std::cos(2 * i * M_PI / points + M_PI / points) * star_radius / (i % 2 + 1)),
-             int(std::sin(2 * i * M_PI / points + M_PI / points) * star_radius / (i % 2 + 1))};
-    if (points % 2) answer.push_back(in[i]);
+    in[i] = {int(-std::cos((2 * i * M_PI / points) + (M_PI / points)) * star_radius / (i % 2 + 1)),
+             int(std::sin((2 * i * M_PI / points) + (M_PI / points)) * star_radius / (i % 2 + 1))};
+    if ((points % 2) != 0) {
+      answer.push_back(in[i]);
+    }
   }
 
   std::random_device rd;
