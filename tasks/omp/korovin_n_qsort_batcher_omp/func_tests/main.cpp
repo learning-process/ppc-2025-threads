@@ -51,6 +51,11 @@ TEST(korovin_n_qsort_batcher_omp, test_unsort) {
   RunTest(in);
 }
 
+TEST(korovin_n_qsort_batcher_omp, test_reverse_sort) {
+  std::vector<int> in = {10, 9, 8, 7, 6, 5, 4, 3, 2, 1};
+  RunTest(in);
+}
+
 TEST(korovin_n_qsort_batcher_omp, test_empty_sort) {
   std::vector<int> in = {};
   RunTest(in);
