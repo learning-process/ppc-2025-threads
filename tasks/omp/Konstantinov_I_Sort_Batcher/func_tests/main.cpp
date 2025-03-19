@@ -102,7 +102,7 @@ TEST(Konstantinov_I_Sort_Batcher_omp, test_already_sorted) {
 TEST(Konstantinov_I_Sort_Batcher_omp, test_reverse_sorted) {
   std::vector<double> in = {100.0, 50.0, 1.0, 0.0, -1.0, -50.0, -100.0};
   std::vector<double> exp_out = in;
-  std::ranges::sort(exp_out);  // ќжидаемый результат Ч отсортированный массив
+  std::ranges::sort(exp_out);
   std::vector<double> out(in.size());
 
   auto task_data_omp = std::make_shared<ppc::core::TaskData>();
@@ -122,7 +122,7 @@ TEST(Konstantinov_I_Sort_Batcher_omp, test_reverse_sorted) {
 TEST(Konstantinov_I_Sort_Batcher_omp, test_duplicate_values) {
   std::vector<double> in = {3.14, -1.0, 3.14, 0.0, -1.0, 42.0, 0.0};
   std::vector<double> exp_out = in;
-  std::ranges::sort(exp_out);  // ќжидаемый результат Ч отсортированный массив
+  std::ranges::sort(exp_out);
   std::vector<double> out(in.size());
 
   auto task_data_omp = std::make_shared<ppc::core::TaskData>();
