@@ -5,6 +5,7 @@
 #include <cstddef>
 #include <cstdint>
 #include <memory>
+#include <numbers>
 #include <random>
 #include <vector>
 
@@ -41,7 +42,7 @@ void DoCommonTest(std::vector<Coord> &in, std::vector<Coord> &answer, std::vecto
   }
 }
 
-const double kPi = 3.14159265358979323846;
+const double kPi = std::numbers::pi;
 
 }  // namespace
 
