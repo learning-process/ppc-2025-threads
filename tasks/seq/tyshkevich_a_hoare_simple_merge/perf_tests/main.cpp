@@ -54,7 +54,7 @@ TEST(tyshkevich_a_hoare_simple_merge_seq, test_pipeline_run) {
   auto perf_analyzer = std::make_shared<ppc::core::Perf>(std::make_shared<decltype(stt)>(std::move(stt)));
   perf_analyzer->PipelineRun(perf_attr, perf_results);
   ppc::core::Perf::PrintPerfStatistic(perf_results);
-  
+
   ASSERT_TRUE(std::ranges::is_sorted(out, std::greater<>()));
 }
 
@@ -84,6 +84,6 @@ TEST(tyshkevich_a_hoare_simple_merge_seq, test_task_run) {
   auto perf_analyzer = std::make_shared<ppc::core::Perf>(std::make_shared<decltype(stt)>(std::move(stt)));
   perf_analyzer->TaskRun(perf_attr, perf_results);
   ppc::core::Perf::PrintPerfStatistic(perf_results);
-  
+
   ASSERT_TRUE(std::ranges::is_sorted(out, std::greater<>()));
 }
