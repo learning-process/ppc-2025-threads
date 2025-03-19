@@ -27,7 +27,6 @@ bool opolin_d_radix_betcher_sort_seq::TestTaskSequential::RunImpl() {
   if (input_.empty()) {
     return;
   }
-  // 1: Разделяем на положительные и отрицательные числа
   std::vector<int> positives;
   std::vector<int> negatives;
   for (int value : input_) {
@@ -37,7 +36,6 @@ bool opolin_d_radix_betcher_sort_seq::TestTaskSequential::RunImpl() {
       negatives.push_back(-value);
     }
   }
-  // 2: Находим максимальное количество разрядов
   int max_abs = 0;
   for (int value : input_) {
     max_abs = std::max(max_abs, std::abs(value));
@@ -51,7 +49,6 @@ bool opolin_d_radix_betcher_sort_seq::TestTaskSequential::RunImpl() {
       digit_count++;
     }
   }
-  // 3: Сортируем обе группы по разрядам (радикс-сорт)
   for (int place = 1; digit_count > 0; place *= 10, digit_count--) {
     if (!positives.empty()) {
       SortByDigit(positives, place);
@@ -61,12 +58,10 @@ bool opolin_d_radix_betcher_sort_seq::TestTaskSequential::RunImpl() {
     }
   }
 
-  // 4: Разворачиваем отрицательные числа
   if (!negatives.empty()) {
     std::reverse(negatives.begin(), negatives.end());
   }
 
-  // 5: Собираем результат
   output_.clear();
   for (int value : negatives) {
     output_.push_back(-value);
@@ -74,7 +69,6 @@ bool opolin_d_radix_betcher_sort_seq::TestTaskSequential::RunImpl() {
   for (int value : positives) {
     output_.push_back(value);
   }
-  // 6: Применяем слияние Бэтчера
   BetcherMerge(output_, 0, output_.size());
   return true;
 }
@@ -86,21 +80,18 @@ bool opolin_d_radix_betcher_sort_seq::TestTaskSequential::PostProcessingImpl() {
   return true;
 }
 
-void opolin_d_radix_betcher_sort_seq::SortByDigit(std::vector<int>& array, int digit_place) {
+void opolin_d_radix_betcher_sort_seq::SortByDigit(std::vector<int> &array, int digit_place) {
   const int base = 10;
   std::vector<int> result(array.size());
   std::vector<int> buckets(base, 0);
 
-  // Подсчёт частот цифр
   for (int value : array) {
     int digit = (value / digit_place) % base;
     buckets[digit]++;
   }
-  // Накопительные суммы в корзинах
   for (int i = 1; i < base; i++) {
     buckets[i] += buckets[i - 1];
   }
-  // Построение результирующего массива
   for (int i = array.size() - 1; i >= 0; i--) {
     int digit = (array[i] / digit_place) % base;
     result[--buckets[digit]] = array[i];
@@ -108,7 +99,7 @@ void opolin_d_radix_betcher_sort_seq::SortByDigit(std::vector<int>& array, int d
   array = result;
 }
 
-void opolin_d_radix_betcher_sort_seq::BetcherMerge(std::vector<int>& arr, size_t start, size_t end) {
+void opolin_d_radix_betcher_sort_seq::BetcherMerge(std::vector<int> &arr, size_t start, size_t end) {
   size_t size = end - start;
   if (size <= 1) {
     return;

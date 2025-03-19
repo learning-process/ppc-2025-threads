@@ -43,7 +43,8 @@ TEST(opolin_d_radix_sort_betcher_merge_seq, test_size_3) {
   task_data_seq->outputs.emplace_back(reinterpret_cast<uint8_t *>(out.data()));
   task_data_seq->outputs_count.emplace_back(out.size());
 
-  auto test_task_sequential = std::make_shared<opolin_d_radix_sort_betcher_merge_seq::RadixBetcherSortTaskSequential>(task_data_seq);
+  auto test_task_sequential =
+      std::make_shared<opolin_d_radix_sort_betcher_merge_seq::RadixBetcherSortTaskSequential>(task_data_seq);
   ASSERT_EQ(test_task_sequential->Validation(), true);
   test_task_sequential->PreProcessing();
   test_task_sequential->Run();
@@ -64,7 +65,8 @@ TEST(opolin_d_radix_sort_betcher_merge_seq, test_size_6) {
   task_data_seq->outputs.emplace_back(reinterpret_cast<uint8_t *>(out.data()));
   task_data_seq->outputs_count.emplace_back(out.size());
 
-  auto test_task_sequential = std::make_shared<opolin_d_radix_sort_betcher_merge_seq::RadixBetcherSortTaskSequential>(task_data_seq);
+  auto test_task_sequential =
+      std::make_shared<opolin_d_radix_sort_betcher_merge_seq::RadixBetcherSortTaskSequential>(task_data_seq);
   ASSERT_EQ(test_task_sequential->Validation(), true);
   test_task_sequential->PreProcessing();
   test_task_sequential->Run();
@@ -76,15 +78,15 @@ TEST(opolin_d_radix_sort_betcher_merge_seq, test_empty) {
   int size = 0;
   std::vector<int> expected;
   std::vector<int> input;
-  
-  std::vector<int> out(size, 0);
+  std::vector<int> out(size);
   auto task_data_seq = std::make_shared<ppc::core::TaskData>();
   task_data_seq->inputs.emplace_back(reinterpret_cast<uint8_t *>(input.data()));
   task_data_seq->inputs_count.emplace_back(out.size());
   task_data_seq->outputs.emplace_back(reinterpret_cast<uint8_t *>(out.data()));
   task_data_seq->outputs_count.emplace_back(out.size());
 
-  auto test_task_sequential = std::make_shared<opolin_d_radix_sort_betcher_merge_seq::RadixBetcherSortTaskSequential>(task_data_seq);
+  auto test_task_sequential =
+      std::make_shared<opolin_d_radix_sort_betcher_merge_seq::RadixBetcherSortTaskSequential>(task_data_seq);
   ASSERT_EQ(test_task_sequential->Validation(), false);
 }
 
@@ -94,7 +96,6 @@ TEST(opolin_d_radix_sort_betcher_merge_seq, test_one_element) {
   std::vector<int> input;
   input = {31};
   expected = {31};
-  
   std::vector<int> out(size, 0);
   auto task_data_seq = std::make_shared<ppc::core::TaskData>();
   task_data_seq->inputs.emplace_back(reinterpret_cast<uint8_t *>(input.data()));
@@ -102,7 +103,8 @@ TEST(opolin_d_radix_sort_betcher_merge_seq, test_one_element) {
   task_data_seq->outputs.emplace_back(reinterpret_cast<uint8_t *>(out.data()));
   task_data_seq->outputs_count.emplace_back(out.size());
 
-  auto test_task_sequential = std::make_shared<opolin_d_radix_sort_betcher_merge_seq::RadixBetcherSortTaskSequential>(task_data_seq);
+  auto test_task_sequential =
+      std::make_shared<opolin_d_radix_sort_betcher_merge_seq::RadixBetcherSortTaskSequential>(task_data_seq);
   ASSERT_EQ(test_task_sequential->Validation(), true);
   test_task_sequential->PreProcessing();
   test_task_sequential->Run();
@@ -123,7 +125,8 @@ TEST(opolin_d_radix_sort_betcher_merge_seq, test_negative_values) {
   task_data_seq->outputs.emplace_back(reinterpret_cast<uint8_t *>(out.data()));
   task_data_seq->outputs_count.emplace_back(out.size());
 
-  auto test_task_sequential = std::make_shared<opolin_d_radix_sort_betcher_merge_seq::RadixBetcherSortTaskSequential>(task_data_seq);
+  auto test_task_sequential =
+      std::make_shared<opolin_d_radix_sort_betcher_merge_seq::RadixBetcherSortTaskSequential>(task_data_seq);
   ASSERT_EQ(test_task_sequential->Validation(), true);
   test_task_sequential->PreProcessing();
   test_task_sequential->Run();
@@ -146,7 +149,8 @@ TEST(opolin_d_radix_sort_betcher_merge_seq, test_sorted) {
   task_data_seq->outputs.emplace_back(reinterpret_cast<uint8_t *>(out.data()));
   task_data_seq->outputs_count.emplace_back(out.size());
 
-  auto test_task_sequential = std::make_shared<opolin_d_radix_sort_betcher_merge_seq::RadixBetcherSortTaskSequential>(task_data_seq);
+  auto test_task_sequential =
+      std::make_shared<opolin_d_radix_sort_betcher_merge_seq::RadixBetcherSortTaskSequential>(task_data_seq);
   ASSERT_EQ(test_task_sequential->Validation(), true);
   test_task_sequential->PreProcessing();
   test_task_sequential->Run();
@@ -167,7 +171,8 @@ TEST(opolin_d_radix_sort_betcher_merge_seq, test_equal_values) {
   task_data_seq->outputs.emplace_back(reinterpret_cast<uint8_t *>(out.data()));
   task_data_seq->outputs_count.emplace_back(out.size());
 
-  auto test_task_sequential = std::make_shared<opolin_d_radix_sort_betcher_merge_seq::RadixBetcherSortTaskSequential>(task_data_seq);
+  auto test_task_sequential =
+      std::make_shared<opolin_d_radix_sort_betcher_merge_seq::RadixBetcherSortTaskSequential>(task_data_seq);
   ASSERT_EQ(test_task_sequential->Validation(), true);
   test_task_sequential->PreProcessing();
   test_task_sequential->Run();
@@ -186,7 +191,8 @@ TEST(opolin_d_radix_sort_betcher_merge_seq, test_negative_size) {
   task_data_seq->outputs.emplace_back(reinterpret_cast<uint8_t *>(out.data()));
   task_data_seq->outputs_count.emplace_back(size);
 
-  auto test_task_sequential = std::make_shared<opolin_d_radix_sort_betcher_merge_seq::RadixBetcherSortTaskSequential>(task_data_seq);
+  auto test_task_sequential =
+      std::make_shared<opolin_d_radix_sort_betcher_merge_seq::RadixBetcherSortTaskSequential>(task_data_seq);
   ASSERT_EQ(test_task_sequential->Validation(), false);
 }
 
@@ -203,7 +209,8 @@ TEST(opolin_d_radix_sort_betcher_merge_seq, test_size_100) {
   task_data_seq->outputs.emplace_back(reinterpret_cast<uint8_t *>(out.data()));
   task_data_seq->outputs_count.emplace_back(out.size());
 
-  auto test_task_sequential = std::make_shared<opolin_d_radix_sort_betcher_merge_seq::RadixBetcherSortTaskSequential>(task_data_seq);
+  auto test_task_sequential =
+  std::make_shared<opolin_d_radix_sort_betcher_merge_seq::RadixBetcherSortTaskSequential>(task_data_seq);
   ASSERT_EQ(test_task_sequential->Validation(), true);
   test_task_sequential->PreProcessing();
   test_task_sequential->Run();
