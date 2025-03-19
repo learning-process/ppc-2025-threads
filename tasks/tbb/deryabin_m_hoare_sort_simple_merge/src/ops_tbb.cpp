@@ -127,7 +127,7 @@ bool deryabin_m_hoare_sort_simple_merge_tbb::HoareSortTaskTBB::RunImpl() {
       MergeTwoParts(input_array_A_, (short)j * (short)min_chunk_size_ << (i + 1),
                     (((short)j + 1) * (short)min_chunk_size_ << (i + 1)) - 1, dimension_);
       chunk_count--;
-    }
+    });
   }
   return true;
 }
