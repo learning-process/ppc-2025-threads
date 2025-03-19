@@ -147,3 +147,23 @@ TEST(kudryashova_i_radix_batcher_seq, seq_radix_random_test_3) {
   std::ranges::sort(sorted_global_vector);
   ASSERT_EQ(result, sorted_global_vector);
 }
+
+TEST(kudryashova_i_radix_batcher_seq, seq_radix_random_reverse_order_test_4) {
+  int global_vector_size = 123;
+  std::vector<double> global_vector = kudryashova_i_radix_batcher_seq::GetRandomDoubleVector(global_vector_size);
+  std::ranges::sort(global_vector, std::greater<double>());
+  std::vector<double> result(global_vector_size);
+  std::shared_ptr<ppc::core::TaskData> task_data = std::make_shared<ppc::core::TaskData>();
+  task_data->inputs.emplace_back(reinterpret_cast<uint8_t *>(global_vector.data()));
+  task_data->inputs_count.emplace_back(global_vector.size());
+  task_data->outputs.emplace_back(reinterpret_cast<uint8_t *>(result.data()));
+  task_data->outputs_count.emplace_back(result.size());
+  kudryashova_i_radix_batcher_seq::TestTaskSequential test_task_sequential(task_data);
+  ASSERT_TRUE(test_task_sequential.ValidationImpl());
+  test_task_sequential.PreProcessingImpl();
+  test_task_sequential.RunImpl();
+  test_task_sequential.PostProcessingImpl();
+  std::vector<double> sorted_global_vector = global_vector;
+  std::ranges::sort(sorted_global_vector);
+  ASSERT_EQ(result, sorted_global_vector);
+}
