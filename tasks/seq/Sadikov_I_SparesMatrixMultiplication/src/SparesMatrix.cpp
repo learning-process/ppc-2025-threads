@@ -11,15 +11,14 @@ SparesMatrix SparesMatrix::Transpose(const SparesMatrix& matrix) {
   auto max_size = std::max(matrix.GetRowsCount(), matrix.GetColumnsCount());
   std::vector<std::vector<double>> intermediate_values(max_size);
   std::vector<std::vector<int>> intermediate_indexes(max_size);
-  auto column_number = 0;
-  auto column_counter = 0;
-  for (auto i = 0; i < static_cast<int>(matrix.GetValues().size()); ++i) {
-    if (column_counter == matrix.GetElementsSum()[column_number]) {
-      column_number++;
+  int counter = 0;
+  for (size_t i = 0; i < matrix.GetElementsSum().size(); ++i) {
+    auto limit = i == 0 ? matrix.GetElementsSum()[0] : matrix.GetElementsSum()[i] - matrix.GetElementsSum()[i - 1];
+    for (size_t j = 0; j < limit; ++j) {
+      intermediate_values[matrix.GetRows()[counter]].emplace_back(matrix.GetValues()[counter]);
+      intermediate_indexes[matrix.GetRows()[counter]].emplace_back(i);
+      counter++;
     }
-    column_counter++;
-    intermediate_values[matrix.GetRows()[i]].emplace_back(matrix.GetValues()[i]);
-    intermediate_indexes[matrix.GetRows()[i]].emplace_back(column_number);
   }
   for (auto i = 0; i < static_cast<int>(intermediate_values.size()); ++i) {
     for (auto j = 0; j < static_cast<int>(intermediate_values[i].size()); ++j) {
