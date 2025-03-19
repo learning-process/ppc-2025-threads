@@ -125,7 +125,7 @@ TEST(odintsov_m_mulmatrix_cannon_seq, test_validation) {
   ASSERT_EQ(test_task_sequential.Validation(), false);
 }
 
-TEST(odintsov_m_mulmatrix_cannon_seq, test_prime_sz) {
+TEST(odintsov_m_mulmatrix_cannon_seq, test_sz_prime) {
   // Create data
   std::vector<double> matrix_a(13 * 13, 1);
   std::vector<double> matrix_b(13 * 13, 1);
