@@ -49,7 +49,7 @@ TEST(vavilov_v_cannon_seq, test_random) {
   task_data_seq->inputs.emplace_back(reinterpret_cast<uint8_t*>(b.data()));
   task_data_seq->inputs_count.emplace_back(a.size());
   task_data_seq->inputs_count.emplace_back(b.size());
-  task_data_seq->inputs_count.emplace_back(numblocks);  
+  task_data_seq->inputs_count.emplace_back(numblocks);
   task_data_seq->outputs.emplace_back(reinterpret_cast<uint8_t*>(c.data()));
   task_data_seq->outputs_count.emplace_back(c.size());
 
