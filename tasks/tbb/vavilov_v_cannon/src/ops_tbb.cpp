@@ -62,7 +62,7 @@ void vavilov_v_cannon_tbb::CannonTBB::BlockMultiply() {
             for (int j = 0; j < block_size_; ++j) {
               for (int k = 0; k < block_size_; ++k) {
                 C_[(row_offset + i) * N_ + (col_offset + j)] += 
-                  A_[(row_offset + i) * N_ + (k_offset + k)] * B_[(k_offset + k) * N_ + (col_offset + j)];
+                    A_[(row_offset + i) * N_ + (k_offset + k)] * B_[(k_offset + k) * N_ + (col_offset + j)];
               }
             }
           }
