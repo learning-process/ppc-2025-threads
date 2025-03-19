@@ -17,7 +17,7 @@ namespace {
 void GenDataRadixSort(size_t size, std::vector<int> &vec, std::vector<int> &expected) {
   std::random_device rd;
   std::mt19937 gen(rd());
-  std::uniform_real_distribution<int> dis(-1000.0, 1000.0);
+  std::uniform_real_distribution<int> dis(-1000, 1000);
   vec.clear();
   expected.clear();
   vec.reserve(size);
@@ -69,11 +69,11 @@ TEST(opolin_d_radix_betcher_sort_seq, test_pipeline_run) {
   ppc::core::Perf::PrintPerfStatistic(perf_results);
 }
 
-TEST(opolin_d_radix_sort_betcher_merge_seq, test_task_run) {
+TEST(opolin_d_radix_betcher_sort_seq, test_task_run) {
   int size = 800;
   std::vector<int> input;
   std::vector<int> expected;
-  opolin_d_radix_sort_betcher_merge_seq::GenDataRadixSort(size, input, expected);
+  opolin_d_radix_betcher_sort_seq::GenDataRadixSort(size, input, expected);
   std::vector<int> out(size, 0);
   // Create TaskData
   auto task_data_seq = std::make_shared<ppc::core::TaskData>();
@@ -84,7 +84,7 @@ TEST(opolin_d_radix_sort_betcher_merge_seq, test_task_run) {
 
   // Create Task
   auto test_task_sequential =
-      std::make_shared<opolin_d_radix_sort_betcher_merge_seq::RadixBetcherSortTaskSequential>(task_data_seq);
+      std::make_shared<opolin_d_radix_betcher_sort_seq::RadixBetcherSortTaskSequential>(task_data_seq);
   ASSERT_EQ(test_task_sequential->Validation(), true);
   test_task_sequential->PreProcessing();
   test_task_sequential->Run();
