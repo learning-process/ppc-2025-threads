@@ -127,8 +127,8 @@ TEST(smirnov_i_radix_sort_simple_merge_seq, test_reverse_order) {
   std::vector<int> in(kCount, 0);
   std::vector<int> exp_out(kCount, 0);
   std::vector<int> out(kCount);
-  for (size_t i = kCount; i > 0; i--) {
-    in[i] = static_cast<int>(i);
+  for (size_t i = 0; i < kCount; i++) {
+    in[kCount - 1 - i] = static_cast<int>(i + 1);
   }
   for (size_t i = 0; i < kCount; i++) {
     exp_out[i] = static_cast<int>(i);
