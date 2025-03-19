@@ -45,10 +45,10 @@ void vavilov_v_cannon_omp::CannonOMP::InitialShift() {
 }
 void vavilov_v_cannon_omp::CannonOMP::BlockMultiply() {
 #pragma omp parallel for
-  for ( int bi = 0; bi < N; bi += block_size) {
-    for ( int bj = 0; bj < N; bj += block_size) {
-      for ( int i = bi; i < bi + block_size; i++) {
-        for ( int j = bj; j < bj + block_size; j++) {
+  for (int bi = 0; bi < N; bi += block_size) {
+    for (int bj = 0; bj < N; bj += block_size) {
+      for (int i = bi; i < bi + block_size; i++) {
+        for (int j = bj; j < bj + block_size; j++) {
           double temp = 0.0;
           for (unsigned int k = 0; k < block_size; k++) {
             int row_a = bi + (i - bi);
