@@ -24,9 +24,9 @@ bool vavilov_v_cannon_seq::CannonSequential::ValidationImpl() {
     return false;
   }
 
-  unsigned int N = static_cast<unsigned int>(std::sqrt(task_data->inputs_count[0]));
-  unsigned int num_blocks = static_cast<unsigned int>(task_data->inputs_count[2]);
-  return N % num_blocks == 0;
+  auto n = static_cast<unsigned int>(std::sqrt(task_data->inputs_count[0]));
+  auto num_blocks = static_cast<unsigned int>(task_data->inputs_count[2]);
+  return n % num_blocks == 0;
 }
 
 void vavilov_v_cannon_seq::CannonSequential::InitialShift() {
