@@ -41,12 +41,12 @@ bool sarafanov_m_canon_mat_mul_seq::CanonMatMulSequential::PreProcessingImpl() {
 std::vector<double> sarafanov_m_canon_mat_mul_seq::CanonMatMulSequential::ConvertToSquareMatrix(
     int need_size, MatrixType type, const std::vector<double> &matrx) {
   std::vector<double> matrix;
-  int rows_counter;
-  int zero_columns;
+  int rows_counter = 0;
+  int zero_columns = 0;
   switch (type) {
     case MatrixType::kRowMatrix:
       rows_counter = 1;
-      zero_columns = need_size - static_cast<int>(matrx.size()) / need_size;
+      zero_columns = need_size - (static_cast<int>(matrx.size()) / need_size);
       for (int i = 0; i < static_cast<int>(matrx.size()); ++i) {
         if ((need_size - zero_columns) * rows_counter - i == 0) {
           rows_counter++;
@@ -62,7 +62,7 @@ std::vector<double> sarafanov_m_canon_mat_mul_seq::CanonMatMulSequential::Conver
       break;
     case MatrixType::kColumnMatrix:
       matrix = matrx;
-      int zero_rows = need_size - static_cast<int>(matrx.size()) / need_size;
+      int zero_rows = need_size - (static_cast<int>(matrx.size()) / need_size);
       for (int i = 0; i < zero_rows * need_size; ++i) {
         matrix.emplace_back(0.0);
       }
