@@ -78,9 +78,8 @@ void vavilov_v_cannon_tbb::CannonTBB::BlockMultiply() {
             }
           }
         }
-  });
+      });
 }
-
 
 void vavilov_v_cannon_tbb::CannonTBB::ShiftBlocks() {
   std::vector<double> a_tmp = A_;
