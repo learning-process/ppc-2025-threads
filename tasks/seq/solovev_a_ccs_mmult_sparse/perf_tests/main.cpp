@@ -7,6 +7,7 @@
 #include <vector>
 
 #include "core/perf/include/perf.hpp"
+#include "core/task/include/task.hpp"
 #include "seq/solovev_a_ccs_mmult_sparse/include/ccs_mmult_sparse.hpp"
 
 TEST(solovev_a_ccs_mmult_sparse_seq, test_pipeline_run) {
