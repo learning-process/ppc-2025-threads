@@ -21,7 +21,7 @@ class CanonMatMulSequential : public ppc::core::Task {
   bool RunImpl() override;
   bool PostProcessingImpl() override;
   bool CheckSquareSize(int number);
-  std::vector<double> ConvertToSquareMatrix(int need_size, MatrixType type, const std::vector<double>& matrx);
+  static std::vector<double> ConvertToSquareMatrix(int need_size, MatrixType type, const std::vector<double>& matrx);
 };
 std::vector<double> GenerateRandomData(int size);
 std::vector<double> GenerateSingleMatrix(int size);
