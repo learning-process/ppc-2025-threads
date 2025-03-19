@@ -1,6 +1,5 @@
 #include <gtest/gtest.h>
 
-#define _USE_MATH_DEFINES  // NOLINT(bugprone-reserved-identifier): no header providing "M_PI" is directly included
 #include <algorithm>
 #include <cmath>
 #include <cstddef>
@@ -41,6 +40,8 @@ void DoCommonTest(std::vector<Coord> &in, std::vector<Coord> &answer, std::vecto
     EXPECT_EQ(answer[i].y, out[i].y) << out[i].x << '_' << out[i].y << ' ' << answer[i].x << '_' << answer[i].y;
   }
 }
+
+const double kPi = 3.14159265358979323846;
 
 }  // namespace
 
@@ -136,8 +137,8 @@ TEST(oturin_a_gift_wrapping_seq, test_circle) {
   std::vector<oturin_a_gift_wrapping_seq::Coord> answer(points);
   std::vector<oturin_a_gift_wrapping_seq::Coord> out(answer.size());
   for (int i = 0; i < points; i++) {
-    answer[i] = {int(-std::cos(2 * i * M_PI / points) * circle_radius),
-                 int(std::sin(2 * i * M_PI / points) * circle_radius)};
+    answer[i] = {int(-std::cos(2 * i * kPi / points) * circle_radius),
+                 int(std::sin(2 * i * kPi / points) * circle_radius)};
   }
   in = answer;
 
@@ -152,8 +153,8 @@ TEST(oturin_a_gift_wrapping_seq, test_circle_shuffled) {
   std::vector<oturin_a_gift_wrapping_seq::Coord> answer(points);
   std::vector<oturin_a_gift_wrapping_seq::Coord> out(answer.size());
   for (int i = 0; i < points; i++) {
-    answer[i] = {int(-std::cos(2 * i * M_PI / points) * circle_radius),
-                 int(std::sin(2 * i * M_PI / points) * circle_radius)};
+    answer[i] = {int(-std::cos(2 * i * kPi / points) * circle_radius),
+                 int(std::sin(2 * i * kPi / points) * circle_radius)};
   }
   in = answer;
 
@@ -172,8 +173,8 @@ TEST(oturin_a_gift_wrapping_seq, test_star) {
   std::vector<oturin_a_gift_wrapping_seq::Coord> answer;
   std::vector<oturin_a_gift_wrapping_seq::Coord> out(points);
   for (int i = 0; i < points; i++) {
-    in[i] = {int(-std::cos((2 * i * M_PI / points) + (M_PI / points)) * star_radius / (i % 2 + 1)),
-             int(std::sin((2 * i * M_PI / points) + (M_PI / points)) * star_radius / (i % 2 + 1))};
+    in[i] = {int(-std::cos((2 * i * kPi / points) + (kPi / points)) * star_radius / (i % 2 + 1)),
+             int(std::sin((2 * i * kPi / points) + (kPi / points)) * star_radius / (i % 2 + 1))};
     if ((points % 2) != 0) {
       answer.push_back(in[i]);
     }
@@ -190,8 +191,8 @@ TEST(oturin_a_gift_wrapping_seq, test_star_bigAndShuffled) {
   std::vector<oturin_a_gift_wrapping_seq::Coord> answer;
   std::vector<oturin_a_gift_wrapping_seq::Coord> out(points);
   for (int i = 0; i < points; i++) {
-    in[i] = {int(-std::cos((2 * i * M_PI / points) + (M_PI / points)) * star_radius / (i % 2 + 1)),
-             int(std::sin((2 * i * M_PI / points) + (M_PI / points)) * star_radius / (i % 2 + 1))};
+    in[i] = {int(-std::cos((2 * i * kPi / points) + (kPi / points)) * star_radius / (i % 2 + 1)),
+             int(std::sin((2 * i * kPi / points) + (kPi / points)) * star_radius / (i % 2 + 1))};
     if ((points % 2) != 0) {
       answer.push_back(in[i]);
     }
