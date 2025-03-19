@@ -33,9 +33,9 @@ TEST(kudryashova_i_radix_batcher_seq, seq_radix_test_0) {
   test_task_sequential.PreProcessingImpl();
   test_task_sequential.RunImpl();
   test_task_sequential.PostProcessingImpl();
-  for (std::vector<double>::size_type i = 1; i < result.size(); i++) {
-    ASSERT_LE(result[i - 1], result[i]);
-  }
+  std::vector<double> sorted_global_vector = global_vector;
+  std::sort(sorted_global_vector.begin(), sorted_global_vector.end());
+  ASSERT_EQ(result, sorted_global_vector);
 }
 
 TEST(kudryashova_i_radix_batcher_seq, seq_radix_test_1) {
@@ -52,9 +52,9 @@ TEST(kudryashova_i_radix_batcher_seq, seq_radix_test_1) {
   test_task_sequential.PreProcessingImpl();
   test_task_sequential.RunImpl();
   test_task_sequential.PostProcessingImpl();
-  for (std::vector<double>::size_type i = 1; i < result.size(); i++) {
-    ASSERT_LE(result[i - 1], result[i]);
-  }
+  std::vector<double> sorted_global_vector = global_vector;
+  std::sort(sorted_global_vector.begin(), sorted_global_vector.end());
+  ASSERT_EQ(result, sorted_global_vector);
 }
 
 TEST(kudryashova_i_radix_batcher_seq, seq_radix_test_2) {
@@ -72,9 +72,9 @@ TEST(kudryashova_i_radix_batcher_seq, seq_radix_test_2) {
   test_task_sequential.PreProcessingImpl();
   test_task_sequential.RunImpl();
   test_task_sequential.PostProcessingImpl();
-  for (std::vector<double>::size_type i = 1; i < result.size(); i++) {
-    ASSERT_LE(result[i - 1], result[i]);
-  }
+  std::vector<double> sorted_global_vector = global_vector;
+  std::sort(sorted_global_vector.begin(), sorted_global_vector.end());
+  ASSERT_EQ(result, sorted_global_vector);
 }
 
 TEST(kudryashova_i_radix_batcher_seq, seq_radix_empty_test) {
@@ -104,9 +104,9 @@ TEST(kudryashova_i_radix_batcher_seq, seq_radix_random_test_1) {
   test_task_sequential.PreProcessingImpl();
   test_task_sequential.RunImpl();
   test_task_sequential.PostProcessingImpl();
-  for (std::vector<double>::size_type i = 1; i < result.size(); i++) {
-    ASSERT_LE(result[i - 1], result[i]);
-  }
+  std::vector<double> sorted_global_vector = global_vector;
+  std::sort(sorted_global_vector.begin(), sorted_global_vector.end());
+  ASSERT_EQ(result, sorted_global_vector);
 }
 
 TEST(kudryashova_i_radix_batcher_seq, seq_radix_random_test_2) {
@@ -123,9 +123,9 @@ TEST(kudryashova_i_radix_batcher_seq, seq_radix_random_test_2) {
   test_task_sequential.PreProcessingImpl();
   test_task_sequential.RunImpl();
   test_task_sequential.PostProcessingImpl();
-  for (std::vector<double>::size_type i = 1; i < result.size(); i++) {
-    ASSERT_LE(result[i - 1], result[i]);
-  }
+  std::vector<double> sorted_global_vector = global_vector;
+  std::sort(sorted_global_vector.begin(), sorted_global_vector.end());
+  ASSERT_EQ(result, sorted_global_vector);
 }
 
 TEST(kudryashova_i_radix_batcher_seq, seq_radix_random_test_3) {
@@ -142,7 +142,7 @@ TEST(kudryashova_i_radix_batcher_seq, seq_radix_random_test_3) {
   test_task_sequential.PreProcessingImpl();
   test_task_sequential.RunImpl();
   test_task_sequential.PostProcessingImpl();
-  for (std::vector<double>::size_type i = 1; i < result.size(); i++) {
-    ASSERT_LE(result[i - 1], result[i]);
-  }
+  std::vector<double> sorted_global_vector = global_vector;
+  std::sort(sorted_global_vector.begin(), sorted_global_vector.end());
+  ASSERT_EQ(result, sorted_global_vector);
 }

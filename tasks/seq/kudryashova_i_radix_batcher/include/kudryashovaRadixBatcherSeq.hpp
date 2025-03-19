@@ -19,7 +19,6 @@ class TestTaskSequential : public ppc::core::Task {
 
  private:
   std::vector<double> input_data_;
-  std::vector<double> output_data_;
 };
 
 }  // namespace kudryashova_i_radix_batcher_seq
