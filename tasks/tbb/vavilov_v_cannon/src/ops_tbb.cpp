@@ -29,21 +29,16 @@ bool vavilov_v_cannon_tbb::CannonTBB::ValidationImpl() {
 }
 
 void vavilov_v_cannon_tbb::CannonTBB::InitialShift() {
-  std::vector<double> a_tmp = A_;
-  std::vector<double> b_tmp = B_;
-
-  tbb::parallel_for(tbb::blocked_range2d<int>(0, num_blocks_, 0, num_blocks_), [&](const tbb::blocked_range2d<int>& r) {
-    for (int bi = r.rows().begin(); bi != r.rows().end(); ++bi) {
-      for (int bj = r.cols().begin(); bj != r.cols().end(); ++bj) {
-        int src_row = (bi + bj) % num_blocks_;
-        int src_col = (bj + bi) % num_blocks_;
-        for (int i = 0; i < block_size_; ++i) {
-          for (int j = 0; j < block_size_; ++j) {
-            B_[(bi * block_size_ + i) * N_ + (bj * block_size_ + j)] =
-                b_tmp[(src_row * block_size_ + i) * N_ + (bj * block_size_ + j)];
-            A_[(bi * block_size_ + i) * N_ + (bj * block_size_ + j)] =
-                a_tmp[(bi * block_size_ + i) * N_ + (src_col * block_size_ + j)];
-          }
+  tbb::parallel_for(0, num_blocks_, [&](int bi) {
+    for (int bj = 0; bj < num_blocks_; ++bj) {
+      int src_row = (bi + bj) % num_blocks_;
+      int src_col = (bj + bi) % num_blocks_;
+      for (int i = 0; i < block_size_; ++i) {
+        for (int j = 0; j < block_size_; ++j) {
+          std::swap(A_[(bi * block_size_ + i) * N_ + (bj * block_size_ + j)],
+                    A_[(bi * block_size_ + i) * N_ + (src_col * block_size_ + j)]);
+          std::swap(B_[(bi * block_size_ + i) * N_ + (bj * block_size_ + j)],
+                    B_[(src_row * block_size_ + i) * N_ + (bj * block_size_ + j)]);
         }
       }
     }
@@ -51,59 +46,35 @@ void vavilov_v_cannon_tbb::CannonTBB::InitialShift() {
 }
 
 void vavilov_v_cannon_tbb::CannonTBB::BlockMultiply() {
-  std::vector<std::vector<double>> local_C_(num_blocks_, std::vector<double>(N_ * block_size_, 0.0));
-  for (auto& vec : local_C_) {
-    std::fill(vec.begin(), vec.end(), 0.0);
-  }
-
-  tbb::task_group tg;
-  for (int bi = 0; bi < num_blocks_; ++bi) {
-    tg.run([&, bi]() {
-      std::vector<double>& local = local_C_[bi];
-      for (int bj = 0; bj < N_; bj += block_size_) {
-        int row_offset = bi * block_size_;
-        int col_offset = bj;
-        for (int i = 0; i < block_size_; ++i) {
-          for (int j = 0; j < block_size_; ++j) {
-            double temp = 0.0;
-            for (int k = 0; k < block_size_; ++k) {
-              int row_a = row_offset + i;
-              int col_a = col_offset + k;
-              int row_b = row_offset + k;
-              int col_b = col_offset + j;
-              temp += A_[row_a * N_ + col_a] * B_[row_b * N_ + col_b];
-            }
-            local[i * N_ + (col_offset + j)] = temp;
-          }
-        }
-      }
+  tbb::parallel_for(0, num_blocks_, [&](int bi) {
+    for (int bj = 0; bj < num_blocks_; ++bj) {
       int row_offset = bi * block_size_;
+      int col_offset = bj * block_size_;
       for (int i = 0; i < block_size_; ++i) {
-        for (int j = 0; j < N_; ++j) {
-          C_[(row_offset + i) * N_ + j] += local[i * N_ + j];
+        for (int j = 0; j < block_size_; ++j) {
+          double temp = 0.0;
+          for (int k = 0; k < block_size_; ++k) {
+            temp += A_[(row_offset + i) * N_ + (col_offset + k)] *
+                    B_[(row_offset + k) * N_ + (col_offset + j)];
+          }
+          C_[(row_offset + i) * N_ + (col_offset + j)] += temp;
         }
       }
-    });
-  }
-  tg.wait();
+    }
+  });
 }
 
 void vavilov_v_cannon_tbb::CannonTBB::ShiftBlocks() {
-  std::vector<double> a_tmp = A_;
-  std::vector<double> b_tmp = B_;
-
-  tbb::parallel_for(tbb::blocked_range2d<int>(0, num_blocks_, 0, num_blocks_), [&](const tbb::blocked_range2d<int>& r) {
-    for (int bi = r.rows().begin(); bi != r.rows().end(); ++bi) {
-      for (int bj = r.cols().begin(); bj != r.cols().end(); ++bj) {
-        int src_row = (bi + 1) % num_blocks_;
-        int src_col = (bj + 1) % num_blocks_;
-        for (int i = 0; i < block_size_; ++i) {
-          for (int j = 0; j < block_size_; ++j) {
-            B_[(bi * block_size_ + i) * N_ + (bj * block_size_ + j)] =
-                b_tmp[(src_row * block_size_ + i) * N_ + (bj * block_size_ + j)];
-            A_[(bi * block_size_ + i) * N_ + (bj * block_size_ + j)] =
-                a_tmp[(bi * block_size_ + i) * N_ + (src_col * block_size_ + j)];
-          }
+  tbb::parallel_for(0, num_blocks_, [&](int bi) {
+    for (int bj = 0; bj < num_blocks_; ++bj) {
+      int src_row = (bi + 1) % num_blocks_;
+      int src_col = (bj + 1) % num_blocks_;
+      for (int i = 0; i < block_size_; ++i) {
+        for (int j = 0; j < block_size_; ++j) {
+          std::swap(A_[(bi * block_size_ + i) * N_ + (bj * block_size_ + j)],
+                    A_[(bi * block_size_ + i) * N_ + (src_col * block_size_ + j)]);
+          std::swap(B_[(bi * block_size_ + i) * N_ + (bj * block_size_ + j)],
+                    B_[(src_row * block_size_ + i) * N_ + (bj * block_size_ + j)]);
         }
       }
     }
