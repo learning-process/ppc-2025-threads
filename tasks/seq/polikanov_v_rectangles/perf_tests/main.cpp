@@ -46,6 +46,8 @@ void RunPerfTest() {
     perf_analyzer.TaskRun(perf_attr, perf_results);
   }
   ppc::core::Perf::PrintPerfStatistic(perf_results);
+
+  EXPECT_NEAR(out, 5.33, 0.2);
 }
 }  // namespace
 
