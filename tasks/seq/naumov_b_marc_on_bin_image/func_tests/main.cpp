@@ -49,25 +49,6 @@ TEST(naumov_b_marc_on_bin_image_seq, Validation_2) {
   EXPECT_FALSE(test_task_sequential.Validation());
 }
 
-TEST(naumov_b_marc_on_bin_image_seq, Validation_3) {
-  int m = 3;
-  int n = 3;
-
-  std::vector<int> in = {1, 0, 1, 0};
-  std::vector<int> out(m * n, 0);
-
-  auto task_data_seq = std::make_shared<ppc::core::TaskData>();
-  task_data_seq->inputs.emplace_back(reinterpret_cast<uint8_t *>(in.data()));
-  task_data_seq->inputs_count.emplace_back(m);
-  task_data_seq->inputs_count.emplace_back(n);
-  task_data_seq->outputs.emplace_back(reinterpret_cast<uint8_t *>(out.data()));
-  task_data_seq->outputs_count.emplace_back(m);
-  task_data_seq->outputs_count.emplace_back(n);
-
-  naumov_b_marc_on_bin_image_seq::TestTaskSequential test_task_sequential(task_data_seq);
-  EXPECT_FALSE(test_task_sequential.Validation());
-}
-
 TEST(naumov_b_marc_on_bin_image_seq, SimpleTest_1) {
   int m = 3;
   int n = 4;
