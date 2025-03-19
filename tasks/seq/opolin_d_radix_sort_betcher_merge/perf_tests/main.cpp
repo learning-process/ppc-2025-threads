@@ -25,13 +25,13 @@ void GenDataRadixSort(size_t size, std::vector<int> &vec, std::vector<int> &expe
     vec.push_back(dis(gen));
   }
   expected = vec;
-  std::sort(expected.begin(), expected.end());
+  std::ranges::sort(expected);
 }
 }  // namespace
 }  // namespace opolin_d_radix_betcher_sort_seq
 
 TEST(opolin_d_radix_betcher_sort_seq, test_pipeline_run) {
-  int size = 800;
+  int size = 2500;
   std::vector<int> input;
   std::vector<int> expected;
   opolin_d_radix_betcher_sort_seq::GenDataRadixSort(size, input, expected);
@@ -70,7 +70,7 @@ TEST(opolin_d_radix_betcher_sort_seq, test_pipeline_run) {
 }
 
 TEST(opolin_d_radix_betcher_sort_seq, test_task_run) {
-  int size = 800;
+  int size = 2500;
   std::vector<int> input;
   std::vector<int> expected;
   opolin_d_radix_betcher_sort_seq::GenDataRadixSort(size, input, expected);

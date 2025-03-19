@@ -2,6 +2,7 @@
 
 #include <algorithm>
 #include <cmath>
+#include <cstddef>
 #include <vector>
 
 bool opolin_d_radix_betcher_sort_seq::RadixBetcherSortTaskSequential::PreProcessingImpl() {
@@ -16,7 +17,7 @@ bool opolin_d_radix_betcher_sort_seq::RadixBetcherSortTaskSequential::PreProcess
 
 bool opolin_d_radix_betcher_sort_seq::RadixBetcherSortTaskSequential::ValidationImpl() {
   // Check equality of counts elements
-  size_ = task_data->inputs_count[0];
+  size_ =  static_cast<int>(task_data->inputs_count[0]);
   if (size_ <= 0 || task_data->inputs.empty()) {
     return false;
   }
@@ -89,7 +90,7 @@ void opolin_d_radix_betcher_sort_seq::SortByDigit(std::vector<int> &array, int d
   for (int i = 1; i < base; i++) {
     buckets[i] += buckets[i - 1];
   }
-  for (int i = array.size() - 1; i >= 0; i--) {
+  for (int i = static_cast<int>(array.size() - 1); i >= 0; i--) {
     int digit = (array[i] / digit_place) % base;
     result[--buckets[digit]] = array[i];
   }
@@ -101,7 +102,7 @@ void opolin_d_radix_betcher_sort_seq::BetcherMerge(std::vector<int> &arr, size_t
   if (size <= 1) {
     return;
   }
-  size_t mid = start + size / 2;
+  size_t mid = start + (size / 2);
   BetcherMerge(arr, start, mid);
   BetcherMerge(arr, mid, end);
   size_t step = (size + 1) / 2;
