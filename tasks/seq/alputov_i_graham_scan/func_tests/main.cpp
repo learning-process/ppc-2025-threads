@@ -58,6 +58,7 @@ void ValidateStarConvexHull(alputov_i_graham_scan_seq::TestTaskSequential& task,
     double angle = 2.0 * std::numbers::pi * static_cast<double>(i) / static_cast<double>(num_points_star);
     EXPECT_TRUE(hull_set.count({20.0 * cos(angle), 20.0 * sin(angle)}));
   }
+}
 }  // namespace
 
 TEST(alputov_i_graham_scan_seq, minimal_triangle_case) {
@@ -271,20 +272,6 @@ TEST(alputov_i_graham_scan_seq, star_figure) {
 
   alputov_i_graham_scan_seq::TestTaskSequential task(task_data);
   ValidateStarConvexHull(task, input, num_points_star);
-}
-
-TEST(alputov_i_graham_scan_seq, single_point) {
-  std::vector<alputov_i_graham_scan_seq::Point> input = {{0, 0}};
-  std::vector<alputov_i_graham_scan_seq::Point> output(input.size());
-
-  auto task_data = std::make_shared<ppc::core::TaskData>();
-  task_data->inputs.emplace_back(reinterpret_cast<uint8_t*>(input.data()));
-  task_data->inputs_count.emplace_back(input.size());
-  task_data->outputs.emplace_back(reinterpret_cast<uint8_t*>(output.data()));
-  task_data->outputs_count.emplace_back(output.size());
-
-  alputov_i_graham_scan_seq::TestTaskSequential task(task_data);
-  EXPECT_FALSE(task.Validation());
 }
 
 TEST(alputov_i_graham_scan_seq, single_point) {
