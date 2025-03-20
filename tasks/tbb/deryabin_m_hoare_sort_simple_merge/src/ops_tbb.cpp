@@ -48,23 +48,23 @@ void deryabin_m_hoare_sort_simple_merge_tbb::MergeTwoParts(std::vector<double>& 
   std::vector<double> r_buff(middle + 1);
   std::copy(a.begin() + (long)left, a.begin() + (long)left + (long)middle + 1, l_buff.begin());
   std::copy(a.begin() + (long)left + (long)middle + 1, a.begin() + (long)right + 1, r_buff.begin());
-  for (size_t i = left; i <= right; i++) {
+  oneapi::tbb::parallel_for((int)left, (int)right, 1, [=, this](int i) {
     if (l_cur <= middle && r_cur <= middle) {
       if (l_buff[l_cur] < r_buff[r_cur]) {
-        a[i] = l_buff[l_cur];
+        a[(size_t)i] = l_buff[l_cur];
         l_cur++;
       } else {
-        a[i] = r_buff[r_cur];
+        a[(size_t)i] = r_buff[r_cur];
         r_cur++;
       }
     } else if (l_cur <= middle) {
-      a[i] = l_buff[l_cur];
+      a[(size_t)i] = l_buff[l_cur];
       l_cur++;
     } else {
-      a[i] = r_buff[r_cur];
+      a[(size_t)i] = r_buff[r_cur];
       r_cur++;
     }
-  }
+  });
 }
 
 bool deryabin_m_hoare_sort_simple_merge_tbb::HoareSortTaskSequential::PreProcessingImpl() {
