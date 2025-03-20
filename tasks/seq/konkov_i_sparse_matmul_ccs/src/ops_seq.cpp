@@ -39,10 +39,14 @@ bool SparseMatmulTask::RunImpl() {
       int row_b = B_row_indices[j];
       double val_b = B_values[j];
 
-      if (row_b >= colsA || row_b + 1 > A_col_ptr.size()) continue;
+      if (row_b >= colsA || static_cast<size_t>(row_b + 1) > A_col_ptr.size()) {
+        continue;
+      }
 
       for (int k = A_col_ptr[row_b]; k < A_col_ptr[row_b + 1]; ++k) {
-        if (k >= A_row_indices.size()) continue;
+        if (static_cast<size_t>(k) >= A_row_indices.size()) {
+          continue;
+        }
 
         int row_a = A_row_indices[k];
         double val_a = A_values[k];
@@ -60,7 +64,7 @@ bool SparseMatmulTask::RunImpl() {
         rows.push_back(pair.first);
       }
     }
-    std::sort(rows.begin(), rows.end());
+    std::ranges::sort(rows);
 
     for (int row : rows) {
       C_values.push_back(column_map[col][row]);
