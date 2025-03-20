@@ -1,5 +1,6 @@
 #include "seq/naumov_b_marc_on_bin_image/include/ops_seq.hpp"
 
+#include <algorithm>
 #include <cmath>
 #include <cstddef>
 #include <vector>
@@ -16,29 +17,36 @@ void naumov_b_marc_on_bin_image_seq::TestTaskSequential::ProcessBlock(int start_
                                                                       int block_cols) {
   for (int i = start_row; i < start_row + block_rows; ++i) {
     for (int j = start_col; j < start_col + block_cols; ++j) {
-      if (input_image_[i * cols_ + j] == 1) {
-        std::vector<int> neighbors = FindAdjacentLabels(i, j);
-
-        if (neighbors.empty()) {
-          output_image_[i * cols_ + j] = ++current_label_;
-          label_parent_[current_label_] = current_label_;
-        } else {
-          int min_label = neighbors[0];
-          for (size_t k = 1; k < neighbors.size(); ++k) {
-            if (neighbors[k] < min_label) {
-              min_label = neighbors[k];
-            }
-          }
-
-          output_image_[i * cols_ + j] = min_label;
-
-          for (int neighbor_label : neighbors) {
-            if (neighbor_label != min_label) {
-              UnionLabels(min_label, neighbor_label);
-            }
-          }
-        }
+      if (input_image_[(i * cols_) + j] == 1) {
+        ProcessPixel(i, j);
       }
+    }
+  }
+}
+
+void naumov_b_marc_on_bin_image_seq::TestTaskSequential::ProcessPixel(int row, int col) {
+  std::vector<int> neighbors = FindAdjacentLabels(row, col);
+
+  if (neighbors.empty()) {
+    AssignNewLabel(row, col);
+  } else {
+    AssignMinLabel(row, col, neighbors);
+  }
+}
+
+void naumov_b_marc_on_bin_image_seq::TestTaskSequential::AssignNewLabel(int row, int col) {
+  output_image_[(row * cols_) + col] = ++current_label_;
+  label_parent_[current_label_] = current_label_;
+}
+
+void naumov_b_marc_on_bin_image_seq::TestTaskSequential::AssignMinLabel(int row, int col,
+                                                                        const std::vector<int>& neighbors) {
+  int min_label = *std::min_element(neighbors.begin(), neighbors.end());
+  output_image_[(row * cols_) + col] = min_label;
+
+  for (int neighbor_label : neighbors) {
+    if (neighbor_label != min_label) {
+      UnionLabels(min_label, neighbor_label);
     }
   }
 }

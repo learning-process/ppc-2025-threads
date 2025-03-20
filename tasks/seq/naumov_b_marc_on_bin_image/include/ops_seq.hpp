@@ -17,6 +17,9 @@ class TestTaskSequential : public ppc::core::Task {
 
  private:
   void ProcessBlock(int start_row, int start_col, int block_rows, int block_cols);
+  void ProcessPixel(int row, int col);
+  void AssignNewLabel(int row, int col);
+  void AssignMinLabel(int row, int col, const std::vector<int>& neighbors);
   void MergeLabels();
 
   std::vector<int> FindAdjacentLabels(int row, int col);
