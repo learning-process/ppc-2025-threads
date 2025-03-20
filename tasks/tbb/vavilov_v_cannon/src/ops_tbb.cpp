@@ -49,9 +49,7 @@ void vavilov_v_cannon_tbb::CannonTBB::InitialShift() {
 }
 
 void vavilov_v_cannon_tbb::CannonTBB::BlockMultiply() {
-  tbb::enumerable_thread_specific<std::vector<double>> local_C(
-      std::vector<double>(N_ * block_size_, 0.0));
-
+  tbb::enumerable_thread_specific<std::vector<double>> local_C(std::vector<double>(N_ * block_size_, 0.0));
   tbb::parallel_for(tbb::blocked_range<int>(0, num_blocks_, 4), [&](const tbb::blocked_range<int>& r) {
     std::vector<double>& local = local_C.local();
     int bi_start = r.begin();
