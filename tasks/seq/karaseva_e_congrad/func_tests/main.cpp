@@ -48,7 +48,7 @@ std::vector<double> MultiplyMatrixVector(const std::vector<double>& a_matrix, co
   return result;
 }
 
-}
+}  // namespace
 
 TEST(karaseva_e_congrad_seq, test_identity_50) {
   constexpr size_t kN = 50;
@@ -157,7 +157,8 @@ TEST(karaseva_e_congrad_seq, test_small_system_size_1) {
 }
 
 TEST(karaseva_e_congrad_seq, test_validation_invalid_matrix) {
-  constexpr size_t kRows = 2, kCols = 3;
+  constexpr size_t kRows = 2;
+  constexpr size_t kCols = 3;
   std::vector<double> a_matrix(kRows * kCols, 1.0);
   std::vector<double> b(kRows, 1.0);
   std::vector<double> x(kRows, 0.0);
@@ -196,7 +197,7 @@ TEST(karaseva_e_congrad_seq, test_diagonal_matrix_100) {
   constexpr size_t kN = 100;
   std::vector<double> a_matrix(kN * kN, 0.0);
   for (size_t i = 0; i < kN; ++i) {
-    a_matrix[i * kN + i] = static_cast<double>(i + 1);
+    a_matrix[(i * kN) + i] = static_cast<double>(i + 1);
   }
   std::vector<double> b(kN);
   for (size_t i = 0; i < kN; ++i) {
