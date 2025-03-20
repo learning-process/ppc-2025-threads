@@ -125,3 +125,11 @@ TEST(sotskov_a_shell_sorting_with_simple_merging_omp, test_sort_vector_with_iden
   sotskov_a_shell_sorting_with_simple_merging_omp::RunSortingTest(
       params, sotskov_a_shell_sorting_with_simple_merging_omp::ShellSortWithSimpleMerging);
 }
+
+TEST(sotskov_a_shell_sorting_with_simple_merging_omp, test_sort_double_reverse) {
+  sotskov_a_shell_sorting_with_simple_merging_omp::SortingTestParams params = {
+      .expected = {1, 1, 2, 2, 3, 3, 4, 4, 5, 5}, .input = {5, 4, 3, 2, 1, 5, 4, 3, 2, 1}};
+
+  sotskov_a_shell_sorting_with_simple_merging_omp::RunSortingTest(
+      params, sotskov_a_shell_sorting_with_simple_merging_omp::ShellSortWithSimpleMerging);
+}
