@@ -3,10 +3,10 @@
 #include <algorithm>
 #include <cstdint>
 #include <ctime>
+#include <functional>
 #include <memory>
 #include <random>
 #include <vector>
-#include <functional>
 
 #include "core/task/include/task.hpp"
 #include "seq/kudryashova_i_radix_batcher/include/kudryashovaRadixBatcherSeq.hpp"
