@@ -35,17 +35,24 @@ void VerifyResults(const std::vector<shulpin_i_jarvis_omp::Point> &expected,
   }
 }
 
+inline size_t CalculateIndex(size_t i, size_t tmp) { return (i < tmp) ? (i + tmp) : (i - tmp); }
+
+inline void ExpectEqualPoints(const shulpin_i_jarvis_omp::Point &expected, const shulpin_i_jarvis_omp::Point &seq,
+                              const shulpin_i_jarvis_omp::Point &omp) {
+  EXPECT_EQ(expected.x, seq.x);
+  EXPECT_EQ(expected.y, seq.y);
+  EXPECT_EQ(expected.x, omp.x);
+  EXPECT_EQ(expected.y, omp.y);
+}
+
 void VerifyResultsCircle(const std::vector<shulpin_i_jarvis_omp::Point> &expected,
                          const std::vector<shulpin_i_jarvis_omp::Point> &result_seq,
                          const std::vector<shulpin_i_jarvis_omp::Point> &result_omp, size_t &num_points) {
   size_t tmp = num_points >> 1;
 
   for (size_t i = 0; i < expected.size(); ++i) {
-    size_t idx = (i < tmp) ? (i + tmp) : (i - tmp);
-    EXPECT_EQ(expected[i].x, result_seq[idx].x);
-    EXPECT_EQ(expected[i].y, result_seq[idx].y);
-    EXPECT_EQ(expected[i].x, result_omp[idx].x);
-    EXPECT_EQ(expected[i].y, result_omp[idx].y);
+    size_t idx = CalculateIndex(i, tmp);
+    ExpectEqualPoints(expected[i], result_seq[idx], result_omp[idx]);
   }
 }
 
@@ -223,3 +230,4 @@ TEST(shulpin_i_jarvis_omps, circle_r10_p1000) {
 
   TestBodyRandomCircle(input, expected, num_points);
 }
+
