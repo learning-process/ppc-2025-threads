@@ -107,3 +107,15 @@ TEST(gusev_n_sorting_int_simple_merging_seq, test_radix_sort_duplicates) {
 
   EXPECT_EQ(expected, out);
 }
+
+TEST(gusev_n_sorting_int_simple_merging_seq, test_radix_sort_reverse_order) {
+  std::vector<int> in = {9, 8, 7, 6, 5, 4, 3, 2, 1, 0, -1, -2, -3};
+  std::vector<int> out(in.size());
+
+  auto task_data_seq = CreateTaskData(in, out);
+
+  RunT(task_data_seq);
+  std::vector<int> expected = in;
+  std::ranges::sort(expected.begin(), expected.end());
+  EXPECT_EQ(expected, out);
+}
