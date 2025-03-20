@@ -47,8 +47,7 @@ void vavilov_v_cannon_tbb::CannonTBB::InitialShift() {
 }
 
 void vavilov_v_cannon_tbb::CannonTBB::BlockMultiply() {
-  tbb::parallel_for(tbb::blocked_range2d<int>(0, num_blocks_, 0, num_blocks_),
-                    [&](const tbb::blocked_range2d<int>& r) {
+  tbb::parallel_for(tbb::blocked_range2d<int>(0, num_blocks_, 0, num_blocks_), [&](const tbb::blocked_range2d<int>& r) {
     for (int bi = r.rows().begin(); bi != r.rows().end(); ++bi) {
       for (int bj = r.cols().begin(); bj != r.cols().end(); ++bj) {
         int row_offset = bi * block_size_;
