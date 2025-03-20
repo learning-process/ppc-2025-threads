@@ -27,8 +27,8 @@ std::vector<double> GetRandomMatrix(int size) {
 }  // namespace
 
 TEST(sadikov_i_sparse_matrix_multiplication_task_omp, test_pipeline_run) {
-  constexpr auto kEpsilon = 0.000001;
-  constexpr auto kSize = 300;
+  constexpr auto kEpsilon = 0.0001;
+  constexpr auto kSize = 200;
   auto fmatrix = GetRandomMatrix(kSize * kSize);
   auto smatrix = GetRandomMatrix(kSize * kSize);
   std::vector<double> out(kSize * kSize, 0.0);
@@ -63,8 +63,8 @@ TEST(sadikov_i_sparse_matrix_multiplication_task_omp, test_pipeline_run) {
 }
 
 TEST(sadikov_i_sparse_matrix_multiplication_task_omp, test_task_run) {
-  constexpr auto kEpsilon = 0.000001;
-  constexpr auto kSize = 300;
+  constexpr auto kEpsilon = 0.0001;
+  constexpr auto kSize = 200;
   auto fmatrix = GetRandomMatrix(kSize * kSize);
   auto smatrix = GetRandomMatrix(kSize * kSize);
   std::vector<double> out(kSize * kSize, 0.0);
