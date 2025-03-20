@@ -138,6 +138,19 @@ TEST(chernykh_a_multidimensional_integral_rectangle_seq, exponential_3d_integrat
   RunValidTask(func, dims, want);
 }
 
+TEST(chernykh_a_multidimensional_integral_rectangle_seq, trigonometric_exponential_3d_integration) {
+  Function func = [](const Point& point) -> double {
+    return std::sin(point[0]) * std::cos(point[1]) * std::exp(point[2]);
+  };
+  std::vector<Dimension> dims = {
+      Dimension(0.0, std::numbers::pi, 30),
+      Dimension(0.0, std::numbers::pi / 2, 20),
+      Dimension(0.0, 1.0, 10),
+  };
+  double want = 3.4644155398722236;
+  RunValidTask(func, dims, want);
+}
+
 TEST(chernykh_a_multidimensional_integral_rectangle_seq, one_step_integration) {
   Function func = [](const Point& point) -> double { return std::pow(point[0], 2) + std::pow(point[1], 2); };
   std::vector<Dimension> dims = {

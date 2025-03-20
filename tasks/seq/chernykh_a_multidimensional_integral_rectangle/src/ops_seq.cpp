@@ -35,8 +35,10 @@ bool SequentialTask::PreProcessingImpl() {
 
 bool SequentialTask::RunImpl() {
   int total_points = GetTotalPoints();
+  auto point = Point(dims_.size());
   for (int i = 0; i < total_points; i++) {
-    result_ += func_(GetPoint(i));
+    FillPoint(i, point);
+    result_ += func_(point);
   }
   result_ *= GetScalingFactor();
   return true;
@@ -47,24 +49,22 @@ bool SequentialTask::PostProcessingImpl() {
   return true;
 }
 
-int SequentialTask::GetTotalPoints() const {
-  return std::accumulate(dims_.begin(), dims_.end(), 1,
-                         [](const int accum, const Dimension &dim) -> int { return accum * dim.GetStepsCount(); });
-}
-
-Point SequentialTask::GetPoint(int index) const {
-  auto point = Point(dims_.size());
-  for (size_t i = 0; i < point.size(); i++) {
+void SequentialTask::FillPoint(int index, Point &point) const {
+  for (size_t i = 0; i < dims_.size(); i++) {
     int coordinate_index = index % dims_[i].GetStepsCount();
     point[i] = dims_[i].GetLowerBound() + (coordinate_index + 1) * dims_[i].GetStepSize();
     index /= dims_[i].GetStepsCount();
   }
-  return point;
+}
+
+int SequentialTask::GetTotalPoints() const {
+  return std::accumulate(dims_.begin(), dims_.end(), 1,
+                         [](int accum, const Dimension &dim) -> int { return accum * dim.GetStepsCount(); });
 }
 
 double SequentialTask::GetScalingFactor() const {
   return std::accumulate(dims_.begin(), dims_.end(), 1.0,
-                         [](const double accum, const Dimension &dim) -> double { return accum * dim.GetStepSize(); });
+                         [](double accum, const Dimension &dim) -> double { return accum * dim.GetStepSize(); });
 }
 
 }  // namespace chernykh_a_multidimensional_integral_rectangle_seq

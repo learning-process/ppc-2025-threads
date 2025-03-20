@@ -60,9 +60,9 @@ TEST(chernykh_a_multidimensional_integral_rectangle_seq, test_pipeline_run) {
     return std::exp(-point[0] - point[1] - point[2]) * std::sin(point[0]) * std::sin(point[1]) * std::sin(point[2]);
   };
   std::vector<Dimension> dims = {
-      Dimension(0.0, std::numbers::pi, 125),
-      Dimension(0.0, std::numbers::pi, 125),
-      Dimension(0.0, std::numbers::pi, 125),
+      Dimension(0.0, std::numbers::pi, 150),
+      Dimension(0.0, std::numbers::pi, 150),
+      Dimension(0.0, std::numbers::pi, 150),
   };
   double want = std::pow((1.0 + std::exp(-std::numbers::pi)) / 2.0, 3);
   RunTask(RunType::kPipeline, func, dims, want);
@@ -73,9 +73,9 @@ TEST(chernykh_a_multidimensional_integral_rectangle_seq, test_task_run) {
     return std::exp(-point[0] - point[1] - point[2]) * std::sin(point[0]) * std::sin(point[1]) * std::sin(point[2]);
   };
   std::vector<Dimension> dims = {
-      Dimension(0.0, std::numbers::pi, 125),
-      Dimension(0.0, std::numbers::pi, 125),
-      Dimension(0.0, std::numbers::pi, 125),
+      Dimension(0.0, std::numbers::pi, 150),
+      Dimension(0.0, std::numbers::pi, 150),
+      Dimension(0.0, std::numbers::pi, 150),
   };
   double want = std::pow((1.0 + std::exp(-std::numbers::pi)) / 2.0, 3);
   RunTask(RunType::kTask, func, dims, want);
