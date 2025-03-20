@@ -71,7 +71,7 @@ TEST(nikolaev_r_hoare_sort_simple_merge_omp, test_empty_vect) {
 }
 
 TEST(nikolaev_r_hoare_sort_simple_merge_omp, test_reverse_order) {
-  std::vector<double> in = {8.0, 7.0, 6.0, 5.0, 4.0, 3.0, 2.0, 1.0, 0.0};
+  std::vector<double> in = {10.0, 9.0, 8.0, 7.0, 6.0, 5.0, 4.0, 3.0, 2.0, 1.0, 0.0};
   std::vector<double> out(in.size(), 0.0);
 
   auto task_data_omp = std::make_shared<ppc::core::TaskData>();
