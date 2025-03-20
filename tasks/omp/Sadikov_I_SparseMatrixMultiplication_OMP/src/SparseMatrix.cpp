@@ -109,20 +109,16 @@ SparseMatrix MatrixToSparse(int rows_count, int columns_count, const std::vector
 }
 
 std::vector<double> FromSparseMatrix(const SparseMatrix& matrix) {
-  std::vector<double> simpl_matrix(matrix.GetRowsCount() * matrix.GetColumnsCount(), 0.0);
-  int column_number = 0;
-  int column_counter = 0;
-  for (size_t i = 0; i < matrix.GetValues().size(); ++i) {
-    if (column_counter >= matrix.GetElementsSum()[column_number]) {
-      column_number++;
+  std::vector<double> simple_matrix(matrix.GetRowsCount() * matrix.GetColumnsCount(), 0.0);
+  int counter = 0;
+  for (size_t i = 0; i < matrix.GetElementsSum().size(); ++i) {
+    auto limit = i == 0 ? matrix.GetElementsSum()[0] : matrix.GetElementsSum()[i] - matrix.GetElementsSum()[i - 1];
+    for (int j = 0; j < limit; ++j) {
+      simple_matrix[i + (matrix.GetColumnsCount() * matrix.GetRows()[counter])] = matrix.GetValues()[counter];
+      counter++;
     }
-    column_counter++;
-    if (column_number > 0 && matrix.GetElementsSum()[column_number] - matrix.GetElementsSum()[column_number - 1] == 0) {
-      column_number++;
-    }
-    simpl_matrix[column_number + (matrix.GetRows()[i] * matrix.GetColumnsCount())] = matrix.GetValues()[i];
   }
-  return simpl_matrix;
+  return simple_matrix;
 }
 
 int SparseMatrix::GetElementsCount(int index, const std::vector<int>& elements_sum) {
