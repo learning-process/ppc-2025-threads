@@ -1,11 +1,10 @@
 #include "seq/Lavrentiev_A_CCS_SEQ/include/ops_seq.hpp"
 
+#include <algorithm>
 #include <cstddef>
 #include <iostream>
 #include <random>
 #include <vector>
-#include <algorithm>
-
 
 bool lavrentiev_a_ccs_seq::CCSSequential::PreProcessingImpl() {
   A_.size = {static_cast<int>(task_data->inputs_count[0]), static_cast<int>(task_data->inputs_count[1])};
