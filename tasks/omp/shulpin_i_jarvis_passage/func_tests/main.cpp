@@ -24,32 +24,6 @@ std::vector<shulpin_i_jarvis_omp::Point> GeneratePointsInCircle(size_t num_point
   return points;
 }
 
-void VerifyResults(int mode, const std::vector<shulpin_i_jarvis_omp::Point> &expected,
-                   const std::vector<shulpin_i_jarvis_omp::Point> &result_seq,
-                   const std::vector<shulpin_i_jarvis_omp::Point> &result_omp, size_t num_points = 0) {
-  switch (mode) {
-    case 1:
-      for (size_t i = 0; i < expected.size(); ++i) {
-        ASSERT_EQ(expected[i].x, result_seq[i].x);
-        ASSERT_EQ(expected[i].y, result_seq[i].y);
-        ASSERT_EQ(expected[i].x, result_omp[i].x);
-        ASSERT_EQ(expected[i].y, result_omp[i].y);
-      }
-      break;
-
-    case 2:
-      size_t tmp = num_points >> 1;
-      for (size_t i = 0; i < expected.size(); ++i) {
-        size_t idx = (i < tmp) ? (i + tmp) : (i - tmp);
-        EXPECT_EQ(expected[i].x, result_seq[idx].x);
-        EXPECT_EQ(expected[i].y, result_seq[idx].y);
-        EXPECT_EQ(expected[i].x, result_omp[idx].x);
-        EXPECT_EQ(expected[i].y, result_omp[idx].y);
-      }
-      break;
-  }
-}
-
 void MainTestBody(std::vector<shulpin_i_jarvis_omp::Point> &input, std::vector<shulpin_i_jarvis_omp::Point> &expected) {
   std::vector<shulpin_i_jarvis_omp::Point> result_seq(expected.size());
   std::vector<shulpin_i_jarvis_omp::Point> result_omp(expected.size());
@@ -82,7 +56,12 @@ void MainTestBody(std::vector<shulpin_i_jarvis_omp::Point> &input, std::vector<s
   omp_task.Run();
   omp_task.PostProcessing();
 
-  VerifyResults(1, expected, result_seq, result_omp);
+  for (size_t i = 0; i < expected.size(); ++i) {
+    EXPECT_EQ(expected[i].x, result_seq[i].x);
+    EXPECT_EQ(expected[i].y, result_seq[i].y);
+    EXPECT_EQ(expected[i].x, result_omp[i].x);
+    EXPECT_EQ(expected[i].y, result_omp[i].y);
+  }
 }
 
 void TestBodyFalse(std::vector<shulpin_i_jarvis_omp::Point> &input,
@@ -134,7 +113,15 @@ void TestBodyRandomCircle(std::vector<shulpin_i_jarvis_omp::Point> &input,
   omp_task.Run();
   omp_task.PostProcessing();
 
-  VerifyResults(2, expected, result_seq, result_omp, num_points);
+  size_t tmp = num_points >> 1;
+
+  for (size_t i = 0; i < expected.size(); ++i) {
+    size_t idx = (i < tmp) ? (i + tmp) : (i - tmp);
+    EXPECT_EQ(expected[i].x, result_seq[idx].x);
+    EXPECT_EQ(expected[i].y, result_seq[idx].y);
+    EXPECT_EQ(expected[i].x, result_omp[idx].x);
+    EXPECT_EQ(expected[i].y, result_omp[idx].y);
+  }
 }
 }  // namespace
 
@@ -224,4 +211,3 @@ TEST(shulpin_i_jarvis_omps, circle_r10_p1000) {
 
   TestBodyRandomCircle(input, expected, num_points);
 }
-
