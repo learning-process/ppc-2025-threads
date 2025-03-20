@@ -254,7 +254,7 @@ TEST(kharin_m_multidimensional_integral_calc_seq, test_integral_5d) {
   std::vector<double> step_sizes = {0.5, 0.5, 0.5, 0.5, 0.5};
   std::vector<double> out(1, 0.0);
   size_t total_points = 3 * 2 * 2 * 2 * 2;
-  double sum_values = total_points * 2.0;
+  double sum_values = static_cast<double>(total_points) * 2.0;
   double volume_element = 0.5 * 0.5 * 0.5 * 0.5 * 0.5;
   double expected_out = sum_values * volume_element;
 
