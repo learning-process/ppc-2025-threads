@@ -13,25 +13,25 @@
 #include "core/perf/include/perf.hpp"
 #include "core/task/include/task.hpp"
 
+const std::size_t kHeight = 15'000;
+const std::size_t kWidth = 1'000;
+
 TEST(korablev_v_sobel_edges_all, test_pipeline_run) {
   boost::mpi::communicator world;
-
-  const std::size_t height = 15'000;
-  const std::size_t width = 1'000;
 
   std::random_device dev;
   std::mt19937 gen(dev());
   std::uniform_int_distribution<> dist(0, 255);
 
-  std::vector<uint8_t> in(width * height * 3);
+  std::vector<uint8_t> in(kWidth * kHeight * 3);
   std::ranges::generate(in, [&] { return dist(gen); });
-  std::vector<uint8_t> out(width * height * 3);
+  std::vector<uint8_t> out(kWidth * kHeight * 3);
 
   // Create task_data
   auto task_data = std::make_shared<ppc::core::TaskData>();
   if (world.rank() == 0) {
     task_data->inputs = {in.data()};
-    task_data->inputs_count = {static_cast<uint32_t>(width), static_cast<uint32_t>(height)};
+    task_data->inputs_count = {static_cast<uint32_t>(kWidth), static_cast<uint32_t>(kHeight)};
     task_data->outputs = {out.data()};
     task_data->outputs_count.emplace_back(out.size());
   }
@@ -63,22 +63,19 @@ TEST(korablev_v_sobel_edges_all, test_pipeline_run) {
 TEST(korablev_v_sobel_edges_all, test_task_run) {
   boost::mpi::communicator world;
 
-  const std::size_t width = 5'000;
-  const std::size_t height = width;
-
   std::random_device dev;
   std::mt19937 gen(dev());
   std::uniform_int_distribution<> dist(0, 255);
 
-  std::vector<uint8_t> in(width * height * 3);
+  std::vector<uint8_t> in(kWidth * kHeight * 3);
   std::ranges::generate(in, [&] { return dist(gen); });
-  std::vector<uint8_t> out(width * height * 3);
+  std::vector<uint8_t> out(kWidth * kHeight * 3);
 
   // Create task_data
   auto task_data = std::make_shared<ppc::core::TaskData>();
   if (world.rank() == 0) {
     task_data->inputs = {in.data()};
-    task_data->inputs_count = {static_cast<uint32_t>(width), static_cast<uint32_t>(height)};
+    task_data->inputs_count = {static_cast<uint32_t>(kWidth), static_cast<uint32_t>(kHeight)};
     task_data->outputs = {out.data()};
     task_data->outputs_count.emplace_back(out.size());
   }
