@@ -48,7 +48,7 @@ void deryabin_m_hoare_sort_simple_merge_tbb::MergeTwoParts(std::vector<double>& 
   std::vector<double> r_buff(middle + 1);
   std::copy(a.begin() + (long)left, a.begin() + (long)left + (long)middle + 1, l_buff.begin());
   std::copy(a.begin() + (long)left + (long)middle + 1, a.begin() + (long)right + 1, r_buff.begin());
-  oneapi::tbb::parallel_for((int)left, (int)right, 1, [=, this](int i) {
+  oneapi::tbb::parallel_for((int)left, (int)right, 1, [&a, &l_buff, &r_buff, l_cur, r_cur](int i) {
     if (l_cur <= middle && r_cur <= middle) {
       if (l_buff[l_cur] < r_buff[r_cur]) {
         a[(size_t)i] = l_buff[l_cur];
