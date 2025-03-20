@@ -6,6 +6,7 @@
 
 namespace sadikov_i_sparse_matrix_multiplication_task_omp {
 class SparseMatrix {
+  // restart tests
   constexpr static double kMEpsilon = 0.000001;
   int m_rowsCount_ = 0;
   int m_columnsCount_ = 0;
@@ -25,7 +26,7 @@ class SparseMatrix {
         m_columnsCount_(columns_count),
         m_values_(values),
         m_rows_(rows),
-        m_elementsSum_(element_sum) {};
+        m_elementsSum_(element_sum){};
   [[nodiscard]] const std::vector<double>& GetValues() const noexcept { return m_values_; }
   [[nodiscard]] const std::vector<int>& GetRows() const noexcept { return m_rows_; }
   [[nodiscard]] const std::vector<int>& GetElementsSum() const noexcept { return m_elementsSum_; }
