@@ -2,7 +2,6 @@
 
 #include <cstdint>
 #include <memory>
-#include <utility>
 #include <vector>
 
 #include "core/task/include/task.hpp"
@@ -20,8 +19,8 @@ struct TestData {
 };
 
 TestData::TestData(std::pair<int, int> matrix1_size, std::pair<int, int> matrix2_size) {
-  random_data = std::move(lavrentiev_a_ccs_seq::GenerateRandomMatrix(matrix1_size.first * matrix1_size.second));
-  single_matrix = std::move(lavrentiev_a_ccs_seq::GenerateSingleMatrix(matrix2_size.first * matrix2_size.second));
+  random_data = lavrentiev_a_ccs_seq::GenerateRandomMatrix(matrix1_size.first * matrix1_size.second);
+  single_matrix = lavrentiev_a_ccs_seq::GenerateSingleMatrix(matrix2_size.first * matrix2_size.second);
   result.resize(matrix1_size.first * matrix2_size.second);
   task_data_seq = std::make_shared<ppc::core::TaskData>();
   task_data_seq->inputs.emplace_back(reinterpret_cast<uint8_t *>(random_data.data()));
