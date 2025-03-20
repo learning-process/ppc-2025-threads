@@ -12,7 +12,7 @@
 #include "core/task/include/task.hpp"
 #include "seq/mezhuev_m_bitwise_integer_sort_with_simple_merge_seq/include/ops_seq.hpp"
 
-TEST(mezhuev_m_bitwise_integer_sort_seq_test, test_pipeline_run) {
+TEST(mezhuev_m_bitwise_integer_sort_seq, test_pipeline_run) {
   constexpr int kCount = 1500;
 
   std::vector<int> in(kCount * kCount, 0);
@@ -52,7 +52,7 @@ TEST(mezhuev_m_bitwise_integer_sort_seq_test, test_pipeline_run) {
   ASSERT_EQ(expected, out);
 }
 
-TEST(mezhuev_m_bitwise_integer_sort_seq_test, test_task_run) {
+TEST(mezhuev_m_bitwise_integer_sort_seq, test_task_run) {
   constexpr int kCount = 1500;
 
   std::vector<int> in(kCount * kCount, 0);
