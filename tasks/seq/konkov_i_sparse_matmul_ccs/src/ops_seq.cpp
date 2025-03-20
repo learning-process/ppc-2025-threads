@@ -40,7 +40,7 @@ bool SparseMatmulTask::RunImpl() {
       int row_b = B_row_indices[j];
       double val_b = B_values[j];
 
-      if (row_b >= colsA || static_cast<size_t>(row_b + 1) > A_col_ptr.size()) {
+      if (row_b >= colsA) {
         continue;
       }
 
