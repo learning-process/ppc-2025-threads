@@ -5,10 +5,10 @@
 #include <algorithm>
 #include <core/util/include/util.hpp>
 #include <cstddef>
+#include <random>
+#include <utility>
 #include <vector>
 
-#include "oneapi/tbb/blocked_range.h"
-#include "oneapi/tbb/parallel_for.h"
 #include "oneapi/tbb/task_arena.h"
 #include "oneapi/tbb/task_group.h"
 
@@ -51,7 +51,7 @@ bool nikolaev_r_hoare_sort_simple_merge_tbb::HoareSortSimpleMergeTBB::RunImpl() 
     start = end + 1;
   }
 
-  oneapi::tbb::task_arena arena(num_segments);
+  oneapi::tbb::task_arena arena(static_cast<int>(num_segments));
   arena.execute([this, &segments]() {
     oneapi::tbb::task_group tg;
 
@@ -64,7 +64,8 @@ bool nikolaev_r_hoare_sort_simple_merge_tbb::HoareSortSimpleMergeTBB::RunImpl() 
 
   size_t merged_end = segments[0].second;
   for (size_t i = 1; i < segments.size(); ++i) {
-    std::inplace_merge(vect_.begin(), vect_.begin() + merged_end + 1, vect_.begin() + segments[i].second + 1);
+    std::inplace_merge(vect_.begin(), vect_.begin() + static_cast<std::vector<double>::difference_type>(merged_end + 1),
+                       vect_.begin() + static_cast<std::vector<double>::difference_type>(segments[i].second + 1));
     merged_end = segments[i].second;
   }
 
