@@ -1,11 +1,11 @@
 #include <gtest/gtest.h>
 
+#include <algorithm>
 #include <cstddef>
 #include <cstdint>
 #include <memory>
 #include <random>
 #include <vector>
-#include <algorithm>
 
 #include "core/task/include/task.hpp"
 #include "seq/kharin_m_multidimensional_integral_calc/include/ops_seq.hpp"
@@ -229,7 +229,7 @@ TEST(kharin_m_multidimensional_integral_calc_seq, test_integral_4d) {
   std::vector<double> out(1, 0.0);
   double expected_out = 16.0 * 1.0 * 1.0 * 1.0 * 1.0;  // 16 точек * объем 1.0 = 16.0
 
-  //auto task_data_seq = std::make_shared<ppc::core::TaskData>;
+  // auto task_data_seq = std::make_shared<ppc::core::TaskData>;
   auto task_data_seq = std::make_shared<ppc::core::TaskData>();
   task_data_seq->inputs.emplace_back(reinterpret_cast<uint8_t*>(in.data()));
   task_data_seq->inputs_count.emplace_back(in.size());
@@ -259,7 +259,7 @@ TEST(kharin_m_multidimensional_integral_calc_seq, test_integral_5d) {
   double volume_element = 0.5 * 0.5 * 0.5 * 0.5 * 0.5;
   double expected_out = sum_values * volume_element;
 
-  //auto task_data_seq = std::make_shared<ppc::core::TaskData>;
+  // auto task_data_seq = std::make_shared<ppc::core::TaskData>;
   auto task_data_seq = std::make_shared<ppc::core::TaskData>();
   task_data_seq->inputs.emplace_back(reinterpret_cast<uint8_t*>(in.data()));
   task_data_seq->inputs_count.emplace_back(in.size());
