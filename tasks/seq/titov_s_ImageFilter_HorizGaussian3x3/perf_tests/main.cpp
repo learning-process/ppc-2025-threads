@@ -18,11 +18,8 @@ TEST(titov_s_image_filter_horiz_gaussian3x3_seq, test_pipeline_run) {
   std::vector<int> kernel = {1, 2, 1};
 
   for (size_t i = 0; i < kHeight; ++i) {
-    for (size_t j = 0; j < kWidth / 2; ++j) {
-      input_image[(i * kWidth) + j] = 0.0;
-    }
-    for (size_t j = kWidth / 2; j < kWidth; ++j) {
-      input_image[(i * kWidth) + j] = 1.0;
+    for (size_t j = 0; j < kWidth; ++j) {
+      input_image[(i * kWidth) + j] = static_cast<double>(j) / (kWidth - 1) * 255.0;
     }
   }
 
@@ -64,11 +61,8 @@ TEST(titov_s_image_filter_horiz_gaussian3x3_seq, test_task_run) {
   std::vector<int> kernel = {1, 2, 1};
 
   for (size_t i = 0; i < kHeight; ++i) {
-    for (size_t j = 0; j < kWidth / 2; ++j) {
-      input_image[(i * kWidth) + j] = 0.0;
-    }
-    for (size_t j = kWidth / 2; j < kWidth; ++j) {
-      input_image[(i * kWidth) + j] = 1.0;
+    for (size_t j = 0; j < kWidth; ++j) {
+      input_image[(i * kWidth) + j] = static_cast<double>(j) / (kWidth - 1) * 255.0;
     }
   }
 
