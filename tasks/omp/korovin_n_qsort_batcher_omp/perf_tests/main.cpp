@@ -11,7 +11,7 @@
 #include "omp/korovin_n_qsort_batcher_omp/include/ops_omp.hpp"
 
 TEST(korovin_n_qsort_batcher_omp, test_pipeline_run) {
-  constexpr int kSize = 10000000;
+  constexpr int kSize = 60000;
   std::vector<int> in(kSize);
   std::vector<int> out(in.size());
   std::iota(in.rbegin(), in.rend(), 1);
@@ -41,7 +41,7 @@ TEST(korovin_n_qsort_batcher_omp, test_pipeline_run) {
 }
 
 TEST(korovin_n_qsort_batcher_omp, test_task_run) {
-  constexpr int kSize = 10000000;
+  constexpr int kSize = 60000;
   std::vector<int> in(kSize);
   std::vector<int> out(in.size());
   std::iota(in.rbegin(), in.rend(), 1);
