@@ -1,10 +1,10 @@
 #include "seq/konkov_i_sparse_matmul_ccs/include/ops_seq.hpp"
 
 #include <algorithm>
-#include <cstddef>
 #include <iostream>
 #include <unordered_map>
 #include <utility>
+#include <vector>
 
 #include "core/task/include/task.hpp"
 
@@ -34,19 +34,19 @@ bool SparseMatmulTask::PreProcessingImpl() {
 bool SparseMatmulTask::RunImpl() {
   std::vector<std::unordered_map<int, double>> column_map(colsB);
 
-  for (int col_B = 0; col_B < colsB; ++col_B) {
-    for (int j = B_col_ptr[col_B]; j < B_col_ptr[col_B + 1]; ++j) {
-      int row_B = B_row_indices[j];
-      double val_B = B_values[j];
+  for (int col_b = 0; col_b < colsB; ++col_b) {
+    for (int j = B_col_ptr[col_b]; j < B_col_ptr[col_b + 1]; ++j) {
+      int row_b = B_row_indices[j];
+      double val_b = B_values[j];
 
-      if (row_B >= colsA || row_B + 1 > A_col_ptr.size()) continue;
+      if (row_b >= colsA || row_b + 1 > A_col_ptr.size()) continue;
 
-      for (int k = A_col_ptr[row_B]; k < A_col_ptr[row_B + 1]; ++k) {
+      for (int k = A_col_ptr[row_b]; k < A_col_ptr[row_b + 1]; ++k) {
         if (k >= A_row_indices.size()) continue;
 
-        int row_A = A_row_indices[k];
-        double val_A = A_values[k];
-        column_map[col_B][row_A] += val_A * val_B;
+        int row_a = A_row_indices[k];
+        double val_a = A_values[k];
+        column_map[col_b][row_a] += val_a * val_b;
       }
     }
   }
