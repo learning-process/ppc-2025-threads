@@ -11,7 +11,7 @@ namespace {
 std::vector<double> GenerateRandomVector(int n, int m) {
   std::random_device rd;
   std::mt19937 gen(rd());
-  std::uniform_real_distribution<> distrib(0, 100);
+  std::uniform_real_distribution<> distrib(0, 255);
   std::vector<double> vector(n * m);
   // Создание матрицы
 
