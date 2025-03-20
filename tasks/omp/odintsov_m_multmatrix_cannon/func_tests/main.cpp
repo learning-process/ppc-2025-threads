@@ -8,7 +8,7 @@
 #include "core/task/include/task.hpp"
 #include "omp/odintsov_m_multmatrix_cannon/include/ops_omp.hpp"
 
-std::vector<double> GenerateMatrix(int sz) {
+std::vector<double> odintsov_m_mulmatrix_cannon_omp::GenerateMatrix(int sz) {
   std::vector<double> matrix(sz * sz);
   std::random_device rd;
   std::mt19937 gen(rd());
@@ -21,7 +21,8 @@ std::vector<double> GenerateMatrix(int sz) {
   return matrix;
 }
 
-std::vector<double> MultiplyMatrices(const std::vector<double> &A, const std::vector<double> &B, int n) {
+std::vector<double> odintsov_m_mulmatrix_cannon_omp::MultiplyMatrices(const std::vector<double> &A,
+                                                                      const std::vector<double> &B, int n) {
   std::vector<double> C(n * n, 0.0);
   for (int i = 0; i < n; ++i) {
     for (int j = 0; j < n; ++j) {
@@ -36,10 +37,10 @@ std::vector<double> MultiplyMatrices(const std::vector<double> &A, const std::ve
 }
 
 TEST(odintsov_m_mulmatrix_cannon_seq, test_matrix_4) {
-  std::vector<double> matrix_a = GenerateMatrix(4);
-  std::vector<double> matrix_b = GenerateMatrix(4);
+  std::vector<double> matrix_a = odintsov_m_mulmatrix_cannon_omp::GenerateMatrix(4);
+  std::vector<double> matrix_b = odintsov_m_mulmatrix_cannon_omp::GenerateMatrix(4);
   std::vector<double> out_omp(16, 0);
-  std::vector<double> out_ans = MultiplyMatrices(matrix_a, matrix_b, 4);
+  std::vector<double> out_ans = odintsov_m_mulmatrix_cannon_omp::MultiplyMatrices(matrix_a, matrix_b, 4);
 
   auto task_data_omp = std::make_shared<ppc::core::TaskData>();
   task_data_omp->inputs.emplace_back(reinterpret_cast<uint8_t *>(matrix_a.data()));
@@ -60,10 +61,10 @@ TEST(odintsov_m_mulmatrix_cannon_seq, test_matrix_4) {
 }
 
 TEST(odintsov_m_mulmatrix_cannon_seq, test_matrix_100) {
-  std::vector<double> matrix_a = GenerateMatrix(100);
-  std::vector<double> matrix_b = GenerateMatrix(100);
+  std::vector<double> matrix_a = odintsov_m_mulmatrix_cannon_omp::GenerateMatrix(100);
+  std::vector<double> matrix_b = odintsov_m_mulmatrix_cannon_omp::GenerateMatrix(100);
   std::vector<double> out_omp(10000, 0);
-  std::vector<double> out_ans = MultiplyMatrices(matrix_a, matrix_b, 100);
+  std::vector<double> out_ans = odintsov_m_mulmatrix_cannon_omp::MultiplyMatrices(matrix_a, matrix_b, 100);
 
   auto task_data_omp = std::make_shared<ppc::core::TaskData>();
   task_data_omp->inputs.emplace_back(reinterpret_cast<uint8_t *>(matrix_a.data()));
@@ -84,10 +85,10 @@ TEST(odintsov_m_mulmatrix_cannon_seq, test_matrix_100) {
 }
 
 TEST(odintsov_m_mulmatrix_cannon_seq, test_matrix_900) {
-  std::vector<double> matrix_a = GenerateMatrix(30);
-  std::vector<double> matrix_b = GenerateMatrix(30);
+  std::vector<double> matrix_a = odintsov_m_mulmatrix_cannon_omp::GenerateMatrix(30);
+  std::vector<double> matrix_b = odintsov_m_mulmatrix_cannon_omp::GenerateMatrix(30);
   std::vector<double> out_omp(900, 0);
-  std::vector<double> out_ans = MultiplyMatrices(matrix_a, matrix_b, 30);
+  std::vector<double> out_ans = odintsov_m_mulmatrix_cannon_omp::MultiplyMatrices(matrix_a, matrix_b, 30);
 
   auto task_data_omp = std::make_shared<ppc::core::TaskData>();
   task_data_omp->inputs.emplace_back(reinterpret_cast<uint8_t *>(matrix_a.data()));
@@ -108,10 +109,10 @@ TEST(odintsov_m_mulmatrix_cannon_seq, test_matrix_900) {
 }
 
 TEST(odintsov_m_mulmatrix_cannon_seq, test_sz_block_1) {
-  std::vector<double> matrix_a = GenerateMatrix(3);
-  std::vector<double> matrix_b = GenerateMatrix(3);
+  std::vector<double> matrix_a = odintsov_m_mulmatrix_cannon_omp::GenerateMatrix(3);
+  std::vector<double> matrix_b = odintsov_m_mulmatrix_cannon_omp::GenerateMatrix(3);
   std::vector<double> out_omp(9, 0);
-  std::vector<double> out_ans = MultiplyMatrices(matrix_a, matrix_b, 3);
+  std::vector<double> out_ans = odintsov_m_mulmatrix_cannon_omp::MultiplyMatrices(matrix_a, matrix_b, 3);
 
   auto task_data_omp = std::make_shared<ppc::core::TaskData>();
   task_data_omp->inputs.emplace_back(reinterpret_cast<uint8_t *>(matrix_a.data()));

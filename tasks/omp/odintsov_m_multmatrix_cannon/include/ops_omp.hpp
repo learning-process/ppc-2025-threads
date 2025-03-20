@@ -32,5 +32,6 @@ class MulMatrixCannonOpenMP : public ppc::core::Task {
   int block_sz_ = 0;
   std::vector<double> matrixC_;
 };
-
+std::vector<double> GenerateMatrix(int sz);
+std::vector<double> MultiplyMatrices(const std::vector<double>& A, const std::vector<double>& B, int n);
 }  // namespace odintsov_m_mulmatrix_cannon_omp
