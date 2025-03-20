@@ -9,9 +9,9 @@
 #include <numbers>
 #include <vector>
 
+#include "oneapi/tbb/parallel_for.h"
 #include "oneapi/tbb/task_arena.h"
 #include "oneapi/tbb/task_group.h"
-#include "oneapi/tbb/parallel_for.h"
 
 void deryabin_m_hoare_sort_simple_merge_tbb::HoaraSort(std::vector<double>& a, size_t first, size_t last) {
   size_t i = first;
