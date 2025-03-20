@@ -6,6 +6,7 @@
 #include <memory>
 #include <random>
 #include <vector>
+#include <functional>
 
 #include "core/task/include/task.hpp"
 #include "seq/kudryashova_i_radix_batcher/include/kudryashovaRadixBatcherSeq.hpp"
@@ -151,7 +152,7 @@ TEST(kudryashova_i_radix_batcher_seq, seq_radix_random_test_3) {
 TEST(kudryashova_i_radix_batcher_seq, seq_radix_random_reverse_order_test_4) {
   int global_vector_size = 123;
   std::vector<double> global_vector = kudryashova_i_radix_batcher_seq::GetRandomDoubleVector(global_vector_size);
-  std::ranges::sort(global_vector, std::greater<double>());
+  std::ranges::sort(global_vector, std::greater<>());
   std::vector<double> result(global_vector_size);
   std::shared_ptr<ppc::core::TaskData> task_data = std::make_shared<ppc::core::TaskData>();
   task_data->inputs.emplace_back(reinterpret_cast<uint8_t *>(global_vector.data()));
