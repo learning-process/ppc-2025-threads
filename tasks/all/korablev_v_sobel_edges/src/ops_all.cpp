@@ -124,8 +124,9 @@ bool korablev_v_sobel_edges_all::TestTask::RunImpl() {  // NOLINT(readability-fu
         for (int kx = -1; kx <= 1; ++kx) {
           int idx = ((y + ky) * width + (x + kx)) * 3;  // NOLINT(bugprone-narrowing-conversions)
           for (int j = 0; j < 3; j++) {
-            sum_x[j] += kSobelKernelX[ky + 1][kx + 1] * partial_image[idx + j];
-            sum_y[j] += kSobelKernelY[ky + 1][kx + 1] * partial_image[idx + j];
+            const uint8_t part_image = partial_image[idx + j];
+            sum_x[j] += kSobelKernelX[ky + 1][kx + 1] * part_image;
+            sum_y[j] += kSobelKernelY[ky + 1][kx + 1] * part_image;
           }
         }
       }
