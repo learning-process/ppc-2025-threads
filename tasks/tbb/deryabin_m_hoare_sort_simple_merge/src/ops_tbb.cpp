@@ -66,12 +66,12 @@ void deryabin_m_hoare_sort_simple_merge_tbb::MergeTwoParts(std::vector<double>& 
               r_cur++;
             }
           } else if (l_cur <= middle) {
-             a[i] = l_buff[l_cur];
-             l_cur++;
-           } else {
-             a[i] = r_buff[r_cur];
-             r_cur++;
-           }
+            a[i] = l_buff[l_cur];
+            l_cur++;
+          } else {
+            a[i] = r_buff[r_cur];
+            r_cur++;
+          }
         };
       });
     }
