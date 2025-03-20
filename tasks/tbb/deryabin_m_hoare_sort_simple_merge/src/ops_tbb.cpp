@@ -4,10 +4,13 @@
 
 #include <algorithm>
 #include <cmath>
+#include <core/util/include/util.hpp>
 #include <cstddef>
 #include <numbers>
 #include <vector>
 
+#include "oneapi/tbb/task_arena.h"
+#include "oneapi/tbb/task_group.h"
 #include "oneapi/tbb/parallel_for.h"
 
 void deryabin_m_hoare_sort_simple_merge_tbb::HoaraSort(std::vector<double>& a, size_t first, size_t last) {
@@ -48,23 +51,23 @@ void deryabin_m_hoare_sort_simple_merge_tbb::MergeTwoParts(std::vector<double>& 
   std::vector<double> r_buff(middle + 1);
   std::copy(a.begin() + (long)left, a.begin() + (long)left + (long)middle + 1, l_buff.begin());
   std::copy(a.begin() + (long)left + (long)middle + 1, a.begin() + (long)right + 1, r_buff.begin());
-  oneapi::tbb::parallel_for((int)left, (int)right, 1, [&a, &l_buff, &r_buff, middle, l_cur, r_cur](int i) {
+  for (size_t i = left; i <= right; i++) {
     if (l_cur <= middle && r_cur <= middle) {
       if (l_buff[l_cur] < r_buff[r_cur]) {
-        a[(size_t)i] = l_buff[l_cur];
+        a[i] = l_buff[l_cur];
         l_cur++;
       } else {
-        a[(size_t)i] = r_buff[r_cur];
+        a[i] = r_buff[r_cur];
         r_cur++;
       }
     } else if (l_cur <= middle) {
-      a[(size_t)i] = l_buff[l_cur];
+      a[i] = l_buff[l_cur];
       l_cur++;
     } else {
-      a[(size_t)i] = r_buff[r_cur];
+      a[i] = r_buff[r_cur];
       r_cur++;
     }
-  });
+  }
 }
 
 bool deryabin_m_hoare_sort_simple_merge_tbb::HoareSortTaskSequential::PreProcessingImpl() {
