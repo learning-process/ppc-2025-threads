@@ -39,10 +39,9 @@ void vavilov_v_cannon_tbb::CannonTBB::InitialShift() {
         for (int j = 0; j < block_size_; ++j) {
           B_[(bi * block_size_ + i) * N_ + (bj * block_size_ + j)] =
               b_tmp[(src_row * block_size_ + i) * N_ + (bj * block_size_ + j)];
- 
+
           A_[(bi * block_size_ + i) * N_ + (bj * block_size_ + j)] =
               a_tmp[(bi * block_size_ + i) * N_ + (src_col * block_size_ + j)];
- 
         }
       }
     }
@@ -80,13 +79,13 @@ void vavilov_v_cannon_tbb::CannonTBB::ShiftBlocks() {
         for (int j = 0; j < block_size_; ++j) {
           B_[(bi * block_size_ + i) * N_ + (bj * block_size_ + j)] =
               b_tmp[(src_row * block_size_ + i) * N_ + (bj * block_size_ + j)];
- 
+
           A_[(bi * block_size_ + i) * N_ + (bj * block_size_ + j)] =
               a_tmp[(bi * block_size_ + i) * N_ + (src_col * block_size_ + j)];
         }
       }
     }
-  }); 
+  });
 }
 
 bool vavilov_v_cannon_tbb::CannonTBB::RunImpl() {
