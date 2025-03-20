@@ -70,8 +70,9 @@ bool korablev_v_sobel_edges_stl::TestTask::RunImpl() {  // NOLINT(readability-fu
                 for (int kx = -1; kx <= 1; ++kx) {
                   int idx = ((y + ky) * width + (x + kx)) * 3;  // NOLINT(bugprone-narrowing-conversions)
                   for (int j = 0; j < 3; j++) {
-                    sum_x[j] += kSobelKernelX[ky + 1][kx + 1] * image[idx + j];
-                    sum_y[j] += kSobelKernelY[ky + 1][kx + 1] * image[idx + j];
+                    const int32_t pixel_value = image[idx + j];
+                    sum_x[j] += kSobelKernelX[ky + 1][kx + 1] * pixel_value;
+                    sum_y[j] += kSobelKernelY[ky + 1][kx + 1] * pixel_value;
                   }
                 }
               }
