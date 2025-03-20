@@ -78,7 +78,7 @@ void shulpin_i_jarvis_omp::JarvisOMPParallel::MakeJarvisPassageOMP(
   output_jar.clear();
 
   size_t start = 0;
-    #pragma omp parallel
+#pragma omp parallel
   {
     size_t local_start = start;
 
