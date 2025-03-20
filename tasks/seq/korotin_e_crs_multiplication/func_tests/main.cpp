@@ -49,6 +49,17 @@ void MakeCRS(std::vector<unsigned int> &r_i, std::vector<unsigned int> &col, std
   }
 }
 
+void MatrixMultiplication(const std::vector<double> &a, const std::vector<double> &b, std::vector<double> &c,
+                          unsigned int m, unsigned int n, unsigned int p) {
+  for (unsigned int i = 0; i < m; i++) {
+    for (unsigned int k = 0; k < n; k++) {
+      for (unsigned int j = 0; j < p; j++) {
+        c[(i * p) + j] += a[(i * n) + k] * b[(k * p) + j];
+      }
+    }
+  }
+}
+
 }  // namespace korotin_e_crs_multiplication_seq
 
 TEST(korotin_e_crs_multiplication_seq, test_rnd_50_50_50) {
@@ -101,13 +112,7 @@ TEST(korotin_e_crs_multiplication_seq, test_rnd_50_50_50) {
   std::vector<double> c_val;
   std::vector<unsigned int> c_ri;
   std::vector<unsigned int> c_col;
-  for (unsigned int i = 0; i < m; i++) {
-    for (unsigned int k = 0; k < n; k++) {
-      for (unsigned int j = 0; j < p; j++) {
-        c[(i * p) + j] += a[(i * n) + k] * b[(k * p) + j];
-      }
-    }
-  }
+  korotin_e_crs_multiplication_seq::MatrixMultiplication(a, b, c, m, n, p);
 
   korotin_e_crs_multiplication_seq::MakeCRS(c_ri, c_col, c_val, c, m, p);
   ASSERT_EQ(c_ri, out_ri);
@@ -158,13 +163,7 @@ TEST(korotin_e_crs_multiplication_seq, test_rndcrs_stat_zeroes) {
   std::vector<double> c_val;
   std::vector<unsigned int> c_ri;
   std::vector<unsigned int> c_col;
-  for (unsigned int i = 0; i < m; i++) {
-    for (unsigned int k = 0; k < n; k++) {
-      for (unsigned int j = 0; j < p; j++) {
-        c[(i * p) + j] += a[(i * n) + k] * b[(k * p) + j];
-      }
-    }
-  }
+  korotin_e_crs_multiplication_seq::MatrixMultiplication(a, b, c, m, n, p);
   korotin_e_crs_multiplication_seq::MakeCRS(c_ri, c_col, c_val, c, m, p);
 
   std::vector<unsigned int> out_ri(a_ri.size(), 0);
@@ -233,13 +232,7 @@ TEST(korotin_e_crs_multiplication_seq, test_rndcrs) {
   std::vector<double> c_val;
   std::vector<unsigned int> c_ri;
   std::vector<unsigned int> c_col;
-  for (unsigned int i = 0; i < m; i++) {
-    for (unsigned int k = 0; k < n; k++) {
-      for (unsigned int j = 0; j < p; j++) {
-        c[(i * p) + j] += a[(i * n) + k] * b[(k * p) + j];
-      }
-    }
-  }
+  korotin_e_crs_multiplication_seq::MatrixMultiplication(a, b, c, m, n, p);
   korotin_e_crs_multiplication_seq::MakeCRS(c_ri, c_col, c_val, c, m, p);
 
   std::vector<unsigned int> out_ri(a_ri.size(), 0);

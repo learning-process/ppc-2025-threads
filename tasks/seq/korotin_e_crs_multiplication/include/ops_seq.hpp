@@ -26,4 +26,7 @@ std::vector<double> GetRandomMatrix(unsigned int m, unsigned int n);
 void MakeCRS(std::vector<unsigned int> &r_i, std::vector<unsigned int> &col, std::vector<double> &val,
              const std::vector<double> &src, unsigned int m, unsigned int n);
 
+void MatrixMultiplication(const std::vector<double> &a, const std::vector<double> &b, std::vector<double> &c,
+                          unsigned int m, unsigned int n, unsigned int p);
+
 }  // namespace korotin_e_crs_multiplication_seq
