@@ -5,7 +5,6 @@
 #include <cstddef>
 #include <cstdint>
 #include <memory>
-#include <ranges>
 #include <vector>
 
 #include "core/perf/include/perf.hpp"
@@ -55,7 +54,7 @@ TEST(naumov_b_marc_on_bin_image_seq, test_task_run) {
   std::vector<int> out(kCo * kCo, 0);
 
   for (size_t i = 0; i < kCo; i++) {
-    in[i * kCo + (kCo - i - 1)] = 1;
+    in[(i * kCo) + (kCo - i - 1)] = 1;
   }
 
   auto task_data_seq = std::make_shared<ppc::core::TaskData>();

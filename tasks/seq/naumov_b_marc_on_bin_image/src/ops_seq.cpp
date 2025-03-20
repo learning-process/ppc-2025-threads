@@ -3,6 +3,7 @@
 #include <algorithm>
 #include <cmath>
 #include <cstddef>
+#include <ranges>
 #include <vector>
 
 void naumov_b_marc_on_bin_image_seq::TestTaskSequential::CalculateBlockSize() {
@@ -41,7 +42,7 @@ void naumov_b_marc_on_bin_image_seq::TestTaskSequential::AssignNewLabel(int row,
 
 void naumov_b_marc_on_bin_image_seq::TestTaskSequential::AssignMinLabel(int row, int col,
                                                                         const std::vector<int>& neighbors) {
-  int min_label = *std::min_element(neighbors.begin(), neighbors.end());
+  int min_label = *std::ranges::min_element(neighbors);
   output_image_[(row * cols_) + col] = min_label;
 
   for (int neighbor_label : neighbors) {
@@ -54,12 +55,12 @@ void naumov_b_marc_on_bin_image_seq::TestTaskSequential::AssignMinLabel(int row,
 std::vector<int> naumov_b_marc_on_bin_image_seq::TestTaskSequential::FindAdjacentLabels(int row, int col) {
   std::vector<int> neighbors;
 
-  if (col > 0 && output_image_[row * cols_ + (col - 1)] != 0) {
-    neighbors.push_back(output_image_[row * cols_ + (col - 1)]);
+  if (col > 0 && output_image_[(row * cols_) + (col - 1)] != 0) {
+    neighbors.push_back(output_image_[(row * cols_) + (col - 1)]);
   }
 
-  if (row > 0 && output_image_[(row - 1) * cols_ + col] != 0) {
-    neighbors.push_back(output_image_[(row - 1) * cols_ + col]);
+  if (row > 0 && output_image_[((row - 1) * cols_) + col] != 0) {
+    neighbors.push_back(output_image_[((row - 1) * cols_) + col]);
   }
 
   return neighbors;
@@ -86,9 +87,9 @@ int naumov_b_marc_on_bin_image_seq::TestTaskSequential::FindRoot(int label) {
 void naumov_b_marc_on_bin_image_seq::TestTaskSequential::MergeLabels() {
   for (int i = 0; i < rows_; ++i) {
     for (int j = 0; j < cols_; ++j) {
-      if (input_image_[i * cols_ + j] == 1) {
-        int root = FindRoot(output_image_[i * cols_ + j]);
-        output_image_[i * cols_ + j] = root;
+      if (input_image_[(i * cols_) + j] == 1) {
+        int root = FindRoot(output_image_[(i * cols_) + j]);
+        output_image_[(i * cols_) + j] = root;
       }
     }
   }
@@ -98,16 +99,14 @@ void naumov_b_marc_on_bin_image_seq::TestTaskSequential::AssignLabel(int row, in
   std::vector<int> neighbors = FindAdjacentLabels(row, col);
 
   if (neighbors.empty()) {
-    output_image_[row * cols_ + col] = ++current_label;
+    output_image_[(row * cols_) + col] = ++current_label;
     label_parent_[current_label] = current_label;
   } else {
     int min_label = neighbors[0];
     for (size_t i = 1; i < neighbors.size(); ++i) {
-      if (neighbors[i] < min_label) {
-        min_label = neighbors[i];
-      }
+      min_label = std::min(neighbors[i], min_label);
     }
-    output_image_[row * cols_ + col] = min_label;
+    output_image_[(row * cols_) + col] = min_label;
     for (int neighbor_label : neighbors) {
       if (neighbor_label != min_label) {
         UnionLabels(min_label, neighbor_label);
