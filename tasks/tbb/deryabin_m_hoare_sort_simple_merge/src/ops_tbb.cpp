@@ -4,16 +4,16 @@
 
 #include <algorithm>
 #include <cmath>
-#include <core/util/include/util.hpp>
 #include <cstddef>
 #include <numbers>
 #include <vector>
 
 #include "oneapi/tbb/parallel_for.h"
-#include "oneapi/tbb/task_arena.h"
-#include "oneapi/tbb/task_group.h"
 
 void deryabin_m_hoare_sort_simple_merge_tbb::HoaraSort(std::vector<double>& a, size_t first, size_t last) {
+  if (first >= last) {
+    return;
+  }
   size_t i = first;
   size_t j = last;
   double tmp = 0;
@@ -34,12 +34,8 @@ void deryabin_m_hoare_sort_simple_merge_tbb::HoaraSort(std::vector<double>& a, s
       a[j] = tmp;
     }
   } while (i < j);
-  if (i < last) {
-    HoaraSort(a, i + 1, last);
-  }
-  if (first < j) {
-    HoaraSort(a, first, j);
-  }
+  HoaraSort(a, i + 1, last);
+  HoaraSort(a, first, j);
 }
 
 void deryabin_m_hoare_sort_simple_merge_tbb::MergeTwoParts(std::vector<double>& a, size_t left, size_t right,
@@ -51,32 +47,23 @@ void deryabin_m_hoare_sort_simple_merge_tbb::MergeTwoParts(std::vector<double>& 
   std::vector<double> r_buff(middle + 1);
   std::copy(a.begin() + (long)left, a.begin() + (long)left + (long)middle + 1, l_buff.begin());
   std::copy(a.begin() + (long)left + (long)middle + 1, a.begin() + (long)right + 1, r_buff.begin());
-  oneapi::tbb::task_arena arena(1);
-  arena.execute([&] {
-    tbb::task_group tg;
-    for (int thr = 0; thr < ppc::util::GetPPCNumThreads(); ++thr) {
-      tg.run([&] {
-        for (size_t i = left; i <= right; i++) {
-          if (l_cur <= middle && r_cur <= middle) {
-            if (l_buff[l_cur] < r_buff[r_cur]) {
-              a[i] = l_buff[l_cur];
-              l_cur++;
-            } else {
-              a[i] = r_buff[r_cur];
-              r_cur++;
-            }
-          } else if (l_cur <= middle) {
-            a[i] = l_buff[l_cur];
-            l_cur++;
-          } else {
-            a[i] = r_buff[r_cur];
-            r_cur++;
-          }
-        };
-      });
+  for (size_t i = left; i <= right; i++) {
+    if (l_cur <= middle && r_cur <= middle) {
+      if (l_buff[l_cur] < r_buff[r_cur]) {
+        a[i] = l_buff[l_cur];
+        l_cur++;
+      } else {
+        a[i] = r_buff[r_cur];
+        r_cur++;
+      }
+    } else if (l_cur <= middle) {
+      a[i] = l_buff[l_cur];
+      l_cur++;
+    } else {
+      a[i] = r_buff[r_cur];
+      r_cur++;
     }
-    tg.wait();
-  });
+  }
 }
 
 bool deryabin_m_hoare_sort_simple_merge_tbb::HoareSortTaskSequential::PreProcessingImpl() {
@@ -130,16 +117,13 @@ bool deryabin_m_hoare_sort_simple_merge_tbb::HoareSortTaskTBB::ValidationImpl() 
 }
 
 bool deryabin_m_hoare_sort_simple_merge_tbb::HoareSortTaskTBB::RunImpl() {
-  auto chunk_count = (short)chunk_count_;
-  oneapi::tbb::parallel_for(0, (int)chunk_count, 1, [=, this](int count) {
-    HoaraSort(input_array_A_, (short)count * (short)min_chunk_size_, ((count + 1) * (short)min_chunk_size_) - 1);
+  oneapi::tbb::parallel_for(0, (int)chunk_count_, 1, [=, this](int count) {
+    HoaraSort(input_array_A_, (count * (min_chunk_size_, ((count + 1) * min_chunk_size_) - 1);
   });
-  auto num_of_lvls = (short)(log((double)chunk_count_) / std::numbers::ln2);
-  for (short i = 0; i < num_of_lvls; i++) {
-    auto tmp_chunk_count = (int)chunk_count >> (i + 1);
-    oneapi::tbb::parallel_for(0, tmp_chunk_count, 1, [=, this](int j) {
-      MergeTwoParts(input_array_A_, (short)j * (short)min_chunk_size_ << (i + 1),
-                    (((short)j + 1) * (short)min_chunk_size_ << (i + 1)) - 1, dimension_);
+  for (size_t i = 0; i < (size_t)(log((double)chunk_count_) / std::numbers::ln2); i++) {
+    oneapi::tbb::parallel_for(0, (int)chunk_count_ >> i + 1, 1, [=, this](int j) {
+      MergeTwoParts(input_array_A_, (size_t)j * min_chunk_size_ << i + 1,
+                    (((size_t)j + 1) * min_chunk_size_ << i + 1) - 1, dimension_);
     });
   }
   return true;
