@@ -2,6 +2,7 @@
 
 #include <omp.h>
 
+#include <memory>
 #include <utility>
 #include <vector>
 
