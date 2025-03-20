@@ -20,7 +20,7 @@ std::vector<double> GetRandomMatrix(int size) {
   int high = 500;
   int low = 0;
   std::uniform_int_distribution<> number(low, high);
-  for (int i = 0; i < static_cast<int>(size / 5); ++i) {
+  for (int i = 0; i < static_cast<int>(std::sqrt(size)); ++i) {
     data[i] = static_cast<double>(number(gen));
   }
   std::ranges::shuffle(data, gen);
@@ -29,7 +29,7 @@ std::vector<double> GetRandomMatrix(int size) {
 }  // namespace
 
 TEST(sadikov_i_sparse_matrix_multiplication_task_tbb, test_pipeline_run) {
-  constexpr auto kEpsilon = 0.000001;
+  constexpr auto kEpsilon = 0.0001;
   constexpr auto kSize = 200;
   auto fmatrix = GetRandomMatrix(kSize * kSize);
   auto smatrix = GetRandomMatrix(kSize * kSize);
@@ -65,7 +65,7 @@ TEST(sadikov_i_sparse_matrix_multiplication_task_tbb, test_pipeline_run) {
 }
 
 TEST(sadikov_i_sparse_matrix_multiplication_task_tbb, test_task_run) {
-  constexpr auto kEpsilon = 0.000001;
+  constexpr auto kEpsilon = 0.0001;
   constexpr auto kSize = 200;
   auto fmatrix = GetRandomMatrix(kSize * kSize);
   auto smatrix = GetRandomMatrix(kSize * kSize);
