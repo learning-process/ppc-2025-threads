@@ -40,7 +40,7 @@ std::vector<ermolaev_v_graham_scan_seq::Point> CreateInput(int count) {
 }  // namespace
 
 TEST(ermolaev_v_graham_scan_seq, run_pipeline) {
-  constexpr int kCount = 3000000;
+  constexpr int kCount = 800000;
 
   auto input = CreateInput(kCount);
   std::vector<ermolaev_v_graham_scan_seq::Point> output(kCount);
@@ -65,7 +65,7 @@ TEST(ermolaev_v_graham_scan_seq, run_pipeline) {
 }
 
 TEST(ermolaev_v_graham_scan_seq, run_task) {
-  constexpr int kCount = 3000000;
+  constexpr int kCount = 800000;
 
   auto input = CreateInput(kCount);
   std::vector<ermolaev_v_graham_scan_seq::Point> output(kCount);

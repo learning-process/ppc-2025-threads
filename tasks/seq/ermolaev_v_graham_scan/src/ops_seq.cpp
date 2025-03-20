@@ -3,7 +3,6 @@
 #include <algorithm>
 #include <cmath>
 #include <cstddef>
-#include <ranges>
 #include <vector>
 
 int ermolaev_v_graham_scan_seq::TestTaskSequential::CrossProduct(const Point &p1, const Point &p2, const Point &p3) {
@@ -27,15 +26,26 @@ bool ermolaev_v_graham_scan_seq::TestTaskSequential::RunImpl() {
       return false;
     }
 
-    Point p1 = input_[0];
-    Point p2 = input_[1];
+    const Point &first = input_[0];
+    bool all_same =
+        std::ranges::all_of(input_.begin() + 1, input_.end(), [&first](const Point &p) { return p == first; });
+    if (all_same) {
+      return false;
+    }
 
-    bool all_collinear = std::ranges::all_of(input_.begin() + 2, input_.end(),
-                                             [&](const Point &p3) { return CrossProduct(p1, p2, p3) == 0; });
+    bool found_non_collinear = false;
+    for (size_t i = 0; i < input_.size() - 2 && !found_non_collinear; ++i) {
+      for (size_t j = i + 1; j < input_.size() - 1 && !found_non_collinear; ++j) {
+        for (size_t k = j + 1; k < input_.size() && !found_non_collinear; ++k) {
+          if (CrossProduct(input_[i], input_[j], input_[k]) != 0) {
+            found_non_collinear = true;
+            break;
+          }
+        }
+      }
+    }
 
-    bool all_same = std::ranges::equal(input_, std::views::drop(input_, 1));
-
-    if (all_collinear || all_same) {
+    if (!found_non_collinear) {
       return false;
     }
   }

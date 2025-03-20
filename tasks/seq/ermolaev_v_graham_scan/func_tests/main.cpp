@@ -1,5 +1,8 @@
+#define _USE_MATH_DEFINES
 #include <gtest/gtest.h>
+#include <math.h>
 
+#include <cmath>
 #include <cstddef>
 #include <cstdint>
 #include <memory>
@@ -29,6 +32,26 @@ void RunTest(ppc::core::TaskDataPtr& task_data) {
   ASSERT_TRUE(task.PreProcessing());
   ASSERT_TRUE(task.Run());
   ASSERT_TRUE(task.PostProcessing());
+}
+
+std::vector<ermolaev_v_graham_scan_seq::Point> GenerateRandomPointsInCircle(int num_points, double radius) {
+  std::random_device rand_dev;
+  std::mt19937 rand_engine(rand_dev());
+  std::uniform_real_distribution<double> dist_radius(0.0, radius);
+  std::uniform_real_distribution<double> dist_angle(0.0, 2.0 * M_PI);
+
+  std::vector<ermolaev_v_graham_scan_seq::Point> points;
+  points.reserve(num_points);
+
+  for (int i = 0; i < num_points; ++i) {
+    double r = dist_radius(rand_engine);
+    double theta = dist_angle(rand_engine);
+    int x = static_cast<int>(r * std::cos(theta));
+    int y = static_cast<int>(r * std::sin(theta));
+    points.emplace_back(x, y);
+  }
+
+  return points;
 }
 }  // namespace
 
@@ -144,6 +167,70 @@ TEST(ermolaev_v_graham_scan_seq, random_points) {
       p1 = result[i];
       p2 = result[(i + 1) % hull_size];
 
+      int cross = ((p2.x - p1.x) * (point.y - p1.y)) - ((point.x - p1.x) * (p2.y - p1.y));
+      EXPECT_GE(cross, 0);
+    }
+  }
+}
+
+TEST(ermolaev_v_graham_scan_seq, circle_r3) {
+  std::vector<ermolaev_v_graham_scan_seq::Point> input = {{3, 0},    // 0°
+                                                          {2, 2},    // 45°
+                                                          {0, 3},    // 90°
+                                                          {-2, 2},   // 135°
+                                                          {-3, 0},   // 180°
+                                                          {-2, -2},  // 225°
+                                                          {0, -3},   // 270°
+                                                          {2, -2},   // 315°
+                                                          // inner points
+                                                          {1, 1},
+                                                          {-1, 1},
+                                                          {0, 0},
+                                                          {1, -1},
+                                                          {-1, -1}};
+
+  std::vector<ermolaev_v_graham_scan_seq::Point> expected = {{-3, 0}, {-2, 2}, {0, 3},  {2, 2},
+                                                             {3, 0},  {2, -2}, {0, -3}, {-2, -2}};
+
+  std::vector<ermolaev_v_graham_scan_seq::Point> output(input.size());
+  auto task_data = CreateTaskData(input, output);
+
+  RunTest(task_data);
+
+  EXPECT_EQ(task_data->outputs_count[0], expected.size());
+  auto* result = reinterpret_cast<ermolaev_v_graham_scan_seq::Point*>(task_data->outputs[0]);
+
+  std::vector<ermolaev_v_graham_scan_seq::Point> actual(result, result + task_data->outputs_count[0]);
+  EXPECT_EQ(actual.size(), expected.size());
+
+  for (const auto& point : input) {
+    for (size_t i = 0; i < actual.size(); ++i) {
+      auto p1 = actual[i];
+      auto p2 = actual[(i + 1) % actual.size()];
+      int cross = ((p2.x - p1.x) * (point.y - p1.y)) - ((point.x - p1.x) * (p2.y - p1.y));
+      EXPECT_GE(cross, 0);
+    }
+  }
+}
+
+TEST(ermolaev_v_graham_scan_seq, random_points_in_large_circle) {
+  const int num_points = 20;
+  const double radius = 50.0;
+
+  std::vector<ermolaev_v_graham_scan_seq::Point> input = GenerateRandomPointsInCircle(num_points, radius);
+
+  std::vector<ermolaev_v_graham_scan_seq::Point> output(input.size());
+  auto task_data = CreateTaskData(input, output);
+
+  RunTest(task_data);
+
+  auto* result = reinterpret_cast<ermolaev_v_graham_scan_seq::Point*>(task_data->outputs[0]);
+  size_t hull_size = task_data->outputs_count[0];
+
+  for (const auto& point : input) {
+    for (size_t i = 0; i < hull_size; ++i) {
+      auto p1 = result[i];
+      auto p2 = result[(i + 1) % hull_size];
       int cross = ((p2.x - p1.x) * (point.y - p1.y)) - ((point.x - p1.x) * (p2.y - p1.y));
       EXPECT_GE(cross, 0);
     }
