@@ -218,6 +218,41 @@ TEST(filatev_v_foks_seq, test_matrix_10_10_block_2_IdentityMatrix) {
   EXPECT_EQ(matrix_a, matrix_c);
 }
 
+TEST(filatev_v_foks_seq, test_matrix_10_10_block_2_IdentityMatrix_revert) {
+  filatev_v_foks_seq::MatrixSize size_a(10, 10);
+  filatev_v_foks_seq::MatrixSize size_b(10, 10);
+  filatev_v_foks_seq::MatrixSize size_c(10, 10);
+
+  size_t size_block = 2;
+
+  std::vector<double> matrix_a = IdentityMatrix(size_a.n);
+  std::vector<double> matrix_b = GeneratMatrix(size_b);
+  std::vector<double> matrix_c(size_c.n * size_c.m, 0.0);
+
+  auto task_data = std::make_shared<ppc::core::TaskData>();
+  task_data->inputs_count.emplace_back(size_a.n);
+  task_data->inputs_count.emplace_back(size_a.m);
+  task_data->inputs_count.emplace_back(size_b.n);
+  task_data->inputs_count.emplace_back(size_b.m);
+  task_data->inputs_count.emplace_back(size_block);
+
+  task_data->inputs.emplace_back(reinterpret_cast<uint8_t *>(matrix_a.data()));
+  task_data->inputs.emplace_back(reinterpret_cast<uint8_t *>(matrix_b.data()));
+
+  task_data->outputs_count.emplace_back(size_c.n);
+  task_data->outputs_count.emplace_back(size_c.m);
+
+  task_data->outputs.emplace_back(reinterpret_cast<uint8_t *>(matrix_c.data()));
+
+  filatev_v_foks_seq::Focks focks(task_data);
+  ASSERT_TRUE(focks.Validation());
+  focks.PreProcessing();
+  focks.Run();
+  focks.PostProcessing();
+
+  EXPECT_EQ(matrix_b, matrix_c);
+}
+
 TEST(filatev_v_foks_seq, test_matrix_10_10_block_5_IdentityMatrix) {
   filatev_v_foks_seq::MatrixSize size_a(10, 10);
   filatev_v_foks_seq::MatrixSize size_b(10, 10);
