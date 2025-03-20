@@ -9,9 +9,8 @@
 #include <vector>
 
 #include "oneapi/tbb/parallel_for.h"
-#include "oneapi/tbb/parallel_invoke.h"
 
-void deryabin_m_hoare_sort_simple_merge_omp::HoaraSort(std::vector<double>& a, size_t first, size_t last) {
+void deryabin_m_hoare_sort_simple_merge_tbb::HoaraSort(std::vector<double>& a, size_t first, size_t last) {
   size_t i = first;
   size_t j = last;
   double tmp = 0;
