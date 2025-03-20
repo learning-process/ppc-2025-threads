@@ -1,25 +1,20 @@
 #include <gtest/gtest.h>
 
 #include <chrono>
-#include <cstddef>
-#include <cstdint>
-#include <memory>
-#include <random>
 #include <vector>
 
 #include "core/perf/include/perf.hpp"
-#include "core/task/include/task.hpp"
 #include "seq/koshkin_n_shell_sort_batchers_even_odd_merge/include/ops_seq.hpp"
 
 TEST(koshkin_n_shell_sort_batchers_even_odd_merge_seq, test_pipeline_run) {
   // Create data
-  bool order = 1;
+  bool order = true;
 
-  std::vector<int> in = koshkin_n_shell_sort_batchers_even_odd_merge_seq::getRandomVector(2500000);
+  std::vector<int> in = koshkin_n_shell_sort_batchers_even_odd_merge_seq::GetRandomVector(2500000);
   std::vector<int> out(in.size(), 0);
 
   std::vector<int> res = in;
-  std::sort(res.begin(), res.end());
+  std::ranges::sort(res);
 
   // Create task_data
   auto task_data_seq = std::make_shared<ppc::core::TaskData>();
@@ -55,13 +50,13 @@ TEST(koshkin_n_shell_sort_batchers_even_odd_merge_seq, test_pipeline_run) {
 
 TEST(koshkin_n_shell_sort_batchers_even_odd_merge_seq, test_task_run) {
   // Create data
-  bool order = 1;
+  bool order = true;
 
-  std::vector<int> in = koshkin_n_shell_sort_batchers_even_odd_merge_seq::getRandomVector(2500000);
+  std::vector<int> in = koshkin_n_shell_sort_batchers_even_odd_merge_seq::GetRandomVector(2500000);
   std::vector<int> out(in.size(), 0);
 
   std::vector<int> res = in;
-  std::sort(res.begin(), res.end());
+  std::ranges::sort(res);
 
   // Create task_data
   auto task_data_seq = std::make_shared<ppc::core::TaskData>();
@@ -92,5 +87,5 @@ TEST(koshkin_n_shell_sort_batchers_even_odd_merge_seq, test_task_run) {
   auto perf_analyzer = std::make_shared<ppc::core::Perf>(test_task_sequential);
   perf_analyzer->TaskRun(perf_attr, perf_results);
   ppc::core::Perf::PrintPerfStatistic(perf_results);
-  ASSERT_EQ(res, out);
+  ASSERT_EQ(out, res);
 }
