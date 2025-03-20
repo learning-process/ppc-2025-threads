@@ -39,7 +39,7 @@ class JarvisOMPParallel : public ppc::core::Task {
   bool RunImpl() override;
   bool PostProcessingImpl() override;
   static void MakeJarvisPassageOMP(std::vector<shulpin_i_jarvis_omp::Point>& input,
-                                std::vector<shulpin_i_jarvis_omp::Point>& output);
+                                   std::vector<shulpin_i_jarvis_omp::Point>& output);
  private:
   std::vector<shulpin_i_jarvis_omp::Point> input_omp, output_omp;
 };
