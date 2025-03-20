@@ -59,7 +59,7 @@ void koshkin_n_shell_sort_batchers_even_odd_merge_seq::TestTaskSequential::Batch
 void koshkin_n_shell_sort_batchers_even_odd_merge_seq::TestTaskSequential::ShellBatcherSort(std::vector<int> &a,
                                                                                             bool order) {
   // проверка на пустой массив
-  size_t n = a.size(); 
+  size_t n = a.size();
   int gap = 1;
 
   // генерация шагов Кнута
@@ -87,7 +87,7 @@ void koshkin_n_shell_sort_batchers_even_odd_merge_seq::TestTaskSequential::Shell
 bool koshkin_n_shell_sort_batchers_even_odd_merge_seq::TestTaskSequential::PreProcessingImpl() {
   unsigned int input_size = task_data->inputs_count[0];
 
-   input_ = std::vector<int>(input_size);
+  input_ = std::vector<int>(input_size);
 
   auto *in_ptr = reinterpret_cast<int *>(task_data->inputs[0]);
   std::copy(in_ptr, in_ptr + input_size, input_.begin());
