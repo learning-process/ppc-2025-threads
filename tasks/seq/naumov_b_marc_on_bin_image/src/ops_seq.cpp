@@ -3,7 +3,6 @@
 #include <algorithm>
 #include <cmath>
 #include <cstddef>
-#include <ranges>
 #include <vector>
 
 void naumov_b_marc_on_bin_image_seq::TestTaskSequential::CalculateBlockSize() {
