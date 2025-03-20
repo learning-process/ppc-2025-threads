@@ -16,7 +16,7 @@ std::vector<double> odintsov_m_mulmatrix_cannon_omp::GenerateMatrix(int sz) {
   std::uniform_real_distribution<> dis(0.0, 10.0);
   for (int i = 0; i < sz; ++i) {
     for (int j = 0; j < sz; ++j) {
-      matrix[(i * s) + j] = dis(gen);
+      matrix[(i * sz) + j] = dis(gen);
     }
   }
   return matrix;
