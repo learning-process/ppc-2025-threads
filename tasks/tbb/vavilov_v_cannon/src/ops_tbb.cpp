@@ -35,7 +35,6 @@ void vavilov_v_cannon_tbb::CannonTBB::InitialShift() {
         int src_row = (bi + bj) % num_blocks_;
         int src_col = (bj + bi) % num_blocks_;
         for (int i = 0; i < block_size_; ++i) {
-
           std::swap_ranges(B_.begin() + (bi * block_size_ + i) * N_ + (bj * block_size_),
                            B_.begin() + (bi * block_size_ + i) * N_ + (bj * block_size_ + block_size_),
                            B_.begin() + (src_row * block_size_ + i) * N_ + (bj * block_size_));
@@ -78,7 +77,6 @@ void vavilov_v_cannon_tbb::CannonTBB::ShiftBlocks() {
         int src_row = (bi + 1) % num_blocks_;
         int src_col = (bj + 1) % num_blocks_;
         for (int i = 0; i < block_size_; ++i) {
-
           std::swap_ranges(B_.begin() + (bi * block_size_ + i) * N_ + (bj * block_size_),
                            B_.begin() + (bi * block_size_ + i) * N_ + (bj * block_size_ + block_size_),
                            B_.begin() + (src_row * block_size_ + i) * N_ + (bj * block_size_));
