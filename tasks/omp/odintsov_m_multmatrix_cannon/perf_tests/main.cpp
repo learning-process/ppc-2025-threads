@@ -9,7 +9,6 @@
 #include "core/task/include/task.hpp"
 #include "omp/odintsov_m_multmatrix_cannon/include/ops_omp.hpp"
 
-
 TEST(odintsov_m_multmatrix_cannon_omp, test_pipeline_run) {
   // Create data
   std::vector<double> matrix_a(90000, 1);

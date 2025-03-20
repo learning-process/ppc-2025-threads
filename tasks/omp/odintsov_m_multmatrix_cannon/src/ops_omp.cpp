@@ -1,8 +1,8 @@
+#include "omp/odintsov_m_multmatrix_cannon/include/ops_omp.hpp"
+
 #include <cmath>
 #include <cstddef>
 #include <vector>
-
-#include "omp/odintsov_m_multmatrix_cannon/include/ops_omp.hpp"
 
 using namespace std;
 void odintsov_m_mulmatrix_cannon_omp::MulMatrixCannonOpenMP::ShiftRow(std::vector<double>& matrix, int root, int row,
@@ -158,8 +158,8 @@ bool odintsov_m_mulmatrix_cannon_omp::MulMatrixCannonOpenMP::RunImpl() {
   InitializeShift(matrixB_, root, grid_size, block_sz_, false);
 
   for (int step = 0; step < grid_size; step++) {
-// Распараллеливаем по внешнему циклу по блокам по строкам (bi)
-    #pragma omp parallel for schedule(static)
+    // Распараллеливаем по внешнему циклу по блокам по строкам (bi)
+#pragma omp parallel for schedule(static)
     for (int bi = 0; bi < root / block_sz_; bi++) {
       // Каждый поток получает свою локальную копию блоков
       std::vector<double> local_block_a(block_sz_ * block_sz_, 0);
@@ -179,7 +179,7 @@ bool odintsov_m_mulmatrix_cannon_omp::MulMatrixCannonOpenMP::RunImpl() {
             double a_ik = local_block_a[i * block_sz_ + k];
             for (int j = 0; j < block_sz_; j++) {
               int index = ((bi * block_sz_ + i) * root) + (bj * block_sz_ + j);
-              #pragma omp atomic
+#pragma omp atomic
               matrixC_[index] += a_ik * local_block_b[k * block_sz_ + j];
             }
           }
@@ -192,7 +192,6 @@ bool odintsov_m_mulmatrix_cannon_omp::MulMatrixCannonOpenMP::RunImpl() {
   }
   return true;
 }
-
 
 bool odintsov_m_mulmatrix_cannon_omp::MulMatrixCannonOpenMP::PostProcessingImpl() {
   std::size_t sz_c = matrixC_.size();
