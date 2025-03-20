@@ -14,22 +14,32 @@ TEST(konkov_i_SparseMatmulPerfTest_seq, test_pipeline_run) {
   ppc::core::TaskDataPtr task_data = std::make_shared<ppc::core::TaskData>();
   auto task = std::make_shared<konkov_i_sparse_matmul_ccs::SparseMatmulTask>(task_data);
 
-  std::vector<double> a_values(kSize, 1.0);
-  std::vector<int> a_columns(kSize);
-  std::vector<double> b_values(kSize, 1.0);
-  std::vector<int> b_columns(kSize);
+  std::vector<double> a_values(kSize, 2.0);
+  std::vector<int> a_row_indices(kSize);
+  std::vector<int> a_col_ptr(kSize + 1);
+
+  std::vector<double> b_values(kSize, 3.0);
+  std::vector<int> b_row_indices(kSize);
+  std::vector<int> b_col_ptr(kSize + 1);
 
   for (int i = 0; i < kSize; i++) {
-    a_columns[i] = i % kSize;
-    b_columns[i] = i % kSize;
+    a_row_indices[i] = i;
+    a_col_ptr[i] = i;
+    b_row_indices[i] = i;
+    b_col_ptr[i] = i;
   }
+  a_col_ptr[kSize] = kSize;
+  b_col_ptr[kSize] = kSize;
 
   task->A_values = a_values;
-  task->A_columns = a_columns;
-  task->B_values = b_values;
-  task->B_columns = b_columns;
+  task->A_row_indices = a_row_indices;
+  task->A_col_ptr = a_col_ptr;
   task->rowsA = kSize;
   task->colsA = kSize;
+
+  task->B_values = b_values;
+  task->B_row_indices = b_row_indices;
+  task->B_col_ptr = b_col_ptr;
   task->rowsB = kSize;
   task->colsB = kSize;
 
@@ -45,7 +55,12 @@ TEST(konkov_i_SparseMatmulPerfTest_seq, test_pipeline_run) {
   auto perf_results = std::make_shared<ppc::core::PerfResults>();
   auto perf_analyzer = std::make_shared<ppc::core::Perf>(task);
   perf_analyzer->PipelineRun(perf_attr, perf_results);
-  ppc::core::Perf::PrintPerfStatistic(perf_results);
+
+  const double expected_value = 6.0;
+  for (const auto& val : task->C_values) {
+    ASSERT_NEAR(val, expected_value, 1e-9);
+  }
+  ASSERT_EQ(task->C_col_ptr.back(), kSize);
 }
 
 TEST(konkov_i_SparseMatmulPerfTest_seq, test_task_run) {
@@ -54,22 +69,32 @@ TEST(konkov_i_SparseMatmulPerfTest_seq, test_task_run) {
   ppc::core::TaskDataPtr task_data = std::make_shared<ppc::core::TaskData>();
   auto task = std::make_shared<konkov_i_sparse_matmul_ccs::SparseMatmulTask>(task_data);
 
-  std::vector<double> a_values(kSize, 1.0);
-  std::vector<int> a_columns(kSize);
-  std::vector<double> b_values(kSize, 1.0);
-  std::vector<int> b_columns(kSize);
+  std::vector<double> a_values(kSize, 2.0);
+  std::vector<int> a_row_indices(kSize);
+  std::vector<int> a_col_ptr(kSize + 1);
+
+  std::vector<double> b_values(kSize, 3.0);
+  std::vector<int> b_row_indices(kSize);
+  std::vector<int> b_col_ptr(kSize + 1);
 
   for (int i = 0; i < kSize; i++) {
-    a_columns[i] = i % kSize;
-    b_columns[i] = i % kSize;
+    a_row_indices[i] = i;
+    a_col_ptr[i] = i;
+    b_row_indices[i] = i;
+    b_col_ptr[i] = i;
   }
+  a_col_ptr[kSize] = kSize;
+  b_col_ptr[kSize] = kSize;
 
   task->A_values = a_values;
-  task->A_columns = a_columns;
-  task->B_values = b_values;
-  task->B_columns = b_columns;
+  task->A_row_indices = a_row_indices;
+  task->A_col_ptr = a_col_ptr;
   task->rowsA = kSize;
   task->colsA = kSize;
+
+  task->B_values = b_values;
+  task->B_row_indices = b_row_indices;
+  task->B_col_ptr = b_col_ptr;
   task->rowsB = kSize;
   task->colsB = kSize;
 
@@ -84,6 +109,11 @@ TEST(konkov_i_SparseMatmulPerfTest_seq, test_task_run) {
 
   auto perf_results = std::make_shared<ppc::core::PerfResults>();
   auto perf_analyzer = std::make_shared<ppc::core::Perf>(task);
-  perf_analyzer->TaskRun(perf_attr, perf_results);
-  ppc::core::Perf::PrintPerfStatistic(perf_results);
+  perf_analyzer->PipelineRun(perf_attr, perf_results);
+
+  const double expected_value = 6.0;
+  for (const auto& val : task->C_values) {
+    ASSERT_NEAR(val, expected_value, 1e-9);
+  }
+  ASSERT_EQ(task->C_col_ptr.back(), kSize);
 }
