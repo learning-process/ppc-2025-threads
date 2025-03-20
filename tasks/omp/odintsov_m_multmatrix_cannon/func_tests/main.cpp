@@ -1,5 +1,6 @@
 #include <gtest/gtest.h>
 
+#include <cstddef>
 #include <cstdint>
 #include <memory>
 #include <random>
@@ -15,25 +16,25 @@ std::vector<double> odintsov_m_mulmatrix_cannon_omp::GenerateMatrix(int sz) {
   std::uniform_real_distribution<> dis(0.0, 10.0);
   for (int i = 0; i < sz; ++i) {
     for (int j = 0; j < sz; ++j) {
-      matrix[i * sz + j] = dis(gen);
+      matrix[(i * s) + j] = dis(gen);
     }
   }
   return matrix;
 }
 
-std::vector<double> odintsov_m_mulmatrix_cannon_omp::MultiplyMatrices(const std::vector<double> &A,
-                                                                      const std::vector<double> &B, int n) {
-  std::vector<double> C(n * n, 0.0);
+std::vector<double> odintsov_m_mulmatrix_cannon_omp::MultiplyMatrices(const std::vector<double> &a,
+                                                                      const std::vector<double> &b, int n) {
+  std::vector<double> c(n * n, 0.0);
   for (int i = 0; i < n; ++i) {
     for (int j = 0; j < n; ++j) {
       double sum = 0.0;
       for (int k = 0; k < n; ++k) {
-        sum += A[i * n + k] * B[k * n + j];
+        sum += a[(i * n) + k] * b[(k * n) + j];
       }
-      C[i * n + j] = sum;
+      c[(i * n) + j] = sum;
     }
   }
-  return C;
+  return c;
 }
 
 TEST(odintsov_m_mulmatrix_cannon_seq, test_matrix_4) {

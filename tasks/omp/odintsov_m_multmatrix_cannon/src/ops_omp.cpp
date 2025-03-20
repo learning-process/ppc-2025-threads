@@ -176,11 +176,11 @@ bool odintsov_m_mulmatrix_cannon_omp::MulMatrixCannonOpenMP::RunImpl() {
         // Умножение локальных блоков и накопление результата в matrixC_
         for (int i = 0; i < block_sz_; i++) {
           for (int k = 0; k < block_sz_; k++) {
-            double a_ik = local_block_a[i * block_sz_ + k];
+            double a_ik = local_block_a[(i * block_sz_) + k];
             for (int j = 0; j < block_sz_; j++) {
               int index = ((bi * block_sz_ + i) * root) + (bj * block_sz_ + j);
 #pragma omp atomic
-              matrixC_[index] += a_ik * local_block_b[k * block_sz_ + j];
+              matrixC_[index] += a_ik * local_block_b[(k * block_sz_) + j];
             }
           }
         }
