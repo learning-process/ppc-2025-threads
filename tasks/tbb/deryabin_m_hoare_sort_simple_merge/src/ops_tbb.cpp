@@ -55,23 +55,25 @@ void deryabin_m_hoare_sort_simple_merge_tbb::MergeTwoParts(std::vector<double>& 
   arena.execute([&] {
     tbb::task_group tg;
     for (int thr = 0; thr < ppc::util::GetPPCNumThreads(); ++thr) {
-      tg.run([&] {   for (size_t i = left; i <= right; i++) {
-        if (l_cur <= middle && r_cur <= middle) {
-          if (l_buff[l_cur] < r_buff[r_cur]) {
-            a[i] = l_buff[l_cur];
-            l_cur++;
-          } else {
-            a[i] = r_buff[r_cur];
-            r_cur++;
-          }
-        } else if (l_cur <= middle) {
-          a[i] = l_buff[l_cur];
-          l_cur++;
-        } else {
-          a[i] = r_buff[r_cur];
-          r_cur++;
-        }
-      }; });
+      tg.run([&] {
+        for (size_t i = left; i <= right; i++) {
+          if (l_cur <= middle && r_cur <= middle) {
+            if (l_buff[l_cur] < r_buff[r_cur]) {
+              a[i] = l_buff[l_cur];
+              l_cur++;
+            } else {
+              a[i] = r_buff[r_cur];
+              r_cur++;
+            }
+          } else if (l_cur <= middle) {
+             a[i] = l_buff[l_cur];
+             l_cur++;
+           } else {
+             a[i] = r_buff[r_cur];
+             r_cur++;
+           }
+        };
+      });
     }
     tg.wait();
   });
