@@ -295,7 +295,9 @@ TEST(chizhov_m_trapezoid_method_seq, combine_exp_sin_cos) {
   std::vector<double> limits = {0.0, 3.0, 0.0, 3.0};
 
   std::vector<double> res(1, 0);
-  auto f = [](const std::vector<double> &f_val) { return std::exp(-f_val[0]) * std::sin(f_val[0]) * std::cos(f_val[1]); };
+  auto f = [](const std::vector<double> &f_val) {
+    return std::exp(-f_val[0]) * std::sin(f_val[0]) * std::cos(f_val[1]);
+  };
   auto *f_object = new std::function<double(const std::vector<double> &)>(f);
 
   std::shared_ptr<ppc::core::TaskData> task_data_seq = std::make_shared<ppc::core::TaskData>();
