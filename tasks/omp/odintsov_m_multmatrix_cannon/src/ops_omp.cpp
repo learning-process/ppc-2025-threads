@@ -153,27 +153,27 @@ bool odintsov_m_mulmatrix_cannon_omp::MulMatrixCannonOpenMP::ValidationImpl() {
 bool odintsov_m_mulmatrix_cannon_omp::MulMatrixCannonOpenMP::RunImpl() {
   int root = static_cast<int>(sqrt(szA_));
   int grid_size = root / block_sz_;
-  // Выполняем начальные сдвиги матриц
+  // Р’С‹РїРѕР»РЅСЏРµРј РЅР°С‡Р°Р»СЊРЅС‹Рµ СЃРґРІРёРіРё РјР°С‚СЂРёС†
   InitializeShift(matrixA_, root, grid_size, block_sz_, true);
   InitializeShift(matrixB_, root, grid_size, block_sz_, false);
 
   for (int step = 0; step < grid_size; step++) {
-// Распараллеливаем по внешнему циклу по блокам по строкам (bi)
+// Р Р°СЃРїР°СЂР°Р»Р»РµР»РёРІР°РµРј РїРѕ РІРЅРµС€РЅРµРјСѓ С†РёРєР»Сѓ РїРѕ Р±Р»РѕРєР°Рј РїРѕ СЃС‚СЂРѕРєР°Рј (bi)
     #pragma omp parallel for schedule(static)
     for (int bi = 0; bi < root / block_sz_; bi++) {
-      // Каждый поток получает свою локальную копию блоков
+      // РљР°Р¶РґС‹Р№ РїРѕС‚РѕРє РїРѕР»СѓС‡Р°РµС‚ СЃРІРѕСЋ Р»РѕРєР°Р»СЊРЅСѓСЋ РєРѕРїРёСЋ Р±Р»РѕРєРѕРІ
       std::vector<double> local_block_a(block_sz_ * block_sz_, 0);
       std::vector<double> local_block_b(block_sz_ * block_sz_, 0);
 
-      // Внутренний цикл по столбцам блоков (bj) остается последовательным для каждого потока
+      // Р’РЅСѓС‚СЂРµРЅРЅРёР№ С†РёРєР» РїРѕ СЃС‚РѕР»Р±С†Р°Рј Р±Р»РѕРєРѕРІ (bj) РѕСЃС‚Р°РµС‚СЃСЏ РїРѕСЃР»РµРґРѕРІР°С‚РµР»СЊРЅС‹Рј РґР»СЏ РєР°Р¶РґРѕРіРѕ РїРѕС‚РѕРєР°
       for (int bj = 0; bj < root / block_sz_; bj++) {
         int start = ((bi * block_sz_) * root) + (bj * block_sz_);
 
-        // Локальное копирование блоков из глобальных матриц
+        // Р›РѕРєР°Р»СЊРЅРѕРµ РєРѕРїРёСЂРѕРІР°РЅРёРµ Р±Р»РѕРєРѕРІ РёР· РіР»РѕР±Р°Р»СЊРЅС‹С… РјР°С‚СЂРёС†
         CopyBlock(matrixA_, local_block_a, start, root, block_sz_);
         CopyBlock(matrixB_, local_block_b, start, root, block_sz_);
 
-        // Умножение локальных блоков и накопление результата в matrixC_
+        // РЈРјРЅРѕР¶РµРЅРёРµ Р»РѕРєР°Р»СЊРЅС‹С… Р±Р»РѕРєРѕРІ Рё РЅР°РєРѕРїР»РµРЅРёРµ СЂРµР·СѓР»СЊС‚Р°С‚Р° РІ matrixC_
         for (int i = 0; i < block_sz_; i++) {
           for (int k = 0; k < block_sz_; k++) {
             double a_ik = local_block_a[i * block_sz_ + k];
@@ -186,7 +186,7 @@ bool odintsov_m_mulmatrix_cannon_omp::MulMatrixCannonOpenMP::RunImpl() {
         }
       }
     }
-    // Сдвиги выполняем последовательно, чтобы обеспечить правильное изменение данных между шагами
+    // РЎРґРІРёРіРё РІС‹РїРѕР»РЅСЏРµРј РїРѕСЃР»РµРґРѕРІР°С‚РµР»СЊРЅРѕ, С‡С‚РѕР±С‹ РѕР±РµСЃРїРµС‡РёС‚СЊ РїСЂР°РІРёР»СЊРЅРѕРµ РёР·РјРµРЅРµРЅРёРµ РґР°РЅРЅС‹С… РјРµР¶РґСѓ С€Р°РіР°РјРё
     ShiftBlocksLeft(matrixA_, root, block_sz_);
     ShiftBlocksUp(matrixB_, root, block_sz_);
   }
