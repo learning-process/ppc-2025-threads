@@ -1,6 +1,7 @@
 #include "seq/konkov_i_sparse_matmul_ccs/include/ops_seq.hpp"
 
 #include <algorithm>
+#include <cstddef>
 #include <iostream>
 #include <unordered_map>
 #include <utility>
