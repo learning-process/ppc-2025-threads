@@ -107,3 +107,23 @@ TEST(gusev_n_sorting_int_simple_merging_omp, test_radix_sort_duplicates) {
 
   EXPECT_EQ(expected, out);
 }
+
+TEST(gusev_n_sorting_int_simple_merging_omp, test_radix_sort_reversed_random) {
+  size_t size = 1000;
+  std::random_device rd;
+  std::mt19937 gen(rd());
+  std::uniform_int_distribution<int> dist(-100000, 100000);
+
+  std::vector<int> in(size);
+  std::ranges::generate(in, [&]() { return dist(gen); });
+  std::ranges::sort(in, std::greater{});
+
+  std::vector<int> out(in.size());
+  auto task_data_omp = CreateTaskData(in, out);
+  RunT(task_data_omp);
+
+  std::vector<int> expected = in;
+  std::ranges::sort(expected);
+
+  EXPECT_EQ(expected, out);
+}
