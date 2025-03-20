@@ -11,10 +11,7 @@
 #include "oneapi/tbb/parallel_for.h"
 #include "oneapi/tbb/parallel_invoke.h"
 
-void deryabin_m_hoare_sort_simple_merge_tbb::HoaraSort(std::vector<double>& a, size_t first, size_t last) {
-  if (first >= last) {
-    return;
-  }
+void deryabin_m_hoare_sort_simple_merge_omp::HoaraSort(std::vector<double>& a, size_t first, size_t last) {
   size_t i = first;
   size_t j = last;
   double tmp = 0;
@@ -35,8 +32,12 @@ void deryabin_m_hoare_sort_simple_merge_tbb::HoaraSort(std::vector<double>& a, s
       a[j] = tmp;
     }
   } while (i < j);
-  oneapi::tbb::parallel_invoke([&a, &i, &last]() { HoaraSort(a, i + 1, last); },
-                               [&a, &first, &j]() { HoaraSort(a, first, j); });
+  if (i < last) {
+    HoaraSort(a, i + 1, last);
+  }
+  if (first < j) {
+    HoaraSort(a, first, j);
+  }
 }
 
 void deryabin_m_hoare_sort_simple_merge_tbb::MergeTwoParts(std::vector<double>& a, size_t left, size_t right,
