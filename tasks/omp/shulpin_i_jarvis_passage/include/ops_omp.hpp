@@ -15,8 +15,6 @@ struct Point {
   Point(double x_coordinate, double y_coordinate) : x(x_coordinate), y(y_coordinate) {}
 };
 
-static int Orientation(const Point& p, const Point& q, const Point& r);
-
 class JarvisSequential : public ppc::core::Task {
  public:
   explicit JarvisSequential(ppc::core::TaskDataPtr task_data) : Task(std::move(task_data)) {}
@@ -28,7 +26,7 @@ class JarvisSequential : public ppc::core::Task {
                                 std::vector<shulpin_i_jarvis_omp::Point>& output);
 
  private:
-  std::vector<shulpin_i_jarvis_omp::Point> input_seq, output_seq;
+  std::vector<shulpin_i_jarvis_omp::Point> input_seq_, output_seq_;
 };
 
 class JarvisOMPParallel : public ppc::core::Task {
@@ -42,6 +40,6 @@ class JarvisOMPParallel : public ppc::core::Task {
                                    std::vector<shulpin_i_jarvis_omp::Point>& output);
 
  private:
-  std::vector<shulpin_i_jarvis_omp::Point> input_omp, output_omp;
+  std::vector<shulpin_i_jarvis_omp::Point> input_omp_, output_omp_;
 };
 }  // namespace shulpin_i_jarvis_omp
