@@ -56,8 +56,8 @@ void vavilov_v_cannon_tbb::CannonTBB::BlockMultiply() {
     int bi_end = r.end();
     int rows_per_thread = (bi_end - bi_start) * block_size_;
 
-    if (local.size() < rows_per_thread * N_) {
-      local.resize(rows_per_thread * N_, 0.0);
+    if (local.size() < rows_per_thread * static_cast<size_t>(N_)) {
+      local.resize(rows_per_thread * static_cast<size_t>(N_), 0.0);
     }
 
     for (int bi = bi_start; bi < bi_end; ++bi) {
