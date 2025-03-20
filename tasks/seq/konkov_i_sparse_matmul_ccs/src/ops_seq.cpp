@@ -3,10 +3,10 @@
 #include <algorithm>
 #include <cstddef>
 #include <iostream>
+#include <unordered_map>
 #include <utility>
 
 #include "core/task/include/task.hpp"
-#include <unordered_map>
 
 namespace konkov_i_sparse_matmul_ccs {
 
