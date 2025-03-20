@@ -118,12 +118,12 @@ bool deryabin_m_hoare_sort_simple_merge_tbb::HoareSortTaskTBB::ValidationImpl() 
 
 bool deryabin_m_hoare_sort_simple_merge_tbb::HoareSortTaskTBB::RunImpl() {
   oneapi::tbb::parallel_for(0, (int)chunk_count_, 1, [=, this](int count) {
-    HoaraSort(input_array_A_, (count * (min_chunk_size_, ((count + 1) * min_chunk_size_) - 1);
+    HoaraSort(input_array_A_, count * min_chunk_size_, ((count + 1) * min_chunk_size_) - 1);
   });
   for (size_t i = 0; i < (size_t)(log((double)chunk_count_) / std::numbers::ln2); i++) {
-    oneapi::tbb::parallel_for(0, (int)chunk_count_ >> i + 1, 1, [=, this](int j) {
-      MergeTwoParts(input_array_A_, (size_t)j * min_chunk_size_ << i + 1,
-                    (((size_t)j + 1) * min_chunk_size_ << i + 1) - 1, dimension_);
+    oneapi::tbb::parallel_for(0, (int)chunk_count_ >> (i + 1), 1, [=, this](int j) {
+      MergeTwoParts(input_array_A_, (size_t)j * min_chunk_size_ << (i + 1),
+                    (((size_t)j + 1) * min_chunk_size_ << (i + 1)) - 1, dimension_);
     });
   }
   return true;
