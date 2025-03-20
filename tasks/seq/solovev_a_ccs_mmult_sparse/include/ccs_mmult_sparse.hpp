@@ -9,7 +9,7 @@
 
 namespace solovev_a_matrix {
 struct MatrixInCcsSparse {
-  std::vector<std::complex<double>> val = {};
+  std::vector<std::complex<double>> val;
   std::vector<int> row;
   std::vector<int> col_p;
 
