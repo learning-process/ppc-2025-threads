@@ -5,13 +5,16 @@
 #include <cstddef>
 #include <vector>
 
-int shulpin_i_jarvis_omp::Orientation(const Point& p, const Point& q, const Point& r) {
+namespace {
+int Orientation(const shulpin_i_jarvis_omp::Point& p, const shulpin_i_jarvis_omp::Point& q,
+                const shulpin_i_jarvis_omp::Point& r) {
   int val = static_cast<int>(((q.y - p.y) * (r.x - q.x)) - ((q.x - p.x) * (r.y - q.y)));
   if (val == 0) {
     return 0;
   }
   return (val > 0) ? 1 : 2;
 }
+}  // namespace
 
 void shulpin_i_jarvis_omp::JarvisSequential::MakeJarvisPassage(std::vector<shulpin_i_jarvis_omp::Point>& input_jar,
                                                                std::vector<shulpin_i_jarvis_omp::Point>& output_jar) {
@@ -48,10 +51,10 @@ bool shulpin_i_jarvis_omp::JarvisSequential::PreProcessingImpl() {
   size_t tmp_size = task_data->inputs_count[0];
   tmp_input.assign(tmp_data, tmp_data + tmp_size);
 
-  input_seq = tmp_input;
+  input_seq_ = tmp_input;
 
   size_t output_size = task_data->outputs_count[0];
-  output_seq.resize(output_size);
+  output_seq_.resize(output_size);
 
   return true;
 }
@@ -61,14 +64,14 @@ bool shulpin_i_jarvis_omp::JarvisSequential::ValidationImpl() {
 }
 
 bool shulpin_i_jarvis_omp::JarvisSequential::RunImpl() {
-  MakeJarvisPassage(input_seq, output_seq);
+  MakeJarvisPassage(input_seq_, output_seq_);
   return true;
 }
 
 bool shulpin_i_jarvis_omp::JarvisSequential::PostProcessingImpl() {
   int* result = reinterpret_cast<int*>(task_data->outputs[0]);
-  std::ranges::copy(reinterpret_cast<int*>(output_seq.data()),
-                    reinterpret_cast<int*>(output_seq.data() + output_seq.size()), result);
+  std::ranges::copy(reinterpret_cast<int*>(output_seq_.data()),
+                    reinterpret_cast<int*>(output_seq_.data() + output_seq_.size()), result);
   return true;
 }
 
@@ -123,10 +126,10 @@ bool shulpin_i_jarvis_omp::JarvisOMPParallel::PreProcessingImpl() {
   size_t tmp_size = task_data->inputs_count[0];
   tmp_input.assign(tmp_data, tmp_data + tmp_size);
 
-  input_omp = tmp_input;
+  input_omp_ = tmp_input;
 
   size_t output_size = task_data->outputs_count[0];
-  output_omp.resize(output_size);
+  output_omp_.resize(output_size);
   return true;
 }
 
@@ -135,13 +138,13 @@ bool shulpin_i_jarvis_omp::JarvisOMPParallel::ValidationImpl() {
 }
 
 bool shulpin_i_jarvis_omp::JarvisOMPParallel::RunImpl() {
-  MakeJarvisPassageOMP(input_omp, output_omp);
+  MakeJarvisPassageOMP(input_omp_, output_omp_);
   return true;
 }
 
 bool shulpin_i_jarvis_omp::JarvisOMPParallel::PostProcessingImpl() {
   int* result = reinterpret_cast<int*>(task_data->outputs[0]);
-  std::ranges::copy(reinterpret_cast<int*>(output_omp.data()),
-                    reinterpret_cast<int*>(output_omp.data() + output_omp.size()), result);
+  std::ranges::copy(reinterpret_cast<int*>(output_omp_.data()),
+                    reinterpret_cast<int*>(output_omp_.data() + output_omp_.size()), result);
   return true;
 }
