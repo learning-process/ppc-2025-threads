@@ -122,14 +122,14 @@ bool deryabin_m_hoare_sort_simple_merge_tbb::HoareSortTaskTBB::RunImpl() {
   oneapi::tbb::parallel_for(0, (int)chunk_count, 1, [=, this](int count) {
     HoaraSort(input_array_A_, (short)count * (short)min_chunk_size_, ((count + 1) * (short)min_chunk_size_) - 1);
   });
-  auto num_of_lvls = (int)(log((double)chunk_count_) / std::numbers::ln2);
-  oneapi::tbb::parallel_for(0, num_of_lvls, 1, [=, this](int i) {
-    auto tmp_chunk_count = (size_t)chunk_count >> i;
-    for (size_t j = 0; j < tmp_chunk_count; j++) {
-      MergeTwoParts(input_array_A_, j * min_chunk_size_ << ((size_t)i + 1),
-                    ((j + 1) * min_chunk_size_ << ((size_t)i + 1)) - 1, dimension_);
-    }
-  });
+  auto num_of_lvls = (short)(log((double)chunk_count_) / std::numbers::ln2);
+  for (short i = 0; i < num_of_lvls; i++) {
+    auto tmp_chunk_count = (int)chunk_count >> i;
+    oneapi::tbb::parallel_for(0, tmp_chunk_count, 1, [=, this](int j) {
+        MergeTwoParts(input_array_A_, (short)j * (short)min_chunk_size_ << (i + 1),
+                      (((short)j + 1) * (short)min_chunk_size_ << (i + 1)) - 1, dimension_);
+      });
+  }
   return true;
 }
 
