@@ -230,4 +230,3 @@ TEST(shulpin_i_jarvis_omps, circle_r10_p1000) {
 
   TestBodyRandomCircle(input, expected, num_points);
 }
-
