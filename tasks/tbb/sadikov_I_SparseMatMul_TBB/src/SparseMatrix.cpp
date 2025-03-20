@@ -17,15 +17,14 @@ SparseMatrix SparseMatrix::Transpose(const SparseMatrix& matrix) {
   auto max_size = std::max(matrix.GetRowsCount(), matrix.GetColumnsCount());
   std::vector<std::vector<double>> intermediate_values(max_size);
   std::vector<std::vector<int>> intermediate_indexes(max_size);
-  int column_number = 0;
-  int column_counter = 0;
-  for (size_t i = 0; i < matrix.GetValues().size(); ++i) {
-    if (column_counter == matrix.GetElementsSum()[column_number]) {
-      column_number++;
+  int counter = 0;
+  for (size_t i = 0; i < matrix.GetElementsSum().size(); ++i) {
+    auto limit = i == 0 ? matrix.GetElementsSum()[0] : matrix.GetElementsSum()[i] - matrix.GetElementsSum()[i - 1];
+    for (int j = 0; j < limit; ++j) {
+      intermediate_values[matrix.GetRows()[counter]].emplace_back(matrix.GetValues()[counter]);
+      intermediate_indexes[matrix.GetRows()[counter]].emplace_back(i);
+      counter++;
     }
-    column_counter++;
-    intermediate_values[matrix.GetRows()[i]].emplace_back(matrix.GetValues()[i]);
-    intermediate_indexes[matrix.GetRows()[i]].emplace_back(column_number);
   }
   for (size_t i = 0; i < intermediate_values.size(); ++i) {
     for (size_t j = 0; j < intermediate_values[i].size(); ++j) {
@@ -66,22 +65,21 @@ SparseMatrix SparseMatrix::operator*(SparseMatrix& smatrix) const {
   component.Resize(selements_sum.size() * felements_sum.size(), smatrix.GetElementsSum().size());
   oneapi::tbb::task_arena arena(ppc::util::GetPPCNumThreads());
   arena.execute([&] {
-    oneapi::tbb::parallel_for(
-        oneapi::tbb::blocked_range<size_t>(0, selements_sum.size(),
-                                           selements_sum.size() / tbb::this_task_arena::max_concurrency()),
-        [&](const oneapi::tbb::blocked_range<size_t>& range) {
-          for (size_t i = range.begin(); i != range.end(); ++i) {
-            for (size_t j = 0; j < felements_sum.size(); ++j) {
-              double sum = CalculateSum(fmatrix, smatrix, felements_sum, selements_sum, static_cast<int>(i),
-                                        static_cast<int>(j));
-              if (sum > kMEpsilon) {
-                component.m_values[(i * felements_sum.size()) + j] = sum;
-                component.m_rows[(i * felements_sum.size()) + j] = static_cast<int>(j);
-                component.m_elementsSum[i]++;
-              }
-            }
-          }
-        });
+    oneapi::tbb::parallel_for(oneapi::tbb::blocked_range<size_t>(0, selements_sum.size(),
+                                                                 selements_sum.size() / ppc::util::GetPPCNumThreads()),
+                              [&](const oneapi::tbb::blocked_range<size_t>& range) {
+                                for (size_t i = range.begin(); i != range.end(); ++i) {
+                                  for (size_t j = 0; j < felements_sum.size(); ++j) {
+                                    double sum = CalculateSum(fmatrix, smatrix, felements_sum, selements_sum,
+                                                              static_cast<int>(i), static_cast<int>(j));
+                                    if (sum > kMEpsilon) {
+                                      component.m_values[(i * felements_sum.size()) + j] = sum;
+                                      component.m_rows[(i * felements_sum.size()) + j] = static_cast<int>(j);
+                                      component.m_elementsSum[i]++;
+                                    }
+                                  }
+                                }
+                              });
   });
   for (size_t i = 1; i < component.m_elementsSum.size(); ++i) {
     component.m_elementsSum[i] = component.m_elementsSum[i] + component.m_elementsSum[i - 1];

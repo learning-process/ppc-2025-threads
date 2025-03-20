@@ -1,5 +1,6 @@
 #include <gtest/gtest.h>
 
+#include <algorithm>
 #include <chrono>
 #include <cstdint>
 #include <memory>
@@ -16,12 +17,13 @@ std::vector<double> GetRandomMatrix(int size) {
   std::vector<double> data(size);
   std::random_device dev;
   std::mt19937 gen(dev());
-  for (int i = 0; i < size; ++i) {
-    data[i] = static_cast<double>(gen() % 500);
-    if (data[i] > 250.0) {
-      data[i] = 0.0;
-    }
+  int high = 500;
+  int low = 0;
+  std::uniform_int_distribution<> number(low, high);
+  for (int i = 0; i < static_cast<int>(size / 5); ++i) {
+    data[i] = static_cast<double>(number(gen));
   }
+  std::ranges::shuffle(data, gen);
   return data;
 }
 }  // namespace
