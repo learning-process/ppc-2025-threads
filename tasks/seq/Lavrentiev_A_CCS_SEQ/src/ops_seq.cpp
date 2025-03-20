@@ -6,6 +6,7 @@
 #include <vector>
 #include <algorithm>
 
+
 bool lavrentiev_a_ccs_seq::CCSSequential::PreProcessingImpl() {
   A_.size = {static_cast<int>(task_data->inputs_count[0]), static_cast<int>(task_data->inputs_count[1])};
   B_.size = {static_cast<int>(task_data->inputs_count[2]), static_cast<int>(task_data->inputs_count[3])};
