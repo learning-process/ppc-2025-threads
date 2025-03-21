@@ -1,9 +1,9 @@
 #include <gtest/gtest.h>
 
-#include <boost/graph/adjacency_list.hpp>           // NOLINT
-#include <boost/graph/dijkstra_shortest_paths.hpp>  // NOLINT
 #include <chrono>
+#include <queue>
 #include <climits>
+#include <limits>
 #include <cstddef>
 #include <cstdint>
 #include <cstdlib>
@@ -17,23 +17,32 @@
 
 namespace plekhanov_d_dijkstra_seq {
 
-std::vector<int> static CalculateExpectedResult(                       // NOLINT(misc-use-anonymous-namespace)
-    const std::vector<std::vector<std::pair<size_t, int>>> &adj_list,  // NOLINT(misc-use-anonymous-namespace)
-    size_t start_vertex) {
-  using Graph = boost::adjacency_list<boost::vecS, boost::vecS, boost::directedS,   // NOLINT(misc-include-cleaner)
-                                      boost::no_property,                           // NOLINT(misc-include-cleaner)
-                                      boost::property<boost::edge_weight_t, int>>;  // NOLINT(misc-include-cleaner)
-  Graph graph(adj_list.size());
+static std::vector<int> CalculateExpectedResult(const std::vector<std::vector<std::pair<size_t, int>>> &adj_list,
+                                                size_t start_vertex) {
+  size_t n = adj_list.size();
+  const int INF = INT_MAX;
+  std::vector<int> distances(n, INF);
+  distances[start_vertex] = 0;
 
-  for (size_t i = 0; i < adj_list.size(); ++i) {
-    for (const auto &edge : adj_list[i]) {
-      boost::add_edge(i, edge.first, edge.second, graph);  // NOLINT(misc-include-cleaner)
+  using pii = std::pair<int, size_t>;
+  std::priority_queue<pii, std::vector<pii>, std::greater<pii>> pq;
+  pq.push({0, start_vertex});
+
+  while (!pq.empty()) {
+    auto [d, u] = pq.top();
+    pq.pop();
+
+    if (d != distances[u]) continue;
+
+    for (const auto &edge : adj_list[u]) {
+      size_t v = edge.first;
+      int weight = edge.second;
+      if (distances[u] != INF && distances[u] + weight < distances[v]) {
+        distances[v] = distances[u] + weight;
+        pq.push({distances[v], v});
+      }
     }
   }
-
-  std::vector<int> distances(boost::num_vertices(graph), INT_MAX);  // NOLINT(misc-include-cleaner)
-  boost::dijkstra_shortest_paths(graph, start_vertex,
-                                 boost::distance_map(distances.data()));  // NOLINT(misc-include-cleaner)
   return distances;
 }
 
