@@ -45,6 +45,104 @@ TEST(naumov_b_marc_on_bin_image_seq, Validation_2) {
   EXPECT_FALSE(test_task_sequential.Validation());
 }
 
+TEST(naumov_b_marc_on_bin_image_seq, Validation_3) {
+  int m = 0;
+  int n = 0;
+
+  std::vector<int> in;
+  std::vector<int> out;
+
+  auto task_data_seq = std::make_shared<ppc::core::TaskData>();
+  task_data_seq->inputs.emplace_back(reinterpret_cast<uint8_t *>(in.data()));
+  task_data_seq->inputs_count.emplace_back(m);
+  task_data_seq->inputs_count.emplace_back(n);
+  task_data_seq->outputs.emplace_back(reinterpret_cast<uint8_t *>(out.data()));
+  task_data_seq->outputs_count.emplace_back(m);
+  task_data_seq->outputs_count.emplace_back(n);
+
+  naumov_b_marc_on_bin_image_seq::TestTaskSequential test_task_sequential(task_data_seq);
+  EXPECT_FALSE(test_task_sequential.Validation());
+}
+
+TEST(naumov_b_marc_on_bin_image_seq, SingleComponentInCorner) {
+  int m = 3;
+  int n = 3;
+
+  std::vector<int> in = {1, 0, 0, 0, 0, 0, 0, 0, 0};
+  std::vector<int> exp_out = {1, 0, 0, 0, 0, 0, 0, 0, 0};
+  std::vector<int> out(m * n, 0);
+
+  auto task_data_seq = std::make_shared<ppc::core::TaskData>();
+  task_data_seq->inputs.emplace_back(reinterpret_cast<uint8_t *>(in.data()));
+  task_data_seq->inputs_count.emplace_back(m);
+  task_data_seq->inputs_count.emplace_back(n);
+  task_data_seq->outputs.emplace_back(reinterpret_cast<uint8_t *>(out.data()));
+  task_data_seq->outputs_count.emplace_back(m);
+  task_data_seq->outputs_count.emplace_back(n);
+
+  naumov_b_marc_on_bin_image_seq::TestTaskSequential test_task_sequential(task_data_seq);
+
+  ASSERT_EQ(test_task_sequential.Validation(), true);
+  test_task_sequential.PreProcessing();
+  test_task_sequential.Run();
+  test_task_sequential.PostProcessing();
+  EXPECT_EQ(out, exp_out);
+}
+
+TEST(naumov_b_marc_on_bin_image_seq, RingShape) {
+  int m = 5;
+  int n = 5;
+
+  std::vector<int> in = {0, 0, 0, 0, 0, 0, 1, 1, 1, 0, 0, 1, 0, 1, 0, 0, 1, 1, 1, 0, 0, 0, 0, 0, 0};
+  std::vector<int> exp_out = {0, 0, 0, 0, 0, 0, 1, 1, 1, 0, 0, 1, 0, 1, 0, 0, 1, 1, 1, 0, 0, 0, 0, 0, 0};
+  std::vector<int> out(m * n, 0);
+
+  auto task_data_seq = std::make_shared<ppc::core::TaskData>();
+  task_data_seq->inputs.emplace_back(reinterpret_cast<uint8_t *>(in.data()));
+  task_data_seq->inputs_count.emplace_back(m);
+  task_data_seq->inputs_count.emplace_back(n);
+  task_data_seq->outputs.emplace_back(reinterpret_cast<uint8_t *>(out.data()));
+  task_data_seq->outputs_count.emplace_back(m);
+  task_data_seq->outputs_count.emplace_back(n);
+
+  naumov_b_marc_on_bin_image_seq::TestTaskSequential test_task_sequential(task_data_seq);
+
+  ASSERT_EQ(test_task_sequential.Validation(), true);
+  test_task_sequential.PreProcessing();
+  test_task_sequential.Run();
+  test_task_sequential.PostProcessing();
+  EXPECT_EQ(out, exp_out);
+}
+
+TEST(naumov_b_marc_on_bin_image_seq, MazeStructure) {
+  int m = 7;
+  int n = 7;
+
+  std::vector<int> in = {1, 1, 1, 1, 1, 1, 1, 1, 0, 0, 0, 0, 0, 1, 1, 0, 1, 1, 1, 0, 1, 1, 0, 1, 0,
+                         1, 0, 1, 1, 0, 1, 1, 1, 0, 1, 1, 0, 0, 0, 0, 0, 1, 1, 1, 1, 1, 1, 1, 1};
+
+  std::vector<int> exp_out = {1, 1, 1, 1, 1, 1, 1, 1, 0, 0, 0, 0, 0, 1, 1, 0, 2, 2, 2, 0, 1, 1, 0, 2, 0,
+                              2, 0, 1, 1, 0, 2, 2, 2, 0, 1, 1, 0, 0, 0, 0, 0, 1, 1, 1, 1, 1, 1, 1, 1};
+
+  std::vector<int> out(m * n, 0);
+
+  auto task_data_seq = std::make_shared<ppc::core::TaskData>();
+  task_data_seq->inputs.emplace_back(reinterpret_cast<uint8_t *>(in.data()));
+  task_data_seq->inputs_count.emplace_back(m);
+  task_data_seq->inputs_count.emplace_back(n);
+  task_data_seq->outputs.emplace_back(reinterpret_cast<uint8_t *>(out.data()));
+  task_data_seq->outputs_count.emplace_back(m);
+  task_data_seq->outputs_count.emplace_back(n);
+
+  naumov_b_marc_on_bin_image_seq::TestTaskSequential test_task_sequential(task_data_seq);
+
+  ASSERT_EQ(test_task_sequential.Validation(), true);
+  test_task_sequential.PreProcessing();
+  test_task_sequential.Run();
+  test_task_sequential.PostProcessing();
+  EXPECT_EQ(out, exp_out);
+}
+
 TEST(naumov_b_marc_on_bin_image_seq, SimpleTest_1) {
   int m = 3;
   int n = 4;
@@ -243,4 +341,28 @@ TEST(naumov_b_marc_on_bin_image_seq, SingleColumn) {
   test_task_sequential.Run();
   test_task_sequential.PostProcessing();
   EXPECT_EQ(out, exp_out);
+}
+
+TEST(naumov_b_marc_on_bin_image_seq, large) {
+  int m = 500;
+  int n = 500;
+
+  std::vector<int> in(m * n, 1);
+  std::vector<int> out(m * n, 0);
+
+  auto task_data_seq = std::make_shared<ppc::core::TaskData>();
+  task_data_seq->inputs.emplace_back(reinterpret_cast<uint8_t *>(in.data()));
+  task_data_seq->inputs_count.emplace_back(m);
+  task_data_seq->inputs_count.emplace_back(n);
+  task_data_seq->outputs.emplace_back(reinterpret_cast<uint8_t *>(out.data()));
+  task_data_seq->outputs_count.emplace_back(m);
+  task_data_seq->outputs_count.emplace_back(n);
+
+  naumov_b_marc_on_bin_image_seq::TestTaskSequential test_task_sequential(task_data_seq);
+
+  ASSERT_EQ(test_task_sequential.Validation(), true);
+  test_task_sequential.PreProcessing();
+  test_task_sequential.Run();
+  test_task_sequential.PostProcessing();
+  EXPECT_EQ(in, out);
 }
