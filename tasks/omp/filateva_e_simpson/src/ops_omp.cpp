@@ -42,11 +42,11 @@ bool filateva_e_simpson_omp::Simpson::RunImpl() {
 
   res_ = 0.0;
 
-  long totalSteps = static_cast<unsigned long>(std::pow(steps_ + 1, mer_));
-  double localRes = 0.0;
+  long total_steps = static_cast<long>(std::pow(steps_ + 1, mer_));
+  double local_res = 0.0;
 
-#pragma omp parallel for reduction(+ : localRes)
-  for (long i = 0; i < totalSteps; i++) {
+#pragma omp parallel for reduction(+ : local_res)
+  for (long i = 0; i < total_steps; i++) {
     unsigned long temp = i;
     std::vector<double> param(mer_);
     double weight = 1.0;
@@ -66,10 +66,10 @@ bool filateva_e_simpson_omp::Simpson::RunImpl() {
       }
     }
 
-    localRes += weight * f_(param);
+    local_res += weight * f_(param);
   }
 
-  res_ = localRes;
+  res_ = local_res;
 
   for (size_t i = 0; i < mer_; i++) {
     res_ *= (h[i] / 3.0);
