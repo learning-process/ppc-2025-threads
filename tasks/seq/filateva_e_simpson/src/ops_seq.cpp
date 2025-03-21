@@ -3,52 +3,69 @@
 #include <algorithm>
 #include <cmath>
 #include <vector>
+#include <iostream>
 
 bool filateva_e_simpson_seq::Simpson::PreProcessingImpl() {
-  auto *temp = reinterpret_cast<double *>(task_data->inputs[0]);
-  a_ = temp[0];
-  b_ = temp[1];
-  alfa_ = temp[2];
-  f_ = reinterpret_cast<Func>(task_data->inputs[1]);
+  mer_ = task_data->inputs_count[0];
+  steps_ = task_data->inputs_count[1];
+
+  auto temp_a = reinterpret_cast<double *>(task_data->inputs[0]);
+  a_.insert(a_.end(), temp_a, temp_a + mer_);
+
+  auto temp_b = reinterpret_cast<double *>(task_data->inputs[1]);
+  b_.insert(b_.end(), temp_b, temp_b + mer_);
+
+  f_ = reinterpret_cast<Func>(task_data->inputs[2]);
 
   return true;
 }
 
 bool filateva_e_simpson_seq::Simpson::ValidationImpl() {
-  auto *temp = reinterpret_cast<double *>(task_data->inputs[0]);
-  return task_data->inputs_count[0] == 2 && task_data->outputs_count[0] == 1 && temp[0] < temp[1] &&
-         temp[1] - temp[0] > temp[2] && temp[2] > 0;
+  size_t mer = task_data->inputs_count[0];
+  auto temp_a = reinterpret_cast<double *>(task_data->inputs[0]);
+  auto temp_b = reinterpret_cast<double *>(task_data->inputs[1]);
+  if (task_data->inputs_count[1] % 2 == 1) return false;
+  for (int i = 0; i < mer; i++) {
+    if (temp_b[i] <= temp_a[i]) return false;
+  }
+  return true;
 }
 
 bool filateva_e_simpson_seq::Simpson::RunImpl() {
-  double max_z = 0;
-  for (int i = 0; i < (int)((b_ - a_) / alfa_) + 1; ++i) {
-    double x = a_ + (i * alfa_);
-    double temp =
-        std::abs((f_(x - (2 * alfa_)) - 4 * f_(x - alfa_) + 6 * f_(x) - 4 * f_(x + alfa_) + f_(x + (2 * alfa_))) /
-                 pow(alfa_, 4));
-    max_z = std::max(max_z, temp);
+
+  std::vector<double> h(mer_);
+  for (int i = 0; i < mer_; i++) {
+    h[i] = (b_[i] - a_[i]) / steps_;
   }
+  
+  res_ = 0.0;
+  
+  for (unsigned long i = 0; i < std::pow(steps_ + 1, mer_); i++) {
+    unsigned long temp = i;
+    std::vector<double> param(mer_);
+    double weight = 1.0;
 
-  int n_2 = (int)pow((pow((b_ - a_), 4) * max_z) / (180 * alfa_), 0.25);
+    for (int m = 0; m < mer_; m++) {
+      int shag_i = temp % (steps_ + 1);
+      temp /= (steps_ + 1);
 
-  n_2 += ((n_2 % 2) != 0) ? 1 : 0;
-  n_2 = (n_2 != 0) ? n_2 : 10;
+      param[m] = a_[m] + h[m] * shag_i;
 
-  double h = (b_ - a_) / n_2;
-  res_ = f_(a_) + f_(b_);
-
-  for (int i = 1; i < n_2; i++) {
-    double x = a_ + (i * h);
-    if (i % 2 == 1) {
-      res_ += 4 * f_(x);
-    } else {
-      res_ += 2 * f_(x);
+      if (shag_i == 0 || shag_i == steps_) {
+        weight *= 1.0;
+      } else if (shag_i % 2 == 1) {
+        weight *= 4.0;
+      } else {
+        weight *= 2.0;
+      }
     }
+
+    res_ += weight * f_(param);
   }
 
-  res_ *= (h / 3);
-
+  for (int i = 0; i < mer_; i++) {
+    res_ *= (h[i] / 3.0);
+  }
   return true;
 }
 
