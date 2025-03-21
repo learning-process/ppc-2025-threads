@@ -125,6 +125,10 @@ TEST(malyshev_v_radix_sort_seq, duplicates_test) {
   test_task_sequential.PostProcessing();
 
   ASSERT_EQ(out, sorted_vector);
+
+  for (size_t i = 1; i < out.size(); ++i) {
+    ASSERT_LE(out[i - 1], out[i]);
+  }
 }
 
 TEST(malyshev_v_radix_sort_seq, Validation_test) {
