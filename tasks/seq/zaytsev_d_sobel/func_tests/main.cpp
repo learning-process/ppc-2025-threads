@@ -10,6 +10,7 @@
 
 static std::vector<int> matToVector(const cv::Mat &img) {
   std::vector<int> vec;
+  
   vec.reserve(img.rows * img.cols);
   for (int i = 0; i < img.rows; ++i) {
     for (int j = 0; j < img.cols; ++j) {
