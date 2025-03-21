@@ -1,11 +1,10 @@
-#define _USE_MATH_DEFINES
 #include <gtest/gtest.h>
-#include <math.h>
 
 #include <cmath>
 #include <cstddef>
 #include <cstdint>
 #include <memory>
+#include <numbers>
 #include <random>
 #include <vector>
 
@@ -38,7 +37,7 @@ std::vector<ermolaev_v_graham_scan_seq::Point> GenerateRandomPointsInCircle(int 
   std::random_device rand_dev;
   std::mt19937 rand_engine(rand_dev());
   std::uniform_real_distribution<double> dist_radius(0.0, radius);
-  std::uniform_real_distribution<double> dist_angle(0.0, 2.0 * M_PI);
+  std::uniform_real_distribution<double> dist_angle(0.0, 2.0 * std::numbers::pi);
 
   std::vector<ermolaev_v_graham_scan_seq::Point> points;
   points.reserve(num_points);
