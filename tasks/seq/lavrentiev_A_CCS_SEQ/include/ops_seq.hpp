@@ -15,7 +15,6 @@ struct Sparse {
   std::vector<int> columnsSum;
 };
 
-std::vector<double> GenerateRandomMatrix(int size);
 class CCSSequential : public ppc::core::Task {
  private:
   [[nodiscard]] bool IsEmpty() const;
@@ -37,7 +36,5 @@ class CCSSequential : public ppc::core::Task {
   bool RunImpl() override;
   bool PostProcessingImpl() override;
 };
-
-std::vector<double> GenerateSingleMatrix(int size);
 
 }  // namespace lavrentiev_a_ccs_seq

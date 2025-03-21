@@ -1,9 +1,8 @@
-#include "seq/Lavrentiev_A_CCS_SEQ/include/ops_seq.hpp"
+#include "seq/lavrentiev_A_CCS_SEQ/include/ops_seq.hpp"
 
 #include <algorithm>
 #include <cmath>
 #include <cstddef>
-#include <random>
 #include <utility>
 #include <vector>
 
@@ -151,30 +150,4 @@ bool lavrentiev_a_ccs_seq::CCSSequential::PostProcessingImpl() {
     reinterpret_cast<double *>(task_data->outputs[0])[i] = result[i];
   }
   return true;
-}
-
-std::vector<double> lavrentiev_a_ccs_seq::GenerateRandomMatrix(int size) {
-  std::vector<double> data(size);
-  std::random_device device;
-  std::mt19937 generator(device());
-  for (int i = 0; i < size; ++i) {
-    if ((i % 6) == 0) {
-      data[i] = static_cast<double>(generator() % 1000);
-    }
-  }
-  std::ranges::shuffle(data, generator);
-  return data;
-}
-
-std::vector<double> lavrentiev_a_ccs_seq::GenerateSingleMatrix(int size) {
-  std::vector<double> test_data(size, 0.0);
-  int sqrt = static_cast<int>(std::sqrt(size));
-  for (int i = 0; i < sqrt; ++i) {
-    for (int j = 0; j < sqrt; ++j) {
-      if (i == j) {
-        test_data[(sqrt * i) + j] = 1.0;
-      }
-    }
-  }
-  return test_data;
 }

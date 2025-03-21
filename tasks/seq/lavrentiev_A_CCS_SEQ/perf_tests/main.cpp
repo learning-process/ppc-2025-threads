@@ -1,17 +1,45 @@
 #include <gtest/gtest.h>
 
 #include <chrono>
+#include <cmath>
 #include <cstddef>
 #include <cstdint>
 #include <memory>
+#include <random>
 #include <utility>
 #include <vector>
 
 #include "core/perf/include/perf.hpp"
 #include "core/task/include/task.hpp"
-#include "seq/Lavrentiev_A_CCS_SEQ/include/ops_seq.hpp"
+#include "seq/lavrentiev_A_CCS_SEQ/include/ops_seq.hpp"
 
 namespace {
+
+std::vector<double> GenerateRandomMatrix(int size) {
+  std::vector<double> data(size);
+  std::random_device device;
+  std::mt19937 generator(device());
+  for (int i = 0; i < size; ++i) {
+    if ((i % 6) == 0) {
+      data[i] = static_cast<double>(generator() % 1000);
+    }
+  }
+  std::ranges::shuffle(data, generator);
+  return data;
+}
+
+std::vector<double> GenerateSingleMatrix(int size) {
+  std::vector<double> test_data(size, 0.0);
+  int sqrt = static_cast<int>(std::sqrt(size));
+  for (int i = 0; i < sqrt; ++i) {
+    for (int j = 0; j < sqrt; ++j) {
+      if (i == j) {
+        test_data[(sqrt * i) + j] = 1.0;
+      }
+    }
+  }
+  return test_data;
+}
 constexpr auto kEpsilon = 0.000001;
 struct TestData {
   std::vector<double> random_data;
@@ -22,8 +50,8 @@ struct TestData {
 };
 
 TestData::TestData(std::pair<int, int> matrix1_size, std::pair<int, int> matrix2_size) {
-  random_data = lavrentiev_a_ccs_seq::GenerateRandomMatrix(matrix1_size.first * matrix1_size.second);
-  single_matrix = lavrentiev_a_ccs_seq::GenerateSingleMatrix(matrix2_size.first * matrix2_size.second);
+  random_data = GenerateRandomMatrix(matrix1_size.first * matrix1_size.second);
+  single_matrix = GenerateSingleMatrix(matrix2_size.first * matrix2_size.second);
   result.resize(matrix1_size.first * matrix2_size.second);
   task_data_seq = std::make_shared<ppc::core::TaskData>();
   task_data_seq->inputs.emplace_back(reinterpret_cast<uint8_t *>(random_data.data()));
@@ -35,7 +63,6 @@ TestData::TestData(std::pair<int, int> matrix1_size, std::pair<int, int> matrix2
   task_data_seq->outputs.emplace_back(reinterpret_cast<uint8_t *>(result.data()));
   task_data_seq->outputs_count.emplace_back(result.size());
 }
-
 }  // namespace
 
 TEST(lavrentiev_a_ccs_seq, test_pipeline_run) {
