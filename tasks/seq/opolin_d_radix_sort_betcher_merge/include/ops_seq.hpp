@@ -7,7 +7,6 @@
 #include "core/task/include/task.hpp"
 
 namespace opolin_d_radix_betcher_sort_seq {
-void BetcherMerge(std::vector<int>& arr, size_t start, size_t end);
 void SortByDigit(std::vector<int>& array, int digit_place);
 
 class RadixBetcherSortTaskSequential : public ppc::core::Task {

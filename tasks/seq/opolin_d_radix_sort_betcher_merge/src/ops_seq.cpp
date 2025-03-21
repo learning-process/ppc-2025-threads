@@ -3,7 +3,6 @@
 #include <algorithm>
 #include <cmath>
 #include <cstddef>
-#include <ranges>
 #include <vector>
 
 bool opolin_d_radix_betcher_sort_seq::RadixBetcherSortTaskSequential::PreProcessingImpl() {
@@ -68,7 +67,6 @@ bool opolin_d_radix_betcher_sort_seq::RadixBetcherSortTaskSequential::RunImpl() 
   for (int value : positives) {
     output_.push_back(value);
   }
-  BetcherMerge(output_, 0, output_.size());
   return true;
 }
 
@@ -96,24 +94,4 @@ void opolin_d_radix_betcher_sort_seq::SortByDigit(std::vector<int> &array, int d
     result[--buckets[digit]] = array[i];
   }
   array = result;
-}
-
-void opolin_d_radix_betcher_sort_seq::BetcherMerge(std::vector<int> &arr, size_t start, size_t end) {
-  size_t size = end - start;
-  if (size <= 1) {
-    return;
-  }
-  size_t mid = start + (size / 2);
-  BetcherMerge(arr, start, mid);
-  BetcherMerge(arr, mid, end);
-  size_t step = (size + 1) / 2;
-  while (step > 0) {
-    for (size_t i = start; i + step < end; ++i) {
-      size_t j = i + step;
-      if (arr[i] > arr[j]) {
-        std::swap(arr[i], arr[j]);
-      }
-    }
-    step /= 2;
-  }
 }
