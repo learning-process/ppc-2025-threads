@@ -28,15 +28,7 @@ bool nikolaev_r_hoare_sort_simple_merge_tbb::HoareSortSimpleMergeTBB::Validation
 bool nikolaev_r_hoare_sort_simple_merge_tbb::HoareSortSimpleMergeTBB::RunImpl() {
   size_t num_segments = ppc::util::GetPPCNumThreads();
 
-  if (num_segments == 0) {
-    num_segments = 1;
-  }
-
   num_segments = std::min(num_segments, vect_size_);
-
-  if (vect_size_ == 0) {
-    return true;
-  }
 
   size_t segment_size = vect_size_ / num_segments;
   size_t remainder = vect_size_ % num_segments;
