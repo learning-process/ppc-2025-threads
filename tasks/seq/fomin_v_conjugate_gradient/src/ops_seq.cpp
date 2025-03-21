@@ -66,7 +66,8 @@ bool fomin_v_conjugate_gradient::fomin_v_conjugate_gradient_seq::PreProcessingIm
 bool fomin_v_conjugate_gradient::fomin_v_conjugate_gradient_seq::ValidationImpl() {
   unsigned int input_size = task_data->inputs_count[0];
   int n = static_cast<int>((-1.0 + std::sqrt(1 + 4 * input_size)) / 2);
-  if (n * (n + 1) != input_size || task_data->outputs_count[0] != static_cast<unsigned int>(n)) {
+  if (static_cast<unsigned int>(n * (n + 1)) != input_size ||
+      task_data->outputs_count[0] != static_cast<unsigned int>(n)) {
     return false;
   }
   return true;
