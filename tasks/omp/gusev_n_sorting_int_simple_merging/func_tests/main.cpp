@@ -128,3 +128,51 @@ TEST(gusev_n_sorting_int_simple_merging_omp, test_radix_sort_reversed_random) {
 
   EXPECT_EQ(expected, out);
 }
+
+TEST(gusev_n_sorting_int_simple_merging_omp, test_radix_sort_already_sorted) {
+  std::vector<int> in = {1, 2, 3, 4, 5};
+  std::vector<int> out(in.size());
+
+  auto task_data_omp = CreateTaskData(in, out);
+  RunT(task_data_omp);
+
+  std::vector<int> expected = in;
+  std::ranges::sort(expected);
+  EXPECT_EQ(expected, out);
+}
+
+TEST(gusev_n_sorting_int_simple_merging_omp, test_radix_sort_all_negative) {
+  std::vector<int> in = {-5, -3, -1, -10, -2};
+  std::vector<int> out(in.size());
+
+  auto task_data_omp = CreateTaskData(in, out);
+  RunT(task_data_omp);
+
+  std::vector<int> expected = in;
+  std::ranges::sort(expected);
+  EXPECT_EQ(expected, out);
+}
+
+TEST(gusev_n_sorting_int_simple_merging_omp, test_radix_sort_all_same) {
+  std::vector<int> in = {5, 5, 5, 5, 5};
+  std::vector<int> out(in.size());
+
+  auto task_data_omp = CreateTaskData(in, out);
+  RunT(task_data_omp);
+
+  std::vector<int> expected = in;
+  std::ranges::sort(expected);
+  EXPECT_EQ(expected, out);
+}
+
+TEST(gusev_n_sorting_int_simple_merging_omp, test_radix_sort_all_same_negative) {
+  std::vector<int> in = {-3, -3, -3, -3};
+  std::vector<int> out(in.size());
+
+  auto task_data_omp = CreateTaskData(in, out);
+  RunT(task_data_omp);
+
+  std::vector<int> expected = in;
+  std::ranges::sort(expected);
+  EXPECT_EQ(expected, out);
+}

@@ -20,7 +20,7 @@ void gusev_n_sorting_int_simple_merging_omp::TestTaskOpenMP::RadixSort(std::vect
     std::vector<int> local_pos;
 #pragma omp for nowait
     for (int i = 0; i < static_cast<int>(arr.size()); ++i) {
-      int num = arr[static_cast<size_t>(i)];
+      int num = arr[i];
       if (num < 0) {
         local_neg.push_back(-num);
       } else {
@@ -71,7 +71,7 @@ void gusev_n_sorting_int_simple_merging_omp::TestTaskOpenMP::RadixSortForNonNega
     int local_max = max_val;
 #pragma omp for nowait
     for (int i = 0; i < static_cast<int>(arr.size()); ++i) {
-      local_max = std::max(arr[static_cast<size_t>(i)], local_max);
+      local_max = std::max(arr[i], local_max);
     }
 #pragma omp critical
     { max_val = std::max(local_max, max_val); }
@@ -91,15 +91,15 @@ void gusev_n_sorting_int_simple_merging_omp::TestTaskOpenMP::CountingSort(std::v
     std::vector<int> local_count(10, 0);
 #pragma omp for
     for (int i = 0; i < static_cast<int>(arr.size()); ++i) {
-      int num = arr[static_cast<size_t>(i)];
+      int num = arr[i];
       int digit = (num / exp) % 10;
-      local_count[static_cast<size_t>(digit)]++;
+      local_count[digit]++;
     }
 
 #pragma omp critical
     {
       for (int j = 0; j < 10; ++j) {
-        count[static_cast<size_t>(j)] += local_count[static_cast<size_t>(j)];
+        count[j] += local_count[j];
       }
     }
   }
@@ -107,12 +107,12 @@ void gusev_n_sorting_int_simple_merging_omp::TestTaskOpenMP::CountingSort(std::v
   std::partial_sum(count.begin(), count.end(), count.begin());
 
   for (int i = static_cast<int>(arr.size()); i > 0; --i) {
-    int digit = (arr[static_cast<size_t>(i - 1)] / exp) % 10;
-    output[static_cast<size_t>(count[static_cast<size_t>(digit)] - 1)] = arr[static_cast<size_t>(i - 1)];
-    count[static_cast<size_t>(digit)]--;
+    int digit = (arr[i - 1] / exp) % 10;
+    output[count[digit] - 1] = arr[i - 1];
+    count[digit]--;
   }
 
-  arr = output;
+  arr.swap(output);
 }
 
 bool gusev_n_sorting_int_simple_merging_omp::TestTaskOpenMP::PreProcessingImpl() {
