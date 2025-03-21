@@ -79,7 +79,7 @@ bool filateva_e_simpson_stl::Simpson::RunImpl() {
   unsigned long del = (unsigned long)std::pow(steps_ + 1, mer_) / num_threads;
   unsigned long ost = (unsigned long)std::pow(steps_ + 1, mer_) % num_threads;
   for (int i = 0; i < num_threads; i++) {
-    threads[i] = std::thread([&, i](){ local_res[i] = IntegralFunc(ost + del * i, ost + del * (i + 1)); });
+    threads[i] = std::thread([&, i]() { local_res[i] = IntegralFunc(ost + del * i, ost + del * (i + 1)); });
   }
   res_ += IntegralFunc(0, ost);
   for (int i = 0; i < num_threads; i++) {
