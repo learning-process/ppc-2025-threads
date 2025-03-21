@@ -5,11 +5,11 @@
 
 #include "core/task/include/task.hpp"
 
-namespace gnitienko_k_strassen_algorithm {
+namespace gnitienko_k_strassen_algorithm_omp {
 
-class StrassenAlgSeq : public ppc::core::Task {
+class StrassenAlgOpenMP : public ppc::core::Task {
  public:
-  explicit StrassenAlgSeq(ppc::core::TaskDataPtr task_data) : Task(std::move(task_data)) {}
+  explicit StrassenAlgOpenMP(ppc::core::TaskDataPtr task_data) : Task(std::move(task_data)) {}
   bool PreProcessingImpl() override;
   bool ValidationImpl() override;
   bool RunImpl() override;
@@ -30,4 +30,4 @@ class StrassenAlgSeq : public ppc::core::Task {
   static void SubMatrix(const std::vector<double>& a, const std::vector<double>& b, std::vector<double>& c, int size);
 };
 
-}  // namespace gnitienko_k_strassen_algorithm
+}  // namespace gnitienko_k_strassen_algorithm_omp

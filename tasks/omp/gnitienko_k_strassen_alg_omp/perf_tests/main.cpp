@@ -1,7 +1,6 @@
 #include <gtest/gtest.h>
 
 #include <chrono>
-#include <cmath>
 #include <cstddef>
 #include <cstdint>
 #include <memory>
@@ -10,7 +9,7 @@
 
 #include "core/perf/include/perf.hpp"
 #include "core/task/include/task.hpp"
-#include "seq/gnitienko_k_strassen_alg/include/ops_seq.hpp"
+#include "omp/gnitienko_k_strassen_alg_omp/include/ops_omp.hpp"
 
 namespace {
 double min_val = -50.0;
@@ -46,7 +45,7 @@ void TrivialMultiply(const std::vector<double> &a, const std::vector<double> &b,
 }
 }  // namespace
 
-TEST(gnitienko_k_strassen_alg_seq, test_pipeline_run) {
+TEST(gnitienko_k_strassen_alg_omp, test_pipeline_run) {
   size_t size = 1024;
 
   // Create data
@@ -57,15 +56,15 @@ TEST(gnitienko_k_strassen_alg_seq, test_pipeline_run) {
   std::vector<double> out(size * size);
 
   // Create task_data
-  auto task_data_seq = std::make_shared<ppc::core::TaskData>();
-  task_data_seq->inputs.emplace_back(reinterpret_cast<uint8_t *>(a.data()));
-  task_data_seq->inputs.emplace_back(reinterpret_cast<uint8_t *>(b.data()));
-  task_data_seq->inputs_count.emplace_back(a.size());
-  task_data_seq->outputs.emplace_back(reinterpret_cast<uint8_t *>(out.data()));
-  task_data_seq->outputs_count.emplace_back(out.size());
+  auto task_data_omp = std::make_shared<ppc::core::TaskData>();
+  task_data_omp->inputs.emplace_back(reinterpret_cast<uint8_t *>(a.data()));
+  task_data_omp->inputs.emplace_back(reinterpret_cast<uint8_t *>(b.data()));
+  task_data_omp->inputs_count.emplace_back(a.size());
+  task_data_omp->outputs.emplace_back(reinterpret_cast<uint8_t *>(out.data()));
+  task_data_omp->outputs_count.emplace_back(out.size());
 
   // Create Task
-  auto test_task_sequential = std::make_shared<gnitienko_k_strassen_algorithm::StrassenAlgSeq>(task_data_seq);
+  auto test_task_omp = std::make_shared<gnitienko_k_strassen_algorithm_omp::StrassenAlgOpenMP>(task_data_omp);
 
   // Create Perf attributes
   auto perf_attr = std::make_shared<ppc::core::PerfAttr>();
@@ -81,7 +80,7 @@ TEST(gnitienko_k_strassen_alg_seq, test_pipeline_run) {
   auto perf_results = std::make_shared<ppc::core::PerfResults>();
 
   // Create Perf analyzer
-  auto perf_analyzer = std::make_shared<ppc::core::Perf>(test_task_sequential);
+  auto perf_analyzer = std::make_shared<ppc::core::Perf>(test_task_omp);
   perf_analyzer->PipelineRun(perf_attr, perf_results);
   ppc::core::Perf::PrintPerfStatistic(perf_results);
   for (size_t i = 0; i < size * size; i++) {
@@ -89,24 +88,26 @@ TEST(gnitienko_k_strassen_alg_seq, test_pipeline_run) {
   }
 }
 
-TEST(gnitienko_k_strassen_alg_seq, test_task_run) {
+TEST(gnitienko_k_strassen_alg_omp, test_task_run) {
   size_t size = 1024;
+
   // Create data
   std::vector<double> a = GenMatrix(size);
   std::vector<double> b = GenMatrix(size);
   std::vector<double> expected(size * size);
   TrivialMultiply(a, b, expected, size);
   std::vector<double> out(size * size);
+
   // Create task_data
-  auto task_data_seq = std::make_shared<ppc::core::TaskData>();
-  task_data_seq->inputs.emplace_back(reinterpret_cast<uint8_t *>(a.data()));
-  task_data_seq->inputs.emplace_back(reinterpret_cast<uint8_t *>(b.data()));
-  task_data_seq->inputs_count.emplace_back(a.size());
-  task_data_seq->outputs.emplace_back(reinterpret_cast<uint8_t *>(out.data()));
-  task_data_seq->outputs_count.emplace_back(out.size());
+  auto task_data_omp = std::make_shared<ppc::core::TaskData>();
+  task_data_omp->inputs.emplace_back(reinterpret_cast<uint8_t *>(a.data()));
+  task_data_omp->inputs.emplace_back(reinterpret_cast<uint8_t *>(b.data()));
+  task_data_omp->inputs_count.emplace_back(a.size());
+  task_data_omp->outputs.emplace_back(reinterpret_cast<uint8_t *>(out.data()));
+  task_data_omp->outputs_count.emplace_back(out.size());
 
   // Create Task
-  auto test_task_sequential = std::make_shared<gnitienko_k_strassen_algorithm::StrassenAlgSeq>(task_data_seq);
+  auto test_task_omp = std::make_shared<gnitienko_k_strassen_algorithm_omp::StrassenAlgOpenMP>(task_data_omp);
 
   // Create Perf attributes
   auto perf_attr = std::make_shared<ppc::core::PerfAttr>();
@@ -122,7 +123,7 @@ TEST(gnitienko_k_strassen_alg_seq, test_task_run) {
   auto perf_results = std::make_shared<ppc::core::PerfResults>();
 
   // Create Perf analyzer
-  auto perf_analyzer = std::make_shared<ppc::core::Perf>(test_task_sequential);
+  auto perf_analyzer = std::make_shared<ppc::core::Perf>(test_task_omp);
   perf_analyzer->TaskRun(perf_attr, perf_results);
   ppc::core::Perf::PrintPerfStatistic(perf_results);
   for (size_t i = 0; i < size * size; i++) {
