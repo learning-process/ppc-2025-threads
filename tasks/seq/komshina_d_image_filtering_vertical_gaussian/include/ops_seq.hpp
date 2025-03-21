@@ -1,7 +1,7 @@
 #pragma once
 
-#include <utility>
 #include <cstdint>
+#include <utility>
 #include <vector>
 
 #include "core/task/include/task.hpp"
@@ -21,7 +21,7 @@ class TestTaskSequential : public ppc::core::Task {
   std::vector<uint8_t> output_;
   uint32_t height_;
   uint32_t width_;
-  
+
   std::vector<float> kernel_;
 };
 

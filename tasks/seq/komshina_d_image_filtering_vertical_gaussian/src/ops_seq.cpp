@@ -14,7 +14,6 @@ bool komshina_d_image_filtering_vertical_gaussian_seq::TestTaskSequential::PrePr
   auto *in_ptr = reinterpret_cast<uint8_t *>(task_data->inputs[0]);
   input_.assign(in_ptr, in_ptr + input_size);
 
-
   unsigned int kernel_size = task_data->inputs_count[2];
   auto *kernel_ptr = reinterpret_cast<float *>(task_data->inputs[1]);
   kernel_.assign(kernel_ptr, kernel_ptr + kernel_size);
@@ -55,7 +54,7 @@ bool komshina_d_image_filtering_vertical_gaussian_seq::TestTaskSequential::RunIm
         std::size_t k_idx = 0;
 
         for (int ky = -1; ky <= 1; ++ky) {
-          std::size_t row_idx = (((y + ky) * width_) + (x - 1)) * 3 + c;
+          std::size_t row_idx = ((((y + ky) * width_) + (x - 1)) * 3) + c;
 
           for (int kx = -1; kx <= 1; ++kx, ++k_idx) {
             total += static_cast<float>(input_[row_idx]) * kernel_[k_idx];
