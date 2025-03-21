@@ -6,7 +6,6 @@
 
 namespace sadikov_i_sparse_matrix_multiplication_task_omp {
 class SparseMatrix {
-  // restart tests
   constexpr static double kMEpsilon = 0.000001;
   int m_rowsCount_ = 0;
   int m_columnsCount_ = 0;
