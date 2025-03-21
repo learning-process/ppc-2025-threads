@@ -76,61 +76,48 @@ bool shulpin_i_jarvis_omp::JarvisSequential::PostProcessingImpl() {
 
 void shulpin_i_jarvis_omp::JarvisOMPParallel::MakeJarvisPassageOMP(
     std::vector<shulpin_i_jarvis_omp::Point>& input_jar, std::vector<shulpin_i_jarvis_omp::Point>& output_jar) {
-  size_t total = input_jar.size();
-  output_jar.clear();
+  int32_t total = input_jar.size();
 
-  size_t start = 0;
-
-#pragma omp parallel
-  {
-    size_t local_start = start;
-
-#pragma omp for nowait
-    for (int i = 1; i < static_cast<int>(total); ++i) {
-      if (input_jar[i].x < input_jar[local_start].x ||
-          (input_jar[i].x == input_jar[local_start].x && input_jar[i].y < input_jar[local_start].y)) {
-        local_start = i;
+  int32_t start = 0;
+#pragma omp parallel for
+  for (int32_t i = 0; i < total; ++i) {
+    int32_t candidate = i;
+    for (int32_t j = i + 1; j < total; ++j) {
+      if (input_jar[j].x < input_jar[candidate].x ||
+          (input_jar[j].x == input_jar[candidate].x && input_jar[j].y < input_jar[candidate].y)) {
+        candidate = j;
       }
     }
 
 #pragma omp critical
     {
-      if (input_jar[local_start].x < input_jar[start].x ||
-          (input_jar[local_start].x == input_jar[start].x && input_jar[local_start].y < input_jar[start].y)) {
-        start = local_start;
+      if (input_jar[candidate].x < input_jar[start].x ||
+          (input_jar[candidate].x == input_jar[start].x && input_jar[candidate].y < input_jar[start].y)) {
+        start = candidate;
       }
     }
   }
 
-  size_t active = start;
+  int32_t active = start;
+  int32_t candidate = 0;
+  std::vector<shulpin_i_jarvis_omp::Point> hull;
+  hull.reserve(total);
 
   do {
+    hull.push_back(input_jar[active]);
+    candidate = (active + 1) % total;
+
+#pragma omp parallel for shared(candidate)
+    for (int32_t i = 0; i < total; ++i) {
+      if (Orientation(input_jar[active], input_jar[i], input_jar[candidate]) == 2) {
 #pragma omp critical
-    output_jar.push_back(input_jar[active]);
-
-    size_t candidate = (active + 1) % total;
-
-#pragma omp parallel
-    {
-      size_t local_candidate = candidate;
-
-#pragma omp for nowait
-      for (int index = 0; index < static_cast<int>(total); ++index) {
-        if (Orientation(input_jar[active], input_jar[index], input_jar[local_candidate]) == 2) {
-          local_candidate = static_cast<size_t>(index);
-        }
-      }
-
-#pragma omp critical
-      {
-        if (Orientation(input_jar[active], input_jar[local_candidate], input_jar[candidate]) == 2) {
-          candidate = local_candidate;
-        }
+        { candidate = i; }
       }
     }
-
     active = candidate;
   } while (active != start);
+
+  output_jar = std::move(hull);
 }
 
 bool shulpin_i_jarvis_omp::JarvisOMPParallel::PreProcessingImpl() {
