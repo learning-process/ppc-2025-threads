@@ -262,7 +262,7 @@ TEST(filateva_e_simpson_seq, test_sum_integral) {
   simpson.Run();
   simpson.PostProcessing();
 
-  filateva_e_simpson_seq::Func integral_f = [](std::vector<double> x) { 
+  filateva_e_simpson_seq::Func integral_f = [](std::vector<double> x) {
     return (pow(x[0], 4) / 4) + (pow(x[0], 3) / 3) + (pow(x[0], 2) / 2);
   };
 
@@ -365,7 +365,6 @@ TEST(filateva_e_simpson_seq, test_x_y) {
   simpson.PostProcessing();
 
   ASSERT_NEAR(res[0], 1000, 0.01);
-
 }
 
 TEST(filateva_e_simpson_seq, test_sin_x_cos_y) {

@@ -3,7 +3,6 @@
 #include <algorithm>
 #include <cmath>
 #include <vector>
-#include <iostream>
 
 bool filateva_e_simpson_seq::Simpson::PreProcessingImpl() {
   mer_ = task_data->inputs_count[0];
@@ -32,14 +31,13 @@ bool filateva_e_simpson_seq::Simpson::ValidationImpl() {
 }
 
 bool filateva_e_simpson_seq::Simpson::RunImpl() {
-
   std::vector<double> h(mer_);
   for (int i = 0; i < mer_; i++) {
     h[i] = (b_[i] - a_[i]) / steps_;
   }
-  
+
   res_ = 0.0;
-  
+
   for (unsigned long i = 0; i < std::pow(steps_ + 1, mer_); i++) {
     unsigned long temp = i;
     std::vector<double> param(mer_);

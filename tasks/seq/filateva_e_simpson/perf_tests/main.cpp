@@ -14,7 +14,8 @@ TEST(filateva_e_simpson_seq, test_pipeline_run) {
   size_t steps = 10000000;
   std::vector<double> a = {1};
   std::vector<double> b = {1000};
-  std::vector<double> res(1, 0);filateva_e_simpson_seq::Func f = [](std::vector<double> x) { return x[0] * x[0]; };
+  std::vector<double> res(1, 0);
+  filateva_e_simpson_seq::Func f = [](std::vector<double> x) { return x[0] * x[0]; };
 
   auto task_data = std::make_shared<ppc::core::TaskData>();
   task_data->inputs.emplace_back(reinterpret_cast<uint8_t *>(a.data()));
@@ -53,15 +54,16 @@ TEST(filateva_e_simpson_seq, test_task_run) {
   size_t steps = 10000000;
   std::vector<double> a = {1};
   std::vector<double> b = {1000};
-  std::vector<double> res(1, 0);filateva_e_simpson_seq::Func f = [](std::vector<double> x) { return x[0] * x[0]; };
-  
+  std::vector<double> res(1, 0);
+  filateva_e_simpson_seq::Func f = [](std::vector<double> x) { return x[0] * x[0]; };
+
   auto task_data = std::make_shared<ppc::core::TaskData>();
   task_data->inputs.emplace_back(reinterpret_cast<uint8_t *>(a.data()));
   task_data->inputs.emplace_back(reinterpret_cast<uint8_t *>(b.data()));
   task_data->inputs.emplace_back(reinterpret_cast<uint8_t *>(f));
   task_data->inputs_count.emplace_back(mer);
   task_data->inputs_count.emplace_back(steps);
-  
+
   task_data->outputs.emplace_back(reinterpret_cast<uint8_t *>(res.data()));
   task_data->outputs_count.emplace_back(1);
 
