@@ -13,7 +13,7 @@
 TEST(conjugate_gradient_task_seq, test_small_system) {
   // Создаем данные для системы 3x3
   constexpr size_t kCount = 3;
-  std::vector<double> A = {4, 1, 1, 1, 3, 0, 1, 0, 2};  // Матрица A
+  std::vector<double> A = {4, 1, 1, 1, 3, 0, 1, 0, 2};  //Матрица A
   std::vector<double> b = {6, 5, 3};                    // Вектор b
   std::vector<double> expected_x = {1, 1, 1};           // Ожидаемое решение
   std::vector<double> out(kCount, 0.0);                 // Выходной вектор
