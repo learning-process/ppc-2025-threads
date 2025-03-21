@@ -79,7 +79,7 @@ bool shulpin_i_jarvis_omp::JarvisSequential::PostProcessingImpl() {
 void shulpin_i_jarvis_omp::JarvisOMPParallel::MakeJarvisPassageOMP(
     std::vector<shulpin_i_jarvis_omp::Point>& input_jar, std::vector<shulpin_i_jarvis_omp::Point>& output_jar) {
   size_t total_size_t = input_jar.size();
-  int32_t total = static_cast<int32_t>(total_size_t);
+  auto total = static_cast<int32_t>(total_size_t);
   output_jar.clear();
   
   int32_t start = 0;
