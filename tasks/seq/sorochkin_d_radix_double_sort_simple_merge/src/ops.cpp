@@ -54,7 +54,7 @@ void RadixSort(std::span<double> v) {
     std::ranges::for_each(v, [&](auto el) { ++count[Bitutil::ByteAt(Bitutil::AsU64(el), ib)]; });
     std::partial_sum(count.begin(), count.end(), count.begin());
     std::ranges::for_each(std::ranges::reverse_view(v),
-        [&](auto el) { aux[--count[Bitutil::ByteAt(Bitutil::AsU64(el), ib)]] = el; });
+                          [&](auto el) { aux[--count[Bitutil::ByteAt(Bitutil::AsU64(el), ib)]] = el; });
     std::swap(v, aux);
   }
 }
