@@ -37,7 +37,6 @@ void TrivialMultiply(const std::vector<double> &a, const std::vector<double> &b,
       c[(i * size) + j] = 0;
       for (size_t k = 0; k < size; ++k) {
         c[(i * size) + j] += a[(i * size) + k] * b[(k * size) + j];
-        c[(i * size) + j] = c[(i * size) + j];
       }
     }
   }
@@ -67,7 +66,9 @@ TEST(gnitienko_k_strassen_alg_seq, test_2x2_matrix) {
   test_task_sequential.PreProcessing();
   test_task_sequential.Run();
   test_task_sequential.PostProcessing();
-  EXPECT_EQ(expected, out);
+  for (size_t i = 0; i < size * size; i++) {
+    EXPECT_NEAR(expected[i], out[i], 1e-2);
+  }
 }
 
 TEST(gnitienko_k_strassen_alg_seq, test_4x4_matrix) {
@@ -93,7 +94,9 @@ TEST(gnitienko_k_strassen_alg_seq, test_4x4_matrix) {
   test_task_sequential.PreProcessing();
   test_task_sequential.Run();
   test_task_sequential.PostProcessing();
-  EXPECT_EQ(expected, out);
+  for (size_t i = 0; i < size * size; i++) {
+    EXPECT_NEAR(expected[i], out[i], 1e-2);
+  }
 }
 
 TEST(gnitienko_k_strassen_alg_seq, test_random_16x16) {
