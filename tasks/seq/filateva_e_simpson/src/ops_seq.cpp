@@ -24,7 +24,7 @@ bool filateva_e_simpson_seq::Simpson::ValidationImpl() {
   auto temp_a = reinterpret_cast<double *>(task_data->inputs[0]);
   auto temp_b = reinterpret_cast<double *>(task_data->inputs[1]);
   if (task_data->inputs_count[1] % 2 == 1) return false;
-  for (int i = 0; i < mer; i++) {
+  for (size_t i = 0; i < mer; i++) {
     if (temp_b[i] <= temp_a[i]) return false;
   }
   return true;
@@ -32,7 +32,7 @@ bool filateva_e_simpson_seq::Simpson::ValidationImpl() {
 
 bool filateva_e_simpson_seq::Simpson::RunImpl() {
   std::vector<double> h(mer_);
-  for (int i = 0; i < mer_; i++) {
+  for (size_t i = 0; i < mer_; i++) {
     h[i] = (b_[i] - a_[i]) / steps_;
   }
 
@@ -43,8 +43,8 @@ bool filateva_e_simpson_seq::Simpson::RunImpl() {
     std::vector<double> param(mer_);
     double weight = 1.0;
 
-    for (int m = 0; m < mer_; m++) {
-      int shag_i = temp % (steps_ + 1);
+    for (size_t m = 0; m < mer_; m++) {
+      size_t shag_i = temp % (steps_ + 1);
       temp /= (steps_ + 1);
 
       param[m] = a_[m] + h[m] * shag_i;
@@ -61,7 +61,7 @@ bool filateva_e_simpson_seq::Simpson::RunImpl() {
     res_ += weight * f_(param);
   }
 
-  for (int i = 0; i < mer_; i++) {
+  for (size_t i = 0; i < mer_; i++) {
     res_ *= (h[i] / 3.0);
   }
   return true;
