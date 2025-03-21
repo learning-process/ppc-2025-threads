@@ -31,5 +31,6 @@ class Integral : public ppc::core::Task {
   double Compute(const std::function<double(const std::vector<double>&)>& f, const std::vector<double>& a,
                  const std::vector<double>& b, const std::vector<int>& n, int dim, std::vector<double>& point,
                  int current_dim);
+  bool ComputeOneDimensional();
 };
 }  // namespace shurigin_s_integrals_square_omp

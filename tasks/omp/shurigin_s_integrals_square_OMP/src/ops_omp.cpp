@@ -122,23 +122,27 @@ bool Integral::RunImpl() {
       std::vector<double> point(dimensions_);
       result_ = Compute(func_, down_limits_, up_limits_, counts_, dimensions_, point, 0);
       return true;
-    } else {
-      double step = (up_limits_[0] - down_limits_[0]) / counts_[0];
-      double local_result = 0.0;
-
-#pragma omp parallel for reduction(+ : local_result) schedule(static)
-      for (int i = 0; i < counts_[0]; ++i) {
-        double x = down_limits_[0] + ((i + 0.5) * step);
-        local_result += func_(std::vector<double>{x}) * step;
-      }
-
-      result_ = local_result;
-      return true;
     }
+
+    return ComputeOneDimensional();
   } catch (const std::exception& e) {
     std::cerr << "Error in RunImpl: " << e.what() << '\n';
     return false;
   }
+}
+
+bool Integral::ComputeOneDimensional() {
+  double step = (up_limits_[0] - down_limits_[0]) / counts_[0];
+  double local_result = 0.0;
+
+#pragma omp parallel for reduction(+ : local_result) schedule(static)
+  for (int i = 0; i < counts_[0]; ++i) {
+    double x = down_limits_[0] + ((i + 0.5) * step);
+    local_result += func_(std::vector<double>{x}) * step;
+  }
+
+  result_ = local_result;
+  return true;
 }
 
 bool Integral::PostProcessingImpl() {
@@ -165,9 +169,19 @@ double Integral::Compute(const std::function<double(const std::vector<double>&)>
   double step = (b[current_dim] - a[current_dim]) / n[current_dim];
   double area = 0.0;
 
-  for (int i = 0; i < n[current_dim]; ++i) {
-    point[current_dim] = a[current_dim] + ((i + 0.5) * step);
-    area += Compute(f, a, b, n, dim, point, current_dim + 1) * step;
+#pragma omp parallel reduction(+ : area)
+  {
+    std::vector<double> local_point = point;
+
+#pragma omp for schedule(guided)
+    for (int i = 0; i < n[current_dim]; ++i) {
+      local_point[current_dim] = a[current_dim] + ((i + 0.5) * step);
+
+      double local_area = Compute(f, a, b, n, dim, local_point, current_dim + 1) * step;
+
+#pragma omp atomic
+      area += local_area;
+    }
   }
 
   return area;
