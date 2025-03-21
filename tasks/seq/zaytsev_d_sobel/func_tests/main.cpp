@@ -37,9 +37,10 @@ TEST(zaytsev_d_sobel_seq, test_validation_fail) {
 TEST(zaytsev_d_sobel_seq, SobelEdgeDetection_5x5) {
   constexpr size_t kSize = 5;
   std::vector<int> input = {0, 0, 0, 0, 0, 0, 10, 10, 10, 0, 0, 10, 10, 10, 0, 0, 10, 10, 10, 0, 0, 0, 0, 0, 0};
-  std::vector<int> expected_output = {0,  0, 0, 0,  0,  0,  42, 40, 42, 0, 0, 40, 0, 40, 0, 0, 42, 40, 42, 0,  0,  0,  0, 0, 0};
+  std::vector<int> expected_output = {0,  0, 0, 0,  0,  0,  42, 40, 42, 0, 0, 40, 0,
+                                      40, 0, 0, 42, 40, 42, 0,  0,  0,  0, 0, 0};
   std::vector<int> output(kSize * kSize, 0);
-  
+
   auto task_data = std::make_shared<ppc::core::TaskData>();
   task_data->inputs.push_back(reinterpret_cast<uint8_t *>(input.data()));
   task_data->inputs_count.push_back(input.size());
@@ -77,8 +78,10 @@ TEST(zaytsev_d_sobel_seq, SobelEdgeDetection_UniformImage) {
 }
 
 TEST(zaytsev_d_sobel_seq, SobelEdgeDetection_OpenCVImage) {
-  cv::Mat inputImg = cv::imread(ppc::util::GetAbsolutePath("seq/zaytsev_d_sobel/data/inwhite.png"), cv::IMREAD_GRAYSCALE);
-  cv::Mat expectedImg = cv::imread(ppc::util::GetAbsolutePath("seq/zaytsev_d_sobel/data/outputwhite.png"), cv::IMREAD_GRAYSCALE);
+  cv::Mat inputImg =
+      cv::imread(ppc::util::GetAbsolutePath("seq/zaytsev_d_sobel/data/inwhite.png"), cv::IMREAD_GRAYSCALE);
+  cv::Mat expectedImg =
+      cv::imread(ppc::util::GetAbsolutePath("seq/zaytsev_d_sobel/data/outputwhite.png"), cv::IMREAD_GRAYSCALE);
 
   std::vector<int> input = matToVector(inputImg);
   std::vector<int> expected = matToVector(expectedImg);
