@@ -44,8 +44,8 @@ bool solovev_a_matrix::SeqMatMultCcs::RunImpl() {
   M3_->row.resize(n_z_full);
   M3_->val.resize(n_z_full);
 
-  std::complex<double> nought;
-  std::complex<double> m2_val;
+  std::complex<double> nought = {0.0, 0.0};
+  std::complex<double> m2_val = {0.0, 0.0};
   std::vector<std::complex<double>> cask(M3_->r_n);
   for (int m2_c = 0; m2_c < M3_->c_n; ++m2_c) {
     for (int m3_r = 0; m3_r < M3_->r_n; ++m3_r) {
