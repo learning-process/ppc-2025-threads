@@ -37,7 +37,7 @@ void TrivialMultiply(const std::vector<double> &a, const std::vector<double> &b,
       c[(i * size) + j] = 0;
       for (size_t k = 0; k < size; ++k) {
         c[(i * size) + j] += a[(i * size) + k] * b[(k * size) + j];
-        c[(i * size) + j] = round(c[(i * size) + j] * 10000) / 10000;
+        c[(i * size) + j] = c[(i * size) + j];
       }
     }
   }
@@ -46,9 +46,11 @@ void TrivialMultiply(const std::vector<double> &a, const std::vector<double> &b,
 
 TEST(gnitienko_k_strassen_alg_seq, test_2x2_matrix) {
   // Create data
+  size_t size = 2;
   std::vector<double> a = {2.4, 3.5, -4.1, 13.3};
   std::vector<double> b = {1.4, -0.5, 1.1, 2.3};
-  std::vector<double> expected = {7.21, 6.85, 8.89, 32.64};
+  std::vector<double> expected(size * size);
+  TrivialMultiply(a, b, expected, size);
   std::vector<double> out(4);
 
   // Create task_data
@@ -70,10 +72,11 @@ TEST(gnitienko_k_strassen_alg_seq, test_2x2_matrix) {
 
 TEST(gnitienko_k_strassen_alg_seq, test_4x4_matrix) {
   // Create data
+  size_t size = 4;
   std::vector<double> a = {2.4, 3.5, -4.1, 13.3, 1.4, -0.5, 1.1, 2.3, 3.2, 2.1, -1.3, 4.5, 0.9, -2.7, 3.8, -1.2};
   std::vector<double> b = {1.1, -0.8, 2.3, 0.5, -1.5, 3.2, 0.7, 1.9, 0.9, -1.1, 1.5, -0.4, 2.2, 0.6, -3.1, 1.3};
-  std::vector<double> expected = {22.96, 21.77, -39.41, 26.78, 8.34, -2.55,  -2.61, 2.3,
-                                  9.1,   8.29,  -7.07,  11.96, 5.82, -14.26, 9.6,   -7.76};
+  std::vector<double> expected(size * size);
+  TrivialMultiply(a, b, expected, size);
   std::vector<double> out(16);
 
   // Create task_data

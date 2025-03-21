@@ -39,7 +39,7 @@ void TrivialMultiply(const std::vector<double> &a, const std::vector<double> &b,
       c[(i * size) + j] = 0;
       for (size_t k = 0; k < size; ++k) {
         c[(i * size) + j] += a[(i * size) + k] * b[(k * size) + j];
-        c[(i * size) + j] = round(c[(i * size) + j] * 10000) / 10000;
+        c[(i * size) + j] = c[(i * size) + j];
       }
     }
   }

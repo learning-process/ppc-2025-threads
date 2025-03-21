@@ -195,7 +195,7 @@ bool gnitienko_k_strassen_algorithm::StrassenAlgSeq::RunImpl() {
 
 bool gnitienko_k_strassen_algorithm::StrassenAlgSeq::PostProcessingImpl() {
   for (size_t i = 0; i < output_.size(); i++) {
-    reinterpret_cast<double*>(task_data->outputs[0])[i] = round(output_[i] * 10000) / 10000;
+    reinterpret_cast<double*>(task_data->outputs[0])[i] = output_[i];
   }
   return true;
 }
