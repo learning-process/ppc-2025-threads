@@ -48,8 +48,10 @@ TEST(deryabin_m_hoare_sort_simple_merge_tbb, test_double_reverse_array) {
   std::mt19937 gen(rd());
   std::vector<double> input_array(800);
   const auto half = input_array.size() / 2U;
-  std::ranges::generate(input_array.begin(), input_array.end() - (long)half, [value = half]() mutable { return value--; });
-  std::ranges::generate(input_array.end() - (long)half, input_array.end(), [value = half]() mutable { return value--; });
+  std::ranges::generate(input_array.begin(), input_array.end() - (long)half,
+                        [value = half]() mutable { return value--; });
+  std::ranges::generate(input_array.end() - (long)half, input_array.end(),
+                        [value = half]() mutable { return value--; });
   std::vector<std::vector<double>> in_array(1, input_array);
   size_t chunk_count = 8;
   std::vector<double> output_array(800);
