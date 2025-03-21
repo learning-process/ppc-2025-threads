@@ -81,7 +81,7 @@ void shulpin_i_jarvis_omp::JarvisOMPParallel::MakeJarvisPassageOMP(
   size_t total_size_t = input_jar.size();
   auto total = static_cast<int32_t>(total_size_t);
   output_jar.clear();
-  
+
   int32_t start = 0;
 #pragma omp parallel for
   for (int32_t i = 0; i < total; ++i) {
