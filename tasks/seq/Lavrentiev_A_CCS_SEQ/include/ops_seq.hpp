@@ -18,7 +18,7 @@ struct Sparse {
 std::vector<double> GenerateRandomMatrix(int size);
 class CCSSequential : public ppc::core::Task {
  private:
-  bool IsEmpty() const;
+  [[nodiscard]] bool IsEmpty() const;
   static Sparse ConvertToSparse(std::pair<int, int> size, const std::vector<double>& values);
   static Sparse Transpose(const Sparse& sparse);
   static Sparse MatMul(const Sparse& matrix1, const Sparse& matrix2);

@@ -1,9 +1,10 @@
 #include "seq/Lavrentiev_A_CCS_SEQ/include/ops_seq.hpp"
 
 #include <algorithm>
+#include <cmath>
 #include <cstddef>
-#include <iostream>
 #include <random>
+#include <utility>
 #include <vector>
 
 bool lavrentiev_a_ccs_seq::CCSSequential::PreProcessingImpl() {
@@ -12,18 +13,18 @@ bool lavrentiev_a_ccs_seq::CCSSequential::PreProcessingImpl() {
   if (IsEmpty()) {
     return true;
   }
-  std::vector<double> Am;
+  std::vector<double> am(A_.size.first * A_.size.second);
   auto *in_ptr = reinterpret_cast<double *>(task_data->inputs[0]);
   for (int i = 0; i < A_.size.first * A_.size.second; ++i) {
-    Am.push_back(in_ptr[i]);
+    am[i] = in_ptr[i];
   }
-  A_ = ConvertToSparse(A_.size, Am);
-  std::vector<double> Bm;
+  A_ = ConvertToSparse(A_.size, am);
+  std::vector<double> bm(B_.size.first * B_.size.second);
   auto *in_ptr2 = reinterpret_cast<double *>(task_data->inputs[1]);
   for (int i = 0; i < B_.size.first * B_.size.second; ++i) {
-    Bm.push_back(in_ptr2[i]);
+    bm[i] = in_ptr2[i];
   }
-  B_ = ConvertToSparse(B_.size, Bm);
+  B_ = ConvertToSparse(B_.size, bm);
   return true;
 }
 
@@ -33,7 +34,7 @@ bool lavrentiev_a_ccs_seq::CCSSequential::IsEmpty() const {
 
 lavrentiev_a_ccs_seq::Sparse lavrentiev_a_ccs_seq::CCSSequential::ConvertToSparse(std::pair<int, int> size,
                                                                                   const std::vector<double> &values) {
-  std::vector<int> columnsSum(size.second);
+  std::vector<int> columns_sum(size.second);
   std::vector<double> elements;
   std::vector<int> rows;
   for (int i = 0; i < size.second; ++i) {
@@ -41,14 +42,14 @@ lavrentiev_a_ccs_seq::Sparse lavrentiev_a_ccs_seq::CCSSequential::ConvertToSpars
       if (values[i + (size.second * j)] != 0) {
         elements.emplace_back(values[i + (size.second * j)]);
         rows.emplace_back(j);
-        columnsSum[i] += 1;
+        columns_sum[i] += 1;
       }
     }
     if (i != size.second - 1) {
-      columnsSum[i + 1] = columnsSum[i];
+      columns_sum[i + 1] = columns_sum[i];
     }
   }
-  return {.size = size, .elements = elements, .rows = rows, .columnsSum = columnsSum};
+  return {.size = size, .elements = elements, .rows = rows, .columnsSum = columns_sum};
 }
 
 lavrentiev_a_ccs_seq::Sparse lavrentiev_a_ccs_seq::CCSSequential::MatMul(const Sparse &matrix1, const Sparse &matrix2) {
@@ -157,7 +158,7 @@ std::vector<double> lavrentiev_a_ccs_seq::GenerateRandomMatrix(int size) {
   std::random_device device;
   std::mt19937 generator(device());
   for (int i = 0; i < size; ++i) {
-    if (i % 6) {
+    if ((i % 6) == 0) {
       data[i] = static_cast<double>(generator() % 1000);
     }
   }
