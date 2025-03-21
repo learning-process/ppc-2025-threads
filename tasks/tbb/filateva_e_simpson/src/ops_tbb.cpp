@@ -49,11 +49,10 @@ bool filateva_e_simpson_tbb::Simpson::RunImpl() {
 
   const int num_threads = ppc::util::GetPPCNumThreads();
   long total_steps = static_cast<long>(std::pow(steps_ + 1, mer_));
-  double local_res = 0.0;
 
   oneapi::tbb::task_arena arena(num_threads);
 
-  local_res = arena.execute([&] {
+  arena.execute([&] {
     return res_ = oneapi::tbb::parallel_reduce(
                tbb::blocked_range<long>(0, total_steps), 0.0,
                [&](const tbb::blocked_range<long> &r, double local_res) {
