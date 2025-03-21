@@ -9,7 +9,6 @@
 
 #include "../include/ops_stl.hpp"
 #include "core/task/include/task.hpp"
-#include "core/util/include/util.hpp"
 
 namespace {
 std::vector<double> GenerateRandomVector(size_t len, double min_val = -1000.0, double max_val = 1000.0) {

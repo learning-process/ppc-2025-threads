@@ -22,8 +22,8 @@ bool nikolaev_r_hoare_sort_simple_merge_stl::HoareSortSimpleMergeSTL::Validation
 }
 
 bool nikolaev_r_hoare_sort_simple_merge_stl::HoareSortSimpleMergeSTL::RunImpl() {
-  unsigned int numThreads = ppc::util::GetPPCNumThreads();
-  if (numThreads == 1 || vect_size_ < numThreads) {
+  unsigned int num_threads = ppc::util::GetPPCNumThreads();
+  if (num_threads == 1 || vect_size_ < num_threads) {
     QuickSort(0, vect_size_ - 1);
     return true;
   }
@@ -31,28 +31,29 @@ bool nikolaev_r_hoare_sort_simple_merge_stl::HoareSortSimpleMergeSTL::RunImpl() 
   size_t total = vect_.size();
   std::vector<size_t> boundaries;
   boundaries.push_back(0);
-  size_t chunkSize = total / numThreads;
-  for (unsigned int i = 1; i < numThreads; i++) {
-    boundaries.push_back(i * chunkSize);
+  size_t chunk_size = total / num_threads;
+  for (unsigned int i = 1; i < num_threads; i++) {
+    boundaries.push_back(i * chunk_size);
   }
   boundaries.push_back(total);
 
   std::vector<std::thread> threads;
-  for (unsigned int i = 0; i < numThreads; ++i) {
-    size_t startIndex = boundaries[i];
-    size_t endIndex = boundaries[i + 1];
-    threads.emplace_back([this, startIndex, endIndex]() { QuickSort(startIndex, endIndex - 1); });
+  for (unsigned int i = 0; i < num_threads; ++i) {
+    size_t start_index = boundaries[i];
+    size_t end_index = boundaries[i + 1];
+    threads.emplace_back([this, start_index, end_index]() { QuickSort(start_index, end_index - 1); });
   }
 
   for (auto &t : threads) {
     t.join();
   }
 
-  size_t mergedEnd = boundaries[1];
-  for (unsigned int i = 1; i < numThreads; i++) {
-    size_t nextEnd = boundaries[i + 1];
-    std::inplace_merge(vect_.begin(), vect_.begin() + mergedEnd, vect_.begin() + nextEnd);
-    mergedEnd = nextEnd;
+  size_t merged_end = boundaries[1];
+  for (unsigned int i = 1; i < num_threads; i++) {
+    size_t next_end = boundaries[i + 1];
+    std::inplace_merge(vect_.begin(), vect_.begin() + static_cast<std::vector<double>::difference_type>(merged_end),
+                       vect_.begin() + static_cast<std::vector<double>::difference_type>(next_end));
+    merged_end = next_end;
   }
   return true;
 }
