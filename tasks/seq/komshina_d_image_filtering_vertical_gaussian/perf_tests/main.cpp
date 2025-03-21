@@ -16,7 +16,7 @@ TEST(komshina_d_image_filtering_vertical_gaussian_seq, test_pipeline_run) {
 
   std::vector<uint8_t> in(kWidth * kHeight * 3, 0);
   std::vector<uint8_t> out(kWidth * kHeight * 3, 0);
-  std::vector<float> kernel{0.0f, -1.0f, 0.0f, -1.0f, 4.0f, -1.0f, 0.0f, -1.0f, 0.0f};
+  std::vector<float> kernel{0.0F, -1.0F, 0.0F, -1.0F, 4.0F, -1.0F, 0.0F, -1.0F, 0.0F};
 
   for (std::size_t i = 0; i < kHeight; i++) {
     in[(i * kWidth + i) * 3] = 255;
@@ -57,7 +57,7 @@ TEST(komshina_d_image_filtering_vertical_gaussian_seq, test_task_run) {
 
   std::vector<uint8_t> in(kWidth * kHeight * 3, 0);
   std::vector<uint8_t> out(kWidth * kHeight * 3, 0);
-  std::vector<float> kernel{0.0f, -1.0f, 0.0f, -1.0f, 4.0f, -1.0f, 0.0f, -1.0f, 0.0f};
+  std::vector<float> kernel{0.0F, -1.0F, 0.0F, -1.0F, 4.0F, -1.0F, 0.0F, -1.0F, 0.0F};
 
   for (std::size_t i = 0; i < kHeight; i++) {
     in[(i * kWidth + i) * 3] = 255;

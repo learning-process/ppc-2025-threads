@@ -1,18 +1,18 @@
 #include <gtest/gtest.h>
 
-#include <algorithm>
 #include <cmath>
 #include <cstddef>
 #include <cstdint>
 #include <memory>
-#include <numeric>
-#include <vector>
 #include <random>
+#include <vector>
 
+#include "core/task/include/task.hpp"
 #include "seq/komshina_d_image_filtering_vertical_gaussian/include/ops_seq.hpp"
 
 TEST(komshina_d_image_filtering_vertical_gaussian_seq, SinglePixelImage) {
-  uint32_t width = 1, height = 1;
+  uint32_t width = 1;
+  uint32_t height = 1;
   std::vector<uint8_t> in = {255, 255, 255};
   std::vector<float> kernel = {1, 2, 1, 2, 4, 2, 1, 2, 1};
   std::vector<uint8_t> expected = {255, 255, 255};
@@ -36,7 +36,8 @@ TEST(komshina_d_image_filtering_vertical_gaussian_seq, SinglePixelImage) {
 }
 
 TEST(komshina_d_image_filtering_vertical_gaussian_seq, EmptyImage) {
-  uint32_t width = 0, height = 0;
+  uint32_t width = 0;
+  uint32_t height = 0;
   std::vector<uint8_t> in = {};
   std::vector<float> kernel = {1, 2, 1, 2, 4, 2, 1, 2, 1};
   std::vector<uint8_t> expected = {};
@@ -60,7 +61,8 @@ TEST(komshina_d_image_filtering_vertical_gaussian_seq, EmptyImage) {
 }
 
 TEST(komshina_d_image_filtering_vertical_gaussian_seq, Small2x2Image) {
-  uint32_t width = 2, height = 2;
+  uint32_t width = 2;
+  uint32_t height = 2;
   std::vector<uint8_t> in = {100, 150, 200, 50, 100, 150, 200, 250, 100, 150, 200, 50};
   std::vector<float> kernel = {1, 2, 1, 2, 4, 2, 1, 2, 1};
   std::vector<uint8_t> expected = in;
@@ -84,7 +86,8 @@ TEST(komshina_d_image_filtering_vertical_gaussian_seq, Small2x2Image) {
 }
 
 TEST(komshina_d_image_filtering_vertical_gaussian_seq, SingleRowImage) {
-  uint32_t width = 3, height = 1;
+  uint32_t width = 3;
+  uint32_t height = 1;
   std::vector<uint8_t> in = {10, 20, 30, 40, 50, 60, 70, 80, 90};
   std::vector<float> kernel = {1, 1, 1, 1, 1, 1, 1, 1, 1};
   std::vector<uint8_t> expected = in;
@@ -108,7 +111,8 @@ TEST(komshina_d_image_filtering_vertical_gaussian_seq, SingleRowImage) {
 }
 
 TEST(komshina_d_image_filtering_vertical_gaussian_seq, ZeroWidthImage) {
-  uint32_t width = 0, height = 3;
+  uint32_t width = 0;
+  uint32_t height = 3;
   std::vector<uint8_t> in = {255, 255, 255};
   std::vector<float> kernel = {1, 1, 1, 1, 1, 1, 1, 1, 1};
   std::vector<uint8_t> expected = {};
@@ -132,7 +136,8 @@ TEST(komshina_d_image_filtering_vertical_gaussian_seq, ZeroWidthImage) {
 }
 
 TEST(komshina_d_image_filtering_vertical_gaussian_seq, ValidationInvalidKernelSize) {
-  uint32_t width = 3, height = 3;
+  uint32_t width = 3;
+  uint32_t height = 3;
   std::vector<uint8_t> in = {255, 255, 255};
   std::vector<float> kernel = {1, 1};
   std::vector<uint8_t> out(9);
@@ -151,7 +156,8 @@ TEST(komshina_d_image_filtering_vertical_gaussian_seq, ValidationInvalidKernelSi
 }
 
 TEST(komshina_d_image_filtering_vertical_gaussian_seq, ValidationInvalidOutputSize) {
-  uint32_t width = 3, height = 3;
+  uint32_t width = 3;
+  uint32_t height = 3;
   std::vector<uint8_t> in = {255, 255, 255};
   std::vector<float> kernel = {1, 1, 1, 1, 1, 1, 1, 1, 1};
   std::vector<uint8_t> out(5);
@@ -170,7 +176,8 @@ TEST(komshina_d_image_filtering_vertical_gaussian_seq, ValidationInvalidOutputSi
 }
 
 TEST(komshina_d_image_filtering_vertical_gaussian_seq, PostProcessingCorrectness) {
-  uint32_t width = 2, height = 2;
+  uint32_t width = 2;
+  uint32_t height = 2;
   std::vector<uint8_t> in = {100, 150, 200, 50, 100, 150, 200, 250, 100, 150, 200, 50};
   std::vector<float> kernel = {1, 2, 1, 2, 4, 2, 1, 2, 1};
   std::vector<uint8_t> expected = in;
@@ -197,7 +204,8 @@ TEST(komshina_d_image_filtering_vertical_gaussian_seq, PostProcessingCorrectness
 }
 
 TEST(komshina_d_image_filtering_vertical_gaussian_seq, RandomImage) {
-  uint32_t width = 5, height = 5;
+  uint32_t width = 5;
+  uint32_t height = 5;
   std::vector<uint8_t> in(width * height * 3);
   std::vector<float> kernel = {1, 2, 1, 2, 4, 2, 1, 2, 1};
   std::vector<uint8_t> out(in.size());

@@ -32,11 +32,11 @@ bool komshina_d_image_filtering_vertical_gaussian_seq::TestTaskSequential::Valid
     return false;
   }
 
-  constexpr int kernel_size = 9;
-  constexpr int channels = 3;
+  constexpr int kKernelSize = 9;
+  constexpr int kChannels = 3;
 
-  bool valid_kernel = (input[2] == kernel_size);
-  bool valid_size = (input[0] * input[1] * channels == output[0]);
+  bool valid_kernel = (input[2] == kKernelSize);
+  bool valid_size = (input[0] * input[1] * kChannels == output[0]);
 
   return valid_kernel && valid_size;
 }
@@ -51,14 +51,14 @@ bool komshina_d_image_filtering_vertical_gaussian_seq::TestTaskSequential::RunIm
       std::size_t base_idx = (y * width_ + x) * 3;
 
       for (std::size_t c = 0; c < 3; ++c) {
-        float total = 0.0f;
+        float total = 0.0F;
         std::size_t k_idx = 0;
 
         for (int ky = -1; ky <= 1; ++ky) {
-          std::size_t row_idx = ((y + ky) * width_ + (x - 1)) * 3 + c;
+          std::size_t row_idx = (((y + ky) * width_) + (x - 1)) * 3 + c;
 
           for (int kx = -1; kx <= 1; ++kx, ++k_idx) {
-            total += input_[row_idx] * kernel_[k_idx];
+            total += static_cast<float>(input_[row_idx]) * kernel_[k_idx];
             row_idx += 3;
           }
         }
