@@ -120,6 +120,34 @@ TEST(smirnov_i_radix_sort_simple_merge_omp, test_256_elem_sorted) {
   test_task_omp.PostProcessing();
   EXPECT_EQ(exp_out, out);
 }
+TEST(smirnov_i_radix_sort_simple_merge_omp, test_reverse_order) {
+  constexpr size_t kCount = 100;
+
+  // Create data
+  std::vector<int> in(kCount, 0);
+  std::vector<int> exp_out(kCount, 0);
+  std::vector<int> out(kCount);
+  for (size_t i = 0; i < kCount; i++) {
+    in[kCount - 1 - i] = static_cast<int>(i);
+  }
+  for (size_t i = 0; i < kCount; i++) {
+    exp_out[i] = static_cast<int>(i);
+  }
+  // Create task_data
+  auto task_data_omp = std::make_shared<ppc::core::TaskData>();
+  task_data_omp->inputs.emplace_back(reinterpret_cast<uint8_t *>(in.data()));
+  task_data_omp->inputs_count.emplace_back(in.size());
+  task_data_omp->outputs.emplace_back(reinterpret_cast<uint8_t *>(out.data()));
+  task_data_omp->outputs_count.emplace_back(out.size());
+
+  // Create Task
+  smirnov_i_radix_sort_simple_merge_omp::TestTaskOpenMP test_task_omp(task_data_omp);
+  ASSERT_EQ(test_task_omp.Validation(), true);
+  test_task_omp.PreProcessing();
+  test_task_omp.Run();
+  test_task_omp.PostProcessing();
+  EXPECT_EQ(exp_out, out);
+}
 TEST(smirnov_i_radix_sort_simple_merge_omp, test_771_elem) {
   constexpr size_t kCount = 771;
 
