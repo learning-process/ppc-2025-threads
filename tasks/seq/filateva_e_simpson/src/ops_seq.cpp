@@ -1,8 +1,8 @@
 #include "seq/filateva_e_simpson/include/ops_seq.hpp"
 
 #include <cmath>
-#include <vector>
 #include <cstddef>
+#include <vector>
 
 bool filateva_e_simpson_seq::Simpson::PreProcessingImpl() {
   mer_ = task_data->inputs_count[0];
@@ -23,7 +23,9 @@ bool filateva_e_simpson_seq::Simpson::ValidationImpl() {
   size_t mer = task_data->inputs_count[0];
   auto *temp_a = reinterpret_cast<double *>(task_data->inputs[0]);
   auto *temp_b = reinterpret_cast<double *>(task_data->inputs[1]);
-  if (task_data->inputs_count[1] % 2 == 1) { return false; }
+  if (task_data->inputs_count[1] % 2 == 1) {
+    return false;
+  }
   for (size_t i = 0; i < mer; i++) {
     if (temp_b[i] <= temp_a[i]) return false;
   }
