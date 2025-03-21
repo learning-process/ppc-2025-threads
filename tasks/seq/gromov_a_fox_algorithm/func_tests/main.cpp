@@ -306,3 +306,32 @@ TEST(gromov_a_fox_algorithm_seq, test_negative_values_3x3) {
     EXPECT_NEAR(out[i], expected[i], 1e-9);
   }
 }
+
+TEST(gromov_a_fox_algorithm_seq, identity_times_arbitrary_3x3) {
+  constexpr size_t kN = 3;
+  std::vector<double> a = {1.0, 0.0, 0.0, 0.0, 1.0, 0.0, 0.0, 0.0, 1.0};  // I
+  std::vector<double> b = {1.0, 2.0, 3.0, 4.0, 5.0, 6.0, 7.0, 8.0, 9.0};  // A
+  std::vector<double> out(kN * kN, 0.0);
+  std::vector<double> expected = {1.0, 2.0, 3.0, 4.0, 5.0, 6.0, 7.0, 8.0, 9.0};  // A
+
+  std::vector<double> input;
+  input.reserve(a.size() + b.size());
+  std::ranges::copy(a, std::back_inserter(input));
+  std::ranges::copy(b, std::back_inserter(input));
+
+  auto task_data_seq = std::make_shared<ppc::core::TaskData>();
+  task_data_seq->inputs.emplace_back(reinterpret_cast<uint8_t *>(input.data()));
+  task_data_seq->inputs_count.emplace_back(input.size());
+  task_data_seq->outputs.emplace_back(reinterpret_cast<uint8_t *>(out.data()));
+  task_data_seq->outputs_count.emplace_back(out.size());
+
+  gromov_a_fox_algorithm_seq::TestTaskSequential test_task_sequential(task_data_seq);
+  ASSERT_TRUE(test_task_sequential.Validation());
+  test_task_sequential.PreProcessing();
+  test_task_sequential.Run();
+  test_task_sequential.PostProcessing();
+
+  for (size_t i = 0; i < out.size(); ++i) {
+    EXPECT_NEAR(out[i], expected[i], 1e-9);
+  }
+}
