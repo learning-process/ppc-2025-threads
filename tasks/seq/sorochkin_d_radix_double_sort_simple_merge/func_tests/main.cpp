@@ -67,15 +67,9 @@ class sorochkin_d_radix_double_sort_simple_merge_test_seq : public ::testing::Te
 
 }  // namespace
 
-// NOLINTNEXTLINE
-TEST_F(sorochkin_d_radix_double_sort_simple_merge_test_seq, invalid_more) { 
-    RunInvalidSizeTest(1); 
-}
+TEST_F(sorochkin_d_radix_double_sort_simple_merge_test_seq, invalid_more) { RunInvalidSizeTest(1); }
 
-// NOLINTNEXTLINE
-TEST_F(sorochkin_d_radix_double_sort_simple_merge_test_seq, invalid_less) { 
-    RunInvalidSizeTest(-1); 
-}
+TEST_F(sorochkin_d_radix_double_sort_simple_merge_test_seq, invalid_less) { RunInvalidSizeTest(-1); }
 
 // NOLINTNEXTLINE(readability-identifier-naming)
 class sorochkin_d_radix_double_sort_simple_merge_test_sized_seq
