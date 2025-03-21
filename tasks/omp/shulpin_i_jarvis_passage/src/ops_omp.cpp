@@ -69,9 +69,8 @@ bool shulpin_i_jarvis_omp::JarvisSequential::RunImpl() {
 }
 
 bool shulpin_i_jarvis_omp::JarvisSequential::PostProcessingImpl() {
-  int* result = reinterpret_cast<int*>(task_data->outputs[0]);
-  std::ranges::copy(reinterpret_cast<int*>(output_seq_.data()),
-                    reinterpret_cast<int*>(output_seq_.data() + output_seq_.size()), result);
+  auto* result = reinterpret_cast<Point*>(task_data->outputs[0]);
+  std::ranges::copy(output_seq_.begin(), output_seq_.end(), result);
   return true;
 }
 
@@ -81,6 +80,7 @@ void shulpin_i_jarvis_omp::JarvisOMPParallel::MakeJarvisPassageOMP(
   output_jar.clear();
 
   size_t start = 0;
+
 #pragma omp parallel
   {
     size_t local_start = start;
@@ -105,16 +105,30 @@ void shulpin_i_jarvis_omp::JarvisOMPParallel::MakeJarvisPassageOMP(
   size_t active = start;
 
   do {
+#pragma omp critical
     output_jar.push_back(input_jar[active]);
+
     size_t candidate = (active + 1) % total;
 
-#pragma omp parallel for shared(candidate)
-    for (int index = 0; index < static_cast<int>(total); ++index) {
-      if (Orientation(input_jar[active], input_jar[index], input_jar[candidate]) == 2) {
+#pragma omp parallel
+    {
+      size_t local_candidate = candidate;
+
+#pragma omp for nowait
+      for (int index = 0; index < static_cast<int>(total); ++index) {
+        if (Orientation(input_jar[active], input_jar[index], input_jar[local_candidate]) == 2) {
+          local_candidate = static_cast<size_t>(index);
+        }
+      }
+
 #pragma omp critical
-        { candidate = static_cast<size_t>(index); }
+      {
+        if (Orientation(input_jar[active], input_jar[local_candidate], input_jar[candidate]) == 2) {
+          candidate = local_candidate;
+        }
       }
     }
+
     active = candidate;
   } while (active != start);
 }
@@ -143,8 +157,7 @@ bool shulpin_i_jarvis_omp::JarvisOMPParallel::RunImpl() {
 }
 
 bool shulpin_i_jarvis_omp::JarvisOMPParallel::PostProcessingImpl() {
-  int* result = reinterpret_cast<int*>(task_data->outputs[0]);
-  std::ranges::copy(reinterpret_cast<int*>(output_omp_.data()),
-                    reinterpret_cast<int*>(output_omp_.data() + output_omp_.size()), result);
+  auto* result = reinterpret_cast<Point*>(task_data->outputs[0]);
+  std::ranges::copy(output_omp_.begin(), output_omp_.end(), result);
   return true;
 }
