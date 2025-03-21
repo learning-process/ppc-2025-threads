@@ -28,13 +28,20 @@ bool tsatsyn_a_radix_sort_simple_merge_stl::TestTaskSTL::ValidationImpl() {
 bool tsatsyn_a_radix_sort_simple_merge_stl::TestTaskSTL::RunImpl() {
   std::vector<uint64_t> pozitive_copy;
   std::vector<uint64_t> negative_copy;
-  for (int i = 0; i < static_cast<int>(input_data_.size()); i++) {
-    if (input_data_[i] > 0.0) {
-      pozitive_copy.emplace_back(*reinterpret_cast<uint64_t *>(&input_data_[i]));
-    } else {
-      negative_copy.emplace_back(*reinterpret_cast<uint64_t *>(&input_data_[i]));
-    }
+  {
+    std::mutex pos_mtx, neg_mtx;
+    std::for_each(std::execution::par, input_data_.begin(), input_data_.end(), [&](double num) {
+      uint64_t bits = *reinterpret_cast<uint64_t *>(&num);
+      if (num > 0.0) {
+        std::lock_guard lock(pos_mtx);
+        pozitive_copy.push_back(bits);
+      } else {
+        std::lock_guard lock(neg_mtx);
+        negative_copy.push_back(bits);
+      }
+    });
   }
+
   for (int bit = 0; bit < 64; bit++) {
     std::vector<uint64_t> group0;
     std::vector<uint64_t> group1;
@@ -64,12 +71,16 @@ bool tsatsyn_a_radix_sort_simple_merge_stl::TestTaskSTL::RunImpl() {
     negative_copy.insert(negative_copy.end(), group1.begin(), group1.end());
     negative_copy.insert(negative_copy.end(), group0.begin(), group0.end());
   }
-  for (int i = 0; i < static_cast<int>(negative_copy.size()); i++) {
-    output_[i] = *reinterpret_cast<double *>(&negative_copy[i]);
-  }
-  for (int i = 0; i < static_cast<int>(pozitive_copy.size()); i++) {
-    output_[negative_copy.size() + i] = *reinterpret_cast<double *>(&pozitive_copy[i]);
-  }
+  std::for_each(std::execution::par, negative_copy.begin(), negative_copy.end(),
+                [&, size = negative_copy.size()](uint64_t &b) {
+                  size_t i = &b - negative_copy.data();
+                  output_[i] = *reinterpret_cast<double *>(&b);
+                });
+  std::for_each(std::execution::par, pozitive_copy.begin(), pozitive_copy.end(),
+                [&, offset = negative_copy.size()](uint64_t &b) {
+                  size_t i = &b - pozitive_copy.data() + offset;
+                  output_[i] = *reinterpret_cast<double *>(&b);
+                });
   return true;
 }
 
