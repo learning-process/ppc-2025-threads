@@ -232,3 +232,23 @@ TEST(tsatsyn_a_radix_sort_simple_merge_omp, pozitive_double_100000) {
   std::ranges::sort(in);
   EXPECT_EQ(in, out);
 }
+TEST(tsatsyn_a_radix_sort_simple_merge_omp, reverse_pozitive_double_10) {
+  // Create data
+  int arrsize = 10;
+  std::vector<double> in = {5.0, 4.0, 3.0, 2.0, 1.0, 5.0, 4.0, 3.0, 2.0, 1.0};
+  std::vector<double> out(arrsize, 0);
+  // Create task_data
+  auto task_data_omp = std::make_shared<ppc::core::TaskData>();
+  task_data_omp->inputs.emplace_back(reinterpret_cast<uint8_t *>(in.data()));
+  task_data_omp->inputs_count.emplace_back(in.size());
+  task_data_omp->outputs.emplace_back(reinterpret_cast<uint8_t *>(out.data()));
+  task_data_omp->outputs_count.emplace_back(out.size());
+  // Create Task
+  tsatsyn_a_radix_sort_simple_merge_omp::TestTaskOpenMP test_task_omp(task_data_omp);
+  ASSERT_EQ(test_task_omp.Validation(), true);
+  test_task_omp.PreProcessing();
+  test_task_omp.Run();
+  test_task_omp.PostProcessing();
+  std::ranges::sort(in);
+  EXPECT_EQ(in, out);
+}
