@@ -11,11 +11,11 @@
 #include "core/task/include/task.hpp"
 #include "seq/lysov_i_matrix_multiplication_Fox_algorithm/include/ops_seq.hpp"
 namespace lysov_i_matrix_multiplication_fox_algorithm_seq {
-std::vector<double> GetRandomMatrix(size_t size) {
+std::vector<double> GetRandomMatrix(size_t size, int min_gen_value, int max_gen_value) {
   std::vector<double> matrix(size * size);
   std::random_device rd;
   std::mt19937 gen(rd());
-  std::uniform_real_distribution<double> dist(1e-3, 1e3);
+  std::uniform_real_distribution<double> dist(min_gen_value, max_gen_value);
 
   for (size_t i = 0; i < size; ++i) {
     for (size_t j = 0; j < size; ++j) {
@@ -29,8 +29,12 @@ TEST(lysov_i_matrix_multiplication_Fox_algorithm_seq, test_pipeline_run) {
   // Create data
   size_t n = 512;
   size_t block_size = 128;
-  std::vector<double> a = lysov_i_matrix_multiplication_fox_algorithm_seq::GetRandomMatrix(n);
-  std::vector<double> b = lysov_i_matrix_multiplication_fox_algorithm_seq::GetRandomMatrix(n);
+  int min_gen_value = -1e3;
+  int max_gen_value = 1e3;
+  std::vector<double> a =
+      lysov_i_matrix_multiplication_fox_algorithm_seq::GetRandomMatrix(n, min_gen_value, max_gen_value);
+  std::vector<double> b =
+      lysov_i_matrix_multiplication_fox_algorithm_seq::GetRandomMatrix(n, min_gen_value, max_gen_value);
   std::vector<double> c(n * n, 0);
   std::shared_ptr<ppc::core::TaskData> task_data_sequential = std::make_shared<ppc::core::TaskData>();
   task_data_sequential->inputs.emplace_back(reinterpret_cast<uint8_t *>(&n));
@@ -69,8 +73,12 @@ TEST(lysov_i_matrix_multiplication_Fox_algorithm_seq, test_pipeline_run) {
 TEST(lysov_i_matrix_multiplication_Fox_algorithm_seq, test_task_run) {
   size_t n = 400;
   size_t block_size = 100;
-  std::vector<double> a = lysov_i_matrix_multiplication_fox_algorithm_seq::GetRandomMatrix(n);
-  std::vector<double> b = lysov_i_matrix_multiplication_fox_algorithm_seq::GetRandomMatrix(n);
+  int min_gen_value = -1e3;
+  int max_gen_value = 1e3;
+  std::vector<double> a =
+      lysov_i_matrix_multiplication_fox_algorithm_seq::GetRandomMatrix(n, min_gen_value, max_gen_value);
+  std::vector<double> b =
+      lysov_i_matrix_multiplication_fox_algorithm_seq::GetRandomMatrix(n, min_gen_value, max_gen_value);
   std::vector<double> c(n * n, 0);
 
   std::shared_ptr<ppc::core::TaskData> task_data_sequential = std::make_shared<ppc::core::TaskData>();

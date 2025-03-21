@@ -11,11 +11,11 @@
 #include "seq/lysov_i_matrix_multiplication_Fox_algorithm/include/ops_seq.hpp"
 
 namespace lysov_i_matrix_multiplication_fox_algorithm_seq {
-std::vector<double> GetRandomMatrix(size_t size) {
+std::vector<double> GetRandomMatrix(size_t size, int min_gen_value, int max_gen_value) {
   std::vector<double> matrix(size * size);
   std::random_device rd;
   std::mt19937 gen(rd());
-  std::uniform_real_distribution<double> dist(1e-3, 1e3);
+  std::uniform_real_distribution<double> dist(min_gen_value, max_gen_value);
 
   for (size_t i = 0; i < size; ++i) {
     for (size_t j = 0; j < size; ++j) {
@@ -24,7 +24,6 @@ std::vector<double> GetRandomMatrix(size_t size) {
   }
   return matrix;
 }
-
 void TrivialMatrixMultiplication(const std::vector<double> &matrix_a, const std::vector<double> &matrix_b,
                                  std::vector<double> &result_matrix, size_t matrix_size) {
   for (size_t row = 0; row < matrix_size; ++row) {
@@ -92,8 +91,12 @@ TEST(lysov_i_matrix_multiplication_fox_algorithm_seq, Test_Matrix_Multiplication
 TEST(lysov_i_matrix_multiplication_fox_algorithm_seq, Test_matrix_7x7) {
   size_t n = 7;
   size_t block_size = 3;
-  std::vector<double> a = lysov_i_matrix_multiplication_fox_algorithm_seq::GetRandomMatrix(n);
-  std::vector<double> b = lysov_i_matrix_multiplication_fox_algorithm_seq::GetRandomMatrix(n);
+  int min_gen_value = -1e3;
+  int max_gen_value = 1e3;
+  std::vector<double> a =
+      lysov_i_matrix_multiplication_fox_algorithm_seq::GetRandomMatrix(n, min_gen_value, max_gen_value);
+  std::vector<double> b =
+      lysov_i_matrix_multiplication_fox_algorithm_seq::GetRandomMatrix(n, min_gen_value, max_gen_value);
   std::vector<double> c(n * n, 0);
   std::vector<double> c_expected(n * n, 0);
   lysov_i_matrix_multiplication_fox_algorithm_seq::TrivialMatrixMultiplication(a, b, c_expected, n);
@@ -120,8 +123,12 @@ TEST(lysov_i_matrix_multiplication_fox_algorithm_seq, Test_matrix_7x7) {
 TEST(lysov_i_matrix_multiplication_fox_algorithm_seq, Test_matrix_16x16) {
   size_t n = 16;
   size_t block_size = 4;
-  std::vector<double> a = lysov_i_matrix_multiplication_fox_algorithm_seq::GetRandomMatrix(n);
-  std::vector<double> b = lysov_i_matrix_multiplication_fox_algorithm_seq::GetRandomMatrix(n);
+  int min_gen_value = -1e3;
+  int max_gen_value = 1e3;
+  std::vector<double> a =
+      lysov_i_matrix_multiplication_fox_algorithm_seq::GetRandomMatrix(n, min_gen_value, max_gen_value);
+  std::vector<double> b =
+      lysov_i_matrix_multiplication_fox_algorithm_seq::GetRandomMatrix(n, min_gen_value, max_gen_value);
   std::vector<double> c(n * n, 0);
   std::vector<double> c_expected(n * n, 0);
   lysov_i_matrix_multiplication_fox_algorithm_seq::TrivialMatrixMultiplication(a, b, c_expected, n);
@@ -148,8 +155,12 @@ TEST(lysov_i_matrix_multiplication_fox_algorithm_seq, Test_matrix_16x16) {
 TEST(lysov_i_matrix_multiplication_fox_algorithm_seq, Test_matrix_11x11) {
   size_t n = 11;
   size_t block_size = 10;
-  std::vector<double> a = lysov_i_matrix_multiplication_fox_algorithm_seq::GetRandomMatrix(n);
-  std::vector<double> b = lysov_i_matrix_multiplication_fox_algorithm_seq::GetRandomMatrix(n);
+  int min_gen_value = -1e3;
+  int max_gen_value = 1e3;
+  std::vector<double> a =
+      lysov_i_matrix_multiplication_fox_algorithm_seq::GetRandomMatrix(n, min_gen_value, max_gen_value);
+  std::vector<double> b =
+      lysov_i_matrix_multiplication_fox_algorithm_seq::GetRandomMatrix(n, min_gen_value, max_gen_value);
   std::vector<double> c(n * n, 0);
   std::vector<double> c_expected(n * n, 0);
   lysov_i_matrix_multiplication_fox_algorithm_seq::TrivialMatrixMultiplication(a, b, c_expected, n);

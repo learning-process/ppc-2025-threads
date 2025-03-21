@@ -8,7 +8,7 @@
 namespace lysov_i_matrix_multiplication_fox_algorithm_seq {
 void TrivialMatrixMultiplication(const std::vector<double> &matrix_a, const std::vector<double> &matrix_b,
                                  std::vector<double> &result_matrix, size_t matrix_size);
-std::vector<double> GetRandomMatrix(size_t size);
+std::vector<double> GetRandomMatrix(size_t size, int min_gen_value, int max_gen_value);
 void ProcessBlock(const std::vector<double> &a, const std::vector<double> &b, std::vector<double> &c, std::size_t i,
                   std::size_t j, std::size_t a_block_row, std::size_t block_size, std::size_t n);
 
