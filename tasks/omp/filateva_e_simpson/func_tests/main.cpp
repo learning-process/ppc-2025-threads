@@ -1,6 +1,7 @@
 #include <gtest/gtest.h>
 
 #include <cmath>
+#include <cstddef>
 #include <cstdint>
 #include <memory>
 #include <numbers>
@@ -10,14 +11,20 @@
 #include "omp/filateva_e_simpson/include/ops_omp.hpp"
 
 TEST(filateva_e_simpson_omp, test_x_pow_2) {
-  std::vector<double> param = {1, 10, 0.001};
+  size_t mer = 1;
+  size_t steps = 100;
+  std::vector<double> a = {1};
+  std::vector<double> b = {10};
   std::vector<double> res(1, 0);
-  filateva_e_simpson_omp::Func f = [](double x) { return x * x; };
+  filateva_e_simpson_omp::Func f = [](std::vector<double> x) { return x[0] * x[0]; };
 
   auto task_data = std::make_shared<ppc::core::TaskData>();
-  task_data->inputs.emplace_back(reinterpret_cast<uint8_t *>(param.data()));
+  task_data->inputs.emplace_back(reinterpret_cast<uint8_t *>(a.data()));
+  task_data->inputs.emplace_back(reinterpret_cast<uint8_t *>(b.data()));
   task_data->inputs.emplace_back(reinterpret_cast<uint8_t *>(f));
-  task_data->inputs_count.emplace_back(2);
+  task_data->inputs_count.emplace_back(mer);
+  task_data->inputs_count.emplace_back(steps);
+
   task_data->outputs.emplace_back(reinterpret_cast<uint8_t *>(res.data()));
   task_data->outputs_count.emplace_back(1);
 
@@ -27,20 +34,26 @@ TEST(filateva_e_simpson_omp, test_x_pow_2) {
   simpson.Run();
   simpson.PostProcessing();
 
-  filateva_e_simpson_omp::Func integral_f = [](double x) { return x * x * x / 3; };
+  filateva_e_simpson_omp::Func integral_f = [](std::vector<double> x) { return x[0] * x[0] * x[0] / 3; };
 
-  ASSERT_NEAR(res[0], integral_f(param[1]) - integral_f(param[0]), param[2]);
+  ASSERT_NEAR(res[0], integral_f(b) - integral_f(a), 0.01);
 }
 
 TEST(filateva_e_simpson_omp, test_x_pow_2_negative) {
-  std::vector<double> param = {-10, 10, 0.001};
+  size_t mer = 1;
+  size_t steps = 100;
+  std::vector<double> a = {-10};
+  std::vector<double> b = {10};
   std::vector<double> res(1, 0);
-  filateva_e_simpson_omp::Func f = [](double x) { return x * x; };
+  filateva_e_simpson_omp::Func f = [](std::vector<double> x) { return x[0] * x[0]; };
 
   auto task_data = std::make_shared<ppc::core::TaskData>();
-  task_data->inputs.emplace_back(reinterpret_cast<uint8_t *>(param.data()));
+  task_data->inputs.emplace_back(reinterpret_cast<uint8_t *>(a.data()));
+  task_data->inputs.emplace_back(reinterpret_cast<uint8_t *>(b.data()));
   task_data->inputs.emplace_back(reinterpret_cast<uint8_t *>(f));
-  task_data->inputs_count.emplace_back(2);
+  task_data->inputs_count.emplace_back(mer);
+  task_data->inputs_count.emplace_back(steps);
+
   task_data->outputs.emplace_back(reinterpret_cast<uint8_t *>(res.data()));
   task_data->outputs_count.emplace_back(1);
 
@@ -50,20 +63,26 @@ TEST(filateva_e_simpson_omp, test_x_pow_2_negative) {
   simpson.Run();
   simpson.PostProcessing();
 
-  filateva_e_simpson_omp::Func integral_f = [](double x) { return x * x * x / 3; };
+  filateva_e_simpson_omp::Func integral_f = [](std::vector<double> x) { return x[0] * x[0] * x[0] / 3; };
 
-  ASSERT_NEAR(res[0], integral_f(param[1]) - integral_f(param[0]), param[2]);
+  ASSERT_NEAR(res[0], integral_f(b) - integral_f(a), 0.01);
 }
 
 TEST(filateva_e_simpson_omp, test_x) {
-  std::vector<double> param = {1, 100, 0.001};
+  size_t mer = 1;
+  size_t steps = 100;
+  std::vector<double> a = {1};
+  std::vector<double> b = {100};
   std::vector<double> res(1, 0);
-  filateva_e_simpson_omp::Func f = [](double x) { return x; };
+  filateva_e_simpson_omp::Func f = [](std::vector<double> x) { return x[0]; };
 
   auto task_data = std::make_shared<ppc::core::TaskData>();
-  task_data->inputs.emplace_back(reinterpret_cast<uint8_t *>(param.data()));
+  task_data->inputs.emplace_back(reinterpret_cast<uint8_t *>(a.data()));
+  task_data->inputs.emplace_back(reinterpret_cast<uint8_t *>(b.data()));
   task_data->inputs.emplace_back(reinterpret_cast<uint8_t *>(f));
-  task_data->inputs_count.emplace_back(2);
+  task_data->inputs_count.emplace_back(mer);
+  task_data->inputs_count.emplace_back(steps);
+
   task_data->outputs.emplace_back(reinterpret_cast<uint8_t *>(res.data()));
   task_data->outputs_count.emplace_back(1);
 
@@ -73,20 +92,26 @@ TEST(filateva_e_simpson_omp, test_x) {
   simpson.Run();
   simpson.PostProcessing();
 
-  filateva_e_simpson_omp::Func integral_f = [](double x) { return x * x / 2; };
+  filateva_e_simpson_omp::Func integral_f = [](std::vector<double> x) { return x[0] * x[0] / 2; };
 
-  ASSERT_NEAR(res[0], integral_f(param[1]) - integral_f(param[0]), param[2]);
+  ASSERT_NEAR(res[0], integral_f(b) - integral_f(a), 0.01);
 }
 
 TEST(filateva_e_simpson_omp, test_x_pow_3) {
-  std::vector<double> param = {1, 100, 0.001};
+  size_t mer = 1;
+  size_t steps = 100;
+  std::vector<double> a = {1};
+  std::vector<double> b = {100};
   std::vector<double> res(1, 0);
-  filateva_e_simpson_omp::Func f = [](double x) { return x * x * x; };
+  filateva_e_simpson_omp::Func f = [](std::vector<double> x) { return x[0] * x[0] * x[0]; };
 
   auto task_data = std::make_shared<ppc::core::TaskData>();
-  task_data->inputs.emplace_back(reinterpret_cast<uint8_t *>(param.data()));
+  task_data->inputs.emplace_back(reinterpret_cast<uint8_t *>(a.data()));
+  task_data->inputs.emplace_back(reinterpret_cast<uint8_t *>(b.data()));
   task_data->inputs.emplace_back(reinterpret_cast<uint8_t *>(f));
-  task_data->inputs_count.emplace_back(2);
+  task_data->inputs_count.emplace_back(mer);
+  task_data->inputs_count.emplace_back(steps);
+
   task_data->outputs.emplace_back(reinterpret_cast<uint8_t *>(res.data()));
   task_data->outputs_count.emplace_back(1);
 
@@ -96,20 +121,26 @@ TEST(filateva_e_simpson_omp, test_x_pow_3) {
   simpson.Run();
   simpson.PostProcessing();
 
-  filateva_e_simpson_omp::Func integral_f = [](double x) { return x * x * x * x / 4; };
+  filateva_e_simpson_omp::Func integral_f = [](std::vector<double> x) { return std::pow(x[0], 4) / 4; };
 
-  ASSERT_NEAR(res[0], integral_f(param[1]) - integral_f(param[0]), param[2]);
+  ASSERT_NEAR(res[0], integral_f(b) - integral_f(a), 0.01);
 }
 
 TEST(filateva_e_simpson_omp, test_x_del) {
-  std::vector<double> param = {1, 10, 0.001};
+  size_t mer = 1;
+  size_t steps = 100;
+  std::vector<double> a = {1};
+  std::vector<double> b = {10};
   std::vector<double> res(1, 0);
-  filateva_e_simpson_omp::Func f = [](double x) { return 1 / x; };
+  filateva_e_simpson_omp::Func f = [](std::vector<double> x) { return 1 / x[0]; };
 
   auto task_data = std::make_shared<ppc::core::TaskData>();
-  task_data->inputs.emplace_back(reinterpret_cast<uint8_t *>(param.data()));
+  task_data->inputs.emplace_back(reinterpret_cast<uint8_t *>(a.data()));
+  task_data->inputs.emplace_back(reinterpret_cast<uint8_t *>(b.data()));
   task_data->inputs.emplace_back(reinterpret_cast<uint8_t *>(f));
-  task_data->inputs_count.emplace_back(2);
+  task_data->inputs_count.emplace_back(mer);
+  task_data->inputs_count.emplace_back(steps);
+
   task_data->outputs.emplace_back(reinterpret_cast<uint8_t *>(res.data()));
   task_data->outputs_count.emplace_back(1);
 
@@ -119,20 +150,26 @@ TEST(filateva_e_simpson_omp, test_x_del) {
   simpson.Run();
   simpson.PostProcessing();
 
-  filateva_e_simpson_omp::Func integral_f = [](double x) { return std::log(x); };
+  filateva_e_simpson_omp::Func integral_f = [](std::vector<double> x) { return std::log(x[0]); };
 
-  ASSERT_NEAR(res[0], integral_f(param[1]) - integral_f(param[0]), param[2]);
+  ASSERT_NEAR(res[0], integral_f(b) - integral_f(a), 0.01);
 }
 
 TEST(filateva_e_simpson_omp, test_x_sin) {
-  std::vector<double> param = {0, std::numbers::pi, 0.1};
+  size_t mer = 1;
+  size_t steps = 100;
+  std::vector<double> a = {1};
+  std::vector<double> b = {std::numbers::pi};
   std::vector<double> res(1, 0);
-  filateva_e_simpson_omp::Func f = [](double x) { return std::sin(x); };
+  filateva_e_simpson_omp::Func f = [](std::vector<double> x) { return std::sin(x[0]); };
 
   auto task_data = std::make_shared<ppc::core::TaskData>();
-  task_data->inputs.emplace_back(reinterpret_cast<uint8_t *>(param.data()));
+  task_data->inputs.emplace_back(reinterpret_cast<uint8_t *>(a.data()));
+  task_data->inputs.emplace_back(reinterpret_cast<uint8_t *>(b.data()));
   task_data->inputs.emplace_back(reinterpret_cast<uint8_t *>(f));
-  task_data->inputs_count.emplace_back(2);
+  task_data->inputs_count.emplace_back(mer);
+  task_data->inputs_count.emplace_back(steps);
+
   task_data->outputs.emplace_back(reinterpret_cast<uint8_t *>(res.data()));
   task_data->outputs_count.emplace_back(1);
 
@@ -142,20 +179,26 @@ TEST(filateva_e_simpson_omp, test_x_sin) {
   simpson.Run();
   simpson.PostProcessing();
 
-  filateva_e_simpson_omp::Func integral_f = [](double x) { return -std::cos(x); };
+  filateva_e_simpson_omp::Func integral_f = [](std::vector<double> x) { return -std::cos(x[0]); };
 
-  ASSERT_NEAR(res[0], integral_f(param[1]) - integral_f(param[0]), param[2]);
+  ASSERT_NEAR(res[0], integral_f(b) - integral_f(a), 0.01);
 }
 
 TEST(filateva_e_simpson_omp, test_x_cos) {
-  std::vector<double> param = {0, std::numbers::pi / 2, 0.1};
+  size_t mer = 1;
+  size_t steps = 100;
+  std::vector<double> a = {1};
+  std::vector<double> b = {std::numbers::pi / 2};
   std::vector<double> res(1, 0);
-  filateva_e_simpson_omp::Func f = [](double x) { return std::cos(x); };
+  filateva_e_simpson_omp::Func f = [](std::vector<double> x) { return std::cos(x[0]); };
 
   auto task_data = std::make_shared<ppc::core::TaskData>();
-  task_data->inputs.emplace_back(reinterpret_cast<uint8_t *>(param.data()));
+  task_data->inputs.emplace_back(reinterpret_cast<uint8_t *>(a.data()));
+  task_data->inputs.emplace_back(reinterpret_cast<uint8_t *>(b.data()));
   task_data->inputs.emplace_back(reinterpret_cast<uint8_t *>(f));
-  task_data->inputs_count.emplace_back(2);
+  task_data->inputs_count.emplace_back(mer);
+  task_data->inputs_count.emplace_back(steps);
+
   task_data->outputs.emplace_back(reinterpret_cast<uint8_t *>(res.data()));
   task_data->outputs_count.emplace_back(1);
 
@@ -165,20 +208,26 @@ TEST(filateva_e_simpson_omp, test_x_cos) {
   simpson.Run();
   simpson.PostProcessing();
 
-  filateva_e_simpson_omp::Func integral_f = [](double x) { return std::sin(x); };
+  filateva_e_simpson_omp::Func integral_f = [](std::vector<double> x) { return std::sin(x[0]); };
 
-  ASSERT_NEAR(res[0], integral_f(param[1]) - integral_f(param[0]), param[2]);
+  ASSERT_NEAR(res[0], integral_f(b) - integral_f(a), 0.01);
 }
 
 TEST(filateva_e_simpson_omp, test_gausa) {
-  std::vector<double> param = {0, 1, 0.001};
+  size_t mer = 1;
+  size_t steps = 100;
+  std::vector<double> a = {0};
+  std::vector<double> b = {1};
   std::vector<double> res(1, 0);
-  filateva_e_simpson_omp::Func f = [](double x) { return pow(std::numbers::e, -pow(x, 2)); };
+  filateva_e_simpson_omp::Func f = [](std::vector<double> x) { return pow(std::numbers::e, -pow(x[0], 2)); };
 
   auto task_data = std::make_shared<ppc::core::TaskData>();
-  task_data->inputs.emplace_back(reinterpret_cast<uint8_t *>(param.data()));
+  task_data->inputs.emplace_back(reinterpret_cast<uint8_t *>(a.data()));
+  task_data->inputs.emplace_back(reinterpret_cast<uint8_t *>(b.data()));
   task_data->inputs.emplace_back(reinterpret_cast<uint8_t *>(f));
-  task_data->inputs_count.emplace_back(2);
+  task_data->inputs_count.emplace_back(mer);
+  task_data->inputs_count.emplace_back(steps);
+
   task_data->outputs.emplace_back(reinterpret_cast<uint8_t *>(res.data()));
   task_data->outputs_count.emplace_back(1);
 
@@ -188,43 +237,54 @@ TEST(filateva_e_simpson_omp, test_gausa) {
   simpson.Run();
   simpson.PostProcessing();
 
-  ASSERT_NEAR(res[0], 0.746824, param[2]);
+  ASSERT_NEAR(res[0], 0.746824, 0.01);
 }
 
 TEST(filateva_e_simpson_omp, test_sum_integral) {
-  std::vector<double> param = {0, 10, 0.001};
+  size_t mer = 1;
+  size_t steps = 100;
+  std::vector<double> a = {0};
+  std::vector<double> b = {10};
   std::vector<double> res(1, 0);
-  filateva_e_simpson_omp::Func f = [](double x) { return pow(x, 3) + pow(x, 2) + x; };
+  filateva_e_simpson_omp::Func f = [](std::vector<double> x) { return pow(x[0], 3) + pow(x[0], 2) + x[0]; };
 
   auto task_data = std::make_shared<ppc::core::TaskData>();
-  task_data->inputs.emplace_back(reinterpret_cast<uint8_t *>(param.data()));
+  task_data->inputs.emplace_back(reinterpret_cast<uint8_t *>(a.data()));
+  task_data->inputs.emplace_back(reinterpret_cast<uint8_t *>(b.data()));
   task_data->inputs.emplace_back(reinterpret_cast<uint8_t *>(f));
-  task_data->inputs_count.emplace_back(2);
+  task_data->inputs_count.emplace_back(mer);
+  task_data->inputs_count.emplace_back(steps);
+
   task_data->outputs.emplace_back(reinterpret_cast<uint8_t *>(res.data()));
   task_data->outputs_count.emplace_back(1);
-
   filateva_e_simpson_omp::Simpson simpson(task_data);
   ASSERT_TRUE(simpson.Validation());
   simpson.PreProcessing();
   simpson.Run();
   simpson.PostProcessing();
 
-  filateva_e_simpson_omp::Func integral_f = [](double x) {
-    return (pow(x, 4) / 4) + (pow(x, 3) / 3) + (pow(x, 2) / 2);
+  filateva_e_simpson_omp::Func integral_f = [](std::vector<double> x) {
+    return (pow(x[0], 4) / 4) + (pow(x[0], 3) / 3) + (pow(x[0], 2) / 2);
   };
 
-  ASSERT_NEAR(res[0], integral_f(param[1]) - integral_f(param[0]), param[2]);
+  ASSERT_NEAR(res[0], integral_f(b) - integral_f(a), 0.01);
 }
 
 TEST(filateva_e_simpson_omp, test_error_1) {
-  std::vector<double> param = {100, 10, 0.001};
+  size_t mer = 1;
+  size_t steps = 100;
+  std::vector<double> a = {10};
+  std::vector<double> b = {0};
   std::vector<double> res(1, 0);
-  filateva_e_simpson_omp::Func f = [](double x) { return x * x; };
+  filateva_e_simpson_omp::Func f = [](std::vector<double> x) { return x[0] * x[0]; };
 
   auto task_data = std::make_shared<ppc::core::TaskData>();
-  task_data->inputs.emplace_back(reinterpret_cast<uint8_t *>(param.data()));
+  task_data->inputs.emplace_back(reinterpret_cast<uint8_t *>(a.data()));
+  task_data->inputs.emplace_back(reinterpret_cast<uint8_t *>(b.data()));
   task_data->inputs.emplace_back(reinterpret_cast<uint8_t *>(f));
-  task_data->inputs_count.emplace_back(2);
+  task_data->inputs_count.emplace_back(mer);
+  task_data->inputs_count.emplace_back(steps);
+
   task_data->outputs.emplace_back(reinterpret_cast<uint8_t *>(res.data()));
   task_data->outputs_count.emplace_back(1);
 
@@ -233,14 +293,20 @@ TEST(filateva_e_simpson_omp, test_error_1) {
 }
 
 TEST(filateva_e_simpson_omp, test_error_2) {
-  std::vector<double> param = {0, 10, 20};
+  size_t mer = 1;
+  size_t steps = 101;
+  std::vector<double> a = {10};
+  std::vector<double> b = {0};
   std::vector<double> res(1, 0);
-  filateva_e_simpson_omp::Func f = [](double x) { return x * x; };
+  filateva_e_simpson_omp::Func f = [](std::vector<double> x) { return x[0] * x[0]; };
 
   auto task_data = std::make_shared<ppc::core::TaskData>();
-  task_data->inputs.emplace_back(reinterpret_cast<uint8_t *>(param.data()));
+  task_data->inputs.emplace_back(reinterpret_cast<uint8_t *>(a.data()));
+  task_data->inputs.emplace_back(reinterpret_cast<uint8_t *>(b.data()));
   task_data->inputs.emplace_back(reinterpret_cast<uint8_t *>(f));
-  task_data->inputs_count.emplace_back(2);
+  task_data->inputs_count.emplace_back(mer);
+  task_data->inputs_count.emplace_back(steps);
+
   task_data->outputs.emplace_back(reinterpret_cast<uint8_t *>(res.data()));
   task_data->outputs_count.emplace_back(1);
 
@@ -248,34 +314,85 @@ TEST(filateva_e_simpson_omp, test_error_2) {
   ASSERT_FALSE(simpson.Validation());
 }
 
-TEST(filateva_e_simpson_omp, test_error_3) {
-  std::vector<double> param = {0, 10, 0.001};
+TEST(filateva_e_simpson_omp, test_x_y_pow_2) {
+  size_t mer = 2;
+  size_t steps = 100;
+  std::vector<double> a = {0, 0};
+  std::vector<double> b = {1, 1};
   std::vector<double> res(1, 0);
-  filateva_e_simpson_omp::Func f = [](double x) { return x * x; };
+  filateva_e_simpson_omp::Func f = [](std::vector<double> param) {
+    return (param[0] * param[0]) + (param[1] * param[1]);
+  };
 
   auto task_data = std::make_shared<ppc::core::TaskData>();
-  task_data->inputs.emplace_back(reinterpret_cast<uint8_t *>(param.data()));
+  task_data->inputs.emplace_back(reinterpret_cast<uint8_t *>(a.data()));
+  task_data->inputs.emplace_back(reinterpret_cast<uint8_t *>(b.data()));
   task_data->inputs.emplace_back(reinterpret_cast<uint8_t *>(f));
-  task_data->inputs_count.emplace_back(1);
+  task_data->inputs_count.emplace_back(mer);
+  task_data->inputs_count.emplace_back(steps);
+
   task_data->outputs.emplace_back(reinterpret_cast<uint8_t *>(res.data()));
   task_data->outputs_count.emplace_back(1);
 
   filateva_e_simpson_omp::Simpson simpson(task_data);
-  ASSERT_FALSE(simpson.Validation());
+  ASSERT_TRUE(simpson.Validation());
+  simpson.PreProcessing();
+  simpson.Run();
+  simpson.PostProcessing();
+
+  ASSERT_NEAR(res[0], 0.66666, 0.01);
 }
 
-TEST(filateva_e_simpson_omp, test_error_4) {
-  std::vector<double> param = {0, 10, 0.001};
+TEST(filateva_e_simpson_omp, test_x_y) {
+  size_t mer = 2;
+  size_t steps = 100;
+  std::vector<double> a = {0, 0};
+  std::vector<double> b = {10, 10};
   std::vector<double> res(1, 0);
-  filateva_e_simpson_omp::Func f = [](double x) { return x * x; };
+  filateva_e_simpson_omp::Func f = [](std::vector<double> param) { return param[0] + param[1]; };
 
   auto task_data = std::make_shared<ppc::core::TaskData>();
-  task_data->inputs.emplace_back(reinterpret_cast<uint8_t *>(param.data()));
+  task_data->inputs.emplace_back(reinterpret_cast<uint8_t *>(a.data()));
+  task_data->inputs.emplace_back(reinterpret_cast<uint8_t *>(b.data()));
   task_data->inputs.emplace_back(reinterpret_cast<uint8_t *>(f));
-  task_data->inputs_count.emplace_back(2);
+  task_data->inputs_count.emplace_back(mer);
+  task_data->inputs_count.emplace_back(steps);
+
   task_data->outputs.emplace_back(reinterpret_cast<uint8_t *>(res.data()));
-  task_data->outputs_count.emplace_back(2);
+  task_data->outputs_count.emplace_back(1);
 
   filateva_e_simpson_omp::Simpson simpson(task_data);
-  ASSERT_FALSE(simpson.Validation());
+  ASSERT_TRUE(simpson.Validation());
+  simpson.PreProcessing();
+  simpson.Run();
+  simpson.PostProcessing();
+
+  ASSERT_NEAR(res[0], 1000, 0.01);
+}
+
+TEST(filateva_e_simpson_omp, test_sin_x_cos_y) {
+  size_t mer = 2;
+  size_t steps = 100;
+  std::vector<double> a = {0, 0};
+  std::vector<double> b = {std::numbers::pi, std::numbers::pi / 2};
+  std::vector<double> res(1, 0);
+  filateva_e_simpson_omp::Func f = [](std::vector<double> param) { return std::sin(param[0]) * std::cos(param[1]); };
+
+  auto task_data = std::make_shared<ppc::core::TaskData>();
+  task_data->inputs.emplace_back(reinterpret_cast<uint8_t *>(a.data()));
+  task_data->inputs.emplace_back(reinterpret_cast<uint8_t *>(b.data()));
+  task_data->inputs.emplace_back(reinterpret_cast<uint8_t *>(f));
+  task_data->inputs_count.emplace_back(mer);
+  task_data->inputs_count.emplace_back(steps);
+
+  task_data->outputs.emplace_back(reinterpret_cast<uint8_t *>(res.data()));
+  task_data->outputs_count.emplace_back(1);
+
+  filateva_e_simpson_omp::Simpson simpson(task_data);
+  ASSERT_TRUE(simpson.Validation());
+  simpson.PreProcessing();
+  simpson.Run();
+  simpson.PostProcessing();
+
+  ASSERT_NEAR(res[0], 2, 0.01);
 }

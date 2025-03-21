@@ -1,12 +1,14 @@
 #pragma once
 
+#include <cstddef>
 #include <utility>
+#include <vector>
 
 #include "core/task/include/task.hpp"
 
 namespace filateva_e_simpson_omp {
 
-using Func = double (*)(double);
+using Func = double (*)(std::vector<double>);
 
 class Simpson : public ppc::core::Task {
  public:
@@ -17,8 +19,9 @@ class Simpson : public ppc::core::Task {
   bool PostProcessingImpl() override;
 
  private:
-  double a_{}, b_{};
-  double alfa_{};
+  size_t mer_;
+  std::vector<double> a_, b_;
+  size_t steps_{};
   double res_{};
 
   Func f_;

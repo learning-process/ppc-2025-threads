@@ -1,73 +1,79 @@
 #include "omp/filateva_e_simpson/include/ops_omp.hpp"
 
-#include <algorithm>
 #include <cmath>
+#include <cstddef>
 #include <vector>
 
 bool filateva_e_simpson_omp::Simpson::PreProcessingImpl() {
-  auto *temp = reinterpret_cast<double *>(task_data->inputs[0]);
-  a_ = temp[0];
-  b_ = temp[1];
-  alfa_ = temp[2];
-  f_ = reinterpret_cast<Func>(task_data->inputs[1]);
+  mer_ = task_data->inputs_count[0];
+  steps_ = task_data->inputs_count[1];
+
+  auto *temp_a = reinterpret_cast<double *>(task_data->inputs[0]);
+  a_.insert(a_.end(), temp_a, temp_a + mer_);
+
+  auto *temp_b = reinterpret_cast<double *>(task_data->inputs[1]);
+  b_.insert(b_.end(), temp_b, temp_b + mer_);
+
+  f_ = reinterpret_cast<Func>(task_data->inputs[2]);
 
   return true;
 }
 
 bool filateva_e_simpson_omp::Simpson::ValidationImpl() {
-  auto *temp = reinterpret_cast<double *>(task_data->inputs[0]);
-  return task_data->inputs_count[0] == 2 && task_data->outputs_count[0] == 1 && temp[0] < temp[1] &&
-         temp[1] - temp[0] > temp[2] && temp[2] > 0;
+  size_t mer = task_data->inputs_count[0];
+  auto *temp_a = reinterpret_cast<double *>(task_data->inputs[0]);
+  auto *temp_b = reinterpret_cast<double *>(task_data->inputs[1]);
+  if (task_data->inputs_count[1] % 2 == 1) {
+    return false;
+  }
+  for (size_t i = 0; i < mer; i++) {
+    if (temp_b[i] <= temp_a[i]) {
+      return false;
+    }
+  }
+  return true;
 }
 
 bool filateva_e_simpson_omp::Simpson::RunImpl() {
-  double max_z = 0;
-
-#pragma omp parallel
-  {
-    double local_max = 0;
-
-#pragma omp for
-    for (int i = 0; i < (int)((b_ - a_) / alfa_) + 1; ++i) {
-      double x = a_ + (i * alfa_);
-      double temp =
-          std::abs((f_(x - (2 * alfa_)) - 4 * f_(x - alfa_) + 6 * f_(x) - 4 * f_(x + alfa_) + f_(x + (2 * alfa_))) /
-                   pow(alfa_, 4));
-      local_max = std::max(local_max, temp);
-    }
-
-#pragma omp critical
-    { max_z = std::max(local_max, max_z); }
+  std::vector<double> h(mer_);
+  for (size_t i = 0; i < mer_; i++) {
+    h[i] = static_cast<double>(b_[i] - a_[i]) / static_cast<double>(steps_);
   }
 
-  int n_2 = (int)pow((pow((b_ - a_), 4) * max_z) / (180 * alfa_), 0.25);
+  res_ = 0.0;
 
-  n_2 += ((n_2 % 2) != 0) ? 1 : 0;
-  n_2 = (n_2 != 0) ? n_2 : 10;
+  long totalSteps = static_cast<unsigned long>(std::pow(steps_ + 1, mer_));
+  double localRes = 0.0;
 
-  double h = (b_ - a_) / n_2;
-  res_ = f_(a_) + f_(b_);
+ #pragma omp parallel for reduction(+:localRes)
+  for (long i = 0; i < totalSteps; i++) {
+    unsigned long temp = i;
+    std::vector<double> param(mer_);
+    double weight = 1.0;
 
-#pragma omp parallel
-  {
-    double local_res = 0;
+    for (size_t m = 0; m < mer_; m++) {
+      size_t shag_i = temp % (steps_ + 1);
+      temp /= (steps_ + 1);
 
-#pragma omp for
-    for (int i = 1; i < n_2; i++) {
-      double x = a_ + (i * h);
-      if (i % 2 == 1) {
-        local_res += 4 * f_(x);
+      param[m] = a_[m] + h[m] * static_cast<double>(shag_i);
+
+      if (shag_i == 0 || shag_i == steps_) {
+        weight *= 1.0;
+      } else if (shag_i % 2 == 1) {
+        weight *= 4.0;
       } else {
-        local_res += 2 * f_(x);
+        weight *= 2.0;
       }
     }
 
-#pragma omp critical
-    { res_ += local_res; }
+    localRes += weight * f_(param);
   }
 
-  res_ *= (h / 3);
+  res_ = localRes;
 
+  for (size_t i = 0; i < mer_; i++) {
+    res_ *= (h[i] / 3.0);
+  }
   return true;
 }
 
