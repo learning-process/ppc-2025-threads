@@ -2,6 +2,7 @@
 
 #include <cstdint>
 #include <memory>
+#include <random>
 #include <vector>
 
 #include "core/task/include/task.hpp"
@@ -68,4 +69,32 @@ TEST(fyodorov_m_shell_sort_with_even_odd_batcher_merge_seq, test_empty_array) {
   test_task_sequential.PostProcessing();
 
   EXPECT_EQ(output, expected_output);
+}
+
+TEST(fyodorov_m_shell_sort_with_even_odd_batcher_merge_seq, test_random_sequence) {
+  std::random_device rd;
+  std::mt19937 gen(rd());
+  std::uniform_int_distribution<> distrib(-1000, 1000);
+  const size_t size = 1000;
+  std::vector<int> input(size);
+  for (auto &num : input) {
+    num = distrib(gen);
+  }
+
+  std::vector<int> expected_output = input;
+  std::sort(expected_output.begin(), expected_output.end());
+
+  std::vector<int> output(input.size(), 0);
+
+  auto task_data_seq = std::make_shared<ppc::core::TaskData>();
+  task_data_seq->inputs.emplace_back(reinterpret_cast<uint8_t *>(input.data()));
+  task_data_seq->inputs_count.emplace_back(input.size());
+  task_data_seq->outputs.emplace_back(reinterpret_cast<uint8_t *>(output.data()));
+  task_data_seq->outputs_count.emplace_back(output.size());
+
+  auto test_task_sequential =
+      std::make_shared<fyodorov_m_shell_sort_with_even_odd_batcher_merge_seq::TestTaskSequential>(task_data_seq);
+  test_task_sequential->execute();
+
+  ASSERT_EQ(output, expected_output);
 }
