@@ -77,7 +77,8 @@ bool shulpin_i_jarvis_omp::JarvisSequential::PostProcessingImpl() {
 void shulpin_i_jarvis_omp::JarvisOMPParallel::MakeJarvisPassageOMP(
     std::vector<shulpin_i_jarvis_omp::Point>& input_jar, std::vector<shulpin_i_jarvis_omp::Point>& output_jar) {
   int32_t total = input_jar.size();
-
+  output_jar.clear();
+  
   int32_t start = 0;
 #pragma omp parallel for
   for (int32_t i = 0; i < total; ++i) {
@@ -108,10 +109,10 @@ void shulpin_i_jarvis_omp::JarvisOMPParallel::MakeJarvisPassageOMP(
     candidate = (active + 1) % total;
 
 #pragma omp parallel for shared(candidate)
-    for (int32_t i = 0; i < total; ++i) {
-      if (Orientation(input_jar[active], input_jar[i], input_jar[candidate]) == 2) {
+    for (int32_t index = 0; index < total; ++index) {
+      if (Orientation(input_jar[active], input_jar[index], input_jar[candidate]) == 2) {
 #pragma omp critical
-        { candidate = i; }
+        { candidate = index; }
       }
     }
     active = candidate;
