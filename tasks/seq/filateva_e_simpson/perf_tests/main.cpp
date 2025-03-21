@@ -18,7 +18,7 @@ TEST(filateva_e_simpson_seq, test_pipeline_run) {
   std::vector<double> res(1, 0);
   filateva_e_simpson_seq::Func f = [](std::vector<double> x) {
     if (x.empty()) {
-      return 0.0; 
+      return 0.0;
     }
     return x[0] * x[0];
   };
