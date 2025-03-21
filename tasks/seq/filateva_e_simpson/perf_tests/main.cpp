@@ -17,7 +17,7 @@ TEST(filateva_e_simpson_seq, test_pipeline_run) {
   std::vector<double> res(1, 0);
   filateva_e_simpson_seq::Func f = [](std::vector<double> x) {
     if (x.empty()) return 0.0;
-    return x[0] * x[0]; 
+    return x[0] * x[0];
   };
 
   auto task_data = std::make_shared<ppc::core::TaskData>();
@@ -49,7 +49,7 @@ TEST(filateva_e_simpson_seq, test_pipeline_run) {
 
   filateva_e_simpson_seq::Func integral_f = [](std::vector<double> x) {
     if (x.empty()) return 0.0;
-    return x[0] * x[0] * x[0] / 3; 
+    return x[0] * x[0] * x[0] / 3;
   };
 
   ASSERT_NEAR(res[0], integral_f(b) - integral_f(a), 0.01);
@@ -63,7 +63,7 @@ TEST(filateva_e_simpson_seq, test_task_run) {
   std::vector<double> res(1, 0);
   filateva_e_simpson_seq::Func f = [](std::vector<double> x) {
     if (x.empty()) return 0.0;
-    return x[0] * x[0]; 
+    return x[0] * x[0];
   };
 
   auto task_data = std::make_shared<ppc::core::TaskData>();
@@ -95,7 +95,7 @@ TEST(filateva_e_simpson_seq, test_task_run) {
 
   filateva_e_simpson_seq::Func integral_f = [](std::vector<double> x) {
     if (x.empty()) return 0.0;
-    return x[0] * x[0] * x[0] / 3; 
+    return x[0] * x[0] * x[0] / 3;
   };
 
   ASSERT_NEAR(res[0], integral_f(b) - integral_f(a), 0.01);
