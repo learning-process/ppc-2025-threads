@@ -319,7 +319,7 @@ TEST(filateva_e_simpson_seq, test_x_y_pow_2) {
   std::vector<double> a = {0, 0};
   std::vector<double> b = {1, 1};
   std::vector<double> res(1, 0);
-  filateva_e_simpson_seq::Func f = [](std::vector<double> param) { return param[0] * param[0] + param[1] * param[1]; };
+  filateva_e_simpson_seq::Func f = [](std::vector<double> param) { return (param[0] * param[0]) + (param[1] * param[1]); };
 
   auto task_data = std::make_shared<ppc::core::TaskData>();
   task_data->inputs.emplace_back(reinterpret_cast<uint8_t *>(a.data()));

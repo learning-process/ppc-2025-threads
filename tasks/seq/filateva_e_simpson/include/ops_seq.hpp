@@ -1,6 +1,8 @@
 #pragma once
 
 #include <utility>
+#include <vector>
+#include <cstddef>
 
 #include "core/task/include/task.hpp"
 
