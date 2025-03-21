@@ -1,5 +1,6 @@
 #include <gtest/gtest.h>
 
+#include <algorithm>
 #include <chrono>
 #include <cstdint>
 #include <memory>
@@ -12,7 +13,6 @@
 namespace {
 
 std::vector<int> CreateReverseSortedVector(unsigned int size, int left);
-bool IsSorted(std::vector<int> &vec);
 
 std::vector<int> CreateReverseSortedVector(unsigned int size, const int left) {
   std::vector<int> result;
@@ -20,18 +20,6 @@ std::vector<int> CreateReverseSortedVector(unsigned int size, const int left) {
     result.push_back(left + (int)size);
   }
   return result;
-}
-
-bool IsSorted(std::vector<int> &vec) {
-  if (vec.size() < 2) {
-    return true;
-  }
-  for (unsigned int i = 1; i < vec.size(); i++) {
-    if (vec[i - 1] > vec[i]) {
-      return false;
-    }
-  }
-  return true;
 }
 }  // namespace
 
@@ -67,7 +55,7 @@ TEST(kalyakina_a_Shell_with_simple_merge_omp, test_pipeline_run) {
   auto perf_analyzer = std::make_shared<ppc::core::Perf>(test_task_omp);
   perf_analyzer->PipelineRun(perf_attr, perf_results);
   ppc::core::Perf::PrintPerfStatistic(perf_results);
-  ASSERT_TRUE(IsSorted(out));
+  ASSERT_TRUE(std::ranges::is_sorted(out.begin(), out.end()));
 }
 
 TEST(kalyakina_a_Shell_with_simple_merge_omp, test_task_run) {
@@ -102,5 +90,5 @@ TEST(kalyakina_a_Shell_with_simple_merge_omp, test_task_run) {
   auto perf_analyzer = std::make_shared<ppc::core::Perf>(test_task_omp);
   perf_analyzer->TaskRun(perf_attr, perf_results);
   ppc::core::Perf::PrintPerfStatistic(perf_results);
-  ASSERT_TRUE(IsSorted(out));
+  ASSERT_TRUE(std::ranges::is_sorted(out.begin(), out.end()));
 }
