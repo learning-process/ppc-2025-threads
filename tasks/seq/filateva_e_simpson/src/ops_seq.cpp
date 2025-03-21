@@ -27,7 +27,9 @@ bool filateva_e_simpson_seq::Simpson::ValidationImpl() {
     return false;
   }
   for (size_t i = 0; i < mer; i++) {
-    if (temp_b[i] <= temp_a[i]) return false;
+    if (temp_b[i] <= temp_a[i]) {
+      return false;
+    }
   }
   return true;
 }
