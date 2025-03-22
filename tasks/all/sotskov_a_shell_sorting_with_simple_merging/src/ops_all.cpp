@@ -16,7 +16,7 @@
 
 class ThreadPool {
  public:
-  explicit ThreadPool(size_t num_threads) : stop_(false) {
+  explicit ThreadPool(size_t num_threads) {
     for (size_t i = 0; i < num_threads; ++i) {
       workers_.emplace_back([this] {
         while (true) {
@@ -61,7 +61,7 @@ class ThreadPool {
   std::queue<std::function<void()>> tasks_;
   std::mutex queue_mutex_;
   std::condition_variable condition_;
-  bool stop_;
+  bool stop_{false};
 };
 
 void sotskov_a_shell_sorting_with_simple_merging_all::ShellSort(std::vector<int>& arr, size_t left, size_t right) {
@@ -188,8 +188,8 @@ bool sotskov_a_shell_sorting_with_simple_merging_all::TestTaskALL::PostProcessin
     dummy_output.resize(input_.size());
   }
 
-  boost::mpi::gatherv(world_, input_.data(), input_.size(), (rank_ == 0) ? result.data() : dummy_output.data(), counts,
-                      displs, 0);
+  boost::mpi::gatherv(world_, input_.data(), static_cast<int>(input_.size()),
+                      (rank_ == 0) ? result.data() : dummy_output.data(), counts, displs, 0);
 
   if (rank_ == 0) {
     auto* dst = reinterpret_cast<int*>(task_data->outputs[0]);
