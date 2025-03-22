@@ -67,7 +67,7 @@ TestData::TestData(std::pair<int, int> matrix1_size, std::pair<int, int> matrix2
 }  // namespace
 
 TEST(lavrentiev_a_ccs_seq, test_pipeline_run) {
-  constexpr double kSize = 500;
+  constexpr double kSize = 1200;
   auto task = TestData({kSize, kSize}, {kSize, kSize});
   auto test_task_sequential = std::make_shared<lavrentiev_a_ccs_seq::CCSSequential>(task.task_data_seq);
   auto perf_attr = std::make_shared<ppc::core::PerfAttr>();
@@ -88,7 +88,7 @@ TEST(lavrentiev_a_ccs_seq, test_pipeline_run) {
 }
 
 TEST(lavrentiev_a_ccs_seq, test_task_run) {
-  constexpr double kSize = 500;
+  constexpr double kSize = 1200;
   auto task = TestData({kSize, kSize}, {kSize, kSize});
   auto test_task_sequential = std::make_shared<lavrentiev_a_ccs_seq::CCSSequential>(task.task_data_seq);
   auto perf_attr = std::make_shared<ppc::core::PerfAttr>();
