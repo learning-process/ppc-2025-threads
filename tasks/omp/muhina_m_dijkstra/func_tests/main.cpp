@@ -42,11 +42,11 @@ TEST(muhina_m_dijkstra_omp, test_dijkstra_small_graph) {
   task_data_omp->outputs.emplace_back(reinterpret_cast<uint8_t*>(distances.data()));
   task_data_omp->outputs_count.emplace_back(kNumVertices);
 
-  muhina_m_dijkstra_omp::TestTaskOpenMP test_task_OpenMP(task_data_omp);
-  ASSERT_TRUE(test_task_OpenMP.Validation());
-  test_task_OpenMP.PreProcessing();
-  ASSERT_TRUE(test_task_OpenMP.Run());
-  test_task_OpenMP.PostProcessing();
+  muhina_m_dijkstra_omp::TestTaskOpenMP test_task_open_mp(task_data_omp);
+  ASSERT_TRUE(test_task_open_mp.Validation());
+  test_task_open_mp.PreProcessing();
+  ASSERT_TRUE(test_task_open_mp.Run());
+  test_task_open_mp.PostProcessing();
 
   std::vector<int> expected_distances = {0, 4, 2, 5, 3};
   for (size_t i = 0; i < kNumVertices; ++i) {
@@ -70,9 +70,9 @@ TEST(muhina_m_dijkstra_omp, test_dijkstra_validation_failure) {
   task_data_omp->outputs.emplace_back(reinterpret_cast<uint8_t*>(distances.data()));
   task_data_omp->outputs_count.emplace_back(num_vertices);
 
-  muhina_m_dijkstra_omp::TestTaskOpenMP test_task_OpenMP(task_data_omp);
+  muhina_m_dijkstra_omp::TestTaskOpenMP test_task_open_mp(task_data_omp);
 
-  ASSERT_FALSE(test_task_OpenMP.Validation());
+  ASSERT_FALSE(test_task_open_mp.Validation());
 }
 
 TEST(muhina_m_dijkstra_omp, test_dijkstra_small_graph_non_zero_start) {
@@ -110,11 +110,11 @@ TEST(muhina_m_dijkstra_omp, test_dijkstra_small_graph_non_zero_start) {
   task_data_omp->outputs.emplace_back(reinterpret_cast<uint8_t*>(distances.data()));
   task_data_omp->outputs_count.emplace_back(kNumVertices);
 
-  muhina_m_dijkstra_omp::TestTaskOpenMP test_task_OpenMP(task_data_omp);
-  ASSERT_TRUE(test_task_OpenMP.Validation());
-  test_task_OpenMP.PreProcessing();
-  ASSERT_TRUE(test_task_OpenMP.Run());
-  test_task_OpenMP.PostProcessing();
+  muhina_m_dijkstra_omp::TestTaskOpenMP test_task_open_mp(task_data_omp);
+  ASSERT_TRUE(test_task_open_mp.Validation());
+  test_task_open_mp.PreProcessing();
+  ASSERT_TRUE(test_task_open_mp.Run());
+  test_task_open_mp.PostProcessing();
 
   std::vector<int> expected_distances = {2, 5, 0, 3, 1};
   for (size_t i = 0; i < kNumVertices; ++i) {
@@ -154,9 +154,9 @@ TEST(muhina_m_dijkstra_omp, test_negative_weight) {
   task_data_omp->outputs.emplace_back(reinterpret_cast<uint8_t*>(distances.data()));
   task_data_omp->outputs_count.emplace_back(kNumVertices);
 
-  muhina_m_dijkstra_omp::TestTaskOpenMP test_task_OpenMP(task_data_omp);
-  ASSERT_TRUE(test_task_OpenMP.Validation());
-  test_task_OpenMP.PreProcessing();
-  ASSERT_FALSE(test_task_OpenMP.Run());
-  test_task_OpenMP.PostProcessing();
+  muhina_m_dijkstra_omp::TestTaskOpenMP test_task_open_mp(task_data_omp);
+  ASSERT_TRUE(test_task_open_mp.Validation());
+  test_task_open_mp.PreProcessing();
+  ASSERT_FALSE(test_task_open_mp.Run());
+  test_task_open_mp.PostProcessing();
 }

@@ -40,17 +40,17 @@ TEST(muhina_m_dijkstra_omp, test_pipeline_run) {
 
   std::vector<int> distances(kNumVertices, INT_MAX);
 
-  auto task_data_seq = std::make_shared<ppc::core::TaskData>();
-  task_data_seq->inputs.emplace_back(reinterpret_cast<uint8_t*>(graph_data.data()));
-  task_data_seq->inputs_count.emplace_back(graph_data.size());
+  auto task_data_omp = std::make_shared<ppc::core::TaskData>();
+  task_data_omp->inputs.emplace_back(reinterpret_cast<uint8_t*>(graph_data.data()));
+  task_data_omp->inputs_count.emplace_back(graph_data.size());
 
-  task_data_seq->inputs.emplace_back(reinterpret_cast<uint8_t*>(&start_vertex));
-  task_data_seq->inputs_count.emplace_back(sizeof(start_vertex));
+  task_data_omp->inputs.emplace_back(reinterpret_cast<uint8_t*>(&start_vertex));
+  task_data_omp->inputs_count.emplace_back(sizeof(start_vertex));
 
-  task_data_seq->outputs.emplace_back(reinterpret_cast<uint8_t*>(distances.data()));
-  task_data_seq->outputs_count.emplace_back(kNumVertices);
+  task_data_omp->outputs.emplace_back(reinterpret_cast<uint8_t*>(distances.data()));
+  task_data_omp->outputs_count.emplace_back(kNumVertices);
 
-  auto test_task_OpenMP = std::make_shared<muhina_m_dijkstra_omp::TestTaskOpenMP>(task_data_seq);
+  auto test_task_open_mp = std::make_shared<muhina_m_dijkstra_omp::TestTaskOpenMP>(task_data_omp);
 
   auto perf_attr = std::make_shared<ppc::core::PerfAttr>();
   perf_attr->num_running = 10;
@@ -63,7 +63,7 @@ TEST(muhina_m_dijkstra_omp, test_pipeline_run) {
 
   auto perf_results = std::make_shared<ppc::core::PerfResults>();
 
-  auto perf_analyzer = std::make_shared<ppc::core::Perf>(test_task_OpenMP);
+  auto perf_analyzer = std::make_shared<ppc::core::Perf>(test_task_open_mp);
   perf_analyzer->PipelineRun(perf_attr, perf_results);
   ppc::core::Perf::PrintPerfStatistic(perf_results);
 }
@@ -95,17 +95,17 @@ TEST(muhina_m_dijkstra_omp, test_task_run) {
 
   std::vector<int> distances(kNumVertices, INT_MAX);
 
-  auto task_data_seq = std::make_shared<ppc::core::TaskData>();
-  task_data_seq->inputs.emplace_back(reinterpret_cast<uint8_t*>(graph_data.data()));
-  task_data_seq->inputs_count.emplace_back(graph_data.size());
+  auto task_data_omp = std::make_shared<ppc::core::TaskData>();
+  task_data_omp->inputs.emplace_back(reinterpret_cast<uint8_t*>(graph_data.data()));
+  task_data_omp->inputs_count.emplace_back(graph_data.size());
 
-  task_data_seq->inputs.emplace_back(reinterpret_cast<uint8_t*>(&start_vertex));
-  task_data_seq->inputs_count.emplace_back(sizeof(start_vertex));
+  task_data_omp->inputs.emplace_back(reinterpret_cast<uint8_t*>(&start_vertex));
+  task_data_omp->inputs_count.emplace_back(sizeof(start_vertex));
 
-  task_data_seq->outputs.emplace_back(reinterpret_cast<uint8_t*>(distances.data()));
-  task_data_seq->outputs_count.emplace_back(kNumVertices);
+  task_data_omp->outputs.emplace_back(reinterpret_cast<uint8_t*>(distances.data()));
+  task_data_omp->outputs_count.emplace_back(kNumVertices);
 
-  auto test_task_OpenMP = std::make_shared<muhina_m_dijkstra_omp::TestTaskOpenMP>(task_data_seq);
+  auto test_task_open_mp = std::make_shared<muhina_m_dijkstra_omp::TestTaskOpenMP>(task_data_omp);
 
   auto perf_attr = std::make_shared<ppc::core::PerfAttr>();
   perf_attr->num_running = 10;
@@ -117,7 +117,7 @@ TEST(muhina_m_dijkstra_omp, test_task_run) {
   };
   auto perf_results = std::make_shared<ppc::core::PerfResults>();
 
-  auto perf_analyzer = std::make_shared<ppc::core::Perf>(test_task_OpenMP);
+  auto perf_analyzer = std::make_shared<ppc::core::Perf>(test_task_open_mp);
   perf_analyzer->TaskRun(perf_attr, perf_results);
   ppc::core::Perf::PrintPerfStatistic(perf_results);
 }
