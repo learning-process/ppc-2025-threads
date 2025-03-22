@@ -1,14 +1,29 @@
 #include <gtest/gtest.h>
 
 #include <cmath>
+#include <iostream>
+#include <random>
 #include <complex>
-#include <cstddef>
-#include <cstdint>
 #include <memory>
+#include <cmath>
+#include <limits>
 #include <vector>
 
-#include "core/task/include/task.hpp"
 #include "seq/solovev_a_ccs_mmult_sparse/include/ccs_mmult_sparse.hpp"
+
+namespace {
+std::complex<double> generateRandomComplex(double min, double max) {
+  static std::random_device rd;
+  static std::mt19937 gen(rd());
+  std::uniform_real_distribution<> dis(min, max);
+  return std::complex<double>(dis(gen), dis(gen));
+}
+
+bool areComplexNumbersApproxEqual(const std::complex<double>& c1, const std::complex<double>& c2,
+                                  double tolerance = 1e-6) {
+  return std::abs(c1.real() - c2.real()) < tolerance && std::abs(c1.imag() - c2.imag()) < tolerance;
+}
+}  // namespace
 
 TEST(solovev_a_ccs_mmult_sparse, test_I) {
   solovev_a_matrix::MatrixInCcsSparse m1(1, 1, 1);
@@ -40,21 +55,31 @@ TEST(solovev_a_ccs_mmult_sparse, test_I) {
 
 TEST(solovev_a_ccs_mmult_sparse, test_II) {
   std::complex<double> vvector(1.0, 1.0);
-  solovev_a_matrix::MatrixInCcsSparse m1(50, 1, 50);
-  solovev_a_matrix::MatrixInCcsSparse m2(1, 50, 50);
-  solovev_a_matrix::MatrixInCcsSparse m3(50, 50, 2500);
+  const int rows_m1 = 50;
+  const int cols_m1 = 1;
+  const int rows_m2 = 1;
+  const int cols_m2 = 50;
+  const int rows_m3 = rows_m1;
+  const int cols_m3 = cols_m2;
+  const int nnz_m3 = rows_m3 * cols_m3;
 
-  m1.col_p = {0, 50};
+  solovev_a_matrix::MatrixInCcsSparse m1(rows_m1, cols_m1, rows_m1);
+  solovev_a_matrix::MatrixInCcsSparse m2(rows_m2, cols_m2, cols_m2);
+  solovev_a_matrix::MatrixInCcsSparse m3(rows_m3, cols_m3, nnz_m3);
 
-  for (int i = 0; i <= 50; i++) {
+  m1.col_p = {0, rows_m1};
+
+  for (int i = 0; i <= cols_m2; i++) {
     m2.col_p.push_back(i);
   }
-  for (int i = 0; i < 50; i++) {
+  for (int i = 0; i < rows_m1; i++) {
     m1.row.push_back(i);
     m1.val.emplace_back(vvector);
-    m2.row.push_back(0.0);
+  }
+  for (int i = 0; i < cols_m2; i++) {
+    m2.row.push_back(0);
     m2.val.emplace_back(vvector);
-  };
+  }
 
   std::shared_ptr<ppc::core::TaskData> task_data_seq = std::make_shared<ppc::core::TaskData>();
   task_data_seq->inputs.emplace_back(reinterpret_cast<uint8_t*>(&m1));
@@ -68,7 +93,7 @@ TEST(solovev_a_ccs_mmult_sparse, test_II) {
   test_task_sequential.PostProcessingImpl();
 
   std::complex<double> correct_reply(0.0, 0.0);
-  for (int i = 0; i < 50 * 50; i++) {
+  for (int i = 0; i < nnz_m3; i++) {
     ASSERT_EQ(m3.val[i], correct_reply);
   }
 }
@@ -186,5 +211,84 @@ TEST(solovev_a_ccs_mmult_sparse, test_V) {
   std::complex<double> correct_reply(3.0, 4.0);
   for (size_t i = 0; i < m3.val.size(); i++) {
     ASSERT_EQ(m3.val[i], correct_reply);
+  }
+}
+
+TEST(solovev_a_ccs_mmult_sparse, test_V_random) {
+  int rows = 50;
+  int cols = 50;
+
+  solovev_a_matrix::MatrixInCcsSparse m1(rows, cols);
+  solovev_a_matrix::MatrixInCcsSparse m2(rows, cols);
+  solovev_a_matrix::MatrixInCcsSparse m3(rows, cols);
+
+  for (int i = 0; i <= cols; i++) {
+    m1.col_p.push_back(i);
+    m2.col_p.push_back(i);
+  }
+
+  for (int i = 0; i < rows; i++) {
+    m1.row.push_back(i);
+    m1.val.push_back(generateRandomComplex(-10.0, 10.0));
+    m2.row.push_back(i);
+    m2.val.push_back(generateRandomComplex(-10.0, 10.0));
+  }
+
+  std::shared_ptr<ppc::core::TaskData> task_data_seq = std::make_shared<ppc::core::TaskData>();
+  task_data_seq->inputs.emplace_back(reinterpret_cast<uint8_t*>(&m1));
+  task_data_seq->inputs.emplace_back(reinterpret_cast<uint8_t*>(&m2));
+  task_data_seq->outputs.emplace_back(reinterpret_cast<uint8_t*>(&m3));
+
+  solovev_a_matrix::SeqMatMultCcs test_task_sequential(task_data_seq);
+  ASSERT_EQ(test_task_sequential.ValidationImpl(), true);
+  test_task_sequential.PreProcessingImpl();
+  test_task_sequential.RunImpl();
+  test_task_sequential.PostProcessingImpl();
+
+  for (size_t i = 0; i < m3.val.size(); i++) {
+    bool approx_equal = areComplexNumbersApproxEqual(m3.val[i], m1.val[i] * m2.val[i]);
+    ASSERT_TRUE(approx_equal);
+  }
+}
+
+TEST(solovev_a_ccs_mmult_sparse, test_identity_multiplication) {
+  const int size = 50;
+  solovev_a_matrix::MatrixInCcsSparse I(size, size, size);
+  solovev_a_matrix::MatrixInCcsSparse A(size, size, size * size);
+  solovev_a_matrix::MatrixInCcsSparse result(size, size, 0);
+
+  I.col_p.resize(size + 1);
+  for (int i = 0; i < size; i++) {
+    I.col_p[i] = i;
+    I.row.push_back(i);
+    I.val.emplace_back(1.0, 0.0);
+  }
+  I.col_p[size] = size;
+
+  A.col_p.resize(size + 1);
+  int nz_count = 0;
+  for (int j = 0; j < size; j++) {
+    A.col_p[j] = nz_count;
+    for (int i = 0; i < size; i++) {
+      A.row.push_back(i);
+      A.val.emplace_back(static_cast<double>(i + j), static_cast<double>(i - j));
+      nz_count++;
+    }
+  }
+  A.col_p[size] = nz_count;
+
+  std::shared_ptr<ppc::core::TaskData> task_data = std::make_shared<ppc::core::TaskData>();
+  task_data->inputs.emplace_back(reinterpret_cast<uint8_t*>(&I));
+  task_data->inputs.emplace_back(reinterpret_cast<uint8_t*>(&A));
+  task_data->outputs.emplace_back(reinterpret_cast<uint8_t*>(&result));
+
+  solovev_a_matrix::SeqMatMultCcs multiplication_task(task_data);
+  ASSERT_EQ(multiplication_task.ValidationImpl(), true);
+  multiplication_task.PreProcessingImpl();
+  multiplication_task.RunImpl();
+  multiplication_task.PostProcessingImpl();
+
+  for (size_t i = 0; i < result.val.size(); i++) {
+    ASSERT_EQ(result.val[i], A.val[i]);
   }
 }
