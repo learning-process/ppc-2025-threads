@@ -61,7 +61,7 @@ void anikin_m_shall_batcher_seq::ShellSortWithBatcherMerge(const std::vector<int
 
 bool anikin_m_shall_batcher_seq::TestTaskSequential::PreProcessingImpl() {
   unsigned int input_size = task_data->inputs_count[0];
-  auto *in_ptr = reinterpret_cast<int*>(task_data->inputs[0]);
+  auto* in_ptr = reinterpret_cast<int*>(task_data->inputs[0]);
   input_ = std::vector<int>(in_ptr, in_ptr + input_size);
 
   unsigned int output_size = task_data->outputs_count[0];
