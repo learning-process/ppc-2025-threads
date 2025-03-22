@@ -76,13 +76,13 @@ bool muhina_m_dijkstra_omp::TestTaskOpenMP::RunImpl() {
       continue;
     }
 
-    #pragma omp parallel for
+#pragma omp parallel for
     for (int idx = 0; idx < static_cast<int>(adj_list[u].size()); ++idx) {
       size_t v = adj_list[u][idx].first;
       int weight = adj_list[u][idx].second;
 
       if (distances_[u] != INT_MAX && distances_[u] + weight < distances_[v]) {
-        #pragma omp critical
+#pragma omp critical
         {
           if (distances_[u] + weight < distances_[v]) {
             distances_[v] = distances_[u] + weight;
