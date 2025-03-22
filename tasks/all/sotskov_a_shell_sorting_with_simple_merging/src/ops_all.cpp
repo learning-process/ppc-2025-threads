@@ -9,25 +9,26 @@
 #include <mutex>
 #include <queue>
 #include <thread>
+#include <utility>
 #include <vector>
 
-#include "boost/mpi/collectives/broadcast.hpp"
-#include "boost/mpi/communicator.hpp"
 #include "core/util/include/util.hpp"
 
 class ThreadPool {
  public:
-  explicit ThreadPool(size_t num_threads) : stop(false) {
+  explicit ThreadPool(size_t num_threads) : stop_(false) {
     for (size_t i = 0; i < num_threads; ++i) {
-      workers.emplace_back([this] {
+      workers_.emplace_back([this] {
         while (true) {
           std::function<void()> task;
           {
-            std::unique_lock<std::mutex> lock(queue_mutex);
-            condition.wait(lock, [this] { return stop || !tasks.empty(); });
-            if (stop && tasks.empty()) return;
-            task = std::move(tasks.front());
-            tasks.pop();
+            std::unique_lock<std::mutex> lock(queue_mutex_);
+            condition_.wait(lock, [this] { return stop_ || !tasks_.empty(); });
+            if (stop_ && tasks_.empty()) {
+              return;
+            }
+            task = std::move(tasks_.front());
+            tasks_.pop();
           }
           task();
         }
@@ -37,28 +38,30 @@ class ThreadPool {
 
   ~ThreadPool() {
     {
-      std::unique_lock<std::mutex> lock(queue_mutex);
-      stop = true;
+      std::unique_lock<std::mutex> lock(queue_mutex_);
+      stop_ = true;
     }
-    condition.notify_all();
-    for (auto& worker : workers) worker.join();
+    condition_.notify_all();
+    for (auto& worker : workers_) {
+      worker.join();
+    }
   }
 
   template <typename F>
-  void enqueue(F&& task) {
+  void Enqueue(F&& task) {
     {
-      std::unique_lock<std::mutex> lock(queue_mutex);
-      tasks.emplace(std::forward<F>(task));
+      std::unique_lock<std::mutex> lock(queue_mutex_);
+      tasks_.emplace(std::forward<F>(task));
     }
-    condition.notify_one();
+    condition_.notify_one();
   }
 
  private:
-  std::vector<std::thread> workers;
-  std::queue<std::function<void()>> tasks;
-  std::mutex queue_mutex;
-  std::condition_variable condition;
-  bool stop;
+  std::vector<std::thread> workers_;
+  std::queue<std::function<void()>> tasks_;
+  std::mutex queue_mutex_;
+  std::condition_variable condition_;
+  bool stop_;
 };
 
 void sotskov_a_shell_sorting_with_simple_merging_all::ShellSort(std::vector<int>& arr, size_t left, size_t right) {
@@ -98,7 +101,7 @@ void sotskov_a_shell_sorting_with_simple_merging_all::ParallelMerge(std::vector<
   while (j <= right) {
     temp[k++] = arr[j++];
   }
-  std::ranges::copy(temp, arr.begin() + left);
+  std::ranges::copy(temp, arr.begin() + static_cast<std::ptrdiff_t>(left));
 }
 
 void sotskov_a_shell_sorting_with_simple_merging_all::ShellSortWithSimpleMerging(std::vector<int>& arr) {
@@ -112,7 +115,7 @@ void sotskov_a_shell_sorting_with_simple_merging_all::ShellSortWithSimpleMerging
     int left = i * chunk_size;
     int right = std::min(left + chunk_size - 1, array_size - 1);
     if (left < right) {
-      pool.enqueue([&arr, left, right]() { ShellSort(arr, left, right); });
+      pool.Enqueue([&arr, left, right]() { ShellSort(arr, left, right); });
     }
   }
 
@@ -124,7 +127,7 @@ void sotskov_a_shell_sorting_with_simple_merging_all::ShellSortWithSimpleMerging
       int mid = std::min(i + size - 1, array_size - 1);
       int right = std::min(i + (2 * size) - 1, array_size - 1);
       if (mid < right) {
-        pool.enqueue([&arr, left, mid, right]() { ParallelMerge(arr, left, mid, right); });
+        ParallelMerge(arr, left, mid, right);
       }
     }
   }
@@ -137,8 +140,9 @@ bool sotskov_a_shell_sorting_with_simple_merging_all::TestTaskALL::PreProcessing
     std::copy(src, src + task_data->inputs_count[0], input_.begin());
   }
 
-  const int total = task_data->inputs_count[0];
-  std::vector<int> counts(size_), displs(size_);
+  const int total = static_cast<int>(task_data->inputs_count[0]);
+  std::vector<int> counts(size_);
+  std::vector<int> displs(size_);
 
   int base_size = total / size_;
   int remainder = total % size_;
@@ -150,15 +154,22 @@ bool sotskov_a_shell_sorting_with_simple_merging_all::TestTaskALL::PreProcessing
   int local_size = counts[rank_];
   std::vector<int> local(local_size);
 
-  boost::mpi::scatterv(world_, (rank_ == 0) ? input_.data() : nullptr, counts, displs, local.data(), counts[rank_], 0);
+  std::vector<int> dummy_input;
+  if (rank_ != 0) {
+    dummy_input.resize(local_size);
+  }
+
+  boost::mpi::scatterv(world_, (rank_ == 0) ? input_.data() : dummy_input.data(), counts, displs, local.data(),
+                       counts[rank_], 0);
 
   input_ = std::move(local);
   return true;
 }
 
 bool sotskov_a_shell_sorting_with_simple_merging_all::TestTaskALL::PostProcessingImpl() {
-  const int total = task_data->inputs_count[0];
-  std::vector<int> counts(size_), displs(size_);
+  const int total = static_cast<int>(task_data->inputs_count[0]);
+  std::vector<int> counts(size_);
+  std::vector<int> displs(size_);
 
   int base_size = total / size_;
   int remainder = total % size_;
@@ -168,19 +179,29 @@ bool sotskov_a_shell_sorting_with_simple_merging_all::TestTaskALL::PostProcessin
   }
 
   std::vector<int> result;
-  if (rank_ == 0) result.resize(total);
+  if (rank_ == 0) {
+    result.resize(total);
+  }
 
-  boost::mpi::gatherv(world_, input_.data(), input_.size(), (rank_ == 0) ? result.data() : nullptr, counts, displs, 0);
+  std::vector<int> dummy_output;
+  if (rank_ != 0) {
+    dummy_output.resize(input_.size());
+  }
+
+  boost::mpi::gatherv(world_, input_.data(), input_.size(), (rank_ == 0) ? result.data() : dummy_output.data(), counts,
+                      displs, 0);
 
   if (rank_ == 0) {
     auto* dst = reinterpret_cast<int*>(task_data->outputs[0]);
-    std::move(result.begin(), result.end(), dst);
+    std::ranges::move(result, dst);
   }
   return true;
 }
 
 bool sotskov_a_shell_sorting_with_simple_merging_all::TestTaskALL::ValidationImpl() {
-  if (rank_ != 0) return true;
+  if (rank_ != 0) {
+    return true;
+  }
 
   std::size_t input_size = task_data->inputs_count[0];
   std::size_t output_size = task_data->outputs_count[0];

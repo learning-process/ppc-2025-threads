@@ -1,9 +1,8 @@
 #pragma once
 
-#include <algorithm>
 #include <boost/mpi.hpp>
-#include <future>
-#include <thread>
+#include <cstddef>
+#include <utility>
 #include <vector>
 
 #include "core/task/include/task.hpp"
@@ -16,7 +15,7 @@ void ShellSortWithSimpleMerging(std::vector<int>& arr);
 
 class TestTaskALL : public ppc::core::Task {
  public:
-  explicit TestTaskALL(ppc::core::TaskDataPtr task_data) : Task(std::move(task_data)), world_() {}
+  explicit TestTaskALL(ppc::core::TaskDataPtr task_data) : Task(std::move(task_data)) {}
   bool PreProcessingImpl() override;
   bool ValidationImpl() override;
   bool RunImpl() override;
