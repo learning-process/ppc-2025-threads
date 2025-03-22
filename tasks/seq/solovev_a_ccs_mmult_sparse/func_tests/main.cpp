@@ -1,12 +1,10 @@
 #include <gtest/gtest.h>
 
 #include <cmath>
-#include <iostream>
-#include <random>
 #include <complex>
-#include <memory>
-#include <cmath>
 #include <limits>
+#include <memory>
+#include <random>
 #include <vector>
 
 #include "seq/solovev_a_ccs_mmult_sparse/include/ccs_mmult_sparse.hpp"
