@@ -231,6 +231,7 @@ TEST(lopatin_i_monte_carlo_seq, 4DQuadraticFunction) {
   EXPECT_NEAR(result, expected, tolerance);  // error 3%
 }
 
+
 TEST(lopatin_i_monte_carlo_tbb, 7DQuadraticFunction) {
   const int dimensions = 7;
   const int iterations = 200000;
