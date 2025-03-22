@@ -19,7 +19,6 @@ void static RunValidationFailureTest();  // NOLINT(misc-use-anonymous-namespace)
 
 template <typename ExpectedResultType>
 void RunTest(const std::vector<std::vector<std::pair<size_t, int>>> &adj_list,  // NOLINT       
-
              size_t start_vertex, const std::vector<ExpectedResultType> &expected_result, bool expect_success = true) {
   const size_t k_num_vertices = adj_list.size();
   std::vector<int> distances(k_num_vertices, INT_MAX);
