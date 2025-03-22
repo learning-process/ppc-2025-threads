@@ -8,6 +8,9 @@
 
 #include "core/util/include/util.hpp"
 
+namespace constants {
+constexpr int kChunk = 100;
+}  // namespace constants
 bool tsatsyn_a_radix_sort_simple_merge_all::TestTaskALL::PreProcessingImpl() {
   // Init value for input and output
   auto *temp_ptr = reinterpret_cast<double *>(task_data->inputs[0]);
@@ -22,6 +25,21 @@ bool tsatsyn_a_radix_sort_simple_merge_all::TestTaskALL::ValidationImpl() {
 }
 
 bool tsatsyn_a_radix_sort_simple_merge_all::TestTaskALL::RunImpl() {
+  std::vector<double> local_copy;
+  if (world_.rank() == 0) {
+    for (int j = 0; j < static_cast<int>(input_data_.size()); j += world_.size()) {
+      local_copy.push_back(input_data_[j]);
+    }
+    std::vector<double> local_copy_for_send;
+    for (int proc = 1; proc < static_cast<int>(world_.size()); proc++) {
+      for (int j = world_.rank() + proc; j < static_cast<int>(input_data_.size()); j += world_.size()) {
+      }
+      world_.send(proc,0,local_copy_for_send);
+      local_copy_for_send.clear();
+    }
+  } else {
+    world_.recv(0, 0, local_copy);
+  }
   std::vector<uint64_t> pozitive_copy;
   std::vector<uint64_t> negative_copy;
 #pragma omp parallel
@@ -42,6 +60,7 @@ bool tsatsyn_a_radix_sort_simple_merge_all::TestTaskALL::RunImpl() {
       negative_copy.insert(negative_copy.end(), local_negative.begin(), local_negative.end());
     }
   }
+
   for (int bit = 0; bit < 64; bit++) {
 #pragma omp parallel
     {
@@ -87,11 +106,11 @@ bool tsatsyn_a_radix_sort_simple_merge_all::TestTaskALL::RunImpl() {
       }
     }
   }
-#pragma omp parallel for
+#pragma omp parallel for schedule(guided, constants::kChunk)
   for (int i = 0; i < static_cast<int>(negative_copy.size()); i++) {
     output_[static_cast<int>(negative_copy.size()) - 1 - i] = *reinterpret_cast<const double *>(&negative_copy[i]);
   }
-#pragma omp parallel for
+#pragma omp parallel for schedule(guided, constants::kChunk)
   for (int i = 0; i < static_cast<int>(pozitive_copy.size()); ++i) {
     output_[negative_copy.size() + i] = *reinterpret_cast<const double *>(&pozitive_copy[i]);
   }
