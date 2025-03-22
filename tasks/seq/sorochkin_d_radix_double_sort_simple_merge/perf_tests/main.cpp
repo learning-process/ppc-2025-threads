@@ -1,11 +1,10 @@
 #include <gtest/gtest.h>
 
-#include <algorithm>
 #include <chrono>
 #include <cstddef>
 #include <cstdint>
 #include <memory>
-#include <random>
+#include <numeric>
 #include <vector>
 
 #include "../include/ops.hpp"
@@ -13,21 +12,12 @@
 #include "core/task/include/task.hpp"
 
 namespace {
-inline constexpr std::size_t kDataSize = 100;
-
-std::vector<double> MakeRandomInput(std::size_t size) {
-  std::mt19937 gen(std::random_device{}());
-  std::uniform_real_distribution<> dist(-64000, 64000);
-
-  std::vector<double> v(size);
-  std::ranges::generate(v, [&dist, &gen] { return dist(gen); });
-
-  return v;
-}
+inline constexpr std::size_t kDataSize = 24000000;
 
 template <typename MiddlewareFn>
 void PerfTest(MiddlewareFn middleware) {
-  auto in = MakeRandomInput(kDataSize);
+  std::vector<double> in(kDataSize);
+  std::iota(in.rbegin(), in.rend(), 0);
   decltype(in) out(in.size());
 
   auto data = std::make_shared<ppc::core::TaskData>(ppc::core::TaskData{
