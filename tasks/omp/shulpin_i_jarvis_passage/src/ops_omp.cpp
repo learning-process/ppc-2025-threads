@@ -4,6 +4,9 @@
 #include <cmath>
 #include <cstddef>
 #include <cstdint>
+#include <cstring>
+#include <string>
+#include <unordered_set>
 #include <utility>
 #include <vector>
 
@@ -103,24 +106,46 @@ void shulpin_i_jarvis_omp::JarvisOMPParallel::MakeJarvisPassageOMP(
   }
 
   int32_t active = start;
-  int32_t candidate = 0;
   std::vector<shulpin_i_jarvis_omp::Point> hull;
+  std::unordered_set<std::string> unique_points;
   hull.reserve(total);
 
   do {
-    hull.push_back(input_jar[active]);
-    candidate = (active + 1) % total;
+    std::string point_key = std::to_string(input_jar[active].x) + "," + std::to_string(input_jar[active].y);
+    if (unique_points.find(point_key) == unique_points.end()) {
+      hull.push_back(input_jar[active]);
+      unique_points.insert(point_key);
+    }
 
-#pragma omp parallel for shared(candidate)
-    for (int32_t index = 0; index < total; ++index) {
-      if (Orientation(input_jar[active], input_jar[index], input_jar[candidate]) == 2) {
+    int32_t candidate = (active + 1) % total;
+
+#pragma omp parallel
+    {
+      int32_t local_candidate = candidate;
+
+#pragma omp for nowait
+      for (int32_t index = 0; index < total; ++index) {
+        if (Orientation(input_jar[active], input_jar[index], input_jar[local_candidate]) == 2) {
+          local_candidate = index;
+        }
+      }
+
 #pragma omp critical
-        { candidate = index; }
+      {
+        if (Orientation(input_jar[active], input_jar[local_candidate], input_jar[candidate]) == 2) {
+          candidate = local_candidate;
+        }
       }
     }
+
+    if (candidate == active) {
+      break;
+    }
     active = candidate;
+
   } while (active != start);
 
+#pragma omp barrier
   output_jar = std::move(hull);
 }
 
@@ -148,6 +173,19 @@ bool shulpin_i_jarvis_omp::JarvisOMPParallel::RunImpl() {
 }
 
 bool shulpin_i_jarvis_omp::JarvisOMPParallel::PostProcessingImpl() {
+  /*std::vector<std::pair<double, double>> pairs;
+  std::transform(output_omp_.begin(), output_omp_.end(), std::back_inserter(pairs),
+                 [](const Point& p) { return std::make_pair(p.x, p.y); });
+  std::cout << "omp" << std::endl;
+  for (const auto& pair : pairs) {
+    std::cout << "(" << pair.first << ", " << pair.second << ")" << std::endl;
+  }
+  std::cout << std::endl;
+  if (output_omp_.size() > task_data->outputs_count[0]) {
+    std::cerr << "Ошибка: выход за границы памяти! output_omp_ = " << output_omp_.size()
+              << ", expected = " << task_data->outputs_count[0] << std::endl;
+    return false;
+  }*/
   auto* result = reinterpret_cast<Point*>(task_data->outputs[0]);
   std::ranges::copy(output_omp_.begin(), output_omp_.end(), result);
   return true;
