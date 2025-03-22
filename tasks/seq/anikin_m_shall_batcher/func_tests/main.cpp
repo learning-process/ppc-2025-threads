@@ -10,7 +10,7 @@
 #include "seq/anikin_m_shall_batcher/include/ops_seq.hpp"
 
 namespace {
-void FillVectorWithRandomValues(std::vector<int>& vec, int size, int min_val = 0, int max_val = 100) {
+void FillVectorWithRandomValues(std::vector<int> &vec, int size, int min_val = 0, int max_val = 100) {
   vec.resize(size);
 
   std::random_device rd;
