@@ -68,7 +68,7 @@ std::vector<double> lavrentiev_a_ccs_seq::CCSSequential::ConvertFromSparse(const
   std::vector<double> nmatrix(matrix.size.first * matrix.size.second);
   int counter = 0;
   for (size_t i = 0; i < matrix.columnsSum.size(); ++i) {
-    for (int j = 0; j < GetElementsCount(i, matrix.columnsSum); ++j) {
+    for (int j = 0; j < GetElementsCount(static_cast<int>(i), matrix.columnsSum); ++j) {
       nmatrix[i + (matrix.size.second * matrix.rows[counter])] = matrix.elements[counter];
       counter++;
     }
