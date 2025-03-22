@@ -1,5 +1,7 @@
 #include <gtest/gtest.h>
 
+#include <algorithm>
+#include <cstddef>
 #include <cstdint>
 #include <memory>
 #include <random>
@@ -75,6 +77,7 @@ TEST(fyodorov_m_shell_sort_with_even_odd_batcher_merge_seq, test_random_sequence
   std::random_device rd;
   std::mt19937 gen(rd());
   std::uniform_int_distribution<> distrib(-1000, 1000);
+
   const size_t size = 1000;
   std::vector<int> input(size);
   for (auto &num : input) {
@@ -82,7 +85,7 @@ TEST(fyodorov_m_shell_sort_with_even_odd_batcher_merge_seq, test_random_sequence
   }
 
   std::vector<int> expected_output = input;
-  std::sort(expected_output.begin(), expected_output.end());
+  std::ranges::sort(expected_output);
 
   std::vector<int> output(input.size(), 0);
 
@@ -94,7 +97,8 @@ TEST(fyodorov_m_shell_sort_with_even_odd_batcher_merge_seq, test_random_sequence
 
   auto test_task_sequential =
       std::make_shared<fyodorov_m_shell_sort_with_even_odd_batcher_merge_seq::TestTaskSequential>(task_data_seq);
-  test_task_sequential->execute();
+
+  test_task_sequential->run();
 
   ASSERT_EQ(output, expected_output);
 }
