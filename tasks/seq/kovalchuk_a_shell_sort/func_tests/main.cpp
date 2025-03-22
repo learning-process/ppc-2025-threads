@@ -2,6 +2,7 @@
 
 #include <algorithm>
 #include <memory>
+#include <cstdint>
 #include <vector>
 
 #include "core/task/include/task.hpp"
