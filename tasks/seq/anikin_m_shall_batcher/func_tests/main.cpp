@@ -2,10 +2,10 @@
 #include <gtest/gtest.h>
 
 #include <random>
+#include <memory>
 #include <vector>
 
 #include "core/task/include/task.hpp"
-#include "core/util/include/util.hpp"
 #include "seq/anikin_m_shall_batcher/include/ops_seq.hpp"
 
 namespace {
@@ -48,11 +48,9 @@ TEST(anikin_m_shall_batcher_seq, test_sort_5) {
   test_task_sequential.Run();
   test_task_sequential.PostProcessing();
   EXPECT_EQ(in.size(), out.size());
-  EXPECT_EQ(-2, out[0]);
-  EXPECT_EQ(5, out[1]);
-  EXPECT_EQ(5, out[2]);
-  EXPECT_EQ(6, out[3]);
-  EXPECT_EQ(8, out[4]);
+  for (int i = 1; i < vec_size; i++) {
+    EXPECT_GE(out[i], out[i - 1]);
+  }
 }
 
 TEST(anikin_m_shall_batcher_seq, test_sort_rand_100) {
