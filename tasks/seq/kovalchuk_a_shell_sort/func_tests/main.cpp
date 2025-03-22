@@ -1,11 +1,12 @@
 #include <gtest/gtest.h>
 
+#include <cstdint>
 #include <memory>
-#include <random>
 #include <vector>
 
 #include "core/task/include/task.hpp"
 #include "seq/kovalchuk_a_shell_sort/include/ops_seq.hpp"
+
 
 TEST(kovalchuk_a_shell_sort, test_sort_basic) {
   std::vector<int> input = {9, 2, 5, 1, 7};

@@ -1,9 +1,8 @@
 #include <gtest/gtest.h>
 
+#include <algorithm>
 #include <chrono>
-#include <cstddef>
 #include <cstdint>
-#include <memory>
 #include <random>
 #include <vector>
 
@@ -17,7 +16,9 @@ TEST(kovalchuk_a_shell_sort, test_pipeline_run) {
   std::vector<int> in(kCount);
   std::mt19937 gen(42);
   std::uniform_int_distribution<> dist(-1000000, 1000000);
-  for (auto& num : in) num = dist(gen);
+  for (auto& num : in) {
+    num = dist(gen);
+  }
   std::vector<int> out(kCount);
 
   auto task_data_seq = std::make_shared<ppc::core::TaskData>();
@@ -53,17 +54,17 @@ TEST(kovalchuk_a_shell_sort, test_task_run) {
   std::vector<int> in(kCount);
   std::mt19937 gen(42);
   std::uniform_int_distribution<> dist(-1000000, 1000000);
-  for (auto& num : in) num = dist(gen);
+  for (auto& num : in) {
+    num = dist(gen);
+  }
   std::vector<int> out(kCount);
 
-  // init task_data
   auto task_data_seq = std::make_shared<ppc::core::TaskData>();
   task_data_seq->inputs.emplace_back(reinterpret_cast<uint8_t*>(in.data()));
   task_data_seq->inputs_count.emplace_back(in.size());
   task_data_seq->outputs.emplace_back(reinterpret_cast<uint8_t*>(out.data()));
   task_data_seq->outputs_count.emplace_back(out.size());
 
-  // Create tast
   auto test_task = std::make_shared<kovalchuk_a_shell_sort::ShellSortSequential>(task_data_seq);
 
   auto perf_attr = std::make_shared<ppc::core::PerfAttr>();

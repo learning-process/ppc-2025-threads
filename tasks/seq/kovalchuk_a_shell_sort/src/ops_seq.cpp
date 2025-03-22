@@ -9,7 +9,7 @@ ShellSortSequential::ShellSortSequential(ppc::core::TaskDataPtr task_data) : Tas
 
 bool ShellSortSequential::PreProcessingImpl() {
   auto* input_ptr = reinterpret_cast<int*>(task_data->inputs[0]);
-  input_.assign (input_ptr, input_ptr + task_data->inputs_count[0]);
+  input_.assign(input_ptr, input_ptr + task_data->inputs_count[0]);
   return true;
 }
 

@@ -1,6 +1,5 @@
 #pragma once
 
-#include <memory>
 #include <vector>
 
 #include "core/task/include/task.hpp"
@@ -17,7 +16,7 @@ class ShellSortSequential : public ppc::core::Task {
 
  private:
   std::vector<int> input_;
-  void shellSort();
+  void ShellSort();
 };
 
 }  // namespace kovalchuk_a_shell_sort
