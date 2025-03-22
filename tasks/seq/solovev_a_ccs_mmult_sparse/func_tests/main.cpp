@@ -2,11 +2,14 @@
 
 #include <cmath>
 #include <complex>
+#include <cstddef>
+#include <cstdint>
 #include <limits>
 #include <memory>
 #include <random>
 #include <vector>
 
+#include "core/task/include/task.hpp"
 #include "seq/solovev_a_ccs_mmult_sparse/include/ccs_mmult_sparse.hpp"
 
 namespace {
