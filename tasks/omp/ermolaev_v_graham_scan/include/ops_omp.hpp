@@ -48,6 +48,8 @@ class TestTaskOMP : public ppc::core::Task {
   size_t IndexOfMinElement();
   bool CheckGrahamNecessaryConditions();
   void GrahamScan();
+  bool IsAllCollinear();
+  bool IsAllSame();
 
   template <typename Iterator, typename Comparator>
   void ParallelSort(Iterator begin, Iterator end, Comparator comp);
@@ -87,7 +89,7 @@ void ermolaev_v_graham_scan_omp::TestTaskOMP::ParallelSort(Iterator begin, Itera
 
   const int levels = static_cast<int>(std::ceil(std::log2(num_threads)));
   std::vector<typename Iterator::value_type> temp;
-  int source;
+  int source = 0;
 
   for (int level = 0; level < levels; level++) {
     int step = 1 << level;

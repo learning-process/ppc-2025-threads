@@ -35,26 +35,10 @@ size_t ermolaev_v_graham_scan_omp::TestTaskOMP::IndexOfMinElement() {
   return min_idx;
 }
 
-bool ermolaev_v_graham_scan_omp::TestTaskOMP::CheckGrahamNecessaryConditions() {
-  if (input_.size() < kMinInputPoints) {
-    return false;
-  }
-
-  const Point &first = input_[0];
-  bool all_same = true;
+bool ermolaev_v_graham_scan_omp::TestTaskOMP::IsAllCollinear() {
   int input_size = static_cast<int>(input_.size());
-#pragma omp parallel for reduction(&& : all_same)
-  for (int i = 1; i < input_size; ++i) {
-    if (input_[i] != first) {
-      all_same = false;
-    }
-  }
-
-  if (all_same) {
-    return false;
-  }
-
   bool found_non_collinear = false;
+
 #pragma omp parallel for reduction(|| : found_non_collinear)
   for (int i = 0; i < input_size - 2; ++i) {
     if (!found_non_collinear) {
@@ -70,7 +54,30 @@ bool ermolaev_v_graham_scan_omp::TestTaskOMP::CheckGrahamNecessaryConditions() {
     }
   }
 
-  return found_non_collinear;
+  return !found_non_collinear;
+}
+
+bool ermolaev_v_graham_scan_omp::TestTaskOMP::IsAllSame() {
+  const Point &first = input_[0];
+  bool all_same = true;
+  int input_size = static_cast<int>(input_.size());
+
+#pragma omp parallel for reduction(&& : all_same)
+  for (int i = 1; i < input_size; ++i) {
+    if (input_[i] != first) {
+      all_same = false;
+    }
+  }
+
+  return all_same;
+}
+
+bool ermolaev_v_graham_scan_omp::TestTaskOMP::CheckGrahamNecessaryConditions() {
+  if (input_.size() < kMinInputPoints) {
+    return false;
+  }
+
+  return !IsAllSame() && !IsAllCollinear();
 }
 
 void ermolaev_v_graham_scan_omp::TestTaskOMP::GrahamScan() {
@@ -115,7 +122,7 @@ bool ermolaev_v_graham_scan_omp::TestTaskOMP::RunImpl() {
   }
 
   size_t min_idx = IndexOfMinElement();
-  std::iter_swap(input_.begin(), input_.begin() + min_idx);
+  std::iter_swap(input_.begin(), input_.begin() + static_cast<int>(min_idx));
 
   ParallelSort(input_.begin() + 1, input_.end(), [&](const Point &a, const Point &b) {
     auto squared_dist = [](const Point &p1, const Point &p2) -> int {
