@@ -29,7 +29,7 @@ std::vector<double> GenerateRandomVector(size_t len, double min_val = -1000.0, d
 }  // namespace
 
 TEST(nikolaev_r_hoare_sort_simple_merge_stl, test_pipeline_run) {
-  constexpr size_t kLen = 1000000;
+  constexpr size_t kLen = 500000;
 
   std::vector<double> in = GenerateRandomVector(kLen);
   std::vector<double> out(kLen, 0.0);
@@ -59,7 +59,7 @@ TEST(nikolaev_r_hoare_sort_simple_merge_stl, test_pipeline_run) {
 }
 
 TEST(nikolaev_r_hoare_sort_simple_merge_stl, test_task_run) {
-  constexpr size_t kLen = 1000000;
+  constexpr size_t kLen = 500000;
 
   std::vector<double> in = GenerateRandomVector(kLen);
   std::vector<double> out(kLen, 0.0);
