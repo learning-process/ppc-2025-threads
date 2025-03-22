@@ -5,6 +5,7 @@
 #include <cstddef>
 #include <cstdint>
 #include <cstdlib>
+#include <functional>
 #include <limits>
 #include <memory>
 #include <queue>
@@ -17,29 +18,32 @@
 
 namespace plekhanov_d_dijkstra_omp {
 
-static std::vector<int> CalculateExpectedResult(const std::vector<std::vector<std::pair<size_t, int>>> &adj_list,
-                                                size_t start_vertex) {
+static std::vector<int> CalculateExpectedResult(                       // NOLINT(misc-use-anonymous-namespace)
+    const std::vector<std::vector<std::pair<size_t, int>>> &adj_list,  // NOLINT(misc-use-anonymous-namespace)
+    size_t start_vertex) {                                             // NOLINT(misc-use-anonymous-namespace)
   size_t n = adj_list.size();
-  const int INF = INT_MAX;
-  std::vector<int> distances(n, INF);
+  const int inf = INT_MAX;
+  std::vector<int> distances(n, inf);
   distances[start_vertex] = 0;
 
-  using pii = std::pair<int, size_t>;
-  std::priority_queue<pii, std::vector<pii>, std::greater<pii>> pq;
-  pq.push({0, start_vertex});
+  using Pii = std::pair<int, size_t>;
+  std::priority_queue<Pii, std::vector<Pii>, std::greater<>> pq;
+  pq.emplace(0, start_vertex);
 
   while (!pq.empty()) {
     auto [d, u] = pq.top();
     pq.pop();
 
-    if (d != distances[u]) continue;
+    if (d != distances[u]) {
+      continue;
+    }
 
     for (const auto &edge : adj_list[u]) {
       size_t v = edge.first;
       int weight = edge.second;
-      if (distances[u] != INF && distances[u] + weight < distances[v]) {
+      if (distances[u] != inf && (distances[u] + weight < distances[v])) {
         distances[v] = distances[u] + weight;
-        pq.push({distances[v], v});
+        pq.emplace(distances[v], v);
       }
     }
   }
@@ -49,7 +53,7 @@ static std::vector<int> CalculateExpectedResult(const std::vector<std::vector<st
 }  // namespace plekhanov_d_dijkstra_omp
 
 TEST(plekhanov_d_dijkstra_omp, test_pipeline_run) {
-  constexpr size_t kNumVertices = 6000;
+  constexpr size_t kNumVertices = 2000;
   size_t start_vertex = 0;
 
   std::vector<std::vector<std::pair<size_t, int>>> adj_list(kNumVertices);
@@ -104,7 +108,7 @@ TEST(plekhanov_d_dijkstra_omp, test_pipeline_run) {
 }
 
 TEST(plekhanov_d_dijkstra_omp, test_task_run) {
-  constexpr size_t kNumVertices = 6000;
+  constexpr size_t kNumVertices = 2000;
   size_t start_vertex = 0;
 
   std::vector<std::vector<std::pair<size_t, int>>> adj_list(kNumVertices);

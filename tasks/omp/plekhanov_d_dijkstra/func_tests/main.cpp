@@ -18,9 +18,8 @@ namespace plekhanov_d_dijkstra_omp {
 void static RunValidationFailureTest();  // NOLINT(misc-use-anonymous-namespace)
 
 template <typename ExpectedResultType>
-void RunTest(const std::vector<std::vector<std::pair<size_t, int>>> &adj_list,
-             size_t start_vertex,  // NOLINT
-             const std::vector<ExpectedResultType> &expected_result, bool expect_success = true) {
+void RunTest(const std::vector<std::vector<std::pair<size_t, int>>> &adj_list,  // NOLINT
+             size_t start_vertex, const std::vector<ExpectedResultType> &expected_result, bool expect_success = true) {
   const size_t k_num_vertices = adj_list.size();
   std::vector<int> distances(k_num_vertices, INT_MAX);
   std::vector<int> graph_data;
@@ -92,29 +91,32 @@ std::vector<std::vector<std::pair<size_t,
   return adj_list;
 }
 
-static std::vector<int> CalculateExpectedResult(const std::vector<std::vector<std::pair<size_t, int>>> &adj_list,
-                                                size_t start_vertex) {
+static std::vector<int> CalculateExpectedResult(                       // NOLINT(misc-use-anonymous-namespace)
+    const std::vector<std::vector<std::pair<size_t, int>>> &adj_list,  // NOLINT(misc-use-anonymous-namespace)
+    size_t start_vertex) {                                             // NOLINT(misc-use-anonymous-namespace)
   size_t n = adj_list.size();
-  const int INF = INT_MAX;
-  std::vector<int> distances(n, INF);
+  const int inf = INT_MAX;
+  std::vector<int> distances(n, inf);
   distances[start_vertex] = 0;
 
-  using pii = std::pair<int, size_t>;
-  std::priority_queue<pii, std::vector<pii>, std::greater<pii>> pq;
-  pq.push({0, start_vertex});
+  using Pii = std::pair<int, size_t>;
+  std::priority_queue<Pii, std::vector<Pii>, std::greater<>> pq;
+  pq.emplace(0, start_vertex);
 
   while (!pq.empty()) {
     auto [d, u] = pq.top();
     pq.pop();
 
-    if (d != distances[u]) continue;
+    if (d != distances[u]) {
+      continue;
+    }
 
     for (const auto &edge : adj_list[u]) {
       size_t v = edge.first;
       int weight = edge.second;
-      if (distances[u] != INF && distances[u] + weight < distances[v]) {
+      if (distances[u] != inf && (distances[u] + weight < distances[v])) {
         distances[v] = distances[u] + weight;
-        pq.push({distances[v], v});
+        pq.emplace(distances[v], v);
       }
     }
   }
