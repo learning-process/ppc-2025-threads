@@ -34,7 +34,7 @@ std::vector<double> GenMatrix(size_t size) {
 std::vector<double> IdentityMatrix(size_t size) {
   std::vector<double> matrix(size * size, 0);
   for (size_t i = 0; i < size; ++i) {
-    matrix[i * size + i] = 1;
+    matrix[(i * size) + i] = 1;
   }
   return matrix;
 }
