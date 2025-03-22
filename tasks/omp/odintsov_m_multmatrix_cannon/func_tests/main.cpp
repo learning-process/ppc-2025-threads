@@ -13,7 +13,7 @@ std::vector<double> odintsov_m_mulmatrix_cannon_omp::GenerateMatrix(int sz) {
   std::vector<double> matrix(sz * sz);
   std::random_device rd;
   std::mt19937 gen(rd());
-  std::uniform_real_distribution<> dis(0.0, 10.0);
+  std::uniform_real_distribution<> dis(0.0, 100.0);
   for (int i = 0; i < sz; ++i) {
     for (int j = 0; j < sz; ++j) {
       matrix[(i * sz) + j] = dis(gen);
@@ -55,7 +55,7 @@ TEST(odintsov_m_mulmatrix_cannon_seq, test_matrix_4) {
   test_task_omp.PreProcessing();
   test_task_omp.Run();
   test_task_omp.PostProcessing();
-
+  ASSERT_EQ(out_ans.size(), out_omp.size());
   for (size_t i = 0; i < out_ans.size(); ++i) {
     EXPECT_NEAR(out_ans[i], out_omp[i], 1e-9);
   }
@@ -79,7 +79,7 @@ TEST(odintsov_m_mulmatrix_cannon_seq, test_matrix_100) {
   test_task_omp.PreProcessing();
   test_task_omp.Run();
   test_task_omp.PostProcessing();
-
+  ASSERT_EQ(out_ans.size(), out_omp.size());
   for (size_t i = 0; i < out_ans.size(); ++i) {
     EXPECT_NEAR(out_ans[i], out_omp[i], 1e-9);
   }
@@ -103,7 +103,7 @@ TEST(odintsov_m_mulmatrix_cannon_seq, test_matrix_900) {
   test_task_omp.PreProcessing();
   test_task_omp.Run();
   test_task_omp.PostProcessing();
-
+  ASSERT_EQ(out_ans.size(), out_omp.size());
   for (size_t i = 0; i < out_ans.size(); ++i) {
     EXPECT_NEAR(out_ans[i], out_omp[i], 1e-9);
   }
@@ -127,7 +127,7 @@ TEST(odintsov_m_mulmatrix_cannon_seq, test_sz_block_1) {
   test_task_omp.PreProcessing();
   test_task_omp.Run();
   test_task_omp.PostProcessing();
-
+  ASSERT_EQ(out_ans.size(), out_omp.size());
   for (size_t i = 0; i < out_ans.size(); ++i) {
     EXPECT_NEAR(out_ans[i], out_omp[i], 1e-9);
   }
