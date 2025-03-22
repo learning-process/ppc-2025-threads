@@ -12,14 +12,14 @@
 #include "seq/solovev_a_ccs_mmult_sparse/include/ccs_mmult_sparse.hpp"
 
 namespace {
-std::complex<double> generateRandomComplex(double min, double max) {
+std::complex<double> GenerateRandomComplex(double min, double max) {
   static std::random_device rd;
   static std::mt19937 gen(rd());
   std::uniform_real_distribution<> dis(min, max);
-  return std::complex<double>(dis(gen), dis(gen));
+  return {dis(gen), dis(gen)};
 }
 
-bool areComplexNumbersApproxEqual(const std::complex<double>& c1, const std::complex<double>& c2,
+bool AreComplexNumbersApproxEqual(const std::complex<double>& c1, const std::complex<double>& c2,
                                   double tolerance = 1e-6) {
   return std::abs(c1.real() - c2.real()) < tolerance && std::abs(c1.imag() - c2.imag()) < tolerance;
 }
@@ -37,13 +37,13 @@ TEST(solovev_a_ccs_mmult_sparse_seq, test_pipeline_run) {
   }
 
   for (int i = 0; i < m1.col_p[cols]; i++) {
-    m1.val.emplace_back(generateRandomComplex(-10.0, 10.0));
+    m1.val.emplace_back(GenerateRandomComplex(-10.0, 10.0));
     m1.row.push_back(i);
   }
 
   m2.col_p = {0, rows};
   for (int i = 0; i < rows; i++) {
-    m2.val.emplace_back(generateRandomComplex(-10.0, 10.0));
+    m2.val.emplace_back(GenerateRandomComplex(-10.0, 10.0));
     m2.row.push_back(i);
   }
 
@@ -69,7 +69,7 @@ TEST(solovev_a_ccs_mmult_sparse_seq, test_pipeline_run) {
   ppc::core::Perf::PrintPerfStatistic(perf_results);
 
   for (size_t i = 0; i < m3.val.size(); i++) {
-    bool approx_equal = areComplexNumbersApproxEqual(m3.val[i], m1.val[i] * m2.val[i]);
+    bool approx_equal = AreComplexNumbersApproxEqual(m3.val[i], m1.val[i] * m2.val[i]);
     ASSERT_TRUE(approx_equal);
   }
 }
@@ -86,13 +86,13 @@ TEST(solovev_a_ccs_mmult_sparse_seq, test_task_run) {
   }
 
   for (int i = 0; i < m1.col_p[cols]; i++) {
-    m1.val.emplace_back(generateRandomComplex(-10.0, 10.0));
+    m1.val.emplace_back(GenerateRandomComplex(-10.0, 10.0));
     m1.row.push_back(i);
   }
 
   m2.col_p = {0, rows};
   for (int i = 0; i < rows; i++) {
-    m2.val.emplace_back(generateRandomComplex(-10.0, 10.0));
+    m2.val.emplace_back(GenerateRandomComplex(-10.0, 10.0));
     m2.row.push_back(i);
   }
 
@@ -118,7 +118,7 @@ TEST(solovev_a_ccs_mmult_sparse_seq, test_task_run) {
   ppc::core::Perf::PrintPerfStatistic(perf_results);
 
   for (size_t i = 0; i < m3.val.size(); i++) {
-    bool approx_equal = areComplexNumbersApproxEqual(m3.val[i], m1.val[i] * m2.val[i]);
+    bool approx_equal = AreComplexNumbersApproxEqual(m3.val[i], m1.val[i] * m2.val[i]);
     ASSERT_TRUE(approx_equal);
   }
 }
