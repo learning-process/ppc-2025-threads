@@ -19,6 +19,7 @@ class TestTaskALL : public ppc::core::Task {
 
  private:
   std::vector<double> input_data_;
+  std::vector<double> local_data_;
   std::vector<double> output_;
   int rc_size_{};
   boost::mpi::communicator world_;

@@ -25,10 +25,9 @@ bool tsatsyn_a_radix_sort_simple_merge_all::TestTaskALL::ValidationImpl() {
 }
 
 bool tsatsyn_a_radix_sort_simple_merge_all::TestTaskALL::RunImpl() {
-  std::vector<double> local_copy;
   if (world_.rank() == 0) {
     for (int j = 0; j < static_cast<int>(input_data_.size()); j += world_.size()) {
-      local_copy.push_back(input_data_[j]);
+      local_data_.push_back(input_data_[j]);
     }
     std::vector<double> local_copy_for_send;
     for (int proc = 1; proc < static_cast<int>(world_.size()); proc++) {
@@ -38,7 +37,7 @@ bool tsatsyn_a_radix_sort_simple_merge_all::TestTaskALL::RunImpl() {
       local_copy_for_send.clear();
     }
   } else {
-    world_.recv(0, 0, local_copy);
+    world_.recv(0, 0, local_data_);
   }
   std::vector<uint64_t> pozitive_copy;
   std::vector<uint64_t> negative_copy;
@@ -106,14 +105,15 @@ bool tsatsyn_a_radix_sort_simple_merge_all::TestTaskALL::RunImpl() {
       }
     }
   }
-#pragma omp parallel for schedule(guided, constants::kChunk)
-  for (int i = 0; i < static_cast<int>(negative_copy.size()); i++) {
-    output_[static_cast<int>(negative_copy.size()) - 1 - i] = *reinterpret_cast<const double *>(&negative_copy[i]);
-  }
-#pragma omp parallel for schedule(guided, constants::kChunk)
-  for (int i = 0; i < static_cast<int>(pozitive_copy.size()); ++i) {
-    output_[negative_copy.size() + i] = *reinterpret_cast<const double *>(&pozitive_copy[i]);
-  }
+
+//#pragma omp parallel for schedule(guided, constants::kChunk)
+//  for (int i = 0; i < static_cast<int>(negative_copy.size()); i++) {
+//    output_[static_cast<int>(negative_copy.size()) - 1 - i] = *reinterpret_cast<const double *>(&negative_copy[i]);
+//  }
+//#pragma omp parallel for schedule(guided, constants::kChunk)
+//  for (int i = 0; i < static_cast<int>(pozitive_copy.size()); ++i) {
+//    output_[negative_copy.size() + i] = *reinterpret_cast<const double *>(&pozitive_copy[i]);
+//  }
   return true;
 }
 
