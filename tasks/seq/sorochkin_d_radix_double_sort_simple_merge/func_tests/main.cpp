@@ -67,6 +67,8 @@ class sorochkin_d_radix_double_sort_simple_merge_test_seq : public ::testing::Te
 
 }  // namespace
 
+namespace {
+
 TEST_F(sorochkin_d_radix_double_sort_simple_merge_test_seq, invalid_more) { RunInvalidSizeTest(1); }
 
 TEST_F(sorochkin_d_radix_double_sort_simple_merge_test_seq, invalid_less) { RunInvalidSizeTest(-1); }
@@ -94,3 +96,5 @@ INSTANTIATE_TEST_SUITE_P(sorochkin_d_radix_double_sort_simple_merge_test_special
                          testing::Values(std::vector<double>(32, 0), std::vector<double>(64, 0),
                                          std::vector<double>(32, 1), std::vector<double>(64, 1),
                                          std::vector<double>(32, -1), std::vector<double>(64, -1)));
+
+}  // namespace
