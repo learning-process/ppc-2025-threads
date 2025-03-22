@@ -5,12 +5,8 @@
 #include <cstddef>
 #include <cstdint>
 #include <execution>
-#include <iterator>
 #include <mutex>
-#include <thread>
 #include <vector>
-
-#include "core/util/include/util.hpp"
 
 bool tsatsyn_a_radix_sort_simple_merge_stl::TestTaskSTL::PreProcessingImpl() {
   // Init value for input and output
@@ -29,7 +25,8 @@ bool tsatsyn_a_radix_sort_simple_merge_stl::TestTaskSTL::RunImpl() {
   std::vector<uint64_t> pozitive_copy;
   std::vector<uint64_t> negative_copy;
   {
-    std::mutex pos_mtx, neg_mtx;
+    std::mutex pos_mtx;
+    std::mutex neg_mtx;
     std::for_each(std::execution::par, input_data_.begin(), input_data_.end(), [&](double num) {
       uint64_t bits = *reinterpret_cast<uint64_t *>(&num);
       if (num > 0.0) {

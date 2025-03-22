@@ -7,7 +7,7 @@
 
 namespace tsatsyn_a_radix_sort_simple_merge_stl {
 std::vector<double> GetRandomVector(int sz, int a, int b);
-  class TestTaskSTL : public ppc::core::Task {
+class TestTaskSTL : public ppc::core::Task {
  public:
   explicit TestTaskSTL(ppc::core::TaskDataPtr task_data) : Task(std::move(task_data)) {}
   bool PreProcessingImpl() override;

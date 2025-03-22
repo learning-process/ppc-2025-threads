@@ -28,14 +28,14 @@ TEST(tsatsyn_a_radix_sort_simple_merge_stl, test_pipeline_run) {
   std::vector<double> out(kCount * kCount, 0);
 
   // Create task_data
-  auto task_data_seq = std::make_shared<ppc::core::TaskData>();
-  task_data_seq->inputs.emplace_back(reinterpret_cast<uint8_t *>(in.data()));
-  task_data_seq->inputs_count.emplace_back(in.size());
-  task_data_seq->outputs.emplace_back(reinterpret_cast<uint8_t *>(out.data()));
-  task_data_seq->outputs_count.emplace_back(out.size());
+  auto task_data_stl = std::make_shared<ppc::core::TaskData>();
+  task_data_stl->inputs.emplace_back(reinterpret_cast<uint8_t *>(in.data()));
+  task_data_stl->inputs_count.emplace_back(in.size());
+  task_data_stl->outputs.emplace_back(reinterpret_cast<uint8_t *>(out.data()));
+  task_data_stl->outputs_count.emplace_back(out.size());
 
   // Create Task
-  auto test_task_sequential = std::make_shared<tsatsyn_a_radix_sort_simple_merge_stl::TestTaskSTL>(task_data_seq);
+  auto test_task_sequential = std::make_shared<tsatsyn_a_radix_sort_simple_merge_stl::TestTaskSTL>(task_data_stl);
 
   // Create Perf attributes
   auto perf_attr = std::make_shared<ppc::core::PerfAttr>();
@@ -66,14 +66,14 @@ TEST(tsatsyn_a_radix_sort_simple_merge_stl, test_task_run) {
   std::vector<double> out(kCount * kCount, 0);
 
   // Create task_data
-  auto task_data_seq = std::make_shared<ppc::core::TaskData>();
-  task_data_seq->inputs.emplace_back(reinterpret_cast<uint8_t *>(in.data()));
-  task_data_seq->inputs_count.emplace_back(in.size());
-  task_data_seq->outputs.emplace_back(reinterpret_cast<uint8_t *>(out.data()));
-  task_data_seq->outputs_count.emplace_back(out.size());
+  auto task_data_stl = std::make_shared<ppc::core::TaskData>();
+  task_data_stl->inputs.emplace_back(reinterpret_cast<uint8_t *>(in.data()));
+  task_data_stl->inputs_count.emplace_back(in.size());
+  task_data_stl->outputs.emplace_back(reinterpret_cast<uint8_t *>(out.data()));
+  task_data_stl->outputs_count.emplace_back(out.size());
 
   // Create Task
-  auto test_task_sequential = std::make_shared<tsatsyn_a_radix_sort_simple_merge_stl::TestTaskSTL>(task_data_seq);
+  auto test_task_sequential = std::make_shared<tsatsyn_a_radix_sort_simple_merge_stl::TestTaskSTL>(task_data_stl);
 
   // Create Perf attributes
   auto perf_attr = std::make_shared<ppc::core::PerfAttr>();

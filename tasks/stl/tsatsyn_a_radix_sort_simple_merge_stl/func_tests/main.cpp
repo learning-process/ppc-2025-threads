@@ -255,7 +255,8 @@ TEST(tsatsyn_a_radix_sort_simple_merge_stl, test_matmul_100_from_file) {
   const size_t count = std::stoi(line);
 
   // Create data
-  std::vector<double> in = tsatsyn_a_radix_sort_simple_merge_stl::GetRandomVector(count * count, 0, 100);
+  std::vector<double> in =
+      tsatsyn_a_radix_sort_simple_merge_stl::GetRandomVector(static_cast<int>(count * count), 0, 100);
   std::vector<double> out(count * count, 0);
   // Create task_data
   auto task_data_stl = std::make_shared<ppc::core::TaskData>();
