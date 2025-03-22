@@ -24,7 +24,6 @@ TEST(filateva_e_simpson_seq, test_x_pow_2) {
   task_data->inputs.emplace_back(reinterpret_cast<uint8_t *>(f));
   task_data->inputs_count.emplace_back(mer);
   task_data->inputs_count.emplace_back(steps);
-
   task_data->outputs.emplace_back(reinterpret_cast<uint8_t *>(res.data()));
   task_data->outputs_count.emplace_back(1);
 
