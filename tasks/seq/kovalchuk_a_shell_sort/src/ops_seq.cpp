@@ -1,7 +1,10 @@
 #include "seq/kovalchuk_a_shell_sort/include/ops_seq.hpp"
 
 #include <algorithm>
+#include <utility>
 #include <vector>
+
+#include "core/task/include/task.hpp"
 
 namespace kovalchuk_a_shell_sort {
 
@@ -14,26 +17,26 @@ bool ShellSortSequential::PreProcessingImpl() {
 }
 
 bool ShellSortSequential::ValidationImpl() {
-  if (task_data->inputs_count.empty() || task_data->outputs_count.empty()) {
-    return false;
-  }
-  return task_data->inputs_count[0] == task_data->outputs_count[0];
+  return !task_data->inputs_count.empty() && !task_data->outputs_count.empty() &&
+         task_data->inputs_count[0] == task_data->outputs_count[0];
 }
 
 bool ShellSortSequential::RunImpl() {
-  shellSort();
+  ShellSort();
   return true;
 }
 
-void ShellSortSequential::shellSort() {
-  if (input_.empty()) return;
+void ShellSortSequential::ShellSort() {
+  if (input_.empty()) {
+    return;
+  }
 
-  int n = input_.size();
+  int n = static_cast<int>(input_.size());
   for (int gap = n / 2; gap > 0; gap /= 2) {
     for (int i = gap; i < n; ++i) {
       int temp = input_[i];
-      int j;
-      for (j = i; j >= gap && input_[j - gap] > temp; j -= gap) {
+      int j = i;
+      for (; j >= gap && input_[j - gap] > temp; j -= gap) {
         input_[j] = input_[j - gap];
       }
       input_[j] = temp;
@@ -43,7 +46,7 @@ void ShellSortSequential::shellSort() {
 
 bool ShellSortSequential::PostProcessingImpl() {
   auto* output_ptr = reinterpret_cast<int*>(task_data->outputs[0]);
-  std::copy(input_.begin(), input_.end(), output_ptr);
+  std::ranges::copy(input_, output_ptr);
   return true;
 }
 

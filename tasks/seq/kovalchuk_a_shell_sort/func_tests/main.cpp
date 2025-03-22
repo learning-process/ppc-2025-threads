@@ -1,13 +1,13 @@
 #include <gtest/gtest.h>
 
-#include <cstdint>
+#include <algorithm>
 #include <memory>
 #include <vector>
 
 #include "core/task/include/task.hpp"
 #include "seq/kovalchuk_a_shell_sort/include/ops_seq.hpp"
 
-
+// Базовый тест: сортировка несортированного массива
 TEST(kovalchuk_a_shell_sort, test_sort_basic) {
   std::vector<int> input = {9, 2, 5, 1, 7};
   std::vector<int> output(input.size());
@@ -29,9 +29,10 @@ TEST(kovalchuk_a_shell_sort, test_sort_basic) {
   ASSERT_EQ(expected, output);
 }
 
+// Тест пустого массива
 TEST(kovalchuk_a_shell_sort, test_empty_array) {
-  std::vector<int> input = {};
-  std::vector<int> output(input.size());
+  std::vector<int> input;
+  std::vector<int> output;
 
   auto task_data = std::make_shared<ppc::core::TaskData>();
   task_data->inputs.emplace_back(reinterpret_cast<uint8_t*>(input.data()));
@@ -46,11 +47,12 @@ TEST(kovalchuk_a_shell_sort, test_empty_array) {
   task->Run();
   task->PostProcessing();
 
-  EXPECT_TRUE(output.empty());
+  ASSERT_TRUE(output.empty());
 }
 
+// Тест массива из одного элемента
 TEST(kovalchuk_a_shell_sort, test_single_element) {
-  std::vector<int> input = {2};
+  std::vector<int> input = {42};
   std::vector<int> output(input.size());
 
   auto task_data = std::make_shared<ppc::core::TaskData>();
@@ -69,6 +71,29 @@ TEST(kovalchuk_a_shell_sort, test_single_element) {
   ASSERT_EQ(input, output);
 }
 
+// Тест уже отсортированного массива
+TEST(kovalchuk_a_shell_sort, test_already_sorted) {
+  std::vector<int> input = {1, 2, 3, 4, 5};
+  std::vector<int> output(input.size());
+  std::vector<int> expected = input;
+
+  auto task_data = std::make_shared<ppc::core::TaskData>();
+  task_data->inputs.emplace_back(reinterpret_cast<uint8_t*>(input.data()));
+  task_data->inputs_count.emplace_back(input.size());
+  task_data->outputs.emplace_back(reinterpret_cast<uint8_t*>(output.data()));
+  task_data->outputs_count.emplace_back(output.size());
+
+  auto task = std::make_shared<kovalchuk_a_shell_sort::ShellSortSequential>(task_data);
+
+  ASSERT_TRUE(task->Validation());
+  task->PreProcessing();
+  task->Run();
+  task->PostProcessing();
+
+  ASSERT_EQ(expected, output);
+}
+
+// Тест обратно отсортированного массива
 TEST(kovalchuk_a_shell_sort, test_reverse_sorted) {
   std::vector<int> input = {9, 7, 5, 3, 1};
   std::vector<int> output(input.size());
@@ -90,6 +115,7 @@ TEST(kovalchuk_a_shell_sort, test_reverse_sorted) {
   ASSERT_EQ(expected, output);
 }
 
+// Тест с дубликатами
 TEST(kovalchuk_a_shell_sort, test_duplicates) {
   std::vector<int> input = {5, 2, 5, 1, 2};
   std::vector<int> output(input.size());
@@ -111,6 +137,7 @@ TEST(kovalchuk_a_shell_sort, test_duplicates) {
   ASSERT_EQ(expected, output);
 }
 
+// Тест с отрицательными числами
 TEST(kovalchuk_a_shell_sort, test_negative_numbers) {
   std::vector<int> input = {-5, 0, -3, 10, -1};
   std::vector<int> output(input.size());
@@ -132,9 +159,10 @@ TEST(kovalchuk_a_shell_sort, test_negative_numbers) {
   ASSERT_EQ(expected, output);
 }
 
+// Тест на валидацию несоответствия размеров
 TEST(kovalchuk_a_shell_sort, test_validation_fail) {
   std::vector<int> input = {1, 2, 3};
-  std::vector<int> output(5);
+  std::vector<int> output(5);  // Намеренно неверный размер
 
   auto task_data = std::make_shared<ppc::core::TaskData>();
   task_data->inputs.emplace_back(reinterpret_cast<uint8_t*>(input.data()));
@@ -145,4 +173,26 @@ TEST(kovalchuk_a_shell_sort, test_validation_fail) {
   auto task = std::make_shared<kovalchuk_a_shell_sort::ShellSortSequential>(task_data);
 
   ASSERT_FALSE(task->Validation());
+}
+
+// Тест с большими значениями
+TEST(kovalchuk_a_shell_sort, test_large_values) {
+  std::vector<int> input = {INT32_MAX, 0, INT32_MIN};
+  std::vector<int> output(input.size());
+
+  auto task_data = std::make_shared<ppc::core::TaskData>();
+  task_data->inputs.emplace_back(reinterpret_cast<uint8_t*>(input.data()));
+  task_data->inputs_count.emplace_back(input.size());
+  task_data->outputs.emplace_back(reinterpret_cast<uint8_t*>(output.data()));
+  task_data->outputs_count.emplace_back(output.size());
+
+  auto task = std::make_shared<kovalchuk_a_shell_sort::ShellSortSequential>(task_data);
+
+  ASSERT_TRUE(task->Validation());
+  task->PreProcessing();
+  task->Run();
+  task->PostProcessing();
+
+  std::vector<int> expected = {INT32_MIN, 0, INT32_MAX};
+  ASSERT_EQ(expected, output);
 }
