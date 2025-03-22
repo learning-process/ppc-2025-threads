@@ -13,8 +13,8 @@
 #include "seq/gnitienko_k_strassen_alg/include/ops_seq.hpp"
 
 namespace {
-double min_val = -50.0;
-double max_val = 50.0;
+double min_val = -100.0;
+double max_val = 100.0;
 static std::vector<double> GenMatrix(size_t size);
 static void TrivialMultiply(const std::vector<double> &a, const std::vector<double> &b, std::vector<double> &c,
                             size_t size);
