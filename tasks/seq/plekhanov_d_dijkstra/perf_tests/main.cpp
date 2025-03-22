@@ -5,7 +5,7 @@
 #include <cstddef>
 #include <cstdint>
 #include <cstdlib>
-#include <limits>
+#include <functional>
 #include <memory>
 #include <queue>
 #include <utility>
@@ -17,29 +17,32 @@
 
 namespace plekhanov_d_dijkstra_seq {
 
-static std::vector<int> CalculateExpectedResult(const std::vector<std::vector<std::pair<size_t, int>>> &adj_list,
-                                                size_t start_vertex) {
+static std::vector<int> CalculateExpectedResult(                       // NOLINT(misc-use-anonymous-namespace)
+    const std::vector<std::vector<std::pair<size_t, int>>> &adj_list,  // NOLINT(misc-use-anonymous-namespace)
+    size_t start_vertex) {                                             // NOLINT(misc-use-anonymous-namespace)
   size_t n = adj_list.size();
-  const int INF = INT_MAX;
-  std::vector<int> distances(n, INF);
+  const int inf = INT_MAX;
+  std::vector<int> distances(n, inf);
   distances[start_vertex] = 0;
 
-  using pii = std::pair<int, size_t>;
-  std::priority_queue<pii, std::vector<pii>, std::greater<pii>> pq;
-  pq.push({0, start_vertex});
+  using Pii = std::pair<int, size_t>;
+  std::priority_queue<Pii, std::vector<Pii>, std::greater<>> pq;
+  pq.emplace(0, start_vertex);
 
   while (!pq.empty()) {
     auto [d, u] = pq.top();
     pq.pop();
 
-    if (d != distances[u]) continue;
+    if (d != distances[u]) {
+      continue;
+    }
 
     for (const auto &edge : adj_list[u]) {
       size_t v = edge.first;
       int weight = edge.second;
-      if (distances[u] != INF && distances[u] + weight < distances[v]) {
+      if (distances[u] != inf && (distances[u] + weight < distances[v])) {
         distances[v] = distances[u] + weight;
-        pq.push({distances[v], v});
+        pq.emplace(distances[v], v);
       }
     }
   }
@@ -47,6 +50,7 @@ static std::vector<int> CalculateExpectedResult(const std::vector<std::vector<st
 }
 
 }  // namespace plekhanov_d_dijkstra_seq
+
 
 TEST(plekhanov_d_dijkstra_seq, test_pipeline_run) {
   constexpr size_t kNumVertices = 6000;
