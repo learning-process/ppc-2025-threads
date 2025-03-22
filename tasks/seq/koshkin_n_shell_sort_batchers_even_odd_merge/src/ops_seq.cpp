@@ -36,15 +36,15 @@ void koshkin_n_shell_sort_batchers_even_odd_merge_seq::TestTaskSequential::Batch
   BatcherMerge(a, mid, end, order);
 
   // проверка на отсортированность
-  bool isSorted = true;
+  bool is_sorted = true;
   for (int i = start; i < end - 1; ++i) {
     if ((order && a[i] > a[i + 1]) || (!order && a[i] < a[i + 1])) {
-      isSorted = false;
+      is_sorted = false;
       break;
     }
   }
 
-  if (isSorted) {
+  if (is_sorted) {
     return;
   }
 
@@ -58,8 +58,7 @@ void koshkin_n_shell_sort_batchers_even_odd_merge_seq::TestTaskSequential::Batch
 
 void koshkin_n_shell_sort_batchers_even_odd_merge_seq::TestTaskSequential::ShellBatcherSort(std::vector<int> &a,
                                                                                             bool order) {
-  // проверка на пустой массив
-  size_t n = a.size();
+  int n = static_cast<int>(a.size());
   int gap = 1;
 
   // генерация шагов Кнута
@@ -90,7 +89,7 @@ bool koshkin_n_shell_sort_batchers_even_odd_merge_seq::TestTaskSequential::PrePr
   input_ = std::vector<int>(input_size);
 
   auto *in_ptr = reinterpret_cast<int *>(task_data->inputs[0]);
-  std::copy(in_ptr, in_ptr + input_size, input_.begin());
+  std::ranges::copy(in_ptr, in_ptr + input_size, input_.begin());
 
   input_order_ = *reinterpret_cast<bool *>(task_data->inputs[1]);
 
@@ -114,6 +113,7 @@ bool koshkin_n_shell_sort_batchers_even_odd_merge_seq::TestTaskSequential::RunIm
 
 bool koshkin_n_shell_sort_batchers_even_odd_merge_seq::TestTaskSequential::PostProcessingImpl() {
   auto *output = reinterpret_cast<int *>(task_data->outputs[0]);
-  std::copy(output_.begin(), output_.end(), output);
+
+  std::ranges::copy(output_.begin(), output_.end(), output);
   return true;
 }

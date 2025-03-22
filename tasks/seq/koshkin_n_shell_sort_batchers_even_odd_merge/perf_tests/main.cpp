@@ -1,9 +1,13 @@
 #include <gtest/gtest.h>
 
+#include <algorithm>
 #include <chrono>
+#include <cstdint>
+#include <memory>
 #include <vector>
 
 #include "core/perf/include/perf.hpp"
+#include "core/task/include/task.hpp"
 #include "seq/koshkin_n_shell_sort_batchers_even_odd_merge/include/ops_seq.hpp"
 
 TEST(koshkin_n_shell_sort_batchers_even_odd_merge_seq, test_pipeline_run) {
@@ -14,8 +18,7 @@ TEST(koshkin_n_shell_sort_batchers_even_odd_merge_seq, test_pipeline_run) {
   std::vector<int> out(in.size(), 0);
 
   std::vector<int> res = in;
-  std::ranges::sort(res);
-
+  std::ranges::sort(res.begin(), res.end());
   // Create task_data
   auto task_data_seq = std::make_shared<ppc::core::TaskData>();
   task_data_seq->inputs.emplace_back(reinterpret_cast<uint8_t *>(in.data()));
@@ -45,7 +48,7 @@ TEST(koshkin_n_shell_sort_batchers_even_odd_merge_seq, test_pipeline_run) {
   auto perf_analyzer = std::make_shared<ppc::core::Perf>(test_task_sequential);
   perf_analyzer->PipelineRun(perf_attr, perf_results);
   ppc::core::Perf::PrintPerfStatistic(perf_results);
-  ASSERT_EQ(res, out);
+  ASSERT_EQ(out, res);
 }
 
 TEST(koshkin_n_shell_sort_batchers_even_odd_merge_seq, test_task_run) {
@@ -56,7 +59,7 @@ TEST(koshkin_n_shell_sort_batchers_even_odd_merge_seq, test_task_run) {
   std::vector<int> out(in.size(), 0);
 
   std::vector<int> res = in;
-  std::ranges::sort(res);
+  std::ranges::sort(res.begin(), res.end());
 
   // Create task_data
   auto task_data_seq = std::make_shared<ppc::core::TaskData>();

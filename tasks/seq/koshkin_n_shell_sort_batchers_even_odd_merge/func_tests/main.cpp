@@ -1,9 +1,12 @@
 #include <gtest/gtest.h>
 
 #include <algorithm>
+#include <cstdint>
+#include <functional>
 #include <memory>
 #include <vector>
 
+#include "core/task/include/task.hpp"
 #include "seq/koshkin_n_shell_sort_batchers_even_odd_merge/include/ops_seq.hpp"
 
 TEST(koshkin_n_shell_sort_batchers_even_odd_merge_seq, sortedVectorAscending) {
@@ -36,7 +39,7 @@ TEST(koshkin_n_shell_sort_batchers_even_odd_merge_seq, emptyVec) {
   std::vector<int> out(in.size(), 0);
 
   std::vector<int> res = in;
-  std::ranges::sort(res);
+  std::ranges::sort(res.begin(), res.end());
 
   auto task_data_seq = std::make_shared<ppc::core::TaskData>();
   task_data_seq->inputs.emplace_back(reinterpret_cast<uint8_t *>(in.data()));
@@ -56,7 +59,7 @@ TEST(koshkin_n_shell_sort_batchers_even_odd_merge_seq, posnegVectorAscending) {
   std::vector<int> out(in.size(), 0);
 
   std::vector<int> res = in;
-  std::ranges::sort(res);
+  std::ranges::sort(res.begin(), res.end());
 
   auto task_data_seq = std::make_shared<ppc::core::TaskData>();
   task_data_seq->inputs.emplace_back(reinterpret_cast<uint8_t *>(in.data()));
@@ -80,7 +83,7 @@ TEST(koshkin_n_shell_sort_batchers_even_odd_merge_seq, posnegVectorDescending) {
   std::vector<int> out(in.size(), 0);
 
   std::vector<int> res = in;
-  std::ranges::sort(res, std::greater<>());
+  std::ranges::sort(res.begin(), res.end(), std::greater<>());
 
   auto task_data_seq = std::make_shared<ppc::core::TaskData>();
   task_data_seq->inputs.emplace_back(reinterpret_cast<uint8_t *>(in.data()));
@@ -104,7 +107,7 @@ TEST(koshkin_n_shell_sort_batchers_even_odd_merge_seq, positiveVectorAscending) 
   std::vector<int> out(in.size(), 0);
 
   std::vector<int> res = in;
-  std::ranges::sort(res);
+  std::ranges::sort(res.begin(), res.end());
 
   auto task_data_seq = std::make_shared<ppc::core::TaskData>();
   task_data_seq->inputs.emplace_back(reinterpret_cast<uint8_t *>(in.data()));
@@ -128,7 +131,7 @@ TEST(koshkin_n_shell_sort_batchers_even_odd_merge_seq, negativeVectorAscending) 
   std::vector<int> out(in.size(), 0);
 
   std::vector<int> res = in;
-  std::ranges::sort(res);
+  std::ranges::sort(res.begin(), res.end());
 
   auto task_data_seq = std::make_shared<ppc::core::TaskData>();
   task_data_seq->inputs.emplace_back(reinterpret_cast<uint8_t *>(in.data()));
@@ -152,7 +155,7 @@ TEST(koshkin_n_shell_sort_batchers_even_odd_merge_seq, negativeVectorDescending)
   std::vector<int> out(in.size(), 0);
 
   std::vector<int> res = in;
-  std::ranges::sort(res, std::greater<>());
+  std::ranges::sort(res.begin(), res.end(), std::greater<>());
 
   auto task_data_seq = std::make_shared<ppc::core::TaskData>();
   task_data_seq->inputs.emplace_back(reinterpret_cast<uint8_t *>(in.data()));
@@ -176,7 +179,7 @@ TEST(koshkin_n_shell_sort_batchers_even_odd_merge_seq, positiveVectorDescending)
   std::vector<int> out(in.size(), 0);
 
   std::vector<int> res = in;
-  std::ranges::sort(res, std::greater<>());
+  std::ranges::sort(res.begin(), res.end(), std::greater<>());
 
   auto task_data_seq = std::make_shared<ppc::core::TaskData>();
   task_data_seq->inputs.emplace_back(reinterpret_cast<uint8_t *>(in.data()));
@@ -200,7 +203,7 @@ TEST(koshkin_n_shell_sort_batchers_even_odd_merge_seq, smallVectorDescending) {
   std::vector<int> out(in.size(), 0);
 
   std::vector<int> res = in;
-  std::ranges::sort(res, std::greater<>());
+  std::ranges::sort(res.begin(), res.end(), std::greater<>());
 
   auto task_data_seq = std::make_shared<ppc::core::TaskData>();
   task_data_seq->inputs.emplace_back(reinterpret_cast<uint8_t *>(in.data()));
@@ -214,7 +217,7 @@ TEST(koshkin_n_shell_sort_batchers_even_odd_merge_seq, smallVectorDescending) {
   test_task_sequential.PreProcessing();
   test_task_sequential.Run();
   test_task_sequential.PostProcessing();
-  EXPECT_EQ(res, out);
+  EXPECT_EQ(out, res);
 }
 
 TEST(koshkin_n_shell_sort_batchers_even_odd_merge_seq, smallVectorAscending) {
@@ -224,7 +227,7 @@ TEST(koshkin_n_shell_sort_batchers_even_odd_merge_seq, smallVectorAscending) {
   std::vector<int> out(in.size(), 0);
 
   std::vector<int> res = in;
-  std::ranges::sort(res);
+  std::ranges::sort(res.begin(), res.end());
 
   auto task_data_seq = std::make_shared<ppc::core::TaskData>();
   task_data_seq->inputs.emplace_back(reinterpret_cast<uint8_t *>(in.data()));
@@ -248,7 +251,7 @@ TEST(koshkin_n_shell_sort_batchers_even_odd_merge_seq, bigVectorDescending) {
   std::vector<int> out(in.size(), 0);
 
   std::vector<int> res = in;
-  std::ranges::sort(res, std::greater<>());
+  std::ranges::sort(res.begin(), res.end(), std::greater<>());
 
   auto task_data_seq = std::make_shared<ppc::core::TaskData>();
   task_data_seq->inputs.emplace_back(reinterpret_cast<uint8_t *>(in.data()));
@@ -272,7 +275,7 @@ TEST(koshkin_n_shell_sort_batchers_even_odd_merge_seq, bigVectorAscending) {
   std::vector<int> out(in.size(), 0);
 
   std::vector<int> res = in;
-  std::ranges::sort(res);
+  std::ranges::sort(res.begin(), res.end());
 
   auto task_data_seq = std::make_shared<ppc::core::TaskData>();
   task_data_seq->inputs.emplace_back(reinterpret_cast<uint8_t *>(in.data()));
