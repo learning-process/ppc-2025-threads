@@ -24,11 +24,32 @@ bool malyshev_a_increase_contrast_by_histogram_omp::TestTaskOMP::RunImpl() {
   auto max_value = std::numeric_limits<uint8_t>::min();
 
   int data_size = static_cast<int>(data_.size());
+
+#ifdef _MSC_VER
+#pragma omp parallel
+  {
+    uint8_t local_min = std::numeric_limits<uint8_t>::max();
+    uint8_t local_max = std::numeric_limits<uint8_t>::min();
+
+#pragma omp for nowait
+    for (int i = 0; i < data_size; i++) {
+      local_min = std::min(local_min, data_[i]);
+      local_max = std::max(local_max, data_[i]);
+    }
+
+#pragma omp critical
+    {
+      min_value = std::min(min_value, local_min);
+      max_value = std::max(max_value, local_max);
+    }
+  }
+#else
 #pragma omp parallel for reduction(min : min_value) reduction(max : max_value)
   for (int i = 0; i < data_size; i++) {
     min_value = std::min(min_value, data_[i]);
     max_value = std::max(max_value, data_[i]);
   }
+#endif
 
   if (min_value == max_value) {
     return true;
