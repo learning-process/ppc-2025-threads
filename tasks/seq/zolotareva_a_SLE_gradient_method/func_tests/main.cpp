@@ -7,8 +7,7 @@
 #include "core/util/include/util.hpp"
 #include "seq/zolotareva_a_SLE_gradient_method/include/ops_seq.hpp"
 
-namespace zolotareva_a_sle_gradient_method_seq {
-void generateSLE(std::vector<double> &a, std::vector<double> &b, int n) {
+void zolotareva_a_sle_gradient_method_seq::generateSLE(std::vector<double> &a, std::vector<double> &b, int n) {
   std::random_device rd;
   std::mt19937 gen(rd());
   std::uniform_real_distribution<double> dist(-10.0, 10.0);
@@ -27,11 +26,12 @@ void generateSLE(std::vector<double> &a, std::vector<double> &b, int n) {
   }
 }
 
+namespace zolotareva_a_sle_gradient_method_seq {
 void static form(int n) {
   std::vector<double> a(n * n);
   std::vector<double> b(n);
   std::vector<double> x(n);
-  generateSLE(a, b, n);
+  zolotareva_a_sle_gradient_method_seq::generateSLE(a, b, n);
 
   auto task_data_seq = std::make_shared<ppc::core::TaskData>();
   task_data_seq->inputs.push_back(reinterpret_cast<uint8_t *>(a.data()));

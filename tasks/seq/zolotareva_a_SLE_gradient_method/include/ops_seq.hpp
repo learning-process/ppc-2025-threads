@@ -6,7 +6,7 @@
 #include "core/task/include/task.hpp"
 
 namespace zolotareva_a_sle_gradient_method_seq {
-
+void generateSLE(std::vector<double>& a, std::vector<double>& b, int n);
 class TestTaskSequential : public ppc::core::Task {
  public:
   explicit TestTaskSequential(ppc::core::TaskDataPtr task_data) : Task(std::move(task_data)) {}
