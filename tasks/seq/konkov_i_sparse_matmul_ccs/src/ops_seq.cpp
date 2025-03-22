@@ -15,11 +15,9 @@ SparseMatmulTask::SparseMatmulTask(ppc::core::TaskDataPtr task_data) : ppc::core
 
 bool SparseMatmulTask::ValidationImpl() {
   if (colsA != rowsB || rowsA <= 0 || colsB <= 0) {
-    std::cerr << "Error: Matrices dimensions mismatch\n";
     return false;
   }
   if (A_col_ptr.empty() || B_col_ptr.empty()) {
-    std::cerr << "Error: Empty matrix data\n";
     return false;
   }
   return true;
