@@ -1,8 +1,9 @@
 // Copyright Anikin Maksim 2025W
 #include <gtest/gtest.h>
 
-#include <random>
+#include <cstdint>
 #include <memory>
+#include <random>
 #include <vector>
 
 #include "core/task/include/task.hpp"
