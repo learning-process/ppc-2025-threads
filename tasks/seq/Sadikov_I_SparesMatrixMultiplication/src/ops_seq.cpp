@@ -1,6 +1,7 @@
 #include "seq/Sadikov_I_SparesMatrixMultiplication/include/ops_seq.hpp"
 
 #include <algorithm>
+#include <cmath>
 #include <random>
 #include <vector>
 

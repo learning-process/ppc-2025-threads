@@ -1,6 +1,7 @@
 #include "seq/Sadikov_I_SparesMatrixMultiplication/include/SparesMatrix.hpp"
 
 #include <algorithm>
+#include <cstddef>
 #include <vector>
 
 namespace sadikov_i_sparse_matrix_multiplication_task_seq {
