@@ -45,7 +45,6 @@ bool komshina_d_image_filtering_vertical_gaussian_seq::TestTaskSequential::Valid
 }
 
 bool komshina_d_image_filtering_vertical_gaussian_seq::TestTaskSequential::RunImpl() {
-
   for (std::size_t y = 1; y + 1 < height_; ++y) {
     for (std::size_t x = 1; x + 1 < width_; ++x) {
       std::size_t base_idx = (y * width_ + x) * 3;
