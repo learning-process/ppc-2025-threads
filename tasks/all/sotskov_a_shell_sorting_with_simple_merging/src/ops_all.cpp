@@ -180,7 +180,10 @@ bool sotskov_a_shell_sorting_with_simple_merging_all::TestTaskALL::PostProcessin
 
   std::vector<int> result;
   if (rank_ == 0) {
-    result.resize(total);
+    if (total <= 0) {
+      throw std::runtime_error("Invalid total size for vector resize");
+    }
+    result.assign(total, 0);
   }
 
   std::vector<int> dummy_output;
