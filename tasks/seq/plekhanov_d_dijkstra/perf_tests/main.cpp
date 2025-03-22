@@ -51,7 +51,6 @@ static std::vector<int> CalculateExpectedResult(                       // NOLINT
 
 }  // namespace plekhanov_d_dijkstra_seq
 
-
 TEST(plekhanov_d_dijkstra_seq, test_pipeline_run) {
   constexpr size_t kNumVertices = 6000;
   size_t start_vertex = 0;
