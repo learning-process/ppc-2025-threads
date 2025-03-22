@@ -2,20 +2,22 @@
 #include <gtest/gtest.h>
 
 #include <chrono>
-#include <vector>
 #include <random>
+#include <cstdint>
+#include <memory>
+#include <vector>
 
 #include "core/perf/include/perf.hpp"
 #include "core/task/include/task.hpp"
 #include "seq/anikin_m_shall_batcher/include/ops_seq.hpp"
 
 namespace {
-void fillVectorWithRandomValues(std::vector<int>& vec, int size, int minVal = 0, int maxVal = 100) {
+void FillVectorWithRandomValues(std::vector<int>& vec, int size, int min_val = 0, int max_val = 100) {
   vec.resize(size);
 
   std::random_device rd;
   std::mt19937 gen(rd());
-  std::uniform_int_distribution<int> dist(minVal, maxVal);
+  std::uniform_int_distribution<int> dist(min_val, max_val);
 
   for (int i = 0; i < size; ++i) {
     vec[i] = dist(gen);
@@ -30,7 +32,7 @@ TEST(anikin_m_shall_batcher_seq, test_pipeline_run) {
   std::vector<int> in(kCount, 0);
   std::vector<int> out(kCount, 0);
 
-  fillVectorWithRandomValues(in, kCount);
+  FillVectorWithRandomValues(in, kCount);
 
   // Create task_data
   auto task_data_seq = std::make_shared<ppc::core::TaskData>();
@@ -69,7 +71,7 @@ TEST(anikin_m_shall_batcher_seq, test_task_run) {
   std::vector<int> in(kCount, 0);
   std::vector<int> out(kCount, 0);
 
-  fillVectorWithRandomValues(in, kCount);
+  FillVectorWithRandomValues(in, kCount);
 
   // Create task_data
   auto task_data_seq = std::make_shared<ppc::core::TaskData>();

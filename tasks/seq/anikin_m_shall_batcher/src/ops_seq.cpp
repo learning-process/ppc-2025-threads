@@ -1,15 +1,15 @@
 // Copyright Anikin Maksim 2025
 #include "seq/anikin_m_shall_batcher/include/ops_seq.hpp"
 
+#include <cstddef>
 #include <vector>
-#include <algorithm>
 
-void anikin_m_shall_batcher_seq::shellSort(std::vector<int>& arr) {
-  int n = arr.size();
+void anikin_m_shall_batcher_seq::ShellSort(std::vector<int>& arr) {
+  int n = static_cast<int>(arr.size());
   for (int gap = n / 2; gap > 0; gap /= 2) {
     for (int i = gap; i < n; i++) {
       int temp = arr[i];
-      int j;
+      int j = 0;
       for (j = i; j >= gap && arr[j - gap] > temp; j -= gap) {
         arr[j] = arr[j - gap];
       }
@@ -18,10 +18,13 @@ void anikin_m_shall_batcher_seq::shellSort(std::vector<int>& arr) {
   }
 }
 
-void anikin_m_shall_batcher_seq::batcherOddEvenMerge(std::vector<int>& arr1, std::vector<int>& arr2,
+void anikin_m_shall_batcher_seq::BatcherOddEvenMerge(std::vector<int>& arr1, std::vector<int>& arr2,
                                                      std::vector<int>& output) {
-  int i = 0, j = 0, k = 0;
-  int n1 = arr1.size(), n2 = arr2.size();
+  int i = 0;
+  int j = 0;
+  int k = 0;
+  int n1 = static_cast<int>(arr1.size());
+  int n2 = static_cast<int>(arr2.size());
 
   while (i < n1 && j < n2) {
     if (arr1[i] < arr2[j]) {
@@ -40,20 +43,20 @@ void anikin_m_shall_batcher_seq::batcherOddEvenMerge(std::vector<int>& arr1, std
   }
 }
 
-void anikin_m_shall_batcher_seq::shellSortWithBatcherMerge(const std::vector<int>& input, std::vector<int>& output) {
+void anikin_m_shall_batcher_seq::ShellSortWithBatcherMerge(const std::vector<int>& input, std::vector<int>& output) {
   if (input.empty()) {
     output.clear();
     return;
   }
 
-  std::vector<int> arr1(input.begin(), input.begin() + input.size() / 2);
-  std::vector<int> arr2(input.begin() + input.size() / 2, input.end());
+  std::vector<int> arr1(input.begin(), input.begin() + static_cast<std::ptrdiff_t>(input.size() / 2));
+  std::vector<int> arr2(input.begin() + static_cast<std::ptrdiff_t>(input.size() / 2), input.end());
 
-  shellSort(arr1);
-  shellSort(arr2);
+  ShellSort(arr1);
+  ShellSort(arr2);
 
   output.resize(input.size());
-  batcherOddEvenMerge(arr1, arr2, output);
+  BatcherOddEvenMerge(arr1, arr2, output);
 }
 
 bool anikin_m_shall_batcher_seq::TestTaskSequential::PreProcessingImpl() {
@@ -72,7 +75,7 @@ bool anikin_m_shall_batcher_seq::TestTaskSequential::ValidationImpl() {
 }
 
 bool anikin_m_shall_batcher_seq::TestTaskSequential::RunImpl() {
-  shellSortWithBatcherMerge(input_, output_);
+  ShellSortWithBatcherMerge(input_, output_);
   return true;
 }
 
