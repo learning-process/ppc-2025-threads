@@ -1,7 +1,9 @@
 #include <gtest/gtest.h>
 
 #include <chrono>
+#include <cmath>
 #include <complex>
+#include <cstddef>
 #include <cstdint>
 #include <memory>
 #include <random>
