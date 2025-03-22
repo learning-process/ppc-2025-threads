@@ -10,12 +10,12 @@
 
 #include "core/perf/include/perf.hpp"
 #include "core/task/include/task.hpp"
-#include "seq/korablev_v_sobel_edges/include/ops_seq.hpp"
+#include "omp/korablev_v_sobel_edges/include/ops_omp.hpp"
 
 const std::size_t kHeight = 15'000;
 const std::size_t kWidth = 1'000;
 
-TEST(korablev_v_sobel_edges_seq, test_pipeline_run) {
+TEST(korablev_v_sobel_edges_omp, test_pipeline_run) {
   std::random_device dev;
   std::mt19937 gen(dev());
   std::uniform_int_distribution<> dist(0, 255);
@@ -32,7 +32,7 @@ TEST(korablev_v_sobel_edges_seq, test_pipeline_run) {
   task_data->outputs_count.emplace_back(out.size());
 
   // Create Task
-  auto task = std::make_shared<korablev_v_sobel_edges_seq::TestTask>(task_data);
+  auto task = std::make_shared<korablev_v_sobel_edges_omp::TestTask>(task_data);
 
   // Create Perf attributes
   auto perf_attr = std::make_shared<ppc::core::PerfAttr>();
@@ -53,7 +53,7 @@ TEST(korablev_v_sobel_edges_seq, test_pipeline_run) {
   ppc::core::Perf::PrintPerfStatistic(perf_results);
 }
 
-TEST(korablev_v_sobel_edges_seq, test_task_run) {
+TEST(korablev_v_sobel_edges_omp, test_task_run) {
   std::random_device dev;
   std::mt19937 gen(dev());
   std::uniform_int_distribution<> dist(0, 255);
@@ -70,7 +70,7 @@ TEST(korablev_v_sobel_edges_seq, test_task_run) {
   task_data->outputs_count.emplace_back(out.size());
 
   // Create Task
-  auto task = std::make_shared<korablev_v_sobel_edges_seq::TestTask>(task_data);
+  auto task = std::make_shared<korablev_v_sobel_edges_omp::TestTask>(task_data);
 
   // Create Perf attributes
   auto perf_attr = std::make_shared<ppc::core::PerfAttr>();
