@@ -98,7 +98,7 @@ TEST(fyodorov_m_shell_sort_with_even_odd_batcher_merge_seq, test_random_sequence
   auto test_task_sequential =
       std::make_shared<fyodorov_m_shell_sort_with_even_odd_batcher_merge_seq::TestTaskSequential>(task_data_seq);
 
-  test_task_sequential->run();
+  test_task_sequential->Run();
 
   ASSERT_EQ(output, expected_output);
 }
