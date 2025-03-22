@@ -1,5 +1,7 @@
 #include <gtest/gtest.h>
 
+#include <boost/mpi/communicator.hpp>
+#include <boost/mpi/environment.hpp>
 #include <chrono>
 #include <cstdint>
 #include <memory>
@@ -38,6 +40,7 @@ std::vector<int> GenerateRandomVector(const RandomVectorParams &params) {
 }  // namespace sotskov_a_shell_sorting_with_simple_merging_all
 
 TEST(sotskov_a_shell_sorting_with_simple_merging_all, test_pipeline_run) {
+  boost::mpi::communicator world;
   sotskov_a_shell_sorting_with_simple_merging_all::RandomVectorParams params = {
       .size = 2000000, .min_value = 0, .max_value = 500};
   std::vector<int> in = sotskov_a_shell_sorting_with_simple_merging_all::GenerateRandomVector(params);
@@ -48,11 +51,12 @@ TEST(sotskov_a_shell_sorting_with_simple_merging_all, test_pipeline_run) {
 
   // Create task_data
   auto task_data_all = std::make_shared<ppc::core::TaskData>();
-  task_data_all->inputs.emplace_back(reinterpret_cast<uint8_t *>(in.data()));
-  task_data_all->inputs_count.emplace_back(in.size());
-  task_data_all->outputs.emplace_back(reinterpret_cast<uint8_t *>(out.data()));
-  task_data_all->outputs_count.emplace_back(out.size());
-
+  if (world.rank() == 0) {
+    task_data_all->inputs.emplace_back(reinterpret_cast<uint8_t *>(in.data()));
+    task_data_all->inputs_count.emplace_back(in.size());
+    task_data_all->outputs.emplace_back(reinterpret_cast<uint8_t *>(out.data()));
+    task_data_all->outputs_count.emplace_back(out.size());
+  }
   // Create Task
   auto test_task_all = std::make_shared<sotskov_a_shell_sorting_with_simple_merging_all::TestTaskALL>(task_data_all);
 
@@ -72,12 +76,14 @@ TEST(sotskov_a_shell_sorting_with_simple_merging_all, test_pipeline_run) {
   // Create Perf analyzer
   auto perf_analyzer = std::make_shared<ppc::core::Perf>(test_task_all);
   perf_analyzer->PipelineRun(perf_attr, perf_results);
-  ppc::core::Perf::PrintPerfStatistic(perf_results);
-
+  if (world.rank() == 0) {
+    ppc::core::Perf::PrintPerfStatistic(perf_results);
+  }
   ASSERT_EQ(out, expected);
 }
 
 TEST(sotskov_a_shell_sorting_with_simple_merging_all, test_task_run) {
+  boost::mpi::communicator world;
   sotskov_a_shell_sorting_with_simple_merging_all::RandomVectorParams params = {
       .size = 2000000, .min_value = 0, .max_value = 500};
   std::vector<int> in = sotskov_a_shell_sorting_with_simple_merging_all::GenerateRandomVector(params);
@@ -88,11 +94,12 @@ TEST(sotskov_a_shell_sorting_with_simple_merging_all, test_task_run) {
 
   // Create task_data
   auto task_data_all = std::make_shared<ppc::core::TaskData>();
-  task_data_all->inputs.emplace_back(reinterpret_cast<uint8_t *>(in.data()));
-  task_data_all->inputs_count.emplace_back(in.size());
-  task_data_all->outputs.emplace_back(reinterpret_cast<uint8_t *>(out.data()));
-  task_data_all->outputs_count.emplace_back(out.size());
-
+  if (world.rank() == 0) {
+    task_data_all->inputs.emplace_back(reinterpret_cast<uint8_t *>(in.data()));
+    task_data_all->inputs_count.emplace_back(in.size());
+    task_data_all->outputs.emplace_back(reinterpret_cast<uint8_t *>(out.data()));
+    task_data_all->outputs_count.emplace_back(out.size());
+  }
   // Create Task
   auto test_task_all = std::make_shared<sotskov_a_shell_sorting_with_simple_merging_all::TestTaskALL>(task_data_all);
 
@@ -112,7 +119,9 @@ TEST(sotskov_a_shell_sorting_with_simple_merging_all, test_task_run) {
   // Create Perf analyzer
   auto perf_analyzer = std::make_shared<ppc::core::Perf>(test_task_all);
   perf_analyzer->TaskRun(perf_attr, perf_results);
-  ppc::core::Perf::PrintPerfStatistic(perf_results);
+  if (world.rank() == 0) {
+    ppc::core::Perf::PrintPerfStatistic(perf_results);
+  }
 
   ASSERT_EQ(out, expected);
 }

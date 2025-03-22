@@ -8,6 +8,7 @@
 #include <functional>
 #include <mutex>
 #include <queue>
+#include <stdexcept>
 #include <thread>
 #include <utility>
 #include <vector>
@@ -188,6 +189,9 @@ bool sotskov_a_shell_sorting_with_simple_merging_all::TestTaskALL::PostProcessin
 
   std::vector<int> dummy_output;
   if (rank_ != 0) {
+    if (input_.size() <= 0) {
+      throw std::runtime_error("Invalid input_ size");
+    }
     dummy_output.resize(input_.size());
   }
 
