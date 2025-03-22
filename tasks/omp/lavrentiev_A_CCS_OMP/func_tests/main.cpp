@@ -138,26 +138,26 @@ TEST(lavrentiev_a_ccs_omp, test_3x3_matrixes) {
   }
 }
 
-//TEST(lavrentiev_a_ccs_omp, test_12x12_matrix) {
-//  auto task = TestData({12, 12}, {12, 12});
-//  auto test_task_omp = task.CreateTask();
-//  ASSERT_EQ(test_task_omp.Validation(), true);
-//  test_task_omp.PreProcessing();
-//  test_task_omp.Run();
-//  test_task_omp.PostProcessing();
-//  for (size_t i = 0; i < task.result.size(); ++i) {
-//    EXPECT_NEAR(task.result[i], task.random_data[i], kEpsilon);
-//  }
-//}
-//
-//TEST(lavrentiev_a_ccs_omp, test_25x25_matrix) {
-//  auto task = TestData({25, 25}, {25, 25});
-//  auto test_task_omp = task.CreateTask();
-//  ASSERT_EQ(test_task_omp.Validation(), true);
-//  test_task_omp.PreProcessing();
-//  test_task_omp.Run();
-//  test_task_omp.PostProcessing();
-//  for (size_t i = 0; i < task.result.size(); ++i) {
-//    EXPECT_NEAR(task.result[i], task.random_data[i], kEpsilon);
-//  }
-//}
+TEST(lavrentiev_a_ccs_omp, test_12x12_matrix) {
+  auto task = TestData({12, 12}, {12, 12});
+  auto test_task_omp = task.CreateTask();
+  ASSERT_EQ(test_task_omp.Validation(), true);
+  test_task_omp.PreProcessing();
+  test_task_omp.Run();
+  test_task_omp.PostProcessing();
+  for (size_t i = 0; i < task.result.size(); ++i) {
+    EXPECT_NEAR(task.result[i], task.random_data[i], kEpsilon);
+  }
+}
+
+TEST(lavrentiev_a_ccs_omp, test_25x25_matrix) {
+  auto task = TestData({25, 25}, {25, 25});
+  auto test_task_omp = task.CreateTask();
+  ASSERT_EQ(test_task_omp.Validation(), true);
+  test_task_omp.PreProcessing();
+  test_task_omp.Run();
+  test_task_omp.PostProcessing();
+  for (size_t i = 0; i < task.result.size(); ++i) {
+    EXPECT_NEAR(task.result[i], task.random_data[i], kEpsilon);
+  }
+}

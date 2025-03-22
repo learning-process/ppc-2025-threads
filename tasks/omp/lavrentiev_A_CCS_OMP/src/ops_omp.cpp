@@ -5,7 +5,6 @@
 #include <algorithm>
 #include <cmath>
 #include <cstddef>
-#include <map>
 #include <utility>
 #include <vector>
 
@@ -65,7 +64,8 @@ lavrentiev_a_ccs_omp::Sparse lavrentiev_a_ccs_omp::CCSOMP::MatMul(const Sparse &
   auto [size, elements, rows, columns_sum] = Sparse();
   columns_sum.resize(matrix2.size.second);
   Sparse new_matrix1 = Transpose(matrix1);
-  std::map<int, std::pair<std::vector<double>, std::vector<int>>> threads_data;
+  std::vector<std::pair<std::vector<double>, std::vector<int>>> threads_data(ppc::util::GetPPCNumThreads());
+#pragma omp parallel
   {
     std::pair<std::vector<double>, std::vector<int>> current_thread_data;
 #pragma omp for
@@ -90,16 +90,13 @@ lavrentiev_a_ccs_omp::Sparse lavrentiev_a_ccs_omp::CCSOMP::MatMul(const Sparse &
     }
     threads_data[omp_get_thread_num()] = std::move(current_thread_data);
   }
-  for (int i = 1; i < static_cast<int>(columns_sum.size()); ++i) {
+  for (size_t i = 1; i < columns_sum.size(); ++i) {
     columns_sum[i] = columns_sum[i] + columns_sum[i - 1];
   }
-  for (const auto &[number, data] : threads_data) {
-    if (elements.empty()) {
-      elements = data.first;
-      rows = data.second;
-    } else {
-      std::ranges::copy_backward(data.first, elements.begin());
-      std::ranges::copy_backward(data.second, rows.begin());
+  for (const auto &data : threads_data) {
+    for (size_t i = 0; i < data.first.size(); ++i) {
+      elements.push_back(data.first[i]);
+      rows.push_back(data.second[i]);
     }
   }
   size.first = matrix2.size.second;
