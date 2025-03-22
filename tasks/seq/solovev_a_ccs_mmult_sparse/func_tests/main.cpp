@@ -13,14 +13,14 @@
 #include "seq/solovev_a_ccs_mmult_sparse/include/ccs_mmult_sparse.hpp"
 
 namespace {
-std::complex<double> generateRandomComplex(double min, double max) {
+std::complex<double> GenerateRandomComplex(double min, double max) {
   static std::random_device rd;
   static std::mt19937 gen(rd());
   std::uniform_real_distribution<> dis(min, max);
-  return std::complex<double>(dis(gen), dis(gen));
+  return {dis(gen), dis(gen)};
 }
 
-bool areComplexNumbersApproxEqual(const std::complex<double>& c1, const std::complex<double>& c2,
+bool AreComplexNumbersApproxEqual(const std::complex<double>& c1, const std::complex<double>& c2,
                                   double tolerance = 1e-6) {
   return std::abs(c1.real() - c2.real()) < tolerance && std::abs(c1.imag() - c2.imag()) < tolerance;
 }
@@ -230,9 +230,9 @@ TEST(solovev_a_ccs_mmult_sparse, test_V_random) {
 
   for (int i = 0; i < rows; i++) {
     m1.row.push_back(i);
-    m1.val.push_back(generateRandomComplex(-10.0, 10.0));
+    m1.val.push_back(GenerateRandomComplex(-10.0, 10.0));
     m2.row.push_back(i);
-    m2.val.push_back(generateRandomComplex(-10.0, 10.0));
+    m2.val.push_back(GenerateRandomComplex(-10.0, 10.0));
   }
 
   std::shared_ptr<ppc::core::TaskData> task_data_seq = std::make_shared<ppc::core::TaskData>();
@@ -247,40 +247,40 @@ TEST(solovev_a_ccs_mmult_sparse, test_V_random) {
   test_task_sequential.PostProcessingImpl();
 
   for (size_t i = 0; i < m3.val.size(); i++) {
-    bool approx_equal = areComplexNumbersApproxEqual(m3.val[i], m1.val[i] * m2.val[i]);
+    bool approx_equal = AreComplexNumbersApproxEqual(m3.val[i], m1.val[i] * m2.val[i]);
     ASSERT_TRUE(approx_equal);
   }
 }
 
 TEST(solovev_a_ccs_mmult_sparse, test_identity_multiplication) {
   const int size = 50;
-  solovev_a_matrix::MatrixInCcsSparse I(size, size, size);
-  solovev_a_matrix::MatrixInCcsSparse A(size, size, size * size);
+  solovev_a_matrix::MatrixInCcsSparse i1(size, size, size);
+  solovev_a_matrix::MatrixInCcsSparse a(size, size, size * size);
   solovev_a_matrix::MatrixInCcsSparse result(size, size, 0);
 
-  I.col_p.resize(size + 1);
+  i1.col_p.resize(size + 1);
   for (int i = 0; i < size; i++) {
-    I.col_p[i] = i;
-    I.row.push_back(i);
-    I.val.emplace_back(1.0, 0.0);
+    i1.col_p[i] = i;
+    i1.row.push_back(i);
+    i1.val.emplace_back(1.0, 0.0);
   }
-  I.col_p[size] = size;
+  i1.col_p[size] = size;
 
-  A.col_p.resize(size + 1);
+  a.col_p.resize(size + 1);
   int nz_count = 0;
   for (int j = 0; j < size; j++) {
-    A.col_p[j] = nz_count;
+    a.col_p[j] = nz_count;
     for (int i = 0; i < size; i++) {
-      A.row.push_back(i);
-      A.val.emplace_back(static_cast<double>(i + j), static_cast<double>(i - j));
+      a.row.push_back(i);
+      a.val.emplace_back(static_cast<double>(i + j), static_cast<double>(i - j));
       nz_count++;
     }
   }
-  A.col_p[size] = nz_count;
+  a.col_p[size] = nz_count;
 
   std::shared_ptr<ppc::core::TaskData> task_data = std::make_shared<ppc::core::TaskData>();
-  task_data->inputs.emplace_back(reinterpret_cast<uint8_t*>(&I));
-  task_data->inputs.emplace_back(reinterpret_cast<uint8_t*>(&A));
+  task_data->inputs.emplace_back(reinterpret_cast<uint8_t*>(&i1));
+  task_data->inputs.emplace_back(reinterpret_cast<uint8_t*>(&a));
   task_data->outputs.emplace_back(reinterpret_cast<uint8_t*>(&result));
 
   solovev_a_matrix::SeqMatMultCcs multiplication_task(task_data);
@@ -290,6 +290,6 @@ TEST(solovev_a_ccs_mmult_sparse, test_identity_multiplication) {
   multiplication_task.PostProcessingImpl();
 
   for (size_t i = 0; i < result.val.size(); i++) {
-    ASSERT_EQ(result.val[i], A.val[i]);
+    ASSERT_EQ(result.val[i], a.val[i]);
   }
 }
