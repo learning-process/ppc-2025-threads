@@ -128,4 +128,3 @@ TEST(tyurin_m_matmul_crs_complex_omp, test_crs_random_30x1p70mul1x1p63) {
 TEST(tyurin_m_matmul_crs_complex_omp, test_crs_random_30x1p38mul1x1p63) {
   TestMatrixCRS(RandMatrix(30, 1, .38), RandMatrix(1, 30, .63));
 }
-
