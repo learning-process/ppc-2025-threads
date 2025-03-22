@@ -3,7 +3,6 @@
 #include <algorithm>
 #include <cmath>
 #include <cstddef>
-#include <cstdint>
 #include <vector>
 
 bool komshina_d_image_filtering_vertical_gaussian_seq::TestTaskSequential::PreProcessingImpl() {
@@ -24,27 +23,26 @@ bool komshina_d_image_filtering_vertical_gaussian_seq::TestTaskSequential::PrePr
 }
 
 bool komshina_d_image_filtering_vertical_gaussian_seq::TestTaskSequential::ValidationImpl() {
-  if (!task_data->inputs[0] || !task_data->inputs[1] || task_data->outputs.empty() ||
+  if (task_data->inputs[0] == nullptr || task_data->inputs[1] == nullptr || task_data->outputs.empty() ||
       task_data->outputs[0] == nullptr) {
     return false;
   }
 
-  const auto &input = task_data->inputs_count;
-  const auto &output = task_data->outputs_count;
+  const auto &input_count = task_data->inputs_count;
+  const auto &output_count = task_data->outputs_count;
 
-  if (input.size() < 3 || output.empty()) {
+  if (input_count.size() < 3 || output_count.empty()) {
     return false;
   }
 
   constexpr int kKernelSize = 9;
   constexpr int kChannels = 3;
 
-  bool valid_kernel = (input[2] == kKernelSize);
-  bool valid_size = (input[0] * input[1] * kChannels == output[0]);
+  bool valid_kernel = (input_count[2] == kKernelSize);
+  bool valid_size = (input_count[0] * input_count[1] * kChannels == output_count[0]);
 
   return valid_kernel && valid_size;
 }
-
 
 bool komshina_d_image_filtering_vertical_gaussian_seq::TestTaskSequential::RunImpl() {
 
