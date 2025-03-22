@@ -11,7 +11,7 @@ bool komshina_d_image_filtering_vertical_gaussian_seq::TestTaskSequential::PrePr
   height_ = task_data->inputs_count[1];
 
   unsigned int input_size = width_ * height_ * 3;
-  auto *in_ptr = reinterpret_cast<uint8_t *>(task_data->inputs[0]);
+  auto *in_ptr = reinterpret_cast<unsigned char *>(task_data->inputs[0]);
   input_.assign(in_ptr, in_ptr + input_size);
 
   unsigned int kernel_size = task_data->inputs_count[2];
@@ -24,6 +24,11 @@ bool komshina_d_image_filtering_vertical_gaussian_seq::TestTaskSequential::PrePr
 }
 
 bool komshina_d_image_filtering_vertical_gaussian_seq::TestTaskSequential::ValidationImpl() {
+  if (!task_data->inputs[0] || !task_data->inputs[1] || task_data->outputs.empty() ||
+      task_data->outputs[0] == nullptr) {
+    return false;
+  }
+
   const auto &input = task_data->inputs_count;
   const auto &output = task_data->outputs_count;
 
@@ -40,10 +45,8 @@ bool komshina_d_image_filtering_vertical_gaussian_seq::TestTaskSequential::Valid
   return valid_kernel && valid_size;
 }
 
+
 bool komshina_d_image_filtering_vertical_gaussian_seq::TestTaskSequential::RunImpl() {
-  if (height_ == 0 || width_ == 0) {
-    return true;
-  }
 
   for (std::size_t y = 1; y + 1 < height_; ++y) {
     for (std::size_t x = 1; x + 1 < width_; ++x) {

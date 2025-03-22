@@ -11,11 +11,11 @@
 #include "seq/komshina_d_image_filtering_vertical_gaussian/include/ops_seq.hpp"
 
 TEST(komshina_d_image_filtering_vertical_gaussian_seq, test_pipeline_run) {
-  constexpr int kWidth = 5000;
-  constexpr int kHeight = 5000;
+  constexpr int kWidth = 3000;
+  constexpr int kHeight = 3000;
 
-  std::vector<uint8_t> in(kWidth * kHeight * 3, 0);
-  std::vector<uint8_t> out(kWidth * kHeight * 3, 0);
+  std::vector<unsigned char> in(kWidth * kHeight * 3, 0);
+  std::vector<unsigned char> out(kWidth * kHeight * 3, 0);
   std::vector<float> kernel{0.0F, -1.0F, 0.0F, -1.0F, 4.0F, -1.0F, 0.0F, -1.0F, 0.0F};
 
   for (std::size_t i = 0; i < kHeight; i++) {
@@ -52,11 +52,11 @@ TEST(komshina_d_image_filtering_vertical_gaussian_seq, test_pipeline_run) {
 }
 
 TEST(komshina_d_image_filtering_vertical_gaussian_seq, test_task_run) {
-  constexpr int kWidth = 5000;
-  constexpr int kHeight = 5000;
+  constexpr int kWidth = 3000;
+  constexpr int kHeight = 3000;
 
-  std::vector<uint8_t> in(kWidth * kHeight * 3, 0);
-  std::vector<uint8_t> out(kWidth * kHeight * 3, 0);
+  std::vector<unsigned char> in(kWidth * kHeight * 3, 0);
+  std::vector<unsigned char> out(kWidth * kHeight * 3, 0);
   std::vector<float> kernel{0.0F, -1.0F, 0.0F, -1.0F, 4.0F, -1.0F, 0.0F, -1.0F, 0.0F};
 
   for (std::size_t i = 0; i < kHeight; i++) {

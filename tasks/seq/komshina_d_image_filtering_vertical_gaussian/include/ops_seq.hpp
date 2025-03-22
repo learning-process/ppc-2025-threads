@@ -17,10 +17,10 @@ class TestTaskSequential : public ppc::core::Task {
   bool PostProcessingImpl() override;
 
  private:
-  std::vector<uint8_t> input_;
-  std::vector<uint8_t> output_;
-  uint32_t height_;
-  uint32_t width_;
+  std::vector<unsigned char> input_;
+  std::vector<unsigned char> output_;
+  std::size_t height_;
+  std::size_t width_;
 
   std::vector<float> kernel_;
 };
