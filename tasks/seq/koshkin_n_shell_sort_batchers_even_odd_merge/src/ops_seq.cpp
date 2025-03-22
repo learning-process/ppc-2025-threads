@@ -1,7 +1,6 @@
 #include "seq/koshkin_n_shell_sort_batchers_even_odd_merge/include/ops_seq.hpp"
 
 #include <algorithm>
-#include <cstddef>
 #include <random>
 #include <vector>
 
