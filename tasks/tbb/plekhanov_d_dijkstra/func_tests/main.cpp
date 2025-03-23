@@ -39,18 +39,18 @@ void RunTest(const std::vector<std::vector<std::pair<size_t, int>>> &adj_list,  
   task_data_tbb->outputs.emplace_back(reinterpret_cast<uint8_t *>(distances.data()));
   task_data_tbb->outputs_count.emplace_back(k_num_vertices);
 
-  TestTaskTBB test_task_omp(task_data_tbb);
-  ASSERT_TRUE(test_task_omp.Validation());
-  test_task_omp.PreProcessing();
+  TestTaskTBB test_task_tbb(task_data_tbb);
+  ASSERT_TRUE(test_task_tbb.Validation());
+  test_task_tbb.PreProcessing();
   if (expect_success) {
-    ASSERT_TRUE(test_task_omp.Run());
-    test_task_omp.PostProcessing();
+    ASSERT_TRUE(test_task_tbb.Run());
+    test_task_tbb.PostProcessing();
     for (size_t i = 0; i < k_num_vertices; ++i) {
       EXPECT_EQ(distances[i], expected_result[i]);
     }
   } else {
-    ASSERT_FALSE(test_task_omp.Run());
-    test_task_omp.PostProcessing();
+    ASSERT_FALSE(test_task_tbb.Run());
+    test_task_tbb.PostProcessing();
   }
 }
 
@@ -68,8 +68,8 @@ void static RunValidationFailureTest() {  // NOLINT(misc-use-anonymous-namespace
   task_data_tbb->outputs.emplace_back(reinterpret_cast<uint8_t *>(distances.data()));
   task_data_tbb->outputs_count.emplace_back(num_vertices);
 
-  TestTaskTBB test_task_omp(task_data_tbb);
-  ASSERT_FALSE(test_task_omp.Validation());
+  TestTaskTBB test_task_tbb(task_data_tbb);
+  ASSERT_FALSE(test_task_tbb.Validation());
 }
 
 std::vector<std::vector<std::pair<size_t,
