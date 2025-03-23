@@ -1,8 +1,8 @@
 #include "tbb/plekhanov_d_dijkstra/include/ops_tbb.hpp"
 
+#include <oneapi/tbb/concurrent_vector.h>
 #include <oneapi/tbb/task_arena.h>
 #include <oneapi/tbb/task_group.h>
-#include <oneapi/tbb/concurrent_vector.h>
 
 #include <atomic>
 #include <climits>
