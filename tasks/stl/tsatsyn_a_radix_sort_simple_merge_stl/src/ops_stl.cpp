@@ -13,7 +13,7 @@
 
 bool tsatsyn_a_radix_sort_simple_merge_stl::TestTaskSTL::PreProcessingImpl() {
   // Init value for input and output
-  auto* temp_ptr = reinterpret_cast<double*>(task_data->inputs[0]);
+  auto *temp_ptr = reinterpret_cast<double *>(task_data->inputs[0]);
   input_data_ = std::vector<double>(temp_ptr, temp_ptr + task_data->inputs_count[0]);
   output_.resize(task_data->inputs_count[0]);
   return true;
@@ -24,8 +24,6 @@ bool tsatsyn_a_radix_sort_simple_merge_stl::TestTaskSTL::ValidationImpl() {
   return task_data->inputs_count[0] != 0;
 }
 
-
-
 bool tsatsyn_a_radix_sort_simple_merge_stl::TestTaskSTL::RunImpl() {
   std::vector<uint64_t> pozitive_copy;
   std::vector<uint64_t> negative_copy;
@@ -34,7 +32,7 @@ bool tsatsyn_a_radix_sort_simple_merge_stl::TestTaskSTL::RunImpl() {
     std::mutex neg_mtx;
     std::for_each(std::execution::par_unseq, input_data_.begin(), input_data_.end(), [&](double num) {
       uint64_t bits;
-     std::memcpy(&bits,&num,sizeof(double));
+      std::memcpy(&bits, &num, sizeof(double));
       if (num > 0.0) {
         std::lock_guard lock(pos_mtx);
         pozitive_copy.push_back(bits);
@@ -97,7 +95,7 @@ bool tsatsyn_a_radix_sort_simple_merge_stl::TestTaskSTL::RunImpl() {
 
 bool tsatsyn_a_radix_sort_simple_merge_stl::TestTaskSTL::PostProcessingImpl() {
   for (size_t i = 0; i < output_.size(); i++) {
-    reinterpret_cast<double*>(task_data->outputs[0])[i] = output_[i];
+    reinterpret_cast<double *>(task_data->outputs[0])[i] = output_[i];
   }
   return true;
 }
