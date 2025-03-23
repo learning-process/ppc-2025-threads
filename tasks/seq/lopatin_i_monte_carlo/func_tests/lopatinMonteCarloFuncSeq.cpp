@@ -262,7 +262,7 @@ TEST(lopatin_i_monte_carlo_tbb, 7DQuadraticFunction) {
   ASSERT_TRUE(task.PostProcessing());
 
   const double single_integral = 2.0 * std::pow(3.0, 3) / 3.0;  // 18.0
-  const double volume_6d = std::pow(6.0, 6);                    // for other 6 dimensions
+  const double volume_6d = std::pow(6.0, 6);                    // for other 6 dims
   const double expected = 7.0 * single_integral * volume_6d;
   const double tolerance = 0.03 * expected;
   EXPECT_NEAR(result, expected, tolerance);  // error 3%
