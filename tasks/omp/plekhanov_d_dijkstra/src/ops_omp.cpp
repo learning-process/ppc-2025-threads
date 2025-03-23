@@ -47,18 +47,18 @@ bool plekhanov_d_dijkstra_omp::TestTaskOpenMP::RunImpl() {
     if (weight < 0) return false;
 
     if (dest < num_vertices_) {
-      graph[current_vertex].emplace_back(dest, weight);
+      graph[current_vertex].emplace_back(static_cast<int>(dest), weight);
     }
     i += 2;
   }
 
   std::vector<bool> visited(num_vertices_, false);
 
-  for (int count = 0; count < num_vertices_ - 1; ++count) {
+  for (int count = 0; count < static_cast<int>(num_vertices_) - 1; ++count) {
     int u = -1, min_dist = INT_MAX;
 
 #pragma omp parallel for
-    for (int v = 0; v < num_vertices_; ++v) {
+    for (int v = 0; v < static_cast<int>(num_vertices_); ++v) {
       if (!visited[v]) {
 #pragma omp critical
         {
