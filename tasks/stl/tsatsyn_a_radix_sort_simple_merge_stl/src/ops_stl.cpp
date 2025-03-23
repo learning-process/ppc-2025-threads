@@ -6,9 +6,9 @@
 #include <cstddef>
 #include <cstdint>
 #include <cstring>
-#include <execution>
 #include <future>
 #include <mutex>
+#include <utility>
 #include <vector>
 
 #include "core/util/include/util.hpp"
@@ -38,8 +38,8 @@ bool tsatsyn_a_radix_sort_simple_merge_stl::TestTaskSTL::RunImpl() {
   auto split_data = [&](size_t start, size_t end) {
     for (size_t i = start; i < end; ++i) {
       double num = input_data_[i];
-      uint64_t bits;
-      bits = std::_Bit_cast<uint64_t>(num);
+      uint64_t bits = 0;
+      bits = std::bit_cast<uint64_t>(num);
       if (num >= 0) {
         std::lock_guard<std::mutex> lock(pos_mtx);
         pozitive_copy.push_back(bits);
@@ -56,16 +56,20 @@ bool tsatsyn_a_radix_sort_simple_merge_stl::TestTaskSTL::RunImpl() {
     size_t end = std::min(start + chunk_size, input_data_.size());
     split_futures.emplace_back(std::async(std::launch::async, split_data, start, end));
   }
-  for (auto &f : split_futures) f.wait();
+  for (auto &f : split_futures) {
+    f.wait();
+  }
 
   auto sort_positive = [&]() {
     for (int bit = 0; bit < 64; ++bit) {
-      std::vector<uint64_t> group0, group1;
+      std::vector<uint64_t> group0;
+      std::vector<uint64_t> group1;
       for (uint64_t b : pozitive_copy) {
-        if (((b >> bit) & 1) != 0U)
+        if (((b >> bit) & 1) != 0U) {
           group1.push_back(b);
-        else
+        } else {
           group0.push_back(b);
+        }
       }
       pozitive_copy = std::move(group0);
       pozitive_copy.insert(pozitive_copy.end(), group1.begin(), group1.end());
@@ -74,12 +78,14 @@ bool tsatsyn_a_radix_sort_simple_merge_stl::TestTaskSTL::RunImpl() {
 
   auto sort_negative = [&]() {
     for (int bit = 0; bit < 64; ++bit) {
-      std::vector<uint64_t> group0, group1;
+      std::vector<uint64_t> group0;
+      std::vector<uint64_t> group1;
       for (uint64_t b : negative_copy) {
-        if (((b >> bit) & 1) != 0U)
+        if (((b >> bit) & 1) != 0U) {
           group1.push_back(b);
-        else
+        } else {
           group0.push_back(b);
+        }
       }
       negative_copy = std::move(group1);
       negative_copy.insert(negative_copy.end(), group0.begin(), group0.end());
@@ -90,7 +96,9 @@ bool tsatsyn_a_radix_sort_simple_merge_stl::TestTaskSTL::RunImpl() {
   if (num_threads >= 2) {
     sort_futures.emplace_back(std::async(std::launch::async, sort_negative));
     sort_futures.emplace_back(std::async(std::launch::async, sort_positive));
-    for (auto &f : sort_futures) f.wait();
+    for (auto &f : sort_futures) {
+      f.wait();
+    }
   } else {
     sort_negative();
     sort_positive();
@@ -98,14 +106,14 @@ bool tsatsyn_a_radix_sort_simple_merge_stl::TestTaskSTL::RunImpl() {
 
   auto future_neg = std::async(std::launch::async, [&]() {
     for (size_t i = 0; i < negative_copy.size(); ++i) {
-      output_[i] = std::_Bit_cast<double>(negative_copy[i]);
+      output_[i] = std::bit_cast<double>(negative_copy[i]);
     }
   });
 
   auto future_pos = std::async(std::launch::async, [&]() {
     size_t offset = negative_copy.size();
     for (size_t i = 0; i < pozitive_copy.size(); ++i) {
-      output_[offset + i] = std::_Bit_cast<double>(pozitive_copy[i]);
+      output_[offset + i] = std::bit_cast<double>(pozitive_copy[i]);
     }
   });
 
