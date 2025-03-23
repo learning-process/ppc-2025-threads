@@ -5,7 +5,7 @@
 #include <cstddef>
 #include <cstdint>
 #include <memory>
-#include <random>
+#include <numeric>
 #include <vector>
 
 #include "../include/ops_seq.hpp"
