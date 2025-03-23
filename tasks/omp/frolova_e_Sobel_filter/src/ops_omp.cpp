@@ -2,15 +2,15 @@
 
 #include <omp.h>
 
+#include <algorithm>
 #include <cmath>
 #include <cstddef>
-#include <algorithm>
 #include <vector>
 
 std::vector<int> frolova_e_sobel_filter_omp::ToGrayScaleImg(std::vector<RGB>& color_img, size_t width, size_t height) {
   std::vector<int> gray_scale_image(width * height);
 
-#pragma omp for schedule(static)  
+#pragma omp for schedule(static)
   for (int i = 0; i < static_cast<int>(width * height); i++) {
     gray_scale_image[i] =
         static_cast<int>((0.299 * color_img[i].R) + (0.587 * color_img[i].G) + (0.114 * color_img[i].B));
@@ -20,11 +20,10 @@ std::vector<int> frolova_e_sobel_filter_omp::ToGrayScaleImg(std::vector<RGB>& co
 }
 
 int frolova_e_sobel_filter_omp::GetPixelSafe(const std::vector<int>& img, size_t x, size_t y, size_t width,
-    size_t height) {
+                                             size_t height) {
   if (x >= width || y >= height) return 0;
   return img[y * width + x];
 }
-
 
 bool frolova_e_sobel_filter_omp::SobelFilterOmp::PreProcessingImpl() {
   // Init value for input and output
@@ -46,8 +45,7 @@ bool frolova_e_sobel_filter_omp::SobelFilterOmp::PreProcessingImpl() {
     picture_.push_back(pixel);
   }
 
-  res_image_.resize(width_ * height_);
-  
+  res_image_.resize(width_ * height_);  
   return true;
 }
 
@@ -81,13 +79,11 @@ bool frolova_e_sobel_filter_omp::SobelFilterOmp::ValidationImpl() {
 }
 
 bool frolova_e_sobel_filter_omp::SobelFilterOmp::RunImpl() {
-
   std::vector<int> grayscale_image_(width_ * height_);
 
 #pragma omp parallel for schedule(static) shared(grayscale_image_)
   for (int i = 0; i < static_cast<int>(width_ * height_); i++) {
     grayscale_image_[i] = static_cast<int>((0.299 * picture_[i].R) + (0.587 * picture_[i].G) + (0.114 * picture_[i].B));
-
   }
 
 #pragma omp parallel for schedule(static)
@@ -115,7 +111,6 @@ bool frolova_e_sobel_filter_omp::SobelFilterOmp::RunImpl() {
       res_image_[base_idx] = std::clamp(gradient, 0, 255);
     }
   }
-
 
   return true;
 }

@@ -4,9 +4,9 @@
 #include <cstdint>
 #include <fstream>
 #include <memory>
+#include <random>
 #include <string>
 #include <vector>
-#include <random>
 
 #include "core/task/include/task.hpp"
 #include "core/util/include/util.hpp"
@@ -178,8 +178,8 @@ TEST(frolova_e_sobel_filter_omp, _1000_1000_picture) {
   ASSERT_EQ(test_task_.Validation(), true);
 
   std::vector<frolova_e_sobel_filter_omp::RGB> picture = ConvertToRGB(pict);
-  std::vector<int> gray_scale_image = frolova_e_sobel_filter_omp::ToGrayScaleImg(
-      picture, static_cast<size_t>(value[0]), static_cast<size_t>(value[1]));
+  std::vector<int> gray_scale_image =
+      frolova_e_sobel_filter_omp::ToGrayScaleImg(picture, static_cast<size_t>(value[0]), static_cast<size_t>(value[1]));
 
   const std::vector<int> gx = {-1, 0, 1, -2, 0, 2, -1, 0, 1};
   const std::vector<int> gy = {-1, -2, -1, 0, 0, 0, 1, 2, 1};
