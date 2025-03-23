@@ -35,8 +35,7 @@ TEST(yasakova_t_sparse_matrix_multiplication_seq, test_pipeline_run) {
   input_data.reserve(vector_a.size() + vector_b.size());
   input_data.insert(input_data.end(), vector_a.begin(), vector_a.end());
   input_data.insert(input_data.end(), vector_b.begin(), vector_b.end());
-
-  // Initialize task data structure
+  
   auto task_data = std::make_shared<ppc::core::TaskData>();
   task_data->inputs.emplace_back(reinterpret_cast<uint8_t *>(input_data.data()));
   task_data->inputs_count.emplace_back(input_data.size());
