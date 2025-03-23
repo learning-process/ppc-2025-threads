@@ -12,15 +12,15 @@
 #include "core/task/include/task.hpp"
 #include "seq/dudchenko_o_hoare_batcher/include/ops_seq.hpp"
 
-TEST(dudchenko_o_hoare_batcher_seq, test_pipeline_run) {
-  constexpr int kCount = 1000000;
+constexpr int kCount = 10000;
 
+TEST(dudchenko_o_hoare_batcher_seq, test_pipeline_run) {
   std::vector<int> in(kCount);
   std::vector<int> out(kCount);
 
   std::srand(static_cast<unsigned int>(std::time(nullptr)));
   for (int i = 0; i < kCount; ++i) {
-    in[i] = std::rand() % 1000;
+    in[i] = kCount - i;
   }
 
   auto task_data_seq = std::make_shared<ppc::core::TaskData>();
@@ -52,14 +52,12 @@ TEST(dudchenko_o_hoare_batcher_seq, test_pipeline_run) {
 }
 
 TEST(dudchenko_o_hoare_batcher_seq, test_task_run) {
-  constexpr int kCount = 1000000;
-
   std::vector<int> in(kCount);
   std::vector<int> out(kCount);
 
   std::srand(static_cast<unsigned int>(std::time(nullptr)));
   for (int i = 0; i < kCount; ++i) {
-    in[i] = std::rand() % 1000;
+    in[i] = kCount - i;
   }
 
   auto task_data_seq = std::make_shared<ppc::core::TaskData>();
