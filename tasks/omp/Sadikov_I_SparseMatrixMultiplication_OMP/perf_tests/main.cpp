@@ -2,7 +2,6 @@
 
 #include <algorithm>
 #include <chrono>
-#include <cmath>
 #include <cstdint>
 #include <memory>
 #include <random>
@@ -21,7 +20,7 @@ std::vector<double> GetRandomMatrix(int size) {
   int high = 500;
   int low = 0;
   std::uniform_int_distribution<> number(low, high);
-  for (int i = 0; i < static_cast<int>(std::sqrt(size)); ++i) {
+  for (int i = 0; i < static_cast<int>(size / 5); ++i) {
     data[i] = static_cast<double>(number(gen));
   }
   std::ranges::shuffle(data, gen);
@@ -31,7 +30,7 @@ std::vector<double> GetRandomMatrix(int size) {
 
 TEST(sadikov_i_sparse_matrix_multiplication_task_omp, test_pipeline_run) {
   constexpr auto kEpsilon = 0.0001;
-  constexpr auto kSize = 800;
+  constexpr auto kSize = 300;
   auto fmatrix = GetRandomMatrix(kSize * kSize);
   auto smatrix = GetRandomMatrix(kSize * kSize);
   std::vector<double> out(kSize * kSize, 0.0);
@@ -67,7 +66,7 @@ TEST(sadikov_i_sparse_matrix_multiplication_task_omp, test_pipeline_run) {
 
 TEST(sadikov_i_sparse_matrix_multiplication_task_omp, test_task_run) {
   constexpr auto kEpsilon = 0.0001;
-  constexpr auto kSize = 800;
+  constexpr auto kSize = 300;
   auto fmatrix = GetRandomMatrix(kSize * kSize);
   auto smatrix = GetRandomMatrix(kSize * kSize);
   std::vector<double> out(kSize * kSize, 0.0);
