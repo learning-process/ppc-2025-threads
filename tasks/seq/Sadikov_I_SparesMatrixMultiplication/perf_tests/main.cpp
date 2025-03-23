@@ -12,7 +12,7 @@
 
 TEST(sadikov_i_sparse_matrix_multiplication_task_seq, test_pipeline_run) {
   constexpr auto kEpsilon = 0.00001;
-  constexpr auto kSize = 800;
+  constexpr auto kSize = 300;
   auto fmatrix = sadikov_i_sparse_matrix_multiplication_task_seq::GetRandomMatrix(kSize * kSize);
   auto smatrix = sadikov_i_sparse_matrix_multiplication_task_seq::GetRandomMatrix(kSize * kSize);
   std::vector<double> out(kSize * kSize, 0.0);
@@ -48,7 +48,7 @@ TEST(sadikov_i_sparse_matrix_multiplication_task_seq, test_pipeline_run) {
 
 TEST(sadikov_i_sparse_matrix_multiplication_task_seq, test_task_run) {
   constexpr auto kEpsilon = 0.00001;
-  constexpr auto kSize = 800;
+  constexpr auto kSize = 300;
   auto fmatrix = sadikov_i_sparse_matrix_multiplication_task_seq::GetRandomMatrix(kSize * kSize);
   auto smatrix = sadikov_i_sparse_matrix_multiplication_task_seq::GetRandomMatrix(kSize * kSize);
   std::vector<double> out(kSize * kSize, 0.0);

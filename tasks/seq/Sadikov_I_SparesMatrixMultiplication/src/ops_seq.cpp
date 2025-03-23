@@ -1,7 +1,6 @@
 #include "seq/Sadikov_I_SparesMatrixMultiplication/include/ops_seq.hpp"
 
 #include <algorithm>
-#include <cmath>
 #include <random>
 #include <vector>
 
@@ -57,7 +56,7 @@ std::vector<double> sadikov_i_sparse_matrix_multiplication_task_seq::GetRandomMa
   int high = 500;
   int low = 0;
   std::uniform_int_distribution<> number(low, high);
-  for (int i = 0; i < static_cast<int>(std::sqrt(size)); ++i) {
+  for (int i = 0; i < static_cast<int>(size / 5); ++i) {
     data[i] = static_cast<double>(number(gen));
   }
   std::ranges::shuffle(data, gen);
