@@ -13,20 +13,8 @@
 
 #include "core/util/include/util.hpp"
 
-bool tsatsyn_a_radix_sort_simple_merge_stl::TestTaskSTL::PreProcessingImpl() {
-  // Init value for input and output
-  auto *temp_ptr = reinterpret_cast<double *>(task_data->inputs[0]);
-  input_data_ = std::vector<double>(temp_ptr, temp_ptr + task_data->inputs_count[0]);
-  output_.resize(task_data->inputs_count[0]);
-  return true;
-}
-
-bool tsatsyn_a_radix_sort_simple_merge_stl::TestTaskSTL::ValidationImpl() {
-  // Check equality of counts elements
-  return task_data->inputs_count[0] != 0;
-}
-
-inline void toSplitData(std::vector<uint64_t> &poz, std::vector<uint64_t> &neg, std::vector<double> input) {
+namespace {
+inline void ToSplitData(std::vector<uint64_t> &poz, std::vector<uint64_t> &neg, std::vector<double> input) {
   std::mutex pos_mtx;
   std::mutex neg_mtx;
 
@@ -78,15 +66,29 @@ inline void SortRadix(std::vector<uint64_t> &data, bool is_negative) {
     }
   }
 }
+}  // namespace
+bool tsatsyn_a_radix_sort_simple_merge_stl::TestTaskSTL::PreProcessingImpl() {
+  // Init value for input and output
+  auto *temp_ptr = reinterpret_cast<double *>(task_data->inputs[0]);
+  input_data_ = std::vector<double>(temp_ptr, temp_ptr + task_data->inputs_count[0]);
+  output_.resize(task_data->inputs_count[0]);
+  return true;
+}
+
+bool tsatsyn_a_radix_sort_simple_merge_stl::TestTaskSTL::ValidationImpl() {
+  // Check equality of counts elements
+  return task_data->inputs_count[0] != 0;
+}
+
 bool tsatsyn_a_radix_sort_simple_merge_stl::TestTaskSTL::RunImpl() {
   std::vector<uint64_t> pozitive_copy;
   std::vector<uint64_t> negative_copy;
-  toSplitData(pozitive_copy, negative_copy, input_data_);
+  ToSplitData(pozitive_copy, negative_copy, input_data_);
 
   size_t num_threads = ppc::util::GetPPCNumThreads();
   if (num_threads >= 2) {
-    auto future_neg = std::async(std::launch::async, [this, &negative_copy]() { SortRadix(negative_copy, true); });
-    auto future_pos = std::async(std::launch::async, [this, &pozitive_copy]() { SortRadix(pozitive_copy, false); });
+    auto future_neg = std::async(std::launch::async, [&negative_copy]() { SortRadix(negative_copy, true); });
+    auto future_pos = std::async(std::launch::async, [&pozitive_copy]() { SortRadix(pozitive_copy, false); });
     future_neg.wait();
     future_pos.wait();
   } else {
