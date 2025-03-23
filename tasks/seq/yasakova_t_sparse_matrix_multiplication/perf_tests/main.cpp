@@ -79,7 +79,7 @@ TEST(yasakova_t_sparse_matrix_multiplication_seq, test_pipeline_run) {
       break;
     }
   }
-  ASSERT_TRUE(is_result_non_zero); // Проверка, что в результате есть ненулевые элементы
+  ASSERT_TRUE(is_result_non_zero);
 }
 
 TEST(yasakova_t_sparse_matrix_multiplication_seq, test_task_run) {
