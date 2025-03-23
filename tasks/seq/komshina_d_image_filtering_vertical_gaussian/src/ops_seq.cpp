@@ -3,7 +3,6 @@
 #include <algorithm>
 #include <cmath>
 #include <cstddef>
-#include <cstdint>
 #include <vector>
 
 bool komshina_d_image_filtering_vertical_gaussian_seq::TestTaskSequential::PreProcessingImpl() {
