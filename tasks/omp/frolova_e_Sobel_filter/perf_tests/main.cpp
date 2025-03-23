@@ -55,19 +55,19 @@ TEST(frolova_e_sobel_filter_omp, test_pipeline_run) {
   std::vector<int> reference(4000000, 0);
 
   // Create task_data
-  auto task_data_ = std::make_shared<ppc::core::TaskData>();
+  auto task_data = std::make_shared<ppc::core::TaskData>();
 
-  task_data_->inputs.emplace_back(reinterpret_cast<uint8_t *>(value.data()));
-  task_data_->inputs_count.emplace_back(value.size());
+  task_data->inputs.emplace_back(reinterpret_cast<uint8_t *>(value.data()));
+  task_data->inputs_count.emplace_back(value.size());
 
-  task_data_->inputs.emplace_back(reinterpret_cast<uint8_t *>(pict.data()));
-  task_data_->inputs_count.emplace_back(pict.size());
+  task_data->inputs.emplace_back(reinterpret_cast<uint8_t *>(pict.data()));
+  task_data->inputs_count.emplace_back(pict.size());
 
-  task_data_->outputs.emplace_back(reinterpret_cast<uint8_t *>(res.data()));
-  task_data_->outputs_count.emplace_back(res.size());
+  task_data->outputs.emplace_back(reinterpret_cast<uint8_t *>(res.data()));
+  task_data->outputs_count.emplace_back(res.size());
 
   // Create Task
-  auto test_task_omp = std::make_shared<frolova_e_sobel_filter_omp::SobelFilterOmp>(task_data_);
+  auto test_task_omp = std::make_shared<frolova_e_sobel_filter_omp::SobelFilterOmp>(task_data);
 
   // Create Perf attributes
   auto perf_attr = std::make_shared<ppc::core::PerfAttr>();
@@ -131,19 +131,19 @@ TEST(frolova_e_sobel_filter_omp, test_task_run) {
   std::vector<int> reference(4000000, 0);
 
   // Create task_data
-  auto task_data_ = std::make_shared<ppc::core::TaskData>();
+  auto task_data = std::make_shared<ppc::core::TaskData>();
 
-  task_data_->inputs.emplace_back(reinterpret_cast<uint8_t *>(value.data()));
-  task_data_->inputs_count.emplace_back(value.size());
+  task_data->inputs.emplace_back(reinterpret_cast<uint8_t *>(value.data()));
+  task_data->inputs_count.emplace_back(value.size());
 
-  task_data_->inputs.emplace_back(reinterpret_cast<uint8_t *>(pict.data()));
-  task_data_->inputs_count.emplace_back(pict.size());
+  task_data->inputs.emplace_back(reinterpret_cast<uint8_t *>(pict.data()));
+  task_data->inputs_count.emplace_back(pict.size());
 
-  task_data_->outputs.emplace_back(reinterpret_cast<uint8_t *>(res.data()));
-  task_data_->outputs_count.emplace_back(res.size());
+  task_data->outputs.emplace_back(reinterpret_cast<uint8_t *>(res.data()));
+  task_data->outputs_count.emplace_back(res.size());
 
   // Create Task
-  auto test_task_omp = std::make_shared<frolova_e_sobel_filter_omp::SobelFilterOmp>(task_data_);
+  auto test_task_omp = std::make_shared<frolova_e_sobel_filter_omp::SobelFilterOmp>(task_data);
 
   // Create Perf attributes
   auto perf_attr = std::make_shared<ppc::core::PerfAttr>();
