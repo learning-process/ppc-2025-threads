@@ -37,7 +37,7 @@ std::vector<double> odintsov_m_mulmatrix_cannon_omp::MultiplyMatrices(const std:
   return c;
 }
 
-TEST(odintsov_m_mulmatrix_cannon_seq, test_matrix_4) {
+TEST(odintsov_m_mulmatrix_cannon_omp, test_matrix_4) {
   std::vector<double> matrix_a = odintsov_m_mulmatrix_cannon_omp::GenerateMatrix(4);
   std::vector<double> matrix_b = odintsov_m_mulmatrix_cannon_omp::GenerateMatrix(4);
   std::vector<double> out_omp(16, 0);
@@ -61,7 +61,7 @@ TEST(odintsov_m_mulmatrix_cannon_seq, test_matrix_4) {
   }
 }
 
-TEST(odintsov_m_mulmatrix_cannon_seq, test_matrix_100) {
+TEST(odintsov_m_mulmatrix_cannon_omp, test_matrix_100) {
   std::vector<double> matrix_a = odintsov_m_mulmatrix_cannon_omp::GenerateMatrix(100);
   std::vector<double> matrix_b = odintsov_m_mulmatrix_cannon_omp::GenerateMatrix(100);
   std::vector<double> out_omp(10000, 0);
@@ -85,7 +85,7 @@ TEST(odintsov_m_mulmatrix_cannon_seq, test_matrix_100) {
   }
 }
 
-TEST(odintsov_m_mulmatrix_cannon_seq, test_matrix_900) {
+TEST(odintsov_m_mulmatrix_cannon_omp, test_matrix_900) {
   std::vector<double> matrix_a = odintsov_m_mulmatrix_cannon_omp::GenerateMatrix(30);
   std::vector<double> matrix_b = odintsov_m_mulmatrix_cannon_omp::GenerateMatrix(30);
   std::vector<double> out_omp(900, 0);
@@ -109,7 +109,7 @@ TEST(odintsov_m_mulmatrix_cannon_seq, test_matrix_900) {
   }
 }
 
-TEST(odintsov_m_mulmatrix_cannon_seq, test_sz_block_1) {
+TEST(odintsov_m_mulmatrix_cannon_omp, test_sz_block_1) {
   std::vector<double> matrix_a = odintsov_m_mulmatrix_cannon_omp::GenerateMatrix(3);
   std::vector<double> matrix_b = odintsov_m_mulmatrix_cannon_omp::GenerateMatrix(3);
   std::vector<double> out_omp(9, 0);
@@ -133,7 +133,7 @@ TEST(odintsov_m_mulmatrix_cannon_seq, test_sz_block_1) {
   }
 }
 
-TEST(odintsov_m_mulmatrix_cannon_seq, test_validation) {
+TEST(odintsov_m_mulmatrix_cannon_omp, test_validation) {
   std::vector<double> matrix_a(12, 0);
   std::vector<double> matrix_b(12, 0);
   std::vector<double> out_omp(12, 0);
