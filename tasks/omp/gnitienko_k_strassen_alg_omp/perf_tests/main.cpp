@@ -12,8 +12,8 @@
 #include "omp/gnitienko_k_strassen_alg_omp/include/ops_omp.hpp"
 
 namespace {
-double min_val = -50.0;
-double max_val = 50.0;
+double min_val = -100.0;
+double max_val = 100.0;
 static std::vector<double> GenMatrix(size_t size);
 static void TrivialMultiply(const std::vector<double> &a, const std::vector<double> &b, std::vector<double> &c,
                             size_t size);
@@ -38,7 +38,6 @@ void TrivialMultiply(const std::vector<double> &a, const std::vector<double> &b,
       c[(i * size) + j] = 0;
       for (size_t k = 0; k < size; ++k) {
         c[(i * size) + j] += a[(i * size) + k] * b[(k * size) + j];
-        c[(i * size) + j] = round(c[(i * size) + j] * 10000) / 10000;
       }
     }
   }
