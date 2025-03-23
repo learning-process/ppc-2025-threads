@@ -231,9 +231,9 @@ TEST(lopatin_i_monte_carlo_seq, 4DQuadraticFunction) {
   EXPECT_NEAR(result, expected, tolerance);  // error 3%
 }
 
-TEST(lopatin_i_monte_carlo_tbb, 7DQuadraticFunction) {
+TEST(lopatin_i_monte_carlo_seq, 7DQuadraticFunction) {
   const int dimensions = 7;
-  const int iterations = 130000;
+  const int iterations = 120000;
   std::vector<double> bounds = lopatin_i_monte_carlo_seq::GenerateBounds(-3.0, 3.0, dimensions);
 
   auto task_data = std::make_shared<ppc::core::TaskData>();
