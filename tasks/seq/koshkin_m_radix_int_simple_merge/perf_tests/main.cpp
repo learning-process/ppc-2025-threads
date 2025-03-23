@@ -19,19 +19,14 @@ template <VectorClass cl>
 std::vector<int> VecGen(size_t size);
 
 template <>
-std::vector<int> VecGen<kRandom>(size_t size) {
-  constexpr int kK = 100;
+std::vector<int> VecGen<kReverse>(size_t size) {
   std::vector<int> v(size);
-
-  std::mt19937 gen(std::random_device{}());
-  std::uniform_real_distribution<> dist(-kK, kK);
-  std::ranges::generate(v, [&] { return dist(gen); });
-
+  std::iota(v.rbegin(), v.rend(), -2);
   return v;
 }
 
 void PerformPerfTest(bool test_task_run) {
-  auto in = VecGen<kRandom>(25'000'000);
+  auto in = VecGen<kReverse>(25'000'000);
   decltype(in) out(in.size());
 
   auto data = std::make_shared<ppc::core::TaskData>();
