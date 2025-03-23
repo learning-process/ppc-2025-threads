@@ -5,10 +5,8 @@
 #include <cstddef>
 #include <cstdint>
 #include <execution>
-#include <future>
-#include <iostream>
+#include <cstring>
 #include <mutex>
-#include <thread>
 #include <vector>
 
 bool tsatsyn_a_radix_sort_simple_merge_stl::TestTaskSTL::PreProcessingImpl() {
@@ -31,7 +29,7 @@ bool tsatsyn_a_radix_sort_simple_merge_stl::TestTaskSTL::RunImpl() {
     std::mutex pos_mtx;
     std::mutex neg_mtx;
     std::for_each(std::execution::par_unseq, input_data_.begin(), input_data_.end(), [&](double num) {
-      uint64_t bits;
+      uint64_t bits = 0;
       std::memcpy(&bits, &num, sizeof(double));
       if (num > 0.0) {
         std::lock_guard lock(pos_mtx);
@@ -72,24 +70,23 @@ bool tsatsyn_a_radix_sort_simple_merge_stl::TestTaskSTL::RunImpl() {
     negative_copy.insert(negative_copy.end(), group1.begin(), group1.end());
     negative_copy.insert(negative_copy.end(), group0.begin(), group0.end());
   }
-  {
-    std::for_each(std::execution::par_unseq, negative_copy.begin(), negative_copy.end(),
-                  [&, size = negative_copy.size()](uint64_t &b) {
-                    double value;
-                    std::memcpy(&value, &b, sizeof(double));
-                    size_t i = &b - negative_copy.data();
-                    output_[i] = value;
-                  });
-  }
-  {
-    std::for_each(std::execution::par_unseq, pozitive_copy.begin(), pozitive_copy.end(),
-                  [&, offset = negative_copy.size()](uint64_t &b) {
-                    double value;
-                    std::memcpy(&value, &b, sizeof(double));
-                    size_t i = &b - pozitive_copy.data() + offset;
-                    output_[i] = value;
-                  });
-  }
+
+  std::for_each(std::execution::par_unseq, negative_copy.begin(), negative_copy.end(),
+                [&, size = negative_copy.size()](uint64_t &b) {
+                  double value = NAN;
+                  std::memcpy(&value, &b, sizeof(double));
+                  size_t i = &b - negative_copy.data();
+                  output_[i] = value;
+                });
+
+  std::for_each(std::execution::par_unseq, pozitive_copy.begin(), pozitive_copy.end(),
+                [&, offset = negative_copy.size()](uint64_t &b) {
+                  double value = NAN;
+                  std::memcpy(&value, &b, sizeof(double));
+                  size_t i = &b - pozitive_copy.data() + offset;
+                  output_[i] = value;
+                });
+
   return true;
 }
 
