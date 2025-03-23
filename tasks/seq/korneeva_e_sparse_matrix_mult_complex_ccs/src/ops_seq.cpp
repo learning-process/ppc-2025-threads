@@ -2,7 +2,15 @@
 
 #include <gtest/gtest.h>
 
+#include <cmath>
+#include <cstddef>
+#include <cstdint>
+#include <memory>
 #include <random>
+#include <utility>
+#include <vector>
+
+#include "core/task/include/task.hpp"
 
 namespace korneeva_e_sparse_matrix_mult_complex_ccs_seq {
 
