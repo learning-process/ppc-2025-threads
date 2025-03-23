@@ -14,7 +14,7 @@ namespace {
 std::vector<double> GetRandomMatrix(int rows, int cols) {
   std::random_device dev;
   std::mt19937 gen(dev());
-  std::uniform_real_distribution<double> dis(1.0, 20.0);
+  std::uniform_real_distribution<double> dis(-100.0, 100.0);
 
   std::vector<double> matrix(rows * cols);
 
