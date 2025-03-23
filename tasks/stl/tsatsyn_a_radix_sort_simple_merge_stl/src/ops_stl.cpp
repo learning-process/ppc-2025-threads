@@ -26,7 +26,7 @@ bool tsatsyn_a_radix_sort_simple_merge_stl::TestTaskSTL::ValidationImpl() {
   return task_data->inputs_count[0] != 0;
 }
 
-inline void toSplitData(std::vector<uint64_t>& poz, std::vector<uint64_t>& neg, std::vector<double>input) {
+inline void toSplitData(std::vector<uint64_t> &poz, std::vector<uint64_t> &neg, std::vector<double> input) {
   std::mutex pos_mtx;
   std::mutex neg_mtx;
 
@@ -71,7 +71,7 @@ inline void SortRadix(std::vector<uint64_t> &data, bool is_negative) {
     if (is_negative) {
       data = std::move(group1);
       data.insert(data.end(), group0.begin(), group0.end());
-    
+
     } else {
       data = std::move(group0);
       data.insert(data.end(), group1.begin(), group1.end());
@@ -82,7 +82,7 @@ bool tsatsyn_a_radix_sort_simple_merge_stl::TestTaskSTL::RunImpl() {
   std::vector<uint64_t> pozitive_copy;
   std::vector<uint64_t> negative_copy;
   toSplitData(pozitive_copy, negative_copy, input_data_);
-  
+
   size_t num_threads = ppc::util::GetPPCNumThreads();
   if (num_threads >= 2) {
     auto future_neg = std::async(std::launch::async, [this, &negative_copy]() { SortRadix(negative_copy, true); });
