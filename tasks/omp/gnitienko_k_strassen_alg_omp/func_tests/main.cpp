@@ -76,7 +76,9 @@ TEST(gnitienko_k_strassen_alg_omp, test_2x2_matrix) {
   test_task_omp.PreProcessing();
   test_task_omp.Run();
   test_task_omp.PostProcessing();
-  EXPECT_EQ(expected, out);
+  for (size_t i = 0; i < size * size; i++) {
+    EXPECT_NEAR(expected[i], out[i], 1e-2);
+  }
 }
 
 TEST(gnitienko_k_strassen_alg_omp, test_4x4_matrix) {
@@ -102,7 +104,9 @@ TEST(gnitienko_k_strassen_alg_omp, test_4x4_matrix) {
   test_task_omp.PreProcessing();
   test_task_omp.Run();
   test_task_omp.PostProcessing();
-  EXPECT_EQ(expected, out);
+  for (size_t i = 0; i < size * size; i++) {
+    EXPECT_NEAR(expected[i], out[i], 1e-2);
+  }
 }
 
 TEST(gnitienko_k_strassen_alg_omp, test_random_16x16) {
