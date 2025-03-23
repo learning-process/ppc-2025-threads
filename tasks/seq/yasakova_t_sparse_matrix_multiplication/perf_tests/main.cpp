@@ -65,6 +65,21 @@ TEST(yasakova_t_sparse_matrix_multiplication_seq, test_pipeline_run) {
   ppc::core::Perf::PrintPerfStatistic(performance_results);
   yasakova_t_sparse_matrix_multiplication_seq::SparseMatrixCRS final_result =
       yasakova_t_sparse_matrix_multiplication_seq::ConvertVectorToMatrix(result_vector);
+
+  // Проверка корректности результата
+  // 1. Проверка размеров результирующей матрицы
+  ASSERT_EQ(final_result.rowCount, sparse_matrix_a.rowCount);
+  ASSERT_EQ(final_result.columnCount, sparse_matrix_b.columnCount);
+
+  // 2. Проверка, что результат не пустой (если ожидается, что результат не должен быть нулевым)
+  bool is_result_non_zero = false;
+  for (const auto &elem : result_vector) {
+    if (elem != Complex(0, 0)) {
+      is_result_non_zero = true;
+      break;
+    }
+  }
+  ASSERT_TRUE(is_result_non_zero); // Проверка, что в результате есть ненулевые элементы
 }
 
 TEST(yasakova_t_sparse_matrix_multiplication_seq, test_task_run) {
