@@ -18,7 +18,6 @@ class TestTaskSTL : public ppc::core::Task {
  private:
   std::vector<double> input_data_;
   std::vector<double> output_;
-  int rc_size_{};
 };
 
 }  // namespace tsatsyn_a_radix_sort_simple_merge_stl

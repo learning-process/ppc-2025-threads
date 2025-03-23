@@ -5,12 +5,15 @@
 #include <cstddef>
 #include <cstdint>
 #include <execution>
+#include <future>
+#include <iostream>
 #include <mutex>
+#include <thread>
 #include <vector>
 
 bool tsatsyn_a_radix_sort_simple_merge_stl::TestTaskSTL::PreProcessingImpl() {
   // Init value for input and output
-  auto *temp_ptr = reinterpret_cast<double *>(task_data->inputs[0]);
+  auto* temp_ptr = reinterpret_cast<double*>(task_data->inputs[0]);
   input_data_ = std::vector<double>(temp_ptr, temp_ptr + task_data->inputs_count[0]);
   output_.resize(task_data->inputs_count[0]);
   return true;
@@ -21,14 +24,17 @@ bool tsatsyn_a_radix_sort_simple_merge_stl::TestTaskSTL::ValidationImpl() {
   return task_data->inputs_count[0] != 0;
 }
 
+
+
 bool tsatsyn_a_radix_sort_simple_merge_stl::TestTaskSTL::RunImpl() {
   std::vector<uint64_t> pozitive_copy;
   std::vector<uint64_t> negative_copy;
   {
     std::mutex pos_mtx;
     std::mutex neg_mtx;
-    std::for_each(std::execution::par, input_data_.begin(), input_data_.end(), [&](double num) {
-      uint64_t bits = *reinterpret_cast<uint64_t *>(&num);
+    std::for_each(std::execution::par_unseq, input_data_.begin(), input_data_.end(), [&](double num) {
+      uint64_t bits;
+     std::memcpy(&bits,&num,sizeof(double));
       if (num > 0.0) {
         std::lock_guard lock(pos_mtx);
         pozitive_copy.push_back(bits);
@@ -68,22 +74,30 @@ bool tsatsyn_a_radix_sort_simple_merge_stl::TestTaskSTL::RunImpl() {
     negative_copy.insert(negative_copy.end(), group1.begin(), group1.end());
     negative_copy.insert(negative_copy.end(), group0.begin(), group0.end());
   }
-  std::for_each(std::execution::par, negative_copy.begin(), negative_copy.end(),
-                [&, size = negative_copy.size()](uint64_t &b) {
-                  size_t i = &b - negative_copy.data();
-                  output_[i] = *reinterpret_cast<double *>(&b);
-                });
-  std::for_each(std::execution::par, pozitive_copy.begin(), pozitive_copy.end(),
-                [&, offset = negative_copy.size()](uint64_t &b) {
-                  size_t i = &b - pozitive_copy.data() + offset;
-                  output_[i] = *reinterpret_cast<double *>(&b);
-                });
+  {
+    std::for_each(std::execution::par_unseq, negative_copy.begin(), negative_copy.end(),
+                  [&, size = negative_copy.size()](uint64_t &b) {
+                    double value;
+                    std::memcpy(&value, &b, sizeof(double));
+                    size_t i = &b - negative_copy.data();
+                    output_[i] = value;
+                  });
+  }
+  {
+    std::for_each(std::execution::par_unseq, pozitive_copy.begin(), pozitive_copy.end(),
+                  [&, offset = negative_copy.size()](uint64_t &b) {
+                    double value;
+                    std::memcpy(&value, &b, sizeof(double));
+                    size_t i = &b - pozitive_copy.data() + offset;
+                    output_[i] = value;
+                  });
+  }
   return true;
 }
 
 bool tsatsyn_a_radix_sort_simple_merge_stl::TestTaskSTL::PostProcessingImpl() {
   for (size_t i = 0; i < output_.size(); i++) {
-    reinterpret_cast<double *>(task_data->outputs[0])[i] = output_[i];
+    reinterpret_cast<double*>(task_data->outputs[0])[i] = output_[i];
   }
   return true;
 }
