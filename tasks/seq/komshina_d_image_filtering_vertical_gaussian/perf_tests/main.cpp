@@ -91,3 +91,4 @@ TEST(komshina_d_image_filtering_vertical_gaussian_seq, test_task_run) {
 
   ASSERT_EQ(in, out);
 }
+
