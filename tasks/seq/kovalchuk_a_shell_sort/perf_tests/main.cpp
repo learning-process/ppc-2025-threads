@@ -45,7 +45,7 @@ TEST(kovalchuk_a_shell_sort, test_pipeline_run) {
   ppc::core::Perf::PrintPerfStatistic(perf_results);
 
   std::vector<int> expected = in;
-  std::sort(expected.begin(), expected.end());
+  std::ranges::sort(expected);
   ASSERT_EQ(expected, out);
 }
 
@@ -83,6 +83,6 @@ TEST(kovalchuk_a_shell_sort, test_task_run) {
   ppc::core::Perf::PrintPerfStatistic(perf_results);
 
   std::vector<int> expected = in;
-  std::sort(expected.begin(), expected.end());
+  std::ranges::sort(expected);
   ASSERT_EQ(expected, out);
 }
