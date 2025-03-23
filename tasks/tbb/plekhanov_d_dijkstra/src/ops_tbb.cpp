@@ -2,15 +2,12 @@
 
 #include <oneapi/tbb/concurrent_vector.h>
 #include <oneapi/tbb/task_arena.h>
-#include <oneapi/tbb/task_group.h>
 
 #include <atomic>
 #include <climits>
 #include <core/util/include/util.hpp>
 #include <cstddef>
 #include <cstdlib>
-#include <set>
-#include <utility>
 #include <vector>
 
 #include "tbb/tbb.h"
@@ -38,7 +35,7 @@ bool plekhanov_d_dijkstra_tbb::TestTaskTBB::ValidationImpl() {
          task_data->outputs_count[0] > 0;
 }
 
-bool plekhanov_d_dijkstra_tbb::TestTaskTBB::RunImpl() {
+bool plekhanov_d_dijkstra_tbb::TestTaskTBB::RunImpl() {  // NOLINT(readability-function-cognitive-complexity)
   std::vector<std::atomic<int>> distances_atomic(num_vertices_);
   for (size_t i = 0; i < num_vertices_; ++i) {
     distances_atomic[i].store(distances_[i], std::memory_order_relaxed);
