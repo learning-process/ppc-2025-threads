@@ -24,7 +24,6 @@ class CCSSequential : public ppc::core::Task {
   static int GetElementsCount(int index, const std::vector<int>& columns_sum);
   static std::vector<double> ConvertFromSparse(const Sparse& matrix);
 
-  static constexpr double kMEpsilon = 0.0001;
   Sparse A_;
   Sparse B_;
   Sparse Answer_;

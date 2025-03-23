@@ -17,10 +17,10 @@ std::vector<double> GenerateRandomMatrix(int size) {
   std::vector<double> data(size);
   std::random_device device;
   std::mt19937 generator(device());
+  std::uniform_int_distribution<> random_element(-500, 500);
+  size = size / 6;
   for (int i = 0; i < size; ++i) {
-    if ((i % 6) == 0) {
-      data[i] = static_cast<double>(generator() % 1000);
-    }
+    data[i] = static_cast<double>(random_element(generator));
   }
   std::ranges::shuffle(data, generator);
   return data;

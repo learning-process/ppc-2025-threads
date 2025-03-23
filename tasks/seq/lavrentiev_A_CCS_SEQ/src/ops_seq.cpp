@@ -41,7 +41,7 @@ lavrentiev_a_ccs_seq::Sparse lavrentiev_a_ccs_seq::CCSSequential::MatMul(const S
           }
         }
       }
-      if (sum > kMEpsilon) {
+      if (sum != 0) {
         elements.emplace_back(sum);
         rows.emplace_back(j);
         columns_sum[i]++;

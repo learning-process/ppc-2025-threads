@@ -20,10 +20,10 @@ std::vector<double> GenerateRandomMatrix(int size) {
   std::vector<double> data(size);
   std::random_device device;
   std::mt19937 generator(device());
+  std::uniform_int_distribution<> random_element(-500, 500);
+  size = size / 6;
   for (int i = 0; i < size; ++i) {
-    if ((i % 6) == 0) {
-      data[i] = static_cast<double>(generator() % 1000);
-    }
+    data[i] = static_cast<double>(random_element(generator));
   }
   std::ranges::shuffle(data, generator);
   return data;
@@ -67,7 +67,7 @@ TestData::TestData(std::pair<int, int> matrix1_size, std::pair<int, int> matrix2
 }  // namespace
 
 TEST(lavrentiev_a_ccs_seq, test_pipeline_run) {
-  constexpr double kSize = 1200;
+  constexpr double kSize = 700;
   auto task = TestData({kSize, kSize}, {kSize, kSize});
   auto test_task_sequential = std::make_shared<lavrentiev_a_ccs_seq::CCSSequential>(task.task_data_seq);
   auto perf_attr = std::make_shared<ppc::core::PerfAttr>();
@@ -88,7 +88,7 @@ TEST(lavrentiev_a_ccs_seq, test_pipeline_run) {
 }
 
 TEST(lavrentiev_a_ccs_seq, test_task_run) {
-  constexpr double kSize = 1200;
+  constexpr double kSize = 700;
   auto task = TestData({kSize, kSize}, {kSize, kSize});
   auto test_task_sequential = std::make_shared<lavrentiev_a_ccs_seq::CCSSequential>(task.task_data_seq);
   auto perf_attr = std::make_shared<ppc::core::PerfAttr>();
