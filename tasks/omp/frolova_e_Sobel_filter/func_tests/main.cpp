@@ -2,14 +2,11 @@
 
 #include <cstddef>
 #include <cstdint>
-#include <fstream>
 #include <memory>
 #include <random>
-#include <string>
 #include <vector>
 
 #include "core/task/include/task.hpp"
-#include "core/util/include/util.hpp"
 #include "omp/frolova_e_Sobel_filter/include/ops_omp.hpp"
 
 namespace {
@@ -68,11 +65,11 @@ TEST(frolova_e_sobel_filter_omp, small_image_1) {
   task_data->outputs_count.emplace_back(res.size());
 
   // Create Task
-  frolova_e_sobel_filter_omp::SobelFilterOmp test_task_(task_data);
-  ASSERT_EQ(test_task_.Validation(), true);
-  test_task_.PreProcessing();
-  test_task_.Run();
-  test_task_.PostProcessing();
+  frolova_e_sobel_filter_omp::SobelFilterOmp test_task(task_data);
+  ASSERT_EQ(test_task.Validation(), true);
+  test_task.PreProcessing();
+  test_task.Run();
+  test_task.PostProcessing();
   EXPECT_EQ(reference, res);
 }
 
@@ -115,11 +112,11 @@ TEST(frolova_e_sobel_filter_omp, test_1) {
   task_data->outputs_count.emplace_back(res.size());
 
   // Create Task
-  frolova_e_sobel_filter_omp::SobelFilterOmp test_task_(task_data);
-  ASSERT_EQ(test_task_.Validation(), true);
-  test_task_.PreProcessing();
-  test_task_.Run();
-  test_task_.PostProcessing();
+  frolova_e_sobel_filter_omp::SobelFilterOmp test_task(task_data);
+  ASSERT_EQ(test_task.Validation(), true);
+  test_task.PreProcessing();
+  test_task.Run();
+  test_task.PostProcessing();
   EXPECT_EQ(reference, res);
 }
 
@@ -147,11 +144,11 @@ TEST(frolova_e_sobel_filter_omp, small_image_2) {
   task_data->outputs_count.emplace_back(res.size());
 
   // Create Task
-  frolova_e_sobel_filter_omp::SobelFilterOmp test_task_(task_data);
-  ASSERT_EQ(test_task_.Validation(), true);
-  test_task_.PreProcessing();
-  test_task_.Run();
-  test_task_.PostProcessing();
+  frolova_e_sobel_filter_omp::SobelFilterOmp test_task(task_data);
+  ASSERT_EQ(test_task.Validation(), true);
+  test_task.PreProcessing();
+  test_task.Run();
+  test_task.PostProcessing();
   EXPECT_EQ(reference, res);
 }
 
@@ -174,8 +171,8 @@ TEST(frolova_e_sobel_filter_omp, _1000_1000_picture) {
   task_data->outputs_count.emplace_back(res.size());
 
   // Create Task
-  frolova_e_sobel_filter_omp::SobelFilterOmp test_task_(task_data);
-  ASSERT_EQ(test_task_.Validation(), true);
+  frolova_e_sobel_filter_omp::SobelFilterOmp test_task(task_data);
+  ASSERT_EQ(test_task.Validation(), true);
 
   std::vector<frolova_e_sobel_filter_omp::RGB> picture = ConvertToRGB(pict);
   std::vector<int> gray_scale_image =
@@ -208,9 +205,9 @@ TEST(frolova_e_sobel_filter_omp, _1000_1000_picture) {
       reference[(y * value[0]) + x] = std::clamp(gradient, 0, 255);
     }
   }
-  test_task_.PreProcessing();
-  test_task_.Run();
-  test_task_.PostProcessing();
+  test_task.PreProcessing();
+  test_task.Run();
+  test_task.PostProcessing();
   EXPECT_EQ(reference, res);
 }
 
@@ -235,8 +232,8 @@ TEST(frolova_e_sobel_filter_omp, not_correct_value) {
   task_data->outputs_count.emplace_back(res.size());
 
   // Create Task
-  frolova_e_sobel_filter_omp::SobelFilterOmp test_task_(task_data);
-  ASSERT_EQ(test_task_.Validation(), false);
+  frolova_e_sobel_filter_omp::SobelFilterOmp test_task(task_data);
+  ASSERT_EQ(test_task.Validation(), false);
 }
 
 TEST(frolova_e_sobel_filter_omp, vector_is_not_multiple_of_three) {
@@ -259,8 +256,8 @@ TEST(frolova_e_sobel_filter_omp, vector_is_not_multiple_of_three) {
   task_data->outputs_count.emplace_back(res.size());
 
   // Create Task
-  frolova_e_sobel_filter_omp::SobelFilterOmp test_task_(task_data);
-  ASSERT_EQ(test_task_.Validation(), false);
+  frolova_e_sobel_filter_omp::SobelFilterOmp test_task(task_data);
+  ASSERT_EQ(test_task.Validation(), false);
 }
 
 TEST(frolova_e_sobel_filter_omp, vector_element_is_not_included_the_range) {
@@ -283,8 +280,8 @@ TEST(frolova_e_sobel_filter_omp, vector_element_is_not_included_the_range) {
   task_data->outputs_count.emplace_back(res.size());
 
   // Create Task
-  frolova_e_sobel_filter_omp::SobelFilterOmp test_task_(task_data);
-  ASSERT_EQ(test_task_.Validation(), false);
+  frolova_e_sobel_filter_omp::SobelFilterOmp test_task(task_data);
+  ASSERT_EQ(test_task.Validation(), false);
 }
 
 TEST(frolova_e_sobel_filter_omp, negative_value_of_element_int_RGBvector) {
@@ -307,6 +304,6 @@ TEST(frolova_e_sobel_filter_omp, negative_value_of_element_int_RGBvector) {
   task_data->outputs_count.emplace_back(res.size());
 
   // Create Task
-  frolova_e_sobel_filter_omp::SobelFilterOmp test_task_(task_data);
-  ASSERT_EQ(test_task_.Validation(), false);
+  frolova_e_sobel_filter_omp::SobelFilterOmp test_task(task_data);
+  ASSERT_EQ(test_task.Validation(), false);
 }

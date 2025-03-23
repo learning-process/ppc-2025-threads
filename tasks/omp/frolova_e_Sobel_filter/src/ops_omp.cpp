@@ -84,7 +84,7 @@ bool frolova_e_sobel_filter_omp::SobelFilterOmp::ValidationImpl() {
 bool frolova_e_sobel_filter_omp::SobelFilterOmp::RunImpl() {
   std::vector<int> grayscale_image(width_ * height_);
 
-#pragma omp parallel for schedule(static) shared(grayscale_image_)
+#pragma omp parallel for schedule(static) shared(grayscale_image)
   for (int i = 0; i < static_cast<int>(width_ * height_); i++) {
     grayscale_image[i] = static_cast<int>((0.299 * picture_[i].R) + (0.587 * picture_[i].G) + (0.114 * picture_[i].B));
   }
