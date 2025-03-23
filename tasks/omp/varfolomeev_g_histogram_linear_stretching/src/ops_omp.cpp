@@ -1,12 +1,12 @@
+#include "omp/varfolomeev_g_histogram_linear_stretching/include/ops_omp.hpp"
+
+#include <omp.h>
+
 #include <algorithm>
 #include <cmath>
 #include <cstddef>
 #include <cstdint>
 #include <vector>
-#include <omp.h>
-
-#include "omp/varfolomeev_g_histogram_linear_stretching/include/ops_omp.hpp"
-
 
 bool varfolomeev_g_histogram_linear_stretching_omp::TestTaskSequential::PreProcessingImpl() {
   // Init value for input and output
@@ -27,7 +27,7 @@ bool varfolomeev_g_histogram_linear_stretching_omp::TestTaskSequential::RunImpl(
   uint8_t max = *std::ranges::max_element(img_);
 
   if (max != min) {
-    #pragma omp parallel for
+#pragma omp parallel for
     for (int i = 0; i < static_cast<int>(img_.size()); i++) {
       res_[i] = static_cast<uint8_t>(((img_[i] - min) * 255 + (max - min) / 2) / (max - min));
     }
