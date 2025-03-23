@@ -1,6 +1,7 @@
 #include "seq/naumov_b_marc_on_bin_image/include/ops_seq.hpp"
 
 #include <algorithm>
+#include <cstddef>
 #include <vector>
 
 void naumov_b_marc_on_bin_image_seq::TestTaskSequential::ProcessPixel(int row, int col) {
