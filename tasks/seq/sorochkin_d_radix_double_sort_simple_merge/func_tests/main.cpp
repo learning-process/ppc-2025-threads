@@ -11,6 +11,12 @@
 #include "core/task/include/task.hpp"
 
 namespace {
+std::vector<double> MakeUnsortedInput(std::size_t size) {
+  std::vector<double> v(size);
+  std::iota(v.rbegin(), v.rend(), 0);
+  return v;
+}
+}  // namespace
 
 // NOLINTNEXTLINE(readability-identifier-naming)
 class sorochkin_d_radix_double_sort_simple_merge_test_seq : public ::testing::Test {
@@ -48,7 +54,7 @@ class sorochkin_d_radix_double_sort_simple_merge_test_seq : public ::testing::Te
 
   static void RunTest(std::size_t size) { RunTest(MakeRandomInput(size)); }
 
-  static void RunInvalidSizeTest(int diff) {
+  static void RunInvalidSizeTest(std::size_t diff) {
     std::vector<double> in(64);
     std::vector<double> out(in.size() + diff);
 
@@ -65,12 +71,7 @@ class sorochkin_d_radix_double_sort_simple_merge_test_seq : public ::testing::Te
   }
 };
 
-}  // namespace
-
-namespace {
-
 TEST_F(sorochkin_d_radix_double_sort_simple_merge_test_seq, invalid_more) { RunInvalidSizeTest(1); }
-
 TEST_F(sorochkin_d_radix_double_sort_simple_merge_test_seq, invalid_less) { RunInvalidSizeTest(-1); }
 
 // NOLINTNEXTLINE(readability-identifier-naming)
@@ -95,6 +96,6 @@ INSTANTIATE_TEST_SUITE_P(sorochkin_d_radix_double_sort_simple_merge_test_special
                          sorochkin_d_radix_double_sort_simple_merge_test_special_seq,
                          testing::Values(std::vector<double>(32, 0), std::vector<double>(64, 0),
                                          std::vector<double>(32, 1), std::vector<double>(64, 1),
-                                         std::vector<double>(32, -1), std::vector<double>(64, -1)));
-
-}  // namespace
+                                         std::vector<double>(32, -1), std::vector<double>(64, -1), MakeUnsortedInput(2),
+                                         MakeUnsortedInput(4), MakeUnsortedInput(5), MakeUnsortedInput(32),
+                                         MakeUnsortedInput(48), MakeUnsortedInput(50), MakeUnsortedInput(64)));
