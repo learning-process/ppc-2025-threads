@@ -106,6 +106,10 @@ void sotskov_a_shell_sorting_with_simple_merging_all::ParallelMerge(std::vector<
 }
 
 void sotskov_a_shell_sorting_with_simple_merging_all::ShellSortWithSimpleMerging(std::vector<int>& arr) {
+  if (arr.empty()) {
+    return;
+  }
+
   int array_size = static_cast<int>(arr.size());
   int num_threads = std::min(ppc::util::GetPPCNumThreads(), static_cast<int>(std::thread::hardware_concurrency()));
   int chunk_size = std::max(1, (array_size + num_threads - 1) / num_threads);
@@ -142,6 +146,9 @@ bool sotskov_a_shell_sorting_with_simple_merging_all::TestTaskALL::PreProcessing
   }
 
   const int total = static_cast<int>(task_data->inputs_count[0]);
+  if (total == 0) {
+    return true;
+  }
   std::vector<int> counts(size_);
   std::vector<int> displs(size_);
 
@@ -169,6 +176,9 @@ bool sotskov_a_shell_sorting_with_simple_merging_all::TestTaskALL::PreProcessing
 
 bool sotskov_a_shell_sorting_with_simple_merging_all::TestTaskALL::PostProcessingImpl() {
   const int total = static_cast<int>(task_data->inputs_count[0]);
+  if (total == 0) {
+    return true;
+  }
   std::vector<int> counts(size_);
   std::vector<int> displs(size_);
 
@@ -212,6 +222,11 @@ bool sotskov_a_shell_sorting_with_simple_merging_all::TestTaskALL::ValidationImp
 
   std::size_t input_size = task_data->inputs_count[0];
   std::size_t output_size = task_data->outputs_count[0];
+
+  if (input_size == 0 && output_size == 0) {
+    return true;
+  }
+
   if (input_size != output_size) {
     return false;
   }
