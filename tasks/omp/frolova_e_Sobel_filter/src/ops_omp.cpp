@@ -45,7 +45,7 @@ bool frolova_e_sobel_filter_omp::SobelFilterOmp::PreProcessingImpl() {
     picture_.push_back(pixel);
   }
 
-  res_image_.resize(width_ * height_);  
+  res_image_.resize(width_ * height_);
   return true;
 }
 
