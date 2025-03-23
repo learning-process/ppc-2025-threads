@@ -1,13 +1,14 @@
 #include <gtest/gtest.h>
 
+#include <cstdint>
+#include <memory>
 #include <random>
 #include <vector>
 
 #include "core/task/include/task.hpp"
-#include "core/util/include/util.hpp"
 #include "seq/zolotareva_a_SLE_gradient_method/include/ops_seq.hpp"
 
-void zolotareva_a_sle_gradient_method_seq::generateSLE(std::vector<double> &a, std::vector<double> &b, int n) {
+void zolotareva_a_sle_gradient_method_seq::GenerateSle(std::vector<double> &a, std::vector<double> &b, int n) {
   std::random_device rd;
   std::mt19937 gen(rd());
   std::uniform_real_distribution<double> dist(-10.0, 10.0);
@@ -27,11 +28,11 @@ void zolotareva_a_sle_gradient_method_seq::generateSLE(std::vector<double> &a, s
 }
 
 namespace zolotareva_a_sle_gradient_method_seq {
-void static form(int n) {
+void Form(int n) {
   std::vector<double> a(n * n);
   std::vector<double> b(n);
   std::vector<double> x(n);
-  zolotareva_a_sle_gradient_method_seq::generateSLE(a, b, n);
+  zolotareva_a_sle_gradient_method_seq::GenerateSle(a, b, n);
 
   auto task_data_seq = std::make_shared<ppc::core::TaskData>();
   task_data_seq->inputs.push_back(reinterpret_cast<uint8_t *>(a.data()));
@@ -130,7 +131,7 @@ TEST(zolotareva_a_sle_gradient_method_seq, negative_definite_matrix) {
 }
 
 TEST(zolotareva_a_sle_gradient_method_seq, zero_dimension) {
-  std::vector<double> A;
+  std::vector<double> a;
   std::vector<double> b;
   std::vector<double> x;
 
@@ -234,7 +235,7 @@ TEST(zolotareva_a_sle_gradient_method_seq, test_correct_answer1) {
     EXPECT_NEAR(x[i], ref_x[i], 1e-12);
   }
 }
-TEST(zolotareva_a_sle_gradient_method_seq, Test_Image_random_n_3) { zolotareva_a_sle_gradient_method_seq::form(3); };
-TEST(zolotareva_a_sle_gradient_method_seq, Test_Image_random_n_5) { zolotareva_a_sle_gradient_method_seq::form(5); };
-TEST(zolotareva_a_sle_gradient_method_seq, Test_Image_random_n_7) { zolotareva_a_sle_gradient_method_seq::form(7); };
-TEST(zolotareva_a_sle_gradient_method_seq, Test_Image_random_n_20) { zolotareva_a_sle_gradient_method_seq::form(591); };
+TEST(zolotareva_a_sle_gradient_method_seq, Test_Image_random_n_3) { zolotareva_a_sle_gradient_method_seq::Form(3); };
+TEST(zolotareva_a_sle_gradient_method_seq, Test_Image_random_n_5) { zolotareva_a_sle_gradient_method_seq::Form(5); };
+TEST(zolotareva_a_sle_gradient_method_seq, Test_Image_random_n_7) { zolotareva_a_sle_gradient_method_seq::Form(7); };
+TEST(zolotareva_a_sle_gradient_method_seq, Test_Image_random_n_20) { zolotareva_a_sle_gradient_method_seq::Form(591); };

@@ -10,7 +10,7 @@
 #include "core/task/include/task.hpp"
 #include "seq/zolotareva_a_SLE_gradient_method/include/ops_seq.hpp"
 
-void zolotareva_a_sle_gradient_method_seq::generateSLE(std::vector<double> &a, std::vector<double> &b, int n) {
+void zolotareva_a_sle_gradient_method_seq::GenerateSle(std::vector<double> &a, std::vector<double> &b, int n) {
   std::random_device rd;
   std::mt19937 gen(rd());
   std::uniform_real_distribution<double> dist(-10.0, 10.0);
@@ -34,7 +34,7 @@ TEST(sequential_zolotareva_a_sle_gradient_method_seq, test_pipeline_run) {
   std::vector<double> a(n * n);
   std::vector<double> b(n);
   std::vector<double> x(n);
-  zolotareva_a_sle_gradient_method_seq::generateSLE(a, b, n);
+  zolotareva_a_sle_gradient_method_seq::GenerateSle(a, b, n);
 
   std::shared_ptr<ppc::core::TaskData> task_data_seq = std::make_shared<ppc::core::TaskData>();
   task_data_seq->inputs.push_back(reinterpret_cast<uint8_t *>(a.data()));
@@ -84,7 +84,7 @@ TEST(sequential_zolotareva_a_sle_gradient_method_seq, test_task_run) {
   std::vector<double> a(n * n);
   std::vector<double> b(n);
   std::vector<double> x(n);
-  zolotareva_a_sle_gradient_method_seq::generateSLE(a, b, n);
+  zolotareva_a_sle_gradient_method_seq::GenerateSle(a, b, n);
 
   auto task_data_seq = std::make_shared<ppc::core::TaskData>();
   task_data_seq->inputs.push_back(reinterpret_cast<uint8_t *>(a.data()));
