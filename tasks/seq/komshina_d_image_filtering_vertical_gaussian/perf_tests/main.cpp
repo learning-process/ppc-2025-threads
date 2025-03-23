@@ -11,8 +11,8 @@
 #include "seq/komshina_d_image_filtering_vertical_gaussian/include/ops_seq.hpp"
 
 TEST(komshina_d_image_filtering_vertical_gaussian_seq, test_pipeline_run) {
-  constexpr int kWidth = 3000;
-  constexpr int kHeight = 3000;
+  constexpr int kWidth = 4000;
+  constexpr int kHeight = 4000;
 
   std::vector<unsigned char> in(kWidth * kHeight * 3, 0);
   std::vector<unsigned char> out(kWidth * kHeight * 3, 0);
@@ -52,8 +52,8 @@ TEST(komshina_d_image_filtering_vertical_gaussian_seq, test_pipeline_run) {
 }
 
 TEST(komshina_d_image_filtering_vertical_gaussian_seq, test_task_run) {
-  constexpr int kWidth = 3000;
-  constexpr int kHeight = 3000;
+  constexpr int kWidth = 4000;
+  constexpr int kHeight = 4000;
 
   std::vector<unsigned char> in(kWidth * kHeight * 3, 0);
   std::vector<unsigned char> out(kWidth * kHeight * 3, 0);
