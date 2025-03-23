@@ -27,16 +27,16 @@ bool opolin_d_radix_betcher_sort_seq::RadixBetcherSortTaskSequential::Validation
 bool opolin_d_radix_betcher_sort_seq::RadixBetcherSortTaskSequential::RunImpl() {
   std::vector<int> positives;
   std::vector<int> negatives;
-  for (int value : input_) {
-    if (value >= 0) {
-      positives.push_back(value);
+  for (int i = 0; i < input_.size(); i++) {
+    if (input_[i] >= 0) {
+      positives.push_back(input_[i]);
     } else {
-      negatives.push_back(-value);
+      negatives.push_back(-input_[i]);
     }
   }
   int max_abs = 0;
-  for (int value : input_) {
-    max_abs = std::max(max_abs, std::abs(value));
+  for (int i = 0; i < input_.size(); i++) {
+    max_abs = std::max(max_abs, std::abs(input_[i]));
   }
   int digit_count = 0;
   if (max_abs == 0) {
@@ -60,12 +60,11 @@ bool opolin_d_radix_betcher_sort_seq::RadixBetcherSortTaskSequential::RunImpl() 
     std::ranges::reverse(negatives);
   }
 
-  output_.clear();
-  for (int value : negatives) {
-    output_.push_back(-value);
+  for (int i = 0; i < negatives.size(); i++) {
+    output_[i] = negatives[i];
   }
-  for (int value : positives) {
-    output_.push_back(value);
+  for (size_t i = 0; i < positives.size(); i++) {
+    output_[negatives.size() + i] = positives[i];
   }
   return true;
 }
