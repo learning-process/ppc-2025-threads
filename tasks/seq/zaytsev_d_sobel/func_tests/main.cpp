@@ -1,14 +1,18 @@
 #include <gtest/gtest.h>
 
 #include <memory>
+#ifndef _WIN32
 #include <opencv2/opencv.hpp>
+#endif
 #include <vector>
 
 #include "core/task/include/task.hpp"
 #include "core/util/include/util.hpp"
 #include "seq/zaytsev_d_sobel/include/ops_seq.hpp"
 
-static std::vector<int> matToVector(const cv::Mat &img) {
+#ifndef _WIN32
+namespace {
+std::vector<int> matToVector(const cv::Mat &img) {
   std::vector<int> vec;
 
   vec.reserve(img.rows * img.cols);
@@ -19,6 +23,8 @@ static std::vector<int> matToVector(const cv::Mat &img) {
   }
   return vec;
 }
+}  // namespace
+#endif
 
 TEST(zaytsev_d_sobel_seq, test_validation_fail) {
   std::vector<int> in(9, 0);
@@ -77,6 +83,7 @@ TEST(zaytsev_d_sobel_seq, SobelEdgeDetection_UniformImage) {
   EXPECT_EQ(output, expected_output);
 }
 
+#ifndef _WIN32
 TEST(zaytsev_d_sobel_seq, SobelEdgeDetection_OpenCVImage) {
   cv::Mat inputImg =
       cv::imread(ppc::util::GetAbsolutePath("seq/zaytsev_d_sobel/data/inwhite.png"), cv::IMREAD_GRAYSCALE);
@@ -103,3 +110,4 @@ TEST(zaytsev_d_sobel_seq, SobelEdgeDetection_OpenCVImage) {
     EXPECT_EQ(output[i], expected[i]);
   }
 }
+#endif
