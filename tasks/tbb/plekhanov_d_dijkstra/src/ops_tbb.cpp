@@ -1,5 +1,9 @@
 #include "tbb/plekhanov_d_dijkstra/include/ops_tbb.hpp"
 
+#include <oneapi/tbb/task_arena.h>
+#include <oneapi/tbb/task_group.h>
+#include <oneapi/tbb/concurrent_vector.h>
+
 #include <atomic>
 #include <climits>
 #include <core/util/include/util.hpp>
@@ -9,7 +13,6 @@
 #include <utility>
 #include <vector>
 
-#include <oneapi/tbb/task_arena.h>
 #include "tbb/tbb.h"
 
 const int plekhanov_d_dijkstra_tbb::TestTaskTBB::kEndOfVertexList = -1;
@@ -36,7 +39,6 @@ bool plekhanov_d_dijkstra_tbb::TestTaskTBB::ValidationImpl() {
 }
 
 bool plekhanov_d_dijkstra_tbb::TestTaskTBB::RunImpl() {
-
   std::vector<std::atomic<int>> distances_atomic(num_vertices_);
   for (size_t i = 0; i < num_vertices_; ++i) {
     distances_atomic[i].store(distances_[i], std::memory_order_relaxed);
