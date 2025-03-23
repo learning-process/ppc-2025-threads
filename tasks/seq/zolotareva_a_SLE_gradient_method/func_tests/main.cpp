@@ -27,7 +27,7 @@ void zolotareva_a_sle_gradient_method_seq::GenerateSle(std::vector<double> &a, s
   }
 }
 
-namespace zolotareva_a_sle_gradient_method_seq {
+namespace {
 void Form(int n) {
   std::vector<double> a(n * n);
   std::vector<double> b(n);
@@ -56,7 +56,7 @@ void Form(int n) {
     EXPECT_NEAR(sum, b[i], 1e-5);
   }
 }
-}  // namespace zolotareva_a_sle_gradient_method_seq
+}  // namespace
 
 TEST(zolotareva_a_sle_gradient_method_seq, invalid_input_sizes) {
   int n = 2;
@@ -235,7 +235,7 @@ TEST(zolotareva_a_sle_gradient_method_seq, test_correct_answer1) {
     EXPECT_NEAR(x[i], ref_x[i], 1e-12);
   }
 }
-TEST(zolotareva_a_sle_gradient_method_seq, Test_Image_random_n_3) { zolotareva_a_sle_gradient_method_seq::Form(3); };
-TEST(zolotareva_a_sle_gradient_method_seq, Test_Image_random_n_5) { zolotareva_a_sle_gradient_method_seq::Form(5); };
-TEST(zolotareva_a_sle_gradient_method_seq, Test_Image_random_n_7) { zolotareva_a_sle_gradient_method_seq::Form(7); };
-TEST(zolotareva_a_sle_gradient_method_seq, Test_Image_random_n_20) { zolotareva_a_sle_gradient_method_seq::Form(591); };
+TEST(zolotareva_a_sle_gradient_method_seq, Test_Image_random_n_3) { Form(3); };
+TEST(zolotareva_a_sle_gradient_method_seq, Test_Image_random_n_5) { Form(5); };
+TEST(zolotareva_a_sle_gradient_method_seq, Test_Image_random_n_7) { Form(7); };
+TEST(zolotareva_a_sle_gradient_method_seq, Test_Image_random_n_20) { Form(591); };
