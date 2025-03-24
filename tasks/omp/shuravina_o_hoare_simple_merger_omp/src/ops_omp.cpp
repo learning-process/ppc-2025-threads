@@ -89,4 +89,4 @@ bool TestTaskOMP::PostProcessingImpl() {
   return true;
 }
 
-}  // namespace shuravina_o_hoare_simple_merger_omp
+}  // namespace shuravina_o_hoare_simple_merger

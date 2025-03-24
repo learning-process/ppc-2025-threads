@@ -26,6 +26,6 @@ class TestTaskOMP : public ppc::core::Task {
   static void Merge(std::vector<int>& arr, int low, int mid, int high);
 };
 
-}  // namespace shuravina_o_hoare_simple_merger_omp
+}  // namespace shuravina_o_hoare_simple_merger
 
 #endif  // OPS_OMP_HPP
