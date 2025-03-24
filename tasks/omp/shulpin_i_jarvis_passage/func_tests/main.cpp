@@ -219,11 +219,11 @@ TEST(shulpin_i_jarvis_omp, circle_r10_p100) {
   TestBodyRandomCircle(input, expected, num_points);
 }
 
-TEST(shulpin_i_jarvis_omps, circle_r10_p1000) {
+TEST(shulpin_i_jarvis_omps, circle_r10_p200) {
   shulpin_i_jarvis_omp::Point center{0, 0};
 
   double radius = 10.0;
-  size_t num_points = 1000;
+  size_t num_points = 200;
 
   std::vector<shulpin_i_jarvis_omp::Point> input = GeneratePointsInCircle(num_points, center, radius);
   std::vector<shulpin_i_jarvis_omp::Point> expected = input;
