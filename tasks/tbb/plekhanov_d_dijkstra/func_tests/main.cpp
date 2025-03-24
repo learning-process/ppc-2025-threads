@@ -50,7 +50,7 @@ void RunTest(const std::vector<std::vector<std::pair<size_t, int>>> &adj_list,  
     }
   } else {
     ASSERT_FALSE(test_task_tbb.Run());
-    test_task_tbb.PreProcessing();
+    test_task_tbb.PostProcessing();
   }
 }
 

@@ -74,7 +74,10 @@ bool plekhanov_d_dijkstra_tbb::TestTaskTBB::ValidationImpl() {
       task_data->outputs_count[0] == 0) {
     return false;
   }
+  return true;
+}
 
+bool plekhanov_d_dijkstra_tbb::TestTaskTBB::RunImpl() {
   for (size_t pos = 0; pos < graph_data_.size();) {
     if (graph_data_[pos] == kEndOfVertexList) {
       ++pos;
@@ -88,11 +91,7 @@ bool plekhanov_d_dijkstra_tbb::TestTaskTBB::ValidationImpl() {
     }
     pos += 2;
   }
-
-  return true;
-}
-
-bool plekhanov_d_dijkstra_tbb::TestTaskTBB::RunImpl() {
+  
   std::vector<std::atomic<int>> distances_atomic(num_vertices_);
   for (size_t i = 0; i < num_vertices_; ++i) {
     distances_atomic[i].store(distances_[i], std::memory_order_relaxed);
