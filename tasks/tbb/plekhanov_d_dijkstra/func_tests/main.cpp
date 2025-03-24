@@ -162,28 +162,6 @@ TEST(plekhanov_d_dijkstra_tbb, test_dijkstra_validation_failure) {
   plekhanov_d_dijkstra_tbb::RunValidationFailureTest();
 }
 
-TEST(plekhanov_d_dijkstra_tbb, test_dijkstra_Random_Graph_10) {
-  size_t num_vertices = 10;
-  std::vector<std::vector<std::pair<size_t, int>>> adj_list =
-      plekhanov_d_dijkstra_tbb::GenerateRandomGraph(num_vertices);
-  size_t start_vertex = 0;
-
-  std::vector<int> expected = plekhanov_d_dijkstra_tbb::CalculateExpectedResult(adj_list, start_vertex);
-
-  plekhanov_d_dijkstra_tbb::RunTest(adj_list, start_vertex, expected);
-}
-
-TEST(plekhanov_d_dijkstra_tbb, test_dijkstra_Random_Graph_30) {
-  size_t num_vertices = 30;
-  std::vector<std::vector<std::pair<size_t, int>>> adj_list =
-      plekhanov_d_dijkstra_tbb::GenerateRandomGraph(num_vertices);
-  size_t start_vertex = 0;
-
-  std::vector<int> expected = plekhanov_d_dijkstra_tbb::CalculateExpectedResult(adj_list, start_vertex);
-
-  plekhanov_d_dijkstra_tbb::RunTest(adj_list, start_vertex, expected);
-}
-
 TEST(plekhanov_d_dijkstra_tbb, test_dijkstra_Directed_Graph) {
   std::vector<std::vector<std::pair<size_t, int>>> adj_list = {{{1, 2}, {2, 4}}, {{2, 1}, {3, 7}}, {{3, 3}}, {}};
   std::vector<int> expected = {0, 2, 3, 6};
@@ -223,4 +201,32 @@ TEST(plekhanov_d_dijkstra_tbb, test_dijkstra_EqualOptimalPaths) {
   std::vector<std::vector<std::pair<size_t, int>>> adj_list = {{{1, 5}, {2, 5}}, {{3, 5}}, {{3, 5}}, {}};
   std::vector<int> expected = {0, 5, 5, 10};
   plekhanov_d_dijkstra_tbb::RunTest(adj_list, 0, expected);
+}
+
+TEST(plekhanov_d_dijkstra_tbb, test_dijkstra_Negative_Edges) {
+  std::vector<std::vector<std::pair<size_t, int>>> adj_list = {{{1, 4}, {2, -2}}, {{0, 4}, {2, 3}}, {{0, -2}, {1, 3}}};
+  std::vector<int> expected = {0, 0, 0};
+  plekhanov_d_dijkstra_tbb::RunTest(adj_list, 0, expected, false);
+}
+
+TEST(plekhanov_d_dijkstra_tbb, test_dijkstra_Random_Graph_10) {
+  size_t num_vertices = 10;
+  std::vector<std::vector<std::pair<size_t, int>>> adj_list =
+      plekhanov_d_dijkstra_tbb::GenerateRandomGraph(num_vertices);
+  size_t start_vertex = 0;
+
+  std::vector<int> expected = plekhanov_d_dijkstra_tbb::CalculateExpectedResult(adj_list, start_vertex);
+
+  plekhanov_d_dijkstra_tbb::RunTest(adj_list, start_vertex, expected);
+}
+
+TEST(plekhanov_d_dijkstra_tbb, test_dijkstra_Random_Graph_150) {
+  size_t num_vertices = 150;
+  std::vector<std::vector<std::pair<size_t, int>>> adj_list =
+      plekhanov_d_dijkstra_tbb::GenerateRandomGraph(num_vertices);
+  size_t start_vertex = 0;
+
+  std::vector<int> expected = plekhanov_d_dijkstra_tbb::CalculateExpectedResult(adj_list, start_vertex);
+
+  plekhanov_d_dijkstra_tbb::RunTest(adj_list, start_vertex, expected);
 }
