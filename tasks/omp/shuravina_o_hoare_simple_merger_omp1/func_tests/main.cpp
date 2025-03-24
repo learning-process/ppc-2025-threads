@@ -11,24 +11,6 @@
 
 namespace {
 
-bool IsPrime(size_t n) {
-  if (n <= 1) {
-    return false;
-  }
-  if (n <= 3) {
-    return true;
-  }
-  if (n % 2 == 0 || n % 3 == 0) {
-    return false;
-  }
-  for (size_t i = 5; i * i <= n; i += 6) {
-    if (n % i == 0 || n % (i + 2) == 0) {
-      return false;
-    }
-  }
-  return true;
-}
-
 bool IsReverseSorted(const std::vector<int>& arr) {
   if (arr.empty()) {
     return true;
@@ -81,6 +63,7 @@ TEST(shuravina_o_hoare_simple_merger_omp, test_random_array) {
     ASSERT_LE(out[i - 1], out[i]);
   }
 }
+
 TEST(shuravina_o_hoare_simple_merger_omp, test_already_sorted_array) {
   std::vector<int> in = {1, 2, 3, 4, 5, 6};
   std::vector<int> out(in.size(), 0);
