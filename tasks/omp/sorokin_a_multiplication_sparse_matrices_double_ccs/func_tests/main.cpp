@@ -2,13 +2,10 @@
 
 #include <cstddef>
 #include <cstdint>
-#include <fstream>
 #include <memory>
-#include <string>
 #include <vector>
 
 #include "core/task/include/task.hpp"
-#include "core/util/include/util.hpp"
 #include "omp/sorokin_a_multiplication_sparse_matrices_double_ccs/include/ops_omp.hpp"
 
 TEST(sorokin_a_multiplication_sparse_matrices_double_ccs_omp, test_3x3_x_3x3) {
