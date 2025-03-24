@@ -90,9 +90,7 @@ bool plekhanov_d_dijkstra_omp::TestTaskOpenMP::RunImpl() {  // NOLINT(readabilit
       if (!visited[v] && distances_[u] != INT_MAX) {
         int new_dist = distances_[u] + weight;
 #pragma omp critical
-        {
-          distances_[v] = std::min(new_dist, distances_[v]);
-        }
+        { distances_[v] = std::min(new_dist, distances_[v]); }
       }
     }
   }
