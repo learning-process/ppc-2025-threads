@@ -20,7 +20,7 @@ class CanonMatMulOMP : public ppc::core::Task {
   bool ValidationImpl() override;
   bool RunImpl() override;
   bool PostProcessingImpl() override;
+  bool CheckSquareSize(int number);
+  static std::vector<double> ConvertToSquareMatrix(int need_size, MatrixType type, const std::vector<double>& matrx);
 };
-std::vector<double> GenerateRandomData(int size);
-std::vector<double> GenerateSingleMatrix(int size);
 }  // namespace sarafanov_m_canon_mat_mul_omp
