@@ -14,7 +14,6 @@
 #include "core/task/include/task.hpp"
 #include "seq/fyodorov_m_shell_sort_with_even_odd_batcher_merge_seq/include/ops_seq.hpp"
 
-
 TEST(fyodorov_m_shell_sort_with_even_odd_batcher_merge_seq, test_pipeline_run) {
   constexpr int kCount = 520000;
 
