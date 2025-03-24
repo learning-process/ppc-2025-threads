@@ -33,7 +33,8 @@ bool plekhanov_d_dijkstra_omp::TestTaskOpenMP::ValidationImpl() {
 
 bool plekhanov_d_dijkstra_omp::TestTaskOpenMP::RunImpl() {  // NOLINT(readability-function-cognitive-complexity)
   std::vector<std::vector<std::pair<int, int>>> graph(num_vertices_);
-  size_t current_vertex = 0, i = 0;
+  size_t current_vertex = 0;
+  size_t i = 0;
 
   while (i < graph_data_.size() && current_vertex < num_vertices_) {
     if (graph_data_[i] == kEndOfVertexList) {
@@ -90,9 +91,7 @@ bool plekhanov_d_dijkstra_omp::TestTaskOpenMP::RunImpl() {  // NOLINT(readabilit
         int new_dist = distances_[u] + weight;
 #pragma omp critical
         {
-          if (new_dist < distances_[v]) {
-            distances_[v] = new_dist;
-          }
+          distances_[v] = std::min(new_dist, distances_[v]);
         }
       }
     }
