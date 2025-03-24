@@ -32,9 +32,8 @@ std::vector<size_t> TestTaskTBB::computeOffsets() {
   return offsets;
 }
 
-void TestTaskTBB::relaxEdges(int u, const std::vector<size_t>& offsets,
-                                                       std::vector<std::atomic<int>>& distances_atomic,
-                                                       oneapi::tbb::concurrent_vector<int>& next_frontier) {
+void TestTaskTBB::relaxEdges(int u, const std::vector<size_t>& offsets, std::vector<std::atomic<int>>& distances_atomic,
+                             oneapi::tbb::concurrent_vector<int>& next_frontier) {
   size_t begin = offsets[u];
   size_t end = offsets[u + 1];
   int cur_dist = distances_atomic[u].load(std::memory_order_relaxed);

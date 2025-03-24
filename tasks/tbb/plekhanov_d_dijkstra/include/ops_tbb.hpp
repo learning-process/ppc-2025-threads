@@ -1,12 +1,13 @@
 #pragma once
 
+#include <oneapi/tbb/concurrent_vector.h>
+#include <oneapi/tbb/blocked_range.h>
+#include <oneapi/tbb/parallel_for.h>
+
 #include <atomic>
 #include <cstddef>
 #include <utility>
 #include <vector>
-#include <oneapi/tbb/concurrent_vector.h>
-#include <oneapi/tbb/blocked_range.h>
-#include <oneapi/tbb/parallel_for.h>
 
 #include "core/task/include/task.hpp"
 
