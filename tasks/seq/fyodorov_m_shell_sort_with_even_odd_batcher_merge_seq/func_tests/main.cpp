@@ -86,8 +86,9 @@ TEST(fyodorov_m_shell_sort_with_even_odd_batcher_merge_seq, test_random_sequence
 }
 
 TEST(fyodorov_m_shell_sort_with_even_odd_batcher_merge_seq, test_sorted_array) {
-  std::vector<int> input = {1, 2, 33, 4, 5, 6, 7, 8};
-  std::vector<int> expected_output = {1, 2, 3, 4, 5, 6, 7, 8};
+  std::vector<int> input = {10, 14, 19, 27, 33, 35, 42, 44};
+
+  std::vector<int> expected_output = {10, 14, 19, 27, 33, 35, 42, 44};
 
   std::vector<int> output(input.size(), 0);
 
@@ -98,7 +99,9 @@ TEST(fyodorov_m_shell_sort_with_even_odd_batcher_merge_seq, test_sorted_array) {
   task_data_seq->outputs_count.emplace_back(output.size());
 
   fyodorov_m_shell_sort_with_even_odd_batcher_merge_seq::TestTaskSequential test_task_sequential(task_data_seq);
+
   ASSERT_EQ(test_task_sequential.Validation(), true);
+
   test_task_sequential.PreProcessing();
   test_task_sequential.Run();
   test_task_sequential.PostProcessing();
