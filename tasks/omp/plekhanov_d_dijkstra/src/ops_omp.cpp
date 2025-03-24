@@ -2,6 +2,7 @@
 
 #include <omp.h>
 
+#include <algorithm>
 #include <climits>
 #include <cstddef>
 #include <utility>
