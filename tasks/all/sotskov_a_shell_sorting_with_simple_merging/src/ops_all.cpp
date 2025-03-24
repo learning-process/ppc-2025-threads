@@ -3,7 +3,6 @@
 #include <algorithm>
 #include <boost/mpi/collectives/gatherv.hpp>
 #include <boost/mpi/collectives/scatterv.hpp>
-#include <condition_variable>
 #include <cstddef>
 #include <functional>
 #include <mutex>
@@ -13,6 +12,7 @@
 #include <utility>
 #include <vector>
 
+#include "boost/mpi/collectives/broadcast.hpp"
 #include "core/util/include/util.hpp"
 
 class ThreadPool {
@@ -106,7 +106,10 @@ void sotskov_a_shell_sorting_with_simple_merging_all::ParallelMerge(std::vector<
 }
 
 void sotskov_a_shell_sorting_with_simple_merging_all::ShellSortWithSimpleMerging(std::vector<int>& arr) {
-  if (arr.empty()) {
+  if (arr.empty() || arr.size() == 1) return;
+
+  if (arr.size() < 100) {
+    ShellSort(arr, 0, arr.size() - 1);
     return;
   }
 
@@ -114,17 +117,16 @@ void sotskov_a_shell_sorting_with_simple_merging_all::ShellSortWithSimpleMerging
   int num_threads = std::min(ppc::util::GetPPCNumThreads(), static_cast<int>(std::thread::hardware_concurrency()));
   int chunk_size = std::max(1, (array_size + num_threads - 1) / num_threads);
 
-  ThreadPool pool(num_threads);
-
-  for (int i = 0; i < num_threads; ++i) {
-    int left = i * chunk_size;
-    int right = std::min(left + chunk_size - 1, array_size - 1);
-    if (left < right) {
-      pool.Enqueue([&arr, left, right]() { ShellSort(arr, left, right); });
+  {
+    ThreadPool pool(num_threads);
+    for (int i = 0; i < num_threads; ++i) {
+      int left = i * chunk_size;
+      int right = std::min(left + chunk_size - 1, array_size - 1);
+      if (left < right) {
+        pool.Enqueue([&arr, left, right]() { ShellSort(arr, left, right); });
+      }
     }
   }
-
-  pool.~ThreadPool();
 
   for (int size = chunk_size; size < array_size; size *= 2) {
     for (int i = 0; i < array_size; i += 2 * size) {
@@ -139,19 +141,24 @@ void sotskov_a_shell_sorting_with_simple_merging_all::ShellSortWithSimpleMerging
 }
 
 bool sotskov_a_shell_sorting_with_simple_merging_all::TestTaskALL::PreProcessingImpl() {
+  int total = 0;
+
   if (rank_ == 0) {
-    input_.resize(task_data->inputs_count[0]);
+    total = static_cast<int>(task_data->inputs_count[0]);
+  }
+  boost::mpi::broadcast(world_, total, 0);
+
+  if (total == 0) return true;
+
+  std::vector<int> global_data;
+  if (rank_ == 0) {
+    global_data.resize(total);
     auto* src = reinterpret_cast<int*>(task_data->inputs[0]);
-    std::copy(src, src + task_data->inputs_count[0], input_.begin());
+    std::copy(src, src + total, global_data.begin());
   }
 
-  const int total = static_cast<int>(task_data->inputs_count[0]);
-  if (total == 0) {
-    return true;
-  }
   std::vector<int> counts(size_);
   std::vector<int> displs(size_);
-
   int base_size = total / size_;
   int remainder = total % size_;
   for (int i = 0; i < size_; ++i) {
@@ -159,29 +166,26 @@ bool sotskov_a_shell_sorting_with_simple_merging_all::TestTaskALL::PreProcessing
     displs[i] = (i == 0) ? 0 : displs[i - 1] + counts[i - 1];
   }
 
-  int local_size = counts[rank_];
-  std::vector<int> local(local_size);
+  input_.resize(counts[rank_]);
 
-  std::vector<int> dummy_input;
-  if (rank_ != 0) {
-    dummy_input.resize(local_size);
-  }
-
-  boost::mpi::scatterv(world_, (rank_ == 0) ? input_.data() : dummy_input.data(), counts, displs, local.data(),
+  boost::mpi::scatterv(world_, (rank_ == 0) ? global_data.data() : nullptr, counts, displs, input_.data(),
                        counts[rank_], 0);
 
-  input_ = std::move(local);
   return true;
 }
 
 bool sotskov_a_shell_sorting_with_simple_merging_all::TestTaskALL::PostProcessingImpl() {
-  const int total = static_cast<int>(task_data->inputs_count[0]);
-  if (total == 0) {
-    return true;
+  int total = 0;
+
+  if (rank_ == 0) {
+    total = static_cast<int>(task_data->inputs_count[0]);
   }
+  boost::mpi::broadcast(world_, total, 0);
+
+  if (total == 0) return true;
+
   std::vector<int> counts(size_);
   std::vector<int> displs(size_);
-
   int base_size = total / size_;
   int remainder = total % size_;
   for (int i = 0; i < size_; ++i) {
@@ -191,52 +195,28 @@ bool sotskov_a_shell_sorting_with_simple_merging_all::TestTaskALL::PostProcessin
 
   std::vector<int> result;
   if (rank_ == 0) {
-    if (total <= 0) {
-      throw std::runtime_error("Invalid total size for vector resize");
-    }
-    result.assign(total, 0);
+    result.resize(total);
   }
-
-  std::vector<int> dummy_output;
-  if (rank_ != 0) {
-    if (input_.empty()) {
-      throw std::runtime_error("Invalid input_ size");
-    }
-    dummy_output.resize(input_.size());
-  }
-
-  boost::mpi::gatherv(world_, input_.data(), static_cast<int>(input_.size()),
-                      (rank_ == 0) ? result.data() : dummy_output.data(), counts, displs, 0);
+  boost::mpi::gatherv(world_, input_.data(), static_cast<int>(input_.size()), (rank_ == 0) ? result.data() : nullptr,
+                      counts, displs, 0);
 
   if (rank_ == 0) {
     auto* dst = reinterpret_cast<int*>(task_data->outputs[0]);
-    std::ranges::move(result, dst);
+    std::copy(result.begin(), result.end(), dst);
+
+    for (size_t i = 1; i < result.size(); ++i) {
+      if (result[i] < result[i - 1]) {
+        return false;
+      }
+    }
   }
+
   return true;
 }
 
 bool sotskov_a_shell_sorting_with_simple_merging_all::TestTaskALL::ValidationImpl() {
-  if (rank_ != 0) {
-    return true;
-  }
-
-  std::size_t input_size = task_data->inputs_count[0];
-  std::size_t output_size = task_data->outputs_count[0];
-
-  if (input_size == 0 && output_size == 0) {
-    return true;
-  }
-
-  if (input_size != output_size) {
-    return false;
-  }
-
-  for (std::size_t i = 1; i < output_size; ++i) {
-    if (task_data->outputs[0][i] < task_data->outputs[0][i - 1]) {
-      return false;
-    }
-  }
-  return true;
+  if (rank_ != 0) return true;
+  return task_data->inputs_count[0] == task_data->outputs_count[0];
 }
 
 bool sotskov_a_shell_sorting_with_simple_merging_all::TestTaskALL::RunImpl() {

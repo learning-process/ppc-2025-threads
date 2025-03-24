@@ -36,18 +36,20 @@ std::vector<int> GenerateRandomVector(const RandomVectorParams &params) {
 }
 
 void RunSortingTest(SortingTestParams &params, void (*sort_func)(std::vector<int> &)) {
+  boost::mpi::communicator world;
   std::vector<int> out(params.input.size(), 0);
 
   std::vector<int> sorted_expected = params.expected;
   std::ranges::sort(sorted_expected.begin(), sorted_expected.end());
 
-  sort_func(params.input);
-
-  std::shared_ptr<ppc::core::TaskData> task_data_all = std::make_shared<ppc::core::TaskData>();
-  task_data_all->inputs.emplace_back(reinterpret_cast<uint8_t *>(params.input.data()));
-  task_data_all->inputs_count.emplace_back(params.input.size());
-  task_data_all->outputs.emplace_back(reinterpret_cast<uint8_t *>(out.data()));
-  task_data_all->outputs_count.emplace_back(out.size());
+  std::shared_ptr<ppc::core::TaskData> task_data_all;
+  if (world.rank() == 0) {
+    task_data_all = std::make_shared<ppc::core::TaskData>();
+    task_data_all->inputs.emplace_back(reinterpret_cast<uint8_t *>(params.input.data()));
+    task_data_all->inputs_count.emplace_back(params.input.size());
+    task_data_all->outputs.emplace_back(reinterpret_cast<uint8_t *>(out.data()));
+    task_data_all->outputs_count.emplace_back(out.size());
+  }
 
   sotskov_a_shell_sorting_with_simple_merging_all::TestTaskALL test_task_all(task_data_all);
   ASSERT_EQ(test_task_all.ValidationImpl(), true);
@@ -55,7 +57,9 @@ void RunSortingTest(SortingTestParams &params, void (*sort_func)(std::vector<int
   test_task_all.RunImpl();
   test_task_all.PostProcessingImpl();
 
-  ASSERT_EQ(out, sorted_expected);
+  if (world.rank() == 0) {
+    ASSERT_EQ(out, sorted_expected);
+  }
 }
 }  // namespace
 }  // namespace sotskov_a_shell_sorting_with_simple_merging_all
