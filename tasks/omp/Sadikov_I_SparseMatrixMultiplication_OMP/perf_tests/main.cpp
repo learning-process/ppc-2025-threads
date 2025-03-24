@@ -13,6 +13,7 @@
 #include "omp/Sadikov_I_SparseMatrixMultiplication_OMP/include/ops_omp.hpp"
 
 namespace {
+// restart tests
 std::vector<double> GetRandomMatrix(int size) {
   std::vector<double> data(size);
   std::random_device dev;
