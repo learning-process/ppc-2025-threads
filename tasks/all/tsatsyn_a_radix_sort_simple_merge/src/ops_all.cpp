@@ -49,8 +49,6 @@ bool tsatsyn_a_radix_sort_simple_merge_all::TestTaskALL::RunImpl() {
   } else {
     world_.recv(0, 0, local_data_);
   }
-  // std::cout<<std::endl << "PIZDA: " << world_.rank() << /* " " << omp_get_thread_num() <<*/ "HAS "<<
-  // local_data_.size() << std::endl;
   std::vector<uint64_t> pozitive_copy;
   std::vector<uint64_t> negative_copy;
 #pragma omp parallel
@@ -119,11 +117,6 @@ bool tsatsyn_a_radix_sort_simple_merge_all::TestTaskALL::RunImpl() {
       }
     }
   }
-  // std::cout << "Proc: " << world_.rank() << std::endl;
-  // for (int i = 0; i < negative_copy.size(); i++) {
-  //   std::cout << negative_copy[i] << " ";
-  // }
-  // std::cout << std::endl;
   if (world_.rank() == 0) {
     std::vector<uint64_t> local_copy_for_recv;
     if (is_pozitive) {
@@ -132,7 +125,6 @@ bool tsatsyn_a_radix_sort_simple_merge_all::TestTaskALL::RunImpl() {
         pozitive_copy.insert(pozitive_copy.end(), local_copy_for_recv.begin(), local_copy_for_recv.end());
         local_copy_for_recv.clear();
       }
-      std::cout << std::endl << "PPIZDA: " << world_.rank() << "HAS " << pozitive_copy.size() << std::endl;
       for (int bit = 0; bit < 64; bit++) {
 #pragma omp parallel
         {
@@ -156,18 +148,13 @@ bool tsatsyn_a_radix_sort_simple_merge_all::TestTaskALL::RunImpl() {
         }
       }
     }
-    std::cout << "Proc: " << world_.rank() << std::endl;
-    for (int i = 0; i < static_cast<int>(pozitive_copy.size()); i++) {
-      std::cout << pozitive_copy[i] << " ";
-    }
-    std::cout << std::endl;
+
     if (is_negative) {
       for (int proc = 1; proc < static_cast<int>(world_.size()); proc++) {
         world_.recv(proc, 2, local_copy_for_recv);
         negative_copy.insert(negative_copy.end(), local_copy_for_recv.begin(), local_copy_for_recv.end());
         local_copy_for_recv.clear();
       }
-      std::cout << std::endl << "NPIZDA: " << world_.rank() << "HAS " << negative_copy.size() << std::endl;
       for (int bit = 0; bit < 64; bit++) {
 #pragma omp parallel
         {
@@ -191,11 +178,6 @@ bool tsatsyn_a_radix_sort_simple_merge_all::TestTaskALL::RunImpl() {
         }
       }
     }
-    std::cout << "Proc: " << world_.rank() << std::endl;
-    for (int i = 0; i < static_cast<int>(negative_copy.size()); i++) {
-      std::cout << negative_copy[i] << " ";
-    }
-    std::cout << std::endl;
 #pragma omp parallel for schedule(guided, constants::kChunk)
     for (int i = 0; i < static_cast<int>(negative_copy.size()); i++) {
       output_[static_cast<int>(negative_copy.size()) - 1 - i] = *reinterpret_cast<const double *>(&negative_copy[i]);
