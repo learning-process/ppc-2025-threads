@@ -13,12 +13,10 @@
 #include "oneapi/tbb/task_arena.h"
 #include "oneapi/tbb/task_group.h"
 
-
-
-
 namespace {
 // 1. Разделение данных на положительные/отрицательные (параллельно)
-void SplitData(tbb::concurrent_vector<uint64_t>& positive, tbb::concurrent_vector<uint64_t>& negative, std::vector<double> input_data_) {
+void SplitData(tbb::concurrent_vector<uint64_t>& positive, tbb::concurrent_vector<uint64_t>& negative,
+               std::vector<double> input_data_) {
   tbb::parallel_for(tbb::blocked_range<size_t>(0, input_data_.size()), [&](const tbb::blocked_range<size_t>& r) {
     for (size_t i = r.begin(); i < r.end(); ++i) {
       double num = input_data_[i];
@@ -75,7 +73,8 @@ void RadixSort(tbb::concurrent_vector<uint64_t>& data, bool invert_order) {
 }
 
 // 3. Слияние результатов (параллельно)
-void MergeResults(const tbb::concurrent_vector<uint64_t>& negative, const tbb::concurrent_vector<uint64_t>& positive, std::vector<double>& output_) {
+void MergeResults(const tbb::concurrent_vector<uint64_t>& negative, const tbb::concurrent_vector<uint64_t>& positive,
+                  std::vector<double>& output_) {
   // Запись отрицательных чисел
   tbb::parallel_for(tbb::blocked_range<size_t>(0, negative.size()), [&](const tbb::blocked_range<size_t>& r) {
     for (size_t i = r.begin(); i < r.end(); ++i) {
@@ -122,14 +121,14 @@ bool tsatsyn_a_radix_sort_simple_merge_tbb::TestTaskTBB::RunImpl() {
     tasks.run([&] { RadixSort(negative_copy, true); });
     tasks.run([&] { RadixSort(pozitive_copy, false); });
     tasks.wait();
-    MergeResults(negative_copy, pozitive_copy,output_);
+    MergeResults(negative_copy, pozitive_copy, output_);
   });
   return true;
 }
 
 bool tsatsyn_a_radix_sort_simple_merge_tbb::TestTaskTBB::PostProcessingImpl() {
   for (size_t i = 0; i < output_.size(); i++) {
-    reinterpret_cast<int *>(task_data->outputs[0])[i] = output_[i];
+    reinterpret_cast<int*>(task_data->outputs[0])[i] = output_[i];
   }
   return true;
 }
