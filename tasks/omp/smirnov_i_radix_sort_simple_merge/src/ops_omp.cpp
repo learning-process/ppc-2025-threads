@@ -66,7 +66,6 @@ bool smirnov_i_radix_sort_simple_merge_omp::TestTaskOpenMP::PreProcessingImpl() 
   output_ = std::vector<int>(output_size, 0);
   return true;
 }
-
 bool smirnov_i_radix_sort_simple_merge_omp::TestTaskOpenMP::ValidationImpl() {
   return task_data->inputs_count[0] == task_data->outputs_count[0];
 }
