@@ -3,11 +3,11 @@
 #include <algorithm>
 #include <boost/mpi/collectives/gatherv.hpp>
 #include <boost/mpi/collectives/scatterv.hpp>
+#include <condition_variable>
 #include <cstddef>
 #include <functional>
 #include <mutex>
 #include <queue>
-#include <stdexcept>
 #include <thread>
 #include <utility>
 #include <vector>
@@ -106,7 +106,9 @@ void sotskov_a_shell_sorting_with_simple_merging_all::ParallelMerge(std::vector<
 }
 
 void sotskov_a_shell_sorting_with_simple_merging_all::ShellSortWithSimpleMerging(std::vector<int>& arr) {
-  if (arr.empty() || arr.size() == 1) return;
+  if (arr.empty() || arr.size() == 1) {
+    return;
+  }
 
   if (arr.size() < 100) {
     ShellSort(arr, 0, arr.size() - 1);
@@ -148,7 +150,9 @@ bool sotskov_a_shell_sorting_with_simple_merging_all::TestTaskALL::PreProcessing
   }
   boost::mpi::broadcast(world_, total, 0);
 
-  if (total == 0) return true;
+  if (total == 0) {
+    return true;
+  }
 
   std::vector<int> global_data;
   if (rank_ == 0) {
@@ -182,7 +186,9 @@ bool sotskov_a_shell_sorting_with_simple_merging_all::TestTaskALL::PostProcessin
   }
   boost::mpi::broadcast(world_, total, 0);
 
-  if (total == 0) return true;
+  if (total == 0) {
+    return true;
+  }
 
   std::vector<int> counts(size_);
   std::vector<int> displs(size_);
@@ -202,7 +208,7 @@ bool sotskov_a_shell_sorting_with_simple_merging_all::TestTaskALL::PostProcessin
 
   if (rank_ == 0) {
     auto* dst = reinterpret_cast<int*>(task_data->outputs[0]);
-    std::copy(result.begin(), result.end(), dst);
+    std::ranges::copy(result, dst);
 
     for (size_t i = 1; i < result.size(); ++i) {
       if (result[i] < result[i - 1]) {
@@ -215,7 +221,9 @@ bool sotskov_a_shell_sorting_with_simple_merging_all::TestTaskALL::PostProcessin
 }
 
 bool sotskov_a_shell_sorting_with_simple_merging_all::TestTaskALL::ValidationImpl() {
-  if (rank_ != 0) return true;
+  if (rank_ != 0) {
+    return true;
+  }
   return task_data->inputs_count[0] == task_data->outputs_count[0];
 }
 
