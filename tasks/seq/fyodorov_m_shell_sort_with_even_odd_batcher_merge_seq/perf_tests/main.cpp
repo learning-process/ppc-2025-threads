@@ -7,11 +7,13 @@
 #include <cstdlib>
 #include <ctime>
 #include <memory>
+#include <random>
 #include <vector>
 
 #include "core/perf/include/perf.hpp"
 #include "core/task/include/task.hpp"
 #include "seq/fyodorov_m_shell_sort_with_even_odd_batcher_merge_seq/include/ops_seq.hpp"
+
 
 TEST(fyodorov_m_shell_sort_with_even_odd_batcher_merge_seq, test_pipeline_run) {
   constexpr int kCount = 520000;
@@ -19,9 +21,13 @@ TEST(fyodorov_m_shell_sort_with_even_odd_batcher_merge_seq, test_pipeline_run) {
   std::vector<int> input(kCount, 0);
   std::vector<int> output(kCount, 0);
 
-  std::srand(42);
+  std::random_device dev;
+  std::mt19937 gen(dev());
+
+  std::uniform_int_distribution<> dis(0, 999);
+
   for (size_t i = 0; i < kCount; ++i) {
-    input[i] = std::rand() % 1000;
+    input[i] = dis(gen);
   }
 
   auto task_data_seq = std::make_shared<ppc::core::TaskData>();
@@ -49,9 +55,8 @@ TEST(fyodorov_m_shell_sort_with_even_odd_batcher_merge_seq, test_pipeline_run) {
 
   ppc::core::Perf::PrintPerfStatistic(perf_results);
 
-  std::vector<int> expected_output = input;
-  std::ranges::sort(expected_output);
-  ASSERT_EQ(output, expected_output);
+  std::ranges::sort(input);
+  ASSERT_EQ(output, input);
 }
 
 TEST(fyodorov_m_shell_sort_with_even_odd_batcher_merge_seq, test_task_run) {
@@ -90,7 +95,7 @@ TEST(fyodorov_m_shell_sort_with_even_odd_batcher_merge_seq, test_task_run) {
 
   ppc::core::Perf::PrintPerfStatistic(perf_results);
 
-  std::vector<int> expected_output = input;
-  std::ranges::sort(expected_output);
-  ASSERT_EQ(output, expected_output);
+  // std::vector<int> expected_output = input;
+  std::ranges::sort(input);
+  ASSERT_EQ(output, input);
 }

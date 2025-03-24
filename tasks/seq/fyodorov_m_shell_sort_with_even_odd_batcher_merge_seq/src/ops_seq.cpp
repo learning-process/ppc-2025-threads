@@ -12,12 +12,18 @@ bool TestTaskSequential::PreProcessingImpl() {
   input_ = std::vector<int>(in_ptr, in_ptr + input_size);
 
   unsigned int output_size = task_data->outputs_count[0];
-  output_ = std::vector<int>(output_size, 0);
 
   return true;
 }
 
-bool TestTaskSequential::ValidationImpl() { return task_data->inputs_count[0] == task_data->outputs_count[0]; }
+bool TestTaskSequential::ValidationImpl() {
+  if (task_data->inputs_count[0] == task_data->outputs_count[0]) {
+    return true;
+  }
+  if (!task_data->inputs.empty() || !task_data->outputs.empty()) {
+    return false;
+  }
+}
 
 bool TestTaskSequential::RunImpl() {
   ShellSort();
@@ -32,6 +38,7 @@ bool TestTaskSequential::RunImpl() {
 }
 
 bool TestTaskSequential::PostProcessingImpl() {
+  output_ = std::vector<int>(output_size, 0);
   for (size_t i = 0; i < output_.size(); ++i) {
     reinterpret_cast<int*>(task_data->outputs[0])[i] = output_[i];
   }
