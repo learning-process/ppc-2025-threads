@@ -50,7 +50,7 @@ inline std::vector<double> ConjugateGradientMethod(std::vector<double>& a, std::
   auto residual = std::vector<double>(size);
   auto direction = std::vector<double>(size);
 
-  #pragma omp parallel for 
+#pragma omp parallel for
   for (int i = 0; i < size; ++i) {
     residual[i] = b[i] - matrix_times_solution[i];
   }
@@ -66,12 +66,12 @@ inline std::vector<double> ConjugateGradientMethod(std::vector<double>& a, std::
     double direction_dot_matrix_times_direction = Dot(direction, matrix_times_direction);
     double alpha = residual_norm_squared / direction_dot_matrix_times_direction;
 
-    #pragma omp parallel for 
+#pragma omp parallel for
     for (int i = 0; i < size; i++) {
       solution[i] += alpha * direction[i];
     }
 
-    #pragma omp parallel for 
+#pragma omp parallel for
     for (int i = 0; i < size; i++) {
       residual[i] -= alpha * matrix_times_direction[i];
     }
@@ -80,7 +80,7 @@ inline std::vector<double> ConjugateGradientMethod(std::vector<double>& a, std::
     double beta = new_residual_norm_squared / residual_norm_squared;
     residual_norm_squared = new_residual_norm_squared;
 
-    #pragma omp parallel for 
+#pragma omp parallel for
     for (int i = 0; i < size; i++) {
       direction[i] = residual[i] + beta * direction[i];
     }
