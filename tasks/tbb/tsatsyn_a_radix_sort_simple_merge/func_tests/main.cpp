@@ -9,7 +9,7 @@
 
 #include "core/task/include/task.hpp"
 #include "core/util/include/util.hpp"
-#include "tbb/tsatsyn_a_radix_sort_simple_merge_tbb/include/ops_tbb.hpp"
+#include "tbb/tsatsyn_a_radix_sort_simple_merge/include/ops_tbb.hpp"
 
 TEST(tsatsyn_a_radix_sort_simple_merge_tbb, test_matmul_50) {
   constexpr size_t kCount = 50;

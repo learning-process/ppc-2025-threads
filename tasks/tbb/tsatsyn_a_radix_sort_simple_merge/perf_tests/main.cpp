@@ -8,7 +8,7 @@
 
 #include "core/perf/include/perf.hpp"
 #include "core/task/include/task.hpp"
-#include "tbb/tsatsyn_a_radix_sort_simple_merge_tbb/include/ops_tbb.hpp"
+#include "tbb/tsatsyn_a_radix_sort_simple_merge/include/ops_tbb.hpp"
 
 TEST(tsatsyn_a_radix_sort_simple_merge_tbb, test_pipeline_run) {
   constexpr int kCount = 700;
