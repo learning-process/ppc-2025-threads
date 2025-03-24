@@ -133,9 +133,7 @@ bool smirnov_i_radix_sort_simple_merge_omp::TestTaskOpenMP::RunImpl() {
     }
 #pragma omp barrier
 #pragma omp single
-    {
-      output_ = std::move(firstdq.front());
-    }
+    { output_ = std::move(firstdq.front()); }
   }
   return true;
 }
