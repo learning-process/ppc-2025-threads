@@ -157,7 +157,7 @@ bool tsatsyn_a_radix_sort_simple_merge_all::TestTaskALL::RunImpl() {
       }
     }
     std::cout << "Proc: " << world_.rank() << std::endl;
-    for (int i = 0; i < pozitive_copy.size(); i++) {
+    for (int i = 0; i < static_cast<int>(pozitive_copy.size()); i++) {
       std::cout << pozitive_copy[i] << " ";
     }
     std::cout << std::endl;
@@ -192,7 +192,7 @@ bool tsatsyn_a_radix_sort_simple_merge_all::TestTaskALL::RunImpl() {
       }
     }
     std::cout << "Proc: " << world_.rank() << std::endl;
-    for (int i = 0; i < negative_copy.size(); i++) {
+    for (int i = 0; i < static_cast<int>(negative_copy.size()); i++) {
       std::cout << negative_copy[i] << " ";
     }
     std::cout << std::endl;
