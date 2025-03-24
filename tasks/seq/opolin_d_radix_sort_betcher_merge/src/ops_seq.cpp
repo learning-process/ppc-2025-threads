@@ -9,7 +9,6 @@ bool opolin_d_radix_betcher_sort_seq::RadixBetcherSortTaskSequential::PreProcess
   // Init value for input and output
   auto *in_ptr = reinterpret_cast<int *>(task_data->inputs[0]);
   input_ = std::vector<int>(in_ptr, in_ptr + size_);
-
   unsigned int output_size = task_data->outputs_count[0];
   output_ = std::vector<int>(output_size, 0);
   return true;
