@@ -1,16 +1,8 @@
 #include "seq/korneeva_e_sparse_matrix_mult_complex_ccs/include/ops_seq.hpp"
 
-#include <gtest/gtest.h>
-
 #include <cmath>
-#include <cstddef>
-#include <cstdint>
-#include <memory>
-#include <random>
 #include <utility>
 #include <vector>
-
-#include "core/task/include/task.hpp"
 
 namespace korneeva_e_sparse_matrix_mult_complex_ccs_seq {
 
@@ -22,19 +14,9 @@ bool SparseMatrixMultComplexCCS::PreProcessingImpl() {
 }
 
 bool SparseMatrixMultComplexCCS::ValidationImpl() {
-  if (task_data->inputs.size() != 2 || task_data->outputs.size() != 1) {
-    return false;
-  }
-  if (matrix1_ == nullptr || matrix2_ == nullptr) {
-    return false;
-  }
-  if (matrix1_->cols != matrix2_->rows) {
-    return false;
-  }
-  if (matrix1_->rows <= 0 || matrix1_->cols <= 0 || matrix2_->rows <= 0 || matrix2_->cols <= 0) {
-    return false;
-  }
-  return true;
+  return task_data->inputs.size() == 2 && task_data->outputs.size() == 1 && matrix1_ != nullptr &&
+         matrix2_ != nullptr && matrix1_->cols == matrix2_->rows && matrix1_->rows > 0 && matrix1_->cols > 0 &&
+         matrix2_->rows > 0 && matrix2_->cols > 0;
 }
 
 bool SparseMatrixMultComplexCCS::RunImpl() {
@@ -94,93 +76,7 @@ Complex SparseMatrixMultComplexCCS::ComputeContribution(int row_idx, int k, int 
 }
 
 bool SparseMatrixMultComplexCCS::PostProcessingImpl() {
-  *reinterpret_cast<SparseMatrixCCS*>(task_data->outputs[0]) = result_;  // Копирование
+  *reinterpret_cast<SparseMatrixCCS*>(task_data->outputs[0]) = result_;
   return true;
-}
-
-SparseMatrixCCS CreateRandomMatrix(int rows, int cols, int max_nnz, std::mt19937& gen) {
-  SparseMatrixCCS matrix(rows, cols, 0);
-  std::uniform_real_distribution<> dis(-10.0, 10.0);
-  std::uniform_int_distribution<> row_dis(0, rows - 1);
-
-  std::vector<std::vector<Complex>> temp(rows, std::vector<Complex>(cols, {0.0, 0.0}));
-  int nnz = 0;
-  while (nnz < max_nnz && nnz < rows * cols) {
-    int r = row_dis(gen);
-    int c = row_dis(gen) % cols;
-    if (temp[r][c] == Complex(0.0, 0.0)) {
-      temp[r][c] = Complex(dis(gen), dis(gen));
-      nnz++;
-    }
-  }
-
-  matrix.nnz = nnz;
-  matrix.values.reserve(nnz);
-  matrix.row_indices.reserve(nnz);
-  matrix.col_offsets.resize(cols + 1, 0);
-
-  for (int j = 0; j < cols; j++) {
-    for (int i = 0; i < rows; i++) {
-      if (temp[i][j] != Complex(0.0, 0.0)) {
-        matrix.values.push_back(temp[i][j]);
-        matrix.row_indices.push_back(i);
-      }
-    }
-    matrix.col_offsets[j + 1] = static_cast<int>(matrix.values.size());
-  }
-  return matrix;
-}
-
-SparseMatrixCCS CreateCcsFromDense(const std::vector<std::vector<Complex>>& dense) {
-  int rows = static_cast<int>(dense.size());
-  int cols = dense.empty() ? 0 : static_cast<int>(dense[0].size());
-  SparseMatrixCCS matrix(rows, cols, 0);
-
-  matrix.col_offsets.resize(cols + 1, 0);
-  for (int j = 0; j < cols; j++) {
-    for (int i = 0; i < rows; i++) {
-      if (dense[i][j] != Complex(0.0, 0.0)) {
-        matrix.values.push_back(dense[i][j]);
-        matrix.row_indices.push_back(i);
-        matrix.nnz++;
-      }
-    }
-    matrix.col_offsets[j + 1] = static_cast<int>(matrix.values.size());
-  }
-  return matrix;
-}
-
-bool RunTask(SparseMatrixCCS& m1, SparseMatrixCCS& m2, SparseMatrixCCS& result) {
-  std::shared_ptr<ppc::core::TaskData> task_data = std::make_shared<ppc::core::TaskData>();
-  task_data->inputs.push_back(reinterpret_cast<uint8_t*>(&m1));
-  task_data->inputs.push_back(reinterpret_cast<uint8_t*>(&m2));
-  task_data->outputs.push_back(reinterpret_cast<uint8_t*>(&result));
-
-  SparseMatrixMultComplexCCS task(task_data);
-  if (!task.PreProcessingImpl()) {
-    return false;
-  }
-  if (!task.ValidationImpl()) {
-    return false;
-  }
-  task.RunImpl();
-  task.PostProcessingImpl();
-  return true;
-}
-
-void ExpectMatrixValuesEq(const SparseMatrixCCS& result, const SparseMatrixCCS& expected, double epsilon) {
-  ASSERT_EQ(result.values.size(), expected.values.size());
-  for (size_t i = 0; i < result.values.size(); i++) {
-    EXPECT_NEAR(std::abs(result.values[i] - expected.values[i]), 0.0, epsilon);
-  }
-}
-
-void ExpectMatrixEq(const SparseMatrixCCS& result, const SparseMatrixCCS& expected, double epsilon) {
-  EXPECT_EQ(result.rows, expected.rows);
-  EXPECT_EQ(result.cols, expected.cols);
-  EXPECT_EQ(result.nnz, expected.nnz);
-  EXPECT_EQ(result.col_offsets, expected.col_offsets);
-  EXPECT_EQ(result.row_indices, expected.row_indices);
-  ExpectMatrixValuesEq(result, expected, epsilon);
 }
 }  // namespace korneeva_e_sparse_matrix_mult_complex_ccs_seq

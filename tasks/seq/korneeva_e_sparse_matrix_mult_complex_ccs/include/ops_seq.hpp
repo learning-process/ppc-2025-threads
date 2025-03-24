@@ -1,7 +1,6 @@
 #pragma once
 
 #include <complex>
-#include <random>
 #include <utility>
 #include <vector>
 
@@ -46,11 +45,5 @@ class SparseMatrixMultComplexCCS : public ppc::core::Task {
   Complex ComputeElement(int row_idx, int col_start2, int col_end2);
   Complex ComputeContribution(int row_idx, int k, int col_start1, int col_end1, int col_start2, int col_end2);
 };
-
-bool RunTask(SparseMatrixCCS& m1, SparseMatrixCCS& m2, SparseMatrixCCS& result);
-void ExpectMatrixValuesEq(const SparseMatrixCCS& result, const SparseMatrixCCS& expected, double epsilon);
-void ExpectMatrixEq(const SparseMatrixCCS& result, const SparseMatrixCCS& expected, double epsilon = 1e-6);
-SparseMatrixCCS CreateRandomMatrix(int rows, int cols, int max_nnz, std::mt19937& gen);
-SparseMatrixCCS CreateCcsFromDense(const std::vector<std::vector<Complex>>& dense);
 
 }  // namespace korneeva_e_sparse_matrix_mult_complex_ccs_seq
