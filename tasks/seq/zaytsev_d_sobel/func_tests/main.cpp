@@ -1,5 +1,7 @@
 #include <gtest/gtest.h>
 
+#include <cstddef>
+#include <cstdint>
 #include <memory>
 #ifndef _WIN32
 #include <opencv2/opencv.hpp>
@@ -12,7 +14,7 @@
 
 #ifndef _WIN32
 namespace {
-std::vector<int> matToVector(const cv::Mat &img) {
+std::vector<int> MatToVector(const cv::Mat &img) {
   std::vector<int> vec;
 
   vec.reserve(img.rows * img.cols);
@@ -26,9 +28,23 @@ std::vector<int> matToVector(const cv::Mat &img) {
 }  // namespace
 #endif
 
-TEST(zaytsev_d_sobel_seq, test_validation_fail) {
+TEST(zaytsev_d_sobel_seq, test_validation_fail1) {
   std::vector<int> in(9, 0);
   std::vector<int> out(10, 0);
+
+  auto task_data = std::make_shared<ppc::core::TaskData>();
+  task_data->inputs.emplace_back(reinterpret_cast<uint8_t *>(in.data()));
+  task_data->inputs_count.emplace_back(in.size());
+  task_data->outputs.emplace_back(reinterpret_cast<uint8_t *>(out.data()));
+  task_data->outputs_count.emplace_back(out.size());
+
+  zaytsev_d_sobel_seq::TestTaskSequential task(task_data);
+  ASSERT_EQ(task.Validation(), false);
+}
+
+TEST(zaytsev_d_sobel_seq, test_validation_fail2) {
+  std::vector<int> in(5, 0);
+  std::vector<int> out(5, 0);
 
   auto task_data = std::make_shared<ppc::core::TaskData>();
   task_data->inputs.emplace_back(reinterpret_cast<uint8_t *>(in.data()));
@@ -85,13 +101,13 @@ TEST(zaytsev_d_sobel_seq, SobelEdgeDetection_UniformImage) {
 
 #ifndef _WIN32
 TEST(zaytsev_d_sobel_seq, SobelEdgeDetection_OpenCVImage) {
-  cv::Mat inputImg =
+  cv::Mat input_img =
       cv::imread(ppc::util::GetAbsolutePath("seq/zaytsev_d_sobel/data/inwhite.png"), cv::IMREAD_GRAYSCALE);
-  cv::Mat expectedImg =
+  cv::Mat expected_img =
       cv::imread(ppc::util::GetAbsolutePath("seq/zaytsev_d_sobel/data/outputwhite.png"), cv::IMREAD_GRAYSCALE);
 
-  std::vector<int> input = matToVector(inputImg);
-  std::vector<int> expected = matToVector(expectedImg);
+  std::vector<int> input = MatToVector(input_img);
+  std::vector<int> expected = MatToVector(expected_img);
   std::vector<int> output(input.size(), 0);
 
   auto task_data = std::make_shared<ppc::core::TaskData>();
