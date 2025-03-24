@@ -186,7 +186,7 @@ bool odintsov_m_mulmatrix_cannon_omp::MulMatrixCannonOpenMP::RunImpl() {
         }
       }
     }
-    // Сдвиги выполняем последовательно, чтобы обеспечить правильное изменение данных между шагами
+    // Сдвиги выполняем последовательно, чтобы обеспечить правильное изменение данных
     ShiftBlocksLeft(matrixA_, root, block_sz_);
     ShiftBlocksUp(matrixB_, root, block_sz_);
   }
