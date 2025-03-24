@@ -11,7 +11,7 @@
 #include <vector>
 
 std::vector<int> smirnov_i_radix_sort_simple_merge_omp::TestTaskOpenMP::Merge(std::vector<int> mas1,
-                                                                                     std::vector<int> mas2) {
+                                                                              std::vector<int> mas2) {
   std::vector<int> res;
   int p1 = 0;
   int p2 = 0;
@@ -39,7 +39,7 @@ std::vector<int> smirnov_i_radix_sort_simple_merge_omp::TestTaskOpenMP::Merge(st
   }
   return res;
 }
-void smirnov_i_radix_sort_simple_merge_omp::TestTaskOpenMP::Radix_sort(std::vector<int>& mas) {
+void smirnov_i_radix_sort_simple_merge_omp::TestTaskOpenMP::RadixSort(std::vector<int>& mas) {
   if (mas.empty()) {
     return;
   }
@@ -88,7 +88,7 @@ bool smirnov_i_radix_sort_simple_merge_omp::TestTaskOpenMP::RunImpl() {
     for (int i = start; i < end; i++) {
       local_mas.push_back(mas_[i]);
     }
-    Radix_sort(local_mas);
+    RadixSort(local_mas);
 #pragma omp critical
     {
       if (!local_mas.empty()) {

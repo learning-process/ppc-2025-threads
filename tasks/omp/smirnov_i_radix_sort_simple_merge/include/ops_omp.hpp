@@ -18,7 +18,7 @@ class TestTaskOpenMP : public ppc::core::Task {
 
  private:
   std::vector<int> mas_, output_;
-  static void Radix_sort(std::vector<int> &mas);
+  static void RadixSort(std::vector<int> &mas);
   static std::vector<int> Merge(std::vector<int> mas1, std::vector<int> mas2);
 };
 
