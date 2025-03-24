@@ -77,7 +77,12 @@ INSTANTIATE_TEST_SUITE_P(                 // NOLINT(misc-use-anonymous-namespace
     "p6",
     "p7",
     "p8",
-    "p9"
+    "p9",
+    "p10",
+    "p11",
+    "p12",
+    "p13",
+    "p14"
   )
 );
 // clang-format on
