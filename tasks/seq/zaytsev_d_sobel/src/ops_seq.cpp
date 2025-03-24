@@ -2,7 +2,6 @@
 
 #include <algorithm>
 #include <cmath>
-#include <ranges>
 #include <vector>
 
 bool zaytsev_d_sobel_seq::TestTaskSequential::PreProcessingImpl() {
