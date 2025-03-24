@@ -31,16 +31,16 @@ bool titov_s_image_filter_horiz_gaussian3x3_omp::ImageFilterOMP::ValidationImpl(
 bool titov_s_image_filter_horiz_gaussian3x3_omp::ImageFilterOMP::RunImpl() {
   const double sum = kernel_[0] + kernel_[1] + kernel_[2];
 #pragma omp parallel for
-    for (int i = 0; i < height_; ++i) {
-      for (int j = 0; j < width_; ++j) {
-        double filtered_value = 0.0;
-        for (int k = -1; k <= 1; ++k) {
-          int col = j + k;
-          if (col >= 0 && col < width_) {
-            filtered_value += input_[(i * width_) + col] * kernel_[k + 1];
-          }
+  for (int i = 0; i < height_; ++i) {
+    for (int j = 0; j < width_; ++j) {
+      double filtered_value = 0.0;
+      for (int k = -1; k <= 1; ++k) {
+        int col = j + k;
+        if (col >= 0 && col < width_) {
+          filtered_value += input_[(i * width_) + col] * kernel_[k + 1];
         }
-        output_[(i * width_) + j] = filtered_value / sum;
+      }
+      output_[(i * width_) + j] = filtered_value / sum;
     }
   }
   return true;
