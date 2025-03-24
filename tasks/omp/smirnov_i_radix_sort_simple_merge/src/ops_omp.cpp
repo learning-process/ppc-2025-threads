@@ -76,7 +76,6 @@ bool smirnov_i_radix_sort_simple_merge_omp::TestTaskOpenMP::ValidationImpl() {
 bool smirnov_i_radix_sort_simple_merge_omp::TestTaskOpenMP::RunImpl() {
   std::deque<std::vector<int>> firstdq;
   std::deque<std::vector<int>> seconddq;
-  std::vector<int> sort_res;
   bool flag = false;
 #pragma omp parallel shared(flag)
   {
@@ -135,8 +134,7 @@ bool smirnov_i_radix_sort_simple_merge_omp::TestTaskOpenMP::RunImpl() {
 #pragma omp barrier
 #pragma omp single
     {
-      sort_res = std::move(firstdq.front());
-      output_ = sort_res;
+      output_ = std::move(firstdq.front());
     }
   }
   return true;
