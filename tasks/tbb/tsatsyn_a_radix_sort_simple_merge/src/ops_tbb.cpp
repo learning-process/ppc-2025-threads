@@ -5,34 +5,104 @@
 #include <cmath>
 #include <core/util/include/util.hpp>
 #include <cstddef>
+#include <cstdint>
 #include <vector>
 
+#include "oneapi/tbb/concurrent_vector.h"
+#include "oneapi/tbb/parallel_for.h"
 #include "oneapi/tbb/task_arena.h"
 #include "oneapi/tbb/task_group.h"
 
+
+
+
 namespace {
-void MatMul(const std::vector<int> &in_vec, int rc_size, std::vector<int> &out_vec) {
-  for (int i = 0; i < rc_size; ++i) {
-    for (int j = 0; j < rc_size; ++j) {
-      out_vec[(i * rc_size) + j] = 0;
-      for (int k = 0; k < rc_size; ++k) {
-        out_vec[(i * rc_size) + j] += in_vec[(i * rc_size) + k] * in_vec[(k * rc_size) + j];
+// 1. Разделение данных на положительные/отрицательные (параллельно)
+void SplitData(tbb::concurrent_vector<uint64_t>& positive, tbb::concurrent_vector<uint64_t>& negative, std::vector<double> input_data_) {
+  tbb::parallel_for(tbb::blocked_range<size_t>(0, input_data_.size()), [&](const tbb::blocked_range<size_t>& r) {
+    for (size_t i = r.begin(); i < r.end(); ++i) {
+      double num = input_data_[i];
+      uint64_t bits;
+      ::memcpy(&bits, &num, sizeof(double));  // Используем memcpy вместо bit_cast для совместимости
+      if (num >= 0) {
+        positive.push_back(bits);
+      } else {
+        negative.push_back(bits);
       }
     }
+  });
+}
+
+// Исправленный метод RadixSort с инверсией битов для отрицательных чисел
+void RadixSort(tbb::concurrent_vector<uint64_t>& data, bool invert_order) {
+  for (int bit = 0; bit < 64; ++bit) {
+    tbb::enumerable_thread_specific<std::vector<uint64_t>> local_group0;
+    tbb::enumerable_thread_specific<std::vector<uint64_t>> local_group1;
+
+    tbb::parallel_for(tbb::blocked_range<size_t>(0, data.size()), [&](const tbb::blocked_range<size_t>& r) {
+      auto& g0 = local_group0.local();
+      auto& g1 = local_group1.local();
+      for (size_t i = r.begin(); i < r.end(); ++i) {
+        // Инвертируем биты для отрицательных чисел
+        uint64_t current_bit = (invert_order) ? ~data[i] : data[i];
+        if (((current_bit >> bit) & 1) != 0) {
+          g1.push_back(data[i]);
+        } else {
+          g0.push_back(data[i]);
+        }
+      }
+    });
+
+    // Сборка групп
+    std::vector<uint64_t> group0, group1;
+    for (const auto& vec : local_group0) {
+      group0.insert(group0.end(), vec.begin(), vec.end());
+    }
+    for (const auto& vec : local_group1) {
+      group1.insert(group1.end(), vec.begin(), vec.end());
+    }
+
+    // Обновление данных
+    data.clear();
+    if (invert_order) {
+      data.grow_by(group1.begin(), group1.end());  // Сначала group1
+      data.grow_by(group0.begin(), group0.end());  // Потом group0
+    } else {
+      data.grow_by(group0.begin(), group0.end());  // Сначала group0
+      data.grow_by(group1.begin(), group1.end());  // Потом group1
+    }
   }
+}
+
+// 3. Слияние результатов (параллельно)
+void MergeResults(const tbb::concurrent_vector<uint64_t>& negative, const tbb::concurrent_vector<uint64_t>& positive, std::vector<double>& output_) {
+  // Запись отрицательных чисел
+  tbb::parallel_for(tbb::blocked_range<size_t>(0, negative.size()), [&](const tbb::blocked_range<size_t>& r) {
+    for (size_t i = r.begin(); i < r.end(); ++i) {
+      double value;
+      ::memcpy(&value, &negative[i], sizeof(double));
+      output_[i] = value;
+    }
+  });
+
+  // Запись положительных чисел
+  tbb::parallel_for(tbb::blocked_range<size_t>(0, positive.size()), [&](const tbb::blocked_range<size_t>& r) {
+    size_t offset = negative.size();
+    for (size_t i = r.begin(); i < r.end(); ++i) {
+      double value;
+      ::memcpy(&value, &positive[i], sizeof(double));
+      output_[offset + i] = value;
+    }
+  });
 }
 }  // namespace
 
 bool tsatsyn_a_radix_sort_simple_merge_tbb::TestTaskTBB::PreProcessingImpl() {
   // Init value for input and output
-  unsigned int input_size = task_data->inputs_count[0];
-  auto *in_ptr = reinterpret_cast<int *>(task_data->inputs[0]);
-  input_ = std::vector<int>(in_ptr, in_ptr + input_size);
+  auto* temp_ptr = reinterpret_cast<double*>(task_data->inputs[0]);
+  input_ = std::vector<double>(temp_ptr, temp_ptr + task_data->inputs_count[0]);
+  output_.resize(task_data->inputs_count[0]);
 
-  unsigned int output_size = task_data->outputs_count[0];
-  output_ = std::vector<int>(output_size, 0);
-
-  rc_size_ = static_cast<int>(std::sqrt(input_size));
   return true;
 }
 
@@ -42,13 +112,17 @@ bool tsatsyn_a_radix_sort_simple_merge_tbb::TestTaskTBB::ValidationImpl() {
 }
 
 bool tsatsyn_a_radix_sort_simple_merge_tbb::TestTaskTBB::RunImpl() {
-  oneapi::tbb::task_arena arena(1);
+  tbb::concurrent_vector<uint64_t> pozitive_copy;
+  tbb::concurrent_vector<uint64_t> negative_copy;
+  size_t num_threads = ppc::util::GetPPCNumThreads();
+  tbb::task_arena arena(num_threads);
   arena.execute([&] {
-    tbb::task_group tg;
-    for (int thr = 0; thr < ppc::util::GetPPCNumThreads(); ++thr) {
-      tg.run([&] { MatMul(input_, rc_size_, output_); });
-    }
-    tg.wait();
+    SplitData(pozitive_copy, negative_copy, input_);
+    tbb::task_group tasks;
+    tasks.run([&] { RadixSort(negative_copy, true); });
+    tasks.run([&] { RadixSort(pozitive_copy, false); });
+    tasks.wait();
+    MergeResults(negative_copy, pozitive_copy,output_);
   });
   return true;
 }

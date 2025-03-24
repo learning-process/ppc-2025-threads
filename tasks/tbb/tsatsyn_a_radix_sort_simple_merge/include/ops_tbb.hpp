@@ -16,8 +16,8 @@ class TestTaskTBB : public ppc::core::Task {
   bool PostProcessingImpl() override;
 
  private:
-  std::vector<int> input_, output_;
-  int rc_size_{};
+  std::vector<double> input_;
+  std::vector<double> output_;
 };
 
 }  // namespace tsatsyn_a_radix_sort_simple_merge_tbb
