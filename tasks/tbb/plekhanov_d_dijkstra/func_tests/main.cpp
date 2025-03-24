@@ -49,8 +49,7 @@ void RunTest(const std::vector<std::vector<std::pair<size_t, int>>> &adj_list,  
       EXPECT_EQ(distances[i], expected_result[i]);
     }
   } else {
-    ASSERT_FALSE(test_task_tbb.Run());
-    test_task_tbb.PostProcessing();
+    ASSERT_FALSE(test_task_tbb.Validation());
   }
 }
 
