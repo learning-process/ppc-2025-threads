@@ -96,7 +96,7 @@ TEST(zaytsev_d_sobel_seq, Sobel_12x12) {
       0, 255, 255, 255, 77,  0,   77,  239, 255, 255, 219, 0, 0, 255, 255, 255, 255, 110, 255, 255, 255, 255, 255, 0,
       0, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 0, 0, 0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0};
   std::vector<int> output(kSize * kSize, 0);
-  
+
   auto task_data = std::make_shared<ppc::core::TaskData>();
   task_data->inputs.push_back(reinterpret_cast<uint8_t *>(input.data()));
   task_data->inputs_count.push_back(input.size());
