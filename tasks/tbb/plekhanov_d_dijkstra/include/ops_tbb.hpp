@@ -1,8 +1,12 @@
 #pragma once
 
+#include <atomic>
 #include <cstddef>
 #include <utility>
 #include <vector>
+#include <oneapi/tbb/concurrent_vector.h>
+#include <oneapi/tbb/blocked_range.h>
+#include <oneapi/tbb/parallel_for.h>
 
 #include "core/task/include/task.hpp"
 
@@ -22,6 +26,10 @@ class TestTaskTBB : public ppc::core::Task {
   size_t start_vertex_;
   size_t num_vertices_;
   static const int kEndOfVertexList;
+
+  std::vector<size_t> computeOffsets();
+  void relaxEdges(int u, const std::vector<size_t>& offsets, std::vector<std::atomic<int>>& distances_atomic,
+                  oneapi::tbb::concurrent_vector<int>& next_frontier);
 };
 
 }  // namespace plekhanov_d_dijkstra_tbb
