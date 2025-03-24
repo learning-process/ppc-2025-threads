@@ -36,9 +36,6 @@ bool kapustin_i_jarv_alg_seq::TestTaskSequential::PreProcessingImpl() {
 
   current_point_ = input_[leftmost_index_];
 
-  output_.clear();
-  output_.push_back(current_point_);
-
   return true;
 }
 
