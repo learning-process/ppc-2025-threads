@@ -7,18 +7,6 @@
 #include <cstddef>
 #include <vector>
 
-std::vector<int> frolova_e_sobel_filter_omp::ToGrayScaleImg(std::vector<RGB>& color_img, size_t width, size_t height) {
-  std::vector<int> gray_scale_image(width * height);
-
-#pragma omp for schedule(static)
-  for (int i = 0; i < static_cast<int>(width * height); i++) {
-    gray_scale_image[i] =
-        static_cast<int>((0.299 * color_img[i].R) + (0.587 * color_img[i].G) + (0.114 * color_img[i].B));
-  }
-
-  return gray_scale_image;
-}
-
 int frolova_e_sobel_filter_omp::GetPixelSafe(const std::vector<int>& img, size_t x, size_t y, size_t width,
                                              size_t height) {
   if (x >= width || y >= height) {
