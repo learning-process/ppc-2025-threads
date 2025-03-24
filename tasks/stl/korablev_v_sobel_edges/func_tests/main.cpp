@@ -70,7 +70,12 @@ TEST_P(korablev_v_sobel_edges_test_stl, compare_with_fixture) {
         "p6",
         "p7",
         "p8",
-        "p9"
+        "p9",
+        "p10",
+        "p11",
+        "p12",
+        "p13",
+        "p14"
     
       )
     );
