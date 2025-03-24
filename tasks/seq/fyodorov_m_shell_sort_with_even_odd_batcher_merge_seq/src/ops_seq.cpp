@@ -1,6 +1,7 @@
 #include "seq/fyodorov_m_shell_sort_with_even_odd_batcher_merge_seq/include/ops_seq.hpp"
 
 #include <cmath>
+#include <cstddef>
 #include <vector>
 
 namespace fyodorov_m_shell_sort_with_even_odd_batcher_merge_seq {
