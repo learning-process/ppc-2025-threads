@@ -13,12 +13,12 @@
 #include "seq/lavrentiev_A_CCS_SEQ/include/ops_seq.hpp"
 
 namespace {
-std::vector<double> GenerateRandomMatrix(int size) {
+std::vector<double> GenerateRandomMatrix(int size, int sparse_size) {
   std::vector<double> data(size);
   std::random_device device;
   std::mt19937 generator(device());
   std::uniform_int_distribution<> random_element(-500, 500);
-  size = size / 6;
+  size = size / sparse_size;
   for (int i = 0; i < size; ++i) {
     data[i] = static_cast<double>(random_element(generator));
   }
@@ -44,12 +44,12 @@ struct TestData {
   std::vector<double> single_matrix;
   std::vector<double> result;
   std::shared_ptr<ppc::core::TaskData> task_data_seq;
-  TestData(std::pair<int, int> matrix1_size, std::pair<int, int> matrix2_size);
+  TestData(std::pair<int, int> matrix1_size, std::pair<int, int> matrix2_size, int sparse_size);
   [[nodiscard]] lavrentiev_a_ccs_seq::CCSSequential CreateTask() const;
 };
 
-TestData::TestData(std::pair<int, int> matrix1_size, std::pair<int, int> matrix2_size) {
-  random_data = GenerateRandomMatrix(matrix1_size.first * matrix1_size.second);
+TestData::TestData(std::pair<int, int> matrix1_size, std::pair<int, int> matrix2_size, int sparse_size) {
+  random_data = GenerateRandomMatrix(matrix1_size.first * matrix1_size.second, sparse_size);
   single_matrix = GenerateSingleMatrix(matrix2_size.first * matrix2_size.second);
   result.resize(matrix1_size.first * matrix2_size.second);
   task_data_seq = std::make_shared<ppc::core::TaskData>();
@@ -141,7 +141,7 @@ TEST(lavrentiev_a_ccs_seq, test_3x3_matrixes) {
 }
 
 TEST(lavrentiev_a_ccs_seq, test_12x12_matrix) {
-  auto task = TestData({12, 12}, {12, 12});
+  auto task = TestData({12, 12}, {12, 12}, 1);
   auto test_task_sequential = task.CreateTask();
   ASSERT_EQ(test_task_sequential.Validation(), true);
   test_task_sequential.PreProcessing();
@@ -153,7 +153,7 @@ TEST(lavrentiev_a_ccs_seq, test_12x12_matrix) {
 }
 
 TEST(lavrentiev_a_ccs_seq, test_25x25_matrix) {
-  auto task = TestData({25, 25}, {25, 25});
+  auto task = TestData({25, 25}, {25, 25}, 2);
   auto test_task_sequential = task.CreateTask();
   ASSERT_EQ(test_task_sequential.Validation(), true);
   test_task_sequential.PreProcessing();
