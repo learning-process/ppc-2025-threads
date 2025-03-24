@@ -45,8 +45,24 @@ inline void ToSplitData(std::vector<uint64_t> &poz, std::vector<uint64_t> &neg, 
     f.wait();
   }
 }
-inline void SortRadix(std::vector<uint64_t> &data, bool is_negative) {
-  for (int bit = 0; bit < 64; bit++) {
+inline int CalculateBits(const std::vector<uint64_t> &data, bool is_pozitive) {
+  if (data.empty()) {
+    return 0;
+  }
+  uint64_t extreme_val = 0;
+  int num_bits = 0;
+  if (is_pozitive) {
+    extreme_val = *std::ranges::max_element(data);
+    num_bits = std::bit_width(extreme_val);
+  } else {
+    extreme_val = *std::ranges::min_element(data);
+    num_bits = (extreme_val == 0) ? 0 : std::bit_width(extreme_val);
+  }
+
+  return num_bits;
+}
+inline void SortRadix(std::vector<uint64_t> &data, bool is_negative, int num_bits) {
+  for (int bit = 0; bit < num_bits; bit++) {
     std::vector<uint64_t> group0;
     std::vector<uint64_t> group1;
     for (uint64_t b : data) {
@@ -86,30 +102,38 @@ bool tsatsyn_a_radix_sort_simple_merge_stl::TestTaskSTL::RunImpl() {
   ToSplitData(pozitive_copy, negative_copy, input_data_);
 
   size_t num_threads = ppc::util::GetPPCNumThreads();
+  int pozitive_bits = CalculateBits(pozitive_copy, true);
+  int negative_bits = CalculateBits(negative_copy, false);
+
   if (num_threads >= 2) {
-    auto future_neg = std::async(std::launch::async, [&negative_copy]() { SortRadix(negative_copy, true); });
-    auto future_pos = std::async(std::launch::async, [&pozitive_copy]() { SortRadix(pozitive_copy, false); });
-    future_neg.wait();
-    future_pos.wait();
-  } else {
-    SortRadix(negative_copy, true);
-    SortRadix(pozitive_copy, false);
-  }
-
-  auto future_neg = std::async(std::launch::async, [&]() {
-    for (size_t i = 0; i < negative_copy.size(); ++i) {
-      output_[i] = std::bit_cast<double>(negative_copy[i]);
+    if (!negative_copy.empty()) {
+      auto future_neg = std::async(std::launch::async, [&negative_copy, &negative_bits]() { SortRadix(negative_copy, true, negative_bits); });
+      future_neg.wait();
     }
-  });
+      auto future_pos = std::async(std::launch::async, [&pozitive_copy, &pozitive_bits]() { SortRadix(pozitive_copy, false, pozitive_bits); });
+      future_pos.wait();
+    
+  } else {
+    if (!negative_copy.empty()) {
+      SortRadix(negative_copy, true, negative_bits);
+    }
+    SortRadix(pozitive_copy, false, pozitive_bits);
+  }
+  if (!negative_copy.empty()) {
+    auto future_neg = std::async(std::launch::async, [&]() {
+      for (size_t i = 0; i < negative_copy.size(); ++i) {
+        output_[i] = std::bit_cast<double>(negative_copy[i]);
+      }
+    });
+    future_neg.wait();
 
+  }
   auto future_pos = std::async(std::launch::async, [&]() {
     size_t offset = negative_copy.size();
     for (size_t i = 0; i < pozitive_copy.size(); ++i) {
       output_[offset + i] = std::bit_cast<double>(pozitive_copy[i]);
     }
   });
-
-  future_neg.wait();
   future_pos.wait();
   return true;
 }

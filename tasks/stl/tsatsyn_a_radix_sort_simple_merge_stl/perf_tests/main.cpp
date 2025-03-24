@@ -10,7 +10,8 @@
 #include "core/perf/include/perf.hpp"
 #include "core/task/include/task.hpp"
 #include "stl/tsatsyn_a_radix_sort_simple_merge_stl/include/ops_stl.hpp"
-std::vector<double> tsatsyn_a_radix_sort_simple_merge_stl::GetRandomVector(int sz, int a, int b) {
+namespace {
+std::vector<double> GetRandomVector(int sz, int a, int b) {
   std::random_device dev;
   std::mt19937 gen(dev());
   std::uniform_real_distribution<> dis(a, b);
@@ -20,11 +21,12 @@ std::vector<double> tsatsyn_a_radix_sort_simple_merge_stl::GetRandomVector(int s
   }
   return vec;
 }
+}  // namespace
 TEST(tsatsyn_a_radix_sort_simple_merge_stl, test_pipeline_run) {
   constexpr int kCount = 700;
 
   // Create data
-  std::vector<double> in = tsatsyn_a_radix_sort_simple_merge_stl::GetRandomVector(kCount * kCount, 0, 100);
+  std::vector<double> in = GetRandomVector(kCount * kCount, 0, 100);
   std::vector<double> out(kCount * kCount, 0);
 
   // Create task_data
@@ -62,7 +64,7 @@ TEST(tsatsyn_a_radix_sort_simple_merge_stl, test_task_run) {
   constexpr int kCount = 700;
 
   // Create data
-  std::vector<double> in = tsatsyn_a_radix_sort_simple_merge_stl::GetRandomVector(kCount * kCount, 0, 100);
+  std::vector<double> in = GetRandomVector(kCount * kCount, 0, 100);
   std::vector<double> out(kCount * kCount, 0);
 
   // Create task_data
