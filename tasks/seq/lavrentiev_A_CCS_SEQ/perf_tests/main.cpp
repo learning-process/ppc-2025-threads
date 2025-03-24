@@ -49,7 +49,6 @@ struct TestData {
   std::shared_ptr<ppc::core::TaskData> task_data_seq;
   TestData(std::pair<int, int> matrix1_size, std::pair<int, int> matrix2_size, int sparse_size);
 };
-
 TestData::TestData(std::pair<int, int> matrix1_size, std::pair<int, int> matrix2_size, int sparse_size) {
   random_data = GenerateRandomMatrix(matrix1_size.first * matrix1_size.second, sparse_size);
   single_matrix = GenerateSingleMatrix(matrix2_size.first * matrix2_size.second);
