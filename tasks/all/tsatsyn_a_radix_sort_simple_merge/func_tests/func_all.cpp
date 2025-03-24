@@ -1,6 +1,7 @@
 #include <gtest/gtest.h>
 
-#include <cstddef>
+#include <boost/mpi/communicator.hpp>
+#include <boost/mpi/environment.hpp>
 #include <cstdint>
 #include <memory>
 #include <random>
@@ -8,7 +9,6 @@
 
 #include "all/tsatsyn_a_radix_sort_simple_merge/include/ops_all.hpp"
 #include "core/task/include/task.hpp"
-#include "core/util/include/util.hpp"
 
 std::vector<double> tsatsyn_a_radix_sort_simple_merge_all::GetRandomVector(int sz, int a, int b) {
   std::random_device dev;
@@ -22,7 +22,7 @@ std::vector<double> tsatsyn_a_radix_sort_simple_merge_all::GetRandomVector(int s
 }
 TEST(tsatsyn_a_radix_sort_simple_merge_all, negative_double_10) {
   // Create data
-  boost::mpi::communicator world_;
+  boost::mpi::communicator world;
   int arrsize = 10;
   std::vector<double> in;
   std::vector<double> out(arrsize, 0);
@@ -41,14 +41,14 @@ TEST(tsatsyn_a_radix_sort_simple_merge_all, negative_double_10) {
   test_task_all.PreProcessing();
   test_task_all.Run();
   test_task_all.PostProcessing();
-  if (world_.rank() == 0) {
+  if (world.rank() == 0) {
     std::ranges::sort(in);
     EXPECT_EQ(in, out);
   }
 }
 TEST(tsatsyn_a_radix_sort_simple_merge_all, pozitive_double_10) {
   // Create data
-  boost::mpi::communicator world_;
+  boost::mpi::communicator world;
   int arrsize = 10;
   std::vector<double> in;
   std::vector<double> out(arrsize, 0);
@@ -66,7 +66,7 @@ TEST(tsatsyn_a_radix_sort_simple_merge_all, pozitive_double_10) {
   test_task_all.PreProcessing();
   test_task_all.Run();
   test_task_all.PostProcessing();
-  if (world_.rank() == 0) {
+  if (world.rank() == 0) {
     std::ranges::sort(in);
     EXPECT_EQ(in, out);
   }
