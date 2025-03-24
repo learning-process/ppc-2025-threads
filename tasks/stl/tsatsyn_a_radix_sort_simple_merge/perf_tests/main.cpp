@@ -9,7 +9,7 @@
 
 #include "core/perf/include/perf.hpp"
 #include "core/task/include/task.hpp"
-#include "stl/tsatsyn_a_radix_sort_simple_merge_stl/include/ops_stl.hpp"
+#include "stl/tsatsyn_a_radix_sort_simple_merge/include/ops_stl.hpp"
 namespace {
 std::vector<double> GetRandomVector(int sz, int a, int b) {
   std::random_device dev;
