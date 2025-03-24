@@ -2,7 +2,6 @@
 
 #include <omp.h>
 
-#include <algorithm>
 #include <cmath>
 #include <cstddef>
 #include <utility>
@@ -80,7 +79,7 @@ lavrentiev_a_ccs_omp::Sparse lavrentiev_a_ccs_omp::CCSOMP::MatMul(const Sparse &
             }
           }
         }
-        if (sum > kMEpsilon) {
+        if (sum != 0) {
           current_thread_data.first.push_back(sum);
           current_thread_data.second.push_back(j);
           columns_sum[i]++;
@@ -92,6 +91,7 @@ lavrentiev_a_ccs_omp::Sparse lavrentiev_a_ccs_omp::CCSOMP::MatMul(const Sparse &
   for (size_t i = 1; i < columns_sum.size(); ++i) {
     columns_sum[i] = columns_sum[i] + columns_sum[i - 1];
   }
+
   for (const auto &data : threads_data) {
     for (size_t i = 0; i < data.first.size(); ++i) {
       elements.push_back(data.first[i]);

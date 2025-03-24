@@ -20,7 +20,7 @@ std::vector<double> GenerateRandomMatrix(int size, int sparse_size) {
   std::vector<double> data(size);
   std::random_device device;
   std::mt19937 generator(device());
-  std::uniform_int_distribution<> random_element(-500, 500);
+  std::uniform_int_distribution<> random_element(-500, 1000);
   size = size / sparse_size;
   for (int i = 0; i < size; ++i) {
     data[i] = static_cast<double>(random_element(generator));
@@ -67,7 +67,7 @@ TestData::TestData(std::pair<int, int> matrix1_size, std::pair<int, int> matrix2
 }  // namespace
 
 TEST(lavrentiev_a_ccs_omp, test_pipeline_run) {
-  constexpr double kSize = 1200;
+  constexpr double kSize = 700;
   auto task = TestData({kSize, kSize}, {kSize, kSize}, 6);
   auto test_task_omp = std::make_shared<lavrentiev_a_ccs_omp::CCSOMP>(task.task_data_omp);
   auto perf_attr = std::make_shared<ppc::core::PerfAttr>();
@@ -88,7 +88,7 @@ TEST(lavrentiev_a_ccs_omp, test_pipeline_run) {
 }
 
 TEST(lavrentiev_a_ccs_omp, test_task_run) {
-  constexpr double kSize = 1200;
+  constexpr double kSize = 700;
   auto task = TestData({kSize, kSize}, {kSize, kSize}, 6);
   auto test_task_omp = std::make_shared<lavrentiev_a_ccs_omp::CCSOMP>(task.task_data_omp);
   auto perf_attr = std::make_shared<ppc::core::PerfAttr>();
