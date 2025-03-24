@@ -63,7 +63,6 @@ TEST(shuravina_o_hoare_simple_merger_omp, test_random_array) {
     ASSERT_LE(out[i - 1], out[i]);
   }
 }
-
 TEST(shuravina_o_hoare_simple_merger_omp, test_already_sorted_array) {
   std::vector<int> in = {1, 2, 3, 4, 5, 6};
   std::vector<int> out(in.size(), 0);
