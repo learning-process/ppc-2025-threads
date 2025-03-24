@@ -18,9 +18,7 @@ struct SparseMatrixCCS {
   int cols;
   int nnz;
 
-  SparseMatrixCCS() : rows(0), cols(0), nnz(0) {}
-
-  SparseMatrixCCS(int r, int c, int n) : rows(r), cols(c), nnz(n) {
+  SparseMatrixCCS(int r = 0, int c = 0, int n = 0) : rows(r), cols(c), nnz(n) {
     values.resize(nnz);
     row_indices.resize(nnz);
     col_offsets.resize(cols + 1, 0);
