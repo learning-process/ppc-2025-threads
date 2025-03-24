@@ -3,7 +3,7 @@
 #include <climits>
 #include <cstddef>
 #include <cstdint>
-#include <limits>
+#include <functional>
 #include <memory>
 #include <queue>
 #include <random>

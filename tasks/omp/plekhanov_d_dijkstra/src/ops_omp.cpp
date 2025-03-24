@@ -3,6 +3,7 @@
 #include <omp.h>
 
 #include <climits>
+#include <cstddef>
 #include <utility>
 #include <vector>
 
@@ -30,7 +31,7 @@ bool plekhanov_d_dijkstra_omp::TestTaskOpenMP::ValidationImpl() {
          task_data->outputs_count[0] > 0;
 }
 
-bool plekhanov_d_dijkstra_omp::TestTaskOpenMP::RunImpl() {
+bool plekhanov_d_dijkstra_omp::TestTaskOpenMP::RunImpl() {  // NOLINT(readability-function-cognitive-complexity)
   std::vector<std::vector<std::pair<int, int>>> graph(num_vertices_);
   size_t current_vertex = 0, i = 0;
 
@@ -40,11 +41,15 @@ bool plekhanov_d_dijkstra_omp::TestTaskOpenMP::RunImpl() {
       i++;
       continue;
     }
-    if (i + 1 >= graph_data_.size()) break;
+    if (i + 1 >= graph_data_.size()) {
+      break;
+    }
 
     size_t dest = graph_data_[i];
     int weight = graph_data_[i + 1];
-    if (weight < 0) return false;
+    if (weight < 0) {
+      return false;
+    }
 
     if (dest < num_vertices_) {
       graph[current_vertex].emplace_back(static_cast<int>(dest), weight);
@@ -55,7 +60,8 @@ bool plekhanov_d_dijkstra_omp::TestTaskOpenMP::RunImpl() {
   std::vector<bool> visited(num_vertices_, false);
 
   for (int count = 0; count < static_cast<int>(num_vertices_) - 1; ++count) {
-    int u = -1, min_dist = INT_MAX;
+    int u = -1;
+    int min_dist = INT_MAX;
 
 #pragma omp parallel for
     for (int v = 0; v < static_cast<int>(num_vertices_); ++v) {
@@ -70,7 +76,9 @@ bool plekhanov_d_dijkstra_omp::TestTaskOpenMP::RunImpl() {
       }
     }
 
-    if (u == -1) break;
+    if (u == -1) {
+      break;
+    }
 
     visited[u] = true;
 
