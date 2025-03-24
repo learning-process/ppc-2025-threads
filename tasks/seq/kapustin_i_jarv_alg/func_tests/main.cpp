@@ -31,7 +31,7 @@ std::vector<std::pair<int, int>> GenerateRandomPoints(size_t count, int min_x, i
 TEST(KapustinJarvAlgSeqTest, FixedPointsWithRandomNoise) {
   std::vector<std::pair<int, int>> fixed_points = {{-1000, -1000}, {1000, -1000}, {1000, 1000}, {-1000, 1000}};
 
-  auto random_points = gen::GenerateRandomPoints(100, -900, 900, -900, 900);
+  auto random_points = GenerateRandomPoints(100, -900, 900, -900, 900);
 
   std::vector<std::pair<int, int>> input_points = fixed_points;
   input_points.insert(input_points.end(), random_points.begin(), random_points.end());
