@@ -190,7 +190,7 @@ TEST(sarafanov_m_canon_mat_mul_omp, test_random_30x30_matrix) {
   }
 }
 
-TEST(sarafanov_m_canon_mat_mul_omp, test_2x3_matrix) {
+TEST(sarafanov_m_canon_mat_mul_omp, test_3x2_matrix) {
   constexpr double kInaccuracy = 0.001;
   std::vector<double> a_matrix{1.0, 4.0, 8.0, 5.0, 6.0, 2.0};
   std::vector<double> b_matrix{9.0, 1.0, 10.0, 12.0, 5.0, 2.0};
@@ -206,11 +206,11 @@ TEST(sarafanov_m_canon_mat_mul_omp, test_2x3_matrix) {
   task_data_omp->outputs.emplace_back(reinterpret_cast<uint8_t *>(out.data()));
   task_data_omp->outputs_count.emplace_back(9);
 
-  sarafanov_m_canon_mat_mul_omp::CanonMatMulOMP test_task_sequential(task_data_omp);
-  ASSERT_EQ(test_task_sequential.Validation(), true);
-  test_task_sequential.PreProcessing();
-  test_task_sequential.Run();
-  test_task_sequential.PostProcessing();
+  sarafanov_m_canon_mat_mul_omp::CanonMatMulOMP test_task_omp(task_data_omp);
+  ASSERT_EQ(test_task_omp.Validation(), true);
+  test_task_omp.PreProcessing();
+  test_task_omp.Run();
+  test_task_omp.PostProcessing();
   for (size_t i = 0; i < out.size(); ++i) {
     EXPECT_NEAR(out[i], test_data[i], kInaccuracy);
   }
