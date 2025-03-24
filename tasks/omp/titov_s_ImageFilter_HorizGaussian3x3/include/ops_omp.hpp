@@ -2,8 +2,9 @@
 
 #include <utility>
 #include <vector>
-#include "omp.h"
+
 #include "core/task/include/task.hpp"
+#include "omp.h"
 
 namespace titov_s_image_filter_horiz_gaussian3x3_omp {
 

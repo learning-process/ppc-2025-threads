@@ -1,8 +1,8 @@
+#include "omp/titov_s_ImageFilter_HorizGaussian3x3/include/ops_omp.hpp"
+
 #include <cmath>
 #include <cstddef>
 #include <vector>
-
-#include "omp/titov_s_ImageFilter_HorizGaussian3x3/include/ops_omp.hpp"
 
 bool titov_s_image_filter_horiz_gaussian3x3_omp::ImageFilterOMP::PreProcessingImpl() {
   unsigned int input_size = task_data->inputs_count[0];
@@ -30,9 +30,9 @@ bool titov_s_image_filter_horiz_gaussian3x3_omp::ImageFilterOMP::ValidationImpl(
 
 bool titov_s_image_filter_horiz_gaussian3x3_omp::ImageFilterOMP::RunImpl() {
   const double sum = kernel_[0] + kernel_[1] + kernel_[2];
-  #pragma omp parallel
+#pragma omp parallel
   {
-    #pragma omp for
+#pragma omp for
     for (int i = 0; i < height_; ++i) {
       for (int j = 0; j < width_; ++j) {
         double filtered_value = 0.0;

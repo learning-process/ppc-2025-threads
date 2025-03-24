@@ -31,8 +31,7 @@ TEST(titov_s_image_filter_horiz_gaussian3x3_omp, test_pipeline_run) {
   task_data_omp->outputs_count.emplace_back(output_image.size());
 
   // Create Task
-  auto test_task_OMP =
-      std::make_shared<titov_s_image_filter_horiz_gaussian3x3_omp::ImageFilterOMP>(task_data_omp);
+  auto test_task_OMP = std::make_shared<titov_s_image_filter_horiz_gaussian3x3_omp::ImageFilterOMP>(task_data_omp);
 
   // Create Perf attributes
   auto perf_attr = std::make_shared<ppc::core::PerfAttr>();
@@ -74,8 +73,7 @@ TEST(titov_s_image_filter_horiz_gaussian3x3_omp, test_task_run) {
   task_data_omp->outputs_count.emplace_back(output_image.size());
 
   // Create Task
-  auto test_task_OMP =
-      std::make_shared<titov_s_image_filter_horiz_gaussian3x3_omp::ImageFilterOMP>(task_data_omp);
+  auto test_task_OMP = std::make_shared<titov_s_image_filter_horiz_gaussian3x3_omp::ImageFilterOMP>(task_data_omp);
 
   // Create Perf attributes
   auto perf_attr = std::make_shared<ppc::core::PerfAttr>();
