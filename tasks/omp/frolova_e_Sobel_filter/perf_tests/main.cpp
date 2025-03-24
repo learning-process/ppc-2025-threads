@@ -46,6 +46,18 @@ std::vector<frolova_e_sobel_filter_omp::RGB> ConvertToRGB(const std::vector<int>
   return picture;
 }
 
+std::vector<int> ToGrayScaleImg(std::vector<frolova_e_sobel_filter_omp::RGB> &color_img, size_t width, size_t height) {
+  std::vector<int> gray_scale_image(width * height);
+
+#pragma omp for schedule(static)
+  for (int i = 0; i < static_cast<int>(width * height); i++) {
+    gray_scale_image[i] =
+        static_cast<int>((0.299 * color_img[i].R) + (0.587 * color_img[i].G) + (0.114 * color_img[i].B));
+  }
+
+  return gray_scale_image;
+}
+
 }  // namespace
 
 TEST(frolova_e_sobel_filter_omp, test_pipeline_run) {
@@ -91,7 +103,7 @@ TEST(frolova_e_sobel_filter_omp, test_pipeline_run) {
 
   std::vector<frolova_e_sobel_filter_omp::RGB> picture = ConvertToRGB(pict);
   std::vector<int> gray_scale_image =
-      frolova_e_sobel_filter_omp::ToGrayScaleImg(picture, static_cast<size_t>(value[0]), static_cast<size_t>(value[1]));
+      ToGrayScaleImg(picture, static_cast<size_t>(value[0]), static_cast<size_t>(value[1]));
 
   const std::vector<int> gx = {-1, 0, 1, -2, 0, 2, -1, 0, 1};
   const std::vector<int> gy = {-1, -2, -1, 0, 0, 0, 1, 2, 1};
@@ -167,7 +179,7 @@ TEST(frolova_e_sobel_filter_omp, test_task_run) {
 
   std::vector<frolova_e_sobel_filter_omp::RGB> picture = ConvertToRGB(pict);
   std::vector<int> gray_scale_image =
-      frolova_e_sobel_filter_omp::ToGrayScaleImg(picture, static_cast<size_t>(value[0]), static_cast<size_t>(value[1]));
+      ToGrayScaleImg(picture, static_cast<size_t>(value[0]), static_cast<size_t>(value[1]));
 
   const std::vector<int> gx = {-1, 0, 1, -2, 0, 2, -1, 0, 1};
   const std::vector<int> gy = {-1, -2, -1, 0, 0, 0, 1, 2, 1};
