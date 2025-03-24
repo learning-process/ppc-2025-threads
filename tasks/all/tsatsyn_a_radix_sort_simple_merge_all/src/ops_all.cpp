@@ -49,8 +49,8 @@ bool tsatsyn_a_radix_sort_simple_merge_all::TestTaskALL::RunImpl() {
   } else {
     world_.recv(0, 0, local_data_);
   }
-  //std::cout<<std::endl << "PIZDA: " << world_.rank() << /* " " << omp_get_thread_num() <<*/ "HAS "<<
-  //local_data_.size() << std::endl;
+  // std::cout<<std::endl << "PIZDA: " << world_.rank() << /* " " << omp_get_thread_num() <<*/ "HAS "<<
+  // local_data_.size() << std::endl;
   std::vector<uint64_t> pozitive_copy;
   std::vector<uint64_t> negative_copy;
 #pragma omp parallel
@@ -119,11 +119,11 @@ bool tsatsyn_a_radix_sort_simple_merge_all::TestTaskALL::RunImpl() {
       }
     }
   }
-  //std::cout << "Proc: " << world_.rank() << std::endl;
-  //for (int i = 0; i < negative_copy.size(); i++) {
-  //  std::cout << negative_copy[i] << " ";
-  //}
-  //std::cout << std::endl;
+  // std::cout << "Proc: " << world_.rank() << std::endl;
+  // for (int i = 0; i < negative_copy.size(); i++) {
+  //   std::cout << negative_copy[i] << " ";
+  // }
+  // std::cout << std::endl;
   if (world_.rank() == 0) {
     std::vector<uint64_t> local_copy_for_recv;
     if (is_pozitive) {
