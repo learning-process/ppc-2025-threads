@@ -15,7 +15,7 @@
 #include "seq/lavrentiev_A_CCS_SEQ/include/ops_seq.hpp"
 
 namespace {
-
+constexpr auto kEpsilon = 0.000001;
 std::vector<double> GenerateRandomMatrix(int size, int sparse_size) {
   std::vector<double> data(size);
   std::random_device device;
@@ -41,7 +41,7 @@ std::vector<double> GenerateSingleMatrix(int size) {
   }
   return test_data;
 }
-constexpr auto kEpsilon = 0.000001;
+
 struct TestData {
   std::vector<double> random_data;
   std::vector<double> single_matrix;
