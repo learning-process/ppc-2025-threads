@@ -6,10 +6,6 @@
 #include <vector>
 
 bool dudchenko_o_hoare_batcher_seq::TestTaskSequential::PreProcessingImpl() {
-  if (!task_data || (task_data->inputs[0] == nullptr) || (task_data->outputs[0] == nullptr)) {
-    return false;
-  }
-
   unsigned int input_size = task_data->inputs_count[0];
   auto* in_ptr = reinterpret_cast<int*>(task_data->inputs[0]);
   input_ = std::vector<int>(in_ptr, in_ptr + input_size);
@@ -39,10 +35,6 @@ bool dudchenko_o_hoare_batcher_seq::TestTaskSequential::RunImpl() {
 }
 
 bool dudchenko_o_hoare_batcher_seq::TestTaskSequential::PostProcessingImpl() {
-  if (!task_data || (task_data->outputs[0] == nullptr)) {
-    return false;
-  }
-
   for (size_t i = 0; i < output_.size(); i++) {
     reinterpret_cast<int*>(task_data->outputs[0])[i] = output_[i];
   }
