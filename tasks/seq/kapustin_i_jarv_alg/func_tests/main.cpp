@@ -26,7 +26,7 @@ std::vector<std::pair<int, int>> GenerateRandomPoints(size_t count, int min_x, i
 
   return random_points;
 }
-}  // gen
+}  // namespace gen
 
 TEST(KapustinJarvAlgSeqTest, FixedPointsWithRandomNoise) {
   std::vector<std::pair<int, int>> fixed_points = {{-1000, -1000}, {1000, -1000}, {1000, 1000}, {-1000, 1000}};
