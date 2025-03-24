@@ -6,7 +6,7 @@
 #include <memory>
 #include <vector>
 
-#include "all/tsatsyn_a_radix_sort_simple_merge_all/include/ops_all.hpp"
+#include "all/tsatsyn_a_radix_sort_simple_merge/include/ops_all.hpp"
 #include "boost/mpi/communicator.hpp"
 #include "core/perf/include/perf.hpp"
 #include "core/task/include/task.hpp"

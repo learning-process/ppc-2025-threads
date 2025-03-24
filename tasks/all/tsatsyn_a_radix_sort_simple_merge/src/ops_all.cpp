@@ -1,4 +1,4 @@
-#include "all/tsatsyn_a_radix_sort_simple_merge_all/include/ops_all.hpp"
+#include "all/tsatsyn_a_radix_sort_simple_merge/include/ops_all.hpp"
 
 #include <cmath>
 #include <cstddef>
