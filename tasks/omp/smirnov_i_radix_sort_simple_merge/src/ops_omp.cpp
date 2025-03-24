@@ -10,7 +10,7 @@
 #include <utility>
 #include <vector>
 
-static std::vector<int> smirnov_i_radix_sort_simple_merge_omp::TestTaskOpenMP::Merge(std::vector<int> mas1,
+std::vector<int> smirnov_i_radix_sort_simple_merge_omp::TestTaskOpenMP::Merge(std::vector<int> mas1,
                                                                                      std::vector<int> mas2) {
   std::vector<int> res;
   int p1 = 0;
@@ -39,7 +39,7 @@ static std::vector<int> smirnov_i_radix_sort_simple_merge_omp::TestTaskOpenMP::M
   }
   return res;
 }
-static void smirnov_i_radix_sort_simple_merge_omp::TestTaskOpenMP::Radix_sort(std::vector<int>& mas) {
+void smirnov_i_radix_sort_simple_merge_omp::TestTaskOpenMP::Radix_sort(std::vector<int>& mas) {
   if (mas.empty()) {
     return;
   }
@@ -84,7 +84,7 @@ bool smirnov_i_radix_sort_simple_merge_omp::TestTaskOpenMP::RunImpl() {
     int all = omp_get_num_threads();
     std::vector<int> local_mas;
     int start = static_cast<int>(num * mas_.size() / all);
-    int end = static_cats<int>(std::min((num + 1) * mas_.size() / all, mas_.size()));
+    int end = static_cast<int>(std::min((num + 1) * mas_.size() / all, mas_.size()));
     for (int i = start; i < end; i++) {
       local_mas.push_back(mas_[i]);
     }
