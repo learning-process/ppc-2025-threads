@@ -35,13 +35,13 @@ TEST(titov_s_image_filter_horiz_gaussian3x3_omp, test_10_1) {
   task_data_omp->outputs.emplace_back(reinterpret_cast<uint8_t*>(output_image.data()));
   task_data_omp->outputs_count.emplace_back(output_image.size());
 
-  titov_s_image_filter_horiz_gaussian3x3_omp::ImageFilterOMP image_filter_OMP(task_data_omp);
+  titov_s_image_filter_horiz_gaussian3x3_omp::ImageFilteromp image_filter_omp(task_data_omp);
 
-  ASSERT_EQ(image_filter_OMP.Validation(), true);
+  ASSERT_EQ(image_filter_omp.Validation(), true);
 
-  image_filter_OMP.PreProcessing();
-  image_filter_OMP.Run();
-  image_filter_OMP.PostProcessing();
+  image_filter_omp.PreProcessing();
+  image_filter_omp.Run();
+  image_filter_omp.PostProcessing();
 
   for (size_t i = 0; i < kHeight; ++i) {
     for (size_t j = 0; j < kWidth; ++j) {
@@ -79,13 +79,13 @@ TEST(titov_s_image_filter_horiz_gaussian3x3_omp, test_10_vertical_lines) {
   task_data_omp->outputs.emplace_back(reinterpret_cast<uint8_t*>(output_image.data()));
   task_data_omp->outputs_count.emplace_back(output_image.size());
 
-  titov_s_image_filter_horiz_gaussian3x3_omp::ImageFilterOMP image_filter_OMP(task_data_omp);
+  titov_s_image_filter_horiz_gaussian3x3_omp::ImageFilteromp image_filter_omp(task_data_omp);
 
-  ASSERT_EQ(image_filter_OMP.Validation(), true);
+  ASSERT_EQ(image_filter_omp.Validation(), true);
 
-  image_filter_OMP.PreProcessing();
-  image_filter_OMP.Run();
-  image_filter_OMP.PostProcessing();
+  image_filter_omp.PreProcessing();
+  image_filter_omp.Run();
+  image_filter_omp.PostProcessing();
 
   for (size_t i = 0; i < kHeight; ++i) {
     for (size_t j = 0; j < kWidth; ++j) {
@@ -121,13 +121,13 @@ TEST(titov_s_image_filter_horiz_gaussian3x3_omp, test_horizontal_lines) {
   task_data_omp->outputs.emplace_back(reinterpret_cast<uint8_t*>(output_image.data()));
   task_data_omp->outputs_count.emplace_back(output_image.size());
 
-  titov_s_image_filter_horiz_gaussian3x3_omp::ImageFilterOMP image_filter_OMP(task_data_omp);
+  titov_s_image_filter_horiz_gaussian3x3_omp::ImageFilteromp image_filter_omp(task_data_omp);
 
-  ASSERT_EQ(image_filter_OMP.Validation(), true);
+  ASSERT_EQ(image_filter_omp.Validation(), true);
 
-  image_filter_OMP.PreProcessing();
-  image_filter_OMP.Run();
-  image_filter_OMP.PostProcessing();
+  image_filter_omp.PreProcessing();
+  image_filter_omp.Run();
+  image_filter_omp.PostProcessing();
 
   for (size_t i = 0; i < kHeight; ++i) {
     for (size_t j = 0; j < kWidth; ++j) {
@@ -151,13 +151,13 @@ TEST(titov_s_image_filter_horiz_gaussian3x3_omp, test_empty_image) {
   task_data_omp->outputs.emplace_back(reinterpret_cast<uint8_t*>(output_image.data()));
   task_data_omp->outputs_count.emplace_back(output_image.size());
 
-  titov_s_image_filter_horiz_gaussian3x3_omp::ImageFilterOMP image_filter_OMP(task_data_omp);
+  titov_s_image_filter_horiz_gaussian3x3_omp::ImageFilteromp image_filter_omp(task_data_omp);
 
-  ASSERT_EQ(image_filter_OMP.Validation(), true);
+  ASSERT_EQ(image_filter_omp.Validation(), true);
 
-  image_filter_OMP.PreProcessing();
-  image_filter_OMP.Run();
-  image_filter_OMP.PostProcessing();
+  image_filter_omp.PreProcessing();
+  image_filter_omp.Run();
+  image_filter_omp.PostProcessing();
 
   for (size_t i = 0; i < kHeight; ++i) {
     for (size_t j = 0; j < kWidth; ++j) {
@@ -199,13 +199,13 @@ TEST(titov_s_image_filter_horiz_gaussian3x3_omp, test_sharp_transitions) {
   task_data_omp->outputs.emplace_back(reinterpret_cast<uint8_t*>(output_image.data()));
   task_data_omp->outputs_count.emplace_back(output_image.size());
 
-  titov_s_image_filter_horiz_gaussian3x3_omp::ImageFilterOMP image_filter_OMP(task_data_omp);
+  titov_s_image_filter_horiz_gaussian3x3_omp::ImageFilteromp image_filter_omp(task_data_omp);
 
-  ASSERT_EQ(image_filter_OMP.Validation(), true);
+  ASSERT_EQ(image_filter_omp.Validation(), true);
 
-  image_filter_OMP.PreProcessing();
-  image_filter_OMP.Run();
-  image_filter_OMP.PostProcessing();
+  image_filter_omp.PreProcessing();
+  image_filter_omp.Run();
+  image_filter_omp.PostProcessing();
 
   for (size_t i = 0; i < kHeight; ++i) {
     for (size_t j = 0; j < kWidth; ++j) {
@@ -240,13 +240,13 @@ TEST(titov_s_image_filter_horiz_gaussian3x3_omp, test_smooth_gradients) {
   task_data_omp->outputs.emplace_back(reinterpret_cast<uint8_t*>(output_image.data()));
   task_data_omp->outputs_count.emplace_back(output_image.size());
 
-  titov_s_image_filter_horiz_gaussian3x3_omp::ImageFilterOMP image_filter_OMP(task_data_omp);
+  titov_s_image_filter_horiz_gaussian3x3_omp::ImageFilteromp image_filter_omp(task_data_omp);
 
-  ASSERT_EQ(image_filter_OMP.Validation(), true);
+  ASSERT_EQ(image_filter_omp.Validation(), true);
 
-  image_filter_OMP.PreProcessing();
-  image_filter_OMP.Run();
-  image_filter_OMP.PostProcessing();
+  image_filter_omp.PreProcessing();
+  image_filter_omp.Run();
+  image_filter_omp.PostProcessing();
 
   for (size_t i = 0; i < kHeight; ++i) {
     for (size_t j = 0; j < kWidth; ++j) {
@@ -275,13 +275,13 @@ TEST(titov_s_image_filter_horiz_gaussian3x3_omp, test_all_max) {
   task_data_omp->outputs.emplace_back(reinterpret_cast<uint8_t*>(output_image.data()));
   task_data_omp->outputs_count.emplace_back(output_image.size());
 
-  titov_s_image_filter_horiz_gaussian3x3_omp::ImageFilterOMP image_filter_OMP(task_data_omp);
+  titov_s_image_filter_horiz_gaussian3x3_omp::ImageFilteromp image_filter_omp(task_data_omp);
 
-  ASSERT_EQ(image_filter_OMP.Validation(), true);
+  ASSERT_EQ(image_filter_omp.Validation(), true);
 
-  image_filter_OMP.PreProcessing();
-  image_filter_OMP.Run();
-  image_filter_OMP.PostProcessing();
+  image_filter_omp.PreProcessing();
+  image_filter_omp.Run();
+  image_filter_omp.PostProcessing();
 
   for (size_t i = 0; i < kHeight; ++i) {
     for (size_t j = 0; j < kWidth; ++j) {
@@ -314,13 +314,13 @@ TEST(titov_s_image_filter_horiz_gaussian3x3_omp, test_random_invariant_mean) {
   task_data_omp->outputs.emplace_back(reinterpret_cast<uint8_t*>(output_image.data()));
   task_data_omp->outputs_count.emplace_back(output_image.size());
 
-  titov_s_image_filter_horiz_gaussian3x3_omp::ImageFilterOMP image_filter_OMP(task_data_omp);
+  titov_s_image_filter_horiz_gaussian3x3_omp::ImageFilteromp image_filter_omp(task_data_omp);
 
-  ASSERT_EQ(image_filter_OMP.Validation(), true);
+  ASSERT_EQ(image_filter_omp.Validation(), true);
 
-  image_filter_OMP.PreProcessing();
-  image_filter_OMP.Run();
-  image_filter_OMP.PostProcessing();
+  image_filter_omp.PreProcessing();
+  image_filter_omp.Run();
+  image_filter_omp.PostProcessing();
 
   double avg_input =
       std::accumulate(input_image.begin(), input_image.end(), 0.0) / static_cast<double>(input_image.size());
