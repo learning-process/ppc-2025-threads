@@ -59,9 +59,9 @@ lavrentiev_a_ccs_omp::Sparse lavrentiev_a_ccs_omp::CCSOMP::Transpose(const Spars
 }
 
 lavrentiev_a_ccs_omp::Sparse lavrentiev_a_ccs_omp::CCSOMP::MatMul(const Sparse &matrix1, const Sparse &matrix2) {
-  auto [size, elements, rows, columns_sum] = Sparse();
-  columns_sum.resize(matrix2.size.second);
-  Sparse new_matrix1 = Transpose(matrix1);
+  Sparse result_matrix;
+  result_matrix.columnsSum.resize(matrix2.size.second);
+  auto new_matrix1 = Transpose(matrix1);
   std::vector<std::pair<std::vector<double>, std::vector<int>>> threads_data(ppc::util::GetPPCNumThreads());
 #pragma omp parallel
   {
@@ -82,25 +82,28 @@ lavrentiev_a_ccs_omp::Sparse lavrentiev_a_ccs_omp::CCSOMP::MatMul(const Sparse &
         if (sum != 0) {
           current_thread_data.first.push_back(sum);
           current_thread_data.second.push_back(j);
-          columns_sum[i]++;
+          result_matrix.columnsSum[i]++;
         }
       }
     }
     threads_data[omp_get_thread_num()] = std::move(current_thread_data);
   }
-  for (size_t i = 1; i < columns_sum.size(); ++i) {
-    columns_sum[i] = columns_sum[i] + columns_sum[i - 1];
+  for (size_t i = 1; i < result_matrix.columnsSum.size(); ++i) {
+    result_matrix.columnsSum[i] = result_matrix.columnsSum[i] + result_matrix.columnsSum[i - 1];
   }
 
   for (const auto &data : threads_data) {
     for (size_t i = 0; i < data.first.size(); ++i) {
-      elements.push_back(data.first[i]);
-      rows.push_back(data.second[i]);
+      result_matrix.elements.push_back(data.first[i]);
+      result_matrix.rows.push_back(data.second[i]);
     }
   }
-  size.first = matrix2.size.second;
-  size.second = matrix2.size.second;
-  return {.size = size, .elements = elements, .rows = rows, .columnsSum = columns_sum};
+  result_matrix.size.first = matrix2.size.second;
+  result_matrix.size.second = matrix2.size.second;
+  return {.size = result_matrix.size,
+          .elements = result_matrix.elements,
+          .rows = result_matrix.rows,
+          .columnsSum = result_matrix.columnsSum};
 }
 
 int lavrentiev_a_ccs_omp::CCSOMP::GetElementsCount(int index, const std::vector<int> &columns_sum) {
