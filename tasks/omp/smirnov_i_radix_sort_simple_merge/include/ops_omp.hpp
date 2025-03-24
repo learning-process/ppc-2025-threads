@@ -18,8 +18,8 @@ class TestTaskOpenMP : public ppc::core::Task {
 
  private:
   std::vector<int> mas_, output_;
-  void radix_sort(std::vector<int> &mas);
-  std::vector<int> merge(std::vector<int> mas1, std::vector<int> mas2);
+  static void Radix_sort(std::vector<int> &mas);
+  static std::vector<int> Merge(std::vector<int> mas1, std::vector<int> mas2);
 };
 
 }  // namespace smirnov_i_radix_sort_simple_merge_omp
