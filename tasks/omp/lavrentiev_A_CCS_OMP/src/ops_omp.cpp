@@ -2,7 +2,6 @@
 
 #include <omp.h>
 
-#include <algorithm>
 #include <cmath>
 #include <cstddef>
 #include <utility>
@@ -64,7 +63,6 @@ lavrentiev_a_ccs_omp::Sparse lavrentiev_a_ccs_omp::CCSOMP::MatMul(const Sparse &
   result_matrix.columnsSum.resize(matrix2.size.second);
   auto new_matrix1 = Transpose(matrix1);
   std::vector<std::pair<std::vector<double>, std::vector<int>>> threads_data(ppc::util::GetPPCNumThreads());
-  int size = 0;
 #pragma omp parallel
   {
     std::pair<std::vector<double>, std::vector<int>> current_thread_data;
@@ -85,7 +83,6 @@ lavrentiev_a_ccs_omp::Sparse lavrentiev_a_ccs_omp::CCSOMP::MatMul(const Sparse &
           current_thread_data.first.push_back(sum);
           current_thread_data.second.push_back(j);
           result_matrix.columnsSum[i]++;
-          size++;
         }
       }
     }
@@ -94,14 +91,12 @@ lavrentiev_a_ccs_omp::Sparse lavrentiev_a_ccs_omp::CCSOMP::MatMul(const Sparse &
   for (size_t i = 1; i < result_matrix.columnsSum.size(); ++i) {
     result_matrix.columnsSum[i] = result_matrix.columnsSum[i] + result_matrix.columnsSum[i - 1];
   }
-  result_matrix.elements.resize(size);
-  result_matrix.rows.resize(size);
-  int shift = 0;
-  std::ranges::for_each(threads_data, [&](const auto &pair) {
-    std::ranges::copy(pair.first, result_matrix.elements.begin() + shift);
-    std::ranges::copy(pair.second, result_matrix.rows.begin() + shift);
-    shift += pair.first.size();
-  });
+  for (const auto &data : threads_data) {
+    for (size_t i = 0; i < data.first.size(); ++i) {
+      result_matrix.elements.push_back(data.first[i]);
+      result_matrix.rows.push_back(data.second[i]);
+    }
+  }
   result_matrix.size.first = matrix2.size.second;
   result_matrix.size.second = matrix2.size.second;
   return {.size = result_matrix.size,
