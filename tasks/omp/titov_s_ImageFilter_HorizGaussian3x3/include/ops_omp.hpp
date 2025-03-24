@@ -21,10 +21,8 @@ class ImageFilterOMP : public ppc::core::Task {
   std::vector<double> output_;
   int width_;
   int height_;
-  int kernel_size_ = 3;
+  const size_t kernel_size_ = 3;
   std::vector<int> kernel_;
-
-  void ApplyGaussianFilter();
 };
 
 }  // namespace titov_s_image_filter_horiz_gaussian3x3_omp
