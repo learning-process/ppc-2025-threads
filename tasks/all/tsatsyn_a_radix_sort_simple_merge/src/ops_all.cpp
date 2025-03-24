@@ -30,7 +30,7 @@ bool tsatsyn_a_radix_sort_simple_merge_all::TestTaskALL::PreProcessingImpl() {
 inline void SendData(boost::mpi::communicator &world, bool &is_pozitive, bool &is_negative,
                      std::vector<double> &local_data, std::vector<double> &input_data) {
   for (int proc = 1; proc < world.size(); proc++) {
-    for (int j = proc; j < static_cast<int>(input_data.size()); j += world_.size()) {
+    for (int j = proc; j < static_cast<int>(input_data.size()); j += world.size()) {
       input_data[j] <= 0.0 ? is_negative = true : is_pozitive = true;
       local_data.push_back(input_data[j]);
     }
