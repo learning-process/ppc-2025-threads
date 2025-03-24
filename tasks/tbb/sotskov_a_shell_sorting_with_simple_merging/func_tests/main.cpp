@@ -124,3 +124,23 @@ TEST(sotskov_a_shell_sorting_with_simple_merging_tbb, test_sort_random_vector) {
   sotskov_a_shell_sorting_with_simple_merging_tbb::RunSortingTest(
       sorting_params, sotskov_a_shell_sorting_with_simple_merging_tbb::ShellSortWithSimpleMerging);
 }
+TEST(sotskov_a_shell_sorting_with_simple_merging_tbb, test_sort_double_reversed_array) {
+  const int size = 100;
+  std::vector<int> input(size);
+
+  for (int i = 0; i < size / 2; ++i) {
+    input[i] = size / 2 - i;
+  }
+
+  for (int i = size / 2; i < size; ++i) {
+    input[i] = size - i;
+  }
+
+  std::vector<int> expected = input;
+  std::ranges::sort(expected.begin(), expected.end());
+
+  sotskov_a_shell_sorting_with_simple_merging_tbb::SortingTestParams params = {.expected = expected, .input = input};
+
+  sotskov_a_shell_sorting_with_simple_merging_tbb::RunSortingTest(
+      params, sotskov_a_shell_sorting_with_simple_merging_tbb::ShellSortWithSimpleMerging);
+}
