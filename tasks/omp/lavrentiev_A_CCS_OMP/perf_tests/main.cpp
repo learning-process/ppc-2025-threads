@@ -16,14 +16,14 @@
 
 namespace {
 
-std::vector<double> GenerateRandomMatrix(int size) {
+std::vector<double> GenerateRandomMatrix(int size, int sparse_size) {
   std::vector<double> data(size);
   std::random_device device;
   std::mt19937 generator(device());
+  std::uniform_int_distribution<> random_element(-500, 500);
+  size = size / sparse_size;
   for (int i = 0; i < size; ++i) {
-    if ((i % 6) == 0) {
-      data[i] = static_cast<double>(generator() % 1000);
-    }
+    data[i] = static_cast<double>(random_element(generator));
   }
   std::ranges::shuffle(data, generator);
   return data;
@@ -47,11 +47,11 @@ struct TestData {
   std::vector<double> single_matrix;
   std::vector<double> result;
   std::shared_ptr<ppc::core::TaskData> task_data_omp;
-  TestData(std::pair<int, int> matrix1_size, std::pair<int, int> matrix2_size);
+  TestData(std::pair<int, int> matrix1_size, std::pair<int, int> matrix2_size, int sparse_size);
 };
 
-TestData::TestData(std::pair<int, int> matrix1_size, std::pair<int, int> matrix2_size) {
-  random_data = GenerateRandomMatrix(matrix1_size.first * matrix1_size.second);
+TestData::TestData(std::pair<int, int> matrix1_size, std::pair<int, int> matrix2_size, int sparse_size) {
+  random_data = GenerateRandomMatrix(matrix1_size.first * matrix1_size.second, sparse_size);
   single_matrix = GenerateSingleMatrix(matrix2_size.first * matrix2_size.second);
   result.resize(matrix1_size.first * matrix2_size.second);
   task_data_omp = std::make_shared<ppc::core::TaskData>();
@@ -68,7 +68,7 @@ TestData::TestData(std::pair<int, int> matrix1_size, std::pair<int, int> matrix2
 
 TEST(lavrentiev_a_ccs_omp, test_pipeline_run) {
   constexpr double kSize = 1200;
-  auto task = TestData({kSize, kSize}, {kSize, kSize});
+  auto task = TestData({kSize, kSize}, {kSize, kSize}, 6);
   auto test_task_omp = std::make_shared<lavrentiev_a_ccs_omp::CCSOMP>(task.task_data_omp);
   auto perf_attr = std::make_shared<ppc::core::PerfAttr>();
   perf_attr->num_running = 10;
@@ -89,7 +89,7 @@ TEST(lavrentiev_a_ccs_omp, test_pipeline_run) {
 
 TEST(lavrentiev_a_ccs_omp, test_task_run) {
   constexpr double kSize = 1200;
-  auto task = TestData({kSize, kSize}, {kSize, kSize});
+  auto task = TestData({kSize, kSize}, {kSize, kSize}, 6);
   auto test_task_omp = std::make_shared<lavrentiev_a_ccs_omp::CCSOMP>(task.task_data_omp);
   auto perf_attr = std::make_shared<ppc::core::PerfAttr>();
   perf_attr->num_running = 10;

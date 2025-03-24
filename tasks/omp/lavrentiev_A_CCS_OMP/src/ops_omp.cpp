@@ -39,8 +39,7 @@ lavrentiev_a_ccs_omp::Sparse lavrentiev_a_ccs_omp::CCSOMP::Transpose(const Spars
   std::vector<std::vector<int>> new_indexes(need_size);
   int counter = 0;
   for (int i = 0; i < static_cast<int>(sparse.columnsSum.size()); ++i) {
-    auto limit = i == 0 ? sparse.columnsSum[0] : sparse.columnsSum[i] - sparse.columnsSum[i - 1];
-    for (int j = 0; j < limit; ++j) {
+    for (int j = 0; j < GetElementsCount(i, sparse.columnsSum); ++j) {
       new_elements[sparse.rows[counter]].emplace_back(sparse.elements[counter]);
       new_indexes[sparse.rows[counter]].emplace_back(i);
       counter++;
@@ -115,8 +114,7 @@ std::vector<double> lavrentiev_a_ccs_omp::CCSOMP::ConvertFromSparse(const Sparse
   std::vector<double> nmatrix(matrix.size.first * matrix.size.second);
   int counter = 0;
   for (size_t i = 0; i < matrix.columnsSum.size(); ++i) {
-    auto barier = i == 0 ? matrix.columnsSum[0] : matrix.columnsSum[i] - matrix.columnsSum[i - 1];
-    for (int j = 0; j < barier; ++j) {
+    for (int j = 0; j < GetElementsCount(static_cast<int>(i), matrix.columnsSum); ++j) {
       nmatrix[i + (matrix.size.second * matrix.rows[counter])] = matrix.elements[counter];
       counter++;
     }
