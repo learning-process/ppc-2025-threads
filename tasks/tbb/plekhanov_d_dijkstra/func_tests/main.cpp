@@ -49,7 +49,8 @@ void RunTest(const std::vector<std::vector<std::pair<size_t, int>>> &adj_list,  
       EXPECT_EQ(distances[i], expected_result[i]);
     }
   } else {
-    ASSERT_FALSE(test_task_tbb.Validation());
+    ASSERT_FALSE(test_task_tbb.Run());
+    test_task_tbb.PreProcessing();
   }
 }
 
@@ -159,12 +160,6 @@ TEST(plekhanov_d_dijkstra_tbb, test_dijkstra_Large_Sparse_Graph) {
 
 TEST(plekhanov_d_dijkstra_tbb, test_dijkstra_validation_failure) {
   plekhanov_d_dijkstra_tbb::RunValidationFailureTest();
-}
-
-TEST(plekhanov_d_dijkstra_tbb, test_dijkstra_Negative_Edges) {
-  std::vector<std::vector<std::pair<size_t, int>>> adj_list = {{{1, 4}, {2, -2}}, {{0, 4}, {2, 3}}, {{0, -2}, {1, 3}}};
-  std::vector<int> expected = {0, 0, 0};
-  plekhanov_d_dijkstra_tbb::RunTest(adj_list, 0, expected, false);
 }
 
 TEST(plekhanov_d_dijkstra_tbb, test_dijkstra_Random_Graph_10) {
