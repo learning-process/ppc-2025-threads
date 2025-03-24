@@ -3,8 +3,10 @@
 #include <cstddef>
 #include <cstdint>
 #include <memory>
-#include <random>
 #include <vector>
+#include <random>
+#include <cmath>
+#include <algorithm>
 
 #include "core/task/include/task.hpp"
 #include "omp/frolova_e_Sobel_filter/include/ops_omp.hpp"
