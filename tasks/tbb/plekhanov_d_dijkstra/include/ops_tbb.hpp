@@ -1,7 +1,7 @@
 #pragma once
 
-#include <oneapi/tbb/concurrent_vector.h>
 #include <oneapi/tbb/blocked_range.h>
+#include <oneapi/tbb/concurrent_vector.h>
 #include <oneapi/tbb/parallel_for.h>
 
 #include <atomic>
