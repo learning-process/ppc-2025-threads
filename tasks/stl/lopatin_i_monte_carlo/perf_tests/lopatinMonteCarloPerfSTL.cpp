@@ -44,7 +44,7 @@ TEST(lopatin_i_monte_carlo_stl, test_pipeline_run) {
     return std::exp(x[0] + x[1] + x[2] + x[3] + x[4]);
   };
 
-  auto test_task = std::make_shared<lopatin_i_monte_carlo_stl::TestTaskOMP>(task_data, function);
+  auto test_task = std::make_shared<lopatin_i_monte_carlo_stl::TestTaskSTL>(task_data, function);
 
   auto perf_attr = std::make_shared<ppc::core::PerfAttr>();
   perf_attr->num_running = 5;
@@ -83,7 +83,7 @@ TEST(lopatin_i_monte_carlo_stl, test_task_run) {
     return std::exp(x[0] + x[1] + x[2] + x[3] + x[4]);
   };
 
-  auto test_task = std::make_shared<lopatin_i_monte_carlo_stl::TestTaskOMP>(task_data, function);
+  auto test_task = std::make_shared<lopatin_i_monte_carlo_stl::TestTaskSTL>(task_data, function);
 
   auto perf_attr = std::make_shared<ppc::core::PerfAttr>();
   perf_attr->num_running = 5;

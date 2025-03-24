@@ -4,8 +4,12 @@
 #include <cmath>
 #include <cstddef>
 #include <ctime>
+#include <numeric>
 #include <random>
+#include <thread>
 #include <vector>
+
+#include "core/util/include/util.hpp"
 
 namespace lopatin_i_monte_carlo_stl {
 
@@ -36,11 +40,22 @@ bool TestTaskSTL::PreProcessingImpl() {
 bool TestTaskSTL::RunImpl() {
   const size_t d = integrationBounds_.size() / 2;  // dimensions
 
+  const int numThreads = ppc::util::GetPPCNumThreads();
+  // printf("%d\n", numThreads);
+  std::vector<std::thread> threads(numThreads);
+  std::vector<double> partialSums(numThreads, 0.0);
+  const int chunkSize = iterations_ / numThreads;
+  const int remainder = iterations_ % numThreads;
+
   // init random numbers generator
+  std::vector<std::mt19937> generators;
   std::random_device rd;
   std::seed_seq seed{rd(), static_cast<unsigned int>(std::time(nullptr))};
-  std::vector<std::mt19937::result_type> seeds(omp_get_max_threads());
+  std::vector<std::mt19937::result_type> seeds(numThreads);
   seed.generate(seeds.begin(), seeds.end());
+  for (auto& s : seeds) {
+    generators.emplace_back(s);
+  }
 
   // volume of integration region
   double volume = 1.0;
@@ -48,25 +63,38 @@ bool TestTaskSTL::RunImpl() {
     volume *= (integrationBounds_[(2 * j) + 1] - integrationBounds_[2 * j]);
   }
 
-  double total_sum = 0.0;
-#pragma omp parallel reduction(+ : total_sum)
-  {
-    // init generator for each thread with unique seed
-    const int tid = omp_get_thread_num();
-    std::mt19937 local_rnd(seeds[tid]);
+  auto thread_task = [&](int thread_id, int start, int end) {
     std::uniform_real_distribution<> dis(0.0, 1.0);
+    auto& gen = generators[thread_id];
+    double local_sum = 0.0;
 
-#pragma omp for
-    for (int i = 0; i < iterations_; ++i) {
+    for (int i = start; i < end; ++i) {
       std::vector<double> point(d);
       for (size_t j = 0; j < d; ++j) {
         const double min = integrationBounds_[2 * j];
         const double max = integrationBounds_[(2 * j) + 1];
-        point[j] = min + (max - min) * dis(local_rnd);
+        point[j] = min + (max - min) * dis(gen);
       }
-      total_sum += integrand_(point);
+      local_sum += integrand_(point);
     }
+
+    partialSums[thread_id] = local_sum;
+  };
+
+  // create and run threads
+  int start = 0;
+  for (int tid = 0; tid < numThreads; ++tid) {
+    const int end = start + chunkSize + (tid < remainder ? 1 : 0);
+    threads[tid] = std::thread(thread_task, tid, start, end);
+    start = end;
   }
+
+  // waiting for all threads to end their work
+  for (auto& t : threads) {
+    t.join();
+  }
+
+  double total_sum = std::accumulate(partialSums.begin(), partialSums.end(), 0.0);
 
   result_ = (total_sum / iterations_) * volume;
 
