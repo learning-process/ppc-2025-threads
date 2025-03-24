@@ -4,7 +4,9 @@
 #include <tbb/tbb.h>
 
 #include <algorithm>
+#include <cmath>
 #include <cstddef>
+#include <iostream>
 #include <utility>
 #include <vector>
 
@@ -31,11 +33,8 @@ SparseMatrix SparseMatrix::Transpose(const SparseMatrix& matrix) {
       components.m_values.emplace_back(intermediate_values[i][j]);
       components.m_rows.emplace_back(intermediate_indexes[i][j]);
     }
-    if (i > 0) {
-      components.m_elementsSum.emplace_back(intermediate_values[i].size() + components.m_elementsSum[i - 1]);
-    } else {
-      components.m_elementsSum.emplace_back(intermediate_values[i].size());
-    }
+    i == 0 ? components.m_elementsSum.emplace_back(intermediate_values[i].size())
+           : components.m_elementsSum.emplace_back(intermediate_values[i].size() + components.m_elementsSum[i - 1]);
   }
   return SparseMatrix(matrix.GetColumnsCount(), matrix.GetRowsCount(), components);
 }
@@ -72,7 +71,7 @@ SparseMatrix SparseMatrix::operator*(SparseMatrix& smatrix) const {
                                   for (size_t j = 0; j < felements_sum.size(); ++j) {
                                     double sum = CalculateSum(fmatrix, smatrix, felements_sum, selements_sum,
                                                               static_cast<int>(i), static_cast<int>(j));
-                                    if (sum > kMEpsilon) {
+                                    if (std::abs(sum) > kMEpsilon) {
                                       component.m_values[(i * felements_sum.size()) + j] = sum;
                                       component.m_rows[(i * felements_sum.size()) + j] = static_cast<int>(j);
                                       component.m_elementsSum[i]++;

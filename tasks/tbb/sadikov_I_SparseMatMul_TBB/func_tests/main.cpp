@@ -1,7 +1,6 @@
 #include <gtest/gtest.h>
 
 #include <algorithm>
-#include <cmath>
 #include <cstdint>
 #include <memory>
 #include <random>
@@ -16,10 +15,10 @@ std::vector<double> GetRandomMatrix(int size) {
   std::vector<double> data(size);
   std::random_device dev;
   std::mt19937 gen(dev());
-  int high = 500;
-  int low = 0;
+  int low = -5000;
+  int high = 5000;
   std::uniform_int_distribution<> number(low, high);
-  for (int i = 0; i < static_cast<int>(std::sqrt(size)); ++i) {
+  for (int i = 0; i < size / 5; ++i) {
     data[i] = static_cast<double>(number(gen));
   }
   std::ranges::shuffle(data, gen);
