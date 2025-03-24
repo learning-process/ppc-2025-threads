@@ -5,7 +5,6 @@
 #include <cmath>
 #include <cstddef>
 #include <cstdint>
-#include <cstring>
 #include <future>
 #include <mutex>
 #include <utility>
@@ -107,12 +106,14 @@ bool tsatsyn_a_radix_sort_simple_merge_stl::TestTaskSTL::RunImpl() {
 
   if (num_threads >= 2) {
     if (!negative_copy.empty()) {
-      auto future_neg = std::async(std::launch::async, [&negative_copy, &negative_bits]() { SortRadix(negative_copy, true, negative_bits); });
+      auto future_neg = std::async(
+          std::launch::async, [&negative_copy, &negative_bits]() { SortRadix(negative_copy, true, negative_bits); });
       future_neg.wait();
     }
-      auto future_pos = std::async(std::launch::async, [&pozitive_copy, &pozitive_bits]() { SortRadix(pozitive_copy, false, pozitive_bits); });
-      future_pos.wait();
-    
+    auto future_pos = std::async(
+        std::launch::async, [&pozitive_copy, &pozitive_bits]() { SortRadix(pozitive_copy, false, pozitive_bits); });
+    future_pos.wait();
+
   } else {
     if (!negative_copy.empty()) {
       SortRadix(negative_copy, true, negative_bits);
@@ -126,7 +127,6 @@ bool tsatsyn_a_radix_sort_simple_merge_stl::TestTaskSTL::RunImpl() {
       }
     });
     future_neg.wait();
-
   }
   auto future_pos = std::async(std::launch::async, [&]() {
     size_t offset = negative_copy.size();
