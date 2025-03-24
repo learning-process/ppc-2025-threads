@@ -11,7 +11,7 @@
 #include "seq/kapustin_i_jarv_alg/include/ops_seq.hpp"
 
 namespace gen {
-std::vector<std::pair<int, int>> GenerateRandomPoints(size_t count, int min_x, int max_x, int min_y, int max_y) {
+static std::vector<std::pair<int, int>> GenerateRandomPoints(size_t count, int min_x, int max_x, int min_y, int max_y) {
   std::random_device rd;
   std::mt19937 rng(rd());
   std::uniform_int_distribution<int> dist_x(min_x, max_x);
