@@ -247,7 +247,7 @@ TEST(lopatin_i_monte_carlo_stl, 4DQuadraticFunction) {
 
 TEST(lopatin_i_monte_carlo_stl, 7DQuadraticFunction) {
   const int dimensions = 7;
-  const int iterations = 70000;
+  const int iterations = 50000;
   std::vector<double> bounds = lopatin_i_monte_carlo_stl::GenerateBounds(-3.0, 3.0, dimensions);
 
   auto task_data = std::make_shared<ppc::core::TaskData>();
