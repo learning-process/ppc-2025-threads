@@ -27,32 +27,32 @@ bool tsatsyn_a_radix_sort_simple_merge_all::TestTaskALL::PreProcessingImpl() {
   }
   return true;
 }
-inline void SendData(boost::mpi::communicator &world_, bool &is_pozitive, bool &is_negative,
-                     std::vector<double> &local_data_, std::vector<double> &input_data_) {
-  for (int proc = 1; proc < world_.size(); proc++) {
-    for (int j = proc; j < static_cast<int>(input_data_.size()); j += world_.size()) {
-      input_data_[j] <= 0.0 ? is_negative = true : is_pozitive = true;
-      local_data_.push_back(input_data_[j]);
+inline void SendData(boost::mpi::communicator &world, bool &is_pozitive, bool &is_negative,
+                     std::vector<double> &local_data, std::vector<double> &input_data) {
+  for (int proc = 1; proc < world.size(); proc++) {
+    for (int j = proc; j < static_cast<int>(input_data.size()); j += world_.size()) {
+      input_data[j] <= 0.0 ? is_negative = true : is_pozitive = true;
+      local_data.push_back(input_data[j]);
     }
-    world_.send(proc, 0, local_data_);
-    local_data_.clear();
+    world.send(proc, 0, local_data);
+    local_data.clear();
   }
-  for (int j = 0; j < static_cast<int>(input_data_.size()); j += world_.size()) {
-    local_data_.push_back(input_data_[j]);
+  for (int j = 0; j < static_cast<int>(input_data.size()); j += world.size()) {
+    local_data.push_back(input_data[j]);
   }
 }
 inline void ParallelParse(std::vector<uint64_t> &pozitive_copy, std::vector<uint64_t> &negative_copy,
-                          std::vector<double> &local_data_) {
+                          std::vector<double> &local_data) {
 #pragma omp parallel
   {
     std::vector<uint64_t> local_positive;
     std::vector<uint64_t> local_negative;
 #pragma omp for nowait
-    for (int i = 0; i < static_cast<int>(local_data_.size()); ++i) {
-      if (local_data_[i] > 0.0) {
-        local_positive.push_back(*reinterpret_cast<const uint64_t *>(&local_data_[i]));
+    for (int i = 0; i < static_cast<int>(local_data.size()); ++i) {
+      if (local_data[i] > 0.0) {
+        local_positive.push_back(*reinterpret_cast<const uint64_t *>(&local_data[i]));
       } else {
-        local_negative.push_back(*reinterpret_cast<const uint64_t *>(&local_data_[i]));
+        local_negative.push_back(*reinterpret_cast<const uint64_t *>(&local_data[i]));
       }
     }
 #pragma omp critical
@@ -85,10 +85,10 @@ inline void RadixSort(std::vector<uint64_t> &data) {
     }
   }
 }
-inline void FinalParse(std::vector<uint64_t> &data, int code, boost::mpi::communicator &world_) {
+inline void FinalParse(std::vector<uint64_t> &data, int code, boost::mpi::communicator &world) {
   std::vector<uint64_t> local_copy_for_recv;
-  for (int proc = 1; proc < world_.size(); proc++) {
-    world_.recv(proc, code, local_copy_for_recv);
+  for (int proc = 1; proc < world.size(); proc++) {
+    world.recv(proc, code, local_copy_for_recv);
     data.insert(data.end(), local_copy_for_recv.begin(), local_copy_for_recv.end());
     local_copy_for_recv.clear();
   }
