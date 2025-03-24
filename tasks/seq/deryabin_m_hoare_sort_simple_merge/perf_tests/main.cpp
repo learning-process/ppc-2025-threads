@@ -18,7 +18,7 @@ TEST(deryabin_m_hoare_sort_simple_merge_seq, test_pipeline_run_Seq) {
   std::random_device rd;
   std::mt19937 gen(rd());
   std::uniform_real_distribution<> distribution(-100, 100);
-  std::vector<double> input_array(64000);
+  std::vector<double> input_array(512000);
   std::ranges::generate(input_array.begin(), input_array.end(), [&] { return distribution(gen); });
   std::shuffle(input_array.begin(), input_array.end(), gen);
   std::vector<std::vector<double>> in_array(1, input_array);
@@ -60,7 +60,7 @@ TEST(deryabin_m_hoare_sort_simple_merge_seq, test_task_run_Seq) {
   std::random_device rd;
   std::mt19937 gen(rd());
   std::uniform_real_distribution<> distribution(-100, 100);
-  std::vector<double> input_array(64000);
+  std::vector<double> input_array(512000);
   std::ranges::generate(input_array.begin(), input_array.end(), [&] { return distribution(gen); });
   std::shuffle(input_array.begin(), input_array.end(), gen);
   std::vector<std::vector<double>> in_array(1, input_array);
