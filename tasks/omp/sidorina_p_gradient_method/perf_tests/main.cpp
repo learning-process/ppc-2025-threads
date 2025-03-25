@@ -50,6 +50,7 @@ TEST(sidorina_p_gradient_method_omp, test_pipeline_run) {
   task->inputs.emplace_back(const_cast<uint8_t *>(reinterpret_cast<const uint8_t *>(solution.data())));
   task->inputs_count.emplace_back(solution.size());
   task->outputs.emplace_back(reinterpret_cast<uint8_t *>(result.data()));
+  task->outputs_count.emplace_back(result.size());
 
   auto gradient_method = std::make_shared<sidorina_p_gradient_method_omp::GradientMethod>(task);
 
@@ -115,6 +116,7 @@ TEST(sidorina_p_gradient_method_omp, test_task_run) {
   task->inputs.emplace_back(const_cast<uint8_t *>(reinterpret_cast<const uint8_t *>(solution.data())));
   task->inputs_count.emplace_back(solution.size());
   task->outputs.emplace_back(reinterpret_cast<uint8_t *>(result.data()));
+  task->outputs_count.emplace_back(result.size());
 
   auto gradient_method = std::make_shared<sidorina_p_gradient_method_omp::GradientMethod>(task);
 
