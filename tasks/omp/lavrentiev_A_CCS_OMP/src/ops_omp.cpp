@@ -12,9 +12,8 @@
 
 lavrentiev_a_ccs_omp::Sparse lavrentiev_a_ccs_omp::CCSOMP::ConvertToSparse(std::pair<int, int> size,
                                                                            const std::vector<double> &values) {
-  std::vector<int> columns_sum(size.second);
-  std::vector<double> elements;
-  std::vector<int> rows;
+  auto [nsize, elements, rows, columns_sum] = Sparse();
+  columns_sum.resize(size.second);
   for (int i = 0; i < size.second; ++i) {
     for (int j = 0; j < size.first; ++j) {
       if (values[i + (size.second * j)] != 0) {
