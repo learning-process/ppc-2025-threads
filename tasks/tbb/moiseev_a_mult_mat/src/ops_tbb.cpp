@@ -27,7 +27,6 @@ bool moiseev_a_mult_mat_tbb::MultMatTBB::PreProcessingImpl() {
   if (matrix_size_ % block_size_ != 0) {
     block_size_ = 1;
   }
-
   num_blocks_ = matrix_size_ / block_size_;
 
   return true;
