@@ -142,3 +142,16 @@ TEST(shuravina_o_hoare_simple_merger_omp, test_array_with_negative_numbers) {
   std::vector<int> expected = {-9, -5, -3, 0, 1, 2};
   EXPECT_EQ(out, expected);
 }
+
+TEST(shuravina_o_hoare_simple_merger_omp, validation_null_input_pointer) {
+  std::vector<int> out(5, 0);
+
+  auto task_data = std::make_shared<ppc::core::TaskData>();
+  task_data->inputs.emplace_back(nullptr);
+  task_data->inputs_count.emplace_back(5);
+  task_data->outputs.emplace_back(reinterpret_cast<uint8_t*>(out.data()));
+  task_data->outputs_count.emplace_back(out.size());
+
+  shuravina_o_hoare_simple_merger::TestTaskOMP test_task(task_data);
+  EXPECT_FALSE(test_task.Validation()) << "Validation should fail for null input pointer";
+}
