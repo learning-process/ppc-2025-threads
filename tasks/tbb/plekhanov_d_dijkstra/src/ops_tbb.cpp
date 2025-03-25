@@ -97,7 +97,7 @@ bool plekhanov_d_dijkstra_tbb::TestTaskTBB::RunImpl() {  // NOLINT(readability-f
             return u2;
           }
           if (u2 == -1) {
-            return u1; 
+            return u1;
           }
           return (distances_[u1] < distances_[u2]) ? u1 : u2;
         });
