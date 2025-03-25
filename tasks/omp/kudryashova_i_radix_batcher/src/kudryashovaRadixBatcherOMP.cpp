@@ -142,7 +142,7 @@ bool kudryashova_i_radix_batcher_omp::TestTaskOpenMP::RunImpl() {
 
   for (size_t merge_size = block_size; merge_size < n; merge_size *= 2) {
 #pragma omp parallel for schedule(static)
-    for (int i = 0; i < static_cast<int> (n); i += (2 * merge_size)) {
+    for (int i = 0; i < static_cast<int>(n); i += (2 * merge_size)) {
       const size_t mid = std::min(i + merge_size, n);
       const size_t end = std::min(i + 2 * merge_size, n);
       if (mid < end) {
