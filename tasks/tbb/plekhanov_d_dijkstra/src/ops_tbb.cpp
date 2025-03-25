@@ -5,13 +5,11 @@
 #include <oneapi/tbb/parallel_for.h>
 #include <oneapi/tbb/parallel_reduce.h>
 
-#include <algorithm>
-#include <atomic>
+#include <algorithm> 
 #include <climits>
 #include <cstddef>
 #include <cstdlib>
 #include <limits>
-#include <mutex>
 #include <utility>
 #include <vector>
 
@@ -36,7 +34,8 @@ bool plekhanov_d_dijkstra_tbb::TestTaskTBB::PreProcessingImpl() {
   return true;
 }
 
-bool plekhanov_d_dijkstra_tbb::TestTaskTBB::ValidationImpl() {
+bool plekhanov_d_dijkstra_tbb::TestTaskTBB::ValidationImpl() { 
+
   if (task_data->inputs_count.empty() || task_data->inputs_count[0] == 0 || task_data->outputs_count.empty() ||
       task_data->outputs_count[0] == 0) {
     return false;
@@ -44,7 +43,7 @@ bool plekhanov_d_dijkstra_tbb::TestTaskTBB::ValidationImpl() {
   return true;
 }
 
-bool plekhanov_d_dijkstra_tbb::TestTaskTBB::RunImpl() {
+bool plekhanov_d_dijkstra_tbb::TestTaskTBB::RunImpl() {  // NOLINT(readability-function-cognitive-complexity)
   std::vector<std::vector<std::pair<int, int>>> graph(num_vertices_);
   size_t current_vertex = 0;
   size_t i = 0;
@@ -85,13 +84,13 @@ bool plekhanov_d_dijkstra_tbb::TestTaskTBB::RunImpl() {
               current_u = v;
             }
           }
-          if (local_u == -1) return current_u;
-          if (current_u == -1) return local_u;
+          if (local_u == -1) { return current_u; }
+          if (current_u == -1) { return local_u; }
           return (distances_[current_u] < distances_[local_u]) ? current_u : local_u;
         },
         [&](int u1, int u2) -> int {
-          if (u1 == -1) return u2;
-          if (u2 == -1) return u1;
+          if (u1 == -1) { return u2; }
+          if (u2 == -1) { return u1; }
           return (distances_[u1] < distances_[u2]) ? u1 : u2;
         });
 
@@ -107,9 +106,7 @@ bool plekhanov_d_dijkstra_tbb::TestTaskTBB::RunImpl() {
       if (!visited[v] && distances_[u] != std::numeric_limits<int>::max()) {
         int new_dist = distances_[u] + weight;
         oneapi::tbb::mutex::scoped_lock lock(mutex_);
-        if (new_dist < distances_[v]) {
-          distances_[v] = new_dist;
-        }
+        distances_[v] = std::min(new_dist, distances_[v]);
       }
     });
   }

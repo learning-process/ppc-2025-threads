@@ -86,7 +86,7 @@ TEST(plekhanov_d_dijkstra_tbb, test_pipeline_run) {
   task_data_tbb->outputs.emplace_back(reinterpret_cast<uint8_t *>(distances.data()));
   task_data_tbb->outputs_count.emplace_back(kNumVertices);
 
-  auto test_task_omp = std::make_shared<plekhanov_d_dijkstra_tbb::TestTaskTBB>(task_data_tbb);
+  auto test_task_tbb = std::make_shared<plekhanov_d_dijkstra_tbb::TestTaskTBB>(task_data_tbb);
 
   auto perf_attr = std::make_shared<ppc::core::PerfAttr>();
   perf_attr->num_running = 10;
@@ -99,7 +99,7 @@ TEST(plekhanov_d_dijkstra_tbb, test_pipeline_run) {
 
   auto perf_results = std::make_shared<ppc::core::PerfResults>();
 
-  auto perf_analyzer = std::make_shared<ppc::core::Perf>(test_task_omp);
+  auto perf_analyzer = std::make_shared<ppc::core::Perf>(test_task_tbb);
   perf_analyzer->PipelineRun(perf_attr, perf_results);
   ppc::core::Perf::PrintPerfStatistic(perf_results);
   std::vector<int> expected = plekhanov_d_dijkstra_tbb::CalculateExpectedResult(adj_list, start_vertex);
@@ -141,7 +141,7 @@ TEST(plekhanov_d_dijkstra_tbb, test_task_run) {
   task_data_tbb->outputs.emplace_back(reinterpret_cast<uint8_t *>(distances.data()));
   task_data_tbb->outputs_count.emplace_back(kNumVertices);
 
-  auto test_task_omp = std::make_shared<plekhanov_d_dijkstra_tbb::TestTaskTBB>(task_data_tbb);
+  auto test_task_tbb = std::make_shared<plekhanov_d_dijkstra_tbb::TestTaskTBB>(task_data_tbb);
 
   auto perf_attr = std::make_shared<ppc::core::PerfAttr>();
   perf_attr->num_running = 10;
@@ -153,7 +153,7 @@ TEST(plekhanov_d_dijkstra_tbb, test_task_run) {
   };
   auto perf_results = std::make_shared<ppc::core::PerfResults>();
 
-  auto perf_analyzer = std::make_shared<ppc::core::Perf>(test_task_omp);
+  auto perf_analyzer = std::make_shared<ppc::core::Perf>(test_task_tbb);
   perf_analyzer->TaskRun(perf_attr, perf_results);
   ppc::core::Perf::PrintPerfStatistic(perf_results);
   std::vector<int> expected = plekhanov_d_dijkstra_tbb::CalculateExpectedResult(adj_list, start_vertex);
