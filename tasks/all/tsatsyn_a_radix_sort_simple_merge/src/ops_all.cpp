@@ -1,9 +1,11 @@
 #include "all/tsatsyn_a_radix_sort_simple_merge/include/ops_all.hpp"
 
 #include <boost/mpi/communicator.hpp>
+#include <cassert>
 #include <cmath>
 #include <cstddef>
 #include <cstdint>
+#include <cstring>
 #include <utility>
 #include <vector>
 
@@ -67,37 +69,29 @@ inline void RadixSort(std::vector<uint64_t> &data) {
     }
   }
 }
-inline double uint64_to_double(uint64_t value) {
-  double result;
+inline double Uint64ToDouble(uint64_t value) {
+  double result = NAN;
   static_assert(sizeof(double) == sizeof(uint64_t), "Size mismatch");
   std::memcpy(&result, &value, sizeof(double));
   return result;
 }
 
-// Функция записи отрицательных значений
 inline void WriteNegativePart(const std::vector<uint64_t> &negative_copy, std::vector<double> &output) {
   const size_t size = negative_copy.size();
 #pragma omp parallel for
   for (int i = 0; i < static_cast<int>(size); ++i) {
     const size_t output_idx = size - 1 - i;
-    if (output_idx >= output.size()) {
-      continue;
-    }
-    output[output_idx] = uint64_to_double(negative_copy[i]);
+    output[output_idx] = Uint64ToDouble(negative_copy[i]);
   }
 }
 
-// Функция записи положительных значений
 inline void WritePositivePart(const std::vector<uint64_t> &positive_copy, const size_t offset,
                               std::vector<double> &output) {
   const size_t size = positive_copy.size();
 #pragma omp parallel for
   for (int i = 0; i < static_cast<int>(size); ++i) {
     const size_t output_idx = offset + i;
-    if (output_idx >= output.size()) {
-      continue;
-    }
-    output[output_idx] = uint64_to_double(positive_copy[i]);
+    output[output_idx] = Uint64ToDouble(positive_copy[i]);
   }
 }
 inline void FinalParse(std::vector<uint64_t> &data, int code, boost::mpi::communicator &world) {
