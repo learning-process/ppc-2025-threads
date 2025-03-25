@@ -1,9 +1,7 @@
 #include "tbb/plekhanov_d_dijkstra/include/ops_tbb.hpp"
 
-#include "tbb/tbb.h"
-
-#include <oneapi/tbb/parallel_for.h>
 #include <oneapi/tbb/mutex.h>
+#include <oneapi/tbb/parallel_for.h>
 
 #include <atomic>
 #include <climits>
@@ -11,6 +9,8 @@
 #include <cstddef>
 #include <cstdlib>
 #include <vector>
+
+#include "tbb/tbb.h"
 
 const int plekhanov_d_dijkstra_tbb::TestTaskTBB::kEndOfVertexList = -1;
 

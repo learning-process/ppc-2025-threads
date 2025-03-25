@@ -214,7 +214,6 @@ TEST(plekhanov_d_dijkstra_tbb, test_dijkstra_Random_Graph_10) {
   std::vector<std::vector<std::pair<size_t, int>>> adj_list =
       plekhanov_d_dijkstra_tbb::GenerateRandomGraph(num_vertices);
   size_t start_vertex = 0;
-
   std::vector<int> expected = plekhanov_d_dijkstra_tbb::CalculateExpectedResult(adj_list, start_vertex);
 
   plekhanov_d_dijkstra_tbb::RunTest(adj_list, start_vertex, expected);
@@ -225,12 +224,7 @@ TEST(plekhanov_d_dijkstra_tbb, test_dijkstra_Random_Graph_150) {
   std::vector<std::vector<std::pair<size_t, int>>> adj_list =
       plekhanov_d_dijkstra_tbb::GenerateRandomGraph(num_vertices);
   size_t start_vertex = 0;
-  
   std::vector<int> expected = plekhanov_d_dijkstra_tbb::CalculateExpectedResult(adj_list, start_vertex);
-  
-  //for (size_t i = 0; i < expected.size(); ++i) {
-  //  std::cout << "Vertex " << i << ": " << expected[i] << std::endl;
-  //}
 
   plekhanov_d_dijkstra_tbb::RunTest(adj_list, start_vertex, expected);
 }
