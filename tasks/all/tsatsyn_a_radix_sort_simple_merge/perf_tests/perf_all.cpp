@@ -77,7 +77,6 @@ TEST(tsatsyn_a_radix_sort_simple_merge_all, test_task_run) {
   std::vector<double> in = GetRandomVector(kCount * kCount, 0, 100);
   std::vector<double> out(kCount * kCount, 0);
 
-
   // Create task_data
   auto task_data_all = std::make_shared<ppc::core::TaskData>();
   task_data_all->inputs.emplace_back(reinterpret_cast<uint8_t *>(in.data()));

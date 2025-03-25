@@ -6,7 +6,6 @@
 #include <utility>
 #include <vector>
 
-
 namespace {
 inline void SendData(boost::mpi::communicator &world, bool &is_pozitive, bool &is_negative,
                      std::vector<double> &local_data, std::vector<double> &input_data) {
