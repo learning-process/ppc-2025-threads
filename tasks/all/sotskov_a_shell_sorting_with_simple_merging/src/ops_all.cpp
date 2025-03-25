@@ -172,8 +172,11 @@ bool sotskov_a_shell_sorting_with_simple_merging_all::TestTaskALL::PreProcessing
 
   input_.resize(counts[rank_]);
 
-  boost::mpi::scatterv(world_, (rank_ == 0) ? global_data.data() : nullptr, counts, displs, input_.data(),
-                       counts[rank_], 0);
+  if (rank_ == 0) {
+    boost::mpi::scatterv(world_, global_data.data(), counts, displs, input_.data(), counts[rank_], 0);
+  } else {
+    boost::mpi::scatterv(world_, input_.data(), counts[rank_], 0);
+  }
 
   return true;
 }
