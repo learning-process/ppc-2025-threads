@@ -38,7 +38,7 @@ bool plekhanov_d_dijkstra_stl::TestTaskSTL::ValidationImpl() {
 bool plekhanov_d_dijkstra_stl::TestTaskSTL::RunImpl() {  // NOLINT(readability-function-cognitive-complexity)
   std::vector<std::vector<std::pair<int, int>>> graph(num_vertices_);
   size_t current_vertex = 0;
-  int i = 0;
+  size_t i = 0;
 
   while (i < graph_data_.size() && current_vertex < num_vertices_) {
     if (graph_data_[i] == kEndOfVertexList) {
@@ -83,7 +83,7 @@ bool plekhanov_d_dijkstra_stl::TestTaskSTL::RunImpl() {  // NOLINT(readability-f
 
     std::vector<std::thread> threads;
     const int chunk_size = num_vertices_ / num_threads;
-    for (i = 0; i < num_threads; ++i) {
+    for (auto i = 0; i < num_threads; ++i) {
       int start = i * chunk_size;
       int end = (i == num_threads - 1) ? num_vertices_ : (i + 1) * chunk_size;
       threads.emplace_back(find_min, i, start, end);
@@ -93,7 +93,7 @@ bool plekhanov_d_dijkstra_stl::TestTaskSTL::RunImpl() {  // NOLINT(readability-f
 
     int u = -1;
     int global_min = std::numeric_limits<int>::max();
-    for (i = 0; i < num_threads; ++i) {
+    for (auto i = 0; i < num_threads; ++i) {
       if (local_mins[i] < global_min && local_verts[i] != -1) {
         global_min = local_mins[i];
         u = local_verts[i];
@@ -121,7 +121,7 @@ bool plekhanov_d_dijkstra_stl::TestTaskSTL::RunImpl() {  // NOLINT(readability-f
     const int edge_chunk = std::max(1, edges_count / num_threads);
     threads.clear();
 
-    for (i = 0; i < num_threads; ++i) {
+    for (auto i = 0; i < num_threads; ++i) {
       int start = i * edge_chunk;
       int end = (i == num_threads - 1) ? edges_count : (i + 1) * edge_chunk;
       if (start >= edges_count) break;
