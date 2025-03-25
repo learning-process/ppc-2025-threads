@@ -7,7 +7,7 @@
 #include <vector>
 
 #include "core/task/include/task.hpp"
-#include "omp/kudryashova_i_radix_batcher/include/kudryashovaRadixBatcherOmp.hpp"
+#include "omp/kudryashova_i_radix_batcher/include/kudryashovaRadixBatcherOMP.hpp"
 
 std::vector<double> kudryashova_i_radix_batcher_omp::GetRandomDoubleVector(int size) {
   std::vector<double> vector(size);

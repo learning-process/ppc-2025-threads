@@ -1,5 +1,4 @@
-﻿
-#include "omp/kudryashova_i_radix_batcher/include/kudryashovaRadixBatcherOmp.hpp"
+﻿#include "omp/kudryashova_i_radix_batcher/include/kudryashovaRadixBatcherOMP.hpp"
 
 #include <omp.h>
 
@@ -128,7 +127,7 @@ bool kudryashova_i_radix_batcher_omp::TestTaskOpenMP::ValidationImpl() {
 }
 
 bool kudryashova_i_radix_batcher_omp::TestTaskOpenMP::RunImpl() {
-  const size_t n = input_data_.size();
+  size_t n = input_data_.size();
   const int num_threads = omp_get_max_threads();
   const size_t block_size = (n + num_threads - 1) / num_threads;
 
@@ -143,7 +142,7 @@ bool kudryashova_i_radix_batcher_omp::TestTaskOpenMP::RunImpl() {
 
   for (size_t merge_size = block_size; merge_size < n; merge_size *= 2) {
 #pragma omp parallel for schedule(static)
-    for (int i = 0; i < n; i += (2 * merge_size)) {
+    for (int i = 0; i < static_cast<int> (n); i += (2 * merge_size)) {
       const size_t mid = std::min(i + merge_size, n);
       const size_t end = std::min(i + 2 * merge_size, n);
       if (mid < end) {
