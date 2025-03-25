@@ -105,7 +105,7 @@ bool frolova_e_sobel_filter_omp::SobelFilterOmp::RunImpl() {
   return true;
 }
 
-bool frolova_e_sobel_filter_omp::SobelFilterOmp::PostProcessingImpl(){
-  std::copy(res_image_.begin(), res_image_.end(), reinterpret_cast<int*>(task_data->outputs[0]));
+bool frolova_e_sobel_filter_omp::SobelFilterOmp::PostProcessingImpl() {
+  ::std::copy(res_image_.begin(), res_image_.end(), reinterpret_cast<int*>(task_data->outputs[0]));
   return true;
 }
