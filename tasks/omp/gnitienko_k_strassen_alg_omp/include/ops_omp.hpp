@@ -23,8 +23,7 @@ class StrassenAlgOpenMP : public ppc::core::Task {
   int TRIVIAL_MULTIPLICATION_BOUND_ = 32;
   int extend_ = 0;
 
-  void TrivialMultiply(const std::vector<double>& a, const std::vector<double>& b, std::vector<double>& c,
-                              int size);
+  void TrivialMultiply(const std::vector<double>& a, const std::vector<double>& b, std::vector<double>& c, int size);
   void StrassenMultiply(const std::vector<double>& a, const std::vector<double>& b, std::vector<double>& c, int size);
   static void AddMatrix(const std::vector<double>& a, const std::vector<double>& b, std::vector<double>& c, int size);
   static void SubMatrix(const std::vector<double>& a, const std::vector<double>& b, std::vector<double>& c, int size);
