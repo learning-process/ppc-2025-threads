@@ -59,7 +59,7 @@ bool tyurin_m_matmul_crs_complex_omp::TestTaskOpenMP::RunImpl() {
   std::vector<std::vector<std::tuple<std::complex<double>, uint32_t>>> buf(rows);
 
 #pragma omp parallel for
-  for (uint32_t i = 0; i < rows; ++i) {
+  for (int i = 0; i < static_cast<int>(rows); ++i) {
     for (uint32_t j = 0; j < cols; ++j) {
       auto ii = lhs_.rowptr[i];
       auto ij = rhs_.rowptr[j];
