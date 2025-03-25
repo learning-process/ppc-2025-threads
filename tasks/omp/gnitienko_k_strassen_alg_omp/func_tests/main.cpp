@@ -2,14 +2,11 @@
 
 #include <cstddef>
 #include <cstdint>
-#include <fstream>
 #include <memory>
 #include <random>
-#include <string>
 #include <vector>
 
 #include "core/task/include/task.hpp"
-#include "core/util/include/util.hpp"
 #include "omp/gnitienko_k_strassen_alg_omp/include/ops_omp.hpp"
 
 namespace {
@@ -137,7 +134,7 @@ TEST(gnitienko_k_strassen_alg_omp, test_random_16x16) {
   }
 }
 
-TEST(gnitienko_k_strassen_alg_seq, test_random_64x64) {
+TEST(gnitienko_k_strassen_alg_omp, test_random_64x64) {
   // Create data
   size_t size = 64;
   std::vector<double> a = GenMatrix(size);
@@ -241,7 +238,7 @@ TEST(gnitienko_k_strassen_alg_omp, test_single_element) {
   EXPECT_EQ(expected, out);
 }
 
-TEST(gnitienko_k_strassen_alg_seq, test_IxA) {
+TEST(gnitienko_k_strassen_alg_omp, test_IxA) {
   // Create data
   size_t size = 3;
   std::vector<double> a = {2.4, 3.5, -4.1, 13.3, 5.4, 3.2, 4.5, 0.7, 1.9};
@@ -268,7 +265,7 @@ TEST(gnitienko_k_strassen_alg_seq, test_IxA) {
   }
 }
 
-TEST(gnitienko_k_strassen_alg_seq, test_IxA_large) {
+TEST(gnitienko_k_strassen_alg_omp, test_IxA_large) {
   // Create data
   size_t size = 64;
   std::vector<double> a = GenMatrix(size);

@@ -4,7 +4,7 @@
 
 #include <cmath>
 #include <cstddef>
-#include <iostream>
+#include <utility>
 #include <vector>
 
 bool gnitienko_k_strassen_algorithm_omp::StrassenAlgOpenMP::PreProcessingImpl() {
