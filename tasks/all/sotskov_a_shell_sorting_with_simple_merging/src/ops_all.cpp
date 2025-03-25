@@ -212,7 +212,7 @@ bool sotskov_a_shell_sorting_with_simple_merging_all::TestTaskALL::PostProcessin
       for (int i = 0; i < size_ - step; i += 2 * step) {
         int left = displs[i];
         int mid = displs[i + step];
-        int right = (i + (2 * step) < size_) ? displs[i + 2 * step] : total;
+        int right = (i + (2 * step) < size_) ? displs[i + (2 * step)] : total;
 
         std::inplace_merge(result.begin() + left, result.begin() + mid, result.begin() + right);
       }
