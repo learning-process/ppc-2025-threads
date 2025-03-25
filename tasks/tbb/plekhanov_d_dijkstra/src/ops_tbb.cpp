@@ -35,8 +35,8 @@ bool plekhanov_d_dijkstra_tbb::TestTaskTBB::PreProcessingImpl() {
 }
 
 bool plekhanov_d_dijkstra_tbb::TestTaskTBB::ValidationImpl() {
-  return !(task_data->inputs_count.empty() || task_data->inputs_count[0] == 0 || task_data->outputs_count.empty() ||
-           task_data->outputs_count[0] == 0);
+  return !task_data->inputs_count.empty() && task_data->inputs_count[0] > 0 && !task_data->outputs_count.empty() &&
+         task_data->outputs_count[0] > 0;
 }
 
 bool plekhanov_d_dijkstra_tbb::TestTaskTBB::RunImpl() {  // NOLINT(readability-function-cognitive-complexity)
