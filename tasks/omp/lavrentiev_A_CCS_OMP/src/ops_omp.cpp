@@ -2,6 +2,7 @@
 
 #include <omp.h>
 
+#include <algorithm>
 #include <cmath>
 #include <cstddef>
 #include <utility>
@@ -58,6 +59,13 @@ lavrentiev_a_ccs_omp::Sparse lavrentiev_a_ccs_omp::CCSOMP::Transpose(const Spars
   return {.size = size, .elements = elements, .rows = rows, .columnsSum = columns_sum};
 }
 
+int lavrentiev_a_ccs_omp::CCSOMP::CalculateStartIndex(int index, const std::vector<int> &columns_sum) {
+  if (index != 0) {
+    return columns_sum[index] - GetElementsCount(index, columns_sum);
+  }
+  return 0;
+}
+
 lavrentiev_a_ccs_omp::Sparse lavrentiev_a_ccs_omp::CCSOMP::MatMul(const Sparse &matrix1, const Sparse &matrix2) {
   Sparse result_matrix;
   result_matrix.columnsSum.resize(matrix2.size.second);
@@ -70,12 +78,12 @@ lavrentiev_a_ccs_omp::Sparse lavrentiev_a_ccs_omp::CCSOMP::MatMul(const Sparse &
     for (int i = 0; i < static_cast<int>(matrix2.columnsSum.size()); ++i) {
       for (int j = 0; j < static_cast<int>(new_matrix1.columnsSum.size()); ++j) {
         double sum = 0.0;
-        int start_index1 = j != 0 ? new_matrix1.columnsSum[j] - GetElementsCount(j, new_matrix1.columnsSum) : 0;
-        int start_index2 = i != 0 ? matrix2.columnsSum[i] - GetElementsCount(i, matrix2.columnsSum) : 0;
         for (int n = 0; n < GetElementsCount(j, new_matrix1.columnsSum); n++) {
           for (int n2 = 0; n2 < GetElementsCount(i, matrix2.columnsSum); n2++) {
-            if (new_matrix1.rows[start_index1 + n] == matrix2.rows[start_index2 + n2]) {
-              sum += new_matrix1.elements[n + start_index1] * matrix2.elements[n2 + start_index2];
+            if (new_matrix1.rows[CalculateStartIndex(j, new_matrix1.columnsSum) + n] ==
+                matrix2.rows[CalculateStartIndex(i, matrix2.columnsSum) + n2]) {
+              sum += new_matrix1.elements[n + CalculateStartIndex(j, new_matrix1.columnsSum)] *
+                     matrix2.elements[n2 + CalculateStartIndex(i, matrix2.columnsSum)];
             }
           }
         }

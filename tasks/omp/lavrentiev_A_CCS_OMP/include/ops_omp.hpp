@@ -23,6 +23,7 @@ class CCSOMP : public ppc::core::Task {
   static Sparse MatMul(const Sparse& matrix1, const Sparse& matrix2);
   static int GetElementsCount(int index, const std::vector<int>& columns_sum);
   static std::vector<double> ConvertFromSparse(const Sparse& matrix);
+  static int CalculateStartIndex(int index, const std::vector<int>& columns_sum);
 
   Sparse A_;
   Sparse B_;
