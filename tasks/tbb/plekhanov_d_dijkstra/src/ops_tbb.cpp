@@ -1,7 +1,9 @@
 #include "tbb/plekhanov_d_dijkstra/include/ops_tbb.hpp"
 
-#include <oneapi/tbb/concurrent_vector.h>
-#include <oneapi/tbb/task_arena.h>
+#include "tbb/tbb.h"
+
+#include <oneapi/tbb/parallel_for.h>
+#include <oneapi/tbb/mutex.h>
 
 #include <atomic>
 #include <climits>
@@ -10,56 +12,16 @@
 #include <cstdlib>
 #include <vector>
 
-#include "tbb/tbb.h"
-
 const int plekhanov_d_dijkstra_tbb::TestTaskTBB::kEndOfVertexList = -1;
-
-namespace plekhanov_d_dijkstra_tbb {
-
-std::vector<size_t> TestTaskTBB::computeOffsets() {
-  std::vector<size_t> offsets(num_vertices_ + 1, 0);
-  size_t pos = 0;
-  for (size_t vertex = 0; vertex < num_vertices_; ++vertex) {
-    offsets[vertex] = pos;
-    while (pos < graph_data_.size() && graph_data_[pos] != kEndOfVertexList) {
-      pos += 2;
-    }
-    if (pos < graph_data_.size() && graph_data_[pos] == kEndOfVertexList) {
-      ++pos;
-    }
-  }
-  offsets[num_vertices_] = pos;
-  return offsets;
-}
-
-void TestTaskTBB::relaxEdges(int u, const std::vector<size_t>& offsets, std::vector<std::atomic<int>>& distances_atomic,
-                             oneapi::tbb::concurrent_vector<int>& next_frontier) {
-  size_t begin = offsets[u];
-  size_t end = offsets[u + 1];
-  int cur_dist = distances_atomic[u].load(std::memory_order_relaxed);
-  for (size_t pos = begin; pos < end;) {
-    int v = graph_data_[pos++];
-    int weight = graph_data_[pos++];
-    int new_dist = cur_dist + weight;
-    int old_dist = distances_atomic[v].load(std::memory_order_relaxed);
-    while (new_dist < old_dist) {
-      if (distances_atomic[v].compare_exchange_weak(old_dist, new_dist, std::memory_order_relaxed)) {
-        next_frontier.push_back(v);
-        break;
-      }
-    }
-  }
-}
-
-}  // namespace plekhanov_d_dijkstra_tbb
 
 bool plekhanov_d_dijkstra_tbb::TestTaskTBB::PreProcessingImpl() {
   unsigned int input_size = task_data->inputs_count[0];
   auto* in_ptr = reinterpret_cast<int*>(task_data->inputs[0]);
   graph_data_.assign(in_ptr, in_ptr + input_size);
   num_vertices_ = task_data->outputs_count[0];
-  distances_.resize(num_vertices_);
   distances_.assign(num_vertices_, INT_MAX);
+  distances_.resize(num_vertices_);
+
   if (task_data->inputs.size() > 1 && task_data->inputs[1] != nullptr) {
     start_vertex_ = *reinterpret_cast<int*>(task_data->inputs[1]);
   } else {
@@ -78,45 +40,60 @@ bool plekhanov_d_dijkstra_tbb::TestTaskTBB::ValidationImpl() {
 }
 
 bool plekhanov_d_dijkstra_tbb::TestTaskTBB::RunImpl() {
-  for (size_t pos = 0; pos < graph_data_.size();) {
-    if (graph_data_[pos] == kEndOfVertexList) {
-      ++pos;
+  std::vector<std::vector<std::pair<int, int>>> graph(num_vertices_);
+  size_t current_vertex = 0;
+  size_t i = 0;
+
+  while (i < graph_data_.size() && current_vertex < num_vertices_) {
+    if (graph_data_[i] == kEndOfVertexList) {
+      current_vertex++;
+      i++;
       continue;
     }
-    if (pos + 1 < graph_data_.size()) {
-      int weight = graph_data_[pos + 1];
-      if (weight < 0) {
-        return false;
+    if (i + 1 >= graph_data_.size()) {
+      break;
+    }
+
+    size_t dest = graph_data_[i];
+    int weight = graph_data_[i + 1];
+    if (weight < 0) {
+      return false;
+    }
+
+    if (dest < num_vertices_) {
+      graph[current_vertex].emplace_back(static_cast<int>(dest), weight);
+    }
+    i += 2;
+  }
+
+  std::vector<bool> visited(num_vertices_, false);
+
+  for (int count = 0; count < static_cast<int>(num_vertices_) - 1; ++count) {
+    std::atomic<int> u = -1;
+    std::atomic<int> min_dist = std::numeric_limits<int>::max();
+
+    oneapi::tbb::parallel_for(0, static_cast<int>(num_vertices_), [&](int v) {
+      if (!visited[v] && distances_[v] < min_dist) {
+        min_dist = distances_[v];
+        u = v;
       }
+    });
+
+    if (u == -1) {
+      break;
     }
-    pos += 2;
-  }
-  
-  std::vector<std::atomic<int>> distances_atomic(num_vertices_);
-  for (size_t i = 0; i < num_vertices_; ++i) {
-    distances_atomic[i].store(distances_[i], std::memory_order_relaxed);
-  }
 
-  std::vector<int> frontier{static_cast<int>(start_vertex_)};
+    visited[u] = true;
 
-  const auto offsets = computeOffsets();
-
-  oneapi::tbb::task_arena arena(ppc::util::GetPPCNumThreads());
-  arena.execute([&] {
-    while (!frontier.empty()) {
-      oneapi::tbb::concurrent_vector<int> next_frontier;
-      oneapi::tbb::parallel_for(oneapi::tbb::blocked_range<size_t>(0, frontier.size()),
-                                [&](const oneapi::tbb::blocked_range<size_t>& range) {
-                                  for (size_t i = range.begin(); i != range.end(); ++i) {
-                                    relaxEdges(frontier[i], offsets, distances_atomic, next_frontier);
-                                  }
-                                });
-      frontier.assign(next_frontier.begin(), next_frontier.end());
-    }
-  });
-
-  for (size_t i = 0; i < num_vertices_; ++i) {
-    distances_[i] = distances_atomic[i].load(std::memory_order_relaxed);
+    oneapi::tbb::parallel_for(0, static_cast<int>(graph[u].size()), [&](int j) {
+      int v = graph[u][j].first;
+      int weight = graph[u][j].second;
+      if (!visited[v] && distances_[u] != std::numeric_limits<int>::max()) {
+        int new_dist = distances_[u] + weight;
+        oneapi::tbb::mutex::scoped_lock lock(mutex_);
+        distances_[v] = std::min(new_dist, distances_[v]);
+      }
+    });
   }
   return true;
 }
