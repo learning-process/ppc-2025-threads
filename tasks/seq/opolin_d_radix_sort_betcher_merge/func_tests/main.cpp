@@ -206,7 +206,7 @@ TEST(opolin_d_radix_betcher_sort_seq, test_varying_digit_counts) {
   std::vector<int> expected;
   std::vector<int> input;
   input = {123456, 12, 123, 1, 12345, 1234};
-  expected = {1, 12, 123, 1234, 123456};
+  expected = {1, 12, 123, 1234, 12345, 123456};
   std::vector<int> out(size, 0);
   auto task_data_seq = std::make_shared<ppc::core::TaskData>();
   task_data_seq->inputs.emplace_back(reinterpret_cast<uint8_t *>(input.data()));
