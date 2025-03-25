@@ -1,14 +1,11 @@
 #include "stl/plekhanov_d_dijkstra/include/ops_stl.hpp"
 
-#include <algorithm>
-#include <atomic>
 #include <climits>
 #include <cstddef>
 #include <cstdlib>
 #include <limits>
 #include <mutex>
 #include <thread>
-#include <utility>
 #include <vector>
 
 const int plekhanov_d_dijkstra_stl::TestTaskSTL::kEndOfVertexList = -1;
@@ -38,7 +35,7 @@ bool plekhanov_d_dijkstra_stl::TestTaskSTL::ValidationImpl() {
   return true;
 }
 
-bool plekhanov_d_dijkstra_stl::TestTaskSTL::RunImpl() {
+bool plekhanov_d_dijkstra_stl::TestTaskSTL::RunImpl() {  // NOLINT(readability-function-cognitive-complexity)
   std::vector<std::vector<std::pair<int, int>>> graph(num_vertices_);
   size_t current_vertex = 0;
   int i = 0;
