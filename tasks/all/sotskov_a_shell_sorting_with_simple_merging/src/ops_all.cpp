@@ -110,7 +110,7 @@ void sotskov_a_shell_sorting_with_simple_merging_all::ShellSortWithSimpleMerging
     return;
   }
 
-  if (arr.size() < 100) {
+  if (arr.size() < 1000) {
     ShellSort(arr, 0, arr.size() - 1);
     return;
   }
@@ -203,17 +203,24 @@ bool sotskov_a_shell_sorting_with_simple_merging_all::TestTaskALL::PostProcessin
   if (rank_ == 0) {
     result.resize(total);
   }
+
   boost::mpi::gatherv(world_, input_.data(), static_cast<int>(input_.size()), (rank_ == 0) ? result.data() : nullptr,
                       counts, displs, 0);
 
   if (rank_ == 0) {
-    auto* dst = reinterpret_cast<int*>(task_data->outputs[0]);
-    std::ranges::copy(result, dst);
+    for (int step = 1; step < size_; step *= 2) {
+      for (int i = 0; i < size_ - step; i += 2 * step) {
+        int left = displs[i];
+        int mid = displs[i + step];
+        int right = (i + (2 * step) < size_) ? displs[i + 2 * step] : total;
 
-    for (size_t i = 1; i < result.size(); ++i) {
-      if (result[i] < result[i - 1]) {
-        return false;
+        std::inplace_merge(result.begin() + left, result.begin() + mid, result.begin() + right);
       }
+    }
+
+    if (task_data->outputs[0] != nullptr) {
+      auto* dst = reinterpret_cast<int*>(task_data->outputs[0]);
+      std::ranges::copy(result.begin(), result.end(), dst);
     }
   }
 
@@ -224,7 +231,21 @@ bool sotskov_a_shell_sorting_with_simple_merging_all::TestTaskALL::ValidationImp
   if (rank_ != 0) {
     return true;
   }
-  return task_data->inputs_count[0] == task_data->outputs_count[0];
+
+  if (task_data->inputs_count.empty() || task_data->outputs_count.empty() ||
+      task_data->inputs_count[0] != task_data->outputs_count[0]) {
+    return false;
+  }
+
+  auto* output = reinterpret_cast<int*>(task_data->outputs[0]);
+  size_t size = task_data->outputs_count[0];
+  for (size_t i = 1; i < size; i++) {
+    if (output[i] < output[i - 1]) {
+      return false;
+    }
+  }
+
+  return true;
 }
 
 bool sotskov_a_shell_sorting_with_simple_merging_all::TestTaskALL::RunImpl() {

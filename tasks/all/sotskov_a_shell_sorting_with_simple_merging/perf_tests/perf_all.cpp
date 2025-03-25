@@ -77,8 +77,8 @@ TEST(sotskov_a_shell_sorting_with_simple_merging_all, test_pipeline_run) {
   perf_analyzer->PipelineRun(perf_attr, perf_results);
   if (world.rank() == 0) {
     ppc::core::Perf::PrintPerfStatistic(perf_results);
+    ASSERT_EQ(out, expected);
   }
-  ASSERT_EQ(out, expected);
 }
 
 TEST(sotskov_a_shell_sorting_with_simple_merging_all, test_task_run) {
@@ -120,7 +120,6 @@ TEST(sotskov_a_shell_sorting_with_simple_merging_all, test_task_run) {
   perf_analyzer->TaskRun(perf_attr, perf_results);
   if (world.rank() == 0) {
     ppc::core::Perf::PrintPerfStatistic(perf_results);
+    ASSERT_EQ(out, expected);
   }
-
-  ASSERT_EQ(out, expected);
 }
