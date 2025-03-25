@@ -4,6 +4,7 @@
 #include <cstddef>
 #include <cstdint>
 #include <memory>
+#include <random>
 #include <vector>
 
 #include "all/tsatsyn_a_radix_sort_simple_merge/include/ops_all.hpp"
@@ -11,24 +12,35 @@
 #include "core/perf/include/perf.hpp"
 #include "core/task/include/task.hpp"
 
+namespace {
+std::vector<double> GetRandomVector(int sz, int a, int b) {
+  std::random_device dev;
+  std::mt19937 gen(dev());
+  std::uniform_real_distribution<> dis(a, b);
+  std::vector<double> vec(sz);
+  for (int i = 0; i < sz; i++) {
+    vec[i] = dis(gen);
+  }
+  return vec;
+}
+}  // namespace
+
 TEST(tsatsyn_a_radix_sort_simple_merge_all, test_pipeline_run) {
   constexpr int kCount = 400;
 
   // Create data
-  std::vector<int> in(kCount * kCount, 0);
-  std::vector<int> out(kCount * kCount, 0);
-
-  for (size_t i = 0; i < kCount; i++) {
-    in[(i * kCount) + i] = 1;
-  }
+  std::vector<double> in = GetRandomVector(kCount * kCount, 0, 100);
+  std::vector<double> out(kCount * kCount, 0);
+  boost::mpi::communicator world;
 
   // Create task_data
   auto task_data_all = std::make_shared<ppc::core::TaskData>();
-  task_data_all->inputs.emplace_back(reinterpret_cast<uint8_t *>(in.data()));
-  task_data_all->inputs_count.emplace_back(in.size());
-  task_data_all->outputs.emplace_back(reinterpret_cast<uint8_t *>(out.data()));
-  task_data_all->outputs_count.emplace_back(out.size());
-
+  if (world.rank() == 0) {
+    task_data_all->inputs.emplace_back(reinterpret_cast<uint8_t *>(in.data()));
+    task_data_all->inputs_count.emplace_back(in.size());
+    task_data_all->outputs.emplace_back(reinterpret_cast<uint8_t *>(out.data()));
+    task_data_all->outputs_count.emplace_back(out.size());
+  }
   // Create Task
   auto test_task_all = std::make_shared<tsatsyn_a_radix_sort_simple_merge_all::TestTaskALL>(task_data_all);
 
@@ -44,11 +56,13 @@ TEST(tsatsyn_a_radix_sort_simple_merge_all, test_pipeline_run) {
 
   // Create and init perf results
   auto perf_results = std::make_shared<ppc::core::PerfResults>();
+  std::cout << "NORM1";
 
   auto perf_analyzer = std::make_shared<ppc::core::Perf>(test_task_all);
+  std::cout << "NORM2";
   perf_analyzer->PipelineRun(perf_attr, perf_results);
   // Create Perf analyzer
-  boost::mpi::communicator world;
+  std::cout << "NORM3";
   if (world.rank() == 0) {
     ppc::core::Perf::PrintPerfStatistic(perf_results);
   }
@@ -60,12 +74,9 @@ TEST(tsatsyn_a_radix_sort_simple_merge_all, test_task_run) {
   constexpr int kCount = 400;
 
   // Create data
-  std::vector<int> in(kCount * kCount, 0);
-  std::vector<int> out(kCount * kCount, 0);
+  std::vector<double> in = GetRandomVector(kCount * kCount, 0, 100);
+  std::vector<double> out(kCount * kCount, 0);
 
-  for (size_t i = 0; i < kCount; i++) {
-    in[(i * kCount) + i] = 1;
-  }
 
   // Create task_data
   auto task_data_all = std::make_shared<ppc::core::TaskData>();

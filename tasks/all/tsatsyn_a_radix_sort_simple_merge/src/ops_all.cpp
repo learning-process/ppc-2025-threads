@@ -6,27 +6,8 @@
 #include <utility>
 #include <vector>
 
-namespace constants {
-constexpr int kChunk = 100;
-}  // namespace constants
 
-bool tsatsyn_a_radix_sort_simple_merge_all::TestTaskALL::ValidationImpl() {
-  // Check equality of counts elements
-  if (world_.rank() == 0) {
-    return task_data->inputs_count[0] != 0;
-  }
-  return true;
-}
-
-bool tsatsyn_a_radix_sort_simple_merge_all::TestTaskALL::PreProcessingImpl() {
-  // Init value for input and output
-  if (world_.rank() == 0) {
-    auto *temp_ptr = reinterpret_cast<double *>(task_data->inputs[0]);
-    input_data_ = std::vector<double>(temp_ptr, temp_ptr + task_data->inputs_count[0]);
-    output_.resize(task_data->inputs_count[0]);
-  }
-  return true;
-}
+namespace {
 inline void SendData(boost::mpi::communicator &world, bool &is_pozitive, bool &is_negative,
                      std::vector<double> &local_data, std::vector<double> &input_data) {
   for (int proc = 1; proc < world.size(); proc++) {
@@ -94,6 +75,25 @@ inline void FinalParse(std::vector<uint64_t> &data, int code, boost::mpi::commun
   }
   RadixSort(data);
 }
+}  // namespace
+bool tsatsyn_a_radix_sort_simple_merge_all::TestTaskALL::ValidationImpl() {
+  // Check equality of counts elements
+  if (world_.rank() == 0) {
+    return task_data->inputs_count[0] != 0;
+  }
+  return true;
+}
+
+bool tsatsyn_a_radix_sort_simple_merge_all::TestTaskALL::PreProcessingImpl() {
+  // Init value for input and output
+  if (world_.rank() == 0) {
+    auto *temp_ptr = reinterpret_cast<double *>(task_data->inputs[0]);
+    input_data_ = std::vector<double>(temp_ptr, temp_ptr + task_data->inputs_count[0]);
+    output_.resize(task_data->inputs_count[0]);
+  }
+  return true;
+}
+
 bool tsatsyn_a_radix_sort_simple_merge_all::TestTaskALL::RunImpl() {
   bool is_pozitive = false;
   bool is_negative = false;
@@ -118,11 +118,11 @@ bool tsatsyn_a_radix_sort_simple_merge_all::TestTaskALL::RunImpl() {
     if (is_negative) {
       FinalParse(negative_copy, 2, world_);
     }
-#pragma omp parallel for schedule(guided, constants::kChunk)
+#pragma omp parallel for schedule(guided, 100)
     for (int i = 0; i < static_cast<int>(negative_copy.size()); i++) {
       output_[static_cast<int>(negative_copy.size()) - 1 - i] = *reinterpret_cast<const double *>(&negative_copy[i]);
     }
-#pragma omp parallel for schedule(guided, constants::kChunk)
+#pragma omp parallel for schedule(guided, 100)
     for (int i = 0; i < static_cast<int>(pozitive_copy.size()); i++) {
       output_[negative_copy.size() + i] = *reinterpret_cast<const double *>(&pozitive_copy[i]);
     }
