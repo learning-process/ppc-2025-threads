@@ -1,7 +1,9 @@
 #include "tbb/plekhanov_d_dijkstra/include/ops_tbb.hpp"
 
+#include <oneapi/tbb/blocked_range.h>
 #include <oneapi/tbb/mutex.h>
 #include <oneapi/tbb/parallel_for.h>
+#include <oneapi/tbb/parallel_reduce.h>
 
 #include <algorithm>
 #include <atomic>
@@ -9,6 +11,7 @@
 #include <cstddef>
 #include <cstdlib>
 #include <limits>
+#include <mutex>
 #include <utility>
 #include <vector>
 
@@ -71,15 +74,26 @@ bool plekhanov_d_dijkstra_tbb::TestTaskTBB::RunImpl() {
   std::vector<bool> visited(num_vertices_, false);
 
   for (int count = 0; count < static_cast<int>(num_vertices_) - 1; ++count) {
-    std::atomic<int> u = -1;
-    std::atomic<int> min_dist = std::numeric_limits<int>::max();
-
-    oneapi::tbb::parallel_for(0, static_cast<int>(num_vertices_), [&](int v) {
-      if (!visited[v] && distances_[v] < min_dist) {
-        min_dist = distances_[v];
-        u = v;
-      }
-    });
+    int u = oneapi::tbb::parallel_reduce(
+        oneapi::tbb::blocked_range<int>(0, static_cast<int>(num_vertices_)), -1,
+        [&](const oneapi::tbb::blocked_range<int>& r, int local_u) -> int {
+          int local_min = std::numeric_limits<int>::max();
+          int current_u = -1;
+          for (int v = r.begin(); v < r.end(); ++v) {
+            if (!visited[v] && distances_[v] < local_min) {
+              local_min = distances_[v];
+              current_u = v;
+            }
+          }
+          if (local_u == -1) return current_u;
+          if (current_u == -1) return local_u;
+          return (distances_[current_u] < distances_[local_u]) ? current_u : local_u;
+        },
+        [&](int u1, int u2) -> int {
+          if (u1 == -1) return u2;
+          if (u2 == -1) return u1;
+          return (distances_[u1] < distances_[u2]) ? u1 : u2;
+        });
 
     if (u == -1) {
       break;
@@ -93,7 +107,9 @@ bool plekhanov_d_dijkstra_tbb::TestTaskTBB::RunImpl() {
       if (!visited[v] && distances_[u] != std::numeric_limits<int>::max()) {
         int new_dist = distances_[u] + weight;
         oneapi::tbb::mutex::scoped_lock lock(mutex_);
-        distances_[v] = std::min(new_dist, distances_[v]);
+        if (new_dist < distances_[v]) {
+          distances_[v] = new_dist;
+        }
       }
     });
   }
