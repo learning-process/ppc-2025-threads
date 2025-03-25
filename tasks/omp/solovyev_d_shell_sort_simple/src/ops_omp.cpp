@@ -19,8 +19,7 @@ bool solovyev_d_shell_sort_simple_omp::TaskOMP::ValidationImpl() {
 }
 
 bool solovyev_d_shell_sort_simple_omp::TaskOMP::RunImpl() {
-  int gap = (int)input_.size() / 2;
-  while (gap > 0) {
+  for (int gap = (int)input_.size() / 2; gap > 0; gap /= 2) {
 #pragma omp parallel for
     for (int i = 0; i < gap; i++) {
       for (int f = gap + i; f < (int)input_.size(); f = f + gap) {
@@ -33,7 +32,6 @@ bool solovyev_d_shell_sort_simple_omp::TaskOMP::RunImpl() {
         input_[j] = val;
       }
     }
-    gap = gap / 2;
   }
   return true;
 }
