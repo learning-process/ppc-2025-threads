@@ -13,6 +13,7 @@
 std::vector<int> smirnov_i_radix_sort_simple_merge_omp::TestTaskOpenMP::Merge(std::vector<int> mas1,
                                                                               std::vector<int> mas2) {
   std::vector<int> res;
+  res.reserve(mas1.size() + mas2.size());
   int p1 = 0;
   int p2 = 0;
   while (static_cast<int>(mas1.size()) != p1 && static_cast<int>(mas2.size()) != p2) {
