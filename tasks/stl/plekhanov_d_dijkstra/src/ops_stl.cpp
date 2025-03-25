@@ -41,7 +41,7 @@ bool plekhanov_d_dijkstra_stl::TestTaskSTL::ValidationImpl() {
 bool plekhanov_d_dijkstra_stl::TestTaskSTL::RunImpl() {
   std::vector<std::vector<std::pair<int, int>>> graph(num_vertices_);
   size_t current_vertex = 0;
-  size_t i = 0;
+  int i = 0;
 
   while (i < graph_data_.size() && current_vertex < num_vertices_) {
     if (graph_data_[i] == kEndOfVertexList) {
