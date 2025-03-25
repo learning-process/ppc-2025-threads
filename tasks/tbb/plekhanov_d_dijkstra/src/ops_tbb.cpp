@@ -3,11 +3,13 @@
 #include <oneapi/tbb/mutex.h>
 #include <oneapi/tbb/parallel_for.h>
 
+#include <algorithm>
 #include <atomic>
 #include <climits>
-#include <core/util/include/util.hpp>
 #include <cstddef>
 #include <cstdlib>
+#include <limits>
+#include <utility>
 #include <vector>
 
 #include "tbb/tbb.h"
