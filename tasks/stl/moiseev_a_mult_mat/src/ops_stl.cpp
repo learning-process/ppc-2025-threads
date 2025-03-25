@@ -44,7 +44,7 @@ bool moiseev_a_mult_mat_stl::MultMatSTL::RunImpl() {  // NOLINT(readability-func
   auto worker = [this, total_block_rows, num_threads](std::size_t thread_index) {
     std::size_t rows_per_thread = total_block_rows / num_threads;
     std::size_t remainder = total_block_rows % num_threads;
-    std::size_t start = thread_index * rows_per_thread + std::min(thread_index, remainder);
+    std::size_t start = (thread_index * rows_per_thread) + std::min(thread_index, remainder);
     std::size_t amount = rows_per_thread + (thread_index < remainder ? 1 : 0);
     std::size_t end = start + amount;
 
