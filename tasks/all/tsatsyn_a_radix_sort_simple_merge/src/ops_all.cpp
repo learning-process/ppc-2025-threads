@@ -1,3 +1,4 @@
+
 #include "all/tsatsyn_a_radix_sort_simple_merge/include/ops_all.hpp"
 
 #include <boost/mpi/communicator.hpp>
@@ -12,14 +13,15 @@
 namespace {
 inline void SendData(boost::mpi::communicator &world, bool &is_pozitive, bool &is_negative,
                      std::vector<double> &local_data, std::vector<double> &input_data) {
-  // std::cout << "DATASZ " << input_data.size()<<std::endl;
-  for (int proc = 1; proc < world.size(); proc++) {
-    for (size_t j = proc; j < input_data.size(); j += world.size()) {
-      input_data[j] < 0.0 ? is_negative = true : is_pozitive = true;
-      local_data.push_back(input_data[j]);
+  if (world.size() > 1) {
+    for (int proc = 1; proc < world.size(); proc++) {
+      for (size_t j = proc; j < input_data.size(); j += world.size()) {
+        input_data[j] < 0.0 ? is_negative = true : is_pozitive = true;
+        local_data.push_back(input_data[j]);
+      }
+      world.send(proc, 0, local_data);
+      local_data.clear();
     }
-    world.send(proc, 0, local_data);
-    local_data.clear();
   }
   for (int j = 0; j < static_cast<int>(input_data.size()); j += world.size()) {
     local_data.push_back(input_data[j]);
@@ -40,6 +42,7 @@ inline void ParallelParse(std::vector<uint64_t> &pozitive_copy, std::vector<uint
       }
     }
 #pragma omp critical
+
     {
       pozitive_copy.insert(pozitive_copy.end(), local_positive.begin(), local_positive.end());
       negative_copy.insert(negative_copy.end(), local_negative.begin(), local_negative.end());
@@ -75,7 +78,23 @@ inline double Uint64ToDouble(uint64_t value) {
   std::memcpy(&result, &value, sizeof(double));
   return result;
 }
-
+inline void FinalParse(std::vector<uint64_t> &data, int code, boost::mpi::communicator &world, bool indicator) {
+  if (world.rank() == 0 && indicator) {
+    std::vector<uint64_t> local_copy_for_recv;
+    for (int proc = 1; proc < world.size(); proc++) {
+      world.recv(proc, code, local_copy_for_recv);
+      data.insert(data.end(), local_copy_for_recv.begin(), local_copy_for_recv.end());
+      local_copy_for_recv.clear();
+    }
+    if (!data.empty()) {
+      RadixSort(data);
+    }
+  } else {
+    if (!data.empty()) {
+      world.send(0, code, data);
+    }
+  }
+}
 inline void WriteNegativePart(const std::vector<uint64_t> &negative_copy, std::vector<double> &output) {
   const size_t size = negative_copy.size();
 #pragma omp parallel for
@@ -84,7 +103,6 @@ inline void WriteNegativePart(const std::vector<uint64_t> &negative_copy, std::v
     output[output_idx] = Uint64ToDouble(negative_copy[i]);
   }
 }
-
 inline void WritePositivePart(const std::vector<uint64_t> &positive_copy, const size_t offset,
                               std::vector<double> &output) {
   const size_t size = positive_copy.size();
@@ -94,31 +112,20 @@ inline void WritePositivePart(const std::vector<uint64_t> &positive_copy, const 
     output[output_idx] = Uint64ToDouble(positive_copy[i]);
   }
 }
-inline void FinalParse(std::vector<uint64_t> &data, int code, boost::mpi::communicator &world) {
-  std::vector<uint64_t> local_copy_for_recv;
-  for (int proc = 1; proc < world.size(); proc++) {
-    world.recv(proc, code, local_copy_for_recv);
-    data.insert(data.end(), local_copy_for_recv.begin(), local_copy_for_recv.end());
-    local_copy_for_recv.clear();
-  }
-
-  if (!data.empty()) {
-    RadixSort(data);
-  }
-}
-inline void SafeDataWrite(const std::vector<uint64_t> &negative_copy, const std::vector<uint64_t> &positive_copy,
-                          std::vector<double> &output, bool is_negative, bool is_positive) {
-  if (is_negative) {
+inline void SafeDataWrite(const std::vector<uint64_t> &negative_copy, const std::vector<uint64_t> &pozitive_copy,
+                          std::vector<double> &output) {
+  if (!negative_copy.empty()) {
     WriteNegativePart(negative_copy, output);
   }
-  if (is_positive) {
-    WritePositivePart(positive_copy, negative_copy.size(), output);
+  if (!pozitive_copy.empty()) {
+    WritePositivePart(pozitive_copy, negative_copy.size(), output);
   }
 }
 }  // namespace
 bool tsatsyn_a_radix_sort_simple_merge_all::TestTaskALL::ValidationImpl() {
   // Check equality of counts elements
   if (world_.rank() == 0) {
+    std::cout << "PRIVET";
     return task_data->inputs_count[0] != 0;
   }
   return true;
@@ -127,6 +134,7 @@ bool tsatsyn_a_radix_sort_simple_merge_all::TestTaskALL::ValidationImpl() {
 bool tsatsyn_a_radix_sort_simple_merge_all::TestTaskALL::PreProcessingImpl() {
   // Init value for input and output
   if (world_.rank() == 0) {
+    std::cout << "PRIVET";
     auto *temp_ptr = reinterpret_cast<double *>(task_data->inputs[0]);
     input_data_ = std::vector<double>(temp_ptr, temp_ptr + task_data->inputs_count[0]);
     output_.resize(task_data->inputs_count[0]);
@@ -145,40 +153,18 @@ bool tsatsyn_a_radix_sort_simple_merge_all::TestTaskALL::RunImpl() {
   std::vector<uint64_t> pozitive_copy;
   std::vector<uint64_t> negative_copy;
   ParallelParse(pozitive_copy, negative_copy, local_data_);
-  // std::cout <<world_.rank() << " POZ " << pozitive_copy.size() << " NEG " << negative_copy.size() << std::endl;
   if (!pozitive_copy.empty()) {
     RadixSort(pozitive_copy);
   }
   if (!negative_copy.empty()) {
     RadixSort(negative_copy);
   }
-  /*std::cout << " POZ PROC " << world_.rank() << " " << pozitive_copy.size()<< std::endl;
-  for (auto &val : pozitive_copy) {
-    std::cout << val << " ";
+  if (world_.size() > 1) {
+    FinalParse(pozitive_copy, 1, world_, is_pozitive);
+    FinalParse(negative_copy, 2, world_, is_negative);
   }
-  std::cout << std::endl << " NEG PROC " << world_.rank() << " " << negative_copy.size() << std::endl;
-  for (auto &val : negative_copy) {
-    std::cout << val << " ";
-  }
-  std::cout << std::endl;*/
   if (world_.rank() == 0) {
-    if (is_pozitive) {
-      FinalParse(pozitive_copy, 1, world_);
-    }
-    if (is_negative) {
-      FinalParse(negative_copy, 2, world_);
-    }
-    // std::cout << " POZitive na PROC NULL " << world_.rank() << " s" << pozitive_copy.size() << "s" << std::endl;
-    // std::cout << " NEGative na PROC NULL " << world_.rank() << " s" << negative_copy.size() << "s" << std::endl;
-
-    SafeDataWrite(negative_copy, pozitive_copy, output_, is_negative, is_pozitive);
-  } else {
-    if (!pozitive_copy.empty()) {
-      world_.send(0, 1, pozitive_copy);
-    }
-    if (!negative_copy.empty()) {
-      world_.send(0, 2, negative_copy);
-    }
+    SafeDataWrite(negative_copy, pozitive_copy, output_);
   }
   return true;
 }
