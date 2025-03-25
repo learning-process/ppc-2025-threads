@@ -6,39 +6,52 @@
 #include <memory>
 #include <string>
 #include <vector>
+#include <random>
 
 #include "core/task/include/task.hpp"
 #include "core/util/include/util.hpp"
-#include "seq/example/include/ops_seq.hpp"
+#include "seq/tarakanov_d_contrast_enhancement_by_linear_histogram_stretching/include/ops_seq.hpp"
 
-TEST(nesterov_a_test_task_seq, test_matmul_50) {
-  constexpr size_t kCount = 50;
+TEST(tarakanov_d_linear_stretching, test_contrast_stretching_random_5x5) {
+  constexpr size_t kSize = 5;
 
-  // Create data
-  std::vector<int> in(kCount * kCount, 0);
-  std::vector<int> out(kCount * kCount, 0);
+  std::random_device rd;
+  std::mt19937 gen(rd());
+  std::uniform_int_distribution<> dis(0, 255);
 
-  for (size_t i = 0; i < kCount; i++) {
-    in[(i * kCount) + i] = 1;
+  std::vector<uchar> in(kSize * kSize);
+  for (size_t i = 0; i < kSize * kSize; ++i) {
+    in[i] = static_cast<uchar>(dis(gen));
   }
 
-  // Create task_data
+  std::vector<uchar> out(kSize * kSize, 0);
+
   auto task_data_seq = std::make_shared<ppc::core::TaskData>();
   task_data_seq->inputs.emplace_back(reinterpret_cast<uint8_t *>(in.data()));
   task_data_seq->inputs_count.emplace_back(in.size());
   task_data_seq->outputs.emplace_back(reinterpret_cast<uint8_t *>(out.data()));
   task_data_seq->outputs_count.emplace_back(out.size());
 
-  // Create Task
-  nesterov_a_test_task_seq::TestTaskSequential test_task_sequential(task_data_seq);
+  tarakanov_d_linear_stretching::TaskSequential test_task_sequential(task_data_seq);
+
   ASSERT_EQ(test_task_sequential.Validation(), true);
+
   test_task_sequential.PreProcessing();
   test_task_sequential.Run();
   test_task_sequential.PostProcessing();
-  EXPECT_EQ(in, out);
+
+  uchar minOut = 255;
+  uchar maxOut = 0;
+  for (size_t i = 0; i < out.size(); ++i) {
+    minOut = std::min(minOut, out[i]);
+    maxOut = std::max(maxOut, out[i]);
+  }
+
+  EXPECT_EQ(minOut, 0);
+  EXPECT_EQ(maxOut, 255);
 }
 
-TEST(nesterov_a_test_task_seq, test_matmul_100_from_file) {
+TEST(tarakanov_d_linear_stretching, test_contrast_stretching_random_from_file) {
   std::string line;
   std::ifstream test_file(ppc::util::GetAbsolutePath("seq/example/data/test.txt"));
   if (test_file.is_open()) {
@@ -48,26 +61,38 @@ TEST(nesterov_a_test_task_seq, test_matmul_100_from_file) {
 
   const size_t count = std::stoi(line);
 
-  // Create data
-  std::vector<int> in(count * count, 0);
-  std::vector<int> out(count * count, 0);
+  std::random_device rd;
+  std::mt19937 gen(rd());
+  std::uniform_int_distribution<> dis(0, 255);
 
-  for (size_t i = 0; i < count; i++) {
-    in[(i * count) + i] = 1;
+  std::vector<uchar> in(count * count);
+  for (size_t i = 0; i < count * count; ++i) {
+    in[i] = static_cast<uchar>(dis(gen));
   }
 
-  // Create task_data
+  std::vector<uchar> out(count * count, 0);
+
   auto task_data_seq = std::make_shared<ppc::core::TaskData>();
   task_data_seq->inputs.emplace_back(reinterpret_cast<uint8_t *>(in.data()));
   task_data_seq->inputs_count.emplace_back(in.size());
   task_data_seq->outputs.emplace_back(reinterpret_cast<uint8_t *>(out.data()));
   task_data_seq->outputs_count.emplace_back(out.size());
 
-  // Create Task
-  nesterov_a_test_task_seq::TestTaskSequential test_task_sequential(task_data_seq);
+  tarakanov_d_linear_stretching::TaskSequential test_task_sequential(task_data_seq);
+
   ASSERT_EQ(test_task_sequential.Validation(), true);
+
   test_task_sequential.PreProcessing();
   test_task_sequential.Run();
   test_task_sequential.PostProcessing();
-  EXPECT_EQ(in, out);
+
+  uchar minOut = 255;
+  uchar maxOut = 0;
+  for (size_t i = 0; i < out.size(); ++i) {
+    minOut = std::min(minOut, out[i]);
+    maxOut = std::max(maxOut, out[i]);
+  }
+
+  EXPECT_EQ(minOut, 0);
+  EXPECT_EQ(maxOut, 255);
 }
