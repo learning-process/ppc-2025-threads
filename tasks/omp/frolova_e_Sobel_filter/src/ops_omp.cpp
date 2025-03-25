@@ -55,8 +55,7 @@ bool frolova_e_sobel_filter_omp::SobelFilterOmp::ValidationImpl() {
   auto height_1 = static_cast<size_t>(value_1[1]);
 
   int* value_2 = reinterpret_cast<int*>(task_data->inputs[1]);
-  std::vector<int> picture_vector;
-  picture_vector.assign(value_2, value_2 + task_data->inputs_count[1]);
+  std::vector<int> picture_vector(value_2, value_2 + task_data->inputs_count[1]);
   if (task_data->inputs_count[1] != width_1 * height_1 * 3) {
     return false;
   }
@@ -106,9 +105,7 @@ bool frolova_e_sobel_filter_omp::SobelFilterOmp::RunImpl() {
   return true;
 }
 
-bool frolova_e_sobel_filter_omp::SobelFilterOmp::PostProcessingImpl() {
-  for (size_t i = 0; i < width_ * height_; i++) {
-    reinterpret_cast<int*>(task_data->outputs[0])[i] = res_image_[i];
-  }
+bool frolova_e_sobel_filter_omp::SobelFilterOmp::PostProcessingImpl(){
+  std::copy(res_image_.begin(), res_image_.end(), reinterpret_cast<int*>(task_data->outputs[0]));
   return true;
 }
