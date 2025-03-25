@@ -1,11 +1,11 @@
 #include "seq/tarakanov_d_contrast_enhancement_by_linear_histogram_stretching/include/ops_seq.hpp"
 
-#include <opencv2/opencv.hpp>
 #include <cmath>
+#include <opencv2/opencv.hpp>
 
 bool tarakanov_d_linear_stretching::TaskSequential::PreProcessingImpl() {
   unsigned int input_size = task_data->inputs_count[0];
-  auto *in_ptr = reinterpret_cast<uchar*>(task_data->inputs[0]);
+  auto *in_ptr = reinterpret_cast<uchar *>(task_data->inputs[0]);
 
   rc_size_ = static_cast<int>(std::sqrt(input_size));
 
@@ -49,7 +49,7 @@ bool tarakanov_d_linear_stretching::TaskSequential::RunImpl() {
 
 bool tarakanov_d_linear_stretching::TaskSequential::PostProcessingImpl() {
   size_t total_elements = outputImage_.rows * outputImage_.cols;
-  auto *out_ptr = reinterpret_cast<uchar*>(task_data->outputs[0]);
+  auto *out_ptr = reinterpret_cast<uchar *>(task_data->outputs[0]);
 
   std::memcpy(out_ptr, outputImage_.data, total_elements * sizeof(uchar));
 

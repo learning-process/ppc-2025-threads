@@ -1,9 +1,9 @@
 #pragma once
 
-#include <opencv2/opencv.hpp>
-#include <vector>
 #include <memory>
+#include <opencv2/opencv.hpp>
 #include <utility>
+#include <vector>
 
 #include "core/task/include/task.hpp"
 
@@ -20,7 +20,7 @@ class TaskSequential : public ppc::core::Task {
 
  private:
   cv::Mat inputImage_, outputImage_;
-  
+
   int rc_size_{};
 };
 
