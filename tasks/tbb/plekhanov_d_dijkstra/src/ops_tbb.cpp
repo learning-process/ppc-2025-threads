@@ -5,7 +5,7 @@
 #include <oneapi/tbb/parallel_for.h>
 #include <oneapi/tbb/parallel_reduce.h>
 
-#include <algorithm> 
+#include <algorithm>
 #include <climits>
 #include <cstddef>
 #include <cstdlib>
@@ -85,19 +85,19 @@ bool plekhanov_d_dijkstra_tbb::TestTaskTBB::RunImpl() {  // NOLINT(readability-f
             }
           }
           if (local_u == -1) {
-              return current_u;
+            return current_u;
           }
           if (current_u == -1) {
-              return local_u;
+            return local_u;
           }
           return (distances_[current_u] < distances_[local_u]) ? current_u : local_u;
         },
         [&](int u1, int u2) -> int {
           if (u1 == -1) {
-              return u2;
+            return u2;
           }
           if (u2 == -1) {
-              return u1; 
+            return u1; 
           }
           return (distances_[u1] < distances_[u2]) ? u1 : u2;
         });
