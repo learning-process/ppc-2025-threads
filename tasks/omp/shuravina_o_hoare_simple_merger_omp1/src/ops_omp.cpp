@@ -3,7 +3,7 @@
 #include <omp.h>
 
 #include <algorithm>
-#include <vector>
+#include <cstring>
 
 namespace shuravina_o_hoare_simple_merger {
 
@@ -50,11 +50,7 @@ void TestTaskOMP::Merge(std::vector<int>& arr, int low, int mid, int high) {
 #pragma omp section
     {
       while (i <= mid && j <= high) {
-        if (arr[i] <= arr[j]) {
-          temp[k++] = arr[i++];
-        } else {
-          temp[k++] = arr[j++];
-        }
+        temp[k++] = arr[i] <= arr[j] ? arr[i++] : arr[j++];
       }
     }
 
@@ -84,22 +80,38 @@ bool TestTaskOMP::PreProcessingImpl() {
     return false;
   }
 
-  input_ = std::vector<int>(reinterpret_cast<int*>(task_data->inputs[0]),
-                            reinterpret_cast<int*>(task_data->inputs[0]) + task_data->inputs_count[0]);
+  const int* in_ptr = reinterpret_cast<const int*>(task_data->inputs[0]);
+  const size_t input_size = task_data->inputs_count[0];
 
-  output_.clear();
-  output_.reserve(task_data->outputs_count[0]);
+  input_.assign(in_ptr, in_ptr + input_size);
+  output_.resize(task_data->outputs_count[0]);
 
   return true;
 }
 
 bool TestTaskOMP::ValidationImpl() {
-  return task_data->inputs_count[0] == task_data->outputs_count[0] && task_data->inputs[0] != nullptr &&
-         task_data->outputs[0] != nullptr;
+  if (task_data->inputs.empty() || task_data->outputs.empty()) {
+    return false;
+  }
+
+  if (task_data->inputs[0] == nullptr || task_data->outputs[0] == nullptr) {
+    return false;
+  }
+
+  if (task_data->inputs_count.empty() || task_data->outputs_count.empty()) {
+    return false;
+  }
+  if (task_data->inputs_count[0] != task_data->outputs_count[0]) {
+    return false;
+  }
+
+  return true;
 }
 
 bool TestTaskOMP::RunImpl() {
-  if (input_.empty()) return true;
+  if (input_.empty()) {
+    return true;
+  }
 
 #pragma omp parallel
   {
@@ -113,7 +125,24 @@ bool TestTaskOMP::RunImpl() {
 }
 
 bool TestTaskOMP::PostProcessingImpl() {
-  std::memcpy(task_data->outputs[0], output_.data(), output_.size() * sizeof(int));
+  if (output_.empty()) {
+    return true;
+  }
+
+  int* out_ptr = reinterpret_cast<int*>(task_data->outputs[0]);
+  const size_t count = output_.size();
+  const size_t bytes = count * sizeof(int);
+
+  const bool no_overlap =
+      (reinterpret_cast<const uint8_t*>(output_.data()) + bytes <= reinterpret_cast<const uint8_t*>(out_ptr)) ||
+      (reinterpret_cast<uint8_t*>(out_ptr) + bytes <= reinterpret_cast<const uint8_t*>(output_.data()));
+
+  if (no_overlap) {
+    std::memcpy(out_ptr, output_.data(), bytes);
+  } else {
+    std::copy(output_.begin(), output_.end(), out_ptr);
+  }
+
   return true;
 }
 
