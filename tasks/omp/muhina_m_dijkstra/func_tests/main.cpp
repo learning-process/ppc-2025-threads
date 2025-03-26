@@ -13,9 +13,9 @@
 #include "core/task/include/task.hpp"
 #include "omp/muhina_m_dijkstra/include/ops_omp.hpp"
 
-namespace muhina_m_dijkstra_omp {
-std::vector<int> static DijkstraSequential(const std::vector<std::vector<std::pair<size_t, int>>>& adj_list,
-                                           size_t start_vertex) {
+namespace {
+std::vector<int> DijkstraSequential(const std::vector<std::vector<std::pair<size_t, int>>>& adj_list,
+                                    size_t start_vertex) {
   const size_t num_vertices = adj_list.size();
   std::vector<int> distances(num_vertices, INT_MAX);
   distances[start_vertex] = 0;
@@ -46,11 +46,10 @@ std::vector<int> static DijkstraSequential(const std::vector<std::vector<std::pa
   return distances;
 }
 
-std::vector<std::vector<std::pair<size_t, int>>> static GenerateRandomGraph(size_t min_vertices = 5,
-                                                                            size_t max_vertices = 20,
-                                                                            int min_weight = 1, int max_weight = 100,
-                                                                            size_t min_edges_per_vertex = 1,
-                                                                            size_t max_edges_per_vertex = 3) {
+std::vector<std::vector<std::pair<size_t, int>>> GenerateRandomGraph(size_t min_vertices = 5, size_t max_vertices = 20,
+                                                                     int min_weight = 1, int max_weight = 100,
+                                                                     size_t min_edges_per_vertex = 1,
+                                                                     size_t max_edges_per_vertex = 3) {
   std::random_device rd;
   std::mt19937 gen(rd());
   std::uniform_int_distribution<size_t> vertices_dist(min_vertices, max_vertices);
@@ -74,7 +73,7 @@ std::vector<std::vector<std::pair<size_t, int>>> static GenerateRandomGraph(size
 
   return adj_list;
 }
-}  // namespace muhina_m_dijkstra_omp
+}  // namespace
 
 TEST(muhina_m_dijkstra_omp, test_dijkstra_small_graph) {
   constexpr size_t kNumVertices = 5;
@@ -228,11 +227,11 @@ TEST(muhina_m_dijkstra_omp, test_negative_weight) {
 }
 
 TEST(muhina_m_dijkstra_omp, test_dijkstra_random_graph) {
-  auto adj_list = muhina_m_dijkstra_omp::GenerateRandomGraph();
+  auto adj_list = GenerateRandomGraph();
   const size_t num_vertices = adj_list.size();
   size_t start_vertex = 0;
 
-  auto expected_distances = muhina_m_dijkstra_omp::DijkstraSequential(adj_list, start_vertex);
+  auto expected_distances = DijkstraSequential(adj_list, start_vertex);
 
   std::vector<int> distances(num_vertices, INT_MAX);
   std::vector<int> graph_data;
