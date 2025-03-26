@@ -42,6 +42,10 @@ void naumov_b_marc_on_bin_image_seq::TestTaskSequential::AssignMinLabel(int row,
 std::vector<int> naumov_b_marc_on_bin_image_seq::TestTaskSequential::FindAdjacentLabels(int row, int col) {
   std::vector<int> neighbors;
 
+  if (row < 0 || row >= rows_ || col < 0 || col >= cols_) {
+    return neighbors; 
+  }
+
   if (col > 0 && output_image_[(row * cols_) + (col - 1)] != 0) {
     neighbors.push_back(output_image_[(row * cols_) + (col - 1)]);
   }
