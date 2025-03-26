@@ -1,5 +1,6 @@
 #include "seq/Sadikov_I_SparesMatrixMultiplication/include/ops_seq.hpp"
 
+#include <algorithm>
 #include <random>
 #include <vector>
 
@@ -52,11 +53,12 @@ std::vector<double> sadikov_i_sparse_matrix_multiplication_task_seq::GetRandomMa
   std::vector<double> data(size);
   std::random_device dev;
   std::mt19937 gen(dev());
-  for (auto i = 0; i < size; ++i) {
-    data[i] = static_cast<double>(gen() % 600);
-    if (data[i] > 250.0) {
-      data[i] = 0.0;
-    }
+  int high = 500;
+  int low = 0;
+  std::uniform_int_distribution<> number(low, high);
+  for (int i = 0; i < size / 5; ++i) {
+    data[i] = static_cast<double>(number(gen));
   }
+  std::ranges::shuffle(data, gen);
   return data;
 }

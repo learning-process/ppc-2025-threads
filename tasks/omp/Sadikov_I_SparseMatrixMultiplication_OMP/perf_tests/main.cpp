@@ -1,20 +1,39 @@
 #include <gtest/gtest.h>
 
+#include <algorithm>
 #include <chrono>
 #include <cstdint>
 #include <memory>
+#include <random>
 #include <vector>
 
 #include "core/perf/include/perf.hpp"
 #include "core/task/include/task.hpp"
-#include "seq/Sadikov_I_SparesMatrixMultiplication/include/SparesMatrix.hpp"
-#include "seq/Sadikov_I_SparesMatrixMultiplication/include/ops_seq.hpp"
+#include "omp/Sadikov_I_SparseMatrixMultiplication_OMP/include/SparseMatrix.hpp"
+#include "omp/Sadikov_I_SparseMatrixMultiplication_OMP/include/ops_omp.hpp"
 
-TEST(sadikov_i_sparse_matrix_multiplication_task_seq, test_pipeline_run) {
-  constexpr auto kEpsilon = 0.00001;
+namespace {
+// restart tests
+std::vector<double> GetRandomMatrix(int size) {
+  std::vector<double> data(size);
+  std::random_device dev;
+  std::mt19937 gen(dev());
+  int high = 500;
+  int low = 0;
+  std::uniform_int_distribution<> number(low, high);
+  for (int i = 0; i < size / 5; ++i) {
+    data[i] = static_cast<double>(number(gen));
+  }
+  std::ranges::shuffle(data, gen);
+  return data;
+}
+}  // namespace
+
+TEST(sadikov_i_sparse_matrix_multiplication_task_omp, test_pipeline_run) {
+  constexpr auto kEpsilon = 0.0001;
   constexpr auto kSize = 300;
-  auto fmatrix = sadikov_i_sparse_matrix_multiplication_task_seq::GetRandomMatrix(kSize * kSize);
-  auto smatrix = sadikov_i_sparse_matrix_multiplication_task_seq::GetRandomMatrix(kSize * kSize);
+  auto fmatrix = GetRandomMatrix(kSize * kSize);
+  auto smatrix = GetRandomMatrix(kSize * kSize);
   std::vector<double> out(kSize * kSize, 0.0);
   auto task_data_seq = std::make_shared<ppc::core::TaskData>();
   task_data_seq->inputs.emplace_back(reinterpret_cast<uint8_t *>(fmatrix.data()));
@@ -25,10 +44,10 @@ TEST(sadikov_i_sparse_matrix_multiplication_task_seq, test_pipeline_run) {
   task_data_seq->inputs_count.emplace_back(kSize);
   task_data_seq->outputs.emplace_back(reinterpret_cast<uint8_t *>(out.data()));
   task_data_seq->outputs_count.emplace_back(out.size());
-  auto check_out = sadikov_i_sparse_matrix_multiplication_task_seq::BaseMatrixMultiplication(fmatrix, kSize, kSize,
+  auto check_out = sadikov_i_sparse_matrix_multiplication_task_omp::BaseMatrixMultiplication(fmatrix, kSize, kSize,
                                                                                              smatrix, kSize, kSize);
   auto test_task_sequential =
-      std::make_shared<sadikov_i_sparse_matrix_multiplication_task_seq::CCSMatrixSequential>(task_data_seq);
+      std::make_shared<sadikov_i_sparse_matrix_multiplication_task_omp::CCSMatrixOMP>(task_data_seq);
   auto perf_attr = std::make_shared<ppc::core::PerfAttr>();
   perf_attr->num_running = 10;
   const auto t0 = std::chrono::high_resolution_clock::now();
@@ -46,11 +65,11 @@ TEST(sadikov_i_sparse_matrix_multiplication_task_seq, test_pipeline_run) {
   }
 }
 
-TEST(sadikov_i_sparse_matrix_multiplication_task_seq, test_task_run) {
-  constexpr auto kEpsilon = 0.00001;
+TEST(sadikov_i_sparse_matrix_multiplication_task_omp, test_task_run) {
+  constexpr auto kEpsilon = 0.0001;
   constexpr auto kSize = 300;
-  auto fmatrix = sadikov_i_sparse_matrix_multiplication_task_seq::GetRandomMatrix(kSize * kSize);
-  auto smatrix = sadikov_i_sparse_matrix_multiplication_task_seq::GetRandomMatrix(kSize * kSize);
+  auto fmatrix = GetRandomMatrix(kSize * kSize);
+  auto smatrix = GetRandomMatrix(kSize * kSize);
   std::vector<double> out(kSize * kSize, 0.0);
   auto task_data_seq = std::make_shared<ppc::core::TaskData>();
   task_data_seq->inputs.emplace_back(reinterpret_cast<uint8_t *>(fmatrix.data()));
@@ -61,10 +80,10 @@ TEST(sadikov_i_sparse_matrix_multiplication_task_seq, test_task_run) {
   task_data_seq->inputs_count.emplace_back(kSize);
   task_data_seq->outputs.emplace_back(reinterpret_cast<uint8_t *>(out.data()));
   task_data_seq->outputs_count.emplace_back(out.size());
-  auto check_out = sadikov_i_sparse_matrix_multiplication_task_seq::BaseMatrixMultiplication(fmatrix, kSize, kSize,
+  auto check_out = sadikov_i_sparse_matrix_multiplication_task_omp::BaseMatrixMultiplication(fmatrix, kSize, kSize,
                                                                                              smatrix, kSize, kSize);
   auto test_task_sequential =
-      std::make_shared<sadikov_i_sparse_matrix_multiplication_task_seq::CCSMatrixSequential>(task_data_seq);
+      std::make_shared<sadikov_i_sparse_matrix_multiplication_task_omp::CCSMatrixOMP>(task_data_seq);
   auto perf_attr = std::make_shared<ppc::core::PerfAttr>();
   perf_attr->num_running = 10;
   const auto t0 = std::chrono::high_resolution_clock::now();
