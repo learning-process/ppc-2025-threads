@@ -33,7 +33,6 @@ TEST(sorokin_a_multiplication_sparse_matrices_double_ccs_omp, test_3x3_x_3x3) {
   std::vector<double> c_row_indices(5);
   std::vector<double> c_col_ptr(4);
 
-  // Create task_data
   auto task_data_omp = std::make_shared<ppc::core::TaskData>();
   task_data_omp->inputs_count.emplace_back(m);
   task_data_omp->inputs_count.emplace_back(k);
