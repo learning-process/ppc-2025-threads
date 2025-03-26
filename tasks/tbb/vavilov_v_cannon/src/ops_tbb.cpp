@@ -50,33 +50,25 @@ void vavilov_v_cannon_tbb::CannonTBB::InitialShift() {
 }
 
 void vavilov_v_cannon_tbb::CannonTBB::BlockMultiply() {
-  tbb::concurrent_vector<double> local_C(N_ * N_, 0.0);
-  tbb::parallel_for(tbb::blocked_range2d<int>(0, N_, block_size_, 0, N_, block_size_),
-                   [&](const tbb::blocked_range2d<int>& r) {
-                     for (int bi = r.rows().begin(); bi != r.rows().end(); bi += block_size_) {
-                       for (int bj = r.cols().begin(); bj != r.cols().end(); bj += block_size_) {
-                         for (int i = bi; i < bi + block_size_; i++) {
-                           for (int j = bj; j < bj + block_size_; j++) {
-                             double temp = 0.0;
-                             for (int k = 0; k < block_size_; k++) {
-                               int row_a = bi + (i - bi);
-                               int col_a = bj + k;
-                               int row_b = bi + k;
-                               int col_b = bj + (j - bj);
-                               temp += A_[(row_a * N_) + col_a] * B_[(row_b * N_) + col_b];
-                             }
-                             local_C[i * N_ + j] += temp;
-                           }
-                         }
-                       }
-                     }
-                   });
-
-  tbb::parallel_for(tbb::blocked_range<int>(0, N_ * N_), [&](const tbb::blocked_range<int>& r) {
-    for (int idx = r.begin(); idx != r.end(); ++idx) {
-      C_[idx] += local_C[idx];
+  for (int bi = 0; bi < num_blocks_; ++bi) {
+    for (int bj = 0; bj < num_blocks_; ++bj) {
+      tbb::parallel_for(tbb::blocked_range2d<int>(0, block_size_, 4, 0, block_size_, 4), [&](const tbb::blocked_range2d<int> &r) {
+        for (int i = r.rows().begin(); i != r.rows().end(); ++i) {
+          for (int j = r.cols().begin(); j != r.cols().end(); ++j) {
+            double temp = 0.0;
+            for (int k = 0; k < block_size_; ++k) {
+              int row = (bi * block_size_) + i;
+              int col = (bj * block_size_) + j;
+              int k_idx = (bj * block_size_) + k;
+              int k_row = (bi * block_size_) + k;
+              temp += A_[(row * N_) + k_idx] * B_[(k_row * N_) + col];
+            }
+            C_[(((bi * block_size_) + i) * N_) + ((bj * block_size_) + j)] += temp;
+          }
+        }
+      });
     }
-  });
+  }
 }
 
 void vavilov_v_cannon_tbb::CannonTBB::ShiftBlocks() {
