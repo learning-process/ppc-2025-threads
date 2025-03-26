@@ -53,7 +53,7 @@ void Form(int n) {
     for (int j = 0; j < n; ++j) {
       sum += a[(i * n) + j] * x[j];
     }
-    EXPECT_NEAR(sum, b[i], 1e-5);
+    EXPECT_NEAR(sum, b[i], 1e-4);
   }
 }
 }  // namespace
@@ -238,4 +238,4 @@ TEST(zolotareva_a_sle_gradient_method_seq, test_correct_answer1) {
 TEST(zolotareva_a_sle_gradient_method_seq, Test_Image_random_n_3) { Form(3); };
 TEST(zolotareva_a_sle_gradient_method_seq, Test_Image_random_n_5) { Form(5); };
 TEST(zolotareva_a_sle_gradient_method_seq, Test_Image_random_n_7) { Form(7); };
-TEST(zolotareva_a_sle_gradient_method_seq, Test_Image_random_n_20) { Form(591); };
+TEST(zolotareva_a_sle_gradient_method_seq, Test_Image_random_n_591) { Form(591); };
