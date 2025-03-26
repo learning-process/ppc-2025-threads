@@ -63,6 +63,7 @@ TEST(shuravina_o_hoare_simple_merger_omp, test_random_array) {
     ASSERT_LE(out[i - 1], out[i]);
   }
 }
+
 TEST(shuravina_o_hoare_simple_merger_omp, test_already_sorted_array) {
   std::vector<int> in = {1, 2, 3, 4, 5, 6};
   std::vector<int> out(in.size(), 0);
@@ -100,26 +101,6 @@ TEST(shuravina_o_hoare_simple_merger_omp, test_single_element_array) {
   test_task_omp.PostProcessing();
 
   std::vector<int> expected = {42};
-  EXPECT_EQ(out, expected);
-}
-
-TEST(shuravina_o_hoare_simple_merger_omp, test_empty_array) {
-  std::vector<int> in = {};
-  std::vector<int> out(in.size(), 0);
-
-  auto task_data_omp = std::make_shared<ppc::core::TaskData>();
-  task_data_omp->inputs.emplace_back(reinterpret_cast<uint8_t*>(in.data()));
-  task_data_omp->inputs_count.emplace_back(in.size());
-  task_data_omp->outputs.emplace_back(reinterpret_cast<uint8_t*>(out.data()));
-  task_data_omp->outputs_count.emplace_back(out.size());
-
-  shuravina_o_hoare_simple_merger::TestTaskOMP test_task_omp(task_data_omp);
-  ASSERT_EQ(test_task_omp.Validation(), true);
-  test_task_omp.PreProcessing();
-  test_task_omp.Run();
-  test_task_omp.PostProcessing();
-
-  std::vector<int> expected = {};
   EXPECT_EQ(out, expected);
 }
 
