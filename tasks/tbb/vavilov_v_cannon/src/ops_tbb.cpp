@@ -80,18 +80,18 @@ void vavilov_v_cannon_tbb::CannonTBB::BlockMultiply() {
     }
   });
 
-tbb::parallel_for(tbb::blocked_range<int>(0, num_blocks_, 4), [&](const tbb::blocked_range<int>& r) {
-  for (int bi = r.begin(); bi < r.end(); ++bi) {
-    int row_offset = bi * block_size_;
-    for (auto& local : local_C) {
-      for (int i = 0; i < block_size_; ++i) {
-        for (int j = 0; j < N_; ++j) {
-          C_[(row_offset + i) * N_ + j] += local[(i + (bi - r.begin()) * block_size_) * N_ + j];
+  tbb::parallel_for(tbb::blocked_range<int>(0, num_blocks_, 4), [&](const tbb::blocked_range<int>& r) {
+    for (int bi = r.begin(); bi < r.end(); ++bi) {
+      int row_offset = bi * block_size_;
+      for (auto& local : local_C) {
+        for (int i = 0; i < block_size_; ++i) {
+          for (int j = 0; j < N_; ++j) {
+            C_[(row_offset + i) * N_ + j] += local[(i + (bi - r.begin()) * block_size_) * N_ + j];
+          }
         }
       }
     }
-  }
-});
+  });
 }
 
 void vavilov_v_cannon_tbb::CannonTBB::ShiftBlocks() {
