@@ -88,8 +88,8 @@ inline bool Cholesky(const std::vector<double>& matrix, int w, int h, double tol
 
   int n = w;
 
-  for (int i = 0; i < n; ++i) {
-    for (int j = i + 1; j < n; ++j) {
+  for (int i = 0; i < n; i++) {
+    for (int j = i + 1; j < n; j++) {
       if (std::abs(matrix[(i * n) + j] - matrix[(j * n) + i]) > tolerance) {
         return false;
       }
@@ -98,10 +98,10 @@ inline bool Cholesky(const std::vector<double>& matrix, int w, int h, double tol
 
   std::vector<double> lower_triangular(n * n, 0.0);
 
-  for (int i = 0; i < n; ++i) {
-    for (int j = 0; j <= i; ++j) {
+  for (int i = 0; i < n; i++) {
+    for (int j = 0; j <= i; j++) {
       double sum = 0.0;
-      for (int k = 0; k < j; ++k) {
+      for (int k = 0; k < j; k++) {
         sum += lower_triangular[(i * n) + k] * lower_triangular[(j * n) + k];
       }
 
