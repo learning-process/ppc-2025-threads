@@ -15,7 +15,7 @@ void kudryashova_i_radix_batcher_omp::RadixDoubleSort(std::vector<double>& data,
   std::vector<uint64_t> converted(sort_size);
 
 #pragma omp parallel for
-  for (int i = 0; i < sort_size; ++i) {
+  for (int i = 0; i < static_cast<int>(sort_size); ++i) {
     double value = data[first + i];
     uint64_t bits = 0;
     std::memcpy(&bits, &value, sizeof(value));
@@ -35,7 +35,7 @@ void kudryashova_i_radix_batcher_omp::RadixDoubleSort(std::vector<double>& data,
     {
       std::vector<size_t> local_count(256, 0);
 #pragma omp for
-      for (int i = 0; i < sort_size; ++i) {
+      for (int i = 0; i < static_cast<int>(sort_size); ++i) {
         ++local_count[(converted[i] >> shift_loc) & max_byte_value];
       }
 #pragma omp critical
@@ -58,7 +58,7 @@ void kudryashova_i_radix_batcher_omp::RadixDoubleSort(std::vector<double>& data,
       atomic_count[j] = count[j];
     }
 #pragma omp parallel for
-    for (int i = 0; i < sort_size; ++i) {
+    for (int i = 0; i < static_cast<int>(sort_size); ++i) {
       const uint8_t byte = (converted[i] >> shift_loc) & max_byte_value;
       size_t pos = atomic_count[byte].fetch_add(1, std::memory_order_seq_cst);
       buffer[pos] = converted[i];
@@ -68,7 +68,7 @@ void kudryashova_i_radix_batcher_omp::RadixDoubleSort(std::vector<double>& data,
   }
 
 #pragma omp parallel for
-  for (int i = 0; i < sort_size; ++i) {
+  for (int i = 0; i < static_cast<int>(sort_size); ++i) {
     uint64_t bits = converted[i];
     bits = ((bits & (1ULL << 63)) != 0) ? (bits ^ (1ULL << 63)) : ~bits;
     std::memcpy(&data[first + i], &bits, sizeof(double));
