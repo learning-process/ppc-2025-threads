@@ -259,34 +259,3 @@ TEST(petrov_o_vertical_image_filtration_omp, test_gaussian_filter_random) {
     EXPECT_EQ(out[idx], out_ref[idx]) << "Error on index " << idx;
   }
 }
-
-// TEST(petrov_o_vertical_image_filtration_omp, test_gaussian_filter_random) {
-//   constexpr size_t kWidth = 10;
-//   constexpr size_t kHeight = 10;
-
-//   std::vector<int> in = GenerateRandomInput(kWidth, kHeight);
-//   std::vector<int> out((kWidth - 2) * (kHeight - 2), 0);
-
-//   auto task_data_seq = std::make_shared<ppc::core::TaskData>();
-//   task_data_seq->inputs.emplace_back(reinterpret_cast<uint8_t *>(in.data()));
-//   task_data_seq->inputs_count.emplace_back(kWidth);
-//   task_data_seq->inputs_count.emplace_back(kHeight);
-//   task_data_seq->outputs.emplace_back(reinterpret_cast<uint8_t *>(out.data()));
-//   task_data_seq->outputs_count.emplace_back(out.size());
-
-//   petrov_o_vertical_image_filtration_omp::TaskOpenMP test_task_sequential(task_data_seq);
-//   ASSERT_TRUE(test_task_sequential.Validation());
-//   test_task_sequential.PreProcessing();
-//   test_task_sequential.Run();
-//   test_task_sequential.PostProcessing();
-
-//   const std::vector<float> gaussian_kernel = {1.0F / 16.0F, 2.0F / 16.0F, 1.0F / 16.0F, 2.0F / 16.0F, 4.0F / 16.0F,
-//                                               2.0F / 16.0F, 1.0F / 16.0F, 2.0F / 16.0F, 1.0F / 16.0F};
-
-//   std::vector<int> out_ref = ComputeReference(in, kWidth, kHeight, gaussian_kernel);
-
-//   EXPECT_EQ(out.size(), out_ref.size());
-//   for (size_t idx = 0; idx < out.size(); ++idx) {
-//     EXPECT_EQ(out[idx], out_ref[idx]) << "Error on index " << idx;
-//   }
-// }
