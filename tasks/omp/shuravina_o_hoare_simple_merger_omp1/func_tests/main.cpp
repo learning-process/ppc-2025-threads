@@ -123,7 +123,6 @@ TEST(shuravina_o_hoare_simple_merger_omp, test_array_with_negative_numbers) {
   std::vector<int> expected = {-9, -5, -3, 0, 1, 2};
   EXPECT_EQ(out, expected);
 }
-
 TEST(shuravina_o_hoare_simple_merger_omp, validation_null_input_pointer) {
   std::vector<int> out(5, 0);
 
