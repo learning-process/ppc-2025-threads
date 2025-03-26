@@ -16,7 +16,7 @@ std::vector<double> GenerateRandomMatrix(size_t rows, size_t cols) {
   std::vector<double> matrix(rows * cols);
   std::random_device rd;
   std::mt19937 gen(rd());
-  std::uniform_real_distribution<double> dist(-100.0, 100.0);
+  std::uniform_real_distribution<double> dist(-50.0, 50.0);
 
   for (auto &val : matrix) {
     val = dist(gen);
@@ -172,6 +172,31 @@ TEST(moiseev_a_mult_mat_tbb, test_prime_values) {
   std::vector<double> a = {5, 7, 11, 13};
   std::vector<double> b = {17, 19, 23, 29};
   std::vector<double> expected_c = {246, 298, 486, 586};
+
+  std::vector<double> c(kSize * kSize, 0.0);
+
+  auto task_data_tbb = std::make_shared<ppc::core::TaskData>();
+  task_data_tbb->inputs.emplace_back(reinterpret_cast<uint8_t *>(a.data()));
+  task_data_tbb->inputs_count.emplace_back(a.size());
+  task_data_tbb->inputs.emplace_back(reinterpret_cast<uint8_t *>(b.data()));
+  task_data_tbb->inputs_count.emplace_back(b.size());
+  task_data_tbb->outputs.emplace_back(reinterpret_cast<uint8_t *>(c.data()));
+  task_data_tbb->outputs_count.emplace_back(c.size());
+
+  moiseev_a_mult_mat_tbb::MultMatTBB test_task_tbb(task_data_tbb);
+  ASSERT_TRUE(test_task_tbb.Validation());
+  test_task_tbb.PreProcessing();
+  test_task_tbb.Run();
+  test_task_tbb.PostProcessing();
+
+  EXPECT_EQ(c, expected_c);
+}
+
+TEST(moiseev_a_mult_mat_tbb, test_even_values) {
+  constexpr size_t kSize = 2;
+  std::vector<double> a = {2, 4, 6, 8};
+  std::vector<double> b = {2, 4, 6, 8};
+  std::vector<double> expected_c = {28, 40, 60, 88};
 
   std::vector<double> c(kSize * kSize, 0.0);
 
