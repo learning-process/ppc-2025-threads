@@ -51,13 +51,13 @@ void vavilov_v_cannon_omp::CannonOMP::BlockMultiply() {
         for (int j = 0; j < block_size_; ++j) {
           double temp = 0.0;
           for (int k = 0; k < block_size_; ++k) {
-            int row = bi * block_size_ + i;
-            int col = bj * block_size_ + j;
-            int k_idx = bj * block_size_ + k;
-            int k_row = bi * block_size_ + k;
-            temp += A_[row * N_ + k_idx] * B_[k_row * N_ + col];
+            int row = (bi * block_size_) + i;
+            int col = (bj * block_size_) + j;
+            int k_idx = (bj * block_size_) + k;
+            int k_row = (bi * block_size_) + k;
+            temp += A_[(row * N_) + k_idx] * B_[(k_row * N_) + col];
           }
-          C_[(bi * block_size_ + i) * N_ + (bj * block_size_ + j)] += temp;
+          C_[(((bi * block_size_) + i) * N_) + ((bj * block_size_) + j)] += temp;
         }
       }
     }
