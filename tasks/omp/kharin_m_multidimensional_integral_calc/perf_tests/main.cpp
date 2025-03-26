@@ -8,7 +8,7 @@
 
 #include "core/perf/include/perf.hpp"
 #include "core/task/include/task.hpp"
-#include "seq/kharin_m_multidimensional_integral_calc/include/ops_omp.hpp"
+#include "omp/kharin_m_multidimensional_integral_calc/include/ops_omp.hpp"
 
 TEST(kharin_m_multidimensional_integral_calc_seq, test_pipeline_run) {
   constexpr size_t kDim = 5000;

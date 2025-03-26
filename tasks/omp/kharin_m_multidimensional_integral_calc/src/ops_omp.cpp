@@ -1,4 +1,4 @@
-#include "seq/kharin_m_multidimensional_integral_calc/include/ops_omp.hpp"
+#include "omp/kharin_m_multidimensional_integral_calc/include/ops_omp.hpp"
 
 #include <omp.h>
 
