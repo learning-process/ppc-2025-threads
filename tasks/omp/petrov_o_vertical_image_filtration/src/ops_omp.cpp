@@ -1,10 +1,10 @@
+#include "omp/petrov_o_vertical_image_filtration/include/ops_omp.hpp"
+
 #include <omp.h>
 
 #include <cmath>
 #include <cstddef>
 #include <vector>
-
-#include "omp/petrov_o_vertical_image_filtration/include/ops_omp.hpp"
 
 bool petrov_o_vertical_image_filtration_omp::TaskOpenMP::PreProcessingImpl() {
   width_ = task_data->inputs_count[0];
