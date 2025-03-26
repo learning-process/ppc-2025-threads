@@ -1,6 +1,7 @@
 #include "seq/kharin_m_multidimensional_integral_calc/include/ops_seq.hpp"
 
 #include <omp.h>
+
 #include <cstddef>
 #include <vector>
 
@@ -58,14 +59,14 @@ bool kharin_m_multidimensional_integral_calc_seq::TaskSequential::PreProcessingI
 
 #pragma omp parallel for reduction(&& : is_valid)
   for (int i = 0; i < step_sizes_.size(); i++) {
-      if (step_sizes_[i] <= 0.0) {
-          is_valid = false;
-      }
+    if (step_sizes_[i] <= 0.0) {
+        is_valid = false;
+    }
   }
 
   if (is_valid) {
-      output_result_ = 0.0;
-      return true;
+    output_result_ = 0.0;
+    return true;
   }
   return false;
 }

@@ -1,10 +1,10 @@
 #pragma once
 
+#include <omp.h>
+
 #include <cstddef>
 #include <utility>
 #include <vector>
-
-#include <omp.h>
 
 #include "core/task/include/task.hpp"
 

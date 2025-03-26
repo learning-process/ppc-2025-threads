@@ -1,5 +1,6 @@
 #include <gtest/gtest.h>
 #include <omp.h>
+
 #include <cstddef>
 #include <cstdint>
 #include <memory>
