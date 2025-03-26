@@ -52,17 +52,23 @@ void vavilov_v_cannon_tbb::CannonTBB::InitialShift() {
 void vavilov_v_cannon_tbb::CannonTBB::BlockMultiply() {
   tbb::parallel_for(0, num_blocks_, [&](int bi) {
     for (int bj = 0; bj < num_blocks_; ++bj) {
+      int a_shift = (bi + bj) % num_blocks_;
+      int b_shift = (bj + bi) % num_blocks_;
+
+      int a_row_start = bi * block_size_;
+      int a_col_start = a_shift * block_size_;
+      int b_row_start = b_shift * block_size_;
+      int b_col_start = bj * block_size_;
+
       for (int i = 0; i < block_size_; ++i) {
         for (int j = 0; j < block_size_; ++j) {
           double temp = 0.0;
           for (int k = 0; k < block_size_; ++k) {
-            int row = (bi * block_size_) + i;
-            int col = (bj * block_size_) + j;
-            int k_idx = (bj * block_size_) + k;
-            int k_row = (bi * block_size_) + k;
-            temp += A_[(row * N_) + k_idx] * B_[(k_row * N_) + col];
+            double a_element = A_[(a_row_start + i) * N_ + (a_col_start + k)];
+            double b_element = B_[(b_row_start + k) * N_ + (b_col_start + j)];
+            temp += a_element * b_element;
           }
-          C_[(((bi * block_size_) + i) * N_) + ((bj * block_size_) + j)] += temp;
+          C_[(a_row_start + i) * N_ + (b_col_start + j)] += temp;
         }
       }
     }
