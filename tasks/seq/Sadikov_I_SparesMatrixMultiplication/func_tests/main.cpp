@@ -49,7 +49,6 @@ TEST(sadikov_i_sparse_matrix_multiplication_task_seq, test_square_matrixes) {
   task_data_seq->outputs.emplace_back(reinterpret_cast<uint8_t *>(out.data()));
   task_data_seq->outputs_count.emplace_back(out.size());
 
-  // Create Task
   sadikov_i_sparse_matrix_multiplication_task_seq::CCSMatrixSequential test_task_sequential(task_data_seq);
   ASSERT_EQ(test_task_sequential.Validation(), true);
   test_task_sequential.PreProcessing();
@@ -76,7 +75,6 @@ TEST(sadikov_i_sparse_matrix_multiplication_task_seq, test_empty_matrixes) {
   task_data_seq->outputs.emplace_back(reinterpret_cast<uint8_t *>(out.data()));
   task_data_seq->outputs_count.emplace_back(out.size());
 
-  // Create Task
   sadikov_i_sparse_matrix_multiplication_task_seq::CCSMatrixSequential test_task_sequential(task_data_seq);
   ASSERT_EQ(test_task_sequential.Validation(), true);
   test_task_sequential.PreProcessing();
