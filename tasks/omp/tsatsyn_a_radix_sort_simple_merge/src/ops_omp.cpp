@@ -1,4 +1,4 @@
-#include "omp/tsatsyn_a_radix_sort_simple_merge_omp/include/ops_omp.hpp"
+#include "omp/tsatsyn_a_radix_sort_simple_merge/include/ops_omp.hpp"
 
 #include <algorithm>
 #include <bit>
