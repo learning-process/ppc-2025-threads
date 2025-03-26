@@ -1,9 +1,9 @@
 #include <gtest/gtest.h>
 
-#include <algorithm>
 #include <climits>
 #include <cstddef>
 #include <cstdint>
+#include <functional>
 #include <memory>
 #include <queue>
 #include <random>
@@ -14,8 +14,8 @@
 #include "omp/muhina_m_dijkstra/include/ops_omp.hpp"
 
 namespace muhina_m_dijkstra_omp {
-std::vector<int> DijkstraSequential(const std::vector<std::vector<std::pair<size_t, int>>>& adj_list,
-                                    size_t start_vertex) {
+std::vector<int> static DijkstraSequential(const std::vector<std::vector<std::pair<size_t, int>>>& adj_list,
+                                           size_t start_vertex) {
   const size_t num_vertices = adj_list.size();
   std::vector<int> distances(num_vertices, INT_MAX);
   distances[start_vertex] = 0;
@@ -46,10 +46,11 @@ std::vector<int> DijkstraSequential(const std::vector<std::vector<std::pair<size
   return distances;
 }
 
-std::vector<std::vector<std::pair<size_t, int>>> GenerateRandomGraph(size_t min_vertices = 5, size_t max_vertices = 20,
-                                                                     int min_weight = 1, int max_weight = 100,
-                                                                     size_t min_edges_per_vertex = 1,
-                                                                     size_t max_edges_per_vertex = 3) {
+std::vector<std::vector<std::pair<size_t, int>>> static GenerateRandomGraph(size_t min_vertices = 5,
+                                                                            size_t max_vertices = 20,
+                                                                            int min_weight = 1, int max_weight = 100,
+                                                                            size_t min_edges_per_vertex = 1,
+                                                                            size_t max_edges_per_vertex = 3) {
   std::random_device rd;
   std::mt19937 gen(rd());
   std::uniform_int_distribution<size_t> vertices_dist(min_vertices, max_vertices);
