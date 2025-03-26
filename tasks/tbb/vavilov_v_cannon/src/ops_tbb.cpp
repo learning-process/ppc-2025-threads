@@ -71,7 +71,7 @@ void vavilov_v_cannon_tbb::CannonTBB::BlockMultiply() {
                         }
                       }
                     });
- 
+
   tbb::parallel_for(tbb::blocked_range<int>(0, N_ * N_), [&](const tbb::blocked_range<int>& r) {
     for (int idx = r.begin(); idx != r.end(); ++idx) {
       C_[idx] += local_C[idx];
