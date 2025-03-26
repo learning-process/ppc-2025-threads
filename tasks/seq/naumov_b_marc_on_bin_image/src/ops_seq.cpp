@@ -43,7 +43,7 @@ std::vector<int> naumov_b_marc_on_bin_image_seq::TestTaskSequential::FindAdjacen
   std::vector<int> neighbors;
 
   if (row < 0 || row >= rows_ || col < 0 || col >= cols_) {
-    return neighbors; 
+    return neighbors;
   }
 
   if (col > 0 && output_image_[(row * cols_) + (col - 1)] != 0) {
