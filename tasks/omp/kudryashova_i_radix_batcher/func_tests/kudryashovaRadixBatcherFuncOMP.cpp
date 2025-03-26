@@ -34,9 +34,9 @@ TEST(kudryashova_i_radix_batcher_omp, omp_radix_test_0) {
   task_open_mp.PreProcessingImpl();
   task_open_mp.RunImpl();
   task_open_mp.PostProcessingImpl();
-  std::vector<double> sorted_global_vector = global_vector;
-  std::ranges::sort(sorted_global_vector);
-  ASSERT_EQ(result, sorted_global_vector);
+  std::vector<double> sort_global_vector = global_vector;
+  std::ranges::sort(sort_global_vector);
+  ASSERT_EQ(result, sort_global_vector);
 }
 
 TEST(kudryashova_i_radix_batcher_omp, omp_radix_test_1) {
