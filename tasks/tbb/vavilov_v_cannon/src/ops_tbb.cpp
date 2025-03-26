@@ -49,7 +49,7 @@ void vavilov_v_cannon_tbb::CannonTBB::InitialShift() {
   });
 }
 
-void vavilov_v_cannon_stl::CannonSTL::BlockMultiply() {
+void vavilov_v_cannon_tbb::CannonTBB::BlockMultiply() {
   tbb::concurrent_vector<double> local_C(N_ * N_, 0.0);
   tbb::parallel_for(tbb::blocked_range2d<int>(0, N_, block_size_, 0, N_, block_size_),
                    [&](const tbb::blocked_range2d<int>& r) {
