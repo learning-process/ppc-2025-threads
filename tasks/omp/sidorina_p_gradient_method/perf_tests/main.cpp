@@ -78,7 +78,7 @@ TEST(sidorina_p_gradient_method_omp, test_pipeline_run) {
 }
 
 TEST(sidorina_p_gradient_method_omp, test_task_run) {
-  int size = static_cast<int>(std::pow(2, 10));
+  int size = static_cast<int>(std::pow(2, 12));
   std::vector<double> a(size * size);
   std::vector<double> a0(size * size);
   std::vector<double> b(size, 0);
