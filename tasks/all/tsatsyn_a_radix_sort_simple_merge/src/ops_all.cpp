@@ -125,7 +125,6 @@ inline void SafeDataWrite(const std::vector<uint64_t> &negative_copy, const std:
 bool tsatsyn_a_radix_sort_simple_merge_all::TestTaskALL::ValidationImpl() {
   // Check equality of counts elements
   if (world_.rank() == 0) {
-    std::cout << "PRIVET";
     return task_data->inputs_count[0] != 0;
   }
   return true;
