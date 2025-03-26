@@ -99,7 +99,6 @@ TEST(opolin_d_radix_betcher_sort_seq, test_task_run) {
     auto duration = std::chrono::duration_cast<std::chrono::nanoseconds>(current_time_point - t0).count();
     return static_cast<double>(duration) * 1e-9;
   };
-
   // Create and init perf results
   auto perf_results = std::make_shared<ppc::core::PerfResults>();
 
