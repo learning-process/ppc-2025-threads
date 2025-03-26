@@ -79,7 +79,6 @@ void vavilov_v_cannon_tbb::CannonTBB::BlockMultiply() {
       }
     }
   });
-}
 
 tbb::parallel_for(tbb::blocked_range<int>(0, num_blocks_, 4), [&](const tbb::blocked_range<int>& r) {
   for (int bi = r.begin(); bi < r.end(); ++bi) {
