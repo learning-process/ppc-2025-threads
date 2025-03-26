@@ -46,15 +46,6 @@ bool kharin_m_multidimensional_integral_calc_seq::TaskSequential::PreProcessingI
   auto* steps_ptr = reinterpret_cast<double*>(task_data->inputs[2]);
   step_sizes_ = std::vector<double>(steps_ptr, steps_ptr + d);
 
-  //   // Проверка на отрицательные шаги
-  //   for (const auto& h : step_sizes_) {
-  //     if (h <= 0.0) {
-  //       return false;  // Отрицательный или нулевой шаг недопустим
-  //     }
-  //   }
-
-  //   output_result_ = 0.0;
-  //   return true;
   bool is_valid = true;
 
 #pragma omp parallel for reduction(&& : is_valid)
@@ -79,21 +70,12 @@ bool kharin_m_multidimensional_integral_calc_seq::TaskSequential::RunImpl() {
     total += input_[i];
   }
 
-  // for (const auto& val : input_) {
-  //   total += val;
-  // }
-
   // Вычисляем элемент объема как произведение шагов интегрирования
   double volume_element = 1.0;
 #pragma omp parallel for reduction(* : volume_element)
   for (int i = 0; i < static_cast<int>(step_sizes_.size()); i++) {
     volume_element *= step_sizes_[i];
   }
-
-  // for (const auto& h : step_sizes_) {
-  //   volume_element *= h;
-  // }
-  // Интеграл = сумма значений * элемент объема
 
   output_result_ = total * volume_element;
   return true;
