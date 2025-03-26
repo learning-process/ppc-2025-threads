@@ -67,7 +67,7 @@ TEST(shurigin_s_integrals_square_omp, test_integration_linear) {
 TEST(shurigin_s_integrals_square_omp, test_integration_sine) {
   const double lower_bound = 0.0;
   const double upper_bound = std::numbers::pi;
-  const int intervals = 1000;
+  const int intervals = 2000;
   const double expected_value = 2.0;
 
   std::vector<double> input_data = {lower_bound, upper_bound, static_cast<double>(intervals)};
