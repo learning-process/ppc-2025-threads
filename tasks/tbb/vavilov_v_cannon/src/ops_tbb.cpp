@@ -52,21 +52,22 @@ void vavilov_v_cannon_tbb::CannonTBB::InitialShift() {
 void vavilov_v_cannon_tbb::CannonTBB::BlockMultiply() {
   for (int bi = 0; bi < num_blocks_; ++bi) {
     for (int bj = 0; bj < num_blocks_; ++bj) {
-      tbb::parallel_for(tbb::blocked_range2d<int>(0, block_size_, 4, 0, block_size_, 4), [&](const tbb::blocked_range2d<int> &r) {
-        for (int i = r.rows().begin(); i != r.rows().end(); ++i) {
-          for (int j = r.cols().begin(); j != r.cols().end(); ++j) {
-            double temp = 0.0;
-            for (int k = 0; k < block_size_; ++k) {
-              int row = (bi * block_size_) + i;
-              int col = (bj * block_size_) + j;
-              int k_idx = (bj * block_size_) + k;
-              int k_row = (bi * block_size_) + k;
-              temp += A_[(row * N_) + k_idx] * B_[(k_row * N_) + col];
-            }
-            C_[(((bi * block_size_) + i) * N_) + ((bj * block_size_) + j)] += temp;
-          }
-        }
-      });
+      tbb::parallel_for(tbb::blocked_range2d<int>(0, block_size_, 4, 0, block_size_, 4),
+                        [&](const tbb::blocked_range2d<int> &r) {
+                          for (int i = r.rows().begin(); i != r.rows().end(); ++i) {
+                            for (int j = r.cols().begin(); j != r.cols().end(); ++j) {
+                              double temp = 0.0;
+                              for (int k = 0; k < block_size_; ++k) {
+                                int row = (bi * block_size_) + i;
+                                int col = (bj * block_size_) + j;
+                                int k_idx = (bj * block_size_) + k;
+                                int k_row = (bi * block_size_) + k;
+                                temp += A_[(row * N_) + k_idx] * B_[(k_row * N_) + col];
+                              }
+                              C_[(((bi * block_size_) + i) * N_) + ((bj * block_size_) + j)] += temp;
+                            }
+                          }
+                        });
     }
   }
 }
