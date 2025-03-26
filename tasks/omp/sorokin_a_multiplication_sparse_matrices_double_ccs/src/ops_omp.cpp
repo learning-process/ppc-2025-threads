@@ -11,6 +11,9 @@ void MultiplyCCS(const std::vector<double> &a_values, const std::vector<int> &a_
                  const std::vector<int> &a_col_ptr, const std::vector<double> &b_values,
                  const std::vector<int> &b_row_indices, int k, const std::vector<int> &b_col_ptr,
                  std::vector<double> &c_values, std::vector<int> &c_row_indices, int n, std::vector<int> &c_col_ptr) {
+  if (static_cast<int>(a_values.size()) > m * k || static_cast<int>(b_values.size()) > k * n) {
+    throw std::invalid_argument("Invalid val pointer size");
+  }
 
   c_col_ptr.resize(n + 1);
   std::vector<int> nnz_per_column(n, 0);
@@ -98,7 +101,7 @@ bool sorokin_a_multiplication_sparse_matrices_double_ccs_omp::TestTaskOpenMP::Pr
 
 bool sorokin_a_multiplication_sparse_matrices_double_ccs_omp::TestTaskOpenMP::ValidationImpl() {
   // Check equality of counts elements
-  return task_data->inputs_count[0] > 0;
+  return task_data->inputs_count[0] > 0 && task_data->inputs_count[1] > 0 && task_data->inputs_count[2] > 0;
 }
 
 bool sorokin_a_multiplication_sparse_matrices_double_ccs_omp::TestTaskOpenMP::RunImpl() {
