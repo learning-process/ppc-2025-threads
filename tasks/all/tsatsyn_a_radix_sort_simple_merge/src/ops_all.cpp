@@ -133,7 +133,6 @@ bool tsatsyn_a_radix_sort_simple_merge_all::TestTaskALL::ValidationImpl() {
 bool tsatsyn_a_radix_sort_simple_merge_all::TestTaskALL::PreProcessingImpl() {
   // Init value for input and output
   if (world_.rank() == 0) {
-    std::cout << "PRIVET";
     auto *temp_ptr = reinterpret_cast<double *>(task_data->inputs[0]);
     input_data_ = std::vector<double>(temp_ptr, temp_ptr + task_data->inputs_count[0]);
     output_.resize(task_data->inputs_count[0]);
