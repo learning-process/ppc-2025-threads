@@ -53,7 +53,7 @@ void vavilov_v_cannon_tbb::CannonTBB::BlockMultiply() {
   for (int bi = 0; bi < num_blocks_; ++bi) {
     for (int bj = 0; bj < num_blocks_; ++bj) {
       tbb::parallel_for(tbb::blocked_range2d<int>(0, block_size_, 4, 0, block_size_, 4),
-                        [&](const tbb::blocked_range2d<int> &r) {
+                        [&](const tbb::blocked_range2d<int>& r) {
                           for (int i = r.rows().begin(); i != r.rows().end(); ++i) {
                             for (int j = r.cols().begin(); j != r.cols().end(); ++j) {
                               double temp = 0.0;
