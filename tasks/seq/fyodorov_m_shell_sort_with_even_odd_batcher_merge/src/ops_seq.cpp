@@ -17,7 +17,33 @@ bool TestTaskSequential::PreProcessingImpl() {
   return true;
 }
 
-bool TestTaskSequential::ValidationImpl() { return task_data->inputs.empty() && task_data->outputs.empty(); }
+bool TestTaskSequential::ValidationImpl() {
+  if (task_data->inputs.size() != task_data->inputs_count.size()) {
+    return false;
+  }
+
+  if (task_data->outputs.size() != task_data->outputs_count.size()) {
+    return false;
+  }
+
+  for (size_t i = 0; i < task_data->inputs_count.size(); ++i) {
+    if (task_data->inputs_count[i] <= 0) {
+      return false;
+    }
+  }
+
+  for (size_t i = 0; i < task_data->outputs_count.size(); ++i) {
+    if (task_data->outputs_count[i] <= 0) {
+      return false;
+    }
+  }
+
+  if (task_data->inputs_count[0] != task_data->outputs_count[0]) {
+    return false;
+  }
+
+  return true;
+}
 
 bool TestTaskSequential::RunImpl() {
   ShellSort();
