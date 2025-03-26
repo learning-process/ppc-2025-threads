@@ -10,8 +10,8 @@
 #include <vector>
 
 using namespace kudryashova_i_radix_batcher_omp;
-void kudryashova_i_radix_batcher_omp::RadixDoubleSort(std::vector<double>& data, int first, int last) {
-  const int sort_size = last - first;
+void kudryashova_i_radix_batcher_omp::RadixDoubleSort(std::vector<double>& data, size_t first, size_t last) {
+  const size_t sort_size = last - first;
   std::vector<uint64_t> converted(sort_size);
 
 #pragma omp parallel for
@@ -19,7 +19,7 @@ void kudryashova_i_radix_batcher_omp::RadixDoubleSort(std::vector<double>& data,
     double value = data[first + i];
     uint64_t bits = 0;
     std::memcpy(&bits, &value, sizeof(value));
-    converted[i] = (bits & (1ULL << 63)) ? ~bits : bits ^ (1ULL << 63);
+    converted[i] = ((bits & (1ULL << 63)) != 0) ? ~bits : bits ^ (1ULL << 63);
   }
 
   std::vector<uint64_t> buffer(sort_size);
@@ -70,7 +70,7 @@ void kudryashova_i_radix_batcher_omp::RadixDoubleSort(std::vector<double>& data,
 #pragma omp parallel for
   for (int i = 0; i < sort_size; ++i) {
     uint64_t bits = converted[i];
-    bits = (bits & (1ULL << 63)) ? (bits ^ (1ULL << 63)) : ~bits;
+    bits = ((bits & (1ULL << 63)) != 0) ? (bits ^ (1ULL << 63)) : ~bits;
     std::memcpy(&data[first + i], &bits, sizeof(double));
   }
 }
@@ -81,8 +81,11 @@ void kudryashova_i_radix_batcher_omp::BatcherMerge(std::vector<double>& target_a
   std::vector<double> merge_buffer(total_elements);
   const size_t left_size = mid_point - merge_start;
   const size_t right_size = merge_end - mid_point;
-  std::vector<double> left_array(target_array.begin() + merge_start, target_array.begin() + mid_point);
-  std::vector<double> right_array(target_array.begin() + mid_point, target_array.begin() + merge_end);
+  std::vector<double> left_array(target_array.begin() + static_cast<std::ptrdiff_t>(merge_start),
+                                 target_array.begin() + static_cast<std::ptrdiff_t>(mid_point));
+
+  std::vector<double> right_array(target_array.begin() + static_cast<std::ptrdiff_t>(mid_point),
+                                  target_array.begin() + static_cast<std::ptrdiff_t>(merge_end));
   size_t left_ptr = 0;
   size_t right_ptr = 0;
   size_t merge_ptr = merge_start;
@@ -142,9 +145,9 @@ bool kudryashova_i_radix_batcher_omp::TestTaskOpenMP::RunImpl() {
 
   for (size_t merge_size = block_size; merge_size < n; merge_size *= 2) {
 #pragma omp parallel for schedule(static)
-    for (int i = 0; i < static_cast<int>(n); i += (2 * merge_size)) {
+    for (int i = 0; i < static_cast<int>(n); i += static_cast<int>(2 * merge_size)) {
       const size_t mid = std::min(i + merge_size, n);
-      const size_t end = std::min(i + 2 * merge_size, n);
+      const size_t end = std::min(i + (2 * merge_size), n);
       if (mid < end) {
         BatcherMerge(input_data_, i, mid, end);
       }
