@@ -55,7 +55,7 @@ void vavilov_v_cannon_tbb::CannonTBB::BlockMultiply() {
     int bj = block_idx % num_blocks_;
     int base_row = bi * block_size_;
     int base_col = bj * block_size_;
-        
+
     for (int i = 0; i < block_size_; ++i) {
       for (int j = 0; j < block_size_; ++j) {
         double temp = 0.0;
