@@ -135,12 +135,14 @@ bool Integral::ComputeOneDimensional() {
   double step = (up_limits_[0] - down_limits_[0]) / counts_[0];
   double local_result = 0.0;
 
+  std::vector<double> x_vec(1);
+
 #pragma omp parallel for reduction(+ : local_result) schedule(static)
   for (int i = 0; i < counts_[0]; ++i) {
     double x = down_limits_[0] + ((i + 0.5) * step);
-    local_result += func_(std::vector<double>{x}) * step;
+    x_vec[0] = x;
+    local_result += func_(x_vec) * step;
   }
-
   result_ = local_result;
   return true;
 }
