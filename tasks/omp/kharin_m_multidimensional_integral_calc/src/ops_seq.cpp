@@ -60,7 +60,7 @@ bool kharin_m_multidimensional_integral_calc_seq::TaskSequential::PreProcessingI
 #pragma omp parallel for reduction(&& : is_valid)
   for (int i = 0; i < step_sizes_.size(); i++) {
     if (step_sizes_[i] <= 0.0) {
-        is_valid = false;
+      is_valid = false;
     }
   }
 
