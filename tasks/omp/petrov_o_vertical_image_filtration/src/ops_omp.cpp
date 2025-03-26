@@ -4,7 +4,7 @@
 #include <cstddef>
 #include <vector>
 
-#include "omp/petrov_o_vertical_image_filtration/include/ops_seq.hpp"
+#include "omp/petrov_o_vertical_image_filtration/include/ops_omp.hpp"
 
 bool petrov_o_vertical_image_filtration_omp::TaskOpenMP::PreProcessingImpl() {
   width_ = task_data->inputs_count[0];
@@ -31,9 +31,9 @@ bool petrov_o_vertical_image_filtration_omp::TaskOpenMP::ValidationImpl() {
 
 bool petrov_o_vertical_image_filtration_omp::TaskOpenMP::RunImpl() {
 // Apply Gaussian filter
-#pragma omp parallel for collapse(2) schedule(dynamic)
-  for (size_t i = 1; i < height_ - 1; ++i) {
-    for (size_t j = 1; j < width_ - 1; ++j) {
+#pragma omp parallel for schedule(dynamic)
+  for (int i = 1; i < height_ - 1; ++i) {
+    for (int j = 1; j < width_ - 1; ++j) {
       float sum = 0.0F;
       for (int ki = -1; ki <= 1; ++ki) {
         for (int kj = -1; kj <= 1; ++kj) {

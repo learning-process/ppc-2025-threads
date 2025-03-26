@@ -7,7 +7,7 @@
 
 #include "core/perf/include/perf.hpp"
 #include "core/task/include/task.hpp"
-#include "omp/petrov_o_vertical_image_filtration/include/ops_seq.hpp"
+#include "omp/petrov_o_vertical_image_filtration/include/ops_omp.hpp"
 
 TEST(petrov_o_vertical_image_filtration_omp, test_pipeline_run) {
   constexpr int kCount = 5000;
