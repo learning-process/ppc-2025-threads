@@ -39,6 +39,7 @@ bool plekhanov_d_dijkstra_tbb::TestTaskTBB::ValidationImpl() {
          task_data->outputs_count[0] > 0;
 }
 
+
 bool plekhanov_d_dijkstra_tbb::TestTaskTBB::RunImpl() {  // NOLINT(readability-function-cognitive-complexity)
   std::vector<std::vector<std::pair<int, int>>> graph(num_vertices_);
   size_t current_vertex = 0;
