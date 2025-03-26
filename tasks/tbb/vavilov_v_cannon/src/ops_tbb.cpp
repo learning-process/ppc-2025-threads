@@ -49,28 +49,31 @@ void vavilov_v_cannon_tbb::CannonTBB::InitialShift() {
   });
 }
 
-void vavilov_v_cannon_tbb::CannonTBB::BlockMultiply() {
-  tbb::parallel_for(0, num_blocks_, [&](int bi) {
-    for (int bj = 0; bj < num_blocks_; ++bj) {
-      int a_shift = (bi + bj) % num_blocks_;
-      int b_shift = (bj + bi) % num_blocks_;
-
-      int a_row_start = bi * block_size_;
-      int a_col_start = a_shift * block_size_;
-      int b_row_start = b_shift * block_size_;
-      int b_col_start = bj * block_size_;
-
-      for (int i = 0; i < block_size_; ++i) {
-        for (int j = 0; j < block_size_; ++j) {
-          double temp = 0.0;
-          for (int k = 0; k < block_size_; ++k) {
-            double a_element = A_[(a_row_start + i) * N_ + (a_col_start + k)];
-            double b_element = B_[(b_row_start + k) * N_ + (b_col_start + j)];
-            temp += a_element * b_element;
+void vavilov_v_cannon_stl::CannonSTL::BlockMultiply() {
+  tbb::concurrent_vector<double> local_C(N_ * N_, 0.0);
+  tbb::parallel_for(tbb::blocked_range2d<int>(0, N_, block_size_, 0, N_, block_size_), [&](const tbb::blocked_range2d<int>& r) {
+    for (int bi = r.rows().begin(); bi != r.rows().end(); bi += block_size_) {
+      for (int bj = r.cols().begin(); bj != r.cols().end(); bj += block_size_) {
+        for (int i = bi; i < bi + block_size_; i++) {
+          for (int j = bj; j < bj + block_size_; j++) {
+            double temp = 0.0;
+            for (int k = 0; k < block_size_; k++) {
+              int row_a = bi + (i - bi);
+              int col_a = bj + k;
+              int row_b = bi + k;
+              int col_b = bj + (j - bj);
+              temp += A_[(row_a * N_) + col_a] * B_[(row_b * N_) + col_b];
+            }
+            local_C[i * N_ + j] += temp;
           }
-          C_[(a_row_start + i) * N_ + (b_col_start + j)] += temp;
         }
       }
+    }
+  });
+
+  tbb::parallel_for(tbb::blocked_range<int>(0, N_ * N_), [&](const tbb::blocked_range<int>& r) {
+    for (int idx = r.begin(); idx != r.end(); ++idx) {
+      C_[idx] += local_C[idx];
     }
   });
 }
