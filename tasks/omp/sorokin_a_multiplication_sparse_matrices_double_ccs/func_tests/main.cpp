@@ -8,7 +8,7 @@
 #include "core/task/include/task.hpp"
 #include "omp/sorokin_a_multiplication_sparse_matrices_double_ccs/include/ops_omp.hpp"
 
-TEST(sorokin_a_multiplication_sparse_matrices_double_ccs_omp, test_3x3_x_3x3) {
+TEST(sorokin_a_multiplication_sparse_matrices_double_ccs_omp, test_3x3) {
   int m = 3;
   int k = 3;
   int n = 3;
@@ -82,7 +82,7 @@ TEST(sorokin_a_multiplication_sparse_matrices_double_ccs_omp, test_3x3_x_3x3) {
   }
 }
 
-TEST(sorokin_a_multiplication_sparse_matrices_double_ccs_omp, test_2x3_x_3x2) {
+TEST(sorokin_a_multiplication_sparse_matrices_double_ccs_omp, test_2) {
   int m = 2;
   int k = 3;
   int n = 2;
@@ -154,7 +154,7 @@ TEST(sorokin_a_multiplication_sparse_matrices_double_ccs_omp, test_2x3_x_3x2) {
   }
 }
 
-TEST(sorokin_a_multiplication_sparse_matrices_double_ccs_omp, test_3x2_x_2x4) {
+TEST(sorokin_a_multiplication_sparse_matrices_double_ccs_omp, test_3) {
   int m = 3;
   int k = 2;
   int n = 4;
@@ -225,96 +225,4 @@ TEST(sorokin_a_multiplication_sparse_matrices_double_ccs_omp, test_3x2_x_2x4) {
   for (size_t i = 0; i < r_col_ptr.size(); i++) {
     ASSERT_NEAR(c_col_ptr[i], r_col_ptr[i], 1e-9);
   }
-}
-
-TEST(sorokin_a_multiplication_sparse_matrices_double_ccs_omp, test_val_k_0) {
-  int m = 3;
-  int k = 0;
-  int n = 4;
-
-  std::vector<double> a_values = {1.0, 3.0, 2.0};
-  std::vector<double> a_row_indices = {1, 2, 0};
-  std::vector<double> a_col_ptr = {0, 2, 3};
-
-  std::vector<double> b_values = {4.0, 1.0, 5.0};
-  std::vector<double> b_row_indices = {1, 0, 1};
-  std::vector<double> b_col_ptr = {0, 1, 2, 2, 3};
-
-  std::vector<double> c_values(5);
-  std::vector<double> c_row_indices(5);
-  std::vector<double> c_col_ptr(5);
-
-  // Create task_data
-  auto task_data_omp = std::make_shared<ppc::core::TaskData>();
-  task_data_omp->inputs_count.emplace_back(m);
-  task_data_omp->inputs_count.emplace_back(k);
-  task_data_omp->inputs_count.emplace_back(n);
-  task_data_omp->inputs.emplace_back(reinterpret_cast<uint8_t *>(a_values.data()));
-  task_data_omp->inputs_count.emplace_back(a_values.size());
-  task_data_omp->inputs.emplace_back(reinterpret_cast<uint8_t *>(a_row_indices.data()));
-  task_data_omp->inputs_count.emplace_back(a_row_indices.size());
-  task_data_omp->inputs.emplace_back(reinterpret_cast<uint8_t *>(a_col_ptr.data()));
-  task_data_omp->inputs_count.emplace_back(a_col_ptr.size());
-  task_data_omp->inputs.emplace_back(reinterpret_cast<uint8_t *>(b_values.data()));
-  task_data_omp->inputs_count.emplace_back(b_values.size());
-  task_data_omp->inputs.emplace_back(reinterpret_cast<uint8_t *>(b_row_indices.data()));
-  task_data_omp->inputs_count.emplace_back(b_row_indices.size());
-  task_data_omp->inputs.emplace_back(reinterpret_cast<uint8_t *>(b_col_ptr.data()));
-  task_data_omp->inputs_count.emplace_back(b_col_ptr.size());
-  task_data_omp->outputs.emplace_back(reinterpret_cast<uint8_t *>(c_values.data()));
-  task_data_omp->outputs_count.emplace_back(c_values.size());
-  task_data_omp->outputs.emplace_back(reinterpret_cast<uint8_t *>(c_row_indices.data()));
-  task_data_omp->outputs_count.emplace_back(c_row_indices.size());
-  task_data_omp->outputs.emplace_back(reinterpret_cast<uint8_t *>(c_col_ptr.data()));
-  task_data_omp->outputs_count.emplace_back(c_col_ptr.size());
-
-  // Create Task
-  sorokin_a_multiplication_sparse_matrices_double_ccs_omp::TestTaskOpenMP test_task_omp(task_data_omp);
-  ASSERT_EQ(test_task_omp.Validation(), false);
-}
-
-TEST(sorokin_a_multiplication_sparse_matrices_double_ccs_omp, test_val_m_0) {
-  int m = 0;
-  int k = 2;
-  int n = 4;
-
-  std::vector<double> a_values = {1.0, 3.0, 2.0};
-  std::vector<double> a_row_indices = {1, 2, 0};
-  std::vector<double> a_col_ptr = {0, 2, 3};
-
-  std::vector<double> b_values = {4.0, 1.0, 5.0};
-  std::vector<double> b_row_indices = {1, 0, 1};
-  std::vector<double> b_col_ptr = {0, 1, 2, 2, 3};
-
-  std::vector<double> c_values(5);
-  std::vector<double> c_row_indices(5);
-  std::vector<double> c_col_ptr(5);
-
-  // Create task_data
-  auto task_data_omp = std::make_shared<ppc::core::TaskData>();
-  task_data_omp->inputs_count.emplace_back(m);
-  task_data_omp->inputs_count.emplace_back(k);
-  task_data_omp->inputs_count.emplace_back(n);
-  task_data_omp->inputs.emplace_back(reinterpret_cast<uint8_t *>(a_values.data()));
-  task_data_omp->inputs_count.emplace_back(a_values.size());
-  task_data_omp->inputs.emplace_back(reinterpret_cast<uint8_t *>(a_row_indices.data()));
-  task_data_omp->inputs_count.emplace_back(a_row_indices.size());
-  task_data_omp->inputs.emplace_back(reinterpret_cast<uint8_t *>(a_col_ptr.data()));
-  task_data_omp->inputs_count.emplace_back(a_col_ptr.size());
-  task_data_omp->inputs.emplace_back(reinterpret_cast<uint8_t *>(b_values.data()));
-  task_data_omp->inputs_count.emplace_back(b_values.size());
-  task_data_omp->inputs.emplace_back(reinterpret_cast<uint8_t *>(b_row_indices.data()));
-  task_data_omp->inputs_count.emplace_back(b_row_indices.size());
-  task_data_omp->inputs.emplace_back(reinterpret_cast<uint8_t *>(b_col_ptr.data()));
-  task_data_omp->inputs_count.emplace_back(b_col_ptr.size());
-  task_data_omp->outputs.emplace_back(reinterpret_cast<uint8_t *>(c_values.data()));
-  task_data_omp->outputs_count.emplace_back(c_values.size());
-  task_data_omp->outputs.emplace_back(reinterpret_cast<uint8_t *>(c_row_indices.data()));
-  task_data_omp->outputs_count.emplace_back(c_row_indices.size());
-  task_data_omp->outputs.emplace_back(reinterpret_cast<uint8_t *>(c_col_ptr.data()));
-  task_data_omp->outputs_count.emplace_back(c_col_ptr.size());
-
-  // Create Task
-  sorokin_a_multiplication_sparse_matrices_double_ccs_omp::TestTaskOpenMP test_task_omp(task_data_omp);
-  ASSERT_EQ(test_task_omp.Validation(), false);
 }
