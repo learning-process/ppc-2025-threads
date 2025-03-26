@@ -208,7 +208,7 @@ TEST(moiseev_a_mult_mat_stl, test_even_values) {
   task_data_stl->outputs.emplace_back(reinterpret_cast<uint8_t *>(c.data()));
   task_data_stl->outputs_count.emplace_back(c.size());
 
-  moiseev_a_mult_mat_tbb::MultMatSTL test_task_stl(task_data_stl);
+  moiseev_a_mult_mat_stl::MultMatSTL test_task_stl(task_data_stl);
   ASSERT_TRUE(test_task_stl.Validation());
   test_task_stl.PreProcessing();
   test_task_stl.Run();
