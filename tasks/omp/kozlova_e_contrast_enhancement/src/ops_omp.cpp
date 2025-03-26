@@ -1,8 +1,9 @@
 #include "omp/kozlova_e_contrast_enhancement/include/ops_omp.hpp"
 
+#include <omp.h>
+
 #include <algorithm>
 #include <cstddef>
-#include <omp.h>
 #include <vector>
 
 bool kozlova_e_contrast_enhancement_omp::TestTaskOpenMP::PreProcessingImpl() {

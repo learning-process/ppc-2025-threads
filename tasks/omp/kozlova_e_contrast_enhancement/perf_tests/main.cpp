@@ -11,7 +11,6 @@
 #include "core/task/include/task.hpp"
 #include "omp/kozlova_e_contrast_enhancement/include/ops_omp.hpp"
 
-
 namespace {
 std::vector<int> GenerateVector(int length);
 
