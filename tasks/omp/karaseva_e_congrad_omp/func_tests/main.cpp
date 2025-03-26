@@ -6,8 +6,6 @@
 #include <random>
 #include <vector>
 
-#include "core/task/include/task.hpp"
-#include "core/util/include/util.hpp"
 #include "omp/karaseva_e_congrad_omp/include/ops_omp.hpp"
 
 namespace {
@@ -102,7 +100,9 @@ TEST(karaseva_e_congrad_omp, test_small_random_spd) {
   std::vector<double> x_expected(kN);
   std::mt19937 gen(42);
   std::uniform_real_distribution<double> dist(-10.0, 10.0);
-  for (auto& val : x_expected) val = dist(gen);
+  for (auto& val : x_expected) {
+    val = dist(gen);
+  }
 
   // Compute b = A * x_expected
   auto b = MultiplyMatrixVector(a_matrix, x_expected, kN);
@@ -164,9 +164,9 @@ TEST(karaseva_e_congrad_omp, test_diagonal_dominant) {
   // Create diagonally dominant matrix
   std::vector<double> a_matrix(kN * kN, 0.0);
   for (size_t i = 0; i < kN; ++i) {
-    a_matrix[i * kN + i] = 100.0 + static_cast<double>(i);
+    a_matrix[(i * kN) + i] = 100.0 + static_cast<double>(i);
     for (size_t j = i + 1; j < kN; ++j) {
-      a_matrix[i * kN + j] = a_matrix[j * kN + i] = 0.1;
+      a_matrix[(i * kN) + j] = a_matrix[(j * kN) + i] = 0.1;
     }
   }
 

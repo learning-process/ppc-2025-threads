@@ -15,10 +15,10 @@ TEST(karaseva_e_congrad_omp, test_pipeline_run) {
   constexpr int kCount = 8000;
   constexpr double kThreshold = 1e-6;
 
-  // Create matrix A (identity matrix)
-  std::vector<double> A(kCount * kCount, 0.0);
+  // Create matrix a (identity matrix)
+  std::vector<double> a(kCount * kCount, 0.0);
   for (size_t i = 0; i < kCount; ++i) {
-    A[i * kCount + i] = 1.0;
+    a[(i * kCount) + i] = 1.0;
   }
 
   // Create vector b
@@ -27,8 +27,8 @@ TEST(karaseva_e_congrad_omp, test_pipeline_run) {
 
   // Create task data
   auto task_data_omp = std::make_shared<ppc::core::TaskData>();
-  task_data_omp->inputs.emplace_back(reinterpret_cast<uint8_t*>(A.data()));
-  task_data_omp->inputs_count.emplace_back(A.size());
+  task_data_omp->inputs.emplace_back(reinterpret_cast<uint8_t*>(a.data()));
+  task_data_omp->inputs_count.emplace_back(a.size());
   task_data_omp->inputs.emplace_back(reinterpret_cast<uint8_t*>(b.data()));
   task_data_omp->inputs_count.emplace_back(b.size());
   task_data_omp->outputs.emplace_back(reinterpret_cast<uint8_t*>(out.data()));
@@ -64,10 +64,10 @@ TEST(karaseva_e_congrad_omp, test_task_run) {
   constexpr int kCount = 13000;
   constexpr double kThreshold = 1e-6;
 
-  // Create diagonal matrix A with elements 2.0
-  std::vector<double> A(kCount * kCount, 0.0);
+  // Create diagonal matrix a with elements 2.0
+  std::vector<double> a(kCount * kCount, 0.0);
   for (size_t i = 0; i < kCount; ++i) {
-    A[i * kCount + i] = 2.0;
+    a[(i * kCount) + i] = 2.0;
   }
 
   // Create vector b
@@ -79,8 +79,8 @@ TEST(karaseva_e_congrad_omp, test_task_run) {
 
   // Create task data
   auto task_data_omp = std::make_shared<ppc::core::TaskData>();
-  task_data_omp->inputs.emplace_back(reinterpret_cast<uint8_t*>(A.data()));
-  task_data_omp->inputs_count.emplace_back(A.size());
+  task_data_omp->inputs.emplace_back(reinterpret_cast<uint8_t*>(a.data()));
+  task_data_omp->inputs_count.emplace_back(a.size());
   task_data_omp->inputs.emplace_back(reinterpret_cast<uint8_t*>(b.data()));
   task_data_omp->inputs_count.emplace_back(b.size());
   task_data_omp->outputs.emplace_back(reinterpret_cast<uint8_t*>(out.data()));
