@@ -53,9 +53,9 @@ TEST(fyodorov_m_shell_sort_with_even_odd_batcher_merge_seq, test_pipeline_run) {
   perf_analyzer->PipelineRun(perf_attr, perf_results);
 
   ppc::core::Perf::PrintPerfStatistic(perf_results);
-
+  std::vector<int> expected_output = input;
   std::ranges::sort(input);
-  ASSERT_EQ(output, input);
+  ASSERT_EQ(output, expected_output);
 }
 
 TEST(fyodorov_m_shell_sort_with_even_odd_batcher_merge_seq, test_task_run) {
@@ -94,7 +94,7 @@ TEST(fyodorov_m_shell_sort_with_even_odd_batcher_merge_seq, test_task_run) {
 
   ppc::core::Perf::PrintPerfStatistic(perf_results);
 
-  // std::vector<int> expected_output = input;
+  std::vector<int> expected_output = input;
   std::ranges::sort(input);
-  ASSERT_EQ(output, input);
+  ASSERT_EQ(output, expected_output);
 }

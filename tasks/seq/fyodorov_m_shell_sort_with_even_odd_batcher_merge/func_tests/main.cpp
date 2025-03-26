@@ -63,7 +63,7 @@ TEST(fyodorov_m_shell_sort_with_even_odd_batcher_merge_seq, test_random_sequence
     num = distrib(gen);
   }
 
-  // std::vector<int> expected_output = input;
+  std::vector<int> expected_output = input;
   std::ranges::sort(input);
 
   std::vector<int> output(input.size(), 0);
@@ -82,7 +82,7 @@ TEST(fyodorov_m_shell_sort_with_even_odd_batcher_merge_seq, test_random_sequence
   test_task_sequential.Run();
   test_task_sequential.PostProcessing();
 
-  EXPECT_EQ(output, input);
+  EXPECT_EQ(output, expected_output);
 }
 
 TEST(fyodorov_m_shell_sort_with_even_odd_batcher_merge_seq, test_sorted_array) {
