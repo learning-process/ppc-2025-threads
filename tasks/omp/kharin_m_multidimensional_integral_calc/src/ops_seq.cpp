@@ -28,7 +28,7 @@ bool kharin_m_multidimensional_integral_calc_seq::TaskSequential::PreProcessingI
   // Вычисляем общее количество точек сетки
   size_t total_size = 1;
 
-  #pragma omp parallel for reduction(*:total_size)
+#pragma omp parallel for reduction(* : total_size)
   for (int i = 0; i < grid_sizes_.size(); i++) {
     total_size *= grid_sizes_[i];
   }
@@ -45,18 +45,18 @@ bool kharin_m_multidimensional_integral_calc_seq::TaskSequential::PreProcessingI
   auto* steps_ptr = reinterpret_cast<double*>(task_data->inputs[2]);
   step_sizes_ = std::vector<double>(steps_ptr, steps_ptr + d);
 
-//   // Проверка на отрицательные шаги
-//   for (const auto& h : step_sizes_) {
-//     if (h <= 0.0) {
-//       return false;  // Отрицательный или нулевой шаг недопустим
-//     }
-//   }
+  //   // Проверка на отрицательные шаги
+  //   for (const auto& h : step_sizes_) {
+  //     if (h <= 0.0) {
+  //       return false;  // Отрицательный или нулевой шаг недопустим
+  //     }
+  //   }
 
-//   output_result_ = 0.0;
-//   return true;
+  //   output_result_ = 0.0;
+  //   return true;
   bool is_valid = true;
 
-  #pragma omp parallel for reduction(&&:is_valid)
+#pragma omp parallel for reduction(&& : is_valid)
   for (int i = 0; i < step_sizes_.size(); i++) {
       if (step_sizes_[i] <= 0.0) {
           is_valid = false;
@@ -73,7 +73,7 @@ bool kharin_m_multidimensional_integral_calc_seq::TaskSequential::PreProcessingI
 bool kharin_m_multidimensional_integral_calc_seq::TaskSequential::RunImpl() {
   // Вычисляем сумму всех значений функции
   double total = 0.0;
-  #pragma omp parallel for reduction(+:total)
+#pragma omp parallel for reduction(+ : total)
   for (int i = 0; i < input_.size(); i++) {
     total += input_[i];
   }
@@ -84,7 +84,7 @@ bool kharin_m_multidimensional_integral_calc_seq::TaskSequential::RunImpl() {
 
   // Вычисляем элемент объема как произведение шагов интегрирования
   double volume_element = 1.0;
-  #pragma omp parallel for reduction(*:volume_element)
+#pragma omp parallel for reduction(* : volume_element)
   for (int i = 0; i < step_sizes_.size(); i++) {
     volume_element *= step_sizes_[i];
   }
