@@ -49,49 +49,23 @@ void vavilov_v_cannon_tbb::CannonTBB::InitialShift() {
 }
 
 void vavilov_v_cannon_tbb::CannonTBB::BlockMultiply() {
-  std::vector<std::vector<double>> local_C_(num_blocks_, std::vector<double>(N_ * block_size_, 0.0));
-  for (auto& vec : local_C_) {
-    std::fill(vec.begin(), vec.end(), 0.0);
-  }
-  tbb::parallel_for(0, num_blocks_, [&](int bi) {
-    std::vector<double>& local = local_C_[bi];
-    for (int bj = 0; bj < N_; bj += block_size_) {
-      int row_offset = bi * block_size_;
-      int col_offset = bj;
+  for (int bi = 0; bi < num_blocks_; ++bi) {
+    for (int bj = 0; bj < num_blocks_; ++bj) {
       for (int i = 0; i < block_size_; ++i) {
         for (int j = 0; j < block_size_; ++j) {
           double temp = 0.0;
           for (int k = 0; k < block_size_; ++k) {
-            int row_a = row_offset + i;
-            int col_a = col_offset + k;
-            int row_b = row_offset + k;
-            int col_b = col_offset + j;
-            temp += A_[row_a * N_ + col_a] * B_[row_b * N_ + col_b];
+            int row = (bi * block_size_) + i;
+            int col = (bj * block_size_) + j;
+            int k_idx = (bj * block_size_) + k;
+            int k_row = (bi * block_size_) + k;
+            temp += A_[(row * N_) + k_idx] * B_[(k_row * N_) + col];
           }
-          local[i * N_ + (col_offset + j)] = temp;
+          C_[(((bi * block_size_) + i) * N_) + ((bj * block_size_) + j)] += temp;
         }
       }
     }
-    int row_offset = bi * block_size_;
-    for (int i = 0; i < block_size_; ++i) {
-      for (int j = 0; j < N_; ++j) {
-        C_[(row_offset + i) * N_ + j] += local[i * N_ + j];
-      }
-    }
-  });
-
-  tbb::parallel_for(tbb::blocked_range<int>(0, num_blocks_, 4), [&](const tbb::blocked_range<int>& r) {
-    for (int bi = r.begin(); bi < r.end(); ++bi) {
-      int row_offset = bi * block_size_;
-      for (auto& local : local_C_) {
-        for (int i = 0; i < block_size_; ++i) {
-          for (int j = 0; j < N_; ++j) {
-            C_[(row_offset + i) * N_ + j] += local[(i + (bi - r.begin()) * block_size_) * N_ + j];
-          }
-        }
-      }
-    }
-  });
+  }
 }
 
 void vavilov_v_cannon_tbb::CannonTBB::ShiftBlocks() {
