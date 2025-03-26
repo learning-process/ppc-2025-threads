@@ -7,9 +7,9 @@
 #include <vector>
 
 bool petrov_o_vertical_image_filtration_omp::TaskOpenMP::PreProcessingImpl() {
-  width_ = task_data->inputs_count[0];
-  height_ = task_data->inputs_count[1];
-  size_t input_size = width_ * height_;
+  width_ = static_cast<int>(task_data->inputs_count[0]);
+  height_ = static_cast<int>(task_data->inputs_count[1]);
+  size_t input_size = static_cast<size_t>(width_) * static_cast<size_t>(height_);
 
   auto *in_ptr = reinterpret_cast<int *>(task_data->inputs[0]);
   input_ = std::vector<int>(in_ptr, in_ptr + input_size);
