@@ -30,7 +30,7 @@ bool kharin_m_multidimensional_integral_calc_seq::TaskSequential::PreProcessingI
   size_t total_size = 1;
 
 #pragma omp parallel for reduction(* : total_size)
-  for (int i = 0; i < grid_sizes_.size(); i++) {
+  for (int i = 0; i < static_cast<int>(grid_sizes_.size()); i++) {
     total_size *= grid_sizes_[i];
   }
 
@@ -58,7 +58,7 @@ bool kharin_m_multidimensional_integral_calc_seq::TaskSequential::PreProcessingI
   bool is_valid = true;
 
 #pragma omp parallel for reduction(&& : is_valid)
-  for (int i = 0; i < step_sizes_.size(); i++) {
+  for (int i = 0; i < static_cast<int>(step_sizes_.size()); i++) {
     if (step_sizes_[i] <= 0.0) {
       is_valid = false;
     }
@@ -75,7 +75,7 @@ bool kharin_m_multidimensional_integral_calc_seq::TaskSequential::RunImpl() {
   // Вычисляем сумму всех значений функции
   double total = 0.0;
 #pragma omp parallel for reduction(+ : total)
-  for (int i = 0; i < input_.size(); i++) {
+  for (int i = 0; i < static_cast<int>(input_.size()); i++) {
     total += input_[i];
   }
 
@@ -86,7 +86,7 @@ bool kharin_m_multidimensional_integral_calc_seq::TaskSequential::RunImpl() {
   // Вычисляем элемент объема как произведение шагов интегрирования
   double volume_element = 1.0;
 #pragma omp parallel for reduction(* : volume_element)
-  for (int i = 0; i < step_sizes_.size(); i++) {
+  for (int i = 0; i < static_cast<int>(step_sizes_.size()); i++) {
     volume_element *= step_sizes_[i];
   }
 
