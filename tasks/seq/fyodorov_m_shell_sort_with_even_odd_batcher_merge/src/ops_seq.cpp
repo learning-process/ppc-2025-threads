@@ -38,11 +38,7 @@ bool TestTaskSequential::ValidationImpl() {
     }
   }
 
-  if (task_data->inputs_count[0] != task_data->outputs_count[0]) {
-    return false;
-  }
-
-  return true;
+  return task_data->inputs_count[0] == task_data->outputs_count[0];
 }
 
 bool TestTaskSequential::RunImpl() {
