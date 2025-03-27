@@ -17,7 +17,9 @@ void TestTaskOMP::QuickSort(std::vector<int>& arr, int low, int high) {
         break;
       }
     }
-    if (is_sorted) return;
+    if (is_sorted) {
+      return;
+    }
 
     int pivot = arr[high];
     int i = low - 1;
