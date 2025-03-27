@@ -56,8 +56,8 @@ TEST(makhov_m_linear_image_filtering_vertical_seq, test_synthetic_image_10x10) {
 
   std::vector<uint8_t> reference_image(input_image);
   // Gauss blur imitation for RGB
-  for (std::size_t y = 1; y < height - 1; ++y) {
-    for (std::size_t x = 1; x < width - 1; ++x) {
+  for (int y = 1; y < height - 1; ++y) {
+    for (int x = 1; x < width - 1; ++x) {
       int sum_r = 0, sum_g = 0, sum_b = 0;
 
       // Проход по окрестности 3x3
@@ -95,7 +95,7 @@ TEST(makhov_m_linear_image_filtering_vertical_seq, test_synthetic_image_10x10) {
   test_task_sequential.Run();
   test_task_sequential.PostProcessing();
 
-  for (std::size_t i = 0; i < width * height * 3; ++i) {
+  for (int i = 0; i < width * height * 3; ++i) {
     EXPECT_NEAR(output_image[i], reference_image[i], 50);
   }
 }
