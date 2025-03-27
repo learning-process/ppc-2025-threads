@@ -26,7 +26,7 @@ class TestTaskALL : public ppc::core::Task {
   boost::mpi::communicator world_;
   int rank_ = world_.rank();
   int size_ = world_.size();
-  void CalculateDistribution(int total, std::vector<int>& counts, std::vector<int>& displs);
+  void CalculateDistribution(int total, std::vector<int>& counts, std::vector<int>& displs) const;
 };
 
 }  // namespace sotskov_a_shell_sorting_with_simple_merging_all

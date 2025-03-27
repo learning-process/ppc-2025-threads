@@ -10,9 +10,8 @@
 #include "boost/mpi/collectives/broadcast.hpp"
 #include "core/util/include/util.hpp"
 
-void sotskov_a_shell_sorting_with_simple_merging_all::TestTaskALL::CalculateDistribution(int total,
-                                                                                         std::vector<int>& counts,
-                                                                                         std::vector<int>& displs) {
+void sotskov_a_shell_sorting_with_simple_merging_all::TestTaskALL::CalculateDistribution(
+    int total, std::vector<int>& counts, std::vector<int>& displs) const {
   counts.resize(size_);
   displs.resize(size_);
   int base_size = total / size_;
@@ -115,15 +114,12 @@ bool sotskov_a_shell_sorting_with_simple_merging_all::TestTaskALL::PreProcessing
     std::copy(src, src + total, global_data.begin());
   }
 
-  std::vector<int> counts, displs;
+  std::vector<int> counts;
+  std::vector<int> displs;
   CalculateDistribution(total, counts, displs);
   input_.resize(counts[rank_]);
 
-  if (rank_ == 0) {
-    boost::mpi::scatterv(world_, global_data.data(), counts, displs, input_.data(), counts[rank_], 0);
-  } else {
-    boost::mpi::scatterv(world_, input_.data(), counts[rank_], 0);
-  }
+  boost::mpi::scatterv(world_, global_data.data(), counts, displs, input_.data(), counts[rank_], 0);
 
   return true;
 }
@@ -139,7 +135,8 @@ bool sotskov_a_shell_sorting_with_simple_merging_all::TestTaskALL::PostProcessin
     return true;
   }
 
-  std::vector<int> counts, displs;
+  std::vector<int> counts;
+  std::vector<int> displs;
   CalculateDistribution(total, counts, displs);
 
   std::vector<int> result;
