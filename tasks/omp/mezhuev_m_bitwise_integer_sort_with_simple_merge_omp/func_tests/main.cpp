@@ -117,3 +117,113 @@ TEST(mezhuev_m_bitwise_integer_sort_omp, test_sort_large_numbers) {
 
   EXPECT_EQ(output, expected_output);
 }
+
+TEST(mezhuev_m_bitwise_integer_sort_omp, test_sort_with_negative_and_positive_numbers) {
+  constexpr size_t kCount = 6;
+  std::vector<int> input = {-5, 3, -8, 1, -4, 2};
+  std::vector<int> expected_output = {-8, -5, -4, 1, 2, 3};
+  std::vector<int> output(kCount, 0);
+
+  auto task_data_omp = std::make_shared<ppc::core::TaskData>();
+  task_data_omp->inputs.emplace_back(reinterpret_cast<uint8_t *>(input.data()));
+  task_data_omp->inputs_count.emplace_back(input.size());
+  task_data_omp->outputs.emplace_back(reinterpret_cast<uint8_t *>(output.data()));
+  task_data_omp->outputs_count.emplace_back(output.size());
+
+  mezhuev_m_bitwise_integer_sort_omp::SortOpenMP test_task_omp(task_data_omp);
+
+  ASSERT_EQ(test_task_omp.Validation(), true);
+  test_task_omp.PreProcessing();
+  test_task_omp.Run();
+  test_task_omp.PostProcessing();
+
+  EXPECT_EQ(output, expected_output);
+}
+
+TEST(mezhuev_m_bitwise_integer_sort_omp, test_sort_only_negative_numbers) {
+  constexpr size_t kCount = 4;
+  std::vector<int> input = {-5, -3, -8, -1};
+  std::vector<int> expected_output = {-8, -5, -3, -1};
+  std::vector<int> output(kCount, 0);
+
+  auto task_data_omp = std::make_shared<ppc::core::TaskData>();
+  task_data_omp->inputs.emplace_back(reinterpret_cast<uint8_t *>(input.data()));
+  task_data_omp->inputs_count.emplace_back(input.size());
+  task_data_omp->outputs.emplace_back(reinterpret_cast<uint8_t *>(output.data()));
+  task_data_omp->outputs_count.emplace_back(output.size());
+
+  mezhuev_m_bitwise_integer_sort_omp::SortOpenMP test_task_omp(task_data_omp);
+
+  ASSERT_EQ(test_task_omp.Validation(), true);
+  test_task_omp.PreProcessing();
+  test_task_omp.Run();
+  test_task_omp.PostProcessing();
+
+  EXPECT_EQ(output, expected_output);
+}
+
+TEST(mezhuev_m_bitwise_integer_sort_omp, test_sort_with_zero_and_negative_numbers) {
+  constexpr size_t kCount = 5;
+  std::vector<int> input = {-5, 0, -3, -8, 0};
+  std::vector<int> expected_output = {-8, -5, -3, 0, 0};
+  std::vector<int> output(kCount, 0);
+
+  auto task_data_omp = std::make_shared<ppc::core::TaskData>();
+  task_data_omp->inputs.emplace_back(reinterpret_cast<uint8_t *>(input.data()));
+  task_data_omp->inputs_count.emplace_back(input.size());
+  task_data_omp->outputs.emplace_back(reinterpret_cast<uint8_t *>(output.data()));
+  task_data_omp->outputs_count.emplace_back(output.size());
+
+  mezhuev_m_bitwise_integer_sort_omp::SortOpenMP test_task_omp(task_data_omp);
+
+  ASSERT_EQ(test_task_omp.Validation(), true);
+  test_task_omp.PreProcessing();
+  test_task_omp.Run();
+  test_task_omp.PostProcessing();
+
+  EXPECT_EQ(output, expected_output);
+}
+
+TEST(mezhuev_m_bitwise_integer_sort_omp, test_sort_only_positive_numbers) {
+  constexpr size_t kCount = 4;
+  std::vector<int> input = {5, 3, 8, 1};
+  std::vector<int> expected_output = {1, 3, 5, 8};
+  std::vector<int> output(kCount, 0);
+
+  auto task_data_omp = std::make_shared<ppc::core::TaskData>();
+  task_data_omp->inputs.emplace_back(reinterpret_cast<uint8_t *>(input.data()));
+  task_data_omp->inputs_count.emplace_back(input.size());
+  task_data_omp->outputs.emplace_back(reinterpret_cast<uint8_t *>(output.data()));
+  task_data_omp->outputs_count.emplace_back(output.size());
+
+  mezhuev_m_bitwise_integer_sort_omp::SortOpenMP test_task_omp(task_data_omp);
+
+  ASSERT_EQ(test_task_omp.Validation(), true);
+  test_task_omp.PreProcessing();
+  test_task_omp.Run();
+  test_task_omp.PostProcessing();
+
+  EXPECT_EQ(output, expected_output);
+}
+
+TEST(mezhuev_m_bitwise_integer_sort_omp, test_sort_single_negative_number) {
+  constexpr size_t kCount = 1;
+  std::vector<int> input = {-42};
+  std::vector<int> expected_output = {-42};
+  std::vector<int> output(kCount, 0);
+
+  auto task_data_omp = std::make_shared<ppc::core::TaskData>();
+  task_data_omp->inputs.emplace_back(reinterpret_cast<uint8_t *>(input.data()));
+  task_data_omp->inputs_count.emplace_back(input.size());
+  task_data_omp->outputs.emplace_back(reinterpret_cast<uint8_t *>(output.data()));
+  task_data_omp->outputs_count.emplace_back(output.size());
+
+  mezhuev_m_bitwise_integer_sort_omp::SortOpenMP test_task_omp(task_data_omp);
+
+  ASSERT_EQ(test_task_omp.Validation(), true);
+  test_task_omp.PreProcessing();
+  test_task_omp.Run();
+  test_task_omp.PostProcessing();
+
+  EXPECT_EQ(output, expected_output);
+}
