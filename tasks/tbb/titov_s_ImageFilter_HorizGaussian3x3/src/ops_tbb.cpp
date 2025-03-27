@@ -36,17 +36,44 @@ bool titov_s_image_filter_horiz_gaussian3x3_tbb::ImageFilterTBB::ValidationImpl(
 }
 
 bool titov_s_image_filter_horiz_gaussian3x3_tbb::ImageFilterTBB::RunImpl() {
-  const double k0 = kernel_[0], k1 = kernel_[1], k2 = kernel_[2];
+  const double k0 = static_cast<double>(kernel_[0]);
+  const double k1 = static_cast<double>(kernel_[1]);
+  const double k2 = static_cast<double>(kernel_[2]);
   const double sum = k0 + k1 + k2;
 
-  oneapi::tbb::parallel_for(0, height_, [&](int row) {
-    for (int col = 0; col < width_; ++col) {
-      double left = (col > 0) ? input_[row * width_ + col - 1] : 0.0;
-      double center = input_[row * width_ + col];
-      double right = (col < width_ - 1) ? input_[row * width_ + col + 1] : 0.0;
+  oneapi::tbb::task_arena arena(ppc::util::GetPPCNumThreads());
 
-      output_[row * width_ + col] = (left * k0 + center * k1 + right * k2) / sum;
+  arena.execute([&] {
+    tbb::task_group tg;
+
+    const int threads_num = ppc::util::GetPPCNumThreads();
+    const int rows_per_thread = height_ / threads_num;
+    const int remainder_rows = height_ % threads_num;
+
+    int start_row = 0;
+    for (int i = 0; i < threads_num; ++i) {
+      const int end_row = start_row + rows_per_thread + (i < remainder_rows ? 1 : 0);
+
+      if (start_row < end_row) {
+        tg.run([=, &input_ = input_, &output_ = output_] {
+          for (int row = start_row; row < end_row; ++row) {
+            for (int col = 0; col < width_; ++col) {
+              double left_val = (col > 0) ? input_[row * width_ + (col - 1)] : 0.0;
+
+              double center_val = input_[row * width_ + col];
+
+              double right_val = (col < width_ - 1) ? input_[row * width_ + (col + 1)] : 0.0;
+
+              double val = left_val * k0 + center_val * k1 + right_val * k2;
+              output_[row * width_ + col] = val / sum;
+            }
+          }
+        });
+      }
+      start_row = end_row;
     }
+
+    tg.wait();
   });
 
   return true;

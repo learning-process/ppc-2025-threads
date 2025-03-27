@@ -2,15 +2,11 @@
 
 #include <cstddef>
 #include <cstdint>
-#include <fstream>
-#include <iomanip>
-#include <memory>
 #include <numeric>
 #include <random>
 #include <vector>
 
 #include "core/task/include/task.hpp"
-#include "core/util/include/util.hpp"
 #include "tbb/titov_s_ImageFilter_HorizGaussian3x3/include/ops_tbb.hpp"
 
 TEST(titov_s_image_filter_horiz_gaussian3x3_tbb, test_10_1) {
