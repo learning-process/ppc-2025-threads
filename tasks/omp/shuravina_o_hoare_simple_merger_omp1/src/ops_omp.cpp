@@ -17,26 +17,31 @@ void TestTaskOMP::QuickSort(std::vector<int>& arr, int low, int high) {
       return;
     }
 
-    int pivot = arr[high];
+    int pivot = arr[(low + high) / 2];
     int i = low - 1;
+    int j = high + 1;
 
-#pragma omp parallel for shared(arr)
-    for (int j = low; j < high; ++j) {
-      if (arr[j] <= pivot) {
-#pragma omp atomic
+    while (true) {
+      do {
         i++;
-        std::swap(arr[i], arr[j]);
+      } while (arr[i] < pivot);
+
+      do {
+        j--;
+      } while (arr[j] > pivot);
+
+      if (i >= j) {
+        break;
       }
+
+      std::swap(arr[i], arr[j]);
     }
-    std::swap(arr[i + 1], arr[high]);
-
-    int pi = i + 1;
 
 #pragma omp task shared(arr) if (high - low > 10000)
-    QuickSort(arr, low, pi - 1);
+    QuickSort(arr, low, j);
 
 #pragma omp task shared(arr) if (high - low > 10000)
-    QuickSort(arr, pi + 1, high);
+    QuickSort(arr, j + 1, high);
   }
 }
 
@@ -53,7 +58,11 @@ void TestTaskOMP::Merge(std::vector<int>& arr, int low, int mid, int high) {
 #pragma omp section
     {
       while (i <= mid && j <= high) {
-        temp[k++] = arr[i] <= arr[j] ? arr[i++] : arr[j++];
+        if (arr[i] <= arr[j]) {
+          temp[k++] = arr[i++];
+        } else {
+          temp[k++] = arr[j++];
+        }
       }
     }
 
