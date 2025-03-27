@@ -10,7 +10,7 @@
 #include "core/task/include/task.hpp"
 #include "seq/kovalchuk_a_shell_sort/include/ops_seq.hpp"
 
-TEST(kovalchuk_a_shell_sort, test_pipeline_run) {
+TEST(kovalchuk_a_shell_sort_seq, test_pipeline_run) {
   constexpr int kCount = 1000000;
 
   std::vector<int> in(kCount);
@@ -44,7 +44,7 @@ TEST(kovalchuk_a_shell_sort, test_pipeline_run) {
   ppc::core::Perf::PrintPerfStatistic(perf_results);
 }
 
-TEST(kovalchuk_a_shell_sort, test_task_run) {
+TEST(kovalchuk_a_shell_sort_seq, test_task_run) {
   constexpr int kCount = 1000000;
 
   std::vector<int> in(kCount);
