@@ -14,10 +14,8 @@ TEST(kovalchuk_a_shell_sort_seq, test_pipeline_run) {
   constexpr int kCount = 1000000;
 
   std::vector<int> in(kCount);
-  std::mt19937 gen(42);
-  std::uniform_int_distribution<> dist(-1000000, 1000000);
-  for (auto& num : in) {
-    num = dist(gen);
+  for (int i = 0; i < kCount; ++i) {
+    in[i] = kCount / 2 - i;
   }
   std::vector<int> out(kCount);
 
@@ -48,10 +46,8 @@ TEST(kovalchuk_a_shell_sort_seq, test_task_run) {
   constexpr int kCount = 1000000;
 
   std::vector<int> in(kCount);
-  std::mt19937 gen(42);
-  std::uniform_int_distribution<> dist(-1000000, 1000000);
-  for (auto& num : in) {
-    num = dist(gen);
+  for (int i = 0; i < kCount; ++i) {
+    in[i] = kCount / 2 - i;
   }
   std::vector<int> out(kCount);
 
