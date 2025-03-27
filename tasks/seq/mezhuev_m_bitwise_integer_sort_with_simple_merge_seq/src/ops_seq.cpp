@@ -7,16 +7,8 @@
 namespace mezhuev_m_bitwise_integer_sort_seq {
 
 bool TestTaskSequential::PreProcessingImpl() {
-  if (!task_data) {
-    return false;
-  }
-
   unsigned int input_size = task_data->inputs_count[0];
   unsigned int output_size = task_data->outputs_count[0];
-
-  if (input_size != output_size) {
-    return false;
-  }
 
   if (input_size > 0) {
     if (task_data->inputs[0] == nullptr || task_data->outputs[0] == nullptr) {
