@@ -159,7 +159,7 @@ bool kovalev_k_radix_sort_batcher_merge_omp::TestTaskOpenMP::PreProcessingImpl()
 
 bool kovalev_k_radix_sort_batcher_merge_omp::TestTaskOpenMP::RunImpl() {
 #pragma omp parallel num_threads(effective_num_threads_)
-{ RadixSigned(omp_get_thread_num() * loc_lenght_, loc_lenght_); }
+  { RadixSigned(omp_get_thread_num() * loc_lenght_, loc_lenght_); }
 
   for (unsigned int i = effective_num_threads_; i > 1; i /= 2) {
 #pragma omp parallel num_threads(i)
