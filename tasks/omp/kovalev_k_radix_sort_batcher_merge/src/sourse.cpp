@@ -62,9 +62,8 @@ bool kovalev_k_radix_sort_batcher_merge_omp::TestTaskOpenMP::Countbyte(unsigned 
 }
 
 bool kovalev_k_radix_sort_batcher_merge_omp::TestTaskOpenMP::OddEvenMerge(long long int* tmp, long long int* l,
-                                                                                 const long long int* r,
-                                                                                 unsigned int len_l,
-                                                                                 unsigned int len_r) {
+                                                                          const long long int* r, unsigned int len_l,
+                                                                          unsigned int len_r) {
   unsigned int iter_l = 0;
   unsigned int iter_r = 0;
   unsigned int iter_tmp = 0;
@@ -170,7 +169,7 @@ bool kovalev_k_radix_sort_batcher_merge_omp::TestTaskOpenMP::RunImpl() {
       unsigned int len = loc_lenght_ * (effective_num_threads_ / i);
 
       ret2 = ret2 && OddEvenMerge(tmp_ + (stride * 2 * len) + bias, mas_ + (stride * 2 * len) + bias,
-                          mas_ + (stride * 2 * len) + len + bias, len - bias, len - bias);
+                                  mas_ + (stride * 2 * len) + len + bias, len - bias, len - bias);
     }
   }
   FinalMerge();
