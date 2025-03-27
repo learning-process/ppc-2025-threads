@@ -25,7 +25,7 @@ TEST(korovin_n_qsort_batcher_tbb, test_pipeline_run) {
   auto test_task_tbb = std::make_shared<korovin_n_qsort_batcher_tbb::TestTaskTBB>(task_data_tbb);
 
   auto perf_attr = std::make_shared<ppc::core::PerfAttr>();
-  perf_attr->num_running = 10;
+  perf_attr->num_running = 25;
   const auto t0 = std::chrono::high_resolution_clock::now();
   perf_attr->current_timer = [&] {
     auto current_time_point = std::chrono::high_resolution_clock::now();
@@ -55,7 +55,7 @@ TEST(korovin_n_qsort_batcher_tbb, test_task_run) {
   auto test_task_tbb = std::make_shared<korovin_n_qsort_batcher_tbb::TestTaskTBB>(task_data_tbb);
 
   auto perf_attr = std::make_shared<ppc::core::PerfAttr>();
-  perf_attr->num_running = 10;
+  perf_attr->num_running = 25;
   const auto t0 = std::chrono::high_resolution_clock::now();
   perf_attr->current_timer = [&] {
     auto current_time_point = std::chrono::high_resolution_clock::now();
