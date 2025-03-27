@@ -55,7 +55,7 @@ bool titov_s_image_filter_horiz_gaussian3x3_tbb::ImageFilterTBB::RunImpl() {
       const int end_row = start_row + rows_per_thread + (i < remainder_rows ? 1 : 0);
 
       if (start_row < end_row) {
-        tg.run([=, &input_ = input_, &output_ = output_] {
+        tg.run([=, &input_ = input_, &output_ = output_, this] {
           for (int row = start_row; row < end_row; ++row) {
             for (int col = 0; col < width_; ++col) {
               double left_val = (col > 0) ? input_[row * width_ + (col - 1)] : 0.0;
