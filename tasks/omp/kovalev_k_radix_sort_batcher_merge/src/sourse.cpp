@@ -61,7 +61,7 @@ bool kovalev_k_radix_sort_batcher_merge_omp::TestTaskOpenMP::Countbyte(unsigned 
   return true;
 }
 
-static bool kovalev_k_radix_sort_batcher_merge_omp::TestTaskOpenMP::OddEvenMerge(long long int* tmp, long long int* l,
+bool kovalev_k_radix_sort_batcher_merge_omp::TestTaskOpenMP::OddEvenMerge(long long int* tmp, long long int* l,
                                                                                  const long long int* r,
                                                                                  unsigned int len_l,
                                                                                  unsigned int len_r) {
@@ -157,10 +157,10 @@ bool kovalev_k_radix_sort_batcher_merge_omp::TestTaskOpenMP::PreProcessingImpl()
 }
 
 bool kovalev_k_radix_sort_batcher_merge_omp::TestTaskOpenMP::RunImpl() {
-  bool ret1 = false;
-  bool ret2 = false;
+  bool ret1 = true;
+  bool ret2 = true;
 #pragma omp parallel num_threads(effective_num_threads_)
-  { ret1 = RadixSigned(omp_get_thread_num() * loc_lenght_, loc_lenght_); }
+  { ret1 = ret1 && RadixSigned(omp_get_thread_num() * loc_lenght_, loc_lenght_); }
 
   for (unsigned int i = effective_num_threads_; i > 1; i /= 2) {
 #pragma omp parallel num_threads(i)
@@ -169,7 +169,7 @@ bool kovalev_k_radix_sort_batcher_merge_omp::TestTaskOpenMP::RunImpl() {
       unsigned int bias = omp_get_thread_num() % 2;
       unsigned int len = loc_lenght_ * (effective_num_threads_ / i);
 
-      ret2 = OddEvenMerge(tmp_ + (stride * 2 * len) + bias, mas_ + (stride * 2 * len) + bias,
+      ret2 = ret2 && OddEvenMerge(tmp_ + (stride * 2 * len) + bias, mas_ + (stride * 2 * len) + bias,
                           mas_ + (stride * 2 * len) + len + bias, len - bias, len - bias);
     }
   }
