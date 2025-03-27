@@ -34,7 +34,7 @@ std::vector<kalinin_d_jarvis_convex_hull_seq::Point> CalculateConvexHull(
   }
 
   size_t p = l;
-  size_t q;
+  size_t q = 0;
   do {
     hull.push_back(points[p]);
 
