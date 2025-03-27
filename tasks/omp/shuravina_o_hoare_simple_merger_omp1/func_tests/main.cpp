@@ -124,6 +124,31 @@ TEST(shuravina_o_hoare_simple_merger_omp, test_array_with_negative_numbers) {
   EXPECT_EQ(out, expected);
 }
 
+TEST(shuravina_o_hoare_simple_merger_omp, validation_empty_input_output) {
+  auto empty_task_data = std::make_shared<ppc::core::TaskData>();
+  empty_task_data->inputs.emplace_back(nullptr);
+  empty_task_data->inputs_count.emplace_back(0);
+  empty_task_data->outputs.emplace_back(nullptr);
+  empty_task_data->outputs_count.emplace_back(0);
+
+  shuravina_o_hoare_simple_merger::TestTaskOMP empty_test_task(empty_task_data);
+  EXPECT_FALSE(empty_test_task.Validation());
+}
+
+TEST(shuravina_o_hoare_simple_merger_omp, validation_different_sizes) {
+  std::vector<int> in = {1, 2, 3};
+  std::vector<int> out(2, 0);
+
+  auto task_data = std::make_shared<ppc::core::TaskData>();
+  task_data->inputs.emplace_back(reinterpret_cast<uint8_t*>(in.data()));
+  task_data->inputs_count.emplace_back(in.size());
+  task_data->outputs.emplace_back(reinterpret_cast<uint8_t*>(out.data()));
+  task_data->outputs_count.emplace_back(out.size());
+
+  shuravina_o_hoare_simple_merger::TestTaskOMP test_task(task_data);
+  EXPECT_FALSE(test_task.Validation());
+}
+
 TEST(shuravina_o_hoare_simple_merger_omp, validation_null_input_pointer) {
   std::vector<int> out(5, 0);
 
@@ -134,5 +159,18 @@ TEST(shuravina_o_hoare_simple_merger_omp, validation_null_input_pointer) {
   task_data->outputs_count.emplace_back(out.size());
 
   shuravina_o_hoare_simple_merger::TestTaskOMP test_task(task_data);
-  EXPECT_FALSE(test_task.Validation()) << "Validation should fail for null input pointer";
+  EXPECT_FALSE(test_task.Validation());
+}
+
+TEST(shuravina_o_hoare_simple_merger_omp, validation_null_output_pointer) {
+  std::vector<int> in = {1, 2, 3, 4, 5};
+
+  auto task_data = std::make_shared<ppc::core::TaskData>();
+  task_data->inputs.emplace_back(reinterpret_cast<uint8_t*>(in.data()));
+  task_data->inputs_count.emplace_back(in.size());
+  task_data->outputs.emplace_back(nullptr);
+  task_data->outputs_count.emplace_back(5);
+
+  shuravina_o_hoare_simple_merger::TestTaskOMP test_task(task_data);
+  EXPECT_FALSE(test_task.Validation());
 }
