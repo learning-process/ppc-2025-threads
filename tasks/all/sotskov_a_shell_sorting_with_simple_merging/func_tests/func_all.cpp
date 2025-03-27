@@ -145,3 +145,12 @@ TEST(sotskov_a_shell_sorting_with_simple_merging_all, test_sort_large_array) {
   sotskov_a_shell_sorting_with_simple_merging_all::SortingTestParams params{.expected = expected, .input = input};
   sotskov_a_shell_sorting_with_simple_merging_all::RunSortingTest(params);
 }
+
+TEST(sotskov_a_shell_sorting_with_simple_merging_all, test_sort_complex_double_reverse_pattern) {
+  std::vector<int> input = {9, 7, 5, 3, 1, 9, 7, 5, 3, 1, 8, 6, 4, 2, 0, 8, 6, 4, 2, 0};
+  std::vector<int> expected = input;
+  sotskov_a_shell_sorting_with_simple_merging_all::ShellSortWithSimpleMerging(expected);
+
+  sotskov_a_shell_sorting_with_simple_merging_all::SortingTestParams params{.expected = expected, .input = input};
+  sotskov_a_shell_sorting_with_simple_merging_all::RunSortingTest(params);
+}
