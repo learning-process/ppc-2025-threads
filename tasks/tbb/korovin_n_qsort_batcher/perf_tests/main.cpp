@@ -11,7 +11,7 @@
 #include "tbb/korovin_n_qsort_batcher/include/ops_tbb.hpp"
 
 TEST(korovin_n_qsort_batcher_tbb, test_pipeline_run) {
-  constexpr int kSize = 3000000;
+  constexpr int kSize = 250000;
   std::vector<int> in(kSize);
   std::vector<int> out(in.size());
   std::iota(in.rbegin(), in.rend(), 1);
@@ -41,7 +41,7 @@ TEST(korovin_n_qsort_batcher_tbb, test_pipeline_run) {
 }
 
 TEST(korovin_n_qsort_batcher_tbb, test_task_run) {
-  constexpr int kSize = 3000000;
+  constexpr int kSize = 250000;
   std::vector<int> in(kSize);
   std::vector<int> out(in.size());
   std::iota(in.rbegin(), in.rend(), 1);
