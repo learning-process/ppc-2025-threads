@@ -3,7 +3,10 @@
 #include <omp.h>
 
 #include <algorithm>
+#include <cstdint>
 #include <cstring>
+#include <utility>
+#include <vector>
 
 namespace shuravina_o_hoare_simple_merger {
 
@@ -38,7 +41,7 @@ void TestTaskOMP::QuickSort(std::vector<int>& arr, int low, int high) {
 }
 
 void TestTaskOMP::Merge(std::vector<int>& arr, int low, int mid, int high) {
-  thread_local std::vector<int> temp;
+  static thread_local std::vector<int> temp;
   temp.resize(high - low + 1);
 
   int i = low;
@@ -76,7 +79,7 @@ void TestTaskOMP::Merge(std::vector<int>& arr, int low, int mid, int high) {
 }
 
 bool TestTaskOMP::PreProcessingImpl() {
-  if (!task_data->inputs[0] || !task_data->outputs[0]) {
+  if (task_data->inputs[0] == nullptr || task_data->outputs[0] == nullptr) {
     return false;
   }
 
@@ -140,7 +143,7 @@ bool TestTaskOMP::PostProcessingImpl() {
   if (no_overlap) {
     std::memcpy(out_ptr, output_.data(), bytes);
   } else {
-    std::copy(output_.begin(), output_.end(), out_ptr);
+    std::ranges::copy(output_, out_ptr);
   }
 
   return true;
