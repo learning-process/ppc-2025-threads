@@ -13,14 +13,16 @@
 
 namespace {
 
-double Cross(const kalinin_d_jarvis_convex_hull_seq::Point &O, const kalinin_d_jarvis_convex_hull_seq::Point &A,
-             const kalinin_d_jarvis_convex_hull_seq::Point &B) {
-  return (A.x - O.x) * (B.y - O.y) - (A.y - O.y) * (B.x - O.x);
+double Cross(const kalinin_d_jarvis_convex_hull_seq::Point &o, const kalinin_d_jarvis_convex_hull_seq::Point &a,
+             const kalinin_d_jarvis_convex_hull_seq::Point &b) {
+  return ((a.x - o.x) * (b.y - o.y)) - ((a.y - o.y) * (b.x - o.x));
 }
 
 std::vector<kalinin_d_jarvis_convex_hull_seq::Point> CalculateConvexHull(
     std::vector<kalinin_d_jarvis_convex_hull_seq::Point> points) {
-  if (points.size() < 3) return points;
+  if (points.size() < 3) {
+    return points;
+  }
 
   std::vector<kalinin_d_jarvis_convex_hull_seq::Point> hull;
 
@@ -31,7 +33,8 @@ std::vector<kalinin_d_jarvis_convex_hull_seq::Point> CalculateConvexHull(
     }
   }
 
-  size_t p = l, q;
+  size_t p = l;
+  size_t q;
   do {
     hull.push_back(points[p]);
 

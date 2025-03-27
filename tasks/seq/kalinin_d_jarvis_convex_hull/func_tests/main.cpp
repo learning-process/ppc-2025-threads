@@ -30,10 +30,8 @@ void Random(std::vector<kalinin_d_jarvis_convex_hull_seq::Point> &points,
   test_task_sequential.PostProcessing();
 
   for (std::size_t i = 0; i < hull.size(); i++) {
-    EXPECT_EQ(hull[i].x, res_hull[i].x) << res_hull[i].x << '_' << res_hull[i].y << ' ' << hull[i].x << '_'
-                                        << hull[i].y;
-    EXPECT_EQ(hull[i].y, res_hull[i].y) << res_hull[i].x << '_' << res_hull[i].y << ' ' << hull[i].x << '_'
-                                        << hull[i].y;
+    EXPECT_EQ(hull[i].x, res_hull[i].x);
+    EXPECT_EQ(hull[i].y, res_hull[i].y);
   }
 }
 
@@ -238,12 +236,13 @@ TEST(kalinin_d_jarvis_convex_hull_seq, Random_Points_RNG) {
   std::uniform_int_distribution<int> dist(-8, 8);
 
   // Create data
-  auto gen = [&dist, &rng]() { return kalinin_d_jarvis_convex_hull_seq::Point{dist(rng), dist(rng)}; };
+  auto gen = [&dist, &rng]() { return kalinin_d_jarvis_convex_hull_seq::Point{.x = dist(rng), .y = dist(rng)}; };
 
   std::vector<kalinin_d_jarvis_convex_hull_seq::Point> points(30);
   std::ranges::generate(points.begin(), points.end(), gen);
-  std::vector<kalinin_d_jarvis_convex_hull_seq::Point> hull = {{-19, 9}, {-9, 13},   {7, 12},    {14, 5}, {15, -13},
-                                                               {0, -18}, {-11, -21}, {-14, -14}, {-18, 0}};
+  std::vector<kalinin_d_jarvis_convex_hull_seq::Point> hull = {
+      {.x = -19, .y = 9}, {.x = -9, .y = 13},   {.x = 7, .y = 12},    {.x = 14, .y = 5}, {.x = 15, .y = -13},
+      {.x = 0, .y = -18}, {.x = -11, .y = -21}, {.x = -14, .y = -14}, {.x = -18, .y = 0}};
   points.insert(points.end(), hull.begin(), hull.end());
   std::vector<kalinin_d_jarvis_convex_hull_seq::Point> res_hull(hull.size());
   std::random_device rd;
