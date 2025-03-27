@@ -3,67 +3,12 @@
 #include <algorithm>
 #include <boost/mpi/collectives/gatherv.hpp>
 #include <boost/mpi/collectives/scatterv.hpp>
-#include <condition_variable>
 #include <cstddef>
-#include <functional>
-#include <mutex>
-#include <queue>
 #include <thread>
-#include <utility>
 #include <vector>
 
 #include "boost/mpi/collectives/broadcast.hpp"
 #include "core/util/include/util.hpp"
-
-class ThreadPool {
- public:
-  explicit ThreadPool(size_t num_threads) {
-    for (size_t i = 0; i < num_threads; ++i) {
-      workers_.emplace_back([this] {
-        while (true) {
-          std::function<void()> task;
-          {
-            std::unique_lock<std::mutex> lock(queue_mutex_);
-            condition_.wait(lock, [this] { return stop_ || !tasks_.empty(); });
-            if (stop_ && tasks_.empty()) {
-              return;
-            }
-            task = std::move(tasks_.front());
-            tasks_.pop();
-          }
-          task();
-        }
-      });
-    }
-  }
-
-  ~ThreadPool() {
-    {
-      std::unique_lock<std::mutex> lock(queue_mutex_);
-      stop_ = true;
-    }
-    condition_.notify_all();
-    for (auto& worker : workers_) {
-      worker.join();
-    }
-  }
-
-  template <typename F>
-  void Enqueue(F&& task) {
-    {
-      std::unique_lock<std::mutex> lock(queue_mutex_);
-      tasks_.emplace(std::forward<F>(task));
-    }
-    condition_.notify_one();
-  }
-
- private:
-  std::vector<std::thread> workers_;
-  std::queue<std::function<void()>> tasks_;
-  std::mutex queue_mutex_;
-  std::condition_variable condition_;
-  bool stop_{false};
-};
 
 void sotskov_a_shell_sorting_with_simple_merging_all::ShellSort(std::vector<int>& arr, size_t left, size_t right) {
   size_t array_size = right - left + 1;
@@ -110,31 +55,28 @@ void sotskov_a_shell_sorting_with_simple_merging_all::ShellSortWithSimpleMerging
     return;
   }
 
-  if (arr.size() < 1000) {
-    ShellSort(arr, 0, arr.size() - 1);
-    return;
-  }
-
   int array_size = static_cast<int>(arr.size());
   int num_threads = std::min(ppc::util::GetPPCNumThreads(), static_cast<int>(std::thread::hardware_concurrency()));
   int chunk_size = std::max(1, (array_size + num_threads - 1) / num_threads);
 
-  {
-    ThreadPool pool(num_threads);
-    for (int i = 0; i < num_threads; ++i) {
-      int left = i * chunk_size;
-      int right = std::min(left + chunk_size - 1, array_size - 1);
-      if (left < right) {
-        pool.Enqueue([&arr, left, right]() { ShellSort(arr, left, right); });
-      }
+  std::vector<std::thread> workers;
+  for (int i = 0; i < num_threads; ++i) {
+    const int left = i * chunk_size;
+    const int right = std::min(left + chunk_size - 1, array_size - 1);
+    if (left < right) {
+      workers.emplace_back([&arr, left, right]() { ShellSort(arr, left, right); });
     }
+  }
+
+  for (auto& worker : workers) {
+    worker.join();
   }
 
   for (int size = chunk_size; size < array_size; size *= 2) {
     for (int i = 0; i < array_size; i += 2 * size) {
-      int left = i;
-      int mid = std::min(i + size - 1, array_size - 1);
-      int right = std::min(i + (2 * size) - 1, array_size - 1);
+      const int left = i;
+      const int mid = std::min(i + size - 1, array_size - 1);
+      const int right = std::min(i + (2 * size) - 1, array_size - 1);
       if (mid < right) {
         ParallelMerge(arr, left, mid, right);
       }
