@@ -11,7 +11,7 @@
 #include "omp/korovin_n_qsort_batcher_omp/include/ops_omp.hpp"
 
 TEST(korovin_n_qsort_batcher_omp, test_pipeline_run) {
-  constexpr int kSize = 60000;
+  constexpr int kSize = 250000;
   std::vector<int> in(kSize);
   std::vector<int> out(in.size());
   std::iota(in.rbegin(), in.rend(), 1);
@@ -25,7 +25,7 @@ TEST(korovin_n_qsort_batcher_omp, test_pipeline_run) {
   auto test_task_omp = std::make_shared<korovin_n_qsort_batcher_omp::TestTaskOpenMP>(task_data_omp);
 
   auto perf_attr = std::make_shared<ppc::core::PerfAttr>();
-  perf_attr->num_running = 10;
+  perf_attr->num_running = 35;
   const auto t0 = std::chrono::high_resolution_clock::now();
   perf_attr->current_timer = [&] {
     auto current_time_point = std::chrono::high_resolution_clock::now();
@@ -41,7 +41,7 @@ TEST(korovin_n_qsort_batcher_omp, test_pipeline_run) {
 }
 
 TEST(korovin_n_qsort_batcher_omp, test_task_run) {
-  constexpr int kSize = 60000;
+  constexpr int kSize = 250000;
   std::vector<int> in(kSize);
   std::vector<int> out(in.size());
   std::iota(in.rbegin(), in.rend(), 1);
@@ -55,7 +55,7 @@ TEST(korovin_n_qsort_batcher_omp, test_task_run) {
   auto test_task_omp = std::make_shared<korovin_n_qsort_batcher_omp::TestTaskOpenMP>(task_data_omp);
 
   auto perf_attr = std::make_shared<ppc::core::PerfAttr>();
-  perf_attr->num_running = 10;
+  perf_attr->num_running = 35;
   const auto t0 = std::chrono::high_resolution_clock::now();
   perf_attr->current_timer = [&] {
     auto current_time_point = std::chrono::high_resolution_clock::now();
