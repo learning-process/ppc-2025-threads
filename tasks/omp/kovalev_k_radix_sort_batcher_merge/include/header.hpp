@@ -15,10 +15,10 @@ class TestTaskOpenMP : public ppc::core::Task {
 
  public:
   explicit TestTaskOpenMP(std::shared_ptr<ppc::core::TaskData> task_data) : Task(std::move(task_data)) {}
-  bool RadixUnsigned(unsigned long long *, unsigned long long *, unsigned int) const;
-  bool RadixSigned(unsigned int, unsigned int) const;
-  static bool Countbyte(unsigned long long *, int *, unsigned int, unsigned int) const;
-  static bool OddEvenMerge(long long int *, long long int *, long long int *, unsigned int, unsigned int);
+  static bool RadixUnsigned(unsigned long long *, unsigned long long *, unsigned int) const;
+  [[nodiscard]] bool RadixSigned(unsigned int, unsigned int) const;
+  static bool Countbyte(unsigned long long *, int *, unsigned int, unsigned int);
+  static bool OddEvenMerge(long long int *, long long int *, const long long int *, unsigned int, unsigned int);
   bool FinalMerge();
   bool PreProcessingImpl() override;
   bool ValidationImpl() override;
