@@ -1,15 +1,15 @@
 #include <omp.h>
 
 #include <climits>
+#include <cmath>
 #include <cstdlib>
 #include <cstring>
-#include <iostream>
 #include <vector>
 
 #include "omp/kovalev_k_radix_sort_batcher_merge/include/header.hpp"
 
 bool kovalev_k_radix_sort_batcher_merge_omp::TestTaskOpenMP::RadixUnsigned(unsigned long long* inp_arr,
-                                                                           unsigned long long* mas_tmp,
+                                                                           unsigned long long* temp,
                                                                            unsigned int size) const {
   auto* masc = reinterpret_cast<unsigned char*>(inp_arr);
   int count[256];
@@ -17,9 +17,9 @@ bool kovalev_k_radix_sort_batcher_merge_omp::TestTaskOpenMP::RadixUnsigned(unsig
   for (unsigned int i = 0; i < sizetype; i++) {
     Countbyte(inp_arr, count, i, size);
     for (unsigned int j = 0; j < size; j++) {
-      mas_tmp[count[masc[(j * sizetype) + i]]++] = inp_arr[j];
+      temp[count[masc[(j * sizetype) + i]]++] = inp_arr[j];
     }
-    memcpy(inp_arr, mas_tmp, sizeof(unsigned long long) * size);
+    memcpy(inp_arr, temp, sizeof(unsigned long long) * size);
   }
   return true;
 }
@@ -62,9 +62,11 @@ bool kovalev_k_radix_sort_batcher_merge_omp::TestTaskOpenMP::Countbyte(unsigned 
 }
 
 bool kovalev_k_radix_sort_batcher_merge_omp::TestTaskOpenMP::OddEvenMerge(long long int* tmp, long long int* l,
-                                                                          long long int* r, unsigned int len_l,
+                                                                          const long long int* r, unsigned int len_l,
                                                                           unsigned int len_r) {
-  unsigned int iter_l = 0, iter_r = 0, iter_tmp = 0;
+  unsigned int iter_l = 0;
+  unsigned int iter_r = 0;
+  unsigned int iter_tmp = 0;
 
   while (iter_l < len_l && iter_r < len_r) {
     if (l[iter_l] < r[iter_r]) {
@@ -97,7 +99,9 @@ bool kovalev_k_radix_sort_batcher_merge_omp::TestTaskOpenMP::OddEvenMerge(long l
 }
 
 bool kovalev_k_radix_sort_batcher_merge_omp::TestTaskOpenMP::FinalMerge() {
-  unsigned int iter_even = 0, iter_odd = 1, iter_tmp = 0;
+  unsigned int iter_even = 0;
+  unsigned int iter_odd = 1;
+  unsigned int iter_tmp = 0;
 
   while (iter_even < n_ && iter_odd < n_) {
     if (mas_[iter_even] < mas_[iter_odd]) {
@@ -133,7 +137,7 @@ bool kovalev_k_radix_sort_batcher_merge_omp::TestTaskOpenMP::PreProcessingImpl()
   n_input_ = task_data->inputs_count[0];
 
   effective_num_threads_ = std::pow(2, std::floor(std::log2(omp_get_max_threads())));
-  unsigned int e_n_f = static_cast<unsigned int>(effective_num_threads_);
+  auto e_n_f = static_cast<unsigned int>(effective_num_threads_);
   n_ = n_input_ + ((e_n_f - n_input_ % e_n_f)) % e_n_f;
   n_ += (((2 * e_n_f) - n_ % (2 * e_n_f))) % (2 * e_n_f);
   loc_lenght_ = n_ / effective_num_threads_;
@@ -160,15 +164,16 @@ bool kovalev_k_radix_sort_batcher_merge_omp::TestTaskOpenMP::RunImpl() {
   for (unsigned int i = effective_num_threads_; i > 1; i /= 2) {
 #pragma omp parallel num_threads(i)
     {
-      unsigned int stride = static_cast<unsigned int>(omp_get_thread_num() / 2);
+      auto stride = static_cast<unsigned int>(omp_get_thread_num() / 2);
       unsigned int bias = omp_get_thread_num() % 2;
       unsigned int len = loc_lenght_ * (effective_num_threads_ / i);
 
-      OddEvenMerge(tmp_ + stride * 2 * len + bias, mas_ + stride * 2 * len + bias, mas_ + stride * 2 * len + len + bias,
-                   len - bias, len - bias);
+      OddEvenMerge(tmp_ + (stride * 2 * len) + bias, mas_ + (stride * 2 * len) + bias,
+                   mas_ + (stride * 2 * len) + len + bias, len - bias, len - bias);
     }
   }
   FinalMerge();
+  return true;
 }
 
 bool kovalev_k_radix_sort_batcher_merge_omp::TestTaskOpenMP::PostProcessingImpl() {

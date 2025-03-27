@@ -2,7 +2,6 @@
 
 #include <memory>
 #include <utility>
-#include <vector>
 
 #include "core/task/include/task.hpp"
 
@@ -18,8 +17,8 @@ class TestTaskOpenMP : public ppc::core::Task {
   explicit TestTaskOpenMP(std::shared_ptr<ppc::core::TaskData> task_data) : Task(std::move(task_data)) {}
   bool RadixUnsigned(unsigned long long *, unsigned long long *, unsigned int) const;
   bool RadixSigned(unsigned int, unsigned int) const;
-  bool Countbyte(unsigned long long *, int *, unsigned int, unsigned int) const;
-  bool OddEvenMerge(long long int *, long long int *, long long int *, unsigned int, unsigned int);
+  static bool Countbyte(unsigned long long *, int *, unsigned int, unsigned int) const;
+  static bool OddEvenMerge(long long int *, long long int *, long long int *, unsigned int, unsigned int);
   bool FinalMerge();
   bool PreProcessingImpl() override;
   bool ValidationImpl() override;
