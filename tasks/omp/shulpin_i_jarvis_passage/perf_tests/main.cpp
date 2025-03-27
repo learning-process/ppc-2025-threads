@@ -42,7 +42,7 @@ TEST(shulpin_i_jarvis_omp, test_pipeline_run) {
   task_data_par->outputs.emplace_back(reinterpret_cast<uint8_t *>(out.data()));
   task_data_par->outputs_count.emplace_back(out.size());
 
-  auto test_task_omp = std::make_shared<shulpin_i_jarvis_omp::JarvisSequential>(task_data_par);
+  auto test_task_omp = std::make_shared<shulpin_i_jarvis_omp::JarvisOMPParallel>(task_data_par);
 
   auto perf_attr = std::make_shared<ppc::core::PerfAttr>();
   perf_attr->num_running = 10;
@@ -84,7 +84,7 @@ TEST(shulpin_i_jarvis_omp, test_task_run) {
   task_data_par->outputs.emplace_back(reinterpret_cast<uint8_t *>(out.data()));
   task_data_par->outputs_count.emplace_back(out.size());
 
-  auto test_task_omp = std::make_shared<shulpin_i_jarvis_omp::JarvisSequential>(task_data_par);
+  auto test_task_omp = std::make_shared<shulpin_i_jarvis_omp::JarvisOMPParallel>(task_data_par);
 
   auto perf_attr = std::make_shared<ppc::core::PerfAttr>();
   perf_attr->num_running = 10;
