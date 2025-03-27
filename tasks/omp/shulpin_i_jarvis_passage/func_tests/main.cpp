@@ -219,7 +219,7 @@ TEST(shulpin_i_jarvis_omp, circle_r10_p100) {
   TestBodyRandomCircle(input, expected, num_points);
 }
 
-TEST(shulpin_i_jarvis_omps, circle_r10_p200) {
+TEST(shulpin_i_jarvis_omp, circle_r10_p200) {
   shulpin_i_jarvis_omp::Point center{0, 0};
 
   double radius = 10.0;
