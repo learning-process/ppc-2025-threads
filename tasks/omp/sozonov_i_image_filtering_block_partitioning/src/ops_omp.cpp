@@ -1,5 +1,6 @@
 #include "omp/sozonov_i_image_filtering_block_partitioning/include/ops_omp.hpp"
 
+#include <algorithm>
 #include <cmath>
 #include <cstddef>
 #include <vector>
@@ -59,10 +60,10 @@ bool sozonov_i_image_filtering_block_partitioning_omp::TestTaskOpenMP::RunImpl()
           double sum = 0;
           for (int l = -1; l <= 1; ++l) {
             for (int k = -1; k <= 1; ++k) {
-              sum += image_[(i - l) * width_ + (j - k)] * kernel[(l + 1) * 3 + (k + 1)];
+              sum += image_[((i - l) * width_) + (j - k)] * kernel[((l + 1) * 3) + (k + 1)];
             }
           }
-          filtered_image_[i * width_ + j] = sum;
+          filtered_image_[(i * width_) + j] = sum;
         }
       }
     }

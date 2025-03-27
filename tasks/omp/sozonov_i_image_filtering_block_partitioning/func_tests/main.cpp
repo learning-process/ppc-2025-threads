@@ -1,15 +1,11 @@
 #include <gtest/gtest.h>
 
-#include <cstddef>
 #include <cstdint>
-#include <fstream>
 #include <memory>
 #include <numeric>
-#include <string>
 #include <vector>
 
 #include "core/task/include/task.hpp"
-#include "core/util/include/util.hpp"
 #include "omp/sozonov_i_image_filtering_block_partitioning/include/ops_omp.hpp"
 
 TEST(sozonov_i_image_filtering_block_partitioning_omp, test_image_less_than_3x3) {
