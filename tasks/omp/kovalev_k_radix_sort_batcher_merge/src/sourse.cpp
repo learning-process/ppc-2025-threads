@@ -42,8 +42,7 @@ bool kovalev_k_radix_sort_batcher_merge_omp::TestTaskOpenMP::RadixSigned(unsigne
 }
 
 bool kovalev_k_radix_sort_batcher_merge_omp::TestTaskOpenMP::Countbyte(unsigned long long* inp_arr, int* count,
-                                                                              unsigned int byte,
-                                                                              unsigned int size) {
+                                                                       unsigned int byte, unsigned int size) {
   auto* masc = reinterpret_cast<unsigned char*>(inp_arr);
   unsigned int bias = sizeof(unsigned long long);
   for (unsigned int i = 0; i < 256; i++) {
@@ -171,7 +170,7 @@ bool kovalev_k_radix_sort_batcher_merge_omp::TestTaskOpenMP::RunImpl() {
       unsigned int len = loc_lenght_ * (effective_num_threads_ / i);
 
       ret2 = OddEvenMerge(tmp_ + (stride * 2 * len) + bias, mas_ + (stride * 2 * len) + bias,
-                               mas_ + (stride * 2 * len) + len + bias, len - bias, len - bias);
+                          mas_ + (stride * 2 * len) + len + bias, len - bias, len - bias);
     }
   }
   FinalMerge();
