@@ -17,7 +17,6 @@ int frolova_e_sobel_filter_omp::GetPixelSafe(const std::vector<int>& img, size_t
 }
 
 bool frolova_e_sobel_filter_omp::SobelFilterOmp::PreProcessingImpl() {
-
   int* value_1 = reinterpret_cast<int*>(task_data->inputs[0]);
   width_ = static_cast<size_t>(value_1[0]);
 
