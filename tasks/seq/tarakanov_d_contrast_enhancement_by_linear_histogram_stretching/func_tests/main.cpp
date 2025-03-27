@@ -12,6 +12,7 @@
 #include "core/util/include/util.hpp"
 #include "seq/tarakanov_d_contrast_enhancement_by_linear_histogram_stretching/include/ops_seq.hpp"
 
+#ifndef _WIN32
 TEST(tarakanov_d_linear_stretching, test_contrast_stretching_random_5x5) {
   constexpr size_t kSize = 5;
 
@@ -96,3 +97,4 @@ TEST(tarakanov_d_linear_stretching, test_contrast_stretching_random_from_file) {
   EXPECT_EQ(minOut, 0);
   EXPECT_EQ(maxOut, 255);
 }
+#endif

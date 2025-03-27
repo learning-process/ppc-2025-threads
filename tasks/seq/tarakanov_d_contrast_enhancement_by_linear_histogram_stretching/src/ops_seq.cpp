@@ -1,7 +1,10 @@
 #include "seq/tarakanov_d_contrast_enhancement_by_linear_histogram_stretching/include/ops_seq.hpp"
 
 #include <cmath>
+#include <cstdint>
+#ifndef _WIN32
 #include <opencv2/opencv.hpp>
+#endif
 
 bool tarakanov_d_linear_stretching::TaskSequential::PreProcessingImpl() {
   unsigned int input_size = task_data->inputs_count[0];

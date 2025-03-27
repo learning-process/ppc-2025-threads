@@ -10,6 +10,7 @@
 #include "core/task/include/task.hpp"
 #include "seq/tarakanov_d_contrast_enhancement_by_linear_histogram_stretching/include/ops_seq.hpp"
 
+#ifndef _WIN32
 TEST(tarakanov_d_linear_stretching, test_pipeline_run) {
   constexpr int kCount = 500;
 
@@ -80,3 +81,4 @@ TEST(tarakanov_d_linear_stretching, test_task_run) {
   ppc::core::Perf::PrintPerfStatistic(perf_results);
   ASSERT_EQ(in, out);
 }
+#endif
