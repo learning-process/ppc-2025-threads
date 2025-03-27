@@ -10,6 +10,19 @@
 #include "boost/mpi/collectives/broadcast.hpp"
 #include "core/util/include/util.hpp"
 
+void sotskov_a_shell_sorting_with_simple_merging_all::TestTaskALL::CalculateDistribution(int total,
+                                                                                         std::vector<int>& counts,
+                                                                                         std::vector<int>& displs) {
+  counts.resize(size_);
+  displs.resize(size_);
+  int base_size = total / size_;
+  int remainder = total % size_;
+  for (int i = 0; i < size_; ++i) {
+    counts[i] = (i < remainder) ? base_size + 1 : base_size;
+    displs[i] = (i == 0) ? 0 : displs[i - 1] + counts[i - 1];
+  }
+}
+
 void sotskov_a_shell_sorting_with_simple_merging_all::ShellSort(std::vector<int>& arr, size_t left, size_t right) {
   size_t array_size = right - left + 1;
   size_t gap = 1;
@@ -86,7 +99,6 @@ void sotskov_a_shell_sorting_with_simple_merging_all::ShellSortWithSimpleMerging
 
 bool sotskov_a_shell_sorting_with_simple_merging_all::TestTaskALL::PreProcessingImpl() {
   int total = 0;
-
   if (rank_ == 0) {
     total = static_cast<int>(task_data->inputs_count[0]);
   }
@@ -103,15 +115,8 @@ bool sotskov_a_shell_sorting_with_simple_merging_all::TestTaskALL::PreProcessing
     std::copy(src, src + total, global_data.begin());
   }
 
-  std::vector<int> counts(size_);
-  std::vector<int> displs(size_);
-  int base_size = total / size_;
-  int remainder = total % size_;
-  for (int i = 0; i < size_; ++i) {
-    counts[i] = (i < remainder) ? base_size + 1 : base_size;
-    displs[i] = (i == 0) ? 0 : displs[i - 1] + counts[i - 1];
-  }
-
+  std::vector<int> counts, displs;
+  CalculateDistribution(total, counts, displs);
   input_.resize(counts[rank_]);
 
   if (rank_ == 0) {
@@ -125,7 +130,6 @@ bool sotskov_a_shell_sorting_with_simple_merging_all::TestTaskALL::PreProcessing
 
 bool sotskov_a_shell_sorting_with_simple_merging_all::TestTaskALL::PostProcessingImpl() {
   int total = 0;
-
   if (rank_ == 0) {
     total = static_cast<int>(task_data->inputs_count[0]);
   }
@@ -135,14 +139,8 @@ bool sotskov_a_shell_sorting_with_simple_merging_all::TestTaskALL::PostProcessin
     return true;
   }
 
-  std::vector<int> counts(size_);
-  std::vector<int> displs(size_);
-  int base_size = total / size_;
-  int remainder = total % size_;
-  for (int i = 0; i < size_; ++i) {
-    counts[i] = (i < remainder) ? base_size + 1 : base_size;
-    displs[i] = (i == 0) ? 0 : displs[i - 1] + counts[i - 1];
-  }
+  std::vector<int> counts, displs;
+  CalculateDistribution(total, counts, displs);
 
   std::vector<int> result;
   if (rank_ == 0) {
@@ -158,7 +156,6 @@ bool sotskov_a_shell_sorting_with_simple_merging_all::TestTaskALL::PostProcessin
         int left = displs[i];
         int mid = displs[i + step];
         int right = (i + (2 * step) < size_) ? displs[i + (2 * step)] : total;
-
         std::inplace_merge(result.begin() + left, result.begin() + mid, result.begin() + right);
       }
     }

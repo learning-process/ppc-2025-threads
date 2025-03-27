@@ -3,6 +3,7 @@
 #include <boost/mpi/communicator.hpp>
 #include <cstdint>
 #include <memory>
+#include <numeric>
 #include <random>
 #include <vector>
 
@@ -120,6 +121,25 @@ TEST(sotskov_a_shell_sorting_with_simple_merging_all, test_sort_random_vector) {
       .size = 20, .min_value = -100, .max_value = 100};
   auto input = sotskov_a_shell_sorting_with_simple_merging_all::GenerateRandomVector(rparams);
   auto expected = input;
+  sotskov_a_shell_sorting_with_simple_merging_all::ShellSortWithSimpleMerging(expected);
+
+  sotskov_a_shell_sorting_with_simple_merging_all::SortingTestParams params{.expected = expected, .input = input};
+  sotskov_a_shell_sorting_with_simple_merging_all::RunSortingTest(params);
+}
+
+TEST(sotskov_a_shell_sorting_with_simple_merging_all, test_sort_reverse_sorted_array) {
+  std::vector<int> input = {9, 8, 7, 6, 5, 4, 3, 2, 1};
+  std::vector<int> expected = input;
+  sotskov_a_shell_sorting_with_simple_merging_all::ShellSortWithSimpleMerging(expected);
+
+  sotskov_a_shell_sorting_with_simple_merging_all::SortingTestParams params{.expected = expected, .input = input};
+  sotskov_a_shell_sorting_with_simple_merging_all::RunSortingTest(params);
+}
+
+TEST(sotskov_a_shell_sorting_with_simple_merging_all, test_sort_large_array) {
+  std::vector<int> input(1023);
+  std::iota(input.rbegin(), input.rend(), 1);
+  std::vector<int> expected = input;
   sotskov_a_shell_sorting_with_simple_merging_all::ShellSortWithSimpleMerging(expected);
 
   sotskov_a_shell_sorting_with_simple_merging_all::SortingTestParams params{.expected = expected, .input = input};
