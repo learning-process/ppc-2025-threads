@@ -17,9 +17,9 @@ class TaskSequential : public ppc::core::Task {
   bool RunImpl() override;
   bool PostProcessingImpl() override;
   static void applyHorizontalGaussian(const std::vector<uint8_t> &src, std::vector<uint8_t> &dst, int width, int height,
-    const std::vector<float> &kernel);
+                                      const std::vector<float> &kernel);
   static void applyVerticalGaussian(const std::vector<uint8_t> &src, std::vector<uint8_t> &dst, int width, int height,
-    const std::vector<float> &kernel);
+                                    const std::vector<float> &kernel);
 
  private:
   std::vector<uint8_t> input_;
