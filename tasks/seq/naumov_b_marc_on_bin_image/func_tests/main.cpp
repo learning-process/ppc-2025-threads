@@ -22,22 +22,24 @@ void VerifyBinaryOutput(const std::vector<int> &in, const std::vector<int> &out)
 }
 
 void CheckTopNeighbor(const std::vector<int> &in, const std::vector<int> &out, int i, int j, int n) {
-  if (i > 0 && in[(i - 1) * n + j] == 1) {
-    EXPECT_EQ(out[i * n + j], out[(i - 1) * n + j]);
+  if (i > 0 && in[((i - 1) * n) + j] == 1) {
+    EXPECT_EQ(out[(i * n) + j], out[((i - 1) * n) + j]);
   }
 }
 
 void CheckLeftNeighbor(const std::vector<int> &in, const std::vector<int> &out, int i, int j, int n) {
-  if (j > 0 && in[i * n + (j - 1)] == 1) {
-    EXPECT_EQ(out[i * n + j], out[i * n + (j - 1)]);
+  if (j > 0 && in[(i * n) + (j - 1)] == 1) {
+    EXPECT_EQ(out[(i * n) + j], out[(i * n) + (j - 1)]);
   }
 }
 
 void VerifyNeighborConsistency(const std::vector<int> &in, const std::vector<int> &out, int m, int n) {
   for (int i = 0; i < m; ++i) {
     for (int j = 0; j < n; ++j) {
-      const int idx = i * n + j;
-      if (in[idx] != 1) continue;
+      const int idx = (i * n) + j;
+      if (in[idx] != 1) {
+        continue;
+      }
 
       CheckTopNeighbor(in, out, i, j, n);
       CheckLeftNeighbor(in, out, i, j, n);
@@ -407,19 +409,19 @@ TEST(naumov_b_marc_on_bin_image_seq, large3) {
 }
 
 TEST(naumov_b_marc_on_bin_image_seq, RandomSmallMatrix) {
-  constexpr int m = 10;
-  constexpr int n = 10;
+  constexpr int kM = 10;
+  constexpr int kN = 10;
 
-  auto in = naumov_b_marc_on_bin_image_seq::GenerateRandomBinaryMatrix(m, n);
-  std::vector<int> out(m * n, 0);
+  auto in = naumov_b_marc_on_bin_image_seq::GenerateRandomBinaryMatrix(kM, kN);
+  std::vector<int> out(kM * kN, 0);
 
   auto task_data = std::make_shared<ppc::core::TaskData>();
   task_data->inputs.emplace_back(reinterpret_cast<uint8_t *>(in.data()));
-  task_data->inputs_count.emplace_back(m);
-  task_data->inputs_count.emplace_back(n);
+  task_data->inputs_count.emplace_back(kM);
+  task_data->inputs_count.emplace_back(kN);
   task_data->outputs.emplace_back(reinterpret_cast<uint8_t *>(out.data()));
-  task_data->outputs_count.emplace_back(m);
-  task_data->outputs_count.emplace_back(n);
+  task_data->outputs_count.emplace_back(kM);
+  task_data->outputs_count.emplace_back(kN);
 
   naumov_b_marc_on_bin_image_seq::TestTaskSequential test_task_sequential(task_data);
   ASSERT_TRUE(test_task_sequential.Validation());
@@ -431,19 +433,19 @@ TEST(naumov_b_marc_on_bin_image_seq, RandomSmallMatrix) {
 }
 
 TEST(naumov_b_marc_on_bin_image_seq, RandomLargeMatrix) {
-  constexpr int m = 100;
-  constexpr int n = 100;
+  constexpr int kM = 100;
+  constexpr int kN = 100;
 
-  auto in = naumov_b_marc_on_bin_image_seq::GenerateRandomBinaryMatrix(m, n, 0.3);
-  std::vector<int> out(m * n, 0);
+  auto in = naumov_b_marc_on_bin_image_seq::GenerateRandomBinaryMatrix(kM, kN, 0.3);
+  std::vector<int> out(kM * kN, 0);
 
   auto task_data = std::make_shared<ppc::core::TaskData>();
   task_data->inputs.emplace_back(reinterpret_cast<uint8_t *>(in.data()));
-  task_data->inputs_count.emplace_back(m);
-  task_data->inputs_count.emplace_back(n);
+  task_data->inputs_count.emplace_back(kM);
+  task_data->inputs_count.emplace_back(kN);
   task_data->outputs.emplace_back(reinterpret_cast<uint8_t *>(out.data()));
-  task_data->outputs_count.emplace_back(m);
-  task_data->outputs_count.emplace_back(n);
+  task_data->outputs_count.emplace_back(kM);
+  task_data->outputs_count.emplace_back(kN);
 
   naumov_b_marc_on_bin_image_seq::TestTaskSequential test_task_sequential(task_data);
   ASSERT_TRUE(test_task_sequential.Validation());
@@ -451,7 +453,7 @@ TEST(naumov_b_marc_on_bin_image_seq, RandomLargeMatrix) {
   ASSERT_TRUE(test_task_sequential.Run());
   ASSERT_TRUE(test_task_sequential.PostProcessing());
 
-  naumov_b_marc_test_utils::VerifyNeighborConsistency(in, out, m, n);
+  naumov_b_marc_test_utils::VerifyNeighborConsistency(in, out, kM, kN);
 }
 
 TEST(naumov_b_marc_on_bin_image_seq, RandomSparseMatrix) {
