@@ -2,11 +2,38 @@
 
 #include <cstdint>
 #include <memory>
-#include <random>
 #include <vector>
 
 #include "core/task/include/task.hpp"
 #include "seq/naumov_b_marc_on_bin_image/include/ops_seq.hpp"
+
+namespace naumov_b_marc_test_utils {
+void VerifyBinaryOutput(const std::vector<int> &in, const std::vector<int> &out) {
+  for (size_t i = 0; i < in.size(); ++i) {
+    if (in[i] == 1) {
+      EXPECT_GT(out[i], 0);
+    } else {
+      EXPECT_EQ(out[i], 0);
+    }
+  }
+}
+
+void VerifyNeighborConsistency(const std::vector<int> &in, const std::vector<int> &out, int m, int n) {
+  for (int i = 0; i < m; ++i) {
+    for (int j = 0; j < n; ++j) {
+      const int idx = i * n + j;
+      if (in[idx] != 1) continue;
+
+      if (i > 0 && in[(i - 1) * n + j] == 1) {
+        EXPECT_EQ(out[idx], out[(i - 1) * n + j]);
+      }
+      if (j > 0 && in[i * n + (j - 1)] == 1) {
+        EXPECT_EQ(out[idx], out[i * n + (j - 1)]);
+      }
+    }
+  }
+}
+}  // namespace naumov_b_marc_test_utils
 
 TEST(naumov_b_marc_on_bin_image_seq, Validation_1) {
   int m = 3;
@@ -369,70 +396,51 @@ TEST(naumov_b_marc_on_bin_image_seq, large3) {
 }
 
 TEST(naumov_b_marc_on_bin_image_seq, RandomSmallMatrix) {
-  const int m = 10;
-  const int n = 10;
+  constexpr int m = 10;
+  constexpr int n = 10;
 
   auto in = naumov_b_marc_on_bin_image_seq::GenerateRandomBinaryMatrix(m, n);
   std::vector<int> out(m * n, 0);
 
-  auto task_data_seq = std::make_shared<ppc::core::TaskData>();
-  task_data_seq->inputs.emplace_back(reinterpret_cast<uint8_t *>(in.data()));
-  task_data_seq->inputs_count.emplace_back(m);
-  task_data_seq->inputs_count.emplace_back(n);
-  task_data_seq->outputs.emplace_back(reinterpret_cast<uint8_t *>(out.data()));
-  task_data_seq->outputs_count.emplace_back(m);
-  task_data_seq->outputs_count.emplace_back(n);
+  auto task_data = std::make_shared<ppc::core::TaskData>();
+  task_data->inputs.emplace_back(reinterpret_cast<uint8_t *>(in.data()));
+  task_data->inputs_count.emplace_back(m);
+  task_data->inputs_count.emplace_back(n);
+  task_data->outputs.emplace_back(reinterpret_cast<uint8_t *>(out.data()));
+  task_data->outputs_count.emplace_back(m);
+  task_data->outputs_count.emplace_back(n);
 
-  naumov_b_marc_on_bin_image_seq::TestTaskSequential test_task_sequential(task_data_seq);
-
+  naumov_b_marc_on_bin_image_seq::TestTaskSequential test_task_sequential(task_data);
   ASSERT_TRUE(test_task_sequential.Validation());
   ASSERT_TRUE(test_task_sequential.PreProcessing());
   ASSERT_TRUE(test_task_sequential.Run());
   ASSERT_TRUE(test_task_sequential.PostProcessing());
 
-  for (int i = 0; i < m * n; ++i) {
-    if (in[i] == 1) {
-      EXPECT_GT(out[i], 0);
-    } else {
-      EXPECT_EQ(out[i], 0);
-    }
-  }
+  naumov_b_marc_test_utils::VerifyBinaryOutput(in, out);
 }
 
 TEST(naumov_b_marc_on_bin_image_seq, RandomLargeMatrix) {
-  const int m = 100;
-  const int n = 100;
+  constexpr int m = 100;
+  constexpr int n = 100;
 
   auto in = naumov_b_marc_on_bin_image_seq::GenerateRandomBinaryMatrix(m, n, 0.3);
   std::vector<int> out(m * n, 0);
 
-  auto task_data_seq = std::make_shared<ppc::core::TaskData>();
-  task_data_seq->inputs.emplace_back(reinterpret_cast<uint8_t *>(in.data()));
-  task_data_seq->inputs_count.emplace_back(m);
-  task_data_seq->inputs_count.emplace_back(n);
-  task_data_seq->outputs.emplace_back(reinterpret_cast<uint8_t *>(out.data()));
-  task_data_seq->outputs_count.emplace_back(m);
-  task_data_seq->outputs_count.emplace_back(n);
+  auto task_data = std::make_shared<ppc::core::TaskData>();
+  task_data->inputs.emplace_back(reinterpret_cast<uint8_t *>(in.data()));
+  task_data->inputs_count.emplace_back(m);
+  task_data->inputs_count.emplace_back(n);
+  task_data->outputs.emplace_back(reinterpret_cast<uint8_t *>(out.data()));
+  task_data->outputs_count.emplace_back(m);
+  task_data->outputs_count.emplace_back(n);
 
-  naumov_b_marc_on_bin_image_seq::TestTaskSequential test_task_sequential(task_data_seq);
-
+  naumov_b_marc_on_bin_image_seq::TestTaskSequential test_task_sequential(task_data);
   ASSERT_TRUE(test_task_sequential.Validation());
   ASSERT_TRUE(test_task_sequential.PreProcessing());
   ASSERT_TRUE(test_task_sequential.Run());
   ASSERT_TRUE(test_task_sequential.PostProcessing());
 
-  for (int i = 0; i < m; ++i) {
-    for (int j = 0; j < n; ++j) {
-      if (in[i * n + j] == 1) {
-        if (i > 0 && in[(i - 1) * n + j] == 1) {
-          EXPECT_EQ(out[i * n + j], out[(i - 1) * n + j]);
-        }
-        if (j > 0 && in[i * n + (j - 1)] == 1) {
-          EXPECT_EQ(out[i * n + j], out[i * n + (j - 1)]);
-        }
-      }
-    }
-  }
+  naumov_b_marc_test_utils::VerifyNeighborConsistency(in, out, m, n);
 }
 
 TEST(naumov_b_marc_on_bin_image_seq, RandomSparseMatrix) {

@@ -5,6 +5,11 @@
 
 #include "core/task/include/task.hpp"
 
+namespace naumov_b_marc_test_utils {
+void VerifyBinaryOutput(const std::vector<int>& in, const std::vector<int>& out);
+void VerifyNeighborConsistency(const std::vector<int>& in, const std::vector<int>& out, int m, int n);
+}  // namespace naumov_b_marc_test_utils
+
 namespace naumov_b_marc_on_bin_image_seq {
 
 std::vector<int> GenerateRandomBinaryMatrix(int rows, int cols, double probability = 0.5);
