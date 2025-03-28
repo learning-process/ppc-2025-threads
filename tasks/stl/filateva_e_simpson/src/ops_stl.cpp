@@ -51,12 +51,9 @@ double filateva_e_simpson_stl::Simpson::IntegralFunc(unsigned long start, unsign
       param[m] = a_[m] + h_[m] * static_cast<double>(shag_i);
 
       if (shag_i == 0 || shag_i == steps_) {
-        weight *= 1.0;
-      } else if (shag_i % 2 == 1) {
-        weight *= 4.0;
-      } else {
-        weight *= 2.0;
+        continue;
       }
+      weight *= (2.0 + static_cast<double>(shag_i % 2) * 2);
     }
 
     local_res += weight * f_(param);

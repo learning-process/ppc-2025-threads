@@ -292,6 +292,28 @@ TEST(filateva_e_simpson_stl, test_error_1) {
   ASSERT_FALSE(simpson.Validation());
 }
 
+TEST(filateva_e_simpson_stl, test_error_n_mer) {
+  size_t mer = 3;
+  size_t steps = 100;
+  std::vector<double> a = {0, 0, 10};
+  std::vector<double> b = {10, 10, 0};
+  std::vector<double> res(1, 0);
+  filateva_e_simpson_stl::Func f = [](std::vector<double> x) { return x[0] * x[0]; };
+
+  auto task_data = std::make_shared<ppc::core::TaskData>();
+  task_data->inputs.emplace_back(reinterpret_cast<uint8_t *>(a.data()));
+  task_data->inputs.emplace_back(reinterpret_cast<uint8_t *>(b.data()));
+  task_data->inputs.emplace_back(reinterpret_cast<uint8_t *>(f));
+  task_data->inputs_count.emplace_back(mer);
+  task_data->inputs_count.emplace_back(steps);
+
+  task_data->outputs.emplace_back(reinterpret_cast<uint8_t *>(res.data()));
+  task_data->outputs_count.emplace_back(1);
+
+  filateva_e_simpson_stl::Simpson simpson(task_data);
+  ASSERT_FALSE(simpson.Validation());
+}
+
 TEST(filateva_e_simpson_stl, test_error_2) {
   size_t mer = 1;
   size_t steps = 101;
@@ -395,4 +417,57 @@ TEST(filateva_e_simpson_stl, test_sin_x_cos_y) {
   simpson.PostProcessing();
 
   ASSERT_NEAR(res[0], 2, 0.01);
+}
+
+TEST(filateva_e_simpson_stl, test_sum_integral_x_y) {
+  size_t mer = 2;
+  size_t steps = 100;
+  std::vector<double> a = {0, 0};
+  std::vector<double> b = {10, 10};
+  std::vector<double> res(1, 0);
+  filateva_e_simpson_stl::Func f = [](std::vector<double> per) { return pow(per[0], 3) + pow(per[1], 2) + per[0]; };
+
+  auto task_data = std::make_shared<ppc::core::TaskData>();
+  task_data->inputs.emplace_back(reinterpret_cast<uint8_t *>(a.data()));
+  task_data->inputs.emplace_back(reinterpret_cast<uint8_t *>(b.data()));
+  task_data->inputs.emplace_back(reinterpret_cast<uint8_t *>(f));
+  task_data->inputs_count.emplace_back(mer);
+  task_data->inputs_count.emplace_back(steps);
+
+  task_data->outputs.emplace_back(reinterpret_cast<uint8_t *>(res.data()));
+  task_data->outputs_count.emplace_back(1);
+  filateva_e_simpson_stl::Simpson simpson(task_data);
+  ASSERT_TRUE(simpson.Validation());
+  simpson.PreProcessing();
+  simpson.Run();
+  simpson.PostProcessing();
+
+  ASSERT_NEAR(res[0], 28833.33, 0.01);
+}
+
+TEST(filateva_e_simpson_stl, test_x_y_negative) {
+  size_t mer = 2;
+  size_t steps = 100;
+  std::vector<double> a = {-10, -10};
+  std::vector<double> b = {10, 10};
+  std::vector<double> res(1, 0);
+  filateva_e_simpson_stl::Func f = [](std::vector<double> param) { return param[0] + param[1]; };
+
+  auto task_data = std::make_shared<ppc::core::TaskData>();
+  task_data->inputs.emplace_back(reinterpret_cast<uint8_t *>(a.data()));
+  task_data->inputs.emplace_back(reinterpret_cast<uint8_t *>(b.data()));
+  task_data->inputs.emplace_back(reinterpret_cast<uint8_t *>(f));
+  task_data->inputs_count.emplace_back(mer);
+  task_data->inputs_count.emplace_back(steps);
+
+  task_data->outputs.emplace_back(reinterpret_cast<uint8_t *>(res.data()));
+  task_data->outputs_count.emplace_back(1);
+
+  filateva_e_simpson_stl::Simpson simpson(task_data);
+  ASSERT_TRUE(simpson.Validation());
+  simpson.PreProcessing();
+  simpson.Run();
+  simpson.PostProcessing();
+
+  ASSERT_NEAR(res[0], 0, 0.01);
 }
