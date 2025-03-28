@@ -8,7 +8,7 @@
 #include <mutex>
 #include <queue>
 #include <thread>
-#include <utility> 
+#include <utility>
 #include <vector>
 
 const int plekhanov_d_dijkstra_stl::TestTaskSTL::kEndOfVertexList = -1;
@@ -31,7 +31,7 @@ bool plekhanov_d_dijkstra_stl::TestTaskSTL::PreProcessingImpl() {
 
 bool plekhanov_d_dijkstra_stl::TestTaskSTL::ValidationImpl() {
   return !task_data->inputs_count.empty() && task_data->inputs_count[0] > 0 && !task_data->outputs_count.empty() &&
-          task_data->outputs_count[0] > 0;
+         task_data->outputs_count[0] > 0;
 }
 
 bool plekhanov_d_dijkstra_stl::TestTaskSTL::RunImpl() {  // NOLINT(readability-function-cognitive-complexity)
@@ -71,7 +71,9 @@ bool plekhanov_d_dijkstra_stl::TestTaskSTL::RunImpl() {  // NOLINT(readability-f
 
   while (!pq.empty()) {
     pq_mutex.lock();
-    auto [dist, u] = pq.top();
+    auto topElement = pq.top();
+    int dist = topElement.first;
+    int u = topElement.second;
     pq.pop();
     pq_mutex.unlock();
 
