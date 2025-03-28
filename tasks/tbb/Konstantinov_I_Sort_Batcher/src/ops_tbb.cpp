@@ -4,6 +4,7 @@
 #include <tbb/parallel_for.h>
 #include <tbb/parallel_invoke.h>
 #include <tbb/tbb.h>
+
 #include <algorithm>
 #include <atomic>
 #include <cmath>
