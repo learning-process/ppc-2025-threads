@@ -12,6 +12,8 @@
 #include <utility>
 #include <vector>
 
+#include "core/util/include/util.hpp"
+
 const int plekhanov_d_dijkstra_stl::TestTaskSTL::kEndOfVertexList = -1;
 
 bool plekhanov_d_dijkstra_stl::TestTaskSTL::PreProcessingImpl() {
@@ -68,7 +70,7 @@ bool plekhanov_d_dijkstra_stl::TestTaskSTL::RunImpl() {  // NOLINT(readability-f
 
   std::mutex pq_mutex;
 
-  unsigned int num_threads = std::thread::hardware_concurrency();
+  unsigned int num_threads = ppc::util::GetPPCNumThreads();
 
   while (!pq.empty()) {
     pq_mutex.lock();
