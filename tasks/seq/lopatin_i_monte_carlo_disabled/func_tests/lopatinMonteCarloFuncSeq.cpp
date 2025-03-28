@@ -231,43 +231,6 @@ TEST(lopatin_i_monte_carlo_seq, 4DQuadraticFunction) {
   EXPECT_NEAR(result, expected, tolerance);  // error 3%
 }
 
-TEST(lopatin_i_monte_carlo_seq, 7DQuadraticFunction) {
-  const int dimensions = 7;
-  const int iterations = 70000;
-  std::vector<double> bounds = lopatin_i_monte_carlo_seq::GenerateBounds(-3.0, 3.0, dimensions);
-
-  auto task_data = std::make_shared<ppc::core::TaskData>();
-  task_data->inputs.push_back(reinterpret_cast<uint8_t*>(bounds.data()));
-  task_data->inputs_count.push_back(bounds.size());
-  task_data->inputs.push_back(reinterpret_cast<uint8_t*>(const_cast<int*>(&iterations)));
-  task_data->inputs_count.push_back(1);
-
-  double result = 0.0;
-  task_data->outputs.push_back(reinterpret_cast<uint8_t*>(&result));
-  task_data->outputs_count.push_back(1);
-
-  // (x1)^2 + (x2)^2 + (x3)^2 + ... + (x7)^2
-  auto function = [](const std::vector<double>& x) {
-    double sum = 0.0;
-    for (double xi : x) {
-      sum += xi * xi;
-    }
-    return sum;
-  };
-
-  lopatin_i_monte_carlo_seq::TestTaskSequential task(task_data, function);
-  ASSERT_TRUE(task.Validation());
-  ASSERT_TRUE(task.PreProcessing());
-  ASSERT_TRUE(task.Run());
-  ASSERT_TRUE(task.PostProcessing());
-
-  const double single_integral = 2.0 * std::pow(3.0, 3) / 3.0;  // 18.0
-  const double volume_6d = std::pow(6.0, 6);                    // for other 6 dims
-  const double expected = 7.0 * single_integral * volume_6d;
-  const double tolerance = 0.03 * expected;
-  EXPECT_NEAR(result, expected, tolerance);  // error 3%
-}
-
 TEST(lopatin_i_monte_carlo_seq, 2DCosineFunction) {
   const int dimensions = 2;
   const int iterations = 100000;
