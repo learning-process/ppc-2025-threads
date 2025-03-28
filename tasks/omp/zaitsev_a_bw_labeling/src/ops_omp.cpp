@@ -5,17 +5,13 @@
 #include <algorithm>
 #include <cmath>
 #include <cstdint>
-#include <iostream>
+#include <map>
 #include <numeric>
+#include <set>
 #include <vector>
 
 #include "core/util/include/util.hpp"
 #include "omp/zaitsev_a_bw_labeling/include/disjoint_set.hpp"
-
-#define DEBUG_THREADS false
-#define DEBUG_MIDLABELS false
-#define DEBUG_CHUNK false
-#define DEBUG_EQS false
 
 #ifndef _WIN32
 // NOLINTBEGIN(modernize-use-ranges)
@@ -40,10 +36,6 @@ bool zaitsev_a_labeling_omp::Labeler::ValidationImpl() {
          (task_data->outputs_count[0] == task_data->inputs_count[0] * task_data->inputs_count[1]);
 }
 
-void zaitsev_a_labeling_omp::Labeler::ComputeLabel(unsigned int i,
-                                                   std::map<std::uint16_t, std::set<std::uint16_t>>& eqs,
-                                                   std::uint16_t& current_label) {}
-
 void zaitsev_a_labeling_omp::Labeler::LabelingRasterScan(
     std::vector<std::map<std::uint16_t, std::set<std::uint16_t>>>& eqs, std::vector<std::uint16_t>& current_label) {
 #ifndef _WIN32
@@ -57,16 +49,7 @@ void zaitsev_a_labeling_omp::Labeler::LabelingRasterScan(
     std::uint32_t i_end = i_begin + chunk_;
     i_end = std::min(i_end, size_);
 
-    for (uint32_t i = i_begin; i < i_end; i++) {
-      if (DEBUG_THREADS) {
-#pragma omp critical
-        {
-          std::cout << std::endl
-                    << (int)id << " " << chunk_ << " " << i_begin << " : " << i_end << " "
-                    << ppc::util::GetPPCNumThreads();
-        }
-      }
-
+    for (uint32_t i = i_begin; i != i_end; i++) {
       if (image_[i] == 0) {
         continue;
       }
@@ -100,9 +83,6 @@ void zaitsev_a_labeling_omp::Labeler::LabelingRasterScan(
       }
     }
   }
-  if (DEBUG_CHUNK) {
-    std::cout << std::endl << "Chunk: " << chunk_ << std::endl;
-  }
 }
 
 void zaitsev_a_labeling_omp::Labeler::UniteChunks(zaitsev_a_disjoint_set::DisjointSet<uint16_t>& dsj,
@@ -117,7 +97,7 @@ void zaitsev_a_labeling_omp::Labeler::UniteChunks(zaitsev_a_disjoint_set::Disjoi
         continue;
       }
       uint16_t lower = labels_[pos];
-      for (long shift = -1; shift < 2; shift++) {
+      for (long shift = -1; shift != 2; shift++) {
         long neighbour_pos = std::clamp(pos + shift, start_pos, end_pos - 1) - width_;
         if (neighbour_pos < 0 || neighbour_pos >= static_cast<long>(size_) || labels_[neighbour_pos] == 0) {
           continue;
@@ -137,7 +117,7 @@ void zaitsev_a_labeling_omp::Labeler::CalculateReplacements(
 
   zaitsev_a_disjoint_set::DisjointSet<std::uint16_t> disjoint_labels(labels_amount + 1);
 
-  for (int i = 0; i < ppc::util::GetPPCNumThreads(); i++) {
+  for (int i = 0; i != ppc::util::GetPPCNumThreads(); i++) {
     for (auto& eqv : eqs[i]) {
       for (const auto& equal : eqv.second) {
         disjoint_labels.UnionRank(eqv.first + shift, equal + shift);
@@ -151,7 +131,7 @@ void zaitsev_a_labeling_omp::Labeler::CalculateReplacements(
   replacements.resize(labels_amount + 1);
   std::set<std::uint16_t> unique_labels;
 
-  for (std::uint16_t tmp_label = 1; tmp_label < labels_amount + 1; tmp_label++) {
+  for (std::uint16_t tmp_label = 1; tmp_label != labels_amount + 1; tmp_label++) {
     replacements[tmp_label] = disjoint_labels.FindParent(tmp_label);
     unique_labels.insert(replacements[tmp_label]);
   }
@@ -168,14 +148,14 @@ void zaitsev_a_labeling_omp::Labeler::CalculateReplacements(
 }
 
 void zaitsev_a_labeling_omp::Labeler::PerformReplacements(std::vector<std::uint16_t>& replacements) {
-  for (uint32_t i = 0; i < size_; i++) {
+  for (uint32_t i = 0; i != size_; i++) {
     labels_[i] = replacements[labels_[i]];
   }
 }
 
 void zaitsev_a_labeling_omp::Labeler::GlobalizeLabels(std::vector<std::uint16_t>& current_label) {
   uint16_t shift = 0;
-  for (uint32_t i = chunk_; i < size_; i++) {
+  for (uint32_t i = chunk_; i != size_; i++) {
     if (i % chunk_ == 0) {
       shift += current_label[(i / chunk_) - 1];
     }

@@ -27,9 +27,6 @@ class Labeler : public ppc::core::Task {
   unsigned int size_;
   long chunk_;
 
-  void GetNeighbours(unsigned int i, std::vector<std::uint16_t>& neighbours);
-  void ComputeLabel(unsigned int i, std::map<std::uint16_t, std::set<std::uint16_t>>& eqs,
-                    std::uint16_t& current_label);
   void LabelingRasterScan(std::vector<std::map<std::uint16_t, std::set<std::uint16_t>>>& eqs,
                           std::vector<std::uint16_t>& current_labels);
   void CalculateReplacements(std::vector<std::uint16_t>& replacements,
