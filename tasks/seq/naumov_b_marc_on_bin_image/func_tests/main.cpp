@@ -2,6 +2,7 @@
 
 #include <cstdint>
 #include <memory>
+#include <random>
 #include <vector>
 
 #include "core/task/include/task.hpp"
@@ -365,4 +366,136 @@ TEST(naumov_b_marc_on_bin_image_seq, large3) {
   test_task_sequential.Run();
   test_task_sequential.PostProcessing();
   EXPECT_EQ(in, out);
+}
+
+TEST(naumov_b_marc_on_bin_image_seq, RandomSmallMatrix) {
+  const int m = 10;
+  const int n = 10;
+
+  auto in = naumov_b_marc_on_bin_image_seq::GenerateRandomBinaryMatrix(m, n);
+  std::vector<int> out(m * n, 0);
+
+  auto task_data_seq = std::make_shared<ppc::core::TaskData>();
+  task_data_seq->inputs.emplace_back(reinterpret_cast<uint8_t *>(in.data()));
+  task_data_seq->inputs_count.emplace_back(m);
+  task_data_seq->inputs_count.emplace_back(n);
+  task_data_seq->outputs.emplace_back(reinterpret_cast<uint8_t *>(out.data()));
+  task_data_seq->outputs_count.emplace_back(m);
+  task_data_seq->outputs_count.emplace_back(n);
+
+  naumov_b_marc_on_bin_image_seq::TestTaskSequential test_task_sequential(task_data_seq);
+
+  ASSERT_TRUE(test_task_sequential.Validation());
+  ASSERT_TRUE(test_task_sequential.PreProcessing());
+  ASSERT_TRUE(test_task_sequential.Run());
+  ASSERT_TRUE(test_task_sequential.PostProcessing());
+
+  for (int i = 0; i < m * n; ++i) {
+    if (in[i] == 1) {
+      EXPECT_GT(out[i], 0);
+    } else {
+      EXPECT_EQ(out[i], 0);
+    }
+  }
+}
+
+TEST(naumov_b_marc_on_bin_image_seq, RandomLargeMatrix) {
+  const int m = 100;
+  const int n = 100;
+
+  auto in = naumov_b_marc_on_bin_image_seq::GenerateRandomBinaryMatrix(m, n, 0.3);
+  std::vector<int> out(m * n, 0);
+
+  auto task_data_seq = std::make_shared<ppc::core::TaskData>();
+  task_data_seq->inputs.emplace_back(reinterpret_cast<uint8_t *>(in.data()));
+  task_data_seq->inputs_count.emplace_back(m);
+  task_data_seq->inputs_count.emplace_back(n);
+  task_data_seq->outputs.emplace_back(reinterpret_cast<uint8_t *>(out.data()));
+  task_data_seq->outputs_count.emplace_back(m);
+  task_data_seq->outputs_count.emplace_back(n);
+
+  naumov_b_marc_on_bin_image_seq::TestTaskSequential test_task_sequential(task_data_seq);
+
+  ASSERT_TRUE(test_task_sequential.Validation());
+  ASSERT_TRUE(test_task_sequential.PreProcessing());
+  ASSERT_TRUE(test_task_sequential.Run());
+  ASSERT_TRUE(test_task_sequential.PostProcessing());
+
+  for (int i = 0; i < m; ++i) {
+    for (int j = 0; j < n; ++j) {
+      if (in[i * n + j] == 1) {
+        if (i > 0 && in[(i - 1) * n + j] == 1) {
+          EXPECT_EQ(out[i * n + j], out[(i - 1) * n + j]);
+        }
+        if (j > 0 && in[i * n + (j - 1)] == 1) {
+          EXPECT_EQ(out[i * n + j], out[i * n + (j - 1)]);
+        }
+      }
+    }
+  }
+}
+
+TEST(naumov_b_marc_on_bin_image_seq, RandomSparseMatrix) {
+  const int m = 50;
+  const int n = 50;
+
+  auto in = naumov_b_marc_on_bin_image_seq::GenerateSparseBinaryMatrix(m, n);
+  std::vector<int> out(m * n, 0);
+
+  auto task_data_seq = std::make_shared<ppc::core::TaskData>();
+  task_data_seq->inputs.emplace_back(reinterpret_cast<uint8_t *>(in.data()));
+  task_data_seq->inputs_count.emplace_back(m);
+  task_data_seq->inputs_count.emplace_back(n);
+  task_data_seq->outputs.emplace_back(reinterpret_cast<uint8_t *>(out.data()));
+  task_data_seq->outputs_count.emplace_back(m);
+  task_data_seq->outputs_count.emplace_back(n);
+
+  naumov_b_marc_on_bin_image_seq::TestTaskSequential test_task_sequential(task_data_seq);
+
+  ASSERT_TRUE(test_task_sequential.Validation());
+  ASSERT_TRUE(test_task_sequential.PreProcessing());
+  ASSERT_TRUE(test_task_sequential.Run());
+  ASSERT_TRUE(test_task_sequential.PostProcessing());
+
+  std::set<int> unique_labels;
+  for (int val : out) {
+    if (val > 0) {
+      unique_labels.insert(val);
+    }
+  }
+
+  const size_t ones_count = static_cast<size_t>(std::count(in.begin(), in.end(), 1));
+  EXPECT_GE(unique_labels.size(), static_cast<size_t>(ones_count * 0.6));
+}
+
+TEST(naumov_b_marc_on_bin_image_seq, RandomDenseMatrix) {
+  const int m = 20;
+  const int n = 20;
+
+  auto in = naumov_b_marc_on_bin_image_seq::GenerateDenseBinaryMatrix(m, n);
+  std::vector<int> out(m * n, 0);
+
+  auto task_data_seq = std::make_shared<ppc::core::TaskData>();
+  task_data_seq->inputs.emplace_back(reinterpret_cast<uint8_t *>(in.data()));
+  task_data_seq->inputs_count.emplace_back(m);
+  task_data_seq->inputs_count.emplace_back(n);
+  task_data_seq->outputs.emplace_back(reinterpret_cast<uint8_t *>(out.data()));
+  task_data_seq->outputs_count.emplace_back(m);
+  task_data_seq->outputs_count.emplace_back(n);
+
+  naumov_b_marc_on_bin_image_seq::TestTaskSequential test_task_sequential(task_data_seq);
+
+  ASSERT_TRUE(test_task_sequential.Validation());
+  ASSERT_TRUE(test_task_sequential.PreProcessing());
+  ASSERT_TRUE(test_task_sequential.Run());
+  ASSERT_TRUE(test_task_sequential.PostProcessing());
+
+  std::set<int> unique_labels;
+  for (int val : out) {
+    if (val > 0) {
+      unique_labels.insert(val);
+    }
+  }
+
+  EXPECT_LE(unique_labels.size(), static_cast<size_t>(5));
 }

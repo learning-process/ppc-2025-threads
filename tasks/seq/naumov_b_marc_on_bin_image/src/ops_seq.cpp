@@ -2,7 +2,28 @@
 
 #include <algorithm>
 #include <cstddef>
+#include <random>
 #include <vector>
+
+std::vector<int> naumov_b_marc_on_bin_image_seq::GenerateRandomBinaryMatrix(int rows, int cols, double probability) {
+  std::random_device rd;
+  std::mt19937 gen(rd());
+  std::uniform_real_distribution<> distrib(0.0, 1.0);
+
+  std::vector<int> matrix(rows * cols);
+  for (int i = 0; i < rows * cols; ++i) {
+    matrix[i] = (distrib(gen) < probability) ? 1 : 0;
+  }
+  return matrix;
+}
+
+std::vector<int> naumov_b_marc_on_bin_image_seq::GenerateSparseBinaryMatrix(int rows, int cols, double probability) {
+  return GenerateRandomBinaryMatrix(rows, cols, probability);
+}
+
+std::vector<int> naumov_b_marc_on_bin_image_seq::GenerateDenseBinaryMatrix(int rows, int cols, double probability) {
+  return GenerateRandomBinaryMatrix(rows, cols, probability);
+}
 
 void naumov_b_marc_on_bin_image_seq::TestTaskSequential::ProcessPixel(int row, int col) {
   std::vector<int> neighbors = FindAdjacentLabels(row, col);
