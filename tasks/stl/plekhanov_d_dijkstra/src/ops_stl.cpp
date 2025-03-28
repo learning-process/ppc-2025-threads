@@ -71,9 +71,9 @@ bool plekhanov_d_dijkstra_stl::TestTaskSTL::RunImpl() {  // NOLINT(readability-f
 
   while (!pq.empty()) {
     pq_mutex.lock();
-    auto topElement = pq.top();
-    int dist = topElement.first;
-    int u = topElement.second;
+    auto top_element = pq.top();
+    int dist = top_element.first;
+    int u = top_element.second;
     pq.pop();
     pq_mutex.unlock();
 
