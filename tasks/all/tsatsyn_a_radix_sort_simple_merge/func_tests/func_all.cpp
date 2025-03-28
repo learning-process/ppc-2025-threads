@@ -231,6 +231,7 @@ TEST(tsatsyn_a_radix_sort_simple_merge_all, pozitive_double_10) {
 //    EXPECT_EQ(in, out);
 //  }
 //}
+
 TEST(tsatsyn_a_radix_sort_simple_merge_all, mix_double_10) {
   // Create data
   boost::mpi::communicator world;
