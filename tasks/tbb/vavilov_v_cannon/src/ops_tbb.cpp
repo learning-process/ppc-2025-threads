@@ -59,11 +59,11 @@ void vavilov_v_cannon_tbb::CannonTBB::BlockMultiply() {
                             for (int j = bj; j < bj + block_size_ && j < N_; ++j) {
                               double temp = 0.0;
                               for (int k = 0; k < block_size_ && (bi + k) < N_; ++k) {
-                                int row_a = i;         // Упрощено: bi + (i - bi) = i
+                                int row_a = i;
                                 int col_a = bj + k;
                                 int row_b = bi + k;
-                                int col_b = j;         // Упрощено: bj + (j - bj) = j
-                                if (col_a < N_) {      // Проверка для A_
+                                int col_b = j;
+                                if (col_a < N_) {
                                   temp += A_[row_a * N_ + col_a] * B_[row_b * N_ + col_b];
                                 }
                               }
