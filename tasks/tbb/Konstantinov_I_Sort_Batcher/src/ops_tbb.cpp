@@ -12,6 +12,10 @@
 #include <cstdint>
 #include <cstring>
 #include <vector>
+#include <core/util/include/util.hpp>
+
+#include "oneapi/tbb/task_arena.h"
+#include "oneapi/tbb/task_group.h"
 
 namespace konstantinov_i_sort_batcher_tbb {
 namespace {
