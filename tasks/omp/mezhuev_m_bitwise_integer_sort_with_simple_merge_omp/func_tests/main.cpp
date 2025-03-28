@@ -227,3 +227,33 @@ TEST(mezhuev_m_bitwise_integer_sort_omp, test_sort_single_negative_number) {
 
   EXPECT_EQ(output, expected_output);
 }
+
+TEST(mezhuev_m_bitwise_integer_sort_omp, test_validation_fails_due_to_mismatched_sizes) {
+  std::vector<int> input = {5, 3, 8, 1, 4};
+  std::vector<int> output(input.size() + 1, 0);
+
+  auto task_data_omp = std::make_shared<ppc::core::TaskData>();
+  task_data_omp->inputs.emplace_back(reinterpret_cast<uint8_t *>(input.data()));
+  task_data_omp->inputs_count.emplace_back(input.size());
+  task_data_omp->outputs.emplace_back(reinterpret_cast<uint8_t *>(output.data()));
+  task_data_omp->outputs_count.emplace_back(output.size());
+
+  mezhuev_m_bitwise_integer_sort_omp::SortOpenMP test_task_omp(task_data_omp);
+
+  ASSERT_FALSE(test_task_omp.Validation());
+}
+
+TEST(mezhuev_m_bitwise_integer_sort_omp, test_validation_fails_due_to_empty_outputs) {
+  std::vector<int> input = {5, 3, 8, 1, 4};
+  std::vector<int> output;
+
+  auto task_data_omp = std::make_shared<ppc::core::TaskData>();
+  task_data_omp->inputs.emplace_back(reinterpret_cast<uint8_t *>(input.data()));
+  task_data_omp->inputs_count.emplace_back(input.size());
+  task_data_omp->outputs.emplace_back(reinterpret_cast<uint8_t *>(output.data()));
+  task_data_omp->outputs_count.emplace_back(output.size());
+
+  mezhuev_m_bitwise_integer_sort_omp::SortOpenMP test_task_omp(task_data_omp);
+
+  ASSERT_FALSE(test_task_omp.Validation());
+}
