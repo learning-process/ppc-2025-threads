@@ -4,10 +4,10 @@
 
 #include <cmath>
 #include <core/util/include/util.hpp>
+#include <memory>
 #include <cstddef>
 #include <vector>
 
-#include "oneapi/tbb/parallel_for.h"
 #include "oneapi/tbb/task_arena.h"
 #include "oneapi/tbb/task_group.h"
 
@@ -35,47 +35,53 @@ bool titov_s_image_filter_horiz_gaussian3x3_tbb::ImageFilterTBB::ValidationImpl(
   return task_data->inputs_count[0] == task_data->outputs_count[0];
 }
 
+namespace {
+void ProcessPixel(int row, int col, int width, const std::vector<double> &input, std::vector<double> &output, double k0,
+                  double k1, double k2, double inv_sum) {
+  const double left = (col > 0) ? input[(row * width) + (col - 1)] : 0.0;
+  const double center = input[(row * width) + col];
+  const double right = (col < width - 1) ? input[(row * width) + (col + 1)] : 0.0;
+
+  output[(row * width) + col] = ((left * k0) + (center * k1) + (right * k2)) * inv_sum;
+}
+}  // namespace
+
 bool titov_s_image_filter_horiz_gaussian3x3_tbb::ImageFilterTBB::RunImpl() {
-  const double k0 = static_cast<double>(kernel_[0]);
-  const double k1 = static_cast<double>(kernel_[1]);
-  const double k2 = static_cast<double>(kernel_[2]);
-  const double sum = k0 + k1 + k2;
+  if (kernel_.size() < 3) return false;
+
+  const auto k0 = static_cast<double>(kernel_[0]);
+  const auto k1 = static_cast<double>(kernel_[1]);
+  const auto k2 = static_cast<double>(kernel_[2]);
+  const double sum = (k0 + k1) + k2;
+
+  if (sum == 0.0) return false;
+  const double inv_sum = 1.0 / sum;
 
   oneapi::tbb::task_arena arena(ppc::util::GetPPCNumThreads());
 
   arena.execute([&] {
     tbb::task_group tg;
-
     const int threads_num = ppc::util::GetPPCNumThreads();
-    const int rows_per_thread = height_ / threads_num;
-    const int remainder_rows = height_ % threads_num;
+    const int total_rows = height_;
+    const int base_chunk = total_rows / threads_num;
+    const int remainder = total_rows % threads_num;
 
-    int start_row = 0;
+    int start = 0;
     for (int i = 0; i < threads_num; ++i) {
-      const int end_row = start_row + rows_per_thread + (i < remainder_rows ? 1 : 0);
+      const int end = start + base_chunk + (i < remainder ? 1 : 0);
+      if (start >= end) continue;
 
-      if (start_row < end_row) {
-        tg.run([=, &input_ = input_, &output_ = output_, this] {
-          for (int row = start_row; row < end_row; ++row) {
-            for (int col = 0; col < width_; ++col) {
-              double left_val = (col > 0) ? input_[row * width_ + (col - 1)] : 0.0;
-
-              double center_val = input_[row * width_ + col];
-
-              double right_val = (col < width_ - 1) ? input_[row * width_ + (col + 1)] : 0.0;
-
-              double val = left_val * k0 + center_val * k1 + right_val * k2;
-              output_[row * width_ + col] = val / sum;
-            }
+      tg.run([=, &input = input_, &output = output_, this] {
+        for (int row = start; row < end; ++row) {
+          for (int col = 0; col < width_; ++col) {
+            ProcessPixel(row, col, width_, input, output, k0, k1, k2, inv_sum);
           }
-        });
-      }
-      start_row = end_row;
+        }
+      });
+      start = end;
     }
-
     tg.wait();
   });
-
   return true;
 }
 
