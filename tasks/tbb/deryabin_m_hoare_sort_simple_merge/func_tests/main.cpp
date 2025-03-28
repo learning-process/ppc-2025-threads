@@ -44,8 +44,6 @@ TEST(deryabin_m_hoare_sort_simple_merge_tbb, test_random_array) {
 
 TEST(deryabin_m_hoare_sort_simple_merge_tbb, test_double_reverse_array) {
   // Create data
-  std::random_device rd;
-  std::mt19937 gen(rd());
   std::vector<double> input_array(800);
   const auto half = input_array.size() / 2U;
   std::ranges::generate(input_array.begin(), input_array.end() - (long)half,
@@ -231,10 +229,8 @@ TEST(deryabin_m_hoare_sort_simple_merge_tbb, test_random_array_large_pieces) {
   ASSERT_EQ(true_solution, out_array[0]);
 }
 
-TEST(deryabin_m_hoare_sort_simple_merge_tbb, test_random_array_large_pieces_reversed_order) {
+TEST(deryabin_m_hoare_sort_simple_merge_tbb, test_array_large_pieces_reversed_order) {
   // Create data
-  std::random_device rd;
-  std::mt19937 gen(rd());
   std::vector<double> input_array(800);
   std::ranges::generate(input_array.begin(), input_array.end(), [value = 800]() mutable { return value--; });
   std::vector<std::vector<double>> in_array(1, input_array);
