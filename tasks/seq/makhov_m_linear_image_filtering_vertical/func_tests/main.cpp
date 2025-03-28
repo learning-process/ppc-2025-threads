@@ -9,7 +9,6 @@
 #include "core/task/include/task.hpp"
 #include "seq/makhov_m_linear_image_filtering_vertical/include/ops_seq.hpp"
 
-
 TEST(makhov_m_linear_image_filtering_vertical_seq, test_synthetic_image_3x3) {
   int width = 3;
   int height = 3;

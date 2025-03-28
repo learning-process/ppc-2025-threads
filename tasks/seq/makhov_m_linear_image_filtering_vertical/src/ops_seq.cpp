@@ -9,8 +9,8 @@
 
 bool makhov_m_linear_image_filtering_vertical_seq::TaskSequential::PreProcessingImpl() {
   // Init value for input, output, kernel
-  width_ = task_data->inputs_count[0];
-  height_ = task_data->inputs_count[1];
+  width_ = (int)(task_data->inputs_count[0]);
+  height_ = (int)(task_data->inputs_count[1]);
   input_size_ = width_ * height_ * 3;
   auto *in_ptr = reinterpret_cast<uint8_t *>(task_data->inputs[0]);
   input_.assign(in_ptr, in_ptr + input_size_);
@@ -44,7 +44,7 @@ bool makhov_m_linear_image_filtering_vertical_seq::TaskSequential::PostProcessin
 void makhov_m_linear_image_filtering_vertical_seq::TaskSequential::ApplyHorizontalGaussian(
     const std::vector<uint8_t> &src, std::vector<uint8_t> &dst, int width, int height,
     const std::vector<float> &kernel) {
-  const int kernel_radius = kernel.size() / 2;
+  const int kernel_radius = (int)(kernel.size() / 2);
   const int channels = 3;  // RGB = 3 канала
 
   for (int y = 0; y < height; ++y) {
@@ -75,7 +75,7 @@ void makhov_m_linear_image_filtering_vertical_seq::TaskSequential::ApplyHorizont
 void makhov_m_linear_image_filtering_vertical_seq::TaskSequential::ApplyVerticalGaussian(
     const std::vector<uint8_t> &src, std::vector<uint8_t> &dst, int width, int height,
     const std::vector<float> &kernel) {
-  const int kernel_radius = kernel.size() / 2;
+  const int kernel_radius = (int)(kernel.size() / 2);
   const int channels = 3;  // RGB = 3 канала
 
   for (int x = 0; x < width; ++x) {
