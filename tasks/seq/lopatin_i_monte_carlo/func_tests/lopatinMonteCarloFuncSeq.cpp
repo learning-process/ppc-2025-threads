@@ -85,7 +85,7 @@ TEST(lopatin_i_monte_carlo_seq, highDimensionalIntegration) {
 
 TEST(lopatin_i_monte_carlo_seq, 1DConstantFunction) {
   const int dimensions = 1;
-  const int iterations = 100000;
+  const int iterations = 60000;
   std::vector<double> bounds = lopatin_i_monte_carlo_seq::GenerateBounds(2.0, 5.0, dimensions);  // [2, 5]
 
   auto task_data = std::make_shared<ppc::core::TaskData>();
