@@ -1,6 +1,5 @@
 #pragma once
 
-#include <cstddef>
 #include <cstdint>
 #include <utility>
 #include <vector>
@@ -16,18 +15,18 @@ class TaskSequential : public ppc::core::Task {
   bool ValidationImpl() override;
   bool RunImpl() override;
   bool PostProcessingImpl() override;
-  static void applyHorizontalGaussian(const std::vector<uint8_t> &src, std::vector<uint8_t> &dst, int width, int height,
+  static void ApplyHorizontalGaussian(const std::vector<uint8_t> &src, std::vector<uint8_t> &dst, int width, int height,
                                       const std::vector<float> &kernel);
-  static void applyVerticalGaussian(const std::vector<uint8_t> &src, std::vector<uint8_t> &dst, int width, int height,
+  static void ApplyVerticalGaussian(const std::vector<uint8_t> &src, std::vector<uint8_t> &dst, int width, int height,
                                     const std::vector<float> &kernel);
 
  private:
   std::vector<uint8_t> input_;
   std::vector<uint8_t> output_;
   std::vector<float> kernel_;
-  std::size_t height_;
-  std::size_t width_;
-  std::size_t input_size_;
+  int height_;
+  int width_;
+  int input_size_;
 };
 
 }  // namespace makhov_m_linear_image_filtering_vertical_seq

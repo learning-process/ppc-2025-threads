@@ -2,15 +2,13 @@
 
 #include <cstddef>
 #include <cstdint>
-#include <fstream>
 #include <memory>
 #include <opencv2/opencv.hpp>
-#include <string>
 #include <vector>
 
 #include "core/task/include/task.hpp"
-#include "core/util/include/util.hpp"
 #include "seq/makhov_m_linear_image_filtering_vertical/include/ops_seq.hpp"
+
 
 TEST(makhov_m_linear_image_filtering_vertical_seq, test_synthetic_image_3x3) {
   int width = 3;
@@ -58,7 +56,9 @@ TEST(makhov_m_linear_image_filtering_vertical_seq, test_synthetic_image_10x10) {
   // Gauss blur imitation for RGB
   for (int y = 1; y < height - 1; ++y) {
     for (int x = 1; x < width - 1; ++x) {
-      int sum_r = 0, sum_g = 0, sum_b = 0;
+      int sum_r = 0;
+      int sum_g = 0;
+      int sum_b = 0;
 
       // Проход по окрестности 3x3
       for (int ky = -1; ky <= 1; ++ky) {

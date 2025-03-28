@@ -12,7 +12,7 @@
 #include "seq/makhov_m_linear_image_filtering_vertical/include/ops_seq.hpp"
 
 namespace {
-std::vector<uint8_t> generateRandomImage(int height, int width) {
+std::vector<uint8_t> GenerateRandomImage(int height, int width) {
   std::random_device rd;
   std::mt19937 gen(rd());
   std::uniform_int_distribution<> dis(0, 255);
@@ -30,13 +30,15 @@ std::vector<uint8_t> generateRandomImage(int height, int width) {
 TEST(makhov_m_linear_image_filtering_vertical_seq, test_pipeline_run) {
   int width = 1000;
   int height = 1000;
-  std::vector<uint8_t> input_image = generateRandomImage(height, width);
+  std::vector<uint8_t> input_image = GenerateRandomImage(height, width);
   std::vector<uint8_t> output_image(width * height * 3, 0);
   std::vector<uint8_t> reference_image(input_image);
   // Gauss blur imitation for RGB
   for (int y = 1; y < height - 1; ++y) {
     for (int x = 1; x < width - 1; ++x) {
-      int sum_r = 0, sum_g = 0, sum_b = 0;
+      int sum_r = 0;
+      int sum_g = 0;
+      int sum_b = 0;
 
       // Проход по окрестности 3x3
       for (int ky = -1; ky <= 1; ++ky) {
@@ -97,13 +99,15 @@ TEST(makhov_m_linear_image_filtering_vertical_seq, test_pipeline_run) {
 TEST(makhov_m_linear_image_filtering_vertical_seq, test_task_run) {
   int width = 1000;
   int height = 1000;
-  std::vector<uint8_t> input_image = generateRandomImage(height, width);
+  std::vector<uint8_t> input_image = GenerateRandomImage(height, width);
   std::vector<uint8_t> output_image(width * height * 3, 0);
   std::vector<uint8_t> reference_image(input_image);
   // Gauss blur imitation for RGB
   for (int y = 1; y < height - 1; ++y) {
     for (int x = 1; x < width - 1; ++x) {
-      int sum_r = 0, sum_g = 0, sum_b = 0;
+      int sum_r = 0;
+      int sum_g = 0;
+      int sum_b = 0;
 
       // Проход по окрестности 3x3
       for (int ky = -1; ky <= 1; ++ky) {

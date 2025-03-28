@@ -21,17 +21,15 @@ bool makhov_m_linear_image_filtering_vertical_seq::TaskSequential::PreProcessing
 
 bool makhov_m_linear_image_filtering_vertical_seq::TaskSequential::ValidationImpl() {
   // Check equality of counts elements
-  if ((task_data->inputs_count[0] * task_data->inputs_count[1] * 3 >= 27) &&
-      ((task_data->inputs_count[0] * task_data->inputs_count[1] * 3) == task_data->outputs_count[0]))
-    return true;
-  return false;
+  return ((task_data->inputs_count[0] * task_data->inputs_count[1] * 3 >= 27) &&
+          ((task_data->inputs_count[0] * task_data->inputs_count[1] * 3) == task_data->outputs_count[0]));
 }
 
 bool makhov_m_linear_image_filtering_vertical_seq::TaskSequential::RunImpl() {
   std::vector<uint8_t> temp(input_size_);
-  makhov_m_linear_image_filtering_vertical_seq::TaskSequential::applyVerticalGaussian(input_, temp, width_, height_,
+  makhov_m_linear_image_filtering_vertical_seq::TaskSequential::ApplyVerticalGaussian(input_, temp, width_, height_,
                                                                                       kernel_);
-  makhov_m_linear_image_filtering_vertical_seq::TaskSequential::applyHorizontalGaussian(temp, output_, width_, height_,
+  makhov_m_linear_image_filtering_vertical_seq::TaskSequential::ApplyHorizontalGaussian(temp, output_, width_, height_,
                                                                                         kernel_);
   return true;
 }
@@ -43,7 +41,7 @@ bool makhov_m_linear_image_filtering_vertical_seq::TaskSequential::PostProcessin
 }
 
 // Applying 1D Gaussian Kernel to a row (RGB version)
-void makhov_m_linear_image_filtering_vertical_seq::TaskSequential::applyHorizontalGaussian(
+void makhov_m_linear_image_filtering_vertical_seq::TaskSequential::ApplyHorizontalGaussian(
     const std::vector<uint8_t> &src, std::vector<uint8_t> &dst, int width, int height,
     const std::vector<float> &kernel) {
   const int kernel_radius = kernel.size() / 2;
@@ -51,28 +49,30 @@ void makhov_m_linear_image_filtering_vertical_seq::TaskSequential::applyHorizont
 
   for (int y = 0; y < height; ++y) {
     for (int x = 0; x < width; ++x) {
-      float sum_r = 0.0F, sum_g = 0.0F, sum_b = 0.0F;
+      float sum_r = 0.0F;
+      float sum_g = 0.0F;
+      float sum_b = 0.0F;
 
       for (int k = -kernel_radius; k <= kernel_radius; ++k) {
         int pixel_x = std::clamp(x + k, 0, width - 1);
         int src_pos = (y * width + pixel_x) * channels;
 
         float weight = kernel[k + kernel_radius];
-        sum_r += src[src_pos] * weight;      // R
-        sum_g += src[src_pos + 1] * weight;  // G
-        sum_b += src[src_pos + 2] * weight;  // B
+        sum_r += (float)src[src_pos] * weight;      // R
+        sum_g += (float)src[src_pos + 1] * weight;  // G
+        sum_b += (float)src[src_pos + 2] * weight;  // B
       }
 
       int dst_pos = (y * width + x) * channels;
-      dst[dst_pos] = static_cast<uint8_t>(std::clamp(sum_r, 0.0f, 255.0f));
-      dst[dst_pos + 1] = static_cast<uint8_t>(std::clamp(sum_g, 0.0f, 255.0f));
-      dst[dst_pos + 2] = static_cast<uint8_t>(std::clamp(sum_b, 0.0f, 255.0f));
+      dst[dst_pos] = static_cast<uint8_t>(std::clamp(sum_r, 0.0F, 255.0F));
+      dst[dst_pos + 1] = static_cast<uint8_t>(std::clamp(sum_g, 0.0F, 255.0F));
+      dst[dst_pos + 2] = static_cast<uint8_t>(std::clamp(sum_b, 0.0F, 255.0F));
     }
   }
 }
 
 // Applying 1D Gaussian Kernel to a column (RGB version)
-void makhov_m_linear_image_filtering_vertical_seq::TaskSequential::applyVerticalGaussian(
+void makhov_m_linear_image_filtering_vertical_seq::TaskSequential::ApplyVerticalGaussian(
     const std::vector<uint8_t> &src, std::vector<uint8_t> &dst, int width, int height,
     const std::vector<float> &kernel) {
   const int kernel_radius = kernel.size() / 2;
@@ -80,22 +80,24 @@ void makhov_m_linear_image_filtering_vertical_seq::TaskSequential::applyVertical
 
   for (int x = 0; x < width; ++x) {
     for (int y = 0; y < height; ++y) {
-      float sum_r = 0.0F, sum_g = 0.0F, sum_b = 0.0F;
+      float sum_r = 0.0F;
+      float sum_g = 0.0F;
+      float sum_b = 0.0F;
 
       for (int k = -kernel_radius; k <= kernel_radius; ++k) {
         int pixel_y = std::clamp(y + k, 0, height - 1);
         int src_pos = (pixel_y * width + x) * channels;
 
         float weight = kernel[k + kernel_radius];
-        sum_r += src[src_pos] * weight;      // R
-        sum_g += src[src_pos + 1] * weight;  // G
-        sum_b += src[src_pos + 2] * weight;  // B
+        sum_r += (float)src[src_pos] * weight;      // R
+        sum_g += (float)src[src_pos + 1] * weight;  // G
+        sum_b += (float)src[src_pos + 2] * weight;  // B
       }
 
       int dst_pos = (y * width + x) * channels;
-      dst[dst_pos] = static_cast<uint8_t>(std::clamp(sum_r, 0.0f, 255.0f));
-      dst[dst_pos + 1] = static_cast<uint8_t>(std::clamp(sum_g, 0.0f, 255.0f));
-      dst[dst_pos + 2] = static_cast<uint8_t>(std::clamp(sum_b, 0.0f, 255.0f));
+      dst[dst_pos] = static_cast<uint8_t>(std::clamp(sum_r, 0.0F, 255.0F));
+      dst[dst_pos + 1] = static_cast<uint8_t>(std::clamp(sum_g, 0.0F, 255.0F));
+      dst[dst_pos + 2] = static_cast<uint8_t>(std::clamp(sum_b, 0.0F, 255.0F));
     }
   }
 }
