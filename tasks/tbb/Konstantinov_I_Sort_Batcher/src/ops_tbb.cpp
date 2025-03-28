@@ -1,11 +1,11 @@
 #include "tbb/Konstantinov_I_Sort_Batcher/include/ops_tbb.hpp"
 
-#include <tbb/tbb.h>
 #include <tbb/parallel_for.h>
 #include <tbb/blocked_range.h>
 #include <tbb/parallel_invoke.h>
-#include <atomic>
+#include <tbb/tbb.h>
 #include <algorithm>
+#include <atomic>
 #include <cmath>
 #include <cstddef>
 #include <cstdint>
