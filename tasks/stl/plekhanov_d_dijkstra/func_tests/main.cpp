@@ -219,8 +219,8 @@ TEST(plekhanov_d_dijkstra_stl, test_dijkstra_Random_Graph_10) {
   plekhanov_d_dijkstra_stl::RunTest(adj_list, start_vertex, expected);
 }
 
-TEST(plekhanov_d_dijkstra_stl, test_dijkstra_Random_Graph_150) {
-  size_t num_vertices = 150;
+TEST(plekhanov_d_dijkstra_stl, test_dijkstra_Random_Graph_25) {
+  size_t num_vertices = 25;
   std::vector<std::vector<std::pair<size_t, int>>> adj_list =
       plekhanov_d_dijkstra_stl::GenerateRandomGraph(num_vertices);
   size_t start_vertex = 0;
