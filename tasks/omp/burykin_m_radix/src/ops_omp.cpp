@@ -5,8 +5,7 @@
 #include <utility>
 #include <vector>
 
-std::array<int, 256> burykin_m_radix_seq::RadixOMP::ComputeFrequency(const std::vector<int>& a,
-                                                                            const int shift) {
+std::array<int, 256> burykin_m_radix_seq::RadixOMP::ComputeFrequency(const std::vector<int>& a, const int shift) {
   std::array<int, 256> count = {};
   for (const int v : a) {
     unsigned int key = ((static_cast<unsigned int>(v) >> shift) & 0xFFU);
@@ -27,7 +26,7 @@ std::array<int, 256> burykin_m_radix_seq::RadixOMP::ComputeIndices(const std::ar
 }
 
 void burykin_m_radix_seq::RadixOMP::DistributeElements(const std::vector<int>& a, std::vector<int>& b,
-                                                              std::array<int, 256> index, const int shift) {
+                                                       std::array<int, 256> index, const int shift) {
   for (const int v : a) {
     unsigned int key = ((static_cast<unsigned int>(v) >> shift) & 0xFFU);
     if (shift == 24) {
