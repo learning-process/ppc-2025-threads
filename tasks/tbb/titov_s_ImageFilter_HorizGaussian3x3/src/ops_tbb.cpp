@@ -4,8 +4,8 @@
 
 #include <cmath>
 #include <core/util/include/util.hpp>
-#include <memory>
 #include <cstddef>
+#include <memory>
 #include <vector>
 
 #include "oneapi/tbb/task_arena.h"
