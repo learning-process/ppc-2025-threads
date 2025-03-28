@@ -50,7 +50,7 @@ void vavilov_v_cannon_tbb::CannonTBB::InitialShift() {
 }
 
 void vavilov_v_cannon_tbb::CannonTBB::BlockMultiply() {
-  std::vector<std::vector<double>> thread_local_C(tbb::task_scheduler_init::default_num_threads(),
+  std::vector<std::vector<double>> thread_local_C(tbb::task_arena::max_concurrency(),
                                                   std::vector<double>(N_ * N_, 0.0));
   tbb::parallel_for(tbb::blocked_range2d<int>(0, N_, block_size_, 0, N_, block_size_),
                     [&](const tbb::blocked_range2d<int>& r) {
@@ -70,7 +70,7 @@ void vavilov_v_cannon_tbb::CannonTBB::BlockMultiply() {
                         }
                       }
                     });
-
+  // Суммирование результатов от всех потоков
   tbb::parallel_for(tbb::blocked_range<int>(0, N_ * N_), [&](const tbb::blocked_range<int>& r) {
     for (int idx = r.begin(); idx != r.end(); ++idx) {
       double sum = 0.0;
