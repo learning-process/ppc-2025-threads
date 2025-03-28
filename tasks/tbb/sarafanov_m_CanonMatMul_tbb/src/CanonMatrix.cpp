@@ -87,8 +87,8 @@ void CanonMatrix::operator+=(const CanonMatrix& canon_matrix) {
   arena.execute([&] {
     oneapi::tbb::parallel_for(oneapi::tbb::blocked_range<size_t>(0, size_, size_ / ppc::util::GetPPCNumThreads()),
                               [&](const oneapi::tbb::blocked_range<size_t>& distance) {
-                                for (int i = distance.begin(); i != distance.end(); ++i) {
-                                  for (int j = 0; j != static_cast<int>(size_); ++j) {
+                                for (size_t i = distance.begin(); i != distance.end(); ++i) {
+                                  for (size_t j = 0; j != static_cast<int>(size_); ++j) {
                                     matrix_[(i * size_) + j] += b_matrix[(j * size_) + i];
                                   }
                                 }
