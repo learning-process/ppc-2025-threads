@@ -98,11 +98,13 @@ lavrentiev_a_ccs_omp::Sparse lavrentiev_a_ccs_omp::CCSOMP::MatMul(const Sparse &
   for (size_t i = 1; i < result_matrix.columnsSum.size(); ++i) {
     result_matrix.columnsSum[i] = result_matrix.columnsSum[i] + result_matrix.columnsSum[i - 1];
   }
+  if (!result_matrix.columnsSum.empty()) {
+    result_matrix.elements.resize(result_matrix.columnsSum.back());
+    result_matrix.rows.resize(result_matrix.columnsSum.back());
+  }
   for (const auto &data : threads_data) {
-    for (size_t i = 0; i < data.first.size(); ++i) {
-      result_matrix.elements.push_back(data.first[i]);
-      result_matrix.rows.push_back(data.second[i]);
-    }
+    std::ranges::copy(data.first, result_matrix.elements.begin());
+    std::ranges::copy(data.second, result_matrix.rows.begin());
   }
   result_matrix.size.first = matrix2.size.second;
   result_matrix.size.second = matrix2.size.second;
@@ -139,15 +141,11 @@ bool lavrentiev_a_ccs_omp::CCSOMP::PreProcessingImpl() {
   }
   std::vector<double> am(A_.size.first * A_.size.second);
   auto *in_ptr = reinterpret_cast<double *>(task_data->inputs[0]);
-  for (int i = 0; i < A_.size.first * A_.size.second; ++i) {
-    am[i] = in_ptr[i];
-  }
+  am = std::vector<double>(in_ptr, in_ptr + A_.size.first * A_.size.second);
   A_ = ConvertToSparse(A_.size, am);
   std::vector<double> bm(B_.size.first * B_.size.second);
   auto *in_ptr2 = reinterpret_cast<double *>(task_data->inputs[1]);
-  for (int i = 0; i < B_.size.first * B_.size.second; ++i) {
-    bm[i] = in_ptr2[i];
-  }
+  bm = std::vector<double>(in_ptr2, in_ptr2 + B_.size.first * B_.size.second);
   B_ = ConvertToSparse(B_.size, bm);
   return true;
 }
@@ -168,9 +166,6 @@ bool lavrentiev_a_ccs_omp::CCSOMP::RunImpl() {
 }
 
 bool lavrentiev_a_ccs_omp::CCSOMP::PostProcessingImpl() {
-  std::vector<double> result = ConvertFromSparse(Answer_);
-  for (auto i = 0; i < static_cast<int>(result.size()); ++i) {
-    reinterpret_cast<double *>(task_data->outputs[0])[i] = result[i];
-  }
+  std::ranges::copy(ConvertFromSparse(Answer_), reinterpret_cast<double *>(task_data->outputs[0]));
   return true;
 }
