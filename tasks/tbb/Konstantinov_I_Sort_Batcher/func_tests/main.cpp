@@ -62,19 +62,10 @@ TEST(Konstantinov_I_Sort_Batcher_tbb, test_negative_values) {
   EXPECT_EQ(exp_out, out);
 }
 
-TEST(Konstantinov_I_Sort_Batcher_tbb, test_random_100_values) {
-  constexpr size_t kCount = 100;
-  std::vector<double> in(kCount);
-  std::vector<double> out(kCount);
-  std::random_device rd;
-  std::mt19937 gen(rd());
-  std::uniform_real_distribution<double> dist(-1000.0, 1000.0);
-
-  for (auto &num : in) {
-    num = dist(gen);
-  }
-  std::vector<double> exp_out = in;
-  std::ranges::sort(exp_out);
+TEST(Konstantinov_I_Sort_Batcher_tbb, test_empty_input) {
+  std::vector<double> in{};
+  std::vector<double> exp_out{};
+  std::vector<double> out(0);
 
   auto task_data_omp = std::make_shared<ppc::core::TaskData>();
   task_data_omp->inputs.emplace_back(reinterpret_cast<uint8_t *>(in.data()));
@@ -90,18 +81,10 @@ TEST(Konstantinov_I_Sort_Batcher_tbb, test_random_100_values) {
   EXPECT_EQ(exp_out, out);
 }
 
-TEST(Konstantinov_I_Sort_Batcher_tbb, test_random_1000_values) {
-  constexpr size_t kCount = 1000;
-  std::vector<double> in(kCount);
-  std::vector<double> out(kCount);
-  std::random_device rd;
-  std::mt19937 gen(rd());
-  std::uniform_real_distribution<double> dist(-1000.0, 1000.0);
-
-  for (auto &num : in) {
-    num = dist(gen);
-  }
-  std::vector<double> exp_out = in;
+TEST(Konstantinov_I_Sort_Batcher_tbb, test_duplicate_values) {
+  std::vector<double> in{5.0, 3.0, 5.0, 2.0, 3.0, 5.0, 2.0};
+  std::vector<double> exp_out{5.0, 3.0, 5.0, 2.0, 3.0, 5.0, 2.0};
+  std::vector<double> out(7);
   std::ranges::sort(exp_out);
 
   auto task_data_omp = std::make_shared<ppc::core::TaskData>();
