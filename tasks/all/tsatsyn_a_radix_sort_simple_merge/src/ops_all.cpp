@@ -11,6 +11,22 @@
 #include <vector>
 
 namespace {
+int CalculateBits(const std::vector<uint64_t> &data, bool is_pozitive) {
+  if (data.empty()) {
+    return 0;
+  }
+  uint64_t extreme_val = 0;
+  int num_bits = 0;
+  if (is_pozitive) {
+    extreme_val = *std::ranges::max_element(data);
+    num_bits = std::bit_width(extreme_val);
+  } else {
+    extreme_val = *std::ranges::min_element(data);
+    num_bits = (extreme_val == 0) ? 0 : std::bit_width(extreme_val);
+  }
+
+  return num_bits;
+}
 inline void SendData(boost::mpi::communicator &world, bool &is_pozitive, bool &is_negative,
                      std::vector<double> &local_data, std::vector<double> &input_data) {
   if (world.size() > 1) {
@@ -50,11 +66,9 @@ inline void ParallelParse(std::vector<uint64_t> &pozitive_copy, std::vector<uint
   }
 }
 inline void RadixSort(std::vector<uint64_t> &data) {
+  // int num_bits = CalculateBits(data, true);
+#pragma omp parallel for schedule(guided, 100)
   for (int bit = 0; bit < 64; bit++) {
-#pragma omp parallel
-    {
-#pragma omp single
-      {
         std::vector<uint64_t> group0;
         std::vector<uint64_t> group1;
         group0.reserve(data.size());
@@ -68,8 +82,6 @@ inline void RadixSort(std::vector<uint64_t> &data) {
         }
         data = std::move(group0);
         data.insert(data.end(), group1.begin(), group1.end());
-      }
-    }
   }
 }
 inline double Uint64ToDouble(uint64_t value) {
@@ -79,15 +91,20 @@ inline double Uint64ToDouble(uint64_t value) {
   return result;
 }
 inline void FinalParse(std::vector<uint64_t> &data, int code, boost::mpi::communicator &world, bool indicator) {
-  if (world.rank() == 0 && indicator) {
-    std::vector<uint64_t> local_copy_for_recv;
-    for (int proc = 1; proc < world.size(); proc++) {
-      world.recv(proc, code, local_copy_for_recv);
-      data.insert(data.end(), local_copy_for_recv.begin(), local_copy_for_recv.end());
-      local_copy_for_recv.clear();
-    }
-    if (!data.empty()) {
-      RadixSort(data);
+  if (world.rank() == 0) {
+    if (indicator) {
+      std::vector<uint64_t> local_copy_for_recv;
+      for (int proc = 1; proc < world.size(); proc++) {
+        world.recv(proc, code, local_copy_for_recv);
+        /*for (auto value : local_copy_for_recv) {
+          std::cout << value << " ";
+        }*/
+        data.insert(data.end(), local_copy_for_recv.begin(), local_copy_for_recv.end());
+        local_copy_for_recv.clear();
+      }
+      if (!data.empty()) {
+        RadixSort(data);
+      }
     }
   } else {
     if (!data.empty()) {
@@ -98,7 +115,7 @@ inline void FinalParse(std::vector<uint64_t> &data, int code, boost::mpi::commun
 inline void WriteNegativePart(const std::vector<uint64_t> &negative_copy, std::vector<double> &output) {
   const size_t size = negative_copy.size();
 #pragma omp parallel for
-  for (int i = 0; i < static_cast<int>(size); ++i) {
+  for (int i = 0; i < static_cast<int>(size); i++) {
     const size_t output_idx = size - 1 - i;
     output[output_idx] = Uint64ToDouble(negative_copy[i]);
   }
@@ -107,7 +124,7 @@ inline void WritePositivePart(const std::vector<uint64_t> &positive_copy, const 
                               std::vector<double> &output) {
   const size_t size = positive_copy.size();
 #pragma omp parallel for
-  for (int i = 0; i < static_cast<int>(size); ++i) {
+  for (int i = 0; i < static_cast<int>(size); i++) {
     const size_t output_idx = offset + i;
     output[output_idx] = Uint64ToDouble(positive_copy[i]);
   }
@@ -125,7 +142,7 @@ inline void SafeDataWrite(const std::vector<uint64_t> &negative_copy, const std:
 bool tsatsyn_a_radix_sort_simple_merge_all::TestTaskALL::ValidationImpl() {
   // Check equality of counts elements
   if (world_.rank() == 0) {
-    return task_data->inputs_count[0] != 0;
+    return (task_data->inputs_count[0] != 0) && (task_data->inputs_count[0] == task_data->outputs_count[0]);
   }
   return true;
 }
@@ -151,6 +168,8 @@ bool tsatsyn_a_radix_sort_simple_merge_all::TestTaskALL::RunImpl() {
   std::vector<uint64_t> pozitive_copy;
   std::vector<uint64_t> negative_copy;
   ParallelParse(pozitive_copy, negative_copy, local_data_);
+  std::cout << std::endl
+            << "PROC " << world_.rank() << " " << pozitive_copy.size() << " " << negative_copy.size() << std::endl;
   if (!pozitive_copy.empty()) {
     RadixSort(pozitive_copy);
   }
@@ -175,5 +194,6 @@ bool tsatsyn_a_radix_sort_simple_merge_all::TestTaskALL::PostProcessingImpl() {
       std::memcpy(reinterpret_cast<double *>(task_data->outputs[0]) + i, &value, sizeof(double));
     }
   }
+  world_.barrier();
   return true;
 }
