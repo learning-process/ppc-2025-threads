@@ -4,25 +4,39 @@
 #include <cstddef>
 #include <cstdint>
 #include <memory>
+#include <random>
 #include <vector>
 
 #include "core/perf/include/perf.hpp"
 #include "core/task/include/task.hpp"
 #include "seq/zaytsev_d_sobel/include/ops_seq.hpp"
 
+namespace {
+std::vector<int> GenerateRandomImage(size_t size) {
+  std::random_device rd;
+  std::mt19937 gen(rd());
+  std::uniform_int_distribution<int> dis(0, 255);
+
+  std::vector<int> image(size);
+  for (size_t i = 0; i < size; i++) {
+    image[i] = dis(gen);
+  }
+  return image;
+}
+}  // namespace
+
 TEST(zaytsev_d_sobel_seq, test_pipeline_run) {
   constexpr int kSize = 4500;
 
-  std::vector<int> in(kSize * kSize, 128);
+  std::vector<int> in = GenerateRandomImage(kSize * kSize);
   std::vector<int> out(kSize * kSize, 0);
-
-  for (size_t i = 0; i < kSize; i++) {
-    in[(i * kSize) + (kSize - i - 1)] = 255;
-  }
+  std::vector<int> size_ = {kSize, kSize};
 
   auto task_data_seq = std::make_shared<ppc::core::TaskData>();
   task_data_seq->inputs.emplace_back(reinterpret_cast<uint8_t *>(in.data()));
+  task_data_seq->inputs.emplace_back(reinterpret_cast<uint8_t *>(size_.data()));
   task_data_seq->inputs_count.emplace_back(in.size());
+  task_data_seq->inputs_count.push_back(size_.size());
   task_data_seq->outputs.emplace_back(reinterpret_cast<uint8_t *>(out.data()));
   task_data_seq->outputs_count.emplace_back(out.size());
 
@@ -49,16 +63,15 @@ TEST(zaytsev_d_sobel_seq, test_pipeline_run) {
 TEST(zaytsev_d_sobel_seq, test_task_run) {
   constexpr int kSize = 4500;
 
-  std::vector<int> in(kSize * kSize, 128);
+  std::vector<int> in = GenerateRandomImage(kSize * kSize);
   std::vector<int> out(kSize * kSize, 0);
-
-  for (size_t i = 0; i < kSize; i++) {
-    in[(i * kSize) + (kSize - i - 1)] = 255;
-  }
+  std::vector<int> size_ = {kSize, kSize};
 
   auto task_data_seq = std::make_shared<ppc::core::TaskData>();
   task_data_seq->inputs.emplace_back(reinterpret_cast<uint8_t *>(in.data()));
+  task_data_seq->inputs.emplace_back(reinterpret_cast<uint8_t *>(size_.data()));
   task_data_seq->inputs_count.emplace_back(in.size());
+  task_data_seq->inputs_count.emplace_back(size_.size());
   task_data_seq->outputs.emplace_back(reinterpret_cast<uint8_t *>(out.data()));
   task_data_seq->outputs_count.emplace_back(out.size());
 

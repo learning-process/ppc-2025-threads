@@ -28,29 +28,35 @@ std::vector<int> MatToVector(const cv::Mat &img) {
 }  // namespace
 #endif
 
-TEST(zaytsev_d_sobel_seq, test_validation_fail1) {
+TEST(zaytsev_d_sobel_seq, test_validation_fail_count_in_out) {
   std::vector<int> in(9, 0);
   std::vector<int> out(10, 0);
+  std::vector<int> size = {3, 3};
 
   auto task_data = std::make_shared<ppc::core::TaskData>();
-  task_data->inputs.emplace_back(reinterpret_cast<uint8_t *>(in.data()));
-  task_data->inputs_count.emplace_back(in.size());
-  task_data->outputs.emplace_back(reinterpret_cast<uint8_t *>(out.data()));
-  task_data->outputs_count.emplace_back(out.size());
+  task_data->inputs.push_back(reinterpret_cast<uint8_t *>(in.data()));
+  task_data->inputs.push_back(reinterpret_cast<uint8_t *>(size.data()));
+  task_data->inputs_count.push_back(in.size());
+  task_data->inputs_count.push_back(size.size());
+  task_data->outputs.push_back(reinterpret_cast<uint8_t *>(out.data()));
+  task_data->outputs_count.push_back(out.size());
 
   zaytsev_d_sobel_seq::TestTaskSequential task(task_data);
   ASSERT_EQ(task.Validation(), false);
 }
 
-TEST(zaytsev_d_sobel_seq, test_validation_fail2) {
-  std::vector<int> in(5, 0);
-  std::vector<int> out(5, 0);
+TEST(zaytsev_d_sobel_seq, test_validation_fail_small_image) {
+  std::vector<int> in(4, 0);
+  std::vector<int> out(4, 0);
+  std::vector<int> size = {2, 2};
 
   auto task_data = std::make_shared<ppc::core::TaskData>();
-  task_data->inputs.emplace_back(reinterpret_cast<uint8_t *>(in.data()));
-  task_data->inputs_count.emplace_back(in.size());
-  task_data->outputs.emplace_back(reinterpret_cast<uint8_t *>(out.data()));
-  task_data->outputs_count.emplace_back(out.size());
+  task_data->inputs.push_back(reinterpret_cast<uint8_t *>(in.data()));
+  task_data->inputs.push_back(reinterpret_cast<uint8_t *>(size.data()));
+  task_data->inputs_count.push_back(in.size());
+  task_data->inputs_count.push_back(size.size());
+  task_data->outputs.push_back(reinterpret_cast<uint8_t *>(out.data()));
+  task_data->outputs_count.push_back(out.size());
 
   zaytsev_d_sobel_seq::TestTaskSequential task(task_data);
   ASSERT_EQ(task.Validation(), false);
@@ -62,10 +68,13 @@ TEST(zaytsev_d_sobel_seq, SobelEdgeDetection_5x5) {
   std::vector<int> expected_output = {0,  0, 0, 0,  0,  0,  42, 40, 42, 0, 0, 40, 0,
                                       40, 0, 0, 42, 40, 42, 0,  0,  0,  0, 0, 0};
   std::vector<int> output(kSize * kSize, 0);
+  std::vector<int> size = {kSize, kSize};
 
   auto task_data = std::make_shared<ppc::core::TaskData>();
   task_data->inputs.push_back(reinterpret_cast<uint8_t *>(input.data()));
+  task_data->inputs.push_back(reinterpret_cast<uint8_t *>(size.data()));
   task_data->inputs_count.push_back(input.size());
+  task_data->inputs_count.push_back(size.size());
   task_data->outputs.push_back(reinterpret_cast<uint8_t *>(output.data()));
   task_data->outputs_count.push_back(output.size());
 
@@ -96,10 +105,13 @@ TEST(zaytsev_d_sobel_seq, Sobel_12x12) {
       0, 255, 255, 255, 77,  0,   77,  239, 255, 255, 219, 0, 0, 255, 255, 255, 255, 110, 255, 255, 255, 255, 255, 0,
       0, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 0, 0, 0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0};
   std::vector<int> output(kSize * kSize, 0);
+  std::vector<int> size = {kSize, kSize};
 
   auto task_data = std::make_shared<ppc::core::TaskData>();
   task_data->inputs.push_back(reinterpret_cast<uint8_t *>(input.data()));
+  task_data->inputs.push_back(reinterpret_cast<uint8_t *>(size.data()));
   task_data->inputs_count.push_back(input.size());
+  task_data->inputs_count.push_back(size.size());
   task_data->outputs.push_back(reinterpret_cast<uint8_t *>(output.data()));
   task_data->outputs_count.push_back(output.size());
 
@@ -117,10 +129,13 @@ TEST(zaytsev_d_sobel_seq, SobelEdgeDetection_UniformImage) {
   std::vector<int> input(kSize * kSize, 10);
   std::vector<int> expected_output(kSize * kSize, 0);
   std::vector<int> output(kSize * kSize, 0);
+  std::vector<int> size = {kSize, kSize};
 
   auto task_data = std::make_shared<ppc::core::TaskData>();
   task_data->inputs.push_back(reinterpret_cast<uint8_t *>(input.data()));
+  task_data->inputs.push_back(reinterpret_cast<uint8_t *>(size.data()));
   task_data->inputs_count.push_back(input.size());
+  task_data->inputs_count.push_back(size.size());
   task_data->outputs.push_back(reinterpret_cast<uint8_t *>(output.data()));
   task_data->outputs_count.push_back(output.size());
 
@@ -143,10 +158,13 @@ TEST(zaytsev_d_sobel_seq, SobelEdgeDetection_OpenCVImage) {
   std::vector<int> input = MatToVector(input_img);
   std::vector<int> expected = MatToVector(expected_img);
   std::vector<int> output(input.size(), 0);
+  std::vector<int> size = {input_img.cols, input_img.rows};
 
   auto task_data = std::make_shared<ppc::core::TaskData>();
   task_data->inputs.push_back(reinterpret_cast<uint8_t *>(input.data()));
+  task_data->inputs.push_back(reinterpret_cast<uint8_t *>(size.data()));
   task_data->inputs_count.push_back(input.size());
+  task_data->inputs_count.push_back(size.size());
   task_data->outputs.push_back(reinterpret_cast<uint8_t *>(output.data()));
   task_data->outputs_count.push_back(output.size());
 

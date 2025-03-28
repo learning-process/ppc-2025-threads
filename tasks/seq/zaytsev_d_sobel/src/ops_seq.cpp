@@ -7,21 +7,28 @@
 bool zaytsev_d_sobel_seq::TestTaskSequential::PreProcessingImpl() {
   auto *in_ptr = reinterpret_cast<int *>(task_data->inputs[0]);
   input_ = std::vector<int>(in_ptr, in_ptr + task_data->inputs_count[0]);
+
+  auto *size_ptr = reinterpret_cast<int *>(task_data->inputs[1]);
+  size = {size_ptr[0], size_ptr[1]};
+  width = size[0];
+  height = size[1];
+
   output_ = std::vector<int>(task_data->outputs_count[0], 0);
-  rc_size_ = static_cast<int>(std::sqrt(task_data->inputs_count[0]));
   return true;
 }
 
 bool zaytsev_d_sobel_seq::TestTaskSequential::ValidationImpl() {
-  return (task_data->inputs_count[0] == task_data->outputs_count[0]) && (task_data->inputs_count[0] >= 25);
+  if (task_data->inputs_count[0] != task_data->outputs_count[0]) return false;
+  if (task_data->inputs_count[0] < 25) return false;
+  return true;
 }
 
 bool zaytsev_d_sobel_seq::TestTaskSequential::RunImpl() {
   const int gxkernel[3][3] = {{-1, 0, 1}, {-2, 0, 2}, {-1, 0, 1}};
   const int gykernel[3][3] = {{-1, -2, -1}, {0, 0, 0}, {1, 2, 1}};
 
-  for (int i = 1; i < rc_size_ - 1; ++i) {
-    for (int j = 1; j < rc_size_ - 1; ++j) {
+  for (int i = 1; i < height - 1; ++i) {
+    for (int j = 1; j < width - 1; ++j) {
       int sumgx = 0;
       int sumgy = 0;
       for (int di = -1; di <= 1; ++di) {
@@ -31,12 +38,12 @@ bool zaytsev_d_sobel_seq::TestTaskSequential::RunImpl() {
           int kernel_row = di + 1;
           int kernel_col = dj + 1;
 
-          sumgx += input_[(ni * rc_size_) + nj] * gxkernel[kernel_row][kernel_col];
-          sumgy += input_[(ni * rc_size_) + nj] * gykernel[kernel_row][kernel_col];
+          sumgx += input_[(ni * width) + nj] * gxkernel[kernel_row][kernel_col];
+          sumgy += input_[(ni * width) + nj] * gykernel[kernel_row][kernel_col];
         }
       }
       int magnitude = static_cast<int>(std::sqrt((sumgx * sumgx) + (sumgy * sumgy)));
-      output_[(i * rc_size_) + j] = std::min(magnitude, 255);
+      output_[(i * width) + j] = std::min(magnitude, 255);
     }
   }
 
