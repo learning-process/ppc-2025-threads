@@ -4,6 +4,7 @@
 #include <cstdint>
 #include <numeric>
 #include <random>
+#include <memory>
 #include <vector>
 
 #include "core/task/include/task.hpp"

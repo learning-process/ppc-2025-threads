@@ -5,7 +5,6 @@
 #include <cmath>
 #include <core/util/include/util.hpp>
 #include <cstddef>
-#include <memory>
 #include <vector>
 
 #include "oneapi/tbb/task_arena.h"
@@ -47,14 +46,12 @@ void ProcessPixel(int row, int col, int width, const std::vector<double> &input,
 }  // namespace
 
 bool titov_s_image_filter_horiz_gaussian3x3_tbb::ImageFilterTBB::RunImpl() {
-  if (kernel_.size() < 3) return false;
 
   const auto k0 = static_cast<double>(kernel_[0]);
   const auto k1 = static_cast<double>(kernel_[1]);
   const auto k2 = static_cast<double>(kernel_[2]);
   const double sum = (k0 + k1) + k2;
 
-  if (sum == 0.0) return false;
   const double inv_sum = 1.0 / sum;
 
   oneapi::tbb::task_arena arena(ppc::util::GetPPCNumThreads());
@@ -69,7 +66,9 @@ bool titov_s_image_filter_horiz_gaussian3x3_tbb::ImageFilterTBB::RunImpl() {
     int start = 0;
     for (int i = 0; i < threads_num; ++i) {
       const int end = start + base_chunk + (i < remainder ? 1 : 0);
-      if (start >= end) continue;
+      if (start >= end) {
+        continue;
+      }
 
       tg.run([=, &input = input_, &output = output_, this] {
         for (int row = start; row < end; ++row) {
