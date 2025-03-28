@@ -1,5 +1,6 @@
 #include <gtest/gtest.h>
 
+#include <algorithm>
 #include <chrono>
 #include <cstddef>
 #include <cstdint>
@@ -57,6 +58,12 @@ TEST(nikolaev_r_hoare_sort_simple_merge_omp, test_pipeline_run) {
   auto perf_analyzer = std::make_shared<ppc::core::Perf>(hoare_sort_simple_merge_omp);
   perf_analyzer->PipelineRun(perf_attr, perf_results);
   ppc::core::Perf::PrintPerfStatistic(perf_results);
+
+  std::vector<double> ref(in.size());
+  std::ranges::copy(in, ref.begin());
+  std::ranges::sort(ref);
+
+  EXPECT_EQ(out, ref);
 }
 
 TEST(nikolaev_r_hoare_sort_simple_merge_omp, test_task_run) {
@@ -88,4 +95,10 @@ TEST(nikolaev_r_hoare_sort_simple_merge_omp, test_task_run) {
   auto perf_analyzer = std::make_shared<ppc::core::Perf>(hoare_sort_simple_merge_omp);
   perf_analyzer->TaskRun(perf_attr, perf_results);
   ppc::core::Perf::PrintPerfStatistic(perf_results);
+
+  std::vector<double> ref(in.size());
+  std::ranges::copy(in, ref.begin());
+  std::ranges::sort(ref);
+
+  EXPECT_EQ(out, ref);
 }
