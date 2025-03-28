@@ -1,21 +1,18 @@
 #include "tbb/Konstantinov_I_Sort_Batcher/include/ops_tbb.hpp"
 
-#include <tbb/blocked_range.h>
-#include <tbb/parallel_for.h>
-#include <tbb/parallel_invoke.h>
 #include <tbb/tbb.h>
 
 #include <algorithm>
 #include <atomic>
 #include <cmath>
-#include <core/util/include/util.hpp>
 #include <cstddef>
 #include <cstdint>
 #include <cstring>
 #include <vector>
 
-#include "oneapi/tbb/task_arena.h"
-#include "oneapi/tbb/task_group.h"
+#include "oneapi/tbb/blocked_range.h"
+#include "oneapi/tbb/parallel_for.h"
+#include "oneapi/tbb/parallel_invoke.h"
 
 namespace konstantinov_i_sort_batcher_tbb {
 namespace {
