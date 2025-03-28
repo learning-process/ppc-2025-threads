@@ -5,6 +5,7 @@
 #include <cstddef>
 #include <cstdlib>
 #include <functional>
+#include <future>
 #include <mutex>
 #include <queue>
 #include <thread>
@@ -66,7 +67,7 @@ bool plekhanov_d_dijkstra_stl::TestTaskSTL::RunImpl() {  // NOLINT(readability-f
   distances_[start_vertex_] = 0;
 
   std::mutex pq_mutex;
-  std::vector<std::thread> threads;
+
   unsigned int num_threads = std::thread::hardware_concurrency();
 
   while (!pq.empty()) {
@@ -81,24 +82,21 @@ bool plekhanov_d_dijkstra_stl::TestTaskSTL::RunImpl() {  // NOLINT(readability-f
       continue;
     }
 
-    std::mutex update_mutex;
     size_t edges_count = graph[u].size();
     size_t chunk_size = (edges_count + num_threads - 1) / num_threads;
+
+    std::vector<std::future<void>> futures;
 
     for (unsigned int j = 0; j < num_threads; ++j) {
       size_t start = j * chunk_size;
       size_t end = std::min(start + chunk_size, edges_count);
-      if (start >= end) {
-        break;
-      }
 
-      threads.emplace_back([&, start, end]() {
-        for (size_t j = start; j < end; ++j) {
-          int v = graph[u][j].first;
-          int weight = graph[u][j].second;
+      futures.push_back(std::async(std::launch::async, [&, start, end]() {
+        for (size_t k = start; k < end; ++k) {
+          int v = graph[u][k].first;
+          int weight = graph[u][k].second;
           int new_dist = dist + weight;
 
-          std::lock_guard<std::mutex> lock(update_mutex);
           if (new_dist < distances_[v]) {
             distances_[v] = new_dist;
             pq_mutex.lock();
@@ -106,13 +104,12 @@ bool plekhanov_d_dijkstra_stl::TestTaskSTL::RunImpl() {  // NOLINT(readability-f
             pq_mutex.unlock();
           }
         }
-      });
+      }));
     }
 
-    for (auto& t : threads) {
-      t.join();
+    for (auto& f : futures) {
+      f.get();
     }
-    threads.clear();
   }
 
   return true;
