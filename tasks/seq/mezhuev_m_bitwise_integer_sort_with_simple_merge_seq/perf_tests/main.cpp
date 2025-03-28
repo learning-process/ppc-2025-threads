@@ -18,7 +18,7 @@ TEST(mezhuev_m_bitwise_integer_sort_seq, test_pipeline_run) {
   std::vector<int> in(kCount * kCount, 0);
   std::vector<int> out(kCount * kCount, 0);
 
-  for (size_t i = 0; i < kCount; i++) {
+  for (size_t i = 0; i < kCount * kCount; i++) {
     in[i] = std::rand() % 1000 - 500;
   }
 
@@ -58,7 +58,7 @@ TEST(mezhuev_m_bitwise_integer_sort_seq, test_task_run) {
   std::vector<int> in(kCount * kCount, 0);
   std::vector<int> out(kCount * kCount, 0);
 
-  for (size_t i = 0; i < kCount; i++) {
+  for (size_t i = 0; i < kCount * kCount; i++) {
     in[i] = std::rand() % 1000 - 500;
   }
 

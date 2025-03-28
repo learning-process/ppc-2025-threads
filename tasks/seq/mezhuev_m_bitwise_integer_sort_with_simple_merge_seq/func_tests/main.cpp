@@ -111,3 +111,46 @@ TEST(mezhuev_m_bitwise_integer_sort_seq, TestMixedArray) {
 
   EXPECT_EQ(output, expected);
 }
+
+TEST(mezhuev_m_bitwise_integer_sort_seq, TestMismatchedInputOutputSize) {
+  std::vector<int> input = {5, 2, 9, 1, 5, 6};
+  std::vector<int> output(input.size() - 1, 0);
+
+  auto task_data = std::make_shared<ppc::core::TaskData>();
+  task_data->inputs.emplace_back(reinterpret_cast<uint8_t *>(input.data()));
+  task_data->inputs_count.emplace_back(input.size());
+  task_data->outputs.emplace_back(reinterpret_cast<uint8_t *>(output.data()));
+  task_data->outputs_count.emplace_back(output.size());
+
+  mezhuev_m_bitwise_integer_sort_seq::TestTaskSequential test_task_sequential(task_data);
+
+  EXPECT_FALSE(test_task_sequential.Validation());
+}
+
+TEST(mezhuev_m_bitwise_integer_sort_seq, TestNullInputPointer) {
+  std::vector<int> output = {0, 0, 0, 0, 0, 0};
+
+  auto task_data = std::make_shared<ppc::core::TaskData>();
+  task_data->inputs.emplace_back(nullptr);
+  task_data->inputs_count.emplace_back(output.size());
+  task_data->outputs.emplace_back(reinterpret_cast<uint8_t *>(output.data()));
+  task_data->outputs_count.emplace_back(output.size());
+
+  mezhuev_m_bitwise_integer_sort_seq::TestTaskSequential test_task_sequential(task_data);
+
+  EXPECT_FALSE(test_task_sequential.Validation());
+}
+
+TEST(mezhuev_m_bitwise_integer_sort_seq, TestNullOutputPointer) {
+  std::vector<int> input = {5, 2, 9, 1, 5, 6};
+
+  auto task_data = std::make_shared<ppc::core::TaskData>();
+  task_data->inputs.emplace_back(reinterpret_cast<uint8_t *>(input.data()));
+  task_data->inputs_count.emplace_back(input.size());
+  task_data->outputs.emplace_back(nullptr);
+  task_data->outputs_count.emplace_back(input.size());
+
+  mezhuev_m_bitwise_integer_sort_seq::TestTaskSequential test_task_sequential(task_data);
+
+  EXPECT_FALSE(test_task_sequential.Validation());
+}
