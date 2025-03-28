@@ -58,7 +58,6 @@ bool komshina_d_image_filtering_vertical_gaussian_omp::TestTaskOpenMP::RunImpl()
   {
 #pragma omp for
     for (int y = 1; y < local_height - 1; ++y) {
-#pragma omp parallel for
       for (int x = 1; x < local_width - 1; ++x) {
         std::size_t base_idx = (y * local_width + x) * 3;
 
