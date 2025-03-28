@@ -1,7 +1,10 @@
 #include "tbb/Konstantinov_I_Sort_Batcher/include/ops_tbb.hpp"
 
 #include <tbb/tbb.h>
-
+#include <tbb/parallel_for.h>
+#include <tbb/blocked_range.h>
+#include <tbb/parallel_invoke.h>
+#include <atomic>
 #include <algorithm>
 #include <cmath>
 #include <cstddef>
@@ -50,8 +53,9 @@ void RadixSorted(std::vector<double>& arr) {
 
   for (int pass = 0; pass < 8; pass++) {
     std::vector<std::atomic<size_t>> count(radix);
-    for (auto& c : count) c = 0;
-
+    for (auto& c : count) {
+      c = 0;
+    }
     int shift = pass * 8;
     tbb::parallel_for(tbb::blocked_range<size_t>(0, n), [&](const tbb::blocked_range<size_t>& r) {
       for (size_t i = r.begin(); i < r.end(); ++i) {
