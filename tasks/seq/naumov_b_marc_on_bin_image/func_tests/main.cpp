@@ -1,7 +1,10 @@
 #include <gtest/gtest.h>
 
+#include <algorithm>
+#include <cstddef>
 #include <cstdint>
 #include <memory>
+#include <set>
 #include <vector>
 
 #include "core/task/include/task.hpp"
@@ -18,18 +21,26 @@ void VerifyBinaryOutput(const std::vector<int> &in, const std::vector<int> &out)
   }
 }
 
+void CheckTopNeighbor(const std::vector<int> &in, const std::vector<int> &out, int i, int j, int n) {
+  if (i > 0 && in[(i - 1) * n + j] == 1) {
+    EXPECT_EQ(out[i * n + j], out[(i - 1) * n + j]);
+  }
+}
+
+void CheckLeftNeighbor(const std::vector<int> &in, const std::vector<int> &out, int i, int j, int n) {
+  if (j > 0 && in[i * n + (j - 1)] == 1) {
+    EXPECT_EQ(out[i * n + j], out[i * n + (j - 1)]);
+  }
+}
+
 void VerifyNeighborConsistency(const std::vector<int> &in, const std::vector<int> &out, int m, int n) {
   for (int i = 0; i < m; ++i) {
     for (int j = 0; j < n; ++j) {
       const int idx = i * n + j;
       if (in[idx] != 1) continue;
 
-      if (i > 0 && in[(i - 1) * n + j] == 1) {
-        EXPECT_EQ(out[idx], out[(i - 1) * n + j]);
-      }
-      if (j > 0 && in[i * n + (j - 1)] == 1) {
-        EXPECT_EQ(out[idx], out[i * n + (j - 1)]);
-      }
+      CheckTopNeighbor(in, out, i, j, n);
+      CheckLeftNeighbor(in, out, i, j, n);
     }
   }
 }

@@ -6,8 +6,10 @@
 #include "core/task/include/task.hpp"
 
 namespace naumov_b_marc_test_utils {
-void VerifyBinaryOutput(const std::vector<int>& in, const std::vector<int>& out);
-void VerifyNeighborConsistency(const std::vector<int>& in, const std::vector<int>& out, int m, int n);
+void VerifyBinaryOutput(const std::vector<int> &in, const std::vector<int> &out);
+void CheckTopNeighbor(const std::vector<int> &in, const std::vector<int> &out, int i, int j, int n);
+void CheckLeftNeighbor(const std::vector<int> &in, const std::vector<int> &out, int i, int j, int n);
+void VerifyNeighborConsistency(const std::vector<int> &in, const std::vector<int> &out, int m, int n);
 }  // namespace naumov_b_marc_test_utils
 
 namespace naumov_b_marc_on_bin_image_seq {
@@ -28,11 +30,11 @@ class TestTaskSequential : public ppc::core::Task {
   void ProcessBlock(int start_row, int start_col, int block_rows, int block_cols);
   void ProcessPixel(int row, int col);
   void AssignNewLabel(int row, int col);
-  void AssignMinLabel(int row, int col, const std::vector<int>& neighbors);
+  void AssignMinLabel(int row, int col, const std::vector<int> &neighbors);
   void MergeLabels();
 
   std::vector<int> FindAdjacentLabels(int row, int col);
-  void AssignLabel(int row, int col, int& current_label);
+  void AssignLabel(int row, int col, int &current_label);
   int FindRoot(int label);
   void UnionLabels(int label1, int label2);
   void CalculateBlockSize();
