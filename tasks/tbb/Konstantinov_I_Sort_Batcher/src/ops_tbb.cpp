@@ -1,7 +1,7 @@
 #include "tbb/Konstantinov_I_Sort_Batcher/include/ops_tbb.hpp"
 
-#include <tbb/parallel_for.h>
 #include <tbb/blocked_range.h>
+#include <tbb/parallel_for.h>
 #include <tbb/parallel_invoke.h>
 #include <tbb/tbb.h>
 #include <algorithm>
