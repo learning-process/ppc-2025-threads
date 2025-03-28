@@ -65,12 +65,9 @@ bool filateva_e_simpson_tbb::Simpson::RunImpl() {
                      temp /= (steps_ + 1);
                      param[m] = a_[m] + h[m] * static_cast<double>(shag_i);
                      if (shag_i == 0 || shag_i == steps_) {
-                       weight *= 1.0;
-                     } else if (shag_i % 2 == 1) {
-                       weight *= 4.0;
-                     } else {
-                       weight *= 2.0;
+                      continue;
                      }
+                     weight *= (2.0 + static_cast<double>(shag_i % 2) * 2);
                    }
                    local_res += weight * f_(param);
                  }
