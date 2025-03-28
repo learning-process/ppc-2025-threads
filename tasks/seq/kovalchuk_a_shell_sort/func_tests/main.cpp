@@ -208,3 +208,45 @@ TEST(kovalchuk_a_shell_sort, test_double_reverse) {
   std::vector<int> expected = {1, 1, 2, 2, 3, 3, 4, 4, 5, 5};
   ASSERT_EQ(expected, output);
 }
+
+TEST(kovalchuk_a_shell_sort, test_double_reverse_size6) {
+  std::vector<int> input = {3, 2, 1, 3, 2, 1};
+  std::vector<int> output(input.size());
+
+  auto task_data = std::make_shared<ppc::core::TaskData>();
+  task_data->inputs.emplace_back(reinterpret_cast<uint8_t*>(input.data()));
+  task_data->inputs_count.emplace_back(input.size());
+  task_data->outputs.emplace_back(reinterpret_cast<uint8_t*>(output.data()));
+  task_data->outputs_count.emplace_back(output.size());
+
+  auto task = std::make_shared<kovalchuk_a_shell_sort::ShellSortSequential>(task_data);
+
+  ASSERT_TRUE(task->Validation());
+  task->PreProcessing();
+  task->Run();
+  task->PostProcessing();
+
+  std::vector<int> expected = {1, 1, 2, 2, 3, 3};
+  ASSERT_EQ(expected, output);
+}
+
+TEST(kovalchuk_a_shell_sort, test_double_reverse_size8) {
+  std::vector<int> input = {4, 3, 2, 1, 4, 3, 2, 1};
+  std::vector<int> output(input.size());
+
+  auto task_data = std::make_shared<ppc::core::TaskData>();
+  task_data->inputs.emplace_back(reinterpret_cast<uint8_t*>(input.data()));
+  task_data->inputs_count.emplace_back(input.size());
+  task_data->outputs.emplace_back(reinterpret_cast<uint8_t*>(output.data()));
+  task_data->outputs_count.emplace_back(output.size());
+
+  auto task = std::make_shared<kovalchuk_a_shell_sort::ShellSortSequential>(task_data);
+
+  ASSERT_TRUE(task->Validation());
+  task->PreProcessing();
+  task->Run();
+  task->PostProcessing();
+
+  std::vector<int> expected = {1, 1, 2, 2, 3, 3, 4, 4};
+  ASSERT_EQ(expected, output);
+}
