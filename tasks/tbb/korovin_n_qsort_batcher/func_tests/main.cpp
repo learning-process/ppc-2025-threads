@@ -1,6 +1,7 @@
 #include <gtest/gtest.h>
 
 #include <algorithm>
+#include <climits>
 #include <cstdint>
 #include <memory>
 #include <random>
@@ -58,6 +59,21 @@ TEST(korovin_n_qsort_batcher_tbb, test_reverse_sort) {
 
 TEST(korovin_n_qsort_batcher_tbb, test_double_reverse_sort) {
   std::vector<int> in = {5, 4, 3, 2, 1, 5, 4, 3, 2, 1};
+  RunTest(in);
+}
+
+TEST(korovin_n_qsort_batcher_tbb, test_repeating_25_87) {
+  std::vector<int> in = {25, 87, 25, 87, 1, 25, 87, 0, -5};
+  RunTest(in);
+}
+
+TEST(korovin_n_qsort_batcher_tbb, test_all_elements_equal_25) {
+  std::vector<int> in(50, 25);
+  RunTest(in);
+}
+
+TEST(korovin_n_qsort_batcher_tbb, test_extreme_values_with_25_87) {
+  std::vector<int> in = {INT_MIN, 25, INT_MAX, 87, INT_MIN, 25, 0, INT_MAX, 87};
   RunTest(in);
 }
 
