@@ -30,13 +30,13 @@ TEST(zaytsev_d_sobel_seq, test_pipeline_run) {
 
   std::vector<int> in = GenerateRandomImage(kSize * kSize);
   std::vector<int> out(kSize * kSize, 0);
-  std::vector<int> size_ = {kSize, kSize};
+  std::vector<int> size = {kSize, kSize};
 
   auto task_data_seq = std::make_shared<ppc::core::TaskData>();
   task_data_seq->inputs.emplace_back(reinterpret_cast<uint8_t *>(in.data()));
-  task_data_seq->inputs.emplace_back(reinterpret_cast<uint8_t *>(size_.data()));
+  task_data_seq->inputs.emplace_back(reinterpret_cast<uint8_t *>(size.data()));
   task_data_seq->inputs_count.emplace_back(in.size());
-  task_data_seq->inputs_count.push_back(size_.size());
+  task_data_seq->inputs_count.push_back(size.size());
   task_data_seq->outputs.emplace_back(reinterpret_cast<uint8_t *>(out.data()));
   task_data_seq->outputs_count.emplace_back(out.size());
 
@@ -65,13 +65,13 @@ TEST(zaytsev_d_sobel_seq, test_task_run) {
 
   std::vector<int> in = GenerateRandomImage(kSize * kSize);
   std::vector<int> out(kSize * kSize, 0);
-  std::vector<int> size_ = {kSize, kSize};
+  std::vector<int> size = {kSize, kSize};
 
   auto task_data_seq = std::make_shared<ppc::core::TaskData>();
   task_data_seq->inputs.emplace_back(reinterpret_cast<uint8_t *>(in.data()));
-  task_data_seq->inputs.emplace_back(reinterpret_cast<uint8_t *>(size_.data()));
+  task_data_seq->inputs.emplace_back(reinterpret_cast<uint8_t *>(size.data()));
   task_data_seq->inputs_count.emplace_back(in.size());
-  task_data_seq->inputs_count.emplace_back(size_.size());
+  task_data_seq->inputs_count.emplace_back(size.size());
   task_data_seq->outputs.emplace_back(reinterpret_cast<uint8_t *>(out.data()));
   task_data_seq->outputs_count.emplace_back(out.size());
 

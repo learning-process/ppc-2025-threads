@@ -16,8 +16,8 @@ class TestTaskSequential : public ppc::core::Task {
   bool PostProcessingImpl() override;
 
  private:
-  std::vector<int> input_, output_, size;
-  int width, height;
+  std::vector<int> input_, output_, size_;
+  int width_, height_;
 };
 
 }  // namespace zaytsev_d_sobel_seq
