@@ -1,15 +1,11 @@
 #include <gtest/gtest.h>
 
 #include <cmath>
-#include <cstddef>
 #include <cstdint>
-#include <fstream>
 #include <memory>
-#include <string>
 #include <vector>
 
 #include "core/task/include/task.hpp"
-#include "core/util/include/util.hpp"
 #include "omp/kolokolova_d_integral_simpson_method_omp/include/ops_omp.hpp"
 
 TEST(kolokolova_d_integral_simpson_method_omp, test_easy_func) {
