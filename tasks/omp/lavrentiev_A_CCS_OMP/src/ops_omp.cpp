@@ -102,9 +102,11 @@ lavrentiev_a_ccs_omp::Sparse lavrentiev_a_ccs_omp::CCSOMP::MatMul(const Sparse &
     result_matrix.elements.resize(result_matrix.columnsSum.back());
     result_matrix.rows.resize(result_matrix.columnsSum.back());
   }
-  for (const auto &data : threads_data) {
-    std::ranges::copy(data.first, result_matrix.elements.begin());
-    std::ranges::copy(data.second, result_matrix.rows.begin());
+  size_t count = 0;
+  for (size_t i = 0; i < threads_data.size(); ++i) {
+    std::ranges::copy(threads_data[i].first, result_matrix.elements.begin() + count);
+    std::ranges::copy(threads_data[i].second, result_matrix.rows.begin() + count);
+    count += threads_data[i].first.size();
   }
   result_matrix.size.first = matrix2.size.second;
   result_matrix.size.second = matrix2.size.second;
@@ -139,13 +141,11 @@ bool lavrentiev_a_ccs_omp::CCSOMP::PreProcessingImpl() {
   if (IsEmpty()) {
     return true;
   }
-  std::vector<double> am(A_.size.first * A_.size.second);
   auto *in_ptr = reinterpret_cast<double *>(task_data->inputs[0]);
-  am = std::vector<double>(in_ptr, in_ptr + A_.size.first * A_.size.second);
+  auto am = std::vector<double>(in_ptr, in_ptr + (A_.size.first * A_.size.second));
   A_ = ConvertToSparse(A_.size, am);
-  std::vector<double> bm(B_.size.first * B_.size.second);
   auto *in_ptr2 = reinterpret_cast<double *>(task_data->inputs[1]);
-  bm = std::vector<double>(in_ptr2, in_ptr2 + B_.size.first * B_.size.second);
+  auto bm = std::vector<double>(in_ptr2, in_ptr2 + (B_.size.first * B_.size.second));
   B_ = ConvertToSparse(B_.size, bm);
   return true;
 }
