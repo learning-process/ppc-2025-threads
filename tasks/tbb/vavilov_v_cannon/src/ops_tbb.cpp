@@ -101,14 +101,11 @@ void vavilov_v_cannon_tbb::CannonTBB::ShiftBlocks() {
 }
 
 bool vavilov_v_cannon_tbb::CannonTBB::RunImpl() {
-  tbb::task_arena arena(tbb::task_arena::automatic);
-  arena.execute([&]() {
-    InitialShift();
-    for (int iter = 0; iter < num_blocks_; ++iter) {
-      BlockMultiply();
-      ShiftBlocks();
-    }
-  });
+  InitialShift();
+  for (int iter = 0; iter < num_blocks_; ++iter) {
+    BlockMultiply();
+    ShiftBlocks();
+  }
   return true;
 }
 
