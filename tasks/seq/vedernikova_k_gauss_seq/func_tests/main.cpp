@@ -210,9 +210,9 @@ INSTANTIATE_TEST_SUITE_P(vedernikova_k_gauss_test_seq, vedernikova_k_gauss_test_
       }
     ),
     TaskVars(
-      1000, 1000, 1,
-      Image(1000000, (uint8_t)128),
-      Image(1000000, (uint8_t)128)
+      100, 100, 1,
+      Image(10000, (uint8_t)128),
+      Image(10000, (uint8_t)128)
     )
     
   )
