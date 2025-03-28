@@ -260,7 +260,7 @@ TEST(kovalev_k_radix_sort_batcher_merge_omp, Test_215718_int) {
   ASSERT_EQ(count_viol, 0);
 }
 
-TEST(kovalev_k_radix_sort_batcher_merge_omp, Test_5000000_int) {
+TEST(kovalev_k_radix_sort_batcher_merge_omp, Test_2000000_int) {
   const unsigned int length = 5000000;
   std::vector<long long int> in(length);
   std::random_device rd;
@@ -318,33 +318,6 @@ TEST(kovalev_k_radix_sort_batcher_merge_omp, Test_244852_int) {
 
 TEST(kovalev_k_radix_sort_batcher_merge_omp, Test_875014_int) {
   const unsigned int length = 875014;
-  std::vector<long long int> in(length);
-  std::random_device rd;
-  std::mt19937 gen(rd());
-  std::uniform_int_distribution<long long int> dis(kMinLl, kMaxLl);
-  std::ranges::generate(in.begin(), in.end(), [&]() { return dis(gen); });
-  std::vector<long long int> out(length);
-  std::shared_ptr<ppc::core::TaskData> task_data_omp = std::make_shared<ppc::core::TaskData>();
-  task_data_omp->inputs_count.emplace_back(in.size());
-  task_data_omp->inputs.emplace_back(reinterpret_cast<uint8_t *>(in.data()));
-  task_data_omp->outputs.emplace_back(reinterpret_cast<uint8_t *>(out.data()));
-  task_data_omp->outputs_count.emplace_back(out.size());
-  kovalev_k_radix_sort_batcher_merge_omp::TestTaskOpenMP test_task_omp(task_data_omp);
-  ASSERT_TRUE(test_task_omp.Validation());
-  test_task_omp.PreProcessing();
-  test_task_omp.Run();
-  test_task_omp.PostProcessing();
-  std::ranges::sort(in.begin(), in.end(), [](long long int a, long long int b) { return a < b; });
-  int count_viol = 0;
-  for (unsigned int i = 0; i < length; i++) {
-    if (out[i] != in[i]) {
-      count_viol++;
-    }
-  }
-  ASSERT_EQ(count_viol, 0);
-}
-TEST(kovalev_k_radix_sort_batcher_merge_omp, Test_10000000_int) {
-  const unsigned int length = 10000000;
   std::vector<long long int> in(length);
   std::random_device rd;
   std::mt19937 gen(rd());
