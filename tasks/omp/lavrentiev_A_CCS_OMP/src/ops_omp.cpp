@@ -102,11 +102,11 @@ lavrentiev_a_ccs_omp::Sparse lavrentiev_a_ccs_omp::CCSOMP::MatMul(const Sparse &
     result_matrix.elements.resize(result_matrix.columnsSum.back());
     result_matrix.rows.resize(result_matrix.columnsSum.back());
   }
-  size_t count = 0;
+  int count = 0;
   for (size_t i = 0; i < threads_data.size(); ++i) {
     std::ranges::copy(threads_data[i].first, result_matrix.elements.begin() + count);
     std::ranges::copy(threads_data[i].second, result_matrix.rows.begin() + count);
-    count += threads_data[i].first.size();
+    count += static_cast<int>(threads_data[i].first.size());
   }
   result_matrix.size.first = matrix2.size.second;
   result_matrix.size.second = matrix2.size.second;
