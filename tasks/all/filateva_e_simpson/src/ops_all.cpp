@@ -12,7 +12,6 @@
 #include <cstddef>
 #include <vector>
 
-
 bool filateva_e_simpson_all::Simpson::PreProcessingImpl() {
   if (world_.rank() == 0) {
     mer_ = task_data->inputs_count[0];
