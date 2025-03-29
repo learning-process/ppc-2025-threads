@@ -124,8 +124,8 @@ void vavilov_v_cannon_tbb::CannonTBB::ShiftBlocks() {
             
     for (int bi = r.rows().begin(); bi != r.rows().end(); ++bi) {
       for (int bj = r.cols().begin(); bj != r.cols().end(); ++bj) {
-        int a_src_col = (bj + 1) % num_blocks_; // Сдвиг A влево по столбцам
-        int b_src_row = (bi + 1) % num_blocks_; // Сдвиг B вверх по строкам
+        int a_src_col = (bj + 1) % num_blocks_;  // Сдвиг A влево по столбцам
+        int b_src_row = (bi + 1) % num_blocks_;  // Сдвиг B вверх по строкам
 
         // Сдвиг A: копируем блок из (bi, a_src_col) в буфер
         for (int i = 0; i < block_size_ && (bi * block_size_ + i) < N_; ++i) {
