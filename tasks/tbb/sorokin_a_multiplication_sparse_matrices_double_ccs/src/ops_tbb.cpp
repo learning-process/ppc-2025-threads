@@ -12,32 +12,65 @@
 #include "oneapi/tbb/parallel_for.h"
 
 namespace sorokin_a_multiplication_sparse_matrices_double_ccs_tbb {
-void MultiplyCCS(const std::vector<double> &a_values, const std::vector<int> &a_row_indices, int m,
-                 const std::vector<int> &a_col_ptr, const std::vector<double> &b_values,
-                 const std::vector<int> &b_row_indices, int k, const std::vector<int> &b_col_ptr,
-                 std::vector<double> &c_values, std::vector<int> &c_row_indices, int n, std::vector<int> &c_col_ptr) {
-  if (static_cast<int>(a_values.size()) > m * k || static_cast<int>(b_values.size()) > k * n) {
-    throw std::invalid_argument("Invalid val pointer size");
+void ProcessFirstPass(int j, int m, const std::vector<int>& a_col_ptr, const std::vector<int>& a_row_indices,
+                      const std::vector<int>& b_col_ptr, const std::vector<int>& b_row_indices,
+                      std::vector<int>& col_sizes) {
+  std::vector<bool> temp_used(m, false);
+  for (int t = b_col_ptr[j]; t < b_col_ptr[j + 1]; ++t) {
+    const int row_b = b_row_indices[t];
+    for (int i = a_col_ptr[row_b]; i < a_col_ptr[row_b + 1]; ++i) {
+      const int row_a = a_row_indices[i];
+      if (!temp_used[row_a]) {
+        temp_used[row_a] = true;
+        col_sizes[j]++;
+      }
+    }
+  }
+}
+
+void ProcessSecondPass(int j, int m, const std::vector<int>& a_col_ptr, const std::vector<int>& a_row_indices,
+                       const std::vector<double>& a_values, const std::vector<int>& b_col_ptr,
+                       const std::vector<int>& b_row_indices, const std::vector<double>& b_values,
+                       const std::vector<int>& c_col_ptr, std::vector<int>& c_row_indices,
+                       std::vector<double>& c_values) {
+  std::vector<double> temp_values(m, 0.0);
+  std::vector<bool> temp_used(m, false);
+
+  for (int t = b_col_ptr[j]; t < b_col_ptr[j + 1]; ++t) {
+    const int row_b = b_row_indices[t];
+    const double val_b = b_values[t];
+    for (int i = a_col_ptr[row_b]; i < a_col_ptr[row_b + 1]; ++i) {
+      const int row_a = a_row_indices[i];
+      temp_values[row_a] += a_values[i] * val_b;
+      temp_used[row_a] = true;
+    }
   }
 
-  c_col_ptr.assign(n + 1, 0);
-  std::vector<int> col_sizes(n, 0);
-  std::vector<tbb::mutex> mutexes(m);
+  int pos = c_col_ptr[j];
+  for (int i = 0; i < m; ++i) {
+    if (temp_used[i]) {
+      c_row_indices[pos] = i;
+      c_values[pos] = temp_values[i];
+      pos++;
+    }
+  }
+}
 
-  tbb::parallel_for(tbb::blocked_range<int>(0, n), [&](const tbb::blocked_range<int> &range) {
-    std::vector<bool> temp_used(m);
+void MultiplyCCS(const std::vector<double>& a_values, const std::vector<int>& a_row_indices, int m,
+                 const std::vector<int>& a_col_ptr, const std::vector<double>& b_values,
+                 const std::vector<int>& b_row_indices, int k, const std::vector<int>& b_col_ptr,
+                 std::vector<double>& c_values, std::vector<int>& c_row_indices, int n, std::vector<int>& c_col_ptr) {
+  if (a_values.size() > static_cast<size_t>(m * k) || b_values.size() > static_cast<size_t>(k * n)) {
+    throw std::invalid_argument("Invalid matrix storage size");
+  }
+
+  c_col_ptr.resize(n + 1);
+  c_col_ptr[0] = 0;
+  std::vector<int> col_sizes(n, 0);
+
+  tbb::parallel_for(tbb::blocked_range<int>(0, n), [&](const tbb::blocked_range<int>& range) {
     for (int j = range.begin(); j < range.end(); ++j) {
-      temp_used.assign(m, false);
-      for (int t = b_col_ptr[j]; t < b_col_ptr[j + 1]; ++t) {
-        int row_b = b_row_indices[t];
-        for (int i = a_col_ptr[row_b]; i < a_col_ptr[row_b + 1]; ++i) {
-          int row_a = a_row_indices[i];
-          if (!temp_used[row_a]) {
-            temp_used[row_a] = true;
-            col_sizes[j]++;
-          }
-        }
-      }
+      ProcessFirstPass(j, m, a_col_ptr, a_row_indices, b_col_ptr, b_row_indices, col_sizes);
     }
   });
 
@@ -45,34 +78,14 @@ void MultiplyCCS(const std::vector<double> &a_values, const std::vector<int> &a_
     c_col_ptr[j + 1] = c_col_ptr[j] + col_sizes[j];
   }
 
-  c_values.resize(c_col_ptr[n]);
-  c_row_indices.resize(c_col_ptr[n]);
+  const int total_non_zero = c_col_ptr[n];
+  c_values.resize(total_non_zero);
+  c_row_indices.resize(total_non_zero);
 
-  tbb::parallel_for(tbb::blocked_range<int>(0, n), [&](const tbb::blocked_range<int> &range) {
-    std::vector<double> temp_values(m);
-    std::vector<bool> temp_used(m);
+  tbb::parallel_for(tbb::blocked_range<int>(0, n), [&](const tbb::blocked_range<int>& range) {
     for (int j = range.begin(); j < range.end(); ++j) {
-      temp_used.assign(m, false);
-      temp_values.assign(m, 0.0);
-
-      for (int t = b_col_ptr[j]; t < b_col_ptr[j + 1]; ++t) {
-        int row_b = b_row_indices[t];
-        double val_b = b_values[t];
-        for (int i = a_col_ptr[row_b]; i < a_col_ptr[row_b + 1]; ++i) {
-          int row_a = a_row_indices[i];
-          temp_values[row_a] += a_values[i] * val_b;
-          temp_used[row_a] = true;
-        }
-      }
-
-      int pos = c_col_ptr[j];
-      for (int i = 0; i < m; ++i) {
-        if (temp_used[i]) {
-          c_row_indices[pos] = i;
-          c_values[pos] = temp_values[i];
-          pos++;
-        }
-      }
+      ProcessSecondPass(j, m, a_col_ptr, a_row_indices, a_values, b_col_ptr, b_row_indices, b_values, c_col_ptr,
+                        c_row_indices, c_values);
     }
   });
 }

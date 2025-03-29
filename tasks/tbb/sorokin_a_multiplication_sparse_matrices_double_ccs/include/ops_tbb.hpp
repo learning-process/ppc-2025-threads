@@ -34,5 +34,13 @@ void MultiplyCCS(const std::vector<double> &a_values, const std::vector<int> &a_
                  const std::vector<int> &a_col_ptr, const std::vector<double> &b_values,
                  const std::vector<int> &b_row_indices, int k, const std::vector<int> &b_col_ptr,
                  std::vector<double> &c_values, std::vector<int> &c_row_indices, int n, std::vector<int> &c_col_ptr);
+void ProcessSecondPass(int j, int m, const std::vector<int>& a_col_ptr, const std::vector<int>& a_row_indices,
+                       const std::vector<double>& a_values, const std::vector<int>& b_col_ptr,
+                       const std::vector<int>& b_row_indices, const std::vector<double>& b_values,
+                       const std::vector<int>& c_col_ptr, std::vector<int>& c_row_indices,
+                       std::vector<double>& c_values);
+void ProcessFirstPass(int j, int m, const std::vector<int>& a_col_ptr, const std::vector<int>& a_row_indices,
+                      const std::vector<int>& b_col_ptr, const std::vector<int>& b_row_indices,
+                      std::vector<int>& col_sizes);
 
 }  // namespace sorokin_a_multiplication_sparse_matrices_double_ccs_tbb
