@@ -18,7 +18,12 @@ TEST(filateva_e_simpson_all, test_x_pow_2) {
   std::vector<double> a;
   std::vector<double> b;
   std::vector<double> res;
-  filateva_e_simpson_all::Func f = [](std::vector<double> x) { return x[0] * x[0]; };
+  filateva_e_simpson_all::Func f = [](std::vector<double> x) {
+    if (x.empty()) {
+      return 0.0;
+    }
+    return x[0] * x[0];
+  };
 
   auto task_data = std::make_shared<ppc::core::TaskData>();
 
@@ -59,7 +64,12 @@ TEST(filateva_e_simpson_all, test_x_pow_2_negative) {
   std::vector<double> a;
   std::vector<double> b;
   std::vector<double> res;
-  filateva_e_simpson_all::Func f = [](std::vector<double> x) { return x[0] * x[0]; };
+  filateva_e_simpson_all::Func f = [](std::vector<double> x) {
+    if (x.empty()) {
+      return 0.0;
+    }
+    return x[0] * x[0];
+  };
 
   auto task_data = std::make_shared<ppc::core::TaskData>();
 
@@ -100,7 +110,12 @@ TEST(filateva_e_simpson_all, test_x) {
   std::vector<double> a;
   std::vector<double> b;
   std::vector<double> res;
-  filateva_e_simpson_all::Func f = [](std::vector<double> x) { return x[0]; };
+  filateva_e_simpson_all::Func f = [](std::vector<double> x) {
+    if (x.empty()) {
+      return 0.0;
+    }
+    return x[0];
+  };
 
   auto task_data = std::make_shared<ppc::core::TaskData>();
 
@@ -141,7 +156,12 @@ TEST(filateva_e_simpson_all, test_x_pow_3) {
   std::vector<double> a;
   std::vector<double> b;
   std::vector<double> res;
-  filateva_e_simpson_all::Func f = [](std::vector<double> x) { return x[0] * x[0] * x[0]; };
+  filateva_e_simpson_all::Func f = [](std::vector<double> x) {
+    if (x.empty()) {
+      return 0.0;
+    }
+    return x[0] * x[0] * x[0];
+  };
 
   auto task_data = std::make_shared<ppc::core::TaskData>();
 
@@ -182,7 +202,12 @@ TEST(filateva_e_simpson_all, test_x_del) {
   std::vector<double> a;
   std::vector<double> b;
   std::vector<double> res;
-  filateva_e_simpson_all::Func f = [](std::vector<double> x) { return 1 / x[0]; };
+  filateva_e_simpson_all::Func f = [](std::vector<double> x) {
+    if (x.empty()) {
+      return 0.0;
+    }
+    return 1 / x[0];
+  };
 
   auto task_data = std::make_shared<ppc::core::TaskData>();
 
@@ -223,7 +248,12 @@ TEST(filateva_e_simpson_all, test_x_sin) {
   std::vector<double> a;
   std::vector<double> b;
   std::vector<double> res;
-  filateva_e_simpson_all::Func f = [](std::vector<double> x) { return std::sin(x[0]); };
+  filateva_e_simpson_all::Func f = [](std::vector<double> x) {
+    if (x.empty()) {
+      return 0.0;
+    }
+    return std::sin(x[0]);
+  };
 
   auto task_data = std::make_shared<ppc::core::TaskData>();
 
@@ -264,7 +294,12 @@ TEST(filateva_e_simpson_all, test_x_cos) {
   std::vector<double> a;
   std::vector<double> b;
   std::vector<double> res;
-  filateva_e_simpson_all::Func f = [](std::vector<double> x) { return std::cos(x[0]); };
+  filateva_e_simpson_all::Func f = [](std::vector<double> x) {
+    if (x.empty()) {
+      return 0.0;
+    }
+    return std::cos(x[0]);
+  };
 
   auto task_data = std::make_shared<ppc::core::TaskData>();
 
@@ -305,7 +340,12 @@ TEST(filateva_e_simpson_all, test_gausa) {
   std::vector<double> a;
   std::vector<double> b;
   std::vector<double> res;
-  filateva_e_simpson_all::Func f = [](std::vector<double> x) { return pow(std::numbers::e, -pow(x[0], 2)); };
+  filateva_e_simpson_all::Func f = [](std::vector<double> x) {
+    if (x.empty()) {
+      return 0.0;
+    }
+    return pow(std::numbers::e, -pow(x[0], 2));
+  };
 
   auto task_data = std::make_shared<ppc::core::TaskData>();
 
@@ -344,7 +384,12 @@ TEST(filateva_e_simpson_all, test_sum_integral) {
   std::vector<double> a;
   std::vector<double> b;
   std::vector<double> res;
-  filateva_e_simpson_all::Func f = [](std::vector<double> x) { return pow(x[0], 3) + pow(x[0], 2) + x[0]; };
+  filateva_e_simpson_all::Func f = [](std::vector<double> x) {
+    if (x.empty()) {
+      return 0.0;
+    }
+    return pow(x[0], 3) + pow(x[0], 2) + x[0];
+  };
 
   auto task_data = std::make_shared<ppc::core::TaskData>();
 
@@ -387,7 +432,12 @@ TEST(filateva_e_simpson_all, test_error_1) {
   std::vector<double> a;
   std::vector<double> b;
   std::vector<double> res;
-  filateva_e_simpson_all::Func f = [](std::vector<double> x) { return x[0] * x[0]; };
+  filateva_e_simpson_all::Func f = [](std::vector<double> x) {
+    if (x.empty()) {
+      return 0.0;
+    }
+    return x[0] * x[0];
+  };
 
   auto task_data = std::make_shared<ppc::core::TaskData>();
 
@@ -423,7 +473,12 @@ TEST(filateva_e_simpson_all, test_error_n_mer) {
   std::vector<double> a;
   std::vector<double> b;
   std::vector<double> res;
-  filateva_e_simpson_all::Func f = [](std::vector<double> x) { return x[0] * x[0]; };
+  filateva_e_simpson_all::Func f = [](std::vector<double> x) {
+    if (x.empty()) {
+      return 0.0;
+    }
+    return x[0] * x[0];
+  };
 
   auto task_data = std::make_shared<ppc::core::TaskData>();
 
@@ -459,7 +514,12 @@ TEST(filateva_e_simpson_all, test_error_2) {
   std::vector<double> a;
   std::vector<double> b;
   std::vector<double> res;
-  filateva_e_simpson_all::Func f = [](std::vector<double> x) { return x[0] * x[0]; };
+  filateva_e_simpson_all::Func f = [](std::vector<double> x) {
+    if (x.empty()) {
+      return 0.0;
+    }
+    return x[0] * x[0];
+  };
 
   auto task_data = std::make_shared<ppc::core::TaskData>();
 
@@ -496,6 +556,9 @@ TEST(filateva_e_simpson_all, test_x_y_pow_2) {
   std::vector<double> b;
   std::vector<double> res;
   filateva_e_simpson_all::Func f = [](std::vector<double> param) {
+    if (param.empty()) {
+      return 0.0;
+    }
     return (param[0] * param[0]) + (param[1] * param[1]);
   };
 
@@ -536,7 +599,12 @@ TEST(filateva_e_simpson_all, test_x_y) {
   std::vector<double> a;
   std::vector<double> b;
   std::vector<double> res;
-  filateva_e_simpson_all::Func f = [](std::vector<double> param) { return param[0] + param[1]; };
+  filateva_e_simpson_all::Func f = [](std::vector<double> param) {
+    if (param.empty()) {
+      return 0.0;
+    }
+    return param[0] + param[1];
+  };
 
   auto task_data = std::make_shared<ppc::core::TaskData>();
 
@@ -575,7 +643,12 @@ TEST(filateva_e_simpson_all, test_sin_x_cos_y) {
   std::vector<double> a;
   std::vector<double> b;
   std::vector<double> res;
-  filateva_e_simpson_all::Func f = [](std::vector<double> param) { return std::sin(param[0]) * std::cos(param[1]); };
+  filateva_e_simpson_all::Func f = [](std::vector<double> param) {
+    if (param.empty()) {
+      return 0.0;
+    }
+    return std::sin(param[0]) * std::cos(param[1]);
+  };
 
   auto task_data = std::make_shared<ppc::core::TaskData>();
 
@@ -615,6 +688,9 @@ TEST(filateva_e_simpson_all, test_sum_integral_x_y) {
   std::vector<double> b;
   std::vector<double> res;
   filateva_e_simpson_all::Func f = [](std::vector<double> param) {
+    if (param.empty()) {
+      return 0.0;
+    }
     return pow(param[0], 3) + pow(param[1], 2) + param[0];
   };
 
@@ -655,7 +731,12 @@ TEST(filateva_e_simpson_all, test_x_y_negative) {
   std::vector<double> a;
   std::vector<double> b;
   std::vector<double> res;
-  filateva_e_simpson_all::Func f = [](std::vector<double> param) { return param[0] + param[1]; };
+  filateva_e_simpson_all::Func f = [](std::vector<double> param) {
+    if (param.empty()) {
+      return 0.0;
+    }
+    return param[0] + param[1];
+  };
 
   auto task_data = std::make_shared<ppc::core::TaskData>();
 
