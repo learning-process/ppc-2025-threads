@@ -4,13 +4,12 @@
 
 #include <algorithm>
 #include <cmath>
-#include <core/util/include/util.hpp>
 #include <cstddef>
 #include <stdexcept>
 #include <vector>
 
-#include "oneapi/tbb/task_arena.h"
-#include "oneapi/tbb/task_group.h"
+#include "oneapi/tbb/parallel_for.h"
+#include "oneapi/tbb/blocked_range.h"
 
 namespace sorokin_a_multiplication_sparse_matrices_double_ccs_tbb {
 void MultiplyCCS(const std::vector<double> &a_values, const std::vector<int> &a_row_indices, int m,
