@@ -5,82 +5,83 @@
 #include <vector>
 
 bool karaseva_e_congrad_omp::TestTaskOpenMP::PreProcessingImpl() {
-  // Initialize problem dimensions and input data
+  // Read input dimensions and copy data from task_data to internal buffers
   size_ = task_data->inputs_count[1];
   auto* a_ptr = reinterpret_cast<double*>(task_data->inputs[0]);
   auto* b_ptr = reinterpret_cast<double*>(task_data->inputs[1]);
 
-  // Copy input matrix A and vector b to internal storage
+  // Initialize matrix A (size_ x size_) and vectors b/x
   A_ = std::vector<double>(a_ptr, a_ptr + (size_ * size_));
   b_ = std::vector<double>(b_ptr, b_ptr + size_);
-  x_ = std::vector<double>(size_, 0.0);
+  x_ = std::vector<double>(size_, 0.0);  // Initial solution guess
 
   return true;
 }
 
 bool karaseva_e_congrad_omp::TestTaskOpenMP::ValidationImpl() {
-  // Validate that input matrix is square (size^2 elements)
-  // and output vector has correct size
+  // Verify that input matrix is square (N x N) and output has correct size (N)
   const bool valid_input = task_data->inputs_count[0] == task_data->inputs_count[1] * task_data->inputs_count[1];
   const bool valid_output = task_data->outputs_count[0] == task_data->inputs_count[1];
   return valid_input && valid_output;
 }
 
 bool karaseva_e_congrad_omp::TestTaskOpenMP::RunImpl() {
-  // Conjugate Gradient algorithm implementation
-  std::vector<double> r(size_);
-  std::vector<double> p(size_);
-  std::vector<double> ap(size_);
+  // Conjugate gradient working vectors
+  std::vector<double> r(size_);   // Residual
+  std::vector<double> p(size_);   // Search direction
+  std::vector<double> ap(size_);  // Matrix-vector product A*p
 
-  // Parallel initialization of residual (r) and search direction (p) vectors
+  // Initialize residual r = b - A*x (x is initially zero)
+  // and initial search direction p = r
 #pragma omp parallel for
   for (int i = 0; i < static_cast<int>(size_); ++i) {
-    r[i] = b_[i];
+    r[i] = b_[i];  // Since x is zero, r = b - 0
     p[i] = r[i];
   }
 
-  // Compute initial residual squared norm
+  // Calculate initial residual squared norm
   double rs_old = 0.0;
 #pragma omp parallel for reduction(+ : rs_old)
   for (int i = 0; i < static_cast<int>(size_); ++i) {
     rs_old += r[i] * r[i];
   }
 
-  const double tolerance = 1e-10;
-  const size_t max_iterations = size_;
+  const double tolerance = 1e-10;       // Convergence threshold
+  const size_t max_iterations = size_;  // Worst-case iterations
 
-  // Main conjugate gradient iteration loop
+  // Main conjugate gradient loop
   for (size_t k = 0; k < max_iterations; ++k) {
-    // Parallel matrix-vector multiplication: ap = A * p
+    // Compute matrix-vector product: ap = A * p
+    // Using nested parallelism for inner loop
 #pragma omp parallel for
     for (int i = 0; i < static_cast<int>(size_); ++i) {
-      ap[i] = 0.0;
-      for (size_t j = 0; j < size_; ++j) {
-        ap[i] += A_[(i * size_) + j] * p[j];
+      double temp = 0.0;
+#pragma omp parallel for reduction(+ : temp)
+      for (int j = 0; j < static_cast<int>(size_); ++j) {
+        temp += A_[(i * size_) + j] * p[j];
       }
+      ap[i] = temp;
     }
 
-    // Compute inner product for alpha calculation
+    // Compute p^T * A * p for alpha calculation
     double p_ap = 0.0;
 #pragma omp parallel for reduction(+ : p_ap)
     for (int i = 0; i < static_cast<int>(size_); ++i) {
       p_ap += p[i] * ap[i];
     }
 
-    // Early exit if denominator becomes too small
-    if (std::fabs(p_ap) < 1e-15) {
-      break;
-    }
+    // Early exit if denominator becomes unstable
+    if (std::fabs(p_ap) < 1e-15) break;
     const double alpha = rs_old / p_ap;
 
-    // Parallel update of solution (x) and residual (r) vectors
+    // Update solution and residual vectors
 #pragma omp parallel for
     for (int i = 0; i < static_cast<int>(size_); ++i) {
       x_[i] += alpha * p[i];
       r[i] -= alpha * ap[i];
     }
 
-    // Compute new residual squared norm
+    // Compute new residual norm
     double rs_new = 0.0;
 #pragma omp parallel for reduction(+ : rs_new)
     for (int i = 0; i < static_cast<int>(size_); ++i) {
@@ -88,26 +89,23 @@ bool karaseva_e_congrad_omp::TestTaskOpenMP::RunImpl() {
     }
 
     // Check convergence condition
-    if (rs_new < tolerance * tolerance) {
-      break;
-    }
+    if (rs_new < tolerance * tolerance) break;
 
-    // Compute beta for direction vector update
+    // Update search direction using Polak-Ribi?re formula
     const double beta = rs_new / rs_old;
-
-    // Parallel update of search direction vector (p)
 #pragma omp parallel for
     for (int i = 0; i < static_cast<int>(size_); ++i) {
       p[i] = r[i] + beta * p[i];
     }
 
-    rs_old = rs_new;
+    rs_old = rs_new;  // Update residual norm for next iteration
   }
 
   return true;
 }
 
 bool karaseva_e_congrad_omp::TestTaskOpenMP::PostProcessingImpl() {
+  // Write results back to task_data output buffer
   auto* x_ptr = reinterpret_cast<double*>(task_data->outputs[0]);
 #pragma omp parallel for
   for (int i = 0; i < static_cast<int>(x_.size()); ++i) {

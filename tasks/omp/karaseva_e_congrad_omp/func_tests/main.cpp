@@ -226,3 +226,54 @@ TEST(karaseva_e_congrad_omp, test_zero_solution) {
     EXPECT_NEAR(x[i], 0.0, 1e-10);
   }
 }
+
+TEST(karaseva_e_congrad_omp, validation_check_invalid_matrix) {
+  // Test non-square matrix input
+  constexpr size_t kInvalidSize = 3;
+  std::vector<double> a_matrix(kInvalidSize * 2, 1.0);  // 3x2 matrix
+  std::vector<double> b(kInvalidSize, 0.0);
+  std::vector<double> x(kInvalidSize, 0.0);
+
+  auto task_data = std::make_shared<ppc::core::TaskData>();
+  task_data->inputs = {reinterpret_cast<uint8_t*>(a_matrix.data()), reinterpret_cast<uint8_t*>(b.data())};
+  task_data->inputs_count = {kInvalidSize * 2, kInvalidSize};
+  task_data->outputs = {reinterpret_cast<uint8_t*>(x.data())};
+  task_data->outputs_count = {kInvalidSize};
+
+  karaseva_e_congrad_omp::TestTaskOpenMP task(task_data);
+  EXPECT_FALSE(task.Validation());
+}
+
+TEST(karaseva_e_congrad_omp, validation_check_invalid_output) {
+  // Test output size mismatch
+  constexpr size_t kValidSize = 4;
+  std::vector<double> a_matrix(kValidSize * kValidSize, 1.0);
+  std::vector<double> b(kValidSize, 0.0);
+  std::vector<double> x(kValidSize - 1, 0.0);
+
+  auto task_data = std::make_shared<ppc::core::TaskData>();
+  task_data->inputs = {reinterpret_cast<uint8_t*>(a_matrix.data()), reinterpret_cast<uint8_t*>(b.data())};
+  task_data->inputs_count = {kValidSize * kValidSize, kValidSize};
+  task_data->outputs = {reinterpret_cast<uint8_t*>(x.data())};
+  task_data->outputs_count = {kValidSize - 1};
+
+  karaseva_e_congrad_omp::TestTaskOpenMP task(task_data);
+  EXPECT_FALSE(task.Validation());
+}
+
+TEST(karaseva_e_congrad_omp, validation_check_valid_data) {
+  // Test valid input configuration
+  constexpr size_t kValidSize = 5;
+  std::vector<double> a_matrix(kValidSize * kValidSize, 1.0);
+  std::vector<double> b(kValidSize, 0.0);
+  std::vector<double> x(kValidSize, 0.0);
+
+  auto task_data = std::make_shared<ppc::core::TaskData>();
+  task_data->inputs = {reinterpret_cast<uint8_t*>(a_matrix.data()), reinterpret_cast<uint8_t*>(b.data())};
+  task_data->inputs_count = {kValidSize * kValidSize, kValidSize};
+  task_data->outputs = {reinterpret_cast<uint8_t*>(x.data())};
+  task_data->outputs_count = {kValidSize};
+
+  karaseva_e_congrad_omp::TestTaskOpenMP task(task_data);
+  EXPECT_TRUE(task.Validation());
+}
