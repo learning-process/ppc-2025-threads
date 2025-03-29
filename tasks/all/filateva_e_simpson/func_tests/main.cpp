@@ -12,59 +12,59 @@
 #include "core/task/include/task.hpp"
 
 namespace {
-  void RunTest(size_t mer, size_t steps, std::vector<double> a, std::vector<double> b,  filateva_e_simpson_all::Func f, double ans) {
-    boost::mpi::communicator world;
-    auto task_data = std::make_shared<ppc::core::TaskData>();
-    std::vector<double> res(1, 0);
+void RunTest(size_t mer, size_t steps, std::vector<double> a, std::vector<double> b,  filateva_e_simpson_all::Func f, double ans) {
+  boost::mpi::communicator world;
+  auto task_data = std::make_shared<ppc::core::TaskData>();
+  std::vector<double> res(1, 0);
 
-    if (world.rank() == 0) {
-      task_data->inputs.emplace_back(reinterpret_cast<uint8_t *>(a.data()));
-      task_data->inputs.emplace_back(reinterpret_cast<uint8_t *>(b.data()));
-      task_data->inputs_count.emplace_back(mer);
-      task_data->inputs_count.emplace_back(steps);
-  
-      task_data->outputs.emplace_back(reinterpret_cast<uint8_t *>(res.data()));
-      task_data->outputs_count.emplace_back(1);
-    }
+  if (world.rank() == 0) {
+    task_data->inputs.emplace_back(reinterpret_cast<uint8_t *>(a.data()));
+    task_data->inputs.emplace_back(reinterpret_cast<uint8_t *>(b.data()));
+    task_data->inputs_count.emplace_back(mer);
+    task_data->inputs_count.emplace_back(steps);
 
-    filateva_e_simpson_all::Simpson simpson(task_data);
-    simpson.SetFunc(f);
-    ASSERT_TRUE(simpson.Validation());
-    simpson.PreProcessing();
-    simpson.Run();
-    simpson.PostProcessing();
-
-    if (world.rank() == 0) {
-      ASSERT_NEAR(res[0], ans, 0.01);
-    }
-
+    task_data->outputs.emplace_back(reinterpret_cast<uint8_t *>(res.data()));
+    task_data->outputs_count.emplace_back(1);
   }
 
-  void RunTest(size_t mer, size_t steps, std::vector<double> a, std::vector<double> b,  filateva_e_simpson_all::Func f, filateva_e_simpson_all::Func p_f) {
-    double ans = p_f(b) - p_f(a);
-    RunTest(mer, steps, a, b, f, ans);
+  filateva_e_simpson_all::Simpson simpson(task_data);
+  simpson.SetFunc(f);
+  ASSERT_TRUE(simpson.Validation());
+  simpson.PreProcessing();
+  simpson.Run();
+  simpson.PostProcessing();
+
+  if (world.rank() == 0) {
+    ASSERT_NEAR(res[0], ans, 0.01);
   }
 
-  void RunTestError(size_t mer, size_t steps, std::vector<double> a, std::vector<double> b) {
-    boost::mpi::communicator world;
-    auto task_data = std::make_shared<ppc::core::TaskData>();
-    std::vector<double> res(1, 0);
+}
 
-    if (world.rank() == 0) {
-      task_data->inputs.emplace_back(reinterpret_cast<uint8_t *>(a.data()));
-      task_data->inputs.emplace_back(reinterpret_cast<uint8_t *>(b.data()));
-      task_data->inputs_count.emplace_back(mer);
-      task_data->inputs_count.emplace_back(steps);
-  
-      task_data->outputs.emplace_back(reinterpret_cast<uint8_t *>(res.data()));
-      task_data->outputs_count.emplace_back(1);
-    }
+void RunTest(size_t mer, size_t steps, std::vector<double> a, std::vector<double> b,  filateva_e_simpson_all::Func f, filateva_e_simpson_all::Func p_f) {
+  double ans = p_f(b) - p_f(a);
+  RunTest(mer, steps, a, b, f, ans);
+}
 
-    filateva_e_simpson_all::Simpson simpson(task_data);
-    ASSERT_FALSE(simpson.Validation());
+void RunTestError(size_t mer, size_t steps, std::vector<double> a, std::vector<double> b) {
+  boost::mpi::communicator world;
+  auto task_data = std::make_shared<ppc::core::TaskData>();
+  std::vector<double> res(1, 0);
+
+  if (world.rank() == 0) {
+    task_data->inputs.emplace_back(reinterpret_cast<uint8_t *>(a.data()));
+    task_data->inputs.emplace_back(reinterpret_cast<uint8_t *>(b.data()));
+    task_data->inputs_count.emplace_back(mer);
+    task_data->inputs_count.emplace_back(steps);
+
+    task_data->outputs.emplace_back(reinterpret_cast<uint8_t *>(res.data()));
+    task_data->outputs_count.emplace_back(1);
   }
 
-} // namespace
+  filateva_e_simpson_all::Simpson simpson(task_data);
+  ASSERT_FALSE(simpson.Validation());
+}
+
+}  // namespace
 
 TEST(filateva_e_simpson_all, test_x_pow_2) {
   size_t mer = 1;
