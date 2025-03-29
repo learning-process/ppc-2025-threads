@@ -19,25 +19,24 @@ TEST(filateva_e_simpson_all, test_pipeline_run) {
   std::vector<double> b;
   std::vector<double> res;
 
-  filateva_e_simpson_all::Func f = [](std::vector<double> x) {
-    if (x.empty()) {
+  filateva_e_simpson_all::Func f = [](std::vector<double> per) {
+    if (per.empty()) {
       return 0.0;
     }
-    return x[0] * x[0];
+    return std::pow(per[0], 2) + std::pow(per[1], 2);
   };
 
   auto task_data = std::make_shared<ppc::core::TaskData>();
 
   if (world.rank() == 0) {
-    mer = 1;
-    steps = 10000000;
-    a = {1};
-    b = {1000};
+    mer = 2;
+    steps = 3000;
+    a = {1, 1};
+    b = {300, 300};
     res.resize(1, 0);
 
     task_data->inputs.emplace_back(reinterpret_cast<uint8_t *>(a.data()));
     task_data->inputs.emplace_back(reinterpret_cast<uint8_t *>(b.data()));
-    task_data->inputs.emplace_back(reinterpret_cast<uint8_t *>(f));
     task_data->inputs_count.emplace_back(mer);
     task_data->inputs_count.emplace_back(steps);
 
@@ -64,14 +63,7 @@ TEST(filateva_e_simpson_all, test_pipeline_run) {
 
   if (world.rank() == 0) {
     ppc::core::Perf::PrintPerfStatistic(perf_results);
-    filateva_e_simpson_all::Func integral_f = [](std::vector<double> x) {
-      if (x.empty()) {
-        return 0.0;
-      }
-      return x[0] * x[0] * x[0] / 3;
-    };
-
-    ASSERT_NEAR(res[0], integral_f(b) - integral_f(a), 0.01);
+    ASSERT_NEAR(res[0], 5381999800.666, 0.01);
   }
 }
 
@@ -83,25 +75,24 @@ TEST(filateva_e_simpson_all, test_task_run) {
   std::vector<double> b;
   std::vector<double> res;
 
-  filateva_e_simpson_all::Func f = [](std::vector<double> x) {
-    if (x.empty()) {
+  filateva_e_simpson_all::Func f = [](std::vector<double> per) {
+    if (per.empty()) {
       return 0.0;
     }
-    return x[0] * x[0];
+    return std::pow(per[0], 2) + std::pow(per[1], 2);
   };
 
   auto task_data = std::make_shared<ppc::core::TaskData>();
 
   if (world.rank() == 0) {
-    mer = 1;
-    steps = 10000000;
-    a = {1};
-    b = {1000};
+    mer = 2;
+    steps = 3000;
+    a = {1, 1};
+    b = {300, 300};
     res.resize(1, 0);
 
     task_data->inputs.emplace_back(reinterpret_cast<uint8_t *>(a.data()));
     task_data->inputs.emplace_back(reinterpret_cast<uint8_t *>(b.data()));
-    task_data->inputs.emplace_back(reinterpret_cast<uint8_t *>(f));
     task_data->inputs_count.emplace_back(mer);
     task_data->inputs_count.emplace_back(steps);
 
@@ -128,13 +119,6 @@ TEST(filateva_e_simpson_all, test_task_run) {
 
   if (world.rank() == 0) {
     ppc::core::Perf::PrintPerfStatistic(perf_results);
-    filateva_e_simpson_all::Func integral_f = [](std::vector<double> x) {
-      if (x.empty()) {
-        return 0.0;
-      }
-      return x[0] * x[0] * x[0] / 3;
-    };
-
-    ASSERT_NEAR(res[0], integral_f(b) - integral_f(a), 0.01);
+    ASSERT_NEAR(res[0], 5381999800.666, 0.01);
   }
 }
