@@ -59,7 +59,7 @@ kondratev_ya_ccs_complex_multiplication_omp::CCSMatrix ConvertToCCS(
 
 bool IsComplexVectorEqual(const std::vector<std::complex<double>> &a, const std::vector<std::complex<double>> &b) {
   return std::ranges::equal(
-      a, b, [](const auto &x, const auto &y) { return kondratev_ya_ccs_complex_multiplication_omp::IOMPual(x, y); });
+      a, b, [](const auto &x, const auto &y) { return kondratev_ya_ccs_complex_multiplication_omp::IsEqual(x, y); });
 }
 
 std::vector<std::complex<double>> ClassicMultiplyMatrices(const std::vector<std::complex<double>> &a,
@@ -112,7 +112,7 @@ void RunTest(Matrices matrices) {
   task_data_omp->outputs.emplace_back(reinterpret_cast<uint8_t *>(&matrices.out));
   task_data_omp->outputs_count.emplace_back(1);
 
-  kondratev_ya_ccs_complex_multiplication_omp::TestTaskOMPuential test_task_ompuential(task_data_omp);
+  kondratev_ya_ccs_complex_multiplication_omp::TestTaskOMP test_task_ompuential(task_data_omp);
   ASSERT_TRUE(test_task_ompuential.Validation());
   ASSERT_TRUE(test_task_ompuential.PreProcessing());
   ASSERT_TRUE(test_task_ompuential.Run());
@@ -195,14 +195,14 @@ TEST(kondratev_ya_ccs_complex_multiplication_omp, test_empty_matrices) {
   task_data->outputs.emplace_back(reinterpret_cast<uint8_t *>(&c));
   task_data->outputs_count.emplace_back(1);
 
-  kondratev_ya_ccs_complex_multiplication_omp::TestTaskOMPuential task(task_data);
+  kondratev_ya_ccs_complex_multiplication_omp::TestTaskOMP task(task_data);
   EXPECT_TRUE(task.ValidationImpl());
   EXPECT_FALSE(task.PreProcessingImpl());
 }
 
 TEST(kondratev_ya_ccs_complex_multiplication_omp, test_single_element) {
   auto task_data = std::make_shared<ppc::core::TaskData>();
-  kondratev_ya_ccs_complex_multiplication_omp::TestTaskOMPuential task(task_data);
+  kondratev_ya_ccs_complex_multiplication_omp::TestTaskOMP task(task_data);
 
   kondratev_ya_ccs_complex_multiplication_omp::CCSMatrix a({1, 1});
   a.values = {{2.0, 1.0}};
@@ -289,7 +289,7 @@ TEST(kondratev_ya_ccs_complex_multiplication_omp, test_incompatible_matrix_sizes
   task_data->outputs.emplace_back(reinterpret_cast<uint8_t *>(&c));
   task_data->outputs_count.emplace_back(1);
 
-  kondratev_ya_ccs_complex_multiplication_omp::TestTaskOMPuential task(task_data);
+  kondratev_ya_ccs_complex_multiplication_omp::TestTaskOMP task(task_data);
 
   EXPECT_TRUE(task.ValidationImpl());
   EXPECT_FALSE(task.PreProcessingImpl());

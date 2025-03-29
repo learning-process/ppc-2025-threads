@@ -12,12 +12,12 @@ bool kondratev_ya_ccs_complex_multiplication_omp::IsZero(const std::complex<doub
   return std::norm(value) < kEpsilonForZero;
 }
 
-bool kondratev_ya_ccs_complex_multiplication_omp::IOMPual(const std::complex<double> &a,
+bool kondratev_ya_ccs_complex_multiplication_omp::IsEqual(const std::complex<double> &a,
                                                           const std::complex<double> &b) {
   return std::norm(a - b) <= kEpsilonForZero;
 }
 
-bool kondratev_ya_ccs_complex_multiplication_omp::TestTaskOMPuential::PreProcessingImpl() {
+bool kondratev_ya_ccs_complex_multiplication_omp::TestTaskOMP::PreProcessingImpl() {
   a_ = *reinterpret_cast<CCSMatrix *>(task_data->inputs[0]);
   b_ = *reinterpret_cast<CCSMatrix *>(task_data->inputs[1]);
 
@@ -32,17 +32,17 @@ bool kondratev_ya_ccs_complex_multiplication_omp::TestTaskOMPuential::PreProcess
   return true;
 }
 
-bool kondratev_ya_ccs_complex_multiplication_omp::TestTaskOMPuential::ValidationImpl() {
+bool kondratev_ya_ccs_complex_multiplication_omp::TestTaskOMP::ValidationImpl() {
   return task_data->inputs_count[0] == 2 && task_data->outputs_count[0] == 1 && task_data->inputs[0] != nullptr &&
          task_data->inputs[1] != nullptr && task_data->outputs[0] != nullptr;
 }
 
-bool kondratev_ya_ccs_complex_multiplication_omp::TestTaskOMPuential::RunImpl() {
+bool kondratev_ya_ccs_complex_multiplication_omp::TestTaskOMP::RunImpl() {
   c_ = a_ * b_;
   return true;
 }
 
-bool kondratev_ya_ccs_complex_multiplication_omp::TestTaskOMPuential::PostProcessingImpl() {
+bool kondratev_ya_ccs_complex_multiplication_omp::TestTaskOMP::PostProcessingImpl() {
   *reinterpret_cast<CCSMatrix *>(task_data->outputs[0]) = c_;
   return true;
 }

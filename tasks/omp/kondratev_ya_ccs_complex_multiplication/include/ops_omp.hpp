@@ -12,7 +12,7 @@ constexpr double kEpsilon = 1e-10;
 constexpr double kEpsilonForZero = kEpsilon * kEpsilon;
 
 bool IsZero(const std::complex<double>& value);
-bool IOMPual(const std::complex<double>& a, const std::complex<double>& b);
+bool IsEqual(const std::complex<double>& a, const std::complex<double>& b);
 
 struct CCSMatrix {
   std::vector<std::complex<double>> values;
@@ -25,9 +25,9 @@ struct CCSMatrix {
   CCSMatrix operator*(const CCSMatrix& other) const;
 };
 
-class TestTaskOMPuential : public ppc::core::Task {
+class TestTaskOMP : public ppc::core::Task {
  public:
-  explicit TestTaskOMPuential(ppc::core::TaskDataPtr task_data) : Task(std::move(task_data)) {}
+  explicit TestTaskOMP(ppc::core::TaskDataPtr task_data) : Task(std::move(task_data)) {}
   bool PreProcessingImpl() override;
   bool ValidationImpl() override;
   bool RunImpl() override;

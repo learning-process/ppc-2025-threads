@@ -25,8 +25,7 @@ TEST(kondratev_ya_ccs_complex_multiplication_omp, test_pipeline_run) {
   task_data_omp->outputs.emplace_back(reinterpret_cast<uint8_t *>(&c));
   task_data_omp->outputs_count.emplace_back(1);
 
-  auto test_task_ompuential =
-      std::make_shared<kondratev_ya_ccs_complex_multiplication_omp::TestTaskOMPuential>(task_data_omp);
+  auto test_task_ompuential = std::make_shared<kondratev_ya_ccs_complex_multiplication_omp::TestTaskOMP>(task_data_omp);
 
   auto perf_attr = std::make_shared<ppc::core::PerfAttr>();
   perf_attr->num_running = 10;
@@ -60,8 +59,7 @@ TEST(kondratev_ya_ccs_complex_multiplication_omp, test_task_run) {
   task_data_omp->outputs.emplace_back(reinterpret_cast<uint8_t *>(&c));
   task_data_omp->outputs_count.emplace_back(1);
 
-  auto test_task_ompuential =
-      std::make_shared<kondratev_ya_ccs_complex_multiplication_omp::TestTaskOMPuential>(task_data_omp);
+  auto test_task_ompuential = std::make_shared<kondratev_ya_ccs_complex_multiplication_omp::TestTaskOMP>(task_data_omp);
 
   auto perf_attr = std::make_shared<ppc::core::PerfAttr>();
   perf_attr->num_running = 10;
