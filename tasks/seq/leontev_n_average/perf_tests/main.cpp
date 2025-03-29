@@ -11,7 +11,7 @@
 #include "seq/leontev_n_average/include/ops_seq.hpp"
 
 TEST(leontev_n_average_seq, test_pipeline_run) {
-  const int count = 30000000;
+  const int count = 50000000;
   // Create data
   std::vector<int> in(count, 0);
   std::vector<int> out(1, 0);
@@ -42,7 +42,7 @@ TEST(leontev_n_average_seq, test_pipeline_run) {
 }
 
 TEST(leontev_n_average_seq, test_task_run) {
-  const int count = 30000000;
+  const int count = 50000000;
   // Create data
   std::vector<int> in(count, 0);
   std::vector<int> out(1, 0);
