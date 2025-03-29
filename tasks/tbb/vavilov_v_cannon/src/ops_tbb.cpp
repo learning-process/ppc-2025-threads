@@ -137,7 +137,7 @@ void vavilov_v_cannon_tbb::CannonTBB::ShiftBlocks() {
           }
         }
 
-          // Сдвиг A
+        // Сдвиг A
         for (int i = 0; i < block_size_; ++i) {
           for (int j = 0; j < block_size_; ++j) {
             block_buffer[i * block_size_ + j] = A_[(bi * block_size_ + i) * N_ + (src_col * block_size_ + j)];
