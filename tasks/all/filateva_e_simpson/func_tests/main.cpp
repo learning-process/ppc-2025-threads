@@ -12,8 +12,8 @@
 #include "core/task/include/task.hpp"
 
 namespace {
-void RunTest(size_t mer, size_t steps, const std::vector<double>& a, const std::vector<double>& b, filateva_e_simpson_all::Func f,
-             double ans) {
+void RunTest(size_t mer, size_t steps, std::vector<double> &a, std::vector<double> &b,
+             filateva_e_simpson_all::Func f, double ans) {
   boost::mpi::communicator world;
   auto task_data = std::make_shared<ppc::core::TaskData>();
   std::vector<double> res(1, 0);
@@ -40,13 +40,13 @@ void RunTest(size_t mer, size_t steps, const std::vector<double>& a, const std::
   }
 }
 
-void RunTest(size_t mer, size_t steps, std::vector<double> a, std::vector<double> b, filateva_e_simpson_all::Func f,
+void RunTest(size_t mer, size_t steps, std::vector<double> &a, std::vector<double> &b, filateva_e_simpson_all::Func f,
              filateva_e_simpson_all::Func p_f) {
   double ans = p_f(b) - p_f(a);
   RunTest(mer, steps, a, b, f, ans);
 }
 
-void RunTestError(size_t mer, size_t steps, std::vector<double> a, std::vector<double> b) {
+void RunTestError(size_t mer, size_t steps, std::vector<double> &a, std::vector<double> &b) {
   boost::mpi::communicator world;
   auto task_data = std::make_shared<ppc::core::TaskData>();
   std::vector<double> res(1, 0);
