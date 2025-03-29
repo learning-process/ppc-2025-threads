@@ -14,8 +14,8 @@
 const int muhina_m_dijkstra_tbb::TestTaskTBB::kEndOfVertexList = -1;
 
 namespace {
-void RunDijkstraAlgorithm(const std::vector<std::vector<std::pair<size_t, int>>> &adj_list,
-                            std::vector<int> &distances, size_t start_vertex) {
+void RunDijkstraAlgorithm(const std::vector<std::vector<std::pair<size_t, int>>> &adj_list, std::vector<int> &distances,
+                          size_t start_vertex) {
   oneapi::tbb::concurrent_priority_queue<std::pair<int, size_t>, std::greater<>> pq;
   pq.push({0, start_vertex});
   oneapi::tbb::spin_mutex mutex;
