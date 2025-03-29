@@ -24,29 +24,27 @@ bool filateva_e_simpson_all::Simpson::PreProcessingImpl() {
     auto *temp_b = reinterpret_cast<double *>(task_data->inputs[1]);
     b_.insert(b_.end(), temp_b, temp_b + mer_);
   }
-  boost::mpi::broadcast(world_, mer_, 0);
-  boost::mpi::broadcast(world_, steps_, 0);
-  boost::mpi::broadcast(world_, a_, 0);
-
   return true;
 }
 
 bool filateva_e_simpson_all::Simpson::ValidationImpl() {
+  bool valid = true;
   if (world_.rank() == 0) {
     size_t mer = task_data->inputs_count[0];
     auto *temp_a = reinterpret_cast<double *>(task_data->inputs[0]);
     auto *temp_b = reinterpret_cast<double *>(task_data->inputs[1]);
     if (task_data->inputs_count[1] % 2 == 1) {
-      return false;
+      valid = false;
     }
     for (size_t i = 0; i < mer; i++) {
       if (temp_b[i] <= temp_a[i]) {
-        return false;
+        valid = false;
+        break;
       }
     }
   }
-
-  return true;
+  boost::mpi::broadcast(world_, valid, 0);
+  return valid;
 }
 
 double filateva_e_simpson_all::Simpson::IntegralFunc(long start, long end) {
@@ -85,17 +83,12 @@ double filateva_e_simpson_all::Simpson::IntegralFunc(long start, long end) {
 void filateva_e_simpson_all::Simpson::SetFunc(Func f) { f_ = f; }
 
 bool filateva_e_simpson_all::Simpson::RunImpl() {
+  boost::mpi::broadcast(world_, mer_, 0);
+  boost::mpi::broadcast(world_, steps_, 0);
+  boost::mpi::broadcast(world_, a_, 0);
   const int num_proc = world_.size();
-  unsigned long del = 0;
-  unsigned long ost = 0;
-
-  if (world_.size() == 1) {
-    del = 0;
-    ost = (unsigned long)std::pow(steps_ + 1, mer_);
-  } else {
-    del = (unsigned long)std::pow(steps_ + 1, mer_) / (num_proc - 1);
-    ost = (unsigned long)std::pow(steps_ + 1, mer_) % (num_proc - 1);
-  }
+  long del = (unsigned long)std::pow(steps_ + 1, mer_) / num_proc;
+  long ost = num_proc - (unsigned long)std::pow(steps_ + 1, mer_) % num_proc;
 
   if (world_.rank() == 0) {
     h_.resize(mer_);
@@ -106,8 +99,8 @@ bool filateva_e_simpson_all::Simpson::RunImpl() {
   }
   boost::mpi::broadcast(world_, h_, 0);
 
-  long start = (world_.rank() == 0) ? 0 : static_cast<long>(ost + (del * (world_.rank() - 1)));
-  long end = (world_.rank() == 0) ? static_cast<long>(ost) : static_cast<long>(ost + (del * world_.rank()));
+  long start = (world_.rank() < ost) ? del * world_.rank() : del * ost + (del + 1) * (world_.rank() - ost);
+  long end = start + del + (world_.rank() < ost ? 0 : 1);
   double local_res = IntegralFunc(start, end);
 
   reduce(world_, local_res, res_, std::plus<>(), 0);
