@@ -6,7 +6,7 @@
 
 #include <boost/mpi/collectives/broadcast.hpp>
 #include <boost/mpi/collectives/reduce.hpp>
-#include <boost/serialization/vector.hpp>
+#include <boost/serialization/vector.hpp> // IWYU pragma: keep
 #include <cmath>
 #include <core/util/include/util.hpp>
 #include <cstddef>
@@ -107,8 +107,8 @@ bool filateva_e_simpson_all::Simpson::RunImpl() {
   }
   boost::mpi::broadcast(world_, h_, 0);
 
-  unsigned long start = (world_.rank() == 0) ? 0 : ost + (del * (world_.rank() - 1));
-  unsigned long end = (world_.rank() == 0) ? ost : ost + (del * world_.rank());
+  long start = (world_.rank() == 0) ? 0 : ost + (del * (world_.rank() - 1));
+  long end = (world_.rank() == 0) ? ost : ost + (del * world_.rank());
   double local_res = IntegralFunc(start, end);
 
   reduce(world_, local_res, res_, std::plus<>(), 0);
