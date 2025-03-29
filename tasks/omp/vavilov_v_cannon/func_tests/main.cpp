@@ -38,7 +38,7 @@ std::vector<double> MultMat(const std::vector<double>& a, const std::vector<doub
 
 TEST(vavilov_v_cannon_omp, test_random) {
   constexpr int kN = 16;
-  constexpr unsigned int kNumblocks = 4;
+  constexpr int kNumblocks = 4;
   auto a = GenerateRandomMatrix(kN);
   auto b = GenerateRandomMatrix(kN);
   std::vector<double> expected_output = MultMat(a, b, kN);
@@ -66,7 +66,7 @@ TEST(vavilov_v_cannon_omp, test_random) {
 
 TEST(vavilov_v_cannon_omp, test_fixed_4x4) {
   constexpr int kN = 4;
-  constexpr unsigned int kNumblocks = 2;
+  constexpr int kNumblocks = 2;
   std::vector<double> a = {1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16};
   std::vector<double> b = {1, 0, 0, 1, 0, 1, 1, 0, 1, 0, 0, 1, 0, 1, 1, 0};
   std::vector<double> expected_output = {4, 6, 6, 4, 12, 14, 14, 12, 20, 22, 22, 20, 28, 30, 30, 28};
@@ -96,7 +96,7 @@ TEST(vavilov_v_cannon_omp, test_invalid_size_1) {
   std::vector<double> a(2 * 2, 1.0);
   std::vector<double> b(3 * 2, 1.0);
   std::vector<double> c(2 * 2, 0.0);
-  constexpr unsigned int kNumblocks = 1;
+  constexpr int kNumblocks = 1;
 
   auto task_data_omp = std::make_shared<ppc::core::TaskData>();
   task_data_omp->inputs.emplace_back(reinterpret_cast<uint8_t*>(a.data()));
@@ -113,7 +113,7 @@ TEST(vavilov_v_cannon_omp, test_invalid_size_1) {
 
 TEST(vavilov_v_cannon_omp, test_225) {
   constexpr int kN = 36;
-  constexpr unsigned int kNumblocks = 6;
+  constexpr int kNumblocks = 6;
   std::vector<double> a(kN * kN, 1.0);
   std::vector<double> b(kN * kN, 1.0);
   std::vector<double> c(kN * kN, 0.0);
@@ -141,7 +141,7 @@ TEST(vavilov_v_cannon_omp, test_225) {
 
 TEST(vavilov_v_cannon_omp, test_identity_matrix) {
   constexpr int kN = 36;
-  constexpr unsigned int kNumblocks = 6;
+  constexpr int kNumblocks = 6;
   std::vector<double> a(kN * kN, 1.0);
   std::vector<double> b(kN * kN, 0.0);
   std::vector<double> c(kN * kN, 0.0);
@@ -174,7 +174,7 @@ TEST(vavilov_v_cannon_omp, test_identity_matrix) {
 
 TEST(vavilov_v_cannon_omp, test_zero_matrix) {
   constexpr int kN = 36;
-  constexpr unsigned int kNumblocks = 6;
+  constexpr int kNumblocks = 6;
   std::vector<double> a(kN * kN, 1.0);
   std::vector<double> b(kN * kN, 0.0);
   std::vector<double> c(kN * kN, 0.0);
@@ -201,8 +201,8 @@ TEST(vavilov_v_cannon_omp, test_zero_matrix) {
 }
 
 TEST(vavilov_v_cannon_omp, test_15) {
-  constexpr unsigned int kN = 15;
-  constexpr unsigned int kNumblocks = 3;
+  constexpr int kN = 15;
+  constexpr int kNumblocks = 3;
   std::vector<double> a(kN * kN, 1.0);
   std::vector<double> b(kN * kN, 1.0);
   std::vector<double> c(kN * kN, 0.0);
@@ -223,14 +223,14 @@ TEST(vavilov_v_cannon_omp, test_15) {
   task_omp.Run();
   task_omp.PostProcessing();
 
-  for (unsigned int i = 0; i < kN * kN; i++) {
+  for (int i = 0; i < kN * kN; i++) {
     EXPECT_EQ(expected_output[i], c[i]);
   }
 }
 
 TEST(vavilov_v_cannon_onp, test_15_error_validation) {
-  constexpr unsigned int kN = 15;
-  constexpr unsigned int kNumblocks = 4;
+  constexpr int kN = 15;
+  constexpr int kNumblocks = 4;
   std::vector<double> a(kN * kN, 1.0);
   std::vector<double> b(kN * kN, 1.0);
   std::vector<double> c(kN * kN, 0.0);
