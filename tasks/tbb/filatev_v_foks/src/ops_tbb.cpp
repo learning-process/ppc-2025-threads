@@ -9,6 +9,8 @@
 #include <cstddef>
 #include <vector>
 
+#include <core/util/include/util.hpp>
+
 bool filatev_v_foks_tbb::Focks::PreProcessingImpl() {
   size_block_ = task_data->inputs_count[4];
   size_a_.n = task_data->inputs_count[0];
@@ -52,9 +54,13 @@ bool filatev_v_foks_tbb::Focks::RunImpl() {
   matrix_c_.assign(size_ * size_, 0);
   int grid_size = (int)(size_ / size_block_);
 
-  tbb::mutex write_mutex;
+  oneapi::tbb::mutex write_mutex;
 
-  tbb::parallel_for(tbb::blocked_range<int>(0, grid_size * grid_size * grid_size),
+  const int num_threads = ppc::util::GetPPCNumThreads();
+  oneapi::tbb::task_arena arena(num_threads);
+
+  arena.execute([&] {
+              oneapi::tbb::parallel_for(tbb::blocked_range<int>(0, grid_size * grid_size * grid_size),
                     [&](const tbb::blocked_range<int> &range) {
                       for (int step_i_j = range.begin(); step_i_j != range.end(); ++step_i_j) {
                         int step = step_i_j / (grid_size * grid_size);
@@ -85,6 +91,7 @@ bool filatev_v_foks_tbb::Focks::RunImpl() {
                         }
                       }
                     });
+                  });
 
   return true;
 }
