@@ -29,21 +29,22 @@ void vavilov_v_cannon_all::CannonALL::InitialShift(std::vector<double>& local_A,
   int rank = world_.rank();
   int row_index = rank / num_blocks_;
   int col_index = rank % num_blocks_;
+  std::vector<double> tmp_A = local_A;
+  std::vector<double> tmp_B = local_B;
 
   // Начальный сдвиг A
   if (row_index != 0) {
     int dest = (col_index < row_index) ? rank + num_blocks_ - row_index : rank - row_index;
-    world_.send(dest, 0, local_A);
+    world_.ssend(dest, 0, tmp_A);
   }
 
   // Начальный сдвиг B
   if (col_index != 0) {
     int dest =
         (row_index < col_index) ? rank + (num_blocks_ - col_index) * num_blocks_ : rank - num_blocks_ * col_index;
-    world_.send(dest, 1, local_B);
+    world_.ssend(dest, 1, tmp_B);
   }
 
-  mpi::status status;
   if (row_index != 0 && col_index != 0) {
     world_.recv(mpi::any_source, 0, local_A);
     world_.recv(mpi::any_source, 1, local_B);
@@ -52,6 +53,8 @@ void vavilov_v_cannon_all::CannonALL::InitialShift(std::vector<double>& local_A,
   } else if (row_index != 0 && col_index == 0) {
     world_.recv(mpi::any_source, 0, local_A);
   }
+
+  world_.barrier();
 }
 
 void vavilov_v_cannon_all::CannonALL::BlockMultiply(const std::vector<double>& local_A,
@@ -71,23 +74,27 @@ void vavilov_v_cannon_all::CannonALL::BlockMultiply(const std::vector<double>& l
 void vavilov_v_cannon_all::CannonALL::ShiftBlocks(std::vector<double>& local_A, std::vector<double>& local_B) {
   int rank = world_.rank();
   int row_index = rank / num_blocks_;
+  std::vector<double> tmp_A = local_A;
+  std::vector<double> tmp_B = local_B;
 
   // Сдвиг A влево
   if (rank == row_index * num_blocks_) {
-    world_.send((row_index + 1) * num_blocks_ - 1, 0, local_A);
+    world_.ssend((row_index + 1) * num_blocks_ - 1, 0, tmp_A);
   } else {
-    world_.send(rank - 1, 0, local_A);
+    world_.ssend(rank - 1, 0, tmp_A);
   }
 
   // Сдвиг B вверх
   if (rank < num_blocks_) {
-    world_.send(rank + (num_blocks_ - 1) * num_blocks_, 1, local_B);
+    world_.ssend(rank + (num_blocks_ - 1) * num_blocks_, 1, tmp_B);
   } else {
-    world_.send(rank - num_blocks_, 1, local_B);
+    world_.ssend(rank - num_blocks_, 1, tmp_B);
   }
 
   world_.recv(mpi::any_source, 0, local_A);
   world_.recv(mpi::any_source, 1, local_B);
+
+  world_.barrier();
 }
 
 bool vavilov_v_cannon_all::CannonALL::RunImpl() {
@@ -126,7 +133,6 @@ bool vavilov_v_cannon_all::CannonALL::RunImpl() {
   MPI_Scatter(B_.data(), block_size_sq, MPI_DOUBLE, local_B.data(), block_size_sq, MPI_DOUBLE, 0, world_);
 
   // Выполняем алгоритм Кэннона
-  world_.barrier();
   InitialShift(local_A, local_B);
   BlockMultiply(local_A, local_B, local_C);
 
