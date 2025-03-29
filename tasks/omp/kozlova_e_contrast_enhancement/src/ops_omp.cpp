@@ -4,10 +4,11 @@
 
 #include <algorithm>
 #include <cstddef>
+#include <cstdint>
 #include <vector>
 
 bool kozlova_e_contrast_enhancement_omp::TestTaskOpenMP::PreProcessingImpl() {
-  auto* input_ptr = reinterpret_cast<int*>(task_data->inputs[0]);
+  auto* input_ptr = reinterpret_cast<uint8_t*>(task_data->inputs[0]);
   size_t size = task_data->inputs_count[0];
   width_ = task_data->inputs_count[1];
   height_ = task_data->inputs_count[2];
@@ -27,11 +28,8 @@ bool kozlova_e_contrast_enhancement_omp::TestTaskOpenMP::ValidationImpl() {
 }
 
 bool kozlova_e_contrast_enhancement_omp::TestTaskOpenMP::RunImpl() {
-  int min_value = *std::ranges::min_element(input_);
-  if (min_value < 0) {
-    throw "incorrect value";
-  }
-  int max_value = *std::ranges::max_element(input_);
+  uint8_t min_value = *std::ranges::min_element(input_);
+  uint8_t max_value = *std::ranges::max_element(input_);
 
   if (min_value == max_value) {
     std::ranges::copy(input_, output_.begin());
@@ -39,8 +37,8 @@ bool kozlova_e_contrast_enhancement_omp::TestTaskOpenMP::RunImpl() {
   }
 #pragma omp parallel for schedule(static)
   for (int i = 0; i < (int)input_.size(); ++i) {
-    output_[i] = static_cast<int>(((input_[i] - min_value) / (double)(max_value - min_value)) * 255);
-    output_[i] = std::clamp(output_[i], 0, 255);
+    output_[i] = static_cast<uint8_t>(((input_[i] - min_value) / (double)(max_value - min_value)) * 255);
+    output_[i] = std::clamp(static_cast<int>(output_[i]), 0, 255);
   }
 
   return true;
@@ -48,7 +46,7 @@ bool kozlova_e_contrast_enhancement_omp::TestTaskOpenMP::RunImpl() {
 
 bool kozlova_e_contrast_enhancement_omp::TestTaskOpenMP::PostProcessingImpl() {
   for (size_t i = 0; i < output_.size(); ++i) {
-    reinterpret_cast<int*>(task_data->outputs[0])[i] = output_[i];
+    reinterpret_cast<uint8_t*>(task_data->outputs[0])[i] = output_[i];
   }
   return true;
 }

@@ -13,10 +13,10 @@
 #include "omp/kozlova_e_contrast_enhancement/include/ops_omp.hpp"
 
 namespace {
-std::vector<int> GenerateVector(int length);
+std::vector<uint8_t> GenerateVector(int length);
 
-std::vector<int> GenerateVector(int length) {
-  std::vector<int> vec;
+std::vector<uint8_t> GenerateVector(int length) {
+  std::vector<uint8_t> vec;
   vec.reserve(length);
   for (int i = 0; i < length; ++i) {
     vec.push_back(rand() % 256);
@@ -30,16 +30,16 @@ TEST(kozlova_e_contrast_enhancement_omp, test_pipeline_run) {
   size_t width = 10000;
   size_t height = 10000;
   // Create data
-  std::vector<int> in = GenerateVector(kSize);
-  std::vector<int> out(kSize, 0);
+  std::vector<uint8_t> in = GenerateVector(kSize);
+  std::vector<uint8_t> out(kSize, 0);
 
   // Create task_data
   auto task_data_omp = std::make_shared<ppc::core::TaskData>();
-  task_data_omp->inputs.emplace_back(reinterpret_cast<uint8_t *>(in.data()));
+  task_data_omp->inputs.emplace_back(in.data());
   task_data_omp->inputs_count.emplace_back(in.size());
   task_data_omp->inputs_count.emplace_back(width);
   task_data_omp->inputs_count.emplace_back(height);
-  task_data_omp->outputs.emplace_back(reinterpret_cast<uint8_t *>(out.data()));
+  task_data_omp->outputs.emplace_back(out.data());
   task_data_omp->outputs_count.emplace_back(out.size());
 
   // Create Task
@@ -63,13 +63,13 @@ TEST(kozlova_e_contrast_enhancement_omp, test_pipeline_run) {
   perf_analyzer->PipelineRun(perf_attr, perf_results);
   ppc::core::Perf::PrintPerfStatistic(perf_results);
 
-  int min_value = *std::ranges::min_element(in);
-  int max_value = *std::ranges::max_element(in);
+  uint8_t min_value = *std::ranges::min_element(in);
+  uint8_t max_value = *std::ranges::max_element(in);
 
   for (size_t i = 0; i < in.size(); ++i) {
     int expected = static_cast<int>(((in[i] - min_value) / (double)(max_value - min_value)) * 255);
     expected = std::clamp(expected, 0, 255);
-    EXPECT_EQ(out[i], expected);
+    EXPECT_EQ(out[i], static_cast<uint8_t>(expected));
   }
 }
 
@@ -78,16 +78,16 @@ TEST(kozlova_e_contrast_enhancement_omp, test_task_run) {
   size_t width = 10000;
   size_t height = 10000;
   // Create data
-  std::vector<int> in = GenerateVector(kSize);
-  std::vector<int> out(kSize, 0);
+  std::vector<uint8_t> in = GenerateVector(kSize);
+  std::vector<uint8_t> out(kSize, 0);
 
   // Create task_data
   auto task_data_omp = std::make_shared<ppc::core::TaskData>();
-  task_data_omp->inputs.emplace_back(reinterpret_cast<uint8_t *>(in.data()));
+  task_data_omp->inputs.emplace_back(in.data());
   task_data_omp->inputs_count.emplace_back(in.size());
   task_data_omp->inputs_count.emplace_back(width);
   task_data_omp->inputs_count.emplace_back(height);
-  task_data_omp->outputs.emplace_back(reinterpret_cast<uint8_t *>(out.data()));
+  task_data_omp->outputs.emplace_back(out.data());
   task_data_omp->outputs_count.emplace_back(out.size());
 
   // Create Task
@@ -111,12 +111,12 @@ TEST(kozlova_e_contrast_enhancement_omp, test_task_run) {
   perf_analyzer->TaskRun(perf_attr, perf_results);
   ppc::core::Perf::PrintPerfStatistic(perf_results);
 
-  int min_value = *std::ranges::min_element(in);
-  int max_value = *std::ranges::max_element(in);
+  uint8_t min_value = *std::ranges::min_element(in);
+  uint8_t max_value = *std::ranges::max_element(in);
 
   for (size_t i = 0; i < in.size(); ++i) {
     int expected = static_cast<int>(((in[i] - min_value) / (double)(max_value - min_value)) * 255);
     expected = std::clamp(expected, 0, 255);
-    EXPECT_EQ(out[i], expected);
+    EXPECT_EQ(out[i], static_cast<uint8_t>(expected));
   }
 }

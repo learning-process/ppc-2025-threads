@@ -1,7 +1,6 @@
 #include <gtest/gtest.h>
 
 #include <algorithm>
-#include <cstddef>
 #include <cstdint>
 #include <cstdlib>
 #include <memory>
@@ -11,199 +10,84 @@
 #include "omp/kozlova_e_contrast_enhancement/include/ops_omp.hpp"
 
 namespace {
-std::vector<int> GenerateVector(int length);
 
-std::vector<int> GenerateVector(int length) {
-  std::vector<int> vec;
-  vec.reserve(length);
+std::vector<uint8_t> GenerateVector(int length) {
+  std::vector<uint8_t> vec(length);
   for (int i = 0; i < length; ++i) {
-    vec.push_back(rand() % 256);
+    vec[i] = rand() % 256;
   }
   return vec;
 }
+
+std::shared_ptr<ppc::core::TaskData> CreateTaskData(std::vector<uint8_t>& in, std::vector<uint8_t>& out, size_t width,
+                                                    size_t height) {
+  auto task_data = std::make_shared<ppc::core::TaskData>();
+  task_data->inputs.emplace_back(in.data());
+  task_data->inputs_count.emplace_back(in.size());
+  task_data->inputs_count.emplace_back(width);
+  task_data->inputs_count.emplace_back(height);
+  task_data->outputs.emplace_back(out.data());
+  task_data->outputs_count.emplace_back(out.size());
+
+  return task_data;
+}
+
+void TestRun(std::vector<uint8_t> in, std::vector<uint8_t> out, size_t width, size_t height) {
+  auto task_data_omp = CreateTaskData(in, out, width, height);
+  kozlova_e_contrast_enhancement_omp::TestTaskOpenMP test_task_omp(task_data_omp);
+
+  ASSERT_TRUE(test_task_omp.Validation());
+  test_task_omp.PreProcessing();
+  test_task_omp.Run();
+  test_task_omp.PostProcessing();
+
+  uint8_t min_value = *std::ranges::min_element(in);
+  uint8_t max_value = *std::ranges::max_element(in);
+
+  for (size_t i = 0; i < in.size(); ++i) {
+    uint8_t expected = (max_value == min_value)
+                           ? in[i]
+                           : static_cast<uint8_t>(((in[i] - min_value) / double(max_value - min_value)) * 255);
+    EXPECT_EQ(out[i], expected);
+  }
+}
+
+void TestValidation(std::vector<uint8_t> in, std::vector<uint8_t> out, size_t width, size_t height) {
+  auto task_data_omp = CreateTaskData(in, out, width, height);
+  kozlova_e_contrast_enhancement_omp::TestTaskOpenMP test_task_omp(task_data_omp);
+  ASSERT_FALSE(test_task_omp.Validation());
+}
+
 }  // namespace
 
 TEST(kozlova_e_contrast_enhancement_omp, test_1st_image) {
-  std::vector<int> in{10, 0, 50, 100, 200, 34};
-  size_t width = 2;
-  size_t height = 3;
-  std::vector<int> out(6, 0);
-  std::vector<int> expected{12, 0, 63, 127, 255, 43};
-
-  auto test_data_omp = std::make_shared<ppc::core::TaskData>();
-  test_data_omp->inputs.emplace_back(reinterpret_cast<uint8_t *>(in.data()));
-  test_data_omp->inputs_count.emplace_back(in.size());
-  test_data_omp->inputs_count.emplace_back(width);
-  test_data_omp->inputs_count.emplace_back(height);
-  test_data_omp->outputs.emplace_back(reinterpret_cast<uint8_t *>(out.data()));
-  test_data_omp->outputs_count.emplace_back(out.size());
-
-  kozlova_e_contrast_enhancement_omp::TestTaskOpenMP test_task_omp(test_data_omp);
-  ASSERT_EQ(test_task_omp.Validation(), true);
-  test_task_omp.PreProcessing();
-  test_task_omp.Run();
-  test_task_omp.PostProcessing();
-
-  for (size_t i = 0; i < out.size(); ++i) {
-    EXPECT_EQ(out[i], expected[i]);
-  }
+  std::vector<uint8_t> in{10, 0, 50, 100, 200, 34};
+  std::vector<uint8_t> out(6, 0);
+  TestRun(in, out, 2, 3);
 }
 
-TEST(kozlova_e_contrast_enhancement_omp, test_image2) {
-  int size = 400;
-  std::vector<int> in = GenerateVector(size);
-  size_t width = 10;
-  size_t height = 40;
-  std::vector<int> out(size, 0);
-  std::vector<int> expect(size, 0);
-
-  auto test_data_omp = std::make_shared<ppc::core::TaskData>();
-  test_data_omp->inputs.emplace_back(reinterpret_cast<uint8_t *>(in.data()));
-  test_data_omp->inputs_count.emplace_back(in.size());
-  test_data_omp->inputs_count.emplace_back(width);
-  test_data_omp->inputs_count.emplace_back(height);
-  test_data_omp->outputs.emplace_back(reinterpret_cast<uint8_t *>(out.data()));
-  test_data_omp->outputs_count.emplace_back(out.size());
-
-  kozlova_e_contrast_enhancement_omp::TestTaskOpenMP test_task_omp(test_data_omp);
-  ASSERT_EQ(test_task_omp.Validation(), true);
-  test_task_omp.PreProcessing();
-  test_task_omp.Run();
-  test_task_omp.PostProcessing();
-
-  int min_value = *std::ranges::min_element(in);
-  int max_value = *std::ranges::max_element(in);
-
-  for (size_t i = 0; i < in.size(); ++i) {
-    int expected = static_cast<int>(((in[i] - min_value) / (double)(max_value - min_value)) * 255);
-    expected = std::clamp(expected, 0, 255);
-    EXPECT_EQ(out[i], expected);
-  }
+TEST(kozlova_e_contrast_enhancement_omp, test_large_image) {
+  std::vector<uint8_t> in = GenerateVector(400);
+  std::vector<uint8_t> out(400, 0);
+  TestRun(in, out, 10, 40);
 }
 
-TEST(kozlova_e_contrast_enhancement_omp, test_empty_input) {
-  std::vector<int> in = {};
-  size_t width = 0;
-  size_t height = 0;
-  std::vector<int> out(0, 0);
-
-  auto test_data_omp = std::make_shared<ppc::core::TaskData>();
-  test_data_omp->inputs.emplace_back(reinterpret_cast<uint8_t *>(in.data()));
-  test_data_omp->inputs_count.emplace_back(in.size());
-  test_data_omp->inputs_count.emplace_back(width);
-  test_data_omp->inputs_count.emplace_back(height);
-  test_data_omp->outputs.emplace_back(reinterpret_cast<uint8_t *>(out.data()));
-  test_data_omp->outputs_count.emplace_back(out.size());
-
-  kozlova_e_contrast_enhancement_omp::TestTaskOpenMP test_task_omp(test_data_omp);
-  ASSERT_FALSE(test_task_omp.Validation());
-}
+TEST(kozlova_e_contrast_enhancement_omp, test_empty_input) { TestValidation({}, {}, 0, 0); }
 
 TEST(kozlova_e_contrast_enhancement_omp, test_same_values_input) {
-  std::vector<int> in(6, 100);
-  size_t width = 2;
-  size_t height = 3;
-  std::vector<int> out(6, 0);
-
-  auto test_data_omp = std::make_shared<ppc::core::TaskData>();
-  test_data_omp->inputs.emplace_back(reinterpret_cast<uint8_t *>(in.data()));
-  test_data_omp->inputs_count.emplace_back(in.size());
-  test_data_omp->inputs_count.emplace_back(width);
-  test_data_omp->inputs_count.emplace_back(height);
-  test_data_omp->outputs.emplace_back(reinterpret_cast<uint8_t *>(out.data()));
-  test_data_omp->outputs_count.emplace_back(out.size());
-
-  kozlova_e_contrast_enhancement_omp::TestTaskOpenMP test_task_omp(test_data_omp);
-  ASSERT_EQ(test_task_omp.Validation(), true);
-  test_task_omp.PreProcessing();
-  test_task_omp.Run();
-  test_task_omp.PostProcessing();
-
-  EXPECT_EQ(in, out);
+  std::vector<uint8_t> in(6, 100);
+  std::vector<uint8_t> out(6, 0);
+  TestRun(in, out, 2, 3);
 }
 
 TEST(kozlova_e_contrast_enhancement_omp, test_difference_input) {
-  std::vector<int> in{10, 20, 30, 100, 200, 250};
-  size_t width = 2;
-  size_t height = 3;
-  std::vector<int> out(6, 0);
-
-  auto test_data_omp = std::make_shared<ppc::core::TaskData>();
-  test_data_omp->inputs.emplace_back(reinterpret_cast<uint8_t *>(in.data()));
-  test_data_omp->inputs_count.emplace_back(in.size());
-  test_data_omp->inputs_count.emplace_back(width);
-  test_data_omp->inputs_count.emplace_back(height);
-  test_data_omp->outputs.emplace_back(reinterpret_cast<uint8_t *>(out.data()));
-  test_data_omp->outputs_count.emplace_back(out.size());
-
-  kozlova_e_contrast_enhancement_omp::TestTaskOpenMP test_task_omp(test_data_omp);
-  ASSERT_EQ(test_task_omp.Validation(), true);
-  test_task_omp.PreProcessing();
-  test_task_omp.Run();
-  test_task_omp.PostProcessing();
-
-  int min_value = *std::ranges::min_element(in);
-  int max_value = *std::ranges::max_element(in);
-
-  for (size_t i = 0; i < in.size(); ++i) {
-    int expected = static_cast<int>(((in[i] - min_value) / (double)(max_value - min_value)) * 255);
-    expected = std::clamp(expected, 0, 255);
-    EXPECT_EQ(out[i], expected);
-  }
+  std::vector<uint8_t> in{10, 20, 30, 100, 200, 250};
+  std::vector<uint8_t> out(6, 0);
+  TestRun(in, out, 2, 3);
 }
 
-TEST(kozlova_e_contrast_enhancement_omp, test_negative_values) {
-  std::vector<int> in{-10, -20, -30, -100, -200, -250};
-  size_t width = 3;
-  size_t height = 2;
-  std::vector<int> out(6, 0);
-
-  auto test_data_omp = std::make_shared<ppc::core::TaskData>();
-  test_data_omp->inputs.emplace_back(reinterpret_cast<uint8_t *>(in.data()));
-  test_data_omp->inputs_count.emplace_back(in.size());
-  test_data_omp->inputs_count.emplace_back(width);
-  test_data_omp->inputs_count.emplace_back(height);
-  test_data_omp->outputs.emplace_back(reinterpret_cast<uint8_t *>(out.data()));
-  test_data_omp->outputs_count.emplace_back(out.size());
-
-  kozlova_e_contrast_enhancement_omp::TestTaskOpenMP test_task_omp(test_data_omp);
-  ASSERT_EQ(test_task_omp.Validation(), true);
-  test_task_omp.PreProcessing();
-  ASSERT_ANY_THROW(test_task_omp.Run());
-}
-
-TEST(kozlova_e_contrast_enhancement_omp, test_incorrect_input_size) {
-  std::vector<int> in = {3, 3, 3};
-  size_t width = 3;
-  size_t height = 1;
-  std::vector<int> out(0, 0);
-
-  auto test_data_omp = std::make_shared<ppc::core::TaskData>();
-  test_data_omp->inputs.emplace_back(reinterpret_cast<uint8_t *>(in.data()));
-  test_data_omp->inputs_count.emplace_back(in.size());
-  test_data_omp->inputs_count.emplace_back(width);
-  test_data_omp->inputs_count.emplace_back(height);
-  test_data_omp->outputs.emplace_back(reinterpret_cast<uint8_t *>(out.data()));
-  test_data_omp->outputs_count.emplace_back(out.size());
-
-  kozlova_e_contrast_enhancement_omp::TestTaskOpenMP test_task_omp(test_data_omp);
-  ASSERT_FALSE(test_task_omp.Validation());
-}
+TEST(kozlova_e_contrast_enhancement_omp, test_incorrect_input_size) { TestValidation({3, 3, 3}, {}, 3, 1); }
 
 TEST(kozlova_e_contrast_enhancement_omp, test_incorrect_input_width) {
-  std::vector<int> in = {3, 3, 3, 3};
-  size_t width = 3;
-  size_t height = 1;
-  std::vector<int> out(4, 0);
-
-  auto test_data_omp = std::make_shared<ppc::core::TaskData>();
-  test_data_omp->inputs.emplace_back(reinterpret_cast<uint8_t *>(in.data()));
-  test_data_omp->inputs_count.emplace_back(in.size());
-  test_data_omp->inputs_count.emplace_back(width);
-  test_data_omp->inputs_count.emplace_back(height);
-  test_data_omp->outputs.emplace_back(reinterpret_cast<uint8_t *>(out.data()));
-  test_data_omp->outputs_count.emplace_back(out.size());
-
-  kozlova_e_contrast_enhancement_omp::TestTaskOpenMP test_task_omp(test_data_omp);
-  ASSERT_FALSE(test_task_omp.Validation());
+  TestValidation({3, 3, 3, 3}, {0, 0, 0, 0}, 3, 1);
 }

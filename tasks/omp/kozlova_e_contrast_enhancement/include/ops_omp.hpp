@@ -1,6 +1,7 @@
 #pragma once
 
 #include <cstddef>
+#include <cstdint>
 #include <utility>
 #include <vector>
 
@@ -17,10 +18,10 @@ class TestTaskOpenMP : public ppc::core::Task {
   bool PostProcessingImpl() override;
 
  private:
-  std::vector<int> input_;
+  std::vector<uint8_t> input_;
   size_t width_ = 0;
   size_t height_ = 0;
-  std::vector<int> output_;
+  std::vector<uint8_t> output_;
 };
 
 }  // namespace kozlova_e_contrast_enhancement_omp
