@@ -9,11 +9,7 @@
 
 template <class InOutType>
 bool leontev_n_average_seq::VecAvgSequential<InOutType>::PreProcessingImpl() {
-  input_ = std::vector<InOutType>(task_data->inputs_count[0]);
-  auto* vec_ptr = reinterpret_cast<InOutType*>(task_data->inputs[0]);
-  for (size_t i = 0; i < task_data->inputs_count[0]; i++) {
-    input_[i] = vec_ptr[i];
-  }
+  input_ = reinterpret_cast<std::vector<InOutType>*>(task_data->inputs[0])[0];
   res_ = 0;
   return true;
 }
