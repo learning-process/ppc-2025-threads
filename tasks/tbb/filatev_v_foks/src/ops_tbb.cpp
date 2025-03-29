@@ -29,8 +29,8 @@ bool filatev_v_foks_tbb::Focks::PreProcessingImpl() {
   matrix_a_.assign(size_ * size_, 0);
   matrix_b_.assign(size_ * size_, 0);
 
-  auto *temp_a = reinterpret_cast<double *>(task_data->inputs[0]);
-  auto *temp_b = reinterpret_cast<double *>(task_data->inputs[1]);
+  auto* temp_a = reinterpret_cast<double*>(task_data->inputs[0]);
+  auto* temp_b = reinterpret_cast<double*>(task_data->inputs[1]);
 
   for (size_t i = 0; i < size_a_.m; ++i) {
     std::copy(temp_a + (i * size_a_.n), temp_a + ((i + 1) * size_a_.n), matrix_a_.data() + (i * size_));
@@ -50,36 +50,28 @@ bool filatev_v_foks_tbb::Focks::ValidationImpl() {
 }
 
 namespace {
-void ComputeBlock(const std::vector<double>& matrix_a,
-                  const std::vector<double>& matrix_b,
-                  std::vector<double>& local_block,
-                  size_t i, size_t j, size_t root,
-                  size_t size_block_, size_t size_) {
-    for (size_t bi = 0; bi < size_block_; ++bi) {
-        for (size_t bj = 0; bj < size_block_; ++bj) {
-            for (size_t bk = 0; bk < size_block_; ++bk) {
-                local_block[(bi * size_block_) + bj] +=
-                    matrix_a[((i * size_block_ + bi) * size_) + (root * size_block_) + bk] *
-                    matrix_b[((root * size_block_ + bk) * size_) + (j * size_block_) + bj];
-            }
-        }
+void ComputeBlock(const std::vector<double>& matrix_a, const std::vector<double>& matrix_b,
+                  std::vector<double>& local_block, size_t i, size_t j, size_t root, size_t size_block_, size_t size_) {
+  for (size_t bi = 0; bi < size_block_; ++bi) {
+    for (size_t bj = 0; bj < size_block_; ++bj) {
+      for (size_t bk = 0; bk < size_block_; ++bk) {
+        local_block[(bi * size_block_) + bj] += matrix_a[((i * size_block_ + bi) * size_) + (root * size_block_) + bk] *
+                                                matrix_b[((root * size_block_ + bk) * size_) + (j * size_block_) + bj];
+      }
     }
+  }
 }
 
-void AccumulateResult(std::vector<double>& matrix_c,
-                      const std::vector<double>& local_block,
-                      size_t i, size_t j,
-                      size_t size_block_, size_t size_,
-                      tbb::mutex& write_mutex) {
-    tbb::mutex::scoped_lock lock(write_mutex);
-    for (size_t bi = 0; bi < size_block_; ++bi) {
-        for (size_t bj = 0; bj < size_block_; ++bj) {
-            matrix_c[((i * size_block_ + bi) * size_) + (j * size_block_) + bj] +=
-                local_block[(bi * size_block_) + bj];
-        }
+void AccumulateResult(std::vector<double>& matrix_c, const std::vector<double>& local_block, size_t i, size_t j,
+                      size_t size_block_, size_t size_, tbb::mutex& write_mutex) {
+  tbb::mutex::scoped_lock lock(write_mutex);
+  for (size_t bi = 0; bi < size_block_; ++bi) {
+    for (size_t bj = 0; bj < size_block_; ++bj) {
+      matrix_c[((i * size_block_ + bi) * size_) + (j * size_block_) + bj] += local_block[(bi * size_block_) + bj];
     }
+  }
 }
-} // namespace
+}  // namespace
 
 bool filatev_v_foks_tbb::Focks::RunImpl() {
   matrix_c_.assign(size_ * size_, 0);
@@ -91,29 +83,26 @@ bool filatev_v_foks_tbb::Focks::RunImpl() {
   oneapi::tbb::task_arena arena(num_threads);
 
   arena.execute([&] {
-    oneapi::tbb::parallel_for(
-        tbb::blocked_range<int>(0, grid_size * grid_size * grid_size),
-        [&](const tbb::blocked_range<int>& range) {
-            for (int step_i_j = range.begin(); step_i_j != range.end(); ++step_i_j) {
-                int step = step_i_j / (grid_size * grid_size);
-                int i = (step_i_j % (grid_size * grid_size)) / grid_size;
-                int j = step_i_j % grid_size;
-                size_t root = (i + step) % grid_size;
+    oneapi::tbb::parallel_for(tbb::blocked_range<int>(0, grid_size * grid_size * grid_size),
+                              [&](const tbb::blocked_range<int>& range) {
+                                for (int step_i_j = range.begin(); step_i_j != range.end(); ++step_i_j) {
+                                  int step = step_i_j / (grid_size * grid_size);
+                                  int i = (step_i_j % (grid_size * grid_size)) / grid_size;
+                                  int j = step_i_j % grid_size;
+                                  size_t root = (i + step) % grid_size;
 
-                std::vector<double> local_block(size_block_ * size_block_, 0);
-                ComputeBlock(matrix_a_, matrix_b_, local_block, 
-                            i, j, root, size_block_, size_);
-                AccumulateResult(matrix_c_, local_block, 
-                               i, j, size_block_, size_, write_mutex);
-            }
-        });
-});
+                                  std::vector<double> local_block(size_block_ * size_block_, 0);
+                                  ComputeBlock(matrix_a_, matrix_b_, local_block, i, j, root, size_block_, size_);
+                                  AccumulateResult(matrix_c_, local_block, i, j, size_block_, size_, write_mutex);
+                                }
+                              });
+  });
 
   return true;
 }
 
 bool filatev_v_foks_tbb::Focks::PostProcessingImpl() {
-  auto *temp = reinterpret_cast<double *>(task_data->outputs[0]);
+  auto* temp = reinterpret_cast<double*>(task_data->outputs[0]);
   for (size_t i = 0; i < size_c_.m; ++i) {
     std::copy(matrix_c_.data() + (i * size_), matrix_c_.data() + (i * size_) + size_c_.n, temp + (i * size_c_.n));
   }
