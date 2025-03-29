@@ -1,8 +1,8 @@
 #include "tbb/muhina_m_dijkstra/include/ops_tbb.hpp"
 
+#include <oneapi/tbb/blocked_range.h>
 #include <oneapi/tbb/concurrent_priority_queue.h>
 #include <oneapi/tbb/parallel_for.h>
-#include <oneapi/tbb/blocked_range.h>
 #include <oneapi/tbb/spin_mutex.h>
 
 #include <climits>
@@ -68,8 +68,7 @@ bool muhina_m_dijkstra_tbb::TestTaskTBB::RunImpl() {
     i += 2;
   }
 
-  oneapi::tbb::concurrent_priority_queue<std::pair<int, size_t>, 
-                                       std::greater<std::pair<int, size_t>>> pq;
+  oneapi::tbb::concurrent_priority_queue<std::pair<int, size_t>, std::greater<std::pair<int, size_t>>> pq;
   pq.push({0, start_vertex_});
   oneapi::tbb::spin_mutex mutex;
 
@@ -87,21 +86,22 @@ bool muhina_m_dijkstra_tbb::TestTaskTBB::RunImpl() {
       continue;
     }
 
-    oneapi::tbb::parallel_for(oneapi::tbb::blocked_range<size_t>(0, adj_list[u].size()), [&](const oneapi::tbb::blocked_range<size_t> &r) {
-      for (size_t i = r.begin(); i != r.end(); ++i) {
-        size_t v = adj_list[u][i].first;
-        int weight = adj_list[u][i].second;
-        int new_dist = distances_[u] + weight;
+    oneapi::tbb::parallel_for(oneapi::tbb::blocked_range<size_t>(0, adj_list[u].size()),
+                              [&](const oneapi::tbb::blocked_range<size_t> &r) {
+                                for (size_t i = r.begin(); i != r.end(); ++i) {
+                                  size_t v = adj_list[u][i].first;
+                                  int weight = adj_list[u][i].second;
+                                  int new_dist = distances_[u] + weight;
 
-        if (new_dist < distances_[v]) {
-          oneapi::tbb::spin_mutex::scoped_lock lock(mutex);
-          if (new_dist < distances_[v]) {
-            distances_[v] = new_dist;
-            pq.push({new_dist, v});
-          }
-        }
-      }
-    });
+                                  if (new_dist < distances_[v]) {
+                                    oneapi::tbb::spin_mutex::scoped_lock lock(mutex);
+                                    if (new_dist < distances_[v]) {
+                                      distances_[v] = new_dist;
+                                      pq.push({new_dist, v});
+                                    }
+                                  }
+                                }
+                              });
   }
 
   return true;
