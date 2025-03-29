@@ -12,7 +12,7 @@
 
 namespace {
 void RunTest(size_t mer, size_t steps, std::vector<double> &a, std::vector<double> &b, filateva_e_simpson_stl::Func f,
-              double ans) {
+             double ans) {
   auto task_data = std::make_shared<ppc::core::TaskData>();
   std::vector<double> res(1, 0);
 
@@ -35,7 +35,7 @@ void RunTest(size_t mer, size_t steps, std::vector<double> &a, std::vector<doubl
 }
 
 void RunTest(size_t mer, size_t steps, std::vector<double> &a, std::vector<double> &b, filateva_e_simpson_stl::Func f,
-              filateva_e_simpson_stl::Func p_f) {
+             filateva_e_simpson_stl::Func p_f) {
   double ans = p_f(b) - p_f(a);
   RunTest(mer, steps, a, b, f, ans);
 }
@@ -196,7 +196,7 @@ TEST(filateva_e_simpson_stl, test_x_y_pow_2) {
 
   RunTest(mer, steps, a, b, f, 0.66666);
 }
-  
+
 TEST(filateva_e_simpson_stl, test_x_y) {
   size_t mer = 2;
   size_t steps = 100;
