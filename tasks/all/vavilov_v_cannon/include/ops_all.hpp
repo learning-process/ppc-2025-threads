@@ -27,7 +27,7 @@ class CannonALL : public ppc::core::Task {
   boost::mpi::communicator world_;
 
   void InitialShift(std::vector<double>& local_A, std::vector<double>& local_B);
-  void BlockMultiply(const std::vector<double>& local_A, const std::vector<double>& local_B, 
+  void BlockMultiply(const std::vector<double>& local_A, const std::vector<double>& local_B,
                      std::vector<double>& local_C);
   void ShiftBlocks(std::vector<double>& local_A, std::vector<double>& local_B);
 };
