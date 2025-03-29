@@ -10,7 +10,7 @@
 #include "core/task/include/task.hpp"
 #include "omp/kharin_m_multidimensional_integral_calc/include/ops_omp.hpp"
 
-TEST(kharin_m_multidimensional_integral_calc_seq, test_pipeline_run) {
+TEST(kharin_m_multidimensional_integral_calc_omp, test_pipeline_run) {
   constexpr size_t kDim = 5000;
 
   std::vector<double> in(kDim * kDim, 1.0);
@@ -30,7 +30,7 @@ TEST(kharin_m_multidimensional_integral_calc_seq, test_pipeline_run) {
   task_data_seq->outputs_count.emplace_back(out.size());
 
   auto test_task_sequential =
-      std::make_shared<kharin_m_multidimensional_integral_calc_seq::TaskSequential>(task_data_seq);
+      std::make_shared<kharin_m_multidimensional_integral_calc_omp::TestTaskOpenMP>(task_data_seq);
 
   auto perf_attr = std::make_shared<ppc::core::PerfAttr>();
   perf_attr->num_running = 30;  // Количество запусков для усреднения
@@ -46,7 +46,7 @@ TEST(kharin_m_multidimensional_integral_calc_seq, test_pipeline_run) {
   EXPECT_DOUBLE_EQ(out[0], expected_out);
 }
 
-TEST(kharin_m_multidimensional_integral_calc_seq, test_task_run) {
+TEST(kharin_m_multidimensional_integral_calc_omp, test_task_run) {
   constexpr size_t kDim = 5000;
 
   std::vector<double> in(kDim * kDim, 1.0);
@@ -66,7 +66,7 @@ TEST(kharin_m_multidimensional_integral_calc_seq, test_task_run) {
   task_data_seq->outputs_count.emplace_back(out.size());
 
   auto test_task_sequential =
-      std::make_shared<kharin_m_multidimensional_integral_calc_seq::TaskSequential>(task_data_seq);
+      std::make_shared<kharin_m_multidimensional_integral_calc_omp::TestTaskOpenMP>(task_data_seq);
 
   auto perf_attr = std::make_shared<ppc::core::PerfAttr>();
   perf_attr->num_running = 30;  // Количество запусков для усреднения

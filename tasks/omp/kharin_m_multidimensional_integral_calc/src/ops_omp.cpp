@@ -5,7 +5,7 @@
 #include <cstddef>
 #include <vector>
 
-bool kharin_m_multidimensional_integral_calc_seq::TaskSequential::ValidationImpl() {
+bool kharin_m_multidimensional_integral_calc_omp::TestTaskOpenMP::ValidationImpl() {
   // Проверяем, что предоставлено ровно 3 входа и 1 выход
   if (task_data->inputs.size() != 3 || task_data->outputs.size() != 1) {
     return false;
@@ -21,7 +21,7 @@ bool kharin_m_multidimensional_integral_calc_seq::TaskSequential::ValidationImpl
   return true;
 }
 
-bool kharin_m_multidimensional_integral_calc_seq::TaskSequential::PreProcessingImpl() {
+bool kharin_m_multidimensional_integral_calc_omp::TestTaskOpenMP::PreProcessingImpl() {
   size_t d = task_data->inputs_count[1];
   auto* sizes_ptr = reinterpret_cast<size_t*>(task_data->inputs[1]);
   grid_sizes_ = std::vector<size_t>(sizes_ptr, sizes_ptr + d);
@@ -62,7 +62,7 @@ bool kharin_m_multidimensional_integral_calc_seq::TaskSequential::PreProcessingI
   return false;
 }
 
-bool kharin_m_multidimensional_integral_calc_seq::TaskSequential::RunImpl() {
+bool kharin_m_multidimensional_integral_calc_omp::TestTaskOpenMP::RunImpl() {
   // Вычисляем сумму всех значений функции
   double total = 0.0;
 #pragma omp parallel for reduction(+ : total)
@@ -81,7 +81,7 @@ bool kharin_m_multidimensional_integral_calc_seq::TaskSequential::RunImpl() {
   return true;
 }
 
-bool kharin_m_multidimensional_integral_calc_seq::TaskSequential::PostProcessingImpl() {
+bool kharin_m_multidimensional_integral_calc_omp::TestTaskOpenMP::PostProcessingImpl() {
   reinterpret_cast<double*>(task_data->outputs[0])[0] = output_result_;
   return true;
 }

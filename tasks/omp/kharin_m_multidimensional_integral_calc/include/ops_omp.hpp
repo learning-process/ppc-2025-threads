@@ -8,11 +8,11 @@
 
 #include "core/task/include/task.hpp"
 
-namespace kharin_m_multidimensional_integral_calc_seq {
+namespace kharin_m_multidimensional_integral_calc_omp {
 
-class TaskSequential : public ppc::core::Task {
+class TestTaskOpenMP : public ppc::core::Task {
  public:
-  explicit TaskSequential(ppc::core::TaskDataPtr task_data) : Task(std::move(task_data)) {}
+  explicit TestTaskOpenMP(ppc::core::TaskDataPtr task_data) : Task(std::move(task_data)) {}
   bool PreProcessingImpl() override;
   bool ValidationImpl() override;
   bool RunImpl() override;
@@ -25,4 +25,4 @@ class TaskSequential : public ppc::core::Task {
   double output_result_{0.0};       // Результат вычисления интеграла
 };
 
-}  // namespace kharin_m_multidimensional_integral_calc_seq
+}  // namespace kharin_m_multidimensional_integral_calc_omp
