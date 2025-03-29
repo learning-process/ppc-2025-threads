@@ -1,7 +1,6 @@
 // Copyright 2024 Nesterov Alexander
 #include "seq/leontev_n_average/include/ops_seq.hpp"
 
-#include <cstddef>
 #include <cstdint>
 #include <cstdlib>
 #include <numeric>
