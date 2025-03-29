@@ -55,9 +55,11 @@ bool malyshev_a_increase_contrast_by_histogram_omp::TestTaskOMP::RunImpl() {
     return true;
   }
 
+  auto spectrum = std::numeric_limits<uint8_t>::max() - std::numeric_limits<uint8_t>::min();
+  auto range = max_value - min_value;
 #pragma omp parallel for
   for (int i = 0; i < data_size; i++) {
-    data_[i] = static_cast<uint8_t>((data_[i] - min_value) * 255 / (max_value - min_value));
+    data_[i] = static_cast<uint8_t>((data_[i] - min_value) * spectrum / range);
   }
 
   return true;
