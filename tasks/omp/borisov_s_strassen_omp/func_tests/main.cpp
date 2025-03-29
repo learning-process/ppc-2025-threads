@@ -329,6 +329,54 @@ TEST(borisov_s_strassen_omp, Square128x128_Random) {
   delete[] out_ptr;
 }
 
+TEST(borisov_s_strassen_seq, Square128x128_IdentityMatrix) {
+  const int n = 128;
+
+  std::vector<double> a = GenerateRandomMatrix(n, n, 7777, 0.0, 1.0);
+
+  std::vector<double> e(n * n, 0.0);
+  for (int i = 0; i < n; ++i) {
+    e[(i * n) + i] = 1.0;
+  }
+
+  std::vector<double> in_data = {static_cast<double>(n), static_cast<double>(n), static_cast<double>(n),
+                                 static_cast<double>(n)};
+  in_data.insert(in_data.end(), a.begin(), a.end());
+  in_data.insert(in_data.end(), e.begin(), e.end());
+
+  std::size_t output_count = 2 + (n * n);
+
+  auto task_data = std::make_shared<ppc::core::TaskData>();
+  task_data->inputs.push_back(reinterpret_cast<uint8_t*>(in_data.data()));
+  task_data->inputs_count.push_back(in_data.size());
+
+  auto* out_ptr = new double[output_count]();
+  task_data->outputs.push_back(reinterpret_cast<uint8_t*>(out_ptr));
+  task_data->outputs_count.push_back(output_count);
+
+  borisov_s_strassen_omp::ParallelStrassenOMP task(task_data);
+
+  task.PreProcessingImpl();
+  EXPECT_TRUE(task.ValidationImpl());
+  task.RunImpl();
+  task.PostProcessingImpl();
+
+  EXPECT_DOUBLE_EQ(out_ptr[0], static_cast<double>(n));
+  EXPECT_DOUBLE_EQ(out_ptr[1], static_cast<double>(n));
+
+  std::vector<double> c_result(n * n);
+  for (int i = 0; i < n * n; ++i) {
+    c_result[i] = out_ptr[2 + i];
+  }
+
+  ASSERT_EQ(a.size(), c_result.size());
+  for (std::size_t i = 0; i < a.size(); ++i) {
+    EXPECT_NEAR(a[i], c_result[i], 1e-9);
+  }
+
+  delete[] out_ptr;
+}
+
 TEST(borisov_s_strassen_omp, Square129x129_Random) {
   const int n = 129;
 
