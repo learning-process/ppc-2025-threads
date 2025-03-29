@@ -1,16 +1,16 @@
 #include "all/filateva_e_simpson/include/ops_all.hpp"
 
-#include <cmath>
 #include <boost/mpi/collectives/broadcast.hpp>
-#include <boost/serialization/vector.hpp>
 #include <boost/mpi/collectives/reduce.hpp>
+#include <boost/serialization/vector.hpp>
+#include <cmath>
+#include <core/util/include/util.hpp>
 #include <cstddef>
 #include <vector>
 #include <oneapi/tbb/parallel_reduce.h>
 #include <oneapi/tbb/task_arena.h>
 #include <tbb/tbb.h>
 
-#include <core/util/include/util.hpp>
 
 bool filateva_e_simpson_all::Simpson::PreProcessingImpl() {
   if (world_.rank() == 0) {
@@ -81,9 +81,7 @@ double filateva_e_simpson_all::Simpson::IntegralFunc(unsigned long start, unsign
   return res;
 }
 
-void filateva_e_simpson_all::Simpson::setFunc(Func f) {
-  f_ = f;
-}
+void filateva_e_simpson_all::Simpson::setFunc(Func f) { f_ = f; }
 
 bool filateva_e_simpson_all::Simpson::RunImpl() {
   const int num_proc = world_.size();

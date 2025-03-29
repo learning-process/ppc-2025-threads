@@ -1,10 +1,9 @@
 #pragma once
 
-#include <cstddef>
 #include <boost/mpi/communicator.hpp>
+#include <cstddef>
 #include <utility>
 #include <vector>
-#include <functional>
 
 #include "core/task/include/task.hpp"
 
@@ -31,4 +30,4 @@ class Simpson : public ppc::core::Task {
   boost::mpi::communicator world_;
   double IntegralFunc(unsigned long start, unsigned long end);
 };
-}  // namespace filateva_e_simpson_omp
+}  // namespace filateva_e_simpson_all

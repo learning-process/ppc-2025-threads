@@ -7,9 +7,9 @@
 #include <numbers>
 #include <vector>
 
+#include "all/filateva_e_simpson/include/ops_all.hpp"
 #include "boost/mpi/communicator.hpp"
 #include "core/task/include/task.hpp"
-#include "all/filateva_e_simpson/include/ops_all.hpp"
 
 TEST(filateva_e_simpson_all, test_x_pow_2) {
   boost::mpi::communicator world;
@@ -47,7 +47,7 @@ TEST(filateva_e_simpson_all, test_x_pow_2) {
 
   if (world.rank() == 0) {
     filateva_e_simpson_all::Func integral_f = [](std::vector<double> x) { return x[0] * x[0] * x[0] / 3; };
-  
+
     ASSERT_NEAR(res[0], integral_f(b) - integral_f(a), 0.01);
   }
 }
@@ -88,7 +88,7 @@ TEST(filateva_e_simpson_all, test_x_pow_2_negative) {
 
   if (world.rank() == 0) {
     filateva_e_simpson_all::Func integral_f = [](std::vector<double> x) { return x[0] * x[0] * x[0] / 3; };
-  
+
     ASSERT_NEAR(res[0], integral_f(b) - integral_f(a), 0.01);
   }
 }
@@ -129,7 +129,7 @@ TEST(filateva_e_simpson_all, test_x) {
 
   if (world.rank() == 0) {
     filateva_e_simpson_all::Func integral_f = [](std::vector<double> x) { return x[0] * x[0] / 2; };
-  
+
     ASSERT_NEAR(res[0], integral_f(b) - integral_f(a), 0.01);
   }
 }
@@ -141,7 +141,7 @@ TEST(filateva_e_simpson_all, test_x_pow_3) {
   std::vector<double> a;
   std::vector<double> b;
   std::vector<double> res;
-  filateva_e_simpson_all::Func f = [](std::vector<double> x) { return x[0] * x[0] * x[0];; };
+  filateva_e_simpson_all::Func f = [](std::vector<double> x) { return x[0] * x[0] * x[0]; };
 
   auto task_data = std::make_shared<ppc::core::TaskData>();
 
@@ -170,7 +170,7 @@ TEST(filateva_e_simpson_all, test_x_pow_3) {
 
   if (world.rank() == 0) {
     filateva_e_simpson_all::Func integral_f = [](std::vector<double> x) { return std::pow(x[0], 4) / 4; };
-  
+
     ASSERT_NEAR(res[0], integral_f(b) - integral_f(a), 0.01);
   }
 }
@@ -211,7 +211,7 @@ TEST(filateva_e_simpson_all, test_x_del) {
 
   if (world.rank() == 0) {
     filateva_e_simpson_all::Func integral_f = [](std::vector<double> x) { return std::log(x[0]); };
-  
+
     ASSERT_NEAR(res[0], integral_f(b) - integral_f(a), 0.01);
   }
 }
@@ -252,7 +252,7 @@ TEST(filateva_e_simpson_all, test_x_sin) {
 
   if (world.rank() == 0) {
     filateva_e_simpson_all::Func integral_f = [](std::vector<double> x) { return -std::cos(x[0]); };
-  
+
     ASSERT_NEAR(res[0], integral_f(b) - integral_f(a), 0.01);
   }
 }
@@ -293,7 +293,7 @@ TEST(filateva_e_simpson_all, test_x_cos) {
 
   if (world.rank() == 0) {
     filateva_e_simpson_all::Func integral_f = [](std::vector<double> x) { return std::sin(x[0]); };
-  
+
     ASSERT_NEAR(res[0], integral_f(b) - integral_f(a), 0.01);
   }
 }
@@ -614,7 +614,9 @@ TEST(filateva_e_simpson_all, test_sum_integral_x_y) {
   std::vector<double> a;
   std::vector<double> b;
   std::vector<double> res;
-  filateva_e_simpson_all::Func f = [](std::vector<double> param) { return pow(param[0], 3) + pow(param[1], 2) + param[0]; };
+  filateva_e_simpson_all::Func f = [](std::vector<double> param) {
+    return pow(param[0], 3) + pow(param[1], 2) + param[0];
+  };
 
   auto task_data = std::make_shared<ppc::core::TaskData>();
 

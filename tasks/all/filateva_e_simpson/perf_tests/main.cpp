@@ -6,14 +6,10 @@
 #include <memory>
 #include <vector>
 
+#include "all/filateva_e_simpson/include/ops_all.hpp"
 #include "boost/mpi/communicator.hpp"
 #include "core/perf/include/perf.hpp"
 #include "core/task/include/task.hpp"
-#include "all/filateva_e_simpson/include/ops_all.hpp"
-
-#include <cmath>
-#include <numbers>
-
 
 TEST(filateva_e_simpson_all, test_pipeline_run) {
   boost::mpi::communicator world;
@@ -22,7 +18,6 @@ TEST(filateva_e_simpson_all, test_pipeline_run) {
   std::vector<double> a;
   std::vector<double> b;
   std::vector<double> res;
-
 
   filateva_e_simpson_all::Func f = [](std::vector<double> x) {
     if (x.empty()) {
@@ -75,7 +70,7 @@ TEST(filateva_e_simpson_all, test_pipeline_run) {
       }
       return x[0] * x[0] * x[0] / 3;
     };
-  
+
     ASSERT_NEAR(res[0], integral_f(b) - integral_f(a), 0.01);
   }
 }
@@ -87,7 +82,6 @@ TEST(filateva_e_simpson_all, test_task_run) {
   std::vector<double> a;
   std::vector<double> b;
   std::vector<double> res;
-
 
   filateva_e_simpson_all::Func f = [](std::vector<double> x) {
     if (x.empty()) {
@@ -140,7 +134,7 @@ TEST(filateva_e_simpson_all, test_task_run) {
       }
       return x[0] * x[0] * x[0] / 3;
     };
-  
+
     ASSERT_NEAR(res[0], integral_f(b) - integral_f(a), 0.01);
   }
 }
