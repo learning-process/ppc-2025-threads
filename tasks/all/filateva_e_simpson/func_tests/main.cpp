@@ -13,8 +13,8 @@
 
 TEST(filateva_e_simpson_all, test_x_pow_2) {
   boost::mpi::communicator world;
-  size_t mer;
-  size_t steps;
+  size_t mer = 0;
+  size_t steps = 0;
   std::vector<double> a;
   std::vector<double> b;
   std::vector<double> res;
@@ -44,7 +44,7 @@ TEST(filateva_e_simpson_all, test_x_pow_2) {
   }
 
   filateva_e_simpson_all::Simpson simpson(task_data);
-  simpson.setFunc(f);
+  simpson.SetFunc(f);
   ASSERT_TRUE(simpson.Validation());
   simpson.PreProcessing();
   simpson.Run();
@@ -64,8 +64,8 @@ TEST(filateva_e_simpson_all, test_x_pow_2) {
 
 TEST(filateva_e_simpson_all, test_x_pow_2_negative) {
   boost::mpi::communicator world;
-  size_t mer;
-  size_t steps;
+  size_t mer = 0;
+  size_t steps = 0;
   std::vector<double> a;
   std::vector<double> b;
   std::vector<double> res;
@@ -95,7 +95,7 @@ TEST(filateva_e_simpson_all, test_x_pow_2_negative) {
   }
 
   filateva_e_simpson_all::Simpson simpson(task_data);
-  simpson.setFunc(f);
+  simpson.SetFunc(f);
   ASSERT_TRUE(simpson.Validation());
   simpson.PreProcessing();
   simpson.Run();
@@ -115,8 +115,8 @@ TEST(filateva_e_simpson_all, test_x_pow_2_negative) {
 
 TEST(filateva_e_simpson_all, test_x) {
   boost::mpi::communicator world;
-  size_t mer;
-  size_t steps;
+  size_t mer = 0;
+  size_t steps = 0;
   std::vector<double> a;
   std::vector<double> b;
   std::vector<double> res;
@@ -146,7 +146,7 @@ TEST(filateva_e_simpson_all, test_x) {
   }
 
   filateva_e_simpson_all::Simpson simpson(task_data);
-  simpson.setFunc(f);
+  simpson.SetFunc(f);
   ASSERT_TRUE(simpson.Validation());
   simpson.PreProcessing();
   simpson.Run();
@@ -166,8 +166,8 @@ TEST(filateva_e_simpson_all, test_x) {
 
 TEST(filateva_e_simpson_all, test_x_pow_3) {
   boost::mpi::communicator world;
-  size_t mer;
-  size_t steps;
+  size_t mer = 0;
+  size_t steps = 0;
   std::vector<double> a;
   std::vector<double> b;
   std::vector<double> res;
@@ -197,7 +197,7 @@ TEST(filateva_e_simpson_all, test_x_pow_3) {
   }
 
   filateva_e_simpson_all::Simpson simpson(task_data);
-  simpson.setFunc(f);
+  simpson.SetFunc(f);
   ASSERT_TRUE(simpson.Validation());
   simpson.PreProcessing();
   simpson.Run();
@@ -217,8 +217,8 @@ TEST(filateva_e_simpson_all, test_x_pow_3) {
 
 TEST(filateva_e_simpson_all, test_x_del) {
   boost::mpi::communicator world;
-  size_t mer;
-  size_t steps;
+  size_t mer = 0;
+  size_t steps = 0;
   std::vector<double> a;
   std::vector<double> b;
   std::vector<double> res;
@@ -248,7 +248,7 @@ TEST(filateva_e_simpson_all, test_x_del) {
   }
 
   filateva_e_simpson_all::Simpson simpson(task_data);
-  simpson.setFunc(f);
+  simpson.SetFunc(f);
   ASSERT_TRUE(simpson.Validation());
   simpson.PreProcessing();
   simpson.Run();
@@ -268,8 +268,8 @@ TEST(filateva_e_simpson_all, test_x_del) {
 
 TEST(filateva_e_simpson_all, test_x_sin) {
   boost::mpi::communicator world;
-  size_t mer;
-  size_t steps;
+  size_t mer = 0;
+  size_t steps = 0;
   std::vector<double> a;
   std::vector<double> b;
   std::vector<double> res;
@@ -299,7 +299,7 @@ TEST(filateva_e_simpson_all, test_x_sin) {
   }
 
   filateva_e_simpson_all::Simpson simpson(task_data);
-  simpson.setFunc(f);
+  simpson.SetFunc(f);
   ASSERT_TRUE(simpson.Validation());
   simpson.PreProcessing();
   simpson.Run();
@@ -319,8 +319,8 @@ TEST(filateva_e_simpson_all, test_x_sin) {
 
 TEST(filateva_e_simpson_all, test_x_cos) {
   boost::mpi::communicator world;
-  size_t mer;
-  size_t steps;
+  size_t mer = 0;
+  size_t steps = 0;
   std::vector<double> a;
   std::vector<double> b;
   std::vector<double> res;
@@ -350,7 +350,7 @@ TEST(filateva_e_simpson_all, test_x_cos) {
   }
 
   filateva_e_simpson_all::Simpson simpson(task_data);
-  simpson.setFunc(f);
+  simpson.SetFunc(f);
   ASSERT_TRUE(simpson.Validation());
   simpson.PreProcessing();
   simpson.Run();
@@ -370,8 +370,8 @@ TEST(filateva_e_simpson_all, test_x_cos) {
 
 TEST(filateva_e_simpson_all, test_gausa) {
   boost::mpi::communicator world;
-  size_t mer;
-  size_t steps;
+  size_t mer = 0;
+  size_t steps = 0;
   std::vector<double> a;
   std::vector<double> b;
   std::vector<double> res;
@@ -401,7 +401,7 @@ TEST(filateva_e_simpson_all, test_gausa) {
   }
 
   filateva_e_simpson_all::Simpson simpson(task_data);
-  simpson.setFunc(f);
+  simpson.SetFunc(f);
   ASSERT_TRUE(simpson.Validation());
   simpson.PreProcessing();
   simpson.Run();
@@ -414,8 +414,8 @@ TEST(filateva_e_simpson_all, test_gausa) {
 
 TEST(filateva_e_simpson_all, test_sum_integral) {
   boost::mpi::communicator world;
-  size_t mer;
-  size_t steps;
+  size_t mer = 0;
+  size_t steps = 0;
   std::vector<double> a;
   std::vector<double> b;
   std::vector<double> res;
@@ -445,7 +445,7 @@ TEST(filateva_e_simpson_all, test_sum_integral) {
   }
 
   filateva_e_simpson_all::Simpson simpson(task_data);
-  simpson.setFunc(f);
+  simpson.SetFunc(f);
   ASSERT_TRUE(simpson.Validation());
   simpson.PreProcessing();
   simpson.Run();
@@ -465,8 +465,8 @@ TEST(filateva_e_simpson_all, test_sum_integral) {
 
 TEST(filateva_e_simpson_all, test_error_1) {
   boost::mpi::communicator world;
-  size_t mer;
-  size_t steps;
+  size_t mer = 0;
+  size_t steps = 0;
   std::vector<double> a;
   std::vector<double> b;
   std::vector<double> res;
@@ -496,7 +496,7 @@ TEST(filateva_e_simpson_all, test_error_1) {
   }
 
   filateva_e_simpson_all::Simpson simpson(task_data);
-  simpson.setFunc(f);
+  simpson.SetFunc(f);
   if (world.rank() == 0) {
     ASSERT_FALSE(simpson.Validation());
   } else {
@@ -506,8 +506,8 @@ TEST(filateva_e_simpson_all, test_error_1) {
 
 TEST(filateva_e_simpson_all, test_error_n_mer) {
   boost::mpi::communicator world;
-  size_t mer;
-  size_t steps;
+  size_t mer = 0;
+  size_t steps = 0;
   std::vector<double> a;
   std::vector<double> b;
   std::vector<double> res;
@@ -537,7 +537,7 @@ TEST(filateva_e_simpson_all, test_error_n_mer) {
   }
 
   filateva_e_simpson_all::Simpson simpson(task_data);
-  simpson.setFunc(f);
+  simpson.SetFunc(f);
   if (world.rank() == 0) {
     ASSERT_FALSE(simpson.Validation());
   } else {
@@ -547,8 +547,8 @@ TEST(filateva_e_simpson_all, test_error_n_mer) {
 
 TEST(filateva_e_simpson_all, test_error_2) {
   boost::mpi::communicator world;
-  size_t mer;
-  size_t steps;
+  size_t mer = 0;
+  size_t steps = 0;
   std::vector<double> a;
   std::vector<double> b;
   std::vector<double> res;
@@ -578,7 +578,7 @@ TEST(filateva_e_simpson_all, test_error_2) {
   }
 
   filateva_e_simpson_all::Simpson simpson(task_data);
-  simpson.setFunc(f);
+  simpson.SetFunc(f);
   if (world.rank() == 0) {
     ASSERT_FALSE(simpson.Validation());
   } else {
@@ -588,8 +588,8 @@ TEST(filateva_e_simpson_all, test_error_2) {
 
 TEST(filateva_e_simpson_all, test_x_y_pow_2) {
   boost::mpi::communicator world;
-  size_t mer;
-  size_t steps;
+  size_t mer = 0;
+  size_t steps = 0;
   std::vector<double> a;
   std::vector<double> b;
   std::vector<double> res;
@@ -619,7 +619,7 @@ TEST(filateva_e_simpson_all, test_x_y_pow_2) {
   }
 
   filateva_e_simpson_all::Simpson simpson(task_data);
-  simpson.setFunc(f);
+  simpson.SetFunc(f);
   ASSERT_TRUE(simpson.Validation());
   simpson.PreProcessing();
   simpson.Run();
@@ -632,8 +632,8 @@ TEST(filateva_e_simpson_all, test_x_y_pow_2) {
 
 TEST(filateva_e_simpson_all, test_x_y) {
   boost::mpi::communicator world;
-  size_t mer;
-  size_t steps;
+  size_t mer = 0;
+  size_t steps = 0;
   std::vector<double> a;
   std::vector<double> b;
   std::vector<double> res;
@@ -663,7 +663,7 @@ TEST(filateva_e_simpson_all, test_x_y) {
   }
 
   filateva_e_simpson_all::Simpson simpson(task_data);
-  simpson.setFunc(f);
+  simpson.SetFunc(f);
   ASSERT_TRUE(simpson.Validation());
   simpson.PreProcessing();
   simpson.Run();
@@ -676,8 +676,8 @@ TEST(filateva_e_simpson_all, test_x_y) {
 
 TEST(filateva_e_simpson_all, test_sin_x_cos_y) {
   boost::mpi::communicator world;
-  size_t mer;
-  size_t steps;
+  size_t mer = 0;
+  size_t steps = 0;
   std::vector<double> a;
   std::vector<double> b;
   std::vector<double> res;
@@ -707,7 +707,7 @@ TEST(filateva_e_simpson_all, test_sin_x_cos_y) {
   }
 
   filateva_e_simpson_all::Simpson simpson(task_data);
-  simpson.setFunc(f);
+  simpson.SetFunc(f);
   ASSERT_TRUE(simpson.Validation());
   simpson.PreProcessing();
   simpson.Run();
@@ -720,8 +720,8 @@ TEST(filateva_e_simpson_all, test_sin_x_cos_y) {
 
 TEST(filateva_e_simpson_all, test_sum_integral_x_y) {
   boost::mpi::communicator world;
-  size_t mer;
-  size_t steps;
+  size_t mer = 0;
+  size_t steps = 0;
   std::vector<double> a;
   std::vector<double> b;
   std::vector<double> res;
@@ -751,7 +751,7 @@ TEST(filateva_e_simpson_all, test_sum_integral_x_y) {
   }
 
   filateva_e_simpson_all::Simpson simpson(task_data);
-  simpson.setFunc(f);
+  simpson.SetFunc(f);
   ASSERT_TRUE(simpson.Validation());
   simpson.PreProcessing();
   simpson.Run();
@@ -764,8 +764,8 @@ TEST(filateva_e_simpson_all, test_sum_integral_x_y) {
 
 TEST(filateva_e_simpson_all, test_x_y_negative) {
   boost::mpi::communicator world;
-  size_t mer;
-  size_t steps;
+  size_t mer = 0;
+  size_t steps = 0;
   std::vector<double> a;
   std::vector<double> b;
   std::vector<double> res;
@@ -795,7 +795,7 @@ TEST(filateva_e_simpson_all, test_x_y_negative) {
   }
 
   filateva_e_simpson_all::Simpson simpson(task_data);
-  simpson.setFunc(f);
+  simpson.SetFunc(f);
   ASSERT_TRUE(simpson.Validation());
   simpson.PreProcessing();
   simpson.Run();

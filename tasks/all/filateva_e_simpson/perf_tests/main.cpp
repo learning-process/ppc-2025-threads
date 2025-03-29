@@ -13,8 +13,8 @@
 
 TEST(filateva_e_simpson_all, test_pipeline_run) {
   boost::mpi::communicator world;
-  size_t mer;
-  size_t steps;
+  size_t mer = 0;
+  size_t steps = 0;
   std::vector<double> a;
   std::vector<double> b;
   std::vector<double> res;
@@ -46,7 +46,7 @@ TEST(filateva_e_simpson_all, test_pipeline_run) {
   }
 
   auto test_task_sequential = std::make_shared<filateva_e_simpson_all::Simpson>(task_data);
-  test_task_sequential->setFunc(f);
+  test_task_sequential->SetFunc(f);
 
   auto perf_attr = std::make_shared<ppc::core::PerfAttr>();
   perf_attr->num_running = 10;
@@ -77,8 +77,8 @@ TEST(filateva_e_simpson_all, test_pipeline_run) {
 
 TEST(filateva_e_simpson_all, test_task_run) {
   boost::mpi::communicator world;
-  size_t mer;
-  size_t steps;
+  size_t mer = 0;
+  size_t steps = 0;
   std::vector<double> a;
   std::vector<double> b;
   std::vector<double> res;
@@ -110,7 +110,7 @@ TEST(filateva_e_simpson_all, test_task_run) {
   }
 
   auto test_task_sequential = std::make_shared<filateva_e_simpson_all::Simpson>(task_data);
-  test_task_sequential->setFunc(f);
+  test_task_sequential->SetFunc(f);
 
   auto perf_attr = std::make_shared<ppc::core::PerfAttr>();
   perf_attr->num_running = 10;

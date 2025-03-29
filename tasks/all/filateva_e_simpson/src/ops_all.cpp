@@ -11,6 +11,7 @@
 #include <core/util/include/util.hpp>
 #include <cstddef>
 #include <vector>
+#include <functional>
 
 bool filateva_e_simpson_all::Simpson::PreProcessingImpl() {
   if (world_.rank() == 0) {
@@ -48,7 +49,7 @@ bool filateva_e_simpson_all::Simpson::ValidationImpl() {
   return true;
 }
 
-double filateva_e_simpson_all::Simpson::IntegralFunc(unsigned long start, unsigned long end) {
+double filateva_e_simpson_all::Simpson::IntegralFunc(long start, long end) {
   double res = 0.0;
   const int num_threads = ppc::util::GetPPCNumThreads();
 
@@ -81,13 +82,13 @@ double filateva_e_simpson_all::Simpson::IntegralFunc(unsigned long start, unsign
   return res;
 }
 
-void filateva_e_simpson_all::Simpson::setFunc(Func f) { f_ = f; }
+void filateva_e_simpson_all::Simpson::SetFunc(Func f) { f_ = f; }
 
 bool filateva_e_simpson_all::Simpson::RunImpl() {
   const int num_proc = world_.size();
 
-  unsigned long del;
-  unsigned long ost;
+  unsigned long del = 0;
+  unsigned long ost = 0;
 
   if (world_.size() == 1) {
     del = 0;
@@ -110,7 +111,7 @@ bool filateva_e_simpson_all::Simpson::RunImpl() {
   unsigned long end = (world_.rank() == 0) ? ost : ost + (del * world_.rank());
   double local_res = IntegralFunc(start, end);
 
-  reduce(world_, local_res, res_, std::plus<double>(), 0);
+  reduce(world_, local_res, res_, std::plus<>(), 0);
 
   if (world_.rank() == 0) {
     for (size_t i = 0; i < mer_; i++) {

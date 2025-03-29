@@ -18,7 +18,7 @@ class Simpson : public ppc::core::Task {
   bool ValidationImpl() override;
   bool RunImpl() override;
   bool PostProcessingImpl() override;
-  void setFunc(Func f);
+  void SetFunc(Func f);
 
  private:
   size_t mer_;
@@ -28,6 +28,6 @@ class Simpson : public ppc::core::Task {
 
   Func f_;
   boost::mpi::communicator world_;
-  double IntegralFunc(unsigned long start, unsigned long end);
+  double IntegralFunc(long start, long end);
 };
 }  // namespace filateva_e_simpson_all
