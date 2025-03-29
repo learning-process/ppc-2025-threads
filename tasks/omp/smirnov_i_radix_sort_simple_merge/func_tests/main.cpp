@@ -159,7 +159,7 @@ TEST(smirnov_i_radix_sort_simple_merge_omp, test_double_reverse_order) {
     in[kCount - 1 - i] = static_cast<int>(i);
   }
 
-  std::reverse(in.begin(), in.end());
+  std::ranges::reverse(in.begin(), in.end());
 
   for (size_t i = 0; i < kCount; i++) {
     exp_out[i] = static_cast<int>(i);
