@@ -118,40 +118,38 @@ void vavilov_v_cannon_tbb::CannonTBB::ShiftBlocks() {
 */
 
 void vavilov_v_cannon_tbb::CannonTBB::ShiftBlocks() {
-  tbb::parallel_for(
-      tbb::blocked_range2d<int>(0, num_blocks_, 0, num_blocks_),
-      [&](const tbb::blocked_range2d<int>& r) {
-        std::vector<double> block_buffer(block_size_ * block_size_);
-        for (int bi = r.rows().begin(); bi != r.rows().end(); ++bi) {
-          for (int bj = r.cols().begin(); bj != r.cols().end(); ++bj) {
-          int src_row = (bi + 1) % num_blocks_;
-          int src_col = (bj + 1) % num_blocks_;
+  tbb::parallel_for(tbb::blocked_range2d<int>(0, num_blocks_, 0, num_blocks_), [&](const tbb::blocked_range2d<int>& r) {
+    std::vector<double> block_buffer(block_size_ * block_size_);
+    for (int bi = r.rows().begin(); bi != r.rows().end(); ++bi) {
+      for (int bj = r.cols().begin(); bj != r.cols().end(); ++bj) {
+        int src_row = (bi + 1) % num_blocks_;
+        int src_col = (bj + 1) % num_blocks_;
 
-          // Сдвиг B
-          for (int i = 0; i < block_size_; ++i) {
-            for (int j = 0; j < block_size_; ++j) {
-              block_buffer[i * block_size_ + j] = B_[(src_row * block_size_ + i) * N_ + (bj * block_size_ + j)];
-            }
+        // Сдвиг B
+        for (int i = 0; i < block_size_; ++i) {
+          for (int j = 0; j < block_size_; ++j) {
+            block_buffer[i * block_size_ + j] = B_[(src_row * block_size_ + i) * N_ + (bj * block_size_ + j)];
           }
-          for (int i = 0; i < block_size_; ++i) {
-            for (int j = 0; j < block_size_; ++j) {
-              B_[(bi * block_size_ + i) * N_ + (bj * block_size_ + j)] = block_buffer[i * block_size_ + j];
-            }
+        }
+        for (int i = 0; i < block_size_; ++i) {
+          for (int j = 0; j < block_size_; ++j) {
+            B_[(bi * block_size_ + i) * N_ + (bj * block_size_ + j)] = block_buffer[i * block_size_ + j];
           }
+        }
 
           // Сдвиг A
-          for (int i = 0; i < block_size_; ++i) {
-            for (int j = 0; j < block_size_; ++j) {
-              block_buffer[i * block_size_ + j] = A_[(bi * block_size_ + i) * N_ + (src_col * block_size_ + j)];
-            }
+        for (int i = 0; i < block_size_; ++i) {
+          for (int j = 0; j < block_size_; ++j) {
+            block_buffer[i * block_size_ + j] = A_[(bi * block_size_ + i) * N_ + (src_col * block_size_ + j)];
           }
-          for (int i = 0; i < block_size_; ++i) {
-            for (int j = 0; j < block_size_; ++j) {
-              A_[(bi * block_size_ + i) * N_ + (bj * block_size_ + j)] = block_buffer[i * block_size_ + j];
-            }
+        }
+        for (int i = 0; i < block_size_; ++i) {
+          for (int j = 0; j < block_size_; ++j) {
+            A_[(bi * block_size_ + i) * N_ + (bj * block_size_ + j)] = block_buffer[i * block_size_ + j];
           }
         }
       }
+    }
   });
 }
 
