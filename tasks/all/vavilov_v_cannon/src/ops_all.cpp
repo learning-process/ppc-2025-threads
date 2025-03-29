@@ -35,14 +35,14 @@ void vavilov_v_cannon_all::CannonALL::InitialShift(std::vector<double>& local_A,
   // Начальный сдвиг A
   if (row_index != 0) {
     int dest = (col_index < row_index) ? rank + num_blocks_ - row_index : rank - row_index;
-    world_.ssend(dest, 0, tmp_A);
+    world_.send(dest, 0, tmp_A);
   }
 
   // Начальный сдвиг B
   if (col_index != 0) {
     int dest =
         (row_index < col_index) ? rank + (num_blocks_ - col_index) * num_blocks_ : rank - num_blocks_ * col_index;
-    world_.ssend(dest, 1, tmp_B);
+    world_.send(dest, 1, tmp_B);
   }
 
   if (row_index != 0 && col_index != 0) {
@@ -79,16 +79,16 @@ void vavilov_v_cannon_all::CannonALL::ShiftBlocks(std::vector<double>& local_A, 
 
   // Сдвиг A влево
   if (rank == row_index * num_blocks_) {
-    world_.ssend((row_index + 1) * num_blocks_ - 1, 0, tmp_A);
+    world_.send((row_index + 1) * num_blocks_ - 1, 0, tmp_A);
   } else {
-    world_.ssend(rank - 1, 0, tmp_A);
+    world_.send(rank - 1, 0, tmp_A);
   }
 
   // Сдвиг B вверх
   if (rank < num_blocks_) {
-    world_.ssend(rank + (num_blocks_ - 1) * num_blocks_, 1, tmp_B);
+    world_.send(rank + (num_blocks_ - 1) * num_blocks_, 1, tmp_B);
   } else {
-    world_.ssend(rank - num_blocks_, 1, tmp_B);
+    world_.send(rank - num_blocks_, 1, tmp_B);
   }
 
   world_.recv(mpi::any_source, 0, local_A);
