@@ -6,7 +6,7 @@
 
 #include <boost/mpi/collectives/broadcast.hpp>
 #include <boost/mpi/collectives/reduce.hpp>
-#include <boost/serialization/vector.hpp> // IWYU pragma: keep
+#include <boost/serialization/vector.hpp>  // IWYU pragma: keep
 #include <cmath>
 #include <core/util/include/util.hpp>
 #include <cstddef>
