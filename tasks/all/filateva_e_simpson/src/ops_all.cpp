@@ -87,7 +87,7 @@ bool filateva_e_simpson_all::Simpson::RunImpl() {
   boost::mpi::broadcast(world_, steps_, 0);
   boost::mpi::broadcast(world_, a_, 0);
   const int num_proc = world_.size();
-  long del = std::pow(steps_ + 1, mer_) / num_proc;
+  long del = (long)std::pow(steps_ + 1, mer_) / num_proc;
   long ost = num_proc - ((long)std::pow(steps_ + 1, mer_) % num_proc);
 
   if (world_.rank() == 0) {
