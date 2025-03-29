@@ -94,7 +94,6 @@ void vavilov_v_cannon_tbb::CannonTBB::BlockMultiply() {
       oneapi::tbb::auto_partitioner());
 }
 
-/*
 void vavilov_v_cannon_tbb::CannonTBB::ShiftBlocks() {
   std::vector<double> a_tmp = A_;
   std::vector<double> b_tmp = B_;
@@ -115,47 +114,7 @@ void vavilov_v_cannon_tbb::CannonTBB::ShiftBlocks() {
     }
   });
 }
-*/
 
-void vavilov_v_cannon_tbb::CannonTBB::ShiftBlocks() {
-  tbb::parallel_for(tbb::blocked_range2d<int>(0, num_blocks_, 0, num_blocks_), [&](const tbb::blocked_range2d<int>& r) {
-    std::vector<double> a_buffer(block_size_ * block_size_);
-    std::vector<double> b_buffer(block_size_ * block_size_);
-
-    for (int bi = r.rows().begin(); bi != r.rows().end(); ++bi) {
-      for (int bj = r.cols().begin(); bj != r.cols().end(); ++bj) {
-        int a_src_col = (bj + 1) % num_blocks_;  // Сдвиг A влево по столбцам
-        int b_src_row = (bi + 1) % num_blocks_;  // Сдвиг B вверх по строкам
-
-        // Сдвиг A: копируем блок из (bi, a_src_col) в буфер
-        for (int i = 0; i < block_size_ && (bi * block_size_ + i) < N_; ++i) {
-          for (int j = 0; j < block_size_ && (a_src_col * block_size_ + j) < N_; ++j) {
-            a_buffer[i * block_size_ + j] = A_[(bi * block_size_ + i) * N_ + (a_src_col * block_size_ + j)];
-          }
-        }
-        // Записываем буфер в (bi, bj)
-        for (int i = 0; i < block_size_ && (bi * block_size_ + i) < N_; ++i) {
-          for (int j = 0; j < block_size_ && (bj * block_size_ + j) < N_; ++j) {
-            A_[(bi * block_size_ + i) * N_ + (bj * block_size_ + j)] = a_buffer[i * block_size_ + j];
-          }
-        }
-
-        // Сдвиг B: копируем блок из (b_src_row, bj) в буфер
-        for (int i = 0; i < block_size_ && (b_src_row * block_size_ + i) < N_; ++i) {
-          for (int j = 0; j < block_size_ && (bj * block_size_ + j) < N_; ++j) {
-            b_buffer[i * block_size_ + j] = B_[(b_src_row * block_size_ + i) * N_ + (bj * block_size_ + j)];
-          }
-        }
-        // Записываем буфер в (bi, bj)
-        for (int i = 0; i < block_size_ && (bi * block_size_ + i) < N_; ++i) {
-          for (int j = 0; j < block_size_ && (bj * block_size_ + j) < N_; ++j) {
-            B_[(bi * block_size_ + i) * N_ + (bj * block_size_ + j)] = b_buffer[i * block_size_ + j];
-          }
-        }
-      }
-    }
-  });
-}
 
 bool vavilov_v_cannon_tbb::CannonTBB::RunImpl() {
   oneapi::tbb::task_arena arena(ppc::util::GetPPCNumThreads());
