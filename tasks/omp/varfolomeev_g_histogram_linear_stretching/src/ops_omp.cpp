@@ -6,6 +6,7 @@
 #include <cmath>
 #include <cstddef>
 #include <cstdint>
+#include <cstring>
 #include <vector>
 
 bool varfolomeev_g_histogram_linear_stretching_omp::TestTaskSequential::PreProcessingImpl() {
@@ -18,8 +19,8 @@ bool varfolomeev_g_histogram_linear_stretching_omp::TestTaskSequential::PreProce
 }
 
 bool varfolomeev_g_histogram_linear_stretching_omp::TestTaskSequential::ValidationImpl() {
-  // Check equality of counts elements
-  return task_data->inputs_count[0] != 0 && task_data->inputs_count[0] == task_data->outputs_count[0];
+  return task_data->outputs_count[0] > 0 && task_data->inputs_count[0] > 0 &&
+         task_data->inputs_count[0] == task_data->outputs_count[0];
 }
 
 bool varfolomeev_g_histogram_linear_stretching_omp::TestTaskSequential::RunImpl() {
@@ -38,8 +39,7 @@ bool varfolomeev_g_histogram_linear_stretching_omp::TestTaskSequential::RunImpl(
 }
 
 bool varfolomeev_g_histogram_linear_stretching_omp::TestTaskSequential::PostProcessingImpl() {
-  for (size_t i = 0; i < res_.size(); i++) {
-    reinterpret_cast<uint8_t *>(task_data->outputs[0])[i] = res_[i];
-  }
+  std::memcpy(task_data->outputs[0], res_.data(), res_.size() * sizeof(uint8_t));
+
   return true;
 }

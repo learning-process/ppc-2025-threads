@@ -221,6 +221,49 @@ TEST(varfolomeev_g_histogram_linear_stretching_omp, test_flat) {
   EXPECT_EQ(expected_out, out);
 }
 
+TEST(varfolomeev_g_histogram_linear_stretching_omp, test_full_black) {
+  // Create data
+  std::vector<uint8_t> in = {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0};
+  std::vector<uint8_t> out(in.size());
+  std::vector<uint8_t> expected_out(in);
+  // Create task_data
+  auto task_data_omp = std::make_shared<ppc::core::TaskData>();
+  task_data_omp->inputs.emplace_back(reinterpret_cast<uint8_t *>(in.data()));
+  task_data_omp->inputs_count.emplace_back(in.size());
+  task_data_omp->outputs.emplace_back(reinterpret_cast<uint8_t *>(out.data()));
+  task_data_omp->outputs_count.emplace_back(out.size());
+
+  // Create Task
+  varfolomeev_g_histogram_linear_stretching_omp::TestTaskSequential test_task_ompuential(task_data_omp);
+  ASSERT_EQ(test_task_ompuential.Validation(), true);
+  test_task_ompuential.PreProcessing();
+  test_task_ompuential.Run();
+  test_task_ompuential.PostProcessing();
+  EXPECT_EQ(expected_out, out);
+}
+
+TEST(varfolomeev_g_histogram_linear_stretching_omp, test_full_white) {
+  // Create data
+  std::vector<uint8_t> in = {255, 255, 255, 255, 255, 255, 255, 255, 255, 255,
+                             255, 255, 255, 255, 255, 255, 255, 255, 255, 255};
+  std::vector<uint8_t> out(in.size());
+  std::vector<uint8_t> expected_out(in);
+  // Create task_data
+  auto task_data_omp = std::make_shared<ppc::core::TaskData>();
+  task_data_omp->inputs.emplace_back(reinterpret_cast<uint8_t *>(in.data()));
+  task_data_omp->inputs_count.emplace_back(in.size());
+  task_data_omp->outputs.emplace_back(reinterpret_cast<uint8_t *>(out.data()));
+  task_data_omp->outputs_count.emplace_back(out.size());
+
+  // Create Task
+  varfolomeev_g_histogram_linear_stretching_omp::TestTaskSequential test_task_ompuential(task_data_omp);
+  ASSERT_EQ(test_task_ompuential.Validation(), true);
+  test_task_ompuential.PreProcessing();
+  test_task_ompuential.Run();
+  test_task_ompuential.PostProcessing();
+  EXPECT_EQ(expected_out, out);
+}
+
 TEST(varfolomeev_g_histogram_linear_stretching_omp, test_single_non_flat_pixel) {
   // Create data
   std::vector<uint8_t> in = {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 128, 0, 0, 0, 0,
