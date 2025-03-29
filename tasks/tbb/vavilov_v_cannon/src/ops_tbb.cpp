@@ -50,28 +50,25 @@ void vavilov_v_cannon_tbb::CannonTBB::InitialShift() {
 }
 
 void vavilov_v_cannon_tbb::CannonTBB::BlockMultiply() {
-  tbb::parallel_for(tbb::blocked_range2d<int>(0, num_blocks_, 0, num_blocks_), [&](const tbb::blocked_range2d<int>& r) {
-    for (int bi = r.rows().begin(); bi < r.rows().end(); ++bi) {
-      for (int bj = r.cols().begin(); bj < r.cols().end(); ++bj) {
+  oneapi::tbb::task_arena arena(ppc::util::GetPPCNumThreads());  // Фиксированное число потоков
+  arena.execute([&]() {
+    oneapi::tbb::parallel_for(0, num_blocks_, [&](int bi) {
+      for (int bj = 0; bj < num_blocks_; ++bj) {
         for (int i = 0; i < block_size_; ++i) {
           for (int j = 0; j < block_size_; ++j) {
             double temp = 0.0;
+            int row = bi * block_size_ + i;
+            int col = bj * block_size_ + j;
             for (int k = 0; k < block_size_; ++k) {
-              int row = bi * block_size_ + i;
-              int col = bj * block_size_ + j;
               int k_idx = bj * block_size_ + k;
               int k_row = bi * block_size_ + k;
-              if (row < N_ && col < N_ && k_idx < N_ && k_row < N_) {
-                temp += A_[row * N_ + k_idx] * B_[k_row * N_ + col];
-              }
+              temp += A_[row * N_ + k_idx] * B_[k_row * N_ + col];
             }
-            if (bi * block_size_ + i < N_ && bj * block_size_ + j < N_) {
-              C_[(bi * block_size_ + i) * N_ + (bj * block_size_ + j)] += temp;
-            }
+            C_[row * N_ + col] += temp;
           }
         }
       }
-    }
+    });
   });
 }
 
