@@ -138,8 +138,7 @@ bool kovalev_k_radix_sort_batcher_merge_omp::TestTaskOpenMP::PreProcessingImpl()
 
   effective_num_threads_ = static_cast<int>(std::pow(2, std::floor(std::log2(omp_get_max_threads()))));
   auto e_n_f = static_cast<unsigned int>(effective_num_threads_);
-  n_ = n_input_ + ((e_n_f - n_input_ % e_n_f)) % e_n_f;
-  n_ += (((2 * e_n_f) - n_ % (2 * e_n_f))) % (2 * e_n_f);
+  n_ = n_input_ + (((2 * e_n_f) - n_ % (2 * e_n_f))) % (2 * e_n_f);
   loc_lenght_ = n_ / effective_num_threads_;
 
   mas_ = new long long int[n_];
@@ -156,6 +155,12 @@ bool kovalev_k_radix_sort_batcher_merge_omp::TestTaskOpenMP::PreProcessingImpl()
 }
 
 bool kovalev_k_radix_sort_batcher_merge_omp::TestTaskOpenMP::RunImpl() {
+  if (omp_get_max_threads() > 2 * n_input_) {
+    bool ret = RadixSigned(0, n_input_);
+    memcpy(tmp_, mas_, sizeof(long long int) * n_input_);
+    return ret;
+  }
+
   bool ret1 = true;
   bool ret2 = true;
 #pragma omp parallel num_threads(effective_num_threads_)
