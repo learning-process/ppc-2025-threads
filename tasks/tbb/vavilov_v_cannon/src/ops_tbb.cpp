@@ -114,10 +114,10 @@ void vavilov_v_cannon_tbb::CannonTBB::BlockMultiply() {
                 double temp = 0.0;
                 int k = 0;
                 for (; k <= block_size_ - 4; k += 4) {
-                  temp += a_block[i * block_size_ + k] * b_block[k * block_size_ + j]
-                        + a_block[i * block_size_ + k + 1] * b_block[(k + 1) * block_size_ + j]
-                        + a_block[i * block_size_ + k + 2] * b_block[(k + 2) * block_size_ + j]
-                        + a_block[i * block_size_ + k + 3] * b_block[(k + 3) * block_size_ + j];
+                  temp += a_block[i * block_size_ + k] * b_block[k * block_size_ + j] +
+                          a_block[i * block_size_ + k + 1] * b_block[(k + 1) * block_size_ + j] +
+                          a_block[i * block_size_ + k + 2] * b_block[(k + 2) * block_size_ + j] +
+                          a_block[i * block_size_ + k + 3] * b_block[(k + 3) * block_size_ + j];
                 }
                 for (; k < block_size_ && base_row + k < N_; ++k) {
                   temp += a_block[i * block_size_ + k] * b_block[k * block_size_ + j];
@@ -128,8 +128,7 @@ void vavilov_v_cannon_tbb::CannonTBB::BlockMultiply() {
           }
         }
       },
-      oneapi::tbb::auto_partitioner()
-  );
+      oneapi::tbb::auto_partitioner());
 }
 
 void vavilov_v_cannon_tbb::CannonTBB::ShiftBlocks() {
