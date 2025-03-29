@@ -6,10 +6,9 @@
 
 #include <algorithm>
 #include <cmath>
+#include <core/util/include/util.hpp>
 #include <cstddef>
 #include <vector>
-
-#include <core/util/include/util.hpp>
 
 bool filatev_v_foks_tbb::Focks::PreProcessingImpl() {
   size_block_ = task_data->inputs_count[4];
@@ -60,38 +59,38 @@ bool filatev_v_foks_tbb::Focks::RunImpl() {
   oneapi::tbb::task_arena arena(num_threads);
 
   arena.execute([&] {
-              oneapi::tbb::parallel_for(tbb::blocked_range<int>(0, grid_size * grid_size * grid_size),
-                    [&](const tbb::blocked_range<int> &range) {
-                      for (int step_i_j = range.begin(); step_i_j != range.end(); ++step_i_j) {
-                        int step = step_i_j / (grid_size * grid_size);
-                        int i = (step_i_j % (grid_size * grid_size)) / grid_size;
-                        int j = step_i_j % grid_size;
+    oneapi::tbb::parallel_for(tbb::blocked_range<int>(0, grid_size * grid_size * grid_size),
+                              [&](const tbb::blocked_range<int> &range) {
+                                for (int step_i_j = range.begin(); step_i_j != range.end(); ++step_i_j) {
+                                  int step = step_i_j / (grid_size * grid_size);
+                                  int i = (step_i_j % (grid_size * grid_size)) / grid_size;
+                                  int j = step_i_j % grid_size;
 
-                        size_t root = (i + step) % grid_size;
-                        std::vector<double> local_block(size_block_ * size_block_, 0);
+                                  size_t root = (i + step) % grid_size;
+                                  std::vector<double> local_block(size_block_ * size_block_, 0);
 
-                        for (size_t bi = 0; bi < size_block_; ++bi) {
-                          for (size_t bj = 0; bj < size_block_; ++bj) {
-                            for (size_t bk = 0; bk < size_block_; ++bk) {
-                              local_block[(bi * size_block_) + bj] +=
-                                  matrix_a_[((i * size_block_ + bi) * size_) + (root * size_block_) + bk] *
-                                  matrix_b_[((root * size_block_ + bk) * size_) + (j * size_block_) + bj];
-                            }
-                          }
-                        }
+                                  for (size_t bi = 0; bi < size_block_; ++bi) {
+                                    for (size_t bj = 0; bj < size_block_; ++bj) {
+                                      for (size_t bk = 0; bk < size_block_; ++bk) {
+                                        local_block[(bi * size_block_) + bj] +=
+                                            matrix_a_[((i * size_block_ + bi) * size_) + (root * size_block_) + bk] *
+                                            matrix_b_[((root * size_block_ + bk) * size_) + (j * size_block_) + bj];
+                                      }
+                                    }
+                                  }
 
-                        {
-                          tbb::mutex::scoped_lock lock(write_mutex);
-                          for (size_t bi = 0; bi < size_block_; ++bi) {
-                            for (size_t bj = 0; bj < size_block_; ++bj) {
-                              matrix_c_[((i * size_block_ + bi) * size_) + (j * size_block_) + bj] +=
-                                  local_block[(bi * size_block_) + bj];
-                            }
-                          }
-                        }
-                      }
-                    });
-                  });
+                                  {
+                                    tbb::mutex::scoped_lock lock(write_mutex);
+                                    for (size_t bi = 0; bi < size_block_; ++bi) {
+                                      for (size_t bj = 0; bj < size_block_; ++bj) {
+                                        matrix_c_[((i * size_block_ + bi) * size_) + (j * size_block_) + bj] +=
+                                            local_block[(bi * size_block_) + bj];
+                                      }
+                                    }
+                                  }
+                                }
+                              });
+  });
 
   return true;
 }
