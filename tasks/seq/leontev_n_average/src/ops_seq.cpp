@@ -1,6 +1,7 @@
 // Copyright 2024 Nesterov Alexander
 #include "seq/leontev_n_average/include/ops_seq.hpp"
 
+#include <cstddef>
 #include <cstdint>
 #include <cstdlib>
 #include <numeric>
@@ -8,7 +9,11 @@
 
 template <class InOutType>
 bool leontev_n_average_seq::VecAvgSequential<InOutType>::PreProcessingImpl() {
-  input_ = reinterpret_cast<std::vector<InOutType>*>(task_data->inputs[0])[0];
+  input_ = std::vector<InOutType>(task_data->inputs_count[0]);
+  auto* vec_ptr = reinterpret_cast<InOutType*>(task_data->inputs[0]);
+  for (size_t i = 0; i < task_data->inputs_count[0]; i++) {
+    input_[i] = vec_ptr[i];
+  }
   res_ = 0;
   return true;
 }
