@@ -1,40 +1,39 @@
 #include "tbb/sorokin_a_multiplication_sparse_matrices_double_ccs/include/ops_tbb.hpp"
 
-#include <tbb/tbb.h>
+#include <oneapi/tbb/blocked_range.h>
+#include <oneapi/tbb/mutex.h>
+#include <oneapi/tbb/parallel_for.h>
 
 #include <algorithm>
 #include <cmath>
-#include <core/util/include/util.hpp>
 #include <cstddef>
 #include <stdexcept>
 #include <vector>
 
-#include "oneapi/tbb/task_arena.h"
-#include "oneapi/tbb/task_group.h"
-
 namespace sorokin_a_multiplication_sparse_matrices_double_ccs_tbb {
-void MultiplyCCS(const std::vector<double> &a_values, const std::vector<int> &a_row_indices, int m,
-                 const std::vector<int> &a_col_ptr, const std::vector<double> &b_values,
-                 const std::vector<int> &b_row_indices, int k, const std::vector<int> &b_col_ptr,
-                 std::vector<double> &c_values, std::vector<int> &c_row_indices, int n, std::vector<int> &c_col_ptr) {
+
+void MultiplyCCS(const std::vector<double>& a_values, const std::vector<int>& a_row_indices, int m,
+                 const std::vector<int>& a_col_ptr, const std::vector<double>& b_values,
+                 const std::vector<int>& b_row_indices, int k, const std::vector<int>& b_col_ptr,
+                 std::vector<double>& c_values, std::vector<int>& c_row_indices, int n, std::vector<int>& c_col_ptr) {
   if (static_cast<int>(a_values.size()) > m * k || static_cast<int>(b_values.size()) > k * n) {
-    throw std::invalid_argument("Invalid val pointer size");
+    throw std::invalid_argument("Invalid matrix values size");
   }
 
   c_col_ptr.assign(n + 1, 0);
   std::vector<int> col_sizes(n, 0);
-  std::vector<tbb::mutex> mutexes(m);
 
-  tbb::parallel_for(tbb::blocked_range<int>(0, n), [&](const tbb::blocked_range<int> &range) {
-    std::vector<bool> temp_used(m);
+  tbb::parallel_for(tbb::blocked_range<int>(0, n), [&](const auto& range) {
     for (int j = range.begin(); j < range.end(); ++j) {
-      temp_used.assign(m, false);
-      for (int t = b_col_ptr[j]; t < b_col_ptr[j + 1]; ++t) {
-        int row_b = b_row_indices[t];
-        for (int i = a_col_ptr[row_b]; i < a_col_ptr[row_b + 1]; ++i) {
-          int row_a = a_row_indices[i];
-          if (!temp_used[row_a]) {
-            temp_used[row_a] = true;
+      std::vector<bool> row_marks(m, false);
+
+      for (int b_idx = b_col_ptr[j]; b_idx < b_col_ptr[j + 1]; ++b_idx) {
+        const int row_b = b_row_indices[b_idx];
+
+        for (int a_idx = a_col_ptr[row_b]; a_idx < a_col_ptr[row_b + 1]; ++a_idx) {
+          const int row_a = a_row_indices[a_idx];
+          if (!row_marks[row_a]) {
+            row_marks[row_a] = true;
             col_sizes[j]++;
           }
         }
@@ -46,27 +45,26 @@ void MultiplyCCS(const std::vector<double> &a_values, const std::vector<int> &a_
     c_col_ptr[j + 1] = c_col_ptr[j] + col_sizes[j];
   }
 
-  c_values.resize(c_col_ptr[n]);
-  c_row_indices.resize(c_col_ptr[n]);
+  c_values.resize(c_col_ptr.back());
+  c_row_indices.resize(c_col_ptr.back());
 
-  tbb::parallel_for(tbb::blocked_range<int>(0, n), [&](const tbb::blocked_range<int> &range) {
-    std::vector<double> temp_values(m);
-    std::vector<bool> temp_used(m);
+  tbb::parallel_for(tbb::blocked_range<int>(0, n), [&](const auto& range) {
     for (int j = range.begin(); j < range.end(); ++j) {
-      temp_used.assign(m, false);
-      temp_values.assign(m, 0.0);
+      std::vector<double> temp_values(m, 0.0);
+      std::vector<bool> temp_used(m, false);
+      int pos = c_col_ptr[j];
 
-      for (int t = b_col_ptr[j]; t < b_col_ptr[j + 1]; ++t) {
-        int row_b = b_row_indices[t];
-        double val_b = b_values[t];
-        for (int i = a_col_ptr[row_b]; i < a_col_ptr[row_b + 1]; ++i) {
-          int row_a = a_row_indices[i];
-          temp_values[row_a] += a_values[i] * val_b;
+      for (int b_idx = b_col_ptr[j]; b_idx < b_col_ptr[j + 1]; ++b_idx) {
+        const int row_b = b_row_indices[b_idx];
+        const double b_val = b_values[b_idx];
+
+        for (int a_idx = a_col_ptr[row_b]; a_idx < a_col_ptr[row_b + 1]; ++a_idx) {
+          const int row_a = a_row_indices[a_idx];
+          temp_values[row_a] += a_values[a_idx] * b_val;
           temp_used[row_a] = true;
         }
       }
 
-      int pos = c_col_ptr[j];
       for (int i = 0; i < m; ++i) {
         if (temp_used[i]) {
           c_row_indices[pos] = i;
@@ -77,6 +75,7 @@ void MultiplyCCS(const std::vector<double> &a_values, const std::vector<int> &a_
     }
   });
 }
+
 }  // namespace sorokin_a_multiplication_sparse_matrices_double_ccs_tbb
 
 bool sorokin_a_multiplication_sparse_matrices_double_ccs_tbb::TestTaskTBB::PreProcessingImpl() {
