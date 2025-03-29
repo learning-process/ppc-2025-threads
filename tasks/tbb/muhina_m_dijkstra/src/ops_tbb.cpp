@@ -8,11 +8,53 @@
 #include <climits>
 #include <cstddef>
 #include <functional>
-#include <queue>
 #include <utility>
 #include <vector>
 
 const int muhina_m_dijkstra_tbb::TestTaskTBB::kEndOfVertexList = -1;
+
+namespace {
+void run_dijkstra_algorithm(const std::vector<std::vector<std::pair<size_t, int>>> &adj_list,
+                            std::vector<int> &distances, size_t start_vertex) {
+  oneapi::tbb::concurrent_priority_queue<std::pair<int, size_t>, std::greater<>> pq;
+  pq.push({0, start_vertex});
+  oneapi::tbb::spin_mutex mutex;
+
+  while (true) {
+    std::pair<int, size_t> top;
+    if (!pq.try_pop(top)) {
+      if (pq.empty()) {
+        break;
+      }
+      continue;
+    }
+
+    size_t u = top.second;
+    int dist_u = top.first;
+
+    if (dist_u > distances[u]) {
+      continue;
+    }
+
+    oneapi::tbb::parallel_for(oneapi::tbb::blocked_range<size_t>(0, adj_list[u].size()),
+                              [&](const oneapi::tbb::blocked_range<size_t> &r) {
+                                for (size_t i = r.begin(); i != r.end(); ++i) {
+                                  size_t v = adj_list[u][i].first;
+                                  int weight = adj_list[u][i].second;
+                                  int new_dist = distances[u] + weight;
+
+                                  if (new_dist < distances[v]) {
+                                    oneapi::tbb::spin_mutex::scoped_lock lock(mutex);
+                                    if (new_dist < distances[v]) {
+                                      distances[v] = new_dist;
+                                      pq.push({new_dist, v});
+                                    }
+                                  }
+                                }
+                              });
+  }
+}
+}  // namespace
 
 bool muhina_m_dijkstra_tbb::TestTaskTBB::PreProcessingImpl() {
   unsigned int input_size = task_data->inputs_count[0];
@@ -67,42 +109,7 @@ bool muhina_m_dijkstra_tbb::TestTaskTBB::RunImpl() {
 
     i += 2;
   }
-
-  oneapi::tbb::concurrent_priority_queue<std::pair<int, size_t>, std::greater<std::pair<int, size_t>>> pq;
-  pq.push({0, start_vertex_});
-  oneapi::tbb::spin_mutex mutex;
-
-  while (true) {
-    std::pair<int, size_t> top;
-    if (!pq.try_pop(top)) {
-      if (pq.empty()) break;
-      continue;
-    }
-
-    size_t u = top.second;
-    int dist_u = top.first;
-
-    if (dist_u > distances_[u]) {
-      continue;
-    }
-
-    oneapi::tbb::parallel_for(oneapi::tbb::blocked_range<size_t>(0, adj_list[u].size()),
-                              [&](const oneapi::tbb::blocked_range<size_t> &r) {
-                                for (size_t i = r.begin(); i != r.end(); ++i) {
-                                  size_t v = adj_list[u][i].first;
-                                  int weight = adj_list[u][i].second;
-                                  int new_dist = distances_[u] + weight;
-
-                                  if (new_dist < distances_[v]) {
-                                    oneapi::tbb::spin_mutex::scoped_lock lock(mutex);
-                                    if (new_dist < distances_[v]) {
-                                      distances_[v] = new_dist;
-                                      pq.push({new_dist, v});
-                                    }
-                                  }
-                                }
-                              });
-  }
+  run_dijkstra_algorithm(adj_list, distances_, start_vertex_);
 
   return true;
 }
