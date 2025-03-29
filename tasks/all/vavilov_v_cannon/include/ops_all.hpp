@@ -4,6 +4,7 @@
 #include <memory>
 #include <utility>
 #include <vector>
+#include <boost/mpi.hpp>
 
 #include "core/task/include/task.hpp"
 
