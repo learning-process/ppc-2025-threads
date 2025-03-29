@@ -51,7 +51,12 @@ TEST(filateva_e_simpson_all, test_x_pow_2) {
   simpson.PostProcessing();
 
   if (world.rank() == 0) {
-    filateva_e_simpson_all::Func integral_f = [](std::vector<double> x) { return x[0] * x[0] * x[0] / 3; };
+    filateva_e_simpson_all::Func integral_f = [](std::vector<double> x) {
+      if (x.empty()) {
+        return 0.0;
+      }
+      return x[0] * x[0] * x[0] / 3;
+    };
 
     ASSERT_NEAR(res[0], integral_f(b) - integral_f(a), 0.01);
   }
@@ -97,7 +102,12 @@ TEST(filateva_e_simpson_all, test_x_pow_2_negative) {
   simpson.PostProcessing();
 
   if (world.rank() == 0) {
-    filateva_e_simpson_all::Func integral_f = [](std::vector<double> x) { return x[0] * x[0] * x[0] / 3; };
+    filateva_e_simpson_all::Func integral_f = [](std::vector<double> x) {
+      if (x.empty()) {
+        return 0.0;
+      }
+      return x[0] * x[0] * x[0] / 3;
+    };
 
     ASSERT_NEAR(res[0], integral_f(b) - integral_f(a), 0.01);
   }
@@ -143,7 +153,12 @@ TEST(filateva_e_simpson_all, test_x) {
   simpson.PostProcessing();
 
   if (world.rank() == 0) {
-    filateva_e_simpson_all::Func integral_f = [](std::vector<double> x) { return x[0] * x[0] / 2; };
+    filateva_e_simpson_all::Func integral_f = [](std::vector<double> x) {
+      if (x.empty()) {
+        return 0.0;
+      }
+      return x[0] * x[0] / 2;
+    };
 
     ASSERT_NEAR(res[0], integral_f(b) - integral_f(a), 0.01);
   }
@@ -189,7 +204,12 @@ TEST(filateva_e_simpson_all, test_x_pow_3) {
   simpson.PostProcessing();
 
   if (world.rank() == 0) {
-    filateva_e_simpson_all::Func integral_f = [](std::vector<double> x) { return std::pow(x[0], 4) / 4; };
+    filateva_e_simpson_all::Func integral_f = [](std::vector<double> x) {
+      if (x.empty()) {
+        return 0.0;
+      }
+      return std::pow(x[0], 4) / 4;
+    };
 
     ASSERT_NEAR(res[0], integral_f(b) - integral_f(a), 0.01);
   }
@@ -235,7 +255,12 @@ TEST(filateva_e_simpson_all, test_x_del) {
   simpson.PostProcessing();
 
   if (world.rank() == 0) {
-    filateva_e_simpson_all::Func integral_f = [](std::vector<double> x) { return std::log(x[0]); };
+    filateva_e_simpson_all::Func integral_f = [](std::vector<double> x) {
+      if (x.empty()) {
+        return 0.0;
+      }
+      return std::log(x[0]);
+    };
 
     ASSERT_NEAR(res[0], integral_f(b) - integral_f(a), 0.01);
   }
@@ -281,7 +306,12 @@ TEST(filateva_e_simpson_all, test_x_sin) {
   simpson.PostProcessing();
 
   if (world.rank() == 0) {
-    filateva_e_simpson_all::Func integral_f = [](std::vector<double> x) { return -std::cos(x[0]); };
+    filateva_e_simpson_all::Func integral_f = [](std::vector<double> x) {
+      if (x.empty()) {
+        return 0.0;
+      }
+      return -std::cos(x[0]);
+    };
 
     ASSERT_NEAR(res[0], integral_f(b) - integral_f(a), 0.01);
   }
@@ -327,7 +357,12 @@ TEST(filateva_e_simpson_all, test_x_cos) {
   simpson.PostProcessing();
 
   if (world.rank() == 0) {
-    filateva_e_simpson_all::Func integral_f = [](std::vector<double> x) { return std::sin(x[0]); };
+    filateva_e_simpson_all::Func integral_f = [](std::vector<double> x) {
+      if (x.empty()) {
+        return 0.0;
+      }
+      return std::sin(x[0]);
+    };
 
     ASSERT_NEAR(res[0], integral_f(b) - integral_f(a), 0.01);
   }
@@ -418,6 +453,9 @@ TEST(filateva_e_simpson_all, test_sum_integral) {
 
   if (world.rank() == 0) {
     filateva_e_simpson_all::Func integral_f = [](std::vector<double> x) {
+      if (x.empty()) {
+        return 0.0;
+      }
       return (pow(x[0], 4) / 4) + (pow(x[0], 3) / 3) + (pow(x[0], 2) / 2);
     };
 
