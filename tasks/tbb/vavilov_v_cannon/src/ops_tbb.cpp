@@ -84,8 +84,8 @@ void vavilov_v_cannon_tbb::CannonTBB::BlockMultiply() {
           }
         },
         oneapi::tbb::auto_partitioner()  // Автоматическое разделение задач
-      );
-    });
+    );
+  });
 }
 
 void vavilov_v_cannon_tbb::CannonTBB::ShiftBlocks() {
