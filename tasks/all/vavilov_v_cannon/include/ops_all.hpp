@@ -1,10 +1,10 @@
 #pragma once
 
+#include <boost/mpi.hpp>
 #include <cmath>
 #include <memory>
 #include <utility>
 #include <vector>
-#include <boost/mpi.hpp>
 
 #include "core/task/include/task.hpp"
 
