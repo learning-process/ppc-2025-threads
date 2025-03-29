@@ -10,8 +10,8 @@
 #include <cmath>
 #include <core/util/include/util.hpp>
 #include <cstddef>
-#include <vector>
 #include <functional>
+#include <vector>
 
 bool filateva_e_simpson_all::Simpson::PreProcessingImpl() {
   if (world_.rank() == 0) {
