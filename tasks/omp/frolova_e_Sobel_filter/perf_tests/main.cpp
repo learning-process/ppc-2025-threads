@@ -58,6 +58,40 @@ std::vector<int> ToGrayScaleImg(std::vector<frolova_e_sobel_filter_omp::RGB> &co
   return gray_scale_image;
 }
 
+std::vector<int> ApplySobelFilter(const std::vector<int> &gray_scale_image, size_t width, size_t height) {
+  const std::vector<int> gx = {-1, 0, 1, -2, 0, 2, -1, 0, 1};
+  const std::vector<int> gy = {-1, -2, -1, 0, 0, 0, 1, 2, 1};
+
+  std::vector<int> result(width * height, 0);
+
+  for (size_t y = 0; y < height; y++) {
+    for (size_t x = 0; x < width; x++) {
+      int res_x = 0;
+      int res_y = 0;
+
+      for (int ky = -1; ky <= 1; ky++) {
+        for (int kx = -1; kx <= 1; kx++) {
+          int px = static_cast<int>(x) + kx;
+          int py = static_cast<int>(y) + ky;
+
+          int pixel_value = 0;
+
+          if (px >= 0 && px < static_cast<int>(width) && py >= 0 && py < static_cast<int>(height)) {
+            pixel_value = gray_scale_image[(py * width) + px];
+          }
+
+          size_t kernel_ind = ((ky + 1) * 3) + (kx + 1);
+          res_x += pixel_value * gx[kernel_ind];
+          res_y += pixel_value * gy[kernel_ind];
+        }
+      }
+      int gradient = static_cast<int>(std::sqrt((res_x * res_x) + (res_y * res_y)));
+      result[(y * width) + x] = std::clamp(gradient, 0, 255);
+    }
+  }
+
+  return result;
+}
 }  // namespace
 
 TEST(frolova_e_sobel_filter_omp, test_pipeline_run) {
@@ -105,33 +139,7 @@ TEST(frolova_e_sobel_filter_omp, test_pipeline_run) {
   std::vector<int> gray_scale_image =
       ToGrayScaleImg(picture, static_cast<size_t>(value[0]), static_cast<size_t>(value[1]));
 
-  const std::vector<int> gx = {-1, 0, 1, -2, 0, 2, -1, 0, 1};
-  const std::vector<int> gy = {-1, -2, -1, 0, 0, 0, 1, 2, 1};
-  for (size_t y = 0; y < static_cast<size_t>(value[0]); y++) {
-    for (size_t x = 0; x < static_cast<size_t>(value[1]); x++) {
-      int res_x = 0;
-      int res_y = 0;
-
-      for (int ky = -1; ky <= 1; ky++) {
-        for (int kx = -1; kx <= 1; kx++) {
-          int px = static_cast<int>(x) + kx;
-          int py = static_cast<int>(y) + ky;
-
-          int pixel_value = 0;
-
-          if (px >= 0 && px < static_cast<int>(value[0]) && py >= 0 && py < static_cast<int>(value[1])) {
-            pixel_value = gray_scale_image[(py * value[0]) + px];
-          }
-
-          size_t kernel_ind = ((ky + 1) * 3) + (kx + 1);
-          res_x += pixel_value * gx[kernel_ind];
-          res_y += pixel_value * gy[kernel_ind];
-        }
-      }
-      int gradient = static_cast<int>(sqrt((res_x * res_x) + (res_y * res_y)));
-      reference[(y * value[0]) + x] = std::clamp(gradient, 0, 255);
-    }
-  }
+  reference = ApplySobelFilter(gray_scale_image, value[0], value[1]);
 
   ASSERT_EQ(reference, res);
 }
@@ -181,33 +189,7 @@ TEST(frolova_e_sobel_filter_omp, test_task_run) {
   std::vector<int> gray_scale_image =
       ToGrayScaleImg(picture, static_cast<size_t>(value[0]), static_cast<size_t>(value[1]));
 
-  const std::vector<int> gx = {-1, 0, 1, -2, 0, 2, -1, 0, 1};
-  const std::vector<int> gy = {-1, -2, -1, 0, 0, 0, 1, 2, 1};
-  for (size_t y = 0; y < static_cast<size_t>(value[0]); y++) {
-    for (size_t x = 0; x < static_cast<size_t>(value[1]); x++) {
-      int res_x = 0;
-      int res_y = 0;
-
-      for (int ky = -1; ky <= 1; ky++) {
-        for (int kx = -1; kx <= 1; kx++) {
-          int px = static_cast<int>(x) + kx;
-          int py = static_cast<int>(y) + ky;
-
-          int pixel_value = 0;
-
-          if (px >= 0 && px < static_cast<int>(value[0]) && py >= 0 && py < static_cast<int>(value[1])) {
-            pixel_value = gray_scale_image[(py * value[0]) + px];
-          }
-
-          size_t kernel_ind = ((ky + 1) * 3) + (kx + 1);
-          res_x += pixel_value * gx[kernel_ind];
-          res_y += pixel_value * gy[kernel_ind];
-        }
-      }
-      int gradient = static_cast<int>(sqrt((res_x * res_x) + (res_y * res_y)));
-      reference[(y * value[0]) + x] = std::clamp(gradient, 0, 255);
-    }
-  }
+  reference = ApplySobelFilter(gray_scale_image, value[0], value[1]);
 
   ASSERT_EQ(reference, res);
 }
