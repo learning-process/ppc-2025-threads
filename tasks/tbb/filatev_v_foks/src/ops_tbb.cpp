@@ -57,7 +57,7 @@ void ComputeBlock(const std::vector<double>& matrix_a, const std::vector<double>
     for (size_t bj = 0; bj < size_block; ++bj) {
       for (size_t bk = 0; bk < size_block; ++bk) {
         local_block[(bi * size_block) + bj] += matrix_a[((i * size_block + bi) * size) + (root * size_block) + bk] *
-                                                matrix_b[((root * size_block + bk) * size) + (j * size_block) + bj];
+                                               matrix_b[((root * size_block + bk) * size) + (j * size_block) + bj];
       }
     }
   }
