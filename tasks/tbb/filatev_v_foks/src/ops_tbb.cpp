@@ -3,6 +3,7 @@
 #include <oneapi/tbb/blocked_range.h>
 #include <oneapi/tbb/mutex.h>
 #include <oneapi/tbb/parallel_for.h>
+#include <oneapi/tbb/task_arena.h>
 
 #include <algorithm>
 #include <cmath>
@@ -51,23 +52,23 @@ bool filatev_v_foks_tbb::Focks::ValidationImpl() {
 
 namespace {
 void ComputeBlock(const std::vector<double>& matrix_a, const std::vector<double>& matrix_b,
-                  std::vector<double>& local_block, size_t i, size_t j, size_t root, size_t size_block_, size_t size_) {
-  for (size_t bi = 0; bi < size_block_; ++bi) {
-    for (size_t bj = 0; bj < size_block_; ++bj) {
-      for (size_t bk = 0; bk < size_block_; ++bk) {
-        local_block[(bi * size_block_) + bj] += matrix_a[((i * size_block_ + bi) * size_) + (root * size_block_) + bk] *
-                                                matrix_b[((root * size_block_ + bk) * size_) + (j * size_block_) + bj];
+                  std::vector<double>& local_block, size_t i, size_t j, size_t root, size_t size_block, size_t size) {
+  for (size_t bi = 0; bi < size_block; ++bi) {
+    for (size_t bj = 0; bj < size_block; ++bj) {
+      for (size_t bk = 0; bk < size_block; ++bk) {
+        local_block[(bi * size_block) + bj] += matrix_a[((i * size_block + bi) * size) + (root * size_block) + bk] *
+                                                matrix_b[((root * size_block + bk) * size) + (j * size_block) + bj];
       }
     }
   }
 }
 
 void AccumulateResult(std::vector<double>& matrix_c, const std::vector<double>& local_block, size_t i, size_t j,
-                      size_t size_block_, size_t size_, tbb::mutex& write_mutex) {
+                      size_t size_block, size_t size, tbb::mutex& write_mutex) {
   tbb::mutex::scoped_lock lock(write_mutex);
-  for (size_t bi = 0; bi < size_block_; ++bi) {
-    for (size_t bj = 0; bj < size_block_; ++bj) {
-      matrix_c[((i * size_block_ + bi) * size_) + (j * size_block_) + bj] += local_block[(bi * size_block_) + bj];
+  for (size_t bi = 0; bi < size_block; ++bi) {
+    for (size_t bj = 0; bj < size_block; ++bj) {
+      matrix_c[((i * size_block + bi) * size) + (j * size_block) + bj] += local_block[(bi * size_block) + bj];
     }
   }
 }
