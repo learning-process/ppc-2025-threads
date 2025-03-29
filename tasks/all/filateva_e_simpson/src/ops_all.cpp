@@ -1,5 +1,9 @@
 #include "all/filateva_e_simpson/include/ops_all.hpp"
 
+#include <oneapi/tbb/parallel_reduce.h>
+#include <oneapi/tbb/task_arena.h>
+#include <tbb/tbb.h>
+
 #include <boost/mpi/collectives/broadcast.hpp>
 #include <boost/mpi/collectives/reduce.hpp>
 #include <boost/serialization/vector.hpp>
@@ -7,9 +11,6 @@
 #include <core/util/include/util.hpp>
 #include <cstddef>
 #include <vector>
-#include <oneapi/tbb/parallel_reduce.h>
-#include <oneapi/tbb/task_arena.h>
-#include <tbb/tbb.h>
 
 
 bool filateva_e_simpson_all::Simpson::PreProcessingImpl() {
