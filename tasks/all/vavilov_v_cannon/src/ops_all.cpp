@@ -1,7 +1,6 @@
 #include "all/vavilov_v_cannon/include/ops_all.hpp"
 
 #include <algorithm>
-#include <boost/mpi.hpp>
 #include <cmath>
 #include <vector>
 
