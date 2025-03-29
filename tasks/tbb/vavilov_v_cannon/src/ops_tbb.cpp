@@ -54,7 +54,8 @@ void vavilov_v_cannon_tbb::CannonTBB::BlockMultiply() {
   oneapi::tbb::task_arena arena(ppc::util::GetPPCNumThreads());
   arena.execute([&]() {
     oneapi::tbb::parallel_for(
-      oneapi::tbb::blocked_range<int>(0, num_blocks_, 1), [&](const oneapi::tbb::blocked_range<int>& r) {
+      oneapi::tbb::blocked_range<int>(0, num_blocks_, 1),
+      [&](const oneapi::tbb::blocked_range<int>& r) {
         for (int bi = r.begin(); bi != r.end(); ++bi) {
           for (int bj = 0; bj < num_blocks_; ++bj) {
             // Предвычисление базовых индексов для улучшения локальности
