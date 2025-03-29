@@ -1,12 +1,13 @@
 #include "tbb/filatev_v_foks/include/ops_tbb.hpp"
 
+#include <tbb/parallel_for.h>
+#include <tbb/blocked_range.h>
+#include <tbb/mutex.h>
+
 #include <algorithm>
 #include <cmath>
 #include <cstddef>
 #include <vector>
-#include <tbb/parallel_for.h>
-#include <tbb/blocked_range.h>
-#include <tbb/mutex.h>
 
 bool filatev_v_foks_tbb::Focks::PreProcessingImpl() {
   size_block_ = task_data->inputs_count[4];
