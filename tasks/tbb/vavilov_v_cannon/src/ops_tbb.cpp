@@ -51,25 +51,39 @@ void vavilov_v_cannon_tbb::CannonTBB::InitialShift() {
 }
 
 void vavilov_v_cannon_tbb::CannonTBB::BlockMultiply() {
-  oneapi::tbb::task_arena arena(ppc::util::GetPPCNumThreads());  // Фиксированное число потоков
+  oneapi::tbb::task_arena arena(ppc::util::GetPPCNumThreads());
   arena.execute([&]() {
-    oneapi::tbb::parallel_for(0, num_blocks_, [&](int bi) {
-      for (int bj = 0; bj < num_blocks_; ++bj) {
-        for (int i = 0; i < block_size_; ++i) {
-          for (int j = 0; j < block_size_; ++j) {
-            double temp = 0.0;
-            int row = bi * block_size_ + i;
-            int col = bj * block_size_ + j;
-            for (int k = 0; k < block_size_; ++k) {
-              int k_idx = bj * block_size_ + k;
-              int k_row = bi * block_size_ + k;
-              temp += A_[row * N_ + k_idx] * B_[k_row * N_ + col];
+    oneapi::tbb::parallel_for(
+      oneapi::tbb::blocked_range<int>(0, num_blocks_, 1), [&](const oneapi::tbb::blocked_range<int>& r) {
+        for (int bi = r.begin(); bi != r.end(); ++bi) {
+          for (int bj = 0; bj < num_blocks_; ++bj) {
+            // Предвычисление базовых индексов для улучшения локальности
+            int base_row = bi * block_size_;
+            int base_col = bj * block_size_;
+            for (int i = 0; i < block_size_; ++i) {
+              int row = base_row + i;
+              for (int j = 0; j < block_size_; ++j) {
+                int col = base_col + j;
+                double temp = 0.0;
+                // Векторизация внутреннего цикла вручную
+                int k = 0;
+                for (; k <= block_size_ - 4; k += 4) {
+                  temp += A_[row * N_ + (base_col + k)] * B_[(base_row + k) * N_ + col]
+                        + A_[row * N_ + (base_col + k + 1)] * B_[(base_row + k + 1) * N_ + col]
+                        + A_[row * N_ + (base_col + k + 2)] * B_[(base_row + k + 2) * N_ + col]
+                        + A_[row * N_ + (base_col + k + 3)] * B_[(base_row + k + 3) * N_ + col];
+                }
+                for (; k < block_size_; ++k) {
+                  temp += A_[row * N_ + (base_col + k)] * B_[(base_row + k) * N_ + col];
+                }
+                C_[row * N_ + col] += temp;
+              }
             }
-            C_[row * N_ + col] += temp;
           }
         }
-      }
-    });
+      },
+      oneapi::tbb::auto_partitioner()  // Автоматическое разделение задач
+    );
   });
 }
 
