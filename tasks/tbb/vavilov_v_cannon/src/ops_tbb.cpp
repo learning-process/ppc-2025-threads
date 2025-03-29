@@ -121,7 +121,7 @@ void vavilov_v_cannon_tbb::CannonTBB::ShiftBlocks() {
   tbb::parallel_for(tbb::blocked_range2d<int>(0, num_blocks_, 0, num_blocks_), [&](const tbb::blocked_range2d<int>& r) {
     std::vector<double> a_buffer(block_size_ * block_size_);
     std::vector<double> b_buffer(block_size_ * block_size_);
-            
+
     for (int bi = r.rows().begin(); bi != r.rows().end(); ++bi) {
       for (int bj = r.cols().begin(); bj != r.cols().end(); ++bj) {
         int a_src_col = (bj + 1) % num_blocks_;  // Сдвиг A влево по столбцам
