@@ -5,7 +5,6 @@
 #include <algorithm>
 #include <cmath>
 #include <cstddef>
-#include <stdexcept>
 #include <vector>
 
 #include "oneapi/tbb/blocked_range.h"
@@ -60,11 +59,6 @@ void MultiplyCCS(const std::vector<double>& a_values, const std::vector<int>& a_
                  const std::vector<int>& a_col_ptr, const std::vector<double>& b_values,
                  const std::vector<int>& b_row_indices, int k, const std::vector<int>& b_col_ptr,
                  std::vector<double>& c_values, std::vector<int>& c_row_indices, int n, std::vector<int>& c_col_ptr) {
-  if (static_cast<int>(a_values.size()) > static_cast<int>(m * k) ||
-      static_cast<int>(b_values.size()) > static_cast<int>(k * n)) {
-    throw std::invalid_argument("Invalid matrix storage size");
-  }
-
   c_col_ptr.resize(n + 1);
   c_col_ptr[0] = 0;
   std::vector<int> col_sizes(n, 0);
