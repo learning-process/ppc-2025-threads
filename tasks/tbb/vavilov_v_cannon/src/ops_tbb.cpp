@@ -6,6 +6,7 @@
 #include <cmath>
 #include <vector>
 
+#include "core/util/include/util.hpp"
 #include "oneapi/tbb/task_arena.h"
 #include "oneapi/tbb/task_group.h"
 
