@@ -27,12 +27,12 @@ int CalculateBits(const std::vector<uint64_t> &data, bool is_pozitive) {
 
   return num_bits;
 }
-inline void SendData(boost::mpi::communicator &world, bool &is_pozitive, bool &is_negative,
+inline void SendData(boost::mpi::communicator &world, std::vector<bool> &is_pozitive, std::vector<bool> &is_negative,
                      std::vector<double> &local_data, std::vector<double> &input_data) {
   if (world.size() > 1) {
     for (int proc = 1; proc < world.size(); proc++) {
       for (size_t j = proc; j < input_data.size(); j += world.size()) {
-        input_data[j] < 0.0 ? is_negative = true : is_pozitive = true;
+        input_data[j] < 0.0 ? is_negative[proc-1] = true : is_pozitive[proc-1] = true;
         local_data.push_back(input_data[j]);
       }
       world.send(proc, 0, local_data);
@@ -58,7 +58,6 @@ inline void ParallelParse(std::vector<uint64_t> &pozitive_copy, std::vector<uint
       }
     }
 #pragma omp critical
-
     {
       pozitive_copy.insert(pozitive_copy.end(), local_positive.begin(), local_positive.end());
       negative_copy.insert(negative_copy.end(), local_negative.begin(), local_negative.end());
@@ -69,19 +68,19 @@ inline void RadixSort(std::vector<uint64_t> &data) {
   // int num_bits = CalculateBits(data, true);
 #pragma omp parallel for schedule(guided, 100)
   for (int bit = 0; bit < 64; bit++) {
-        std::vector<uint64_t> group0;
-        std::vector<uint64_t> group1;
-        group0.reserve(data.size());
-        group1.reserve(data.size());
-        for (int i = 0; i < static_cast<int>(data.size()); i++) {
-          if (((data[i] >> bit) & 1) != 0U) {
-            group1.push_back(data[i]);
-          } else {
-            group0.push_back(data[i]);
-          }
-        }
-        data = std::move(group0);
-        data.insert(data.end(), group1.begin(), group1.end());
+    std::vector<uint64_t> group0;
+    std::vector<uint64_t> group1;
+    group0.reserve(data.size());
+    group1.reserve(data.size());
+    for (int i = 0; i < static_cast<int>(data.size()); i++) {
+      if (((data[i] >> bit) & 1) != 0U) {
+        group1.push_back(data[i]);
+      } else {
+        group0.push_back(data[i]);
+      }
+    }
+    data = std::move(group0);
+    data.insert(data.end(), group1.begin(), group1.end());
   }
 }
 inline double Uint64ToDouble(uint64_t value) {
@@ -90,22 +89,21 @@ inline double Uint64ToDouble(uint64_t value) {
   std::memcpy(&result, &value, sizeof(double));
   return result;
 }
-inline void FinalParse(std::vector<uint64_t> &data, int code, boost::mpi::communicator &world, bool indicator) {
+inline void FinalParse(std::vector<uint64_t> &data, int code, boost::mpi::communicator &world,
+                       std::vector<bool> indicator) {
   if (world.rank() == 0) {
-    if (indicator) {
-      std::vector<uint64_t> local_copy_for_recv;
-      for (int proc = 1; proc < world.size(); proc++) {
+    std::vector<uint64_t> local_copy_for_recv;
+    for (int proc = 1; proc < world.size(); proc++) {
+      if (indicator[proc-1]) {
         world.recv(proc, code, local_copy_for_recv);
-        /*for (auto value : local_copy_for_recv) {
-          std::cout << value << " ";
-        }*/
         data.insert(data.end(), local_copy_for_recv.begin(), local_copy_for_recv.end());
         local_copy_for_recv.clear();
       }
-      if (!data.empty()) {
-        RadixSort(data);
-      }
     }
+    if (!data.empty()) {
+      RadixSort(data);
+    }
+
   } else {
     if (!data.empty()) {
       world.send(0, code, data);
@@ -149,6 +147,9 @@ bool tsatsyn_a_radix_sort_simple_merge_all::TestTaskALL::ValidationImpl() {
 
 bool tsatsyn_a_radix_sort_simple_merge_all::TestTaskALL::PreProcessingImpl() {
   // Init value for input and output
+  input_data_.clear();
+  output_.clear();
+  local_data_.clear();
   if (world_.rank() == 0) {
     auto *temp_ptr = reinterpret_cast<double *>(task_data->inputs[0]);
     input_data_ = std::vector<double>(temp_ptr, temp_ptr + task_data->inputs_count[0]);
@@ -158,8 +159,9 @@ bool tsatsyn_a_radix_sort_simple_merge_all::TestTaskALL::PreProcessingImpl() {
 }
 
 bool tsatsyn_a_radix_sort_simple_merge_all::TestTaskALL::RunImpl() {
-  bool is_pozitive = false;
-  bool is_negative = false;
+  std::vector<bool> is_pozitive(world_.size()-1, false);
+  std::vector<bool> is_negative(world_.size()-1, false);
+
   if (world_.rank() == 0) {
     SendData(world_, is_pozitive, is_negative, local_data_, input_data_);
   } else {
@@ -168,8 +170,6 @@ bool tsatsyn_a_radix_sort_simple_merge_all::TestTaskALL::RunImpl() {
   std::vector<uint64_t> pozitive_copy;
   std::vector<uint64_t> negative_copy;
   ParallelParse(pozitive_copy, negative_copy, local_data_);
-  std::cout << std::endl
-            << "PROC " << world_.rank() << " " << pozitive_copy.size() << " " << negative_copy.size() << std::endl;
   if (!pozitive_copy.empty()) {
     RadixSort(pozitive_copy);
   }
@@ -194,6 +194,8 @@ bool tsatsyn_a_radix_sort_simple_merge_all::TestTaskALL::PostProcessingImpl() {
       std::memcpy(reinterpret_cast<double *>(task_data->outputs[0]) + i, &value, sizeof(double));
     }
   }
-  world_.barrier();
+  input_data_.clear();
+  output_.clear();
+  local_data_.clear();
   return true;
 }
