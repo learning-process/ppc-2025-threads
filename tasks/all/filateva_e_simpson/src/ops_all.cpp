@@ -107,8 +107,8 @@ bool filateva_e_simpson_all::Simpson::RunImpl() {
   }
   boost::mpi::broadcast(world_, h_, 0);
 
-  long start = (world_.rank() == 0) ? 0 : ost + (del * (world_.rank() - 1));
-  long end = (world_.rank() == 0) ? ost : ost + (del * world_.rank());
+  long start = (world_.rank() == 0) ? 0 : static_cast<long>(ost + (del * (world_.rank() - 1)));
+  long end = (world_.rank() == 0) ? static_cast<long>(ost) : static_cast<long>(ost + (del * world_.rank()));
   double local_res = IntegralFunc(start, end);
 
   reduce(world_, local_res, res_, std::plus<>(), 0);
