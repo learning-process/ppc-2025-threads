@@ -115,7 +115,6 @@ void vavilov_v_cannon_tbb::CannonTBB::ShiftBlocks() {
   });
 }
 
-
 bool vavilov_v_cannon_tbb::CannonTBB::RunImpl() {
   oneapi::tbb::task_arena arena(ppc::util::GetPPCNumThreads());
   arena.execute([&]() {
