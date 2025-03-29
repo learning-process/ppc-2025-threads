@@ -87,8 +87,8 @@ bool filateva_e_simpson_all::Simpson::RunImpl() {
   boost::mpi::broadcast(world_, steps_, 0);
   boost::mpi::broadcast(world_, a_, 0);
   const int num_proc = world_.size();
-  long del = (unsigned long)std::pow(steps_ + 1, mer_) / num_proc;
-  long ost = num_proc - (unsigned long)std::pow(steps_ + 1, mer_) % num_proc;
+  long del = std::pow(steps_ + 1, mer_) / num_proc;
+  long ost = num_proc - (std::pow(steps_ + 1, mer_) % num_proc);
 
   if (world_.rank() == 0) {
     h_.resize(mer_);
@@ -99,7 +99,7 @@ bool filateva_e_simpson_all::Simpson::RunImpl() {
   }
   boost::mpi::broadcast(world_, h_, 0);
 
-  long start = (world_.rank() < ost) ? del * world_.rank() : del * ost + (del + 1) * (world_.rank() - ost);
+  long start = (world_.rank() < ost) ? del * world_.rank() : (del * ost) + ((del + 1) * (world_.rank() - ost));
   long end = start + del + (world_.rank() < ost ? 0 : 1);
   double local_res = IntegralFunc(start, end);
 

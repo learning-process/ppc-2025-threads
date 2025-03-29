@@ -12,7 +12,7 @@
 #include "core/task/include/task.hpp"
 
 namespace {
-void RunTest(size_t mer, size_t steps, std::vector<double> a, std::vector<double> b, filateva_e_simpson_all::Func f,
+void RunTest(size_t mer, size_t steps, const std::vector<double>& a, const std::vector<double>& b, filateva_e_simpson_all::Func f,
              double ans) {
   boost::mpi::communicator world;
   auto task_data = std::make_shared<ppc::core::TaskData>();
