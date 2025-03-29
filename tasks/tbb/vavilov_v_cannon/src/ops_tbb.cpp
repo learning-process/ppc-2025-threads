@@ -56,7 +56,7 @@ void vavilov_v_cannon_tbb::CannonTBB::BlockMultiply() {
       [&](const oneapi::tbb::blocked_range<int>& r) {
         for (int bi = r.begin(); bi != r.end(); ++bi) {
           for (int bj = 0; bj < num_blocks_; ++bj) {
-              // Предвычисление базовых индексов для улучшения локальности
+            // Предвычисление базовых индексов для улучшения локальности
             int base_row = bi * block_size_;
             int base_col = bj * block_size_;
             for (int i = 0; i < block_size_; ++i) {
@@ -64,7 +64,7 @@ void vavilov_v_cannon_tbb::CannonTBB::BlockMultiply() {
               for (int j = 0; j < block_size_; ++j) {
                 int col = base_col + j;
                 double temp = 0.0;
-                  // Векторизация внутреннего цикла вручную
+                // Векторизация внутреннего цикла вручную
                 int k = 0;
                 for (; k <= block_size_ - 4; k += 4) {
                   temp += A_[row * N_ + (base_col + k)] * B_[(base_row + k) * N_ + col] +
@@ -82,7 +82,7 @@ void vavilov_v_cannon_tbb::CannonTBB::BlockMultiply() {
         }
       },
       oneapi::tbb::auto_partitioner()  // Автоматическое разделение задач
-    );
+  );
 }
 
 void vavilov_v_cannon_tbb::CannonTBB::ShiftBlocks() {
