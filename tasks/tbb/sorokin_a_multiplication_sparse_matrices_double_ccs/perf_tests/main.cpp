@@ -39,32 +39,32 @@ TEST(sorokin_a_multiplication_sparse_matrices_double_ccs_tbb, test_pipeline_run)
   std::vector<double> c_col_ptr(100000);
 
   // Create task_data
-  auto task_data_seq = std::make_shared<ppc::core::TaskData>();
-  task_data_seq->inputs_count.emplace_back(m);
-  task_data_seq->inputs_count.emplace_back(k);
-  task_data_seq->inputs_count.emplace_back(n);
-  task_data_seq->inputs.emplace_back(reinterpret_cast<uint8_t *>(a_values.data()));
-  task_data_seq->inputs_count.emplace_back(a_values.size());
-  task_data_seq->inputs.emplace_back(reinterpret_cast<uint8_t *>(a_row_indices.data()));
-  task_data_seq->inputs_count.emplace_back(a_row_indices.size());
-  task_data_seq->inputs.emplace_back(reinterpret_cast<uint8_t *>(a_col_ptr.data()));
-  task_data_seq->inputs_count.emplace_back(a_col_ptr.size());
-  task_data_seq->inputs.emplace_back(reinterpret_cast<uint8_t *>(b_values.data()));
-  task_data_seq->inputs_count.emplace_back(b_values.size());
-  task_data_seq->inputs.emplace_back(reinterpret_cast<uint8_t *>(b_row_indices.data()));
-  task_data_seq->inputs_count.emplace_back(b_row_indices.size());
-  task_data_seq->inputs.emplace_back(reinterpret_cast<uint8_t *>(b_col_ptr.data()));
-  task_data_seq->inputs_count.emplace_back(b_col_ptr.size());
-  task_data_seq->outputs.emplace_back(reinterpret_cast<uint8_t *>(c_values.data()));
-  task_data_seq->outputs_count.emplace_back(c_values.size());
-  task_data_seq->outputs.emplace_back(reinterpret_cast<uint8_t *>(c_row_indices.data()));
-  task_data_seq->outputs_count.emplace_back(c_row_indices.size());
-  task_data_seq->outputs.emplace_back(reinterpret_cast<uint8_t *>(c_col_ptr.data()));
-  task_data_seq->outputs_count.emplace_back(c_col_ptr.size());
+  auto task_data_tbb = std::make_shared<ppc::core::TaskData>();
+  task_data_tbb->inputs_count.emplace_back(m);
+  task_data_tbb->inputs_count.emplace_back(k);
+  task_data_tbb->inputs_count.emplace_back(n);
+  task_data_tbb->inputs.emplace_back(reinterpret_cast<uint8_t *>(a_values.data()));
+  task_data_tbb->inputs_count.emplace_back(a_values.size());
+  task_data_tbb->inputs.emplace_back(reinterpret_cast<uint8_t *>(a_row_indices.data()));
+  task_data_tbb->inputs_count.emplace_back(a_row_indices.size());
+  task_data_tbb->inputs.emplace_back(reinterpret_cast<uint8_t *>(a_col_ptr.data()));
+  task_data_tbb->inputs_count.emplace_back(a_col_ptr.size());
+  task_data_tbb->inputs.emplace_back(reinterpret_cast<uint8_t *>(b_values.data()));
+  task_data_tbb->inputs_count.emplace_back(b_values.size());
+  task_data_tbb->inputs.emplace_back(reinterpret_cast<uint8_t *>(b_row_indices.data()));
+  task_data_tbb->inputs_count.emplace_back(b_row_indices.size());
+  task_data_tbb->inputs.emplace_back(reinterpret_cast<uint8_t *>(b_col_ptr.data()));
+  task_data_tbb->inputs_count.emplace_back(b_col_ptr.size());
+  task_data_tbb->outputs.emplace_back(reinterpret_cast<uint8_t *>(c_values.data()));
+  task_data_tbb->outputs_count.emplace_back(c_values.size());
+  task_data_tbb->outputs.emplace_back(reinterpret_cast<uint8_t *>(c_row_indices.data()));
+  task_data_tbb->outputs_count.emplace_back(c_row_indices.size());
+  task_data_tbb->outputs.emplace_back(reinterpret_cast<uint8_t *>(c_col_ptr.data()));
+  task_data_tbb->outputs_count.emplace_back(c_col_ptr.size());
 
   // Create Task
-  auto test_task_sequential =
-      std::make_shared<sorokin_a_multiplication_sparse_matrices_double_ccs_tbb::TestTaskTBB>(task_data_seq);
+  auto test_task_tbb =
+      std::make_shared<sorokin_a_multiplication_sparse_matrices_double_ccs_tbb::TestTaskTBB>(task_data_tbb);
 
   // Create Perf attributes
   auto perf_attr = std::make_shared<ppc::core::PerfAttr>();
@@ -80,7 +80,7 @@ TEST(sorokin_a_multiplication_sparse_matrices_double_ccs_tbb, test_pipeline_run)
   auto perf_results = std::make_shared<ppc::core::PerfResults>();
 
   // Create Perf analyzer
-  auto perf_analyzer = std::make_shared<ppc::core::Perf>(test_task_sequential);
+  auto perf_analyzer = std::make_shared<ppc::core::Perf>(test_task_tbb);
   perf_analyzer->PipelineRun(perf_attr, perf_results);
   ppc::core::Perf::PrintPerfStatistic(perf_results);
 }
@@ -114,32 +114,32 @@ TEST(sorokin_a_multiplication_sparse_matrices_double_ccs_tbb, test_task_run) {
   std::vector<double> c_col_ptr(100000);
 
   // Create task_data
-  auto task_data_seq = std::make_shared<ppc::core::TaskData>();
-  task_data_seq->inputs_count.emplace_back(m);
-  task_data_seq->inputs_count.emplace_back(k);
-  task_data_seq->inputs_count.emplace_back(n);
-  task_data_seq->inputs.emplace_back(reinterpret_cast<uint8_t *>(a_values.data()));
-  task_data_seq->inputs_count.emplace_back(a_values.size());
-  task_data_seq->inputs.emplace_back(reinterpret_cast<uint8_t *>(a_row_indices.data()));
-  task_data_seq->inputs_count.emplace_back(a_row_indices.size());
-  task_data_seq->inputs.emplace_back(reinterpret_cast<uint8_t *>(a_col_ptr.data()));
-  task_data_seq->inputs_count.emplace_back(a_col_ptr.size());
-  task_data_seq->inputs.emplace_back(reinterpret_cast<uint8_t *>(b_values.data()));
-  task_data_seq->inputs_count.emplace_back(b_values.size());
-  task_data_seq->inputs.emplace_back(reinterpret_cast<uint8_t *>(b_row_indices.data()));
-  task_data_seq->inputs_count.emplace_back(b_row_indices.size());
-  task_data_seq->inputs.emplace_back(reinterpret_cast<uint8_t *>(b_col_ptr.data()));
-  task_data_seq->inputs_count.emplace_back(b_col_ptr.size());
-  task_data_seq->outputs.emplace_back(reinterpret_cast<uint8_t *>(c_values.data()));
-  task_data_seq->outputs_count.emplace_back(c_values.size());
-  task_data_seq->outputs.emplace_back(reinterpret_cast<uint8_t *>(c_row_indices.data()));
-  task_data_seq->outputs_count.emplace_back(c_row_indices.size());
-  task_data_seq->outputs.emplace_back(reinterpret_cast<uint8_t *>(c_col_ptr.data()));
-  task_data_seq->outputs_count.emplace_back(c_col_ptr.size());
+  auto task_data_tbb = std::make_shared<ppc::core::TaskData>();
+  task_data_tbb->inputs_count.emplace_back(m);
+  task_data_tbb->inputs_count.emplace_back(k);
+  task_data_tbb->inputs_count.emplace_back(n);
+  task_data_tbb->inputs.emplace_back(reinterpret_cast<uint8_t *>(a_values.data()));
+  task_data_tbb->inputs_count.emplace_back(a_values.size());
+  task_data_tbb->inputs.emplace_back(reinterpret_cast<uint8_t *>(a_row_indices.data()));
+  task_data_tbb->inputs_count.emplace_back(a_row_indices.size());
+  task_data_tbb->inputs.emplace_back(reinterpret_cast<uint8_t *>(a_col_ptr.data()));
+  task_data_tbb->inputs_count.emplace_back(a_col_ptr.size());
+  task_data_tbb->inputs.emplace_back(reinterpret_cast<uint8_t *>(b_values.data()));
+  task_data_tbb->inputs_count.emplace_back(b_values.size());
+  task_data_tbb->inputs.emplace_back(reinterpret_cast<uint8_t *>(b_row_indices.data()));
+  task_data_tbb->inputs_count.emplace_back(b_row_indices.size());
+  task_data_tbb->inputs.emplace_back(reinterpret_cast<uint8_t *>(b_col_ptr.data()));
+  task_data_tbb->inputs_count.emplace_back(b_col_ptr.size());
+  task_data_tbb->outputs.emplace_back(reinterpret_cast<uint8_t *>(c_values.data()));
+  task_data_tbb->outputs_count.emplace_back(c_values.size());
+  task_data_tbb->outputs.emplace_back(reinterpret_cast<uint8_t *>(c_row_indices.data()));
+  task_data_tbb->outputs_count.emplace_back(c_row_indices.size());
+  task_data_tbb->outputs.emplace_back(reinterpret_cast<uint8_t *>(c_col_ptr.data()));
+  task_data_tbb->outputs_count.emplace_back(c_col_ptr.size());
 
   // Create Task
-  auto test_task_sequential =
-      std::make_shared<sorokin_a_multiplication_sparse_matrices_double_ccs_tbb::TestTaskTBB>(task_data_seq);
+  auto test_task_tbb =
+      std::make_shared<sorokin_a_multiplication_sparse_matrices_double_ccs_tbb::TestTaskTBB>(task_data_tbb);
 
   // Create Perf attributes
   auto perf_attr = std::make_shared<ppc::core::PerfAttr>();
@@ -155,7 +155,7 @@ TEST(sorokin_a_multiplication_sparse_matrices_double_ccs_tbb, test_task_run) {
   auto perf_results = std::make_shared<ppc::core::PerfResults>();
 
   // Create Perf analyzer
-  auto perf_analyzer = std::make_shared<ppc::core::Perf>(test_task_sequential);
+  auto perf_analyzer = std::make_shared<ppc::core::Perf>(test_task_tbb);
   perf_analyzer->TaskRun(perf_attr, perf_results);
   ppc::core::Perf::PrintPerfStatistic(perf_results);
 }
