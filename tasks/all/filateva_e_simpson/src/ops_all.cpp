@@ -86,7 +86,6 @@ void filateva_e_simpson_all::Simpson::SetFunc(Func f) { f_ = f; }
 
 bool filateva_e_simpson_all::Simpson::RunImpl() {
   const int num_proc = world_.size();
-
   unsigned long del = 0;
   unsigned long ost = 0;
 
