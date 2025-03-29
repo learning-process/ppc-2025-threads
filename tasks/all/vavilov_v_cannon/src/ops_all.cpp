@@ -12,8 +12,8 @@ bool vavilov_v_cannon_all::CannonALL::PreProcessingImpl() {
   num_blocks_ = static_cast<int>(std::sqrt(N_));
   block_size_ = N_ / num_blocks_;
 
-  auto* a = reinterpret_cast<double *>(task_data->inputs[0]);
-  auto* b = reinterpret_cast<double *>(task_data->inputs[1]);
+  auto* a = reinterpret_cast<double*>(task_data->inputs[0]);
+  auto* b = reinterpret_cast<double*>(task_data->inputs[1]);
   A_.assign(a, a + (N_ * N_));
   B_.assign(b, b + (N_ * N_));
   C_.assign(N_ * N_, 0);
@@ -39,7 +39,8 @@ void vavilov_v_cannon_all::CannonALL::InitialShift(std::vector<double>& local_A,
 
   // Начальный сдвиг B
   if (col_index != 0) {
-    int dest = (row_index < col_index) ? rank + (num_blocks_ - col_index) * num_blocks_ : rank - num_blocks_ * col_index;
+    int dest =
+        (row_index < col_index) ? rank + (num_blocks_ - col_index) * num_blocks_ : rank - num_blocks_ * col_index;
     world_.send(dest, 1, local_B);
   }
 
@@ -54,7 +55,7 @@ void vavilov_v_cannon_all::CannonALL::InitialShift(std::vector<double>& local_A,
   }
 }
 
-void vavilov_v_cannon_all::CannonALL::BlockMultiply(const std::vector<double>& local_A, 
+void vavilov_v_cannon_all::CannonALL::BlockMultiply(const std::vector<double>& local_A,
                                                     const std::vector<double>& local_B, std::vector<double>& local_C) {
 #pragma omp parallel for collapse(2)
   for (int i = 0; i < block_size_; ++i) {
@@ -143,6 +144,6 @@ bool vavilov_v_cannon_all::CannonALL::RunImpl() {
 }
 
 bool vavilov_v_cannon_all::CannonALL::PostProcessingImpl() {
-  std::ranges::copy(C_, reinterpret_cast<double *>(task_data->outputs[0]));
+  std::ranges::copy(C_, reinterpret_cast<double*>(task_data->outputs[0]));
   return true;
 }
