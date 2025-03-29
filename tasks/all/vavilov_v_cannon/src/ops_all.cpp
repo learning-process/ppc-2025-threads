@@ -26,143 +26,128 @@ bool vavilov_v_cannon_all::CannonALL::ValidationImpl() {
          task_data->outputs_count[0] == task_data->inputs_count[0];
 }
 
-void vavilov_v_cannon_all::CannonALL::InitialShift() {
-  int row = rank_ / grid_size_;
-  int col = rank_ % grid_size_;
+void vavilov_v_cannon_all::CannonALL::InitialShift(std::vector<double>& local_A, 
+                                                  std::vector<double>& local_B) {
+  int rank = world_.rank();
+  int row_index = rank / num_blocks_;
+  int col_index = rank % num_blocks_;
 
-  int a_dest = ((row + col) % grid_size_) + row * grid_size_;
-  int a_source = ((row - col + grid_size_) % grid_size_) + row * grid_size_;
+  // Начальный сдвиг A
+  if (row_index != 0) {
+    int dest = (col_index < row_index) ? 
+               rank + num_blocks_ - row_index : 
+               rank - row_index;
+    world_.send(dest, 0, local_A);
+  }
 
-  int b_dest = col + ((row + col) % grid_size_) * grid_size_;
-  int b_source = col + ((row - col + grid_size_) % grid_size_) * grid_size_;
+  // Начальный сдвиг B
+  if (col_index != 0) {
+    int dest = (row_index < col_index) ? 
+               rank + (num_blocks_ - col_index) * num_blocks_ : 
+               rank - num_blocks_ * col_index;
+    world_.send(dest, 1, local_B);
+  }
 
-  std::vector<double> tmp_a = local_A_;
-  std::vector<double> tmp_b = local_B_;
-
-  world.send(a_dest, 0, tmp_a);
-  world.send(b_dest, 1, tmp_b);
-  world.recv(a_source, 0, local_A_);
-  world.recv(b_source, 1, local_B_);
+  mpi::status status;
+  if (row_index != 0 && col_index != 0) {
+    world_.recv(mpi::any_source, 0, local_A);
+    world_.recv(mpi::any_source, 1, local_B);
+  } else if (row_index == 0 && col_index != 0) {
+    world_.recv(mpi::any_source, 1, local_B);
+  } else if (row_index != 0 && col_index == 0) {
+    world_.recv(mpi::any_source, 0, local_A);
+  }
 }
 
-void vavilov_v_cannon_all::CannonALL::BlockMultiply() {
+void vavilov_v_cannon_all::CannonALL::BlockMultiply(const std::vector<double>& local_A, 
+                                                   const std::vector<double>& local_B, 
+                                                   std::vector<double>& local_C) {
 #pragma omp parallel for collapse(2)
   for (int i = 0; i < block_size_; ++i) {
     for (int j = 0; j < block_size_; ++j) {
       double temp = 0.0;
       for (int k = 0; k < block_size_; ++k) {
-        temp += local_A_[i * block_size_ + k] * local_B_[k * block_size_ + j];
+        temp += local_A[i * block_size_ + k] * local_B[k * block_size_ + j];
       }
-      local_C_[i * block_size_ + j] += temp;
+      local_C[i * block_size_ + j] += temp;
     }
   }
 }
 
-void vavilov_v_cannon_all::CannonALL::ShiftBlocks() {
-  int row = rank_ / grid_size_;
-  int col = rank_ % grid_size_;
+void vavilov_v_cannon_all::CannonALL::ShiftBlocks(std::vector<double>& local_A, 
+                                                 std::vector<double>& local_B) {
+  int rank = world_.rank();
+  int row_index = rank / num_blocks_;
+  int col_index = rank % num_blocks_;
 
-  int left = (col == 0) ? row * grid_size_ + grid_size_ - 1 : rank_ - 1;
-  int right = (col == grid_size_ - 1) ? row * grid_size_ : rank_ + 1;
+  // Сдвиг A влево
+  if (rank == row_index * num_blocks_) {
+    world_.send((row_index + 1) * num_blocks_ - 1, 0, local_A);
+  } else {
+    world_.send(rank - 1, 0, local_A);
+  }
 
-  int up = (row == 0) ? (grid_size_ - 1) * grid_size_ + col : rank_ - grid_size_;
-  int down = (row == grid_size_ - 1) ? col : rank_ + grid_size_;
+  // Сдвиг B вверх
+  if (rank < num_blocks_) {
+    world_.send(rank + (num_blocks_ - 1) * num_blocks_, 1, local_B);
+  } else {
+    world_.send(rank - num_blocks_, 1, local_B);
+  }
 
-  std::vector<double> tmp_a = local_A_;
-  std::vector<double> tmp_b = local_B_;
-
-  world.send(left, 0, tmp_a);
-  world.send(up, 1, tmp_b);
-  world.recv(right, 0, local_A_);
-  world.recv(down, 1, local_B_);
+  world_.recv(mpi::any_source, 0, local_A);
+  world_.recv(mpi::any_source, 1, local_B);
 }
 
 bool vavilov_v_cannon_all::CannonALL::RunImpl() {
   mpi::environment env;
-  mpi::communicator world;
 
-  rank_ = world.rank();
-  size_ = world.size();
+  int rank = world_.rank();
+  int size = world_.size();
 
-  grid_size_ = static_cast<int>(std::sqrt(size_));
-  if (grid_size_ * grid_size_ != size_) {
-    if (rank_ == 0) {
+  // Проверяем, что количество процессов является квадратом
+  int grid_size = static_cast<int>(std::sqrt(size));
+  if (grid_size * grid_size != size) {
+    if (rank == 0) {
       std::cerr << "Number of processes must be a perfect square" << std::endl;
     }
     return false;
   }
 
-  if (N_ % grid_size_ != 0) {
-    if (rank_ == 0) {
+  if (N_ % grid_size != 0) {
+    if (rank == 0) {
       std::cerr << "Matrix size must be divisible by grid size" << std::endl;
     }
     return false;
   }
 
-  block_size_ = N_ / grid_size_;
-  local_size_ = block_size_ * block_size_;
+  num_blocks_ = grid_size;
+  block_size_ = N_ / num_blocks_;
+  int block_size_sq = block_size_ * block_size_;
 
-  local_A_.resize(local_size_);
-  local_B_.resize(local_size_);
-  local_C_.resize(local_size_, 0);
+  // Локальные буферы
+  std::vector<double> local_A(block_size_sq, 0);
+  std::vector<double> local_B(block_size_sq, 0);
+  std::vector<double> local_C(block_size_sq, 0);
 
-  std::vector<double> tmp_a(local_size_);
-  std::vector<double> tmp_b(local_size_);
+  // Распределяем матрицы
+  MPI_Scatter(A_.data(), block_size_sq, MPI_DOUBLE, local_A.data(), block_size_sq, 
+             MPI_DOUBLE, 0, world_);
+  MPI_Scatter(B_.data(), block_size_sq, MPI_DOUBLE, local_B.data(), block_size_sq, 
+             MPI_DOUBLE, 0, world_);
 
-  if (rank_ == 0) {
-    for (int i = 0; i < grid_size_; ++i) {
-      for (int j = 0; j < grid_size_; ++j) {
-        int proc = i * grid_size_ + j;
-        for (int bi = 0; bi < block_size_; ++bi) {
-          for (int bj = 0; bj < block_size_; ++bj) {
-            tmp_a[bi * block_size_ + bj] = A_[(i * block_size_ + bi) * N_ + (j * block_size_ + bj)];
-            tmp_b[bi * block_size_ + bj] = B_[(i * block_size_ + bi) * N_ + (j * block_size_ + bj)];
-          }
-        }
-        if (proc == 0) {
-          local_A_ = tmp_a;
-          local_B_ = tmp_b;
-        } else {
-          world.send(proc, 0, tmp_a);
-          world.send(proc, 1, tmp_b);
-        }
-      }
-    }
-  } else {
-    world.recv(0, 0, local_A_);
-    world.recv(0, 1, local_B_);
+  // Выполняем алгоритм Кэннона
+  world_.barrier();
+  InitialShift(local_A, local_B);
+  BlockMultiply(local_A, local_B, local_C);
+
+  for (int iter = 0; iter < num_blocks_ - 1; ++iter) {
+    ShiftBlocks(local_A, local_B);
+    BlockMultiply(local_A, local_B, local_C);
   }
 
-  InitialShift();
-  for (int iter = 0; iter < grid_size_; ++iter) {
-    BlockMultiply();
-    ShiftBlocks();
-  }
-
-  if (rank_ == 0) {
-    for (int i = 0; i < grid_size_; ++i) {
-      for (int j = 0; j < grid_size_; ++j) {
-        int proc = i * grid_size_ + j;
-        if (proc == 0) {
-          for (int bi = 0; bi < block_size_; ++bi) {
-            for (int bj = 0; bj < block_size_; ++bj) {
-              C_[(i * block_size_ + bi) * N_ + (j * block_size_ + bj)] = local_C_[bi * block_size_ + bj];
-            }
-          }
-        } else {
-          std::vector<double> tmp(local_size_);
-          world.recv(proc, 0, tmp);
-          for (int bi = 0; bi < block_size_; ++bi) {
-            for (int bj = 0; bj < block_size_; ++bj) {
-              C_[(i * block_size_ + bi) * N_ + (j * block_size_ + bj)] = tmp[bi * block_size_ + bj];
-            }
-          }
-        }
-      }
-    }
-  } else {
-    world.send(0, 0, local_C_);
-  }
+  // Сбор результатов
+  MPI_Gather(local_C.data(), block_size_sq, MPI_DOUBLE, C_.data(), block_size_sq, 
+            MPI_DOUBLE, 0, world_);
 
   return true;
 }
