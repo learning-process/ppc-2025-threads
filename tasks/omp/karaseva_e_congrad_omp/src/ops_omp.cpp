@@ -71,7 +71,9 @@ bool karaseva_e_congrad_omp::TestTaskOpenMP::RunImpl() {
     }
 
     // Early exit if denominator becomes unstable
-    if (std::fabs(p_ap) < 1e-15) break;
+    if (std::fabs(p_ap) < 1e-15) {
+      break;
+    }
     const double alpha = rs_old / p_ap;
 
     // Update solution and residual vectors
@@ -89,9 +91,11 @@ bool karaseva_e_congrad_omp::TestTaskOpenMP::RunImpl() {
     }
 
     // Check convergence condition
-    if (rs_new < tolerance * tolerance) break;
+    if (rs_new < tolerance * tolerance) {
+      break;
+    }
 
-    // Update search direction using Polak-Ribi?re formula
+    // Update search direction using Polak-Ribiere formula
     const double beta = rs_new / rs_old;
 #pragma omp parallel for
     for (int i = 0; i < static_cast<int>(size_); ++i) {
