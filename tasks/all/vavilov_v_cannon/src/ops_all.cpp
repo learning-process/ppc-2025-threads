@@ -56,7 +56,7 @@ void vavilov_v_cannon_all::CannonALL::InitialShift(std::vector<double>& local_A,
 
 void vavilov_v_cannon_all::CannonALL::BlockMultiply(const std::vector<double>& local_A,
                                                     const std::vector<double>& local_B, std::vector<double>& local_C) {
-#pragma omp parallel for collapse(2)
+#pragma omp parallel for
   for (int i = 0; i < block_size_; ++i) {
     for (int j = 0; j < block_size_; ++j) {
       double temp = 0.0;
