@@ -69,10 +69,10 @@ void vavilov_v_cannon_tbb::CannonTBB::BlockMultiply() {
                 // Векторизация внутреннего цикла вручную
                 int k = 0;
                 for (; k <= block_size_ - 4; k += 4) {
-                  temp += A_[row * N_ + (base_col + k)] * B_[(base_row + k) * N_ + col]
-                        + A_[row * N_ + (base_col + k + 1)] * B_[(base_row + k + 1) * N_ + col]
-                        + A_[row * N_ + (base_col + k + 2)] * B_[(base_row + k + 2) * N_ + col]
-                        + A_[row * N_ + (base_col + k + 3)] * B_[(base_row + k + 3) * N_ + col];
+                  temp += A_[row * N_ + (base_col + k)] * B_[(base_row + k) * N_ + col] +
+                          A_[row * N_ + (base_col + k + 1)] * B_[(base_row + k + 1) * N_ + col] +
+                          A_[row * N_ + (base_col + k + 2)] * B_[(base_row + k + 2) * N_ + col] +
+                          A_[row * N_ + (base_col + k + 3)] * B_[(base_row + k + 3) * N_ + col];
                 }
                 for (; k < block_size_; ++k) {
                   temp += A_[row * N_ + (base_col + k)] * B_[(base_row + k) * N_ + col];
