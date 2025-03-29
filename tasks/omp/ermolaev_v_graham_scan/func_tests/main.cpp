@@ -1,8 +1,10 @@
 #include <gtest/gtest.h>
 
+#include <algorithm>
 #include <cmath>
 #include <cstddef>
 #include <cstdint>
+#include <iterator>
 #include <memory>
 #include <numbers>
 #include <random>
@@ -42,13 +44,13 @@ std::vector<ermolaev_v_graham_scan_omp::Point> GenerateRandomPointsInCircle(int 
   std::vector<ermolaev_v_graham_scan_omp::Point> points;
   points.reserve(num_points);
 
-  for (int i = 0; i < num_points; ++i) {
+  std::generate_n(std::back_inserter(points), num_points, [&]() {
     double r = dist_radius(rand_engine);
     double theta = dist_angle(rand_engine);
     int x = static_cast<int>(r * std::cos(theta));
     int y = static_cast<int>(r * std::sin(theta));
-    points.emplace_back(x, y);
-  }
+    return ermolaev_v_graham_scan_omp::Point(x, y);
+  });
 
   return points;
 }

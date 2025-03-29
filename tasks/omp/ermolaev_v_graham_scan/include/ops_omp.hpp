@@ -83,9 +83,8 @@ void ermolaev_v_graham_scan_omp::TestTaskOMP::ParallelSort(Iterator begin, Itera
   }
 
   std::vector<size_t> sizes(num_threads, 0);
-  for (int i = 0; i < num_threads; i++) {
-    sizes[i] = sorted_chunks[i].size();
-  }
+  std::transform(sorted_chunks.begin(), sorted_chunks.end(), sizes.begin(),
+                 [](const auto& chunk) { return chunk.size(); });
 
   const int levels = static_cast<int>(std::ceil(std::log2(num_threads)));
   std::vector<typename Iterator::value_type> temp;
