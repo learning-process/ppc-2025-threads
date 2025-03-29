@@ -83,26 +83,26 @@ bool sorokin_a_multiplication_sparse_matrices_double_ccs_tbb::TestTaskTBB::PrePr
   M_ = static_cast<int>(task_data->inputs_count[0]);
   K_ = static_cast<int>(task_data->inputs_count[1]);
   N_ = static_cast<int>(task_data->inputs_count[2]);
-  auto *current_ptr = reinterpret_cast<double *>(task_data->inputs[0]);
+  auto* current_ptr = reinterpret_cast<double*>(task_data->inputs[0]);
   A_values_ = std::vector<double>(current_ptr, current_ptr + task_data->inputs_count[3]);
-  current_ptr = reinterpret_cast<double *>(task_data->inputs[1]);
+  current_ptr = reinterpret_cast<double*>(task_data->inputs[1]);
   std::vector<double> a_row_indices_d = std::vector<double>(current_ptr, current_ptr + task_data->inputs_count[4]);
   A_row_indices_.resize(a_row_indices_d.size());
   std::ranges::transform(a_row_indices_d.begin(), a_row_indices_d.end(), A_row_indices_.begin(),
                          [](double x) { return static_cast<int>(x); });
-  current_ptr = reinterpret_cast<double *>(task_data->inputs[2]);
+  current_ptr = reinterpret_cast<double*>(task_data->inputs[2]);
   std::vector<double> a_col_ptr_d = std::vector<double>(current_ptr, current_ptr + task_data->inputs_count[5]);
   A_col_ptr_.resize(a_col_ptr_d.size());
   std::ranges::transform(a_col_ptr_d.begin(), a_col_ptr_d.end(), A_col_ptr_.begin(),
                          [](double x) { return static_cast<int>(x); });
-  current_ptr = reinterpret_cast<double *>(task_data->inputs[3]);
+  current_ptr = reinterpret_cast<double*>(task_data->inputs[3]);
   B_values_ = std::vector<double>(current_ptr, current_ptr + task_data->inputs_count[6]);
-  current_ptr = reinterpret_cast<double *>(task_data->inputs[4]);
+  current_ptr = reinterpret_cast<double*>(task_data->inputs[4]);
   std::vector<double> b_row_indices_d = std::vector<double>(current_ptr, current_ptr + task_data->inputs_count[7]);
   B_row_indices_.resize(b_row_indices_d.size());
   std::ranges::transform(b_row_indices_d.begin(), b_row_indices_d.end(), B_row_indices_.begin(),
                          [](double x) { return static_cast<int>(x); });
-  current_ptr = reinterpret_cast<double *>(task_data->inputs[5]);
+  current_ptr = reinterpret_cast<double*>(task_data->inputs[5]);
   std::vector<double> b_col_ptr_d = std::vector<double>(current_ptr, current_ptr + task_data->inputs_count[8]);
   B_col_ptr_.resize(b_col_ptr_d.size());
   std::ranges::transform(b_col_ptr_d.begin(), b_col_ptr_d.end(), B_col_ptr_.begin(),
@@ -129,13 +129,13 @@ bool sorokin_a_multiplication_sparse_matrices_double_ccs_tbb::TestTaskTBB::PostP
   std::ranges::transform(C_col_ptr_.begin(), C_col_ptr_.end(), c_col_ptr_d.begin(),
                          [](int x) { return static_cast<double>(x); });
   for (size_t i = 0; i < C_values_.size(); i++) {
-    reinterpret_cast<double *>(task_data->outputs[0])[i] = C_values_[i];
+    reinterpret_cast<double*>(task_data->outputs[0])[i] = C_values_[i];
   }
   for (size_t i = 0; i < c_row_indices_d.size(); i++) {
-    reinterpret_cast<double *>(task_data->outputs[1])[i] = c_row_indices_d[i];
+    reinterpret_cast<double*>(task_data->outputs[1])[i] = c_row_indices_d[i];
   }
   for (size_t i = 0; i < c_col_ptr_d.size(); i++) {
-    reinterpret_cast<double *>(task_data->outputs[2])[i] = c_col_ptr_d[i];
+    reinterpret_cast<double*>(task_data->outputs[2])[i] = c_col_ptr_d[i];
   }
   return true;
 }
