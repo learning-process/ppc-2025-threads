@@ -76,7 +76,13 @@ std::vector<double> StrassenRecursive(const std::vector<double> &a, const std::v
   auto b21 = SubMatrix(b, n, k, 0, k);
   auto b22 = SubMatrix(b, n, k, k, k);
 
-  std::vector<double> m1, m2, m3, m4, m5, m6, m7;
+  std::vector<double> m1;
+  std::vector<double> m2;
+  std::vector<double> m3;
+  std::vector<double> m4;
+  std::vector<double> m5;
+  std::vector<double> m6;
+  std::vector<double> m7;
 
 #pragma omp parallel sections
   {
