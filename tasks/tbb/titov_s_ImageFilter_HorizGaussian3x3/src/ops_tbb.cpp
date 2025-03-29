@@ -46,7 +46,6 @@ void ProcessPixel(int row, int col, int width, const std::vector<double> &input,
 }  // namespace
 
 bool titov_s_image_filter_horiz_gaussian3x3_tbb::ImageFilterTBB::RunImpl() {
-
   const auto k0 = static_cast<double>(kernel_[0]);
   const auto k1 = static_cast<double>(kernel_[1]);
   const auto k2 = static_cast<double>(kernel_[2]);

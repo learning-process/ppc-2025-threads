@@ -2,9 +2,9 @@
 
 #include <cstddef>
 #include <cstdint>
+#include <memory>
 #include <numeric>
 #include <random>
-#include <memory>
 #include <vector>
 
 #include "core/task/include/task.hpp"
