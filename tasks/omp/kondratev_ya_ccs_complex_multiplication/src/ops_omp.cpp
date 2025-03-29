@@ -77,17 +77,17 @@ kondratev_ya_ccs_complex_multiplication_omp::CCSMatrix::operator*(const CCSMatri
     }
   }
 
-  int current_ptr = 0;
+  int nonzero_elements_processed = 0;
   for (int col = 0; col < other.cols; col++) {
-    result.col_ptrs[col] = current_ptr;
+    result.col_ptrs[col] = nonzero_elements_processed;
 
     for (const auto &[row, value] : temp_cols[col]) {
       result.row_index.emplace_back(row);
       result.values.emplace_back(value);
-      current_ptr++;
+      nonzero_elements_processed++;
     }
   }
-  result.col_ptrs[other.cols] = current_ptr;
+  result.col_ptrs[other.cols] = nonzero_elements_processed;
 
   return result;
 }
