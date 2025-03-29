@@ -3,11 +3,27 @@
 #include <cstddef>
 #include <cstdint>
 #include <memory>
-#include <opencv2/opencv.hpp>
+#include <random>
 #include <vector>
 
 #include "core/task/include/task.hpp"
 #include "seq/makhov_m_linear_image_filtering_vertical/include/ops_seq.hpp"
+
+namespace {
+std::vector<uint8_t> GenerateRandomImage(int height, int width) {
+  std::random_device rd;
+  std::mt19937 gen(rd());
+  std::uniform_int_distribution<> dis(0, 255);
+  int size = height * width * 3;
+  std::vector<uint8_t> image(size);
+
+  for (int i = 0; i < size; ++i) {
+    image[i] = dis(gen);
+  }
+
+  return image;
+}
+}  // namespace
 
 TEST(makhov_m_linear_image_filtering_vertical_seq, test_synthetic_image_3x3) {
   int width = 3;
@@ -96,6 +112,60 @@ TEST(makhov_m_linear_image_filtering_vertical_seq, test_synthetic_image_10x10) {
 
   for (int i = 0; i < width * height * 3; ++i) {
     EXPECT_NEAR(output_image[i], reference_image[i], 50);
+  }
+}
+
+TEST(makhov_m_linear_image_filtering_vertical_seq, test_random_image_10x10) {
+  int width = 10;
+  int height = 10;
+  std::vector<uint8_t> input_image = GenerateRandomImage(height, width);
+  std::vector<uint8_t> output_image(width * height * 3, 0);
+  std::vector<uint8_t> reference_image(input_image);
+  // Gauss blur imitation for RGB
+  for (int y = 1; y < height - 1; ++y) {
+    for (int x = 1; x < width - 1; ++x) {
+      int sum_r = 0;
+      int sum_g = 0;
+      int sum_b = 0;
+
+      // Проход по окрестности 3x3
+      for (int ky = -1; ky <= 1; ++ky) {
+        for (int kx = -1; kx <= 1; ++kx) {
+          // Индекс пикселя с учетом RGB
+          std::size_t idx = ((y + ky) * width + (x + kx)) * 3;
+
+          sum_r += reference_image[idx];      // Красный канал
+          sum_g += reference_image[idx + 1];  // Зеленый канал
+          sum_b += reference_image[idx + 2];  // Синий канал
+        }
+      }
+
+      // Индекс для записи результата
+      std::size_t ref_idx = (y * width + x) * 3;
+
+      // Усреднение и запись
+      reference_image[ref_idx] = static_cast<uint8_t>(sum_r / 9);
+      reference_image[ref_idx + 1] = static_cast<uint8_t>(sum_g / 9);
+      reference_image[ref_idx + 2] = static_cast<uint8_t>(sum_b / 9);
+    }
+  }
+
+  auto task_data_seq = std::make_shared<ppc::core::TaskData>();
+  task_data_seq->inputs.emplace_back(input_image.data());
+  task_data_seq->inputs_count.push_back(width);
+  task_data_seq->inputs_count.push_back(height);
+  task_data_seq->outputs.emplace_back(output_image.data());
+  task_data_seq->outputs_count.emplace_back(output_image.size());
+
+  makhov_m_linear_image_filtering_vertical_seq::TaskSequential test_task_sequential(task_data_seq);
+  ASSERT_EQ(test_task_sequential.Validation(), true);
+  test_task_sequential.PreProcessing();
+  test_task_sequential.Run();
+  test_task_sequential.PostProcessing();
+
+  for (std::size_t i = 0; i < output_image.size(); i++) {
+    EXPECT_GE(output_image[i], 0);
+    EXPECT_LE(output_image[i], 255);
   }
 }
 
