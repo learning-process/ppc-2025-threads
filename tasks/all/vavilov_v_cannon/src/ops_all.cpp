@@ -119,11 +119,11 @@ bool vavilov_v_cannon_all::CannonALL::RunImpl() {
   std::vector<double> local_C(block_size_sq, 0);
 
   if (rank == 0) {
-    mpi::scatter(world_, A_.data(), block_size_sq, local_A.data(), 0);
-    mpi::scatter(world_, B_.data(), block_size_sq, local_B.data(), 0);
+    mpi::scatter(world_, A_.data(), local_A.data(), block_size_sq, 0);
+    mpi::scatter(world_, B_.data(), local_B.data(), block_size_sq, 0);
   } else {
-    mpi::scatter(world_, static_cast<double*>(nullptr), block_size_sq, local_A.data(), 0);
-    mpi::scatter(world_, static_cast<double*>(nullptr), block_size_sq, local_B.data(), 0);
+    mpi::scatter(world_, static_cast<double*>(nullptr), local_A.data(), block_size_sq, 0);
+    mpi::scatter(world_, static_cast<double*>(nullptr), local_B.data(), block_size_sq, 0);
   }
 
   InitialShift(local_A, local_B);
@@ -134,10 +134,11 @@ bool vavilov_v_cannon_all::CannonALL::RunImpl() {
     BlockMultiply(local_A, local_B, local_C);
   }
 
+  // Сбор результатов
   if (rank == 0) {
-    mpi::gather(world_, local_C.data(), block_size_sq, C_.data(), 0);
+    mpi::gather(world_, local_C.data(), C_.data(), block_size_sq, 0);
   } else {
-    mpi::gather(world_, local_C.data(), block_size_sq, static_cast<double*>(nullptr), 0);
+    mpi::gather(world_, local_C.data(), static_cast<double*>(nullptr), block_size_sq, 0);
   }
 
   return true;
