@@ -139,7 +139,6 @@ TEST(opolin_d_radix_betcher_sort_seq, test_sorted) {
   std::vector<int> input;
   input = {0, 1, 2, 6, 7};
   expected = {0, 1, 2, 6, 7};
-  opolin_d_radix_betcher_sort_seq::GenDataRadixSort(size, input, expected);
 
   std::vector<int> out(size, 0);
   auto task_data_seq = std::make_shared<ppc::core::TaskData>();
@@ -244,6 +243,73 @@ TEST(opolin_d_radix_betcher_sort_seq, test_size_100) {
   std::vector<int> expected;
   std::vector<int> input;
   opolin_d_radix_betcher_sort_seq::GenDataRadixSort(size, input, expected);
+
+  std::vector<int> out(size, 0);
+  auto task_data_seq = std::make_shared<ppc::core::TaskData>();
+  task_data_seq->inputs.emplace_back(reinterpret_cast<uint8_t *>(input.data()));
+  task_data_seq->inputs_count.emplace_back(out.size());
+  task_data_seq->outputs.emplace_back(reinterpret_cast<uint8_t *>(out.data()));
+  task_data_seq->outputs_count.emplace_back(out.size());
+
+  auto test_task_sequential =
+      std::make_shared<opolin_d_radix_betcher_sort_seq::RadixBetcherSortTaskSequential>(task_data_seq);
+  ASSERT_EQ(test_task_sequential->Validation(), true);
+  test_task_sequential->PreProcessing();
+  test_task_sequential->Run();
+  test_task_sequential->PostProcessing();
+  ASSERT_EQ(out, expected);
+}
+
+TEST(opolin_d_radix_betcher_sort_seq, test_size_prime_7) {
+  int size = 7;
+  std::vector<int> expected;
+  std::vector<int> input;
+  opolin_d_radix_betcher_sort_seq::GenDataRadixSort(size, input, expected);
+
+  std::vector<int> out(size, 0);
+  auto task_data_seq = std::make_shared<ppc::core::TaskData>();
+  task_data_seq->inputs.emplace_back(reinterpret_cast<uint8_t *>(input.data()));
+  task_data_seq->inputs_count.emplace_back(out.size());
+  task_data_seq->outputs.emplace_back(reinterpret_cast<uint8_t *>(out.data()));
+  task_data_seq->outputs_count.emplace_back(out.size());
+
+  auto test_task_sequential =
+      std::make_shared<opolin_d_radix_betcher_sort_seq::RadixBetcherSortTaskSequential>(task_data_seq);
+  ASSERT_EQ(test_task_sequential->Validation(), true);
+  test_task_sequential->PreProcessing();
+  test_task_sequential->Run();
+  test_task_sequential->PostProcessing();
+  ASSERT_EQ(out, expected);
+}
+
+TEST(opolin_d_radix_betcher_sort_seq, test_size_prime_13) {
+  int size = 13;
+  std::vector<int> expected;
+  std::vector<int> input;
+  opolin_d_radix_betcher_sort_seq::GenDataRadixSort(size, input, expected);
+
+  std::vector<int> out(size, 0);
+  auto task_data_seq = std::make_shared<ppc::core::TaskData>();
+  task_data_seq->inputs.emplace_back(reinterpret_cast<uint8_t *>(input.data()));
+  task_data_seq->inputs_count.emplace_back(out.size());
+  task_data_seq->outputs.emplace_back(reinterpret_cast<uint8_t *>(out.data()));
+  task_data_seq->outputs_count.emplace_back(out.size());
+
+  auto test_task_sequential =
+      std::make_shared<opolin_d_radix_betcher_sort_seq::RadixBetcherSortTaskSequential>(task_data_seq);
+  ASSERT_EQ(test_task_sequential->Validation(), true);
+  test_task_sequential->PreProcessing();
+  test_task_sequential->Run();
+  test_task_sequential->PostProcessing();
+  ASSERT_EQ(out, expected);
+}
+
+TEST(opolin_d_radix_betcher_sort_seq, test_double_reversed_order) {
+  int size = 10;
+  std::vector<int> expected;
+  std::vector<int> input;
+  input = {5, 4, 3, 2, 1, 10, 9, 8, 7, 6};
+  expected = {1, 2, 3, 4, 5, 6, 7, 8, 9, 10};
 
   std::vector<int> out(size, 0);
   auto task_data_seq = std::make_shared<ppc::core::TaskData>();
