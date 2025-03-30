@@ -1,11 +1,11 @@
 #include <gtest/gtest.h>
 
+#include <algorithm>
 #include <chrono>
 #include <cstddef>
 #include <cstdint>
 #include <memory>
 #include <vector>
-#include <algorithm>
 
 #include "core/perf/include/perf.hpp"
 #include "core/task/include/task.hpp"
@@ -22,9 +22,9 @@ TEST(tarakanov_d_linear_stretching, test_pipeline_run) {
   }
 
   auto task_data_seq = std::make_shared<ppc::core::TaskData>();
-  task_data_seq->inputs.emplace_back(reinterpret_cast<uint8_t*>(in.data()));
+  task_data_seq->inputs.emplace_back(reinterpret_cast<uint8_t *>(in.data()));
   task_data_seq->inputs_count.emplace_back(in.size());
-  task_data_seq->outputs.emplace_back(reinterpret_cast<uint8_t*>(out.data()));
+  task_data_seq->outputs.emplace_back(reinterpret_cast<uint8_t *>(out.data()));
   task_data_seq->outputs_count.emplace_back(out.size());
 
   auto test_task_sequential = std::make_shared<tarakanov_d_linear_stretching::TaskSequential>(task_data_seq);
@@ -57,9 +57,9 @@ TEST(tarakanov_d_linear_stretching, test_task_run) {
   }
 
   auto task_data_seq = std::make_shared<ppc::core::TaskData>();
-  task_data_seq->inputs.emplace_back(reinterpret_cast<uint8_t*>(in.data()));
+  task_data_seq->inputs.emplace_back(reinterpret_cast<uint8_t *>(in.data()));
   task_data_seq->inputs_count.emplace_back(in.size());
-  task_data_seq->outputs.emplace_back(reinterpret_cast<uint8_t*>(out.data()));
+  task_data_seq->outputs.emplace_back(reinterpret_cast<uint8_t *>(out.data()));
   task_data_seq->outputs_count.emplace_back(out.size());
 
   auto test_task_sequential = std::make_shared<tarakanov_d_linear_stretching::TaskSequential>(task_data_seq);

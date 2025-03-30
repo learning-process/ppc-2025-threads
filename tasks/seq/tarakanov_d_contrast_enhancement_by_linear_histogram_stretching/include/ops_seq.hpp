@@ -1,9 +1,9 @@
 #pragma once
 
+#include <cstdint>
 #include <memory>
 #include <utility>
 #include <vector>
-#include <cstdint>
 
 #include "core/task/include/task.hpp"
 
@@ -11,8 +11,7 @@ namespace tarakanov_d_linear_stretching {
 
 class TaskSequential : public ppc::core::Task {
  public:
-  explicit TaskSequential(ppc::core::TaskDataPtr task_data)
-      : Task(std::move(task_data)) {}
+  explicit TaskSequential(ppc::core::TaskDataPtr task_data) : Task(std::move(task_data)) {}
 
   bool PreProcessingImpl() override;
   bool ValidationImpl() override;
