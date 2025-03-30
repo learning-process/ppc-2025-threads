@@ -42,7 +42,6 @@ void vavilov_v_cannon_all::CannonALL::InitialShift(std::vector<double>& local_A,
   std::vector<double> tmp_B(block_size_ * block_size_);
 
   if (rank == 0) {
-
     if (a_dest != rank) {
       world_.send(a_dest, 0, local_A.data(), block_size_ * block_size_);
       world_.recv(a_dest, 0, tmp_A.data(), block_size_ * block_size_);
@@ -55,7 +54,6 @@ void vavilov_v_cannon_all::CannonALL::InitialShift(std::vector<double>& local_A,
       local_B = tmp_B;
     }
   } else {
-
     if (a_dest != rank) {
       world_.recv(a_dest, 0, tmp_A.data(), block_size_ * block_size_);
       world_.send(a_dest, 0, local_A.data(), block_size_ * block_size_);
