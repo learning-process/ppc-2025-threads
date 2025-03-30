@@ -10,6 +10,7 @@
 
 #include "core/util/include/util.hpp"
 #include "oneapi/tbb/parallel_for.h"
+#include "tbb/sarafanov_m_CanonMatMul_tbb/include/CanonMatrix.hpp"
 
 bool sarafanov_m_canon_mat_mul_tbb::CanonMatMulTBB::PreProcessingImpl() {
   a_matrix_.ClearMatrix();
@@ -69,7 +70,7 @@ std::vector<double> sarafanov_m_canon_mat_mul_tbb::CanonMatMulTBB::ConvertToSqua
     case MatrixType::kColumnMatrix:
       matrix = matrx;
       int zero_rows = need_size - (static_cast<int>(matrx.size()) / need_size);
-      matrix.resize(matrix.size() + zero_rows * need_size);
+      matrix.resize(matrix.size() + (zero_rows * need_size));
       break;
   }
   return matrix;
