@@ -1,6 +1,5 @@
 #include "tbb/malyshev_a_increase_contrast_by_histogram/include/ops_tbb.hpp"
 
-#include <oneapi/tbb.h>
 #include <oneapi/tbb/parallel_for.h>
 #include <oneapi/tbb/parallel_reduce.h>
 
@@ -8,7 +7,6 @@
 #include <cmath>
 #include <cstddef>
 #include <cstdint>
-#include <iostream>
 #include <limits>
 #include <utility>
 #include <vector>
