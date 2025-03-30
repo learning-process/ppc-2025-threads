@@ -32,23 +32,42 @@ void vavilov_v_cannon_all::CannonALL::InitialShift(std::vector<double>& local_A,
   int size = world_.size();
   int grid_size = num_blocks_;
 
-  std::vector<double> tmp_A = local_A;
-  std::vector<double> tmp_B = local_B;
-
   int row = rank / grid_size;
   int col = rank % grid_size;
 
-  int a_dest = (row * grid_size + (col + row) % grid_size);
-  int b_dest = (((row + col) % grid_size) * grid_size + col);
+  int a_dest = (row * grid_size + (col - row + grid_size) % grid_size);
+  int b_dest = (((row - col + grid_size) % grid_size) * grid_size + col);
 
-  std::vector<std::vector<double>> all_A(size, std::vector<double>(block_size_ * block_size_));
-  std::vector<std::vector<double>> all_B(size, std::vector<double>(block_size_ * block_size_));
+  std::vector<double> tmp_A(block_size_ * block_size_);
+  std::vector<double> tmp_B(block_size_ * block_size_);
 
-  mpi::all_gather(world_, tmp_A, all_A);
-  mpi::all_gather(world_, tmp_B, all_B);
+  if (rank == 0) {
 
-  local_A = all_A[a_dest];
-  local_B = all_B[b_dest];
+    if (a_dest != rank) {
+      world_.send(a_dest, 0, local_A.data(), block_size_ * block_size_);
+      world_.recv(a_dest, 0, tmp_A.data(), block_size_ * block_size_);
+      local_A = tmp_A;
+    }
+
+    if (b_dest != rank) {
+      world_.send(b_dest, 1, local_B.data(), block_size_ * block_size_);
+      world_.recv(b_dest, 1, tmp_B.data(), block_size_ * block_size_);
+      local_B = tmp_B;
+    }
+  } else {
+
+    if (a_dest != rank) {
+      world_.recv(a_dest, 0, tmp_A.data(), block_size_ * block_size_);
+      world_.send(a_dest, 0, local_A.data(), block_size_ * block_size_);
+      local_A = tmp_A;
+    }
+
+    if (b_dest != rank) {
+      world_.recv(b_dest, 1, tmp_B.data(), block_size_ * block_size_);
+      world_.send(b_dest, 1, local_B.data(), block_size_ * block_size_);
+      local_B = tmp_B;
+    }
+  }
 }
 
 void vavilov_v_cannon_all::CannonALL::BlockMultiply(const std::vector<double>& local_A,
@@ -70,23 +89,26 @@ void vavilov_v_cannon_all::CannonALL::ShiftBlocks(std::vector<double>& local_A, 
   int size = world_.size();
   int grid_size = num_blocks_;
 
-  std::vector<double> tmp_A = local_A;
-  std::vector<double> tmp_B = local_B;
-
   int row = rank / grid_size;
   int col = rank % grid_size;
 
   int left_dest = (col == 0) ? (row * grid_size + grid_size - 1) : (rank - 1);
   int up_dest = (row == 0) ? ((grid_size - 1) * grid_size + col) : (rank - grid_size);
 
-  std::vector<std::vector<double>> all_A(size, std::vector<double>(block_size_ * block_size_));
-  std::vector<std::vector<double>> all_B(size, std::vector<double>(block_size_ * block_size_));
+  std::vector<double> tmp_A(block_size_ * block_size_);
+  std::vector<double> tmp_B(block_size_ * block_size_);
 
-  mpi::all_gather(world_, tmp_A, all_A);
-  mpi::all_gather(world_, tmp_B, all_B);
+  if (left_dest != rank) {
+    world_.send(left_dest, 2, local_A.data(), block_size_ * block_size_);
+    world_.recv(left_dest, 2, tmp_A.data(), block_size_ * block_size_);
+    local_A = tmp_A;
+  }
 
-  local_A = all_A[left_dest];
-  local_B = all_B[up_dest];
+  if (up_dest != rank) {
+    world_.send(up_dest, 3, local_B.data(), block_size_ * block_size_);
+    world_.recv(up_dest, 3, tmp_B.data(), block_size_ * block_size_);
+    local_B = tmp_B;
+  }
 }
 
 bool vavilov_v_cannon_all::CannonALL::RunImpl() {
