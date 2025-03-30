@@ -124,11 +124,12 @@ void kolokolova_d_integral_simpson_method_omp::TestTaskOpenMP::MultiplyCoeffandF
     function_val[i] *= coeff_vec[i % coeff_vec_size];
   }
 
-  // perform additional iterations on a
+#pragma omp parallel for
   for (int iteration = 1; iteration < a; ++iteration) {
+    int block_size = iteration * coeff_vec_size;
     for (int i = 0; i < function_vec_size; ++i) {
-      int block_size = iteration * coeff_vec_size;
       int current_n_index = (i / block_size) % coeff_vec_size;
+#pragma omp atomic
       function_val[i] *= coeff_vec[current_n_index];
     }
   }
@@ -138,11 +139,10 @@ double kolokolova_d_integral_simpson_method_omp::TestTaskOpenMP::CreateOutputRes
     std::vector<double> vec, std::vector<double> size_steps) const {
   double sum = 0;
 
+#pragma omp parallel for reduction(+ : sum)
   // sum all of vector elements
-  {
-    for (size_t i = 0; i < vec.size(); i++) {
-      sum += vec[i];
-    }
+  for (int i = 0; i < int(vec.size()); i++) {
+    sum += vec[i];
   }
 
   // multiply by the length of steps
