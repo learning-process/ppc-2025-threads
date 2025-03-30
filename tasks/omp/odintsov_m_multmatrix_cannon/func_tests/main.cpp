@@ -13,7 +13,7 @@ std::vector<double> odintsov_m_mulmatrix_cannon_omp::GenerateMatrix(int sz) {
   std::vector<double> matrix(sz * sz);
   std::random_device rd;
   std::mt19937 gen(rd());
-  std::uniform_real_distribution<> dis(0.0, 100.0);
+  std::uniform_real_distribution<> dis(-100.0, 100.0);
   for (int i = 0; i < sz; ++i) {
     for (int j = 0; j < sz; ++j) {
       matrix[(i * sz) + j] = dis(gen);
