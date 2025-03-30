@@ -79,7 +79,11 @@ bool sarafanov_m_canon_mat_mul_omp::CanonMatMulOMP::CheckSquareSize(int number) 
   return task_data->inputs_count[number] == task_data->inputs_count[number + 1];
 }
 
-bool sarafanov_m_canon_mat_mul_omp::CanonMatMulOMP::ValidationImpl() { return true; }
+bool sarafanov_m_canon_mat_mul_omp::CanonMatMulOMP::ValidationImpl() {
+  return std::max(task_data->inputs_count[0], task_data->inputs_count[1]) *
+             std::max(task_data->inputs_count[2], task_data->inputs_count[3]) ==
+         task_data->outputs_count[0];
+}
 
 bool sarafanov_m_canon_mat_mul_omp::CanonMatMulOMP::RunImpl() {
   c_matrix_.ClearMatrix();
