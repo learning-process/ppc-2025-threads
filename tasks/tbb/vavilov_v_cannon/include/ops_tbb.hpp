@@ -26,7 +26,7 @@ class CannonTBB : public ppc::core::Task {
   std::vector<double> C_;
 
   void InitialShift();
-  void BlockMultiply(std::vector<std::vector<double>>& local_C);
+  void BlockMultiply();
   void ShiftBlocks();
 };
 }  // namespace vavilov_v_cannon_tbb
