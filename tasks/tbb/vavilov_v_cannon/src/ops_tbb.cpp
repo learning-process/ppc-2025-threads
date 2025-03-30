@@ -50,7 +50,6 @@ void vavilov_v_cannon_tbb::CannonTBB::InitialShift() {
   });
 }
 
-/*
 void vavilov_v_cannon_tbb::CannonTBB::BlockMultiply() {
   oneapi::tbb::parallel_for(
       oneapi::tbb::blocked_range<int>(0, num_blocks_, 1),
@@ -124,87 +123,6 @@ bool vavilov_v_cannon_tbb::CannonTBB::RunImpl() {
       BlockMultiply();
       ShiftBlocks();
     }
-  });
-  return true;
-}
-*/
-
-void vavilov_v_cannon_tbb::CannonTBB::BlockMultiply(std::vector<std::vector<double>>& local_C) {
-  oneapi::tbb::parallel_for(
-      oneapi::tbb::blocked_range<int>(0, num_blocks_, 1),
-      [&](const oneapi::tbb::blocked_range<int>& r) {
-        int thread_idx = tbb::this_task_arena::current_thread_index();
-        std::vector<double>& local = local_C[thread_idx];
-        std::vector<double> a_block(block_size_ * block_size_);
-        std::vector<double> b_block(block_size_ * block_size_);
-        for (int bi = r.begin(); bi != r.end(); ++bi) {
-          for (int bj = 0; bj < num_blocks_; ++bj) {
-            int base_row = bi * block_size_;
-            int base_col = bj * block_size_;
-            // Копирование блоков
-            for (int i = 0; i < block_size_ && base_row + i < N_; ++i) {
-              for (int k = 0; k < block_size_ && base_col + k < N_; ++k) {
-                a_block[i * block_size_ + k] = A_[(base_row + i) * N_ + (base_col + k)];
-                b_block[k * block_size_ + i] = B_[(base_row + k) * N_ + (base_col + i)];
-              }
-            }
-            // Умножение в локальный буфер
-            for (int i = 0; i < block_size_ && base_row + i < N_; ++i) {
-              int row = base_row + i;
-              for (int j = 0; j < block_size_ && base_col + j < N_; ++j) {
-                int col = base_col + j;
-                double temp = 0.0;
-                for (int k = 0; k < block_size_ && base_row + k < N_; ++k) {
-                  temp += a_block[i * block_size_ + k] * b_block[k * block_size_ + j];
-                }
-                local[row * N_ + col] += temp;
-              }
-            }
-          }
-        }
-      },
-      oneapi::tbb::auto_partitioner());
-}
-
-void vavilov_v_cannon_tbb::CannonTBB::ShiftBlocks() {
-  std::vector<double> a_tmp = A_;
-  std::vector<double> b_tmp = B_;
-  tbb::parallel_for(tbb::blocked_range2d<int>(0, num_blocks_, 0, num_blocks_), [&](const tbb::blocked_range2d<int>& r) {
-    for (int bi = r.rows().begin(); bi != r.rows().end(); ++bi) {
-      for (int bj = r.cols().begin(); bj != r.cols().end(); ++bj) {
-        int src_row = (bi + 1) % num_blocks_;
-        int src_col = (bj + 1) % num_blocks_;
-        for (int i = 0; i < block_size_; ++i) {
-          for (int j = 0; j < block_size_; ++j) {
-            B_[(bi * block_size_ + i) * N_ + (bj * block_size_ + j)] =
-                b_tmp[(src_row * block_size_ + i) * N_ + (bj * block_size_ + j)];
-            A_[(bi * block_size_ + i) * N_ + (bj * block_size_ + j)] =
-                a_tmp[(bi * block_size_ + i) * N_ + (src_col * block_size_ + j)];
-          }
-        }
-      }
-    }
-  });
-}
-
-bool vavilov_v_cannon_tbb::CannonTBB::RunImpl() {
-  oneapi::tbb::task_arena arena(ppc::util::GetPPCNumThreads());
-  arena.execute([&]() {
-    std::vector<std::vector<double>> local_C(ppc::util::GetPPCNumThreads(), std::vector<double>(N_ * N_, 0.0));
-    InitialShift();
-    for (int iter = 0; iter < num_blocks_; ++iter) {
-      BlockMultiply(local_C);
-      ShiftBlocks();
-    }
-    tbb::parallel_for(tbb::blocked_range<int>(0, N_ * N_), [&](const tbb::blocked_range<int>& r) {
-      for (int i = r.begin(); i != r.end(); ++i) {
-        double sum = 0.0;
-        for (const auto& buf : local_C) {
-          sum += buf[i];
-        }
-        C_[i] = sum;
-      }
-    });
   });
   return true;
 }
