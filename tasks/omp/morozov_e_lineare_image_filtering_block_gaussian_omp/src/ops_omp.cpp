@@ -21,7 +21,7 @@ bool morozov_e_lineare_image_filtering_block_gaussian_omp::TestTaskOpenMP::Valid
 }
 
 bool morozov_e_lineare_image_filtering_block_gaussian_omp::TestTaskOpenMP::RunImpl() {
-  // Ядро Гаусса 3x3
+  // РЇРґСЂРѕ Р“Р°СѓСЃСЃР° 3x3
   // clang-format off
   const std::vector<std::vector<double>> kernel = {
       {1.0 / 16, 2.0 / 16, 1.0 / 16},
@@ -35,7 +35,7 @@ bool morozov_e_lineare_image_filtering_block_gaussian_omp::TestTaskOpenMP::RunIm
         res_[(i * m_) + j] = input_[(i * m_) + j];
       } else {
         double sum = 0.0;
-        // Применяем ядро к текущему пикселю и его соседям
+        // РџСЂРёРјРµРЅСЏРµРј СЏРґСЂРѕ Рє С‚РµРєСѓС‰РµРјСѓ РїРёРєСЃРµР»СЋ Рё РµРіРѕ СЃРѕСЃРµРґСЏРј
         for (int ki = -1; ki <= 1; ++ki) {
           for (int kj = -1; kj <= 1; ++kj) {
             sum += input_[((i + ki) * m_) + (j + kj)] * kernel[ki + 1][kj + 1];
