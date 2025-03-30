@@ -1,4 +1,4 @@
-#include "omp/korovin_n_qsort_batcher_omp/include/ops_omp.hpp"
+#include "omp/korovin_n_qsort_batcher/include/ops_omp.hpp"
 
 #include <omp.h>
 
