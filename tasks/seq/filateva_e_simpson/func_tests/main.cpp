@@ -35,7 +35,7 @@ void RunTest(size_t mer, size_t steps, std::vector<double> &a, std::vector<doubl
 }
 
 void RunTest(size_t mer, size_t steps, std::vector<double> &a, std::vector<double> &b, filateva_e_simpson_seq::Func f,
-             filateva_e_simpson_tbb::Func p_f) {
+             filateva_e_simpson_seq::Func p_f) {
   double ans = p_f(b) - p_f(a);
   RunTest(mer, steps, a, b, f, ans);
 }
