@@ -38,19 +38,15 @@ void vavilov_v_cannon_all::CannonALL::InitialShift(std::vector<double>& local_A,
   int row = rank / grid_size;
   int col = rank % grid_size;
 
-  // Вычисляем смещения для начального сдвига
   int a_dest = (row * grid_size + (col + row) % grid_size);
   int b_dest = (((row + col) % grid_size) * grid_size + col);
 
-  // Создаем буферы для всех процессов
   std::vector<std::vector<double>> all_A(size, std::vector<double>(block_size_ * block_size_));
   std::vector<std::vector<double>> all_B(size, std::vector<double>(block_size_ * block_size_));
 
-  // Собираем данные от всех процессов
   mpi::all_gather(world_, tmp_A, all_A);
   mpi::all_gather(world_, tmp_B, all_B);
 
-  // Каждый процесс выбирает нужный блок после сдвига
   local_A = all_A[a_dest];
   local_B = all_B[b_dest];
 }
@@ -95,6 +91,7 @@ void vavilov_v_cannon_all::CannonALL::ShiftBlocks(std::vector<double>& local_A, 
 
 bool vavilov_v_cannon_all::CannonALL::RunImpl() {
   mpi::environment env;
+
   int rank = world_.rank();
   int size = world_.size();
 
@@ -112,36 +109,37 @@ bool vavilov_v_cannon_all::CannonALL::RunImpl() {
     }
     return false;
   }
+
   num_blocks_ = grid_size;
   block_size_ = N_ / num_blocks_;
   int block_size_sq = block_size_ * block_size_;
 
-  // Локальные буферы
   std::vector<double> local_A(block_size_sq, 0);
   std::vector<double> local_B(block_size_sq, 0);
   std::vector<double> local_C(block_size_sq, 0);
 
-  // Распределяем матрицы с использованием указателей на данные
   if (rank == 0) {
-    mpi::scatter(world_, A_.data(), local_A.data(), block_size_sq, 0);
-    mpi::scatter(world_, B_.data(), local_B.data(), block_size_sq, 0);
+    mpi::scatter(world_, A_.data(), block_size_sq, local_A.data(), 0);
+    mpi::scatter(world_, B_.data(), block_size_sq, local_B.data(), 0);
   } else {
-    mpi::scatter(world_, static_cast<double*>(nullptr), local_A.data(), block_size_sq, 0);
-    mpi::scatter(world_, static_cast<double*>(nullptr), local_B.data(), block_size_sq, 0);
+    mpi::scatter(world_, static_cast<double*>(nullptr), block_size_sq, local_A.data(), 0);
+    mpi::scatter(world_, static_cast<double*>(nullptr), block_size_sq, local_B.data(), 0);
   }
 
   InitialShift(local_A, local_B);
   BlockMultiply(local_A, local_B, local_C);
+
   for (int iter = 0; iter < num_blocks_ - 1; ++iter) {
     ShiftBlocks(local_A, local_B);
     BlockMultiply(local_A, local_B, local_C);
   }
-  // Сбор результатов
+
   if (rank == 0) {
-    mpi::gather(world_, local_C.data(), C_.data(), block_size_sq, 0);
+    mpi::gather(world_, local_C.data(), block_size_sq, C_.data(), 0);
   } else {
-    mpi::gather(world_, local_C.data(), static_cast<double*>(nullptr), block_size_sq, 0);
+    mpi::gather(world_, local_C.data(), block_size_sq, static_cast<double*>(nullptr), 0);
   }
+
   return true;
 }
 
