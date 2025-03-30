@@ -52,7 +52,7 @@ void vavilov_v_cannon_all::CannonALL::InitialShift(std::vector<double>& local_A,
     local_B = tmp_B;
   }
 
-  std::cout << "[Rank " << rank << "] After InitialShift: local_A[0] = " << local_A[0] 
+  std::cout << "[Rank " << rank << "] After InitialShift: local_A[0] = " << local_A[0]
             << ", local_B[0] = " << local_B[0] << std::endl;
 }
 
@@ -95,8 +95,8 @@ void vavilov_v_cannon_all::CannonALL::ShiftBlocks(std::vector<double>& local_A, 
     local_B = tmp_B;
   }
 
-  std::cout << "[Rank " << rank << "] After ShiftBlocks: local_A[0] = " << local_A[0] 
-            << ", local_B[0] = " << local_B[0] << std::endl;
+  std::cout << "[Rank " << rank << "] After ShiftBlocks: local_A[0] = " << local_A[0] << ", local_B[0] = " << local_B[0]
+            << std::endl;
 }
 
 bool vavilov_v_cannon_all::CannonALL::RunImpl() {
@@ -143,7 +143,7 @@ bool vavilov_v_cannon_all::CannonALL::RunImpl() {
     world_.recv(0, 1, local_B.data(), block_size_sq);
   }
 
-  std::cout << "[Rank " << rank << "] After distribution: local_A[0] = " << local_A[0] 
+  std::cout << "[Rank " << rank << "] After distribution: local_A[0] = " << local_A[0]
             << ", local_B[0] = " << local_B[0] << std::endl;
 
   InitialShift(local_A, local_B);
