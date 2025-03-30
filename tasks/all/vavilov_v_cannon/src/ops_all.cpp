@@ -1,5 +1,6 @@
 #include "all/vavilov_v_cannon/include/ops_all.hpp"
 
+#include <boost/mpi/collectives.hpp>
 #include <algorithm>
 #include <cmath>
 #include <vector>
@@ -27,34 +28,30 @@ bool vavilov_v_cannon_all::CannonALL::ValidationImpl() {
 
 void vavilov_v_cannon_all::CannonALL::InitialShift(std::vector<double>& local_A, std::vector<double>& local_B) {
   int rank = world_.rank();
-  int row_index = rank / num_blocks_;
-  int col_index = rank % num_blocks_;
+  int size = world_.size();
+  int grid_size = num_blocks_;
+
   std::vector<double> tmp_A = local_A;
   std::vector<double> tmp_B = local_B;
 
-  // Начальный сдвиг A
-  if (row_index != 0) {
-    int dest = (col_index < row_index) ? rank + num_blocks_ - row_index : rank - row_index;
-    world_.send(dest, 0, tmp_A);
-  }
+  int row = rank / grid_size;
+  int col = rank % grid_size;
 
-  // Начальный сдвиг B
-  if (col_index != 0) {
-    int dest =
-        (row_index < col_index) ? rank + (num_blocks_ - col_index) * num_blocks_ : rank - num_blocks_ * col_index;
-    world_.send(dest, 1, tmp_B);
-  }
+  // Вычисляем смещения для начального сдвига
+  int a_dest = (row * grid_size + (col + row) % grid_size);
+  int b_dest = (((row + col) % grid_size) * grid_size + col);
 
-  if (row_index != 0 && col_index != 0) {
-    world_.recv(mpi::any_source, 0, local_A);
-    world_.recv(mpi::any_source, 1, local_B);
-  } else if (row_index == 0 && col_index != 0) {
-    world_.recv(mpi::any_source, 1, local_B);
-  } else if (row_index != 0 && col_index == 0) {
-    world_.recv(mpi::any_source, 0, local_A);
-  }
+  // Создаем буферы для всех процессов
+  std::vector<std::vector<double>> all_A(size, std::vector<double>(block_size_ * block_size_));
+  std::vector<std::vector<double>> all_B(size, std::vector<double>(block_size_ * block_size_));
 
-  world_.barrier();
+  // Собираем данные от всех процессов
+  mpi::all_gather(world_, tmp_A, all_A);
+  mpi::all_gather(world_, tmp_B, all_B);
+
+  // Каждый процесс выбирает нужный блок после сдвига
+  local_A = all_A[a_dest];
+  local_B = all_B[b_dest];
 }
 
 void vavilov_v_cannon_all::CannonALL::BlockMultiply(const std::vector<double>& local_A,
@@ -73,28 +70,30 @@ void vavilov_v_cannon_all::CannonALL::BlockMultiply(const std::vector<double>& l
 
 void vavilov_v_cannon_all::CannonALL::ShiftBlocks(std::vector<double>& local_A, std::vector<double>& local_B) {
   int rank = world_.rank();
-  int row_index = rank / num_blocks_;
+  int size = world_.size();
+  int grid_size = num_blocks_;
+
   std::vector<double> tmp_A = local_A;
   std::vector<double> tmp_B = local_B;
 
+  int row = rank / grid_size;
+  int col = rank % grid_size;
+
   // Сдвиг A влево
-  if (rank == row_index * num_blocks_) {
-    world_.send((row_index + 1) * num_blocks_ - 1, 0, tmp_A);
-  } else {
-    world_.send(rank - 1, 0, tmp_A);
-  }
-
+  int left_dest = (col == 0) ? (row * grid_size + grid_size - 1) : (rank - 1);
   // Сдвиг B вверх
-  if (rank < num_blocks_) {
-    world_.send(rank + (num_blocks_ - 1) * num_blocks_, 1, tmp_B);
-  } else {
-    world_.send(rank - num_blocks_, 1, tmp_B);
-  }
+  int up_dest = (row == 0) ? ((grid_size - 1) * grid_size + col) : (rank - grid_size);
 
-  world_.recv(mpi::any_source, 0, local_A);
-  world_.recv(mpi::any_source, 1, local_B);
+  // Собираем данные от всех процессов
+  std::vector<std::vector<double>> all_A(size, std::vector<double>(block_size_ * block_size_));
+  std::vector<std::vector<double>> all_B(size, std::vector<double>(block_size_ * block_size_));
 
-  world_.barrier();
+  mpi::all_gather(world_, tmp_A, all_A);
+  mpi::all_gather(world_, tmp_B, all_B);
+
+  // Выбираем данные от соседей
+  local_A = all_A[left_dest];
+  local_B = all_B[up_dest];
 }
 
 bool vavilov_v_cannon_all::CannonALL::RunImpl() {
@@ -129,8 +128,8 @@ bool vavilov_v_cannon_all::CannonALL::RunImpl() {
   std::vector<double> local_C(block_size_sq, 0);
 
   // Распределяем матрицы
-  MPI_Scatter(A_.data(), block_size_sq, MPI_DOUBLE, local_A.data(), block_size_sq, MPI_DOUBLE, 0, world_);
-  MPI_Scatter(B_.data(), block_size_sq, MPI_DOUBLE, local_B.data(), block_size_sq, MPI_DOUBLE, 0, world_);
+  mpi::scatter(world_, A_, local_A, 0);
+  mpi::scatter(world_, B_, local_B, 0);
 
   // Выполняем алгоритм Кэннона
   InitialShift(local_A, local_B);
@@ -140,13 +139,10 @@ bool vavilov_v_cannon_all::CannonALL::RunImpl() {
     ShiftBlocks(local_A, local_B);
     BlockMultiply(local_A, local_B, local_C);
   }
-
   // Сбор результатов
-  MPI_Gather(local_C.data(), block_size_sq, MPI_DOUBLE, C_.data(), block_size_sq, MPI_DOUBLE, 0, world_);
-
+  mpi::gather(world_, local_C, C_, 0);
   return true;
 }
-
 bool vavilov_v_cannon_all::CannonALL::PostProcessingImpl() {
   std::ranges::copy(C_, reinterpret_cast<double*>(task_data->outputs[0]));
   return true;
