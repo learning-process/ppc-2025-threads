@@ -55,7 +55,7 @@ void vavilov_v_cannon_all::CannonALL::InitialShift(std::vector<double>& local_A,
   local_B = all_B[b_dest];
 }
 
-void vavilov_v_cannon_all::CannonALL::BlockMultiply(const std::vector<double>& local_A, 
+void vavilov_v_cannon_all::CannonALL::BlockMultiply(const std::vector<double>& local_A,
                                                     const std::vector<double>& local_B, std::vector<double>& local_C) {
 #pragma omp parallel for
   for (int i = 0; i < block_size_; ++i) {
@@ -69,8 +69,7 @@ void vavilov_v_cannon_all::CannonALL::BlockMultiply(const std::vector<double>& l
   }
 }
 
-void vavilov_v_cannon_all::CannonALL::ShiftBlocks(std::vector<double>& local_A, 
-                                                 std::vector<double>& local_B) {
+void vavilov_v_cannon_all::CannonALL::ShiftBlocks(std::vector<double>& local_A, std::vector<double>& local_B) {
   int rank = world_.rank();
   int size = world_.size();
   int grid_size = num_blocks_;
