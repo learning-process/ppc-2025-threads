@@ -33,7 +33,8 @@ bool muradov_m_rect_int_omp::RectIntTaskOmp::RunImpl() {
   int pts = static_cast<int>(std::pow(grains_, dims));
 
   FunArgs args(dims);
-#pragma omp parallel for reduction(+ : res_) firstprivate(args)
+  decltype(res_) lres{};
+#pragma omp parallel for reduction(+ : lres) firstprivate(args)
   for (int i = 0; i < pts; i++) {
     auto j = i;
     for (size_t k = 0; k < dims; k++) {
@@ -41,10 +42,10 @@ bool muradov_m_rect_int_omp::RectIntTaskOmp::RunImpl() {
       args[k] += (j % grains_) * (bounds_[k].second - bounds_[k].first) / grains_;
       j /= grains_;
     }
-    res_ += fun_(args);
+    lres += fun_(args);
   }
 
-  res_ *= hh;
+  res_ = lres * hh;
 
   return true;
 }
