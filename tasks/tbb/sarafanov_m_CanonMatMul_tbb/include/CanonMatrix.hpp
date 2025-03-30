@@ -23,6 +23,7 @@ class CanonMatrix {
   void PreRoutine(MatrixType type);
   [[nodiscard]] const std::vector<double>& GetMatrix() const;
   [[nodiscard]] size_t GetSize() const;
+  [[nodiscard]] bool IsEmpty() const;
   CanonMatrix MultiplicateMatrix(const CanonMatrix& canon_matrix, size_t offset);
   void operator+=(const CanonMatrix& canon_matrix);
   void ClearMatrix();

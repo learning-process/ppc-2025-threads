@@ -3,6 +3,7 @@
 #include <oneapi/tbb/task_arena.h>
 #include <tbb/tbb.h>
 
+#include <algorithm>
 #include <cmath>
 #include <cstddef>
 #include <vector>
@@ -22,7 +23,8 @@ bool sarafanov_m_canon_mat_mul_tbb::CanonMatMulTBB::PreProcessingImpl() {
     matrix_a[i] = in[i];
   }
   if (!CheckSquareSize(0)) {
-    matrix_a = ConvertToSquareMatrix(rows1, MatrixType::kRowMatrix, matrix_a);
+    matrix_a = std::move(ConvertToSquareMatrix(
+        std::max(rows1, columns1), rows1 > columns1 ? MatrixType::kRowMatrix : MatrixType::kColumnMatrix, matrix_a));
   }
   a_matrix_.SetBaseMatrix(matrix_a);
   a_matrix_.PreRoutine(MatrixType::kRowMatrix);
@@ -34,7 +36,8 @@ bool sarafanov_m_canon_mat_mul_tbb::CanonMatMulTBB::PreProcessingImpl() {
     matrix_b[i] = in2[i];
   }
   if (!CheckSquareSize(2)) {
-    matrix_b = ConvertToSquareMatrix(columns2, MatrixType::kColumnMatrix, matrix_b);
+    matrix_b = std::move(ConvertToSquareMatrix(
+        std::max(rows2, columns2), rows2 > columns2 ? MatrixType::kRowMatrix : MatrixType::kColumnMatrix, matrix_b));
   }
   b_matrix_.SetBaseMatrix(matrix_b);
   b_matrix_.PreRoutine(MatrixType::kColumnMatrix);
@@ -66,9 +69,7 @@ std::vector<double> sarafanov_m_canon_mat_mul_tbb::CanonMatMulTBB::ConvertToSqua
     case MatrixType::kColumnMatrix:
       matrix = matrx;
       int zero_rows = need_size - (static_cast<int>(matrx.size()) / need_size);
-      for (int i = 0; i < zero_rows * need_size; ++i) {
-        matrix.emplace_back(0.0);
-      }
+      matrix.resize(matrix.size() + zero_rows * need_size);
       break;
   }
   return matrix;
@@ -79,26 +80,29 @@ bool sarafanov_m_canon_mat_mul_tbb::CanonMatMulTBB::CheckSquareSize(int number) 
 }
 
 bool sarafanov_m_canon_mat_mul_tbb::CanonMatMulTBB::ValidationImpl() {
-  return task_data->inputs_count[0] * task_data->inputs_count[3] == task_data->outputs_count[0];
+  return std::max(task_data->inputs_count[0], task_data->inputs_count[1]) *
+             std::max(task_data->inputs_count[2], task_data->inputs_count[3]) ==
+         task_data->outputs_count[0];
 }
 
 bool sarafanov_m_canon_mat_mul_tbb::CanonMatMulTBB::RunImpl() {
   c_matrix_.ClearMatrix();
-  std::vector<CanonMatrix> mul_results(a_matrix_.GetSize());
+  std::vector<CanonMatrix> mul_results(ppc::util::GetPPCNumThreads());
   oneapi::tbb::task_arena arena(ppc::util::GetPPCNumThreads());
   arena.execute([&] {
     oneapi::tbb::parallel_for(
         oneapi::tbb::blocked_range<size_t>(0, a_matrix_.GetSize(), a_matrix_.GetSize() / ppc::util::GetPPCNumThreads()),
         [&](const oneapi::tbb::blocked_range<size_t> &distance) {
           for (size_t i = distance.begin(); i != distance.end(); ++i) {
-            mul_results[i] = a_matrix_.MultiplicateMatrix(b_matrix_, i);
+            mul_results[tbb::this_task_arena::current_thread_index()] += a_matrix_.MultiplicateMatrix(b_matrix_, i);
           }
         });
   });
   for (auto &it : mul_results) {
-    c_matrix_ += it;
+    if (!it.IsEmpty()) {
+      c_matrix_ += it;
+    }
   }
-  c_matrix_.Transpose();
   return true;
 }
 

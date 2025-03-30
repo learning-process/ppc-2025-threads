@@ -82,20 +82,12 @@ void CanonMatrix::operator+=(const CanonMatrix& canon_matrix) {
     size_ = canon_matrix.GetSize();
     matrix_.resize(size_ * size_);
   }
-  const auto& b_matrix = canon_matrix.GetMatrix();
-  oneapi::tbb::task_arena arena(ppc::util::GetPPCNumThreads());
-  arena.execute([&] {
-    oneapi::tbb::parallel_for(oneapi::tbb::blocked_range<size_t>(0, size_, size_ / ppc::util::GetPPCNumThreads()),
-                              [&](const oneapi::tbb::blocked_range<size_t>& distance) {
-                                for (size_t i = distance.begin(); i != distance.end(); ++i) {
-                                  for (size_t j = 0; j != size_; ++j) {
-                                    matrix_[(i * size_) + j] += b_matrix[(j * size_) + i];
-                                  }
-                                }
-                              });
-  });
+  for (size_t i = 0; i != size_; ++i) {
+    for (size_t j = 0; j != size_; ++j) {
+      matrix_[(i * size_) + j] += canon_matrix.GetMatrix()[(j * size_) + i];
+    }
+  }
 }
-
 void CanonMatrix::Transpose() {
   std::vector<double> new_matrix(size_ * size_);
   for (size_t i = 0; i < size_; ++i) {
@@ -110,4 +102,6 @@ void CanonMatrix::ClearMatrix() {
   matrix_.clear();
   size_ = 0;
 }
+bool CanonMatrix::IsEmpty() const { return matrix_.empty(); }
+
 }  // namespace sarafanov_m_canon_mat_mul_tbb
