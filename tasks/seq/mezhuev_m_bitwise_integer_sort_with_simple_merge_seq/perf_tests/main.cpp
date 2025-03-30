@@ -6,6 +6,7 @@
 #include <cstdint>
 #include <cstdlib>
 #include <memory>
+#include <utility>
 #include <vector>
 
 #include "core/perf/include/perf.hpp"
@@ -15,11 +16,7 @@
 TEST(mezhuev_m_bitwise_integer_sort_seq, test_pipeline_run) {
   constexpr int kCount = 1500;
 
-  std::vector<std::pair<int, int>> ranges = {
-      {-500, 500},
-      {-1000, 1000},
-      {-200, 200}
-  };
+  std::vector<std::pair<int, int>> ranges = {{-500, 500}, {-1000, 1000}, {-200, 200}};
 
   for (const auto &range : ranges) {
     int min_value = range.first;
@@ -65,11 +62,7 @@ TEST(mezhuev_m_bitwise_integer_sort_seq, test_pipeline_run) {
 TEST(mezhuev_m_bitwise_integer_sort_seq, test_task_run) {
   constexpr int kCount = 1500;
 
-  std::vector<std::pair<int, int>> ranges = {
-      {-500, 500},
-      {-1000, 1000},
-      {-200, 200}
-  };
+  std::vector<std::pair<int, int>> ranges = {{-500, 500}, {-1000, 1000}, {-200, 200}};
 
   for (const auto &range : ranges) {
     int min_value = range.first;

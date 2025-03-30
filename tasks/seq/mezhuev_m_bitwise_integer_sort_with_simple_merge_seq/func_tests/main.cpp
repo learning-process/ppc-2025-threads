@@ -2,14 +2,13 @@
 
 #include <algorithm>
 #include <cstdint>
-#include <cstdlib> 
+#include <cstdlib>
 #include <memory>
 #include <vector>
 
 #include "core/task/include/task.hpp"
 #include "seq/mezhuev_m_bitwise_integer_sort_with_simple_merge_seq/include/ops_seq.hpp"
 
-// tests
 TEST(mezhuev_m_bitwise_integer_sort_seq, TestEmptyArray) {
   std::vector<int> input = {};
   std::vector<int> output(input.size(), 0);
@@ -183,7 +182,7 @@ TEST(mezhuev_m_bitwise_integer_sort_seq, TestRandomGeneratedArray) {
   test_task_sequential.PostProcessing();
 
   std::vector<int> expected = input;
-  std::sort(expected.begin(), expected.end());
+  std::ranges::sort(expected);
 
   EXPECT_EQ(output, expected);
 }
