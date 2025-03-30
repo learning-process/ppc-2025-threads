@@ -41,6 +41,11 @@ TEST(gusev_n_sorting_int_simple_merging_omp, test_pipeline_run) {
   auto perf_analyzer = std::make_shared<ppc::core::Perf>(test_task_omp);
   perf_analyzer->PipelineRun(perf_attr, perf_results);
   ppc::core::Perf::PrintPerfStatistic(perf_results);
+
+  std::vector<int> expected = in;
+  std::ranges::sort(expected);
+
+  ASSERT_EQ(expected, out);
 }
 
 TEST(gusev_n_sorting_int_simple_merging_omp, test_task_run) {
@@ -73,4 +78,9 @@ TEST(gusev_n_sorting_int_simple_merging_omp, test_task_run) {
   auto perf_analyzer = std::make_shared<ppc::core::Perf>(test_task_omp);
   perf_analyzer->TaskRun(perf_attr, perf_results);
   ppc::core::Perf::PrintPerfStatistic(perf_results);
+
+  std::vector<int> expected = in;
+  std::ranges::sort(expected);
+
+  ASSERT_EQ(expected, out);
 }
