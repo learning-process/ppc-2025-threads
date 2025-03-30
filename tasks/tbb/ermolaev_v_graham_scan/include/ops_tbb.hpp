@@ -1,12 +1,5 @@
 #pragma once
 
-#include <oneapi/tbb/blocked_range.h>
-#include <oneapi/tbb/parallel_for.h>
-#include <oneapi/tbb/parallel_reduce.h>
-#include <oneapi/tbb/parallel_sort.h>
-#include <oneapi/tbb/task_arena.h>
-
-#include <algorithm>
 #include <cmath>
 #include <compare>
 #include <cstddef>

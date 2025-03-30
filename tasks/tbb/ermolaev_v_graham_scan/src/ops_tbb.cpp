@@ -3,11 +3,11 @@
 #include <algorithm>
 #include <cmath>
 #include <cstddef>
-#include <iterator>
 #include <vector>
 
 #include "oneapi/tbb/blocked_range.h"
 #include "oneapi/tbb/parallel_reduce.h"
+#include "oneapi/tbb/parallel_sort.h"
 
 int ermolaev_v_graham_scan_tbb::TestTaskTBB::CrossProduct(const Point &p1, const Point &p2, const Point &p3) {
   return ((p2.x - p1.x) * (p3.y - p1.y)) - ((p3.x - p1.x) * (p2.y - p1.y));
