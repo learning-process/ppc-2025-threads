@@ -2,6 +2,7 @@
 
 #include <omp.h>
 
+#include <algorithm>
 #include <cmath>
 #include <cstddef>
 #include <vector>
@@ -20,7 +21,8 @@ bool sarafanov_m_canon_mat_mul_omp::CanonMatMulOMP::PreProcessingImpl() {
     matrix_a[i] = in[i];
   }
   if (!CheckSquareSize(0)) {
-    matrix_a = ConvertToSquareMatrix(rows1, MatrixType::kRowMatrix, matrix_a);
+    matrix_a = ConvertToSquareMatrix(std::max(rows1, columns1),
+                                     rows1 > columns1 ? MatrixType::kRowMatrix : MatrixType::kColumnMatrix, matrix_a);
   }
   a_matrix_.SetBaseMatrix(matrix_a);
   a_matrix_.PreRoutine(MatrixType::kRowMatrix);
@@ -32,7 +34,8 @@ bool sarafanov_m_canon_mat_mul_omp::CanonMatMulOMP::PreProcessingImpl() {
     matrix_b[i] = in2[i];
   }
   if (!CheckSquareSize(2)) {
-    matrix_b = ConvertToSquareMatrix(columns2, MatrixType::kColumnMatrix, matrix_b);
+    matrix_b = ConvertToSquareMatrix(std::max(rows2, columns2),
+                                     rows2 > columns2 ? MatrixType::kRowMatrix : MatrixType::kColumnMatrix, matrix_b);
   }
   b_matrix_.SetBaseMatrix(matrix_b);
   b_matrix_.PreRoutine(MatrixType::kColumnMatrix);
@@ -76,9 +79,7 @@ bool sarafanov_m_canon_mat_mul_omp::CanonMatMulOMP::CheckSquareSize(int number) 
   return task_data->inputs_count[number] == task_data->inputs_count[number + 1];
 }
 
-bool sarafanov_m_canon_mat_mul_omp::CanonMatMulOMP::ValidationImpl() {
-  return task_data->inputs_count[0] * task_data->inputs_count[3] == task_data->outputs_count[0];
-}
+bool sarafanov_m_canon_mat_mul_omp::CanonMatMulOMP::ValidationImpl() { return true; }
 
 bool sarafanov_m_canon_mat_mul_omp::CanonMatMulOMP::RunImpl() {
   c_matrix_.ClearMatrix();
