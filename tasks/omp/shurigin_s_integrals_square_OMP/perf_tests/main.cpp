@@ -97,6 +97,10 @@ TEST(shurigin_s_integrals_square_omp, test_task_run) {
   auto perf_analyzer = std::make_shared<ppc::core::Perf>(test_task_sequential);
   perf_analyzer->TaskRun(perf_attr, perf_results);
   ppc::core::Perf::PrintPerfStatistic(perf_results);
+  const double expected_result = 4.35751;
+  const double epsilon = 1e-3;
+
+  ASSERT_NEAR(result, expected_result, epsilon);
 }
 
 }  // namespace shurigin_s_integrals_square_omp_test
