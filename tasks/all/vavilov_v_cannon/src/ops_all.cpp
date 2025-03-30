@@ -136,11 +136,10 @@ bool vavilov_v_cannon_all::CannonALL::RunImpl() {
 
   // Сбор результатов
   if (rank == 0) {
-    mpi::gather(world_, local_C.data(), C_.data(), block_size_sq, 0);
+    mpi::gather(world_, local_C.data(), block_size_sq, C_.data(), 0);
   } else {
-    mpi::gather(world_, local_C.data(), static_cast<double*>(nullptr), block_size_sq, 0);
+    mpi::gather(world_, local_C.data(), block_size_sq, static_cast<double*>(nullptr), 0);
   }
-
   return true;
 }
 
