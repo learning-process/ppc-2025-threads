@@ -1,6 +1,7 @@
 
 #include "all/tsatsyn_a_radix_sort_simple_merge/include/ops_all.hpp"
 
+#include <bit>
 #include <boost/mpi/communicator.hpp>
 #include <cassert>
 #include <cmath>
@@ -32,7 +33,7 @@ inline void SendData(boost::mpi::communicator &world, std::vector<bool> &is_pozi
   if (world.size() > 1) {
     for (int proc = 1; proc < world.size(); proc++) {
       for (size_t j = proc; j < input_data.size(); j += world.size()) {
-        input_data[j] < 0.0 ? is_negative[proc-1] = true : is_pozitive[proc-1] = true;
+        input_data[j] < 0.0 ? is_negative[proc - 1] = true : is_pozitive[proc - 1] = true;
         local_data.push_back(input_data[j]);
       }
       world.send(proc, 0, local_data);
@@ -64,10 +65,10 @@ inline void ParallelParse(std::vector<uint64_t> &pozitive_copy, std::vector<uint
     }
   }
 }
-inline void RadixSort(std::vector<uint64_t> &data) {
-  // int num_bits = CalculateBits(data, true);
+inline void RadixSort(std::vector<uint64_t> &data, bool is_pozitive) {
+  int num_bits = CalculateBits(data, is_pozitive);
 #pragma omp parallel for schedule(guided, 100)
-  for (int bit = 0; bit < 64; bit++) {
+  for (int bit = 0; bit < num_bits; bit++) {
     std::vector<uint64_t> group0;
     std::vector<uint64_t> group1;
     group0.reserve(data.size());
@@ -90,18 +91,18 @@ inline double Uint64ToDouble(uint64_t value) {
   return result;
 }
 inline void FinalParse(std::vector<uint64_t> &data, int code, boost::mpi::communicator &world,
-                       std::vector<bool> indicator) {
+                       std::vector<bool> indicator, bool is_pozitive) {
   if (world.rank() == 0) {
     std::vector<uint64_t> local_copy_for_recv;
     for (int proc = 1; proc < world.size(); proc++) {
-      if (indicator[proc-1]) {
+      if (indicator[proc - 1]) {
         world.recv(proc, code, local_copy_for_recv);
         data.insert(data.end(), local_copy_for_recv.begin(), local_copy_for_recv.end());
         local_copy_for_recv.clear();
       }
     }
     if (!data.empty()) {
-      RadixSort(data);
+      RadixSort(data, is_pozitive);
     }
 
   } else {
@@ -159,8 +160,8 @@ bool tsatsyn_a_radix_sort_simple_merge_all::TestTaskALL::PreProcessingImpl() {
 }
 
 bool tsatsyn_a_radix_sort_simple_merge_all::TestTaskALL::RunImpl() {
-  std::vector<bool> is_pozitive(world_.size()-1, false);
-  std::vector<bool> is_negative(world_.size()-1, false);
+  std::vector<bool> is_pozitive(world_.size() - 1, false);
+  std::vector<bool> is_negative(world_.size() - 1, false);
 
   if (world_.rank() == 0) {
     SendData(world_, is_pozitive, is_negative, local_data_, input_data_);
@@ -171,14 +172,14 @@ bool tsatsyn_a_radix_sort_simple_merge_all::TestTaskALL::RunImpl() {
   std::vector<uint64_t> negative_copy;
   ParallelParse(pozitive_copy, negative_copy, local_data_);
   if (!pozitive_copy.empty()) {
-    RadixSort(pozitive_copy);
+    RadixSort(pozitive_copy, true);
   }
   if (!negative_copy.empty()) {
-    RadixSort(negative_copy);
+    RadixSort(negative_copy, false);
   }
   if (world_.size() > 1) {
-    FinalParse(pozitive_copy, 1, world_, is_pozitive);
-    FinalParse(negative_copy, 2, world_, is_negative);
+    FinalParse(pozitive_copy, 1, world_, is_pozitive, true);
+    FinalParse(negative_copy, 2, world_, is_negative, false);
   }
   if (world_.rank() == 0) {
     SafeDataWrite(negative_copy, pozitive_copy, output_);

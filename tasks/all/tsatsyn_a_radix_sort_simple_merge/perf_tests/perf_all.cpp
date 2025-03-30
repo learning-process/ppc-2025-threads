@@ -29,12 +29,12 @@ TEST(tsatsyn_a_radix_sort_simple_merge_all, test_pipeline_run) {
   constexpr int kCount = 800;
   // Create data
   std::vector<double> in;
-  std::vector<double> out(kCount*kCount, 0);
+  std::vector<double> out(kCount * kCount, 0);
   boost::mpi::communicator world;
   // Create task_data
   auto task_data_all = std::make_shared<ppc::core::TaskData>();
   if (world.rank() == 0) {
-    in = GetRandomVector(kCount*kCount, 0, 100);
+    in = GetRandomVector(kCount * kCount, 0, 100);
     task_data_all->inputs.emplace_back(reinterpret_cast<uint8_t *>(in.data()));
     task_data_all->inputs_count.emplace_back(in.size());
     task_data_all->outputs.emplace_back(reinterpret_cast<uint8_t *>(out.data()));
@@ -72,13 +72,13 @@ TEST(tsatsyn_a_radix_sort_simple_merge_all, test_task_run) {
 
   // Create data
   std::vector<double> in;
-  std::vector<double> out(kCount*kCount, 0);
+  std::vector<double> out(kCount * kCount, 0);
   boost::mpi::communicator world;
 
   // Create task_data
   auto task_data_all = std::make_shared<ppc::core::TaskData>();
   if (world.rank() == 0) {
-    in = GetRandomVector(kCount*kCount, 0, 100);
+    in = GetRandomVector(kCount * kCount, 0, 100);
     task_data_all->inputs.emplace_back(reinterpret_cast<uint8_t *>(in.data()));
     task_data_all->inputs_count.emplace_back(in.size());
     task_data_all->outputs.emplace_back(reinterpret_cast<uint8_t *>(out.data()));
