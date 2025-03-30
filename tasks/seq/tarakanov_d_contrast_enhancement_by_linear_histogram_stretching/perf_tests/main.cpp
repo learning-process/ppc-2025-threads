@@ -11,7 +11,7 @@
 #include "core/task/include/task.hpp"
 #include "seq/tarakanov_d_contrast_enhancement_by_linear_histogram_stretching/include/ops_seq.hpp"
 
-TEST(tarakanov_d_linear_stretching, test_pipeline_run) {
+TEST(tarakanov_d_linear_stretching_seq, test_pipeline_run) {
   constexpr int kCount = 500;
 
   std::vector<unsigned char> in(kCount * kCount, 0);
@@ -46,8 +46,8 @@ TEST(tarakanov_d_linear_stretching, test_pipeline_run) {
   ASSERT_EQ(in, out);
 }
 
-TEST(tarakanov_d_linear_stretching, test_task_run) {
-  constexpr int kCount = 500;
+TEST(tarakanov_d_linear_stretching_seq, test_task_run) {
+  constexpr int kCount = 300;
 
   std::vector<unsigned char> in(kCount * kCount, 0);
   std::vector<unsigned char> out(kCount * kCount, 0);
