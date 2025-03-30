@@ -1,11 +1,9 @@
 #pragma once
 
 #include <memory>
-#ifndef _WIN32
-#include <opencv2/opencv.hpp>
-#endif
 #include <utility>
 #include <vector>
+#include <cstdint>
 
 #include "core/task/include/task.hpp"
 
@@ -13,7 +11,8 @@ namespace tarakanov_d_linear_stretching {
 
 class TaskSequential : public ppc::core::Task {
  public:
-  explicit TaskSequential(ppc::core::TaskDataPtr task_data) : Task(std::move(task_data)) {}
+  explicit TaskSequential(ppc::core::TaskDataPtr task_data)
+      : Task(std::move(task_data)) {}
 
   bool PreProcessingImpl() override;
   bool ValidationImpl() override;
@@ -21,7 +20,8 @@ class TaskSequential : public ppc::core::Task {
   bool PostProcessingImpl() override;
 
  private:
-  cv::Mat inputImage_, outputImage_;
+  std::vector<unsigned char> inputImage_;
+  std::vector<unsigned char> outputImage_;
 
   int rc_size_{};
 };
