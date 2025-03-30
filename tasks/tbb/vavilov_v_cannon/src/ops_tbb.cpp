@@ -142,28 +142,28 @@ void vavilov_v_cannon_tbb::CannonTBB::BlockMultiply(std::vector<std::vector<doub
             int base_row = bi * block_size_;
             int base_col = bj * block_size_;
             // Копирование блоков
-             for (int i = 0; i < block_size_ && base_row + i < N_; ++i) {
-               for (int k = 0; k < block_size_ && base_col + k < N_; ++k) {
-                 a_block[i * block_size_ + k] = A_[(base_row + i) * N_ + (base_col + k)];
-                 b_block[k * block_size_ + i] = B_[(base_row + k) * N_ + (base_col + i)];
-               }
-             }
-             // Умножение в локальный буфер
-             for (int i = 0; i < block_size_ && base_row + i < N_; ++i) {
-               int row = base_row + i;
-               for (int j = 0; j < block_size_ && base_col + j < N_; ++j) {
-                 int col = base_col + j;
-                 double temp = 0.0;
-                 for (int k = 0; k < block_size_ && base_row + k < N_; ++k) {
-                   temp += a_block[i * block_size_ + k] * b_block[k * block_size_ + j];
-                 }
-                 local[row * N_ + col] += temp;
-               }
-             }
-           }
-         }
-       },
-       oneapi::tbb::auto_partitioner());
+            for (int i = 0; i < block_size_ && base_row + i < N_; ++i) {
+              for (int k = 0; k < block_size_ && base_col + k < N_; ++k) {
+                a_block[i * block_size_ + k] = A_[(base_row + i) * N_ + (base_col + k)];
+                b_block[k * block_size_ + i] = B_[(base_row + k) * N_ + (base_col + i)];
+              }
+            }
+            // Умножение в локальный буфер
+            for (int i = 0; i < block_size_ && base_row + i < N_; ++i) {
+              int row = base_row + i;
+              for (int j = 0; j < block_size_ && base_col + j < N_; ++j) {
+                int col = base_col + j;
+                double temp = 0.0;
+                for (int k = 0; k < block_size_ && base_row + k < N_; ++k) {
+                  temp += a_block[i * block_size_ + k] * b_block[k * block_size_ + j];
+                }
+                local[row * N_ + col] += temp;
+              }
+            }
+          }
+        }
+      },
+      oneapi::tbb::auto_partitioner());
 }
 
 void vavilov_v_cannon_tbb::CannonTBB::ShiftBlocks() {
