@@ -11,32 +11,35 @@
 #include "tbb/sorokin_a_multiplication_sparse_matrices_double_ccs/include/ops_tbb.hpp"
 
 TEST(sorokin_a_multiplication_sparse_matrices_double_ccs_tbb, test_pipeline_run) {
-  int m = 20000;
-  int k = 20000;
-  int n = 20000;
+  const int msize = 20000;
+  const int mrsize = 100000;
 
-  std::vector<double> a_values(20000, 1);
-  std::vector<double> a_row_indices(20000);
-  for (size_t i = 0; i < 20000; i++) {
+  int m = msize;
+  int k = msize;
+  int n = msize;
+
+  std::vector<double> a_values(msize, 1);
+  std::vector<double> a_row_indices(msize);
+  for (size_t i = 0; i < msize; i++) {
     a_row_indices[i] = static_cast<int>(i);
   }
-  std::vector<double> a_col_ptr(20001);
-  for (size_t i = 0; i <= 20000; i++) {
+  std::vector<double> a_col_ptr(msize + 1);
+  for (size_t i = 0; i <= msize; i++) {
     a_col_ptr[i] = static_cast<int>(i);
   }
-  std::vector<double> b_values(20000, 1);
-  std::vector<double> b_row_indices(20000);
-  for (size_t i = 0; i < 20000; i++) {
-    b_row_indices[i] = 19999 - static_cast<int>(i);
+  std::vector<double> b_values(msize, 1);
+  std::vector<double> b_row_indices(msize);
+  for (size_t i = 0; i < msize; i++) {
+    b_row_indices[i] = msize - 1 - static_cast<int>(i);
   }
-  std::vector<double> b_col_ptr(20001);
-  for (size_t i = 0; i <= 20000; i++) {
+  std::vector<double> b_col_ptr(msize + 1);
+  for (size_t i = 0; i <= msize; i++) {
     b_col_ptr[i] = static_cast<int>(i);
   }
 
-  std::vector<double> c_values(100000);
-  std::vector<double> c_row_indices(100000);
-  std::vector<double> c_col_ptr(100000);
+  std::vector<double> c_values(mrsize);
+  std::vector<double> c_row_indices(mrsize);
+  std::vector<double> c_col_ptr(mrsize);
 
   // Create task_data
   auto task_data_tbb = std::make_shared<ppc::core::TaskData>();
@@ -86,32 +89,35 @@ TEST(sorokin_a_multiplication_sparse_matrices_double_ccs_tbb, test_pipeline_run)
 }
 
 TEST(sorokin_a_multiplication_sparse_matrices_double_ccs_tbb, test_task_run) {
-  int m = 20000;
-  int k = 20000;
-  int n = 20000;
+  const int msize = 20000;
+  const int mrsize = 100000;
 
-  std::vector<double> a_values(20000, 1);
-  std::vector<double> a_row_indices(20000);
-  for (size_t i = 0; i < 20000; i++) {
+  int m = msize;
+  int k = msize;
+  int n = msize;
+
+  std::vector<double> a_values(msize, 1);
+  std::vector<double> a_row_indices(msize);
+  for (size_t i = 0; i < msize; i++) {
     a_row_indices[i] = static_cast<int>(i);
   }
-  std::vector<double> a_col_ptr(20001);
-  for (size_t i = 0; i <= 20000; i++) {
+  std::vector<double> a_col_ptr(msize + 1);
+  for (size_t i = 0; i <= msize; i++) {
     a_col_ptr[i] = static_cast<int>(i);
   }
-  std::vector<double> b_values(20000, 1);
-  std::vector<double> b_row_indices(20000);
-  for (size_t i = 0; i < 20000; i++) {
-    b_row_indices[i] = 19999 - static_cast<int>(i);
+  std::vector<double> b_values(msize, 1);
+  std::vector<double> b_row_indices(msize);
+  for (size_t i = 0; i < msize; i++) {
+    b_row_indices[i] = msize - 1 - static_cast<int>(i);
   }
-  std::vector<double> b_col_ptr(20001);
-  for (size_t i = 0; i <= 20000; i++) {
+  std::vector<double> b_col_ptr(msize + 1);
+  for (size_t i = 0; i <= msize; i++) {
     b_col_ptr[i] = static_cast<int>(i);
   }
 
-  std::vector<double> c_values(100000);
-  std::vector<double> c_row_indices(100000);
-  std::vector<double> c_col_ptr(100000);
+  std::vector<double> c_values(mrsize);
+  std::vector<double> c_row_indices(mrsize);
+  std::vector<double> c_col_ptr(mrsize);
 
   // Create task_data
   auto task_data_tbb = std::make_shared<ppc::core::TaskData>();
