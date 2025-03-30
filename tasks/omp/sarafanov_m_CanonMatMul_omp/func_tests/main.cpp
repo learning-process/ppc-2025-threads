@@ -1,5 +1,6 @@
 #include <gtest/gtest.h>
 
+#include <algorithm>
 #include <cmath>
 #include <cstddef>
 #include <cstdint>
@@ -217,20 +218,20 @@ TEST(sarafanov_m_canon_mat_mul_omp, test_3x2_matrix) {
 }
 
 TEST(sarafanov_m_canon_mat_mul_omp, test_random_17x23_matrix) {
-  constexpr int rows_count = 17;
-  constexpr int columns_count = 23;
-  constexpr int max_size = std::max(rows_count, columns_count);
+  constexpr int kRowsCount = 17;
+  constexpr int kColumnsCount = 23;
+  constexpr int kMaxSize = std::max(kRowsCount, kColumnsCount);
   constexpr double kInaccuracy = 0.001;
   auto a_matrix = GenerateRandomData(17 * 23);
-  auto single_matrix = GenerateSingleMatrix(max_size * max_size);
-  std::vector<double> out(max_size * max_size, 0);
+  auto single_matrix = GenerateSingleMatrix(kMaxSize * kMaxSize);
+  std::vector<double> out(kMaxSize * kMaxSize, 0);
   auto task_data_omp = std::make_shared<ppc::core::TaskData>();
   task_data_omp->inputs.emplace_back(reinterpret_cast<uint8_t *>(a_matrix.data()));
   task_data_omp->inputs.emplace_back(reinterpret_cast<uint8_t *>(single_matrix.data()));
-  task_data_omp->inputs_count.emplace_back(rows_count);
-  task_data_omp->inputs_count.emplace_back(columns_count);
-  task_data_omp->inputs_count.emplace_back(max_size);
-  task_data_omp->inputs_count.emplace_back(max_size);
+  task_data_omp->inputs_count.emplace_back(kRowsCount);
+  task_data_omp->inputs_count.emplace_back(kColumnsCount);
+  task_data_omp->inputs_count.emplace_back(kMaxSize);
+  task_data_omp->inputs_count.emplace_back(kMaxSize);
   task_data_omp->outputs.emplace_back(reinterpret_cast<uint8_t *>(out.data()));
   task_data_omp->outputs_count.emplace_back(out.size());
 
@@ -239,7 +240,7 @@ TEST(sarafanov_m_canon_mat_mul_omp, test_random_17x23_matrix) {
   test_task_omp.PreProcessing();
   test_task_omp.Run();
   test_task_omp.PostProcessing();
-  for (size_t i = 0; i < rows_count * columns_count; ++i) {
+  for (size_t i = 0; i < kRowsCount * kColumnsCount; ++i) {
     EXPECT_NEAR(out[i], a_matrix[i], kInaccuracy);
   }
 }
