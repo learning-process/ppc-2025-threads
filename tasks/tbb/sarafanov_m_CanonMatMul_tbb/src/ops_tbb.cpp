@@ -23,8 +23,8 @@ bool sarafanov_m_canon_mat_mul_tbb::CanonMatMulTBB::PreProcessingImpl() {
     matrix_a[i] = in[i];
   }
   if (!CheckSquareSize(0)) {
-    matrix_a = std::move(ConvertToSquareMatrix(
-        std::max(rows1, columns1), rows1 > columns1 ? MatrixType::kRowMatrix : MatrixType::kColumnMatrix, matrix_a));
+    matrix_a = ConvertToSquareMatrix(std::max(rows1, columns1),
+                                     rows1 > columns1 ? MatrixType::kRowMatrix : MatrixType::kColumnMatrix, matrix_a);
   }
   a_matrix_.SetBaseMatrix(matrix_a);
   a_matrix_.PreRoutine(MatrixType::kRowMatrix);
@@ -36,8 +36,8 @@ bool sarafanov_m_canon_mat_mul_tbb::CanonMatMulTBB::PreProcessingImpl() {
     matrix_b[i] = in2[i];
   }
   if (!CheckSquareSize(2)) {
-    matrix_b = std::move(ConvertToSquareMatrix(
-        std::max(rows2, columns2), rows2 > columns2 ? MatrixType::kRowMatrix : MatrixType::kColumnMatrix, matrix_b));
+    matrix_b = ConvertToSquareMatrix(std::max(rows2, columns2),
+                                     rows2 > columns2 ? MatrixType::kRowMatrix : MatrixType::kColumnMatrix, matrix_b);
   }
   b_matrix_.SetBaseMatrix(matrix_b);
   b_matrix_.PreRoutine(MatrixType::kColumnMatrix);

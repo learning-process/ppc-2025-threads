@@ -1,16 +1,10 @@
 #include "tbb/sarafanov_m_CanonMatMul_tbb/include/CanonMatrix.hpp"
 
-#include <oneapi/tbb/task_arena.h>
-#include <tbb/tbb.h>
-
 #include <algorithm>
 #include <cmath>
 #include <cstddef>
 #include <utility>
 #include <vector>
-
-#include "core/util/include/util.hpp"
-#include "oneapi/tbb/parallel_for.h"
 
 namespace sarafanov_m_canon_mat_mul_tbb {
 CanonMatrix::CanonMatrix(const std::vector<double>& initial_vector) : matrix_(initial_vector) {
