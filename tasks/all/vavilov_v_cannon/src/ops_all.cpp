@@ -2,6 +2,7 @@
 
 #include <algorithm>
 #include <boost/mpi/collectives.hpp>
+#include <boost/serialization/vector.hpp>
 #include <cmath>
 #include <vector>
 
@@ -54,7 +55,7 @@ void vavilov_v_cannon_all::CannonALL::InitialShift(std::vector<double>& local_A,
   local_B = all_B[b_dest];
 }
 
-void vavilov_v_cannon_all::CannonALL::BlockMultiply(const std::vector<double>& local_A,
+void vavilov_v_cannon_all::CannonALL::BlockMultiply(const std::vector<double>& local_A, 
                                                     const std::vector<double>& local_B, std::vector<double>& local_C) {
 #pragma omp parallel for
   for (int i = 0; i < block_size_; ++i) {
@@ -68,7 +69,8 @@ void vavilov_v_cannon_all::CannonALL::BlockMultiply(const std::vector<double>& l
   }
 }
 
-void vavilov_v_cannon_all::CannonALL::ShiftBlocks(std::vector<double>& local_A, std::vector<double>& local_B) {
+void vavilov_v_cannon_all::CannonALL::ShiftBlocks(std::vector<double>& local_A, 
+                                                 std::vector<double>& local_B) {
   int rank = world_.rank();
   int size = world_.size();
   int grid_size = num_blocks_;
@@ -79,30 +81,24 @@ void vavilov_v_cannon_all::CannonALL::ShiftBlocks(std::vector<double>& local_A, 
   int row = rank / grid_size;
   int col = rank % grid_size;
 
-  // Сдвиг A влево
   int left_dest = (col == 0) ? (row * grid_size + grid_size - 1) : (rank - 1);
-  // Сдвиг B вверх
   int up_dest = (row == 0) ? ((grid_size - 1) * grid_size + col) : (rank - grid_size);
 
-  // Собираем данные от всех процессов
   std::vector<std::vector<double>> all_A(size, std::vector<double>(block_size_ * block_size_));
   std::vector<std::vector<double>> all_B(size, std::vector<double>(block_size_ * block_size_));
 
   mpi::all_gather(world_, tmp_A, all_A);
   mpi::all_gather(world_, tmp_B, all_B);
 
-  // Выбираем данные от соседей
   local_A = all_A[left_dest];
   local_B = all_B[up_dest];
 }
 
 bool vavilov_v_cannon_all::CannonALL::RunImpl() {
   mpi::environment env;
-
   int rank = world_.rank();
   int size = world_.size();
 
-  // Проверяем, что количество процессов является квадратом
   int grid_size = static_cast<int>(std::sqrt(size));
   if (grid_size * grid_size != size) {
     if (rank == 0) {
@@ -117,7 +113,6 @@ bool vavilov_v_cannon_all::CannonALL::RunImpl() {
     }
     return false;
   }
-
   num_blocks_ = grid_size;
   block_size_ = N_ / num_blocks_;
   int block_size_sq = block_size_ * block_size_;
@@ -127,22 +122,30 @@ bool vavilov_v_cannon_all::CannonALL::RunImpl() {
   std::vector<double> local_B(block_size_sq, 0);
   std::vector<double> local_C(block_size_sq, 0);
 
-  // Распределяем матрицы
-  mpi::scatter(world_, A_, local_A, 0);
-  mpi::scatter(world_, B_, local_B, 0);
+  // Распределяем матрицы с использованием указателей на данные
+  if (rank == 0) {
+    mpi::scatter(world_, A_.data(), local_A.data(), block_size_sq, 0);
+    mpi::scatter(world_, B_.data(), local_B.data(), block_size_sq, 0);
+  } else {
+    mpi::scatter(world_, static_cast<double*>(nullptr), local_A.data(), block_size_sq, 0);
+    mpi::scatter(world_, static_cast<double*>(nullptr), local_B.data(), block_size_sq, 0);
+  }
 
-  // Выполняем алгоритм Кэннона
   InitialShift(local_A, local_B);
   BlockMultiply(local_A, local_B, local_C);
-
   for (int iter = 0; iter < num_blocks_ - 1; ++iter) {
     ShiftBlocks(local_A, local_B);
     BlockMultiply(local_A, local_B, local_C);
   }
   // Сбор результатов
-  mpi::gather(world_, local_C, C_, 0);
+  if (rank == 0) {
+    mpi::gather(world_, local_C.data(), C_.data(), block_size_sq, 0);
+  } else {
+    mpi::gather(world_, local_C.data(), static_cast<double*>(nullptr), block_size_sq, 0);
+  }
   return true;
 }
+
 bool vavilov_v_cannon_all::CannonALL::PostProcessingImpl() {
   std::ranges::copy(C_, reinterpret_cast<double*>(task_data->outputs[0]));
   return true;
