@@ -1,5 +1,6 @@
 #include <gtest/gtest.h>
 
+#include <algorithm>
 #include <cstddef>
 #include <cstdint>
 #include <fstream>
@@ -7,7 +8,6 @@
 #include <random>
 #include <string>
 #include <vector>
-#include <algorithm>
 
 #include "core/task/include/task.hpp"
 #include "core/util/include/util.hpp"
@@ -28,9 +28,9 @@ TEST(tarakanov_d_linear_stretching, test_contrast_stretching_random_5x5) {
   std::vector<unsigned char> out(kSize * kSize, 0);
 
   auto task_data_seq = std::make_shared<ppc::core::TaskData>();
-  task_data_seq->inputs.emplace_back(reinterpret_cast<uint8_t*>(in.data()));
+  task_data_seq->inputs.emplace_back(reinterpret_cast<uint8_t *>(in.data()));
   task_data_seq->inputs_count.emplace_back(in.size());
-  task_data_seq->outputs.emplace_back(reinterpret_cast<uint8_t*>(out.data()));
+  task_data_seq->outputs.emplace_back(reinterpret_cast<uint8_t *>(out.data()));
   task_data_seq->outputs_count.emplace_back(out.size());
 
   tarakanov_d_linear_stretching::TaskSequential test_task_sequential(task_data_seq);
@@ -74,9 +74,9 @@ TEST(tarakanov_d_linear_stretching, test_contrast_stretching_random_from_file) {
   std::vector<unsigned char> out(count * count, 0);
 
   auto task_data_seq = std::make_shared<ppc::core::TaskData>();
-  task_data_seq->inputs.emplace_back(reinterpret_cast<uint8_t*>(in.data()));
+  task_data_seq->inputs.emplace_back(reinterpret_cast<uint8_t *>(in.data()));
   task_data_seq->inputs_count.emplace_back(in.size());
-  task_data_seq->outputs.emplace_back(reinterpret_cast<uint8_t*>(out.data()));
+  task_data_seq->outputs.emplace_back(reinterpret_cast<uint8_t *>(out.data()));
   task_data_seq->outputs_count.emplace_back(out.size());
 
   tarakanov_d_linear_stretching::TaskSequential test_task_sequential(task_data_seq);
