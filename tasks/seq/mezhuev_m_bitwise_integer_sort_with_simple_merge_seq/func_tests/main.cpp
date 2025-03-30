@@ -1,6 +1,8 @@
 #include <gtest/gtest.h>
 
+#include <algorithm>
 #include <cstdint>
+#include <cstdlib> 
 #include <memory>
 #include <vector>
 
@@ -153,4 +155,55 @@ TEST(mezhuev_m_bitwise_integer_sort_seq, TestNullOutputPointer) {
   mezhuev_m_bitwise_integer_sort_seq::TestTaskSequential test_task_sequential(task_data);
 
   EXPECT_FALSE(test_task_sequential.Validation());
+}
+
+TEST(mezhuev_m_bitwise_integer_sort_seq, TestRandomGeneratedArray) {
+  constexpr int kCount = 1500;
+
+  std::vector<int> input(kCount);
+  std::vector<int> output(kCount, 0);
+
+  for (size_t i = 0; i < kCount; i++) {
+    input[i] = std::rand() % 1000 - 500;
+  }
+
+  auto task_data = std::make_shared<ppc::core::TaskData>();
+  task_data->inputs.emplace_back(reinterpret_cast<uint8_t *>(input.data()));
+  task_data->inputs_count.emplace_back(input.size());
+  task_data->outputs.emplace_back(reinterpret_cast<uint8_t *>(output.data()));
+  task_data->outputs_count.emplace_back(output.size());
+
+  mezhuev_m_bitwise_integer_sort_seq::TestTaskSequential test_task_sequential(task_data);
+
+  ASSERT_EQ(test_task_sequential.Validation(), true);
+
+  test_task_sequential.PreProcessing();
+  test_task_sequential.Run();
+  test_task_sequential.PostProcessing();
+
+  std::vector<int> expected = input;
+  std::sort(expected.begin(), expected.end());
+
+  EXPECT_EQ(output, expected);
+}
+
+TEST(mezhuev_m_bitwise_integer_sort_seq, TestReverseOrderArray) {
+  std::vector<int> input = {10, 8, 6, 4, 2, 0, -1, -3, -5};
+  std::vector<int> expected = {-5, -3, -1, 0, 2, 4, 6, 8, 10};
+  std::vector<int> output(input.size(), 0);
+
+  auto task_data = std::make_shared<ppc::core::TaskData>();
+  task_data->inputs.emplace_back(reinterpret_cast<uint8_t *>(input.data()));
+  task_data->inputs_count.emplace_back(input.size());
+  task_data->outputs.emplace_back(reinterpret_cast<uint8_t *>(output.data()));
+  task_data->outputs_count.emplace_back(output.size());
+
+  mezhuev_m_bitwise_integer_sort_seq::TestTaskSequential test_task_sequential(task_data);
+
+  ASSERT_TRUE(test_task_sequential.Validation());
+  ASSERT_TRUE(test_task_sequential.PreProcessing());
+  ASSERT_TRUE(test_task_sequential.Run());
+  ASSERT_TRUE(test_task_sequential.PostProcessing());
+
+  EXPECT_EQ(output, expected);
 }
