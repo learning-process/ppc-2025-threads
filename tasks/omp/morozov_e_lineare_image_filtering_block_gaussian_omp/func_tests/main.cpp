@@ -1,15 +1,11 @@
 #include <gtest/gtest.h>
 
-#include <cstddef>
 #include <cstdint>
-#include <fstream>
 #include <memory>
 #include <random>
-#include <string>
 #include <vector>
 
 #include "core/task/include/task.hpp"
-#include "core/util/include/util.hpp"
 #include "omp/morozov_e_lineare_image_filtering_block_gaussian_omp/include/ops_omp.hpp"
 
 namespace {

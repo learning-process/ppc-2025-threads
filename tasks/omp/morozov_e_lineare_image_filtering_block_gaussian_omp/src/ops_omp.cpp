@@ -1,7 +1,6 @@
 #include "omp/morozov_e_lineare_image_filtering_block_gaussian_omp/include/ops_omp.hpp"
 
 #include <cmath>
-#include <cstddef>
 #include <vector>
 
 bool morozov_e_lineare_image_filtering_block_gaussian_omp::TestTaskOpenMP::PreProcessingImpl() {
