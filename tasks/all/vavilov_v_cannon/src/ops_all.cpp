@@ -29,7 +29,6 @@ bool vavilov_v_cannon_all::CannonALL::ValidationImpl() {
 
 void vavilov_v_cannon_all::CannonALL::InitialShift(std::vector<double>& local_A, std::vector<double>& local_B) {
   int rank = world_.rank();
-  int size = world_.size();
   int grid_size = num_blocks_;
 
   int row = rank / grid_size;
@@ -84,7 +83,6 @@ void vavilov_v_cannon_all::CannonALL::BlockMultiply(const std::vector<double>& l
 
 void vavilov_v_cannon_all::CannonALL::ShiftBlocks(std::vector<double>& local_A, std::vector<double>& local_B) {
   int rank = world_.rank();
-  int size = world_.size();
   int grid_size = num_blocks_;
 
   int row = rank / grid_size;
