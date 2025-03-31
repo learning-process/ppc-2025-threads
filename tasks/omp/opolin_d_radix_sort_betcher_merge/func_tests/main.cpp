@@ -29,7 +29,6 @@ void GenDataRadixSort(size_t size, std::vector<int> &vec, std::vector<int> &expe
 }  // namespace
 }  // namespace opolin_d_radix_batcher_sort_omp
 
-
 TEST(opolin_d_radix_batcher_sort_omp, test_size_3) {
   int size = 3;
   std::vector<int> expected;
@@ -44,8 +43,7 @@ TEST(opolin_d_radix_batcher_sort_omp, test_size_3) {
   task_data_omp->outputs.emplace_back(reinterpret_cast<uint8_t *>(out.data()));
   task_data_omp->outputs_count.emplace_back(out.size());
 
-  auto test_task_omp =
-      std::make_shared<opolin_d_radix_batcher_sort_omp::RadixBatcherSortTaskOpenMP>(task_data_omp);
+  auto test_task_omp = std::make_shared<opolin_d_radix_batcher_sort_omp::RadixBatcherSortTaskOpenMP>(task_data_omp);
   ASSERT_EQ(test_task_omp->Validation(), true);
   test_task_omp->PreProcessing();
   test_task_omp->Run();
@@ -66,8 +64,7 @@ TEST(opolin_d_radix_batcher_sort_omp, test_size_6) {
   task_data_omp->outputs.emplace_back(reinterpret_cast<uint8_t *>(out.data()));
   task_data_omp->outputs_count.emplace_back(out.size());
 
-  auto test_task_omp =
-      std::make_shared<opolin_d_radix_batcher_sort_omp::RadixBatcherSortTaskOpenMP>(task_data_omp);
+  auto test_task_omp = std::make_shared<opolin_d_radix_batcher_sort_omp::RadixBatcherSortTaskOpenMP>(task_data_omp);
   ASSERT_EQ(test_task_omp->Validation(), true);
   test_task_omp->PreProcessing();
   test_task_omp->Run();
@@ -86,8 +83,7 @@ TEST(opolin_d_radix_batcher_sort_omp, test_empty) {
   task_data_omp->outputs.emplace_back(reinterpret_cast<uint8_t *>(out.data()));
   task_data_omp->outputs_count.emplace_back(size);
 
-  auto test_task_omp =
-      std::make_shared<opolin_d_radix_batcher_sort_omp::RadixBatcherSortTaskOpenMP>(task_data_omp);
+  auto test_task_omp = std::make_shared<opolin_d_radix_batcher_sort_omp::RadixBatcherSortTaskOpenMP>(task_data_omp);
   ASSERT_EQ(test_task_omp->Validation(), false);
 }
 
@@ -104,8 +100,7 @@ TEST(opolin_d_radix_batcher_sort_omp, test_one_element) {
   task_data_omp->outputs.emplace_back(reinterpret_cast<uint8_t *>(out.data()));
   task_data_omp->outputs_count.emplace_back(out.size());
 
-  auto test_task_omp =
-      std::make_shared<opolin_d_radix_batcher_sort_omp::RadixBatcherSortTaskOpenMP>(task_data_omp);
+  auto test_task_omp = std::make_shared<opolin_d_radix_batcher_sort_omp::RadixBatcherSortTaskOpenMP>(task_data_omp);
   ASSERT_EQ(test_task_omp->Validation(), true);
   test_task_omp->PreProcessing();
   test_task_omp->Run();
@@ -126,8 +121,7 @@ TEST(opolin_d_radix_batcher_sort_omp, test_negative_values) {
   task_data_omp->outputs.emplace_back(reinterpret_cast<uint8_t *>(out.data()));
   task_data_omp->outputs_count.emplace_back(out.size());
 
-  auto test_task_omp =
-      std::make_shared<opolin_d_radix_batcher_sort_omp::RadixBatcherSortTaskOpenMP>(task_data_omp);
+  auto test_task_omp = std::make_shared<opolin_d_radix_batcher_sort_omp::RadixBatcherSortTaskOpenMP>(task_data_omp);
   ASSERT_EQ(test_task_omp->Validation(), true);
   test_task_omp->PreProcessing();
   test_task_omp->Run();
@@ -149,8 +143,7 @@ TEST(opolin_d_radix_batcher_sort_omp, test_sorted) {
   task_data_omp->outputs.emplace_back(reinterpret_cast<uint8_t *>(out.data()));
   task_data_omp->outputs_count.emplace_back(out.size());
 
-  auto test_task_omp =
-      std::make_shared<opolin_d_radix_batcher_sort_omp::RadixBatcherSortTaskOpenMP>(task_data_omp);
+  auto test_task_omp = std::make_shared<opolin_d_radix_batcher_sort_omp::RadixBatcherSortTaskOpenMP>(task_data_omp);
   ASSERT_EQ(test_task_omp->Validation(), true);
   test_task_omp->PreProcessing();
   test_task_omp->Run();
@@ -171,8 +164,7 @@ TEST(opolin_d_radix_batcher_sort_omp, test_equal_values) {
   task_data_omp->outputs.emplace_back(reinterpret_cast<uint8_t *>(out.data()));
   task_data_omp->outputs_count.emplace_back(out.size());
 
-  auto test_task_omp =
-      std::make_shared<opolin_d_radix_batcher_sort_omp::RadixBatcherSortTaskOpenMP>(task_data_omp);
+  auto test_task_omp = std::make_shared<opolin_d_radix_batcher_sort_omp::RadixBatcherSortTaskOpenMP>(task_data_omp);
   ASSERT_EQ(test_task_omp->Validation(), true);
   test_task_omp->PreProcessing();
   test_task_omp->Run();
@@ -193,8 +185,7 @@ TEST(opolin_d_radix_batcher_sort_omp, test_reversed) {
   task_data_omp->outputs.emplace_back(reinterpret_cast<uint8_t *>(out.data()));
   task_data_omp->outputs_count.emplace_back(out.size());
 
-  auto test_task_omp =
-      std::make_shared<opolin_d_radix_batcher_sort_omp::RadixBatcherSortTaskOpenMP>(task_data_omp);
+  auto test_task_omp = std::make_shared<opolin_d_radix_batcher_sort_omp::RadixBatcherSortTaskOpenMP>(task_data_omp);
   ASSERT_EQ(test_task_omp->Validation(), true);
   test_task_omp->PreProcessing();
   test_task_omp->Run();
@@ -215,8 +206,7 @@ TEST(opolin_d_radix_batcher_sort_omp, test_varying_digit_counts) {
   task_data_omp->outputs.emplace_back(reinterpret_cast<uint8_t *>(out.data()));
   task_data_omp->outputs_count.emplace_back(out.size());
 
-  auto test_task_omp =
-      std::make_shared<opolin_d_radix_batcher_sort_omp::RadixBatcherSortTaskOpenMP>(task_data_omp);
+  auto test_task_omp = std::make_shared<opolin_d_radix_batcher_sort_omp::RadixBatcherSortTaskOpenMP>(task_data_omp);
   ASSERT_EQ(test_task_omp->Validation(), true);
   test_task_omp->PreProcessing();
   test_task_omp->Run();
@@ -235,8 +225,7 @@ TEST(opolin_d_radix_batcher_sort_omp, test_negative_size) {
   task_data_omp->outputs.emplace_back(reinterpret_cast<uint8_t *>(out.data()));
   task_data_omp->outputs_count.emplace_back(size);
 
-  auto test_task_omp =
-      std::make_shared<opolin_d_radix_batcher_sort_omp::RadixBatcherSortTaskOpenMP>(task_data_omp);
+  auto test_task_omp = std::make_shared<opolin_d_radix_batcher_sort_omp::RadixBatcherSortTaskOpenMP>(task_data_omp);
   ASSERT_EQ(test_task_omp->Validation(), false);
 }
 
@@ -253,8 +242,7 @@ TEST(opolin_d_radix_batcher_sort_omp, test_size_100) {
   task_data_omp->outputs.emplace_back(reinterpret_cast<uint8_t *>(out.data()));
   task_data_omp->outputs_count.emplace_back(out.size());
 
-  auto test_task_omp =
-      std::make_shared<opolin_d_radix_batcher_sort_omp::RadixBatcherSortTaskOpenMP>(task_data_omp);
+  auto test_task_omp = std::make_shared<opolin_d_radix_batcher_sort_omp::RadixBatcherSortTaskOpenMP>(task_data_omp);
   ASSERT_EQ(test_task_omp->Validation(), true);
   test_task_omp->PreProcessing();
   test_task_omp->Run();
@@ -275,8 +263,7 @@ TEST(opolin_d_radix_batcher_sort_omp, test_size_prime_7) {
   task_data_omp->outputs.emplace_back(reinterpret_cast<uint8_t *>(out.data()));
   task_data_omp->outputs_count.emplace_back(out.size());
 
-  auto test_task_omp =
-      std::make_shared<opolin_d_radix_batcher_sort_omp::RadixBatcherSortTaskOpenMP>(task_data_omp);
+  auto test_task_omp = std::make_shared<opolin_d_radix_batcher_sort_omp::RadixBatcherSortTaskOpenMP>(task_data_omp);
   ASSERT_EQ(test_task_omp->Validation(), true);
   test_task_omp->PreProcessing();
   test_task_omp->Run();
@@ -297,8 +284,7 @@ TEST(opolin_d_radix_batcher_sort_omp, test_size_prime_13) {
   task_data_omp->outputs.emplace_back(reinterpret_cast<uint8_t *>(out.data()));
   task_data_omp->outputs_count.emplace_back(out.size());
 
-  auto test_task_omp =
-      std::make_shared<opolin_d_radix_batcher_sort_omp::RadixBatcherSortTaskOpenMP>(task_data_omp);
+  auto test_task_omp = std::make_shared<opolin_d_radix_batcher_sort_omp::RadixBatcherSortTaskOpenMP>(task_data_omp);
   ASSERT_EQ(test_task_omp->Validation(), true);
   test_task_omp->PreProcessing();
   test_task_omp->Run();
@@ -320,8 +306,7 @@ TEST(opolin_d_radix_batcher_sort_omp, test_double_reversed_order) {
   task_data_omp->outputs.emplace_back(reinterpret_cast<uint8_t *>(out.data()));
   task_data_omp->outputs_count.emplace_back(out.size());
 
-  auto test_task_omp =
-      std::make_shared<opolin_d_radix_batcher_sort_omp::RadixBatcherSortTaskOpenMP>(task_data_omp);
+  auto test_task_omp = std::make_shared<opolin_d_radix_batcher_sort_omp::RadixBatcherSortTaskOpenMP>(task_data_omp);
   ASSERT_EQ(test_task_omp->Validation(), true);
   test_task_omp->PreProcessing();
   test_task_omp->Run();
