@@ -1,10 +1,10 @@
 #include "tbb/shuravina_o_hoare_simple_merger_tbb/include/ops_tbb.hpp"
 
-#include <tbb/tbb.h>
-
 #include <algorithm>
 #include <cstddef>
 #include <vector>
+#include <tbb/parallel_invoke.h>
+#include <tbb/task_arena.h> 
 
 namespace shuravina_o_hoare_simple_merger_tbb {
 
