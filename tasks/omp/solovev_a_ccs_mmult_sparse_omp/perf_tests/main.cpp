@@ -69,7 +69,7 @@ TEST(solovev_a_ccs_mmult_sparse_omp, test_pipeline_run) {
   perf_analyzer->PipelineRun(perf_attr, perf_results);
   ppc::core::Perf::PrintPerfStatistic(perf_results);
 
-   for (size_t i = 0; i < m3.val.size(); i++) {
+  for (size_t i = 0; i < m3.val.size(); i++) {
     bool approx_equal = AreComplexNumbersApproxEqual(m3.val[i], m1.val[i] * m2.val[i]);
     ASSERT_TRUE(approx_equal);
   }
