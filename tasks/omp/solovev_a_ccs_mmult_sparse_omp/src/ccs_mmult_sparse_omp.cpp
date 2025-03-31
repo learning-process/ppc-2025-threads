@@ -21,11 +21,9 @@ bool solovev_a_matrix_omp::OMPMatMultCcs::RunImpl() {
   M3_->c_n = M2_->c_n;
   M3_->col_p.resize(M3_->c_n + 1);
   M3_->col_p[0] = 0;
-  std::vector<int> available_el(M3_->r_n);
+
   for (int m2_c = 0; m2_c < M3_->c_n; ++m2_c) {
-    for (int m3_r = 0; m3_r < M3_->r_n; ++m3_r) {
-      available_el[m3_r] = 0;
-    }
+    std::vector<int> available_el(M3_->r_n, 0);
     for (int m2_i = M2_->col_p[m2_c]; m2_i < M2_->col_p[m2_c + 1]; ++m2_i) {
       int m2_r = M2_->row[m2_i];
       for (int m1_i = M1_->col_p[m2_r]; m1_i < M1_->col_p[m2_r + 1]; ++m1_i) {
@@ -45,16 +43,12 @@ bool solovev_a_matrix_omp::OMPMatMultCcs::RunImpl() {
   M3_->val.resize(n_z_full);
 
   std::complex<double> nought = {0.0, 0.0};
-  ;
   std::complex<double> m2_val = {0.0, 0.0};
-  ;
-  std::vector<std::complex<double>> cask(M3_->r_n);
+
 #pragma omp parallel for
   for (int m2_c = 0; m2_c < M3_->c_n; ++m2_c) {
-    for (int m3_r = 0; m3_r < M3_->r_n; ++m3_r) {
-      cask[m3_r] = nought;
-      available_el[m3_r] = 0;
-    }
+    std::vector<std::complex<double>> cask(M3_->r_n, nought);
+    std::vector<int> available_el_local(M3_->r_n, 0);
 
     for (int m2_i = M2_->col_p[m2_c]; m2_i < M2_->col_p[m2_c + 1]; ++m2_i) {
       int m2_r = M2_->row[m2_i];
@@ -62,13 +56,13 @@ bool solovev_a_matrix_omp::OMPMatMultCcs::RunImpl() {
       for (int m1_i = M1_->col_p[m2_r]; m1_i < M1_->col_p[m2_r + 1]; ++m1_i) {
         int m1_row = M1_->row[m1_i];
         cask[m1_row] += M1_->val[m1_i] * m2_val;
-        available_el[m1_row] = 1;
+        available_el_local[m1_row] = 1;
       }
     }
 
     int c_pos = M3_->col_p[m2_c];
     for (int m3_r = 0; m3_r < M3_->r_n; ++m3_r) {
-      if (available_el[m3_r] != 0) {
+      if (available_el_local[m3_r] != 0) {
         M3_->row[c_pos] = m3_r;
         M3_->val[c_pos++] = cask[m3_r];
       }
