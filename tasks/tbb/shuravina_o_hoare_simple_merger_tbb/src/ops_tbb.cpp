@@ -1,10 +1,7 @@
 #include "tbb/shuravina_o_hoare_simple_merger_tbb/include/ops_tbb.hpp"
 
-#pragma clang diagnostic push
-#pragma clang diagnostic ignored "-Wmisc-include-cleaner"
+#define TBB_PREVIEW_GLOBAL_CONTROL 1
 #include <tbb/parallel_invoke.h>
-#pragma clang diagnostic pop
-
 #include <tbb/tbb.h>
 
 #include <algorithm>
