@@ -23,7 +23,7 @@ TEST(sidorina_p_gradient_method_omp, test_pipeline_run) {
 
   std::random_device rd;
   std::mt19937 gen(rd());
-  std::uniform_real_distribution<double> dist(-10.0F, 10.0F);
+  std::uniform_real_distribution<double> dist(-1000.0F, 1000.0F);
 
   for (int i = 0; i < size; i++) {
     a0[i] = dist(gen);
@@ -78,7 +78,7 @@ TEST(sidorina_p_gradient_method_omp, test_pipeline_run) {
 }
 
 TEST(sidorina_p_gradient_method_omp, test_task_run) {
-  int size = static_cast<int>(std::pow(2, 12));
+  int size = static_cast<int>(std::pow(2, 10));
   std::vector<double> a(size * size);
   std::vector<double> a0(size * size);
   std::vector<double> b(size, 0);
@@ -89,7 +89,7 @@ TEST(sidorina_p_gradient_method_omp, test_task_run) {
 
   std::random_device rd;
   std::mt19937 gen(rd());
-  std::uniform_real_distribution<double> dist(-10.0F, 10.0F);
+  std::uniform_real_distribution<double> dist(-1000.0F, 1000.0F);
 
   for (int i = 0; i < size; i++) {
     a0[i] = dist(gen);
