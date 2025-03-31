@@ -15,10 +15,10 @@
 
 namespace {
 
-std::vector<std::vector<std::pair<size_t, int>>> GenerateLargeGraph(size_t kNumVertices) {
-  std::vector<std::vector<std::pair<size_t, int>>> adj_list(kNumVertices);
-  for (size_t i = 0; i < kNumVertices; ++i) {
-    for (size_t j = 0; j < kNumVertices; ++j) {
+std::vector<std::vector<std::pair<size_t, int>>> GenerateLargeGraph(size_t k_num_vertices) {
+  std::vector<std::vector<std::pair<size_t, int>>> adj_list(k_num_vertices);
+  for (size_t i = 0; i < k_num_vertices; ++i) {
+    for (size_t j = 0; j < k_num_vertices; ++j) {
       if (i != j) {
         if (rand() % 3 == 0) {
           int weight = (rand() % 10) + 1;
