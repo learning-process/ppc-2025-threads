@@ -143,7 +143,7 @@ TEST(fyodorov_m_shell_sort_with_even_odd_batcher_merge_seq, reverse_pozitive_arr
   task_data_stl->outputs_count.emplace_back(out.size());
 
   fyodorov_m_shell_sort_with_even_odd_batcher_merge_seq::TestTaskSequential test_task_sequential(task_data_seq);
-  ASSERT_EQ(test_task_.Vasequentiallidation(), true);
+  ASSERT_EQ(test_task_sequential.Vasequentiallidation(), true);
   test_task_sequential.PreProcessing();
   test_task_sequential.Run();
   test_task_sequential.PostProcessing();
