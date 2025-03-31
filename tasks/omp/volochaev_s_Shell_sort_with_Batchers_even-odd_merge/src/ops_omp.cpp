@@ -10,7 +10,7 @@
 
 bool volochaev_s_shell_sort_with_batchers_even_odd_merge_omp::ShellSortOMP::PreProcessingImpl() {
   // Init value for input and output
-  int size = task_data->inputs_count[0];
+  unsigned int size = task_data->inputs_count[0];
   auto* input_pointer = reinterpret_cast<int*>(task_data->inputs[0]);
   array_ = std::vector<int>(input_pointer, input_pointer + size);
 
@@ -32,21 +32,31 @@ void volochaev_s_shell_sort_with_batchers_even_odd_merge_omp::ShellSortOMP::Init
   dimsize_ = int(log10(double(threadnum_)) / log10(2.0)) + 1;
 }
 
-int volochaev_s_shell_sort_with_batchers_even_odd_merge_omp::ShellSortOMP::GrayCode(int ringId, int dimSize) {
-  if ((ringId == 0) && (dimSize == 1)) return 0;
-  if ((ringId == 1) && (dimSize == 1)) return 1;
-  int res;
-  if (ringId < (1 << (dimSize - 1)))
-    res = GrayCode(ringId, dimSize - 1);
-  else
-    res = (1 << (dimSize - 1)) + GrayCode((1 << dimSize) - 1 - ringId, dimSize - 1);
+int volochaev_s_shell_sort_with_batchers_even_odd_merge_omp::ShellSortOMP::GrayCode(int ring_id, int dimSize) {
+  if ((ring_id == 0) && (dim_size == 1)) {
+    return 0;
+  }
+  if ((ring_id == 1) && (dim_size == 1)) {
+    return 1;
+  }
+  int res = 0;
+  if (ring_id < (1 << (dim_size - 1))) {
+    res = GrayCode(ring_id, dim_size - 1);
+  } else {
+    res = (1 << (dim_size - 1)) + GrayCode((1 << dimSize) - 1 - ring_id, dim_size - 1);
+  }
   return res;
 }
 
 int volochaev_s_shell_sort_with_batchers_even_odd_merge_omp::ShellSortOMP::ReverseGrayCode(int CubeID, int DimSize) {
+  int ans = 0;
   for (int i = 0; i < (1 << DimSize); i++) {
-    if (CubeID == GrayCode(i, DimSize)) return i;
+    if (CubeID == GrayCode(i, DimSize)) {
+      ans = i;
+      break;
+    }
   }
+  return ans;
 }
 
 void volochaev_s_shell_sort_with_batchers_even_odd_merge_omp::ShellSortOMP::SetBlockPairs(int* BlockPairs, int Iter) {
@@ -68,10 +78,10 @@ void volochaev_s_shell_sort_with_batchers_even_odd_merge_omp::ShellSortOMP::SetB
 
 int volochaev_s_shell_sort_with_batchers_even_odd_merge_omp::ShellSortOMP::FindMyPair(int* BlockPairs, int ThreadID,
                                                                                       int Iter) {
-  int BlockID = 0, id, res;
+  int BlockID = 0, id, res = 0;
   for (int i = 0; i < threadnum_; i++) {
     BlockID = BlockPairs[2 * i];
-    if (Iter == 0) id = BlockID % (1 << dimsize_ - Iter - 1);
+    if (Iter == 0) id = BlockID % (1 << (dimsize_ - Iter - 1));
     if ((Iter > 0) && (Iter < dimsize_ - 1))
       id = ((BlockID >> (dimsize_ - Iter)) << (dimsize_ - Iter - 1)) | (BlockID % (1 << (dimsize_ - Iter - 1)));
     if (Iter == dimsize_ - 1) id = BlockID >> 1;
