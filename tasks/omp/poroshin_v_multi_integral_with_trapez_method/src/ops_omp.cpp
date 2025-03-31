@@ -11,13 +11,13 @@ void poroshin_v_multi_integral_with_trapez_method_omp::TestTaskOpenMP::CountMult
   const int dimensions = static_cast<int>(limits_.size());
   std::vector<double> h(dimensions);
 
-#pragma omp parallel for schedule(guided)
+#pragma omp parallel for schedule(static)
   for (int i = 0; i < dimensions; ++i) {
     h[i] = (limits_[i].second - limits_[i].first) / n_[i];
   }
 
   std::vector<std::vector<double>> weights(dimensions);
-#pragma omp parallel for schedule(guided)
+#pragma omp parallel for schedule(static)
   for (int i = 0; i < dimensions; ++i) {
     weights[i].resize(n_[i] + 1);
     for (int j = 0; j <= n_[i]; ++j) {
@@ -37,7 +37,7 @@ void poroshin_v_multi_integral_with_trapez_method_omp::TestTaskOpenMP::CountMult
       total_points *= (n + 1);
     }
 
-#pragma omp for schedule(guided)
+#pragma omp for schedule(static)
     for (int linear_idx = 0; linear_idx < total_points; ++linear_idx) {
       int idx = linear_idx;
       for (int dim = dimensions - 1; dim >= 0; --dim) {
