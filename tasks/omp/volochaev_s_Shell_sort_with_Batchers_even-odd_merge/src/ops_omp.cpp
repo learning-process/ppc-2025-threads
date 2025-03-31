@@ -68,19 +68,19 @@ void volochaev_s_shell_sort_with_batchers_even_odd_merge_omp::ShellSortOMP::SetB
 
 int volochaev_s_shell_sort_with_batchers_even_odd_merge_omp::ShellSortOMP::FindMyPair(int* BlockPairs, int ThreadID,
                                                                                       int Iter) {
-  int BlockID = 0, index, result;
+  int BlockID = 0, id, res;
   for (int i = 0; i < threadnum_; i++) {
     BlockID = BlockPairs[2 * i];
-    if (Iter == 0) index = BlockID % (1 << dimsize_ - Iter - 1);
+    if (Iter == 0) id = BlockID % (1 << dimsize_ - Iter - 1);
     if ((Iter > 0) && (Iter < dimsize_ - 1))
-      index = ((BlockID >> (dimsize_ - Iter)) << (dimsize_ - Iter - 1)) | (BlockID % (1 << (dimsize_ - Iter - 1)));
-    if (Iter == dimsize_ - 1) index = BlockID >> 1;
-    if (index == ThreadID) {
-      result = i;
+      id = ((BlockID >> (dimsize_ - Iter)) << (dimsize_ - Iter - 1)) | (BlockID % (1 << (dimsize_ - Iter - 1)));
+    if (Iter == dimsize_ - 1) id = BlockID >> 1;
+    if (id == ThreadID) {
+      res = i;
       break;
     }
   }
-  return result;
+  return res;
 }
 
 bool volochaev_s_shell_sort_with_batchers_even_odd_merge_omp::ShellSortOMP::IsSorted(std::vector<int>& pData,
@@ -107,13 +107,14 @@ void volochaev_s_shell_sort_with_batchers_even_odd_merge_omp::ShellSortOMP::Shel
       arr[j] = temp;
     }
     gap /= 2;
+    gap /= 2;
   }
 }
 
 void volochaev_s_shell_sort_with_batchers_even_odd_merge_omp::ShellSortOMP::MergeBlocks(std::vector<int>& pData,
                                                                                         int Index1, int BlockSize1,
                                                                                         int Index2, int BlockSize2) {
-  double* pTempArray = new double[BlockSize1 + BlockSize2];
+  int* pTempArray = new int[BlockSize1 + BlockSize2];
   int i1 = Index1, i2 = Index2, curr = 0;
   while ((i1 < Index1 + BlockSize1) && (i2 < Index2 + BlockSize2)) {
     if (pData[i1] < pData[i2])
@@ -128,7 +129,8 @@ void volochaev_s_shell_sort_with_batchers_even_odd_merge_omp::ShellSortOMP::Merg
   delete[] pTempArray;
 }
 
-void volochaev_s_shell_sort_with_batchers_even_odd_merge_omp::ShellSortOMP::ParallelShellSort(std::vector<int>& data, int Size) {
+void volochaev_s_shell_sort_with_batchers_even_odd_merge_omp::ShellSortOMP::ParallelShellSort(std::vector<int>& pData,
+                                                                                              int Size) {
   InitializeParallelSections();
   int* Index = new int[2 * threadnum_];
   int* BlockSize = new int[2 * threadnum_];
@@ -143,30 +145,30 @@ void volochaev_s_shell_sort_with_batchers_even_odd_merge_omp::ShellSortOMP::Para
 #pragma omp parallel
   {
     int BlockID = ReverseGrayCode(threadnum_ + threadid_, dimsize_);
-    ShellSort(data, Index[BlockID], Index[BlockID] + BlockSize[BlockID] - 1);
+    ShellSort(pData, Index[BlockID], Index[BlockID] + BlockSize[BlockID] - 1);
     BlockID = ReverseGrayCode(threadid_, dimsize_);
-    ShellSort(data, Index[BlockID], Index[BlockID] + BlockSize[BlockID] - 1);
+    ShellSort(pData, Index[BlockID], Index[BlockID] + BlockSize[BlockID] - 1);
   }
-  for (int Iter = 0; (Iter < dimsize_) && (!IsSorted(data, Size)); Iter++) {
+  for (int Iter = 0; (Iter < dimsize_) && (!IsSorted(pData, Size)); Iter++) {
     SetBlockPairs(BlockPairs, Iter);
 #pragma omp parallel
     {
       int MyPairNum = FindMyPair(BlockPairs, threadid_, Iter);
       int FirstBlock = ReverseGrayCode(BlockPairs[2 * MyPairNum], dimsize_);
       int SecondBlock = ReverseGrayCode(BlockPairs[2 * MyPairNum + 1], dimsize_);
-      MergeBlocks(data, Index[FirstBlock], BlockSize[FirstBlock], Index[SecondBlock], BlockSize[SecondBlock]);
+      MergeBlocks(pData, Index[FirstBlock], BlockSize[FirstBlock], Index[SecondBlock], BlockSize[SecondBlock]);
     }
   }
   int Iter = 1;
-  while (!IsSorted(data, Size)) {
+  while (!IsSorted(pData, Size)) {
 #pragma omp parallel
     {
       if (Iter % 2 == 0)
-        MergeBlocks(data, Index[2 * threadid_], BlockSize[2 * threadid_], Index[2 * threadid_ + 1],
+        MergeBlocks(pData, Index[2 * threadid_], BlockSize[2 * threadid_], Index[2 * threadid_ + 1],
                     BlockSize[2 * threadid_ + 1]);
       else {
         if (threadid_ < threadnum_ - 1)
-          MergeBlocks(data, Index[2 * threadid_ + 1], BlockSize[2 * threadid_ + 1], Index[2 * threadid_ + 2],
+          MergeBlocks(pData, Index[2 * threadid_ + 1], BlockSize[2 * threadid_ + 1], Index[2 * threadid_ + 2],
                       BlockSize[2 * threadid_ + 2]);
       }
     }

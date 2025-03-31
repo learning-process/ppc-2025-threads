@@ -1,73 +1,785 @@
 #include <gtest/gtest.h>
 
+#include <algorithm>
 #include <cstddef>
 #include <cstdint>
-#include <fstream>
 #include <memory>
-#include <string>
+#include <random>
+#include <stdexcept>
 #include <vector>
 
 #include "core/task/include/task.hpp"
-#include "core/util/include/util.hpp"
-#include "omp/example/include/ops_omp.hpp"
+#include "omp/volochaev_s_Shell_sort_with_Batchers_even-odd_merge/include/ops_omp.hpp"
 
-TEST(nesterov_a_test_task_omp, test_matmul_50) {
-  constexpr size_t kCount = 50;
+namespace {
+void GetRandomVector(std::vector<int> &v, int a, int b) {
+  std::random_device dev;
+  std::mt19937 gen(dev());
 
-  // Create data
-  std::vector<int> in(kCount * kCount, 0);
-  std::vector<int> out(kCount * kCount, 0);
-
-  for (size_t i = 0; i < kCount; i++) {
-    in[(i * kCount) + i] = 1;
+  if (a >= b) {
+    throw std::invalid_argument("error.");
   }
 
+  std::uniform_int_distribution<> dis(a, b);
+
+  for (size_t i = 0; i < v.size(); ++i) {
+    v[i] = dis(gen);
+  }
+}
+}  // namespace
+
+TEST(volochaev_s_Shell_sort_with_Batchers_even_odd_merge_omp, test_error_in_val) {
+  constexpr size_t kSizeOfVector = 0;
+
+  // Create data
+  std::vector<int> in(kSizeOfVector, 0);
+  std::vector<int> out(kSizeOfVector, 0);
+
   // Create task_data
-  auto task_data_omp = std::make_shared<ppc::core::TaskData>();
-  task_data_omp->inputs.emplace_back(reinterpret_cast<uint8_t *>(in.data()));
-  task_data_omp->inputs_count.emplace_back(in.size());
-  task_data_omp->outputs.emplace_back(reinterpret_cast<uint8_t *>(out.data()));
-  task_data_omp->outputs_count.emplace_back(out.size());
+  auto task_data_seq = std::make_shared<ppc::core::TaskData>();
+  task_data_seq->inputs.emplace_back(reinterpret_cast<uint8_t *>(in.data()));
+  task_data_seq->inputs_count.emplace_back(in.size());
+  task_data_seq->outputs.emplace_back(reinterpret_cast<uint8_t *>(out.data()));
+  task_data_seq->outputs_count.emplace_back(out.size());
 
   // Create Task
-  nesterov_a_test_task_omp::TestTaskOpenMP test_task_omp(task_data_omp);
-  ASSERT_EQ(test_task_omp.Validation(), true);
-  test_task_omp.PreProcessing();
-  test_task_omp.Run();
-  test_task_omp.PostProcessing();
-  EXPECT_EQ(in, out);
+  volochaev_s_shell_sort_with_batchers_even_odd_merge_omp::ShellSortOMP test_task_sequential(task_data_seq);
+  ASSERT_EQ(test_task_sequential.Validation(), false);
 }
 
-TEST(nesterov_a_test_task_omp, test_matmul_100_from_file) {
-  std::string line;
-  std::ifstream test_file(ppc::util::GetAbsolutePath("omp/example/data/test.txt"));
-  if (test_file.is_open()) {
-    getline(test_file, line);
-  }
-  test_file.close();
-
-  const size_t count = std::stoi(line);
+TEST(volochaev_s_shell_sort_with_batchers_even_odd_merge_omp, test_error_in_generate) {
+  constexpr size_t kSizeOfVector = 100;
 
   // Create data
-  std::vector<int> in(count * count, 0);
-  std::vector<int> out(count * count, 0);
+  std::vector<int> in(kSizeOfVector, 0);
+  ASSERT_ANY_THROW(GetRandomVector(in, 1000, -1000));
+}
 
-  for (size_t i = 0; i < count; i++) {
-    in[(i * count) + i] = 1;
-  }
+TEST(volochaev_s_Shell_sort_with_Batchers_even_odd_merge_omp, test_with_small_vector) {
+  constexpr size_t kSizeOfVector = 100;
 
+  // Create data
+  std::vector<int> in(kSizeOfVector, 0);
+  GetRandomVector(in, -100, 100);
+  std::vector<int> out(kSizeOfVector, 0);
+  std::vector<int> answer(in);
+  std::ranges::sort(answer);
   // Create task_data
-  auto task_data_omp = std::make_shared<ppc::core::TaskData>();
-  task_data_omp->inputs.emplace_back(reinterpret_cast<uint8_t *>(in.data()));
-  task_data_omp->inputs_count.emplace_back(in.size());
-  task_data_omp->outputs.emplace_back(reinterpret_cast<uint8_t *>(out.data()));
-  task_data_omp->outputs_count.emplace_back(out.size());
+  auto task_data_seq = std::make_shared<ppc::core::TaskData>();
+  task_data_seq->inputs.emplace_back(reinterpret_cast<uint8_t *>(in.data()));
+  task_data_seq->inputs_count.emplace_back(in.size());
+  task_data_seq->outputs.emplace_back(reinterpret_cast<uint8_t *>(out.data()));
+  task_data_seq->outputs_count.emplace_back(out.size());
 
   // Create Task
-  nesterov_a_test_task_omp::TestTaskOpenMP test_task_omp(task_data_omp);
-  ASSERT_EQ(test_task_omp.Validation(), true);
-  test_task_omp.PreProcessing();
-  test_task_omp.Run();
-  test_task_omp.PostProcessing();
-  EXPECT_EQ(in, out);
+  volochaev_s_shell_sort_with_batchers_even_odd_merge_omp::ShellSortOMP test_task_sequential(task_data_seq);
+  ASSERT_EQ(test_task_sequential.Validation(), true);
+  test_task_sequential.PreProcessing();
+  test_task_sequential.Run();
+  test_task_sequential.PostProcessing();
+  EXPECT_EQ(answer, out);
+}
+
+TEST(volochaev_s_Shell_sort_with_Batchers_even_odd_merge_omp, test_with_small_vector2) {
+  constexpr size_t kSizeOfVector = 200;
+
+  // Create data
+  std::vector<int> in(kSizeOfVector, 0);
+  GetRandomVector(in, -100, 100);
+  std::vector<int> out(kSizeOfVector, 0);
+  std::vector<int> answer(in);
+  std::ranges::sort(answer);
+
+  // Create task_data
+  auto task_data_seq = std::make_shared<ppc::core::TaskData>();
+  task_data_seq->inputs.emplace_back(reinterpret_cast<uint8_t *>(in.data()));
+  task_data_seq->inputs_count.emplace_back(in.size());
+  task_data_seq->outputs.emplace_back(reinterpret_cast<uint8_t *>(out.data()));
+  task_data_seq->outputs_count.emplace_back(out.size());
+
+  // Create Task
+  volochaev_s_shell_sort_with_batchers_even_odd_merge_omp::ShellSortOMP test_task_sequential(task_data_seq);
+  ASSERT_EQ(test_task_sequential.Validation(), true);
+  test_task_sequential.PreProcessing();
+  test_task_sequential.Run();
+  test_task_sequential.PostProcessing();
+  EXPECT_EQ(answer, out);
+}
+
+TEST(volochaev_s_Shell_sort_with_Batchers_even_odd_merge_omp, test_with_small_vector3) {
+  constexpr size_t kSizeOfVector = 300;
+
+  // Create data
+  std::vector<int> in(kSizeOfVector, 0);
+  GetRandomVector(in, -100, 100);
+  std::vector<int> out(kSizeOfVector, 0);
+  std::vector<int> answer(in);
+  std::ranges::sort(answer);
+
+  // Create task_data
+  auto task_data_seq = std::make_shared<ppc::core::TaskData>();
+  task_data_seq->inputs.emplace_back(reinterpret_cast<uint8_t *>(in.data()));
+  task_data_seq->inputs_count.emplace_back(in.size());
+  task_data_seq->outputs.emplace_back(reinterpret_cast<uint8_t *>(out.data()));
+  task_data_seq->outputs_count.emplace_back(out.size());
+
+  // Create Task
+  volochaev_s_shell_sort_with_batchers_even_odd_merge_omp::ShellSortOMP test_task_sequential(task_data_seq);
+  ASSERT_EQ(test_task_sequential.Validation(), true);
+  test_task_sequential.PreProcessing();
+  test_task_sequential.Run();
+  test_task_sequential.PostProcessing();
+  EXPECT_EQ(answer, out);
+}
+
+TEST(volochaev_s_Shell_sort_with_Batchers_even_odd_merge_omp, test_with_small_vector4) {
+  constexpr size_t kSizeOfVector = 400;
+
+  // Create data
+  std::vector<int> in(kSizeOfVector, 0);
+  GetRandomVector(in, -100, 100);
+  std::vector<int> out(kSizeOfVector, 0);
+  std::vector<int> answer(in);
+  std::ranges::sort(answer);
+
+  // Create task_data
+  auto task_data_seq = std::make_shared<ppc::core::TaskData>();
+  task_data_seq->inputs.emplace_back(reinterpret_cast<uint8_t *>(in.data()));
+  task_data_seq->inputs_count.emplace_back(in.size());
+  task_data_seq->outputs.emplace_back(reinterpret_cast<uint8_t *>(out.data()));
+  task_data_seq->outputs_count.emplace_back(out.size());
+
+  // Create Task
+  volochaev_s_shell_sort_with_batchers_even_odd_merge_omp::ShellSortOMP test_task_sequential(task_data_seq);
+  ASSERT_EQ(test_task_sequential.Validation(), true);
+  test_task_sequential.PreProcessing();
+  test_task_sequential.Run();
+  test_task_sequential.PostProcessing();
+  EXPECT_EQ(answer, out);
+}
+
+TEST(volochaev_s_Shell_sort_with_Batchers_even_odd_merge_omp, test_with_medium_vector) {
+  constexpr size_t kSizeOfVector = 500;
+
+  // Create data
+  std::vector<int> in(kSizeOfVector, 0);
+  GetRandomVector(in, -100, 100);
+  std::vector<int> out(kSizeOfVector, 0);
+  std::vector<int> answer(in);
+  std::ranges::sort(answer);
+
+  // Create task_data
+  auto task_data_seq = std::make_shared<ppc::core::TaskData>();
+  task_data_seq->inputs.emplace_back(reinterpret_cast<uint8_t *>(in.data()));
+  task_data_seq->inputs_count.emplace_back(in.size());
+  task_data_seq->outputs.emplace_back(reinterpret_cast<uint8_t *>(out.data()));
+  task_data_seq->outputs_count.emplace_back(out.size());
+
+  // Create Task
+  volochaev_s_shell_sort_with_batchers_even_odd_merge_omp::ShellSortOMP test_task_sequential(task_data_seq);
+  ASSERT_EQ(test_task_sequential.Validation(), true);
+  test_task_sequential.PreProcessing();
+  test_task_sequential.Run();
+  test_task_sequential.PostProcessing();
+  EXPECT_EQ(answer, out);
+}
+
+TEST(volochaev_s_shell_sort_with_batchers_even_odd_merge_omp, test_with_medium_vector2) {
+  constexpr size_t kSizeOfVector = 600;
+
+  // Create data
+  std::vector<int> in(kSizeOfVector, 0);
+  GetRandomVector(in, -100, 100);
+  std::vector<int> out(kSizeOfVector, 0);
+  std::vector<int> answer(in);
+  std::ranges::sort(answer);
+
+  // Create task_data
+  auto task_data_seq = std::make_shared<ppc::core::TaskData>();
+  task_data_seq->inputs.emplace_back(reinterpret_cast<uint8_t *>(in.data()));
+  task_data_seq->inputs_count.emplace_back(in.size());
+  task_data_seq->outputs.emplace_back(reinterpret_cast<uint8_t *>(out.data()));
+  task_data_seq->outputs_count.emplace_back(out.size());
+
+  // Create Task
+  volochaev_s_shell_sort_with_batchers_even_odd_merge_omp::ShellSortOMP test_task_sequential(task_data_seq);
+  ASSERT_EQ(test_task_sequential.Validation(), true);
+  test_task_sequential.PreProcessing();
+  test_task_sequential.Run();
+  test_task_sequential.PostProcessing();
+  EXPECT_EQ(answer, out);
+}
+
+TEST(volochaev_s_shell_sort_with_batchers_even_odd_merge_omp, test_with_medium_vector3) {
+  constexpr size_t kSizeOfVector = 700;
+
+  // Create data
+  std::vector<int> in(kSizeOfVector, 0);
+  GetRandomVector(in, -100, 100);
+  std::vector<int> out(kSizeOfVector, 0);
+  std::vector<int> answer(in);
+  std::ranges::sort(answer);
+
+  // Create task_data
+  auto task_data_seq = std::make_shared<ppc::core::TaskData>();
+  task_data_seq->inputs.emplace_back(reinterpret_cast<uint8_t *>(in.data()));
+  task_data_seq->inputs_count.emplace_back(in.size());
+  task_data_seq->outputs.emplace_back(reinterpret_cast<uint8_t *>(out.data()));
+  task_data_seq->outputs_count.emplace_back(out.size());
+
+  // Create Task
+  volochaev_s_shell_sort_with_batchers_even_odd_merge_omp::ShellSortOMP test_task_sequential(task_data_seq);
+  ASSERT_EQ(test_task_sequential.Validation(), true);
+  test_task_sequential.PreProcessing();
+  test_task_sequential.Run();
+  test_task_sequential.PostProcessing();
+  EXPECT_EQ(answer, out);
+}
+
+TEST(volochaev_s_shell_sort_with_batchers_even_odd_merge_omp, test_with_medium_vector4) {
+  constexpr size_t kSizeOfVector = 800;
+
+  // Create data
+  std::vector<int> in(kSizeOfVector, 0);
+  GetRandomVector(in, -100, 100);
+  std::vector<int> out(kSizeOfVector, 0);
+  std::vector<int> answer(in);
+  std::ranges::sort(answer);
+
+  // Create task_data
+  auto task_data_seq = std::make_shared<ppc::core::TaskData>();
+  task_data_seq->inputs.emplace_back(reinterpret_cast<uint8_t *>(in.data()));
+  task_data_seq->inputs_count.emplace_back(in.size());
+  task_data_seq->outputs.emplace_back(reinterpret_cast<uint8_t *>(out.data()));
+  task_data_seq->outputs_count.emplace_back(out.size());
+
+  // Create Task
+  volochaev_s_shell_sort_with_batchers_even_odd_merge_omp::ShellSortOMP test_task_sequential(task_data_seq);
+  ASSERT_EQ(test_task_sequential.Validation(), true);
+  test_task_sequential.PreProcessing();
+  test_task_sequential.Run();
+  test_task_sequential.PostProcessing();
+  EXPECT_EQ(answer, out);
+}
+
+TEST(volochaev_s_shell_sort_with_batchers_even_odd_merge_omp, test_with_medium_vector5) {
+  constexpr size_t kSizeOfVector = 900;
+
+  // Create data
+  std::vector<int> in(kSizeOfVector, 0);
+  GetRandomVector(in, -100, 100);
+  std::vector<int> out(kSizeOfVector, 0);
+  std::vector<int> answer(in);
+  std::ranges::sort(answer);
+
+  // Create task_data
+  auto task_data_seq = std::make_shared<ppc::core::TaskData>();
+  task_data_seq->inputs.emplace_back(reinterpret_cast<uint8_t *>(in.data()));
+  task_data_seq->inputs_count.emplace_back(in.size());
+  task_data_seq->outputs.emplace_back(reinterpret_cast<uint8_t *>(out.data()));
+  task_data_seq->outputs_count.emplace_back(out.size());
+
+  // Create Task
+  volochaev_s_shell_sort_with_batchers_even_odd_merge_omp::ShellSortOMP test_task_sequential(task_data_seq);
+  ASSERT_EQ(test_task_sequential.Validation(), true);
+  test_task_sequential.PreProcessing();
+  test_task_sequential.Run();
+  test_task_sequential.PostProcessing();
+  EXPECT_EQ(answer, out);
+}
+
+TEST(volochaev_s_shell_sort_with_batchers_even_odd_merge_omp, test_with_big_vector) {
+  constexpr size_t kSizeOfVector = 1000;
+
+  // Create data
+  std::vector<int> in(kSizeOfVector, 0);
+  GetRandomVector(in, -100, 100);
+  std::vector<int> out(kSizeOfVector, 0);
+  std::vector<int> answer(in);
+  std::ranges::sort(answer);
+
+  // Create task_data
+  auto task_data_seq = std::make_shared<ppc::core::TaskData>();
+  task_data_seq->inputs.emplace_back(reinterpret_cast<uint8_t *>(in.data()));
+  task_data_seq->inputs_count.emplace_back(in.size());
+  task_data_seq->outputs.emplace_back(reinterpret_cast<uint8_t *>(out.data()));
+  task_data_seq->outputs_count.emplace_back(out.size());
+
+  // Create Task
+  volochaev_s_shell_sort_with_batchers_even_odd_merge_omp::ShellSortOMP test_task_sequential(task_data_seq);
+  ASSERT_EQ(test_task_sequential.Validation(), true);
+  test_task_sequential.PreProcessing();
+  test_task_sequential.Run();
+  test_task_sequential.PostProcessing();
+  EXPECT_EQ(answer, out);
+}
+
+TEST(volochaev_s_shell_sort_with_batchers_even_odd_merge_omp, test_with_big_vector2) {
+  constexpr size_t kSizeOfVector = 2000;
+
+  // Create data
+  std::vector<int> in(kSizeOfVector, 0);
+  GetRandomVector(in, -100, 100);
+  std::vector<int> out(kSizeOfVector, 0);
+  std::vector<int> answer(in);
+  std::ranges::sort(answer);
+
+  // Create task_data
+  auto task_data_seq = std::make_shared<ppc::core::TaskData>();
+  task_data_seq->inputs.emplace_back(reinterpret_cast<uint8_t *>(in.data()));
+  task_data_seq->inputs_count.emplace_back(in.size());
+  task_data_seq->outputs.emplace_back(reinterpret_cast<uint8_t *>(out.data()));
+  task_data_seq->outputs_count.emplace_back(out.size());
+
+  // Create Task
+  volochaev_s_shell_sort_with_batchers_even_odd_merge_omp::ShellSortOMP test_task_sequential(task_data_seq);
+  ASSERT_EQ(test_task_sequential.Validation(), true);
+  test_task_sequential.PreProcessing();
+  test_task_sequential.Run();
+  test_task_sequential.PostProcessing();
+  EXPECT_EQ(answer, out);
+}
+
+TEST(volochaev_s_shell_sort_with_batchers_even_odd_merge_omp, test_with_big_vector3) {
+  constexpr size_t kSizeOfVector = 3000;
+
+  // Create data
+  std::vector<int> in(kSizeOfVector, 0);
+  GetRandomVector(in, -100, 100);
+  std::vector<int> out(kSizeOfVector, 0);
+  std::vector<int> answer(in);
+  std::ranges::sort(answer);
+
+  // Create task_data
+  auto task_data_seq = std::make_shared<ppc::core::TaskData>();
+  task_data_seq->inputs.emplace_back(reinterpret_cast<uint8_t *>(in.data()));
+  task_data_seq->inputs_count.emplace_back(in.size());
+  task_data_seq->outputs.emplace_back(reinterpret_cast<uint8_t *>(out.data()));
+  task_data_seq->outputs_count.emplace_back(out.size());
+
+  // Create Task
+  volochaev_s_shell_sort_with_batchers_even_odd_merge_omp::ShellSortOMP test_task_sequential(task_data_seq);
+  ASSERT_EQ(test_task_sequential.Validation(), true);
+  test_task_sequential.PreProcessing();
+  test_task_sequential.Run();
+  test_task_sequential.PostProcessing();
+  EXPECT_EQ(answer, out);
+}
+
+TEST(volochaev_s_shell_sort_with_batchers_even_odd_merge_omp, test_with_big_vector4) {
+  constexpr size_t kSizeOfVector = 4000;
+
+  // Create data
+  std::vector<int> in(kSizeOfVector, 0);
+  GetRandomVector(in, -100, 100);
+  std::vector<int> out(kSizeOfVector, 0);
+  std::vector<int> answer(in);
+  std::ranges::sort(answer);
+
+  // Create task_data
+  auto task_data_seq = std::make_shared<ppc::core::TaskData>();
+  task_data_seq->inputs.emplace_back(reinterpret_cast<uint8_t *>(in.data()));
+  task_data_seq->inputs_count.emplace_back(in.size());
+  task_data_seq->outputs.emplace_back(reinterpret_cast<uint8_t *>(out.data()));
+  task_data_seq->outputs_count.emplace_back(out.size());
+
+  // Create Task
+  volochaev_s_shell_sort_with_batchers_even_odd_merge_omp::ShellSortOMP test_task_sequential(task_data_seq);
+  ASSERT_EQ(test_task_sequential.Validation(), true);
+  test_task_sequential.PreProcessing();
+  test_task_sequential.Run();
+  test_task_sequential.PostProcessing();
+  EXPECT_EQ(answer, out);
+}
+
+TEST(volochaev_s_shell_sort_with_batchers_even_odd_merge_omp, test_with_extra_big_vector) {
+  constexpr size_t kSizeOfVector = 10000;
+
+  // Create data
+  std::vector<int> in(kSizeOfVector, 0);
+  GetRandomVector(in, -100, 100);
+  std::vector<int> out(kSizeOfVector, 0);
+  std::vector<int> answer(in);
+  std::ranges::sort(answer);
+
+  // Create task_data
+  auto task_data_seq = std::make_shared<ppc::core::TaskData>();
+  task_data_seq->inputs.emplace_back(reinterpret_cast<uint8_t *>(in.data()));
+  task_data_seq->inputs_count.emplace_back(in.size());
+  task_data_seq->outputs.emplace_back(reinterpret_cast<uint8_t *>(out.data()));
+  task_data_seq->outputs_count.emplace_back(out.size());
+
+  // Create Task
+  volochaev_s_shell_sort_with_batchers_even_odd_merge_omp::ShellSortOMP test_task_sequential(task_data_seq);
+  ASSERT_EQ(test_task_sequential.Validation(), true);
+  test_task_sequential.PreProcessing();
+  test_task_sequential.Run();
+  test_task_sequential.PostProcessing();
+  EXPECT_EQ(answer, out);
+}
+
+TEST(volochaev_s_shell_sort_with_batchers_even_odd_merge_omp, test_with_prime_size_vector) {
+  constexpr size_t kSizeOfVector = 7;
+
+  // Create data
+  std::vector<int> in(kSizeOfVector, 0);
+  GetRandomVector(in, -100, 100);
+  std::vector<int> out(kSizeOfVector, 0);
+  std::vector<int> answer(in);
+  std::ranges::sort(answer);
+
+  // Create task_data
+  auto task_data_seq = std::make_shared<ppc::core::TaskData>();
+  task_data_seq->inputs.emplace_back(reinterpret_cast<uint8_t *>(in.data()));
+  task_data_seq->inputs_count.emplace_back(in.size());
+  task_data_seq->outputs.emplace_back(reinterpret_cast<uint8_t *>(out.data()));
+  task_data_seq->outputs_count.emplace_back(out.size());
+
+  // Create Task
+  volochaev_s_shell_sort_with_batchers_even_odd_merge_omp::ShellSortOMP test_task_sequential(task_data_seq);
+  ASSERT_EQ(test_task_sequential.Validation(), true);
+  test_task_sequential.PreProcessing();
+  test_task_sequential.Run();
+  test_task_sequential.PostProcessing();
+  EXPECT_EQ(answer, out);
+}
+
+TEST(volochaev_s_shell_sort_with_batchers_even_odd_merge_omp, test_with_prime_size_vector1) {
+  constexpr size_t kSizeOfVector = 13;
+
+  // Create data
+  std::vector<int> in(kSizeOfVector, 0);
+  GetRandomVector(in, -100, 100);
+  std::vector<int> out(kSizeOfVector, 0);
+  std::vector<int> answer(in);
+  std::ranges::sort(answer);
+
+  // Create task_data
+  auto task_data_seq = std::make_shared<ppc::core::TaskData>();
+  task_data_seq->inputs.emplace_back(reinterpret_cast<uint8_t *>(in.data()));
+  task_data_seq->inputs_count.emplace_back(in.size());
+  task_data_seq->outputs.emplace_back(reinterpret_cast<uint8_t *>(out.data()));
+  task_data_seq->outputs_count.emplace_back(out.size());
+
+  // Create Task
+  volochaev_s_shell_sort_with_batchers_even_odd_merge_omp::ShellSortOMP test_task_sequential(task_data_seq);
+  ASSERT_EQ(test_task_sequential.Validation(), true);
+  test_task_sequential.PreProcessing();
+  test_task_sequential.Run();
+  test_task_sequential.PostProcessing();
+  EXPECT_EQ(answer, out);
+}
+
+TEST(volochaev_s_shell_sort_with_batchers_even_odd_merge_omp, test_with_prime_size_vector2) {
+  constexpr size_t kSizeOfVector = 17;
+
+  // Create data
+  std::vector<int> in(kSizeOfVector, 0);
+  GetRandomVector(in, -100, 100);
+  std::vector<int> out(kSizeOfVector, 0);
+  std::vector<int> answer(in);
+  std::ranges::sort(answer);
+
+  // Create task_data
+  auto task_data_seq = std::make_shared<ppc::core::TaskData>();
+  task_data_seq->inputs.emplace_back(reinterpret_cast<uint8_t *>(in.data()));
+  task_data_seq->inputs_count.emplace_back(in.size());
+  task_data_seq->outputs.emplace_back(reinterpret_cast<uint8_t *>(out.data()));
+  task_data_seq->outputs_count.emplace_back(out.size());
+
+  // Create Task
+  volochaev_s_shell_sort_with_batchers_even_odd_merge_omp::ShellSortOMP test_task_sequential(task_data_seq);
+  ASSERT_EQ(test_task_sequential.Validation(), true);
+  test_task_sequential.PreProcessing();
+  test_task_sequential.Run();
+  test_task_sequential.PostProcessing();
+  EXPECT_EQ(answer, out);
+}
+
+TEST(volochaev_s_shell_sort_with_batchers_even_odd_merge_omp, test_with_prime_size_vector3) {
+  constexpr size_t kSizeOfVector = 23;
+
+  // Create data
+  std::vector<int> in(kSizeOfVector, 0);
+  GetRandomVector(in, -100, 100);
+  std::vector<int> out(kSizeOfVector, 0);
+  std::vector<int> answer(in);
+  std::ranges::sort(answer);
+
+  // Create task_data
+  auto task_data_seq = std::make_shared<ppc::core::TaskData>();
+  task_data_seq->inputs.emplace_back(reinterpret_cast<uint8_t *>(in.data()));
+  task_data_seq->inputs_count.emplace_back(in.size());
+  task_data_seq->outputs.emplace_back(reinterpret_cast<uint8_t *>(out.data()));
+  task_data_seq->outputs_count.emplace_back(out.size());
+
+  // Create Task
+  volochaev_s_shell_sort_with_batchers_even_odd_merge_omp::ShellSortOMP test_task_sequential(task_data_seq);
+  ASSERT_EQ(test_task_sequential.Validation(), true);
+  test_task_sequential.PreProcessing();
+  test_task_sequential.Run();
+  test_task_sequential.PostProcessing();
+  EXPECT_EQ(answer, out);
+}
+
+TEST(volochaev_s_shell_sort_with_batchers_even_odd_merge_omp, test_with_prime_size_vector4) {
+  constexpr size_t kSizeOfVector = 29;
+
+  // Create data
+  std::vector<int> in(kSizeOfVector, 0);
+  GetRandomVector(in, -100, 100);
+  std::vector<int> out(kSizeOfVector, 0);
+  std::vector<int> answer(in);
+  std::ranges::sort(answer);
+
+  // Create task_data
+  auto task_data_seq = std::make_shared<ppc::core::TaskData>();
+  task_data_seq->inputs.emplace_back(reinterpret_cast<uint8_t *>(in.data()));
+  task_data_seq->inputs_count.emplace_back(in.size());
+  task_data_seq->outputs.emplace_back(reinterpret_cast<uint8_t *>(out.data()));
+  task_data_seq->outputs_count.emplace_back(out.size());
+
+  // Create Task
+  volochaev_s_shell_sort_with_batchers_even_odd_merge_omp::ShellSortOMP test_task_sequential(task_data_seq);
+  ASSERT_EQ(test_task_sequential.Validation(), true);
+  test_task_sequential.PreProcessing();
+  test_task_sequential.Run();
+  test_task_sequential.PostProcessing();
+  EXPECT_EQ(answer, out);
+}
+
+TEST(volochaev_s_shell_sort_with_batchers_even_odd_merge_omp, test_with_odd_number_of_elements) {
+  constexpr size_t kSizeOfVector = 101;
+
+  // Create data
+  std::vector<int> in(kSizeOfVector, 0);
+  GetRandomVector(in, -100, 100);
+  std::vector<int> out(kSizeOfVector, 0);
+  std::vector<int> answer(in);
+  std::ranges::sort(answer);
+
+  // Create task_data
+  auto task_data_seq = std::make_shared<ppc::core::TaskData>();
+  task_data_seq->inputs.emplace_back(reinterpret_cast<uint8_t *>(in.data()));
+  task_data_seq->inputs_count.emplace_back(in.size());
+  task_data_seq->outputs.emplace_back(reinterpret_cast<uint8_t *>(out.data()));
+  task_data_seq->outputs_count.emplace_back(out.size());
+
+  // Create Task
+  volochaev_s_shell_sort_with_batchers_even_odd_merge_omp::ShellSortOMP test_task_sequential(task_data_seq);
+  ASSERT_EQ(test_task_sequential.Validation(), true);
+  test_task_sequential.PreProcessing();
+  test_task_sequential.Run();
+  test_task_sequential.PostProcessing();
+  EXPECT_EQ(answer, out);
+}
+
+TEST(volochaev_s_shell_sort_with_batchers_even_odd_merge_omp, test_with_odd_number_of_elements1) {
+  constexpr size_t kSizeOfVector = 99;
+
+  // Create data
+  std::vector<int> in(kSizeOfVector, 0);
+  GetRandomVector(in, -100, 100);
+  std::vector<int> out(kSizeOfVector, 0);
+  std::vector<int> answer(in);
+  std::ranges::sort(answer);
+
+  // Create task_data
+  auto task_data_seq = std::make_shared<ppc::core::TaskData>();
+  task_data_seq->inputs.emplace_back(reinterpret_cast<uint8_t *>(in.data()));
+  task_data_seq->inputs_count.emplace_back(in.size());
+  task_data_seq->outputs.emplace_back(reinterpret_cast<uint8_t *>(out.data()));
+  task_data_seq->outputs_count.emplace_back(out.size());
+
+  // Create Task
+  volochaev_s_shell_sort_with_batchers_even_odd_merge_omp::ShellSortOMP test_task_sequential(task_data_seq);
+  ASSERT_EQ(test_task_sequential.Validation(), true);
+  test_task_sequential.PreProcessing();
+  test_task_sequential.Run();
+  test_task_sequential.PostProcessing();
+  EXPECT_EQ(answer, out);
+}
+
+TEST(volochaev_s_shell_sort_with_batchers_even_odd_merge_omp, test_with_odd_number_of_elements2) {
+  constexpr size_t kSizeOfVector = 201;
+
+  // Create data
+  std::vector<int> in(kSizeOfVector, 0);
+  GetRandomVector(in, -100, 100);
+  std::vector<int> out(kSizeOfVector, 0);
+  std::vector<int> answer(in);
+  std::ranges::sort(answer);
+
+  // Create task_data
+  auto task_data_seq = std::make_shared<ppc::core::TaskData>();
+  task_data_seq->inputs.emplace_back(reinterpret_cast<uint8_t *>(in.data()));
+  task_data_seq->inputs_count.emplace_back(in.size());
+  task_data_seq->outputs.emplace_back(reinterpret_cast<uint8_t *>(out.data()));
+  task_data_seq->outputs_count.emplace_back(out.size());
+
+  // Create Task
+  volochaev_s_shell_sort_with_batchers_even_odd_merge_omp::ShellSortOMP test_task_sequential(task_data_seq);
+  ASSERT_EQ(test_task_sequential.Validation(), true);
+  test_task_sequential.PreProcessing();
+  test_task_sequential.Run();
+  test_task_sequential.PostProcessing();
+  EXPECT_EQ(answer, out);
+}
+
+TEST(volochaev_s_shell_sort_with_batchers_even_odd_merge_omp, test_with_odd_number_of_elements3) {
+  constexpr size_t kSizeOfVector = 199;
+
+  // Create data
+  std::vector<int> in(kSizeOfVector, 0);
+  GetRandomVector(in, -100, 100);
+  std::vector<int> out(kSizeOfVector, 0);
+  std::vector<int> answer(in);
+  std::ranges::sort(answer);
+
+  // Create task_data
+  auto task_data_seq = std::make_shared<ppc::core::TaskData>();
+  task_data_seq->inputs.emplace_back(reinterpret_cast<uint8_t *>(in.data()));
+  task_data_seq->inputs_count.emplace_back(in.size());
+  task_data_seq->outputs.emplace_back(reinterpret_cast<uint8_t *>(out.data()));
+  task_data_seq->outputs_count.emplace_back(out.size());
+
+  // Create Task
+  volochaev_s_shell_sort_with_batchers_even_odd_merge_omp::ShellSortOMP test_task_sequential(task_data_seq);
+  ASSERT_EQ(test_task_sequential.Validation(), true);
+  test_task_sequential.PreProcessing();
+  test_task_sequential.Run();
+  test_task_sequential.PostProcessing();
+  EXPECT_EQ(answer, out);
+}
+
+TEST(volochaev_s_shell_sort_with_batchers_even_odd_merge_omp, test_with_odd_number_of_elements4) {
+  constexpr size_t kSizeOfVector = 301;
+
+  // Create data
+  std::vector<int> in(kSizeOfVector, 0);
+  GetRandomVector(in, -100, 100);
+  std::vector<int> out(kSizeOfVector, 0);
+  std::vector<int> answer(in);
+  std::ranges::sort(answer);
+
+  // Create task_data
+  auto task_data_seq = std::make_shared<ppc::core::TaskData>();
+  task_data_seq->inputs.emplace_back(reinterpret_cast<uint8_t *>(in.data()));
+  task_data_seq->inputs_count.emplace_back(in.size());
+  task_data_seq->outputs.emplace_back(reinterpret_cast<uint8_t *>(out.data()));
+  task_data_seq->outputs_count.emplace_back(out.size());
+
+  // Create Task
+  volochaev_s_shell_sort_with_batchers_even_odd_merge_omp::ShellSortOMP test_task_sequential(task_data_seq);
+  ASSERT_EQ(test_task_sequential.Validation(), true);
+  test_task_sequential.PreProcessing();
+  test_task_sequential.Run();
+  test_task_sequential.PostProcessing();
+  EXPECT_EQ(answer, out);
+}
+
+TEST(volochaev_s_shell_sort_with_batchers_even_odd_merge_omp, test_with_odd_number_of_elements5) {
+  constexpr size_t kSizeOfVector = 299;
+
+  // Create data
+  std::vector<int> in(kSizeOfVector, 0);
+  GetRandomVector(in, -100, 100);
+  std::vector<int> out(kSizeOfVector, 0);
+  std::vector<int> answer(in);
+  std::ranges::sort(answer);
+
+  // Create task_data
+  auto task_data_seq = std::make_shared<ppc::core::TaskData>();
+  task_data_seq->inputs.emplace_back(reinterpret_cast<uint8_t *>(in.data()));
+  task_data_seq->inputs_count.emplace_back(in.size());
+  task_data_seq->outputs.emplace_back(reinterpret_cast<uint8_t *>(out.data()));
+  task_data_seq->outputs_count.emplace_back(out.size());
+
+  // Create Task
+  volochaev_s_shell_sort_with_batchers_even_odd_merge_omp::ShellSortOMP test_task_sequential(task_data_seq);
+  ASSERT_EQ(test_task_sequential.Validation(), true);
+  test_task_sequential.PreProcessing();
+  test_task_sequential.Run();
+  test_task_sequential.PostProcessing();
+  EXPECT_EQ(answer, out);
+}
+
+TEST(volochaev_s_shell_sort_with_batchers_even_odd_merge_omp, test_with_odd_number_of_elements6) {
+  constexpr size_t kSizeOfVector = 401;
+
+  // Create data
+  std::vector<int> in(kSizeOfVector, 0);
+  GetRandomVector(in, -100, 100);
+  std::vector<int> out(kSizeOfVector, 0);
+  std::vector<int> answer(in);
+  std::ranges::sort(answer);
+
+  // Create task_data
+  auto task_data_seq = std::make_shared<ppc::core::TaskData>();
+  task_data_seq->inputs.emplace_back(reinterpret_cast<uint8_t *>(in.data()));
+  task_data_seq->inputs_count.emplace_back(in.size());
+  task_data_seq->outputs.emplace_back(reinterpret_cast<uint8_t *>(out.data()));
+  task_data_seq->outputs_count.emplace_back(out.size());
+
+  // Create Task
+  volochaev_s_shell_sort_with_batchers_even_odd_merge_omp::ShellSortOMP test_task_sequential(task_data_seq);
+  ASSERT_EQ(test_task_sequential.Validation(), true);
+  test_task_sequential.PreProcessing();
+  test_task_sequential.Run();
+  test_task_sequential.PostProcessing();
+  EXPECT_EQ(answer, out);
+}
+
+TEST(volochaev_s_shell_sort_with_batchers_even_odd_merge_omp, test_with_odd_number_of_elements7) {
+  constexpr size_t kSizeOfVector = 399;
+
+  // Create data
+  std::vector<int> in(kSizeOfVector, 0);
+  GetRandomVector(in, -100, 100);
+  std::vector<int> out(kSizeOfVector, 0);
+  std::vector<int> answer(in);
+  std::ranges::sort(answer);
+
+  // Create task_data
+  auto task_data_seq = std::make_shared<ppc::core::TaskData>();
+  task_data_seq->inputs.emplace_back(reinterpret_cast<uint8_t *>(in.data()));
+  task_data_seq->inputs_count.emplace_back(in.size());
+  task_data_seq->outputs.emplace_back(reinterpret_cast<uint8_t *>(out.data()));
+  task_data_seq->outputs_count.emplace_back(out.size());
+
+  // Create Task
+  volochaev_s_shell_sort_with_batchers_even_odd_merge_omp::ShellSortOMP test_task_sequential(task_data_seq);
+  ASSERT_EQ(test_task_sequential.Validation(), true);
+  test_task_sequential.PreProcessing();
+  test_task_sequential.Run();
+  test_task_sequential.PostProcessing();
+  EXPECT_EQ(answer, out);
+}
+
+TEST(volochaev_s_shell_sort_with_batchers_even_odd_merge_omp, test_with_reverse) {
+  constexpr size_t kSizeOfVector = 399;
+
+  // Create data
+  std::vector<int> in(kSizeOfVector, 0);
+  GetRandomVector(in, -100, 100);
+  std::vector<int> out(kSizeOfVector, 0);
+  std::vector<int> answer(in);
+  std::ranges::sort(answer);
+  std::ranges::sort(in);
+  std::ranges::reverse(in);
+
+  // Create task_data
+  auto task_data_seq = std::make_shared<ppc::core::TaskData>();
+  task_data_seq->inputs.emplace_back(reinterpret_cast<uint8_t *>(in.data()));
+  task_data_seq->inputs_count.emplace_back(in.size());
+  task_data_seq->outputs.emplace_back(reinterpret_cast<uint8_t *>(out.data()));
+  task_data_seq->outputs_count.emplace_back(out.size());
+
+  // Create Task
+  volochaev_s_shell_sort_with_batchers_even_odd_merge_omp::ShellSortOMP test_task_sequential(task_data_seq);
+  ASSERT_EQ(test_task_sequential.Validation(), true);
+  test_task_sequential.PreProcessing();
+  test_task_sequential.Run();
+  test_task_sequential.PostProcessing();
+  EXPECT_EQ(answer, out);
 }

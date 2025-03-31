@@ -1,35 +1,31 @@
 #include <gtest/gtest.h>
 
 #include <chrono>
-#include <cstddef>
 #include <cstdint>
 #include <memory>
 #include <vector>
 
 #include "core/perf/include/perf.hpp"
 #include "core/task/include/task.hpp"
-#include "omp/example/include/ops_omp.hpp"
+#include "omp/volochaev_s_Shell_sort_with_Batchers_even-odd_merge/include/ops_omp.hpp"
 
-TEST(nesterov_a_test_task_omp, test_pipeline_run) {
-  constexpr int kCount = 300;
+TEST(volochaev_s_Shell_sort_with_Batchers_even_odd_merge_omp, test_pipeline_run) {
+  constexpr int kSizeOfVector = 50000;
 
   // Create data
-  std::vector<int> in(kCount * kCount, 0);
-  std::vector<int> out(kCount * kCount, 0);
-
-  for (size_t i = 0; i < kCount; i++) {
-    in[(i * kCount) + i] = 1;
-  }
+  std::vector<int> in(kSizeOfVector, 1);
+  std::vector<int> out(kSizeOfVector, 1);
 
   // Create task_data
-  auto task_data_omp = std::make_shared<ppc::core::TaskData>();
-  task_data_omp->inputs.emplace_back(reinterpret_cast<uint8_t *>(in.data()));
-  task_data_omp->inputs_count.emplace_back(in.size());
-  task_data_omp->outputs.emplace_back(reinterpret_cast<uint8_t *>(out.data()));
-  task_data_omp->outputs_count.emplace_back(out.size());
+  auto task_data_seq = std::make_shared<ppc::core::TaskData>();
+  task_data_seq->inputs.emplace_back(reinterpret_cast<uint8_t *>(in.data()));
+  task_data_seq->inputs_count.emplace_back(in.size());
+  task_data_seq->outputs.emplace_back(reinterpret_cast<uint8_t *>(out.data()));
+  task_data_seq->outputs_count.emplace_back(out.size());
 
   // Create Task
-  auto test_task_omp = std::make_shared<nesterov_a_test_task_omp::TestTaskOpenMP>(task_data_omp);
+  auto test_task_sequential =
+      std::make_shared<volochaev_s_shell_sort_with_batchers_even_odd_merge_omp::ShellSortOMP>(task_data_seq);
 
   // Create Perf attributes
   auto perf_attr = std::make_shared<ppc::core::PerfAttr>();
@@ -45,32 +41,29 @@ TEST(nesterov_a_test_task_omp, test_pipeline_run) {
   auto perf_results = std::make_shared<ppc::core::PerfResults>();
 
   // Create Perf analyzer
-  auto perf_analyzer = std::make_shared<ppc::core::Perf>(test_task_omp);
+  auto perf_analyzer = std::make_shared<ppc::core::Perf>(test_task_sequential);
   perf_analyzer->PipelineRun(perf_attr, perf_results);
   ppc::core::Perf::PrintPerfStatistic(perf_results);
   ASSERT_EQ(in, out);
 }
 
-TEST(nesterov_a_test_task_omp, test_task_run) {
-  constexpr int kCount = 300;
+TEST(volochaev_s_Shell_sort_with_Batchers_even_odd_merge_omp, test_task_run) {
+  constexpr int kSizeOfVector = 50000;
 
   // Create data
-  std::vector<int> in(kCount * kCount, 0);
-  std::vector<int> out(kCount * kCount, 0);
-
-  for (size_t i = 0; i < kCount; i++) {
-    in[(i * kCount) + i] = 1;
-  }
+  std::vector<int> in(kSizeOfVector, 1);
+  std::vector<int> out(kSizeOfVector, 1);
 
   // Create task_data
-  auto task_data_omp = std::make_shared<ppc::core::TaskData>();
-  task_data_omp->inputs.emplace_back(reinterpret_cast<uint8_t *>(in.data()));
-  task_data_omp->inputs_count.emplace_back(in.size());
-  task_data_omp->outputs.emplace_back(reinterpret_cast<uint8_t *>(out.data()));
-  task_data_omp->outputs_count.emplace_back(out.size());
+  auto task_data_seq = std::make_shared<ppc::core::TaskData>();
+  task_data_seq->inputs.emplace_back(reinterpret_cast<uint8_t *>(in.data()));
+  task_data_seq->inputs_count.emplace_back(in.size());
+  task_data_seq->outputs.emplace_back(reinterpret_cast<uint8_t *>(out.data()));
+  task_data_seq->outputs_count.emplace_back(out.size());
 
   // Create Task
-  auto test_task_omp = std::make_shared<nesterov_a_test_task_omp::TestTaskOpenMP>(task_data_omp);
+  auto test_task_sequential =
+      std::make_shared<volochaev_s_shell_sort_with_batchers_even_odd_merge_omp::ShellSortOMP>(task_data_seq);
 
   // Create Perf attributes
   auto perf_attr = std::make_shared<ppc::core::PerfAttr>();
@@ -86,7 +79,7 @@ TEST(nesterov_a_test_task_omp, test_task_run) {
   auto perf_results = std::make_shared<ppc::core::PerfResults>();
 
   // Create Perf analyzer
-  auto perf_analyzer = std::make_shared<ppc::core::Perf>(test_task_omp);
+  auto perf_analyzer = std::make_shared<ppc::core::Perf>(test_task_sequential);
   perf_analyzer->TaskRun(perf_attr, perf_results);
   ppc::core::Perf::PrintPerfStatistic(perf_results);
   ASSERT_EQ(in, out);
