@@ -291,7 +291,7 @@ TEST(morozov_e_lineare_image_filtering_block_gaussian, main_test6) {
   // clang-format on
   EXPECT_EQ(real_res, image_res);
 }
-TEST(morozov_e_lineare_image_filtering_block_gaussian, main_test7) {
+TEST(morozov_e_lineare_image_filtering_block_gaussian, main_test7_) {
   int n = 2;
   int m = 3;
   // clang-format off
