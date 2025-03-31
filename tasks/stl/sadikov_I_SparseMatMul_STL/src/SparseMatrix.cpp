@@ -58,7 +58,7 @@ std::vector<std::pair<int, int>> SparseMatrix::CalculateSeparation(size_t vector
   int n = static_cast<int>(vector_size) % ppc::util::GetPPCNumThreads();
   int count = static_cast<int>(vector_size) / ppc::util::GetPPCNumThreads();
   std::vector<std::pair<int, int>> threads_start_indexes(ppc::util::GetPPCNumThreads());
-  for (size_t i = 0; i < threads_start_indexes.size(); ++i) {
+  for (int i = 0; i < static_cast<int>(threads_start_indexes.size()); ++i) {
     if (i == 0) {
       threads_start_indexes[i] = {0, count};
     } else {
