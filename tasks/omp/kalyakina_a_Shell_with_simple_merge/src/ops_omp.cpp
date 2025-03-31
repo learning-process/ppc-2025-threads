@@ -9,21 +9,21 @@
 #include <vector>
 
 std::vector<unsigned int> kalyakina_a_shell_with_simple_merge_omp::ShellSortOpenMP::CalculationOfGapLengths(
-    const unsigned int &size) {
+    unsigned int size) {
   std::vector<unsigned int> result;
   unsigned int local_res = 1;
   for (unsigned int i = 1; (local_res * 3 <= size) || (local_res == 1); i++) {
     result.push_back(local_res);
     if (i % 2 != 0) {
-      local_res = (unsigned int)((8 * pow(2, i)) - (6 * pow(2, (float)(i + 1) / 2)) + 1);
+      local_res = static_cast<unsigned int>((8 * pow(2, i)) - (6 * pow(2, static_cast<float>(i + 1) / 2)) + 1);
     } else {
-      local_res = (unsigned int)((9 * pow(2, i)) - (9 * pow(2, (float)i / 2)) + 1);
+      local_res = static_cast<unsigned int>((9 * pow(2, i)) - (9 * pow(2, static_cast<float>(i) / 2)) + 1);
     }
   }
   return result;
 }
 
-void kalyakina_a_shell_with_simple_merge_omp::ShellSortOpenMP::ShellSort(unsigned int &left, unsigned int &right) {
+void kalyakina_a_shell_with_simple_merge_omp::ShellSortOpenMP::ShellSort(unsigned int left, unsigned int right) {
   for (unsigned int k = Sedgwick_sequence_.size(); k > 0;) {
     unsigned int gap = Sedgwick_sequence_[--k];
     for (unsigned int i = left; i < left + gap; i++) {
@@ -40,8 +40,8 @@ void kalyakina_a_shell_with_simple_merge_omp::ShellSortOpenMP::ShellSort(unsigne
   }
 }
 
-void kalyakina_a_shell_with_simple_merge_omp::ShellSortOpenMP::SimpleMergeSort(unsigned int &left, unsigned int &middle,
-                                                                               unsigned int &right) {
+void kalyakina_a_shell_with_simple_merge_omp::ShellSortOpenMP::SimpleMergeSort(unsigned int left, unsigned int middle,
+                                                                               unsigned int right) {
   std::vector<int> first_part(middle - left);
   std::copy(output_.begin() + left, output_.begin() + middle, first_part.begin());
   unsigned int l = 0;
@@ -80,8 +80,9 @@ bool kalyakina_a_shell_with_simple_merge_omp::ShellSortOpenMP::ValidationImpl() 
 
 bool kalyakina_a_shell_with_simple_merge_omp::ShellSortOpenMP::RunImpl() {
   std::vector<std::pair<unsigned int, unsigned int>> bounds;
-  unsigned int num =
-      ((unsigned int)omp_get_max_threads() > output_.size()) ? output_.size() : (unsigned int)omp_get_max_threads();
+  unsigned int num = (static_cast<unsigned int>(omp_get_max_threads()) > output_.size())
+                         ? output_.size()
+                         : (unsigned int)omp_get_max_threads();
   unsigned int part = output_.size() / num;
   unsigned int reminder = output_.size() % num;
   unsigned int left = 0;
@@ -92,15 +93,15 @@ bool kalyakina_a_shell_with_simple_merge_omp::ShellSortOpenMP::RunImpl() {
     left = right;
   }
 #pragma omp parallel for schedule(static)
-  for (int i = 0; i < (int)num; i++) {
+  for (int i = 0; i < static_cast<int>(num); i++) {
     ShellSort(bounds[i].first, bounds[i].second);
   }
-  num = std::ceil((double)num / 2);
+  num = std::ceil(static_cast<double>(num) / 2);
   unsigned int step = 1;
   while (step < bounds.size()) {
     step *= 2;
 #pragma omp parallel for schedule(static)
-    for (int i = 0; i < (int)num; i++) {
+    for (int i = 0; i < static_cast<int>(num); i++) {
       unsigned int middle = (step / 2) + (step * i);
       if (middle < bounds.size()) {
         SimpleMergeSort(
@@ -108,14 +109,12 @@ bool kalyakina_a_shell_with_simple_merge_omp::ShellSortOpenMP::RunImpl() {
             bounds[(bounds.size() - 1 < (i + 1) * step - 1) ? bounds.size() - 1 : ((i + 1) * step) - 1].second);
       }
     }
-    num = std::ceil((double)num / 2);
+    num = std::ceil(static_cast<double>(num) / 2);
   }
   return true;
 }
 
 bool kalyakina_a_shell_with_simple_merge_omp::ShellSortOpenMP::PostProcessingImpl() {
-  for (size_t i = 0; i < input_.size(); i++) {
-    reinterpret_cast<int *>(task_data->outputs[0])[i] = output_[i];
-  }
+  std::ranges::copy(output_, reinterpret_cast<int *>(task_data->outputs[0]));
   return true;
 }

@@ -8,9 +8,9 @@
 namespace kalyakina_a_shell_with_simple_merge_omp {
 
 class ShellSortOpenMP : public ppc::core::Task {
-  static std::vector<unsigned int> CalculationOfGapLengths(const unsigned int& size);
-  void ShellSort(unsigned int& left, unsigned int& right);
-  void SimpleMergeSort(unsigned int& left, unsigned int& middle, unsigned int& right);
+  static std::vector<unsigned int> CalculationOfGapLengths(unsigned int size);
+  void ShellSort(unsigned int left, unsigned int right);
+  void SimpleMergeSort(unsigned int left, unsigned int middle, unsigned int right);
 
  public:
   explicit ShellSortOpenMP(ppc::core::TaskDataPtr task_data) : Task(std::move(task_data)) {}
