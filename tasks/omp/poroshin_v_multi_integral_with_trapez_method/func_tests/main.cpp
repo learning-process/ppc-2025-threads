@@ -8,7 +8,6 @@
 #include <vector>
 
 #include "core/task/include/task.hpp"
-#include "core/util/include/util.hpp"
 #include "omp/poroshin_v_multi_integral_with_trapez_method/include/ops_omp.hpp"
 
 namespace {

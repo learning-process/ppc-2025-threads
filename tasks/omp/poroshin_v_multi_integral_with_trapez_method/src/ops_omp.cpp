@@ -4,16 +4,8 @@
 
 #include <cmath>
 #include <cstddef>
-#include <exception>
 #include <functional>
-#include <iostream>
-#include <memory>
-#include <stdexcept>
-#include <string>
-#include <utility>
 #include <vector>
-
-#include "core/task/include/task.hpp"
 
 void poroshin_v_multi_integral_with_trapez_method_omp::TestTaskOpenMP::CountMultiIntegralTrapezMethodOmp() {
   const int dimensions = static_cast<int>(limits_.size());
