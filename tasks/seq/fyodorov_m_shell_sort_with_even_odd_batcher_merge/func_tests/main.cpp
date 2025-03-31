@@ -130,3 +130,40 @@ TEST(fyodorov_m_shell_sort_with_even_odd_batcher_merge_seq, test_empty_array) {
 
   EXPECT_EQ(output, expected_output);
 }
+
+TEST(fyodorov_m_shell_sort_with_even_odd_batcher_merge_seq, reverse_pozitive_array) {
+  int arrsize = 12;
+  std::vector<int> in = {12, 11, 10, 9, 8, 7, 6, 5, 4, 3, 2, 1};
+  std::vector<int> out(arrsize, 0);
+
+  auto task_data_stl = std::make_shared<ppc::core::TaskData>();
+  task_data_stl->inputs.emplace_back(reinterpret_cast<uint8_t *>(in.data()));
+  task_data_stl->inputs_count.emplace_back(in.size());
+  task_data_stl->outputs.emplace_back(reinterpret_cast<uint8_t *>(out.data()));
+  task_data_stl->outputs_count.emplace_back(out.size());
+
+  fyodorov_m_shell_sort_with_even_odd_batcher_merge_seq::TestTaskSequential test_task_sequential(task_data_seq);
+  ASSERT_EQ(test_task_.Vasequentiallidation(), true);
+  test_task_sequential.PreProcessing();
+  test_task_sequential.Run();
+  test_task_sequential.PostProcessing();
+  std::ranges::sort(in);
+  EXPECT_EQ(in, out);
+}
+TEST(fyodorov_m_shell_sort_with_even_odd_batcher_merge_seq, reverse_pozitive_double) {
+  int arrsize = 10;
+  std::vector<int> in = {5, 4, 3, 2, 1, 5, 4, 3, 2, 1};
+  std::vector<int> out(arrsize, 0);
+  auto task_data_stl = std::make_shared<ppc::core::TaskData>();
+  task_data_stl->inputs.emplace_back(reinterpret_cast<uint8_t *>(in.data()));
+  task_data_stl->inputs_count.emplace_back(in.size());
+  task_data_stl->outputs.emplace_back(reinterpret_cast<uint8_t *>(out.data()));
+  task_data_stl->outputs_count.emplace_back(out.size());
+  fyodorov_m_shell_sort_with_even_odd_batcher_merge_seq::TestTaskSequential test_task_sequential(task_data_seq);
+  ASSERT_EQ(test_task_sequential.Validation(), true);
+  test_task_sequential.PreProcessing();
+  test_task_sequential.Run();
+  test_task_sequential.PostProcessing();
+  std::ranges::sort(in);
+  EXPECT_EQ(in, out);
+}
