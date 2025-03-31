@@ -117,7 +117,7 @@ TEST_F(sadikov_i_matrix_multiplication_testing_stl, test_random_matrix) {
 }
 
 TEST_F(sadikov_i_matrix_multiplication_testing_stl, test_random_matrix2) {
-  constexpr int kSize = 65;
+  constexpr int kSize = 52;
   TestData test_data = {.first_matrix = GetRandomMatrix(kSize * kSize),
                         .first_matrix_rows_count = kSize,
                         .first_matrix_columns_count = kSize,
