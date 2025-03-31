@@ -46,7 +46,7 @@ bool korotin_e_crs_multiplication_omp::CrsMultiplicationOMP::ValidationImpl() {
 }
 
 bool korotin_e_crs_multiplication_omp::CrsMultiplicationOMP::RunImpl() {
-  std::vector<unsigned int> tr_i(*std::max_element(B_col_.begin(), B_col_.end()) + 2, 0);
+  std::vector<unsigned int> tr_i(*std::ranges::max_element(B_col_.begin(), B_col_.end()) + 2, 0);
   unsigned int i = 0;
   unsigned int j = 0;
   for (i = 0; i < B_Nz_; i++) {
@@ -73,12 +73,12 @@ bool korotin_e_crs_multiplication_omp::CrsMultiplicationOMP::RunImpl() {
   unsigned int ai = 0;
   unsigned int bt = 0;
   double sum = 0;
-  std::fill(output_rI_.begin(), output_rI_.end(), 0);
+  std::ranges::fill(output_rI_.begin(), output_rI_.end(), 0);
   output_col_.clear();
   output_val_.clear();
   std::vector<std::vector<double>> local_val(omp_get_max_threads());
-  std::vector<std::vector<int>> local_col(omp_get_max_threads());
-  std::vector<int> temp_rI(A_N_, 0);
+  std::vector<std::vector<unsigned int>> local_col(omp_get_max_threads());
+  std::vector<int> temp_r_i(A_N_, 0);
 
 #pragma omp parallel for private(j, sum, ai, bt)
   for (int k = 0; k < static_cast<int>(A_N_ - 1); k++) {
@@ -101,7 +101,7 @@ bool korotin_e_crs_multiplication_omp::CrsMultiplicationOMP::RunImpl() {
       if (sum != 0) {
         local_val[thread_id].push_back(sum);
         local_col[thread_id].push_back(j);
-        temp_rI[k + 1]++;
+        temp_r_i[k + 1]++;
       }
     }
   }
@@ -112,7 +112,7 @@ bool korotin_e_crs_multiplication_omp::CrsMultiplicationOMP::RunImpl() {
   }
 
   for (i = 1; i < A_N_; i++) {
-    output_rI_[i] += output_rI_[i - 1] + temp_rI[i];
+    output_rI_[i] += output_rI_[i - 1] + temp_r_i[i];
   }
   return true;
 }
