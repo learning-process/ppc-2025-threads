@@ -32,7 +32,7 @@ SparseMatrix SparseMatrix::Transpose(const SparseMatrix& matrix) {
     i == 0 ? components.m_elementsSum.emplace_back(intermediate_values[i].size())
            : components.m_elementsSum.emplace_back(intermediate_values[i].size() + components.m_elementsSum[i - 1]);
   }
-  return SparseMatrix(matrix.GetColumnsCount(), matrix.GetRowsCount(), components);
+  return {matrix.GetColumnsCount(), matrix.GetRowsCount(), components};
 }
 double SparseMatrix::CalculateSum(const SparseMatrix& fmatrix, const SparseMatrix& smatrix,
                                   const std::vector<int>& felements_sum, const std::vector<int>& selements_sum,

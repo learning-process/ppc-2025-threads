@@ -15,7 +15,7 @@
 
 namespace {
 
-enum class TestType { kPipline, kTaskRun };
+enum class TestType : char { kPipline, kTaskRun };
 
 std::vector<double> GetRandomMatrix(int size) {
   std::vector<double> data(size);

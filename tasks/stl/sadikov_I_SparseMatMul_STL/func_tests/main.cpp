@@ -36,8 +36,8 @@ struct TestData {
   std::vector<double> multiplication_result;
 };
 
-class sadikov_i_matrix_multiplication_testing_stl
-    : public testing::Test {  // NOLINTNEXTLINE(readability-identifier-naming)
+// NOLINTNEXTLINE(readability-identifier-naming)
+class sadikov_i_matrix_multiplication_testing_stl : public testing::Test {
   static constexpr auto kEpsilon = 0.000001;
 
  protected:
