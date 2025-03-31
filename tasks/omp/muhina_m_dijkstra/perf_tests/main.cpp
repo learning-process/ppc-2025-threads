@@ -13,10 +13,9 @@
 #include "core/task/include/task.hpp"
 #include "omp/muhina_m_dijkstra/include/ops_omp.hpp"
 
-TEST(muhina_m_dijkstra_omp, test_pipeline_run) {
-  constexpr size_t kNumVertices = 6000;
-  size_t start_vertex = 0;
+namespace {
 
+std::vector<std::vector<std::pair<size_t, int>>> GenerateLargeGraph(size_t kNumVertices) {
   std::vector<std::vector<std::pair<size_t, int>>> adj_list(kNumVertices);
   for (size_t i = 0; i < kNumVertices; ++i) {
     for (size_t j = 0; j < kNumVertices; ++j) {
@@ -28,7 +27,9 @@ TEST(muhina_m_dijkstra_omp, test_pipeline_run) {
       }
     }
   }
-
+  return adj_list;
+}
+std::vector<int> ConvertGraphToData(const std::vector<std::vector<std::pair<size_t, int>>>& adj_list) {
   std::vector<int> graph_data;
   for (const auto& vertex_edges : adj_list) {
     for (const auto& edge : vertex_edges) {
@@ -37,6 +38,16 @@ TEST(muhina_m_dijkstra_omp, test_pipeline_run) {
     }
     graph_data.push_back(-1);
   }
+  return graph_data;
+}
+}  // namespace
+
+TEST(muhina_m_dijkstra_omp, test_pipeline_run) {
+  constexpr size_t kNumVertices = 6000;
+  size_t start_vertex = 0;
+
+  auto adj_list = GenerateLargeGraph(kNumVertices);
+  auto graph_data = ConvertGraphToData(adj_list);
 
   std::vector<int> distances(kNumVertices, INT_MAX);
 
@@ -72,27 +83,8 @@ TEST(muhina_m_dijkstra_omp, test_task_run) {
   constexpr size_t kNumVertices = 6000;
   size_t start_vertex = 0;
 
-  std::vector<std::vector<std::pair<size_t, int>>> adj_list(kNumVertices);
-  for (size_t i = 0; i < kNumVertices; ++i) {
-    for (size_t j = 0; j < kNumVertices; ++j) {
-      if (i != j) {
-        if (rand() % 3 == 0) {
-          int weight = (rand() % 10) + 1;
-          adj_list[i].emplace_back(j, weight);
-        }
-      }
-    }
-  }
-
-  std::vector<int> graph_data;
-  for (const auto& vertex_edges : adj_list) {
-    for (const auto& edge : vertex_edges) {
-      graph_data.push_back(static_cast<int>(edge.first));
-      graph_data.push_back(edge.second);
-    }
-    graph_data.push_back(-1);
-  }
-
+  auto adj_list = GenerateLargeGraph(kNumVertices);
+  auto graph_data = ConvertGraphToData(adj_list);
   std::vector<int> distances(kNumVertices, INT_MAX);
 
   auto task_data_omp = std::make_shared<ppc::core::TaskData>();
