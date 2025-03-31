@@ -66,7 +66,7 @@ bool lysov_i_matrix_multiplication_fox_algorithm_omp::TestTaskOpenMP::Validation
 bool lysov_i_matrix_multiplication_fox_algorithm_omp::TestTaskOpenMP::RunImpl() {
   int num_blocks = (n_ + block_size_ - 1) / block_size_;
 #pragma omp parallel
-  for (std::size_t step = 0; step < num_blocks; ++step) {
+  for (int step = 0; step < num_blocks; ++step) {
 #pragma omp for schedule(static) nowait
     for (int i = 0; i < num_blocks; ++i) {
       for (int j = 0; j < num_blocks; ++j) {
