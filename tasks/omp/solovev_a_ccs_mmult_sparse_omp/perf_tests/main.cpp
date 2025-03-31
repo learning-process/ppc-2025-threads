@@ -75,7 +75,7 @@ TEST(solovev_a_ccs_mmult_sparse_omp, test_pipeline_run) {
   }
 }
 
-TEST(solovev_a_ccs_mmult_sparse_seq, test_task_run) {
+TEST(solovev_a_ccs_mmult_sparse_omp, test_task_run) {
   int rows = 2000000;
   int cols = 2000000;
   solovev_a_matrix_omp ::MatrixInCcsSparse m1(rows, cols);
