@@ -27,7 +27,7 @@ bool morozov_e_lineare_image_filtering_block_gaussian_omp::TestTaskOpenMP::RunIm
       {2.0 / 16, 4.0 / 16, 2.0 / 16},
       {1.0 / 16, 2.0 / 16, 1.0 / 16}};
   // clang-format on
-#pragma omp parallel for schedule(static)
+#pragma omp parallel for
   for (int i = 0; i < n_; ++i) {
     for (int j = 0; j < m_; ++j) {
       if (i == 0 || j == 0 || i == n_ - 1 || j == m_ - 1) {

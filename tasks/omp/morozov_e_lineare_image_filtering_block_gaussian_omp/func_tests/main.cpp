@@ -291,6 +291,33 @@ TEST(morozov_e_lineare_image_filtering_block_gaussian, main_test6) {
   // clang-format on
   EXPECT_EQ(real_res, image_res);
 }
+TEST(morozov_e_lineare_image_filtering_block_gaussian, main_test7) {
+  int n = 2;
+  int m = 3;
+  // clang-format off
+  std::vector<double> image = 
+   {1, 6, 7,
+	8, 2, 1};
+  // clang-format on
+  std::vector image_res(n * m, 0.0);
+
+  // Create task_data
+  auto task_data_seq = std::make_shared<ppc::core::TaskData>();
+  task_data_seq->inputs.emplace_back(reinterpret_cast<uint8_t *>(image.data()));
+  task_data_seq->inputs_count.emplace_back(n);
+  task_data_seq->inputs_count.emplace_back(m);
+  task_data_seq->outputs.emplace_back(reinterpret_cast<uint8_t *>(image_res.data()));
+  task_data_seq->outputs_count.emplace_back(n);
+  task_data_seq->outputs_count.emplace_back(m);
+
+  // Create Task
+  morozov_e_lineare_image_filtering_block_gaussian_omp::TestTaskOpenMP test_task_sequential(task_data_seq);
+  ASSERT_EQ(test_task_sequential.Validation(), true);
+  test_task_sequential.PreProcessing();
+  test_task_sequential.Run();
+  test_task_sequential.PostProcessing();
+  EXPECT_EQ(image, image_res);
+}
 TEST(morozov_e_lineare_image_filtering_block_gaussian, random_test1) {
   int n = 3;
   int m = 3;
