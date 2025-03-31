@@ -13,13 +13,12 @@
 #include "core/task/include/task.hpp"
 #include "tbb/muhina_m_dijkstra/include/ops_tbb.hpp"
 
-TEST(muhina_m_dijkstra_tbb, test_pipeline_run) {
-  constexpr size_t kNumVertices = 6000;
-  size_t start_vertex = 0;
+namespace {
 
-  std::vector<std::vector<std::pair<size_t, int>>> adj_list(kNumVertices);
-  for (size_t i = 0; i < kNumVertices; ++i) {
-    for (size_t j = 0; j < kNumVertices; ++j) {
+std::vector<std::vector<std::pair<size_t, int>>> GenerateLargeGraph(size_t k_num_vertices) {
+  std::vector<std::vector<std::pair<size_t, int>>> adj_list(k_num_vertices);
+  for (size_t i = 0; i < k_num_vertices; ++i) {
+    for (size_t j = 0; j < k_num_vertices; ++j) {
       if (i != j) {
         if (rand() % 3 == 0) {
           int weight = (rand() % 10) + 1;
@@ -28,7 +27,9 @@ TEST(muhina_m_dijkstra_tbb, test_pipeline_run) {
       }
     }
   }
-
+  return adj_list;
+}
+std::vector<int> ConvertGraphToData(const std::vector<std::vector<std::pair<size_t, int>>>& adj_list) {
   std::vector<int> graph_data;
   for (const auto& vertex_edges : adj_list) {
     for (const auto& edge : vertex_edges) {
@@ -37,20 +38,30 @@ TEST(muhina_m_dijkstra_tbb, test_pipeline_run) {
     }
     graph_data.push_back(-1);
   }
+  return graph_data;
+}
+}  // namespace
+
+TEST(muhina_m_dijkstra_tbb, test_pipeline_run) {
+  constexpr size_t kNumVertices = 6000;
+  size_t start_vertex = 0;
+
+  auto adj_list = GenerateLargeGraph(kNumVertices);
+  auto graph_data = ConvertGraphToData(adj_list);
 
   std::vector<int> distances(kNumVertices, INT_MAX);
 
-  auto task_data_omp = std::make_shared<ppc::core::TaskData>();
-  task_data_omp->inputs.emplace_back(reinterpret_cast<uint8_t*>(graph_data.data()));
-  task_data_omp->inputs_count.emplace_back(graph_data.size());
+  auto task_data_tbb = std::make_shared<ppc::core::TaskData>();
+  task_data_tbb->inputs.emplace_back(reinterpret_cast<uint8_t*>(graph_data.data()));
+  task_data_tbb->inputs_count.emplace_back(graph_data.size());
 
-  task_data_omp->inputs.emplace_back(reinterpret_cast<uint8_t*>(&start_vertex));
-  task_data_omp->inputs_count.emplace_back(sizeof(start_vertex));
+  task_data_tbb->inputs.emplace_back(reinterpret_cast<uint8_t*>(&start_vertex));
+  task_data_tbb->inputs_count.emplace_back(sizeof(start_vertex));
 
-  task_data_omp->outputs.emplace_back(reinterpret_cast<uint8_t*>(distances.data()));
-  task_data_omp->outputs_count.emplace_back(kNumVertices);
+  task_data_tbb->outputs.emplace_back(reinterpret_cast<uint8_t*>(distances.data()));
+  task_data_tbb->outputs_count.emplace_back(kNumVertices);
 
-  auto test_task_open_mp = std::make_shared<muhina_m_dijkstra_tbb::TestTaskTBB>(task_data_omp);
+  auto test_task_tbb = std::make_shared<muhina_m_dijkstra_tbb::TestTaskTBB>(task_data_tbb);
 
   auto perf_attr = std::make_shared<ppc::core::PerfAttr>();
   perf_attr->num_running = 10;
@@ -63,7 +74,7 @@ TEST(muhina_m_dijkstra_tbb, test_pipeline_run) {
 
   auto perf_results = std::make_shared<ppc::core::PerfResults>();
 
-  auto perf_analyzer = std::make_shared<ppc::core::Perf>(test_task_open_mp);
+  auto perf_analyzer = std::make_shared<ppc::core::Perf>(test_task_tbb);
   perf_analyzer->PipelineRun(perf_attr, perf_results);
   ppc::core::Perf::PrintPerfStatistic(perf_results);
 }
@@ -72,40 +83,22 @@ TEST(muhina_m_dijkstra_tbb, test_task_run) {
   constexpr size_t kNumVertices = 6000;
   size_t start_vertex = 0;
 
-  std::vector<std::vector<std::pair<size_t, int>>> adj_list(kNumVertices);
-  for (size_t i = 0; i < kNumVertices; ++i) {
-    for (size_t j = 0; j < kNumVertices; ++j) {
-      if (i != j) {
-        if (rand() % 3 == 0) {
-          int weight = (rand() % 10) + 1;
-          adj_list[i].emplace_back(j, weight);
-        }
-      }
-    }
-  }
-
-  std::vector<int> graph_data;
-  for (const auto& vertex_edges : adj_list) {
-    for (const auto& edge : vertex_edges) {
-      graph_data.push_back(static_cast<int>(edge.first));
-      graph_data.push_back(edge.second);
-    }
-    graph_data.push_back(-1);
-  }
+  auto adj_list = GenerateLargeGraph(kNumVertices);
+  auto graph_data = ConvertGraphToData(adj_list);
 
   std::vector<int> distances(kNumVertices, INT_MAX);
 
-  auto task_data_omp = std::make_shared<ppc::core::TaskData>();
-  task_data_omp->inputs.emplace_back(reinterpret_cast<uint8_t*>(graph_data.data()));
-  task_data_omp->inputs_count.emplace_back(graph_data.size());
+  auto task_data_tbb = std::make_shared<ppc::core::TaskData>();
+  task_data_tbb->inputs.emplace_back(reinterpret_cast<uint8_t*>(graph_data.data()));
+  task_data_tbb->inputs_count.emplace_back(graph_data.size());
 
-  task_data_omp->inputs.emplace_back(reinterpret_cast<uint8_t*>(&start_vertex));
-  task_data_omp->inputs_count.emplace_back(sizeof(start_vertex));
+  task_data_tbb->inputs.emplace_back(reinterpret_cast<uint8_t*>(&start_vertex));
+  task_data_tbb->inputs_count.emplace_back(sizeof(start_vertex));
 
-  task_data_omp->outputs.emplace_back(reinterpret_cast<uint8_t*>(distances.data()));
-  task_data_omp->outputs_count.emplace_back(kNumVertices);
+  task_data_tbb->outputs.emplace_back(reinterpret_cast<uint8_t*>(distances.data()));
+  task_data_tbb->outputs_count.emplace_back(kNumVertices);
 
-  auto test_task_open_mp = std::make_shared<muhina_m_dijkstra_tbb::TestTaskTBB>(task_data_omp);
+  auto test_task_tbb = std::make_shared<muhina_m_dijkstra_tbb::TestTaskTBB>(task_data_tbb);
 
   auto perf_attr = std::make_shared<ppc::core::PerfAttr>();
   perf_attr->num_running = 10;
@@ -117,7 +110,7 @@ TEST(muhina_m_dijkstra_tbb, test_task_run) {
   };
   auto perf_results = std::make_shared<ppc::core::PerfResults>();
 
-  auto perf_analyzer = std::make_shared<ppc::core::Perf>(test_task_open_mp);
+  auto perf_analyzer = std::make_shared<ppc::core::Perf>(test_task_tbb);
   perf_analyzer->TaskRun(perf_attr, perf_results);
   ppc::core::Perf::PrintPerfStatistic(perf_results);
 }

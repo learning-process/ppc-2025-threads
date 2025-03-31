@@ -77,8 +77,8 @@ bool muhina_m_dijkstra_tbb::TestTaskTBB::PreProcessingImpl() {
 }
 
 bool muhina_m_dijkstra_tbb::TestTaskTBB::ValidationImpl() {
-  return !task_data->inputs_count.empty() && task_data->inputs_count[0] > 0;
-  return !task_data->outputs_count.empty() && task_data->outputs_count[0] > 0;
+  return !task_data->inputs_count.empty() && task_data->inputs_count[0] > 0 && !task_data->outputs_count.empty() &&
+         task_data->outputs_count[0] > 0;
 }
 
 bool muhina_m_dijkstra_tbb::TestTaskTBB::RunImpl() {

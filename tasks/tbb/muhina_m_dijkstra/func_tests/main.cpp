@@ -338,3 +338,42 @@ TEST(muhina_m_dijkstra_tbb, two_connected_components) {
     EXPECT_EQ(distances[i], expected_distances[i]);
   }
 }
+TEST(muhina_m_dijkstra_tbb, test_default_start_vertex) {
+  constexpr size_t kNumVertices = 3;
+  std::vector<std::vector<std::pair<size_t, int>>> adj_list(kNumVertices);
+  adj_list[0].emplace_back(1, 1);
+  adj_list[0].emplace_back(2, 3);
+  adj_list[1].emplace_back(2, 1);
+
+  std::vector<int> graph_data;
+  for (const auto& vertex_edges : adj_list) {
+    for (const auto& edge : vertex_edges) {
+      graph_data.push_back(static_cast<int>(edge.first));
+      graph_data.push_back(edge.second);
+    }
+    graph_data.push_back(-1);
+  }
+
+  std::vector<int> distances(kNumVertices, INT_MAX);
+
+  auto task_data_tbb = std::make_shared<ppc::core::TaskData>();
+  task_data_tbb->inputs.emplace_back(reinterpret_cast<uint8_t*>(graph_data.data()));
+  task_data_tbb->inputs_count.emplace_back(graph_data.size());
+
+  task_data_tbb->inputs.emplace_back(nullptr);
+  task_data_tbb->inputs_count.emplace_back(0);
+
+  task_data_tbb->outputs.emplace_back(reinterpret_cast<uint8_t*>(distances.data()));
+  task_data_tbb->outputs_count.emplace_back(kNumVertices);
+
+  muhina_m_dijkstra_tbb::TestTaskTBB task_task_tbb(task_data_tbb);
+  ASSERT_TRUE(task_task_tbb.Validation());
+  task_task_tbb.PreProcessing();
+  ASSERT_TRUE(task_task_tbb.Run());
+  task_task_tbb.PostProcessing();
+
+  std::vector<int> expected_distances = {0, 1, 2};
+  for (size_t i = 0; i < kNumVertices; ++i) {
+    EXPECT_EQ(distances[i], expected_distances[i]);
+  }
+}
