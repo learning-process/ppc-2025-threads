@@ -1,11 +1,11 @@
 #include "tbb/shuravina_o_hoare_simple_merger_tbb/include/ops_tbb.hpp"
 
+#include <tbb/parallel_invoke.h>
+#include <tbb/task_arena.h>
+
 #include <algorithm>
 #include <cstddef>
 #include <vector>
-#include <tbb/parallel_invoke.h>
-#include <tbb/task_arena.h> 
-
 namespace shuravina_o_hoare_simple_merger_tbb {
 
 void TestTaskTBB::QuickSort(std::vector<int>& arr, int low, int high) {
