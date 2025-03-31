@@ -1,8 +1,18 @@
 #include "tbb/shuravina_o_hoare_simple_merger_tbb/include/ops_tbb.hpp"
 
-#define TBB_PREVIEW_GLOBAL_CONTROL 1
-#include <tbb/parallel_invoke.h>
 #include <tbb/tbb.h>
+
+#if defined(__clang__)
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wunknown-warning-option"
+#pragma clang diagnostic ignored "-Wmisc-include-cleaner"
+#endif
+
+#include <tbb/parallel_invoke.h>
+
+#if defined(__clang__)
+#pragma clang diagnostic pop
+#endif
 
 #include <algorithm>
 #include <cstddef>
