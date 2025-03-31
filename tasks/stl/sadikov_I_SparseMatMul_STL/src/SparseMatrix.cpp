@@ -1,10 +1,8 @@
 #include "stl/sadikov_I_SparseMatMul_STL/include/SparseMatrix.hpp"
 
 #include <algorithm>
-#include <atomic>
 #include <cmath>
 #include <cstddef>
-#include <iostream>
 #include <thread>
 #include <utility>
 #include <vector>
@@ -103,13 +101,13 @@ SparseMatrix SparseMatrix::operator*(SparseMatrix& smatrix) const {
   std::ranges::for_each(threads, [&](auto& thread) { thread.join(); });
   MatrixComponents result;
   result.Resize(sizes.first, sizes.second);
-  std::pair<size_t, size_t> offset;
+  std::pair<int, int> offset;
   for (size_t i = 0; i < threads_data.size(); ++i) {
     std::ranges::copy(threads_data[i].m_values, result.m_values.begin() + offset.first);
     std::ranges::copy(threads_data[i].m_rows, result.m_rows.begin() + offset.first);
     std::ranges::copy(threads_data[i].m_elementsSum, result.m_elementsSum.begin() + offset.second);
-    offset.first += threads_data[i].m_values.size();
-    offset.second += threads_data[i].m_elementsSum.size();
+    offset.first += static_cast<int>(threads_data[i].m_values.size());
+    offset.second += static_cast<int>(threads_data[i].m_elementsSum.size());
   }
   for (size_t i = 1; i < result.m_elementsSum.size(); ++i) {
     result.m_elementsSum[i] = result.m_elementsSum[i] + result.m_elementsSum[i - 1];

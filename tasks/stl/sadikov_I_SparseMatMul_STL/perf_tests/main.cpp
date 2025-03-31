@@ -2,6 +2,7 @@
 
 #include <algorithm>
 #include <chrono>
+#include <cstddef>
 #include <cstdint>
 #include <memory>
 #include <random>
@@ -14,7 +15,7 @@
 
 namespace {
 
-enum class TestType { Pipline, TaskRun };
+enum class TestType { kPipline, kTaskRun };
 
 std::vector<double> GetRandomMatrix(int size) {
   std::vector<double> data(size);
@@ -39,6 +40,7 @@ struct TestData {
   std::vector<double> multiplication_result;
 };
 
+// NOLINTNEXTLINE(readability-identifier-naming)
 class sadikov_i_matrix_multiplication_testing_stl : public testing::Test {
   static constexpr auto kEpsilon = 0.000001;
 
@@ -46,6 +48,7 @@ class sadikov_i_matrix_multiplication_testing_stl : public testing::Test {
   std::shared_ptr<ppc::core::TaskData> m_task_data_stl;
 
  public:
+  // NOLINTNEXTLINE(readability-identifier-naming)
   sadikov_i_matrix_multiplication_testing_stl() { m_task_data_stl = std::make_shared<ppc::core::TaskData>(); }
 
   void FillTaskData(TestData& data) {
@@ -73,10 +76,10 @@ class sadikov_i_matrix_multiplication_testing_stl : public testing::Test {
     auto perf_results = std::make_shared<ppc::core::PerfResults>();
     auto perf_analyzer = std::make_shared<ppc::core::Perf>(test_task_stl);
     switch (type) {
-      case TestType::Pipline:
+      case TestType::kPipline:
         perf_analyzer->PipelineRun(perf_attr, perf_results);
         break;
-      case TestType::TaskRun:
+      case TestType::kTaskRun:
         perf_analyzer->TaskRun(perf_attr, perf_results);
         break;
     }
@@ -100,7 +103,7 @@ TEST_F(sadikov_i_matrix_multiplication_testing_stl, test_pipline_run) {
   std::vector<double> test_out = sadikov_i_sparse_matrix_multiplication_task_stl::BaseMatrixMultiplication(
       test_data.first_matrix, kSize, kSize, test_data.second_matrix, kSize, kSize);
   FillTaskData(test_data);
-  RunTask(test_out, test_data, TestType::Pipline);
+  RunTask(test_out, test_data, TestType::kPipline);
 }
 
 TEST_F(sadikov_i_matrix_multiplication_testing_stl, test_task_run) {
@@ -115,5 +118,5 @@ TEST_F(sadikov_i_matrix_multiplication_testing_stl, test_task_run) {
   std::vector<double> test_out = sadikov_i_sparse_matrix_multiplication_task_stl::BaseMatrixMultiplication(
       test_data.first_matrix, kSize, kSize, test_data.second_matrix, kSize, kSize);
   FillTaskData(test_data);
-  RunTask(test_out, test_data, TestType::TaskRun);
+  RunTask(test_out, test_data, TestType::kTaskRun);
 }

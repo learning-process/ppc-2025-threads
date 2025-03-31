@@ -1,6 +1,7 @@
 #include <gtest/gtest.h>
 
 #include <algorithm>
+#include <cstddef>
 #include <cstdint>
 #include <memory>
 #include <random>
@@ -35,13 +36,15 @@ struct TestData {
   std::vector<double> multiplication_result;
 };
 
-class sadikov_i_matrix_multiplication_testing_stl : public testing::Test {
+class sadikov_i_matrix_multiplication_testing_stl
+    : public testing::Test {  // NOLINTNEXTLINE(readability-identifier-naming)
   static constexpr auto kEpsilon = 0.000001;
 
  protected:
   std::shared_ptr<ppc::core::TaskData> m_task_data_stl;
 
  public:
+  // NOLINTNEXTLINE(readability-identifier-naming)
   sadikov_i_matrix_multiplication_testing_stl() { m_task_data_stl = std::make_shared<ppc::core::TaskData>(); }
 
   void FillTaskData(TestData& data) {
