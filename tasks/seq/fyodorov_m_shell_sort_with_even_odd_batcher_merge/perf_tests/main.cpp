@@ -17,7 +17,7 @@
 TEST(fyodorov_m_shell_sort_with_even_odd_batcher_merge_seq, test_pipeline_run) {
   constexpr int kCount = 520000;
 
-  auto GetRandomVector = [](int sz, int a, int b) -> std::vector<int> {
+  auto get_random_vector = [](int sz, int a, int b) -> std::vector<int> {
     std::random_device dev;
     std::mt19937 gen(dev());
     std::uniform_int_distribution<> dis(a, b);
@@ -27,6 +27,9 @@ TEST(fyodorov_m_shell_sort_with_even_odd_batcher_merge_seq, test_pipeline_run) {
     }
     return vec;
   };
+
+  std::vector<int> input = get_random_vector(kCount, 0, 999);
+  std::vector<int> output(kCount, 0);
 
   auto task_data_seq = std::make_shared<ppc::core::TaskData>();
   task_data_seq->inputs.emplace_back(reinterpret_cast<uint8_t *>(input.data()));
@@ -52,15 +55,15 @@ TEST(fyodorov_m_shell_sort_with_even_odd_batcher_merge_seq, test_pipeline_run) {
   perf_analyzer->PipelineRun(perf_attr, perf_results);
 
   ppc::core::Perf::PrintPerfStatistic(perf_results);
+
   std::vector<int> expected_output = input;
-  std::ranges::sort(input);
+  std::ranges::sort(expected_output);
   ASSERT_EQ(output, expected_output);
 }
-
 TEST(fyodorov_m_shell_sort_with_even_odd_batcher_merge_seq, test_task_run) {
   constexpr int kCount = 520000;
 
-  auto GetRandomVector = [](int sz, int a, int b) -> std::vector<int> {
+  auto get_random_vector = [](int sz, int a, int b) -> std::vector<int> {
     std::random_device dev;
     std::mt19937 gen(dev());
     std::uniform_int_distribution<> dis(a, b);
@@ -71,7 +74,7 @@ TEST(fyodorov_m_shell_sort_with_even_odd_batcher_merge_seq, test_task_run) {
     return vec;
   };
 
-  std::vector<int> input = GetRandomVector(kCount, 0, 999);
+  std::vector<int> input = get_random_vector(kCount, 0, 999);
   std::vector<int> output(kCount, 0);
 
   auto task_data_seq = std::make_shared<ppc::core::TaskData>();
