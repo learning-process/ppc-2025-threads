@@ -168,7 +168,7 @@ TEST(Konstantinov_I_Sort_Batcher_omp, test_random_100_values) {
 }
 
 TEST(Konstantinov_I_Sort_Batcher_omp, test_random_10000_values) {
-  constexpr size_t kCount = 10000;
+  constexpr size_t kCount = 11887;
   std::vector<double> in(kCount);
   std::vector<double> out(kCount);
   std::random_device rd;
