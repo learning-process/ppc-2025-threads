@@ -34,52 +34,31 @@ bool titov_s_image_filter_horiz_gaussian3x3_tbb::ImageFilterTBB::ValidationImpl(
   return task_data->inputs_count[0] == task_data->outputs_count[0];
 }
 
-namespace {
-void ProcessPixel(int row, int col, int width, const std::vector<double> &input, std::vector<double> &output, double k0,
-                  double k1, double k2, double inv_sum) {
-  const double left = (col > 0) ? input[(row * width) + (col - 1)] : 0.0;
-  const double center = input[(row * width) + col];
-  const double right = (col < width - 1) ? input[(row * width) + (col + 1)] : 0.0;
-
-  output[(row * width) + col] = ((left * k0) + (center * k1) + (right * k2)) * inv_sum;
-}
-}  // namespace
-
 bool titov_s_image_filter_horiz_gaussian3x3_tbb::ImageFilterTBB::RunImpl() {
   const auto k0 = static_cast<double>(kernel_[0]);
   const auto k1 = static_cast<double>(kernel_[1]);
   const auto k2 = static_cast<double>(kernel_[2]);
-  const double sum = (k0 + k1) + k2;
+  const double inv_sum = 1.0 / (k0 + k1 + k2);
 
-  const double inv_sum = 1.0 / sum;
+  const int threads_num = ppc::util::GetPPCNumThreads();
+  const int min_block_size = 512;
+  const int total_rows = height_;
+  const int base_chunk = std::max(min_block_size, total_rows / threads_num);
 
-  oneapi::tbb::task_arena arena(ppc::util::GetPPCNumThreads());
-
+  oneapi::tbb::task_arena arena(threads_num);
   arena.execute([&] {
-    tbb::task_group tg;
-    const int threads_num = ppc::util::GetPPCNumThreads();
-    const int total_rows = height_;
-    const int base_chunk = total_rows / threads_num;
-    const int remainder = total_rows % threads_num;
-
-    int start = 0;
-    for (int i = 0; i < threads_num; ++i) {
-      const int end = start + base_chunk + (i < remainder ? 1 : 0);
-      if (start >= end) {
-        continue;
-      }
-
-      tg.run([=, &input = input_, &output = output_, this] {
-        for (int row = start; row < end; ++row) {
-          for (int col = 0; col < width_; ++col) {
-            ProcessPixel(row, col, width_, input, output, k0, k1, k2, inv_sum);
-          }
+    tbb::parallel_for(tbb::blocked_range<int>(0, height_, base_chunk), [&](const tbb::blocked_range<int> &range) {
+      for (int row = range.begin(); row < range.end(); ++row) {
+        for (int col = 0; col < width_; ++col) {
+          const double left = (col > 0) ? input_[row * width_ + col - 1] : 0.0;
+          const double center = input_[row * width_ + col];
+          const double right = (col < width_ - 1) ? input_[row * width_ + col + 1] : 0.0;
+          output_[row * width_ + col] = (left * k0 + center * k1 + right * k2) * inv_sum;
         }
-      });
-      start = end;
-    }
-    tg.wait();
+      }
+    });
   });
+
   return true;
 }
 
