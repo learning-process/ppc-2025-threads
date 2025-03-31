@@ -10,7 +10,7 @@
 #include "omp/korotin_e_crs_multiplication/include/ops_omp.hpp"
 
 TEST(korotin_e_crs_multiplication_omp, test_pipeline_run) {
-  const unsigned int n = 500;
+  const unsigned int n = 900;
 
   std::vector<double> a_val(n * n, 1);
   std::vector<double> b_val(n * n, 1);
@@ -82,7 +82,7 @@ TEST(korotin_e_crs_multiplication_omp, test_pipeline_run) {
 }
 
 TEST(korotin_e_crs_multiplication_omp, test_task_run) {
-  const unsigned int n = 500;
+  const unsigned int n = 900;
 
   std::vector<double> a_val(n * n, 1);
   std::vector<double> b_val(n * n, 1);
