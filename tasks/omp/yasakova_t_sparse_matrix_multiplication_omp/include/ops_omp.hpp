@@ -20,7 +20,9 @@ struct MatrixStructure {
 };
 
 inline MatrixStructure MatrixMultiply(MatrixStructure& mat_a, MatrixStructure& mat_b) {
-  MatrixStructure result{.num_rows = mat_a.num_rows, .num_cols = mat_b.num_cols, .elements = std::vector<std::complex<double>>(mat_a.num_rows * mat_b.num_cols)};
+  MatrixStructure result{.num_rows = mat_a.num_rows,
+                         .num_cols = mat_b.num_cols,
+                         .elements = std::vector<std::complex<double>>(mat_a.num_rows * mat_b.num_cols)};
   for (uint32_t i = 0; i < mat_a.num_rows; i++) {
     for (uint32_t j = 0; j < mat_b.num_cols; j++) {
       result.AccessElement(i, j) = 0;
@@ -45,7 +47,8 @@ struct SparseMatrixFormat {
   [[nodiscard]] uint32_t ColumnCount() const { return columns; }
 
   bool operator==(const SparseMatrixFormat& other) const noexcept {
-    return columns == other.columns && row_pointers == other.row_pointers && column_indices == other.column_indices && elements == other.elements;
+    return columns == other.columns && row_pointers == other.row_pointers && column_indices == other.column_indices &&\
+           elements == other.elements;
   }
 };
 
@@ -72,8 +75,8 @@ inline SparseMatrixFormat ConvertToCRS(const MatrixStructure& matrix) {
 
 inline MatrixStructure ConvertFromCRS(const SparseMatrixFormat& crs) {
   MatrixStructure matrix{.num_rows = crs.RowCount(),
-                .num_cols = crs.ColumnCount(),
-                .elements = std::vector<std::complex<double>>(crs.RowCount() * crs.ColumnCount())};
+                         .num_cols = crs.ColumnCount(),
+                         .elements = std::vector<std::complex<double>>(crs.RowCount() * crs.ColumnCount())};
   for (uint32_t row = 0; row < matrix.num_rows; ++row) {
     for (uint32_t i = crs.row_pointers[row]; i < crs.row_pointers[row + 1]; ++i) {
       matrix.AccessElement(row, crs.column_indices[i]) = crs.elements[i];
