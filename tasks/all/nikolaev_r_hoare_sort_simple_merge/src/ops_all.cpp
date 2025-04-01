@@ -105,7 +105,7 @@ bool nikolaev_r_hoare_sort_simple_merge_all::HoareSortSimpleMergeALL::RunImpl() 
 
     for (int i = 0; i < static_cast<int>(gathered.size()); ++i) {
       if (!gathered[i].empty()) {
-        min_heap.emplace(std::make_tuple(gathered[i][0], i, 0));
+        min_heap.emplace(gathered[i][0], i, 0);
       }
     }
 
@@ -114,7 +114,7 @@ bool nikolaev_r_hoare_sort_simple_merge_all::HoareSortSimpleMergeALL::RunImpl() 
       min_heap.pop();
       global_sorted.push_back(value);
       if (elem_index + 1 < gathered[list_index].size()) {
-        min_heap.emplace(std::make_tuple(gathered[list_index][elem_index + 1], list_index, elem_index + 1));
+        min_heap.emplace(gathered[list_index][elem_index + 1], list_index, elem_index + 1);
       }
     }
     vect_ = std::move(global_sorted);
