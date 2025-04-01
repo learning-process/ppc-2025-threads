@@ -44,7 +44,7 @@ bool nikolaev_r_hoare_sort_simple_merge_all::HoareSortSimpleMergeALL::RunImpl() 
   size_t remainder = total_size % comm_size;
   size_t local_count = base_chunk;
   if (static_cast<size_t>(rank) < remainder) {
-    local_count++;  
+    local_count++;
   }
 
   std::vector<double> local_vect(local_count);
