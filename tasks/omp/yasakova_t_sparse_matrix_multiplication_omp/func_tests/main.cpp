@@ -65,26 +65,14 @@ TEST(yasakova_t_sparse_matrix_multiplication_omp, MultiplySquareMatrices) {
                                                   8139,  17186, 11140, 6086, 5930, 3732,  8944}};
 }
 TEST(yasakova_t_sparse_matrix_multiplication_omp, MultiplyRectangularMatrices) {
-  MatrixStructure matrix_left{ .num_rows=5, .num_cols=4, .task_data={
-    43, 46, 21, 21,
-    39, 26, 82, 65,
-    97, 47, 32, 16,
-    76, 43, 78, 50,
-    18, 14, 84, 22
-  }};
-  MatrixStructure matrix_right{ .num_rows=4, .num_cols=5, .task_data={
-    43, 46, 21, 21, 87,
-    39, 26, 82, 65, 62,
-    97, 47, 32, 16, 61,
-    76, 43, 78, 50, 63
-  }};
-  MatrixStructure ref{ .num_rows=5, .num_cols=5, .task_data={
-    7276, 5064, 6985, 5279, 9197,
-    15585, 9119, 10645, 7071, 14102,
-    10324, 7876, 8163, 6404, 14313,
-    16311, 10430, 11518, 8139, 17186,
-    11140, 6086, 5930, 3732, 8944
-  }};
+  MatrixStructure matrix_left{.num_rows = 5, .num_cols = 4, .task_data = {43, 46, 21, 21, 39, 26, 82, 65, 97, 47,
+                                                                          32, 16, 76, 43, 78, 50, 18, 14, 84, 22}};
+  MatrixStructure matrix_right{.num_rows = 4, .num_cols = 5, .task_data = {43, 46, 21, 21, 87, 39, 26, 82, 65, 62,
+                                                                           97, 47, 32, 16, 61, 76, 43, 78, 50, 63}};
+  MatrixStructure ref{
+      .num_rows = 5, .num_cols = 5, .task_data = {7276,  5064,  6985,  5279, 9197, 15585, 9119,  10645, 7071,
+                                                  14102, 10324, 7876,  8163, 6404, 14313, 16311, 10430, 11518,
+                                                  8139,  17186, 11140, 6086, 5930, 3732,  8944}};
   EXPECT_EQ(MatrixMultiply(matrix_left, matrix_right), ref);
 }
 
