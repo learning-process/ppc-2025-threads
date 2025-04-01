@@ -48,6 +48,27 @@ void TrivialMultiply(const std::vector<double> &a, const std::vector<double> &b,
     }
   }
 }
+
+void TestMultiply(std::vector<double> &a, std::vector<double> &b, std::vector<double> &out,
+                  std::vector<double> &expected, size_t size = 0) {
+  // Create task_data
+  auto task_data_omp = std::make_shared<ppc::core::TaskData>();
+  task_data_omp->inputs.emplace_back(reinterpret_cast<uint8_t *>(a.data()));
+  task_data_omp->inputs.emplace_back(reinterpret_cast<uint8_t *>(b.data()));
+  task_data_omp->inputs_count.emplace_back(a.size());
+  task_data_omp->outputs.emplace_back(reinterpret_cast<uint8_t *>(out.data()));
+  task_data_omp->outputs_count.emplace_back(out.size());
+
+  // Create Task
+  gnitienko_k_strassen_algorithm_omp::StrassenAlgOpenMP test_task_omp(task_data_omp);
+  ASSERT_EQ(test_task_omp.Validation(), true);
+  test_task_omp.PreProcessing();
+  test_task_omp.Run();
+  test_task_omp.PostProcessing();
+  for (size_t i = 0; i < size * size; i++) {
+    EXPECT_NEAR(expected[i], out[i], 1e-2);
+  }
+}
 }  // namespace
 
 TEST(gnitienko_k_strassen_alg_omp, test_2x2_matrix) {
@@ -59,23 +80,7 @@ TEST(gnitienko_k_strassen_alg_omp, test_2x2_matrix) {
   TrivialMultiply(a, b, expected, size);
   std::vector<double> out(4);
 
-  // Create task_data
-  auto task_data_omp = std::make_shared<ppc::core::TaskData>();
-  task_data_omp->inputs.emplace_back(reinterpret_cast<uint8_t *>(a.data()));
-  task_data_omp->inputs.emplace_back(reinterpret_cast<uint8_t *>(b.data()));
-  task_data_omp->inputs_count.emplace_back(a.size());
-  task_data_omp->outputs.emplace_back(reinterpret_cast<uint8_t *>(out.data()));
-  task_data_omp->outputs_count.emplace_back(out.size());
-
-  // Create Task
-  gnitienko_k_strassen_algorithm_omp::StrassenAlgOpenMP test_task_omp(task_data_omp);
-  ASSERT_EQ(test_task_omp.Validation(), true);
-  test_task_omp.PreProcessing();
-  test_task_omp.Run();
-  test_task_omp.PostProcessing();
-  for (size_t i = 0; i < size * size; i++) {
-    EXPECT_NEAR(expected[i], out[i], 1e-2);
-  }
+  TestMultiply(a, b, out, expected, size);
 }
 
 TEST(gnitienko_k_strassen_alg_omp, test_4x4_matrix) {
@@ -87,23 +92,7 @@ TEST(gnitienko_k_strassen_alg_omp, test_4x4_matrix) {
   TrivialMultiply(a, b, expected, size);
   std::vector<double> out(16);
 
-  // Create task_data
-  auto task_data_omp = std::make_shared<ppc::core::TaskData>();
-  task_data_omp->inputs.emplace_back(reinterpret_cast<uint8_t *>(a.data()));
-  task_data_omp->inputs.emplace_back(reinterpret_cast<uint8_t *>(b.data()));
-  task_data_omp->inputs_count.emplace_back(a.size());
-  task_data_omp->outputs.emplace_back(reinterpret_cast<uint8_t *>(out.data()));
-  task_data_omp->outputs_count.emplace_back(out.size());
-
-  // Create Task
-  gnitienko_k_strassen_algorithm_omp::StrassenAlgOpenMP test_task_omp(task_data_omp);
-  ASSERT_EQ(test_task_omp.Validation(), true);
-  test_task_omp.PreProcessing();
-  test_task_omp.Run();
-  test_task_omp.PostProcessing();
-  for (size_t i = 0; i < size * size; i++) {
-    EXPECT_NEAR(expected[i], out[i], 1e-2);
-  }
+  TestMultiply(a, b, out, expected, size);
 }
 
 TEST(gnitienko_k_strassen_alg_omp, test_random_16x16) {
@@ -115,23 +104,7 @@ TEST(gnitienko_k_strassen_alg_omp, test_random_16x16) {
   TrivialMultiply(a, b, expected, size);
   std::vector<double> out(size * size);
 
-  // Create task_data
-  auto task_data_omp = std::make_shared<ppc::core::TaskData>();
-  task_data_omp->inputs.emplace_back(reinterpret_cast<uint8_t *>(a.data()));
-  task_data_omp->inputs.emplace_back(reinterpret_cast<uint8_t *>(b.data()));
-  task_data_omp->inputs_count.emplace_back(a.size());
-  task_data_omp->outputs.emplace_back(reinterpret_cast<uint8_t *>(out.data()));
-  task_data_omp->outputs_count.emplace_back(out.size());
-
-  // Create Task
-  gnitienko_k_strassen_algorithm_omp::StrassenAlgOpenMP test_task_omp(task_data_omp);
-  ASSERT_EQ(test_task_omp.Validation(), true);
-  test_task_omp.PreProcessing();
-  test_task_omp.Run();
-  test_task_omp.PostProcessing();
-  for (size_t i = 0; i < size * size; i++) {
-    EXPECT_NEAR(expected[i], out[i], 1e-3);
-  }
+  TestMultiply(a, b, out, expected, size);
 }
 
 TEST(gnitienko_k_strassen_alg_omp, test_random_64x64) {
@@ -143,23 +116,7 @@ TEST(gnitienko_k_strassen_alg_omp, test_random_64x64) {
   TrivialMultiply(a, b, expected, size);
   std::vector<double> out(size * size);
 
-  // Create task_data
-  auto task_data_omp = std::make_shared<ppc::core::TaskData>();
-  task_data_omp->inputs.emplace_back(reinterpret_cast<uint8_t *>(a.data()));
-  task_data_omp->inputs.emplace_back(reinterpret_cast<uint8_t *>(b.data()));
-  task_data_omp->inputs_count.emplace_back(a.size());
-  task_data_omp->outputs.emplace_back(reinterpret_cast<uint8_t *>(out.data()));
-  task_data_omp->outputs_count.emplace_back(out.size());
-
-  // Create Task
-  gnitienko_k_strassen_algorithm_omp::StrassenAlgOpenMP test_task_omp(task_data_omp);
-  ASSERT_EQ(test_task_omp.Validation(), true);
-  test_task_omp.PreProcessing();
-  test_task_omp.Run();
-  test_task_omp.PostProcessing();
-  for (size_t i = 0; i < size * size; i++) {
-    EXPECT_NEAR(expected[i], out[i], 1e-3);
-  }
+  TestMultiply(a, b, out, expected, size);
 }
 
 TEST(gnitienko_k_strassen_alg_omp, test_non_squad_7x7) {
@@ -171,23 +128,7 @@ TEST(gnitienko_k_strassen_alg_omp, test_non_squad_7x7) {
   TrivialMultiply(a, b, expected, size);
   std::vector<double> out(size * size);
 
-  // Create task_data
-  auto task_data_omp = std::make_shared<ppc::core::TaskData>();
-  task_data_omp->inputs.emplace_back(reinterpret_cast<uint8_t *>(a.data()));
-  task_data_omp->inputs.emplace_back(reinterpret_cast<uint8_t *>(b.data()));
-  task_data_omp->inputs_count.emplace_back(a.size());
-  task_data_omp->outputs.emplace_back(reinterpret_cast<uint8_t *>(out.data()));
-  task_data_omp->outputs_count.emplace_back(out.size());
-
-  // Create Task
-  gnitienko_k_strassen_algorithm_omp::StrassenAlgOpenMP test_task_omp(task_data_omp);
-  ASSERT_EQ(test_task_omp.Validation(), true);
-  test_task_omp.PreProcessing();
-  test_task_omp.Run();
-  test_task_omp.PostProcessing();
-  for (size_t i = 0; i < size * size; i++) {
-    EXPECT_NEAR(expected[i], out[i], 1e-3);
-  }
+  TestMultiply(a, b, out, expected, size);
 }
 
 TEST(gnitienko_k_strassen_alg_omp, test_empty) {
@@ -197,21 +138,7 @@ TEST(gnitienko_k_strassen_alg_omp, test_empty) {
   std::vector<double> expected = {};
   std::vector<double> out = {};
 
-  // Create task_data
-  auto task_data_omp = std::make_shared<ppc::core::TaskData>();
-  task_data_omp->inputs.emplace_back(reinterpret_cast<uint8_t *>(a.data()));
-  task_data_omp->inputs.emplace_back(reinterpret_cast<uint8_t *>(b.data()));
-  task_data_omp->inputs_count.emplace_back(a.size());
-  task_data_omp->outputs.emplace_back(reinterpret_cast<uint8_t *>(out.data()));
-  task_data_omp->outputs_count.emplace_back(out.size());
-
-  // Create Task
-  gnitienko_k_strassen_algorithm_omp::StrassenAlgOpenMP test_task_omp(task_data_omp);
-  ASSERT_EQ(test_task_omp.Validation(), true);
-  test_task_omp.PreProcessing();
-  test_task_omp.Run();
-  test_task_omp.PostProcessing();
-  EXPECT_EQ(expected, out);
+  TestMultiply(a, b, out, expected);
 }
 
 TEST(gnitienko_k_strassen_alg_omp, test_single_element) {
@@ -221,21 +148,7 @@ TEST(gnitienko_k_strassen_alg_omp, test_single_element) {
   std::vector<double> expected = {10};
   std::vector<double> out = {0};
 
-  // Create task_data
-  auto task_data_omp = std::make_shared<ppc::core::TaskData>();
-  task_data_omp->inputs.emplace_back(reinterpret_cast<uint8_t *>(a.data()));
-  task_data_omp->inputs.emplace_back(reinterpret_cast<uint8_t *>(b.data()));
-  task_data_omp->inputs_count.emplace_back(a.size());
-  task_data_omp->outputs.emplace_back(reinterpret_cast<uint8_t *>(out.data()));
-  task_data_omp->outputs_count.emplace_back(out.size());
-
-  // Create Task
-  gnitienko_k_strassen_algorithm_omp::StrassenAlgOpenMP test_task_omp(task_data_omp);
-  ASSERT_EQ(test_task_omp.Validation(), true);
-  test_task_omp.PreProcessing();
-  test_task_omp.Run();
-  test_task_omp.PostProcessing();
-  EXPECT_EQ(expected, out);
+  TestMultiply(a, b, out, expected, 1);
 }
 
 TEST(gnitienko_k_strassen_alg_omp, test_IxA) {
@@ -246,23 +159,7 @@ TEST(gnitienko_k_strassen_alg_omp, test_IxA) {
   std::vector<double> expected = {2.4, 3.5, -4.1, 13.3, 5.4, 3.2, 4.5, 0.7, 1.9};
   std::vector<double> out(size * size);
 
-  // Create task_data
-  auto task_data_omp = std::make_shared<ppc::core::TaskData>();
-  task_data_omp->inputs.emplace_back(reinterpret_cast<uint8_t *>(a.data()));
-  task_data_omp->inputs.emplace_back(reinterpret_cast<uint8_t *>(b.data()));
-  task_data_omp->inputs_count.emplace_back(a.size());
-  task_data_omp->outputs.emplace_back(reinterpret_cast<uint8_t *>(out.data()));
-  task_data_omp->outputs_count.emplace_back(out.size());
-
-  // Create Task
-  gnitienko_k_strassen_algorithm_omp::StrassenAlgOpenMP test_task_omp(task_data_omp);
-  ASSERT_EQ(test_task_omp.Validation(), true);
-  test_task_omp.PreProcessing();
-  test_task_omp.Run();
-  test_task_omp.PostProcessing();
-  for (size_t i = 0; i < size * size; i++) {
-    EXPECT_NEAR(expected[i], out[i], 1e-3);
-  }
+  TestMultiply(a, b, out, expected, size);
 }
 
 TEST(gnitienko_k_strassen_alg_omp, test_IxA_large) {
@@ -273,21 +170,5 @@ TEST(gnitienko_k_strassen_alg_omp, test_IxA_large) {
   std::vector<double> expected(a);
   std::vector<double> out(size * size);
 
-  // Create task_data
-  auto task_data_omp = std::make_shared<ppc::core::TaskData>();
-  task_data_omp->inputs.emplace_back(reinterpret_cast<uint8_t *>(a.data()));
-  task_data_omp->inputs.emplace_back(reinterpret_cast<uint8_t *>(b.data()));
-  task_data_omp->inputs_count.emplace_back(a.size());
-  task_data_omp->outputs.emplace_back(reinterpret_cast<uint8_t *>(out.data()));
-  task_data_omp->outputs_count.emplace_back(out.size());
-
-  // Create Task
-  gnitienko_k_strassen_algorithm_omp::StrassenAlgOpenMP test_task_omp(task_data_omp);
-  ASSERT_EQ(test_task_omp.Validation(), true);
-  test_task_omp.PreProcessing();
-  test_task_omp.Run();
-  test_task_omp.PostProcessing();
-  for (size_t i = 0; i < size * size; i++) {
-    EXPECT_NEAR(expected[i], out[i], 1e-3);
-  }
+  TestMultiply(a, b, out, expected, size);
 }
