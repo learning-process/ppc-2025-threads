@@ -2,13 +2,13 @@
 
 #include <tbb/tbb.h>
 
+#include <algorithm>
 #include <cmath>
 #include <core/util/include/util.hpp>
 #include <cstddef>
-#include <algorithm>
 #include <vector>
 
-#include "oneapi/tbb/parallel_for.h" 
+#include "oneapi/tbb/parallel_for.h"
 #include "oneapi/tbb/task_arena.h"
 
 bool titov_s_image_filter_horiz_gaussian3x3_tbb::ImageFilterTBB::PreProcessingImpl() {
