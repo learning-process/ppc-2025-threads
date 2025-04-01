@@ -14,8 +14,6 @@
 #include <utility>
 #include <vector>
 
-#include "core/task/include/task.hpp"
-
 namespace shurigin_s_integrals_square_TBB {
 
 Integral::Integral(std::shared_ptr<ppc::core::TaskData> task_data)
