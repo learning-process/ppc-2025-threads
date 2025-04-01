@@ -80,7 +80,7 @@ bool opolin_d_radix_batcher_sort_omp::RadixBatcherSortTaskOpenMP::RunImpl() {
     std::vector<int> sorted_local;
     sorted_local.insert(sorted_local.end(), negatives.begin(), negatives.end());
     sorted_local.insert(sorted_local.end(), positives.begin(), positives.end());
-    std::copy(sorted_local.begin(), sorted_local.end(), temp.begin() + start);
+    std::copy(sorted_local.begin(), sorted_local.end(), input_.begin() + start);
   }
   while (starts.size() > 1) {
     std::vector<int> new_starts;
@@ -92,7 +92,7 @@ bool opolin_d_radix_batcher_sort_omp::RadixBatcherSortTaskOpenMP::RunImpl() {
       int start = starts[idx];
       int mid = ends[idx];
       int end = ends[idx + 1];
-      OddEvenMergeBlocks(input_, start, mid, end);
+      BatcherOddEvenMerge(input_, start, mid, end);
 #pragma omp critical
       {
         new_starts.push_back(start);
@@ -106,7 +106,7 @@ bool opolin_d_radix_batcher_sort_omp::RadixBatcherSortTaskOpenMP::RunImpl() {
     starts = new_starts;
     ends = new_ends;
   }
-  output_ = result;
+  output_ = input_;
   return true;
 }
 
