@@ -66,7 +66,7 @@ bool SparseMatmulTask::RunImpl() {
         rows.push_back(pair.first);
       }
     }
-    std::sort(rows.begin(), rows.end());  // Сортируем строки
+    std::sort(rows.begin(), rows.end());
 
     for (int row : rows) {
       C_values.push_back(column_map[col][row]);

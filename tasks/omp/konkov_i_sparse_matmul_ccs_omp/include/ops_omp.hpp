@@ -4,6 +4,7 @@
 #include <iostream>
 #include <unordered_map>
 #include <vector>
+#include <algorithm>
 
 #include "core/task/include/task.hpp"
 
