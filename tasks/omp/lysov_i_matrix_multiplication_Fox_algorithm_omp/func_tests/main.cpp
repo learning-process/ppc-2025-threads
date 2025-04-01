@@ -11,11 +11,11 @@
 #include "omp/lysov_i_matrix_multiplication_Fox_algorithm_omp/include/ops_omp.hpp"
 
 namespace lysov_i_matrix_multiplication_fox_algorithm_omp {
-std::vector<double> GetRandomMatrix(size_t size) {
+std::vector<double> GetRandomMatrix(size_t size, int min_gen_value, int max_gen_value) {
   std::vector<double> matrix(size * size);
   std::random_device rd;
   std::mt19937 gen(rd());
-  std::uniform_real_distribution<double> dist(1e-3, 1e3);
+  std::uniform_real_distribution<double> dist(min_gen_value, max_gen_value);
 
   for (size_t i = 0; i < size; ++i) {
     for (size_t j = 0; j < size; ++j) {
@@ -92,8 +92,12 @@ TEST(lysov_i_matrix_multiplication_fox_algorithm_omp, Test_Matrix_Multiplication
 TEST(lysov_i_matrix_multiplication_fox_algorithm_omp, Test_matrix_7x7) {
   size_t n = 7;
   size_t block_size = 3;
-  std::vector<double> a = lysov_i_matrix_multiplication_fox_algorithm_omp::GetRandomMatrix(n);
-  std::vector<double> b = lysov_i_matrix_multiplication_fox_algorithm_omp::GetRandomMatrix(n);
+  int min_gen_value = -1e3;
+  int max_gen_value = 1e3;
+  std::vector<double> a =
+      lysov_i_matrix_multiplication_fox_algorithm_omp::GetRandomMatrix(n, min_gen_value, max_gen_value);
+  std::vector<double> b =
+      lysov_i_matrix_multiplication_fox_algorithm_omp::GetRandomMatrix(n, min_gen_value, max_gen_value);
   std::vector<double> c(n * n, 0);
   std::vector<double> c_expected(n * n, 0);
   lysov_i_matrix_multiplication_fox_algorithm_omp::TrivialMatrixMultiplication(a, b, c_expected, n);
@@ -120,8 +124,12 @@ TEST(lysov_i_matrix_multiplication_fox_algorithm_omp, Test_matrix_7x7) {
 TEST(lysov_i_matrix_multiplication_fox_algorithm_omp, Test_matrix_16x16) {
   size_t n = 16;
   size_t block_size = 4;
-  std::vector<double> a = lysov_i_matrix_multiplication_fox_algorithm_omp::GetRandomMatrix(n);
-  std::vector<double> b = lysov_i_matrix_multiplication_fox_algorithm_omp::GetRandomMatrix(n);
+  int min_gen_value = -1e3;
+  int max_gen_value = 1e3;
+  std::vector<double> a =
+      lysov_i_matrix_multiplication_fox_algorithm_omp::GetRandomMatrix(n, min_gen_value, max_gen_value);
+  std::vector<double> b =
+      lysov_i_matrix_multiplication_fox_algorithm_omp::GetRandomMatrix(n, min_gen_value, max_gen_value);
   std::vector<double> c(n * n, 0);
   std::vector<double> c_expected(n * n, 0);
   lysov_i_matrix_multiplication_fox_algorithm_omp::TrivialMatrixMultiplication(a, b, c_expected, n);
@@ -148,8 +156,12 @@ TEST(lysov_i_matrix_multiplication_fox_algorithm_omp, Test_matrix_16x16) {
 TEST(lysov_i_matrix_multiplication_fox_algorithm_omp, Test_matrix_11x11) {
   size_t n = 11;
   size_t block_size = 10;
-  std::vector<double> a = lysov_i_matrix_multiplication_fox_algorithm_omp::GetRandomMatrix(n);
-  std::vector<double> b = lysov_i_matrix_multiplication_fox_algorithm_omp::GetRandomMatrix(n);
+  int min_gen_value = -1e3;
+  int max_gen_value = 1e3;
+  std::vector<double> a =
+      lysov_i_matrix_multiplication_fox_algorithm_omp::GetRandomMatrix(n, min_gen_value, max_gen_value);
+  std::vector<double> b =
+      lysov_i_matrix_multiplication_fox_algorithm_omp::GetRandomMatrix(n, min_gen_value, max_gen_value);
   std::vector<double> c(n * n, 0);
   std::vector<double> c_expected(n * n, 0);
   lysov_i_matrix_multiplication_fox_algorithm_omp::TrivialMatrixMultiplication(a, b, c_expected, n);
