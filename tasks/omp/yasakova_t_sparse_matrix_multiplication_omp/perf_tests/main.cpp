@@ -13,12 +13,11 @@
 #include "omp/yasakova_t_sparse_matrix_multiplication_omp/include/ops_omp.hpp"
 
 namespace {
-MatrixStructure RandMatrix(uint32_t num_rows, uint32_t num_cols, double percentage) {
+Matrix RandMatrix(uint32_t rows, uint32_t cols, double percentage) {
   std::mt19937 gen(std::random_device{}());
   std::uniform_real_distribution<double> distr(-10000, 10000);
-  MatrixStructure result{
-      .num_rows = num_rows, .num_cols = num_cols, .elements = std::vector<std::complex<double>>(num_rows * num_cols)};
-  std::ranges::generate(result.elements, [&]() {
+  Matrix res{.rows = rows, .cols = cols, .data = std::vector<std::complex<double>>(rows * cols)};
+  std::ranges::generate(res.data, [&]() {
     const auto el = distr(gen);
     const auto re = (el < (distr.min() + ((distr.max() - distr.min()) * percentage))) ? el : 0;
 
@@ -30,25 +29,25 @@ MatrixStructure RandMatrix(uint32_t num_rows, uint32_t num_cols, double percenta
 
     return cmplx;
   });
-  return result;
+  return res;
 }
 }  // namespace
 
 TEST(yasakova_t_sparse_matrix_multiplication_omp, test_pipeline_run) {
-  auto left_matrix = RandMatrix(730, 730, 0.22);
-  auto right_matrix = RandMatrix(730, 730, 0.22);
+  auto lhs = RandMatrix(730, 730, 0.22);
+  auto rhs = RandMatrix(730, 730, 0.22);
 
-  SparseMatrixCRS crs_lhs = ConvertToCRS(left_matrix);
-  SparseMatrixCRS crs_rhs = ConvertToCRS(right_matrix);
-  SparseMatrixCRS crs_out;
+  MatrixCRS crs_lhs = RegularToCRS(lhs);
+  MatrixCRS crs_rhs = RegularToCRS(rhs);
+  MatrixCRS crs_out;
 
-  auto elements = std::make_shared<ppc::core::TaskData>();
-  elements->inputs = {reinterpret_cast<uint8_t *>(&crs_lhs), reinterpret_cast<uint8_t *>(&crs_rhs)};
-  elements->inputs_count = {left_matrix.num_rows, left_matrix.num_cols, right_matrix.num_rows, right_matrix.num_cols};
-  elements->outputs = {reinterpret_cast<uint8_t *>(&crs_out)};
-  elements->outputs_count = {1};
+  auto data = std::make_shared<ppc::core::TaskData>();
+  data->inputs = {reinterpret_cast<uint8_t *>(&crs_lhs), reinterpret_cast<uint8_t *>(&crs_rhs)};
+  data->inputs_count = {lhs.rows, lhs.cols, rhs.rows, rhs.cols};
+  data->outputs = {reinterpret_cast<uint8_t *>(&crs_out)};
+  data->outputs_count = {1};
 
-  auto task = std::make_shared<yasakova_t_sparse_matrix_multiplication_omp::MatrixMultiplicationTask>(elements);
+  auto task = std::make_shared<yasakova_t_sparse_matrix_multiplication_omp::TestTaskOpenMP>(data);
 
   // Create Perf attributes
   auto perf_attr = std::make_shared<ppc::core::PerfAttr>();
@@ -67,23 +66,25 @@ TEST(yasakova_t_sparse_matrix_multiplication_omp, test_pipeline_run) {
   auto perf_analyzer = std::make_shared<ppc::core::Perf>(task);
   perf_analyzer->PipelineRun(perf_attr, perf_results);
   ppc::core::Perf::PrintPerfStatistic(perf_results);
+
+  EXPECT_EQ(CRSToRegular(crs_out), MultiplyMat(lhs, rhs));
 }
 
 TEST(yasakova_t_sparse_matrix_multiplication_omp, test_task_run) {
-  auto left_matrix = RandMatrix(730, 730, 0.22);
-  auto right_matrix = RandMatrix(730, 730, 0.22);
+  auto lhs = RandMatrix(730, 730, 0.22);
+  auto rhs = RandMatrix(730, 730, 0.22);
 
-  SparseMatrixCRS crs_lhs = ConvertToCRS(left_matrix);
-  SparseMatrixCRS crs_rhs = ConvertToCRS(right_matrix);
-  SparseMatrixCRS crs_out;
+  MatrixCRS crs_lhs = RegularToCRS(lhs);
+  MatrixCRS crs_rhs = RegularToCRS(rhs);
+  MatrixCRS crs_out;
 
-  auto elements = std::make_shared<ppc::core::TaskData>();
-  elements->inputs = {reinterpret_cast<uint8_t *>(&crs_lhs), reinterpret_cast<uint8_t *>(&crs_rhs)};
-  elements->inputs_count = {left_matrix.num_rows, left_matrix.num_cols, right_matrix.num_rows, right_matrix.num_cols};
-  elements->outputs = {reinterpret_cast<uint8_t *>(&crs_out)};
-  elements->outputs_count = {1};
+  auto data = std::make_shared<ppc::core::TaskData>();
+  data->inputs = {reinterpret_cast<uint8_t *>(&crs_lhs), reinterpret_cast<uint8_t *>(&crs_rhs)};
+  data->inputs_count = {lhs.rows, lhs.cols, rhs.rows, rhs.cols};
+  data->outputs = {reinterpret_cast<uint8_t *>(&crs_out)};
+  data->outputs_count = {1};
 
-  auto task = std::make_shared<yasakova_t_sparse_matrix_multiplication_omp::MatrixMultiplicationTask>(elements);
+  auto task = std::make_shared<yasakova_t_sparse_matrix_multiplication_omp::TestTaskOpenMP>(data);
 
   // Create Perf attributes
   auto perf_attr = std::make_shared<ppc::core::PerfAttr>();
@@ -102,4 +103,6 @@ TEST(yasakova_t_sparse_matrix_multiplication_omp, test_task_run) {
   auto perf_analyzer = std::make_shared<ppc::core::Perf>(task);
   perf_analyzer->TaskRun(perf_attr, perf_results);
   ppc::core::Perf::PrintPerfStatistic(perf_results);
+
+  EXPECT_EQ(CRSToRegular(crs_out), MultiplyMat(lhs, rhs));
 }
