@@ -4,98 +4,113 @@
 #include <cstdint>
 #include <utility>
 #include <vector>
-
 #include "core/task/include/task.hpp"
 
-struct MatrixStructure {
-  uint32_t num_rows;
-  uint32_t num_cols;
-  std::vector<std::complex<double>> elements;
+// Объявления структур сначала
+struct Matrix;
+struct MatrixCRS;
 
-  std::complex<double>& AccessElement(uint32_t row, uint32_t col) { return elements[(row * num_cols) + col]; }
+// Затем объявления функций работы с матрицами
+Matrix MultiplyMat(Matrix& lhs, Matrix& rhs);
+MatrixCRS RegularToCRS(const Matrix& matrix);
+Matrix CRSToRegular(const MatrixCRS& crs);
 
-  bool operator==(const MatrixStructure& other) const noexcept {
-    return num_rows == other.num_rows && num_cols == other.num_cols && elements == other.elements;
+// Реализация структур
+struct Matrix {
+  uint32_t rows;
+  uint32_t cols;
+  std::vector<std::complex<double>> data;
+
+  std::complex<double>& Get(uint32_t row, uint32_t col) { 
+    return data[(row * cols) + col]; 
+  }
+
+  bool operator==(const Matrix& other) const noexcept {
+    return rows == other.rows && cols == other.cols && data == other.data;
   }
 };
 
-inline MatrixStructure MultiplyMatrices(MatrixStructure& left_matrix, MatrixStructure& right_matrix) {
-  MatrixStructure result{.num_rows = left_matrix.num_rows, .num_cols = right_matrix.num_cols, .elements = std::vector<std::complex<double>>(left_matrix.num_rows * right_matrix.num_cols)};
-  for (uint32_t row_idx = 0; row_idx < left_matrix.num_rows; row_idx++) {
-    for (uint32_t col_idx = 0; col_idx < right_matrix.num_cols; col_idx++) {
-      result.AccessElement(row_idx, col_idx) = 0;
-      for (uint32_t k_idx = 0; k_idx < right_matrix.num_rows; k_idx++) {
-        result.AccessElement(row_idx, col_idx) += left_matrix.AccessElement(row_idx, k_idx) * right_matrix.AccessElement(k_idx, col_idx);
+struct MatrixCRS {
+  std::vector<std::complex<double>> data;
+  uint32_t cols_count;
+  std::vector<uint32_t> rowptr;
+  std::vector<uint32_t> colind;
+
+  [[nodiscard]] uint32_t GetRows() const { return rowptr.size() - 1; }
+  [[nodiscard]] uint32_t GetCols() const { return cols_count; }
+
+  bool operator==(const MatrixCRS& other) const noexcept {
+    return cols_count == other.cols_count && rowptr == other.rowptr && 
+           colind == other.colind && data == other.data;
+  }
+};
+
+// Реализация функций после структур
+inline Matrix MultiplyMat(Matrix& lhs, Matrix& rhs) {
+  Matrix res{.rows = lhs.rows, .cols = rhs.cols, 
+            .data = std::vector<std::complex<double>>(lhs.rows * rhs.cols)};
+  
+  for (uint32_t i = 0; i < lhs.rows; i++) {
+    for (uint32_t j = 0; j < rhs.cols; j++) {
+      res.Get(i, j) = 0;
+      for (uint32_t k = 0; k < rhs.rows; k++) {
+        res.Get(i, j) += lhs.Get(i, k) * rhs.Get(k, j);
       }
     }
+  }
+  return res;
+}
+
+inline MatrixCRS RegularToCRS(const Matrix& matrix) {
+  MatrixCRS result;
+  result.rowptr.resize(matrix.rows + 1);
+  result.cols_count = matrix.cols;
+
+  uint32_t i = 0;
+  for (uint32_t row = 0; row < matrix.rows; ++row) {
+    uint32_t nz = 0;
+    for (uint32_t col = 0; col < matrix.cols; ++col) {
+      if (const auto& element = matrix.data[i++]; element != 0.0) {
+        ++nz;
+        result.colind.push_back(col);
+        result.data.push_back(element);
+      }
+    }
+    result.rowptr[row + 1] = result.rowptr[row] + nz;
   }
   return result;
 }
 
-struct SparseMatrixCRS {
-  std::vector<std::complex<double>> elements;
-
-  uint32_t total_columns;
-  std::vector<uint32_t> row_pointers;
-  std::vector<uint32_t> column_indices;
-
-  //
-
-  [[nodiscard]] uint32_t GetRowCount() const { return row_pointers.size() - 1; }
-  [[nodiscard]] uint32_t GetColumnCount() const { return total_columns; }
-
-  bool operator==(const SparseMatrixCRS& other) const noexcept {
-    return total_columns == other.total_columns && row_pointers == other.row_pointers && column_indices == other.column_indices && elements == other.elements;
-  }
-};
-
-inline SparseMatrixCRS ConvertToCRS(const MatrixStructure& matrix) {
-  SparseMatrixCRS result;
-  result.row_pointers.resize(matrix.num_rows + 1);
-  result.total_columns = matrix.num_cols;
-
-  uint32_t row_idx = 0;
-  for (uint32_t row = 0; row < matrix.num_rows; ++row) {
-    uint32_t non_zero_count = 0;
-    for (uint32_t col = 0; col < matrix.num_cols; ++col) {
-      if (const auto& element = matrix.elements[row_idx++]; element != 0.0) {
-        ++non_zero_count;
-        result.column_indices.push_back(col);
-        result.elements.push_back(element);
-      }
-    }
-    result.row_pointers[row + 1] = result.row_pointers[row] + non_zero_count;
-  }
-
-  return result;
-}
-
-inline MatrixStructure ConvertFromCRS(const SparseMatrixCRS& crs) {
-  MatrixStructure matrix{.num_rows = crs.GetRowCount(),
-                .num_cols = crs.GetColumnCount(),
-                .elements = std::vector<std::complex<double>>(crs.GetRowCount() * crs.GetColumnCount())};
-  for (uint32_t row = 0; row < matrix.num_rows; ++row) {
-    for (uint32_t row_idx = crs.row_pointers[row]; row_idx < crs.row_pointers[row + 1]; ++row_idx) {
-      matrix.AccessElement(row, crs.column_indices[row_idx]) = crs.elements[row_idx];
+inline Matrix CRSToRegular(const MatrixCRS& crs) {
+  Matrix matrix{.rows = crs.GetRows(),
+               .cols = crs.GetCols(),
+               .data = std::vector<std::complex<double>>(crs.GetRows() * crs.GetCols())};
+  
+  for (uint32_t row = 0; row < matrix.rows; ++row) {
+    for (uint32_t i = crs.rowptr[row]; i < crs.rowptr[row + 1]; ++i) {
+      matrix.Get(row, crs.colind[i]) = crs.data[i];
     }
   }
   return matrix;
 }
 
+// Класс задачи в конце
 namespace yasakova_t_sparse_matrix_multiplication_omp {
 
 class MatrixMultiplicationTask : public ppc::core::Task {
  public:
-  explicit MatrixMultiplicationTask(ppc::core::TaskDataPtr task_data) : Task(std::move(task_data)) {}
+  explicit MatrixMultiplicationTask(ppc::core::TaskDataPtr task_data) 
+      : Task(std::move(task_data)) {}
+  
   bool Validate() override;
   bool PreProcessingImpl() override;
   bool RunImpl() override;
   bool PostProcessingImpl() override;
 
  private:
-  SparseMatrixCRS left_matrix_;
-  SparseMatrixCRS rhs_;
-  SparseMatrixCRS res_;
+  MatrixCRS lhs_;
+  MatrixCRS rhs_;
+  MatrixCRS res_;
 };
 
 }  // namespace yasakova_t_sparse_matrix_multiplication_omp
