@@ -15,9 +15,9 @@ class ShellSortOMP : public ppc::core::Task {
   bool PostProcessingImpl() override;
 
  private:
-  int threadnum_;
-  int threadid_;
-  int dimsize_;
+  int thread_num_;
+  int thread_id_;
+  int dim_size_;
   void InitializeParallelSections();
   void MergeBlocks(std::vector<int>& pData, int Index1, int BlockSize1, int Index2, int BlockSize2);
   void ShellSort(std::vector<int>& arr, int start, int finish);
