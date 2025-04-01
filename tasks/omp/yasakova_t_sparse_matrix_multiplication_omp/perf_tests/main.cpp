@@ -20,7 +20,8 @@ MatrixStructure GenerateRandomMatrix(uint32_t num_rows, uint32_t num_cols, doubl
       .num_rows = num_rows, .num_cols = num_cols, .task_data = std::vector<std::complex<double>>(num_rows * num_cols)};
   std::ranges::generate(result.task_data, [&]() {
     const auto value = distribution(rng);
-    const auto real_component = (value < (distribution.min() + ((distribution.max() - distribution.min()) * non_zero_percentage))) ? value : 0;
+    const auto real_component =
+        (value < (distribution.min() + ((distribution.max() - distribution.min()) * non_zero_percentage))) ? value : 0;
 
     std::complex<double> complex_number;
     complex_number.real(real_component);
@@ -43,7 +44,8 @@ TEST(yasakova_t_sparse_matrix_multiplication_omp, test_pipeline_run) {
   SparseMatrixFormat compressed_row_result;
 
   auto task_data = std::make_shared<ppc::core::TaskData>();
-  task_data->inputs = {reinterpret_cast<uint8_t *>(&compressed_row_left), reinterpret_cast<uint8_t *>(&compressed_row_right)};
+  task_data->inputs = {reinterpret_cast<uint8_t *>(&compressed_row_left),
+                       reinterpret_cast<uint8_t *>(&compressed_row_right)};
   task_data->inputs_count = {matrix_left.num_rows, matrix_left.num_cols, matrix_right.num_rows, matrix_right.num_cols};
   task_data->outputs = {reinterpret_cast<uint8_t *>(&compressed_row_result)};
   task_data->outputs_count = {1};
@@ -80,7 +82,8 @@ TEST(yasakova_t_sparse_matrix_multiplication_omp, test_task_run) {
   SparseMatrixFormat compressed_row_result;
 
   auto task_data = std::make_shared<ppc::core::TaskData>();
-  task_data->inputs = {reinterpret_cast<uint8_t *>(&compressed_row_left), reinterpret_cast<uint8_t *>(&compressed_row_right)};
+  task_data->inputs = {reinterpret_cast<uint8_t *>(&compressed_row_left),
+                       reinterpret_cast<uint8_t *>(&compressed_row_right)};
   task_data->inputs_count = {matrix_left.num_rows, matrix_left.num_cols, matrix_right.num_rows, matrix_right.num_cols};
   task_data->outputs = {reinterpret_cast<uint8_t *>(&compressed_row_result)};
   task_data->outputs_count = {1};

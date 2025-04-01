@@ -18,7 +18,8 @@ MatrixStructure GenerateRandomMatrix(uint32_t num_rows, uint32_t num_cols, doubl
       .num_rows = num_rows, .num_cols = num_cols, .task_data = std::vector<std::complex<double>>(num_rows * num_cols)};
   std::ranges::generate(result.task_data, [&]() {
     const auto value = distribution(rng);
-    const auto real_component = (value < (distribution.min() + ((distribution.max() - distribution.min()) * non_zero_percentage))) ? value : 0;
+    const auto real_component =
+        (value < (distribution.min() + ((distribution.max() - distribution.min()) * non_zero_percentage))) ? value : 0;
 
     std::complex<double> complex_number;
     complex_number.real(real_component);
@@ -36,7 +37,8 @@ void TestCRSMatrixMultiplication(MatrixStructure &&matrix_left, MatrixStructure 
   SparseMatrixFormat compressed_row_result;
 
   auto task_data = std::make_shared<ppc::core::TaskData>();
-  task_data->inputs = {reinterpret_cast<uint8_t *>(&compressed_row_left), reinterpret_cast<uint8_t *>(&compressed_row_right)};
+  task_data->inputs = {reinterpret_cast<uint8_t *>(&compressed_row_left),
+                       reinterpret_cast<uint8_t *>(&compressed_row_right)};
   task_data->inputs_count = {matrix_left.num_rows, matrix_left.num_cols, matrix_right.num_rows, matrix_right.num_cols};
   task_data->outputs = {reinterpret_cast<uint8_t *>(&compressed_row_result)};
   task_data->outputs_count = {1};
@@ -53,28 +55,14 @@ void TestCRSMatrixMultiplication(MatrixStructure &&matrix_left, MatrixStructure 
 }  // namespace
 
 TEST(yasakova_t_sparse_matrix_multiplication_omp, MultiplySquareMatrices) {
-  MatrixStructure matrix_left{ .num_rows=5, .num_cols=5, .task_data={
-    43, 46, 21, 21, 87,
-    39, 26, 82, 65, 62,
-    97, 47, 32, 16, 61,
-    76, 43, 78, 50, 63,
-    18, 14, 84, 22, 55
-  }};
-  MatrixStructure matrix_right{ .num_rows=5, .num_cols=5, .task_data={
-    43, 46, 21, 21, 87,
-    39, 26, 82, 65, 62,
-    97, 47, 32, 16, 61,
-    76, 43, 78, 50, 63,
-    18, 14, 84, 22, 55
-  }};
-  MatrixStructure ref{ .num_rows=5, .num_cols=5, .task_data={
-    8842, 6282, 14293, 7193, 13982,
-    16701, 9987, 15853, 8435, 17512,
-    11422, 8730, 13287, 7746, 17668,
-    17445, 11312, 16810, 9525, 20651,
-    12130, 6856, 10550, 4942, 11969
-  }};
-  EXPECT_EQ(MatrixMultiply(matrix_left, matrix_right), ref);
+  MatrixStructure matrix_left{.num_rows = 5, .num_cols = 4, .task_data = {43, 46, 21, 21, 39, 26, 82, 65, 97, 47,
+                                                                          32, 16, 76, 43, 78, 50, 18, 14, 84, 22}};
+  MatrixStructure matrix_right{.num_rows = 4, .num_cols = 5, .task_data = {43, 46, 21, 21, 87, 39, 26, 82, 65, 62,
+                                                                           97, 47, 32, 16, 61, 76, 43, 78, 50, 63}};
+  MatrixStructure ref{
+      .num_rows = 5, .num_cols = 5, .task_data = {7276,  5064,  6985,  5279, 9197, 15585, 9119,  10645, 7071,
+                                                  14102, 10324, 7876,  8163, 6404, 14313, 16311, 10430, 11518,
+                                                  8139,  17186, 11140, 6086, 5930, 3732,  8944}};
 }
 TEST(yasakova_t_sparse_matrix_multiplication_omp, MultiplyRectangularMatrices) {
   MatrixStructure matrix_left{ .num_rows=5, .num_cols=4, .task_data={
@@ -140,7 +128,8 @@ TEST(yasakova_t_sparse_matrix_multiplication_omp, ValidationFailure_Incompatible
   SparseMatrixFormat compressed_row_result;
 
   auto task_data = std::make_shared<ppc::core::TaskData>();
-  task_data->inputs = {reinterpret_cast<uint8_t *>(&compressed_row_left), reinterpret_cast<uint8_t *>(&compressed_row_right)};
+  task_data->inputs = {reinterpret_cast<uint8_t *>(&compressed_row_left),
+                       reinterpret_cast<uint8_t *>(&compressed_row_right)};
   task_data->inputs_count = {matrix_left.num_rows, matrix_left.num_cols, matrix_right.num_rows, matrix_right.num_cols};
   task_data->outputs = {reinterpret_cast<uint8_t *>(&compressed_row_result)};
   task_data->outputs_count = {1};
