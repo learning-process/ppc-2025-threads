@@ -25,130 +25,75 @@ bool opolin_d_radix_batcher_sort_omp::RadixBatcherSortTaskOpenMP::ValidationImpl
 }
 
 bool opolin_d_radix_batcher_sort_omp::RadixBatcherSortTaskOpenMP::RunImpl() {
-  std::vector<int> positives;
-  std::vector<int> negatives;
-  int pos_count = 0;
-  int neg_count = 0;
-#pragma omp parallel
-  {
-    int local_pos_count = 0;
-    int local_neg_count = 0;
-#pragma omp for nowait
-    for (int i = 0; i < size_; i++) {
-      if (input_[i] >= 0) {
-        local_pos_count++;
-      } else {
-        local_neg_count++;
-      }
-    }
-#pragma omp critical
-    {
-      pos_count += local_pos_count;
-      neg_count += local_neg_count;
+  int num_threads = omp_get_max_threads();
+  int block_size = (size_ + num_threads - 1) / num_threads;
+
+  std::vector<int> starts;
+  std::vector<int> ends;
+  for (int i = 0; i < num_threads; i++) {
+    int start = i * block_size;
+    int end = std::min(start + block_size, size_);
+    if (start < end) {
+      starts.push_back(start);
+      ends.push_back(end);
     }
   }
 
-  positives.resize(pos_count);
-  negatives.resize(neg_count);
+#pragma omp parallel for
+  for (int i = 0; i < static_cast<int>(starts.size()); i++) {
+    int start = starts[i];
+    int end = ends[i];
+    std::vector<int> local_input(input_.begin() + start, input_.begin() + end);
+    std::vector<int> positives;
+    std::vector<int> negatives;
 
-  int pos_index = 0;
-  int neg_index = 0;
-#pragma omp parallel
-  {
-    std::vector<int> local_pos;
-    std::vector<int> local_neg;
-#pragma omp for nowait
-    for (int i = 0; i < size_; i++) {
-      if (input_[i] >= 0) {
-        local_pos.push_back(input_[i]);
-      } else {
-        local_neg.push_back(-input_[i]);
-      }
+    for (int val : local_input) {
+      if (val >= 0) positives.push_back(val);
+      else negatives.push_back(-val);
     }
-#pragma omp critical
-    {
-      int start_pos = pos_index;
-      pos_index += local_pos.size();
-      for (size_t j = 0; j < local_pos.size(); j++) {
-        positives[start_pos + j] = local_pos[j];
-      }
-      int start_neg = neg_index;
-      neg_index += local_neg.size();
-      for (size_t j = 0; j < local_neg.size(); j++) {
-        negatives[start_neg + j] = local_neg[j];
-      }
-    }
-  }
-  int max_abs = 0;
-#pragma omp parallel
-  {
-    int local_max = 0;
-#pragma omp for nowait
-    for (int i = 0; i < size_; i++) {
-      int abs_val = std::abs(input_[i]);
-      if (abs_val > local_max) {
-        local_max = abs_val;
-      }
-    }
-#pragma omp critical
-    {
-      if (local_max > max_abs) {
-        max_abs = local_max;
-      }
-    }
-  }
-
-  int digit_count = 0;
-  if (max_abs == 0) {
-    digit_count = 1;
-  } else {
+    int max_abs = 0;
+    for (int val : local_input) max_abs = std::max(max_abs, std::abs(val));
+    int digit_count = (max_abs == 0) ? 1 : 0;
     while (max_abs > 0) {
       max_abs /= 10;
       digit_count++;
     }
+
+    for (int place = 1; digit_count > 0; place *= 10, digit_count--) {
+      if (!positives.empty()) SortByDigit(positives, place);
+      if (!negatives.empty()) SortByDigit(negatives, place);
+    }
+
+    if (!negatives.empty()) {
+      std::reverse(negatives.begin(), negatives.end());
+      for (size_t j = 0; j < negatives.size(); j++) negatives[j] = -negatives[j];
+    }
+
+    std::vector<int> sorted_local;
+    sorted_local.insert(sorted_local.end(), negatives.begin(), negatives.end());
+    sorted_local.insert(sorted_local.end(), positives.begin(), positives.end());
+    std::copy(sorted_local.begin(), sorted_local.end(), input_.begin() + start);
   }
-#pragma omp parallel sections
-  {
-#pragma omp section
-    {
-      for (int place = 1; digit_count > 0; place *= 10, digit_count--) {
-        if (!positives.empty()) {
-          SortByDigit(positives, place);
-        }
+  while (starts.size() > 1) {
+    std::vector<int> new_starts;
+    std::vector<int> new_ends;
+    for (size_t i = 0; i < starts.size(); i += 2) {
+      if (i + 1 < starts.size()) {
+        int start = starts[i];
+        int end = ends[i + 1];
+        BatcherOddEvenMerge(input_, start, end - start);
+        new_starts.push_back(start);
+        new_ends.push_back(end);
+      } else {
+        new_starts.push_back(starts[i]);
+        new_ends.push_back(ends[i]);
       }
     }
-#pragma omp section
-    {
-      for (int place = 1; digit_count > 0; place *= 10, digit_count--) {
-        if (!negatives.empty()) {
-          SortByDigit(negatives, place);
-        }
-      }
-    }
+    starts = new_starts;
+    ends = new_ends;
   }
 
-  if (!negatives.empty()) {
-    std::reverse(negatives.begin(), negatives.end());
-    for (size_t i = 0; i < negatives.size(); i++) {
-      negatives[i] = -negatives[i];
-    }
-  }
-
-  output_.resize(size_);
-  int neg_size = negatives.size();
-  int pos_size = positives.size();
-#pragma omp parallel
-  {
-#pragma omp for nowait
-    for (int i = 0; i < neg_size; i++) {
-      output_[i] = negatives[i];
-    }
-#pragma omp for nowait
-    for (int i = 0; i < pos_size; i++) {
-      output_[neg_size + i] = positives[i];
-    }
-  }
-  BatcherOddEvenMerge(output_, 0, size_);
+  output_ = input_;
   return true;
 }
 
