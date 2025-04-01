@@ -6,7 +6,7 @@
 
 #include "core/task/include/task.hpp"
 
-namespace shurigin_s_integrals_square_TBB {
+namespace shurigin_s_integrals_square_tbb {
 class Integral : public ppc::core::Task {
  public:
   explicit Integral(std::shared_ptr<ppc::core::TaskData> task_data);

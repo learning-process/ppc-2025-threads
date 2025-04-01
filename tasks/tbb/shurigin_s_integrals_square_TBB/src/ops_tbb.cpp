@@ -14,7 +14,9 @@
 #include <utility>
 #include <vector>
 
-namespace shurigin_s_integrals_square_TBB {
+#include "core/task/include/task.hpp"
+
+namespace shurigin_s_integrals_square_tbb {
 
 Integral::Integral(std::shared_ptr<ppc::core::TaskData> task_data)
     : Task(task_data),
@@ -132,9 +134,9 @@ bool Integral::RunImpl() {
       std::vector<double> initial_point(dimensions_);
       result_ = ComputeRecursiveTBB(func_, down_limits_, up_limits_, counts_, dimensions_, initial_point, 0);
       return true;
-    } else {
-      return ComputeOneDimensional();
     }
+    return ComputeOneDimensional();
+
   } catch (const std::exception& e) {
     std::cerr << "Error in RunImpl: " << e.what() << '\n';
     return false;
@@ -146,7 +148,7 @@ bool Integral::ComputeOneDimensional() {
   const double b = up_limits_[0];
   const int n = counts_[0];
   if (n <= 0) {
-    std::cerr << "Error: Number of intervals is non-positive in ComputeOneDimensional." << std::endl;
+    std::cerr << "Error: Number of intervals is non-positive in ComputeOneDimensional." << '\n';
     return false;
   }
 
@@ -215,4 +217,4 @@ bool Integral::PostProcessingImpl() {
   }
 }
 
-}  // namespace shurigin_s_integrals_square_TBB
+}  // namespace shurigin_s_integrals_square_tbb

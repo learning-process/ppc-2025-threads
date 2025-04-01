@@ -10,8 +10,8 @@
 #include "core/task/include/task.hpp"
 #include "tbb/shurigin_s_integrals_square_TBB/include/ops_tbb.hpp"
 
-namespace shurigin_s_integrals_square_TBB_test {
-TEST(shurigin_s_integrals_square_TBB, test_pipeline_run) {
+namespace shurigin_s_integrals_square_tbb_test {
+TEST(shurigin_s_integrals_square_tbb, test_pipeline_run) {
   double down_limit_x = -1.0;
   double up_limit_x = 1.0;
   double down_limit_y = -1.0;
@@ -34,7 +34,7 @@ TEST(shurigin_s_integrals_square_TBB, test_pipeline_run) {
   task_data_seq->outputs.emplace_back(reinterpret_cast<uint8_t*>(&result));
   task_data_seq->outputs_count.emplace_back(sizeof(double));
 
-  auto test_task_sequential = std::make_shared<shurigin_s_integrals_square_TBB::Integral>(task_data_seq);
+  auto test_task_sequential = std::make_shared<shurigin_s_integrals_square_tbb::Integral>(task_data_seq);
   test_task_sequential->SetFunction(f, 2);
 
   auto perf_attr = std::make_shared<ppc::core::PerfAttr>();
@@ -57,7 +57,7 @@ TEST(shurigin_s_integrals_square_TBB, test_pipeline_run) {
   ASSERT_NEAR(result, expected_result, epsilon);
 }
 
-TEST(shurigin_s_integrals_square_TBB, test_task_run) {
+TEST(shurigin_s_integrals_square_tbb, test_task_run) {
   double down_limit_x = -1.0;
   double up_limit_x = 1.0;
   double down_limit_y = -1.0;
@@ -80,7 +80,7 @@ TEST(shurigin_s_integrals_square_TBB, test_task_run) {
   task_data_seq->outputs.emplace_back(reinterpret_cast<uint8_t*>(&result));
   task_data_seq->outputs_count.emplace_back(sizeof(double));
 
-  auto test_task_sequential = std::make_shared<shurigin_s_integrals_square_TBB::Integral>(task_data_seq);
+  auto test_task_sequential = std::make_shared<shurigin_s_integrals_square_tbb::Integral>(task_data_seq);
   test_task_sequential->SetFunction(f, 2);
 
   auto perf_attr = std::make_shared<ppc::core::PerfAttr>();
