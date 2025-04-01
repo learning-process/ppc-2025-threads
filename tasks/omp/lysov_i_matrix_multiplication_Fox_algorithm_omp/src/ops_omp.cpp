@@ -5,7 +5,6 @@
 #include <algorithm>
 #include <cmath>
 #include <cstddef>
-#include <ranges>
 #include <vector>
 
 void lysov_i_matrix_multiplication_fox_algorithm_omp::ProcessBlock(const std::vector<double> &a,
@@ -17,9 +16,9 @@ void lysov_i_matrix_multiplication_fox_algorithm_omp::ProcessBlock(const std::ve
   std::size_t block_w = std::min(block_size, n - (j * block_size));
   std::size_t block_k = std::min(block_size, n - (a_block_row * block_size));
 
-  double *c_ptr = &c[(i * block_size) * n + (j * block_size)];
-  const double *a_ptr = &a[(i * block_size) * n + (a_block_row * block_size)];
-  const double *b_ptr = &b[(a_block_row * block_size) * n + (j * block_size)];
+  double *c_ptr = &c[((i * block_size) * n) + (j * block_size)];
+  const double *a_ptr = &a[((i * block_size) * n) + (a_block_row * block_size)];
+  const double *b_ptr = &b[((a_block_row * block_size) * n) + (j * block_size)];
 
   for (std::size_t ii = 0; ii < block_h; ++ii) {
     for (std::size_t jj = 0; jj < block_w; ++jj) {
@@ -65,7 +64,7 @@ bool lysov_i_matrix_multiplication_fox_algorithm_omp::TestTaskOpenMP::Validation
 }
 
 bool lysov_i_matrix_multiplication_fox_algorithm_omp::TestTaskOpenMP::RunImpl() {
-  int num_blocks = (n_ + block_size_ - 1) / block_size_;
+  int num_blocks = static_cast<int>((n_ + block_size_ - 1) / block_size_);
 #pragma omp parallel
   for (int step = 0; step < num_blocks; ++step) {
 #pragma omp for schedule(static) nowait
