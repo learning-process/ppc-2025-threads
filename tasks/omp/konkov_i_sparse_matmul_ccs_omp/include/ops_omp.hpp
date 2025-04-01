@@ -1,14 +1,13 @@
 #pragma once
 #include <omp.h>
 
-#include <iostream>
 #include <unordered_map>
 #include <vector>
 #include <algorithm>
 
 #include "core/task/include/task.hpp"
 
-namespace konkov_i_sparse_matmul_ccs {
+namespace konkov_i_sparse_matmul_ccs_omp {
 
 class SparseMatmulTask : public ppc::core::Task {
  public:

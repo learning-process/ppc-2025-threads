@@ -2,25 +2,21 @@
 
 #include "omp.h"
 
-namespace konkov_i_sparse_matmul_ccs {
+namespace konkov_i_sparse_matmul_ccs_omp {
 
 SparseMatmulTask::SparseMatmulTask(ppc::core::TaskDataPtr task_data) : ppc::core::Task(std::move(task_data)) {}
 
 bool SparseMatmulTask::ValidationImpl() {
-  std::cout << "Проверка входных данных..." << std::endl;
   if (colsA != rowsB || rowsA <= 0 || colsB <= 0) {
-    std::cout << "Ошибка: несовместимые размеры матриц!" << std::endl;
     return false;
   }
   if (A_col_ptr.empty() || B_col_ptr.empty()) {
-    std::cout << "Ошибка: одна из матриц пустая!" << std::endl;
     return false;
   }
   return true;
 }
 
 bool SparseMatmulTask::PreProcessingImpl() {
-  std::cout << "Подготовка структуры выходной матрицы..." << std::endl;
   C_col_ptr.resize(colsB + 1, 0);
   C_row_indices.clear();
   C_values.clear();
@@ -28,12 +24,10 @@ bool SparseMatmulTask::PreProcessingImpl() {
 }
 
 bool SparseMatmulTask::RunImpl() {
-  std::cout << "Запуск умножения матриц..." << std::endl;
   std::vector<std::unordered_map<int, double>> column_map(colsB);
 
 #pragma omp parallel for
   for (int col_b = 0; col_b < colsB; ++col_b) {
-    std::cout << "Обрабатываем столбец B: " << col_b << std::endl;
     for (int j = B_col_ptr[col_b]; j < B_col_ptr[col_b + 1]; ++j) {
       int row_b = B_row_indices[j];
       double val_b = B_values[j];
@@ -76,12 +70,10 @@ bool SparseMatmulTask::RunImpl() {
     C_col_ptr[col + 1] = count;
   }
 
-  std::cout << "Умножение завершено!" << std::endl;
   return true;
 }
 
 bool SparseMatmulTask::PostProcessingImpl() {
-  std::cout << "Финализация данных..." << std::endl;
   return true;
 }
 
