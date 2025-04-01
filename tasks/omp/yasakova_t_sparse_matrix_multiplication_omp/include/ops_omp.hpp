@@ -27,7 +27,6 @@ inline MatrixStructure MatrixMultiply(const MatrixStructure& mat_a, const Matrix
   MatrixStructure result{.num_rows = mat_a.num_rows,
                          .num_cols = mat_b.num_cols,
                          .elements = std::vector<std::complex<double>>(mat_a.num_rows * mat_b.num_cols, 0.0)};
-  
   for (uint32_t i = 0; i < mat_a.num_rows; ++i) {
     for (uint32_t k = 0; k < mat_b.num_rows; ++k) {
       const auto temp = mat_a.AccessElement(i, k);
