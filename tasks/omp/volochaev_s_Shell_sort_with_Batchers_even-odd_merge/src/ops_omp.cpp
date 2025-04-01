@@ -186,8 +186,8 @@ void volochaev_s_shell_sort_with_batchers_even_odd_merge_omp::ShellSortOMP::Para
                     block_size[(2 * thread_id_) + 1]);
       } else {
         if (thread_id_ < thread_num_ - 1)
-          MergeBlocks(p_data, index[(2 * thread_id_) + 1], block_size[(2 * thread_id_) + 1], index[(2 * thread_id_) + 2],
-                      block_size[(2 * thread_id_) + 2]);
+          MergeBlocks(p_data, index[(2 * thread_id_) + 1], block_size[(2 * thread_id_) + 1],
+                      index[(2 * thread_id_) + 2], block_size[(2 * thread_id_) + 2]);
       }
     }
     iter++;
