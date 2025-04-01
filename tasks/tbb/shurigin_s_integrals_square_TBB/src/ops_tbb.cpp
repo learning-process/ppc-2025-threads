@@ -3,29 +3,30 @@
 #include <oneapi/tbb/blocked_range.h>
 #include <oneapi/tbb/parallel_reduce.h>
 
-#include "core/task/include/task.hpp"       
 #include <cmath>
-#include <cstddef>    
+#include <cstddef>
 #include <exception>
 #include <functional>
 #include <iostream>
 #include <memory>
 #include <stdexcept>
 #include <string>
-#include <utility>    
+#include <utility>
 #include <vector>
+
+#include "core/task/include/task.hpp"
 
 namespace shurigin_s_integrals_square_tbb {
 
 Integral::Integral(std::shared_ptr<ppc::core::TaskData> task_data)
-    : Task(task_data),    
+    : Task(task_data),
       down_limits_(1, 0.0),
       up_limits_(1, 0.0),
       counts_(1, 0),
       result_(0.0),
       func_(nullptr),
       dimensions_(1),
-      task_data_(std::move(task_data)) {}    
+      task_data_(std::move(task_data)) {}
 
 void Integral::SetFunction(const std::function<double(double)>& func) {
   func_ = [func](const std::vector<double>& point) {
@@ -92,7 +93,7 @@ bool Integral::PreProcessingImpl() {
     result_ = 0.0;
     return true;
   } catch (const std::exception& e) {
-    std::cerr << "Error in PreProcessingImpl: " << e.what() << '\n';     
+    std::cerr << "Error in PreProcessingImpl: " << e.what() << '\n';
     return false;
   }
 }
@@ -118,7 +119,7 @@ bool Integral::ValidationImpl() {
     }
     return true;
   } catch (const std::exception& e) {
-    std::cerr << "Error in ValidationImpl: " << e.what() << '\n';     
+    std::cerr << "Error in ValidationImpl: " << e.what() << '\n';
     return false;
   }
 }
@@ -132,12 +133,12 @@ bool Integral::RunImpl() {
     if (dimensions_ > 1) {
       std::vector<double> initial_point(dimensions_);
       result_ = ComputeRecursiveTBB(func_, down_limits_, up_limits_, counts_, dimensions_, initial_point, 0);
-      return true;    
+      return true;
     }
     return ComputeOneDimensional();
 
   } catch (const std::exception& e) {
-    std::cerr << "Error in RunImpl: " << e.what() << '\n';     
+    std::cerr << "Error in RunImpl: " << e.what() << '\n';
     return false;
   }
 }
@@ -147,7 +148,7 @@ bool Integral::ComputeOneDimensional() {
   const double b = up_limits_[0];
   const int n = counts_[0];
   if (n <= 0) {
-    std::cerr << "Error: Number of intervals is non-positive in ComputeOneDimensional." << '\n';     
+    std::cerr << "Error: Number of intervals is non-positive in ComputeOneDimensional." << '\n';
     return false;
   }
 
@@ -211,9 +212,9 @@ bool Integral::PostProcessingImpl() {
     outputs[0] = result_;
     return true;
   } catch (const std::exception& e) {
-    std::cerr << "Error in PostProcessingImpl: " << e.what() << '\n';     
+    std::cerr << "Error in PostProcessingImpl: " << e.what() << '\n';
     return false;
   }
 }
 
-}    
+}  // namespace shurigin_s_integrals_square_tbb
