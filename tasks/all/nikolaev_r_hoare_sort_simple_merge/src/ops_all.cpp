@@ -4,7 +4,6 @@
 #include <boost/mpi/collectives/broadcast.hpp>
 #include <boost/mpi/collectives/gather.hpp>
 #include <boost/mpi/collectives/scatterv.hpp>
-#include <boost/serialization/vector.hpp>
 #include <cstddef>
 #include <queue>
 #include <random>
@@ -43,7 +42,10 @@ bool nikolaev_r_hoare_sort_simple_merge_all::HoareSortSimpleMergeALL::RunImpl() 
 
   size_t base_chunk = total_size / comm_size;
   size_t remainder = total_size % comm_size;
-  size_t local_count = base_chunk + (static_cast<size_t>(rank) < remainder ? 1 : 0);
+  size_t local_count = base_chunk;
+  if (static_cast<size_t>(rank) < remainder) {
+    local_count++;  
+  }
 
   std::vector<double> local_vect(local_count);
 
