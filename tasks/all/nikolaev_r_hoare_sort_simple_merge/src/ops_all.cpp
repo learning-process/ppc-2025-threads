@@ -48,22 +48,24 @@ bool nikolaev_r_hoare_sort_simple_merge_all::HoareSortSimpleMergeALL::RunImpl() 
   std::vector<double> local_vect(local_count);
 
   if (rank == 0) {
-    std::vector<int> counts(comm_size), displs(comm_size);
+    std::vector<int> counts(comm_size);
+    std::vector<int> displs(comm_size);
+
     size_t offset = 0;
     for (int i = 0; i < comm_size; ++i) {
       counts[i] = static_cast<int>(base_chunk + (i < static_cast<int>(remainder) ? 1 : 0));
       displs[i] = static_cast<int>(offset);
       offset += counts[i];
     }
-    boost::mpi::scatterv(world_, vect_, counts, displs, local_vect.data(), local_vect.size(), 0);
+    boost::mpi::scatterv(world_, vect_, counts, displs, local_vect.data(), static_cast<int>(local_vect.size()), 0);
   } else {
-    boost::mpi::scatterv(world_, local_vect.data(), local_vect.size(), 0);
+    boost::mpi::scatterv(world_, local_vect.data(), static_cast<int>(local_vect.size()), 0);
   }
 
   size_t num_threads = ppc::util::GetPPCNumThreads();
   num_threads = std::min(num_threads, local_vect.size());
-  size_t seg_size = (local_vect.size() > 0) ? local_vect.size() / num_threads : 0;
-  size_t seg_remainder = (local_vect.size() > 0) ? local_vect.size() % num_threads : 0;
+  size_t seg_size = (!local_vect.empty()) ? local_vect.size() / num_threads : 0;
+  size_t seg_remainder = (!local_vect.empty()) ? local_vect.size() % num_threads : 0;
   std::vector<std::pair<size_t, size_t>> segments;
   size_t start = 0;
   for (size_t i = 0; i < num_threads; ++i) {
@@ -86,8 +88,8 @@ bool nikolaev_r_hoare_sort_simple_merge_all::HoareSortSimpleMergeALL::RunImpl() 
   if (!segments.empty()) {
     size_t merged_end = segments[0].second;
     for (size_t i = 1; i < segments.size(); ++i) {
-      std::inplace_merge(local_vect.begin(), local_vect.begin() + merged_end + 1,
-                         local_vect.begin() + segments[i].second + 1);
+      std::inplace_merge(local_vect.begin(), local_vect.begin() + static_cast<std::ptrdiff_t>(merged_end + 1),
+                         local_vect.begin() + static_cast<std::ptrdiff_t>(segments[i].second + 1));
       merged_end = segments[i].second;
     }
   }
@@ -97,13 +99,13 @@ bool nikolaev_r_hoare_sort_simple_merge_all::HoareSortSimpleMergeALL::RunImpl() 
 
   if (rank == 0) {
     std::vector<double> global_sorted;
-    typedef std::tuple<double, int, size_t> HeapElem;
+    using HeapElem = std::tuple<double, int, size_t>;
     auto cmp = [](const HeapElem &a, const HeapElem &b) { return std::get<0>(a) > std::get<0>(b); };
     std::priority_queue<HeapElem, std::vector<HeapElem>, decltype(cmp)> min_heap(cmp);
 
     for (int i = 0; i < static_cast<int>(gathered.size()); ++i) {
       if (!gathered[i].empty()) {
-        min_heap.push(std::make_tuple(gathered[i][0], i, 0));
+        min_heap.emplace(std::make_tuple(gathered[i][0], i, 0));
       }
     }
 
@@ -112,7 +114,7 @@ bool nikolaev_r_hoare_sort_simple_merge_all::HoareSortSimpleMergeALL::RunImpl() 
       min_heap.pop();
       global_sorted.push_back(value);
       if (elem_index + 1 < gathered[list_index].size()) {
-        min_heap.push(std::make_tuple(gathered[list_index][elem_index + 1], list_index, elem_index + 1));
+        min_heap.emplace(std::make_tuple(gathered[list_index][elem_index + 1], list_index, elem_index + 1));
       }
     }
     vect_ = std::move(global_sorted);
