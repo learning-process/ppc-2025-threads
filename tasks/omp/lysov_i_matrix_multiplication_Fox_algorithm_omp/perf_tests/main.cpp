@@ -27,8 +27,8 @@ std::vector<double> GetRandomMatrix(size_t size) {
 }  // namespace lysov_i_matrix_multiplication_fox_algorithm_omp
 TEST(lysov_i_matrix_multiplication_Fox_algorithm_omp, test_pipeline_run) {
   // Create data
-  size_t n = 500;
-  size_t block_size = 128;
+  size_t n = 800;
+  size_t block_size = 30;
   std::vector<double> a = lysov_i_matrix_multiplication_fox_algorithm_omp::GetRandomMatrix(n);
   std::vector<double> b = lysov_i_matrix_multiplication_fox_algorithm_omp::GetRandomMatrix(n);
   std::vector<double> c(n * n, 0);
@@ -67,8 +67,8 @@ TEST(lysov_i_matrix_multiplication_Fox_algorithm_omp, test_pipeline_run) {
 }
 
 TEST(lysov_i_matrix_multiplication_Fox_algorithm_omp, test_task_run) {
-  size_t n = 500;
-  size_t block_size = 128;
+  size_t n = 800;
+  size_t block_size = 30;
   std::vector<double> a = lysov_i_matrix_multiplication_fox_algorithm_omp::GetRandomMatrix(n);
   std::vector<double> b = lysov_i_matrix_multiplication_fox_algorithm_omp::GetRandomMatrix(n);
   std::vector<double> c(n * n, 0);
