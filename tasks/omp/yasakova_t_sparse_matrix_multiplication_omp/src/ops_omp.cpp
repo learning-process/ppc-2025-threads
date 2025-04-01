@@ -15,9 +15,9 @@ SparseMatrixFormat TransposeMatrixCRS(const SparseMatrixFormat &input_matrix) {
   transposed_matrix.columns = new_cols;
   transposed_matrix.row_pointers.resize(input_matrix.ColumnCount() + 2);
   transposed_matrix.column_indices.resize(input_matrix.column_indices.size(), 0);
-  transposed_matrix.elements.resize(input_matrix.elements.size(), 0);
+  transposed_matrix.task_data.resize(input_matrix.task_data.size(), 0);
 
-  for (uint32_t i = 0; i < input_matrix.elements.size(); ++i) {
+  for (uint32_t i = 0; i < input_matrix.task_data.size(); ++i) {
     ++transposed_matrix.row_pointers[input_matrix.column_indices[i] + 2];
   }
   for (uint32_t i = 2; i < transposed_matrix.row_pointers.size(); ++i) {
@@ -26,7 +26,7 @@ SparseMatrixFormat TransposeMatrixCRS(const SparseMatrixFormat &input_matrix) {
   for (uint32_t i = 0; i < new_cols; ++i) {
     for (uint32_t j = input_matrix.row_pointers[i]; j < input_matrix.row_pointers[i + 1]; ++j) {
       const auto new_index = transposed_matrix.row_pointers[input_matrix.column_indices[j] + 1]++;
-      transposed_matrix.elements[new_index] = input_matrix.elements[j];
+      transposed_matrix.task_data[new_index] = input_matrix.task_data[j];
       transposed_matrix.column_indices[new_index] = i;
     }
   }
@@ -74,7 +74,7 @@ bool yasakova_t_sparse_matrix_multiplication_omp::SparseMatrixMultiplier::RunImp
           ++right_element_ptr;
         } else {
           product_sum +=
-              left_matrix_.elements[left_element_ptr++] * transposed_right_matrix_.elements[right_element_ptr++];
+              left_matrix_.task_data[left_element_ptr++] * transposed_right_matrix_.task_data[right_element_ptr++];
         }
       }
       if (product_sum != 0.0) {
@@ -86,7 +86,7 @@ bool yasakova_t_sparse_matrix_multiplication_omp::SparseMatrixMultiplier::RunImp
   for (uint32_t i = 0; i < num_rows; i++) {
     result_matrix_.row_pointers[i + 1] = result_matrix_.row_pointers[i];
     for (const auto &[product_sum, j] : non_zero_elements[i]) {
-      result_matrix_.elements.push_back(product_sum);
+      result_matrix_.task_data.push_back(product_sum);
       result_matrix_.column_indices.push_back(j);
       ++result_matrix_.row_pointers[i + 1];
     }
