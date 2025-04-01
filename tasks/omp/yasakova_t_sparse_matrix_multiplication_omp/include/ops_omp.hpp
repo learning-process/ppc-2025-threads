@@ -71,13 +71,13 @@ inline SparseMatrixFormat ConvertToCRS(const MatrixStructure& matrix) {
   return result;
 }
 
-inline MatrixStructure ConvertFromCRS(const SparseMatrixFormat& crs) {
-  MatrixStructure matrix{.num_rows = crs.RowCount(),
-                         .num_cols = crs.ColumnCount(),
-                         .elements = std::vector<std::complex<double>>(crs.RowCount() * crs.ColumnCount())};
+inline MatrixStructure ConvertFromCRS(const SparseMatrixFormat& input_matrix) {
+  MatrixStructure matrix{.num_rows = input_matrix.RowCount(),
+                         .num_cols = input_matrix.ColumnCount(),
+                         .elements = std::vector<std::complex<double>>(input_matrix.RowCount() * input_matrix.ColumnCount())};
   for (uint32_t row = 0; row < matrix.num_rows; ++row) {
-    for (uint32_t i = crs.row_pointers[row]; i < crs.row_pointers[row + 1]; ++i) {
-      matrix.AccessElement(row, crs.column_indices[i]) = crs.elements[i];
+    for (uint32_t i = input_matrix.row_pointers[row]; i < input_matrix.row_pointers[row + 1]; ++i) {
+      matrix.AccessElement(row, input_matrix.column_indices[i]) = input_matrix.elements[i];
     }
   }
   return matrix;
@@ -95,7 +95,7 @@ class SparseMatrixMultiplier : public ppc::core::Task {
 
  private:
   SparseMatrixFormat left_matrix_;
-  SparseMatrixFormat rhs_;
+  SparseMatrixFormat transposed_right_matrix_;
   SparseMatrixFormat result_matrix_;
 };
 
