@@ -7,7 +7,7 @@
 
 namespace opolin_d_radix_batcher_sort_omp {
 void SortByDigit(std::vector<int>& array, int digit_place);
-void BatcherOddEvenMerge(std::vector<int>& array, int start, int n);
+void BatcherOddEvenMerge(std::vector<int>& array, int start, int mid, int end);
 
 class RadixBatcherSortTaskOpenMP : public ppc::core::Task {
  public:

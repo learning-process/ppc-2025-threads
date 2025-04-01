@@ -38,7 +38,6 @@ bool opolin_d_radix_batcher_sort_omp::RadixBatcherSortTaskOpenMP::RunImpl() {
       ends.push_back(end);
     }
   }
-
 #pragma omp parallel for
   for (int i = 0; i < static_cast<int>(starts.size()); i++) {
     int start = starts[i];
@@ -63,7 +62,6 @@ bool opolin_d_radix_batcher_sort_omp::RadixBatcherSortTaskOpenMP::RunImpl() {
       max_abs /= 10;
       digit_count++;
     }
-
     for (int place = 1; digit_count > 0; place *= 10, digit_count--) {
       if (!positives.empty()) {
         SortByDigit(positives, place);
@@ -79,32 +77,36 @@ bool opolin_d_radix_batcher_sort_omp::RadixBatcherSortTaskOpenMP::RunImpl() {
         negatives[j] = -negatives[j];
       }
     }
-
     std::vector<int> sorted_local;
     sorted_local.insert(sorted_local.end(), negatives.begin(), negatives.end());
     sorted_local.insert(sorted_local.end(), positives.begin(), positives.end());
-    std::copy(sorted_local.begin(), sorted_local.end(), input_.begin() + start);
+    std::copy(sorted_local.begin(), sorted_local.end(), temp.begin() + start);
   }
   while (starts.size() > 1) {
     std::vector<int> new_starts;
     std::vector<int> new_ends;
-    for (size_t i = 0; i < starts.size(); i += 2) {
-      if (i + 1 < starts.size()) {
-        int start = starts[i];
-        int end = ends[i + 1];
-        BatcherOddEvenMerge(input_, start, end - start);
+    int merge_pairs = starts.size() / 2;
+#pragma omp parallel for
+    for (int i = 0; i < merge_pairs; i++) {
+      int idx = i * 2;
+      int start = starts[idx];
+      int mid = ends[idx];
+      int end = ends[idx + 1];
+      OddEvenMergeBlocks(input_, start, mid, end);
+#pragma omp critical
+      {
         new_starts.push_back(start);
         new_ends.push_back(end);
-      } else {
-        new_starts.push_back(starts[i]);
-        new_ends.push_back(ends[i]);
       }
+    }
+    if (starts.size() % 2 == 1) {
+      new_starts.push_back(starts.back());
+      new_ends.push_back(ends.back());
     }
     starts = new_starts;
     ends = new_ends;
   }
-
-  output_ = input_;
+  output_ = result;
   return true;
 }
 
@@ -134,18 +136,13 @@ void opolin_d_radix_batcher_sort_omp::SortByDigit(std::vector<int> &array, int d
   array = result;
 }
 
-void opolin_d_radix_batcher_sort_omp::BatcherOddEvenMerge(std::vector<int> &array, int start, int n) {
-  if (n <= 1) return;
-
-  int m = n / 2;
-  BatcherOddEvenMerge(array, start, m);
-  BatcherOddEvenMerge(array, start + m, n - m);
-
+void opolin_d_radix_batcher_sort_omp::BatcherOddEvenMerge(std::vector<int> &array, int start, int mid, int end) {
+  int n = end - start;
+  for (int phase = 0; phase < n; phase++) {
 #pragma omp parallel for
-  for (int i = start; i < start + m; i++) {
-    if (i + m < start + n) {
-      if (array[i] > array[i + m]) {
-        std::swap(array[i], array[i + m]);
+    for (int i = start + (phase % 2); i < end - 1; i += 2) {
+      if (array[i] > array[i + 1]) {
+        std::swap(array[i], array[i + 1]);
       }
     }
   }
