@@ -47,7 +47,7 @@ struct SparseMatrixFormat {
   [[nodiscard]] uint32_t ColumnCount() const { return columns; }
 
   bool operator==(const SparseMatrixFormat& other) const noexcept {
-    return columns == other.columns && row_pointers == other.row_pointers && column_indices == other.column_indices &&\
+    return columns == other.columns && row_pointers == other.row_pointers && column_indices == other.column_indices &&
            elements == other.elements;
   }
 };
