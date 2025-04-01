@@ -30,7 +30,7 @@ inline MatrixStructure MatrixMultiply(const MatrixStructure& mat_a, const Matrix
   for (uint32_t i = 0; i < mat_a.num_rows; ++i) {
     for (uint32_t k = 0; k < mat_b.num_rows; ++k) {
       const auto temp = mat_a.AccessElement(i, k);
-      if (temp == 0.0){
+      if (temp == 0.0) {
         continue;
       }
       for (uint32_t j = 0; j < mat_b.num_cols; ++j) {
