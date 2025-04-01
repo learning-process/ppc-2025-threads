@@ -29,7 +29,7 @@ void volochaev_s_shell_sort_with_batchers_even_odd_merge_omp::ShellSortOMP::Init
 #pragma omp single
     thread_num_ = omp_get_num_threads();
   }
-  dim_size_ = int(log10(double(threadnum_)) / log10(2.0)) + 1;
+  dim_size_ = int(log10(double(thread_num_)) / log10(2.0)) + 1;
 }
 
 int volochaev_s_shell_sort_with_batchers_even_odd_merge_omp::ShellSortOMP::GrayCode(int ring_id, int dim_size) {
@@ -43,7 +43,7 @@ int volochaev_s_shell_sort_with_batchers_even_odd_merge_omp::ShellSortOMP::GrayC
   if (ring_id < (1 << (dim_size - 1))) {
     res = GrayCode(ring_id, dim_size - 1);
   } else {
-    res = (1 << (dim_size - 1)) + GrayCode((1 << dimSize) - 1 - ring_id, dim_size - 1);
+    res = (1 << (dim_size - 1)) + GrayCode((1 << dim_size) - 1 - ring_id, dim_size - 1);
   }
   return res;
 }
@@ -80,7 +80,7 @@ void volochaev_s_shell_sort_with_batchers_even_odd_merge_omp::ShellSortOMP::SetB
 int volochaev_s_shell_sort_with_batchers_even_odd_merge_omp::ShellSortOMP::FindMyPair(int* p_block_pairs, int thread_id,
                                                                                       int iter) {
   int block_id = 0, id, res = 0;
-  for (int i = 0; i < threadnum_; i++) {
+  for (int i = 0; i < thread_num_; i++) {
     block_id = p_block_pairs[2 * i];
     if (iter == 0) id = block_id % (1 << (dim_size_ - iter - 1));
     if ((iter > 0) && (iter < dim_size_ - 1))
@@ -128,14 +128,20 @@ void volochaev_s_shell_sort_with_batchers_even_odd_merge_omp::ShellSortOMP::Merg
   int* p_temp_array = new int[block_size_1 + block_size_2];
   int i1 = index_1, i2 = index_2, curr = 0;
   while ((i1 < index_1 + block_size_1) && (i2 < index_2 + block_size_2)) {
-    if (p_data[i1] < p_data[i2])
+    if (p_data[i1] < p_data[i2]) {
       p_temp_array[curr++] = p_data[i1++];
-    else {
+    } else {
       p_temp_array[curr++] = p_data[i2++];
     }
-    while (i1 < index_1 + block_size_1) p_temp_array[curr++] = p_data[i1++];
-    while (i2 < index_2 + block_size_2) p_temp_array[curr++] = p_data[i2++];
-    for (int i = 0; i < block_size_1 + block_size_2; i++) p_data[index_1 + i] = p_temp_array[i];
+    while (i1 < index_1 + block_size_1) {
+      p_temp_array[curr++] = p_data[i1++];
+    }
+    while (i2 < index_2 + block_size_2) {
+      p_temp_array[curr++] = p_data[i2++];
+    }
+    for (int i = 0; i < block_size_1 + block_size_2; i++) {
+      p_data[index_1 + i] = p_temp_array[i];
+    }
   }
   delete[] p_temp_array;
 }
@@ -148,10 +154,11 @@ void volochaev_s_shell_sort_with_batchers_even_odd_merge_omp::ShellSortOMP::Para
   int* block_pairs = new int[2 * thread_num_];
   for (int i = 0; i < 2 * thread_num_; i++) {
     index[i] = int((i * size) / double(2 * thread_num_));
-    if (i < 2 * thread_num_ - 1)
+    if (i < 2 * thread_num_ - 1) {
       block_size[i] = int(((i + 1) * size) / double(2 * thread_num_)) - index[i];
-    else
+    } else {
       block_size[i] = size - index[i];
+    }
   }
 #pragma omp parallel
   {
@@ -174,16 +181,16 @@ void volochaev_s_shell_sort_with_batchers_even_odd_merge_omp::ShellSortOMP::Para
   while (!IsSorted(p_data, size)) {
 #pragma omp parallel
     {
-      if (iter % 2 == 0)
+      if (iter % 2 == 0) {
         MergeBlocks(p_data, index[2 * thread_id_], block_size[2 * thread_id_], index[2 * thread_id_ + 1],
                     block_size[2 * thread_id_ + 1]);
-      else {
+      } else {
         if (thread_id_ < thread_num_ - 1)
           MergeBlocks(p_data, index[2 * thread_id_ + 1], block_size[2 * thread_id_ + 1], index[2 * thread_id_ + 2],
                       block_size[2 * thread_id_ + 2]);
       }
     }
-    Iter++;
+    iter++;
   }
   delete[] index;
   delete[] block_size;

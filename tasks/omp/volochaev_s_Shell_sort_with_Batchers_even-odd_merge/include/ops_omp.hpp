@@ -19,14 +19,14 @@ class ShellSortOMP : public ppc::core::Task {
   int thread_id_;
   int dim_size_;
   void InitializeParallelSections();
-  void MergeBlocks(std::vector<int>& pData, int Index1, int BlockSize1, int Index2, int BlockSize2);
+  void MergeBlocks(std::vector<int>& p_data, int index_1, int block_size_1, int index_2, int block_size_2);
   void ShellSort(std::vector<int>& arr, int start, int finish);
-  bool IsSorted(std::vector<int>& pData, int size);
-  int GrayCode(int RingID, int DimSize);
-  int ReverseGrayCode(int CubeID, int DimSize);
-  void SetBlockPairs(int* BlockPairs, int Iter);
-  int FindMyPair(int* BlockPairs, int ThreadID, int Iter);
-  void ParallelShellSort(std::vector<int>& pData, int Size);
+  bool IsSorted(std::vector<int>& p_data, int size);
+  int GrayCode(int ring_id, int dim_size);
+  int ReverseGrayCode(int cube_id, int dim_size);
+  void SetBlockPairs(int* block_pairs, int iter);
+  int FindMyPair(int* block_pairs, int thread_id, int iter);
+  void ParallelShellSort(std::vector<int>& p_data, int dize);
 
   std::vector<int> array_;
 };
