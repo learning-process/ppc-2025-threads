@@ -49,12 +49,11 @@ TEST(tarakanov_d_linear_stretching_seq, test_contrast_stretching_random_5x5) {
   EXPECT_EQ(max_out, 255);
 }
 
-TEST(tarakanov_d_linear_stretching_seq, test_contrast_stretching_big_image_random) {
-  constexpr size_t kSize = 5;
+TEST(tarakanov_d_linear_stretching_seq, test_contrast_stretching_random_300x300) {
+  constexpr size_t kSize = 300;
 
   std::random_device rd;
   std::mt19937 gen(rd());
-  // std::uniform_int_distribution<> dis(0, 127);
   std::uniform_int_distribution<> dis(0, 255);
 
   std::vector<unsigned char> in(kSize * kSize);
