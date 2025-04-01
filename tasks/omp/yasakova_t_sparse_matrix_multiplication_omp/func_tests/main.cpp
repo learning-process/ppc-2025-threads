@@ -11,7 +11,7 @@
 #include "omp/yasakova_t_sparse_matrix_multiplication_omp/include/ops_omp.hpp"
 
 namespace yasakova_t_sparse_matrix_multiplication_omp {
-MatrixStructure static RandMatrix(uint32_t num_rows, uint32_t num_cols, double non_zero_percentage) {
+MatrixStructure RandMatrix(uint32_t num_rows, uint32_t num_cols, double non_zero_percentage) {
   std::mt19937 gen(std::random_device{}());
   std::uniform_real_distribution<double> distr(-10000, 10000);
   MatrixStructure result{
@@ -30,7 +30,7 @@ MatrixStructure static RandMatrix(uint32_t num_rows, uint32_t num_cols, double n
   });
   return result;
 }
-void static TestCRSMatrixMultiplication(MatrixStructure &&matrix_left, MatrixStructure &&matrix_right) {
+void TestCRSMatrixMultiplication(MatrixStructure &&matrix_left, MatrixStructure &&matrix_right) {
   SparseMatrixFormat crs_left = ConvertToCRS(matrix_left);
   SparseMatrixFormat crs_right = ConvertToCRS(matrix_right);
   SparseMatrixFormat crs_result;

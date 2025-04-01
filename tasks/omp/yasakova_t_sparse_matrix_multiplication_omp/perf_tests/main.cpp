@@ -13,7 +13,7 @@
 #include "omp/yasakova_t_sparse_matrix_multiplication_omp/include/ops_omp.hpp"
 
 namespace yasakova_t_sparse_matrix_multiplication_omp {
-MatrixStructure static RandMatrix(uint32_t num_rows, uint32_t num_cols, double non_zero_percentage) {
+MatrixStructure RandMatrix(uint32_t num_rows, uint32_t num_cols, double non_zero_percentage) {
   std::mt19937 gen(std::random_device{}());
   std::uniform_real_distribution<double> distr(-10000, 10000);
   MatrixStructure result{
