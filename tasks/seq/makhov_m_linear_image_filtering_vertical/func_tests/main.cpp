@@ -140,6 +140,56 @@ TEST(makhov_m_linear_image_filtering_vertical_seq, test_random_image_10x10) {
   }
 }
 
+TEST(makhov_m_linear_image_filtering_vertical_seq, test_random_image_100x100) {
+  int width = 100;
+  int height = 100;
+  std::vector<uint8_t> input_image = GenerateRandomImage(height, width);
+  std::vector<uint8_t> output_image(width * height * 3, 0);
+
+  auto task_data_seq = std::make_shared<ppc::core::TaskData>();
+  task_data_seq->inputs.emplace_back(input_image.data());
+  task_data_seq->inputs_count.push_back(width);
+  task_data_seq->inputs_count.push_back(height);
+  task_data_seq->outputs.emplace_back(output_image.data());
+  task_data_seq->outputs_count.emplace_back(output_image.size());
+
+  makhov_m_linear_image_filtering_vertical_seq::TaskSequential test_task_sequential(task_data_seq);
+  ASSERT_EQ(test_task_sequential.Validation(), true);
+  test_task_sequential.PreProcessing();
+  test_task_sequential.Run();
+  test_task_sequential.PostProcessing();
+
+  for (std::size_t i = 0; i < output_image.size(); i++) {
+    EXPECT_GE(output_image[i], 0);
+    EXPECT_LE(output_image[i], 255);
+  }
+}
+
+TEST(makhov_m_linear_image_filtering_vertical_seq, test_random_image_1000x1000) {
+  int width = 1000;
+  int height = 1000;
+  std::vector<uint8_t> input_image = GenerateRandomImage(height, width);
+  std::vector<uint8_t> output_image(width * height * 3, 0);
+
+  auto task_data_seq = std::make_shared<ppc::core::TaskData>();
+  task_data_seq->inputs.emplace_back(input_image.data());
+  task_data_seq->inputs_count.push_back(width);
+  task_data_seq->inputs_count.push_back(height);
+  task_data_seq->outputs.emplace_back(output_image.data());
+  task_data_seq->outputs_count.emplace_back(output_image.size());
+
+  makhov_m_linear_image_filtering_vertical_seq::TaskSequential test_task_sequential(task_data_seq);
+  ASSERT_EQ(test_task_sequential.Validation(), true);
+  test_task_sequential.PreProcessing();
+  test_task_sequential.Run();
+  test_task_sequential.PostProcessing();
+
+  for (std::size_t i = 0; i < output_image.size(); i++) {
+    EXPECT_GE(output_image[i], 0);
+    EXPECT_LE(output_image[i], 255);
+  }
+}
+
 TEST(makhov_m_linear_image_filtering_vertical_seq, validation_test1) {
   int width = 3;
   int height = 1;
