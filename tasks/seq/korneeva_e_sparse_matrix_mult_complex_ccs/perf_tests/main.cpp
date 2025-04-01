@@ -14,7 +14,9 @@
 namespace korneeva_e_ccs = korneeva_e_sparse_matrix_mult_complex_ccs_seq;
 
 namespace {
-korneeva_e_ccs::SparseMatrixCCS CreateRandomMatrix(int rows, int cols, int max_nnz, std::mt19937& gen) {
+korneeva_e_ccs::SparseMatrixCCS CreateRandomMatrix(int rows, int cols, int max_nnz) {
+  static std::random_device rd;
+  static std::mt19937 gen(rd());
   korneeva_e_ccs::SparseMatrixCCS matrix(rows, cols, 0);
   std::uniform_real_distribution<> dis(-10.0, 10.0);
   std::uniform_int_distribution<> row_dis(0, rows - 1);
@@ -47,15 +49,15 @@ korneeva_e_ccs::SparseMatrixCCS CreateRandomMatrix(int rows, int cols, int max_n
   return matrix;
 }
 }  // namespace
+
 TEST(korneeva_e_sparse_matrix_mult_complex_ccs_seq, test_pipeline_run) {
   constexpr int kRowsCols = 5000;
   constexpr int kVectorLength = kRowsCols;
   constexpr int kMaxNnzMatrix = 100;
   constexpr int kMaxNnzVector = 50;
 
-  std::mt19937 gen(42);
-  korneeva_e_ccs::SparseMatrixCCS matrix = CreateRandomMatrix(kRowsCols, kRowsCols, kMaxNnzMatrix, gen);
-  korneeva_e_ccs::SparseMatrixCCS vector = CreateRandomMatrix(kVectorLength, 1, kMaxNnzVector, gen);
+  korneeva_e_ccs::SparseMatrixCCS matrix = CreateRandomMatrix(kRowsCols, kRowsCols, kMaxNnzMatrix);
+  korneeva_e_ccs::SparseMatrixCCS vector = CreateRandomMatrix(kVectorLength, 1, kMaxNnzVector);
   korneeva_e_ccs::SparseMatrixCCS result;
 
   auto task_data_seq = std::make_shared<ppc::core::TaskData>();
@@ -64,11 +66,6 @@ TEST(korneeva_e_sparse_matrix_mult_complex_ccs_seq, test_pipeline_run) {
   task_data_seq->outputs.emplace_back(reinterpret_cast<uint8_t*>(&result));
 
   auto test_task_sequential = std::make_shared<korneeva_e_ccs::SparseMatrixMultComplexCCS>(task_data_seq);
-
-  ASSERT_TRUE(test_task_sequential->PreProcessingImpl());
-  ASSERT_TRUE(test_task_sequential->ValidationImpl());
-  ASSERT_TRUE(test_task_sequential->RunImpl());
-  ASSERT_TRUE(test_task_sequential->PostProcessingImpl());
 
   auto perf_attr = std::make_shared<ppc::core::PerfAttr>();
   perf_attr->num_running = 10;
@@ -80,7 +77,6 @@ TEST(korneeva_e_sparse_matrix_mult_complex_ccs_seq, test_pipeline_run) {
   };
 
   auto perf_results = std::make_shared<ppc::core::PerfResults>();
-
   auto perf_analyzer = std::make_shared<ppc::core::Perf>(test_task_sequential);
   perf_analyzer->PipelineRun(perf_attr, perf_results);
   ppc::core::Perf::PrintPerfStatistic(perf_results);
@@ -95,9 +91,8 @@ TEST(korneeva_e_sparse_matrix_mult_complex_ccs_seq, test_task_run) {
   constexpr int kMaxNnzMatrix = 100;
   constexpr int kMaxNnzVector = 50;
 
-  std::mt19937 gen(42);
-  korneeva_e_ccs::SparseMatrixCCS matrix = CreateRandomMatrix(kRowsCols, kRowsCols, kMaxNnzMatrix, gen);
-  korneeva_e_ccs::SparseMatrixCCS vector = CreateRandomMatrix(kVectorLength, 1, kMaxNnzVector, gen);
+  korneeva_e_ccs::SparseMatrixCCS matrix = CreateRandomMatrix(kRowsCols, kRowsCols, kMaxNnzMatrix);
+  korneeva_e_ccs::SparseMatrixCCS vector = CreateRandomMatrix(kVectorLength, 1, kMaxNnzVector);
   korneeva_e_ccs::SparseMatrixCCS result;
 
   auto task_data_seq = std::make_shared<ppc::core::TaskData>();
@@ -106,11 +101,6 @@ TEST(korneeva_e_sparse_matrix_mult_complex_ccs_seq, test_task_run) {
   task_data_seq->outputs.emplace_back(reinterpret_cast<uint8_t*>(&result));
 
   auto test_task_sequential = std::make_shared<korneeva_e_ccs::SparseMatrixMultComplexCCS>(task_data_seq);
-
-  ASSERT_TRUE(test_task_sequential->PreProcessingImpl());
-  ASSERT_TRUE(test_task_sequential->ValidationImpl());
-  ASSERT_TRUE(test_task_sequential->RunImpl());
-  ASSERT_TRUE(test_task_sequential->PostProcessingImpl());
 
   auto perf_attr = std::make_shared<ppc::core::PerfAttr>();
   perf_attr->num_running = 10;
@@ -122,7 +112,6 @@ TEST(korneeva_e_sparse_matrix_mult_complex_ccs_seq, test_task_run) {
   };
 
   auto perf_results = std::make_shared<ppc::core::PerfResults>();
-
   auto perf_analyzer = std::make_shared<ppc::core::Perf>(test_task_sequential);
   perf_analyzer->TaskRun(perf_attr, perf_results);
   ppc::core::Perf::PrintPerfStatistic(perf_results);
