@@ -17,14 +17,14 @@ SparseMatrixFormat TransposeMatrixCRS(const SparseMatrixFormat &input_matrix) {
   transposed_matrix.column_indices.resize(input_matrix.column_indices.size(), 0);
   transposed_matrix.elements.resize(input_matrix.elements.size(), 0);
 
-  for (size_t i = 0; i < input_matrix.elements.size(); ++i) {
+  for (uint32_t i = 0; i < input_matrix.elements.size(); ++i) {
     ++transposed_matrix.row_pointers[input_matrix.column_indices[i] + 2];
   }
-  for (size_t i = 2; i < transposed_matrix.row_pointers.size(); ++i) {
+  for (uint32_t i = 2; i < transposed_matrix.row_pointers.size(); ++i) {
     transposed_matrix.row_pointers[i] += transposed_matrix.row_pointers[i - 1];
   }
-  for (size_t i = 0; i < new_cols; ++i) {
-    for (size_t j = input_matrix.row_pointers[i]; j < input_matrix.row_pointers[i + 1]; ++j) {
+  for (uint32_t i = 0; i < new_cols; ++i) {
+    for (uint32_t j = input_matrix.row_pointers[i]; j < input_matrix.row_pointers[i + 1]; ++j) {
       const auto new_index = transposed_matrix.row_pointers[input_matrix.column_indices[j] + 1]++;
       transposed_matrix.elements[new_index] = input_matrix.elements[j];
       transposed_matrix.column_indices[new_index] = i;
@@ -56,11 +56,11 @@ bool yasakova_t_sparse_matrix_multiplication_omp::SparseMatrixMultiplier::RunImp
   const auto num_rows = left_matrix_.RowCount();
   const auto num_cols = transposed_right_matrix_.RowCount();
 
-  std::vector<std::vector<std::tuple<std::complex<double>, size_t>>> non_zero_elements(num_rows);
+  std::vector<std::vector<std::tuple<std::complex<double>, uint32_t>>> non_zero_elements(num_rows);
 
 #pragma omp parallel for
   for (int i = 0; i < static_cast<int>(num_rows); ++i) {
-    for (size_t j = 0; j < num_cols; ++j) {
+    for (uint32_t j = 0; j < num_cols; ++j) {
       auto left_element_ptr = left_matrix_.row_pointers[i];
       auto right_element_ptr = transposed_right_matrix_.row_pointers[j];
       std::complex<double> product_sum = 0.0;
@@ -83,7 +83,7 @@ bool yasakova_t_sparse_matrix_multiplication_omp::SparseMatrixMultiplier::RunImp
     }
   }
 
-  for (size_t i = 0; i < num_rows; i++) {
+  for (uint32_t i = 0; i < num_rows; i++) {
     result_matrix_.row_pointers[i + 1] = result_matrix_.row_pointers[i];
     for (const auto &[product_sum, j] : non_zero_elements[i]) {
       result_matrix_.elements.push_back(product_sum);
