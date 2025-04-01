@@ -1,10 +1,7 @@
 #include "tbb/shuravina_o_hoare_simple_merger_tbb/include/ops_tbb.hpp"
 
-#include <tbb/parallel_invoke.h>
-#include <tbb/tbb.h>
-
 #include <algorithm>
-#include <cstddef>
+#include <cmath>
 #include <vector>
 
 namespace shuravina_o_hoare_simple_merger_tbb {
@@ -44,12 +41,7 @@ void TestTaskTBB::ParallelQuickSort(std::vector<int>& arr, int low, int high) {
 
     int pi = i + 1;
 
-    if (high - low > 10000) {
-      tbb::parallel_invoke([&] { ParallelQuickSort(arr, low, pi - 1); }, [&] { ParallelQuickSort(arr, pi + 1, high); });
-    } else {
-      QuickSort(arr, low, pi - 1);
-      QuickSort(arr, pi + 1, high);
-    }
+    tbb::parallel_invoke([&] { ParallelQuickSort(arr, low, pi - 1); }, [&] { ParallelQuickSort(arr, pi + 1, high); });
   }
 }
 
@@ -95,16 +87,19 @@ bool TestTaskTBB::ValidationImpl() { return task_data->inputs_count[0] == task_d
 
 bool TestTaskTBB::RunImpl() {
   auto size = input_.size();
-  ParallelQuickSort(input_, 0, static_cast<int>(size) - 1);
+  if (size < 10000) {
+    QuickSort(input_, 0, static_cast<int>(size) - 1);
+  } else {
+    ParallelQuickSort(input_, 0, static_cast<int>(size) - 1);
+  }
   Merge(input_, 0, static_cast<int>(size / 2) - 1, static_cast<int>(size) - 1);
   output_ = input_;
   return true;
 }
 
 bool TestTaskTBB::PostProcessingImpl() {
-  auto* out_ptr = reinterpret_cast<int*>(task_data->outputs[0]);
   for (size_t i = 0; i < output_.size(); i++) {
-    out_ptr[i] = output_[i];
+    reinterpret_cast<int*>(task_data->outputs[0])[i] = output_[i];
   }
   return true;
 }

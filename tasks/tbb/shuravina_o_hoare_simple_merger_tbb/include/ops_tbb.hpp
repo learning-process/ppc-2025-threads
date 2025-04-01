@@ -5,14 +5,13 @@
 #include <vector>
 
 #include "core/task/include/task.hpp"
-#include "tbb/parallel_invoke.h"
+#include "tbb/tbb.h"
 
 namespace shuravina_o_hoare_simple_merger_tbb {
 
 class TestTaskTBB : public ppc::core::Task {
  public:
   explicit TestTaskTBB(std::shared_ptr<ppc::core::TaskData> task_data) : Task(std::move(task_data)) {}
-
   bool PreProcessingImpl() override;
   bool ValidationImpl() override;
   bool RunImpl() override;

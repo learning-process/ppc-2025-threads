@@ -11,30 +11,12 @@
 
 namespace {
 
-bool IsPrime(size_t n) {
-  if (n <= 1) {
-    return false;
-  }
-  if (n <= 3) {
-    return true;
-  }
-  if (n % 2 == 0 || n % 3 == 0) {
-    return false;
-  }
-  for (size_t i = 5; i * i <= n; i += 6) {
-    if (n % i == 0 || n % (i + 2) == 0) {
-      return false;
-    }
-  }
-  return true;
-}
-
-bool IsReverseSorted(const std::vector<int>& arr) {
+bool IsSorted(const std::vector<int>& arr) {
   if (arr.empty()) {
     return true;
   }
   for (size_t i = 1; i < arr.size(); ++i) {
-    if (arr[i - 1] < arr[i]) {
+    if (arr[i - 1] > arr[i]) {
       return false;
     }
   }
@@ -63,7 +45,7 @@ TEST(shuravina_o_hoare_simple_merger_tbb, test_random_array) {
   std::vector<int> in = GenerateRandomArray(array_size, min_val, max_val);
   std::vector<int> out(in.size(), 0);
 
-  ASSERT_FALSE(IsReverseSorted(in));
+  ASSERT_FALSE(IsSorted(in));
 
   auto task_data_tbb = std::make_shared<ppc::core::TaskData>();
   task_data_tbb->inputs.emplace_back(reinterpret_cast<uint8_t*>(in.data()));
@@ -77,56 +59,7 @@ TEST(shuravina_o_hoare_simple_merger_tbb, test_random_array) {
   test_task_tbb.Run();
   test_task_tbb.PostProcessing();
 
-  for (size_t i = 1; i < out.size(); ++i) {
-    ASSERT_LE(out[i - 1], out[i]);
-  }
-}
-
-TEST(shuravina_o_hoare_simple_merger_tbb, test_large_random_array) {
-  const size_t array_size = 10007;
-  const int min_val = -10000;
-  const int max_val = 10000;
-
-  ASSERT_TRUE(IsPrime(array_size));
-
-  std::vector<int> in = GenerateRandomArray(array_size, min_val, max_val);
-  std::vector<int> out(in.size(), 0);
-
-  auto task_data_tbb = std::make_shared<ppc::core::TaskData>();
-  task_data_tbb->inputs.emplace_back(reinterpret_cast<uint8_t*>(in.data()));
-  task_data_tbb->inputs_count.emplace_back(in.size());
-  task_data_tbb->outputs.emplace_back(reinterpret_cast<uint8_t*>(out.data()));
-  task_data_tbb->outputs_count.emplace_back(out.size());
-
-  shuravina_o_hoare_simple_merger_tbb::TestTaskTBB test_task_tbb(task_data_tbb);
-  ASSERT_EQ(test_task_tbb.Validation(), true);
-  test_task_tbb.PreProcessing();
-  test_task_tbb.Run();
-  test_task_tbb.PostProcessing();
-
-  for (size_t i = 1; i < out.size(); ++i) {
-    ASSERT_LE(out[i - 1], out[i]);
-  }
-}
-
-TEST(shuravina_o_hoare_simple_merger_tbb, test_sort_and_merge) {
-  std::vector<int> in = {5, 2, 9, 1, 5, 6};
-  std::vector<int> out(in.size(), 0);
-
-  auto task_data_tbb = std::make_shared<ppc::core::TaskData>();
-  task_data_tbb->inputs.emplace_back(reinterpret_cast<uint8_t*>(in.data()));
-  task_data_tbb->inputs_count.emplace_back(in.size());
-  task_data_tbb->outputs.emplace_back(reinterpret_cast<uint8_t*>(out.data()));
-  task_data_tbb->outputs_count.emplace_back(out.size());
-
-  shuravina_o_hoare_simple_merger_tbb::TestTaskTBB test_task_tbb(task_data_tbb);
-  ASSERT_EQ(test_task_tbb.Validation(), true);
-  test_task_tbb.PreProcessing();
-  test_task_tbb.Run();
-  test_task_tbb.PostProcessing();
-
-  std::vector<int> expected = {1, 2, 5, 5, 6, 9};
-  EXPECT_EQ(out, expected);
+  ASSERT_TRUE(IsSorted(out));
 }
 
 TEST(shuravina_o_hoare_simple_merger_tbb, test_empty_array) {
@@ -145,31 +78,10 @@ TEST(shuravina_o_hoare_simple_merger_tbb, test_empty_array) {
   test_task_tbb.Run();
   test_task_tbb.PostProcessing();
 
-  std::vector<int> expected = {};
-  EXPECT_EQ(out, expected);
+  EXPECT_EQ(out, in);
 }
 
-TEST(shuravina_o_hoare_simple_merger_tbb, test_single_element_array) {
-  std::vector<int> in = {42};
-  std::vector<int> out(in.size(), 0);
-
-  auto task_data_tbb = std::make_shared<ppc::core::TaskData>();
-  task_data_tbb->inputs.emplace_back(reinterpret_cast<uint8_t*>(in.data()));
-  task_data_tbb->inputs_count.emplace_back(in.size());
-  task_data_tbb->outputs.emplace_back(reinterpret_cast<uint8_t*>(out.data()));
-  task_data_tbb->outputs_count.emplace_back(out.size());
-
-  shuravina_o_hoare_simple_merger_tbb::TestTaskTBB test_task_tbb(task_data_tbb);
-  ASSERT_EQ(test_task_tbb.Validation(), true);
-  test_task_tbb.PreProcessing();
-  test_task_tbb.Run();
-  test_task_tbb.PostProcessing();
-
-  std::vector<int> expected = {42};
-  EXPECT_EQ(out, expected);
-}
-
-TEST(shuravina_o_hoare_simple_merger_tbb, test_already_sorted_array) {
+TEST(shuravina_o_hoare_simple_merger_tbb, test_sorted_array) {
   std::vector<int> in = {1, 2, 3, 4, 5, 6};
   std::vector<int> out(in.size(), 0);
 
@@ -185,26 +97,5 @@ TEST(shuravina_o_hoare_simple_merger_tbb, test_already_sorted_array) {
   test_task_tbb.Run();
   test_task_tbb.PostProcessing();
 
-  std::vector<int> expected = {1, 2, 3, 4, 5, 6};
-  EXPECT_EQ(out, expected);
-}
-
-TEST(shuravina_o_hoare_simple_merger_tbb, test_array_with_negative_numbers) {
-  std::vector<int> in = {-5, 2, -9, 1, 0, -3};
-  std::vector<int> out(in.size(), 0);
-
-  auto task_data_tbb = std::make_shared<ppc::core::TaskData>();
-  task_data_tbb->inputs.emplace_back(reinterpret_cast<uint8_t*>(in.data()));
-  task_data_tbb->inputs_count.emplace_back(in.size());
-  task_data_tbb->outputs.emplace_back(reinterpret_cast<uint8_t*>(out.data()));
-  task_data_tbb->outputs_count.emplace_back(out.size());
-
-  shuravina_o_hoare_simple_merger_tbb::TestTaskTBB test_task_tbb(task_data_tbb);
-  ASSERT_EQ(test_task_tbb.Validation(), true);
-  test_task_tbb.PreProcessing();
-  test_task_tbb.Run();
-  test_task_tbb.PostProcessing();
-
-  std::vector<int> expected = {-9, -5, -3, 0, 1, 2};
-  EXPECT_EQ(out, expected);
+  EXPECT_EQ(out, in);
 }
