@@ -50,8 +50,7 @@ bool opolin_d_radix_batcher_sort_omp::RadixBatcherSortTaskOpenMP::RunImpl() {
     for (int val : local_input) {
       if (val >= 0) {
         positives.push_back(val);
-      }
-      else {
+      } else {
         negatives.push_back(-val);
       }
     }
