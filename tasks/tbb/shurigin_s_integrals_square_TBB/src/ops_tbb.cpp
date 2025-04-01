@@ -1,33 +1,31 @@
 ﻿#include "tbb/shurigin_s_integrals_square_TBB/include/ops_tbb.hpp"
 
-#include <tbb/blocked_range.h>
-#include <tbb/parallel_reduce.h>
-#include <tbb/tbb.h>
+#include <oneapi/tbb/blocked_range.h>
+#include <oneapi/tbb/parallel_reduce.h>
 
+#include "core/task/include/task.hpp"       
 #include <cmath>
-#include <cstddef>
+#include <cstddef>    
 #include <exception>
 #include <functional>
 #include <iostream>
 #include <memory>
 #include <stdexcept>
 #include <string>
-#include <utility>
+#include <utility>    
 #include <vector>
-
-#include "core/task/include/task.hpp"
 
 namespace shurigin_s_integrals_square_tbb {
 
 Integral::Integral(std::shared_ptr<ppc::core::TaskData> task_data)
-    : Task(task_data),
+    : Task(task_data),    
       down_limits_(1, 0.0),
       up_limits_(1, 0.0),
       counts_(1, 0),
       result_(0.0),
       func_(nullptr),
       dimensions_(1),
-      task_data_(std::move(task_data)) {}
+      task_data_(std::move(task_data)) {}    
 
 void Integral::SetFunction(const std::function<double(double)>& func) {
   func_ = [func](const std::vector<double>& point) {
@@ -94,7 +92,7 @@ bool Integral::PreProcessingImpl() {
     result_ = 0.0;
     return true;
   } catch (const std::exception& e) {
-    std::cerr << "Error in PreProcessingImpl: " << e.what() << '\n';
+    std::cerr << "Error in PreProcessingImpl: " << e.what() << '\n';     
     return false;
   }
 }
@@ -120,7 +118,7 @@ bool Integral::ValidationImpl() {
     }
     return true;
   } catch (const std::exception& e) {
-    std::cerr << "Error in ValidationImpl: " << e.what() << '\n';
+    std::cerr << "Error in ValidationImpl: " << e.what() << '\n';     
     return false;
   }
 }
@@ -134,12 +132,12 @@ bool Integral::RunImpl() {
     if (dimensions_ > 1) {
       std::vector<double> initial_point(dimensions_);
       result_ = ComputeRecursiveTBB(func_, down_limits_, up_limits_, counts_, dimensions_, initial_point, 0);
-      return true;
+      return true;    
     }
     return ComputeOneDimensional();
 
   } catch (const std::exception& e) {
-    std::cerr << "Error in RunImpl: " << e.what() << '\n';
+    std::cerr << "Error in RunImpl: " << e.what() << '\n';     
     return false;
   }
 }
@@ -149,7 +147,7 @@ bool Integral::ComputeOneDimensional() {
   const double b = up_limits_[0];
   const int n = counts_[0];
   if (n <= 0) {
-    std::cerr << "Error: Number of intervals is non-positive in ComputeOneDimensional." << '\n';
+    std::cerr << "Error: Number of intervals is non-positive in ComputeOneDimensional." << '\n';     
     return false;
   }
 
@@ -157,9 +155,9 @@ bool Integral::ComputeOneDimensional() {
   const double half_step = 0.5 * step;
   const double base = a + half_step;
 
-  double sum = tbb::parallel_reduce(
-      tbb::blocked_range<int>(0, n), 0.0,
-      [&](const tbb::blocked_range<int>& r, double local_sum) {
+  double sum = oneapi::tbb::parallel_reduce(
+      oneapi::tbb::blocked_range<int>(0, n), 0.0,
+      [&](const oneapi::tbb::blocked_range<int>& r, double local_sum) {
         std::vector<double> point(1);
         for (int i = r.begin(); i != r.end(); ++i) {
           point[0] = base + (i * step);
@@ -188,9 +186,9 @@ double Integral::ComputeRecursiveTBB(const std::function<double(const std::vecto
   const double half_step = 0.5 * step;
   const double base = a[current_dim] + half_step;
 
-  double integral_sum = tbb::parallel_reduce(
-      tbb::blocked_range<int>(0, current_n), 0.0,
-      [&](const tbb::blocked_range<int>& r, double local_sum) {
+  double integral_sum = oneapi::tbb::parallel_reduce(
+      oneapi::tbb::blocked_range<int>(0, current_n), 0.0,
+      [&](const oneapi::tbb::blocked_range<int>& r, double local_sum) {
         std::vector<double> local_point = point;
         for (int i = r.begin(); i != r.end(); ++i) {
           local_point[current_dim] = base + (i * step);
@@ -213,9 +211,9 @@ bool Integral::PostProcessingImpl() {
     outputs[0] = result_;
     return true;
   } catch (const std::exception& e) {
-    std::cerr << "Error in PostProcessingImpl: " << e.what() << '\n';
+    std::cerr << "Error in PostProcessingImpl: " << e.what() << '\n';     
     return false;
   }
 }
 
-}  // namespace shurigin_s_integrals_square_tbb
+}    
