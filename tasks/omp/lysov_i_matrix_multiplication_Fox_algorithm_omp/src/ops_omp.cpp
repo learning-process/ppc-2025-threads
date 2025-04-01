@@ -2,9 +2,10 @@
 
 #include <omp.h>
 
+#include <algorithm>
 #include <cmath>
 #include <cstddef>
-#include <iostream>
+#include <ranges>
 #include <vector>
 
 void lysov_i_matrix_multiplication_fox_algorithm_omp::ProcessBlock(const std::vector<double> &a,
@@ -23,8 +24,8 @@ void lysov_i_matrix_multiplication_fox_algorithm_omp::ProcessBlock(const std::ve
   for (std::size_t ii = 0; ii < block_h; ++ii) {
     for (std::size_t jj = 0; jj < block_w; ++jj) {
       double sum = 0.0;
-      const double *a_row = a_ptr + ii * n;
-      const double *b_col = b_ptr + jj;
+      const double *a_row = a_ptr + (ii * n);
+      const double *b_col = b_ptr + (jj);
 
       for (std::size_t kk = 0; kk + 1 < block_k; kk += 2) {
         sum += a_row[kk] * b_col[kk * n] + a_row[kk + 1] * b_col[(kk + 1) * n];
@@ -33,7 +34,7 @@ void lysov_i_matrix_multiplication_fox_algorithm_omp::ProcessBlock(const std::ve
         sum += a_row[block_k - 1] * b_col[(block_k - 1) * n];
       }
 
-      c_ptr[ii * n + jj] += sum;
+      c_ptr[(ii * n) + jj] += sum;
     }
   }
 }
