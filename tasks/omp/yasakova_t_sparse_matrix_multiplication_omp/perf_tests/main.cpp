@@ -12,7 +12,7 @@
 #include "core/task/include/task.hpp"
 #include "omp/yasakova_t_sparse_matrix_multiplication_omp/include/ops_omp.hpp"
 
-namespace {
+namespace yasakova_t_sparse_matrix_multiplication_omp{
 MatrixStructure RandMatrix(uint32_t num_rows, uint32_t num_cols, double non_zero_percentage) {
   std::mt19937 gen(std::random_device{}());
   std::uniform_real_distribution<double> distr(-10000, 10000);
@@ -32,11 +32,11 @@ MatrixStructure RandMatrix(uint32_t num_rows, uint32_t num_cols, double non_zero
   });
   return result;
 }
-}  // namespace
+}  // namespace yasakova_t_sparse_matrix_multiplication_omp
 
 TEST(yasakova_t_sparse_matrix_multiplication_omp, test_pipeline_run) {
-  auto matrix_left = RandMatrix(730, 730, 0.22);
-  auto matrix_right = RandMatrix(730, 730, 0.22);
+  auto matrix_left = yasakova_t_sparse_matrix_multiplication_omp::RandMatrix(730, 730, 0.22);
+  auto matrix_right = yasakova_t_sparse_matrix_multiplication_omp::RandMatrix(730, 730, 0.22);
 
   SparseMatrixFormat crs_left = ConvertToCRS(matrix_left);
   SparseMatrixFormat crs_right = ConvertToCRS(matrix_right);
@@ -72,8 +72,8 @@ TEST(yasakova_t_sparse_matrix_multiplication_omp, test_pipeline_run) {
 }
 
 TEST(yasakova_t_sparse_matrix_multiplication_omp, test_task_run) {
-  auto matrix_left = RandMatrix(730, 730, 0.22);
-  auto matrix_right = RandMatrix(730, 730, 0.22);
+  auto matrix_left = yasakova_t_sparse_matrix_multiplication_omp::RandMatrix(730, 730, 0.22);
+  auto matrix_right = yasakova_t_sparse_matrix_multiplication_omp::RandMatrix(730, 730, 0.22);
 
   SparseMatrixFormat crs_left = ConvertToCRS(matrix_left);
   SparseMatrixFormat crs_right = ConvertToCRS(matrix_right);

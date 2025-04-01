@@ -10,7 +10,7 @@
 #include "core/task/include/task.hpp"
 #include "omp/yasakova_t_sparse_matrix_multiplication_omp/include/ops_omp.hpp"
 
-namespace {
+namespace yasakova_t_sparse_matrix_multiplication_omp{
 MatrixStructure RandMatrix(uint32_t num_rows, uint32_t num_cols, double non_zero_percentage) {
   std::mt19937 gen(std::random_device{}());
   std::uniform_real_distribution<double> distr(-10000, 10000);
@@ -50,9 +50,8 @@ void TestCRSMatrixMultiplication(MatrixStructure &&matrix_left, MatrixStructure 
   MatrixStructure actual_result = ConvertFromCRS(crs_result);
   EXPECT_EQ(actual_result, MatrixMultiply(matrix_left, matrix_right));
 }
-}  // namespace
+}  // namespace yasakova_t_sparse_matrix_multiplication_omp
 
-// clang-format off
 TEST(yasakova_t_sparse_matrix_multiplication_omp, MultiplySquareMatrices) {
   MatrixStructure matrix_left{ .num_rows=5, .num_cols=5, .task_data={
     43, 46, 21, 21, 87,
@@ -100,34 +99,27 @@ TEST(yasakova_t_sparse_matrix_multiplication_omp, MultiplyRectangularMatrices) {
   }};
   EXPECT_EQ(MatrixMultiply(matrix_left, matrix_right), ref);
 }
-// clang-format on
 
 TEST(yasakova_t_sparse_matrix_multiplication_omp, SparseMatrices30x30_FullyDense) {
-  TestCRSMatrixMultiplication(RandMatrix(30, 30, .0), RandMatrix(30, 30, .0));
+  yasakova_t_sparse_matrix_multiplication_omp::TestCRSMatrixMultiplication(yasakova_t_sparse_matrix_multiplication_omp::RandMatrix(30, 30, .0), yasakova_t_sparse_matrix_multiplication_omp::RandMatrix(30, 30, .0));
 }
 TEST(yasakova_t_sparse_matrix_multiplication_omp, SparseMatrices30x30_20PercentNonZero) {
-  TestCRSMatrixMultiplication(RandMatrix(30, 30, .20), RandMatrix(30, 30, .20));
+  yasakova_t_sparse_matrix_multiplication_omp::TestCRSMatrixMultiplication(yasakova_t_sparse_matrix_multiplication_omp::RandMatrix(30, 30, .20), yasakova_t_sparse_matrix_multiplication_omp::RandMatrix(30, 30, .20));
 }
 TEST(yasakova_t_sparse_matrix_multiplication_omp, SparseMatrices30x30_MixedDensity) {
-  TestCRSMatrixMultiplication(RandMatrix(30, 30, .20), RandMatrix(30, 30, .50));
-}
-TEST(yasakova_t_sparse_matrix_multiplication_omp, test_crs_random_30x30p70mul30x30p50) {
-  TestCRSMatrixMultiplication(RandMatrix(30, 30, .70), RandMatrix(30, 30, .50));
-}
-TEST(yasakova_t_sparse_matrix_multiplication_omp, test_crs_random_30x30p70mul30x30p20) {
-  TestCRSMatrixMultiplication(RandMatrix(30, 30, .70), RandMatrix(30, 30, .20));
+  yasakova_t_sparse_matrix_multiplication_omp::TestCRSMatrixMultiplication(yasakova_t_sparse_matrix_multiplication_omp::RandMatrix(30, 30, .20), yasakova_t_sparse_matrix_multiplication_omp::RandMatrix(30, 30, .50));
 }
 TEST(yasakova_t_sparse_matrix_multiplication_omp, SparseMatrices30x40_VaryingDensity) {
-  TestCRSMatrixMultiplication(RandMatrix(30, 40, .70), RandMatrix(40, 30, .60));
+  yasakova_t_sparse_matrix_multiplication_omp::TestCRSMatrixMultiplication(yasakova_t_sparse_matrix_multiplication_omp::RandMatrix(30, 40, .70), yasakova_t_sparse_matrix_multiplication_omp::RandMatrix(40, 30, .60));
 }
 TEST(yasakova_t_sparse_matrix_multiplication_omp, SparseMatrices30x23_70PercentNonZero) {
-  TestCRSMatrixMultiplication(RandMatrix(30, 23, .70), RandMatrix(23, 30, .63));
+  yasakova_t_sparse_matrix_multiplication_omp::TestCRSMatrixMultiplication(yasakova_t_sparse_matrix_multiplication_omp::RandMatrix(30, 23, .70), yasakova_t_sparse_matrix_multiplication_omp::RandMatrix(23, 30, .63));
 }
 TEST(yasakova_t_sparse_matrix_multiplication_omp, SparseMatrix30x1_VeryHighDensity) {
-  TestCRSMatrixMultiplication(RandMatrix(30, 1, .70), RandMatrix(1, 30, .63));
+  yasakova_t_sparse_matrix_multiplication_omp::TestCRSMatrixMultiplication(yasakova_t_sparse_matrix_multiplication_omp::RandMatrix(30, 1, .70), yasakova_t_sparse_matrix_multiplication_omp::RandMatrix(1, 30, .63));
 }
 TEST(yasakova_t_sparse_matrix_multiplication_omp, SparseMatrix30x1_LowDensity) {
-  TestCRSMatrixMultiplication(RandMatrix(30, 1, .38), RandMatrix(1, 30, .63));
+  yasakova_t_sparse_matrix_multiplication_omp::TestCRSMatrixMultiplication(yasakova_t_sparse_matrix_multiplication_omp::RandMatrix(30, 1, .38), yasakova_t_sparse_matrix_multiplication_omp::RandMatrix(1, 30, .63));
 }
 TEST(yasakova_t_sparse_matrix_multiplication_omp, InverseMatrixMultiplication) {
   MatrixStructure matrix_left{.num_rows = 3, .num_cols = 3, .task_data = {1, 0, 0, 1, -1, 0, 1, 0, 1}};
@@ -136,12 +128,12 @@ TEST(yasakova_t_sparse_matrix_multiplication_omp, InverseMatrixMultiplication) {
   EXPECT_EQ(MatrixMultiply(matrix_left, matrix_right), ref);
 }
 TEST(yasakova_t_sparse_matrix_multiplication_omp, test_crs_random_inv) {
-  TestCRSMatrixMultiplication({.num_rows = 3, .num_cols = 3, .task_data = {1, 0, 0, 1, -1, 0, 1, 0, 1}},
+  yasakova_t_sparse_matrix_multiplication_omp::TestCRSMatrixMultiplication({.num_rows = 3, .num_cols = 3, .task_data = {1, 0, 0, 1, -1, 0, 1, 0, 1}},
                               {.num_rows = 3, .num_cols = 3, .task_data = {1, 0, 0, 1, -1, 0, -1, 0, 1}});
 }
-TEST(tyrin_m_matmul_crs_complex_omp, ValidationFailure_IncompatibleDimensions) {
-  const auto matrix_left = RandMatrix(30, 40, .70);
-  const auto matrix_right = RandMatrix(50, 50, .70);
+TEST(yasakova_t_sparse_matrix_multiplication_omp, ValidationFailure_IncompatibleDimensions) {
+  const auto matrix_left = yasakova_t_sparse_matrix_multiplication_omp::RandMatrix(30, 40, .70);
+  const auto matrix_right = yasakova_t_sparse_matrix_multiplication_omp::RandMatrix(50, 50, .70);
 
   SparseMatrixFormat crs_left = ConvertToCRS(matrix_left);
   SparseMatrixFormat crs_right = ConvertToCRS(matrix_right);
