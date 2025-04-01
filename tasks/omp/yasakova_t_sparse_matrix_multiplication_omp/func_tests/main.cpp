@@ -137,7 +137,7 @@ TEST(yasakova_t_sparse_matrix_multiplication_omp, InverseMatrixMultiplication) {
 }
 TEST(yasakova_t_sparse_matrix_multiplication_omp, test_crs_random_inv) {
   TestCRSMatrixMultiplication({.num_rows = 3, .num_cols = 3, .task_data = {1, 0, 0, 1, -1, 0, 1, 0, 1}},
-                {.num_rows = 3, .num_cols = 3, .task_data = {1, 0, 0, 1, -1, 0, -1, 0, 1}});
+                              {.num_rows = 3, .num_cols = 3, .task_data = {1, 0, 0, 1, -1, 0, -1, 0, 1}});
 }
 TEST(tyrin_m_matmul_crs_complex_omp, ValidationFailure_IncompatibleDimensions) {
   const auto matrix_left = RandMatrix(30, 40, .70);
