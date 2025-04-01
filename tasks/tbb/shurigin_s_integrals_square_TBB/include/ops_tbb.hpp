@@ -1,14 +1,12 @@
 ﻿#pragma once
-
 #include <cmath>
 #include <functional>
 #include <memory>
 #include <vector>
 
-#include "core/task/include/task.hpp"  
+#include "core/task/include/task.hpp"
 
 namespace shurigin_s_integrals_square_TBB {
-
 class Integral : public ppc::core::Task {
  public:
   explicit Integral(std::shared_ptr<ppc::core::TaskData> task_data);
