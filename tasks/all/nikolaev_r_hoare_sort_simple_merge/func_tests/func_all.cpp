@@ -1,6 +1,7 @@
 #include <gtest/gtest.h>
 
 #include <algorithm>
+#include <boost/mpi/communicator.hpp>
 #include <cstddef>
 #include <cstdint>
 #include <memory>
@@ -47,8 +48,10 @@ class HoareSortTest : public testing::TestWithParam<size_t> {
     ASSERT_TRUE(hoare_sort_simple_merge_all.PostProcessing());
 
     std::vector<double> ref(len);
-    std::ranges::copy(in, ref.begin());
-    std::ranges::sort(ref);
+    if (world.rank() == 0) {
+      std::ranges::copy(in, ref.begin());
+      std::ranges::sort(ref);
+    }
 
     EXPECT_EQ(out, ref);
   }
@@ -73,7 +76,9 @@ TEST(nikolaev_r_hoare_sort_simple_merge_all, test_empty_vect) {
   }
 
   nikolaev_r_hoare_sort_simple_merge_all::HoareSortSimpleMergeALL hoare_sort_simple_merge_all(task_data_all);
-  ASSERT_FALSE(hoare_sort_simple_merge_all.Validation());
+  if (world.rank() == 0) {
+    ASSERT_FALSE(hoare_sort_simple_merge_all.Validation());
+  }
 }
 
 TEST(nikolaev_r_hoare_sort_simple_merge_all, test_reverse_order) {
@@ -96,8 +101,10 @@ TEST(nikolaev_r_hoare_sort_simple_merge_all, test_reverse_order) {
   ASSERT_TRUE(hoare_sort_simple_merge_all.PostProcessing());
 
   std::vector<double> ref(in.size());
-  std::ranges::copy(in, ref.begin());
-  std::ranges::sort(ref);
+  if (world.rank() == 0) {
+    std::ranges::copy(in, ref.begin());
+    std::ranges::sort(ref);
+  }
 
   EXPECT_EQ(out, ref);
 }
@@ -116,7 +123,9 @@ TEST(nikolaev_r_hoare_sort_simple_merge_all, test_invalid_output) {
   }
 
   nikolaev_r_hoare_sort_simple_merge_all::HoareSortSimpleMergeALL hoare_sort_simple_merge_all(task_data_all);
-  ASSERT_FALSE(hoare_sort_simple_merge_all.Validation());
+  if (world.rank() == 0) {
+    ASSERT_FALSE(hoare_sort_simple_merge_all.Validation());
+  }
 }
 
 TEST(nikolaev_r_hoare_sort_simple_merge_all, test_input_and_output_sizes_not_equal) {
@@ -133,5 +142,7 @@ TEST(nikolaev_r_hoare_sort_simple_merge_all, test_input_and_output_sizes_not_equ
   }
 
   nikolaev_r_hoare_sort_simple_merge_all::HoareSortSimpleMergeALL hoare_sort_simple_merge_all(task_data_all);
-  ASSERT_FALSE(hoare_sort_simple_merge_all.Validation());
+  if (world.rank() == 0) {
+    ASSERT_FALSE(hoare_sort_simple_merge_all.Validation());
+  }
 }

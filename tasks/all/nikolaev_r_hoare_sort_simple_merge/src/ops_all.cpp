@@ -1,10 +1,15 @@
 #include "../include/ops_all.hpp"
 
 #include <algorithm>
+#include <boost/mpi/collectives/broadcast.hpp>
+#include <boost/mpi/collectives/gather.hpp>
+#include <boost/mpi/collectives/scatterv.hpp>
+#include <boost/serialization/vector.hpp>
 #include <cstddef>
-#include <iostream>
 #include <queue>
 #include <random>
+#include <tuple>
+#include <utility>
 #include <vector>
 
 #include "core/util/include/util.hpp"
@@ -129,7 +134,9 @@ bool nikolaev_r_hoare_sort_simple_merge_all::HoareSortSimpleMergeALL::PostProces
 
 void nikolaev_r_hoare_sort_simple_merge_all::HoareSortSimpleMergeALL::QuickSort(std::vector<double> &vec, size_t low,
                                                                                 size_t high) {
-  if (low >= high) return;
+  if (low >= high) {
+    return;
+  }
 
   std::random_device rd;
   std::mt19937 gen(rd());
@@ -146,7 +153,9 @@ void nikolaev_r_hoare_sort_simple_merge_all::HoareSortSimpleMergeALL::QuickSort(
     }
   }
   std::swap(vec[low], vec[i - 1]);
-  size_t pivotPos = i - 1;
-  if (pivotPos > low) QuickSort(vec, low, pivotPos - 1);
-  QuickSort(vec, pivotPos + 1, high);
+  size_t pivot_pos = i - 1;
+  if (pivot_pos > low) {
+    QuickSort(vec, low, pivot_pos - 1);
+  }
+  QuickSort(vec, pivot_pos + 1, high);
 }
