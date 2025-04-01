@@ -47,7 +47,7 @@ bool sozonov_i_image_filtering_block_partitioning_omp::TestTaskOpenMP::RunImpl()
   int num_blocks_x = (width_ + block_size - 1) / block_size;
   int num_blocks_y = (height_ + block_size - 1) / block_size;
 
-#pragma omp parallel for schedule(dynamic)
+#pragma omp parallel for schedule(dynamic, 1)
   for (int block_y = 0; block_y < num_blocks_y; ++block_y) {
     for (int block_x = 0; block_x < num_blocks_x; ++block_x) {
       int start_i = block_y * block_size;
