@@ -103,4 +103,4 @@ TEST(shurigin_s_integrals_square_tbb, test_task_run) {
   ASSERT_NEAR(result, expected_result, epsilon);
 }
 
-}  // namespace shurigin_s_integrals_square_TBB_test
+}  // namespace shurigin_s_integrals_square_tbb_test

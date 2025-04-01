@@ -34,4 +34,4 @@ class Integral : public ppc::core::Task {
   std::shared_ptr<ppc::core::TaskData> task_data_;
 };
 
-}  // namespace shurigin_s_integrals_square_TBB
+}  // namespace shurigin_s_integrals_square_tbb
