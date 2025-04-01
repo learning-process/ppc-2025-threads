@@ -79,7 +79,7 @@ void volochaev_s_shell_sort_with_batchers_even_odd_merge_omp::ShellSortOMP::SetB
 
 int volochaev_s_shell_sort_with_batchers_even_odd_merge_omp::ShellSortOMP::FindMyPair(int* p_block_pairs, int thread_id,
                                                                                       int iter) {
-  int block_id = 0, id, res = 0;
+  int block_id = 0, id = -1, res = 0;
   for (int i = 0; i < thread_num_; i++) {
     block_id = p_block_pairs[2 * i];
     if (iter == 0) id = block_id % (1 << (dim_size_ - iter - 1));
@@ -173,7 +173,7 @@ void volochaev_s_shell_sort_with_batchers_even_odd_merge_omp::ShellSortOMP::Para
     {
       int my_pair_num = FindMyPair(block_pairs, thread_id_, iter);
       int first_block = ReverseGrayCode(block_pairs[2 * my_pair_num], dim_size_);
-      int second_block = ReverseGrayCode(block_pairs[2 * my_pair_num + 1], dim_size_);
+      int second_block = ReverseGrayCode(block_pairs[(2 * my_pair_num) + 1], dim_size_);
       MergeBlocks(p_data, index[first_block], block_size[first_block], index[second_block], block_size[second_block]);
     }
   }
@@ -182,12 +182,12 @@ void volochaev_s_shell_sort_with_batchers_even_odd_merge_omp::ShellSortOMP::Para
 #pragma omp parallel
     {
       if (iter % 2 == 0) {
-        MergeBlocks(p_data, index[2 * thread_id_], block_size[2 * thread_id_], index[2 * thread_id_ + 1],
-                    block_size[2 * thread_id_ + 1]);
+        MergeBlocks(p_data, index[2 * thread_id_], block_size[2 * thread_id_], index[(2 * thread_id_) + 1],
+                    block_size[(2 * thread_id_) + 1]);
       } else {
         if (thread_id_ < thread_num_ - 1)
-          MergeBlocks(p_data, index[2 * thread_id_ + 1], block_size[2 * thread_id_ + 1], index[2 * thread_id_ + 2],
-                      block_size[2 * thread_id_ + 2]);
+          MergeBlocks(p_data, index[(2 * thread_id_) + 1], block_size[(2 * thread_id_) + 1], index[(2 * thread_id_) + 2],
+                      block_size[(2 * thread_id_) + 2]);
       }
     }
     iter++;
