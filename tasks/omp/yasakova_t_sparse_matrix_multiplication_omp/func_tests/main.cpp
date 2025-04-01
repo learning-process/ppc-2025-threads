@@ -11,11 +11,11 @@
 #include "omp/yasakova_t_sparse_matrix_multiplication_omp/include/ops_omp.hpp"
 
 namespace {
-Matrix RandMatrix(uint32_t rows, uint32_t cols, double percentage) {
+MatrixStructure RandMatrix(uint32_t num_rows, uint32_t num_cols, double percentage) {
   std::mt19937 gen(std::random_device{}());
   std::uniform_real_distribution<double> distr(-10000, 10000);
-  Matrix res{.rows = rows, .cols = cols, .data = std::vector<std::complex<double>>(rows * cols)};
-  std::ranges::generate(res.data, [&]() {
+  MatrixStructure result{.num_rows = num_rows, .num_cols = num_cols, .elements = std::vector<std::complex<double>>(num_rows * num_cols)};
+  std::ranges::generate(result.elements, [&]() {
     const auto el = distr(gen);
     const auto re = (el < (distr.min() + ((distr.max() - distr.min()) * percentage))) ? el : 0;
 
@@ -27,77 +27,77 @@ Matrix RandMatrix(uint32_t rows, uint32_t cols, double percentage) {
 
     return cmplx;
   });
-  return res;
+  return result;
 }
-void TestMatrixCRS(Matrix &&lhs, Matrix &&rhs) {
-  MatrixCRS crs_lhs = RegularToCRS(lhs);
-  MatrixCRS crs_rhs = RegularToCRS(rhs);
-  MatrixCRS crs_out;
+void TestMatrixCRS(MatrixStructure &&mat_a, MatrixStructure &&mat_b) {
+  SparseMatrixFormat crs_lhs = ConvertToCRS(mat_a);
+  SparseMatrixFormat crs_rhs = ConvertToCRS(mat_b);
+  SparseMatrixFormat crs_out;
 
-  auto data = std::make_shared<ppc::core::TaskData>();
-  data->inputs = {reinterpret_cast<uint8_t *>(&crs_lhs), reinterpret_cast<uint8_t *>(&crs_rhs)};
-  data->inputs_count = {lhs.rows, lhs.cols, rhs.rows, rhs.cols};
-  data->outputs = {reinterpret_cast<uint8_t *>(&crs_out)};
-  data->outputs_count = {1};
+  auto elements = std::make_shared<ppc::core::TaskData>();
+  elements->inputs = {reinterpret_cast<uint8_t *>(&crs_lhs), reinterpret_cast<uint8_t *>(&crs_rhs)};
+  elements->inputs_count = {mat_a.num_rows, mat_a.num_cols, mat_b.num_rows, mat_b.num_cols};
+  elements->outputs = {reinterpret_cast<uint8_t *>(&crs_out)};
+  elements->outputs_count = {1};
 
-  yasakova_t_sparse_matrix_multiplication_omp::TestTaskOpenMP task(data);
+  yasakova_t_sparse_matrix_multiplication_omp::SparseMatrixMultiplier task(elements);
   ASSERT_EQ(task.Validation(), true);
   task.PreProcessing();
   task.Run();
   task.PostProcessing();
 
-  Matrix regular_out = CRSToRegular(crs_out);
-  EXPECT_EQ(regular_out, MultiplyMat(lhs, rhs));
+  MatrixStructure regular_out = ConvertFromCRS(crs_out);
+  EXPECT_EQ(regular_out, MatrixMultiply(mat_a, mat_b));
 }
 }  // namespace
 
 // clang-format off
 TEST(yasakova_t_sparse_matrix_multiplication_omp, test_regular_matrix_mult_1) {
-  Matrix lhs{ .rows=5, .cols=5, .data={
+  MatrixStructure mat_a{ .num_rows=5, .num_cols=5, .elements={
     43, 46, 21, 21, 87,
     39, 26, 82, 65, 62,
     97, 47, 32, 16, 61,
     76, 43, 78, 50, 63,
     18, 14, 84, 22, 55
   }};
-  Matrix rhs{ .rows=5, .cols=5, .data={
+  MatrixStructure mat_b{ .num_rows=5, .num_cols=5, .elements={
     43, 46, 21, 21, 87,
     39, 26, 82, 65, 62,
     97, 47, 32, 16, 61,
     76, 43, 78, 50, 63,
     18, 14, 84, 22, 55
   }};
-  Matrix ref{ .rows=5, .cols=5, .data={
+  MatrixStructure ref{ .num_rows=5, .num_cols=5, .elements={
     8842, 6282, 14293, 7193, 13982,
     16701, 9987, 15853, 8435, 17512,
     11422, 8730, 13287, 7746, 17668,
     17445, 11312, 16810, 9525, 20651,
     12130, 6856, 10550, 4942, 11969
   }};
-  EXPECT_EQ(MultiplyMat(lhs, rhs), ref);
+  EXPECT_EQ(MatrixMultiply(mat_a, mat_b), ref);
 }
 TEST(yasakova_t_sparse_matrix_multiplication_omp, test_regular_matrix_mult_2) {
-  Matrix lhs{ .rows=5, .cols=4, .data={
+  MatrixStructure mat_a{ .num_rows=5, .num_cols=4, .elements={
     43, 46, 21, 21,
     39, 26, 82, 65,
     97, 47, 32, 16,
     76, 43, 78, 50,
     18, 14, 84, 22
   }};
-  Matrix rhs{ .rows=4, .cols=5, .data={
+  MatrixStructure mat_b{ .num_rows=4, .num_cols=5, .elements={
     43, 46, 21, 21, 87,
     39, 26, 82, 65, 62,
     97, 47, 32, 16, 61,
     76, 43, 78, 50, 63
   }};
-  Matrix ref{ .rows=5, .cols=5, .data={
+  MatrixStructure ref{ .num_rows=5, .num_cols=5, .elements={
     7276, 5064, 6985, 5279, 9197,
     15585, 9119, 10645, 7071, 14102,
     10324, 7876, 8163, 6404, 14313,
     16311, 10430, 11518, 8139, 17186,
     11140, 6086, 5930, 3732, 8944
   }};
-  EXPECT_EQ(MultiplyMat(lhs, rhs), ref);
+  EXPECT_EQ(MatrixMultiply(mat_a, mat_b), ref);
 }
 // clang-format on
 
@@ -129,29 +129,29 @@ TEST(yasakova_t_sparse_matrix_multiplication_omp, test_crs_random_30x1p38mul1x1p
   TestMatrixCRS(RandMatrix(30, 1, .38), RandMatrix(1, 30, .63));
 }
 TEST(yasakova_t_sparse_matrix_multiplication_omp, test_regular_matrix_mult_inv) {
-  Matrix lhs{.rows = 3, .cols = 3, .data = {1, 0, 0, 1, -1, 0, 1, 0, 1}};
-  Matrix rhs{.rows = 3, .cols = 3, .data = {1, 0, 0, 1, -1, 0, -1, 0, 1}};
-  Matrix ref{.rows = 3, .cols = 3, .data = {1, 0, 0, 0, 1, 0, 0, 0, 1}};
-  EXPECT_EQ(MultiplyMat(lhs, rhs), ref);
+  MatrixStructure mat_a{.num_rows = 3, .num_cols = 3, .elements = {1, 0, 0, 1, -1, 0, 1, 0, 1}};
+  MatrixStructure mat_b{.num_rows = 3, .num_cols = 3, .elements = {1, 0, 0, 1, -1, 0, -1, 0, 1}};
+  MatrixStructure ref{.num_rows = 3, .num_cols = 3, .elements = {1, 0, 0, 0, 1, 0, 0, 0, 1}};
+  EXPECT_EQ(MatrixMultiply(mat_a, mat_b), ref);
 }
 TEST(yasakova_t_sparse_matrix_multiplication_omp, test_crs_random_inv) {
-  TestMatrixCRS({.rows = 3, .cols = 3, .data = {1, 0, 0, 1, -1, 0, 1, 0, 1}},
-                {.rows = 3, .cols = 3, .data = {1, 0, 0, 1, -1, 0, -1, 0, 1}});
+  TestMatrixCRS({.num_rows = 3, .num_cols = 3, .elements = {1, 0, 0, 1, -1, 0, 1, 0, 1}},
+                {.num_rows = 3, .num_cols = 3, .elements = {1, 0, 0, 1, -1, 0, -1, 0, 1}});
 }
 TEST(tyrin_m_matmul_crs_complex_omp, validation_failure) {
-  const auto lhs = RandMatrix(30, 40, .70);
-  const auto rhs = RandMatrix(50, 50, .70);
+  const auto mat_a = RandMatrix(30, 40, .70);
+  const auto mat_b = RandMatrix(50, 50, .70);
 
-  MatrixCRS crs_lhs = RegularToCRS(lhs);
-  MatrixCRS crs_rhs = RegularToCRS(rhs);
-  MatrixCRS crs_out;
+  SparseMatrixFormat crs_lhs = ConvertToCRS(mat_a);
+  SparseMatrixFormat crs_rhs = ConvertToCRS(mat_b);
+  SparseMatrixFormat crs_out;
 
-  auto data = std::make_shared<ppc::core::TaskData>();
-  data->inputs = {reinterpret_cast<uint8_t *>(&crs_lhs), reinterpret_cast<uint8_t *>(&crs_rhs)};
-  data->inputs_count = {lhs.rows, lhs.cols, rhs.rows, rhs.cols};
-  data->outputs = {reinterpret_cast<uint8_t *>(&crs_out)};
-  data->outputs_count = {1};
+  auto elements = std::make_shared<ppc::core::TaskData>();
+  elements->inputs = {reinterpret_cast<uint8_t *>(&crs_lhs), reinterpret_cast<uint8_t *>(&crs_rhs)};
+  elements->inputs_count = {mat_a.num_rows, mat_a.num_cols, mat_b.num_rows, mat_b.num_cols};
+  elements->outputs = {reinterpret_cast<uint8_t *>(&crs_out)};
+  elements->outputs_count = {1};
 
-  yasakova_t_sparse_matrix_multiplication_omp::TestTaskOpenMP task(data);
+  yasakova_t_sparse_matrix_multiplication_omp::SparseMatrixMultiplier task(elements);
   EXPECT_FALSE(task.Validation());
 }

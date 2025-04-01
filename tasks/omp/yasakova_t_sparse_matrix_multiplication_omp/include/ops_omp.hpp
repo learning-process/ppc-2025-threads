@@ -7,76 +7,76 @@
 
 #include "core/task/include/task.hpp"
 
-struct Matrix {
-  uint32_t rows;
-  uint32_t cols;
-  std::vector<std::complex<double>> data;
+struct MatrixStructure {
+  uint32_t num_rows;
+  uint32_t num_cols;
+  std::vector<std::complex<double>> elements;
 
-  std::complex<double>& Get(uint32_t row, uint32_t col) { return data[(row * cols) + col]; }
+  std::complex<double>& AccessElement(uint32_t row, uint32_t col) { return elements[(row * num_cols) + col]; }
 
-  bool operator==(const Matrix& other) const noexcept {
-    return rows == other.rows && cols == other.cols && data == other.data;
+  bool operator==(const MatrixStructure& other) const noexcept {
+    return num_rows == other.num_rows && num_cols == other.num_cols && elements == other.elements;
   }
 };
 
-inline Matrix MultiplyMat(Matrix& lhs, Matrix& rhs) {
-  Matrix res{.rows = lhs.rows, .cols = rhs.cols, .data = std::vector<std::complex<double>>(lhs.rows * rhs.cols)};
-  for (uint32_t i = 0; i < lhs.rows; i++) {
-    for (uint32_t j = 0; j < rhs.cols; j++) {
-      res.Get(i, j) = 0;
-      for (uint32_t k = 0; k < rhs.rows; k++) {
-        res.Get(i, j) += lhs.Get(i, k) * rhs.Get(k, j);
+inline MatrixStructure MatrixMultiply(MatrixStructure& mat_a, MatrixStructure& mat_b) {
+  MatrixStructure result{.num_rows = mat_a.num_rows, .num_cols = mat_b.num_cols, .elements = std::vector<std::complex<double>>(mat_a.num_rows * mat_b.num_cols)};
+  for (uint32_t i = 0; i < mat_a.num_rows; i++) {
+    for (uint32_t j = 0; j < mat_b.num_cols; j++) {
+      result.AccessElement(i, j) = 0;
+      for (uint32_t k = 0; k < mat_b.num_rows; k++) {
+        result.AccessElement(i, j) += mat_a.AccessElement(i, k) * mat_b.AccessElement(k, j);
       }
     }
   }
-  return res;
+  return result;
 }
 
-struct MatrixCRS {
-  std::vector<std::complex<double>> data;
+struct SparseMatrixFormat {
+  std::vector<std::complex<double>> elements;
 
-  uint32_t cols_count;
-  std::vector<uint32_t> rowptr;
-  std::vector<uint32_t> colind;
+  uint32_t columns;
+  std::vector<uint32_t> row_pointers;
+  std::vector<uint32_t> column_indices;
 
   //
 
-  [[nodiscard]] uint32_t GetRows() const { return rowptr.size() - 1; }
-  [[nodiscard]] uint32_t GetCols() const { return cols_count; }
+  [[nodiscard]] uint32_t RowCount() const { return row_pointers.size() - 1; }
+  [[nodiscard]] uint32_t ColumnCount() const { return columns; }
 
-  bool operator==(const MatrixCRS& other) const noexcept {
-    return cols_count == other.cols_count && rowptr == other.rowptr && colind == other.colind && data == other.data;
+  bool operator==(const SparseMatrixFormat& other) const noexcept {
+    return columns == other.columns && row_pointers == other.row_pointers && column_indices == other.column_indices && elements == other.elements;
   }
 };
 
-inline MatrixCRS RegularToCRS(const Matrix& matrix) {
-  MatrixCRS result;
-  result.rowptr.resize(matrix.rows + 1);
-  result.cols_count = matrix.cols;
+inline SparseMatrixFormat ConvertToCRS(const MatrixStructure& matrix) {
+  SparseMatrixFormat result;
+  result.row_pointers.resize(matrix.num_rows + 1);
+  result.columns = matrix.num_cols;
 
   uint32_t i = 0;
-  for (uint32_t row = 0; row < matrix.rows; ++row) {
+  for (uint32_t row = 0; row < matrix.num_rows; ++row) {
     uint32_t nz = 0;
-    for (uint32_t col = 0; col < matrix.cols; ++col) {
-      if (const auto& element = matrix.data[i++]; element != 0.0) {
+    for (uint32_t col = 0; col < matrix.num_cols; ++col) {
+      if (const auto& element = matrix.elements[i++]; element != 0.0) {
         ++nz;
-        result.colind.push_back(col);
-        result.data.push_back(element);
+        result.column_indices.push_back(col);
+        result.elements.push_back(element);
       }
     }
-    result.rowptr[row + 1] = result.rowptr[row] + nz;
+    result.row_pointers[row + 1] = result.row_pointers[row] + nz;
   }
 
   return result;
 }
 
-inline Matrix CRSToRegular(const MatrixCRS& crs) {
-  Matrix matrix{.rows = crs.GetRows(),
-                .cols = crs.GetCols(),
-                .data = std::vector<std::complex<double>>(crs.GetRows() * crs.GetCols())};
-  for (uint32_t row = 0; row < matrix.rows; ++row) {
-    for (uint32_t i = crs.rowptr[row]; i < crs.rowptr[row + 1]; ++i) {
-      matrix.Get(row, crs.colind[i]) = crs.data[i];
+inline MatrixStructure ConvertFromCRS(const SparseMatrixFormat& crs) {
+  MatrixStructure matrix{.num_rows = crs.RowCount(),
+                .num_cols = crs.ColumnCount(),
+                .elements = std::vector<std::complex<double>>(crs.RowCount() * crs.ColumnCount())};
+  for (uint32_t row = 0; row < matrix.num_rows; ++row) {
+    for (uint32_t i = crs.row_pointers[row]; i < crs.row_pointers[row + 1]; ++i) {
+      matrix.AccessElement(row, crs.column_indices[i]) = crs.elements[i];
     }
   }
   return matrix;
@@ -84,18 +84,18 @@ inline Matrix CRSToRegular(const MatrixCRS& crs) {
 
 namespace yasakova_t_sparse_matrix_multiplication_omp {
 
-class TestTaskOpenMP : public ppc::core::Task {
+class SparseMatrixMultiplier : public ppc::core::Task {
  public:
-  explicit TestTaskOpenMP(ppc::core::TaskDataPtr task_data) : Task(std::move(task_data)) {}
+  explicit SparseMatrixMultiplier(ppc::core::TaskDataPtr task_data) : Task(std::move(task_data)) {}
   bool ValidationImpl() override;
   bool PreProcessingImpl() override;
   bool RunImpl() override;
   bool PostProcessingImpl() override;
 
  private:
-  MatrixCRS lhs_;
-  MatrixCRS rhs_;
-  MatrixCRS res_;
+  SparseMatrixFormat left_matrix_;
+  SparseMatrixFormat rhs_;
+  SparseMatrixFormat result_matrix_;
 };
 
 }  // namespace yasakova_t_sparse_matrix_multiplication_omp
