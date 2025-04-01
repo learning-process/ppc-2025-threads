@@ -66,6 +66,8 @@ TEST(tyurin_m_matmul_crs_complex_omp, test_pipeline_run) {
   auto perf_analyzer = std::make_shared<ppc::core::Perf>(task);
   perf_analyzer->PipelineRun(perf_attr, perf_results);
   ppc::core::Perf::PrintPerfStatistic(perf_results);
+
+  EXPECT_EQ(crs_out, MultiplyMat(lhs, rhs));
 }
 
 TEST(tyurin_m_matmul_crs_complex_omp, test_task_run) {
@@ -101,4 +103,6 @@ TEST(tyurin_m_matmul_crs_complex_omp, test_task_run) {
   auto perf_analyzer = std::make_shared<ppc::core::Perf>(task);
   perf_analyzer->TaskRun(perf_attr, perf_results);
   ppc::core::Perf::PrintPerfStatistic(perf_results);
+
+  EXPECT_EQ(crs_out, MultiplyMat(lhs, rhs));
 }
