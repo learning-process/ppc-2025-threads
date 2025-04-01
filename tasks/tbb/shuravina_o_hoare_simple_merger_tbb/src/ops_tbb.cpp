@@ -2,8 +2,9 @@
 
 #include <algorithm>
 #include <cmath>
-#include <cstddef>
 #include <vector>
+
+#include "oneapi/tbb/parallel_invoke.h"
 
 namespace shuravina_o_hoare_simple_merger_tbb {
 
@@ -75,10 +76,10 @@ void TestTaskTBB::Merge(std::vector<int>& arr, int low, int mid, int high) {
 
 bool TestTaskTBB::PreProcessingImpl() {
   auto* in_ptr = reinterpret_cast<int*>(task_data->inputs[0]);
-  auto input_size = static_cast<size_t>(task_data->inputs_count[0]);
+  auto input_size = task_data->inputs_count[0];
   input_ = std::vector<int>(in_ptr, in_ptr + input_size);
 
-  auto output_size = static_cast<size_t>(task_data->outputs_count[0]);
+  auto output_size = task_data->outputs_count[0];
   output_ = std::vector<int>(output_size, 0);
 
   return true;
