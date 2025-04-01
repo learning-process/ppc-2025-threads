@@ -16,7 +16,8 @@ namespace {
 MatrixStructure RandMatrix(uint32_t num_rows, uint32_t num_cols, double percentage) {
   std::mt19937 gen(std::random_device{}());
   std::uniform_real_distribution<double> distr(-10000, 10000);
-  MatrixStructure result{.num_rows = num_rows, .num_cols = num_cols, .elements = std::vector<std::complex<double>>(num_rows * num_cols)};
+  MatrixStructure result{
+      .num_rows = num_rows, .num_cols = num_cols, .elements = std::vector<std::complex<double>>(num_rows * num_cols)};
   std::ranges::generate(result.elements, [&]() {
     const auto el = distr(gen);
     const auto re = (el < (distr.min() + ((distr.max() - distr.min()) * percentage))) ? el : 0;

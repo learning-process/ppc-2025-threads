@@ -20,12 +20,15 @@ struct MatrixStructure {
 };
 
 inline MatrixStructure MultiplyMatrices(MatrixStructure& left_matrix, MatrixStructure& right_matrix) {
-  MatrixStructure result{.num_rows = left_matrix.num_rows, .num_cols = right_matrix.num_cols, .elements = std::vector<std::complex<double>>(left_matrix.num_rows * right_matrix.num_cols)};
+  MatrixStructure result{.num_rows = left_matrix.num_rows,
+                         .num_cols = right_matrix.num_cols,
+                         .elements = std::vector<std::complex<double>>(left_matrix.num_rows * right_matrix.num_cols)};
   for (uint32_t row_idx = 0; row_idx < left_matrix.num_rows; row_idx++) {
     for (uint32_t col_idx = 0; col_idx < right_matrix.num_cols; col_idx++) {
       result.AccessElement(row_idx, col_idx) = 0;
       for (uint32_t k_idx = 0; k_idx < right_matrix.num_rows; k_idx++) {
-        result.AccessElement(row_idx, col_idx) += left_matrix.AccessElement(row_idx, k_idx) * right_matrix.AccessElement(k_idx, col_idx);
+        result.AccessElement(row_idx, col_idx) +=
+            left_matrix.AccessElement(row_idx, k_idx) * right_matrix.AccessElement(k_idx, col_idx);
       }
     }
   }
@@ -45,7 +48,8 @@ struct SparseMatrixCRS {
   [[nodiscard]] uint32_t GetColumnCount() const { return total_columns; }
 
   bool operator==(const SparseMatrixCRS& other) const noexcept {
-    return total_columns == other.total_columns && row_pointers == other.row_pointers && column_indices == other.column_indices && elements == other.elements;
+    return total_columns == other.total_columns && row_pointers == other.row_pointers &&
+           column_indices == other.column_indices && elements == other.elements;
   }
 };
 
@@ -72,8 +76,8 @@ inline SparseMatrixCRS ConvertToCRS(const MatrixStructure& matrix) {
 
 inline MatrixStructure ConvertFromCRS(const SparseMatrixCRS& crs) {
   MatrixStructure matrix{.num_rows = crs.GetRowCount(),
-                .num_cols = crs.GetColumnCount(),
-                .elements = std::vector<std::complex<double>>(crs.GetRowCount() * crs.GetColumnCount())};
+                         .num_cols = crs.GetColumnCount(),
+                         .elements = std::vector<std::complex<double>>(crs.GetRowCount() * crs.GetColumnCount())};
   for (uint32_t row = 0; row < matrix.num_rows; ++row) {
     for (uint32_t row_idx = crs.row_pointers[row]; row_idx < crs.row_pointers[row + 1]; ++row_idx) {
       matrix.AccessElement(row, crs.column_indices[row_idx]) = crs.elements[row_idx];
