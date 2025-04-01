@@ -5,10 +5,11 @@
 #include <cmath>
 #include <core/util/include/util.hpp>
 #include <cstddef>
+#include <algorithm>
 #include <vector>
 
+#include "oneapi/tbb/parallel_for.h" 
 #include "oneapi/tbb/task_arena.h"
-#include "oneapi/tbb/task_group.h"
 
 bool titov_s_image_filter_horiz_gaussian3x3_tbb::ImageFilterTBB::PreProcessingImpl() {
   unsigned int input_size = task_data->inputs_count[0];
@@ -50,10 +51,10 @@ bool titov_s_image_filter_horiz_gaussian3x3_tbb::ImageFilterTBB::RunImpl() {
     tbb::parallel_for(tbb::blocked_range<int>(0, height_, base_chunk), [&](const tbb::blocked_range<int> &range) {
       for (int row = range.begin(); row < range.end(); ++row) {
         for (int col = 0; col < width_; ++col) {
-          const double left = (col > 0) ? input_[row * width_ + col - 1] : 0.0;
-          const double center = input_[row * width_ + col];
-          const double right = (col < width_ - 1) ? input_[row * width_ + col + 1] : 0.0;
-          output_[row * width_ + col] = (left * k0 + center * k1 + right * k2) * inv_sum;
+          const double left = (col > 0) ? input_[(row * width_) + col - 1] : 0.0;
+          const double center = input_[(row * width_) + col];
+          const double right = (col < width_ - 1) ? input_[(row * width_) + col + 1] : 0.0;
+          output_[(row * width_) + col] = (left * k0 + center * k1 + right * k2) * inv_sum;
         }
       }
     });
