@@ -14,7 +14,7 @@ struct MatrixStructure {
 
   std::complex<double>& AccessElement(uint32_t row, uint32_t col) noexcept { return elements[(row * num_cols) + col]; }
 
-  const std::complex<double>& AccessElement(uint32_t row, uint32_t col) const noexcept {
+  [[nodiscard]] std::complex<double>& AccessElement(uint32_t row, uint32_t col) const noexcept {
     return elements[(row * num_cols) + col];
   }
 
@@ -30,7 +30,9 @@ inline MatrixStructure MatrixMultiply(const MatrixStructure& mat_a, const Matrix
   for (uint32_t i = 0; i < mat_a.num_rows; ++i) {
     for (uint32_t k = 0; k < mat_b.num_rows; ++k) {
       const auto temp = mat_a.AccessElement(i, k);
-      if (temp == 0.0) continue;
+      if (temp == 0.0){
+        continue;
+      }
       for (uint32_t j = 0; j < mat_b.num_cols; ++j) {
         result.AccessElement(i, j) += temp * mat_b.AccessElement(k, j);
       }
