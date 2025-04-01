@@ -48,11 +48,17 @@ bool opolin_d_radix_batcher_sort_omp::RadixBatcherSortTaskOpenMP::RunImpl() {
     std::vector<int> negatives;
 
     for (int val : local_input) {
-      if (val >= 0) positives.push_back(val);
-      else negatives.push_back(-val);
+      if (val >= 0) {
+        positives.push_back(val);
+      }
+      else {
+        negatives.push_back(-val);
+      }
     }
     int max_abs = 0;
-    for (int val : local_input) max_abs = std::max(max_abs, std::abs(val));
+    for (int val : local_input) {
+      max_abs = std::max(max_abs, std::abs(val));
+    }
     int digit_count = (max_abs == 0) ? 1 : 0;
     while (max_abs > 0) {
       max_abs /= 10;
@@ -60,13 +66,19 @@ bool opolin_d_radix_batcher_sort_omp::RadixBatcherSortTaskOpenMP::RunImpl() {
     }
 
     for (int place = 1; digit_count > 0; place *= 10, digit_count--) {
-      if (!positives.empty()) SortByDigit(positives, place);
-      if (!negatives.empty()) SortByDigit(negatives, place);
+      if (!positives.empty()) {
+        SortByDigit(positives, place);
+      }
+      if (!negatives.empty()) {
+        SortByDigit(negatives, place);
+      }
     }
 
     if (!negatives.empty()) {
       std::reverse(negatives.begin(), negatives.end());
-      for (size_t j = 0; j < negatives.size(); j++) negatives[j] = -negatives[j];
+      for (size_t j = 0; j < negatives.size(); j++) {
+        negatives[j] = -negatives[j];
+      }
     }
 
     std::vector<int> sorted_local;
