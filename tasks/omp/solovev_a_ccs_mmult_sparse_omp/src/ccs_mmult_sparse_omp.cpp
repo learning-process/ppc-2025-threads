@@ -11,9 +11,9 @@ bool solovev_a_matrix_omp::OMPMatMultCcs::PreProcessingImpl() {
 }
 
 bool solovev_a_matrix_omp::OMPMatMultCcs::ValidationImpl() {
-  int m1_c_n = reinterpret_cast<MatrixInCcsSparse*>(task_data->inputs[0])->c_n;
-  int m2_r_n = reinterpret_cast<MatrixInCcsSparse*>(task_data->inputs[1])->r_n;
-  return (m1_c_n == m2_r_n);
+  auto* M1 = reinterpret_cast<MatrixInCcsSparse*>(task_data->inputs[0]);
+  auto* M2 = reinterpret_cast<MatrixInCcsSparse*>(task_data->inputs[1]);
+  return (M1->c_n == M2->r_n);
 }
 
 bool solovev_a_matrix_omp::OMPMatMultCcs::RunImpl() {
