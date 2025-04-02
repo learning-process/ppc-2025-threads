@@ -5,8 +5,6 @@
 
 #include "core/task/include/task.hpp"
 
-#include "core/task/include/task.hpp"
-
 namespace konkov_i_sparse_matmul_ccs_omp {
 
 class SparseMatmulTask : public ppc::core::Task {
