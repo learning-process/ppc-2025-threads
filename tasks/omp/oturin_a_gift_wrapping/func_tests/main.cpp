@@ -1,9 +1,11 @@
 #include <gtest/gtest.h>
 
 #include <algorithm>
+#include <cmath>
 #include <cstddef>
 #include <cstdint>
 #include <memory>
+#include <numbers>
 #include <random>
 #include <vector>
 
@@ -39,6 +41,8 @@ void DoCommonTest(std::vector<Coord> &in, std::vector<Coord> &answer, std::vecto
     EXPECT_EQ(answer[i].y, out[i].y) << out[i].x << '_' << out[i].y << ' ' << answer[i].x << '_' << answer[i].y;
   }
 }
+
+const double kPi = std::numbers::pi;
 
 }  // namespace
 
@@ -148,4 +152,99 @@ TEST(oturin_a_gift_wrapping_omp, test_random_30plus11) {
 
   DoCommonTest(in, answer, out);
 }
+
+TEST(oturin_a_gift_wrapping_omp, test_square) {
+  std::vector<oturin_a_gift_wrapping_omp::Coord> in;
+  std::vector<oturin_a_gift_wrapping_omp::Coord> answer = {{-1, 1}, {1, 1}, {1, -1}, {-1, -1}};
+  std::vector<oturin_a_gift_wrapping_omp::Coord> out(answer.size());
+  in = answer;
+
+  DoCommonTest(in, answer, out);
+}
+
+TEST(oturin_a_gift_wrapping_omp, test_square_morePoints) {
+  std::vector<oturin_a_gift_wrapping_omp::Coord> in;
+  std::vector<oturin_a_gift_wrapping_omp::Coord> answer = {{-1, 1}, {0, 1}, {1, 1}, {1, 0}, {1, -1}, {-1, -1}, {-1, 0}};
+  std::vector<oturin_a_gift_wrapping_omp::Coord> out(answer.size());
+  in = answer;
+
+  DoCommonTest(in, answer, out);
+}
+
+TEST(oturin_a_gift_wrapping_omp, test_circle) {
+  int points = 30;
+  int circle_radius = 100;
+
+  std::vector<oturin_a_gift_wrapping_omp::Coord> in;
+  std::vector<oturin_a_gift_wrapping_omp::Coord> answer(points);
+  std::vector<oturin_a_gift_wrapping_omp::Coord> out(answer.size());
+  for (int i = 0; i < points; i++) {
+    answer[i] = {int(-std::cos(2 * i * kPi / points) * circle_radius),
+                 int(std::sin(2 * i * kPi / points) * circle_radius)};
+  }
+  in = answer;
+
+  DoCommonTest(in, answer, out);
+}
+
+TEST(oturin_a_gift_wrapping_omp, test_circle_shuffled) {
+  int points = 30;
+  int circle_radius = 100;
+
+  std::vector<oturin_a_gift_wrapping_omp::Coord> in;
+  std::vector<oturin_a_gift_wrapping_omp::Coord> answer(points);
+  std::vector<oturin_a_gift_wrapping_omp::Coord> out(answer.size());
+  for (int i = 0; i < points; i++) {
+    answer[i] = {int(-std::cos(2 * i * kPi / points) * circle_radius),
+                 int(std::sin(2 * i * kPi / points) * circle_radius)};
+  }
+  in = answer;
+
+  std::random_device rd;
+  std::mt19937 g(rd());
+  std::shuffle(in.begin(), in.end(), g);
+
+  DoCommonTest(in, answer, out);
+}
+
+TEST(oturin_a_gift_wrapping_omp, test_star) {
+  int points = 10;
+  int star_radius = 100;
+
+  std::vector<oturin_a_gift_wrapping_omp::Coord> in(points);
+  std::vector<oturin_a_gift_wrapping_omp::Coord> answer;
+  std::vector<oturin_a_gift_wrapping_omp::Coord> out(points);
+  for (int i = 0; i < points; i++) {
+    in[i] = {int(-std::cos((2 * i * kPi / points) + (kPi / points)) * star_radius / (i % 2 + 1)),
+             int(std::sin((2 * i * kPi / points) + (kPi / points)) * star_radius / (i % 2 + 1))};
+    if ((points % 2) != 0) {
+      answer.push_back(in[i]);
+    }
+  }
+
+  DoCommonTest(in, answer, out);
+}
+
+TEST(oturin_a_gift_wrapping_omp, test_star_bigAndShuffled) {
+  int points = 30;
+  int star_radius = 100;
+
+  std::vector<oturin_a_gift_wrapping_omp::Coord> in(points);
+  std::vector<oturin_a_gift_wrapping_omp::Coord> answer;
+  std::vector<oturin_a_gift_wrapping_omp::Coord> out(points);
+  for (int i = 0; i < points; i++) {
+    in[i] = {int(-std::cos((2 * i * kPi / points) + (kPi / points)) * star_radius / (i % 2 + 1)),
+             int(std::sin((2 * i * kPi / points) + (kPi / points)) * star_radius / (i % 2 + 1))};
+    if ((points % 2) != 0) {
+      answer.push_back(in[i]);
+    }
+  }
+
+  std::random_device rd;
+  std::mt19937 g(rd());
+  std::shuffle(in.begin(), in.end(), g);
+
+  DoCommonTest(in, answer, out);
+}
+
 // NOLINTEND(modernize-use-designated-initializers)
