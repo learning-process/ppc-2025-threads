@@ -157,26 +157,21 @@ void volochaev_s_shell_sort_with_batchers_even_odd_merge_omp::ShellSortOMP::Para
 }
 
 void volochaev_s_shell_sort_with_batchers_even_odd_merge_omp::ShellSortOMP::FindThreadVariables() {
-  c_threads_ = omp_get_num_threads();
-  mini_batch_ = 2 * c_threads_;
-
-  if (size_ % mini_batch_ != 0) {
-    n_ = size_ + (((2 * c_threads_) - size_ % (2 * c_threads_))) % (2 * c_threads_);
-    mass_.resize(n_);
-    int max_elem = std::numeric_limits<int>::min();
-    for (int i = 0; i < size_; ++i) {
-      mass_[i] = array_[i];
-      max_elem = std::max(max_elem, array_[i]);
-    }
-
-    for (int i = size_; i < static_cast<int>(mass_.size()); ++i) {
-      n_ = size_;
-      mass_[i] = max_elem;
-    }
-    array_.resize(n_);
-  } else {
-    mass_ = array_;
+  c_threads_ = static_cast<int>(std::pow(2, std::floor(std::log2(omp_get_max_threads()))));
+  n_ = size_ + (((2 * c_threads_) - size_ % (2 * c_threads_))) % (2 * c_threads_);
+  mass_.resize(n_);
+  mini_batch_ = n_ / c_threads_;
+  int max_elem = std::numeric_limits<int>::min();
+  for (int i = 0; i < size_; ++i) {
+    mass_[i] = array_[i];
+    max_elem = std::max(max_elem, array_[i]);
   }
+
+  for (int i = size_; i < static_cast<int>(mass_.size()); ++i) {
+    n_ = size_;
+    mass_[i] = max_elem;
+  }
+  array_.resize(n_);
 }
 
 bool volochaev_s_shell_sort_with_batchers_even_odd_merge_omp::ShellSortOMP::RunImpl() {
