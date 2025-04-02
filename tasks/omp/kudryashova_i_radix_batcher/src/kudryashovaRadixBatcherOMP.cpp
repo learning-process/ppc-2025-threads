@@ -9,7 +9,6 @@
 #include <cstring>
 #include <vector>
 
-using namespace kudryashova_i_radix_batcher_omp;
 void kudryashova_i_radix_batcher_omp::RadixDoubleSort(std::vector<double>& data, size_t first, size_t last) {
   const size_t sort_size = last - first;
   std::vector<uint64_t> converted(sort_size);
