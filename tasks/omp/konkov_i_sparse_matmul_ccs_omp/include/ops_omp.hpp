@@ -1,9 +1,9 @@
 #pragma once
 #include <omp.h>
 
-#include <algorithm>
-#include <unordered_map>
 #include <vector>
+
+#include "core/task/include/task.hpp"
 
 #include "core/task/include/task.hpp"
 

@@ -1,6 +1,13 @@
 #include "omp/konkov_i_sparse_matmul_ccs_omp/include/ops_omp.hpp"
+#include "core/task/include/task.hpp"
 
-#include "omp.h"
+#include <omp.h>
+
+#include <algorithm>
+#include <cstddef>
+#include <unordered_map>
+#include <utility>
+#include <vector>
 
 namespace konkov_i_sparse_matmul_ccs_omp {
 
@@ -60,7 +67,7 @@ bool SparseMatmulTask::RunImpl() {
         rows.push_back(pair.first);
       }
     }
-    std::sort(rows.begin(), rows.end());
+    std::ranges::sort(rows);
 
     for (int row : rows) {
       C_values.push_back(column_map[col][row]);
