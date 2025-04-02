@@ -19,10 +19,10 @@ void CanonMatrix::PreRoutine(MatrixType type) {
   StairShift();
 }
 
-void CanonMatrix::SetBaseMatrix(const std::vector<double>& initial_vector) {
+void CanonMatrix::SetBaseMatrix(std::vector<double>&& initial_vector) {
   if (matrix_.empty()) {
     CalculateSize(initial_vector.size());
-    matrix_ = initial_vector;
+    matrix_ = std::move(initial_vector);
   }
 }
 

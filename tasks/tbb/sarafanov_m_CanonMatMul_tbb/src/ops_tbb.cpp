@@ -16,31 +16,27 @@ bool sarafanov_m_canon_mat_mul_tbb::CanonMatMulTBB::PreProcessingImpl() {
   a_matrix_.ClearMatrix();
   b_matrix_.ClearMatrix();
   c_matrix_.ClearMatrix();
-  int rows1 = static_cast<int>(task_data->inputs_count[0]);
-  int columns1 = static_cast<int>(task_data->inputs_count[1]);
-  std::vector<double> matrix_a(rows1 * columns1);
+  int rows = static_cast<int>(task_data->inputs_count[0]);
+  int columns = static_cast<int>(task_data->inputs_count[1]);
+  std::vector<double> matrix_a(rows * columns);
   auto *in = reinterpret_cast<double *>(task_data->inputs[0]);
-  for (int i = 0; i < rows1 * columns1; ++i) {
-    matrix_a[i] = in[i];
-  }
+  std::copy(in, in + matrix_a.size(), matrix_a.begin());
   if (!CheckSquareSize(0)) {
-    matrix_a = ConvertToSquareMatrix(std::max(rows1, columns1),
-                                     rows1 > columns1 ? MatrixType::kRowMatrix : MatrixType::kColumnMatrix, matrix_a);
+    matrix_a = ConvertToSquareMatrix(std::max(rows, columns),
+                                     rows > columns ? MatrixType::kRowMatrix : MatrixType::kColumnMatrix, matrix_a);
   }
-  a_matrix_.SetBaseMatrix(matrix_a);
+  a_matrix_.SetBaseMatrix(std::move(matrix_a));
   a_matrix_.PreRoutine(MatrixType::kRowMatrix);
-  int rows2 = static_cast<int>(task_data->inputs_count[2]);
-  int columns2 = static_cast<int>(task_data->inputs_count[3]);
-  std::vector<double> matrix_b(rows2 * columns2);
-  auto *in2 = reinterpret_cast<double *>(task_data->inputs[1]);
-  for (int i = 0; i < rows2 * columns2; ++i) {
-    matrix_b[i] = in2[i];
-  }
+  rows = static_cast<int>(task_data->inputs_count[2]);
+  columns = static_cast<int>(task_data->inputs_count[3]);
+  std::vector<double> matrix_b(rows * columns);
+  in = reinterpret_cast<double *>(task_data->inputs[1]);
+  std::copy(in, in + matrix_b.size(), matrix_b.begin());
   if (!CheckSquareSize(2)) {
-    matrix_b = ConvertToSquareMatrix(std::max(rows2, columns2),
-                                     rows2 > columns2 ? MatrixType::kRowMatrix : MatrixType::kColumnMatrix, matrix_b);
+    matrix_b = ConvertToSquareMatrix(std::max(rows, columns),
+                                     rows > columns ? MatrixType::kRowMatrix : MatrixType::kColumnMatrix, matrix_b);
   }
-  b_matrix_.SetBaseMatrix(matrix_b);
+  b_matrix_.SetBaseMatrix(std::move(matrix_b));
   b_matrix_.PreRoutine(MatrixType::kColumnMatrix);
   return true;
 }
@@ -94,23 +90,20 @@ bool sarafanov_m_canon_mat_mul_tbb::CanonMatMulTBB::RunImpl() {
     oneapi::tbb::parallel_for(
         oneapi::tbb::blocked_range<size_t>(0, a_matrix_.GetSize(), a_matrix_.GetSize() / ppc::util::GetPPCNumThreads()),
         [&](const oneapi::tbb::blocked_range<size_t> &distance) {
-          for (size_t i = distance.begin(); i != distance.end(); ++i) {
+          for (auto i = distance.begin(); i != distance.end(); ++i) {
             mul_results[tbb::this_task_arena::current_thread_index()] += a_matrix_.MultiplicateMatrix(b_matrix_, i);
           }
         });
   });
-  for (auto &it : mul_results) {
-    if (!it.IsEmpty()) {
-      c_matrix_ += it;
+  std::ranges::for_each(mul_results, [&](const auto &vector) {
+    if (!vector.IsEmpty()) {
+      c_matrix_ += vector;
     }
-  }
+  });
   return true;
 }
 
 bool sarafanov_m_canon_mat_mul_tbb::CanonMatMulTBB::PostProcessingImpl() {
-  auto matrix = c_matrix_.GetMatrix();
-  for (size_t i = 0; i < matrix.size(); i++) {
-    reinterpret_cast<double *>(task_data->outputs[0])[i] = matrix[i];
-  }
+  std::ranges::copy(c_matrix_.GetMatrix(), reinterpret_cast<double *>(task_data->outputs[0]));
   return true;
 }

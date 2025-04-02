@@ -17,7 +17,7 @@ class CanonMatrix {
  public:
   CanonMatrix() = default;
   CanonMatrix(const std::vector<double>& initial_vector);
-  void SetBaseMatrix(const std::vector<double>& initial_vector);
+  void SetBaseMatrix(std::vector<double>&& initial_vector);
   void Transpose();
   void StairShift();
   void PreRoutine(MatrixType type);
