@@ -155,9 +155,9 @@ void volochaev_s_shell_sort_with_batchers_even_odd_merge_omp::ShellSortOMP::Para
   }
 
   for (int i = 0; i < n_; ++i) {
-    cout << mass_[i] << " ";
+    std::cout << mass_[i] << " ";
   }
-  cout << endl;
+  std::cout << std::endl;
   Merge();
 }
 
