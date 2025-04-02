@@ -66,6 +66,8 @@ void volochaev_s_shell_sort_with_batchers_even_odd_merge_omp::ShellSortOMP::Para
   std::vector<int> block_size(c_threads_, mini_batch_);
   std::vector<int> block_ids(c_threads_);
 
+  int n = static_cast<int>(mass_.size());
+
   for (int i = 0; i <= c_threads_; i++) {
     index[i] = (i * n) / c_threads_;
     block_ids[i] = i;
