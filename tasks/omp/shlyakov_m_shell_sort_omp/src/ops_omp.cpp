@@ -2,7 +2,6 @@
 
 #include <omp.h>
 
-#include <algorithm>
 #include <cmath>
 #include <cstddef>
 #include <vector>
@@ -59,7 +58,7 @@ bool shlyakov_m_shell_sort_omp::TestTaskOpenMP::RunImpl() {
 }
 
 namespace shlyakov_m_shell_sort_omp {
-void TestTaskOpenMP::ShellSort(int left, int right, std::vector<int>& arr) {
+void ShellSort(int left, int right, std::vector<int>& arr) {
   int sub_array_size = right - left + 1;
   int gap = 1;
 
@@ -81,7 +80,7 @@ void TestTaskOpenMP::ShellSort(int left, int right, std::vector<int>& arr) {
   }
 }
 
-void TestTaskOpenMP::Merge(int left, int mid, int right, std::vector<int>& arr, std::vector<int>& buffer) {
+void Merge(int left, int mid, int right, std::vector<int>& arr, std::vector<int>& buffer) {
   int i = left;
   int j = mid + 1;
   int k = 0;
@@ -105,7 +104,7 @@ void TestTaskOpenMP::Merge(int left, int mid, int right, std::vector<int>& arr, 
     arr[left + idx] = buffer[idx];
   }
 }
-}  // namespace shlyakov_m_shell_sort_omp
+}
 
 bool shlyakov_m_shell_sort_omp::TestTaskOpenMP::PostProcessingImpl() {
   for (size_t i = 0; i < output_.size(); ++i) {
