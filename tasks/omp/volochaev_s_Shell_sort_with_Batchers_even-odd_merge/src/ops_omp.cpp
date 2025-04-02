@@ -161,7 +161,7 @@ void volochaev_s_shell_sort_with_batchers_even_odd_merge_omp::ShellSortOMP::Find
   mini_batch_ = 2 * c_threads_;
 
   if (size_ % mini_batch_ != 0) {
-    n_ =size_ + (((2 * c_threads_) - n_input_ % (2 * c_threads_))) % (2 * c_threads_));
+    n_ =size_ + (((2 * c_threads_) - size_ % (2 * c_threads_))) % (2 * c_threads_));
     mass_.resize(n_);
     int max_elem = std::numeric_limits<int>::min();
     for (int i = 0; i < size_; ++i) {
