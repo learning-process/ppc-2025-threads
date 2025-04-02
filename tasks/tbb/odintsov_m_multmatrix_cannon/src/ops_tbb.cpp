@@ -1,13 +1,15 @@
 #include "tbb/odintsov_m_multmatrix_cannon/include/ops_tbb.hpp"
 
-#include <tbb/info.h>
-#include <tbb/mutex.h>
-#include <tbb/parallel_for.h>
+#include <oneapi/tbb/global_control.h>
+#include <oneapi/tbb/info.h>
+#include <oneapi/tbb/mutex.h>
+#include <oneapi/tbb/parallel_for.h>
 #include <tbb/tbb.h>
 
 #include <algorithm>
 #include <cmath>
 #include <cstddef>
+#include <vector>
 
 using namespace std;
 void odintsov_m_mulmatrix_cannon_tbb::MulMatrixCannonTBB::ShiftRow(std::vector<double>& matrix, int root, int row,
