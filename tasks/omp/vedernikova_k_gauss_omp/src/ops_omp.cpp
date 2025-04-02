@@ -79,9 +79,11 @@ void vedernikova_k_gauss_omp::Gauss::ComputePixel(uint32_t x, uint32_t y) {
 }
 
 bool vedernikova_k_gauss_omp::Gauss::RunImpl() {
+  int h = (int)height_;
+  int w = (int)width_;
 #pragma omp parallel for schedule(dynamic, 256)
-  for (uint32_t j = 0; j < height_; j++) {
-    for (uint32_t i = 0; i < width_; i++) {
+  for (int j = 0; j < h; j++) {
+    for (int i = 0; i < w; i++) {
       ComputePixel(i, j);
     }
   }
