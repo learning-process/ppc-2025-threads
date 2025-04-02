@@ -157,14 +157,6 @@ void volochaev_s_shell_sort_with_batchers_even_odd_merge_omp::ShellSortOMP::Find
   }
 }
 
-bool volochaev_s_shell_sort_with_batchers_even_odd_merge_omp::ShellSortOMP::IsSorted() {
-  int n = static_cast<int>(arr.size());
-  for (int i = 1; i < n; i++) {
-    if (arr[i - 1] > arr[i]) return false;
-  }
-  return true;
-}
-
 bool volochaev_s_shell_sort_with_batchers_even_odd_merge_omp::ShellSortOMP::RunImpl() {
   ParallelShellSort(array_, array_.size());
   return true;

@@ -22,12 +22,9 @@ class ShellSortOMP : public ppc::core::Task {
   std::vector<int> mass_;
 
   void ParallelShellSort();
-  void ShellSort();
-  bool IsSorted();
-  static int exp(int arg, int exp);
+  void ShellSort(int start, int finish);
   void FindThreadVariables();
   void MergeBlocks(int id_1, int block_size_1, int index_2, int block_size_2);
-  void SeqSorter(int start, int end);
 };
 
 }  // namespace volochaev_s_shell_sort_with_batchers_even_odd_merge_omp
