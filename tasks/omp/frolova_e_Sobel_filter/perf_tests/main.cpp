@@ -5,6 +5,7 @@
 #include <cmath>
 #include <cstddef>
 #include <cstdint>
+#include <ctime>
 #include <memory>
 #include <random>
 #include <vector>
@@ -14,9 +15,11 @@
 #include "omp/frolova_e_Sobel_filter/include/ops_omp.hpp"
 
 namespace {
-std::vector<int> GenRgbPicture(size_t width, size_t height, size_t seed) {
+std::vector<int> GenRgbPicture(size_t width, size_t height) {
   std::vector<int> image(width * height * 3);
-  std::mt19937 gen(seed);
+
+  std::random_device rd;
+  std::mt19937 gen(rd());
   std::uniform_int_distribution<int> rgb(0, 255);
 
   for (size_t y = 0; y < height; y++) {
@@ -96,7 +99,7 @@ std::vector<int> ApplySobelFilter(const std::vector<int> &gray_scale_image, size
 
 TEST(frolova_e_sobel_filter_omp, test_pipeline_run) {
   std::vector<int> value = {2000, 2000};
-  std::vector<int> pict = GenRgbPicture(2000, 2000, 0);
+  std::vector<int> pict = GenRgbPicture(2000, 2000);
 
   std::vector<int> res(4000000, 0);
 
@@ -146,7 +149,7 @@ TEST(frolova_e_sobel_filter_omp, test_pipeline_run) {
 
 TEST(frolova_e_sobel_filter_omp, test_task_run) {
   std::vector<int> value = {2000, 2000};
-  std::vector<int> pict = GenRgbPicture(2000, 2000, 0);
+  std::vector<int> pict = GenRgbPicture(2000, 2000);
 
   std::vector<int> res(4000000, 0);
 

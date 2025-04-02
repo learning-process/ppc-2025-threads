@@ -4,6 +4,7 @@
 #include <cmath>
 #include <cstddef>
 #include <cstdint>
+#include <ctime>
 #include <memory>
 #include <random>
 #include <vector>
@@ -12,9 +13,11 @@
 #include "omp/frolova_e_Sobel_filter/include/ops_omp.hpp"
 
 namespace {
-std::vector<int> GenRgbPicture(size_t width, size_t height, size_t seed) {
+std::vector<int> GenRgbPicture(size_t width, size_t height) {
   std::vector<int> image(width * height * 3);
-  std::mt19937 gen(seed);
+
+  std::random_device rd;
+  std::mt19937 gen(rd());
   std::uniform_int_distribution<int> rgb(0, 255);
 
   for (size_t y = 0; y < height; y++) {
@@ -203,7 +206,7 @@ TEST(frolova_e_sobel_filter_omp, small_image_2) {
 
 TEST(frolova_e_sobel_filter_omp, _1000_1000_picture) {
   std::vector<int> value = {1000, 1000};
-  std::vector<int> pict = GenRgbPicture(1000, 1000, 0);
+  std::vector<int> pict = GenRgbPicture(1000, 1000);
 
   std::vector<int> res(1000000, 0);
   std::vector<int> reference(1000000, 0);
