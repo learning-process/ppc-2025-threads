@@ -151,7 +151,7 @@ TEST(khovansky_d_double_radix_batcher_seq, large_array) {
   task_data_seq->inputs_count.emplace_back(in.size());
   task_data_seq->outputs.emplace_back(reinterpret_cast<uint8_t *>(out.data()));
   task_data_seq->outputs_count.emplace_back(out.size());
-  
+
   khovansky_d_double_radix_batcher_seq::RadixSeq test_task_sequential(task_data_seq);
   ASSERT_EQ(test_task_sequential.ValidationImpl(), true);
   test_task_sequential.PreProcessingImpl();
