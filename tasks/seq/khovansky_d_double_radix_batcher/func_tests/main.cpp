@@ -1,5 +1,6 @@
 #include <gtest/gtest.h>
 
+#include <cstddef>
 #include <cstdint>
 #include <memory>
 #include <vector>
@@ -136,16 +137,16 @@ TEST(khovansky_d_double_radix_batcher_seq, large_numbers) {
 }
 
 TEST(khovansky_d_double_radix_batcher_seq, large_array) {
-  constexpr size_t size = 1000000;
-  std::vector<double> in(size);
-  std::vector<double> exp_out(size);
+  constexpr size_t kSize = 1000000;
+  std::vector<double> in(kSize);
+  std::vector<double> exp_out(kSize);
 
-  for (size_t i = 0; i < size; ++i) {
-    in[i] = static_cast<double>(size - i);
+  for (size_t i = 0; i < kSize; ++i) {
+    in[i] = static_cast<double>(kSize - i);
     exp_out[i] = static_cast<double>(i + 1);
   }
 
-  std::vector<double> out(size);
+  std::vector<double> out(kSize);
   auto task_data_seq = std::make_shared<ppc::core::TaskData>();
   task_data_seq->inputs.emplace_back(reinterpret_cast<uint8_t *>(in.data()));
   task_data_seq->inputs_count.emplace_back(in.size());
