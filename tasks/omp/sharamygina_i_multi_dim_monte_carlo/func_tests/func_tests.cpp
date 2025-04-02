@@ -8,7 +8,7 @@
 #include <vector>
 
 #include "core/task/include/task.hpp"
-#include "seq/sharamygina_i_multi_dim_monte_carlo/include/ops_seq.h"
+#include "omp/sharamygina_i_multi_dim_monte_carlo/include/ops_omp.h"
 
 namespace {
 std::vector<double> GetBoundaries(double left, double right, unsigned int dimension) {
