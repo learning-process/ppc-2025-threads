@@ -134,3 +134,28 @@ TEST(khovansky_d_double_radix_batcher_seq, large_numbers) {
   test_task_sequential.PostProcessingImpl();
   EXPECT_EQ(exp_out, out);
 }
+
+TEST(khovansky_d_double_radix_batcher_seq, large_array) {
+  constexpr size_t size = 1000000;
+  std::vector<double> in(size);
+  std::vector<double> exp_out(size);
+  
+  for (size_t i = 0; i < size; ++i) {
+      in[i] = static_cast<double>(size - i);
+      exp_out[i] = static_cast<double>(i + 1);
+  }
+  
+  std::vector<double> out(size);
+  auto task_data_seq = std::make_shared<ppc::core::TaskData>();
+  task_data_seq->inputs.emplace_back(reinterpret_cast<uint8_t *>(in.data()));
+  task_data_seq->inputs_count.emplace_back(in.size());
+  task_data_seq->outputs.emplace_back(reinterpret_cast<uint8_t *>(out.data()));
+  task_data_seq->outputs_count.emplace_back(out.size());
+  
+  khovansky_d_double_radix_batcher_seq::RadixSeq test_task_sequential(task_data_seq);
+  ASSERT_EQ(test_task_sequential.ValidationImpl(), true);
+  test_task_sequential.PreProcessingImpl();
+  test_task_sequential.RunImpl();
+  test_task_sequential.PostProcessingImpl();
+  EXPECT_EQ(exp_out, out);
+}

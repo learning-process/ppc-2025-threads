@@ -95,14 +95,6 @@ void RadixBatcherSort(std::vector<double>& data) {
 }  // namespace khovansky_d_double_radix_batcher_seq
 
 bool khovansky_d_double_radix_batcher_seq::RadixSeq::PreProcessingImpl() {
-  if (!task_data) {
-    return false;
-  }
-
-  if (task_data->inputs[0] == nullptr && task_data->inputs_count[0] == 0) {
-    return false;
-  }
-
   auto* in_ptr = reinterpret_cast<double*>(task_data->inputs[0]);
 
   unsigned int input_size = task_data->inputs_count[0];
