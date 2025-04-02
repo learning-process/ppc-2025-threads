@@ -89,7 +89,7 @@ void volochaev_s_shell_sort_with_batchers_even_odd_merge_omp::ShellSortOMP::Merg
     runnerarray += 2;
   }
 
-  for (unsigned int i = 0; i < runnerarray; i += 2) {
+  for (int i = 0; i < runnerarray; i += 2) {
     mass_[id_l + i] = array_[id_arr + i];
   }
 }
@@ -128,7 +128,7 @@ void volochaev_s_shell_sort_with_batchers_even_odd_merge_omp::ShellSortOMP::Merg
   for (int i = c_threads_; i > 1; i /= 2) {
 #pragma omp parallel num_threads(i)
     {
-      int id = static_cast<int>(omp_get_thread_num() / 2);
+      int id = static_cast<int>(static_cast<double>(omp_get_thread_num()) / 2);
       int ost = omp_get_thread_num() % 2;
       int l = mini_batch_ * (c_threads_ / i);
 
@@ -179,7 +179,7 @@ bool volochaev_s_shell_sort_with_batchers_even_odd_merge_omp::ShellSortOMP::RunI
 }
 
 bool volochaev_s_shell_sort_with_batchers_even_odd_merge_omp::ShellSortOMP::PostProcessingImpl() {
-  for (size_t i = 0; i < size_; i++) {
+  for (int i = 0; i < size_; i++) {
     reinterpret_cast<int*>(task_data->outputs[0])[i] = array_[i];
   }
   return true;
