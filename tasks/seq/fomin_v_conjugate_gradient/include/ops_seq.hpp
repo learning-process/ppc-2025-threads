@@ -21,11 +21,13 @@ class fomin_v_conjugate_gradient_seq : public ppc::core::Task {
   std::vector<double> VectorSub(const std::vector<double>& a, const std::vector<double>& b);
   std::vector<double> VectorScalarMultiply(const std::vector<double>& v, double scalar);
 
+  int n_;
+
  private:
   std::vector<double> A_;
   std::vector<double> b_;
   std::vector<double> output_;
-  int n_;
+
 };
 
 }  // namespace fomin_v_conjugate_gradient

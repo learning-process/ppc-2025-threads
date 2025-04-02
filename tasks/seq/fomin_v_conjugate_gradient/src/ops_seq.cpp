@@ -75,46 +75,30 @@ bool fomin_v_conjugate_gradient::fomin_v_conjugate_gradient_seq::ValidationImpl(
 
 bool fomin_v_conjugate_gradient::fomin_v_conjugate_gradient_seq::RunImpl() {
   const double epsilon = 1e-6;
-  const int max_iter = n_;
+  const int max_iter = 1000;  
   std::vector<double> x(n_, 0.0);
   std::vector<double> r = b_;
   std::vector<double> p = r;
   double rs_old = DotProduct(r, r);
 
-  // Проверка на нулевую начальную невязку
-  if (rs_old < epsilon) {
-    output_ = x;
-    return true;
-  }
-
   for (int i = 0; i < max_iter; ++i) {
     std::vector<double> Ap = MatrixVectorMultiply(A_, p);
     double pAp = DotProduct(p, Ap);
 
-    // Защита от деления на ноль при вычислении alpha
     if (std::abs(pAp) < 1e-12) {
       break;
     }
 
     double alpha = rs_old / pAp;
-
     x = VectorAdd(x, VectorScalarMultiply(p, alpha));
     std::vector<double> r_new = VectorSub(r, VectorScalarMultiply(Ap, alpha));
 
     double rs_new = DotProduct(r_new, r_new);
-
-    // Проверка условия останова
     if (std::sqrt(rs_new) < epsilon) {
       break;
     }
 
-    // Защита от деления на ноль при вычислении beta
-    if (std::abs(rs_old) < 1e-12) {
-      break;
-    }
-
     double beta = rs_new / rs_old;
-
     p = VectorAdd(r_new, VectorScalarMultiply(p, beta));
     r = r_new;
     rs_old = rs_new;

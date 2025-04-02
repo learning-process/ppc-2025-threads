@@ -11,16 +11,23 @@
 #include "seq/fomin_v_conjugate_gradient/include/ops_seq.hpp"
 
 TEST(conjugate_gradient_task_seq, test_small_system) {
-  // Создаем данные для системы 3x3
   constexpr size_t kCount = 3;
-  std::vector<double> A = {4, 1, 1, 1, 3, 0, 1, 0, 2};  // Матрица A
-  std::vector<double> b = {6, 5, 3};                    // Вектор b
-  std::vector<double> expected_x = {1, 1, 1};           // Ожидаемое решение
-  std::vector<double> out(kCount, 0.0);                 // Выходной вектор
+  // Матрица A (3x3) и вектор b (3)
+  std::vector<double> A = {4, 1, 1, 1, 3, 0, 1, 0, 2};
+  std::vector<double> b = {6, 5, 3};
+  std::vector<double> expected_x = {1, 1, 1};
 
+  // Объединяем A и b в один входной вектор
+  std::vector<double> input;
+  input.insert(input.end(), A.begin(), A.end());
+  input.insert(input.end(), b.begin(), b.end());
+
+  std::vector<double> out(kCount, 0.0);
+
+  // Создаем task_data
   auto task_data_seq = std::make_shared<ppc::core::TaskData>();
-  task_data_seq->inputs.emplace_back(reinterpret_cast<uint8_t*>(A.data()));
-  task_data_seq->inputs_count.emplace_back(A.size() + b.size());
+  task_data_seq->inputs.emplace_back(reinterpret_cast<uint8_t*>(input.data()));
+  task_data_seq->inputs_count.emplace_back(input.size());
   task_data_seq->outputs.emplace_back(reinterpret_cast<uint8_t*>(out.data()));
   task_data_seq->outputs_count.emplace_back(out.size());
 
@@ -30,6 +37,7 @@ TEST(conjugate_gradient_task_seq, test_small_system) {
   test_task_sequential.Run();
   test_task_sequential.PostProcessing();
 
+  // Проверяем результат
   for (size_t i = 0; i < kCount; ++i) {
     EXPECT_NEAR(out[i], expected_x[i], 1e-6);
   }
@@ -39,7 +47,7 @@ TEST(conjugate_gradient_task_seq, test_large_system) {
   // Создаем данные для системы 5x5
   constexpr size_t kCount = 5;
   std::vector<double> A = {5, 1, 0, 0, 0, 1, 5, 1, 0, 0, 0, 1, 5, 1, 0, 0, 0, 1, 5, 1, 0, 0, 0, 1, 5};  // Матрица A
-  std::vector<double> b = {6, 7, 7, 7, 6};           // Вектор b
+  std::vector<double> b = {6, 7, 7, 7, 6};                                                              // Вектор b
   std::vector<double> expected_x = {1, 1, 1, 1, 1};  // Ожидаемое решение
   std::vector<double> out(kCount, 0.0);              // Выходной вектор
 
@@ -71,17 +79,18 @@ TEST(fomin_v_conjugate_gradient_seq, DotProduct) {
 }
 
 TEST(fomin_v_conjugate_gradient_seq, MatrixVectorMultiply) {
-  std::vector<double> A = {1.0, 2.0, 3.0, 4.0};
+  std::vector<double> A = {1.0, 2.0, 3.0, 4.0};  // 2x2 матрица
   std::vector<double> x = {5.0, 6.0};
-  std::vector<double> expected = {1.0 * 5.0 + 2.0 * 6.0, 3.0 * 5.0 + 4.0 * 6.0};  // {17.0, 39.0}
+  std::vector<double> expected = {1 * 5 + 2 * 6, 3 * 5 + 4 * 6};  // {17, 39}
+
   auto task_data = std::make_shared<ppc::core::TaskData>();
   fomin_v_conjugate_gradient::fomin_v_conjugate_gradient_seq task(task_data);
 
+  // Явно задаем n_ = 2 для этого теста
+  task.n_ = 2;
+
   auto result = task.MatrixVectorMultiply(A, x);
-  EXPECT_EQ(result.size(), expected.size());
-  for (size_t i = 0; i < result.size(); ++i) {
-    EXPECT_DOUBLE_EQ(result[i], expected[i]);
-  }
+  EXPECT_EQ(result, expected);
 }
 
 TEST(fomin_v_conjugate_gradient_seq, VectorAdd) {
