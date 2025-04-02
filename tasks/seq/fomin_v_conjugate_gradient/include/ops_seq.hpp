@@ -27,7 +27,6 @@ class fomin_v_conjugate_gradient_seq : public ppc::core::Task {
   std::vector<double> A_;
   std::vector<double> b_;
   std::vector<double> output_;
-
 };
 
 }  // namespace fomin_v_conjugate_gradient

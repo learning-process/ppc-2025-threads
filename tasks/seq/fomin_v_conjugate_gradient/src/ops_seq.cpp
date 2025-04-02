@@ -75,7 +75,7 @@ bool fomin_v_conjugate_gradient::fomin_v_conjugate_gradient_seq::ValidationImpl(
 
 bool fomin_v_conjugate_gradient::fomin_v_conjugate_gradient_seq::RunImpl() {
   const double epsilon = 1e-6;
-  const int max_iter = 1000;  
+  const int max_iter = 1000;
   std::vector<double> x(n_, 0.0);
   std::vector<double> r = b_;
   std::vector<double> p = r;
