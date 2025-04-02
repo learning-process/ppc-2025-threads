@@ -153,6 +153,7 @@ void volochaev_s_shell_sort_with_batchers_even_odd_merge_omp::ShellSortOMP::Para
       ShellSort(index[i], index[i] + mini_batch_);
     }
   }
+
   for (int i = 0; i < n_; ++i) {
     cout << mass_[i] << " ";
   }
@@ -184,7 +185,7 @@ bool volochaev_s_shell_sort_with_batchers_even_odd_merge_omp::ShellSortOMP::RunI
 }
 
 bool volochaev_s_shell_sort_with_batchers_even_odd_merge_omp::ShellSortOMP::PostProcessingImpl() {
-  for (size_t i = 0; i < array_.size(); i++) {
+  for (size_t i = 0; i < size_; i++) {
     reinterpret_cast<int*>(task_data->outputs[0])[i] = array_[i];
   }
   return true;
