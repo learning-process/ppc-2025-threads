@@ -24,70 +24,31 @@ bool shlyakov_m_shell_sort_omp::TestTaskOpenMP::ValidationImpl() {
 bool shlyakov_m_shell_sort_omp::TestTaskOpenMP::RunImpl() {
   int array_size = static_cast<int>(input_.size());
   int num_threads = omp_get_max_threads();
-  int chunk_size = (array_size + num_threads - 1) / num_threads;
+  int sub_arr_size = (array_size + num_threads - 1) / num_threads;
 
 #pragma omp parallel
   {
-    std::vector<int> temp_buffer;
+    std::vector<int> buffer;
 
 #pragma omp for schedule(dynamic)
     for (int i = 0; i < num_threads; ++i) {
-      int left = i * chunk_size;
-      int right = std::min(left + chunk_size - 1, array_size - 1);
+      int left = i * sub_arr_size;
+      int right = (left + sub_arr_size - 1 < array_size - 1) ? (left + sub_arr_size - 1) : (array_size - 1);
 
       if (left < right) {
-        int sub_array_size = right - left + 1;
-        int gap = 1;
-
-        while (gap <= sub_array_size / 3) {
-          gap = gap * 3 + 1;
-        }
-
-        while (gap > 0) {
-          for (int k = left + gap; k <= right; ++k) {
-            int current_element = input_[k];
-            int j = k;
-
-            while (j >= left + gap && input_[j - gap] > current_element) {
-              input_[j] = input_[j - gap];
-              j -= gap;
-            }
-            input_[j] = current_element;
-          }
-          gap /= 3;
-        }
+        ShellSort(left, right, input_);
       }
     }
 
-    for (int size = chunk_size; size < array_size; size *= 2) {
+    for (int size = sub_arr_size; size < array_size; size *= 2) {
 #pragma omp for schedule(dynamic)
       for (int left = 0; left < array_size; left += 2 * size) {
-        int mid = std::min(left + size - 1, array_size - 1);
-        int right = std::min(left + 2 * size - 1, array_size - 1);
+        int mid = (left + size - 1 < array_size - 1) ? (left + size - 1) : (array_size - 1);
+        int right_bound = left + (2 * size) - 1;
+        int right = (right_bound < array_size - 1) ? right_bound : (array_size - 1);
 
         if (mid < right) {
-          int i = left;
-          int j = mid + 1;
-          int k = 0;
-          const int merge_size = right - left + 1;
-
-          if (temp_buffer.size() < static_cast<std::size_t>(merge_size)) {
-            temp_buffer.resize(static_cast<std::size_t>(merge_size));
-          }
-
-          while (i <= mid && j <= right) {
-            temp_buffer[k++] = (input_[i] <= input_[j]) ? input_[i++] : input_[j++];
-          }
-
-          while (i <= mid) {
-            temp_buffer[k++] = input_[i++];
-          }
-
-          while (j <= right) {
-            temp_buffer[k++] = input_[j++];
-          }
-
-          std::ranges::copy(temp_buffer.begin(), temp_buffer.begin() + k, input_.begin() + left);
+          Merge(left, mid, right, input_, buffer);
         }
       }
     }
@@ -96,6 +57,53 @@ bool shlyakov_m_shell_sort_omp::TestTaskOpenMP::RunImpl() {
   output_ = input_;
   return true;
 }
+
+void shlyakov_m_shell_sort_omp::TestTaskOpenMP::ShellSort(int left, int right, std::vector<int>& arr) {
+  int sub_array_size = right - left + 1;
+  int gap = 1;
+
+  for (; gap <= sub_array_size / 3;) gap = gap * 3 + 1;
+
+  for (; gap > 0; gap /= 3) {
+    for (int k = left + gap; k <= right; ++k) {
+      int current_element = arr[k];
+      int j = k;
+
+      while (j >= left + gap && arr[j - gap] > current_element) {
+        arr[j] = arr[j - gap];
+        j -= gap;
+      }
+      arr[j] = current_element;
+    }
+  }
+}
+
+void shlyakov_m_shell_sort_omp::TestTaskOpenMP::Merge(int left, int mid, int right, std::vector<int>& arr,
+                                                      std::vector<int>& buffer) {
+  int i = left;
+  int j = mid + 1;
+  int k = 0;
+  const int merge_size = right - left + 1;
+
+  if (buffer.size() < static_cast<std::size_t>(merge_size)) {
+    buffer.resize(static_cast<std::size_t>(merge_size));
+  }
+
+  for (; i <= mid || j <= right;) {
+    if (i > mid) {
+      buffer[k++] = arr[j++];
+    } else if (j > right) {
+      buffer[k++] = arr[i++];
+    } else {
+      buffer[k++] = (arr[i] <= arr[j]) ? arr[i++] : arr[j++];
+    }
+  }
+
+  for (size_t idx = 0; idx < static_cast<size_t>(k); ++idx) {
+    arr[left + idx] = buffer[idx];
+  }
+}
+
 bool shlyakov_m_shell_sort_omp::TestTaskOpenMP::PostProcessingImpl() {
   for (size_t i = 0; i < output_.size(); ++i) {
     reinterpret_cast<int*>(task_data->outputs[0])[i] = output_[i];
