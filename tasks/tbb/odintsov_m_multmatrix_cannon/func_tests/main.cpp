@@ -61,10 +61,10 @@ TEST(odintsov_m_mulmatrix_cannon_tbb, test_matrix_4) {
   }
 }
 
-TEST(odintsov_m_mulmatrix_cannon_tbb, test_matrix_10000) {
+TEST(odintsov_m_mulmatrix_cannon_tbb, test_matrix_100) {
   std::vector<double> matrix_a = odintsov_m_mulmatrix_cannon_tbb::GenerateMatrix(10);
   std::vector<double> matrix_b = odintsov_m_mulmatrix_cannon_tbb::GenerateMatrix(10);
-  std::vector<double> out_tbb(10000, 0);
+  std::vector<double> out_tbb(100, 0);
   std::vector<double> out_ans = odintsov_m_mulmatrix_cannon_tbb::MultiplyMatrices(matrix_a, matrix_b, 10);
 
   auto task_data_omp = std::make_shared<ppc::core::TaskData>();
