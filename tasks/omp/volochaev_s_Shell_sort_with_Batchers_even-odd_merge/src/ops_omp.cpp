@@ -97,9 +97,9 @@ void volochaev_s_shell_sort_with_batchers_even_odd_merge_omp::ShellSortOMP::Merg
 }
 
 void volochaev_s_shell_sort_with_batchers_even_odd_merge_omp::ShellSortOMP::LastMerge() {
-  unsigned int runner0 = 0;
-  unsigned int runner1 = 1;
-  unsigned int runnerarray = 0;
+  int runner0 = 0;
+  int runner1 = 1;
+  int runnerarray = 0;
 
   while (runner0 < n_ && runner1 < n_) {
     if (mas_[runner0] < mass_[runner1]) {
@@ -148,7 +148,6 @@ void volochaev_s_shell_sort_with_batchers_even_odd_merge_omp::ShellSortOMP::Para
 
   for (int i = 0; i <= c_threads_; i++) {
     index[i] = i * mini_batch_;
-    block_ids[i] = i;
   }
 
 #pragma omp parallel for
