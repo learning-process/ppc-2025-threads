@@ -102,7 +102,7 @@ void volochaev_s_shell_sort_with_batchers_even_odd_merge_omp::ShellSortOMP::Last
   int runnerarray = 0;
 
   while (runner0 < n_ && runner1 < n_) {
-    if (mas_[runner0] < mass_[runner1]) {
+    if (mass_[runner0] < mass_[runner1]) {
       array_[runnerarray] = mass_[runner0];
       runner0 += 2;
     } else {
@@ -143,8 +143,6 @@ void volochaev_s_shell_sort_with_batchers_even_odd_merge_omp::ShellSortOMP::Merg
 void volochaev_s_shell_sort_with_batchers_even_odd_merge_omp::ShellSortOMP::ParallelShellSort() {
   FindThreadVariables();
   std::vector<int> index(c_threads_ + 1);
-
-  int n = static_cast<int>(mass_.size());
 
   for (int i = 0; i <= c_threads_; i++) {
     index[i] = i * mini_batch_;
