@@ -18,9 +18,11 @@ class ShellSortOMP : public ppc::core::Task {
   int c_threads_;
   int mini_batch_;
   int size_;
+  int n_;
   std::vector<int> array_;
   std::vector<int> mass_;
 
+  void Merge();
   void ParallelShellSort();
   void ShellSort(int start, int finish);
   void FindThreadVariables();
