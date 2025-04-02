@@ -1,9 +1,9 @@
 #pragma once
 #include <omp.h>
 
+#include <algorithm>
 #include <unordered_map>
 #include <vector>
-#include <algorithm>
 
 #include "core/task/include/task.hpp"
 
@@ -24,4 +24,4 @@ class SparseMatmulTask : public ppc::core::Task {
   int rowsA, colsA, rowsB, colsB;
 };
 
-}  // namespace konkov_i_sparse_matmul_ccs
+}  // namespace konkov_i_sparse_matmul_ccs_omp

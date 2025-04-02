@@ -73,8 +73,6 @@ bool SparseMatmulTask::RunImpl() {
   return true;
 }
 
-bool SparseMatmulTask::PostProcessingImpl() {
-  return true;
-}
+bool SparseMatmulTask::PostProcessingImpl() { return true; }
 
-}  // namespace konkov_i_sparse_matmul_ccs
+}  // namespace konkov_i_sparse_matmul_ccs_omp
