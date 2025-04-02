@@ -97,7 +97,7 @@ void volochaev_s_shell_sort_with_batchers_even_odd_merge_omp::ShellSortOMP::Para
   }
 
   for (int i = 0; i < size_; ++i) {
-    input_[i] = mass_[i];
+    array_[i] = mass_[i];
   }
 }
 
@@ -145,15 +145,15 @@ void volochaev_s_shell_sort_with_batchers_even_odd_merge_omp::ShellSortOMP::Find
     mass_.resize(size_ + (size_ % mini_batch_));
     int max_elem = std::numeric_limits<int>::min();
     for (int i = 0; i < size_; ++i) {
-      mass_[i] = input_[i];
-      max_elem = std::max(max_elem, input_[i]);
+      mass_[i] = array_[i];
+      max_elem = std::max(max_elem, array_[i]);
     }
 
     for (int i = size_; i < std::static_cast<int>(mass_.size()); ++i) {
       mass_[i] = max_elem;
     }
   } else {
-    mass_ = input_;
+    mass_ = array_;
   }
 }
 
