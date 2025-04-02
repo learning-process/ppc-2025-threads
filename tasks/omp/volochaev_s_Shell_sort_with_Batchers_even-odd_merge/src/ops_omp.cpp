@@ -59,18 +59,18 @@ void volochaev_s_shell_sort_with_batchers_even_odd_merge_omp::ShellSortOMP::Shel
   }
 }
 
-void volochaev_s_shell_sort_with_batchers_even_odd_merge_omp::ShellSortOMP::MergeBlocks(int* tmp, int* l, int* r,
+void volochaev_s_shell_sort_with_batchers_even_odd_merge_omp::ShellSortOMP::MergeBlocks(int id_arr, int id_l, int id_r,
                                                                                         int len_l, int len_r) {
   int runner0 = 0;
   int runner1 = 0;
   int runnerarray = 0;
 
   while (runner0 < len_l && runner1 < len_r) {
-    if (l[runner0] < r[runner1]) {
-      tmp[runnerarray] = l[runner0];
+    if (mass_[id_l + runner0] < mass_[id_r + runner1]) {
+      array_[id_arr + runnerarray] = mass_[id_l + runner0];
       runner0 += 2;
     } else {
-      tmp[runnerarray] = r[runner1];
+      array_[id_arr + runnerarray] = mass_[id_r + runner1];
       runner1 += 2;
     }
 
@@ -78,19 +78,19 @@ void volochaev_s_shell_sort_with_batchers_even_odd_merge_omp::ShellSortOMP::Merg
   }
 
   while (runner0 < len_l) {
-    tmp[runnerarray] = l[runner0];
+    array_[id_arr + runnerarray] = mass_[id_l + runner0];
     runner0 += 2;
     runnerarray += 2;
   }
 
   while (runner1 < len_r) {
-    tmp[runnerarray] = r[runner1];
+    array_[id_arr + runnerarray] = mass_[id_r + runner1];
     runner1 += 2;
     runnerarray += 2;
   }
 
   for (unsigned int i = 0; i < runnerarray; i += 2) {
-    l[i] = tmp[i];
+    mass_[id_l + i] = array_[id_arr + i];
   }
 }
 
