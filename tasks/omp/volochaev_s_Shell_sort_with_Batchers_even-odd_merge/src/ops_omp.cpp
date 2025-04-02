@@ -126,7 +126,7 @@ void volochaev_s_shell_sort_with_batchers_even_odd_merge_omp::ShellSortOMP::Last
 }
 
 void volochaev_s_shell_sort_with_batchers_even_odd_merge_omp::ShellSortOMP::Merge() {
-  for (int i = c_threads_; i > 1; i /= 2) {
+  for (int i = c_threads_; i >= 1; i /= 2) {
 #pragma omp parallel num_threads(i)
     {
       int id = static_cast<int>(omp_get_thread_num() / 2);
