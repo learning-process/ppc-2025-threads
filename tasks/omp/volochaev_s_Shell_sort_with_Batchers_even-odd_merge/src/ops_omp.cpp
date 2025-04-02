@@ -132,8 +132,7 @@ void volochaev_s_shell_sort_with_batchers_even_odd_merge_omp::ShellSortOMP::Merg
       int ost = omp_get_thread_num() % 2;
       int l = mini_batch_ * (c_threads_ / i);
 
-      MergeBlocks(array_.data() + (id * 2 * l) + ost, mass_.data() + (id * 2 * l) + ost,
-                  mass_.data() + (id * 2 * l) + l + ost, l - ost, l - ost);
+      MergeBlocks((id * 2 * l) + ost, (id * 2 * l) + ost, (id * 2 * l) + l + ost, l - ost, l - ost);
     }
   }
   LastMerge();
