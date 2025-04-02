@@ -96,6 +96,6 @@ TEST(kazunin_n_montecarlo_omp, test_task_run) {
 
   // Create Perf analyzer
   auto perf_analyzer = std::make_shared<ppc::core::Perf>(test_task);
-  perf_analyzer->PipelineRun(perf_attr, perf_results);
+  perf_analyzer->TaskRun(perf_attr, perf_results);
   ppc::core::Perf::PrintPerfStatistic(perf_results);
 }
