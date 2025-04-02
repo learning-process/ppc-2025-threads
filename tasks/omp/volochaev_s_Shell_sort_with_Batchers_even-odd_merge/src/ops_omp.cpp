@@ -126,17 +126,14 @@ void volochaev_s_shell_sort_with_batchers_even_odd_merge_omp::ShellSortOMP::Last
 }
 
 void volochaev_s_shell_sort_with_batchers_even_odd_merge_omp::ShellSortOMP::Merge() {
-#pragma omp parallel num_threads(c_threads_)
-  {
-    for (int i = c_threads_; i > 1; i /= 2) {
+  for (int i = c_threads_; i > 1; i /= 2) {
 #pragma omp parallel num_threads(i)
-      {
-        int id = static_cast<int>(omp_get_thread_num() / 2);
-        int ost = omp_get_thread_num() % 2;
-        int l = mini_batch_ * (c_threads_ / i);
+    {
+      int id = static_cast<int>(omp_get_thread_num() / 2);
+      int ost = omp_get_thread_num() % 2;
+      int l = mini_batch_ * (c_threads_ / i);
 
-        MergeBlocks((id * 2 * l) + ost, (id * 2 * l) + ost, (id * 2 * l) + l + ost, l - ost, l - ost);
-      }
+      MergeBlocks((id * 2 * l) + ost, (id * 2 * l) + ost, (id * 2 * l) + l + ost, l - ost, l - ost);
     }
   }
   LastMerge();
@@ -150,7 +147,7 @@ void volochaev_s_shell_sort_with_batchers_even_odd_merge_omp::ShellSortOMP::Para
     index[i] = i * mini_batch_;
   }
 
-#pragma omp parallel for
+#pragma omp parallel for num_threads(c_threads_)
   for (int i = 0; i < c_threads_; i++) {
     ShellSort(index[i], index[i] + mini_batch_);
   }
