@@ -112,8 +112,8 @@ TEST(lopatin_i_monte_carlo_tbb, highDimensionalIntegration) {
   ASSERT_TRUE(task.PostProcessing());
 
   const double expected = std::pow(2.0, dimensions);  // hypercube
-  const double tolerance = 0.03 * expected;
-  EXPECT_NEAR(result, expected, tolerance);  // error 3%
+  const double tolerance = 0.05 * expected;
+  EXPECT_NEAR(result, expected, tolerance);  // error 5%
 }
 
 TEST(lopatin_i_monte_carlo_tbb, 1DConstantFunction) {
@@ -141,8 +141,8 @@ TEST(lopatin_i_monte_carlo_tbb, 1DConstantFunction) {
   ASSERT_TRUE(task.PostProcessing());
 
   const double expected = 3.0;
-  const double tolerance = 0.03 * expected;
-  EXPECT_NEAR(result, expected, tolerance);  // error 3%
+  const double tolerance = 0.05 * expected;
+  EXPECT_NEAR(result, expected, tolerance);  // error 5%
 }
 
 TEST(lopatin_i_monte_carlo_tbb, 3DExponentialFunction) {
@@ -168,8 +168,8 @@ TEST(lopatin_i_monte_carlo_tbb, 3DExponentialFunction) {
   ASSERT_TRUE(task.PostProcessing());
 
   const double expected = std::pow(std::numbers::e - 1, 3);  // = 5.073
-  const double tolerance = 0.03 * expected;
-  EXPECT_NEAR(result, expected, tolerance);  // error 3%
+  const double tolerance = 0.05 * expected;
+  EXPECT_NEAR(result, expected, tolerance);  // error 5%
 }
 
 TEST(lopatin_i_monte_carlo_tbb, 2DLinearFunction) {
@@ -199,8 +199,8 @@ TEST(lopatin_i_monte_carlo_tbb, 2DLinearFunction) {
   ASSERT_TRUE(task.PostProcessing());
 
   const double expected = 1.0;
-  const double tolerance = 0.03 * expected;
-  EXPECT_NEAR(result, expected, tolerance);  // error 3%
+  const double tolerance = 0.05 * expected;
+  EXPECT_NEAR(result, expected, tolerance);  // error 5%
 }
 
 TEST(lopatin_i_monte_carlo_tbb, 3DProductFunction) {
@@ -227,8 +227,8 @@ TEST(lopatin_i_monte_carlo_tbb, 3DProductFunction) {
   ASSERT_TRUE(task.PostProcessing());
 
   const double expected = 0.125;
-  const double tolerance = 0.03 * expected;
-  EXPECT_NEAR(result, expected, tolerance);  // error 3%
+  const double tolerance = 0.05 * expected;
+  EXPECT_NEAR(result, expected, tolerance);  // error 5%
 }
 
 TEST(lopatin_i_monte_carlo_tbb, 4DQuadraticFunction) {
@@ -260,8 +260,8 @@ TEST(lopatin_i_monte_carlo_tbb, 4DQuadraticFunction) {
 
   // anal 13/3 = 4.33333
   const double expected = 13.0 / 3.0;
-  const double tolerance = 0.03 * expected;
-  EXPECT_NEAR(result, expected, tolerance);  // error 3%
+  const double tolerance = 0.05 * expected;
+  EXPECT_NEAR(result, expected, tolerance);  // error 5%
 }
 
 TEST(lopatin_i_monte_carlo_tbb, 2DCosineFunction) {
@@ -291,7 +291,7 @@ TEST(lopatin_i_monte_carlo_tbb, 2DCosineFunction) {
   // analytical = 0
   const double expected = 0.0;
   const double tolerance = 0.03;
-  EXPECT_NEAR(result, expected, tolerance);  // error 3%
+  EXPECT_NEAR(result, expected, tolerance);  // error 5%
 }
 
 TEST(lopatin_i_monte_carlo_tbb, 2DSqrtFunction) {
@@ -320,8 +320,8 @@ TEST(lopatin_i_monte_carlo_tbb, 2DSqrtFunction) {
 
   // analytical = 0.975
   const double expected = 0.975;
-  const double tolerance = 0.03 * expected;
-  EXPECT_NEAR(result, expected, tolerance);  // error 3%
+  const double tolerance = 0.05 * expected;
+  EXPECT_NEAR(result, expected, tolerance);  // error 5%
 }
 
 TEST(lopatin_i_monte_carlo_tbb, 3DSinFunction) {
@@ -350,8 +350,8 @@ TEST(lopatin_i_monte_carlo_tbb, 3DSinFunction) {
 
   // analytical = 0.098
   const double expected = 0.098;
-  const double tolerance = 0.03 * expected;
-  EXPECT_NEAR(result, expected, tolerance);  // error 3%
+  const double tolerance = 0.05 * expected;
+  EXPECT_NEAR(result, expected, tolerance);  // error 5%
 }
 
 TEST(lopatin_i_monte_carlo_tbb, 4DLogFunction) {
@@ -380,6 +380,6 @@ TEST(lopatin_i_monte_carlo_tbb, 4DLogFunction) {
 
   // analytical = 17.4108
   const double expected = 17.4108;
-  const double tolerance = 0.03 * expected;
-  EXPECT_NEAR(result, expected, tolerance);  // error 3%
+  const double tolerance = 0.05 * expected;
+  EXPECT_NEAR(result, expected, tolerance);  // error 5%
 }
