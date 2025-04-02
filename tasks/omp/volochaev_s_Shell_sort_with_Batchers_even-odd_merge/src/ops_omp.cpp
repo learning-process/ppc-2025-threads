@@ -59,8 +59,8 @@ void volochaev_s_shell_sort_with_batchers_even_odd_merge_omp::ShellSortOMP::Shel
   }
 }
 
-void volochaev_s_shell_sort_with_batchers_even_odd_merge_omp::ShellSortOMP::MergeBlocks(int* tmp, int* l,
-                                                                          int* r, int len_l, int len_r) {
+void volochaev_s_shell_sort_with_batchers_even_odd_merge_omp::ShellSortOMP::MergeBlocks(int* tmp, int* l, int* r,
+                                                                                        int len_l, int len_r) {
   int runner0 = 0;
   int runner1 = 0;
   int runnerarray = 0;
