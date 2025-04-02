@@ -104,7 +104,7 @@ void Merge(int left, int mid, int right, std::vector<int>& arr, std::vector<int>
     arr[left + idx] = buffer[idx];
   }
 }
-}
+}  // namespace shlyakov_m_shell_sort_omp
 
 bool shlyakov_m_shell_sort_omp::TestTaskOpenMP::PostProcessingImpl() {
   for (size_t i = 0; i < output_.size(); ++i) {
