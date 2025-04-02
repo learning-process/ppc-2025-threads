@@ -47,7 +47,7 @@ TEST(conjugate_gradient_task_seq, test_large_system) {
   // Создаем данные для системы 5x5
   constexpr size_t kCount = 5;
   std::vector<double> A = {5, 1, 0, 0, 0, 1, 5, 1, 0, 0, 0, 1, 5, 1, 0, 0, 0, 1, 5, 1, 0, 0, 0, 1, 5};  // Матрица A
-  std::vector<double> b = {6, 7, 7, 7, 6};                                                              // Вектор b
+  std::vector<double> b = {6, 7, 7, 7, 6};                                                              
   std::vector<double> expected_x = {1, 1, 1, 1, 1};  // Ожидаемое решение
   std::vector<double> out(kCount, 0.0);              // Выходной вектор
 
