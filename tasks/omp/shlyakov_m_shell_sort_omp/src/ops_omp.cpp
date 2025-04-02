@@ -58,11 +58,14 @@ bool shlyakov_m_shell_sort_omp::TestTaskOpenMP::RunImpl() {
   return true;
 }
 
-void shlyakov_m_shell_sort_omp::TestTaskOpenMP::ShellSort(int left, int right, std::vector<int>& arr) {
+namespace shlyakov_m_shell_sort_omp {
+void TestTaskOpenMP::ShellSort(int left, int right, std::vector<int>& arr) {
   int sub_array_size = right - left + 1;
   int gap = 1;
 
-  for (; gap <= sub_array_size / 3;) gap = gap * 3 + 1;
+  for (; gap <= sub_array_size / 3;) {
+    gap = gap * 3 + 1;
+  }
 
   for (; gap > 0; gap /= 3) {
     for (int k = left + gap; k <= right; ++k) {
@@ -78,8 +81,7 @@ void shlyakov_m_shell_sort_omp::TestTaskOpenMP::ShellSort(int left, int right, s
   }
 }
 
-void shlyakov_m_shell_sort_omp::TestTaskOpenMP::Merge(int left, int mid, int right, std::vector<int>& arr,
-                                                      std::vector<int>& buffer) {
+void TestTaskOpenMP::Merge(int left, int mid, int right, std::vector<int>& arr, std::vector<int>& buffer) {
   int i = left;
   int j = mid + 1;
   int k = 0;
@@ -103,6 +105,7 @@ void shlyakov_m_shell_sort_omp::TestTaskOpenMP::Merge(int left, int mid, int rig
     arr[left + idx] = buffer[idx];
   }
 }
+}  // namespace shlyakov_m_shell_sort_omp
 
 bool shlyakov_m_shell_sort_omp::TestTaskOpenMP::PostProcessingImpl() {
   for (size_t i = 0; i < output_.size(); ++i) {
