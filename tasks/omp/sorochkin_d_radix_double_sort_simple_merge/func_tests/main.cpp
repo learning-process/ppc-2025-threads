@@ -55,7 +55,7 @@ class sorochkin_d_radix_double_sort_simple_merge_test_omp : public ::testing::Te
 
   static void RunTest(std::size_t size) { RunTest(MakeRandomInput(size)); }
 
-  static void RunInvalidSizeTest(std::size_t diff) {
+  static void RunInvalidSizeTest(int diff) {
     std::vector<double> in(64);
     std::vector<double> out(in.size() + diff);
 
