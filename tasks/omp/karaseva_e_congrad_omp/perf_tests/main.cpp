@@ -12,7 +12,7 @@
 #include "omp/karaseva_e_congrad_omp/include/ops_omp.hpp"
 
 TEST(karaseva_e_congrad_omp, test_pipeline_run) {
-  constexpr int kCount = 8000;
+  constexpr int kCount = 10000;
   constexpr double kThreshold = 1e-6;
 
   // Create matrix a (identity matrix)
@@ -61,7 +61,7 @@ TEST(karaseva_e_congrad_omp, test_pipeline_run) {
 }
 
 TEST(karaseva_e_congrad_omp, test_task_run) {
-  constexpr int kCount = 13000;
+  constexpr int kCount = 12000;
   constexpr double kThreshold = 1e-6;
 
   // Create diagonal matrix a with elements 2.0
