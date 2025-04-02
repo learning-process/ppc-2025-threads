@@ -5,7 +5,6 @@
 #include <cstddef>
 #include <cstdint>
 #include <cstring>
-#include <ranges>
 #include <vector>
 
 namespace khovansky_d_double_radix_batcher_seq {
@@ -41,24 +40,24 @@ void RadixSort(std::vector<uint64_t>& array) {
   std::vector<int> frequency(bucket_count, 0);
 
   for (int shift = 0; shift < total_bits; shift += bits_in_byte) {
-      std::ranges::fill(frequency, 0);
+    std::ranges::fill(frequency, 0);
 
-      for (uint64_t number : array) {
-        auto bucket = static_cast<uint8_t>((number >> shift) & 0xFF);
-        frequency[bucket]++;
-      }
-
-      for (int i = 1; i < bucket_count; i++) {
-        frequency[i] += frequency[i - 1];
-      }
-
-      for (int i = static_cast<int>(array.size()) - 1; i >= 0; i--) {
-        auto bucket = static_cast<uint8_t>((array[i] >> shift) & 0xFF);
-        buffer[--frequency[bucket]] = array[i];
-      }
-
-      array.swap(buffer);
+    for (uint64_t number : array) {
+      auto bucket = static_cast<uint8_t>((number >> shift) & 0xFF);
+      frequency[bucket]++;
     }
+
+    for (int i = 1; i < bucket_count; i++) {
+      frequency[i] += frequency[i - 1];
+    }
+
+    for (int i = static_cast<int>(array.size()) - 1; i >= 0; i--) {
+      auto bucket = static_cast<uint8_t>((array[i] >> shift) & 0xFF);
+      buffer[--frequency[bucket]] = array[i];
+    }
+
+    array.swap(buffer);
+  }
 }
 
 void OddEvenMergeSort(std::vector<uint64_t>& array, int left, int right) {
@@ -79,18 +78,18 @@ void OddEvenMergeSort(std::vector<uint64_t>& array, int left, int right) {
 }
 
 void RadixBatcherSort(std::vector<double>& data) {
-    std::vector<uint64_t> transformed_data(data.size(), 0);
+  std::vector<uint64_t> transformed_data(data.size(), 0);
 
-    for (std::size_t i = 0; i < data.size(); i++) {
-      transformed_data[i] = EncodeDoubleToUint64(data[i]);
-    }
+  for (std::size_t i = 0; i < data.size(); i++) {
+    transformed_data[i] = EncodeDoubleToUint64(data[i]);
+  }
 
-    RadixSort(transformed_data);
-    OddEvenMergeSort(transformed_data, 0, static_cast<int>(transformed_data.size()));
+  RadixSort(transformed_data);
+  OddEvenMergeSort(transformed_data, 0, static_cast<int>(transformed_data.size()));
 
-    for (std::size_t i = 0; i < data.size(); i++) {
-      data[i] = DecodeUint64ToDouble(transformed_data[i]);
-    }
+  for (std::size_t i = 0; i < data.size(); i++) {
+    data[i] = DecodeUint64ToDouble(transformed_data[i]);
+  }
 }
 }  // namespace
 }  // namespace khovansky_d_double_radix_batcher_seq
