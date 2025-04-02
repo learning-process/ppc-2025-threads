@@ -10,7 +10,7 @@
 
 bool volochaev_s_shell_sort_with_batchers_even_odd_merge_omp::ShellSortOMP::PreProcessingImpl() {
   // Init value for input and output
-  size_ = std::static_cast<int>(task_data->inputs_count[0]);
+  size_ = static_cast<int>(task_data->inputs_count[0]);
 
   auto* input_pointer = reinterpret_cast<int*>(task_data->inputs[0]);
   array_ = std::vector<int>(input_pointer, input_pointer + size_);
@@ -101,7 +101,8 @@ void volochaev_s_shell_sort_with_batchers_even_odd_merge_omp::ShellSortOMP::Para
   }
 }
 
-void MergeBlocks(int id1, int sz1, int id2, int sz2) {
+void volochaev_s_shell_sort_with_batchers_even_odd_merge_omp::ShellSortOMP::MergeBlocks(int id1, int sz1, int id2,
+                                                                                        int sz2) {
   std::vector<int> ans(sz1 + sz2);
   int save_id1 = id1, save_id2 = id2;
   int k1 = sz1;
@@ -149,7 +150,7 @@ void volochaev_s_shell_sort_with_batchers_even_odd_merge_omp::ShellSortOMP::Find
       max_elem = std::max(max_elem, array_[i]);
     }
 
-    for (int i = size_; i < std::static_cast<int>(mass_.size()); ++i) {
+    for (int i = size_; i < static_cast<int>(mass_.size()); ++i) {
       mass_[i] = max_elem;
     }
   } else {
