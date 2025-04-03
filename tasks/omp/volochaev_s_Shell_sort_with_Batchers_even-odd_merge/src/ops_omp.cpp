@@ -167,8 +167,10 @@ void volochaev_s_shell_sort_with_batchers_even_odd_merge_omp::ShellSortOMP::Para
 void volochaev_s_shell_sort_with_batchers_even_odd_merge_omp::ShellSortOMP::FindThreadVariables() {
   c_threads_ = static_cast<int>(std::pow(2, std::floor(std::log2(omp_get_max_threads()))));
   n_ = size_ + (((2 * c_threads_) - size_ % (2 * c_threads_))) % (2 * c_threads_);
+  std::cout << "n_: " << n_ << std::endl;
   mass_.resize(n_);
   mini_batch_ = n_ / c_threads_;
+  std::cout << "mini_batch_: " << mini_batch_ << std::endl;
   int max_elem = std::numeric_limits<int>::min();
   for (int i = 0; i < size_; ++i) {
     mass_[i] = array_[i];
