@@ -79,16 +79,16 @@ bool ConvexHullSequential::RunImpl() noexcept {
 }
 
 bool ConvexHullSequential::PostProcessingImpl() noexcept {
-  if (task_data->outputs.empty() || task_data->outputs_count[0] < static_cast<int>(output_hull_.size())) {
+  if (task_data->outputs.empty() || static_cast<size_t>(task_data->outputs_count[0]) < output_hull_.size()) {
     return false;
   }
 
-  auto* output = reinterpret_cast<Point*>(task_data->outputs[0]);
+  auto* output_data = reinterpret_cast<Point*>(task_data->outputs[0]);
   const size_t N = output_hull_.size();
 
-  if (output != nullptr) {
+  if (output_data != nullptr) {
     for (size_t i = 0; i < N; ++i) {
-      output[i] = output_hull_[i];
+      output_data[i] = output_hull_[i];
     }
     task_data->outputs_count[0] = static_cast<int>(N);
   }
