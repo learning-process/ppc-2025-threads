@@ -38,8 +38,7 @@ bool ConvexHullSequential::PreProcessingImpl() noexcept {
 
 bool ConvexHullSequential::ValidationImpl() noexcept {
   return task_data->inputs_count.size() == 2 && task_data->outputs_count.size() == 1 &&
-         task_data->inputs_count[0] > 0 &&
-         task_data->inputs_count[1] > 0;
+         task_data->inputs_count[0] > 0 && task_data->inputs_count[1] > 0;
 }
 
 int ConvexHullSequential::cross(const Point& O, const Point& A, const Point& B) noexcept {
