@@ -6,6 +6,8 @@
 #include <utility>
 #include <vector>
 
+#include "core/task/include/task.hpp"
+
 using namespace zinoviev_a_convex_hull_components_seq;
 
 ConvexHullSequential::ConvexHullSequential(ppc::core::TaskDataPtr task_data) : Task(std::move(task_data)) {}
@@ -40,7 +42,7 @@ bool ConvexHullSequential::ValidationImpl() noexcept {
 }
 
 int ConvexHullSequential::Cross(const Point& o, const Point& a, const Point& b) noexcept {
-  return (a.x - o.x) * (b.y - o.y) - (a.y - o.y) * (b.x - o.x);
+  return ((a.x - o.x) * (b.y - o.y)) - ((a.y - o.y) * (b.x - o.x));
 }
 
 std::vector<Point> ConvexHullSequential::FindConvexHull(const std::vector<Point>& points) noexcept {
