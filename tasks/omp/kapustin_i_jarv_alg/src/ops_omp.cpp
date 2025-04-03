@@ -54,11 +54,11 @@ bool kapustin_i_jarv_alg_omp::TestTaskOMP::RunImpl() {
 
 #pragma omp parallel
     {
-      size_t local_next = next_index;
+      int local_next = static_cast<int>(next_index);
 
 #pragma omp for nowait
-      for (size_t i = 0; i < input_.size(); ++i) {
-        if (i == current_index) {
+      for (int i = 0; i < static_cast<int>(input_.size()); ++i) {
+        if (static_cast<size_t>(i) == current_index) {
           continue;
         }
 
@@ -79,12 +79,12 @@ bool kapustin_i_jarv_alg_omp::TestTaskOMP::RunImpl() {
       {
         int orientation = Orientation(input_[current_index], input_[next_index], input_[local_next]);
         if (orientation > 0) {
-          next_index = local_next;
+          next_index = static_cast<size_t>(local_next);
         } else if (orientation == 0) {
           int dist_next = CalculateDistance(input_[next_index], input_[current_index]);
           int dist_local = CalculateDistance(input_[local_next], input_[current_index]);
           if (dist_local > dist_next) {
-            next_index = local_next;
+            next_index = static_cast<size_t>(local_next);
           }
         }
       }
@@ -102,6 +102,7 @@ bool kapustin_i_jarv_alg_omp::TestTaskOMP::RunImpl() {
 
   return true;
 }
+
 
 bool kapustin_i_jarv_alg_omp::TestTaskOMP::PostProcessingImpl() {
   auto* result_ptr = reinterpret_cast<std::pair<int, int>*>(task_data->outputs[0]);
