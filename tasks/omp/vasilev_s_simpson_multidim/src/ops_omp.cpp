@@ -48,7 +48,7 @@ bool vasilev_s_simpson_multidim::SimpsonTaskOmp::RunImpl() {
         auto p = ip;
         for (size_t i = 0; i < arity_; i++) {
           gridpos[i] = p % approxs_;
-          p /= static_cast<size_t>(approxs_);
+          p /= static_cast<int>(approxs_);
         }
       }
 
