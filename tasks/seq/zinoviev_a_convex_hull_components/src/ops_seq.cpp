@@ -93,7 +93,7 @@ bool ConvexHullSequential::RunImpl() noexcept {
 }
 
 bool ConvexHullSequential::PostProcessingImpl() noexcept {
-  if (task_data->outputs.empty() || task_data->outputs_count[0] < static_cast<int>(output_hull_.size())) {
+  if (task_data->outputs.empty() || static_cast<size_t>(task_data->outputs_count[0]) < output_hull_.size()) {
     return false;
   }
 
