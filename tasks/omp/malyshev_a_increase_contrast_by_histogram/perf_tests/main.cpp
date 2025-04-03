@@ -1,5 +1,6 @@
 #include <gtest/gtest.h>
 
+#include <algorithm>
 #include <chrono>
 #include <cstddef>
 #include <cstdint>
@@ -54,6 +55,11 @@ TEST(malyshev_a_increase_contrast_by_histogram_omp, test_pipeline_run) {
   auto perf_analyzer = std::make_shared<ppc::core::Perf>(test_task_omp);
   perf_analyzer->PipelineRun(perf_attr, perf_results);
   ppc::core::Perf::PrintPerfStatistic(perf_results);
+
+  auto [input_min, input_max] = std::ranges::minmax_element(in);
+  auto [output_min, output_max] = std::ranges::minmax_element(out);
+  EXPECT_LE(*output_min, *input_min);
+  EXPECT_GE(*output_max, *input_max);
 }
 
 TEST(malyshev_a_increase_contrast_by_histogram_omp, test_task_run) {
@@ -86,4 +92,9 @@ TEST(malyshev_a_increase_contrast_by_histogram_omp, test_task_run) {
   auto perf_analyzer = std::make_shared<ppc::core::Perf>(test_task_omp);
   perf_analyzer->TaskRun(perf_attr, perf_results);
   ppc::core::Perf::PrintPerfStatistic(perf_results);
+
+  auto [input_min, input_max] = std::ranges::minmax_element(in);
+  auto [output_min, output_max] = std::ranges::minmax_element(out);
+  EXPECT_LE(*output_min, *input_min);
+  EXPECT_GE(*output_max, *input_max);
 }
