@@ -1,6 +1,8 @@
 #include "seq/zinoviev_a_convex_hull_components/include/ops_seq.hpp"
 
 #include <algorithm>
+#include <cstddef>
+#include <utility>
 #include <vector>
 
 #include "core/task/include/task.hpp"
@@ -24,9 +26,9 @@ bool ConvexHullSequential::PreProcessingImpl() noexcept {
 
   for (int y = 0; y < height; ++y) {
     for (int x = 0; x < width; ++x) {
-      const size_t idx = static_cast<size_t>(y) * width + x;
+      const size_t idx = (static_cast<size_t>(y) * width) + x;
       if (idx < total_pixels && input_data[idx] != 0) {
-        input_points_.emplace_back(Point{x, y});
+        input_points_.emplace_back(Point{.x = x, .y = y});
       }
     }
   }
@@ -39,12 +41,14 @@ bool ConvexHullSequential::ValidationImpl() noexcept {
 }
 
 int ConvexHullSequential::Cross(const Point& o, const Point& a, const Point& b) noexcept {
-  return (a.x - o.x) * (b.y - o.y) - (a.y - o.y) * (b.x - o.x);
+  return ((a.x - o.x) * (b.y - o.y)) - ((a.y - o.y) * (b.x - o.x));
 }
 
 std::vector<Point> ConvexHullSequential::FindConvexHull(const std::vector<Point>& points) noexcept {
   const size_t n = points.size();
-  if (n < 3) return points;
+  if (n < 3) {
+    return points;
+  }
 
   std::vector<Point> sorted_points(points);
   std::sort(sorted_points.begin(), sorted_points.end());
@@ -67,7 +71,9 @@ std::vector<Point> ConvexHullSequential::FindConvexHull(const std::vector<Point>
     hull.push_back(*it);
   }
 
-  if (!hull.empty()) hull.pop_back();
+  if (!hull.empty()) {
+    hull.pop_back();
+  }
   return hull;
 }
 

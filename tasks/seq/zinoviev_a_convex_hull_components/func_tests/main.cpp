@@ -1,5 +1,7 @@
 #include <gtest/gtest.h>
 
+#include <cstddef>
+#include <cstdint>
 #include <memory>
 #include <vector>
 
@@ -35,16 +37,18 @@ void VerifyConvexHull(const std::vector<int>& input,
 
   delete[] reinterpret_cast<zinoviev_a_convex_hull_components_seq::Point*>(task_data->outputs[0]);
 }
-}  // namespace
+}
 
 TEST(ConvexHullTest, Square) {
   const std::vector<int> input = {1, 1, 1, 1, 1, 1, 0, 0, 0, 1, 1, 0, 0, 0, 1, 1, 0, 0, 0, 1, 1, 1, 1, 1, 1};
-  const std::vector<zinoviev_a_convex_hull_components_seq::Point> expected = {{0, 0}, {4, 0}, {4, 4}, {0, 4}};
+  const std::vector<zinoviev_a_convex_hull_components_seq::Point> expected = {
+      {.x = 0, .y = 0}, {.x = 4, .y = 0}, {.x = 4, .y = 4}, {.x = 0, .y = 4}};
   VerifyConvexHull(input, expected, 5, 5);
 }
 
 TEST(ConvexHullTest, Triangle) {
   const std::vector<int> input = {1, 0, 0, 0, 0, 1, 1, 0, 0, 0, 1, 1, 1, 0, 0, 1, 1, 0, 0, 0, 1, 0, 0, 0, 0};
-  const std::vector<zinoviev_a_convex_hull_components_seq::Point> expected = {{0, 0}, {0, 4}, {2, 2}};
+  const std::vector<zinoviev_a_convex_hull_components_seq::Point> expected = {
+      {.x = 0, .y = 0}, {.x = 0, .y = 4}, {.x = 2, .y = 2}};
   VerifyConvexHull(input, expected, 5, 5);
 }
