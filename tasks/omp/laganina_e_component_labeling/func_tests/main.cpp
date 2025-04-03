@@ -33,7 +33,7 @@ TEST(laganina_e_component_labeling_omp, validation_test4) {
   // Create data
   std::vector<int> in(m * n, 0);
   std::vector<int> out(m * n, 0);
-  // Create task_data 1
+  // Create task_data 2
   auto task_data_omp = std::make_shared<ppc::core::TaskData>();
   task_data_omp->inputs.emplace_back(reinterpret_cast<uint8_t *>(in.data()));
   task_data_omp->inputs_count.emplace_back(m);
