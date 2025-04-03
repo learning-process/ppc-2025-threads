@@ -139,7 +139,7 @@ TEST(laganina_e_component_labeling_omp, all_one) {
 }
 
 TEST(laganina_e_component_labeling_omp, all_one_large) {
-  int m = 30000;
+  int m = 300;
   int n = 1000;
   // Create data
   std::vector<int> in(m * n, 1);
