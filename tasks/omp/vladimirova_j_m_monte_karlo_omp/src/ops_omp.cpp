@@ -59,7 +59,7 @@ bool vladimirova_j_m_monte_karlo_omp::TestTaskOpenMP::RunImpl() {
     std::vector<double> random_val = std::vector<double>(var_size_);
     size_t local_successful_point = 0;
     #pragma omp for
-      for (int i = 0; i < accuracy_; i++) {
+      for (int i = 0; i < (int)accuracy_; i++) {
           for (size_t j = 0; j < var_size_; j++) {
               random_val[j] = CreateRandomVal(var_integr_[j].min, var_integr_[j].max);
           }
