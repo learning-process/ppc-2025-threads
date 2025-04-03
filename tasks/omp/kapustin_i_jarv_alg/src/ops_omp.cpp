@@ -45,7 +45,7 @@ bool kapustin_i_jarv_alg_omp::TestTaskOMP::ValidationImpl() { return !task_data-
 
 bool kapustin_i_jarv_alg_omp::TestTaskOMP::RunImpl() {
   std::pair<int, int> start_point = current_point_;
-  size_t current_index = leftmost_index_;
+  int current_index = leftmost_index_;
   output_.clear();
   output_.push_back(start_point);
 
