@@ -29,13 +29,13 @@ void RadixSortDoubleOMP::ConvertDouble(double& val, bool reverse) {
   memcpy(&bits, &val, sizeof(double));
 
   if (!reverse) {
-    if (bits & (1ULL << 63)) {
+    if ((bits & (1ULL << 63)) != 0ULL) {
       bits = ~bits;
     } else {
       bits |= (1ULL << 63);
     }
   } else {
-    if (bits & (1ULL << 63)) {
+    if ((bits & (1ULL << 63)) != 0ULL) {
       bits &= ~(1ULL << 63);
     } else {
       bits = ~bits;
@@ -63,27 +63,34 @@ bool RadixSortDoubleOMP::RunImpl() {
   for (int shift = 0; shift < kTotalBits; shift += kBitsPerPass) {
     std::vector<size_t> count(kNumBins, 0);
 
-#pragma omp parallel for
-    for (int i = 0; i < static_cast<int>(input_.size()); ++i) {
-      uint64_t bits = 0;
-      memcpy(&bits, &input_[i], sizeof(double));
-      uint8_t byte = (bits >> shift) & (kNumBins - 1);
-#pragma omp atomic
-      count[byte]++;
+#pragma omp parallel
+    {
+      std::vector<size_t> local_count(kNumBins, 0);
+#pragma omp for
+      for (int i = 0; i < static_cast<int>(input_.size()); ++i) {
+        uint64_t bits = 0;
+        memcpy(&bits, &input_[i], sizeof(double));
+        uint8_t byte = (bits >> shift) & (kNumBins - 1);
+        local_count[byte]++;
+      }
+
+#pragma omp critical
+      {
+        for (int j = 0; j < kNumBins; ++j) {
+          count[j] += local_count[j];
+        }
+      }
     }
 
     for (size_t i = 1; i < kNumBins; ++i) {
       count[i] += count[i - 1];
     }
 
-#pragma omp parallel for
     for (int i = static_cast<int>(input_.size()) - 1; i >= 0; --i) {
       uint64_t bits = 0;
       memcpy(&bits, &input_[i], sizeof(double));
       uint8_t byte = (bits >> shift) & (kNumBins - 1);
-      size_t idx;
-#pragma omp critical
-      { idx = --count[byte]; }
+      size_t idx = --count[byte];
       buffer[idx] = input_[i];
     }
 
