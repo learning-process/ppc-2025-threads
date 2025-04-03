@@ -1,6 +1,5 @@
 #pragma once
 
-#include <compare>
 #include <vector>
 
 #include "core/task/include/task.hpp"
@@ -9,8 +8,9 @@ namespace zinoviev_a_convex_hull_components_seq {
 
 struct Point {
   int x, y;
-  auto operator<=>(const Point&) const = default;
-  bool operator==(const Point&) const = default;
+
+  bool operator<(const Point& other) const { return x < other.x || (x == other.x && y < other.y); }
+  bool operator==(const Point& other) const = default;
 };
 
 class ConvexHullSequential : public ppc::core::Task {
