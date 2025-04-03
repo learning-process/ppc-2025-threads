@@ -74,68 +74,56 @@ void volochaev_s_shell_sort_with_batchers_even_odd_merge_omp::ShellSortOMP::Merg
 }
 
 void volochaev_s_shell_sort_with_batchers_even_odd_merge_omp::ShellSortOMP::MergeBlocks(int id_l, int id_r, int len) {
-  int runner0 = 0;
-  int runner1 = 0;
-  int runnerarray = 0;
+  int left_id = 0;
+  int right_id = 0;
+  int merged_id = 0;
 
-  while (runner0 < len && runner1 < len) {
-    if (mass_[id_l + runner0] < mass_[id_r + runner1]) {
-      array_[id_l + runnerarray] = mass_[id_l + runner0];
-      runner0 += 2;
+  while (left_id < len || right_id < len) {
+    if (left_id < len && right_id < len) {
+      if (mass_[id_l + left_id] < mass_[id_r + right_id]) {
+        array_[id_l + merged_id] = mass_[id_l + left_id];
+        left_id += 2;
+      } else {
+        array_[id_l + merged_id] = mass_[id_r + right_id];
+        right_id += 2;
+      }
+    } else if (left_id < len) {
+      array_[id_l + merged_id] = mass_[id_l + left_id];
+      left_id += 2;
     } else {
-      array_[id_l + runnerarray] = mass_[id_r + runner1];
-      runner1 += 2;
+      array_[id_l + merged_id] = mass_[id_r + right_id];
+      right_id += 2;
     }
-
-    runnerarray += 2;
+    merged_id += 2;
   }
 
-  MergeLast(id_l, runner0, runnerarray, len, 2);
-  /*while (runner0 < len) {
-    array_[id_l + runnerarray] = mass_[id_l + runner0];
-    runner0 += 2;
-    runnerarray += 2;
-  }*/
-  MergeLast(id_r, runner1, runnerarray, len, 2);
-  /*while (runner1 < len) {
-    array_[id_l + runnerarray] = mass_[id_r + runner1];
-    runner1 += 2;
-    runnerarray += 2;
-  }*/
-
-  for (int i = 0; i < runnerarray; i += 2) {
+  for (int i = 0; i < merged_id; i += 2) {
     mass_[id_l + i] = array_[id_l + i];
   }
 }
 
 void volochaev_s_shell_sort_with_batchers_even_odd_merge_omp::ShellSortOMP::LastMerge() {
-  int runner0 = 0;
-  int runner1 = 1;
-  int runnerarray = 0;
+  int even_index = 0;
+  int odd_index = 1;
+  int result_index = 0;
 
-  while (runner0 < n_ && runner1 < n_) {
-    if (mass_[runner0] < mass_[runner1]) {
-      array_[runnerarray] = mass_[runner0];
-      runner0 += 2;
+  while (even_index < n_ || odd_index < n_) {
+    if (even_index < n_ && odd_index < n_) {
+      if (mass_[even_index] < mass_[odd_index]) {
+        array_[result_index++] = mass_[even_index];
+        even_index += 2;
+      } else {
+        array_[result_index++] = mass_[odd_index];
+        odd_index += 2;
+      }
+    } else if (even_index < n_) {
+      array_[result_index++] = mass_[even_index];
+      even_index += 2;
     } else {
-      array_[runnerarray] = mass_[runner1];
-      runner1 += 2;
+      array_[result_index++] = mass_[odd_index];
+      odd_index += 2;
     }
-
-    runnerarray++;
   }
-  MergeLast(0, runner0, runnerarray, n_, 1);
-  /*while (runner0 < n_) {
-    array_[runnerarray] = mass_[runner0];
-    runner0 += 2;
-    runnerarray++;
-  }*/
-  MergeLast(0, runner1, runnerarray, n_, 1);
-  /*while (runner1 < n_) {
-    array_[runnerarray] = mass_[runner1];
-    runner1 += 2;
-    runnerarray++;
-  }*/
 }
 
 void volochaev_s_shell_sort_with_batchers_even_odd_merge_omp::ShellSortOMP::Merge() {
