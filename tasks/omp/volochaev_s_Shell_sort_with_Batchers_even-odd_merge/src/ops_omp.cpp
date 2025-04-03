@@ -178,7 +178,6 @@ void volochaev_s_shell_sort_with_batchers_even_odd_merge_omp::ShellSortOMP::Find
   }
 
   for (int i = size_; i < static_cast<int>(mass_.size()); ++i) {
-    n_ = size_;
     mass_[i] = max_elem;
   }
   array_.resize(n_);
