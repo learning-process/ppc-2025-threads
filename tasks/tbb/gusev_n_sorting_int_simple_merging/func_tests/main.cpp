@@ -1,15 +1,13 @@
 #include <gtest/gtest.h>
 
+#include <algorithm>
 #include <cstddef>
 #include <cstdint>
-#include <fstream>
 #include <memory>
 #include <random>
-#include <string>
 #include <vector>
 
 #include "core/task/include/task.hpp"
-#include "core/util/include/util.hpp"
 #include "tbb/gusev_n_sorting_int_simple_merging/include/ops_tbb.hpp"
 
 namespace {
@@ -41,7 +39,7 @@ TEST(gusev_n_sorting_int_simple_merging_tbb, test_radix_sort_basic) {
   RunT(task_data);
 
   std::vector<int> expected = in;
-  std::sort(expected.begin(), expected.end());
+  std::ranges::sort(expected);
   EXPECT_EQ(expected, out);
 }
 
@@ -73,7 +71,7 @@ TEST(gusev_n_sorting_int_simple_merging_tbb, test_radix_sort_negative_numbers) {
   RunT(task_data);
 
   std::vector<int> expected = in;
-  std::sort(expected.begin(), expected.end());
+  std::ranges::sort(expected);
   EXPECT_EQ(expected, out);
 }
 
@@ -84,14 +82,14 @@ TEST(gusev_n_sorting_int_simple_merging_tbb, test_radix_sort_random) {
   std::uniform_int_distribution<int> dist(-10000, 10000);
 
   std::vector<int> in(size);
-  std::generate(in.begin(), in.end(), [&]() { return dist(gen); });
+  std::ranges::generate(in, [&]() { return dist(gen); });
   std::vector<int> out(in.size());
 
   auto task_data = CreateTaskData(in, out);
   RunT(task_data);
 
   std::vector<int> expected = in;
-  std::sort(expected.begin(), expected.end());
+  std::ranges::sort(expected);
   EXPECT_EQ(expected, out);
 }
 
@@ -103,7 +101,7 @@ TEST(gusev_n_sorting_int_simple_merging_tbb, test_radix_sort_duplicates) {
   RunT(task_data);
 
   std::vector<int> expected = in;
-  std::sort(expected.begin(), expected.end());
+  std::ranges::sort(expected);
   EXPECT_EQ(expected, out);
 }
 
@@ -115,6 +113,6 @@ TEST(gusev_n_sorting_int_simple_merging_tbb, test_radix_sort_reverse_order) {
   RunT(task_data);
 
   std::vector<int> expected = in;
-  std::sort(expected.begin(), expected.end());
+  std::ranges::sort(expected);
   EXPECT_EQ(expected, out);
 }
