@@ -52,7 +52,7 @@ std::vector<Point> ConvexHullSequential::FindConvexHull(const std::vector<Point>
   }
 
   std::vector<Point> sorted_points(points);
-  std::sort(sorted_points.begin(), sorted_points.end());
+  std::ranges::sort(sorted_points);
 
   std::vector<Point> hull;
   hull.reserve(2 * n);

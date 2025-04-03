@@ -1,5 +1,6 @@
 #include <gtest/gtest.h>
 
+#include <cstddef>
 #include <cstdint>
 #include <memory>
 #include <vector>
@@ -10,7 +11,11 @@
 TEST(zinoviev_a_convex_hull_components_seq, test_square) {
   std::vector<int> input = {1, 1, 1, 1, 1, 1, 0, 0, 0, 1, 1, 0, 0, 0, 1, 1, 0, 0, 0, 1, 1, 1, 1, 1, 1};
 
-  std::vector<zinoviev_a_convex_hull_components_seq::Point> expected_output = {{0, 0}, {4, 0}, {4, 4}, {0, 4}};
+  std::vector<zinoviev_a_convex_hull_components_seq::Point> expected_output = {
+      {.x = 0, .y = 0},
+      {.x = 4, .y = 0},
+      {.x = 4, .y = 4},
+      {.x = 0, .y = 4}};
 
   auto task_data = std::make_shared<ppc::core::TaskData>();
   task_data->inputs.emplace_back(reinterpret_cast<uint8_t*>(input.data()));
@@ -37,10 +42,29 @@ TEST(zinoviev_a_convex_hull_components_seq, test_square) {
   delete[] reinterpret_cast<zinoviev_a_convex_hull_components_seq::Point*>(task_data->outputs[0]);
 }
 
+namespace {
+void VerifyPoints(const std::vector<zinoviev_a_convex_hull_components_seq::Point>& actual,
+                  const std::vector<zinoviev_a_convex_hull_components_seq::Point>& expected) {
+  for (const auto& expected_point : expected) {
+    bool found = false;
+    for (const auto& actual_point : actual) {
+      if (actual_point.x == expected_point.x && actual_point.y == expected_point.y) {
+        found = true;
+        break;
+      }
+    }
+    ASSERT_TRUE(found) << "Point (" << expected_point.x << "," << expected_point.y << ") not found";
+  }
+}
+}  // namespace
+
 TEST(zinoviev_a_convex_hull_components_seq, test_triangle) {
   std::vector<int> input = {1, 0, 0, 0, 0, 1, 1, 0, 0, 0, 1, 1, 1, 0, 0, 1, 1, 0, 0, 0, 1, 0, 0, 0, 0};
 
-  std::vector<zinoviev_a_convex_hull_components_seq::Point> expected_output = {{0, 0}, {0, 4}, {2, 2}};
+  std::vector<zinoviev_a_convex_hull_components_seq::Point> expected_output = {
+      {.x = 0, .y = 0},
+      {.x = 0, .y = 4},
+      {.x = 2, .y = 2}};
 
   auto task_data = std::make_shared<ppc::core::TaskData>();
   task_data->inputs.emplace_back(reinterpret_cast<uint8_t*>(input.data()));
@@ -59,17 +83,7 @@ TEST(zinoviev_a_convex_hull_components_seq, test_triangle) {
   std::vector<zinoviev_a_convex_hull_components_seq::Point> actual_output(output, output + task_data->outputs_count[0]);
 
   ASSERT_EQ(actual_output.size(), expected_output.size());
-
-  for (const auto& expected_point : expected_output) {
-    bool found = false;
-    for (const auto& actual_point : actual_output) {
-      if (actual_point.x == expected_point.x && actual_point.y == expected_point.y) {
-        found = true;
-        break;
-      }
-    }
-    ASSERT_TRUE(found) << "Point (" << expected_point.x << "," << expected_point.y << ") not found";
-  }
+  VerifyPoints(actual_output, expected_output);
 
   delete[] reinterpret_cast<zinoviev_a_convex_hull_components_seq::Point*>(task_data->outputs[0]);
 }
