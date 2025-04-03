@@ -137,21 +137,13 @@ TEST(yasakova_t_sparse_matrix_multiplication_omp, ValidationFailure_Incompatible
 }
 
 TEST(YasakovaSparseMatrixMultiplicationOMP, IdentityMatrixMultiplication) {
-  MatrixStructure identity{
-      .num_rows = 3,
-      .num_cols = 3,
-      .elements = {1, 0, 0, 0, 1, 0, 0, 0, 1}};
-  
+  MatrixStructure identity{.num_rows = 3, .num_cols = 3, .elements = {1, 0, 0, 0, 1, 0, 0, 0, 1}};
   MatrixStructure random_matrix = GenerateRandomMatrix(3, 3, 0.5);
   EXPECT_EQ(MatrixMultiply(identity, random_matrix), random_matrix);
 }
 
 TEST(YasakovaSparseMatrixMultiplicationOMP, ZeroMatrixMultiplication) {
-  MatrixStructure zero{
-      .num_rows = 3,
-      .num_cols = 3,
-      .elements = {0, 0, 0, 0, 0, 0, 0, 0, 0}};
-  
+  MatrixStructure zero{.num_rows = 3, .num_cols = 3, .elements = {0, 0, 0, 0, 0, 0, 0, 0, 0}};
   MatrixStructure random_matrix = GenerateRandomMatrix(3, 3, 0.5);
   EXPECT_EQ(MatrixMultiply(zero, random_matrix), zero);
 }
