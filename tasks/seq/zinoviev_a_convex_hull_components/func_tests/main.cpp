@@ -12,10 +12,7 @@ TEST(zinoviev_a_convex_hull_components_seq, test_square) {
   std::vector<int> input = {1, 1, 1, 1, 1, 1, 0, 0, 0, 1, 1, 0, 0, 0, 1, 1, 0, 0, 0, 1, 1, 1, 1, 1, 1};
 
   std::vector<zinoviev_a_convex_hull_components_seq::Point> expected_output = {
-      {.x = 0, .y = 0},
-      {.x = 4, .y = 0},
-      {.x = 4, .y = 4},
-      {.x = 0, .y = 4}};
+      {.x = 0, .y = 0}, {.x = 4, .y = 0}, {.x = 4, .y = 4}, {.x = 0, .y = 4}};
 
   auto task_data = std::make_shared<ppc::core::TaskData>();
   task_data->inputs.emplace_back(reinterpret_cast<uint8_t*>(input.data()));
@@ -62,9 +59,7 @@ TEST(zinoviev_a_convex_hull_components_seq, test_triangle) {
   std::vector<int> input = {1, 0, 0, 0, 0, 1, 1, 0, 0, 0, 1, 1, 1, 0, 0, 1, 1, 0, 0, 0, 1, 0, 0, 0, 0};
 
   std::vector<zinoviev_a_convex_hull_components_seq::Point> expected_output = {
-      {.x = 0, .y = 0},
-      {.x = 0, .y = 4},
-      {.x = 2, .y = 2}};
+      {.x = 0, .y = 0}, {.x = 0, .y = 4}, {.x = 2, .y = 2}};
 
   auto task_data = std::make_shared<ppc::core::TaskData>();
   task_data->inputs.emplace_back(reinterpret_cast<uint8_t*>(input.data()));
