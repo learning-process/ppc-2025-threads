@@ -11,9 +11,9 @@
 
 namespace odintsov_m_mulmatrix_cannon_omp {
 
-std::vector<double> GenerateMatrix(int sz);
+static std::vector<double> GenerateMatrix(int sz);
 
-std::vector<double> MultiplyMatrices(const std::vector<double> &a, const std::vector<double> &b, int n);
+static std::vector<double> MultiplyMatrices(const std::vector<double> &a, const std::vector<double> &b, int n);
 
 std::vector<double> GenerateMatrix(int sz) {
   std::vector<double> matrix(sz * sz);
