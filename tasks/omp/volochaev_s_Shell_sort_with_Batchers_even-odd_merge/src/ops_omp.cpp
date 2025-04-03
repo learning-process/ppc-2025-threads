@@ -59,13 +59,12 @@ void volochaev_s_shell_sort_with_batchers_even_odd_merge_omp::ShellSortOMP::Shel
   }
 }
 
-void volochaev_s_shell_sort_with_batchers_even_odd_merge_omp::ShellSortOMP::MergeBlocks(int id_l, int id_r, int len_l,
-                                                                                        int len_r) {
+void volochaev_s_shell_sort_with_batchers_even_odd_merge_omp::ShellSortOMP::MergeBlocks(int id_l, int id_r, int len) {
   int runner0 = 0;
   int runner1 = 0;
   int runnerarray = 0;
 
-  while (runner0 < len_l && runner1 < len_r) {
+  while (runner0 < len && runner1 < len) {
     if (mass_[id_l + runner0] < mass_[id_r + runner1]) {
       array_[id_l + runnerarray] = mass_[id_l + runner0];
       runner0 += 2;
@@ -77,13 +76,13 @@ void volochaev_s_shell_sort_with_batchers_even_odd_merge_omp::ShellSortOMP::Merg
     runnerarray += 2;
   }
 
-  while (runner0 < len_l) {
+  while (runner0 < len) {
     array_[id_l + runnerarray] = mass_[id_l + runner0];
     runner0 += 2;
     runnerarray += 2;
   }
 
-  while (runner1 < len_r) {
+  while (runner1 < len) {
     array_[id_l + runnerarray] = mass_[id_r + runner1];
     runner1 += 2;
     runnerarray += 2;
@@ -132,9 +131,10 @@ void volochaev_s_shell_sort_with_batchers_even_odd_merge_omp::ShellSortOMP::Merg
       int ost = omp_get_thread_num() % 2;
       int l = mini_batch_ * (c_threads_ / i);
 
-      MergeBlocks((id * 2 * l) + ost, (id * 2 * l) + l + ost, l, l);
+      MergeBlocks((id * 2 * l) + ost, (id * 2 * l) + l + ost, l);
     }
   }
+
   LastMerge();
 }
 
@@ -146,9 +146,9 @@ void volochaev_s_shell_sort_with_batchers_even_odd_merge_omp::ShellSortOMP::Para
     index[i] = i * mini_batch_;
   }
 
-#pragma omp parallel for
-  for (int i = 0; i < c_threads_; i++) {
-    ShellSort(index[i], index[i] + mini_batch_);
+#pragma omp parallel num_threads(c_threads_)
+  {
+    ShellSort(index[omp_get_thread_num()], index[omp_get_thread_num()] + mini_batch_);
   }
 
   Merge();
