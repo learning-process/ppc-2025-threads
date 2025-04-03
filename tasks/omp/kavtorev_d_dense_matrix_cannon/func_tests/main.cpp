@@ -35,7 +35,7 @@ TEST(kavtorev_d_dense_matrix_cannon_omp, Multiplication_3x3) {
   std::vector<double> in_mtrx_a{1, 2, 3, 4, 5, 6, 7, 8, 9};
   std::vector<double> in_mtrx_b{1, 2, 3, 4, 5, 6, 7, 8, 9};
   std::vector<double> out(n * m);
-  
+
   auto task_data_omp = std::make_shared<ppc::core::TaskData>();
   task_data_omp->inputs.emplace_back(reinterpret_cast<uint8_t *>(in_mtrx_a.data()));
   task_data_omp->inputs_count.emplace_back(in_mtrx_a.size());
