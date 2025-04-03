@@ -37,7 +37,7 @@ void VerifyConvexHull(const std::vector<int>& input,
 
   delete[] reinterpret_cast<zinoviev_a_convex_hull_components_seq::Point*>(task_data->outputs[0]);
 }
-}
+}  // namespace
 
 TEST(ConvexHullTest, Square) {
   const std::vector<int> input = {1, 1, 1, 1, 1, 1, 0, 0, 0, 1, 1, 0, 0, 0, 1, 1, 0, 0, 0, 1, 1, 1, 1, 1, 1};
