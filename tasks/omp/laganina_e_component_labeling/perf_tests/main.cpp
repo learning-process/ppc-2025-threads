@@ -27,7 +27,7 @@ TEST(laganina_e_component_labeling_omp, test_pipeline_run) {
   task_data_seq->outputs_count.emplace_back(kCount);
   task_data_seq->outputs_count.emplace_back(kCount);
 
-  // Create Task
+  // Create Task 3
   auto test_task_sequential = std::make_shared<laganina_e_component_labeling_omp::TestTaskOpenMP>(task_data_seq);
 
   // Create Perf attributes

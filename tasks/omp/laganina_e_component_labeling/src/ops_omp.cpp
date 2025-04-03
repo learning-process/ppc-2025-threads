@@ -26,7 +26,7 @@ bool TestTaskOpenMP::PreProcessingImpl() {
   m_ = task_data->inputs_count[0];
   n_ = task_data->inputs_count[1];
 
-  // Остальная инициализация
+  // Остальная инициализация 4
   binary_.resize(m_ * n_);
   step1_.assign(m_ * n_, 0);
 

@@ -21,7 +21,7 @@ class TestTaskOpenMP : public ppc::core::Task {
   std::vector<int> binary_;
   std::vector<int> step1_;
 
-  // Методы
+  // Методы 2
   void label_connected_components();
 };
 
