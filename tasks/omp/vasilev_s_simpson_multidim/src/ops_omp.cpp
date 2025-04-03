@@ -43,7 +43,7 @@ bool vasilev_s_simpson_multidim::SimpsonTaskOmp::RunImpl() {
     std::vector<std::size_t> gridpos(arity_);
     std::vector<double> coordbuf(arity_);
 #pragma omp for reduction(+ : isum)
-    for (std::size_t ip = 0; ip < gridcap_; ip++) {
+    for (int ip = 0; ip < int(gridcap_); ip++) {
       {
         auto p = ip;
         for (size_t i = 0; i < arity_; i++) {
