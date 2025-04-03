@@ -41,9 +41,7 @@ bool kapustin_i_jarv_alg_omp::TestTaskOMP::PreProcessingImpl() {
   return true;
 }
 
-bool kapustin_i_jarv_alg_omp::TestTaskOMP::ValidationImpl() { 
-    return !task_data->inputs.empty();
-}
+bool kapustin_i_jarv_alg_omp::TestTaskOMP::ValidationImpl() { return !task_data->inputs.empty(); }
 
 bool kapustin_i_jarv_alg_omp::TestTaskOMP::RunImpl() {
   std::pair<int, int> start_point = current_point_;
@@ -70,10 +68,9 @@ bool kapustin_i_jarv_alg_omp::TestTaskOMP::RunImpl() {
           int dist_next = CalculateDistance(input_[local_next], input_[current_index]);
           int dist_i = CalculateDistance(input_[i], input_[current_index]);
           if (dist_i > dist_next) {
-            local_next = i; 
+            local_next = i;
           }
-        }
-        else if (orientation > 0) {
+        } else if (orientation > 0) {
           local_next = i;
         }
       }

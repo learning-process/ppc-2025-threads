@@ -10,7 +10,7 @@
 
 #include "core/perf/include/perf.hpp"
 #include "core/task/include/task.hpp"
-#include "omp/kapustin_i_jarv_alg/include/ops_omp.hpp" 
+#include "omp/kapustin_i_jarv_alg/include/ops_omp.hpp"
 
 TEST(kapustin_i_jarv_alg_omp, test_pipeline_run) {
   constexpr int kCount = 10000000;
