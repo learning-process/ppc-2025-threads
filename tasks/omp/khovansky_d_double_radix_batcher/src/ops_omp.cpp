@@ -43,17 +43,17 @@ void RadixSort(std::vector<uint64_t>& array) {
 
   for (int shift = 0; shift < total_bits; shift += bits_in_byte) {
     std::vector<int> local_frequency(bucket_count, 0);
-  
+
 #pragma omp parallel
     {
       std::vector<int> private_frequency(bucket_count, 0);
-  
+
 #pragma omp for nowait
       for (int64_t i = 0; i < static_cast<int64_t>(array.size()); i++) {
         auto bucket = static_cast<uint8_t>((array[i] >> shift) & 0xFF);
         private_frequency[bucket]++;
       }
-  
+
 #pragma omp critical
       for (int i = 0; i < bucket_count; i++) {
         local_frequency[i] += private_frequency[i];
@@ -79,7 +79,7 @@ void OddEvenMergeSort(std::vector<uint64_t>& array, int left, int right) {
   }
 
   int middle = left + ((right - left) / 2);
-  
+
 #pragma omp parallel sections
   {
 
