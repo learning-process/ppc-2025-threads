@@ -11,10 +11,7 @@
 
 namespace odintsov_m_mulmatrix_cannon_omp {
 
-static std::vector<double> GenerateMatrix(int sz);
-
-static std::vector<double> MultiplyMatrices(const std::vector<double> &a, const std::vector<double> &b, int n);
-
+namespace {
 std::vector<double> GenerateMatrix(int sz) {
   std::vector<double> matrix(sz * sz);
   std::random_device rd;
@@ -41,6 +38,7 @@ std::vector<double> MultiplyMatrices(const std::vector<double> &a, const std::ve
   }
   return c;
 }
+}  // namespace
 
 }  // namespace odintsov_m_mulmatrix_cannon_omp
 
