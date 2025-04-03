@@ -1,5 +1,6 @@
 #include <gtest/gtest.h>
 
+#include <algorithm>
 #include <chrono>
 #include <cstdint>
 #include <memory>
@@ -17,7 +18,7 @@ TEST(gusev_n_sorting_int_simple_merging_tbb, test_pipeline_run) {
   std::random_device rd;
   std::mt19937 gen(rd());
   std::uniform_int_distribution<int> dist(-10000, 10000);
-  std::generate(in.begin(), in.end(), [&]() { return dist(gen); });
+  std::ranges::generate(in, [&]() { return dist(gen); });
   std::vector<int> out(kCount);
 
   auto task_data = std::make_shared<ppc::core::TaskData>();
@@ -51,7 +52,7 @@ TEST(gusev_n_sorting_int_simple_merging_tbb, test_task_run) {
   std::random_device rd;
   std::mt19937 gen(rd());
   std::uniform_int_distribution<int> dist(-10000, 10000);
-  std::generate(in.begin(), in.end(), [&]() { return dist(gen); });
+  std::ranges::generate(in, [&]() { return dist(gen); });
   std::vector<int> out(kCount);
 
   auto task_data = std::make_shared<ppc::core::TaskData>();

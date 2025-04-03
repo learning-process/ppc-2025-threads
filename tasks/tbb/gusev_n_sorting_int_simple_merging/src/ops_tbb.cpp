@@ -51,7 +51,9 @@ void gusev_n_sorting_int_simple_merging_tbb::SortingIntSimpleMergingTBB::RadixSo
 
 void gusev_n_sorting_int_simple_merging_tbb::SortingIntSimpleMergingTBB::RadixSortForNonNegative(
     std::vector<int>& arr) {
-  if (arr.empty()) return;
+  if (arr.empty()) {
+    return;
+  }
 
   int max = *std::ranges::max_element(arr);
   for (int exp = 1; max / exp > 0; exp *= 10) {
