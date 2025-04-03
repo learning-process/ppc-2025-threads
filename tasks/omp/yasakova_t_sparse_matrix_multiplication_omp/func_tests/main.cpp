@@ -64,6 +64,7 @@ TEST(yasakova_t_sparse_matrix_multiplication_omp, MultiplySquareMatrices) {
                                                   14102, 10324, 7876,  8163, 6404, 14313, 16311, 10430, 11518,
                                                   8139,  17186, 11140, 6086, 5930, 3732,  8944}};
 }
+
 TEST(yasakova_t_sparse_matrix_multiplication_omp, MultiplyRectangularMatrices) {
   MatrixStructure matrix_left{.num_rows = 5, .num_cols = 4, .task_data = {43, 46, 21, 21, 39, 26, 82, 65, 97, 47,
                                                                           32, 16, 76, 43, 78, 50, 18, 14, 84, 22}};
@@ -79,34 +80,43 @@ TEST(yasakova_t_sparse_matrix_multiplication_omp, MultiplyRectangularMatrices) {
 TEST(yasakova_t_sparse_matrix_multiplication_omp, SparseMatrices30x30_FullyDense) {
   TestCRSMatrixMultiplication(GenerateRandomMatrix(30, 30, .0), GenerateRandomMatrix(30, 30, .0));
 }
+
 TEST(yasakova_t_sparse_matrix_multiplication_omp, SparseMatrices30x30_20PercentNonZero) {
   TestCRSMatrixMultiplication(GenerateRandomMatrix(30, 30, .20), GenerateRandomMatrix(30, 30, .20));
 }
+
 TEST(yasakova_t_sparse_matrix_multiplication_omp, SparseMatrices30x30_MixedDensity) {
   TestCRSMatrixMultiplication(GenerateRandomMatrix(30, 30, .20), GenerateRandomMatrix(30, 30, .50));
 }
+
 TEST(yasakova_t_sparse_matrix_multiplication_omp, SparseMatrices30x40_VaryingDensity) {
   TestCRSMatrixMultiplication(GenerateRandomMatrix(30, 40, .70), GenerateRandomMatrix(40, 30, .60));
 }
+
 TEST(yasakova_t_sparse_matrix_multiplication_omp, SparseMatrices30x23_70PercentNonZero) {
   TestCRSMatrixMultiplication(GenerateRandomMatrix(30, 23, .70), GenerateRandomMatrix(23, 30, .63));
 }
+
 TEST(yasakova_t_sparse_matrix_multiplication_omp, SparseMatrix30x1_VeryHighDensity) {
   TestCRSMatrixMultiplication(GenerateRandomMatrix(30, 1, .70), GenerateRandomMatrix(1, 30, .63));
 }
+
 TEST(yasakova_t_sparse_matrix_multiplication_omp, SparseMatrix30x1_LowDensity) {
   TestCRSMatrixMultiplication(GenerateRandomMatrix(30, 1, .38), GenerateRandomMatrix(1, 30, .63));
 }
+
 TEST(yasakova_t_sparse_matrix_multiplication_omp, InverseMatrixMultiplication) {
   MatrixStructure matrix_left{.num_rows = 3, .num_cols = 3, .task_data = {1, 0, 0, 1, -1, 0, 1, 0, 1}};
   MatrixStructure matrix_right{.num_rows = 3, .num_cols = 3, .task_data = {1, 0, 0, 1, -1, 0, -1, 0, 1}};
   MatrixStructure ref{.num_rows = 3, .num_cols = 3, .task_data = {1, 0, 0, 0, 1, 0, 0, 0, 1}};
   EXPECT_EQ(MatrixMultiply(matrix_left, matrix_right), ref);
 }
+
 TEST(yasakova_t_sparse_matrix_multiplication_omp, test_crs_random_inv) {
   TestCRSMatrixMultiplication({.num_rows = 3, .num_cols = 3, .task_data = {1, 0, 0, 1, -1, 0, 1, 0, 1}},
                               {.num_rows = 3, .num_cols = 3, .task_data = {1, 0, 0, 1, -1, 0, -1, 0, 1}});
 }
+
 TEST(yasakova_t_sparse_matrix_multiplication_omp, ValidationFailure_IncompatibleDimensions) {
   const auto matrix_left = GenerateRandomMatrix(30, 40, .70);
   const auto matrix_right = GenerateRandomMatrix(50, 50, .70);
@@ -124,4 +134,24 @@ TEST(yasakova_t_sparse_matrix_multiplication_omp, ValidationFailure_Incompatible
 
   yasakova_t_sparse_matrix_multiplication_omp::SparseMatrixMultiplier task(task_data);
   EXPECT_FALSE(task.Validation());
+}
+
+TEST(YasakovaSparseMatrixMultiplicationOMP, IdentityMatrixMultiplication) {
+  MatrixStructure identity{
+      .num_rows = 3,
+      .num_cols = 3,
+      .elements = {1, 0, 0, 0, 1, 0, 0, 0, 1}};
+  
+  MatrixStructure random_matrix = GenerateRandomMatrix(3, 3, 0.5);
+  EXPECT_EQ(MatrixMultiply(identity, random_matrix), random_matrix);
+}
+
+TEST(YasakovaSparseMatrixMultiplicationOMP, ZeroMatrixMultiplication) {
+  MatrixStructure zero{
+      .num_rows = 3,
+      .num_cols = 3,
+      .elements = {0, 0, 0, 0, 0, 0, 0, 0, 0}};
+  
+  MatrixStructure random_matrix = GenerateRandomMatrix(3, 3, 0.5);
+  EXPECT_EQ(MatrixMultiply(zero, random_matrix), zero);
 }

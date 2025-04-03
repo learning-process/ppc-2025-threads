@@ -52,7 +52,6 @@ TEST(yasakova_t_sparse_matrix_multiplication_omp, test_pipeline_run) {
 
   auto task = std::make_shared<yasakova_t_sparse_matrix_multiplication_omp::SparseMatrixMultiplier>(task_data);
 
-  // Create Perf attributes
   auto performance_attributes = std::make_shared<ppc::core::PerfAttr>();
   performance_attributes->num_running = 10;
   const auto start_time = std::chrono::high_resolution_clock::now();
@@ -62,10 +61,8 @@ TEST(yasakova_t_sparse_matrix_multiplication_omp, test_pipeline_run) {
     return static_cast<double>(duration) * 1e-9;
   };
 
-  // Create and init perf results
   auto performance_results = std::make_shared<ppc::core::PerfResults>();
 
-  // Create Perf analyzer
   auto performance_analyzer = std::make_shared<ppc::core::Perf>(task);
   performance_analyzer->PipelineRun(performance_attributes, performance_results);
   ppc::core::Perf::PrintPerfStatistic(performance_results);
@@ -90,7 +87,6 @@ TEST(yasakova_t_sparse_matrix_multiplication_omp, test_task_run) {
 
   auto task = std::make_shared<yasakova_t_sparse_matrix_multiplication_omp::SparseMatrixMultiplier>(task_data);
 
-  // Create Perf attributes
   auto performance_attributes = std::make_shared<ppc::core::PerfAttr>();
   performance_attributes->num_running = 10;
   const auto start_time = std::chrono::high_resolution_clock::now();
@@ -100,10 +96,8 @@ TEST(yasakova_t_sparse_matrix_multiplication_omp, test_task_run) {
     return static_cast<double>(duration) * 1e-9;
   };
 
-  // Create and init perf results
   auto performance_results = std::make_shared<ppc::core::PerfResults>();
 
-  // Create Perf analyzer
   auto performance_analyzer = std::make_shared<ppc::core::Perf>(task);
   performance_analyzer->TaskRun(performance_attributes, performance_results);
   ppc::core::Perf::PrintPerfStatistic(performance_results);
