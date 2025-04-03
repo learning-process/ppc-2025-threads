@@ -78,7 +78,9 @@ void TestTaskOpenMP::ShellSort() {
 }
 
 void TestTaskOpenMP::BatcherMerge(std::vector<int>& left, std::vector<int>& right, std::vector<int>& result) {
-  size_t i = 0, j = 0, k = 0;
+  size_t i = 0;
+  size_t j = 0;
+  size_t k = 0;
   while (i < left.size() && j < right.size()) {
     if (left[i] <= right[j]) {
       result[k++] = left[i++];
@@ -86,7 +88,11 @@ void TestTaskOpenMP::BatcherMerge(std::vector<int>& left, std::vector<int>& righ
       result[k++] = right[j++];
     }
   }
-  while (i < left.size()) result[k++] = left[i++];
-  while (j < right.size()) result[k++] = right[j++];
+  while (i < left.size()) {
+    result[k++] = left[i++];
+  }
+  while (j < right.size()) {
+    result[k++] = right[j++];
+  }
 }
 }  // namespace fyodorov_m_shell_sort_with_even_odd_batcher_merge_omp
