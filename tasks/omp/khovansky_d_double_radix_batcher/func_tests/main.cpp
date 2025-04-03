@@ -146,3 +146,17 @@ TEST(khovansky_d_double_radix_batcher_omp, large_array) {
   test_task_omp.PostProcessingImpl();
   EXPECT_EQ(exp_out, out);
 }
+
+TEST(khovansky_d_double_radix_batcher_omp, invalid_input) {
+  std::vector<double> in{1.0};
+  std::vector<double> out(1);
+
+  auto task_data_omp = std::make_shared<ppc::core::TaskData>();
+  task_data_omp->inputs.emplace_back(reinterpret_cast<uint8_t *>(in.data()));
+  task_data_omp->inputs_count.emplace_back(in.size());
+  task_data_omp->outputs.emplace_back(reinterpret_cast<uint8_t *>(out.data()));
+  task_data_omp->outputs_count.emplace_back(out.size());
+
+  khovansky_d_double_radix_batcher_omp::RadixOMP test_task_omp(task_data_omp);
+  EXPECT_EQ(test_task_omp.ValidationImpl(), false);
+}

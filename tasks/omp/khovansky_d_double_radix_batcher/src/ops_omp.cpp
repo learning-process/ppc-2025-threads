@@ -98,14 +98,16 @@ void OddEvenMergeSort(std::vector<uint64_t>& array, int left, int right) {
 
 void RadixBatcherSort(std::vector<double>& data) {
   std::vector<uint64_t> transformed_data(data.size(), 0);
-
+  
+#pragma omp parallel for
   for (int64_t i = 0; i < static_cast<int64_t>(data.size()); i++) {
     transformed_data[i] = EncodeDoubleToUint64(data[i]);
   }
 
   RadixSort(transformed_data);
   OddEvenMergeSort(transformed_data, 0, static_cast<int>(transformed_data.size()));
-
+  
+#pragma omp parallel for
   for (int64_t i = 0; i < static_cast<int64_t>(data.size()); i++) {
     data[i] = DecodeUint64ToDouble(transformed_data[i]);
   }
