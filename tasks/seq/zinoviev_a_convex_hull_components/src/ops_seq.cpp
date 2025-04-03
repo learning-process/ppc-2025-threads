@@ -20,7 +20,7 @@ bool ConvexHullSequential::PreProcessingImpl() noexcept {
   const auto* input_data = reinterpret_cast<int*>(task_data->inputs[0]);
   const int width = task_data->inputs_count[0];
   const int height = task_data->inputs_count[1];
-  const size_t total_pixels = static_cast<size_t>(width) * height;
+  const size_t total_pixels = static_cast<size_t>(width) * static_cast<size_t>(height);
 
   input_points_.clear();
   input_points_.reserve(total_pixels);
@@ -38,7 +38,8 @@ bool ConvexHullSequential::PreProcessingImpl() noexcept {
 
 bool ConvexHullSequential::ValidationImpl() noexcept {
   return task_data->inputs_count.size() == 2 && task_data->outputs_count.size() == 1 &&
-         task_data->inputs_count[0] > 0 && task_data->inputs_count[1] > 0 && task_data->outputs_count[0] >= 0;
+         task_data->inputs_count[0] > 0 &&
+         task_data->inputs_count[1] > 0;
 }
 
 int ConvexHullSequential::cross(const Point& O, const Point& A, const Point& B) noexcept {
@@ -46,27 +47,28 @@ int ConvexHullSequential::cross(const Point& O, const Point& A, const Point& B) 
 }
 
 std::vector<Point> ConvexHullSequential::findConvexHull(const std::vector<Point>& points) noexcept {
-  if (points.size() < 2) return points;
+  const size_t n = points.size();
+  if (n < 2) return points;
 
   std::vector<Point> sorted_points(points);
   std::sort(sorted_points.begin(), sorted_points.end());
 
   std::vector<Point> hull;
-  hull.reserve(sorted_points.size() * 2);
+  hull.reserve(2 * n);
 
-  for (const auto& p : sorted_points) {
-    while (hull.size() >= 2 && cross(hull[hull.size() - 2], hull.back(), p) <= 0) {
+  for (size_t i = 0; i < n; ++i) {
+    while (hull.size() >= 2 && cross(hull[hull.size() - 2], hull.back(), sorted_points[i]) <= 0) {
       hull.pop_back();
     }
-    hull.push_back(p);
+    hull.push_back(sorted_points[i]);
   }
 
   const size_t lower_size = hull.size();
-  for (auto it = sorted_points.rbegin(); it != sorted_points.rend(); ++it) {
-    while (hull.size() > lower_size && cross(hull[hull.size() - 2], hull.back(), *it) <= 0) {
+  for (size_t i = n; i-- > 0;) {
+    while (hull.size() > lower_size && cross(hull[hull.size() - 2], hull.back(), sorted_points[i]) <= 0) {
       hull.pop_back();
     }
-    hull.push_back(*it);
+    hull.push_back(sorted_points[i]);
   }
 
   if (!hull.empty()) hull.pop_back();
@@ -79,18 +81,23 @@ bool ConvexHullSequential::RunImpl() noexcept {
 }
 
 bool ConvexHullSequential::PostProcessingImpl() noexcept {
-  if (task_data->outputs.empty() || static_cast<size_t>(task_data->outputs_count[0]) < output_hull_.size()) {
+  if (task_data->outputs.empty() || task_data->outputs_count.empty()) {
     return false;
   }
 
-  auto* output_data = reinterpret_cast<Point*>(task_data->outputs[0]);
-  const size_t N = output_hull_.size();
+  const size_t output_capacity = static_cast<size_t>(task_data->outputs_count[0]);
+  const size_t required_size = output_hull_.size();
 
-  if (output_data != nullptr) {
-    for (size_t i = 0; i < N; ++i) {
-      output_data[i] = output_hull_[i];
+  if (required_size > output_capacity) {
+    return false;
+  }
+
+  auto* output = reinterpret_cast<Point*>(task_data->outputs[0]);
+  if (output != nullptr) {
+    for (size_t i = 0; i < required_size; ++i) {
+      output[i] = output_hull_[i];
     }
-    task_data->outputs_count[0] = static_cast<int>(N);
+    task_data->outputs_count[0] = static_cast<int>(required_size);
   }
   return true;
 }
