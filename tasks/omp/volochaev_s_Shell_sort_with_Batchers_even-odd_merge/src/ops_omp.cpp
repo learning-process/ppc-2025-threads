@@ -4,6 +4,7 @@
 
 #include <cmath>
 #include <cstddef>
+#include <iostream>
 #include <vector>
 
 #include "omp/volochaev_s_Shell_sort_with_Batchers_even-odd_merge/include/ops_omp.hpp"
@@ -124,14 +125,23 @@ void volochaev_s_shell_sort_with_batchers_even_odd_merge_omp::ShellSortOMP::Last
 }
 
 void volochaev_s_shell_sort_with_batchers_even_odd_merge_omp::ShellSortOMP::Merge() {
+  for (int i = 0; i < n_; ++i) {
+    std::cout << mass_[i] << " ";
+  }
+
+  std::cout << std::endl;
   for (int i = c_threads_; i > 1; i /= 2) {
 #pragma omp parallel num_threads(i)
     {
-      int id = static_cast<int>(static_cast<double>(omp_get_thread_num()) / 2);
+      int id = static_cast<int>(omp_get_thread_num() / 2);
       int ost = omp_get_thread_num() % 2;
       int l = mini_batch_ * (c_threads_ / i);
 
-      MergeBlocks((id * 2 * l) + ost, (id * 2 * l) + l + ost, l);
+      MergeBlocks((id * 2 * l) + ost, (id * 2 * l) + l + ost, l - ost);
+    }
+
+    for (int i = 0; i < n_; ++i) {
+      std::cout << mass_[i] << " ";
     }
   }
 
@@ -148,6 +158,7 @@ void volochaev_s_shell_sort_with_batchers_even_odd_merge_omp::ShellSortOMP::Para
 
 #pragma omp parallel num_threads(c_threads_)
   { ShellSort(index[omp_get_thread_num()], index[omp_get_thread_num()] + mini_batch_); }
+
   Merge();
 }
 
