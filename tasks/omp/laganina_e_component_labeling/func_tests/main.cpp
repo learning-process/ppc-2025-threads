@@ -22,7 +22,7 @@ TEST(laganina_e_component_labeling_omp, validation_test1) {
   task_data_omp->outputs_count.emplace_back(m);
   task_data_omp->outputs_count.emplace_back(n);
 
-  // Create Task
+  // Create Task..
   laganina_e_component_labeling_omp::TestTaskOpenMP test_task_omp(task_data_omp);
   ASSERT_EQ(test_task_omp.Validation(), false);
 }
