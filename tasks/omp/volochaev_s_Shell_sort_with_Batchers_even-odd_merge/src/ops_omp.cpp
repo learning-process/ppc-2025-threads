@@ -95,11 +95,9 @@ void volochaev_s_shell_sort_with_batchers_even_odd_merge_omp::ShellSortOMP::Merg
     runner0 += 2;
     runnerarray += 2;
   }*/
-  if (runner0 < len) {
-    MergeLast(id_l, len, runner0, runnerarray, 2);
-  } else {
-    MergeLast(id_r, len, runner1, runnerarray, 2);
-  }
+
+  MergeLast(id_l, len, runner0, runnerarray, 2);
+  MergeLast(id_r, len, runner1, runnerarray, 2);
 
   /*while (runner1 < len) {
     array_[id_l + runnerarray] = mass_[id_r + runner1];
@@ -129,11 +127,8 @@ void volochaev_s_shell_sort_with_batchers_even_odd_merge_omp::ShellSortOMP::Last
     runnerarray++;
   }
 
-  if (runner0 < n_) {
-    MergeLast(0, n_, runner0, runnerarray, 1);
-  } else {
-    MergeLast(0, n_, runner1, runnerarray, 1);
-  }
+  MergeLast(0, n_, runner0, runnerarray, 1);
+  MergeLast(0, n_, runner1, runnerarray, 1);
 }
 
 void volochaev_s_shell_sort_with_batchers_even_odd_merge_omp::ShellSortOMP::Merge() {
