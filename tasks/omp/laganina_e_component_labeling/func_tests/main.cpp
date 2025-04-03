@@ -1,12 +1,13 @@
 #include <gtest/gtest.h>
 
+#include <algorithm>
 #include <cstdint>
 #include <memory>
+#include <unordered_set>
 #include <vector>
 
 #include "core/task/include/task.hpp"
 #include "omp/laganina_e_component_labeling/include/ops_omp.hpp"
-
 TEST(laganina_e_component_labeling_omp, validation_test1) {
   int m = 0;
   int n = 1;
@@ -109,7 +110,7 @@ TEST(laganina_e_component_labeling_omp, Find_test) {
   test_task_omp.PreProcessing();
   test_task_omp.Run();
   test_task_omp.PostProcessing();
-  laganina_e_component_labeling_omp::normalize_labels(out);
+  laganina_e_component_labeling_omp::NormalizeLabels(out);
   EXPECT_EQ(out, exp_out);
 }
 TEST(laganina_e_component_labeling_omp, all_one) {
@@ -134,7 +135,7 @@ TEST(laganina_e_component_labeling_omp, all_one) {
   test_task_omp.PreProcessing();
   test_task_omp.Run();
   test_task_omp.PostProcessing();
-  laganina_e_component_labeling_omp::normalize_labels(out);
+  laganina_e_component_labeling_omp::NormalizeLabels(out);
   EXPECT_EQ(res, out);
 }
 
@@ -160,7 +161,7 @@ TEST(laganina_e_component_labeling_omp, all_one_large) {
   test_task_omp.PreProcessing();
   test_task_omp.Run();
   test_task_omp.PostProcessing();
-  laganina_e_component_labeling_omp::normalize_labels(out);
+  laganina_e_component_labeling_omp::NormalizeLabels(out);
   EXPECT_EQ(res, out);
 }
 
@@ -185,7 +186,7 @@ TEST(laganina_e_component_labeling_omp, all_zero) {
   test_task_omp.PreProcessing();
   test_task_omp.Run();
   test_task_omp.PostProcessing();
-  laganina_e_component_labeling_omp::normalize_labels(out);
+  laganina_e_component_labeling_omp::NormalizeLabels(out);
   EXPECT_EQ(in, out);
 }
 
@@ -211,8 +212,8 @@ TEST(laganina_e_component_labeling_omp, test1) {
   test_task_omp.PreProcessing();
   test_task_omp.Run();
   test_task_omp.PostProcessing();
-  laganina_e_component_labeling_omp::normalize_labels(out);
-  EXPECT_EQ(out, exp_out);
+  laganina_e_component_labeling_omp::NormalizeLabels(out);
+  EXPECT_EQ(exp_out, out);
 }
 
 TEST(laganina_e_component_labeling_omp, test2) {
@@ -237,8 +238,8 @@ TEST(laganina_e_component_labeling_omp, test2) {
   test_task_omp.PreProcessing();
   test_task_omp.Run();
   test_task_omp.PostProcessing();
-  laganina_e_component_labeling_omp::normalize_labels(out);
-  EXPECT_EQ(out, exp_out);
+  laganina_e_component_labeling_omp::NormalizeLabels(out);
+  EXPECT_EQ(exp_out, out);
 }
 
 TEST(laganina_e_component_labeling_omp, test3) {
@@ -263,8 +264,8 @@ TEST(laganina_e_component_labeling_omp, test3) {
   test_task_omp.PreProcessing();
   test_task_omp.Run();
   test_task_omp.PostProcessing();
-  laganina_e_component_labeling_omp::normalize_labels(out);
-  EXPECT_EQ(out, exp_out);
+  laganina_e_component_labeling_omp::NormalizeLabels(out);
+  EXPECT_EQ(exp_out, out);
 }
 
 TEST(laganina_e_component_labeling_omp, test6) {
@@ -289,8 +290,8 @@ TEST(laganina_e_component_labeling_omp, test6) {
   test_task_omp.PreProcessing();
   test_task_omp.Run();
   test_task_omp.PostProcessing();
-  laganina_e_component_labeling_omp::normalize_labels(out);
-  EXPECT_EQ(out, exp_out);
+  laganina_e_component_labeling_omp::NormalizeLabels(out);
+  EXPECT_EQ(exp_out, out);
 }
 
 TEST(laganina_e_component_labeling_omp, test7) {
@@ -315,8 +316,8 @@ TEST(laganina_e_component_labeling_omp, test7) {
   test_task_omp.PreProcessing();
   test_task_omp.Run();
   test_task_omp.PostProcessing();
-  laganina_e_component_labeling_omp::normalize_labels(out);
-  EXPECT_EQ(out, exp_out);
+  laganina_e_component_labeling_omp::NormalizeLabels(out);
+  EXPECT_EQ(exp_out, out);
 }
 
 TEST(laganina_e_component_labeling_omp, one_row) {
@@ -341,8 +342,8 @@ TEST(laganina_e_component_labeling_omp, one_row) {
   test_task_omp.PreProcessing();
   test_task_omp.Run();
   test_task_omp.PostProcessing();
-  laganina_e_component_labeling_omp::normalize_labels(out);
-  EXPECT_EQ(out, exp_out);
+  laganina_e_component_labeling_omp::NormalizeLabels(out);
+  EXPECT_EQ(exp_out, out);
 }
 
 TEST(laganina_e_component_labeling_omp, test4) {
@@ -367,8 +368,8 @@ TEST(laganina_e_component_labeling_omp, test4) {
   test_task_omp.PreProcessing();
   test_task_omp.Run();
   test_task_omp.PostProcessing();
-  laganina_e_component_labeling_omp::normalize_labels(out);
-  EXPECT_EQ(out, exp_out);
+  laganina_e_component_labeling_omp::NormalizeLabels(out);
+  EXPECT_EQ(exp_out, out);
 }
 
 TEST(laganina_e_component_labeling_omp, test5) {
@@ -393,8 +394,8 @@ TEST(laganina_e_component_labeling_omp, test5) {
   test_task_omp.PreProcessing();
   test_task_omp.Run();
   test_task_omp.PostProcessing();
-  laganina_e_component_labeling_omp::normalize_labels(out);
-  EXPECT_EQ(out, exp_out);
+  laganina_e_component_labeling_omp::NormalizeLabels(out);
+  EXPECT_EQ(exp_out, out);
 }
 
 TEST(laganina_e_component_labeling_omp, all_one_100) {
@@ -420,7 +421,7 @@ TEST(laganina_e_component_labeling_omp, all_one_100) {
   test_task_omp.PreProcessing();
   test_task_omp.Run();
   test_task_omp.PostProcessing();
-  laganina_e_component_labeling_omp::normalize_labels(out);
+  laganina_e_component_labeling_omp::NormalizeLabels(out);
   EXPECT_EQ(exp_out, out);
 }
 
@@ -446,7 +447,7 @@ TEST(laganina_e_component_labeling_omp, all_one_500) {
   test_task_omp.PreProcessing();
   test_task_omp.Run();
   test_task_omp.PostProcessing();
-  laganina_e_component_labeling_omp::normalize_labels(out);
+  laganina_e_component_labeling_omp::NormalizeLabels(out);
   EXPECT_EQ(exp_out, out);
 }
 
@@ -496,7 +497,7 @@ TEST(laganina_e_component_labeling_omp, simple_rectangles_100) {
   test_task_omp.PreProcessing();
   test_task_omp.Run();
   test_task_omp.PostProcessing();
-  laganina_e_component_labeling_omp::normalize_labels(out);
+  laganina_e_component_labeling_omp::NormalizeLabels(out);
   EXPECT_EQ(exp_out, out);
 }
 
@@ -529,7 +530,7 @@ TEST(laganina_e_component_labeling_omp, diagonal_line_100) {
   test_task_omp.PreProcessing();
   test_task_omp.Run();
   test_task_omp.PostProcessing();
-  laganina_e_component_labeling_omp::normalize_labels(out);
+  laganina_e_component_labeling_omp::NormalizeLabels(out);
   EXPECT_EQ(exp_out, out);
 }
 
@@ -577,7 +578,7 @@ TEST(laganina_e_component_labeling_omp, u_shaped_shape_100) {
   test_task_omp.PreProcessing();
   test_task_omp.Run();
   test_task_omp.PostProcessing();
-  laganina_e_component_labeling_omp::normalize_labels(out);
+  laganina_e_component_labeling_omp::NormalizeLabels(out);
   EXPECT_EQ(exp_out, out);
 }
 
@@ -617,6 +618,6 @@ TEST(laganina_e_component_labeling_omp, ring_with_a_hole_100) {
   test_task_omp.PreProcessing();
   test_task_omp.Run();
   test_task_omp.PostProcessing();
-  laganina_e_component_labeling_omp::normalize_labels(out);
+  laganina_e_component_labeling_omp::NormalizeLabels(out);
   EXPECT_EQ(exp_out, out);
 }

@@ -3,220 +3,162 @@
 #include <omp.h>
 
 #include <algorithm>
-#include <memory>
-#include <stack>
+#include <atomic>
+#include <unordered_map>
+#include <utility>
+#include <vector>
+
+#include "core/task/include/task.hpp"
 
 namespace laganina_e_component_labeling_omp {
 
 TestTaskOpenMP::TestTaskOpenMP(ppc::core::TaskDataPtr task_data) : Task(std::move(task_data)) {}
 
 bool TestTaskOpenMP::ValidationImpl() {
-  if (!task_data || !task_data->inputs[0] || !task_data->outputs[0]) return false;
+  if (task_data == nullptr || task_data->inputs[0] == nullptr || task_data->outputs[0] == nullptr) {
+    return false;
+  }
 
-  const int size = task_data->inputs_count[0] * task_data->inputs_count[1];
-  const int* input = reinterpret_cast<int*>(task_data->inputs[0]);
+  const auto size = static_cast<int>(task_data->inputs_count[0] * task_data->inputs_count[1]);
+  const int* input = reinterpret_cast<const int*>(task_data->inputs[0]);
 
   for (int i = 0; i < size; ++i) {
-    if (input[i] != 0 && input[i] != 1) return false;
+    if (input[i] != 0 && input[i] != 1) {
+      return false;
+    }
   }
   return true;
 }
 
 bool TestTaskOpenMP::PreProcessingImpl() {
-  m_ = task_data->inputs_count[0];
-  n_ = task_data->inputs_count[1];
+  m_ = static_cast<int>(task_data->inputs_count[0]);
+  n_ = static_cast<int>(task_data->inputs_count[1]);
 
-  // Remaining initialization
   binary_.resize(m_ * n_);
-  step1_.assign(m_ * n_, 0);
-
-  const int* input = reinterpret_cast<int*>(task_data->inputs[0]);
-  std::copy(input, input + m_ * n_, binary_.begin());
+  const int* input = reinterpret_cast<const int*>(task_data->inputs[0]);
+  std::copy_n(input, m_ * n_, binary_.begin());
 
   return true;
 }
 
 bool TestTaskOpenMP::PostProcessingImpl() {
   int* output = reinterpret_cast<int*>(task_data->outputs[0]);
-  std::copy(binary_.begin(), binary_.end(), output);
+  std::copy(binary_.cbegin(), binary_.cend(), output);
   return true;
 }
 
 bool TestTaskOpenMP::RunImpl() {
-  label_connected_components();
+  LabelConnectedComponents();
   return true;
 }
 
-void TestTaskOpenMP::label_connected_components() {
+namespace {
+void CompressPath(std::vector<int>& parent, int node, int& root) {
+  while (parent[node] != node) {
+    parent[node] = parent[parent[node]];
+    node = parent[node];
+  }
+  root = node;
+}
+
+void ProcessNeighbor(int idx, int neighbor_idx, std::vector<int>& parent, std::vector<int>& binary, bool& changed) {
+  if (binary[neighbor_idx] != 1) return;
+
+  int root;
+  CompressPath(parent, idx, root);
+
+  int neighbor_root;
+  CompressPath(parent, neighbor_idx, neighbor_root);
+
+  if (root != neighbor_root) {
+    const int new_root = std::min(root, neighbor_root);
+#pragma omp atomic write
+    parent[root] = new_root;
+#pragma omp atomic write
+    parent[neighbor_root] = new_root;
+    changed = true;
+  }
+}
+}  // namespace
+
+void TestTaskOpenMP::LabelConnectedComponents() {
   const int size = m_ * n_;
   std::vector<int> parent(size);
 
-  // 1. Initialization (parallel)
 #pragma omp parallel for schedule(static)
   for (int i = 0; i < size; ++i) {
     parent[i] = (binary_[i] == 1) ? i : -1;
   }
 
-  // 2. Parallel Union-Find with iterative refinement
-  bool changed;
+  bool changed = false;
   int iterations = 0;
-  const int max_iterations = 10;  // Protection against infinite loops
+  constexpr int kMaxIterations = 100;
 
   do {
     changed = false;
     iterations++;
 
-    // Left-to-right, top-to-bottom pass
-#pragma omp parallel for reduction(|| : changed) schedule(static)
+// Left-Right Top-Bottom pass
+#pragma omp parallel for reduction(|| : changed) schedule(dynamic)
     for (int i = 0; i < m_; ++i) {
       for (int j = 0; j < n_; ++j) {
-        int idx = i * n_ + j;
+        const int idx = (i * n_) + j;
         if (binary_[idx] != 1) continue;
 
-        // Check left and top neighbors
-        if (j > 0 && binary_[idx - 1] == 1) {
-          int root = idx;
-          while (parent[root] != root) {
-            parent[root] = parent[parent[root]];
-            root = parent[root];
-          }
-
-          int neighbor_root = idx - 1;
-          while (parent[neighbor_root] != neighbor_root) {
-            parent[neighbor_root] = parent[parent[neighbor_root]];
-            neighbor_root = parent[neighbor_root];
-          }
-
-          if (root != neighbor_root) {
-            if (root < neighbor_root) {
-              parent[neighbor_root] = root;
-            } else {
-              parent[root] = neighbor_root;
-            }
-            changed = true;
-          }
-        }
-
-        if (i > 0 && binary_[idx - n_] == 1) {
-          int root = idx;
-          while (parent[root] != root) {
-            parent[root] = parent[parent[root]];
-            root = parent[root];
-          }
-
-          int neighbor_root = idx - n_;
-          while (parent[neighbor_root] != neighbor_root) {
-            parent[neighbor_root] = parent[parent[neighbor_root]];
-            neighbor_root = parent[neighbor_root];
-          }
-
-          if (root != neighbor_root) {
-            if (root < neighbor_root) {
-              parent[neighbor_root] = root;
-            } else {
-              parent[root] = neighbor_root;
-            }
-            changed = true;
-          }
-        }
+        if (j > 0) ProcessNeighbor(idx, idx - 1, parent, binary_, changed);
+        if (i > 0) ProcessNeighbor(idx, idx - n_, parent, binary_, changed);
       }
     }
 
-    // Right-to-left, bottom-to-top pass (to speed up convergence)
-#pragma omp parallel for reduction(|| : changed) schedule(static)
+// Right-Left Bottom-Top pass
+#pragma omp parallel for reduction(|| : changed) schedule(dynamic)
     for (int i = m_ - 1; i >= 0; --i) {
       for (int j = n_ - 1; j >= 0; --j) {
-        int idx = i * n_ + j;
+        const int idx = (i * n_) + j;
         if (binary_[idx] != 1) continue;
 
-        // Check right and bottom neighbors
-        if (j < n_ - 1 && binary_[idx + 1] == 1) {
-          int root = idx;
-          while (parent[root] != root) {
-            parent[root] = parent[parent[root]];
-            root = parent[root];
-          }
-
-          int neighbor_root = idx + 1;
-          while (parent[neighbor_root] != neighbor_root) {
-            parent[neighbor_root] = parent[parent[neighbor_root]];
-            neighbor_root = parent[neighbor_root];
-          }
-
-          if (root != neighbor_root) {
-            if (root < neighbor_root) {
-              parent[neighbor_root] = root;
-            } else {
-              parent[root] = neighbor_root;
-            }
-            changed = true;
-          }
-        }
-
-        if (i < m_ - 1 && binary_[idx + n_] == 1) {
-          int root = idx;
-          while (parent[root] != root) {
-            parent[root] = parent[parent[root]];
-            root = parent[root];
-          }
-
-          int neighbor_root = idx + n_;
-          while (parent[neighbor_root] != neighbor_root) {
-            parent[neighbor_root] = parent[parent[neighbor_root]];
-            neighbor_root = parent[neighbor_root];
-          }
-
-          if (root != neighbor_root) {
-            if (root < neighbor_root) {
-              parent[neighbor_root] = root;
-            } else {
-              parent[root] = neighbor_root;
-            }
-            changed = true;
-          }
-        }
+        if (j < n_ - 1) ProcessNeighbor(idx, idx + 1, parent, binary_, changed);
+        if (i < m_ - 1) ProcessNeighbor(idx, idx + n_, parent, binary_, changed);
       }
     }
-  } while (changed && iterations < max_iterations);
+  } while (changed && iterations < kMaxIterations);
 
-  // 3. Final path compression and labeling
+// Final path compression and labeling
 #pragma omp parallel for schedule(static)
   for (int i = 0; i < size; ++i) {
     if (binary_[i] == 1) {
-      int root = i;
-      while (parent[root] != root) {
-        root = parent[root];
-      }
+      int root;
+      CompressPath(parent, i, root);
       binary_[i] = root + 2;
     }
   }
 
-  // 4. Label normalization
+  // Label normalization
   std::vector<int> label_map(size + 2, 0);
-  int next_label = 2;
+  std::atomic<int> next_label{2};
 
 #pragma omp parallel
   {
-    std::vector<int> local_labels;
+    std::unordered_map<int, int> local_map;
 
 #pragma omp for nowait
     for (int i = 0; i < size; ++i) {
       if (binary_[i] >= 2) {
-        local_labels.push_back(binary_[i]);
+        local_map.try_emplace(binary_[i], 0);
       }
     }
 
 #pragma omp critical
     {
-      for (int val : local_labels) {
-        if (label_map[val] == 0) {
-          label_map[val] = next_label++;
+      for (const auto& [key, _] : local_map) {
+        if (label_map[key] == 0) {
+          label_map[key] = next_label++;
         }
       }
     }
   }
 
-  // 5. Applying normalized labels
+// Apply normalized labels
 #pragma omp parallel for schedule(static)
   for (int i = 0; i < size; ++i) {
     if (binary_[i] >= 2) {

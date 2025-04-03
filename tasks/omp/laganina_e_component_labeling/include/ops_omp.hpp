@@ -1,6 +1,7 @@
 #pragma once
-#include <map>
-#include <memory>
+#include <atomic>
+#include <unordered_map>
+#include <utility>
 #include <vector>
 
 #include "core/task/include/task.hpp"
@@ -21,22 +22,21 @@ class TestTaskOpenMP : public ppc::core::Task {
   std::vector<int> binary_;
   std::vector<int> step1_;
 
-  // Методы
-  void label_connected_components();
+  void LabelConnectedComponents();  // Переименовано в CamelCase
 };
 
-inline void normalize_labels(std::vector<int>& vec) {
-  std::map<int, int> label_map;
+inline void NormalizeLabels(std::vector<int>& vec) {  // Переименовано и оптимизировано
+  std::unordered_map<int, int> label_map;
   int current_label = 2;
 
-  // Собираем уникальные метки
-  for (auto& val : vec) {
-    if (val != 0 && label_map.count(val) == 0) {
+  // Collect unique labels
+  for (const auto& val : vec) {                  // Добавлен const
+    if (val != 0 && !label_map.contains(val)) {  // Использован contains
       label_map[val] = current_label++;
     }
   }
 
-  // Заменяем метки
+  // Replace labels
   for (auto& val : vec) {
     if (val != 0) {
       val = label_map[val];
