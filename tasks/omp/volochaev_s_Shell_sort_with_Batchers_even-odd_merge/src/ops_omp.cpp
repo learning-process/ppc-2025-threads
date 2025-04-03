@@ -4,6 +4,7 @@
 
 #include <cmath>
 #include <iostream>
+#include <limits>
 #include <vector>
 
 #include "omp/volochaev_s_Shell_sort_with_Batchers_even-odd_merge/include/ops_omp.hpp"
@@ -190,7 +191,7 @@ void volochaev_s_shell_sort_with_batchers_even_odd_merge_omp::ShellSortOMP::Find
   }
 
   for (int i = size_; i < static_cast<int>(mass_.size()); ++i) {
-    mass_[i] = INT_MAX;
+    mass_[i] = std::numeric_limits<int>::max();
   }
   array_.resize(n_);
 }
