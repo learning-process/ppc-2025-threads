@@ -3,8 +3,8 @@
 #include <omp.h>
 
 #include <algorithm>
+#include <cstddef>
 #include <cmath>
-#include <set>
 #include <vector>
 
 namespace alputov_i_graham_scan_omp {
@@ -27,7 +27,7 @@ bool TestTaskOMP::ValidationImpl() {
 }
 
 double TestTaskOMP::Cross(const Point& o, const Point& a, const Point& b) {
-  return (a.x - o.x) * (b.y - o.y) - (a.y - o.y) * (b.x - o.x);
+  return ((a.x - o.x) * (b.y - o.y)) - ((a.y - o.y) * (b.x - o.x));
 }
 
 Point TestTaskOMP::FindPivot() const {
@@ -55,7 +55,6 @@ std::vector<Point> TestTaskOMP::SortPoints(const Point& pivot) const {
   std::vector<Point> points;
   points.reserve(input_points_.size());
 
-  // ‘ильтраци¤ дубликатов (параллельно)
   std::vector<std::vector<Point>> local_points(omp_get_max_threads());
 
 #pragma omp parallel
@@ -73,16 +72,18 @@ std::vector<Point> TestTaskOMP::SortPoints(const Point& pivot) const {
     points.insert(points.end(), vec.begin(), vec.end());
   }
 
-  std::sort(points.begin(), points.end(), [&pivot](const Point& a, const Point& b) {
+  std::ranges::sort(points, [&pivot](const Point& a, const Point& b) {
     double angle_a = atan2(a.y - pivot.y, a.x - pivot.x);
     double angle_b = atan2(b.y - pivot.y, b.x - pivot.x);
-    if (angle_a != angle_b) return angle_a < angle_b;
+    if (angle_a != angle_b) {
+      return angle_a < angle_b;
+    }
     return (a.x - pivot.x) * (a.x - pivot.x) + (a.y - pivot.y) * (a.y - pivot.y) <
            (b.x - pivot.x) * (b.x - pivot.x) + (b.y - pivot.y) * (b.y - pivot.y);
   });
 
-  auto last = std::unique(points.begin(), points.end());
-  points.erase(last, points.end());
+  auto unique_result = std::ranges::unique(points);
+  points.erase(unique_result.end(), points.end());
 
   return points;
 }
@@ -115,7 +116,7 @@ bool TestTaskOMP::RunImpl() {
 
 bool TestTaskOMP::PostProcessingImpl() {
   auto* output_ptr = reinterpret_cast<Point*>(task_data->outputs[0]);
-  std::copy(convex_hull_.begin(), convex_hull_.end(), output_ptr);
+  std::ranges::copy(convex_hull_, output_ptr);
   return true;
 }
 
