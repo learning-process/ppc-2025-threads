@@ -43,21 +43,24 @@ bool volochaev_s_shell_sort_with_batchers_even_odd_merge_omp::ShellSortOMP::Vali
 // }
 
 void volochaev_s_shell_sort_with_batchers_even_odd_merge_omp::ShellSortOMP::ShellSort(int start) {
-  int i, j, step;
-  int tmp;
   int n = mini_batch_;
-  for (step = n / 2; step > 0; step /= 2) {
-    for (i = start + step; i < start + n; i++) {
-      tmp = mass_[i];
-      for (j = i; j >= step; j -= step) {
-        if (tmp < mass_[j - step]) {
-          mass_[j] = mass_[j - step];
-        } else {
-          break;
-        }
+
+  int gap = 1;
+  while (gap < n / 3) {
+    gap = 3 * gap + 1;
+  }
+
+  while (gap >= 1) {
+    for (int i = start + gap; i < start+mini_batch_; ++i) {
+      int temp = mass_[i];
+      int j = i;
+      while (j >= start + gap && mass_[j - gap] > temp) {
+        mass_[j] =mass_[j - gap];
+        j -= gap;
       }
-      mass_[j] = tmp;
+      mass_[j] = temp;
     }
+    gap /= 3;
   }
 }
 
