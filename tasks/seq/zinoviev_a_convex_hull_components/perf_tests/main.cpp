@@ -1,10 +1,8 @@
 #include <gtest/gtest.h>
 
 #include <chrono>
-#include <cstddef>
 #include <cstdint>
 #include <memory>
-#include <random>
 #include <vector>
 
 #include "core/perf/include/perf.hpp"
@@ -18,7 +16,7 @@ TEST(zinoviev_a_convex_hull_components_seq, test_pipeline_run) {
     input[i] = 1;
     input[(size - 1) * size + i] = 1;
     input[i * size] = 1;
-    input[i * size + size - 1] = 1;
+    input[i * size + (size - 1)] = 1;
   }
 
   auto task_data = std::make_shared<ppc::core::TaskData>();
@@ -55,7 +53,7 @@ TEST(zinoviev_a_convex_hull_components_seq, test_task_run) {
     input[i] = 1;
     input[(size - 1) * size + i] = 1;
     input[i * size] = 1;
-    input[i * size + size - 1] = 1;
+    input[i * size + (size - 1)] = 1;
   }
 
   auto task_data = std::make_shared<ppc::core::TaskData>();

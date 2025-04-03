@@ -1,6 +1,5 @@
 #pragma once
 
-#include <utility>
 #include <vector>
 
 #include "core/task/include/task.hpp"
@@ -24,8 +23,8 @@ class ConvexHullSequential : public ppc::core::Task {
  private:
   std::vector<Point> input_points_;
   std::vector<Point> output_hull_;
-  static std::vector<Point> findConvexHull(const std::vector<Point>& points) noexcept;
-  static int cross(const Point& O, const Point& A, const Point& B) noexcept;
+  static std::vector<Point> FindConvexHull(const std::vector<Point>& points) noexcept;
+  static int Cross(const Point& o, const Point& a, const Point& b) noexcept;
 };
 
 }  // namespace zinoviev_a_convex_hull_components_seq
