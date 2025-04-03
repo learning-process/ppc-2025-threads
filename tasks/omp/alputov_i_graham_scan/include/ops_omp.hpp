@@ -1,9 +1,7 @@
 #pragma once
 
 #include <omp.h>
-
 #include <algorithm>
-#include <set>
 #include <utility>
 #include <vector>
 
