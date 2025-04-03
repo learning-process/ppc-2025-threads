@@ -55,7 +55,7 @@ std::vector<Point> TestTaskOMP::SortPoints(const Point& pivot) const {
   std::vector<Point> points;
   points.reserve(input_points_.size());
 
-  //Фильтрация дубликатов (параллельно)
+  // вЂРёР»СЊС‚СЂР°С†РёВ¤ РґСѓР±Р»РёРєР°С‚РѕРІ (РїР°СЂР°Р»Р»РµР»СЊРЅРѕ)
   std::vector<std::vector<Point>> local_points(omp_get_max_threads());
 
 #pragma omp parallel
