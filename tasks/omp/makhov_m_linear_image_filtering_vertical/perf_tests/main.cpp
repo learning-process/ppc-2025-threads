@@ -28,8 +28,8 @@ std::vector<uint8_t> GenerateRandomImage(int height, int width) {
 }  // namespace
 
 TEST(makhov_m_linear_image_filtering_vertical_omp, test_pipeline_run) {
-  int width = 1000;
-  int height = 1000;
+  int width = 5000;
+  int height = 5000;
   std::vector<uint8_t> input_image = GenerateRandomImage(height, width);
   std::vector<uint8_t> output_image(width * height * 3, 0);
   std::vector<uint8_t> reference_image(input_image);
@@ -97,8 +97,8 @@ TEST(makhov_m_linear_image_filtering_vertical_omp, test_pipeline_run) {
 }
 
 TEST(makhov_m_linear_image_filtering_vertical_omp, test_task_run) {
-  int width = 1000;
-  int height = 1000;
+  int width = 5000;
+  int height = 5000;
   std::vector<uint8_t> input_image = GenerateRandomImage(height, width);
   std::vector<uint8_t> output_image(width * height * 3, 0);
   std::vector<uint8_t> reference_image(input_image);
