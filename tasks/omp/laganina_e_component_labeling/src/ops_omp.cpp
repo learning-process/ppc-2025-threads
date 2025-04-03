@@ -26,7 +26,7 @@ bool TestTaskOpenMP::PreProcessingImpl() {
   m_ = task_data->inputs_count[0];
   n_ = task_data->inputs_count[1];
 
-  // Остальная инициализация 4
+  // Remaining initialization
   binary_.resize(m_ * n_);
   step1_.assign(m_ * n_, 0);
 
@@ -51,29 +51,29 @@ void TestTaskOpenMP::label_connected_components() {
   const int size = m_ * n_;
   std::vector<int> parent(size);
 
-// 1. Инициализация (параллельная)
+  // 1. Initialization (parallel)
 #pragma omp parallel for schedule(static)
   for (int i = 0; i < size; ++i) {
     parent[i] = (binary_[i] == 1) ? i : -1;
   }
 
-  // 2. Параллельный Union-Find с итеративным уточнением
+  // 2. Parallel Union-Find with iterative refinement
   bool changed;
   int iterations = 0;
-  const int max_iterations = 10;  // Защита от бесконечного цикла
+  const int max_iterations = 10;  // Protection against infinite loops
 
   do {
     changed = false;
     iterations++;
 
-// Проход слева направо, сверху вниз
+    // Left-to-right, top-to-bottom pass
 #pragma omp parallel for reduction(|| : changed) schedule(static)
     for (int i = 0; i < m_; ++i) {
       for (int j = 0; j < n_; ++j) {
         int idx = i * n_ + j;
         if (binary_[idx] != 1) continue;
 
-        // Проверка левого и верхнего соседа
+        // Check left and top neighbors
         if (j > 0 && binary_[idx - 1] == 1) {
           int root = idx;
           while (parent[root] != root) {
@@ -122,14 +122,14 @@ void TestTaskOpenMP::label_connected_components() {
       }
     }
 
-// Проход справа налево, снизу вверх (для ускорения сходимости)
+    // Right-to-left, bottom-to-top pass (to speed up convergence)
 #pragma omp parallel for reduction(|| : changed) schedule(static)
     for (int i = m_ - 1; i >= 0; --i) {
       for (int j = n_ - 1; j >= 0; --j) {
         int idx = i * n_ + j;
         if (binary_[idx] != 1) continue;
 
-        // Проверка правого и нижнего соседа
+        // Check right and bottom neighbors
         if (j < n_ - 1 && binary_[idx + 1] == 1) {
           int root = idx;
           while (parent[root] != root) {
@@ -179,7 +179,7 @@ void TestTaskOpenMP::label_connected_components() {
     }
   } while (changed && iterations < max_iterations);
 
-// 3. Финальное сжатие путей и разметка
+  // 3. Final path compression and labeling
 #pragma omp parallel for schedule(static)
   for (int i = 0; i < size; ++i) {
     if (binary_[i] == 1) {
@@ -191,7 +191,7 @@ void TestTaskOpenMP::label_connected_components() {
     }
   }
 
-  // 4. Нормализация меток
+  // 4. Label normalization
   std::vector<int> label_map(size + 2, 0);
   int next_label = 2;
 
@@ -216,7 +216,7 @@ void TestTaskOpenMP::label_connected_components() {
     }
   }
 
-// 5. Применение нормализованных меток
+  // 5. Applying normalized labels
 #pragma omp parallel for schedule(static)
   for (int i = 0; i < size; ++i) {
     if (binary_[i] >= 2) {
