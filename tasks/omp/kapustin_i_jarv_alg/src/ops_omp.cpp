@@ -50,11 +50,11 @@ bool kapustin_i_jarv_alg_omp::TestTaskOMP::RunImpl() {
   output_.push_back(start_point);
 
   do {
-    size_t next_index = (current_index + 1) % input_.size();
+    int next_index = (current_index + 1) % input_.size();
 
 #pragma omp parallel
     {
-      size_t local_next = next_index;
+      int local_next = next_index;
 
 #pragma omp for nowait
       for (int i = 0; i < static_cast<int>(input_.size()); ++i) {
