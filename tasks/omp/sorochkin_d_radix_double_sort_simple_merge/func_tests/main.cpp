@@ -72,6 +72,8 @@ class sorochkin_d_radix_double_sort_simple_merge_test_omp : public ::testing::Te
   }
 };
 
+namespace {
+
 TEST_F(sorochkin_d_radix_double_sort_simple_merge_test_omp, invalid_more) { RunInvalidSizeTest(1); }
 TEST_F(sorochkin_d_radix_double_sort_simple_merge_test_omp, invalid_less) { RunInvalidSizeTest(-1); }
 
@@ -96,3 +98,4 @@ INSTANTIATE_TEST_SUITE_P(sorochkin_d_radix_double_sort_simple_merge_test_omp, sp
                                          MakeUnsortedInput(7), MakeUnsortedInput(13), MakeUnsortedInput(15),
                                          MakeUnsortedInput(32), MakeUnsortedInput(48), MakeUnsortedInput(50),
                                          MakeUnsortedInput(64), MakeUnsortedInput(73), MakeUnsortedInput(100)));
+}  // namespace
