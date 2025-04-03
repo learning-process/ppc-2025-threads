@@ -1,6 +1,5 @@
 #pragma once
 
-#include <cstddef>
 #include <utility>
 #include <vector>
 
@@ -22,7 +21,7 @@ class TestTaskOMP : public ppc::core::Task {
   std::vector<std::pair<int, int>> output_;
   std::pair<int, int> current_point_;
   std::pair<int, int> next_point_;
-  int leftmost_index_;
+  size_t leftmost_index_;
 
   [[nodiscard]] static int Orientation(const std::pair<int, int>& p, const std::pair<int, int>& q,
                                        const std::pair<int, int>& r);

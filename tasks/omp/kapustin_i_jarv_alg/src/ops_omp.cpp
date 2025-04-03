@@ -30,7 +30,7 @@ bool kapustin_i_jarv_alg_omp::TestTaskOMP::PreProcessingImpl() {
   input_ = points;
 
   leftmost_index_ = 0;
-  for (size_t i = 1; i < input_.size(); ++i) {
+  for (int i = 1; i < input_.size(); ++i) {
     if (input_[i].first < input_[leftmost_index_].first) {
       leftmost_index_ = i;
     }
@@ -45,19 +45,19 @@ bool kapustin_i_jarv_alg_omp::TestTaskOMP::ValidationImpl() { return !task_data-
 
 bool kapustin_i_jarv_alg_omp::TestTaskOMP::RunImpl() {
   std::pair<int, int> start_point = current_point_;
-  int current_index = leftmost_index_;
+  size_t current_index = leftmost_index_;
   output_.clear();
   output_.push_back(start_point);
 
   do {
-    int next_index = (current_index + 1) % input_.size();
+    size_t next_index = (current_index + 1) % input_.size();
 
 #pragma omp parallel
     {
-      int local_next = next_index;
+      size_t local_next = next_index;
 
 #pragma omp for nowait
-      for (int i = 0; i < static_cast<int>(input_.size()); ++i) {
+      for (size_t i = 0; i < input_.size(); ++i) {
         if (i == current_index) {
           continue;
         }
