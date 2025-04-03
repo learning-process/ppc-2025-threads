@@ -26,9 +26,9 @@ bool ConvexHullSequential::PreProcessingImpl() noexcept {
 
   for (int y = 0; y < height; ++y) {
     for (int x = 0; x < width; ++x) {
-      const size_t idx = (static_cast<size_t>(y) * width) + x;
+      const size_t idx = static_cast<size_t>(y) * width + x;
       if (idx < total_pixels && input_data[idx] != 0) {
-        input_points_.emplace_back(Point{.x = x, .y = y});
+        input_points_.emplace_back(Point{x, y});
       }
     }
   }
@@ -41,40 +41,32 @@ bool ConvexHullSequential::ValidationImpl() noexcept {
 }
 
 int ConvexHullSequential::Cross(const Point& o, const Point& a, const Point& b) noexcept {
-  return ((a.x - o.x) * (b.y - o.y)) - ((a.y - o.y) * (b.x - o.x));
+  return (a.x - o.x) * (b.y - o.y) - (a.y - o.y) * (b.x - o.x);
 }
 
 std::vector<Point> ConvexHullSequential::FindConvexHull(const std::vector<Point>& points) noexcept {
-  const size_t n = points.size();
-  if (n < 3) {
-    return points;
-  }
+  if (points.size() < 3) return points;
 
   std::vector<Point> sorted_points(points);
   std::sort(sorted_points.begin(), sorted_points.end(),
             [](const Point& a, const Point& b) { return a.x < b.x || (a.x == b.x && a.y < b.y); });
 
   std::vector<Point> hull;
-  hull.reserve(2 * n);
+  hull.reserve(sorted_points.size() * 2);
 
-  for (const auto& point : sorted_points) {
-    while (hull.size() >= 2 && Cross(hull[hull.size() - 2], hull.back(), point) <= 0) {
-      hull.pop_back();
-    }
-    hull.push_back(point);
+  for (const auto& p : sorted_points) {
+    while (hull.size() >= 2 && Cross(hull[hull.size() - 2], hull.back(), p) <= 0) hull.pop_back();
+    hull.push_back(p);
   }
 
   hull.pop_back();
   for (auto it = sorted_points.rbegin(); it != sorted_points.rend(); ++it) {
-    while (hull.size() >= 2 && Cross(hull[hull.size() - 2], hull.back(), *it) <= 0) {
-      hull.pop_back();
-    }
+    while (hull.size() >= 2 && Cross(hull[hull.size() - 2], hull.back(), *it) <= 0) hull.pop_back();
     hull.push_back(*it);
   }
 
-  if (!hull.empty()) {
-    hull.pop_back();
-  }
+  if (!hull.empty()) hull.pop_back();
+
   return hull;
 }
 
