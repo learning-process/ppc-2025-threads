@@ -82,14 +82,12 @@ void OddEvenMergeSort(std::vector<uint64_t>& array, int left, int right) {
 
 #pragma omp parallel sections
   {
-
 #pragma omp section
     OddEvenMergeSort(array, left, middle);
-
 #pragma omp section
     OddEvenMergeSort(array, middle, right);
   }
-  
+
 #pragma omp parallel for
   for (int i = left; i < right - 1; i += 2) {
     if (array[i] > array[i + 1]) {
