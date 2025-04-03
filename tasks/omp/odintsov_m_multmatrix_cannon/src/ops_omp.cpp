@@ -173,7 +173,6 @@ bool odintsov_m_mulmatrix_cannon_omp::MulMatrixCannonOpenMP::RunImpl() {
         CopyBlock(matrixA_, local_block_a, start, root, block_sz_);
         CopyBlock(matrixB_, local_block_b, start, root, block_sz_);
 
-        // Умножение локальных блоков и накопление результата в matrixC_
         for (int i = 0; i < block_sz_; i++) {
           for (int k = 0; k < block_sz_; k++) {
             double a_ik = local_block_a[(i * block_sz_) + k];
@@ -186,7 +185,6 @@ bool odintsov_m_mulmatrix_cannon_omp::MulMatrixCannonOpenMP::RunImpl() {
         }
       }
     }
-    // Сдвиги выполняем последовательно, чтобы обеспечить правильное изменение данных
     ShiftBlocksLeft(matrixA_, root, block_sz_);
     ShiftBlocksUp(matrixB_, root, block_sz_);
   }
