@@ -41,7 +41,7 @@ bool ConvexHullSequential::ValidationImpl() noexcept {
 }
 
 int ConvexHullSequential::Cross(const Point& o, const Point& a, const Point& b) noexcept {
-  return (a.x - o.x) * (b.y - o.y) - (a.y - o.y) * (b.x - o.x);
+  return ((a.x - o.x) * (b.y - o.y)) - ((a.y - o.y) * (b.x - o.x));
 }
 
 std::vector<Point> ConvexHullSequential::FindConvexHull(const std::vector<Point>& points) noexcept {
@@ -51,7 +51,8 @@ std::vector<Point> ConvexHullSequential::FindConvexHull(const std::vector<Point>
   }
 
   std::vector<Point> sorted_points(points);
-  std::ranges::sort(sorted_points);
+  std::sort(sorted_points.begin(), sorted_points.end(),
+            [](const Point& a, const Point& b) { return a.x < b.x || (a.x == b.x && a.y < b.y); });
 
   std::vector<Point> hull;
   hull.reserve(2 * n);

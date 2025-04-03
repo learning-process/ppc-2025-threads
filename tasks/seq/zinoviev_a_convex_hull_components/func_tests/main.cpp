@@ -9,19 +9,19 @@
 #include "seq/zinoviev_a_convex_hull_components/include/ops_seq.hpp"
 
 namespace {
-void SetupTask(const std::vector<int>& input, int width, int height, std::shared_ptr<ppc::core::TaskData>& task_data,
-               size_t expected_size) {
+void SetupTaskData(const std::vector<int>& input, int width, int height, size_t output_size,
+                   std::shared_ptr<ppc::core::TaskData>& task_data) {
   task_data = std::make_shared<ppc::core::TaskData>();
   task_data->inputs.emplace_back(reinterpret_cast<uint8_t*>(const_cast<int*>(input.data())));
   task_data->inputs_count.emplace_back(width);
   task_data->inputs_count.emplace_back(height);
   task_data->outputs.emplace_back(
-      reinterpret_cast<uint8_t*>(new zinoviev_a_convex_hull_components_seq::Point[expected_size]));
-  task_data->outputs_count.emplace_back(expected_size);
+      reinterpret_cast<uint8_t*>(new zinoviev_a_convex_hull_components_seq::Point[output_size]));
+  task_data->outputs_count.emplace_back(output_size);
 }
 
-void VerifyResults(const std::vector<zinoviev_a_convex_hull_components_seq::Point>& actual,
-                   const std::vector<zinoviev_a_convex_hull_components_seq::Point>& expected) {
+void VerifyResult(const std::vector<zinoviev_a_convex_hull_components_seq::Point>& actual,
+                  const std::vector<zinoviev_a_convex_hull_components_seq::Point>& expected) {
   ASSERT_EQ(actual.size(), expected.size());
   for (size_t i = 0; i < actual.size(); ++i) {
     ASSERT_EQ(actual[i].x, expected[i].x);
@@ -29,11 +29,10 @@ void VerifyResults(const std::vector<zinoviev_a_convex_hull_components_seq::Poin
   }
 }
 
-void VerifyConvexHull(const std::vector<int>& input,
-                      const std::vector<zinoviev_a_convex_hull_components_seq::Point>& expected, int width,
-                      int height) {
+void RunAndValidate(const std::vector<int>& input,
+                    const std::vector<zinoviev_a_convex_hull_components_seq::Point>& expected, int width, int height) {
   std::shared_ptr<ppc::core::TaskData> task_data;
-  SetupTask(input, width, height, task_data, expected.size());
+  SetupTaskData(input, width, height, expected.size(), task_data);
 
   zinoviev_a_convex_hull_components_seq::ConvexHullSequential task(task_data);
   ASSERT_TRUE(task.Validation());
@@ -44,21 +43,21 @@ void VerifyConvexHull(const std::vector<int>& input,
   auto* output = reinterpret_cast<zinoviev_a_convex_hull_components_seq::Point*>(task_data->outputs[0]);
   std::vector<zinoviev_a_convex_hull_components_seq::Point> actual(output, output + expected.size());
 
-  VerifyResults(actual, expected);
+  VerifyResult(actual, expected);
   delete[] reinterpret_cast<zinoviev_a_convex_hull_components_seq::Point*>(task_data->outputs[0]);
 }
 }  // namespace
 
-TEST(ConvexHullTest, Square) {
+TEST(ConvexHullTest, SquareShape) {
   const std::vector<int> input = {1, 1, 1, 1, 1, 1, 0, 0, 0, 1, 1, 0, 0, 0, 1, 1, 0, 0, 0, 1, 1, 1, 1, 1, 1};
   const std::vector<zinoviev_a_convex_hull_components_seq::Point> expected = {
       {.x = 0, .y = 0}, {.x = 4, .y = 0}, {.x = 4, .y = 4}, {.x = 0, .y = 4}};
-  VerifyConvexHull(input, expected, 5, 5);
+  RunAndValidate(input, expected, 5, 5);
 }
 
-TEST(ConvexHullTest, Triangle) {
+TEST(ConvexHullTest, TriangleShape) {
   const std::vector<int> input = {1, 0, 0, 0, 0, 1, 1, 0, 0, 0, 1, 1, 1, 0, 0, 1, 1, 0, 0, 0, 1, 0, 0, 0, 0};
   const std::vector<zinoviev_a_convex_hull_components_seq::Point> expected = {
       {.x = 0, .y = 0}, {.x = 0, .y = 4}, {.x = 2, .y = 2}};
-  VerifyConvexHull(input, expected, 5, 5);
+  RunAndValidate(input, expected, 5, 5);
 }
