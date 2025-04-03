@@ -116,7 +116,7 @@ bool TestTaskOMP::RunImpl() {
 
 bool TestTaskOMP::PostProcessingImpl() {
   auto* output_ptr = reinterpret_cast<Point*>(task_data->outputs[0]);
-  std::copy(convex_hull_.begin(), convex_hull_.end(), output_ptr);
+  std::ranges::copy(convex_hull_, output_ptr);
   return true;
 }
 
