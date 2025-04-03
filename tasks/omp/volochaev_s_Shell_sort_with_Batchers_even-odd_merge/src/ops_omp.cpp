@@ -59,18 +59,18 @@ void volochaev_s_shell_sort_with_batchers_even_odd_merge_omp::ShellSortOMP::Shel
   }
 }
 
-void volochaev_s_shell_sort_with_batchers_even_odd_merge_omp::ShellSortOMP::MergeBlocks(int id_arr, int id_l, int id_r,
-                                                                                        int len_l, int len_r) {
+void volochaev_s_shell_sort_with_batchers_even_odd_merge_omp::ShellSortOMP::MergeBlocks(int id_l, int id_r, int len_l,
+                                                                                        int len_r) {
   int runner0 = 0;
   int runner1 = 0;
   int runnerarray = 0;
 
   while (runner0 < len_l && runner1 < len_r) {
     if (mass_[id_l + runner0] < mass_[id_r + runner1]) {
-      array_[id_arr + runnerarray] = mass_[id_l + runner0];
+      array_[id_l + runnerarray] = mass_[id_l + runner0];
       runner0 += 2;
     } else {
-      array_[id_arr + runnerarray] = mass_[id_r + runner1];
+      array_[id_l + runnerarray] = mass_[id_r + runner1];
       runner1 += 2;
     }
 
@@ -78,19 +78,19 @@ void volochaev_s_shell_sort_with_batchers_even_odd_merge_omp::ShellSortOMP::Merg
   }
 
   while (runner0 < len_l) {
-    array_[id_arr + runnerarray] = mass_[id_l + runner0];
+    array_[id_l + runnerarray] = mass_[id_l + runner0];
     runner0 += 2;
     runnerarray += 2;
   }
 
   while (runner1 < len_r) {
-    array_[id_arr + runnerarray] = mass_[id_r + runner1];
+    array_[id_l + runnerarray] = mass_[id_r + runner1];
     runner1 += 2;
     runnerarray += 2;
   }
 
   for (int i = 0; i < runnerarray; i += 2) {
-    mass_[id_l + i] = array_[id_arr + i];
+    mass_[id_l + i] = array_[id_l + i];
   }
 }
 
@@ -132,7 +132,7 @@ void volochaev_s_shell_sort_with_batchers_even_odd_merge_omp::ShellSortOMP::Merg
       int ost = omp_get_thread_num() % 2;
       int l = mini_batch_ * (c_threads_ / i);
 
-      MergeBlocks((id * 2 * l) + ost, (id * 2 * l) + ost, (id * 2 * l) + l + ost, l - ost, l - ost);
+      MergeBlocks((id * 2 * l) + ost, (id * 2 * l) + l + ost, l, l);
     }
   }
   LastMerge();

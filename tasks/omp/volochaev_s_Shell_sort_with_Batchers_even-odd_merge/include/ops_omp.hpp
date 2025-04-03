@@ -26,7 +26,7 @@ class ShellSortOMP : public ppc::core::Task {
   void ShellSort(int start, int finish);
   void Merge();
   void LastMerge();
-  void MergeBlocks(int id_array, int id_l, int id_r, int len_l, int len_r);
+  void MergeBlocks(int id_l, int id_r, int len_l, int len_r);
   void FindThreadVariables();
 };
 
