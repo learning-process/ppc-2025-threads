@@ -133,9 +133,9 @@ void TestTaskSTL::CountingSort(std::vector<int>& arr, int exp) {
   std::partial_sum(global_count.begin(), global_count.end(), global_count.begin());
 
   std::vector<int> output(arr.size());
-  for (auto i = arr.size() - 1; i >= 0; --i) {
-    int digit = (arr[i] / exp) % 10;
-    output[--global_count[digit]] = arr[i];
+  for (size_t i = arr.size(); i > 0; --i) {
+    const int digit = (arr[i - 1] / exp) % 10;
+    output[--global_count[digit]] = arr[i - 1];
   }
 
   arr = std::move(output);
