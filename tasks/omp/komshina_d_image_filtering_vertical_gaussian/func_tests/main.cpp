@@ -53,7 +53,7 @@ TEST(komshina_d_image_filtering_vertical_gaussian_omp, EmptyImage) {
   task_data->outputs_count.emplace_back(out.size());
 
   komshina_d_image_filtering_vertical_gaussian_omp::TestTaskOpenMP test_task(task_data);
-  ASSERT_EQ(test_task.Validation(), false);
+  ASSERT_FALSE(test_task.Validation());
 }
 
 TEST(komshina_d_image_filtering_vertical_gaussian_omp, Small2x2Image) {
@@ -124,7 +124,7 @@ TEST(komshina_d_image_filtering_vertical_gaussian_omp, ZeroWidthImage) {
   task_data->outputs_count.emplace_back(out.size());
 
   komshina_d_image_filtering_vertical_gaussian_omp::TestTaskOpenMP test_task(task_data);
-  ASSERT_EQ(test_task.Validation(), false);
+  ASSERT_FALSE(test_task.Validation());
 }
 
 TEST(komshina_d_image_filtering_vertical_gaussian_omp, ValidationInvalidKernelSize) {
@@ -144,7 +144,7 @@ TEST(komshina_d_image_filtering_vertical_gaussian_omp, ValidationInvalidKernelSi
   task_data->outputs_count.emplace_back(out.size());
 
   komshina_d_image_filtering_vertical_gaussian_omp::TestTaskOpenMP test_task(task_data);
-  ASSERT_EQ(test_task.Validation(), false);
+  ASSERT_FALSE(test_task.Validation());
 }
 
 TEST(komshina_d_image_filtering_vertical_gaussian_omp, ValidationInvalidOutputSize) {
@@ -164,7 +164,7 @@ TEST(komshina_d_image_filtering_vertical_gaussian_omp, ValidationInvalidOutputSi
   task_data->outputs_count.emplace_back(out.size());
 
   komshina_d_image_filtering_vertical_gaussian_omp::TestTaskOpenMP test_task(task_data);
-  ASSERT_EQ(test_task.Validation(), false);
+  ASSERT_FALSE(test_task.Validation());
 }
 
 TEST(komshina_d_image_filtering_vertical_gaussian_omp, PostProcessingCorrectness) {
