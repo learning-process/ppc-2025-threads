@@ -147,11 +147,9 @@ void volochaev_s_shell_sort_with_batchers_even_odd_merge_omp::ShellSortOMP::Para
   }
 
 #pragma omp parallel for
-  {
     for (int i = 0; i < c_threads_; i++) {
       ShellSort(index[i], index[i] + mini_batch_);
     }
-  }
 
   Merge();
 }
