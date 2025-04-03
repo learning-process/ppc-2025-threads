@@ -3,8 +3,8 @@
 #include <omp.h>
 
 #include <algorithm>
-#include <cstddef>
 #include <cmath>
+#include <cstddef>
 #include <vector>
 
 namespace alputov_i_graham_scan_omp {
@@ -116,7 +116,7 @@ bool TestTaskOMP::RunImpl() {
 
 bool TestTaskOMP::PostProcessingImpl() {
   auto* output_ptr = reinterpret_cast<Point*>(task_data->outputs[0]);
-  std::ranges::copy(convex_hull_, output_ptr);
+  std::copy(convex_hull_.begin(), convex_hull_.end(), output_ptr);
   return true;
 }
 
