@@ -51,11 +51,11 @@ void volochaev_s_shell_sort_with_batchers_even_odd_merge_omp::ShellSortOMP::Shel
   }
 
   while (gap >= 1) {
-    for (int i = start + gap; i < start+mini_batch_; ++i) {
+    for (int i = start + gap; i < start + mini_batch_; ++i) {
       int temp = mass_[i];
       int j = i;
       while (j >= start + gap && mass_[j - gap] > temp) {
-        mass_[j] =mass_[j - gap];
+        mass_[j] = mass_[j - gap];
         j -= gap;
       }
       mass_[j] = temp;
