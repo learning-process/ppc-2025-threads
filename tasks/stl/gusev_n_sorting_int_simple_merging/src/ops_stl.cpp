@@ -2,8 +2,10 @@
 
 #include <algorithm>
 #include <cmath>
+#include <cstddef>
 #include <numeric>
 #include <thread>
+#include <utility>
 #include <vector>
 
 #include "core/util/include/util.hpp"
@@ -15,7 +17,8 @@ void TestTaskSTL::RadixSort(std::vector<int>& arr) {
     return;
   }
 
-  std::vector<int> negatives, positives;
+  std::vector<int> negatives;
+  std::vector<int> positives;
   SplitAndSort(arr, negatives, positives);
 
   arr.clear();
@@ -104,7 +107,9 @@ void TestTaskSTL::CountingSort(std::vector<int>& arr, int exp) {
   for (int i = 0; i < num_threads; ++i) {
     size_t start = i * chunk_size;
     size_t end = std::min((i + 1) * chunk_size, total_size);
-    if (start >= total_size) break;
+    if (start >= total_size) {
+      break;
+    }
 
     threads.emplace_back([&arr, exp, start, end, &local_counts, i]() {
       for (size_t j = start; j < end; ++j) {
@@ -128,7 +133,7 @@ void TestTaskSTL::CountingSort(std::vector<int>& arr, int exp) {
   std::partial_sum(global_count.begin(), global_count.end(), global_count.begin());
 
   std::vector<int> output(arr.size());
-  for (int i = arr.size() - 1; i >= 0; --i) {
+  for (auto i = arr.size() - 1; i >= 0; --i) {
     int digit = (arr[i] / exp) % 10;
     output[--global_count[digit]] = arr[i];
   }

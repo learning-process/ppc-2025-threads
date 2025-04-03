@@ -1,7 +1,6 @@
 #include <gtest/gtest.h>
 
 #include <algorithm>
-#include <cstddef>
 #include <cstdint>
 #include <memory>
 #include <random>
@@ -67,7 +66,9 @@ TEST(gusev_n_sorting_int_simple_merging_stl, test_radix_sort_random) {
   std::random_device rd;
   std::mt19937 gen(rd());
   std::uniform_int_distribution<int> dist(-10000, 10000);
-  for (int& num : in) num = dist(gen);
+  for (int& num : in) {
+    num = dist(gen);
+  }
   std::vector<int> out(in.size());
   RunTest(in, out);
   std::vector<int> expected = in;

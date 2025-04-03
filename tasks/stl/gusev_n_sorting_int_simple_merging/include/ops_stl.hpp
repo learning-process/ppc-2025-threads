@@ -22,7 +22,7 @@ class TestTaskSTL : public ppc::core::Task {
   void RadixSort(std::vector<int>& arr);
   void SplitAndSort(std::vector<int>& arr, std::vector<int>& negatives, std::vector<int>& positives);
   void RadixSortForNonNegative(std::vector<int>& arr);
-  void CountingSort(std::vector<int>& arr, int exp);
+  static void CountingSort(std::vector<int>& arr, int exp);
 };
 
 }  // namespace gusev_n_sorting_int_simple_merging_stl
