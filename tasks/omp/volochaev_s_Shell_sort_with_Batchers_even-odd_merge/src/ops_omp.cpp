@@ -64,8 +64,7 @@ void volochaev_s_shell_sort_with_batchers_even_odd_merge_omp::ShellSortOMP::Shel
   }
 }
 
-void volochaev_s_shell_sort_with_batchers_even_odd_merge_omp::ShellSortOMP::MergeLast(int start, int len, int id1,
-                                                                                      int id2, int c) {
+void volochaev_s_shell_sort_with_batchers_even_odd_merge_omp::ShellSortOMP::MergeLast(int start,int len, int id1,int id2, int c = 1) {
   while (id1 < len) {
     array_[start + id2] = mass_[start + id1];
     id1 += 2;
@@ -90,20 +89,17 @@ void volochaev_s_shell_sort_with_batchers_even_odd_merge_omp::ShellSortOMP::Merg
     runnerarray += 2;
   }
 
-  /*while (runner0 < len) {
+  while (runner0 < len) {
     array_[id_l + runnerarray] = mass_[id_l + runner0];
     runner0 += 2;
     runnerarray += 2;
-  }*/
+  }
 
-  MergeLast(id_l, len, runner0, runnerarray, 2);
-  MergeLast(id_r, len, runner1, runnerarray, 2);
-
-  /*while (runner1 < len) {
+  while (runner1 < len) {
     array_[id_l + runnerarray] = mass_[id_r + runner1];
     runner1 += 2;
     runnerarray += 2;
-  }*/
+  }
 
   for (int i = 0; i < runnerarray; i += 2) {
     mass_[id_l + i] = array_[id_l + i];
@@ -127,8 +123,17 @@ void volochaev_s_shell_sort_with_batchers_even_odd_merge_omp::ShellSortOMP::Last
     runnerarray++;
   }
 
-  MergeLast(0, n_, runner0, runnerarray, 1);
-  MergeLast(0, n_, runner1, runnerarray, 1);
+  while (runner0 < n_) {
+    array_[runnerarray] = mass_[runner0];
+    runner0 += 2;
+    runnerarray++;
+  }
+
+  while (runner1 < n_) {
+    array_[runnerarray] = mass_[runner1];
+    runner1 += 2;
+    runnerarray++;
+  }
 }
 
 void volochaev_s_shell_sort_with_batchers_even_odd_merge_omp::ShellSortOMP::Merge() {
