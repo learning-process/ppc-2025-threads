@@ -64,7 +64,8 @@ void volochaev_s_shell_sort_with_batchers_even_odd_merge_omp::ShellSortOMP::Shel
   }
 }
 
-void volochaev_s_shell_sort_with_batchers_even_odd_merge_omp::ShellSortOMP::MergeLast(int start,int len, int id1,int id2, int c = 1) {
+void volochaev_s_shell_sort_with_batchers_even_odd_merge_omp::ShellSortOMP::MergeLast(int start, int len, int id1,
+                                                                                      int id2, int c = 1) {
   while (id1 < len) {
     array_[start + id2] = mass_[start + id1];
     id1 += 2;
