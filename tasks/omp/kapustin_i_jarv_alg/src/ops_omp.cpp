@@ -30,7 +30,7 @@ bool kapustin_i_jarv_alg_omp::TestTaskOMP::PreProcessingImpl() {
   input_ = points;
 
   leftmost_index_ = 0;
-  for (int i = 1; i < input_.size(); ++i) {
+  for (size_t i = 1; i < input_.size(); ++i) {
     if (input_[i].first < input_[leftmost_index_].first) {
       leftmost_index_ = i;
     }
