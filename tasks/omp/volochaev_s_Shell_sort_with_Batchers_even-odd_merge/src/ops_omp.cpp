@@ -42,21 +42,22 @@ bool volochaev_s_shell_sort_with_batchers_even_odd_merge_omp::ShellSortOMP::Vali
 //   }
 // }
 
-void volochaev_s_shell_sort_with_batchers_even_odd_merge_omp::ShellSortOMP::ShellSort(int start, int finish) {
+void volochaev_s_shell_sort_with_batchers_even_odd_merge_omp::ShellSortOMP::ShellSort(int start) {
+  int i, j, step;
+  int tmp;
   int n = mini_batch_;
-  int gap = n / 2;
-
-  while (gap > 0) {
-    for (int i = start + gap; i < finish; ++i) {
-      int temp = mass_[i];
-      int j = i;
-      while (j >= gap && mass_[j - gap] > temp) {
-        mass_[j] = mass_[j - gap];
-        j -= gap;
+  for (step = n / 2; step > 0; step /= 2) {
+    for (i = start + step; i < start + n; i++) {
+      tmp = mass_[i];
+      for (j = i; j >= step; j -= step) {
+        if (tmp < mass_[j - step]) {
+          mass_[j] = mass_[j - step];
+        } else {
+          break;
+        }
       }
-      mass_[j] = temp;
+      mass_[j] = tmp;
     }
-    gap /= 2;
   }
 }
 
@@ -143,6 +144,7 @@ void volochaev_s_shell_sort_with_batchers_even_odd_merge_omp::ShellSortOMP::Merg
     for (int i = 0; i < n_; ++i) {
       std::cout << mass_[i] << " ";
     }
+    std::cout << std::endl;
   }
 
   LastMerge();
@@ -157,7 +159,7 @@ void volochaev_s_shell_sort_with_batchers_even_odd_merge_omp::ShellSortOMP::Para
   }
 
 #pragma omp parallel num_threads(c_threads_)
-  { ShellSort(index[omp_get_thread_num()], index[omp_get_thread_num()] + mini_batch_); }
+  { ShellSort(omp_get_thread_num() * mini_batch_); }
 
   Merge();
 }

@@ -23,7 +23,7 @@ class ShellSortOMP : public ppc::core::Task {
   std::vector<int> mass_;
 
   void ParallelShellSort();
-  void ShellSort(int start, int finish);
+  void ShellSort(int start);
   void Merge();
   void LastMerge();
   void MergeBlocks(int id_l, int id_r, int len);
