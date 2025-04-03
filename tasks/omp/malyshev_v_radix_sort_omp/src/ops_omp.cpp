@@ -83,7 +83,7 @@ bool RadixSortDoubleOMP::RunImpl() {
       uint8_t byte = (bits >> shift) & (kNumBins - 1);
       size_t idx;
 #pragma omp critical
-      { idx = --count[byte] }
+      { idx = --count[byte]; }
       buffer[idx] = input_[i];
     }
 
