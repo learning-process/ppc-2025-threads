@@ -20,8 +20,6 @@ void CompressPath(std::vector<int>& parent, int node, int& root) {
   root = node;
 }
 
-// NormalizeLabels implementation
-
 TestTaskOpenMP::TestTaskOpenMP(ppc::core::TaskDataPtr task_data) : Task(std::move(task_data)) {}
 
 bool TestTaskOpenMP::ValidationImpl() {
