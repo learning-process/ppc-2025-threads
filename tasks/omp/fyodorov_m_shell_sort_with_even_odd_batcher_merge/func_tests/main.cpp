@@ -22,11 +22,11 @@ TEST(fyodorov_m_shell_sort_with_even_odd_batcher_merge_omp, test_small_array) {
   task_data_omp->outputs.emplace_back(reinterpret_cast<uint8_t *>(output.data()));
   task_data_omp->outputs_count.emplace_back(output.size());
 
-  fyodorov_m_shell_sort_with_even_odd_batcher_merge_omp::TestTaskOpenMP TestTaskOpenMP(task_data_omp);
-  ASSERT_EQ(TestTaskOpenMP.Validation(), true);
-  TestTaskOpenMP.PreProcessing();
-  TestTaskOpenMP.Run();
-  TestTaskOpenMP.PostProcessing();
+  fyodorov_m_shell_sort_with_even_odd_batcher_merge_omp::test_task_openmp test_task_openmp(task_data_omp);
+  ASSERT_EQ(test_task_openmp.Validation(), true);
+  test_task_openmp.PreProcessing();
+  test_task_openmp.Run();
+  test_task_openmp.PostProcessing();
 
   EXPECT_EQ(output, expected_output);
 }
@@ -43,11 +43,11 @@ TEST(fyodorov_m_shell_sort_with_even_odd_batcher_merge_omp, test_small_array_wit
   task_data_omp->outputs.emplace_back(reinterpret_cast<uint8_t *>(output.data()));
   task_data_omp->outputs_count.emplace_back(output.size());
 
-  fyodorov_m_shell_sort_with_even_odd_batcher_merge_omp::TestTaskOpenMP TestTaskOpenMP(task_data_omp);
-  ASSERT_EQ(TestTaskOpenMP.Validation(), true);
-  TestTaskOpenMP.PreProcessing();
-  TestTaskOpenMP.Run();
-  TestTaskOpenMP.PostProcessing();
+  fyodorov_m_shell_sort_with_even_odd_batcher_merge_omp::test_task_openmp test_task_openmp(task_data_omp);
+  ASSERT_EQ(test_task_openmp.Validation(), true);
+  test_task_openmp.PreProcessing();
+  test_task_openmp.Run();
+  test_task_openmp.PostProcessing();
 
   EXPECT_EQ(output, expected_output);
 }
@@ -74,11 +74,11 @@ TEST(fyodorov_m_shell_sort_with_even_odd_batcher_merge_omp, test_random_sequence
   task_data_omp->outputs.emplace_back(reinterpret_cast<uint8_t *>(output.data()));
   task_data_omp->outputs_count.emplace_back(output.size());
 
-  fyodorov_m_shell_sort_with_even_odd_batcher_merge_omp::TestTaskOpenMP TestTaskOpenMP(task_data_omp);
-  ASSERT_EQ(TestTaskOpenMP.Validation(), true);
-  TestTaskOpenMP.PreProcessing();
-  TestTaskOpenMP.Run();
-  TestTaskOpenMP.PostProcessing();
+  fyodorov_m_shell_sort_with_even_odd_batcher_merge_omp::test_task_openmp test_task_openmp(task_data_omp);
+  ASSERT_EQ(test_task_openmp.Validation(), true);
+  test_task_openmp.PreProcessing();
+  test_task_openmp.Run();
+  test_task_openmp.PostProcessing();
 
   EXPECT_EQ(output, expected_output);
 }
@@ -96,11 +96,11 @@ TEST(fyodorov_m_shell_sort_with_even_odd_batcher_merge_omp, test_sorted_array) {
   task_data_omp->outputs.emplace_back(reinterpret_cast<uint8_t *>(output.data()));
   task_data_omp->outputs_count.emplace_back(output.size());
 
-  fyodorov_m_shell_sort_with_even_odd_batcher_merge_omp::TestTaskOpenMP TestTaskOpenMP(task_data_omp);
-  ASSERT_EQ(TestTaskOpenMP.Validation(), true);
-  TestTaskOpenMP.PreProcessing();
-  TestTaskOpenMP.Run();
-  TestTaskOpenMP.PostProcessing();
+  fyodorov_m_shell_sort_with_even_odd_batcher_merge_omp::test_task_openmp test_task_openmp(task_data_omp);
+  ASSERT_EQ(test_task_openmp.Validation(), true);
+  test_task_openmp.PreProcessing();
+  test_task_openmp.Run();
+  test_task_openmp.PostProcessing();
 
   EXPECT_EQ(output, expected_output);
 }
@@ -116,11 +116,11 @@ TEST(fyodorov_m_shell_sort_with_even_odd_batcher_merge_omp, test_empty_array) {
   task_data_omp->outputs.emplace_back(reinterpret_cast<uint8_t *>(output.data()));
   task_data_omp->outputs_count.emplace_back(output.size());
 
-  fyodorov_m_shell_sort_with_even_odd_batcher_merge_omp::TestTaskOpenMP TestTaskOpenMP(task_data_omp);
-  ASSERT_EQ(TestTaskOpenMP.Validation(), true);
-  TestTaskOpenMP.PreProcessing();
-  TestTaskOpenMP.Run();
-  TestTaskOpenMP.PostProcessing();
+  fyodorov_m_shell_sort_with_even_odd_batcher_merge_omp::test_task_openmp test_task_openmp(task_data_omp);
+  ASSERT_EQ(test_task_openmp.Validation(), true);
+  test_task_openmp.PreProcessing();
+  test_task_openmp.Run();
+  test_task_openmp.PostProcessing();
 
   EXPECT_EQ(output, expected_output);
 }
@@ -136,11 +136,11 @@ TEST(fyodorov_m_shell_sort_with_even_odd_batcher_merge_omp, reverse_pozitive_arr
   task_data_omp->outputs.emplace_back(reinterpret_cast<uint8_t *>(out.data()));
   task_data_omp->outputs_count.emplace_back(out.size());
 
-  fyodorov_m_shell_sort_with_even_odd_batcher_merge_omp::TestTaskOpenMP TestTaskOpenMP(task_data_omp);
-  ASSERT_EQ(TestTaskOpenMP.Validation(), true);
-  TestTaskOpenMP.PreProcessing();
-  TestTaskOpenMP.Run();
-  TestTaskOpenMP.PostProcessing();
+  fyodorov_m_shell_sort_with_even_odd_batcher_merge_omp::test_task_openmp test_task_openmp(task_data_omp);
+  ASSERT_EQ(test_task_openmp.Validation(), true);
+  test_task_openmp.PreProcessing();
+  test_task_openmp.Run();
+  test_task_openmp.PostProcessing();
   std::ranges::sort(in);
   EXPECT_EQ(in, out);
 }
@@ -154,11 +154,11 @@ TEST(fyodorov_m_shell_sort_with_even_odd_batcher_merge_omp, reverse_pozitive_dou
   task_data_omp->inputs_count.emplace_back(in.size());
   task_data_omp->outputs.emplace_back(reinterpret_cast<uint8_t *>(out.data()));
   task_data_omp->outputs_count.emplace_back(out.size());
-  fyodorov_m_shell_sort_with_even_odd_batcher_merge_omp::TestTaskOpenMP TestTaskOpenMP(task_data_omp);
-  ASSERT_EQ(TestTaskOpenMP.Validation(), true);
-  TestTaskOpenMP.PreProcessing();
-  TestTaskOpenMP.Run();
-  TestTaskOpenMP.PostProcessing();
+  fyodorov_m_shell_sort_with_even_odd_batcher_merge_omp::test_task_openmp test_task_openmp(task_data_omp);
+  ASSERT_EQ(test_task_openmp.Validation(), true);
+  test_task_openmp.PreProcessing();
+  test_task_openmp.Run();
+  test_task_openmp.PostProcessing();
   std::ranges::sort(in);
   EXPECT_EQ(in, out);
 }
