@@ -18,10 +18,13 @@ class TestTaskOpenMP : public ppc::core::Task {
   int m_;
   int n_;
   std::vector<int> binary_;
-  std::vector<int> step1_;
-  void LabelConnectedComponents();
-  void UnionNodes(std::vector<int>& parent, int a, int b, bool& changed);
+  void InitializeParents(std::vector<int>& parent);
+  void ProcessSweep(bool reverse, std::vector<int>& parent, bool& changed);
+  void UnionNodes(int a, int b, std::vector<int>& parent, bool& changed);
   int FindRoot(std::vector<int>& parent, int x);
+  void FinalizeRoots(std::vector<int>& parent);
+  void AssignLabels(std::vector<int>& parent);
+  void LabelConnectedComponents();
 };
 
 inline void NormalizeLabels(std::vector<int>& vec) {  // Переименовано и оптимизировано

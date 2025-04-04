@@ -61,98 +61,91 @@ void CompressPath(std::vector<int>& parent, int node, int& root) {
   root = node;
 }
 
-void ProcessNeighbor(int idx, int neighbor_idx, std::vector<int>& parent, std::vector<int>& binary, bool& changed) {
-  if (binary[neighbor_idx] != 1) {
-    return;
-  }
-
-  int root = 0;
-  CompressPath(parent, idx, root);
-
-  int neighbor_root;
-  CompressPath(parent, neighbor_idx, neighbor_root);
-
-  if (root != neighbor_root) {
-    const int new_root = std::min(root, neighbor_root);
-#pragma omp atomic write
-    parent[root] = new_root;
-#pragma omp atomic write
-    parent[neighbor_root] = new_root;
-    changed = true;
-  }
-}
-}  // namespace
-
-void TestTaskOpenMP::LabelConnectedComponents() {
+void TestTaskOpenMP::InitializeParents(std::vector<int>& parent) {
   const int size = m_ * n_;
-  std::vector<int> parent(size);
-
-// Инициализация parent массивом
 #pragma omp parallel for schedule(static)
   for (int i = 0; i < size; ++i) {
-    parent[i] = binary_[i] == 1 ? i : -1;
+    parent[i] = binary_[i] ? i : -1;
   }
+}
 
-  bool changed;
-  int iterations = 0;
-  constexpr int kMaxIterations = 100;
+void TestTaskOpenMP::ProcessSweep(bool reverse, std::vector<int>& parent, bool& changed) {
+  bool local_changed = false;
+  const int row_step = reverse ? -1 : 1;
+  const int col_step = reverse ? -1 : 1;
 
-  // Оптимизированные проходы объединения
-  auto process_sweep = [&](bool reverse) {
-#pragma omp parallel for reduction(|| : changed) schedule(dynamic)
-    for (int i = 0; i < m_; ++i) {
-      int row = reverse ? m_ - 1 - i : i;
-      for (int j = 0; j < n_; ++j) {
-        int col = reverse ? n_ - 1 - j : j;
-        const int idx = row * n_ + col;
+#pragma omp parallel for reduction(|| : local_changed) schedule(static)
+  for (int row_idx = 0; row_idx < m_; ++row_idx) {
+    const int row = reverse ? m_ - 1 - row_idx : row_idx;
 
-        if (parent[idx] == -1) continue;
+    for (int col_idx = 0; col_idx < n_; ++col_idx) {
+      const int col = reverse ? n_ - 1 - col_idx : col_idx;
+      const int current = row * n_ + col;
 
-        constexpr std::array<std::pair<int, int>, 4> dirs = {{{0, -1}, {-1, 0}, {0, 1}, {1, 0}}};
+      if (parent[current] == -1) continue;
 
-        for (const auto& [di, dj] : dirs) {
-          int ni = row + di;
-          int nj = col + dj;
-          if (ni >= 0 && ni < m_ && nj >= 0 && nj < n_) {
-            int neighbor = ni * n_ + nj;
-            if (parent[neighbor] != -1 && parent[idx] != parent[neighbor]) {
-              UnionNodes(parent, idx, neighbor, changed);
-            }
+      // Проверка только релевантных соседей для каждого прохода
+      const std::pair<int, int> neighbors[] = {
+          {row - (reverse ? -1 : 1), col},  // Сосед снизу/сверху
+          {row, col - (reverse ? -1 : 1)}   // Сосед справа/слева
+      };
+
+      for (const auto& [nr, nc] : neighbors) {
+        if (nr >= 0 && nr < m_ && nc >= 0 && nc < n_) {
+          const int neighbor = nr * n_ + nc;
+          if (parent[neighbor] != -1) {
+            UnionNodes(current, neighbor, parent, local_changed);
           }
         }
       }
     }
-  };
+  }
+  changed = local_changed;
+}
 
-  do {
-    changed = false;
-    iterations++;
+int TestTaskOpenMP::FindRoot(std::vector<int>& parent, int x) {
+  while (parent[x] != x) {
+    parent[x] = parent[parent[x]];  // Сжатие пути
+    x = parent[x];
+  }
+  return x;
+}
+void TestTaskOpenMP::UnionNodes(int a, int b, std::vector<int>& parent, bool& changed) {
+  int root_a = FindRoot(parent, a);
+  int root_b = FindRoot(parent, b);
 
-    process_sweep(false);  // Forward sweep
-    process_sweep(true);   // Backward sweep
+  if (root_a != root_b) {
+    // Детерминированный выбор корня для избежания гонок
+    if (root_b < root_a) std::swap(root_a, root_b);
 
-  } while (changed && iterations < kMaxIterations);
+#pragma omp atomic write
+    parent[root_b] = root_a;
 
-// Финализация меток
+    changed = true;
+  }
+}
+
+void TestTaskOpenMP::FinalizeRoots(std::vector<int>& parent) {
+  const int size = m_ * n_;
 #pragma omp parallel for schedule(static)
   for (int i = 0; i < size; ++i) {
     if (parent[i] != -1) {
-      int root = FindRoot(parent, i);
-      parent[i] = root;
+      parent[i] = FindRoot(parent, i);
     }
   }
+}
 
-  // Построение карты меток
-  std::vector<int> labels(size + 1, 0);
-  std::atomic<int> label_counter{2};
+void TestTaskOpenMP::AssignLabels(std::vector<int>& parent) {
+  std::vector<int> labels(m_ * n_ + 1, 0);
+  int current_label = 1;
 
 #pragma omp parallel
   {
     std::vector<int> local_roots;
 #pragma omp for nowait
-    for (int i = 0; i < size; ++i) {
+    for (int i = 0; i < m_ * n_; ++i) {
       if (parent[i] != -1 && parent[i] == i) {
-        local_roots.push_back(parent[i]);
+        local_roots.push_back(i);
       }
     }
 
@@ -160,14 +153,37 @@ void TestTaskOpenMP::LabelConnectedComponents() {
     {
       for (int root : local_roots) {
         if (labels[root] == 0) {
-          labels[root] = label_counter++;
+          labels[root] = current_label++;
         }
       }
     }
   }
 
-// Применение финальных меток
 #pragma omp parallel for schedule(static)
+  for (int i = 0; i < m_ * n_; ++i) {
+    binary_[i] = parent[i] != -1 ? labels[parent[i]] : 0;
+  }
+}
+
+void TestTaskOpenMP::LabelConnectedComponents() {
+  std::vector<int> parent(m_ * n_);
+  InitializeParents(parent);
+
+  constexpr int kMaxIterations = 100;
+  bool changed;
+  int iterations = 0;
+
+  do {
+    changed = false;
+    ProcessSweep(false, parent, changed);
+    ProcessSweep(true, parent, changed);
+  } while (changed && ++iterations < kMaxIterations);
+
+  FinalizeRoots(parent);
+  AssignLabels(parent);
+}
+// Применение финальных меток
+/*#pragma omp parallel for schedule(static)
   for (int i = 0; i < size; ++i) {
     binary_[i] = parent[i] != -1 ? labels[parent[i]] : 0;
   }
@@ -193,7 +209,7 @@ void TestTaskOpenMP::UnionNodes(std::vector<int>& parent, int a, int b, bool& ch
     }
     changed = true;
   }
-}
+}*/
 
 /* void TestTaskOpenMP::LabelConnectedComponents() {
   const int size = m_ * n_;
@@ -286,6 +302,6 @@ void TestTaskOpenMP::UnionNodes(std::vector<int>& parent, int a, int b, bool& ch
       binary_[i] = label_map[binary_[i]];
     }
   }
-}
+}*/
 
 }  // namespace laganina_e_component_labeling_omp
