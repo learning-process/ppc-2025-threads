@@ -16,7 +16,7 @@ class TaskOMP : public ppc::core::Task {
   bool PostProcessingImpl() override;
 
  private:
-  std::vector<int> input_, output_;
+  std::vector<int> input_;
 };
 
 }  // namespace solovyev_d_shell_sort_simple_omp
