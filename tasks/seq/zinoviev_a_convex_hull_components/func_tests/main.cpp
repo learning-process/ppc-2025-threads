@@ -78,8 +78,7 @@ TEST(zinoviev_a_convex_hull_components_seq, LargeRectangle) {
     input[y * kWidth] = 1;
     input[y * kWidth + (kWidth - 1)] = 1;
   }
-  const std::vector<zinoviev_a_convex_hull_components_seq::Point> expected = {
-      {0, 0}, {19, 0}, {18, 9}, {0, 9}};
+  const std::vector<zinoviev_a_convex_hull_components_seq::Point> expected = {{0, 0}, {19, 0}, {18, 9}, {0, 9}};
   RunAndValidate(input, expected, kWidth, kHeight);
 }
 
