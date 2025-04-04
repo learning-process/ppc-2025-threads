@@ -10,8 +10,7 @@ namespace lavrentiev_a_ccs_tbb {
 
 struct Sparse {
   std::pair<int, int> size;
-  std::vector<double> elements;
-  std::vector<int> rows;
+  std::vector<std::pair<double, int>> elements_and_rows;
   std::vector<int> columnsSum;
 };
 
