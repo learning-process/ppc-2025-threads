@@ -7,9 +7,9 @@
 
 namespace fyodorov_m_shell_sort_with_even_odd_batcher_merge_omp {
 
-class TestTaskOpenmp : public ppc::core::Task {
+class test_task_openmp : public ppc::core::Task {
  public:
-  explicit TestTaskOpenmp(ppc::core::TaskDataPtr task_data) : Task(std::move(task_data)) {}
+  explicit test_task_openmp(ppc::core::TaskDataPtr task_data) : Task(std::move(task_data)) {}
   bool PreProcessingImpl() override;
   bool ValidationImpl() override;
   bool RunImpl() override;
