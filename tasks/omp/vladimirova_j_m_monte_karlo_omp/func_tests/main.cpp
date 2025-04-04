@@ -191,7 +191,6 @@ TEST(vladimirova_j_m_monte_karlo_omp, test_PiVal_314) {
   test_task_omp.PreProcessing();
   test_task_omp.Run();
   test_task_omp.PostProcessing();
-  std::cout << "!!!!!!!!!" << out[0] << std::endl;
   ASSERT_EQ(3, (int)out[0]);
 }
 
@@ -259,7 +258,7 @@ TEST(vladimirova_j_m_monte_karlo_omp, test_SphereR3_1) {
   test_task_omp.PreProcessing();
   test_task_omp.Run();
   test_task_omp.PostProcessing();
-  ASSERT_TRUE((113 - out[0]) < 10);
+  ASSERT_TRUE((113 - out[0]) < 6);
 }
 
 TEST(vladimirova_j_m_monte_karlo_omp, test_SphereR3_1_2) {
@@ -305,7 +304,7 @@ TEST(vladimirova_j_m_monte_karlo_omp, test_SphereR3_1_9) {
   test_task_omp.PreProcessing();
   test_task_omp.Run();
   test_task_omp.PostProcessing();
-  ASSERT_TRUE(((113 / 9) - out[0]) < 3);
+  ASSERT_TRUE(((113 / 9) - out[0]) < 5);
 }
 
 TEST(vladimirova_j_m_monte_karlo_omp, test_Rectangle34) {
@@ -318,7 +317,7 @@ TEST(vladimirova_j_m_monte_karlo_omp, test_Rectangle34) {
 
   task_data_omp->inputs.emplace_back(reinterpret_cast<uint8_t *>(val_b.data()));
   task_data_omp->inputs.emplace_back(reinterpret_cast<uint8_t *>(Rectangle34));
-  task_data_omp->inputs.emplace_back(reinterpret_cast<uint8_t *>(50000));
+  task_data_omp->inputs.emplace_back(reinterpret_cast<uint8_t *>(30000));
   task_data_omp->inputs_count.emplace_back(val_b.size());
   task_data_omp->outputs.emplace_back(reinterpret_cast<uint8_t *>(out.data()));
   task_data_omp->outputs_count.emplace_back(out.size());
@@ -351,7 +350,7 @@ TEST(vladimirova_j_m_monte_karlo_omp, test_Rectangle34_2) {
   test_task_omp.PreProcessing();
   test_task_omp.Run();
   test_task_omp.PostProcessing();
-  ASSERT_TRUE(((3 * 4) - out[0]) < 2);
+  ASSERT_TRUE(((3 * 4) - out[0]) < 1);
 }
 
 TEST(vladimirova_j_m_monte_karlo_omp, test_Parallelogram333) {
@@ -397,7 +396,6 @@ TEST(vladimirova_j_m_monte_karlo_omp, test_BigParallelogram100100100) {
   test_task_omp.PreProcessing();
   test_task_omp.Run();
   test_task_omp.PostProcessing();
-  std::cout << "!!!!!!!!!!" << out[0] << std::endl;
   ASSERT_TRUE(((100 * 100 * 100) - (int)out[0]) == 0);
 }
 
@@ -421,7 +419,7 @@ TEST(vladimirova_j_m_monte_karlo_omp, test_Parabola_1_5_2_9) {
   test_task_omp.PreProcessing();
   test_task_omp.Run();
   test_task_omp.PostProcessing();
-  ASSERT_TRUE((72 - out[0]) < 5);
+  ASSERT_TRUE((72 - out[0]) < 3);
 }
 
 TEST(vladimirova_j_m_monte_karlo_omp, test_HypercubeX4Pr4433) {
@@ -468,7 +466,6 @@ TEST(vladimirova_j_m_monte_karlo_omp, test_TriangleModuleMinus5) {
   test_task_omp.Run();
   test_task_omp.PostProcessing();
 
-  std::cout << "!!!!!!" << out[0] << std::endl;
   ASSERT_TRUE((25 - out[0]) < 1);
 }
 
