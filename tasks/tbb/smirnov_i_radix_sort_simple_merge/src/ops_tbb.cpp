@@ -83,14 +83,16 @@ bool smirnov_i_radix_sort_simple_merge_tbb::TestTaskTBB::RunImpl() {
   std::deque<std::vector<int>> A;
   std::deque<std::vector<int>> B;
   tbb::task_group tg;
+  int size = static_cast<int>(mas_.size());
   const int nth = std::min(size, tbb::this_task_arena::max_concurrency());
   tbb::mutex mtx;
   tbb::mutex mtxA;
   tbb::mutex mtx_mas;
   tbb::mutex mtx_start;
   int start = 0;
+
   for (int i = 0; i < nth; i++) {
-    tg.run([i, size, nth, &start, &mtxA, &mtx_mas, &mas_, &A, &mtx_start]() {
+    tg.run([this, i, size, nth, &start, &mtxA, &mtx_mas, &A, &mtx_start]() {
       int self_offset;
       std::vector<int> tmp;
       if (size % nth == 0) {
@@ -151,7 +153,7 @@ bool smirnov_i_radix_sort_simple_merge_tbb::TestTaskTBB::RunImpl() {
     std::swap(A, B);
     flag = static_cast<int>(A.size()) != 1;
   }
-  outputs_ = std::move(A.front());
+  output_ = std::move(A.front());
   return true;
 }
 bool smirnov_i_radix_sort_simple_merge_tbb::TestTaskTBB::PostProcessingImpl() {
