@@ -77,14 +77,14 @@ std::vector<shulpin_i_jarvis_seq::Point> ComputeConvexHull(std::vector<shulpin_i
 TEST(shulpin_i_jarvis_seq, test_pipeline_run) {
   size_t num_points = 10000;
   std::vector<shulpin_i_jarvis_seq::Point> input = GenerateRandomPoints(num_points);
-  
+
   std::vector<shulpin_i_jarvis_seq::Point> out{};
   out.reserve(input.size());
 
   auto task_data_seq = std::make_shared<ppc::core::TaskData>();
-  task_data_seq->inputs.emplace_back(reinterpret_cast<uint8_t *>(input.data()));
+  task_data_seq->inputs.emplace_back(reinterpret_cast<uint8_t*>(input.data()));
   task_data_seq->inputs_count.emplace_back(input.size());
-  task_data_seq->outputs.emplace_back(reinterpret_cast<uint8_t *>(out.data()));
+  task_data_seq->outputs.emplace_back(reinterpret_cast<uint8_t*>(out.data()));
   task_data_seq->outputs_count.emplace_back(out.size());
 
   auto test_task_sequential = std::make_shared<shulpin_i_jarvis_seq::JarvisSequential>(task_data_seq);
@@ -103,7 +103,7 @@ TEST(shulpin_i_jarvis_seq, test_pipeline_run) {
   auto perf_analyzer = std::make_shared<ppc::core::Perf>(test_task_sequential);
   perf_analyzer->PipelineRun(perf_attr, perf_results);
   ppc::core::Perf::PrintPerfStatistic(perf_results);
-  
+
   std::vector<shulpin_i_jarvis_seq::Point> expected = ComputeConvexHull(input);
 
   for (const auto& p : out) {
@@ -127,9 +127,9 @@ TEST(shulpin_i_jarvis_seq, test_task_run) {
   out.reserve(input.size());
 
   auto task_data_seq = std::make_shared<ppc::core::TaskData>();
-  task_data_seq->inputs.emplace_back(reinterpret_cast<uint8_t *>(input.data()));
+  task_data_seq->inputs.emplace_back(reinterpret_cast<uint8_t*>(input.data()));
   task_data_seq->inputs_count.emplace_back(input.size());
-  task_data_seq->outputs.emplace_back(reinterpret_cast<uint8_t *>(out.data()));
+  task_data_seq->outputs.emplace_back(reinterpret_cast<uint8_t*>(out.data()));
   task_data_seq->outputs_count.emplace_back(out.size());
 
   auto test_task_sequential = std::make_shared<shulpin_i_jarvis_seq::JarvisSequential>(task_data_seq);
