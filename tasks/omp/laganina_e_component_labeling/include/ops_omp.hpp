@@ -19,8 +19,9 @@ class TestTaskOpenMP : public ppc::core::Task {
   int n_;
   std::vector<int> binary_;
   std::vector<int> step1_;
-
-  void LabelConnectedComponents();  // Переименовано в CamelCase
+  void LabelConnectedComponents();
+  void UnionNodes(std::vector<int>& parent, int a, int b, bool& changed);
+  int FindRoot(std::vector<int>& parent, int x);
 };
 
 inline void NormalizeLabels(std::vector<int>& vec) {  // Переименовано и оптимизировано
@@ -41,5 +42,4 @@ inline void NormalizeLabels(std::vector<int>& vec) {  // Переименова�
     }
   }
 }
-
 }  // namespace laganina_e_component_labeling_omp

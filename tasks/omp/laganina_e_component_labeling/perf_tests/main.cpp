@@ -87,5 +87,5 @@ TEST(laganina_e_component_labeling_omp, test_task_run) {
   auto perf_analyzer = std::make_shared<ppc::core::Perf>(test_task_sequential);
   perf_analyzer->TaskRun(perf_attr, perf_results);
   ppc::core::Perf::PrintPerfStatistic(perf_results);
-  ASSERT_EQ(res, out);
+  ASSERT_EQ(out, res);
 }
