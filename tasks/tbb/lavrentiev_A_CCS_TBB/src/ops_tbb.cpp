@@ -65,7 +65,6 @@ int lavrentiev_a_ccs_tbb::CCSTBB::CalculateStartIndex(int index, const std::vect
   return 0;
 }
 
-// NOLINTNEXTLINE(readability-identifier-naming)
 lavrentiev_a_ccs_tbb::Sparse lavrentiev_a_ccs_tbb::CCSTBB::MatMul(const Sparse &matrix1, const Sparse &matrix2) {
   oneapi::tbb::task_arena worker(ppc::util::GetPPCNumThreads());
   Sparse imatrix;
@@ -73,29 +72,32 @@ lavrentiev_a_ccs_tbb::Sparse lavrentiev_a_ccs_tbb::CCSTBB::MatMul(const Sparse &
   imatrix.elements_and_rows.resize((matrix2.columnsSum.size() * matrix1.columnsSum.size()) +
                                    std::max(matrix1.columnsSum.size(), matrix2.columnsSum.size()));
   auto new_matrix1 = Transpose(matrix1);
+  auto sum = [&](int i_index, int j_index) {
+    double s = 0.0;
+    for (int x = 0; x < GetElementsCount(j_index, new_matrix1.columnsSum); x++) {
+      for (int y = 0; y < GetElementsCount(i_index, matrix2.columnsSum); y++) {
+        if (new_matrix1.elements_and_rows[CalculateStartIndex(j_index, new_matrix1.columnsSum) + x].second ==
+            matrix2.elements_and_rows[CalculateStartIndex(i_index, matrix2.columnsSum) + y].second) {
+          s += new_matrix1.elements_and_rows[x + CalculateStartIndex(j_index, new_matrix1.columnsSum)].first *
+                 matrix2.elements_and_rows[y + CalculateStartIndex(i_index, matrix2.columnsSum)].first;
+        }
+      }
+    }
+    return s;
+  };
   worker.execute([&] {
-    oneapi::tbb::parallel_for(
-        oneapi::tbb::blocked_range<int>(0, static_cast<int>(matrix2.columnsSum.size())),
-        [&](const oneapi::tbb::blocked_range<int> &blocked_range) {
-          for (int i = blocked_range.begin(); i != blocked_range.end(); ++i) {
-            for (int j = 0; j < static_cast<int>(new_matrix1.columnsSum.size()); ++j) {
-              double sum = 0.0;
-              for (int x = 0; x < GetElementsCount(j, new_matrix1.columnsSum); x++) {
-                for (int y = 0; y < GetElementsCount(i, matrix2.columnsSum); y++) {
-                  if (new_matrix1.elements_and_rows[CalculateStartIndex(j, new_matrix1.columnsSum) + x].second ==
-                      matrix2.elements_and_rows[CalculateStartIndex(i, matrix2.columnsSum) + y].second) {
-                    sum += new_matrix1.elements_and_rows[x + CalculateStartIndex(j, new_matrix1.columnsSum)].first *
-                           matrix2.elements_and_rows[y + CalculateStartIndex(i, matrix2.columnsSum)].first;
-                  }
-                }
-              }
-              if (sum != 0) {
-                imatrix.elements_and_rows[(i * matrix2.size.second) + j] = {sum, j};
-                imatrix.columnsSum[i]++;
-              }
-            }
-          }
-        }),
+    oneapi::tbb::parallel_for(oneapi::tbb::blocked_range<int>(0, static_cast<int>(matrix2.columnsSum.size())),
+                              [&](const oneapi::tbb::blocked_range<int> &blocked_range) {
+                                for (int i = blocked_range.begin(); i != blocked_range.end(); ++i) {
+                                  for (int j = 0; j < static_cast<int>(new_matrix1.columnsSum.size()); ++j) {
+                                    double s = sum(i, j);
+                                    if (s != 0) {
+                                      imatrix.elements_and_rows[(i * matrix2.size.second) + j] = {s, j};
+                                      imatrix.columnsSum[i]++;
+                                    }
+                                  }
+                                }
+                              }),
         tbb::auto_partitioner();
   });
   for (size_t i = 1; i < imatrix.columnsSum.size(); ++i) {
