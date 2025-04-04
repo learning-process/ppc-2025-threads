@@ -1,8 +1,8 @@
+#include "omp/solovyev_d_shell_sort_simple/include/ops_omp.hpp"
+
 #include <cmath>
 #include <cstddef>
 #include <vector>
-
-#include "omp/solovyev_d_shell_sort_simple/include/ops_omp.hpp"
 
 bool solovyev_d_shell_sort_simple_omp::TaskOMP::PreProcessingImpl() {
   unsigned int input_size = task_data->inputs_count[0];
