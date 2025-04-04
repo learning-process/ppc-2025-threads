@@ -8,6 +8,23 @@
 #include "core/task/include/task.hpp"
 #include "omp/sozonov_i_image_filtering_block_partitioning/include/ops_omp.hpp"
 
+namespace sozonov_i_image_filtering_block_partitioning_omp {
+
+std::vector<double> zeroImageEdges(std::vector<double> img, int wdth, int hght) {
+  for (int i = 0; i < wdth; ++i) {
+    img[i] = 0;
+    img[((hght - 1) * wdth) + i] = 0;
+  }
+  for (int i = 1; i < hght - 1; ++i) {
+    img[i * wdth] = 0;
+    img[(i * wdth) + wdth - 1] = 0;
+  }
+
+  return img;
+}
+
+}  // namespace sozonov_i_image_filtering_block_partitioning_omp
+
 TEST(sozonov_i_image_filtering_block_partitioning_omp, test_empty_image) {
   const int width = 0;
   const int height = 0;
@@ -223,14 +240,7 @@ TEST(sozonov_i_image_filtering_block_partitioning_omp, test_100x100) {
   std::vector<double> out(width * height, 0);
   std::vector<double> ans(width * height, 1);
 
-  for (int i = 0; i < width; ++i) {
-    ans[i] = 0;
-    ans[((height - 1) * width) + i] = 0;
-  }
-  for (int i = 1; i < height - 1; ++i) {
-    ans[i * width] = 0;
-    ans[(i * width) + width - 1] = 0;
-  }
+  ans = sozonov_i_image_filtering_block_partitioning_omp::zeroImageEdges(ans, width, height);
 
   // Create task_data
   auto task_data_omp = std::make_shared<ppc::core::TaskData>();
@@ -259,14 +269,7 @@ TEST(sozonov_i_image_filtering_block_partitioning_omp, test_150x100) {
   std::vector<double> out(width * height, 0);
   std::vector<double> ans(width * height, 1);
 
-  for (int i = 0; i < width; ++i) {
-    ans[i] = 0;
-    ans[((height - 1) * width) + i] = 0;
-  }
-  for (int i = 1; i < height - 1; ++i) {
-    ans[i * width] = 0;
-    ans[(i * width) + width - 1] = 0;
-  }
+  ans = sozonov_i_image_filtering_block_partitioning_omp::zeroImageEdges(ans, width, height);
 
   // Create task_data
   auto task_data_omp = std::make_shared<ppc::core::TaskData>();
@@ -295,14 +298,7 @@ TEST(sozonov_i_image_filtering_block_partitioning_omp, test_120x200) {
   std::vector<double> out(width * height, 0);
   std::vector<double> ans(width * height, 1);
 
-  for (int i = 0; i < width; ++i) {
-    ans[i] = 0;
-    ans[((height - 1) * width) + i] = 0;
-  }
-  for (int i = 1; i < height - 1; ++i) {
-    ans[i * width] = 0;
-    ans[(i * width) + width - 1] = 0;
-  }
+  ans = sozonov_i_image_filtering_block_partitioning_omp::zeroImageEdges(ans, width, height);
 
   // Create task_data
   auto task_data_omp = std::make_shared<ppc::core::TaskData>();
