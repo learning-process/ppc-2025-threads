@@ -74,6 +74,7 @@ void vedernikova_k_gauss_omp::Gauss::ComputePixel(uint32_t x, uint32_t y) {
         brightness += GetPixel(xn, yn, channel) * GetMultiplier(shift_x, shift_y);
       }
     }
+
     SetPixel(std::ceil(brightness), x, y, channel);
   }
 }
