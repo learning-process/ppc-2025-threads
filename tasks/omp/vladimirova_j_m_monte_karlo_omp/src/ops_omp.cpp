@@ -58,13 +58,15 @@ bool vladimirova_j_m_monte_karlo_omp::TestTaskOpenMP::RunImpl() {
   {
     std::vector<double> random_val = std::vector<double>(var_size_);
     size_t local_successful_point = 0;
-#pragma omp for reduction(+ : successful_point)
+
+#pragma omp for
     for (int i = 0; i < (int)accuracy_; i++) {
       for (size_t j = 0; j < var_size_; j++) {
         random_val[j] = CreateRandomVal(var_integr_[j].min, var_integr_[j].max);
       }
       local_successful_point += (int)(func_(random_val, var_size_));
     }
+#pragma omp atomic
     successful_point += local_successful_point;
   }
   double s = 1;
