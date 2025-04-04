@@ -1,6 +1,5 @@
 #pragma once
 
-#include <thread>
 #include <utility>
 #include <vector>
 
@@ -21,7 +20,7 @@ class TestTaskSTL : public ppc::core::Task {
 
   void RadixSort(std::vector<int>& arr);
   void SplitAndSort(std::vector<int>& arr, std::vector<int>& negatives, std::vector<int>& positives);
-  void RadixSortForNonNegative(std::vector<int>& arr);
+  static void RadixSortForNonNegative(std::vector<int>& arr);
   static void CountingSort(std::vector<int>& arr, int exp);
 };
 

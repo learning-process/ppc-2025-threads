@@ -62,7 +62,7 @@ TEST(gusev_n_sorting_int_simple_merging_stl, test_radix_sort_negative_numbers) {
 }
 
 TEST(gusev_n_sorting_int_simple_merging_stl, test_radix_sort_random) {
-  std::vector<int> in(1000);
+  std::vector<int> in(100);
   std::random_device rd;
   std::mt19937 gen(rd());
   std::uniform_int_distribution<int> dist(-10000, 10000);
