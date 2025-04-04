@@ -48,21 +48,17 @@ void test_task_openmp::ShellSort() {
   int n = static_cast<int>(input_.size());
   std::vector<int> gaps;
 
-  // Генерация последовательности gaps (последовательная часть)
   for (int k = 1; (1 << k) - 1 < n; ++k) {
     gaps.push_back((1 << k) - 1);
   }
 
-  // Создаем ссылку на input_, которую можно использовать в OpenMP
   auto& input_ref = input_;
 
   for (auto it = gaps.rbegin(); it != gaps.rend(); ++it) {
     int gap = *it;
 
-// Разделяем массив на независимые подпоследовательности
 #pragma omp parallel for schedule(static)
     for (int base = 0; base < gap; ++base) {
-      // Каждый поток обрабатывает свою подпоследовательность
       for (int i = base + gap; i < n; i += gap) {
         int temp = input_ref[i];
         int j = i;
