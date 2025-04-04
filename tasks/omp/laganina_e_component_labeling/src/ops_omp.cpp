@@ -106,8 +106,8 @@ void TestTaskOpenMP::LabelConnectedComponents() {
       for (int j = 0; j < n_; ++j) {
         const int idx = (i * n_) + j;
         if (binary_[idx] != 1) {
-          continue
-        };
+          continue;
+        }
 
         if (j > 0) {
           ProcessNeighbor(idx, idx - 1, parent, binary_, changed);
