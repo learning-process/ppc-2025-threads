@@ -281,7 +281,7 @@ TEST(vladimirova_j_m_monte_karlo_omp, test_SphereR3_1_2) {
   test_task_omp.PreProcessing();
   test_task_omp.Run();
   test_task_omp.PostProcessing();
-  ASSERT_TRUE(((113 / 2) - (int)out[0]) < 5);
+  ASSERT_TRUE(((113.0 / 2.0) - (int)out[0]) < 5);
 }
 
 TEST(vladimirova_j_m_monte_karlo_omp, test_SphereR3_1_9) {
@@ -304,7 +304,7 @@ TEST(vladimirova_j_m_monte_karlo_omp, test_SphereR3_1_9) {
   test_task_omp.PreProcessing();
   test_task_omp.Run();
   test_task_omp.PostProcessing();
-  ASSERT_TRUE(((113 / 9) - out[0]) < 5);
+  ASSERT_TRUE(((113.0 / 9.0) - out[0]) < 5);
 }
 
 TEST(vladimirova_j_m_monte_karlo_omp, test_Rectangle34) {
