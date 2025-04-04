@@ -8,7 +8,7 @@
 
 namespace fyodorov_m_shell_sort_with_even_odd_batcher_merge_omp {
 
-bool test_task_openmp::PreProcessingImpl() {
+bool TestTaskOpenmp::PreProcessingImpl() {
   unsigned int input_size = task_data->inputs_count[0];
   auto* in_ptr = reinterpret_cast<int*>(task_data->inputs[0]);
   input_ = std::vector<int>(in_ptr, in_ptr + input_size);
@@ -19,12 +19,12 @@ bool test_task_openmp::PreProcessingImpl() {
   return true;
 }
 
-bool test_task_openmp::ValidationImpl() {
+bool TestTaskOpenmp::ValidationImpl() {
   return ((task_data->inputs_count[0] == task_data->outputs_count[0]) &&
           (task_data->outputs.size() == task_data->outputs_count.size()));
 }
 
-bool test_task_openmp::RunImpl() {
+bool TestTaskOpenmp::RunImpl() {
   ShellSort();
 
   size_t mid = (input_.size()) / 2;
@@ -36,7 +36,7 @@ bool test_task_openmp::RunImpl() {
   return true;
 }
 
-bool test_task_openmp::PostProcessingImpl() {
+bool TestTaskOpenmp::PostProcessingImpl() {
 #pragma omp parallel for
   for (int i = 0; i < static_cast<int>(output_.size()); ++i) {
     reinterpret_cast<int*>(task_data->outputs[0])[i] = output_[i];
@@ -44,7 +44,7 @@ bool test_task_openmp::PostProcessingImpl() {
   return true;
 }
 
-void test_task_openmp::ShellSort() {
+void TestTaskOpenmp::ShellSort() {
   int n = static_cast<int>(input_.size());
   std::vector<int> gaps;
 
@@ -72,7 +72,7 @@ void test_task_openmp::ShellSort() {
   }
 }
 
-void test_task_openmp::BatcherMerge(std::vector<int>& left, std::vector<int>& right, std::vector<int>& result) {
+void TestTaskOpenmp::BatcherMerge(std::vector<int>& left, std::vector<int>& right, std::vector<int>& result) {
   size_t i = 0;
   size_t j = 0;
   size_t k = 0;
