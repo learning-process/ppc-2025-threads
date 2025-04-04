@@ -79,9 +79,12 @@ bool oturin_a_gift_wrapping_omp::TestTaskOMP::RunImpl() {
       int search_index_par = -1;
       double line_angle_private = -5;
 
+      const Coord penultimateElement = output_[output_.size() - 2];
+      const Coord lastElement = output_.back();
+
 #pragma omp for nowait
       for (int i = 0; i < n_; i++) {
-        double t = ABTP(output_[output_.size() - 2], output_.back(), input_[i]);
+        double t = ABTP(penultimateElement, lastElement, input_[i]);
         PointSearch(t, line_angle_private, search_index_par, i);
       }
 
