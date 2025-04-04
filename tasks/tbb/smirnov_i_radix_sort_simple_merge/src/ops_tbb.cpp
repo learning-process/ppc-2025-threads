@@ -83,21 +83,20 @@ bool smirnov_i_radix_sort_simple_merge_tbb::TestTaskTBB::RunImpl() {
   std::deque<std::vector<int>> A;
   std::deque<std::vector<int>> B;
   tbb::task_group tg;
-  const int nth = std::min(size,tbb::this_task_arena::max_concurrency());
+  const int nth = std::min(size, tbb::this_task_arena::max_concurrency());
   tbb::mutex mtx;
   tbb::mutex mtxA;
   tbb::mutex mtx_mas;
   tbb::mutex mtx_start;
   int start = 0;
-  for(int i = 0; i < nth; i++) {
+  for (int i = 0; i < nth; i++) {
     tg.run([i, size, nth, &start, &mtxA, &mtx_mas, &mas_, &A, &mtx_start]() {
       int self_offset;
       std::vector<int> tmp;
-      if(size % nth == 0) {
-        self_offset = size/nth;
-      }
-      else {
-        self_offset = size/nth + static_cast<int>(i < size % nth);
+      if (size % nth == 0) {
+        self_offset = size / nth;
+      } else {
+        self_offset = size / nth + static_cast<int>(i < size % nth);
       }
       mtx_start.lock();
       int self_start = start;
@@ -107,7 +106,7 @@ bool smirnov_i_radix_sort_simple_merge_tbb::TestTaskTBB::RunImpl() {
       mtx_mas.lock();
       std::copy(mas_.begin() + self_start, mas_.begin() + self_start + self_offset, tmp.begin());
       mtx_mas.unlock();
-      if(!tmp.empty()) {
+      if (!tmp.empty()) {
         RadixSort(tmp);
         mtxA.lock();
         A.push_back(std::move(tmp));
@@ -117,8 +116,8 @@ bool smirnov_i_radix_sort_simple_merge_tbb::TestTaskTBB::RunImpl() {
   }
   tg.wait();
   bool flag = static_cast<int>(A.size()) != 1;
-  while(flag) {
-    for(int i = 0; i < nth; i++) {
+  while (flag) {
+    for (int i = 0; i < nth; i++) {
       tg.run([&A, &mtx, &B]() {
         std::vector<int> mas1{};
         std::vector<int> mas2{};
@@ -137,7 +136,7 @@ bool smirnov_i_radix_sort_simple_merge_tbb::TestTaskTBB::RunImpl() {
         if (!mas1.empty() && !mas2.empty()) {
           merge_mas = Merge(mas1, mas2);
         }
-        if(!merge_mas.empty()) {
+        if (!merge_mas.empty()) {
           mtx.lock();
           B.push_back(std::move(merge_mas));
           mtx.unlock();
