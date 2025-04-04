@@ -11,19 +11,17 @@
 
 TEST(FominVConjugateGradientSeq, test_small_system) {
   constexpr size_t kCount = 3;
-  // Матрица A (3x3) и вектор b (3)
   std::vector<double> A = {4, 1, 1, 1, 3, 0, 1, 0, 2};
   std::vector<double> b = {6, 5, 3};
-  std::vector<double> expected_x = {1, 1, 1};
+  // Correct solution computed as [17/19, 26/19, 20/19]
+  std::vector<double> expected_x = {17.0 / 19.0, 26.0 / 19.0, 20.0 / 19.0};
 
-  // Объединяем A и b в один входной вектор
   std::vector<double> input;
   input.insert(input.end(), A.begin(), A.end());
   input.insert(input.end(), b.begin(), b.end());
 
   std::vector<double> out(kCount, 0.0);
 
-  // Создаем task_data
   auto task_data_seq = std::make_shared<ppc::core::TaskData>();
   task_data_seq->inputs.emplace_back(reinterpret_cast<uint8_t*>(input.data()));
   task_data_seq->inputs_count.emplace_back(input.size());
@@ -36,23 +34,26 @@ TEST(FominVConjugateGradientSeq, test_small_system) {
   test_task_sequential.Run();
   test_task_sequential.PostProcessing();
 
-  // Проверяем результат
   for (size_t i = 0; i < kCount; ++i) {
     EXPECT_NEAR(out[i], expected_x[i], 1e-6);
   }
 }
 
 TEST(FominVConjugateGradientSeq, test_large_system) {
-  // Создаем данные для системы 5x5
   constexpr size_t kCount = 5;
-  std::vector<double> A = {5, 1, 0, 0, 0, 1, 5, 1, 0, 0, 0, 1, 5, 1, 0, 0, 0, 1, 5, 1, 0, 0, 0, 1, 5};  // Матрица A
+  std::vector<double> A = {5, 1, 0, 0, 0, 1, 5, 1, 0, 0, 0, 1, 5, 1, 0, 0, 0, 1, 5, 1, 0, 0, 0, 1, 5};
   std::vector<double> b = {6, 7, 7, 7, 6};
-  std::vector<double> expected_x = {1, 1, 1, 1, 1};  // Ожидаемое решение
-  std::vector<double> out(kCount, 0.0);              // Выходной вектор
+  std::vector<double> expected_x = {1.0, 1.0, 1.0, 1.0, 1.0};
+  std::vector<double> out(kCount, 0.0);
+
+  // Correct input setup
+  std::vector<double> input;
+  input.insert(input.end(), A.begin(), A.end());
+  input.insert(input.end(), b.begin(), b.end());
 
   auto task_data_seq = std::make_shared<ppc::core::TaskData>();
-  task_data_seq->inputs.emplace_back(reinterpret_cast<uint8_t*>(A.data()));
-  task_data_seq->inputs_count.emplace_back(A.size() + b.size());
+  task_data_seq->inputs.emplace_back(reinterpret_cast<uint8_t*>(input.data()));
+  task_data_seq->inputs_count.emplace_back(input.size());
   task_data_seq->outputs.emplace_back(reinterpret_cast<uint8_t*>(out.data()));
   task_data_seq->outputs_count.emplace_back(out.size());
 
