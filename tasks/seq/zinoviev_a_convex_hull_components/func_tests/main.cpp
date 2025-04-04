@@ -50,18 +50,14 @@ void RunAndValidate(const std::vector<int>& input,
 
 TEST(ConvexHullTest, SquareShape) {
   const std::vector<int> input = {1, 1, 1, 1, 1, 1, 0, 0, 0, 1, 1, 0, 0, 0, 1, 1, 0, 0, 0, 1, 1, 1, 1, 1, 1};
-
   const std::vector<zinoviev_a_convex_hull_components_seq::Point> expected = {
       {.x = 0, .y = 0}, {.x = 4, .y = 0}, {.x = 4, .y = 4}, {.x = 0, .y = 4}};
-
   RunAndValidate(input, expected, 5, 5);
 }
 
 TEST(ConvexHullTest, TriangleShape) {
   const std::vector<int> input = {1, 0, 0, 0, 0, 1, 1, 0, 0, 0, 1, 1, 1, 0, 0, 1, 1, 0, 0, 0, 1, 0, 0, 0, 0};
-
   const std::vector<zinoviev_a_convex_hull_components_seq::Point> expected = {
       {.x = 0, .y = 0}, {.x = 0, .y = 4}, {.x = 2, .y = 2}};
-
   RunAndValidate(input, expected, 5, 5);
 }
