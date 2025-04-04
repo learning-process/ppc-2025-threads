@@ -56,7 +56,7 @@ std::vector<Point> ConvexHullOMP::FindConvexHull(const std::vector<Point>& point
   }
 
   std::vector<Point> sorted(points);
-  std::sort(sorted.begin(), sorted.end());
+  std::ranges::sort(sorted, std::less{});
 
   std::vector<Point> hull;
   for (const auto& p : sorted) {

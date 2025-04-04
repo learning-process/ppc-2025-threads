@@ -53,12 +53,14 @@ TEST(zinoviev_a_convex_hull_omp, EmptyImage) {
 
 TEST(zinoviev_a_convex_hull_omp, FullRectangle) {
   std::vector<int> input(25, 1);
-  const std::vector<zinoviev_a_convex_hull_components_omp::Point> expect{{0, 0}, {4, 0}, {3, 4}, {0, 4}};
+  const std::vector<zinoviev_a_convex_hull_components_omp::Point> expect{
+      {.x = 0, .y = 0}, {.x = 4, .y = 0}, {.x = 3, .y = 4}, {.x = 0, .y = 4}};
   RunTest(input, expect, 5, 5);
 }
 
 TEST(zinoviev_a_convex_hull_omp, CrossShape) {
   std::vector<int> input = {0, 1, 0, 0, 0, 1, 1, 1, 1, 1, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0};
-  const std::vector<zinoviev_a_convex_hull_components_omp::Point> expect{{0, 1}, {1, 0}, {4, 1}, {1, 4}};
+  const std::vector<zinoviev_a_convex_hull_components_omp::Point> expect{
+      {.x = 0, .y = 1}, {.x = 1, .y = 0}, {.x = 4, .y = 1}, {.x = 1, .y = 4}};
   RunTest(input, expect, 5, 5);
 }

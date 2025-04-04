@@ -9,7 +9,7 @@
 #include "core/task/include/task.hpp"
 #include "omp/zinoviev_a_convex_hull_components/include/ops_omp.hpp"
 
-TEST(zinoviev_a_convex_hull_omp, test_pipeline_run) {
+TEST(zinoviev_a_convex_hull_omp_perf, test_pipeline_run) {
   const int size = 1000;
   std::vector<int> input(size * size, 1);
 
@@ -34,7 +34,7 @@ TEST(zinoviev_a_convex_hull_omp, test_pipeline_run) {
   delete[] reinterpret_cast<zinoviev_a_convex_hull_components_omp::Point*>(data->outputs[0]);
 }
 
-TEST(zinoviev_a_convex_hull_omp, test_task_run) {
+TEST(zinoviev_a_convex_hull_omp_perf, test_task_run) {
   const int size = 1000;
   std::vector<int> input(size * size, 1);
 
