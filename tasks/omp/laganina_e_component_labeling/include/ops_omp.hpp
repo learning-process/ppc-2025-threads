@@ -1,4 +1,5 @@
 #pragma once
+
 #include <unordered_map>
 #include <vector>
 
@@ -15,9 +16,11 @@ class TestTaskOpenMP : public ppc::core::Task {
   bool PostProcessingImpl() override;
 
  private:
-  int m_;
-  int n_;
-  std::vector<int> binary_;
+  int m_;                    // Number of rows in matrix
+  int n_;                    // Number of columns in matrix
+  std::vector<int> binary_;  // Binary image data
+
+  // Union-Find operations
   void InitializeParents(std::vector<int>& parent);
   void ProcessSweep(bool reverse, std::vector<int>& parent, bool& changed);
   void UnionNodes(int a, int b, std::vector<int>& parent, bool& changed);
@@ -45,4 +48,5 @@ inline void NormalizeLabels(std::vector<int>& vec) {  // Переименова�
     }
   }
 }
+
 }  // namespace laganina_e_component_labeling_omp
