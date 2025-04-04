@@ -43,7 +43,7 @@ bool TestTaskOpenMP::PreProcessingImpl() {
 
 bool TestTaskOpenMP::PostProcessingImpl() {
   int* output = reinterpret_cast<int*>(task_data->outputs[0]);
-  std::copy(binary_.cbegin(), binary_.cend(), output);
+  std::ranges::copy(binary_.cbegin(), binary_.cend(), output);
   return true;
 }
 
@@ -62,9 +62,11 @@ void CompressPath(std::vector<int>& parent, int node, int& root) {
 }
 
 void ProcessNeighbor(int idx, int neighbor_idx, std::vector<int>& parent, std::vector<int>& binary, bool& changed) {
-  if (binary[neighbor_idx] != 1) return;
+  if (binary[neighbor_idx] != 1) {
+    return;
+  }
 
-  int root;
+  int root = 0;
   CompressPath(parent, idx, root);
 
   int neighbor_root;
@@ -103,22 +105,33 @@ void TestTaskOpenMP::LabelConnectedComponents() {
     for (int i = 0; i < m_; ++i) {
       for (int j = 0; j < n_; ++j) {
         const int idx = (i * n_) + j;
-        if (binary_[idx] != 1) continue;
+        if (binary_[idx] != 1) {
+          continue
+        };
 
-        if (j > 0) ProcessNeighbor(idx, idx - 1, parent, binary_, changed);
-        if (i > 0) ProcessNeighbor(idx, idx - n_, parent, binary_, changed);
+        if (j > 0) {
+          ProcessNeighbor(idx, idx - 1, parent, binary_, changed);
+        }
+        if (i > 0) {
+          ProcessNeighbor(idx, idx - n_, parent, binary_, changed);
+        }
       }
     }
-
 // Right-Left Bottom-Top pass
 #pragma omp parallel for reduction(|| : changed) schedule(dynamic)
     for (int i = m_ - 1; i >= 0; --i) {
       for (int j = n_ - 1; j >= 0; --j) {
         const int idx = (i * n_) + j;
-        if (binary_[idx] != 1) continue;
+        if (binary_[idx] != 1) {
+          continue;
+        }
 
-        if (j < n_ - 1) ProcessNeighbor(idx, idx + 1, parent, binary_, changed);
-        if (i < m_ - 1) ProcessNeighbor(idx, idx + n_, parent, binary_, changed);
+        if (j < n_ - 1) {
+          ProcessNeighbor(idx, idx + 1, parent, binary_, changed);
+        }
+        if (i < m_ - 1) {
+          ProcessNeighbor(idx, idx + n_, parent, binary_, changed);
+        }
       }
     }
   } while (changed && iterations < kMaxIterations);
@@ -127,7 +140,7 @@ void TestTaskOpenMP::LabelConnectedComponents() {
 #pragma omp parallel for schedule(static)
   for (int i = 0; i < size; ++i) {
     if (binary_[i] == 1) {
-      int root;
+      int root = 0;
       CompressPath(parent, i, root);
       binary_[i] = root + 2;
     }

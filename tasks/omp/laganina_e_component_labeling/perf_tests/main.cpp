@@ -2,9 +2,8 @@
 #include <omp.h>
 
 #include <chrono>
-#include <cstddef>
 #include <cstdint>
-#include <utility>
+#include <memory>
 #include <vector>
 
 #include "core/perf/include/perf.hpp"
@@ -48,7 +47,7 @@ TEST(laganina_e_component_labeling_omp, test_pipeline_run) {
   auto perf_analyzer = std::make_shared<ppc::core::Perf>(test_task_sequential);
   perf_analyzer->PipelineRun(perf_attr, perf_results);
   ppc::core::Perf::PrintPerfStatistic(perf_results);
-  ASSERT_EQ(res, out);
+  ASSERT_EQ(out, res);
 }
 
 TEST(laganina_e_component_labeling_omp, test_task_run) {

@@ -1,9 +1,7 @@
 #include <gtest/gtest.h>
 
-#include <algorithm>
 #include <cstdint>
 #include <memory>
-#include <unordered_set>
 #include <vector>
 
 #include "core/task/include/task.hpp"
@@ -113,6 +111,7 @@ TEST(laganina_e_component_labeling_omp, Find_test) {
   laganina_e_component_labeling_omp::NormalizeLabels(out);
   EXPECT_EQ(out, exp_out);
 }
+
 TEST(laganina_e_component_labeling_omp, all_one) {
   int m = 3;
   int n = 2;
@@ -136,7 +135,7 @@ TEST(laganina_e_component_labeling_omp, all_one) {
   test_task_omp.Run();
   test_task_omp.PostProcessing();
   laganina_e_component_labeling_omp::NormalizeLabels(out);
-  EXPECT_EQ(res, out);
+  EXPECT_EQ(out, res);
 }
 
 TEST(laganina_e_component_labeling_omp, all_one_large) {
