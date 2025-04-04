@@ -123,7 +123,8 @@ bool burykin_m_radix_seq::RadixOMP::PostProcessingImpl() {
 
 // Parallelize copying results to output buffer
 #pragma omp parallel for
-  for (int i = 0; i < output_size; ++i)
-    { output_ptr[i] = output_[i]; }
+  for (int i = 0; i < output_size; ++i) {
+    output_ptr[i] = output_[i];
+  }
   return true;
 }
