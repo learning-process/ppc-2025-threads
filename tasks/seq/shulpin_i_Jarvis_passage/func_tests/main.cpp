@@ -47,9 +47,7 @@ int Orientation(const shulpin_i_jarvis_seq::Point& p, const shulpin_i_jarvis_seq
   return (val > 0) ? 1 : 2;
 }
 
-std::vector<shulpin_i_jarvis_seq::Point> ComputeConvexHull(
-    std::vector<shulpin_i_jarvis_seq::Point> raw_points) {
- 
+std::vector<shulpin_i_jarvis_seq::Point> ComputeConvexHull(std::vector<shulpin_i_jarvis_seq::Point> raw_points) {
   std::vector<shulpin_i_jarvis_seq::Point> convex_shell{};
   const size_t count = raw_points.size();
 
@@ -152,7 +150,8 @@ void TestBodyRandomCircle(std::vector<shulpin_i_jarvis_seq::Point>& input,
   }
 }
 
-void RandomTestBody(std::vector<shulpin_i_jarvis_seq::Point>& input, std::vector<shulpin_i_jarvis_seq::Point>& expected) {
+void RandomTestBody(std::vector<shulpin_i_jarvis_seq::Point>& input,
+                    std::vector<shulpin_i_jarvis_seq::Point>& expected) {
   std::vector<shulpin_i_jarvis_seq::Point> result(expected.size());
 
   auto task_data_seq = std::make_shared<ppc::core::TaskData>();
