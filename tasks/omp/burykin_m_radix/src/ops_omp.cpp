@@ -16,9 +16,7 @@ std::array<int, 256> burykin_m_radix_seq::RadixOMP::ComputeFrequency(const std::
       key ^= 0x80;
     }
 #pragma omp critical
-    {
-      ++count[key];
-    }
+    { ++count[key]; }
   }
 
   return count;
