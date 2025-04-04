@@ -1,7 +1,6 @@
 #include "omp/burykin_m_radix/include/ops_omp.hpp"
 
 #include <array>
-#include <cstddef>
 #include <utility>
 #include <vector>
 
