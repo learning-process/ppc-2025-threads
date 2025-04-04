@@ -140,7 +140,7 @@ bool volochaev_s_shell_sort_with_batchers_even_odd_merge_omp::ShellSortOMP::RunI
 }
 
 bool volochaev_s_shell_sort_with_batchers_even_odd_merge_omp::ShellSortOMP::PostProcessingImpl() {
-  auto ptr_ans = reinterpret_cast<int*>(task_data->outputs[0]);
+  int* ptr_ans = reinterpret_cast<int*>(task_data->outputs[0]);
 
   std::ranges::copy(array_ | std::views::take(size_), ptr_ans);
   return true;
