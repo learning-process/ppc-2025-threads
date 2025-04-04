@@ -8,27 +8,16 @@
 std::array<int, 256> burykin_m_radix_seq::RadixOMP::ComputeFrequency(const std::vector<int>& a, const int shift) {
   std::array<int, 256> count = {};
 
-#pragma omp parallel default(none) shared(a, count, shift)
-  {
-    // Each thread maintains its own local counter
-    std::array<int, 256> local_count = {};
-
-#pragma omp for nowait
-    for (size_t i = 0; i < a.size(); ++i) {
-      const int v = a[i];
-      unsigned int key = ((static_cast<unsigned int>(v) >> shift) & 0xFFU);
-      if (shift == 24) {
-        key ^= 0x80;
-      }
-      ++local_count[key];
+#pragma omp parallel for default(none) shared(a, count, shift)
+  for (size_t i = 0; i < a.size(); ++i) {
+    const int v = a[i];
+    unsigned int key = ((static_cast<unsigned int>(v) >> shift) & 0xFFU);
+    if (shift == 24) {
+      key ^= 0x80;
     }
-
-// Merge local counters into the shared counter
 #pragma omp critical
     {
-      for (int i = 0; i < 256; ++i) {
-        count[i] += local_count[i];
-      }
+      ++count[key];
     }
   }
 
@@ -46,36 +35,25 @@ std::array<int, 256> burykin_m_radix_seq::RadixOMP::ComputeIndices(const std::ar
 
 void burykin_m_radix_seq::RadixOMP::DistributeElements(const std::vector<int>& a, std::vector<int>& b,
                                                        std::array<int, 256> index, const int shift) {
-  // Create a copy of indices for parallel access
-  std::array<int, 256> local_index = index;
+#pragma omp parallel default(none) shared(a, b, index, shift)
+  {
+#pragma omp for
+    for (size_t i = 0; i < a.size(); ++i) {
+      const int v = a[i];
+      unsigned int key = ((static_cast<unsigned int>(v) >> shift) & 0xFFU);
+      if (shift == 24) {
+        key ^= 0x80;
+      }
 
-  // Calculate offset for each element
-  std::vector<int> offsets(a.size());
+      int pos = 0;
+#pragma omp critical
+      {
+        pos = index[key];
+        index[key]++;
+      }
 
-#pragma omp parallel for default(none) shared(a, offsets, local_index, shift)
-  for (size_t i = 0; i < a.size(); ++i) {
-    const int v = a[i];
-    unsigned int key = ((static_cast<unsigned int>(v) >> shift) & 0xFFU);
-    if (shift == 24) {
-      key ^= 0x80;
+      b[pos] = v;
     }
-
-    // Atomically get position for this element
-    int pos = 0;
-#pragma omp atomic capture
-    {
-      pos = local_index[key];
-      local_index[key]++;
-    }
-
-    // Store position for later use
-    offsets[i] = pos;
-  }
-
-// Distribute elements to output array using calculated offsets
-#pragma omp parallel for default(none) shared(a, b, offsets)
-  for (size_t i = 0; i < a.size(); ++i) {
-    b[offsets[i]] = a[i];
   }
 }
 
@@ -120,8 +98,7 @@ bool burykin_m_radix_seq::RadixOMP::RunImpl() {
 }
 
 bool burykin_m_radix_seq::RadixOMP::PostProcessingImpl() {
-// Parallelize copying results to output buffer
-#pragma omp parallel for default(none) shared(output_, task_data)
+#pragma omp parallel for default(none) shared(output_, task_data) schedule(static, 1)
   for (size_t i = 0; i < output_.size(); ++i) {
     reinterpret_cast<int*>(task_data->outputs[0])[i] = output_[i];
   }
