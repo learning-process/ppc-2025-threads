@@ -1,7 +1,6 @@
 #include <gtest/gtest.h>
 
 #include <chrono>
-#include <cstddef>
 #include <cstdint>
 #include <memory>
 #include <vector>
@@ -10,7 +9,7 @@
 #include "core/task/include/task.hpp"
 #include "seq/fomin_v_conjugate_gradient/include/ops_seq.hpp"
 
-TEST(fomin_v_conjugate_gradient_seq, test_pipeline_run) {
+TEST(FominVConjugateGradientSeq, test_pipeline_run) {
   constexpr int kCount = 200;  // Размер системы (матрица 100x100)
 
   // Создаем данные для системы линейных уравнений
@@ -27,8 +26,7 @@ TEST(fomin_v_conjugate_gradient_seq, test_pipeline_run) {
   task_data_seq->outputs.emplace_back(reinterpret_cast<uint8_t*>(new double[kCount]));
   task_data_seq->outputs_count.emplace_back(kCount);
 
-  auto test_task_sequential =
-      std::make_shared<fomin_v_conjugate_gradient::fomin_v_conjugate_gradient_seq>(task_data_seq);
+  auto test_task_sequential = std::make_shared<fomin_v_conjugate_gradient::FominVConjugateGradientSeq>(task_data_seq);
 
   auto perf_attr = std::make_shared<ppc::core::PerfAttr>();
   perf_attr->num_running = 10;
@@ -47,7 +45,7 @@ TEST(fomin_v_conjugate_gradient_seq, test_pipeline_run) {
   ppc::core::Perf::PrintPerfStatistic(perf_results);
 }
 
-TEST(fomin_v_conjugate_gradient_seq, test_task_run) {
+TEST(FominVConjugateGradientSeq, test_task_run) {
   constexpr int kCount = 100;  // Размер системы (матрица 100x100)
 
   // Создаем данные для системы линейных уравнений
@@ -65,8 +63,7 @@ TEST(fomin_v_conjugate_gradient_seq, test_task_run) {
   task_data_seq->outputs_count.emplace_back(kCount);
 
   // Создаем задачу
-  auto test_task_sequential =
-      std::make_shared<fomin_v_conjugate_gradient::fomin_v_conjugate_gradient_seq>(task_data_seq);
+  auto test_task_sequential = std::make_shared<fomin_v_conjugate_gradient::FominVConjugateGradientSeq>(task_data_seq);
 
   // Создаем атрибуты для perf теста
   auto perf_attr = std::make_shared<ppc::core::PerfAttr>();
