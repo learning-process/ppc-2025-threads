@@ -18,8 +18,8 @@ class TestTaskSTL : public ppc::core::Task {
  private:
   std::vector<int> input_, output_;
 
-  void RadixSort(std::vector<int>& arr);
-  void SplitAndSort(std::vector<int>& arr, std::vector<int>& negatives, std::vector<int>& positives);
+  static void RadixSort(std::vector<int>& arr);
+  static void SplitAndSort(std::vector<int>& arr, std::vector<int>& negatives, std::vector<int>& positives);
   static void RadixSortForNonNegative(std::vector<int>& arr);
   static void CountingSort(std::vector<int>& arr, int exp);
 };

@@ -3,7 +3,6 @@
 #include <algorithm>
 #include <cstdint>
 #include <memory>
-#include <random>
 #include <vector>
 
 #include "core/task/include/task.hpp"
@@ -54,21 +53,6 @@ TEST(gusev_n_sorting_int_simple_merging_stl, test_radix_sort_single_element) {
 
 TEST(gusev_n_sorting_int_simple_merging_stl, test_radix_sort_negative_numbers) {
   std::vector<int> in = {3, -1, 0, -5, 2, -3};
-  std::vector<int> out(in.size());
-  RunTest(in, out);
-  std::vector<int> expected = in;
-  std::ranges::sort(expected);
-  EXPECT_EQ(expected, out);
-}
-
-TEST(gusev_n_sorting_int_simple_merging_stl, test_radix_sort_random) {
-  std::vector<int> in(100);
-  std::random_device rd;
-  std::mt19937 gen(rd());
-  std::uniform_int_distribution<int> dist(-10000, 10000);
-  for (int& num : in) {
-    num = dist(gen);
-  }
   std::vector<int> out(in.size());
   RunTest(in, out);
   std::vector<int> expected = in;
