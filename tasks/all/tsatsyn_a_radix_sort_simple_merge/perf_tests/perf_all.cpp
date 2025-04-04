@@ -26,7 +26,7 @@ std::vector<double> GetRandomVector(int sz, int a, int b) {
 }  // namespace
 
 TEST(tsatsyn_a_radix_sort_simple_merge_all, test_pipeline_run) {
-  int kCount = 400;
+  constexpr int kCount = 400;
 
   // Create data
   std::vector<double> in;
@@ -69,7 +69,7 @@ TEST(tsatsyn_a_radix_sort_simple_merge_all, test_pipeline_run) {
 }
 
 TEST(tsatsyn_a_radix_sort_simple_merge_all, test_task_run) {
-  int kCount = 400;
+  constexpr int kCount = 400;
 
   // Create data
   std::vector<double> in;
