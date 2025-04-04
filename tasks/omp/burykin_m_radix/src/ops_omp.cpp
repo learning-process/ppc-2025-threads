@@ -9,7 +9,7 @@ std::array<int, 256> burykin_m_radix_seq::RadixOMP::ComputeFrequency(const std::
   std::array<int, 256> count = {};
 
 #pragma omp parallel for default(none) shared(a, count, shift)
-  for (size_t i = 0; i < a.size(); ++i) {
+  for (int i = 0; i < static_cast<int>(a.size()); ++i) {
     const int v = a[i];
     unsigned int key = ((static_cast<unsigned int>(v) >> shift) & 0xFFU);
     if (shift == 24) {
@@ -36,7 +36,7 @@ void burykin_m_radix_seq::RadixOMP::DistributeElements(const std::vector<int>& a
 #pragma omp parallel default(none) shared(a, b, index, shift)
   {
 #pragma omp for
-    for (size_t i = 0; i < a.size(); ++i) {
+    for (int i = 0; i < static_cast<int>(a.size()); ++i) {
       const int v = a[i];
       unsigned int key = ((static_cast<unsigned int>(v) >> shift) & 0xFFU);
       if (shift == 24) {
@@ -96,9 +96,12 @@ bool burykin_m_radix_seq::RadixOMP::RunImpl() {
 }
 
 bool burykin_m_radix_seq::RadixOMP::PostProcessingImpl() {
-#pragma omp parallel for default(none) shared(output_, task_data) schedule(static, 1)
-  for (size_t i = 0; i < output_.size(); ++i) {
-    reinterpret_cast<int*>(task_data->outputs[0])[i] = output_[i];
+  std::vector<int>& output_ref = output_;
+  int* output_ptr = reinterpret_cast<int*>(task_data->outputs[0]);
+
+#pragma omp parallel for default(none) shared(output_ref, output_ptr) schedule(static, 1)
+  for (int i = 0; i < static_cast<int>(output_ref.size()); ++i) {
+    output_ptr[i] = output_ref[i];
   }
   return true;
 }
