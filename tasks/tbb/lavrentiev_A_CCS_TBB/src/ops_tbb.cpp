@@ -69,12 +69,11 @@ int lavrentiev_a_ccs_tbb::CCSTBB::CalculateStartIndex(int index, const std::vect
 
 lavrentiev_a_ccs_tbb::Sparse lavrentiev_a_ccs_tbb::CCSTBB::MatMul(const Sparse &matrix1, const Sparse &matrix2) {
   oneapi::tbb::task_arena worker(ppc::util::GetPPCNumThreads());
-  auto [size, elements_and_rows, columns_sum] = Sparse();
-  columns_sum.resize(matrix2.size.second);
-  elements_and_rows.resize(matrix2.columnsSum.size() * matrix1.columnsSum.size() +
-                           std::max(matrix1.columnsSum.size(), matrix2.columnsSum.size()));
+  Sparse imatrix;
+  imatrix.columnsSum.resize(matrix2.size.second);
+  imatrix.elements_and_rows.resize(matrix2.columnsSum.size() * matrix1.columnsSum.size() +
+                                   std::max(matrix1.columnsSum.size(), matrix2.columnsSum.size()));
   auto new_matrix1 = Transpose(matrix1);
-  std::map<int, std::pair<double, int>> thread_data;
   worker.execute([&] {
     oneapi::tbb::parallel_for(
         oneapi::tbb::blocked_range<int>(0, matrix2.columnsSum.size()),
@@ -92,26 +91,26 @@ lavrentiev_a_ccs_tbb::Sparse lavrentiev_a_ccs_tbb::CCSTBB::MatMul(const Sparse &
                 }
               }
               if (sum != 0) {
-                elements_and_rows[i * matrix2.size.second + j] = {sum, j};
-                columns_sum[i]++;
+                imatrix.elements_and_rows[i * matrix2.size.second + j] = {sum, j};
+                imatrix.columnsSum[i]++;
               }
             }
           }
         }),
         tbb::auto_partitioner();
   });
-  for (size_t i = 1; i < columns_sum.size(); ++i) {
-    columns_sum[i] = columns_sum[i] + columns_sum[i - 1];
+  for (size_t i = 1; i < imatrix.columnsSum.size(); ++i) {
+    imatrix.columnsSum[i] = imatrix.columnsSum[i] + imatrix.columnsSum[i - 1];
   }
-  size.first = matrix2.size.second;
-  size.second = matrix2.size.second;
+  imatrix.size.first = matrix2.size.second;
+  imatrix.size.second = matrix2.size.second;
   std::vector<std::pair<double, int>> new_elements_and_rows;
-  for (size_t i = 0; i < elements_and_rows.size(); ++i) {
-    if (elements_and_rows[i].first != 0.0) {
-      new_elements_and_rows.emplace_back(elements_and_rows[i]);
+  for (size_t i = 0; i < imatrix.elements_and_rows.size(); ++i) {
+    if (imatrix.elements_and_rows[i].first != 0.0) {
+      new_elements_and_rows.emplace_back(imatrix.elements_and_rows[i]);
     }
   }
-  return {.size = size, .elements_and_rows = new_elements_and_rows, .columnsSum = columns_sum};
+  return {.size = imatrix.size, .elements_and_rows = new_elements_and_rows, .columnsSum = imatrix.columnsSum};
 }
 
 int lavrentiev_a_ccs_tbb::CCSTBB::GetElementsCount(int index, const std::vector<int> &columns_sum) {
