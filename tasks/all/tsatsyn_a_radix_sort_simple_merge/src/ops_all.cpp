@@ -154,7 +154,7 @@ bool tsatsyn_a_radix_sort_simple_merge_all::TestTaskALL::PreProcessingImpl() {
     auto *temp_ptr = reinterpret_cast<double *>(task_data->inputs[0]);
     input_data_ = std::vector<double>(temp_ptr, temp_ptr + task_data->inputs_count[0]);
     output_.resize(task_data->inputs_count[0]);
-    //std::cout << std::endl << input_data_.size() << " V NACHALE" << std::endl;
+    // std::cout << std::endl << input_data_.size() << " V NACHALE" << std::endl;
   }
   return true;
 }

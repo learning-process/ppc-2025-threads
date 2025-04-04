@@ -108,6 +108,6 @@ TEST(tsatsyn_a_radix_sort_simple_merge_all, test_task_run) {
   if (world.rank() == 0) {
     ppc::core::Perf::PrintPerfStatistic(perf_results);
     std::ranges::sort(in);
-    ASSERT_EQ(in,out);
+    ASSERT_EQ(in, out);
   }
 }
