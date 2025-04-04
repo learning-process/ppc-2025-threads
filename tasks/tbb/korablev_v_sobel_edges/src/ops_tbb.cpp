@@ -1,4 +1,4 @@
-#include "tbb/korablev_v_sobel_edges/include/ops_tbb.hpp"
+#include "../include/ops_tbb.hpp"
 
 #include <oneapi/tbb/task_arena.h>
 #include <tbb/tbb.h>

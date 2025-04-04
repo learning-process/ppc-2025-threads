@@ -11,10 +11,10 @@
 #include <string>
 #include <vector>
 
+#include "../include/ops_seq.hpp"
+#include "../include/ops_tbb.hpp"
 #include "core/task/include/task.hpp"
 #include "core/util/include/util.hpp"
-#include "tbb/korablev_v_sobel_edges/include/ops_seq.hpp"
-#include "tbb/korablev_v_sobel_edges/include/ops_tbb.hpp"
 
 // #define KORABLEV_V_SOBEL_EDGES_CREATE_FIXTURES
 

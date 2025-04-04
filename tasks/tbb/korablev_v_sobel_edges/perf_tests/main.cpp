@@ -8,9 +8,9 @@
 #include <random>
 #include <vector>
 
+#include "../include/ops_tbb.hpp"
 #include "core/perf/include/perf.hpp"
 #include "core/task/include/task.hpp"
-#include "tbb/korablev_v_sobel_edges/include/ops_tbb.hpp"
 
 const std::size_t kHeight = 15'000;
 const std::size_t kWidth = 1'000;

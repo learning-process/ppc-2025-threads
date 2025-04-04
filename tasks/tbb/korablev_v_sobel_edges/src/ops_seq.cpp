@@ -1,4 +1,4 @@
-#include "tbb/korablev_v_sobel_edges/include/ops_seq.hpp"
+#include "../include/ops_seq.hpp"
 
 #include <algorithm>
 #include <array>
@@ -7,7 +7,7 @@
 #include <cstdint>
 #include <vector>
 
-#include "tbb/korablev_v_sobel_edges/include/ops_tbb.hpp"
+#include "../include/ops_tbb.hpp"
 
 // clang-format off
 constexpr int8_t kSobelKernelX[3][3] = {
