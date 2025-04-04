@@ -29,7 +29,7 @@ void RunTest(std::vector<int>& input, std::vector<int>& output) {
 }  // namespace
 
 TEST(gusev_n_sorting_int_simple_merging_stl, test_radix_sort_basic) {
-  std::vector<int> in = {170, 45, 75, 90, 802, 24, 2, 66};
+  std::vector<int> in = {17, 45, 75, 90, 8, 24, 2, 66};
   std::vector<int> out(in.size());
   RunTest(in, out);
   std::vector<int> expected = in;
