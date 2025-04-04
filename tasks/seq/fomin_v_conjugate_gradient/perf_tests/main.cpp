@@ -9,7 +9,7 @@
 #include "core/task/include/task.hpp"
 #include "seq/fomin_v_conjugate_gradient/include/ops_seq.hpp"
 
-TEST(FominVConjugateGradientSeq, test_pipeline_run) {
+TEST(fomin_v_conjugate_gradient_seq, test_pipeline_run) {
   constexpr int kCount = 200;  // Размер системы (матрица 100x100)
 
   // Создаем данные для системы линейных уравнений
@@ -45,7 +45,7 @@ TEST(FominVConjugateGradientSeq, test_pipeline_run) {
   ppc::core::Perf::PrintPerfStatistic(perf_results);
 }
 
-TEST(FominVConjugateGradientSeq, test_task_run) {
+TEST(fomin_v_conjugate_gradient_seq, test_task_run) {
   constexpr int kCount = 100;  // Размер системы (матрица 100x100)
 
   // Создаем данные для системы линейных уравнений
