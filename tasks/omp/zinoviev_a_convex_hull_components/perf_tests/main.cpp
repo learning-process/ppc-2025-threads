@@ -9,8 +9,8 @@
 #include "core/task/include/task.hpp"
 #include "omp/zinoviev_a_convex_hull_components/include/ops_omp.hpp"
 
-TEST(zinoviev_a_convex_hull_omp_perf, test_pipeline_run) {
-  const int size = 1000;
+TEST(zinoviev_a_convex_hull_omp_perf, PipelineRun) {
+  const int size = 2000;
   std::vector<int> input(size * size, 1);
 
   auto data = std::make_shared<ppc::core::TaskData>();
@@ -34,8 +34,8 @@ TEST(zinoviev_a_convex_hull_omp_perf, test_pipeline_run) {
   delete[] reinterpret_cast<zinoviev_a_convex_hull_components_omp::Point*>(data->outputs[0]);
 }
 
-TEST(zinoviev_a_convex_hull_omp_perf, test_task_run) {
-  const int size = 1000;
+TEST(zinoviev_a_convex_hull_omp_perf, TaskRun) {
+  const int size = 2000;
   std::vector<int> input(size * size, 1);
 
   auto data = std::make_shared<ppc::core::TaskData>();
