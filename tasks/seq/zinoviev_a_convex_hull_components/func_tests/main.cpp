@@ -65,3 +65,36 @@ TEST(zinoviev_a_convex_hull_components_seq, TriangleShape) {
       {.x = 0, .y = 0}, {.x = 2, .y = 2}, {.x = 0, .y = 4}};
   RunAndValidate(input, expected, kWidth, kHeight);
 }
+
+TEST(zinoviev_a_convex_hull_components_seq, LargeRectangle) {
+  const int kWidth = 20;
+  const int kHeight = 10;
+  std::vector<int> input(kWidth * kHeight, 0);
+  for (int x = 0; x < kWidth; ++x) {
+    input[x] = 1;
+    input[(kHeight - 1) * kWidth + x] = 1;
+  }
+  for (int y = 0; y < kHeight; ++y) {
+    input[y * kWidth] = 1;
+    input[y * kWidth + (kWidth - 1)] = 1;
+  }
+  const std::vector<zinoviev_a_convex_hull_components_seq::Point> expected = {
+      {0, 0}, {19, 0}, {18, 9}, {0, 9}};
+  RunAndValidate(input, expected, kWidth, kHeight);
+}
+
+TEST(zinoviev_a_convex_hull_components_seq, SinglePoint) {
+  constexpr int kWidth = 1;
+  constexpr int kHeight = 1;
+  const std::vector<int> input = {1};
+  const std::vector<zinoviev_a_convex_hull_components_seq::Point> expected = {{0, 0}};
+  RunAndValidate(input, expected, kWidth, kHeight);
+}
+
+TEST(zinoviev_a_convex_hull_components_seq, SmallGrid) {
+  constexpr int kWidth = 4;
+  constexpr int kHeight = 4;
+  const std::vector<int> input = {1, 1, 1, 1, 1, 0, 0, 1, 1, 0, 0, 1, 1, 1, 1, 1};
+  const std::vector<zinoviev_a_convex_hull_components_seq::Point> expected = {{0, 0}, {3, 0}, {2, 3}, {0, 3}};
+  RunAndValidate(input, expected, kWidth, kHeight);
+}
