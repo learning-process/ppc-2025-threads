@@ -8,7 +8,7 @@
 
 #include "core/perf/include/perf.hpp"
 #include "core/task/include/task.hpp"
-#include "omp/korovin_n_qsort_batcher_omp/include/ops_omp.hpp"
+#include "omp/korovin_n_qsort_batcher/include/ops_omp.hpp"
 
 TEST(korovin_n_qsort_batcher_omp, test_pipeline_run) {
   constexpr int kSize = 250000;
