@@ -114,7 +114,6 @@ inline void FinalParse(std::vector<uint64_t> &data, int code, boost::mpi::commun
 }
 inline void WriteNegativePart(const std::vector<uint64_t> &negative_copy, std::vector<double> &output) {
   const size_t size = negative_copy.size();
-#pragma omp parallel for
   for (int i = 0; i < static_cast<int>(size); i++) {
     const size_t output_idx = size - 1 - i;
     output[output_idx] = Uint64ToDouble(negative_copy[i]);
@@ -123,7 +122,6 @@ inline void WriteNegativePart(const std::vector<uint64_t> &negative_copy, std::v
 inline void WritePositivePart(const std::vector<uint64_t> &positive_copy, const size_t offset,
                               std::vector<double> &output) {
   const size_t size = positive_copy.size();
-#pragma omp parallel for
   for (int i = 0; i < static_cast<int>(size); i++) {
     const size_t output_idx = offset + i;
     output[output_idx] = Uint64ToDouble(positive_copy[i]);
@@ -156,6 +154,7 @@ bool tsatsyn_a_radix_sort_simple_merge_all::TestTaskALL::PreProcessingImpl() {
     auto *temp_ptr = reinterpret_cast<double *>(task_data->inputs[0]);
     input_data_ = std::vector<double>(temp_ptr, temp_ptr + task_data->inputs_count[0]);
     output_.resize(task_data->inputs_count[0]);
+    //std::cout << std::endl << input_data_.size() << " V NACHALE" << std::endl;
   }
   return true;
 }
@@ -163,7 +162,7 @@ bool tsatsyn_a_radix_sort_simple_merge_all::TestTaskALL::PreProcessingImpl() {
 bool tsatsyn_a_radix_sort_simple_merge_all::TestTaskALL::RunImpl() {
   std::vector<bool> is_pozitive(world_.size() - 1, false);
   std::vector<bool> is_negative(world_.size() - 1, false);
-
+  local_data_.clear();
   if (world_.rank() == 0) {
     SendData(world_, is_pozitive, is_negative, local_data_, input_data_);
   } else {
@@ -192,8 +191,7 @@ bool tsatsyn_a_radix_sort_simple_merge_all::TestTaskALL::PostProcessingImpl() {
   if (world_.rank() == 0) {
     assert(output_.size() == task_data->outputs_count[0]);
     for (size_t i = 0; i < output_.size(); i++) {
-      double value = output_[i];
-      std::memcpy(reinterpret_cast<double *>(task_data->outputs[0]) + i, &value, sizeof(double));
+      reinterpret_cast<double *>(task_data->outputs[0])[i] = output_[i];
     }
   }
   input_data_.clear();

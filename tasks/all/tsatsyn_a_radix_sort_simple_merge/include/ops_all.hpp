@@ -11,8 +11,9 @@ namespace tsatsyn_a_radix_sort_simple_merge_all {
 class TestTaskALL : public ppc::core::Task {
  public:
   explicit TestTaskALL(ppc::core::TaskDataPtr task_data) : Task(std::move(task_data)) {}
-  bool PreProcessingImpl() override;
+
   bool ValidationImpl() override;
+  bool PreProcessingImpl() override;
   bool RunImpl() override;
   bool PostProcessingImpl() override;
 

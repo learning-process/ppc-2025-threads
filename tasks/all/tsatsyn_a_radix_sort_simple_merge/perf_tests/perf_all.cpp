@@ -26,20 +26,20 @@ std::vector<double> GetRandomVector(int sz, int a, int b) {
 }  // namespace
 
 TEST(tsatsyn_a_radix_sort_simple_merge_all, test_pipeline_run) {
-  constexpr int kCount = 800;
+  int kCount = 400;
+
   // Create data
   std::vector<double> in;
   std::vector<double> out(kCount * kCount, 0);
-  boost::mpi::communicator world;
+
+  in = GetRandomVector(kCount * kCount, 0, 100);
+
   // Create task_data
   auto task_data_all = std::make_shared<ppc::core::TaskData>();
-  if (world.rank() == 0) {
-    in = GetRandomVector(kCount * kCount, 0, 100);
-    task_data_all->inputs.emplace_back(reinterpret_cast<uint8_t *>(in.data()));
-    task_data_all->inputs_count.emplace_back(in.size());
-    task_data_all->outputs.emplace_back(reinterpret_cast<uint8_t *>(out.data()));
-    task_data_all->outputs_count.emplace_back(out.size());
-  }
+  task_data_all->inputs.emplace_back(reinterpret_cast<uint8_t *>(in.data()));
+  task_data_all->inputs_count.emplace_back(in.size());
+  task_data_all->outputs.emplace_back(reinterpret_cast<uint8_t *>(out.data()));
+  task_data_all->outputs_count.emplace_back(out.size());
 
   // Create Task
   auto test_task_all = std::make_shared<tsatsyn_a_radix_sort_simple_merge_all::TestTaskALL>(task_data_all);
@@ -60,6 +60,7 @@ TEST(tsatsyn_a_radix_sort_simple_merge_all, test_pipeline_run) {
   auto perf_analyzer = std::make_shared<ppc::core::Perf>(test_task_all);
   perf_analyzer->PipelineRun(perf_attr, perf_results);
   // Create Perf analyzer
+  boost::mpi::communicator world;
   if (world.rank() == 0) {
     ppc::core::Perf::PrintPerfStatistic(perf_results);
     std::ranges::sort(in);
@@ -68,22 +69,21 @@ TEST(tsatsyn_a_radix_sort_simple_merge_all, test_pipeline_run) {
 }
 
 TEST(tsatsyn_a_radix_sort_simple_merge_all, test_task_run) {
-  constexpr int kCount = 10;
+  int kCount = 400;
 
   // Create data
   std::vector<double> in;
   std::vector<double> out(kCount * kCount, 0);
-  boost::mpi::communicator world;
+
+  in = GetRandomVector(kCount * kCount, 0, 100);
 
   // Create task_data
   auto task_data_all = std::make_shared<ppc::core::TaskData>();
-  if (world.rank() == 0) {
-    in = GetRandomVector(kCount * kCount, 0, 100);
-    task_data_all->inputs.emplace_back(reinterpret_cast<uint8_t *>(in.data()));
-    task_data_all->inputs_count.emplace_back(in.size());
-    task_data_all->outputs.emplace_back(reinterpret_cast<uint8_t *>(out.data()));
-    task_data_all->outputs_count.emplace_back(out.size());
-  }
+  task_data_all->inputs.emplace_back(reinterpret_cast<uint8_t *>(in.data()));
+  task_data_all->inputs_count.emplace_back(in.size());
+  task_data_all->outputs.emplace_back(reinterpret_cast<uint8_t *>(out.data()));
+  task_data_all->outputs_count.emplace_back(out.size());
+
   // Create Task
   auto test_task_all = std::make_shared<tsatsyn_a_radix_sort_simple_merge_all::TestTaskALL>(task_data_all);
 
@@ -104,9 +104,10 @@ TEST(tsatsyn_a_radix_sort_simple_merge_all, test_task_run) {
   auto perf_analyzer = std::make_shared<ppc::core::Perf>(test_task_all);
   perf_analyzer->TaskRun(perf_attr, perf_results);
   // Create Perf analyzer
+  boost::mpi::communicator world;
   if (world.rank() == 0) {
     ppc::core::Perf::PrintPerfStatistic(perf_results);
     std::ranges::sort(in);
-    ASSERT_EQ(in, out);
+    ASSERT_EQ(in,out);
   }
 }
