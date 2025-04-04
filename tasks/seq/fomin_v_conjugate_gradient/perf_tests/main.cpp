@@ -15,10 +15,14 @@ TEST(fomin_v_conjugate_gradient_seq, test_pipeline_run) {
   // Создаем матрицу с диагональным преобладанием (2 на диагонали, -1 на соседних)
   std::vector<double> input((kCount * kCount) + kCount, 0.0);
   for (int i = 0; i < kCount; ++i) {
-    input[(i * kCount) + i] = 2.0;                             // Диагональ
-    if (i > 0) input[(i * kCount) + (i - 1)] = -1.0;           // Нижний сосед
-    if (i < kCount - 1) input[(i * kCount) + (i + 1)] = -1.0;  // Верхний сосед
-    input[(kCount * kCount) + i] = 1.0;                        // Вектор b = {1, 1, ..., 1}
+    input[(i * kCount) + i] = 2.0;
+    if (i > 0) {
+      input[(i * kCount) + (i - 1)] = -1.0;
+    }
+    if (i < kCount - 1) {
+      input[(i * kCount) + (i + 1)] = -1.0;
+    }
+    input[(kCount * kCount) + i] = 1.0;
   }
 
   // Создаем task_data
