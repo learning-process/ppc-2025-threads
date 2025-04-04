@@ -9,7 +9,7 @@
 #include "core/task/include/task.hpp"
 #include "omp/zinoviev_a_convex_hull_components/include/ops_omp.hpp"
 
-TEST(zinoviev_a_convex_hull_omp_perf, pipeline_run) {
+TEST(zinoviev_a_convex_hull_omp, test_pipeline_run) {
   const int size = 1000;
   std::vector<int> input(size * size, 1);
 
@@ -24,17 +24,17 @@ TEST(zinoviev_a_convex_hull_omp_perf, pipeline_run) {
 
   auto perf_attr = std::make_shared<ppc::core::PerfAttr>();
   perf_attr->num_running = 10;
-  perf_attr->current_timer = [&] { return omp_get_wtime(); };
+  perf_attr->current_timer = [] { return omp_get_wtime(); };
 
   auto perf_results = std::make_shared<ppc::core::PerfResults>();
   auto perf_analyzer = std::make_shared<ppc::core::Perf>(task);
-  perf_analyzer->pipeline_run(perf_attr, perf_results);
-  ppc::core::Perf::print_perf_statistic(perf_results);
+  perf_analyzer->PipelineRun(perf_attr, perf_results);
+  ppc::core::Perf::PrintPerfStatistic(perf_results);
 
   delete[] reinterpret_cast<zinoviev_a_convex_hull_components_omp::Point*>(data->outputs[0]);
 }
 
-TEST(zinoviev_a_convex_hull_omp_perf, task_run) {
+TEST(zinoviev_a_convex_hull_omp, test_task_run) {
   const int size = 1000;
   std::vector<int> input(size * size, 1);
 
@@ -49,12 +49,12 @@ TEST(zinoviev_a_convex_hull_omp_perf, task_run) {
 
   auto perf_attr = std::make_shared<ppc::core::PerfAttr>();
   perf_attr->num_running = 10;
-  perf_attr->current_timer = [&] { return omp_get_wtime(); };
+  perf_attr->current_timer = [] { return omp_get_wtime(); };
 
   auto perf_results = std::make_shared<ppc::core::PerfResults>();
   auto perf_analyzer = std::make_shared<ppc::core::Perf>(task);
-  perf_analyzer->task_run(perf_attr, perf_results);
-  ppc::core::Perf::print_perf_statistic(perf_results);
+  perf_analyzer->TaskRun(perf_attr, perf_results);
+  ppc::core::Perf::PrintPerfStatistic(perf_results);
 
   delete[] reinterpret_cast<zinoviev_a_convex_hull_components_omp::Point*>(data->outputs[0]);
 }

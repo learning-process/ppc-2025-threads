@@ -4,6 +4,7 @@
 
 #include <algorithm>
 #include <cstddef>
+#include <utility>
 #include <vector>
 
 #include "core/task/include/task.hpp"
@@ -55,7 +56,7 @@ std::vector<Point> ConvexHullOMP::FindConvexHull(const std::vector<Point>& point
   }
 
   std::vector<Point> sorted(points);
-  std::ranges::sort(sorted);
+  std::sort(sorted.begin(), sorted.end());
 
   std::vector<Point> hull;
   for (const auto& p : sorted) {
