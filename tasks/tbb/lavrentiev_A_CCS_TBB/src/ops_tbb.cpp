@@ -79,7 +79,7 @@ lavrentiev_a_ccs_tbb::Sparse lavrentiev_a_ccs_tbb::CCSTBB::MatMul(const Sparse &
         if (new_matrix1.elements_and_rows[CalculateStartIndex(j_index, new_matrix1.columnsSum) + x].second ==
             matrix2.elements_and_rows[CalculateStartIndex(i_index, matrix2.columnsSum) + y].second) {
           s += new_matrix1.elements_and_rows[x + CalculateStartIndex(j_index, new_matrix1.columnsSum)].first *
-                 matrix2.elements_and_rows[y + CalculateStartIndex(i_index, matrix2.columnsSum)].first;
+               matrix2.elements_and_rows[y + CalculateStartIndex(i_index, matrix2.columnsSum)].first;
         }
       }
     }
