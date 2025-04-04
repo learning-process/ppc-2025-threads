@@ -13,10 +13,10 @@ TEST(FominVConjugateGradientSeq, test_pipeline_run) {
   constexpr int kCount = 200;  // Размер системы (матрица 100x100)
 
   // Создаем данные для системы линейных уравнений
-  std::vector<double> input(kCount * kCount + kCount, 0.0);
+  std::vector<double> input((kCount * kCount) + kCount, 0.0);
   for (int i = 0; i < kCount; ++i) {
-    input[i * kCount + i] = 1.0;       // Единичная матрица
-    input[kCount * kCount + i] = 1.0;  // Вектор b = {1, 1, ..., 1}
+    input[(i * kCount) + i] = 1.0;       // Единичная матрица
+    input[(kCount * kCount) + i] = 1.0;  // Вектор b = {1, 1, ..., 1}
   }
 
   // Создаем task_data
@@ -49,10 +49,10 @@ TEST(FominVConjugateGradientSeq, test_task_run) {
   constexpr int kCount = 100;  // Размер системы (матрица 100x100)
 
   // Создаем данные для системы линейных уравнений
-  std::vector<double> input(kCount * kCount + kCount, 0.0);
+  std::vector<double> input((kCount * kCount) + kCount, 0.0);
   for (int i = 0; i < kCount; ++i) {
-    input[i * kCount + i] = 1.0;       // Единичная матрица
-    input[kCount * kCount + i] = 1.0;  // Вектор b = {1, 1, ..., 1}
+    input[(i * kCount) + i] = 1.0;       // Единичная матрица
+    input[(kCount * kCount) + i] = 1.0;  // Вектор b = {1, 1, ..., 1}
   }
 
   // Создаем task_data

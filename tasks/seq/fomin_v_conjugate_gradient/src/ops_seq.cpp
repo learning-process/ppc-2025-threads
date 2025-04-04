@@ -14,7 +14,7 @@ double fomin_v_conjugate_gradient::FominVConjugateGradientSeq::DotProduct(const 
 }
 
 std::vector<double> fomin_v_conjugate_gradient::FominVConjugateGradientSeq::MatrixVectorMultiply(
-    const std::vector<double>& a, const std::vector<double>& x) {
+    const std::vector<double>& a, const std::vector<double>& x) const {
   std::vector<double> result(n, 0.0);
   for (int i = 0; i < n; ++i) {
     for (int j = 0; j < n; ++j) {
@@ -67,11 +67,8 @@ bool fomin_v_conjugate_gradient::FominVConjugateGradientSeq::PreProcessingImpl()
 bool fomin_v_conjugate_gradient::FominVConjugateGradientSeq::ValidationImpl() {
   unsigned int input_size = task_data->inputs_count[0];
   int n = static_cast<int>((-1.0 + std::sqrt(1 + (4 * input_size))) / 2);
-  if (static_cast<unsigned int>(n * (n + 1)) != input_size ||
-      task_data->outputs_count[0] != static_cast<unsigned int>(n)) {
-    return false;
-  }
-  return true;
+  return (static_cast<unsigned int>(n * (n + 1)) == input_size) &&
+         (task_data->outputs_count[0] == static_cast<unsigned int>(n));
 }
 
 bool fomin_v_conjugate_gradient::FominVConjugateGradientSeq::RunImpl() {

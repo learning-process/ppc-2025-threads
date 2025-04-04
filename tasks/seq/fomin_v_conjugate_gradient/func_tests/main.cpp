@@ -11,13 +11,13 @@
 
 TEST(FominVConjugateGradientSeq, test_small_system) {
   constexpr size_t kCount = 3;
-  std::vector<double> A = {4, 1, 1, 1, 3, 0, 1, 0, 2};
+  std::vector<double> a = {4, 1, 1, 1, 3, 0, 1, 0, 2};
   std::vector<double> b = {6, 5, 3};
   // Correct solution computed as [17/19, 26/19, 20/19]
   std::vector<double> expected_x = {17.0 / 19.0, 26.0 / 19.0, 20.0 / 19.0};
 
   std::vector<double> input;
-  input.insert(input.end(), A.begin(), A.end());
+  input.insert(input.end(), a.begin(), a.end());
   input.insert(input.end(), b.begin(), b.end());
 
   std::vector<double> out(kCount, 0.0);
@@ -41,14 +41,14 @@ TEST(FominVConjugateGradientSeq, test_small_system) {
 
 TEST(FominVConjugateGradientSeq, test_large_system) {
   constexpr size_t kCount = 5;
-  std::vector<double> A = {5, 1, 0, 0, 0, 1, 5, 1, 0, 0, 0, 1, 5, 1, 0, 0, 0, 1, 5, 1, 0, 0, 0, 1, 5};
+  std::vector<double> a = {5, 1, 0, 0, 0, 1, 5, 1, 0, 0, 0, 1, 5, 1, 0, 0, 0, 1, 5, 1, 0, 0, 0, 1, 5};
   std::vector<double> b = {6, 7, 7, 7, 6};
   std::vector<double> expected_x = {1.0, 1.0, 1.0, 1.0, 1.0};
   std::vector<double> out(kCount, 0.0);
 
   // Correct input setup
   std::vector<double> input;
-  input.insert(input.end(), A.begin(), A.end());
+  input.insert(input.end(), a.begin(), a.end());
   input.insert(input.end(), b.begin(), b.end());
 
   auto task_data_seq = std::make_shared<ppc::core::TaskData>();
@@ -71,7 +71,7 @@ TEST(FominVConjugateGradientSeq, test_large_system) {
 TEST(FominVConjugateGradientSeq, DotProduct) {
   std::vector<double> a = {1.0, 2.0, 3.0};
   std::vector<double> b = {4.0, 5.0, 6.0};
-  double expected = 1.0 * 4.0 + 2.0 * 5.0 + 3.0 * 6.0;  // 32.0
+  double expected = (1.0 * 4.0) + (2.0 * 5.0) + (3.0 * 6.0);  // 32.0
   auto task_data = std::make_shared<ppc::core::TaskData>();
   fomin_v_conjugate_gradient::FominVConjugateGradientSeq task(task_data);
 
@@ -79,16 +79,16 @@ TEST(FominVConjugateGradientSeq, DotProduct) {
 }
 
 TEST(FominVConjugateGradientSeq, MatrixVectorMultiply) {
-  std::vector<double> A = {1.0, 2.0, 3.0, 4.0};  // 2x2 матрица
+  std::vector<double> a = {1.0, 2.0, 3.0, 4.0};  // 2x2 матрица
   std::vector<double> x = {5.0, 6.0};
-  std::vector<double> expected = {1 * 5 + 2 * 6, 3 * 5 + 4 * 6};  // {17, 39}
+  std::vector<double> expected = {(1 * 5) + (2 * 6), (3 * 5) + (4 * 6)};  // {17, 39}
 
   auto task_data = std::make_shared<ppc::core::TaskData>();
   fomin_v_conjugate_gradient::FominVConjugateGradientSeq task(task_data);
 
   task.n = 2;
 
-  auto result = task.MatrixVectorMultiply(A, x);
+  auto result = task.MatrixVectorMultiply(a, x);
   EXPECT_EQ(result, expected);
 }
 
@@ -96,10 +96,7 @@ TEST(FominVConjugateGradientSeq, VectorAdd) {
   std::vector<double> a = {1.0, 2.0, 3.0};
   std::vector<double> b = {4.0, 5.0, 6.0};
   std::vector<double> expected = {5.0, 7.0, 9.0};
-  auto task_data = std::make_shared<ppc::core::TaskData>();
-  fomin_v_conjugate_gradient::FominVConjugateGradientSeq task(task_data);
-
-  auto result = task.VectorAdd(a, b);
+  auto result = fomin_v_conjugate_gradient::FominVConjugateGradientSeq::VectorAdd(a, b);
   EXPECT_EQ(result.size(), expected.size());
   for (size_t i = 0; i < result.size(); ++i) {
     EXPECT_DOUBLE_EQ(result[i], expected[i]);
@@ -110,10 +107,7 @@ TEST(FominVConjugateGradientSeq, VectorSub) {
   std::vector<double> a = {1.0, 2.0, 3.0};
   std::vector<double> b = {4.0, 5.0, 6.0};
   std::vector<double> expected = {-3.0, -3.0, -3.0};
-  auto task_data = std::make_shared<ppc::core::TaskData>();
-  fomin_v_conjugate_gradient::FominVConjugateGradientSeq task(task_data);
-
-  auto result = task.VectorSub(a, b);
+  auto result = fomin_v_conjugate_gradient::FominVConjugateGradientSeq::VectorSub(a, b);
   EXPECT_EQ(result.size(), expected.size());
   for (size_t i = 0; i < result.size(); ++i) {
     EXPECT_DOUBLE_EQ(result[i], expected[i]);
@@ -124,10 +118,7 @@ TEST(FominVConjugateGradientSeq, VectorScalarMultiply) {
   std::vector<double> v = {1.0, 2.0, 3.0};
   double scalar = 2.0;
   std::vector<double> expected = {2.0, 4.0, 6.0};
-  auto task_data = std::make_shared<ppc::core::TaskData>();
-  fomin_v_conjugate_gradient::FominVConjugateGradientSeq task(task_data);
-
-  auto result = task.VectorScalarMultiply(v, scalar);
+  auto result = fomin_v_conjugate_gradient::FominVConjugateGradientSeq::VectorScalarMultiply(v, scalar);
   EXPECT_EQ(result.size(), expected.size());
   for (size_t i = 0; i < result.size(); ++i) {
     EXPECT_DOUBLE_EQ(result[i], expected[i]);
