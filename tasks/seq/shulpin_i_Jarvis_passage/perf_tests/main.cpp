@@ -23,7 +23,7 @@ std::vector<shulpin_i_jarvis_seq::Point> GenerateRandomPoints(size_t num_points)
   for (size_t i = 0; i < num_points; ++i) {
     double x = dist(gen);
     double y = dist(gen);
-    points.emplace_back(shulpin_i_jarvis_seq::Point{x, y});
+    points.emplace_back(x, y);
   }
 
   return points;
@@ -31,7 +31,7 @@ std::vector<shulpin_i_jarvis_seq::Point> GenerateRandomPoints(size_t num_points)
 
 int Orientation(const shulpin_i_jarvis_seq::Point& p, const shulpin_i_jarvis_seq::Point& q,
                 const shulpin_i_jarvis_seq::Point& r) {
-  double val = (q.y - p.y) * (r.x - q.x) - (q.x - p.x) * (r.y - q.y);
+  double val = ((q.y - p.y) * (r.x - q.x)) - ((q.x - p.x) * (r.y - q.y));
   if (std::fabs(val) < 1e-9) return 0;
   return (val > 0) ? 1 : 2;
 }
@@ -59,8 +59,9 @@ std::vector<shulpin_i_jarvis_seq::Point> ComputeConvexHull(std::vector<shulpin_i
     size_t next = (current + 1) % count;
 
     for (size_t trial = 0; trial < count; ++trial) {
-      if (trial == current || trial == next) continue;
-
+      if (trial == current || trial == next) {
+        continue;
+      }
       int orient = Orientation(raw_points[current], raw_points[trial], raw_points[next]);
       if (orient == 2) {
         next = trial;
@@ -68,7 +69,9 @@ std::vector<shulpin_i_jarvis_seq::Point> ComputeConvexHull(std::vector<shulpin_i
     }
 
     current = next;
-    if (current == ref_idx) break;
+    if (current == ref_idx) {
+      break;
+    }
   }
   return convex_shell;
 }
