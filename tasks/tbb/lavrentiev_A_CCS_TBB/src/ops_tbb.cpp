@@ -6,8 +6,6 @@
 #include <algorithm>
 #include <cmath>
 #include <cstddef>
-#include <iostream>
-#include <map>
 #include <utility>
 #include <vector>
 
@@ -67,16 +65,17 @@ int lavrentiev_a_ccs_tbb::CCSTBB::CalculateStartIndex(int index, const std::vect
   return 0;
 }
 
+// NOLINTNEXTLINE(readability-identifier-naming)
 lavrentiev_a_ccs_tbb::Sparse lavrentiev_a_ccs_tbb::CCSTBB::MatMul(const Sparse &matrix1, const Sparse &matrix2) {
   oneapi::tbb::task_arena worker(ppc::util::GetPPCNumThreads());
   Sparse imatrix;
   imatrix.columnsSum.resize(matrix2.size.second);
-  imatrix.elements_and_rows.resize(matrix2.columnsSum.size() * matrix1.columnsSum.size() +
+  imatrix.elements_and_rows.resize((matrix2.columnsSum.size() * matrix1.columnsSum.size()) +
                                    std::max(matrix1.columnsSum.size(), matrix2.columnsSum.size()));
   auto new_matrix1 = Transpose(matrix1);
   worker.execute([&] {
     oneapi::tbb::parallel_for(
-        oneapi::tbb::blocked_range<int>(0, matrix2.columnsSum.size()),
+        oneapi::tbb::blocked_range<int>(0, static_cast<int>(matrix2.columnsSum.size())),
         [&](const oneapi::tbb::blocked_range<int> &blocked_range) {
           for (int i = blocked_range.begin(); i != blocked_range.end(); ++i) {
             for (int j = 0; j < static_cast<int>(new_matrix1.columnsSum.size()); ++j) {
@@ -91,7 +90,7 @@ lavrentiev_a_ccs_tbb::Sparse lavrentiev_a_ccs_tbb::CCSTBB::MatMul(const Sparse &
                 }
               }
               if (sum != 0) {
-                imatrix.elements_and_rows[i * matrix2.size.second + j] = {sum, j};
+                imatrix.elements_and_rows[(i * matrix2.size.second) + j] = {sum, j};
                 imatrix.columnsSum[i]++;
               }
             }
