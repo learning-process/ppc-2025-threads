@@ -65,7 +65,7 @@ void TestTaskSTL::SplitAndSort(std::vector<int>& arr, std::vector<int>& negative
     positives.insert(positives.end(), local_positives[i].begin(), local_positives[i].end());
   }
 
-  std::thread t_neg([this, &negatives]() {
+  std::thread t_neg([&negatives]() {
     if (!negatives.empty()) {
       RadixSortForNonNegative(negatives);
       std::ranges::reverse(negatives);
@@ -75,7 +75,7 @@ void TestTaskSTL::SplitAndSort(std::vector<int>& arr, std::vector<int>& negative
     }
   });
 
-  std::thread t_pos([this, &positives]() {
+  std::thread t_pos([&positives]() {
     if (!positives.empty()) {
       RadixSortForNonNegative(positives);
     }
