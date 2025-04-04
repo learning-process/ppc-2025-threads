@@ -53,11 +53,6 @@ bool TestTaskOpenMP::PostProcessingImpl() {
   return true;
 }
 
-bool TestTaskOpenMP::RunImpl() {
-  LabelConnectedComponents();
-  return true;
-}
-
 void TestTaskOpenMP::InitializeParents(std::vector<int>& parent) {
   const int size = m_ * n_;
 #pragma omp parallel for schedule(static)
@@ -172,6 +167,11 @@ void TestTaskOpenMP::LabelConnectedComponents() {
 
   FinalizeRoots(parent);
   AssignLabels(parent);
+}
+
+bool TestTaskOpenMP::RunImpl() {
+  LabelConnectedComponents();
+  return true;
 }
 
 }  // namespace laganina_e_component_labeling_omp
