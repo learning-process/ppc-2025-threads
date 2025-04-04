@@ -1,8 +1,7 @@
 #include "omp/fyodorov_m_shell_sort_with_even_odd_batcher_merge/include/ops_omp.hpp"
 
 #include <omp.h>
-
-//#include <algorithm>
+// #include <algorithm>
 #include <cmath>
 #include <cstddef>
 #include <vector>
