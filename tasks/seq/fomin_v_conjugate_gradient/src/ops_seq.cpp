@@ -4,7 +4,6 @@
 #include <cstddef>
 #include <vector>
 
-
 double fomin_v_conjugate_gradient::FominVConjugateGradientSeq::DotProduct(const std::vector<double>& a,
                                                                           const std::vector<double>& b) {
   double result = 0.0;
@@ -15,11 +14,11 @@ double fomin_v_conjugate_gradient::FominVConjugateGradientSeq::DotProduct(const 
 }
 
 std::vector<double> fomin_v_conjugate_gradient::FominVConjugateGradientSeq::MatrixVectorMultiply(
-    const std::vector<double>& A, const std::vector<double>& x) {
+    const std::vector<double>& a, const std::vector<double>& x) {
   std::vector<double> result(n, 0.0);
   for (int i = 0; i < n; ++i) {
     for (int j = 0; j < n; ++j) {
-      result[i] += A[(i * n) + j] * x[j];
+      result[i] += a[(i * n) + j] * x[j];
     }
   }
   return result;
