@@ -136,15 +136,15 @@ void opolin_d_radix_batcher_sort_omp::BatcherOddEvenMerge(std::vector<int> &arra
   if (n <= 1) return;
   int mid = start + n / 2;
   if (n > 2) {
-    BatcherOddEvenMerge(arr, start, mid);
-    BatcherOddEvenMerge(arr, mid, end);
+    BatcherOddEvenMerge(array, start, mid);
+    BatcherOddEvenMerge(array, mid, end);
   }
   for (int step = 1; step < n; step *= 2) {
     for (int i = start; i + step < end; i += 2 * step) {
       int left = i;
       int right = i + step;
-      if (right < end && arr[left] > arr[right]) {
-        std::swap(arr[left], arr[right]);
+      if (right < end && array[left] > array[right]) {
+        std::swap(array[left], array[right]);
       }
     }
   }
