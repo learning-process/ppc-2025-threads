@@ -103,7 +103,6 @@ bool kapustin_i_jarv_alg_omp::TestTaskOMP::RunImpl() {
   return true;
 }
 
-
 bool kapustin_i_jarv_alg_omp::TestTaskOMP::PostProcessingImpl() {
   auto* result_ptr = reinterpret_cast<std::pair<int, int>*>(task_data->outputs[0]);
   std::ranges::copy(output_, result_ptr);
