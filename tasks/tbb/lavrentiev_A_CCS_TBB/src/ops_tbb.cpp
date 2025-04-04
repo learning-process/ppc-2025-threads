@@ -71,12 +71,12 @@ int lavrentiev_a_ccs_tbb::CCSTBB::CalculateStartIndex(int index, const std::vect
 
 lavrentiev_a_ccs_tbb::Sparse lavrentiev_a_ccs_tbb::CCSTBB::MatMul(const Sparse &matrix1, const Sparse &matrix2) {
   oneapi::tbb::task_arena worker(ppc::util::GetPPCNumThreads());
-  Sparse result_matrix;
-  result_matrix.columnsSum.resize(matrix2.size.second);
-  result_matrix.rows.resize(matrix2.columnsSum.size() * matrix1.columnsSum.size() +
-                            std::max(matrix1.columnsSum.size(), matrix2.columnsSum.size()));
-  result_matrix.elements.resize(matrix2.columnsSum.size() * matrix1.columnsSum.size() +
-                                std::max(matrix1.columnsSum.size(), matrix2.columnsSum.size()));
+  auto [size, elements, rows, columns_sum] = Sparse();
+  columns_sum.resize(matrix2.size.second);
+  rows.resize(matrix2.columnsSum.size() * matrix1.columnsSum.size() +
+              std::max(matrix1.columnsSum.size(), matrix2.columnsSum.size()));
+  elements.resize(matrix2.columnsSum.size() * matrix1.columnsSum.size() +
+                  std::max(matrix1.columnsSum.size(), matrix2.columnsSum.size()));
   auto new_matrix1 = Transpose(matrix1);
   std::map<int, std::pair<double, int>> thread_data;
   worker.execute([&] {
@@ -96,29 +96,29 @@ lavrentiev_a_ccs_tbb::Sparse lavrentiev_a_ccs_tbb::CCSTBB::MatMul(const Sparse &
                                       }
                                     }
                                     if (sum != 0) {
-                                      result_matrix.elements[i * matrix2.size.second + j] = sum;
-                                      result_matrix.rows[i * matrix2.size.second + j] = j;
-                                      result_matrix.columnsSum[i]++;
+                                      elements[i * matrix2.size.second + j] = sum;
+                                      rows[i * matrix2.size.second + j] = j;
+                                      columns_sum[i]++;
                                     }
                                   }
                                 }
                               }),
         tbb::auto_partitioner();
   });
-  for (size_t i = 1; i < result_matrix.columnsSum.size(); ++i) {
-    result_matrix.columnsSum[i] = result_matrix.columnsSum[i] + result_matrix.columnsSum[i - 1];
+  for (size_t i = 1; i < columns_sum.size(); ++i) {
+    columns_sum[i] = columns_sum[i] + columns_sum[i - 1];
   }
-  result_matrix.size.first = matrix2.size.second;
-  result_matrix.size.second = matrix2.size.second;
+  size.first = matrix2.size.second;
+  size.second = matrix2.size.second;
   std::vector<double> elems;
-  std::vector<int> rows;
-  for (size_t i = 0; i < result_matrix.elements.size(); ++i) {
-    if (result_matrix.elements[i] != 0.0) {
-      elems.emplace_back(result_matrix.elements[i]);
-      rows.emplace_back(result_matrix.rows[i]);
+  std::vector<int> nrows;
+  for (size_t i = 0; i < elements.size(); ++i) {
+    if (elements[i] != 0.0) {
+      elems.emplace_back(elements[i]);
+      nrows.emplace_back(rows[i]);
     }
   }
-  return {.size = result_matrix.size, .elements = elems, .rows = rows, .columnsSum = result_matrix.columnsSum};
+  return {.size = size, .elements = elems, .rows = nrows, .columnsSum = columns_sum};
 }
 
 int lavrentiev_a_ccs_tbb::CCSTBB::GetElementsCount(int index, const std::vector<int> &columns_sum) {
