@@ -73,7 +73,7 @@ std::vector<shulpin_i_jarvis_seq::Point> ComputeConvexHull(std::vector<shulpin_i
       if (trial == current || trial == next) {
         continue;
       }
-      
+
       int orient = Orientation(raw_points[current], raw_points[trial], raw_points[next]);
       if (orient == 2) {
         next = trial;
