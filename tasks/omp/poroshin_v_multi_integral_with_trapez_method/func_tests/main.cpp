@@ -294,6 +294,27 @@ TEST(poroshin_v_multi_integral_with_trapez_method_omp, 08_1_x_19_2_x_29_3_sinx_t
   ASSERT_NEAR(-0.00427191467841401, out[0], eps);
 }
 
+TEST(poroshin_v_multi_integral_with_trapez_method_omp, _0_x_05_0_y_05_0_z_05_0_w_05_check_23) {
+  std::vector<int> n = {23, 23, 23, 23};
+  std::vector<double> a = {0.0, 0.0, 0.0, 0.0};
+  std::vector<double> b = {0.5, 0.5, 0.5, 0.5};
+  double eps = 1e-6;
+  std::vector<double> out(1);
+  std::shared_ptr<ppc::core::TaskData> task_omp = std::make_shared<ppc::core::TaskData>();
+  task_omp->inputs_count.emplace_back(n.size());
+  task_omp->inputs.emplace_back(reinterpret_cast<uint8_t *>(n.data()));
+  task_omp->inputs.emplace_back(reinterpret_cast<uint8_t *>(a.data()));
+  task_omp->inputs.emplace_back(reinterpret_cast<uint8_t *>(b.data()));
+  task_omp->outputs.emplace_back(reinterpret_cast<uint8_t *>(out.data()));
+  task_omp->outputs_count.emplace_back(out.size());
+  poroshin_v_multi_integral_with_trapez_method_omp::TestTaskOpenMP tmp_task_omp(task_omp, F4);
+  ASSERT_TRUE(tmp_task_omp.ValidationImpl());
+  tmp_task_omp.PreProcessingImpl();
+  tmp_task_omp.RunImpl();
+  tmp_task_omp.PostProcessingImpl();
+  ASSERT_NEAR(0.000244140625, out[0], eps);
+}
+
 TEST(poroshin_v_multi_integral_with_trapez_method_omp, _0_x_05_0_y_05_0_z_05_0_w_05) {
   std::vector<int> n = {100, 100, 100, 100};
   std::vector<double> a = {0.0, 0.0, 0.0, 0.0};
