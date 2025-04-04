@@ -139,10 +139,11 @@ void opolin_d_radix_batcher_sort_omp::SortByDigit(std::vector<int> &array, int d
 void opolin_d_radix_batcher_sort_omp::BatcherOddEvenMerge(std::vector<int> &array, int start, int mid, int end) {
   int n = end - start;
   for (int phase = 0; phase < n; phase++) {
-#pragma omp parallel for
-    for (int i = start + (phase % 2); i < end - 1; i += 2) {
-      if (array[i] > array[i + 1]) {
-        std::swap(array[i], array[i + 1]);
+    for (int i = start; i < end - 1; i++) {
+      if ((phase % 2 == 0 && i % 2 == 0) || (phase % 2 == 1 && i % 2 == 1)) {
+        if (array[i] > array[i + 1]) {
+          std::swap(array[i], array[i + 1]);
+        }
       }
     }
   }
