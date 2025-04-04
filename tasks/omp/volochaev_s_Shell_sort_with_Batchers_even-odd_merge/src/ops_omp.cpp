@@ -2,9 +2,10 @@
 
 #include <omp.h>
 
+#include <algorithm>
 #include <cmath>
-#include <iostream>
 #include <limits>
+#include <ranges>
 #include <vector>
 
 #include "omp/volochaev_s_Shell_sort_with_Batchers_even-odd_merge/include/ops_omp.hpp"
@@ -129,7 +130,7 @@ void volochaev_s_shell_sort_with_batchers_even_odd_merge_omp::ShellSortOMP::Find
   n_ = size_ + (((2 * c_threads_) - size_ % (2 * c_threads_))) % (2 * c_threads_);
   mass_.resize(n_, std::numeric_limits<int>::max());
   mini_batch_ = n_ / c_threads_;
-  std::copy(array_.begin(), array_.end(), mass_.begin());
+  std::ranges::copy(array_ | std::views::take(size_), mass_.begin());
   array_.resize(n_);
 }
 
@@ -141,6 +142,6 @@ bool volochaev_s_shell_sort_with_batchers_even_odd_merge_omp::ShellSortOMP::RunI
 bool volochaev_s_shell_sort_with_batchers_even_odd_merge_omp::ShellSortOMP::PostProcessingImpl() {
   auto ptr_ans = reinterpret_cast<int*>(task_data->outputs[0]);
 
-  std::copy(ptr_ans, ptr_ans + size_, array_.begin());
+  std::ranges::copy(array_ | std::views::take(size_), ptr_ans);
   return true;
 }
