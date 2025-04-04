@@ -161,7 +161,7 @@ TEST(laganina_e_component_labeling_omp, all_one_large) {
   test_task_omp.Run();
   test_task_omp.PostProcessing();
   laganina_e_component_labeling_omp::NormalizeLabels(out);
-  EXPECT_EQ(res, out);
+  EXPECT_EQ(out, res);
 }
 
 TEST(laganina_e_component_labeling_omp, all_zero) {

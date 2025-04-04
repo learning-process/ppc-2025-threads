@@ -69,7 +69,7 @@ void ProcessNeighbor(int idx, int neighbor_idx, std::vector<int>& parent, std::v
   int root = 0;
   CompressPath(parent, idx, root);
 
-  int neighbor_root;
+  int neighbor_root = 0;
   CompressPath(parent, neighbor_idx, neighbor_root);
 
   if (root != neighbor_root) {
