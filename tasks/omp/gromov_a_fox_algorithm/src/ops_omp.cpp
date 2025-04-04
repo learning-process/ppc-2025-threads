@@ -45,24 +45,23 @@ bool gromov_a_fox_algorithm_omp::TestTaskOpenMP::ValidationImpl() {
 }
 
 bool gromov_a_fox_algorithm_omp::TestTaskOpenMP::RunImpl() {
-  int num_blocks = (n_ + block_size_ - 1) / block_size_;  // Ceiling division to ensure all indices are covered
+  int num_blocks = (n_ + block_size_ - 1) / block_size_;
 
-  // Create local pointers to member variables to use in OpenMP
-  std::vector<double>& A_ref = A_;
-  std::vector<double>& B_ref = B_;
+  std::vector<double>& a_ref = A_;
+  std::vector<double>& b_ref = B_;
   std::vector<double>& output_ref = output_;
   int n_ref = n_;
   int block_size_ref = block_size_;
 
   for (int stage = 0; stage < num_blocks; ++stage) {
-#pragma omp parallel for default(none) shared(A_ref, B_ref, output_ref, n_ref, block_size_ref, stage)
+#pragma omp parallel for default(none) shared(a_ref, b_ref, output_ref, n_ref, block_size_ref, stage)
     for (int i = 0; i < n_ref; i += block_size_ref) {
       for (int j = 0; j < n_ref; j += block_size_ref) {
         for (int bi = i; bi < i + block_size_ref && bi < n_ref; ++bi) {
           for (int bj = j; bj < j + block_size_ref && bj < n_ref; ++bj) {
             int start_k = stage * block_size_ref;
             for (int bk = start_k; bk < std::min((stage + 1) * block_size_ref, n_ref); ++bk) {
-              output_ref[(bi * n_ref) + bj] += A_ref[(bi * n_ref) + bk] * B_ref[(bk * n_ref) + bj];
+              output_ref[(bi * n_ref) + bj] += a_ref[(bi * n_ref) + bk] * b_ref[(bk * n_ref) + bj];
             }
           }
         }
