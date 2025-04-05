@@ -25,11 +25,11 @@ class TestTaskOpenMP : public ppc::core::Task {
 
   void InitializeParents(std::vector<int>& parent);
   void ProcessSweep(bool reverse, std::vector<int>& parent, bool& changed);
-  bool UnionNodes(int a, int b, std::vector<int>& parent);
+  static bool UnionNodes(int a, int b, std::vector<int>& parent);
   bool CheckNeighbor(int nr, int nc, int current, std::vector<int>& parent);
   bool ProcessRow(int row_idx, bool reverse, std::vector<int>& parent);
   static int FindRoot(std::vector<int>& parent, int x);
-  void FinalizeRoots(std::vector<int>& parent);
+  static void FinalizeRoots(std::vector<int>& parent);
   void AssignLabels(std::vector<int>& parent);
   void LabelConnectedComponents();
 };
