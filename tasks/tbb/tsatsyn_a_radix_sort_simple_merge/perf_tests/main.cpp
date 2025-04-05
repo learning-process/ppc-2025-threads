@@ -4,22 +4,32 @@
 #include <cstddef>
 #include <cstdint>
 #include <memory>
+#include <random>
 #include <vector>
 
 #include "core/perf/include/perf.hpp"
 #include "core/task/include/task.hpp"
 #include "tbb/tsatsyn_a_radix_sort_simple_merge/include/ops_tbb.hpp"
 
+namespace {
+std::vector<double> GetRandomVector(int sz, int a, int b) {
+  std::random_device dev;
+  std::mt19937 gen(dev());
+  std::uniform_real_distribution<> dis(a, b);
+  std::vector<double> vec(sz);
+  for (int i = 0; i < sz; i++) {
+    vec[i] = dis(gen);
+  }
+  return vec;
+}
+}  // namespace
+
 TEST(tsatsyn_a_radix_sort_simple_merge_tbb, test_pipeline_run) {
   constexpr int kCount = 700;
 
   // Create data
-  std::vector<int> in(kCount * kCount, 0);
-  std::vector<int> out(kCount * kCount, 0);
-
-  for (size_t i = 0; i < kCount; i++) {
-    in[(i * kCount) + i] = 1;
-  }
+  std::vector<double> in = GetRandomVector(kCount * kCount, 0, 100);
+  std::vector<double> out(kCount * kCount, 0);
 
   // Create task_data
   auto task_data_tbb = std::make_shared<ppc::core::TaskData>();
@@ -48,6 +58,7 @@ TEST(tsatsyn_a_radix_sort_simple_merge_tbb, test_pipeline_run) {
   auto perf_analyzer = std::make_shared<ppc::core::Perf>(test_task_tbb);
   perf_analyzer->PipelineRun(perf_attr, perf_results);
   ppc::core::Perf::PrintPerfStatistic(perf_results);
+  std::ranges::sort(in);
   ASSERT_EQ(in, out);
 }
 
@@ -55,12 +66,8 @@ TEST(tsatsyn_a_radix_sort_simple_merge_tbb, test_task_run) {
   constexpr int kCount = 700;
 
   // Create data
-  std::vector<int> in(kCount * kCount, 0);
-  std::vector<int> out(kCount * kCount, 0);
-
-  for (size_t i = 0; i < kCount; i++) {
-    in[(i * kCount) + i] = 1;
-  }
+  std::vector<double> in = GetRandomVector(kCount * kCount, 0, 100);
+  std::vector<double> out(kCount * kCount, 0);
 
   // Create task_data
   auto task_data_tbb = std::make_shared<ppc::core::TaskData>();
@@ -89,5 +96,6 @@ TEST(tsatsyn_a_radix_sort_simple_merge_tbb, test_task_run) {
   auto perf_analyzer = std::make_shared<ppc::core::Perf>(test_task_tbb);
   perf_analyzer->TaskRun(perf_attr, perf_results);
   ppc::core::Perf::PrintPerfStatistic(perf_results);
+  std::ranges::sort(in);
   ASSERT_EQ(in, out);
 }
