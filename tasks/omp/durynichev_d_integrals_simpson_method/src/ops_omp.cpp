@@ -39,17 +39,23 @@ bool durynichev_d_integrals_simpson_method_omp::SimpsonIntegralOpenMP::PostProce
 
 #ifdef PERF_TEST
 double durynichev_d_integrals_simpson_method_omp::SimpsonIntegralOpenMP::func1D(double x) {
-  double result = x * x;
-  for (int i = 0; i < 50000; ++i) {  // Увеличиваем до 50000 итераций
-    result += std::sin(x) * std::cos(x);
+  double result = 0.0;
+  // Сложная функция с экспонентами, тригонометрией и логарифмами
+  for (int i = 0; i < 1000; ++i) {
+    double t = x + i * 0.001;
+    result += std::exp(-t * t) * std::sin(t) * std::cos(t * 2.0) / (std::log(t + 1.1) + 1.0);
   }
   return result;
 }
 
 double durynichev_d_integrals_simpson_method_omp::SimpsonIntegralOpenMP::func2D(double x, double y) {
-  double result = x * x + y * y;
-  for (int i = 0; i < 50000; ++i) {  // Увеличиваем до 50000 итераций
-    result += std::sin(x * y) * std::cos(x + y);
+  double result = 0.0;
+  // Сложная 2D-функция с вложенными вычислениями
+  for (int i = 0; i < 1000; ++i) {
+    double tx = x + i * 0.001;
+    double ty = y + i * 0.001;
+    result += std::exp(-tx * tx - ty * ty) * std::sin(tx * ty) * std::cos(tx + ty) /
+              (std::log(tx + ty + 1.1) + 1.0);
   }
   return result;
 }
