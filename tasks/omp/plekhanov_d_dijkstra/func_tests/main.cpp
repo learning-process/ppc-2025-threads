@@ -15,13 +15,7 @@
 
 namespace plekhanov_d_dijkstra_omp {
 
-void static RunValidationFailureTest();
-
-template <typename ExpectedResultType>
-void RunTest(const std::vector<std::vector<std::pair<size_t, int>>> &adj_list, size_t start_vertex,
-             const std::vector<ExpectedResultType> &expected_result, bool expect_success = true) {
-  const size_t k_num_vertices = adj_list.size();
-  std::vector<int> distances(k_num_vertices, INT_MAX);
+std::vector<int> ConvertToGraphData(const std::vector<std::vector<std::pair<size_t, int>>> &adj_list) {
   std::vector<int> graph_data;
   for (const auto &vertex_edges : adj_list) {
     for (const auto &edge : vertex_edges) {
@@ -30,7 +24,15 @@ void RunTest(const std::vector<std::vector<std::pair<size_t, int>>> &adj_list, s
     }
     graph_data.push_back(-1);
   }
+  return graph_data;
+}
 
+template <typename ExpectedResultType>
+void RunTest(const std::vector<std::vector<std::pair<size_t, int>>> &adj_list, size_t start_vertex,
+             const std::vector<ExpectedResultType> &expected_result, bool expect_success = true) {
+  const size_t k_num_vertices = adj_list.size();
+  std::vector<int> distances(k_num_vertices, INT_MAX);
+  std::vector<int> graph_data = ConvertToGraphData(adj_list);
   auto task_data_omp = std::make_shared<ppc::core::TaskData>();
   task_data_omp->inputs.emplace_back(reinterpret_cast<uint8_t *>(graph_data.data()));
   task_data_omp->inputs_count.emplace_back(graph_data.size());
@@ -40,7 +42,7 @@ void RunTest(const std::vector<std::vector<std::pair<size_t, int>>> &adj_list, s
   task_data_omp->outputs_count.emplace_back(k_num_vertices);
 
   TestTaskOpenMP test_task_omp(task_data_omp);
-  ASSERT_TRUE(test_task_omp.Validation());
+  ASSERT_TRUE(test_task_omp.Validation());  
   test_task_omp.PreProcessing();
   if (expect_success) {
     ASSERT_TRUE(test_task_omp.Run());
@@ -54,7 +56,7 @@ void RunTest(const std::vector<std::vector<std::pair<size_t, int>>> &adj_list, s
   }
 }
 
-void static RunValidationFailureTest() {
+ void RunValidationFailureTest() {
   std::vector<int> graph_data;
   size_t start_vertex = 0;
   size_t num_vertices = 0;
@@ -72,7 +74,7 @@ void static RunValidationFailureTest() {
   ASSERT_FALSE(test_task_omp.Validation());
 }
 
-std::vector<std::vector<std::pair<size_t, int>>> static GenerateRandomGraph(size_t num_vertices) {
+std::vector<std::vector<std::pair<size_t, int>>> GenerateRandomGraph(size_t num_vertices) {
   std::random_device rd;
   std::mt19937 gen(rd());
   std::uniform_int_distribution<> dis(1, 10);
@@ -89,7 +91,7 @@ std::vector<std::vector<std::pair<size_t, int>>> static GenerateRandomGraph(size
   return adj_list;
 }
 
-static std::vector<int> CalculateExpectedResult(const std::vector<std::vector<std::pair<size_t, int>>> &adj_list,
+std::vector<int> CalculateExpectedResult(const std::vector<std::vector<std::pair<size_t, int>>> &adj_list,
                                                 size_t start_vertex) {
   size_t n = adj_list.size();
   const int inf = INT_MAX;
