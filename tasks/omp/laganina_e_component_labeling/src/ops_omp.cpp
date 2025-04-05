@@ -5,8 +5,6 @@
 #include <algorithm>
 #include <vector>
 
-#include "core/task/include/task.hpp"
-
 // Helper function for path compression
 void laganina_e_component_labeling_omp::CompressPath(std::vector<int>& parent, int node, int& root) {
   while (parent[node] != node) {
@@ -74,18 +72,20 @@ bool laganina_e_component_labeling_omp::TestTaskOpenMP::ProcessRow(int row_idx, 
 
   for (int col_idx = 0; col_idx < n_; ++col_idx) {
     const int col = reverse ? n_ - 1 - col_idx : col_idx;
-    const int current = row * n_ + col;
+    const int current = (row * n_) + col;
 
-    if (parent[current] == -1) continue;
+    if (parent[current] == -1) {
+      continue;
+    }
 
     const int vert_neighbor_row = row - (reverse ? -1 : 1);
-    const int vert_neighbor = vert_neighbor_row * n_ + col;
+    const int vert_neighbor = (vert_neighbor_row * n_) + col;
     if (vert_neighbor_row >= 0 && vert_neighbor_row < m_ && parent[vert_neighbor] != -1) {
       row_changed |= UnionNodes(current, vert_neighbor, parent);
     }
 
     const int horz_neighbor_col = col - (reverse ? -1 : 1);
-    const int horz_neighbor = row * n_ + horz_neighbor_col;
+    const int horz_neighbor = (row * n_) + horz_neighbor_col;
     if (horz_neighbor_col >= 0 && horz_neighbor_col < n_ && parent[horz_neighbor] != -1) {
       row_changed |= UnionNodes(current, horz_neighbor, parent);
     }
@@ -97,7 +97,7 @@ bool laganina_e_component_labeling_omp::TestTaskOpenMP::ProcessRow(int row_idx, 
 bool laganina_e_component_labeling_omp::TestTaskOpenMP::CheckNeighbor(int nr, int nc, int current,
                                                                       std::vector<int>& parent) {
   if (nr >= 0 && nr < m_ && nc >= 0 && nc < n_) {
-    const int neighbor = nr * n_ + nc;
+    const int neighbor = (nr * n_) + nc;
     if (parent[neighbor] != -1) {
       return UnionNodes(current, neighbor, parent);
     }
