@@ -1,33 +1,30 @@
-#pragma once
-
-#include <utility>
-#include <vector>
+#ifndef TASKS_OMP_DURYNICHEV_D_INTEGRALS_SIMPSON_METHOD_INCLUDE_OPS_OMP_HPP_
+#define TASKS_OMP_DURYNICHEV_D_INTEGRALS_SIMPSON_METHOD_INCLUDE_OPS_OMP_HPP_
 
 #include "core/task/include/task.hpp"
 
 namespace durynichev_d_integrals_simpson_method_omp {
+
 class SimpsonIntegralOpenMP : public ppc::core::Task {
  public:
-  explicit SimpsonIntegralOpenMP(ppc::core::TaskDataPtr task_data) : Task(std::move(task_data)) {}
+  explicit SimpsonIntegralOpenMP(std::shared_ptr<ppc::core::TaskData> taskData_) : Task(std::move(taskData_)) {}
   bool PreProcessingImpl() override;
   bool ValidationImpl() override;
   bool RunImpl() override;
   bool PostProcessingImpl() override;
 
  private:
-#ifdef PERF_TEST
-  double func1D(double x);  // Версия с нагрузкой для perf_tests
-  double func2D(double x, double y);
-#else
-  double func1D(double x);  // Оригинальная версия для func_tests
-  double func2D(double x, double y);
-#endif
-  double simpson1D(double a, double b);
-  double simpson2D(double x0, double x1, double y0, double y1);
-
   std::vector<double> boundaries_;
-  double result_;
-  int n_;
-  int dim_;
+  int n_{};
+  size_t dim_{};
+  double result_{};
+
+  static double Func1D(double x);
+  static double Func2D(double x, double y);
+  double Simpson1D(double a, double b);
+  double Simpson2D(double x0, double x1, double y0, double y1);
 };
+
 }  // namespace durynichev_d_integrals_simpson_method_omp
+
+#endif  // TASKS_OMP_DURYNICHEV_D_INTEGRALS_SIMPSON_METHOD_INCLUDE_OPS_OMP_HPP_

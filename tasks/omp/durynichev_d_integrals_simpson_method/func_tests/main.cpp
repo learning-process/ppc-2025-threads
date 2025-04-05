@@ -2,6 +2,7 @@
 
 #include <memory>
 #include <vector>
+#include <cstdint>
 
 #include "core/task/include/task.hpp"
 #include "omp/durynichev_d_integrals_simpson_method/include/ops_omp.hpp"
@@ -17,10 +18,10 @@ TEST(durynichev_d_integrals_simpson_method_omp, test_integral_1D_x_squared) {
   task_data->outputs_count.emplace_back(out.size());
 
   durynichev_d_integrals_simpson_method_omp::SimpsonIntegralOpenMP task(task_data);
-  ASSERT_TRUE(task.Validation());
-  task.PreProcessing();
-  task.Run();
-  task.PostProcessing();
+  ASSERT_TRUE(task.ValidationImpl());
+  task.PreProcessingImpl();
+  task.RunImpl();
+  task.PostProcessingImpl();
   EXPECT_NEAR(out[0], 1.0 / 3.0, 1e-5);
 }
 
@@ -35,10 +36,10 @@ TEST(durynichev_d_integrals_simpson_method_omp, test_integral_1D_x_squared_wider
   task_data->outputs_count.emplace_back(out.size());
 
   durynichev_d_integrals_simpson_method_omp::SimpsonIntegralOpenMP task(task_data);
-  ASSERT_TRUE(task.Validation());
-  task.PreProcessing();
-  task.Run();
-  task.PostProcessing();
+  ASSERT_TRUE(task.ValidationImpl());
+  task.PreProcessingImpl();
+  task.RunImpl();
+  task.PostProcessingImpl();
   EXPECT_NEAR(out[0], 8.0 / 3.0, 1e-5);
 }
 
@@ -53,9 +54,9 @@ TEST(durynichev_d_integrals_simpson_method_omp, test_integral_2D_x2_plus_y2) {
   task_data->outputs_count.emplace_back(out.size());
 
   durynichev_d_integrals_simpson_method_omp::SimpsonIntegralOpenMP task(task_data);
-  ASSERT_TRUE(task.Validation());
-  task.PreProcessing();
-  task.Run();
-  task.PostProcessing();
+  ASSERT_TRUE(task.ValidationImpl());
+  task.PreProcessingImpl();
+  task.RunImpl();
+  task.PostProcessingImpl();
   EXPECT_NEAR(out[0], 2.0 / 3.0, 1e-4);
 }
