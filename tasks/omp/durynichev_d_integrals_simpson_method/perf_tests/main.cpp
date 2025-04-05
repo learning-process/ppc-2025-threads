@@ -9,7 +9,7 @@
 #include "omp/durynichev_d_integrals_simpson_method/include/ops_omp.hpp"
 
 TEST(durynichev_d_integrals_simpson_method_omp, test_pipeline_run) {
-  std::vector<double> in = {0.0, 1.0, 20000};
+  std::vector<double> in = {0.0, 1.0, 20000};  // n_ = 20000 для увеличения нагрузки
   std::vector<double> out(1, 0.0);
 
   auto task_data = std::make_shared<ppc::core::TaskData>();
@@ -21,7 +21,7 @@ TEST(durynichev_d_integrals_simpson_method_omp, test_pipeline_run) {
   auto task = std::make_shared<durynichev_d_integrals_simpson_method_omp::SimpsonIntegralOpenMP>(task_data);
 
   auto perf_attr = std::make_shared<ppc::core::PerfAttr>();
-  perf_attr->num_running = 10;
+  perf_attr->num_running = 10;  // 10 запусков для усреднения
   const auto t0 = std::chrono::high_resolution_clock::now();
   perf_attr->current_timer = [&] {
     auto current_time_point = std::chrono::high_resolution_clock::now();
@@ -33,11 +33,10 @@ TEST(durynichev_d_integrals_simpson_method_omp, test_pipeline_run) {
   auto perf_analyzer = std::make_shared<ppc::core::Perf>(task);
   perf_analyzer->PipelineRun(perf_attr, perf_results);
   ppc::core::Perf::PrintPerfStatistic(perf_results);
-
 }
 
 TEST(durynichev_d_integrals_simpson_method_omp, test_task_run) {
-  std::vector<double> in = {0.0, 1.0, 20000};
+  std::vector<double> in = {0.0, 1.0, 20000};  // n_ = 20000 для увеличения нагрузки
   std::vector<double> out(1, 0.0);
 
   auto task_data = std::make_shared<ppc::core::TaskData>();
@@ -49,7 +48,7 @@ TEST(durynichev_d_integrals_simpson_method_omp, test_task_run) {
   auto task = std::make_shared<durynichev_d_integrals_simpson_method_omp::SimpsonIntegralOpenMP>(task_data);
 
   auto perf_attr = std::make_shared<ppc::core::PerfAttr>();
-  perf_attr->num_running = 10;
+  perf_attr->num_running = 10;  // 10 запусков для усреднения
   const auto t0 = std::chrono::high_resolution_clock::now();
   perf_attr->current_timer = [&] {
     auto current_time_point = std::chrono::high_resolution_clock::now();
@@ -61,5 +60,4 @@ TEST(durynichev_d_integrals_simpson_method_omp, test_task_run) {
   auto perf_analyzer = std::make_shared<ppc::core::Perf>(task);
   perf_analyzer->TaskRun(perf_attr, perf_results);
   ppc::core::Perf::PrintPerfStatistic(perf_results);
-
 }
