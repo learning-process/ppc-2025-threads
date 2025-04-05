@@ -3,7 +3,6 @@
 #include <tbb/tbb.h>
 
 #include <cmath>
-#include <core/util/include/util.hpp>
 #include <cstddef>
 #include <functional>
 #include <vector>
@@ -31,7 +30,7 @@ double kholin_k_multidimensional_integrals_rectangle_tbb::TestTaskTBB::Integrate
         }
         return local_sum;
       },
-      std::plus<double>(), tbb::auto_partitioner());
+      std::plus<>(), tbb::auto_partitioner());
 
   return sum * h_curr;
 }
