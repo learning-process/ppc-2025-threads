@@ -70,6 +70,9 @@ std::vector<int> RadixIntegerSort(const std::vector<int> &arr) {
 
 bool koshkin_m_radix_int_simple_merge::OmpT::PreProcessingImpl() {
   const auto &[src, cnt] = std::pair(reinterpret_cast<int *>(task_data->inputs[0]), task_data->inputs_count[0]);
+  if (cnt == 0) {
+    return true;
+  }
   std::span<int> in(src, src + cnt);
 
   blocks_.resize(std::min(in.size(), static_cast<std::size_t>(ppc::util::GetPPCNumThreads())));
