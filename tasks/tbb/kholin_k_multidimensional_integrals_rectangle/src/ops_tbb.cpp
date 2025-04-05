@@ -4,7 +4,6 @@
 #include <tbb/task_arena.h>
 #include <tbb/tbb.h>
 
-#include <atomic>  // Добавляем заголовок
 #include <atomic>
 #include <cmath>
 #include <core/util/include/util.hpp>

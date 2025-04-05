@@ -42,8 +42,7 @@ TEST(kholin_k_multidimensional_integrals_rectangle_tbb, test_pipeline_run) {
   task_data_tbb->outputs_count.emplace_back(out_i.size());
 
   // Create Task
-  auto test_task_omp =
-      std::make_shared<kholin_k_multidimensional_integrals_rectangle_tbb::TestTaskTBB>(task_data_tbb);
+  auto test_task_omp = std::make_shared<kholin_k_multidimensional_integrals_rectangle_tbb::TestTaskTBB>(task_data_tbb);
 
   // Create Perf attributes
   auto perf_attr = std::make_shared<ppc::core::PerfAttr>();
@@ -96,8 +95,7 @@ TEST(kholin_k_multidimensional_integrals_rectangle_omp, test_task_run) {
   task_data_tbb->outputs_count.emplace_back(out_i.size());
 
   // Create Task
-  auto test_task_omp =
-      std::make_shared<kholin_k_multidimensional_integrals_rectangle_tbb::TestTaskTBB>(task_data_tbb);
+  auto test_task_omp = std::make_shared<kholin_k_multidimensional_integrals_rectangle_tbb::TestTaskTBB>(task_data_tbb);
 
   // Create Perf attributes
   auto perf_attr = std::make_shared<ppc::core::PerfAttr>();
