@@ -15,10 +15,10 @@
 
 namespace plekhanov_d_dijkstra_omp {
 
-void static RunValidationFailureTest();  // NOLINT(misc-use-anonymous-namespace)
+void static RunValidationFailureTest();
 
 template <typename ExpectedResultType>
-void RunTest(const std::vector<std::vector<std::pair<size_t, int>>> &adj_list,  // NOLINT
+void RunTest(const std::vector<std::vector<std::pair<size_t, int>>> &adj_list,
              size_t start_vertex, const std::vector<ExpectedResultType> &expected_result, bool expect_success = true) {
   const size_t k_num_vertices = adj_list.size();
   std::vector<int> distances(k_num_vertices, INT_MAX);
@@ -54,7 +54,7 @@ void RunTest(const std::vector<std::vector<std::pair<size_t, int>>> &adj_list,  
   }
 }
 
-void static RunValidationFailureTest() {  // NOLINT(misc-use-anonymous-namespace)
+void static RunValidationFailureTest() {
   std::vector<int> graph_data;
   size_t start_vertex = 0;
   size_t num_vertices = 0;
@@ -73,8 +73,8 @@ void static RunValidationFailureTest() {  // NOLINT(misc-use-anonymous-namespace
 }
 
 std::vector<std::vector<std::pair<size_t,
-                                  int>>> static GenerateRandomGraph(  // NOLINT(misc-use-anonymous-namespace)
-    size_t num_vertices) {                                            // NOLINT(misc-use-anonymous-namespace)
+                                  int>>> static GenerateRandomGraph(
+    size_t num_vertices) {                                          
   std::random_device rd;
   std::mt19937 gen(rd());
   std::uniform_int_distribution<> dis(1, 10);
@@ -91,9 +91,9 @@ std::vector<std::vector<std::pair<size_t,
   return adj_list;
 }
 
-static std::vector<int> CalculateExpectedResult(                       // NOLINT(misc-use-anonymous-namespace)
-    const std::vector<std::vector<std::pair<size_t, int>>> &adj_list,  // NOLINT(misc-use-anonymous-namespace)
-    size_t start_vertex) {                                             // NOLINT(misc-use-anonymous-namespace)
+static std::vector<int> CalculateExpectedResult(                       
+    const std::vector<std::vector<std::pair<size_t, int>>> &adj_list,  
+    size_t start_vertex) {                                             
   size_t n = adj_list.size();
   const int inf = INT_MAX;
   std::vector<int> distances(n, inf);
@@ -179,14 +179,13 @@ TEST(plekhanov_d_dijkstra_omp, test_dijkstra_Random_Graph_10) {
   plekhanov_d_dijkstra_omp::RunTest(adj_list, start_vertex, expected);
 }
 
-TEST(plekhanov_d_dijkstra_omp, test_dijkstra_Random_Graph_30) {
-  size_t num_vertices = 30;
+TEST(plekhanov_d_dijkstra_omp, test_dijkstra_Random_Graph_150) {
+  size_t num_vertices = 150;
   std::vector<std::vector<std::pair<size_t, int>>> adj_list =
       plekhanov_d_dijkstra_omp::GenerateRandomGraph(num_vertices);
   size_t start_vertex = 0;
 
   std::vector<int> expected = plekhanov_d_dijkstra_omp::CalculateExpectedResult(adj_list, start_vertex);
-
   plekhanov_d_dijkstra_omp::RunTest(adj_list, start_vertex, expected);
 }
 

@@ -5,6 +5,7 @@
 #include <cstddef>
 #include <cstdint>
 #include <cstdlib>
+#include <ctime>
 #include <functional>
 #include <memory>
 #include <queue>
@@ -17,9 +18,24 @@
 
 namespace plekhanov_d_dijkstra_omp {
 
-static std::vector<int> CalculateExpectedResult(                       // NOLINT(misc-use-anonymous-namespace)
-    const std::vector<std::vector<std::pair<size_t, int>>> &adj_list,  // NOLINT(misc-use-anonymous-namespace)
-    size_t start_vertex) {                                             // NOLINT(misc-use-anonymous-namespace)
+static std::vector<std::vector<std::pair<size_t, int>>> CreateRandomAdjacencyList(size_t numVertices) {
+  srand(static_cast<unsigned int>(time(0)));
+  std::vector<std::vector<std::pair<size_t, int>>> adj_list(numVertices);
+  for (size_t i = 0; i < numVertices; ++i) {
+    for (size_t j = 0; j < numVertices; ++j) {
+      if (i != j) {
+        if (rand() % 3 == 0) {
+          int weight = (rand() % 10) + 1;
+          adj_list[i].emplace_back(j, weight);
+        }
+      }
+    }
+  }
+  return adj_list;
+}
+
+static std::vector<int> CalculateExpectedResult(const std::vector<std::vector<std::pair<size_t, int>>> &adj_list,
+                                                size_t start_vertex) {
   size_t n = adj_list.size();
   const int inf = INT_MAX;
   std::vector<int> distances(n, inf);
@@ -52,20 +68,11 @@ static std::vector<int> CalculateExpectedResult(                       // NOLINT
 }  // namespace plekhanov_d_dijkstra_omp
 
 TEST(plekhanov_d_dijkstra_omp, test_pipeline_run) {
-  constexpr size_t kNumVertices = 1000;
+  constexpr size_t kNumVertices = 3000;
   size_t start_vertex = 0;
 
-  std::vector<std::vector<std::pair<size_t, int>>> adj_list(kNumVertices);
-  for (size_t i = 0; i < kNumVertices; ++i) {
-    for (size_t j = 0; j < kNumVertices; ++j) {
-      if (i != j) {
-        if (rand() % 3 == 0) {
-          int weight = (rand() % 10) + 1;
-          adj_list[i].emplace_back(j, weight);
-        }
-      }
-    }
-  }
+  std::vector<std::vector<std::pair<size_t, int>>> adj_list =
+      plekhanov_d_dijkstra_omp::CreateRandomAdjacencyList(kNumVertices);
 
   std::vector<int> graph_data;
   for (const auto &vertex_edges : adj_list) {
@@ -107,20 +114,11 @@ TEST(plekhanov_d_dijkstra_omp, test_pipeline_run) {
 }
 
 TEST(plekhanov_d_dijkstra_omp, test_task_run) {
-  constexpr size_t kNumVertices = 1000;
+  constexpr size_t kNumVertices = 3000;
   size_t start_vertex = 0;
 
-  std::vector<std::vector<std::pair<size_t, int>>> adj_list(kNumVertices);
-  for (size_t i = 0; i < kNumVertices; ++i) {
-    for (size_t j = 0; j < kNumVertices; ++j) {
-      if (i != j) {
-        if (rand() % 3 == 0) {
-          int weight = (rand() % 10) + 1;
-          adj_list[i].emplace_back(j, weight);
-        }
-      }
-    }
-  }
+  std::vector<std::vector<std::pair<size_t, int>>> adj_list =
+      plekhanov_d_dijkstra_omp::CreateRandomAdjacencyList(kNumVertices);
 
   std::vector<int> graph_data;
   for (const auto &vertex_edges : adj_list) {
