@@ -34,10 +34,9 @@ class TestTaskOpenMP : public ppc::core::Task {
 };
 
 inline void NormalizeLabels(std::vector<int>& vec) {
-  std::vector<int> unique_labels;  // Хранит уникальные значения в порядке их первого появления
-  std::unordered_set<int> seen;  // Для быстрой проверки уникальности
+  std::vector<int> unique_labels;
+  std::unordered_set<int> seen;
 
-  // Собираем уникальные ненулевые значения, сохраняя порядок первого появления
   for (int val : vec) {
     if (val != 0 && seen.find(val) == seen.end()) {
       unique_labels.push_back(val);
@@ -45,14 +44,11 @@ inline void NormalizeLabels(std::vector<int>& vec) {
     }
   }
 
-  // Создаем отображение: старое значение -> новая метка (начиная с 1)
   std::unordered_map<int, int> label_map;
   int current_label = 1;
   for (int val : unique_labels) {
     label_map[val] = current_label++;
   }
-
-  // Заменяем значения в векторе, сохраняя нули
   for (int& val : vec) {
     if (val != 0) {
       val = label_map[val];
