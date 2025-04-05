@@ -1,8 +1,7 @@
 #include "omp/durynichev_d_integrals_simpson_method/include/ops_omp.hpp"
 
 #include <omp.h>
-#include <cmath>  // Для std::sin и std::cos
-
+#include <cmath>
 #include <vector>
 
 bool durynichev_d_integrals_simpson_method_omp::SimpsonIntegralOpenMP::PreProcessingImpl() {
@@ -38,19 +37,17 @@ bool durynichev_d_integrals_simpson_method_omp::SimpsonIntegralOpenMP::PostProce
 }
 
 double durynichev_d_integrals_simpson_method_omp::SimpsonIntegralOpenMP::func1D(double x) {
-  // Добавляем искусственную нагрузку
   double result = x * x;
-  for (int i = 0; i < 100; ++i) {
-    result += std::sin(x) * std::cos(x);  // Сложные вычисления для увеличения времени
+  for (int i = 0; i < 500; ++i) {  // Увеличиваем нагрузку до 500 итераций
+    result += std::sin(x) * std::cos(x);
   }
   return result;
 }
 
 double durynichev_d_integrals_simpson_method_omp::SimpsonIntegralOpenMP::func2D(double x, double y) {
-  // Добавляем искусственную нагрузку
   double result = x * x + y * y;
-  for (int i = 0; i < 100; ++i) {
-    result += std::sin(x * y) * std::cos(x + y);  // Сложные вычисления для увеличения времени
+  for (int i = 0; i < 500; ++i) {  // Увеличиваем нагрузку до 500 итераций
+    result += std::sin(x * y) * std::cos(x + y);
   }
   return result;
 }
