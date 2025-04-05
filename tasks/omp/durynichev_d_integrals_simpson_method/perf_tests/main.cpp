@@ -7,6 +7,7 @@
 #include "core/perf/include/perf.hpp"
 #include "core/task/include/task.hpp"
 #include "omp/durynichev_d_integrals_simpson_method/include/ops_omp.hpp"
+#define PERF_TEST
 
 TEST(durynichev_d_integrals_simpson_method_omp, test_pipeline_run) {
   std::vector<double> in = {0.0, 1.0, 20000};
