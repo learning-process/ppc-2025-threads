@@ -11,7 +11,6 @@
 using namespace khasanyanov_k_trapezoid_method_stl;
 
 TEST(khasanyanov_k_trapezoid_method_stl, test_integrator_linear_function) {
-  //(5x + 2y - 3z) dxdydz;
   auto f = [](const std::vector<double>& x) -> double { return (5 * x[0]) + (2 * x[1]) - (3 * x[2]); };
 
   IntegrationBounds bounds = {{-3, 1.0}, {0.0, 2.0}, {0.5, 1.0}};
@@ -23,7 +22,6 @@ TEST(khasanyanov_k_trapezoid_method_stl, test_integrator_linear_function) {
 }
 
 TEST(khasanyanov_k_trapezoid_method_stl, test_integrator_quad_function) {
-  //(x ^ 2 + 2y - 6.5z ^ 2) dxdydz;
   auto f = [](const std::vector<double>& x) -> double { return (x[0] * x[0]) + (2 * x[1]) - (6.5 * x[2]); };
 
   IntegrationBounds bounds = {{-3.0, -2.0}, {0.0, 2.0}, {0.5, 1.0}};
@@ -35,7 +33,6 @@ TEST(khasanyanov_k_trapezoid_method_stl, test_integrator_quad_function) {
 }
 
 TEST(khasanyanov_k_trapezoid_method_stl, test_integrator_mixed_function) {
-  //(x ^ 2 + 2xy + z) dxdydz;
   auto f = [](const std::vector<double>& x) -> double { return (x[0] * x[0]) + (2 * x[1] * x[0]) + x[2]; };
 
   IntegrationBounds bounds = {{-2.5, 0.0}, {0.0, 3.0}, {2.0, 2.5}};
@@ -47,7 +44,6 @@ TEST(khasanyanov_k_trapezoid_method_stl, test_integrator_mixed_function) {
 }
 
 TEST(khasanyanov_k_trapezoid_method_stl, test_integrator_trigonometric_function) {
-  //(sin(x) - y) dxdy;
   auto f = [](const std::vector<double>& x) -> double { return sin(x[0]) - x[1]; };
 
   IntegrationBounds bounds = {{0.0, 1.0}, {0.0, 2.0}};
@@ -59,7 +55,6 @@ TEST(khasanyanov_k_trapezoid_method_stl, test_integrator_trigonometric_function)
 }
 
 TEST(khasanyanov_k_trapezoid_method_stl, test_integrator_long_function) {
-  //(x + y / 2 - z / 3 + w / 4 - k / 5) dxdydzdwdk;
   auto f = [](const std::vector<double>& x) -> double {
     return x[0] + (x[1] / 2.0) - (x[2] / 3.0) + (x[3] / 4.0) - (x[4] / 5.0);
   };
