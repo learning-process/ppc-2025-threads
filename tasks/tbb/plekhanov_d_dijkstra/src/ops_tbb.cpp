@@ -18,7 +18,7 @@
 namespace plekhanov_d_dijkstra_tbb {
 
 bool TestTaskTBB::ConvertGraphToAdjacencyList(const std::vector<int>& graph_data, size_t num_vertices,
-                                                 std::vector<std::vector<std::pair<int, int>>>& graph) {
+                                              std::vector<std::vector<std::pair<int, int>>>& graph) {
   graph.assign(num_vertices, {});
   size_t current_vertex = 0;
   size_t i = 0;
