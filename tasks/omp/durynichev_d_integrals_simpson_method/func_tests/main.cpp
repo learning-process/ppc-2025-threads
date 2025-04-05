@@ -17,8 +17,8 @@ TEST(durynichev_d_integrals_simpson_method_omp, test_integral_1D_x_squared) {
   task_data->outputs_count.emplace_back(out.size());
 
   durynichev_d_integrals_simpson_method_omp::SimpsonIntegralOpenMP task(task_data);
-  ASSERT_TRUE(task.Validation());
   task.PreProcessing();
+  ASSERT_TRUE(task.Validation());
   task.Run();
   task.PostProcessing();
   EXPECT_NEAR(out[0], 1.0 / 3.0, 1e-5);
@@ -35,8 +35,8 @@ TEST(durynichev_d_integrals_simpson_method_omp, test_integral_1D_x_squared_wider
   task_data->outputs_count.emplace_back(out.size());
 
   durynichev_d_integrals_simpson_method_omp::SimpsonIntegralOpenMP task(task_data);
-  ASSERT_TRUE(task.Validation());
   task.PreProcessing();
+  ASSERT_TRUE(task.Validation());
   task.Run();
   task.PostProcessing();
   EXPECT_NEAR(out[0], 8.0 / 3.0, 1e-5);
@@ -53,8 +53,8 @@ TEST(durynichev_d_integrals_simpson_method_omp, test_integral_2D_x2_plus_y2) {
   task_data->outputs_count.emplace_back(out.size());
 
   durynichev_d_integrals_simpson_method_omp::SimpsonIntegralOpenMP task(task_data);
-  ASSERT_TRUE(task.Validation());
   task.PreProcessing();
+  ASSERT_TRUE(task.Validation());
   task.Run();
   task.PostProcessing();
   EXPECT_NEAR(out[0], 2.0 / 3.0, 1e-4);
