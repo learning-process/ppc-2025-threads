@@ -190,6 +190,6 @@ void laganina_e_component_labeling_omp::TestTaskOpenMP::UnionNodes(int a, int b,
   }
 
   bool laganina_e_component_labeling_omp::TestTaskOpenMP::RunImpl() {
-    laganina_e_component_labeling_omp::TestTaskOpenMP::LabelConnectedComponents();
+    LabelConnectedComponents();
     return true;
   }

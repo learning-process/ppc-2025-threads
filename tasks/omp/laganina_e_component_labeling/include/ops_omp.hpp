@@ -9,7 +9,7 @@ namespace laganina_e_component_labeling_omp {
 
 class TestTaskOpenMP : public ppc::core::Task {
  public:
-  explicit TestTaskOpenMP(std::shared_ptr<ppc::core::TaskData> taskData) : Task(std::move(taskData)) {}
+  explicit TestTaskOpenMP(ppc::core::TaskDataPtr task_data) : Task(std::move(task_data)) {}
   bool PreProcessingImpl() override;
   bool ValidationImpl() override;
   bool RunImpl() override;
@@ -24,10 +24,11 @@ class TestTaskOpenMP : public ppc::core::Task {
   void InitializeParents(std::vector<int>& parent);
   void ProcessSweep(bool reverse, std::vector<int>& parent, bool& changed);
   void UnionNodes(int a, int b, std::vector<int>& parent, bool& changed);
+  bool CheckNeighbor(int nr, int nc, int current, std::vector<int>& parent);
+  bool ProcessRow(int row_idx, bool reverse, std::vector<int>& parent);
   int FindRoot(std::vector<int>& parent, int x);
   void FinalizeRoots(std::vector<int>& parent);
   void AssignLabels(std::vector<int>& parent);
-  ;
   void LabelConnectedComponents();
 };
 
@@ -36,7 +37,7 @@ inline void NormalizeLabels(std::vector<int>& vec) {
   int current_label = 1;
   {
     std::unordered_map<int, int> local_map;
-    for (int i = 0; i < vec.size(); ++i) {
+    for (int unsigned int i = 0; i < vec.size(); ++i) {
       if (vec[i] != 0) {
         local_map.try_emplace(vec[i], 0);
       }
@@ -49,7 +50,7 @@ inline void NormalizeLabels(std::vector<int>& vec) {
       }
     }
   }
-  for (int i = 0; i < vec.size(); ++i) {
+  for (unsigned int i = 0; i < vec.size(); ++i) {
     if (vec[i] != 0) {
       vec[i] = label_map[vec[i]];
     }
