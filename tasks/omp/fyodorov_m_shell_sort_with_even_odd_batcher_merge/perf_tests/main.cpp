@@ -50,7 +50,7 @@ TEST(fyodorov_m_shell_sort_with_even_odd_batcher_merge_omp, test_pipeline_run) {
 
   auto perf_results = std::make_shared<ppc::core::PerfResults>();
 
-  auto perf_analyzer = std::make_shared<ppc::core::Perf>(TestTaskOpenmp);
+  auto perf_analyzer = std::make_shared<ppc::core::Perf>(test_task_openmp);
   perf_analyzer->PipelineRun(perf_attr, perf_results);
 
   ppc::core::Perf::PrintPerfStatistic(perf_results);
@@ -97,7 +97,7 @@ TEST(fyodorov_m_shell_sort_with_even_odd_batcher_merge_omp, test_task_run) {
 
   auto perf_results = std::make_shared<ppc::core::PerfResults>();
 
-  auto perf_analyzer = std::make_shared<ppc::core::Perf>(TestTaskOpenmp);
+  auto perf_analyzer = std::make_shared<ppc::core::Perf>(test_task_openmp);
   perf_analyzer->TaskRun(perf_attr, perf_results);
 
   ppc::core::Perf::PrintPerfStatistic(perf_results);
