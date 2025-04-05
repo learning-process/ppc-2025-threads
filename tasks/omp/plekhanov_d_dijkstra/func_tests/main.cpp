@@ -37,7 +37,7 @@ std::vector<int> static ConvertToGraphData(const std::vector<std::vector<std::pa
 void static RunValidationFailureTest();
 std::vector<std::vector<std::pair<size_t, int>>> static GenerateRandomGraph(size_t num_vertices);
 std::vector<int> static CalculateExpectedResult(const std::vector<std::vector<std::pair<size_t, int>>> &adj_list,
-                                         size_t start_vertex);
+                                                size_t start_vertex);
 
 std::vector<int> static ConvertToGraphData(const std::vector<std::vector<std::pair<size_t, int>>> &adj_list) {
   std::vector<int> graph_data;

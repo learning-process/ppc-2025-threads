@@ -18,11 +18,11 @@ class TestTaskOpenMP : public ppc::core::Task {
 
  private:
   static bool ConvertGraphToAdjacencyList(const std::vector<int>& graph_data, size_t num_vertices,
-                                   std::vector<std::vector<std::pair<int, int>>>& graph);
+                                          std::vector<std::vector<std::pair<int, int>>>& graph);
   static int FindMinDistanceVertex(const std::vector<int>& distances, const std::vector<bool>& visited,
-                                  size_t num_vertices);
+                                   size_t num_vertices);
   static void UpdateDistancesForVertex(int u, const std::vector<std::vector<std::pair<int, int>>>& graph,
-                                std::vector<int>& distances, const std::vector<bool>& visited);
+                                       std::vector<int>& distances, const std::vector<bool>& visited);
   std::vector<int> graph_data_;
   std::vector<int> distances_;
   size_t start_vertex_;
