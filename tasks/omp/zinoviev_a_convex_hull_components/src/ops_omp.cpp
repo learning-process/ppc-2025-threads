@@ -30,7 +30,10 @@ bool ConvexHullOMP::PreProcessingImpl() noexcept {
   for (int y = 0; y < height; ++y) {
     const int tid = omp_get_thread_num();
     for (int x = 0; x < width; ++x) {
-      if (input_data[(y * width) + x] != 0) {
+      if (x < 0 || x >= width || y < 0 || y >= height) continue;
+
+      const size_t idx = static_cast<size_t>(y) * width + x;
+      if (idx < static_cast<size_t>(width * height) && input_data[idx] != 0) {
         private_points[tid].emplace_back(Point{.x = x, .y = y});
       }
     }

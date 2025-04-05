@@ -64,3 +64,32 @@ TEST(zinoviev_a_convex_hull_omp, CrossShape) {
       {.x = 0, .y = 1}, {.x = 1, .y = 0}, {.x = 4, .y = 1}, {.x = 1, .y = 4}};
   RunTest(input, expect, 5, 5);
 }
+
+TEST(zinoviev_a_convex_hull_omp, SinglePoint) {
+  std::vector<int> input(25, 0);
+  input[12] = 1;
+  const std::vector<zinoviev_a_convex_hull_components_omp::Point> expect{{.x = 2, .y = 2}};
+  RunTest(input, expect, 5, 5);
+}
+
+TEST(zinoviev_a_convex_hull_omp, FullSquare) {
+  std::vector<int> input(9, 1);
+  const std::vector<zinoviev_a_convex_hull_components_omp::Point> expect{
+      {.x = 0, .y = 0}, {.x = 2, .y = 0}, {.x = 1, .y = 2}, {.x = 0, .y = 2}};
+  RunTest(input, expect, 3, 3);
+}
+
+TEST(zinoviev_a_convex_hull_omp, LargeRectangleBorder) {
+  const int size = 100;
+  std::vector<int> input(size * size, 0);
+  for (int i = 0; i < size; ++i) {
+    input[i] = 1;
+    input[(size - 1) * size + i] = 1;
+    input[i * size] = 1;
+    input[i * size + (size - 1)] = 1;
+  }
+  const std::vector<zinoviev_a_convex_hull_components_omp::Point> expect{
+      {.x = 0, .y = 0}, {.x = size - 1, .y = 0}, {.x = size - 2, .y = size - 1}, {.x = 0, .y = size - 1}};
+
+  RunTest(input, expect, size, size);
+}
