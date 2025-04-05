@@ -10,7 +10,7 @@
 #include <vector>
 
 #include "oneapi//tbb/parallel_for.h"
-#include "oneapi/tbb/parallel_for.h"
+#include "oneapi/tbb/task_arena.h"
 
 double kholin_k_multidimensional_integrals_rectangle_tbb::TestTaskTBB::Integrate(
     const Function& f, const std::vector<double>& l_limits, const std::vector<double>& u_limits,
