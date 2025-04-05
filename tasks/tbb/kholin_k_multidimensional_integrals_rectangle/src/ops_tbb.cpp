@@ -2,16 +2,15 @@
 
 #include <tbb/tbb.h>
 
-#include "oneapi/tbb/parallel_for.h"
+#include <atomic>
 #include <cmath>
+#include <core/util/include/util.hpp>
 #include <cstddef>
 #include <functional>
-#include <atomic>
-#include <algorithm>
 #include <vector>
 
 #include "oneapi//tbb/parallel_for.h"
-#include <core/util/include/util.hpp>
+#include "oneapi/tbb/parallel_for.h"
 
 double kholin_k_multidimensional_integrals_rectangle_tbb::TestTaskTBB::Integrate(
     const Function& f, const std::vector<double>& l_limits, const std::vector<double>& u_limits,
