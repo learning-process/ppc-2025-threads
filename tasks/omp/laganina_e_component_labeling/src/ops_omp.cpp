@@ -5,7 +5,6 @@
 #include <algorithm>
 #include <vector>
 
-// Helper function for path compression
 void laganina_e_component_labeling_omp::CompressPath(std::vector<int>& parent, int node, int& root) {
   while (parent[node] != node) {
     parent[node] = parent[parent[node]];  // Path compression
@@ -55,7 +54,7 @@ void laganina_e_component_labeling_omp::TestTaskOpenMP::InitializeParents(std::v
 }
 
 void laganina_e_component_labeling_omp::TestTaskOpenMP::ProcessSweep(bool reverse, std::vector<int>& parent,
-                                                                     bool& changed) {
+                                                                     bool& changed) const {
   bool local_changed = false;
 
 #pragma omp parallel for reduction(|| : local_changed) schedule(static)
@@ -67,7 +66,7 @@ void laganina_e_component_labeling_omp::TestTaskOpenMP::ProcessSweep(bool revers
 }
 
 bool laganina_e_component_labeling_omp::TestTaskOpenMP::ProcessRow(int row_idx, bool reverse,
-                                                                   std::vector<int>& parent) {
+                                                                   std::vector<int>& parent) const {
   const int row = reverse ? m_ - 1 - row_idx : row_idx;
   bool row_changed = false;
 
@@ -96,7 +95,7 @@ bool laganina_e_component_labeling_omp::TestTaskOpenMP::ProcessRow(int row_idx, 
 }
 
 bool laganina_e_component_labeling_omp::TestTaskOpenMP::CheckNeighbor(int nr, int nc, int current,
-                                                                      std::vector<int>& parent) {
+                                                                      std::vector<int>& parent) const {
   if (nr >= 0 && nr < m_ && nc >= 0 && nc < n_) {
     const int neighbor = (nr * n_) + nc;
     if (parent[neighbor] != -1) {
@@ -130,7 +129,7 @@ bool laganina_e_component_labeling_omp::TestTaskOpenMP::UnionNodes(int a, int b,
   return false;
 }
 
-void laganina_e_component_labeling_omp::TestTaskOpenMP::FinalizeRoots(std::vector<int>& parent) {
+void laganina_e_component_labeling_omp::TestTaskOpenMP::FinalizeRoots(std::vector<int>& parent) const {
   int size = 0;
   size = m_ * n_;
 #pragma omp parallel for schedule(static)

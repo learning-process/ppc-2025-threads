@@ -24,12 +24,12 @@ class TestTaskOpenMP : public ppc::core::Task {
   std::vector<int> binary_;
 
   void InitializeParents(std::vector<int>& parent);
-  void ProcessSweep(bool reverse, std::vector<int>& parent, bool& changed);
+  void ProcessSweep(bool reverse, std::vector<int>& parent, bool& changed) const;
   static bool UnionNodes(int a, int b, std::vector<int>& parent);
-  bool CheckNeighbor(int nr, int nc, int current, std::vector<int>& parent);
-  bool ProcessRow(int row_idx, bool reverse, std::vector<int>& parent);
+  bool CheckNeighbor(int nr, int nc, int current, std::vector<int>& parent) const;
+  bool ProcessRow(int row_idx, bool reverse, std::vector<int>& parent) const;
   static int FindRoot(std::vector<int>& parent, int x);
-  void FinalizeRoots(std::vector<int>& parent);
+  void FinalizeRoots(std::vector<int>& parent) const;
   void AssignLabels(std::vector<int>& parent);
   void LabelConnectedComponents();
 };
@@ -56,6 +56,7 @@ inline void NormalizeLabels(std::vector<int>& vec) {
     }
   }
 }
+
 void CompressPath(std::vector<int>& parent, int node, int& root);
 
 }  // namespace laganina_e_component_labeling_omp
