@@ -8,11 +8,11 @@
 #include <future>
 #include <mutex>
 #include <queue>
-#include <thread>
 #include <utility>
 #include <vector>
 
 #include "core/util/include/util.hpp"
+#include <iostream>
 
 const int plekhanov_d_dijkstra_stl::TestTaskSTL::kEndOfVertexList = -1;
 
@@ -70,8 +70,7 @@ bool plekhanov_d_dijkstra_stl::TestTaskSTL::RunImpl() {  // NOLINT(readability-f
 
   std::mutex pq_mutex;
 
-  unsigned int num_threads = ppc::util::GetPPCNumThreads();
-
+  const size_t num_threads = std::min(ppc::util::GetPPCNumThreads(), static_cast<int>(std::thread::hardware_concurrency()));
   while (!pq.empty()) {
     pq_mutex.lock();
     auto top_element = pq.top();
