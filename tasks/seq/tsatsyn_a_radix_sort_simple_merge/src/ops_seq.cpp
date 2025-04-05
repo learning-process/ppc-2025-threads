@@ -1,4 +1,4 @@
-#include "seq/tsatsyn_a_radix_sort_simple_merge_seq/include/ops_seq.hpp"
+#include "seq/tsatsyn_a_radix_sort_simple_merge/include/ops_seq.hpp"
 
 #include <algorithm>
 #include <bit>

@@ -11,10 +11,10 @@
 
 TEST(kolokolova_d_integral_simpson_method_seq, test_pipeline_run) {
   auto func = [](std::vector<double> vec) {
-    return (2 * vec[2]) + (vec[1] * vec[1] / 5) + (4 * vec[0] * vec[0] * vec[0]) - 100;
+    return (vec[2] * vec[2] * vec[2] * vec[1] * vec[1] / 10) + (4 * vec[0] * vec[0]) - (10 * vec[2]);
   };
   std::vector<int> step = {130, 130, 130};
-  std::vector<int> bord = {3, 12, 2, 10, 0, 14};
+  std::vector<int> bord = {1, 11, 2, 10, 0, 10};
   double func_result = 0.0;
 
   // Create task_data
@@ -50,7 +50,7 @@ TEST(kolokolova_d_integral_simpson_method_seq, test_pipeline_run) {
   perf_analyzer->PipelineRun(perf_attr, perf_results);
   ppc::core::Perf::PrintPerfStatistic(perf_results);
 
-  double ans = 2244276.9;
+  double ans = 927300.25;
   double error = 0.1;
   ASSERT_NEAR(func_result, ans, error);
 }

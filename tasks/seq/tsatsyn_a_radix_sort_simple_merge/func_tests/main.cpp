@@ -7,7 +7,7 @@
 #include <vector>
 
 #include "core/task/include/task.hpp"
-#include "seq/tsatsyn_a_radix_sort_simple_merge_seq/include/ops_seq.hpp"
+#include "seq/tsatsyn_a_radix_sort_simple_merge/include/ops_seq.hpp"
 std::vector<double> tsatsyn_a_radix_sort_simple_merge_seq::GetRandomVector(int sz, int a, int b) {
   std::random_device dev;
   std::mt19937 gen(dev());
