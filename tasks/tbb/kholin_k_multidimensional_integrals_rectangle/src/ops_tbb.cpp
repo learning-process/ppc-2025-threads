@@ -1,6 +1,5 @@
 #include "tbb/kholin_k_multidimensional_integrals_rectangle/include/ops_tbb.hpp"
 
-#include <tbb/task_arena.h>
 #include <tbb/tbb.h>
 
 #include <algorithm>
@@ -9,9 +8,10 @@
 #include <core/util/include/util.hpp>
 #include <cstddef>
 #include <functional>
+#include <iostream>
 #include <vector>
 
-#include "oneapi/tbb/parallel_for.h"
+#include "oneapi//tbb/parallel_reduce.h"
 #include "oneapi/tbb/task_arena.h"
 
 double kholin_k_multidimensional_integrals_rectangle_tbb::TestTaskTBB::Integrate(
@@ -21,30 +21,24 @@ double kholin_k_multidimensional_integrals_rectangle_tbb::TestTaskTBB::Integrate
     return f(f_values);
   }
 
-  const int num_threads = ppc::util::GetPPCNumThreads();
-  tbb::task_arena arena(num_threads);
+  thread_local std::vector<double> local_f_values = f_values;
 
-  std::atomic<double> sum{0.0};
+  const double h_curr = h[curr_index_dim];
+  const double l_curr = l_limits[curr_index_dim];
 
-  arena.execute([&]() {
-    const int grain_size = std::max(1, static_cast<int>(n) / num_threads);
+  double sum = tbb::parallel_reduce(
+      tbb::blocked_range<int>(0, static_cast<int>(n)), 0.0,
+      [&](const tbb::blocked_range<int>& r, double local_sum) {
+        local_f_values = f_values;
+        for (int i = r.begin(); i < r.end(); ++i) {
+          local_f_values[curr_index_dim] = l_curr + (i + 0.5) * h_curr;
+          local_sum += Integrate(f, l_limits, u_limits, h, local_f_values, curr_index_dim + 1, dim, n);
+        }
+        return local_sum;
+      },
+      std::plus<double>(), tbb::simple_partitioner());
 
-    tbb::parallel_for(tbb::blocked_range<int>(0, static_cast<int>(n), grain_size),
-                      [&](const tbb::blocked_range<int>& r) {
-                        double local_sum = 0.0;
-                        for (int i = r.begin(); i < r.end(); ++i) {
-                          std::vector<double> local_f_values = f_values;
-                          local_f_values[curr_index_dim] =
-                              l_limits[curr_index_dim] + (static_cast<double>(i) + 0.5) * h[curr_index_dim];
-                          local_sum += Integrate(f, l_limits, u_limits, h, local_f_values, curr_index_dim + 1, dim, n);
-                        }
-                        double current = sum.load();
-                        while (!sum.compare_exchange_weak(current, current + local_sum)) {
-                        }
-                      });
-  });
-
-  return sum * h[curr_index_dim];
+  return sum * h_curr;
 }
 
 double kholin_k_multidimensional_integrals_rectangle_tbb::TestTaskTBB::IntegrateWithRectangleMethod(
