@@ -27,8 +27,8 @@ double kholin_k_multidimensional_integrals_rectangle_tbb::TestTaskTBB::Integrate
   arena.execute([&]() {
     tbb::parallel_for(tbb::blocked_range<int>(0, static_cast<int>(n)), [&](const tbb::blocked_range<int>& r) {
       double local_sum = 0.0;
+      std::vector<double> local_f_values = f_values;
       for (int i = r.begin(); i < r.end(); ++i) {
-        std::vector<double> local_f_values = f_values;
         local_f_values[curr_index_dim] = l_limits[curr_index_dim] + (static_cast<double>(i) + 0.5) * h[curr_index_dim];
         local_sum += Integrate(f, l_limits, u_limits, h, local_f_values, curr_index_dim + 1, dim, n);
       }
