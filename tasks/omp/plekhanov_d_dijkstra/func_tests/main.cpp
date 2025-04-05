@@ -39,13 +39,7 @@ void ExecuteAndValidateTask(std::shared_ptr<ppc::core::TaskData> &task_data, std
   }
 }
 
-std::vector<int> static ConvertToGraphData(const std::vector<std::vector<std::pair<size_t, int>>> &adj_list);
-void static RunValidationFailureTest();
-std::vector<std::vector<std::pair<size_t, int>>> static GenerateRandomGraph(size_t num_vertices);
-std::vector<int> static CalculateExpectedResult(const std::vector<std::vector<std::pair<size_t, int>>> &adj_list,
-                                                size_t start_vertex);
-
-std::vector<int> static ConvertToGraphData(const std::vector<std::vector<std::pair<size_t, int>>> &adj_list) {
+std::vector<int> ConvertToGraphData(const std::vector<std::vector<std::pair<size_t, int>>> &adj_list) {
   std::vector<int> graph_data;
   for (const auto &vertex_edges : adj_list) {
     for (const auto &edge : vertex_edges) {
@@ -74,7 +68,7 @@ void RunTest(const std::vector<std::vector<std::pair<size_t, int>>> &adj_list, s
   ExecuteAndValidateTask(task_data_omp, distances, expected_result, expect_success);
 }
 
-void static RunValidationFailureTest() {
+void RunValidationFailureTest() {
   std::vector<int> graph_data;
   size_t start_vertex = 0;
   size_t num_vertices = 0;
@@ -109,7 +103,7 @@ std::vector<std::vector<std::pair<size_t, int>>> GenerateRandomGraph(size_t num_
   return adj_list;
 }
 
-std::vector<int> static CalculateExpectedResult(const std::vector<std::vector<std::pair<size_t, int>>> &adj_list,
+std::vector<int> CalculateExpectedResult(const std::vector<std::vector<std::pair<size_t, int>>> &adj_list,
                                                 size_t start_vertex) {
   size_t n = adj_list.size();
   const int inf = INT_MAX;
