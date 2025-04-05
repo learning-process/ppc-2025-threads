@@ -2,12 +2,16 @@
 
 #include <tbb/tbb.h>
 
+#include "oneapi/tbb/parallel_for.h"
 #include <cmath>
 #include <cstddef>
 #include <functional>
+#include <atomic>
+#include <algorithm>
 #include <vector>
 
-#include "oneapi//tbb/parallel_reduce.h"
+#include "oneapi//tbb/parallel_for.h"
+#include <core/util/include/util.hpp>
 
 double kholin_k_multidimensional_integrals_rectangle_tbb::TestTaskTBB::Integrate(
     const Function& f, const std::vector<double>& l_limits, const std::vector<double>& u_limits,
@@ -16,23 +20,27 @@ double kholin_k_multidimensional_integrals_rectangle_tbb::TestTaskTBB::Integrate
     return f(f_values);
   }
 
-  const double h_curr = h[curr_index_dim];
-  const double l_curr = l_limits[curr_index_dim];
-  const double step = 0.5 * h_curr;
+  const int num_threads = ppc::util::GetPPCNumThreads();
+  tbb::task_arena arena(num_threads);
 
-  double sum = tbb::parallel_reduce(
-      tbb::blocked_range<int>(0, static_cast<int>(n)), 0.0,
-      [&](const tbb::blocked_range<int>& r, double local_sum) {
+  std::atomic<double> sum{0.0};
+
+  arena.execute([&]() {
+    tbb::parallel_for(tbb::blocked_range<int>(0, static_cast<int>(n)), [&](const tbb::blocked_range<int>& r) {
+      double local_sum = 0.0;
+      for (int i = r.begin(); i < r.end(); ++i) {
         std::vector<double> local_f_values = f_values;
-        for (int i = r.begin(); i < r.end(); ++i) {
-          local_f_values[curr_index_dim] = l_curr + i * h_curr + step;
-          local_sum += Integrate(f, l_limits, u_limits, h, local_f_values, curr_index_dim + 1, dim, n);
-        }
-        return local_sum;
-      },
-      std::plus<>(), tbb::auto_partitioner());
+        local_f_values[curr_index_dim] = l_limits[curr_index_dim] + (static_cast<double>(i) + 0.5) * h[curr_index_dim];
+        local_sum += Integrate(f, l_limits, u_limits, h, local_f_values, curr_index_dim + 1, dim, n);
+      }
+      double curr = sum.load();
+      while (!sum.compare_exchange_weak(curr, curr + local_sum)) {
+      }
+    });
+    tbb::auto_partitioner();
+  });
 
-  return sum * h_curr;
+  return sum * h[curr_index_dim];
 }
 
 double kholin_k_multidimensional_integrals_rectangle_tbb::TestTaskTBB::IntegrateWithRectangleMethod(
