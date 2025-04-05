@@ -1,6 +1,8 @@
 #include "omp/durynichev_d_integrals_simpson_method/include/ops_omp.hpp"
-#include <vector>
+
 #include <omp.h>
+
+#include <vector>
 
 bool durynichev_d_integrals_simpson_method_omp::SimpsonIntegralOpenMP::PreProcessingImpl() {
   unsigned int input_size = task_data->inputs_count[0];
@@ -15,9 +17,7 @@ bool durynichev_d_integrals_simpson_method_omp::SimpsonIntegralOpenMP::PreProces
 }
 
 bool durynichev_d_integrals_simpson_method_omp::SimpsonIntegralOpenMP::ValidationImpl() {
-  return task_data->inputs_count[0] >= 3 &&
-         task_data->outputs_count[0] == 1 &&
-         (n_ % 2 == 0);
+  return task_data->inputs_count[0] >= 3 && task_data->outputs_count[0] == 1 && (n_ % 2 == 0);
 }
 
 bool durynichev_d_integrals_simpson_method_omp::SimpsonIntegralOpenMP::RunImpl() {
@@ -34,9 +34,7 @@ bool durynichev_d_integrals_simpson_method_omp::SimpsonIntegralOpenMP::PostProce
   return true;
 }
 
-double durynichev_d_integrals_simpson_method_omp::SimpsonIntegralOpenMP::func1D(double x) {
-  return x * x;
-}
+double durynichev_d_integrals_simpson_method_omp::SimpsonIntegralOpenMP::func1D(double x) { return x * x; }
 
 double durynichev_d_integrals_simpson_method_omp::SimpsonIntegralOpenMP::func2D(double x, double y) {
   return x * x + y * y;
@@ -50,12 +48,12 @@ double durynichev_d_integrals_simpson_method_omp::SimpsonIntegralOpenMP::simpson
 
 #pragma omp parallel
   {
-#pragma omp for reduction(+:sum_odd)
+#pragma omp for reduction(+ : sum_odd)
     for (int i = 1; i < n_; i += 2) {
       sum_odd += func1D(a + i * h);
     }
 
-#pragma omp for reduction(+:sum_even)
+#pragma omp for reduction(+ : sum_even)
     for (int i = 2; i < n_ - 1; i += 2) {
       sum_even += func1D(a + i * h);
     }
@@ -65,12 +63,13 @@ double durynichev_d_integrals_simpson_method_omp::SimpsonIntegralOpenMP::simpson
   return sum * h / 3.0;
 }
 
-double durynichev_d_integrals_simpson_method_omp::SimpsonIntegralOpenMP::simpson2D(double x0, double x1, double y0, double y1) {
+double durynichev_d_integrals_simpson_method_omp::SimpsonIntegralOpenMP::simpson2D(double x0, double x1, double y0,
+                                                                                   double y1) {
   double hx = (x1 - x0) / n_;
   double hy = (y1 - y0) / n_;
   double sum = 0.0;
 
-#pragma omp parallel for collapse(2) reduction(+:sum)
+#pragma omp parallel for collapse(2) reduction(+ : sum)
   for (int i = 0; i <= n_; i++) {
     for (int j = 0; j <= n_; j++) {
       double x = x0 + i * hx;

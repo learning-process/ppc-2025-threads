@@ -1,6 +1,8 @@
 #include <gtest/gtest.h>
+
 #include <memory>
 #include <vector>
+
 #include "core/task/include/task.hpp"
 #include "omp/durynichev_d_integrals_simpson_method/include/ops_omp.hpp"
 
@@ -19,7 +21,7 @@ TEST(durynichev_d_integrals_simpson_method_omp, test_integral_1D_x_squared) {
   task.PreProcessing();
   task.Run();
   task.PostProcessing();
-  EXPECT_NEAR(out[0], 1.0/3.0, 1e-5);
+  EXPECT_NEAR(out[0], 1.0 / 3.0, 1e-5);
 }
 
 TEST(durynichev_d_integrals_simpson_method_omp, test_integral_1D_x_squared_wider_range) {
@@ -37,7 +39,7 @@ TEST(durynichev_d_integrals_simpson_method_omp, test_integral_1D_x_squared_wider
   task.PreProcessing();
   task.Run();
   task.PostProcessing();
-  EXPECT_NEAR(out[0], 8.0/3.0, 1e-5);
+  EXPECT_NEAR(out[0], 8.0 / 3.0, 1e-5);
 }
 
 TEST(durynichev_d_integrals_simpson_method_omp, test_integral_2D_x2_plus_y2) {
@@ -55,5 +57,5 @@ TEST(durynichev_d_integrals_simpson_method_omp, test_integral_2D_x2_plus_y2) {
   task.PreProcessing();
   task.Run();
   task.PostProcessing();
-  EXPECT_NEAR(out[0], 2.0/3.0, 1e-4);
+  EXPECT_NEAR(out[0], 2.0 / 3.0, 1e-4);
 }

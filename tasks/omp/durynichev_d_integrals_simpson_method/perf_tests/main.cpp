@@ -1,7 +1,9 @@
 #include <gtest/gtest.h>
+
 #include <chrono>
 #include <memory>
 #include <vector>
+
 #include "core/perf/include/perf.hpp"
 #include "core/task/include/task.hpp"
 #include "omp/durynichev_d_integrals_simpson_method/include/ops_omp.hpp"
@@ -32,7 +34,7 @@ TEST(durynichev_d_integrals_simpson_method_omp, test_pipeline_run) {
   perf_analyzer->PipelineRun(perf_attr, perf_results);
   ppc::core::Perf::PrintPerfStatistic(perf_results);
 
-  EXPECT_NEAR(out[0], 1.0/3.0, 1e-5);
+  EXPECT_NEAR(out[0], 1.0 / 3.0, 1e-5);
 }
 
 TEST(durynichev_d_integrals_simpson_method_omp, test_task_run) {
@@ -61,5 +63,5 @@ TEST(durynichev_d_integrals_simpson_method_omp, test_task_run) {
   perf_analyzer->TaskRun(perf_attr, perf_results);
   ppc::core::Perf::PrintPerfStatistic(perf_results);
 
-  EXPECT_NEAR(out[0], 1.0/3.0, 1e-5);
+  EXPECT_NEAR(out[0], 1.0 / 3.0, 1e-5);
 }
