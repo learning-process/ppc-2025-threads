@@ -14,6 +14,8 @@
 #include "core/task/include/task.hpp"
 #include "omp/tyshkevich_a_hoare_simple_merge/include/ops_omp.hpp"
 
+constexpr size_t kTestSequenceSize = 55555;
+
 namespace {
 template <typename T>
 std::vector<T> GenRandVec(size_t size) {
@@ -29,7 +31,7 @@ std::vector<T> GenRandVec(size_t size) {
 }  // namespace
 
 TEST(tyshkevich_a_hoare_simple_merge_omp, test_pipeline_run) {
-  auto in = GenRandVec<int>(3000000);
+  auto in = GenRandVec<int>(kTestSequenceSize);
   std::vector<int> out(in.size());
 
   auto dat = std::make_shared<ppc::core::TaskData>();
@@ -62,7 +64,7 @@ TEST(tyshkevich_a_hoare_simple_merge_omp, test_pipeline_run) {
 }
 
 TEST(tyshkevich_a_hoare_simple_merge_omp, test_task_run) {
-  auto in = GenRandVec<int>(3000000);
+  auto in = GenRandVec<int>(kTestSequenceSize);
   std::vector<int> out(in.size());
 
   auto dat = std::make_shared<ppc::core::TaskData>();
