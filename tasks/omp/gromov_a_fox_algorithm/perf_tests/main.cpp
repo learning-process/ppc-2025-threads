@@ -11,7 +11,7 @@
 #include "omp/gromov_a_fox_algorithm/include/ops_omp.hpp"
 
 TEST(gromov_a_fox_algorithm_omp, test_pipeline_run) {
-  constexpr size_t kN = 400;
+  constexpr size_t kN = 450;
 
   std::vector<double> a(kN * kN, 0.0);
   std::vector<double> b(kN * kN, 0.0);
@@ -66,7 +66,7 @@ TEST(gromov_a_fox_algorithm_omp, test_pipeline_run) {
 }
 
 TEST(gromov_a_fox_algorithm_omp, test_task_run) {
-  constexpr size_t kN = 400;
+  constexpr size_t kN = 450;
 
   std::vector<double> a(kN * kN, 0.0);
   std::vector<double> b(kN * kN, 0.0);
