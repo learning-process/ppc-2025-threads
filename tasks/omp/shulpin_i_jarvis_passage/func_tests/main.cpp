@@ -21,7 +21,7 @@ std::vector<shulpin_i_jarvis_omp::Point> GenerateRandomPoints(size_t num_points)
   for (size_t i = 0; i < num_points; ++i) {
     double x = dist(gen);
     double y = dist(gen);
-    points.emplace_back(shulpin_i_jarvis_omp::Point{x, y});
+    points.emplace_back(x, y);
   }
 
   return points;
