@@ -78,14 +78,12 @@ bool laganina_e_component_labeling_omp::TestTaskOpenMP::ProcessRow(int row_idx, 
 
     if (parent[current] == -1) continue;
 
-    // Вертикальный сосед
     const int vert_neighbor_row = row - (reverse ? -1 : 1);
     const int vert_neighbor = vert_neighbor_row * n_ + col;
     if (vert_neighbor_row >= 0 && vert_neighbor_row < m_ && parent[vert_neighbor] != -1) {
       row_changed |= UnionNodes(current, vert_neighbor, parent);
     }
 
-    // Горизонтальный сосед
     const int horz_neighbor_col = col - (reverse ? -1 : 1);
     const int horz_neighbor = row * n_ + horz_neighbor_col;
     if (horz_neighbor_col >= 0 && horz_neighbor_col < n_ && parent[horz_neighbor] != -1) {
