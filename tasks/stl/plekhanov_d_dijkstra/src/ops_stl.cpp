@@ -65,23 +65,31 @@ bool plekhanov_d_dijkstra_stl::TestTaskSTL::RunImpl() {  // NOLINT(readability-f
   }
 
   std::priority_queue<std::pair<int, int>, std::vector<std::pair<int, int>>, std::greater<>> pq;
+  std::mutex pq_mutex;
+  std::vector<std::mutex> dist_mutexes(num_vertices_);
+
   pq.emplace(0, start_vertex_);
   distances_[start_vertex_] = 0;
 
-  std::mutex pq_mutex;
-
   const size_t num_threads =
       std::min(ppc::util::GetPPCNumThreads(), static_cast<int>(std::thread::hardware_concurrency()));
-  while (!pq.empty()) {
+
+  while (true) {
     pq_mutex.lock();
-    auto top_element = pq.top();
-    int dist = top_element.first;
-    int u = top_element.second;
+    if (pq.empty()) {
+      pq_mutex.unlock();
+      break;
+    }
+
+    auto [dist, u] = pq.top();
     pq.pop();
     pq_mutex.unlock();
 
-    if (dist > distances_[u]) {
-      continue;
+    {
+      std::lock_guard<std::mutex> lock(dist_mutexes[u]);
+      if (dist > distances_[u]) {
+        continue;
+      }
     }
 
     size_t edges_count = graph[u].size();
@@ -99,11 +107,12 @@ bool plekhanov_d_dijkstra_stl::TestTaskSTL::RunImpl() {  // NOLINT(readability-f
           int weight = graph[u][k].second;
           int new_dist = dist + weight;
 
+          std::lock_guard<std::mutex> lock(dist_mutexes[v]);
           if (new_dist < distances_[v]) {
             distances_[v] = new_dist;
-            pq_mutex.lock();
+
+            std::lock_guard<std::mutex> pq_lock(pq_mutex);
             pq.emplace(new_dist, v);
-            pq_mutex.unlock();
           }
         }
       }));
