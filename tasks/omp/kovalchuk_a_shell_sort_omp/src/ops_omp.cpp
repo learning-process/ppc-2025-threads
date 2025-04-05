@@ -29,18 +29,22 @@ bool ShellSortOMP::RunImpl() {
 }
 
 void ShellSortOMP::ShellSort() {
-  if (input_.empty()) return;
+  if (input_.empty()) {
+    return;
+  }
 
   std::vector<int>& local_input = input_;
   const int n = static_cast<int>(local_input.size());
 
   for (int gap = n / 2; gap > 0; gap /= 2) {
-#pragma omp parallel for default(none) shared(local_input) firstprivate(gap, n)
+#pragma omp parallel for shared(local_input) schedule(static)
     for (int i = gap; i < n; ++i) {
       int temp = local_input[i];
       int j = i;
-      for (; j >= gap && local_input[j - gap] > temp; j -= gap) {
+
+      while (j >= gap && local_input[j - gap] > temp) {
         local_input[j] = local_input[j - gap];
+        j -= gap;
       }
       local_input[j] = temp;
     }
@@ -49,7 +53,7 @@ void ShellSortOMP::ShellSort() {
 
 bool ShellSortOMP::PostProcessingImpl() {
   auto* output_ptr = reinterpret_cast<int*>(task_data->outputs[0]);
-  std::copy(input_.begin(), input_.end(), output_ptr);
+  std::ranges::copy(input_, output_ptr);
   return true;
 }
 
