@@ -70,7 +70,7 @@ bool plekhanov_d_dijkstra_tbb::TestTaskTBB::ValidationImpl() {
          task_data->outputs_count[0] > 0;
 }
 
-bool plekhanov_d_dijkstra_tbb::TestTaskTBB::RunImpl() {
+bool plekhanov_d_dijkstra_tbb::TestTaskTBB::RunImpl() {  // NOLINT(readability-function-cognitive-complexity)
   std::vector<std::vector<std::pair<int, int>>> graph(num_vertices_);
 
   if (!ConvertGraphToAdjacencyList(graph_data_, num_vertices_, graph)) {
