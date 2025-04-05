@@ -78,6 +78,7 @@ TEST(deryabin_m_hoare_sort_simple_merge_tbb, test_half_of_the_same_elements_arra
   // Create data
   std::random_device rd;
   std::mt19937 gen(rd());
+  std::uniform_real_distribution<> distribution(-100, 100);
   std::vector<double> input_array(800);
   const auto half = input_array.size() / 2U;
   std::ranges::generate(input_array.begin(), input_array.end() - (long)half, [&]() mutable { return 0; });
@@ -351,8 +352,6 @@ TEST(deryabin_m_hoare_sort_simple_merge_tbb, test_partially_sorted_array) {
 
 TEST(deryabin_m_hoare_sort_simple_merge_tbb, test_backward_sorted_array) {
   // Create data
-  std::random_device rd;
-  std::mt19937 gen(rd());
   std::vector<double> input_array(800);
   std::ranges::generate(input_array.begin(), input_array.end(), [value = 800]() mutable { return value--; });
   std::vector<std::vector<double>> in_array(1, input_array);
