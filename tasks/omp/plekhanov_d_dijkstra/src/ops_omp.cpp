@@ -5,6 +5,8 @@
 #include <algorithm>
 #include <climits>
 #include <cstddef>
+#include <functional>
+#include <queue>
 #include <utility>
 #include <vector>
 
@@ -37,46 +39,6 @@ bool TestTaskOpenMP::ConvertGraphToAdjacencyList(const std::vector<int>& graph_d
   return true;
 }
 
-int TestTaskOpenMP::FindMinDistanceVertex(const std::vector<int>& distances, const std::vector<bool>& visited,
-                                          size_t num_vertices) {
-  int global_min = INT_MAX;
-  int selected_vertex = -1;
-#pragma omp parallel
-  {
-    int local_min = INT_MAX;
-    int local_vertex = -1;
-#pragma omp for nowait
-    for (int v = 0; v < static_cast<int>(num_vertices); ++v) {
-      if (!visited[v] && distances[v] < local_min) {
-        local_min = distances[v];
-        local_vertex = v;
-      }
-    }
-#pragma omp critical
-    {
-      if (local_min < global_min) {
-        global_min = local_min;
-        selected_vertex = local_vertex;
-      }
-    }
-  }
-  return selected_vertex;
-}
-
-void TestTaskOpenMP::UpdateDistancesForVertex(int u, const std::vector<std::vector<std::pair<int, int>>>& graph,
-                                              std::vector<int>& distances, const std::vector<bool>& visited) {
-#pragma omp parallel for
-  for (int j = 0; j < static_cast<int>(graph[u].size()); ++j) {
-    int v = graph[u][j].first;
-    int weight = graph[u][j].second;
-    if (!visited[v] && distances[u] != INT_MAX) {
-      int new_distance = distances[u] + weight;
-#pragma omp critical
-      { distances[v] = std::min(new_distance, distances[v]); }
-    }
-  }
-}
-
 }  // namespace plekhanov_d_dijkstra_omp
 
 const int plekhanov_d_dijkstra_omp::TestTaskOpenMP::kEndOfVertexList = -1;
@@ -107,20 +69,39 @@ bool plekhanov_d_dijkstra_omp::TestTaskOpenMP::ValidationImpl() {
 }
 
 bool plekhanov_d_dijkstra_omp::TestTaskOpenMP::RunImpl() {
-  std::vector<std::vector<std::pair<int, int>>> graph;
-  if (!ConvertGraphToAdjacencyList(graph_data_, num_vertices_, graph)) {
+  std::vector<std::vector<std::pair<int, int>>> adj_list;
+  if (!ConvertGraphToAdjacencyList(graph_data_, num_vertices_, adj_list)) {
     return false;
   }
 
-  std::vector<bool> visited(num_vertices_, false);
+  std::priority_queue<std::pair<int, size_t>, std::vector<std::pair<int, size_t>>, std::greater<>> pq;
 
-  for (int count = 0; count < static_cast<int>(num_vertices_) - 1; ++count) {
-    int u = FindMinDistanceVertex(distances_, visited, num_vertices_);
-    if (u == -1) {
-      break;
+  pq.emplace(0, start_vertex_);
+
+  while (!pq.empty()) {
+    size_t u = pq.top().second;
+    int dist_u = pq.top().first;
+    pq.pop();
+
+    if (dist_u > distances_[u]) {
+      continue;
     }
-    visited[u] = true;
-    UpdateDistancesForVertex(u, graph, distances_, visited);
+
+#pragma omp parallel for
+    for (int idx = 0; idx < static_cast<int>(adj_list[u].size()); ++idx) {
+      size_t v = adj_list[u][idx].first;
+      int weight = adj_list[u][idx].second;
+
+      if (distances_[u] != INT_MAX && distances_[u] + weight < distances_[v]) {
+#pragma omp critical
+        {
+          if (distances_[u] + weight < distances_[v]) {
+            distances_[v] = distances_[u] + weight;
+            pq.emplace(distances_[v], v);
+          }
+        }
+      }
+    }
   }
 
   return true;

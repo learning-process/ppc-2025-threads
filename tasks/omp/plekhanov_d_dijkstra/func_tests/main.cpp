@@ -16,6 +16,16 @@
 namespace plekhanov_d_dijkstra_omp {
 
 template <typename ExpectedResultType>
+void ValidateTaskSuccess(TestTaskOpenMP &test_task, std::vector<int> &distances,
+                         const std::vector<ExpectedResultType> &expected_result) {
+  ASSERT_TRUE(test_task.Run());
+  test_task.PostProcessing();
+  for (size_t i = 0; i < distances.size(); ++i) {
+    EXPECT_EQ(distances[i], expected_result[i]);
+  }
+}
+
+template <typename ExpectedResultType>
 void ExecuteAndValidateTask(std::shared_ptr<ppc::core::TaskData> &task_data, std::vector<int> &distances,
                             const std::vector<ExpectedResultType> &expected_result, bool expect_success) {
   TestTaskOpenMP test_task(task_data);
@@ -23,11 +33,7 @@ void ExecuteAndValidateTask(std::shared_ptr<ppc::core::TaskData> &task_data, std
   test_task.PreProcessing();
 
   if (expect_success) {
-    ASSERT_TRUE(test_task.Run());
-    test_task.PostProcessing();
-    for (size_t i = 0; i < distances.size(); ++i) {
-      EXPECT_EQ(distances[i], expected_result[i]);
-    }
+    ValidateTaskSuccess(test_task, distances, expected_result);
   } else {
     ASSERT_FALSE(test_task.Run());
   }
@@ -103,7 +109,7 @@ std::vector<std::vector<std::pair<size_t, int>>> GenerateRandomGraph(size_t num_
   return adj_list;
 }
 
-std::vector<int> CalculateExpectedResult(const std::vector<std::vector<std::pair<size_t, int>>> &adj_list,
+std::vector<int> static CalculateExpectedResult(const std::vector<std::vector<std::pair<size_t, int>>> &adj_list,
                                          size_t start_vertex) {
   size_t n = adj_list.size();
   const int inf = INT_MAX;

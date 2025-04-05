@@ -72,7 +72,7 @@ std::vector<int> CalculateExpectedResult(const std::vector<std::vector<std::pair
 }  // namespace plekhanov_d_dijkstra_omp
 
 TEST(plekhanov_d_dijkstra_omp, test_pipeline_run) {
-  constexpr size_t kNumVertices = 3000;
+  constexpr size_t kNumVertices = 5000;
   size_t start_vertex = 0;
 
   std::vector<std::vector<std::pair<size_t, int>>> adj_list =
@@ -118,7 +118,7 @@ TEST(plekhanov_d_dijkstra_omp, test_pipeline_run) {
 }
 
 TEST(plekhanov_d_dijkstra_omp, test_task_run) {
-  constexpr size_t kNumVertices = 3000;
+  constexpr size_t kNumVertices = 5000;
   size_t start_vertex = 0;
 
   std::vector<std::vector<std::pair<size_t, int>>> adj_list =
