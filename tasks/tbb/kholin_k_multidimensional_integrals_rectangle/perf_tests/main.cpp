@@ -65,7 +65,7 @@ TEST(kholin_k_multidimensional_integrals_rectangle_tbb, test_pipeline_run) {
   ASSERT_EQ(ref_i, std::trunc(out_i[0]));
 }
 
-TEST(kholin_k_multidimensional_integrals_rectangle_omp, test_task_run) {
+TEST(kholin_k_multidimensional_integrals_rectangle_tbb, test_task_run) {
   // Create data
   size_t dim = 3;
   std::vector<double> values{0.0, 0.0, 0.0};
