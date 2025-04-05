@@ -15,6 +15,7 @@
 
 namespace plekhanov_d_dijkstra_omp {
 
+namespace {
 template <typename ExpectedResultType>
 void ValidateTaskSuccess(TestTaskOpenMP &test_task, std::vector<int> &distances,
                          const std::vector<ExpectedResultType> &expected_result) {
@@ -133,6 +134,8 @@ std::vector<int> CalculateExpectedResult(const std::vector<std::vector<std::pair
   }
   return distances;
 }
+
+}  // namespace
 
 }  // namespace plekhanov_d_dijkstra_omp
 

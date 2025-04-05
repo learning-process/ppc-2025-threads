@@ -18,9 +18,11 @@
 
 namespace plekhanov_d_dijkstra_omp {
 
-std::vector<std::vector<std::pair<size_t, int>>> CreateRandomAdjacencyList(size_t num_vertices);
-std::vector<int> CalculateExpectedResult(const std::vector<std::vector<std::pair<size_t, int>>> &adj_list,
-                                         size_t start_vertex);
+namespace {
+
+std::vector<std::vector<std::pair<size_t, int>>> static CreateRandomAdjacencyList(size_t num_vertices);
+std::vector<int> static CalculateExpectedResult(const std::vector<std::vector<std::pair<size_t, int>>> &adj_list,
+                                                size_t start_vertex);
 
 std::vector<std::vector<std::pair<size_t, int>>> CreateRandomAdjacencyList(size_t num_vertices) {
   srand(static_cast<unsigned int>(time(nullptr)));
@@ -68,6 +70,8 @@ std::vector<int> CalculateExpectedResult(const std::vector<std::vector<std::pair
   }
   return distances;
 }
+
+}  // namespace
 
 }  // namespace plekhanov_d_dijkstra_omp
 
