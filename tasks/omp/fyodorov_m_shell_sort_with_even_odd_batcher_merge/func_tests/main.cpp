@@ -75,7 +75,7 @@ TEST(fyodorov_m_shell_sort_with_even_odd_batcher_merge_omp, test_random_sequence
   task_data_omp->outputs_count.emplace_back(output.size());
 
   fyodorov_m_shell_sort_with_even_odd_batcher_merge_omp::TestTaskOpenmp test_task_openmp(task_data_omp);
-  ASSERT_EQ(TestTaskOpenmp.Validation(), true);
+  ASSERT_EQ(test_task_openmp.Validation(), true);
   test_task_openmp.PreProcessing();
   test_task_openmp.Run();
   test_task_openmp.PostProcessing();
