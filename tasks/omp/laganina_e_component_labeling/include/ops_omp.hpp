@@ -1,6 +1,7 @@
 #pragma once
 
 #include <unordered_map>
+#include <unordered_set>
 #include <vector>
 
 #include "core/task/include/task.hpp"
@@ -33,30 +34,31 @@ class TestTaskOpenMP : public ppc::core::Task {
 };
 
 inline void NormalizeLabels(std::vector<int>& vec) {
-  std::unordered_map<int, int> label_map;
-  int current_label = 1;
-  {
-    std::unordered_map<int, int> local_map;
-    for (unsigned int i = 0; i < vec.size(); ++i) {
-      if (vec[i] != 0) {
-        local_map.try_emplace(vec[i], 0);
-      }
-    }
-    {
-      for (const auto& [key, _] : local_map) {
-        if (label_map.find(key) == label_map.end()) {
-          label_map[key] = current_label++;
-        }
-      }
+  std::vector<int> unique_labels;  // Хранит уникальные значения в порядке их первого появления
+  std::unordered_set<int> seen;  // Для быстрой проверки уникальности
+
+  // Собираем уникальные ненулевые значения, сохраняя порядок первого появления
+  for (int val : vec) {
+    if (val != 0 && seen.find(val) == seen.end()) {
+      unique_labels.push_back(val);
+      seen.insert(val);
     }
   }
-  for (unsigned int i = 0; i < vec.size(); ++i) {
-    if (vec[i] != 0) {
-      vec[i] = label_map[vec[i]];
+
+  // Создаем отображение: старое значение -> новая метка (начиная с 1)
+  std::unordered_map<int, int> label_map;
+  int current_label = 1;
+  for (int val : unique_labels) {
+    label_map[val] = current_label++;
+  }
+
+  // Заменяем значения в векторе, сохраняя нули
+  for (int& val : vec) {
+    if (val != 0) {
+      val = label_map[val];
     }
   }
 }
-
 void CompressPath(std::vector<int>& parent, int node, int& root);
 
 }  // namespace laganina_e_component_labeling_omp

@@ -92,7 +92,7 @@ TEST(laganina_e_component_labeling_omp, Find_test) {
   // Create data
   std::vector<int> in = {1, 0, 1, 1, 1, 0, 0, 1, 1};
   std::vector<int> out(m * n, 0);
-  std::vector<int> exp_out = {2, 0, 3, 2, 2, 0, 0, 2, 2};
+  std::vector<int> exp_out = {1, 0, 2, 1, 1, 0, 0, 1, 1};
   // Create task_data
   auto task_data_omp = std::make_shared<ppc::core::TaskData>();
   task_data_omp->inputs.emplace_back(reinterpret_cast<uint8_t *>(in.data()));
@@ -118,7 +118,7 @@ TEST(laganina_e_component_labeling_omp, all_one) {
   // Create data
   std::vector<int> in(m * n, 1);
   std::vector<int> out(m * n, 0);
-  std::vector<int> res(m * n, 2);
+  std::vector<int> res(m * n, 1);
   // Create task_data
   auto task_data_omp = std::make_shared<ppc::core::TaskData>();
   task_data_omp->inputs.emplace_back(reinterpret_cast<uint8_t *>(in.data()));
@@ -144,7 +144,7 @@ TEST(laganina_e_component_labeling_omp, all_one_large) {
   // Create data
   std::vector<int> in(m * n, 1);
   std::vector<int> out(m * n, 0);
-  std::vector<int> res(m * n, 2);
+  std::vector<int> res(m * n, 1);
   // Create task_data
   auto task_data_omp = std::make_shared<ppc::core::TaskData>();
   task_data_omp->inputs.emplace_back(reinterpret_cast<uint8_t *>(in.data()));
@@ -194,7 +194,7 @@ TEST(laganina_e_component_labeling_omp, test1) {
   int n = 3;
   // Create data
   std::vector<int> in = {1, 0, 1, 0, 1, 0, 1, 0, 1};
-  std::vector<int> exp_out = {2, 0, 3, 0, 4, 0, 5, 0, 6};
+  std::vector<int> exp_out = {1, 0, 2, 0, 3, 0, 4, 0, 5};
   std::vector<int> out(m * n, 0);
   // Create task_data
   auto task_data_omp = std::make_shared<ppc::core::TaskData>();
@@ -220,7 +220,7 @@ TEST(laganina_e_component_labeling_omp, test2) {
   int n = 5;
   // Create data
   std::vector<int> in = {1, 1, 0, 0, 0, 0, 1, 1, 0, 0, 0, 0, 1, 1, 0, 0, 0, 0, 1, 1};
-  std::vector<int> exp_out = {2, 2, 0, 0, 0, 0, 2, 2, 0, 0, 0, 0, 2, 2, 0, 0, 0, 0, 2, 2};
+  std::vector<int> exp_out = {1, 1, 0, 0, 0, 0, 1, 1, 0, 0, 0, 0, 1, 1, 0, 0, 0, 0, 1, 1};
   std::vector<int> out(m * n, 0);
   // Create task_data
   auto task_data_omp = std::make_shared<ppc::core::TaskData>();
@@ -246,7 +246,7 @@ TEST(laganina_e_component_labeling_omp, test3) {
   int n = 5;
   // Create data
   std::vector<int> in = {1, 1, 0, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0};
-  std::vector<int> exp_out = {2, 2, 0, 0, 3, 0, 2, 0, 4, 0, 5, 0, 6, 0, 7, 0, 8, 0, 9, 0};
+  std::vector<int> exp_out = {1, 1, 0, 0, 2, 0, 1, 0, 3, 0, 4, 0, 5, 0, 6, 0, 7, 0, 8, 0};
   std::vector<int> out(m * n, 0);
   // Create task_data
   auto task_data_omp = std::make_shared<ppc::core::TaskData>();
@@ -272,7 +272,7 @@ TEST(laganina_e_component_labeling_omp, test6) {
   int n = 5;
   // Create data
   std::vector<int> in = {1, 1, 0, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0};
-  std::vector<int> exp_out = {2, 2, 0, 0, 3, 0, 2, 0, 4, 0, 5, 0, 6, 0, 7, 0, 8, 0, 9, 0};
+  std::vector<int> exp_out = {1, 1, 0, 0, 2, 0, 1, 0, 3, 0, 4, 0, 5, 0, 6, 0, 7, 0, 8, 0};
   std::vector<int> out(m * n, 0);
   // Create task_data
   auto task_data_omp = std::make_shared<ppc::core::TaskData>();
@@ -298,7 +298,7 @@ TEST(laganina_e_component_labeling_omp, test7) {
   int n = 5;
   // Create data
   std::vector<int> in = {1, 1, 0, 0, 1, 1, 1, 1, 0, 1, 0, 1, 1, 1, 0, 0, 0, 1, 1, 1};
-  std::vector<int> exp_out = {2, 2, 0, 0, 3, 2, 2, 2, 0, 3, 0, 2, 2, 2, 0, 0, 0, 2, 2, 2};
+  std::vector<int> exp_out = {1, 1, 0, 0, 2, 1, 1, 1, 0, 2, 0, 1, 1, 1, 0, 0, 0, 1, 1, 1};
   std::vector<int> out(m * n, 0);
   // Create task_data
   auto task_data_omp = std::make_shared<ppc::core::TaskData>();
@@ -324,7 +324,7 @@ TEST(laganina_e_component_labeling_omp, one_row) {
   int n = 6;
   // Create data
   std::vector<int> in = {1, 0, 1, 1, 0, 1};
-  std::vector<int> exp_out = {2, 0, 3, 3, 0, 4};
+  std::vector<int> exp_out = {1, 0, 2, 2, 0, 3};
   std::vector<int> out(m * n, 0);
   // Create task_data
   auto task_data_omp = std::make_shared<ppc::core::TaskData>();
@@ -350,7 +350,7 @@ TEST(laganina_e_component_labeling_omp, test4) {
   int n = 5;
   // Create data
   std::vector<int> in = {1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0};
-  std::vector<int> exp_out = {2, 0, 3, 0, 4, 0, 5, 0, 6, 0, 7, 0, 8, 0, 9, 0, 10, 0, 11, 0};
+  std::vector<int> exp_out = {1, 0, 2, 0, 3, 0, 4, 0, 5, 0, 6, 0, 7, 0, 8, 0, 9, 0, 10, 0};
   std::vector<int> out(m * n, 0);
   // Create task_data
   auto task_data_omp = std::make_shared<ppc::core::TaskData>();
@@ -376,7 +376,7 @@ TEST(laganina_e_component_labeling_omp, test5) {
   int n = 3;
   // Create data
   std::vector<int> in = {1, 1, 1, 1, 0, 1, 1, 1, 1};
-  std::vector<int> exp_out = {2, 2, 2, 2, 0, 2, 2, 2, 2};
+  std::vector<int> exp_out = {1, 1, 1, 1, 0, 1, 1, 1, 1};
   std::vector<int> out(m * n, 0);
   // Create task_data
   auto task_data_omp = std::make_shared<ppc::core::TaskData>();
@@ -403,7 +403,7 @@ TEST(laganina_e_component_labeling_omp, all_one_100) {
   // Create data
   std::vector<int> in(m * n, 1);
   std::vector<int> out(m * n, 0);
-  std::vector<int> exp_out(m * n, 2);
+  std::vector<int> exp_out(m * n, 1);
 
   // Create task_data
   auto task_data_omp = std::make_shared<ppc::core::TaskData>();
@@ -430,7 +430,7 @@ TEST(laganina_e_component_labeling_omp, all_one_500) {
   // Create data
   std::vector<int> in(m * n, 1);
   std::vector<int> out(m * n, 0);
-  std::vector<int> exp_out(m * n, 2);
+  std::vector<int> exp_out(m * n, 1);
   // Create task_data
   auto task_data_omp = std::make_shared<ppc::core::TaskData>();
   task_data_omp->inputs.emplace_back(reinterpret_cast<uint8_t *>(in.data()));
@@ -471,13 +471,13 @@ TEST(laganina_e_component_labeling_omp, simple_rectangles_100) {
 
   for (int i = 10; i < 40; ++i) {
     for (int j = 20; j < 60; ++j) {
-      exp_out[(i * n) + j] = 2;
+      exp_out[(i * n) + j] = 1;
     }
   }
 
   for (int i = 60; i < 90; ++i) {
     for (int j = 50; j < 80; ++j) {
-      exp_out[(i * n) + j] = 3;
+      exp_out[(i * n) + j] = 2;
     }
   }
 
@@ -511,7 +511,7 @@ TEST(laganina_e_component_labeling_omp, diagonal_line_100) {
     in[(i * n) + i] = 1;
   }
   for (int i = 0; i < n; i += 2) {
-    exp_out[(i * n) + i] = 2 + (i / 2);
+    exp_out[(i * n) + i] = 1 + (i / 2);
   }
 
   // Create task_data
@@ -553,7 +553,7 @@ TEST(laganina_e_component_labeling_omp, u_shaped_shape_100) {
 
   for (int i = 10; i < 90; ++i) {
     for (int j = 10; j < 90; ++j) {
-      exp_out[(i * n) + j] = 2;
+      exp_out[(i * n) + j] = 1;
     }
   }
 
@@ -598,7 +598,7 @@ TEST(laganina_e_component_labeling_omp, ring_with_a_hole_100) {
   for (int i = 0; i < n; ++i) {
     for (int j = 0; j < n; ++j) {
       if (i < 10 || i >= 90 || j < 10 || j >= 90) {
-        exp_out[(i * n) + j] = 2;
+        exp_out[(i * n) + j] = 1;
       }
     }
   }

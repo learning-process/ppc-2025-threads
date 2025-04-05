@@ -122,7 +122,6 @@ bool laganina_e_component_labeling_omp::TestTaskOpenMP::UnionNodes(int a, int b,
       std::swap(root_a, root_b);
     }
 
-#pragma omp atomic write
     parent[root_b] = root_a;
 
     return true;

@@ -16,7 +16,7 @@ TEST(laganina_e_component_labeling_omp, test_pipeline_run) {
   // Create data 4
   std::vector<int> in(kCount * kCount, 1);
   std::vector<int> out(kCount * kCount, 0);
-  std::vector<int> res(kCount * kCount, 2);
+  std::vector<int> res(kCount * kCount, 1);
 
   // Create task_data
   auto task_data_seq = std::make_shared<ppc::core::TaskData>();
@@ -56,7 +56,7 @@ TEST(laganina_e_component_labeling_omp, test_task_run) {
   // Create data
   std::vector<int> in(kCount * kCount, 1);
   std::vector<int> out(kCount * kCount, 0);
-  std::vector<int> res(kCount * kCount, 2);
+  std::vector<int> res(kCount * kCount, 1);
 
   // Create task_data
   auto task_data_seq = std::make_shared<ppc::core::TaskData>();
