@@ -17,7 +17,10 @@ bool durynichev_d_integrals_simpson_method_omp::SimpsonIntegralOpenMP::PreProces
 }
 
 bool durynichev_d_integrals_simpson_method_omp::SimpsonIntegralOpenMP::ValidationImpl() {
-  return task_data->inputs_count[0] >= 3 && task_data->outputs_count[0] == 1 && (n_ % 2 == 0);
+  // Извлекаем n напрямую из входных данных
+  auto* in_ptr = reinterpret_cast<double*>(task_data->inputs[0]);
+  int n = static_cast<int>(in_ptr[task_data->inputs_count[0] - 1]);
+  return task_data->inputs_count[0] >= 3 && task_data->outputs_count[0] == 1 && (n % 2 == 0);
 }
 
 bool durynichev_d_integrals_simpson_method_omp::SimpsonIntegralOpenMP::RunImpl() {
