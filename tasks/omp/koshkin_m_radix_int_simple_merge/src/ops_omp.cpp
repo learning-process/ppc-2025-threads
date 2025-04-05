@@ -46,12 +46,12 @@ std::vector<int> RadixIntegerSort(const std::vector<int> &arr) {
   std::vector<int> res(arr.size());
 
   std::size_t left = 0;
-  std::size_t right = arr.size() - 1;
+  std::size_t right = arr.size();
   for (auto num : arr) {
     if (num < 0) {
       res[left++] = num;
     } else {
-      res[right--] = num;
+      res[--right] = num;
     }
   }
 
@@ -66,6 +66,7 @@ std::vector<int> RadixIntegerSort(const std::vector<int> &arr) {
   std::ranges::reverse(neg);
   return res;
 }
+
 }  // namespace
 
 bool koshkin_m_radix_int_simple_merge::OmpT::PreProcessingImpl() {
