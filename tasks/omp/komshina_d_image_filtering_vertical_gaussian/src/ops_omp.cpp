@@ -85,7 +85,7 @@ bool komshina_d_image_filtering_vertical_gaussian_omp::TestTaskOpenMP::PostProce
   if (task_data->outputs.empty() || task_data->outputs[0] == nullptr) {
     return false;
   }
-  
+
   auto *output_ptr = task_data->outputs[0];
   std::ranges::copy(output_, output_ptr);
 
