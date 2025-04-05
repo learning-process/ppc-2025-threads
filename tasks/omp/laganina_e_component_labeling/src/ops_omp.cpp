@@ -113,83 +113,82 @@ int laganina_e_component_labeling_omp::TestTaskOpenMP::FindRoot(std::vector<int>
   return x;
 }
 
-void laganina_e_component_labeling_omp::TestTaskOpenMP::UnionNodes(int a, int b, std::vector<int>& parent,
-                                                                   bool& changed) {
+bool laganina_e_component_labeling_omp::TestTaskOpenMP::UnionNodes(int a, int b, std::vector<int>& parent) {
   int root_a = FindRoot(parent, a);
   int root_b = FindRoot(parent, b);
 
   if (root_a != root_b) {
     if (root_b < root_a) {
-      {
-        std::swap(root_a, root_b);
-      }
+      std::swap(root_a, root_b);
+    }
 
 #pragma omp atomic write
-      parent[root_b] = root_a;
+    parent[root_b] = root_a;
 
-      changed = true;
-    }
-  }
-
-  void laganina_e_component_labeling_omp::TestTaskOpenMP::FinalizeRoots(std::vector<int> & parent) {
-    const int size = m_ * n_;
-#pragma omp parallel for schedule(static)
-    for (int i = 0; i < size; ++i) {
-      if (parent[i] != -1) {
-        parent[i] = FindRoot(parent, i);
-      }
-    }
-  }
-
-  void laganina_e_component_labeling_omp::TestTaskOpenMP::AssignLabels(std::vector<int> & parent) {
-    std::vector<int> labels((m_ * n_) + 1, 0);
-    int current_label = 1;
-
-#pragma omp parallel
-    {
-      std::vector<int> local_roots;
-#pragma omp for nowait
-      for (int i = 0; i < m_ * n_; ++i) {
-        if (parent[i] != -1 && parent[i] == i) {
-          local_roots.push_back(i);
-        }
-      }
-
-#pragma omp critical
-      {
-        for (int root : local_roots) {
-          if (labels[root] == 0) {
-            labels[root] = current_label++;
-          }
-        }
-      }
-    }
-
-#pragma omp parallel for schedule(static)
-    for (int i = 0; i < m_ * n_; ++i) {
-      binary_[i] = parent[i] != -1 ? labels[parent[i]] : 0;
-    }
-  }
-
-  void laganina_e_component_labeling_omp::TestTaskOpenMP::LabelConnectedComponents() {
-    std::vector<int> parent(m_ * n_);
-    InitializeParents(parent);
-
-    constexpr int kMaxIterations = 100;
-    bool changed = false;
-    int iterations = 0;
-
-    do {
-      changed = false;
-      ProcessSweep(false, parent, changed);
-      ProcessSweep(true, parent, changed);
-    } while (changed && ++iterations < kMaxIterations);
-
-    FinalizeRoots(parent);
-    AssignLabels(parent);
-  }
-
-  bool laganina_e_component_labeling_omp::TestTaskOpenMP::RunImpl() {
-    LabelConnectedComponents();
     return true;
   }
+  return false;
+}
+
+void laganina_e_component_labeling_omp::TestTaskOpenMP::FinalizeRoots(std::vector<int>& parent) {
+  const int size = m_ * n_;
+#pragma omp parallel for schedule(static)
+  for (int i = 0; i < size; ++i) {
+    if (parent[i] != -1) {
+      parent[i] = FindRoot(parent, i);
+    }
+  }
+}
+
+void laganina_e_component_labeling_omp::TestTaskOpenMP::AssignLabels(std::vector<int>& parent) {
+  std::vector<int> labels((m_ * n_) + 1, 0);
+  int current_label = 1;
+
+#pragma omp parallel
+  {
+    std::vector<int> local_roots;
+#pragma omp for nowait
+    for (int i = 0; i < m_ * n_; ++i) {
+      if (parent[i] != -1 && parent[i] == i) {
+        local_roots.push_back(i);
+      }
+    }
+
+#pragma omp critical
+    {
+      for (int root : local_roots) {
+        if (labels[root] == 0) {
+          labels[root] = current_label++;
+        }
+      }
+    }
+  }
+
+#pragma omp parallel for schedule(static)
+  for (int i = 0; i < m_ * n_; ++i) {
+    binary_[i] = parent[i] != -1 ? labels[parent[i]] : 0;
+  }
+}
+
+void laganina_e_component_labeling_omp::TestTaskOpenMP::LabelConnectedComponents() {
+  std::vector<int> parent(m_ * n_);
+  InitializeParents(parent);
+
+  constexpr int kMaxIterations = 100;
+  bool changed = false;
+  int iterations = 0;
+
+  do {
+    changed = false;
+    ProcessSweep(false, parent, changed);
+    ProcessSweep(true, parent, changed);
+  } while (changed && ++iterations < kMaxIterations);
+
+  FinalizeRoots(parent);
+  AssignLabels(parent);
+}
+
+bool laganina_e_component_labeling_omp::TestTaskOpenMP::RunImpl() {
+  LabelConnectedComponents();
+  return true;
+}

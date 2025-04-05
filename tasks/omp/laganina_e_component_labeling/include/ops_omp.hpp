@@ -23,7 +23,7 @@ class TestTaskOpenMP : public ppc::core::Task {
 
   void InitializeParents(std::vector<int>& parent);
   void ProcessSweep(bool reverse, std::vector<int>& parent, bool& changed);
-  void UnionNodes(int a, int b, std::vector<int>& parent, bool& changed);
+  bool UnionNodes(int a, int b, std::vector<int>& parent);
   bool CheckNeighbor(int nr, int nc, int current, std::vector<int>& parent);
   bool ProcessRow(int row_idx, bool reverse, std::vector<int>& parent);
   int FindRoot(std::vector<int>& parent, int x);
@@ -37,7 +37,7 @@ inline void NormalizeLabels(std::vector<int>& vec) {
   int current_label = 1;
   {
     std::unordered_map<int, int> local_map;
-    for (int unsigned int i = 0; i < vec.size(); ++i) {
+    for (unsigned int i = 0; i < vec.size(); ++i) {
       if (vec[i] != 0) {
         local_map.try_emplace(vec[i], 0);
       }
