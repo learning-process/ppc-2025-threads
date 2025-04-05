@@ -15,6 +15,12 @@
 
 namespace plekhanov_d_dijkstra_omp {
 
+std::vector<int> ConvertToGraphData(const std::vector<std::vector<std::pair<size_t, int>>> &adj_list);
+void RunValidationFailureTest();
+std::vector<std::vector<std::pair<size_t, int>>> GenerateRandomGraph(size_t num_vertices);
+std::vector<int> CalculateExpectedResult(const std::vector<std::vector<std::pair<size_t, int>>> &adj_list,
+                                         size_t start_vertex);
+
 std::vector<int> ConvertToGraphData(const std::vector<std::vector<std::pair<size_t, int>>> &adj_list) {
   std::vector<int> graph_data;
   for (const auto &vertex_edges : adj_list) {
