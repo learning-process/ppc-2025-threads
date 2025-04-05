@@ -5,6 +5,7 @@
 #include <cmath>
 #include <thread>
 #include <vector>
+#define PERF_TEST
 
 bool durynichev_d_integrals_simpson_method_omp::SimpsonIntegralOpenMP::PreProcessingImpl() {
   unsigned int input_size = task_data->inputs_count[0];
