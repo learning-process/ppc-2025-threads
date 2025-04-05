@@ -129,8 +129,8 @@ void TestTaskSTL::CountingSort(std::vector<int>& arr, int exp) {
 
   std::vector<int> global_count(DIGIT_COUNT, 0);
   for (int d = 0; d < DIGIT_COUNT; ++d) {
-    global_count[d] = std::reduce(local_counts.begin(), local_counts.end(), 0,
-                                  [d](int sum, const std::vector<int>& counts) { return sum + counts[d]; });
+    global_count[d] = std::accumulate(local_counts.begin(), local_counts.end(), 0,
+                                      [d](int sum, const std::vector<int>& counts) { return sum + counts[d]; });
   }
 
   std::partial_sum(global_count.begin(), global_count.end(), global_count.begin());
