@@ -57,9 +57,7 @@ double durynichev_d_integrals_simpson_method_omp::SimpsonIntegralOpenMP::func2D(
   return result;
 }
 #else
-double durynichev_d_integrals_simpson_method_omp::SimpsonIntegralOpenMP::func1D(double x) {
-  return x * x;
-}
+double durynichev_d_integrals_simpson_method_omp::SimpsonIntegralOpenMP::func1D(double x) { return x * x; }
 
 double durynichev_d_integrals_simpson_method_omp::SimpsonIntegralOpenMP::func2D(double x, double y) {
   return x * x + y * y;
