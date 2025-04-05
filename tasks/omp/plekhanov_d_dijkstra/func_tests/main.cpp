@@ -110,7 +110,7 @@ std::vector<std::vector<std::pair<size_t, int>>> GenerateRandomGraph(size_t num_
 }
 
 std::vector<int> static CalculateExpectedResult(const std::vector<std::vector<std::pair<size_t, int>>> &adj_list,
-                                         size_t start_vertex) {
+                                                size_t start_vertex) {
   size_t n = adj_list.size();
   const int inf = INT_MAX;
   std::vector<int> distances(n, inf);
