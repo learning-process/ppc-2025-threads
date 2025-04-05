@@ -72,7 +72,7 @@ void static RunValidationFailureTest() {
   ASSERT_FALSE(test_task_omp.Validation());
 }
 
-std::vector<std::vector<std::pair<size_t, int>>> static GenerateRandomGraph(size_t num_vertices) {                                         
+std::vector<std::vector<std::pair<size_t, int>>> static GenerateRandomGraph(size_t num_vertices) {
   std::random_device rd;
   std::mt19937 gen(rd());
   std::uniform_int_distribution<> dis(1, 10);
@@ -90,7 +90,7 @@ std::vector<std::vector<std::pair<size_t, int>>> static GenerateRandomGraph(size
 }
 
 static std::vector<int> CalculateExpectedResult(const std::vector<std::vector<std::pair<size_t, int>>> &adj_list,
-                                                size_t start_vertex) {                                            
+                                                size_t start_vertex) {
   size_t n = adj_list.size();
   const int inf = INT_MAX;
   std::vector<int> distances(n, inf);
