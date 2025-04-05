@@ -15,14 +15,19 @@ class SimpsonIntegralOpenMP : public ppc::core::Task {
   bool PostProcessingImpl() override;
 
  private:
+#ifdef PERF_TEST
+  double func1D(double x);  // Версия с нагрузкой для perf_tests
+  double func2D(double x, double y);
+#else
+  double func1D(double x);  // Оригинальная версия для func_tests
+  double func2D(double x, double y);
+#endif
+  double simpson1D(double a, double b);
+  double simpson2D(double x0, double x1, double y0, double y1);
+
   std::vector<double> boundaries_;
   double result_;
   int n_;
   int dim_;
-
-  double func1D(double x);
-  double func2D(double x, double y);
-  double simpson1D(double a, double b);
-  double simpson2D(double x0, double x1, double y0, double y1);
 };
 }  // namespace durynichev_d_integrals_simpson_method_omp

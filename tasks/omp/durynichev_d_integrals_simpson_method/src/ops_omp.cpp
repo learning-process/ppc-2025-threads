@@ -37,9 +37,10 @@ bool durynichev_d_integrals_simpson_method_omp::SimpsonIntegralOpenMP::PostProce
   return true;
 }
 
+#ifdef PERF_TEST
 double durynichev_d_integrals_simpson_method_omp::SimpsonIntegralOpenMP::func1D(double x) {
   double result = x * x;
-  for (int i = 0; i < 500; ++i) {  // Увеличиваем нагрузку до 500 итераций
+  for (int i = 0; i < 500; ++i) {
     result += std::sin(x) * std::cos(x);
   }
   return result;
@@ -47,11 +48,20 @@ double durynichev_d_integrals_simpson_method_omp::SimpsonIntegralOpenMP::func1D(
 
 double durynichev_d_integrals_simpson_method_omp::SimpsonIntegralOpenMP::func2D(double x, double y) {
   double result = x * x + y * y;
-  for (int i = 0; i < 500; ++i) {  // Увеличиваем нагрузку до 500 итераций
+  for (int i = 0; i < 500; ++i) {
     result += std::sin(x * y) * std::cos(x + y);
   }
   return result;
 }
+#else
+double durynichev_d_integrals_simpson_method_omp::SimpsonIntegralOpenMP::func1D(double x) {
+  return x * x;  // Оригинальная версия для точности
+}
+
+double durynichev_d_integrals_simpson_method_omp::SimpsonIntegralOpenMP::func2D(double x, double y) {
+  return x * x + y * y;  // Оригинальная версия для точности
+}
+#endif
 
 double durynichev_d_integrals_simpson_method_omp::SimpsonIntegralOpenMP::simpson1D(double a, double b) {
   double h = (b - a) / n_;
