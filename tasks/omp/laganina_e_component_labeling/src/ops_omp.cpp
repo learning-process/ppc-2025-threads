@@ -9,10 +9,9 @@
 
 #include "core/task/include/task.hpp"
 
-namespace laganina_e_component_labeling_omp {
 
 // Helper function for path compression
-void CompressPath(std::vector<int>& parent, int node, int& root) {
+void laganina_e_component_labeling_omp::CompressPath(std::vector<int>& parent, int node, int& root) {
   while (parent[node] != node) {
     parent[node] = parent[parent[node]];  // Path compression
     node = parent[node];
@@ -20,9 +19,7 @@ void CompressPath(std::vector<int>& parent, int node, int& root) {
   root = node;
 }
 
-TestTaskOpenMP::TestTaskOpenMP(ppc::core::TaskDataPtr task_data) : Task(std::move(task_data)) {}
-
-bool TestTaskOpenMP::ValidationImpl() {
+bool laganina_e_component_labeling_omp::TestTaskOpenMP::ValidationImpl() {
   if (task_data == nullptr || task_data->inputs[0] == nullptr || task_data->outputs[0] == nullptr) {
     return false;
   }
@@ -38,7 +35,7 @@ bool TestTaskOpenMP::ValidationImpl() {
   return true;
 }
 
-bool TestTaskOpenMP::PreProcessingImpl() {
+bool laganina_e_component_labeling_omp::TestTaskOpenMP::PreProcessingImpl() {
   m_ = static_cast<int>(task_data->inputs_count[0]);
   n_ = static_cast<int>(task_data->inputs_count[1]);
   binary_.resize(m_ * n_);
@@ -47,13 +44,13 @@ bool TestTaskOpenMP::PreProcessingImpl() {
   return true;
 }
 
-bool TestTaskOpenMP::PostProcessingImpl() {
+bool laganina_e_component_labeling_omp::TestTaskOpenMP::PostProcessingImpl() {
   int* output = reinterpret_cast<int*>(task_data->outputs[0]);
   std::ranges::copy(binary_.cbegin(), binary_.cend(), output);
   return true;
 }
 
-void TestTaskOpenMP::InitializeParents(std::vector<int>& parent) {
+void laganina_e_component_labeling_omp::TestTaskOpenMP::InitializeParents(std::vector<int>& parent) {
   const int size = m_ * n_;
 #pragma omp parallel for schedule(static)
   for (int i = 0; i < size; ++i) {
@@ -61,7 +58,8 @@ void TestTaskOpenMP::InitializeParents(std::vector<int>& parent) {
   }
 }
 
-void TestTaskOpenMP::ProcessSweep(bool reverse, std::vector<int>& parent, bool& changed) {
+void laganina_e_component_labeling_omp::TestTaskOpenMP::ProcessSweep(bool reverse, std::vector<int>& parent,
+                                                                   bool& changed) {
   bool local_changed = false;
 
 #pragma omp parallel for reduction(|| : local_changed) schedule(static)
@@ -89,7 +87,7 @@ void TestTaskOpenMP::ProcessSweep(bool reverse, std::vector<int>& parent, bool& 
   changed = local_changed;
 }
 
-int TestTaskOpenMP::FindRoot(std::vector<int>& parent, int x) {
+int laganina_e_component_labeling_omp::TestTaskOpenMP::FindRoot(std::vector<int>& parent, int x) {
   while (parent[x] != x) {
     parent[x] = parent[parent[x]];
     x = parent[x];
@@ -97,7 +95,8 @@ int TestTaskOpenMP::FindRoot(std::vector<int>& parent, int x) {
   return x;
 }
 
-void TestTaskOpenMP::UnionNodes(int a, int b, std::vector<int>& parent, bool& changed) {
+void laganina_e_component_labeling_omp::TestTaskOpenMP::UnionNodes(int a, int b, std::vector<int>& parent,
+                                                                 bool& changed) {
   int root_a = FindRoot(parent, a);
   int root_b = FindRoot(parent, b);
 
@@ -111,7 +110,7 @@ void TestTaskOpenMP::UnionNodes(int a, int b, std::vector<int>& parent, bool& ch
   }
 }
 
-void TestTaskOpenMP::FinalizeRoots(std::vector<int>& parent) {
+void laganina_e_component_labeling_omp::TestTaskOpenMP::FinalizeRoots(std::vector<int>& parent) {
   const int size = m_ * n_;
 #pragma omp parallel for schedule(static)
   for (int i = 0; i < size; ++i) {
@@ -121,7 +120,7 @@ void TestTaskOpenMP::FinalizeRoots(std::vector<int>& parent) {
   }
 }
 
-void TestTaskOpenMP::AssignLabels(std::vector<int>& parent) {
+void laganina_e_component_labeling_omp::TestTaskOpenMP::AssignLabels(std::vector<int>& parent) {
   std::vector<int> labels(m_ * n_ + 1, 0);
   int current_label = 1;
 
@@ -151,7 +150,7 @@ void TestTaskOpenMP::AssignLabels(std::vector<int>& parent) {
   }
 }
 
-void TestTaskOpenMP::LabelConnectedComponents() {
+void laganina_e_component_labeling_omp::TestTaskOpenMP::LabelConnectedComponents() {
   std::vector<int> parent(m_ * n_);
   InitializeParents(parent);
 
@@ -169,9 +168,7 @@ void TestTaskOpenMP::LabelConnectedComponents() {
   AssignLabels(parent);
 }
 
-bool TestTaskOpenMP::RunImpl() {
-  LabelConnectedComponents();
+bool laganina_e_component_labeling_omp::TestTaskOpenMP::RunImpl() {
+  laganina_e_component_labeling_omp::TestTaskOpenMP::LabelConnectedComponents();
   return true;
 }
-
-}  // namespace laganina_e_component_labeling_omp
