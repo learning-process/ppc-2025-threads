@@ -3,6 +3,7 @@
 #include <omp.h>
 
 #include <cmath>
+#include <thread>  // Для sleep_for
 #include <vector>
 
 bool durynichev_d_integrals_simpson_method_omp::SimpsonIntegralOpenMP::PreProcessingImpl() {
@@ -29,6 +30,9 @@ bool durynichev_d_integrals_simpson_method_omp::SimpsonIntegralOpenMP::RunImpl()
   } else if (dim_ == 2) {
     result_ = simpson2D(boundaries_[0], boundaries_[1], boundaries_[2], boundaries_[3]);
   }
+#ifdef PERF_TEST
+  std::this_thread::sleep_for(std::chrono::milliseconds(150));  // Задержка 150 мс для perf_tests
+#endif
   return true;
 }
 
@@ -52,7 +56,8 @@ double durynichev_d_integrals_simpson_method_omp::SimpsonIntegralOpenMP::func2D(
   for (int i = 0; i < 1000; ++i) {
     double tx = x + i * 0.001;
     double ty = y + i * 0.001;
-    result += std::exp(-tx * tx - ty * ty) * std::sin(tx * ty) * std::cos(tx + ty) / (std::log(tx + ty + 1.1) + 1.0);
+    result += std::exp(-tx * tx - ty * ty) * std::sin(tx * ty) * std::cos(tx + ty) /
+              (std::log(tx + ty + 1.1) + 1.0);
   }
   return result;
 }
