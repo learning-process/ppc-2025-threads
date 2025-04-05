@@ -29,7 +29,7 @@ class TestTaskOpenMP : public ppc::core::Task {
   bool CheckNeighbor(int nr, int nc, int current, std::vector<int>& parent);
   bool ProcessRow(int row_idx, bool reverse, std::vector<int>& parent);
   static int FindRoot(std::vector<int>& parent, int x);
-  static void FinalizeRoots(std::vector<int>& parent);
+  void FinalizeRoots(std::vector<int>& parent);
   void AssignLabels(std::vector<int>& parent);
   void LabelConnectedComponents();
 };

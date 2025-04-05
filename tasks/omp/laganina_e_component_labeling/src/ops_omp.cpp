@@ -46,7 +46,8 @@ bool laganina_e_component_labeling_omp::TestTaskOpenMP::PostProcessingImpl() {
 }
 
 void laganina_e_component_labeling_omp::TestTaskOpenMP::InitializeParents(std::vector<int>& parent) {
-  const int size = m_ * n_;
+  int size = 0;
+  size = m_ * n_;
 #pragma omp parallel for schedule(static)
   for (int i = 0; i < size; ++i) {
     parent[i] = (binary_[i] != 0) ? i : -1;
@@ -130,7 +131,8 @@ bool laganina_e_component_labeling_omp::TestTaskOpenMP::UnionNodes(int a, int b,
 }
 
 void laganina_e_component_labeling_omp::TestTaskOpenMP::FinalizeRoots(std::vector<int>& parent) {
-  const int size = m_ * n_;
+  int size = 0;
+  size = m_ * n_;
 #pragma omp parallel for schedule(static)
   for (int i = 0; i < size; ++i) {
     if (parent[i] != -1) {
