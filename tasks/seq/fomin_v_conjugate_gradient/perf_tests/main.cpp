@@ -10,7 +10,7 @@
 #include "seq/fomin_v_conjugate_gradient/include/ops_seq.hpp"
 
 TEST(fomin_v_conjugate_gradient_seq, test_pipeline_run) {
-  constexpr int kCount = 500;  // размер системы
+  constexpr int kCount = 5000;  // размер системы
 
   std::vector<double> input((kCount * kCount) + kCount, 0.0);
   for (int i = 0; i < kCount; ++i) {
@@ -28,7 +28,7 @@ TEST(fomin_v_conjugate_gradient_seq, test_pipeline_run) {
   auto test_task_sequential = std::make_shared<fomin_v_conjugate_gradient::FominVConjugateGradientSeq>(task_data_seq);
 
   auto perf_attr = std::make_shared<ppc::core::PerfAttr>();
-  perf_attr->num_running = 1000;
+  perf_attr->num_running = 100;
   const auto t0 = std::chrono::high_resolution_clock::now();
   perf_attr->current_timer = [&] {
     auto current_time_point = std::chrono::high_resolution_clock::now();
