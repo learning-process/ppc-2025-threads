@@ -80,10 +80,8 @@ TEST(deryabin_m_hoare_sort_simple_merge_tbb, test_half_of_the_same_elements_arra
   std::mt19937 gen(rd());
   std::vector<double> input_array(800);
   const auto half = input_array.size() / 2U;
-  std::ranges::generate(input_array.begin(), input_array.end() - (long)half,
-                        [&]() mutable { return 0; });
-  std::ranges::generate(input_array.end() - (long)half, input_array.end(),
-                        [&]() mutable { return distribution(gen); });
+  std::ranges::generate(input_array.begin(), input_array.end() - (long)half, [&]() mutable { return 0; });
+  std::ranges::generate(input_array.end() - (long)half, input_array.end(), [&]() mutable { return distribution(gen); });
   std::shuffle(input_array.begin(), input_array.end(), gen);
   std::vector<std::vector<double>> in_array(1, input_array);
   size_t chunk_count = 8;
@@ -112,8 +110,7 @@ TEST(deryabin_m_hoare_sort_simple_merge_tbb, test_half_of_the_same_elements_arra
 TEST(deryabin_m_hoare_sort_simple_merge_tbb, test_same_elements_array) {
   // Create data
   std::vector<double> input_array(800);
-  std::ranges::generate(input_array.begin(), input_array.end(),
-                        [&]() mutable { return 0; });
+  std::ranges::generate(input_array.begin(), input_array.end(), [&]() mutable { return 0; });
   std::vector<std::vector<double>> in_array(1, input_array);
   size_t chunk_count = 8;
   std::vector<double> output_array(800);
