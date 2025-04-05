@@ -68,9 +68,7 @@ static void UpdateDistancesForVertex(int u, const std::vector<std::vector<std::p
     if (!visited[v] && distances[u] != INT_MAX) {
       int newDistance = distances[u] + weight;
 #pragma omp critical
-      {
-        distances[v] = std::min(newDistance, distances[v]);
-      }
+      { distances[v] = std::min(newDistance, distances[v]); }
     }
   }
 }

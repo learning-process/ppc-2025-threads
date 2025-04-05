@@ -18,8 +18,8 @@ namespace plekhanov_d_dijkstra_omp {
 void static RunValidationFailureTest();
 
 template <typename ExpectedResultType>
-void RunTest(const std::vector<std::vector<std::pair<size_t, int>>> &adj_list,
-             size_t start_vertex, const std::vector<ExpectedResultType> &expected_result, bool expect_success = true) {
+void RunTest(const std::vector<std::vector<std::pair<size_t, int>>> &adj_list, size_t start_vertex,
+             const std::vector<ExpectedResultType> &expected_result, bool expect_success = true) {
   const size_t k_num_vertices = adj_list.size();
   std::vector<int> distances(k_num_vertices, INT_MAX);
   std::vector<int> graph_data;
@@ -72,9 +72,7 @@ void static RunValidationFailureTest() {
   ASSERT_FALSE(test_task_omp.Validation());
 }
 
-std::vector<std::vector<std::pair<size_t,
-                                  int>>> static GenerateRandomGraph(
-    size_t num_vertices) {                                          
+std::vector<std::vector<std::pair<size_t, int>>> static GenerateRandomGraph(size_t num_vertices) {                                         
   std::random_device rd;
   std::mt19937 gen(rd());
   std::uniform_int_distribution<> dis(1, 10);
@@ -91,9 +89,8 @@ std::vector<std::vector<std::pair<size_t,
   return adj_list;
 }
 
-static std::vector<int> CalculateExpectedResult(                       
-    const std::vector<std::vector<std::pair<size_t, int>>> &adj_list,  
-    size_t start_vertex) {                                             
+static std::vector<int> CalculateExpectedResult(const std::vector<std::vector<std::pair<size_t, int>>> &adj_list,
+                                                size_t start_vertex) {                                            
   size_t n = adj_list.size();
   const int inf = INT_MAX;
   std::vector<int> distances(n, inf);
