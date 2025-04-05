@@ -1,6 +1,5 @@
 #pragma once
 
-#include <memory>
 #include <unordered_map>
 #include <vector>
 
@@ -29,6 +28,7 @@ class TestTaskOpenMP : public ppc::core::Task {
   int FindRoot(std::vector<int>& parent, int x);
   void FinalizeRoots(std::vector<int>& parent);
   void AssignLabels(std::vector<int>& parent);
+  ;
   void LabelConnectedComponents();
 };
 
@@ -37,7 +37,7 @@ inline void NormalizeLabels(std::vector<int>& vec) {
   int current_label = 1;
   {
     std::unordered_map<int, int> local_map;
-    for (size_t i = 0; i < vec.size(); ++i) {
+    for (int i = 0; i < vec.size(); ++i) {
       if (vec[i] != 0) {
         local_map.try_emplace(vec[i], 0);
       }
@@ -50,7 +50,7 @@ inline void NormalizeLabels(std::vector<int>& vec) {
       }
     }
   }
-  for (size_t i = 0; i < vec.size(); ++i) {
+  for (int i = 0; i < vec.size(); ++i) {
     if (vec[i] != 0) {
       vec[i] = label_map[vec[i]];
     }

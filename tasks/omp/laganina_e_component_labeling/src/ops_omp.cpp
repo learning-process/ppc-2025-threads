@@ -3,8 +3,6 @@
 #include <omp.h>
 
 #include <algorithm>
-#include <atomic>
-#include <unordered_map>
 #include <vector>
 
 #include "core/task/include/task.hpp"
@@ -53,7 +51,7 @@ void laganina_e_component_labeling_omp::TestTaskOpenMP::InitializeParents(std::v
   const int size = m_ * n_;
 #pragma omp parallel for schedule(static)
   for (int i = 0; i < size; ++i) {
-    parent[i] = binary_[i] ? i : -1;
+    parent[i] = (binary_[i] != 0) ? i : -1;
   }
 }
 
@@ -63,27 +61,50 @@ void laganina_e_component_labeling_omp::TestTaskOpenMP::ProcessSweep(bool revers
 
 #pragma omp parallel for reduction(|| : local_changed) schedule(static)
   for (int row_idx = 0; row_idx < m_; ++row_idx) {
-    const int row = reverse ? m_ - 1 - row_idx : row_idx;
+    local_changed |= ProcessRow(row_idx, reverse, parent);
+  }
 
-    for (int col_idx = 0; col_idx < n_; ++col_idx) {
-      const int col = reverse ? n_ - 1 - col_idx : col_idx;
-      const int current = row * n_ + col;
+  changed = local_changed;
+}
 
-      if (parent[current] == -1) continue;
+bool laganina_e_component_labeling_omp::TestTaskOpenMP::ProcessRow(int row_idx, bool reverse,
+                                                                   std::vector<int>& parent) {
+  const int row = reverse ? m_ - 1 - row_idx : row_idx;
+  bool row_changed = false;
 
-      const std::pair<int, int> neighbors[] = {{row - (reverse ? -1 : 1), col}, {row, col - (reverse ? -1 : 1)}};
+  for (int col_idx = 0; col_idx < n_; ++col_idx) {
+    const int col = reverse ? n_ - 1 - col_idx : col_idx;
+    const int current = row * n_ + col;
 
-      for (const auto& [nr, nc] : neighbors) {
-        if (nr >= 0 && nr < m_ && nc >= 0 && nc < n_) {
-          const int neighbor = nr * n_ + nc;
-          if (parent[neighbor] != -1) {
-            UnionNodes(current, neighbor, parent, local_changed);
-          }
-        }
-      }
+    if (parent[current] == -1) continue;
+
+    // Вертикальный сосед
+    const int vert_neighbor_row = row - (reverse ? -1 : 1);
+    const int vert_neighbor = vert_neighbor_row * n_ + col;
+    if (vert_neighbor_row >= 0 && vert_neighbor_row < m_ && parent[vert_neighbor] != -1) {
+      row_changed |= UnionNodes(current, vert_neighbor, parent);
+    }
+
+    // Горизонтальный сосед
+    const int horz_neighbor_col = col - (reverse ? -1 : 1);
+    const int horz_neighbor = row * n_ + horz_neighbor_col;
+    if (horz_neighbor_col >= 0 && horz_neighbor_col < n_ && parent[horz_neighbor] != -1) {
+      row_changed |= UnionNodes(current, horz_neighbor, parent);
     }
   }
-  changed = local_changed;
+
+  return row_changed;
+}
+
+bool laganina_e_component_labeling_omp::TestTaskOpenMP::CheckNeighbor(int nr, int nc, int current,
+                                                                      std::vector<int>& parent) {
+  if (nr >= 0 && nr < m_ && nc >= 0 && nc < n_) {
+    const int neighbor = nr * n_ + nc;
+    if (parent[neighbor] != -1) {
+      return UnionNodes(current, neighbor, parent);
+    }
+  }
+  return false;
 }
 
 int laganina_e_component_labeling_omp::TestTaskOpenMP::FindRoot(std::vector<int>& parent, int x) {
@@ -100,74 +121,77 @@ void laganina_e_component_labeling_omp::TestTaskOpenMP::UnionNodes(int a, int b,
   int root_b = FindRoot(parent, b);
 
   if (root_a != root_b) {
-    if (root_b < root_a) std::swap(root_a, root_b);
+    if (root_b < root_a) {
+      {
+        std::swap(root_a, root_b);
+      }
 
 #pragma omp atomic write
-    parent[root_b] = root_a;
+      parent[root_b] = root_a;
 
-    changed = true;
-  }
-}
-
-void laganina_e_component_labeling_omp::TestTaskOpenMP::FinalizeRoots(std::vector<int>& parent) {
-  const int size = m_ * n_;
-#pragma omp parallel for schedule(static)
-  for (int i = 0; i < size; ++i) {
-    if (parent[i] != -1) {
-      parent[i] = FindRoot(parent, i);
+      changed = true;
     }
   }
-}
 
-void laganina_e_component_labeling_omp::TestTaskOpenMP::AssignLabels(std::vector<int>& parent) {
-  std::vector<int> labels(m_ * n_ + 1, 0);
-  int current_label = 1;
-
-#pragma omp parallel
-  {
-    std::vector<int> local_roots;
-#pragma omp for nowait
-    for (int i = 0; i < m_ * n_; ++i) {
-      if (parent[i] != -1 && parent[i] == i) {
-        local_roots.push_back(i);
+  void laganina_e_component_labeling_omp::TestTaskOpenMP::FinalizeRoots(std::vector<int> & parent) {
+    const int size = m_ * n_;
+#pragma omp parallel for schedule(static)
+    for (int i = 0; i < size; ++i) {
+      if (parent[i] != -1) {
+        parent[i] = FindRoot(parent, i);
       }
     }
+  }
+
+  void laganina_e_component_labeling_omp::TestTaskOpenMP::AssignLabels(std::vector<int> & parent) {
+    std::vector<int> labels((m_ * n_) + 1, 0);
+    int current_label = 1;
+
+#pragma omp parallel
+    {
+      std::vector<int> local_roots;
+#pragma omp for nowait
+      for (int i = 0; i < m_ * n_; ++i) {
+        if (parent[i] != -1 && parent[i] == i) {
+          local_roots.push_back(i);
+        }
+      }
 
 #pragma omp critical
-    {
-      for (int root : local_roots) {
-        if (labels[root] == 0) {
-          labels[root] = current_label++;
+      {
+        for (int root : local_roots) {
+          if (labels[root] == 0) {
+            labels[root] = current_label++;
+          }
         }
       }
     }
-  }
 
 #pragma omp parallel for schedule(static)
-  for (int i = 0; i < m_ * n_; ++i) {
-    binary_[i] = parent[i] != -1 ? labels[parent[i]] : 0;
+    for (int i = 0; i < m_ * n_; ++i) {
+      binary_[i] = parent[i] != -1 ? labels[parent[i]] : 0;
+    }
   }
-}
 
-void laganina_e_component_labeling_omp::TestTaskOpenMP::LabelConnectedComponents() {
-  std::vector<int> parent(m_ * n_);
-  InitializeParents(parent);
+  void laganina_e_component_labeling_omp::TestTaskOpenMP::LabelConnectedComponents() {
+    std::vector<int> parent(m_ * n_);
+    InitializeParents(parent);
 
-  constexpr int kMaxIterations = 100;
-  bool changed;
-  int iterations = 0;
+    constexpr int kMaxIterations = 100;
+    bool changed = false;
+    int iterations = 0;
 
-  do {
-    changed = false;
-    ProcessSweep(false, parent, changed);
-    ProcessSweep(true, parent, changed);
-  } while (changed && ++iterations < kMaxIterations);
+    do {
+      changed = false;
+      ProcessSweep(false, parent, changed);
+      ProcessSweep(true, parent, changed);
+    } while (changed && ++iterations < kMaxIterations);
 
-  FinalizeRoots(parent);
-  AssignLabels(parent);
-}
+    FinalizeRoots(parent);
+    AssignLabels(parent);
+  }
 
-bool laganina_e_component_labeling_omp::TestTaskOpenMP::RunImpl() {
-  laganina_e_component_labeling_omp::TestTaskOpenMP::LabelConnectedComponents();
-  return true;
-}
+  bool laganina_e_component_labeling_omp::TestTaskOpenMP::RunImpl() {
+    laganina_e_component_labeling_omp::TestTaskOpenMP::LabelConnectedComponents();
+    return true;
+  }
