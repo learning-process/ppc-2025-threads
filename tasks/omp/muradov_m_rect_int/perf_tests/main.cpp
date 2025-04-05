@@ -25,11 +25,9 @@ TEST(muradov_m_rect_int_omp, test_pipeline_run) {
   task_data_omp->outputs.emplace_back(reinterpret_cast<uint8_t *>(&out));
   task_data_omp->outputs_count.emplace_back(1);
 
-  // Create Task
   auto test_task_ompuential = std::make_shared<muradov_m_rect_int_omp::RectIntTaskOmp>(
       task_data_omp, [](const auto &args) { return (args[0] * args[1]) + std::pow(args[1], 2); });
 
-  // Create Perf attributes
   auto perf_attr = std::make_shared<ppc::core::PerfAttr>();
   perf_attr->num_running = 10;
   const auto t0 = std::chrono::high_resolution_clock::now();
@@ -39,10 +37,8 @@ TEST(muradov_m_rect_int_omp, test_pipeline_run) {
     return static_cast<double>(duration) * 1e-9;
   };
 
-  // Create and init perf results
   auto perf_results = std::make_shared<ppc::core::PerfResults>();
 
-  // Create Perf analyzer
   auto perf_analyzer = std::make_shared<ppc::core::Perf>(test_task_ompuential);
   perf_analyzer->PipelineRun(perf_attr, perf_results);
   ppc::core::Perf::PrintPerfStatistic(perf_results);
