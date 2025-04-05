@@ -23,7 +23,7 @@ std::vector<shulpin_i_jarvis_seq::Point> GenerateRandomPoints(size_t num_points)
   for (size_t i = 0; i < num_points; ++i) {
     double x = dist(gen);
     double y = dist(gen);
-    points.emplace_back(shulpin_i_jarvis_seq::Point{x, y});
+    points.emplace_back(x, y);
   }
 
   return points;
@@ -39,8 +39,8 @@ bool ValidateConvexHull(const std::vector<shulpin_i_jarvis_seq::Point> &hull, co
     const auto &p2 = hull[(i + 1) % size];
     const auto &p3 = hull[(i + 2) % size];
 
-    int cross = ((p2.x - p1.x) * (p3.y - p1.y)) - ((p3.x - p1.x) * (p2.y - p1.y));
-    if (cross < 0) {
+    double cross = ((p2.x - p1.x) * (p3.y - p1.y)) - ((p3.x - p1.x) * (p2.y - p1.y));
+    if (cross < 0.0) {
       return false;
     }
   }
