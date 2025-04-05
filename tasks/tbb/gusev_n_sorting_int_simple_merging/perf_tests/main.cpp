@@ -3,7 +3,6 @@
 #include <algorithm>
 #include <chrono>
 #include <cstdint>
-#include <functional>
 #include <memory>
 #include <random>
 #include <vector>
