@@ -22,10 +22,10 @@ void deryabin_m_hoare_sort_simple_merge_tbb::HoaraSort(std::vector<double>& a, s
                std::min(std::max(a[first], a[(first + last) / 2]),
                         a[last]));  // выбор опорного элемента как медианы первого, среднего и последнего элементов
   do {
-    while (a[i] <= x && i < j) {
+    while (a[i] <= x) {
       i++;
     }
-    while (a[j] >= x && i < j) {
+    while (a[j] >= x) {
       j--;
     }
     if (i < j && a[i] > a[j]) {
