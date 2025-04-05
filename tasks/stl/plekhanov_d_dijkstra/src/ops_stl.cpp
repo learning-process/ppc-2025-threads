@@ -8,11 +8,11 @@
 #include <future>
 #include <mutex>
 #include <queue>
+#include <thread>
 #include <utility>
 #include <vector>
 
 #include "core/util/include/util.hpp"
-#include <iostream>
 
 const int plekhanov_d_dijkstra_stl::TestTaskSTL::kEndOfVertexList = -1;
 
