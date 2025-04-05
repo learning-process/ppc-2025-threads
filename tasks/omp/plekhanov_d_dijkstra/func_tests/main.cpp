@@ -42,7 +42,7 @@ void RunTest(const std::vector<std::vector<std::pair<size_t, int>>> &adj_list, s
   task_data_omp->outputs_count.emplace_back(k_num_vertices);
 
   TestTaskOpenMP test_task_omp(task_data_omp);
-  ASSERT_TRUE(test_task_omp.Validation());  
+  ASSERT_TRUE(test_task_omp.Validation());
   test_task_omp.PreProcessing();
   if (expect_success) {
     ASSERT_TRUE(test_task_omp.Run());
@@ -56,7 +56,7 @@ void RunTest(const std::vector<std::vector<std::pair<size_t, int>>> &adj_list, s
   }
 }
 
- void RunValidationFailureTest() {
+void RunValidationFailureTest() {
   std::vector<int> graph_data;
   size_t start_vertex = 0;
   size_t num_vertices = 0;
@@ -92,7 +92,7 @@ std::vector<std::vector<std::pair<size_t, int>>> GenerateRandomGraph(size_t num_
 }
 
 std::vector<int> CalculateExpectedResult(const std::vector<std::vector<std::pair<size_t, int>>> &adj_list,
-                                                size_t start_vertex) {
+                                         size_t start_vertex) {
   size_t n = adj_list.size();
   const int inf = INT_MAX;
   std::vector<int> distances(n, inf);

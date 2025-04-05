@@ -11,7 +11,7 @@
 namespace plekhanov_d_dijkstra_omp {
 
 bool TestTaskOpenMP::ConvertGraphToAdjacencyList(const std::vector<int>& graph_data, size_t num_vertices,
-                                 std::vector<std::vector<std::pair<int, int>>>& graph) {
+                                                 std::vector<std::vector<std::pair<int, int>>>& graph) {
   graph.assign(num_vertices, {});
   size_t current_vertex = 0;
   size_t i = 0;
@@ -64,7 +64,7 @@ int TestTaskOpenMP::FindMinDistanceVertex(const std::vector<int>& distances, con
 }
 
 void TestTaskOpenMP::UpdateDistancesForVertex(int u, const std::vector<std::vector<std::pair<int, int>>>& graph,
-                              std::vector<int>& distances, const std::vector<bool>& visited) {
+                                              std::vector<int>& distances, const std::vector<bool>& visited) {
 #pragma omp parallel for
   for (int j = 0; j < static_cast<int>(graph[u].size()); ++j) {
     int v = graph[u][j].first;
@@ -72,9 +72,7 @@ void TestTaskOpenMP::UpdateDistancesForVertex(int u, const std::vector<std::vect
     if (!visited[v] && distances[u] != INT_MAX) {
       int new_distance = distances[u] + weight;
 #pragma omp critical
-      {
-        distances[v] = std::min(new_distance, distances[v]);
-      }
+      { distances[v] = std::min(new_distance, distances[v]); }
     }
   }
 }

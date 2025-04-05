@@ -21,7 +21,7 @@ class TestTaskOpenMP : public ppc::core::Task {
                                    std::vector<std::vector<std::pair<int, int>>>& graph);
   int FindMinDistanceVertex(const std::vector<int>& distances, const std::vector<bool>& visited, size_t num_vertices);
   void UpdateDistancesForVertex(int u, const std::vector<std::vector<std::pair<int, int>>>& graph,
-                                       std::vector<int>& distances, const std::vector<bool>& visited);
+                                std::vector<int>& distances, const std::vector<bool>& visited);
   std::vector<int> graph_data_;
   std::vector<int> distances_;
   size_t start_vertex_;
