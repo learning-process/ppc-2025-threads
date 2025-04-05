@@ -27,7 +27,7 @@ std::vector<double> MultiplyNaiveDouble(const std::vector<double>& a, const std:
   return c;
 }
 
-std::vector<double> GenerateRandomMatrix(int rows, int cols, int seed, double min_val = 0.0, double max_val = 1.0) {
+std::vector<double> GenerateRandomMatrix(int rows, int cols, int seed, double min_val = -50.0, double max_val = 50.0) {
   std::mt19937 rng(seed);
 
   std::uniform_real_distribution<double> dist(min_val, max_val);
