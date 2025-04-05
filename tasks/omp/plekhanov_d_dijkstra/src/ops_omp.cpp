@@ -10,7 +10,7 @@
 
 namespace plekhanov_d_dijkstra_omp {
 
-bool ConvertGraphToAdjacencyList(const std::vector<int>& graph_data, size_t num_vertices,
+bool TestTaskOpenMP::ConvertGraphToAdjacencyList(const std::vector<int>& graph_data, size_t num_vertices,
                                  std::vector<std::vector<std::pair<int, int>>>& graph) {
   graph.assign(num_vertices, {});
   size_t current_vertex = 0;
