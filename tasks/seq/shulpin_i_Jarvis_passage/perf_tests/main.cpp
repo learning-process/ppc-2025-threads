@@ -29,13 +29,6 @@ std::vector<shulpin_i_jarvis_seq::Point> GenerateRandomPoints(size_t num_points)
   return points;
 }
 
-int Orientation(const shulpin_i_jarvis_seq::Point &p, const shulpin_i_jarvis_seq::Point &q,
-                const shulpin_i_jarvis_seq::Point &r) {
-  double val = (q.y - p.y) * (r.x - q.x) - (q.x - p.x) * (r.y - q.y);
-  if (std::fabs(val) < 1e-9) return 0;
-  return (val > 0) ? 1 : 2;
-}
-
 bool ValidateConvexHull(const std::vector<shulpin_i_jarvis_seq::Point> &hull, const size_t size) {
   if (hull.size() < 3) {
     return false;
