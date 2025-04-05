@@ -11,23 +11,39 @@
 #include "core/task/include/task.hpp"
 #include "tbb/gusev_n_sorting_int_simple_merging/include/ops_tbb.hpp"
 
-TEST(gusev_n_sorting_int_simple_merging_tbb, test_pipeline_run) {
-  constexpr int kCount = 5000000;
+namespace {
+struct TestData {
+  std::vector<int> in;
+  std::vector<int> out;
+  ppc::core::TaskDataPtr task_data;
+};
 
-  std::vector<int> in(kCount);
+TestData generate_test_data(int count) {
+  TestData data;
+  data.in.resize(count);
+  data.out.resize(count);
+
   std::random_device rd;
   std::mt19937 gen(rd());
   std::uniform_int_distribution<int> dist(-10000, 10000);
-  std::ranges::generate(in, [&]() { return dist(gen); });
-  std::vector<int> out(kCount);
+  std::ranges::generate(data.in, [&]() { return dist(gen); });
 
-  auto task_data = std::make_shared<ppc::core::TaskData>();
-  task_data->inputs.emplace_back(reinterpret_cast<uint8_t*>(in.data()));
-  task_data->inputs_count.emplace_back(in.size());
-  task_data->outputs.emplace_back(reinterpret_cast<uint8_t*>(out.data()));
-  task_data->outputs_count.emplace_back(out.size());
+  data.task_data = std::make_shared<ppc::core::TaskData>();
+  data.task_data->inputs.emplace_back(reinterpret_cast<uint8_t*>(data.in.data()));
+  data.task_data->inputs_count.emplace_back(data.in.size());
+  data.task_data->outputs.emplace_back(reinterpret_cast<uint8_t*>(data.out.data()));
+  data.task_data->outputs_count.emplace_back(data.out.size());
 
-  auto test_task = std::make_shared<gusev_n_sorting_int_simple_merging_tbb::SortingIntSimpleMergingTBB>(task_data);
+  return data;
+}
+}  // namespace
+
+TEST(gusev_n_sorting_int_simple_merging_tbb, test_pipeline_run) {
+  constexpr int kCount = 5000000;
+  auto test_data = generate_test_data(kCount);
+
+  auto test_task =
+      std::make_shared<gusev_n_sorting_int_simple_merging_tbb::SortingIntSimpleMergingTBB>(test_data.task_data);
 
   auto perf_attr = std::make_shared<ppc::core::PerfAttr>();
   perf_attr->num_running = 10;
@@ -43,25 +59,17 @@ TEST(gusev_n_sorting_int_simple_merging_tbb, test_pipeline_run) {
   auto perf_analyzer = std::make_shared<ppc::core::Perf>(test_task);
   perf_analyzer->PipelineRun(perf_attr, perf_results);
   ppc::core::Perf::PrintPerfStatistic(perf_results);
+  std::vector<int> expected = test_data.in;
+  std::ranges::sort(expected);
+  EXPECT_EQ(expected, test_data.out);
 }
 
 TEST(gusev_n_sorting_int_simple_merging_tbb, test_task_run) {
   constexpr int kCount = 5000000;
+  auto test_data = generate_test_data(kCount);
 
-  std::vector<int> in(kCount);
-  std::random_device rd;
-  std::mt19937 gen(rd());
-  std::uniform_int_distribution<int> dist(-10000, 10000);
-  std::ranges::generate(in, [&]() { return dist(gen); });
-  std::vector<int> out(kCount);
-
-  auto task_data = std::make_shared<ppc::core::TaskData>();
-  task_data->inputs.emplace_back(reinterpret_cast<uint8_t*>(in.data()));
-  task_data->inputs_count.emplace_back(in.size());
-  task_data->outputs.emplace_back(reinterpret_cast<uint8_t*>(out.data()));
-  task_data->outputs_count.emplace_back(out.size());
-
-  auto test_task = std::make_shared<gusev_n_sorting_int_simple_merging_tbb::SortingIntSimpleMergingTBB>(task_data);
+  auto test_task =
+      std::make_shared<gusev_n_sorting_int_simple_merging_tbb::SortingIntSimpleMergingTBB>(test_data.task_data);
 
   auto perf_attr = std::make_shared<ppc::core::PerfAttr>();
   perf_attr->num_running = 10;
@@ -77,4 +85,7 @@ TEST(gusev_n_sorting_int_simple_merging_tbb, test_task_run) {
   auto perf_analyzer = std::make_shared<ppc::core::Perf>(test_task);
   perf_analyzer->TaskRun(perf_attr, perf_results);
   ppc::core::Perf::PrintPerfStatistic(perf_results);
+  std::vector<int> expected = test_data.in;
+  std::ranges::sort(expected);
+  EXPECT_EQ(expected, test_data.out);
 }

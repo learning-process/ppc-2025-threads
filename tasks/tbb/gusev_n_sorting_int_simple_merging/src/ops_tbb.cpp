@@ -33,9 +33,7 @@ void gusev_n_sorting_int_simple_merging_tbb::SortingIntSimpleMergingTBB::RadixSo
         if (!negatives.empty()) {
           RadixSortForNonNegative(negatives);
           std::ranges::reverse(negatives);
-          for (auto& num : negatives) {
-            num = -num;
-          }
+          std::ranges::transform(negatives, negatives.begin(), std::negate{});
         }
       },
       [&] {

@@ -43,6 +43,18 @@ TEST(gusev_n_sorting_int_simple_merging_tbb, test_radix_sort_basic) {
   EXPECT_EQ(expected, out);
 }
 
+TEST(gusev_n_sorting_int_simple_merging_tbb, test_radix_sort_all_zeroes) {
+  std::vector<int> in = {0, 0, 0, 0, 0, 0, 0, 0};
+  std::vector<int> out(in.size());
+
+  auto task_data = CreateTaskData(in, out);
+  RunT(task_data);
+
+  std::vector<int> expected = in;
+  std::ranges::sort(expected);
+  EXPECT_EQ(expected, out);
+}
+
 TEST(gusev_n_sorting_int_simple_merging_tbb, test_radix_sort_empty) {
   std::vector<int> in;
   std::vector<int> out;
