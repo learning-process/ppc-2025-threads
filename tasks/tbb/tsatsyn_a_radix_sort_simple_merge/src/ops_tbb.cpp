@@ -5,17 +5,13 @@
 #include <oneapi/tbb/parallel_for.h>
 #include <tbb/tbb.h>
 
+#include <algorithm>
 #include <cmath>
-#include <core/util/include/util.hpp>
 #include <cstddef>
 #include <cstdint>
 #include <cstring>
-#include <iostream>
+#include <utility>
 #include <vector>
-
-#include "oneapi/tbb/concurrent_vector.h"
-#include "oneapi/tbb/task_arena.h"
-#include "oneapi/tbb/task_group.h"
 
 bool tsatsyn_a_radix_sort_simple_merge_tbb::TestTaskTBB::PreProcessingImpl() {
   // Init value for input and output
