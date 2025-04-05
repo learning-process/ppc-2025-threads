@@ -1,6 +1,5 @@
 #include "tbb/kholin_k_multidimensional_integrals_rectangle/include/ops_tbb.hpp"
 
-#include <tbb/parallel_for.h>
 #include <tbb/task_arena.h>
 #include <tbb/tbb.h>
 
@@ -12,6 +11,7 @@
 #include <functional>
 #include <vector>
 
+#include "oneapi/tbb/parallel_for.h"
 #include "oneapi/tbb/task_arena.h"
 
 double kholin_k_multidimensional_integrals_rectangle_tbb::TestTaskTBB::Integrate(
