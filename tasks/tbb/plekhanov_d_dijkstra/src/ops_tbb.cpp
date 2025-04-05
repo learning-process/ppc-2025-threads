@@ -15,6 +15,37 @@
 
 #include "tbb/tbb.h"
 
+namespace plekhanov_d_dijkstra_tbb {
+
+bool TestTaskTBB::ConvertGraphToAdjacencyList(const std::vector<int>& graph_data, size_t num_vertices,
+                                                 std::vector<std::vector<std::pair<int, int>>>& graph) {
+  graph.assign(num_vertices, {});
+  size_t current_vertex = 0;
+  size_t i = 0;
+  while (i < graph_data.size() && current_vertex < num_vertices) {
+    if (graph_data[i] == -1) {
+      current_vertex++;
+      i++;
+      continue;
+    }
+    if (i + 1 >= graph_data.size()) {
+      break;
+    }
+    size_t dest = graph_data[i];
+    int weight = graph_data[i + 1];
+    if (weight < 0) {
+      return false;
+    }
+    if (dest < num_vertices) {
+      graph[current_vertex].emplace_back(static_cast<int>(dest), weight);
+    }
+    i += 2;
+  }
+  return true;
+}
+
+}  // namespace plekhanov_d_dijkstra_tbb
+
 const int plekhanov_d_dijkstra_tbb::TestTaskTBB::kEndOfVertexList = -1;
 
 bool plekhanov_d_dijkstra_tbb::TestTaskTBB::PreProcessingImpl() {
@@ -39,31 +70,11 @@ bool plekhanov_d_dijkstra_tbb::TestTaskTBB::ValidationImpl() {
          task_data->outputs_count[0] > 0;
 }
 
-bool plekhanov_d_dijkstra_tbb::TestTaskTBB::RunImpl() {  // NOLINT(readability-function-cognitive-complexity)
+bool plekhanov_d_dijkstra_tbb::TestTaskTBB::RunImpl() {
   std::vector<std::vector<std::pair<int, int>>> graph(num_vertices_);
-  size_t current_vertex = 0;
-  size_t i = 0;
 
-  while (i < graph_data_.size() && current_vertex < num_vertices_) {
-    if (graph_data_[i] == kEndOfVertexList) {
-      current_vertex++;
-      i++;
-      continue;
-    }
-    if (i + 1 >= graph_data_.size()) {
-      break;
-    }
-
-    size_t dest = graph_data_[i];
-    int weight = graph_data_[i + 1];
-    if (weight < 0) {
-      return false;
-    }
-
-    if (dest < num_vertices_) {
-      graph[current_vertex].emplace_back(static_cast<int>(dest), weight);
-    }
-    i += 2;
+  if (!ConvertGraphToAdjacencyList(graph_data_, num_vertices_, graph)) {
+    return false;
   }
 
   std::vector<bool> visited(num_vertices_, false);

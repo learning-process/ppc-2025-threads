@@ -19,6 +19,8 @@ class TestTaskTBB : public ppc::core::Task {
   bool PostProcessingImpl() override;
 
  private:
+  bool ConvertGraphToAdjacencyList(const std::vector<int>& graph_data, size_t num_vertices,
+                                   std::vector<std::vector<std::pair<int, int>>>& graph);
   std::vector<int> graph_data_;
   std::vector<int> distances_;
   oneapi::tbb::mutex mutex_;
