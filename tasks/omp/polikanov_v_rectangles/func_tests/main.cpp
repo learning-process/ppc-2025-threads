@@ -160,3 +160,8 @@ TEST(polikanov_v_rectangles_omp, exp_sin_cos) {
   RunFuncTest(std::vector<polikanov_v_rectangles::IntegrationBound>(3, {0, 1}), 80, 0.66,
               [](const auto &p) { return std::exp(p[0]) * std::sin(p[0]) * std::cos(p[0]); });
 }
+
+TEST(polikanov_v_rectangles_omp, linear_func) {
+  RunFuncTest(std::vector<polikanov_v_rectangles::IntegrationBound>(2, {0, 1}), 80, 1,
+              [](const auto &p) { return p[0] + p[1]; });
+}
