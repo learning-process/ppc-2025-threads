@@ -8,7 +8,6 @@
 #include <vector>
 
 #include "core/task/include/task.hpp"
-#include "core/util/include/util.hpp"
 #include "tbb/kholin_k_multidimensional_integrals_rectangle/include/ops_tbb.hpp"
 
 TEST(kholin_k_multidimensional_integrals_rectangle_tbb, test_validation) {

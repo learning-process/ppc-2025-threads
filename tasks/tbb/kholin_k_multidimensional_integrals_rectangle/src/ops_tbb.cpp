@@ -4,6 +4,7 @@
 #include <tbb/task_arena.h>
 #include <tbb/tbb.h>
 
+#include <algorithm>
 #include <atomic>
 #include <cmath>
 #include <core/util/include/util.hpp>
@@ -11,9 +12,7 @@
 #include <functional>
 #include <vector>
 
-#include "core/util/include/util.hpp"
 #include "oneapi/tbb/task_arena.h"
-#include "oneapi/tbb/task_group.h"
 
 double kholin_k_multidimensional_integrals_rectangle_tbb::TestTaskTBB::Integrate(
     const Function& f, const std::vector<double>& l_limits, const std::vector<double>& u_limits,
