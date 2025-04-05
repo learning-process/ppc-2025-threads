@@ -9,7 +9,6 @@
 
 #include "core/task/include/task.hpp"
 
-
 // Helper function for path compression
 void laganina_e_component_labeling_omp::CompressPath(std::vector<int>& parent, int node, int& root) {
   while (parent[node] != node) {
@@ -59,7 +58,7 @@ void laganina_e_component_labeling_omp::TestTaskOpenMP::InitializeParents(std::v
 }
 
 void laganina_e_component_labeling_omp::TestTaskOpenMP::ProcessSweep(bool reverse, std::vector<int>& parent,
-                                                                   bool& changed) {
+                                                                     bool& changed) {
   bool local_changed = false;
 
 #pragma omp parallel for reduction(|| : local_changed) schedule(static)
@@ -96,7 +95,7 @@ int laganina_e_component_labeling_omp::TestTaskOpenMP::FindRoot(std::vector<int>
 }
 
 void laganina_e_component_labeling_omp::TestTaskOpenMP::UnionNodes(int a, int b, std::vector<int>& parent,
-                                                                 bool& changed) {
+                                                                   bool& changed) {
   int root_a = FindRoot(parent, a);
   int root_b = FindRoot(parent, b);
 
