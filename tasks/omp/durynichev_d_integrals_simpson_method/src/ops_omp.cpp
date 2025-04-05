@@ -1,6 +1,7 @@
 #include "omp/durynichev_d_integrals_simpson_method/include/ops_omp.hpp"
 
 #include <omp.h>
+
 #include <cmath>
 #include <vector>
 
