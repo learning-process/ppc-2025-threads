@@ -84,7 +84,7 @@ TEST(vladimirova_j_m_monte_karlo_seq, test_zero_var) {
 
   task_data_seq->inputs.emplace_back(reinterpret_cast<uint8_t *>(val_b.data()));
   task_data_seq->inputs.emplace_back(reinterpret_cast<uint8_t *>(PiVal314));
-  task_data_seq->inputs.emplace_back(reinterpret_cast<uint8_t *>(50000));
+  task_data_seq->inputs.emplace_back(reinterpret_cast<uint8_t *>(90000));
   task_data_seq->inputs_count.emplace_back(val_b.size());
   task_data_seq->outputs.emplace_back(reinterpret_cast<uint8_t *>(out.data()));
   task_data_seq->outputs_count.emplace_back(out.size());
@@ -103,7 +103,7 @@ TEST(vladimirova_j_m_monte_karlo_seq, test_one_var) {
 
   task_data_seq->inputs.emplace_back(reinterpret_cast<uint8_t *>(val_b.data()));
   task_data_seq->inputs.emplace_back(reinterpret_cast<uint8_t *>(PiVal314));
-  task_data_seq->inputs.emplace_back(reinterpret_cast<uint8_t *>(50000));
+  task_data_seq->inputs.emplace_back(reinterpret_cast<uint8_t *>(90000));
   task_data_seq->inputs_count.emplace_back(val_b.size());
   task_data_seq->outputs.emplace_back(reinterpret_cast<uint8_t *>(out.data()));
   task_data_seq->outputs_count.emplace_back(out.size());
@@ -121,7 +121,7 @@ TEST(vladimirova_j_m_monte_karlo_seq, test_no_limit_var) {
   auto task_data_seq = std::make_shared<ppc::core::TaskData>();
   task_data_seq->inputs.emplace_back(reinterpret_cast<uint8_t *>(val_b.data()));
   task_data_seq->inputs.emplace_back(reinterpret_cast<uint8_t *>(PiVal314));
-  task_data_seq->inputs.emplace_back(reinterpret_cast<uint8_t *>(50000));
+  task_data_seq->inputs.emplace_back(reinterpret_cast<uint8_t *>(90000));
   task_data_seq->inputs_count.emplace_back(val_b.size());
   task_data_seq->outputs.emplace_back(reinterpret_cast<uint8_t *>(out.data()));
   task_data_seq->outputs_count.emplace_back(out.size());
@@ -140,7 +140,7 @@ TEST(vladimirova_j_m_monte_karlo_seq, test_zero_size_limit_var) {
 
   task_data_seq->inputs.emplace_back(reinterpret_cast<uint8_t *>(val_b.data()));
   task_data_seq->inputs.emplace_back(reinterpret_cast<uint8_t *>(PiVal314));
-  task_data_seq->inputs.emplace_back(reinterpret_cast<uint8_t *>(50000));
+  task_data_seq->inputs.emplace_back(reinterpret_cast<uint8_t *>(90000));
   task_data_seq->inputs_count.emplace_back(val_b.size());
   task_data_seq->outputs.emplace_back(reinterpret_cast<uint8_t *>(out.data()));
   task_data_seq->outputs_count.emplace_back(out.size());
@@ -181,7 +181,7 @@ TEST(vladimirova_j_m_monte_karlo_seq, test_PiVal_314) {
   auto task_data_seq = std::make_shared<ppc::core::TaskData>();
   task_data_seq->inputs.emplace_back(reinterpret_cast<uint8_t *>(val_b.data()));
   task_data_seq->inputs.emplace_back(reinterpret_cast<uint8_t *>(PiVal314));
-  task_data_seq->inputs.emplace_back(reinterpret_cast<uint8_t *>(5000));
+  task_data_seq->inputs.emplace_back(reinterpret_cast<uint8_t *>(9000));
   task_data_seq->inputs_count.emplace_back(val_b.size());
   task_data_seq->outputs.emplace_back(reinterpret_cast<uint8_t *>(out.data()));
   task_data_seq->outputs_count.emplace_back(out.size());
@@ -203,7 +203,7 @@ TEST(vladimirova_j_m_monte_karlo_seq, test_PiVal_314_2) {
   auto task_data_seq = std::make_shared<ppc::core::TaskData>();
   task_data_seq->inputs.emplace_back(reinterpret_cast<uint8_t *>(val_b.data()));
   task_data_seq->inputs.emplace_back(reinterpret_cast<uint8_t *>(PiVal314));
-  task_data_seq->inputs.emplace_back(reinterpret_cast<uint8_t *>(30000));
+  task_data_seq->inputs.emplace_back(reinterpret_cast<uint8_t *>(70000));
   task_data_seq->inputs_count.emplace_back(val_b.size());
   task_data_seq->outputs.emplace_back(reinterpret_cast<uint8_t *>(out.data()));
   task_data_seq->outputs_count.emplace_back(out.size());
@@ -225,7 +225,7 @@ TEST(vladimirova_j_m_monte_karlo_seq, test_PiVal_314_1_2) {
   auto task_data_seq = std::make_shared<ppc::core::TaskData>();
   task_data_seq->inputs.emplace_back(reinterpret_cast<uint8_t *>(val_b.data()));
   task_data_seq->inputs.emplace_back(reinterpret_cast<uint8_t *>(PiVal314));
-  task_data_seq->inputs.emplace_back(reinterpret_cast<uint8_t *>(30000));
+  task_data_seq->inputs.emplace_back(reinterpret_cast<uint8_t *>(70000));
   task_data_seq->inputs_count.emplace_back(val_b.size());
   task_data_seq->outputs.emplace_back(reinterpret_cast<uint8_t *>(out.data()));
   task_data_seq->outputs_count.emplace_back(out.size());
@@ -248,7 +248,7 @@ TEST(vladimirova_j_m_monte_karlo_seq, test_SphereR3_1) {
 
   task_data_seq->inputs.emplace_back(reinterpret_cast<uint8_t *>(val_b.data()));
   task_data_seq->inputs.emplace_back(reinterpret_cast<uint8_t *>(SphereR3));
-  task_data_seq->inputs.emplace_back(reinterpret_cast<uint8_t *>(20000));
+  task_data_seq->inputs.emplace_back(reinterpret_cast<uint8_t *>(50000));
   task_data_seq->inputs_count.emplace_back(val_b.size());
   task_data_seq->outputs.emplace_back(reinterpret_cast<uint8_t *>(out.data()));
   task_data_seq->outputs_count.emplace_back(out.size());
@@ -271,7 +271,7 @@ TEST(vladimirova_j_m_monte_karlo_seq, test_SphereR3_1_2) {
 
   task_data_seq->inputs.emplace_back(reinterpret_cast<uint8_t *>(val_b.data()));
   task_data_seq->inputs.emplace_back(reinterpret_cast<uint8_t *>(SphereR3));
-  task_data_seq->inputs.emplace_back(reinterpret_cast<uint8_t *>(20000));
+  task_data_seq->inputs.emplace_back(reinterpret_cast<uint8_t *>(50000));
   task_data_seq->inputs_count.emplace_back(val_b.size());
   task_data_seq->outputs.emplace_back(reinterpret_cast<uint8_t *>(out.data()));
   task_data_seq->outputs_count.emplace_back(out.size());
@@ -294,7 +294,7 @@ TEST(vladimirova_j_m_monte_karlo_seq, test_SphereR3_1_9) {
 
   task_data_seq->inputs.emplace_back(reinterpret_cast<uint8_t *>(val_b.data()));
   task_data_seq->inputs.emplace_back(reinterpret_cast<uint8_t *>(SphereR3));
-  task_data_seq->inputs.emplace_back(reinterpret_cast<uint8_t *>(5000));
+  task_data_seq->inputs.emplace_back(reinterpret_cast<uint8_t *>(9000));
   task_data_seq->inputs_count.emplace_back(val_b.size());
   task_data_seq->outputs.emplace_back(reinterpret_cast<uint8_t *>(out.data()));
   task_data_seq->outputs_count.emplace_back(out.size());
@@ -317,7 +317,7 @@ TEST(vladimirova_j_m_monte_karlo_seq, test_Rectangle34) {
 
   task_data_seq->inputs.emplace_back(reinterpret_cast<uint8_t *>(val_b.data()));
   task_data_seq->inputs.emplace_back(reinterpret_cast<uint8_t *>(Rectangle34));
-  task_data_seq->inputs.emplace_back(reinterpret_cast<uint8_t *>(10000));
+  task_data_seq->inputs.emplace_back(reinterpret_cast<uint8_t *>(30000));
   task_data_seq->inputs_count.emplace_back(val_b.size());
   task_data_seq->outputs.emplace_back(reinterpret_cast<uint8_t *>(out.data()));
   task_data_seq->outputs_count.emplace_back(out.size());
@@ -340,7 +340,7 @@ TEST(vladimirova_j_m_monte_karlo_seq, test_Rectangle34_2) {
 
   task_data_seq->inputs.emplace_back(reinterpret_cast<uint8_t *>(val_b.data()));
   task_data_seq->inputs.emplace_back(reinterpret_cast<uint8_t *>(Rectangle34));
-  task_data_seq->inputs.emplace_back(reinterpret_cast<uint8_t *>(10000));
+  task_data_seq->inputs.emplace_back(reinterpret_cast<uint8_t *>(30000));
   task_data_seq->inputs_count.emplace_back(val_b.size());
   task_data_seq->outputs.emplace_back(reinterpret_cast<uint8_t *>(out.data()));
   task_data_seq->outputs_count.emplace_back(out.size());
@@ -363,7 +363,7 @@ TEST(vladimirova_j_m_monte_karlo_seq, test_Parallelogram333) {
 
   task_data_seq->inputs.emplace_back(reinterpret_cast<uint8_t *>(val_b.data()));
   task_data_seq->inputs.emplace_back(reinterpret_cast<uint8_t *>(Parallelogram333));
-  task_data_seq->inputs.emplace_back(reinterpret_cast<uint8_t *>(500));
+  task_data_seq->inputs.emplace_back(reinterpret_cast<uint8_t *>(900));
   task_data_seq->inputs_count.emplace_back(val_b.size());
   task_data_seq->outputs.emplace_back(reinterpret_cast<uint8_t *>(out.data()));
   task_data_seq->outputs_count.emplace_back(out.size());
@@ -386,7 +386,7 @@ TEST(vladimirova_j_m_monte_karlo_seq, test_BigParallelogram100100100) {
 
   task_data_seq->inputs.emplace_back(reinterpret_cast<uint8_t *>(val_b.data()));
   task_data_seq->inputs.emplace_back(reinterpret_cast<uint8_t *>(BigParallelogram100100100));
-  task_data_seq->inputs.emplace_back(reinterpret_cast<uint8_t *>(50));
+  task_data_seq->inputs.emplace_back(reinterpret_cast<uint8_t *>(90));
   task_data_seq->inputs_count.emplace_back(val_b.size());
   task_data_seq->outputs.emplace_back(reinterpret_cast<uint8_t *>(out.data()));
   task_data_seq->outputs_count.emplace_back(out.size());
@@ -409,7 +409,7 @@ TEST(vladimirova_j_m_monte_karlo_seq, test_Parabola_1_5_2_9) {
 
   task_data_seq->inputs.emplace_back(reinterpret_cast<uint8_t *>(val_b.data()));
   task_data_seq->inputs.emplace_back(reinterpret_cast<uint8_t *>(Parabola));
-  task_data_seq->inputs.emplace_back(reinterpret_cast<uint8_t *>(25000));
+  task_data_seq->inputs.emplace_back(reinterpret_cast<uint8_t *>(65000));
   task_data_seq->inputs_count.emplace_back(val_b.size());
   task_data_seq->outputs.emplace_back(reinterpret_cast<uint8_t *>(out.data()));
   task_data_seq->outputs_count.emplace_back(out.size());
@@ -432,7 +432,7 @@ TEST(vladimirova_j_m_monte_karlo_seq, test_HypercubeX4Pr4433) {
 
   task_data_seq->inputs.emplace_back(reinterpret_cast<uint8_t *>(val_b.data()));
   task_data_seq->inputs.emplace_back(reinterpret_cast<uint8_t *>(HypercubeX4Pr4433));
-  task_data_seq->inputs.emplace_back(reinterpret_cast<uint8_t *>(50000));
+  task_data_seq->inputs.emplace_back(reinterpret_cast<uint8_t *>(90000));
   task_data_seq->inputs_count.emplace_back(val_b.size());
   task_data_seq->outputs.emplace_back(reinterpret_cast<uint8_t *>(out.data()));
   task_data_seq->outputs_count.emplace_back(out.size());
@@ -455,7 +455,7 @@ TEST(vladimirova_j_m_monte_karlo_seq, test_TriangleModuleMinus5) {
 
   task_data_seq->inputs.emplace_back(reinterpret_cast<uint8_t *>(val_b.data()));
   task_data_seq->inputs.emplace_back(reinterpret_cast<uint8_t *>(TriangleModuleMinus5));
-  task_data_seq->inputs.emplace_back(reinterpret_cast<uint8_t *>(25000));
+  task_data_seq->inputs.emplace_back(reinterpret_cast<uint8_t *>(65000));
   task_data_seq->inputs_count.emplace_back(val_b.size());
   task_data_seq->outputs.emplace_back(reinterpret_cast<uint8_t *>(out.data()));
   task_data_seq->outputs_count.emplace_back(out.size());
@@ -478,7 +478,7 @@ TEST(vladimirova_j_m_monte_karlo_seq, test_SomeRandomFunc) {
 
   task_data_seq->inputs.emplace_back(reinterpret_cast<uint8_t *>(val_b.data()));
   task_data_seq->inputs.emplace_back(reinterpret_cast<uint8_t *>(SomeRandomFunc));
-  task_data_seq->inputs.emplace_back(reinterpret_cast<uint8_t *>(5000));
+  task_data_seq->inputs.emplace_back(reinterpret_cast<uint8_t *>(9000));
   task_data_seq->inputs_count.emplace_back(val_b.size());
   task_data_seq->outputs.emplace_back(reinterpret_cast<uint8_t *>(out.data()));
   task_data_seq->outputs_count.emplace_back(out.size());
