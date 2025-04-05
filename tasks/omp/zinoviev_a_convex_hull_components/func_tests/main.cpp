@@ -84,9 +84,9 @@ TEST(zinoviev_a_convex_hull_omp, LargeRectangleBorder) {
   std::vector<int> input(size * size, 0);
   for (int i = 0; i < size; ++i) {
     input[i] = 1;
-    input[(size - 1) * size + i] = 1;
+    input[((size - 1) * size) + i] = 1;
     input[i * size] = 1;
-    input[i * size + (size - 1)] = 1;
+    input[(i * size) + (size - 1)] = 1;
   }
   const std::vector<zinoviev_a_convex_hull_components_omp::Point> expect{
       {.x = 0, .y = 0}, {.x = size - 1, .y = 0}, {.x = size - 2, .y = size - 1}, {.x = 0, .y = size - 1}};
