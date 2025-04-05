@@ -3,6 +3,7 @@
 #include <algorithm>
 #include <chrono>
 #include <cstdint>
+#include <functional>
 #include <memory>
 #include <random>
 #include <vector>
@@ -18,7 +19,7 @@ struct TestData {
   ppc::core::TaskDataPtr task_data;
 };
 
-TestData generate_test_data(int count) {
+TestData GenerateTestData(int count) {
   TestData data;
   data.in.resize(count);
   data.out.resize(count);
@@ -40,7 +41,7 @@ TestData generate_test_data(int count) {
 
 TEST(gusev_n_sorting_int_simple_merging_tbb, test_pipeline_run) {
   constexpr int kCount = 5000000;
-  auto test_data = generate_test_data(kCount);
+  auto test_data = GenerateTestData(kCount);
 
   auto test_task =
       std::make_shared<gusev_n_sorting_int_simple_merging_tbb::SortingIntSimpleMergingTBB>(test_data.task_data);
@@ -66,7 +67,7 @@ TEST(gusev_n_sorting_int_simple_merging_tbb, test_pipeline_run) {
 
 TEST(gusev_n_sorting_int_simple_merging_tbb, test_task_run) {
   constexpr int kCount = 5000000;
-  auto test_data = generate_test_data(kCount);
+  auto test_data = GenerateTestData(kCount);
 
   auto test_task =
       std::make_shared<gusev_n_sorting_int_simple_merging_tbb::SortingIntSimpleMergingTBB>(test_data.task_data);
