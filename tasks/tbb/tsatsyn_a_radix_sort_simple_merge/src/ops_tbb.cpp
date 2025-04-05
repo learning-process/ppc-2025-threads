@@ -17,8 +17,6 @@
 #include "oneapi/tbb/task_arena.h"
 #include "oneapi/tbb/task_group.h"
 
-namespace {}  // namespace
-
 bool tsatsyn_a_radix_sort_simple_merge_tbb::TestTaskTBB::PreProcessingImpl() {
   // Init value for input and output
   auto* temp_ptr = reinterpret_cast<double*>(task_data->inputs[0]);
@@ -35,7 +33,8 @@ bool tsatsyn_a_radix_sort_simple_merge_tbb::TestTaskTBB::ValidationImpl() {
 bool tsatsyn_a_radix_sort_simple_merge_tbb::TestTaskTBB::RunImpl() {
   std::vector<uint64_t> pozitive_copy;
   std::vector<uint64_t> negative_copy;
-  tbb::combinable<std::vector<uint64_t>> pos_comb, neg_comb;
+  tbb::combinable<std::vector<uint64_t>> pos_comb;
+  tbb::combinable<std::vector<uint64_t>> neg_comb;
   tbb::parallel_for(tbb::blocked_range<size_t>(0, input_data_.size()), [&](const auto& r) {
     auto& pos = pos_comb.local();
     auto& neg = neg_comb.local();
@@ -86,7 +85,7 @@ bool tsatsyn_a_radix_sort_simple_merge_tbb::TestTaskTBB::RunImpl() {
   tbb::parallel_for(tbb::blocked_range<size_t>(0, negative_copy.size()), [&](const auto& r) {
     for (size_t i = r.begin(); i < r.end(); ++i) {
       double tmp;
-      memcpy(&tmp, &negative_copy[i], sizeof(tmp));  // Безопасное преобразование
+      memcpy(&tmp, &negative_copy[i], sizeof(tmp));
       output_[i] = tmp;
     }
   });
