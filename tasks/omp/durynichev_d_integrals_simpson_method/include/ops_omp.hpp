@@ -1,13 +1,16 @@
 #ifndef TASKS_OMP_DURYNICHEV_D_INTEGRALS_SIMPSON_METHOD_INCLUDE_OPS_OMP_HPP_
 #define TASKS_OMP_DURYNICHEV_D_INTEGRALS_SIMPSON_METHOD_INCLUDE_OPS_OMP_HPP_
 
+#include <memory>  // Для std::shared_ptr и std::move
+#include <vector>  // Для std::vector
+
 #include "core/task/include/task.hpp"
 
 namespace durynichev_d_integrals_simpson_method_omp {
 
 class SimpsonIntegralOpenMP : public ppc::core::Task {
  public:
-  explicit SimpsonIntegralOpenMP(std::shared_ptr<ppc::core::TaskData> taskData_) : Task(std::move(taskData_)) {}
+  explicit SimpsonIntegralOpenMP(std::shared_ptr<ppc::core::TaskData> task_data) : Task(std::move(task_data)) {}
   bool PreProcessingImpl() override;
   bool ValidationImpl() override;
   bool RunImpl() override;

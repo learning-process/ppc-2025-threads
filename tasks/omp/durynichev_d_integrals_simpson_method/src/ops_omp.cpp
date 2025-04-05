@@ -1,9 +1,7 @@
-#include "omp/durynichev_d_integrals_simpson_method/include/ops_omp.hpp"
-
 #include <omp.h>
-
 #include <vector>
-#include <cstdint>
+
+#include "omp/durynichev_d_integrals_simpson_method/include/ops_omp.hpp"
 
 bool durynichev_d_integrals_simpson_method_omp::SimpsonIntegralOpenMP::PreProcessingImpl() {
   unsigned int input_size = task_data->inputs_count[0];
@@ -95,7 +93,7 @@ double durynichev_d_integrals_simpson_method_omp::SimpsonIntegralOpenMP::Simpson
 #pragma omp parallel for reduction(+ : sum)
   for (int i = 0; i <= n_; i++) {
     double x = x0 + (i * hx);
-    double coef_x;
+    double coef_x = 0.0;  // Инициализация
     if (i == 0 || i == n_) {
       coef_x = 1;
     } else if (i % 2 != 0) {
@@ -107,7 +105,7 @@ double durynichev_d_integrals_simpson_method_omp::SimpsonIntegralOpenMP::Simpson
 
     for (int j = 0; j <= n_; j++) {
       double y = y0 + (j * hy);
-      double coef_y;
+      double coef_y = 0.0;  // Инициализация
       if (j == 0 || j == n_) {
         coef_y = 1;
       } else if (j % 2 != 0) {
