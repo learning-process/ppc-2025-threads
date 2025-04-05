@@ -178,7 +178,9 @@ foreach(TASK_TYPE ${LIST_OF_TASKS})
     install(TARGETS ${exec_func_lib} ARCHIVE DESTINATION lib LIBRARY DESTINATION lib)
 
     set(LIST_OF_EXEC_TESTS "")
-    set(LIB_SOURCE_FILES "")
+    set(LIB_SOURCE_FILES ""
+            omp/durynichev_d_integrals_simpson_method/src/ops_omp.cpp
+            omp/durynichev_d_integrals_simpson_method/src/ops_omp.cpp)
     set(SRC_RES "")
     set(FUNC_TESTS_SOURCE_FILES "")
     set(PERF_TESTS_SOURCE_FILES "")

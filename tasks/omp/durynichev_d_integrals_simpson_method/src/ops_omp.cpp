@@ -69,15 +69,18 @@ double durynichev_d_integrals_simpson_method_omp::SimpsonIntegralOpenMP::simpson
   double hy = (y1 - y0) / n_;
   double sum = 0.0;
 
-#pragma omp parallel for collapse(2) reduction(+ : sum)
+#pragma omp parallel for reduction(+ : sum)
   for (int i = 0; i <= n_; i++) {
+    double x = x0 + i * hx;
+    double coef_x = (i == 0 || i == n_) ? 1 : ((i % 2) ? 4 : 2);
+    double local_sum = 0.0;
+
     for (int j = 0; j <= n_; j++) {
-      double x = x0 + i * hx;
       double y = y0 + j * hy;
-      double coef_x = (i == 0 || i == n_) ? 1 : ((i % 2) ? 4 : 2);
       double coef_y = (j == 0 || j == n_) ? 1 : ((j % 2) ? 4 : 2);
-      sum += coef_x * coef_y * func2D(x, y);
+      local_sum += coef_x * coef_y * func2D(x, y);
     }
+    sum += local_sum;
   }
 
   return sum * hx * hy / 9.0;
