@@ -148,8 +148,8 @@ TEST(borisov_s_strassen_seq, Rectangular2x3_3x4) {
 TEST(borisov_s_strassen_seq, Square5x5_Random) {
   const int n = 5;
 
-  std::vector<double> a = GenerateRandomMatrix(n, n, 7777, 0.0, 1.0);
-  std::vector<double> b = GenerateRandomMatrix(n, n, 7777, 0.0, 1.0);
+  std::vector<double> a = GenerateRandomMatrix(n, n, 7777);
+  std::vector<double> b = GenerateRandomMatrix(n, n, 7777);
 
   auto c_expected = MultiplyNaiveDouble(a, b, n, n, n);
 
