@@ -70,7 +70,8 @@ bool plekhanov_d_dijkstra_stl::TestTaskSTL::RunImpl() {  // NOLINT(readability-f
 
   std::mutex pq_mutex;
 
-  const size_t num_threads = std::min(ppc::util::GetPPCNumThreads(), static_cast<int>(std::thread::hardware_concurrency()));
+  const size_t num_threads =
+      std::min(ppc::util::GetPPCNumThreads(), static_cast<int>(std::thread::hardware_concurrency()));
   while (!pq.empty()) {
     pq_mutex.lock();
     auto top_element = pq.top();
