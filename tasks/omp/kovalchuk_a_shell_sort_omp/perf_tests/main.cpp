@@ -1,6 +1,7 @@
+#include <gtest/gtest.h>
+
 #include <chrono>
 #include <cstdint>
-#include <gtest/gtest.h>
 #include <memory>
 #include <vector>
 
@@ -23,17 +24,14 @@ TEST(kovalchuk_a_shell_sort_omp, test_pipeline_run) {
   task_data_omp->outputs.emplace_back(reinterpret_cast<uint8_t *>(out.data()));
   task_data_omp->outputs_count.emplace_back(out.size());
 
-  auto test_task =
-      std::make_shared<kovalchuk_a_shell_sort_omp::ShellSortOMP>(task_data_omp);
+  auto test_task = std::make_shared<kovalchuk_a_shell_sort_omp::ShellSortOMP>(task_data_omp);
 
   auto perf_attr = std::make_shared<ppc::core::PerfAttr>();
   perf_attr->num_running = 10;
   const auto t0 = std::chrono::high_resolution_clock::now();
   perf_attr->current_timer = [&] {
     auto current_time_point = std::chrono::high_resolution_clock::now();
-    auto duration = std::chrono::duration_cast<std::chrono::nanoseconds>(
-                        current_time_point - t0)
-                        .count();
+    auto duration = std::chrono::duration_cast<std::chrono::nanoseconds>(current_time_point - t0).count();
     return static_cast<double>(duration) * 1e-9;
   };
 
@@ -58,17 +56,14 @@ TEST(kovalchuk_a_shell_sort_omp, test_task_run) {
   task_data_omp->outputs.emplace_back(reinterpret_cast<uint8_t *>(out.data()));
   task_data_omp->outputs_count.emplace_back(out.size());
 
-  auto test_task =
-      std::make_shared<kovalchuk_a_shell_sort_omp::ShellSortOMP>(task_data_omp);
+  auto test_task = std::make_shared<kovalchuk_a_shell_sort_omp::ShellSortOMP>(task_data_omp);
 
   auto perf_attr = std::make_shared<ppc::core::PerfAttr>();
   perf_attr->num_running = 10;
   const auto t0 = std::chrono::high_resolution_clock::now();
   perf_attr->current_timer = [&] {
     auto current_time_point = std::chrono::high_resolution_clock::now();
-    auto duration = std::chrono::duration_cast<std::chrono::nanoseconds>(
-                        current_time_point - t0)
-                        .count();
+    auto duration = std::chrono::duration_cast<std::chrono::nanoseconds>(current_time_point - t0).count();
     return static_cast<double>(duration) * 1e-9;
   };
 

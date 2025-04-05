@@ -31,7 +31,6 @@ bool ShellSortOMP::RunImpl() {
 void ShellSortOMP::ShellSort() {
   if (input_.empty()) return;
 
-  // Создаем локальную ссылку для корректной работы с OpenMP
   std::vector<int>& local_input = input_;
   const int n = static_cast<int>(local_input.size());
 
