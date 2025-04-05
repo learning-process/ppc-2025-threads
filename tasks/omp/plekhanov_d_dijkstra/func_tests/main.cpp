@@ -15,13 +15,31 @@
 
 namespace plekhanov_d_dijkstra_omp {
 
-std::vector<int> ConvertToGraphData(const std::vector<std::vector<std::pair<size_t, int>>> &adj_list);
-void RunValidationFailureTest();
-std::vector<std::vector<std::pair<size_t, int>>> GenerateRandomGraph(size_t num_vertices);
-std::vector<int> CalculateExpectedResult(const std::vector<std::vector<std::pair<size_t, int>>> &adj_list,
+template <typename ExpectedResultType>
+void ExecuteAndValidateTask(std::shared_ptr<ppc::core::TaskData> &task_data, std::vector<int> &distances,
+                            const std::vector<ExpectedResultType> &expected_result, bool expect_success) {
+  TestTaskOpenMP test_task(task_data);
+  ASSERT_TRUE(test_task.Validation());
+  test_task.PreProcessing();
+
+  if (expect_success) {
+    ASSERT_TRUE(test_task.Run());
+    test_task.PostProcessing();
+    for (size_t i = 0; i < distances.size(); ++i) {
+      EXPECT_EQ(distances[i], expected_result[i]);
+    }
+  } else {
+    ASSERT_FALSE(test_task.Run());
+  }
+}
+
+std::vector<int> static ConvertToGraphData(const std::vector<std::vector<std::pair<size_t, int>>> &adj_list);
+void static RunValidationFailureTest();
+std::vector<std::vector<std::pair<size_t, int>>> static GenerateRandomGraph(size_t num_vertices);
+std::vector<int> static CalculateExpectedResult(const std::vector<std::vector<std::pair<size_t, int>>> &adj_list,
                                          size_t start_vertex);
 
-std::vector<int> ConvertToGraphData(const std::vector<std::vector<std::pair<size_t, int>>> &adj_list) {
+std::vector<int> static ConvertToGraphData(const std::vector<std::vector<std::pair<size_t, int>>> &adj_list) {
   std::vector<int> graph_data;
   for (const auto &vertex_edges : adj_list) {
     for (const auto &edge : vertex_edges) {
@@ -47,22 +65,10 @@ void RunTest(const std::vector<std::vector<std::pair<size_t, int>>> &adj_list, s
   task_data_omp->outputs.emplace_back(reinterpret_cast<uint8_t *>(distances.data()));
   task_data_omp->outputs_count.emplace_back(k_num_vertices);
 
-  TestTaskOpenMP test_task_omp(task_data_omp);
-  ASSERT_TRUE(test_task_omp.Validation());
-  test_task_omp.PreProcessing();
-  if (expect_success) {
-    ASSERT_TRUE(test_task_omp.Run());
-    test_task_omp.PostProcessing();
-    for (size_t i = 0; i < k_num_vertices; ++i) {
-      EXPECT_EQ(distances[i], expected_result[i]);
-    }
-  } else {
-    ASSERT_FALSE(test_task_omp.Run());
-    test_task_omp.PostProcessing();
-  }
+  ExecuteAndValidateTask(task_data_omp, distances, expected_result, expect_success);
 }
 
-void RunValidationFailureTest() {
+void static RunValidationFailureTest() {
   std::vector<int> graph_data;
   size_t start_vertex = 0;
   size_t num_vertices = 0;

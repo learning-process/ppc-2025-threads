@@ -18,11 +18,11 @@
 
 namespace plekhanov_d_dijkstra_omp {
 
-static std::vector<std::vector<std::pair<size_t, int>>> CreateRandomAdjacencyList(size_t numVertices) {
-  srand(static_cast<unsigned int>(time(0)));
-  std::vector<std::vector<std::pair<size_t, int>>> adj_list(numVertices);
-  for (size_t i = 0; i < numVertices; ++i) {
-    for (size_t j = 0; j < numVertices; ++j) {
+std::vector<std::vector<std::pair<size_t, int>>> CreateRandomAdjacencyList(size_t num_vertices) {
+  srand(static_cast<unsigned int>(time(nullptr)));
+  std::vector<std::vector<std::pair<size_t, int>>> adj_list(num_vertices);
+  for (size_t i = 0; i < num_vertices; ++i) {
+    for (size_t j = 0; j < num_vertices; ++j) {
       if (i != j) {
         if (rand() % 3 == 0) {
           int weight = (rand() % 10) + 1;
@@ -34,7 +34,7 @@ static std::vector<std::vector<std::pair<size_t, int>>> CreateRandomAdjacencyLis
   return adj_list;
 }
 
-static std::vector<int> CalculateExpectedResult(const std::vector<std::vector<std::pair<size_t, int>>> &adj_list,
+std::vector<int> CalculateExpectedResult(const std::vector<std::vector<std::pair<size_t, int>>> &adj_list,
                                                 size_t start_vertex) {
   size_t n = adj_list.size();
   const int inf = INT_MAX;
