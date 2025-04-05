@@ -9,8 +9,7 @@ namespace laganina_e_component_labeling_omp {
 
 class TestTaskOpenMP : public ppc::core::Task {
  public:
-  explicit TestTaskOpenMP(ppc::core::TaskDataPtr task_data);
-
+  explicit TestTaskOpenMP(std::shared_ptr<ppc::core::TaskData> taskData) : Task(std::move(taskData)) {}
   bool PreProcessingImpl() override;
   bool ValidationImpl() override;
   bool RunImpl() override;
