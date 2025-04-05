@@ -1,5 +1,6 @@
 #include <gtest/gtest.h>
 
+#include <algorithm>
 #include <chrono>
 #include <cstddef>
 #include <cstdint>
@@ -44,6 +45,8 @@ void PerfTest(MiddlewareFn middleware) {
   ppc::core::Perf perf_analyzer(task);
   middleware(perf_analyzer, perf_attr, perf_results);
   ppc::core::Perf::PrintPerfStatistic(perf_results);
+
+  EXPECT_TRUE(std::ranges::is_sorted(out));
 }
 }  // namespace
 
