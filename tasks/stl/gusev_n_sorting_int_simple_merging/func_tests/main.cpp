@@ -3,6 +3,7 @@
 #include <algorithm>
 #include <cstdint>
 #include <memory>
+#include <random>
 #include <vector>
 
 #include "core/task/include/task.hpp"
@@ -49,6 +50,44 @@ TEST(gusev_n_sorting_int_simple_merging_stl, test_radix_sort_single_element) {
   std::vector<int> out(1);
   RunTest(in, out);
   EXPECT_EQ(in, out);
+}
+
+TEST(gusev_n_sorting_int_simple_merging_stl, test_radix_sort_single_zero) {
+  std::vector<int> in = {0};
+  std::vector<int> out(1);
+  RunTest(in, out);
+  EXPECT_EQ(in, out);
+}
+
+TEST(gusev_n_sorting_int_simple_merging_stl, test_radix_sort_same_values) {
+  std::vector<int> in = {5, 5, 5, 5, 5};
+  std::vector<int> out(5);
+  RunTest(in, out);
+  EXPECT_EQ(in, out);
+}
+
+TEST(gusev_n_sorting_int_simple_merging_stl, test_radix_sort_all_negative) {
+  std::vector<int> in = {-5, -9, -3, -5, -8};
+  std::vector<int> out(5);
+  RunTest(in, out);
+  std::vector<int> expected = in;
+  std::ranges::sort(expected);
+  EXPECT_EQ(expected, out);
+}
+
+TEST(gusev_n_sorting_simple_merging_stl, test_radix_sort_random) {
+  std::vector<int> in(5);
+  std::vector<int> out(5);
+  std::random_device rd;
+  std::mt19937 gen(rd());
+  std::uniform_int_distribution<int> dist(-10, 10);
+  for (int& num : in) {
+    num = dist(gen);
+  }
+  RunTest(in, out);
+  std::vector<int> expected = in;
+  std::ranges::sort(expected);
+  EXPECT_EQ(expected, out);
 }
 
 TEST(gusev_n_sorting_int_simple_merging_stl, test_radix_sort_negative_numbers) {

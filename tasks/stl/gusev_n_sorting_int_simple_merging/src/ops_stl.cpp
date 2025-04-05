@@ -27,7 +27,9 @@ void TestTaskSTL::RadixSort(std::vector<int>& arr) {
 }
 
 void TestTaskSTL::SplitAndSort(std::vector<int>& arr, std::vector<int>& negatives, std::vector<int>& positives) {
-  const int num_threads = ppc::util::GetPPCNumThreads();
+  const size_t data_size = arr.size();
+  const int num_threads = (data_size < 1000) ? 1 : ppc::util::GetPPCNumThreads();
+
   std::vector<std::thread> threads(num_threads);
 
   std::vector<std::vector<int>> local_negatives(num_threads);
@@ -97,9 +99,11 @@ void TestTaskSTL::RadixSortForNonNegative(std::vector<int>& arr) {
 }
 
 void TestTaskSTL::CountingSort(std::vector<int>& arr, int exp) {
-  const int num_threads = ppc::util::GetPPCNumThreads();
+  const size_t data_size = arr.size();
+  const int num_threads = (data_size < 1000) ? 1 : ppc::util::GetPPCNumThreads();
+
   std::vector<std::thread> threads;
-  std::vector<std::vector<int>> local_counts(num_threads, std::vector<int>(10, 0));
+  std::vector<std::vector<int>> local_counts(num_threads, std::vector<int>(DIGIT_COUNT, 0));
 
   size_t total_size = arr.size();
   size_t chunk_size = (total_size + num_threads - 1) / num_threads;
@@ -113,7 +117,7 @@ void TestTaskSTL::CountingSort(std::vector<int>& arr, int exp) {
 
     threads.emplace_back([&arr, exp, start, end, &local_counts, i]() {
       for (size_t j = start; j < end; ++j) {
-        int digit = (arr[j] / exp) % 10;
+        int digit = (arr[j] / exp) % DIGIT_COUNT;
         local_counts[i][digit]++;
       }
     });
@@ -123,18 +127,17 @@ void TestTaskSTL::CountingSort(std::vector<int>& arr, int exp) {
     t.join();
   }
 
-  std::vector<int> global_count(10, 0);
-  for (int d = 0; d < 10; ++d) {
-    for (int t = 0; t < num_threads; ++t) {
-      global_count[d] += local_counts[t][d];
-    }
+  std::vector<int> global_count(DIGIT_COUNT, 0);
+  for (int d = 0; d < DIGIT_COUNT; ++d) {
+    global_count[d] = std::reduce(local_counts.begin(), local_counts.end(), 0,
+                                  [d](int sum, const std::vector<int>& counts) { return sum + counts[d]; });
   }
 
   std::partial_sum(global_count.begin(), global_count.end(), global_count.begin());
 
   std::vector<int> output(arr.size());
   for (size_t i = arr.size(); i > 0; --i) {
-    const int digit = (arr[i - 1] / exp) % 10;
+    const int digit = (arr[i - 1] / exp) % DIGIT_COUNT;
     output[--global_count[digit]] = arr[i - 1];
   }
 
