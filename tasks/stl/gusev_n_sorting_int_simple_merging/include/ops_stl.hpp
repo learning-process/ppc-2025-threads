@@ -17,7 +17,7 @@ class TestTaskSTL : public ppc::core::Task {
 
  private:
   std::vector<int> input_, output_;
-  static constexpr int DIGIT_COUNT = 10;
+  static constexpr int kDigitCount = 10;
 
   static void RadixSort(std::vector<int>& arr);
   static void SplitAndSort(std::vector<int>& arr, std::vector<int>& negatives, std::vector<int>& positives);

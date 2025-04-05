@@ -103,7 +103,7 @@ void TestTaskSTL::CountingSort(std::vector<int>& arr, int exp) {
   const int num_threads = (data_size < 1000) ? 1 : ppc::util::GetPPCNumThreads();
 
   std::vector<std::thread> threads;
-  std::vector<std::vector<int>> local_counts(num_threads, std::vector<int>(DIGIT_COUNT, 0));
+  std::vector<std::vector<int>> local_counts(num_threads, std::vector<int>(kDigitCount, 0));
 
   size_t total_size = arr.size();
   size_t chunk_size = (total_size + num_threads - 1) / num_threads;
@@ -117,7 +117,7 @@ void TestTaskSTL::CountingSort(std::vector<int>& arr, int exp) {
 
     threads.emplace_back([&arr, exp, start, end, &local_counts, i]() {
       for (size_t j = start; j < end; ++j) {
-        int digit = (arr[j] / exp) % DIGIT_COUNT;
+        int digit = (arr[j] / exp) % kDigitCount;
         local_counts[i][digit]++;
       }
     });
@@ -127,8 +127,8 @@ void TestTaskSTL::CountingSort(std::vector<int>& arr, int exp) {
     t.join();
   }
 
-  std::vector<int> global_count(DIGIT_COUNT, 0);
-  for (int d = 0; d < DIGIT_COUNT; ++d) {
+  std::vector<int> global_count(kDigitCount, 0);
+  for (int d = 0; d < kDigitCount; ++d) {
     global_count[d] = std::accumulate(local_counts.begin(), local_counts.end(), 0,
                                       [d](int sum, const std::vector<int>& counts) { return sum + counts[d]; });
   }
@@ -137,7 +137,7 @@ void TestTaskSTL::CountingSort(std::vector<int>& arr, int exp) {
 
   std::vector<int> output(arr.size());
   for (size_t i = arr.size(); i > 0; --i) {
-    const int digit = (arr[i - 1] / exp) % DIGIT_COUNT;
+    const int digit = (arr[i - 1] / exp) % kDigitCount;
     output[--global_count[digit]] = arr[i - 1];
   }
 
