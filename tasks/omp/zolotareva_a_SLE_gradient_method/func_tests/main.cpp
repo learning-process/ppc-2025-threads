@@ -86,7 +86,8 @@ TEST(zolotareva_a_sle_gradient_method_omp, invalid_input_data) {
   task_data_omp->inputs.push_back(reinterpret_cast<uint8_t *>(a.data()));
   task_data_omp->inputs.push_back(reinterpret_cast<uint8_t *>(b.data()));
   task_data_omp->inputs_count.push_back(n * n);
-
+  task_data_omp->outputs_count.push_back(n);
+  
   zolotareva_a_sle_gradient_method_omp::TestTaskOpenMP task(task_data_omp);
   ASSERT_EQ(task.ValidationImpl(), false);
 }
