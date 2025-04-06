@@ -145,10 +145,67 @@ TEST(fyodorov_m_shell_sort_with_even_odd_batcher_merge_omp, reverse_pozitive_arr
   EXPECT_EQ(in, out);
 }
 
+TEST(fyodorov_m_shell_sort_with_even_odd_batcher_merge_omp, reverse_negative_array) {
+  int arrsize = 12;
+  std::vector<int> in = {-1, -2, -3, -4, -5, -6, -7, -8, -9, -10, -11, -12};
+  std::vector<int> out(arrsize, 0);
+
+  auto task_data_omp = std::make_shared<ppc::core::TaskData>();
+  task_data_omp->inputs.emplace_back(reinterpret_cast<uint8_t *>(in.data()));
+  task_data_omp->inputs_count.emplace_back(in.size());
+  task_data_omp->outputs.emplace_back(reinterpret_cast<uint8_t *>(out.data()));
+  task_data_omp->outputs_count.emplace_back(out.size());
+  fyodorov_m_shell_sort_with_even_odd_batcher_merge_omp::TestTaskOpenmp test_task_openmp(task_data_omp);
+  ASSERT_EQ(test_task_openmp.Validation(), true);
+  test_task_openmp.PreProcessing();
+  test_task_openmp.Run();
+  test_task_openmp.PostProcessing();
+  std::ranges::sort(in);
+  EXPECT_EQ(in, out);
+}
+
 TEST(fyodorov_m_shell_sort_with_even_odd_batcher_merge_omp, reverse_pozitive_double) {
   int arrsize = 10;
   std::vector<int> in = {5, 4, 3, 2, 1, 5, 4, 3, 2, 1};
   std::vector<int> out(arrsize, 0);
+  auto task_data_omp = std::make_shared<ppc::core::TaskData>();
+  task_data_omp->inputs.emplace_back(reinterpret_cast<uint8_t *>(in.data()));
+  task_data_omp->inputs_count.emplace_back(in.size());
+  task_data_omp->outputs.emplace_back(reinterpret_cast<uint8_t *>(out.data()));
+  task_data_omp->outputs_count.emplace_back(out.size());
+  fyodorov_m_shell_sort_with_even_odd_batcher_merge_omp::TestTaskOpenmp test_task_openmp(task_data_omp);
+  ASSERT_EQ(test_task_openmp.Validation(), true);
+  test_task_openmp.PreProcessing();
+  test_task_openmp.Run();
+  test_task_openmp.PostProcessing();
+  std::ranges::sort(in);
+  EXPECT_EQ(in, out);
+}
+
+TEST(fyodorov_m_shell_sort_with_even_odd_batcher_merge_omp, single_element) {
+  int arrsize = 1;
+  std::vector<int> in = {1};
+  std::vector<int> out(arrsize, 0);
+
+  auto task_data_omp = std::make_shared<ppc::core::TaskData>();
+  task_data_omp->inputs.emplace_back(reinterpret_cast<uint8_t *>(in.data()));
+  task_data_omp->inputs_count.emplace_back(in.size());
+  task_data_omp->outputs.emplace_back(reinterpret_cast<uint8_t *>(out.data()));
+  task_data_omp->outputs_count.emplace_back(out.size());
+  fyodorov_m_shell_sort_with_even_odd_batcher_merge_omp::TestTaskOpenmp test_task_openmp(task_data_omp);
+  ASSERT_EQ(test_task_openmp.Validation(), true);
+  test_task_openmp.PreProcessing();
+  test_task_openmp.Run();
+  test_task_openmp.PostProcessing();
+  std::ranges::sort(in);
+  EXPECT_EQ(in, out);
+}
+
+TEST(fyodorov_m_shell_sort_with_even_odd_batcher_merge_omp, zero_array) {
+  int arrsize = 5;
+  std::vector<int> in = {0, 0, 0, 0, 0};
+  std::vector<int> out(arrsize, 0);
+
   auto task_data_omp = std::make_shared<ppc::core::TaskData>();
   task_data_omp->inputs.emplace_back(reinterpret_cast<uint8_t *>(in.data()));
   task_data_omp->inputs_count.emplace_back(in.size());
