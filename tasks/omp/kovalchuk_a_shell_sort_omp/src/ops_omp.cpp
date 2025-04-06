@@ -34,7 +34,7 @@ void ShellSortOMP::ShellSort() {
   }
 
   std::vector<int>& arr = input_;
-  int n = arr.size();
+  auto n = static_cast<int>(arr.size());
 
   for (int gap = n / 2; gap > 0; gap /= 2) {
 #pragma omp parallel for
