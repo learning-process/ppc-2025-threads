@@ -9,11 +9,12 @@
 #include "core/task/include/task.hpp"
 #include "omp/chizhov_m_trapezoid_method/include/ops_omp.hpp"
 
-void RunTests(int div, int dimm, std::vector<double> &limits,
-              std::function<double(const std::vector<double> &)> f, double expected_result) {
+namespace {
+void RunTests(int div, int dimm, std::vector<double> &limits, std::function<double(const std::vector<double> &)> f,
+              double expected_result) {
   std::vector<double> res(1, 0);
 
-  auto *f_object = new std::function<double(const std::vector<double> &)>(f);
+  auto *f_object = new std::function<double(const std::vector<double> &)>(std::move(f));
 
   std::shared_ptr<ppc::core::TaskData> task_data_omp = std::make_shared<ppc::core::TaskData>();
 
@@ -40,6 +41,7 @@ void RunTests(int div, int dimm, std::vector<double> &limits,
   ASSERT_NEAR(res[0], expected_result, 0.1);
   delete f_object;
 }
+
 
 TEST(chizhov_m_trapezoid_method_omp, one_variable_squared) {
   int div = 20;
@@ -123,6 +125,8 @@ TEST(chizhov_m_trapezoid_method_omp, combine_exp_sin_cos) {
   };
   RunTests(div, dim, limits, f, 0.073);
 }
+
+}  // namespace
 
 TEST(chizhov_m_trapezoid_method_omp, invalid_value_dim) {
   int div = 10;
