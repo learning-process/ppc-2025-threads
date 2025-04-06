@@ -46,22 +46,18 @@ bool opolin_d_radix_batcher_sort_omp::RadixBatcherSortTaskOpenMP::RunImpl() {
     std::vector<int> positives;
     std::vector<int> negatives;
 
-    for (size_t i = 0; i < local_input.size(); i++) {
-      if (local_input[i] >= 0) {
-        positives.push_back(local_input[i]);
+    for (size_t j = 0; j < local_input.size(); j++) {
+      if (local_input[j] >= 0) {
+        positives.push_back(local_input[j]);
       } else {
-        negatives.push_back(-local_input[i]);
+        negatives.push_back(-local_input[j]);
       }
     }
     int max_abs = 0;
-    for (size_t i = 0; i < local_input.size(); i++) {
-      max_abs = std::max(max_abs, std::abs(local_input[i]));
+    for (size_t j = 0; j < local_input.size(); j++) {
+      max_abs = std::max(max_abs, std::abs(local_input[j]));
     }
-    int digit_count = (max_abs == 0) ? 1 : 0;
-    while (max_abs > 0) {
-      max_abs /= 10;
-      digit_count++;
-    }
+    int digit_count = (max_abs == 0) ? 1 : static_cast<int>(std::log10(max_abs)) + 1;
     for (int place = 1; digit_count > 0; place *= 10, digit_count--) {
       if (!positives.empty()) {
         SortByDigit(positives, place);
@@ -80,7 +76,7 @@ bool opolin_d_radix_batcher_sort_omp::RadixBatcherSortTaskOpenMP::RunImpl() {
     std::vector<int> sorted_local;
     sorted_local.insert(sorted_local.end(), negatives.begin(), negatives.end());
     sorted_local.insert(sorted_local.end(), positives.begin(), positives.end());
-    std::copy(sorted_local.begin(), sorted_local.end(), input_.begin() + start);
+    std::ranges::copy(sorted_local, input_.begin() + start);
   }
   while (starts.size() > 1) {
     int merge_pairs = static_cast<int>(starts.size()) / 2;
