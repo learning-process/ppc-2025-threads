@@ -5,12 +5,10 @@
 #include <oneapi/tbb/parallel_for.h>
 #include <tbb/tbb.h>
 
-#include <algorithm>
 #include <cmath>
 #include <cstddef>
 #include <cstdint>
 #include <cstring>
-#include <utility>
 #include <vector>
 
 bool tsatsyn_a_radix_sort_simple_merge_tbb::TestTaskTBB::PreProcessingImpl() {
@@ -36,7 +34,7 @@ bool tsatsyn_a_radix_sort_simple_merge_tbb::TestTaskTBB::RunImpl() {
     auto& neg = neg_comb.local();
     for (size_t i = r.begin(); i < r.end(); ++i) {
       double val = input_data_[i];
-      uint64_t* bits = reinterpret_cast<uint64_t*>(&val);
+      auto* bits = reinterpret_cast<uint64_t*>(&val);
       (val > 0.0 ? pos : neg).push_back(*bits);
     }
   });
@@ -80,7 +78,7 @@ bool tsatsyn_a_radix_sort_simple_merge_tbb::TestTaskTBB::RunImpl() {
   }
   tbb::parallel_for(tbb::blocked_range<size_t>(0, negative_copy.size()), [&](const auto& r) {
     for (size_t i = r.begin(); i < r.end(); ++i) {
-      double tmp;
+      double tmp = NAN;
       memcpy(&tmp, &negative_copy[i], sizeof(tmp));
       output_[i] = tmp;
     }
@@ -89,7 +87,7 @@ bool tsatsyn_a_radix_sort_simple_merge_tbb::TestTaskTBB::RunImpl() {
   const size_t offset = negative_copy.size();
   tbb::parallel_for(tbb::blocked_range<size_t>(0, pozitive_copy.size()), [&](const auto& r) {
     for (size_t i = r.begin(); i < r.end(); ++i) {
-      double tmp;
+      double tmp = NAN;
       memcpy(&tmp, &pozitive_copy[i], sizeof(tmp));
       output_[offset + i] = tmp;
     }

@@ -79,7 +79,7 @@ TEST(tsatsyn_a_radix_sort_simple_merge_tbb, test_matmul_100_from_file) {
   }
   test_file.close();
 
-  int count = static_cast<int>(std::stoi(line));
+  int count = std::stoi(line);
 
   // Create data
   std::vector<double> in;
