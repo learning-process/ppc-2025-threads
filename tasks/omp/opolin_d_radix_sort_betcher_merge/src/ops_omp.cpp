@@ -74,7 +74,7 @@ bool opolin_d_radix_batcher_sort_omp::RadixBatcherSortTaskOpenMP::PostProcessing
   return true;
 }
 
-void opolin_d_radix_batcher_sort_omp::RadixSort(std::vector<int>& input, int start, int end) {
+void opolin_d_radix_batcher_sort_omp::RadixSort(std::vector<int> &input, int start, int end) {
   std::vector<int> local_input(input.begin() + start, input.begin() + end);
   std::vector<int> positives;
   std::vector<int> negatives;
