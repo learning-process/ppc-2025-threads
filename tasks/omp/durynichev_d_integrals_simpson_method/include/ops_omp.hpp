@@ -1,10 +1,10 @@
 #ifndef TASKS_OMP_DURYNICHEV_D_INTEGRALS_SIMPSON_METHOD_INCLUDE_OPS_OMP_HPP_
 #define TASKS_OMP_DURYNICHEV_D_INTEGRALS_SIMPSON_METHOD_INCLUDE_OPS_OMP_HPP_
 
-#include <cstddef>  // Для size_t
-#include <memory>   // Для std::shared_ptr и std::move
-#include <utility>  // Для std::move
-#include <vector>   // Для std::vector
+#include <cstddef>
+#include <memory>
+#include <utility>
+#include <vector>
 
 #include "core/task/include/task.hpp"
 
