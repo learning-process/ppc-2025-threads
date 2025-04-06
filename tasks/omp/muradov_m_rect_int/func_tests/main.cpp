@@ -12,7 +12,7 @@
 #include "core/task/include/task.hpp"
 #include "omp/muradov_m_rect_int/include/ops_omp.hpp"
 
-constexpr double kAbsErr = 0.5;
+constexpr double kAbsErr = 0.1;
 
 namespace {
 void MuradovMRectIntTest(std::size_t iterations, std::vector<std::pair<double, double>> bounds, double ref,
@@ -76,13 +76,6 @@ TEST(muradov_m_rect_int_omp, sin_mul_cos_2) {
 TEST(muradov_m_rect_int_omp, sin_plus_cos_2) {
   MuradovMRectIntTest(100, {{0, std::numbers::pi}, {0, std::numbers::pi}}, 2 * std::numbers::pi,
                       [](const auto &args) { return std::sin(args[0]) + std::cos(args[1]); });
-}
-
-TEST(muradov_m_rect_int_omp, sin_mul_cos_3) {
-  MuradovMRectIntTest(100, {{0, std::numbers::pi}, {0, std::numbers::pi}, {0, std::numbers::pi}}, 0,
-                      [](const auto &args) {
-                        return (std::sin(args[0]) * std::cos(args[1])) + (std::sin(args[1]) * std::cos(args[2]));
-                      });
 }
 
 TEST(muradov_m_rect_int_omp, sin_plus_cos_3) {

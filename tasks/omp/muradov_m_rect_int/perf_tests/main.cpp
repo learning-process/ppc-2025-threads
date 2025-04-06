@@ -42,6 +42,8 @@ TEST(muradov_m_rect_int_omp, test_pipeline_run) {
   auto perf_analyzer = std::make_shared<ppc::core::Perf>(test_task_ompuential);
   perf_analyzer->PipelineRun(perf_attr, perf_results);
   ppc::core::Perf::PrintPerfStatistic(perf_results);
+
+  EXPECT_NEAR(out, 2.6, 0.3);
 }
 
 TEST(muradov_m_rect_int_omp, test_task_run) {
@@ -78,4 +80,6 @@ TEST(muradov_m_rect_int_omp, test_task_run) {
   auto perf_analyzer = std::make_shared<ppc::core::Perf>(test_task_ompuential);
   perf_analyzer->TaskRun(perf_attr, perf_results);
   ppc::core::Perf::PrintPerfStatistic(perf_results);
+
+  EXPECT_NEAR(out, 2.6, 0.3);
 }
