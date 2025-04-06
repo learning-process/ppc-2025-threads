@@ -29,7 +29,9 @@ bool ShellSortOMP::RunImpl() {
 }
 
 void ShellSortOMP::ShellSort() {
-  if (input_.empty()) return;
+  if (input_.empty()) {
+    return;
+  }
 
   std::vector<int>& arr = input_;
   int n = arr.size();
