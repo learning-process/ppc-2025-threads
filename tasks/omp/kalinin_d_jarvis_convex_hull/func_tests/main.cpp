@@ -251,3 +251,20 @@ TEST(kalinin_d_jarvis_convex_hull_omp, Random_Points_RNG) {
 
   Random(points, hull, res_hull);
 }
+
+TEST(kalinin_d_jarvis_convex_hull_omp, All_Same_Points) {
+  std::vector<kalinin_d_jarvis_convex_hull_omp::Point> points = {{.x = 1, .y = 1}, {.x = 1, .y = 1}, {.x = 1, .y = 1}};
+  std::vector<kalinin_d_jarvis_convex_hull_omp::Point> hull = {{.x = 1, .y = 1}};
+  std::vector<kalinin_d_jarvis_convex_hull_omp::Point> res_hull(hull.size());
+
+  // Create TaskData
+  auto task_data_omp = std::make_shared<ppc::core::TaskData>();
+  task_data_omp->inputs.emplace_back(reinterpret_cast<uint8_t *>(points.data()));
+  task_data_omp->inputs_count.emplace_back(points.size());
+  task_data_omp->outputs.emplace_back(reinterpret_cast<uint8_t *>(res_hull.data()));
+  task_data_omp->outputs_count.emplace_back(res_hull.size());
+
+  // Create Task
+  kalinin_d_jarvis_convex_hull_omp::TestTaskOmp test_task_openmp(task_data_omp);
+  ASSERT_TRUE(test_task_openmp.ValidationImpl());
+}
