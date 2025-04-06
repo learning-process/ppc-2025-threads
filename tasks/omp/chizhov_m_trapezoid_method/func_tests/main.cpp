@@ -4,6 +4,7 @@
 #include <cstdint>
 #include <functional>
 #include <memory>
+#include <utility>
 #include <vector>
 
 #include "core/task/include/task.hpp"
@@ -41,7 +42,6 @@ void RunTests(int div, int dimm, std::vector<double> &limits, std::function<doub
   ASSERT_NEAR(res[0], expected_result, 0.1);
   delete f_object;
 }
-
 
 TEST(chizhov_m_trapezoid_method_omp, one_variable_squared) {
   int div = 20;
