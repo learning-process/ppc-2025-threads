@@ -10,7 +10,7 @@
 #include "seq/fomin_v_conjugate_gradient/include/ops_seq.hpp"
 
 TEST(fomin_v_conjugate_gradient_seq, test_pipeline_run) {
-  constexpr int kCount = 900;
+  constexpr int kCount = 950;
 
   // Создаем трехдиагональную матрицу с диагональным преобладанием
   std::vector<double> input((kCount * kCount) + kCount, 0.0);
@@ -35,7 +35,7 @@ TEST(fomin_v_conjugate_gradient_seq, test_pipeline_run) {
   auto test_task_sequential = std::make_shared<fomin_v_conjugate_gradient::FominVConjugateGradientSeq>(task_data_seq);
 
   auto perf_attr = std::make_shared<ppc::core::PerfAttr>();
-  perf_attr->num_running = 10;
+  perf_attr->num_running = 50;
   const auto t0 = std::chrono::high_resolution_clock::now();
   perf_attr->current_timer = [&] {
     auto current_time_point = std::chrono::high_resolution_clock::now();
@@ -52,7 +52,7 @@ TEST(fomin_v_conjugate_gradient_seq, test_pipeline_run) {
 }
 
 TEST(fomin_v_conjugate_gradient_seq, test_task_run) {
-  constexpr int kCount = 900;  // Размер системы
+  constexpr int kCount = 950;  // Размер системы
 
   // Создаем данные для системы линейных уравнений
   std::vector<double> input((kCount * kCount) + kCount, 0.0);
@@ -73,7 +73,7 @@ TEST(fomin_v_conjugate_gradient_seq, test_task_run) {
 
   // Создаем атрибуты для perf теста
   auto perf_attr = std::make_shared<ppc::core::PerfAttr>();
-  perf_attr->num_running = 10;
+  perf_attr->num_running = 50;
   const auto t0 = std::chrono::high_resolution_clock::now();
   perf_attr->current_timer = [&] {
     auto current_time_point = std::chrono::high_resolution_clock::now();
