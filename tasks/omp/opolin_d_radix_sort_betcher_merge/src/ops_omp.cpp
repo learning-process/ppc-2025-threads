@@ -152,7 +152,7 @@ void opolin_d_radix_batcher_sort_omp::BatcherOddEvenMerge(std::vector<int> &arra
 }
 
 void opolin_d_radix_batcher_sort_omp::CompEx(std::vector<int> &array, int i, int j) {
-  if (i < array.size() && j < array.size() && array[i] > array[j]) {
+  if (static_cast<size_t>(i) < array.size() && static_cast<size_t>(j) < array.size() && array[i] > array[j]) {
     std::swap(array[i], array[j]);
   }
 }
