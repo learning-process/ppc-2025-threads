@@ -57,6 +57,4 @@ inline void NormalizeLabels(std::vector<int>& vec) {
   }
 }
 
-void CompressPath(std::vector<int>& parent, int node, int& root);
-
 }  // namespace laganina_e_component_labeling_omp

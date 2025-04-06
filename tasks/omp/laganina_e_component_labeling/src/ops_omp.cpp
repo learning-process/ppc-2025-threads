@@ -5,14 +5,6 @@
 #include <algorithm>
 #include <vector>
 
-void laganina_e_component_labeling_omp::CompressPath(std::vector<int>& parent, int node, int& root) {
-  while (parent[node] != node) {
-    parent[node] = parent[parent[node]];  // Path compression
-    node = parent[node];
-  }
-  root = node;
-}
-
 bool laganina_e_component_labeling_omp::TestTaskOpenMP::ValidationImpl() {
   if (task_data == nullptr || task_data->inputs[0] == nullptr || task_data->outputs[0] == nullptr) {
     return false;

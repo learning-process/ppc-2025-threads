@@ -581,6 +581,61 @@ TEST(laganina_e_component_labeling_omp, u_shaped_shape_100) {
   EXPECT_EQ(exp_out, out);
 }
 
+TEST(laganina_e_component_labeling_omp, spiral_pattern) {
+  int m = 10;
+  int n = 10;
+  std::vector<int> in = {1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 1, 1,
+                         1, 1, 0, 0, 1, 1, 0, 0, 0, 0, 0, 1, 0, 0, 1, 1, 0, 1, 1, 1, 0, 1, 0, 0, 1,
+                         1, 0, 1, 0, 0, 0, 1, 0, 0, 1, 1, 0, 1, 1, 1, 1, 1, 0, 0, 1, 1, 0, 0, 0, 0,
+                         0, 0, 0, 0, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1};
+  std::vector<int> out(m * n, 0);
+  // Create task_data
+  auto task_data_omp = std::make_shared<ppc::core::TaskData>();
+  task_data_omp->inputs.emplace_back(reinterpret_cast<uint8_t *>(in.data()));
+  task_data_omp->inputs_count.emplace_back(m);
+  task_data_omp->inputs_count.emplace_back(n);
+  task_data_omp->outputs.emplace_back(reinterpret_cast<uint8_t *>(out.data()));
+  task_data_omp->outputs_count.emplace_back(m);
+  task_data_omp->outputs_count.emplace_back(n);
+
+  // Create Task
+  laganina_e_component_labeling_omp::TestTaskOpenMP test_task_omp(task_data_omp);
+  ASSERT_EQ(test_task_omp.Validation(), true);
+  test_task_omp.PreProcessing();
+  test_task_omp.Run();
+  test_task_omp.PostProcessing();
+  laganina_e_component_labeling_omp::NormalizeLabels(out);
+  EXPECT_EQ(in, out);
+}
+
+TEST(laganina_e_component_labeling_omp, border_pixels) {
+  int m = 5;
+  int n = 5;
+
+  std::vector<int> in = {1, 1, 1, 1, 1, 1, 0, 0, 0, 1, 1, 0, 0, 0, 1, 1, 0, 0, 0, 1, 1, 1, 1, 1, 1};
+
+  std::vector<int> exp_out = {1, 1, 1, 1, 1, 1, 0, 0, 0, 1, 1, 0, 0, 0, 1, 1, 0, 0, 0, 1, 1, 1, 1, 1, 1};
+
+  std::vector<int> out(m * n, 0);
+  // Create task_data
+  auto task_data_omp = std::make_shared<ppc::core::TaskData>();
+  task_data_omp->inputs.emplace_back(reinterpret_cast<uint8_t *>(in.data()));
+  task_data_omp->inputs_count.emplace_back(m);
+  task_data_omp->inputs_count.emplace_back(n);
+  task_data_omp->outputs.emplace_back(reinterpret_cast<uint8_t *>(out.data()));
+  task_data_omp->outputs_count.emplace_back(m);
+  task_data_omp->outputs_count.emplace_back(n);
+
+  // Create Task
+  laganina_e_component_labeling_omp::TestTaskOpenMP test_task_omp(task_data_omp);
+  ASSERT_EQ(test_task_omp.Validation(), true);
+  test_task_omp.PreProcessing();
+  test_task_omp.Run();
+  test_task_omp.PostProcessing();
+  laganina_e_component_labeling_omp::NormalizeLabels(out);
+  EXPECT_EQ(exp_out, out);
+}
+
 TEST(laganina_e_component_labeling_omp, ring_with_a_hole_100) {
   int m = 100;
   int n = 100;
