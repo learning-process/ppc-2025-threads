@@ -3,14 +3,15 @@
 #include <oneapi/tbb/blocked_range.h>
 #include <oneapi/tbb/combinable.h>
 #include <oneapi/tbb/parallel_for.h>
+#include <oneapi/tbb/parallel_invoke.h>
 #include <tbb/tbb.h>
 
+#include <algorithm>
 #include <bit>
 #include <cmath>
 #include <cstddef>
 #include <cstdint>
 #include <cstring>
-#include <utility>
 #include <vector>
 
 namespace {

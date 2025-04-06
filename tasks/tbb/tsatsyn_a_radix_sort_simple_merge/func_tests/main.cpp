@@ -2,14 +2,11 @@
 
 #include <algorithm>
 #include <cstdint>
-#include <fstream>
 #include <memory>
 #include <random>
-#include <string>
 #include <vector>
 
 #include "core/task/include/task.hpp"
-#include "core/util/include/util.hpp"
 #include "tbb/tsatsyn_a_radix_sort_simple_merge/include/ops_tbb.hpp"
 
 namespace {
