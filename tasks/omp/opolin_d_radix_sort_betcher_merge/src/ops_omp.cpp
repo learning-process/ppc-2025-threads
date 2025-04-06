@@ -92,7 +92,14 @@ bool opolin_d_radix_batcher_sort_omp::RadixBatcherSortTaskOpenMP::RunImpl() {
       int start = starts[idx];
       int mid = ends[idx];
       int end = ends[idx + 1];
-      BatcherOddEvenMerge(input_, start, mid, end);
+      int n1 = mid - start;
+      int n2 = end - mid;
+      int n = std::max(n1, n2);
+      int p = 1;
+      while (p < n) {
+        p *= 2;
+      }
+      BatcherOddEvenMerge(input_, start, p, 1);
       new_starts[i] = start;
       new_ends[i] = end;
     }
@@ -132,25 +139,20 @@ void opolin_d_radix_batcher_sort_omp::SortByDigit(std::vector<int> &array, int d
   array = result;
 }
 
-void opolin_d_radix_batcher_sort_omp::BatcherOddEvenMerge(std::vector<int> &array, int start, int mid, int end) {
-  int n = end - start;
-  if (n <= 1) {
-    return;
-  }
-  int p;
-  if (n <= 1) {
-    p = 0;
-  } else {
-    int exp = static_cast<int>(std::floor(std::log2(n)));
-    p = 1 << exp;
-  }
-  while (p > 0) {
+void opolin_d_radix_batcher_sort_omp::BatcherOddEvenMerge(std::vector<int> &array, int start, int n, int step) {
+  if (n > 1) {
+    int m = n / 2;
+    BatcherOddEvenMerge(array, start, m, 2 * step);
+    BatcherOddEvenMerge(array, start + step, m, 2 * step);
 #pragma omp parallel for
-    for (int i = start; i < end - p; i++) {
-      if (array[i] > array[i + p]) {
-        std::swap(array[i], array[i + p]);
-      }
+    for (int i = start + step; i < start + n * step - step; i += 2 * step) {
+      CompEx(array, i, i + step);
     }
-    p /= 2;
+  }
+}
+
+void opolin_d_radix_batcher_sort_omp::CompEx(std::vector<int> &array, int i, int j) {
+  if (i < array.size() && j < array.size() && array[i] > array[j]) {
+    std::swap(array[i], array[j]);
   }
 }
