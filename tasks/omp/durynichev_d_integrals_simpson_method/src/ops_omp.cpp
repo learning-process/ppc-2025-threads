@@ -85,7 +85,8 @@ double durynichev_d_integrals_simpson_method_omp::SimpsonIntegralOpenMP::Simpson
   return sum * h / 3.0;
 }
 
-double durynichev_d_integrals_simpson_method_omp::SimpsonIntegralOpenMP::Simpson2D(double x0, double x1, double y0, double y1) {
+double durynichev_d_integrals_simpson_method_omp::SimpsonIntegralOpenMP::Simpson2D(double x0, double x1,
+                                                                                   double y0, double y1) {
   double hx = (x1 - x0) / n_;
   double hy = (y1 - y0) / n_;
   double sum = 0.0;
@@ -93,7 +94,7 @@ double durynichev_d_integrals_simpson_method_omp::SimpsonIntegralOpenMP::Simpson
 #pragma omp parallel for reduction(+ : sum)
   for (int i = 0; i <= n_; i++) {
     double x = x0 + (i * hx);
-    double coef_x = 0.0;  // Инициализация
+    double coef_x = 0.0;
     if (i == 0 || i == n_) {
       coef_x = 1;
     } else if (i % 2 != 0) {
@@ -105,7 +106,7 @@ double durynichev_d_integrals_simpson_method_omp::SimpsonIntegralOpenMP::Simpson
 
     for (int j = 0; j <= n_; j++) {
       double y = y0 + (j * hy);
-      double coef_y = 0.0;  // Инициализация
+      double coef_y = 0.0;
       if (j == 0 || j == n_) {
         coef_y = 1;
       } else if (j % 2 != 0) {
