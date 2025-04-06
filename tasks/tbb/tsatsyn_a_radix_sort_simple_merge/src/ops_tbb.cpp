@@ -5,12 +5,32 @@
 #include <oneapi/tbb/parallel_for.h>
 #include <tbb/tbb.h>
 
+#include <bit>
 #include <cmath>
 #include <cstddef>
 #include <cstdint>
 #include <cstring>
+#include <utility>
 #include <vector>
 
+namespace {
+inline int CalculateBits(const std::vector<uint64_t>& data, bool is_pozitive) {
+  if (data.empty()) {
+    return 0;
+  }
+  uint64_t extreme_val = 0;
+  int num_bits = 0;
+  if (is_pozitive) {
+    extreme_val = *std::ranges::max_element(data);
+    num_bits = std::bit_width(extreme_val);
+  } else {
+    extreme_val = *std::ranges::min_element(data);
+    num_bits = (extreme_val == 0) ? 0 : std::bit_width(extreme_val);
+  }
+
+  return num_bits;
+}
+}  // namespace
 bool tsatsyn_a_radix_sort_simple_merge_tbb::TestTaskTBB::PreProcessingImpl() {
   // Init value for input and output
   auto* temp_ptr = reinterpret_cast<double*>(task_data->inputs[0]);
@@ -21,7 +41,7 @@ bool tsatsyn_a_radix_sort_simple_merge_tbb::TestTaskTBB::PreProcessingImpl() {
 
 bool tsatsyn_a_radix_sort_simple_merge_tbb::TestTaskTBB::ValidationImpl() {
   // Check equality of counts elements
-  return task_data->inputs_count[0] == task_data->outputs_count[0];
+  return (task_data->inputs_count[0] != 0) && (task_data->inputs_count[0] == task_data->outputs_count[0]);
 }
 
 bool tsatsyn_a_radix_sort_simple_merge_tbb::TestTaskTBB::RunImpl() {
@@ -46,8 +66,9 @@ bool tsatsyn_a_radix_sort_simple_merge_tbb::TestTaskTBB::RunImpl() {
 
   pozitive_copy = merge_vectors(pos_comb);
   negative_copy = merge_vectors(neg_comb);
-
-  for (int bit = 0; bit < 64; bit++) {
+  int pozitive_bits = CalculateBits(pozitive_copy, true);
+  int negative_bits = CalculateBits(negative_copy, false);
+  for (int bit = 0; bit < pozitive_bits; bit++) {
     std::vector<uint64_t> group0;
     std::vector<uint64_t> group1;
     for (uint64_t b : pozitive_copy) {
@@ -62,7 +83,7 @@ bool tsatsyn_a_radix_sort_simple_merge_tbb::TestTaskTBB::RunImpl() {
     pozitive_copy.insert(pozitive_copy.end(), group1.begin(), group1.end());
   }
 
-  for (int bit = 0; bit < 64; bit++) {
+  for (int bit = 0; bit < negative_bits; bit++) {
     std::vector<uint64_t> group0;
     std::vector<uint64_t> group1;
     for (uint64_t b : negative_copy) {
@@ -76,22 +97,26 @@ bool tsatsyn_a_radix_sort_simple_merge_tbb::TestTaskTBB::RunImpl() {
     negative_copy.insert(negative_copy.end(), group1.begin(), group1.end());
     negative_copy.insert(negative_copy.end(), group0.begin(), group0.end());
   }
-  tbb::parallel_for(tbb::blocked_range<size_t>(0, negative_copy.size()), [&](const auto& r) {
-    for (size_t i = r.begin(); i < r.end(); ++i) {
-      double tmp = NAN;
-      memcpy(&tmp, &negative_copy[i], sizeof(tmp));
-      output_[i] = tmp;
-    }
-  });
-
-  const size_t offset = negative_copy.size();
-  tbb::parallel_for(tbb::blocked_range<size_t>(0, pozitive_copy.size()), [&](const auto& r) {
-    for (size_t i = r.begin(); i < r.end(); ++i) {
-      double tmp = NAN;
-      memcpy(&tmp, &pozitive_copy[i], sizeof(tmp));
-      output_[offset + i] = tmp;
-    }
-  });
+  tbb::parallel_invoke(
+      [&] {
+        tbb::parallel_for(tbb::blocked_range<size_t>(0, negative_copy.size()), [&](const auto& r) {
+          for (size_t i = r.begin(); i < r.end(); ++i) {
+            double tmp = NAN;
+            memcpy(&tmp, &negative_copy[i], sizeof(tmp));
+            output_[i] = tmp;
+          }
+        });
+      },
+      [&] {
+        const size_t offset = negative_copy.size();
+        tbb::parallel_for(tbb::blocked_range<size_t>(0, pozitive_copy.size()), [&](const auto& r) {
+          for (size_t i = r.begin(); i < r.end(); ++i) {
+            double tmp = NAN;
+            memcpy(&tmp, &pozitive_copy[i], sizeof(tmp));
+            output_[offset + i] = tmp;
+          }
+        });
+      });
   return true;
 }
 
