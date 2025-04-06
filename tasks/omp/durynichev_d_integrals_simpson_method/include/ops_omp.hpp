@@ -26,7 +26,7 @@ class SimpsonIntegralOpenMP : public ppc::core::Task {
 
   static double Func1D(double x);
   static double Func2D(double x, double y);
-  double Simpson1D(double a, double b);
+  double Simpson1D(double a, double b) const;  // Добавлен const
   double Simpson2D(double x0, double x1, double y0, double y1);
 };
 

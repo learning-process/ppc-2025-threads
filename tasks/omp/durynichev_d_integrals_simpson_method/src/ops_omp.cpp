@@ -63,6 +63,62 @@ double durynichev_d_integrals_simpson_method_omp::SimpsonIntegralOpenMP::Func2D(
 }
 #endif
 
-double durynichev_d_integrals_simpson_method_omp::SimpsonIntegralOpenMP::Simpson1D(double a, double b) {
+double durynichev_d_integrals_simpson_method_omp::SimpsonIntegralOpenMP::Simpson1D(double a, double b) const {
   double h = (b - a) / n_;
-  double sum = Func1D(a)
+  double sum = Func1D(a) + Func1D(b);  // Исправлен синтаксис
+  double sum_odd = 0.0;
+  double sum_even = 0.0;
+
+#pragma omp parallel
+  {
+#pragma omp for reduction(+ : sum_odd)
+    for (int i = 1; i < n_; i += 2) {
+      sum_odd += Func1D(a + (i * h));
+    }
+
+#pragma omp for reduction(+ : sum_even)
+    for (int i = 2; i < n_ - 1; i += 2) {
+      sum_even += Func1D(a + (i * h));
+    }
+  }
+
+  sum += 4 * sum_odd + 2 * sum_even;
+  return sum * h / 3.0;
+}
+
+double durynichev_d_integrals_simpson_method_omp::SimpsonIntegralOpenMP::Simpson2D(double x0, double x1,
+                                                                                   double y0, double y1) {
+  double hx = (x1 - x0) / n_;
+  double hy = (y1 - y0) / n_;
+  double sum = 0.0;
+
+#pragma omp parallel for reduction(+ : sum)
+  for (int i = 0; i <= n_; i++) {
+    double x = x0 + (i * hx);
+    double coef_x = 0.0;
+    if (i == 0 || i == n_) {
+      coef_x = 1;
+    } else if (i % 2 != 0) {
+      coef_x = 4;
+    } else {
+      coef_x = 2;
+    }
+    double local_sum = 0.0;
+
+    for (int j = 0; j <= n_; j++) {
+      double y = y0 + (j * hy);
+      double coef_y = 0.0;
+      if (j == 0 || j == n_) {
+        coef_y = 1;
+      } else if (j % 2 != 0) {
+        coef_y = 4;
+      } else {
+        coef_y = 2;
+      }
+      local_sum += coef_x * coef_y * Func2D(x, y);
+    }
+    sum += local_sum;
+  }
+
+  return sum * hx * hy / 9.0;
+}
