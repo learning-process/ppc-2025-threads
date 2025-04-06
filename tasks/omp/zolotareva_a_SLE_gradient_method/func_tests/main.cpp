@@ -58,6 +58,56 @@ void Form(int n) {
 }
 }  // namespace
 
+TEST(zolotareva_a_sle_gradient_method_omp, negative_inputs_count) {
+  int n = -1;
+  std::vector<double> a = {2};
+  std::vector<double> b = {1};
+  std::vector<double> x(n);
+
+  auto task_data_omp = std::make_shared<ppc::core::TaskData>();
+  task_data_omp->inputs.push_back(reinterpret_cast<uint8_t *>(a.data()));
+  task_data_omp->inputs.push_back(reinterpret_cast<uint8_t *>(b.data()));
+  task_data_omp->inputs_count.push_back(n);
+  task_data_omp->inputs_count.push_back(n);
+  task_data_omp->outputs.push_back(reinterpret_cast<uint8_t *>(x.data()));
+  task_data_omp->outputs_count.push_back(n);
+
+  zolotareva_a_sle_gradient_method_omp::TestTaskOpenMP task(task_data_omp);
+  ASSERT_EQ(task.ValidationImpl(), false);
+}
+
+TEST(zolotareva_a_sle_gradient_method_omp, invalid_input_data) {
+  int n = 1;
+  std::vector<double> a = {2};
+  std::vector<double> b = {1};
+  std::vector<double> x(n);
+
+  auto task_data_omp = std::make_shared<ppc::core::TaskData>();
+  task_data_omp->inputs.push_back(reinterpret_cast<uint8_t *>(a.data()));
+  task_data_omp->inputs_count.push_back(n * n);
+
+  zolotareva_a_sle_gradient_method_omp::TestTaskOpenMP task(task_data_omp);
+  ASSERT_EQ(task.ValidationImpl(), false);
+}
+
+TEST(zolotareva_a_sle_gradient_method_omp, invalid_otput_size) {
+  int n = 3;
+  std::vector<double> a(n * n, 1.0);
+  std::vector<double> b(n, 1.0);
+  std::vector<double> x(2, 0.0);
+
+  auto task_data_omp = std::make_shared<ppc::core::TaskData>();
+  task_data_omp->inputs.push_back(reinterpret_cast<uint8_t *>(a.data()));
+  task_data_omp->inputs.push_back(reinterpret_cast<uint8_t *>(b.data()));
+  task_data_omp->inputs_count.push_back(n * n);
+  task_data_omp->inputs_count.push_back(b.size());
+  task_data_omp->outputs.push_back(reinterpret_cast<uint8_t *>(x.data()));
+  task_data_omp->outputs_count.push_back(n);
+
+  zolotareva_a_sle_gradient_method_omp::TestTaskOpenMP task(task_data_omp);
+  ASSERT_EQ(task.ValidationImpl(), false);
+}
+
 TEST(zolotareva_a_sle_gradient_method_omp, invalid_input_sizes) {
   int n = 2;
   std::vector<double> a = {2, -1, -1, 2};
@@ -238,4 +288,4 @@ TEST(zolotareva_a_sle_gradient_method_omp, test_correct_answer1) {
 TEST(zolotareva_a_sle_gradient_method_omp, Test_Image_random_n_3) { Form(3); };
 TEST(zolotareva_a_sle_gradient_method_omp, Test_Image_random_n_5) { Form(5); };
 TEST(zolotareva_a_sle_gradient_method_omp, Test_Image_random_n_7) { Form(7); };
-TEST(zolotareva_a_sle_gradient_method_omp, Test_Image_random_n_20) { Form(591); };
+TEST(zolotareva_a_sle_gradient_method_omp, Test_Image_random_n_591) { Form(591); };
