@@ -40,43 +40,7 @@ bool opolin_d_radix_batcher_sort_omp::RadixBatcherSortTaskOpenMP::RunImpl() {
   }
 #pragma omp parallel for
   for (int i = 0; i < static_cast<int>(starts.size()); i++) {
-    int start = starts[i];
-    int end = ends[i];
-    std::vector<int> local_input(input_.begin() + start, input_.begin() + end);
-    std::vector<int> positives;
-    std::vector<int> negatives;
-
-    for (size_t j = 0; j < local_input.size(); j++) {
-      if (local_input[j] >= 0) {
-        positives.push_back(local_input[j]);
-      } else {
-        negatives.push_back(-local_input[j]);
-      }
-    }
-    int max_abs = 0;
-    for (size_t j = 0; j < local_input.size(); j++) {
-      max_abs = std::max(max_abs, std::abs(local_input[j]));
-    }
-    int digit_count = (max_abs == 0) ? 1 : static_cast<int>(std::log10(max_abs)) + 1;
-    for (int place = 1; digit_count > 0; place *= 10, digit_count--) {
-      if (!positives.empty()) {
-        SortByDigit(positives, place);
-      }
-      if (!negatives.empty()) {
-        SortByDigit(negatives, place);
-      }
-    }
-
-    if (!negatives.empty()) {
-      std::ranges::reverse(negatives);
-      for (size_t j = 0; j < negatives.size(); j++) {
-        negatives[j] = -negatives[j];
-      }
-    }
-    std::vector<int> sorted_local;
-    sorted_local.insert(sorted_local.end(), negatives.begin(), negatives.end());
-    sorted_local.insert(sorted_local.end(), positives.begin(), positives.end());
-    std::ranges::copy(sorted_local, input_.begin() + start);
+    RadixSort(input_, starts[i], ends[i]);
   }
   while (starts.size() > 1) {
     int merge_pairs = static_cast<int>(starts.size()) / 2;
@@ -108,6 +72,42 @@ bool opolin_d_radix_batcher_sort_omp::RadixBatcherSortTaskOpenMP::PostProcessing
     reinterpret_cast<int *>(task_data->outputs[0])[i] = output_[i];
   }
   return true;
+}
+
+void opolin_d_radix_batcher_sort_omp::RadixSort(std::vector<int>& input, int start, int end) {
+  std::vector<int> local_input(input.begin() + start, input.begin() + end);
+  std::vector<int> positives;
+  std::vector<int> negatives;
+  for (size_t j = 0; j < local_input.size(); j++) {
+    if (local_input[j] >= 0) {
+      positives.push_back(local_input[j]);
+    } else {
+      negatives.push_back(-local_input[j]);
+    }
+  }
+  int max_abs = 0;
+  for (size_t j = 0; j < local_input.size(); j++) {
+    max_abs = std::max(max_abs, std::abs(local_input[j]));
+  }
+  int digit_count = (max_abs == 0) ? 1 : static_cast<int>(std::log10(max_abs)) + 1;
+  for (int place = 1; digit_count > 0; place *= 10, digit_count--) {
+    if (!positives.empty()) {
+      SortByDigit(positives, place);
+    }
+    if (!negatives.empty()) {
+      SortByDigit(negatives, place);
+    }
+  }
+  if (!negatives.empty()) {
+    std::ranges::reverse(negatives);
+    for (size_t j = 0; j < negatives.size(); j++) {
+      negatives[j] = -negatives[j];
+    }
+  }
+  std::vector<int> sorted_local;
+  sorted_local.insert(sorted_local.end(), negatives.begin(), negatives.end());
+  sorted_local.insert(sorted_local.end(), positives.begin(), positives.end());
+  std::ranges::copy(sorted_local, input.begin() + start);
 }
 
 void opolin_d_radix_batcher_sort_omp::SortByDigit(std::vector<int> &array, int digit_place) {
