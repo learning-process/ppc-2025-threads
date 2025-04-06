@@ -12,7 +12,7 @@
 #include "omp/kolodkin_g_multiplication_matrix_CRS/include/ops_omp.hpp"
 
 TEST(kolodkin_g_multiplication_matrix__task_omp, test_pipeline_run) {
-  srand(time(0));
+  srand(time(nullptr));
   kolodkin_g_multiplication_matrix_omp::SparseMatrixCRS a(400, 400);
   kolodkin_g_multiplication_matrix_omp::SparseMatrixCRS b(400, 400);
   std::vector<Complex> in = {};
@@ -72,7 +72,7 @@ TEST(kolodkin_g_multiplication_matrix__task_omp, test_pipeline_run) {
 }
 
 TEST(kolodkin_g_multiplication_matrix__task_omp, test_task_run) {
-  srand(time(0));
+  srand(time(nullptr));
   kolodkin_g_multiplication_matrix_omp::SparseMatrixCRS a(400, 400);
   kolodkin_g_multiplication_matrix_omp::SparseMatrixCRS b(400, 400);
   std::vector<Complex> in = {};
