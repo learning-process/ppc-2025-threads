@@ -8,7 +8,7 @@
 namespace volochaev_s_shell_sort_with_batchers_even_odd_merge_tbb {
 class ShellSortTBB : public ppc::core::Task {
  public:
-  explicit ShellSortOMP(ppc::core::TaskDataPtr task_data) : Task(std::move(task_data)) {}
+  explicit ShellSortTBB(ppc::core::TaskDataPtr task_data) : Task(std::move(task_data)) {}
   bool PreProcessingImpl() override;
   bool ValidationImpl() override;
   bool RunImpl() override;
