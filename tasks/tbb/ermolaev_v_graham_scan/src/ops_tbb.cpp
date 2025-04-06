@@ -60,13 +60,8 @@ bool ermolaev_v_graham_scan_tbb::TestTaskTBB::IsAllSame() {
   auto all_same = tbb::parallel_reduce(
       tbb::blocked_range<int>(1, input_size), true,
       [&](const tbb::blocked_range<int> &range, bool init) -> bool {
-        bool all_same_local = init;
-        for (int i = range.begin(); i != range.end() && all_same_local; ++i) {
-          if (input_[i] != first) {
-            all_same_local = false;
-          }
-        }
-        return all_same_local;
+        return init && std::ranges::all_of(input_.begin() + range.begin(), input_.begin() + range.end(),
+                                           [&first](const Point &p) { return p == first; });
       },
       [](bool a, bool b) -> bool { return a && b; });
 
