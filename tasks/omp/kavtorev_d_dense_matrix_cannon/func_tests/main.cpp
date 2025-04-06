@@ -453,3 +453,38 @@ TEST(kavtorev_d_dense_matrix_cannon_omp, Multiplication_WithZeros) {
     ASSERT_EQ(res[i], 0);
   }
 }
+
+TEST(kavtorev_d_dense_matrix_cannon_omp, Multiplication_WithAllOnesMatrix) {
+  int n = 3;
+  int m = 3;
+
+  std::vector<double> in_mtrx_a{1, 2, 3, 4, 5, 6, 7, 8, 9};
+  std::vector<double> in_mtrx_b(n * m, 1.0);
+  std::vector<double> out(n * m);
+
+  auto task_data_omp = std::make_shared<ppc::core::TaskData>();
+  task_data_omp->inputs.emplace_back(reinterpret_cast<uint8_t *>(in_mtrx_a.data()));
+  task_data_omp->inputs_count.emplace_back(in_mtrx_a.size());
+  task_data_omp->inputs.emplace_back(reinterpret_cast<uint8_t *>(in_mtrx_b.data()));
+  task_data_omp->inputs_count.emplace_back(in_mtrx_b.size());
+
+  task_data_omp->inputs.emplace_back(reinterpret_cast<uint8_t *>(&n));
+  task_data_omp->inputs.emplace_back(reinterpret_cast<uint8_t *>(&m));
+
+  task_data_omp->outputs.emplace_back(reinterpret_cast<uint8_t *>(out.data()));
+  task_data_omp->outputs_count.emplace_back(out.size());
+
+  std::vector<double> res = kavtorev_d_dense_matrix_cannon_omp::MultiplyMatrix(in_mtrx_a, in_mtrx_b, n, m);
+
+  kavtorev_d_dense_matrix_cannon_omp::TestTaskSequential test_task_omp(task_data_omp);
+  ASSERT_TRUE(test_task_omp.ValidationImpl());
+  test_task_omp.PreProcessingImpl();
+  test_task_omp.RunImpl();
+  test_task_omp.PostProcessingImpl();
+
+  std::vector<double> expected_c = {6, 6, 6, 15, 15, 15, 24, 24, 24};
+
+  for (size_t i = 0; i < res.size(); ++i) {
+    ASSERT_EQ(res[i], expected_c[i]);
+  }
+}
