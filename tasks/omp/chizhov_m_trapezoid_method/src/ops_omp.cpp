@@ -28,11 +28,11 @@ double chizhov_m_trapezoid_method_omp::TrapezoidMethod(Function& f, size_t div, 
 #pragma omp parallel
   {
     double local_result = 0.0;
+    std::vector<double> point(int_dim);
 
 #pragma omp for
     for (int i = 0; i < total_nodes; i++) {
       int temp = i;
-      std::vector<double> point(int_dim);
       double weight = 1.0;
 
       for (int j = 0; j < int_dim; j++) {
