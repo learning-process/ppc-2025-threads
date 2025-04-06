@@ -24,25 +24,32 @@ bool zaytsev_d_sobel_omp::TestTaskOpenMP::ValidationImpl() {
 bool zaytsev_d_sobel_omp::TestTaskOpenMP::RunImpl() {
   const int gxkernel[3][3] = {{-1, 0, 1}, {-2, 0, 2}, {-1, 0, 1}};
   const int gykernel[3][3] = {{-1, -2, -1}, {0, 0, 0}, {1, 2, 1}};
-#pragma omp parallel for collapse(2)
-  for (int i = 1; i < height_ - 1; ++i) {
-    for (int j = 1; j < width_ - 1; ++j) {
-      int sumgx = 0;
-      int sumgy = 0;
-      for (int di = -1; di <= 1; ++di) {
-        for (int dj = -1; dj <= 1; ++dj) {
-          int ni = i + di;
-          int nj = j + dj;
-          int kernel_row = di + 1;
-          int kernel_col = dj + 1;
 
-          sumgx += input_[(ni * width_) + nj] * gxkernel[kernel_row][kernel_col];
-          sumgy += input_[(ni * width_) + nj] * gykernel[kernel_row][kernel_col];
-        }
+  int rows = height_ - 2;
+  int cols = width_ - 2;
+
+#pragma omp parallel for
+  for (int index = 0; index < rows * cols; ++index) {
+    int i = 1 + index / cols;
+    int j = 1 + index % cols;
+
+    int sumgx = 0;
+    int sumgy = 0;
+
+    for (int di = -1; di <= 1; ++di) {
+      for (int dj = -1; dj <= 1; ++dj) {
+        int ni = i + di;
+        int nj = j + dj;
+        int kernel_row = di + 1;
+        int kernel_col = dj + 1;
+
+        sumgx += input_[(ni * width_) + nj] * gxkernel[kernel_row][kernel_col];
+        sumgy += input_[(ni * width_) + nj] * gykernel[kernel_row][kernel_col];
       }
-      int magnitude = static_cast<int>(std::sqrt((sumgx * sumgx) + (sumgy * sumgy)));
-      output_[(i * width_) + j] = std::min(magnitude, 255);
     }
+
+    int magnitude = static_cast<int>(std::sqrt((sumgx * sumgx) + (sumgy * sumgy)));
+    output_[(i * width_) + j] = std::min(magnitude, 255);
   }
 
   return true;
