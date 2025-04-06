@@ -6,7 +6,6 @@
 #include <cstddef>
 #include <cstdlib>
 #include <mutex>
-#include <queue>
 #include <thread>
 #include <utility>
 #include <vector>
@@ -36,7 +35,7 @@ bool plekhanov_d_dijkstra_stl::TestTaskSTL::ValidationImpl() {
          task_data->outputs_count[0] > 0;
 }
 
-bool plekhanov_d_dijkstra_stl::TestTaskSTL::RunImpl() {
+bool plekhanov_d_dijkstra_stl::TestTaskSTL::RunImpl() {  //NOLINT
   std::vector<std::vector<std::pair<int, int>>> graph(num_vertices_);
   size_t current_vertex = 0;
   size_t i = 0;
@@ -47,11 +46,15 @@ bool plekhanov_d_dijkstra_stl::TestTaskSTL::RunImpl() {
       i++;
       continue;
     }
-    if (i + 1 >= graph_data_.size()) break;
+    if (i + 1 >= graph_data_.size()) {
+      break;
+    }
 
     size_t dest = graph_data_[i];
     int weight = graph_data_[i + 1];
-    if (weight < 0) return false;
+    if (weight < 0) {
+      return false;
+    }
 
     if (dest < num_vertices_) {
       graph[current_vertex].emplace_back(static_cast<int>(dest), weight);
@@ -61,7 +64,9 @@ bool plekhanov_d_dijkstra_stl::TestTaskSTL::RunImpl() {
 
   std::vector<bool> visited(num_vertices_, false);
   std::vector<std::atomic<int>> distances_atomic(num_vertices_);
-  for (auto& d : distances_atomic) d.store(INT_MAX);
+  for (auto& d : distances_atomic) {
+    d.store(INT_MAX);
+  }
   distances_atomic[start_vertex_] = 0;
 
   size_t num_threads = std::min(static_cast<size_t>(ppc::util::GetPPCNumThreads()),
@@ -111,7 +116,9 @@ bool plekhanov_d_dijkstra_stl::TestTaskSTL::RunImpl() {
   for (size_t count = 0; count < num_vertices_; ++count) {
     int u = -1;
     find_min_vertex_parallel(u);
-    if (u == -1 || distances_atomic[u] == INT_MAX) break;
+    if (u == -1 || distances_atomic[u] == INT_MAX) {
+      break;
+    }
 
     visited[u] = true;
 
