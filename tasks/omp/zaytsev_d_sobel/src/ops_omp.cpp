@@ -30,8 +30,8 @@ bool zaytsev_d_sobel_omp::TestTaskOpenMP::RunImpl() {
 
 #pragma omp parallel for
   for (int index = 0; index < rows * cols; ++index) {
-    int i = 1 + index / cols;
-    int j = 1 + index % cols;
+    int i = 1 + (index / cols);
+    int j = 1 + (index % cols);
 
     int sumgx = 0;
     int sumgy = 0;
@@ -56,6 +56,6 @@ bool zaytsev_d_sobel_omp::TestTaskOpenMP::RunImpl() {
 }
 
 bool zaytsev_d_sobel_omp::TestTaskOpenMP::PostProcessingImpl() {
-  std::copy(output_.begin(), output_.end(), reinterpret_cast<int *>(task_data->outputs[0]));
+  std::ranges::copy(output_, reinterpret_cast<int *>(task_data->outputs[0]));
   return true;
 }
