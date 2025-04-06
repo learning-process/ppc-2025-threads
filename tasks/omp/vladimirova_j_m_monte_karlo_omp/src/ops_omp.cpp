@@ -47,8 +47,6 @@ bool vladimirova_j_m_monte_karlo_omp::TestTaskOpenMP::ValidationImpl() {
     }  // x_min<x_max
   }
   return (task_data->inputs[1] != nullptr) && (reinterpret_cast<size_t>(task_data->inputs[2]) > 0);  // has funtion
-
-  return true;
 }
 
 bool vladimirova_j_m_monte_karlo_omp::TestTaskOpenMP::RunImpl() {
