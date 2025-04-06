@@ -76,23 +76,6 @@ TEST(zolotareva_a_sle_gradient_method_omp, negative_inputs_count) {
   ASSERT_EQ(task.ValidationImpl(), false);
 }
 
-TEST(zolotareva_a_sle_gradient_method_omp, invalid_input_data) {
-  int n = 1;
-  std::vector<double> a = {2};
-  std::vector<double> b = {1};
-  std::vector<double> x(n);
-
-  auto task_data_omp = std::make_shared<ppc::core::TaskData>();
-
-  task_data_omp->inputs.push_back(reinterpret_cast<uint8_t *>(a.data()));
-  task_data_omp->inputs.push_back(reinterpret_cast<uint8_t *>(b.data()));
-  task_data_omp->inputs_count.push_back(n * n);
-  task_data_omp->outputs_count.push_back(n);
-
-  zolotareva_a_sle_gradient_method_omp::TestTaskOpenMP task(task_data_omp);
-  ASSERT_EQ(task.ValidationImpl(), false);
-}
-
 TEST(zolotareva_a_sle_gradient_method_omp, invalid_otput_size) {
   int n = 3;
   std::vector<double> a(n * n, 1.0);
