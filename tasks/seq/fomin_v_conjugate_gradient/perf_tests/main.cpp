@@ -10,7 +10,7 @@
 #include "seq/fomin_v_conjugate_gradient/include/ops_seq.hpp"
 
 TEST(fomin_v_conjugate_gradient_seq, test_pipeline_run) {
-  constexpr int kCount = 900;
+  constexpr int kCount = 990;
 
   // Создаем трехдиагональную матрицу с диагональным преобладанием
   std::vector<double> input((kCount * kCount) + kCount, 0.0);
