@@ -75,29 +75,15 @@ double durynichev_d_integrals_simpson_method_omp::SimpsonIntegralOpenMP::Simpson
 #pragma omp parallel for reduction(+ : sum)
   for (int i = 0; i <= n_; i++) {
     double x = x0 + (i * hx);
-    double coef_x = 0.0;
-    if (i == 0 || i == n_) {
-      coef_x = 1;
-    } else if (i % 2 != 0) {
-      coef_x = 4;
-    } else {
-      coef_x = 2;
-    }
+    double coef_x = (i == 0 || i == n_) ? 1.0 : (i % 2 != 0 ? 4.0 : 2.0);
     double local_sum = 0.0;
 
     for (int j = 0; j <= n_; j++) {
       double y = y0 + (j * hy);
-      double coef_y = 0.0;
-      if (j == 0 || j == n_) {
-        coef_y = 1;
-      } else if (j % 2 != 0) {
-        coef_y = 4;
-      } else {
-        coef_y = 2;
-      }
-      local_sum += coef_x * coef_y * Func2D(x, y);
+      double coef_y = (j == 0 || j == n_) ? 1.0 : (j % 2 != 0 ? 4.0 : 2.0);
+      local_sum += coef_y * Func2D(x, y);
     }
-    sum += local_sum;
+    sum += coef_x * local_sum;
   }
 
   return sum * hx * hy / 9.0;
