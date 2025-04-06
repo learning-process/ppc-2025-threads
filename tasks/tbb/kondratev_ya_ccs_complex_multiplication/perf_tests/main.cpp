@@ -1,6 +1,7 @@
 #include <gtest/gtest.h>
 
 #include <chrono>
+#include <complex>
 #include <cstdint>
 #include <memory>
 #include <vector>
@@ -9,6 +10,45 @@
 #include "core/task/include/task.hpp"
 #include "tbb/kondratev_ya_ccs_complex_multiplication/include/ops_tbb.hpp"
 
+namespace {
+void FillMatrix(kondratev_ya_ccs_complex_multiplication_tbb::CCSMatrix &matrix, std::complex<double> value) {
+  for (int i = 0; i < matrix.rows; i++) {
+    matrix.values.emplace_back(value);
+    matrix.row_index.emplace_back(i);
+    matrix.col_ptrs[i] = i;
+  }
+  matrix.col_ptrs[matrix.rows] = matrix.rows;
+}
+
+void CheckColumnPointers(const kondratev_ya_ccs_complex_multiplication_tbb::CCSMatrix &matrix, int count) {
+  for (int i = 0; i < count; i++) {
+    ASSERT_EQ(matrix.col_ptrs[i], i);
+  }
+  ASSERT_EQ(matrix.col_ptrs[count], count);
+}
+
+void CheckRowIndices(const kondratev_ya_ccs_complex_multiplication_tbb::CCSMatrix &matrix, int count) {
+  for (int i = 0; i < count; i++) {
+    ASSERT_EQ(matrix.row_index[i], i);
+  }
+}
+
+void CheckValues(const kondratev_ya_ccs_complex_multiplication_tbb::CCSMatrix &matrix, int count,
+                 const std::complex<double> &value) {
+  for (int i = 0; i < count; i++) {
+    ASSERT_DOUBLE_EQ(matrix.values[i].real(), value.real());
+    ASSERT_DOUBLE_EQ(matrix.values[i].imag(), value.imag());
+  }
+}
+
+void CheckResult(kondratev_ya_ccs_complex_multiplication_tbb::CCSMatrix &matrix, int count,
+                 std::complex<double> value) {
+  CheckColumnPointers(matrix, count);
+  CheckRowIndices(matrix, count);
+  CheckValues(matrix, count, value);
+}
+}  // namespace
+
 TEST(kondratev_ya_ccs_complex_multiplication_tbb, test_pipeline_run) {
   constexpr int kCount = 27000;
 
@@ -16,19 +56,8 @@ TEST(kondratev_ya_ccs_complex_multiplication_tbb, test_pipeline_run) {
   kondratev_ya_ccs_complex_multiplication_tbb::CCSMatrix b({kCount, kCount});
   kondratev_ya_ccs_complex_multiplication_tbb::CCSMatrix c({kCount, kCount});
 
-  for (int i = 0; i < a.rows; i++) {
-    a.values.emplace_back(2.0, 1.0);
-    a.row_index.emplace_back(i);
-    a.col_ptrs[i] = i;
-  }
-  a.col_ptrs[a.rows] = a.rows;
-
-  for (int i = 0; i < b.rows; i++) {
-    b.values.emplace_back(3.0, 2.0);
-    b.row_index.emplace_back(i);
-    b.col_ptrs[i] = i;
-  }
-  b.col_ptrs[b.rows] = b.rows;
+  FillMatrix(a, {2.0, 1.0});
+  FillMatrix(b, {3.0, 2.0});
 
   auto task_data_tbb = std::make_shared<ppc::core::TaskData>();
 
@@ -55,6 +84,7 @@ TEST(kondratev_ya_ccs_complex_multiplication_tbb, test_pipeline_run) {
   auto perf_analyzer = std::make_shared<ppc::core::Perf>(test_task_tbbuential);
   perf_analyzer->PipelineRun(perf_attr, perf_results);
   ppc::core::Perf::PrintPerfStatistic(perf_results);
+  CheckResult(c, kCount, {4.0, 7.0});
 }
 
 TEST(kondratev_ya_ccs_complex_multiplication_tbb, test_task_run) {
@@ -64,19 +94,8 @@ TEST(kondratev_ya_ccs_complex_multiplication_tbb, test_task_run) {
   kondratev_ya_ccs_complex_multiplication_tbb::CCSMatrix b({kCount, kCount});
   kondratev_ya_ccs_complex_multiplication_tbb::CCSMatrix c({kCount, kCount});
 
-  for (int i = 0; i < a.rows; i++) {
-    a.values.emplace_back(2.0, 1.0);
-    a.row_index.emplace_back(i);
-    a.col_ptrs[i] = i;
-  }
-  a.col_ptrs[a.rows] = a.rows;
-
-  for (int i = 0; i < b.rows; i++) {
-    b.values.emplace_back(3.0, 2.0);
-    b.row_index.emplace_back(i);
-    b.col_ptrs[i] = i;
-  }
-  b.col_ptrs[b.rows] = b.rows;
+  FillMatrix(a, {2.0, 1.0});
+  FillMatrix(b, {3.0, 2.0});
 
   auto task_data_tbb = std::make_shared<ppc::core::TaskData>();
 
@@ -103,4 +122,5 @@ TEST(kondratev_ya_ccs_complex_multiplication_tbb, test_task_run) {
   auto perf_analyzer = std::make_shared<ppc::core::Perf>(test_task_tbbuential);
   perf_analyzer->TaskRun(perf_attr, perf_results);
   ppc::core::Perf::PrintPerfStatistic(perf_results);
+  CheckResult(c, kCount, {4.0, 7.0});
 }

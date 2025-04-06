@@ -5,6 +5,7 @@
 #include <algorithm>
 #include <cmath>
 #include <complex>
+#include <numeric>
 #include <utility>
 #include <vector>
 
@@ -76,17 +77,30 @@ kondratev_ya_ccs_complex_multiplication_tbb::CCSMatrix::operator*(const CCSMatri
     }
   });
 
-  int nonzero_elements_processed = 0;
-  for (int col = 0; col < other.cols; col++) {
-    result.col_ptrs[col] = nonzero_elements_processed;
+  std::vector<int> col_sizes(other.cols);
+  std::transform(temp_cols.begin(), temp_cols.end(), col_sizes.begin(),
+                 [](const auto &col) { return static_cast<int>(col.size()); });
+
+  std::vector<int> col_offsets(other.cols + 1, 0);
+  std::partial_sum(col_sizes.begin(), col_sizes.end(), col_offsets.begin() + 1);
+
+  int total_nonzero = col_offsets[other.cols];
+  result.values.resize(total_nonzero);
+  result.row_index.resize(total_nonzero);
+
+  for (int i = 0; i <= other.cols; i++) {
+    result.col_ptrs[i] = col_offsets[i];
+  }
+
+  tbb::parallel_for(0, other.cols, [&](int col) {
+    int offset = col_offsets[col];
 
     for (const auto &[row, value] : temp_cols[col]) {
-      result.row_index.emplace_back(row);
-      result.values.emplace_back(value);
-      nonzero_elements_processed++;
+      result.row_index[offset] = row;
+      result.values[offset] = value;
+      offset++;
     }
-  }
-  result.col_ptrs[other.cols] = nonzero_elements_processed;
+  });
 
   return result;
 }
