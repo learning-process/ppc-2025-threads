@@ -1,7 +1,8 @@
 #include "omp/durynichev_d_integrals_simpson_method/include/ops_omp.hpp"
 
-#include <cstddef>  // Для size_t
 #include <omp.h>
+
+#include <cstddef>  // Для size_t
 #include <vector>
 
 bool durynichev_d_integrals_simpson_method_omp::SimpsonIntegralOpenMP::PreProcessingImpl() {
