@@ -8,7 +8,6 @@
 #include <vector>
 
 #include "core/task/include/task.hpp"
-#include "core/util/include/util.hpp"
 #include "omp/opolin_d_radix_sort_betcher_merge/include/ops_omp.hpp"
 
 namespace opolin_d_radix_batcher_sort_omp {
