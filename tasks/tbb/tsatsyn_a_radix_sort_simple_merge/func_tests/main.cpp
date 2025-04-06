@@ -363,7 +363,7 @@ TEST(tsatsyn_a_radix_sort_simple_merge_tbb, single_pozitive_double_10) {
   std::ranges::sort(in);
   EXPECT_EQ(in, out);
 }
-TEST(tsatsyn_a_radix_sort_simple_merge_all, mix_double_10) {
+TEST(tsatsyn_a_radix_sort_simple_merge_tbb, mix_double_10) {
   // Create data
   int arrsize = 10;
   std::vector<double> in;
@@ -386,7 +386,7 @@ TEST(tsatsyn_a_radix_sort_simple_merge_all, mix_double_10) {
   std::ranges::sort(in);
   EXPECT_EQ(in, out);
 }
-TEST(tsatsyn_a_radix_sort_simple_merge_all, mix_double_100) {
+TEST(tsatsyn_a_radix_sort_simple_merge_tbb, mix_double_100) {
   // Create data
   int arrsize = 100;
   std::vector<double> in;
@@ -410,7 +410,7 @@ TEST(tsatsyn_a_radix_sort_simple_merge_all, mix_double_100) {
   std::ranges::sort(in);
   EXPECT_EQ(in, out);
 }
-TEST(tsatsyn_a_radix_sort_simple_merge_all, mix_double_1000) {
+TEST(tsatsyn_a_radix_sort_simple_merge_tbb, mix_double_1000) {
   // Create data
   int arrsize = 1000;
   std::vector<double> in;
@@ -434,7 +434,7 @@ TEST(tsatsyn_a_radix_sort_simple_merge_all, mix_double_1000) {
   std::ranges::sort(in);
   EXPECT_EQ(in, out);
 }
-TEST(tsatsyn_a_radix_sort_simple_merge_all, mix_double_10000) {
+TEST(tsatsyn_a_radix_sort_simple_merge_tbb, mix_double_10000) {
   // Create data
   int arrsize = 10000;
   std::vector<double> in;
