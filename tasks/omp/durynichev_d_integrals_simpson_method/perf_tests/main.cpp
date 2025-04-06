@@ -1,9 +1,9 @@
+#include <gtest/gtest.h>
+
 #include <chrono>   // Для std::chrono
 #include <cstdint>  // Для uint8_t
 #include <memory>   // Для std::shared_ptr
 #include <vector>   // Для std::vector
-
-#include <gtest/gtest.h>
 
 #include "core/perf/include/perf.hpp"
 #include "core/task/include/task.hpp"

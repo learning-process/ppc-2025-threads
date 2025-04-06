@@ -1,8 +1,8 @@
+#include <gtest/gtest.h>
+
 #include <cstdint>  // Для uint8_t
 #include <memory>   // Для std::shared_ptr
 #include <vector>   // Для std::vector
-
-#include <gtest/gtest.h>
 
 #include "core/task/include/task.hpp"
 #include "omp/durynichev_d_integrals_simpson_method/include/ops_omp.hpp"

@@ -1,8 +1,8 @@
+#include "omp/durynichev_d_integrals_simpson_method/include/ops_omp.hpp"
+
 #include <cstddef>  // Для size_t
 #include <omp.h>
 #include <vector>
-
-#include "omp/durynichev_d_integrals_simpson_method/include/ops_omp.hpp"
 
 bool durynichev_d_integrals_simpson_method_omp::SimpsonIntegralOpenMP::PreProcessingImpl() {
   unsigned int input_size = task_data->inputs_count[0];
@@ -65,7 +65,7 @@ double durynichev_d_integrals_simpson_method_omp::SimpsonIntegralOpenMP::Func2D(
 
 double durynichev_d_integrals_simpson_method_omp::SimpsonIntegralOpenMP::Simpson1D(double a, double b) const {
   double h = (b - a) / n_;
-  double sum = Func1D(a) + Func1D(b);  // Исправлен синтаксис
+  double sum = Func1D(a) + Func1D(b);
   double sum_odd = 0.0;
   double sum_even = 0.0;
 
@@ -86,8 +86,8 @@ double durynichev_d_integrals_simpson_method_omp::SimpsonIntegralOpenMP::Simpson
   return sum * h / 3.0;
 }
 
-double durynichev_d_integrals_simpson_method_omp::SimpsonIntegralOpenMP::Simpson2D(double x0, double x1,
-                                                                                   double y0, double y1) {
+double durynichev_d_integrals_simpson_method_omp::SimpsonIntegralOpenMP::Simpson2D(double x0, double x1, double y0,
+                                                                                   double y1) {
   double hx = (x1 - x0) / n_;
   double hy = (y1 - y0) / n_;
   double sum = 0.0;
