@@ -75,11 +75,9 @@ bool SomeRandomFunc(std::vector<double> arr, size_t size = 2) {
 }  // namespace
 
 TEST(vladimirova_j_m_monte_karlo_omp, test_zero_var) {
-  // Create data
   std::vector<double> val_b = {};
   std::vector<double> out(1, 0);
 
-  // Create task_data
   auto task_data_omp = std::make_shared<ppc::core::TaskData>();
 
   task_data_omp->inputs.emplace_back(reinterpret_cast<uint8_t *>(val_b.data()));
@@ -88,17 +86,15 @@ TEST(vladimirova_j_m_monte_karlo_omp, test_zero_var) {
   task_data_omp->inputs_count.emplace_back(val_b.size());
   task_data_omp->outputs.emplace_back(reinterpret_cast<uint8_t *>(out.data()));
   task_data_omp->outputs_count.emplace_back(out.size());
-  // Create Task
+
   vladimirova_j_m_monte_karlo_omp::TestTaskOpenMP test_task_omp(task_data_omp);
   ASSERT_EQ(test_task_omp.Validation(), false);
 }
 
 TEST(vladimirova_j_m_monte_karlo_omp, test_one_var) {
-  // Create data
   std::vector<double> val_b = {-1, 1};
   std::vector<double> out(1, 0);
 
-  // Create task_data
   auto task_data_omp = std::make_shared<ppc::core::TaskData>();
 
   task_data_omp->inputs.emplace_back(reinterpret_cast<uint8_t *>(val_b.data()));
@@ -107,17 +103,15 @@ TEST(vladimirova_j_m_monte_karlo_omp, test_one_var) {
   task_data_omp->inputs_count.emplace_back(val_b.size());
   task_data_omp->outputs.emplace_back(reinterpret_cast<uint8_t *>(out.data()));
   task_data_omp->outputs_count.emplace_back(out.size());
-  // Create Task
+
   vladimirova_j_m_monte_karlo_omp::TestTaskOpenMP test_task_omp(task_data_omp);
   ASSERT_EQ(test_task_omp.Validation(), false);
 }
 
 TEST(vladimirova_j_m_monte_karlo_omp, test_no_limit_var) {
-  // Create data
   std::vector<double> val_b = {-1, 1, 0};
   std::vector<double> out(1, 0);
 
-  // Create task_data
   auto task_data_omp = std::make_shared<ppc::core::TaskData>();
   task_data_omp->inputs.emplace_back(reinterpret_cast<uint8_t *>(val_b.data()));
   task_data_omp->inputs.emplace_back(reinterpret_cast<uint8_t *>(PiVal314));
@@ -125,17 +119,15 @@ TEST(vladimirova_j_m_monte_karlo_omp, test_no_limit_var) {
   task_data_omp->inputs_count.emplace_back(val_b.size());
   task_data_omp->outputs.emplace_back(reinterpret_cast<uint8_t *>(out.data()));
   task_data_omp->outputs_count.emplace_back(out.size());
-  // Create Task
+
   vladimirova_j_m_monte_karlo_omp::TestTaskOpenMP test_task_omp(task_data_omp);
   ASSERT_EQ(test_task_omp.Validation(), false);
 }
 
 TEST(vladimirova_j_m_monte_karlo_omp, test_zero_size_limit_var) {
-  // Create data
   std::vector<double> val_b = {-1, 1, 0, 0};
   std::vector<double> out(1, 0);
 
-  // Create task_data
   auto task_data_omp = std::make_shared<ppc::core::TaskData>();
 
   task_data_omp->inputs.emplace_back(reinterpret_cast<uint8_t *>(val_b.data()));
@@ -144,17 +136,15 @@ TEST(vladimirova_j_m_monte_karlo_omp, test_zero_size_limit_var) {
   task_data_omp->inputs_count.emplace_back(val_b.size());
   task_data_omp->outputs.emplace_back(reinterpret_cast<uint8_t *>(out.data()));
   task_data_omp->outputs_count.emplace_back(out.size());
-  // Create Task
+
   vladimirova_j_m_monte_karlo_omp::TestTaskOpenMP test_task_omp(task_data_omp);
   ASSERT_EQ(test_task_omp.Validation(), false);
 }
 
 TEST(vladimirova_j_m_monte_karlo_omp, test_one_point) {
-  // Create data
   std::vector<double> val_b = {-1, 1, 0, 1};
   std::vector<double> out(1, 0);
 
-  // Create task_data
   auto task_data_omp = std::make_shared<ppc::core::TaskData>();
 
   task_data_omp->inputs.emplace_back(reinterpret_cast<uint8_t *>(val_b.data()));
@@ -163,7 +153,7 @@ TEST(vladimirova_j_m_monte_karlo_omp, test_one_point) {
   task_data_omp->inputs_count.emplace_back(val_b.size());
   task_data_omp->outputs.emplace_back(reinterpret_cast<uint8_t *>(out.data()));
   task_data_omp->outputs_count.emplace_back(out.size());
-  // Create Task
+
   vladimirova_j_m_monte_karlo_omp::TestTaskOpenMP test_task_omp(task_data_omp);
   ASSERT_EQ(test_task_omp.Validation(), true);
   test_task_omp.PreProcessing();
@@ -173,11 +163,9 @@ TEST(vladimirova_j_m_monte_karlo_omp, test_one_point) {
 }
 
 TEST(vladimirova_j_m_monte_karlo_omp, test_PiVal_314) {
-  // Create data
   std::vector<double> val_b = {-1, 1, -1, 1};
   std::vector<double> out(1, 0);
 
-  // Create task_data
   auto task_data_omp = std::make_shared<ppc::core::TaskData>();
   task_data_omp->inputs.emplace_back(reinterpret_cast<uint8_t *>(val_b.data()));
   task_data_omp->inputs.emplace_back(reinterpret_cast<uint8_t *>(PiVal314));
@@ -185,7 +173,7 @@ TEST(vladimirova_j_m_monte_karlo_omp, test_PiVal_314) {
   task_data_omp->inputs_count.emplace_back(val_b.size());
   task_data_omp->outputs.emplace_back(reinterpret_cast<uint8_t *>(out.data()));
   task_data_omp->outputs_count.emplace_back(out.size());
-  // Create Task
+
   vladimirova_j_m_monte_karlo_omp::TestTaskOpenMP test_task_omp(task_data_omp);
   ASSERT_EQ(test_task_omp.Validation(), true);
   test_task_omp.PreProcessing();
@@ -195,11 +183,9 @@ TEST(vladimirova_j_m_monte_karlo_omp, test_PiVal_314) {
 }
 
 TEST(vladimirova_j_m_monte_karlo_omp, test_PiVal_314_2) {
-  // Create data
   std::vector<double> val_b = {-1, 1, -1, 1};
   std::vector<double> out(1, 0);
 
-  // Create task_data
   auto task_data_omp = std::make_shared<ppc::core::TaskData>();
   task_data_omp->inputs.emplace_back(reinterpret_cast<uint8_t *>(val_b.data()));
   task_data_omp->inputs.emplace_back(reinterpret_cast<uint8_t *>(PiVal314));
@@ -207,7 +193,7 @@ TEST(vladimirova_j_m_monte_karlo_omp, test_PiVal_314_2) {
   task_data_omp->inputs_count.emplace_back(val_b.size());
   task_data_omp->outputs.emplace_back(reinterpret_cast<uint8_t *>(out.data()));
   task_data_omp->outputs_count.emplace_back(out.size());
-  // Create Task
+
   vladimirova_j_m_monte_karlo_omp::TestTaskOpenMP test_task_omp(task_data_omp);
   ASSERT_EQ(test_task_omp.Validation(), true);
   test_task_omp.PreProcessing();
@@ -217,11 +203,9 @@ TEST(vladimirova_j_m_monte_karlo_omp, test_PiVal_314_2) {
 }
 
 TEST(vladimirova_j_m_monte_karlo_omp, test_PiVal_314_1_2) {
-  // Create data
   std::vector<double> val_b = {0, 1, -1, 1};
   std::vector<double> out(1, 0);
 
-  // Create task_data
   auto task_data_omp = std::make_shared<ppc::core::TaskData>();
   task_data_omp->inputs.emplace_back(reinterpret_cast<uint8_t *>(val_b.data()));
   task_data_omp->inputs.emplace_back(reinterpret_cast<uint8_t *>(PiVal314));
@@ -229,7 +213,7 @@ TEST(vladimirova_j_m_monte_karlo_omp, test_PiVal_314_1_2) {
   task_data_omp->inputs_count.emplace_back(val_b.size());
   task_data_omp->outputs.emplace_back(reinterpret_cast<uint8_t *>(out.data()));
   task_data_omp->outputs_count.emplace_back(out.size());
-  // Create Task
+
   vladimirova_j_m_monte_karlo_omp::TestTaskOpenMP test_task_omp(task_data_omp);
   ASSERT_EQ(test_task_omp.Validation(), true);
   test_task_omp.PreProcessing();
@@ -239,11 +223,9 @@ TEST(vladimirova_j_m_monte_karlo_omp, test_PiVal_314_1_2) {
 }
 
 TEST(vladimirova_j_m_monte_karlo_omp, test_SphereR3_1) {
-  // Create data
   std::vector<double> val_b = {-3, 3, -3, 3, -3, 3};
   std::vector<double> out(1, 0);
 
-  // Create task_data
   auto task_data_omp = std::make_shared<ppc::core::TaskData>();
 
   task_data_omp->inputs.emplace_back(reinterpret_cast<uint8_t *>(val_b.data()));
@@ -252,7 +234,7 @@ TEST(vladimirova_j_m_monte_karlo_omp, test_SphereR3_1) {
   task_data_omp->inputs_count.emplace_back(val_b.size());
   task_data_omp->outputs.emplace_back(reinterpret_cast<uint8_t *>(out.data()));
   task_data_omp->outputs_count.emplace_back(out.size());
-  // Create Task
+
   vladimirova_j_m_monte_karlo_omp::TestTaskOpenMP test_task_omp(task_data_omp);
   ASSERT_EQ(test_task_omp.Validation(), true);
   test_task_omp.PreProcessing();
@@ -262,11 +244,9 @@ TEST(vladimirova_j_m_monte_karlo_omp, test_SphereR3_1) {
 }
 
 TEST(vladimirova_j_m_monte_karlo_omp, test_SphereR3_1_2) {
-  // Create data
   std::vector<double> val_b = {0, 3, -3, 3, -3, 3};
   std::vector<double> out(1, 0);
 
-  // Create task_data
   auto task_data_omp = std::make_shared<ppc::core::TaskData>();
 
   task_data_omp->inputs.emplace_back(reinterpret_cast<uint8_t *>(val_b.data()));
@@ -275,7 +255,7 @@ TEST(vladimirova_j_m_monte_karlo_omp, test_SphereR3_1_2) {
   task_data_omp->inputs_count.emplace_back(val_b.size());
   task_data_omp->outputs.emplace_back(reinterpret_cast<uint8_t *>(out.data()));
   task_data_omp->outputs_count.emplace_back(out.size());
-  // Create Task
+
   vladimirova_j_m_monte_karlo_omp::TestTaskOpenMP test_task_omp(task_data_omp);
   ASSERT_EQ(test_task_omp.Validation(), true);
   test_task_omp.PreProcessing();
@@ -285,11 +265,9 @@ TEST(vladimirova_j_m_monte_karlo_omp, test_SphereR3_1_2) {
 }
 
 TEST(vladimirova_j_m_monte_karlo_omp, test_SphereR3_1_9) {
-  // Create data
   std::vector<double> val_b = {0, 3, 0, 3, 0, 3};
   std::vector<double> out(1, 0);
 
-  // Create task_data
   auto task_data_omp = std::make_shared<ppc::core::TaskData>();
 
   task_data_omp->inputs.emplace_back(reinterpret_cast<uint8_t *>(val_b.data()));
@@ -298,7 +276,7 @@ TEST(vladimirova_j_m_monte_karlo_omp, test_SphereR3_1_9) {
   task_data_omp->inputs_count.emplace_back(val_b.size());
   task_data_omp->outputs.emplace_back(reinterpret_cast<uint8_t *>(out.data()));
   task_data_omp->outputs_count.emplace_back(out.size());
-  // Create Task
+
   vladimirova_j_m_monte_karlo_omp::TestTaskOpenMP test_task_omp(task_data_omp);
   ASSERT_EQ(test_task_omp.Validation(), true);
   test_task_omp.PreProcessing();
@@ -308,11 +286,9 @@ TEST(vladimirova_j_m_monte_karlo_omp, test_SphereR3_1_9) {
 }
 
 TEST(vladimirova_j_m_monte_karlo_omp, test_Rectangle34) {
-  // Create data
   std::vector<double> val_b = {0, 3, 0, 4};
   std::vector<double> out(1, 0);
 
-  // Create task_data
   auto task_data_omp = std::make_shared<ppc::core::TaskData>();
 
   task_data_omp->inputs.emplace_back(reinterpret_cast<uint8_t *>(val_b.data()));
@@ -321,7 +297,7 @@ TEST(vladimirova_j_m_monte_karlo_omp, test_Rectangle34) {
   task_data_omp->inputs_count.emplace_back(val_b.size());
   task_data_omp->outputs.emplace_back(reinterpret_cast<uint8_t *>(out.data()));
   task_data_omp->outputs_count.emplace_back(out.size());
-  // Create Task
+
   vladimirova_j_m_monte_karlo_omp::TestTaskOpenMP test_task_omp(task_data_omp);
   ASSERT_EQ(test_task_omp.Validation(), true);
   test_task_omp.PreProcessing();
@@ -331,11 +307,9 @@ TEST(vladimirova_j_m_monte_karlo_omp, test_Rectangle34) {
 }
 
 TEST(vladimirova_j_m_monte_karlo_omp, test_Rectangle34_2) {
-  // Create data
   std::vector<double> val_b = {0, 4, 0, 4};
   std::vector<double> out(1, 0);
 
-  // Create task_data
   auto task_data_omp = std::make_shared<ppc::core::TaskData>();
 
   task_data_omp->inputs.emplace_back(reinterpret_cast<uint8_t *>(val_b.data()));
@@ -344,7 +318,7 @@ TEST(vladimirova_j_m_monte_karlo_omp, test_Rectangle34_2) {
   task_data_omp->inputs_count.emplace_back(val_b.size());
   task_data_omp->outputs.emplace_back(reinterpret_cast<uint8_t *>(out.data()));
   task_data_omp->outputs_count.emplace_back(out.size());
-  // Create Task
+
   vladimirova_j_m_monte_karlo_omp::TestTaskOpenMP test_task_omp(task_data_omp);
   ASSERT_EQ(test_task_omp.Validation(), true);
   test_task_omp.PreProcessing();
@@ -354,11 +328,9 @@ TEST(vladimirova_j_m_monte_karlo_omp, test_Rectangle34_2) {
 }
 
 TEST(vladimirova_j_m_monte_karlo_omp, test_Parallelogram333) {
-  // Create data
   std::vector<double> val_b = {0, 3, 0, 3, 0, 3};
   std::vector<double> out(1, 0);
 
-  // Create task_data
   auto task_data_omp = std::make_shared<ppc::core::TaskData>();
 
   task_data_omp->inputs.emplace_back(reinterpret_cast<uint8_t *>(val_b.data()));
@@ -367,7 +339,7 @@ TEST(vladimirova_j_m_monte_karlo_omp, test_Parallelogram333) {
   task_data_omp->inputs_count.emplace_back(val_b.size());
   task_data_omp->outputs.emplace_back(reinterpret_cast<uint8_t *>(out.data()));
   task_data_omp->outputs_count.emplace_back(out.size());
-  // Create Task
+
   vladimirova_j_m_monte_karlo_omp::TestTaskOpenMP test_task_omp(task_data_omp);
   ASSERT_EQ(test_task_omp.Validation(), true);
   test_task_omp.PreProcessing();
@@ -377,11 +349,9 @@ TEST(vladimirova_j_m_monte_karlo_omp, test_Parallelogram333) {
 }
 
 TEST(vladimirova_j_m_monte_karlo_omp, test_BigParallelogram100100100) {
-  // Create data
   std::vector<double> val_b = {0, 100, 0, 100, 0, 100};
   std::vector<double> out(1, 0);
 
-  // Create task_data
   auto task_data_omp = std::make_shared<ppc::core::TaskData>();
 
   task_data_omp->inputs.emplace_back(reinterpret_cast<uint8_t *>(val_b.data()));
@@ -390,7 +360,7 @@ TEST(vladimirova_j_m_monte_karlo_omp, test_BigParallelogram100100100) {
   task_data_omp->inputs_count.emplace_back(val_b.size());
   task_data_omp->outputs.emplace_back(reinterpret_cast<uint8_t *>(out.data()));
   task_data_omp->outputs_count.emplace_back(out.size());
-  // Create Task
+
   vladimirova_j_m_monte_karlo_omp::TestTaskOpenMP test_task_omp(task_data_omp);
   ASSERT_EQ(test_task_omp.Validation(), true);
   test_task_omp.PreProcessing();
@@ -400,11 +370,9 @@ TEST(vladimirova_j_m_monte_karlo_omp, test_BigParallelogram100100100) {
 }
 
 TEST(vladimirova_j_m_monte_karlo_omp, test_Parabola_1_5_2_9) {
-  // Create data
   std::vector<double> val_b = {-4, 0, -24, 0};
   std::vector<double> out(1, 0);
 
-  // Create task_data
   auto task_data_omp = std::make_shared<ppc::core::TaskData>();
 
   task_data_omp->inputs.emplace_back(reinterpret_cast<uint8_t *>(val_b.data()));
@@ -413,7 +381,7 @@ TEST(vladimirova_j_m_monte_karlo_omp, test_Parabola_1_5_2_9) {
   task_data_omp->inputs_count.emplace_back(val_b.size());
   task_data_omp->outputs.emplace_back(reinterpret_cast<uint8_t *>(out.data()));
   task_data_omp->outputs_count.emplace_back(out.size());
-  // Create Task
+
   vladimirova_j_m_monte_karlo_omp::TestTaskOpenMP test_task_omp(task_data_omp);
   ASSERT_EQ(test_task_omp.Validation(), true);
   test_task_omp.PreProcessing();
@@ -423,11 +391,9 @@ TEST(vladimirova_j_m_monte_karlo_omp, test_Parabola_1_5_2_9) {
 }
 
 TEST(vladimirova_j_m_monte_karlo_omp, test_HypercubeX4Pr4433) {
-  // Create data
   std::vector<double> val_b = {0, 4, 0, 4, 0, 4, 0, 4};
   std::vector<double> out(1, 0);
 
-  // Create task_data
   auto task_data_omp = std::make_shared<ppc::core::TaskData>();
 
   task_data_omp->inputs.emplace_back(reinterpret_cast<uint8_t *>(val_b.data()));
@@ -436,7 +402,7 @@ TEST(vladimirova_j_m_monte_karlo_omp, test_HypercubeX4Pr4433) {
   task_data_omp->inputs_count.emplace_back(val_b.size());
   task_data_omp->outputs.emplace_back(reinterpret_cast<uint8_t *>(out.data()));
   task_data_omp->outputs_count.emplace_back(out.size());
-  // Create Task
+
   vladimirova_j_m_monte_karlo_omp::TestTaskOpenMP test_task_omp(task_data_omp);
   ASSERT_EQ(test_task_omp.Validation(), true);
   test_task_omp.PreProcessing();
@@ -446,11 +412,9 @@ TEST(vladimirova_j_m_monte_karlo_omp, test_HypercubeX4Pr4433) {
 }
 
 TEST(vladimirova_j_m_monte_karlo_omp, test_TriangleModuleMinus5) {
-  // Create data
   std::vector<double> val_b = {-5, 5, 0, 5};
   std::vector<double> out(1, 0);
 
-  // Create task_data
   auto task_data_omp = std::make_shared<ppc::core::TaskData>();
 
   task_data_omp->inputs.emplace_back(reinterpret_cast<uint8_t *>(val_b.data()));
@@ -459,7 +423,7 @@ TEST(vladimirova_j_m_monte_karlo_omp, test_TriangleModuleMinus5) {
   task_data_omp->inputs_count.emplace_back(val_b.size());
   task_data_omp->outputs.emplace_back(reinterpret_cast<uint8_t *>(out.data()));
   task_data_omp->outputs_count.emplace_back(out.size());
-  // Create Task
+
   vladimirova_j_m_monte_karlo_omp::TestTaskOpenMP test_task_omp(task_data_omp);
   ASSERT_EQ(test_task_omp.Validation(), true);
   test_task_omp.PreProcessing();
@@ -470,11 +434,9 @@ TEST(vladimirova_j_m_monte_karlo_omp, test_TriangleModuleMinus5) {
 }
 
 TEST(vladimirova_j_m_monte_karlo_omp, test_SomeRandomFunc) {
-  // Create data
   std::vector<double> val_b = {-2, 0, -5.5, -2};
   std::vector<double> out(1, 0);
 
-  // Create task_data
   auto task_data_omp = std::make_shared<ppc::core::TaskData>();
 
   task_data_omp->inputs.emplace_back(reinterpret_cast<uint8_t *>(val_b.data()));
@@ -483,7 +445,7 @@ TEST(vladimirova_j_m_monte_karlo_omp, test_SomeRandomFunc) {
   task_data_omp->inputs_count.emplace_back(val_b.size());
   task_data_omp->outputs.emplace_back(reinterpret_cast<uint8_t *>(out.data()));
   task_data_omp->outputs_count.emplace_back(out.size());
-  // Create Task
+
   vladimirova_j_m_monte_karlo_omp::TestTaskOpenMP test_task_omp(task_data_omp);
   ASSERT_EQ(test_task_omp.Validation(), true);
   test_task_omp.PreProcessing();
