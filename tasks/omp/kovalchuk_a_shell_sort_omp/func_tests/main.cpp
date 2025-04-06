@@ -24,7 +24,7 @@ TEST(kovalchuk_a_shell_sort_omp, Test_EmptyArray) {
   task->Run();
   task->PostProcessing();
 
-  ASSERT_TRUE(output.empty());
+  EXPECT_TRUE(output.empty());
 }
 
 TEST(kovalchuk_a_shell_sort_omp, Test_SingleElement) {
@@ -44,7 +44,7 @@ TEST(kovalchuk_a_shell_sort_omp, Test_SingleElement) {
   task->Run();
   task->PostProcessing();
 
-  ASSERT_EQ(input, output);
+  EXPECT_EQ(input, output);
 }
 
 TEST(kovalchuk_a_shell_sort_omp, Test_ReverseSorted) {
@@ -65,7 +65,7 @@ TEST(kovalchuk_a_shell_sort_omp, Test_ReverseSorted) {
   task->PostProcessing();
 
   std::vector<int> expected = {1, 3, 5, 7, 9};
-  ASSERT_EQ(expected, output);
+  EXPECT_EQ(expected, output);
 }
 
 TEST(kovalchuk_a_shell_sort_omp, Test_Duplicates) {
@@ -86,7 +86,7 @@ TEST(kovalchuk_a_shell_sort_omp, Test_Duplicates) {
   task->PostProcessing();
 
   std::vector<int> expected = {1, 2, 2, 5, 5};
-  ASSERT_EQ(expected, output);
+  EXPECT_EQ(expected, output);
 }
 
 TEST(kovalchuk_a_shell_sort_omp, Test_NegativeNumbers) {
@@ -107,7 +107,7 @@ TEST(kovalchuk_a_shell_sort_omp, Test_NegativeNumbers) {
   task->PostProcessing();
 
   std::vector<int> expected = {-5, -3, -1, 0, 10};
-  ASSERT_EQ(expected, output);
+  EXPECT_EQ(expected, output);
 }
 
 TEST(kovalchuk_a_shell_sort_omp, Test_ExtremeValues) {
@@ -128,7 +128,7 @@ TEST(kovalchuk_a_shell_sort_omp, Test_ExtremeValues) {
   task->PostProcessing();
 
   std::vector<int> expected = {INT32_MIN, 0, INT32_MAX};
-  ASSERT_EQ(expected, output);
+  EXPECT_EQ(expected, output);
 }
 
 TEST(kovalchuk_a_shell_sort_omp, Test_OddSizeArray) {
@@ -149,5 +149,26 @@ TEST(kovalchuk_a_shell_sort_omp, Test_OddSizeArray) {
   task->PostProcessing();
 
   std::vector<int> expected = {1, 2, 4, 7, 9};
-  ASSERT_EQ(expected, output);
+  EXPECT_EQ(expected, output);
+}
+
+TEST(kovalchuk_a_shell_sort_omp, Test_EvenSizeArray) {
+  std::vector<int> input = {5, 2, 8, 1};
+  std::vector<int> output(input.size());
+
+  auto task_data = std::make_shared<ppc::core::TaskData>();
+  task_data->inputs.emplace_back(reinterpret_cast<uint8_t*>(input.data()));
+  task_data->inputs_count.emplace_back(input.size());
+  task_data->outputs.emplace_back(reinterpret_cast<uint8_t*>(output.data()));
+  task_data->outputs_count.emplace_back(output.size());
+
+  auto task = std::make_shared<kovalchuk_a_shell_sort_omp::ShellSortOMP>(task_data);
+
+  ASSERT_TRUE(task->Validation());
+  task->PreProcessing();
+  task->Run();
+  task->PostProcessing();
+
+  std::vector<int> expected = {1, 2, 5, 8};
+  EXPECT_EQ(expected, output);
 }
