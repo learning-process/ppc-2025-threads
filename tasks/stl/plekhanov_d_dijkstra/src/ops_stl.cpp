@@ -1,11 +1,10 @@
 #include "stl/plekhanov_d_dijkstra/include/ops_stl.hpp"
 
 #include <algorithm>
+#include <atomic>
 #include <climits>
 #include <cstddef>
 #include <cstdlib>
-#include <functional>
-#include <future>
 #include <mutex>
 #include <queue>
 #include <thread>
@@ -37,7 +36,7 @@ bool plekhanov_d_dijkstra_stl::TestTaskSTL::ValidationImpl() {
          task_data->outputs_count[0] > 0;
 }
 
-bool plekhanov_d_dijkstra_stl::TestTaskSTL::RunImpl() {  // NOLINT
+bool plekhanov_d_dijkstra_stl::TestTaskSTL::RunImpl() {
   std::vector<std::vector<std::pair<int, int>>> graph(num_vertices_);
   size_t current_vertex = 0;
   size_t i = 0;
@@ -110,7 +109,7 @@ bool plekhanov_d_dijkstra_stl::TestTaskSTL::RunImpl() {  // NOLINT
   };
 
   for (size_t count = 0; count < num_vertices_; ++count) {
-    int u;
+    int u = -1;
     find_min_vertex_parallel(u);
     if (u == -1 || distances_atomic[u] == INT_MAX) break;
 
@@ -131,10 +130,10 @@ bool plekhanov_d_dijkstra_stl::TestTaskSTL::RunImpl() {  // NOLINT
           int v = neighbors[i].first;
           int weight = neighbors[i].second;
 
-          int cur_dist = distances_atomic[u];
+          int cur_dist = distances_atomic[u].load();
           int new_dist = cur_dist + weight;
 
-          int old_val = distances_atomic[v];
+          int old_val = distances_atomic[v].load();
           while (new_dist < old_val && !distances_atomic[v].compare_exchange_weak(old_val, new_dist)) {
           }
         }
