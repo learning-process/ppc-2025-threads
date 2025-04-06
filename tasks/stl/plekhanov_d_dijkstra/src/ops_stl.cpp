@@ -37,7 +37,7 @@ bool plekhanov_d_dijkstra_stl::TestTaskSTL::ValidationImpl() {
          task_data->outputs_count[0] > 0;
 }
 
-bool plekhanov_d_dijkstra_stl::TestTaskSTL::RunImpl() {  // NOLINT(readability-function-cognitive-complexity)
+bool plekhanov_d_dijkstra_stl::TestTaskSTL::RunImpl() {  // NOLINT
   std::vector<std::vector<std::pair<int, int>>> graph(num_vertices_);
   size_t current_vertex = 0;
   size_t i = 0;
@@ -48,15 +48,11 @@ bool plekhanov_d_dijkstra_stl::TestTaskSTL::RunImpl() {  // NOLINT(readability-f
       i++;
       continue;
     }
-    if (i + 1 >= graph_data_.size()) {
-      break;
-    }
+    if (i + 1 >= graph_data_.size()) break;
 
     size_t dest = graph_data_[i];
     int weight = graph_data_[i + 1];
-    if (weight < 0) {
-      return false;
-    }
+    if (weight < 0) return false;
 
     if (dest < num_vertices_) {
       graph[current_vertex].emplace_back(static_cast<int>(dest), weight);
@@ -64,63 +60,95 @@ bool plekhanov_d_dijkstra_stl::TestTaskSTL::RunImpl() {  // NOLINT(readability-f
     i += 2;
   }
 
-  std::priority_queue<std::pair<int, int>, std::vector<std::pair<int, int>>, std::greater<>> pq;
-  std::mutex pq_mutex;
-  std::vector<std::mutex> dist_mutexes(num_vertices_);
+  std::vector<bool> visited(num_vertices_, false);
+  std::vector<std::atomic<int>> distances_atomic(num_vertices_);
+  for (auto& d : distances_atomic) d.store(INT_MAX);
+  distances_atomic[start_vertex_] = 0;
 
-  pq.emplace(0, start_vertex_);
-  distances_[start_vertex_] = 0;
+  size_t num_threads = std::min(static_cast<size_t>(ppc::util::GetPPCNumThreads()),
+                                static_cast<size_t>(std::thread::hardware_concurrency()));
 
-  const size_t num_threads =
-      std::min(ppc::util::GetPPCNumThreads(), static_cast<int>(std::thread::hardware_concurrency()));
+  auto find_min_vertex_parallel = [&](int& min_vertex) {
+    std::mutex mutex;
+    int local_min_dist = INT_MAX;
+    min_vertex = -1;
 
-  while (true) {
-    pq_mutex.lock();
-    if (pq.empty()) {
-      pq_mutex.unlock();
-      break;
-    }
+    size_t chunk_size = (num_vertices_ + num_threads - 1) / num_threads;
+    std::vector<std::thread> threads;
 
-    auto [dist, u] = pq.top();
-    pq.pop();
-    pq_mutex.unlock();
+    for (size_t t = 0; t < num_threads; ++t) {
+      size_t start = t * chunk_size;
+      size_t end = std::min(start + chunk_size, num_vertices_);
 
-    {
-      std::lock_guard<std::mutex> lock(dist_mutexes[u]);
-      if (dist > distances_[u]) {
-        continue;
-      }
-    }
+      threads.emplace_back([&, start, end]() {
+        int thread_min = -1;
+        int thread_min_dist = INT_MAX;
 
-    size_t edges_count = graph[u].size();
-    size_t chunk_size = (edges_count + num_threads - 1) / num_threads;
-
-    std::vector<std::future<void>> futures;
-
-    for (unsigned int j = 0; j < num_threads; ++j) {
-      size_t start = j * chunk_size;
-      size_t end = std::min(start + chunk_size, edges_count);
-
-      futures.push_back(std::async(std::launch::async, [&, start, end]() {
-        for (size_t k = start; k < end; ++k) {
-          int v = graph[u][k].first;
-          int weight = graph[u][k].second;
-          int new_dist = dist + weight;
-
-          std::lock_guard<std::mutex> lock(dist_mutexes[v]);
-          if (new_dist < distances_[v]) {
-            distances_[v] = new_dist;
-
-            std::lock_guard<std::mutex> pq_lock(pq_mutex);
-            pq.emplace(new_dist, v);
+        for (size_t i = start; i < end; ++i) {
+          if (!visited[i]) {
+            int d = distances_atomic[i].load();
+            if (d < thread_min_dist) {
+              thread_min_dist = d;
+              thread_min = static_cast<int>(i);
+            }
           }
         }
-      }));
+
+        if (thread_min != -1) {
+          std::lock_guard<std::mutex> lock(mutex);
+          if (thread_min_dist < local_min_dist) {
+            local_min_dist = thread_min_dist;
+            min_vertex = thread_min;
+          }
+        }
+      });
     }
 
-    for (auto& f : futures) {
-      f.get();
+    for (auto& thread : threads) {
+      thread.join();
     }
+  };
+
+  for (size_t count = 0; count < num_vertices_; ++count) {
+    int u;
+    find_min_vertex_parallel(u);
+    if (u == -1 || distances_atomic[u] == INT_MAX) break;
+
+    visited[u] = true;
+
+    const auto& neighbors = graph[u];
+    size_t edge_count = neighbors.size();
+    size_t chunk_size = (edge_count + num_threads - 1) / num_threads;
+
+    std::vector<std::thread> threads;
+
+    for (size_t t = 0; t < num_threads; ++t) {
+      size_t start = t * chunk_size;
+      size_t end = std::min(start + chunk_size, edge_count);
+
+      threads.emplace_back([&, start, end]() {
+        for (size_t i = start; i < end; ++i) {
+          int v = neighbors[i].first;
+          int weight = neighbors[i].second;
+
+          int cur_dist = distances_atomic[u];
+          int new_dist = cur_dist + weight;
+
+          int old_val = distances_atomic[v];
+          while (new_dist < old_val && !distances_atomic[v].compare_exchange_weak(old_val, new_dist)) {
+          }
+        }
+      });
+    }
+
+    for (auto& thread : threads) {
+      thread.join();
+    }
+  }
+
+  distances_.resize(num_vertices_);
+  for (size_t k = 0; k < num_vertices_; ++k) {
+    distances_[k] = distances_atomic[k].load();
   }
 
   return true;

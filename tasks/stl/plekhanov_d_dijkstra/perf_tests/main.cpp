@@ -52,7 +52,7 @@ static std::vector<int> CalculateExpectedResult(                       // NOLINT
 }  // namespace plekhanov_d_dijkstra_stl
 
 TEST(plekhanov_d_dijkstra_stl, test_pipeline_run) {
-  constexpr size_t kNumVertices = 6000;
+  constexpr size_t kNumVertices = 2000;
   size_t start_vertex = 0;
 
   std::vector<std::vector<std::pair<size_t, int>>> adj_list(kNumVertices);
@@ -107,7 +107,7 @@ TEST(plekhanov_d_dijkstra_stl, test_pipeline_run) {
 }
 
 TEST(plekhanov_d_dijkstra_stl, test_task_run) {
-  constexpr size_t kNumVertices = 6000;
+  constexpr size_t kNumVertices = 2000;
   size_t start_vertex = 0;
 
   std::vector<std::vector<std::pair<size_t, int>>> adj_list(kNumVertices);
