@@ -6,9 +6,9 @@
 #include <ranges>
 #include <vector>
 
-#include "tbb/parallel_for.h"
-#include "tbb/task_arena.h"
-#include "tbb/task_group.h"
+#include "oneapi/tbb/parallel_for.h"
+#include "oneapi/tbb/task_arena.h"
+#include "oneapi/tbb/task_group.h"
 
 bool volochaev_s_shell_sort_with_batchers_even_odd_merge_tbb::ShellSortTBB::PreProcessingImpl() {
   // Init value for input and output
@@ -128,8 +128,8 @@ void volochaev_s_shell_sort_with_batchers_even_odd_merge_tbb::ShellSortTBB::Para
 void volochaev_s_shell_sort_with_batchers_even_odd_merge_tbb::ShellSortTBB::FindThreadVariables() {
   c_threads_ = tbb::this_task_arena::max_concurrency();
   // Round down to nearest power of 2
-  c_threads_ = static_cast<int>(std::pow(2, std::floor(std::log2(c_threads_)));
-  
+  c_threads_ = static_cast<int>(std::pow(2, std::floor(std::log2(c_threads_))));
+
   n_ = size_ + (((2 * c_threads_) - size_ % (2 * c_threads_))) % (2 * c_threads_);
   mass_.resize(n_, std::numeric_limits<int>::max());
   mini_batch_ = n_ / c_threads_;
