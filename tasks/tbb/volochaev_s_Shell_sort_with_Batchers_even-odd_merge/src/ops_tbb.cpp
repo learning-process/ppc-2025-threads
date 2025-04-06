@@ -8,7 +8,6 @@
 
 #include "oneapi/tbb/parallel_for.h"
 #include "oneapi/tbb/task_arena.h"
-#include "oneapi/tbb/task_group.h"
 
 bool volochaev_s_shell_sort_with_batchers_even_odd_merge_tbb::ShellSortTBB::PreProcessingImpl() {
   // Init value for input and output
