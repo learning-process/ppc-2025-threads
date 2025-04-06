@@ -90,4 +90,5 @@ void TestTaskOpenmp::BatcherMerge(std::vector<int>& left, std::vector<int>& righ
     result[k++] = right[j++];
   }
 }
+
 }  // namespace fyodorov_m_shell_sort_with_even_odd_batcher_merge_omp

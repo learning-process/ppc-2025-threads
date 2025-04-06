@@ -219,3 +219,14 @@ TEST(fyodorov_m_shell_sort_with_even_odd_batcher_merge_omp, zero_array) {
   std::ranges::sort(in);
   EXPECT_EQ(in, out);
 }
+
+TEST(fyodorov_m_shell_sort_with_even_odd_batcher_merge_omp, all_elements_in_one_array_smaller) {
+  std::vector<int> left = {1, 2, 3};
+  std::vector<int> right = {4, 5, 6};
+  std::vector<int> result(left.size() + right.size(), 0);
+
+  fyodorov_m_shell_sort_with_even_odd_batcher_merge_omp::TestTaskOpenmp test_task(nullptr);
+  test_task.BatcherMerge(left, right, result);
+
+  EXPECT_EQ(result, std::vector<int>({1, 2, 3, 4, 5, 6}));
+}
