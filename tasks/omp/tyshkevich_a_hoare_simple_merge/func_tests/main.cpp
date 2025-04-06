@@ -97,5 +97,11 @@ TEST(tyshkevich_a_hoare_simple_merge_omp, test_64_lt) { TestSort<int>(64, std::l
 TEST(tyshkevich_a_hoare_simple_merge_omp, test_100_gt) { TestSort<int>(100, std::greater<>()); }
 TEST(tyshkevich_a_hoare_simple_merge_omp, test_100_lt) { TestSort<int>(100, std::less<>()); }
 
+TEST(tyshkevich_a_hoare_simple_merge_omp, test_999_gt) { TestSort<int>(999, std::greater<>()); }
+TEST(tyshkevich_a_hoare_simple_merge_omp, test_999_lt) { TestSort<int>(999, std::less<>()); }
+
+TEST(tyshkevich_a_hoare_simple_merge_omp, test_1025_gt) { TestSort<int>(1025, std::greater<>()); }
+TEST(tyshkevich_a_hoare_simple_merge_omp, test_1025_lt) { TestSort<int>(1025, std::less<>()); }
+
 TEST(tyshkevich_a_hoare_simple_merge_omp, test_homogeneous_gt) { TestSort<int>({1, 1, 1}, std::greater<>()); }
 TEST(tyshkevich_a_hoare_simple_merge_omp, test_homogeneous_lt) { TestSort<int>({1, 1, 1}, std::less<>()); }
