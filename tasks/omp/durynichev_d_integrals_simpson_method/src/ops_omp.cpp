@@ -83,7 +83,7 @@ double durynichev_d_integrals_simpson_method_omp::SimpsonIntegralOpenMP::Simpson
       double coef_y = (j == 0 || j == n_) ? 1.0 : (j % 2 != 0 ? 4.0 : 2.0);
       local_sum += coef_y * Func2D(x, y);
     }
-    sum += coef_x * local_sum;
+    sum += coef_x * local_sum; // coef_x применяется здесь
   }
 
   return sum * hx * hy / 9.0;
