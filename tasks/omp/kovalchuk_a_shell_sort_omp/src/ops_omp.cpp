@@ -29,24 +29,24 @@ bool ShellSortOMP::RunImpl() {
 }
 
 void ShellSortOMP::ShellSort() {
-  if (input_.empty()) {
-    return;
-  }
+  if (input_.empty()) return;
 
-  std::vector<int>& local_input = input_;
-  const int n = static_cast<int>(local_input.size());
+  std::vector<int>& arr = input_;
+  int n = arr.size();
 
   for (int gap = n / 2; gap > 0; gap /= 2) {
-#pragma omp parallel for shared(local_input) schedule(static)
-    for (int i = gap; i < n; ++i) {
-      int temp = local_input[i];
-      int j = i;
+#pragma omp parallel for
+    for (int group = 0; group < gap; ++group) {
+      for (int i = group + gap; i < n; i += gap) {
+        int temp = arr[i];
+        int j = i;
 
-      while (j >= gap && local_input[j - gap] > temp) {
-        local_input[j] = local_input[j - gap];
-        j -= gap;
+        while (j >= gap && arr[j - gap] > temp) {
+          arr[j] = arr[j - gap];
+          j -= gap;
+        }
+        arr[j] = temp;
       }
-      local_input[j] = temp;
     }
   }
 }
