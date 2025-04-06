@@ -78,8 +78,7 @@ kondratev_ya_ccs_complex_multiplication_tbb::CCSMatrix::operator*(const CCSMatri
   });
 
   std::vector<int> col_sizes(other.cols);
-  std::transform(temp_cols.begin(), temp_cols.end(), col_sizes.begin(),
-                 [](const auto &col) { return static_cast<int>(col.size()); });
+  std::ranges::transform(temp_cols, col_sizes.begin(), [](const auto &col) { return static_cast<int>(col.size()); });
 
   std::vector<int> col_offsets(other.cols + 1, 0);
   std::partial_sum(col_sizes.begin(), col_sizes.end(), col_offsets.begin() + 1);
