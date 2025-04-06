@@ -20,8 +20,7 @@ std::vector<double> RandomVector(size_t size) {
   return vec;
 }
 
-void STest(size_t size) {
-  auto in = RandomVector(size);
+void STest(std::vector<double> in) {
   std::vector<double> out(in.size());
 
   auto task_data = std::make_shared<ppc::core::TaskData>();
@@ -38,6 +37,8 @@ void STest(size_t size) {
 
   ASSERT_TRUE(std::ranges::is_sorted(out));
 }
+
+void STest(size_t size) { STest(RandomVector(size)); }
 }  // namespace
 
 TEST(petrov_a_radix_double_batcher_omp, test_0) { STest(0); }
@@ -67,3 +68,7 @@ TEST(petrov_a_radix_double_batcher_omp, test_11) { STest(11); }
 TEST(petrov_a_radix_double_batcher_omp, test_111) { STest(111); }
 
 TEST(petrov_a_radix_double_batcher_omp, test_213) { STest(213); }
+
+TEST(petrov_a_radix_double_batcher_omp, test_already_sorted) { STest({1, 2, 3, 4, 5, 10, 15, 16, 100}); }
+
+TEST(petrov_a_radix_double_batcher_omp, test_same) { STest(std::vector<double>(81, 555)); }
