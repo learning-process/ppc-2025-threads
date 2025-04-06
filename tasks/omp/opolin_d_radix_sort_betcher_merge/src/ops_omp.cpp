@@ -146,7 +146,7 @@ void opolin_d_radix_batcher_sort_omp::BatcherOddEvenMerge(std::vector<int> &arra
   }
   while (p > 0) {
 #pragma omp parallel for
-    for (int i = start; i + p < end; i++) {
+    for (int i = start; i < end - p; i++) {
       if (array[i] > array[i + p]) {
         std::swap(array[i], array[i + p]);
       }
