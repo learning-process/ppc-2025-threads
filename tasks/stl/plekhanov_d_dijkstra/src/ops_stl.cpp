@@ -1,6 +1,5 @@
 #include "stl/plekhanov_d_dijkstra/include/ops_stl.hpp"
 
-#include <algorithm>
 #include <atomic>
 #include <climits>
 #include <cstddef>
@@ -66,7 +65,9 @@ bool plekhanov_d_dijkstra_stl::TestTaskSTL::RunImpl() {  // NOLINT
   };
 
   std::vector<std::atomic<int>> distance(num_vertices_);
-  for (auto& d : distance) d.store(INT_MAX);
+  for (auto& d : distance) {
+    d.store(INT_MAX);
+  }
   distance[start_vertex_] = 0;
 
   std::priority_queue<std::pair<int, int>, std::vector<std::pair<int, int>>, Compare> pq;
@@ -76,10 +77,12 @@ bool plekhanov_d_dijkstra_stl::TestTaskSTL::RunImpl() {  // NOLINT
 
   const int num_threads = ppc::util::GetPPCNumThreads();
   std::vector<std::thread> threads;
+  threads.reserve(num_threads);
 
   auto worker = [&]() {
     while (true) {
-      int u = -1, cur_dist = -1;
+      int u = -1;
+      int cur_dist = -1;
 
       {
         std::lock_guard<std::mutex> lock(pq_mutex);
