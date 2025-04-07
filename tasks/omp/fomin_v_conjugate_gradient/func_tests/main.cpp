@@ -79,7 +79,7 @@ TEST(FominVConjugateGradientOmp, DotProduct) {
 }
 
 TEST(FominVConjugateGradientOmp, MatrixVectorMultiply) {
-  std::vector<double> a = {1.0, 2.0, 3.0, 4.0};  // 2x2 матрица
+  std::vector<double> a = {1.0, 2.0, 3.0, 4.0};
   std::vector<double> x = {5.0, 6.0};
   std::vector<double> expected = {(1 * 5) + (2 * 6), (3 * 5) + (4 * 6)};  // {17, 39}
 
