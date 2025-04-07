@@ -16,7 +16,7 @@ std::vector<int> GetRandomVector(int sz) {
   std::mt19937 gen(dev());
   std::vector<int> vec(sz);
   for (int i = 0; i < sz; i++) {
-    vec[i] = (int)(gen() % 100);
+    vec[i] = (int)((gen() % (200)) - 100);
   }
   return vec;
 }
