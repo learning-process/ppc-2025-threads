@@ -11,6 +11,24 @@
 #include "core/task/include/task.hpp"
 #include "omp/kolodkin_g_multiplication_matrix_CRS/include/ops_omp.hpp"
 
+namespace gen_matrix {
+kolodkin_g_multiplication_matrix_omp::SparseMatrixCRS GenMatrix(unsigned int NumRows, unsigned int NumCols,
+                                                                unsigned int LeftBorderRow, unsigned int RightBorderRow,
+                                                                unsigned int LeftBorderCol, unsigned int RightBorderCol,
+                                                                int MinValue, int MaxValue) {
+  if (LeftBorderRow > RightBorderRow || LeftBorderCol > RightBorderCol || RightBorderRow > NumRows ||
+      RightBorderCol > NumCols || MinValue > MaxValue) {
+    throw("ERROR!");
+  }
+  kolodkin_g_multiplication_matrix_omp::SparseMatrixCRS a(NumRows, NumCols);
+  for (unsigned int i = LeftBorderRow; i < RightBorderRow; i++) {
+    for (unsigned int j = LeftBorderCol; j < RightBorderCol; j++) {
+      a.AddValue((int)i, Complex(MinValue + (rand() % MaxValue), MinValue + (rand() % MaxValue)), (int)j);
+    }
+  }
+  return a;
+}
+}  // namespace gen_matrix
 TEST(kolodkin_g_multiplication_matrix__task_omp, test_pipeline_run) {
   srand(time(nullptr));
   kolodkin_g_multiplication_matrix_omp::SparseMatrixCRS a(400, 400);
@@ -20,16 +38,8 @@ TEST(kolodkin_g_multiplication_matrix__task_omp, test_pipeline_run) {
   std::vector<Complex> in_b;
   std::vector<Complex> out(a.numCols * b.numRows * 100, 0);
 
-  for (unsigned int i = 0; i < 150; i++) {
-    for (unsigned int j = 0; j < 150; j++) {
-      a.AddValue((int)i, Complex(-100 + (rand() % 100), -100 + (rand() % 100)), (int)j);
-    }
-  }
-  for (unsigned int i = 50; i < 140; i++) {
-    for (unsigned int j = 50; j < 150; j++) {
-      b.AddValue((int)i, Complex(-100 + (rand() % 100), -100 + (rand() % 100)), (int)j);
-    }
-  }
+  a = gen_matrix::GenMatrix(400, 400, 0, 150, 0, 150, -100, 100);
+  b = gen_matrix::GenMatrix(400, 400, 50, 140, 50, 150, -100, 100);
   in_a = kolodkin_g_multiplication_matrix_omp::ParseMatrixIntoVec(a);
   in_b = kolodkin_g_multiplication_matrix_omp::ParseMatrixIntoVec(b);
   in.reserve(in_a.size() + in_b.size());
@@ -80,16 +90,8 @@ TEST(kolodkin_g_multiplication_matrix__task_omp, test_task_run) {
   std::vector<Complex> in_b;
   std::vector<Complex> out(a.numCols * b.numRows * 100, 0);
 
-  for (unsigned int i = 0; i < 150; i++) {
-    for (unsigned int j = 0; j < 150; j++) {
-      a.AddValue((int)i, Complex(-100 + (rand() % 100), -100 + (rand() % 100)), (int)j);
-    }
-  }
-  for (unsigned int i = 50; i < 140; i++) {
-    for (unsigned int j = 50; j < 150; j++) {
-      b.AddValue((int)i, Complex(-100 + (rand() % 100), -100 + (rand() % 100)), (int)j);
-    }
-  }
+  a = gen_matrix::GenMatrix(400, 400, 0, 150, 0, 150, -100, 100);
+  b = gen_matrix::GenMatrix(400, 400, 50, 140, 50, 150, -100, 100);
   in_a = kolodkin_g_multiplication_matrix_omp::ParseMatrixIntoVec(a);
   in_b = kolodkin_g_multiplication_matrix_omp::ParseMatrixIntoVec(b);
   in.reserve(in_a.size() + in_b.size());
