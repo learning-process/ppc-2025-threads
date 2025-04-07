@@ -40,19 +40,20 @@ bool TestTaskSTL::PreProcessingImpl() {
 bool TestTaskSTL::RunImpl() {
   const size_t d = integrationBounds_.size() / 2;  // dimensions
 
-  const int numThreads = ppc::util::GetPPCNumThreads();
-  // printf("%d\n", numThreads);
-  std::vector<std::thread> threads(numThreads);
-  std::vector<double> partialSums(numThreads, 0.0);
-  const int chunkSize = iterations_ / numThreads;
-  const int remainder = iterations_ % numThreads;
+  const int num_threads = ppc::util::GetPPCNumThreads();
+  // printf("%d\n", num_threads);
+  std::vector<std::thread> threads(num_threads);
+  std::vector<double> partial_sums(num_threads, 0.0);
+  const int chunk_size = iterations_ / num_threads;
+  const int remainder = iterations_ % num_threads;
 
   // init random numbers generator
   std::vector<std::mt19937> generators;
   std::random_device rd;
   std::seed_seq seed{rd(), static_cast<unsigned int>(std::time(nullptr))};
-  std::vector<std::mt19937::result_type> seeds(numThreads);
+  std::vector<std::mt19937::result_type> seeds(num_threads);
   seed.generate(seeds.begin(), seeds.end());
+  generators.reserve(seeds.size());
   for (auto& s : seeds) {
     generators.emplace_back(s);
   }
@@ -78,13 +79,13 @@ bool TestTaskSTL::RunImpl() {
       local_sum += integrand_(point);
     }
 
-    partialSums[thread_id] = local_sum;
+    partial_sums[thread_id] = local_sum;
   };
 
   // create and run threads
   int start = 0;
-  for (int tid = 0; tid < numThreads; ++tid) {
-    const int end = start + chunkSize + (tid < remainder ? 1 : 0);
+  for (int tid = 0; tid < num_threads; ++tid) {
+    const int end = start + chunk_size + (tid < remainder ? 1 : 0);
     threads[tid] = std::thread(thread_task, tid, start, end);
     start = end;
   }
@@ -94,7 +95,7 @@ bool TestTaskSTL::RunImpl() {
     t.join();
   }
 
-  double total_sum = std::accumulate(partialSums.begin(), partialSums.end(), 0.0);
+  double total_sum = std::accumulate(partial_sums.begin(), partial_sums.end(), 0.0);
 
   result_ = (total_sum / iterations_) * volume;
 
