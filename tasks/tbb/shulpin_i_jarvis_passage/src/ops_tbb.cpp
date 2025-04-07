@@ -1,13 +1,13 @@
 #include "tbb/shulpin_i_jarvis_passage/include/ops_tbb.hpp"
 
-#include <tbb/parallel_reduce.h>
+#include <oneapi/tbb/concurrent_unordered_set.h>
+#include <oneapi/tbb/parallel_reduce.h>
 
 #include <algorithm>
 #include <cmath>
 #include <cstddef>
 #include <cstdint>
 #include <cstring>
-#include <string>
 #include <utility>
 #include <vector>
 

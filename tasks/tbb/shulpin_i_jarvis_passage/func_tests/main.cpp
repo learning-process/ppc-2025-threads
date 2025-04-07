@@ -2,12 +2,10 @@
 
 #include <cmath>
 #include <cstddef>
-#include <cstdint>
-#include <memory>
-#include <random>
+#include <numeric>
 #include <vector>
 
-#include "core/task/include/task.hpp"
+#include "tbb/shulpin_i_jarvis_passage/include/ops_tbb.hpp"
 #include "tbb/shulpin_i_jarvis_passage/include/test_modules.hpp"
 
 namespace {
