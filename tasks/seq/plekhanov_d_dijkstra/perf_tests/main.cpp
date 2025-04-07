@@ -55,6 +55,7 @@ TEST(plekhanov_d_dijkstra_seq, test_pipeline_run) {
   constexpr size_t kNumVertices = 3000;
   size_t start_vertex = 0;
 
+  srand(static_cast<unsigned int>(time(nullptr)));
   std::vector<std::vector<std::pair<size_t, int>>> adj_list(kNumVertices);
   for (size_t i = 0; i < kNumVertices; ++i) {
     for (size_t j = 0; j < kNumVertices; ++j) {
@@ -112,6 +113,7 @@ TEST(plekhanov_d_dijkstra_seq, test_task_run) {
   constexpr size_t kNumVertices = 3000;
   size_t start_vertex = 0;
 
+  srand(static_cast<unsigned int>(time(nullptr)));
   std::vector<std::vector<std::pair<size_t, int>>> adj_list(kNumVertices);
   for (size_t i = 0; i < kNumVertices; ++i) {
     for (size_t j = 0; j < kNumVertices; ++j) {
