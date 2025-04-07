@@ -1,9 +1,10 @@
 #pragma once
 
+#include <tbb/parallel_for.h>
+
 #include <cmath>
 #include <utility>
 #include <vector>
-#include <tbb/parallel_for.h>
 
 #include "core/task/include/task.hpp"
 
@@ -52,11 +53,11 @@ inline std::vector<double> ConjugateGradientMethod(std::vector<double>& a, std::
   auto direction = std::vector<double>(size);
 
   tbb::parallel_for(tbb::blocked_range<int>(0, size), 
-                   [&residual, &b, &matrix_times_solution](const tbb::blocked_range<int>& r) {
-                     for (int i = r.begin(); i != r.end(); ++i) {
-                       residual[i] = b[i] - matrix_times_solution[i];
-                     }
-                   });
+                    [&residual, &b, &matrix_times_solution](const tbb::blocked_range<int>& r) {
+                      for (int i = r.begin(); i != r.end(); ++i) {
+                        residual[i] = b[i] - matrix_times_solution[i];
+                      }
+                    });
 
   double residual_norm_squared = Dot(residual);
   if (std::sqrt(residual_norm_squared) < tolerance) {
@@ -71,29 +72,29 @@ inline std::vector<double> ConjugateGradientMethod(std::vector<double>& a, std::
     double alpha = residual_norm_squared / direction_dot_matrix_times_direction;
 
     tbb::parallel_for(tbb::blocked_range<int>(0, size), 
-                     [&solution, &alpha, &direction](const tbb::blocked_range<int>& r) {
-                       for (int i = r.begin(); i != r.end(); ++i) {
-                         solution[i] += alpha * direction[i];
-                       }
-                     });
+                      [&solution, &alpha, &direction](const tbb::blocked_range<int>& r) {
+                        for (int i = r.begin(); i != r.end(); ++i) {
+                          solution[i] += alpha * direction[i];
+                        }
+                      });
 
     tbb::parallel_for(tbb::blocked_range<int>(0, size), 
-                     [&residual, &alpha, &matrix_times_direction](const tbb::blocked_range<int>& r) {
-                       for (int i = r.begin(); i != r.end(); ++i) {
-                         residual[i] -= alpha * matrix_times_direction[i];
-                       }
-                     });
+                      [&residual, &alpha, &matrix_times_direction](const tbb::blocked_range<int>& r) {
+                        for (int i = r.begin(); i != r.end(); ++i) {
+                          residual[i] -= alpha * matrix_times_direction[i];
+                        }
+                      });
 
     double new_residual_norm_squared = Dot(residual);
     double beta = new_residual_norm_squared / residual_norm_squared;
     residual_norm_squared = new_residual_norm_squared;
 
     tbb::parallel_for(tbb::blocked_range<int>(0, size), 
-                     [&direction, &residual, &beta](const tbb::blocked_range<int>& r) {
-                       for (int i = r.begin(); i != r.end(); ++i) {
-                         direction[i] = residual[i] + beta * direction[i];
-                       }
-                     });
+                      [&direction, &residual, &beta](const tbb::blocked_range<int>& r) {
+                        for (int i = r.begin(); i != r.end(); ++i) {
+                          direction[i] = residual[i] + beta * direction[i];
+                        }
+                      });
   }
 
   return solution;
