@@ -6,6 +6,7 @@
 #include <cstddef>
 #include <iterator>
 #include <random>
+#include <ranges>
 #include <span>
 #include <thread>
 #include <vector>
@@ -70,7 +71,7 @@ std::vector<BlockRange> TestTaskSTL::PartitionBlocks(std::vector<int>& arr, int 
   int chunk_size = n / p;
   int remainder = n % p;
   auto it = arr.begin();
-  for (int i = 0; i < p; i++) {
+  for (int i : std::views::iota(0, p)) {
     int size = chunk_size + (i < remainder ? 1 : 0);
     blocks.push_back({it, it + size});
     it += size;
@@ -89,7 +90,7 @@ void TestTaskSTL::OddEvenMerge(std::vector<BlockRange>& blocks) {
     max_block_len = std::max(max_block_len, static_cast<int>(std::distance(b.low, b.high)));
   }
   int buffer_size = max_block_len * 2;
-  for (int iter = 0; iter < max_iters; iter++) {
+  for (int iter : std::views::iota(0, max_iters)) {
     std::atomic<bool> changed_global(false);
     std::vector<std::thread> threads;
     for (int b = iter % 2; b < p; b += 2) {
@@ -137,12 +138,10 @@ bool TestTaskSTL::RunImpl() {
   auto blocks = PartitionBlocks(input_, tasks);
   std::vector<std::thread> threads;
   threads.reserve(tasks);
-  for (int i = 0; i < tasks; i++) {
+  std::ranges::for_each(std::views::iota(0, tasks), [&](int i) {
     threads.emplace_back([i, &blocks]() { QuickSort(blocks[i].low, blocks[i].high, 0); });
-  }
-  for (auto& t : threads) {
-    t.join();
-  }
+  });
+  std::ranges::for_each(threads, [](std::thread& t) { t.join(); });
   OddEvenMerge(blocks);
   return true;
 }
