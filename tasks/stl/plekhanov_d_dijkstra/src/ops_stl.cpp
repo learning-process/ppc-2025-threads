@@ -51,74 +51,74 @@ bool plekhanov_d_dijkstra_stl::TestTaskSTL::RunImpl() {  // NOLINT
       break;
     }
 
-    size_t dest = graph_data_[i];
+    int dest = graph_data_[i];
     int weight = graph_data_[i + 1];
-    if (weight < 0) {
+    if (weight < 0 || dest >= static_cast<int>(num_vertices_)) {
       return false;
     }
 
-    if (dest < num_vertices_) {
-      graph[current_vertex].emplace_back(static_cast<int>(dest), weight);
-    }
+    graph[current_vertex].emplace_back(dest, weight);
     i += 2;
   }
 
-  std::vector<bool> visited(num_vertices_, false);
-  distances_[start_vertex_] = 0;
+  struct Compare {
+    bool operator()(const std::pair<int, int>& a, const std::pair<int, int>& b) { return a.first > b.first; }
+  };
 
-  size_t num_threads = std::min(static_cast<size_t>(ppc::util::GetPPCNumThreads()),
-                                static_cast<size_t>(std::thread::hardware_concurrency()));
+  std::vector<std::atomic<int>> distance(num_vertices_);
+  for (auto& d : distance) d.store(INT_MAX);
+  distance[start_vertex_] = 0;
 
-  auto find_min_vertex_parallel = [&](int& min_vertex) {
-    std::mutex mutex;
-    int local_min_dist = INT_MAX;
-    min_vertex = -1;
+  std::priority_queue<std::pair<int, int>, std::vector<std::pair<int, int>>, Compare> pq;
+  pq.emplace(0, start_vertex_);
 
-    size_t chunk_size = (num_vertices_ + num_threads - 1) / num_threads;
-    std::vector<std::thread> threads;
+  std::mutex pq_mutex;
+  const int num_threads = ppc::util::GetPPCNumThreads();
+                                   
+  std::vector<std::thread> threads;
 
-    for (size_t t = 0; t < num_threads; ++t) {
-      size_t start = t * chunk_size;
-      size_t end = std::min(start + chunk_size, num_vertices_);
+  auto worker = [&]() {
+    while (true) {
+      int u = -1, cur_dist = -1;
 
-      threads.emplace_back([&, start, end]() {
-        int thread_min = -1;
-        int thread_min_dist = INT_MAX;
+      {
+        std::lock_guard<std::mutex> lock(pq_mutex);
+        if (!pq.empty()) {
+          auto top = pq.top();
+          pq.pop();
+          u = top.second;
+          cur_dist = top.first;
+        } else {
+          break;
+        }
+      }
 
-        for (size_t i = start; i < end; ++i) {
-          if (!visited[i] && distances_[i] < thread_min_dist) {
-            thread_min = static_cast<int>(i);
-            thread_min_dist = distances_[i];
-          }
+      for (const auto& [v, weight] : graph[u]) {
+        int new_dist = cur_dist + weight;
+        int old_val = distance[v].load();
+
+        while (new_dist < old_val && !distance[v].compare_exchange_weak(old_val, new_dist)) {
         }
 
-        if (thread_min != -1) {
-          std::lock_guard<std::mutex> lock(mutex);
-          if (thread_min_dist < local_min_dist) {
-            local_min_dist = thread_min_dist;
-            min_vertex = thread_min;
-          }
+        if (new_dist < old_val) {
+          std::lock_guard<std::mutex> lock(pq_mutex);
+          pq.emplace(new_dist, v);
         }
-      });
-    }
-
-    for (auto& thread : threads) {
-      thread.join();
+      }
     }
   };
 
-  for (size_t count = 0; count < num_vertices_; ++count) {
-    int u;
-    find_min_vertex_parallel(u);
-    if (u == -1 || distances_[u] == INT_MAX) break;
+  for (int t = 0; t < num_threads; ++t) {
+    threads.emplace_back(worker);
+  }
 
-    visited[u] = true;
+  for (auto& thread : threads) {
+    thread.join();
+  }
 
-    for (const auto& [v, weight] : graph[u]) {
-      if (!visited[v] && distances_[u] + weight < distances_[v]) {
-        distances_[v] = distances_[u] + weight;
-      }
-    }
+  distances_.resize(num_vertices_);
+  for (size_t k = 0; k < num_vertices_; ++k) {
+    distances_[k] = distance[k].load();
   }
 
   return true;
