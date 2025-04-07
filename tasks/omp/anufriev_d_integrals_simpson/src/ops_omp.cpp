@@ -1,9 +1,10 @@
 #include "omp/anufriev_d_integrals_simpson/include/ops_omp.hpp"
 
+#include <omp.h>
+
 #include <cmath>
 #include <cstddef>
 #include <vector>
-#include <omp.h>
 
 namespace {
 
@@ -46,7 +47,7 @@ double IntegralsSimpsonOmp::FunctionN(const std::vector<double>& coords) const {
 }
 
 double IntegralsSimpsonOmp::RecursiveSimpsonSum(int dim_index, std::vector<int>& idx,
-                                                       const std::vector<double>& steps) const {
+                                                const std::vector<double>& steps) const {
   if (dim_index == dimension_) {
     double coeff = 1.0;
     std::vector<double> coords(dimension_);
@@ -66,7 +67,7 @@ double IntegralsSimpsonOmp::RecursiveSimpsonSum(int dim_index, std::vector<int>&
 
 bool IntegralsSimpsonOmp::PreProcessingImpl() {
   if (task_data->inputs.empty() || task_data->inputs[0] == nullptr) {
-      return false;
+    return false;
   }
 
   auto* in_ptr = reinterpret_cast<double*>(task_data->inputs[0]);
@@ -113,13 +114,14 @@ bool IntegralsSimpsonOmp::PreProcessingImpl() {
 
 bool IntegralsSimpsonOmp::ValidationImpl() {
   if (task_data->outputs.empty() || task_data->outputs[0] == nullptr) {
-      return false;
+    return false;
   }
   if (task_data->outputs_count.empty() || task_data->outputs_count[0] < sizeof(double)) {
     return false;
   }
-  if (task_data->inputs.empty() || task_data->inputs[0] == nullptr || task_data->inputs_count.empty() || task_data->inputs_count[0] == 0) {
-      return false;
+  if (task_data->inputs.empty() || task_data->inputs[0] == nullptr || task_data->inputs_count.empty() ||
+      task_data->inputs_count[0] == 0) {
+    return false;
   }
   return true;
 }
@@ -132,11 +134,11 @@ bool IntegralsSimpsonOmp::RunImpl() {
 
   double total_sum = 0.0;
 
-  #pragma omp parallel
+#pragma omp parallel
   {
     std::vector<int> idx(dimension_);
 
-    #pragma omp for reduction(+:total_sum)
+#pragma omp for reduction(+:total_sum)
     for (int i0 = 0; i0 <= n_[0]; ++i0) {
       idx[0] = i0;
 
