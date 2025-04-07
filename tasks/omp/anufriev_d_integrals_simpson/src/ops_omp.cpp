@@ -143,7 +143,7 @@ bool IntegralsSimpsonOmp::RunImpl() {
 
       if (dimension_ == 1) {
         double coeff = SimpsonCoeff(idx[0], n_[0]);
-        std::vector<double> coords = {a_[0] + idx[0] * steps[0]};
+        std::vector<double> coords = {a_[0] + (idx[0] * steps[0])};
         total_sum += coeff * FunctionN(coords);
       } else {
         total_sum += RecursiveSimpsonSum(1, idx, steps);
