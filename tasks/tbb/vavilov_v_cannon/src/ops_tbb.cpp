@@ -65,9 +65,9 @@ void vavilov_v_cannon_tbb::CannonTBB::InitialShift() {
             for (int i = 0; i < block_size_ && (bi * block_size_ + i) < N_; ++i) {
               for (int j = 0; j < block_size_ && (bj * block_size_ + j) < N_; ++j) {
                 B_[(bi * block_size_ + i) * N_ + (bj * block_size_ + j)] =
-                  b_tmp[(src_row * block_size_ + i) * N_ + (bj * block_size_ + j)];
+                    b_tmp[(src_row * block_size_ + i) * N_ + (bj * block_size_ + j)];
                 A_[(bi * block_size_ + i) * N_ + (bj * block_size_ + j)] =
-                  a_tmp[(bi * block_size_ + i) * N_ + (src_col * block_size_ + j)];
+                    a_tmp[(bi * block_size_ + i) * N_ + (src_col * block_size_ + j)];
               }
             }
           }
@@ -155,9 +155,9 @@ void vavilov_v_cannon_tbb::CannonTBB::ShiftBlocks() {
             for (int i = 0; i < block_size_ && (bi * block_size_ + i) < N_; ++i) {
               for (int j = 0; j < block_size_ && (bj * block_size_ + j) < N_; ++j) {
                 B_[(bi * block_size_ + i) * N_ + (bj * block_size_ + j)] =
-                  b_tmp[(src_row * block_size_ + i) * N_ + (bj * block_size_ + j)];
+                    b_tmp[(src_row * block_size_ + i) * N_ + (bj * block_size_ + j)];
                 A_[(bi * block_size_ + i) * N_ + (bj * block_size_ + j)] =
-                  a_tmp[(bi * block_size_ + i) * N_ + (src_col * block_size_ + j)];
+                    a_tmp[(bi * block_size_ + i) * N_ + (src_col * block_size_ + j)];
               }
             }
           }
