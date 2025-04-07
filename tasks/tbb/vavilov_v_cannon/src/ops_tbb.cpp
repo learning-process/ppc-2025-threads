@@ -278,8 +278,8 @@ bool vavilov_v_cannon_tbb::CannonTBB::RunImpl() {
           }
         },
         oneapi::tbb::auto_partitioner());
-    });
-    return true;
+  });
+  return true;
 }
 
 bool vavilov_v_cannon_tbb::CannonTBB::PostProcessingImpl() {
