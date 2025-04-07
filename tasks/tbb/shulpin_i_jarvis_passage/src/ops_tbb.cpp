@@ -128,7 +128,7 @@ void shulpin_i_jarvis_tbb::JarvisTBBParallel::MakeJarvisPassageTBB(
 
   } while (active != start);
 
-  output_jar = hull; 
+  output_jar = hull;
 }
 
 bool shulpin_i_jarvis_tbb::JarvisTBBParallel::PreProcessingImpl() {
