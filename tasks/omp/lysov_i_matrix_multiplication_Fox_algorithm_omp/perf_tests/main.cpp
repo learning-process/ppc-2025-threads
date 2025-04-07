@@ -25,6 +25,19 @@ std::vector<double> GetRandomMatrix(size_t size, int min_gen_value, int max_gen_
   }
   return matrix;
 }
+void TrivialMatrixMultiplication(const std::vector<double> &matrix_a, const std::vector<double> &matrix_b,
+                                 std::vector<double> &result_matrix, size_t matrix_size) {
+  for (size_t row = 0; row < matrix_size; ++row) {
+    for (size_t col = 0; col < matrix_size; ++col) {
+      result_matrix[(row * matrix_size) + col] = 0.0;
+      for (size_t k = 0; k < matrix_size; ++k) {
+        result_matrix[(row * matrix_size) + col] +=
+            matrix_a[(row * matrix_size) + k] * matrix_b[(k * matrix_size) + col];
+      }
+      result_matrix[(row * matrix_size) + col] = round(result_matrix[(row * matrix_size) + col] * 10000) / 10000;
+    }
+  }
+}
 }  // namespace lysov_i_matrix_multiplication_fox_algorithm_omp
 
 TEST(lysov_i_matrix_multiplication_Fox_algorithm_omp, test_pipeline_run) {
@@ -38,6 +51,8 @@ TEST(lysov_i_matrix_multiplication_Fox_algorithm_omp, test_pipeline_run) {
   std::vector<double> b =
       lysov_i_matrix_multiplication_fox_algorithm_omp::GetRandomMatrix(n, min_gen_value, max_gen_value);
   std::vector<double> c(n * n, 0);
+  std::vector<double> c_expected(n * n, 0);
+  lysov_i_matrix_multiplication_fox_algorithm_omp::TrivialMatrixMultiplication(a, b, c_expected, n);
   std::shared_ptr<ppc::core::TaskData> task_data_omp = std::make_shared<ppc::core::TaskData>();
   task_data_omp->inputs.emplace_back(reinterpret_cast<uint8_t *>(&n));
   task_data_omp->inputs.emplace_back(reinterpret_cast<uint8_t *>(a.data()));
@@ -48,6 +63,8 @@ TEST(lysov_i_matrix_multiplication_Fox_algorithm_omp, test_pipeline_run) {
   task_data_omp->inputs_count.emplace_back(n * n);
   task_data_omp->inputs_count.emplace_back(1);
   task_data_omp->outputs_count.emplace_back(n * n);
+  ;
+  lysov_i_matrix_multiplication_fox_algorithm_omp::TestTaskOpenMP matrix_multiplication(task_data_omp);
 
   // Create Task
   auto test_task_sequential =
@@ -70,6 +87,9 @@ TEST(lysov_i_matrix_multiplication_Fox_algorithm_omp, test_pipeline_run) {
   auto perf_analyzer = std::make_shared<ppc::core::Perf>(test_task_sequential);
   perf_analyzer->PipelineRun(perf_attr, perf_results);
   ppc::core::Perf::PrintPerfStatistic(perf_results);
+  for (size_t i = 0; i < n * n; i++) {
+    EXPECT_NEAR(c_expected[i], c[i], 1e-3);
+  }
 }
 
 TEST(lysov_i_matrix_multiplication_Fox_algorithm_omp, test_task_run) {
@@ -82,7 +102,8 @@ TEST(lysov_i_matrix_multiplication_Fox_algorithm_omp, test_task_run) {
   std::vector<double> b =
       lysov_i_matrix_multiplication_fox_algorithm_omp::GetRandomMatrix(n, min_gen_value, max_gen_value);
   std::vector<double> c(n * n, 0);
-
+  std::vector<double> c_expected(n * n, 0);
+  lysov_i_matrix_multiplication_fox_algorithm_omp::TrivialMatrixMultiplication(a, b, c_expected, n);
   std::shared_ptr<ppc::core::TaskData> task_data_omp = std::make_shared<ppc::core::TaskData>();
   task_data_omp->inputs.emplace_back(reinterpret_cast<uint8_t *>(&n));
   task_data_omp->inputs.emplace_back(reinterpret_cast<uint8_t *>(a.data()));
@@ -115,4 +136,7 @@ TEST(lysov_i_matrix_multiplication_Fox_algorithm_omp, test_task_run) {
   auto perf_analyzer = std::make_shared<ppc::core::Perf>(test_task_sequential);
   perf_analyzer->TaskRun(perf_attr, perf_results);
   ppc::core::Perf::PrintPerfStatistic(perf_results);
+  for (size_t i = 0; i < n * n; i++) {
+    EXPECT_NEAR(c_expected[i], c[i], 1e-3);
+  }
 }

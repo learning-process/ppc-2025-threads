@@ -43,6 +43,7 @@ bool lysov_i_matrix_multiplication_fox_algorithm_omp::TestTaskOpenMP::PreProcess
   block_size_ = reinterpret_cast<std::size_t *>(task_data->inputs[3])[0];
   a_.resize(n_ * n_);
   b_.resize(n_ * n_);
+  c_.clear();
   c_.resize(n_ * n_, 0.0);
   std::copy(reinterpret_cast<double *>(task_data->inputs[1]),
             reinterpret_cast<double *>(task_data->inputs[1]) + (n_ * n_), a_.begin());
