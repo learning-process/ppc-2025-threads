@@ -6,7 +6,6 @@
 #include <cstddef>
 #include <vector>
 
-
 double fomin_v_conjugate_gradient::FominVConjugateGradientOmp::DotProduct(const std::vector<double>& a,
                                                                           const std::vector<double>& b) {
   double result = 0.0;
