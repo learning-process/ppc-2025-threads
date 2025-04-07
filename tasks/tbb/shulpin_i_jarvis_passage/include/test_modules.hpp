@@ -10,7 +10,7 @@
 #include "core/task/include/task.hpp"
 #include "tbb/shulpin_i_jarvis_passage/include/ops_tbb.hpp"
 
-namespace {
+namespace shulpin_tbb_test_module {
 void VerifyResults(const std::vector<shulpin_i_jarvis_tbb::Point> &expected,
                    const std::vector<shulpin_i_jarvis_tbb::Point> &result_seq,
                    const std::vector<shulpin_i_jarvis_tbb::Point> &result_tbb) {
@@ -56,6 +56,19 @@ void VerifyResults(const std::vector<shulpin_i_jarvis_tbb::Point> &expected,
   tbb_task.PostProcessing();
 
   VerifyResults(expected, result_seq, result_tbb);
+}
+
+std::vector<shulpin_i_jarvis_tbb::Point> GeneratePointsInCircle(size_t num_points,
+                                                                const shulpin_i_jarvis_tbb::Point &center,
+                                                                double radius) {
+  std::vector<shulpin_i_jarvis_tbb::Point> points;
+  for (size_t i = 0; i < num_points; ++i) {
+    double angle = 2.0 * std::numbers::pi * static_cast<double>(i) / static_cast<double>(num_points);
+    double x = center.x + (radius * std::cos(angle));
+    double y = center.y + (radius * std::sin(angle));
+    points.emplace_back(x, y);
+  }
+  return points;
 }
 
 inline size_t CalculateIndex(size_t i, size_t tmp) { return (i < tmp) ? (i + tmp) : (i - tmp); }
@@ -196,6 +209,21 @@ void VerifyResultsRandom(const std::vector<shulpin_i_jarvis_tbb::Point> &expecte
   }
 }
 
+std::vector<shulpin_i_jarvis_tbb::Point> GenerateRandomPoints(size_t num_points) {
+  std::vector<shulpin_i_jarvis_tbb::Point> points;
+  std::random_device rd;
+  std::mt19937 gen(rd());
+  std::uniform_int_distribution<int> dist(-10000, 10000);
+
+  for (size_t i = 0; i < num_points; ++i) {
+    double x = dist(gen);
+    double y = dist(gen);
+    points.emplace_back(x, y);
+  }
+
+  return points;
+}
+
 [[maybe_unused]] void RandomTestBody(std::vector<shulpin_i_jarvis_tbb::Point> &input,
                                      std::vector<shulpin_i_jarvis_tbb::Point> &expected) {
   std::vector<shulpin_i_jarvis_tbb::Point> result_tbb(expected.size());
@@ -216,4 +244,4 @@ void VerifyResultsRandom(const std::vector<shulpin_i_jarvis_tbb::Point> &expecte
 
   VerifyResultsRandom(expected, result_tbb);
 }
-}  // namespace
+}  // namespace shulpin_tbb_test_module
