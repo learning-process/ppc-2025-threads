@@ -15,13 +15,11 @@ class TestTaskOpenmp : public ppc::core::Task {
   bool RunImpl() override;
   bool PostProcessingImpl() override;
 
-  void ShellSort();
-  static void BatcherMerge(std::vector<int>& left, std::vector<int>& right, std::vector<int>& result);
-
  private:
   std::vector<int> input_, output_;
 
-  
+  void ShellSort();
+  static void BatcherMerge(std::vector<int>& left, std::vector<int>& right, std::vector<int>& result);
 };
 
 }  // namespace fyodorov_m_shell_sort_with_even_odd_batcher_merge_omp
