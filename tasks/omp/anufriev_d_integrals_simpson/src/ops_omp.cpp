@@ -111,7 +111,6 @@ bool IntegralsSimpsonOmp::PreProcessingImpl() {
   return true;
 }
 
-
 bool IntegralsSimpsonOmp::ValidationImpl() {
   if (task_data->outputs.empty() || task_data->outputs[0] == nullptr) {
     return false;
@@ -138,7 +137,7 @@ bool IntegralsSimpsonOmp::RunImpl() {
   {
     std::vector<int> idx(dimension_);
 
-#pragma omp for reduction(+:total_sum)
+#pragma omp for reduction(+ : total_sum)
     for (int i0 = 0; i0 <= n_[0]; ++i0) {
       idx[0] = i0;
 
