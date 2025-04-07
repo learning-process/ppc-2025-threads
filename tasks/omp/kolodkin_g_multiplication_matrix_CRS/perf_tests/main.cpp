@@ -11,7 +11,7 @@
 #include "core/task/include/task.hpp"
 #include "omp/kolodkin_g_multiplication_matrix_CRS/include/ops_omp.hpp"
 
-namespace gen_matrix {
+namespace {
 static kolodkin_g_multiplication_matrix_omp::SparseMatrixCRS GenMatrix(
     unsigned int num_rows, unsigned int num_cols, unsigned int left_border_row, unsigned int right_border_row,
     unsigned int left_border_col, unsigned int right_border_col, int min_value, int max_value);
@@ -30,7 +30,7 @@ static kolodkin_g_multiplication_matrix_omp::SparseMatrixCRS GenMatrix(
   }
   return a;
 }
-}  // namespace gen_matrix
+}  // namespace
 TEST(kolodkin_g_multiplication_matrix__task_omp, test_pipeline_run) {
   srand(time(nullptr));
   kolodkin_g_multiplication_matrix_omp::SparseMatrixCRS a(400, 400);
@@ -40,8 +40,8 @@ TEST(kolodkin_g_multiplication_matrix__task_omp, test_pipeline_run) {
   std::vector<Complex> in_b;
   std::vector<Complex> out(a.numCols * b.numRows * 100, 0);
 
-  a = gen_matrix::GenMatrix(400, 400, 0, 150, 0, 150, -100, 100);
-  b = gen_matrix::GenMatrix(400, 400, 50, 140, 50, 150, -100, 100);
+  a = ::GenMatrix(400, 400, 0, 150, 0, 150, -100, 100);
+  b = ::GenMatrix(400, 400, 50, 140, 50, 150, -100, 100);
   in_a = kolodkin_g_multiplication_matrix_omp::ParseMatrixIntoVec(a);
   in_b = kolodkin_g_multiplication_matrix_omp::ParseMatrixIntoVec(b);
   in.reserve(in_a.size() + in_b.size());
@@ -92,8 +92,8 @@ TEST(kolodkin_g_multiplication_matrix__task_omp, test_task_run) {
   std::vector<Complex> in_b;
   std::vector<Complex> out(a.numCols * b.numRows * 100, 0);
 
-  a = gen_matrix::GenMatrix(400, 400, 0, 150, 0, 150, -100, 100);
-  b = gen_matrix::GenMatrix(400, 400, 50, 140, 50, 150, -100, 100);
+  a = ::GenMatrix(400, 400, 0, 150, 0, 150, -100, 100);
+  b = ::GenMatrix(400, 400, 50, 140, 50, 150, -100, 100);
   in_a = kolodkin_g_multiplication_matrix_omp::ParseMatrixIntoVec(a);
   in_b = kolodkin_g_multiplication_matrix_omp::ParseMatrixIntoVec(b);
   in.reserve(in_a.size() + in_b.size());
