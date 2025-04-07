@@ -6,6 +6,7 @@
 #include <cstddef>
 #include <cstdlib>
 #include <mutex>
+#include <queue>
 #include <thread>
 #include <utility>
 #include <vector>
@@ -63,11 +64,7 @@ bool plekhanov_d_dijkstra_stl::TestTaskSTL::RunImpl() {  // NOLINT
   }
 
   std::vector<bool> visited(num_vertices_, false);
-  std::vector<std::atomic<int>> distances_atomic(num_vertices_);
-  for (auto& d : distances_atomic) {
-    d.store(INT_MAX);
-  }
-  distances_atomic[start_vertex_] = 0;
+  distances_[start_vertex_] = 0;
 
   size_t num_threads = std::min(static_cast<size_t>(ppc::util::GetPPCNumThreads()),
                                 static_cast<size_t>(std::thread::hardware_concurrency()));
@@ -89,12 +86,9 @@ bool plekhanov_d_dijkstra_stl::TestTaskSTL::RunImpl() {  // NOLINT
         int thread_min_dist = INT_MAX;
 
         for (size_t i = start; i < end; ++i) {
-          if (!visited[i]) {
-            int d = distances_atomic[i].load();
-            if (d < thread_min_dist) {
-              thread_min_dist = d;
-              thread_min = static_cast<int>(i);
-            }
+          if (!visited[i] && distances_[i] < thread_min_dist) {
+            thread_min = static_cast<int>(i);
+            thread_min_dist = distances_[i];
           }
         }
 
@@ -114,47 +108,17 @@ bool plekhanov_d_dijkstra_stl::TestTaskSTL::RunImpl() {  // NOLINT
   };
 
   for (size_t count = 0; count < num_vertices_; ++count) {
-    int u = -1;
+    int u;
     find_min_vertex_parallel(u);
-    if (u == -1 || distances_atomic[u] == INT_MAX) {
-      break;
-    }
+    if (u == -1 || distances_[u] == INT_MAX) break;
 
     visited[u] = true;
 
-    const auto& neighbors = graph[u];
-    size_t edge_count = neighbors.size();
-    size_t chunk_size = (edge_count + num_threads - 1) / num_threads;
-
-    std::vector<std::thread> threads;
-
-    for (size_t t = 0; t < num_threads; ++t) {
-      size_t start = t * chunk_size;
-      size_t end = std::min(start + chunk_size, edge_count);
-
-      threads.emplace_back([&, start, end]() {
-        for (size_t i = start; i < end; ++i) {
-          int v = neighbors[i].first;
-          int weight = neighbors[i].second;
-
-          int cur_dist = distances_atomic[u].load();
-          int new_dist = cur_dist + weight;
-
-          int old_val = distances_atomic[v].load();
-          while (new_dist < old_val && !distances_atomic[v].compare_exchange_weak(old_val, new_dist)) {
-          }
-        }
-      });
+    for (const auto& [v, weight] : graph[u]) {
+      if (!visited[v] && distances_[u] + weight < distances_[v]) {
+        distances_[v] = distances_[u] + weight;
+      }
     }
-
-    for (auto& thread : threads) {
-      thread.join();
-    }
-  }
-
-  distances_.resize(num_vertices_);
-  for (size_t k = 0; k < num_vertices_; ++k) {
-    distances_[k] = distances_atomic[k].load();
   }
 
   return true;
