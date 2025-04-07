@@ -80,7 +80,7 @@ void VerifyResultsCircle(const std::vector<shulpin_i_jarvis_tbb::Point> &expecte
 }
 
 [[maybe_unused]] void TestBodyRandomCircle(std::vector<shulpin_i_jarvis_tbb::Point> &input,
-                          std::vector<shulpin_i_jarvis_tbb::Point> &expected, size_t &num_points) {
+                                           std::vector<shulpin_i_jarvis_tbb::Point> &expected, size_t &num_points) {
   std::vector<shulpin_i_jarvis_tbb::Point> result_seq(expected.size());
   std::vector<shulpin_i_jarvis_tbb::Point> result_tbb(expected.size());
 
@@ -116,7 +116,7 @@ void VerifyResultsCircle(const std::vector<shulpin_i_jarvis_tbb::Point> &expecte
 }
 
 [[maybe_unused]] void TestBodyFalse(std::vector<shulpin_i_jarvis_tbb::Point> &input,
-                   std::vector<shulpin_i_jarvis_tbb::Point> &expected) {
+                                    std::vector<shulpin_i_jarvis_tbb::Point> &expected) {
   std::vector<shulpin_i_jarvis_tbb::Point> result_tbb(expected.size());
 
   auto task_data_par = std::make_shared<ppc::core::TaskData>();
@@ -197,7 +197,7 @@ void VerifyResultsRandom(const std::vector<shulpin_i_jarvis_tbb::Point> &expecte
 }
 
 [[maybe_unused]] void RandomTestBody(std::vector<shulpin_i_jarvis_tbb::Point> &input,
-                    std::vector<shulpin_i_jarvis_tbb::Point> &expected) {
+                                     std::vector<shulpin_i_jarvis_tbb::Point> &expected) {
   std::vector<shulpin_i_jarvis_tbb::Point> result_tbb(expected.size());
 
   auto task_data_par = std::make_shared<ppc::core::TaskData>();
