@@ -15,6 +15,10 @@ class TestTaskOpenmp : public ppc::core::Task {
   bool RunImpl() override;
   bool PostProcessingImpl() override;
 
+  void CallBatcherMerge(std::vector<int>& left, std::vector<int>& right, std::vector<int>& result) {
+    BatcherMerge(left, right, result);
+  }
+
  private:
   std::vector<int> input_, output_;
 
