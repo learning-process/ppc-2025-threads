@@ -15,6 +15,10 @@ namespace gen_matrix {
 kolodkin_g_multiplication_matrix_omp::SparseMatrixCRS GenMatrix(unsigned int NumRows, unsigned int NumCols,
                                                                 unsigned int LeftBorderRow, unsigned int RightBorderRow,
                                                                 unsigned int LeftBorderCol, unsigned int RightBorderCol,
+                                                                int MinValue, int MaxValue);
+kolodkin_g_multiplication_matrix_omp::SparseMatrixCRS GenMatrix(unsigned int NumRows, unsigned int NumCols,
+                                                                unsigned int LeftBorderRow, unsigned int RightBorderRow,
+                                                                unsigned int LeftBorderCol, unsigned int RightBorderCol,
                                                                 int MinValue, int MaxValue) {
   if (LeftBorderRow > RightBorderRow || LeftBorderCol > RightBorderCol || RightBorderRow > NumRows ||
       RightBorderCol > NumCols || MinValue > MaxValue) {
