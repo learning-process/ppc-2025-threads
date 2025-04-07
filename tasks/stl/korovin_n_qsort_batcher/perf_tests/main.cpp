@@ -1,5 +1,6 @@
 #include <gtest/gtest.h>
 
+#include <algorithm>
 #include <chrono>
 #include <cstdint>
 #include <memory>
@@ -38,6 +39,7 @@ TEST(korovin_n_qsort_batcher_stl, test_pipeline_run) {
   auto perf_analyzer = std::make_shared<ppc::core::Perf>(test_task_stl);
   perf_analyzer->PipelineRun(perf_attr, perf_results);
   ppc::core::Perf::PrintPerfStatistic(perf_results);
+  ASSERT_TRUE(std::ranges::is_sorted(out.begin(), out.end()));
 }
 
 TEST(korovin_n_qsort_batcher_stl, test_task_run) {
@@ -68,4 +70,5 @@ TEST(korovin_n_qsort_batcher_stl, test_task_run) {
   auto perf_analyzer = std::make_shared<ppc::core::Perf>(test_task_stl);
   perf_analyzer->TaskRun(perf_attr, perf_results);
   ppc::core::Perf::PrintPerfStatistic(perf_results);
+  ASSERT_TRUE(std::ranges::is_sorted(out.begin(), out.end()));
 }
