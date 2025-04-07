@@ -1533,3 +1533,978 @@ TEST(volochaev_s_Shell_sort_with_Batchers_even_odd_merge_stl, test_with_len_Mers
   test_task_sequential.PostProcessing();
   EXPECT_EQ(answer, out);
 }
+
+TEST(volochaev_s_Shell_sort_with_Batchers_even_odd_merge_stl, test_with_len_Lucas_1) {
+  constexpr size_t kSizeOfVector = 1;
+
+  // Create data
+  std::vector<int> in(kSizeOfVector, 0);
+  GetRandomVector(in, -100, 100);
+  std::vector<int> out(kSizeOfVector, 0);
+  std::vector<int> answer(in);
+  std::ranges::sort(answer);
+  // Create task_data
+  auto task_data_seq = std::make_shared<ppc::core::TaskData>();
+  task_data_seq->inputs.emplace_back(reinterpret_cast<uint8_t *>(in.data()));
+  task_data_seq->inputs_count.emplace_back(in.size());
+  task_data_seq->outputs.emplace_back(reinterpret_cast<uint8_t *>(out.data()));
+  task_data_seq->outputs_count.emplace_back(out.size());
+
+  // Create Task
+  volochaev_s_shell_sort_with_batchers_even_odd_merge_stl::ShellSortSTL test_task_sequential(task_data_seq);
+  ASSERT_EQ(test_task_sequential.Validation(), true);
+  test_task_sequential.PreProcessing();
+  test_task_sequential.Run();
+  test_task_sequential.PostProcessing();
+  EXPECT_EQ(answer, out);
+}
+
+TEST(volochaev_s_Shell_sort_with_Batchers_even_odd_merge_stl, test_with_len_Lucas_2) {
+  constexpr size_t kSizeOfVector = 2;
+
+  // Create data
+  std::vector<int> in(kSizeOfVector, 0);
+  GetRandomVector(in, -100, 100);
+  std::vector<int> out(kSizeOfVector, 0);
+  std::vector<int> answer(in);
+  std::ranges::sort(answer);
+  // Create task_data
+  auto task_data_seq = std::make_shared<ppc::core::TaskData>();
+  task_data_seq->inputs.emplace_back(reinterpret_cast<uint8_t *>(in.data()));
+  task_data_seq->inputs_count.emplace_back(in.size());
+  task_data_seq->outputs.emplace_back(reinterpret_cast<uint8_t *>(out.data()));
+  task_data_seq->outputs_count.emplace_back(out.size());
+
+  // Create Task
+  volochaev_s_shell_sort_with_batchers_even_odd_merge_stl::ShellSortSTL test_task_sequential(task_data_seq);
+  ASSERT_EQ(test_task_sequential.Validation(), true);
+  test_task_sequential.PreProcessing();
+  test_task_sequential.Run();
+  test_task_sequential.PostProcessing();
+  EXPECT_EQ(answer, out);
+}
+
+TEST(volochaev_s_Shell_sort_with_Batchers_even_odd_merge_stl, test_with_len_Lucas_3) {
+  constexpr size_t kSizeOfVector = 3;
+
+  // Create data
+  std::vector<int> in(kSizeOfVector, 0);
+  GetRandomVector(in, -100, 100);
+  std::vector<int> out(kSizeOfVector, 0);
+  std::vector<int> answer(in);
+  std::ranges::sort(answer);
+  // Create task_data
+  auto task_data_seq = std::make_shared<ppc::core::TaskData>();
+  task_data_seq->inputs.emplace_back(reinterpret_cast<uint8_t *>(in.data()));
+  task_data_seq->inputs_count.emplace_back(in.size());
+  task_data_seq->outputs.emplace_back(reinterpret_cast<uint8_t *>(out.data()));
+  task_data_seq->outputs_count.emplace_back(out.size());
+
+  // Create Task
+  volochaev_s_shell_sort_with_batchers_even_odd_merge_stl::ShellSortSTL test_task_sequential(task_data_seq);
+  ASSERT_EQ(test_task_sequential.Validation(), true);
+  test_task_sequential.PreProcessing();
+  test_task_sequential.Run();
+  test_task_sequential.PostProcessing();
+  EXPECT_EQ(answer, out);
+}
+
+TEST(volochaev_s_Shell_sort_with_Batchers_even_odd_merge_stl, test_with_len_Lucas_4) {
+  constexpr size_t kSizeOfVector = 4;
+
+  // Create data
+  std::vector<int> in(kSizeOfVector, 0);
+  GetRandomVector(in, -100, 100);
+  std::vector<int> out(kSizeOfVector, 0);
+  std::vector<int> answer(in);
+  std::ranges::sort(answer);
+  // Create task_data
+  auto task_data_seq = std::make_shared<ppc::core::TaskData>();
+  task_data_seq->inputs.emplace_back(reinterpret_cast<uint8_t *>(in.data()));
+  task_data_seq->inputs_count.emplace_back(in.size());
+  task_data_seq->outputs.emplace_back(reinterpret_cast<uint8_t *>(out.data()));
+  task_data_seq->outputs_count.emplace_back(out.size());
+
+  // Create Task
+  volochaev_s_shell_sort_with_batchers_even_odd_merge_stl::ShellSortSTL test_task_sequential(task_data_seq);
+  ASSERT_EQ(test_task_sequential.Validation(), true);
+  test_task_sequential.PreProcessing();
+  test_task_sequential.Run();
+  test_task_sequential.PostProcessing();
+  EXPECT_EQ(answer, out);
+}
+
+TEST(volochaev_s_Shell_sort_with_Batchers_even_odd_merge_stl, test_with_len_Lucas_5) {
+  constexpr size_t kSizeOfVector = 7;
+
+  // Create data
+  std::vector<int> in(kSizeOfVector, 0);
+  GetRandomVector(in, -100, 100);
+  std::vector<int> out(kSizeOfVector, 0);
+  std::vector<int> answer(in);
+  std::ranges::sort(answer);
+  // Create task_data
+  auto task_data_seq = std::make_shared<ppc::core::TaskData>();
+  task_data_seq->inputs.emplace_back(reinterpret_cast<uint8_t *>(in.data()));
+  task_data_seq->inputs_count.emplace_back(in.size());
+  task_data_seq->outputs.emplace_back(reinterpret_cast<uint8_t *>(out.data()));
+  task_data_seq->outputs_count.emplace_back(out.size());
+
+  // Create Task
+  volochaev_s_shell_sort_with_batchers_even_odd_merge_stl::ShellSortSTL test_task_sequential(task_data_seq);
+  ASSERT_EQ(test_task_sequential.Validation(), true);
+  test_task_sequential.PreProcessing();
+  test_task_sequential.Run();
+  test_task_sequential.PostProcessing();
+  EXPECT_EQ(answer, out);
+}
+
+TEST(volochaev_s_Shell_sort_with_Batchers_even_odd_merge_stl, test_with_len_Lucas_6) {
+  constexpr size_t kSizeOfVector = 11;
+
+  // Create data
+  std::vector<int> in(kSizeOfVector, 0);
+  GetRandomVector(in, -100, 100);
+  std::vector<int> out(kSizeOfVector, 0);
+  std::vector<int> answer(in);
+  std::ranges::sort(answer);
+  // Create task_data
+  auto task_data_seq = std::make_shared<ppc::core::TaskData>();
+  task_data_seq->inputs.emplace_back(reinterpret_cast<uint8_t *>(in.data()));
+  task_data_seq->inputs_count.emplace_back(in.size());
+  task_data_seq->outputs.emplace_back(reinterpret_cast<uint8_t *>(out.data()));
+  task_data_seq->outputs_count.emplace_back(out.size());
+
+  // Create Task
+  volochaev_s_shell_sort_with_batchers_even_odd_merge_stl::ShellSortSTL test_task_sequential(task_data_seq);
+  ASSERT_EQ(test_task_sequential.Validation(), true);
+  test_task_sequential.PreProcessing();
+  test_task_sequential.Run();
+  test_task_sequential.PostProcessing();
+  EXPECT_EQ(answer, out);
+}
+
+TEST(volochaev_s_Shell_sort_with_Batchers_even_odd_merge_stl, test_with_len_Lucas_7) {
+  constexpr size_t kSizeOfVector = 18;
+
+  // Create data
+  std::vector<int> in(kSizeOfVector, 0);
+  GetRandomVector(in, -100, 100);
+  std::vector<int> out(kSizeOfVector, 0);
+  std::vector<int> answer(in);
+  std::ranges::sort(answer);
+  // Create task_data
+  auto task_data_seq = std::make_shared<ppc::core::TaskData>();
+  task_data_seq->inputs.emplace_back(reinterpret_cast<uint8_t *>(in.data()));
+  task_data_seq->inputs_count.emplace_back(in.size());
+  task_data_seq->outputs.emplace_back(reinterpret_cast<uint8_t *>(out.data()));
+  task_data_seq->outputs_count.emplace_back(out.size());
+
+  // Create Task
+  volochaev_s_shell_sort_with_batchers_even_odd_merge_stl::ShellSortSTL test_task_sequential(task_data_seq);
+  ASSERT_EQ(test_task_sequential.Validation(), true);
+  test_task_sequential.PreProcessing();
+  test_task_sequential.Run();
+  test_task_sequential.PostProcessing();
+  EXPECT_EQ(answer, out);
+}
+
+TEST(volochaev_s_Shell_sort_with_Batchers_even_odd_merge_stl, test_with_len_Lucas_8) {
+  constexpr size_t kSizeOfVector = 29;
+
+  // Create data
+  std::vector<int> in(kSizeOfVector, 0);
+  GetRandomVector(in, -100, 100);
+  std::vector<int> out(kSizeOfVector, 0);
+  std::vector<int> answer(in);
+  std::ranges::sort(answer);
+  // Create task_data
+  auto task_data_seq = std::make_shared<ppc::core::TaskData>();
+  task_data_seq->inputs.emplace_back(reinterpret_cast<uint8_t *>(in.data()));
+  task_data_seq->inputs_count.emplace_back(in.size());
+  task_data_seq->outputs.emplace_back(reinterpret_cast<uint8_t *>(out.data()));
+  task_data_seq->outputs_count.emplace_back(out.size());
+
+  // Create Task
+  volochaev_s_shell_sort_with_batchers_even_odd_merge_stl::ShellSortSTL test_task_sequential(task_data_seq);
+  ASSERT_EQ(test_task_sequential.Validation(), true);
+  test_task_sequential.PreProcessing();
+  test_task_sequential.Run();
+  test_task_sequential.PostProcessing();
+  EXPECT_EQ(answer, out);
+}
+
+TEST(volochaev_s_Shell_sort_with_Batchers_even_odd_merge_stl, test_with_len_Lucas_9) {
+  constexpr size_t kSizeOfVector = 47;
+
+  // Create data
+  std::vector<int> in(kSizeOfVector, 0);
+  GetRandomVector(in, -100, 100);
+  std::vector<int> out(kSizeOfVector, 0);
+  std::vector<int> answer(in);
+  std::ranges::sort(answer);
+  // Create task_data
+  auto task_data_seq = std::make_shared<ppc::core::TaskData>();
+  task_data_seq->inputs.emplace_back(reinterpret_cast<uint8_t *>(in.data()));
+  task_data_seq->inputs_count.emplace_back(in.size());
+  task_data_seq->outputs.emplace_back(reinterpret_cast<uint8_t *>(out.data()));
+  task_data_seq->outputs_count.emplace_back(out.size());
+
+  // Create Task
+  volochaev_s_shell_sort_with_batchers_even_odd_merge_stl::ShellSortSTL test_task_sequential(task_data_seq);
+  ASSERT_EQ(test_task_sequential.Validation(), true);
+  test_task_sequential.PreProcessing();
+  test_task_sequential.Run();
+  test_task_sequential.PostProcessing();
+  EXPECT_EQ(answer, out);
+}
+
+TEST(volochaev_s_Shell_sort_with_Batchers_even_odd_merge_stl, test_with_len_Lucas_10) {
+  constexpr size_t kSizeOfVector = 76;
+
+  // Create data
+  std::vector<int> in(kSizeOfVector, 0);
+  GetRandomVector(in, -100, 100);
+  std::vector<int> out(kSizeOfVector, 0);
+  std::vector<int> answer(in);
+  std::ranges::sort(answer);
+  // Create task_data
+  auto task_data_seq = std::make_shared<ppc::core::TaskData>();
+  task_data_seq->inputs.emplace_back(reinterpret_cast<uint8_t *>(in.data()));
+  task_data_seq->inputs_count.emplace_back(in.size());
+  task_data_seq->outputs.emplace_back(reinterpret_cast<uint8_t *>(out.data()));
+  task_data_seq->outputs_count.emplace_back(out.size());
+
+  // Create Task
+  volochaev_s_shell_sort_with_batchers_even_odd_merge_stl::ShellSortSTL test_task_sequential(task_data_seq);
+  ASSERT_EQ(test_task_sequential.Validation(), true);
+  test_task_sequential.PreProcessing();
+  test_task_sequential.Run();
+  test_task_sequential.PostProcessing();
+  EXPECT_EQ(answer, out);
+}
+
+TEST(volochaev_s_Shell_sort_with_Batchers_even_odd_merge_stl, test_with_len_Lucas_11) {
+  constexpr size_t kSizeOfVector = 123;
+
+  // Create data
+  std::vector<int> in(kSizeOfVector, 0);
+  GetRandomVector(in, -100, 100);
+  std::vector<int> out(kSizeOfVector, 0);
+  std::vector<int> answer(in);
+  std::ranges::sort(answer);
+  // Create task_data
+  auto task_data_seq = std::make_shared<ppc::core::TaskData>();
+  task_data_seq->inputs.emplace_back(reinterpret_cast<uint8_t *>(in.data()));
+  task_data_seq->inputs_count.emplace_back(in.size());
+  task_data_seq->outputs.emplace_back(reinterpret_cast<uint8_t *>(out.data()));
+  task_data_seq->outputs_count.emplace_back(out.size());
+
+  // Create Task
+  volochaev_s_shell_sort_with_batchers_even_odd_merge_stl::ShellSortSTL test_task_sequential(task_data_seq);
+  ASSERT_EQ(test_task_sequential.Validation(), true);
+  test_task_sequential.PreProcessing();
+  test_task_sequential.Run();
+  test_task_sequential.PostProcessing();
+  EXPECT_EQ(answer, out);
+}
+
+TEST(volochaev_s_Shell_sort_with_Batchers_even_odd_merge_stl, test_with_len_Lucas_12) {
+  constexpr size_t kSizeOfVector = 199;
+
+  // Create data
+  std::vector<int> in(kSizeOfVector, 0);
+  GetRandomVector(in, -100, 100);
+  std::vector<int> out(kSizeOfVector, 0);
+  std::vector<int> answer(in);
+  std::ranges::sort(answer);
+  // Create task_data
+  auto task_data_seq = std::make_shared<ppc::core::TaskData>();
+  task_data_seq->inputs.emplace_back(reinterpret_cast<uint8_t *>(in.data()));
+  task_data_seq->inputs_count.emplace_back(in.size());
+  task_data_seq->outputs.emplace_back(reinterpret_cast<uint8_t *>(out.data()));
+  task_data_seq->outputs_count.emplace_back(out.size());
+
+  // Create Task
+  volochaev_s_shell_sort_with_batchers_even_odd_merge_stl::ShellSortSTL test_task_sequential(task_data_seq);
+  ASSERT_EQ(test_task_sequential.Validation(), true);
+  test_task_sequential.PreProcessing();
+  test_task_sequential.Run();
+  test_task_sequential.PostProcessing();
+  EXPECT_EQ(answer, out);
+}
+
+TEST(volochaev_s_Shell_sort_with_Batchers_even_odd_merge_stl, test_with_len_Lucas_13) {
+  constexpr size_t kSizeOfVector = 322;
+
+  // Create data
+  std::vector<int> in(kSizeOfVector, 0);
+  GetRandomVector(in, -100, 100);
+  std::vector<int> out(kSizeOfVector, 0);
+  std::vector<int> answer(in);
+  std::ranges::sort(answer);
+  // Create task_data
+  auto task_data_seq = std::make_shared<ppc::core::TaskData>();
+  task_data_seq->inputs.emplace_back(reinterpret_cast<uint8_t *>(in.data()));
+  task_data_seq->inputs_count.emplace_back(in.size());
+  task_data_seq->outputs.emplace_back(reinterpret_cast<uint8_t *>(out.data()));
+  task_data_seq->outputs_count.emplace_back(out.size());
+
+  // Create Task
+  volochaev_s_shell_sort_with_batchers_even_odd_merge_stl::ShellSortSTL test_task_sequential(task_data_seq);
+  ASSERT_EQ(test_task_sequential.Validation(), true);
+  test_task_sequential.PreProcessing();
+  test_task_sequential.Run();
+  test_task_sequential.PostProcessing();
+  EXPECT_EQ(answer, out);
+}
+
+TEST(volochaev_s_Shell_sort_with_Batchers_even_odd_merge_stl, test_with_len_Ramanujan_1) {
+  constexpr size_t kSizeOfVector = 1729;
+
+  // Create data
+  std::vector<int> in(kSizeOfVector, 0);
+  GetRandomVector(in, -100, 100);
+  std::vector<int> out(kSizeOfVector, 0);
+  std::vector<int> answer(in);
+  std::ranges::sort(answer);
+  // Create task_data
+  auto task_data_seq = std::make_shared<ppc::core::TaskData>();
+  task_data_seq->inputs.emplace_back(reinterpret_cast<uint8_t *>(in.data()));
+  task_data_seq->inputs_count.emplace_back(in.size());
+  task_data_seq->outputs.emplace_back(reinterpret_cast<uint8_t *>(out.data()));
+  task_data_seq->outputs_count.emplace_back(out.size());
+
+  // Create Task
+  volochaev_s_shell_sort_with_batchers_even_odd_merge_stl::ShellSortSTL test_task_sequential(task_data_seq);
+  ASSERT_EQ(test_task_sequential.Validation(), true);
+  test_task_sequential.PreProcessing();
+  test_task_sequential.Run();
+  test_task_sequential.PostProcessing();
+  EXPECT_EQ(answer, out);
+}
+
+TEST(volochaev_s_Shell_sort_with_Batchers_even_odd_merge_stl, test_with_len_Ramanujan_2) {
+  constexpr size_t kSizeOfVector = 4104;
+
+  // Create data
+  std::vector<int> in(kSizeOfVector, 0);
+  GetRandomVector(in, -100, 100);
+  std::vector<int> out(kSizeOfVector, 0);
+  std::vector<int> answer(in);
+  std::ranges::sort(answer);
+  // Create task_data
+  auto task_data_seq = std::make_shared<ppc::core::TaskData>();
+  task_data_seq->inputs.emplace_back(reinterpret_cast<uint8_t *>(in.data()));
+  task_data_seq->inputs_count.emplace_back(in.size());
+  task_data_seq->outputs.emplace_back(reinterpret_cast<uint8_t *>(out.data()));
+  task_data_seq->outputs_count.emplace_back(out.size());
+
+  // Create Task
+  volochaev_s_shell_sort_with_batchers_even_odd_merge_stl::ShellSortSTL test_task_sequential(task_data_seq);
+  ASSERT_EQ(test_task_sequential.Validation(), true);
+  test_task_sequential.PreProcessing();
+  test_task_sequential.Run();
+  test_task_sequential.PostProcessing();
+  EXPECT_EQ(answer, out);
+}
+
+TEST(volochaev_s_Shell_sort_with_Batchers_even_odd_merge_stl, test_with_len_Ramanujan_3) {
+  constexpr size_t kSizeOfVector = 13832;
+
+  // Create data
+  std::vector<int> in(kSizeOfVector, 0);
+  GetRandomVector(in, -100, 100);
+  std::vector<int> out(kSizeOfVector, 0);
+  std::vector<int> answer(in);
+  std::ranges::sort(answer);
+  // Create task_data
+  auto task_data_seq = std::make_shared<ppc::core::TaskData>();
+  task_data_seq->inputs.emplace_back(reinterpret_cast<uint8_t *>(in.data()));
+  task_data_seq->inputs_count.emplace_back(in.size());
+  task_data_seq->outputs.emplace_back(reinterpret_cast<uint8_t *>(out.data()));
+  task_data_seq->outputs_count.emplace_back(out.size());
+
+  // Create Task
+  volochaev_s_shell_sort_with_batchers_even_odd_merge_stl::ShellSortSTL test_task_sequential(task_data_seq);
+  ASSERT_EQ(test_task_sequential.Validation(), true);
+  test_task_sequential.PreProcessing();
+  test_task_sequential.Run();
+  test_task_sequential.PostProcessing();
+  EXPECT_EQ(answer, out);
+}
+
+TEST(volochaev_s_Shell_sort_with_Batchers_even_odd_merge_stl, test_with_len_Ramanujan_4) {
+  constexpr size_t kSizeOfVector = 20683;
+
+  // Create data
+  std::vector<int> in(kSizeOfVector, 0);
+  GetRandomVector(in, -100, 100);
+  std::vector<int> out(kSizeOfVector, 0);
+  std::vector<int> answer(in);
+  std::ranges::sort(answer);
+  // Create task_data
+  auto task_data_seq = std::make_shared<ppc::core::TaskData>();
+  task_data_seq->inputs.emplace_back(reinterpret_cast<uint8_t *>(in.data()));
+  task_data_seq->inputs_count.emplace_back(in.size());
+  task_data_seq->outputs.emplace_back(reinterpret_cast<uint8_t *>(out.data()));
+  task_data_seq->outputs_count.emplace_back(out.size());
+
+  // Create Task
+  volochaev_s_shell_sort_with_batchers_even_odd_merge_stl::ShellSortSTL test_task_sequential(task_data_seq);
+  ASSERT_EQ(test_task_sequential.Validation(), true);
+  test_task_sequential.PreProcessing();
+  test_task_sequential.Run();
+  test_task_sequential.PostProcessing();
+  EXPECT_EQ(answer, out);
+}
+
+TEST(volochaev_s_Shell_sort_with_Batchers_even_odd_merge_stl, test_with_len_Ramanujan_5) {
+  constexpr size_t kSizeOfVector = 32832;
+
+  // Create data
+  std::vector<int> in(kSizeOfVector, 0);
+  GetRandomVector(in, -100, 100);
+  std::vector<int> out(kSizeOfVector, 0);
+  std::vector<int> answer(in);
+  std::ranges::sort(answer);
+  // Create task_data
+  auto task_data_seq = std::make_shared<ppc::core::TaskData>();
+  task_data_seq->inputs.emplace_back(reinterpret_cast<uint8_t *>(in.data()));
+  task_data_seq->inputs_count.emplace_back(in.size());
+  task_data_seq->outputs.emplace_back(reinterpret_cast<uint8_t *>(out.data()));
+  task_data_seq->outputs_count.emplace_back(out.size());
+
+  // Create Task
+  volochaev_s_shell_sort_with_batchers_even_odd_merge_stl::ShellSortSTL test_task_sequential(task_data_seq);
+  ASSERT_EQ(test_task_sequential.Validation(), true);
+  test_task_sequential.PreProcessing();
+  test_task_sequential.Run();
+  test_task_sequential.PostProcessing();
+  EXPECT_EQ(answer, out);
+}
+
+TEST(volochaev_s_Shell_sort_with_Batchers_even_odd_merge_stl, test_with_len_Ramanujan_6) {
+  constexpr size_t kSizeOfVector = 39312;
+
+  // Create data
+  std::vector<int> in(kSizeOfVector, 0);
+  GetRandomVector(in, -100, 100);
+  std::vector<int> out(kSizeOfVector, 0);
+  std::vector<int> answer(in);
+  std::ranges::sort(answer);
+  // Create task_data
+  auto task_data_seq = std::make_shared<ppc::core::TaskData>();
+  task_data_seq->inputs.emplace_back(reinterpret_cast<uint8_t *>(in.data()));
+  task_data_seq->inputs_count.emplace_back(in.size());
+  task_data_seq->outputs.emplace_back(reinterpret_cast<uint8_t *>(out.data()));
+  task_data_seq->outputs_count.emplace_back(out.size());
+
+  // Create Task
+  volochaev_s_shell_sort_with_batchers_even_odd_merge_stl::ShellSortSTL test_task_sequential(task_data_seq);
+  ASSERT_EQ(test_task_sequential.Validation(), true);
+  test_task_sequential.PreProcessing();
+  test_task_sequential.Run();
+  test_task_sequential.PostProcessing();
+  EXPECT_EQ(answer, out);
+}
+
+TEST(volochaev_s_Shell_sort_with_Batchers_even_odd_merge_stl, test_with_len_Ramanujan_7) {
+  constexpr size_t kSizeOfVector = 40033;
+
+  // Create data
+  std::vector<int> in(kSizeOfVector, 0);
+  GetRandomVector(in, -100, 100);
+  std::vector<int> out(kSizeOfVector, 0);
+  std::vector<int> answer(in);
+  std::ranges::sort(answer);
+  // Create task_data
+  auto task_data_seq = std::make_shared<ppc::core::TaskData>();
+  task_data_seq->inputs.emplace_back(reinterpret_cast<uint8_t *>(in.data()));
+  task_data_seq->inputs_count.emplace_back(in.size());
+  task_data_seq->outputs.emplace_back(reinterpret_cast<uint8_t *>(out.data()));
+  task_data_seq->outputs_count.emplace_back(out.size());
+
+  // Create Task
+  volochaev_s_shell_sort_with_batchers_even_odd_merge_stl::ShellSortSTL test_task_sequential(task_data_seq);
+  ASSERT_EQ(test_task_sequential.Validation(), true);
+  test_task_sequential.PreProcessing();
+  test_task_sequential.Run();
+  test_task_sequential.PostProcessing();
+  EXPECT_EQ(answer, out);
+}
+
+TEST(volochaev_s_Shell_sort_with_Batchers_even_odd_merge_stl, test_with_len_Ramanujan_8) {
+  constexpr size_t kSizeOfVector = 46683;
+
+  // Create data
+  std::vector<int> in(kSizeOfVector, 0);
+  GetRandomVector(in, -100, 100);
+  std::vector<int> out(kSizeOfVector, 0);
+  std::vector<int> answer(in);
+  std::ranges::sort(answer);
+  // Create task_data
+  auto task_data_seq = std::make_shared<ppc::core::TaskData>();
+  task_data_seq->inputs.emplace_back(reinterpret_cast<uint8_t *>(in.data()));
+  task_data_seq->inputs_count.emplace_back(in.size());
+  task_data_seq->outputs.emplace_back(reinterpret_cast<uint8_t *>(out.data()));
+  task_data_seq->outputs_count.emplace_back(out.size());
+
+  // Create Task
+  volochaev_s_shell_sort_with_batchers_even_odd_merge_stl::ShellSortSTL test_task_sequential(task_data_seq);
+  ASSERT_EQ(test_task_sequential.Validation(), true);
+  test_task_sequential.PreProcessing();
+  test_task_sequential.Run();
+  test_task_sequential.PostProcessing();
+  EXPECT_EQ(answer, out);
+}
+
+TEST(volochaev_s_Shell_sort_with_Batchers_even_odd_merge_stl, test_with_len_Ramanujan_9) {
+  constexpr size_t kSizeOfVector = 64232;
+
+  // Create data
+  std::vector<int> in(kSizeOfVector, 0);
+  GetRandomVector(in, -100, 100);
+  std::vector<int> out(kSizeOfVector, 0);
+  std::vector<int> answer(in);
+  std::ranges::sort(answer);
+  // Create task_data
+  auto task_data_seq = std::make_shared<ppc::core::TaskData>();
+  task_data_seq->inputs.emplace_back(reinterpret_cast<uint8_t *>(in.data()));
+  task_data_seq->inputs_count.emplace_back(in.size());
+  task_data_seq->outputs.emplace_back(reinterpret_cast<uint8_t *>(out.data()));
+  task_data_seq->outputs_count.emplace_back(out.size());
+
+  // Create Task
+  volochaev_s_shell_sort_with_batchers_even_odd_merge_stl::ShellSortSTL test_task_sequential(task_data_seq);
+  ASSERT_EQ(test_task_sequential.Validation(), true);
+  test_task_sequential.PreProcessing();
+  test_task_sequential.Run();
+  test_task_sequential.PostProcessing();
+  EXPECT_EQ(answer, out);
+}
+
+TEST(volochaev_s_Shell_sort_with_Batchers_even_odd_merge_stl, test_with_len_Ramanujan_10) {
+  constexpr size_t kSizeOfVector = 65728;
+
+  // Create data
+  std::vector<int> in(kSizeOfVector, 0);
+  GetRandomVector(in, -100, 100);
+  std::vector<int> out(kSizeOfVector, 0);
+  std::vector<int> answer(in);
+  std::ranges::sort(answer);
+  // Create task_data
+  auto task_data_seq = std::make_shared<ppc::core::TaskData>();
+  task_data_seq->inputs.emplace_back(reinterpret_cast<uint8_t *>(in.data()));
+  task_data_seq->inputs_count.emplace_back(in.size());
+  task_data_seq->outputs.emplace_back(reinterpret_cast<uint8_t *>(out.data()));
+  task_data_seq->outputs_count.emplace_back(out.size());
+
+  // Create Task
+  volochaev_s_shell_sort_with_batchers_even_odd_merge_stl::ShellSortSTL test_task_sequential(task_data_seq);
+  ASSERT_EQ(test_task_sequential.Validation(), true);
+  test_task_sequential.PreProcessing();
+  test_task_sequential.Run();
+  test_task_sequential.PostProcessing();
+  EXPECT_EQ(answer, out);
+}
+
+TEST(volochaev_s_Shell_sort_with_Batchers_even_odd_merge_stl, test_with_len_Ramanujan_11) {
+  constexpr size_t kSizeOfVector = 110656;
+
+  // Create data
+  std::vector<int> in(kSizeOfVector, 0);
+  GetRandomVector(in, -100, 100);
+  std::vector<int> out(kSizeOfVector, 0);
+  std::vector<int> answer(in);
+  std::ranges::sort(answer);
+  // Create task_data
+  auto task_data_seq = std::make_shared<ppc::core::TaskData>();
+  task_data_seq->inputs.emplace_back(reinterpret_cast<uint8_t *>(in.data()));
+  task_data_seq->inputs_count.emplace_back(in.size());
+  task_data_seq->outputs.emplace_back(reinterpret_cast<uint8_t *>(out.data()));
+  task_data_seq->outputs_count.emplace_back(out.size());
+
+  // Create Task
+  volochaev_s_shell_sort_with_batchers_even_odd_merge_stl::ShellSortSTL test_task_sequential(task_data_seq);
+  ASSERT_EQ(test_task_sequential.Validation(), true);
+  test_task_sequential.PreProcessing();
+  test_task_sequential.Run();
+  test_task_sequential.PostProcessing();
+  EXPECT_EQ(answer, out);
+}
+
+TEST(volochaev_s_Shell_sort_with_Batchers_even_odd_merge_stl, test_with_len_Ramanujan_12) {
+  constexpr size_t kSizeOfVector = 110808;
+
+  // Create data
+  std::vector<int> in(kSizeOfVector, 0);
+  GetRandomVector(in, -100, 100);
+  std::vector<int> out(kSizeOfVector, 0);
+  std::vector<int> answer(in);
+  std::ranges::sort(answer);
+  // Create task_data
+  auto task_data_seq = std::make_shared<ppc::core::TaskData>();
+  task_data_seq->inputs.emplace_back(reinterpret_cast<uint8_t *>(in.data()));
+  task_data_seq->inputs_count.emplace_back(in.size());
+  task_data_seq->outputs.emplace_back(reinterpret_cast<uint8_t *>(out.data()));
+  task_data_seq->outputs_count.emplace_back(out.size());
+
+  // Create Task
+  volochaev_s_shell_sort_with_batchers_even_odd_merge_stl::ShellSortSTL test_task_sequential(task_data_seq);
+  ASSERT_EQ(test_task_sequential.Validation(), true);
+  test_task_sequential.PreProcessing();
+  test_task_sequential.Run();
+  test_task_sequential.PostProcessing();
+  EXPECT_EQ(answer, out);
+}
+
+TEST(volochaev_s_Shell_sort_with_Batchers_even_odd_merge_stl, test_with_len_Ramanujan_13) {
+  constexpr size_t kSizeOfVector = 134379;
+
+  // Create data
+  std::vector<int> in(kSizeOfVector, 0);
+  GetRandomVector(in, -100, 100);
+  std::vector<int> out(kSizeOfVector, 0);
+  std::vector<int> answer(in);
+  std::ranges::sort(answer);
+  // Create task_data
+  auto task_data_seq = std::make_shared<ppc::core::TaskData>();
+  task_data_seq->inputs.emplace_back(reinterpret_cast<uint8_t *>(in.data()));
+  task_data_seq->inputs_count.emplace_back(in.size());
+  task_data_seq->outputs.emplace_back(reinterpret_cast<uint8_t *>(out.data()));
+  task_data_seq->outputs_count.emplace_back(out.size());
+
+  // Create Task
+  volochaev_s_shell_sort_with_batchers_even_odd_merge_stl::ShellSortSTL test_task_sequential(task_data_seq);
+  ASSERT_EQ(test_task_sequential.Validation(), true);
+  test_task_sequential.PreProcessing();
+  test_task_sequential.Run();
+  test_task_sequential.PostProcessing();
+  EXPECT_EQ(answer, out);
+}
+
+TEST(volochaev_s_Shell_sort_with_Batchers_even_odd_merge_stl, test_with_len_Ramanujan_14) {
+  constexpr size_t kSizeOfVector = 149389;
+
+  // Create data
+  std::vector<int> in(kSizeOfVector, 0);
+  GetRandomVector(in, -100, 100);
+  std::vector<int> out(kSizeOfVector, 0);
+  std::vector<int> answer(in);
+  std::ranges::sort(answer);
+  // Create task_data
+  auto task_data_seq = std::make_shared<ppc::core::TaskData>();
+  task_data_seq->inputs.emplace_back(reinterpret_cast<uint8_t *>(in.data()));
+  task_data_seq->inputs_count.emplace_back(in.size());
+  task_data_seq->outputs.emplace_back(reinterpret_cast<uint8_t *>(out.data()));
+  task_data_seq->outputs_count.emplace_back(out.size());
+
+  // Create Task
+  volochaev_s_shell_sort_with_batchers_even_odd_merge_stl::ShellSortSTL test_task_sequential(task_data_seq);
+  ASSERT_EQ(test_task_sequential.Validation(), true);
+  test_task_sequential.PreProcessing();
+  test_task_sequential.Run();
+  test_task_sequential.PostProcessing();
+  EXPECT_EQ(answer, out);
+}
+
+TEST(volochaev_s_Shell_sort_with_Batchers_even_odd_merge_stl, test_with_len_Ramanujan_15) {
+  constexpr size_t kSizeOfVector = 165464;
+
+  // Create data
+  std::vector<int> in(kSizeOfVector, 0);
+  GetRandomVector(in, -100, 100);
+  std::vector<int> out(kSizeOfVector, 0);
+  std::vector<int> answer(in);
+  std::ranges::sort(answer);
+  // Create task_data
+  auto task_data_seq = std::make_shared<ppc::core::TaskData>();
+  task_data_seq->inputs.emplace_back(reinterpret_cast<uint8_t *>(in.data()));
+  task_data_seq->inputs_count.emplace_back(in.size());
+  task_data_seq->outputs.emplace_back(reinterpret_cast<uint8_t *>(out.data()));
+  task_data_seq->outputs_count.emplace_back(out.size());
+
+  // Create Task
+  volochaev_s_shell_sort_with_batchers_even_odd_merge_stl::ShellSortSTL test_task_sequential(task_data_seq);
+  ASSERT_EQ(test_task_sequential.Validation(), true);
+  test_task_sequential.PreProcessing();
+  test_task_sequential.Run();
+  test_task_sequential.PostProcessing();
+  EXPECT_EQ(answer, out);
+}
+
+TEST(volochaev_s_Shell_sort_with_Batchers_even_odd_merge_stl, test_with_len_Ramanujan_16) {
+  constexpr size_t kSizeOfVector = 171288;
+
+  // Create data
+  std::vector<int> in(kSizeOfVector, 0);
+  GetRandomVector(in, -100, 100);
+  std::vector<int> out(kSizeOfVector, 0);
+  std::vector<int> answer(in);
+  std::ranges::sort(answer);
+  // Create task_data
+  auto task_data_seq = std::make_shared<ppc::core::TaskData>();
+  task_data_seq->inputs.emplace_back(reinterpret_cast<uint8_t *>(in.data()));
+  task_data_seq->inputs_count.emplace_back(in.size());
+  task_data_seq->outputs.emplace_back(reinterpret_cast<uint8_t *>(out.data()));
+  task_data_seq->outputs_count.emplace_back(out.size());
+
+  // Create Task
+  volochaev_s_shell_sort_with_batchers_even_odd_merge_stl::ShellSortSTL test_task_sequential(task_data_seq);
+  ASSERT_EQ(test_task_sequential.Validation(), true);
+  test_task_sequential.PreProcessing();
+  test_task_sequential.Run();
+  test_task_sequential.PostProcessing();
+  EXPECT_EQ(answer, out);
+}
+
+TEST(volochaev_s_Shell_sort_with_Batchers_even_odd_merge_stl, test_with_len_Ramanujan_17) {
+  constexpr size_t kSizeOfVector = 195841;
+
+  // Create data
+  std::vector<int> in(kSizeOfVector, 0);
+  GetRandomVector(in, -100, 100);
+  std::vector<int> out(kSizeOfVector, 0);
+  std::vector<int> answer(in);
+  std::ranges::sort(answer);
+  // Create task_data
+  auto task_data_seq = std::make_shared<ppc::core::TaskData>();
+  task_data_seq->inputs.emplace_back(reinterpret_cast<uint8_t *>(in.data()));
+  task_data_seq->inputs_count.emplace_back(in.size());
+  task_data_seq->outputs.emplace_back(reinterpret_cast<uint8_t *>(out.data()));
+  task_data_seq->outputs_count.emplace_back(out.size());
+
+  // Create Task
+  volochaev_s_shell_sort_with_batchers_even_odd_merge_stl::ShellSortSTL test_task_sequential(task_data_seq);
+  ASSERT_EQ(test_task_sequential.Validation(), true);
+  test_task_sequential.PreProcessing();
+  test_task_sequential.Run();
+  test_task_sequential.PostProcessing();
+  EXPECT_EQ(answer, out);
+}
+
+TEST(volochaev_s_Shell_sort_with_Batchers_even_odd_merge_stl, test_with_len_Ramanujan_18) {
+  constexpr size_t kSizeOfVector = 216027;
+
+  // Create data
+  std::vector<int> in(kSizeOfVector, 0);
+  GetRandomVector(in, -100, 100);
+  std::vector<int> out(kSizeOfVector, 0);
+  std::vector<int> answer(in);
+  std::ranges::sort(answer);
+  // Create task_data
+  auto task_data_seq = std::make_shared<ppc::core::TaskData>();
+  task_data_seq->inputs.emplace_back(reinterpret_cast<uint8_t *>(in.data()));
+  task_data_seq->inputs_count.emplace_back(in.size());
+  task_data_seq->outputs.emplace_back(reinterpret_cast<uint8_t *>(out.data()));
+  task_data_seq->outputs_count.emplace_back(out.size());
+
+  // Create Task
+  volochaev_s_shell_sort_with_batchers_even_odd_merge_stl::ShellSortSTL test_task_sequential(task_data_seq);
+  ASSERT_EQ(test_task_sequential.Validation(), true);
+  test_task_sequential.PreProcessing();
+  test_task_sequential.Run();
+  test_task_sequential.PostProcessing();
+  EXPECT_EQ(answer, out);
+}
+
+TEST(volochaev_s_Shell_sort_with_Batchers_even_odd_merge_stl, test_with_len_Ramanujan_19) {
+  constexpr size_t kSizeOfVector = 216125;
+
+  // Create data
+  std::vector<int> in(kSizeOfVector, 0);
+  GetRandomVector(in, -100, 100);
+  std::vector<int> out(kSizeOfVector, 0);
+  std::vector<int> answer(in);
+  std::ranges::sort(answer);
+  // Create task_data
+  auto task_data_seq = std::make_shared<ppc::core::TaskData>();
+  task_data_seq->inputs.emplace_back(reinterpret_cast<uint8_t *>(in.data()));
+  task_data_seq->inputs_count.emplace_back(in.size());
+  task_data_seq->outputs.emplace_back(reinterpret_cast<uint8_t *>(out.data()));
+  task_data_seq->outputs_count.emplace_back(out.size());
+
+  // Create Task
+  volochaev_s_shell_sort_with_batchers_even_odd_merge_stl::ShellSortSTL test_task_sequential(task_data_seq);
+  ASSERT_EQ(test_task_sequential.Validation(), true);
+  test_task_sequential.PreProcessing();
+  test_task_sequential.Run();
+  test_task_sequential.PostProcessing();
+  EXPECT_EQ(answer, out);
+}
+
+TEST(volochaev_s_Shell_sort_with_Batchers_even_odd_merge_stl, test_with_len_Ramanujan_20) {
+  constexpr size_t kSizeOfVector = 262656;
+
+  // Create data
+  std::vector<int> in(kSizeOfVector, 0);
+  GetRandomVector(in, -100, 100);
+  std::vector<int> out(kSizeOfVector, 0);
+  std::vector<int> answer(in);
+  std::ranges::sort(answer);
+  // Create task_data
+  auto task_data_seq = std::make_shared<ppc::core::TaskData>();
+  task_data_seq->inputs.emplace_back(reinterpret_cast<uint8_t *>(in.data()));
+  task_data_seq->inputs_count.emplace_back(in.size());
+  task_data_seq->outputs.emplace_back(reinterpret_cast<uint8_t *>(out.data()));
+  task_data_seq->outputs_count.emplace_back(out.size());
+
+  // Create Task
+  volochaev_s_shell_sort_with_batchers_even_odd_merge_stl::ShellSortSTL test_task_sequential(task_data_seq);
+  ASSERT_EQ(test_task_sequential.Validation(), true);
+  test_task_sequential.PreProcessing();
+  test_task_sequential.Run();
+  test_task_sequential.PostProcessing();
+  EXPECT_EQ(answer, out);
+}
+
+TEST(volochaev_s_Shell_sort_with_Batchers_even_odd_merge_stl, test_with_len_Ramanujan_21) {
+  constexpr size_t kSizeOfVector = 314496;
+
+  // Create data
+  std::vector<int> in(kSizeOfVector, 0);
+  GetRandomVector(in, -100, 100);
+  std::vector<int> out(kSizeOfVector, 0);
+  std::vector<int> answer(in);
+  std::ranges::sort(answer);
+  // Create task_data
+  auto task_data_seq = std::make_shared<ppc::core::TaskData>();
+  task_data_seq->inputs.emplace_back(reinterpret_cast<uint8_t *>(in.data()));
+  task_data_seq->inputs_count.emplace_back(in.size());
+  task_data_seq->outputs.emplace_back(reinterpret_cast<uint8_t *>(out.data()));
+  task_data_seq->outputs_count.emplace_back(out.size());
+
+  // Create Task
+  volochaev_s_shell_sort_with_batchers_even_odd_merge_stl::ShellSortSTL test_task_sequential(task_data_seq);
+  ASSERT_EQ(test_task_sequential.Validation(), true);
+  test_task_sequential.PreProcessing();
+  test_task_sequential.Run();
+  test_task_sequential.PostProcessing();
+  EXPECT_EQ(answer, out);
+}
+
+TEST(volochaev_s_Shell_sort_with_Batchers_even_odd_merge_stl, test_with_len_Ramanujan_22) {
+  constexpr size_t kSizeOfVector = 320264;
+
+  // Create data
+  std::vector<int> in(kSizeOfVector, 0);
+  GetRandomVector(in, -100, 100);
+  std::vector<int> out(kSizeOfVector, 0);
+  std::vector<int> answer(in);
+  std::ranges::sort(answer);
+  // Create task_data
+  auto task_data_seq = std::make_shared<ppc::core::TaskData>();
+  task_data_seq->inputs.emplace_back(reinterpret_cast<uint8_t *>(in.data()));
+  task_data_seq->inputs_count.emplace_back(in.size());
+  task_data_seq->outputs.emplace_back(reinterpret_cast<uint8_t *>(out.data()));
+  task_data_seq->outputs_count.emplace_back(out.size());
+
+  // Create Task
+  volochaev_s_shell_sort_with_batchers_even_odd_merge_stl::ShellSortSTL test_task_sequential(task_data_seq);
+  ASSERT_EQ(test_task_sequential.Validation(), true);
+  test_task_sequential.PreProcessing();
+  test_task_sequential.Run();
+  test_task_sequential.PostProcessing();
+  EXPECT_EQ(answer, out);
+}
+
+TEST(volochaev_s_Shell_sort_with_Batchers_even_odd_merge_stl, test_with_len_Ramanujan_23) {
+  constexpr size_t kSizeOfVector = 327763;
+
+  // Create data
+  std::vector<int> in(kSizeOfVector, 0);
+  GetRandomVector(in, -100, 100);
+  std::vector<int> out(kSizeOfVector, 0);
+  std::vector<int> answer(in);
+  std::ranges::sort(answer);
+  // Create task_data
+  auto task_data_seq = std::make_shared<ppc::core::TaskData>();
+  task_data_seq->inputs.emplace_back(reinterpret_cast<uint8_t *>(in.data()));
+  task_data_seq->inputs_count.emplace_back(in.size());
+  task_data_seq->outputs.emplace_back(reinterpret_cast<uint8_t *>(out.data()));
+  task_data_seq->outputs_count.emplace_back(out.size());
+
+  // Create Task
+  volochaev_s_shell_sort_with_batchers_even_odd_merge_stl::ShellSortSTL test_task_sequential(task_data_seq);
+  ASSERT_EQ(test_task_sequential.Validation(), true);
+  test_task_sequential.PreProcessing();
+  test_task_sequential.Run();
+  test_task_sequential.PostProcessing();
+  EXPECT_EQ(answer, out);
+}
+
+TEST(volochaev_s_Shell_sort_with_Batchers_even_odd_merge_stl, test_with_len_Carmichael_1) {
+  constexpr size_t kSizeOfVector = 561;
+
+  // Create data
+  std::vector<int> in(kSizeOfVector, 0);
+  GetRandomVector(in, -100, 100);
+  std::vector<int> out(kSizeOfVector, 0);
+  std::vector<int> answer(in);
+  std::ranges::sort(answer);
+  // Create task_data
+  auto task_data_seq = std::make_shared<ppc::core::TaskData>();
+  task_data_seq->inputs.emplace_back(reinterpret_cast<uint8_t *>(in.data()));
+  task_data_seq->inputs_count.emplace_back(in.size());
+  task_data_seq->outputs.emplace_back(reinterpret_cast<uint8_t *>(out.data()));
+  task_data_seq->outputs_count.emplace_back(out.size());
+
+  // Create Task
+  volochaev_s_shell_sort_with_batchers_even_odd_merge_stl::ShellSortSTL test_task_sequential(task_data_seq);
+  ASSERT_EQ(test_task_sequential.Validation(), true);
+  test_task_sequential.PreProcessing();
+  test_task_sequential.Run();
+  test_task_sequential.PostProcessing();
+  EXPECT_EQ(answer, out);
+}
+
+TEST(volochaev_s_Shell_sort_with_Batchers_even_odd_merge_stl, test_with_len_Carmichael_2) {
+  constexpr size_t kSizeOfVector = 41041;
+
+  // Create data
+  std::vector<int> in(kSizeOfVector, 0);
+  GetRandomVector(in, -100, 100);
+  std::vector<int> out(kSizeOfVector, 0);
+  std::vector<int> answer(in);
+  std::ranges::sort(answer);
+  // Create task_data
+  auto task_data_seq = std::make_shared<ppc::core::TaskData>();
+  task_data_seq->inputs.emplace_back(reinterpret_cast<uint8_t *>(in.data()));
+  task_data_seq->inputs_count.emplace_back(in.size());
+  task_data_seq->outputs.emplace_back(reinterpret_cast<uint8_t *>(out.data()));
+  task_data_seq->outputs_count.emplace_back(out.size());
+
+  // Create Task
+  volochaev_s_shell_sort_with_batchers_even_odd_merge_stl::ShellSortSTL test_task_sequential(task_data_seq);
+  ASSERT_EQ(test_task_sequential.Validation(), true);
+  test_task_sequential.PreProcessing();
+  test_task_sequential.Run();
+  test_task_sequential.PostProcessing();
+  EXPECT_EQ(answer, out);
+}
+
+TEST(volochaev_s_Shell_sort_with_Batchers_even_odd_merge_stl, test_with_len_Carmichael_3) {
+  constexpr size_t kSizeOfVector = 825265;
+
+  // Create data
+  std::vector<int> in(kSizeOfVector, 0);
+  GetRandomVector(in, -100, 100);
+  std::vector<int> out(kSizeOfVector, 0);
+  std::vector<int> answer(in);
+  std::ranges::sort(answer);
+  // Create task_data
+  auto task_data_seq = std::make_shared<ppc::core::TaskData>();
+  task_data_seq->inputs.emplace_back(reinterpret_cast<uint8_t *>(in.data()));
+  task_data_seq->inputs_count.emplace_back(in.size());
+  task_data_seq->outputs.emplace_back(reinterpret_cast<uint8_t *>(out.data()));
+  task_data_seq->outputs_count.emplace_back(out.size());
+
+  // Create Task
+  volochaev_s_shell_sort_with_batchers_even_odd_merge_stl::ShellSortSTL test_task_sequential(task_data_seq);
+  ASSERT_EQ(test_task_sequential.Validation(), true);
+  test_task_sequential.PreProcessing();
+  test_task_sequential.Run();
+  test_task_sequential.PostProcessing();
+  EXPECT_EQ(answer, out);
+}

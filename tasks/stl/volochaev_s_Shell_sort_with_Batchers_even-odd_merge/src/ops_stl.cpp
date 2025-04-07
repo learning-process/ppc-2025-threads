@@ -2,10 +2,8 @@
 
 #include <algorithm>
 #include <cmath>
-#include <execution>
 #include <future>
 #include <limits>
-#include <memory>
 #include <ranges>
 #include <thread>
 #include <vector>
