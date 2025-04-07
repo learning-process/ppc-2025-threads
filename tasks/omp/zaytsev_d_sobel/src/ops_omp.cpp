@@ -18,7 +18,10 @@ bool zaytsev_d_sobel_omp::TestTaskOpenMP::PreProcessingImpl() {
 }
 
 bool zaytsev_d_sobel_omp::TestTaskOpenMP::ValidationImpl() {
-  return (task_data->inputs_count[0] == task_data->outputs_count[0]) && (task_data->inputs_count[0] >= 25);
+  auto *size_ptr = reinterpret_cast<int *>(task_data->inputs[1]);
+  int width_ = size_ptr[0];
+  int height_ = size_ptr[1];
+  return (task_data->inputs_count[0] == task_data->outputs_count[0]) && (width_ >= 3) && (height_ >= 3);
 }
 
 bool zaytsev_d_sobel_omp::TestTaskOpenMP::RunImpl() {

@@ -46,9 +46,9 @@ TEST(zaytsev_d_sobel_omp, test_validation_fail_count_in_out) {
 }
 
 TEST(zaytsev_d_sobel_omp, test_validation_fail_small_image) {
-  std::vector<int> in(4, 0);
-  std::vector<int> out(4, 0);
-  std::vector<int> size = {2, 2};
+  std::vector<int> in(10, 0);
+  std::vector<int> out(10, 0);
+  std::vector<int> size = {5, 2};
 
   auto task_data = std::make_shared<ppc::core::TaskData>();
   task_data->inputs.push_back(reinterpret_cast<uint8_t *>(in.data()));
