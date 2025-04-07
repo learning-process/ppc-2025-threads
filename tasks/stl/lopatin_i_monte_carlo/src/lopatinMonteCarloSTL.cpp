@@ -23,7 +23,13 @@ bool TestTaskSTL::ValidationImpl() {
   const int iterations = *iter_ptr;
   const bool iter_valid = iterations > 0;
 
-  return outputs_valid && inputs_valid && iter_valid;
+  bool bounds_valid = true;  // bounds
+  auto* bounds_ptr = reinterpret_cast<double*>(task_data->inputs[0]);
+  if (bounds_ptr[0] >= bounds_ptr[1]) {
+    bounds_valid = false;
+  }
+
+  return outputs_valid && inputs_valid && iter_valid && bounds_valid;
 }
 
 bool TestTaskSTL::PreProcessingImpl() {
@@ -41,7 +47,6 @@ bool TestTaskSTL::RunImpl() {
   const size_t d = integrationBounds_.size() / 2;  // dimensions
 
   const int num_threads = ppc::util::GetPPCNumThreads();
-  // printf("%d\n", num_threads);
   std::vector<std::thread> threads(num_threads);
   std::vector<double> partial_sums(num_threads, 0.0);
   const int chunk_size = iterations_ / num_threads;
