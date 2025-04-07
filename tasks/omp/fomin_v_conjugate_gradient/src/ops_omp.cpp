@@ -10,7 +10,7 @@ double fomin_v_conjugate_gradient::FominVConjugateGradientOmp::DotProduct(const 
                                                                           const std::vector<double>& b) {
   double result = 0.0;
 #pragma omp parallel for reduction(+ : result)  // Параллелим с редукцией
-  for (size_t i = 0; i < a.size(); ++i) {
+  for (int i = 0; i < a.size(); ++i) {
     result += a[i] * b[i];
   }
   return result;
@@ -34,7 +34,7 @@ std::vector<double> fomin_v_conjugate_gradient::FominVConjugateGradientOmp::Vect
                                                                                       const std::vector<double>& b) {
   std::vector<double> result(a.size());
 #pragma omp parallel for  // Параллелим поэлементное сложение
-  for (size_t i = 0; i < a.size(); ++i) {
+  for (int i = 0; i < a.size(); ++i) {
     result[i] = a[i] + b[i];
   }
   return result;
@@ -44,7 +44,7 @@ std::vector<double> fomin_v_conjugate_gradient::FominVConjugateGradientOmp::Vect
                                                                                       const std::vector<double>& b) {
   std::vector<double> result(a.size());
 #pragma omp parallel for  // Параллелим поэлементное вычитание
-  for (size_t i = 0; i < a.size(); ++i) {
+  for (int i = 0; i < a.size(); ++i) {
     result[i] = a[i] - b[i];
   }
   return result;
@@ -54,7 +54,7 @@ std::vector<double> fomin_v_conjugate_gradient::FominVConjugateGradientOmp::Vect
     const std::vector<double>& v, double scalar) {
   std::vector<double> result(v.size());
 #pragma omp parallel for  // Параллелим умножение на скаляр
-  for (size_t i = 0; i < v.size(); ++i) {
+  for (int i = 0; i < v.size(); ++i) {
     result[i] = v[i] * scalar;
   }
   return result;
@@ -118,7 +118,7 @@ bool fomin_v_conjugate_gradient::FominVConjugateGradientOmp::RunImpl() {
 bool fomin_v_conjugate_gradient::FominVConjugateGradientOmp::PostProcessingImpl() {
   auto* out_ptr = reinterpret_cast<double*>(task_data->outputs[0]);
 #pragma omp parallel for  // Параллельное копирование результатов
-  for (size_t i = 0; i < output_.size(); ++i) {
+  for (int i = 0; i < output_.size(); ++i) {
     out_ptr[i] = output_[i];
   }
   return true;
