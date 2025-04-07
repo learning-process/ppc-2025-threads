@@ -2,7 +2,7 @@
 
 #include <cmath>
 #include <cstddef>
-#include <numeric>
+#include <numbers>
 #include <vector>
 
 #include "tbb/shulpin_i_jarvis_passage/include/ops_tbb.hpp"

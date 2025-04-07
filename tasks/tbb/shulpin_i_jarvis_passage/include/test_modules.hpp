@@ -22,7 +22,8 @@ void VerifyResults(const std::vector<shulpin_i_jarvis_tbb::Point> &expected,
   }
 }
 
-void MainTestBody(std::vector<shulpin_i_jarvis_tbb::Point> &input, std::vector<shulpin_i_jarvis_tbb::Point> &expected) {
+[[maybe_unused]] void MainTestBody(std::vector<shulpin_i_jarvis_tbb::Point> &input,
+                                   std::vector<shulpin_i_jarvis_tbb::Point> &expected) {
   std::vector<shulpin_i_jarvis_tbb::Point> result_seq(expected.size());
   std::vector<shulpin_i_jarvis_tbb::Point> result_tbb(expected.size());
 
@@ -57,19 +58,6 @@ void MainTestBody(std::vector<shulpin_i_jarvis_tbb::Point> &input, std::vector<s
   VerifyResults(expected, result_seq, result_tbb);
 }
 
-std::vector<shulpin_i_jarvis_tbb::Point> GeneratePointsInCircle(size_t num_points,
-                                                                const shulpin_i_jarvis_tbb::Point &center,
-                                                                double radius) {
-  std::vector<shulpin_i_jarvis_tbb::Point> points;
-  for (size_t i = 0; i < num_points; ++i) {
-    double angle = 2.0 * std::numbers::pi * static_cast<double>(i) / static_cast<double>(num_points);
-    double x = center.x + (radius * std::cos(angle));
-    double y = center.y + (radius * std::sin(angle));
-    points.emplace_back(x, y);
-  }
-  return points;
-}
-
 inline size_t CalculateIndex(size_t i, size_t tmp) { return (i < tmp) ? (i + tmp) : (i - tmp); }
 
 inline void ExpectEqualPoints(const shulpin_i_jarvis_tbb::Point &expected, const shulpin_i_jarvis_tbb::Point &seq,
@@ -91,7 +79,7 @@ void VerifyResultsCircle(const std::vector<shulpin_i_jarvis_tbb::Point> &expecte
   }
 }
 
-void TestBodyRandomCircle(std::vector<shulpin_i_jarvis_tbb::Point> &input,
+[[maybe_unused]] void TestBodyRandomCircle(std::vector<shulpin_i_jarvis_tbb::Point> &input,
                           std::vector<shulpin_i_jarvis_tbb::Point> &expected, size_t &num_points) {
   std::vector<shulpin_i_jarvis_tbb::Point> result_seq(expected.size());
   std::vector<shulpin_i_jarvis_tbb::Point> result_tbb(expected.size());
@@ -127,7 +115,7 @@ void TestBodyRandomCircle(std::vector<shulpin_i_jarvis_tbb::Point> &input,
   VerifyResultsCircle(expected, result_seq, result_tbb, num_points);
 }
 
-void TestBodyFalse(std::vector<shulpin_i_jarvis_tbb::Point> &input,
+[[maybe_unused]] void TestBodyFalse(std::vector<shulpin_i_jarvis_tbb::Point> &input,
                    std::vector<shulpin_i_jarvis_tbb::Point> &expected) {
   std::vector<shulpin_i_jarvis_tbb::Point> result_tbb(expected.size());
 
@@ -143,21 +131,6 @@ void TestBodyFalse(std::vector<shulpin_i_jarvis_tbb::Point> &input,
   ASSERT_EQ(tbb_task.Validation(), false);
 }
 
-std::vector<shulpin_i_jarvis_tbb::Point> GenerateRandomPoints(size_t num_points) {
-  std::vector<shulpin_i_jarvis_tbb::Point> points;
-  std::random_device rd;
-  std::mt19937 gen(rd());
-  std::uniform_int_distribution<int> dist(-10000, 10000);
-
-  for (size_t i = 0; i < num_points; ++i) {
-    double x = dist(gen);
-    double y = dist(gen);
-    points.emplace_back(x, y);
-  }
-
-  return points;
-}
-
 int Orientation(const shulpin_i_jarvis_tbb::Point &p, const shulpin_i_jarvis_tbb::Point &q,
                 const shulpin_i_jarvis_tbb::Point &r) {
   double val = ((q.y - p.y) * (r.x - q.x)) - ((q.x - p.x) * (r.y - q.y));
@@ -167,7 +140,8 @@ int Orientation(const shulpin_i_jarvis_tbb::Point &p, const shulpin_i_jarvis_tbb
   return (val > 0) ? 1 : 2;
 }
 
-std::vector<shulpin_i_jarvis_tbb::Point> ComputeConvexHull(std::vector<shulpin_i_jarvis_tbb::Point> raw_points) {
+[[maybe_unused]] std::vector<shulpin_i_jarvis_tbb::Point> ComputeConvexHull(
+    std::vector<shulpin_i_jarvis_tbb::Point> raw_points) {
   std::vector<shulpin_i_jarvis_tbb::Point> convex_shell{};
   const size_t count = raw_points.size();
 
@@ -209,8 +183,8 @@ std::vector<shulpin_i_jarvis_tbb::Point> ComputeConvexHull(std::vector<shulpin_i
 }
 
 void VerifyResultsRandom(const std::vector<shulpin_i_jarvis_tbb::Point> &expected,
-                         const std::vector<shulpin_i_jarvis_tbb::Point> &result_omp) {
-  for (const auto &p : result_omp) {
+                         const std::vector<shulpin_i_jarvis_tbb::Point> &result_tbb) {
+  for (const auto &p : result_tbb) {
     bool found = false;
     for (const auto &q : expected) {
       if (std::fabs(p.x - q.x) < 1e-6 && std::fabs(p.y - q.y) < 1e-6) {
@@ -222,7 +196,7 @@ void VerifyResultsRandom(const std::vector<shulpin_i_jarvis_tbb::Point> &expecte
   }
 }
 
-void RandomTestBody(std::vector<shulpin_i_jarvis_tbb::Point> &input,
+[[maybe_unused]] void RandomTestBody(std::vector<shulpin_i_jarvis_tbb::Point> &input,
                     std::vector<shulpin_i_jarvis_tbb::Point> &expected) {
   std::vector<shulpin_i_jarvis_tbb::Point> result_tbb(expected.size());
 
