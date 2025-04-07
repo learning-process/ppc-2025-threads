@@ -12,22 +12,22 @@
 #include "omp/kolodkin_g_multiplication_matrix_CRS/include/ops_omp.hpp"
 
 namespace gen_matrix {
-kolodkin_g_multiplication_matrix_omp::SparseMatrixCRS GenMatrix(unsigned int NumRows, unsigned int NumCols,
-                                                                unsigned int LeftBorderRow, unsigned int RightBorderRow,
-                                                                unsigned int LeftBorderCol, unsigned int RightBorderCol,
-                                                                int MinValue, int MaxValue);
-kolodkin_g_multiplication_matrix_omp::SparseMatrixCRS GenMatrix(unsigned int NumRows, unsigned int NumCols,
-                                                                unsigned int LeftBorderRow, unsigned int RightBorderRow,
-                                                                unsigned int LeftBorderCol, unsigned int RightBorderCol,
-                                                                int MinValue, int MaxValue) {
-  if (LeftBorderRow > RightBorderRow || LeftBorderCol > RightBorderCol || RightBorderRow > NumRows ||
-      RightBorderCol > NumCols || MinValue > MaxValue) {
+kolodkin_g_multiplication_matrix_omp::SparseMatrixCRS GenMatrix(unsigned int num_rows, unsigned int num_cols,
+                                                                unsigned int left_border_row, unsigned int right_border_row,
+                                                                unsigned int left_border_col, unsigned int right_border_col,
+                                                                int min_value, int max_value);
+kolodkin_g_multiplication_matrix_omp::SparseMatrixCRS GenMatrix(unsigned int num_rows, unsigned int num_cols,
+                                                                unsigned int left_border_row, unsigned int right_border_row,
+                                                                unsigned int left_border_col, unsigned int right_border_col,
+                                                                int min_value, int max_value) {
+  if (left_border_row > right_border_row || left_border_col > right_border_col || right_border_row > num_rows ||
+      right_border_col > num_cols || min_value > max_value) {
     throw("ERROR!");
   }
-  kolodkin_g_multiplication_matrix_omp::SparseMatrixCRS a(NumRows, NumCols);
-  for (unsigned int i = LeftBorderRow; i < RightBorderRow; i++) {
-    for (unsigned int j = LeftBorderCol; j < RightBorderCol; j++) {
-      a.AddValue((int)i, Complex(MinValue + (rand() % MaxValue), MinValue + (rand() % MaxValue)), (int)j);
+  kolodkin_g_multiplication_matrix_omp::SparseMatrixCRS a((int)num_rows, (int)num_cols);
+  for (unsigned int i = left_border_row; i < right_border_row; i++) {
+    for (unsigned int j = left_border_col; j < right_border_col; j++) {
+      a.AddValue((int)i, Complex(min_value + (rand() % max_value), min_value + (rand() % max_value)), (int)j);
     }
   }
   return a;
