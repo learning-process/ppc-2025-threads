@@ -20,11 +20,7 @@ struct Point {
 };
 
 struct PointHash {
-  size_t operator()(const shulpin_i_jarvis_tbb::Point& p) const {
-    size_t hx = std::hash<double>{}(p.x);
-    size_t hy = std::hash<double>{}(p.y);
-    return hx ^ (hy << 1);
-  }
+  size_t operator()(const shulpin_i_jarvis_tbb::Point& p) const { return static_cast<size_t>(p.x * 13 + p.y * 7); }
 };
 
 class JarvisSequential : public ppc::core::Task {
