@@ -73,7 +73,8 @@ bool plekhanov_d_dijkstra_stl::TestTaskSTL::RunImpl() {  // NOLINT
   pq.emplace(0, start_vertex_);
 
   std::mutex pq_mutex;
-  const int num_threads = ppc::util::GetPPCNumThreads();                             
+
+  const int num_threads = ppc::util::GetPPCNumThreads();
   std::vector<std::thread> threads;
 
   auto worker = [&]() {
