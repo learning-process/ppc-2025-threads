@@ -1,11 +1,9 @@
 #include "tbb/shulpin_i_jarvis_passage/include/ops_tbb.hpp"
 
 #include <oneapi/tbb/concurrent_unordered_set.h>
-#include <oneapi/tbb/enumerable_thread_specific.h>
-#include <oneapi/tbb/parallel_for.h>
+#include <oneapi/tbb/parallel_reduce.h>
 
 #include <algorithm>
-#include <atomic>
 #include <cmath>
 #include <cstddef>
 #include <cstdint>
@@ -87,8 +85,6 @@ void shulpin_i_jarvis_tbb::JarvisTBBParallel::MakeJarvisPassageTBB(
   auto total = static_cast<int32_t>(total_size_t);
   output_jar.clear();
 
-  if (total < 3) return;
-
   int32_t start = 0;
   for (int32_t i = 1; i < total; ++i) {
     if (input_jar[i].x < input_jar[start].x ||
@@ -98,8 +94,10 @@ void shulpin_i_jarvis_tbb::JarvisTBBParallel::MakeJarvisPassageTBB(
   }
 
   int32_t active = start;
+
   std::vector<shulpin_i_jarvis_tbb::Point> hull;
   tbb::concurrent_unordered_set<shulpin_i_jarvis_tbb::Point, PointHash> unique_points;
+
   int32_t max_iterations = total;
 
   do {
@@ -107,35 +105,30 @@ void shulpin_i_jarvis_tbb::JarvisTBBParallel::MakeJarvisPassageTBB(
       hull.push_back(input_jar[active]);
     }
 
-    int32_t candidate_init = (active + 1) % total;
-    std::atomic<int32_t> candidate(candidate_init);
-    tbb::enumerable_thread_specific<int32_t> local_candidates(candidate_init);
+    int32_t candidate = (active + 1) % total;
 
-    tbb::parallel_for(tbb::blocked_range<int32_t>(0, total), [&](const tbb::blocked_range<int32_t>& range) {
-      int32_t local = candidate;
-      for (int32_t index = range.begin(); index < range.end(); ++index) {
-        if (Orientation(input_jar[active], input_jar[index], input_jar[local]) == 2) {
-          local = index;
-        }
-      }
-      local_candidates.local() = local;
-    });
+    candidate = tbb::parallel_reduce(
+        tbb::blocked_range<int32_t>(0, total), candidate,
+        [&](const tbb::blocked_range<int32_t>& range, int32_t local_candidate) -> int32_t {
+          for (int32_t index = range.begin(); index < range.end(); ++index) {
+            if (Orientation(input_jar[active], input_jar[index], input_jar[local_candidate]) == 2) {
+              local_candidate = index;
+            }
+          }
+          return local_candidate;
+        },
+        [&](int32_t a, int32_t b) -> int32_t {
+          return (Orientation(input_jar[active], input_jar[a], input_jar[b]) == 2) ? a : b;
+        });
 
-    int32_t best_candidate = candidate;
-    for (const auto& local : local_candidates) {
-      if (Orientation(input_jar[active], input_jar[local], input_jar[best_candidate]) == 2) {
-        best_candidate = local;
-      }
-    }
-
-    if (best_candidate == active || max_iterations-- <= 0) {
+    if (candidate == active || max_iterations-- <= 0) {
       break;
     }
-    active = best_candidate;
+    active = candidate;
 
   } while (active != start);
 
-  output_jar = std::move(hull);
+  output_jar = hull; 
 }
 
 bool shulpin_i_jarvis_tbb::JarvisTBBParallel::PreProcessingImpl() {
