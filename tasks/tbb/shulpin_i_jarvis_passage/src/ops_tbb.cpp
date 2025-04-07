@@ -1,3 +1,5 @@
+#include "tbb/shulpin_i_jarvis_passage/include/ops_tbb.hpp"
+
 #include <algorithm>
 #include <cmath>
 #include <cstddef>
@@ -6,8 +8,6 @@
 #include <string>
 #include <utility>
 #include <vector>
-
-#include "tbb/shulpin_i_jarvis_passage/include/ops_tbb.hpp"
 
 namespace {
 int Orientation(const shulpin_i_jarvis_tbb::Point& p, const shulpin_i_jarvis_tbb::Point& q,
@@ -79,8 +79,7 @@ bool shulpin_i_jarvis_tbb::JarvisSequential::PostProcessingImpl() {
 }
 
 void shulpin_i_jarvis_tbb::JarvisTBBParallel::MakeJarvisPassageTBB(
-    std::vector<shulpin_i_jarvis_tbb::Point>& input_jar,
-                                             std::vector<shulpin_i_jarvis_tbb::Point>& output_jar) {
+    std::vector<shulpin_i_jarvis_tbb::Point>& input_jar, std::vector<shulpin_i_jarvis_tbb::Point>& output_jar) {
   size_t total_size_t = input_jar.size();
   auto total = static_cast<int32_t>(total_size_t);
   output_jar.clear();
