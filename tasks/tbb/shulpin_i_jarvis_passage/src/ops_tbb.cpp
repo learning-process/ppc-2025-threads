@@ -8,7 +8,6 @@
 #include <cstddef>
 #include <cstdint>
 #include <cstring>
-#include <utility>
 #include <vector>
 
 namespace {
@@ -98,7 +97,6 @@ void shulpin_i_jarvis_tbb::JarvisTBBParallel::MakeJarvisPassageTBB(
 
   std::vector<shulpin_i_jarvis_tbb::Point> hull;
   tbb::concurrent_unordered_set<shulpin_i_jarvis_tbb::Point, PointHash> unique_points;
-  hull.reserve(total);
 
   int32_t max_iterations = total;
 
@@ -130,7 +128,7 @@ void shulpin_i_jarvis_tbb::JarvisTBBParallel::MakeJarvisPassageTBB(
 
   } while (active != start);
 
-  output_jar = std::move(hull);
+  output_jar = hull;
 }
 
 bool shulpin_i_jarvis_tbb::JarvisTBBParallel::PreProcessingImpl() {
