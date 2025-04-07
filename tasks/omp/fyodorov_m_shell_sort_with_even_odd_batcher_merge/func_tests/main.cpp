@@ -202,8 +202,8 @@ TEST(fyodorov_m_shell_sort_with_even_odd_batcher_merge_omp, single_element) {
 }
 
 TEST(fyodorov_m_shell_sort_with_even_odd_batcher_merge_omp, zero_array) {
-  int arrsize = 5;
-  std::vector<int> in = {0, 0, 0, 0, 0};
+  int arrsize = 7;
+  std::vector<int> in = {0, 0, 0, 0, 0, 0, 0};
   std::vector<int> out(arrsize, 0);
 
   auto task_data_omp = std::make_shared<ppc::core::TaskData>();
