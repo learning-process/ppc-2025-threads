@@ -206,7 +206,7 @@ void vavilov_v_cannon_tbb::CannonTBB::ShiftBlocks() {
       oneapi::tbb::blocked_range2d<int>(0, num_blocks_, 0, num_blocks_),
       [&](const oneapi::tbb::blocked_range2d<int>& r) {
         std::vector<double> a_buffer(block_size_ * block_size_);
-        std::vector<double> b_buffer(block_size_ * block_size_);    
+        std::vector<double> b_buffer(block_size_ * block_size_);
         for (int bi = r.rows().begin(); bi != r.rows().end(); ++bi) {
           for (int bj = r.cols().begin(); bj != r.cols().end(); ++bj) {
             if (bj == 0) {
@@ -219,13 +219,14 @@ void vavilov_v_cannon_tbb::CannonTBB::ShiftBlocks() {
                 for (int i = 0; i < block_size_ && (bi * block_size_ + i) < N_; ++i) {
                   for (int j = 0; j < block_size_ && (bj_shift * block_size_ + j) < N_; ++j) {
                     A_[(bi * block_size_ + i) * N_ + (bj_shift * block_size_ + j)] =
-                    A_[(bi * block_size_ + i) * N_ + ((bj_shift + 1) * block_size_ + j)];
+                        A_[(bi * block_size_ + i) * N_ + ((bj_shift + 1) * block_size_ + j)];
                   }
                 }
               }
               for (int i = 0; i < block_size_ && (bi * block_size_ + i) < N_; ++i) {
                 for (int j = 0; j < block_size_ && ((num_blocks_ - 1) * block_size_ + j) < N_; ++j) {
-                  A_[(bi * block_size_ + i) * N_ + ((num_blocks_ - 1) * block_size_ + j)] = a_buffer[i * block_size_ + j];
+                  A_[(bi * block_size_ + i) * N_ + ((num_blocks_ - 1) * block_size_ + j)] =
+                      a_buffer[i * block_size_ + j];
                 }
               }
             }
@@ -239,13 +240,14 @@ void vavilov_v_cannon_tbb::CannonTBB::ShiftBlocks() {
                 for (int i = 0; i < block_size_ && (bi_shift * block_size_ + i) < N_; ++i) {
                   for (int j = 0; j < block_size_ && (bj * block_size_ + j) < N_; ++j) {
                     B_[(bi_shift * block_size_ + i) * N_ + (bj * block_size_ + j)] =
-                    B_[((bi_shift + 1) * block_size_ + i) * N_ + (bj * block_size_ + j)];
+                        B_[((bi_shift + 1) * block_size_ + i) * N_ + (bj * block_size_ + j)];
                   }
                 }
               }
               for (int i = 0; i < block_size_ && ((num_blocks_ - 1) * block_size_ + i) < N_; ++i) {
                 for (int j = 0; j < block_size_ && (bj * block_size_ + j) < N_; ++j) {
-                  B_[((num_blocks_ - 1) * block_size_ + i) * N_ + (bj * block_size_ + j)] = b_buffer[i * block_size_ + j];
+                  B_[((num_blocks_ - 1) * block_size_ + i) * N_ + (bj * block_size_ + j)] =
+                      b_buffer[i * block_size_ + j];
                 }
               }
             }
@@ -264,16 +266,18 @@ bool vavilov_v_cannon_tbb::CannonTBB::RunImpl() {
       BlockMultiply(local_C);
       ShiftBlocks();
     }
-    oneapi::tbb::parallel_for(oneapi::tbb::blocked_range<int>(0, N_ * N_), [&](const oneapi::tbb::blocked_range<int>& r) {
-      for (int i = r.begin(); i != r.end(); ++i) {
-        double sum = 0.0;
-        for (const auto& buf : local_C) {
-          sum += buf[i];
-        }
-        C_[i] = sum;
-      }
-    },
-    oneapi::tbb::auto_partitioner());
+    oneapi::tbb::parallel_for(
+        oneapi::tbb::blocked_range<int>(0, N_ * N_),
+        [&](const oneapi::tbb::blocked_range<int>& r) {
+          for (int i = r.begin(); i != r.end(); ++i) {
+            double sum = 0.0;
+            for (const auto& buf : local_C) {
+              sum += buf[i];
+            }
+            C_[i] = sum;
+          }
+        },
+        oneapi::tbb::auto_partitioner());
     });
     return true;
 }
