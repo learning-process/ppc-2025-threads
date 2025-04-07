@@ -12,10 +12,10 @@
 #include "omp/kolodkin_g_multiplication_matrix_CRS/include/ops_omp.hpp"
 
 namespace gen_matrix {
-kolodkin_g_multiplication_matrix_omp::SparseMatrixCRS GenMatrix(
+static kolodkin_g_multiplication_matrix_omp::SparseMatrixCRS GenMatrix(
     unsigned int num_rows, unsigned int num_cols, unsigned int left_border_row, unsigned int right_border_row,
     unsigned int left_border_col, unsigned int right_border_col, int min_value, int max_value);
-kolodkin_g_multiplication_matrix_omp::SparseMatrixCRS GenMatrix(
+static kolodkin_g_multiplication_matrix_omp::SparseMatrixCRS GenMatrix(
     unsigned int num_rows, unsigned int num_cols, unsigned int left_border_row, unsigned int right_border_row,
     unsigned int left_border_col, unsigned int right_border_col, int min_value, int max_value) {
   if (left_border_row > right_border_row || left_border_col > right_border_col || right_border_row > num_rows ||
