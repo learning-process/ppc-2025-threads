@@ -5,10 +5,12 @@
 #include <cstddef>
 #include <cstdint>
 #include <memory>
+#include <random>
 #include <vector>
 
 #include "core/perf/include/perf.hpp"
 #include "core/task/include/task.hpp"
+#include "tbb/shulpin_i_jarvis_passage/include/ops_tbb.hpp"
 #include "tbb/shulpin_i_jarvis_passage/include/test_modules.hpp"
 
 namespace {

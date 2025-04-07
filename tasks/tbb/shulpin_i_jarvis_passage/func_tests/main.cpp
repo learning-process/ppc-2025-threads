@@ -4,10 +4,26 @@
 #include <cstddef>
 #include <cstdint>
 #include <memory>
+#include <random>
 #include <vector>
 
 #include "core/task/include/task.hpp"
 #include "tbb/shulpin_i_jarvis_passage/include/test_modules.hpp"
+
+namespace {
+std::vector<shulpin_i_jarvis_tbb::Point> GeneratePointsInCircle(size_t num_points,
+                                                                const shulpin_i_jarvis_tbb::Point &center,
+                                                                double radius) {
+  std::vector<shulpin_i_jarvis_tbb::Point> points;
+  for (size_t i = 0; i < num_points; ++i) {
+    double angle = 2.0 * std::numbers::pi * static_cast<double>(i) / static_cast<double>(num_points);
+    double x = center.x + (radius * std::cos(angle));
+    double y = center.y + (radius * std::sin(angle));
+    points.emplace_back(x, y);
+  }
+  return points;
+}
+}  // namespace
 
 TEST(shulpin_i_jarvis_tbb, square_with_point) {
   std::vector<shulpin_i_jarvis_tbb::Point> input = {{0, 0}, {2, 0}, {2, 2}, {0, 2}, {1, 1}};

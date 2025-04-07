@@ -2,8 +2,8 @@
 
 #include <tbb/tbb.h>
 
+#include <cstdint>
 #include <memory>
-#include <unordered_set>
 #include <utility>
 #include <vector>
 
@@ -21,7 +21,9 @@ struct Point {
 
 struct PointHash {
   size_t operator()(const shulpin_i_jarvis_tbb::Point& p) const {
-    return std::hash<int32_t>()(p.x) ^ (std::hash<int32_t>()(p.y) << 1);
+    size_t hx = std::hash<double>{}(p.x);
+    size_t hy = std::hash<double>{}(p.y);
+    return hx ^ (hy << 1);
   }
 };
 
