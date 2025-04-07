@@ -1,6 +1,6 @@
 #pragma once
 
-#include <tbb/parallel_for.h>
+#include <oneapi/tbb/parallel_for.h>
 
 #include <cmath>
 #include <utility>
