@@ -1,3 +1,4 @@
+#include <tbb/parallel_reduce.h>
 #include "tbb/shulpin_i_jarvis_passage/include/ops_tbb.hpp"
 
 #include <algorithm>
