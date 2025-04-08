@@ -9,21 +9,19 @@ bool durynichev_d_integrals_simpson_method_omp::SimpsonIntegralOpenMP::PreProces
   auto* in_ptr = reinterpret_cast<double*>(task_data->inputs[0]);
   boundaries_ = std::vector<double>(in_ptr, in_ptr + input_size);
 
-  // Устанавливаем тип функции, если он указан
-  if (input_size >= 4) {  // Минимум: a, b, n, func_type
-    // Последний элемент - тип функции
+  if (input_size >= 4) {
+    // Last element - function type
     func_type_ = static_cast<FunctionType>(static_cast<int>(boundaries_.back()));
     boundaries_.pop_back();
   } else {
-    // По умолчанию используем квадратичную функцию
+    // By default, use square function
     func_type_ = FunctionType::kSquare;
   }
 
-  // Предпоследний элемент - число разбиений n
   n_ = static_cast<int>(boundaries_.back());
   boundaries_.pop_back();
 
-  // Определяем размерность задачи
+  // Determine the number of dimensions based on the number of boundaries
   dim_ = static_cast<size_t>(boundaries_.size() / 2);
 
   result_ = 0.0;
@@ -32,17 +30,12 @@ bool durynichev_d_integrals_simpson_method_omp::SimpsonIntegralOpenMP::PreProces
 
 bool durynichev_d_integrals_simpson_method_omp::SimpsonIntegralOpenMP::ValidationImpl() {
   auto* in_ptr = reinterpret_cast<double*>(task_data->inputs[0]);
-  // Проверяем, что есть хотя бы 3 параметра (два граничных значения и n)
-  // и что выходной массив имеет размер 1
-  // Для 3D интеграла нужно как минимум 7 параметров (6 границ + n)
   if (task_data->inputs_count[0] < 3 || task_data->outputs_count[0] != 1) {
     return false;
   }
 
-  // Получаем значение n (предпоследнее значение в массиве)
   int n = static_cast<int>(in_ptr[task_data->inputs_count[0] - 2]);
 
-  // Проверяем, что n четное
   return (n % 2 == 0);
 }
 
@@ -52,8 +45,7 @@ bool durynichev_d_integrals_simpson_method_omp::SimpsonIntegralOpenMP::RunImpl()
   } else if (dim_ == 2) {
     result_ = Simpson2D(boundaries_[0], boundaries_[1], boundaries_[2], boundaries_[3]);
   } else if (dim_ == 3) {
-    result_ = Simpson3D(boundaries_[0], boundaries_[1], boundaries_[2],
-                       boundaries_[3], boundaries_[4], boundaries_[5]);
+    result_ = Simpson3D(boundaries_[0], boundaries_[1], boundaries_[2], boundaries_[3], boundaries_[4], boundaries_[5]);
   }
   return true;
 }
@@ -63,36 +55,30 @@ bool durynichev_d_integrals_simpson_method_omp::SimpsonIntegralOpenMP::PostProce
   return true;
 }
 
-// Реализация функций для 1D
-double durynichev_d_integrals_simpson_method_omp::SimpsonIntegralOpenMP::Func1DSquare(double x) {
-  return x * x;
-}
+// 1D
+double durynichev_d_integrals_simpson_method_omp::SimpsonIntegralOpenMP::Func1DSquare(double x) { return x * x; }
 
-double durynichev_d_integrals_simpson_method_omp::SimpsonIntegralOpenMP::Func1DSin(double x) {
-  return std::sin(x);
-}
+double durynichev_d_integrals_simpson_method_omp::SimpsonIntegralOpenMP::Func1DSin(double x) { return std::sin(x); }
 
-double durynichev_d_integrals_simpson_method_omp::SimpsonIntegralOpenMP::Func1DCos(double x) {
-  return std::cos(x);
-}
+double durynichev_d_integrals_simpson_method_omp::SimpsonIntegralOpenMP::Func1DCos(double x) { return std::cos(x); }
 
 double durynichev_d_integrals_simpson_method_omp::SimpsonIntegralOpenMP::Func1DExp(double x) {
-  // Ограничиваем значение x, чтобы избежать переполнения
+  // Restricting the value of x to avoid overflow
   if (x > 700.0) {
-    return std::numeric_limits<double>::max() / 2.0; // Возвращаем большое, но не бесконечное значение
+    return std::numeric_limits<double>::max() / 2.0;  // Return a large but not infinite value
   }
   return std::exp(x);
 }
 
 double durynichev_d_integrals_simpson_method_omp::SimpsonIntegralOpenMP::Func1DLog(double x) {
-  return std::log(std::abs(x) + 1e-10); // Добавляем малое число, чтобы избежать log(0)
+  return std::log(std::abs(x) + 1e-10);  // Avoid log(0)
 }
 
 double durynichev_d_integrals_simpson_method_omp::SimpsonIntegralOpenMP::Func1DCombined(double x) {
-  return std::sin(x) + std::cos(x) + x*x;
+  return std::sin(x) + std::cos(x) + x * x;
 }
 
-// Реализация функций для 2D
+// 2D
 double durynichev_d_integrals_simpson_method_omp::SimpsonIntegralOpenMP::Func2DSquare(double x, double y) {
   return (x * x) + (y * y);
 }
@@ -106,23 +92,23 @@ double durynichev_d_integrals_simpson_method_omp::SimpsonIntegralOpenMP::Func2DC
 }
 
 double durynichev_d_integrals_simpson_method_omp::SimpsonIntegralOpenMP::Func2DExp(double x, double y) {
-  // Ограничиваем сумму x+y, чтобы избежать переполнения
+  // Restricting the sum x+y to avoid overflow
   double sum = x + y;
   if (sum > 700.0) {
-    return std::numeric_limits<double>::max() / 2.0; // Возвращаем большое, но не бесконечное значение
+    return std::numeric_limits<double>::max() / 2.0;  // Return a large but not infinite value
   }
   return std::exp(sum);
 }
 
 double durynichev_d_integrals_simpson_method_omp::SimpsonIntegralOpenMP::Func2DLog(double x, double y) {
-  return std::log(std::abs(x * y) + 1e-10); // Избегаем log(0)
+  return std::log(std::abs(x * y) + 1e-10);  // Avoid log(0)
 }
 
 double durynichev_d_integrals_simpson_method_omp::SimpsonIntegralOpenMP::Func2DCombined(double x, double y) {
-  return std::sin(x) + std::cos(y) + x*x + y*y;
+  return std::sin(x) + std::cos(y) + x * x + y * y;
 }
 
-// Реализация функций для 3D
+// 3D
 double durynichev_d_integrals_simpson_method_omp::SimpsonIntegralOpenMP::Func3DSquare(double x, double y, double z) {
   return (x * x) + (y * y) + (z * z);
 }
@@ -136,7 +122,7 @@ double durynichev_d_integrals_simpson_method_omp::SimpsonIntegralOpenMP::Func3DC
 }
 
 double durynichev_d_integrals_simpson_method_omp::SimpsonIntegralOpenMP::Func3DExp(double x, double y, double z) {
-  // Ограничиваем сумму x+y+z, чтобы избежать переполнения
+  // Restricting the sum x+y+z to avoid overflow
   double sum = x + y + z;
   if (sum > 700.0) {
     return std::numeric_limits<double>::max() / 2.0;
@@ -145,14 +131,14 @@ double durynichev_d_integrals_simpson_method_omp::SimpsonIntegralOpenMP::Func3DE
 }
 
 double durynichev_d_integrals_simpson_method_omp::SimpsonIntegralOpenMP::Func3DLog(double x, double y, double z) {
-  return std::log(std::abs(x * y * z) + 1e-10); // Избегаем log(0)
+  return std::log(std::abs(x * y * z) + 1e-10);  // Avoid log(0)
 }
 
 double durynichev_d_integrals_simpson_method_omp::SimpsonIntegralOpenMP::Func3DCombined(double x, double y, double z) {
-  return std::sin(x) + std::cos(y) + std::sin(z) + x*x + y*y + z*z;
+  return std::sin(x) + std::cos(y) + std::sin(z) + x * x + y * y + z * z;
 }
 
-// Функции выбора нужной функции для вычисления
+// Function evaluation methods
 double durynichev_d_integrals_simpson_method_omp::SimpsonIntegralOpenMP::Evaluate1D(double x) const {
   switch (func_type_) {
     case FunctionType::kSquare:
@@ -191,7 +177,8 @@ double durynichev_d_integrals_simpson_method_omp::SimpsonIntegralOpenMP::Evaluat
   }
 }
 
-double durynichev_d_integrals_simpson_method_omp::SimpsonIntegralOpenMP::Evaluate3D(double x, double y, double z) const {
+double durynichev_d_integrals_simpson_method_omp::SimpsonIntegralOpenMP::Evaluate3D(double x, double y,
+                                                                                    double z) const {
   switch (func_type_) {
     case FunctionType::kSquare:
       return Func3DSquare(x, y, z);
@@ -210,7 +197,7 @@ double durynichev_d_integrals_simpson_method_omp::SimpsonIntegralOpenMP::Evaluat
   }
 }
 
-// Методы Simpson для разных размерностей:
+// Simpson integration methods
 double durynichev_d_integrals_simpson_method_omp::SimpsonIntegralOpenMP::Simpson1D(double a, double b) const {
   double h = (b - a) / n_;
   double sum = Evaluate1D(a) + Evaluate1D(b);
@@ -282,5 +269,5 @@ double durynichev_d_integrals_simpson_method_omp::SimpsonIntegralOpenMP::Simpson
     }
   }
 
-  return sum * hx * hy * hz / 27.0; // 3^3 = 27 для 3D интеграла
+  return sum * hx * hy * hz / 27.0;
 }
