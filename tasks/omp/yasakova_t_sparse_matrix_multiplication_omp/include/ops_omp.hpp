@@ -84,6 +84,28 @@ inline MatrixStructure ConvertFromCRS(const SparseMatrixFormat& input_matrix) {
   return matrix;
 }
 
+SparseMatrixFormat CreateRandomSparseMatrix(uint32_t size, uint32_t non_zero_elements) {
+  SparseMatrixFormat matrix;
+  matrix.columns = size;
+  matrix.row_pointers.resize(size + 1);
+  std::srand(std::time(nullptr));
+  for (uint32_t i = 0; i < non_zero_elements; i++) {
+    uint32_t row = rand() % size;
+    uint32_t col = rand() % size;
+    std::complex<double> value(-50 + (rand() % 100), -50 + (rand() % 100));
+    matrix.task_data.push_back(value);
+    matrix.column_indices.push_back(col);
+    matrix.row_pointers[row + 1]++;
+  }
+
+  // Calculate row pointers
+  for (uint32_t i = 1; i <= size; i++) {
+    matrix.row_pointers[i] += matrix.row_pointers[i - 1];
+  }
+
+  return matrix;
+}
+
 namespace yasakova_t_sparse_matrix_multiplication_omp {
 
 class SparseMatrixMultiplier : public ppc::core::Task {

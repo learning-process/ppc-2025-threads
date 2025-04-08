@@ -12,33 +12,6 @@
 #include "core/task/include/task.hpp"
 #include "omp/yasakova_t_sparse_matrix_multiplication_omp/include/ops_omp.hpp"
 
-namespace {
-SparseMatrixFormat CreateRandomSparseMatrix(uint32_t size, uint32_t non_zero_elements) {
-  SparseMatrixFormat matrix;
-  matrix.columns = size;
-  matrix.row_pointers.resize(size + 1);
-  
-  std::srand(std::time(nullptr));
-  for (uint32_t i = 0; i < non_zero_elements; i++) {
-    uint32_t row = rand() % size;
-    uint32_t col = rand() % size;
-    std::complex<double> value(-50 + (rand() % 100), -50 + (rand() % 100));
-    
-    // Simple way to generate sparse matrix (not optimal but works for tests)
-    matrix.task_data.push_back(value);
-    matrix.column_indices.push_back(col);
-    matrix.row_pointers[row + 1]++;
-  }
-
-  // Calculate row pointers
-  for (uint32_t i = 1; i <= size; i++) {
-    matrix.row_pointers[i] += matrix.row_pointers[i - 1];
-  }
-
-  return matrix;
-}
-}  // namespace
-
 TEST(yasakova_t_sparse_matrix_multiplication_omp, test_pipeline_run) {
   const uint32_t matrix_size = 400;
   const uint32_t non_zero_elements = 5000;
@@ -54,7 +27,6 @@ TEST(yasakova_t_sparse_matrix_multiplication_omp, test_pipeline_run) {
   task_data->inputs_count.emplace_back(1);
   task_data->inputs.emplace_back(reinterpret_cast<uint8_t*>(&sparse_matrix_b));
   task_data->inputs_count.emplace_back(1);
-  
   SparseMatrixFormat result_matrix;
   task_data->outputs.emplace_back(reinterpret_cast<uint8_t*>(&result_matrix));
   task_data->outputs_count.emplace_back(1);
@@ -101,7 +73,6 @@ TEST(yasakova_t_sparse_matrix_multiplication_omp, test_task_run) {
   task_data->inputs_count.emplace_back(1);
   task_data->inputs.emplace_back(reinterpret_cast<uint8_t*>(&sparse_matrix_b));
   task_data->inputs_count.emplace_back(1);
-  
   SparseMatrixFormat result_matrix;
   task_data->outputs.emplace_back(reinterpret_cast<uint8_t*>(&result_matrix));
   task_data->outputs_count.emplace_back(1);
