@@ -1,6 +1,7 @@
 #include <gtest/gtest.h>
 
 #include <chrono>
+#include <cmath>
 #include <cstdint>
 #include <memory>
 #include <vector>
@@ -10,7 +11,7 @@
 #include "omp/durynichev_d_integrals_simpson_method/include/ops_omp.hpp"
 
 TEST(durynichev_d_integrals_simpson_method_omp, test_pipeline_run) {
-  std::vector<double> in = {-10.0, 10.0, -10.0, 10.0, 30000};
+  std::vector<double> in = {0.0, 1.0, 0.0, 1.0, 0.0, 1.0, 300, 5};
   std::vector<double> out(1, 0.0);
 
   auto task_data = std::make_shared<ppc::core::TaskData>();
@@ -35,13 +36,12 @@ TEST(durynichev_d_integrals_simpson_method_omp, test_pipeline_run) {
   perf_analyzer->PipelineRun(perf_attr, perf_results);
   ppc::core::Perf::PrintPerfStatistic(perf_results);
 
-  double expected_result = 80000.0 / 3.0;
-  double tolerance = 1e-1;
-  ASSERT_NEAR(out[0], expected_result, tolerance);
+  double expected = (1.0 - std::cos(1.0)) + std::sin(1.0) + (1.0 - std::cos(1.0)) + 1.0;
+  EXPECT_NEAR(out[0], expected, 1e-3);
 }
 
 TEST(durynichev_d_integrals_simpson_method_omp, test_task_run) {
-  std::vector<double> in = {-10.0, 10.0, -10.0, 10.0, 30000};
+  std::vector<double> in = {0.0, 1.0, 0.0, 1.0, 0.0, 1.0, 300, 5};
   std::vector<double> out(1, 0.0);
 
   auto task_data = std::make_shared<ppc::core::TaskData>();
@@ -66,8 +66,6 @@ TEST(durynichev_d_integrals_simpson_method_omp, test_task_run) {
   perf_analyzer->TaskRun(perf_attr, perf_results);
   ppc::core::Perf::PrintPerfStatistic(perf_results);
 
-  // Correctness check
-  double expected_result = 80000.0 / 3.0;
-  double tolerance = 1e-1;
-  ASSERT_NEAR(out[0], expected_result, tolerance);
+  double expected = (1.0 - std::cos(1.0)) + std::sin(1.0) + (1.0 - std::cos(1.0)) + 1.0;
+  EXPECT_NEAR(out[0], expected, 1e-3);
 }
