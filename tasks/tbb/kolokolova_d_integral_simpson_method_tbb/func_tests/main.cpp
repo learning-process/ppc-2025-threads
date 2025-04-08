@@ -11,63 +11,114 @@
 #include "core/util/include/util.hpp"
 #include "tbb/kolokolova_d_integral_simpson_method_tbb/include/ops_tbb.hpp"
 
-TEST(kolokolova_d_integral_simpson_method_tbb, test_matmul_50) {
-  constexpr size_t kCount = 50;
-
-  // Create data
-  std::vector<int> in(kCount * kCount, 0);
-  std::vector<int> out(kCount * kCount, 0);
-
-  for (size_t i = 0; i < kCount; i++) {
-    in[(i * kCount) + i] = 1;
-  }
+TEST(kolokolova_d_integral_simpson_method_tbb, test1) {
+  auto func = [](std::vector<double> vec) { return vec[0] * vec[1]; };
+  std::vector<int> step = {2, 2};
+  std::vector<int> bord = {2, 4, 3, 6};
+  double func_result = 0.0;
 
   // Create task_data
   auto task_data_tbb = std::make_shared<ppc::core::TaskData>();
-  task_data_tbb->inputs.emplace_back(reinterpret_cast<uint8_t *>(in.data()));
-  task_data_tbb->inputs_count.emplace_back(in.size());
-  task_data_tbb->outputs.emplace_back(reinterpret_cast<uint8_t *>(out.data()));
-  task_data_tbb->outputs_count.emplace_back(out.size());
+  task_data_tbb->inputs.emplace_back(reinterpret_cast<uint8_t *>(step.data()));
+  task_data_tbb->inputs_count.emplace_back(step.size());
+
+  task_data_tbb->inputs.emplace_back(reinterpret_cast<uint8_t *>(bord.data()));
+  task_data_tbb->inputs_count.emplace_back(bord.size());
+
+  task_data_tbb->outputs.emplace_back(reinterpret_cast<uint8_t *>(&func_result));
+  task_data_tbb->outputs_count.emplace_back(1);
 
   // Create Task
-  kolokolova_d_integral_simpson_method_tbb::TestTaskTBB test_task_tbb(task_data_tbb);
+  kolokolova_d_integral_simpson_method_tbb::TestTaskTBB test_task_tbb(task_data_tbb, func);
   ASSERT_EQ(test_task_tbb.Validation(), true);
   test_task_tbb.PreProcessing();
   test_task_tbb.Run();
   test_task_tbb.PostProcessing();
-  EXPECT_EQ(in, out);
+  double ans = 81.0;
+  double error = 1e-5;
+  ASSERT_NEAR(func_result, ans, error);
 }
 
-TEST(kolokolova_d_integral_simpson_method_tbb, test_matmul_100_from_file) {
-  std::string line;
-  std::ifstream test_file(ppc::util::GetAbsolutePath("tbb/example/data/test.txt"));
-  if (test_file.is_open()) {
-    getline(test_file, line);
-  }
-  test_file.close();
-
-  const size_t count = std::stoi(line);
-
-  // Create data
-  std::vector<int> in(count * count, 0);
-  std::vector<int> out(count * count, 0);
-
-  for (size_t i = 0; i < count; i++) {
-    in[(i * count) + i] = 1;
-  }
+TEST(kolokolova_d_integral_simpson_method_tbb, test2) {
+  auto func = [](std::vector<double> vec) { return vec[0] * vec[1]; };
+  std::vector<int> step = {2, 2};
+  std::vector<int> bord = {2, 4, 3, 6};
+  double func_result = 0.0;
 
   // Create task_data
   auto task_data_tbb = std::make_shared<ppc::core::TaskData>();
-  task_data_tbb->inputs.emplace_back(reinterpret_cast<uint8_t *>(in.data()));
-  task_data_tbb->inputs_count.emplace_back(in.size());
-  task_data_tbb->outputs.emplace_back(reinterpret_cast<uint8_t *>(out.data()));
-  task_data_tbb->outputs_count.emplace_back(out.size());
+  task_data_tbb->inputs.emplace_back(reinterpret_cast<uint8_t *>(step.data()));
+  task_data_tbb->inputs_count.emplace_back(step.size());
+
+  task_data_tbb->inputs.emplace_back(reinterpret_cast<uint8_t *>(bord.data()));
+  task_data_tbb->inputs_count.emplace_back(bord.size());
+
+  task_data_tbb->outputs.emplace_back(reinterpret_cast<uint8_t *>(&func_result));
+  task_data_tbb->outputs_count.emplace_back(1);
 
   // Create Task
-  kolokolova_d_integral_simpson_method_tbb::TestTaskTBB test_task_tbb(task_data_tbb);
+  kolokolova_d_integral_simpson_method_tbb::TestTaskTBB test_task_tbb(task_data_tbb, func);
   ASSERT_EQ(test_task_tbb.Validation(), true);
   test_task_tbb.PreProcessing();
   test_task_tbb.Run();
   test_task_tbb.PostProcessing();
-  EXPECT_EQ(in, out);
+  double ans = 81.0;
+  double error = 1e-5;
+  ASSERT_NEAR(func_result, ans, error);
+}
+
+TEST(kolokolova_d_integral_simpson_method_tbb, test3) {
+  auto func = [](std::vector<double> vec) { return vec[0] * vec[1]; };
+  std::vector<int> step = {2, 2};
+  std::vector<int> bord = {2, 4, 3, 6};
+  double func_result = 0.0;
+
+  // Create task_data
+  auto task_data_tbb = std::make_shared<ppc::core::TaskData>();
+  task_data_tbb->inputs.emplace_back(reinterpret_cast<uint8_t *>(step.data()));
+  task_data_tbb->inputs_count.emplace_back(step.size());
+
+  task_data_tbb->inputs.emplace_back(reinterpret_cast<uint8_t *>(bord.data()));
+  task_data_tbb->inputs_count.emplace_back(bord.size());
+
+  task_data_tbb->outputs.emplace_back(reinterpret_cast<uint8_t *>(&func_result));
+  task_data_tbb->outputs_count.emplace_back(1);
+
+  // Create Task
+  kolokolova_d_integral_simpson_method_tbb::TestTaskTBB test_task_tbb(task_data_tbb, func);
+  ASSERT_EQ(test_task_tbb.Validation(), true);
+  test_task_tbb.PreProcessing();
+  test_task_tbb.Run();
+  test_task_tbb.PostProcessing();
+  double ans = 81.0;
+  double error = 1e-5;
+  ASSERT_NEAR(func_result, ans, error);
+}
+
+TEST(kolokolova_d_integral_simpson_method_tbb, test4) {
+  auto func = [](std::vector<double> vec) { return vec[0] * vec[1]; };
+  std::vector<int> step = {2, 2};
+  std::vector<int> bord = {2, 4, 3, 6};
+  double func_result = 0.0;
+
+  // Create task_data
+  auto task_data_tbb = std::make_shared<ppc::core::TaskData>();
+  task_data_tbb->inputs.emplace_back(reinterpret_cast<uint8_t *>(step.data()));
+  task_data_tbb->inputs_count.emplace_back(step.size());
+
+  task_data_tbb->inputs.emplace_back(reinterpret_cast<uint8_t *>(bord.data()));
+  task_data_tbb->inputs_count.emplace_back(bord.size());
+
+  task_data_tbb->outputs.emplace_back(reinterpret_cast<uint8_t *>(&func_result));
+  task_data_tbb->outputs_count.emplace_back(1);
+
+  // Create Task
+  kolokolova_d_integral_simpson_method_tbb::TestTaskTBB test_task_tbb(task_data_tbb, func);
+  ASSERT_EQ(test_task_tbb.Validation(), true);
+  test_task_tbb.PreProcessing();
+  test_task_tbb.Run();
+  test_task_tbb.PostProcessing();
+  double ans = 81.0;
+  double error = 1e-5;
+  ASSERT_NEAR(func_result, ans, error);
 }
