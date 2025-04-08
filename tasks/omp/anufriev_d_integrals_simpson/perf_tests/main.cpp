@@ -10,7 +10,7 @@
 #include "omp/anufriev_d_integrals_simpson/include/ops_omp.hpp"
 
 TEST(anufriev_d_integrals_simpson_omp, test_pipeline_run) {
-  std::vector<double> in = {2, 0.0, 1.0, 1000, 0.0, 1.0, 1000, 0};
+  std::vector<double> in = {2, 0.0, 1.0, 2000, 0.0, 1.0, 2000, 0};
   std::vector<double> out(1, 0.0);
 
   auto task_data_seq = std::make_shared<ppc::core::TaskData>();
@@ -42,7 +42,7 @@ TEST(anufriev_d_integrals_simpson_omp, test_pipeline_run) {
 }
 
 TEST(anufriev_d_integrals_simpson_omp, test_task_run) {
-  std::vector<double> in = {2, 0.0, 1.0, 1000, 0.0, 1.0, 1000, 0};
+  std::vector<double> in = {2, 0.0, 1.0, 2000, 0.0, 1.0, 2000, 0};
   std::vector<double> out(1, 0.0);
 
   auto task_data_seq = std::make_shared<ppc::core::TaskData>();
