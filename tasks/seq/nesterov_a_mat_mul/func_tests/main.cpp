@@ -41,11 +41,14 @@ TEST(nesterov_a_mat_mul_seq, test_matmul_50) {
 TEST(nesterov_a_mat_mul_seq, test_matmul_100_from_file) {
   std::string line;
   std::ifstream test_file(ppc::util::GetAbsolutePath("seq/example/data/test.txt"));
-  if (test_file.is_open()) {
-    getline(test_file, line);
+  if (!test_file.is_open()) {
+    throw std::runtime_error("Failed to open file: seq/example/data/test.txt");
   }
+  getline(test_file, line);
   test_file.close();
-
+  if (line.empty()) {
+    throw std::runtime_error("File is empty or failed to read line from file: seq/example/data/test.txt");
+  }
   const size_t count = std::stoi(line);
 
   // Create data
