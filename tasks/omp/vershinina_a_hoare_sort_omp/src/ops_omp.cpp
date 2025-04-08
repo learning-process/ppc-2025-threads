@@ -40,19 +40,19 @@ void BatcherMergeBlocksStep(double *left_pointer, int &left_size, double *right_
   left_size += right_size;
 }
 
-void BatcherMerge(int thread_input_size, std::vector<double *> &pointers, std::vector<int> &sizes,
-                                 int par_if_greater) {
+void BatcherMerge(int thread_input_size, std::vector<double *> &pointers, std::vector<int> &sizes, int par_if_greater) {
   for (int step = 1, pack = int(pointers.size()); pack > 1; step *= 2, pack /= 2) {
 #pragma omp parallel for if ((thread_input_size / step) > par_if_greater)
     for (int off = 0; off < pack / 2; ++off) {
       BatcherMergeBlocksStep(pointers[2 * step * off], sizes[2 * step * off], pointers[(2 * step * off) + step],
-                                    sizes[(2 * step * off) + step]);
+                             sizes[(2 * step * off) + step]);
     }
     if ((pack / 2) - 1 == 0) {
-      BatcherMergeBlocksStep(pointers[0], sizes[sizes.size() - 1], pointers[pointers.size()-1], sizes[sizes.size() - 1]);
+      BatcherMergeBlocksStep(pointers[0], sizes[sizes.size() - 1], pointers[pointers.size() - 1],
+                             sizes[sizes.size() - 1]);
     } else if ((pack / 2) % 2 != 0) {
       BatcherMergeBlocksStep(pointers[2 * step * ((pack / 2) - 2)], sizes[2 * step * ((pack / 2) - 2)],
-                                    pointers[2 * step * ((pack / 2) - 1)], sizes[2 * step * ((pack / 2) - 1)]);
+                             pointers[2 * step * ((pack / 2) - 1)], sizes[2 * step * ((pack / 2) - 1)]);
     }
   }
 }
