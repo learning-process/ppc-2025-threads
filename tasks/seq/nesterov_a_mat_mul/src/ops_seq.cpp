@@ -13,7 +13,11 @@ bool nesterov_a_mat_mul_seq::TestTaskSequential::PreProcessingImpl() {
   unsigned int output_size = task_data->outputs_count[0];
   output_ = std::vector<int>(output_size, 0);
 
-  rc_size_ = static_cast<int>(std::sqrt(input_size));
+  int sqrt_input_size = static_cast<int>(std::sqrt(input_size));
+  if (sqrt_input_size * sqrt_input_size != input_size) {
+    return false; // input_size is not a perfect square
+  }
+  rc_size_ = sqrt_input_size;
   return true;
 }
 
