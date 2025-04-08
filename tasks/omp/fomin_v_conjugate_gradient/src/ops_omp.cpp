@@ -9,7 +9,7 @@ double fomin_v_conjugate_gradient::FominVConjugateGradientOmp::DotProduct(const 
                                                                           const std::vector<double>& b) {
   double result = 0.0;
 #pragma omp parallel for reduction(+ : result)  // Параллелим с редукцией
-  for (int i = 0; i < a.size(); ++i) {
+  for (int i = 0; i < static_cast<int>(a.size()); ++i) {
     result += a[i] * b[i];
   }
   return result;
