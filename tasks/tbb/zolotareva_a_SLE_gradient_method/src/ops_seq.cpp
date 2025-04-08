@@ -2,7 +2,7 @@
 
 #include <oneapi/tbb/blocked_range.h>
 #include <oneapi/tbb/parallel_for.h>
-#include <tbb/parallel_reduce.h>
+#include <oneapi/tbb/parallel_reduce.h>
 #include <tbb/tbb.h>
 
 #include <algorithm>
@@ -63,8 +63,8 @@ bool zolotareva_a_sle_gradient_method_tbb::TestTaskTBB::PostProcessingImpl() {
 }
 
 void zolotareva_a_sle_gradient_method_tbb::TestTaskTBB::ConjugateGradient(const std::vector<double>& a,
-                                                                                 const std::vector<double>& b,
-                                                                                 std::vector<double>& x, int n) {
+                                                                          const std::vector<double>& b,
+                                                                          std::vector<double>& x, int n) {
   double initial_res_norm = 0.0;
   DotProduct(initial_res_norm, b, b, n);
   initial_res_norm = std::sqrt(initial_res_norm);
@@ -98,7 +98,7 @@ void zolotareva_a_sle_gradient_method_tbb::TestTaskTBB::ConjugateGradient(const 
     if (rs_new < threshold) {  // Проверка на сходимость
       break;
     }
-    
+
     double beta = rs_new / rs_old;
     tbb::parallel_for(tbb::blocked_range<int>(0, n), [&](const tbb::blocked_range<int>& range) {
       for (int i = range.begin(); i < range.end(); ++i) {
@@ -111,7 +111,7 @@ void zolotareva_a_sle_gradient_method_tbb::TestTaskTBB::ConjugateGradient(const 
 }
 
 void zolotareva_a_sle_gradient_method_tbb::TestTaskTBB::DotProduct(double& sum, const std::vector<double>& vec1,
-                                                                          const std::vector<double>& vec2, int n) {
+                                                                   const std::vector<double>& vec2, int n) {
   sum = tbb::parallel_reduce(
       tbb::blocked_range<int>(0, n), 0.0,
       [&](const tbb::blocked_range<int>& r, double local_sum) {
@@ -120,12 +120,12 @@ void zolotareva_a_sle_gradient_method_tbb::TestTaskTBB::DotProduct(double& sum, 
         }
         return local_sum;
       },
-      std::plus<double>());
+      std::plus<>());
 }
 
 void zolotareva_a_sle_gradient_method_tbb::TestTaskTBB::MatrixVectorMult(const std::vector<double>& matrix,
-                                                                                const std::vector<double>& vector,
-                                                                                std::vector<double>& result, int n) {
+                                                                         const std::vector<double>& vector,
+                                                                         std::vector<double>& result, int n) {
   tbb::parallel_for(tbb::blocked_range<int>(0, n), [&](const tbb::blocked_range<int>& r) {
     for (int i = r.begin(); i < r.end(); ++i) {
       double sum = 0.0;
