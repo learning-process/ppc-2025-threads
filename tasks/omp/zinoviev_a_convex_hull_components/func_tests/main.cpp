@@ -47,36 +47,46 @@ void RunTest(const std::vector<int>& input, const std::vector<zinoviev_a_convex_
 }  // namespace
 
 TEST(zinoviev_a_convex_hull_omp, EmptyImage) {
+  constexpr int kWidth = 5;
+  constexpr int kHeight = 5;
   std::vector<int> input(25, 0);
-  RunTest(input, {}, 5, 5);
+  RunTest(input, {}, kWidth, kHeight);
 }
 
 TEST(zinoviev_a_convex_hull_omp, FullRectangle) {
+  constexpr int kWidth = 5;
+  constexpr int kHeight = 5;
   std::vector<int> input(25, 1);
   const std::vector<zinoviev_a_convex_hull_components_omp::Point> expect{
       {.x = 0, .y = 0}, {.x = 4, .y = 0}, {.x = 3, .y = 4}, {.x = 0, .y = 4}};
-  RunTest(input, expect, 5, 5);
+  RunTest(input, expect, kWidth, kHeight);
 }
 
 TEST(zinoviev_a_convex_hull_omp, CrossShape) {
+  constexpr int kWidth = 5;
+  constexpr int kHeight = 5;
   std::vector<int> input = {0, 1, 0, 0, 0, 1, 1, 1, 1, 1, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0};
   const std::vector<zinoviev_a_convex_hull_components_omp::Point> expect{
       {.x = 0, .y = 1}, {.x = 1, .y = 0}, {.x = 4, .y = 1}, {.x = 1, .y = 4}};
-  RunTest(input, expect, 5, 5);
+  RunTest(input, expect, kWidth, kHeight);
 }
 
 TEST(zinoviev_a_convex_hull_omp, SinglePoint) {
+  constexpr int kWidth = 5;
+  constexpr int kHeight = 5;
   std::vector<int> input(25, 0);
   input[12] = 1;
   const std::vector<zinoviev_a_convex_hull_components_omp::Point> expect{{.x = 2, .y = 2}};
-  RunTest(input, expect, 5, 5);
+  RunTest(input, expect, kWidth, kHeight);
 }
 
 TEST(zinoviev_a_convex_hull_omp, FullSquare) {
+  constexpr int kWidth = 3;
+  constexpr int kHeight = 3;
   std::vector<int> input(9, 1);
   const std::vector<zinoviev_a_convex_hull_components_omp::Point> expect{
       {.x = 0, .y = 0}, {.x = 2, .y = 0}, {.x = 1, .y = 2}, {.x = 0, .y = 2}};
-  RunTest(input, expect, 3, 3);
+  RunTest(input, expect, kWidth, kHeight);
 }
 
 TEST(zinoviev_a_convex_hull_omp, LargeRectangleBorder) {
