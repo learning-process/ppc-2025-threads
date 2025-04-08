@@ -7,12 +7,12 @@
 
 #include "core/util/include/util.hpp"
 
-int vershinina_a_hoare_sort_omp::TestTaskOpenMP::Partition(double *s_vec, int first, int last) {
+int Partition(double *s_vec, int first, int last) {
   int i = first - 1;
-  double value_ = s_vec[last];
+  double value = s_vec[last];
 
   for (int j = first; j <= last - 1; j++) {
-    if (s_vec[j] <= value_) {
+    if (s_vec[j] <= value) {
       i++;
       std::swap(s_vec[i], s_vec[j]);
     }
@@ -21,7 +21,7 @@ int vershinina_a_hoare_sort_omp::TestTaskOpenMP::Partition(double *s_vec, int fi
   return i + 1;
 }
 
-void vershinina_a_hoare_sort_omp::TestTaskOpenMP::HoareSort(double *s_vec, int first, int last) {
+void HoareSort(double *s_vec, int first, int last) {
   if (first < last) {
     int iter = Partition(s_vec, first, last);
     HoareSort(s_vec, first, iter - 1);

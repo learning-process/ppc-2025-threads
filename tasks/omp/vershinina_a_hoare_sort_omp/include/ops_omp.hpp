@@ -18,8 +18,6 @@ class TestTaskOpenMP : public ppc::core::Task {
   std::vector<double> input_;
   int n_{};
   std::vector<double> res_;
-  void HoareSort(double *s_vec, int first, int last);
-  int Partition(double *s_vec, int first, int last);
 };
 
 }  // namespace vershinina_a_hoare_sort_omp
