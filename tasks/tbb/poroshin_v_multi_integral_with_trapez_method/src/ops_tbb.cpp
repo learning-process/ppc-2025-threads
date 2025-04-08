@@ -1,15 +1,12 @@
 #include "tbb/poroshin_v_multi_integral_with_trapez_method/include/ops_tbb.hpp"
 
+#include <tbb/parallel_for.h>
 #include <tbb/tbb.h>
 
 #include <cmath>
-#include <core/util/include/util.hpp>
 #include <cstddef>
 #include <functional>
 #include <vector>
-
-#include "oneapi/tbb/task_arena.h"
-#include "oneapi/tbb/task_group.h"
 
 // void poroshin_v_multi_integral_with_trapez_method_omp::TestTaskOpenMP::CountMultiIntegralTrapezMethodOmp() {
 //   const int dimensions = static_cast<int>(limits_.size());
@@ -119,7 +116,7 @@ void poroshin_v_multi_integral_with_trapez_method_tbb::TestTaskTBB::CountMultiIn
         }
         return local_integral;
       },
-      std::plus<double>());
+      std::plus<>());
 
   double volume = tbb::parallel_reduce(
       tbb::blocked_range<int>(0, dimensions), 1.0,
@@ -129,7 +126,7 @@ void poroshin_v_multi_integral_with_trapez_method_tbb::TestTaskTBB::CountMultiIn
         }
         return local_volume;
       },
-      std::multiplies<double>());
+      std::multiplies<>());
 
   res_ = integral * volume;
 }
