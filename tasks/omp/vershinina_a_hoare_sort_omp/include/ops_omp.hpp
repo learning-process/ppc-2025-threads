@@ -16,7 +16,6 @@ class TestTaskOpenMP : public ppc::core::Task {
 
  private:
   std::vector<double> input_;
-  int n_{};
   std::vector<double> res_;
 };
 
