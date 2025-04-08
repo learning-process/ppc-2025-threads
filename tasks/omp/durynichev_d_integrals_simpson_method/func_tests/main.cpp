@@ -127,7 +127,7 @@ TEST(durynichev_d_integrals_simpson_method_omp, test_integral_1D_combined) {
 
 // 2D
 TEST(durynichev_d_integrals_simpson_method_omp, test_integral_2D_sin) {
-  std::vector<double> in = {0.0, M_PI_2, 0.0, M_PI_2, 100, 1};
+  std::vector<double> in = {0.0, std::numbers::pi / 2, 0.0, std::numbers::pi / 2, 100, 1};
   std::vector<double> out(1, 0.0);
 
   auto task_data = std::make_shared<ppc::core::TaskData>();
@@ -146,7 +146,7 @@ TEST(durynichev_d_integrals_simpson_method_omp, test_integral_2D_sin) {
 }
 
 TEST(durynichev_d_integrals_simpson_method_omp, test_integral_2D_cos) {
-  std::vector<double> in = {0.0, M_PI_2, 0.0, M_PI_2, 100, 2};
+  std::vector<double> in = {0.0, std::numbers::pi / 2, 0.0, std::numbers::pi / 2, 100, 2};
   std::vector<double> out(1, 0.0);
 
   auto task_data = std::make_shared<ppc::core::TaskData>();
@@ -226,7 +226,7 @@ TEST(durynichev_d_integrals_simpson_method_omp, test_integral_3D_x_squared) {
 }
 
 TEST(durynichev_d_integrals_simpson_method_omp, test_integral_3D_sin) {
-  std::vector<double> in = {0.0, M_PI_2, 0.0, M_PI_2, 0.0, M_PI_2, 100, 1};
+  std::vector<double> in = {0.0, std::numbers::pi / 2, 0.0, std::numbers::pi / 2, 0.0, std::numbers::pi / 2, 100, 1};
   std::vector<double> out(1, 0.0);
 
   auto task_data = std::make_shared<ppc::core::TaskData>();
@@ -245,7 +245,7 @@ TEST(durynichev_d_integrals_simpson_method_omp, test_integral_3D_sin) {
 }
 
 TEST(durynichev_d_integrals_simpson_method_omp, test_integral_3D_cos) {
-  std::vector<double> in = {0.0, M_PI_2, 0.0, M_PI_2, 0.0, M_PI_2, 100, 2};
+  std::vector<double> in = {0.0, std::numbers::pi / 2, 0.0, std::numbers::pi / 2, 0.0, std::numbers::pi / 2, 100, 2};
   std::vector<double> out(1, 0.0);
 
   auto task_data = std::make_shared<ppc::core::TaskData>();
