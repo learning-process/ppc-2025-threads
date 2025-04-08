@@ -2,8 +2,8 @@
 
 #include <cstdint>
 #include <memory>
-#include <vector>
 #include <random>
+#include <vector>
 
 #include "core/task/include/task.hpp"
 #include "omp/durynichev_d_integrals_simpson_method/include/ops_omp.hpp"
