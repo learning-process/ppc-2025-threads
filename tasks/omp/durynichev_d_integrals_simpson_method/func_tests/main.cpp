@@ -312,7 +312,7 @@ TEST(durynichev_d_integrals_simpson_method_omp, test_integral_1D_random) {
   double a = -10.0 + ((rand() % 200) / 10.0);  // from -10 to 10
   double b = a + ((rand() % 100) / 10.0);      // from a to a+10
   int n = 100 + (rand() % 1000);               // from 100 to 1100 steps
-  n = n - (n % 2);                           // Make n even
+  n = n - (n % 2);                             // Make n even
 
   std::vector<double> in = {a, b, static_cast<double>(n), 0};  // Quadratic function
   std::vector<double> out(1, 0.0);
@@ -341,7 +341,7 @@ TEST(durynichev_d_integrals_simpson_method_omp, test_integral_2D_random) {
   double y_a = -5.0 + ((rand() % 100) / 10.0);  // from -5 to 5
   double y_b = y_a + ((rand() % 50) / 10.0);    // from y_a to y_a+5
   int n = 100 + (rand() % 200);                 // from 100 to 300 steps
-  n = n - (n % 2);                            // Make n even
+  n = n - (n % 2);                              // Make n even
 
   std::vector<double> in = {x_a, x_b, y_a, y_b, static_cast<double>(n), 0};  // Quadratic function
   std::vector<double> out(1, 0.0);
@@ -374,7 +374,7 @@ TEST(durynichev_d_integrals_simpson_method_omp, test_integral_3D_random) {
   double z_a = -2.0 + ((rand() % 40) / 10.0);  // from -2 to 2
   double z_b = z_a + ((rand() % 20) / 10.0);   // from z_a to z_a+2
   int n = 50 + (rand() % 100);                 // from 50 to 150 steps
-  n = n - (n % 2);                           // Make n even
+  n = n - (n % 2);                             // Make n even
 
   std::vector<double> in = {x_a, x_b, y_a, y_b, z_a, z_b, static_cast<double>(n), 0};  // Quadratic function
   std::vector<double> out(1, 0.0);
