@@ -108,6 +108,10 @@ bool naumov_b_marc_on_bin_image_omp::TestTaskOpenMP::PreProcessingImpl() {
   rows_ = static_cast<int>(task_data->inputs_count[0]);
   cols_ = static_cast<int>(task_data->inputs_count[1]);
 
+  if (rows_ <= 0 || cols_ <= 0) {
+    return false;
+  }
+
   input_image_.resize(rows_ * cols_, 0);
   output_image_.resize(rows_ * cols_, 0);
   label_parent_.clear();

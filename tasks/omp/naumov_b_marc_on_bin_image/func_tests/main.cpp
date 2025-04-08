@@ -10,7 +10,7 @@
 #include "core/task/include/task.hpp"
 #include "omp/naumov_b_marc_on_bin_image/include/ops_omp.hpp"
 
-namespace naumov_b_marc_test_utils {
+namespace {
 void VerifyBinaryOutput(const std::vector<int> &in, const std::vector<int> &out) {
   for (size_t i = 0; i < in.size(); ++i) {
     if (in[i] == 1) {
@@ -46,7 +46,7 @@ void VerifyNeighborConsistency(const std::vector<int> &in, const std::vector<int
     }
   }
 }
-}  // namespace naumov_b_marc_test_utils
+}  // namespace
 
 TEST(naumov_b_marc_on_bin_image_omp, Validation_1) {
   int m = 3;
@@ -429,7 +429,7 @@ TEST(naumov_b_marc_on_bin_image_omp, RandomSmallMatrix) {
   ASSERT_TRUE(test_task_omp.Run());
   ASSERT_TRUE(test_task_omp.PostProcessing());
 
-  naumov_b_marc_test_utils::VerifyBinaryOutput(in, out);
+  VerifyBinaryOutput(in, out);
 }
 
 TEST(naumov_b_marc_on_bin_image_omp, RandomLargeMatrix) {
@@ -453,7 +453,7 @@ TEST(naumov_b_marc_on_bin_image_omp, RandomLargeMatrix) {
   ASSERT_TRUE(test_task_omp.Run());
   ASSERT_TRUE(test_task_omp.PostProcessing());
 
-  naumov_b_marc_test_utils::VerifyNeighborConsistency(in, out, kM, kN);
+  VerifyNeighborConsistency(in, out, kM, kN);
 }
 
 TEST(naumov_b_marc_on_bin_image_omp, RandomSparseMatrix) {
@@ -551,4 +551,74 @@ TEST(naumov_b_marc_on_bin_image_omp, RandomDenseMatrix2) {
   }
 
   EXPECT_LE(unique_labels.size(), static_cast<size_t>(5));
+}
+
+TEST(naumov_b_marc_on_bin_image_omp, ZeroByZeroMatrix) {
+  int m = 0;
+  int n = 0;
+
+  std::vector<int> in;
+  std::vector<int> out;
+
+  auto task_data_omp = std::make_shared<ppc::core::TaskData>();
+  task_data_omp->inputs.emplace_back(reinterpret_cast<uint8_t *>(in.data()));
+  task_data_omp->inputs_count.emplace_back(m);
+  task_data_omp->inputs_count.emplace_back(n);
+  task_data_omp->outputs.emplace_back(reinterpret_cast<uint8_t *>(out.data()));
+  task_data_omp->outputs_count.emplace_back(m);
+  task_data_omp->outputs_count.emplace_back(n);
+
+  naumov_b_marc_on_bin_image_omp::TestTaskOpenMP test_task_omp(task_data_omp);
+
+  EXPECT_FALSE(test_task_omp.Validation());
+}
+
+TEST(naumov_b_marc_on_bin_image_omp, SinglePixelMatrix_Background) {
+  int m = 1;
+  int n = 1;
+
+  std::vector<int> in = {0};
+  std::vector<int> exp_out = {0};
+  std::vector<int> out(m * n, -1);
+
+  auto task_data_omp = std::make_shared<ppc::core::TaskData>();
+  task_data_omp->inputs.emplace_back(reinterpret_cast<uint8_t *>(in.data()));
+  task_data_omp->inputs_count.emplace_back(m);
+  task_data_omp->inputs_count.emplace_back(n);
+  task_data_omp->outputs.emplace_back(reinterpret_cast<uint8_t *>(out.data()));
+  task_data_omp->outputs_count.emplace_back(m);
+  task_data_omp->outputs_count.emplace_back(n);
+
+  naumov_b_marc_on_bin_image_omp::TestTaskOpenMP test_task_omp(task_data_omp);
+
+  ASSERT_TRUE(test_task_omp.Validation());
+  ASSERT_TRUE(test_task_omp.PreProcessing());
+  ASSERT_TRUE(test_task_omp.Run());
+  ASSERT_TRUE(test_task_omp.PostProcessing());
+  EXPECT_EQ(out, exp_out);
+}
+
+TEST(naumov_b_marc_on_bin_image_omp, SinglePixelMatrix_Foreground) {
+  int m = 1;
+  int n = 1;
+
+  std::vector<int> in = {1};
+  std::vector<int> exp_out = {1};
+  std::vector<int> out(m * n, -1);
+
+  auto task_data_omp = std::make_shared<ppc::core::TaskData>();
+  task_data_omp->inputs.emplace_back(reinterpret_cast<uint8_t *>(in.data()));
+  task_data_omp->inputs_count.emplace_back(m);
+  task_data_omp->inputs_count.emplace_back(n);
+  task_data_omp->outputs.emplace_back(reinterpret_cast<uint8_t *>(out.data()));
+  task_data_omp->outputs_count.emplace_back(m);
+  task_data_omp->outputs_count.emplace_back(n);
+
+  naumov_b_marc_on_bin_image_omp::TestTaskOpenMP test_task_omp(task_data_omp);
+
+  ASSERT_TRUE(test_task_omp.Validation());
+  ASSERT_TRUE(test_task_omp.PreProcessing());
+  ASSERT_TRUE(test_task_omp.Run());
+  ASSERT_TRUE(test_task_omp.PostProcessing());
+  EXPECT_EQ(out, exp_out);
 }
