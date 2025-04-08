@@ -47,7 +47,8 @@ TEST(zinoviev_a_convex_hull_omp, test_pipeline_run) {
   size_t res_size = data->outputs_count[0];
   std::vector<zinoviev_a_convex_hull_components_omp::Point> actual(res, res + res_size);
 
-  std::vector<zinoviev_a_convex_hull_components_omp::Point> expect{{.x = 0, .y =0}, {.x = 99, .y = 0}, {.x = 98, .y = 99}, {.x = 0, .y = 99}};
+  std::vector<zinoviev_a_convex_hull_components_omp::Point> expect{
+      {.x = 0, .y =0}, {.x = 99, .y = 0}, {.x = 98, .y = 99}, {.x = 0, .y = 99}};
   CheckResult(actual, expect);
 
   delete[] reinterpret_cast<zinoviev_a_convex_hull_components_omp::Point*>(data->outputs[0]);
@@ -79,7 +80,8 @@ TEST(zinoviev_a_convex_hull_omp, test_task_run) {
   size_t res_size = data->outputs_count[0];
   std::vector<zinoviev_a_convex_hull_components_omp::Point> actual(res, res + res_size);
 
-  std::vector<zinoviev_a_convex_hull_components_omp::Point> expect{{.x = 0, .y = 0}, {.x = 99, .y = 0}, {.x = 98, .y = 99}, {.x = 0, .y = 99}};
+  std::vector<zinoviev_a_convex_hull_components_omp::Point> expect{
+      {.x = 0, .y = 0}, {.x = 99, .y = 0}, {.x = 98, .y = 99}, {.x = 0, .y = 99}};
   CheckResult(actual, expect);
 
   delete[] reinterpret_cast<zinoviev_a_convex_hull_components_omp::Point*>(data->outputs[0]);
