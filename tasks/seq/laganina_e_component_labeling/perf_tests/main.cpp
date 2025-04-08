@@ -20,7 +20,6 @@ TEST(laganina_e_component_labeling_seq, test_pipeline_run) {
     in[i] = 1;
   }
 
-  // Create task_data
   auto task_data_seq = std::make_shared<ppc::core::TaskData>();
   task_data_seq->inputs.emplace_back(reinterpret_cast<uint8_t *>(in.data()));
   task_data_seq->inputs_count.emplace_back(kCount);
