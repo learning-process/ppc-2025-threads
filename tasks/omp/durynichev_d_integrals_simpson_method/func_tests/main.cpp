@@ -1,12 +1,10 @@
-#define _USE_MATH_DEFINES
-
 #include <gtest/gtest.h>
 
 #include <cmath>
 #include <cstdint>
+#include <cstdlib>
 #include <memory>
 #include <numbers>
-#include <random>
 #include <vector>
 
 #include "core/task/include/task.hpp"
@@ -32,7 +30,7 @@ TEST(durynichev_d_integrals_simpson_method_omp, test_integral_1D_x_squared) {
 }
 
 TEST(durynichev_d_integrals_simpson_method_omp, test_integral_1D_sin) {
-  std::vector<double> in = {0.0, M_PI, 1000, 1};
+  std::vector<double> in = {0.0, std::numbers::pi, 1000, 1};
   std::vector<double> out(1, 0.0);
 
   auto task_data = std::make_shared<ppc::core::TaskData>();
@@ -51,7 +49,7 @@ TEST(durynichev_d_integrals_simpson_method_omp, test_integral_1D_sin) {
 }
 
 TEST(durynichev_d_integrals_simpson_method_omp, test_integral_1D_cos) {
-  std::vector<double> in = {0.0, M_PI_2, 1000, 2};
+  std::vector<double> in = {0.0, std::numbers::pi / 2, 1000, 2};
   std::vector<double> out(1, 0.0);
 
   auto task_data = std::make_shared<ppc::core::TaskData>();
