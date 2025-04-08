@@ -17,7 +17,6 @@ class TestTaskOpenMP : public ppc::core::Task {
  private:
   std::vector<double> input_;
   int n_{};
-  int value_;
   std::vector<double> res_;
   void HoareSort(double *s_vec, int first, int last);
   int Partition(double *s_vec, int first, int last);

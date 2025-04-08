@@ -1,14 +1,13 @@
 #include <gtest/gtest.h>
 
+#include <algorithm>
 #include <cstddef>
 #include <cstdint>
-#include <fstream>
 #include <memory>
 #include <random>
 #include <vector>
 
 #include "core/task/include/task.hpp"
-#include "core/util/include/util.hpp"
 #include "omp/vershinina_a_hoare_sort_omp/include/ops_omp.hpp"
 
 namespace {

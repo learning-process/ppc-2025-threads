@@ -2,21 +2,14 @@
 
 #include <algorithm>
 #include <cmath>
-#include <cstddef>
-#include <cstdint>
-#include <iostream>
-#include <iterator>
-#include <limits>
-#include <random>
 #include <utility>
 #include <vector>
 
-#include "core/task/include/task.hpp"
 #include "core/util/include/util.hpp"
 
 int vershinina_a_hoare_sort_omp::TestTaskOpenMP::Partition(double *s_vec, int first, int last) {
   int i = first - 1;
-  value_ = s_vec[last];
+  double value_ = s_vec[last];
 
   for (int j = first; j <= last - 1; j++) {
     if (s_vec[j] <= value_) {
@@ -35,6 +28,7 @@ void vershinina_a_hoare_sort_omp::TestTaskOpenMP::HoareSort(double *s_vec, int f
     HoareSort(s_vec, iter + 1, last);
   }
 }
+namespace {
 void BatcherMergeBlocksStep(double *left_pointer, int &left_size, double *right_pointer, int &right_size) {
   std::inplace_merge(left_pointer, right_pointer, right_pointer + right_size);
   left_size += right_size;
@@ -56,7 +50,7 @@ void BatcherMerge(int thread_input_size, std::vector<double *> &pointers, std::v
     }
   }
 }
-
+}  // namespace
 bool vershinina_a_hoare_sort_omp::TestTaskOpenMP::PreProcessingImpl() {
   input_.assign(reinterpret_cast<double *>(task_data->inputs[0]),
                 reinterpret_cast<double *>(task_data->inputs[0]) + task_data->inputs_count[0]);
