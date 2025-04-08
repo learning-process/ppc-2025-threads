@@ -7,6 +7,7 @@
 
 #include "core/util/include/util.hpp"
 
+namespace {
 int Partition(double *s_vec, int first, int last) {
   int i = first - 1;
   double value = s_vec[last];
@@ -28,7 +29,7 @@ void HoareSort(double *s_vec, int first, int last) {
     HoareSort(s_vec, iter + 1, last);
   }
 }
-namespace {
+
 void BatcherMergeBlocksStep(double *left_pointer, int &left_size, double *right_pointer, int &right_size) {
   std::inplace_merge(left_pointer, right_pointer, right_pointer + right_size);
   left_size += right_size;
