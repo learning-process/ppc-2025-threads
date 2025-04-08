@@ -12,14 +12,7 @@ namespace durynichev_d_integrals_simpson_method_omp {
 
 class SimpsonIntegralOpenMP : public ppc::core::Task {
  public:
-  enum class FunctionType {
-    kSquare,
-    kSin,
-    kCos,
-    kExp,
-    kLog,
-    kCombined
-  };
+  enum class FunctionType { kSquare, kSin, kCos, kExp, kLog, kCombined };
 
   explicit SimpsonIntegralOpenMP(std::shared_ptr<ppc::core::TaskData> task_data) : Task(std::move(task_data)) {}
   bool PreProcessingImpl() override;
