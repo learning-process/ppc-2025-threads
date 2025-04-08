@@ -64,16 +64,16 @@ bool vershinina_a_hoare_sort_omp::TestTaskOpenMP::ValidationImpl() {
 }
 
 bool vershinina_a_hoare_sort_omp::TestTaskOpenMP::RunImpl() {
-  int n_ = int(input_.size());
-  if (n_ <= 1) {
+  int n = int(input_.size());
+  if (n <= 1) {
     return true;
   }
   res_.resize(input_.size());
   std::ranges::copy(input_, res_.begin());
 
-  const auto numthreads = std::min(n_, ppc::util::GetPPCNumThreads());
-  int thread_input_size = n_ / numthreads;
-  int thread_input_remainder_size = n_ % numthreads;
+  const auto numthreads = std::min(n, ppc::util::GetPPCNumThreads());
+  int thread_input_size = n / numthreads;
+  int thread_input_remainder_size = n % numthreads;
 
   std::vector<double *> pointers(numthreads);
   std::vector<int> sizes(numthreads);
