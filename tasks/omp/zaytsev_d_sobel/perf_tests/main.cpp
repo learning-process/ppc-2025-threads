@@ -1,6 +1,8 @@
 #include <gtest/gtest.h>
 
+#include <algorithm>
 #include <chrono>
+#include <cmath>
 #include <cstddef>
 #include <cstdint>
 #include <memory>
@@ -32,19 +34,19 @@ std::vector<int> SSobel(const std::vector<int> &input, int width, int height) {
 
   for (int y = 1; y < height - 1; ++y) {
     for (int x = 1; x < width - 1; ++x) {
-      int sumX = 0;
-      int sumY = 0;
+      int sum_x = 0;
+      int sum_y = 0;
 
       for (int ky = -1; ky <= 1; ++ky) {
         for (int kx = -1; kx <= 1; ++kx) {
-          int pixel = input[(y + ky) * width + (x + kx)];
-          sumX += gx[ky + 1][kx + 1] * pixel;
-          sumY += gy[ky + 1][kx + 1] * pixel;
+          int pixel = input[((y + ky) * width) + (x + kx)];
+          sum_x += gx[ky + 1][kx + 1] * pixel;
+          sum_y += gy[ky + 1][kx + 1] * pixel;
         }
       }
 
-      int magnitude = static_cast<int>(std::sqrt(sumX * sumX + sumY * sumY));
-      output[y * width + x] = std::min(magnitude, 255);
+      int magnitude = static_cast<int>(std::sqrt((sum_x * sum_x) + (sum_y * sum_y)));
+      output[(y * width) + x] = std::min(magnitude, 255);
     }
   }
 
