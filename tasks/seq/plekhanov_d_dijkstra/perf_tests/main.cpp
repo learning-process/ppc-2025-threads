@@ -8,7 +8,6 @@
 #include <functional>
 #include <memory>
 #include <queue>
-
 #include <time>
 #include <utility>
 #include <vector>
