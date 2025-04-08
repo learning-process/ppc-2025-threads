@@ -1,6 +1,13 @@
 #include "omp/belov_a_radix_sort_with_batcher_mergesort/include/ops_omp.hpp"
 
+#include <algorithm>
 #include <cmath>
+#include <cstddef>
+#include <cstdint>
+#include <ranges>
+#include <span>
+#include <utility>
+#include <vector>
 
 #include "core/util/include/util.hpp"
 
@@ -39,7 +46,7 @@ void RadixBatcherMergesortParallel::RadixSort(vector<Bigint>& arr, bool invert) 
     return;
   }
 
-  Bigint max_val = *std::max_element(arr.begin(), arr.end());
+  Bigint max_val = *std::ranges::max_element(arr);
   int max_val_digit_capacity = GetNumberDigitCapacity(max_val);
   int iter = 1;
 
@@ -48,7 +55,7 @@ void RadixBatcherMergesortParallel::RadixSort(vector<Bigint>& arr, bool invert) 
   }
 
   if (invert) {
-    std::reverse(arr.begin(), arr.end());
+    std::ranges::reverse(arr);
   }
 }
 
@@ -71,7 +78,7 @@ void RadixBatcherMergesortParallel::CountingSort(vector<Bigint>& arr, Bigint dig
     output[--count[index]] = num;
   }
 
-  std::copy(output.begin(), output.end(), arr.begin());
+  std::ranges::copy(output, arr.begin());
 }
 
 void RadixBatcherMergesortParallel::SortParallel(vector<Bigint>& arr) {
@@ -100,17 +107,17 @@ void RadixBatcherMergesortParallel::BatcherMergeParallel(vector<Bigint>& arr, in
     return;
   }
 
-  num_threads = std::max(1, num_threads);
+  num_threads = (num_threads < 1) ? 1 : num_threads;
 
-  size_t chunk_size = n / num_threads;            // if n < num_threads, chunk_size = 0
-  size_t step = std::max<size_t>(chunk_size, 1);  // guarantee that step >= 1 (to avoid division by zero)
+  size_t chunk_size = n / num_threads;              // if n < num_threads, chunk_size = 0
+  size_t step = (chunk_size < 1) ? 1 : chunk_size;  // guarantee that step >= 1 (to avoid division by zero)
 
   for (; step < n; step *= 2) {
 #pragma omp parallel for
     for (size_t i = 0; i < n - step; i += 2 * step) {
       size_t left = i;
       size_t right = i + step;
-      size_t end = std::min(i + 2 * step, n);
+      size_t end = (i + (2 * step) < n) ? (i + (2 * step)) : n;
 
       std::inplace_merge(arr.begin() + static_cast<int64_t>(left), arr.begin() + static_cast<int64_t>(right),
                          arr.begin() + static_cast<int64_t>(end));
@@ -120,7 +127,7 @@ void RadixBatcherMergesortParallel::BatcherMergeParallel(vector<Bigint>& arr, in
 
 vector<Bigint> RadixBatcherMergesortParallel::OddEvenMerge(const vector<Bigint>& left, const vector<Bigint>& right) {
   vector<Bigint> merged(left.size() + right.size());
-  std::merge(left.begin(), left.end(), right.begin(), right.end(), merged.begin());
+  std::ranges::merge(left, right, merged.begin());
 
   for (size_t i = 1; i < merged.size(); i += 2) {
     if (i + 1 < merged.size() && merged[i] > merged[i + 1]) {
@@ -152,7 +159,7 @@ bool RadixBatcherMergesortParallel::RunImpl() {
 }
 
 bool RadixBatcherMergesortParallel::PostProcessingImpl() {
-  copy(array_.begin(), array_.end(), reinterpret_cast<Bigint*>(task_data->outputs[0]));
+  std::ranges::copy(array_, reinterpret_cast<Bigint*>(task_data->outputs[0]));
   return true;
 }
 
