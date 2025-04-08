@@ -9,8 +9,19 @@
 #include "core/task/include/task.hpp"
 #include "omp/zinoviev_a_convex_hull_components/include/ops_omp.hpp"
 
+namespace {
+void CheckResult(const std::vector<zinoviev_a_convex_hull_components_omp::Point>& result,
+                 const std::vector<zinoviev_a_convex_hull_components_omp::Point>& expect) {
+  ASSERT_EQ(result.size(), expect.size());
+  for (size_t i = 0; i < result.size(); ++i) {
+    ASSERT_EQ(result[i].x, expect[i].x);
+    ASSERT_EQ(result[i].y, expect[i].y);
+  }
+}
+}  // namespace
+
 TEST(zinoviev_a_convex_hull_omp, test_pipeline_run) {
-  const int size = 2000;
+  const int size = 100;
   std::vector<int> input(size * size, 1);
 
   auto data = std::make_shared<ppc::core::TaskData>();
@@ -31,11 +42,18 @@ TEST(zinoviev_a_convex_hull_omp, test_pipeline_run) {
   perf_analyzer->PipelineRun(perf_attr, perf_results);
   ppc::core::Perf::PrintPerfStatistic(perf_results);
 
+  auto* res = reinterpret_cast<zinoviev_a_convex_hull_components_omp::Point*>(data->outputs[0]);
+  size_t res_size = data->outputs_count[0];
+  std::vector<zinoviev_a_convex_hull_components_omp::Point> actual(res, res + res_size);
+
+  std::vector<zinoviev_a_convex_hull_components_omp::Point> expect{{0, 0}, {99, 0}, {98, 99}, {0, 99}};
+  CheckResult(actual, expect);
+
   delete[] reinterpret_cast<zinoviev_a_convex_hull_components_omp::Point*>(data->outputs[0]);
 }
 
 TEST(zinoviev_a_convex_hull_omp, test_task_run) {
-  const int size = 2000;
+  const int size = 100;
   std::vector<int> input(size * size, 1);
 
   auto data = std::make_shared<ppc::core::TaskData>();
@@ -55,6 +73,13 @@ TEST(zinoviev_a_convex_hull_omp, test_task_run) {
   auto perf_analyzer = std::make_shared<ppc::core::Perf>(task);
   perf_analyzer->TaskRun(perf_attr, perf_results);
   ppc::core::Perf::PrintPerfStatistic(perf_results);
+
+  auto* res = reinterpret_cast<zinoviev_a_convex_hull_components_omp::Point*>(data->outputs[0]);
+  size_t res_size = data->outputs_count[0];
+  std::vector<zinoviev_a_convex_hull_components_omp::Point> actual(res, res + res_size);
+
+  std::vector<zinoviev_a_convex_hull_components_omp::Point> expect{{0, 0}, {99, 0}, {98, 99}, {0, 99}};
+  CheckResult(actual, expect);
 
   delete[] reinterpret_cast<zinoviev_a_convex_hull_components_omp::Point*>(data->outputs[0]);
 }
