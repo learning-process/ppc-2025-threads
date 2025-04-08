@@ -64,7 +64,7 @@ bool vershinina_a_hoare_sort_omp::TestTaskOpenMP::ValidationImpl() {
 }
 
 bool vershinina_a_hoare_sort_omp::TestTaskOpenMP::RunImpl() {
-  const int n_ = int(input_.size());
+  int n_ = int(input_.size());
   if (n_ <= 1) {
     return true;
   }
