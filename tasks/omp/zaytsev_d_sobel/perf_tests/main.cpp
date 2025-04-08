@@ -23,10 +23,38 @@ std::vector<int> GenerateRandomImage(size_t size) {
   }
   return image;
 }
+
+std::vector<int> SSobel(const std::vector<int> &input, int width, int height) {
+  std::vector<int> output(width * height, 0);
+
+  int gx[3][3] = {{-1, 0, 1}, {-2, 0, 2}, {-1, 0, 1}};
+  int gy[3][3] = {{-1, -2, -1}, {0, 0, 0}, {1, 2, 1}};
+
+  for (int y = 1; y < height - 1; ++y) {
+    for (int x = 1; x < width - 1; ++x) {
+      int sumX = 0;
+      int sumY = 0;
+
+      for (int ky = -1; ky <= 1; ++ky) {
+        for (int kx = -1; kx <= 1; ++kx) {
+          int pixel = input[(y + ky) * width + (x + kx)];
+          sumX += gx[ky + 1][kx + 1] * pixel;
+          sumY += gy[ky + 1][kx + 1] * pixel;
+        }
+      }
+
+      int magnitude = static_cast<int>(std::sqrt(sumX * sumX + sumY * sumY));
+      output[y * width + x] = std::min(magnitude, 255);
+    }
+  }
+
+  return output;
+}
+
 }  // namespace
 
 TEST(zaytsev_d_sobel_omp, test_pipeline_run) {
-  constexpr int kSize = 6000;
+  constexpr int kSize = 4500;
 
   std::vector<int> in = GenerateRandomImage(kSize * kSize);
   std::vector<int> out(kSize * kSize, 0);
@@ -57,11 +85,14 @@ TEST(zaytsev_d_sobel_omp, test_pipeline_run) {
   perf_analyzer->PipelineRun(perf_attr, perf_results);
   ppc::core::Perf::PrintPerfStatistic(perf_results);
 
-  ASSERT_NE(in, out);
+  std::vector<int> expected = SSobel(in, kSize, kSize);
+  for (size_t i = 0; i < out.size(); ++i) {
+    ASSERT_EQ(out[i], expected[i]);
+  }
 }
 
 TEST(zaytsev_d_sobel_omp, test_task_run) {
-  constexpr int kSize = 6000;
+  constexpr int kSize = 4500;
 
   std::vector<int> in = GenerateRandomImage(kSize * kSize);
   std::vector<int> out(kSize * kSize, 0);
@@ -92,5 +123,8 @@ TEST(zaytsev_d_sobel_omp, test_task_run) {
   perf_analyzer->TaskRun(perf_attr, perf_results);
   ppc::core::Perf::PrintPerfStatistic(perf_results);
 
-  ASSERT_NE(in, out);
+  std::vector<int> expected = SSobel(in, kSize, kSize);
+  for (size_t i = 0; i < out.size(); ++i) {
+    ASSERT_EQ(out[i], expected[i]);
+  }
 }
