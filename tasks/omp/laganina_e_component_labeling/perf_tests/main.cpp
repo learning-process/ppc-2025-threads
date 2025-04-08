@@ -11,7 +11,7 @@
 #include "omp/laganina_e_component_labeling/include/ops_omp.hpp"
 
 TEST(laganina_e_component_labeling_omp, test_pipeline_run) {
-  constexpr int kCount = 1500;
+  constexpr int kCount = 2000;
 
   // Create data
   std::vector<int> in(kCount * kCount, 0);
