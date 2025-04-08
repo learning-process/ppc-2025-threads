@@ -2,6 +2,7 @@
 #define TASKS_OMP_DURYNICHEV_D_INTEGRALS_SIMPSON_METHOD_INCLUDE_OPS_OMP_HPP_
 
 #include <cstddef>
+#include <cstdint>
 #include <memory>
 #include <utility>
 #include <vector>
@@ -12,7 +13,7 @@ namespace durynichev_d_integrals_simpson_method_omp {
 
 class SimpsonIntegralOpenMP : public ppc::core::Task {
  public:
-  enum class FunctionType { kSquare, kSin, kCos, kExp, kLog, kCombined };
+  enum class FunctionType : std::uint8_t { kSquare, kSin, kCos, kExp, kLog, kCombined };
 
   explicit SimpsonIntegralOpenMP(std::shared_ptr<ppc::core::TaskData> task_data) : Task(std::move(task_data)) {}
   bool PreProcessingImpl() override;
@@ -52,6 +53,9 @@ class SimpsonIntegralOpenMP : public ppc::core::Task {
   static double Func3DExp(double x, double y, double z);
   static double Func3DLog(double x, double y, double z);
   static double Func3DCombined(double x, double y, double z);
+
+  static double GetSimpsonCoefficient(int index, int n);
+  double ComputeZIntegral(double x, double y, double z0, double z1, int n, double hz);
 
   [[nodiscard]] double Simpson1D(double a, double b) const;
   double Simpson2D(double x0, double x1, double y0, double y1);

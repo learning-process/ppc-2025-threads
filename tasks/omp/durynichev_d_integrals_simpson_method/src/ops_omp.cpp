@@ -2,6 +2,7 @@
 
 #include <cmath>
 #include <cstddef>
+#include <limits>
 #include <vector>
 
 bool durynichev_d_integrals_simpson_method_omp::SimpsonIntegralOpenMP::PreProcessingImpl() {
@@ -75,7 +76,7 @@ double durynichev_d_integrals_simpson_method_omp::SimpsonIntegralOpenMP::Func1DL
 }
 
 double durynichev_d_integrals_simpson_method_omp::SimpsonIntegralOpenMP::Func1DCombined(double x) {
-  return std::sin(x) + std::cos(x) + x * x;
+  return std::sin(x) + std::cos(x) + (x * x);
 }
 
 // 2D
@@ -105,7 +106,7 @@ double durynichev_d_integrals_simpson_method_omp::SimpsonIntegralOpenMP::Func2DL
 }
 
 double durynichev_d_integrals_simpson_method_omp::SimpsonIntegralOpenMP::Func2DCombined(double x, double y) {
-  return std::sin(x) + std::cos(y) + x * x + y * y;
+  return std::sin(x) + std::cos(y) + (x * x) + (y * y);
 }
 
 // 3D
@@ -135,7 +136,7 @@ double durynichev_d_integrals_simpson_method_omp::SimpsonIntegralOpenMP::Func3DL
 }
 
 double durynichev_d_integrals_simpson_method_omp::SimpsonIntegralOpenMP::Func3DCombined(double x, double y, double z) {
-  return std::sin(x) + std::cos(y) + std::sin(z) + x * x + y * y + z * z;
+  return std::sin(x) + std::cos(y) + std::sin(z) + (x * x) + (y * y) + (z * z);
 }
 
 // Function evaluation methods
@@ -197,6 +198,24 @@ double durynichev_d_integrals_simpson_method_omp::SimpsonIntegralOpenMP::Evaluat
   }
 }
 
+double durynichev_d_integrals_simpson_method_omp::SimpsonIntegralOpenMP::GetSimpsonCoefficient(int index, int n) {
+  if (index == 0 || index == n) {
+    return 1.0;
+  }
+  return (index % 2 == 0) ? 2.0 : 4.0;
+}
+
+double durynichev_d_integrals_simpson_method_omp::SimpsonIntegralOpenMP::ComputeZIntegral(double x, double y, double z0,
+                                                                                          double z1, int n, double hz) {
+  double local_sum = 0.0;
+  for (int k = 0; k <= n; k++) {
+    double z = z0 + (k * hz);
+    double coef_z = GetSimpsonCoefficient(k, n);
+    local_sum += coef_z * Evaluate3D(x, y, z);
+  }
+  return local_sum;
+}
+
 // Simpson integration methods
 double durynichev_d_integrals_simpson_method_omp::SimpsonIntegralOpenMP::Simpson1D(double a, double b) const {
   double h = (b - a) / n_;
@@ -230,12 +249,12 @@ double durynichev_d_integrals_simpson_method_omp::SimpsonIntegralOpenMP::Simpson
 #pragma omp parallel for reduction(+ : sum)
   for (int i = 0; i <= n_; i++) {
     double x = x0 + (i * hx);
-    double coef_x = (i == 0 || i == n_) ? 1.0 : (i % 2 == 0 ? 2.0 : 4.0);
+    double coef_x = GetSimpsonCoefficient(i, n_);
     double local_sum = 0.0;
 
     for (int j = 0; j <= n_; j++) {
       double y = y0 + (j * hy);
-      double coef_y = (j == 0 || j == n_) ? 1.0 : (j % 2 == 0 ? 2.0 : 4.0);
+      double coef_y = GetSimpsonCoefficient(j, n_);
       local_sum += coef_y * Evaluate2D(x, y);
     }
     sum += coef_x * local_sum;
@@ -250,23 +269,18 @@ double durynichev_d_integrals_simpson_method_omp::SimpsonIntegralOpenMP::Simpson
   double hy = (y1 - y0) / n_;
   double hz = (z1 - z0) / n_;
   double sum = 0.0;
+  int total_iterations = (n_ + 1) * (n_ + 1);
 
-#pragma omp parallel for reduction(+ : sum) collapse(2)
-  for (int i = 0; i <= n_; i++) {
-    for (int j = 0; j <= n_; j++) {
-      double x = x0 + (i * hx);
-      double y = y0 + (j * hy);
-      double coef_x = (i == 0 || i == n_) ? 1.0 : (i % 2 == 0 ? 2.0 : 4.0);
-      double coef_y = (j == 0 || j == n_) ? 1.0 : (j % 2 == 0 ? 2.0 : 4.0);
-      double local_sum = 0.0;
-
-      for (int k = 0; k <= n_; k++) {
-        double z = z0 + (k * hz);
-        double coef_z = (k == 0 || k == n_) ? 1.0 : (k % 2 == 0 ? 2.0 : 4.0);
-        local_sum += coef_z * Evaluate3D(x, y, z);
-      }
-      sum += coef_x * coef_y * local_sum;
-    }
+#pragma omp parallel for reduction(+ : sum)
+  for (int idx = 0; idx < total_iterations; idx++) {
+    int i = idx / (n_ + 1);
+    int j = idx % (n_ + 1);
+    double x = x0 + (i * hx);
+    double y = y0 + (j * hy);
+    double coef_x = GetSimpsonCoefficient(i, n_);
+    double coef_y = GetSimpsonCoefficient(j, n_);
+    double local_sum = ComputeZIntegral(x, y, z0, z1, n_, hz);
+    sum += coef_x * coef_y * local_sum;
   }
 
   return sum * hx * hy * hz / 27.0;
