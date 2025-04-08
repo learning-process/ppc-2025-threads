@@ -10,7 +10,7 @@
 #include "omp/durynichev_d_integrals_simpson_method/include/ops_omp.hpp"
 
 TEST(durynichev_d_integrals_simpson_method_omp, test_pipeline_run) {
-  std::vector<double> in = {-10.0, 10.0, 100000000};
+  std::vector<double> in = {-10.0, 10.0, -10.0, 10.0, 30000};
   std::vector<double> out(1, 0.0);
 
   auto task_data = std::make_shared<ppc::core::TaskData>();
@@ -34,10 +34,14 @@ TEST(durynichev_d_integrals_simpson_method_omp, test_pipeline_run) {
   auto perf_analyzer = std::make_shared<ppc::core::Perf>(task);
   perf_analyzer->PipelineRun(perf_attr, perf_results);
   ppc::core::Perf::PrintPerfStatistic(perf_results);
+
+  double expected_result = 80000.0 / 3.0;
+  double tolerance = 1e-1;
+  ASSERT_NEAR(out[0], expected_result, tolerance);
 }
 
 TEST(durynichev_d_integrals_simpson_method_omp, test_task_run) {
-  std::vector<double> in = {-10.0, 10.0, 100000000};
+  std::vector<double> in = {-10.0, 10.0, -10.0, 10.0, 30000};
   std::vector<double> out(1, 0.0);
 
   auto task_data = std::make_shared<ppc::core::TaskData>();
@@ -61,4 +65,9 @@ TEST(durynichev_d_integrals_simpson_method_omp, test_task_run) {
   auto perf_analyzer = std::make_shared<ppc::core::Perf>(task);
   perf_analyzer->TaskRun(perf_attr, perf_results);
   ppc::core::Perf::PrintPerfStatistic(perf_results);
+
+  // Correctness check
+  double expected_result = 80000.0 / 3.0;
+  double tolerance = 1e-1;
+  ASSERT_NEAR(out[0], expected_result, tolerance);
 }
