@@ -3,7 +3,6 @@
 #include <omp.h>
 
 #include <cmath>
-#include <cstddef>
 #include <vector>
 
 double fomin_v_conjugate_gradient::FominVConjugateGradientOmp::DotProduct(const std::vector<double>& a,
@@ -34,7 +33,7 @@ std::vector<double> fomin_v_conjugate_gradient::FominVConjugateGradientOmp::Vect
                                                                                       const std::vector<double>& b) {
   std::vector<double> result(a.size());
 #pragma omp parallel for  // Параллелим поэлементное сложение
-  for (int i = 0; i < a.size(); ++i) {
+  for (int i = 0; i < static_cast<int>(a.size()); ++i) {
     result[i] = a[i] + b[i];
   }
   return result;
@@ -44,7 +43,7 @@ std::vector<double> fomin_v_conjugate_gradient::FominVConjugateGradientOmp::Vect
                                                                                       const std::vector<double>& b) {
   std::vector<double> result(a.size());
 #pragma omp parallel for  // Параллелим поэлементное вычитание
-  for (int i = 0; i < a.size(); ++i) {
+  for (int i = 0; i < static_cast<int>(a.size()); ++i) {
     result[i] = a[i] - b[i];
   }
   return result;
@@ -54,7 +53,7 @@ std::vector<double> fomin_v_conjugate_gradient::FominVConjugateGradientOmp::Vect
     const std::vector<double>& v, double scalar) {
   std::vector<double> result(v.size());
 #pragma omp parallel for  // Параллелим умножение на скаляр
-  for (int i = 0; i < v.size(); ++i) {
+  for (int i = 0; i < static_cast<int>(v.size()); ++i) {
     result[i] = v[i] * scalar;
   }
   return result;
@@ -118,7 +117,7 @@ bool fomin_v_conjugate_gradient::FominVConjugateGradientOmp::RunImpl() {
 bool fomin_v_conjugate_gradient::FominVConjugateGradientOmp::PostProcessingImpl() {
   auto* out_ptr = reinterpret_cast<double*>(task_data->outputs[0]);
 #pragma omp parallel for  // Параллельное копирование результатов
-  for (int i = 0; i < output_.size(); ++i) {
+  for (int i = 0; i < static_cast<int>(output_.size()); ++i) {
     out_ptr[i] = output_[i];
   }
   return true;
