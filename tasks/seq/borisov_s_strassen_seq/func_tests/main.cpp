@@ -27,7 +27,7 @@ std::vector<double> MultiplyNaiveDouble(const std::vector<double>& a, const std:
   return c;
 }
 
-std::vector<double> GenerateRandomMatrix(int rows, int cols, int seed, double min_val = 0.0, double max_val = 1.0) {
+std::vector<double> GenerateRandomMatrix(int rows, int cols, int seed, double min_val = -50.0, double max_val = 50.0) {
   std::mt19937 rng(seed);
 
   std::uniform_real_distribution<double> dist(min_val, max_val);
@@ -148,8 +148,8 @@ TEST(borisov_s_strassen_seq, Rectangular2x3_3x4) {
 TEST(borisov_s_strassen_seq, Square5x5_Random) {
   const int n = 5;
 
-  std::vector<double> a = GenerateRandomMatrix(n, n, 7777, 0.0, 1.0);
-  std::vector<double> b = GenerateRandomMatrix(n, n, 7777, 0.0, 1.0);
+  std::vector<double> a = GenerateRandomMatrix(n, n, 7777);
+  std::vector<double> b = GenerateRandomMatrix(n, n, 7777);
 
   auto c_expected = MultiplyNaiveDouble(a, b, n, n, n);
 
@@ -194,8 +194,8 @@ TEST(borisov_s_strassen_seq, Square5x5_Random) {
 TEST(borisov_s_strassen_seq, Square20x20_Random) {
   const int n = 20;
 
-  std::vector<double> a = GenerateRandomMatrix(n, n, 7777, 0.0, 1.0);
-  std::vector<double> b = GenerateRandomMatrix(n, n, 7777, 0.0, 1.0);
+  std::vector<double> a = GenerateRandomMatrix(n, n, 7777);
+  std::vector<double> b = GenerateRandomMatrix(n, n, 7777);
 
   auto c_expected = MultiplyNaiveDouble(a, b, n, n, n);
 
@@ -240,8 +240,8 @@ TEST(borisov_s_strassen_seq, Square20x20_Random) {
 TEST(borisov_s_strassen_seq, Square32x32_Random) {
   const int n = 32;
 
-  std::vector<double> a = GenerateRandomMatrix(n, n, 7777, 0.0, 1.0);
-  std::vector<double> b = GenerateRandomMatrix(n, n, 7777, 0.0, 1.0);
+  std::vector<double> a = GenerateRandomMatrix(n, n, 7777);
+  std::vector<double> b = GenerateRandomMatrix(n, n, 7777);
 
   auto c_expected = MultiplyNaiveDouble(a, b, n, n, n);
 
@@ -286,8 +286,8 @@ TEST(borisov_s_strassen_seq, Square32x32_Random) {
 TEST(borisov_s_strassen_seq, Square128x128_Random) {
   const int n = 128;
 
-  std::vector<double> a = GenerateRandomMatrix(n, n, 7777, 0.0, 1.0);
-  std::vector<double> b = GenerateRandomMatrix(n, n, 7777, 0.0, 1.0);
+  std::vector<double> a = GenerateRandomMatrix(n, n, 7777);
+  std::vector<double> b = GenerateRandomMatrix(n, n, 7777);
 
   auto c_expected = MultiplyNaiveDouble(a, b, n, n, n);
 
@@ -332,7 +332,7 @@ TEST(borisov_s_strassen_seq, Square128x128_Random) {
 TEST(borisov_s_strassen_seq, Square128x128_IdentityMatrix) {
   const int n = 128;
 
-  std::vector<double> a = GenerateRandomMatrix(n, n, 7777, 0.0, 1.0);
+  std::vector<double> a = GenerateRandomMatrix(n, n, 7777);
 
   std::vector<double> e(n * n, 0.0);
   for (int i = 0; i < n; ++i) {
@@ -380,8 +380,8 @@ TEST(borisov_s_strassen_seq, Square128x128_IdentityMatrix) {
 TEST(borisov_s_strassen_seq, Square129x129_Random) {
   const int n = 129;
 
-  std::vector<double> a = GenerateRandomMatrix(n, n, 7777, 0.0, 1.0);
-  std::vector<double> b = GenerateRandomMatrix(n, n, 7777, 0.0, 1.0);
+  std::vector<double> a = GenerateRandomMatrix(n, n, 7777);
+  std::vector<double> b = GenerateRandomMatrix(n, n, 7777);
 
   auto c_expected = MultiplyNaiveDouble(a, b, n, n, n);
 
@@ -426,8 +426,8 @@ TEST(borisov_s_strassen_seq, Square129x129_Random) {
 TEST(borisov_s_strassen_seq, Square240x240_Random) {
   const int n = 240;
 
-  std::vector<double> a = GenerateRandomMatrix(n, n, 7777, 0.0, 1.0);
-  std::vector<double> b = GenerateRandomMatrix(n, n, 7777, 0.0, 1.0);
+  std::vector<double> a = GenerateRandomMatrix(n, n, 7777);
+  std::vector<double> b = GenerateRandomMatrix(n, n, 7777);
 
   auto c_expected = MultiplyNaiveDouble(a, b, n, n, n);
 
