@@ -1,11 +1,14 @@
 #include "tbb/zolotareva_a_SLE_gradient_method/include/ops_seq.hpp"
 
+#include <oneapi/tbb/blocked_range.h>
+#include <oneapi/tbb/parallel_for.h>
+#include <tbb/parallel_reduce.h>
 #include <tbb/tbb.h>
 
 #include <algorithm>
 #include <cmath>
+#include <functional>
 #include <vector>
-
 
 bool zolotareva_a_sle_gradient_method_tbb::TestTaskTBB::PreProcessingImpl() {
   n_ = static_cast<int>(task_data->inputs_count[1]);
