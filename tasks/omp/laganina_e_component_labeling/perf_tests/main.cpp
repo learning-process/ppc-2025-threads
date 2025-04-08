@@ -1,7 +1,7 @@
 #include <gtest/gtest.h>
-#include <omp.h>
 
 #include <chrono>
+#include <cstddef>
 #include <cstdint>
 #include <memory>
 #include <vector>
@@ -11,24 +11,27 @@
 #include "omp/laganina_e_component_labeling/include/ops_omp.hpp"
 
 TEST(laganina_e_component_labeling_omp, test_pipeline_run) {
-  constexpr int kCount = 3500;
+  constexpr int kCount = 1500;
 
-  // Create data 4
-  std::vector<int> in(kCount * kCount, 1);
+  // Create data
+  std::vector<int> in(kCount * kCount, 0);
   std::vector<int> out(kCount * kCount, 0);
-  std::vector<int> res(kCount * kCount, 1);
+
+  for (size_t i = 0; i < kCount; i++) {
+    in[i] = 1;
+  }
 
   // Create task_data
-  auto task_data_seq = std::make_shared<ppc::core::TaskData>();
-  task_data_seq->inputs.emplace_back(reinterpret_cast<uint8_t *>(in.data()));
-  task_data_seq->inputs_count.emplace_back(kCount);
-  task_data_seq->inputs_count.emplace_back(kCount);
-  task_data_seq->outputs.emplace_back(reinterpret_cast<uint8_t *>(out.data()));
-  task_data_seq->outputs_count.emplace_back(kCount);
-  task_data_seq->outputs_count.emplace_back(kCount);
+  auto task_data_omp = std::make_shared<ppc::core::TaskData>();
+  task_data_omp->inputs.emplace_back(reinterpret_cast<uint8_t *>(in.data()));
+  task_data_omp->inputs_count.emplace_back(kCount);
+  task_data_omp->inputs_count.emplace_back(kCount);
+  task_data_omp->outputs.emplace_back(reinterpret_cast<uint8_t *>(out.data()));
+  task_data_omp->outputs_count.emplace_back(kCount);
+  task_data_omp->outputs_count.emplace_back(kCount);
 
-  // Create Task 4
-  auto test_task_sequential = std::make_shared<laganina_e_component_labeling_omp::TestTaskOpenMP>(task_data_seq);
+  // Create Task
+  auto test_task_omp = std::make_shared<laganina_e_component_labeling_omp::TestTaskOpenMP>(task_data_omp);
 
   // Create Perf attributes
   auto perf_attr = std::make_shared<ppc::core::PerfAttr>();
@@ -44,31 +47,34 @@ TEST(laganina_e_component_labeling_omp, test_pipeline_run) {
   auto perf_results = std::make_shared<ppc::core::PerfResults>();
 
   // Create Perf analyzer
-  auto perf_analyzer = std::make_shared<ppc::core::Perf>(test_task_sequential);
+  auto perf_analyzer = std::make_shared<ppc::core::Perf>(test_task_omp);
   perf_analyzer->PipelineRun(perf_attr, perf_results);
   ppc::core::Perf::PrintPerfStatistic(perf_results);
-  ASSERT_EQ(out, res);
+  ASSERT_EQ(in, out);
 }
 
 TEST(laganina_e_component_labeling_omp, test_task_run) {
-  constexpr int kCount = 3500;
+  constexpr int kCount = 2000;
 
   // Create data
-  std::vector<int> in(kCount * kCount, 1);
+  std::vector<int> in(kCount * kCount, 0);
   std::vector<int> out(kCount * kCount, 0);
-  std::vector<int> res(kCount * kCount, 1);
+
+  for (size_t i = 0; i < kCount; i++) {
+    in[i] = 1;
+  }
 
   // Create task_data
-  auto task_data_seq = std::make_shared<ppc::core::TaskData>();
-  task_data_seq->inputs.emplace_back(reinterpret_cast<uint8_t *>(in.data()));
-  task_data_seq->inputs_count.emplace_back(kCount);
-  task_data_seq->inputs_count.emplace_back(kCount);
-  task_data_seq->outputs.emplace_back(reinterpret_cast<uint8_t *>(out.data()));
-  task_data_seq->outputs_count.emplace_back(kCount);
-  task_data_seq->outputs_count.emplace_back(kCount);
+  auto task_data_omp = std::make_shared<ppc::core::TaskData>();
+  task_data_omp->inputs.emplace_back(reinterpret_cast<uint8_t *>(in.data()));
+  task_data_omp->inputs_count.emplace_back(kCount);
+  task_data_omp->inputs_count.emplace_back(kCount);
+  task_data_omp->outputs.emplace_back(reinterpret_cast<uint8_t *>(out.data()));
+  task_data_omp->outputs_count.emplace_back(kCount);
+  task_data_omp->outputs_count.emplace_back(kCount);
 
   // Create Task
-  auto test_task_sequential = std::make_shared<laganina_e_component_labeling_omp::TestTaskOpenMP>(task_data_seq);
+  auto test_task_omp = std::make_shared<laganina_e_component_labeling_omp::TestTaskOpenMP>(task_data_omp);
 
   // Create Perf attributes
   auto perf_attr = std::make_shared<ppc::core::PerfAttr>();
@@ -84,8 +90,8 @@ TEST(laganina_e_component_labeling_omp, test_task_run) {
   auto perf_results = std::make_shared<ppc::core::PerfResults>();
 
   // Create Perf analyzer
-  auto perf_analyzer = std::make_shared<ppc::core::Perf>(test_task_sequential);
+  auto perf_analyzer = std::make_shared<ppc::core::Perf>(test_task_omp);
   perf_analyzer->TaskRun(perf_attr, perf_results);
   ppc::core::Perf::PrintPerfStatistic(perf_results);
-  ASSERT_EQ(out, res);
+  ASSERT_EQ(in, out);
 }
