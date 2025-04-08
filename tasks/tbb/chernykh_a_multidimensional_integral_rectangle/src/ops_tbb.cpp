@@ -1,5 +1,6 @@
 #include "tbb/chernykh_a_multidimensional_integral_rectangle/include/ops_tbb.hpp"
 
+#include <oneapi/tbb/blocked_range.h>
 #include <oneapi/tbb/parallel_reduce.h>
 #include <tbb/tbb.h>
 
