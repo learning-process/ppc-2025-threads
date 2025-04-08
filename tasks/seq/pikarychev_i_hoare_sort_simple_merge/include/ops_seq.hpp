@@ -50,6 +50,7 @@ class HoareSeq : public ppc::core::Task {
       if (!comp(block[j], block[high])) {
         continue;
       }
+
       e++;
       std::swap(block[e], block[j]);
     }
