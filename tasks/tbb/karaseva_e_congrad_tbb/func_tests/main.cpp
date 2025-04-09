@@ -2,14 +2,11 @@
 
 #include <cstddef>
 #include <cstdint>
-#include <fstream>
 #include <memory>
 #include <random>
-#include <string>
 #include <vector>
 
 #include "core/task/include/task.hpp"
-#include "core/util/include/util.hpp"
 #include "tbb/karaseva_e_congrad_tbb/include/ops_tbb.hpp"
 
 namespace {
@@ -92,7 +89,7 @@ TEST(karaseva_e_congrad_tbb, test_diagonal_matrix) {
 
   std::vector<double> a_matrix(kN * kN, 0.0);
   for (size_t i = 0; i < kN; ++i) {
-    a_matrix[(i * kN) + i] = i + 1.0;
+    a_matrix[(i * kN) + i] = static_cast<double>(i) + 1.0;
   }
 
   std::vector<double> b(kN, 1.0);
@@ -113,7 +110,7 @@ TEST(karaseva_e_congrad_tbb, test_diagonal_matrix) {
   test_task.PostProcessing();
 
   for (size_t i = 0; i < kN; ++i) {
-    EXPECT_NEAR(x[i], 1.0 / (i + 1), 1e-9);
+    EXPECT_NEAR(x[i], 1.0 / (static_cast<double>(i) + 1.0), 1e-9);
   }
 }
 

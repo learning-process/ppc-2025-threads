@@ -5,9 +5,12 @@
 
 #include <cmath>
 #include <cstddef>
+#include <functional>
 #include <vector>
 
-bool karaseva_e_congrad_tbb::TestTaskTBB::PreProcessingImpl() {
+namespace karaseva_e_congrad_tbb {
+
+bool TestTaskTBB::PreProcessingImpl() {
   // Initialize problem size from input data
   size_ = task_data->inputs_count[1];
 
@@ -25,20 +28,63 @@ bool karaseva_e_congrad_tbb::TestTaskTBB::PreProcessingImpl() {
   return true;
 }
 
-bool karaseva_e_congrad_tbb::TestTaskTBB::ValidationImpl() {
+bool TestTaskTBB::ValidationImpl() {
   const bool valid_input = task_data->inputs_count[0] == task_data->inputs_count[1] * task_data->inputs_count[1];
   const bool valid_output = task_data->outputs_count[0] == task_data->inputs_count[1];
   return valid_input && valid_output;
 }
 
-bool karaseva_e_congrad_tbb::TestTaskTBB::RunImpl() {
-  // Residual vector (r = b - Ax)
+namespace {
+
+// Helper function to compute dot product of two vectors using TBB
+double ComputeDotProduct(const std::vector<double>& vec1, const std::vector<double>& vec2, size_t size) {
+  return tbb::parallel_reduce(
+      tbb::blocked_range<size_t>(0, size), 0.0,
+      [&](const tbb::blocked_range<size_t>& range, double local_sum) {
+        for (size_t i = range.begin(); i != range.end(); ++i) {
+          local_sum += vec1[i] * vec2[i];
+        }
+        return local_sum;
+      },
+      std::plus<>());
+}
+
+// Helper function for matrix-vector multiplication using TBB
+void MatrixVectorMultiply(const std::vector<double>& matrix, const std::vector<double>& vec,
+                          std::vector<double>& result, size_t size) {
+  tbb::parallel_for(tbb::blocked_range<size_t>(0, size), [&](const tbb::blocked_range<size_t>& range) {
+    for (size_t i = range.begin(); i != range.end(); ++i) {
+      double temp = 0.0;
+      for (size_t j = 0; j < size; ++j) {
+        temp += matrix[i * size + j] * vec[j];
+      }
+      result[i] = temp;
+    }
+  });
+}
+
+// Helper function to update solution and residual vectors
+void UpdateVectors(std::vector<double>& x, std::vector<double>& r, double alpha, const std::vector<double>& p,
+                   const std::vector<double>& ap, const tbb::blocked_range<size_t>& range) {
+  for (size_t i = range.begin(); i != range.end(); ++i) {
+    x[i] += alpha * p[i];
+    r[i] -= alpha * ap[i];
+  }
+}
+
+// Helper function to update search direction vector
+void UpdateSearchDirection(std::vector<double>& p, const std::vector<double>& r, double beta,
+                           const tbb::blocked_range<size_t>& range) {
+  for (size_t i = range.begin(); i != range.end(); ++i) {
+    p[i] = r[i] + beta * p[i];
+  }
+}
+
+}  // namespace
+
+bool TestTaskTBB::RunImpl() {
   std::vector<double> r(size_);
-
-  // Search direction vector
   std::vector<double> p(size_);
-
-  // Matrix-vector product (Ap)
   std::vector<double> ap(size_);
 
   // Parallel initialization of r and p vectors
@@ -49,82 +95,32 @@ bool karaseva_e_congrad_tbb::TestTaskTBB::RunImpl() {
     }
   });
 
-  // Compute initial residual squared norm (rs_old = r^T * r)
-  double rs_old = tbb::parallel_reduce(
-      tbb::blocked_range<size_t>(0, size_), 0.0,
-      [&](const tbb::blocked_range<size_t>& range, double local_sum) {
-        for (size_t i = range.begin(); i != range.end(); ++i) {
-          local_sum += r[i] * r[i];
-        }
-        return local_sum;
-      },
-      std::plus<>());
-
-  // Convergence tolerance and iteration limit
+  double rs_old = ComputeDotProduct(r, r, size_);
   const double tolerance = 1e-10;
   const size_t max_iterations = size_;
 
-  // Main conjugate gradient loop
   for (size_t k = 0; k < max_iterations; ++k) {
-    // Parallel matrix-vector multiplication: ap = A * p
-    tbb::parallel_for(tbb::blocked_range<size_t>(0, size_), [&](const tbb::blocked_range<size_t>& range) {
-      for (size_t i = range.begin(); i != range.end(); ++i) {
-        double temp = 0.0;
-        for (size_t j = 0; j < size_; ++j) {
-          temp += A_[(i * size_) + j] * p[j];
-        }
-        ap[i] = temp;
-      }
-    });
+    MatrixVectorMultiply(A_, p, ap, size_);
 
-    // Compute p^T * A * p (denominator for alpha)
-    double p_ap = tbb::parallel_reduce(
-        tbb::blocked_range<size_t>(0, size_), 0.0,
-        [&](const tbb::blocked_range<size_t>& range, double local_sum) {
-          for (size_t i = range.begin(); i != range.end(); ++i) {
-            local_sum += p[i] * ap[i];
-          }
-          return local_sum;
-        },
-        std::plus<>());
+    const double p_ap = ComputeDotProduct(p, ap, size_);
+    if (std::fabs(p_ap) < 1e-15) {
+      break;
+    }
 
-    // Avoid division by zero
-    if (std::fabs(p_ap) < 1e-15) break;
-
-    // Compute step size alpha
     const double alpha = rs_old / p_ap;
 
-    // Parallel update of solution and residual vectors
-    tbb::parallel_for(tbb::blocked_range<size_t>(0, size_), [&](const tbb::blocked_range<size_t>& range) {
-      for (size_t i = range.begin(); i != range.end(); ++i) {
-        x_[i] += alpha * p[i];
-        r[i] -= alpha * ap[i];
-      }
-    });
+    tbb::parallel_for(tbb::blocked_range<size_t>(0, size_),
+                      [&](const tbb::blocked_range<size_t>& range) { UpdateVectors(x_, r, alpha, p, ap, range); });
 
-    // Compute new residual squared norm
-    double rs_new = tbb::parallel_reduce(
-        tbb::blocked_range<size_t>(0, size_), 0.0,
-        [&](const tbb::blocked_range<size_t>& range, double local_sum) {
-          for (size_t i = range.begin(); i != range.end(); ++i) {
-            local_sum += r[i] * r[i];
-          }
-          return local_sum;
-        },
-        std::plus<>());
+    const double rs_new = ComputeDotProduct(r, r, size_);
+    if (rs_new < tolerance * tolerance) {
+      break;
+    }
 
-    // Check convergence
-    if (rs_new < tolerance * tolerance) break;
-
-    // Compute beta for direction update
     const double beta = rs_new / rs_old;
 
-    // Parallel update of search direction
-    tbb::parallel_for(tbb::blocked_range<size_t>(0, size_), [&](const tbb::blocked_range<size_t>& range) {
-      for (size_t i = range.begin(); i != range.end(); ++i) {
-        p[i] = r[i] + beta * p[i];
-      }
-    });
+    tbb::parallel_for(tbb::blocked_range<size_t>(0, size_),
+                      [&](const tbb::blocked_range<size_t>& range) { UpdateSearchDirection(p, r, beta, range); });
 
     rs_old = rs_new;
   }
@@ -132,7 +128,7 @@ bool karaseva_e_congrad_tbb::TestTaskTBB::RunImpl() {
   return true;
 }
 
-bool karaseva_e_congrad_tbb::TestTaskTBB::PostProcessingImpl() {
+bool TestTaskTBB::PostProcessingImpl() {
   auto* x_ptr = reinterpret_cast<double*>(task_data->outputs[0]);
   tbb::parallel_for(tbb::blocked_range<size_t>(0, x_.size()), [&](const tbb::blocked_range<size_t>& range) {
     for (size_t i = range.begin(); i != range.end(); ++i) {
@@ -141,3 +137,5 @@ bool karaseva_e_congrad_tbb::TestTaskTBB::PostProcessingImpl() {
   });
   return true;
 }
+
+}  // namespace karaseva_e_congrad_tbb
