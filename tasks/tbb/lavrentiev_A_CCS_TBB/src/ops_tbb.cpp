@@ -49,20 +49,14 @@ lavrentiev_a_ccs_tbb::Sparse lavrentiev_a_ccs_tbb::CCSTBB::Transpose(const Spars
     for (int j = 0; j < static_cast<int>(new_elements_and_rows[i].size()); ++j) {
       elements_and_rows.emplace_back(new_elements_and_rows[i][j]);
     }
-    if (i > 0) {
-      columns_sum.emplace_back(new_elements_and_rows[i].size() + columns_sum[i - 1]);
-    } else {
-      columns_sum.emplace_back(new_elements_and_rows[i].size());
-    }
+    i > 0 ? columns_sum.emplace_back(new_elements_and_rows[i].size() + columns_sum[i - 1])
+          : columns_sum.emplace_back(new_elements_and_rows[i].size());
   }
   return {.size = size, .elements_and_rows = elements_and_rows, .columnsSum = columns_sum};
 }
 
 int lavrentiev_a_ccs_tbb::CCSTBB::CalculateStartIndex(int index, const std::vector<int> &columns_sum) {
-  if (index != 0) {
-    return columns_sum[index] - GetElementsCount(index, columns_sum);
-  }
-  return 0;
+  return index == 0 ? 0 : columns_sum[index] - GetElementsCount(index, columns_sum);
 }
 
 lavrentiev_a_ccs_tbb::Sparse lavrentiev_a_ccs_tbb::CCSTBB::MatMul(const Sparse &matrix1, const Sparse &matrix2) {
