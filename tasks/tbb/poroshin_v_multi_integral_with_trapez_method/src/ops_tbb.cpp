@@ -9,63 +9,6 @@
 #include <functional>
 #include <vector>
 
-// void poroshin_v_multi_integral_with_trapez_method_omp::TestTaskOpenMP::CountMultiIntegralTrapezMethodOmp() {
-//   const int dimensions = static_cast<int>(limits_.size());
-//   std::vector<double> h(dimensions);
-//
-// #pragma omp parallel for schedule(static)
-//   for (int i = 0; i < dimensions; ++i) {
-//     h[i] = (limits_[i].second - limits_[i].first) / n_[i];
-//   }
-//
-//   std::vector<std::vector<double>> weights(dimensions);
-// #pragma omp parallel for schedule(static)
-//   for (int i = 0; i < dimensions; ++i) {
-//     weights[i].resize(n_[i] + 1);
-//     for (int j = 0; j <= n_[i]; ++j) {
-//       weights[i][j] = (j == 0 || j == n_[i]) ? 0.5 : 1.0;
-//     }
-//   }
-//
-//   double integral = 0.0;
-//
-// #pragma omp parallel reduction(+ : integral)
-//   {
-//     std::vector<double> vars(dimensions);
-//     std::vector<int> indices(dimensions, 0);
-//
-//     int total_points = 1;
-//     for (int n : n_) {
-//       total_points *= (n + 1);
-//     }
-//
-// #pragma omp for schedule(static)
-//     for (int linear_idx = 0; linear_idx < total_points; ++linear_idx) {
-//       int idx = linear_idx;
-//       for (int dim = dimensions - 1; dim >= 0; --dim) {
-//         indices[dim] = idx % (n_[dim] + 1);
-//         idx /= (n_[dim] + 1);
-//       }
-//
-//       double weight = 1.0;
-//       for (int dim = 0; dim < dimensions; ++dim) {
-//         vars[dim] = limits_[dim].first + indices[dim] * h[dim];
-//         weight *= weights[dim][indices[dim]];
-//       }
-//
-//       integral += func_(vars) * weight;
-//     }
-//   }
-//
-//   double volume = 1.0;
-// #pragma omp parallel for reduction(* : volume)
-//   for (int i = 0; i < dimensions; ++i) {
-//     volume *= h[i];
-//   }
-//
-//   res_ = integral * volume;
-// }
-
 void poroshin_v_multi_integral_with_trapez_method_tbb::TestTaskTBB::CountMultiIntegralTrapezMethodTbb() {
   const int dimensions = static_cast<int>(limits_.size());
   std::vector<double> h(dimensions);
