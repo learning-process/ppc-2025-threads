@@ -14,9 +14,15 @@ bool SparseMatrixMultComplexCCS::PreProcessingImpl() {
 }
 
 bool SparseMatrixMultComplexCCS::ValidationImpl() {
-  return task_data->inputs.size() == 2 && task_data->outputs.size() == 1 && matrix1_ != nullptr &&
-         matrix2_ != nullptr && matrix1_->cols == matrix2_->rows && matrix1_->rows > 0 && matrix1_->cols > 0 &&
-         matrix2_->rows > 0 && matrix2_->cols > 0;
+  if (task_data->inputs.size() != 2 || task_data->outputs.size() != 1) {
+    return false;
+  }
+
+  auto* m1 = reinterpret_cast<SparseMatrixCCS*>(task_data->inputs[0]);
+  auto* m2 = reinterpret_cast<SparseMatrixCCS*>(task_data->inputs[1]);
+
+  return m1 != nullptr && m2 != nullptr && m1->cols == m2->rows && m1->rows > 0 && m1->cols > 0 && m2->rows > 0 &&
+         m2->cols > 0;
 }
 
 bool SparseMatrixMultComplexCCS::RunImpl() {

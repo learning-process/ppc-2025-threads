@@ -21,10 +21,10 @@ void RunTask(korneeva_e_ccs::SparseMatrixCCS& m1, korneeva_e_ccs::SparseMatrixCC
   task_data->outputs.push_back(reinterpret_cast<uint8_t*>(&result));
 
   korneeva_e_ccs::SparseMatrixMultComplexCCS task(task_data);
-  task.PreProcessingImpl();
-  ASSERT_TRUE(task.ValidationImpl());
-  task.RunImpl();
-  task.PostProcessingImpl();
+  ASSERT_TRUE(task.Validation());
+  task.PreProcessing();
+  task.Run();
+  task.PostProcessing();
 }
 
 void ExpectMatrixValuesEq(const korneeva_e_ccs::SparseMatrixCCS& result,
@@ -113,8 +113,7 @@ TEST(korneeva_e_sparse_matrix_mult_complex_ccs_seq, test_incompatible_sizes) {
   task_data->outputs.push_back(reinterpret_cast<uint8_t*>(&result));
 
   korneeva_e_ccs::SparseMatrixMultComplexCCS task(task_data);
-  task.PreProcessingImpl();
-  ASSERT_FALSE(task.ValidationImpl());
+  ASSERT_FALSE(task.Validation());
 }
 
 TEST(korneeva_e_sparse_matrix_mult_complex_ccs_seq, test_negative_dimensions) {
@@ -130,8 +129,7 @@ TEST(korneeva_e_sparse_matrix_mult_complex_ccs_seq, test_negative_dimensions) {
   task_data->outputs.push_back(reinterpret_cast<uint8_t*>(&result));
 
   korneeva_e_ccs::SparseMatrixMultComplexCCS task(task_data);
-  task.PreProcessingImpl();
-  ASSERT_FALSE(task.ValidationImpl());
+  ASSERT_FALSE(task.Validation());
 }
 
 TEST(korneeva_e_sparse_matrix_mult_complex_ccs_seq, test_empty_input) {
@@ -140,7 +138,7 @@ TEST(korneeva_e_sparse_matrix_mult_complex_ccs_seq, test_empty_input) {
   task_data->outputs.push_back(reinterpret_cast<uint8_t*>(&result));
 
   korneeva_e_ccs::SparseMatrixMultComplexCCS task(task_data);
-  ASSERT_FALSE(task.ValidationImpl());
+  ASSERT_FALSE(task.Validation());
 }
 
 TEST(korneeva_e_sparse_matrix_mult_complex_ccs_seq, test_identity_mult) {
