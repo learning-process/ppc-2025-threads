@@ -3,8 +3,9 @@
 #include <algorithm>
 #include <cmath>
 #include <cstddef>
-#include <execution>
+#include <mutex>
 #include <numeric>
+#include <thread>
 #include <vector>
 
 using namespace std;
@@ -156,52 +157,55 @@ bool odintsov_m_mulmatrix_cannon_stl::MulMatrixCannonSTL::ValidationImpl() {
 bool odintsov_m_mulmatrix_cannon_stl::MulMatrixCannonSTL::RunImpl() {
   int root = static_cast<int>(std::sqrt(szA_));
   int num_blocks = std::max(1, root / block_sz_);
-  int grid_size = num_blocks;  // grid_size = root / block_sz_
+  int grid_size = num_blocks;
 
   // Начальные сдвиги матриц.
   InitializeShift(matrixA_, root, grid_size, block_sz_, true);
   InitializeShift(matrixB_, root, grid_size, block_sz_, false);
 
-  // Итерации по шагам алгоритма.
   for (int step = 0; step < grid_size; step++) {
-    // Создаем вектор индексов блочных строк.
-    std::vector<int> block_indices(num_blocks);
-    std::iota(block_indices.begin(), block_indices.end(), 0);
+    std::vector<std::thread> threads;
 
-    // Параллельное выполнение по блочным строкам.
-    std::for_each(std::execution::par, block_indices.begin(), block_indices.end(), [&](int bi) {
-      // Локальные блоки из глобальных матриц для текущей блочной строки.
-      std::vector<std::vector<double>> local_blocks_a(num_blocks, std::vector<double>(block_sz_ * block_sz_));
-      std::vector<std::vector<double>> local_blocks_b(num_blocks, std::vector<double>(block_sz_ * block_sz_));
+    for (int bi = 0; bi < num_blocks; ++bi) {
+      threads.emplace_back([&, bi]() {
+        std::vector<std::vector<double>> local_blocks_a(num_blocks, std::vector<double>(block_sz_ * block_sz_));
+        std::vector<std::vector<double>> local_blocks_b(num_blocks, std::vector<double>(block_sz_ * block_sz_));
 
-      // Копируем соответствующие блоки из глобальных матриц.
-      for (int bj = 0; bj < num_blocks; ++bj) {
-        int start = ((bi * block_sz_) * root) + (bj * block_sz_);
-        CopyBlock(matrixA_, local_blocks_a[bj], start, root, block_sz_);
-        CopyBlock(matrixB_, local_blocks_b[bj], start, root, block_sz_);
-      }
+        for (int bj = 0; bj < num_blocks; ++bj) {
+          int start = ((bi * block_sz_) * root) + (bj * block_sz_);
+          CopyBlock(matrixA_, local_blocks_a[bj], start, root, block_sz_);
+          CopyBlock(matrixB_, local_blocks_b[bj], start, root, block_sz_);
+        }
 
-      // Вычисляем произведение блоков и аккумулируем результат в matrixC_.
-      for (int bj = 0; bj < num_blocks; ++bj) {
-        const auto& local_block_a = local_blocks_a[bj];
-        const auto& local_block_b = local_blocks_b[bj];
+        for (int bj = 0; bj < num_blocks; ++bj) {
+          const auto& local_block_a = local_blocks_a[bj];
+          const auto& local_block_b = local_blocks_b[bj];
 
-        for (int i = 0; i < block_sz_; ++i) {
-          for (int k = 0; k < block_sz_; ++k) {
-            double a_ik = local_block_a[(i * block_sz_) + k];
-            for (int j = 0; j < block_sz_; ++j) {
-              int index = ((bi * block_sz_ + i) * root) + (bj * block_sz_ + j);
-              matrixC_[index] += a_ik * local_block_b[(k * block_sz_) + j];
+          for (int i = 0; i < block_sz_; ++i) {
+            for (int k = 0; k < block_sz_; ++k) {
+              double a_ik = local_block_a[i * block_sz_ + k];
+              for (int j = 0; j < block_sz_; ++j) {
+                int index = ((bi * block_sz_ + i) * root) + (bj * block_sz_ + j);
+
+                static std::mutex mtx;
+                std::lock_guard<std::mutex> lock(mtx);
+                matrixC_[index] += a_ik * local_block_b[k * block_sz_ + j];
+              }
             }
           }
         }
-      }
-    });
+      });
+    }
 
-    // Последовательные сдвиги после каждого шага.
+    for (auto& t : threads) {
+      t.join();
+    }
+
+    // Последовательные сдвиги
     ShiftBlocksLeft(matrixA_, root, block_sz_);
     ShiftBlocksUp(matrixB_, root, block_sz_);
   }
+
   return true;
 }
 
