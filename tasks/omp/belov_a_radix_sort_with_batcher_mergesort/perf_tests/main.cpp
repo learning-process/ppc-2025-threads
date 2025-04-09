@@ -1,5 +1,6 @@
 #include <gtest/gtest.h>
 
+#include <algorithm>
 #include <chrono>
 #include <cstdint>
 #include <memory>
@@ -78,6 +79,7 @@ TEST(belov_a_radix_batcher_mergesort_omp, test_pipeline_run) {
   tesk_task_omp->PostProcessing();
 
   ppc::core::Perf::PrintPerfStatistic(perf_results);
+  EXPECT_TRUE(std::ranges::is_sorted(arr));
 }
 
 TEST(belov_a_radix_batcher_mergesort_omp, test_task_run) {
@@ -120,4 +122,5 @@ TEST(belov_a_radix_batcher_mergesort_omp, test_task_run) {
   tesk_task_omp->PostProcessing();
 
   ppc::core::Perf::PrintPerfStatistic(perf_results);
+  EXPECT_TRUE(std::ranges::is_sorted(arr));
 }

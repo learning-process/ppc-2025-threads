@@ -5,7 +5,6 @@
 #include <cstddef>
 #include <cstdint>
 #include <span>
-#include <utility>
 #include <vector>
 
 #include "core/util/include/util.hpp"
@@ -13,6 +12,8 @@
 using namespace std;
 
 namespace belov_a_radix_batcher_mergesort_omp {
+
+constexpr int kDecimalBase = 10;
 
 int RadixBatcherMergesortParallel::GetNumberDigitCapacity(Bigint num) {
   return (num == 0 ? 1 : static_cast<int>(log10(abs(num))) + 1);
@@ -60,20 +61,20 @@ void RadixBatcherMergesortParallel::RadixSort(vector<Bigint>& arr, bool invert) 
 
 void RadixBatcherMergesortParallel::CountingSort(vector<Bigint>& arr, Bigint digit_place) {
   vector<Bigint> output(arr.size());
-  int count[10] = {};
+  int count[kDecimalBase] = {};
 
   for (const auto& num : arr) {
-    Bigint index = (num / digit_place) % 10;
+    Bigint index = (num / digit_place) % kDecimalBase;
     count[index]++;
   }
 
-  for (int i = 1; i < 10; i++) {
+  for (int i = 1; i < kDecimalBase; i++) {
     count[i] += count[i - 1];
   }
 
   for (size_t i = arr.size() - 1; i < arr.size(); i--) {
     Bigint num = arr[i];
-    Bigint index = (num / digit_place) % 10;
+    Bigint index = (num / digit_place) % kDecimalBase;
     output[--count[index]] = num;
   }
 
@@ -113,27 +114,15 @@ void RadixBatcherMergesortParallel::BatcherMergeParallel(vector<Bigint>& arr, in
 
   for (; step < n; step *= 2) {
 #pragma omp parallel for
-    for (size_t i = 0; i < n - step; i += 2 * step) {
+    for (int64_t i = 0; i < static_cast<int64_t>(n - step); i += static_cast<int64_t>(2 * step)) {
       size_t left = i;
-      size_t right = i + step;
-      size_t end = (i + (2 * step) < n) ? (i + (2 * step)) : n;
+      size_t right = left + step;
+      size_t end = (left + 2 * step < n) ? (left + 2 * step) : n;
 
       std::inplace_merge(arr.begin() + static_cast<int64_t>(left), arr.begin() + static_cast<int64_t>(right),
                          arr.begin() + static_cast<int64_t>(end));
     }
   }
-}
-
-vector<Bigint> RadixBatcherMergesortParallel::OddEvenMerge(const vector<Bigint>& left, const vector<Bigint>& right) {
-  vector<Bigint> merged(left.size() + right.size());
-  std::ranges::merge(left, right, merged.begin());
-
-  for (size_t i = 1; i < merged.size(); i += 2) {
-    if (i + 1 < merged.size() && merged[i] > merged[i + 1]) {
-      std::swap(merged[i], merged[i + 1]);
-    }
-  }
-  return merged;
 }
 
 bool RadixBatcherMergesortParallel::PreProcessingImpl() {

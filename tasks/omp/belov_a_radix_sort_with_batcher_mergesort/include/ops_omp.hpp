@@ -38,7 +38,6 @@ class RadixBatcherMergesortParallel : public ppc::core::Task {
 
   static void SortParallel(vector<Bigint>& arr);
   static void BatcherMergeParallel(vector<Bigint>& arr, int num_threads);
-  static vector<Bigint> OddEvenMerge(const vector<Bigint>& left, const vector<Bigint>& right);
 };
 
 }  // namespace belov_a_radix_batcher_mergesort_omp
