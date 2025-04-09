@@ -82,35 +82,28 @@ void naumov_b_marc_on_bin_image_omp::TestTaskOpenMP::UnionLabels(int label1, int
   if (static_cast<size_t>(label1) >= label_parent_.size() || static_cast<size_t>(label2) >= label_parent_.size()) {
     return;
   }
-
   int root1 = FindRoot(label1);
   int root2 = FindRoot(label2);
 
   if (root1 != root2) {
-    label_parent_[root2] = root1;
+    if (root1 < root2) {
+      label_parent_[root2] = root1;
+    } else {
+      label_parent_[root1] = root2;
+    }
   }
 }
 
 int naumov_b_marc_on_bin_image_omp::TestTaskOpenMP::FindRoot(int label) {
-  if (static_cast<size_t>(label) >= label_parent_.size()) {
-    return label;
+  while (label_parent_[label] != label) {
+    label = std::exchange(label_parent_[label], label_parent_[label_parent_[label]]);
   }
-
-  if (label_parent_[label] == label) {
-    return label;
-  }
-
-  label_parent_[label] = FindRoot(label_parent_[label]);
-  return label_parent_[label];
+  return label;
 }
 
 bool naumov_b_marc_on_bin_image_omp::TestTaskOpenMP::PreProcessingImpl() {
   rows_ = static_cast<int>(task_data->inputs_count[0]);
   cols_ = static_cast<int>(task_data->inputs_count[1]);
-
-  if (rows_ <= 0 || cols_ <= 0) {
-    return false;
-  }
 
   input_image_.resize(rows_ * cols_, 0);
   output_image_.resize(rows_ * cols_, 0);
