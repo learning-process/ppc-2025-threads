@@ -1,7 +1,7 @@
 #include "stl/poroshin_v_multi_integral_with_trapez_method/include/ops_stl.hpp"
 
+#include <algorithm>
 #include <cmath>
-#include <cstddef>
 #include <functional>
 #include <numeric>
 #include <thread>
