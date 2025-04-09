@@ -5,13 +5,19 @@
 #include <algorithm>
 #include <cmath>
 #include <cstddef>
+<<<<<<< HEAD
 #include <iostream>
+=======
+>>>>>>> 833ebe8313f01d82f134a2e1d63190bf988b1438
 #include <utility>
 #include <vector>
 
 #include "core/util/include/util.hpp"
 
+<<<<<<< HEAD
 // restart
+=======
+>>>>>>> 833ebe8313f01d82f134a2e1d63190bf988b1438
 lavrentiev_a_ccs_omp::Sparse lavrentiev_a_ccs_omp::CCSOMP::ConvertToSparse(std::pair<int, int> size,
                                                                            const std::vector<double> &values) {
   auto [nsize, elements, rows, columns_sum] = Sparse();
@@ -72,7 +78,10 @@ lavrentiev_a_ccs_omp::Sparse lavrentiev_a_ccs_omp::CCSOMP::MatMul(const Sparse &
   result_matrix.columnsSum.resize(matrix2.size.second);
   auto new_matrix1 = Transpose(matrix1);
   std::vector<std::pair<std::vector<double>, std::vector<int>>> threads_data(ppc::util::GetPPCNumThreads());
+<<<<<<< HEAD
   std::cout << "Num of threads = " << ppc::util::GetPPCNumThreads();
+=======
+>>>>>>> 833ebe8313f01d82f134a2e1d63190bf988b1438
 #pragma omp parallel
   {
     std::pair<std::vector<double>, std::vector<int>> current_thread_data;
