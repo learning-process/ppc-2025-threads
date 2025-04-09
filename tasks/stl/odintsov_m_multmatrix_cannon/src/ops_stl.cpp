@@ -3,8 +3,6 @@
 #include <algorithm>
 #include <cmath>
 #include <cstddef>
-#include <mutex>
-#include <numeric>
 #include <thread>
 #include <vector>
 
@@ -130,6 +128,35 @@ void odintsov_m_mulmatrix_cannon_stl::MulMatrixCannonSTL::InitializeShift(std::v
     }
   }
 }
+void odintsov_m_mulmatrix_cannon_stl::MulMatrixCannonSTL::ProcessBlock(int bi, int num_blocks, int root, int block_sz_,
+                                                                       const std::vector<double>& matrix_a,
+                                                                       const std::vector<double>& matrix_b,
+                                                                       std::vector<double>& local_c) {
+  std::vector<std::vector<double>> local_blocks_a(num_blocks, std::vector<double>(block_sz_ * block_sz_));
+  std::vector<std::vector<double>> local_blocks_b(num_blocks, std::vector<double>(block_sz_ * block_sz_));
+
+  for (int bj = 0; bj < num_blocks; ++bj) {
+    int start = ((bi * block_sz_) * root) + (bj * block_sz_);
+    CopyBlock(matrix_a, local_blocks_a[bj], start, root, block_sz_);
+    CopyBlock(matrix_b, local_blocks_b[bj], start, root, block_sz_);
+  }
+
+  for (int bj = 0; bj < num_blocks; ++bj) {
+    const auto& a = local_blocks_a[bj];
+    const auto& b = local_blocks_b[bj];
+
+    for (int i = 0; i < block_sz_; ++i) {
+      for (int k = 0; k < block_sz_; ++k) {
+        double a_ik = a[(i * block_sz_) + k];
+        for (int j = 0; j < block_sz_; ++j) {
+          int index = (((bi * block_sz_) + i) * root) + ((bj * block_sz_) + j);
+          local_c[index] += a_ik * b[((k * block_sz_) + j)];
+        }
+      }
+    }
+  }
+}
+
 bool odintsov_m_mulmatrix_cannon_stl::MulMatrixCannonSTL::PreProcessingImpl() {
   szA_ = task_data->inputs_count[0];
   szB_ = task_data->inputs_count[1];
@@ -162,48 +189,27 @@ bool odintsov_m_mulmatrix_cannon_stl::MulMatrixCannonSTL::RunImpl() {
   InitializeShift(matrixA_, root, grid_size, block_sz_, true);
   InitializeShift(matrixB_, root, grid_size, block_sz_, false);
 
+  std::fill(matrixC_.begin(), matrixC_.end(), 0.0);
+
   for (int step = 0; step < grid_size; ++step) {
     std::vector<std::vector<double>> local_results(num_blocks, std::vector<double>(root * root, 0.0));
     std::vector<std::thread> threads;
+    // Резервирование места для потоков — оптимизация.
+    threads.reserve(num_blocks);
 
     for (int bi = 0; bi < num_blocks; ++bi) {
-      threads.emplace_back([&, bi]() {
-        std::vector<std::vector<double>> local_blocks_a(num_blocks, std::vector<double>(block_sz_ * block_sz_));
-        std::vector<std::vector<double>> local_blocks_b(num_blocks, std::vector<double>(block_sz_ * block_sz_));
-
-        for (int bj = 0; bj < num_blocks; ++bj) {
-          int start = ((bi * block_sz_) * root) + (bj * block_sz_);
-          CopyBlock(matrixA_, local_blocks_a[bj], start, root, block_sz_);
-          CopyBlock(matrixB_, local_blocks_b[bj], start, root, block_sz_);
-        }
-
-        auto& localC = local_results[bi];
-
-        for (int bj = 0; bj < num_blocks; ++bj) {
-          const auto& A = local_blocks_a[bj];
-          const auto& B = local_blocks_b[bj];
-
-          for (int i = 0; i < block_sz_; ++i) {
-            for (int k = 0; k < block_sz_; ++k) {
-              double a_ik = A[i * block_sz_ + k];
-              for (int j = 0; j < block_sz_; ++j) {
-                int index = ((bi * block_sz_ + i) * root) + (bj * block_sz_ + j);
-                localC[index] += a_ik * B[k * block_sz_ + j];
-              }
-            }
-          }
-        }
-      });
+      threads.emplace_back(
+          [&, bi]() { ProcessBlock(bi, num_blocks, root, block_sz_, matrixA_, matrixB_, local_results[bi]); });
     }
 
     for (auto& t : threads) {
       t.join();
     }
 
-    // Собираем локальные результаты
-    for (const auto& localC : local_results) {
+    // Собираем локальные результаты в matrixC_.
+    for (const auto& local_c : local_results) {
       for (size_t i = 0; i < matrixC_.size(); ++i) {
-        matrixC_[i] += localC[i];
+        matrixC_[i] += local_c[i];
       }
     }
 
