@@ -214,7 +214,6 @@ bool odintsov_m_mulmatrix_cannon_stl::MulMatrixCannonSTL::RunImpl() {
   return true;
 }
 
-
 bool odintsov_m_mulmatrix_cannon_stl::MulMatrixCannonSTL::PostProcessingImpl() {
   std::size_t sz_c = matrixC_.size();
   for (std::size_t i = 0; i < sz_c; i++) {
