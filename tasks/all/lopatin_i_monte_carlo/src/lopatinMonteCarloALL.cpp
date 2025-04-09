@@ -9,6 +9,7 @@
 #include <cmath>
 #include <cstddef>
 #include <ctime>
+#include <functional>
 #include <random>
 #include <vector>
 
@@ -57,7 +58,7 @@ bool TestTaskAll::RunImpl() {
   // distributing iterations
   const int world_size = world_.size();
   const int world_rank = world_.rank();
-  const int local_iterations = iterations_ / world_size + (world_rank < (iterations_ % world_size) ? 1 : 0);
+  const int local_iterations = (iterations_ / world_size) + (world_rank < (iterations_ % world_size) ? 1 : 0);
 
   double local_sum = 0.0;
 #pragma omp parallel reduction(+ : local_sum)
