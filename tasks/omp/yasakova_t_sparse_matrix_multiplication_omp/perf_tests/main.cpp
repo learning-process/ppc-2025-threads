@@ -1,7 +1,6 @@
 #include <gtest/gtest.h>
 
 #include <chrono>
-#include <complex>
 #include <cstdint>
 #include <cstdlib>
 #include <ctime>
