@@ -49,7 +49,10 @@ TEST(kolokolova_d_integral_simpson_method_tbb, test_pipeline_run) {
   auto perf_analyzer = std::make_shared<ppc::core::Perf>(test_task_tbb);
   perf_analyzer->PipelineRun(perf_attr, perf_results);
   ppc::core::Perf::PrintPerfStatistic(perf_results);
-  ASSERT_EQ(1, 1);
+
+  double ans = 927300.25;
+  double error = 0.1;
+  ASSERT_NEAR(func_result, ans, error);
 }
 
 TEST(kolokolova_d_integral_simpson_method_tbb, test_task_run) {
@@ -91,5 +94,8 @@ TEST(kolokolova_d_integral_simpson_method_tbb, test_task_run) {
   auto perf_analyzer = std::make_shared<ppc::core::Perf>(test_task_tbb);
   perf_analyzer->TaskRun(perf_attr, perf_results);
   ppc::core::Perf::PrintPerfStatistic(perf_results);
-  ASSERT_EQ(1, 1);
+
+  double ans = 927300.25;
+  double error = 0.1;
+  ASSERT_NEAR(func_result, ans, error);
 }
