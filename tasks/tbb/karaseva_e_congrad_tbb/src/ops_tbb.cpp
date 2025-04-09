@@ -1,7 +1,7 @@
 #include "tbb/karaseva_e_congrad_tbb/include/ops_tbb.hpp"
 
-#include <tbb/parallel_for.h>
-#include <tbb/parallel_reduce.h>
+#include <oneapi/tbb/parallel_for.h>
+#include <oneapi/tbb/parallel_reduce.h>
 
 #include <cmath>
 #include <cstddef>
@@ -56,7 +56,7 @@ void MatrixVectorMultiply(const std::vector<double>& matrix, const std::vector<d
     for (size_t i = range.begin(); i != range.end(); ++i) {
       double temp = 0.0;
       for (size_t j = 0; j < size; ++j) {
-        temp += matrix[i * size + j] * vec[j];
+        temp += matrix[(i * size) + j] * vec[j];
       }
       result[i] = temp;
     }
