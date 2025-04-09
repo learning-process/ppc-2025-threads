@@ -5,9 +5,10 @@
 
 #include <cmath>
 #include <cstddef>
+#include <exception>
 #include <iostream>
-#include <numeric>
-#include <stdexcept>
+#include <limits>
+#include <new>
 #include <vector>
 
 namespace {
@@ -79,7 +80,7 @@ bool IntegralsSimpsonTBB::PreProcessingImpl() {
     b_.resize(dimension_);
     n_.resize(dimension_);
   } catch (const std::bad_alloc& e) {
-    std::cerr << "Error: Failed to allocate memory for dimension " << dimension_ << ": " << e.what() << std::endl;
+    std::cerr << "Error: Failed to allocate memory for dimension " << dimension_ << ": " << e.what() << '\n';
     return false;
   }
 
@@ -176,7 +177,7 @@ bool IntegralsSimpsonTBB::PostProcessingImpl() {
     auto* out_ptr = reinterpret_cast<double*>(task_data->outputs[0]);
     out_ptr[0] = result_;
   } catch (const std::exception& e) {
-    std::cerr << "Error during PostProcessing: " << e.what() << std::endl;
+    std::cerr << "Error during PostProcessing: " << e.what() << '\n';
     return false;
   }
   return true;
