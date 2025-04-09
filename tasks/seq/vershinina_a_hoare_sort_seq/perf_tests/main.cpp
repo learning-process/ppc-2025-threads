@@ -27,8 +27,8 @@ std::vector<int> GetRandomVector(int len) {
 
 TEST(vershinina_a_hoare_sort_seq, test_pipeline_run) {
   std::vector<int> in;
-  std::vector<int> out(16000);
-  in = GetRandomVector(16000);
+  std::vector<int> out(300000);
+  in = GetRandomVector(300000);
 
   auto task_data_seq = std::make_shared<ppc::core::TaskData>();
   task_data_seq->inputs.emplace_back(reinterpret_cast<uint8_t *>(in.data()));
@@ -57,8 +57,8 @@ TEST(vershinina_a_hoare_sort_seq, test_pipeline_run) {
 
 TEST(vershinina_a_hoare_sort_seq, test_task_run) {
   std::vector<int> in;
-  std::vector<int> out(16000);
-  in = GetRandomVector(16000);
+  std::vector<int> out(300000);
+  in = GetRandomVector(300000);
 
   auto task_data_seq = std::make_shared<ppc::core::TaskData>();
   task_data_seq->inputs.emplace_back(reinterpret_cast<uint8_t *>(in.data()));
