@@ -5,23 +5,14 @@
 #include <algorithm>
 #include <cmath>
 #include <cstddef>
-<<<<<<< HEAD
 #include <iostream>
-    == == ==
-    =
->>>>>>> 833ebe8313f01d82f134a2e1d63190bf988b1438
 #include <utility>
 #include <vector>
 
 #include "core/util/include/util.hpp"
 
-        < < < < < < < HEAD
-        // restart
-        == == ==
-    =
->>>>>>> 833ebe8313f01d82f134a2e1d63190bf988b1438
-        lavrentiev_a_ccs_omp::Sparse lavrentiev_a_ccs_omp::CCSOMP::ConvertToSparse(std::pair<int, int> size,
-                                                                                   const std::vector<double> &values) {
+lavrentiev_a_ccs_omp::Sparse lavrentiev_a_ccs_omp::CCSOMP::ConvertToSparse(std::pair<int, int> size,
+                                                                           const std::vector<double> &values) {
   auto [nsize, elements, rows, columns_sum] = Sparse();
   columns_sum.resize(size.second);
   for (int i = 0; i < size.second; ++i) {
