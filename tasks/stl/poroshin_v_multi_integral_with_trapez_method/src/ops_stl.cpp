@@ -87,13 +87,13 @@ void poroshin_v_multi_integral_with_trapez_method_stl::TestTaskSTL::CountMultiIn
     }
   }
 
-  for (auto &thread : threads) {
+  for (auto& thread : threads) {
     thread.join();
   }
 
   double integral = 0.0;
   double volume = 0.0;
-  for (const auto &result : thread_results) {
+  for (const auto& result : thread_results) {
     integral += result.first;
     volume += result.second;
   }
@@ -105,9 +105,9 @@ bool poroshin_v_multi_integral_with_trapez_method_stl::TestTaskSTL::PreProcessin
   n_.resize(dim_);
   limits_.resize(dim_);
   for (size_t i = 0; i < dim_; i++) {
-    n_[i] = reinterpret_cast<int *>(task_data->inputs[0])[i];
-    limits_[i].first = reinterpret_cast<double *>(task_data->inputs[1])[i];
-    limits_[i].second = reinterpret_cast<double *>(task_data->inputs[2])[i];
+    n_[i] = reinterpret_cast<int*>(task_data->inputs[0])[i];
+    limits_[i].first = reinterpret_cast<double*>(task_data->inputs[1])[i];
+    limits_[i].second = reinterpret_cast<double*>(task_data->inputs[2])[i];
   }
   res_ = 0;
   return true;
@@ -123,6 +123,6 @@ bool poroshin_v_multi_integral_with_trapez_method_stl::TestTaskSTL::RunImpl() {
 }
 
 bool poroshin_v_multi_integral_with_trapez_method_stl::TestTaskSTL::PostProcessingImpl() {
-  reinterpret_cast<double *>(task_data->outputs[0])[0] = res_;
+  reinterpret_cast<double*>(task_data->outputs[0])[0] = res_;
   return true;
 }
