@@ -58,14 +58,16 @@ class sadikov_i_matrix_multiplication_testing_stl : public testing::Test {
     m_task_data_stl->outputs_count.emplace_back(data.first_matrix_rows_count * data.second_matrix_columns_count);
   }
 
-  void RunTask(const std::vector<double>& result_checker, const TestData& data) {
+  void RunTask(const std::vector<double>& result_checker, const TestData& data, bool alleged_validation_status) {
     sadikov_i_sparse_matrix_multiplication_task_stl::CCSMatrixSTL test_task_stl(m_task_data_stl);
-    ASSERT_EQ(test_task_stl.Validation(), true);
-    test_task_stl.PreProcessing();
-    test_task_stl.Run();
-    test_task_stl.PostProcessing();
-    for (size_t i = 0; i < result_checker.size(); ++i) {
-      EXPECT_NEAR(data.multiplication_result[i], result_checker[i], kEpsilon);
+    ASSERT_EQ(test_task_stl.Validation(), alleged_validation_status);
+    if (alleged_validation_status) {
+      test_task_stl.PreProcessing();
+      test_task_stl.Run();
+      test_task_stl.PostProcessing();
+      for (size_t i = 0; i < result_checker.size(); ++i) {
+        EXPECT_NEAR(data.multiplication_result[i], result_checker[i], kEpsilon);
+      }
     }
   }
 };
@@ -81,7 +83,7 @@ TEST_F(sadikov_i_matrix_multiplication_testing_stl, test_rect_matrix) {
                         .multiplication_result = std::vector<double>(12)};
   std::vector<double> test_out{0.0, 25.0, 0.0, 2.0, 0.0, 0.0, 21.0, 0.0, 56.0};
   FillTaskData(test_data);
-  RunTask(test_out, test_data);
+  RunTask(test_out, test_data, true);
 }
 
 TEST_F(sadikov_i_matrix_multiplication_testing_stl, test_square_matrix) {
@@ -94,14 +96,14 @@ TEST_F(sadikov_i_matrix_multiplication_testing_stl, test_square_matrix) {
                         .multiplication_result = std::vector<double>(9)};
   std::vector<double> test_out{0.0, 0.0, 3.0, 14.0, 0.0, 0.0, 18.0, 0.0, 12.0};
   FillTaskData(test_data);
-  RunTask(test_out, test_data);
+  RunTask(test_out, test_data, true);
 }
 
 TEST_F(sadikov_i_matrix_multiplication_testing_stl, test_empty_matrix) {
   TestData test_data;
   std::vector<double> test_out;
   FillTaskData(test_data);
-  RunTask(test_out, test_data);
+  RunTask(test_out, test_data, true);
 }
 
 TEST_F(sadikov_i_matrix_multiplication_testing_stl, test_random_matrix) {
@@ -116,7 +118,7 @@ TEST_F(sadikov_i_matrix_multiplication_testing_stl, test_random_matrix) {
   std::vector<double> test_out = sadikov_i_sparse_matrix_multiplication_task_stl::BaseMatrixMultiplication(
       test_data.first_matrix, kSize, kSize, test_data.second_matrix, kSize, kSize);
   FillTaskData(test_data);
-  RunTask(test_out, test_data);
+  RunTask(test_out, test_data, true);
 }
 
 TEST_F(sadikov_i_matrix_multiplication_testing_stl, test_random_matrix2) {
@@ -131,5 +133,22 @@ TEST_F(sadikov_i_matrix_multiplication_testing_stl, test_random_matrix2) {
   std::vector<double> test_out = sadikov_i_sparse_matrix_multiplication_task_stl::BaseMatrixMultiplication(
       test_data.first_matrix, kSize, kSize, test_data.second_matrix, kSize, kSize);
   FillTaskData(test_data);
-  RunTask(test_out, test_data);
+  RunTask(test_out, test_data, true);
+}
+
+TEST_F(sadikov_i_matrix_multiplication_testing_stl, test_wrong_matrix_size) {
+  constexpr int kFirstMatrixSize = 3;
+  constexpr int kSecondMatrixSize = 2;
+  TestData test_data = {.first_matrix = GetRandomMatrix(kFirstMatrixSize * kFirstMatrixSize),
+                        .first_matrix_rows_count = kFirstMatrixSize,
+                        .first_matrix_columns_count = kFirstMatrixSize,
+                        .second_matrix = GetRandomMatrix(kSecondMatrixSize * kSecondMatrixSize),
+                        .second_matrix_rows_count = kSecondMatrixSize,
+                        .second_matrix_columns_count = kSecondMatrixSize,
+                        .multiplication_result = std::vector<double>(kFirstMatrixSize * kFirstMatrixSize)};
+  std::vector<double> test_out = sadikov_i_sparse_matrix_multiplication_task_stl::BaseMatrixMultiplication(
+      test_data.first_matrix, kFirstMatrixSize, kFirstMatrixSize, test_data.second_matrix, kFirstMatrixSize,
+      kFirstMatrixSize);
+  FillTaskData(test_data);
+  RunTask(test_out, test_data, false);
 }
