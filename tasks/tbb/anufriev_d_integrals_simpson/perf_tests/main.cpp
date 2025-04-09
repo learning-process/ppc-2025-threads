@@ -7,12 +7,10 @@
 
 #include "core/perf/include/perf.hpp"
 #include "core/task/include/task.hpp"
-// Include the TBB header instead of SEQ
+
 #include "tbb/anufriev_d_integrals_simpson/include/ops_tbb.hpp"
 
-// Rename test suite
 TEST(anufriev_d_integrals_simpson_tbb, test_pipeline_run) {
-  // Using larger N values to see potential TBB benefit
   std::vector<double> in = {2, 0.0, 1.0, 2000, 0.0, 1.0, 2000, 0};
   std::vector<double> out(1, 0.0);
 
@@ -22,20 +20,17 @@ TEST(anufriev_d_integrals_simpson_tbb, test_pipeline_run) {
   task_data_tbb->outputs.push_back(reinterpret_cast<uint8_t*>(out.data()));
   task_data_tbb->outputs_count.push_back(static_cast<std::uint32_t>(out.size() * sizeof(double)));
 
-  // Use the TBB class
   auto task_tbb = std::make_shared<anufriev_d_integrals_simpson_tbb::IntegralsSimpsonTBB>(task_data_tbb);
 
   auto perf_attr = std::make_shared<ppc::core::PerfAttr>();
-  perf_attr->num_running = 10; // Adjust as needed
+  perf_attr->num_running = 10;
 
-  // --- Corrected Timer Definition ---
   const auto t0 = std::chrono::high_resolution_clock::now();
   perf_attr->current_timer = [&] {
     auto current_time_point = std::chrono::high_resolution_clock::now();
     auto duration = std::chrono::duration_cast<std::chrono::nanoseconds>(current_time_point - t0).count();
     return static_cast<double>(duration) * 1e-9;
   };
-  // --- End Corrected Timer Definition ---
 
   auto perf_results = std::make_shared<ppc::core::PerfResults>();
   auto perf_analyzer = std::make_shared<ppc::core::Perf>(task_tbb);
@@ -44,12 +39,10 @@ TEST(anufriev_d_integrals_simpson_tbb, test_pipeline_run) {
   ppc::core::Perf::PrintPerfStatistic(perf_results);
 
   double result = out[0];
-  EXPECT_NEAR(result, 2.0 / 3.0, 1e-3); // Check result consistency
+  EXPECT_NEAR(result, 2.0 / 3.0, 1e-3);
 }
 
-// Rename test suite
 TEST(anufriev_d_integrals_simpson_tbb, test_task_run) {
-  // Using larger N values
   std::vector<double> in = {2, 0.0, 1.0, 2000, 0.0, 1.0, 2000, 0};
   std::vector<double> out(1, 0.0);
 
@@ -59,20 +52,17 @@ TEST(anufriev_d_integrals_simpson_tbb, test_task_run) {
   task_data_tbb->outputs.push_back(reinterpret_cast<uint8_t*>(out.data()));
   task_data_tbb->outputs_count.push_back(static_cast<std::uint32_t>(out.size() * sizeof(double)));
 
-  // Use the TBB class
   auto task_tbb = std::make_shared<anufriev_d_integrals_simpson_tbb::IntegralsSimpsonTBB>(task_data_tbb);
 
   auto perf_attr = std::make_shared<ppc::core::PerfAttr>();
-  perf_attr->num_running = 10; // Adjust as needed
+  perf_attr->num_running = 10;
 
-  // --- Corrected Timer Definition ---
   const auto t0 = std::chrono::high_resolution_clock::now();
   perf_attr->current_timer = [&] {
     auto current_time_point = std::chrono::high_resolution_clock::now();
     auto duration = std::chrono::duration_cast<std::chrono::nanoseconds>(current_time_point - t0).count();
     return static_cast<double>(duration) * 1e-9;
   };
-  // --- End Corrected Timer Definition ---
 
   auto perf_results = std::make_shared<ppc::core::PerfResults>();
   auto perf_analyzer = std::make_shared<ppc::core::Perf>(task_tbb);
@@ -81,5 +71,5 @@ TEST(anufriev_d_integrals_simpson_tbb, test_task_run) {
   ppc::core::Perf::PrintPerfStatistic(perf_results);
 
   double result = out[0];
-  EXPECT_NEAR(result, 2.0 / 3.0, 1e-3); // Check result consistency
+  EXPECT_NEAR(result, 2.0 / 3.0, 1e-3);
 }
