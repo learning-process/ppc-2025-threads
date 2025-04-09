@@ -5,6 +5,7 @@
 #include <cstddef>
 #include <cstdint>
 #include <cstdlib>
+#include <ctime>
 #include <functional>
 #include <memory>
 #include <queue>
