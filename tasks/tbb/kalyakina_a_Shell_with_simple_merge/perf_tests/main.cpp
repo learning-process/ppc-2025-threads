@@ -8,7 +8,7 @@
 
 #include "core/perf/include/perf.hpp"
 #include "core/task/include/task.hpp"
-#include "tbb/kalyakina_a_shell_with_simple_merge/include/ops_tbb.hpp"
+#include "tbb/kalyakina_a_Shell_with_simple_merge/include/ops_tbb.hpp"
 
 namespace {
 
