@@ -15,7 +15,7 @@
 
 #include "core/util/include/util.hpp"
 
-        <<<<<<< HEAD
+        < < < < < < < HEAD
         // restart
         == == ==
     =
