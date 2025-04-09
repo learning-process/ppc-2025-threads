@@ -86,3 +86,118 @@ TEST(karaseva_e_congrad_tbb, test_identity) {
     EXPECT_NEAR(x[i], b[i], 1e-9);
   }
 }
+
+TEST(karaseva_e_congrad_tbb, test_diagonal_matrix) {
+  constexpr size_t kN = 50;
+
+  std::vector<double> a_matrix(kN * kN, 0.0);
+  for (size_t i = 0; i < kN; ++i) {
+    a_matrix[(i * kN) + i] = i + 1.0;
+  }
+
+  std::vector<double> b(kN, 1.0);
+  std::vector<double> x(kN, 0.0);
+
+  auto task_data = std::make_shared<ppc::core::TaskData>();
+  task_data->inputs.push_back(reinterpret_cast<uint8_t*>(a_matrix.data()));
+  task_data->inputs_count.push_back(kN * kN);
+  task_data->inputs.push_back(reinterpret_cast<uint8_t*>(b.data()));
+  task_data->inputs_count.push_back(kN);
+  task_data->outputs.push_back(reinterpret_cast<uint8_t*>(x.data()));
+  task_data->outputs_count.push_back(kN);
+
+  karaseva_e_congrad_tbb::TestTaskTBB test_task(task_data);
+  ASSERT_TRUE(test_task.Validation());
+  test_task.PreProcessing();
+  test_task.Run();
+  test_task.PostProcessing();
+
+  for (size_t i = 0; i < kN; ++i) {
+    EXPECT_NEAR(x[i], 1.0 / (i + 1), 1e-9);
+  }
+}
+
+TEST(karaseva_e_congrad_tbb, test_random_spd_matrix) {
+  constexpr size_t kN = 50;
+  constexpr double kEps = 1e-6;
+
+  auto a_matrix = GenerateRandomSPDMatrix(kN);
+  std::vector<double> x_expected(kN);
+
+  std::mt19937 gen(42);
+  std::uniform_real_distribution<double> dist(-10.0, 10.0);
+  for (auto& val : x_expected) {
+    val = dist(gen);
+  }
+
+  auto b = MultiplyMatrixVector(a_matrix, x_expected, kN);
+  std::vector<double> x(kN, 0.0);
+
+  auto task_data = std::make_shared<ppc::core::TaskData>();
+  task_data->inputs.push_back(reinterpret_cast<uint8_t*>(a_matrix.data()));
+  task_data->inputs_count.push_back(kN * kN);
+  task_data->inputs.push_back(reinterpret_cast<uint8_t*>(b.data()));
+  task_data->inputs_count.push_back(kN);
+  task_data->outputs.push_back(reinterpret_cast<uint8_t*>(x.data()));
+  task_data->outputs_count.push_back(kN);
+
+  karaseva_e_congrad_tbb::TestTaskTBB test_task(task_data);
+  ASSERT_TRUE(test_task.Validation());
+  test_task.PreProcessing();
+  test_task.Run();
+  test_task.PostProcessing();
+
+  for (size_t i = 0; i < kN; ++i) {
+    EXPECT_NEAR(x[i], x_expected[i], kEps);
+  }
+}
+
+TEST(karaseva_e_congrad_tbb, test_zero_rhs) {
+  constexpr size_t kN = 50;
+
+  auto a_matrix = GenerateRandomSPDMatrix(kN);
+  std::vector<double> b(kN, 0.0);
+  std::vector<double> x(kN, 1.0);
+
+  auto task_data = std::make_shared<ppc::core::TaskData>();
+  task_data->inputs.push_back(reinterpret_cast<uint8_t*>(a_matrix.data()));
+  task_data->inputs_count.push_back(kN * kN);
+  task_data->inputs.push_back(reinterpret_cast<uint8_t*>(b.data()));
+  task_data->inputs_count.push_back(kN);
+  task_data->outputs.push_back(reinterpret_cast<uint8_t*>(x.data()));
+  task_data->outputs_count.push_back(kN);
+
+  karaseva_e_congrad_tbb::TestTaskTBB test_task(task_data);
+  ASSERT_TRUE(test_task.Validation());
+  test_task.PreProcessing();
+  test_task.Run();
+  test_task.PostProcessing();
+
+  for (auto val : x) {
+    EXPECT_DOUBLE_EQ(val, 0.0);
+  }
+}
+
+TEST(karaseva_e_congrad_tbb, test_small_matrix) {
+  constexpr size_t kN = 1;
+
+  std::vector<double> a_matrix = {5.0};
+  std::vector<double> b = {10.0};
+  std::vector<double> x(1, 0.0);
+
+  auto task_data = std::make_shared<ppc::core::TaskData>();
+  task_data->inputs.push_back(reinterpret_cast<uint8_t*>(a_matrix.data()));
+  task_data->inputs_count.push_back(1);
+  task_data->inputs.push_back(reinterpret_cast<uint8_t*>(b.data()));
+  task_data->inputs_count.push_back(1);
+  task_data->outputs.push_back(reinterpret_cast<uint8_t*>(x.data()));
+  task_data->outputs_count.push_back(1);
+
+  karaseva_e_congrad_tbb::TestTaskTBB test_task(task_data);
+  ASSERT_TRUE(test_task.Validation());
+  test_task.PreProcessing();
+  test_task.Run();
+  test_task.PostProcessing();
+
+  EXPECT_DOUBLE_EQ(x[0], 2.0);
+}
