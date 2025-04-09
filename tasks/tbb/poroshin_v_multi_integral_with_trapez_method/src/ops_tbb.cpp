@@ -1,9 +1,9 @@
 #include "tbb/poroshin_v_multi_integral_with_trapez_method/include/ops_tbb.hpp"
 
-#include <tbb/blocked_range.h>
-#include <tbb/parallel_for.h>
-#include <tbb/parallel_reduce.h>
-#include <tbb/tbb.h>
+#include <oneapi/tbb.h>
+#include <oneapi/tbb/blocked_range.h>
+#include <oneapi/tbb/parallel_for.h>
+#include <oneapi/tbb/parallel_reduce.h>
 
 #include <cmath>
 #include <cstddef>
