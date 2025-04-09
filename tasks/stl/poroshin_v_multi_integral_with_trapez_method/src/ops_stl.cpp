@@ -13,7 +13,6 @@ void poroshin_v_multi_integral_with_trapez_method_stl::TestTaskSTL::CountMultiIn
   const int dimensions = static_cast<int>(limits_.size());
   const int num_threads = ppc::util::GetPPCNumThreads();
 
-  // Вычисление шагов h
   auto calculate_steps = [this, dimensions]() {
     std::vector<double> h(dimensions);
     for (int i = 0; i < dimensions; ++i) {
@@ -22,7 +21,6 @@ void poroshin_v_multi_integral_with_trapez_method_stl::TestTaskSTL::CountMultiIn
     return h;
   };
 
-  // Вычисление весов
   auto calculate_weights = [this, dimensions]() {
     std::vector<std::vector<double>> weights(dimensions);
     for (int i = 0; i < dimensions; ++i) {
@@ -34,7 +32,6 @@ void poroshin_v_multi_integral_with_trapez_method_stl::TestTaskSTL::CountMultiIn
     return weights;
   };
 
-  // Вычисление общего количества точек
   auto calculate_total_points = [this, dimensions]() {
     int total_points = 1;
     for (int n : n_) {
