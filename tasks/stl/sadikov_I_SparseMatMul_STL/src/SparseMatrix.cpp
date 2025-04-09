@@ -168,6 +168,6 @@ std::vector<double> BaseMatrixMultiplication(const std::vector<double>& fmatrix,
     }
     return answer;
   }
-  return std::vector<double>();
+  return {};
 }
 }  // namespace sadikov_i_sparse_matrix_multiplication_task_stl
