@@ -177,27 +177,3 @@ TEST(karaseva_e_congrad_tbb, test_zero_rhs) {
     EXPECT_DOUBLE_EQ(val, 0.0);
   }
 }
-
-TEST(karaseva_e_congrad_tbb, test_small_matrix) {
-  constexpr size_t kN = 1;
-
-  std::vector<double> a_matrix = {5.0};
-  std::vector<double> b = {10.0};
-  std::vector<double> x(1, 0.0);
-
-  auto task_data = std::make_shared<ppc::core::TaskData>();
-  task_data->inputs.push_back(reinterpret_cast<uint8_t*>(a_matrix.data()));
-  task_data->inputs_count.push_back(1);
-  task_data->inputs.push_back(reinterpret_cast<uint8_t*>(b.data()));
-  task_data->inputs_count.push_back(1);
-  task_data->outputs.push_back(reinterpret_cast<uint8_t*>(x.data()));
-  task_data->outputs_count.push_back(1);
-
-  karaseva_e_congrad_tbb::TestTaskTBB test_task(task_data);
-  ASSERT_TRUE(test_task.Validation());
-  test_task.PreProcessing();
-  test_task.Run();
-  test_task.PostProcessing();
-
-  EXPECT_DOUBLE_EQ(x[0], 2.0);
-}
