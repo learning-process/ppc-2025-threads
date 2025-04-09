@@ -117,7 +117,7 @@ void RadixBatcherMergesortParallel::BatcherMergeParallel(vector<Bigint>& arr, in
     for (int64_t i = 0; i < static_cast<int64_t>(n - step); i += static_cast<int64_t>(2 * step)) {
       size_t left = i;
       size_t right = left + step;
-      size_t end = (left + 2 * step < n) ? (left + 2 * step) : n;
+      size_t end = (left + (2 * step) < n) ? (left + (2 * step)) : n;
 
       std::inplace_merge(arr.begin() + static_cast<int64_t>(left), arr.begin() + static_cast<int64_t>(right),
                          arr.begin() + static_cast<int64_t>(end));
