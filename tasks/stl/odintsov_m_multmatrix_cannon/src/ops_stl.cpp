@@ -1,10 +1,10 @@
 #include "stl/odintsov_m_multmatrix_cannon/include/ops_stl.hpp"
 
-#include <execution>
-#include <numeric> 
 #include <algorithm>
 #include <cmath>
 #include <cstddef>
+#include <execution>
+#include <numeric>
 #include <vector>
 
 using namespace std;

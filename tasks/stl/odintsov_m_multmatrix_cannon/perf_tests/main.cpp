@@ -7,7 +7,7 @@
 
 #include "core/perf/include/perf.hpp"
 #include "core/task/include/task.hpp"
-#include "stl/odintsov_m_multmatrix_cannon/include/ops_stl.hpp"  
+#include "stl/odintsov_m_multmatrix_cannon/include/ops_stl.hpp"
 
 TEST(odintsov_m_multmatrix_cannon_stl, test_pipeline_run) {
   // Create data

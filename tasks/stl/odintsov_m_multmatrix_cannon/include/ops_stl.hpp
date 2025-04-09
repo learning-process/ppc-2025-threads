@@ -5,9 +5,9 @@
 
 #include "core/task/include/task.hpp"
 
-namespace odintsov_m_mulmatrix_cannon_stl {  
+namespace odintsov_m_mulmatrix_cannon_stl {
 
-class MulMatrixCannonSTL : public ppc::core::Task {  
+class MulMatrixCannonSTL : public ppc::core::Task {
  public:
   explicit MulMatrixCannonSTL(ppc::core::TaskDataPtr task_data) : Task(std::move(task_data)) {}
 
