@@ -1,11 +1,11 @@
+#include "tbb/karaseva_e_congrad_tbb/include/ops_tbb.hpp"
+
 #include <tbb/parallel_for.h>
 #include <tbb/parallel_reduce.h>
 
 #include <cmath>
 #include <cstddef>
 #include <vector>
-
-#include "tbb/karaseva_e_congrad_tbb/include/ops_tbb.hpp"
 
 bool karaseva_e_congrad_tbb::TestTaskTBB::PreProcessingImpl() {
   size_ = task_data->inputs_count[1];
