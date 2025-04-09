@@ -60,6 +60,10 @@ TEST(lopatin_i_monte_carlo_stl, test_pipeline_run) {
   auto perf_analyzer = std::make_shared<ppc::core::Perf>(test_task);
   perf_analyzer->PipelineRun(perf_attr, perf_results);
   ppc::core::Perf::PrintPerfStatistic(perf_results);
+
+  const double expected = std::pow(std::exp(3.0) - std::exp(-3.0), 5);  // = 3.219e6
+  const double tolerance = 0.05 * expected;                             // 5% error
+  EXPECT_NEAR(result, expected, tolerance);
 }
 
 TEST(lopatin_i_monte_carlo_stl, test_task_run) {
@@ -99,4 +103,8 @@ TEST(lopatin_i_monte_carlo_stl, test_task_run) {
   auto perf_analyzer = std::make_shared<ppc::core::Perf>(test_task);
   perf_analyzer->TaskRun(perf_attr, perf_results);
   ppc::core::Perf::PrintPerfStatistic(perf_results);
+
+  const double expected = std::pow(std::exp(3.0) - std::exp(-3.0), 5);  // = 3.219e6
+  const double tolerance = 0.05 * expected;                             // 5% error
+  EXPECT_NEAR(result, expected, tolerance);
 }
