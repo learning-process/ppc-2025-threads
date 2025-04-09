@@ -147,8 +147,8 @@ TEST_F(sadikov_i_matrix_multiplication_testing_stl, test_wrong_matrix_size) {
                         .second_matrix_columns_count = kSecondMatrixSize,
                         .multiplication_result = std::vector<double>(kFirstMatrixSize * kFirstMatrixSize)};
   std::vector<double> test_out = sadikov_i_sparse_matrix_multiplication_task_stl::BaseMatrixMultiplication(
-      test_data.first_matrix, kFirstMatrixSize, kFirstMatrixSize, test_data.second_matrix, kFirstMatrixSize,
-      kFirstMatrixSize);
+      test_data.first_matrix, kFirstMatrixSize, kFirstMatrixSize, test_data.second_matrix, kSecondMatrixSize,
+      kSecondMatrixSize);
   FillTaskData(test_data);
   RunTask(test_out, test_data, false);
 }

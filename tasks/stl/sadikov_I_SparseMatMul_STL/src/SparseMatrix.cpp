@@ -156,15 +156,18 @@ int SparseMatrix::GetElementsCount(int index, const std::vector<int>& elements_s
 std::vector<double> BaseMatrixMultiplication(const std::vector<double>& fmatrix, int fmatrix_rows_count,
                                              int fmatrix_columns_count, const std::vector<double>& smatrix,
                                              int smatrix_rows_count, int smatrix_columns_count) {
-  std::vector<double> answer(fmatrix_rows_count * smatrix_columns_count);
-  for (int i = 0; i < fmatrix_rows_count; i++) {
-    for (int j = 0; j < smatrix_columns_count; j++) {
-      for (int n = 0; n < smatrix_rows_count; n++) {
-        answer[j + (i * smatrix_columns_count)] +=
-            fmatrix[(i * fmatrix_columns_count) + n] * smatrix[(n * smatrix_columns_count) + j];
+  if (fmatrix_rows_count == smatrix_columns_count) {
+    std::vector<double> answer(fmatrix_rows_count * smatrix_columns_count);
+    for (int i = 0; i < fmatrix_rows_count; i++) {
+      for (int j = 0; j < smatrix_columns_count; j++) {
+        for (int n = 0; n < smatrix_rows_count; n++) {
+          answer[j + (i * smatrix_columns_count)] +=
+              fmatrix[(i * fmatrix_columns_count) + n] * smatrix[(n * smatrix_columns_count) + j];
+        }
       }
     }
+    return answer;
   }
-  return answer;
+  return std::vector<double>();
 }
 }  // namespace sadikov_i_sparse_matrix_multiplication_task_stl
