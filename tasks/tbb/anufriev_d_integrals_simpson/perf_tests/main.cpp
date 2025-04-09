@@ -7,7 +7,6 @@
 
 #include "core/perf/include/perf.hpp"
 #include "core/task/include/task.hpp"
-
 #include "tbb/anufriev_d_integrals_simpson/include/ops_tbb.hpp"
 
 TEST(anufriev_d_integrals_simpson_tbb, test_pipeline_run) {

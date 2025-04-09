@@ -1,7 +1,7 @@
 #include "tbb/anufriev_d_integrals_simpson/include/ops_tbb.hpp"
 
-#include <tbb/parallel_reduce.h>
 #include <tbb/blocked_range.h>
+#include <tbb/parallel_reduce.h>
 
 #include <cmath>
 #include <cstddef>
@@ -83,7 +83,6 @@ bool IntegralsSimpsonTBB::PreProcessingImpl() {
     return false;
   }
 
-
   int idx_ptr = 1;
   for (int i = 0; i < dimension_; i++) {
     a_[i] = in_ptr[idx_ptr++];
@@ -124,53 +123,49 @@ bool IntegralsSimpsonTBB::ValidationImpl() {
   return true;
 }
 
-
 bool IntegralsSimpsonTBB::RunImpl() {
   std::vector<double> steps(dimension_);
   size_t total_points = 1;
   double coeff_mult = 1.0;
 
   for (int i = 0; i < dimension_; i++) {
-      if (n_[i] == 0) {
-        return false;
-      }
-      steps[i] = (b_[i] - a_[i]) / n_[i];
-      coeff_mult *= steps[i] / 3.0;
-      size_t points_in_dim = static_cast<size_t>(n_[i]) + 1;
-      if (total_points > std::numeric_limits<size_t>::max() / points_in_dim) {
-        return false;
-      }
-      total_points *= points_in_dim;
+    if (n_[i] == 0) {
+      return false;
+    }
+    steps[i] = (b_[i] - a_[i]) / n_[i];
+    coeff_mult *= steps[i] / 3.0;
+    size_t points_in_dim = static_cast<size_t>(n_[i]) + 1;
+    if (total_points > std::numeric_limits<size_t>::max() / points_in_dim) {
+      return false;
+    }
+    total_points *= points_in_dim;
   }
 
   double total_sum = tbb::parallel_reduce(
       tbb::blocked_range<size_t>(0, total_points), 0.0,
       [&](const tbb::blocked_range<size_t>& r, double running_sum) {
-          std::vector<double> coords(dimension_);
-          std::vector<int> current_idx(dimension_);
+        std::vector<double> coords(dimension_);
+        std::vector<int> current_idx(dimension_);
 
-          for (size_t k = r.begin(); k != r.end(); ++k) {
-            double current_coeff_prod = 1.0;
-            size_t current_k = k;
+        for (size_t k = r.begin(); k != r.end(); ++k) {
+          double current_coeff_prod = 1.0;
+          size_t current_k = k;
 
-            for (int dim = 0; dim < dimension_; ++dim) {
-              size_t points_in_this_dim = static_cast<size_t>(n_[dim]) + 1;
-              size_t index_in_this_dim = current_k % points_in_this_dim;
-              current_idx[dim] = static_cast<int>(index_in_this_dim);
-              current_k /= points_in_this_dim;
+          for (int dim = 0; dim < dimension_; ++dim) {
+            size_t points_in_this_dim = static_cast<size_t>(n_[dim]) + 1;
+            size_t index_in_this_dim = current_k % points_in_this_dim;
+            current_idx[dim] = static_cast<int>(index_in_this_dim);
+            current_k /= points_in_this_dim;
 
-              coords[dim] = a_[dim] + current_idx[dim] * steps[dim];
-              current_coeff_prod *= SimpsonCoeff(current_idx[dim], n_[dim]);
-            }
-
-            running_sum += current_coeff_prod * FunctionN(coords);
+            coords[dim] = a_[dim] + current_idx[dim] * steps[dim];
+            current_coeff_prod *= SimpsonCoeff(current_idx[dim], n_[dim]);
           }
-          return running_sum;
+
+          running_sum += current_coeff_prod * FunctionN(coords);
+        }
+        return running_sum;
       },
-      [](double x, double y) {
-        return x + y;
-      }
-  );
+      [](double x, double y) { return x + y; });
 
   result_ = coeff_mult * total_sum;
   return true;
@@ -178,13 +173,13 @@ bool IntegralsSimpsonTBB::RunImpl() {
 
 bool IntegralsSimpsonTBB::PostProcessingImpl() {
   try {
-      auto* out_ptr = reinterpret_cast<double*>(task_data->outputs[0]);
-      out_ptr[0] = result_;
+    auto* out_ptr = reinterpret_cast<double*>(task_data->outputs[0]);
+    out_ptr[0] = result_;
   } catch (const std::exception& e) {
-      std::cerr << "Error during PostProcessing: " << e.what() << std::endl;
+    std::cerr << "Error during PostProcessing: " << e.what() << std::endl;
     return false;
   }
   return true;
 }
 
-} // namespace anufriev_d_integrals_simpson_tbb
+}  // namespace anufriev_d_integrals_simpson_tbb
