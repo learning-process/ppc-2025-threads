@@ -2,6 +2,8 @@
 
 #include <complex>
 #include <cstdint>
+#include <cstdlib>
+#include <ctime>
 #include <utility>
 #include <vector>
 
@@ -84,7 +86,7 @@ inline MatrixStructure ConvertFromCRS(const SparseMatrixFormat& input_matrix) {
   return matrix;
 }
 
-SparseMatrixFormat CreateRandomSparseMatrix(uint32_t size, uint32_t non_zero_elements) {
+inline SparseMatrixFormat CreateRandomSparseMatrix(uint32_t size, uint32_t non_zero_elements) {
   SparseMatrixFormat matrix;
   matrix.columns = size;
   matrix.row_pointers.resize(size + 1);
