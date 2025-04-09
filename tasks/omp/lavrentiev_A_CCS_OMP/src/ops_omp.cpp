@@ -71,53 +71,51 @@ lavrentiev_a_ccs_omp::Sparse lavrentiev_a_ccs_omp::CCSOMP::MatMul(const Sparse &
   result_matrix.columnsSum.resize(matrix2.size.second);
   auto new_matrix1 = Transpose(matrix1);
   std::vector<std::pair<std::vector<double>, std::vector<int>>> threads_data(ppc::util::GetPPCNumThreads());
-<<<<<<< HEAD
   std::cout << "Num of threads = " << ppc::util::GetPPCNumThreads();
-  == == == =
->>>>>>> 833ebe8313f01d82f134a2e1d63190bf988b1438
 #pragma omp parallel
-  { std::pair<std::vector<double>, std::vector<int>> current_thread_data;
+  {
+    std::pair<std::vector<double>, std::vector<int>> current_thread_data;
 #pragma omp for
-  for (int i = 0; i < static_cast<int>(matrix2.columnsSum.size()); ++i) {
-    for (int j = 0; j < static_cast<int>(new_matrix1.columnsSum.size()); ++j) {
-      double sum = 0.0;
-      for (int n = 0; n < GetElementsCount(j, new_matrix1.columnsSum); n++) {
-        for (int n2 = 0; n2 < GetElementsCount(i, matrix2.columnsSum); n2++) {
-          if (new_matrix1.rows[CalculateStartIndex(j, new_matrix1.columnsSum) + n] ==
-              matrix2.rows[CalculateStartIndex(i, matrix2.columnsSum) + n2]) {
-            sum += new_matrix1.elements[n + CalculateStartIndex(j, new_matrix1.columnsSum)] *
-                   matrix2.elements[n2 + CalculateStartIndex(i, matrix2.columnsSum)];
+    for (int i = 0; i < static_cast<int>(matrix2.columnsSum.size()); ++i) {
+      for (int j = 0; j < static_cast<int>(new_matrix1.columnsSum.size()); ++j) {
+        double sum = 0.0;
+        for (int n = 0; n < GetElementsCount(j, new_matrix1.columnsSum); n++) {
+          for (int n2 = 0; n2 < GetElementsCount(i, matrix2.columnsSum); n2++) {
+            if (new_matrix1.rows[CalculateStartIndex(j, new_matrix1.columnsSum) + n] ==
+                matrix2.rows[CalculateStartIndex(i, matrix2.columnsSum) + n2]) {
+              sum += new_matrix1.elements[n + CalculateStartIndex(j, new_matrix1.columnsSum)] *
+                     matrix2.elements[n2 + CalculateStartIndex(i, matrix2.columnsSum)];
+            }
           }
         }
-      }
-      if (sum != 0) {
-        current_thread_data.first.push_back(sum);
-        current_thread_data.second.push_back(j);
-        result_matrix.columnsSum[i]++;
+        if (sum != 0) {
+          current_thread_data.first.push_back(sum);
+          current_thread_data.second.push_back(j);
+          result_matrix.columnsSum[i]++;
+        }
       }
     }
+    threads_data[omp_get_thread_num()] = std::move(current_thread_data);
   }
-  threads_data[omp_get_thread_num()] = std::move(current_thread_data);
-}
-for (size_t i = 1; i < result_matrix.columnsSum.size(); ++i) {
-  result_matrix.columnsSum[i] = result_matrix.columnsSum[i] + result_matrix.columnsSum[i - 1];
-}
-if (!result_matrix.columnsSum.empty()) {
-  result_matrix.elements.resize(result_matrix.columnsSum.back());
-  result_matrix.rows.resize(result_matrix.columnsSum.back());
-}
-int count = 0;
-for (size_t i = 0; i < threads_data.size(); ++i) {
-  std::ranges::copy(threads_data[i].first, result_matrix.elements.begin() + count);
-  std::ranges::copy(threads_data[i].second, result_matrix.rows.begin() + count);
-  count += static_cast<int>(threads_data[i].first.size());
-}
-result_matrix.size.first = matrix2.size.second;
-result_matrix.size.second = matrix2.size.second;
-return {.size = result_matrix.size,
-        .elements = result_matrix.elements,
-        .rows = result_matrix.rows,
-        .columnsSum = result_matrix.columnsSum};
+  for (size_t i = 1; i < result_matrix.columnsSum.size(); ++i) {
+    result_matrix.columnsSum[i] = result_matrix.columnsSum[i] + result_matrix.columnsSum[i - 1];
+  }
+  if (!result_matrix.columnsSum.empty()) {
+    result_matrix.elements.resize(result_matrix.columnsSum.back());
+    result_matrix.rows.resize(result_matrix.columnsSum.back());
+  }
+  int count = 0;
+  for (size_t i = 0; i < threads_data.size(); ++i) {
+    std::ranges::copy(threads_data[i].first, result_matrix.elements.begin() + count);
+    std::ranges::copy(threads_data[i].second, result_matrix.rows.begin() + count);
+    count += static_cast<int>(threads_data[i].first.size());
+  }
+  result_matrix.size.first = matrix2.size.second;
+  result_matrix.size.second = matrix2.size.second;
+  return {.size = result_matrix.size,
+          .elements = result_matrix.elements,
+          .rows = result_matrix.rows,
+          .columnsSum = result_matrix.columnsSum};
 }
 
 int lavrentiev_a_ccs_omp::CCSOMP::GetElementsCount(int index, const std::vector<int> &columns_sum) {
