@@ -12,6 +12,41 @@
 
 #include "core/util/include/util.hpp"
 
+namespace plekhanov_d_dijkstra_stl {
+
+namespace {
+
+bool ConvertGraphToAdjacencyList(const std::vector<int>& graph_data, size_t num_vertices,
+                                 std::vector<std::vector<std::pair<int, int>>>& graph) {
+  graph.assign(num_vertices, {});
+  size_t current_vertex = 0;
+  size_t i = 0;
+  while (i < graph_data.size() && current_vertex < num_vertices) {
+    if (graph_data[i] == -1) {
+      current_vertex++;
+      i++;
+      continue;
+    }
+    if (i + 1 >= graph_data.size()) {
+      break;
+    }
+    size_t dest = graph_data[i];
+    int weight = graph_data[i + 1];
+    if (weight < 0) {
+      return false;
+    }
+    if (dest < num_vertices) {
+      graph[current_vertex].emplace_back(static_cast<int>(dest), weight);
+    }
+    i += 2;
+  }
+  return true;
+}
+
+}  // namespace
+
+}  // namespace plekhanov_d_dijkstra_stl
+
 const int plekhanov_d_dijkstra_stl::TestTaskSTL::kEndOfVertexList = -1;
 
 bool plekhanov_d_dijkstra_stl::TestTaskSTL::PreProcessingImpl() {
@@ -35,29 +70,11 @@ bool plekhanov_d_dijkstra_stl::TestTaskSTL::ValidationImpl() {
          task_data->outputs_count[0] > 0;
 }
 
-bool plekhanov_d_dijkstra_stl::TestTaskSTL::RunImpl() {  // NOLINT
+bool plekhanov_d_dijkstra_stl::TestTaskSTL::RunImpl() {
   std::vector<std::vector<std::pair<int, int>>> graph(num_vertices_);
-  size_t current_vertex = 0;
-  size_t i = 0;
 
-  while (i < graph_data_.size() && current_vertex < num_vertices_) {
-    if (graph_data_[i] == kEndOfVertexList) {
-      current_vertex++;
-      i++;
-      continue;
-    }
-    if (i + 1 >= graph_data_.size()) {
-      break;
-    }
-
-    int dest = graph_data_[i];
-    int weight = graph_data_[i + 1];
-    if (weight < 0 || dest >= static_cast<int>(num_vertices_)) {
-      return false;
-    }
-
-    graph[current_vertex].emplace_back(dest, weight);
-    i += 2;
+  if (!ConvertGraphToAdjacencyList(graph_data_, num_vertices_, graph)) {
+    return false;
   }
 
   struct Compare {

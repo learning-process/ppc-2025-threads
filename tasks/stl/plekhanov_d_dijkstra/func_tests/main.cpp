@@ -15,13 +15,32 @@
 
 namespace plekhanov_d_dijkstra_stl {
 
-void static RunValidationFailureTest();  // NOLINT(misc-use-anonymous-namespace)
+namespace {
+template <typename ExpectedResultType>
+void ValidateTaskSuccess(TestTaskSTL &test_task, std::vector<int> &distances,
+                         const std::vector<ExpectedResultType> &expected_result) {
+  ASSERT_TRUE(test_task.Run());
+  test_task.PostProcessing();
+  for (size_t i = 0; i < distances.size(); ++i) {
+    EXPECT_EQ(distances[i], expected_result[i]);
+  }
+}
 
 template <typename ExpectedResultType>
-void RunTest(const std::vector<std::vector<std::pair<size_t, int>>> &adj_list,  // NOLINT
-             size_t start_vertex, const std::vector<ExpectedResultType> &expected_result, bool expect_success = true) {
-  const size_t k_num_vertices = adj_list.size();
-  std::vector<int> distances(k_num_vertices, INT_MAX);
+void ExecuteAndValidateTask(std::shared_ptr<ppc::core::TaskData> &task_data, std::vector<int> &distances,
+                            const std::vector<ExpectedResultType> &expected_result, bool expect_success) {
+  TestTaskSTL test_task(task_data);
+  ASSERT_TRUE(test_task.Validation());
+  test_task.PreProcessing();
+
+  if (expect_success) {
+    ValidateTaskSuccess(test_task, distances, expected_result);
+  } else {
+    ASSERT_FALSE(test_task.Run());
+  }
+}
+
+std::vector<int> ConvertToGraphData(const std::vector<std::vector<std::pair<size_t, int>>> &adj_list) {
   std::vector<int> graph_data;
   for (const auto &vertex_edges : adj_list) {
     for (const auto &edge : vertex_edges) {
@@ -30,7 +49,15 @@ void RunTest(const std::vector<std::vector<std::pair<size_t, int>>> &adj_list,  
     }
     graph_data.push_back(-1);
   }
+  return graph_data;
+}
 
+template <typename ExpectedResultType>
+void RunTest(const std::vector<std::vector<std::pair<size_t, int>>> &adj_list, size_t start_vertex,
+             const std::vector<ExpectedResultType> &expected_result, bool expect_success = true) {
+  const size_t k_num_vertices = adj_list.size();
+  std::vector<int> distances(k_num_vertices, INT_MAX);
+  std::vector<int> graph_data = ConvertToGraphData(adj_list);
   auto task_data_stl = std::make_shared<ppc::core::TaskData>();
   task_data_stl->inputs.emplace_back(reinterpret_cast<uint8_t *>(graph_data.data()));
   task_data_stl->inputs_count.emplace_back(graph_data.size());
@@ -39,22 +66,10 @@ void RunTest(const std::vector<std::vector<std::pair<size_t, int>>> &adj_list,  
   task_data_stl->outputs.emplace_back(reinterpret_cast<uint8_t *>(distances.data()));
   task_data_stl->outputs_count.emplace_back(k_num_vertices);
 
-  TestTaskSTL test_task_stl(task_data_stl);
-  ASSERT_TRUE(test_task_stl.Validation());
-  test_task_stl.PreProcessing();
-  if (expect_success) {
-    ASSERT_TRUE(test_task_stl.Run());
-    test_task_stl.PostProcessing();
-    for (size_t i = 0; i < k_num_vertices; ++i) {
-      EXPECT_EQ(distances[i], expected_result[i]);
-    }
-  } else {
-    ASSERT_FALSE(test_task_stl.Run());
-    test_task_stl.PostProcessing();
-  }
+  ExecuteAndValidateTask(task_data_stl, distances, expected_result, expect_success);
 }
 
-void static RunValidationFailureTest() {  // NOLINT(misc-use-anonymous-namespace)
+void RunValidationFailureTest() {
   std::vector<int> graph_data;
   size_t start_vertex = 0;
   size_t num_vertices = 0;
@@ -68,13 +83,11 @@ void static RunValidationFailureTest() {  // NOLINT(misc-use-anonymous-namespace
   task_data_stl->outputs.emplace_back(reinterpret_cast<uint8_t *>(distances.data()));
   task_data_stl->outputs_count.emplace_back(num_vertices);
 
-  TestTaskSTL test_task_stl(task_data_stl);
-  ASSERT_FALSE(test_task_stl.Validation());
+  TestTaskSTL test_task_tbb(task_data_stl);
+  ASSERT_FALSE(test_task_tbb.Validation());
 }
 
-std::vector<std::vector<std::pair<size_t,
-                                  int>>> static GenerateRandomGraph(  // NOLINT(misc-use-anonymous-namespace)
-    size_t num_vertices) {                                            // NOLINT(misc-use-anonymous-namespace)
+std::vector<std::vector<std::pair<size_t, int>>> GenerateRandomGraph(size_t num_vertices) {
   std::random_device rd;
   std::mt19937 gen(rd());
   std::uniform_int_distribution<> dis(1, 10);
@@ -91,9 +104,8 @@ std::vector<std::vector<std::pair<size_t,
   return adj_list;
 }
 
-static std::vector<int> CalculateExpectedResult(                       // NOLINT(misc-use-anonymous-namespace)
-    const std::vector<std::vector<std::pair<size_t, int>>> &adj_list,  // NOLINT(misc-use-anonymous-namespace)
-    size_t start_vertex) {                                             // NOLINT(misc-use-anonymous-namespace)
+std::vector<int> CalculateExpectedResult(const std::vector<std::vector<std::pair<size_t, int>>> &adj_list,
+                                         size_t start_vertex) {
   size_t n = adj_list.size();
   const int inf = INT_MAX;
   std::vector<int> distances(n, inf);
@@ -122,6 +134,8 @@ static std::vector<int> CalculateExpectedResult(                       // NOLINT
   }
   return distances;
 }
+
+}  // namespace
 
 }  // namespace plekhanov_d_dijkstra_stl
 
@@ -219,8 +233,8 @@ TEST(plekhanov_d_dijkstra_stl, test_dijkstra_Random_Graph_10) {
   plekhanov_d_dijkstra_stl::RunTest(adj_list, start_vertex, expected);
 }
 
-TEST(plekhanov_d_dijkstra_stl, test_dijkstra_Random_Graph_25) {
-  size_t num_vertices = 25;
+TEST(plekhanov_d_dijkstra_stl, test_dijkstra_Random_Graph_150) {
+  size_t num_vertices = 150;
   std::vector<std::vector<std::pair<size_t, int>>> adj_list =
       plekhanov_d_dijkstra_stl::GenerateRandomGraph(num_vertices);
   size_t start_vertex = 0;
