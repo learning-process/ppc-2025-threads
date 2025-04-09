@@ -128,29 +128,29 @@ void odintsov_m_mulmatrix_cannon_stl::MulMatrixCannonSTL::InitializeShift(std::v
     }
   }
 }
-void odintsov_m_mulmatrix_cannon_stl::MulMatrixCannonSTL::ProcessBlock(int bi, int num_blocks, int root, int block_sz_,
+void odintsov_m_mulmatrix_cannon_stl::MulMatrixCannonSTL::ProcessBlock(int bi, int num_blocks, int root, int block_sz,
                                                                        const std::vector<double>& matrix_a,
                                                                        const std::vector<double>& matrix_b,
                                                                        std::vector<double>& local_c) {
-  std::vector<std::vector<double>> local_blocks_a(num_blocks, std::vector<double>(block_sz_ * block_sz_));
-  std::vector<std::vector<double>> local_blocks_b(num_blocks, std::vector<double>(block_sz_ * block_sz_));
+  std::vector<std::vector<double>> local_blocks_a(num_blocks, std::vector<double>(block_sz * block_sz));
+  std::vector<std::vector<double>> local_blocks_b(num_blocks, std::vector<double>(block_sz * block_sz));
 
   for (int bj = 0; bj < num_blocks; ++bj) {
-    int start = ((bi * block_sz_) * root) + (bj * block_sz_);
-    CopyBlock(matrix_a, local_blocks_a[bj], start, root, block_sz_);
-    CopyBlock(matrix_b, local_blocks_b[bj], start, root, block_sz_);
+    int start = ((bi * block_sz) * root) + (bj * block_sz);
+    CopyBlock(matrix_a, local_blocks_a[bj], start, root, block_sz);
+    CopyBlock(matrix_b, local_blocks_b[bj], start, root, block_sz);
   }
 
   for (int bj = 0; bj < num_blocks; ++bj) {
     const auto& a = local_blocks_a[bj];
     const auto& b = local_blocks_b[bj];
 
-    for (int i = 0; i < block_sz_; ++i) {
-      for (int k = 0; k < block_sz_; ++k) {
-        double a_ik = a[(i * block_sz_) + k];
-        for (int j = 0; j < block_sz_; ++j) {
-          int index = (((bi * block_sz_) + i) * root) + ((bj * block_sz_) + j);
-          local_c[index] += a_ik * b[((k * block_sz_) + j)];
+    for (int i = 0; i < block_sz; ++i) {
+      for (int k = 0; k < block_sz; ++k) {
+        double a_ik = a[(i * block_sz) + k];
+        for (int j = 0; j < block_sz; ++j) {
+          int index = (((bi * block_sz) + i) * root) + ((bj * block_sz) + j);
+          local_c[index] += a_ik * b[((k * block_sz) + j)];
         }
       }
     }
@@ -189,7 +189,7 @@ bool odintsov_m_mulmatrix_cannon_stl::MulMatrixCannonSTL::RunImpl() {
   InitializeShift(matrixA_, root, grid_size, block_sz_, true);
   InitializeShift(matrixB_, root, grid_size, block_sz_, false);
 
-  std::fill(matrixC_.begin(), matrixC_.end(), 0.0);
+  std::ranges::fill(matrixC_, 0.0);
 
   for (int step = 0; step < grid_size; ++step) {
     std::vector<std::vector<double>> local_results(num_blocks, std::vector<double>(root * root, 0.0));
