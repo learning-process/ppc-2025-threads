@@ -159,11 +159,11 @@ bool odintsov_m_mulmatrix_cannon_stl::MulMatrixCannonSTL::RunImpl() {
   int num_blocks = std::max(1, root / block_sz_);
   int grid_size = num_blocks;
 
-  // Начальные сдвиги матриц.
   InitializeShift(matrixA_, root, grid_size, block_sz_, true);
   InitializeShift(matrixB_, root, grid_size, block_sz_, false);
 
-  for (int step = 0; step < grid_size; step++) {
+  for (int step = 0; step < grid_size; ++step) {
+    std::vector<std::vector<double>> local_results(num_blocks, std::vector<double>(root * root, 0.0));
     std::vector<std::thread> threads;
 
     for (int bi = 0; bi < num_blocks; ++bi) {
@@ -177,19 +177,18 @@ bool odintsov_m_mulmatrix_cannon_stl::MulMatrixCannonSTL::RunImpl() {
           CopyBlock(matrixB_, local_blocks_b[bj], start, root, block_sz_);
         }
 
+        auto& localC = local_results[bi];
+
         for (int bj = 0; bj < num_blocks; ++bj) {
-          const auto& local_block_a = local_blocks_a[bj];
-          const auto& local_block_b = local_blocks_b[bj];
+          const auto& A = local_blocks_a[bj];
+          const auto& B = local_blocks_b[bj];
 
           for (int i = 0; i < block_sz_; ++i) {
             for (int k = 0; k < block_sz_; ++k) {
-              double a_ik = local_block_a[i * block_sz_ + k];
+              double a_ik = A[i * block_sz_ + k];
               for (int j = 0; j < block_sz_; ++j) {
                 int index = ((bi * block_sz_ + i) * root) + (bj * block_sz_ + j);
-
-                static std::mutex mtx;
-                std::lock_guard<std::mutex> lock(mtx);
-                matrixC_[index] += a_ik * local_block_b[k * block_sz_ + j];
+                localC[index] += a_ik * B[k * block_sz_ + j];
               }
             }
           }
@@ -201,13 +200,20 @@ bool odintsov_m_mulmatrix_cannon_stl::MulMatrixCannonSTL::RunImpl() {
       t.join();
     }
 
-    // Последовательные сдвиги
+    // Собираем локальные результаты
+    for (const auto& localC : local_results) {
+      for (size_t i = 0; i < matrixC_.size(); ++i) {
+        matrixC_[i] += localC[i];
+      }
+    }
+
     ShiftBlocksLeft(matrixA_, root, block_sz_);
     ShiftBlocksUp(matrixB_, root, block_sz_);
   }
 
   return true;
 }
+
 
 bool odintsov_m_mulmatrix_cannon_stl::MulMatrixCannonSTL::PostProcessingImpl() {
   std::size_t sz_c = matrixC_.size();
