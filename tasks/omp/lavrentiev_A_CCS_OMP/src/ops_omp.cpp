@@ -5,6 +5,7 @@
 #include <algorithm>
 #include <cmath>
 #include <cstddef>
+#include <iostream>
 #include <utility>
 #include <vector>
 
@@ -70,6 +71,7 @@ lavrentiev_a_ccs_omp::Sparse lavrentiev_a_ccs_omp::CCSOMP::MatMul(const Sparse &
   result_matrix.columnsSum.resize(matrix2.size.second);
   auto new_matrix1 = Transpose(matrix1);
   std::vector<std::pair<std::vector<double>, std::vector<int>>> threads_data(ppc::util::GetPPCNumThreads());
+  std::cout << "Num of threads = " << ppc::util::GetPPCNumThreads();
 #pragma omp parallel
   {
     std::pair<std::vector<double>, std::vector<int>> current_thread_data;
