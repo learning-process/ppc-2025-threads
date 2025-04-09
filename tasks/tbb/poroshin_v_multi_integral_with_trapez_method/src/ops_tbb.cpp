@@ -1,6 +1,5 @@
 #include "tbb/poroshin_v_multi_integral_with_trapez_method/include/ops_tbb.hpp"
 
-#include <oneapi/tbb.h>
 #include <oneapi/tbb/blocked_range.h>
 #include <oneapi/tbb/parallel_for.h>
 #include <oneapi/tbb/parallel_reduce.h>
