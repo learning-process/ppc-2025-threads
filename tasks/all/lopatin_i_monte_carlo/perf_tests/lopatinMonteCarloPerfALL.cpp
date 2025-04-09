@@ -64,6 +64,10 @@ TEST(lopatin_i_monte_carlo_all, test_pipeline_run) {
   perf_analyzer->PipelineRun(perf_attr, perf_results);
   if (world.rank() == 0) {
     ppc::core::Perf::PrintPerfStatistic(perf_results);
+
+    const double expected = std::pow(std::exp(3.0) - std::exp(-3.0), 5);  // = 3.219e6
+    const double tolerance = 0.05 * expected;                             // 5% error
+    EXPECT_NEAR(result, expected, tolerance);
   }
 }
 
@@ -109,5 +113,9 @@ TEST(lopatin_i_monte_carlo_all, test_task_run) {
   perf_analyzer->TaskRun(perf_attr, perf_results);
   if (world.rank() == 0) {
     ppc::core::Perf::PrintPerfStatistic(perf_results);
+
+    const double expected = std::pow(std::exp(3.0) - std::exp(-3.0), 5);  // = 3.219e6
+    const double tolerance = 0.05 * expected;                             // 5% error
+    EXPECT_NEAR(result, expected, tolerance);
   }
 }
