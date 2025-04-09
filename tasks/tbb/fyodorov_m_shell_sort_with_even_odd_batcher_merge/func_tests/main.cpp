@@ -101,7 +101,6 @@ TEST(fyodorov_m_shell_sort_with_even_odd_batcher_merge_tbb, test_sorted_array) {
   task_data_tbb->outputs.emplace_back(reinterpret_cast<uint8_t *>(output.data()));
   task_data_tbb->outputs_count.emplace_back(output.size());
 
-Матвей, [06.04.2025 22:27]
 fyodorov_m_shell_sort_with_even_odd_batcher_merge_tbb::TestTaskTBB test_task_tbb(task_data_tbb);
   ASSERT_EQ(test_task_tbb.Validation(), true);
   test_task_tbb.PreProcessing();
