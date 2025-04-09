@@ -12,6 +12,7 @@
 TEST(karaseva_e_congrad_tbb, test_pipeline_run) {
   constexpr int kSize = 10000;
 
+  // Create data
   std::vector<double> a(kSize * kSize, 0.0);
   std::vector<double> b(kSize, 1.0);
   std::vector<double> x(kSize, 0.0);
@@ -20,6 +21,7 @@ TEST(karaseva_e_congrad_tbb, test_pipeline_run) {
     a[(i * kSize) + i] = 1.0;
   }
 
+  // Create task_data
   auto task_data = std::make_shared<ppc::core::TaskData>();
   task_data->inputs.emplace_back(reinterpret_cast<uint8_t*>(a.data()));
   task_data->inputs_count.emplace_back(a.size());
@@ -28,8 +30,10 @@ TEST(karaseva_e_congrad_tbb, test_pipeline_run) {
   task_data->outputs.emplace_back(reinterpret_cast<uint8_t*>(x.data()));
   task_data->outputs_count.emplace_back(x.size());
 
+  // Create Task
   auto test_task_tbb = std::make_shared<karaseva_e_congrad_tbb::TestTaskTBB>(task_data);
 
+  // Create Perf attributes
   auto perf_attr = std::make_shared<ppc::core::PerfAttr>();
   perf_attr->num_running = 10;
   const auto t0 = std::chrono::high_resolution_clock::now();
@@ -39,8 +43,10 @@ TEST(karaseva_e_congrad_tbb, test_pipeline_run) {
     return static_cast<double>(duration) * 1e-9;
   };
 
+  // Create and init perf results
   auto perf_results = std::make_shared<ppc::core::PerfResults>();
 
+  // Create Perf analyzer
   auto perf_analyzer = std::make_shared<ppc::core::Perf>(test_task_tbb);
   perf_analyzer->PipelineRun(perf_attr, perf_results);
   ppc::core::Perf::PrintPerfStatistic(perf_results);
@@ -51,6 +57,7 @@ TEST(karaseva_e_congrad_tbb, test_pipeline_run) {
 TEST(karaseva_e_congrad_tbb, test_task_run) {
   constexpr int kSize = 10000;
 
+  // Create data
   std::vector<double> a(kSize * kSize, 0.0);
   std::vector<double> b(kSize, 1.0);
   std::vector<double> x(kSize, 0.0);
@@ -59,6 +66,7 @@ TEST(karaseva_e_congrad_tbb, test_task_run) {
     a[(i * kSize) + i] = 1.0;
   }
 
+  // Create task_data
   auto task_data = std::make_shared<ppc::core::TaskData>();
   task_data->inputs.emplace_back(reinterpret_cast<uint8_t*>(a.data()));
   task_data->inputs_count.emplace_back(a.size());
@@ -67,8 +75,10 @@ TEST(karaseva_e_congrad_tbb, test_task_run) {
   task_data->outputs.emplace_back(reinterpret_cast<uint8_t*>(x.data()));
   task_data->outputs_count.emplace_back(x.size());
 
+  // Create Task
   auto test_task_tbb = std::make_shared<karaseva_e_congrad_tbb::TestTaskTBB>(task_data);
 
+  // Create Perf attributes
   auto perf_attr = std::make_shared<ppc::core::PerfAttr>();
   perf_attr->num_running = 10;
   const auto t0 = std::chrono::high_resolution_clock::now();
@@ -78,8 +88,10 @@ TEST(karaseva_e_congrad_tbb, test_task_run) {
     return static_cast<double>(duration) * 1e-9;
   };
 
+  // Create and init perf results
   auto perf_results = std::make_shared<ppc::core::PerfResults>();
 
+  // Create Perf analyzer
   auto perf_analyzer = std::make_shared<ppc::core::Perf>(test_task_tbb);
   perf_analyzer->TaskRun(perf_attr, perf_results);
   ppc::core::Perf::PrintPerfStatistic(perf_results);

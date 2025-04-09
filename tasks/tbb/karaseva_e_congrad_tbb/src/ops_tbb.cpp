@@ -8,12 +8,18 @@
 #include <vector>
 
 bool karaseva_e_congrad_tbb::TestTaskTBB::PreProcessingImpl() {
+  // Initialize problem size from input data
   size_ = task_data->inputs_count[1];
+
+  // Map raw input pointers to matrices/vectors
   auto* a_ptr = reinterpret_cast<double*>(task_data->inputs[0]);
   auto* b_ptr = reinterpret_cast<double*>(task_data->inputs[1]);
 
+  // Create contiguous storage for matrix A and vector b
   A_ = std::vector<double>(a_ptr, a_ptr + (size_ * size_));
   b_ = std::vector<double>(b_ptr, b_ptr + size_);
+
+  // Initial guess x0 = 0
   x_ = std::vector<double>(size_, 0.0);
 
   return true;
@@ -26,10 +32,16 @@ bool karaseva_e_congrad_tbb::TestTaskTBB::ValidationImpl() {
 }
 
 bool karaseva_e_congrad_tbb::TestTaskTBB::RunImpl() {
+  // Residual vector (r = b - Ax)
   std::vector<double> r(size_);
+
+  // Search direction vector
   std::vector<double> p(size_);
+
+  // Matrix-vector product (Ap)
   std::vector<double> ap(size_);
 
+  // Parallel initialization of r and p vectors
   tbb::parallel_for(tbb::blocked_range<size_t>(0, size_), [&](const tbb::blocked_range<size_t>& range) {
     for (size_t i = range.begin(); i != range.end(); ++i) {
       r[i] = b_[i];
@@ -37,6 +49,7 @@ bool karaseva_e_congrad_tbb::TestTaskTBB::RunImpl() {
     }
   });
 
+  // Compute initial residual squared norm (rs_old = r^T * r)
   double rs_old = tbb::parallel_reduce(
       tbb::blocked_range<size_t>(0, size_), 0.0,
       [&](const tbb::blocked_range<size_t>& range, double local_sum) {
@@ -47,10 +60,13 @@ bool karaseva_e_congrad_tbb::TestTaskTBB::RunImpl() {
       },
       std::plus<>());
 
+  // Convergence tolerance and iteration limit
   const double tolerance = 1e-10;
   const size_t max_iterations = size_;
 
+  // Main conjugate gradient loop
   for (size_t k = 0; k < max_iterations; ++k) {
+    // Parallel matrix-vector multiplication: ap = A * p
     tbb::parallel_for(tbb::blocked_range<size_t>(0, size_), [&](const tbb::blocked_range<size_t>& range) {
       for (size_t i = range.begin(); i != range.end(); ++i) {
         double temp = 0.0;
@@ -61,6 +77,7 @@ bool karaseva_e_congrad_tbb::TestTaskTBB::RunImpl() {
       }
     });
 
+    // Compute p^T * A * p (denominator for alpha)
     double p_ap = tbb::parallel_reduce(
         tbb::blocked_range<size_t>(0, size_), 0.0,
         [&](const tbb::blocked_range<size_t>& range, double local_sum) {
@@ -71,9 +88,13 @@ bool karaseva_e_congrad_tbb::TestTaskTBB::RunImpl() {
         },
         std::plus<>());
 
+    // Avoid division by zero
     if (std::fabs(p_ap) < 1e-15) break;
+
+    // Compute step size alpha
     const double alpha = rs_old / p_ap;
 
+    // Parallel update of solution and residual vectors
     tbb::parallel_for(tbb::blocked_range<size_t>(0, size_), [&](const tbb::blocked_range<size_t>& range) {
       for (size_t i = range.begin(); i != range.end(); ++i) {
         x_[i] += alpha * p[i];
@@ -81,6 +102,7 @@ bool karaseva_e_congrad_tbb::TestTaskTBB::RunImpl() {
       }
     });
 
+    // Compute new residual squared norm
     double rs_new = tbb::parallel_reduce(
         tbb::blocked_range<size_t>(0, size_), 0.0,
         [&](const tbb::blocked_range<size_t>& range, double local_sum) {
@@ -91,10 +113,13 @@ bool karaseva_e_congrad_tbb::TestTaskTBB::RunImpl() {
         },
         std::plus<>());
 
+    // Check convergence
     if (rs_new < tolerance * tolerance) break;
 
+    // Compute beta for direction update
     const double beta = rs_new / rs_old;
 
+    // Parallel update of search direction
     tbb::parallel_for(tbb::blocked_range<size_t>(0, size_), [&](const tbb::blocked_range<size_t>& range) {
       for (size_t i = range.begin(); i != range.end(); ++i) {
         p[i] = r[i] + beta * p[i];
