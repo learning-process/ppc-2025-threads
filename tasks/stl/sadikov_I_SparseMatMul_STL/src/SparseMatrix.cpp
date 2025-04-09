@@ -3,6 +3,7 @@
 #include <algorithm>
 #include <cmath>
 #include <cstddef>
+#include <iterator>
 #include <thread>
 #include <utility>
 #include <vector>
@@ -75,7 +76,6 @@ SparseMatrix SparseMatrix::operator*(SparseMatrix& smatrix) const {
   const auto& selements_sum = smatrix.GetElementsSum();
   std::vector<std::thread> threads(ppc::util::GetPPCNumThreads());
   std::vector<MatrixComponents> threads_data(ppc::util::GetPPCNumThreads());
-  std::pair<size_t, size_t> sizes;
   auto function = [&](size_t start, size_t end, size_t index) {
     MatrixComponents thread_component;
     thread_component.m_elementsSum.resize(end - start);
@@ -90,8 +90,6 @@ SparseMatrix SparseMatrix::operator*(SparseMatrix& smatrix) const {
         }
       }
     }
-    sizes.first += thread_component.m_values.size();
-    sizes.second += thread_component.m_elementsSum.size();
     threads_data[index] = std::move(thread_component);
   };
   auto indexes = CalculateSeparation(selements_sum.size());
@@ -100,14 +98,14 @@ SparseMatrix SparseMatrix::operator*(SparseMatrix& smatrix) const {
   }
   std::ranges::for_each(threads, [&](auto& thread) { thread.join(); });
   MatrixComponents result;
-  result.Resize(sizes.first, sizes.second);
-  std::pair<int, int> offset;
-  for (size_t i = 0; i < threads_data.size(); ++i) {
-    std::ranges::copy(threads_data[i].m_values, result.m_values.begin() + offset.first);
-    std::ranges::copy(threads_data[i].m_rows, result.m_rows.begin() + offset.first);
-    std::ranges::copy(threads_data[i].m_elementsSum, result.m_elementsSum.begin() + offset.second);
-    offset.first += static_cast<int>(threads_data[i].m_values.size());
-    offset.second += static_cast<int>(threads_data[i].m_elementsSum.size());
+  for (auto& data : threads_data) {
+    for (size_t i = 0; i < data.m_rows.size(); ++i) {
+      result.m_rows.emplace_back(data.m_rows[i]);
+      result.m_values.emplace_back(data.m_values[i]);
+    }
+    for (size_t i = 0; i < data.m_elementsSum.size(); ++i) {
+      result.m_elementsSum.emplace_back(data.m_elementsSum[i]);
+    }
   }
   for (size_t i = 1; i < result.m_elementsSum.size(); ++i) {
     result.m_elementsSum[i] = result.m_elementsSum[i] + result.m_elementsSum[i - 1];
