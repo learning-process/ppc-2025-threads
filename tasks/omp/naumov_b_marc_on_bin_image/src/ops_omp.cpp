@@ -3,6 +3,7 @@
 #include <algorithm>
 #include <cstddef>
 #include <random>
+#include <utility>
 #include <vector>
 
 std::vector<int> naumov_b_marc_on_bin_image_omp::GenerateRandomBinaryMatrix(int rows, int cols, double probability) {
