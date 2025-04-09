@@ -11,8 +11,6 @@
 
 #include "core/util/include/util.hpp"
 
-// restart
-
 lavrentiev_a_ccs_omp::Sparse lavrentiev_a_ccs_omp::CCSOMP::ConvertToSparse(std::pair<int, int> size,
                                                                            const std::vector<double> &values) {
   auto [nsize, elements, rows, columns_sum] = Sparse();
