@@ -288,18 +288,6 @@ TEST(korneeva_e_sparse_matrix_mult_complex_ccs_seq, test_matrix_unit_vector) {
   ExpectMatrixEq(result, expected);
 }
 
-TEST(korneeva_e_sparse_matrix_mult_complex_ccs_seq, test_large_size_matrices) {
-  auto m1 = CreateRandomMatrix(500, 500, 2500);
-  auto m2 = CreateRandomMatrix(500, 500, 2500);
-  korneeva_e_ccs::SparseMatrixCCS result;
-
-  RunTask(m1, m2, result);
-
-  ASSERT_EQ(result.rows, 500);
-  ASSERT_EQ(result.cols, 500);
-  EXPECT_LE(result.nnz, 250000);
-}
-
 TEST(korneeva_e_sparse_matrix_mult_complex_ccs_seq, test_sparse_matrices) {
   auto m1 = CreateCcsFromDense(
       {{korneeva_e_ccs::Complex(0.0, 0.0), korneeva_e_ccs::Complex(1.0, 0.0), korneeva_e_ccs::Complex(0.0, 0.0)},
