@@ -12,7 +12,7 @@
 
 #include "core/perf/include/perf.hpp"
 #include "core/task/include/task.hpp"
-#include "tbb/lavrentiev_A_CCS_TBB/include/ops_tbb.hpp"
+#include "tbb/lavrentiev_A_CCS/include/ops_tbb.hpp"
 
 namespace {
 

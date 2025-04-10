@@ -1,4 +1,4 @@
-#include "tbb/lavrentiev_A_CCS_TBB/include/ops_tbb.hpp"
+#include "tbb/lavrentiev_A_CCS/include/ops_tbb.hpp"
 
 #include <oneapi/tbb/task_arena.h>
 #include <tbb/tbb.h>
