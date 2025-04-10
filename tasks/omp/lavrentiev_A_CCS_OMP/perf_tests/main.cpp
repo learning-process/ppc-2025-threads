@@ -13,6 +13,7 @@
 #include "core/perf/include/perf.hpp"
 #include "core/task/include/task.hpp"
 #include "omp/lavrentiev_A_CCS_OMP/include/ops_omp.hpp"
+#include "core/util/include/util.hpp"
 
 namespace {
 
@@ -51,6 +52,8 @@ struct TestData {
 };
 
 TestData::TestData(std::pair<int, int> matrix1_size, std::pair<int, int> matrix2_size, int sparse_size) {
+  std::cout << "Num of threads = " << ppc::util::GetPPCNumThreads();
+  std::cout.flush();
   random_data = GenerateRandomMatrix(matrix1_size.first * matrix1_size.second, sparse_size);
   single_matrix = GenerateSingleMatrix(matrix2_size.first * matrix2_size.second);
   result.resize(matrix1_size.first * matrix2_size.second);

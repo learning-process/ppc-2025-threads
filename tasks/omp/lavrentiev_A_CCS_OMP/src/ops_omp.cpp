@@ -5,7 +5,6 @@
 #include <algorithm>
 #include <cmath>
 #include <cstddef>
-#include <iostream>
 #include <utility>
 #include <vector>
 
@@ -137,7 +136,6 @@ std::vector<double> lavrentiev_a_ccs_omp::CCSOMP::ConvertFromSparse(const Sparse
 }
 
 bool lavrentiev_a_ccs_omp::CCSOMP::PreProcessingImpl() {
-  std::cout << "Num of threads = " << ppc::util::GetPPCNumThreads();
   A_.size = {static_cast<int>(task_data->inputs_count[0]), static_cast<int>(task_data->inputs_count[1])};
   B_.size = {static_cast<int>(task_data->inputs_count[2]), static_cast<int>(task_data->inputs_count[3])};
   if (IsEmpty()) {
