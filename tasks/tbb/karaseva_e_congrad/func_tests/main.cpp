@@ -7,7 +7,7 @@
 #include <vector>
 
 #include "core/task/include/task.hpp"
-#include "tbb/karaseva_e_congrad_tbb/include/ops_tbb.hpp"
+#include "tbb/karaseva_e_congrad/include/ops_tbb.hpp"
 
 namespace {
 
@@ -50,7 +50,7 @@ std::vector<double> MultiplyMatrixVector(const std::vector<double>& a_matrix, co
 
 }  // namespace
 
-TEST(karaseva_e_congrad_tbb, test_identity) {
+TEST(karaseva_e_congrad, test_identity) {
   constexpr size_t kN = 50;
 
   std::vector<double> a_matrix(kN * kN, 0.0);
@@ -73,7 +73,7 @@ TEST(karaseva_e_congrad_tbb, test_identity) {
   task_data_tbb->outputs.push_back(reinterpret_cast<uint8_t*>(x.data()));
   task_data_tbb->outputs_count.push_back(kN);
 
-  karaseva_e_congrad_tbb::TestTaskTBB test_task_tbb(task_data_tbb);
+  karaseva_e_congrad::TestTaskTBB test_task_tbb(task_data_tbb);
   ASSERT_TRUE(test_task_tbb.Validation());
   test_task_tbb.PreProcessing();
   test_task_tbb.Run();
@@ -84,7 +84,7 @@ TEST(karaseva_e_congrad_tbb, test_identity) {
   }
 }
 
-TEST(karaseva_e_congrad_tbb, test_diagonal_matrix) {
+TEST(karaseva_e_congrad, test_diagonal_matrix) {
   constexpr size_t kN = 50;
 
   std::vector<double> a_matrix(kN * kN, 0.0);
@@ -103,7 +103,7 @@ TEST(karaseva_e_congrad_tbb, test_diagonal_matrix) {
   task_data->outputs.push_back(reinterpret_cast<uint8_t*>(x.data()));
   task_data->outputs_count.push_back(kN);
 
-  karaseva_e_congrad_tbb::TestTaskTBB test_task(task_data);
+  karaseva_e_congrad::TestTaskTBB test_task(task_data);
   ASSERT_TRUE(test_task.Validation());
   test_task.PreProcessing();
   test_task.Run();
@@ -114,7 +114,7 @@ TEST(karaseva_e_congrad_tbb, test_diagonal_matrix) {
   }
 }
 
-TEST(karaseva_e_congrad_tbb, test_random_spd_matrix) {
+TEST(karaseva_e_congrad, test_random_spd_matrix) {
   constexpr size_t kN = 50;
   constexpr double kEps = 1e-6;
 
@@ -138,7 +138,7 @@ TEST(karaseva_e_congrad_tbb, test_random_spd_matrix) {
   task_data->outputs.push_back(reinterpret_cast<uint8_t*>(x.data()));
   task_data->outputs_count.push_back(kN);
 
-  karaseva_e_congrad_tbb::TestTaskTBB test_task(task_data);
+  karaseva_e_congrad::TestTaskTBB test_task(task_data);
   ASSERT_TRUE(test_task.Validation());
   test_task.PreProcessing();
   test_task.Run();
@@ -149,7 +149,7 @@ TEST(karaseva_e_congrad_tbb, test_random_spd_matrix) {
   }
 }
 
-TEST(karaseva_e_congrad_tbb, test_zero_rhs) {
+TEST(karaseva_e_congrad, test_zero_rhs) {
   constexpr size_t kN = 50;
 
   auto a_matrix = GenerateRandomSPDMatrix(kN);
@@ -164,7 +164,7 @@ TEST(karaseva_e_congrad_tbb, test_zero_rhs) {
   task_data->outputs.push_back(reinterpret_cast<uint8_t*>(x.data()));
   task_data->outputs_count.push_back(kN);
 
-  karaseva_e_congrad_tbb::TestTaskTBB test_task(task_data);
+  karaseva_e_congrad::TestTaskTBB test_task(task_data);
   ASSERT_TRUE(test_task.Validation());
   test_task.PreProcessing();
   test_task.Run();
@@ -175,7 +175,7 @@ TEST(karaseva_e_congrad_tbb, test_zero_rhs) {
   }
 }
 
-TEST(karaseva_e_congrad_tbb, test_huge_matrix) {
+TEST(karaseva_e_congrad, test_huge_matrix) {
   constexpr size_t kN = 100;
   constexpr double kEps = 1e-5;
 
@@ -193,7 +193,7 @@ TEST(karaseva_e_congrad_tbb, test_huge_matrix) {
   task_data->outputs.push_back(reinterpret_cast<uint8_t*>(x.data()));
   task_data->outputs_count.push_back(kN);
 
-  karaseva_e_congrad_tbb::TestTaskTBB test_task(task_data);
+  karaseva_e_congrad::TestTaskTBB test_task(task_data);
   ASSERT_TRUE(test_task.Validation());
   test_task.PreProcessing();
   test_task.Run();
@@ -204,7 +204,7 @@ TEST(karaseva_e_congrad_tbb, test_huge_matrix) {
   }
 }
 
-TEST(karaseva_e_congrad_tbb, test_validation_fail_input) {
+TEST(karaseva_e_congrad, test_validation_fail_input) {
   constexpr size_t kN = 50;
   std::vector<double> a_matrix(kN * (kN + 1), 0.0);
   std::vector<double> b(kN, 1.0);
@@ -218,11 +218,11 @@ TEST(karaseva_e_congrad_tbb, test_validation_fail_input) {
   task_data->outputs.push_back(reinterpret_cast<uint8_t*>(x.data()));
   task_data->outputs_count.push_back(x.size());
 
-  karaseva_e_congrad_tbb::TestTaskTBB test_task(task_data);
+  karaseva_e_congrad::TestTaskTBB test_task(task_data);
   ASSERT_FALSE(test_task.Validation());
 }
 
-TEST(karaseva_e_congrad_tbb, test_validation_fail_output) {
+TEST(karaseva_e_congrad, test_validation_fail_output) {
   constexpr size_t kN = 50;
   std::vector<double> a_matrix(kN * kN, 1.0);
   std::vector<double> b(kN, 1.0);
@@ -236,6 +236,6 @@ TEST(karaseva_e_congrad_tbb, test_validation_fail_output) {
   task_data->outputs.push_back(reinterpret_cast<uint8_t*>(x.data()));
   task_data->outputs_count.push_back(x.size());
 
-  karaseva_e_congrad_tbb::TestTaskTBB test_task(task_data);
+  karaseva_e_congrad::TestTaskTBB test_task(task_data);
   ASSERT_FALSE(test_task.Validation());
 }
