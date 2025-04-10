@@ -10,7 +10,7 @@
 #include <vector>
 
 #include "core/task/include/task.hpp"
-#include "omp/lavrentiev_A_CCS_OMP/include/ops_omp.hpp"
+#include "omp/lavrentiev_A_CCS/include/ops_omp.hpp"
 
 namespace {
 std::vector<double> GenerateRandomMatrix(int size, int sparse_size) {

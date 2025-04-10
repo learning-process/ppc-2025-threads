@@ -1,4 +1,4 @@
-#include "omp/lavrentiev_A_CCS_OMP/include/ops_omp.hpp"
+#include "omp/lavrentiev_A_CCS/include/ops_omp.hpp"
 
 #include <omp.h>
 
