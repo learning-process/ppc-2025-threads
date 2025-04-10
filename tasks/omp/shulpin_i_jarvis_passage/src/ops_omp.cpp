@@ -79,9 +79,14 @@ bool shulpin_i_jarvis_omp::JarvisSequential::PostProcessingImpl() {
   return true;
 }
 
+bool shulpin_i_jarvis_omp::JarvisSequential::PostProcessingImpl() {
+  auto* result = reinterpret_cast<Point*>(task_data->outputs[0]);
+  std::ranges::copy(output_seq_.begin(), output_seq_.end(), result);
+  return true;
+}
+
 void shulpin_i_jarvis_omp::JarvisOMPParallel::MakeJarvisPassageOMP(
     std::vector<shulpin_i_jarvis_omp::Point>& input_jar, std::vector<shulpin_i_jarvis_omp::Point>& output_jar) {
-<<<<<<< HEAD
   int total = static_cast<int>(input_jar.size());
   output_jar.clear();
 
@@ -101,33 +106,10 @@ void shulpin_i_jarvis_omp::JarvisOMPParallel::MakeJarvisPassageOMP(
         if (a.x < input_jar[start].x || (a.x == input_jar[start].x && a.y < input_jar[start].y)) {
           start = i;
         }
-=======
-  size_t total_size_t = input_jar.size();
-  auto total = static_cast<int32_t>(total_size_t);
-  output_jar.clear();
-
-  int32_t start = 0;
-#pragma omp parallel for
-  for (int32_t i = 0; i < total; ++i) {
-    int32_t candidate = i;
-    for (int32_t j = i + 1; j < total; ++j) {
-      if (input_jar[j].x < input_jar[candidate].x ||
-          (input_jar[j].x == input_jar[candidate].x && input_jar[j].y < input_jar[candidate].y)) {
-        candidate = j;
-      }
-    }
-
-#pragma omp critical
-    {
-      if (input_jar[candidate].x < input_jar[start].x ||
-          (input_jar[candidate].x == input_jar[start].x && input_jar[candidate].y < input_jar[start].y)) {
-        start = candidate;
->>>>>>> feee1b69ce00c45c8df4a9fa585d82c735819e46
       }
     }
   }
 
-<<<<<<< HEAD
   int active = start;
 
   do {
@@ -148,52 +130,18 @@ void shulpin_i_jarvis_omp::JarvisOMPParallel::MakeJarvisPassageOMP(
         if (i == active) continue;
         if (Orientation(current, input_jar[i], input_jar[local_candidate]) == 2) {
           local_candidate = i;
-=======
-  int32_t active = start;
-  std::vector<shulpin_i_jarvis_omp::Point> hull;
-  std::unordered_set<std::string> unique_points;
-  hull.reserve(total);
-
-  do {
-    std::string point_key = std::to_string(input_jar[active].x) + "," + std::to_string(input_jar[active].y);
-    if (unique_points.find(point_key) == unique_points.end()) {
-      hull.push_back(input_jar[active]);
-      unique_points.insert(point_key);
-    }
-
-    int32_t candidate = (active + 1) % total;
-
-#pragma omp parallel
-    {
-      int32_t local_candidate = candidate;
-
-#pragma omp for nowait
-      for (int32_t index = 0; index < total; ++index) {
-        if (Orientation(input_jar[active], input_jar[index], input_jar[local_candidate]) == 2) {
-          local_candidate = index;
->>>>>>> feee1b69ce00c45c8df4a9fa585d82c735819e46
         }
       }
 
 #pragma omp critical
       {
-<<<<<<< HEAD
         if (Orientation(current, input_jar[local_candidate], input_jar[candidate]) == 2) {
-=======
-        if (Orientation(input_jar[active], input_jar[local_candidate], input_jar[candidate]) == 2) {
->>>>>>> feee1b69ce00c45c8df4a9fa585d82c735819e46
           candidate = local_candidate;
         }
       }
     }
 
-<<<<<<< HEAD
     if (candidate == active) break;
-=======
-    if (candidate == active) {
-      break;
-    }
->>>>>>> feee1b69ce00c45c8df4a9fa585d82c735819e46
     active = candidate;
 
   } while (active != start);
