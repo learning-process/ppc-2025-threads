@@ -79,12 +79,6 @@ bool shulpin_i_jarvis_omp::JarvisSequential::PostProcessingImpl() {
   return true;
 }
 
-bool shulpin_i_jarvis_omp::JarvisSequential::PostProcessingImpl() {
-  auto* result = reinterpret_cast<Point*>(task_data->outputs[0]);
-  std::ranges::copy(output_seq_.begin(), output_seq_.end(), result);
-  return true;
-}
-
 void shulpin_i_jarvis_omp::JarvisOMPParallel::MakeJarvisPassageOMP(
     std::vector<shulpin_i_jarvis_omp::Point>& input_jar, std::vector<shulpin_i_jarvis_omp::Point>& output_jar) {
   int total = static_cast<int>(input_jar.size());
