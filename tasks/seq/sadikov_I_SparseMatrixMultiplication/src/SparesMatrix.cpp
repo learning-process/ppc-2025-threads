@@ -1,4 +1,4 @@
-#include "seq/sadikov_I_SparesMatrixMultiplication/include/SparesMatrix.hpp"
+#include "seq/sadikov_I_SparseMatrixMultiplication/include/SparesMatrix.hpp"
 
 #include <algorithm>
 #include <cstddef>

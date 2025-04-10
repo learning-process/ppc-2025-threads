@@ -1,10 +1,10 @@
-#include "seq/sadikov_I_SparesMatrixMultiplication/include/ops_seq.hpp"
+#include "seq/sadikov_I_SparseMatrixMultiplication/include/ops_seq.hpp"
 
 #include <algorithm>
 #include <random>
 #include <vector>
 
-#include "seq/sadikov_I_SparesMatrixMultiplication/include/SparesMatrix.hpp"
+#include "seq/sadikov_I_SparseMatrixMultiplication/include/SparesMatrix.hpp"
 
 bool sadikov_i_sparse_matrix_multiplication_task_seq::CCSMatrixSequential::PreProcessingImpl() {
   auto fmatrix_rows_count = static_cast<int>(task_data->inputs_count[0]);

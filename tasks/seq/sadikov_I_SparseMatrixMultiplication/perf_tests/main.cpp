@@ -7,8 +7,8 @@
 
 #include "core/perf/include/perf.hpp"
 #include "core/task/include/task.hpp"
-#include "seq/sadikov_I_SparesMatrixMultiplication/include/SparesMatrix.hpp"
-#include "seq/sadikov_I_SparesMatrixMultiplication/include/ops_seq.hpp"
+#include "seq/sadikov_I_SparseMatrixMultiplication/include/SparesMatrix.hpp"
+#include "seq/sadikov_I_SparseMatrixMultiplication/include/ops_seq.hpp"
 
 TEST(sadikov_i_sparse_matrix_multiplication_task_seq, test_pipeline_run) {
   constexpr auto kEpsilon = 0.00001;
