@@ -4,7 +4,7 @@
 #include <utility>
 
 #include "core/task/include/task.hpp"
-#include "tbb/sadikov_I_SparseMatMul_TBB/include/SparseMatrix.hpp"
+#include "tbb/sadikov_I_SparseMatrixMultiplication/include/SparseMatrix.hpp"
 
 namespace sadikov_i_sparse_matrix_multiplication_task_tbb {
 
