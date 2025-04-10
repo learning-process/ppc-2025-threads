@@ -140,13 +140,16 @@ void vavilov_v_cannon_tbb::CannonTBB::InitialShift() {
         for (int i = 0; i < block_size_ && (bi * block_size_ + i) < N_; ++i) {
           int src_start = (src_row * block_size_ + i) * N_ + (bj * block_size_);
           int dst_start = (bi * block_size_ + i) * N_ + (bj * block_size_);
-          std::copy(b_tmp.begin() + src_start, b_tmp.begin() + src_start + std::min(block_size_, N_ - bj * block_size_), B_.begin() + dst_start);
+          std::copy(b_tmp.begin() + src_start, b_tmp.begin() + src_start + std::min(block_size_, N_ - bj * block_size_),
+                    B_.begin() + dst_start);
         }
 
         for (int i = 0; i < block_size_ && (bi * block_size_ + i) < N_; ++i) {
           int src_start = (bi * block_size_ + i) * N_ + (src_col * block_size_);
           int dst_start = (bi * block_size_ + i) * N_ + (bj * block_size_);
-          std::copy(a_tmp.begin() + src_start, a_tmp.begin() + src_start + std::min(block_size_, N_ - src_col * block_size_), A_.begin() + dst_start);
+          std::copy(a_tmp.begin() + src_start,
+                    a_tmp.begin() + src_start + std::min(block_size_, N_ - src_col * block_size_),
+                    A_.begin() + dst_start);
         }
       }
     }
