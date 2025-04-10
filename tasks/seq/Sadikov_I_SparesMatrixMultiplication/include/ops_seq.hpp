@@ -5,7 +5,7 @@
 #include <vector>
 
 #include "core/task/include/task.hpp"
-#include "seq/Sadikov_I_SparesMatrixMultiplication/include/SparesMatrix.hpp"
+#include "seq/sadikov_I_SparesMatrixMultiplication/include/SparesMatrix.hpp"
 
 namespace sadikov_i_sparse_matrix_multiplication_task_seq {
 
