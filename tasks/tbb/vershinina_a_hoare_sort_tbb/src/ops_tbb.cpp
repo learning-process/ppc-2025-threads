@@ -8,6 +8,8 @@
 #include <utility>
 #include <vector>
 
+#include "oneapi/tbb/blocked_range.h"
+#include "oneapi/tbb/parallel_for.h"
 #include "oneapi/tbb/task_arena.h"
 
 namespace {
