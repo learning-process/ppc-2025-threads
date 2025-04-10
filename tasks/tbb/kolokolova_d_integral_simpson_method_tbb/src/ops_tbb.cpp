@@ -1,14 +1,11 @@
 #include "tbb/kolokolova_d_integral_simpson_method_tbb/include/ops_tbb.hpp"
 
-#include <tbb/tbb.h>
+#include <oneapi/tbb/parallel_for.h>
 
 #include <cmath>
-#include <core/util/include/util.hpp>
 #include <cstddef>
+#include <functional>
 #include <vector>
-
-#include "oneapi/tbb/task_arena.h"
-#include "oneapi/tbb/task_group.h"
 
 bool kolokolova_d_integral_simpson_method_tbb::TestTaskTBB::PreProcessingImpl() {
   nums_variables_ = int(task_data->inputs_count[0]);
@@ -119,8 +116,8 @@ void kolokolova_d_integral_simpson_method_tbb::TestTaskTBB::MultiplyCoeffandFunc
   // Additional iterations on a
   for (int iteration = 1; iteration < a; ++iteration) {
     tbb::parallel_for(0, function_vec_size, [&](int i) {
-      int block_size = iteration * coeff_vec.size();
-      int current_n_index = (i / block_size) % coeff_vec.size();
+      int block_size = iteration * int(coeff_vec.size());
+      int current_n_index = (i / block_size) % int(coeff_vec.size());
       function_val[i] *= coeff_vec[current_n_index];
     });
   }
