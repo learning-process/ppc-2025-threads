@@ -40,7 +40,7 @@ TEST(kovalchuk_a_shell_sort_omp, test_pipeline_run) {
   perf_analyzer->PipelineRun(perf_attr, perf_results);
   ppc::core::Perf::PrintPerfStatistic(perf_results);
 
-  ASSERT_TRUE(std::is_sorted(out.begin(), out.end()));
+  ASSERT_TRUE(std::ranges::is_sorted(out));
 }
 
 TEST(kovalchuk_a_shell_sort_omp, test_task_run) {
@@ -74,5 +74,5 @@ TEST(kovalchuk_a_shell_sort_omp, test_task_run) {
   perf_analyzer->TaskRun(perf_attr, perf_results);
   ppc::core::Perf::PrintPerfStatistic(perf_results);
 
-  ASSERT_TRUE(std::is_sorted(out.begin(), out.end()));
+  ASSERT_TRUE(std::ranges::is_sorted(out));
 }
