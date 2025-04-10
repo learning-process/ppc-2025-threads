@@ -10,7 +10,7 @@
 
 #include "core/perf/include/perf.hpp"
 #include "core/task/include/task.hpp"
-#include "tbb/sarafanov_m_CanonMatMul_tbb/include/ops_tbb.hpp"
+#include "tbb/sarafanov_m_CanonMatMul/include/ops_tbb.hpp"
 
 namespace {
 std::vector<double> GenerateRandomData(int size) {

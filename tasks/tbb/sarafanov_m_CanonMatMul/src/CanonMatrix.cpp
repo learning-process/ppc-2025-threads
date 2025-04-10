@@ -1,4 +1,4 @@
-#include "tbb/sarafanov_m_CanonMatMul_tbb/include/CanonMatrix.hpp"
+#include "tbb/sarafanov_m_CanonMatMul/include/CanonMatrix.hpp"
 
 #include <algorithm>
 #include <cmath>

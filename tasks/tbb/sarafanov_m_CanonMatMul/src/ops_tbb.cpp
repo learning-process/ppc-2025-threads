@@ -1,4 +1,4 @@
-#include "tbb/sarafanov_m_CanonMatMul_tbb/include/ops_tbb.hpp"
+#include "tbb/sarafanov_m_CanonMatMul/include/ops_tbb.hpp"
 
 #include <oneapi/tbb/task_arena.h>
 #include <tbb/tbb.h>
@@ -11,7 +11,7 @@
 
 #include "core/util/include/util.hpp"
 #include "oneapi/tbb/parallel_for.h"
-#include "tbb/sarafanov_m_CanonMatMul_tbb/include/CanonMatrix.hpp"
+#include "tbb/sarafanov_m_CanonMatMul/include/CanonMatrix.hpp"
 
 bool sarafanov_m_canon_mat_mul_tbb::CanonMatMulTBB::PreProcessingImpl() {
   a_matrix_.ClearMatrix();

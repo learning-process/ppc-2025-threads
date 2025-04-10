@@ -4,7 +4,7 @@
 #include <vector>
 
 #include "core/task/include/task.hpp"
-#include "tbb/sarafanov_m_CanonMatMul_tbb/include/CanonMatrix.hpp"
+#include "tbb/sarafanov_m_CanonMatMul/include/CanonMatrix.hpp"
 
 namespace sarafanov_m_canon_mat_mul_tbb {
 
