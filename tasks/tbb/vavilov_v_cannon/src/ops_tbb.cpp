@@ -136,10 +136,8 @@ void vavilov_v_cannon_tbb::CannonTBB::InitialShift() {
         std::vector<double> buffer(block_size_ * block_size_);
         for (int bi = r.rows().begin(); bi != r.rows().end(); ++bi) {
           for (int bj = r.cols().begin(); bj != r.cols().end(); ++bj) {
-            int shift_a = bj;
-            int shift_b = bi;
-            int src_col_a = (bj + shift_a) % num_blocks_;
-            int src_row_b = (bi + shift_b) % num_blocks_;
+            int src_col_a = (bj + bi) % num_blocks_;
+            int src_row_b = (bi + bj) % num_blocks_;
             for (int i = 0; i < block_size_ && (bi * block_size_ + i) < N_; ++i) {
               for (int j = 0; j < block_size_ && (src_col_a * block_size_ + j) < N_; ++j) {
                 buffer[i * block_size_ + j] = A_[(bi * block_size_ + i) * N_ + (src_col_a * block_size_ + j)];
