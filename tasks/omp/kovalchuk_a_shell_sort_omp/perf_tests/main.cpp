@@ -19,9 +19,9 @@ TEST(kovalchuk_a_shell_sort_omp, test_pipeline_run) {
   std::vector<int> out(kCount);
 
   auto task_data_omp = std::make_shared<ppc::core::TaskData>();
-  task_data_omp->inputs.emplace_back(reinterpret_cast<uint8_t *>(in.data()));
+  task_data_omp->inputs.emplace_back(reinterpret_cast<uint8_t*>(in.data()));
   task_data_omp->inputs_count.emplace_back(in.size());
-  task_data_omp->outputs.emplace_back(reinterpret_cast<uint8_t *>(out.data()));
+  task_data_omp->outputs.emplace_back(reinterpret_cast<uint8_t*>(out.data()));
   task_data_omp->outputs_count.emplace_back(out.size());
 
   auto test_task = std::make_shared<kovalchuk_a_shell_sort_omp::ShellSortOMP>(task_data_omp);
@@ -39,6 +39,8 @@ TEST(kovalchuk_a_shell_sort_omp, test_pipeline_run) {
   auto perf_analyzer = std::make_shared<ppc::core::Perf>(test_task);
   perf_analyzer->PipelineRun(perf_attr, perf_results);
   ppc::core::Perf::PrintPerfStatistic(perf_results);
+
+  ASSERT_TRUE(std::is_sorted(out.begin(), out.end()));
 }
 
 TEST(kovalchuk_a_shell_sort_omp, test_task_run) {
@@ -51,9 +53,9 @@ TEST(kovalchuk_a_shell_sort_omp, test_task_run) {
   std::vector<int> out(kCount);
 
   auto task_data_omp = std::make_shared<ppc::core::TaskData>();
-  task_data_omp->inputs.emplace_back(reinterpret_cast<uint8_t *>(in.data()));
+  task_data_omp->inputs.emplace_back(reinterpret_cast<uint8_t*>(in.data()));
   task_data_omp->inputs_count.emplace_back(in.size());
-  task_data_omp->outputs.emplace_back(reinterpret_cast<uint8_t *>(out.data()));
+  task_data_omp->outputs.emplace_back(reinterpret_cast<uint8_t*>(out.data()));
   task_data_omp->outputs_count.emplace_back(out.size());
 
   auto test_task = std::make_shared<kovalchuk_a_shell_sort_omp::ShellSortOMP>(task_data_omp);
@@ -71,4 +73,6 @@ TEST(kovalchuk_a_shell_sort_omp, test_task_run) {
   auto perf_analyzer = std::make_shared<ppc::core::Perf>(test_task);
   perf_analyzer->TaskRun(perf_attr, perf_results);
   ppc::core::Perf::PrintPerfStatistic(perf_results);
+
+  ASSERT_TRUE(std::is_sorted(out.begin(), out.end()));
 }
