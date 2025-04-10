@@ -7,7 +7,7 @@
 #include <vector>
 
 #include "core/task/include/task.hpp"
-#include "omp/gnitienko_k_strassen_alg_omp/include/ops_omp.hpp"
+#include "omp/gnitienko_k_strassen_alg/include/ops_omp.hpp"
 
 namespace {
 double min_val = -100.0;

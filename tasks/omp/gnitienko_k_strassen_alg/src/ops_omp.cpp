@@ -1,4 +1,4 @@
-#include "omp/gnitienko_k_strassen_alg_omp/include/ops_omp.hpp"
+#include "omp/gnitienko_k_strassen_alg/include/ops_omp.hpp"
 
 #include <omp.h>
 
