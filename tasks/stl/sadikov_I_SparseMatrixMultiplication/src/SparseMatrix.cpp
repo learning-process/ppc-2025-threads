@@ -1,4 +1,4 @@
-#include "stl/sadikov_I_SparseMatMul_STL/include/SparseMatrix.hpp"
+#include "stl/sadikov_I_SparseMatrixMultiplication/include/SparseMatrix.hpp"
 
 #include <algorithm>
 #include <cmath>

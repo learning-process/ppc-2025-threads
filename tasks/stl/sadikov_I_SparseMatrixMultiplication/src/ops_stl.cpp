@@ -1,9 +1,9 @@
-#include "stl/sadikov_I_SparseMatMul_STL/include/ops_stl.hpp"
+#include "stl/sadikov_I_SparseMatrixMultiplication/include/ops_stl.hpp"
 
 #include <cstddef>
 #include <vector>
 
-#include "stl/sadikov_I_SparseMatMul_STL/include/SparseMatrix.hpp"
+#include "stl/sadikov_I_SparseMatrixMultiplication/include/SparseMatrix.hpp"
 
 bool sadikov_i_sparse_matrix_multiplication_task_stl::CCSMatrixSTL::PreProcessingImpl() {
   auto fmatrix_rows_count = static_cast<int>(task_data->inputs_count[0]);
