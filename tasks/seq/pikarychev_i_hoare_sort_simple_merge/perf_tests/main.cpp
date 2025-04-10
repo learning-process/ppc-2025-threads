@@ -17,7 +17,7 @@
 
 namespace {
 template <typename T>
-std::vector<T> GenUnsortedSequence(size_t size) {
+std::vector<T> GenerateReverseSortedVector(size_t size) {
   std::vector<T> vec(size);
   std::iota(vec.rbegin(), vec.rend(), 0);
   return vec;
