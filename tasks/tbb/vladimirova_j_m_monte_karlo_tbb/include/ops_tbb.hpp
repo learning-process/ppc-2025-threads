@@ -26,7 +26,7 @@ class TestTaskTBB : public ppc::core::Task {
   bool (*func_)(std::vector<double>, size_t);
   std::vector<BoundariesIntegral> var_integr_;
   size_t var_size_{};
-  size_t accuracy_, successful_point_;
+  size_t accuracy_;
 };
 
 }  // namespace vladimirova_j_m_monte_karlo_tbb
