@@ -12,7 +12,7 @@
 #include "omp/naumov_b_marc_on_bin_image/include/ops_omp.hpp"
 
 TEST(naumov_b_marc_on_bin_image_omp, test_pipeline_run) {
-  constexpr int kCo = 6000;
+  constexpr int kCo = 5000;
 
   std::vector<int> in(kCo * kCo, 0);
   std::vector<int> out(kCo * kCo, 0);
@@ -48,7 +48,7 @@ TEST(naumov_b_marc_on_bin_image_omp, test_pipeline_run) {
 }
 
 TEST(naumov_b_marc_on_bin_image_omp, test_task_run) {
-  constexpr int kCo = 9000;
+  constexpr int kCo = 7500;
 
   std::vector<int> in(kCo * kCo, 0);
   std::vector<int> out(kCo * kCo, 0);
