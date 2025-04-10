@@ -5,8 +5,11 @@
 #include <cmath>
 #include <core/util/include/util.hpp>
 #include <cstddef>
+#include <utility>
 #include <vector>
 
+#include "oneapi/tbb/parallel_for.h"
+#include "oneapi/tbb/task_arena.h"
 #include "oneapi/tbb/task_group.h"
 
 bool gnitienko_k_strassen_algorithm_tbb::StrassenAlgTBB::PreProcessingImpl() {
@@ -99,15 +102,15 @@ void gnitienko_k_strassen_algorithm_tbb::StrassenAlgTBB::StrassenMultiply(const 
 
   tbb::parallel_for(0, half_size, [&](int i) {
     for (int j = 0; j < half_size; ++j) {
-      a11[i * half_size + j] = a[i * size + j];
-      a12[i * half_size + j] = a[i * size + j + half_size];
-      a21[i * half_size + j] = a[(i + half_size) * size + j];
-      a22[i * half_size + j] = a[(i + half_size) * size + j + half_size];
+      a11[(i * half_size) + j] = a[(i * size) + j];
+      a12[(i * half_size) + j] = a[(i * size) + j + half_size];
+      a21[(i * half_size) + j] = a[((i + half_size) * size) + j];
+      a22[(i * half_size) + j] = a[((i + half_size) * size) + j + half_size];
 
-      b11[i * half_size + j] = b[i * size + j];
-      b12[i * half_size + j] = b[i * size + j + half_size];
-      b21[i * half_size + j] = b[(i + half_size) * size + j];
-      b22[i * half_size + j] = b[(i + half_size) * size + j + half_size];
+      b11[(i * half_size) + j] = b[(i * size) + j];
+      b12[(i * half_size) + j] = b[(i * size) + j + half_size];
+      b21[(i * half_size) + j] = b[((i + half_size) * size) + j];
+      b22[(i * half_size) + j] = b[((i + half_size) * size) + j + half_size];
     }
   });
 
@@ -198,10 +201,10 @@ void gnitienko_k_strassen_algorithm_tbb::StrassenAlgTBB::StrassenMultiply(const 
 
   tbb::parallel_for(0, half_size, [&](int i) {
     for (int j = 0; j < half_size; ++j) {
-      c[i * size + j] = c11[i * half_size + j];
-      c[i * size + j + half_size] = c12[i * half_size + j];
-      c[(i + half_size) * size + j] = c21[i * half_size + j];
-      c[(i + half_size) * size + j + half_size] = c22[i * half_size + j];
+      c[(i * size) + j] = c11[(i * half_size) + j];
+      c[(i * size) + j + half_size] = c12[(i * half_size) + j];
+      c[((i + half_size) * size) + j] = c21[(i * half_size) + j];
+      c[((i + half_size) * size) + j + half_size] = c22[(i * half_size) + j];
     }
   });
 }
