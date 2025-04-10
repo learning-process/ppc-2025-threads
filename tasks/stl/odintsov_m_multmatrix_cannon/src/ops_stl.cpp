@@ -189,8 +189,6 @@ bool odintsov_m_mulmatrix_cannon_stl::MulMatrixCannonSTL::RunImpl() {
   InitializeShift(matrixA_, root, grid_size, block_sz_, true);
   InitializeShift(matrixB_, root, grid_size, block_sz_, false);
 
-  std::ranges::fill(matrixC_, 0.0);
-
   for (int step = 0; step < grid_size; ++step) {
     std::vector<std::vector<double>> local_results(num_blocks, std::vector<double>(root * root, 0.0));
     std::vector<std::thread> threads;
@@ -207,8 +205,9 @@ bool odintsov_m_mulmatrix_cannon_stl::MulMatrixCannonSTL::RunImpl() {
     }
 
     // Собираем локальные результаты в matrixC_.
+    const size_t matrix_size = matrixC_.size();
     for (const auto& local_c : local_results) {
-      for (size_t i = 0; i < matrixC_.size(); ++i) {
+      for (size_t i = 0; i < matrix_size; ++i) {
         matrixC_[i] += local_c[i];
       }
     }
