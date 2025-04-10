@@ -9,7 +9,7 @@
 #include <vector>
 
 #include "core/task/include/task.hpp"
-#include "seq/shulpin_i_Jarvis_passage/include/ops_seq.hpp"
+#include "seq/shulpin_i_jarvis_passage/include/ops_seq.hpp"
 
 namespace {
 std::vector<shulpin_i_jarvis_seq::Point> GeneratePointsInCircle(size_t num_points,

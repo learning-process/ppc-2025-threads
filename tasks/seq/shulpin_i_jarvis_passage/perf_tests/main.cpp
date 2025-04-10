@@ -11,7 +11,7 @@
 
 #include "core/perf/include/perf.hpp"
 #include "core/task/include/task.hpp"
-#include "seq/shulpin_i_Jarvis_passage/include/ops_seq.hpp"
+#include "seq/shulpin_i_jarvis_passage/include/ops_seq.hpp"
 
 namespace {
 std::vector<shulpin_i_jarvis_seq::Point> GenerateRandomPoints(size_t num_points) {
