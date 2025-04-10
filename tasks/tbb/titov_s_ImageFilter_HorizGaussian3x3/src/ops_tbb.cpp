@@ -36,29 +36,35 @@ bool titov_s_image_filter_horiz_gaussian3x3_tbb::ImageFilterTBB::ValidationImpl(
 }
 
 bool titov_s_image_filter_horiz_gaussian3x3_tbb::ImageFilterTBB::RunImpl() {
-  const auto k0 = static_cast<double>(kernel_[0]);
-  const auto k1 = static_cast<double>(kernel_[1]);
-  const auto k2 = static_cast<double>(kernel_[2]);
+  const double k0 = kernel_[0];
+  const double k1 = kernel_[1];
+  const double k2 = kernel_[2];
   const double inv_sum = 1.0 / (k0 + k1 + k2);
 
-  const int threads_num = ppc::util::GetPPCNumThreads();
-  const int min_block_size = 512;
-  const int total_rows = height_;
-  const int base_chunk = std::max(min_block_size, total_rows / threads_num);
+  const int width = width_;
+  const int height = height_;
+  const double *input = input_.data();
+  double *output = output_.data();
 
-  oneapi::tbb::task_arena arena(threads_num);
-  arena.execute([&] {
-    tbb::parallel_for(tbb::blocked_range<int>(0, height_, base_chunk), [&](const tbb::blocked_range<int> &range) {
-      for (int row = range.begin(); row < range.end(); ++row) {
-        for (int col = 0; col < width_; ++col) {
-          const double left = (col > 0) ? input_[(row * width_) + col - 1] : 0.0;
-          const double center = input_[(row * width_) + col];
-          const double right = (col < width_ - 1) ? input_[(row * width_) + col + 1] : 0.0;
-          output_[(row * width_) + col] = (left * k0 + center * k1 + right * k2) * inv_sum;
+  tbb::parallel_for(
+      tbb::blocked_range<int>(0, height),
+      [&](const tbb::blocked_range<int> &range) {
+        for (int row = range.begin(); row < range.end(); ++row) {
+          const double *row_in = input + row * width;
+          double *row_out = output + row * width;
+
+          row_out[0] = (0.0 * k0 + row_in[0] * k1 + row_in[1] * k2) * inv_sum;
+
+          for (int col = 1; col < width - 1; ++col) {
+            row_out[col] = (row_in[col - 1] * k0 + row_in[col] * k1 + row_in[col + 1] * k2) * inv_sum;
+          }
+
+          if (width > 1) {
+            row_out[width - 1] = (row_in[width - 2] * k0 + row_in[width - 1] * k1 + 0.0 * k2) * inv_sum;
+          }
         }
-      }
-    });
-  });
+      },
+      tbb::auto_partitioner());
 
   return true;
 }
