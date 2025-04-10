@@ -12,8 +12,8 @@
 
 #include "core/perf/include/perf.hpp"
 #include "core/task/include/task.hpp"
-#include "omp/lavrentiev_A_CCS_OMP/include/ops_omp.hpp"
 #include "core/util/include/util.hpp"
+#include "omp/lavrentiev_A_CCS_OMP/include/ops_omp.hpp"
 
 namespace {
 
