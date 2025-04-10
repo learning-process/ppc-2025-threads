@@ -18,7 +18,10 @@ bool opolin_d_radix_batcher_sort_omp::RadixBatcherSortTaskOpenMP::PreProcessingI
 bool opolin_d_radix_batcher_sort_omp::RadixBatcherSortTaskOpenMP::ValidationImpl() {
   // Check equality of counts elements
   size_ = static_cast<int>(task_data->inputs_count[0]);
-  if (size_ <= 0 || task_data->inputs.empty()) {
+  if (size_ <= 0 || task_data->inputs.empty() || task_data->outputs.empty()) {
+    return false;
+  }
+  if (task_data->inputs[0] == nullptr || task_data->outputs[0] == nullptr) {
     return false;
   }
   return task_data->inputs_count[0] == task_data->outputs_count[0];
@@ -60,8 +63,8 @@ bool opolin_d_radix_batcher_sort_omp::RadixBatcherSortTaskOpenMP::RunImpl() {
       new_starts.push_back(starts.back());
       new_ends.push_back(ends.back());
     }
-    starts = new_starts;
-    ends = new_ends;
+    starts = std::move(new_starts);
+    ends = std::move(new_ends);
   }
   output_ = input_;
   return true;
