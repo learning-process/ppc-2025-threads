@@ -1,4 +1,4 @@
-#include "seq/lavrentiev_A_CCS_SEQ/include/ops_seq.hpp"
+#include "seq/lavrentiev_A_CCS/include/ops_seq.hpp"
 
 #include <algorithm>
 #include <cmath>
