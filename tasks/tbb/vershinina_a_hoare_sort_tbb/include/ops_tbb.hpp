@@ -19,5 +19,4 @@ class TestTaskTBB : public ppc::core::Task {
   std::vector<double> input_;
   std::vector<double> res_;
 };
-
 }  // namespace vershinina_a_hoare_sort_tbb
