@@ -16,6 +16,14 @@ struct Point {
   Point(double x_coordinate, double y_coordinate) : x(x_coordinate), y(y_coordinate) {}
 };
 
+struct PointEqual {
+  bool operator()(const Point& a, const Point& b) const { return a.x == b.x && a.y == b.y; }
+};
+
+struct PointEqual {
+  bool operator()(const Point& a, const Point& b) const { return a.x == b.x && a.y == b.y; }
+};
+
 class JarvisSequential : public ppc::core::Task {
  public:
   explicit JarvisSequential(ppc::core::TaskDataPtr task_data) : Task(std::move(task_data)) {}
