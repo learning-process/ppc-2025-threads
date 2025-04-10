@@ -9,7 +9,7 @@
 
 #include "core/perf/include/perf.hpp"
 #include "core/task/include/task.hpp"
-#include "seq/borisov_s_strassen_seq/include/ops_seq.hpp"
+#include "omp/borisov_s_strassen/include/ops_omp.hpp"
 
 namespace {
 
@@ -25,7 +25,7 @@ void GenerateRandomMatrix(int rows, int cols, std::vector<double>& matrix) {
 
 }  // namespace
 
-TEST(borisov_s_strassen_perf_seq, test_pipeline_run) {
+TEST(borisov_s_strassen_perf_omp, test_pipeline_run) {
   constexpr int kRowsA = 1024;
   constexpr int kColsA = 512;
   constexpr int kRowsB = 512;
@@ -50,7 +50,7 @@ TEST(borisov_s_strassen_perf_seq, test_pipeline_run) {
   task_data_seq->outputs.emplace_back(reinterpret_cast<uint8_t*>(out.data()));
   task_data_seq->outputs_count.emplace_back(out.size());
 
-  auto test_task_sequential = std::make_shared<borisov_s_strassen_seq::SequentialStrassenSeq>(task_data_seq);
+  auto test_task_sequential = std::make_shared<borisov_s_strassen_omp::ParallelStrassenOMP>(task_data_seq);
 
   auto perf_attr = std::make_shared<ppc::core::PerfAttr>();
   perf_attr->num_running = 10;
@@ -68,7 +68,7 @@ TEST(borisov_s_strassen_perf_seq, test_pipeline_run) {
   ppc::core::Perf::PrintPerfStatistic(perf_results);
 }
 
-TEST(borisov_s_strassen_perf_seq, test_task_run) {
+TEST(borisov_s_strassen_perf_omp, test_task_run) {
   constexpr int kRowsA = 1024;
   constexpr int kColsA = 512;
   constexpr int kRowsB = 512;
@@ -93,7 +93,7 @@ TEST(borisov_s_strassen_perf_seq, test_task_run) {
   task_data_seq->outputs.emplace_back(reinterpret_cast<uint8_t*>(out.data()));
   task_data_seq->outputs_count.emplace_back(out.size());
 
-  auto test_task_sequential = std::make_shared<borisov_s_strassen_seq::SequentialStrassenSeq>(task_data_seq);
+  auto test_task_sequential = std::make_shared<borisov_s_strassen_omp::ParallelStrassenOMP>(task_data_seq);
 
   auto perf_attr = std::make_shared<ppc::core::PerfAttr>();
   perf_attr->num_running = 10;
