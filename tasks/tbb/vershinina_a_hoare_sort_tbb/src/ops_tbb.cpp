@@ -2,13 +2,13 @@
 
 #include <tbb/tbb.h>
 
+#include <algorithm>
 #include <cmath>
 #include <core/util/include/util.hpp>
-#include <cstddef>
+#include <utility>
 #include <vector>
 
 #include "oneapi/tbb/task_arena.h"
-#include "oneapi/tbb/task_group.h"
 
 namespace {
 int Partition(double *s_vec, int first, int last) {
