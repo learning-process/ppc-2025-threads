@@ -1,4 +1,4 @@
-#include "seq/shulpin_i_Jarvis_passage/include/ops_seq.hpp"
+#include "seq/shulpin_i_jarvis_passage/include/ops_seq.hpp"
 
 #include <algorithm>
 #include <cmath>
