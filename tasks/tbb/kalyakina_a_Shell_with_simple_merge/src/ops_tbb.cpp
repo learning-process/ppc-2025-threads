@@ -88,7 +88,7 @@ bool kalyakina_a_shell_with_simple_merge_tbb::ShellSortTBB::RunImpl() {
   unsigned int num = (static_cast<unsigned int>(ppc::util::GetPPCNumThreads()) > output_.size())
                          ? output_.size()
                          : static_cast<unsigned int>(ppc::util::GetPPCNumThreads());
-  oneapi::tbb::task_arena arena(num);
+  oneapi::tbb::task_arena arena(static_cast<int>(num));
   unsigned int part = output_.size() / num;
   unsigned int reminder = output_.size() % num;
   unsigned int left = 0;
