@@ -133,29 +133,30 @@ void vavilov_v_cannon_tbb::CannonTBB::InitialShift() {
   oneapi::tbb::parallel_for(
       oneapi::tbb::blocked_range2d<int>(0, num_blocks_, 0, num_blocks_),
       [&](const oneapi::tbb::blocked_range2d<int>& r) {
-        std::vector<double> buffer(block_size_ * block_size_);
+        std::vector<double> a_buffer(block_size_ * block_size_, 0.0);
+        std::vector<double> b_buffer(block_size_ * block_size_, 0.0);
         for (int bi = r.rows().begin(); bi != r.rows().end(); ++bi) {
           for (int bj = r.cols().begin(); bj != r.cols().end(); ++bj) {
             int src_col_a = (bj + bi) % num_blocks_;
             int src_row_b = (bi + bj) % num_blocks_;
             for (int i = 0; i < block_size_ && (bi * block_size_ + i) < N_; ++i) {
               for (int j = 0; j < block_size_ && (src_col_a * block_size_ + j) < N_; ++j) {
-                buffer[i * block_size_ + j] = A_[(bi * block_size_ + i) * N_ + (src_col_a * block_size_ + j)];
+                a_buffer[i * block_size_ + j] = A_[(bi * block_size_ + i) * N_ + (src_col_a * block_size_ + j)];
               }
             }
             for (int i = 0; i < block_size_ && (bi * block_size_ + i) < N_; ++i) {
               for (int j = 0; j < block_size_ && (bj * block_size_ + j) < N_; ++j) {
-                A_[(bi * block_size_ + i) * N_ + (bj * block_size_ + j)] = buffer[i * block_size_ + j];
+                A_[(bi * block_size_ + i) * N_ + (bj * block_size_ + j)] = a_buffer[i * block_size_ + j];
               }
             }
             for (int i = 0; i < block_size_ && (src_row_b * block_size_ + i) < N_; ++i) {
               for (int j = 0; j < block_size_ && (bj * block_size_ + j) < N_; ++j) {
-                buffer[i * block_size_ + j] = B_[(src_row_b * block_size_ + i) * N_ + (bj * block_size_ + j)];
+                b_buffer[i * block_size_ + j] = B_[(src_row_b * block_size_ + i) * N_ + (bj * block_size_ + j)];
               }
             }
             for (int i = 0; i < block_size_ && (bi * block_size_ + i) < N_; ++i) {
               for (int j = 0; j < block_size_ && (bj * block_size_ + j) < N_; ++j) {
-                B_[(bi * block_size_ + i) * N_ + (bj * block_size_ + j)] = buffer[i * block_size_ + j];
+                B_[(bi * block_size_ + i) * N_ + (bj * block_size_ + j)] = b_buffer[i * block_size_ + j];
               }
             }
           }
