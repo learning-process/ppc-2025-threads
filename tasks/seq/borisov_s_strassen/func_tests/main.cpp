@@ -8,7 +8,7 @@
 #include <vector>
 
 #include "core/task/include/task.hpp"
-#include "seq/borisov_s_strassen_seq/include/ops_seq.hpp"
+#include "seq/borisov_s_strassen/include/ops_seq.hpp"
 
 namespace {
 

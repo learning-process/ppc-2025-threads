@@ -8,7 +8,7 @@
 #include <vector>
 
 #include "core/task/include/task.hpp"
-#include "omp/borisov_s_strassen_omp/include/ops_omp.hpp"
+#include "omp/borisov_s_strassen/include/ops_omp.hpp"
 
 namespace {
 
