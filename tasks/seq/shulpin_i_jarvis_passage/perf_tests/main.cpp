@@ -50,7 +50,7 @@ bool ValidateConvexHull(const std::vector<shulpin_i_jarvis_seq::Point> &hull, co
 }  // namespace
 
 TEST(shulpin_i_jarvis_seq, test_pipeline_run) {
-  size_t num_points = 100000;
+  size_t num_points = 1000000;
   std::vector<shulpin_i_jarvis_seq::Point> input = GenerateRandomPoints(num_points);
 
   std::vector<shulpin_i_jarvis_seq::Point> out(input.size());
@@ -83,7 +83,7 @@ TEST(shulpin_i_jarvis_seq, test_pipeline_run) {
 }
 
 TEST(shulpin_i_jarvis_seq, test_task_run) {
-  size_t num_points = 100000;
+  size_t num_points = 1000000;
 
   std::vector<shulpin_i_jarvis_seq::Point> input = GenerateRandomPoints(num_points);
 
