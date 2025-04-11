@@ -4,11 +4,42 @@
 
 #include <algorithm>
 #include <cmath>
+#include <core/util/include/util.hpp>
 #include <cstddef>
 #include <vector>
 
 #include "oneapi/tbb/task_arena.h"
 #include "oneapi/tbb/task_group.h"
+
+namespace {
+void GaussianVerticalFilter(const std::vector<unsigned char> &in_vec, std::size_t width, std::size_t height,
+                            const std::vector<float> &kernel, std::vector<unsigned char> &out_vec) {
+  constexpr int kChannels = 3;
+  const int kRadius = 1;
+
+  for (std::size_t y = 1; y + 1 < height; ++y) {
+    for (std::size_t x = 1; x + 1 < width; ++x) {
+      std::size_t base_idx = (y * width + x) * kChannels;
+
+      for (std::size_t c = 0; c < kChannels; ++c) {
+        float total = 0.0F;
+        std::size_t k_idx = 0;
+
+        for (int ky = -kRadius; ky <= kRadius; ++ky) {
+          std::size_t row_idx = ((((y + ky) * width) + (x - 1)) * kChannels) + c;
+
+          for (int kx = -kRadius; kx <= kRadius; ++kx, ++k_idx) {
+            total += static_cast<float>(in_vec[row_idx]) * kernel[k_idx];
+            row_idx += kChannels;
+          }
+        }
+
+        out_vec[base_idx + c] = std::clamp(static_cast<int>(std::round(total)), 0, 255);
+      }
+    }
+  }
+}
+}  // namespace
 
 bool komshina_d_image_filtering_vertical_gaussian_tbb::TestTaskTBB::PreProcessingImpl() {
   width_ = task_data->inputs_count[0];
@@ -49,44 +80,16 @@ bool komshina_d_image_filtering_vertical_gaussian_tbb::TestTaskTBB::ValidationIm
   return valid_kernel && valid_size;
 }
 
-void VerticalGaussianFilter(const std::vector<unsigned char> &input, int width, int height,
-                            const std::vector<float> &kernel, std::vector<unsigned char> &output) {
-  const int kernel_radius = 1;
-  const int channels = 3;
-
-
-  tbb::parallel_for(1, height - 1, [&](int y) {
-    for (int x = 1; x + 1 < width; ++x) {
-      std::size_t base_idx = (y * width + x) * channels;
-
-      for (int c = 0; c < channels; ++c) {
-        float total = 0.0F;
-        std::size_t k_idx = 0;
-
-        for (int ky = -1; ky <= 1; ++ky) {
-          std::size_t row_idx = (((y + ky) * width + (x - 1)) * channels) + c;
-
-          for (int kx = -1; kx <= 1; ++kx, ++k_idx) {
-            total += static_cast<float>(input[row_idx]) * kernel[k_idx];
-            row_idx += channels;
-          }
-        }
-
-        output[base_idx + c] = std::clamp(static_cast<int>(std::round(total)), 0, 255);
-      }
-    }
-  });
-}
-
 bool komshina_d_image_filtering_vertical_gaussian_tbb::TestTaskTBB::RunImpl() {
   oneapi::tbb::task_arena arena(1);
   arena.execute([&] {
-    tbb::task_group tg;
+    oneapi::tbb::task_group tg;
     for (int thr = 0; thr < ppc::util::GetPPCNumThreads(); ++thr) {
-      tg.run([&] { VerticalGaussianFilter(input_, width_, height_, kernel_, output_); });
+      tg.run([&] { GaussianVerticalFilter(input_, width_, height_, kernel_, output_); });
     }
     tg.wait();
   });
+
   return true;
 }
 
