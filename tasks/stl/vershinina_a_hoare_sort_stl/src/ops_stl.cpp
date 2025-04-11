@@ -1,7 +1,7 @@
 #include "stl/vershinina_a_hoare_sort_stl/include/ops_stl.hpp"
 
+#include <algorithm>
 #include <cmath>
-#include <cstddef>
 #include <thread>
 #include <vector>
 
