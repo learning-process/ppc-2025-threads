@@ -7,7 +7,7 @@
 #include <vector>
 
 #include "core/task/include/task.hpp"
-#include "tbb/karaseva_e_congrad_tbb/include/ops_tbb.hpp"
+#include "tbb/karaseva_e_congrad/include/ops_tbb.hpp"
 
 namespace {
 

@@ -7,7 +7,7 @@
 
 #include "core/perf/include/perf.hpp"
 #include "core/task/include/task.hpp"
-#include "tbb/karaseva_e_congrad_tbb/include/ops_tbb.hpp"
+#include "tbb/karaseva_e_congrad/include/ops_tbb.hpp"
 
 TEST(karaseva_e_congrad_tbb, test_pipeline_run) {
   constexpr int kSize = 10000;

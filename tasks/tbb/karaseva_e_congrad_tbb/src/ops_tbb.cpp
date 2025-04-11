@@ -1,4 +1,4 @@
-#include "tbb/karaseva_e_congrad_tbb/include/ops_tbb.hpp"
+#include "tbb/karaseva_e_congrad/include/ops_tbb.hpp"
 
 #include <oneapi/tbb/parallel_for.h>
 #include <oneapi/tbb/parallel_reduce.h>
