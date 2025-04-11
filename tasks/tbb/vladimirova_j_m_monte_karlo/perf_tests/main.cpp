@@ -26,8 +26,7 @@ std::vector<int> GenRandomVector(size_t size, int min, int max) {
 
   return random_vector;
 }
-std::vector<double> GenRandomVectorArea(size_t size, int min, int r,
-                                        double &ans) {
+std::vector<double> GenRandomVectorArea(size_t size, int min, int r, double &ans) {
   ans = 1;
   std::random_device rd;
   std::mt19937 gen(rd());
@@ -48,54 +47,54 @@ bool RandomFunc(std::vector<double> arr, size_t size = 0) {
   double sum = 0;
   for (auto i : seed) {
     switch (i % 10) {
-    case 0: {
-      sum += x;
-      break;
-    }
-    case 1: {
-      sum += x * 5;
-      break;
-    }
-    case 2: {
-      sum += std::abs(x);
-      break;
-    }
-    case 3: {
-      sum += std::sqrt(x);
-      break;
-    }
-    case 4: {
-      sum += -3;
-      break;
-    }
-    case 5: {
-      sum += y;
-      break;
-    }
-    case 6: {
-      sum += y * 7;
-      break;
-    }
-    case 7: {
-      sum += std::abs(y);
-      break;
-    }
-    case 8: {
-      sum += std::sqrt(y);
-      break;
-    }
-    case 9: {
-      sum *= 2;
-      break;
-    }
-    default: {
-      break;
-    }
+      case 0: {
+        sum += x;
+        break;
+      }
+      case 1: {
+        sum += x * 5;
+        break;
+      }
+      case 2: {
+        sum += std::abs(x);
+        break;
+      }
+      case 3: {
+        sum += std::sqrt(x);
+        break;
+      }
+      case 4: {
+        sum += -3;
+        break;
+      }
+      case 5: {
+        sum += y;
+        break;
+      }
+      case 6: {
+        sum += y * 7;
+        break;
+      }
+      case 7: {
+        sum += std::abs(y);
+        break;
+      }
+      case 8: {
+        sum += std::sqrt(y);
+        break;
+      }
+      case 9: {
+        sum *= 2;
+        break;
+      }
+      default: {
+        break;
+      }
     }
   }
   return (sum <= 0);
 };
-} // namespace
+}  // namespace
 
 TEST(vladimirova_j_m_monte_karlo_tbb, test_pipeline_run) {
   // Create data
@@ -114,18 +113,14 @@ TEST(vladimirova_j_m_monte_karlo_tbb, test_pipeline_run) {
   task_data_tbb->outputs_count.emplace_back(out.size());
 
   // Create Task
-  auto test_task_tbb =
-      std::make_shared<vladimirova_j_m_monte_karlo_tbb::TestTaskTBB>(
-          task_data_tbb);
+  auto test_task_tbb = std::make_shared<vladimirova_j_m_monte_karlo_tbb::TestTaskTBB>(task_data_tbb);
   // Create Perf attributes
   auto perf_attr = std::make_shared<ppc::core::PerfAttr>();
   perf_attr->num_running = 10;
   const auto t0 = std::chrono::high_resolution_clock::now();
   perf_attr->current_timer = [&] {
     auto current_time_point = std::chrono::high_resolution_clock::now();
-    auto duration = std::chrono::duration_cast<std::chrono::nanoseconds>(
-                        current_time_point - t0)
-                        .count();
+    auto duration = std::chrono::duration_cast<std::chrono::nanoseconds>(current_time_point - t0).count();
     return static_cast<double>(duration) * 1e-9;
   };
 
@@ -157,9 +152,7 @@ TEST(vladimirova_j_m_monte_karlo_tbb, test_task_run) {
   task_data_tbb->outputs_count.emplace_back(out.size());
 
   // Create Task
-  auto test_task_tbb =
-      std::make_shared<vladimirova_j_m_monte_karlo_tbb::TestTaskTBB>(
-          task_data_tbb);
+  auto test_task_tbb = std::make_shared<vladimirova_j_m_monte_karlo_tbb::TestTaskTBB>(task_data_tbb);
 
   // Create Perf attributes
   auto perf_attr = std::make_shared<ppc::core::PerfAttr>();
@@ -167,9 +160,7 @@ TEST(vladimirova_j_m_monte_karlo_tbb, test_task_run) {
   const auto t0 = std::chrono::high_resolution_clock::now();
   perf_attr->current_timer = [&] {
     auto current_time_point = std::chrono::high_resolution_clock::now();
-    auto duration = std::chrono::duration_cast<std::chrono::nanoseconds>(
-                        current_time_point - t0)
-                        .count();
+    auto duration = std::chrono::duration_cast<std::chrono::nanoseconds>(current_time_point - t0).count();
     return static_cast<double>(duration) * 1e-9;
   };
 
