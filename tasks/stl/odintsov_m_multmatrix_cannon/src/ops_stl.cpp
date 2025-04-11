@@ -192,7 +192,7 @@ bool odintsov_m_mulmatrix_cannon_stl::MulMatrixCannonSTL::RunImpl() {
   for (int step = 0; step < grid_size; ++step) {
     std::vector<std::vector<double>> local_results(num_blocks, std::vector<double>(root * root, 0.0));
     std::vector<std::thread> threads;
-    // Резервирование места для потоков — оптимизация.
+
     threads.reserve(num_blocks);
 
     for (int bi = 0; bi < num_blocks; ++bi) {
