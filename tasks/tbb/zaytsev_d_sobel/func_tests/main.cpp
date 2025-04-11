@@ -62,6 +62,23 @@ TEST(zaytsev_d_sobel_tbb, test_validation_fail_small_image) {
   ASSERT_EQ(task.Validation(), false);
 }
 
+TEST(zaytsev_d_sobel_tbb, test_validation_wrong_size) {
+  std::vector<int> in(10, 0);
+  std::vector<int> out(10, 0);
+  std::vector<int> size = {5, 5};
+
+  auto task_data = std::make_shared<ppc::core::TaskData>();
+  task_data->inputs.push_back(reinterpret_cast<uint8_t *>(in.data()));
+  task_data->inputs.push_back(reinterpret_cast<uint8_t *>(size.data()));
+  task_data->inputs_count.push_back(in.size());
+  task_data->inputs_count.push_back(size.size());
+  task_data->outputs.push_back(reinterpret_cast<uint8_t *>(out.data()));
+  task_data->outputs_count.push_back(out.size());
+
+  zaytsev_d_sobel_tbb::TestTaskTBB task(task_data);
+  ASSERT_EQ(task.Validation(), false);
+}
+
 TEST(zaytsev_d_sobel_tbb, SobelEdgeDetection_5x5) {
   constexpr size_t kSize = 5;
   std::vector<int> input = {0, 0, 0, 0, 0, 0, 10, 10, 10, 0, 0, 10, 10, 10, 0, 0, 10, 10, 10, 0, 0, 0, 0, 0, 0};

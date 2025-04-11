@@ -14,9 +14,8 @@ bool zaytsev_d_sobel_tbb::TestTaskTBB::PreProcessingImpl() {
   input_ = std::vector<int>(in_ptr, in_ptr + task_data->inputs_count[0]);
 
   auto *size_ptr = reinterpret_cast<int *>(task_data->inputs[1]);
-  size_ = {size_ptr[0], size_ptr[1]};
-  width_ = size_[0];
-  height_ = size_[1];
+  width_ = size_ptr[0];
+  height_ = size_ptr[1];
 
   output_ = std::vector<int>(task_data->outputs_count[0], 0);
   return true;
@@ -26,7 +25,8 @@ bool zaytsev_d_sobel_tbb::TestTaskTBB::ValidationImpl() {
   auto *size_ptr = reinterpret_cast<int *>(task_data->inputs[1]);
   int width = size_ptr[0];
   int height = size_ptr[1];
-  return (task_data->inputs_count[0] == task_data->outputs_count[0]) && (width >= 3) && (height >= 3);
+  return (task_data->inputs_count[0] == task_data->outputs_count[0]) && (width >= 3) && (height >= 3) &&
+         ((width * height) == int(task_data->inputs_count[0]));
 }
 
 bool zaytsev_d_sobel_tbb::TestTaskTBB::RunImpl() {
