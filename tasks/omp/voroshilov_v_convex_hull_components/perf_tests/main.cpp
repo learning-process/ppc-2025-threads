@@ -11,10 +11,10 @@
 #ifndef _WIN32
 #include <opencv2/opencv.hpp>
 #endif
+#include "../include/chc.hpp"
+#include "../include/chc_omp.hpp"
 #include "core/perf/include/perf.hpp"
 #include "core/task/include/task.hpp"
-#include "omp/voroshilov_v_convex_hull_components_omp/include/chc.hpp"
-#include "omp/voroshilov_v_convex_hull_components_omp/include/chc_omp.hpp"
 
 using namespace voroshilov_v_convex_hull_components_omp;
 

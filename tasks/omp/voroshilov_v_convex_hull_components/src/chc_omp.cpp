@@ -1,10 +1,10 @@
-#include "omp/voroshilov_v_convex_hull_components_omp/include/chc_omp.hpp"
+#include "../include/chc_omp.hpp"
 
 #include <algorithm>
 #include <utility>
 #include <vector>
 
-#include "omp/voroshilov_v_convex_hull_components_omp/include/chc.hpp"
+#include "../include/chc.hpp"
 
 using namespace voroshilov_v_convex_hull_components_omp;
 
