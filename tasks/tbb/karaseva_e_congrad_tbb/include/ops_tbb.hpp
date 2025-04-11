@@ -8,7 +8,7 @@
 
 #include "core/task/include/task.hpp"
 
-namespace karaseva_e_congrad {
+namespace karaseva_e_congrad_tbb {
 
 class TestTaskTBB : public ppc::core::Task {
  public:
@@ -25,4 +25,4 @@ class TestTaskTBB : public ppc::core::Task {
   size_t size_{};
 };
 
-}  // namespace karaseva_e_congrad
+}  // namespace karaseva_e_congrad_tbb

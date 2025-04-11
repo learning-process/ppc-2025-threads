@@ -7,9 +7,9 @@
 
 #include "core/perf/include/perf.hpp"
 #include "core/task/include/task.hpp"
-#include "tbb/karaseva_e_congrad/include/ops_tbb.hpp"
+#include "tbb/karaseva_e_congrad_tbb/include/ops_tbb.hpp"
 
-TEST(karaseva_e_congrad, test_pipeline_run) {
+TEST(karaseva_e_congrad_tbb, test_pipeline_run) {
   constexpr int kSize = 10000;
 
   // Create data
@@ -31,7 +31,7 @@ TEST(karaseva_e_congrad, test_pipeline_run) {
   task_data->outputs_count.emplace_back(x.size());
 
   // Create Task
-  auto test_task_tbb = std::make_shared<karaseva_e_congrad::TestTaskTBB>(task_data);
+  auto test_task_tbb = std::make_shared<karaseva_e_congrad_tbb::TestTaskTBB>(task_data);
 
   // Create Perf attributes
   auto perf_attr = std::make_shared<ppc::core::PerfAttr>();
@@ -54,7 +54,7 @@ TEST(karaseva_e_congrad, test_pipeline_run) {
   ASSERT_EQ(b, x);
 }
 
-TEST(karaseva_e_congrad, test_task_run) {
+TEST(karaseva_e_congrad_tbb, test_task_run) {
   constexpr int kSize = 10000;
 
   // Create data
@@ -76,7 +76,7 @@ TEST(karaseva_e_congrad, test_task_run) {
   task_data->outputs_count.emplace_back(x.size());
 
   // Create Task
-  auto test_task_tbb = std::make_shared<karaseva_e_congrad::TestTaskTBB>(task_data);
+  auto test_task_tbb = std::make_shared<karaseva_e_congrad_tbb::TestTaskTBB>(task_data);
 
   // Create Perf attributes
   auto perf_attr = std::make_shared<ppc::core::PerfAttr>();

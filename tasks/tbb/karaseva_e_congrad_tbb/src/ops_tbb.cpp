@@ -1,4 +1,4 @@
-#include "tbb/karaseva_e_congrad/include/ops_tbb.hpp"
+#include "tbb/karaseva_e_congrad_tbb/include/ops_tbb.hpp"
 
 #include <oneapi/tbb/parallel_for.h>
 #include <oneapi/tbb/parallel_reduce.h>
@@ -8,7 +8,7 @@
 #include <functional>
 #include <vector>
 
-namespace karaseva_e_congrad {
+namespace karaseva_e_congrad_tbb {
 
 bool TestTaskTBB::PreProcessingImpl() {
   // Initialize problem size from input data
@@ -138,4 +138,4 @@ bool TestTaskTBB::PostProcessingImpl() {
   return true;
 }
 
-}  // namespace karaseva_e_congrad
+}  // namespace karaseva_e_congrad_tbb
