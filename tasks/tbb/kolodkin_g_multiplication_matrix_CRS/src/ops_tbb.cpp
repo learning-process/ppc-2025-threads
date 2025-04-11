@@ -161,6 +161,7 @@ bool kolodkin_g_multiplication_matrix_tbb::TestTaskTBB::RunImpl() {
         }
       }
     }
+    std::cout << "TBB: OK!";
   });
 
   for (size_t row_index = 0; row_index < local_results.size(); ++row_index) {
