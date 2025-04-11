@@ -4,7 +4,6 @@
 
 #include <algorithm>
 #include <cmath>
-#include <core/util/include/util.hpp>
 #include <cstddef>
 #include <vector>
 
@@ -50,33 +49,43 @@ bool komshina_d_image_filtering_vertical_gaussian_tbb::TestTaskTBB::ValidationIm
   return valid_kernel && valid_size;
 }
 
-void komshina_d_image_filtering_vertical_gaussian_tbb::TestTaskTBB::ApplyFilter(int y, int x) {
-  constexpr int kChannels = 3;
-  std::size_t base_idx = (y * width_ + x) * kChannels;
+void VerticalGaussianFilter(const std::vector<unsigned char> &input, int width, int height,
+                            const std::vector<float> &kernel, std::vector<unsigned char> &output) {
+  const int kernel_radius = 1;
+  const int channels = 3;
 
-  for (int c = 0; c < kChannels; ++c) {
-    float total = 0.0F;
-    int k_idx = 0;
 
-    for (int ky = -1; ky <= 1; ++ky) {
-      std::size_t row_idx = ((((y + ky) * width_) + (x - 1)) * kChannels) + c;
-      for (int kx = -1; kx <= 1; ++kx, ++k_idx) {
-        total += static_cast<float>(input_[row_idx]) * kernel_[k_idx];
-        row_idx += kChannels;
+  tbb::parallel_for(1, height - 1, [&](int y) {
+    for (int x = 1; x + 1 < width; ++x) {
+      std::size_t base_idx = (y * width + x) * channels;
+
+      for (int c = 0; c < channels; ++c) {
+        float total = 0.0F;
+        std::size_t k_idx = 0;
+
+        for (int ky = -1; ky <= 1; ++ky) {
+          std::size_t row_idx = (((y + ky) * width + (x - 1)) * channels) + c;
+
+          for (int kx = -1; kx <= 1; ++kx, ++k_idx) {
+            total += static_cast<float>(input[row_idx]) * kernel[k_idx];
+            row_idx += channels;
+          }
+        }
+
+        output[base_idx + c] = std::clamp(static_cast<int>(std::round(total)), 0, 255);
       }
     }
-    output_[base_idx + c] = std::clamp(static_cast<int>(std::round(total)), 0, 255);
-  }
+  });
 }
 
 bool komshina_d_image_filtering_vertical_gaussian_tbb::TestTaskTBB::RunImpl() {
   oneapi::tbb::task_arena arena(1);
   arena.execute([&] {
-    tbb::parallel_for(1, static_cast<int>(height_) - 1, [&](int y) {
-      for (int x = 1; x < static_cast<int>(width_) - 1; ++x) {
-        ApplyFilter(y, x);
-      }
-    });
+    tbb::task_group tg;
+    for (int thr = 0; thr < ppc::util::GetPPCNumThreads(); ++thr) {
+      tg.run([&] { VerticalGaussianFilter(input_, width_, height_, kernel_, output_); });
+    }
+    tg.wait();
   });
   return true;
 }

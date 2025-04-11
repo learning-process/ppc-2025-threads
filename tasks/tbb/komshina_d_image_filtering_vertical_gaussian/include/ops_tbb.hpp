@@ -17,7 +17,8 @@ class TestTaskTBB : public ppc::core::Task {
   bool PostProcessingImpl() override;
 
  private:
-  void ApplyFilter(int y, int x);
+  void VerticalGaussianFilter(const std::vector<unsigned char> &input, int width, int height,
+                              const std::vector<float> &kernel, std::vector<unsigned char> &output);
 
   std::vector<unsigned char> input_;
   std::vector<unsigned char> output_;
