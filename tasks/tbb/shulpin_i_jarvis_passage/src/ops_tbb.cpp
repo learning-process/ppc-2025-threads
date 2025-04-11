@@ -13,8 +13,8 @@
 namespace {
 int Orientation(const shulpin_i_jarvis_tbb::Point& p, const shulpin_i_jarvis_tbb::Point& q,
                 const shulpin_i_jarvis_tbb::Point& r) {
-  int val = static_cast<int>(((q.y - p.y) * (r.x - q.x)) - ((q.x - p.x) * (r.y - q.y)));
-  if (val == 0) {
+  double val = ((q.y - p.y) * (r.x - q.x)) - ((q.x - p.x) * (r.y - q.y));
+  if (std::fabs(val) < 1e-9) {
     return 0;
   }
   return (val > 0) ? 1 : 2;
