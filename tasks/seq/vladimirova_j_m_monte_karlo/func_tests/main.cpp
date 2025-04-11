@@ -7,7 +7,7 @@
 #include <vector>
 
 #include "core/task/include/task.hpp"
-#include "seq/vladimirova_j_m_monte_karlo_seq/include/ops_seq.hpp"
+#include "seq/vladimirova_j_m_monte_karlo/include/ops_seq.hpp"
 namespace {
 bool PiVal314(std::vector<double> arr, size_t size = 2) {
   double x = arr[0];
