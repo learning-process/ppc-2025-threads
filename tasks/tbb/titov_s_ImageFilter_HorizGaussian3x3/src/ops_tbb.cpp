@@ -2,14 +2,11 @@
 
 #include <tbb/tbb.h>
 
-#include <algorithm>
 #include <cmath>
-#include <core/util/include/util.hpp>
 #include <cstddef>
 #include <vector>
 
 #include "oneapi/tbb/parallel_for.h"
-#include "oneapi/tbb/task_arena.h"
 
 bool titov_s_image_filter_horiz_gaussian3x3_tbb::ImageFilterTBB::PreProcessingImpl() {
   unsigned int input_size = task_data->inputs_count[0];
@@ -50,8 +47,8 @@ bool titov_s_image_filter_horiz_gaussian3x3_tbb::ImageFilterTBB::RunImpl() {
       tbb::blocked_range<int>(0, height),
       [&](const tbb::blocked_range<int> &range) {
         for (int row = range.begin(); row < range.end(); ++row) {
-          const double *row_in = input + row * width;
-          double *row_out = output + row * width;
+          const double *row_in = input + (row * width);
+          double *row_out = output + (row * width);
 
           row_out[0] = (0.0 * k0 + row_in[0] * k1 + row_in[1] * k2) * inv_sum;
 
