@@ -22,7 +22,7 @@ void CheckResult(const std::vector<zinoviev_a_convex_hull_components_omp::Point>
 }  // namespace
 
 TEST(zinoviev_a_convex_hull_omp, test_pipeline_run) {
-  const int size = 100;
+  const int size = 1500;
   std::vector<int> input(size * size, 1);
 
   auto data = std::make_shared<ppc::core::TaskData>();
@@ -48,14 +48,14 @@ TEST(zinoviev_a_convex_hull_omp, test_pipeline_run) {
   std::vector<zinoviev_a_convex_hull_components_omp::Point> actual(res, res + res_size);
 
   std::vector<zinoviev_a_convex_hull_components_omp::Point> expect{
-      {.x = 0, .y = 0}, {.x = 99, .y = 0}, {.x = 98, .y = 99}, {.x = 0, .y = 99}};
+      {.x = 0, .y = 0}, {.x = 1499, .y = 0}, {.x = 1498, .y = 1499}, {.x = 0, .y = 1499}};
   CheckResult(actual, expect);
 
   delete[] reinterpret_cast<zinoviev_a_convex_hull_components_omp::Point*>(data->outputs[0]);
 }
 
 TEST(zinoviev_a_convex_hull_omp, test_task_run) {
-  const int size = 100;
+  const int size = 1500;
   std::vector<int> input(size * size, 1);
 
   auto data = std::make_shared<ppc::core::TaskData>();
@@ -81,7 +81,7 @@ TEST(zinoviev_a_convex_hull_omp, test_task_run) {
   std::vector<zinoviev_a_convex_hull_components_omp::Point> actual(res, res + res_size);
 
   std::vector<zinoviev_a_convex_hull_components_omp::Point> expect{
-      {.x = 0, .y = 0}, {.x = 99, .y = 0}, {.x = 98, .y = 99}, {.x = 0, .y = 99}};
+      {.x = 0, .y = 0}, {.x = 1499, .y = 0}, {.x = 1498, .y = 1499}, {.x = 0, .y = 1499}};
   CheckResult(actual, expect);
 
   delete[] reinterpret_cast<zinoviev_a_convex_hull_components_omp::Point*>(data->outputs[0]);
