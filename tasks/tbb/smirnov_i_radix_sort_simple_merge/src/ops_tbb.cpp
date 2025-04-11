@@ -80,19 +80,19 @@ bool smirnov_i_radix_sort_simple_merge_tbb::TestTaskTBB::ValidationImpl() {
 }
 
 bool smirnov_i_radix_sort_simple_merge_tbb::TestTaskTBB::RunImpl() {
-  std::deque<std::vector<int>> A;
-  std::deque<std::vector<int>> B;
+  std::deque<std::vector<int>> firstdq;
+  std::deque<std::vector<int>> seconddq;
   tbb::task_group tg;
   int size = static_cast<int>(mas_.size());
   const int nth = std::min(size, tbb::this_task_arena::max_concurrency());
   tbb::mutex mtx;
-  tbb::mutex mtxA;
+  tbb::mutex mtx_firstdq;
   tbb::mutex mtx_mas;
   tbb::mutex mtx_start;
   int start = 0;
 
   for (int i = 0; i < nth; i++) {
-    tg.run([this, i, size, nth, &start, &mtxA, &mtx_mas, &A, &mtx_start]() {
+    tg.run([this, i, size, nth, &start, &mtx_firstdq, &mtx_mas, &firstdq, &mtx_start]() {
       int self_offset;
       std::vector<int> tmp;
       if (size % nth == 0) {
@@ -110,26 +110,26 @@ bool smirnov_i_radix_sort_simple_merge_tbb::TestTaskTBB::RunImpl() {
       mtx_mas.unlock();
       if (!tmp.empty()) {
         RadixSort(tmp);
-        mtxA.lock();
-        A.push_back(std::move(tmp));
-        mtxA.unlock();
+        mtx_firstdq.lock();
+        firstdq.push_back(tmp);
+        mtx_firstdq.unlock();
       }
     });
   }
   tg.wait();
-  bool flag = static_cast<int>(A.size()) != 1;
+  bool flag = static_cast<int>(firstdq.size()) != 1;
   while (flag) {
     for (int i = 0; i < nth; i++) {
-      tg.run([&A, &mtx, &B]() {
+      tg.run([&firstdq, &mtx, &seconddq]() {
         std::vector<int> mas1{};
         std::vector<int> mas2{};
         std::vector<int> merge_mas{};
         mtx.lock();
-        if (static_cast<int>(A.size()) >= 2) {
-          mas1 = std::move(A.front());
-          A.pop_front();
-          mas2 = std::move(A.front());
-          A.pop_front();
+        if (static_cast<int>(firstdq.size()) >= 2) {
+          mas1 = std::move(firstdq.front());
+          firstdq.pop_front();
+          mas2 = std::move(firstdq.front());
+          firstdq.pop_front();
         } else {
           mtx.unlock();
           return;
@@ -140,20 +140,20 @@ bool smirnov_i_radix_sort_simple_merge_tbb::TestTaskTBB::RunImpl() {
         }
         if (!merge_mas.empty()) {
           mtx.lock();
-          B.push_back(std::move(merge_mas));
+          seconddq.push_back(std::move(merge_mas));
           mtx.unlock();
         }
       });
     }
     tg.wait();
-    if (static_cast<int>(A.size()) == 1) {
-      B.push_back(std::move(A.front()));
-      A.pop_front();
+    if (static_cast<int>(firstdq.size()) == 1) {
+      seconddq.push_back(std::move(firstdq.front()));
+      firstdq.pop_front();
     }
-    std::swap(A, B);
-    flag = static_cast<int>(A.size()) != 1;
+    std::swap(firstdq, seconddq);
+    flag = static_cast<int>(firstdq.size()) != 1;
   }
-  output_ = std::move(A.front());
+  output_ = std::move(firstdq.front());
   return true;
 }
 bool smirnov_i_radix_sort_simple_merge_tbb::TestTaskTBB::PostProcessingImpl() {
