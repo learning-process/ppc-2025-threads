@@ -1,4 +1,3 @@
-#include "tbb/shulpin_i_jarvis_passage/include/ops_tbb.hpp"
 #include "tbb/shulpin_i_jarvis_passage/include/test_modules.hpp"
 
 #include <gtest/gtest.h>
@@ -12,6 +11,7 @@
 #include <vector>
 
 #include "core/task/include/task.hpp"
+#include "tbb/shulpin_i_jarvis_passage/include/ops_tbb.hpp"
 
 void shulpin_tbb_test_module::VerifyResults(const std::vector<shulpin_i_jarvis_tbb::Point> &expected,
                                             const std::vector<shulpin_i_jarvis_tbb::Point> &result_seq,
