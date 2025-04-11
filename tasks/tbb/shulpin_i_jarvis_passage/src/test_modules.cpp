@@ -1,3 +1,4 @@
+#include "tbb/shulpin_i_jarvis_passage/include/ops_tbb.hpp"
 #include "tbb/shulpin_i_jarvis_passage/include/test_modules.hpp"
 
 #include <gtest/gtest.h>
