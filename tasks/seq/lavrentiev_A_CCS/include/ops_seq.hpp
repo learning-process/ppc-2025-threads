@@ -7,7 +7,7 @@
 #include "core/task/include/task.hpp"
 
 namespace lavrentiev_a_ccs_seq {
-
+// restart tests
 struct Sparse {
   std::pair<int, int> size;
   std::vector<double> elements;
