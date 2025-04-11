@@ -69,7 +69,8 @@ lavrentiev_a_ccs_omp::Sparse lavrentiev_a_ccs_omp::CCSOMP::MatMul(const Sparse &
   Sparse result_matrix;
   result_matrix.columnsSum.resize(matrix2.size.second);
   auto new_matrix1 = Transpose(matrix1);
-  std::vector<std::pair<std::vector<double>, std::vector<int>>> threads_data(std::max(1, ppc::util::GetPPCNumThreads()));
+  std::vector<std::pair<std::vector<double>, std::vector<int>>> threads_data(
+      std::max(1, ppc::util::GetPPCNumThreads()));
 #pragma omp parallel
   {
     std::pair<std::vector<double>, std::vector<int>> current_thread_data;
