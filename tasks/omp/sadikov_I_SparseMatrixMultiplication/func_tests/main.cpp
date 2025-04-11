@@ -126,3 +126,5 @@ TEST(sadikov_i_sparse_matrix_multiplication_task_omp, test_random_matrix) {
     EXPECT_NEAR(out[i], check_out[i], kEpsilon);
   }
 }
+
+// new commit
