@@ -163,3 +163,5 @@ TEST(sadikov_i_sparse_matrix_multiplication_task_seq, test_random_matrixes3) {
     EXPECT_NEAR(out[i], check_out[i], kEpsilon);
   }
 }
+
+// new commit
