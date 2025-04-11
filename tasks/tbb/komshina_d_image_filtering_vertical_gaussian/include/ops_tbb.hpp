@@ -17,6 +17,8 @@ class TestTaskTBB : public ppc::core::Task {
   bool PostProcessingImpl() override;
 
  private:
+  void ApplyFilter(const tbb::blocked_range2d<int>& range);
+
   std::vector<unsigned char> input_;
   std::vector<unsigned char> output_;
   std::size_t height_;

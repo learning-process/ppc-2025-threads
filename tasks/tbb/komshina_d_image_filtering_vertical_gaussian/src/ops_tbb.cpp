@@ -50,37 +50,35 @@ bool komshina_d_image_filtering_vertical_gaussian_tbb::TestTaskTBB::ValidationIm
   return valid_kernel && valid_size;
 }
 
+void komshina_d_image_filtering_vertical_gaussian_tbb::TestTaskTBB::ApplyFilter(
+    const tbb::blocked_range2d<int> &range) {
+  constexpr int kChannels = 3;
+  for (int y = range.rows().begin(); y < range.rows().end(); ++y) {
+    for (int x = range.cols().begin(); x < range.cols().end(); ++x) {
+      std::size_t base_idx = (y * width_ + x) * kChannels;
+
+      for (int c = 0; c < kChannels; ++c) {
+        float total = 0.0F;
+        int k_idx = 0;
+
+        for (int ky = -1; ky <= 1; ++ky) {
+          std::size_t row_idx = ((((y + ky) * width_) + (x - 1)) * kChannels) + c;
+          for (int kx = -1; kx <= 1; ++kx, ++k_idx) {
+            total += static_cast<float>(input_[row_idx]) * kernel_[k_idx];
+            row_idx += kChannels;
+          }
+        }
+        output_[base_idx + c] = std::clamp(static_cast<int>(std::round(total)), 0, 255);
+      }
+    }
+  }
+}
+
 bool komshina_d_image_filtering_vertical_gaussian_tbb::TestTaskTBB::RunImpl() {
   oneapi::tbb::task_arena arena(1);
   arena.execute([&] {
-    tbb::task_group tg;
-    for (int thr = 0; thr < ppc::util::GetPPCNumThreads(); ++thr) {
-      tg.run([&] {
-        tbb::parallel_for(tbb::blocked_range2d<int>(1, static_cast<int>(height_) - 1, 1, static_cast<int>(width_) - 1),
-                          [&](const tbb::blocked_range2d<int> &range) {
-                            for (int y = range.rows().begin(); y < range.rows().end(); ++y) {
-                              for (int x = range.cols().begin(); x < range.cols().end(); ++x) {
-                                std::size_t base_idx = (y * width_ + x) * 3;
-
-                                for (int c = 0; c < 3; ++c) {
-                                  float total = 0.0F;
-                                  int k_idx = 0;
-
-                                  for (int ky = -1; ky <= 1; ++ky) {
-                                    std::size_t row_idx = ((((y + ky) * width_) + (x - 1)) * 3) + c;
-                                    for (int kx = -1; kx <= 1; ++kx, ++k_idx) {
-                                      total += static_cast<float>(input_[row_idx]) * kernel_[k_idx];
-                                      row_idx += 3;
-                                    }
-                                  }
-                                  output_[base_idx + c] = std::clamp(static_cast<int>(std::round(total)), 0, 255);
-                                }
-                              }
-                            }
-                          });
-      });
-    }
-    tg.wait();
+    tbb::parallel_for(tbb::blocked_range2d<int>(1, static_cast<int>(height_) - 1, 1, static_cast<int>(width_) - 1),
+                      [&](const tbb::blocked_range2d<int> &range) { ApplyFilter(range); });
   });
   return true;
 }
