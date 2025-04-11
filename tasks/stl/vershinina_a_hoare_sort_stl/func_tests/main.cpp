@@ -3,14 +3,11 @@
 #include <algorithm>
 #include <cstddef>
 #include <cstdint>
-#include <fstream>
 #include <memory>
 #include <random>
-#include <string>
 #include <vector>
 
 #include "core/task/include/task.hpp"
-#include "core/util/include/util.hpp"
 #include "stl/vershinina_a_hoare_sort_stl/include/ops_stl.hpp"
 
 namespace {
