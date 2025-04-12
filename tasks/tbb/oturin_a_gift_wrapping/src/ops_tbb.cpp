@@ -79,13 +79,13 @@ bool oturin_a_gift_wrapping_tbb::TestTaskTBB::RunImpl() {
   double line_angle = -5;
   int search_index = 0;
   for (int i = 0; i < n_; i++) {
+    if (i == start_index) continue;
     double t = ABTP(input_[start_index], input_[i]);
-    if (t > line_angle && i != start_index) {
+    if (t > line_angle) {
       line_angle = t;
       search_index = i;
     } else if (t == line_angle) {
-      if (Distance(input_[start_index], input_[i]) < Distance(input_[start_index], input_[search_index]) &&
-          i != start_index) {
+      if (Distance(input_[start_index], input_[i]) < Distance(input_[start_index], input_[search_index])) {
         search_index = i;
         line_angle = t;
       }
