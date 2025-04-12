@@ -1,5 +1,6 @@
 #pragma once
 
+#include <tbb/blocked_range.h>
 #include <tbb/blocked_range2d.h>
 #include <tbb/concurrent_unordered_map.h>
 #include <tbb/parallel_for.h>
@@ -41,6 +42,9 @@ class TestTaskTBB : public ppc::core::Task {
   };
   void process_components(UnionFind& uf);
   void assign_final_labels(int size, UnionFind uf);
+  void process_range(const tbb::blocked_range2d<int>& range, UnionFind& uf);
+  void process_row(int row, const tbb::blocked_range<int>& col_range, UnionFind& uf);
+  void check_all_neighbors(int row, int col, int idx, UnionFind& uf);
   void label_components();
 };
 

@@ -11,17 +11,18 @@
 #include "core/task/include/task.hpp"
 
 bool laganina_e_component_labeling_tbb::TestTaskTBB::ValidationImpl() {
-  if (!task_data || !task_data->inputs[0] || !task_data->outputs[0]) return false;
-
-  const int* input = reinterpret_cast<int*>(task_data->inputs[0]);
-  const int size = task_data->inputs_count[0] * task_data->inputs_count[1];
+  if ((task_data == nullptr) || (task_data->inputs[0] == nullptr) || (task_data->outputs[0] == nullptr)) {
+    return false;
+  }
+  const unsigned int* input = reinterpret_cast<unsigned int*>(task_data->inputs[0]);
+  const unsigned int size = task_data->inputs_count[0] * task_data->inputs_count[1];
 
   return std::all_of(input, input + size, [](int val) { return val == 0 || val == 1; });
 }
 
 bool laganina_e_component_labeling_tbb::TestTaskTBB::PreProcessingImpl() {
-  rows_ = task_data->inputs_count[0];
-  cols_ = task_data->inputs_count[1];
+  rows_ = static_cast<int>(task_data->inputs_count[0]);
+  cols_ = static_cast<int>(task_data->inputs_count[1]);
   const int size = rows_ * cols_;
 
   data_.resize(size);
@@ -53,29 +54,13 @@ int laganina_e_component_labeling_tbb::TestTaskTBB::UnionFind::find(int x) {
 void laganina_e_component_labeling_tbb::TestTaskTBB::UnionFind::unite(int x, int y) {
   int rx = find(x);
   int ry = find(y);
-  if (rx != ry && rx != -1 && ry != -1) {
+  if ((rx != ry) && (rx != -1) && (ry != -1)) {
     if (rx < ry) {
       parent[ry] = rx;
     } else {
       parent[rx] = ry;
     }
   }
-}
-
-void laganina_e_component_labeling_tbb::TestTaskTBB::process_components(UnionFind& uf) {
-  tbb::parallel_for(tbb::blocked_range2d<int>(0, rows_, 16, 0, cols_, 64), [&](const tbb::blocked_range2d<int>& r) {
-    for (int i = r.rows().begin(); i < r.rows().end(); ++i) {
-      for (int j = r.cols().begin(); j < r.cols().end(); ++j) {
-        const int idx = i * cols_ + j;
-        if (data_[idx] == 0) continue;
-
-        if (j > 0 && data_[idx - 1]) uf.unite(idx, idx - 1);
-        if (i > 0 && data_[idx - cols_]) uf.unite(idx, idx - cols_);
-        if (j < cols_ - 1 && data_[idx + 1]) uf.unite(idx, idx + 1);
-        if (i < rows_ - 1 && data_[idx + cols_]) uf.unite(idx, idx + cols_);
-      }
-    }
-  });
 }
 
 void laganina_e_component_labeling_tbb::TestTaskTBB::assign_final_labels(int size, UnionFind uf) {
@@ -86,18 +71,26 @@ void laganina_e_component_labeling_tbb::TestTaskTBB::assign_final_labels(int siz
   });
 
   tbb::parallel_for(0, size, [&](int i) {
-    if (data_[i] > 0) label_map.insert({data_[i], 0});
+    if (data_[i] > 0) {
+      label_map.insert({data_[i], 0});
+    }
   });
 
   std::vector<int> keys;
-  for (auto& p : label_map) keys.push_back(p.first);
+  for (auto& p : label_map) {
+    keys.push_back(p.first);
+  }
   std::sort(keys.begin(), keys.end());
 
   int next_label = 1;
-  for (auto& k : keys) label_map[k] = next_label++;
+  for (auto& k : keys) {
+    label_map[k] = next_label++;
+  }
 
   tbb::parallel_for(0, size, [&](int i) {
-    if (data_[i] > 0) data_[i] = label_map[data_[i]];
+    if (data_[i] > 0) {
+      data_[i] = label_map[data_[i]];
+    }
   });
 }
 
@@ -108,4 +101,44 @@ void laganina_e_component_labeling_tbb::TestTaskTBB::label_components() {
   process_components(uf);
   // hh99ib
   assign_final_labels(size, uf);
+}
+void laganina_e_component_labeling_tbb::TestTaskTBB::process_components(UnionFind& uf) {
+  tbb::parallel_for(tbb::blocked_range2d<int>(0, rows_, 16, 0, cols_, 64),
+                    [&](const auto& r) { process_range(r, uf); });
+}
+
+void laganina_e_component_labeling_tbb::TestTaskTBB::process_range(const tbb::blocked_range2d<int>& range,
+                                                                   UnionFind& uf) {
+  for (int i = range.rows().begin(); i < range.rows().end(); ++i) {
+    const tbb::blocked_range<int> col_range = range.cols();
+    process_row(i, col_range, uf);
+  }
+}
+
+void laganina_e_component_labeling_tbb::TestTaskTBB::process_row(int row, const tbb::blocked_range<int>& col_range,
+                                                                 UnionFind& uf) {
+  for (int j = col_range.begin(); j < col_range.end(); ++j) {
+    const int idx = (row * cols_) + j;
+    if (data_[idx] == 0) {
+      continue;
+    }
+
+    check_all_neighbors(row, j, idx, uf);
+  }
+}
+void laganina_e_component_labeling_tbb::TestTaskTBB::check_all_neighbors(int row, int col, int idx, UnionFind& uf) {
+  if (col > 0 && data_[idx - 1]) {
+    uf.unite(idx, idx - 1);
+  }
+  if (row > 0 && data_[idx - cols_]) {
+    uf.unite(idx, idx - cols_);
+  }
+
+  if (col < cols_ - 1 && data_[idx + 1]) {
+    uf.unite(idx, idx + 1);
+  }
+
+  if (row < rows_ - 1 && data_[idx + cols_]) {
+    uf.unite(idx, idx + cols_);
+  }
 }
