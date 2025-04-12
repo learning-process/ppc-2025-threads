@@ -36,8 +36,7 @@ bool kharin_m_multidimensional_integral_calc_omp::TestTaskOpenMP::PreProcessingI
         // return total_size;
         return local_prod;
       },
-      std::multiplies<size_t>()
-  );
+      std::multiplies<size_t>());
 
   if (task_data->inputs_count[0] != total_size) {
     return false;
@@ -64,8 +63,7 @@ bool kharin_m_multidimensional_integral_calc_omp::TestTaskOpenMP::PreProcessingI
         }
         return true;
       },
-      std::logical_and<bool>()
-  );
+      std::logical_and<bool>());
 
   if (is_valid) {
     output_result_ = 0.0;
@@ -83,8 +81,7 @@ bool kharin_m_multidimensional_integral_calc_omp::TestTaskOpenMP::RunImpl() {
         }
         return local_sum;
       },
-      std::plus<double>()
-  );
+      std::plus<double>());
 
   double volume_element = tbb::parallel_reduce(
       tbb::blocked_range<size_t>(0, step_sizes_.size()), 1.0,
@@ -94,8 +91,7 @@ bool kharin_m_multidimensional_integral_calc_omp::TestTaskOpenMP::RunImpl() {
         }
         return local_prod;
       },
-      std::multiplies<double>()
-  );
+      std::multiplies<double>());
 
   output_result_ = total * volume_element;
   return true;
