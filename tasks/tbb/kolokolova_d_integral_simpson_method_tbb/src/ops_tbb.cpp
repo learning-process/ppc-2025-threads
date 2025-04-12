@@ -47,15 +47,17 @@ bool kolokolova_d_integral_simpson_method_tbb::TestTaskTBB::RunImpl() {
     size_step[i] = a;
   }
 
-  std::vector<std::vector<double>> points;
-  for (int i = 0; i < nums_variables_; i++) {
-    std::vector<double> vec;
-    for (int j = 0; j < steps_[i] + 1; j++) {
-      auto num = double(borders_[2 * i] + (double(j) * size_step[i]));
-      vec.push_back(num);
+  std::vector<std::vector<double>> points(nums_variables_);
+  tbb::parallel_for(tbb::blocked_range<int>(0, nums_variables_), [&](const tbb::blocked_range<int>& r) {
+    for (int i = r.begin(); i < r.end(); ++i) {
+      std::vector<double> vec;
+      for (int j = 0; j < steps_[i] + 1; j++) {
+        auto num = double(borders_[2 * i] + (double(j) * size_step[i]));
+        vec.push_back(num);
+      }
+      points[i] = vec;
     }
-    points.push_back(vec);
-  }
+  });
 
   std::vector<double> results_func = FindFunctionValue(points, func_);
   std::vector<double> coeff = FindCoeff(steps_[0]);
