@@ -50,7 +50,7 @@ bool kharin_m_multidimensional_integral_calc_omp::TestTaskOpenMP::PreProcessingI
   auto* steps_ptr = reinterpret_cast<double*>(task_data->inputs[2]);
   step_sizes_ = std::vector<double>(steps_ptr, steps_ptr + d);
 
-  bool is_valid = true;
+  // bool is_valid = true;
 
   bool is_valid = tbb::parallel_reduce(
       tbb::blocked_range<size_t>(0, step_sizes_.size()), true,
