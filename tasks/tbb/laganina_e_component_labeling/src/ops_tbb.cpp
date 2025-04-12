@@ -141,7 +141,7 @@ void laganina_e_component_labeling_tbb::TestTaskTBB::AssignLabels(std::vector<in
     }
   });
 
-  // Assign labels to roots
+  // Assign labels to root
   unique_roots.combine_each([&](const std::unordered_set<int>& local_roots) {
     tbb::mutex::scoped_lock lock(label_mutex);
     for (int root : local_roots) {

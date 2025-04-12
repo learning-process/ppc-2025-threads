@@ -565,7 +565,7 @@ TEST(laganina_e_component_labeling_tbb, spiral_pattern) {
                          1, 0, 1, 0, 0, 0, 1, 0, 0, 1, 1, 0, 1, 1, 1, 1, 1, 0, 0, 1, 1, 0, 0, 0, 0,
                          0, 0, 0, 0, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1};
   std::vector<int> out(m * n, 0);
-  // Create task_data
+  // Create task_data 1
   auto task_data_tbb = std::make_shared<ppc::core::TaskData>();
   task_data_tbb->inputs.emplace_back(reinterpret_cast<uint8_t *>(in.data()));
   task_data_tbb->inputs_count.emplace_back(m);

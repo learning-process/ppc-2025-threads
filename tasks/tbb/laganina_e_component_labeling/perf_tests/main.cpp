@@ -21,7 +21,7 @@ TEST(laganina_e_component_labeling_tbb, test_pipeline_run) {
     in[i] = 1;
   }
 
-  // Create task_data
+  // Create task_data 6
   auto task_data_tbb = std::make_shared<ppc::core::TaskData>();
   task_data_tbb->inputs.emplace_back(reinterpret_cast<uint8_t*>(in.data()));
   task_data_tbb->inputs_count.emplace_back(kCount);

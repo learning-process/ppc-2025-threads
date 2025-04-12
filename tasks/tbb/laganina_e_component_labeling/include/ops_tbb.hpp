@@ -60,5 +60,5 @@ inline void NormalizeLabels(std::vector<int>& vec) {
     }
   }
 }
-
+//33
 }  // namespace laganina_e_component_labeling_tbb
