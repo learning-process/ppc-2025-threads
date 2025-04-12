@@ -1,13 +1,12 @@
 #pragma once
-#include <oneapi/tbb.h>
-#include <oneapi/tbb/mutex.h>
-#include <oneapi/tbb/parallel_for.h>
-#include <oneapi/tbb/task_arena.h>
+
+#include <tbb/blocked_range2d.h>
+#include <tbb/concurrent_unordered_map.h>
+#include <tbb/parallel_for.h>
 
 #include <algorithm>
-#include <unordered_map>
+#include <memory>
 #include <unordered_set>
-#include <utility>
 #include <vector>
 
 #include "core/task/include/task.hpp"
@@ -17,28 +16,34 @@ namespace laganina_e_component_labeling_tbb {
 class TestTaskTBB : public ppc::core::Task {
  public:
   explicit TestTaskTBB(ppc::core::TaskDataPtr task_data) : Task(std::move(task_data)) {}
-  bool PreProcessingImpl() override;
+
   bool ValidationImpl() override;
-  bool RunImpl() override;
+
+  bool PreProcessingImpl() override;
+
   bool PostProcessingImpl() override;
+  bool RunImpl() override;
 
  private:
-  int m_;
-  int n_;
-  std::vector<int> binary_;
+  int rows_;
+  int cols_;
+  std::vector<int> data_;
+  // 8
+  struct UnionFind {
+    std::vector<int> parent;
 
-  void InitializeParents(std::vector<int>& parent);
-  void ProcessSweep(bool reverse, std::vector<int>& parent, bool changed) const;
-  bool ProcessRow(int row_idx, bool reverse, std::vector<int>& parent) const;
-  static bool UnionNodes(int a, int b, std::vector<int>& parent);
-  bool CheckNeighbor(int nr, int nc, int current, std::vector<int>& parent) const;
-  static int FindRoot(std::vector<int>& parent, int x);
-  void FinalizeRoots(std::vector<int>& parent) const;
-  void AssignLabels(std::vector<int>& parent);
-  void LabelConnectedComponents();
+    UnionFind(int size, std::vector<int> data_) : parent(size) {
+      tbb::parallel_for(0, size, [&](int i) { parent[i] = data_[i] ? i : -1; });
+    }
+
+    int find(int x);
+    void unite(int x, int y);
+  };
+
+  void label_components();
 };
 
-inline void NormalizeLabels(std::vector<int>& vec) {
+inline void NormalizeLabels(std::vector<int> vec) {
   std::vector<int> unique_labels;
   std::unordered_set<int> seen;
 
@@ -60,5 +65,5 @@ inline void NormalizeLabels(std::vector<int>& vec) {
     }
   }
 }
-//33
+
 }  // namespace laganina_e_component_labeling_tbb

@@ -1,188 +1,120 @@
 #include "tbb/laganina_e_component_labeling/include/ops_tbb.hpp"
 
-#include <oneapi/tbb/mutex.h>
 #include <tbb/blocked_range.h>
+#include <tbb/concurrent_unordered_set.h>
 #include <tbb/parallel_for.h>
-#include <tbb/parallel_reduce.h>
 
-#include "core/util/include/util.hpp"
+#include <algorithm>
+#include <unordered_map>
+#include <vector>
 
-using namespace oneapi::tbb;
+#include "core/task/include/task.hpp"
 
 bool laganina_e_component_labeling_tbb::TestTaskTBB::ValidationImpl() {
-  if (task_data == nullptr || task_data->inputs[0] == nullptr || task_data->outputs[0] == nullptr) {
-    return false;
-  }
+  if (!task_data || !task_data->inputs[0] || !task_data->outputs[0]) return false;
 
-  const auto size = static_cast<int>(task_data->inputs_count[0] * task_data->inputs_count[1]);
-  const int* input = reinterpret_cast<const int*>(task_data->inputs[0]);
+  const int* input = reinterpret_cast<int*>(task_data->inputs[0]);
+  const int size = task_data->inputs_count[0] * task_data->inputs_count[1];
 
-  for (int i = 0; i < size; ++i) {
-    if (input[i] != 0 && input[i] != 1) {
-      return false;
-    }
-  }
-  return true;
+  return std::all_of(input, input + size, [](int val) { return val == 0 || val == 1; });
 }
-// 1234
+
 bool laganina_e_component_labeling_tbb::TestTaskTBB::PreProcessingImpl() {
-  m_ = static_cast<int>(task_data->inputs_count[0]);
-  n_ = static_cast<int>(task_data->inputs_count[1]);
-  binary_.resize(m_ * n_);
-  const int* input = reinterpret_cast<const int*>(task_data->inputs[0]);
-  std::copy_n(input, m_ * n_, binary_.begin());
+  rows_ = task_data->inputs_count[0];
+  cols_ = task_data->inputs_count[1];
+  const int size = rows_ * cols_;
+
+  data_.resize(size);
+  const int* input = reinterpret_cast<int*>(task_data->inputs[0]);
+  std::copy(input, input + size, data_.begin());
+
   return true;
-}
+}  // 7
 
 bool laganina_e_component_labeling_tbb::TestTaskTBB::PostProcessingImpl() {
   int* output = reinterpret_cast<int*>(task_data->outputs[0]);
-  std::ranges::copy(binary_.cbegin(), binary_.cend(), output);
+  std::copy(data_.begin(), data_.end(), output);
   return true;
 }
 
-void laganina_e_component_labeling_tbb::TestTaskTBB::InitializeParents(std::vector<int>& parent) {
-  int size = m_ * n_;
-  parallel_for(blocked_range<int>(0, size), [&](const blocked_range<int>& r) {
-    for (int i = r.begin(); i != r.end(); ++i) {
-      parent[i] = (binary_[i] != 0) ? i : -1;
-    }
-  });
+bool laganina_e_component_labeling_tbb::TestTaskTBB::RunImpl() {
+  label_components();
+  return true;
 }
 
-void laganina_e_component_labeling_tbb::TestTaskTBB::ProcessSweep(bool reverse, std::vector<int>& parent,
-                                                                  bool changed) const {
-  changed = parallel_reduce(
-      blocked_range<int>(0, m_), false,
-      [&](const blocked_range<int>& r, bool local_changed) {
-        for (int row_idx = r.begin(); row_idx != r.end(); ++row_idx) {
-          local_changed |= ProcessRow(row_idx, reverse, parent);
-        }
-        return local_changed;
-      },
-      [](bool a, bool b) { return a || b; });
-}
-
-bool laganina_e_component_labeling_tbb::TestTaskTBB::ProcessRow(int row_idx, bool reverse,
-                                                                std::vector<int>& parent) const {
-  const int row = reverse ? m_ - 1 - row_idx : row_idx;
-  bool row_changed = false;
-
-  for (int col_idx = 0; col_idx < n_; ++col_idx) {
-    const int col = reverse ? n_ - 1 - col_idx : col_idx;
-    const int current = (row * n_) + col;
-
-    if (parent[current] == -1) continue;
-
-    // Check vertical neighbor
-    const int vert_neighbor_row = row - (reverse ? -1 : 1);
-    if (vert_neighbor_row >= 0 && vert_neighbor_row < m_) {
-      const int vert_neighbor = (vert_neighbor_row * n_) + col;
-      if (parent[vert_neighbor] != -1) {
-        row_changed |= UnionNodes(current, vert_neighbor, parent);
-      }
-    }
-
-    // Check horizontal neighbor
-    const int horz_neighbor_col = col - (reverse ? -1 : 1);
-    if (horz_neighbor_col >= 0 && horz_neighbor_col < n_) {
-      const int horz_neighbor = (row * n_) + horz_neighbor_col;
-      if (parent[horz_neighbor] != -1) {
-        row_changed |= UnionNodes(current, horz_neighbor, parent);
-      }
-    }
-  }
-
-  return row_changed;
-}
-
-int laganina_e_component_labeling_tbb::TestTaskTBB::FindRoot(std::vector<int>& parent, int x) {
+int laganina_e_component_labeling_tbb::TestTaskTBB::UnionFind::find(int x) {
   while (parent[x] != x) {
-    parent[x] = parent[parent[x]];  // Path compression
+    parent[x] = parent[parent[x]];
     x = parent[x];
   }
   return x;
 }
 
-bool laganina_e_component_labeling_tbb::TestTaskTBB::UnionNodes(int a, int b, std::vector<int>& parent) {
-  int root_a = FindRoot(parent, a);
-  int root_b = FindRoot(parent, b);
-
-  if (root_a != root_b) {
-    if (root_b < root_a) std::swap(root_a, root_b);
-    parent[root_b] = root_a;
-    return true;
+void laganina_e_component_labeling_tbb::TestTaskTBB::UnionFind::unite(int x, int y) {
+  int rx = find(x);
+  int ry = find(y);
+  if (rx != ry && rx != -1 && ry != -1) {
+    if (rx < ry) {
+      parent[ry] = rx;
+    } else {
+      parent[rx] = ry;
+    }
   }
-  return false;
 }
 
-void laganina_e_component_labeling_tbb::TestTaskTBB::FinalizeRoots(std::vector<int>& parent) const {
-  int size = m_ * n_;
-  parallel_for(blocked_range<int>(0, size), [&](const blocked_range<int>& r) {
-    for (int i = r.begin(); i != r.end(); ++i) {
-      if (parent[i] != -1) {
-        parent[i] = FindRoot(parent, i);
-      }
-    }
-  });
-}
+void laganina_e_component_labeling_tbb::TestTaskTBB::label_components() {
+  const int size = rows_ * cols_;
+  UnionFind uf(size, data_);
 
-void laganina_e_component_labeling_tbb::TestTaskTBB::AssignLabels(std::vector<int>& parent) {
-  std::vector<int> labels(m_ * n_ + 1, 0);
-  int current_label = 1;
-  tbb::mutex label_mutex;
+  // Parallel union passes 34
+  tbb::parallel_for(tbb::blocked_range2d<int>(0, rows_, 16, 0, cols_, 64), [&](const tbb::blocked_range2d<int>& r) {
+    for (int i = r.rows().begin(); i < r.rows().end(); ++i) {
+      for (int j = r.cols().begin(); j < r.cols().end(); ++j) {
+        const int idx = (i * cols_) + j;
+        if (data_[idx] == 0) continue;
 
-  // First pass: collect all unique roots
-  combinable<std::unordered_set<int>> unique_roots;
-  parallel_for(blocked_range<int>(0, m_ * n_), [&](const blocked_range<int>& r) {
-    for (int i = r.begin(); i != r.end(); ++i) {
-      if (parent[i] != -1 && parent[i] == i) {
-        unique_roots.local().insert(i);
-      }
-    }
-  });
-
-  // Assign labels to root
-  unique_roots.combine_each([&](const std::unordered_set<int>& local_roots) {
-    tbb::mutex::scoped_lock lock(label_mutex);
-    for (int root : local_roots) {
-      if (labels[root] == 0) {
-        labels[root] = current_label++;
+        if (j > 0 && data_[idx - 1]) {
+          uf.unite(idx, idx - 1);
+        }
+        if (i > 0 && data_[idx - cols_]) {
+          uf.unite(idx, idx - cols_);
+        }
+        if (j + 1 < cols_ && data_[idx + 1]) {
+          uf.unite(idx, idx + 1);
+        }
+        if (i + 1 < rows_ && data_[idx + cols_]) {
+          uf.unite(idx, idx + cols_);
+        }
       }
     }
   });
 
-  // Second pass: assign labels to all pixels
-  parallel_for(blocked_range<int>(0, m_ * n_), [&](const blocked_range<int>& r) {
-    for (int i = r.begin(); i != r.end(); ++i) {
-      binary_[i] = (parent[i] != -1) ? labels[parent[i]] : 0;
+  // Compress paths and assign labels
+  tbb::concurrent_unordered_map<int, int> label_map;
+  int next_label = 1;
+
+  tbb::parallel_for(0, size, [&](int i) {
+    if (data_[i]) {
+      data_[i] = uf.find(i) + 1;
+      label_map.insert(std::pair<int, int>(data_[i], 0));
     }
   });
-}
 
-void laganina_e_component_labeling_tbb::TestTaskTBB::LabelConnectedComponents() {
-  std::vector<int> parent(m_ * n_);
-  InitializeParents(parent);
+  // Create ordered label mapping
+  std::vector<int> keys;
+  for (tbb::concurrent_unordered_map<int, int>::iterator it = label_map.begin(); it != label_map.end(); ++it) {
+    keys.push_back(it->first);
+  }
+  std::sort(keys.begin(), keys.end());
 
-  constexpr int kMaxIterations = 100;
-  int iterations = 0;
-  bool changed;
+  for (std::vector<int>::iterator it = keys.begin(); it != keys.end(); ++it) {
+    label_map[*it] = next_label++;
+  }
 
-  do {
-    bool forward_changed = false;
-    bool backward_changed = false;
-
-    ProcessSweep(false, parent, forward_changed);
-    ProcessSweep(true, parent, backward_changed);
-
-    changed = forward_changed || backward_changed;
-  } while (changed && ++iterations < kMaxIterations);
-
-  FinalizeRoots(parent);
-  AssignLabels(parent);
-}
-
-bool laganina_e_component_labeling_tbb::TestTaskTBB::RunImpl() {
-  task_arena arena(ppc::util::GetPPCNumThreads());
-  arena.execute([&] { LabelConnectedComponents(); });
-  return true;
+  // Apply final labels
+  tbb::parallel_for(0, size, [&](int i) {
+    if (data_[i] > 0) {
+      data_[i] = label_map[data_[i]];
+    }
+  });
 }
