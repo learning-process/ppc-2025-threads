@@ -1,6 +1,5 @@
 #include <oneapi/tbb/blocked_range.h>
 #include <oneapi/tbb/parallel_for.h>
-#include <oneapi/tbb/parallel_reduce.h>
 
 #include <climits>
 #include <cmath>
