@@ -1,17 +1,17 @@
-#include <cstddef>
-#include <vector>
-#include <algorithm>
-#include <cmath>
-
-#include <tbb/tbb.h>
-#include <tbb/parallel_for.h>
+#include "tbb/frolova_e_Sobel_filter/include/ops_tbb.hpp"
 #include <tbb/blocked_range.h>
 #include <tbb/blocked_range2d.h>
-#include "oneapi/tbb/task_arena.h"
-#include "oneapi/tbb/task_group.h"
+#include <tbb/parallel_for.h>
+#include <tbb/tbb.h>
+
+#include <algorithm>
+#include <cmath>
+#include <cstddef>
+#include <vector>
 
 #include "core/util/include/util.hpp"
-#include "tbb/frolova_e_Sobel_filter/include/ops_tbb.hpp"
+#include "oneapi/tbb/task_arena.h"
+#include "oneapi/tbb/task_group.h"
 
 int frolova_e_sobel_filter_tbb::GetPixelSafe(const std::vector<int>& img, size_t x, size_t y, size_t width,
                                              size_t height) {
@@ -47,18 +47,27 @@ bool frolova_e_sobel_filter_tbb::SobelFilterTBB::ValidationImpl() {
   // Check equality of counts elements
   int* value_1 = reinterpret_cast<int*>(task_data->inputs[0]);
 
-  if (task_data->inputs_count[0] != 2) return false;
-  if (value_1[0] <= 0 || value_1[1] <= 0) return false;
+  if (task_data->inputs_count[0] != 2) {
+    return false;
+  }
+
+  if (value_1[0] <= 0 || value_1[1] <= 0) {
+    return false;
+  }
 
   auto width_1 = static_cast<size_t>(value_1[0]);
   auto height_1 = static_cast<size_t>(value_1[1]);
 
   int* value_2 = reinterpret_cast<int*>(task_data->inputs[1]);
   std::vector<int> picture_vector(value_2, value_2 + task_data->inputs_count[1]);
-  if (task_data->inputs_count[1] != width_1 * height_1 * 3) return false;
+  if (task_data->inputs_count[1] != width_1 * height_1 * 3) {
+    return false;
+  }
 
   for (size_t i = 0; i < picture_vector.size(); i++) {
-    if (picture_vector[i] < 0 || picture_vector[i] > 255) return false;
+    if (picture_vector[i] < 0 || picture_vector[i] > 255) {
+      return false;
+    }
   }
 
   return true;

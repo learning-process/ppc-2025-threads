@@ -1,12 +1,12 @@
 #include <gtest/gtest.h>
 
+#include <algorithm>
+#include <cmath>
 #include <cstddef>
 #include <cstdint>
 #include <memory>
 #include <random>
 #include <vector>
-#include <cmath>
-#include <algorithm>
 
 #include "core/task/include/task.hpp"
 #include "tbb/frolova_e_Sobel_filter/include/ops_tbb.hpp"
