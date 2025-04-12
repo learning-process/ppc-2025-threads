@@ -66,7 +66,7 @@ TEST(oturin_a_gift_wrapping_tbb, test_pipeline_run) {
   }
 }
 
-TEST(oturin_a_gift_wrapping_seq, test_task_run) {
+TEST(oturin_a_gift_wrapping_tbb, test_task_run) {
   int count = 250000;
   using namespace oturin_a_gift_wrapping_tbb;
 

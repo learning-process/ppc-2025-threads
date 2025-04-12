@@ -34,14 +34,11 @@ void DoCommonTest(std::vector<Coord> &in, std::vector<Coord> &answer, std::vecto
   ASSERT_TRUE(test_task_tbb.Validation());
   test_task_tbb.PreProcessing();
   test_task_tbb.Run();
-  std::cout << std::endl;
   test_task_tbb.PostProcessing();
-  std::cout << std::endl;
   for (std::size_t i = 0; i < answer.size(); i++) {
     EXPECT_EQ(answer[i].x, out[i].x) << out[i].x << '_' << out[i].y << ' ' << answer[i].x << '_' << answer[i].y;
     EXPECT_EQ(answer[i].y, out[i].y) << out[i].x << '_' << out[i].y << ' ' << answer[i].x << '_' << answer[i].y;
   }
-  std::cout << std::endl;  // \n after "Test time" in PostProcessing
 }
 
 const double kPi = std::numbers::pi;

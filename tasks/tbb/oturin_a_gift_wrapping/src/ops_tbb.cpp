@@ -1,5 +1,8 @@
 #include "tbb/oturin_a_gift_wrapping/include/ops_tbb.hpp"
 
+#include <oneapi/tbb/blocked_range.h>
+#include <tbb/parallel_reduce.h>
+
 #include <algorithm>
 #include <cmath>
 #include <vector>
@@ -42,22 +45,23 @@ bool oturin_a_gift_wrapping_tbb::TestTaskTBB::ValidationImpl() {
 }
 
 void oturin_a_gift_wrapping_tbb::TestTaskTBB::PointSearcher::operator()(const tbb::blocked_range<int> &r) {
-  int begin = r.begin(), end = r.end();
-  const Coord penultimate_element = p->output_[p->output_.size() - 2];
-  const Coord last_element = p->output_.back();
+  int begin = r.begin();
+  int end = r.end();
+  const Coord penultimate_element = p_->output_[p_->output_.size() - 2];
+  const Coord last_element = p_->output_.back();
 
   for (int i = begin; i < end; i++) {
-    double t = ABTP(penultimate_element, last_element, p->input_[i]);
-    p->PointSearch(t, line_angle, search_index, i);
+    double t = ABTP(penultimate_element, last_element, p_->input_[i]);
+    p_->PointSearch(t, line_angle_, search_index, i);
   }
 }
 
 void oturin_a_gift_wrapping_tbb::TestTaskTBB::PointSearcher::join(const PointSearcher &x) {
-  if (line_angle <= x.line_angle &&
-      (line_angle != x.line_angle ||
-       Distance(p->output_.back(), p->input_[x.search_index]) < Distance(p->output_.back(), p->input_[search_index]))) {
+  if (line_angle_ <= x.line_angle_ &&
+      (line_angle_ != x.line_angle_ || Distance(p_->output_.back(), p_->input_[x.search_index]) <
+                                           Distance(p_->output_.back(), p_->input_[search_index]))) {
     search_index = x.search_index;
-    line_angle = x.line_angle;
+    line_angle_ = x.line_angle_;
   }
 }
 
@@ -91,7 +95,6 @@ bool oturin_a_gift_wrapping_tbb::TestTaskTBB::RunImpl() {
   // main loop
   do {
     output_.push_back(input_[search_index]);
-    line_angle = -4;
 
     PointSearcher ps(this, search_index);
     tbb::parallel_reduce(tbb::blocked_range<int>(0, n_), ps);
