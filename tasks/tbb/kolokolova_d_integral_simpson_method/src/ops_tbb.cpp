@@ -1,4 +1,4 @@
-#include "tbb/kolokolova_d_integral_simpson_method_tbb/include/ops_tbb.hpp"
+#include "tbb/kolokolova_d_integral_simpson_method/include/ops_tbb.hpp"
 
 #include <oneapi/tbb/parallel_for.h>
 
