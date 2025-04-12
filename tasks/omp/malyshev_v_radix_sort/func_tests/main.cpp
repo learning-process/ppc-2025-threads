@@ -8,7 +8,7 @@
 #include <vector>
 
 #include "core/task/include/task.hpp"
-#include "omp/malyshev_v_radix_sort_omp/include/ops_omp.hpp"
+#include "omp/malyshev_v_radix_sort/include/ops_omp.hpp"
 
 TEST(malyshev_v_radix_sort_omp, ordinary_test) {
   std::vector<double> input_vector = {3.4, 1.2, 0.5, 7.8, 2.3, 4.5, 6.7, 8.9, 1.0, 0.2, 5.6, 4.3, 9.1, 1.5, 3.0};

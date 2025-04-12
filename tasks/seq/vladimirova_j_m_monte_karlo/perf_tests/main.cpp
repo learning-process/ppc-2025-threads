@@ -11,7 +11,7 @@
 
 #include "core/perf/include/perf.hpp"
 #include "core/task/include/task.hpp"
-#include "omp/vladimirova_j_m_monte_karlo_omp/include/ops_omp.hpp"
+#include "seq/vladimirova_j_m_monte_karlo/include/ops_seq.hpp"
 
 namespace {
 std::vector<int> seed;
@@ -96,24 +96,24 @@ bool RandomFunc(std::vector<double> arr, size_t size = 0) {
 };
 }  // namespace
 
-TEST(vladimirova_j_m_monte_karlo_omp, test_pipeline_run) {
+TEST(vladimirova_j_m_monte_karlo_seq, test_pipeline_run) {
   // Create data
   double ans = 1;
   std::vector<double> val_b = GenRandomVectorArea(2, -10, 30, ans);
   std::vector<double> out(1, 0);
   seed = GenRandomVector(5, 0, 10);
   // Create task_data
-  auto task_data_omp = std::make_shared<ppc::core::TaskData>();
+  auto task_data_seq = std::make_shared<ppc::core::TaskData>();
 
-  task_data_omp->inputs.emplace_back(reinterpret_cast<uint8_t*>(val_b.data()));
-  task_data_omp->inputs.emplace_back(reinterpret_cast<uint8_t*>(RandomFunc));
-  task_data_omp->inputs.emplace_back(reinterpret_cast<uint8_t*>(2500000));
-  task_data_omp->inputs_count.emplace_back(val_b.size());
-  task_data_omp->outputs.emplace_back(reinterpret_cast<uint8_t*>(out.data()));
-  task_data_omp->outputs_count.emplace_back(out.size());
+  task_data_seq->inputs.emplace_back(reinterpret_cast<uint8_t*>(val_b.data()));
+  task_data_seq->inputs.emplace_back(reinterpret_cast<uint8_t*>(RandomFunc));
+  task_data_seq->inputs.emplace_back(reinterpret_cast<uint8_t*>(2500000));
+  task_data_seq->inputs_count.emplace_back(val_b.size());
+  task_data_seq->outputs.emplace_back(reinterpret_cast<uint8_t*>(out.data()));
+  task_data_seq->outputs_count.emplace_back(out.size());
 
   // Create Task
-  auto test_task_ompuential = std::make_shared<vladimirova_j_m_monte_karlo_omp::TestTaskOpenMP>(task_data_omp);
+  auto test_task_sequential = std::make_shared<vladimirova_j_m_monte_karlo_seq::TestTaskSequential>(task_data_seq);
   // Create Perf attributes
   auto perf_attr = std::make_shared<ppc::core::PerfAttr>();
   perf_attr->num_running = 10;
@@ -128,13 +128,13 @@ TEST(vladimirova_j_m_monte_karlo_omp, test_pipeline_run) {
   auto perf_results = std::make_shared<ppc::core::PerfResults>();
 
   // Create Perf analyzer
-  auto perf_analyzer = std::make_shared<ppc::core::Perf>(test_task_ompuential);
+  auto perf_analyzer = std::make_shared<ppc::core::Perf>(test_task_sequential);
   perf_analyzer->PipelineRun(perf_attr, perf_results);
   ppc::core::Perf::PrintPerfStatistic(perf_results);
   ASSERT_TRUE(out[0] <= ans);
 }
 
-TEST(vladimirova_j_m_monte_karlo_omp, test_task_run) {
+TEST(vladimirova_j_m_monte_karlo_seq, test_task_run) {
   // Create data
   double ans = 1;
   std::vector<double> val_b = GenRandomVectorArea(2, -10, 30, ans);
@@ -142,17 +142,17 @@ TEST(vladimirova_j_m_monte_karlo_omp, test_task_run) {
   seed = GenRandomVector(5, 0, 10);
 
   // Create task_data
-  auto task_data_omp = std::make_shared<ppc::core::TaskData>();
+  auto task_data_seq = std::make_shared<ppc::core::TaskData>();
 
-  task_data_omp->inputs.emplace_back(reinterpret_cast<uint8_t*>(val_b.data()));
-  task_data_omp->inputs.emplace_back(reinterpret_cast<uint8_t*>(RandomFunc));
-  task_data_omp->inputs.emplace_back(reinterpret_cast<uint8_t*>(2500000));
-  task_data_omp->inputs_count.emplace_back(val_b.size());
-  task_data_omp->outputs.emplace_back(reinterpret_cast<uint8_t*>(out.data()));
-  task_data_omp->outputs_count.emplace_back(out.size());
+  task_data_seq->inputs.emplace_back(reinterpret_cast<uint8_t*>(val_b.data()));
+  task_data_seq->inputs.emplace_back(reinterpret_cast<uint8_t*>(RandomFunc));
+  task_data_seq->inputs.emplace_back(reinterpret_cast<uint8_t*>(2500000));
+  task_data_seq->inputs_count.emplace_back(val_b.size());
+  task_data_seq->outputs.emplace_back(reinterpret_cast<uint8_t*>(out.data()));
+  task_data_seq->outputs_count.emplace_back(out.size());
 
   // Create Task
-  auto test_task_ompuential = std::make_shared<vladimirova_j_m_monte_karlo_omp::TestTaskOpenMP>(task_data_omp);
+  auto test_task_sequential = std::make_shared<vladimirova_j_m_monte_karlo_seq::TestTaskSequential>(task_data_seq);
 
   // Create Perf attributes
   auto perf_attr = std::make_shared<ppc::core::PerfAttr>();
@@ -168,7 +168,7 @@ TEST(vladimirova_j_m_monte_karlo_omp, test_task_run) {
   auto perf_results = std::make_shared<ppc::core::PerfResults>();
 
   // Create Perf analyzer
-  auto perf_analyzer = std::make_shared<ppc::core::Perf>(test_task_ompuential);
+  auto perf_analyzer = std::make_shared<ppc::core::Perf>(test_task_sequential);
   perf_analyzer->TaskRun(perf_attr, perf_results);
   ppc::core::Perf::PrintPerfStatistic(perf_results);
   ASSERT_TRUE(out[0] <= ans);
