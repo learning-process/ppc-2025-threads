@@ -10,28 +10,41 @@
 
 #include "core/util/include/util.hpp"
 
-void poroshin_v_multi_integral_with_trapez_method_stl::TestTaskSTL::CalculateData(
-    std::vector<double>& h, std::vector<std::vector<double>>& weights, int& total_points, const int& dimensions) {
-  for (int i = 0; i < dimensions; ++i) {
-    h[i] = (limits_[i].second - limits_[i].first) / n_[i];
-
-    total_points *= (n_[i] + 1);
-
-    weights[i].resize(n_[i] + 1);
-    for (int j = 0; j <= n_[i]; ++j) {
-      weights[i][j] = (j == 0 || j == n_[i]) ? 0.5 : 1.0;
-    }
-  }
-}
-
+// NOLINTNEXTLINE(readability-function-cognitive-complexity)
 void poroshin_v_multi_integral_with_trapez_method_stl::TestTaskSTL::CountMultiIntegralTrapezMethodStl() {
   const int dimensions = static_cast<int>(limits_.size());
   const int num_threads = ppc::util::GetPPCNumThreads();
 
-  std::vector<double> h(dimensions);
-  std::vector<std::vector<double>> weights(dimensions);
-  int total_points = 1;
-  CalculateData(h, weights, total_points, dimensions);
+  auto calculate_steps = [this, dimensions]() {
+    std::vector<double> h(dimensions);
+    for (int i = 0; i < dimensions; ++i) {
+      h[i] = (limits_[i].second - limits_[i].first) / n_[i];
+    }
+    return h;
+  };
+
+  auto calculate_weights = [this, dimensions]() {
+    std::vector<std::vector<double>> weights(dimensions);
+    for (int i = 0; i < dimensions; ++i) {
+      weights[i].resize(n_[i] + 1);
+      for (int j = 0; j <= n_[i]; ++j) {
+        weights[i][j] = (j == 0 || j == n_[i]) ? 0.5 : 1.0;
+      }
+    }
+    return weights;
+  };
+
+  auto calculate_total_points = [this, dimensions]() {
+    int total_points = 1;
+    for (int n : n_) {
+      total_points *= (n + 1);
+    }
+    return total_points;
+  };
+
+  const auto h = calculate_steps();
+  const auto weights = calculate_weights();
+  const int total_points = calculate_total_points();
 
   std::vector<std::pair<double, double>> thread_results(num_threads, {0.0, 0.0});
   std::vector<std::thread> threads;

@@ -22,8 +22,6 @@ class TestTaskSTL : public ppc::core::Task {
 
  private:
   void CountMultiIntegralTrapezMethodStl();
-  void CalculateData(std::vector<double>& h, std::vector<std::vector<double>>& weights, int& total_points,
-                     const int& dimensions);
   std::vector<std::pair<double, double>> limits_;
   size_t dim_;
   std::function<double(std::vector<double>& args)> func_;
