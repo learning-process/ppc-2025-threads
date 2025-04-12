@@ -1,7 +1,7 @@
 #include "tbb/oturin_a_gift_wrapping/include/ops_tbb.hpp"
 
 #include <oneapi/tbb/blocked_range.h>
-#include <tbb/parallel_reduce.h>
+#include <oneapi/tbb/parallel_reduce.h>
 
 #include <algorithm>
 #include <cmath>
