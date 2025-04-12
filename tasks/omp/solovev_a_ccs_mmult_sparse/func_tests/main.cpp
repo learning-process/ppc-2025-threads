@@ -9,7 +9,7 @@
 #include <vector>
 
 #include "core/task/include/task.hpp"
-#include "omp/solovev_a_ccs_mmult_sparse_omp/include/ccs_mmult_sparse_omp.hpp"
+#include "omp/solovev_a_ccs_mmult_sparse/include/ccs_mmult_sparse_omp.hpp"
 
 namespace {
 std::complex<double> GenerateRandomComplex(double min, double max) {

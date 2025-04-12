@@ -10,7 +10,7 @@
 
 #include "core/perf/include/perf.hpp"
 #include "core/task/include/task.hpp"
-#include "omp/malyshev_v_radix_sort_omp/include/ops_omp.hpp"
+#include "omp/malyshev_v_radix_sort/include/ops_omp.hpp"
 
 TEST(malyshev_v_radix_sort_omp, test_pipeline) {
   const size_t k_size = 1e6;

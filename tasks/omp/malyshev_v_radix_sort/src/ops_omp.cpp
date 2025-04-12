@@ -1,4 +1,4 @@
-#include "omp/malyshev_v_radix_sort_omp/include/ops_omp.hpp"
+#include "omp/malyshev_v_radix_sort/include/ops_omp.hpp"
 
 #include <omp.h>
 
