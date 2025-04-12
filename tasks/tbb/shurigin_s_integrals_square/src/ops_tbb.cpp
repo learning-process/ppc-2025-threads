@@ -1,4 +1,4 @@
-﻿#include "tbb/shurigin_s_integrals_square_TBB/include/ops_tbb.hpp"
+﻿#include "tbb/shurigin_s_integrals_square/include/ops_tbb.hpp"
 
 #include <oneapi/tbb/blocked_range.h>
 #include <oneapi/tbb/parallel_reduce.h>

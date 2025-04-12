@@ -8,7 +8,7 @@
 
 #include "core/perf/include/perf.hpp"
 #include "core/task/include/task.hpp"
-#include "tbb/shurigin_s_integrals_square_TBB/include/ops_tbb.hpp"
+#include "tbb/shurigin_s_integrals_square/include/ops_tbb.hpp"
 
 namespace shurigin_s_integrals_square_tbb_test {
 TEST(shurigin_s_integrals_square_tbb, test_pipeline_run) {
