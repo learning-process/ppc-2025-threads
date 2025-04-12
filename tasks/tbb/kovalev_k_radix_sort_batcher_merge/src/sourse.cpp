@@ -8,6 +8,7 @@
 #include <cstring>
 #include <vector>
 
+#include "core/util/include/util.hpp"
 #include "tbb/kovalev_k_radix_sort_batcher_merge/include/header.hpp"
 
 bool kovalev_k_radix_sort_batcher_merge_tbb::TestTaskTBB::RadixUnsigned(unsigned long long* inp_arr,
@@ -137,8 +138,7 @@ bool kovalev_k_radix_sort_batcher_merge_tbb::TestTaskTBB::ValidationImpl() {
 bool kovalev_k_radix_sort_batcher_merge_tbb::TestTaskTBB::PreProcessingImpl() {
   n_input_ = task_data->inputs_count[0];
 
-  effective_num_threads_ =
-      static_cast<int>(std::pow(2, std::floor(std::log2(tbb::this_task_arena::max_concurrency()))));
+  effective_num_threads_ = static_cast<int>(std::pow(2, std::floor(std::log2(ppc::util::GetPPCNumThreads()))));
   auto e_n_f = static_cast<unsigned int>(effective_num_threads_);
   n_ = n_input_ + (((2 * e_n_f) - n_input_ % (2 * e_n_f))) % (2 * e_n_f);
   loc_length_ = n_ / effective_num_threads_;
@@ -157,8 +157,7 @@ bool kovalev_k_radix_sort_batcher_merge_tbb::TestTaskTBB::PreProcessingImpl() {
 }
 
 bool kovalev_k_radix_sort_batcher_merge_tbb::TestTaskTBB::RunImpl() {
-  if (static_cast<unsigned int>(tbb::this_task_arena::max_concurrency()) > 2 * n_input_ ||
-      tbb::this_task_arena::max_concurrency() == 1) {
+  if (static_cast<unsigned int>(ppc::util::GetPPCNumThreads()) > 2 * n_input_ || ppc::util::GetPPCNumThreads() == 1) {
     bool ret = RadixSigned(0, n_input_);
     memcpy(tmp_, mas_, sizeof(long long int) * n_input_);
     return ret;
@@ -169,18 +168,19 @@ bool kovalev_k_radix_sort_batcher_merge_tbb::TestTaskTBB::RunImpl() {
 
   tbb::parallel_for(tbb::blocked_range<unsigned int>(0, effective_num_threads_),
                     [&](const tbb::blocked_range<unsigned int>& range) {
-                      for (unsigned int i = range.begin(); i < range.end(); ++i) {
+                      for (unsigned int i = range.begin(); i < range.end(); i++) {
                         ret1 = ret1 && RadixSigned(i * loc_length_, loc_length_);
                       }
                     });
 
   unsigned int num_threads = effective_num_threads_;
+
   while (num_threads > 1) {
     tbb::parallel_for(
         tbb::blocked_range<unsigned int>(0, num_threads), [&](const tbb::blocked_range<unsigned int>& range) {
           for (unsigned int i = range.begin(); i < range.end(); i++) {
-            unsigned int stride = (i - range.begin()) / 2;
-            unsigned int bias = (i - range.begin()) % 2;
+            unsigned int stride = (i) / 2;
+            unsigned int bias = (i) % 2;
             unsigned int len = loc_length_ * (effective_num_threads_ / num_threads);
 
             ret2 = ret2 && OddEvenMerge(tmp_ + (stride * 2 * len) + bias, mas_ + (stride * 2 * len) + bias,
