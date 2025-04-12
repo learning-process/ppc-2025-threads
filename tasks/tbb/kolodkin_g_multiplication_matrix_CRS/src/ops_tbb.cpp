@@ -1,16 +1,14 @@
 #include "tbb/kolodkin_g_multiplication_matrix_CRS/include/ops_tbb.hpp"
 
 #include <tbb/tbb.h>
+#include <tbb/parallel_for.h>
 
 #include <cmath>
 #include <complex>
 #include <cstddef>
 #include <iostream>
-#include <mutex>
+#include <utility>
 #include <vector>
-
-#include "oneapi/tbb/task_arena.h"
-#include "oneapi/tbb/task_group.h"
 
 void kolodkin_g_multiplication_matrix_tbb::SparseMatrixCRS::AddValue(int row, Complex value, int col) {
   bool found = false;
