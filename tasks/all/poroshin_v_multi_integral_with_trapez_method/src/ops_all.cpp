@@ -12,16 +12,14 @@
 #include "boost/mpi/collectives/broadcast.hpp"
 #include "boost/mpi/collectives/reduce.hpp"
 
-namespace boost {
-namespace serialization {
+namespace boost::serialization {
 template <class Archive>
-void serialize(Archive &ar, std::pair<double, double> &p, unsigned int) {
+void static Serialize(Archive &ar, std::pair<double, double> &p, unsigned int) {
   ar & p.first & p.second;
 }
-}  // namespace serialization
-}  // namespace boost
+}  // namespace boost::serialization
 
-// without this code clang-tidy thinks serialization for pait is not used, but it is used in broadcast
+// without this code clang-tidy thinks serialization for std::pair is not used, but it is used in broadcast
 
 void poroshin_v_multi_integral_with_trapez_method_all::TestTaskALL::CountMultiIntegralTrapezMethodAll(double &res) {
   const int dimensions = static_cast<int>(limits_.size());
