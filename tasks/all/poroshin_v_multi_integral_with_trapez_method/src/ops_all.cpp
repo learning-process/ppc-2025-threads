@@ -2,19 +2,13 @@
 
 #include <omp.h>
 
-#include <algorithm>
-#include <boost/serialization/utility.hpp>
-#include <boost/serialization/vector.hpp>
 #include <cmath>
 #include <cstddef>
-#include <cstdint>
 #include <functional>
-#include <thread>
 #include <vector>
 
 #include "boost/mpi/collectives/broadcast.hpp"
 #include "boost/mpi/collectives/reduce.hpp"
-#include "core/util/include/util.hpp"
 
 void poroshin_v_multi_integral_with_trapez_method_all::TestTaskALL::CountMultiIntegralTrapezMethodAll(double &res) {
   const int dimensions = static_cast<int>(limits_.size());
@@ -97,7 +91,7 @@ bool poroshin_v_multi_integral_with_trapez_method_all::TestTaskALL::ValidationIm
 }
 
 bool poroshin_v_multi_integral_with_trapez_method_all::TestTaskALL::RunImpl() {
-  size_t len = 0;
+  int len = 0;
   double step = 0;
   int delta = 0;
   int last = 0;
@@ -111,7 +105,7 @@ bool poroshin_v_multi_integral_with_trapez_method_all::TestTaskALL::RunImpl() {
       last = delta + n_[0] % world_.size();
     }
     step = (limits_[0].second - limits_[0].first) / static_cast<double>(n_[0]);
-    len = dim_;
+    len = static_cast<int>(dim_);
   }
   boost::mpi::broadcast(world_, step, 0);
   boost::mpi::broadcast(world_, delta, 0);

@@ -2,19 +2,15 @@
 
 #include <boost/mpi/collectives.hpp>
 #include <boost/mpi/communicator.hpp>
-#include <boost/mpi/environment.hpp>
 #include <cmath>
 #include <cstddef>
 #include <cstdint>
 #include <memory>
 #include <numbers>
-#include <random>
-#include <tuple>
 #include <vector>
 
 #include "all/poroshin_v_multi_integral_with_trapez_method/include/ops_all.hpp"
 #include "core/task/include/task.hpp"
-#include "core/util/include/util.hpp"
 
 namespace {
 double Area(std::vector<double> &arguments) { return 1.0 + (arguments.at(0) * 0.0); }
