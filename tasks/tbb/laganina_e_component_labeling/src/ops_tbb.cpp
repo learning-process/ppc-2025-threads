@@ -29,7 +29,7 @@ bool laganina_e_component_labeling_tbb::TestTaskTBB::PreProcessingImpl() {
   std::copy(input, input + size, data_.begin());
 
   return true;
-}  // 7
+}
 
 bool laganina_e_component_labeling_tbb::TestTaskTBB::PostProcessingImpl() {
   int* output = reinterpret_cast<int*>(task_data->outputs[0]);
@@ -62,59 +62,50 @@ void laganina_e_component_labeling_tbb::TestTaskTBB::UnionFind::unite(int x, int
   }
 }
 
+void laganina_e_component_labeling_tbb::TestTaskTBB::process_components(UnionFind& uf) {
+  tbb::parallel_for(tbb::blocked_range2d<int>(0, rows_, 16, 0, cols_, 64), [&](const tbb::blocked_range2d<int>& r) {
+    for (int i = r.rows().begin(); i < r.rows().end(); ++i) {
+      for (int j = r.cols().begin(); j < r.cols().end(); ++j) {
+        const int idx = i * cols_ + j;
+        if (data_[idx] == 0) continue;
+
+        if (j > 0 && data_[idx - 1]) uf.unite(idx, idx - 1);
+        if (i > 0 && data_[idx - cols_]) uf.unite(idx, idx - cols_);
+        if (j < cols_ - 1 && data_[idx + 1]) uf.unite(idx, idx + 1);
+        if (i < rows_ - 1 && data_[idx + cols_]) uf.unite(idx, idx + cols_);
+      }
+    }
+  });
+}
+
+void laganina_e_component_labeling_tbb::TestTaskTBB::assign_final_labels(int size, UnionFind uf) {
+  tbb::concurrent_unordered_map<int, int> label_map;
+
+  tbb::parallel_for(0, size, [&](int i) {
+    if (data_[i]) data_[i] = uf.find(i) + 1;
+  });
+
+  tbb::parallel_for(0, size, [&](int i) {
+    if (data_[i] > 0) label_map.insert({data_[i], 0});
+  });
+
+  std::vector<int> keys;
+  for (auto& p : label_map) keys.push_back(p.first);
+  std::sort(keys.begin(), keys.end());
+
+  int next_label = 1;
+  for (auto& k : keys) label_map[k] = next_label++;
+
+  tbb::parallel_for(0, size, [&](int i) {
+    if (data_[i] > 0) data_[i] = label_map[data_[i]];
+  });
+}
+
 void laganina_e_component_labeling_tbb::TestTaskTBB::label_components() {
   const int size = rows_ * cols_;
   UnionFind uf(size, data_);
 
-  // Parallel union passes 34
-  tbb::parallel_for(tbb::blocked_range2d<int>(0, rows_, 16, 0, cols_, 64), [&](const tbb::blocked_range2d<int>& r) {
-    for (int i = r.rows().begin(); i < r.rows().end(); ++i) {
-      for (int j = r.cols().begin(); j < r.cols().end(); ++j) {
-        const int idx = (i * cols_) + j;
-        if (data_[idx] == 0) continue;
-
-        if (j > 0 && data_[idx - 1]) {
-          uf.unite(idx, idx - 1);
-        }
-        if (i > 0 && data_[idx - cols_]) {
-          uf.unite(idx, idx - cols_);
-        }
-        if (j + 1 < cols_ && data_[idx + 1]) {
-          uf.unite(idx, idx + 1);
-        }
-        if (i + 1 < rows_ && data_[idx + cols_]) {
-          uf.unite(idx, idx + cols_);
-        }
-      }
-    }
-  });
-
-  // Compress paths and assign labels
-  tbb::concurrent_unordered_map<int, int> label_map;
-  int next_label = 1;
-
-  tbb::parallel_for(0, size, [&](int i) {
-    if (data_[i]) {
-      data_[i] = uf.find(i) + 1;
-      label_map.insert(std::pair<int, int>(data_[i], 0));
-    }
-  });
-
-  // Create ordered label mapping
-  std::vector<int> keys;
-  for (tbb::concurrent_unordered_map<int, int>::iterator it = label_map.begin(); it != label_map.end(); ++it) {
-    keys.push_back(it->first);
-  }
-  std::sort(keys.begin(), keys.end());
-
-  for (std::vector<int>::iterator it = keys.begin(); it != keys.end(); ++it) {
-    label_map[*it] = next_label++;
-  }
-
-  // Apply final labels
-  tbb::parallel_for(0, size, [&](int i) {
-    if (data_[i] > 0) {
-      data_[i] = label_map[data_[i]];
-    }
-  });
+  process_components(uf);
+  // hh99ib
+  assign_final_labels(size, uf);
 }

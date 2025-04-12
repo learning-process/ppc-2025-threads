@@ -28,7 +28,7 @@ class TestTaskTBB : public ppc::core::Task {
   int rows_;
   int cols_;
   std::vector<int> data_;
-  // 8
+
   struct UnionFind {
     std::vector<int> parent;
 
@@ -39,7 +39,8 @@ class TestTaskTBB : public ppc::core::Task {
     int find(int x);
     void unite(int x, int y);
   };
-
+  void process_components(UnionFind& uf);
+  void assign_final_labels(int size, UnionFind uf);
   void label_components();
 };
 

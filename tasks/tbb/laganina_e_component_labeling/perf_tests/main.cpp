@@ -13,7 +13,7 @@
 TEST(laganina_e_component_labeling_tbb, test_pipeline_run) {
   constexpr int kCount = 2000;
 
-  // Create data 1
+  // Create data
   std::vector<int> in(kCount * kCount, 0);
   std::vector<int> out(kCount * kCount, 0);
 

@@ -10,7 +10,7 @@
 TEST(laganina_e_component_labeling_tbb, validation_test1) {
   int m = 0;
   int n = 1;
-  std::vector<int> in(m * n, 0);  // 0
+  std::vector<int> in(m * n, 0);
   std::vector<int> out(m * n, 0);
 
   auto task_data_tbb = std::make_shared<ppc::core::TaskData>();
