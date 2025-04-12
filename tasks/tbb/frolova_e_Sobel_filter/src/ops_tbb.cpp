@@ -2,18 +2,17 @@
 
 #include <tbb/tbb.h>
 
+#include <algorithm>
 #include <cmath>
 #include <core/util/include/util.hpp>
 #include <cstddef>
 #include <vector>
 
-#include <algorithm>
-
 #include "oneapi/tbb/task_arena.h"
 #include "oneapi/tbb/task_group.h"
 
-int frolova_e_sobel_filter_tbb::GetPixelSafe(const std::vector<int> &img, size_t x, size_t y, size_t width,
-                                           size_t height) {
+int frolova_e_sobel_filter_tbb::GetPixelSafe(const std::vector<int>& img, size_t x, size_t y, size_t width,
+                                             size_t height) {
   if (x >= width || y >= height) {
     return 0;
   }
