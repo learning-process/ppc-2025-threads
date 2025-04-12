@@ -65,7 +65,6 @@ void poroshin_v_multi_integral_with_trapez_method_all::TestTaskALL::CountMultiIn
   }
 
   res = integral * volume;
-  // res_ = integral * volume;
 }
 
 bool poroshin_v_multi_integral_with_trapez_method_all::TestTaskALL::PreProcessingImpl() {
@@ -91,7 +90,7 @@ bool poroshin_v_multi_integral_with_trapez_method_all::TestTaskALL::ValidationIm
 }
 
 bool poroshin_v_multi_integral_with_trapez_method_all::TestTaskALL::RunImpl() {
-  int len = 0;
+  size_t len = 0;
   double step = 0;
   int delta = 0;
   int last = 0;
@@ -105,7 +104,7 @@ bool poroshin_v_multi_integral_with_trapez_method_all::TestTaskALL::RunImpl() {
       last = delta + n_[0] % world_.size();
     }
     step = (limits_[0].second - limits_[0].first) / static_cast<double>(n_[0]);
-    len = static_cast<int>(dim_);
+    len = dim_;
   }
   boost::mpi::broadcast(world_, step, 0);
   boost::mpi::broadcast(world_, delta, 0);
@@ -115,12 +114,8 @@ bool poroshin_v_multi_integral_with_trapez_method_all::TestTaskALL::RunImpl() {
     limits_.resize(len);
     n_.resize(len);
   }
-  // auto local_n = n_;
-  // auto loclal_limits = limits_;
-  // boost::mpi::scatter(world_, n_.data(), local_n.data(), local_n.size(), 0);
-  // boost::mpi::scatter(world_, limits_.data(), loclal_limits.data(), loclal_limits.size(), 0);
-  boost::mpi::broadcast(world_, limits_.data(), len, 0);
-  boost::mpi::broadcast(world_, n_.data(), len, 0);
+  boost::mpi::broadcast(world_, limits_.data(), static_cast<int>(len), 0);
+  boost::mpi::broadcast(world_, n_.data(), static_cast<int>(len), 0);
   if (world_.rank() == world_.size() - 1) {
     n_[0] = last;
     limits_[0].first += world_.rank() * step * delta;
