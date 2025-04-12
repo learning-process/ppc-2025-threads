@@ -79,7 +79,9 @@ bool oturin_a_gift_wrapping_tbb::TestTaskTBB::RunImpl() {
   double line_angle = -5;
   int search_index = 0;
   for (int i = 0; i < n_; i++) {
-    if (i == start_index) continue;
+    if (i == start_index) {
+      continue;
+    }
     double t = ABTP(input_[start_index], input_[i]);
     if (t > line_angle) {
       line_angle = t;
