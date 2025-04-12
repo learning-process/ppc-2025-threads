@@ -73,7 +73,7 @@ bool kharin_m_multidimensional_integral_calc_omp::TestTaskOpenMP::PreProcessingI
 }
 
 bool kharin_m_multidimensional_integral_calc_omp::TestTaskOpenMP::RunImpl() {
-    double total = tbb::parallel_reduce(
+  double total = tbb::parallel_reduce(
       tbb::blocked_range<size_t>(0, input_.size()), 0.0,
       [&](const tbb::blocked_range<size_t>& r, double local_sum) -> double {
         for (size_t i = r.begin(); i != r.end(); ++i) {
