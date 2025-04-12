@@ -2,9 +2,11 @@
 
 #include <omp.h>
 
+#include <boost/serialization/utility.hpp>
 #include <cmath>
 #include <cstddef>
 #include <functional>
+#include <utility>
 #include <vector>
 
 #include "boost/mpi/collectives/broadcast.hpp"
