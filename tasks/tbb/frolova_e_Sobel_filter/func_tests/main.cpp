@@ -2,14 +2,13 @@
 
 #include <cstddef>
 #include <cstdint>
-#include <fstream>
 #include <memory>
 #include <random>
-#include <string>
 #include <vector>
+#include <cmath>
+#include <algorithm>
 
 #include "core/task/include/task.hpp"
-#include "core/util/include/util.hpp"
 #include "tbb/frolova_e_Sobel_filter/include/ops_tbb.hpp"
 
 namespace {

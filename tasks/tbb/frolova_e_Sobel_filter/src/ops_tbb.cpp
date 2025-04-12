@@ -1,15 +1,17 @@
-#include "tbb/frolova_e_Sobel_filter/include/ops_tbb.hpp"
-
-#include <tbb/tbb.h>
-
-#include <algorithm>
-#include <cmath>
-#include <core/util/include/util.hpp>
 #include <cstddef>
 #include <vector>
+#include <algorithm>
+#include <cmath>
 
+#include <tbb/tbb.h>
+#include <tbb/parallel_for.h>
+#include <tbb/blocked_range.h>
+#include <tbb/blocked_range2d.h>
 #include "oneapi/tbb/task_arena.h"
 #include "oneapi/tbb/task_group.h"
+
+#include "core/util/include/util.hpp"
+#include "tbb/frolova_e_Sobel_filter/include/ops_tbb.hpp"
 
 int frolova_e_sobel_filter_tbb::GetPixelSafe(const std::vector<int>& img, size_t x, size_t y, size_t width,
                                              size_t height) {
