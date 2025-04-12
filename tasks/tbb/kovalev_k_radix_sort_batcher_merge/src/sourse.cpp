@@ -135,7 +135,7 @@ bool kovalev_k_radix_sort_batcher_merge_tbb::TestTaskTBB::ValidationImpl() {
 }
 
 bool kovalev_k_radix_sort_batcher_merge_tbb::TestTaskTBB::PreProcessingImpl() {
-  /* n_input_ = task_data->inputs_count[0];
+  n_input_ = task_data->inputs_count[0];
 
   effective_num_threads_ =
       static_cast<int>(std::pow(2, std::floor(std::log2(tbb::this_task_arena::max_concurrency()))));
@@ -152,12 +152,12 @@ bool kovalev_k_radix_sort_batcher_merge_tbb::TestTaskTBB::PreProcessingImpl() {
 
   for (unsigned int i = n_input_; i < n_; i++) {
     mas_[i] = LLONG_MAX;
-  }*/
+  }
   return true;
 }
 
 bool kovalev_k_radix_sort_batcher_merge_tbb::TestTaskTBB::RunImpl() {
-  /* if (static_cast<unsigned int>(tbb::this_task_arena::max_concurrency()) > 2 * n_input_) {
+  if (static_cast<unsigned int>(tbb::this_task_arena::max_concurrency()) > 2 * n_input_) {
     bool ret = RadixSigned(0, n_input_);
     memcpy(tmp_, mas_, sizeof(long long int) * n_input_);
     return ret;
@@ -190,9 +190,9 @@ bool kovalev_k_radix_sort_batcher_merge_tbb::TestTaskTBB::RunImpl() {
     num_threads /= 2;
   }
 
-  FinalMerge();*/
+  FinalMerge();
 
-  return true;//(ret1 && ret2);
+  return (ret1 && ret2);
 }
 
 bool kovalev_k_radix_sort_batcher_merge_tbb::TestTaskTBB::PostProcessingImpl() {
