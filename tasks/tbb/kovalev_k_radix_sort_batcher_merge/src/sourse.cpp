@@ -157,7 +157,8 @@ bool kovalev_k_radix_sort_batcher_merge_tbb::TestTaskTBB::PreProcessingImpl() {
 }
 
 bool kovalev_k_radix_sort_batcher_merge_tbb::TestTaskTBB::RunImpl() {
-  if (static_cast<unsigned int>(tbb::this_task_arena::max_concurrency()) > 2 * n_input_) {
+  if (static_cast<unsigned int>(tbb::this_task_arena::max_concurrency()) > 2 * n_input_ ||
+      tbb::this_task_arena::max_concurrency() == 1) {
     bool ret = RadixSigned(0, n_input_);
     memcpy(tmp_, mas_, sizeof(long long int) * n_input_);
     return ret;
@@ -177,7 +178,7 @@ bool kovalev_k_radix_sort_batcher_merge_tbb::TestTaskTBB::RunImpl() {
   while (num_threads > 1) {
     tbb::parallel_for(
         tbb::blocked_range<unsigned int>(0, num_threads), [&](const tbb::blocked_range<unsigned int>& range) {
-          for (unsigned int i = range.begin(); i < range.end(); ++i) {
+          for (unsigned int i = range.begin(); i < range.end(); i++) {
             unsigned int stride = (i - range.begin()) / 2;
             unsigned int bias = (i - range.begin()) % 2;
             unsigned int len = loc_length_ * (effective_num_threads_ / num_threads);
