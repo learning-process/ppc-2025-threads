@@ -101,7 +101,7 @@ bool kalyakina_a_shell_with_simple_merge_tbb::ShellSortTBB::RunImpl() {
   arena.execute([&] {
     oneapi::tbb::parallel_for(oneapi::tbb::blocked_range<unsigned int>(0, num),
                               [&](const oneapi::tbb::blocked_range<unsigned int> &r) {
-                                for (unsigned int i = r.begin(); i < r.end(); i++) {
+                                for (unsigned int i = r.begin(); i != r.end(); i++) {
                                   ShellSort(bounds[i].first, bounds[i].second);
                                 }
                               });
@@ -113,7 +113,7 @@ bool kalyakina_a_shell_with_simple_merge_tbb::ShellSortTBB::RunImpl() {
     arena.execute([&] {
       oneapi::tbb::parallel_for(
           oneapi::tbb::blocked_range<unsigned int>(0, num), [&](oneapi::tbb::blocked_range<unsigned int> &r) {
-            for (unsigned int i = r.begin(); i < r.end(); i++) {
+            for (unsigned int i = r.begin(); i != r.end(); i++) {
               unsigned int middle = (step / 2) + (step * i);
               if (middle < bounds.size()) {
                 SimpleMergeSort(
