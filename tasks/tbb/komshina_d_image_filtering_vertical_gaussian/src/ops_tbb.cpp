@@ -15,7 +15,7 @@ namespace {
 void GaussianVerticalFilter(const std::vector<unsigned char> &in_vec, std::size_t width, std::size_t height,
                             const std::vector<float> &kernel, std::vector<unsigned char> &out_vec) {
   constexpr int kChannels = 3;
-  const int kRadius = 1;
+  const int k_radius = 1;
 
   for (std::size_t y = 1; y + 1 < height; ++y) {
     for (std::size_t x = 1; x + 1 < width; ++x) {
@@ -25,10 +25,10 @@ void GaussianVerticalFilter(const std::vector<unsigned char> &in_vec, std::size_
         float total = 0.0F;
         std::size_t k_idx = 0;
 
-        for (int ky = -kRadius; ky <= kRadius; ++ky) {
+        for (int ky = -k_radius; ky <= k_radius; ++ky) {
           std::size_t row_idx = ((((y + ky) * width) + (x - 1)) * kChannels) + c;
 
-          for (int kx = -kRadius; kx <= kRadius; ++kx, ++k_idx) {
+          for (int kx = -k_radius; kx <= k_radius; ++kx, ++k_idx) {
             total += static_cast<float>(in_vec[row_idx]) * kernel[k_idx];
             row_idx += kChannels;
           }
