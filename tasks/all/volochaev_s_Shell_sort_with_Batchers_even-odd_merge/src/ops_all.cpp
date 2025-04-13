@@ -1,3 +1,5 @@
+#include "all/volochaev_s_Shell_sort_with_Batchers_even-odd_merge/include/ops_all.hpp"
+
 #include <mpi.h>
 
 #include <algorithm>
@@ -7,8 +9,6 @@
 #include <ranges>
 #include <thread>
 #include <vector>
-
-#include "all/volochaev_s_Shell_sort_with_Batchers_even-odd_merge/include/ops_all.hpp"
 
 bool volochaev_s_shell_sort_with_batchers_even_odd_merge_all::ShellSortALL::PreProcessingImpl() {
   MPI_Init(NULL, NULL);
