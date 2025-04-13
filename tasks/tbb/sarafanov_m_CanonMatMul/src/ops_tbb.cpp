@@ -13,6 +13,8 @@
 #include "oneapi/tbb/parallel_for.h"
 #include "tbb/sarafanov_m_CanonMatMul/include/CanonMatrix.hpp"
 
+// comment to start tests
+
 bool sarafanov_m_canon_mat_mul_tbb::CanonMatMulTBB::PreProcessingImpl() {
   a_matrix_.ClearMatrix();
   b_matrix_.ClearMatrix();
