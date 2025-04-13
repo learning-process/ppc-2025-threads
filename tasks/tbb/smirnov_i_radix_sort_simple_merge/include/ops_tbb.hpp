@@ -7,9 +7,8 @@
 #include <utility>
 #include <vector>
 
-#include "oneapi/tbb/mutex.h"
-
 #include "core/task/include/task.hpp"
+#include "oneapi/tbb/mutex.h"
 
 namespace smirnov_i_radix_sort_simple_merge_tbb {
 
