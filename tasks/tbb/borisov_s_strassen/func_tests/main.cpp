@@ -40,7 +40,7 @@ std::vector<double> GenerateRandomMatrix(int rows, int cols, int seed, double mi
 
 }  // namespace
 
-TEST(borisov_s_strassen_seq, OneByOne) {
+TEST(borisov_s_strassen_tbb, OneByOne) {
   std::vector<double> in_data = {1.0, 1.0, 1.0, 1.0, 7.5, 2.5};
 
   std::size_t output_count = 3;
@@ -67,7 +67,7 @@ TEST(borisov_s_strassen_seq, OneByOne) {
   delete[] out_ptr;
 }
 
-TEST(borisov_s_strassen_seq, TwoByTwo) {
+TEST(borisov_s_strassen_tbb, TwoByTwo) {
   std::vector<double> a = {1.0, 2.5, 3.0, 4.0};
   std::vector<double> b = {1.5, 2.0, 0.5, 3.5};
   std::vector<double> c_expected = {2.75, 10.75, 6.5, 20.0};
@@ -102,7 +102,7 @@ TEST(borisov_s_strassen_seq, TwoByTwo) {
   delete[] out_ptr;
 }
 
-TEST(borisov_s_strassen_seq, Rectangular2x3_3x4) {
+TEST(borisov_s_strassen_tbb, Rectangular2x3_3x4) {
   std::vector<double> a = {1.0, 2.5, 3.0, 4.0, 5.5, 6.0};
   std::vector<double> b = {0.5, 1.0, 2.0, 1.5, 2.0, 0.5, 1.0, 3.0, 4.0, 2.5, 0.5, 1.0};
 
@@ -145,7 +145,7 @@ TEST(borisov_s_strassen_seq, Rectangular2x3_3x4) {
   delete[] out_ptr;
 }
 
-TEST(borisov_s_strassen_seq, Square5x5_Random) {
+TEST(borisov_s_strassen_tbb, Square5x5_Random) {
   const int n = 5;
 
   std::vector<double> a = GenerateRandomMatrix(n, n, 7777);
@@ -191,7 +191,7 @@ TEST(borisov_s_strassen_seq, Square5x5_Random) {
   delete[] out_ptr;
 }
 
-TEST(borisov_s_strassen_seq, Square20x20_Random) {
+TEST(borisov_s_strassen_tbb, Square20x20_Random) {
   const int n = 20;
 
   std::vector<double> a = GenerateRandomMatrix(n, n, 7777);
@@ -237,7 +237,7 @@ TEST(borisov_s_strassen_seq, Square20x20_Random) {
   delete[] out_ptr;
 }
 
-TEST(borisov_s_strassen_seq, Square32x32_Random) {
+TEST(borisov_s_strassen_tbb, Square32x32_Random) {
   const int n = 32;
 
   std::vector<double> a = GenerateRandomMatrix(n, n, 7777);
@@ -283,7 +283,7 @@ TEST(borisov_s_strassen_seq, Square32x32_Random) {
   delete[] out_ptr;
 }
 
-TEST(borisov_s_strassen_seq, Square128x128_Random) {
+TEST(borisov_s_strassen_tbb, Square128x128_Random) {
   const int n = 128;
 
   std::vector<double> a = GenerateRandomMatrix(n, n, 7777);
@@ -329,7 +329,7 @@ TEST(borisov_s_strassen_seq, Square128x128_Random) {
   delete[] out_ptr;
 }
 
-TEST(borisov_s_strassen_seq, Square128x128_IdentityMatrix) {
+TEST(borisov_s_strassen_tbb, Square128x128_IdentityMatrix) {
   const int n = 128;
 
   std::vector<double> a = GenerateRandomMatrix(n, n, 7777);
@@ -377,7 +377,7 @@ TEST(borisov_s_strassen_seq, Square128x128_IdentityMatrix) {
   delete[] out_ptr;
 }
 
-TEST(borisov_s_strassen_seq, Square129x129_Random) {
+TEST(borisov_s_strassen_tbb, Square129x129_Random) {
   const int n = 129;
 
   std::vector<double> a = GenerateRandomMatrix(n, n, 7777);
@@ -423,7 +423,7 @@ TEST(borisov_s_strassen_seq, Square129x129_Random) {
   delete[] out_ptr;
 }
 
-TEST(borisov_s_strassen_seq, Square240x240_Random) {
+TEST(borisov_s_strassen_tbb, Square240x240_Random) {
   const int n = 240;
 
   std::vector<double> a = GenerateRandomMatrix(n, n, 7777);
@@ -469,7 +469,7 @@ TEST(borisov_s_strassen_seq, Square240x240_Random) {
   delete[] out_ptr;
 }
 
-TEST(borisov_s_strassen_seq, ValidCase) {
+TEST(borisov_s_strassen_tbb, ValidCase) {
   std::vector<double> input_data = {2.0, 3.0, 3.0, 2.0};
   input_data.insert(input_data.end(), {1.0, 2.0, 3.0, 4.0, 5.0, 6.0});
   input_data.insert(input_data.end(), {7.0, 8.0, 9.0, 10.0, 11.0, 12.0});
@@ -488,7 +488,7 @@ TEST(borisov_s_strassen_seq, ValidCase) {
   EXPECT_TRUE(task.ValidationImpl());
 }
 
-TEST(borisov_s_strassen_seq, MismatchCase) {
+TEST(borisov_s_strassen_tbb, MismatchCase) {
   std::vector<double> input_data = {
       2.0,
       2.0,
@@ -511,7 +511,7 @@ TEST(borisov_s_strassen_seq, MismatchCase) {
   EXPECT_FALSE(task.ValidationImpl());
 }
 
-TEST(borisov_s_strassen_seq, NotEnoughDataCase) {
+TEST(borisov_s_strassen_tbb, NotEnoughDataCase) {
   std::vector<double> input_data = {2.0, 2.0, 2.0, 2.0};
   input_data.insert(input_data.end(), {1.0, 2.0, 3.0, 4.0, 5.0, 6.0});
 
@@ -529,7 +529,7 @@ TEST(borisov_s_strassen_seq, NotEnoughDataCase) {
   EXPECT_FALSE(task.ValidationImpl());
 }
 
-TEST(borisov_s_strassen_seq, Rectangular16x17_Random) {
+TEST(borisov_s_strassen_tbb, Rectangular16x17_Random) {
   const int rows_a = 16;
   const int cols_a = 17;
   const int cols_b = 18;
@@ -577,7 +577,7 @@ TEST(borisov_s_strassen_seq, Rectangular16x17_Random) {
   delete[] out_ptr;
 }
 
-TEST(borisov_s_strassen_seq, Rectangular19x23_Random) {
+TEST(borisov_s_strassen_tbb, Rectangular19x23_Random) {
   const int rows_a = 19;
   const int cols_a = 23;
   const int cols_b = 21;
@@ -625,7 +625,7 @@ TEST(borisov_s_strassen_seq, Rectangular19x23_Random) {
   delete[] out_ptr;
 }
 
-TEST(borisov_s_strassen_seq, Rectangular32x64_Random) {
+TEST(borisov_s_strassen_tbb, Rectangular32x64_Random) {
   const int rows_a = 32;
   const int cols_a = 64;
   const int cols_b = 32;
