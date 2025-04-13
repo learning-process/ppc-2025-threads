@@ -1,4 +1,4 @@
-#include "seq/yasakova_t_sparse_matrix_multiplication/include/ops_seq.hpp"
+#include "seq/yasakova_t_matrix_mult/include/ops_seq.hpp"
 
 #include <cmath>
 #include <complex>

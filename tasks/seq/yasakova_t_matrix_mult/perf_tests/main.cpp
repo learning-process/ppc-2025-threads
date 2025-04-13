@@ -9,7 +9,7 @@
 
 #include "core/perf/include/perf.hpp"
 #include "core/task/include/task.hpp"
-#include "seq/yasakova_t_sparse_matrix_multiplication/include/ops_seq.hpp"
+#include "seq/yasakova_t_matrix_mult/include/ops_seq.hpp"
 
 TEST(yasakova_t_sparse_matrix_multiplication_seq, test_pipeline_run) {
   const int matrix_size = 400;
