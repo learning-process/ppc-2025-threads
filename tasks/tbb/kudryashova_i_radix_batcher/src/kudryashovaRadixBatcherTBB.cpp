@@ -1,10 +1,10 @@
 #include "tbb/kudryashova_i_radix_batcher/include/kudryashovaRadixBatcherTBB.hpp"
 
+#include <oneapi/tbb/combinable.h>
+#include <oneapi/tbb/parallel_for.h>
+#include <oneapi/tbb/parallel_invoke.h>
 #include <tbb/blocked_range.h>
-#include <tbb/combinable.h>
 #include <tbb/global_control.h>
-#include <tbb/parallel_for.h>
-#include <tbb/parallel_invoke.h>
 #include <tbb/partitioner.h>
 
 #include <algorithm>
@@ -14,21 +14,39 @@
 #include <cstring>
 #include <vector>
 
-void kudryashova_i_radix_batcher_tbb::RadixDoubleSort(std::vector<double>& data, size_t first, size_t last) {
-  const size_t sort_size = last - first;
-  std::vector<uint64_t> converted(sort_size);
-  // Convert each double to uint64_t representation
+void kudryashova_i_radix_batcher_tbb::ConvertDoublesToUint64(const std::vector<double>& data,
+                                                             std::vector<uint64_t>& converted, size_t first) {
   tbb::parallel_for(
-      tbb::blocked_range<size_t>(0, sort_size),
-      [&](const tbb::blocked_range<size_t>& range) {
+      tbb::blocked_range<size_t>(0, converted.size()),
+      [&](const auto& range) {
         for (size_t i = range.begin(); i < range.end(); ++i) {
-          double value = data[first + i];
           uint64_t bits = 0;
-          std::memcpy(&bits, &value, sizeof(value));
+          memcpy(&bits, &data[first + i], sizeof(double));
           converted[i] = ((bits & (1ULL << 63)) != 0) ? ~bits : bits ^ (1ULL << 63);
         }
       },
       tbb::auto_partitioner());
+}
+
+void kudryashova_i_radix_batcher_tbb::ConvertUint64ToDoubles(std::vector<double>& data,
+                                                             const std::vector<uint64_t>& converted, size_t first) {
+  tbb::parallel_for(
+      tbb::blocked_range<size_t>(0, converted.size()),
+      [&](const auto& range) {
+        for (size_t i = range.begin(); i < range.end(); ++i) {
+          uint64_t bits = converted[i];
+          bits = ((bits & (1ULL << 63)) != 0) ? (bits ^ (1ULL << 63)) : ~bits;
+          memcpy(&data[first + i], &bits, sizeof(double));
+        }
+      },
+      tbb::auto_partitioner());
+}
+
+void kudryashova_i_radix_batcher_tbb::RadixDoubleSort(std::vector<double>& data, size_t first, size_t last) {
+  const size_t sort_size = last - first;
+  std::vector<uint64_t> converted(sort_size);
+  // Convert each double to uint64_t representation
+  ConvertDoublesToUint64(data, converted, first);
 
   std::vector<uint64_t> buffer(sort_size);
   int bits_int_byte = 8;
@@ -69,16 +87,7 @@ void kudryashova_i_radix_batcher_tbb::RadixDoubleSort(std::vector<double>& data,
 
     converted.swap(buffer);
   }
-  tbb::parallel_for(
-      tbb::blocked_range<size_t>(0, sort_size),
-      [&](const tbb::blocked_range<size_t>& range) {
-        for (size_t i = range.begin(); i < range.end(); ++i) {
-          uint64_t bits = converted[i];
-          bits = ((bits & (1ULL << 63)) != 0) ? (bits ^ (1ULL << 63)) : ~bits;
-          std::memcpy(&data[first + i], &bits, sizeof(double));
-        }
-      },
-      tbb::auto_partitioner());
+  ConvertUint64ToDoubles(data, converted, first);
 }
 
 void kudryashova_i_radix_batcher_tbb::BatcherMerge(std::vector<double>& target_array, size_t merge_start,
