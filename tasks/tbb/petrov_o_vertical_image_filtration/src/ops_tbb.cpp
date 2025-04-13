@@ -1,9 +1,9 @@
 #include "tbb/petrov_o_vertical_image_filtration/include/ops_tbb.hpp"
 
-#include <tbb/blocked_range2d.h>
-#include <tbb/global_control.h>
-#include <tbb/parallel_for.h>
-#include <tbb/tbb.h>
+#include <oneapi/tbb/blocked_range2d.h>
+#include <oneapi/tbb/global_control.h>
+#include <oneapi/tbb/parallel_for.h>
+#include <oneapi/tbb/tbb.h>
 
 #include <cmath>
 #include <cstddef>
