@@ -33,8 +33,6 @@ bool SparseMatmulTask::PreProcessingImpl() {
 }
 
 bool SparseMatmulTask::RunImpl() {
-  tbb::global_control global_limit(tbb::global_control::max_allowed_parallelism, 4);
-
   std::vector<tbb::concurrent_unordered_map<int, double>> column_map(colsB);
 
   tbb::parallel_for(tbb::blocked_range<int>(0, colsB), [&](const tbb::blocked_range<int>& range) {
