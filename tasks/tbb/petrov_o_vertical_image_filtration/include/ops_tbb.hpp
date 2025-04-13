@@ -1,6 +1,6 @@
 #pragma once
 
-#include <oneapi/tbb/tbb.h>
+#include <tbb/tbb.h>
 
 #include <cstddef>
 #include <utility>
