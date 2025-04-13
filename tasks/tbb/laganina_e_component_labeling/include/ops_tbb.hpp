@@ -2,9 +2,9 @@
 
 #include <oneapi/tbb/blocked_range.h>
 #include <oneapi/tbb/blocked_range2d.h>
-#include <oneapi/tbb/concurrent_unordered_map.h>
 #include <oneapi/tbb/parallel_for.h>
 
+#include <unordered_map>
 #include <unordered_set>
 #include <utility>
 #include <vector>
