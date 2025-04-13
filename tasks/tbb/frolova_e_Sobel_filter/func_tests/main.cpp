@@ -8,7 +8,6 @@
 #include <random>
 #include <vector>
 
-#include "core/perf/include/perf.hpp"
 #include "core/task/include/task.hpp"
 #include "tbb/frolova_e_Sobel_filter/include/ops_tbb.hpp"
 
