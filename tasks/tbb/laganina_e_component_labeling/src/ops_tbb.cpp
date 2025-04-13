@@ -2,8 +2,8 @@
 
 #include <oneapi/tbb/blocked_range.h>
 #include <oneapi/tbb/blocked_range2d.h>
+#include <oneapi/tbb/concurrent_unordered_map.h>
 #include <oneapi/tbb/parallel_for.h>
-#include <tbb/concurrent_unordered_map.h>
 #include <tbb/concurrent_unordered_set.h>
 
 #include <algorithm>
@@ -33,7 +33,7 @@ bool laganina_e_component_labeling_tbb::TestTaskTBB::PreProcessingImpl() {
 
 bool laganina_e_component_labeling_tbb::TestTaskTBB::PostProcessingImpl() {
   int* output = reinterpret_cast<int*>(task_data->outputs[0]);
-  std::copy(data_.begin(), data_.end(), output);
+  std::ranges::copy(data_.begin(), data_.end(), output);
   return true;
 }
 
