@@ -14,12 +14,11 @@ namespace {
 std::vector<int> GenerateRandomInput(size_t width, size_t height) {
   std::random_device rd;
   std::mt19937 gen(rd());
-  std::uniform_int_distribution<int> dist(0, 100);
+  std::uniform_int_distribution<int> dist(0, 255);
 
   std::vector<int> input(width * height);
   for (auto &val : input) {
     val = dist(gen);
-    // std::cout << val << " ";
   }
   return input;
 }
