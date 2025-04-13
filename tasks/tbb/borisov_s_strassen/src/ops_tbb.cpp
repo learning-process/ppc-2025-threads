@@ -23,9 +23,9 @@ std::vector<double> MultiplyNaive(const std::vector<double>& a, const std::vecto
       for (int j = 0; j < n; ++j) {
         double sum = 0.0;
         for (int k = 0; k < n; ++k) {
-          sum += a[i * n + k] * b[k * n + j];
+          sum += a[(i * n) + k] * b[(k * n) + j];
         }
-        c[i * n + j] = sum;
+        c[(i * n) + j] = sum;
       }
     }
   });
@@ -62,7 +62,7 @@ std::vector<double> SubMatrix(const std::vector<double>& m, int n, int row, int 
   tbb::parallel_for(tbb::blocked_range<int>(0, size, grain), [&](const tbb::blocked_range<int>& r) {
     for (int i = r.begin(); i < r.end(); ++i) {
       for (int j = 0; j < size; ++j) {
-        sub[i * size + j] = m[(row + i) * n + (col + j)];
+        sub[(i * size) + j] = m[((row + i) * n) + (col + j)];
       }
     }
   });
@@ -74,7 +74,7 @@ void SetSubMatrix(std::vector<double>& m, const std::vector<double>& sub, int n,
   tbb::parallel_for(tbb::blocked_range<int>(0, size, grain), [&](const tbb::blocked_range<int>& r) {
     for (int i = r.begin(); i < r.end(); ++i) {
       for (int j = 0; j < size; ++j) {
-        m[(row + i) * n + (col + j)] = sub[i * size + j];
+        m[((row + i) * n) + (col + j)] = sub[(i * size) + j];
       }
     }
   });
@@ -95,7 +95,13 @@ std::vector<double> StrassenRecursive(const std::vector<double>& a, const std::v
   auto b21 = SubMatrix(b, n, k, 0, k);
   auto b22 = SubMatrix(b, n, k, k, k);
 
-  std::vector<double> m1, m2, m3, m4, m5, m6, m7;
+  std::vector<double> m1;
+  std::vector<double> m2;
+  std::vector<double> m3;
+  std::vector<double> m4;
+  std::vector<double> m5;
+  std::vector<double> m6;
+  std::vector<double> m7;
   tbb::parallel_invoke([&] { m1 = StrassenRecursive(AddMatr(a11, a22, k), AddMatr(b11, b22, k), k); },
                        [&] { m2 = StrassenRecursive(AddMatr(a21, a22, k), b11, k); },
                        [&] { m3 = StrassenRecursive(a11, SubMatr(b12, b22, k), k); },
@@ -178,14 +184,14 @@ bool ParallelStrassenTBB::RunImpl() {
   tbb::parallel_for(tbb::blocked_range<int>(0, rowsA_), [&](const tbb::blocked_range<int>& r) {
     for (int i = r.begin(); i < r.end(); ++i) {
       for (int j = 0; j < colsA_; ++j) {
-        a_exp[i * m + j] = a[i * colsA_ + j];
+        a_exp[(i * m) + j] = a[(i * colsA_) + j];
       }
     }
   });
   tbb::parallel_for(tbb::blocked_range<int>(0, rowsB_), [&](const tbb::blocked_range<int>& r) {
     for (int i = r.begin(); i < r.end(); ++i) {
       for (int j = 0; j < colsB_; ++j) {
-        b_exp[i * m + j] = b[i * colsB_ + j];
+        b_exp[(i * m) + j] = b[(i * colsB_) + j];
       }
     }
   });
@@ -196,7 +202,7 @@ bool ParallelStrassenTBB::RunImpl() {
   tbb::parallel_for(tbb::blocked_range<int>(0, rowsA_), [&](const tbb::blocked_range<int>& r) {
     for (int i = r.begin(); i < r.end(); ++i) {
       for (int j = 0; j < colsB_; ++j) {
-        c[i * colsB_ + j] = c_exp[i * m + j];
+        c[(i * colsB_) + j] = c_exp[(i * m) + j];
       }
     }
   });
