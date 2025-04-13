@@ -6,8 +6,6 @@
 #include <cmath>
 #include <cstddef>
 #include <vector>
-// #include <tbb/global_control.h>
-// #include <iostream>
 
 bool petrov_o_vertical_image_filtration_tbb::TaskTBB::PreProcessingImpl() {
   width_ = task_data->inputs_count[0];
@@ -26,7 +24,6 @@ bool petrov_o_vertical_image_filtration_tbb::TaskTBB::ValidationImpl() {
   size_t height = task_data->inputs_count[1];
 
   if (width < 3 || height < 3) {  // Check if the input image is too small
-    // std::cerr << "Image size is too small. Width: " << width << ", Height: " << height << std::endl;
     return false;
   }
 
