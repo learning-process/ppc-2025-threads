@@ -1,7 +1,10 @@
 #include "tbb/petrov_o_vertical_image_filtration/include/ops_tbb.hpp"
 
 #include <tbb/blocked_range2d.h>
+#include <tbb/global_control.h>
 #include <tbb/parallel_for.h>
+#include <tbb/task_scheduler_init.h>
+#include <tbb/tbb.h>
 
 #include <cmath>
 #include <cstddef>
@@ -31,6 +34,8 @@ bool petrov_o_vertical_image_filtration_tbb::TaskTBB::ValidationImpl() {
 }
 
 bool petrov_o_vertical_image_filtration_tbb::TaskTBB::RunImpl() {
+  tbb::task_scheduler_init init(tbb::task_scheduler_init::automatic);
+
   // Apply Gaussian filter using TBB parallel_for
   tbb::parallel_for(tbb::blocked_range2d<size_t>(1, height_ - 1, 1, width_ - 1),
                     [&](const tbb::blocked_range2d<size_t> &r) {
