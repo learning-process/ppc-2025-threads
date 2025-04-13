@@ -4,9 +4,10 @@
 #include <oneapi/tbb/parallel_reduce.h>
 
 #include <cstddef>
+#include <functional>
 #include <vector>
 
-bool kharin_m_multidimensional_integral_calc_omp::TestTaskOpenMP::ValidationImpl() {
+bool kharin_m_multidimensional_integral_calc_tbb::TestTaskTBB::ValidationImpl() {
   // Проверяем, что предоставлено ровно 3 входа и 1 выход
   if (task_data->inputs.size() != 3 || task_data->outputs.size() != 1) {
     return false;
@@ -22,7 +23,7 @@ bool kharin_m_multidimensional_integral_calc_omp::TestTaskOpenMP::ValidationImpl
   return true;
 }
 
-bool kharin_m_multidimensional_integral_calc_omp::TestTaskOpenMP::PreProcessingImpl() {
+bool kharin_m_multidimensional_integral_calc_tbb::TestTaskTBB::PreProcessingImpl() {
   size_t d = task_data->inputs_count[1];
   auto* sizes_ptr = reinterpret_cast<size_t*>(task_data->inputs[1]);
   grid_sizes_ = std::vector<size_t>(sizes_ptr, sizes_ptr + d);
@@ -36,7 +37,7 @@ bool kharin_m_multidimensional_integral_calc_omp::TestTaskOpenMP::PreProcessingI
         // return total_size;
         return local_prod;
       },
-      std::multiplies<size_t>());
+      std::multiplies<>());
 
   if (task_data->inputs_count[0] != total_size) {
     return false;
@@ -55,7 +56,10 @@ bool kharin_m_multidimensional_integral_calc_omp::TestTaskOpenMP::PreProcessingI
   bool is_valid = tbb::parallel_reduce(
       tbb::blocked_range<size_t>(0, step_sizes_.size()), true,
       [&](const tbb::blocked_range<size_t>& r, bool local_is_valid) -> bool {
-        if (!local_is_valid) return false;
+        if (!local_is_valid)
+        {
+          return false;
+        }
         for (size_t i = r.begin(); i != r.end(); ++i) {
           if (step_sizes_[i] <= 0.0) {
             return false;
@@ -63,7 +67,7 @@ bool kharin_m_multidimensional_integral_calc_omp::TestTaskOpenMP::PreProcessingI
         }
         return true;
       },
-      std::logical_and<bool>());
+      std::logical_and<>());
 
   if (is_valid) {
     output_result_ = 0.0;
@@ -72,7 +76,7 @@ bool kharin_m_multidimensional_integral_calc_omp::TestTaskOpenMP::PreProcessingI
   return false;
 }
 
-bool kharin_m_multidimensional_integral_calc_omp::TestTaskOpenMP::RunImpl() {
+bool kharin_m_multidimensional_integral_calc_tbb::TestTaskTBB::RunImpl() {
   double total = tbb::parallel_reduce(
       tbb::blocked_range<size_t>(0, input_.size()), 0.0,
       [&](const tbb::blocked_range<size_t>& r, double local_sum) -> double {
@@ -81,7 +85,7 @@ bool kharin_m_multidimensional_integral_calc_omp::TestTaskOpenMP::RunImpl() {
         }
         return local_sum;
       },
-      std::plus<double>());
+      std::plus<>());
 
   double volume_element = tbb::parallel_reduce(
       tbb::blocked_range<size_t>(0, step_sizes_.size()), 1.0,
@@ -91,13 +95,13 @@ bool kharin_m_multidimensional_integral_calc_omp::TestTaskOpenMP::RunImpl() {
         }
         return local_prod;
       },
-      std::multiplies<double>());
+      std::multiplies<>());
 
   output_result_ = total * volume_element;
   return true;
 }
 
-bool kharin_m_multidimensional_integral_calc_omp::TestTaskOpenMP::PostProcessingImpl() {
+bool kharin_m_multidimensional_integral_calc_tbb::TestTaskTBB::PostProcessingImpl() {
   reinterpret_cast<double*>(task_data->outputs[0])[0] = output_result_;
   return true;
 }
