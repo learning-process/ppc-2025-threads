@@ -13,7 +13,7 @@
 #include "tbb/mezhuev_m_bitwise_integer_sort_with_simple_merge/include/ops_tbb.hpp"
 
 TEST(mezhuev_m_bitwise_integer_sort_tbb, test_pipeline_run) {
-  constexpr int kCount = 150000;
+  constexpr int kCount = 1500 * 1500;
 
   std::vector<int> in(kCount, 0);
   std::vector<int> out(kCount, 0);
@@ -31,7 +31,7 @@ TEST(mezhuev_m_bitwise_integer_sort_tbb, test_pipeline_run) {
   auto test_task_tbb = std::make_shared<mezhuev_m_bitwise_integer_sort_tbb::SortTBB>(task_data_tbb);
 
   auto perf_attr = std::make_shared<ppc::core::PerfAttr>();
-  perf_attr->num_running = 100;
+  perf_attr->num_running = 20;
   const auto t0 = std::chrono::high_resolution_clock::now();
   perf_attr->current_timer = [&] {
     auto current_time_point = std::chrono::high_resolution_clock::now();
@@ -52,7 +52,7 @@ TEST(mezhuev_m_bitwise_integer_sort_tbb, test_pipeline_run) {
 }
 
 TEST(mezhuev_m_bitwise_integer_sort_tbb, test_task_run) {
-  constexpr int kCount = 150000;
+  constexpr int kCount = 1500 * 1500;
 
   std::vector<int> in(kCount, 0);
   std::vector<int> out(kCount, 0);
@@ -70,7 +70,7 @@ TEST(mezhuev_m_bitwise_integer_sort_tbb, test_task_run) {
   auto test_task_tbb = std::make_shared<mezhuev_m_bitwise_integer_sort_tbb::SortTBB>(task_data_tbb);
 
   auto perf_attr = std::make_shared<ppc::core::PerfAttr>();
-  perf_attr->num_running = 100;
+  perf_attr->num_running = 20;
   const auto t0 = std::chrono::high_resolution_clock::now();
   perf_attr->current_timer = [&] {
     auto current_time_point = std::chrono::high_resolution_clock::now();
