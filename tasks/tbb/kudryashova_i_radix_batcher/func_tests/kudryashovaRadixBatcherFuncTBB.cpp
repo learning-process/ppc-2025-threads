@@ -1,18 +1,14 @@
 #include <gtest/gtest.h>
 
 #include <algorithm>
-#include <cstddef>
 #include <cstdint>
 #include <ctime>
-#include <fstream>
 #include <functional>
 #include <memory>
 #include <random>
-#include <string>
 #include <vector>
 
 #include "core/task/include/task.hpp"
-#include "core/util/include/util.hpp"
 #include "tbb/kudryashova_i_radix_batcher/include/kudryashovaRadixBatcherTBB.hpp"
 
 std::vector<double> kudryashova_i_radix_batcher_tbb::GetRandomDoubleVector(int size) {
