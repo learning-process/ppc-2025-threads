@@ -1,14 +1,15 @@
 #include "tbb/konkov_i_sparse_matmul_ccs_tbb/include/ops_tbb.hpp"
 
-#include <tbb/concurrent_unordered_map.h>
-#include <tbb/parallel_for.h>
+#include <tbb/global_control.h>
 
 #include <algorithm>
-#include <unordered_map>
+#include <cstddef>
 #include <utility>
 #include <vector>
 
 #include "core/task/include/task.hpp"
+#include "oneapi/tbb/concurrent_unordered_map.h"
+#include "oneapi/tbb/parallel_for.h"
 
 namespace konkov_i_sparse_matmul_ccs {
 
@@ -32,6 +33,8 @@ bool SparseMatmulTask::PreProcessingImpl() {
 }
 
 bool SparseMatmulTask::RunImpl() {
+  tbb::global_control global_limit(tbb::global_control::max_allowed_parallelism, 4);
+
   std::vector<tbb::concurrent_unordered_map<int, double>> column_map(colsB);
 
   tbb::parallel_for(tbb::blocked_range<int>(0, colsB), [&](const tbb::blocked_range<int>& range) {
@@ -40,10 +43,14 @@ bool SparseMatmulTask::RunImpl() {
         int row_b = B_row_indices[j];
         double val_b = B_values[j];
 
-        if (row_b >= colsA) continue;
+        if (row_b >= colsA) {
+          continue;
+        }
 
         for (int k = A_col_ptr[row_b]; k < A_col_ptr[row_b + 1]; ++k) {
-          if (static_cast<size_t>(k) >= A_row_indices.size()) continue;
+          if (static_cast<size_t>(k) >= A_row_indices.size()) {
+            continue;
+          }
 
           int row_a = A_row_indices[k];
           double val_a = A_values[k];
@@ -62,7 +69,7 @@ bool SparseMatmulTask::RunImpl() {
         sorted_rows.emplace_back(pair.first, pair.second);
       }
     }
-    std::sort(sorted_rows.begin(), sorted_rows.end());
+    std::ranges::sort(sorted_rows);
 
     for (const auto& pair : sorted_rows) {
       C_values.push_back(pair.second);
