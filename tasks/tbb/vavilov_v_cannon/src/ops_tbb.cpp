@@ -151,12 +151,10 @@ void vavilov_v_cannon_tbb::CannonTBB::InitialShift() {
 }
 
 void vavilov_v_cannon_tbb::CannonTBB::BlockMultiply() {
-  auto a_blocks = oneapi::tbb::enumerable_thread_specific<std::vector<double>>([&] {
-    return std::vector<double>(block_size_ * block_size_);
-  });
-  auto b_blocks = oneapi::tbb::enumerable_thread_specific<std::vector<double>>([&] {
-    return std::vector<double>(block_size_ * block_size_);
-  });
+  auto a_blocks = oneapi::tbb::enumerable_thread_specific<std::vector<double>>(
+      [&] { return std::vector<double>(block_size_ * block_size_); });
+  auto b_blocks = oneapi::tbb::enumerable_thread_specific<std::vector<double>>(
+      [&] { return std::vector<double>(block_size_ * block_size_); });
   oneapi::tbb::parallel_for(
       oneapi::tbb::blocked_range<int>(0, num_blocks_, 1),
       [&](const oneapi::tbb::blocked_range<int>& r) {
