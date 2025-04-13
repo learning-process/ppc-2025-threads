@@ -70,6 +70,9 @@ void smirnov_i_radix_sort_simple_merge_tbb::TestTaskTBB::SortChunk(int i, int si
                                                                    tbb::mutex& mtx_start, tbb::mutex& mtx_mas,
                                                                    tbb::mutex& mtx_firstdq,
                                                                    std::deque<std::vector<int>>& firstdq) {
+  if (size <= 0 || mas_.empty()) {
+    return;
+  }
   int self_offset = size / nth;
   if (size % nth != 0) {
     self_offset += static_cast<int>(i < size % nth);
@@ -79,13 +82,17 @@ void smirnov_i_radix_sort_simple_merge_tbb::TestTaskTBB::SortChunk(int i, int si
   int self_start = start;
   start += self_offset;
   mtx_start.unlock();
+  if (self_start < 0 || self_start >= static_cast<int>(mas_.size()) ||
+      self_offset < 0 || self_start + self_offset > static_cast<int>(mas_.size())) {
+    return;
+  }
   mtx_mas.lock();
   std::copy(mas_.begin() + self_start, mas_.begin() + self_start + self_offset, tmp.begin());
   mtx_mas.unlock();
   if (!tmp.empty()) {
     RadixSort(tmp);
     mtx_firstdq.lock();
-    firstdq.push_back(tmp);
+    firstdq.push_back(std::move(tmp));
     mtx_firstdq.unlock();
   }
 }
