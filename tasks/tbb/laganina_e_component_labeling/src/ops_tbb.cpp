@@ -99,7 +99,7 @@ void laganina_e_component_labeling_tbb::TestTaskTBB::LabelComponents() {
   UnionFind uf(size, data_);
 
   ProcessComponents(uf);
-  // hh99ib
+
   AssignFinalLabels(size, uf);
 }
 void laganina_e_component_labeling_tbb::TestTaskTBB::ProcessComponents(UnionFind& uf) {

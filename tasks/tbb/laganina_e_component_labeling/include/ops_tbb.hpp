@@ -32,7 +32,7 @@ class TestTaskTBB : public ppc::core::Task {
   struct UnionFind {
     std::vector<int> parent;
 
-    UnionFind(int size, std::vector<int> data) : parent(size) {
+    UnionFind(int size, std::vector<int>& data) : parent(size) {
       tbb::parallel_for(0, size, [&](int i) { parent[i] = data[i] ? i : -1; });
     }
 
@@ -47,7 +47,7 @@ class TestTaskTBB : public ppc::core::Task {
   void LabelComponents();
 };
 
-inline void NormalizeLabels(std::vector<int> vec) {
+inline void NormalizeLabels(std::vector<int>& vec) {
   std::vector<int> unique_labels;
   std::unordered_set<int> seen;
 
