@@ -66,9 +66,8 @@ void smirnov_i_radix_sort_simple_merge_tbb::TestTaskTBB::RadixSort(std::vector<i
     std::swap(mas, sorting);
   }
 }
-void smirnov_i_radix_sort_simple_merge_tbb::TestTaskTBB::SortChunk(int i, int size, int nth,
-                                                                   int& start, tbb::mutex& mtx_start,
-                                                                   tbb::mutex& mtx_mas,
+void smirnov_i_radix_sort_simple_merge_tbb::TestTaskTBB::SortChunk(int i, int size, int nth, int& start,
+                                                                   tbb::mutex& mtx_start, tbb::mutex& mtx_mas,
                                                                    tbb::mutex& mtx_firstdq,
                                                                    std::deque<std::vector<int>>& firstdq) {
   int self_offset = size / nth;
