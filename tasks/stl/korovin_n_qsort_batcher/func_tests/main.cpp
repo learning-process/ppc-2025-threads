@@ -77,7 +77,7 @@ TEST(korovin_n_qsort_batcher_stl, test_extreme_values_with_25_87) {
   RunTest(in);
 }
 
-TEST(korovin_n_sort_batcher_stl, test_empty_sort) {
+TEST(korovin_n_qsort_batcher_stl, test_empty_sort) {
   std::vector<int> in = {};
   RunTest(in);
 }
