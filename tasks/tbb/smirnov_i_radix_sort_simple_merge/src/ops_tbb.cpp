@@ -82,8 +82,8 @@ void smirnov_i_radix_sort_simple_merge_tbb::TestTaskTBB::SortChunk(int i, int si
   int self_start = start;
   start += self_offset;
   mtx_start.unlock();
-  if (self_start < 0 || self_start >= static_cast<int>(mas_.size()) ||
-      self_offset < 0 || self_start + self_offset > static_cast<int>(mas_.size())) {
+  if (self_start < 0 || self_start >= static_cast<int>(mas_.size()) || self_offset < 0 ||
+      self_start + self_offset > static_cast<int>(mas_.size())) {
     return;
   }
   mtx_mas.lock();
