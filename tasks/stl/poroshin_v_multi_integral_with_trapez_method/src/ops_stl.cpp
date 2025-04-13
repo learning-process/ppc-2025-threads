@@ -27,12 +27,10 @@ void poroshin_v_multi_integral_with_trapez_method_stl::TestTaskSTL::CalculateDat
 void poroshin_v_multi_integral_with_trapez_method_stl::TestTaskSTL::CountMultiIntegralTrapezMethodStl() {
   const int dimensions = static_cast<int>(limits_.size());
   const int num_threads = ppc::util::GetPPCNumThreads();
-  
   std::vector<double> h(dimensions);
   std::vector<std::vector<double>> weights(dimensions);
   int total_points = 1;
   CalculateData(h, weights, total_points, dimensions);
-
   std::vector<std::pair<double, double>> thread_results(num_threads, {0.0, 0.0});
   std::vector<std::thread> threads;
   threads.reserve(num_threads);
