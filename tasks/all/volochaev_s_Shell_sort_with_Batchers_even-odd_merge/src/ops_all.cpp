@@ -5,13 +5,12 @@
 #include <algorithm>
 #include <cmath>
 #include <future>
-#include <limits>
 #include <ranges>
 #include <thread>
 #include <vector>
 
 bool volochaev_s_shell_sort_with_batchers_even_odd_merge_all::ShellSortALL::PreProcessingImpl() {
-  MPI_Init(NULL, NULL);
+  MPI_Init(nullptr, nullptr);
   MPI_Comm_rank(MPI_COMM_WORLD, &rank_);
   MPI_Comm_size(MPI_COMM_WORLD, &world_size_);
 
@@ -43,14 +42,14 @@ void volochaev_s_shell_sort_with_batchers_even_odd_merge_all::ShellSortALL::Dist
 
   local_data_.resize(counts[rank_]);
 
-  MPI_Scatterv(array_.data(), counts.data(), displacements.data(), MPI_INT, local_data_.data(), local_data_.size(),
-               MPI_INT, 0, MPI_COMM_WORLD);
+  MPI_Scatterv(array_.data(), counts.data(), displacements.data(), MPI_INT, local_data_.data(),
+               static_cast<int>(local_data_.size()), MPI_INT, 0, MPI_COMM_WORLD);
 }
 
 void volochaev_s_shell_sort_with_batchers_even_odd_merge_all::ShellSortALL::ParallelShellSortLocal() {
   unsigned int max_threads = std::thread::hardware_concurrency();
   c_threads_ = static_cast<int>(std::pow(2, std::floor(std::log2(max_threads))));
-  n_local_ = local_data_.size();
+  n_local_ = static_cast<int>(local_data_.size());
   mini_batch_ = n_local_ / c_threads_;
 
   if (mini_batch_ == 0) {
@@ -102,7 +101,7 @@ void volochaev_s_shell_sort_with_batchers_even_odd_merge_all::ShellSortALL::Merg
 
 void volochaev_s_shell_sort_with_batchers_even_odd_merge_all::ShellSortALL::GatherAndMerge() {
   std::vector<int> all_sizes(world_size_);
-  int local_size = local_data_.size();
+  int local_size = static_cast<int>(local_data_.size());
   MPI_Allgather(&local_size, 1, MPI_INT, all_sizes.data(), 1, MPI_INT, MPI_COMM_WORLD);
 
   std::vector<int> displacements(world_size_, 0);
