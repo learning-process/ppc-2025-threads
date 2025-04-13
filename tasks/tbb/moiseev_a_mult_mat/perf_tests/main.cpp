@@ -25,6 +25,18 @@ std::vector<double> GenerateRandomMatrix(size_t rows, size_t cols) {
   return matrix;
 }
 
+void NaiveMultiply(const std::vector<double> &a, const std::vector<double> &b, std::vector<double> &c, size_t n) {
+  for (size_t i = 0; i < n; ++i) {
+    for (size_t j = 0; j < n; ++j) {
+      double sum = 0.0;
+      for (size_t k = 0; k < n; ++k) {
+        sum += a[i * n + k] * b[k * n + j];
+      }
+      c[i * n + j] = sum;
+    }
+  }
+}
+
 }  // namespace
 
 TEST(moiseev_a_mult_mat_tbb, test_pipeline_run) {
@@ -60,6 +72,14 @@ TEST(moiseev_a_mult_mat_tbb, test_pipeline_run) {
   auto perf_analyzer = std::make_shared<ppc::core::Perf>(test_task_tbb);
   perf_analyzer->PipelineRun(perf_attr, perf_results);
   ppc::core::Perf::PrintPerfStatistic(perf_results);
+
+  std::vector<double> expected_matrix(kCount * kCount, 0.0);
+  NaiveMultiply(matrix_a, matrix_b, expected_matrix, kCount);
+
+  const double epsilon = 1e-6;
+  for (size_t i = 0; i < matrix_c.size(); ++i) {
+    EXPECT_NEAR(matrix_c[i], expected_matrix[i], epsilon);
+  }
 }
 
 TEST(moiseev_a_mult_mat_tbb, test_task_run) {
@@ -95,4 +115,12 @@ TEST(moiseev_a_mult_mat_tbb, test_task_run) {
   auto perf_analyzer = std::make_shared<ppc::core::Perf>(test_task_tbb);
   perf_analyzer->TaskRun(perf_attr, perf_results);
   ppc::core::Perf::PrintPerfStatistic(perf_results);
+
+  std::vector<double> expected_matrix(kCount * kCount, 0.0);
+  NaiveMultiply(matrix_a, matrix_b, expected_matrix, kCount);
+
+  const double epsilon = 1e-6;
+  for (size_t i = 0; i < matrix_c.size(); ++i) {
+    EXPECT_NEAR(matrix_c[i], expected_matrix[i], epsilon);
+  }
 }
