@@ -1,9 +1,9 @@
 #pragma once
 
+#include <oneapi/tbb/parallel_for.h>
 #include <tbb/blocked_range.h>
 #include <tbb/blocked_range2d.h>
 #include <tbb/concurrent_unordered_map.h>
-#include <tbb/parallel_for.h>
 
 #include <unordered_set>
 #include <utility>
@@ -25,9 +25,9 @@ class TestTaskTBB : public ppc::core::Task {
   bool RunImpl() override;
 
  private:
-  int rows;
-  int cols;
-  std::vector<int> data;
+  int rows_;
+  int cols_;
+  std::vector<int> data_;
 
   struct UnionFind {
     std::vector<int> parent;
@@ -39,12 +39,12 @@ class TestTaskTBB : public ppc::core::Task {
     int Find(int x);
     void Unite(int x, int y);
   };
-  void Process_Components(UnionFind& uf);
-  void Assign_Final_Labels(int size, UnionFind uf);
-  void Process_Range(const tbb::blocked_range2d<int>& range, UnionFind& uf);
-  void Process_Row(int row, const tbb::blocked_range<int>& col_range, UnionFind& uf);
-  void Check_All_Neighbors(int row, int col, int idx, UnionFind& uf);
-  void Label_Components();
+  void ProcessComponents(UnionFind& uf);
+  void AssignFinalLabels(int size, UnionFind uf);
+  void ProcessRange(const tbb::blocked_range2d<int>& range, UnionFind& uf);
+  void ProcessRow(int row, const tbb::blocked_range<int>& col_range, UnionFind& uf);
+  void CheckAllNeighbors(int row, int col, int idx, UnionFind& uf);
+  void LabelComponents();
 };
 
 inline void NormalizeLabels(std::vector<int> vec) {
