@@ -1,4 +1,5 @@
 #include <gtest/gtest.h>
+#include <oneapi/tbb/global_control.h>
 #include <tbb/global_control.h>
 
 #include <algorithm>
