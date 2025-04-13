@@ -48,10 +48,14 @@ void SparseMatmulTask::MultiplySparseMatrices(std::vector<tbb::concurrent_unorde
         int row_b = B_row_indices[j];
         double val_b = B_values[j];
 
-        if (row_b >= colsA) continue;
+        if (row_b >= colsA) {
+          continue;
+        }
 
         for (int k = A_col_ptr[row_b]; k < A_col_ptr[row_b + 1]; ++k) {
-          if (static_cast<size_t>(k) >= A_row_indices.size()) continue;
+          if (static_cast<size_t>(k) >= A_row_indices.size()) {
+            continue;
+          }
 
           int row_a = A_row_indices[k];
           double val_a = A_values[k];
@@ -86,7 +90,6 @@ void SparseMatmulTask::BuildResultMatrix(const std::vector<tbb::concurrent_unord
     C_col_ptr[col + 1] = count;
   }
 }
-
 
 bool SparseMatmulTask::PostProcessingImpl() { return true; }
 

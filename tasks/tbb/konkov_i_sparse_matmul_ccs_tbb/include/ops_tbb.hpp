@@ -4,6 +4,7 @@
 #include <vector>
 
 #include "core/task/include/task.hpp"
+#include "oneapi/tbb/concurrent_unordered_map.h"
 
 namespace konkov_i_sparse_matmul_ccs {
 
