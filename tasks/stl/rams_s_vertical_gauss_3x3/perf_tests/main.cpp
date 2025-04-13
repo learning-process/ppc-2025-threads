@@ -1,4 +1,4 @@
-#include "seq/rams_s_vertical_gauss_3x3/include/main.hpp"
+#include "stl/rams_s_vertical_gauss_3x3/include/main.hpp"
 
 #include <gtest/gtest.h>
 
@@ -32,7 +32,7 @@ void RunTest(bool pipeline) {
   task_data->outputs.emplace_back(out.data());
   task_data->outputs_count.emplace_back(out.size());
 
-  auto test_task = std::make_shared<rams_s_vertical_gauss_3x3_seq::TaskSequential>(task_data);
+  auto test_task = std::make_shared<rams_s_vertical_gauss_3x3_stl::TaskStl>(task_data);
 
   auto perf_attr = std::make_shared<ppc::core::PerfAttr>();
   perf_attr->num_running = 10;
@@ -56,5 +56,5 @@ void RunTest(bool pipeline) {
 }
 }  // namespace
 
-TEST(rams_s_vertical_gauss_3x3_seq, test_pipeline_run) { RunTest(true); }
-TEST(rams_s_vertical_gauss_3x3_seq, test_task_run) { RunTest(false); }
+TEST(rams_s_vertical_gauss_3x3_stl, test_pipeline_run) { RunTest(true); }
+TEST(rams_s_vertical_gauss_3x3_stl, test_task_run) { RunTest(false); }
