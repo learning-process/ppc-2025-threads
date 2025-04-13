@@ -1,8 +1,5 @@
 #include "tbb/smirnov_i_radix_sort_simple_merge/include/ops_tbb.hpp"
 
-#include <tbb/mutex.h>
-#include <tbb/tbb.h>
-
 #include <algorithm>
 #include <cmath>
 #include <cstddef>
@@ -74,14 +71,12 @@ void smirnov_i_radix_sort_simple_merge_tbb::TestTaskTBB::SortChunk(int i, int si
   if (size % nth != 0) {
     self_offset += static_cast<int>(i < size % nth);
   }
-  int self_start;
+  std::vector<int> tmp(self_offset);
   mtx_start.lock();
   int self_start = start;
   start += self_offset;
   mtx_start.unlock();
-  tmp.resize(self_offset);
   mtx_mas.lock();
-  std::vector<int> tmp(self_offset);
   std::copy(mas_.begin() + self_start, mas_.begin() + self_start + self_offset, tmp.begin());
   mtx_mas.unlock();
   if (!tmp.empty()) {

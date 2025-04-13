@@ -8,7 +8,6 @@
 #include <vector>
 
 #include "core/task/include/task.hpp"
-#include "core/util/include/util.hpp"
 #include "tbb/smirnov_i_radix_sort_simple_merge/include/ops_tbb.hpp"
 
 TEST(smirnov_i_radix_sort_simple_merge_tbb, test_wrong_size) {
