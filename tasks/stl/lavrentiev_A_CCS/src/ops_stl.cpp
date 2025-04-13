@@ -57,11 +57,11 @@ int lavrentiev_a_ccs_stl::CCSSTL::CalculateStartIndex(int index, const std::vect
 }
 
 lavrentiev_a_ccs_stl::Sparse lavrentiev_a_ccs_stl::CCSSTL::MatMul(const Sparse &matrix1, const Sparse &matrix2) {
-  auto [size, elements_and_rows, columns_sum] = Sparse();
+  Sparse temporary_matrix;
   std::vector<std::thread> threads(ppc::util::GetPPCNumThreads());
-  columns_sum.resize(matrix2.size.second);
-  elements_and_rows.resize((matrix2.columnsSum.size() * matrix1.columnsSum.size()) +
-                           std::max(matrix1.columnsSum.size(), matrix2.columnsSum.size()));
+  temporary_matrix.columnsSum.resize(matrix2.size.second);
+  temporary_matrix.elements_and_rows.resize((matrix2.columnsSum.size() * matrix1.columnsSum.size()) +
+                                            std::max(matrix1.columnsSum.size(), matrix2.columnsSum.size()));
   auto transposed_matrix = Transpose(matrix1);
   auto accumulate = [&](int i_index, int j_index) {
     double sum = 0.0;
@@ -82,8 +82,8 @@ lavrentiev_a_ccs_stl::Sparse lavrentiev_a_ccs_stl::CCSSTL::MatMul(const Sparse &
       for (int j = 0; j < static_cast<int>(transposed_matrix.columnsSum.size()); ++j) {
         double s = accumulate(i, j);
         if (s != 0) {
-          elements_and_rows[(i * matrix2.size.second) + j] = {s, j};
-          columns_sum[i]++;
+          temporary_matrix.elements_and_rows[(i * matrix2.size.second) + j] = {s, j};
+          temporary_matrix.columnsSum[i]++;
         }
       }
     }
@@ -101,13 +101,15 @@ lavrentiev_a_ccs_stl::Sparse lavrentiev_a_ccs_stl::CCSSTL::MatMul(const Sparse &
   for (auto &current_thread : threads) {
     current_thread.join();
   }
-  for (size_t i = 1; i < columns_sum.size(); ++i) {
-    columns_sum[i] = columns_sum[i] + columns_sum[i - 1];
+  for (size_t i = 1; i < temporary_matrix.columnsSum.size(); ++i) {
+    temporary_matrix.columnsSum[i] = temporary_matrix.columnsSum[i] + temporary_matrix.columnsSum[i - 1];
   }
-  size.first = matrix2.size.second;
-  size.second = matrix2.size.second;
-  std::erase_if(elements_and_rows, [](auto &current_element) { return current_element.first == 0.0; });
-  return {.size = size, .elements_and_rows = elements_and_rows, .columnsSum = columns_sum};
+  temporary_matrix.size.first = matrix2.size.second;
+  temporary_matrix.size.second = matrix2.size.second;
+  std::erase_if(temporary_matrix.elements_and_rows, [](auto &current_element) { return current_element.first == 0.0; });
+  return {.size = temporary_matrix.size,
+          .elements_and_rows = temporary_matrix.elements_and_rows,
+          .columnsSum = temporary_matrix.columnsSum};
 }
 
 int lavrentiev_a_ccs_stl::CCSSTL::GetElementsCount(int index, const std::vector<int> &columns_sum) {
