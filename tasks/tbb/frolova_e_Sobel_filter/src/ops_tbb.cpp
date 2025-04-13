@@ -2,7 +2,7 @@
 
 #include <tbb/blocked_range.h>
 #include <tbb/blocked_range2d.h>
-#include <tbb/parallel_for.h>
+#include <oneapi/tbb/parallel_for.h>
 
 #include <algorithm>
 #include <cmath>
