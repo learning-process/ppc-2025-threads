@@ -14,7 +14,7 @@ namespace {
 std::vector<int> CreateReverseSortedVector(unsigned int size, const int left) {
   std::vector<int> result;
   while (size-- != 0) {
-    result.push_back(left + (int)size);
+    result.push_back(left + static_cast<int>(size));
   }
   return result;
 }
@@ -24,7 +24,7 @@ std::vector<int> CreateRandomVector(unsigned int size, const int left, const int
   std::random_device dev;
   std::mt19937 gen(dev());
   while (size-- != 0) {
-    result.push_back((int)(gen() % (int)(right - left)) + left);
+    result.push_back(static_cast<int>(gen() % static_cast<int>(right - left)) + left);
   }
   return result;
 }

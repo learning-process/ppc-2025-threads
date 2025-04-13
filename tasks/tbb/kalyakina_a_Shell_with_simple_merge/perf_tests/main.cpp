@@ -15,7 +15,7 @@ namespace {
 std::vector<int> CreateReverseSortedVector(unsigned int size, const int left) {
   std::vector<int> result;
   while (size-- != 0) {
-    result.push_back(left + (int)size);
+    result.push_back(left + static_cast<int>(size));
   }
   return result;
 }
