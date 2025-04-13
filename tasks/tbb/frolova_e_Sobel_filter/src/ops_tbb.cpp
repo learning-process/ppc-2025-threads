@@ -1,8 +1,8 @@
 #include "tbb/frolova_e_Sobel_filter/include/ops_tbb.hpp"
 
-#include <tbb/parallel_for.h>
 #include <tbb/blocked_range.h>
 #include <tbb/blocked_range2d.h>
+#include <tbb/parallel_for.h>
 
 #include <algorithm>
 #include <cmath>
