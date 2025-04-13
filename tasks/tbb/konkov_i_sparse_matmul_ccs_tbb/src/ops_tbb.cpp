@@ -9,6 +9,7 @@
 
 #include "core/task/include/task.hpp"
 #include "oneapi/tbb/concurrent_unordered_map.h"
+#include "oneapi/tbb/global_control.h"
 #include "oneapi/tbb/parallel_for.h"
 
 namespace konkov_i_sparse_matmul_ccs {
