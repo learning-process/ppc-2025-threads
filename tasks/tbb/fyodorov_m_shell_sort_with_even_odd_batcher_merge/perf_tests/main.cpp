@@ -1,14 +1,17 @@
 #include <gtest/gtest.h>
 
+#include <algorithm>
 #include <chrono>
 #include <cstddef>
 #include <cstdint>
 #include <memory>
+#include <random>
 #include <vector>
 
 #include "core/perf/include/perf.hpp"
 #include "core/task/include/task.hpp"
 #include "tbb/fyodorov_m_shell_sort_with_even_odd_batcher_merge/include/ops_tbb.hpp"
+
 
 TEST(fyodorov_m_shell_sort_with_even_odd_batcher_merge_tbb, test_pipeline_run) {
   constexpr int kCount = 520000;
