@@ -1,6 +1,4 @@
 #include "tbb/frolova_e_Sobel_filter/include/ops_tbb.hpp"
-#include <oneapi/tbb/task_arena.h>
-#include <oneapi/tbb/task_group.h>
 #include <tbb/blocked_range.h>
 #include <tbb/blocked_range2d.h>
 #include <tbb/parallel_for.h>
