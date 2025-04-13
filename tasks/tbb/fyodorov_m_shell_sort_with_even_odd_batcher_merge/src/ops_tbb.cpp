@@ -6,7 +6,9 @@
 #include <tbb/tbb.h>
 
 #include <cmath>
+#include <cstddef>
 
+#include "core/task/include/task.hpp"
 #include "ops_tbb.hpp"
 
 // #include <core/util/include/util.hpp>
