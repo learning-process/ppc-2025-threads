@@ -2,11 +2,10 @@
 
 #include <oneapi/tbb/blocked_range.h>
 #include <oneapi/tbb/blocked_range2d.h>
+#include <oneapi/tbb/concurrent_unordered_map.h>
 #include <oneapi/tbb/parallel_for.h>
 
 #include <algorithm>
-#include <unordered_map>
-#include <unordered_set>
 #include <vector>
 
 bool laganina_e_component_labeling_tbb::TestTaskTBB::ValidationImpl() {
