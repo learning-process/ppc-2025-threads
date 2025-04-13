@@ -14,8 +14,8 @@
 #include "oneapi/tbb/task_arena.h"
 #include "oneapi/tbb/task_group.h"
 
-std::vector<int> smirnov_i_radix_sort_simple_merge_tbb::TestTaskTBB::Merge(std::vector<int> mas1,
-                                                                           std::vector<int> mas2) {
+std::vector<int> smirnov_i_radix_sort_simple_merge_tbb::TestTaskTBB::Merge(std::vector<int>& mas1,
+                                                                           std::vector<int>& mas2) {
   std::vector<int> res;
   res.reserve(mas1.size() + mas2.size());
   int p1 = 0;
