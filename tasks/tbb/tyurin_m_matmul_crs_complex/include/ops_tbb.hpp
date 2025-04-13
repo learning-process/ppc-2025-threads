@@ -71,9 +71,9 @@ inline MatrixCRS RegularToCRS(const Matrix& matrix) {
 }
 
 inline Matrix CRSToRegular(const MatrixCRS& crs) {
-  Matrix matrix{{.rows = crs.GetRows(),
-                 .cols = crs.GetCols(),
-                 .data = std::vector<std::complex<double>>(crs.GetRows() * crs.GetCols())};
+  Matrix matrix{.rows = crs.GetRows(),
+                .cols = crs.GetCols(),
+                .data = std::vector<std::complex<double>>(crs.GetRows() * crs.GetCols())};
   for (uint32_t row = 0; row < matrix.rows; ++row) {
     for (uint32_t i = crs.rowptr[row]; i < crs.rowptr[row + 1]; ++i) {
       matrix.Get(row, crs.colind[i]) = crs.data[i];
