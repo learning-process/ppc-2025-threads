@@ -56,8 +56,7 @@ bool kharin_m_multidimensional_integral_calc_tbb::TestTaskTBB::PreProcessingImpl
   bool is_valid = tbb::parallel_reduce(
       tbb::blocked_range<size_t>(0, step_sizes_.size()), true,
       [&](const tbb::blocked_range<size_t>& r, bool local_is_valid) -> bool {
-        if (!local_is_valid)
-        {
+        if (!local_is_valid) {
           return false;
         }
         for (size_t i = r.begin(); i != r.end(); ++i) {

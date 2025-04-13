@@ -29,8 +29,7 @@ TEST(kharin_m_multidimensional_integral_calc_tbb, test_pipeline_run) {
   task_data_tbb->outputs.emplace_back(reinterpret_cast<uint8_t*>(out.data()));
   task_data_tbb->outputs_count.emplace_back(out.size());
 
-  auto test_task_tbbuential =
-      std::make_shared<kharin_m_multidimensional_integral_calc_tbb::TestTaskTBB>(task_data_tbb);
+  auto test_task_tbbuential = std::make_shared<kharin_m_multidimensional_integral_calc_tbb::TestTaskTBB>(task_data_tbb);
 
   auto perf_attr = std::make_shared<ppc::core::PerfAttr>();
   perf_attr->num_running = 30;
@@ -69,8 +68,7 @@ TEST(kharin_m_multidimensional_integral_calc_tbb, test_task_run) {
   task_data_tbb->outputs.emplace_back(reinterpret_cast<uint8_t*>(out.data()));
   task_data_tbb->outputs_count.emplace_back(out.size());
 
-  auto test_task_tbbuential =
-      std::make_shared<kharin_m_multidimensional_integral_calc_tbb::TestTaskTBB>(task_data_tbb);
+  auto test_task_tbbuential = std::make_shared<kharin_m_multidimensional_integral_calc_tbb::TestTaskTBB>(task_data_tbb);
 
   auto perf_attr = std::make_shared<ppc::core::PerfAttr>();
   perf_attr->num_running = 30;
