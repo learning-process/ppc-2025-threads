@@ -1,6 +1,5 @@
 #include "tbb/smirnov_i_radix_sort_simple_merge/include/ops_tbb.hpp"
 
-#include <tbb/mutex.h>
 #include <tbb/tbb.h>
 
 #include <algorithm>
@@ -11,6 +10,7 @@
 #include <utility>
 #include <vector>
 
+#include "oneapi/tbb/mutex.h"
 #include "oneapi/tbb/task_arena.h"
 #include "oneapi/tbb/task_group.h"
 
