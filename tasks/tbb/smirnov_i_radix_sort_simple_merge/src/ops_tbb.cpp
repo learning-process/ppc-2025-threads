@@ -1,10 +1,10 @@
 #include "tbb/smirnov_i_radix_sort_simple_merge/include/ops_tbb.hpp"
 
+#include <tbb/mutex.h>
 #include <tbb/tbb.h>
 
 #include <algorithm>
 #include <cmath>
-#include <core/util/include/util.hpp>
 #include <cstddef>
 #include <deque>
 #include <numeric>
@@ -66,6 +66,32 @@ void smirnov_i_radix_sort_simple_merge_tbb::TestTaskTBB::RadixSort(std::vector<i
     std::swap(mas, sorting);
   }
 }
+void smirnov_i_radix_sort_simple_merge_tbb::TestTaskTBB::SortChunk(int i, int size, int nth,
+                                                                   int& start, tbb::mutex& mtx_start,
+                                                                   tbb::mutex& mtx_mas,
+                                                                   tbb::mutex& mtx_firstdq,
+                                                                   std::deque<std::vector<int>>& firstdq) {
+  int self_offset = size / nth;
+  if (size % nth != 0) {
+    self_offset += static_cast<int>(i < size % nth);
+  }
+  int self_start;
+  mtx_start.lock();
+  int self_start = start;
+  start += self_offset;
+  mtx_start.unlock();
+  tmp.resize(self_offset);
+  mtx_mas.lock();
+  std::vector<int> tmp(self_offset);
+  std::copy(mas_.begin() + self_start, mas_.begin() + self_start + self_offset, tmp.begin());
+  mtx_mas.unlock();
+  if (!tmp.empty()) {
+    RadixSort(tmp);
+    mtx_firstdq.lock();
+    firstdq.push_back(tmp);
+    mtx_firstdq.unlock();
+  }
+}
 bool smirnov_i_radix_sort_simple_merge_tbb::TestTaskTBB::PreProcessingImpl() {
   unsigned int input_size = task_data->inputs_count[0];
   auto* in_ptr = reinterpret_cast<int*>(task_data->inputs[0]);
@@ -78,7 +104,6 @@ bool smirnov_i_radix_sort_simple_merge_tbb::TestTaskTBB::PreProcessingImpl() {
 bool smirnov_i_radix_sort_simple_merge_tbb::TestTaskTBB::ValidationImpl() {
   return task_data->inputs_count[0] == task_data->outputs_count[0];
 }
-
 bool smirnov_i_radix_sort_simple_merge_tbb::TestTaskTBB::RunImpl() {
   std::deque<std::vector<int>> firstdq;
   std::deque<std::vector<int>> seconddq;
@@ -93,27 +118,7 @@ bool smirnov_i_radix_sort_simple_merge_tbb::TestTaskTBB::RunImpl() {
 
   for (int i = 0; i < nth; i++) {
     tg.run([this, i, size, nth, &start, &mtx_firstdq, &mtx_mas, &firstdq, &mtx_start]() {
-      int self_offset;
-      std::vector<int> tmp;
-      if (size % nth == 0) {
-        self_offset = size / nth;
-      } else {
-        self_offset = size / nth + static_cast<int>(i < size % nth);
-      }
-      mtx_start.lock();
-      int self_start = start;
-      start += self_offset;
-      mtx_start.unlock();
-      tmp.resize(self_offset);
-      mtx_mas.lock();
-      std::copy(mas_.begin() + self_start, mas_.begin() + self_start + self_offset, tmp.begin());
-      mtx_mas.unlock();
-      if (!tmp.empty()) {
-        RadixSort(tmp);
-        mtx_firstdq.lock();
-        firstdq.push_back(tmp);
-        mtx_firstdq.unlock();
-      }
+      SortChunk(i, size, nth, start, mtx_firstdq, mtx_mas, firstdq, mtx_start);
     });
   }
   tg.wait();
