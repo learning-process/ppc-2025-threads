@@ -1,8 +1,8 @@
-#include "tbb/borisov_s_strassen/include/ops_tbb.hpp"
-
 #include <tbb/blocked_range.h>
 #include <tbb/parallel_for.h>
 #include <tbb/parallel_invoke.h>
+
+#include "tbb/borisov_s_strassen/include/ops_tbb.hpp"
 
 #include <algorithm>
 #include <cstddef>
@@ -12,7 +12,7 @@ namespace borisov_s_strassen_tbb {
 
 namespace {
 
-const int SEQ_THRESHOLD = 64;
+const int kSeqThreshold = 64;
 
 std::vector<double> MultiplyNaive(const std::vector<double>& a, const std::vector<double>& b, int n) {
   std::vector<double> c(n * n, 0.0);
@@ -80,7 +80,7 @@ void SetSubMatrix(std::vector<double>& m, const std::vector<double>& sub, int n,
 }
 
 std::vector<double> StrassenRecursive(const std::vector<double>& a, const std::vector<double>& b, int n) {
-  if (n <= SEQ_THRESHOLD) {
+  if (n <= kSeqThreshold) {
     return MultiplyNaive(a, b, n);
   }
   int k = n / 2;
