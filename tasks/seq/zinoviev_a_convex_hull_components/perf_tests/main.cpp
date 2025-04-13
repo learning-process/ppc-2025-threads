@@ -10,7 +10,7 @@
 #include "seq/zinoviev_a_convex_hull_components/include/ops_seq.hpp"
 
 TEST(zinoviev_a_convex_hull_components_seq, test_pipeline_run) {
-  const int size = 3000;
+  const int size = 3300;
   std::vector<int> input(size * size, 0);
   for (int i = 0; i < size; ++i) {
     input[i] = 1;
@@ -47,7 +47,7 @@ TEST(zinoviev_a_convex_hull_components_seq, test_pipeline_run) {
 }
 
 TEST(zinoviev_a_convex_hull_components_seq, test_task_run) {
-  const int size = 3000;
+  const int size = 3300;
   std::vector<int> input(size * size, 0);
   for (int i = 0; i < size; ++i) {
     input[i] = 1;
