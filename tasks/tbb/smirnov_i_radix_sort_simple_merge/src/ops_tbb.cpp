@@ -1,5 +1,8 @@
 #include "tbb/smirnov_i_radix_sort_simple_merge/include/ops_tbb.hpp"
 
+#include <tbb/mutex.h>
+#include <tbb/tbb.h>
+
 #include <algorithm>
 #include <cmath>
 #include <cstddef>
@@ -112,7 +115,7 @@ bool smirnov_i_radix_sort_simple_merge_tbb::TestTaskTBB::RunImpl() {
 
   for (int i = 0; i < nth; i++) {
     tg.run([this, i, size, nth, &start, &mtx_firstdq, &mtx_mas, &firstdq, &mtx_start]() {
-      SortChunk(i, size, nth, start, mtx_firstdq, mtx_mas, firstdq, mtx_start);
+      SortChunk(i, size, nth, start, mtx_start, mtx_mas, mtx_firstdq, firstdq);
     });
   }
   tg.wait();
