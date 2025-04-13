@@ -14,6 +14,8 @@ class SparseMatmulTask : public ppc::core::Task {
   bool ValidationImpl() override;
   bool PreProcessingImpl() override;
   bool RunImpl() override;
+  void MultiplySparseMatrices(std::vector<tbb::concurrent_unordered_map<int, double>>& column_map);
+  void BuildResultMatrix(const std::vector<tbb::concurrent_unordered_map<int, double>>& column_map);
   bool PostProcessingImpl() override;
 
   std::vector<double> A_values, B_values, C_values;
