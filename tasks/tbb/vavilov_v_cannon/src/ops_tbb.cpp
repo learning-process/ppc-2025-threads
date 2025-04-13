@@ -157,7 +157,7 @@ void vavilov_v_cannon_tbb::CannonTBB::BlockMultiply() {
       [&] { return std::vector<double>(block_size_ * block_size_); });
 
   oneapi::tbb::parallel_for(
-      oneapi::tbb::blocked_range2d<int>(0, num_blocks_, 0, num_blocks_),
+      oneapi::tbb::blocked_range2d<int>(0, num_blocks_, 2, 0, num_blocks_, 2),
       [&](const oneapi::tbb::blocked_range2d<int>& r) {
         auto& a_block = a_blocks.local();
         auto& b_block = b_blocks.local();
