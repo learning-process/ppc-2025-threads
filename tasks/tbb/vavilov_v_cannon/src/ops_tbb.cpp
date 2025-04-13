@@ -155,40 +155,43 @@ void vavilov_v_cannon_tbb::CannonTBB::BlockMultiply() {
       [&] { return std::vector<double>(block_size_ * block_size_); });
   auto b_blocks = oneapi::tbb::enumerable_thread_specific<std::vector<double>>(
       [&] { return std::vector<double>(block_size_ * block_size_); });
+
   oneapi::tbb::parallel_for(
-      oneapi::tbb::blocked_range<int>(0, num_blocks_, 1),
-      [&](const oneapi::tbb::blocked_range<int>& r) {
+      oneapi::tbb::blocked_range2d<int>(0, num_blocks_, 0, num_blocks_),
+      [&](const oneapi::tbb::blocked_range2d<int>& r) {
         auto& a_block = a_blocks.local();
         auto& b_block = b_blocks.local();
-        for (int bi = r.begin(); bi != r.end(); ++bi) {
-          for (int bj = 0; bj < num_blocks_; ++bj) {
+
+        for (int bi = r.rows().begin(); bi != r.rows().end(); ++bi) {
+          for (int bj = r.cols().begin(); bj != r.cols().end(); ++bj) {
             int base_row = bi * block_size_;
             int base_col = bj * block_size_;
 
-            // Копирование блоков в локальные буферы
             for (int i = 0; i < block_size_ && base_row + i < N_; ++i) {
               for (int k = 0; k < block_size_ && base_col + k < N_; ++k) {
                 a_block[i * block_size_ + k] = A_[(base_row + i) * N_ + (base_col + k)];
-                b_block[k * block_size_ + i] = B_[(base_row + k) * N_ + (base_col + i)];  // Транспонируем B
+                b_block[k * block_size_ + i] = B_[(base_row + k) * N_ + (base_col + i)];
               }
             }
 
-            // Умножение с локальными буферами
             for (int i = 0; i < block_size_ && base_row + i < N_; ++i) {
               int row = base_row + i;
               for (int j = 0; j < block_size_ && base_col + j < N_; ++j) {
                 int col = base_col + j;
                 double temp = 0.0;
                 int k = 0;
+
                 for (; k <= block_size_ - 4; k += 4) {
                   temp += a_block[i * block_size_ + k] * b_block[k * block_size_ + j] +
                           a_block[i * block_size_ + k + 1] * b_block[(k + 1) * block_size_ + j] +
                           a_block[i * block_size_ + k + 2] * b_block[(k + 2) * block_size_ + j] +
                           a_block[i * block_size_ + k + 3] * b_block[(k + 3) * block_size_ + j];
                 }
+
                 for (; k < block_size_ && base_row + k < N_; ++k) {
                   temp += a_block[i * block_size_ + k] * b_block[k * block_size_ + j];
                 }
+
                 C_[row * N_ + col] += temp;
               }
             }
