@@ -52,7 +52,7 @@ bool vasilev_s_simpson_multidim::SimpsonTaskOmp::RunImpl() {
     for (size_t k = 0; k < coordbuf.size(); k++) {
       const auto pos{p % approxs_};
       coordbuf[k] = bounds_[k].lo + (double(pos) * (bounds_[k].hi - bounds_[k].lo) / double(approxs_));
-      p /= decltype(p){approxs_};
+      p /= static_cast<decltype(p)>(approxs_);
       if (pos == 0 || pos == (approxs_ - 1)) {
         continue;
       }
