@@ -11,7 +11,6 @@
 
 #include "core/task/include/task.hpp"
 
-
 namespace fyodorov_m_shell_sort_with_even_odd_batcher_merge_tbb {
 
 class TestTaskTBB : public ppc::core::Task {
