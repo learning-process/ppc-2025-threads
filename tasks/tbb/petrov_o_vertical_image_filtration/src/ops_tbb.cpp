@@ -3,7 +3,7 @@
 #include <oneapi/tbb/blocked_range2d.h>
 #include <oneapi/tbb/global_control.h>
 #include <oneapi/tbb/parallel_for.h>
-#include <oneapi/tbb/tbb.h>
+#include <tbb/tbb.h>
 
 #include <cmath>
 #include <cstddef>
