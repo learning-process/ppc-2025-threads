@@ -16,7 +16,7 @@ class CrsMultiplicationTBB : public ppc::core::Task {
   bool PostProcessingImpl() override;
 
  private:
-  void MulTask(size_t l, size_t r, std::vector<double> &local_val, std::vector<int> &local_col,
+  void MulTask(size_t l, size_t r, std::vector<double> &local_val, std::vector<unsigned int> &local_col,
                std::vector<unsigned int> &temp_r_i, const std::vector<unsigned int> &tr_i,
                const std::vector<unsigned int> &tcol, const std::vector<double> &tval);
 
