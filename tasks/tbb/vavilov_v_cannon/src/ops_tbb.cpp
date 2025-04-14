@@ -204,7 +204,7 @@ void vavilov_v_cannon_tbb::CannonTBB::BlockMultiply() {
                     [&](const tbb::blocked_range<int>& r, double init) {
                       double local_sum = init;
                       for (int k = r.begin(); k != r.end(); ++k) {
-                        local_sum += a_block[i * block_size_ + k] * b_block[k * block_size_ + j];
+                        local_sum += a_block[i * block_size_ + k] * b_block_trans[k * block_size_ + j];
                       }
                       return local_sum;
                     },
