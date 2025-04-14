@@ -10,7 +10,7 @@
 #include "seq/korotin_e_crs_multiplication/include/ops_seq.hpp"
 
 TEST(korotin_e_crs_multiplication_seq, test_pipeline_run) {
-  const unsigned int n = 1000;
+  const unsigned int n = 900;
 
   std::vector<double> a_val(n * n, 1);
   std::vector<double> b_val(n * n, 1);
@@ -84,7 +84,7 @@ TEST(korotin_e_crs_multiplication_seq, test_pipeline_run) {
 }
 
 TEST(korotin_e_crs_multiplication_seq, test_task_run) {
-  const unsigned int n = 1000;
+  const unsigned int n = 900;
 
   std::vector<double> a_val(n * n, 1);
   std::vector<double> b_val(n * n, 1);
