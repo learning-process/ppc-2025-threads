@@ -44,4 +44,3 @@ class TBBMatMultCcs : public ppc::core::Task {
 };
 
 }  // namespace solovev_a_matrix_tbb
-
