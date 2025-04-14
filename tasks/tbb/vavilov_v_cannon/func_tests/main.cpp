@@ -11,7 +11,7 @@
 namespace {
 
 using namespace vavilov_v_cannon_tbb;
-
+/*
 std::vector<double> GenerateRandomMatrix(int n, double min_val = -10.0, double max_val = 10.0) {
   std::vector<double> matrix(n * n);
   std::random_device rd;
@@ -35,7 +35,7 @@ std::vector<double> MultMat(const std::vector<double>& a, const std::vector<doub
   }
   return c;
 }
-/*
+
 TEST(vavilov_v_cannon_tbb, test_random) {
   constexpr int kN = 16;
   auto a = GenerateRandomMatrix(kN);
