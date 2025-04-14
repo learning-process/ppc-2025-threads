@@ -315,7 +315,7 @@ void vavilov_v_cannon_tbb::CannonTBB::BlockMultiply() {
                                   // Обнуляем блок результата
                                   for (int i = 0; i < block_size_ && base_row + i < N_; ++i) {
                                     for (int j = 0; j < block_size_ && base_col + j < N_; ++j) {
-                                     C_[(base_row + i) * N_ + (base_col + j)] = 0.0;
+                                      C_[(base_row + i) * N_ + (base_col + j)] = 0.0;
                                     }
                                   }
 
@@ -355,7 +355,7 @@ void vavilov_v_cannon_tbb::CannonTBB::BlockMultiply() {
 
 bool vavilov_v_cannon_tbb::CannonTBB::RunImpl() {
   oneapi::tbb::task_arena arena(ppc::util::GetPPCNumThreads());
-  arena.execute([&]() { BlockMultiply(); });;
+  arena.execute([&]() { BlockMultiply(); });
   return true;
 }
 
