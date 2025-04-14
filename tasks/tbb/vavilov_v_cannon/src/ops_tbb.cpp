@@ -224,40 +224,40 @@ void vavilov_v_cannon_tbb::CannonTBB::BlockMultiply() {
   int num_threads = oneapi::tbb::this_task_arena::max_concurrency();
   std::vector<std::vector<double>> local_Cs(num_threads, std::vector<double>(N_ * N_, 0.0));
 
-   oneapi::tbb::parallel_for(oneapi::tbb::blocked_range2d<int>(0, num_blocks_, 0, num_blocks_),
-                             [&](const oneapi::tbb::blocked_range2d<int>& r) {
-                               int tid = oneapi::tbb::this_task_arena::current_thread_index();
-                               auto& local_C = local_Cs[tid];
+    oneapi::tbb::parallel_for(oneapi::tbb::blocked_range2d<int>(0, num_blocks_, 0, num_blocks_),
+                              [&](const oneapi::tbb::blocked_range2d<int>& r) {
+                                int tid = oneapi::tbb::this_task_arena::current_thread_index();
+                                auto& local_C = local_Cs[tid];
 
-                               std::vector<double> a_block(block_size_ * block_size_);
-                               std::vector<double> b_block_trans(block_size_ * block_size_);
+                                std::vector<double> a_block(block_size_ * block_size_);
+                                std::vector<double> b_block_trans(block_size_ * block_size_);
 
-                               for (int bi = r.rows().begin(); bi != r.rows().end(); ++bi) {
-                                 for (int bj = r.cols().begin(); bj != r.cols().end(); ++bj) {
-                                   int base_row = bi * block_size_;
-                                   int base_col = bj * block_size_;
+                                for (int bi = r.rows().begin(); bi != r.rows().end(); ++bi) {
+                                  for (int bj = r.cols().begin(); bj != r.cols().end(); ++bj) {
+                                    int base_row = bi * block_size_;
+                                    int base_col = bj * block_size_;
 
-                                   // Копируем блоки
-                                   for (int i = 0; i < block_size_ && base_row + i < N_; ++i) {
-                                     for (int j = 0; j < block_size_ && base_col + j < N_; ++j) {
-                                       a_block[i * block_size_ + j] = A_[(base_row + i) * N_ + (base_col + j)];
-                                       b_block_trans[j * block_size_ + i] = B_[(base_row + j) * N_ + (base_col + i)];
-                                     }
-                                   }
+                                    // Копируем блоки
+                                    for (int i = 0; i < block_size_ && base_row + i < N_; ++i) {
+                                      for (int j = 0; j < block_size_ && base_col + j < N_; ++j) {
+                                        a_block[i * block_size_ + j] = A_[(base_row + i) * N_ + (base_col + j)];
+                                        b_block_trans[j * block_size_ + i] = B_[(base_row + j) * N_ + (base_col + i)];
+                                      }
+                                    }
 
-                                   // Блочное умножение
-                                   for (int i = 0; i < block_size_ && base_row + i < N_; ++i) {
-                                     for (int j = 0; j < block_size_ && base_col + j < N_; ++j) {
-                                       double sum = 0.0;
-                                       for (int k = 0; k < block_size_; ++k) {
-                                         sum += a_block[i * block_size_ + k] * b_block_trans[j * block_size_ + k];
-                                       }
-                                       local_C[(base_row + i) * N_ + (base_col + j)] += sum;
-                                     }
-                                   }
-                                 }
-                               }
-                             });
+                                    // Блочное умножение
+                                    for (int i = 0; i < block_size_ && base_row + i < N_; ++i) {
+                                      for (int j = 0; j < block_size_ && base_col + j < N_; ++j) {
+                                        double sum = 0.0;
+                                        for (int k = 0; k < block_size_; ++k) {
+                                          sum += a_block[i * block_size_ + k] * b_block_trans[j * block_size_ + k];
+                                        }
+                                        local_C[(base_row + i) * N_ + (base_col + j)] += sum;
+                                      }
+                                    }
+                                  }
+                                }
+                              });
 
   // Слияние результатов из всех потоков в C_
   for (int tid = 0; tid < num_threads; ++tid) {
