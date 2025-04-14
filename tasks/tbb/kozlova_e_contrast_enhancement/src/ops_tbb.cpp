@@ -6,11 +6,12 @@
 #include <cmath>
 #include <core/util/include/util.hpp>
 #include <cstddef>
+#include <cstdint>
 #include <vector>
 
 #include "oneapi/tbb/blocked_range.h"
+#include "oneapi/tbb/parallel_for.h"
 #include "oneapi/tbb/task_arena.h"
-#include "oneapi/tbb/task_group.h"
 
 bool kozlova_e_contrast_enhancement_tbb::TestTaskTBB::PreProcessingImpl() {
   auto *input_ptr = reinterpret_cast<uint8_t *>(task_data->inputs[0]);
@@ -43,7 +44,7 @@ bool kozlova_e_contrast_enhancement_tbb::TestTaskTBB::RunImpl() {
 
   oneapi::tbb::task_arena task_arena(ppc::util::GetPPCNumThreads());
   task_arena.execute([&] {
-    tbb::parallel_for(tbb::blocked_range<int>(0, input_.size()), [&](const tbb::blocked_range<int> &r) {
+    tbb::parallel_for(tbb::blocked_range<int>(0, (int)input_.size()), [&](const tbb::blocked_range<int> &r) {
       for (int i = r.begin(); i < r.end(); ++i) {
         output_[i] =
             static_cast<uint8_t>(((input_[i] - min_value) / static_cast<double>(max_value - min_value)) * 255.0);
