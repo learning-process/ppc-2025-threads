@@ -28,14 +28,14 @@ double TestTaskTBB::Cross(const Point& o, const Point& a, const Point& b) {
 }
 
 Point TestTaskTBB::FindPivot() const {
-  auto min_it = tbb::parallel_reduce(
-      tbb::blocked_range(input_points_.begin(), input_points_.end()), input_points_.begin(),
-      [](const auto& r, auto curr_min) {
-        auto local_min = std::min_element(r.begin(), r.end());
-        return (*local_min < *curr_min) ? local_min : curr_min;
+  return tbb::parallel_reduce(
+      tbb::blocked_range<decltype(input_points_)::const_iterator>(input_points_.begin(), input_points_.end()),
+      Point(std::numeric_limits<double>::max(), std::numeric_limits<double>::max()),
+      [](const auto& r, Point curr_min) {
+        const auto local_min = std::min_element(r.begin(), r.end());
+        return (local_min != r.end() && *local_min < curr_min) ? *local_min : curr_min;
       },
-      [](auto a, auto b) { return (*a < *b) ? a : b; });
-  return *min_it;
+      [](const Point& a, const Point& b) { return a < b ? a : b; });
 }
 
 void TestTaskTBB::RemoveDuplicates(std::vector<Point>& points) const {
@@ -50,17 +50,21 @@ bool TestTaskTBB::CompareAngles(const Point& a, const Point& b, const Point& piv
   const auto dy2 = b.y - pivot.y;
 
   const auto cross = dx1 * dy2 - dy1 * dx2;
-  return cross != 0 ? cross > 0 : (dx1 * dx1 + dy1 * dy1) < (dx2 * dx2 + dy2 * dy2);
+  if (std::abs(cross) < 1e-10) {
+    return (dx1 * dx1 + dy1 * dy1) < (dx2 * dx2 + dy2 * dy2);
+  }
+  return cross > 0;
 }
 
 std::vector<Point> TestTaskTBB::SortPoints(const Point& pivot) const {
   std::vector<Point> points;
-  points.reserve(input_points_.size() - 1);
+  points.reserve(input_points_.size());
   for (const auto& p : input_points_) {
-    if (p != pivot) points.push_back(p);
+    if (!(p == pivot)) points.push_back(p);
   }
 
-  tbb::parallel_sort(points, [&](const Point& a, const Point& b) { return CompareAngles(a, b, pivot); });
+  tbb::parallel_sort(points.begin(), points.end(),
+                     [&](const Point& a, const Point& b) { return CompareAngles(a, b, pivot); });
   RemoveDuplicates(points);
   return points;
 }
@@ -71,10 +75,14 @@ std::vector<Point> TestTaskTBB::BuildHull(const std::vector<Point>& sorted_point
   hull.push_back(pivot);
 
   for (const auto& p : sorted_points) {
-    while (hull.size() >= 2 && Cross(hull[hull.size() - 2], hull.back(), p) <= 0) {
+    while (hull.size() >= 2 && Cross(hull[hull.size() - 2], hull.back(), p) < 1e-10) {
       hull.pop_back();
     }
     hull.push_back(p);
+  }
+
+  while (hull.size() >= 3 && Cross(hull[hull.size() - 2], hull.back(), hull[0]) < 1e-10) {
+    hull.pop_back();
   }
 
   return hull;
@@ -89,33 +97,7 @@ bool TestTaskTBB::RunImpl() {
     return true;
   }
 
-  tbb::combinable<std::vector<Point>> local_hulls([&] {
-    std::vector<Point> hull;
-    hull.reserve(sorted_points.size() / tbb::this_task_arena::max_concurrency());
-    hull.push_back(pivot);
-    return hull;
-  });
-
-  tbb::parallel_for(tbb::blocked_range<size_t>(0, sorted_points.size()), [&](const tbb::blocked_range<size_t>& range) {
-    auto& hull = local_hulls.local();
-    for (size_t i = range.begin(); i < range.end(); ++i) {
-      const auto& p = sorted_points[i];
-      while (hull.size() >= 2 && Cross(hull[hull.size() - 2], hull.back(), p) <= 0) {
-        hull.pop_back();
-      }
-      hull.push_back(p);
-    }
-  });
-
-  std::vector<Point> combined;
-  local_hulls.combine_each(
-      [&](const std::vector<Point>& hull) { combined.insert(combined.end(), hull.begin(), hull.end()); });
-
-  combined.erase(std::remove(combined.begin(), combined.end(), pivot), combined.end());
-  combined.insert(combined.begin(), pivot);
-  RemoveDuplicates(combined);
-
-  convex_hull_ = BuildHull(std::vector<Point>(combined.begin() + 1, combined.end()), pivot);
+  convex_hull_ = BuildHull(sorted_points, pivot);
   return true;
 }
 
