@@ -7,7 +7,6 @@
 #include <vector>
 
 #include "core/task/include/task.hpp"
-#include "oneapi/tbb/parallel_for.h"
 #include "tbb/kovalchuk_a_shell_sort_tbb/include/ops_tbb.hpp"
 
 TEST(kovalchuk_a_shell_sort_tbb_func, Test_EmptyArray) {
