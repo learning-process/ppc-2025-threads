@@ -11,7 +11,6 @@
 #include "core/task/include/task.hpp"
 #include "tbb/fyodorov_m_shell_sort_with_even_odd_batcher_merge/include/ops_tbb.hpp"
 
-
 TEST(fyodorov_m_shell_sort_with_even_odd_batcher_merge_tbb, test_small_array) {
   tbb::global_control global_limit(tbb::global_control::max_allowed_parallelism, 4);
   std::vector<int> input = {35, 33, 42, 10, 14, 19, 27, 44};
