@@ -206,6 +206,7 @@ void vavilov_v_cannon_tbb::CannonTBB::BlockMultiply() {
 */
 
 void vavilov_v_cannon_tbb::CannonTBB::BlockMultiply() {
+  std::vector<tbb::spin_mutex> Lock_C_(num_blocks_ * num_blocks_);
   int num_threads = oneapi::tbb::this_task_arena::max_concurrency();
   std::vector<std::vector<double>> local_Cs(num_threads, std::vector<double>(N_ * N_, 0.0));
 
