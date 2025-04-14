@@ -32,7 +32,7 @@ bool oturin_a_gift_wrapping_tbb::TestTaskTBB::PreProcessingImpl() {
   auto *in_ptr = reinterpret_cast<Coord *>(task_data->inputs[0]);
   input_ = std::vector<Coord>(in_ptr, in_ptr + input_size);
   n_ = int(input_.size());
-  output_ = std::vector<Coord>(0);
+  output_ = std::vector<Coord>();
   output_.reserve(n_);
 
   // check if all points are same
