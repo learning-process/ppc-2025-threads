@@ -6,6 +6,7 @@
 #include <utility>
 #include <vector>
 
+#include "oneapi/tbb/parallel_for.h"
 #include "core/task/include/task.hpp"
 
 namespace kovalchuk_a_shell_sort_tbb {
