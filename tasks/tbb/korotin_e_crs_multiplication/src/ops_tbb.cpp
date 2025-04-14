@@ -48,7 +48,7 @@ bool korotin_e_crs_multiplication_tbb::CrsMultiplicationTBB::ValidationImpl() {
 }
 
 void korotin_e_crs_multiplication_tbb::CrsMultiplicationTBB::MulTask(size_t l, size_t r, std::vector<double> &local_val,
-                                                                     std::vector<int> &local_col,
+                                                                     std::vector<unsigned int> &local_col,
                                                                      std::vector<unsigned int> &temp_r_i,
                                                                      const std::vector<unsigned int> &tr_i,
                                                                      const std::vector<unsigned int> &tcol,

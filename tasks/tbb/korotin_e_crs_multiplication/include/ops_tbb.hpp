@@ -17,7 +17,7 @@ class CrsMultiplicationTBB : public ppc::core::Task {
 
  private:
   void MulTask(size_t l, size_t r, std::vector<double> &local_val, std::vector<int> &local_col,
-               std::vector<unsigned int> &temp_rI, const std::vector<unsigned int> &tr_i,
+               std::vector<unsigned int> &temp_r_i, const std::vector<unsigned int> &tr_i,
                const std::vector<unsigned int> &tcol, const std::vector<double> &tval);
 
   std::vector<double> A_val_, B_val_, output_val_;
