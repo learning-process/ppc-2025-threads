@@ -1,4 +1,4 @@
-#include "omp/kolokolova_d_integral_simpson_method_omp/include/ops_omp.hpp"
+#include "omp/kolokolova_d_integral_simpson_method/include/ops_omp.hpp"
 
 #include <omp.h>
 
