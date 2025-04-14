@@ -1,13 +1,6 @@
 #pragma once
 
-#include <oneapi/tbb/blocked_range.h>
-#include <oneapi/tbb/combinable.h>
-#include <oneapi/tbb/parallel_reduce.h>
-#include <oneapi/tbb/parallel_sort.h>
-
-#include <algorithm>
-#include <cmath>
-#include <cstddef>
+#include <utility>
 #include <vector>
 
 #include "core/task/include/task.hpp"
@@ -38,9 +31,9 @@ class TestTaskTBB : public ppc::core::Task {
 
   [[nodiscard]] Point FindPivot() const;
   [[nodiscard]] std::vector<Point> SortPoints(const Point& pivot) const;
-  [[nodiscard]] std::vector<Point> BuildHull(const std::vector<Point>& sorted_points, const Point& pivot) const;
-  void RemoveDuplicates(std::vector<Point>& points) const;
-  bool CompareAngles(const Point& a, const Point& b, const Point& pivot) const;
+  static std::vector<Point> BuildHull(const std::vector<Point>& sorted_points, const Point& pivot);
+  static void RemoveDuplicates(std::vector<Point>& points);
+  [[nodiscard]] static bool CompareAngles(const Point& a, const Point& b, const Point& pivot);
 
   static double Cross(const Point& o, const Point& a, const Point& b);
 };

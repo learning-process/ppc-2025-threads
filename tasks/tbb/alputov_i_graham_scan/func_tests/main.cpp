@@ -8,7 +8,6 @@
 #include <numbers>
 #include <random>
 #include <set>
-// #include <stdio.h>
 #include <vector>
 
 #include "core/task/include/task.hpp"
