@@ -1,4 +1,4 @@
-#include "seq/kolokolova_d_integral_simpson_method_seq/include/ops_seq.hpp"
+#include "seq/kolokolova_d_integral_simpson_method/include/ops_seq.hpp"
 
 #include <cmath>
 #include <cstddef>

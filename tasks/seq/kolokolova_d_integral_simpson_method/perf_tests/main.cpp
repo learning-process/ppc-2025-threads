@@ -7,7 +7,7 @@
 
 #include "core/perf/include/perf.hpp"
 #include "core/task/include/task.hpp"
-#include "seq/kolokolova_d_integral_simpson_method_seq/include/ops_seq.hpp"
+#include "seq/kolokolova_d_integral_simpson_method/include/ops_seq.hpp"
 
 TEST(kolokolova_d_integral_simpson_method_seq, test_pipeline_run) {
   auto func = [](std::vector<double> vec) {

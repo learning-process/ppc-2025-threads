@@ -6,7 +6,7 @@
 #include <vector>
 
 #include "core/task/include/task.hpp"
-#include "seq/kolokolova_d_integral_simpson_method_seq/include/ops_seq.hpp"
+#include "seq/kolokolova_d_integral_simpson_method/include/ops_seq.hpp"
 
 TEST(kolokolova_d_integral_simpson_method_seq, test_easy_func) {
   auto func = [](std::vector<double> vec) { return vec[0] * vec[1]; };
