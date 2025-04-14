@@ -86,6 +86,25 @@ TEST(sorokin_a_multiplication_sparse_matrices_double_ccs_tbb, test_pipeline_run)
   auto perf_analyzer = std::make_shared<ppc::core::Perf>(test_task_tbb);
   perf_analyzer->PipelineRun(perf_attr, perf_results);
   ppc::core::Perf::PrintPerfStatistic(perf_results);
+
+  std::vector<double> res_values(msize, 1);
+  std::vector<double> res_row_indices(msize);
+  for (size_t i = 0; i < msize; i++) {
+    res_row_indices[i] = static_cast<int>(msize - 1 - i);
+  }
+  std::vector<double> res_col_ptr(msize + 1);
+  for (size_t i = 0; i <= msize; i++) {
+    res_col_ptr[i] = static_cast<int>(i);
+  }
+  for (size_t i = 0; i < res_values.size(); i++) {
+    ASSERT_NEAR(c_values[i], res_values[i], 1e-9);
+  }
+  for (size_t i = 0; i < res_row_indices.size(); i++) {
+    ASSERT_NEAR(c_row_indices[i], res_row_indices[i], 1e-9);
+  }
+  for (size_t i = 0; i < res_col_ptr.size(); i++) {
+    ASSERT_NEAR(c_col_ptr[i], res_col_ptr[i], 1e-9);
+  }
 }
 
 TEST(sorokin_a_multiplication_sparse_matrices_double_ccs_tbb, test_task_run) {
@@ -164,4 +183,23 @@ TEST(sorokin_a_multiplication_sparse_matrices_double_ccs_tbb, test_task_run) {
   auto perf_analyzer = std::make_shared<ppc::core::Perf>(test_task_tbb);
   perf_analyzer->TaskRun(perf_attr, perf_results);
   ppc::core::Perf::PrintPerfStatistic(perf_results);
+
+  std::vector<double> res_values(msize, 1);
+  std::vector<double> res_row_indices(msize);
+  for (size_t i = 0; i < msize; i++) {
+    res_row_indices[i] = static_cast<int>(msize - 1 - i);
+  }
+  std::vector<double> res_col_ptr(msize + 1);
+  for (size_t i = 0; i <= msize; i++) {
+    res_col_ptr[i] = static_cast<int>(i);
+  }
+  for (size_t i = 0; i < res_values.size(); i++) {
+    ASSERT_NEAR(c_values[i], res_values[i], 1e-9);
+  }
+  for (size_t i = 0; i < res_row_indices.size(); i++) {
+    ASSERT_NEAR(c_row_indices[i], res_row_indices[i], 1e-9);
+  }
+  for (size_t i = 0; i < res_col_ptr.size(); i++) {
+    ASSERT_NEAR(c_col_ptr[i], res_col_ptr[i], 1e-9);
+  }
 }
