@@ -175,53 +175,6 @@ void vavilov_v_cannon_tbb::CannonTBB::BlockMultiply() {
       oneapi::tbb::blocked_range2d<int>(0, num_blocks_, 0, num_blocks_),
       [&](const oneapi::tbb::blocked_range2d<int>& r) {
         std::vector<double> a_block(block_size_ * block_size_);
-        std::vector<double> b_block(block_size_ * block_size_);
-
-        for (int bi = r.rows().begin(); bi != r.rows().end(); ++bi) {
-          for (int bj = r.cols().begin(); bj != r.cols().end(); ++bj) {
-            int base_row = bi * block_size_;
-            int base_col = bj * block_size_;
-
-            for (int i = 0; i < block_size_ && base_row + i < N_; ++i) {
-              for (int k = 0; k < block_size_ && base_col + k < N_; ++k) {
-                a_block[i * block_size_ + k] = A_[(base_row + i) * N_ + (base_col + k)];
-                b_block[k * block_size_ + i] = B_[(base_row + k) * N_ + (base_col + i)];
-              }
-            }
-
-            for (int i = 0; i < block_size_ && base_row + i < N_; ++i) {
-              int row = base_row + i;
-              for (int j = 0; j < block_size_ && base_col + j < N_; ++j) {
-                int col = base_col + j;
-                double temp = 0.0;
-                int k = 0;
-
-                for (; k <= block_size_ - 4; k += 4) {
-                  temp += a_block[i * block_size_ + k] * b_block[k * block_size_ + j] +
-                          a_block[i * block_size_ + k + 1] * b_block[(k + 1) * block_size_ + j] +
-                          a_block[i * block_size_ + k + 2] * b_block[(k + 2) * block_size_ + j] +
-                          a_block[i * block_size_ + k + 3] * b_block[(k + 3) * block_size_ + j];
-                }
-
-                for (; k < block_size_ && base_row + k < N_; ++k) {
-                  temp += a_block[i * block_size_ + k] * b_block[k * block_size_ + j];
-                }
-
-                C_[row * N_ + col] += temp;
-              }
-            }
-          }
-        }
-      },
-      oneapi::tbb::auto_partitioner());
-}
-
-/*
-void vavilov_v_cannon_tbb::CannonTBB::BlockMultiply() {
-  oneapi::tbb::parallel_for(
-      oneapi::tbb::blocked_range2d<int>(0, num_blocks_, 0, num_blocks_),
-      [&](const oneapi::tbb::blocked_range2d<int>& r) {
-        std::vector<double> a_block(block_size_ * block_size_);
         std::vector<double> b_block_trans(block_size_ * block_size_);
 
         for (int bi = r.rows().begin(); bi != r.rows().end(); ++bi) {
@@ -248,9 +201,10 @@ void vavilov_v_cannon_tbb::CannonTBB::BlockMultiply() {
 
                 double sum = tbb::parallel_reduce(
                     tbb::blocked_range<int>(0, block_size_), 0.0,
-                    [&](const tbb::blocked_range<int>& r, double local_sum) {
-                      for (int i = r.begin(); i < r.end(); ++i) {
-                        local_sum += a_it[i] * b_it[i];
+                    [&](const tbb::blocked_range<int>& r, double init) {
+                      double local_sum = init;
+                      for (int k = r.begin(); k != r.end(); ++k) {
+                        local_sum += a_block[i * block_size_ + k] * b_block[k * block_size_ + j];
                       }
                       return local_sum;
                     },
@@ -264,8 +218,6 @@ void vavilov_v_cannon_tbb::CannonTBB::BlockMultiply() {
       },
       oneapi::tbb::auto_partitioner());
 }
-
-*/
 
 void vavilov_v_cannon_tbb::CannonTBB::ShiftBlocks() {
   std::vector<double> a_tmp = A_;
