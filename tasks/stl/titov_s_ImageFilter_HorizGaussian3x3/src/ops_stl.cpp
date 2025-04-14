@@ -2,10 +2,10 @@
 
 #include <cmath>
 #include <cstddef>
-#include <thread>
 #include <execution>
-#include <vector>
 #include <numeric>
+#include <thread>
+#include <vector>
 
 #include "core/util/include/util.hpp"
 

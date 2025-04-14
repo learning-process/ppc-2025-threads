@@ -31,8 +31,7 @@ TEST(titov_s_ImageFilter_HorizGaussian3x3_stl, test_pipeline_run) {
   task_data_seq->outputs_count.emplace_back(output_image.size());
 
   // Create Task
-  auto test_task_stl =
-      std::make_shared<titov_s_ImageFilter_HorizGaussian3x3_stl::GaussianFilterSTL>(task_data_seq);
+  auto test_task_stl = std::make_shared<titov_s_ImageFilter_HorizGaussian3x3_stl::GaussianFilterSTL>(task_data_seq);
 
   // Create Perf attributes
   auto perf_attr = std::make_shared<ppc::core::PerfAttr>();
@@ -74,8 +73,7 @@ TEST(titov_s_ImageFilter_HorizGaussian3x3_stl, test_task_run) {
   task_data_seq->outputs_count.emplace_back(output_image.size());
 
   // Create Task
-  auto test_task_stl =
-      std::make_shared<titov_s_ImageFilter_HorizGaussian3x3_stl::GaussianFilterSTL>(task_data_seq);
+  auto test_task_stl = std::make_shared<titov_s_ImageFilter_HorizGaussian3x3_stl::GaussianFilterSTL>(task_data_seq);
 
   // Create Perf attributes
   auto perf_attr = std::make_shared<ppc::core::PerfAttr>();
