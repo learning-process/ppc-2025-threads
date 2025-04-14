@@ -11,7 +11,7 @@
 namespace {
 
 using namespace vavilov_v_cannon_tbb;
-/*
+
 std::vector<double> GenerateRandomMatrix(int n, double min_val = -10.0, double max_val = 10.0) {
   std::vector<double> matrix(n * n);
   std::random_device rd;
@@ -61,7 +61,7 @@ TEST(vavilov_v_cannon_tbb, test_random) {
     EXPECT_NEAR(expected_output[i], c[i], 1e-6);
   }
 }
-*/
+
 TEST(vavilov_v_cannon_tbb, test_fixed_4x4) {
   constexpr int kN = 4;
   std::vector<double> a = {1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16};
