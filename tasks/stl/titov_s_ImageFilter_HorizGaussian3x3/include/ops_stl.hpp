@@ -1,0 +1,27 @@
+#pragma once
+
+#include <utility>
+#include <vector>
+
+#include "core/task/include/task.hpp"
+
+namespace titov_s_ImageFilter_HorizGaussian3x3_stl {
+
+class GaussianFilterSTL : public ppc::core::Task {
+ public:
+  explicit GaussianFilterSTL(ppc::core::TaskDataPtr task_data) : Task(std::move(task_data)) {}
+  bool PreProcessingImpl() override;
+  bool ValidationImpl() override;
+  bool RunImpl() override;
+  bool PostProcessingImpl() override;
+
+ private:
+  std::vector<double> input_;
+  std::vector<double> output_;
+  int width_;
+  int height_;
+  int kernel_size_ = 3;
+  std::vector<int> kernel_;
+};
+
+}  // namespace titov_s_ImageFilter_HorizGaussian3x3_stl
