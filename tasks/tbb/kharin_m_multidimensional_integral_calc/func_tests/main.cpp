@@ -313,7 +313,6 @@ TEST(kharin_m_multidimensional_integral_calc_tbb, test_zero_dimensions) {
   EXPECT_DOUBLE_EQ(out[0], expected_out);
 }
 
-
 TEST(kharin_m_multidimensional_integral_calc_tbb, test_zero_grid_dimension_size) {
   std::vector<double> in = {};
   std::vector<size_t> grid_sizes = {5, 0, 3};
