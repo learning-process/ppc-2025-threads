@@ -8,8 +8,7 @@ void VerifyResults(const std::vector<shulpin_i_jarvis_tbb::Point> &expected,
                    const std::vector<shulpin_i_jarvis_tbb::Point> &result_seq,
                    const std::vector<shulpin_i_jarvis_tbb::Point> &result_tbb);
 
-void MainTestBody(std::vector<shulpin_i_jarvis_tbb::Point> &input,
-                  std::vector<shulpin_i_jarvis_tbb::Point> &expected);
+void MainTestBody(std::vector<shulpin_i_jarvis_tbb::Point> &input, std::vector<shulpin_i_jarvis_tbb::Point> &expected);
 
 std::vector<shulpin_i_jarvis_tbb::Point> GeneratePointsInCircle(size_t num_points,
                                                                 const shulpin_i_jarvis_tbb::Point &center,
@@ -27,8 +26,7 @@ void VerifyResultsCircle(const std::vector<shulpin_i_jarvis_tbb::Point> &expecte
 void TestBodyRandomCircle(std::vector<shulpin_i_jarvis_tbb::Point> &input,
                           std::vector<shulpin_i_jarvis_tbb::Point> &expected, size_t &num_points);
 
-void TestBodyFalse(std::vector<shulpin_i_jarvis_tbb::Point> &input,
-                   std::vector<shulpin_i_jarvis_tbb::Point> &expected);
+void TestBodyFalse(std::vector<shulpin_i_jarvis_tbb::Point> &input, std::vector<shulpin_i_jarvis_tbb::Point> &expected);
 
 int Orientation(const shulpin_i_jarvis_tbb::Point &p, const shulpin_i_jarvis_tbb::Point &q,
                 const shulpin_i_jarvis_tbb::Point &r);
