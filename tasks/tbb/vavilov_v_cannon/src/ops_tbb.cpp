@@ -199,7 +199,16 @@ void vavilov_v_cannon_tbb::CannonTBB::BlockMultiply() {
                 auto a_it = a_block.begin() + i * block_size_;
                 auto b_it = b_block_trans.begin() + j * block_size_;
 
-                double sum = std::transform_reduce(std::execution::unseq, a_it, a_it + block_size_, b_it, 0.0);
+                double sum = tbb::parallel_reduce(
+                  tbb::blocked_range<int>(0, block_size_), 0.0,
+                  [&](const tbb::blocked_range<int>& r, double local_sum) {
+                    for (int i = r.begin(); i < r.end(); ++i) {
+                      local_sum += a_it[i] * b_it[i];
+                    }
+                    return local_sum;
+                  },
+                  std::plus<>()
+                );
 
                 C_[row * N_ + col] += sum;
               }
