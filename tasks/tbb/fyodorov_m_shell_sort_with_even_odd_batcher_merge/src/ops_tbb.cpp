@@ -1,5 +1,6 @@
 #include "tbb/fyodorov_m_shell_sort_with_even_odd_batcher_merge/include/ops_tbb.hpp"
 
+#include <oneapi/tbb/parallel_for.h>
 #include <tbb/blocked_range.h>
 #include <tbb/parallel_for.h>
 #include <tbb/parallel_invoke.h>
@@ -7,6 +8,7 @@
 
 #include <cmath>
 #include <cstddef>
+#include <vector>
 
 // #include "core/task/include/task.hpp"
 // #include "ops_tbb.hpp"
@@ -83,7 +85,7 @@ void TestTaskTBB::ShellSort() {
   }
 }
 
-void TestTaskTBB::static BatcherMerge(std::vector<int>& left, std::vector<int>& right, std::vector<int>& result) {
+static void TestTaskTBB::BatcherMerge(std::vector<int>& left, std::vector<int>& right, std::vector<int>& result) {
   size_t i = 0;
   size_t j = 0;
   size_t k = 0;
