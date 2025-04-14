@@ -8,6 +8,7 @@
 #include <limits>
 #include <ranges>
 #include <tuple>
+#include <vector>
 
 namespace alputov_i_graham_scan_tbb {
 
@@ -43,8 +44,8 @@ Point TestTaskTBB::FindPivot() const {
 }
 
 void TestTaskTBB::RemoveDuplicates(std::vector<Point>& points) {
-  auto last = std::unique(points.begin(), points.end());
-  points.erase(last, points.end());
+  auto result = std::ranges::unique(points);
+  points.erase(result.end(), points.end());
 }
 
 bool TestTaskTBB::CompareAngles(const Point& a, const Point& b, const Point& pivot) {
