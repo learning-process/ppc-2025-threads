@@ -7,8 +7,6 @@
 #include <cstddef>
 #include <vector>
 
-#include "oneapi/tbb/info.h"
-#include "oneapi/tbb/task_arena.h"
 #include "oneapi/tbb/task_group.h"
 
 bool korotin_e_crs_multiplication_tbb::CrsMultiplicationTBB::PreProcessingImpl() {
@@ -50,7 +48,7 @@ bool korotin_e_crs_multiplication_tbb::CrsMultiplicationTBB::ValidationImpl() {
 }
 
 void korotin_e_crs_multiplication_tbb::CrsMultiplicationTBB::MulTask(
-    size_t l, size_t r, std::vector<double> &local_val, std::vector<int> &local_col, std::vector<unsigned int> &temp_rI,
+    size_t l, size_t r, std::vector<double> &local_val, std::vector<int> &local_col, std::vector<unsigned int> &temp_r_i,
     const std::vector<unsigned int> &tr_i, const std::vector<unsigned int> &tcol, const std::vector<double> &tval) {
   for (size_t k = l; k < r; ++k) {
     for (size_t s = 0; s < tr_i.size() - 1; ++s) {
@@ -71,7 +69,7 @@ void korotin_e_crs_multiplication_tbb::CrsMultiplicationTBB::MulTask(
       if (sum != 0) {
         local_val.push_back(sum);
         local_col.push_back(s);
-        temp_rI[k + 1]++;
+        temp_r_i[k + 1]++;
       }
     }
   }
@@ -102,41 +100,41 @@ bool korotin_e_crs_multiplication_tbb::CrsMultiplicationTBB::RunImpl() {
   }
   tr_i[0] = 0;
 
-  std::fill(output_rI_.begin(), output_rI_.end(), 0);
+  std::ranges::fill(output_rI_.begin(), output_rI_.end(), 0);
   output_col_.clear();
   output_val_.clear();
-  unsigned int MAGIC_CONST = 4;
-  std::vector<std::vector<double>> local_val(MAGIC_CONST);
-  std::vector<std::vector<int>> local_col(MAGIC_CONST);
-  std::vector<unsigned int> temp_rI(A_N_, 0);
+  unsigned int magic_const = 4;
+  std::vector<std::vector<double>> local_val(magic_const);
+  std::vector<std::vector<unsigned int>> local_col(magic_const);
+  std::vector<unsigned int> temp_r_i(A_N_, 0);
   tbb::task_group tg;
 
-  std::vector<size_t> delta(MAGIC_CONST, A_N_ / MAGIC_CONST);
-  for (i = 0; i < (A_N_ - 1) % MAGIC_CONST; ++i) {
+  std::vector<size_t> delta(magic_const, A_N_ / magic_const);
+  for (i = 0; i < (A_N_ - 1) % magic_const; ++i) {
     delta[i]++;
   }
-  for (i = 1; i < MAGIC_CONST; ++i) {
+  for (i = 1; i < magic_const; ++i) {
     delta[i] += delta[i - 1];
   }
 
-  tg.run([this, &delta, &local_val, &local_col, &temp_rI, &tr_i, &tcol, &tval] {
-    MulTask(0, delta[0], local_val[0], local_col[0], temp_rI, tr_i, tcol, tval);
+  tg.run([this, &delta, &local_val, &local_col, &temp_r_i, &tr_i, &tcol, &tval] {
+    MulTask(0, delta[0], local_val[0], local_col[0], temp_r_i, tr_i, tcol, tval);
   });
-  for (i = 1; i < MAGIC_CONST; ++i) {
-    tg.run([this, &delta, &local_val, &local_col, &temp_rI, &tr_i, &tcol, &tval, i] {
-      MulTask(delta[i - 1], delta[i], local_val[i], local_col[i], temp_rI, tr_i, tcol, tval);
+  for (i = 1; i < magic_const; ++i) {
+    tg.run([this, &delta, &local_val, &local_col, &temp_r_i, &tr_i, &tcol, &tval, i] {
+      MulTask(delta[i - 1], delta[i], local_val[i], local_col[i], temp_r_i, tr_i, tcol, tval);
     });
   }
 
   tg.wait();
 
-  for (unsigned int t = 0; t < MAGIC_CONST; ++t) {
+  for (unsigned int t = 0; t < magic_const; ++t) {
     output_val_.insert(output_val_.end(), local_val[t].begin(), local_val[t].end());
     output_col_.insert(output_col_.end(), local_col[t].begin(), local_col[t].end());
   }
 
   for (i = 1; i < A_N_; ++i) {
-    output_rI_[i] += output_rI_[i - 1] + temp_rI[i];
+    output_rI_[i] += output_rI_[i - 1] + temp_r_i[i];
   }
   return true;
 }
