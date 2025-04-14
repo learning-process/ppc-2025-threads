@@ -157,7 +157,6 @@ void vavilov_v_cannon_tbb::CannonTBB::InitialShift() {
   });
 }
 
-
 void vavilov_v_cannon_tbb::CannonTBB::BlockMultiply() {
   oneapi::tbb::parallel_for(
       oneapi::tbb::blocked_range2d<int>(0, num_blocks_, 0, num_blocks_),
@@ -221,7 +220,6 @@ void vavilov_v_cannon_tbb::CannonTBB::ShiftBlocks() {
     }
   });
 }
-
 
 bool vavilov_v_cannon_tbb::CannonTBB::RunImpl() {
   oneapi::tbb::task_arena arena(ppc::util::GetPPCNumThreads());
