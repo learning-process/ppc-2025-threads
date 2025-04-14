@@ -47,9 +47,12 @@ bool korotin_e_crs_multiplication_tbb::CrsMultiplicationTBB::ValidationImpl() {
              task_data->inputs_count[3] - 2;
 }
 
-void korotin_e_crs_multiplication_tbb::CrsMultiplicationTBB::MulTask(
-    size_t l, size_t r, std::vector<double> &local_val, std::vector<int> &local_col, std::vector<unsigned int> &temp_r_i,
-    const std::vector<unsigned int> &tr_i, const std::vector<unsigned int> &tcol, const std::vector<double> &tval) {
+void korotin_e_crs_multiplication_tbb::CrsMultiplicationTBB::MulTask(size_t l, size_t r, std::vector<double> &local_val,
+                                                                     std::vector<int> &local_col,
+                                                                     std::vector<unsigned int> &temp_r_i,
+                                                                     const std::vector<unsigned int> &tr_i,
+                                                                     const std::vector<unsigned int> &tcol,
+                                                                     const std::vector<double> &tval) {
   for (size_t k = l; k < r; ++k) {
     for (size_t s = 0; s < tr_i.size() - 1; ++s) {
       double sum = 0;
