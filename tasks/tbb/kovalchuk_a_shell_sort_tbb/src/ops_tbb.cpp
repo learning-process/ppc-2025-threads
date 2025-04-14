@@ -55,4 +55,4 @@ bool ShellSortTBB::PostProcessingImpl() {
   return true;
 }
 
-}  // namespace kovalchuk_a_shell_sort
+}  // namespace kovalchuk_a_shell_sort_tbb
