@@ -8,8 +8,8 @@
 #include <cmath>
 #include <cstddef>
 
-#include "core/task/include/task.hpp"
-#include "ops_tbb.hpp"
+// #include "core/task/include/task.hpp"
+// #include "ops_tbb.hpp"
 
 // #include <core/util/include/util.hpp>
 // #include <cstddef>
@@ -83,7 +83,7 @@ void TestTaskTBB::ShellSort() {
   }
 }
 
-void TestTaskTBB::BatcherMerge(std::vector<int>& left, std::vector<int>& right, std::vector<int>& result) {
+void TestTaskTBB::static BatcherMerge(std::vector<int>& left, std::vector<int>& right, std::vector<int>& result) {
   size_t i = 0;
   size_t j = 0;
   size_t k = 0;
