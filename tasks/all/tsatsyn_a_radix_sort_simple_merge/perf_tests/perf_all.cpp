@@ -26,13 +26,13 @@ std::vector<double> GetRandomVector(int sz, int a, int b) {
 }  // namespace
 
 TEST(tsatsyn_a_radix_sort_simple_merge_all, test_pipeline_run) {
-  constexpr int kCount = 400;
+  constexpr int kCount = 500;
 
   // Create data
   std::vector<double> in;
   std::vector<double> out(kCount * kCount, 0);
 
-  in = GetRandomVector(kCount * kCount, 0, 100);
+  in = GetRandomVector(kCount * kCount, -100, 100);
 
   // Create task_data
   auto task_data_all = std::make_shared<ppc::core::TaskData>();
@@ -69,13 +69,13 @@ TEST(tsatsyn_a_radix_sort_simple_merge_all, test_pipeline_run) {
 }
 
 TEST(tsatsyn_a_radix_sort_simple_merge_all, test_task_run) {
-  constexpr int kCount = 400;
+  constexpr int kCount = 500;
 
   // Create data
   std::vector<double> in;
   std::vector<double> out(kCount * kCount, 0);
 
-  in = GetRandomVector(kCount * kCount, 0, 100);
+  in = GetRandomVector(kCount * kCount, -100, 100);
 
   // Create task_data
   auto task_data_all = std::make_shared<ppc::core::TaskData>();
