@@ -293,13 +293,6 @@ bool vavilov_v_cannon_tbb::CannonTBB::RunImpl() {
 */
 
 void vavilov_v_cannon_tbb::CannonTBB::BlockMultiply() {
-  // Предтранспонируем B_ для кэш-френдли доступа
-  std::vector<double> B_trans(N_ * N_);
-  for (int i = 0; i < N_; ++i) {
-    for (int j = 0; j < N_; ++j) {
-      B_trans[j * N_ + i] = B_[i * N_ + j];
-    }
-  }
 
   // Запуск параллельного перемножения блоков
   oneapi::tbb::parallel_for(oneapi::tbb::blocked_range2d<int>(0, num_blocks_, 0, num_blocks_),
