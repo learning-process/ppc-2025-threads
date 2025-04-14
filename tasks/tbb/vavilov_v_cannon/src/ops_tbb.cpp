@@ -207,8 +207,7 @@ void vavilov_v_cannon_tbb::CannonTBB::BlockMultiply() {
                       }
                       return local_sum;
                     },
-                    std::plus<>()
-                );
+                    std::plus<>());
 
                 C_[row * N_ + col] += sum;
               }
