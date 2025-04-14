@@ -1,11 +1,12 @@
 #include <gtest/gtest.h>
 
-#include <algorithm>
 #include <climits>
 #include <cstdint>
 #include <cstdlib>
+#include <memory>
 #include <vector>
 
+#include "oneapi/tbb/parallel_for.h"
 #include "core/task/include/task.hpp"
 #include "tbb/kovalchuk_a_shell_sort_tbb/include/ops_tbb.hpp"
 
