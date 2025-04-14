@@ -275,3 +275,111 @@ TEST(kharin_m_multidimensional_integral_calc_tbb, test_integral_5d) {
 
   EXPECT_DOUBLE_EQ(out[0], expected_out);
 }
+
+TEST(kharin_m_multidimensional_integral_calc_tbb, test_invalid_input_and_output_count) {
+  auto task_data_tbb = std::make_shared<ppc::core::TaskData>();
+  task_data_tbb->inputs.emplace_back(nullptr);
+  task_data_tbb->inputs_count.emplace_back(0);
+  task_data_tbb->inputs.emplace_back(nullptr);
+  task_data_tbb->inputs_count.emplace_back(0);
+
+  kharin_m_multidimensional_integral_calc_tbb::TestTaskTBB task(task_data_tbb);
+  EXPECT_FALSE(task.Validation());
+}
+
+TEST(kharin_m_multidimensional_integral_calc_tbb, test_zero_dimensions) {
+  std::vector<double> in = {5.0};
+  std::vector<size_t> grid_sizes = {};
+  std::vector<double> step_sizes = {};
+  std::vector<double> out(1, 0.0);
+  double expected_out = 5.0;
+
+  auto task_data_tbb = std::make_shared<ppc::core::TaskData>();
+  task_data_tbb->inputs.emplace_back(reinterpret_cast<uint8_t*>(in.data()));
+  task_data_tbb->inputs_count.emplace_back(in.size());
+  task_data_tbb->inputs.emplace_back(reinterpret_cast<uint8_t*>(grid_sizes.data()));
+  task_data_tbb->inputs_count.emplace_back(grid_sizes.size());
+  task_data_tbb->inputs.emplace_back(reinterpret_cast<uint8_t*>(step_sizes.data()));
+  task_data_tbb->inputs_count.emplace_back(step_sizes.size());
+  task_data_tbb->outputs.emplace_back(reinterpret_cast<uint8_t*>(out.data()));
+  task_data_tbb->outputs_count.emplace_back(out.size());
+
+  kharin_m_multidimensional_integral_calc_tbb::TestTaskTBB task(task_data_tbb);
+  ASSERT_TRUE(task.Validation());
+  ASSERT_TRUE(task.PreProcessing());
+  ASSERT_TRUE(task.Run());
+  ASSERT_TRUE(task.PostProcessing());
+
+  EXPECT_DOUBLE_EQ(out[0], expected_out);
+}
+
+
+TEST(kharin_m_multidimensional_integral_calc_tbb, test_zero_grid_dimension_size) {
+  std::vector<double> in = {};
+  std::vector<size_t> grid_sizes = {5, 0, 3};
+  std::vector<double> step_sizes = {0.1, 0.2, 0.3};
+  std::vector<double> out(1, 99.0);
+  double expected_out = 0.0;
+
+  auto task_data_tbb = std::make_shared<ppc::core::TaskData>();
+  task_data_tbb->inputs.emplace_back(reinterpret_cast<uint8_t*>(in.data()));
+  task_data_tbb->inputs_count.emplace_back(in.size());
+  task_data_tbb->inputs.emplace_back(reinterpret_cast<uint8_t*>(grid_sizes.data()));
+  task_data_tbb->inputs_count.emplace_back(grid_sizes.size());
+  task_data_tbb->inputs.emplace_back(reinterpret_cast<uint8_t*>(step_sizes.data()));
+  task_data_tbb->inputs_count.emplace_back(step_sizes.size());
+  task_data_tbb->outputs.emplace_back(reinterpret_cast<uint8_t*>(out.data()));
+  task_data_tbb->outputs_count.emplace_back(out.size());
+
+  kharin_m_multidimensional_integral_calc_tbb::TestTaskTBB task(task_data_tbb);
+  ASSERT_TRUE(task.Validation());
+  ASSERT_TRUE(task.PreProcessing());
+  ASSERT_TRUE(task.Run());
+  ASSERT_TRUE(task.PostProcessing());
+
+  EXPECT_DOUBLE_EQ(out[0], expected_out);
+}
+
+TEST(kharin_m_multidimensional_integral_calc_tbb, test_zero_step) {
+  std::vector<double> in = {1.0, 2.0, 3.0, 4.0};
+  std::vector<size_t> grid_sizes = {2, 2};
+  std::vector<double> step_sizes = {1.0, 0.0};
+  std::vector<double> out(1, 0.0);
+
+  auto task_data_tbb = std::make_shared<ppc::core::TaskData>();
+  task_data_tbb->inputs.emplace_back(reinterpret_cast<uint8_t*>(in.data()));
+  task_data_tbb->inputs_count.emplace_back(in.size());
+  task_data_tbb->inputs.emplace_back(reinterpret_cast<uint8_t*>(grid_sizes.data()));
+  task_data_tbb->inputs_count.emplace_back(grid_sizes.size());
+  task_data_tbb->inputs.emplace_back(reinterpret_cast<uint8_t*>(step_sizes.data()));
+  task_data_tbb->inputs_count.emplace_back(step_sizes.size());
+  task_data_tbb->outputs.emplace_back(reinterpret_cast<uint8_t*>(out.data()));
+  task_data_tbb->outputs_count.emplace_back(out.size());
+
+  kharin_m_multidimensional_integral_calc_tbb::TestTaskTBB task(task_data_tbb);
+  ASSERT_TRUE(task.Validation());
+  EXPECT_FALSE(task.PreProcessing());
+}
+
+TEST(kharin_m_multidimensional_integral_calc_tbb, test_large_dim_invalid_step_late) {
+  const size_t num_dims = 200;
+  std::vector<double> in(1, 1.0);
+  std::vector<size_t> grid_sizes(num_dims, 1);
+  std::vector<double> step_sizes(num_dims, 1.0);
+  step_sizes[num_dims / 2] = -0.1;
+  std::vector<double> out(1, 0.0);
+
+  auto task_data_tbb = std::make_shared<ppc::core::TaskData>();
+  task_data_tbb->inputs.emplace_back(reinterpret_cast<uint8_t*>(in.data()));
+  task_data_tbb->inputs_count.emplace_back(in.size());
+  task_data_tbb->inputs.emplace_back(reinterpret_cast<uint8_t*>(grid_sizes.data()));
+  task_data_tbb->inputs_count.emplace_back(grid_sizes.size());
+  task_data_tbb->inputs.emplace_back(reinterpret_cast<uint8_t*>(step_sizes.data()));
+  task_data_tbb->inputs_count.emplace_back(step_sizes.size());
+  task_data_tbb->outputs.emplace_back(reinterpret_cast<uint8_t*>(out.data()));
+  task_data_tbb->outputs_count.emplace_back(out.size());
+
+  kharin_m_multidimensional_integral_calc_tbb::TestTaskTBB task(task_data_tbb);
+  ASSERT_TRUE(task.Validation());
+  EXPECT_FALSE(task.PreProcessing());
+}
