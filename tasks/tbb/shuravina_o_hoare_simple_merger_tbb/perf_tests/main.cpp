@@ -4,21 +4,33 @@
 #include <cstddef>
 #include <cstdint>
 #include <memory>
+#include <random>
 #include <vector>
 
 #include "core/perf/include/perf.hpp"
 #include "core/task/include/task.hpp"
 #include "tbb/shuravina_o_hoare_simple_merger_tbb/include/ops_tbb.hpp"
 
+namespace {
+std::vector<int> GenerateRandomVector(int size, int min_val, int max_val) {
+  std::vector<int> data(size);
+  std::mt19937 gen(42);
+  std::uniform_int_distribution<int> distrib(min_val, max_val);
+
+  for (int i = 0; i < size; ++i) {
+    data[i] = distrib(gen);
+  }
+  return data;
+}
+}  // namespace
+
 TEST(shuravina_o_hoare_simple_merger_tbb, test_pipeline_run) {
   constexpr int kCount = 50000;
+  constexpr int kMinValue = -100000;
+  constexpr int kMaxValue = 100000;
 
-  std::vector<int> in(kCount, 0);
+  std::vector<int> in = GenerateRandomVector(kCount, kMinValue, kMaxValue);
   std::vector<int> out(kCount, 0);
-
-  for (int i = 0; i < kCount; i++) {
-    in[i] = kCount - i;
-  }
 
   auto task_data_tbb = std::make_shared<ppc::core::TaskData>();
   task_data_tbb->inputs.emplace_back(reinterpret_cast<uint8_t*>(in.data()));
@@ -50,13 +62,11 @@ TEST(shuravina_o_hoare_simple_merger_tbb, test_pipeline_run) {
 
 TEST(shuravina_o_hoare_simple_merger_tbb, test_task_run) {
   constexpr int kCount = 50000;
+  constexpr int kMinValue = -100000;
+  constexpr int kMaxValue = 100000;
 
-  std::vector<int> in(kCount, 0);
+  std::vector<int> in = GenerateRandomVector(kCount, kMinValue, kMaxValue);
   std::vector<int> out(kCount, 0);
-
-  for (int i = 0; i < kCount; i++) {
-    in[i] = kCount - i;
-  }
 
   auto task_data_tbb = std::make_shared<ppc::core::TaskData>();
   task_data_tbb->inputs.emplace_back(reinterpret_cast<uint8_t*>(in.data()));
