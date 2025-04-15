@@ -284,7 +284,6 @@ TEST(frolova_e_sobel_filter_tbb, pure_black_image) {
   EXPECT_EQ(reference, res);
 }
 
-
 //______ASSERT_FALSE________________
 
 TEST(frolova_e_sobel_filter_tbb, not_correct_value) {
