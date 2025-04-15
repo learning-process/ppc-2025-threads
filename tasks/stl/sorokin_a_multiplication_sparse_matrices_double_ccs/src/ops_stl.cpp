@@ -145,7 +145,7 @@ bool sorokin_a_multiplication_sparse_matrices_double_ccs_stl::TestTaskTBB::PrePr
 
 bool sorokin_a_multiplication_sparse_matrices_double_ccs_stl::TestTaskTBB::ValidationImpl() {
   // Check equality of counts elements
-  return true;
+  return task_data->inputs_count[0] > 0 && task_data->inputs_count[1] > 0 && task_data->inputs_count[2] > 0;
 }
 
 bool sorokin_a_multiplication_sparse_matrices_double_ccs_stl::TestTaskTBB::RunImpl() {

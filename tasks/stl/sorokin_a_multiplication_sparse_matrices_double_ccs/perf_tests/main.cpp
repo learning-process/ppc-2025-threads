@@ -87,6 +87,10 @@ TEST(sorokin_a_multiplication_sparse_matrices_double_ccs_stl, test_pipeline_run)
   perf_analyzer->PipelineRun(perf_attr, perf_results);
   ppc::core::Perf::PrintPerfStatistic(perf_results);
 
+  std::vector<double> res_values(msize, 1);
+  for (size_t i = 0; i < res_values.size(); i++) {
+    ASSERT_NEAR(c_values[i], res_values[i], 1e-9);
+  }
 }
 
 TEST(sorokin_a_multiplication_sparse_matrices_double_ccs_stl, test_task_run) {
@@ -166,4 +170,8 @@ TEST(sorokin_a_multiplication_sparse_matrices_double_ccs_stl, test_task_run) {
   perf_analyzer->TaskRun(perf_attr, perf_results);
   ppc::core::Perf::PrintPerfStatistic(perf_results);
 
+  std::vector<double> res_values(msize, 1);
+  for (size_t i = 0; i < res_values.size(); i++) {
+    ASSERT_NEAR(c_values[i], res_values[i], 1e-9);
+  }
 }
