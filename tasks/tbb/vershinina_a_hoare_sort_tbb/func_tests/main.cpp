@@ -100,7 +100,7 @@ TEST(vershinina_a_hoare_sort_tbb, test_not_random_len_100) {
   ASSERT_TRUE(std::ranges::is_sorted(out));
 }
 
-TEST(vershinina_a_hoare_sort_tbb, test_random_even_len_25) {
+TEST(vershinina_a_hoare_sort_tbb, test_random_even_len_35) {
   std::vector<double> in;
   std::vector<double> out(35);
   in = GetRandomVector(35);
@@ -120,7 +120,7 @@ TEST(vershinina_a_hoare_sort_tbb, test_random_even_len_25) {
   ASSERT_TRUE(std::ranges::is_sorted(out));
 }
 
-TEST(vershinina_a_hoare_sort_tbb, test_random_odd_len_50) {
+TEST(vershinina_a_hoare_sort_tbb, test_random_odd_len_100) {
   std::vector<double> in;
   std::vector<double> out(100);
   in = GetRandomVector(100);
@@ -140,10 +140,30 @@ TEST(vershinina_a_hoare_sort_tbb, test_random_odd_len_50) {
   ASSERT_TRUE(std::ranges::is_sorted(out));
 }
 
-TEST(vershinina_a_hoare_sort_tbb, test_random_odd_len_100) {
+TEST(vershinina_a_hoare_sort_tbb, test_random_odd_len_200) {
   std::vector<double> in;
   std::vector<double> out(200);
   in = GetRandomVector(200);
+
+  auto task_data_tbb = std::make_shared<ppc::core::TaskData>();
+  task_data_tbb->inputs.emplace_back(reinterpret_cast<uint8_t *>(in.data()));
+  task_data_tbb->inputs_count.emplace_back(in.size());
+  task_data_tbb->outputs.emplace_back(reinterpret_cast<uint8_t *>(out.data()));
+  task_data_tbb->outputs_count.emplace_back(out.size());
+
+  vershinina_a_hoare_sort_tbb::TestTaskTBB test_task_omp(task_data_tbb);
+  ASSERT_EQ(test_task_omp.Validation(), true);
+  test_task_omp.PreProcessing();
+  test_task_omp.Run();
+  test_task_omp.PostProcessing();
+
+  ASSERT_TRUE(std::ranges::is_sorted(out));
+}
+
+TEST(vershinina_a_hoare_sort_tbb, test_random_even_len_333) {
+  std::vector<double> in;
+  std::vector<double> out(333);
+  in = GetRandomVector(333);
 
   auto task_data_tbb = std::make_shared<ppc::core::TaskData>();
   task_data_tbb->inputs.emplace_back(reinterpret_cast<uint8_t *>(in.data()));
