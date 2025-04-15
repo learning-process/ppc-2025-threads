@@ -1,15 +1,14 @@
 #include "tbb/odintsov_m_multmatrix_cannon/include/ops_tbb.hpp"
 
 #include <oneapi/tbb/global_control.h>
-#include <oneapi/tbb/info.h>
 #include <oneapi/tbb/mutex.h>
 #include <oneapi/tbb/parallel_for.h>
 #include <tbb/tbb.h>
 
 #include <algorithm>
 #include <cmath>
+#include <core/util/include/util.hpp>
 #include <cstddef>
-#include <util.hpp>
 #include <vector>
 
 using namespace std;
