@@ -1,4 +1,4 @@
-#include "tbb/lysov_i_matrix_multiplication_fox_algorithm/include/ops_tbb.hpp"
+#include "tbb/lysov_i_matrix_multiplication_Fox_algorithm/include/ops_tbb.hpp"
 
 #include <tbb/tbb.h>
 
