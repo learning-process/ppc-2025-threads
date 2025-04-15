@@ -2,18 +2,15 @@
 
 #include <cstddef>
 #include <cstdint>
-#include <fstream>
 #include <memory>
 #include <numeric>
 #include <random>
-#include <string>
 #include <vector>
 
 #include "core/task/include/task.hpp"
-#include "core/util/include/util.hpp"
 #include "stl/titov_s_ImageFilter_HorizGaussian3x3/include/ops_stl.hpp"
 
-TEST(titov_s_ImageFilter_HorizGaussian3x3_stl, test_10_1) {
+TEST(titov_s_image_filter_horiz_gaussian3x3_stl, test_10_1) {
   constexpr size_t kWidth = 10;
   constexpr size_t kHeight = 10;
   std::vector<double> input_image(kWidth * kHeight, 1.0);
@@ -38,7 +35,7 @@ TEST(titov_s_ImageFilter_HorizGaussian3x3_stl, test_10_1) {
   task_data_stl->outputs.emplace_back(reinterpret_cast<uint8_t*>(output_image.data()));
   task_data_stl->outputs_count.emplace_back(output_image.size());
 
-  titov_s_ImageFilter_HorizGaussian3x3_stl::GaussianFilterSTL gaussian_filter_stl(task_data_stl);
+  titov_s_image_filter_horiz_gaussian3x3_stl::GaussianFilterSTL gaussian_filter_stl(task_data_stl);
 
   ASSERT_EQ(gaussian_filter_stl.Validation(), true);
 
@@ -53,7 +50,7 @@ TEST(titov_s_ImageFilter_HorizGaussian3x3_stl, test_10_1) {
   }
 }
 
-TEST(titov_s_ImageFilter_HorizGaussian3x3_stl, test_10_vertical_lines) {
+TEST(titov_s_image_filter_horiz_gaussian3x3_stl, test_10_vertical_lines) {
   constexpr size_t kWidth = 10;
   constexpr size_t kHeight = 10;
   std::vector<double> input_image(kWidth * kHeight, 0.0);
@@ -82,7 +79,7 @@ TEST(titov_s_ImageFilter_HorizGaussian3x3_stl, test_10_vertical_lines) {
   task_data_stl->outputs.emplace_back(reinterpret_cast<uint8_t*>(output_image.data()));
   task_data_stl->outputs_count.emplace_back(output_image.size());
 
-  titov_s_ImageFilter_HorizGaussian3x3_stl::GaussianFilterSTL gaussian_filter_stl(task_data_stl);
+  titov_s_image_filter_horiz_gaussian3x3_stl::GaussianFilterSTL gaussian_filter_stl(task_data_stl);
 
   ASSERT_EQ(gaussian_filter_stl.Validation(), true);
 
@@ -97,7 +94,7 @@ TEST(titov_s_ImageFilter_HorizGaussian3x3_stl, test_10_vertical_lines) {
   }
 }
 
-TEST(titov_s_ImageFilter_HorizGaussian3x3_stl, test_horizontal_lines) {
+TEST(titov_s_image_filter_horiz_gaussian3x3_stl, test_horizontal_lines) {
   constexpr size_t kWidth = 10;
   constexpr size_t kHeight = 10;
   std::vector<double> input_image(kWidth * kHeight, 0.0);
@@ -124,7 +121,7 @@ TEST(titov_s_ImageFilter_HorizGaussian3x3_stl, test_horizontal_lines) {
   task_data_stl->outputs.emplace_back(reinterpret_cast<uint8_t*>(output_image.data()));
   task_data_stl->outputs_count.emplace_back(output_image.size());
 
-  titov_s_ImageFilter_HorizGaussian3x3_stl::GaussianFilterSTL gaussian_filter_stl(task_data_stl);
+  titov_s_image_filter_horiz_gaussian3x3_stl::GaussianFilterSTL gaussian_filter_stl(task_data_stl);
 
   ASSERT_EQ(gaussian_filter_stl.Validation(), true);
 
@@ -139,7 +136,7 @@ TEST(titov_s_ImageFilter_HorizGaussian3x3_stl, test_horizontal_lines) {
   }
 }
 
-TEST(titov_s_ImageFilter_HorizGaussian3x3_stl, test_empty_image) {
+TEST(titov_s_image_filter_horiz_gaussian3x3_stl, test_empty_image) {
   constexpr size_t kWidth = 10;
   constexpr size_t kHeight = 10;
   std::vector<double> input_image(kWidth * kHeight, 0.0);
@@ -154,7 +151,7 @@ TEST(titov_s_ImageFilter_HorizGaussian3x3_stl, test_empty_image) {
   task_data_stl->outputs.emplace_back(reinterpret_cast<uint8_t*>(output_image.data()));
   task_data_stl->outputs_count.emplace_back(output_image.size());
 
-  titov_s_ImageFilter_HorizGaussian3x3_stl::GaussianFilterSTL gaussian_filter_stl(task_data_stl);
+  titov_s_image_filter_horiz_gaussian3x3_stl::GaussianFilterSTL gaussian_filter_stl(task_data_stl);
 
   ASSERT_EQ(gaussian_filter_stl.Validation(), true);
 
@@ -169,7 +166,7 @@ TEST(titov_s_ImageFilter_HorizGaussian3x3_stl, test_empty_image) {
   }
 }
 
-TEST(titov_s_ImageFilter_HorizGaussian3x3_stl, test_sharp_transitions) {
+TEST(titov_s_image_filter_horiz_gaussian3x3_stl, test_sharp_transitions) {
   constexpr size_t kWidth = 10;
   constexpr size_t kHeight = 10;
   std::vector<double> input_image(kWidth * kHeight, 0.0);
@@ -202,7 +199,7 @@ TEST(titov_s_ImageFilter_HorizGaussian3x3_stl, test_sharp_transitions) {
   task_data_stl->outputs.emplace_back(reinterpret_cast<uint8_t*>(output_image.data()));
   task_data_stl->outputs_count.emplace_back(output_image.size());
 
-  titov_s_ImageFilter_HorizGaussian3x3_stl::GaussianFilterSTL gaussian_filter_stl(task_data_stl);
+  titov_s_image_filter_horiz_gaussian3x3_stl::GaussianFilterSTL gaussian_filter_stl(task_data_stl);
 
   ASSERT_EQ(gaussian_filter_stl.Validation(), true);
 
@@ -217,7 +214,7 @@ TEST(titov_s_ImageFilter_HorizGaussian3x3_stl, test_sharp_transitions) {
   }
 }
 
-TEST(titov_s_ImageFilter_HorizGaussian3x3_stl, test_smooth_gradients) {
+TEST(titov_s_image_filter_horiz_gaussian3x3_stl, test_smooth_gradients) {
   constexpr size_t kWidth = 10;
   constexpr size_t kHeight = 10;
   std::vector<double> input_image(kWidth * kHeight, 0.0);
@@ -243,7 +240,7 @@ TEST(titov_s_ImageFilter_HorizGaussian3x3_stl, test_smooth_gradients) {
   task_data_stl->outputs.emplace_back(reinterpret_cast<uint8_t*>(output_image.data()));
   task_data_stl->outputs_count.emplace_back(output_image.size());
 
-  titov_s_ImageFilter_HorizGaussian3x3_stl::GaussianFilterSTL gaussian_filter_stl(task_data_stl);
+  titov_s_image_filter_horiz_gaussian3x3_stl::GaussianFilterSTL gaussian_filter_stl(task_data_stl);
 
   ASSERT_EQ(gaussian_filter_stl.Validation(), true);
 
@@ -258,7 +255,7 @@ TEST(titov_s_ImageFilter_HorizGaussian3x3_stl, test_smooth_gradients) {
   }
 }
 
-TEST(titov_s_ImageFilter_HorizGaussian3x3_stl, test_all_max) {
+TEST(titov_s_image_filter_horiz_gaussian3x3_stl, test_all_max) {
   constexpr size_t kWidth = 10;
   constexpr size_t kHeight = 10;
   std::vector<double> input_image(kWidth * kHeight, 255.0);
@@ -278,7 +275,7 @@ TEST(titov_s_ImageFilter_HorizGaussian3x3_stl, test_all_max) {
   task_data_stl->outputs.emplace_back(reinterpret_cast<uint8_t*>(output_image.data()));
   task_data_stl->outputs_count.emplace_back(output_image.size());
 
-  titov_s_ImageFilter_HorizGaussian3x3_stl::GaussianFilterSTL gaussian_filter_stl(task_data_stl);
+  titov_s_image_filter_horiz_gaussian3x3_stl::GaussianFilterSTL gaussian_filter_stl(task_data_stl);
 
   ASSERT_EQ(gaussian_filter_stl.Validation(), true);
 
@@ -293,7 +290,7 @@ TEST(titov_s_ImageFilter_HorizGaussian3x3_stl, test_all_max) {
   }
 }
 
-TEST(titov_s_ImageFilter_HorizGaussian3x3_stl, test_random_invariant_mean) {
+TEST(titov_s_image_filter_horiz_gaussian3x3_stl, test_random_invariant_mean) {
   constexpr size_t kWidth = 100;
   constexpr size_t kHeight = 100;
 
@@ -317,7 +314,7 @@ TEST(titov_s_ImageFilter_HorizGaussian3x3_stl, test_random_invariant_mean) {
   task_data_stl->outputs.emplace_back(reinterpret_cast<uint8_t*>(output_image.data()));
   task_data_stl->outputs_count.emplace_back(output_image.size());
 
-  titov_s_ImageFilter_HorizGaussian3x3_stl::GaussianFilterSTL gaussian_filter_stl(task_data_stl);
+  titov_s_image_filter_horiz_gaussian3x3_stl::GaussianFilterSTL gaussian_filter_stl(task_data_stl);
 
   ASSERT_EQ(gaussian_filter_stl.Validation(), true);
 
