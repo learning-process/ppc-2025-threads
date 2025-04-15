@@ -1,10 +1,8 @@
 #pragma once
 
 #include <vector>
-#include <utility>
 
 #include "core/task/include/task.hpp"
-#include "tbb/blocked_range.h"
 #include "tbb/concurrent_vector.h"
 #include "tbb/parallel_for.h"
 #include "tbb/parallel_sort.h"
