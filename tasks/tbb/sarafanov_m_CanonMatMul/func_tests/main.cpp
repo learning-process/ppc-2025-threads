@@ -89,31 +89,31 @@ TEST(sarafanov_m_canon_mat_mul_tbb, test_1x1_matrix) {
   }
 }
 
-// TEST(sarafanov_m_canon_mat_mul_tbb, test_2x2_matrix) {
-//   constexpr size_t kCount = 2;
-//   constexpr double kInaccuracy = 0.001;
-//   std::vector<double> a_matrix{5.0, 6.0, 6.0, 5.0};
-//   std::vector<double> b_matrix{10.0, 2.0, 2.0, 10.0};
-//   std::vector<double> test_data{62.0, 70.0, 70.0, 62.0};
-//   std::vector<double> out(kCount * kCount, 0);
-//   auto task_data_tbb = std::make_shared<ppc::core::TaskData>();
-//   task_data_tbb->inputs.emplace_back(reinterpret_cast<uint8_t *>(a_matrix.data()));
-//   task_data_tbb->inputs.emplace_back(reinterpret_cast<uint8_t *>(b_matrix.data()));
-//   for (int i = 0; i < 4; ++i) {
-//     task_data_tbb->inputs_count.emplace_back(kCount);
-//   }
-//   task_data_tbb->outputs.emplace_back(reinterpret_cast<uint8_t *>(out.data()));
-//   task_data_tbb->outputs_count.emplace_back(out.size());
-//
-//   sarafanov_m_canon_mat_mul_tbb::CanonMatMulTBB test_task_tbb(task_data_tbb);
-//   ASSERT_EQ(test_task_tbb.Validation(), true);
-//   test_task_tbb.PreProcessing();
-//   test_task_tbb.Run();
-//   test_task_tbb.PostProcessing();
-//   for (size_t i = 0; i < kCount * kCount; ++i) {
-//     EXPECT_NEAR(out[i], test_data[i], kInaccuracy);
-//   }
-// }
+TEST(sarafanov_m_canon_mat_mul_tbb, test_2x2_matrix) {
+  constexpr size_t kCount = 2;
+  constexpr double kInaccuracy = 0.001;
+  std::vector<double> a_matrix{5.0, 6.0, 6.0, 5.0};
+  std::vector<double> b_matrix{10.0, 2.0, 2.0, 10.0};
+  std::vector<double> test_data{62.0, 70.0, 70.0, 62.0};
+  std::vector<double> out(kCount * kCount, 0);
+  auto task_data_tbb = std::make_shared<ppc::core::TaskData>();
+  task_data_tbb->inputs.emplace_back(reinterpret_cast<uint8_t *>(a_matrix.data()));
+  task_data_tbb->inputs.emplace_back(reinterpret_cast<uint8_t *>(b_matrix.data()));
+  for (int i = 0; i < 4; ++i) {
+    task_data_tbb->inputs_count.emplace_back(kCount);
+  }
+  task_data_tbb->outputs.emplace_back(reinterpret_cast<uint8_t *>(out.data()));
+  task_data_tbb->outputs_count.emplace_back(out.size());
+
+  sarafanov_m_canon_mat_mul_tbb::CanonMatMulTBB test_task_tbb(task_data_tbb);
+  ASSERT_EQ(test_task_tbb.Validation(), true);
+  test_task_tbb.PreProcessing();
+  test_task_tbb.Run();
+  test_task_tbb.PostProcessing();
+  for (size_t i = 0; i < kCount * kCount; ++i) {
+    EXPECT_NEAR(out[i], test_data[i], kInaccuracy);
+  }
+}
 
 TEST(sarafanov_m_canon_mat_mul_tbb, test_3x3_matrix) {
   constexpr size_t kCount = 3;
