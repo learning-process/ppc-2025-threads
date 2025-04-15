@@ -1,4 +1,4 @@
-#include "omp/vedernikova_k_gauss_omp/include/ops_omp.hpp"
+#include "omp/vedernikova_k_gauss/include/ops_omp.hpp"
 
 #include <algorithm>
 #include <cmath>
