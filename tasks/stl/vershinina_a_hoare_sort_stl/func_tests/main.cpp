@@ -100,7 +100,7 @@ TEST(vershinina_a_hoare_sort_stl, test_not_random_len_100) {
   ASSERT_TRUE(std::ranges::is_sorted(out));
 }
 
-TEST(vershinina_a_hoare_sort_stl, test_random_even_len_25) {
+TEST(vershinina_a_hoare_sort_stl, test_random_even_len_35) {
   std::vector<double> in;
   std::vector<double> out(35);
   in = GetRandomVector(35);
@@ -120,7 +120,7 @@ TEST(vershinina_a_hoare_sort_stl, test_random_even_len_25) {
   ASSERT_TRUE(std::ranges::is_sorted(out));
 }
 
-TEST(vershinina_a_hoare_sort_stl, test_random_odd_len_50) {
+TEST(vershinina_a_hoare_sort_stl, test_random_odd_len_100) {
   std::vector<double> in;
   std::vector<double> out(100);
   in = GetRandomVector(100);
@@ -140,10 +140,10 @@ TEST(vershinina_a_hoare_sort_stl, test_random_odd_len_50) {
   ASSERT_TRUE(std::ranges::is_sorted(out));
 }
 
-TEST(vershinina_a_hoare_sort_stl, test_random_odd_len_200) {
+TEST(vershinina_a_hoare_sort_stl, test_random_even_len_333) {
   std::vector<double> in;
-  std::vector<double> out(200);
-  in = GetRandomVector(200);
+  std::vector<double> out(333);
+  in = GetRandomVector(333);
 
   auto task_data_stl = std::make_shared<ppc::core::TaskData>();
   task_data_stl->inputs.emplace_back(reinterpret_cast<uint8_t *>(in.data()));
