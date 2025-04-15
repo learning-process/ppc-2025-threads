@@ -1,7 +1,6 @@
 #pragma once
 
 #include <cmath>
-#include <thread>
 #include <utility>
 #include <vector>
 

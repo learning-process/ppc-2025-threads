@@ -95,7 +95,7 @@ lavrentiev_a_ccs_stl::Sparse lavrentiev_a_ccs_stl::CCSSTL::MatMul(const Sparse &
     } else {
       threads[i] =
           std::thread(matrix_multiplicator, i * thread_data_amount,
-                      (i + 1) * thread_data_amount + matrix2.columnsSum.size() % ppc::util::GetPPCNumThreads());
+                      ((i + 1) * thread_data_amount) + (matrix2.columnsSum.size() % ppc::util::GetPPCNumThreads()));
     }
   }
   for (auto &current_thread : threads) {
