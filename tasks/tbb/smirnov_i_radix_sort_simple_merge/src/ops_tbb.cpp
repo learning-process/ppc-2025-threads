@@ -67,8 +67,7 @@ void smirnov_i_radix_sort_simple_merge_tbb::TestTaskTBB::RadixSort(std::vector<i
   }
 }
 void smirnov_i_radix_sort_simple_merge_tbb::TestTaskTBB::SortChunk(int i, int size, int nth, int& start,
-                                                                   tbb::mutex& mtx_start, tbb::mutex& mtx_mas,
-                                                                   tbb::mutex& mtx_firstdq,
+                                                                   tbb::mutex& mtx_start, tbb::mutex& mtx_firstdq,
                                                                    std::deque<std::vector<int>>& firstdq) {
   if (size <= 0 || mas_.empty()) {
     return;
@@ -77,7 +76,7 @@ void smirnov_i_radix_sort_simple_merge_tbb::TestTaskTBB::SortChunk(int i, int si
   if (size % nth != 0) {
     self_offset += static_cast<int>(i < size % nth);
   }
-  std::vector<int> tmp(self_offset);
+  std::vector<int> local_mas(self_offset);
   mtx_start.lock();
   int self_start = start;
   start += self_offset;
@@ -86,13 +85,11 @@ void smirnov_i_radix_sort_simple_merge_tbb::TestTaskTBB::SortChunk(int i, int si
       self_start + self_offset > static_cast<int>(mas_.size())) {
     return;
   }
-  mtx_mas.lock();
-  std::copy(mas_.begin() + self_start, mas_.begin() + self_start + self_offset, tmp.begin());
-  mtx_mas.unlock();
-  if (!tmp.empty()) {
-    RadixSort(tmp);
+  std::copy(mas_.begin() + self_start, mas_.begin() + self_start + self_offset, local_mas.begin());
+  if (!local_mas.empty()) {
+    RadixSort(local_mas);
     mtx_firstdq.lock();
-    firstdq.push_back(std::move(tmp));
+    firstdq.push_back(std::move(local_mas));
     mtx_firstdq.unlock();
   }
 }
@@ -116,13 +113,12 @@ bool smirnov_i_radix_sort_simple_merge_tbb::TestTaskTBB::RunImpl() {
   const int nth = std::min(size, tbb::this_task_arena::max_concurrency());
   tbb::mutex mtx;
   tbb::mutex mtx_firstdq;
-  tbb::mutex mtx_mas;
   tbb::mutex mtx_start;
   int start = 0;
 
   for (int i = 0; i < nth; i++) {
-    tg.run([this, i, size, nth, &start, &mtx_firstdq, &mtx_mas, &firstdq, &mtx_start]() {
-      SortChunk(i, size, nth, start, mtx_start, mtx_mas, mtx_firstdq, firstdq);
+    tg.run([this, i, size, nth, &start, &mtx_firstdq, &firstdq, &mtx_start]() {
+      SortChunk(i, size, nth, start, mtx_start, mtx_firstdq, firstdq);
     });
   }
   tg.wait();
