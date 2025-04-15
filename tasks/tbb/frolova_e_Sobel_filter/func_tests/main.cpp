@@ -235,6 +235,56 @@ TEST(frolova_e_sobel_filter_tbb, _1000_1000_picture) {
   EXPECT_EQ(reference, res);
 }
 
+TEST(frolova_e_sobel_filter_tbb, pure_white_image) {
+  std::vector<int> value = {5, 5};
+  std::vector<int> pict(75, 255);
+  std::vector<int> res(25, 0);
+  std::vector<int> reference = {255, 255, 255, 255, 255, 255, 0,   0,   0,   255, 255, 0,  0,
+                                0,   255, 255, 0,   0,   0,   255, 255, 255, 255, 255, 255};
+
+  auto task_data = std::make_shared<ppc::core::TaskData>();
+  task_data->inputs.emplace_back(reinterpret_cast<uint8_t *>(value.data()));
+  task_data->inputs_count.emplace_back(value.size());
+
+  task_data->inputs.emplace_back(reinterpret_cast<uint8_t *>(pict.data()));
+  task_data->inputs_count.emplace_back(pict.size());
+
+  task_data->outputs.emplace_back(reinterpret_cast<uint8_t *>(res.data()));
+  task_data->outputs_count.emplace_back(res.size());
+
+  frolova_e_sobel_filter_tbb::SobelFilterTBB test_task(task_data);
+  ASSERT_EQ(test_task.Validation(), true);
+  test_task.PreProcessing();
+  test_task.Run();
+  test_task.PostProcessing();
+  EXPECT_EQ(reference, res);
+}
+
+TEST(frolova_e_sobel_filter_tbb, pure_black_image) {
+  std::vector<int> value = {5, 5};
+  std::vector<int> pict(75, 0);
+  std::vector<int> res(25, 0);
+  std::vector<int> reference(25, 0);
+
+  auto task_data = std::make_shared<ppc::core::TaskData>();
+  task_data->inputs.emplace_back(reinterpret_cast<uint8_t *>(value.data()));
+  task_data->inputs_count.emplace_back(value.size());
+
+  task_data->inputs.emplace_back(reinterpret_cast<uint8_t *>(pict.data()));
+  task_data->inputs_count.emplace_back(pict.size());
+
+  task_data->outputs.emplace_back(reinterpret_cast<uint8_t *>(res.data()));
+  task_data->outputs_count.emplace_back(res.size());
+
+  frolova_e_sobel_filter_tbb::SobelFilterTBB test_task(task_data);
+  ASSERT_EQ(test_task.Validation(), true);
+  test_task.PreProcessing();
+  test_task.Run();
+  test_task.PostProcessing();
+  EXPECT_EQ(reference, res);
+}
+
+
 //______ASSERT_FALSE________________
 
 TEST(frolova_e_sobel_filter_tbb, not_correct_value) {
