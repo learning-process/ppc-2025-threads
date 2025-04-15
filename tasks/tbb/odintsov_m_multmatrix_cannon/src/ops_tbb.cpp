@@ -9,6 +9,7 @@
 #include <algorithm>
 #include <cmath>
 #include <cstddef>
+#include <util.hpp>
 #include <vector>
 
 using namespace std;
@@ -159,7 +160,7 @@ bool odintsov_m_mulmatrix_cannon_tbb::MulMatrixCannonTBB::ValidationImpl() {
 
 bool odintsov_m_mulmatrix_cannon_tbb::MulMatrixCannonTBB::RunImpl() {
   // Определяем число потоков, доступное в системе.
-  int num_threads = oneapi::tbb::info::default_concurrency();
+  int num_threads = ppc::util::GetPPCNumThreads();
 
   // Создаем global_control с корректным числом потоков.
   oneapi::tbb::global_control gc(oneapi::tbb::global_control::max_allowed_parallelism, num_threads);
