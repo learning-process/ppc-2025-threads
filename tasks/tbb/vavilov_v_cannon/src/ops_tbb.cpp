@@ -293,7 +293,6 @@ bool vavilov_v_cannon_tbb::CannonTBB::RunImpl() {
 */
 
 void vavilov_v_cannon_tbb::CannonTBB::BlockMultiply() {
-
   // Запуск параллельного перемножения блоков
   oneapi::tbb::parallel_for(oneapi::tbb::blocked_range2d<int>(0, num_blocks_, 0, num_blocks_),
                             [&](const oneapi::tbb::blocked_range2d<int>& r) {
