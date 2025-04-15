@@ -1,44 +1,36 @@
 #include <gtest/gtest.h>
 
-#include <algorithm>
 #include <chrono>
 #include <cstdint>
 #include <memory>
-#include <random>
 #include <vector>
 
 #include "core/perf/include/perf.hpp"
 #include "core/task/include/task.hpp"
-#include "seq/tsatsyn_a_radix_sort_simple_merge/include/ops_seq.hpp"
+#include "seq/kolokolova_d_integral_simpson_method/include/ops_seq.hpp"
 
-std::vector<double> tsatsyn_a_radix_sort_simple_merge_seq::GetRandomVector(int sz, int a, int b) {
-  std::random_device dev;
-  std::mt19937 gen(dev());
-  std::uniform_real_distribution<> dis(a, b);
-  std::vector<double> vec(sz);
-  for (int i = 0; i < sz; ++i) {
-    vec[i] = dis(gen);
-  }
-  return vec;
-}
-
-TEST(tsatsyn_a_radix_sort_simple_merge_seq, test_pipeline_run) {
-  constexpr int kCount = 500;
-
-  // Create data
-  std::vector<double> in = tsatsyn_a_radix_sort_simple_merge_seq::GetRandomVector(kCount * kCount, -100, 100);
-  std::vector<double> out(kCount * kCount, 0);
+TEST(kolokolova_d_integral_simpson_method_seq, test_pipeline_run) {
+  auto func = [](std::vector<double> vec) {
+    return (vec[2] * vec[2] * vec[2] * vec[1] * vec[1] / 10) + (4 * vec[0] * vec[0]) - (10 * vec[2]);
+  };
+  std::vector<int> step = {130, 130, 130};
+  std::vector<int> bord = {1, 11, 2, 10, 0, 10};
+  double func_result = 0.0;
 
   // Create task_data
   auto task_data_seq = std::make_shared<ppc::core::TaskData>();
-  task_data_seq->inputs.emplace_back(reinterpret_cast<uint8_t *>(in.data()));
-  task_data_seq->inputs_count.emplace_back(in.size());
-  task_data_seq->outputs.emplace_back(reinterpret_cast<uint8_t *>(out.data()));
-  task_data_seq->outputs_count.emplace_back(out.size());
+  task_data_seq->inputs.emplace_back(reinterpret_cast<uint8_t *>(step.data()));
+  task_data_seq->inputs_count.emplace_back(step.size());
+
+  task_data_seq->inputs.emplace_back(reinterpret_cast<uint8_t *>(bord.data()));
+  task_data_seq->inputs_count.emplace_back(bord.size());
+
+  task_data_seq->outputs.emplace_back(reinterpret_cast<uint8_t *>(&func_result));
+  task_data_seq->outputs_count.emplace_back(1);
 
   // Create Task
   auto test_task_sequential =
-      std::make_shared<tsatsyn_a_radix_sort_simple_merge_seq::TestTaskSequential>(task_data_seq);
+      std::make_shared<kolokolova_d_integral_simpson_method_seq::TestTaskSequential>(task_data_seq, func);
 
   // Create Perf attributes
   auto perf_attr = std::make_shared<ppc::core::PerfAttr>();
@@ -57,27 +49,34 @@ TEST(tsatsyn_a_radix_sort_simple_merge_seq, test_pipeline_run) {
   auto perf_analyzer = std::make_shared<ppc::core::Perf>(test_task_sequential);
   perf_analyzer->PipelineRun(perf_attr, perf_results);
   ppc::core::Perf::PrintPerfStatistic(perf_results);
-  std::ranges::sort(in);
-  ASSERT_EQ(in, out);
+
+  double ans = 927300.25;
+  double error = 0.1;
+  ASSERT_NEAR(func_result, ans, error);
 }
 
-TEST(tsatsyn_a_radix_sort_simple_merge_seq, test_task_run) {
-  constexpr int kCount = 500;
-
-  // Create data
-  std::vector<double> in = tsatsyn_a_radix_sort_simple_merge_seq::GetRandomVector(kCount * kCount, -100, 100);
-  std::vector<double> out(kCount * kCount, 0);
+TEST(kolokolova_d_integral_simpson_method_seq, test_task_run) {
+  auto func = [](std::vector<double> vec) {
+    return (vec[2] * vec[2] * vec[2] * vec[1] * vec[1] / 10) + (4 * vec[0] * vec[0]) - (10 * vec[2]);
+  };
+  std::vector<int> step = {130, 130, 130};
+  std::vector<int> bord = {1, 11, 2, 10, 0, 10};
+  double func_result = 0.0;
 
   // Create task_data
   auto task_data_seq = std::make_shared<ppc::core::TaskData>();
-  task_data_seq->inputs.emplace_back(reinterpret_cast<uint8_t *>(in.data()));
-  task_data_seq->inputs_count.emplace_back(in.size());
-  task_data_seq->outputs.emplace_back(reinterpret_cast<uint8_t *>(out.data()));
-  task_data_seq->outputs_count.emplace_back(out.size());
+  task_data_seq->inputs.emplace_back(reinterpret_cast<uint8_t *>(step.data()));
+  task_data_seq->inputs_count.emplace_back(step.size());
+
+  task_data_seq->inputs.emplace_back(reinterpret_cast<uint8_t *>(bord.data()));
+  task_data_seq->inputs_count.emplace_back(bord.size());
+
+  task_data_seq->outputs.emplace_back(reinterpret_cast<uint8_t *>(&func_result));
+  task_data_seq->outputs_count.emplace_back(1);
 
   // Create Task
   auto test_task_sequential =
-      std::make_shared<tsatsyn_a_radix_sort_simple_merge_seq::TestTaskSequential>(task_data_seq);
+      std::make_shared<kolokolova_d_integral_simpson_method_seq::TestTaskSequential>(task_data_seq, func);
 
   // Create Perf attributes
   auto perf_attr = std::make_shared<ppc::core::PerfAttr>();
@@ -96,6 +95,7 @@ TEST(tsatsyn_a_radix_sort_simple_merge_seq, test_task_run) {
   auto perf_analyzer = std::make_shared<ppc::core::Perf>(test_task_sequential);
   perf_analyzer->TaskRun(perf_attr, perf_results);
   ppc::core::Perf::PrintPerfStatistic(perf_results);
-  std::ranges::sort(in);
-  ASSERT_EQ(in, out);
+  double ans = 927300.25;
+  double error = 0.1;
+  ASSERT_NEAR(func_result, ans, error);
 }

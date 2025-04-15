@@ -10,9 +10,9 @@
 
 #include "core/perf/include/perf.hpp"
 #include "core/task/include/task.hpp"
-#include "seq/kholin_k_multidimensional_integrals_rectangle/include/ops_seq.hpp"
+#include "omp/kholin_k_multidimensional_integrals_rectangle/include/ops_omp.hpp"
 
-TEST(kholin_k_multidimensional_integrals_rectangle_seq, test_pipeline_run) {
+TEST(kholin_k_multidimensional_integrals_rectangle_omp, test_pipeline_run) {
   // Create data
   size_t dim = 3;
   std::vector<double> values{0.0, 0.0, 0.0};
@@ -25,25 +25,25 @@ TEST(kholin_k_multidimensional_integrals_rectangle_seq, test_pipeline_run) {
   double n = 150.0;
   std::vector<double> out_i(1, 0.0);
 
-  auto *f_object = new std::function<double(const std::vector<double> &)>(f);
+  auto f_object = std::make_unique<std::function<double(const std::vector<double> &)>>(f);
 
   // Create task_data
-  std::shared_ptr<ppc::core::TaskData> task_data_seq = std::make_shared<ppc::core::TaskData>();
-  task_data_seq->inputs.emplace_back(reinterpret_cast<uint8_t *>(&dim));
-  task_data_seq->inputs.emplace_back(reinterpret_cast<uint8_t *>(values.data()));
-  task_data_seq->inputs.emplace_back(reinterpret_cast<uint8_t *>(f_object));
-  task_data_seq->inputs.emplace_back(reinterpret_cast<uint8_t *>(in_lower_limits.data()));
-  task_data_seq->inputs.emplace_back(reinterpret_cast<uint8_t *>(in_upper_limits.data()));
-  task_data_seq->inputs.emplace_back(reinterpret_cast<uint8_t *>(&n));
-  task_data_seq->inputs_count.emplace_back(values.size());
-  task_data_seq->inputs_count.emplace_back(in_lower_limits.size());
-  task_data_seq->inputs_count.emplace_back(in_upper_limits.size());
-  task_data_seq->outputs.emplace_back(reinterpret_cast<uint8_t *>(out_i.data()));
-  task_data_seq->outputs_count.emplace_back(out_i.size());
+  std::shared_ptr<ppc::core::TaskData> task_data_omp = std::make_shared<ppc::core::TaskData>();
+  task_data_omp->inputs.emplace_back(reinterpret_cast<uint8_t *>(&dim));
+  task_data_omp->inputs.emplace_back(reinterpret_cast<uint8_t *>(values.data()));
+  task_data_omp->inputs.emplace_back(reinterpret_cast<uint8_t *>(f_object.get()));
+  task_data_omp->inputs.emplace_back(reinterpret_cast<uint8_t *>(in_lower_limits.data()));
+  task_data_omp->inputs.emplace_back(reinterpret_cast<uint8_t *>(in_upper_limits.data()));
+  task_data_omp->inputs.emplace_back(reinterpret_cast<uint8_t *>(&n));
+  task_data_omp->inputs_count.emplace_back(values.size());
+  task_data_omp->inputs_count.emplace_back(in_lower_limits.size());
+  task_data_omp->inputs_count.emplace_back(in_upper_limits.size());
+  task_data_omp->outputs.emplace_back(reinterpret_cast<uint8_t *>(out_i.data()));
+  task_data_omp->outputs_count.emplace_back(out_i.size());
 
   // Create Task
-  auto test_task_sequential =
-      std::make_shared<kholin_k_multidimensional_integrals_rectangle_seq::TestTaskSequential>(task_data_seq);
+  auto test_task_omp =
+      std::make_shared<kholin_k_multidimensional_integrals_rectangle_omp::TestTaskOpenMP>(task_data_omp);
 
   // Create Perf attributes
   auto perf_attr = std::make_shared<ppc::core::PerfAttr>();
@@ -59,7 +59,7 @@ TEST(kholin_k_multidimensional_integrals_rectangle_seq, test_pipeline_run) {
   auto perf_results = std::make_shared<ppc::core::PerfResults>();
 
   // Create Perf analyzer
-  auto perf_analyzer = std::make_shared<ppc::core::Perf>(test_task_sequential);
+  auto perf_analyzer = std::make_shared<ppc::core::Perf>(test_task_omp);
   perf_analyzer->PipelineRun(perf_attr, perf_results);
   ppc::core::Perf::PrintPerfStatistic(perf_results);
   double ref_i = 12;
@@ -67,7 +67,7 @@ TEST(kholin_k_multidimensional_integrals_rectangle_seq, test_pipeline_run) {
   ASSERT_NEAR(locality, 0, 1);
 }
 
-TEST(kholin_k_multidimensional_integrals_rectangle_seq, test_task_run) {
+TEST(kholin_k_multidimensional_integrals_rectangle_omp, test_task_run) {
   // Create data
   size_t dim = 3;
   std::vector<double> values{0.0, 0.0, 0.0};
@@ -80,25 +80,25 @@ TEST(kholin_k_multidimensional_integrals_rectangle_seq, test_task_run) {
   double n = 150.0;
   std::vector<double> out_i(1, 0.0);
 
-  auto *f_object = new std::function<double(const std::vector<double> &)>(f);
+  auto f_object = std::make_unique<std::function<double(const std::vector<double> &)>>(f);
 
   // Create task_data
-  std::shared_ptr<ppc::core::TaskData> task_data_seq = std::make_shared<ppc::core::TaskData>();
-  task_data_seq->inputs.emplace_back(reinterpret_cast<uint8_t *>(&dim));
-  task_data_seq->inputs.emplace_back(reinterpret_cast<uint8_t *>(values.data()));
-  task_data_seq->inputs.emplace_back(reinterpret_cast<uint8_t *>(f_object));
-  task_data_seq->inputs.emplace_back(reinterpret_cast<uint8_t *>(in_lower_limits.data()));
-  task_data_seq->inputs.emplace_back(reinterpret_cast<uint8_t *>(in_upper_limits.data()));
-  task_data_seq->inputs.emplace_back(reinterpret_cast<uint8_t *>(&n));
-  task_data_seq->inputs_count.emplace_back(values.size());
-  task_data_seq->inputs_count.emplace_back(in_lower_limits.size());
-  task_data_seq->inputs_count.emplace_back(in_upper_limits.size());
-  task_data_seq->outputs.emplace_back(reinterpret_cast<uint8_t *>(out_i.data()));
-  task_data_seq->outputs_count.emplace_back(out_i.size());
+  std::shared_ptr<ppc::core::TaskData> task_data_omp = std::make_shared<ppc::core::TaskData>();
+  task_data_omp->inputs.emplace_back(reinterpret_cast<uint8_t *>(&dim));
+  task_data_omp->inputs.emplace_back(reinterpret_cast<uint8_t *>(values.data()));
+  task_data_omp->inputs.emplace_back(reinterpret_cast<uint8_t *>(f_object.get()));
+  task_data_omp->inputs.emplace_back(reinterpret_cast<uint8_t *>(in_lower_limits.data()));
+  task_data_omp->inputs.emplace_back(reinterpret_cast<uint8_t *>(in_upper_limits.data()));
+  task_data_omp->inputs.emplace_back(reinterpret_cast<uint8_t *>(&n));
+  task_data_omp->inputs_count.emplace_back(values.size());
+  task_data_omp->inputs_count.emplace_back(in_lower_limits.size());
+  task_data_omp->inputs_count.emplace_back(in_upper_limits.size());
+  task_data_omp->outputs.emplace_back(reinterpret_cast<uint8_t *>(out_i.data()));
+  task_data_omp->outputs_count.emplace_back(out_i.size());
 
   // Create Task
-  auto test_task_sequential =
-      std::make_shared<kholin_k_multidimensional_integrals_rectangle_seq::TestTaskSequential>(task_data_seq);
+  auto test_task_omp =
+      std::make_shared<kholin_k_multidimensional_integrals_rectangle_omp::TestTaskOpenMP>(task_data_omp);
 
   // Create Perf attributes
   auto perf_attr = std::make_shared<ppc::core::PerfAttr>();
@@ -114,7 +114,7 @@ TEST(kholin_k_multidimensional_integrals_rectangle_seq, test_task_run) {
   auto perf_results = std::make_shared<ppc::core::PerfResults>();
 
   // Create Perf analyzer
-  auto perf_analyzer = std::make_shared<ppc::core::Perf>(test_task_sequential);
+  auto perf_analyzer = std::make_shared<ppc::core::Perf>(test_task_omp);
   perf_analyzer->TaskRun(perf_attr, perf_results);
   ppc::core::Perf::PrintPerfStatistic(perf_results);
   double ref_i = 12;
