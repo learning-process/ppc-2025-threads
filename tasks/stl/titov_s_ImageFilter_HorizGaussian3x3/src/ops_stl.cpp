@@ -37,25 +37,20 @@ bool titov_s_ImageFilter_HorizGaussian3x3_stl::GaussianFilterSTL::RunImpl() {
   const double sum = kernel_[0] + kernel_[1] + kernel_[2];
   const int width = width_;
   const int height = height_;
-  const auto &input = input_;
-  const auto &kernel = kernel_;
-  auto &output = output_;
 
   std::vector<int> rows(height);
   std::iota(rows.begin(), rows.end(), 0);
 
-  std::for_each(std::execution::par, rows.begin(), rows.end(), [&](int i) {
-    for (int j = 0; j < width; ++j) {
-      double filtered_value = 0.0;
-      for (int k = -1; k <= 1; ++k) {
-        int col = j + k;
-        if (col >= 0 && col < width) {
-          filtered_value += input[(i * width) + col] * kernel[k + 1];
-        }
-      }
-      output[(i * width) + j] = filtered_value / sum;
-    }
-  });
+  std::for_each(std::execution::par, rows.begin(), rows.end(),
+                [=, &input = input_, &output = output_, &kernel = kernel_](int i) {
+                  const int row_offset = i * width;
+                  for (int j = 0; j < width; ++j) {
+                    double filtered_value = input[row_offset + j] * kernel[1];
+                    if (j > 0) filtered_value += input[row_offset + j - 1] * kernel[0];
+                    if (j < width - 1) filtered_value += input[row_offset + j + 1] * kernel[2];
+                    output[row_offset + j] = filtered_value / sum;
+                  }
+                });
 
   return true;
 }
