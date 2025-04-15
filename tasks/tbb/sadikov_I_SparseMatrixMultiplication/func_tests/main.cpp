@@ -7,8 +7,8 @@
 #include <vector>
 
 #include "core/task/include/task.hpp"
-#include "tbb/sadikov_I_SparseMatMul_TBB/include/SparseMatrix.hpp"
-#include "tbb/sadikov_I_SparseMatMul_TBB/include/ops_tbb.hpp"
+#include "tbb/sadikov_I_SparseMatrixMultiplication/include/SparseMatrix.hpp"
+#include "tbb/sadikov_I_SparseMatrixMultiplication/include/ops_tbb.hpp"
 
 namespace {
 std::vector<double> GetRandomMatrix(int size) {

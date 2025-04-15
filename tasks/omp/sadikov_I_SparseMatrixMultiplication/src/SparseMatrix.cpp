@@ -1,4 +1,4 @@
-#include "omp/Sadikov_I_SparseMatrixMultiplication_OMP/include/SparseMatrix.hpp"
+#include "omp/sadikov_I_SparseMatrixMultiplication/include/SparseMatrix.hpp"
 
 #include <omp.h>
 

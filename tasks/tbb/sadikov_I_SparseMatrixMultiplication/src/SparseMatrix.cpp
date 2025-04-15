@@ -1,4 +1,4 @@
-#include "tbb/sadikov_I_SparseMatMul_TBB/include/SparseMatrix.hpp"
+#include "tbb/sadikov_I_SparseMatrixMultiplication/include/SparseMatrix.hpp"
 
 #include <oneapi/tbb/task_arena.h>
 #include <tbb/tbb.h>

@@ -7,8 +7,8 @@
 #include <vector>
 
 #include "core/task/include/task.hpp"
-#include "omp/Sadikov_I_SparseMatrixMultiplication_OMP/include/SparseMatrix.hpp"
-#include "omp/Sadikov_I_SparseMatrixMultiplication_OMP/include/ops_omp.hpp"
+#include "omp/sadikov_I_SparseMatrixMultiplication/include/SparseMatrix.hpp"
+#include "omp/sadikov_I_SparseMatrixMultiplication/include/ops_omp.hpp"
 
 namespace {
 std::vector<double> GetRandomMatrix(int size) {
