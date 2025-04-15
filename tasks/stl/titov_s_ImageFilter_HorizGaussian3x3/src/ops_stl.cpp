@@ -3,7 +3,7 @@
 #include <algorithm>
 #include <cmath>
 #include <cstddef>
-#include <execution>
+#include <thread>
 #include <numeric>
 #include <vector>
 
@@ -36,24 +36,30 @@ bool titov_s_image_filter_horiz_gaussian3x3_stl::GaussianFilterSTL::RunImpl() {
   const int width = width_;
   const int height = height_;
 
-  std::vector<int> rows(height);
-  std::iota(rows.begin(), rows.end(), 0);
+  const int num_threads = std::thread::hardware_concurrency();
+  std::vector<std::thread> threads;
+  threads.reserve(num_threads);
 
-  std::for_each(std::execution::par, rows.begin(), rows.end(),
-                [=, &input = input_, &output = output_, &kernel = kernel_](int i) {
-                  const int row_offset = i * width;
-                  for (int j = 0; j < width; ++j) {
-                    double filtered_value = input[row_offset + j] * kernel[1];
-                    if (j > 0) {
-                      filtered_value += input[row_offset + j - 1] * kernel[0];
-                    }
-                    if (j < width - 1) {
-                      filtered_value += input[row_offset + j + 1] * kernel[2];
-                    }
-                    output[row_offset + j] = filtered_value / sum;
-                  }
-                });
+  const int rows_per_thread = height / num_threads;
 
+  for (int t = 0; t < num_threads; ++t) {
+    const int start_row = t * rows_per_thread;
+    const int end_row = (t == num_threads - 1) ? height : start_row + rows_per_thread;
+
+    threads.emplace_back([=, &input = input_, &output = output_, &kernel = kernel_] {
+      for (int i = start_row; i < end_row; ++i) {
+        const int row_offset = i * width;
+        for (int j = 0; j < width; ++j) {
+          double val = input[row_offset + j] * kernel[1];
+          if (j > 0) val += input[row_offset + j - 1] * kernel[0];
+          if (j < width - 1) val += input[row_offset + j + 1] * kernel[2];
+          output[row_offset + j] = val / sum;
+        }
+      }
+    });
+  }
+
+  for (auto &t : threads) t.join();
   return true;
 }
 
