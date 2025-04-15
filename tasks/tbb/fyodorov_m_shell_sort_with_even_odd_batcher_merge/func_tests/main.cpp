@@ -170,3 +170,67 @@ TEST(fyodorov_m_shell_sort_with_even_odd_batcher_merge_tbb, reverse_pozitive_dou
   std::ranges::sort(in);
   EXPECT_EQ(in, out);
 }
+
+TEST(fyodorov_m_shell_sort_with_even_odd_batcher_merge_tbb, test_validation_failure) {
+  tbb::global_control global_limit(tbb::global_control::max_allowed_parallelism, 4);
+
+  std::vector<int> input = {35, 33, 42, 10};
+  std::vector<int> output;
+
+  auto task_data_tbb = std::make_shared<ppc::core::TaskData>();
+  task_data_tbb->inputs.emplace_back(reinterpret_cast<uint8_t *>(input.data()));
+  task_data_tbb->inputs_count.emplace_back(input.size());
+  task_data_tbb->outputs.emplace_back(reinterpret_cast<uint8_t *>(output.data()));
+  task_data_tbb->outputs_count.emplace_back(output.size());
+
+  fyodorov_m_shell_sort_with_even_odd_batcher_merge_tbb::TestTaskTBB test_task_tbb(task_data_tbb);
+
+  ASSERT_EQ(test_task_tbb.Validation(), false);
+}
+
+TEST(fyodorov_m_shell_sort_with_even_odd_batcher_merge_tbb, test_empty_array_validation) {
+  tbb::global_control global_limit(tbb::global_control::max_allowed_parallelism, 4);
+
+  std::vector<int> input;
+  std::vector<int> output;
+
+  auto task_data_tbb = std::make_shared<ppc::core::TaskData>();
+  task_data_tbb->inputs.emplace_back(reinterpret_cast<uint8_t *>(input.data()));
+  task_data_tbb->inputs_count.emplace_back(input.size());
+  task_data_tbb->outputs.emplace_back(reinterpret_cast<uint8_t *>(output.data()));
+  task_data_tbb->outputs_count.emplace_back(output.size());
+
+  fyodorov_m_shell_sort_with_even_odd_batcher_merge_tbb::TestTaskTBB test_task_tbb(task_data_tbb);
+
+  ASSERT_EQ(test_task_tbb.Validation(), true);
+
+  test_task_tbb.PreProcessing();
+  test_task_tbb.Run();
+  test_task_tbb.PostProcessing();
+
+  EXPECT_EQ(output, input);
+}
+
+TEST(fyodorov_m_shell_sort_with_even_odd_batcher_merge_tbb, test_single_element_array) {
+  tbb::global_control global_limit(tbb::global_control::max_allowed_parallelism, 4);
+
+  std::vector<int> input = {42};
+  std::vector<int> expected_output = {42};
+  std::vector<int> output(input.size(), 0);
+
+  auto task_data_tbb = std::make_shared<ppc::core::TaskData>();
+  task_data_tbb->inputs.emplace_back(reinterpret_cast<uint8_t *>(input.data()));
+  task_data_tbb->inputs_count.emplace_back(input.size());
+  task_data_tbb->outputs.emplace_back(reinterpret_cast<uint8_t *>(output.data()));
+  task_data_tbb->outputs_count.emplace_back(output.size());
+
+  fyodorov_m_shell_sort_with_even_odd_batcher_merge_tbb::TestTaskTBB test_task_tbb(task_data_tbb);
+
+  ASSERT_EQ(test_task_tbb.Validation(), true);
+
+  test_task_tbb.PreProcessing();
+  test_task_tbb.Run();
+  test_task_tbb.PostProcessing();
+
+  EXPECT_EQ(output, expected_output);
+}
