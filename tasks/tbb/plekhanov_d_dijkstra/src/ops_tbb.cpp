@@ -29,13 +29,21 @@ int plekhanov_d_dijkstra_tbb::TestTaskTBB::FindMinDistanceVertexTBB(const std::v
             current_u = v;
           }
         }
-        if (local_u == -1) return current_u;
-        if (current_u == -1) return local_u;
+        if (local_u == -1) {
+          return current_u;
+        }
+        if (current_u == -1) {
+          return local_u;
+        }
         return (distances_[current_u] < distances_[local_u]) ? current_u : local_u;
       },
       [&](int u1, int u2) -> int {
-        if (u1 == -1) return u2;
-        if (u2 == -1) return u1;
+        if (u1 == -1) {
+          return u2;
+        }
+        if (u2 == -1) {
+          return u1;
+        }
         return (distances_[u1] < distances_[u2]) ? u1 : u2;
       });
 }
@@ -121,7 +129,9 @@ bool plekhanov_d_dijkstra_tbb::TestTaskTBB::RunImpl() {
 
   for (int count = 0; count < static_cast<int>(num_vertices_) - 1; ++count) {
     int u = FindMinDistanceVertexTBB(visited);
-    if (u == -1) break;
+    if (u == -1) {
+      break;
+    }
 
     visited[u] = true;
     RelaxEdgesTBB(u, graph, visited);
