@@ -1,4 +1,4 @@
-﻿#include "omp/shurigin_s_integrals_square/include/ops_omp.hpp"
+﻿#include "omp/shurigin_s_integrals_square_OMP/include/ops_omp.hpp"
 
 #include <omp.h>
 

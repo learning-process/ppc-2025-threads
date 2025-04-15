@@ -8,7 +8,7 @@
 
 #include "core/perf/include/perf.hpp"
 #include "core/task/include/task.hpp"
-#include "omp/shurigin_s_integrals_square/include/ops_omp.hpp"
+#include "omp/shurigin_s_integrals_square_OMP/include/ops_omp.hpp"
 
 namespace shurigin_s_integrals_square_omp_test {
 TEST(shurigin_s_integrals_square_omp, test_pipeline_run) {
