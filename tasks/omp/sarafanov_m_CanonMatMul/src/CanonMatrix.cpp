@@ -1,4 +1,4 @@
-#include "omp/sarafanov_m_CanonMatMul_omp/include/CanonMatrix.hpp"
+#include "omp/sarafanov_m_CanonMatMul/include/CanonMatrix.hpp"
 
 #include <omp.h>
 
