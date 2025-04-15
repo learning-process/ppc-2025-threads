@@ -17,6 +17,43 @@
 
 namespace plekhanov_d_dijkstra_tbb {
 
+int plekhanov_d_dijkstra_tbb::TestTaskTBB::FindMinDistanceVertexTBB(const std::vector<bool>& visited) const {
+  return oneapi::tbb::parallel_reduce(
+      oneapi::tbb::blocked_range<int>(0, static_cast<int>(num_vertices_)), -1,
+      [&](const oneapi::tbb::blocked_range<int>& r, int local_u) -> int {
+        int local_min = std::numeric_limits<int>::max();
+        int current_u = -1;
+        for (int v = r.begin(); v < r.end(); ++v) {
+          if (!visited[v] && distances_[v] < local_min) {
+            local_min = distances_[v];
+            current_u = v;
+          }
+        }
+        if (local_u == -1) return current_u;
+        if (current_u == -1) return local_u;
+        return (distances_[current_u] < distances_[local_u]) ? current_u : local_u;
+      },
+      [&](int u1, int u2) -> int {
+        if (u1 == -1) return u2;
+        if (u2 == -1) return u1;
+        return (distances_[u1] < distances_[u2]) ? u1 : u2;
+      });
+}
+
+void plekhanov_d_dijkstra_tbb::TestTaskTBB::RelaxEdgesTBB(int u,
+                                                          const std::vector<std::vector<std::pair<int, int>>>& graph,
+                                                          const std::vector<bool>& visited) {
+  oneapi::tbb::parallel_for(0, static_cast<int>(graph[u].size()), [&](int j) {
+    int v = graph[u][j].first;
+    int weight = graph[u][j].second;
+    if (!visited[v] && distances_[u] != std::numeric_limits<int>::max()) {
+      int new_dist = distances_[u] + weight;
+      oneapi::tbb::mutex::scoped_lock lock(mutex_);
+      distances_[v] = std::min(new_dist, distances_[v]);
+    }
+  });
+}
+
 namespace {
 
 bool ConvertGraphToAdjacencyList(const std::vector<int>& graph_data, size_t num_vertices,
@@ -74,9 +111,8 @@ bool plekhanov_d_dijkstra_tbb::TestTaskTBB::ValidationImpl() {
          task_data->outputs_count[0] > 0;
 }
 
-bool plekhanov_d_dijkstra_tbb::TestTaskTBB::RunImpl() {  // NOLINT(readability-function-cognitive-complexity)
+bool plekhanov_d_dijkstra_tbb::TestTaskTBB::RunImpl() {
   std::vector<std::vector<std::pair<int, int>>> graph(num_vertices_);
-
   if (!ConvertGraphToAdjacencyList(graph_data_, num_vertices_, graph)) {
     return false;
   }
@@ -84,51 +120,13 @@ bool plekhanov_d_dijkstra_tbb::TestTaskTBB::RunImpl() {  // NOLINT(readability-f
   std::vector<bool> visited(num_vertices_, false);
 
   for (int count = 0; count < static_cast<int>(num_vertices_) - 1; ++count) {
-    int u = oneapi::tbb::parallel_reduce(
-        oneapi::tbb::blocked_range<int>(0, static_cast<int>(num_vertices_)), -1,
-        [&](const oneapi::tbb::blocked_range<int>& r, int local_u) -> int {
-          int local_min = std::numeric_limits<int>::max();
-          int current_u = -1;
-          for (int v = r.begin(); v < r.end(); ++v) {
-            if (!visited[v] && distances_[v] < local_min) {
-              local_min = distances_[v];
-              current_u = v;
-            }
-          }
-          if (local_u == -1) {
-            return current_u;
-          }
-          if (current_u == -1) {
-            return local_u;
-          }
-          return (distances_[current_u] < distances_[local_u]) ? current_u : local_u;
-        },
-        [&](int u1, int u2) -> int {
-          if (u1 == -1) {
-            return u2;
-          }
-          if (u2 == -1) {
-            return u1;
-          }
-          return (distances_[u1] < distances_[u2]) ? u1 : u2;
-        });
-
-    if (u == -1) {
-      break;
-    }
+    int u = FindMinDistanceVertexTBB(visited);
+    if (u == -1) break;
 
     visited[u] = true;
-
-    oneapi::tbb::parallel_for(0, static_cast<int>(graph[u].size()), [&](int j) {
-      int v = graph[u][j].first;
-      int weight = graph[u][j].second;
-      if (!visited[v] && distances_[u] != std::numeric_limits<int>::max()) {
-        int new_dist = distances_[u] + weight;
-        oneapi::tbb::mutex::scoped_lock lock(mutex_);
-        distances_[v] = std::min(new_dist, distances_[v]);
-      }
-    });
+    RelaxEdgesTBB(u, graph, visited);
   }
+
   return true;
 }
 

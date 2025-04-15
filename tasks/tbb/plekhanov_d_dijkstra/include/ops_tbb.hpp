@@ -25,6 +25,10 @@ class TestTaskTBB : public ppc::core::Task {
   size_t start_vertex_;
   size_t num_vertices_;
   static const int kEndOfVertexList;
+
+  int FindMinDistanceVertexTBB(const std::vector<bool>& visited) const;
+  void RelaxEdgesTBB(int u, const std::vector<std::vector<std::pair<int, int>>>& graph,
+                     const std::vector<bool>& visited);
 };
 
 }  // namespace plekhanov_d_dijkstra_tbb
