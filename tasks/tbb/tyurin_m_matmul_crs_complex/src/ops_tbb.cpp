@@ -58,7 +58,7 @@ bool tyurin_m_matmul_crs_complex_tbb::TestTaskTbb::PreProcessingImpl() {
   return true;
 }
 
-bool tyurin_m_matmul_crs_complex_tbb::TestTaskTbb::RunImpl() {
+bool tyurin_m_matmul_crs_complex_tbb::TestTaskTbb::RunImpl() {  // NOLINT(readability-function-cognitive-complexity)
   const auto rows = lhs_.GetRows();
   const auto cols = rhs_.GetRows();
 
