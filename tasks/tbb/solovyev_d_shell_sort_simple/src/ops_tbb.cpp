@@ -31,7 +31,7 @@ bool solovyev_d_shell_sort_simple_tbb::TaskTBB::RunImpl() {
         input_[j] = val;
       }
     });
-   }
+  }
   return true;
 }
 
