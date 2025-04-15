@@ -112,7 +112,7 @@ TEST(kovalchuk_a_shell_sort_tbb_func, Test_Duplicates) {
 }
 
 TEST(kovalchuk_a_shell_sort_tbb_func, Test_NegativeNumbers) {
-  std::vector<int> input = {-5, 0, -3, 10, -1};
+  std::vector<int> input = {-5, 0, -3, 9, -1};
   std::vector<int> output(input.size());
 
   auto task_data = std::make_shared<ppc::core::TaskData>();
@@ -128,7 +128,7 @@ TEST(kovalchuk_a_shell_sort_tbb_func, Test_NegativeNumbers) {
   task->Run();
   task->PostProcessing();
 
-  std::vector<int> expected = {-5, -3, -1, 0, 10};
+  std::vector<int> expected = {-5, -3, -1, 0, 9};
   EXPECT_EQ(expected, output);
 }
 
