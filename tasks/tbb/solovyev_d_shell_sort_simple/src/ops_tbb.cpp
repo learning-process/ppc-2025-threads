@@ -19,22 +19,21 @@ bool solovyev_d_shell_sort_simple_tbb::TaskTBB::ValidationImpl() {
 }
 
 bool solovyev_d_shell_sort_simple_tbb::TaskTBB::RunImpl() {
-  for (int gap = (int)input_.size() / 2; gap > 0; gap /= 2) {
-#pragma omp parallel for
-    for (int i = 0; i < gap; i++) {
-      for (int f = gap + i; f < (int)input_.size(); f = f + gap) {
-        int val = input_[f];
-        int j = f;
-        while (j >= gap && input_[j - gap] > val) {
-          input_[j] = input_[j - gap];
-          j -= gap;
+    for (int gap = static_cast<int>(input_.size()) / 2; gap > 0; gap /= 2) {
+      tbb::parallel_for(0, gap, [this, gap](int i) {
+        for (int f = gap + i; f < static_cast<int>(input_.size()); f += gap) {
+          int val = input_[f];
+          int j = f;
+          while (j >= gap && input_[j - gap] > val) {
+            input_[j] = input_[j - gap];
+            j -= gap;
+          }
+          input_[j] = val;
         }
-        input_[j] = val;
-      }
+      });
     }
+    return true;
   }
-  return true;
-}
 bool solovyev_d_shell_sort_simple_tbb::TaskTBB::PostProcessingImpl() {
   for (size_t i = 0; i < input_.size(); i++) {
     reinterpret_cast<int *>(task_data->outputs[0])[i] = input_[i];
