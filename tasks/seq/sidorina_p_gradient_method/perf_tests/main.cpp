@@ -12,7 +12,7 @@
 #include "seq/sidorina_p_gradient_method/include/ops_seq.hpp"
 
 TEST(sidorina_p_gradient_method_seq, test_pipeline_run) {
-  int size = static_cast<int>(std::pow(2, 10));
+  int size = static_cast<int>(std::pow(2, 12));
   std::vector<double> a(size * size);
   std::vector<double> a0(size * size);
   std::vector<double> b(size, 0);
@@ -23,7 +23,7 @@ TEST(sidorina_p_gradient_method_seq, test_pipeline_run) {
 
   std::random_device rd;
   std::mt19937 gen(rd());
-  std::uniform_real_distribution<double> dist(-10.0F, 10.0F);
+  std::uniform_real_distribution<double> dist(-1000.0F, 1000.0F);
 
   for (int i = 0; i < size; i++) {
     a0[i] = dist(gen);
@@ -50,6 +50,7 @@ TEST(sidorina_p_gradient_method_seq, test_pipeline_run) {
   task->inputs.emplace_back(const_cast<uint8_t *>(reinterpret_cast<const uint8_t *>(solution.data())));
   task->inputs_count.emplace_back(solution.size());
   task->outputs.emplace_back(reinterpret_cast<uint8_t *>(result.data()));
+  task->outputs_count.emplace_back(result.size());
 
   auto gradient_method = std::make_shared<sidorina_p_gradient_method_seq::GradientMethod>(task);
 
@@ -77,7 +78,7 @@ TEST(sidorina_p_gradient_method_seq, test_pipeline_run) {
 }
 
 TEST(sidorina_p_gradient_method_seq, test_task_run) {
-  int size = static_cast<int>(std::pow(2, 10));
+  int size = static_cast<int>(std::pow(2, 12));
   std::vector<double> a(size * size);
   std::vector<double> a0(size * size);
   std::vector<double> b(size, 0);
@@ -88,7 +89,7 @@ TEST(sidorina_p_gradient_method_seq, test_task_run) {
 
   std::random_device rd;
   std::mt19937 gen(rd());
-  std::uniform_real_distribution<double> dist(-10.0F, 10.0F);
+  std::uniform_real_distribution<double> dist(-1000.0F, 1000.0F);
 
   for (int i = 0; i < size; i++) {
     a0[i] = dist(gen);
@@ -115,6 +116,7 @@ TEST(sidorina_p_gradient_method_seq, test_task_run) {
   task->inputs.emplace_back(const_cast<uint8_t *>(reinterpret_cast<const uint8_t *>(solution.data())));
   task->inputs_count.emplace_back(solution.size());
   task->outputs.emplace_back(reinterpret_cast<uint8_t *>(result.data()));
+  task->outputs_count.emplace_back(result.size());
 
   auto gradient_method = std::make_shared<sidorina_p_gradient_method_seq::GradientMethod>(task);
 
