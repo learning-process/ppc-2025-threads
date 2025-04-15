@@ -14,7 +14,7 @@ TEST(kovalchuk_a_shell_sort_tbb, test_pipeline_run) {
   constexpr int kCount = 1000000;
 
   std::vector<int> in(kCount);
-  std::generate(in.begin(), in.end(), [n = kCount / 2]() mutable { return n--; });
+  std::ranges::generate(in, [n = kCount / 2]() mutable { return n--; });
 
   std::vector<int> out(kCount);
 
@@ -47,7 +47,7 @@ TEST(kovalchuk_a_shell_sort_tbb, test_task_run) {
   constexpr int kCount = 1000000;
 
   std::vector<int> in(kCount);
-  std::generate(in.begin(), in.end(), [n = kCount / 2]() mutable { return n--; });
+  std::ranges::generate(in, [n = kCount / 2]() mutable { return n--; });
 
   std::vector<int> out(kCount);
 
