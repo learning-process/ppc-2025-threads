@@ -3,8 +3,8 @@
 #include <algorithm>
 #include <cmath>
 #include <cstddef>
-#include <thread>
 #include <numeric>
+#include <thread>
 #include <vector>
 
 bool titov_s_image_filter_horiz_gaussian3x3_stl::GaussianFilterSTL::PreProcessingImpl() {
