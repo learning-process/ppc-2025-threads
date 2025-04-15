@@ -9,12 +9,31 @@
 #include "core/perf/include/perf.hpp"
 #include "core/task/include/task.hpp"
 
+namespace {
+void GetRandomVector(std::vector<int> &v, int a, int b) {
+  std::random_device dev;
+  std::mt19937 gen(1000);
+
+  if (a >= b) {
+    throw std::invalid_argument("error.");
+  }
+
+  std::uniform_int_distribution<> dis(a, b);
+
+  for (size_t i = 0; i < v.size(); ++i) {
+    v[i] = dis(gen);
+  }
+}
+}  // namespace
+
 TEST(volochaev_s_Shell_sort_with_Batchers_even_odd_merge_all, test_pipeline_run) {
   constexpr int kSizeOfVector = 50000;
 
   // Create data
-  std::vector<int> in(kSizeOfVector, 1);
-  std::vector<int> out(kSizeOfVector, 1);
+  std::vector<int> in(kSizeOfVector);
+  GetRandomVector(in, -1000, 1000);
+  std::vector<int> out(in);
+  std::ranges::sort(out);
 
   // Create task_data
   auto task_data_seq = std::make_shared<ppc::core::TaskData>();
@@ -51,8 +70,10 @@ TEST(volochaev_s_Shell_sort_with_Batchers_even_odd_merge_all, test_task_run) {
   constexpr int kSizeOfVector = 50000;
 
   // Create data
-  std::vector<int> in(kSizeOfVector, 1);
-  std::vector<int> out(kSizeOfVector, 1);
+  std::vector<int> in(kSizeOfVector);
+  GetRandomVector(in, -1000, 1000);
+  std::vector<int> out(in);
+  std::ranges::sort(out);
 
   // Create task_data
   auto task_data_seq = std::make_shared<ppc::core::TaskData>();
