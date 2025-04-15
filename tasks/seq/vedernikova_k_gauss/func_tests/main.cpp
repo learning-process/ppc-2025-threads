@@ -6,7 +6,7 @@
 #include <vector>
 
 #include "core/task/include/task.hpp"
-#include "seq/vedernikova_k_gauss_seq/include/ops_seq.hpp"
+#include "seq/vedernikova_k_gauss/include/ops_seq.hpp"
 
 using TaskVars = std::tuple<uint32_t, uint32_t, uint32_t, Image, Image>;
 namespace {
