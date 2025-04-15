@@ -9,7 +9,7 @@
 #include <vector>
 
 #include "core/task/include/task.hpp"
-#include "omp/sarafanov_m_CanonMatMul/include/ops_omp.hpp"
+#include "omp/sarafanov_m_CanonMatMul_omp/include/ops_omp.hpp"
 
 namespace {
 std::vector<double> GenerateRandomData(int size) {
