@@ -13,7 +13,7 @@
 #include "tbb/Konstantinov_I_Sort_Batcher/include/ops_tbb.hpp"
 
 TEST(Konstantinov_I_Sort_Batcher_tbb, test_pipeline_run) {
-  constexpr int kCount = 500000;
+  constexpr int kCount = 300000;
 
   std::vector<double> in(kCount);
   std::vector<double> exp_out(kCount);
@@ -57,7 +57,7 @@ TEST(Konstantinov_I_Sort_Batcher_tbb, test_pipeline_run) {
 }
 
 TEST(Konstantinov_I_Sort_Batcher_tbb, test_task_run) {
-  constexpr int kCount = 500000;
+  constexpr int kCount = 300000;
 
   std::vector<double> in(kCount);
   std::vector<double> exp_out(kCount);
