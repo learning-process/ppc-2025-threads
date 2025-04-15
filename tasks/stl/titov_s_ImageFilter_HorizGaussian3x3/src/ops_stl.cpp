@@ -1,8 +1,8 @@
 #include "stl/titov_s_ImageFilter_HorizGaussian3x3/include/ops_stl.hpp"
 
+#include <algorithm>
 #include <cmath>
 #include <cstddef>
-#include <algorithm>
 #include <execution>
 #include <numeric>
 #include <vector>
