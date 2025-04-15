@@ -14,9 +14,8 @@ TEST(kovalchuk_a_shell_sort_tbb, test_pipeline_run) {
   constexpr int kCount = 1000000;
 
   std::vector<int> in(kCount);
-  for (int i = 0; i < kCount; ++i) {
-    in[i] = kCount / 2 - i;
-  }
+  std::generate(in.begin(), in.end(), [n = kCount / 2]() mutable { return n--; });
+
   std::vector<int> out(kCount);
 
   auto task_data_tbb = std::make_shared<ppc::core::TaskData>();
@@ -48,9 +47,8 @@ TEST(kovalchuk_a_shell_sort_tbb, test_task_run) {
   constexpr int kCount = 1000000;
 
   std::vector<int> in(kCount);
-  for (int i = 0; i < kCount; ++i) {
-    in[i] = kCount / 2 - i;
-  }
+  std::generate(in.begin(), in.end(), [n = kCount / 2]() mutable { return n--; });
+
   std::vector<int> out(kCount);
 
   auto task_data_tbb = std::make_shared<ppc::core::TaskData>();
