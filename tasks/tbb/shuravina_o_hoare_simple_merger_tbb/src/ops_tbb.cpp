@@ -110,7 +110,7 @@ bool TestTaskTBB::RunImpl() {
 }
 
 bool TestTaskTBB::PostProcessingImpl() {
-  if (output_.empty() || task_data->outputs[0] == nullptr) {
+  if (output_.empty() || task_data->outputs.empty() || task_data->outputs[0] == nullptr) {
     return false;
   }
 
