@@ -3,7 +3,6 @@
 #include <algorithm>
 #include <cmath>
 #include <cstddef>
-#include <iostream>
 #include <vector>
 
 #include "oneapi/tbb/parallel_invoke.h"
@@ -115,7 +114,7 @@ bool TestTaskTBB::RunImpl() {
 }
 
 bool TestTaskTBB::PostProcessingImpl() {
-  if (!task_data || output_.empty() || task_data->outputs.empty() || !task_data->outputs[0]) {
+  if (!task_data || output_.empty() || task_data->outputs.empty() || task_data->outputs[0] == nullptr) {
     return false;
   }
 
