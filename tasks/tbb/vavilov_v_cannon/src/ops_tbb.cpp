@@ -62,7 +62,7 @@ void vavilov_v_cannon_tbb::CannonTBB::CopyBlocksToLocal(std::vector<double>& a_b
   for (int i = 0; i < block_size_ && base_row + i < N_; ++i) {
     for (int k = 0; k < block_size_ && base_col + k < N_; ++k) {
       a_block[(i * block_size_) + k] = A_[((base_row + i) * N_) + (base_col + k)];
-      b_block[(k * block_size_) + i] = B_[((base_row + i) * N_) + (base_col + i)];
+      b_block[(k * block_size_) + i] = B_[((base_row + k) * N_) + (base_col + i)];
     }
   }
 }
