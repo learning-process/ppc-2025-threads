@@ -89,7 +89,6 @@ void burykin_m_radix_tbb::RadixTBB::DistributeElements(const std::vector<int>& a
   local_offsets.clear();
 
   // Second pass: distribute elements to output array
-  int thread_id = 0;
   tbb::parallel_for(tbb::blocked_range<size_t>(0, a.size()), [&](const tbb::blocked_range<size_t>& range) {
     // Get thread-specific starting positions
     int my_id = 0;
