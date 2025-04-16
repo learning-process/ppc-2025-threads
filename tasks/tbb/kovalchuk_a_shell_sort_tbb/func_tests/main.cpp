@@ -70,7 +70,7 @@ TEST(kovalchuk_a_shell_sort_tbb_func, Test_AlreadySorted) {
 }
 
 TEST(kovalchuk_a_shell_sort_tbb_func, Test_ReverseSorted) {
-  std::vector<int> input = {9, 7, 5, 3, 1};
+  std::vector<int> input = {10, 7, 5, 3, 1};
   std::vector<int> output(input.size());
 
   auto task_data = std::make_shared<ppc::core::TaskData>();
@@ -86,7 +86,7 @@ TEST(kovalchuk_a_shell_sort_tbb_func, Test_ReverseSorted) {
   task->Run();
   task->PostProcessing();
 
-  std::vector<int> expected = {1, 3, 5, 7, 9};
+  std::vector<int> expected = {1, 3, 5, 7, 10};
   EXPECT_EQ(expected, output);
 }
 
