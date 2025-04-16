@@ -126,7 +126,6 @@ bool plekhanov_d_dijkstra_tbb::TestTaskTBB::RunImpl() {
   }
 
   std::vector<bool> visited(num_vertices_, false);
-
   for (int count = 0; count < static_cast<int>(num_vertices_) - 1; ++count) {
     int u = FindMinDistanceVertexTBB(visited);
     if (u == -1) {
