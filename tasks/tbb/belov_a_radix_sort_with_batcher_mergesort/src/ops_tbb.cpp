@@ -89,6 +89,12 @@ void RadixBatcherMergesortParallel::SortParallel(std::vector<Bigint>& arr) {
     return;
   }
 
+  constexpr size_t kSortThreshold = 1000;
+  if (arr.size() <= kSortThreshold) {
+    Sort(std::span<Bigint>(arr.data(), arr.size()));
+    return;
+  }
+
   const size_t n = arr.size();
   const int num_threads = oneapi::tbb::this_task_arena::max_concurrency();
   const size_t chunk_size = (n + num_threads - 1) / num_threads;
@@ -104,12 +110,12 @@ void RadixBatcherMergesortParallel::SortParallel(std::vector<Bigint>& arr) {
 }
 
 void RadixBatcherMergesortParallel::BatcherMergeParallel(std::vector<Bigint>& arr) {
-  constexpr size_t kMergeThreshold = 32;
   const size_t n = arr.size();
   if (n <= 1) {
     return;
   }
 
+  constexpr size_t kMergeThreshold = 32;
   size_t step =
       (n + oneapi::tbb::this_task_arena::max_concurrency() - 1) / oneapi::tbb::this_task_arena::max_concurrency();
 

@@ -14,22 +14,23 @@
 using namespace belov_a_radix_batcher_mergesort_tbb;
 
 namespace {
-vector<Bigint> GenerateMixedValuesArray(int n) {
-  random_device rd;
-  mt19937 gen(rd());
+std::vector<Bigint> GenerateMixedValuesArray(int n) {
+  std::random_device rd;
+  std::mt19937 gen(rd());
 
-  uniform_int_distribution<Bigint> small_range(-999LL, 999LL);
-  uniform_int_distribution<Bigint> medium_range(-10000LL, 10000LL);
-  uniform_int_distribution<Bigint> large_range(-10000000000LL, 10000000000LL);
-  uniform_int_distribution<int> choice(0, 2);
+  std::uniform_int_distribution<Bigint> small_range(-999LL, 999LL);
+  std::uniform_int_distribution<Bigint> medium_range(-10000LL, 10000LL);
+  std::uniform_int_distribution<Bigint> large_range(-10000000000LL, 10000000000LL);
+  std::uniform_int_distribution<int> choice(0, 2);
 
-  vector<Bigint> arr;
+  std::vector<Bigint> arr;
   arr.reserve(n);
 
   for (int i = 0; i < n; ++i) {
-    if (choice(gen) == 0) {
+    int c = choice(gen);
+    if (c == 0) {
       arr.push_back(large_range(gen));
-    } else if (choice(gen) == 1) {
+    } else if (c == 1) {
       arr.push_back(medium_range(gen));
     } else {
       arr.push_back(small_range(gen));
@@ -42,10 +43,10 @@ vector<Bigint> GenerateMixedValuesArray(int n) {
 TEST(belov_a_radix_batcher_mergesort_tbb, test_pipeline_run) {
   // Create data
   int n = 4194304;
-  vector<Bigint> arr = GenerateMixedValuesArray(n);
+  std::vector<Bigint> arr = GenerateMixedValuesArray(n);
 
   // Create TaskData
-  shared_ptr<ppc::core::TaskData> task_data_tbb = make_shared<ppc::core::TaskData>();
+  std::shared_ptr<ppc::core::TaskData> task_data_tbb = std::make_shared<ppc::core::TaskData>();
   task_data_tbb->inputs.emplace_back(reinterpret_cast<uint8_t *>(arr.data()));
   task_data_tbb->inputs_count.emplace_back(arr.size());
   task_data_tbb->inputs_count.emplace_back(n);
@@ -85,10 +86,10 @@ TEST(belov_a_radix_batcher_mergesort_tbb, test_pipeline_run) {
 TEST(belov_a_radix_batcher_mergesort_tbb, test_task_run) {
   // Create data
   int n = 4194304;
-  vector<Bigint> arr = GenerateMixedValuesArray(n);
+  std::vector<Bigint> arr = GenerateMixedValuesArray(n);
 
   // Create TaskData
-  shared_ptr<ppc::core::TaskData> task_data_tbb = make_shared<ppc::core::TaskData>();
+  std::shared_ptr<ppc::core::TaskData> task_data_tbb = std::make_shared<ppc::core::TaskData>();
   task_data_tbb->inputs.emplace_back(reinterpret_cast<uint8_t *>(arr.data()));
   task_data_tbb->inputs_count.emplace_back(arr.size());
   task_data_tbb->inputs_count.emplace_back(n);
