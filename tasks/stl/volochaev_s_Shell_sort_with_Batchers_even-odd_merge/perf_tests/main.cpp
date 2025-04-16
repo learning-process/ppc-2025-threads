@@ -15,7 +15,6 @@
 
 namespace {
 void GetRandomVector(std::vector<int> &v, int a, int b) {
-  std::random_device dev;
   std::mt19937 gen(1000);
 
   if (a >= b) {
@@ -37,7 +36,8 @@ TEST(volochaev_s_Shell_sort_with_Batchers_even_odd_merge_stl, test_pipeline_run)
   std::vector<int> in(kSizeOfVector);
   GetRandomVector(in, -1000, 1000);
   std::vector<int> out(in);
-  std::ranges::sort(out);
+  std::vector<int> ans(in);
+  std::ranges::sort(ans);
 
   // Create task_data
   auto task_data_seq = std::make_shared<ppc::core::TaskData>();
@@ -67,7 +67,7 @@ TEST(volochaev_s_Shell_sort_with_Batchers_even_odd_merge_stl, test_pipeline_run)
   auto perf_analyzer = std::make_shared<ppc::core::Perf>(test_task_sequential);
   perf_analyzer->PipelineRun(perf_attr, perf_results);
   ppc::core::Perf::PrintPerfStatistic(perf_results);
-  ASSERT_EQ(in, out);
+  ASSERT_EQ(ans, out);
 }
 
 TEST(volochaev_s_Shell_sort_with_Batchers_even_odd_merge_stl, test_task_run) {
@@ -77,7 +77,8 @@ TEST(volochaev_s_Shell_sort_with_Batchers_even_odd_merge_stl, test_task_run) {
   std::vector<int> in(kSizeOfVector);
   GetRandomVector(in, -1000, 1000);
   std::vector<int> out(in);
-  std::ranges::sort(out);
+  std::vector<int> ans(in);
+  std::ranges::sort(ans);
 
   // Create task_data
   auto task_data_seq = std::make_shared<ppc::core::TaskData>();
@@ -107,5 +108,5 @@ TEST(volochaev_s_Shell_sort_with_Batchers_even_odd_merge_stl, test_task_run) {
   auto perf_analyzer = std::make_shared<ppc::core::Perf>(test_task_sequential);
   perf_analyzer->TaskRun(perf_attr, perf_results);
   ppc::core::Perf::PrintPerfStatistic(perf_results);
-  ASSERT_EQ(in, out);
+  ASSERT_EQ(ans, out);
 }
