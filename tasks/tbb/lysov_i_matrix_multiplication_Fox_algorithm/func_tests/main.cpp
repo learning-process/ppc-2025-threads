@@ -8,7 +8,6 @@
 #include <vector>
 
 #include "core/task/include/task.hpp"
-#include "core/util/include/util.hpp"
 #include "tbb/lysov_i_matrix_multiplication_Fox_algorithm/include/ops_tbb.hpp"
 
 namespace lysov_i_matrix_multiplication_fox_algorithm_tbb {
