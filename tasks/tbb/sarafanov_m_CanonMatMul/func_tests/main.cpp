@@ -16,7 +16,7 @@ std::vector<double> GenerateRandomData(int size) {
   std::vector<double> matrix(size);
   std::random_device dev;
   std::mt19937 gen(dev());
-  std::uniform_int_distribution<> dist(-500, 10000);
+  std::uniform_int_distribution<> dist(-5000, 5000);
   for (auto i = 0; i < size; ++i) {
     matrix[i] = static_cast<double>(dist(gen));
   }
