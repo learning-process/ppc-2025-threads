@@ -25,10 +25,10 @@ void ProcessBlock(const std::vector<double> &image, std::vector<double> &filtere
       double sum = 0;
       for (int l = -1; l <= 1; ++l) {
         for (int k = -1; k <= 1; ++k) {
-          sum += image[(i - l) * width + (j - k)] * kernel[(l + 1) * 3 + (k + 1)];
+          sum += image[((i - l) * width) + (j - k)] * kernel[((l + 1) * 3) + (k + 1)];
         }
       }
-      filtered_image[i * width + j] = sum;
+      filtered_image[(i * width) + j] = sum;
     }
   }
 }
