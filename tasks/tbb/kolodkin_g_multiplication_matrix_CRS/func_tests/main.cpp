@@ -48,11 +48,11 @@ TEST(kolodkin_g_multiplication_matrix_tbb, test_matmul_only_real) {
   task_data_tbb->outputs_count.emplace_back(out.size());
 
   // Create Task
-  kolodkin_g_multiplication_matrix_tbb::TestTaskTBB test_task_omp(task_data_tbb);
-  ASSERT_EQ(test_task_omp.Validation(), true);
-  test_task_omp.PreProcessing();
-  test_task_omp.Run();
-  test_task_omp.PostProcessing();
+  kolodkin_g_multiplication_matrix_tbb::TestTaskTBB test_task_tbb(task_data_tbb);
+  ASSERT_EQ(test_task_tbb.Validation(), true);
+  test_task_tbb.PreProcessing();
+  test_task_tbb.Run();
+  test_task_tbb.PostProcessing();
   kolodkin_g_multiplication_matrix_tbb::SparseMatrixCRS res =
       kolodkin_g_multiplication_matrix_tbb::ParseVectorIntoMatrix(out);
   ASSERT_TRUE(kolodkin_g_multiplication_matrix_tbb::CheckMatrixesEquality(res, c));
@@ -93,8 +93,8 @@ TEST(kolodkin_g_multiplication_matrix_tbb, test_matmul_not_equal_rows_and_cols) 
   task_data_tbb->outputs_count.emplace_back(out.size());
 
   // Create Task
-  kolodkin_g_multiplication_matrix_tbb::TestTaskTBB test_task_omp(task_data_tbb);
-  ASSERT_EQ(test_task_omp.Validation(), false);
+  kolodkin_g_multiplication_matrix_tbb::TestTaskTBB test_task_tbb(task_data_tbb);
+  ASSERT_EQ(test_task_tbb.Validation(), false);
 }
 
 TEST(kolodkin_g_multiplication_matrix_tbb, test_matmul_with_imag) {
@@ -138,13 +138,14 @@ TEST(kolodkin_g_multiplication_matrix_tbb, test_matmul_with_imag) {
   task_data_tbb->outputs_count.emplace_back(out.size());
 
   // Create Task
-  kolodkin_g_multiplication_matrix_tbb::TestTaskTBB test_task_omp(task_data_tbb);
-  ASSERT_EQ(test_task_omp.Validation(), true);
-  test_task_omp.PreProcessing();
-  test_task_omp.Run();
-  test_task_omp.PostProcessing();
+  kolodkin_g_multiplication_matrix_tbb::TestTaskTBB test_task_tbb(task_data_tbb);
+  ASSERT_EQ(test_task_tbb.Validation(), true);
+  test_task_tbb.PreProcessing();
+  test_task_tbb.Run();
+  test_task_tbb.PostProcessing();
   kolodkin_g_multiplication_matrix_tbb::SparseMatrixCRS res =
       kolodkin_g_multiplication_matrix_tbb::ParseVectorIntoMatrix(out);
+  res.PrintSparseMatrix(res);
   ASSERT_TRUE(kolodkin_g_multiplication_matrix_tbb::CheckMatrixesEquality(res, c));
 }
 
@@ -189,13 +190,14 @@ TEST(kolodkin_g_multiplication_matrix_tbb, test_matmul_rectangular_matrix) {
   task_data_tbb->outputs_count.emplace_back(out.size());
 
   // Create Task
-  kolodkin_g_multiplication_matrix_tbb::TestTaskTBB test_task_omp(task_data_tbb);
-  ASSERT_EQ(test_task_omp.Validation(), true);
-  test_task_omp.PreProcessing();
-  test_task_omp.Run();
-  test_task_omp.PostProcessing();
+  kolodkin_g_multiplication_matrix_tbb::TestTaskTBB test_task_tbb(task_data_tbb);
+  ASSERT_EQ(test_task_tbb.Validation(), true);
+  test_task_tbb.PreProcessing();
+  test_task_tbb.Run();
+  test_task_tbb.PostProcessing();
   kolodkin_g_multiplication_matrix_tbb::SparseMatrixCRS res =
       kolodkin_g_multiplication_matrix_tbb::ParseVectorIntoMatrix(out);
+  res.PrintSparseMatrix(res);
   ASSERT_TRUE(kolodkin_g_multiplication_matrix_tbb::CheckMatrixesEquality(res, c));
 }
 
@@ -233,11 +235,11 @@ TEST(kolodkin_g_multiplication_matrix_tbb, test_matmul_with_negative_elems) {
   task_data_tbb->outputs_count.emplace_back(out.size());
 
   // Create Task
-  kolodkin_g_multiplication_matrix_tbb::TestTaskTBB test_task_omp(task_data_tbb);
-  ASSERT_EQ(test_task_omp.Validation(), true);
-  test_task_omp.PreProcessing();
-  test_task_omp.Run();
-  test_task_omp.PostProcessing();
+  kolodkin_g_multiplication_matrix_tbb::TestTaskTBB test_task_tbb(task_data_tbb);
+  ASSERT_EQ(test_task_tbb.Validation(), true);
+  test_task_tbb.PreProcessing();
+  test_task_tbb.Run();
+  test_task_tbb.PostProcessing();
   kolodkin_g_multiplication_matrix_tbb::SparseMatrixCRS res =
       kolodkin_g_multiplication_matrix_tbb::ParseVectorIntoMatrix(out);
   ASSERT_TRUE(kolodkin_g_multiplication_matrix_tbb::CheckMatrixesEquality(res, c));
@@ -277,11 +279,11 @@ TEST(kolodkin_g_multiplication_matrix_tbb, test_matmul_with_double_elems) {
   task_data_tbb->outputs_count.emplace_back(out.size());
 
   // Create Task
-  kolodkin_g_multiplication_matrix_tbb::TestTaskTBB test_task_omp(task_data_tbb);
-  ASSERT_EQ(test_task_omp.Validation(), true);
-  test_task_omp.PreProcessing();
-  test_task_omp.Run();
-  test_task_omp.PostProcessing();
+  kolodkin_g_multiplication_matrix_tbb::TestTaskTBB test_task_tbb(task_data_tbb);
+  ASSERT_EQ(test_task_tbb.Validation(), true);
+  test_task_tbb.PreProcessing();
+  test_task_tbb.Run();
+  test_task_tbb.PostProcessing();
   kolodkin_g_multiplication_matrix_tbb::SparseMatrixCRS res =
       kolodkin_g_multiplication_matrix_tbb::ParseVectorIntoMatrix(out);
   ASSERT_TRUE(kolodkin_g_multiplication_matrix_tbb::CheckMatrixesEquality(res, c));
@@ -322,11 +324,11 @@ TEST(kolodkin_g_multiplication_matrix_tbb, test_matmul_row_by_col) {
   task_data_tbb->outputs_count.emplace_back(out.size());
 
   // Create Task
-  kolodkin_g_multiplication_matrix_tbb::TestTaskTBB test_task_omp(task_data_tbb);
-  ASSERT_EQ(test_task_omp.Validation(), true);
-  test_task_omp.PreProcessing();
-  test_task_omp.Run();
-  test_task_omp.PostProcessing();
+  kolodkin_g_multiplication_matrix_tbb::TestTaskTBB test_task_tbb(task_data_tbb);
+  ASSERT_EQ(test_task_tbb.Validation(), true);
+  test_task_tbb.PreProcessing();
+  test_task_tbb.Run();
+  test_task_tbb.PostProcessing();
   kolodkin_g_multiplication_matrix_tbb::SparseMatrixCRS res =
       kolodkin_g_multiplication_matrix_tbb::ParseVectorIntoMatrix(out);
   ASSERT_TRUE(kolodkin_g_multiplication_matrix_tbb::CheckMatrixesEquality(res, c));
@@ -369,11 +371,11 @@ TEST(kolodkin_g_multiplication_matrix_tbb, test_matmul_diag_matrix) {
   task_data_tbb->outputs_count.emplace_back(out.size());
 
   // Create Task
-  kolodkin_g_multiplication_matrix_tbb::TestTaskTBB test_task_omp(task_data_tbb);
-  ASSERT_EQ(test_task_omp.Validation(), true);
-  test_task_omp.PreProcessing();
-  test_task_omp.Run();
-  test_task_omp.PostProcessing();
+  kolodkin_g_multiplication_matrix_tbb::TestTaskTBB test_task_tbb(task_data_tbb);
+  ASSERT_EQ(test_task_tbb.Validation(), true);
+  test_task_tbb.PreProcessing();
+  test_task_tbb.Run();
+  test_task_tbb.PostProcessing();
   kolodkin_g_multiplication_matrix_tbb::SparseMatrixCRS res =
       kolodkin_g_multiplication_matrix_tbb::ParseVectorIntoMatrix(out);
   ASSERT_TRUE(kolodkin_g_multiplication_matrix_tbb::CheckMatrixesEquality(res, c));
@@ -420,11 +422,11 @@ TEST(kolodkin_g_multiplication_matrix_tbb, test_matmul_only_imag) {
   task_data_tbb->outputs_count.emplace_back(out.size());
 
   // Create Task
-  kolodkin_g_multiplication_matrix_tbb::TestTaskTBB test_task_omp(task_data_tbb);
-  ASSERT_EQ(test_task_omp.Validation(), true);
-  test_task_omp.PreProcessing();
-  test_task_omp.Run();
-  test_task_omp.PostProcessing();
+  kolodkin_g_multiplication_matrix_tbb::TestTaskTBB test_task_tbb(task_data_tbb);
+  ASSERT_EQ(test_task_tbb.Validation(), true);
+  test_task_tbb.PreProcessing();
+  test_task_tbb.Run();
+  test_task_tbb.PostProcessing();
   kolodkin_g_multiplication_matrix_tbb::SparseMatrixCRS res =
       kolodkin_g_multiplication_matrix_tbb::ParseVectorIntoMatrix(out);
   ASSERT_TRUE(kolodkin_g_multiplication_matrix_tbb::CheckMatrixesEquality(res, c));

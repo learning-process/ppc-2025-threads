@@ -1,6 +1,7 @@
 #include "tbb/kolodkin_g_multiplication_matrix_CRS/include/ops_tbb.hpp"
 
-#include <oneapi/tbb/parallel_for.h>
+#include <tbb/blocked_range.h>
+#include <tbb/parallel_for.h>
 #include <tbb/tbb.h>
 
 #include <cmath>
@@ -159,7 +160,6 @@ bool kolodkin_g_multiplication_matrix_tbb::TestTaskTBB::RunImpl() {
         }
       }
     }
-    std::cout << "TBB: OK!";
   });
 
   for (size_t row_index = 0; row_index < local_results.size(); ++row_index) {
