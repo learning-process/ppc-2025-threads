@@ -1,9 +1,9 @@
 #include "tbb/zinoviev_a_convex_hull_components/include/ops_tbb.hpp"
 
+#include <oneapi/tbb/blocked_range.h>
 #include <oneapi/tbb/concurrent_vector.h>
 #include <oneapi/tbb/parallel_for.h>
 #include <oneapi/tbb/parallel_sort.h>
-#include <oneapi/tbb/blocked_range.h>
 
 #include <core/task/include/task.hpp>
 #include <cstddef>
