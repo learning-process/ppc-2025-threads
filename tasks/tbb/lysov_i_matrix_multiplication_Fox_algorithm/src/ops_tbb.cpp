@@ -38,7 +38,7 @@ void lysov_i_matrix_multiplication_fox_algorithm_tbb::ProcessBlock(const std::ve
     }
   }
 }
-
+// Init value for input and output
 bool lysov_i_matrix_multiplication_fox_algorithm_tbb::TestTaskTBB::PreProcessingImpl() {
   // Init value for input and output
   n_ = reinterpret_cast<std::size_t *>(task_data->inputs[0])[0];
