@@ -7,7 +7,7 @@
 #include "tbb/sarafanov_m_CanonMatMul/include/CanonMatrix.hpp"
 
 namespace sarafanov_m_canon_mat_mul_tbb {
-
+// restart tests
 class CanonMatMulTBB : public ppc::core::Task {
   CanonMatrix a_matrix_;
   CanonMatrix b_matrix_;
