@@ -5,17 +5,32 @@
 #include <cstdint>
 #include <memory>
 #include <numeric>
+#include <random>
 #include <vector>
 
 #include "core/perf/include/perf.hpp"
 #include "core/task/include/task.hpp"
 #include "tbb/korovin_n_qsort_batcher/include/ops_tbb.hpp"
 
+namespace {
+constexpr int kSize = 250000;
+constexpr unsigned int kSeed = 25;
+
+std::vector<int> GenerateRndArray(int size, unsigned int seed) {
+  std::mt19937 gen(seed);
+  std::uniform_int_distribution<int> dist(-1000, 1000);
+
+  std::vector<int> result(size);
+  for (auto &elem : result) {
+    elem = dist(gen);
+  }
+  return result;
+}
+}  // namespace
+
 TEST(korovin_n_qsort_batcher_tbb, test_pipeline_run) {
-  constexpr int kSize = 250000;
-  std::vector<int> in(kSize);
+  std::vector<int> in = GenerateRndArray(kSize, kSeed);
   std::vector<int> out(in.size());
-  std::iota(in.rbegin(), in.rend(), 1);
 
   auto task_data_tbb = std::make_shared<ppc::core::TaskData>();
   task_data_tbb->inputs.emplace_back(reinterpret_cast<uint8_t *>(in.data()));
@@ -43,10 +58,8 @@ TEST(korovin_n_qsort_batcher_tbb, test_pipeline_run) {
 }
 
 TEST(korovin_n_qsort_batcher_tbb, test_task_run) {
-  constexpr int kSize = 250000;
-  std::vector<int> in(kSize);
+  std::vector<int> in = GenerateRndArray(kSize, kSeed);
   std::vector<int> out(in.size());
-  std::iota(in.rbegin(), in.rend(), 1);
 
   auto task_data_tbb = std::make_shared<ppc::core::TaskData>();
   task_data_tbb->inputs.emplace_back(reinterpret_cast<uint8_t *>(in.data()));
