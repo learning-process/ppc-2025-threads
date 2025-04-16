@@ -294,41 +294,41 @@ bool vavilov_v_cannon_tbb::CannonTBB::RunImpl() {
 
 void vavilov_v_cannon_tbb::CannonTBB::BlockMultiply() {
   oneapi::tbb::parallel_for(oneapi::tbb::blocked_range2d<int>(0, num_blocks_, 0, num_blocks_),
-    [&](const oneapi::tbb::blocked_range2d<int>& r) {
-      for (int bi = r.rows().begin(); bi != r.rows().end(); ++bi) {
-        for (int bj = r.cols().begin(); bj != r.cols().end(); ++bj) {
-          int base_row = bi * block_size_;
-          int base_col = bj * block_size_;
+                            [&](const oneapi::tbb::blocked_range2d<int>& r) {
+                              for (int bi = r.rows().begin(); bi != r.rows().end(); ++bi) {
+                                for (int bj = r.cols().begin(); bj != r.cols().end(); ++bj) {
+                                  int base_row = bi * block_size_;
+                                  int base_col = bj * block_size_;
 
-          // Обнуляем блок результата
-          for (int i = 0; i < block_size_; ++i)
-            for (int j = 0; j < block_size_; ++j)
-              if (base_row + i < N_ && base_col + j < N_)
-                C_[(base_row + i) * N_ + (base_col + j)] = 0.0;
+                                  // Обнуляем блок результата
+                                  for (int i = 0; i < block_size_; ++i)
+                                    for (int j = 0; j < block_size_; ++j)
+                                      if (base_row + i < N_ && base_col + j < N_)
+                                        C_[(base_row + i) * N_ + (base_col + j)] = 0.0;
 
-          // Сдвиг блоков по Каннону
-          for (int bk = 0; bk < num_blocks_; ++bk) {
-            int a_col = ((bi + bk) % num_blocks_) * block_size_;
-            int b_row = ((bj + bk) % num_blocks_) * block_size_;
+                                  // Сдвиг блоков по Каннону
+                                  for (int bk = 0; bk < num_blocks_; ++bk) {
+                                    int a_col = ((bi + bk) % num_blocks_) * block_size_;
+                                    int b_row = ((bj + bk) % num_blocks_) * block_size_;
 
-            // Прямое перемножение блоков
-            for (int i = 0; i < block_size_; ++i) {
-              if (base_row + i >= N_) continue;
-              for (int j = 0; j < block_size_; ++j) {
-                if (base_col + j >= N_) continue;
-                double sum = 0.0;
-                for (int k = 0; k < block_size_; ++k) {
-                  if (a_col + k >= N_ || b_row + k >= N_) continue;
-                  sum += A_[(base_row + i) * N_ + (a_col + k)] *
-                         B_[(b_row + k) * N_ + (base_col + j)];
-                }
-                C_[(base_row + i) * N_ + (base_col + j)] += sum;
-              }
-            }
-          }
-        }
-      }
-    });
+                                    // Прямое перемножение блоков
+                                    for (int i = 0; i < block_size_; ++i) {
+                                      if (base_row + i >= N_) continue;
+                                      for (int j = 0; j < block_size_; ++j) {
+                                        if (base_col + j >= N_) continue;
+                                        double sum = 0.0;
+                                        for (int k = 0; k < block_size_; ++k) {
+                                          if (a_col + k >= N_ || b_row + k >= N_) continue;
+                                          sum += A_[(base_row + i) * N_ + (a_col + k)] *
+                                                 B_[(b_row + k) * N_ + (base_col + j)];
+                                        }
+                                        C_[(base_row + i) * N_ + (base_col + j)] += sum;
+                                      }
+                                    }
+                                  }
+                                }
+                              }
+                            });
 }
 
 
