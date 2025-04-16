@@ -10,7 +10,7 @@
 
 #include "core/perf/include/perf.hpp"
 #include "core/task/include/task.hpp"
-#include "seq/ermilova_d_shell_sort_batcher_even-odd_merger/include/ops_seq.hpp"
+#include "seq/ermilova_d_shell_sort_batcher_even_odd_merger/include/ops_seq.hpp"
 
 namespace {
 std::vector<int> GetRandomVector(int size, int upper_border, int lower_border) {
@@ -30,7 +30,7 @@ std::vector<int> GetRandomVector(int size, int upper_border, int lower_border) {
 TEST(ermilova_d_shell_sort_batcher_even_odd_merger_seq, test_pipeline_run) {
   const int upper_border_test = 1000;
   const int lower_border_test = -1000;
-  const int size = 10000;
+  const int size = 50000;
 
   bool is_resersed = false;
 
@@ -52,7 +52,7 @@ TEST(ermilova_d_shell_sort_batcher_even_odd_merger_seq, test_pipeline_run) {
 
   // Create Task
   auto test_task_sequential =
-      std::make_shared<ermilova_d_shell_sort_batcher_even_odd_merger_seq::TestTaskSequential>(task_data_seq);
+      std::make_shared<ermilova_d_shell_sort_batcher_even_odd_merger_seq::SequentialTask>(task_data_seq);
 
   // Create Perf attributes
   auto perf_attr = std::make_shared<ppc::core::PerfAttr>();
@@ -77,7 +77,7 @@ TEST(ermilova_d_shell_sort_batcher_even_odd_merger_seq, test_pipeline_run) {
 TEST(ermilova_d_shell_sort_batcher_even_odd_merger_seq, test_task_run) {
   const int upper_border_test = 1000;
   const int lower_border_test = -1000;
-  const int size = 10000;
+  const int size = 50000;
 
   bool is_resersed = false;
 
@@ -98,7 +98,7 @@ TEST(ermilova_d_shell_sort_batcher_even_odd_merger_seq, test_task_run) {
 
   // Create Task
   auto test_task_sequential =
-      std::make_shared<ermilova_d_shell_sort_batcher_even_odd_merger_seq::TestTaskSequential>(task_data_seq);
+      std::make_shared<ermilova_d_shell_sort_batcher_even_odd_merger_seq::SequentialTask>(task_data_seq);
 
   // Create Perf attributes
   auto perf_attr = std::make_shared<ppc::core::PerfAttr>();
