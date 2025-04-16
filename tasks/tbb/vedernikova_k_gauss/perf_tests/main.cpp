@@ -51,7 +51,7 @@ TEST(vedernikova_k_gauss_test_tbb, test_pipeline_run) {
   ASSERT_EQ(in, out);
 }
 
-TEST(vedernikova_k_gauss_test_omp, test_task_run) {
+TEST(vedernikova_k_gauss_test_tbb, test_task_run) {
   const auto &[width, height, channels, brightness] = Pars(500, 500, 4, 128);
   const uint32_t size = width * height * channels;
   std::vector<uint8_t> in(size, brightness);
