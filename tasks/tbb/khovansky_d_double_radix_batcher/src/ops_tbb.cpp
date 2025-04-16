@@ -80,8 +80,9 @@ void BatcherOddEvenMerge(std::vector<uint64_t>& array, int left, int right, int 
   if (right - left <= 1) {
     return;
   }
+
   int mid = left + ((right - left) / 2);
-  
+
   if (depth < max_depth) {
     tbb::parallel_invoke([&] { BatcherOddEvenMerge(array, left, mid, depth + 1); },
                          [&] { BatcherOddEvenMerge(array, mid, right, depth + 1); });
