@@ -25,12 +25,12 @@ TEST(titov_s_image_filter_horiz_gaussian3x3_tbb, test_pipeline_run) {
     }
   }
 
-  auto task_data_seq = std::make_shared<ppc::core::TaskData>();
-  task_data_seq->inputs.emplace_back(reinterpret_cast<uint8_t *>(input.data()));
-  task_data_seq->inputs.emplace_back(reinterpret_cast<uint8_t *>(kernel.data()));
-  task_data_seq->inputs_count.emplace_back(input.size());
-  task_data_seq->outputs.emplace_back(reinterpret_cast<uint8_t *>(output.data()));
-  task_data_seq->outputs_count.emplace_back(output.size());
+  auto task_data_tbb = std::make_shared<ppc::core::TaskData>();
+  task_data_tbb->inputs.emplace_back(reinterpret_cast<uint8_t *>(input.data()));
+  task_data_tbb->inputs.emplace_back(reinterpret_cast<uint8_t *>(kernel.data()));
+  task_data_tbb->inputs_count.emplace_back(input.size());
+  task_data_tbb->outputs.emplace_back(reinterpret_cast<uint8_t *>(output.data()));
+  task_data_tbb->outputs_count.emplace_back(output.size());
 
   auto test_task_tbb = std::make_shared<titov_s_image_filter_horiz_gaussian3x3_tbb::ImageFilterTBB>(task_data_tbb);
 
@@ -70,12 +70,12 @@ TEST(titov_s_image_filter_horiz_gaussian3x3_tbb, test_task_run) {
     }
   }
 
-  auto task_data_seq = std::make_shared<ppc::core::TaskData>();
-  task_data_seq->inputs.emplace_back(reinterpret_cast<uint8_t *>(input.data()));
-  task_data_seq->inputs.emplace_back(reinterpret_cast<uint8_t *>(kernel.data()));
-  task_data_seq->inputs_count.emplace_back(input.size());
-  task_data_seq->outputs.emplace_back(reinterpret_cast<uint8_t *>(output.data()));
-  task_data_seq->outputs_count.emplace_back(output.size());
+  auto task_data_tbb = std::make_shared<ppc::core::TaskData>();
+  task_data_tbb->inputs.emplace_back(reinterpret_cast<uint8_t *>(input.data()));
+  task_data_tbb->inputs.emplace_back(reinterpret_cast<uint8_t *>(kernel.data()));
+  task_data_tbb->inputs_count.emplace_back(input.size());
+  task_data_tbb->outputs.emplace_back(reinterpret_cast<uint8_t *>(output.data()));
+  task_data_tbb->outputs_count.emplace_back(output.size());
 
   auto test_task_tbb = std::make_shared<titov_s_image_filter_horiz_gaussian3x3_tbb::ImageFilterTBB>(task_data_tbb);
 
