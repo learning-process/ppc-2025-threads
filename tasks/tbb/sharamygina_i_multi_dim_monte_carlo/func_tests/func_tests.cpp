@@ -22,7 +22,7 @@ std::vector<double> GetBoundaries(double left, double right, unsigned int dimens
 }  // namespace
 
 TEST(sharamygina_i_multi_dim_monte_carlo_tbb, WrongInputCountValidationTest) {
-  int iterations = 30000;
+  int iterations = 40000;
   std::vector<double> boundaries = GetBoundaries(0.0, 1.0, 1);
   auto test_function = [](const std::vector<double>& values) {
     assert(values.size() == 2);
@@ -47,7 +47,7 @@ TEST(sharamygina_i_multi_dim_monte_carlo_tbb, WrongInputCountValidationTest) {
 }
 
 TEST(sharamygina_i_multi_dim_monte_carlo_tbb, WrongOutputCountValidationTest) {
-  int iterations = 30000;
+  int iterations = 40000;
   std::vector<double> boundaries = GetBoundaries(0.0, 1.0, 1);
   auto test_function = [](const std::vector<double>& values) {
     assert(values.size() == 2);
@@ -72,7 +72,7 @@ TEST(sharamygina_i_multi_dim_monte_carlo_tbb, WrongOutputCountValidationTest) {
 }
 
 TEST(sharamygina_i_multi_dim_monte_carlo_tbb, WrongBoundariesValidationTest) {
-  int iterations = 30000;
+  int iterations = 40000;
   std::vector<double> boundaries = GetBoundaries(0.0, 1.0, 1);
   auto test_function = [](const std::vector<double>& values) {
     assert(values.size() == 2);
@@ -97,7 +97,7 @@ TEST(sharamygina_i_multi_dim_monte_carlo_tbb, WrongBoundariesValidationTest) {
 }
 
 TEST(sharamygina_i_multi_dim_monte_carlo_tbb, EmptyOutputValidationTest) {
-  int iterations = 30000;
+  int iterations = 40000;
   std::vector<double> boundaries = GetBoundaries(0.0, 1.0, 1);
   auto test_function = [](const std::vector<double>& values) {
     assert(values.size() == 2);
@@ -135,7 +135,7 @@ TEST(sharamygina_i_multi_dim_monte_carlo_tbb, EmptyInputValidationTest) {
 }
 
 TEST(sharamygina_i_multi_dim_monte_carlo_tbb, 1DSinFunction) {
-  int iterations = 30000;
+  int iterations = 40000;
   std::vector<double> boundaries = GetBoundaries(0.0, 1.0, 1);
   auto test_function = [](const std::vector<double>& values) {
     assert(values.size() == 2);
@@ -167,7 +167,7 @@ TEST(sharamygina_i_multi_dim_monte_carlo_tbb, 1DSinFunction) {
 }
 
 TEST(sharamygina_i_multi_dim_monte_carlo_tbb, 2DFunction) {
-  int iterations = 30000;
+  int iterations = 40000;
   std::vector<double> boundaries = GetBoundaries(0.0, 1.0, 2);
   auto test_function = [](const std::vector<double>& values) {
     assert(values.size() == 2);
@@ -199,7 +199,7 @@ TEST(sharamygina_i_multi_dim_monte_carlo_tbb, 2DFunction) {
 }
 
 TEST(sharamygina_i_multi_dim_monte_carlo_tbb, 3DFunction) {
-  int iterations = 30000;
+  int iterations = 40000;
   std::vector<double> boundaries = GetBoundaries(0.0, 3.0, 3);
   auto test_function = [](const std::vector<double>& values) {
     assert(values.size() == 3);
@@ -231,7 +231,7 @@ TEST(sharamygina_i_multi_dim_monte_carlo_tbb, 3DFunction) {
 }
 
 TEST(sharamygina_i_multi_dim_monte_carlo_tbb, 4DFunction) {
-  int iterations = 30000;
+  int iterations = 40000;
   std::vector<double> boundaries = GetBoundaries(-1.0, 5.0, 4);
   auto test_function = [](const std::vector<double>& values) {
     assert(values.size() == 3);
@@ -263,7 +263,7 @@ TEST(sharamygina_i_multi_dim_monte_carlo_tbb, 4DFunction) {
 }
 
 TEST(sharamygina_i_multi_dim_monte_carlo_tbb, 2DExpFunction) {
-  int iterations = 30000;
+  int iterations = 40000;
   std::vector<double> boundaries = GetBoundaries(1.0, 1.5, 2);
   auto test_function = [](const std::vector<double>& values) {
     assert(values.size() == 2);
@@ -295,7 +295,7 @@ TEST(sharamygina_i_multi_dim_monte_carlo_tbb, 2DExpFunction) {
 }
 
 TEST(sharamygina_i_multi_dim_monte_carlo_tbb, 10DFunction) {
-  int iterations = 30000;
+  int iterations = 40000;
   std::vector<double> boundaries = GetBoundaries(0.0, 1.0, 10);
   auto test_function = [](const std::vector<double>& values) {
     assert(values.size() == 3);
@@ -327,7 +327,7 @@ TEST(sharamygina_i_multi_dim_monte_carlo_tbb, 10DFunction) {
 }
 
 TEST(sharamygina_i_multi_dim_monte_carlo_tbb, 3DFunctionWithDifferentBoundaries) {
-  int iterations = 30000;
+  int iterations = 40000;
   std::vector<double> boundaries = {1.0, 2.0, 1.3, 4.4, 0.5, 0.98};
   auto test_function = [](const std::vector<double>& values) {
     assert(values.size() == 3);
@@ -359,7 +359,7 @@ TEST(sharamygina_i_multi_dim_monte_carlo_tbb, 3DFunctionWithDifferentBoundaries)
 }
 
 TEST(sharamygina_i_multi_dim_monte_carlo_tbb, 3DSinFunctionWithDifferentBoundaries) {
-  int iterations = 30000;
+  int iterations = 40000;
   std::vector<double> boundaries = {1.0, 2.0, 1.3, 4.4, 0.5, 0.98};
   auto test_function = [](const std::vector<double>& values) {
     assert(values.size() == 3);
