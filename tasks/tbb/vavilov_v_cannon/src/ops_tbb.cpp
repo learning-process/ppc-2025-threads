@@ -50,6 +50,7 @@ void vavilov_v_cannon_tbb::CannonTBB::InitialShift() {
   });
 }
 
+/*
 void vavilov_v_cannon_tbb::CannonTBB::BlockMultiply() {
   oneapi::tbb::parallel_for(
       oneapi::tbb::blocked_range2d<int>(0, num_blocks_, 0, num_blocks_),
@@ -88,6 +89,34 @@ void vavilov_v_cannon_tbb::CannonTBB::BlockMultiply() {
                 }
 
                 C_[row * N_ + col] += temp;
+              }
+            }
+          }
+        }
+      },
+      oneapi::tbb::auto_partitioner());
+}
+
+*/
+
+void vavilov_v_cannon_tbb::CannonTBB::BlockMultiply() {
+  oneapi::tbb::parallel_for(
+      oneapi::tbb::blocked_range2d<int>(0, num_blocks_, 0, num_blocks_),
+      [&](const oneapi::tbb::blocked_range2d<int>& r) {
+        for (int bi = r.rows().begin(); bi != r.rows().end(); ++bi) {
+          for (int bj = r.cols().begin(); bj != r.cols().end(); ++bj) {
+            int base_row = bi * block_size_;
+            int base_col = bj * block_size_;
+
+            for (int i = 0; i < block_size_ && base_row + i < N_; ++i) {
+              for (int j = 0; j < block_size_ && base_col + j < N_; ++j) {
+                double sum = 0.0;
+                for (int k = 0; k < block_size_ && base_row + k < N_ && base_col + k < N_; ++k) {
+                  double a_val = A_[(base_row + i) * N_ + (base_col + k)];
+                  double b_val = B_[(base_row + k) * N_ + (base_col + j)];
+                  sum += a_val * b_val;
+                }
+                C_[(base_row + i) * N_ + (base_col + j)] += sum;
               }
             }
           }
