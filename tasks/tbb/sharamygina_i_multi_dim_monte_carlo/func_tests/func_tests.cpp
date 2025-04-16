@@ -231,7 +231,7 @@ TEST(sharamygina_i_multi_dim_monte_carlo_tbb, 3DFunction) {
 }
 
 TEST(sharamygina_i_multi_dim_monte_carlo_tbb, 4DFunction) {
-  int iterations = 35000;
+  int iterations = 37000;
   std::vector<double> boundaries = GetBoundaries(-1.0, 5.0, 4);
   auto test_function = [](const std::vector<double>& values) {
     assert(values.size() == 3);
