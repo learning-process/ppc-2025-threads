@@ -30,8 +30,7 @@ struct MatrixInCcsSparse {
 
 class TBBMatMultCcs : public ppc::core::Task {
  public:
-  explicit TBBMatMultCcs(std::shared_ptr<ppc::core::TaskData> task_data)
-      : Task(std::move(task_data)), M1_(nullptr), M2_(nullptr), M3_(nullptr) {}
+  explicit TBBMatMultCcs(std::shared_ptr<ppc::core::TaskData> task_data) : Task(std::move(task_data)) {}
   bool PreProcessingImpl() override;
   bool ValidationImpl() override;
   bool RunImpl() override;
@@ -41,7 +40,9 @@ class TBBMatMultCcs : public ppc::core::Task {
   void ComputeColumnSizes();
   void FillMatrixValues();
 
-  MatrixInCcsSparse *M1_, *M2_, *M3_;
+  MatrixInCcsSparse *M1_ = nullptr;
+  MatrixInCcsSparse *M2_ = nullptr;
+  MatrixInCcsSparse *M3_ = nullptr;
 };
 
 }  // namespace solovev_a_matrix_tbb
