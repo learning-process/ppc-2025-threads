@@ -311,7 +311,6 @@ void vavilov_v_cannon_tbb::CannonTBB::BlockMultiply() {
                                   // Обнуляем блок результата
                                   for (int i = 0; i < block_size_ && base_row + i < N_; ++i) {
                                     for (int j = 0; j < block_size_ && base_col + j < N_; ++j) {
-                                     C_[(base_row + i) * N_ + (base_col + j)] = 0.0;
                                       C_[(base_row + i) * N_ + (base_col + j)] = 0.0;
                                     }
                                   }
@@ -324,7 +323,7 @@ void vavilov_v_cannon_tbb::CannonTBB::BlockMultiply() {
                                         a_block[i * block_size_ + j] = A_[(base_row + i) * N_ + (a_col + j)];
                                       }
                                     }
-                                     for (int i = 0; i < block_size_ && b_row + i < N_; ++i) {
+                                    for (int i = 0; i < block_size_ && b_row + i < N_; ++i) {
                                       for (int j = 0; j < block_size_ && base_col + j < N_; ++j) {
                                         b_block[i * block_size_ + j] = B_trans[(base_col + j) * N_ + (b_row + i)];
                                       }
@@ -335,7 +334,7 @@ void vavilov_v_cannon_tbb::CannonTBB::BlockMultiply() {
                                         double sum = 0.0;
                                         for (int k = 0; k < block_size_ && a_col + k < N_ && b_row + k < N_; ++k) {
                                           sum += a_block[i * block_size_ + k] * b_block[k * block_size_ + j];
-                                         }
+                                        }
                                         C_[(base_row + i) * N_ + (base_col + j)] += sum;
                                       }
                                     }
