@@ -6,11 +6,10 @@
 #include <utility>
 #include <vector>
 
-#include "core/task/include/task.hpp"
-#include "tbb/concurrent_vector.h"
-#include "tbb/parallel_for.h"
-#include "tbb/parallel_sort.h"
-
+#include <core/task/include/task.hpp>
+#include <tbb/concurrent_vector.h>
+#include <tbb/parallel_for.h>
+#include <tbb/parallel_sort.h>
 
 using namespace zinoviev_a_convex_hull_components_tbb;
 
