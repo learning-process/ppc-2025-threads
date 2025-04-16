@@ -66,27 +66,32 @@ TEST(shuravina_o_hoare_simple_merger_tbb, test_task_run) {
   constexpr int kMinValue = -100000;
   constexpr int kMaxValue = 100000;
 
-  // Генерация данных
-  std::vector<int> in(kCount);
-  std::iota(in.begin(), in.end(), 0);
-  std::shuffle(in.begin(), in.end(), std::mt19937{42});
-
+  std::vector<int> in = GenerateRandomVector(kCount, kMinValue, kMaxValue);
   std::vector<int> out(kCount, 0);
 
-  auto task_data = std::make_shared<ppc::core::TaskData>();
-  task_data->inputs_count.emplace_back(in.size());
-  task_data->inputs.emplace_back(reinterpret_cast<uint8_t*>(in.data()));
-  task_data->outputs_count.emplace_back(out.size());
-  task_data->outputs.emplace_back(reinterpret_cast<uint8_t*>(out.data()));
+  auto task_data_tbb = std::make_shared<ppc::core::TaskData>();
+  task_data_tbb->inputs.emplace_back(reinterpret_cast<uint8_t*>(in.data()));
+  task_data_tbb->inputs_count.emplace_back(in.size());
+  task_data_tbb->outputs.emplace_back(reinterpret_cast<uint8_t*>(out.data()));
+  task_data_tbb->outputs_count.emplace_back(out.size());
 
-  auto task = std::make_shared<shuravina_o_hoare_simple_merger_tbb::TestTaskTBB>(task_data);
+  auto test_task_tbb = std::make_shared<shuravina_o_hoare_simple_merger_tbb::TestTaskTBB>(task_data_tbb);
 
-  ASSERT_TRUE(task->Validation());
-  ASSERT_TRUE(task->PreProcessing());
+  auto perf_attr = std::make_shared<ppc::core::PerfAttr>();
+  perf_attr->num_running = 10;
+  const auto t0 = std::chrono::high_resolution_clock::now();
+  perf_attr->current_timer = [&] {
+    auto current_time_point = std::chrono::high_resolution_clock::now();
+    auto duration = std::chrono::duration_cast<std::chrono::nanoseconds>(current_time_point - t0).count();
+    return static_cast<double>(duration) * 1e-9;
+  };
 
-  ASSERT_TRUE(task->Run());
+  auto perf_results = std::make_shared<ppc::core::PerfResults>();
 
-  ASSERT_TRUE(task->PostProcessing());
+  auto perf_analyzer = std::make_shared<ppc::core::Perf>(test_task_tbb);
+  perf_analyzer->TaskRun(perf_attr, perf_results);
+  ppc::core::Perf::PrintPerfStatistic(perf_results);
+
   for (size_t i = 1; i < out.size(); ++i) {
     ASSERT_LE(out[i - 1], out[i]);
   }
