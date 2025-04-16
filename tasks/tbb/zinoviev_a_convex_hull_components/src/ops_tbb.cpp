@@ -1,16 +1,15 @@
 #include "tbb/zinoviev_a_convex_hull_components/include/ops_tbb.hpp"
 
-#include <tbb/tbb.h>
-
-#include <algorithm>
 #include <cstddef>
 #include <utility>
 #include <vector>
 
-#include "core/task/include/task.hpp"
 #include "tbb/concurrent_vector.h"
 #include "tbb/parallel_for.h"
 #include "tbb/parallel_sort.h"
+#include <tbb/blocked_range.h>
+#include "core/task/include/task.hpp"
+
 
 using namespace zinoviev_a_convex_hull_components_tbb;
 
@@ -30,7 +29,7 @@ bool ConvexHullTBB::PreProcessingImpl() noexcept {
   tbb::parallel_for(tbb::blocked_range<int>(0, height), [&](const tbb::blocked_range<int>& range) {
     for (int y = range.begin(); y < range.end(); ++y) {
       for (int x = 0; x < width; ++x) {
-        const size_t idx = static_cast<size_t>(y) * width + x;
+        const size_t idx = (static_cast<size_t>(y) * width) + x;
         if (input_data[idx] != 0) {
           concurrent_points.push_back(Point{.x = x, .y = y});
         }
