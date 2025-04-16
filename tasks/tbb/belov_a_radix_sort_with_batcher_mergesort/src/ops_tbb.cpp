@@ -1,8 +1,8 @@
 #include "tbb/belov_a_radix_sort_with_batcher_mergesort/include/ops_tbb.hpp"
 
-#include <tbb/blocked_range.h>
-#include <tbb/parallel_for.h>
-#include <tbb/task_arena.h>
+#include <oneapi/tbb/blocked_range.h>
+#include <oneapi/tbb/parallel_for.h>
+#include <oneapi/tbb/task_arena.h>
 
 #include <algorithm>
 #include <cmath>
