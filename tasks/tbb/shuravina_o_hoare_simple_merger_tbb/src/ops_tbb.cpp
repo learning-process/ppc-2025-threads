@@ -5,7 +5,6 @@
 #include <algorithm>
 #include <cmath>
 #include <cstddef>
-#include <iostream>
 #include <vector>
 
 namespace shuravina_o_hoare_simple_merger_tbb {
@@ -91,20 +90,26 @@ void TestTaskTBB::Merge(std::vector<int>& arr, int low, int mid, int high) {
 
 bool TestTaskTBB::PreProcessingImpl() {
   try {
-    if (!task_data || task_data->inputs.empty() || task_data->outputs.empty()) {
+    if (task_data == nullptr || task_data->inputs.empty() || task_data->outputs.empty()) {
       return false;
     }
 
     auto* in_ptr = reinterpret_cast<int*>(task_data->inputs[0]);
-    if (!in_ptr) return false;
+    if (in_ptr == nullptr) {
+      return false;
+    }
 
     auto input_size = task_data->inputs_count[0];
-    if (input_size <= 0) return false;
+    if (input_size <= 0) {
+      return false;
+    }
 
     input_ = std::vector<int>(in_ptr, in_ptr + input_size);
 
     auto output_size = task_data->outputs_count[0];
-    if (output_size != input_size) return false;
+    if (output_size != input_size) {
+      return false;
+    }
 
     output_ = std::vector<int>(output_size, 0);
     return true;
@@ -115,7 +120,7 @@ bool TestTaskTBB::PreProcessingImpl() {
 
 bool TestTaskTBB::ValidationImpl() {
   try {
-    if (!task_data || task_data->inputs.empty() || task_data->outputs.empty()) {
+    if (task_data == nullptr || task_data->inputs.empty() || task_data->outputs.empty()) {
       return false;
     }
     return task_data->inputs_count[0] == task_data->outputs_count[0];
@@ -127,7 +132,9 @@ bool TestTaskTBB::ValidationImpl() {
 bool TestTaskTBB::RunImpl() {
   try {
     auto size = input_.size();
-    if (size == 0) return false;
+    if (size == 0) {
+      return false;
+    }
 
     if (size < 10000) {
       QuickSort(input_, 0, static_cast<int>(size) - 1);
@@ -144,12 +151,14 @@ bool TestTaskTBB::RunImpl() {
 
 bool TestTaskTBB::PostProcessingImpl() {
   try {
-    if (output_.empty() || !task_data || task_data->outputs.empty() || !task_data->outputs[0]) {
+    if (output_.empty() || task_data == nullptr || task_data->outputs.empty() || task_data->outputs[0] == nullptr) {
       return false;
     }
 
     auto* out_ptr = reinterpret_cast<int*>(task_data->outputs[0]);
-    if (!out_ptr) return false;
+    if (out_ptr == nullptr) {
+      return false;
+    }
 
     for (size_t i = 0; i < output_.size(); i++) {
       out_ptr[i] = output_[i];
