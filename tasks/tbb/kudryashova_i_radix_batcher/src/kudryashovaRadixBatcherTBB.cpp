@@ -9,6 +9,7 @@
 
 #include <algorithm>
 #include <array>
+#include <climits>
 #include <cstddef>
 #include <cstdint>
 #include <cstring>
@@ -19,7 +20,7 @@ void kudryashova_i_radix_batcher_tbb::ConvertDoublesToUint64(const std::vector<d
   tbb::parallel_for(
       tbb::blocked_range<size_t>(0, converted.size()),
       [&](const auto& range) {
-        for (size_t i = range.begin(); i < range.end(); ++i) {
+        for (size_t i = range.begin(); i != range.end(); ++i) {
           uint64_t bits = 0;
           memcpy(&bits, &data[first + i], sizeof(double));
           converted[i] = ((bits & (1ULL << 63)) != 0) ? ~bits : bits ^ (1ULL << 63);
@@ -33,7 +34,7 @@ void kudryashova_i_radix_batcher_tbb::ConvertUint64ToDoubles(std::vector<double>
   tbb::parallel_for(
       tbb::blocked_range<size_t>(0, converted.size()),
       [&](const auto& range) {
-        for (size_t i = range.begin(); i < range.end(); ++i) {
+        for (size_t i = range.begin(); i != range.end(); ++i) {
           uint64_t bits = converted[i];
           bits = ((bits & (1ULL << 63)) != 0) ? (bits ^ (1ULL << 63)) : ~bits;
           memcpy(&data[first + i], &bits, sizeof(double));
@@ -51,11 +52,12 @@ void kudryashova_i_radix_batcher_tbb::RadixDoubleSort(std::vector<double>& data,
   std::vector<uint64_t> buffer(sort_size);
   int bits_int_byte = 8;
   int max_byte_value = 255;
-  for (int shift = 0; shift < 64; shift += bits_int_byte) {
+  size_t total_bits = sizeof(uint64_t) * CHAR_BIT;
+  for (int shift = 0; shift < total_bits; shift += bits_int_byte) {
     tbb::combinable<std::array<size_t, 256>> local_counts;
     tbb::parallel_for(tbb::blocked_range<size_t>(0, sort_size), [&](const auto& range) {
       auto& counts = local_counts.local();
-      for (size_t i = range.begin(); i < range.end(); ++i) {
+      for (size_t i = range.begin(); i != range.end(); ++i) {
         ++counts[(converted[i] >> shift) & max_byte_value];
       }
     });
@@ -75,7 +77,7 @@ void kudryashova_i_radix_batcher_tbb::RadixDoubleSort(std::vector<double>& data,
     }
 
     tbb::parallel_for(tbb::blocked_range<size_t>(0, 256), [&](const auto& range) {
-      for (size_t j = range.begin(); j < range.end(); ++j) {
+      for (size_t j = range.begin(); j != range.end(); ++j) {
         size_t count = total_counts[j];
         for (size_t i = 0; i < sort_size; ++i) {
           if (((converted[i] >> shift) & max_byte_value) == j) {
@@ -101,7 +103,7 @@ void kudryashova_i_radix_batcher_tbb::BatcherMerge(std::vector<double>& target_a
 
   for (size_t step = 1; step < n; step *= 2) {
     tbb::parallel_for(tbb::blocked_range<size_t>(0, n / (2 * step)), [&](const auto& batch_range) {
-      for (size_t i = batch_range.begin(); i < batch_range.end(); ++i) {
+      for (size_t i = batch_range.begin(); i != batch_range.end(); ++i) {
         const size_t left = merge_start + (2 * step * i);
         const size_t block_end = std::min(left + (2 * step), merge_end);
         for (size_t j = left + 1; j < block_end; j += 2) {
@@ -119,7 +121,7 @@ bool kudryashova_i_radix_batcher_tbb::TestTaskTBB::RunImpl() {
   RadixDoubleSort(input_data_, 0, n);
   for (size_t step = 1; step < n; step *= 2) {
     tbb::parallel_for(tbb::blocked_range<size_t>(0, n / (2 * step)), [&](const auto& merge_range) {
-      for (size_t i = merge_range.begin(); i < merge_range.end(); ++i) {
+      for (size_t i = merge_range.begin(); i != merge_range.end(); ++i) {
         const size_t start = 2 * step * i;
         const size_t mid = start + step;
         const size_t end = std::min(start + (2 * step), n);
