@@ -40,7 +40,6 @@ TEST(vershinina_a_hoare_sort_stl, test_empty) {
   test_task_omp.PostProcessing();
   ASSERT_TRUE(std::ranges::is_sorted(out));
 }
-
 TEST(vershinina_a_hoare_sort_stl, test_not_random_reverse_order) {
   std::vector<double> in{8, 7, 6, 5, 4, 3, 2, 1};
   std::vector<double> out(in.size());
