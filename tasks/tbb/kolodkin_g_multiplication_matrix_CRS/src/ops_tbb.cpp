@@ -1,7 +1,7 @@
 #include "tbb/kolodkin_g_multiplication_matrix_CRS/include/ops_tbb.hpp"
 
-#include <tbb/blocked_range.h>
-#include <tbb/parallel_for.h>
+#include <oneapi/tbb/parallel_for.h>
+
 #include <tbb/tbb.h>
 
 #include <cmath>
