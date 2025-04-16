@@ -4,8 +4,8 @@
 #include <oneapi/tbb/task_arena.h>
 #include <tbb/tbb.h>
 
-#include <core/util/include/util.hpp>
 #include <cmath>
+#include <core/util/include/util.hpp>
 #include <vector>
 
 double chizhov_m_trapezoid_method_tbb::TrapezoidMethod(Function& f, size_t div, size_t dim,
