@@ -1,5 +1,7 @@
 #include "tbb/vavilov_v_cannon/include/ops_tbb.hpp"
 
+#include <oneapi/tbb/blocked_range2d.h>
+#include <oneapi/tbb/parallel_for.h>
 #include <tbb/tbb.h>
 
 #include <algorithm>
@@ -7,8 +9,6 @@
 #include <vector>
 
 #include "core/util/include/util.hpp"
-#include <oneapi/tbb/blocked_range2d.h>
-#include <oneapi/tbb/parallel_for.h>
 #include "oneapi/tbb/task_arena.h"
 
 bool vavilov_v_cannon_tbb::CannonTBB::PreProcessingImpl() {
@@ -57,7 +57,8 @@ void vavilov_v_cannon_tbb::CannonTBB::InitialShift() {
   });
 }
 
-void vavilov_v_cannon_tbb::CannonTBB::CopyBlocksToLocal(std::vector<double>& a_block, std::vector<double>& b_block, int base_row, int base_col) {
+void vavilov_v_cannon_tbb::CannonTBB::CopyBlocksToLocal(std::vector<double>& a_block, std::vector<double>& b_block,
+                                                        int base_row, int base_col) {
   for (int i = 0; i < block_size_ && base_row + i < N_; ++i) {
     for (int k = 0; k < block_size_ && base_col + k < N_; ++k) {
       a_block[(i * block_size_) + k] = A_[((base_row + i) * N_) + (base_col + k)];
@@ -66,7 +67,8 @@ void vavilov_v_cannon_tbb::CannonTBB::CopyBlocksToLocal(std::vector<double>& a_b
   }
 }
 
-void vavilov_v_cannon_tbb::CannonTBB::ComputeBlock(const std::vector<double>& a_block, const std::vector<double>& b_block, int base_row, int base_col) {
+void vavilov_v_cannon_tbb::CannonTBB::ComputeBlock(const std::vector<double>& a_block,
+                                                   const std::vector<double>& b_block, int base_row, int base_col) {
   for (int i = 0; i < block_size_ && base_row + i < N_; ++i) {
     int row = base_row + i;
     for (int j = 0; j < block_size_ && base_col + j < N_; ++j) {
@@ -103,7 +105,7 @@ void vavilov_v_cannon_tbb::CannonTBB::BlockMultiply() {
             int base_col = bj * block_size_;
 
             CopyBlocksToLocal(a_block, b_block, base_row, base_col);
-            ComputeBlock(a_block, b_block, base_row, base_col,);
+            ComputeBlock(a_block, b_block, base_row, base_col);
           }
         }
       },
