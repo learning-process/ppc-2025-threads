@@ -32,7 +32,7 @@ bool petrov_o_vertical_image_filtration_tbb::TaskTBB::ValidationImpl() {
 }
 
 bool petrov_o_vertical_image_filtration_tbb::TaskTBB::RunImpl() {
-  // Apply Gaussian filter using TBB parallel_for
+  // Apply Gaussian filter using TBB  parallel_for
   tbb::parallel_for(tbb::blocked_range2d<size_t>(1, height_ - 1, 1, width_ - 1),
                     [&](const tbb::blocked_range2d<size_t> &r) {
                       for (size_t i = r.rows().begin(); i != r.rows().end(); ++i) {
