@@ -15,7 +15,6 @@
 
 namespace {
 void GetRandomVector(std::vector<int> &v, int a, int b) {
-  std::random_device dev;
   std::mt19937 gen(1000);
 
   if (a >= b) {
