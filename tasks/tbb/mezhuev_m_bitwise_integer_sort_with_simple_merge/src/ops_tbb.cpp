@@ -60,14 +60,13 @@ bool SortTBB::PreProcessingImpl() {
   unsigned int input_size = task_data->inputs_count[0];
   auto* in_ptr = reinterpret_cast<int*>(task_data->inputs[0]);
 
-  if (input_size == 0) {
-    output_ = input_;
-    return true;
-  }
-
-  input_ = std::vector<int>(in_ptr, in_ptr + input_size);
+  input_ = (input_size == 0) ? std::vector<int>() : std::vector<int>(in_ptr, in_ptr + input_size);
   unsigned int output_size = task_data->outputs_count[0];
   output_ = std::vector<int>(output_size, 0);
+
+  if (input_size == 0) {
+    return true;
+  }
 
   max_value_ = *std::ranges::max_element(input_, [](int a, int b) { return std::abs(a) < std::abs(b); });
   max_value_ = std::abs(max_value_);
