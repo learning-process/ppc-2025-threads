@@ -30,7 +30,7 @@ TEST(kudryashova_i_radix_batcher_tbb, test_pipeline_run) {
   task_data->inputs_count.emplace_back(global_vector.size());
   task_data->outputs.emplace_back(reinterpret_cast<uint8_t *>(result.data()));
   task_data->outputs_count.emplace_back(result.size());
-  auto test_task_open_mp = std::make_shared<kudryashova_i_radix_batcher_tbb::TestTaskTBB>(task_data);
+  auto test_task_tbb = std::make_shared<kudryashova_i_radix_batcher_tbb::TestTaskTBB>(task_data);
 
   auto perf_attr = std::make_shared<ppc::core::PerfAttr>();
   perf_attr->num_running = 3;
@@ -41,7 +41,7 @@ TEST(kudryashova_i_radix_batcher_tbb, test_pipeline_run) {
     return static_cast<double>(duration) * 1e-9;
   };
   auto perf_results = std::make_shared<ppc::core::PerfResults>();
-  auto perf_analyzer = std::make_shared<ppc::core::Perf>(test_task_open_mp);
+  auto perf_analyzer = std::make_shared<ppc::core::Perf>(test_task_tbb);
   perf_analyzer->PipelineRun(perf_attr, perf_results);
   ppc::core::Perf::PrintPerfStatistic(perf_results);
   for (std::vector<double>::size_type i = 1; i < result.size(); i++) {
@@ -58,7 +58,7 @@ TEST(kudryashova_i_radix_batcher_tbb, test_task_run) {
   task_data->inputs_count.emplace_back(global_vector.size());
   task_data->outputs.emplace_back(reinterpret_cast<uint8_t *>(result.data()));
   task_data->outputs_count.emplace_back(result.size());
-  auto test_task_open_mp = std::make_shared<kudryashova_i_radix_batcher_tbb::TestTaskTBB>(task_data);
+  auto test_task_tbb = std::make_shared<kudryashova_i_radix_batcher_tbb::TestTaskTBB>(task_data);
   auto perf_attr = std::make_shared<ppc::core::PerfAttr>();
   perf_attr->num_running = 3;
   const auto t0 = std::chrono::high_resolution_clock::now();
@@ -68,7 +68,7 @@ TEST(kudryashova_i_radix_batcher_tbb, test_task_run) {
     return static_cast<double>(duration) * 1e-9;
   };
   auto perf_results = std::make_shared<ppc::core::PerfResults>();
-  auto perf_analyzer = std::make_shared<ppc::core::Perf>(test_task_open_mp);
+  auto perf_analyzer = std::make_shared<ppc::core::Perf>(test_task_tbb);
   perf_analyzer->TaskRun(perf_attr, perf_results);
   ppc::core::Perf::PrintPerfStatistic(perf_results);
   for (std::vector<double>::size_type i = 1; i < result.size(); i++) {

@@ -53,7 +53,7 @@ void kudryashova_i_radix_batcher_tbb::RadixDoubleSort(std::vector<double>& data,
   int bits_int_byte = 8;
   int max_byte_value = 255;
   size_t total_bits = sizeof(uint64_t) * CHAR_BIT;
-  for (int shift = 0; shift < total_bits; shift += bits_int_byte) {
+  for (size_t shift = 0; shift < total_bits; shift += bits_int_byte) {
     tbb::combinable<std::array<size_t, 256>> local_counts;
     tbb::parallel_for(tbb::blocked_range<size_t>(0, sort_size), [&](const auto& range) {
       auto& counts = local_counts.local();

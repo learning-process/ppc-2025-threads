@@ -30,11 +30,11 @@ TEST(kudryashova_i_radix_batcher_tbb, tbb_radix_test_1) {
   task_data->inputs_count.emplace_back(global_vector.size());
   task_data->outputs.emplace_back(reinterpret_cast<uint8_t *>(result.data()));
   task_data->outputs_count.emplace_back(result.size());
-  kudryashova_i_radix_batcher_tbb::TestTaskTBB task_open_mp(task_data);
-  ASSERT_TRUE(task_open_mp.ValidationImpl());
-  task_open_mp.PreProcessingImpl();
-  task_open_mp.RunImpl();
-  task_open_mp.PostProcessingImpl();
+  kudryashova_i_radix_batcher_tbb::TestTaskTBB task_tbb(task_data);
+  ASSERT_TRUE(task_tbb.ValidationImpl());
+  task_tbb.PreProcessingImpl();
+  task_tbb.RunImpl();
+  task_tbb.PostProcessingImpl();
   std::vector<double> sort_global_vector = global_vector;
   std::ranges::sort(sort_global_vector);
   ASSERT_EQ(result, sort_global_vector);
@@ -50,11 +50,11 @@ TEST(kudryashova_i_radix_batcher_tbb, tbb_radix_test_2) {
   task_data->inputs_count.emplace_back(global_vector.size());
   task_data->outputs.emplace_back(reinterpret_cast<uint8_t *>(result.data()));
   task_data->outputs_count.emplace_back(result.size());
-  kudryashova_i_radix_batcher_tbb::TestTaskTBB task_open_mp(task_data);
-  ASSERT_TRUE(task_open_mp.ValidationImpl());
-  task_open_mp.PreProcessingImpl();
-  task_open_mp.RunImpl();
-  task_open_mp.PostProcessingImpl();
+  kudryashova_i_radix_batcher_tbb::TestTaskTBB task_tbb(task_data);
+  ASSERT_TRUE(task_tbb.ValidationImpl());
+  task_tbb.PreProcessingImpl();
+  task_tbb.RunImpl();
+  task_tbb.PostProcessingImpl();
   std::vector<double> sorted_global_vector = global_vector;
   std::ranges::sort(sorted_global_vector);
   ASSERT_EQ(result, sorted_global_vector);
@@ -69,11 +69,11 @@ TEST(kudryashova_i_radix_batcher_tbb, tbb_radix_all_equal_elem_test_3) {
   task_data->inputs_count.emplace_back(global_vector.size());
   task_data->outputs.emplace_back(reinterpret_cast<uint8_t *>(result.data()));
   task_data->outputs_count.emplace_back(result.size());
-  kudryashova_i_radix_batcher_tbb::TestTaskTBB task_open_mp(task_data);
-  ASSERT_TRUE(task_open_mp.ValidationImpl());
-  task_open_mp.PreProcessingImpl();
-  task_open_mp.RunImpl();
-  task_open_mp.PostProcessingImpl();
+  kudryashova_i_radix_batcher_tbb::TestTaskTBB task_tbb(task_data);
+  ASSERT_TRUE(task_tbb.ValidationImpl());
+  task_tbb.PreProcessingImpl();
+  task_tbb.RunImpl();
+  task_tbb.PostProcessingImpl();
   std::vector<double> sorted_global_vector = global_vector;
   std::ranges::sort(sorted_global_vector);
   ASSERT_EQ(result, sorted_global_vector);
@@ -88,29 +88,31 @@ TEST(kudryashova_i_radix_batcher_tbb, tbb_radix_all_zero_elem_test_4) {
   task_data->inputs_count.emplace_back(global_vector.size());
   task_data->outputs.emplace_back(reinterpret_cast<uint8_t *>(result.data()));
   task_data->outputs_count.emplace_back(result.size());
-  kudryashova_i_radix_batcher_tbb::TestTaskTBB task_open_mp(task_data);
-  ASSERT_TRUE(task_open_mp.ValidationImpl());
-  task_open_mp.PreProcessingImpl();
-  task_open_mp.RunImpl();
-  task_open_mp.PostProcessingImpl();
+  kudryashova_i_radix_batcher_tbb::TestTaskTBB task_tbb(task_data);
+  ASSERT_TRUE(task_tbb.ValidationImpl());
+  task_tbb.PreProcessingImpl();
+  task_tbb.RunImpl();
+  task_tbb.PostProcessingImpl();
   ASSERT_EQ(result, global_vector);
 }
 
-TEST(kudryashova_i_radix_batcher_tbb, tbb_radix_all_zero_test_3) {
+TEST(kudryashova_i_radix_batcher_tbb, tbb_radix_test_5) {
   int global_vector_size = 8;
-  std::vector<double> global_vector = {1.57, 1.57, 1.57, 1.57, 1.57, 1.57, 1.57, 1.57};
+  std::vector<double> global_vector = {1.852, 1.2, 1.7852, 5.57, 4.525, 100.769, 75.123, 85.57};
   std::vector<double> result(global_vector_size);
   std::shared_ptr<ppc::core::TaskData> task_data = std::make_shared<ppc::core::TaskData>();
   task_data->inputs.emplace_back(reinterpret_cast<uint8_t *>(global_vector.data()));
   task_data->inputs_count.emplace_back(global_vector.size());
   task_data->outputs.emplace_back(reinterpret_cast<uint8_t *>(result.data()));
   task_data->outputs_count.emplace_back(result.size());
-  kudryashova_i_radix_batcher_tbb::TestTaskTBB task_open_mp(task_data);
-  ASSERT_TRUE(task_open_mp.ValidationImpl());
-  task_open_mp.PreProcessingImpl();
-  task_open_mp.RunImpl();
-  task_open_mp.PostProcessingImpl();
-  ASSERT_EQ(result, global_vector);
+  kudryashova_i_radix_batcher_tbb::TestTaskTBB task_tbb(task_data);
+  ASSERT_TRUE(task_tbb.ValidationImpl());
+  task_tbb.PreProcessingImpl();
+  task_tbb.RunImpl();
+  task_tbb.PostProcessingImpl();
+  std::vector<double> sorted_global_vector = global_vector;
+  std::ranges::sort(sorted_global_vector);
+  ASSERT_EQ(result, sorted_global_vector);
 }
 
 TEST(kudryashova_i_radix_batcher_tbb, tbb_radix_random_test_1) {
@@ -122,11 +124,11 @@ TEST(kudryashova_i_radix_batcher_tbb, tbb_radix_random_test_1) {
   task_data->inputs_count.emplace_back(global_vector.size());
   task_data->outputs.emplace_back(reinterpret_cast<uint8_t *>(result.data()));
   task_data->outputs_count.emplace_back(result.size());
-  kudryashova_i_radix_batcher_tbb::TestTaskTBB task_open_mp(task_data);
-  ASSERT_TRUE(task_open_mp.ValidationImpl());
-  task_open_mp.PreProcessingImpl();
-  task_open_mp.RunImpl();
-  task_open_mp.PostProcessingImpl();
+  kudryashova_i_radix_batcher_tbb::TestTaskTBB task_tbb(task_data);
+  ASSERT_TRUE(task_tbb.ValidationImpl());
+  task_tbb.PreProcessingImpl();
+  task_tbb.RunImpl();
+  task_tbb.PostProcessingImpl();
   std::vector<double> sorted_global_vector = global_vector;
   std::ranges::sort(sorted_global_vector);
   ASSERT_EQ(result, sorted_global_vector);
@@ -141,11 +143,11 @@ TEST(kudryashova_i_radix_batcher_tbb, tbb_radix_random_test_2) {
   task_data->inputs_count.emplace_back(global_vector.size());
   task_data->outputs.emplace_back(reinterpret_cast<uint8_t *>(result.data()));
   task_data->outputs_count.emplace_back(result.size());
-  kudryashova_i_radix_batcher_tbb::TestTaskTBB task_open_mp(task_data);
-  ASSERT_TRUE(task_open_mp.ValidationImpl());
-  task_open_mp.PreProcessingImpl();
-  task_open_mp.RunImpl();
-  task_open_mp.PostProcessingImpl();
+  kudryashova_i_radix_batcher_tbb::TestTaskTBB task_tbb(task_data);
+  ASSERT_TRUE(task_tbb.ValidationImpl());
+  task_tbb.PreProcessingImpl();
+  task_tbb.RunImpl();
+  task_tbb.PostProcessingImpl();
   std::vector<double> sorted_global_vector = global_vector;
   std::ranges::sort(sorted_global_vector);
   ASSERT_EQ(result, sorted_global_vector);
@@ -161,11 +163,11 @@ TEST(kudryashova_i_radix_batcher_tbb, tbb_radix_test_regular_order) {
   task_data->inputs_count.emplace_back(global_vector.size());
   task_data->outputs.emplace_back(reinterpret_cast<uint8_t *>(result.data()));
   task_data->outputs_count.emplace_back(result.size());
-  kudryashova_i_radix_batcher_tbb::TestTaskTBB task_open_mp(task_data);
-  ASSERT_TRUE(task_open_mp.ValidationImpl());
-  task_open_mp.PreProcessingImpl();
-  task_open_mp.RunImpl();
-  task_open_mp.PostProcessingImpl();
+  kudryashova_i_radix_batcher_tbb::TestTaskTBB task_tbb(task_data);
+  ASSERT_TRUE(task_tbb.ValidationImpl());
+  task_tbb.PreProcessingImpl();
+  task_tbb.RunImpl();
+  task_tbb.PostProcessingImpl();
   ASSERT_EQ(result, global_vector);
 }
 
@@ -179,11 +181,11 @@ TEST(kudryashova_i_radix_batcher_tbb, tbb_radix_test_reverse_order) {
   task_data->inputs_count.emplace_back(global_vector.size());
   task_data->outputs.emplace_back(reinterpret_cast<uint8_t *>(result.data()));
   task_data->outputs_count.emplace_back(result.size());
-  kudryashova_i_radix_batcher_tbb::TestTaskTBB task_open_mp(task_data);
-  ASSERT_TRUE(task_open_mp.ValidationImpl());
-  task_open_mp.PreProcessingImpl();
-  task_open_mp.RunImpl();
-  task_open_mp.PostProcessingImpl();
+  kudryashova_i_radix_batcher_tbb::TestTaskTBB task_tbb(task_data);
+  ASSERT_TRUE(task_tbb.ValidationImpl());
+  task_tbb.PreProcessingImpl();
+  task_tbb.RunImpl();
+  task_tbb.PostProcessingImpl();
   std::vector<double> sorted_global_vector = global_vector;
   std::ranges::sort(sorted_global_vector);
   ASSERT_EQ(result, sorted_global_vector);
