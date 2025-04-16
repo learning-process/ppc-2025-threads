@@ -38,7 +38,7 @@ TEST(volochaev_s_Shell_sort_with_Batchers_even_odd_merge_tbb, test_pipeline_run)
   std::vector<int> out(in);
   std::vector<int> ans(in);
   std::ranges::sort(ans);
-  
+
   // Create task_data
   auto task_data_seq = std::make_shared<ppc::core::TaskData>();
   task_data_seq->inputs.emplace_back(reinterpret_cast<uint8_t *>(in.data()));
@@ -79,7 +79,7 @@ TEST(volochaev_s_Shell_sort_with_Batchers_even_odd_merge_tbb, test_task_run) {
   std::vector<int> out(in);
   std::vector<int> ans(in);
   std::ranges::sort(ans);
-  
+
   // Create task_data
   auto task_data_seq = std::make_shared<ppc::core::TaskData>();
   task_data_seq->inputs.emplace_back(reinterpret_cast<uint8_t *>(in.data()));
