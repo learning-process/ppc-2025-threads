@@ -46,9 +46,7 @@ void RadixSort(std::vector<uint64_t>& array) {
   std::vector<int> frequency(bucket_count, 0);
 
   for (int shift = 0; shift < total_bits; shift += bits_in_byte) {
-    tbb::combinable<std::vector<int>> local_freq([&]() {
-      return std::vector<int>(bucket_count, 0);
-    });
+    tbb::combinable<std::vector<int>> local_freq([&]() { return std::vector<int>(bucket_count, 0); });
 
     tbb::parallel_for(tbb::blocked_range<size_t>(0, array.size()), [&](const tbb::blocked_range<size_t>& range) {
       auto& local = local_freq.local();
