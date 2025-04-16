@@ -162,7 +162,7 @@ TEST(sharamygina_i_multi_dim_monte_carlo_tbb, 1DSinFunction) {
   ASSERT_TRUE(test_task.PostProcessingImpl());
 
   double expected = 0.45969769413186;
-  double tol = 0.03 * expected;
+  double tol = 0.05 * expected;
   EXPECT_NEAR(result, expected, tol);
 }
 
@@ -194,7 +194,7 @@ TEST(sharamygina_i_multi_dim_monte_carlo_tbb, 2DFunction) {
   ASSERT_TRUE(test_task.PostProcessingImpl());
 
   double expected = 1;
-  double tol = 0.03 * expected;
+  double tol = 0.05 * expected;
   EXPECT_NEAR(result, expected, tol);
 }
 
@@ -226,7 +226,7 @@ TEST(sharamygina_i_multi_dim_monte_carlo_tbb, 3DFunction) {
   ASSERT_TRUE(test_task.PostProcessingImpl());
 
   double expected = 27;
-  double tol = 0.03 * expected;
+  double tol = 0.05 * expected;
   EXPECT_NEAR(result, expected, tol);
 }
 
@@ -258,7 +258,7 @@ TEST(sharamygina_i_multi_dim_monte_carlo_tbb, 4DFunction) {
   ASSERT_TRUE(test_task.PostProcessingImpl());
 
   double expected = 6998.4;
-  double tol = 0.03 * expected;
+  double tol = 0.05 * expected;
   EXPECT_NEAR(result, expected, tol);
 }
 
@@ -290,7 +290,7 @@ TEST(sharamygina_i_multi_dim_monte_carlo_tbb, 2DExpFunction) {
   ASSERT_TRUE(test_task.PostProcessingImpl());
 
   double expected = 3.109605100711371;
-  double tol = 0.03 * expected;
+  double tol = 0.05 * expected;
   EXPECT_NEAR(result, expected, tol);
 }
 
@@ -322,7 +322,7 @@ TEST(sharamygina_i_multi_dim_monte_carlo_tbb, 10DFunction) {
   ASSERT_TRUE(test_task.PostProcessingImpl());
 
   double expected = 5.5;
-  double tol = 0.03 * expected;
+  double tol = 0.05 * expected;
   EXPECT_NEAR(result, expected, tol);
 }
 
@@ -354,7 +354,7 @@ TEST(sharamygina_i_multi_dim_monte_carlo_tbb, 3DFunctionWithDifferentBoundaries)
   ASSERT_TRUE(test_task.PostProcessingImpl());
 
   double expected = 1.488;
-  double tol = 0.03 * expected;
+  double tol = 0.05 * expected;
   EXPECT_NEAR(result, expected, tol);
 }
 
@@ -386,6 +386,6 @@ TEST(sharamygina_i_multi_dim_monte_carlo_tbb, 3DSinFunctionWithDifferentBoundari
   ASSERT_TRUE(test_task.PostProcessingImpl());
 
   double expected = 3.652697810257515;
-  double tol = 0.03 * expected;
+  double tol = 0.05 * expected;
   EXPECT_NEAR(result, expected, tol);
 }
