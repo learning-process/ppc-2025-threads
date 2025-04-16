@@ -299,7 +299,7 @@ void vavilov_v_cannon_tbb::CannonTBB::BlockMultiply() {
       B_trans[j * N_ + i] = B_[i * N_ + j];
     }
   }
-  
+
   oneapi::tbb::parallel_for(oneapi::tbb::blocked_range2d<int>(0, num_blocks_, 0, num_blocks_),
                             [&](const oneapi::tbb::blocked_range2d<int>& r) {
                               std::vector<double> a_block(block_size_ * block_size_);
@@ -314,7 +314,7 @@ void vavilov_v_cannon_tbb::CannonTBB::BlockMultiply() {
                                       C_[(base_row + i) * N_ + (base_col + j)] = 0.0;
                                     }
                                   }
- 
+
                                   for (int bk = 0; bk < num_blocks_; ++bk) {
                                     int a_col = ((bi + bk) % num_blocks_) * block_size_;
                                     int b_row = ((bj + bk) % num_blocks_) * block_size_;
@@ -328,7 +328,7 @@ void vavilov_v_cannon_tbb::CannonTBB::BlockMultiply() {
                                         b_block[i * block_size_ + j] = B_trans[(base_col + j) * N_ + (b_row + i)];
                                       }
                                     }
- 
+
                                     for (int i = 0; i < block_size_ && base_row + i < N_; ++i) {
                                       for (int j = 0; j < block_size_ && base_col + j < N_; ++j) {
                                         double sum = 0.0;
@@ -342,9 +342,9 @@ void vavilov_v_cannon_tbb::CannonTBB::BlockMultiply() {
                                 }
                               }
                             });
- 
+
 }
- 
+
 bool vavilov_v_cannon_tbb::CannonTBB::RunImpl() {
   oneapi::tbb::task_arena arena(ppc::util::GetPPCNumThreads());
   arena.execute([&]() { BlockMultiply(); });
