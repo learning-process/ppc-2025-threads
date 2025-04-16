@@ -12,7 +12,7 @@
 
 bool vavilov_v_cannon_tbb::CannonTBB::PreProcessingImpl() {
   N_ = static_cast<int>(std::sqrt(task_data->inputs_count[0]));
-  num_blocks_ = static_cast<int>(std::sqrt(N_));
+  num_blocks_ = static_cast<int>(task_data->inputs_count[2]);
   block_size_ = N_ / num_blocks_;
 
   auto* a = reinterpret_cast<double*>(task_data->inputs[0]);
@@ -25,11 +25,16 @@ bool vavilov_v_cannon_tbb::CannonTBB::PreProcessingImpl() {
 }
 
 bool vavilov_v_cannon_tbb::CannonTBB::ValidationImpl() {
-  return task_data->inputs_count[0] == task_data->inputs_count[1] &&
-         task_data->outputs_count[0] == task_data->inputs_count[0];
+  if (task_data->inputs_count[0] != task_data->inputs_count[1] ||
+      task_data->outputs_count[0] != task_data->inputs_count[0]) {
+    return false;
+  }
+
+  auto n = static_cast<int>(std::sqrt(task_data->inputs_count[0]));
+  auto num_blocks = static_cast<int>(task_data->inputs_count[2]);
+  return n % num_blocks == 0;
 }
 
-// Начальное циклическое смещение блоков A и B перед первым перемножением
 void vavilov_v_cannon_tbb::CannonTBB::InitialShift() {
   std::vector<double> a_tmp = A_;
   std::vector<double> b_tmp = B_;
@@ -97,7 +102,6 @@ void vavilov_v_cannon_tbb::CannonTBB::BlockMultiply() {
       oneapi::tbb::auto_partitioner());
 }
 
-// Циклический сдвиг блоков A влево, B вверх — по Каннону, после каждой итерации
 void vavilov_v_cannon_tbb::CannonTBB::ShiftBlocks() {
   std::vector<double> a_tmp = A_;
   std::vector<double> b_tmp = B_;
