@@ -292,7 +292,7 @@ bool vavilov_v_cannon_tbb::CannonTBB::RunImpl() {
 }
 */
 
-void vavilov_v_cannon_tbb::CannonTBB::BlockMultiply() { 
+void vavilov_v_cannon_tbb::CannonTBB::BlockMultiply() {
   std::vector<double> B_trans(N_ * N_);
   for (int i = 0; i < N_; ++i) {
     for (int j = 0; j < N_; ++j) {
@@ -342,7 +342,6 @@ void vavilov_v_cannon_tbb::CannonTBB::BlockMultiply() {
                                 }
                               }
                             });
-
 }
 
 bool vavilov_v_cannon_tbb::CannonTBB::RunImpl() {
