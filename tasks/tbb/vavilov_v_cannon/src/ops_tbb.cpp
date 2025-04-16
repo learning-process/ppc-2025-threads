@@ -331,7 +331,6 @@ void vavilov_v_cannon_tbb::CannonTBB::BlockMultiply() {
                             });
 }
 
-
 bool vavilov_v_cannon_tbb::CannonTBB::RunImpl() {
   oneapi::tbb::task_arena arena(ppc::util::GetPPCNumThreads());
   arena.execute([&]() { BlockMultiply(); });
