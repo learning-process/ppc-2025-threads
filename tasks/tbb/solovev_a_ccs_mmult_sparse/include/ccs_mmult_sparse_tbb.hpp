@@ -30,7 +30,8 @@ struct MatrixInCcsSparse {
 
 class TBBMatMultCcs : public ppc::core::Task {
  public:
-  explicit TBBMatMultCcs(std::shared_ptr<ppc::core::TaskData> task_data) : Task(std::move(task_data)) {}
+  explicit TBBMatMultCcs(std::shared_ptr<ppc::core::TaskData> task_data)
+      : Task(std::move(task_data)), M1_(nullptr), M2_(nullptr), M3_(nullptr) {}
   bool PreProcessingImpl() override;
   bool ValidationImpl() override;
   bool RunImpl() override;
