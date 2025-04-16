@@ -45,8 +45,7 @@ TEST(opolin_d_radix_betcher_sort_tbb, test_pipeline_run) {
   task_data_tbb->outputs_count.emplace_back(out.size());
 
   // Create Task
-  auto test_task_tbb =
-      std::make_shared<opolin_d_radix_betcher_sort_tbb::RadixBatcherSortTaskTbb>(task_data_tbb);
+  auto test_task_tbb = std::make_shared<opolin_d_radix_betcher_sort_tbb::RadixBatcherSortTaskTbb>(task_data_tbb);
   ASSERT_EQ(test_task_tbb->Validation(), true);
   test_task_tbb->PreProcessing();
   test_task_tbb->Run();
@@ -84,8 +83,7 @@ TEST(opolin_d_radix_betcher_sort_tbb, test_task_run) {
   task_data_tbb->outputs_count.emplace_back(out.size());
 
   // Create Task
-  auto test_task_tbb =
-      std::make_shared<opolin_d_radix_betcher_sort_tbb::RadixBatcherSortTaskTbb>(task_data_tbb);
+  auto test_task_tbb = std::make_shared<opolin_d_radix_betcher_sort_tbb::RadixBatcherSortTaskTbb>(task_data_tbb);
   ASSERT_EQ(test_task_tbb->Validation(), true);
   test_task_tbb->PreProcessing();
   test_task_tbb->Run();

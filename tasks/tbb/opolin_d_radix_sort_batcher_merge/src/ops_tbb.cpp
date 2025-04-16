@@ -9,7 +9,7 @@
 #include <vector>
 
 bool opolin_d_radix_batcher_sort_tbb::RadixBatcherSortTaskTbb::PreProcessingImpl() {
-  auto *in_ptr = reinterpret_cast<int *>(task_data->inputs[0]);
+  auto* in_ptr = reinterpret_cast<int*>(task_data->inputs[0]);
   input_ = std::vector<int>(in_ptr, in_ptr + size_);
   unsigned int output_size = task_data->outputs_count[0];
   output_ = std::vector<int>(output_size, 0);
@@ -36,7 +36,7 @@ bool opolin_d_radix_batcher_sort_tbb::RadixBatcherSortTaskTbb::RunImpl() {
 
 bool opolin_d_radix_batcher_sort_tbb::RadixBatcherSortTaskTbb::PostProcessingImpl() {
   for (size_t i = 0; i < output_.size(); i++) {
-    reinterpret_cast<int *>(task_data->outputs[0])[i] = output_[i];
+    reinterpret_cast<int*>(task_data->outputs[0])[i] = output_[i];
   }
   return true;
 }
@@ -78,7 +78,8 @@ void opolin_d_radix_batcher_sort_tbb::RadixBatcherSortTaskTbb::RadixSort(std::ve
   });
 }
 
-void opolin_d_radix_batcher_sort_tbb::RadixBatcherSortTaskTbb::parallelOddEvenMerge(std::vector<int>& arr, int lo, int hi) {
+void opolin_d_radix_batcher_sort_tbb::RadixBatcherSortTaskTbb::parallelOddEvenMerge(std::vector<int>& arr, int lo,
+                                                                                    int hi) {
   int n = hi - lo + 1;
   int r = 1;
   while (r < n) {
@@ -102,8 +103,7 @@ void opolin_d_radix_batcher_sort_tbb::RadixBatcherSortTaskTbb::parallelOddEvenMe
       while (p < m && q < h) {
         if (b[p] <= b[q]) {
           tmp[t++] = b[p++];
-        }
-        else {
+        } else {
           tmp[t++] = b[q++];
         }
       }
