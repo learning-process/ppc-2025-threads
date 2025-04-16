@@ -20,7 +20,6 @@ class GaussianFilterSTL : public ppc::core::Task {
   std::vector<double> output_;
   int width_;
   int height_;
-  int kernel_size_ = 3;
   std::vector<int> kernel_;
 };
 
