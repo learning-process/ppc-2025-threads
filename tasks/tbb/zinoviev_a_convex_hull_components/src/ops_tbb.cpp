@@ -1,14 +1,15 @@
 #include "tbb/zinoviev_a_convex_hull_components/include/ops_tbb.hpp"
 
+#include <tbb/blocked_range.h>
+
 #include <cstddef>
 #include <utility>
 #include <vector>
 
+#include "core/task/include/task.hpp"
 #include "tbb/concurrent_vector.h"
 #include "tbb/parallel_for.h"
 #include "tbb/parallel_sort.h"
-#include <tbb/blocked_range.h>
-#include "core/task/include/task.hpp"
 
 
 using namespace zinoviev_a_convex_hull_components_tbb;
