@@ -145,7 +145,6 @@ TEST(kolodkin_g_multiplication_matrix_tbb, test_matmul_with_imag) {
   test_task_tbb.PostProcessing();
   kolodkin_g_multiplication_matrix_tbb::SparseMatrixCRS res =
       kolodkin_g_multiplication_matrix_tbb::ParseVectorIntoMatrix(out);
-  res.PrintSparseMatrix(res);
   ASSERT_TRUE(kolodkin_g_multiplication_matrix_tbb::CheckMatrixesEquality(res, c));
 }
 
@@ -197,7 +196,6 @@ TEST(kolodkin_g_multiplication_matrix_tbb, test_matmul_rectangular_matrix) {
   test_task_tbb.PostProcessing();
   kolodkin_g_multiplication_matrix_tbb::SparseMatrixCRS res =
       kolodkin_g_multiplication_matrix_tbb::ParseVectorIntoMatrix(out);
-  res.PrintSparseMatrix(res);
   ASSERT_TRUE(kolodkin_g_multiplication_matrix_tbb::CheckMatrixesEquality(res, c));
 }
 
