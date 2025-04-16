@@ -1,10 +1,6 @@
 #ifndef OPS_TBB_HPP
 #define OPS_TBB_HPP
 
-#include <oneapi/tbb/parallel_for.h>
-#include <oneapi/tbb/parallel_reduce.h>
-#include <oneapi/tbb/task_arena.h>
-
 #include <cmath>
 #include <cstddef>
 #include <memory>
