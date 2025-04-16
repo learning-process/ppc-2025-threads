@@ -12,7 +12,7 @@
 
 #include "core/perf/include/perf.hpp"
 #include "core/task/include/task.hpp"
-#include "seq/lavrentiev_A_CCS/include/ops_seq.hpp"
+#include "seq/lavrentiev_A_CCS_SEQ/include/ops_seq.hpp"
 
 namespace {
 constexpr auto kEpsilon = 0.000001;
