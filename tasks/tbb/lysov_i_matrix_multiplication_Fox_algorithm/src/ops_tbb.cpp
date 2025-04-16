@@ -2,13 +2,11 @@
 
 #include <tbb/tbb.h>
 
+#include <algorithm>
 #include <cmath>
-#include <core/util/include/util.hpp>
 #include <cstddef>
+#include <ranges>
 #include <vector>
-
-#include "oneapi/tbb/task_arena.h"
-#include "oneapi/tbb/task_group.h"
 
 void lysov_i_matrix_multiplication_fox_algorithm_tbb::ProcessBlock(const std::vector<double> &a,
                                                                    const std::vector<double> &b, std::vector<double> &c,
