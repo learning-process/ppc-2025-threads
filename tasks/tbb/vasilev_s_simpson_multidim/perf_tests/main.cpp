@@ -38,7 +38,6 @@ TEST(vasilev_s_simpson_multidim_tbb, test_pipeline_run) {
 
   auto task = std::make_shared<vasilev_s_simpson_multidim::SimpsonTaskTbb>(task_data);
 
-  // Create Perf attributes
   auto perf_attr = std::make_shared<ppc::core::PerfAttr>();
   perf_attr->num_running = 10;
   const auto t0 = std::chrono::high_resolution_clock::now();
@@ -48,10 +47,8 @@ TEST(vasilev_s_simpson_multidim_tbb, test_pipeline_run) {
     return static_cast<double>(duration) * 1e-9;
   };
 
-  // Create and init perf results
   auto perf_results = std::make_shared<ppc::core::PerfResults>();
 
-  // Create Perf analyzer
   auto perf_analyzer = std::make_shared<ppc::core::Perf>(task);
   perf_analyzer->PipelineRun(perf_attr, perf_results);
   ppc::core::Perf::PrintPerfStatistic(perf_results);
@@ -70,7 +67,6 @@ TEST(vasilev_s_simpson_multidim_tbb, test_task_run) {
 
   auto task = std::make_shared<vasilev_s_simpson_multidim::SimpsonTaskTbb>(task_data);
 
-  // Create Perf attributes
   auto perf_attr = std::make_shared<ppc::core::PerfAttr>();
   perf_attr->num_running = 10;
   const auto t0 = std::chrono::high_resolution_clock::now();
@@ -80,10 +76,8 @@ TEST(vasilev_s_simpson_multidim_tbb, test_task_run) {
     return static_cast<double>(duration) * 1e-9;
   };
 
-  // Create and init perf results
   auto perf_results = std::make_shared<ppc::core::PerfResults>();
 
-  // Create Perf analyzer
   auto perf_analyzer = std::make_shared<ppc::core::Perf>(task);
   perf_analyzer->TaskRun(perf_attr, perf_results);
   ppc::core::Perf::PrintPerfStatistic(perf_results);
