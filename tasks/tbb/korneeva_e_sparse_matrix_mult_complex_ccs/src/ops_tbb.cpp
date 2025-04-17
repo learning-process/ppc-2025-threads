@@ -1,9 +1,10 @@
 #include "tbb/korneeva_e_sparse_matrix_mult_complex_ccs/include/ops_tbb.hpp"
 
-#include <tbb/concurrent_vector.h>
-#include <tbb/tbb.h>
+#include <oneapi/tbb/parallel_for.h>
 
+#include <algorithm>
 #include <cmath>
+#include <cstddef>
 #include <utility>
 #include <vector>
 
@@ -31,12 +32,13 @@ bool SparseMatrixMultComplexCCS::ValidationImpl() {
 bool SparseMatrixMultComplexCCS::RunImpl() {
   std::vector<std::vector<std::pair<Complex, int>>> column_results(matrix2_->cols);
 
-  tbb::parallel_for(tbb::blocked_range<int>(0, matrix2_->cols, std::max<size_t>(16, matrix2_->cols / 16)),
-                    [&](const tbb::blocked_range<int>& r) {
-                      for (int j = r.begin(); j != r.end(); ++j) {
-                        ComputeColumn(j, column_results[j]);
-                      }
-                    });
+  oneapi::tbb::parallel_for(
+      oneapi::tbb::blocked_range<int>(0, matrix2_->cols, std::max<size_t>(16, matrix2_->cols / 16)),
+      [&](const oneapi::tbb::blocked_range<int>& r) {
+        for (int j = r.begin(); j != r.end(); ++j) {
+          ComputeColumn(j, column_results[j]);
+        }
+      });
 
   std::vector<Complex> temp_values;
   std::vector<int> temp_row_indices;
