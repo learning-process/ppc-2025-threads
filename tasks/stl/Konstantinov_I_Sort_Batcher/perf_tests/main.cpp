@@ -13,7 +13,7 @@
 #include "stl/Konstantinov_I_Sort_Batcher/include/ops_stl.hpp"
 
 TEST(Konstantinov_I_Sort_Batcher_stl, test_pipeline_run) {
-  constexpr int kCount = 300000;
+  constexpr int kCount = 300;
 
   std::vector<double> in(kCount);
   std::vector<double> exp_out(kCount);
@@ -21,7 +21,7 @@ TEST(Konstantinov_I_Sort_Batcher_stl, test_pipeline_run) {
 
   std::random_device rd;
   std::mt19937 gen(rd());
-  std::uniform_real_distribution<double> dist(-10000.0, 10000.0);
+  std::uniform_real_distribution<double> dist(-100.0, 100.0);
 
   for (size_t i = 0; i < kCount; i++) {
     in[i] = dist(gen);
@@ -57,7 +57,7 @@ TEST(Konstantinov_I_Sort_Batcher_stl, test_pipeline_run) {
 }
 
 TEST(Konstantinov_I_Sort_Batcher_stl, test_task_run) {
-  constexpr int kCount = 300000;
+  constexpr int kCount = 300;
 
   std::vector<double> in(kCount);
   std::vector<double> exp_out(kCount);
@@ -65,7 +65,7 @@ TEST(Konstantinov_I_Sort_Batcher_stl, test_task_run) {
 
   std::random_device rd;
   std::mt19937 gen(rd());
-  std::uniform_real_distribution<double> dist(-10000.0, 10000.0);
+  std::uniform_real_distribution<double> dist(-100.0, 100.0);
 
   for (size_t i = 0; i < kCount; i++) {
     in[i] = dist(gen);

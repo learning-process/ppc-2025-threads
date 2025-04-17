@@ -34,77 +34,96 @@ double KeyToDouble(uint64_t key) {
 void RadixSorted(std::vector<double>& arr) {
   if (arr.empty()) return;
 
-  size_t n = arr.size();
+  const size_t n = arr.size();
   const int radix = 256;
   const int thread_count = std::thread::hardware_concurrency();
   const size_t block_size = (n + thread_count - 1) / thread_count;
 
   std::vector<uint64_t> keys(n);
-  std::vector<std::thread> threads;
-
-  for (int t = 0; t < thread_count; ++t) {
-    size_t begin = t * block_size;
-    size_t end = std::min(begin + block_size, n);
-    threads.emplace_back([&arr, &keys, begin, end]() {
-      for (size_t i = begin; i < end; ++i) {
-        keys[i] = DoubleToKey(arr[i]);
-      }
-    });
-  }
-
-  for (auto& thread : threads) thread.join();
-  threads.clear();
-
   std::vector<uint64_t> output_keys(n);
 
-  for (int pass = 0; pass < 8; ++pass) {
-    std::vector<std::vector<size_t>> local_counts(thread_count, std::vector<size_t>(radix, 0));
-    int shift = pass * 8;
-
+  {
+    std::vector<std::thread> threads;
     for (int t = 0; t < thread_count; ++t) {
-      size_t begin = t * block_size;
-      size_t end = std::min(begin + block_size, n);
-      threads.emplace_back([&keys, &local_counts, t, begin, end, shift]() {
+      threads.emplace_back([&arr, &keys, t, block_size, n]() {
+        size_t begin = t * block_size;
+        size_t end = std::min(begin + block_size, n);
         for (size_t i = begin; i < end; ++i) {
-          uint8_t byte = static_cast<uint8_t>((keys[i] >> shift) & 0xFF);
-          local_counts[t][byte]++;
+          keys[i] = DoubleToKey(arr[i]);
         }
       });
     }
     for (auto& thread : threads) thread.join();
-    threads.clear();
+  }
+
+  for (int pass = 0; pass < 8; ++pass) {
+    const int shift = pass * 8;
+
+    std::vector<std::vector<size_t>> local_counts(thread_count, std::vector<size_t>(radix, 0));
+
+    {
+      std::vector<std::thread> threads;
+      for (int t = 0; t < thread_count; ++t) {
+        threads.emplace_back([&keys, &local_counts, t, shift, block_size, n]() {
+          size_t begin = t * block_size;
+          size_t end = std::min(begin + block_size, n);
+          for (size_t i = begin; i < end; ++i) {
+            uint8_t byte = static_cast<uint8_t>((keys[i] >> shift) & 0xFF);
+            local_counts[t][byte]++;
+          }
+        });
+      }
+      for (auto& thread : threads) thread.join();
+    }
 
     std::vector<size_t> count(radix, 0);
-    for (int i = 0; i < thread_count; ++i) {
-      for (int j = 0; j < radix; ++j) {
-        count[j] += local_counts[i][j];
+    for (int b = 0; b < radix; ++b)
+      for (int t = 0; t < thread_count; ++t) count[b] += local_counts[t][b];
+
+    std::vector<size_t> position(radix, 0);
+    for (int i = 1; i < radix; ++i) position[i] = position[i - 1] + count[i - 1];
+
+    std::vector<std::vector<size_t>> local_pos(thread_count, std::vector<size_t>(radix));
+    for (int b = 0; b < radix; ++b) {
+      size_t pos = position[b];
+      for (int t = 0; t < thread_count; ++t) {
+        local_pos[t][b] = pos;
+        pos += local_counts[t][b];
       }
     }
 
-    std::vector<size_t> position(radix, 0);
-    for (int i = 1; i < radix; ++i) {
-      count[i] += count[i - 1];
-      position[i] = count[i - 1];
-    }
-
-    for (int i = static_cast<int>(n) - 1; i >= 0; --i) {
-      uint8_t byte = static_cast<uint8_t>((keys[i] >> shift) & 0xFF);
-      output_keys[--count[byte]] = keys[i];
+    {
+      std::vector<std::thread> threads;
+      for (int t = 0; t < thread_count; ++t) {
+        threads.emplace_back([&, t, shift]() {
+          size_t begin = t * block_size;
+          size_t end = std::min(begin + block_size, n);
+          std::vector<size_t> pos_copy = local_pos[t];
+          for (size_t i = begin; i < end; ++i) {
+            uint8_t byte = static_cast<uint8_t>((keys[i] >> shift) & 0xFF);
+            output_keys[pos_copy[byte]++] = keys[i];
+          }
+        });
+      }
+      for (auto& thread : threads) thread.join();
     }
 
     keys.swap(output_keys);
   }
 
-  for (int t = 0; t < thread_count; ++t) {
-    size_t begin = t * block_size;
-    size_t end = std::min(begin + block_size, n);
-    threads.emplace_back([&arr, &keys, begin, end]() {
-      for (size_t i = begin; i < end; ++i) {
-        arr[i] = KeyToDouble(keys[i]);
-      }
-    });
+  {
+    std::vector<std::thread> threads;
+    for (int t = 0; t < thread_count; ++t) {
+      threads.emplace_back([&arr, &keys, t, block_size, n]() {
+        size_t begin = t * block_size;
+        size_t end = std::min(begin + block_size, n);
+        for (size_t i = begin; i < end; ++i) {
+          arr[i] = KeyToDouble(keys[i]);
+        }
+      });
+    }
+    for (auto& thread : threads) thread.join();
   }
-  for (auto& thread : threads) thread.join();
 }
 
 void BatcherOddEvenMerge(std::vector<double>& arr, int low, int high) {
@@ -139,7 +158,6 @@ void RadixSort(std::vector<double>& arr) {
 }
 }  // namespace
 }  // namespace konstantinov_i_sort_batcher_stl
-
 
 bool konstantinov_i_sort_batcher_stl::RadixSortBatcherSTL::PreProcessingImpl() {
   unsigned int input_size = task_data->inputs_count[0];
