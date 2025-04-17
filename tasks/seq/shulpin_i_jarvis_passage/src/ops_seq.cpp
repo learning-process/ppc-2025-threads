@@ -3,8 +3,8 @@
 #include <algorithm>
 #include <cmath>
 #include <cstddef>
-#include <vector>
 #include <unordered_set>
+#include <vector>
 
 int shulpin_i_jarvis_seq::JarvisSequential::Orientation(const Point& p, const Point& q, const Point& r) {
   double val = ((q.y - p.y) * (r.x - q.x)) - ((q.x - p.x) * (r.y - q.y));
@@ -16,13 +16,13 @@ int shulpin_i_jarvis_seq::JarvisSequential::Orientation(const Point& p, const Po
 
 void shulpin_i_jarvis_seq::JarvisSequential::MakeJarvisPassage(std::vector<shulpin_i_jarvis_seq::Point>& input_jar,
                                                                std::vector<shulpin_i_jarvis_seq::Point>& output_jar) {
-size_t total = input_jar.size();
+  size_t total = input_jar.size();
   output_jar.clear();
-// clang-format off
+  // clang-format off
   std::unordered_set<shulpin_i_jarvis_seq::Point, 
                      shulpin_i_jarvis_seq::PointHash, 
                      shulpin_i_jarvis_seq::PointEqual> unique_points;
-// clang-format on
+  // clang-format on
   size_t start = 0;
   for (size_t i = 1; i < total; ++i) {
     if (input_jar[i].x < input_jar[start].x ||
