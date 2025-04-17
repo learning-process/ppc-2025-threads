@@ -2,8 +2,8 @@
 
 #include <algorithm>
 #include <cstdint>
+#include <cstdlib>
 #include <memory>
-#include <random>
 #include <vector>
 
 #include "core/task/include/task.hpp"
@@ -78,12 +78,7 @@ TEST(gusev_n_sorting_int_simple_merging_stl, test_radix_sort_all_negative) {
 TEST(gusev_n_sorting_simple_merging_stl, test_radix_sort_random) {
   std::vector<int> in(5);
   std::vector<int> out(5);
-  std::random_device rd;
-  std::mt19937 gen(rd());
-  std::uniform_int_distribution<int> dist(-10, 10);
-  for (int& num : in) {
-    num = dist(gen);
-  }
+  std::ranges::generate(in, []() { return (std::rand() % 2000) - 1000; });
   RunTest(in, out);
   std::vector<int> expected = in;
   std::ranges::sort(expected);

@@ -3,8 +3,8 @@
 #include <algorithm>
 #include <chrono>
 #include <cstdint>
+#include <cstdlib>
 #include <memory>
-#include <random>
 #include <vector>
 
 #include "core/perf/include/perf.hpp"
@@ -16,12 +16,7 @@ TEST(gusev_n_sorting_int_simple_merging_stl, test_pipeline_run) {
 
   std::vector<int> in(kCount);
   std::vector<int> out(kCount);
-  std::random_device rd;
-  std::mt19937 gen(rd());
-  std::uniform_int_distribution<int> dist(-kCount, kCount);
-  for (int& num : in) {
-    num = dist(gen);
-  }
+  std::ranges::generate(in, []() { return (std::rand() % 20000) - 10000; });
 
   auto task_data = std::make_shared<ppc::core::TaskData>();
   task_data->inputs.emplace_back(reinterpret_cast<uint8_t*>(in.data()));
@@ -55,12 +50,7 @@ TEST(gusev_n_sorting_int_simple_merging_stl, test_task_run) {
 
   std::vector<int> in(kCount);
   std::vector<int> out(kCount);
-  std::random_device rd;
-  std::mt19937 gen(rd());
-  std::uniform_int_distribution<int> dist(-kCount, kCount);
-  for (int& num : in) {
-    num = dist(gen);
-  }
+  std::ranges::generate(in, []() { return (std::rand() % 20000) - 10000; });
 
   auto task_data = std::make_shared<ppc::core::TaskData>();
   task_data->inputs.emplace_back(reinterpret_cast<uint8_t*>(in.data()));
