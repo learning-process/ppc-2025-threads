@@ -68,8 +68,7 @@ bool FoxSTL::ValidationImpl() {
 
 bool FoxSTL::RunImpl() {
   size_t div1;
-  // const int num_threads = ppc::util::GetPPCNumThreads();
-  const int num_threads = 4;
+  const int num_threads = ppc::util::GetPPCNumThreads();
   size_t q = std::min(n, static_cast<size_t>(std::sqrt(num_threads)));
   if (q == 0) {
     return false;
