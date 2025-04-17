@@ -2,6 +2,7 @@
 
 #include <algorithm>
 #include <cmath>
+#include <cstddef>
 #include <thread>
 #include <utility>
 #include <vector>
@@ -74,7 +75,7 @@ bool oturin_a_gift_wrapping_stl::TestTaskSTL::RunImpl() {
     }
   }
 
-  std::vector<std::thread> threads(4 - 1);  // -1 because main thread will not be here
+  std::vector<std::thread> threads(ppc::util::GetPPCNumThreads() - 1);  // -1 because main thread will not be here
   std::vector<std::pair<int, double>> thread_results(threads.size());
   std::size_t thread_block = 0;
   if (!threads.empty()) {
@@ -96,8 +97,8 @@ bool oturin_a_gift_wrapping_stl::TestTaskSTL::RunImpl() {
     double reference_distance = Distance(output_.back(), input_[main_thread_result.first]);
     search_index = main_thread_result.first;
 
-    double secondary_abtp = reference_abtp;
-    double secondary_distance = reference_distance;
+    double secondary_abtp = NAN;
+    double secondary_distance = NAN;
 
     for (int i = 0; i < (int)threads.size(); i++) {
       threads[i].join();
@@ -129,7 +130,7 @@ std::pair<int, double> oturin_a_gift_wrapping_stl::TestTaskSTL::SearchThread(std
     PointSearch(t, line_angle, search_index, i);
   }
 
-  return std::pair<int, double>((int)search_index, line_angle);
+  return {(int)search_index, line_angle};
 }
 
 bool oturin_a_gift_wrapping_stl::TestTaskSTL::PostProcessingImpl() {
