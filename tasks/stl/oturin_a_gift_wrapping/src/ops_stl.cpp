@@ -2,7 +2,6 @@
 
 #include <algorithm>
 #include <cmath>
-#include <iostream>
 #include <thread>
 #include <utility>
 #include <vector>
@@ -75,11 +74,10 @@ bool oturin_a_gift_wrapping_stl::TestTaskSTL::RunImpl() {
     }
   }
 
-  std::vector<std::thread> threads(ppc::util::GetPPCNumThreads() - 1);  // -1 because main thread will not be here
+  std::vector<std::thread> threads(4 - 1);  // -1 because main thread will not be here
   std::vector<std::pair<int, double>> thread_results(threads.size());
-  int thread_block = 0;
-  if (threads.size() != 0) {
-    std::vector<std::pair<int, double>> thread_results(threads.size());
+  std::size_t thread_block = 0;
+  if (!threads.empty()) {
     thread_block = input_.size() / (threads.size() + 1);
   }
 
@@ -94,25 +92,24 @@ bool oturin_a_gift_wrapping_stl::TestTaskSTL::RunImpl() {
 
     std::pair<int, double> main_thread_result = SearchThread(thread_block * threads.size(), input_.size());
 
-    double reference_ABTP = main_thread_result.second;
+    double reference_abtp = main_thread_result.second;
     double reference_distance = Distance(output_.back(), input_[main_thread_result.first]);
     search_index = main_thread_result.first;
 
-    double secondary_ABTP;
-    double secondary_distance;
+    double secondary_abtp = reference_abtp;
+    double secondary_distance = reference_distance;
 
     for (int i = 0; i < (int)threads.size(); i++) {
       threads[i].join();
-      secondary_ABTP = thread_results[i].second;
-      if (secondary_ABTP > reference_ABTP) {
-        reference_ABTP = secondary_ABTP;
+      secondary_abtp = thread_results[i].second;
+      if (secondary_abtp > reference_abtp) {
+        reference_abtp = secondary_abtp;
         reference_distance = Distance(output_.back(), input_[thread_results[i].first]);
-        ;
         search_index = thread_results[i].first;
-      } else if (reference_ABTP == secondary_ABTP) {
+      } else if (reference_abtp == secondary_abtp) {
         secondary_distance = Distance(output_.back(), input_[thread_results[i].first]);
         if (reference_distance > secondary_distance) {
-          reference_ABTP = secondary_ABTP;
+          reference_abtp = secondary_abtp;
           reference_distance = secondary_distance;
           search_index = thread_results[i].first;
         }
@@ -124,15 +121,15 @@ bool oturin_a_gift_wrapping_stl::TestTaskSTL::RunImpl() {
   return true;
 }
 
-std::pair<int, double> oturin_a_gift_wrapping_stl::TestTaskSTL::SearchThread(int start, int end) {
+std::pair<int, double> oturin_a_gift_wrapping_stl::TestTaskSTL::SearchThread(std::size_t start, std::size_t end) {
   double line_angle = -5;
-  int search_index = start;
-  for (int i = start; i < end; i++) {
+  std::size_t search_index = start;
+  for (std::size_t i = start; i < end; i++) {
     double t = ABTP(output_[output_.size() - 2], output_.back(), input_[i]);
     PointSearch(t, line_angle, search_index, i);
   }
 
-  return std::pair<int, double>(search_index, line_angle);
+  return std::pair<int, double>((int)search_index, line_angle);
 }
 
 bool oturin_a_gift_wrapping_stl::TestTaskSTL::PostProcessingImpl() {
@@ -153,8 +150,8 @@ int oturin_a_gift_wrapping_stl::TestTaskSTL::FindMostLeft() {
   return start_index;
 }
 
-void oturin_a_gift_wrapping_stl::TestTaskSTL::PointSearch(const double t, double &line_angle, int &search_index,
-                                                          const int i) {
+void oturin_a_gift_wrapping_stl::TestTaskSTL::PointSearch(const double t, double &line_angle, std::size_t &search_index,
+                                                          const std::size_t i) {
   if (t < line_angle) {
     return;
   }

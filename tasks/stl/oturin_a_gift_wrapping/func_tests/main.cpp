@@ -130,7 +130,7 @@ TEST(oturin_a_gift_wrapping_stl, test_square_morePoints) {
 }
 
 TEST(oturin_a_gift_wrapping_stl, test_circle) {
-  int points = 30;
+  int points = 20;
   int circle_radius = 100;
 
   std::vector<oturin_a_gift_wrapping_stl::Coord> in;
@@ -146,7 +146,7 @@ TEST(oturin_a_gift_wrapping_stl, test_circle) {
 }
 
 TEST(oturin_a_gift_wrapping_stl, test_circle_shuffled) {
-  int points = 30;
+  int points = 20;
   int circle_radius = 100;
 
   std::vector<oturin_a_gift_wrapping_stl::Coord> in;

@@ -29,14 +29,14 @@ class TestTaskSTL : public ppc::core::Task {
   bool RunImpl() override;
   bool PostProcessingImpl() override;
 
-  std::pair<int, double> SearchThread(int start, int end);
+  std::pair<int, double> SearchThread(std::size_t start, std::size_t end);
 
  private:
   std::vector<Coord> input_, output_;
   int n_;
 
   int FindMostLeft();
-  void PointSearch(double t, double &line_angle, int &search_index, int i);
+  void PointSearch(double t, double &line_angle, std::size_t &search_index, std::size_t i);
 };
 
 }  // namespace oturin_a_gift_wrapping_stl
