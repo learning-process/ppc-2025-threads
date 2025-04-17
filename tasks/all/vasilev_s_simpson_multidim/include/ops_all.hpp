@@ -2,6 +2,7 @@
 
 #include <boost/mpi/communicator.hpp>
 #include <cstddef>
+#include <span>
 #include <utility>
 #include <vector>
 
