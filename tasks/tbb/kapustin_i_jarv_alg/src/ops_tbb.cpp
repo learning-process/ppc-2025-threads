@@ -2,6 +2,7 @@
 
 #include <oneapi/tbb/blocked_range.h>
 #include <oneapi/tbb/parallel_for.h>
+#include <oneapi/tbb/parallel_reduce.h>
 
 #include <algorithm>
 #include <atomic>
@@ -46,6 +47,43 @@ bool kapustin_i_jarv_alg_tbb::TestTaskTBB::PreProcessingImpl() {
 
 bool kapustin_i_jarv_alg_tbb::TestTaskTBB::ValidationImpl() { return !task_data->inputs.empty(); }
 
+//bool kapustin_i_jarv_alg_tbb::TestTaskTBB::RunImpl() {
+//  std::pair<int, int> start_point = current_point_;
+//  size_t current_index = leftmost_index_;
+//  output_.clear();
+//  output_.push_back(start_point);
+//
+//  do {
+//    size_t next_index = (current_index + 1) % input_.size();
+//    std::atomic<size_t> best_index(next_index);
+//
+//    oneapi::tbb::parallel_for(size_t(0), input_.size(), [&](size_t i) {
+//      if (i == current_index) return;
+//
+//      size_t local_best = best_index.load();
+//      int orientation = Orientation(input_[current_index], input_[local_best], input_[i]);
+//
+//      if (orientation > 0 || (orientation == 0 && CalculateDistance(input_[i], input_[current_index]) >
+//                                                      CalculateDistance(input_[local_best], input_[current_index]))) {
+//        best_index.store(i);
+//      }
+//    });
+//
+//    next_index = best_index;
+//
+//    if (!output_.empty() && input_[next_index] == output_.front()) {
+//      break;
+//    }
+//
+//    current_point_ = input_[next_index];
+//    output_.push_back(current_point_);
+//    current_index = next_index;
+//
+//  } while (current_point_ != start_point);
+//
+//  return true;
+//}
+
 bool kapustin_i_jarv_alg_tbb::TestTaskTBB::RunImpl() {
   std::pair<int, int> start_point = current_point_;
   size_t current_index = leftmost_index_;
@@ -54,29 +92,38 @@ bool kapustin_i_jarv_alg_tbb::TestTaskTBB::RunImpl() {
 
   do {
     size_t next_index = (current_index + 1) % input_.size();
-    std::atomic<size_t> best_index(next_index);
 
-    oneapi::tbb::parallel_for(size_t(0), input_.size(), [&](size_t i) {
-      if (i == current_index) return;
+    size_t best_index = oneapi::tbb::parallel_reduce(
+        oneapi::tbb::blocked_range<size_t>(0, input_.size()), next_index,
+        [&](const oneapi::tbb::blocked_range<size_t>& r, size_t local_best) -> size_t {
+          for (size_t i = r.begin(); i != r.end(); ++i) {
+            if (i == current_index) continue;
 
-      size_t local_best = best_index.load();
-      int orientation = Orientation(input_[current_index], input_[local_best], input_[i]);
+            int orientation = Orientation(input_[current_index], input_[local_best], input_[i]);
+            if (orientation > 0 ||
+                (orientation == 0 && CalculateDistance(input_[i], input_[current_index]) >
+                                         CalculateDistance(input_[local_best], input_[current_index]))) {
+              local_best = i;
+            }
+          }
+          return local_best;
+        },
+        [&](size_t a, size_t b) -> size_t {
+          int orientation = Orientation(input_[current_index], input_[a], input_[b]);
+          if (orientation > 0 || (orientation == 0 && CalculateDistance(input_[b], input_[current_index]) >
+                                                          CalculateDistance(input_[a], input_[current_index]))) {
+            return b;
+          }
+          return a;
+        });
 
-      if (orientation > 0 || (orientation == 0 && CalculateDistance(input_[i], input_[current_index]) >
-                                                      CalculateDistance(input_[local_best], input_[current_index]))) {
-        best_index.store(i);
-      }
-    });
-
-    next_index = best_index;
-
-    if (!output_.empty() && input_[next_index] == output_.front()) {
+    if (!output_.empty() && input_[best_index] == output_.front()) {
       break;
     }
 
-    current_point_ = input_[next_index];
+    current_point_ = input_[best_index];
     output_.push_back(current_point_);
-    current_index = next_index;
+    current_index = best_index;
 
   } while (current_point_ != start_point);
 
