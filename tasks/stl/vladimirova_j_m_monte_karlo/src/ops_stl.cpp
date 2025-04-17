@@ -1,5 +1,5 @@
 
-#include "stl/vladimirova_j_m_monte_karlo_stl/include/ops_stl.hpp"
+#include "stl/vladimirova_j_m_monte_karlo/include/ops_stl.hpp"
 
 #include <cmath>
 #include <cstddef>

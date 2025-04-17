@@ -11,7 +11,7 @@
 
 #include "core/perf/include/perf.hpp"
 #include "core/task/include/task.hpp"
-#include "stl/vladimirova_j_m_monte_karlo_stl/include/ops_stl.hpp"
+#include "stl/vladimirova_j_m_monte_karlo/include/ops_stl.hpp"
 
 namespace {
 std::vector<int> seed;
