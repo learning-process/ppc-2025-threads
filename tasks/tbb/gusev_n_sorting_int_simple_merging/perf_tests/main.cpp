@@ -23,7 +23,7 @@ TestData GenerateTestData(int count) {
   data.in.resize(count);
   data.out.resize(count);
 
-  std::ranges::generate(data.in, []() { return std::rand() % 20000 - 10000; });
+  std::ranges::generate(data.in, []() { return (std::rand() % 20000) - 10000; });
 
   data.task_data = std::make_shared<ppc::core::TaskData>();
   data.task_data->inputs.emplace_back(reinterpret_cast<uint8_t*>(data.in.data()));

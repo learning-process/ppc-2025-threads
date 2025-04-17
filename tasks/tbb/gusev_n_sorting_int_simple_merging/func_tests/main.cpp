@@ -91,7 +91,7 @@ TEST(gusev_n_sorting_int_simple_merging_tbb, test_radix_sort_random) {
   size_t size = 1000;
   std::vector<int> in(size);
 
-  std::ranges::generate(in, []() { return std::rand() % 2000 - 1000; });
+  std::ranges::generate(in, []() { return (std::rand() % 2000) - 1000; });
 
   std::vector<int> out(in.size());
   auto task_data = CreateTaskData(in, out);
