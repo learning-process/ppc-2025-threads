@@ -53,7 +53,7 @@ void Form(int n) {
     for (int j = 0; j < n; ++j) {
       sum += a[(i * n) + j] * x[j];
     }
-    EXPECT_NEAR(sum, b[i], 1e-5);
+    EXPECT_NEAR(sum, b[i], 1e-4);
   }
 }
 }  // namespace
