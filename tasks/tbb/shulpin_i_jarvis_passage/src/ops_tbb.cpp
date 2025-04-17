@@ -8,6 +8,7 @@
 #include <cstddef>
 #include <cstdint>
 #include <cstring>
+#include <utility>
 #include <vector>
 
 namespace {
@@ -128,7 +129,7 @@ void shulpin_i_jarvis_tbb::JarvisTBBParallel::MakeJarvisPassageTBB(
 
   } while (active != start);
 
-  output_jar = hull;
+  output_jar = std::move(hull);
 }
 
 bool shulpin_i_jarvis_tbb::JarvisTBBParallel::PreProcessingImpl() {
