@@ -41,8 +41,6 @@ class SparseMatrixMultComplexCCS : public ppc::core::Task {
   SparseMatrixCCS* matrix2_;
   SparseMatrixCCS result_;
 
-  // Change: Compared to the seq, method is adapted for parallel processing
-  // columns, the results are collected in std::vector instead of a dense temp array
   void ComputeColumn(int col_idx, std::vector<std::pair<Complex, int>>& column_data);
   Complex ComputeElement(int row_idx, int col_start2, int col_end2);
   Complex ComputeContribution(int row_idx, int k, int col_start1, int col_end1, int col_start2, int col_end2);

@@ -141,6 +141,20 @@ TEST(korneeva_e_sparse_matrix_mult_complex_ccs_tbb, test_empty_input) {
   ASSERT_FALSE(task.Validation());
 }
 
+TEST(korneeva_e_sparse_matrix_mult_complex_ccs_tbb, test_no_output) {
+  korneeva_e_tbb::SparseMatrixCCS m1(2, 2, 0);
+  m1.col_offsets = {0, 0, 0};
+  korneeva_e_tbb::SparseMatrixCCS m2(2, 2, 0);
+  m2.col_offsets = {0, 0, 0};
+
+  std::shared_ptr<ppc::core::TaskData> task_data = std::make_shared<ppc::core::TaskData>();
+  task_data->inputs.push_back(reinterpret_cast<uint8_t*>(&m1));
+  task_data->inputs.push_back(reinterpret_cast<uint8_t*>(&m2));
+
+  korneeva_e_tbb::SparseMatrixMultComplexCCS task(task_data);
+  ASSERT_FALSE(task.Validation());
+}
+
 TEST(korneeva_e_sparse_matrix_mult_complex_ccs_tbb, test_identity_mult) {
   auto m1 = CreateCcsFromDense({{korneeva_e_tbb::Complex(1.0, 0.0), korneeva_e_tbb::Complex(0.0, 0.0)},
                                 {korneeva_e_tbb::Complex(0.0, 0.0), korneeva_e_tbb::Complex(1.0, 0.0)}});
