@@ -37,10 +37,12 @@ bool sharamygina_i_multi_dim_monte_carlo_tbb::MultiDimMonteCarloTask::Validation
 bool sharamygina_i_multi_dim_monte_carlo_tbb::MultiDimMonteCarloTask::RunImpl() {
   size_t dimension = boundaries_.size() / 2;
 
+int max_concurrency = tbb::this_task_arena::max_concurrency();
+  int grain_size = (number_of_iterations_ + max_concurrency - 1) / max_concurrency;
+  grain_size = std::max(grain_size, 1); 
+
   double result = tbb::parallel_reduce(
-      tbb::blocked_range<int>(0, number_of_iterations_,
-                              number_of_iterations_ / tbb::detail::r1::arena.max_concurrency()),
-      0.0,
+      tbb::blocked_range<int>(0, number_of_iterations_, grain_size), 0.0,
       [&](const tbb::blocked_range<int>& r, double local_sum) {
         std::mt19937 engine(
             static_cast<unsigned long>(std::time(nullptr) ^ tbb::this_task_arena::current_thread_index()));
