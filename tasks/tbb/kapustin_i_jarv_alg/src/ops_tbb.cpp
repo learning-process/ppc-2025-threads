@@ -1,11 +1,9 @@
 #include "tbb/kapustin_i_jarv_alg/include/ops_tbb.hpp"
 
 #include <oneapi/tbb/blocked_range.h>
-#include <oneapi/tbb/parallel_for.h>
 #include <oneapi/tbb/parallel_reduce.h>
 
 #include <algorithm>
-#include <atomic>
 #include <cmath>
 #include <cstddef>
 #include <utility>
@@ -19,7 +17,9 @@ int kapustin_i_jarv_alg_tbb::TestTaskTBB::CalculateDistance(const std::pair<int,
 int kapustin_i_jarv_alg_tbb::TestTaskTBB::Orientation(const std::pair<int, int>& p, const std::pair<int, int>& q,
                                                       const std::pair<int, int>& r) {
   int val = ((q.second - p.second) * (r.first - q.first)) - ((q.first - p.first) * (r.second - q.second));
-  if (val == 0) return 0;
+  if (val == 0) {
+    return 0;
+  }
   return (val > 0) ? 1 : -1;
 }
 
@@ -60,7 +60,9 @@ bool kapustin_i_jarv_alg_tbb::TestTaskTBB::RunImpl() {
         oneapi::tbb::blocked_range<size_t>(0, input_.size()), next_index,
         [&](const oneapi::tbb::blocked_range<size_t>& r, size_t local_best) -> size_t {
           for (size_t i = r.begin(); i != r.end(); ++i) {
-            if (i == current_index) continue;
+            if (i == current_index) {
+              continue;
+            }
 
             int orientation = Orientation(input_[current_index], input_[local_best], input_[i]);
             if (orientation > 0 ||
