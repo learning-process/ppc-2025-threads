@@ -3,8 +3,8 @@
 #include <algorithm>
 #include <cstddef>
 #include <cstdint>
+#include <cstdlib>
 #include <memory>
-#include <random>
 #include <vector>
 
 #include "core/task/include/task.hpp"
@@ -89,14 +89,11 @@ TEST(gusev_n_sorting_int_simple_merging_tbb, test_radix_sort_negative_numbers) {
 
 TEST(gusev_n_sorting_int_simple_merging_tbb, test_radix_sort_random) {
   size_t size = 1000;
-  std::random_device rd;
-  std::mt19937 gen(rd());
-  std::uniform_int_distribution<int> dist(-10000, 10000);
-
   std::vector<int> in(size);
-  std::ranges::generate(in, [&]() { return dist(gen); });
-  std::vector<int> out(in.size());
 
+  std::ranges::generate(in, []() { return std::rand() % 2000 - 1000; });
+
+  std::vector<int> out(in.size());
   auto task_data = CreateTaskData(in, out);
   RunT(task_data);
 
