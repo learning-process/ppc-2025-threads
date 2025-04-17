@@ -103,16 +103,12 @@ void RadixBatcherSort(std::vector<double>& data) {
 
   int max_parallel_depth = int(std::log2(data.size()) + 1);
 
-  tbb::parallel_for(size_t(0), data.size(), [&](size_t i) { 
-    transformed_data[i] = EncodeDoubleToUint64(data[i]);
-  });
+  tbb::parallel_for(size_t(0), data.size(), [&](size_t i) { transformed_data[i] = EncodeDoubleToUint64(data[i]); });
 
   RadixSort(transformed_data);
   BatcherOddEvenMerge(transformed_data, 0, static_cast<int>(transformed_data.size()), max_parallel_depth);
 
-  tbb::parallel_for(size_t(0), data.size(), [&](size_t i) {
-    data[i] = DecodeUint64ToDouble(transformed_data[i]);
-  });
+  tbb::parallel_for(size_t(0), data.size(), [&](size_t i) { data[i] = DecodeUint64ToDouble(transformed_data[i]); });
 }
 }  // namespace
 }  // namespace khovansky_d_double_radix_batcher_tbb
