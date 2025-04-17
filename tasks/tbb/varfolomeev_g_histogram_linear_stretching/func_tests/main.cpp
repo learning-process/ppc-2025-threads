@@ -6,9 +6,12 @@
 #include <cstdint>
 #include <memory>
 
-// #ifndef _WIN32
+#ifndef _WIN32
 #include <opencv2/opencv.hpp>
-// #endif
+#endif
+#ifndef _WIN32
+#include <opencv2/opencv.hpp>
+#endif
 #include <random>
 #include <vector>
 
@@ -31,7 +34,7 @@ std::vector<uint8_t> GetRandomImage(int sz) {
 }
 }  // namespace
 
-// #ifndef _WIN32
+#ifndef _WIN32
 TEST(varfolomeev_g_histogram_linear_stretching_tbb, test_opencv_image_validation) {
   // loading template orginal img
   cv::Mat input_image =
@@ -88,7 +91,7 @@ TEST(varfolomeev_g_histogram_linear_stretching_tbb, test_opencv_manual_64x64) {
   double psnr = 10.0 * log10((255.0 * 255.0) / mse);
   EXPECT_GT(psnr, 60.0);
 }
-// #endif
+#endif
 
 TEST(varfolomeev_g_histogram_linear_stretching_tbb, test_manual_9) {
   // Create data
