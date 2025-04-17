@@ -58,6 +58,10 @@ TEST(muradov_m_rect_int_tbb, threedim_samebounds) {
   MuradovMRectIntTest(100, {{5., 5.}, {10., 10.}, {20., 20.}}, 0, [](const auto &args) { return 200; });
 }
 
+TEST(muradov_m_rect_int_tbb, threedim_samebounds_neg) {
+  MuradovMRectIntTest(100, {{-5., -5.}, {-10., -10.}, {-20., -20.}}, 0, [](const auto &args) { return -200; });
+}
+
 TEST(muradov_m_rect_int_tbb, sin_mul_cos_1) {
   MuradovMRectIntTest(100, {std::make_pair(0, std::numbers::pi)}, 0,
                       [](const auto &args) { return std::sin(args[0]) * std::cos(args[0]); });
