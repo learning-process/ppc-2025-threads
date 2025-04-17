@@ -9,9 +9,6 @@
 #ifndef _WIN32
 #include <opencv2/opencv.hpp>
 #endif
-#ifndef _WIN32
-#include <opencv2/opencv.hpp>
-#endif
 #include <random>
 #include <vector>
 
