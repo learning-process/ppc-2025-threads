@@ -1,9 +1,9 @@
-#include "tbb/morozov_e_lineare_image_filtering_block_gaussian_tbb/include/ops_tbb.hpp"
-
 #include <cmath>
 #include <vector>
-#include "oneapi/tbb/parallel_for.h"
+
 #include "oneapi/tbb/blocked_range2d.h"
+#include "oneapi/tbb/parallel_for.h"
+#include "tbb/morozov_e_lineare_image_filtering_block_gaussian_tbb/include/ops_tbb.hpp"
 
 bool morozov_e_lineare_image_filtering_block_gaussian_tbb::TestTaskTBB::PreProcessingImpl() {
   // Init value for input and output
@@ -29,8 +29,7 @@ bool morozov_e_lineare_image_filtering_block_gaussian_tbb::TestTaskTBB::RunImpl(
       {2.0 / 16, 4.0 / 16, 2.0 / 16},
       {1.0 / 16, 2.0 / 16, 1.0 / 16}};
   // clang-format on
-  tbb::parallel_for(tbb::blocked_range2d<int>(0, n_, 0, m_), 
-    [&](const tbb::blocked_range2d<int>& r) {
+  tbb::parallel_for(tbb::blocked_range2d<int>(0, n_, 0, m_), [&](const tbb::blocked_range2d<int> &r) {
     for (int i = 0; i < n_; ++i) {
       for (int j = 0; j < m_; ++j) {
         if (i == 0 || j == 0 || i == n_ - 1 || j == m_ - 1) {
@@ -47,9 +46,8 @@ bool morozov_e_lineare_image_filtering_block_gaussian_tbb::TestTaskTBB::RunImpl(
         }
       }
     }
-    }
-    );
-  
+  });
+
   return true;
 }
 
