@@ -7,7 +7,7 @@
 #include "omp/sarafanov_m_CanonMatMul/include/CanonMatrix.hpp"
 
 namespace sarafanov_m_canon_mat_mul_omp {
-
+// restart tests
 class CanonMatMulOMP : public ppc::core::Task {
   CanonMatrix a_matrix_;
   CanonMatrix b_matrix_;
