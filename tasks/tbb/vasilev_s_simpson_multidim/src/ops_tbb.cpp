@@ -49,26 +49,18 @@ bool vasilev_s_simpson_multidim::SimpsonTaskTbb::RunImpl() {
     return oneapi::tbb::parallel_reduce(
         oneapi::tbb::blocked_range<std::size_t>(0, gridcap_), 0.,
         [&](const tbb::blocked_range<std::size_t>& r, double threadsum) {
-          std::vector<std::size_t> gridpos(arity_);
           std::vector<double> coordbuf(arity_);
           for (std::size_t ip = r.begin(); ip < r.end(); ip++) {
-            {
-              auto p = ip;
-              for (size_t i = 0; i < arity_; i++) {
-                gridpos[i] = p % approxs_;
-                p /= approxs_;
-              }
-            }
-
-            for (size_t i = 0; i < arity_; i++) {
-              coordbuf[i] = bounds_[i].lo + (static_cast<double>(gridpos[i]) * steps_[i]);
-            }
-
+            auto p = ip;
             double coefficient = 1.;
-            for (auto pos : gridpos) {
+            for (size_t k = 0; k < coordbuf.size(); k++) {
+              const auto pos{p % approxs_};
+              coordbuf[k] = bounds_[k].lo + (double(pos) * (bounds_[k].hi - bounds_[k].lo) / double(approxs_));
+              p /= static_cast<decltype(p)>(approxs_);
               if (pos == 0 || pos == (approxs_ - 1)) {
-                coefficient *= 1.;
-              } else if (pos % 2 != 0) {
+                continue;
+              }
+              if (pos % 2 != 0) {
                 coefficient *= 4.;
               } else {
                 coefficient *= 2.;
