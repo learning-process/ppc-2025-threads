@@ -1,11 +1,11 @@
 #include "stl/Konstantinov_I_Sort_Batcher/include/ops_stl.hpp"
 
-#include <thread>
 #include <algorithm>
 #include <cmath>
 #include <cstddef>
 #include <cstdint>
 #include <cstring>
+#include <thread>
 #include <vector>
 
 namespace konstantinov_i_sort_batcher_stl {
