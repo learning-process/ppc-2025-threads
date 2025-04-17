@@ -8,6 +8,20 @@
 #include "core/task/include/task.hpp"
 #include "tbb/khovansky_d_double_radix_batcher/include/ops_tbb.hpp"
 
+TEST(khovansky_d_double_radix_batcher_tbb, invalid_input) {
+  std::vector<double> in{1.0};
+  std::vector<double> out(1);
+
+  auto task_data_tbb = std::make_shared<ppc::core::TaskData>();
+  task_data_tbb->inputs.emplace_back(reinterpret_cast<uint8_t *>(in.data()));
+  task_data_tbb->inputs_count.emplace_back(in.size());
+  task_data_tbb->outputs.emplace_back(reinterpret_cast<uint8_t *>(out.data()));
+  task_data_tbb->outputs_count.emplace_back(out.size());
+
+  khovansky_d_double_radix_batcher_tbb::RadixTBB test_task_tbb(task_data_tbb);
+  EXPECT_EQ(test_task_tbb.ValidationImpl(), false);
+}
+
 TEST(khovansky_d_double_radix_batcher_tbb, negative_values) {
   std::vector<double> in{-3.14, -1.0, -100.5, -0.1, -999.99};
   std::vector<double> exp_out{-999.99, -100.5, -3.14, -1.0, -0.1};
