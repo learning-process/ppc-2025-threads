@@ -15,7 +15,7 @@
 
 namespace {
 void GetRandomVector(std::vector<int> &v, int a, int b) {
-  std::mt19937 gen1(1000);
+  std::mt19937 gen(1000);
 
   if (a >= b) {
     throw std::invalid_argument("error.");
@@ -24,7 +24,7 @@ void GetRandomVector(std::vector<int> &v, int a, int b) {
   std::uniform_int_distribution<> dis(a, b);
 
   for (size_t i = 0; i < v.size(); ++i) {
-    v[i] = dis(gen1);
+    v[i] = dis(gen);
   }
 }
 }  // namespace
