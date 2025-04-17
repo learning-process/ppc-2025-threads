@@ -128,7 +128,7 @@ TEST(chizhov_m_trapezoid_method_omp, combine_exp_sin_cos) {
 
 }  // namespace
 
-TEST(chizhov_m_trapezoid_method_omp, invalid_value_dim) {
+TEST(chizhov_m_trapezoid_method_tbb, invalid_value_dim) {
   int div = 10;
   int dim = -2;
   std::vector<double> limits = {0.0, 5.0, 0.0, 3.0};
@@ -149,7 +149,7 @@ TEST(chizhov_m_trapezoid_method_omp, invalid_value_dim) {
   ASSERT_FALSE(test_task_tbb.ValidationImpl());
 }
 
-TEST(chizhov_m_trapezoid_method_omp, invalid_value_div) {
+TEST(chizhov_m_trapezoid_method_tbb, invalid_value_div) {
   int div = -10;
   int dim = 2;
   std::vector<double> limits = {0.0, 5.0, 0.0, 3.0};
@@ -170,7 +170,7 @@ TEST(chizhov_m_trapezoid_method_omp, invalid_value_div) {
   ASSERT_FALSE(test_task_tbb.ValidationImpl());
 }
 
-TEST(chizhov_m_trapezoid_method_omp, invalid_limit_size) {
+TEST(chizhov_m_trapezoid_method_tbb, invalid_limit_size) {
   int div = -10;
   int dim = 2;
   std::vector<double> limits = {0.0, 5.0, 0.0};

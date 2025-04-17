@@ -86,7 +86,9 @@ bool chizhov_m_trapezoid_method_tbb::TestTaskTBB::PreProcessingImpl() {
 }
 
 bool chizhov_m_trapezoid_method_tbb::TestTaskTBB::ValidationImpl() {
-  if (div_ <= 0 || dim_ <= 0) {
+  int* divisions_ptr = reinterpret_cast<int*>(task_data->inputs[0]);
+  int* dimension_ptr = reinterpret_cast<int*>(task_data->inputs[1]);
+  if (*divisions_ptr <= 0 || *dimension_ptr <= 0) {
     return false;
   }
   if (task_data->inputs_count[2] % 2 != 0) {

@@ -2,8 +2,8 @@
 
 #include <chrono>
 #include <cmath>
+#include <cstddef>
 #include <cstdint>
-#include <functional>
 #include <memory>
 #include <vector>
 
@@ -40,7 +40,7 @@ TEST(chizhov_m_trapezoid_method_tbb, test_pipeline_run) {
   task_data_tbb->outputs_count.emplace_back(res.size() * sizeof(double));
 
   // Create Task
-  auto test_task_omp = std::make_shared<chizhov_m_trapezoid_method_tbb::TestTaskTBB>(task_data_tbb);
+  auto test_task_tbb = std::make_shared<chizhov_m_trapezoid_method_tbb::TestTaskTBB>(task_data_tbb);
 
   // Create Perf attributes
   auto perf_attr = std::make_shared<ppc::core::PerfAttr>();
@@ -91,7 +91,7 @@ TEST(chizhov_m_trapezoid_method_tbb, test_task_run) {
   task_data_tbb->outputs_count.emplace_back(res.size() * sizeof(double));
 
   // Create Task
-  auto test_task_omp = std::make_shared<chizhov_m_trapezoid_method_tbb::TestTaskTBB>(task_data_tbb);
+  auto test_task_tbb = std::make_shared<chizhov_m_trapezoid_method_tbb::TestTaskTBB>(task_data_tbb);
 
   // Create Perf attributes
   auto perf_attr = std::make_shared<ppc::core::PerfAttr>();
