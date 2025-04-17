@@ -10,7 +10,6 @@
 #include <random>
 #include <vector>
 
-#include "core/util/include/util.hpp"
 #include "oneapi/tbb/parallel_reduce.h"
 #include "oneapi/tbb/task_arena.h"
 
@@ -52,7 +51,7 @@ bool sharamygina_i_multi_dim_monte_carlo_tbb::MultiDimMonteCarloTask::RunImpl() 
           std::vector<double> random_point(dimension);
           for (size_t i = 0; i < dimension; ++i) {
             double low = boundaries_[2 * i];
-            double high = boundaries_[2 * i + 1];
+            double high = boundaries_[(2 * i) + 1];
             double t = distribution(engine);
             random_point[i] = low + (high - low) * t;
           }
@@ -64,7 +63,7 @@ bool sharamygina_i_multi_dim_monte_carlo_tbb::MultiDimMonteCarloTask::RunImpl() 
 
   double volume = 1.0;
   for (size_t i = 0; i < dimension; ++i) {
-    double edge_length = boundaries_[2 * i + 1] - boundaries_[2 * i];
+    double edge_length = boundaries_[(2 * i) + 1] - boundaries_[2 * i];
     volume *= edge_length;
   }
 
