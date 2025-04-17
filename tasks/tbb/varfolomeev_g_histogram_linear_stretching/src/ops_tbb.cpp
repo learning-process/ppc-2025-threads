@@ -1,11 +1,11 @@
 #include "tbb/varfolomeev_g_histogram_linear_stretching/include/ops_tbb.hpp"
 
-#include <tbb/parallel_for.h>
 #include <tbb/blocked_range.h>
+#include <tbb/parallel_for.h>
 
 #include <algorithm>
-#include <vector>
 #include <cstring>
+#include <vector>
 
 bool varfolomeev_g_histogram_linear_stretching_tbb::TestTaskTBB ::PreProcessingImpl() {
   // Init value for input and output
@@ -26,14 +26,12 @@ bool varfolomeev_g_histogram_linear_stretching_tbb::TestTaskTBB ::RunImpl() {
   uint8_t max_val = *std::ranges::max_element(img_);
 
   if (max_val != min_val) {
-    tbb::parallel_for(
-        tbb::blocked_range<size_t>(0, img_.size()),
-        [&](const tbb::blocked_range<size_t>& r) {
-          for (size_t i = r.begin(); i != r.end(); ++i) {
-            res_[i] = static_cast<uint8_t>(((img_[i] - min_val) * 255 + (max_val - min_val) / 2) / (max_val - min_val));
-          }
-        });
-} else {
+    tbb::parallel_for(tbb::blocked_range<size_t>(0, img_.size()), [&](const tbb::blocked_range<size_t> &r) {
+      for (size_t i = r.begin(); i != r.end(); ++i) {
+        res_[i] = static_cast<uint8_t>(((img_[i] - min_val) * 255 + (max_val - min_val) / 2) / (max_val - min_val));
+      }
+    });
+  } else {
     std::ranges::fill(res_.begin(), res_.end(), min_val);
   }
   return true;

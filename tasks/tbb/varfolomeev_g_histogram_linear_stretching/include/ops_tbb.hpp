@@ -8,9 +8,9 @@
 
 namespace varfolomeev_g_histogram_linear_stretching_tbb {
 
-class TestTaskTBB  : public ppc::core::Task {
+class TestTaskTBB : public ppc::core::Task {
  public:
-  explicit TestTaskTBB (ppc::core::TaskDataPtr task_data) : Task(std::move(task_data)) {}
+  explicit TestTaskTBB(ppc::core::TaskDataPtr task_data) : Task(std::move(task_data)) {}
   bool PreProcessingImpl() override;
   bool ValidationImpl() override;
   bool RunImpl() override;

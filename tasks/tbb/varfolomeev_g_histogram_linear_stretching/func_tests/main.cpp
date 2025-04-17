@@ -6,9 +6,9 @@
 #include <cstdint>
 #include <memory>
 
-//#ifndef _WIN32
+// #ifndef _WIN32
 #include <opencv2/opencv.hpp>
-//#endif
+// #endif
 #include <random>
 #include <vector>
 
@@ -31,7 +31,7 @@ std::vector<uint8_t> GetRandomImage(int sz) {
 }
 }  // namespace
 
-//#ifndef _WIN32
+// #ifndef _WIN32
 TEST(varfolomeev_g_histogram_linear_stretching_tbb, test_opencv_image_validation) {
   // loading template orginal img
   cv::Mat input_image =
@@ -76,7 +76,7 @@ TEST(varfolomeev_g_histogram_linear_stretching_tbb, test_opencv_manual_64x64) {
   task_data_tbb->outputs.emplace_back(reinterpret_cast<uint8_t *>(output_vector.data()));
   task_data_tbb->outputs_count.emplace_back(output_vector.size());
 
-  varfolomeev_g_histogram_linear_stretching_tbb::TestTaskTBB  test_task_tbb(task_data_tbb);
+  varfolomeev_g_histogram_linear_stretching_tbb::TestTaskTBB test_task_tbb(task_data_tbb);
   EXPECT_TRUE(test_task_tbb.ValidationImpl());
   test_task_tbb.PreProcessingImpl();
   test_task_tbb.RunImpl();
@@ -88,7 +88,7 @@ TEST(varfolomeev_g_histogram_linear_stretching_tbb, test_opencv_manual_64x64) {
   double psnr = 10.0 * log10((255.0 * 255.0) / mse);
   EXPECT_GT(psnr, 60.0);
 }
-//#endif
+// #endif
 
 TEST(varfolomeev_g_histogram_linear_stretching_tbb, test_manual_9) {
   // Create data
@@ -102,7 +102,7 @@ TEST(varfolomeev_g_histogram_linear_stretching_tbb, test_manual_9) {
   task_data_tbb->outputs.emplace_back(reinterpret_cast<uint8_t *>(out.data()));
   task_data_tbb->outputs_count.emplace_back(out.size());
   // Create Task
-  varfolomeev_g_histogram_linear_stretching_tbb::TestTaskTBB  test_task_tbb(task_data_tbb);
+  varfolomeev_g_histogram_linear_stretching_tbb::TestTaskTBB test_task_tbb(task_data_tbb);
   ASSERT_EQ(test_task_tbb.Validation(), true);
   test_task_tbb.PreProcessing();
   test_task_tbb.Run();
@@ -124,7 +124,7 @@ TEST(varfolomeev_g_histogram_linear_stretching_tbb, test_manual_10) {
   task_data_tbb->outputs_count.emplace_back(out.size());
 
   // Create Task
-  varfolomeev_g_histogram_linear_stretching_tbb::TestTaskTBB  test_task_tbb(task_data_tbb);
+  varfolomeev_g_histogram_linear_stretching_tbb::TestTaskTBB test_task_tbb(task_data_tbb);
   ASSERT_EQ(test_task_tbb.Validation(), true);
   test_task_tbb.PreProcessing();
   test_task_tbb.Run();
@@ -148,7 +148,7 @@ TEST(varfolomeev_g_histogram_linear_stretching_tbb, test_manual_25) {
   task_data_tbb->outputs_count.emplace_back(out.size());
 
   // Create Task
-  varfolomeev_g_histogram_linear_stretching_tbb::TestTaskTBB  test_task_tbb(task_data_tbb);
+  varfolomeev_g_histogram_linear_stretching_tbb::TestTaskTBB test_task_tbb(task_data_tbb);
   ASSERT_EQ(test_task_tbb.Validation(), true);
   test_task_tbb.PreProcessing();
   test_task_tbb.Run();
@@ -170,7 +170,7 @@ TEST(varfolomeev_g_histogram_linear_stretching_tbb, test_stretched) {
   task_data_tbb->outputs_count.emplace_back(out.size());
 
   // Create Task
-  varfolomeev_g_histogram_linear_stretching_tbb::TestTaskTBB  test_task_tbb(task_data_tbb);
+  varfolomeev_g_histogram_linear_stretching_tbb::TestTaskTBB test_task_tbb(task_data_tbb);
   ASSERT_EQ(test_task_tbb.Validation(), true);
   test_task_tbb.PreProcessing();
   test_task_tbb.Run();
@@ -190,7 +190,7 @@ TEST(varfolomeev_g_histogram_linear_stretching_tbb, test_boundary_values) {
   task_data_tbb->outputs.emplace_back(reinterpret_cast<uint8_t *>(out.data()));
   task_data_tbb->outputs_count.emplace_back(out.size());
   // Create Task
-  varfolomeev_g_histogram_linear_stretching_tbb::TestTaskTBB  test_task_tbb(task_data_tbb);
+  varfolomeev_g_histogram_linear_stretching_tbb::TestTaskTBB test_task_tbb(task_data_tbb);
   ASSERT_EQ(test_task_tbb.Validation(), true);
   test_task_tbb.PreProcessing();
   test_task_tbb.Run();
@@ -213,7 +213,7 @@ TEST(varfolomeev_g_histogram_linear_stretching_tbb, test_flat) {
   task_data_tbb->outputs_count.emplace_back(out.size());
 
   // Create Task
-  varfolomeev_g_histogram_linear_stretching_tbb::TestTaskTBB  test_task_tbb(task_data_tbb);
+  varfolomeev_g_histogram_linear_stretching_tbb::TestTaskTBB test_task_tbb(task_data_tbb);
   ASSERT_EQ(test_task_tbb.Validation(), true);
   test_task_tbb.PreProcessing();
   test_task_tbb.Run();
@@ -234,7 +234,7 @@ TEST(varfolomeev_g_histogram_linear_stretching_tbb, test_full_black) {
   task_data_tbb->outputs_count.emplace_back(out.size());
 
   // Create Task
-  varfolomeev_g_histogram_linear_stretching_tbb::TestTaskTBB  test_task_tbb(task_data_tbb);
+  varfolomeev_g_histogram_linear_stretching_tbb::TestTaskTBB test_task_tbb(task_data_tbb);
   ASSERT_EQ(test_task_tbb.Validation(), true);
   test_task_tbb.PreProcessing();
   test_task_tbb.Run();
@@ -256,7 +256,7 @@ TEST(varfolomeev_g_histogram_linear_stretching_tbb, test_full_white) {
   task_data_tbb->outputs_count.emplace_back(out.size());
 
   // Create Task
-  varfolomeev_g_histogram_linear_stretching_tbb::TestTaskTBB  test_task_tbb(task_data_tbb);
+  varfolomeev_g_histogram_linear_stretching_tbb::TestTaskTBB test_task_tbb(task_data_tbb);
   ASSERT_EQ(test_task_tbb.Validation(), true);
   test_task_tbb.PreProcessing();
   test_task_tbb.Run();
@@ -279,7 +279,7 @@ TEST(varfolomeev_g_histogram_linear_stretching_tbb, test_single_non_flat_pixel) 
   task_data_tbb->outputs_count.emplace_back(out.size());
 
   // Create Task
-  varfolomeev_g_histogram_linear_stretching_tbb::TestTaskTBB  test_task_tbb(task_data_tbb);
+  varfolomeev_g_histogram_linear_stretching_tbb::TestTaskTBB test_task_tbb(task_data_tbb);
   ASSERT_EQ(test_task_tbb.Validation(), true);
   test_task_tbb.PreProcessing();
   test_task_tbb.Run();
@@ -302,7 +302,7 @@ TEST(varfolomeev_g_histogram_linear_stretching_tbb, test_single_non_flat_pixel_2
   task_data_tbb->outputs_count.emplace_back(out.size());
 
   // Create Task
-  varfolomeev_g_histogram_linear_stretching_tbb::TestTaskTBB  test_task_tbb(task_data_tbb);
+  varfolomeev_g_histogram_linear_stretching_tbb::TestTaskTBB test_task_tbb(task_data_tbb);
   ASSERT_EQ(test_task_tbb.Validation(), true);
   test_task_tbb.PreProcessing();
   test_task_tbb.Run();
@@ -333,7 +333,7 @@ TEST(varfolomeev_g_histogram_linear_stretching_tbb, test_10k_generated) {
   task_data_tbb->outputs_count.emplace_back(out.size());
 
   // Create Task
-  varfolomeev_g_histogram_linear_stretching_tbb::TestTaskTBB  test_task_tbb(task_data_tbb);
+  varfolomeev_g_histogram_linear_stretching_tbb::TestTaskTBB test_task_tbb(task_data_tbb);
   ASSERT_EQ(test_task_tbb.Validation(), true);
   test_task_tbb.PreProcessing();
   test_task_tbb.Run();
@@ -354,7 +354,7 @@ TEST(varfolomeev_g_histogram_linear_stretching_tbb, test_empty) {
   task_data_tbb->outputs_count.emplace_back(out.size());
 
   // Create Task
-  varfolomeev_g_histogram_linear_stretching_tbb::TestTaskTBB  test_task_tbb(task_data_tbb);
+  varfolomeev_g_histogram_linear_stretching_tbb::TestTaskTBB test_task_tbb(task_data_tbb);
   ASSERT_EQ(test_task_tbb.Validation(), false);
 }
 
@@ -370,6 +370,6 @@ TEST(varfolomeev_g_histogram_linear_stretching_tbb, test_in_out_NE) {
   task_data_tbb->outputs_count.emplace_back(out.size());
 
   // Create Task
-  varfolomeev_g_histogram_linear_stretching_tbb::TestTaskTBB  test_task_tbb(task_data_tbb);
+  varfolomeev_g_histogram_linear_stretching_tbb::TestTaskTBB test_task_tbb(task_data_tbb);
   ASSERT_EQ(test_task_tbb.Validation(), false);
 }
