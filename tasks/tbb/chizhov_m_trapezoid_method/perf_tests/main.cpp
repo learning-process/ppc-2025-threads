@@ -2,8 +2,8 @@
 
 #include <chrono>
 #include <cmath>
-#include <cstddef>
 #include <cstdint>
+#include <functional>
 #include <memory>
 #include <vector>
 
@@ -14,7 +14,7 @@
 TEST(chizhov_m_trapezoid_method_tbb, test_pipeline_run) {
   int div = 300;
   int dim = 3;
-  std::vector<double> limits = {0.0, 1000.0, 0.0, 1000.0, 0.0, 1000.0};
+  std::vector<double> limits = {0.0, 800.0, 0.0, 800.0, 0.0, 800.0};
 
   std::vector<double> res(1, 0);
   auto f = [](const std::vector<double> &f_val) {
@@ -56,16 +56,16 @@ TEST(chizhov_m_trapezoid_method_tbb, test_pipeline_run) {
   auto perf_results = std::make_shared<ppc::core::PerfResults>();
 
   // Create Perf analyzer
-  auto perf_analyzer = std::make_shared<ppc::core::Perf>(task_data_tbb);
+  auto perf_analyzer = std::make_shared<ppc::core::Perf>(test_task_tbb);
   perf_analyzer->PipelineRun(perf_attr, perf_results);
   ppc::core::Perf::PrintPerfStatistic(perf_results);
-  ASSERT_NEAR(57972, res[0], 0.3);
+  ASSERT_NEAR(39.85, res[0], 0.3);
 }
 
 TEST(chizhov_m_trapezoid_method_tbb, test_task_run) {
   int div = 300;
   int dim = 3;
-  std::vector<double> limits = {0.0, 1000.0, 0.0, 1000.0, 0.0, 1000.0};
+  std::vector<double> limits = {0.0, 800.0, 0.0, 800.0, 0.0, 800.0};
 
   std::vector<double> res(1, 0);
   auto f = [](const std::vector<double> &f_val) {
@@ -107,8 +107,8 @@ TEST(chizhov_m_trapezoid_method_tbb, test_task_run) {
   auto perf_results = std::make_shared<ppc::core::PerfResults>();
 
   // Create Perf analyzer
-  auto perf_analyzer = std::make_shared<ppc::core::Perf>(task_data_tbb);
+  auto perf_analyzer = std::make_shared<ppc::core::Perf>(test_task_tbb);
   perf_analyzer->TaskRun(perf_attr, perf_results);
   ppc::core::Perf::PrintPerfStatistic(perf_results);
-  ASSERT_NEAR(57972, res[0], 0.3);
+  ASSERT_NEAR(39.85, res[0], 0.3);
 }

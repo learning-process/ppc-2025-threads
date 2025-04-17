@@ -43,7 +43,7 @@ void RunTests(int div, int dimm, std::vector<double> &limits, std::function<doub
   delete f_object;
 }
 
-TEST(chizhov_m_trapezoid_method_omp, one_variable_squared) {
+TEST(chizhov_m_trapezoid_method_tbb, one_variable_squared) {
   int div = 20;
   int dim = 1;
   std::vector<double> limits = {0.0, 5.0};
@@ -52,7 +52,7 @@ TEST(chizhov_m_trapezoid_method_omp, one_variable_squared) {
   RunTests(div, dim, limits, f, 41.66);
 }
 
-TEST(chizhov_m_trapezoid_method_omp, one_variable_cube) {
+TEST(chizhov_m_trapezoid_method_tbb, one_variable_cube) {
   int div = 45;
   int dim = 1;
   std::vector<double> limits = {0.0, 5.0};
@@ -61,7 +61,7 @@ TEST(chizhov_m_trapezoid_method_omp, one_variable_cube) {
   RunTests(div, dim, limits, f, 156.25);
 }
 
-TEST(chizhov_m_trapezoid_method_omp, mul_two_variables) {
+TEST(chizhov_m_trapezoid_method_tbb, mul_two_variables) {
   int div = 10;
   int dim = 2;
   std::vector<double> limits = {0.0, 5.0, 0.0, 3.0};
@@ -70,7 +70,7 @@ TEST(chizhov_m_trapezoid_method_omp, mul_two_variables) {
   RunTests(div, dim, limits, f, 56.25);
 }
 
-TEST(chizhov_m_trapezoid_method_omp, sum_two_variables) {
+TEST(chizhov_m_trapezoid_method_tbb, sum_two_variables) {
   int div = 10;
   int dim = 2;
   std::vector<double> limits = {0.0, 5.0, 0.0, 3.0};
@@ -79,7 +79,7 @@ TEST(chizhov_m_trapezoid_method_omp, sum_two_variables) {
   RunTests(div, dim, limits, f, 60);
 }
 
-TEST(chizhov_m_trapezoid_method_omp, dif_two_variables) {
+TEST(chizhov_m_trapezoid_method_tbb, dif_two_variables) {
   int div = 10;
   int dim = 2;
   std::vector<double> limits = {0.0, 5.0, 0.0, 3.0};
@@ -88,7 +88,7 @@ TEST(chizhov_m_trapezoid_method_omp, dif_two_variables) {
   RunTests(div, dim, limits, f, -15);
 }
 
-TEST(chizhov_m_trapezoid_method_omp, cos_one_variable) {
+TEST(chizhov_m_trapezoid_method_tbb, cos_one_variable) {
   int div = 45;
   int dim = 1;
   std::vector<double> limits = {0.0, 5.0};
@@ -97,7 +97,7 @@ TEST(chizhov_m_trapezoid_method_omp, cos_one_variable) {
   RunTests(div, dim, limits, f, -0.95);
 }
 
-TEST(chizhov_m_trapezoid_method_seq, sin_two_variables) {
+TEST(chizhov_m_trapezoid_method_tbb, sin_two_variables) {
   int div = 45;
   int dim = 2;
   std::vector<double> limits = {0.0, 5.0, 0.0, 5.0};
@@ -106,7 +106,7 @@ TEST(chizhov_m_trapezoid_method_seq, sin_two_variables) {
   RunTests(div, dim, limits, f, -1.37);
 }
 
-TEST(chizhov_m_trapezoid_method_omp, exp_two_variables) {
+TEST(chizhov_m_trapezoid_method_tbb, exp_two_variables) {
   int div = 80;
   int dim = 2;
   std::vector<double> limits = {0.0, 3.0, 0.0, 3.0};
@@ -115,7 +115,7 @@ TEST(chizhov_m_trapezoid_method_omp, exp_two_variables) {
   RunTests(div, dim, limits, f, 364.25);
 }
 
-TEST(chizhov_m_trapezoid_method_omp, combine_exp_sin_cos) {
+TEST(chizhov_m_trapezoid_method_tbb, combine_exp_sin_cos) {
   int div = 90;
   int dim = 2;
   std::vector<double> limits = {0.0, 3.0, 0.0, 3.0};
