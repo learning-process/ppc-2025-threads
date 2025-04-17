@@ -3,8 +3,8 @@
 #include <algorithm>
 #include <chrono>
 #include <cstdint>
+#include <cstdlib>
 #include <memory>
-#include <random>
 #include <vector>
 
 #include "core/perf/include/perf.hpp"
@@ -23,10 +23,7 @@ TestData GenerateTestData(int count) {
   data.in.resize(count);
   data.out.resize(count);
 
-  std::random_device rd;
-  std::mt19937 gen(rd());
-  std::uniform_int_distribution<int> dist(-10000, 10000);
-  std::ranges::generate(data.in, [&]() { return dist(gen); });
+  std::ranges::generate(data.in, []() { return std::rand() % 20000 - 10000; });
 
   data.task_data = std::make_shared<ppc::core::TaskData>();
   data.task_data->inputs.emplace_back(reinterpret_cast<uint8_t*>(data.in.data()));
