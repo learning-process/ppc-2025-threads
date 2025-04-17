@@ -1,11 +1,11 @@
 #include "tbb/varfolomeev_g_histogram_linear_stretching/include/ops_tbb.hpp"
 
-#include "oneapi/tbb/blocked_range2d.h"
-#include "oneapi/tbb/parallel_for.h"
-
 #include <algorithm>
 #include <cstdint>
 #include <vector>
+
+#include "oneapi/tbb/blocked_range2d.h"
+#include "oneapi/tbb/parallel_for.h"
 
 bool varfolomeev_g_histogram_linear_stretching_tbb::TestTaskTBB ::PreProcessingImpl() {
   // Init value for input and output
