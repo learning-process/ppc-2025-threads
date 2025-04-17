@@ -59,7 +59,7 @@ bool sharamygina_i_multi_dim_monte_carlo_tbb::MultiDimMonteCarloTask::RunImpl() 
         }
         return local_sum;
       },
-      std::plus<double>());
+      std::plus<>());
 
   double volume = 1.0;
   for (size_t i = 0; i < dimension; ++i) {
