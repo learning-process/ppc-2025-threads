@@ -361,7 +361,6 @@ TEST(morozov_e_lineare_image_filtering_block_gaussian_tbb, random_test1) {
       }
     }
   }
-  // clang-format on
   EXPECT_EQ(image_res, res);
 }
 TEST(morozov_e_lineare_image_filtering_block_gaussian_tbb, random_test2) {
@@ -407,6 +406,5 @@ TEST(morozov_e_lineare_image_filtering_block_gaussian_tbb, random_test2) {
       }
     }
   }
-  // clang-format on
   EXPECT_EQ(image_res, res);
 }

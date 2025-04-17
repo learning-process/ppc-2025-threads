@@ -9,7 +9,7 @@ namespace morozov_e_lineare_image_filtering_block_gaussian_tbb {
 
 class TestTaskTBB : public ppc::core::Task {
  public:
-  explicit TestTaskTBB(ppc::core::TaskDataPtr task_data) : Task(std::move(task_data)) {}
+  explicit TestTaskTBB(ppc::core::TaskDataPtr task_data) : Task(std::move(task_data)), n_(0), m_(0) {}
   bool PreProcessingImpl() override;
   bool ValidationImpl() override;
   bool RunImpl() override;
