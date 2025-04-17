@@ -5,7 +5,6 @@
 #include <cstring>
 #include <vector>
 
-#include "oneapi/tbb/blocked_range2d.h"
 #include "oneapi/tbb/parallel_for.h"
 
 bool varfolomeev_g_histogram_linear_stretching_tbb::TestTaskTBB ::PreProcessingImpl() {
