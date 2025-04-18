@@ -1,7 +1,7 @@
 #include "tbb/anufriev_d_integrals_simpson/include/ops_tbb.hpp"
 
-#include <tbb/blocked_range.h>
-#include <tbb/parallel_reduce.h>
+#include <oneapi/tbb/blocked_range.h>
+#include <oneapi/tbb/parallel_reduce.h>
 
 #include <cmath>
 #include <cstddef>
