@@ -12,7 +12,6 @@
 namespace shlyakov_m_shell_sort_omp_tbb {
 
 void ShellSort(int left, int right, std::vector<int>& arr);
-
 void Merge(int left, int mid, int right, std::vector<int>& arr, std::vector<int>& buffer);
 
 class TestTaskOpenMP : public ppc::core::Task {

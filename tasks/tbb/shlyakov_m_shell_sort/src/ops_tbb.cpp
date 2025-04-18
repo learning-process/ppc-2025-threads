@@ -1,7 +1,7 @@
 ﻿#include "tbb/shlyakov_m_shell_sort/include/ops_tbb.hpp"
 
-#include <tbb/task_arena.h>
-#include <tbb/task_group.h>
+#include <oneapi/tbb/task_arena.h>
+#include <oneapi/tbb/task_group.h>
 
 #include <algorithm>
 #include <core/util/include/util.hpp>
@@ -86,7 +86,9 @@ void ShellSort(int left, int right, std::vector<int>& arr) {
 }
 
 void Merge(int left, int mid, int right, std::vector<int>& arr, std::vector<int>& buffer) {
-  int i = left, j = mid + 1, k = 0;
+  int i = left;
+  int j = mid + 1;
+  int k = 0;
   int merge_size = right - left + 1;
   if (buffer.size() < static_cast<std::size_t>(merge_size)) {
     buffer.resize(static_cast<std::size_t>(merge_size));
