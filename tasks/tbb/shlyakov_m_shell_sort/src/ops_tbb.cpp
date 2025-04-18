@@ -1,10 +1,9 @@
-﻿﻿#include "tbb/shlyakov_m_shell_sort/include/ops_tbb.hpp"
+﻿#include "tbb/shlyakov_m_shell_sort/include/ops_tbb.hpp"
 
 #include <oneapi/tbb/task_arena.h>
 #include <oneapi/tbb/task_group.h>
 
 #include <algorithm>
-#include <core/util/include/util.hpp>
 #include <cstddef>
 #include <utility>
 #include <vector>
@@ -29,13 +28,13 @@ bool TestTaskTBB::RunImpl() {
 
   int threads = ppc::util::GetPPCNumThreads();
   threads = std::min(threads, n);
-  const int seg_size = (n + threads - 1) / threads;
+  const int seg = (n + threads - 1) / threads;
 
   std::vector<std::pair<int, int>> segs;
   segs.reserve(threads);
   for (int i = 0; i < threads; ++i) {
-    int l = i * seg_size;
-    int r = std::min(n - 1, l + seg_size - 1);
+    int l = i * seg;
+    int r = std::min(n - 1, l + seg - 1);
     segs.emplace_back(l, r);
   }
 
@@ -64,8 +63,10 @@ bool TestTaskTBB::RunImpl() {
 
 void ShellSort(int left, int right, std::vector<int>& arr) {
   int gap = 1;
-  const int size = right - left + 1;
-  while (gap <= size / 3) gap = gap * 3 + 1;
+  int size = right - left + 1;
+  while (gap <= size / 3) {
+    gap = gap * 3 + 1;
+  }
 
   for (; gap > 0; gap /= 3) {
     for (int k = left + gap; k <= right; ++k) {
@@ -82,20 +83,30 @@ void ShellSort(int left, int right, std::vector<int>& arr) {
 
 void Merge(int left, int mid, int right, std::vector<int>& arr, std::vector<int>& buffer) {
   const int merge_size = right - left + 1;
-  if (buffer.size() < static_cast<std::size_t>(merge_size)) buffer.resize(static_cast<std::size_t>(merge_size));
+  if (buffer.size() < static_cast<std::size_t>(merge_size)) {
+    buffer.resize(static_cast<std::size_t>(merge_size));
+  }
 
   int i = left, j = mid + 1, k = 0;
   while (i <= mid && j <= right) {
     buffer[k++] = (arr[i] <= arr[j]) ? arr[i++] : arr[j++];
   }
-  while (i <= mid) buffer[k++] = arr[i++];
-  while (j <= right) buffer[k++] = arr[j++];
+  while (i <= mid) {
+    buffer[k++] = arr[i++];
+  }
+  while (j <= right) {
+    buffer[k++] = arr[j++];
+  }
 
-  for (int idx = 0; idx < merge_size; ++idx) arr[left + idx] = buffer[idx];
+  for (int idx = 0; idx < merge_size; ++idx) {
+    arr[left + idx] = buffer[idx];
+  }
 }
 
 bool TestTaskTBB::PostProcessingImpl() {
-  for (std::size_t i = 0; i < output_.size(); ++i) reinterpret_cast<int*>(task_data->outputs[0])[i] = output_[i];
+  for (std::size_t i = 0; i < output_.size(); ++i) {
+    reinterpret_cast<int*>(task_data->outputs[0])[i] = output_[i];
+  }
   return true;
 }
 
