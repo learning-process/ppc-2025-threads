@@ -3,6 +3,7 @@
 #include <tbb/tbb.h>
 
 #include <cmath>
+#include <core/util/include/util.hpp>
 #include <cstddef>
 #include <vector>
 
@@ -21,36 +22,40 @@ bool shlyakov_m_shell_sort_omp_tbb::TestTaskOpenMP::ValidationImpl() {
 }
 
 bool shlyakov_m_shell_sort_omp_tbb::TestTaskOpenMP::RunImpl() {
-  int array_size = static_cast<int>(input_.size());
-  if (array_size < 2) {
+  int n = static_cast<int>(input_.size());
+  if (n < 2) {
     output_ = input_;
     return true;
   }
 
-  int num_threads = tbb::this_task_arena::max_concurrency();
-  int sub_arr_size = (array_size + num_threads - 1) / num_threads;
+  int num_threads = static_cast<int>(ppc::util::GetPPCNumThreads());
+  num_threads = std::min(num_threads, n);
 
-  tbb::parallel_for(tbb::blocked_range<int>(0, num_threads), [&](const tbb::blocked_range<int>& r) {
-    for (int i = r.begin(); i < r.end(); ++i) {
-      int left = i * sub_arr_size;
-      int right = std::min(array_size - 1, left + sub_arr_size - 1);
-      if (left < right) {
-        ShellSort(left, right, input_);
-      }
+  int seg_size = (n + num_threads - 1) / num_threads;
+
+  std::vector<std::pair<int, int>> segments;
+  segments.reserve(num_threads);
+  for (int i = 0; i < num_threads; ++i) {
+    int left = i * seg_size;
+    int right = std::min(n - 1, left + seg_size - 1);
+    if (left < right) segments.emplace_back(left, right);
+  }
+
+  oneapi::tbb::task_arena arena(num_threads);
+  arena.execute([&] {
+    oneapi::tbb::task_group tg;
+    for (auto [l, r] : segments) {
+      tg.run([this, l, r] { ShellSort(l, r, input_); });
     }
+    tg.wait();
   });
 
-  for (int size = sub_arr_size; size < array_size; size *= 2) {
-    tbb::parallel_for(tbb::blocked_range<int>(0, array_size, 2 * size), [&](const tbb::blocked_range<int>& r) {
-      std::vector<int> buffer;
-      for (int left = r.begin(); left < r.end(); left += 2 * size) {
-        int mid = std::min(array_size - 1, left + size - 1);
-        int right = std::min(array_size - 1, (left + 2 * size) - 1);
-        if (mid < right) {
-          Merge(left, mid, right, input_, buffer);
-        }
-      }
-    });
+  std::vector<int> buffer;
+  int merged_end = segments[0].second;
+  for (size_t i = 1; i < segments.size(); ++i) {
+    int seg_end = segments[i].second;
+    Merge(0, merged_end, seg_end, input_, buffer);
+    merged_end = seg_end;
   }
 
   output_ = input_;

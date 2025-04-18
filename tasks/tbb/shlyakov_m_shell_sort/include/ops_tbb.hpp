@@ -2,6 +2,7 @@
 
 #include <tbb/tbb.h>
 
+#include <core/util/include/util.hpp>
 #include <utility>
 #include <vector>
 
