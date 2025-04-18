@@ -70,7 +70,7 @@ bool sozonov_i_image_filtering_block_partitioning_tbb::TestTaskTBB::ValidationIm
 }
 
 bool sozonov_i_image_filtering_block_partitioning_tbb::TestTaskTBB::RunImpl() {
-  int block_size = 32;
+  int block_size = 64;
 
   oneapi::tbb::task_arena arena(ppc::util::GetPPCNumThreads());
   arena.execute([&] {
