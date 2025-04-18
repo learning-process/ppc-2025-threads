@@ -48,7 +48,7 @@ bool IsSorted(const std::vector<int>& arr) {
 }
 }  // namespace
 
-TEST(shlyakov_m_shell_sort_omp_tbb, test_pipeline_run) {
+TEST(shlyakov_m_shell_sort_tbb, test_pipeline_run) {
   constexpr size_t kCount = 50000;
 
   std::vector<int> in = GenerateRandomArray(kCount);
@@ -62,7 +62,7 @@ TEST(shlyakov_m_shell_sort_omp_tbb, test_pipeline_run) {
   task_data_seq->outputs.emplace_back(reinterpret_cast<uint8_t*>(out.data()));
   task_data_seq->outputs_count.emplace_back(out.size());
 
-  auto test_task_sequential = std::make_shared<shlyakov_m_shell_sort_omp_tbb::TestTaskOpenMP>(task_data_seq);
+  auto test_task_sequential = std::make_shared<shlyakov_m_shell_sort_tbb::TestTaskTBB>(task_data_seq);
 
   auto perf_attr = std::make_shared<ppc::core::PerfAttr>();
   perf_attr->num_running = 10;
@@ -82,7 +82,7 @@ TEST(shlyakov_m_shell_sort_omp_tbb, test_pipeline_run) {
   EXPECT_TRUE(IsSorted(out));
 }
 
-TEST(shlyakov_m_shell_sort_omp_tbb, test_task_run) {
+TEST(shlyakov_m_shell_sort_tbb, test_task_run) {
   constexpr size_t kCount = 50000;
 
   std::vector<int> in = GenerateRandomArray(kCount);
@@ -96,7 +96,7 @@ TEST(shlyakov_m_shell_sort_omp_tbb, test_task_run) {
   task_data_seq->outputs.emplace_back(reinterpret_cast<uint8_t*>(out.data()));
   task_data_seq->outputs_count.emplace_back(out.size());
 
-  auto test_task_sequential = std::make_shared<shlyakov_m_shell_sort_omp_tbb::TestTaskOpenMP>(task_data_seq);
+  auto test_task_sequential = std::make_shared<shlyakov_m_shell_sort_tbb::TestTaskTBB>(task_data_seq);
 
   auto perf_attr = std::make_shared<ppc::core::PerfAttr>();
   perf_attr->num_running = 10;

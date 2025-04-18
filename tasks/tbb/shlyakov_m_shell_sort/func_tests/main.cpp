@@ -47,7 +47,7 @@ bool IsSorted(const std::vector<int> &arr) {
 }
 }  // namespace
 
-TEST(shlyakov_m_shell_sort_omp_tbb, Test_Empty_Array) {
+TEST(shlyakov_m_shell_sort_tbb, Test_Empty_Array) {
   std::vector<int> in;
   std::vector<int> out;
 
@@ -57,7 +57,7 @@ TEST(shlyakov_m_shell_sort_omp_tbb, Test_Empty_Array) {
   task_data_omp->outputs.emplace_back(reinterpret_cast<uint8_t *>(out.data()));
   task_data_omp->outputs_count.emplace_back(out.size());
 
-  shlyakov_m_shell_sort_omp_tbb::TestTaskOpenMP test_task_omp(task_data_omp);
+  shlyakov_m_shell_sort_tbb::TestTaskTBB test_task_omp(task_data_omp);
   ASSERT_TRUE(test_task_omp.Validation());
   ASSERT_TRUE(test_task_omp.PreProcessing());
   ASSERT_TRUE(test_task_omp.Run());
@@ -66,7 +66,7 @@ TEST(shlyakov_m_shell_sort_omp_tbb, Test_Empty_Array) {
   EXPECT_TRUE(IsSorted(out));
 }
 
-TEST(shlyakov_m_shell_sort_omp_tbb, Test_Already_Sorted_Array) {
+TEST(shlyakov_m_shell_sort_tbb, Test_Already_Sorted_Array) {
   std::vector<int> in = {1, 2, 3, 4, 5};
   std::vector<int> out(in.size());
 
@@ -76,7 +76,7 @@ TEST(shlyakov_m_shell_sort_omp_tbb, Test_Already_Sorted_Array) {
   task_data_omp->outputs.emplace_back(reinterpret_cast<uint8_t *>(out.data()));
   task_data_omp->outputs_count.emplace_back(out.size());
 
-  shlyakov_m_shell_sort_omp_tbb::TestTaskOpenMP test_task_omp(task_data_omp);
+  shlyakov_m_shell_sort_tbb::TestTaskTBB test_task_omp(task_data_omp);
   ASSERT_TRUE(test_task_omp.Validation());
   ASSERT_TRUE(test_task_omp.PreProcessing());
   ASSERT_TRUE(test_task_omp.Run());
@@ -86,7 +86,7 @@ TEST(shlyakov_m_shell_sort_omp_tbb, Test_Already_Sorted_Array) {
   EXPECT_EQ(in, out);
 }
 
-TEST(shlyakov_m_shell_sort_omp_tbb, Test_Reverse_Sorted_Array) {
+TEST(shlyakov_m_shell_sort_tbb, Test_Reverse_Sorted_Array) {
   std::vector<int> in = {5, 4, 3, 2, 1};
   std::vector<int> out(in.size());
 
@@ -96,7 +96,7 @@ TEST(shlyakov_m_shell_sort_omp_tbb, Test_Reverse_Sorted_Array) {
   task_data_omp->outputs.emplace_back(reinterpret_cast<uint8_t *>(out.data()));
   task_data_omp->outputs_count.emplace_back(out.size());
 
-  shlyakov_m_shell_sort_omp_tbb::TestTaskOpenMP test_task_omp(task_data_omp);
+  shlyakov_m_shell_sort_tbb::TestTaskTBB test_task_omp(task_data_omp);
   ASSERT_TRUE(test_task_omp.Validation());
   ASSERT_TRUE(test_task_omp.PreProcessing());
   ASSERT_TRUE(test_task_omp.Run());
@@ -107,7 +107,7 @@ TEST(shlyakov_m_shell_sort_omp_tbb, Test_Reverse_Sorted_Array) {
   EXPECT_EQ(expected, out);
 }
 
-TEST(shlyakov_m_shell_sort_omp_tbb, Test_Random_Array_Small) {
+TEST(shlyakov_m_shell_sort_tbb, Test_Random_Array_Small) {
   std::vector<int> in = GenerateRandomArray(10);
   std::vector<int> out(in.size());
 
@@ -117,7 +117,7 @@ TEST(shlyakov_m_shell_sort_omp_tbb, Test_Random_Array_Small) {
   task_data_omp->outputs.emplace_back(reinterpret_cast<uint8_t *>(out.data()));
   task_data_omp->outputs_count.emplace_back(out.size());
 
-  shlyakov_m_shell_sort_omp_tbb::TestTaskOpenMP test_task_omp(task_data_omp);
+  shlyakov_m_shell_sort_tbb::TestTaskTBB test_task_omp(task_data_omp);
   ASSERT_TRUE(test_task_omp.Validation());
   ASSERT_TRUE(test_task_omp.PreProcessing());
   ASSERT_TRUE(test_task_omp.Run());
@@ -129,7 +129,7 @@ TEST(shlyakov_m_shell_sort_omp_tbb, Test_Random_Array_Small) {
   EXPECT_EQ(expected, out);
 }
 
-TEST(shlyakov_m_shell_sort_omp_tbb, Test_Random_Array_Large) {
+TEST(shlyakov_m_shell_sort_tbb, Test_Random_Array_Large) {
   size_t array_size = 200;
   std::vector<int> in = GenerateRandomArray(array_size);
   std::vector<int> out(in.size());
@@ -140,7 +140,7 @@ TEST(shlyakov_m_shell_sort_omp_tbb, Test_Random_Array_Large) {
   task_data_omp->outputs.emplace_back(reinterpret_cast<uint8_t *>(out.data()));
   task_data_omp->outputs_count.emplace_back(out.size());
 
-  shlyakov_m_shell_sort_omp_tbb::TestTaskOpenMP test_task_omp(task_data_omp);
+  shlyakov_m_shell_sort_tbb::TestTaskTBB test_task_omp(task_data_omp);
   ASSERT_TRUE(test_task_omp.Validation());
   ASSERT_TRUE(test_task_omp.PreProcessing());
   ASSERT_TRUE(test_task_omp.Run());
@@ -152,7 +152,7 @@ TEST(shlyakov_m_shell_sort_omp_tbb, Test_Random_Array_Large) {
   EXPECT_EQ(expected, out);
 }
 
-TEST(shlyakov_m_shell_sort_omp_tbb, Test_Random_Array_With_Simple_Size) {
+TEST(shlyakov_m_shell_sort_tbb, Test_Random_Array_With_Simple_Size) {
   size_t array_size = 241;
   std::vector<int> in = GenerateRandomArray(array_size);
   std::vector<int> out(in.size());
@@ -163,7 +163,7 @@ TEST(shlyakov_m_shell_sort_omp_tbb, Test_Random_Array_With_Simple_Size) {
   task_data_omp->outputs.emplace_back(reinterpret_cast<uint8_t *>(out.data()));
   task_data_omp->outputs_count.emplace_back(out.size());
 
-  shlyakov_m_shell_sort_omp_tbb::TestTaskOpenMP test_task_omp(task_data_omp);
+  shlyakov_m_shell_sort_tbb::TestTaskTBB test_task_omp(task_data_omp);
   ASSERT_TRUE(test_task_omp.Validation());
   ASSERT_TRUE(test_task_omp.PreProcessing());
   ASSERT_TRUE(test_task_omp.Run());
@@ -175,7 +175,7 @@ TEST(shlyakov_m_shell_sort_omp_tbb, Test_Random_Array_With_Simple_Size) {
   EXPECT_EQ(expected, out);
 }
 
-TEST(shlyakov_m_shell_sort_omp_tbb, Test_Random_Array_With_500) {
+TEST(shlyakov_m_shell_sort_tbb, Test_Random_Array_With_500) {
   size_t array_size = 500;
   std::vector<int> in = GenerateRandomArray(array_size);
   std::vector<int> out(in.size());
@@ -186,7 +186,7 @@ TEST(shlyakov_m_shell_sort_omp_tbb, Test_Random_Array_With_500) {
   task_data_omp->outputs.emplace_back(reinterpret_cast<uint8_t *>(out.data()));
   task_data_omp->outputs_count.emplace_back(out.size());
 
-  shlyakov_m_shell_sort_omp_tbb::TestTaskOpenMP test_task_omp(task_data_omp);
+  shlyakov_m_shell_sort_tbb::TestTaskTBB test_task_omp(task_data_omp);
   ASSERT_TRUE(test_task_omp.Validation());
   ASSERT_TRUE(test_task_omp.PreProcessing());
   ASSERT_TRUE(test_task_omp.Run());
@@ -198,7 +198,7 @@ TEST(shlyakov_m_shell_sort_omp_tbb, Test_Random_Array_With_500) {
   EXPECT_EQ(expected, out);
 }
 
-TEST(shlyakov_m_shell_sort_omp_tbb, Test_Random_Array_With_501) {
+TEST(shlyakov_m_shell_sort_tbb, Test_Random_Array_With_501) {
   size_t array_size = 501;
   std::vector<int> in = GenerateRandomArray(array_size);
   std::vector<int> out(in.size());
@@ -209,7 +209,7 @@ TEST(shlyakov_m_shell_sort_omp_tbb, Test_Random_Array_With_501) {
   task_data_omp->outputs.emplace_back(reinterpret_cast<uint8_t *>(out.data()));
   task_data_omp->outputs_count.emplace_back(out.size());
 
-  shlyakov_m_shell_sort_omp_tbb::TestTaskOpenMP test_task_omp(task_data_omp);
+  shlyakov_m_shell_sort_tbb::TestTaskTBB test_task_omp(task_data_omp);
   ASSERT_TRUE(test_task_omp.Validation());
   ASSERT_TRUE(test_task_omp.PreProcessing());
   ASSERT_TRUE(test_task_omp.Run());
@@ -221,7 +221,7 @@ TEST(shlyakov_m_shell_sort_omp_tbb, Test_Random_Array_With_501) {
   EXPECT_EQ(expected, out);
 }
 
-TEST(shlyakov_m_shell_sort_omp_tbb, Test_Random_Array_With_1000) {
+TEST(shlyakov_m_shell_sort_tbb, Test_Random_Array_With_1000) {
   size_t array_size = 1000;
   std::vector<int> in = GenerateRandomArray(array_size);
   std::vector<int> out(in.size());
@@ -232,7 +232,7 @@ TEST(shlyakov_m_shell_sort_omp_tbb, Test_Random_Array_With_1000) {
   task_data_omp->outputs.emplace_back(reinterpret_cast<uint8_t *>(out.data()));
   task_data_omp->outputs_count.emplace_back(out.size());
 
-  shlyakov_m_shell_sort_omp_tbb::TestTaskOpenMP test_task_omp(task_data_omp);
+  shlyakov_m_shell_sort_tbb::TestTaskTBB test_task_omp(task_data_omp);
   ASSERT_TRUE(test_task_omp.Validation());
   ASSERT_TRUE(test_task_omp.PreProcessing());
   ASSERT_TRUE(test_task_omp.Run());
@@ -244,7 +244,7 @@ TEST(shlyakov_m_shell_sort_omp_tbb, Test_Random_Array_With_1000) {
   EXPECT_EQ(expected, out);
 }
 
-TEST(shlyakov_m_shell_sort_omp_tbb, Test_Random_Array_With_1001) {
+TEST(shlyakov_m_shell_sort_tbb, Test_Random_Array_With_1001) {
   size_t array_size = 1001;
   std::vector<int> in = GenerateRandomArray(array_size);
   std::vector<int> out(in.size());
@@ -255,7 +255,7 @@ TEST(shlyakov_m_shell_sort_omp_tbb, Test_Random_Array_With_1001) {
   task_data_omp->outputs.emplace_back(reinterpret_cast<uint8_t *>(out.data()));
   task_data_omp->outputs_count.emplace_back(out.size());
 
-  shlyakov_m_shell_sort_omp_tbb::TestTaskOpenMP test_task_omp(task_data_omp);
+  shlyakov_m_shell_sort_tbb::TestTaskTBB test_task_omp(task_data_omp);
   ASSERT_TRUE(test_task_omp.Validation());
   ASSERT_TRUE(test_task_omp.PreProcessing());
   ASSERT_TRUE(test_task_omp.Run());
@@ -267,7 +267,7 @@ TEST(shlyakov_m_shell_sort_omp_tbb, Test_Random_Array_With_1001) {
   EXPECT_EQ(expected, out);
 }
 
-TEST(shlyakov_m_shell_sort_omp_tbb, Test_Random_Array_With_999) {
+TEST(shlyakov_m_shell_sort_tbb, Test_Random_Array_With_999) {
   size_t array_size = 999;
   std::vector<int> in = GenerateRandomArray(array_size);
   std::vector<int> out(in.size());
@@ -278,7 +278,7 @@ TEST(shlyakov_m_shell_sort_omp_tbb, Test_Random_Array_With_999) {
   task_data_omp->outputs.emplace_back(reinterpret_cast<uint8_t *>(out.data()));
   task_data_omp->outputs_count.emplace_back(out.size());
 
-  shlyakov_m_shell_sort_omp_tbb::TestTaskOpenMP test_task_omp(task_data_omp);
+  shlyakov_m_shell_sort_tbb::TestTaskTBB test_task_omp(task_data_omp);
   ASSERT_TRUE(test_task_omp.Validation());
   ASSERT_TRUE(test_task_omp.PreProcessing());
   ASSERT_TRUE(test_task_omp.Run());
@@ -290,7 +290,7 @@ TEST(shlyakov_m_shell_sort_omp_tbb, Test_Random_Array_With_999) {
   EXPECT_EQ(expected, out);
 }
 
-TEST(shlyakov_m_shell_sort_omp_tbb, Test_Random_Array_With_10000) {
+TEST(shlyakov_m_shell_sort_tbb, Test_Random_Array_With_10000) {
   size_t array_size = 10000;
   std::vector<int> in = GenerateRandomArray(array_size);
   std::vector<int> out(in.size());
@@ -301,7 +301,7 @@ TEST(shlyakov_m_shell_sort_omp_tbb, Test_Random_Array_With_10000) {
   task_data_omp->outputs.emplace_back(reinterpret_cast<uint8_t *>(out.data()));
   task_data_omp->outputs_count.emplace_back(out.size());
 
-  shlyakov_m_shell_sort_omp_tbb::TestTaskOpenMP test_task_omp(task_data_omp);
+  shlyakov_m_shell_sort_tbb::TestTaskTBB test_task_omp(task_data_omp);
   ASSERT_TRUE(test_task_omp.Validation());
   ASSERT_TRUE(test_task_omp.PreProcessing());
   ASSERT_TRUE(test_task_omp.Run());
@@ -313,7 +313,7 @@ TEST(shlyakov_m_shell_sort_omp_tbb, Test_Random_Array_With_10000) {
   EXPECT_EQ(expected, out);
 }
 
-TEST(shlyakov_m_shell_sort_omp_tbb, Test_Random_Array_With_10001) {
+TEST(shlyakov_m_shell_sort_tbb, Test_Random_Array_With_10001) {
   size_t array_size = 10001;
   std::vector<int> in = GenerateRandomArray(array_size);
   std::vector<int> out(in.size());
@@ -324,7 +324,7 @@ TEST(shlyakov_m_shell_sort_omp_tbb, Test_Random_Array_With_10001) {
   task_data_omp->outputs.emplace_back(reinterpret_cast<uint8_t *>(out.data()));
   task_data_omp->outputs_count.emplace_back(out.size());
 
-  shlyakov_m_shell_sort_omp_tbb::TestTaskOpenMP test_task_omp(task_data_omp);
+  shlyakov_m_shell_sort_tbb::TestTaskTBB test_task_omp(task_data_omp);
   ASSERT_TRUE(test_task_omp.Validation());
   ASSERT_TRUE(test_task_omp.PreProcessing());
   ASSERT_TRUE(test_task_omp.Run());
@@ -336,7 +336,7 @@ TEST(shlyakov_m_shell_sort_omp_tbb, Test_Random_Array_With_10001) {
   EXPECT_EQ(expected, out);
 }
 
-TEST(shlyakov_m_shell_sort_omp_tbb, Test_Random_Array_With_9999) {
+TEST(shlyakov_m_shell_sort_tbb, Test_Random_Array_With_9999) {
   size_t array_size = 9999;
   std::vector<int> in = GenerateRandomArray(array_size);
   std::vector<int> out(in.size());
@@ -347,7 +347,7 @@ TEST(shlyakov_m_shell_sort_omp_tbb, Test_Random_Array_With_9999) {
   task_data_omp->outputs.emplace_back(reinterpret_cast<uint8_t *>(out.data()));
   task_data_omp->outputs_count.emplace_back(out.size());
 
-  shlyakov_m_shell_sort_omp_tbb::TestTaskOpenMP test_task_omp(task_data_omp);
+  shlyakov_m_shell_sort_tbb::TestTaskTBB test_task_omp(task_data_omp);
   ASSERT_TRUE(test_task_omp.Validation());
   ASSERT_TRUE(test_task_omp.PreProcessing());
   ASSERT_TRUE(test_task_omp.Run());
@@ -359,7 +359,7 @@ TEST(shlyakov_m_shell_sort_omp_tbb, Test_Random_Array_With_9999) {
   EXPECT_EQ(expected, out);
 }
 
-TEST(shlyakov_m_shell_sort_omp_tbb, Test_Random_Array_With_15000) {
+TEST(shlyakov_m_shell_sort_tbb, Test_Random_Array_With_15000) {
   size_t array_size = 15000;
   std::vector<int> in = GenerateRandomArray(array_size);
   std::vector<int> out(in.size());
@@ -370,7 +370,7 @@ TEST(shlyakov_m_shell_sort_omp_tbb, Test_Random_Array_With_15000) {
   task_data_omp->outputs.emplace_back(reinterpret_cast<uint8_t *>(out.data()));
   task_data_omp->outputs_count.emplace_back(out.size());
 
-  shlyakov_m_shell_sort_omp_tbb::TestTaskOpenMP test_task_omp(task_data_omp);
+  shlyakov_m_shell_sort_tbb::TestTaskTBB test_task_omp(task_data_omp);
   ASSERT_TRUE(test_task_omp.Validation());
   ASSERT_TRUE(test_task_omp.PreProcessing());
   ASSERT_TRUE(test_task_omp.Run());
@@ -382,7 +382,7 @@ TEST(shlyakov_m_shell_sort_omp_tbb, Test_Random_Array_With_15000) {
   EXPECT_EQ(expected, out);
 }
 
-TEST(shlyakov_m_shell_sort_omp_tbb, Test_Random_Array_With_15001) {
+TEST(shlyakov_m_shell_sort_tbb, Test_Random_Array_With_15001) {
   size_t array_size = 15001;
   std::vector<int> in = GenerateRandomArray(array_size);
   std::vector<int> out(in.size());
@@ -393,7 +393,7 @@ TEST(shlyakov_m_shell_sort_omp_tbb, Test_Random_Array_With_15001) {
   task_data_omp->outputs.emplace_back(reinterpret_cast<uint8_t *>(out.data()));
   task_data_omp->outputs_count.emplace_back(out.size());
 
-  shlyakov_m_shell_sort_omp_tbb::TestTaskOpenMP test_task_omp(task_data_omp);
+  shlyakov_m_shell_sort_tbb::TestTaskTBB test_task_omp(task_data_omp);
   ASSERT_TRUE(test_task_omp.Validation());
   ASSERT_TRUE(test_task_omp.PreProcessing());
   ASSERT_TRUE(test_task_omp.Run());
@@ -405,7 +405,7 @@ TEST(shlyakov_m_shell_sort_omp_tbb, Test_Random_Array_With_15001) {
   EXPECT_EQ(expected, out);
 }
 
-TEST(shlyakov_m_shell_sort_omp_tbb, Test_Random_Array_With_14999) {
+TEST(shlyakov_m_shell_sort_tbb, Test_Random_Array_With_14999) {
   size_t array_size = 14999;
   std::vector<int> in = GenerateRandomArray(array_size);
   std::vector<int> out(in.size());
@@ -416,7 +416,7 @@ TEST(shlyakov_m_shell_sort_omp_tbb, Test_Random_Array_With_14999) {
   task_data_omp->outputs.emplace_back(reinterpret_cast<uint8_t *>(out.data()));
   task_data_omp->outputs_count.emplace_back(out.size());
 
-  shlyakov_m_shell_sort_omp_tbb::TestTaskOpenMP test_task_omp(task_data_omp);
+  shlyakov_m_shell_sort_tbb::TestTaskTBB test_task_omp(task_data_omp);
   ASSERT_TRUE(test_task_omp.Validation());
   ASSERT_TRUE(test_task_omp.PreProcessing());
   ASSERT_TRUE(test_task_omp.Run());

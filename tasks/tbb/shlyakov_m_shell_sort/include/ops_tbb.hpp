@@ -9,14 +9,15 @@
 
 #include "core/task/include/task.hpp"
 
-namespace shlyakov_m_shell_sort_omp_tbb {
+namespace shlyakov_m_shell_sort_tbb {
 
 void ShellSort(int left, int right, std::vector<int>& arr);
+
 void Merge(int left, int mid, int right, std::vector<int>& arr, std::vector<int>& buffer);
 
-class TestTaskOpenMP : public ppc::core::Task {
+class TestTaskTBB : public ppc::core::Task {
  public:
-  explicit TestTaskOpenMP(ppc::core::TaskDataPtr task_data) : Task(std::move(task_data)) {}
+  explicit TestTaskTBB(ppc::core::TaskDataPtr task_data) : Task(std::move(task_data)) {}
 
   bool PreProcessingImpl() override;
   bool ValidationImpl() override;
@@ -27,4 +28,4 @@ class TestTaskOpenMP : public ppc::core::Task {
   std::vector<int> input_, output_;
 };
 
-}  // namespace shlyakov_m_shell_sort_omp_tbb
+}  // namespace shlyakov_m_shell_sort_tbb
