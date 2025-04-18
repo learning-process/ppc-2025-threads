@@ -41,7 +41,10 @@ void shulpin_i_jarvis_seq::JarvisSequential::MakeJarvisPassage(std::vector<shulp
 
     size_t candidate = (active + 1) % total;
     for (size_t index = 0; index < total; ++index) {
-      if (index == active) continue;
+      if (index == active) {
+        continue;
+      }
+      
       if (Orientation(input_jar[active], input_jar[index], input_jar[candidate]) == 2) {
         candidate = index;
       }
