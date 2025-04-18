@@ -16,6 +16,7 @@ bool vedernikova_k_gauss_tbb::Gauss::ValidationImpl() {
   if (task_data->inputs_count.size() != 3 || task_data->outputs_count.empty()) {
     return false;
   }
+
   width_ = task_data->inputs_count[0];
   height_ = task_data->inputs_count[1];
   channels_ = task_data->inputs_count[2];
