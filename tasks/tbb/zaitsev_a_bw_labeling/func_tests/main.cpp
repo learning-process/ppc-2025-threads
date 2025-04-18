@@ -40,9 +40,8 @@ class zaitsev_a_labeling_test_tbb : public ::testing::TestWithParam<std::string>
     std::mt19937 gen(rd());
     std::uniform_int_distribution<> distr(min_size, max_size);
 
-    int size = 45;
-    int width = size;   // distr(gen);
-    int height = size;  // distr(gen);
+    int width = distr(gen);
+    int height = distr(gen);
 
     cv::Mat img(height, width, CV_8UC1);
     cv::randu(img, 0, 2);
@@ -142,47 +141,6 @@ TEST_P(zaitsev_a_labeling_test_tbb, returns_correct_label_map) {
   task.PreProcessingImpl();
   task.RunImpl();
   task.PostProcessingImpl();
-
-  long chunk = (long)std::ceil((double)height / ppc::util::GetPPCNumThreads()) * width;
-
-  std::ofstream instr;
-  instr.open(ppc::util::GetAbsolutePath("tbb/zaitsev_a_bw_labeling/data/in.txt"), std::ios::out);
-  for (int i = 0; i < (int)in.size(); i++) {
-    if (i % chunk == 0) {
-      instr << std::endl;
-    }
-    if (i != 0 && i % width == 0) {
-      instr << std::endl;
-    }
-    instr << std::setw(3) << (int)in[i];
-  }
-  instr.close();
-
-  std::ofstream expstr;
-  expstr.open(ppc::util::GetAbsolutePath("tbb/zaitsev_a_bw_labeling/data/expected.txt"), std::ios::out);
-  for (int i = 0; i < (int)exp.size(); i++) {
-    if (i % chunk == 0) {
-      expstr << std::endl;
-    }
-    if (i != 0 && i % width == 0) {
-      expstr << std::endl;
-    }
-    expstr << std::setw(3) << exp[i];
-  }
-  expstr.close();
-
-  std::ofstream outstr;
-  outstr.open(ppc::util::GetAbsolutePath("tbb/zaitsev_a_bw_labeling/data/out.txt"), std::ios::out);
-  for (int i = 0; i < (int)out.size(); i++) {
-    if (i % chunk == 0) {
-      outstr << std::endl;
-    }
-    if (i != 0 && i % width == 0) {
-      outstr << std::endl;
-    }
-    outstr << std::setw(3) << out[i];
-  }
-  outstr.close();
 
   EXPECT_TRUE(IsIsomorphic(exp, out));
 }

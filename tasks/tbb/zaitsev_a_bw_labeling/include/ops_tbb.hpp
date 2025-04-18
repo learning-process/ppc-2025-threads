@@ -29,7 +29,7 @@ class Labeler : public ppc::core::Task {
   Length size_;
   Length chunk_;
 
-  void LabelingRasterScan();
+  void LabelingRasterScan(Ordinals& ordinals);
   void GlobalizeLabels(Ordinals& ordinals);
   void UniteChunks();
 

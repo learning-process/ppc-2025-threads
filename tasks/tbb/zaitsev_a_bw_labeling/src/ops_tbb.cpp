@@ -6,10 +6,8 @@
 #include <algorithm>
 #include <cmath>
 #include <cstdint>
-#include <iostream>
 #include <map>
 #include <set>
-#include <stdexcept>
 #include <vector>
 
 #include "core/util/include/util.hpp"
@@ -20,27 +18,25 @@ using zaitsev_a_labeling_tbb::Labeler;
 
 namespace {
 
-oneapi::tbb::mutex my_mutex;
-
 // NOLINTBEGIN(readability-identifier-naming) - required here to make HardRange class compatible with tbb::parallel_for
 class HardRange {
   Length start_;
   Length end_;
   Length chunk_;
+  long id;
 
  public:
-  HardRange(Length end, Length chunk) : start_(0), end_(end), chunk_(chunk) {}
+  HardRange(Length end, Length chunk) : start_(0), end_(end), chunk_(chunk) { id = start_ / chunk_; }
   HardRange(const HardRange& r) = default;
   HardRange(HardRange& r, tbb::detail::split) : start_(r.start_ + r.chunk_), end_(r.end_), chunk_(r.chunk_) {
     r.end_ = std::min(r.start_ + r.chunk_, r.end_);
+    id = start_ / chunk_;
   }
 
+  [[nodiscard]] long GetID() const { return id; }
   [[nodiscard]] bool empty() const { return start_ >= end_; }
-
   [[nodiscard]] bool is_divisible() const { return end_ > start_ + chunk_; };
-
   [[nodiscard]] Length begin() const { return start_; }
-
   [[nodiscard]] Length end() const { return end_; }
 };
 // NOLINTEND(readability-identifier-naming)
@@ -52,6 +48,7 @@ Length GetChunk(Length width, Length height, int n_threads) {
 class FirstScan {
   Image& image_;
   Labels& labels_;
+  Ordinals& ordinals_;
   unsigned int width_;
   unsigned int height_;
 
@@ -71,21 +68,13 @@ class FirstScan {
   }
 
  public:
-  FirstScan(Image& image, Labels& labels, Length width, Length height)
-      : image_(image), labels_(labels), width_(width), height_(height) {}
+  FirstScan(Image& image, Labels& labels, Ordinals& ordinals, Length width, Length height)
+      : image_(image), labels_(labels), ordinals_(ordinals), width_(width), height_(height) {}
 
   void operator()(const HardRange& r) const {
-    //   (void)image_;
-    //   (void)height_;
     int n_threads = oneapi::tbb::this_task_arena::max_concurrency();
-    Ordinal ordinal = 0;
     long chunk = GetChunk(width_, height_, n_threads);
-
-    // (void)image_;
-    // (void)height_;
-    // (void)ordinal;
-    // (void)chunk;
-
+    Ordinal& ordinal = ordinals_[r.begin() / chunk];
     DisjointSet dsj(chunk);
     for (Length i = r.begin(); i < r.end(); i++) {
       if (image_[i] == 0) {
@@ -109,12 +98,9 @@ class FirstScan {
 
     std::set<Ordinal> unique_labels(labels_.begin() + r.begin(), labels_.begin() + r.end());
     std::map<Ordinal, Ordinal> replacements;
-    Ordinal true_label = 0;
+    ordinal = 0;
     for (const auto& it : unique_labels) {
-      replacements[it] = true_label++;
-      if (r.begin() == 0) {
-        std::cout << std::format("\n{} {}", it, true_label);
-      }
+      replacements[it] = ordinal++;
     }
 
     for (Length i = r.begin(); i < r.end(); i++) {
@@ -122,26 +108,30 @@ class FirstScan {
     }
   }
 };
+
+class Globalizer {
+  Labels& labels_;
+  Ordinals& shifts_;
+
+ public:
+  Globalizer(Labels& labels, Ordinals& shifts) : labels_(labels), shifts_(shifts) {}
+
+  void operator()(const HardRange& r) const {
+    Ordinal shift = shifts_[r.GetID()];
+    for (Length i = r.begin(); i < r.end(); i++) {
+      if (labels_[i] != 0) {
+        labels_[i] += shift;
+      }
+    }
+  }
+};
 }  // namespace
 
-bool Labeler::PreProcessingImpl() {
-  width_ = task_data->inputs_count[0];
-  height_ = task_data->inputs_count[1];
-  size_ = height_ * width_;
-  image_.resize(size_, 0);
-  std::copy(task_data->inputs[0], task_data->inputs[0] + size_, image_.begin());
-  return true;
-}
-
-bool Labeler::ValidationImpl() {
-  return task_data->inputs_count.size() == 2 && (!task_data->inputs.empty()) &&
-         (task_data->outputs_count[0] == task_data->inputs_count[0] * task_data->inputs_count[1]);
-}
-
-void Labeler::LabelingRasterScan() {
+void Labeler::LabelingRasterScan(Ordinals& ordinals) {
   oneapi::tbb::task_arena arena(ppc::util::GetPPCNumThreads());
-  arena.execute(
-      [&] { oneapi::tbb::parallel_for(HardRange(size_, chunk_), FirstScan(image_, labels_, width_, height_)); });
+  arena.execute([&] {
+    oneapi::tbb::parallel_for(HardRange(size_, chunk_), FirstScan(image_, labels_, ordinals, width_, height_));
+  });
 }
 
 void Labeler::UniteChunks() {
@@ -188,92 +178,29 @@ void Labeler::GlobalizeLabels(Ordinals& ordinals) {
   }
 }
 
+bool Labeler::ValidationImpl() {
+  return task_data->inputs_count.size() == 2 && (!task_data->inputs.empty()) &&
+         (task_data->outputs_count[0] == task_data->inputs_count[0] * task_data->inputs_count[1]);
+}
+
+bool Labeler::PreProcessingImpl() {
+  width_ = task_data->inputs_count[0];
+  height_ = task_data->inputs_count[1];
+  size_ = height_ * width_;
+  image_.resize(size_, 0);
+  std::copy(task_data->inputs[0], task_data->inputs[0] + size_, image_.begin());
+  return true;
+}
+
 bool Labeler::RunImpl() {
   chunk_ = GetChunk(width_, height_, ppc::util::GetPPCNumThreads());
   labels_.clear();
   labels_.resize(size_, 0);
   Ordinals ordinals(ppc::util::GetPPCNumThreads(), 0);
 
-  LabelingRasterScan();
-  // std::cout << std::endl << "After FirstScan prallel" << std::endl;
-  // for (int i = 0; i < (int)labels_.size(); i++) {
-  //   if (i % chunk_ == 0) {
-  //     std::cout << std::endl;
-  //   }
-  //   if (i != 0 && i % width_ == 0) {
-  //     std::cout << std::endl;
-  //   }
-  //   std::cout << std::setw(3) << labels_[i];
-  // }
-
-  Length begin = 0;
-  Length end = chunk_;
-  while (end < size_) {
-    ordinals[begin / chunk_] =
-        *std::ranges::max_element(labels_.begin() + begin, labels_.begin() + std::min(end, size_));
-    begin += chunk_;
-    end += chunk_;
-  }
-
-  // Length begin = 0;
-  // Length end = begin + chunk_ - 1;
-  // for (int i = 0; i < ; i++) {
-  //   ordinals[i] = *std::ranges::max_element(labels_.begin() + begin, labels_.begin() + end);
-  //   begin += chunk_;
-  //   end = std::min(begin + chunk_, size_ - 1);
-  // }
-
-  // std::cout << std::endl << "[INFO] Ordinals: ";
-  // for (const auto& it : ordinals) {
-  //   std::cout << (int)it << " ";
-  // }
-
+  LabelingRasterScan(ordinals);
   GlobalizeLabels(ordinals);
-
-  // std::cout << std::endl << std::endl << "After GlobalizeLabels" << std::endl;
-  // for (int i = 0; i < (int)labels_.size(); i++) {
-  //   if (i % chunk_ == 0) {
-  //     std::cout << std::endl;
-  //   }
-  //   if (i != 0 && i % width_ == 0) {
-  //     std::cout << std::endl;
-  //   }
-  //   std::cout << std::setw(3) << labels_[i];
-  // }
-
   UniteChunks();
-
-  // std::cout << std::endl << "After UniteChunks" << std::endl;
-  // for (int i = 0; i < (int)labels_.size(); i++) {
-  //   if (i % chunk_ == 0) {
-  //     std::cout << std::endl;
-  //   }
-  //   if (i != 0 && i % width_ == 0) {
-  //     std::cout << std::endl;
-  //   }
-  //   std::cout << std::setw(3) << labels_[i];
-  // }
-
-  std::set<Ordinal> unique_labels(labels_.begin(), labels_.end());
-  std::map<Ordinal, Ordinal> replacements;
-  Ordinal ordinal = 0;
-  for (const auto& it : unique_labels) {
-    replacements[it] = ordinal++;
-  }
-  for (Length i = 0; i < size_; i++) {
-    labels_[i] = replacements[labels_[i]];
-  }
-
-  // std::cout << std::endl << "After Sequenize" << std::endl;
-  // for (int i = 0; i < (int)labels_.size(); i++) {
-  //   if (i % chunk_ == 0) {
-  //     std::cout << std::endl;
-  //   }
-  //   if (i != 0 && i % width_ == 0) {
-  //     std::cout << std::endl;
-  //   }
-  //   std::cout << std::setw(3) << labels_[i];
-  // }
   return true;
 }
 
