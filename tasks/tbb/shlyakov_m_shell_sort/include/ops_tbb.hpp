@@ -1,8 +1,7 @@
 #pragma once
 
-#include <tbb/tbb.h>
+#include <tbb.h>
 
-#include <algorithm>
 #include <utility>
 #include <vector>
 

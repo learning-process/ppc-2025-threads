@@ -1,6 +1,6 @@
 ﻿#include "tbb/shlyakov_m_shell_sort/include/ops_tbb.hpp"
 
-#include <tbb/tbb.h>
+#include <tbb.h>
 
 #include <cmath>
 #include <cstddef>
@@ -45,7 +45,7 @@ bool shlyakov_m_shell_sort_omp_tbb::TestTaskOpenMP::RunImpl() {
       std::vector<int> buffer;
       for (int left = r.begin(); left < r.end(); left += 2 * size) {
         int mid = std::min(array_size - 1, left + size - 1);
-        int right = std::min(array_size - 1, left + 2 * size - 1);
+        int right = std::min(array_size - 1, (left + 2 * size) - 1);
         if (mid < right) {
           Merge(left, mid, right, input_, buffer);
         }
