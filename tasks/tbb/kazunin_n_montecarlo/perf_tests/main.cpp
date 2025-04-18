@@ -65,7 +65,7 @@ TEST(kazunin_n_montecarlo_tbb, test_task_run) {
     return std::accumulate(args.begin(), args.end(), 1.0,
                            [](const double acc, const double coord) { return acc + (sin(coord) * cos(coord)); });
   };
-  
+
   auto task_data = std::make_shared<ppc::core::TaskData>();
   task_data->inputs = {reinterpret_cast<uint8_t *>(&precision), reinterpret_cast<uint8_t *>(&limits)};
   task_data->inputs_count = {1, n};
