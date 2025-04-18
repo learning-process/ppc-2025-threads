@@ -1,7 +1,6 @@
 #include <gtest/gtest.h>
 
 #include <cstdint>
-#include <fstream>
 #include <map>
 #include <memory>
 
@@ -122,7 +121,6 @@ TEST_F(zaitsev_a_labeling_test_tbb, validation_fails_on_incorrect_input) {
   EXPECT_FALSE(intask.ValidationImpl());
 }
 #ifndef _WIN32
-// NOLINTNEXTLINE
 TEST_P(zaitsev_a_labeling_test_tbb, returns_correct_label_map) {
   const auto testcase = GetParam();
   const auto& [in, exp, width, height] = (testcase == "rand") ? GenerateImage() : PrepareImages(testcase);
