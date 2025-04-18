@@ -427,3 +427,26 @@ TEST(shlyakov_m_shell_sort_tbb, Test_Random_Array_With_14999) {
   std::ranges::sort(expected);
   EXPECT_EQ(expected, out);
 }
+
+TEST(shlyakov_m_shell_sort_tbb, Test_With_Eq_Numbers) {
+  size_t array_size = 100;
+  std::vector<int> in(array_size, 3);
+  std::vector<int> out(in.size());
+
+  auto task_data_omp = std::make_shared<ppc::core::TaskData>();
+  task_data_omp->inputs.emplace_back(reinterpret_cast<uint8_t *>(in.data()));
+  task_data_omp->inputs_count.emplace_back(in.size());
+  task_data_omp->outputs.emplace_back(reinterpret_cast<uint8_t *>(out.data()));
+  task_data_omp->outputs_count.emplace_back(out.size());
+
+  shlyakov_m_shell_sort_tbb::TestTaskTBB test_task_omp(task_data_omp);
+  ASSERT_TRUE(test_task_omp.Validation());
+  ASSERT_TRUE(test_task_omp.PreProcessing());
+  ASSERT_TRUE(test_task_omp.Run());
+  ASSERT_TRUE(test_task_omp.PostProcessing());
+
+  EXPECT_TRUE(IsSorted(out));
+  std::vector<int> expected = in;
+  std::ranges::sort(expected);
+  EXPECT_EQ(expected, out);
+}
