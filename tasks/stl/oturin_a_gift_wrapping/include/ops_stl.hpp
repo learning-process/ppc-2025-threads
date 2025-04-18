@@ -30,6 +30,9 @@ class TestTaskSTL : public ppc::core::Task {
   bool RunImpl() override;
   bool PostProcessingImpl() override;
 
+#ifdef __linux__
+  void SearchThreadP(std::size_t start, std::size_t end, std::pair<int, double> &thread_result);
+#endif
   std::pair<int, double> SearchThread(std::size_t start, std::size_t end);
 
  private:

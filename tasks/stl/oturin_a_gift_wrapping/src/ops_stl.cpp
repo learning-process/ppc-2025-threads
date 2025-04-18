@@ -80,16 +80,30 @@ bool oturin_a_gift_wrapping_stl::TestTaskSTL::RunImpl() {
   std::size_t thread_block = 0;
   if (!threads.empty()) {
     thread_block = input_.size() / (threads.size() + 1);
+
+#ifdef __linux__
+    for (int i = 0; i < (int)threads.size(); i++) {
+      thread_results[i].first = 10;
+      threads[i] = std::thread(std::bind(&TestTaskSTL::SearchThreadP, this, i * thread_block, (i + 1) * thread_block,
+                                         std::ref(thread_results[i])));
+    }
+#endif
   }
 
   // main loop
   do {
     output_.push_back(input_[search_index]);
 
+#ifdef __linux__
+    for (auto &i : thread_results) {
+      i.first = -1;  // start work
+    }
+#else
     for (int i = 0; i < (int)threads.size(); i++) {
       threads[i] = std::thread(
           [&](const int i) { thread_results[i] = SearchThread(i * thread_block, (i + 1) * thread_block); }, i);
     }
+#endif
 
     std::pair<int, double> main_thread_result = SearchThread(thread_block * threads.size(), input_.size());
 
@@ -100,8 +114,19 @@ bool oturin_a_gift_wrapping_stl::TestTaskSTL::RunImpl() {
     double secondary_abtp = NAN;
     double secondary_distance = NAN;
 
+#ifdef __linux__
+    while (true) {
+      if (std::all_of(thread_results.cbegin(), thread_results.cend(), [](auto &i) { return i.first >= 0; })) {
+        break;
+      }
+      std::this_thread::yield();
+    }
+#endif
+
     for (int i = 0; i < (int)threads.size(); i++) {
+#ifndef __linux__
       threads[i].join();
+#endif
       secondary_abtp = thread_results[i].second;
       if (secondary_abtp > reference_abtp) {
         reference_abtp = secondary_abtp;
@@ -119,8 +144,27 @@ bool oturin_a_gift_wrapping_stl::TestTaskSTL::RunImpl() {
 
   } while (search_index != start_index);
 
+#ifdef __linux__
+  for (int i = 0; i < (int)threads.size(); i++) {
+    thread_results[i].first = -2;
+    threads[i].join();
+  }
+#endif
   return true;
 }
+
+#ifdef __linux__
+void oturin_a_gift_wrapping_stl::TestTaskSTL::SearchThreadP(std::size_t start, std::size_t end,
+                                                            std::pair<int, double> &thread_result) {
+  while (thread_result.first != -2) {
+    std::this_thread::yield();
+    if (thread_result.first != -1) {
+      continue;
+    }
+    thread_result = SearchThread(start, end);
+  }
+}
+#endif
 
 std::pair<int, double> oturin_a_gift_wrapping_stl::TestTaskSTL::SearchThread(std::size_t start, std::size_t end) {
   double line_angle = -5;
