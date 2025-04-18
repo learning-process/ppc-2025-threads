@@ -7,7 +7,7 @@
 #include <vector>
 
 bool solovyev_d_shell_sort_simple_tbb::TaskTBB::PreProcessingImpl() {
-  unsigned int input_size = task_data->inputs_count[0];
+  size_t input_size = task_data->inputs_count[0];
   auto *in_ptr = reinterpret_cast<int *>(task_data->inputs[0]);
   input_ = std::vector<int>(in_ptr, in_ptr + input_size);
 
@@ -21,7 +21,7 @@ bool solovyev_d_shell_sort_simple_tbb::TaskTBB::ValidationImpl() {
 bool solovyev_d_shell_sort_simple_tbb::TaskTBB::RunImpl() {
   for (int gap = static_cast<int>(input_.size()) / 2; gap > 0; gap /= 2) {
     tbb::parallel_for(0, gap, [this, gap](int i) {
-      for (int f = gap + i; f < static_cast<int>(input_.size()); f += gap) {
+      for (size_t f = gap + i; f < input_.size(); f += gap) {
         int val = input_[f];
         int j = f;
         while (j >= gap && input_[j - gap] > val) {
