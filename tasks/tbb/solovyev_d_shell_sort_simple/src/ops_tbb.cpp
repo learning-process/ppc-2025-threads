@@ -23,7 +23,7 @@ bool solovyev_d_shell_sort_simple_tbb::TaskTBB::RunImpl() {
     tbb::parallel_for(0, gap, [this, gap](int i) {
       for (size_t f = gap + i; f < input_.size(); f += gap) {
         int val = input_[f];
-        int j = f;
+        int j = static_cast<int>f;
         while (j >= gap && input_[j - gap] > val) {
           input_[j] = input_[j - gap];
           j -= gap;
