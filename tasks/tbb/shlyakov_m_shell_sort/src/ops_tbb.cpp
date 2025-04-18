@@ -28,8 +28,8 @@ bool TestTaskTBB::RunImpl() {
     return true;
   }
 
-  int threads = static_cast<int>(ppc::util::GetPPCNumThreads());
-  threads = std::min(threads, n);
+  const int max_threads = ppc::util::GetPPCNumThreads();
+  int threads = std::min(max_threads, n);
   const int seg_size = (n + threads - 1) / threads;
 
   std::vector<std::pair<int, int>> segs;
