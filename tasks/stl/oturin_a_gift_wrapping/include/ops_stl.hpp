@@ -40,6 +40,7 @@ class TestTaskSTL : public ppc::core::Task {
   int n_;
 
   int FindMostLeft();
+  void FindSecondPoint(int start_index, int &search_index);
   void PointSearch(double t, double &line_angle, std::size_t &search_index, std::size_t i);
 };
 

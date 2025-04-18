@@ -58,24 +58,8 @@ bool oturin_a_gift_wrapping_stl::TestTaskSTL::RunImpl() {
   int start_index = FindMostLeft();
   output_.push_back(input_[start_index]);
 
-  // find second point
-  double line_angle = -5;
   int search_index = 0;
-  for (int i = 0; i < n_; i++) {
-    if (i == start_index) {
-      continue;
-    }
-    double t = ABTP(input_[start_index], input_[i]);
-    if (t > line_angle) {
-      line_angle = t;
-      search_index = i;
-    } else if (t == line_angle) {
-      if (Distance(input_[start_index], input_[i]) < Distance(input_[start_index], input_[search_index])) {
-        search_index = i;
-        line_angle = t;
-      }
-    }
-  }
+  FindSecondPoint(start_index, search_index);
 
   std::vector<std::thread> threads(ppc::util::GetPPCNumThreads() - 1);  // -1 because main thread will not be here
   std::vector<std::pair<int, double>> thread_results(threads.size());
@@ -84,8 +68,8 @@ bool oturin_a_gift_wrapping_stl::TestTaskSTL::RunImpl() {
     thread_block = input_.size() / (threads.size() + 1);
     for (int i = 0; i < (int)threads.size(); i++) {
       thread_results[i].first = 10;
-      threads[i] = std::thread(std::bind(&TestTaskSTL::SearchThreadP, this, i * thread_block, (i + 1) * thread_block,
-                                         std::ref(thread_results[i])));
+      threads[i] = std::thread(
+          [&](const int i) { SearchThreadP(i * thread_block, (i + 1) * thread_block, thread_results[i]); }, i);
     }
   }
 
@@ -149,24 +133,8 @@ bool oturin_a_gift_wrapping_stl::TestTaskSTL::RunImpl() {
   int start_index = FindMostLeft();
   output_.push_back(input_[start_index]);
 
-  // find second point
-  double line_angle = -5;
   int search_index = 0;
-  for (int i = 0; i < n_; i++) {
-    if (i == start_index) {
-      continue;
-    }
-    double t = ABTP(input_[start_index], input_[i]);
-    if (t > line_angle) {
-      line_angle = t;
-      search_index = i;
-    } else if (t == line_angle) {
-      if (Distance(input_[start_index], input_[i]) < Distance(input_[start_index], input_[search_index])) {
-        search_index = i;
-        line_angle = t;
-      }
-    }
-  }
+  FindSecondPoint(start_index, search_index);
 
   std::vector<std::thread> threads(ppc::util::GetPPCNumThreads() - 1);  // -1 because main thread will not be here
   std::vector<std::pair<int, double>> thread_results(threads.size());
@@ -215,6 +183,25 @@ bool oturin_a_gift_wrapping_stl::TestTaskSTL::RunImpl() {
   return true;
 }
 #endif
+
+void oturin_a_gift_wrapping_stl::TestTaskSTL::FindSecondPoint(int start_index, int &search_index) {
+  double line_angle = -5;
+  for (int i = 0; i < n_; i++) {
+    if (i == start_index) {
+      continue;
+    }
+    double t = ABTP(input_[start_index], input_[i]);
+    if (t > line_angle) {
+      line_angle = t;
+      search_index = i;
+    } else if (t == line_angle) {
+      if (Distance(input_[start_index], input_[i]) < Distance(input_[start_index], input_[search_index])) {
+        search_index = i;
+        line_angle = t;
+      }
+    }
+  }
+}
 
 #ifdef __linux__
 void oturin_a_gift_wrapping_stl::TestTaskSTL::SearchThreadP(std::size_t start, std::size_t end,
