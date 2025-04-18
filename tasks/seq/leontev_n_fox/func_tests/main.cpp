@@ -1,5 +1,6 @@
 #include <gtest/gtest.h>
 
+#include <algorithm>
 #include <cmath>
 #include <cstddef>
 #include <cstdint>
@@ -11,7 +12,7 @@
 #include "seq/leontev_n_fox/include/ops_seq.hpp"
 
 namespace {
-std::vector<double> GenerateRandomMatrix(int size, int seed, double min_val = 0.0, double max_val = 1.0) {
+std::vector<double> GenerateRandomMatrix(size_t size, int seed, double min_val = 0.0, double max_val = 1.0) {
   std::mt19937 rng(seed);
   std::uniform_real_distribution<double> dist(min_val, max_val);
   std::vector<double> matrix(size);
@@ -29,9 +30,9 @@ TEST(leontev_n_fox_seq, 3x3_random) {
   std::vector<double> ref_data(n * n);
   std::vector<double> a(n * n);
   std::vector<double> b(n * n);
-  std::copy(in_data.begin(), in_data.begin() + n * n, a.begin());
-  std::copy(in_data.begin() + n * n, in_data.begin() + 2 * n * n, b.begin());
-  ref_data = leontev_n_fox_seq::mat_mul(a, b, n);
+  std::copy(in_data.begin(), in_data.begin() + static_cast<int>(n * n), a.begin());
+  std::copy(in_data.begin() + static_cast<int>(n * n), in_data.begin() + 2 * n * n, b.begin());
+  ref_data = leontev_n_fox_seq::MatMul(a, b, n);
   auto task_data = std::make_shared<ppc::core::TaskData>();
   task_data->inputs.push_back(reinterpret_cast<uint8_t*>(in_data.data()));
   task_data->inputs.push_back(reinterpret_cast<uint8_t*>(&n));
@@ -48,7 +49,7 @@ TEST(leontev_n_fox_seq, 3x3_random) {
   task.PostProcessingImpl();
   for (size_t i = 0; i < n; i++) {
     for (size_t j = 0; j < n; j++) {
-      EXPECT_NEAR(out_data[i * n + j], ref_data[i * n + j], 1e-6);
+      EXPECT_NEAR(out_data[(i * n) + j], ref_data[(i * n) + j], 1e-6);
     }
   }
 }
@@ -60,9 +61,9 @@ TEST(leontev_n_fox_seq, 111x111_random) {
   std::vector<double> ref_data(n * n);
   std::vector<double> a(n * n);
   std::vector<double> b(n * n);
-  std::copy(in_data.begin(), in_data.begin() + n * n, a.begin());
-  std::copy(in_data.begin() + n * n, in_data.begin() + 2 * n * n, b.begin());
-  ref_data = leontev_n_fox_seq::mat_mul(a, b, n);
+  std::copy(in_data.begin(), in_data.begin() + static_cast<int>(n * n), a.begin());
+  std::copy(in_data.begin() + static_cast<int>(n * n), in_data.begin() + 2 * n * n, b.begin());
+  ref_data = leontev_n_fox_seq::MatMul(a, b, n);
   auto task_data = std::make_shared<ppc::core::TaskData>();
   task_data->inputs.push_back(reinterpret_cast<uint8_t*>(in_data.data()));
   task_data->inputs.push_back(reinterpret_cast<uint8_t*>(&n));
@@ -79,7 +80,7 @@ TEST(leontev_n_fox_seq, 111x111_random) {
   task.PostProcessingImpl();
   for (size_t i = 0; i < n; i++) {
     for (size_t j = 0; j < n; j++) {
-      EXPECT_NEAR(out_data[i * n + j], ref_data[i * n + j], 1e-6);
+      EXPECT_NEAR(out_data[(i * n) + j], ref_data[(i * n) + j], 1e-6);
     }
   }
 }
@@ -92,9 +93,9 @@ TEST(leontev_n_fox_seq, 5x5) {
   std::vector<double> ref_data(n * n);
   std::vector<double> a(n * n);
   std::vector<double> b(n * n);
-  std::copy(in_data.begin(), in_data.begin() + n * n, a.begin());
-  std::copy(in_data.begin() + n * n, in_data.begin() + 2 * n * n, b.begin());
-  ref_data = leontev_n_fox_seq::mat_mul(a, b, n);
+  std::copy(in_data.begin(), in_data.begin() + static_cast<int>(n * n), a.begin());
+  std::copy(in_data.begin() + static_cast<int>(n * n), in_data.begin() + 2 * n * n, b.begin());
+  ref_data = leontev_n_fox_seq::MatMul(a, b, n);
   auto task_data = std::make_shared<ppc::core::TaskData>();
   task_data->inputs.push_back(reinterpret_cast<uint8_t*>(in_data.data()));
   task_data->inputs.push_back(reinterpret_cast<uint8_t*>(&n));
@@ -111,7 +112,7 @@ TEST(leontev_n_fox_seq, 5x5) {
   task.PostProcessingImpl();
   for (size_t i = 0; i < n; i++) {
     for (size_t j = 0; j < n; j++) {
-      EXPECT_NEAR(out_data[i * n + j], ref_data[i * n + j], 1e-6);
+      EXPECT_NEAR(out_data[(i * n) + j], ref_data[(i * n) + j], 1e-6);
     }
   }
 }

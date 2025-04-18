@@ -12,7 +12,7 @@
 #include "seq/leontev_n_fox/include/ops_seq.hpp"
 
 namespace {
-std::vector<double> GenerateRandomMatrix(int size, int seed, double min_val = 0.0, double max_val = 1.0) {
+std::vector<double> GenerateRandomMatrix(size_t size, int seed, double min_val = 0.0, double max_val = 1.0) {
   std::mt19937 rng(seed);
   std::uniform_real_distribution<double> dist(min_val, max_val);
   std::vector<double> matrix(size);
