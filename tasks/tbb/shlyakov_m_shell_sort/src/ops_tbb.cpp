@@ -1,6 +1,6 @@
 ﻿#include "tbb/shlyakov_m_shell_sort/include/ops_tbb.hpp"
 
-#include <tbb.h>
+#include <tbb/tbb.h>
 
 #include <cmath>
 #include <cstddef>
