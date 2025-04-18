@@ -11,6 +11,7 @@
 #include <span>
 #include <vector>
 
+#include "core/util/include/util.hpp"
 #include "oneapi/tbb/blocked_range.h"
 #include "oneapi/tbb/enumerable_thread_specific.h"
 #include "oneapi/tbb/parallel_for.h"
@@ -37,7 +38,7 @@ void TestTaskTBB::QuickSort(std::vector<int>::iterator low, std::vector<int>::it
   auto partition_iter = std::partition(low, high, [pivot](int elem) { return elem <= pivot; });
   auto mid_iter = std::partition(low, partition_iter, [pivot](int elem) { return elem < pivot; });
 
-  int max_depth = static_cast<int>(std::log2(tbb::this_task_arena::max_concurrency())) + 1;
+  int max_depth = static_cast<int>(std::log2(ppc::util::GetPPCNumThreads())) + 1;
 
   if (depth < max_depth) {
     tbb::task_group group;
@@ -153,7 +154,7 @@ bool TestTaskTBB::RunImpl() {
   if (n <= 1) {
     return true;
   }
-  int num_threads = tbb::this_task_arena::max_concurrency();
+  int num_threads = ppc::util::GetPPCNumThreads();
   int p = std::max(num_threads / 2, 1);
   auto blocks = PartitionBlocks(input_, p);
 
