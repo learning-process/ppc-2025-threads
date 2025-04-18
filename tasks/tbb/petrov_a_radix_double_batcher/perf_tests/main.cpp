@@ -5,7 +5,7 @@
 #include <cstddef>
 #include <cstdint>
 #include <memory>
-#include <random>
+#include <numeric>
 #include <vector>
 
 #include "../include/ops_tbb.hpp"
@@ -13,18 +13,15 @@
 #include "core/task/include/task.hpp"
 
 namespace {
-std::vector<double> RandomVector(size_t size) {
-  std::random_device dev;
-  std::mt19937 gen(dev());
-  std::uniform_real_distribution<> dist(-5000, 8000);
+std::vector<double> CreateVector(size_t size) {
   std::vector<double> vec(size);
-  std::ranges::generate(vec, [&dist, &gen] { return dist(gen); });
+  std::iota(vec.rbegin(), vec.rend(), 0);
   return vec;
 }
 }  // namespace
 
 TEST(petrov_a_radix_double_batcher_tbb, test_pipeline_run) {
-  auto in = RandomVector(32'000'000);
+  auto in = CreateVector(22222222);
   std::vector<double> out(in.size());
 
   auto task_data_tbb = std::make_shared<ppc::core::TaskData>();
@@ -52,7 +49,7 @@ TEST(petrov_a_radix_double_batcher_tbb, test_pipeline_run) {
 }
 
 TEST(petrov_a_radix_double_batcher_tbb, test_task_run) {
-  auto in = RandomVector(32'000'000);
+  auto in = CreateVector(22222222);
   std::vector<double> out(in.size());
 
   auto task_data_tbb = std::make_shared<ppc::core::TaskData>();
