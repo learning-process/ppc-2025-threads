@@ -15,7 +15,6 @@
 #include "oneapi/tbb/blocked_range.h"
 #include "oneapi/tbb/enumerable_thread_specific.h"
 #include "oneapi/tbb/parallel_for.h"
-#include "oneapi/tbb/task_arena.h"
 #include "oneapi/tbb/task_group.h"
 
 namespace korovin_n_qsort_batcher_tbb {
