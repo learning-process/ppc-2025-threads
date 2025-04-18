@@ -6,6 +6,8 @@
 
 #include <cmath>
 #include <core/util/include/util.hpp>
+#include <cstddef>
+#include <functional>
 #include <vector>
 
 double chizhov_m_trapezoid_method_tbb::TrapezoidMethod(Function& f, size_t div, size_t dim,
@@ -16,7 +18,7 @@ double chizhov_m_trapezoid_method_tbb::TrapezoidMethod(Function& f, size_t div, 
   std::vector<int> steps(int_dim);
 
   for (int i = 0; i < int_dim; i++) {
-    steps[i] = div;
+    steps[i] = static_cast<int>(div);
     h[i] = (upper_limits[i] - lower_limits[i]) / steps[i];
   }
 
@@ -35,7 +37,7 @@ double chizhov_m_trapezoid_method_tbb::TrapezoidMethod(Function& f, size_t div, 
         tbb::blocked_range<long>(0, total_nodes), 0.0,
         [&](const tbb::blocked_range<long>& r, double local_res) {
           for (long i = r.begin(); i != r.end(); ++i) {
-            int temp = i;
+            int temp = static_cast<int>(i);
             double weight = 1.0;
             std::vector<double> point(int_dim);
 
