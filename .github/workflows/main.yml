@@ -5,7 +5,7 @@ on:
   pull_request:
   merge_group:
   schedule:
-    - cron: '0 0,6,12,18 * * *'
+    - cron: '0 0 * * *'
   workflow_dispatch:
 
 concurrency:
@@ -700,12 +700,6 @@ jobs:
         uses: mpi4py/setup-mpi@v1
         with:
           mpi: msmpi
-      - name: Download dependencies
-        uses: nick-fields/retry@v3
-        with:
-          timeout_minutes: 60
-          max_attempts: 3
-          command: choco install openssl --execution-timeout 3600
       - name: Setup ccache
         uses: Chocobo1/setup-ccache-action@v1
         with:
@@ -754,12 +748,6 @@ jobs:
         uses: mpi4py/setup-mpi@v1
         with:
           mpi: msmpi
-      - name: Download dependencies
-        uses: nick-fields/retry@v3
-        with:
-          timeout_minutes: 60
-          max_attempts: 3
-          command: choco install openssl --execution-timeout 3600
       - name: Download installed package
         uses: actions/download-artifact@v4
         with:
@@ -820,12 +808,6 @@ jobs:
         uses: mpi4py/setup-mpi@v1
         with:
           mpi: msmpi
-      - name: Download dependencies
-        uses: nick-fields/retry@v3
-        with:
-          timeout_minutes: 60
-          max_attempts: 3
-          command: choco install openssl --execution-timeout 3600
       - name: Download installed package
         uses: actions/download-artifact@v4
         with:
@@ -928,12 +910,6 @@ jobs:
         uses: mpi4py/setup-mpi@v1
         with:
           mpi: msmpi
-      - name: Download dependencies
-        uses: nick-fields/retry@v3
-        with:
-          timeout_minutes: 60
-          max_attempts: 3
-          command: choco install openssl --execution-timeout 3600
       - name: Download installed package
         uses: actions/download-artifact@v4
         with:
@@ -978,12 +954,6 @@ jobs:
         uses: mpi4py/setup-mpi@v1
         with:
           mpi: msmpi
-      - name: Download dependencies
-        uses: nick-fields/retry@v3
-        with:
-          timeout_minutes: 60
-          max_attempts: 3
-          command: choco install openssl --execution-timeout 3600
       - name: Download installed package
         uses: actions/download-artifact@v4
         with:
@@ -1106,6 +1076,7 @@ jobs:
         uses: codecov/codecov-action@v5.3.1
         with:
           files: coverage.xml
+          token: 641bb01e-bedf-45fd-9d7e-a92d4ec3a0af
       - name: Upload coverage report artifact
         uses: actions/upload-artifact@v4
         with:
@@ -1139,7 +1110,10 @@ jobs:
           python3 scripts/run_perf_counter.py --required-tests-number=2
       - name: Run perf tests
         run: |
-          source scripts/generate_perf_results.sh
+          bash -e scripts/generate_perf_results.sh
+        env:
+          OMP_NUM_THREADS: 2
+          PROC_COUNT: 2
       - name: Archive results
         uses: montudor/action-zip@v1
         with:
