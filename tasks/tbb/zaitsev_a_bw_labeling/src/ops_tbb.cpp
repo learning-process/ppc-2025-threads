@@ -53,8 +53,9 @@ class FirstScan {
   unsigned int height_;
 
   [[nodiscard]] bool IsPointValid(long x, long y, const HardRange& r) const {
-    return 0 <= x && x < (long)width_ && y >= 0 && (y * width_) + x >= (long)r.begin() &&
-           (y * width_) + x < (long)r.end();
+    return 0L <= x && x < static_cast<long>(width_) && y >= 0L &&
+           (y * (long)width_) + x >= static_cast<long>(r.begin()) &&
+           (y * (long)width_) + x < static_cast<long>(r.end());
   }
 
   void GetNeighbours(Ordinals& neighbours, Length pos, const HardRange& r) const {
