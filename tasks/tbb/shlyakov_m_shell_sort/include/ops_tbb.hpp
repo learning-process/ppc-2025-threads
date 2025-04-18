@@ -1,9 +1,8 @@
 #pragma once
 
-#include <tbb/blocked_range.h>
-#include <tbb/parallel_for.h>
-#include <tbb/task_arena.h>
+#include <tbb/tbb.h>
 
+#include <algorithm>
 #include <utility>
 #include <vector>
 
