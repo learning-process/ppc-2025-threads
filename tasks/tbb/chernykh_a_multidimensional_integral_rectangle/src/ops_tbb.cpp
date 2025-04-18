@@ -69,12 +69,12 @@ void TBBTask::FillPoint(int index, Point &point) const {
 
 int TBBTask::GetTotalPoints() const {
   return std::accumulate(dims_.begin(), dims_.end(), 1,
-                         [](const int accum, const Dimension &dim) -> int { return accum * dim.GetStepsCount(); });
+                         [](int accum, const Dimension &dim) -> int { return accum * dim.GetStepsCount(); });
 }
 
 double TBBTask::GetScalingFactor() const {
   return std::accumulate(dims_.begin(), dims_.end(), 1.0,
-                         [](const double accum, const Dimension &dim) -> double { return accum * dim.GetStepSize(); });
+                         [](double accum, const Dimension &dim) -> double { return accum * dim.GetStepSize(); });
 }
 
 }  // namespace chernykh_a_multidimensional_integral_rectangle_tbb
