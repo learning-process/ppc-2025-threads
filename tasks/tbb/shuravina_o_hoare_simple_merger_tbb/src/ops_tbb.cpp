@@ -3,6 +3,7 @@
 #include <algorithm>
 #include <cmath>
 #include <cstddef>
+#include <stdexcept>
 #include <vector>
 
 #include "oneapi/tbb/parallel_invoke.h"
@@ -10,6 +11,10 @@
 namespace shuravina_o_hoare_simple_merger_tbb {
 
 void TestTaskTBB::QuickSort(std::vector<int>& arr, int low, int high) {
+  if (low < 0 || high < 0 || low >= arr.size() || high >= arr.size() || arr.empty()) {
+    return;
+  }
+
   if (low < high) {
     int pivot = arr[high];
     int i = low - 1;
@@ -30,22 +35,29 @@ void TestTaskTBB::QuickSort(std::vector<int>& arr, int low, int high) {
 }
 
 void TestTaskTBB::ParallelQuickSort(std::vector<int>& arr, int low, int high) {
-  if (low < high) {
-    int pivot = arr[high];
-    int i = low - 1;
-
-    for (int j = low; j < high; ++j) {
-      if (arr[j] <= pivot) {
-        ++i;
-        std::swap(arr[i], arr[j]);
-      }
-    }
-    std::swap(arr[i + 1], arr[high]);
-
-    int pi = i + 1;
-
-    tbb::parallel_invoke([&] { ParallelQuickSort(arr, low, pi - 1); }, [&] { ParallelQuickSort(arr, pi + 1, high); });
+  if (low < 0 || high < 0 || low >= arr.size() || high >= arr.size() || arr.empty()) {
+    return;
   }
+
+  if (high - low < 1000) {
+    QuickSort(arr, low, high);
+    return;
+  }
+
+  int pivot = arr[high];
+  int i = low - 1;
+
+  for (int j = low; j < high; ++j) {
+    if (arr[j] <= pivot) {
+      ++i;
+      std::swap(arr[i], arr[j]);
+    }
+  }
+  std::swap(arr[i + 1], arr[high]);
+
+  int pi = i + 1;
+
+  tbb::parallel_invoke([&] { ParallelQuickSort(arr, low, pi - 1); }, [&] { ParallelQuickSort(arr, pi + 1, high); });
 }
 
 void TestTaskTBB::Merge(std::vector<int>& arr, int low, int mid, int high) {
