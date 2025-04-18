@@ -6,7 +6,7 @@
 #include <cstdint>
 #include <functional>
 #include <memory>
-#include <random>
+#include <numeric>
 #include <utility>
 #include <vector>
 
@@ -14,22 +14,19 @@
 #include "core/task/include/task.hpp"
 #include "tbb/tyshkevich_a_hoare_simple_merge/include/ops_tbb.hpp"
 
+constexpr size_t kTestSequenceSize = 54'000;
+
 namespace {
 template <typename T>
-std::vector<T> GenRandVec(size_t size) {
-  std::random_device dev;
-  std::mt19937 gen(dev());
-  std::uniform_real_distribution<> dist(-1000, 1000);
-
-  std::vector<T> vec(size);
-  std::ranges::generate(vec, [&] { return dist(gen); });
-
-  return vec;
+std::vector<T> RevSrtVec(size_t size) {
+  std::vector<T> rv(size);
+  std::iota(rv.rbegin(), rv.rend(), 0);
+  return rv;
 }
 }  // namespace
 
 TEST(tyshkevich_a_hoare_simple_merge_tbb, test_pipeline_run) {
-  auto in = GenRandVec<int>(3000000);
+  auto in = RevSrtVec<int>(kTestSequenceSize);
   std::vector<int> out(in.size());
 
   auto dat = std::make_shared<ppc::core::TaskData>();
@@ -62,7 +59,7 @@ TEST(tyshkevich_a_hoare_simple_merge_tbb, test_pipeline_run) {
 }
 
 TEST(tyshkevich_a_hoare_simple_merge_tbb, test_task_run) {
-  auto in = GenRandVec<int>(3000000);
+  auto in = RevSrtVec<int>(kTestSequenceSize);
   std::vector<int> out(in.size());
 
   auto dat = std::make_shared<ppc::core::TaskData>();

@@ -1,11 +1,13 @@
 #pragma once
 
 #include <oneapi/tbb/parallel_for.h>
-#include <oneapi/tbb/parallel_reduce.h>
 #include <oneapi/tbb/task_arena.h>
 #include <tbb/tbb.h>
 
 #include <algorithm>
+#include <cstddef>
+#include <cstdint>
+#include <span>
 #include <utility>
 #include <vector>
 
