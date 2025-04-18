@@ -102,6 +102,7 @@ bool gusev_n_sorting_int_simple_merging_tbb::SortingIntSimpleMergingTBB::Validat
   return task_data->inputs_count[0] == task_data->outputs_count[0];
 }
 
+// 504 Gateway Time-out =)
 bool gusev_n_sorting_int_simple_merging_tbb::SortingIntSimpleMergingTBB::RunImpl() {
   RadixSort(input_);
   return true;
