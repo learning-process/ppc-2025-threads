@@ -24,7 +24,6 @@ bool TestTaskTBB::ValidationImpl() { return task_data->inputs_count[0] == task_d
 bool TestTaskTBB::RunImpl() {
   int n = static_cast<int>(input_.size());
   if (n < 2) {
-    output_ = input_;
     return true;
   }
 
@@ -92,13 +91,10 @@ void Merge(int left, int mid, int right, std::vector<int>& arr, std::vector<int>
 
   while (i <= mid && j <= right) {
     if (arr[i] <= arr[j]) {
-      buffer[k] = arr[i];
-      ++i;
+      buffer[k++] = arr[i++];
     } else {
-      buffer[k] = arr[j];
-      ++j;
+      buffer[k++] = arr[j++];
     }
-    ++k;
   }
   while (i <= mid) {
     buffer[k++] = arr[i++];
