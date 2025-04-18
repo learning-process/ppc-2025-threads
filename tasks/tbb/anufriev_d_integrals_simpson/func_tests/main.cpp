@@ -20,6 +20,15 @@ std::shared_ptr<ppc::core::TaskData> MakeTaskData(const std::vector<double>& ele
   task_data->inputs_count.push_back(static_cast<uint32_t>(elements.size() * sizeof(double)));
   task_data->outputs.push_back(output_ptr);
   task_data->outputs_count.push_back(static_cast<uint32_t>(out_buffer.size() * sizeof(double)));
+  
+  if(!out_buffer.empty()) {
+    auto* output_ptr = reinterpret_cast<uint8_t*>(out_buffer.data());
+    task_data->outputs.push_back(output_ptr);
+    task_data->outputs_count.push_back(static_cast<uint32_t>(out_buffer.size() * sizeof(double)));
+  } else {
+    task_data->outputs.push_back(nullptr);
+    task_data->outputs_count.push_back(0);
+  } 
   return task_data;
 }
 }  // namespace
@@ -147,4 +156,80 @@ TEST(anufriev_d_integrals_simpson_tbb, test_no_output_buffer_in_taskdata) {
   td->inputs_count.push_back(static_cast<std::uint32_t>(in.size() * sizeof(double)));
   anufriev_d_integrals_simpson_tbb::IntegralsSimpsonTBB task(td);
   EXPECT_FALSE(task.Validation());
+}
+
+TEST(anufriev_d_integrals_simpson_tbb, test_invalid_n_not_integer) {
+  std::vector<double> in = {1, 0.0, 1.0, 100.5, 0};
+  std::vector<double> out_buffer(1, 0.0);
+  auto td = MakeTaskData(in, out_buffer);
+  anufriev_d_integrals_simpson_tbb::IntegralsSimpsonTBB task(td);
+  EXPECT_FALSE(task.PreProcessingImpl());
+}
+
+TEST(anufriev_d_integrals_simpson_tbb, test_invalid_n_too_large) {
+  std::vector<double> in = {1, 0.0, 1.0, static_cast<double>(std::numeric_limits<int>::max()) + 10.0, 0};
+  std::vector<double> out_buffer(1, 0.0);
+  auto td = MakeTaskData(in, out_buffer);
+  anufriev_d_integrals_simpson_tbb::IntegralsSimpsonTBB task(td);
+  EXPECT_FALSE(task.PreProcessingImpl());
+}
+
+TEST(anufriev_d_integrals_simpson_tbb, test_invalid_func_code_not_integer) {
+  std::vector<double> in = {1, 0.0, 1.0, 100, 1.5};
+  std::vector<double> out_buffer(1, 0.0);
+  auto td = MakeTaskData(in, out_buffer);
+  anufriev_d_integrals_simpson_tbb::IntegralsSimpsonTBB task(td);
+  EXPECT_FALSE(task.PreProcessingImpl());
+}
+
+TEST(anufriev_d_integrals_simpson_tbb, test_invalid_func_code_too_large) {
+  std::vector<double> in = {1, 0.0, 1.0, 100, static_cast<double>(std::numeric_limits<int>::max()) + 10.0};
+  std::vector<double> out_buffer(1, 0.0);
+  auto td = MakeTaskData(in, out_buffer);
+  anufriev_d_integrals_simpson_tbb::IntegralsSimpsonTBB task(td);
+  EXPECT_FALSE(task.PreProcessingImpl());
+}
+
+TEST(anufriev_d_integrals_simpson_tbb, test_invalid_func_code_too_small) {
+  std::vector<double> in = {1, 0.0, 1.0, 100, static_cast<double>(std::numeric_limits<int>::min()) - 10.0};
+  std::vector<double> out_buffer(1, 0.0);
+  auto td = MakeTaskData(in, out_buffer);
+  anufriev_d_integrals_simpson_tbb::IntegralsSimpsonTBB task(td);
+  EXPECT_FALSE(task.PreProcessingImpl());
+}
+
+TEST(anufriev_d_integrals_simpson_tbb, test_a_greater_than_b) {
+  std::vector<double> in = {1, 1.0, 0.0, 100, 0};
+  std::vector<double> out_buffer(1, 0.0);
+  auto td = MakeTaskData(in, out_buffer);
+  anufriev_d_integrals_simpson_tbb::IntegralsSimpsonTBB task(td);
+  ASSERT_TRUE(task.Validation());
+  ASSERT_TRUE(task.PreProcessing());
+  ASSERT_TRUE(task.Run());
+  ASSERT_TRUE(task.PostProcessing());
+  double result = out_buffer[0];
+  EXPECT_NEAR(result, -1.0 / 3.0, 1e-3);
+}
+
+TEST(anufriev_d_integrals_simpson_tbb, test_invalid_empty_output_count) {
+  std::vector<double> in = {1, 0.0, 1.0, 2, 0};
+  std::vector<double> out_buf(1);
+  auto td = std::make_shared<ppc::core::TaskData>();
+  td->inputs.push_back(reinterpret_cast<uint8_t*>(const_cast<double*>(in.data())));
+  td->inputs_count.push_back(static_cast<std::uint32_t>(in.size() * sizeof(double)));
+  td->outputs.push_back(reinterpret_cast<uint8_t*>(out_buf.data()));
+  anufriev_d_integrals_simpson_tbb::IntegralsSimpsonTBB task(td);
+  EXPECT_FALSE(task.ValidationImpl());
+}
+
+TEST(anufriev_d_integrals_simpson_tbb, test_invalid_small_output_count) {
+  std::vector<double> in = {1, 0.0, 1.0, 2, 0};
+  std::vector<double> out_buf(1);
+  auto td = std::make_shared<ppc::core::TaskData>();
+  td->inputs.push_back(reinterpret_cast<uint8_t*>(const_cast<double*>(in.data())));
+  td->inputs_count.push_back(static_cast<std::uint32_t>(in.size() * sizeof(double)));
+  td->outputs.push_back(reinterpret_cast<uint8_t*>(out_buf.data()));
+  td->outputs_count.push_back(sizeof(double) - 1);
+  anufriev_d_integrals_simpson_tbb::IntegralsSimpsonTBB task(td);
+  EXPECT_FALSE(task.ValidationImpl());
 }

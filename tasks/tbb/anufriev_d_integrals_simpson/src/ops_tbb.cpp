@@ -75,14 +75,9 @@ bool IntegralsSimpsonTBB::PreProcessingImpl() {
   }
 
   dimension_ = d;
-  try {
-    a_.resize(dimension_);
-    b_.resize(dimension_);
-    n_.resize(dimension_);
-  } catch (const std::bad_alloc& e) {
-    std::cerr << "Error: Failed to allocate memory for dimension " << dimension_ << ": " << e.what() << '\n';
-    return false;
-  }
+  a_.resize(dimension_);
+  b_.resize(dimension_);
+  n_.resize(dimension_);
 
   int idx_ptr = 1;
   for (int i = 0; i < dimension_; i++) {
