@@ -17,12 +17,12 @@ class TestTaskTBB : public ppc::core::Task {
   bool PostProcessingImpl() override;
 
  private:
-  std::vector<unsigned char> input_{};
-  std::vector<unsigned char> output_{};
+  std::vector<unsigned char> input_;
+  std::vector<unsigned char> output_;
   std::size_t height_ = 0;
   std::size_t width_ = 0;
 
-  std::vector<float> kernel_{};
+  std::vector<float> kernel_;
 };
 
 }  // namespace komshina_d_image_filtering_vertical_gaussian_tbb
