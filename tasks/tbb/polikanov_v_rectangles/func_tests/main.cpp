@@ -35,6 +35,11 @@ TEST(polikanov_v_rectangles_tbb, exp) {
               [](const auto &p) { return std::exp(p[0]); });
 }
 
+TEST(polikanov_v_rectangles_tbb, sqrt) {
+  RunFuncTest(std::vector<polikanov_v_rectangles::IntegrationBound>(1, {0, 1}), 150, 2. / 3.,
+              [](const auto &p) { return std::sqrt(p[0]); });
+}
+
 TEST(polikanov_v_rectangles_tbb, exp_pow_2) {
   RunFuncTest(std::vector<polikanov_v_rectangles::IntegrationBound>(1, {0, 1}), 150, 3.15,
               [](const auto &p) { return std::pow(std::exp(p[0]), 2); });
