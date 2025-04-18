@@ -1,5 +1,6 @@
 #include "tbb/korovin_n_qsort_batcher/include/ops_tbb.hpp"
 
+#include <oneapi/tbb/parallel_invoke.h>
 #include <tbb/tbb.h>
 
 #include <algorithm>
@@ -116,7 +117,7 @@ void TestTaskTBB::OddEvenMerge(std::vector<BlockRange>& blocks) {
     tbb::parallel_for(tbb::blocked_range<int>(0, p / 2), [&](const tbb::blocked_range<int>& range) {
       auto& buffer = thread_buffers.local();
       for (int idx = range.begin(); idx < range.end(); idx++) {
-        int i = (iter + idx * 2) % 2 + idx * 2;
+        int i = ((iter + idx * 2) % 2) + (idx * 2);
         if (i + 1 < p) {
           bool changed_local = InPlaceMerge(blocks[i], blocks[i + 1], buffer);
           if (changed_local) {
