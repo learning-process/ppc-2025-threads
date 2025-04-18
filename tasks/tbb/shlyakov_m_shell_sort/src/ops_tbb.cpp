@@ -5,16 +5,15 @@
 
 #include <algorithm>
 #include <core/util/include/util.hpp>
-#include <cstddef>
 #include <utility>
 #include <vector>
 
 namespace shlyakov_m_shell_sort_tbb {
 
 bool TestTaskTBB::PreProcessingImpl() {
-  std::size_t input_size = task_data->inputs_count[0];
-  auto* in_ptr = reinterpret_cast<int*>(task_data->inputs[0]);
-  input_.assign(in_ptr, in_ptr + input_size);
+  std::size_t sz = task_data->inputs_count[0];
+  auto* ptr = reinterpret_cast<int*>(task_data->inputs[0]);
+  input_.assign(ptr, ptr + sz);
   output_ = input_;
   return true;
 }
@@ -28,34 +27,33 @@ bool TestTaskTBB::RunImpl() {
     return true;
   }
 
-  int num_threads = ppc::util::GetPPCNumThreads();
-  num_threads = std::min(num_threads, n);
+  int threads = ppc::util::GetPPCNumThreads();
+  threads = std::min(threads, n);
+  int seg = (n + threads - 1) / threads;
 
-  int seg_size = (n + num_threads - 1) / num_threads;
-
-  std::vector<std::pair<int, int>> segments;
-  segments.reserve(num_threads);
-  for (int i = 0; i < num_threads; ++i) {
-    int left = i * seg_size;
-    int right = std::min(n - 1, left + seg_size - 1);
-    segments.emplace_back(left, right);
+  std::vector<std::pair<int, int>> segs;
+  segs.reserve(threads);
+  for (int i = 0; i < threads; ++i) {
+    int l = i * seg;
+    int r = std::min(n - 1, l + seg - 1);
+    segs.emplace_back(l, r);
   }
 
-  tbb::task_arena arena(num_threads);
+  tbb::task_arena arena(threads);
   arena.execute([&] {
     tbb::task_group tg;
-    for (auto [l, r] : segments) {
+    for (auto [l, r] : segs) {
       tg.run([this, l, r] { ShellSort(l, r, input_); });
     }
     tg.wait();
   });
 
-  std::vector<int> buffer;
-  int merged_end = segments[0].second;
-  for (std::size_t i = 1; i < segments.size(); ++i) {
-    int seg_end = segments[i].second;
-    Merge(0, merged_end, seg_end, input_, buffer);
-    merged_end = seg_end;
+  std::vector<int> buf;
+  int end = segs[0].second;
+  for (std::size_t i = 1; i < segs.size(); ++i) {
+    int r = segs[i].second;
+    Merge(0, end, r, input_, buf);
+    end = r;
   }
 
   output_ = input_;
@@ -63,55 +61,51 @@ bool TestTaskTBB::RunImpl() {
 }
 
 void ShellSort(int left, int right, std::vector<int>& arr) {
-  int size = right - left + 1;
   int gap = 1;
+  int size = right - left + 1;
   while (gap <= size / 3) {
     gap = gap * 3 + 1;
   }
   for (; gap > 0; gap /= 3) {
     for (int k = left + gap; k <= right; ++k) {
-      int tmp = arr[k];
+      int val = arr[k];
       int j = k;
-      while (j >= left + gap && arr[j - gap] > tmp) {
+      while (j >= left + gap && arr[j - gap] > val) {
         arr[j] = arr[j - gap];
         j -= gap;
       }
-      arr[j] = tmp;
+      arr[j] = val;
     }
   }
 }
 
 void Merge(int left, int mid, int right, std::vector<int>& arr, std::vector<int>& buffer) {
-  int i = left;
-  int j = mid + 1;
-  int k = 0;
-
   int merge_size = right - left + 1;
   if (buffer.size() < static_cast<std::size_t>(merge_size)) {
     buffer.resize(static_cast<std::size_t>(merge_size));
   }
 
-  while (i <= mid || j <= right) {
-    if (i > mid) {
-      buffer[k] = arr[j];
-      ++k;
-      ++j;
-    } else if (j > right) {
+  int i = left;
+  int j = mid + 1;
+  int k = 0;
+
+  while (i <= mid && j <= right) {
+    if (arr[i] <= arr[j]) {
       buffer[k] = arr[i];
-      ++k;
-      ++i;
-    } else if (arr[i] <= arr[j]) {
-      buffer[k] = arr[i];
-      ++k;
       ++i;
     } else {
       buffer[k] = arr[j];
-      ++k;
       ++j;
     }
+    ++k;
   }
-
-  for (int idx = 0; idx < k; ++idx) {
+  while (i <= mid) {
+    buffer[k++] = arr[i++];
+  }
+  while (j <= right) {
+    buffer[k++] = arr[j++];
+  }
+  for (int idx = 0; idx < merge_size; ++idx) {
     arr[left + idx] = buffer[idx];
   }
 }
