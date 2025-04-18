@@ -148,6 +148,44 @@ TEST(chernykh_a_multidimensional_integral_rectangle_tbb, one_step_integration) {
   RunValidTask(func, dims, want);
 }
 
+TEST(chernykh_a_multidimensional_integral_rectangle_tbb, linear_4d_integration) {
+  Function func = [](const Point& point) -> double { return point[0] + point[1] + point[2] + point[3]; };
+  std::vector<Dimension> dims = {
+      Dimension(0.0, 1.0, 10),
+      Dimension(0.0, 1.0, 10),
+      Dimension(0.0, 1.0, 10),
+      Dimension(0.0, 1.0, 10),
+  };
+  double want = 2.2000000000000006;
+  RunValidTask(func, dims, want);
+}
+
+TEST(chernykh_a_multidimensional_integral_rectangle_tbb, quadratic_4d_integration) {
+  Function func = [](const Point& point) -> double {
+    return std::pow(point[0], 2) + std::pow(point[1], 2) + std::pow(point[2], 2) + std::pow(point[3], 2);
+  };
+  std::vector<Dimension> dims = {
+      Dimension(0.0, 1.0, 10),
+      Dimension(0.0, 1.0, 10),
+      Dimension(0.0, 1.0, 10),
+      Dimension(0.0, 1.0, 10),
+  };
+  double want = 1.5399999999999965;
+  RunValidTask(func, dims, want);
+}
+
+TEST(chernykh_a_multidimensional_integral_rectangle_tbb, mixed_4d_integration) {
+  Function func = [](const Point& point) -> double { return (point[0] * point[1]) + (point[2] * point[3]); };
+  std::vector<Dimension> dims = {
+      Dimension(0.0, 1.0, 10),
+      Dimension(0.0, 1.0, 10),
+      Dimension(0.0, 1.0, 10),
+      Dimension(0.0, 1.0, 10),
+  };
+  double want = 0.6049999999999999;
+  RunValidTask(func, dims, want);
+}
+
 TEST(chernykh_a_multidimensional_integral_rectangle_tbb, empty_dimensions_fails_validation) {
   Function func = [](const Point& point) -> double { return std::sqrt(point[0]) + std::sqrt(point[1]); };
   std::vector<Dimension> dims = {};
