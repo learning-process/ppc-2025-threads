@@ -29,7 +29,7 @@ TEST(zinoviev_a_convex_hull_components_tbb, test_pipeline_run) {
   auto task = std::make_shared<zinoviev_a_convex_hull_components_tbb::ConvexHullTBB>(task_data);
 
   auto perf_attr = std::make_shared<ppc::core::PerfAttr>();
-  perf_attr->num_running = 100;
+  perf_attr->num_running = 200;
   const auto t0 = std::chrono::high_resolution_clock::now();
   perf_attr->current_timer = [&] {
     auto current_time_point = std::chrono::high_resolution_clock::now();
@@ -66,7 +66,7 @@ TEST(zinoviev_a_convex_hull_components_tbb, test_task_run) {
   auto task = std::make_shared<zinoviev_a_convex_hull_components_tbb::ConvexHullTBB>(task_data);
 
   auto perf_attr = std::make_shared<ppc::core::PerfAttr>();
-  perf_attr->num_running = 100;
+  perf_attr->num_running = 200;
   const auto t0 = std::chrono::high_resolution_clock::now();
   perf_attr->current_timer = [&] {
     auto current_time_point = std::chrono::high_resolution_clock::now();
