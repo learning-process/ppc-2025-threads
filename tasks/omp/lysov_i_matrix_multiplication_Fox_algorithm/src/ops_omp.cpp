@@ -37,7 +37,7 @@ void lysov_i_matrix_multiplication_fox_algorithm_omp::ProcessBlock(const std::ve
     }
   }
 }
-// Init value for input and output
+// Init value for
 bool lysov_i_matrix_multiplication_fox_algorithm_omp::TestTaskOpenMP::PreProcessingImpl() {
   n_ = reinterpret_cast<std::size_t *>(task_data->inputs[0])[0];
   block_size_ = reinterpret_cast<std::size_t *>(task_data->inputs[3])[0];
