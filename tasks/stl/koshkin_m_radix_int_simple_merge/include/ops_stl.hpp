@@ -8,9 +8,9 @@
 
 namespace koshkin_m_radix_int_simple_merge {
 
-class TbbT : public ppc::core::Task {
+class StlT : public ppc::core::Task {
  public:
-  explicit TbbT(ppc::core::TaskDataPtr task_data) : Task(std::move(task_data)) {}
+  explicit StlT(ppc::core::TaskDataPtr task_data) : Task(std::move(task_data)) {}
 
   bool ValidationImpl() override;
   bool PreProcessingImpl() override;

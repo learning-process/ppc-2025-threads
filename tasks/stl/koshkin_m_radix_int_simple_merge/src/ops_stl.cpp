@@ -1,8 +1,4 @@
-#include "../include/ops_tbb.hpp"
-
-#include <oneapi/tbb/parallel_for.h>
-#include <oneapi/tbb/task_arena.h>
-#include <tbb/tbb.h>
+#include "../include/ops_stl.hpp"
 
 #include <algorithm>
 #include <climits>
@@ -13,6 +9,7 @@
 #include <ranges>
 #include <span>
 #include <string>
+#include <thread>
 #include <type_traits>
 #include <utility>
 #include <vector>
@@ -72,7 +69,7 @@ std::vector<int> RadixIntegerSort(std::span<int> arr) {
 }
 }  // namespace
 
-bool koshkin_m_radix_int_simple_merge::TbbT::PreProcessingImpl() {
+bool koshkin_m_radix_int_simple_merge::StlT::PreProcessingImpl() {
   const auto &[src, cnt] = std::pair(reinterpret_cast<int *>(task_data->inputs[0]), task_data->inputs_count[0]);
   if (cnt == 0) {
     return true;
@@ -84,11 +81,11 @@ bool koshkin_m_radix_int_simple_merge::TbbT::PreProcessingImpl() {
   return true;
 }
 
-bool koshkin_m_radix_int_simple_merge::TbbT::ValidationImpl() {
+bool koshkin_m_radix_int_simple_merge::StlT::ValidationImpl() {
   return task_data->inputs_count[0] == task_data->outputs_count[0];
 }
 
-bool koshkin_m_radix_int_simple_merge::TbbT::RunImpl() {
+bool koshkin_m_radix_int_simple_merge::StlT::RunImpl() {
   auto blocks = blocks_;
 
   if (blocks.empty()) {
@@ -106,16 +103,16 @@ bool koshkin_m_radix_int_simple_merge::TbbT::RunImpl() {
     ibeg = iend;
   }
 
-  oneapi::tbb::task_arena arena(static_cast<int>(blocks_.size()));
-  arena.execute([&] {
-    oneapi::tbb::parallel_for(oneapi::tbb::blocked_range<std::size_t>(0, tbb::this_task_arena::max_concurrency(), 1),
-                              [&](const auto &r) {
-                                for (std::size_t i = r.begin(); i < r.end(); i++) {
-                                  blocks[i] = RadixIntegerSort(intermediate_blocks[i]);
-                                }
-                              });
-  });
+  const auto parlevel = blocks.size();
 
+  {
+    std::vector<std::jthread> threads(parlevel);
+    for (std::size_t j = 0; j < parlevel; j++) {
+      threads[j] = std::jthread([&](std::size_t i) { blocks[i] = RadixIntegerSort(intermediate_blocks[i]); }, j);
+    }
+  }
+
+  std::vector<std::thread> threads(parlevel);
   for (std::size_t blcnt = blocks.size(), dx = 1; blcnt > 1; blcnt /= 2, dx *= 2) {
     const auto bsize = blocks[0].size();
     const auto after = blcnt / 2;
@@ -127,15 +124,11 @@ bool koshkin_m_radix_int_simple_merge::TbbT::RunImpl() {
       b.clear();
     };
     if (bsize > 64) {
-      arena.execute([&] {
-        oneapi::tbb::parallel_for(
-            oneapi::tbb::blocked_range<std::size_t>(0, after, after / tbb::this_task_arena::max_concurrency()),
-            [&](const auto &r) {
-              for (std::size_t g = r.begin(); g < r.end(); ++g) {
-                merge_and_subst(blocks[2 * dx * g], blocks[(2 * dx * g) + dx]);
-              }
-            });
-      });
+      threads.resize(after);
+      for (std::size_t i = 0; i < after; i++) {
+        threads[i] = std::thread([&](int g) { merge_and_subst(blocks[2 * dx * g], blocks[(2 * dx * g) + dx]); }, i);
+      }
+      std::ranges::for_each(threads, [](auto &thread) { thread.join(); });
     } else {
       for (std::size_t g = 0; g < after; ++g) {
         merge_and_subst(blocks[2 * dx * g], blocks[(2 * dx * g) + dx]);
@@ -156,7 +149,7 @@ bool koshkin_m_radix_int_simple_merge::TbbT::RunImpl() {
   return true;
 }
 
-bool koshkin_m_radix_int_simple_merge::TbbT::PostProcessingImpl() {
+bool koshkin_m_radix_int_simple_merge::StlT::PostProcessingImpl() {
   auto *tgt = reinterpret_cast<decltype(out_)::value_type *>(task_data->outputs[0]);
   std::ranges::copy(out_, tgt);
   return true;

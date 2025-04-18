@@ -8,7 +8,7 @@
 #include <random>
 #include <vector>
 
-#include "../include/ops_tbb.hpp"
+#include "../include/ops_stl.hpp"
 #include "core/task/include/task.hpp"
 
 namespace {
@@ -46,7 +46,7 @@ void PerformFuncTest(size_t size) {
   task_data->outputs.push_back(reinterpret_cast<uint8_t *>(out.data()));
   task_data->outputs_count.push_back(out.size());
 
-  auto task = koshkin_m_radix_int_simple_merge::TbbT(task_data);
+  auto task = koshkin_m_radix_int_simple_merge::StlT(task_data);
   ASSERT_TRUE(task.Validation());
   task.PreProcessing();
   task.Run();
@@ -57,9 +57,9 @@ void PerformFuncTest(size_t size) {
 }  // namespace
 
 #define RANDOM_RND_TEST(size) \
-  TEST(koshkin_m_radix_int_simple_merge_tbb, random_##size) { PerformFuncTest<kRandom>(size); }
+  TEST(koshkin_m_radix_int_simple_merge_stl, random_##size) { PerformFuncTest<kRandom>(size); }
 #define RANDOM_REV_TEST(size) \
-  TEST(koshkin_m_radix_int_simple_merge_tbb, reversed_##size) { PerformFuncTest<kReverse>(size); }
+  TEST(koshkin_m_radix_int_simple_merge_stl, reversed_##size) { PerformFuncTest<kReverse>(size); }
 
 RANDOM_RND_TEST(0)
 RANDOM_RND_TEST(1)

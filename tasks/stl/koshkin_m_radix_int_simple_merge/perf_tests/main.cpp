@@ -8,7 +8,7 @@
 #include <numeric>
 #include <vector>
 
-#include "../include/ops_tbb.hpp"
+#include "../include/ops_stl.hpp"
 #include "core/perf/include/perf.hpp"
 #include "core/task/include/task.hpp"
 
@@ -35,7 +35,7 @@ void PerformPerfTest(bool test_task_run) {
   data->outputs.push_back(reinterpret_cast<uint8_t *>(out.data()));
   data->outputs_count.push_back(out.size());
 
-  auto task = std::make_shared<koshkin_m_radix_int_simple_merge::TbbT>(data);
+  auto task = std::make_shared<koshkin_m_radix_int_simple_merge::StlT>(data);
 
   auto attr = std::make_shared<ppc::core::PerfAttr>();
   attr->num_running = 10;
@@ -59,5 +59,5 @@ void PerformPerfTest(bool test_task_run) {
 }
 }  // namespace
 
-TEST(koshkin_m_radix_int_simple_merge_tbb, test_pipeline_run) { PerformPerfTest(false); }
-TEST(koshkin_m_radix_int_simple_merge_tbb, test_task_run) { PerformPerfTest(true); }
+TEST(koshkin_m_radix_int_simple_merge_stl, test_pipeline_run) { PerformPerfTest(false); }
+TEST(koshkin_m_radix_int_simple_merge_stl, test_task_run) { PerformPerfTest(true); }
