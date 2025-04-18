@@ -15,7 +15,6 @@
 #include "oneapi/tbb/blocked_range.h"
 #include "oneapi/tbb/enumerable_thread_specific.h"
 #include "oneapi/tbb/parallel_for.h"
-#include "oneapi/tbb/task_group.h"
 
 namespace korovin_n_qsort_batcher_tbb {
 
@@ -40,10 +39,8 @@ void TestTaskTBB::QuickSort(std::vector<int>::iterator low, std::vector<int>::it
   int max_depth = static_cast<int>(std::log2(ppc::util::GetPPCNumThreads())) + 1;
 
   if (depth < max_depth) {
-    tbb::task_group group;
-    group.run([=] { QuickSort(low, mid_iter, depth + 1); });
-    group.run([=] { QuickSort(partition_iter, high, depth + 1); });
-    group.wait();
+    tbb::parallel_invoke([&] { QuickSort(low, mid_iter, depth + 1); },
+                         [&] { QuickSort(partition_iter, high, depth + 1); });
   } else {
     QuickSort(low, mid_iter, depth + 1);
     QuickSort(partition_iter, high, depth + 1);
@@ -113,15 +110,13 @@ void TestTaskTBB::OddEvenMerge(std::vector<BlockRange>& blocks) {
     max_block_len = std::max(max_block_len, len);
   }
   int buffer_size = max_block_len * 2;
-  tbb::enumerable_thread_specific<std::vector<int>> thread_buffers;
+  tbb::enumerable_thread_specific<std::vector<int>> thread_buffers([=] { return std::vector<int>(buffer_size); });
   for (int iter = 0; iter < max_iters; iter++) {
     std::atomic<bool> changed_global = false;
-    tbb::parallel_for(tbb::blocked_range<int>(iter % 2, p, 2), [&](const tbb::blocked_range<int>& range) {
+    tbb::parallel_for(tbb::blocked_range<int>(0, p / 2), [&](const tbb::blocked_range<int>& range) {
       auto& buffer = thread_buffers.local();
-      if (static_cast<int>(buffer.size()) < buffer_size) {
-        buffer.resize(buffer_size);
-      }
-      for (int i = range.begin(); i < range.end(); i += 2) {
+      for (int idx = range.begin(); idx < range.end(); idx++) {
+        int i = (iter + idx * 2) % 2 + idx * 2;
         if (i + 1 < p) {
           bool changed_local = InPlaceMerge(blocks[i], blocks[i + 1], buffer);
           if (changed_local) {
