@@ -1,10 +1,11 @@
 ﻿#include "tbb/shlyakov_m_shell_sort/include/ops_tbb.hpp"
 
-#include <tbb/task_arena.h>
-#include <tbb/task_group.h>
+#include <oneapi/tbb/task_arena.h>
+#include <oneapi/tbb/task_group.h>
 
 #include <algorithm>
 #include <core/util/include/util.hpp>
+#include <cstddef>
 #include <utility>
 #include <vector>
 
