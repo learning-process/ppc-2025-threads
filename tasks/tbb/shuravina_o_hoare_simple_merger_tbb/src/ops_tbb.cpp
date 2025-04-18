@@ -3,7 +3,6 @@
 #include <algorithm>
 #include <cmath>
 #include <cstddef>
-#include <stdexcept>
 #include <vector>
 
 #include "oneapi/tbb/parallel_invoke.h"
@@ -11,10 +10,6 @@
 namespace shuravina_o_hoare_simple_merger_tbb {
 
 void TestTaskTBB::QuickSort(std::vector<int>& arr, int low, int high) {
-  if (low < 0 || high < 0 || low >= arr.size() || high >= arr.size() || arr.empty()) {
-    return;
-  }
-
   if (low < high) {
     int pivot = arr[high];
     int i = low - 1;
@@ -35,29 +30,22 @@ void TestTaskTBB::QuickSort(std::vector<int>& arr, int low, int high) {
 }
 
 void TestTaskTBB::ParallelQuickSort(std::vector<int>& arr, int low, int high) {
-  if (low < 0 || high < 0 || low >= arr.size() || high >= arr.size() || arr.empty()) {
-    return;
-  }
+  if (low < high) {
+    int pivot = arr[high];
+    int i = low - 1;
 
-  if (high - low < 1000) {
-    QuickSort(arr, low, high);
-    return;
-  }
-
-  int pivot = arr[high];
-  int i = low - 1;
-
-  for (int j = low; j < high; ++j) {
-    if (arr[j] <= pivot) {
-      ++i;
-      std::swap(arr[i], arr[j]);
+    for (int j = low; j < high; ++j) {
+      if (arr[j] <= pivot) {
+        ++i;
+        std::swap(arr[i], arr[j]);
+      }
     }
+    std::swap(arr[i + 1], arr[high]);
+
+    int pi = i + 1;
+
+    tbb::parallel_invoke([&] { ParallelQuickSort(arr, low, pi - 1); }, [&] { ParallelQuickSort(arr, pi + 1, high); });
   }
-  std::swap(arr[i + 1], arr[high]);
-
-  int pi = i + 1;
-
-  tbb::parallel_invoke([&] { ParallelQuickSort(arr, low, pi - 1); }, [&] { ParallelQuickSort(arr, pi + 1, high); });
 }
 
 void TestTaskTBB::Merge(std::vector<int>& arr, int low, int mid, int high) {
@@ -88,7 +76,7 @@ void TestTaskTBB::Merge(std::vector<int>& arr, int low, int mid, int high) {
 }
 
 bool TestTaskTBB::PreProcessingImpl() {
-  if (!task_data || task_data->inputs.empty() || task_data->outputs.empty()) {
+  if (task_data->inputs.empty() || task_data->outputs.empty()) {
     return false;
   }
 
@@ -103,30 +91,26 @@ bool TestTaskTBB::PreProcessingImpl() {
 }
 
 bool TestTaskTBB::ValidationImpl() {
-  if (!task_data || task_data->inputs.empty() || task_data->outputs.empty()) {
+  if (task_data->inputs.empty() || task_data->outputs.empty()) {
     return false;
   }
   return task_data->inputs_count[0] == task_data->outputs_count[0];
 }
 
 bool TestTaskTBB::RunImpl() {
-  try {
-    auto size = input_.size();
-    if (size < 10000) {
-      QuickSort(input_, 0, static_cast<int>(size) - 1);
-    } else {
-      ParallelQuickSort(input_, 0, static_cast<int>(size) - 1);
-    }
-    Merge(input_, 0, static_cast<int>(size / 2) - 1, static_cast<int>(size) - 1);
-    output_ = input_;
-    return true;
-  } catch (...) {
-    return false;
+  auto size = input_.size();
+  if (size < 10000) {
+    QuickSort(input_, 0, static_cast<int>(size) - 1);
+  } else {
+    ParallelQuickSort(input_, 0, static_cast<int>(size) - 1);
   }
+  Merge(input_, 0, static_cast<int>(size / 2) - 1, static_cast<int>(size) - 1);
+  output_ = input_;
+  return true;
 }
 
 bool TestTaskTBB::PostProcessingImpl() {
-  if (!task_data || output_.empty() || task_data->outputs.empty() || task_data->outputs[0] == nullptr) {
+  if (output_.empty() || task_data->outputs[0] == nullptr) {
     return false;
   }
 

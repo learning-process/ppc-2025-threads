@@ -24,8 +24,7 @@ bool IsSorted(const std::vector<int>& arr) {
 }
 
 std::vector<int> GenerateRandomArray(size_t size, int min_val, int max_val) {
-  std::random_device rd;
-  std::mt19937 gen(rd());
+  std::mt19937 gen(42);
   std::uniform_int_distribution<> distrib(min_val, max_val);
 
   std::vector<int> arr(size);
