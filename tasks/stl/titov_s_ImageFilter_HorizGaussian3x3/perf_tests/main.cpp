@@ -28,7 +28,7 @@ TEST(titov_s_image_filter_horiz_gaussian3x3_stl, test_pipeline_run) {
       }
     }
   }
-
+  
   auto task_data_seq = std::make_shared<ppc::core::TaskData>();
   task_data_seq->inputs.emplace_back(reinterpret_cast<uint8_t *>(input.data()));
   task_data_seq->inputs.emplace_back(reinterpret_cast<uint8_t *>(kernel.data()));
