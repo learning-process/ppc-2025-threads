@@ -21,15 +21,6 @@ std::shared_ptr<ppc::core::TaskData> MakeTaskData(const std::vector<double>& ele
   task_data->inputs_count.push_back(static_cast<uint32_t>(elements.size() * sizeof(double)));
   task_data->outputs.push_back(output_ptr);
   task_data->outputs_count.push_back(static_cast<uint32_t>(out_buffer.size() * sizeof(double)));
-
-  if (!out_buffer.empty()) {
-    auto* output_ptr = reinterpret_cast<uint8_t*>(out_buffer.data());
-    task_data->outputs.push_back(output_ptr);
-    task_data->outputs_count.push_back(static_cast<uint32_t>(out_buffer.size() * sizeof(double)));
-  } else {
-    task_data->outputs.push_back(nullptr);
-    task_data->outputs_count.push_back(0);
-  }
   return task_data;
 }
 }  // namespace
