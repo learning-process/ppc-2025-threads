@@ -14,13 +14,13 @@
 
 std::array<int, 256> burykin_m_radix_tbb::RadixTBB::ComputeFrequencyParallel(const std::vector<int>& a,
                                                                              const int shift) {
-  constexpr int kNumThreads = 64;
-  std::array<std::array<int, 256>, 64> local_counts = {};
+  const int num_threads = ppc::util::GetPPCNumThreads();
+  std::vector<std::array<int, 256>> local_counts(num_threads);
   const size_t array_size = a.size();
 
   tbb::parallel_for(tbb::blocked_range<size_t>(0, array_size), [&](const tbb::blocked_range<size_t>& range) {
     int thread_id = tbb::this_task_arena::current_thread_index();
-    thread_id = (thread_id < 0) ? 0 : thread_id % kNumThreads;
+    thread_id = (thread_id < 0) ? 0 : thread_id % num_threads;
 
     for (size_t i = range.begin(); i < range.end(); ++i) {
       unsigned int key = ((static_cast<unsigned int>(a[i]) >> shift) & 0xFFU);
@@ -32,7 +32,7 @@ std::array<int, 256> burykin_m_radix_tbb::RadixTBB::ComputeFrequencyParallel(con
   });
 
   std::array<int, 256> global_count = {};
-  for (size_t t = 0; t < kNumThreads; ++t) {
+  for (size_t t = 0; t < num_threads; ++t) {
     for (int i = 0; i < 256; ++i) {
       global_count[i] += local_counts[t][i];
     }
@@ -51,13 +51,13 @@ std::array<int, 256> burykin_m_radix_tbb::RadixTBB::ComputeIndices(const std::ar
 
 void burykin_m_radix_tbb::RadixTBB::DistributeElementsParallel(const std::vector<int>& a, std::vector<int>& b,
                                                                const std::array<int, 256>& index, const int shift) {
-  constexpr size_t kNumThreads = 64;
+  const size_t num_threads = ppc::util::GetPPCNumThreads();
 
-  const size_t items_per_thread = (a.size() + kNumThreads - 1) / kNumThreads;
+  const size_t items_per_thread = (a.size() + num_threads - 1) / num_threads;
 
-  std::vector<std::array<int, 256>> thread_counts(kNumThreads);
+  std::vector<std::array<int, 256>> thread_counts(num_threads);
 
-  tbb::parallel_for(tbb::blocked_range<size_t>(0, kNumThreads), [&](const tbb::blocked_range<size_t>& thread_range) {
+  tbb::parallel_for(tbb::blocked_range<size_t>(0, num_threads), [&](const tbb::blocked_range<size_t>& thread_range) {
     for (size_t t = thread_range.begin(); t < thread_range.end(); ++t) {
       thread_counts[t].fill(0);
 
@@ -74,8 +74,8 @@ void burykin_m_radix_tbb::RadixTBB::DistributeElementsParallel(const std::vector
     }
   });
 
-  std::vector<std::array<int, 256>> thread_offsets(kNumThreads);
-  for (size_t t = 0; t < kNumThreads; ++t) {
+  std::vector<std::array<int, 256>> thread_offsets(num_threads);
+  for (size_t t = 0; t < num_threads; ++t) {
     for (int j = 0; j < 256; ++j) {
       thread_offsets[t][j] = index[j];
       for (size_t prev_t = 0; prev_t < t; ++prev_t) {
@@ -84,7 +84,7 @@ void burykin_m_radix_tbb::RadixTBB::DistributeElementsParallel(const std::vector
     }
   }
 
-  tbb::parallel_for(tbb::blocked_range<size_t>(0, kNumThreads), [&](const tbb::blocked_range<size_t>& thread_range) {
+  tbb::parallel_for(tbb::blocked_range<size_t>(0, num_threads), [&](const tbb::blocked_range<size_t>& thread_range) {
     for (size_t t = thread_range.begin(); t < thread_range.end(); ++t) {
       size_t start = t * items_per_thread;
       size_t end = std::min(start + items_per_thread, a.size());
