@@ -23,17 +23,14 @@ class HardRange {
   Length start_;
   Length end_;
   Length chunk_;
-  long id;
 
  public:
-  HardRange(Length end, Length chunk) : start_(0), end_(end), chunk_(chunk) { id = start_ / chunk_; }
+  HardRange(Length end, Length chunk) : start_(0), end_(end), chunk_(chunk) {}
   HardRange(const HardRange& r) = default;
   HardRange(HardRange& r, tbb::detail::split) : start_(r.start_ + r.chunk_), end_(r.end_), chunk_(r.chunk_) {
     r.end_ = std::min(r.start_ + r.chunk_, r.end_);
-    id = start_ / chunk_;
   }
 
-  [[nodiscard]] long GetID() const { return id; }
   [[nodiscard]] bool empty() const { return start_ >= end_; }
   [[nodiscard]] bool is_divisible() const { return end_ > start_ + chunk_; };
   [[nodiscard]] Length begin() const { return start_; }
@@ -111,22 +108,6 @@ class FirstScan {
   }
 };
 
-class Globalizer {
-  Labels& labels_;
-  Ordinals& shifts_;
-
- public:
-  Globalizer(Labels& labels, Ordinals& shifts) : labels_(labels), shifts_(shifts) {}
-
-  void operator()(const HardRange& r) const {
-    Ordinal shift = shifts_[r.GetID()];
-    for (Length i = r.begin(); i < r.end(); i++) {
-      if (labels_[i] != 0) {
-        labels_[i] += shift;
-      }
-    }
-  }
-};
 }  // namespace
 
 void Labeler::LabelingRasterScan(Ordinals& ordinals) {
