@@ -11,13 +11,13 @@
 #include "oneapi/tbb/task_group.h"
 
 namespace {
-void FoxBlockMul(const std::vector<double>& A, const std::vector<double>& B, std::vector<double>& C, int n,
+void FoxBlockMul(const std::vector<double>& a, const std::vector<double>& b, std::vector<double>& c, int n,
                  int block_size, int stage, int i, int j) {
   int start_k = stage * block_size;
   for (int bi = i; bi < i + block_size && bi < n; ++bi) {
     for (int bj = j; bj < j + block_size && bj < n; ++bj) {
       for (int bk = start_k; bk < std::min((stage + 1) * block_size, n); ++bk) {
-        C[(bi * n) + bj] += A[(bi * n) + bk] * B[(bk * n) + bj];
+        c[(bi * n) + bj] += a[(bi * n) + bk] * b[(bk * n) + bj];
       }
     }
   }
