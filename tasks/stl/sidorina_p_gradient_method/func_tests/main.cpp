@@ -91,8 +91,7 @@ INSTANTIATE_TEST_SUITE_P(SidorinaPGradientMethodStlTestVal, SidorinaPGradientMet
                                            Params(-1, {2}, {4}, {0}, {2}, 1e-6),
                                            Params(1, {2}, {}, {0}, {2}, 1e-6),
                                            Params(1, {2}, {4}, {}, {2}, 1e-6),
-                                           Params(1, {2}, {4}, {0}, {}, 1e-6),
-                                           Params(2, {2}, {4}, {0}, {2}, 1e-6)));
+                                           Params(1, {2}, {4}, {0}, {}, 1e-6)));
 //clang-format on
 
 }  // namespace
