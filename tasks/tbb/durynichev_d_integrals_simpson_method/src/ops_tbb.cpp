@@ -3,7 +3,6 @@
 #include <tbb/tbb.h>
 
 #include <cmath>
-#include <iostream>
 #include <vector>
 
 #include "oneapi/tbb/task_arena.h"
@@ -57,19 +56,15 @@ double SimpsonIntegralTBB::Simpson1D(double a, double b) const {
   double sum = Func1D(a) + Func1D(b);
 
   double inner_sum = 0.0;
-  int iteration_count = 0;
   tbb::parallel_for(tbb::blocked_range<int>(1, n_), [&](const tbb::blocked_range<int>& r) {
     double local_sum = 0.0;
     for (int i = r.begin(); i < r.end(); ++i) {
       double coef = (i % 2 == 0) ? 2.0 : 4.0;
       local_sum += coef * Func1D(a + i * h);
-      iteration_count++;
     }
     tbb::mutex::scoped_lock lock(mutex_);
     inner_sum += local_sum;
   });
-
-  std::cout << "Intermediate inner_sum in Simpson1D: " << inner_sum << std::endl;
 
   sum += inner_sum;
   return sum * h / 3.0;
@@ -92,9 +87,8 @@ double SimpsonIntegralTBB::Simpson2D(double x0, double x1, double y0, double y1)
         local_sum += coef_x * coef_y * Func2D(x, y);
       }
     }
-    double temp_sum = local_sum;
     tbb::mutex::scoped_lock lock(mutex_);
-    sum += temp_sum;
+    sum += local_sum;
   });
 
   return sum * hx * hy / 9.0;
