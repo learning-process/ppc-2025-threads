@@ -5,7 +5,6 @@
 #include <vector>
 
 #include "core/task/include/task.hpp"
-#include "core/util/include/util.hpp"
 
 namespace burykin_m_radix_tbb {
 

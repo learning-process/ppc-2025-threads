@@ -4,10 +4,13 @@
 #include <oneapi/tbb/parallel_for.h>
 #include <oneapi/tbb/task_arena.h>
 
+#include <algorithm>
 #include <array>
 #include <cstddef>
 #include <utility>
 #include <vector>
+
+#include "core/util/include/util.hpp"
 
 std::array<int, 256> burykin_m_radix_tbb::RadixTBB::ComputeFrequencyParallel(const std::vector<int>& a,
                                                                              const int shift) {
