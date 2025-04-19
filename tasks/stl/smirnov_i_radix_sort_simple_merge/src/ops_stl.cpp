@@ -117,8 +117,8 @@ bool smirnov_i_radix_sort_simple_merge_stl::TestTaskSTL::RunImpl() {
   bool flag;
   std::vector<std::future<std::vector<int>>> ths(max_th);
   for (int i = 0; i < max_th; i++) {
-    ths[i] = std::async(std::launch::async, &smirnov_i_radix_sort_simple_merge_stl::TestTaskSTL::Sorting,
-                        this, i, std::ref(mas_), max_th);
+    ths[i] = std::async(std::launch::async, &smirnov_i_radix_sort_simple_merge_stl::TestTaskSTL::Sorting, this, i,
+                        std::ref(mas_), max_th);
   }
   std::deque<std::vector<int>> firstdq;
   std::deque<std::vector<int>> seconddq;
