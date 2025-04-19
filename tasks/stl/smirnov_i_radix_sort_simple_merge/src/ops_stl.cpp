@@ -11,8 +11,8 @@
 #include <utility>
 #include <vector>
 
-std::vector<int> smirnov_i_radix_sort_simple_merge_stl::TestTaskSTL::Merge(std::vector<int>& mas1,
-                                                                           std::vector<int>& mas2) {
+std::vector<int> smirnov_i_radix_sort_simple_merge_stl::TestTaskSTL::Merge(std::vector<int> &mas1,
+                                                                           std::vector<int> &mas2) {
   std::vector<int> res;
   res.reserve(mas1.size() + mas2.size());
   int p1 = 0;
@@ -116,17 +116,14 @@ bool smirnov_i_radix_sort_simple_merge_stl::TestTaskSTL::RunImpl() {
   std::mutex mtx;
   bool flag;
   std::vector<std::future<std::vector<int>>> ths(max_th);
-  for (int i = 0; i < max_th; i++)
-  {
+  for (int i = 0; i < max_th; i++) {
     ths[i] = std::async(std::launch::async, Sorting, i, std::ref(mas_), max_th);
   }
   std::deque<std::vector<int>> firstdq;
   std::deque<std::vector<int>> seconddq;
-  for (int i = 0; i < max_th; i++)
-  {
+  for (int i = 0; i < max_th; i++) {
     std::vector<int> local_mas = ths[i].get();
-    if (!local_mas.empty())
-    {
+    if (!local_mas.empty()) {
       std::lock_guard<std::mutex> lock(mtxfirstdq);
       firstdq.push_back(std::move(local_mas));
     }
