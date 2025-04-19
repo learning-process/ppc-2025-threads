@@ -104,6 +104,14 @@ INSTANTIATE_TEST_SUITE_P(vasilev_s_simpson_multidim_test_tbb, PresetTests, ::tes
         {0.0, 1.0},
       },
       .ref = 0.56,
+    },
+    IntegrationTest{
+      .approxs = 32,
+      .ifun = [](const auto &coord) { return std::sin(coord[0]); },
+      .bounds = {
+        {-1.0, 0.0},
+      },
+      .ref = std::cos(-1) - std::cos(0),
     }
 ));
 // clang-format on
