@@ -1,8 +1,8 @@
 #include "tbb/varfolomeev_g_histogram_linear_stretching/include/ops_tbb.hpp"
 
 #include <algorithm>
-#include <cstdint>
 #include <cmath>
+#include <cstdint>
 #include <cstring>
 #include <vector>
 
