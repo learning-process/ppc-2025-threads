@@ -1,4 +1,4 @@
-#include "tbb/durynichev_d_integrals_simpson_method/include/ops_tbb.hpp"
+#include "durynichev_d_integrals_simpson_method_tbb/include/ops_tbb.hpp"
 
 #include <tbb/tbb.h>
 
@@ -55,30 +55,19 @@ double SimpsonIntegralTBB::Simpson1D(double a, double b) const {
   double h = (b - a) / n_;
   double sum = Func1D(a) + Func1D(b);
 
-  // Parallelize the odd-indexed terms
-  double sum_odd = 0.0;
-  tbb::parallel_for(tbb::blocked_range<int>(1, n_, 2), [&](const tbb::blocked_range<int>& r) {
+  // Parallelize summation for all terms from i=1 to i=n-1
+  double inner_sum = 0.0;
+  tbb::parallel_for(tbb::blocked_range<int>(1, n_), [&](const tbb::blocked_range<int>& r) {
     double local_sum = 0.0;
-    for (int i = r.begin(); i < r.end(); i += 2) {
-      local_sum += Func1D(a + (i * h));
+    for (int i = r.begin(); i < r.end(); ++i) {
+      double coef = (i % 2 == 0) ? 2.0 : 4.0;
+      local_sum += coef * Func1D(a + i * h);
     }
     tbb::mutex::scoped_lock lock(mutex_);
-    sum_odd += local_sum;
+    inner_sum += local_sum;
   });
-  sum += 4 * sum_odd;
 
-  // Parallelize the even-indexed terms
-  double sum_even = 0.0;
-  tbb::parallel_for(tbb::blocked_range<int>(2, n_ - 1, 2), [&](const tbb::blocked_range<int>& r) {
-    double local_sum = 0.0;
-    for (int i = r.begin(); i < r.end(); i += 2) {
-      local_sum += Func1D(a + (i * h));
-    }
-    tbb::mutex::scoped_lock lock(mutex_);
-    sum_even += local_sum;
-  });
-  sum += 2 * sum_even;
-
+  sum += inner_sum;
   return sum * h / 3.0;
 }
 
