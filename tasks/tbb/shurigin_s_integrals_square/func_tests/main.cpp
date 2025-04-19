@@ -1,4 +1,4 @@
-﻿#define USE_MATH_DEFINES
+#define USE_MATH_DEFINES
 #include <gtest/gtest.h>
 
 #include <cmath>
@@ -12,6 +12,8 @@
 #include "tbb/shurigin_s_integrals_square/include/ops_tbb.hpp"
 
 namespace shurigin_s_integrals_square_tbb_test {
+constexpr double kTolerance = 1e-3;
+
 TEST(shurigin_s_integrals_square_tbb, test_integration_x_squared) {
   const double lower_bound = 0.0;
   const double upper_bound = 1.0;
@@ -35,7 +37,7 @@ TEST(shurigin_s_integrals_square_tbb, test_integration_x_squared) {
   ASSERT_TRUE(integral_task.RunImpl());
   ASSERT_TRUE(integral_task.PostProcessingImpl());
 
-  ASSERT_NEAR(output_data, expected_value, 1e-3);
+  ASSERT_NEAR(output_data, expected_value, kTolerance);
 }
 
 TEST(shurigin_s_integrals_square_tbb, test_integration_linear) {
@@ -61,7 +63,7 @@ TEST(shurigin_s_integrals_square_tbb, test_integration_linear) {
   ASSERT_TRUE(integral_task.RunImpl());
   ASSERT_TRUE(integral_task.PostProcessingImpl());
 
-  ASSERT_NEAR(output_data, expected_value, 1e-3);
+  ASSERT_NEAR(output_data, expected_value, kTolerance);
 }
 
 TEST(shurigin_s_integrals_square_tbb, test_integration_sine) {
@@ -87,7 +89,7 @@ TEST(shurigin_s_integrals_square_tbb, test_integration_sine) {
   ASSERT_TRUE(integral_task.RunImpl());
   ASSERT_TRUE(integral_task.PostProcessingImpl());
 
-  ASSERT_NEAR(output_data, expected_value, 1e-3);
+  ASSERT_NEAR(output_data, expected_value, kTolerance);
 }
 
 TEST(shurigin_s_integrals_square_tbb, test_integration_exponential) {
@@ -113,7 +115,7 @@ TEST(shurigin_s_integrals_square_tbb, test_integration_exponential) {
   ASSERT_TRUE(integral_task.RunImpl());
   ASSERT_TRUE(integral_task.PostProcessingImpl());
 
-  ASSERT_NEAR(output_data, expected_value, 1e-3);
+  ASSERT_NEAR(output_data, expected_value, kTolerance);
 }
 
 TEST(shurigin_s_integrals_square_tbb, test_function_assignment) {
@@ -158,7 +160,7 @@ TEST(shurigin_s_integrals_square_tbb, test_integration_cosine) {
   ASSERT_TRUE(integral_task.RunImpl());
   ASSERT_TRUE(integral_task.PostProcessingImpl());
 
-  ASSERT_NEAR(output_data, expected_value, 1e-3);
+  ASSERT_NEAR(output_data, expected_value, kTolerance);
 }
 
 TEST(shurigin_s_integrals_square_tbb, test_integration_logarithm) {
@@ -184,7 +186,7 @@ TEST(shurigin_s_integrals_square_tbb, test_integration_logarithm) {
   ASSERT_TRUE(integral_task.RunImpl());
   ASSERT_TRUE(integral_task.PostProcessingImpl());
 
-  ASSERT_NEAR(output_data, expected_value, 1e-3);
+  ASSERT_NEAR(output_data, expected_value, kTolerance);
 }
 
 TEST(shurigin_s_integrals_square_tbb, test_integration_reciprocal) {
@@ -210,7 +212,7 @@ TEST(shurigin_s_integrals_square_tbb, test_integration_reciprocal) {
   ASSERT_TRUE(integral_task.RunImpl());
   ASSERT_TRUE(integral_task.PostProcessingImpl());
 
-  ASSERT_NEAR(output_data, expected_value, 1e-3);
+  ASSERT_NEAR(output_data, expected_value, kTolerance);
 }
 
 TEST(shurigin_s_integrals_square_tbb, test_integration_sqrt) {
@@ -236,7 +238,7 @@ TEST(shurigin_s_integrals_square_tbb, test_integration_sqrt) {
   ASSERT_TRUE(integral_task.RunImpl());
   ASSERT_TRUE(integral_task.PostProcessingImpl());
 
-  ASSERT_NEAR(output_data, expected_value, 1e-3);
+  ASSERT_NEAR(output_data, expected_value, kTolerance);
 }
 
 TEST(shurigin_s_integrals_square_tbb, test_integration_2d) {
@@ -269,8 +271,9 @@ TEST(shurigin_s_integrals_square_tbb, test_integration_2d) {
   ASSERT_TRUE(integral_task.ValidationImpl());
   ASSERT_TRUE(integral_task.RunImpl());
   ASSERT_TRUE(integral_task.PostProcessingImpl());
-  ASSERT_NEAR(output_data, expected_value, 1e-3);
+  ASSERT_NEAR(output_data, expected_value, kTolerance);
 }
+
 TEST(shurigin_s_integrals_square_tbb, test_integration_2d_square_sum) {
   const double lower_bound_x = 0.0;
   const double upper_bound_x = 1.0;
@@ -303,7 +306,7 @@ TEST(shurigin_s_integrals_square_tbb, test_integration_2d_square_sum) {
   ASSERT_TRUE(integral_task.RunImpl());
   ASSERT_TRUE(integral_task.PostProcessingImpl());
 
-  ASSERT_NEAR(output_data, expected_value, 1e-3);
+  ASSERT_NEAR(output_data, expected_value, kTolerance);
 }
 
 TEST(shurigin_s_integrals_square_tbb, test_integration_2d_sin_sum) {
@@ -337,7 +340,7 @@ TEST(shurigin_s_integrals_square_tbb, test_integration_2d_sin_sum) {
   ASSERT_TRUE(integral_task.RunImpl());
   ASSERT_TRUE(integral_task.PostProcessingImpl());
 
-  ASSERT_NEAR(output_data, expected_value, 1e-3);
+  ASSERT_NEAR(output_data, expected_value, kTolerance);
 }
 
 TEST(shurigin_s_integrals_square_tbb, test_integration_3d_product) {
@@ -377,6 +380,6 @@ TEST(shurigin_s_integrals_square_tbb, test_integration_3d_product) {
   ASSERT_TRUE(integral_task.RunImpl());
   ASSERT_TRUE(integral_task.PostProcessingImpl());
 
-  ASSERT_NEAR(output_data, expected_value, 1e-3);
+  ASSERT_NEAR(output_data, expected_value, kTolerance);
 }
 }  // namespace shurigin_s_integrals_square_tbb_test
