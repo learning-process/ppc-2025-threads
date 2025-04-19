@@ -6,16 +6,16 @@
 #include <vector>
 
 #include "core/task/include/task.hpp"
-#include "omp/vedernikova_k_gauss_omp/include/ops_omp.hpp"
+#include "seq/vedernikova_k_gauss/include/ops_seq.hpp"
 
 using TaskVars = std::tuple<uint32_t, uint32_t, uint32_t, Image, Image>;
 namespace {
-class vedernikova_k_gauss_test_omp  // NOLINT(readability-identifier-naming)
+class vedernikova_k_gauss_test_seq  // NOLINT(readability-identifier-naming)
     : public ::testing::TestWithParam<TaskVars> {
  protected:
 };
 
-TEST_F(vedernikova_k_gauss_test_omp, validation_fails_not_enough_params) {
+TEST_F(vedernikova_k_gauss_test_seq, validation_fails_not_enough_params) {
   Image in(15, 128);
   Image out(in.size());
   auto task_data = std::make_shared<ppc::core::TaskData>();
@@ -25,12 +25,12 @@ TEST_F(vedernikova_k_gauss_test_omp, validation_fails_not_enough_params) {
   task_data->outputs.emplace_back(reinterpret_cast<uint8_t *>(out.data()));
   task_data->outputs_count.emplace_back(out.size());
 
-  vedernikova_k_gauss_omp::Gauss task(task_data);
+  vedernikova_k_gauss_seq::Gauss task(task_data);
 
   EXPECT_FALSE(task.Validation());
 }
 
-TEST_F(vedernikova_k_gauss_test_omp, validation_fails_no_input_image) {
+TEST_F(vedernikova_k_gauss_test_seq, validation_fails_no_input_image) {
   Image in(13, 100);
   Image out(in.size());
   auto task_data = std::make_shared<ppc::core::TaskData>();
@@ -40,12 +40,12 @@ TEST_F(vedernikova_k_gauss_test_omp, validation_fails_no_input_image) {
   task_data->outputs.emplace_back(reinterpret_cast<uint8_t *>(out.data()));
   task_data->outputs_count.emplace_back(out.size());
 
-  vedernikova_k_gauss_omp::Gauss task(task_data);
+  vedernikova_k_gauss_seq::Gauss task(task_data);
 
   EXPECT_FALSE(task.Validation());
 }
 
-TEST_F(vedernikova_k_gauss_test_omp, validation_fails_no_output_buffer) {
+TEST_F(vedernikova_k_gauss_test_seq, validation_fails_no_output_buffer) {
   Image in(17, 137);
   Image out(in.size());
   auto task_data = std::make_shared<ppc::core::TaskData>();
@@ -55,12 +55,12 @@ TEST_F(vedernikova_k_gauss_test_omp, validation_fails_no_output_buffer) {
   task_data->inputs_count.emplace_back(1);
   task_data->outputs_count.emplace_back(out.size());
 
-  vedernikova_k_gauss_omp::Gauss task(task_data);
+  vedernikova_k_gauss_seq::Gauss task(task_data);
 
   EXPECT_FALSE(task.Validation());
 }
 
-TEST_F(vedernikova_k_gauss_test_omp, validation_fails_in_and_out_sizes_are_different) {
+TEST_F(vedernikova_k_gauss_test_seq, validation_fails_in_and_out_sizes_are_different) {
   Image in(37, 128);
   Image out(in.size());
   auto task_data = std::make_shared<ppc::core::TaskData>();
@@ -71,12 +71,12 @@ TEST_F(vedernikova_k_gauss_test_omp, validation_fails_in_and_out_sizes_are_diffe
   task_data->outputs.emplace_back(reinterpret_cast<uint8_t *>(out.data()));
   task_data->outputs_count.emplace_back(out.size() + 1);
 
-  vedernikova_k_gauss_omp::Gauss task(task_data);
+  vedernikova_k_gauss_seq::Gauss task(task_data);
 
   EXPECT_FALSE(task.Validation());
 }
 
-TEST_P(vedernikova_k_gauss_test_omp, returns_correct_blurred_image) {
+TEST_P(vedernikova_k_gauss_test_seq, returns_correct_blurred_image) {
   const auto &[width, height, channels, in, exp] = GetParam();
   Image out(in.size(), 0);
 
@@ -89,7 +89,7 @@ TEST_P(vedernikova_k_gauss_test_omp, returns_correct_blurred_image) {
   task_data->outputs_count.emplace_back(out.size());
 
   // Create Task
-  vedernikova_k_gauss_omp::Gauss task(task_data);
+  vedernikova_k_gauss_seq::Gauss task(task_data);
   ASSERT_TRUE(task.Validation());
   task.PreProcessing();
   task.Run();
@@ -99,7 +99,7 @@ TEST_P(vedernikova_k_gauss_test_omp, returns_correct_blurred_image) {
 }
 
 // clang-format off
-INSTANTIATE_TEST_SUITE_P(vedernikova_k_gauss_test_omp, vedernikova_k_gauss_test_omp, ::testing::Values(
+INSTANTIATE_TEST_SUITE_P(vedernikova_k_gauss_test_seq, vedernikova_k_gauss_test_seq, ::testing::Values(
     TaskVars(
       1, 1, 1,
       {255},

@@ -1,4 +1,4 @@
-#include "seq/vedernikova_k_gauss_seq/include/ops_seq.hpp"
+#include "seq/vedernikova_k_gauss/include/ops_seq.hpp"
 
 #include <algorithm>
 #include <cmath>

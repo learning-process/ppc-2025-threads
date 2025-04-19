@@ -8,13 +8,13 @@
 
 #include "core/perf/include/perf.hpp"
 #include "core/task/include/task.hpp"
-#include "seq/vedernikova_k_gauss_seq/include/ops_seq.hpp"
+#include "omp/vedernikova_k_gauss/include/ops_omp.hpp"
 
 namespace {
 
 using Pars = std::tuple<uint32_t, uint32_t, uint32_t, uint8_t>;
 
-TEST(vedernikova_k_gauss_test_seq, test_pipeline_run) {
+TEST(vedernikova_k_gauss_test_omp, test_pipeline_run) {
   const auto &[width, height, channels, brightness] = Pars(500, 500, 4, 128);
   const uint32_t size = width * height * channels;
   std::vector<uint8_t> in(size, brightness);
@@ -29,7 +29,7 @@ TEST(vedernikova_k_gauss_test_seq, test_pipeline_run) {
   task_data_seq->outputs_count.emplace_back(out.size());
 
   // Create Task
-  auto test_task_sequential = std::make_shared<vedernikova_k_gauss_seq::Gauss>(task_data_seq);
+  auto test_task_sequential = std::make_shared<vedernikova_k_gauss_omp::Gauss>(task_data_seq);
 
   // Create Perf attributes
   auto perf_attr = std::make_shared<ppc::core::PerfAttr>();
@@ -51,7 +51,7 @@ TEST(vedernikova_k_gauss_test_seq, test_pipeline_run) {
   ASSERT_EQ(in, out);
 }
 
-TEST(vedernikova_k_gauss_test_seq, test_task_run) {
+TEST(vedernikova_k_gauss_test_omp, test_task_run) {
   const auto &[width, height, channels, brightness] = Pars(500, 500, 4, 128);
   const uint32_t size = width * height * channels;
   std::vector<uint8_t> in(size, brightness);
@@ -66,7 +66,7 @@ TEST(vedernikova_k_gauss_test_seq, test_task_run) {
   task_data_seq->outputs_count.emplace_back(out.size());
 
   // Create Task
-  auto test_task_sequential = std::make_shared<vedernikova_k_gauss_seq::Gauss>(task_data_seq);
+  auto test_task_sequential = std::make_shared<vedernikova_k_gauss_omp::Gauss>(task_data_seq);
 
   // Create Perf attributes
   auto perf_attr = std::make_shared<ppc::core::PerfAttr>();
