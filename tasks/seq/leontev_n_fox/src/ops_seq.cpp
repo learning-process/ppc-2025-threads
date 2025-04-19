@@ -38,9 +38,12 @@ bool FoxSeq::PreProcessingImpl() {
   size_t input_count = task_data->inputs_count[0];
   auto* double_ptr = reinterpret_cast<double*>(task_data->inputs[0]);
   n_ = reinterpret_cast<size_t*>(task_data->inputs[1])[0];
-  input_a_.assign(double_ptr, double_ptr + (input_count / 2));
-  input_b_.assign(double_ptr + (input_count / 2), double_ptr + input_count);
-
+  for (size_t i = 0; i < input_count / 2; i++) {
+    input_a_[i] = double_ptr[i];
+  }
+  for (size_t i = input_count / 2; i < input_count; i++) {
+    input_b_[i - (input_count / 2)] = double_ptr[i];
+  }
   size_t output_count = task_data->outputs_count[0];
   output_.resize(output_count, 0.0);
 
