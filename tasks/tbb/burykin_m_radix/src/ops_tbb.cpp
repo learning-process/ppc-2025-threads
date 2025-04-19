@@ -9,21 +9,16 @@
 #include <utility>
 #include <vector>
 
-#include "core/util/include/util.hpp"
-
 std::array<int, 256> burykin_m_radix_tbb::RadixTBB::ComputeFrequencyParallel(const std::vector<int>& a,
                                                                              const int shift) {
-  const size_t num_threads =
-      ppc::util::GetPPCNumThreads();  // Используем функцию для определения оптимального числа потоков
-  std::vector<std::array<int, 256>> local_counts(num_threads);  // Динамическое выделение памяти
+  constexpr int kNumThreads = 64;
+  std::array<std::array<int, 256>, 64> local_counts = {};
   const size_t array_size = a.size();
 
   tbb::parallel_for(tbb::blocked_range<size_t>(0, array_size), [&](const tbb::blocked_range<size_t>& range) {
-    // Get thread ID for local histogram
     int thread_id = tbb::this_task_arena::current_thread_index();
-    thread_id = (thread_id < 0) ? 0 : thread_id % num_threads;
+    thread_id = (thread_id < 0) ? 0 : thread_id % kNumThreads;
 
-    // Create local histogram
     for (size_t i = range.begin(); i < range.end(); ++i) {
       unsigned int key = ((static_cast<unsigned int>(a[i]) >> shift) & 0xFFU);
       if (shift == 24) {
@@ -33,9 +28,8 @@ std::array<int, 256> burykin_m_radix_tbb::RadixTBB::ComputeFrequencyParallel(con
     }
   });
 
-  // Combine all local histograms to get global counts
   std::array<int, 256> global_count = {};
-  for (size_t t = 0; t < num_threads; ++t) {
+  for (size_t t = 0; t < kNumThreads; ++t) {
     for (int i = 0; i < 256; ++i) {
       global_count[i] += local_counts[t][i];
     }
@@ -54,25 +48,19 @@ std::array<int, 256> burykin_m_radix_tbb::RadixTBB::ComputeIndices(const std::ar
 
 void burykin_m_radix_tbb::RadixTBB::DistributeElementsParallel(const std::vector<int>& a, std::vector<int>& b,
                                                                const std::array<int, 256>& index, const int shift) {
-  const size_t num_threads =
-      ppc::util::GetPPCNumThreads();  // Используем функцию для определения оптимального числа потоков
+  constexpr size_t kNumThreads = 64;
 
-  // First, compute local histograms and offsets for each thread
-  const size_t items_per_thread = (a.size() + num_threads - 1) / num_threads;
+  const size_t items_per_thread = (a.size() + kNumThreads - 1) / kNumThreads;
 
-  // Step 1: Count elements for each thread
-  std::vector<std::array<int, 256>> thread_counts(num_threads);
+  std::vector<std::array<int, 256>> thread_counts(kNumThreads);
 
-  tbb::parallel_for(tbb::blocked_range<size_t>(0, num_threads), [&](const tbb::blocked_range<size_t>& thread_range) {
+  tbb::parallel_for(tbb::blocked_range<size_t>(0, kNumThreads), [&](const tbb::blocked_range<size_t>& thread_range) {
     for (size_t t = thread_range.begin(); t < thread_range.end(); ++t) {
-      // Clear the local counts
       thread_counts[t].fill(0);
 
-      // Calculate this thread's range
       size_t start = t * items_per_thread;
       size_t end = std::min(start + items_per_thread, a.size());
 
-      // Count elements for each bucket in this thread's range
       for (size_t i = start; i < end; ++i) {
         unsigned int key = ((static_cast<unsigned int>(a[i]) >> shift) & 0xFFU);
         if (shift == 24) {
@@ -83,9 +71,8 @@ void burykin_m_radix_tbb::RadixTBB::DistributeElementsParallel(const std::vector
     }
   });
 
-  // Step 2: Calculate offsets for each thread
-  std::vector<std::array<int, 256>> thread_offsets(num_threads);
-  for (size_t t = 0; t < num_threads; ++t) {
+  std::vector<std::array<int, 256>> thread_offsets(kNumThreads);
+  for (size_t t = 0; t < kNumThreads; ++t) {
     for (int j = 0; j < 256; ++j) {
       thread_offsets[t][j] = index[j];
       for (size_t prev_t = 0; prev_t < t; ++prev_t) {
@@ -94,17 +81,13 @@ void burykin_m_radix_tbb::RadixTBB::DistributeElementsParallel(const std::vector
     }
   }
 
-  // Step 3: Each thread places its elements into output array
-  tbb::parallel_for(tbb::blocked_range<size_t>(0, num_threads), [&](const tbb::blocked_range<size_t>& thread_range) {
+  tbb::parallel_for(tbb::blocked_range<size_t>(0, kNumThreads), [&](const tbb::blocked_range<size_t>& thread_range) {
     for (size_t t = thread_range.begin(); t < thread_range.end(); ++t) {
-      // Calculate this thread's range
       size_t start = t * items_per_thread;
       size_t end = std::min(start + items_per_thread, a.size());
 
-      // Local copy of offsets for this thread
       std::array<int, 256> local_offsets = thread_offsets[t];
 
-      // Place elements
       for (size_t i = start; i < end; ++i) {
         unsigned int key = ((static_cast<unsigned int>(a[i]) >> shift) & 0xFFU);
         if (shift == 24) {
@@ -134,7 +117,6 @@ bool burykin_m_radix_tbb::RadixTBB::RunImpl() {
     return true;
   }
 
-  // Configure TBB task arena
   oneapi::tbb::task_arena arena(ppc::util::GetPPCNumThreads());
 
   arena.execute([&] {
