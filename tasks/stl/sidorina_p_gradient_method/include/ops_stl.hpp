@@ -67,7 +67,6 @@ inline std::vector<double> ConjugateGradientMethod(std::vector<double>& a, std::
   if (std::sqrt(residual_norm_squared) < tolerance) {
     return solution;
   }
-  
   direction = residual;
   std::vector<double> matrix_times_direction(size);
 
