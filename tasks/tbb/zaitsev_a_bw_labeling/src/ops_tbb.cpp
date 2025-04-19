@@ -119,9 +119,9 @@ void Labeler::LabelingRasterScan(Ordinals& ordinals) {
 
 void Labeler::UniteChunks() {
   DisjointSet dsj(width_);
-
   long start_pos = 0;
   long end_pos = width_;
+
   for (long i = 0; i < (long)std::ceil(((double)height_ * width_) / (chunk_)) - 1; i++) {
     start_pos += chunk_;
     end_pos += chunk_;
