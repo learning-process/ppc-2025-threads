@@ -28,7 +28,7 @@ bool varfolomeev_g_histogram_linear_stretching_tbb::TestTaskTBB ::RunImpl() {
   if (max_val != min_val) {
     tbb::parallel_for(tbb::blocked_range<size_t>(0, img_.size()), [&](const tbb::blocked_range<size_t> &r) {
       for (size_t i = r.begin(); i != r.end(); ++i) {
-        res_[i] = static_cast<uint8_t>(((img_[i] - min_val) * 255 + (max_val - min_val) / 2) / (max_val - min_val));
+        res_[i] = static_cast<uint8_t>(std::round(static_cast<double>(img_[i] - min_val) * 255 / (max_val - min_val)));
       }
     });
   } else {

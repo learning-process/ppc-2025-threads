@@ -31,6 +31,28 @@ std::vector<uint8_t> GetRandomImage(int sz) {
 }
 }  // namespace
 
+TEST(varfolomeev_g_histogram_linear_stretching_tbb, test_rounding) {
+  std::vector<uint8_t> in = {0, 1, 2, 3, 4, 5};  // Шаг 1, диапазон [0, 5] -> [0, 255]
+  std::vector<uint8_t> out(in.size());
+  std::vector<uint8_t> expected_out = {0, 51, 102, 153, 204, 255};  // 255/5 = 51
+
+  // Create task_data
+  auto task_data_tbb = std::make_shared<ppc::core::TaskData>();
+  task_data_tbb->inputs.emplace_back(reinterpret_cast<uint8_t *>(in.data()));
+  task_data_tbb->inputs_count.emplace_back(in.size());
+  task_data_tbb->outputs.emplace_back(reinterpret_cast<uint8_t *>(out.data()));
+  task_data_tbb->outputs_count.emplace_back(out.size());
+
+  // Create Task
+  varfolomeev_g_histogram_linear_stretching_tbb::TestTaskTBB test_task_tbb(task_data_tbb);
+  ASSERT_EQ(test_task_tbb.Validation(), true);
+  test_task_tbb.PreProcessing();
+  test_task_tbb.Run();
+  test_task_tbb.PostProcessing();
+
+  EXPECT_EQ(expected_out, out);
+}
+
 #ifndef _WIN32
 TEST(varfolomeev_g_histogram_linear_stretching_tbb, test_opencv_image_validation) {
   // loading template orginal img
@@ -285,6 +307,27 @@ TEST(varfolomeev_g_histogram_linear_stretching_tbb, test_single_non_flat_pixel) 
   test_task_tbb.Run();
   test_task_tbb.PostProcessing();
   EXPECT_EQ(expected_out, out);
+}
+
+TEST(varfolomeev_g_histogram_linear_stretching_tbb, test_single_pixel) {
+  // Create data
+  std::vector<uint8_t> in{55};
+  std::vector<uint8_t> out(in.size());
+  // Create task_data
+  auto task_data_tbb = std::make_shared<ppc::core::TaskData>();
+  task_data_tbb->inputs.emplace_back(reinterpret_cast<uint8_t *>(in.data()));
+  task_data_tbb->inputs_count.emplace_back(in.size());
+  task_data_tbb->outputs.emplace_back(reinterpret_cast<uint8_t *>(out.data()));
+  task_data_tbb->outputs_count.emplace_back(out.size());
+
+  // Create Task
+  varfolomeev_g_histogram_linear_stretching_tbb::TestTaskTBB test_task_tbb(task_data_tbb);
+  ASSERT_EQ(test_task_tbb.Validation(), true);
+  test_task_tbb.PreProcessing();
+  test_task_tbb.Run();
+  test_task_tbb.PostProcessing();
+
+  EXPECT_EQ(in, out);
 }
 
 TEST(varfolomeev_g_histogram_linear_stretching_tbb, test_single_non_flat_pixel_2) {
