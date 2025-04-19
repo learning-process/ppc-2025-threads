@@ -1,116 +1,74 @@
 #include "tbb/burykin_m_radix/include/ops_tbb.hpp"
 
 #include <oneapi/tbb/blocked_range.h>
-#include <oneapi/tbb/enumerable_thread_specific.h>
 #include <oneapi/tbb/parallel_for.h>
 #include <oneapi/tbb/task_arena.h>
 
 #include <array>
+#include <atomic>
+#include <cstddef>
 #include <utility>
 #include <vector>
 
-std::array<int, 256> burykin_m_radix_tbb::RadixTBB::ComputeFrequency(const std::vector<int>& a, const int shift) {
-  // Using enumerable_thread_specific for thread-local counters
-  tbb::enumerable_thread_specific<std::array<int, 256>> local_counts(std::array<int, 256>{});
+#include "core/util/include/util.hpp"
 
-  // Parallel counting of frequencies
-  tbb::parallel_for(tbb::blocked_range<size_t>(0, a.size()), [&](const tbb::blocked_range<size_t>& range) {
-    auto& my_count = local_counts.local();
+std::array<int, 256> burykin_m_radix_tbb::RadixTBB::ComputeFrequencyParallel(const std::vector<int>& a,
+                                                                             const int shift) {
+  std::array<std::array<int, 256>, 64> local_counts = {};
+  const size_t array_size = a.size();
+
+  tbb::parallel_for(tbb::blocked_range<size_t>(0, array_size), [&](const tbb::blocked_range<size_t>& range) {
+    std::array<int, 256> local_count = {};
     for (size_t i = range.begin(); i < range.end(); ++i) {
-      const int v = a[i];
-      unsigned int key = ((static_cast<unsigned int>(v) >> shift) & 0xFFU);
+      unsigned int key = ((static_cast<unsigned int>(a[i]) >> shift) & 0xFFU);
       if (shift == 24) {
         key ^= 0x80;
       }
-      ++my_count[key];
+      ++local_count[key];
     }
+
+    // Store local histogram in the local_counts array
+    int thread_id = tbb::this_task_arena::current_thread_index();
+    thread_id = (thread_id < 0) ? 0 : thread_id % 64;  // Ensure thread index is within bounds
+    local_counts[thread_id] = local_count;
   });
 
-  // Combine all thread-local counters
-  std::array<int, 256> count = {};
-  for (const auto& local_count : local_counts) {
+  // Combine all local histograms
+  std::array<int, 256> global_count = {};
+  for (const auto& count : local_counts) {
     for (int i = 0; i < 256; ++i) {
-      count[i] += local_count[i];
+      global_count[i] += count[i];
     }
   }
 
-  return count;
+  return global_count;
 }
 
 std::array<int, 256> burykin_m_radix_tbb::RadixTBB::ComputeIndices(const std::array<int, 256>& count) {
   std::array<int, 256> index = {0};
-  // Sequential dependency, cannot be easily parallelized
   for (int i = 1; i < 256; ++i) {
     index[i] = index[i - 1] + count[i - 1];
   }
   return index;
 }
 
-void burykin_m_radix_tbb::RadixTBB::DistributeElements(const std::vector<int>& a, std::vector<int>& b,
-                                                       std::array<int, 256> index, const int shift) {
-  // Create per-thread offsets for each bucket
-  struct BucketOffsets {
-    std::array<int, 256> offsets;
-    BucketOffsets() : offsets() {}
-  };
-
-  tbb::enumerable_thread_specific<BucketOffsets> local_offsets;
-
-  // First pass: count elements per thread and bucket
-  tbb::parallel_for(tbb::blocked_range<size_t>(0, a.size()), [&](const tbb::blocked_range<size_t>& range) {
-    auto& my_offsets = local_offsets.local();
-    for (size_t i = range.begin(); i < range.end(); ++i) {
-      const int v = a[i];
-      unsigned int key = ((static_cast<unsigned int>(v) >> shift) & 0xFFU);
-      if (shift == 24) {
-        key ^= 0x80;
-      }
-      ++my_offsets.offsets[key];
-    }
-  });
-
-  // Calculate starting positions for each thread and bucket
-  std::vector<std::array<int, 256>> prefix_sums;
-  prefix_sums.reserve(local_offsets.size() + 1);
-
-  // Start with the original indices
-  prefix_sums.push_back(index);
-
-  // Add each thread's count
-  for (const auto& offset : local_offsets) {
-    std::array<int, 256> next_sum = prefix_sums.back();
-    for (int i = 0; i < 256; ++i) {
-      next_sum[i] += offset.offsets[i];
-    }
-    prefix_sums.push_back(next_sum);
+void burykin_m_radix_tbb::RadixTBB::DistributeElementsParallel(const std::vector<int>& a, std::vector<int>& b,
+                                                               const std::array<int, 256>& index, const int shift) {
+  // Calculate offsets for each key using standard atomic
+  std::array<std::atomic<int>, 256> offsets;
+  for (int i = 0; i < 256; ++i) {
+    offsets[i] = index[i];
   }
 
-  // Reset thread-local buckets for the second pass
-  local_offsets.clear();
-
-  // Second pass: distribute elements to output array
   tbb::parallel_for(tbb::blocked_range<size_t>(0, a.size()), [&](const tbb::blocked_range<size_t>& range) {
-    // Get thread-specific starting positions
-    int my_id = 0;
-    {
-      static tbb::enumerable_thread_specific<int> tls_id(0);
-      auto& local_id = tls_id.local();
-      if (local_id == 0) {
-        static std::atomic<int> next_id(0);
-        local_id = next_id++;
-      }
-      my_id = local_id;
-    }
-
-    std::array<int, 256> my_index = prefix_sums[my_id];
-
     for (size_t i = range.begin(); i < range.end(); ++i) {
-      const int v = a[i];
-      unsigned int key = ((static_cast<unsigned int>(v) >> shift) & 0xFFU);
+      unsigned int key = ((static_cast<unsigned int>(a[i]) >> shift) & 0xFFU);
       if (shift == 24) {
         key ^= 0x80;
       }
-      b[my_index[key]++] = v;
+      // Use standard atomic fetch_add instead of fetch_and_increment
+      int idx = offsets[key].fetch_add(1, std::memory_order_relaxed);
+      b[idx] = a[i];
     }
   });
 }
@@ -133,31 +91,29 @@ bool burykin_m_radix_tbb::RadixTBB::RunImpl() {
     return true;
   }
 
-  std::vector<int> a = std::move(input_);
-  std::vector<int> b(a.size());
+  // Configure TBB task arena with the number of threads from PPC
+  oneapi::tbb::task_arena arena(ppc::util::GetPPCNumThreads());
 
-  tbb::task_arena arena;
   arena.execute([&] {
+    std::vector<int> a = std::move(input_);
+    std::vector<int> b(a.size());
+
     for (int shift = 0; shift < 32; shift += 8) {
-      auto count = ComputeFrequency(a, shift);
+      auto count = ComputeFrequencyParallel(a, shift);
       const auto index = ComputeIndices(count);
-      DistributeElements(a, b, index, shift);
+      DistributeElementsParallel(a, b, index, shift);
       a.swap(b);
     }
+
+    output_ = std::move(a);
   });
 
-  output_ = std::move(a);
   return true;
 }
 
 bool burykin_m_radix_tbb::RadixTBB::PostProcessingImpl() {
-  auto* output_ptr = reinterpret_cast<int*>(task_data->outputs[0]);
-
-  tbb::parallel_for(tbb::blocked_range<size_t>(0, output_.size()), [&](const tbb::blocked_range<size_t>& range) {
-    for (size_t i = range.begin(); i < range.end(); ++i) {
-      output_ptr[i] = output_[i];
-    }
-  });
-
+  for (size_t i = 0; i < output_.size(); ++i) {
+    reinterpret_cast<int*>(task_data->outputs[0])[i] = output_[i];
+  }
   return true;
 }
