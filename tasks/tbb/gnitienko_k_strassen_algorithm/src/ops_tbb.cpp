@@ -153,7 +153,6 @@ void gnitienko_k_strassen_algorithm_tbb::StrassenAlgTBB::StrassenMultiply(const 
 
   tg.run([&]() {
     std::vector<double> temp_a(half_size * half_size);
-    std::vector<double> temp_b(half_size * half_size);
     // h1 = (a11 + a12) * b22
     AddMatrix(a11, a12, temp_a, half_size);
     StrassenMultiply(temp_a, b22, h1, half_size);
@@ -168,7 +167,6 @@ void gnitienko_k_strassen_algorithm_tbb::StrassenAlgTBB::StrassenMultiply(const 
   });
 
   tg.run([&]() {
-    std::vector<double> temp_a(half_size * half_size);
     std::vector<double> temp_b(half_size * half_size);
     // v1 = a22 * (b21 - b11)
     SubMatrix(b21, b11, temp_b, half_size);
@@ -176,7 +174,6 @@ void gnitienko_k_strassen_algorithm_tbb::StrassenAlgTBB::StrassenMultiply(const 
   });
 
   tg.run([&]() {
-    std::vector<double> temp_a(half_size * half_size);
     std::vector<double> temp_b(half_size * half_size);
     // v2 = a11 * (b12 - b22)
     SubMatrix(b12, b22, temp_b, half_size);
