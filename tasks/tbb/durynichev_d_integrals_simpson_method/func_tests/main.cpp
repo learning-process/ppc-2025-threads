@@ -5,7 +5,7 @@
 #include <vector>
 
 #include "core/task/include/task.hpp"
-#include "durynichev_d_integrals_simpson_method_tbb/include/ops_tbb.hpp"
+#include "tbb/durynichev_d_integrals_simpson_method/include/ops_tbb.hpp"
 
 TEST(durynichev_d_integrals_simpson_method_tbb, test_integral_1D_x_squared) {
   std::vector<double> in = {0.0, 1.0, 100};

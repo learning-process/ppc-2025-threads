@@ -7,7 +7,7 @@
 
 #include "core/perf/include/perf.hpp"
 #include "core/task/include/task.hpp"
-#include "durynichev_d_integrals_simpson_method_tbb/include/ops_tbb.hpp"
+#include "tbb/durynichev_d_integrals_simpson_method/include/ops_tbb.hpp"
 
 TEST(durynichev_d_integrals_simpson_method_tbb, test_pipeline_run) {
   std::vector<double> in = {-10.0, 10.0, -10.0, 10.0, 30000};  // [x0, x1, y0, y1, n]
