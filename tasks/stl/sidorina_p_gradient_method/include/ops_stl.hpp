@@ -2,7 +2,6 @@
 
 #include <cmath>
 #include <thread>
-#include <pthread.h> 
 #include <utility>
 #include <vector>
 
@@ -46,7 +45,7 @@ inline double Dot(const std::vector<double>& vec) {
 }
 
 inline std::vector<double> ConjugateGradientMethod(std::vector<double>& a, std::vector<double>& b,
-  std::vector<double> solution, double tolerance, int size) {
+                                                   std::vector<double> solution, double tolerance, int size) {
   std::vector<double> matrix_times_solution = MultiplyMatrixByVector(a, solution, size);
 
   auto residual = std::vector<double>(size);
@@ -56,9 +55,8 @@ inline std::vector<double> ConjugateGradientMethod(std::vector<double>& a, std::
   threads.reserve(size);
 
   for (int i = 0; i < size; ++i) {
-    threads.emplace_back([&residual, &b, &matrix_times_solution, i]() {
-      residual[i] = b[i] - matrix_times_solution[i];
-    });
+    threads.emplace_back(
+        [&residual, &b, &matrix_times_solution, i]() { residual[i] = b[i] - matrix_times_solution[i]; });
   }
 
   for (auto& thread : threads) {
@@ -80,9 +78,7 @@ inline std::vector<double> ConjugateGradientMethod(std::vector<double>& a, std::
     threads.clear();
     threads.reserve(size);
     for (int i = 0; i < size; ++i) {
-      threads.emplace_back([&solution, &alpha, &direction, i]() {
-        solution[i] += alpha * direction[i];
-      });
+      threads.emplace_back([&solution, &alpha, &direction, i]() { solution[i] += alpha * direction[i]; });
     }
 
     for (auto& thread : threads) {
@@ -92,9 +88,8 @@ inline std::vector<double> ConjugateGradientMethod(std::vector<double>& a, std::
     threads.clear();
     threads.reserve(size);
     for (int i = 0; i < size; ++i) {
-      threads.emplace_back([&residual, &alpha, &matrix_times_direction, i]() {
-        residual[i] -= alpha * matrix_times_direction[i];
-      });
+      threads.emplace_back(
+          [&residual, &alpha, &matrix_times_direction, i]() { residual[i] -= alpha * matrix_times_direction[i]; });
     }
 
     for (auto& thread : threads) {
@@ -108,9 +103,7 @@ inline std::vector<double> ConjugateGradientMethod(std::vector<double>& a, std::
     threads.clear();
     threads.reserve(size);
     for (int i = 0; i < size; ++i) {
-      threads.emplace_back([&direction, &residual, &beta, i]() {
-        direction[i] = residual[i] + beta * direction[i];
-      });
+      threads.emplace_back([&direction, &residual, &beta, i]() { direction[i] = residual[i] + beta * direction[i]; });
     }
 
     for (auto& thread : threads) {
