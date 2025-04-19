@@ -22,12 +22,12 @@ double FoxSeq::AtB(size_t i, size_t j) const {
   return input_b_[(i * n_) + j];
 }
 
-std::vector<double> MatMul(std::vector<double>& a, std::vector<double>& b, size_t n_) {
-  std::vector<double> res(n_ * n_, 0.0);
-  for (size_t j = 0; j < n_; j++) {
-    for (size_t i = 0; i < n_; i++) {
-      for (size_t l = 0; l < n_; l++) {
-        res[(i * n_) + j] += a[(i * n_) + l] * b[(l * n_) + j];
+std::vector<double> MatMul(std::vector<double>& a, std::vector<double>& b, size_t n) {
+  std::vector<double> res(n * n, 0.0);
+  for (size_t j = 0; j < n; j++) {
+    for (size_t i = 0; i < n; i++) {
+      for (size_t l = 0; l < n; l++) {
+        res[(i * n) + j] += a[(i * n) + l] * b[(l * n) + j];
       }
     }
   }
@@ -47,9 +47,7 @@ bool FoxSeq::PreProcessingImpl() {
   return true;
 }
 
-bool FoxSeq::ValidationImpl() {
-  return (input_a_.size() == n_ * n_ && output_.size() == n_ * n_);
-}
+bool FoxSeq::ValidationImpl() { return (input_a_.size() == n_ * n_ && output_.size() == n_ * n_); }
 
 bool FoxSeq::RunImpl() {
   size_t q = 0;

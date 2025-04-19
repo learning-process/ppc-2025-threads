@@ -20,8 +20,8 @@ class FoxSeq : public ppc::core::Task {
   bool PostProcessingImpl() override;
 
  private:
-  double AtA(size_t i, size_t j) const;
-  double AtB(size_t i, size_t j) const;
+  [[nodiscard]] double AtA(size_t i, size_t j) const;
+  [[nodiscard]] double AtB(size_t i, size_t j) const;
   std::vector<double> input_a_;
   std::vector<double> input_b_;
   std::vector<double> output_;
