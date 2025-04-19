@@ -63,12 +63,12 @@ void smirnov_i_radix_sort_simple_merge_stl::TestTaskSTL::RadixSort(std::vector<i
     std::swap(mas, sorting);
   }
 }
-std::vector<int> smirnov_i_radix_sort_simple_merge_stl::TestTaskSTL::Sorting(int id, std::vector<int> &mas_,
+std::vector<int> smirnov_i_radix_sort_simple_merge_stl::TestTaskSTL::Sorting(int id, std::vector<int> &mas,
                                                                              int max_th) {
-  int start = static_cast<int>(id * mas_.size() / max_th);
-  int end = static_cast<int>(std::min((id + 1) * mas_.size() / max_th, mas_.size()));
+  int start = static_cast<int>(id * mas.size() / max_th);
+  int end = static_cast<int>(std::min((id + 1) * mas.size() / max_th, mas.size()));
   std::vector<int> local_mas_(end - start);
-  std::copy(mas_.begin() + start, mas_.begin() + end, local_mas_.data());
+  std::copy(mas.begin() + start, mas.begin() + end, local_mas_.data());
   RadixSort(local_mas_);
   return local_mas_;
 }
