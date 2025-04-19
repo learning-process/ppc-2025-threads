@@ -14,13 +14,13 @@
 
 std::array<int, 256> burykin_m_radix_tbb::RadixTBB::ComputeFrequencyParallel(const std::vector<int>& a,
                                                                              const int shift) {
-  const int num_threads = ppc::util::GetPPCNumThreads();
+  const size_t num_threads = ppc::util::GetPPCNumThreads();
   std::vector<std::array<int, 256>> local_counts(num_threads);
   const size_t array_size = a.size();
 
   tbb::parallel_for(tbb::blocked_range<size_t>(0, array_size), [&](const tbb::blocked_range<size_t>& range) {
-    int thread_id = tbb::this_task_arena::current_thread_index();
-    thread_id = (thread_id < 0) ? 0 : thread_id % num_threads;
+    size_t thread_id = tbb::this_task_arena::current_thread_index();
+    thread_id = thread_id % num_threads;
 
     for (size_t i = range.begin(); i < range.end(); ++i) {
       unsigned int key = ((static_cast<unsigned int>(a[i]) >> shift) & 0xFFU);
