@@ -451,7 +451,7 @@ TEST(shlyakov_m_shell_sort_tbb, Test_With_Eq_Numbers) {
   EXPECT_EQ(expected, out);
 }
 
-TEST(shlyakov_m_shell_sort_tbb, Test_With_Eq_Numbers) {
+TEST(shlyakov_m_shell_sort_tbb, Test_With_False_Validation) {
   size_t array_size = 100;
   std::vector<int> in(array_size, 3);
   std::vector<int> out(in.size() - 1);
