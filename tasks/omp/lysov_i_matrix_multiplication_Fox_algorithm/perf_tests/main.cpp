@@ -10,7 +10,7 @@
 
 #include "core/perf/include/perf.hpp"
 #include "core/task/include/task.hpp"
-#include "omp/lysov_i_matrix_multiplication_Fox_algorithm_omp/include/ops_omp.hpp"
+#include "omp/lysov_i_matrix_multiplication_Fox_algorithm/include/ops_omp.hpp"
 
 namespace lysov_i_matrix_multiplication_fox_algorithm_omp {
 std::vector<double> GetRandomMatrix(size_t size, int min_gen_value, int max_gen_value) {
