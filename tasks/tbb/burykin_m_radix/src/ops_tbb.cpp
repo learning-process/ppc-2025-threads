@@ -9,10 +9,13 @@
 #include <utility>
 #include <vector>
 
+#include "core/util/include/util.hpp"
+
 std::array<int, 256> burykin_m_radix_tbb::RadixTBB::ComputeFrequencyParallel(const std::vector<int>& a,
                                                                              const int shift) {
-  const size_t num_threads = 64;  // Maximum number of threads
-  std::array<std::array<int, 256>, 64> local_counts = {};
+  const size_t num_threads =
+      ppc::util::GetPPCNumThreads();  // Используем функцию для определения оптимального числа потоков
+  std::vector<std::array<int, 256>> local_counts(num_threads);  // Динамическое выделение памяти
   const size_t array_size = a.size();
 
   tbb::parallel_for(tbb::blocked_range<size_t>(0, array_size), [&](const tbb::blocked_range<size_t>& range) {
@@ -51,7 +54,8 @@ std::array<int, 256> burykin_m_radix_tbb::RadixTBB::ComputeIndices(const std::ar
 
 void burykin_m_radix_tbb::RadixTBB::DistributeElementsParallel(const std::vector<int>& a, std::vector<int>& b,
                                                                const std::array<int, 256>& index, const int shift) {
-  const size_t num_threads = 64;  // Maximum number of threads to use
+  const size_t num_threads =
+      ppc::util::GetPPCNumThreads();  // Используем функцию для определения оптимального числа потоков
 
   // First, compute local histograms and offsets for each thread
   const size_t items_per_thread = (a.size() + num_threads - 1) / num_threads;
