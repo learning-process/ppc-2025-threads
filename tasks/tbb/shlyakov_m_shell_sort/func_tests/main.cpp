@@ -43,7 +43,7 @@ bool IsSorted(const std::vector<int> &arr) {
       return false;
     }
   }
-  return true; // return
+  return true;
 }
 }  // namespace
 
