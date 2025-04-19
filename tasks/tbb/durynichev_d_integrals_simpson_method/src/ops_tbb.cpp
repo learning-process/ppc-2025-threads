@@ -1,4 +1,4 @@
-#include "durynichev_d_integrals_simpson_method_tbb/include/ops_tbb.hpp"
+#include "tbb/durynichev_d_integrals_simpson_method/include/ops_tbb.hpp"
 
 #include <tbb/tbb.h>
 
