@@ -7,6 +7,8 @@
 #include <utility>
 #include <vector>
 
+#include "core/task/include/task.hpp"
+
 namespace konkov_i_sparse_matmul_ccs_stl {
 
 SparseMatmulTask::SparseMatmulTask(ppc::core::TaskDataPtr task_data) : ppc::core::Task(std::move(task_data)) {}
@@ -29,12 +31,14 @@ bool SparseMatmulTask::PreProcessingImpl() {
 }
 
 bool SparseMatmulTask::RunImpl() {
-  int num_threads = std::thread::hardware_concurrency();
-  if (num_threads == 0) num_threads = 4;  // fallback
+  auto num_threads = static_cast<int>(std::thread::hardware_concurrency());
+  if (num_threads == 0) {
+    num_threads = 4;  // fallback
+  }
 
-  std::vector<std::vector<double>> thread_C_values(num_threads);
-  std::vector<std::vector<int>> thread_C_row_indices(num_threads);
-  std::vector<std::vector<int>> thread_C_col_ptr(num_threads, std::vector<int>(colsB + 1, 0));
+  std::vector<std::vector<double>> thread_c_values(num_threads);
+  std::vector<std::vector<int>> thread_c_row_indices(num_threads);
+  std::vector<std::vector<int>> thread_c_col_ptr(num_threads, std::vector<int>(colsB + 1, 0));
 
   auto worker = [&](int thread_id) {
     for (int col_b = thread_id; col_b < colsB; col_b += num_threads) {
@@ -44,10 +48,14 @@ bool SparseMatmulTask::RunImpl() {
         int row_b = B_row_indices[j];
         double val_b = B_values[j];
 
-        if (row_b >= colsA) continue;
+        if (row_b >= colsA) {
+          continue;
+        }
 
         for (int k = A_col_ptr[row_b]; k < A_col_ptr[row_b + 1]; ++k) {
-          if (static_cast<size_t>(k) >= A_row_indices.size()) continue;
+          if (static_cast<size_t>(k) >= A_row_indices.size()) {
+            continue;
+          }
 
           int row_a = A_row_indices[k];
           double val_a = A_values[k];
@@ -65,19 +73,20 @@ bool SparseMatmulTask::RunImpl() {
       std::ranges::sort(rows);
 
       for (int row : rows) {
-        thread_C_values[thread_id].push_back(column_result[row]);
-        thread_C_row_indices[thread_id].push_back(row);
-        thread_C_col_ptr[thread_id][col_b + 1]++;
+        thread_c_values[thread_id].push_back(column_result[row]);
+        thread_c_row_indices[thread_id].push_back(row);
+        thread_c_col_ptr[thread_id][col_b + 1]++;
       }
     }
 
     // prefix sum within this thread's portion
     for (int col = 1; col <= colsB; ++col) {
-      thread_C_col_ptr[thread_id][col] += thread_C_col_ptr[thread_id][col - 1];
+      thread_c_col_ptr[thread_id][col] += thread_c_col_ptr[thread_id][col - 1];
     }
   };
 
   std::vector<std::thread> threads;
+  threads.reserve(num_threads);
   for (int t = 0; t < num_threads; ++t) {
     threads.emplace_back(worker, t);
   }
@@ -93,13 +102,13 @@ bool SparseMatmulTask::RunImpl() {
 
   for (int col = 0; col < colsB; ++col) {
     for (int t = 0; t < num_threads; ++t) {
-      int start = (col == 0) ? 0 : thread_C_col_ptr[t][col];
-      int end = thread_C_col_ptr[t][col + 1];
+      int start = (col == 0) ? 0 : thread_c_col_ptr[t][col];
+      int end = thread_c_col_ptr[t][col + 1];
 
       C_col_ptr[col + 1] += end - start;
-      C_values.insert(C_values.end(), thread_C_values[t].begin() + start, thread_C_values[t].begin() + end);
-      C_row_indices.insert(C_row_indices.end(), thread_C_row_indices[t].begin() + start,
-                           thread_C_row_indices[t].begin() + end);
+      C_values.insert(C_values.end(), thread_c_values[t].begin() + start, thread_c_values[t].begin() + end);
+      C_row_indices.insert(C_row_indices.end(), thread_c_row_indices[t].begin() + start,
+                           thread_c_row_indices[t].begin() + end);
     }
   }
 
