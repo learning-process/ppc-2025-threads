@@ -24,10 +24,9 @@ bool SparseMatmulTaskSTL::PreProcessingImpl() {
   return true;
 }
 
-// Структура для хранения локальных результатов потока
 struct ThreadResult {
-  std::map<int, double> column_map;  // [строка] = значение
-  int col_start, col_end;            // Диапазон столбцов B для обработки
+  std::map<int, double> column_map;
+  int col_start, col_end;
 };
 
 void compute_thread(const std::vector<double>& A_values, const std::vector<int>& A_row_indices,
@@ -55,7 +54,6 @@ bool SparseMatmulTaskSTL::RunImpl() {
   std::vector<std::thread> threads;
   std::vector<ThreadResult> thread_results(num_threads);
 
-  // Распределение столбцов B по потокам
   const int cols_per_thread = (colsB + num_threads - 1) / num_threads;
   for (int i = 0; i < num_threads; ++i) {
     thread_results[i].col_start = i * cols_per_thread;
@@ -65,12 +63,10 @@ bool SparseMatmulTaskSTL::RunImpl() {
                          std::ref(thread_results[i]));
   }
 
-  // Ожидание завершения всех потоков
   for (auto& t : threads) {
     if (t.joinable()) t.join();
   }
 
-  // Объединение результатов
   std::mutex mtx;
   int count = 0;
   for (int col = 0; col < colsB; ++col) {
