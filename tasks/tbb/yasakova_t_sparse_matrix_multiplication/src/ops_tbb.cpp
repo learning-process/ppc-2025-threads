@@ -10,7 +10,8 @@
 #include <utility>
 #include <vector>
 
-void yasakova_t_sparse_matrix_multiplication::CompressedRowStorageMatrix::InsertElement(int row, ComplexNumber value, int col) {
+void yasakova_t_sparse_matrix_multiplication::CompressedRowStorageMatrix::InsertElement(int row, ComplexNumber value,
+                                                                                        int col) {
   bool found = false;
   for (int j = rowPointers[row]; j < rowPointers[row + 1]; j++) {
     if (columnIndices[j] == col) {
@@ -28,7 +29,8 @@ void yasakova_t_sparse_matrix_multiplication::CompressedRowStorageMatrix::Insert
   }
 }
 
-void yasakova_t_sparse_matrix_multiplication::CompressedRowStorageMatrix::DisplayMatrix(const CompressedRowStorageMatrix& matrix) {
+void yasakova_t_sparse_matrix_multiplication::CompressedRowStorageMatrix::DisplayMatrix(
+    const CompressedRowStorageMatrix& matrix) {
   for (int i = 0; i < matrix.rowCount; i++) {
     for (int j = matrix.rowPointers[i]; j < matrix.rowPointers[i + 1]; j++) {
       std::cout << "Element at (" << i << ", " << matrix.columnIndices[j] << ") = " << matrix.nonZeroValues[j] << '\n';
@@ -36,11 +38,14 @@ void yasakova_t_sparse_matrix_multiplication::CompressedRowStorageMatrix::Displa
   }
 }
 
-bool yasakova_t_sparse_matrix_multiplication::AreEqualElems(const ComplexNumber& first_matrix, const ComplexNumber& second_matrix, double tolerance) {
-  return std::abs(first_matrix.real() - second_matrix.real()) < tolerance && std::abs(first_matrix.imag() - second_matrix.imag()) < tolerance;
+bool yasakova_t_sparse_matrix_multiplication::AreEqualElems(const ComplexNumber& first_matrix,
+                                                            const ComplexNumber& second_matrix, double tolerance) {
+  return std::abs(first_matrix.real() - second_matrix.real()) < tolerance &&
+         std::abs(first_matrix.imag() - second_matrix.imag()) < tolerance;
 }
 
-std::vector<ComplexNumber> yasakova_t_sparse_matrix_multiplication::ConvertMatrixToVector(const CompressedRowStorageMatrix& mat) {
+std::vector<ComplexNumber> yasakova_t_sparse_matrix_multiplication::ConvertMatrixToVector(
+    const CompressedRowStorageMatrix& mat) {
   std::vector<ComplexNumber> actual_result = {};
   actual_result.reserve(5 + mat.nonZeroValues.size() + mat.columnIndices.size() + mat.rowPointers.size());
   actual_result.emplace_back((double)mat.rowCount);
@@ -77,7 +82,8 @@ bool yasakova_t_sparse_matrix_multiplication::CompareMatrices(
     for (unsigned int j = this_row_start; j < this_row_end; j++) {
       bool found = false;
       for (unsigned int k = other_row_start; k < other_row_end; k++) {
-        if (first_matrix.columnIndices[j] == second_matrix.columnIndices[k] && AreEqualElems(first_matrix.nonZeroValues[j], second_matrix.nonZeroValues[k], 0.000001)) {
+        if (first_matrix.columnIndices[j] == second_matrix.columnIndices[k] &&
+            AreEqualElems(first_matrix.nonZeroValues[j], second_matrix.nonZeroValues[k], 0.000001)) {
           found = true;
           break;
         }
@@ -90,8 +96,8 @@ bool yasakova_t_sparse_matrix_multiplication::CompareMatrices(
   return true;
 }
 
-yasakova_t_sparse_matrix_multiplication::CompressedRowStorageMatrix yasakova_t_sparse_matrix_multiplication::ConvertVectorToMatrix(
-    std::vector<ComplexNumber>& vec) {
+yasakova_t_sparse_matrix_multiplication::CompressedRowStorageMatrix
+yasakova_t_sparse_matrix_multiplication::ConvertVectorToMatrix(std::vector<ComplexNumber>& vec) {
   CompressedRowStorageMatrix actual_result;
   actual_result.rowCount = (int)vec[0].real();
   actual_result.columnCount = (int)vec[1].real();
@@ -121,8 +127,10 @@ bool yasakova_t_sparse_matrix_multiplication::TestTaskTBB::PreProcessingImpl() {
   std::vector<ComplexNumber> matrix_a = {};
   std::vector<ComplexNumber> matrix_b = {};
   matrix_a.reserve(5 + (unsigned int)(inputData_[2].real() + inputData_[3].real() + inputData_[4].real()));
-  matrix_b.reserve(inputData_.size() - (unsigned int)(5 + inputData_[2].real() + inputData_[3].real() + inputData_[4].real()));
-  for (unsigned int i = 0; i < (unsigned int)(5 + inputData_[2].real() + inputData_[3].real() + inputData_[4].real()); i++) {
+  matrix_b.reserve(inputData_.size() -
+                   (unsigned int)(5 + inputData_[2].real() + inputData_[3].real() + inputData_[4].real()));
+  for (unsigned int i = 0; i < (unsigned int)(5 + inputData_[2].real() + inputData_[3].real() + inputData_[4].real());
+       i++) {
     matrix_a.emplace_back(inputData_[i]);
   }
   for (auto i = (unsigned int)(5 + inputData_[2].real() + inputData_[3].real() + inputData_[4].real());
@@ -146,16 +154,17 @@ bool yasakova_t_sparse_matrix_multiplication::TestTaskTBB::RunImpl() {
 
   std::vector<std::vector<std::pair<int, ComplexNumber>>> local_results(firstMatrix_.rowCount);
 
-  tbb::parallel_for(tbb::blocked_range<unsigned int>(0, firstMatrix_.rowCount), [&](const tbb::blocked_range<unsigned int>& r) {
-    for (unsigned int i = r.begin(); i < r.end(); ++i) {
-      for (unsigned int j = firstMatrix_.rowPointers[i]; j < (unsigned int)firstMatrix_.rowPointers[i + 1]; ++j) {
-        unsigned int col_a = firstMatrix_.columnIndices[j];
-        ComplexNumber value_a = firstMatrix_.nonZeroValues[j];
-
-        for (unsigned int k = secondMatrix_.rowPointers[col_a]; k < (unsigned int)secondMatrix_.rowPointers[col_a + 1]; ++k) {
-          unsigned int col_b = secondMatrix_.columnIndices[k];
-          ComplexNumber value_b = secondMatrix_.nonZeroValues[k];
-          local_results[i].emplace_back(col_b, value_a * value_b);
+  tbb::parallel_for(
+      tbb::blocked_range<unsigned int>(0, firstMatrix_.rowCount), [&](const tbb::blocked_range<unsigned int>& r) {
+        for (unsigned int i = r.begin(); i < r.end(); ++i) {
+          for (unsigned int j = firstMatrix_.rowPointers[i]; j < (unsigned int)firstMatrix_.rowPointers[i + 1]; ++j) {
+            unsigned int col_a = firstMatrix_.columnIndices[j];
+            ComplexNumber value_a = firstMatrix_.nonZeroValues[j];
+            for (unsigned int k = secondMatrix_.rowPointers[col_a];
+                 k < (unsigned int)secondMatrix_.rowPointers[col_a + 1]; ++k) {
+              unsigned int col_b = secondMatrix_.columnIndices[k];
+              ComplexNumber value_b = secondMatrix_.nonZeroValues[k];
+              local_results[i].emplace_back(col_b, value_a * value_b);
         }
       }
     }

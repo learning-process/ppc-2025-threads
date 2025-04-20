@@ -15,7 +15,9 @@ struct CompressedRowStorageMatrix {
   int rowCount;
   int columnCount;
   CompressedRowStorageMatrix() : nonZeroValues({}), columnIndices({}), rowPointers({}), rowCount(0), columnCount(0) {};
-  CompressedRowStorageMatrix(int rows, int cols) : rowCount(rows), columnCount(cols) { rowPointers.resize(rows + 1, 0); }
+  CompressedRowStorageMatrix(int rows, int cols) : rowCount(rows), columnCount(cols) {
+    rowPointers.resize(rows + 1, 0);
+  }
 
   void InsertElement(int row, ComplexNumber value, int col);
   CompressedRowStorageMatrix(const CompressedRowStorageMatrix& other) = default;

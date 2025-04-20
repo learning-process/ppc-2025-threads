@@ -25,7 +25,8 @@ yasakova_t_sparse_matrix_multiplication::CompressedRowStorageMatrix GenMatrix(
   yasakova_t_sparse_matrix_multiplication::CompressedRowStorageMatrix first_matrix((int)num_rows, (int)num_cols);
   for (unsigned int i = left_border_row; i < right_border_row; i++) {
     for (unsigned int j = left_border_col; j < right_border_col; j++) {
-      first_matrix.InsertElement((int)i, ComplexNumber(min_value + (rand() % max_value), min_value + (rand() % max_value)), (int)j);
+      first_matrix.InsertElement(
+          (int)i, ComplexNumber(min_value + (rand() % max_value), min_value + (rand() % max_value)), (int)j);
     }
   }
   return first_matrix;
