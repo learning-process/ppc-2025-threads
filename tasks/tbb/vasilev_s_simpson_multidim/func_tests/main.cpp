@@ -106,7 +106,7 @@ INSTANTIATE_TEST_SUITE_P(vasilev_s_simpson_multidim_test_tbb, PresetTests, ::tes
       .ref = 0.56,
     },
     IntegrationTest{
-      .approxs = 32,
+      .approxs = 50,
       .ifun = [](const auto &coord) { return std::sin(coord[0]); },
       .bounds = {
         {-1.0, 0.0},
