@@ -30,7 +30,7 @@ std::vector<int> GetRandomVector(int size, int upper_border, int lower_border) {
 TEST(ermilova_d_shell_sort_batcher_even_odd_merger_seq, test_pipeline_run) {
   const int upper_border_test = 1000;
   const int lower_border_test = -1000;
-  const int size = 10000;
+  const int size = 50000;
 
   bool is_resersed = false;
 
@@ -77,7 +77,7 @@ TEST(ermilova_d_shell_sort_batcher_even_odd_merger_seq, test_pipeline_run) {
 TEST(ermilova_d_shell_sort_batcher_even_odd_merger_seq, test_task_run) {
   const int upper_border_test = 1000;
   const int lower_border_test = -1000;
-  const int size = 10000;
+  const int size = 50000;
 
   bool is_resersed = false;
 
