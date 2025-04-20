@@ -1,6 +1,7 @@
 #include "tbb/durynichev_d_integrals_simpson_method/include/ops_tbb.hpp"
 
-#include <tbb/tbb.h>
+#include <tbb/mutex.h>
+#include <tbb/parallel_for.h>
 
 #include <cmath>
 #include <vector>
@@ -60,7 +61,7 @@ double SimpsonIntegralTBB::Simpson1D(double a, double b) const {
     double local_sum = 0.0;
     for (int i = r.begin(); i < r.end(); ++i) {
       double coef = (i % 2 == 0) ? 2.0 : 4.0;
-      local_sum += coef * Func1D(a + i * h);
+      local_sum += coef * Func1D(a + (i * h));
     }
     tbb::mutex::scoped_lock lock(mutex_);
     inner_sum += local_sum;
@@ -79,11 +80,25 @@ double SimpsonIntegralTBB::Simpson2D(double x0, double x1, double y0, double y1)
     double local_sum = 0.0;
     for (int i = r.begin(); i < r.end(); ++i) {
       double x = x0 + (i * hx);
-      double coef_x = (i == 0 || i == n_) ? 1 : (i % 2 != 0 ? 4 : 2);
+      double coef_x;
+      if (i == 0 || i == n_) {
+        coef_x = 1.0;
+      } else if (i % 2 != 0) {
+        coef_x = 4.0;
+      } else {
+        coef_x = 2.0;
+      }
 
       for (int j = 0; j <= n_; ++j) {
         double y = y0 + (j * hy);
-        double coef_y = (j == 0 || j == n_) ? 1 : (j % 2 != 0 ? 4 : 2);
+        double coef_y;
+        if (j == 0 || j == n_) {
+          coef_y = 1.0;
+        } else if (j % 2 != 0) {
+          coef_y = 4.0;
+        } else {
+          coef_y = 2.0;
+        }
         local_sum += coef_x * coef_y * Func2D(x, y);
       }
     }
