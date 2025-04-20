@@ -142,7 +142,7 @@ bool yasakova_t_sparse_matrix_multiplication::TestTaskTBB::ValidationImpl() {
 }
 
 bool yasakova_t_sparse_matrix_multiplication::TestTaskTBB::RunImpl() {
-  CompressedRowStorageMatrix expectedResult(firstMatrix_.rowCount, secondMatrix_.columnCount);
+  CompressedRowStorageMatrix expected_result(firstMatrix_.rowCount, secondMatrix_.columnCount);
 
   std::vector<std::vector<std::pair<int, ComplexNumber>>> local_results(firstMatrix_.rowCount);
 
@@ -163,11 +163,11 @@ bool yasakova_t_sparse_matrix_multiplication::TestTaskTBB::RunImpl() {
 
   for (size_t row_index = 0; row_index < local_results.size(); ++row_index) {
     for (const auto& [col_index, value] : local_results[row_index]) {
-      expectedResult.InsertElement(static_cast<int>(row_index), value, col_index);
+      expected_result.InsertElement(static_cast<int>(row_index), value, col_index);
     }
   }
 
-  resultData_ = ConvertMatrixToVector(expectedResult);
+  resultData_ = ConvertMatrixToVector(expected_result);
 
   return true;
 }

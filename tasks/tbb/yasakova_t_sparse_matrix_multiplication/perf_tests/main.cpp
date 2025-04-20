@@ -38,7 +38,7 @@ TEST(kolodkin_g_multiplication_matrix__task_tbb, test_pipeline_run) {
   std::vector<ComplexNumber> input_data = {};
   std::vector<ComplexNumber> first_matrix_data;
   std::vector<ComplexNumber> second_matrix_data;
-  std::vector<ComplexNumber> outputData(first_matrix.columnCount * second_matrix.rowCount * 100, 0);
+  std::vector<ComplexNumber> output_data(first_matrix.columnCount * second_matrix.rowCount * 100, 0);
 
   first_matrix = ::GenMatrix(400, 400, 0, 150, 0, 150, -100, 100);
   second_matrix = ::GenMatrix(400, 400, 50, 140, 50, 150, -100, 100);
@@ -56,8 +56,8 @@ TEST(kolodkin_g_multiplication_matrix__task_tbb, test_pipeline_run) {
   auto task_data_tbb = std::make_shared<ppc::core::TaskData>();
   task_data_tbb->inputs.emplace_back(reinterpret_cast<uint8_t *>(input_data.data()));
   task_data_tbb->inputs_count.emplace_back(input_data.size());
-  task_data_tbb->outputs.emplace_back(reinterpret_cast<uint8_t *>(outputData.data()));
-  task_data_tbb->outputs_count.emplace_back(outputData.size());
+  task_data_tbb->outputs.emplace_back(reinterpret_cast<uint8_t *>(output_data.data()));
+  task_data_tbb->outputs_count.emplace_back(output_data.size());
 
   // Create Task
   auto test_task_tbb = std::make_shared<yasakova_t_sparse_matrix_multiplication::TestTaskTBB>(task_data_tbb);
@@ -80,7 +80,7 @@ TEST(kolodkin_g_multiplication_matrix__task_tbb, test_pipeline_run) {
   perf_analyzer->PipelineRun(perf_attr, perf_results);
   ppc::core::Perf::PrintPerfStatistic(perf_results);
   yasakova_t_sparse_matrix_multiplication::CompressedRowStorageMatrix actual_result =
-      yasakova_t_sparse_matrix_multiplication::ConvertVectorToMatrix(outputData);
+      yasakova_t_sparse_matrix_multiplication::ConvertVectorToMatrix(output_data);
 }
 
 TEST(kolodkin_g_multiplication_matrix__task_tbb, test_task_run) {
@@ -90,7 +90,7 @@ TEST(kolodkin_g_multiplication_matrix__task_tbb, test_task_run) {
   std::vector<ComplexNumber> input_data = {};
   std::vector<ComplexNumber> first_matrix_data;
   std::vector<ComplexNumber> second_matrix_data;
-  std::vector<ComplexNumber> outputData(first_matrix.columnCount * second_matrix.rowCount * 100, 0);
+  std::vector<ComplexNumber> output_data(first_matrix.columnCount * second_matrix.rowCount * 100, 0);
 
   first_matrix = ::GenMatrix(400, 400, 0, 150, 0, 150, -100, 100);
   second_matrix = ::GenMatrix(400, 400, 50, 140, 50, 150, -100, 100);
@@ -108,8 +108,8 @@ TEST(kolodkin_g_multiplication_matrix__task_tbb, test_task_run) {
   auto task_data_tbb = std::make_shared<ppc::core::TaskData>();
   task_data_tbb->inputs.emplace_back(reinterpret_cast<uint8_t *>(input_data.data()));
   task_data_tbb->inputs_count.emplace_back(input_data.size());
-  task_data_tbb->outputs.emplace_back(reinterpret_cast<uint8_t *>(outputData.data()));
-  task_data_tbb->outputs_count.emplace_back(outputData.size());
+  task_data_tbb->outputs.emplace_back(reinterpret_cast<uint8_t *>(output_data.data()));
+  task_data_tbb->outputs_count.emplace_back(output_data.size());
 
   // Create Task
   auto test_task_tbb = std::make_shared<yasakova_t_sparse_matrix_multiplication::TestTaskTBB>(task_data_tbb);
@@ -132,5 +132,5 @@ TEST(kolodkin_g_multiplication_matrix__task_tbb, test_task_run) {
   perf_analyzer->TaskRun(perf_attr, perf_results);
   ppc::core::Perf::PrintPerfStatistic(perf_results);
   yasakova_t_sparse_matrix_multiplication::CompressedRowStorageMatrix actual_result =
-      yasakova_t_sparse_matrix_multiplication::ConvertVectorToMatrix(outputData);
+      yasakova_t_sparse_matrix_multiplication::ConvertVectorToMatrix(output_data);
 }

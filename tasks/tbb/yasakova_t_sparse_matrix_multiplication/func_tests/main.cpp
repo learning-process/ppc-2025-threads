@@ -10,11 +10,11 @@
 TEST(yasakova_t_sparse_matrix_multiplication, MultiplyRealMatrices) {
   yasakova_t_sparse_matrix_multiplication::CompressedRowStorageMatrix first_matrix(3, 3);
   yasakova_t_sparse_matrix_multiplication::CompressedRowStorageMatrix second_matrix(3, 3);
-  yasakova_t_sparse_matrix_multiplication::CompressedRowStorageMatrix expectedResult(3, 3);
+  yasakova_t_sparse_matrix_multiplication::CompressedRowStorageMatrix expected_result(3, 3);
   std::vector<ComplexNumber> input_data = {};
   std::vector<ComplexNumber> first_matrix_data;
   std::vector<ComplexNumber> second_matrix_data;
-  std::vector<ComplexNumber> outputData(first_matrix.columnCount * second_matrix.rowCount * 100, 0);
+  std::vector<ComplexNumber> output_data(first_matrix.columnCount * second_matrix.rowCount * 100, 0);
 
   first_matrix.InsertElement(0, ComplexNumber(1, 0), 0);
   first_matrix.InsertElement(0, ComplexNumber(2, 0), 2);
@@ -34,17 +34,17 @@ TEST(yasakova_t_sparse_matrix_multiplication, MultiplyRealMatrices) {
   for (unsigned int i = 0; i < second_matrix_data.size(); i++) {
     input_data.emplace_back(second_matrix_data[i]);
   }
-  expectedResult.InsertElement(0, ComplexNumber(6, 0), 1);
-  expectedResult.InsertElement(0, ComplexNumber(16, 0), 2);
-  expectedResult.InsertElement(1, ComplexNumber(21, 0), 0);
-  expectedResult.InsertElement(2, ComplexNumber(24, 0), 1);
-  expectedResult.InsertElement(2, ComplexNumber(35, 0), 0);
+  expected_result.InsertElement(0, ComplexNumber(6, 0), 1);
+  expected_result.InsertElement(0, ComplexNumber(16, 0), 2);
+  expected_result.InsertElement(1, ComplexNumber(21, 0), 0);
+  expected_result.InsertElement(2, ComplexNumber(24, 0), 1);
+  expected_result.InsertElement(2, ComplexNumber(35, 0), 0);
   // Create task_data
   auto task_data_tbb = std::make_shared<ppc::core::TaskData>();
   task_data_tbb->inputs.emplace_back(reinterpret_cast<uint8_t *>(input_data.data()));
   task_data_tbb->inputs_count.emplace_back(input_data.size());
-  task_data_tbb->outputs.emplace_back(reinterpret_cast<uint8_t *>(outputData.data()));
-  task_data_tbb->outputs_count.emplace_back(outputData.size());
+  task_data_tbb->outputs.emplace_back(reinterpret_cast<uint8_t *>(output_data.data()));
+  task_data_tbb->outputs_count.emplace_back(output_data.size());
 
   // Create Task
   yasakova_t_sparse_matrix_multiplication::TestTaskTBB test_task_tbb(task_data_tbb);
@@ -53,8 +53,8 @@ TEST(yasakova_t_sparse_matrix_multiplication, MultiplyRealMatrices) {
   test_task_tbb.Run();
   test_task_tbb.PostProcessing();
   yasakova_t_sparse_matrix_multiplication::CompressedRowStorageMatrix actual_result =
-      yasakova_t_sparse_matrix_multiplication::ConvertVectorToMatrix(outputData);
-  ASSERT_TRUE(yasakova_t_sparse_matrix_multiplication::CompareMatrices(actual_result, expectedResult));
+      yasakova_t_sparse_matrix_multiplication::ConvertVectorToMatrix(output_data);
+  ASSERT_TRUE(yasakova_t_sparse_matrix_multiplication::CompareMatrices(actual_result, expected_result));
 }
 
 TEST(yasakova_t_sparse_matrix_multiplication, InvalidMatrixDimensions) {
@@ -64,7 +64,7 @@ TEST(yasakova_t_sparse_matrix_multiplication, InvalidMatrixDimensions) {
   std::vector<ComplexNumber> input_data = {};
   std::vector<ComplexNumber> first_matrix_data;
   std::vector<ComplexNumber> second_matrix_data;
-  std::vector<ComplexNumber> outputData(first_matrix.columnCount * second_matrix.rowCount * 100, 0);
+  std::vector<ComplexNumber> output_data(first_matrix.columnCount * second_matrix.rowCount * 100, 0);
 
   first_matrix.InsertElement(0, ComplexNumber(1, 0), 0);
   first_matrix.InsertElement(0, ComplexNumber(2, 0), 2);
@@ -88,8 +88,8 @@ TEST(yasakova_t_sparse_matrix_multiplication, InvalidMatrixDimensions) {
   auto task_data_tbb = std::make_shared<ppc::core::TaskData>();
   task_data_tbb->inputs.emplace_back(reinterpret_cast<uint8_t *>(input_data.data()));
   task_data_tbb->inputs_count.emplace_back(input_data.size());
-  task_data_tbb->outputs.emplace_back(reinterpret_cast<uint8_t *>(outputData.data()));
-  task_data_tbb->outputs_count.emplace_back(outputData.size());
+  task_data_tbb->outputs.emplace_back(reinterpret_cast<uint8_t *>(output_data.data()));
+  task_data_tbb->outputs_count.emplace_back(output_data.size());
 
   // Create Task
   yasakova_t_sparse_matrix_multiplication::TestTaskTBB test_task_tbb(task_data_tbb);
@@ -100,11 +100,11 @@ TEST(yasakova_t_sparse_matrix_multiplication, MultiplyComplexMatrices) {
   // Create data
   yasakova_t_sparse_matrix_multiplication::CompressedRowStorageMatrix first_matrix(3, 3);
   yasakova_t_sparse_matrix_multiplication::CompressedRowStorageMatrix second_matrix(3, 3);
-  yasakova_t_sparse_matrix_multiplication::CompressedRowStorageMatrix expectedResult(3, 3);
+  yasakova_t_sparse_matrix_multiplication::CompressedRowStorageMatrix expected_result(3, 3);
   std::vector<ComplexNumber> input_data = {};
   std::vector<ComplexNumber> first_matrix_data;
   std::vector<ComplexNumber> second_matrix_data;
-  std::vector<ComplexNumber> outputData(first_matrix.columnCount * second_matrix.rowCount * 100, 0);
+  std::vector<ComplexNumber> output_data(first_matrix.columnCount * second_matrix.rowCount * 100, 0);
 
   first_matrix.InsertElement(0, ComplexNumber(1, 1), 0);
   first_matrix.InsertElement(0, ComplexNumber(2, 2), 2);
@@ -124,17 +124,17 @@ TEST(yasakova_t_sparse_matrix_multiplication, MultiplyComplexMatrices) {
   for (unsigned int i = 0; i < second_matrix_data.size(); i++) {
     input_data.emplace_back(second_matrix_data[i]);
   }
-  expectedResult.InsertElement(0, ComplexNumber(0, 12), 1);
-  expectedResult.InsertElement(0, ComplexNumber(0, 32), 2);
-  expectedResult.InsertElement(1, ComplexNumber(0, 42), 0);
-  expectedResult.InsertElement(2, ComplexNumber(0, 48), 1);
-  expectedResult.InsertElement(2, ComplexNumber(0, 70), 0);
+  expected_result.InsertElement(0, ComplexNumber(0, 12), 1);
+  expected_result.InsertElement(0, ComplexNumber(0, 32), 2);
+  expected_result.InsertElement(1, ComplexNumber(0, 42), 0);
+  expected_result.InsertElement(2, ComplexNumber(0, 48), 1);
+  expected_result.InsertElement(2, ComplexNumber(0, 70), 0);
   // Create task_data
   auto task_data_tbb = std::make_shared<ppc::core::TaskData>();
   task_data_tbb->inputs.emplace_back(reinterpret_cast<uint8_t *>(input_data.data()));
   task_data_tbb->inputs_count.emplace_back(input_data.size());
-  task_data_tbb->outputs.emplace_back(reinterpret_cast<uint8_t *>(outputData.data()));
-  task_data_tbb->outputs_count.emplace_back(outputData.size());
+  task_data_tbb->outputs.emplace_back(reinterpret_cast<uint8_t *>(output_data.data()));
+  task_data_tbb->outputs_count.emplace_back(output_data.size());
 
   // Create Task
   yasakova_t_sparse_matrix_multiplication::TestTaskTBB test_task_tbb(task_data_tbb);
@@ -143,19 +143,19 @@ TEST(yasakova_t_sparse_matrix_multiplication, MultiplyComplexMatrices) {
   test_task_tbb.Run();
   test_task_tbb.PostProcessing();
   yasakova_t_sparse_matrix_multiplication::CompressedRowStorageMatrix actual_result =
-      yasakova_t_sparse_matrix_multiplication::ConvertVectorToMatrix(outputData);
-  ASSERT_TRUE(yasakova_t_sparse_matrix_multiplication::CompareMatrices(actual_result, expectedResult));
+      yasakova_t_sparse_matrix_multiplication::ConvertVectorToMatrix(output_data);
+  ASSERT_TRUE(yasakova_t_sparse_matrix_multiplication::CompareMatrices(actual_result, expected_result));
 }
 
 TEST(yasakova_t_sparse_matrix_multiplication, MultiplyRectangularMatrices) {
   // Create data
   yasakova_t_sparse_matrix_multiplication::CompressedRowStorageMatrix first_matrix(2, 3);
   yasakova_t_sparse_matrix_multiplication::CompressedRowStorageMatrix second_matrix(3, 4);
-  yasakova_t_sparse_matrix_multiplication::CompressedRowStorageMatrix expectedResult(2, 4);
+  yasakova_t_sparse_matrix_multiplication::CompressedRowStorageMatrix expected_result(2, 4);
   std::vector<ComplexNumber> input_data = {};
   std::vector<ComplexNumber> first_matrix_data;
   std::vector<ComplexNumber> second_matrix_data;
-  std::vector<ComplexNumber> outputData(first_matrix.columnCount * second_matrix.rowCount * 100, 0);
+  std::vector<ComplexNumber> output_data(first_matrix.columnCount * second_matrix.rowCount * 100, 0);
 
   first_matrix.InsertElement(0, ComplexNumber(1, 0), 1);
   first_matrix.InsertElement(0, ComplexNumber(2, 0), 2);
@@ -175,17 +175,17 @@ TEST(yasakova_t_sparse_matrix_multiplication, MultiplyRectangularMatrices) {
   for (unsigned int i = 0; i < second_matrix_data.size(); i++) {
     input_data.emplace_back(second_matrix_data[i]);
   }
-  expectedResult.InsertElement(0, ComplexNumber(19, 0), 0);
-  expectedResult.InsertElement(0, ComplexNumber(4, 0), 3);
-  expectedResult.InsertElement(0, ComplexNumber(16, 0), 1);
-  expectedResult.InsertElement(1, ComplexNumber(15, 0), 0);
-  expectedResult.InsertElement(1, ComplexNumber(12, 0), 3);
+  expected_result.InsertElement(0, ComplexNumber(19, 0), 0);
+  expected_result.InsertElement(0, ComplexNumber(4, 0), 3);
+  expected_result.InsertElement(0, ComplexNumber(16, 0), 1);
+  expected_result.InsertElement(1, ComplexNumber(15, 0), 0);
+  expected_result.InsertElement(1, ComplexNumber(12, 0), 3);
   // Create task_data
   auto task_data_tbb = std::make_shared<ppc::core::TaskData>();
   task_data_tbb->inputs.emplace_back(reinterpret_cast<uint8_t *>(input_data.data()));
   task_data_tbb->inputs_count.emplace_back(input_data.size());
-  task_data_tbb->outputs.emplace_back(reinterpret_cast<uint8_t *>(outputData.data()));
-  task_data_tbb->outputs_count.emplace_back(outputData.size());
+  task_data_tbb->outputs.emplace_back(reinterpret_cast<uint8_t *>(output_data.data()));
+  task_data_tbb->outputs_count.emplace_back(output_data.size());
 
   // Create Task
   yasakova_t_sparse_matrix_multiplication::TestTaskTBB test_task_tbb(task_data_tbb);
@@ -194,19 +194,19 @@ TEST(yasakova_t_sparse_matrix_multiplication, MultiplyRectangularMatrices) {
   test_task_tbb.Run();
   test_task_tbb.PostProcessing();
   yasakova_t_sparse_matrix_multiplication::CompressedRowStorageMatrix actual_result =
-      yasakova_t_sparse_matrix_multiplication::ConvertVectorToMatrix(outputData);
-  ASSERT_TRUE(yasakova_t_sparse_matrix_multiplication::CompareMatrices(actual_result, expectedResult));
+      yasakova_t_sparse_matrix_multiplication::ConvertVectorToMatrix(output_data);
+  ASSERT_TRUE(yasakova_t_sparse_matrix_multiplication::CompareMatrices(actual_result, expected_result));
 }
 
 TEST(yasakova_t_sparse_matrix_multiplication, MultiplyMatricesWithNegativeElements) {
   // Create data
   yasakova_t_sparse_matrix_multiplication::CompressedRowStorageMatrix first_matrix(2, 2);
   yasakova_t_sparse_matrix_multiplication::CompressedRowStorageMatrix second_matrix(2, 2);
-  yasakova_t_sparse_matrix_multiplication::CompressedRowStorageMatrix expectedResult(2, 2);
+  yasakova_t_sparse_matrix_multiplication::CompressedRowStorageMatrix expected_result(2, 2);
   std::vector<ComplexNumber> input_data = {};
   std::vector<ComplexNumber> first_matrix_data;
   std::vector<ComplexNumber> second_matrix_data;
-  std::vector<ComplexNumber> outputData(first_matrix.columnCount * second_matrix.rowCount * 100, 0);
+  std::vector<ComplexNumber> output_data(first_matrix.columnCount * second_matrix.rowCount * 100, 0);
 
   first_matrix.InsertElement(0, ComplexNumber(-1, -1), 0);
   first_matrix.InsertElement(1, ComplexNumber(3, 3), 1);
@@ -222,14 +222,14 @@ TEST(yasakova_t_sparse_matrix_multiplication, MultiplyMatricesWithNegativeElemen
   for (unsigned int i = 0; i < second_matrix_data.size(); i++) {
     input_data.emplace_back(second_matrix_data[i]);
   }
-  expectedResult.InsertElement(0, ComplexNumber(0, -12), 1);
-  expectedResult.InsertElement(1, ComplexNumber(0, -42), 0);
+  expected_result.InsertElement(0, ComplexNumber(0, -12), 1);
+  expected_result.InsertElement(1, ComplexNumber(0, -42), 0);
   // Create task_data
   auto task_data_tbb = std::make_shared<ppc::core::TaskData>();
   task_data_tbb->inputs.emplace_back(reinterpret_cast<uint8_t *>(input_data.data()));
   task_data_tbb->inputs_count.emplace_back(input_data.size());
-  task_data_tbb->outputs.emplace_back(reinterpret_cast<uint8_t *>(outputData.data()));
-  task_data_tbb->outputs_count.emplace_back(outputData.size());
+  task_data_tbb->outputs.emplace_back(reinterpret_cast<uint8_t *>(output_data.data()));
+  task_data_tbb->outputs_count.emplace_back(output_data.size());
 
   // Create Task
   yasakova_t_sparse_matrix_multiplication::TestTaskTBB test_task_tbb(task_data_tbb);
@@ -238,19 +238,19 @@ TEST(yasakova_t_sparse_matrix_multiplication, MultiplyMatricesWithNegativeElemen
   test_task_tbb.Run();
   test_task_tbb.PostProcessing();
   yasakova_t_sparse_matrix_multiplication::CompressedRowStorageMatrix actual_result =
-      yasakova_t_sparse_matrix_multiplication::ConvertVectorToMatrix(outputData);
-  ASSERT_TRUE(yasakova_t_sparse_matrix_multiplication::CompareMatrices(actual_result, expectedResult));
+      yasakova_t_sparse_matrix_multiplication::ConvertVectorToMatrix(output_data);
+  ASSERT_TRUE(yasakova_t_sparse_matrix_multiplication::CompareMatrices(actual_result, expected_result));
 }
 
 TEST(yasakova_t_sparse_matrix_multiplication, MultiplyMatricesWithDoubleElements) {
   // Create data
   yasakova_t_sparse_matrix_multiplication::CompressedRowStorageMatrix first_matrix(2, 2);
   yasakova_t_sparse_matrix_multiplication::CompressedRowStorageMatrix second_matrix(2, 2);
-  yasakova_t_sparse_matrix_multiplication::CompressedRowStorageMatrix expectedResult(2, 2);
+  yasakova_t_sparse_matrix_multiplication::CompressedRowStorageMatrix expected_result(2, 2);
   std::vector<ComplexNumber> input_data = {};
   std::vector<ComplexNumber> first_matrix_data;
   std::vector<ComplexNumber> second_matrix_data;
-  std::vector<ComplexNumber> outputData(first_matrix.columnCount * second_matrix.rowCount * 100, 0);
+  std::vector<ComplexNumber> output_data(first_matrix.columnCount * second_matrix.rowCount * 100, 0);
 
   first_matrix.InsertElement(0, ComplexNumber(-1.7, -1.5), 0);
   first_matrix.InsertElement(1, ComplexNumber(3.7, 3.1), 1);
@@ -266,14 +266,14 @@ TEST(yasakova_t_sparse_matrix_multiplication, MultiplyMatricesWithDoubleElements
   for (unsigned int i = 0; i < second_matrix_data.size(); i++) {
     input_data.emplace_back(second_matrix_data[i]);
   }
-  expectedResult.InsertElement(0, ComplexNumber(-1.56, -19.82), 1);
-  expectedResult.InsertElement(1, ComplexNumber(-3.51, -51.43), 0);
+  expected_result.InsertElement(0, ComplexNumber(-1.56, -19.82), 1);
+  expected_result.InsertElement(1, ComplexNumber(-3.51, -51.43), 0);
   // Create task_data
   auto task_data_tbb = std::make_shared<ppc::core::TaskData>();
   task_data_tbb->inputs.emplace_back(reinterpret_cast<uint8_t *>(input_data.data()));
   task_data_tbb->inputs_count.emplace_back(input_data.size());
-  task_data_tbb->outputs.emplace_back(reinterpret_cast<uint8_t *>(outputData.data()));
-  task_data_tbb->outputs_count.emplace_back(outputData.size());
+  task_data_tbb->outputs.emplace_back(reinterpret_cast<uint8_t *>(output_data.data()));
+  task_data_tbb->outputs_count.emplace_back(output_data.size());
 
   // Create Task
   yasakova_t_sparse_matrix_multiplication::TestTaskTBB test_task_tbb(task_data_tbb);
@@ -282,19 +282,19 @@ TEST(yasakova_t_sparse_matrix_multiplication, MultiplyMatricesWithDoubleElements
   test_task_tbb.Run();
   test_task_tbb.PostProcessing();
   yasakova_t_sparse_matrix_multiplication::CompressedRowStorageMatrix actual_result =
-      yasakova_t_sparse_matrix_multiplication::ConvertVectorToMatrix(outputData);
-  ASSERT_TRUE(yasakova_t_sparse_matrix_multiplication::CompareMatrices(actual_result, expectedResult));
+      yasakova_t_sparse_matrix_multiplication::ConvertVectorToMatrix(output_data);
+  ASSERT_TRUE(yasakova_t_sparse_matrix_multiplication::CompareMatrices(actual_result, expected_result));
 }
 
 TEST(yasakova_t_sparse_matrix_multiplication, MultiplyRowByColumnMatrices) {
   // Create data
   yasakova_t_sparse_matrix_multiplication::CompressedRowStorageMatrix first_matrix(1, 3);
   yasakova_t_sparse_matrix_multiplication::CompressedRowStorageMatrix second_matrix(3, 1);
-  yasakova_t_sparse_matrix_multiplication::CompressedRowStorageMatrix expectedResult(1, 1);
+  yasakova_t_sparse_matrix_multiplication::CompressedRowStorageMatrix expected_result(1, 1);
   std::vector<ComplexNumber> input_data = {};
   std::vector<ComplexNumber> first_matrix_data;
   std::vector<ComplexNumber> second_matrix_data;
-  std::vector<ComplexNumber> outputData(first_matrix.columnCount * second_matrix.rowCount * 100, 0);
+  std::vector<ComplexNumber> output_data(first_matrix.columnCount * second_matrix.rowCount * 100, 0);
 
   first_matrix.InsertElement(0, ComplexNumber(-1, 0), 0);
   first_matrix.InsertElement(0, ComplexNumber(-2, 0), 1);
@@ -312,13 +312,13 @@ TEST(yasakova_t_sparse_matrix_multiplication, MultiplyRowByColumnMatrices) {
   for (unsigned int i = 0; i < second_matrix_data.size(); i++) {
     input_data.emplace_back(second_matrix_data[i]);
   }
-  expectedResult.InsertElement(0, ComplexNumber(-14, 0), 0);
+  expected_result.InsertElement(0, ComplexNumber(-14, 0), 0);
   // Create task_data
   auto task_data_tbb = std::make_shared<ppc::core::TaskData>();
   task_data_tbb->inputs.emplace_back(reinterpret_cast<uint8_t *>(input_data.data()));
   task_data_tbb->inputs_count.emplace_back(input_data.size());
-  task_data_tbb->outputs.emplace_back(reinterpret_cast<uint8_t *>(outputData.data()));
-  task_data_tbb->outputs_count.emplace_back(outputData.size());
+  task_data_tbb->outputs.emplace_back(reinterpret_cast<uint8_t *>(output_data.data()));
+  task_data_tbb->outputs_count.emplace_back(output_data.size());
 
   // Create Task
   yasakova_t_sparse_matrix_multiplication::TestTaskTBB test_task_tbb(task_data_tbb);
@@ -327,19 +327,19 @@ TEST(yasakova_t_sparse_matrix_multiplication, MultiplyRowByColumnMatrices) {
   test_task_tbb.Run();
   test_task_tbb.PostProcessing();
   yasakova_t_sparse_matrix_multiplication::CompressedRowStorageMatrix actual_result =
-      yasakova_t_sparse_matrix_multiplication::ConvertVectorToMatrix(outputData);
-  ASSERT_TRUE(yasakova_t_sparse_matrix_multiplication::CompareMatrices(actual_result, expectedResult));
+      yasakova_t_sparse_matrix_multiplication::ConvertVectorToMatrix(output_data);
+  ASSERT_TRUE(yasakova_t_sparse_matrix_multiplication::CompareMatrices(actual_result, expected_result));
 }
 
 TEST(yasakova_t_sparse_matrix_multiplication, MultiplyDiagonalMatrices) {
   // Create data
   yasakova_t_sparse_matrix_multiplication::CompressedRowStorageMatrix first_matrix(3, 3);
   yasakova_t_sparse_matrix_multiplication::CompressedRowStorageMatrix second_matrix(3, 3);
-  yasakova_t_sparse_matrix_multiplication::CompressedRowStorageMatrix expectedResult(3, 3);
+  yasakova_t_sparse_matrix_multiplication::CompressedRowStorageMatrix expected_result(3, 3);
   std::vector<ComplexNumber> input_data = {};
   std::vector<ComplexNumber> first_matrix_data;
   std::vector<ComplexNumber> second_matrix_data;
-  std::vector<ComplexNumber> outputData(first_matrix.columnCount * second_matrix.rowCount * 100, 0);
+  std::vector<ComplexNumber> output_data(first_matrix.columnCount * second_matrix.rowCount * 100, 0);
 
   first_matrix.InsertElement(0, ComplexNumber(-1, 0), 0);
   first_matrix.InsertElement(1, ComplexNumber(-2, 0), 1);
@@ -357,15 +357,15 @@ TEST(yasakova_t_sparse_matrix_multiplication, MultiplyDiagonalMatrices) {
   for (unsigned int i = 0; i < second_matrix_data.size(); i++) {
     input_data.emplace_back(second_matrix_data[i]);
   }
-  expectedResult.InsertElement(0, ComplexNumber(-1, 0), 0);
-  expectedResult.InsertElement(1, ComplexNumber(-4, 0), 1);
-  expectedResult.InsertElement(2, ComplexNumber(-9, 0), 2);
+  expected_result.InsertElement(0, ComplexNumber(-1, 0), 0);
+  expected_result.InsertElement(1, ComplexNumber(-4, 0), 1);
+  expected_result.InsertElement(2, ComplexNumber(-9, 0), 2);
   // Create task_data
   auto task_data_tbb = std::make_shared<ppc::core::TaskData>();
   task_data_tbb->inputs.emplace_back(reinterpret_cast<uint8_t *>(input_data.data()));
   task_data_tbb->inputs_count.emplace_back(input_data.size());
-  task_data_tbb->outputs.emplace_back(reinterpret_cast<uint8_t *>(outputData.data()));
-  task_data_tbb->outputs_count.emplace_back(outputData.size());
+  task_data_tbb->outputs.emplace_back(reinterpret_cast<uint8_t *>(output_data.data()));
+  task_data_tbb->outputs_count.emplace_back(output_data.size());
 
   // Create Task
   yasakova_t_sparse_matrix_multiplication::TestTaskTBB test_task_tbb(task_data_tbb);
@@ -374,19 +374,19 @@ TEST(yasakova_t_sparse_matrix_multiplication, MultiplyDiagonalMatrices) {
   test_task_tbb.Run();
   test_task_tbb.PostProcessing();
   yasakova_t_sparse_matrix_multiplication::CompressedRowStorageMatrix actual_result =
-      yasakova_t_sparse_matrix_multiplication::ConvertVectorToMatrix(outputData);
-  ASSERT_TRUE(yasakova_t_sparse_matrix_multiplication::CompareMatrices(actual_result, expectedResult));
+      yasakova_t_sparse_matrix_multiplication::ConvertVectorToMatrix(output_data);
+  ASSERT_TRUE(yasakova_t_sparse_matrix_multiplication::CompareMatrices(actual_result, expected_result));
 }
 
 TEST(yasakova_t_sparse_matrix_multiplication, MultiplyImaginaryMatrices) {
   // Create data
   yasakova_t_sparse_matrix_multiplication::CompressedRowStorageMatrix first_matrix(3, 3);
   yasakova_t_sparse_matrix_multiplication::CompressedRowStorageMatrix second_matrix(3, 3);
-  yasakova_t_sparse_matrix_multiplication::CompressedRowStorageMatrix expectedResult(3, 3);
+  yasakova_t_sparse_matrix_multiplication::CompressedRowStorageMatrix expected_result(3, 3);
   std::vector<ComplexNumber> input_data = {};
   std::vector<ComplexNumber> first_matrix_data;
   std::vector<ComplexNumber> second_matrix_data;
-  std::vector<ComplexNumber> outputData(first_matrix.columnCount * second_matrix.rowCount * 100, 0);
+  std::vector<ComplexNumber> output_data(first_matrix.columnCount * second_matrix.rowCount * 100, 0);
 
   first_matrix.InsertElement(0, ComplexNumber(0, 1), 0);
   first_matrix.InsertElement(0, ComplexNumber(0, 2), 2);
@@ -406,17 +406,17 @@ TEST(yasakova_t_sparse_matrix_multiplication, MultiplyImaginaryMatrices) {
   for (unsigned int i = 0; i < second_matrix_data.size(); i++) {
     input_data.emplace_back(second_matrix_data[i]);
   }
-  expectedResult.InsertElement(0, ComplexNumber(-6, 0), 1);
-  expectedResult.InsertElement(0, ComplexNumber(-16, 0), 2);
-  expectedResult.InsertElement(1, ComplexNumber(-21, 0), 0);
-  expectedResult.InsertElement(2, ComplexNumber(-24, 0), 1);
-  expectedResult.InsertElement(2, ComplexNumber(-35, 0), 0);
+  expected_result.InsertElement(0, ComplexNumber(-6, 0), 1);
+  expected_result.InsertElement(0, ComplexNumber(-16, 0), 2);
+  expected_result.InsertElement(1, ComplexNumber(-21, 0), 0);
+  expected_result.InsertElement(2, ComplexNumber(-24, 0), 1);
+  expected_result.InsertElement(2, ComplexNumber(-35, 0), 0);
   // Create task_data
   auto task_data_tbb = std::make_shared<ppc::core::TaskData>();
   task_data_tbb->inputs.emplace_back(reinterpret_cast<uint8_t *>(input_data.data()));
   task_data_tbb->inputs_count.emplace_back(input_data.size());
-  task_data_tbb->outputs.emplace_back(reinterpret_cast<uint8_t *>(outputData.data()));
-  task_data_tbb->outputs_count.emplace_back(outputData.size());
+  task_data_tbb->outputs.emplace_back(reinterpret_cast<uint8_t *>(output_data.data()));
+  task_data_tbb->outputs_count.emplace_back(output_data.size());
 
   // Create Task
   yasakova_t_sparse_matrix_multiplication::TestTaskTBB test_task_tbb(task_data_tbb);
@@ -425,6 +425,6 @@ TEST(yasakova_t_sparse_matrix_multiplication, MultiplyImaginaryMatrices) {
   test_task_tbb.Run();
   test_task_tbb.PostProcessing();
   yasakova_t_sparse_matrix_multiplication::CompressedRowStorageMatrix actual_result =
-      yasakova_t_sparse_matrix_multiplication::ConvertVectorToMatrix(outputData);
-  ASSERT_TRUE(yasakova_t_sparse_matrix_multiplication::CompareMatrices(actual_result, expectedResult));
+      yasakova_t_sparse_matrix_multiplication::ConvertVectorToMatrix(output_data);
+  ASSERT_TRUE(yasakova_t_sparse_matrix_multiplication::CompareMatrices(actual_result, expected_result));
 }
