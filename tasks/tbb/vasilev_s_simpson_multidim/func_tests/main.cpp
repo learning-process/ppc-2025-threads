@@ -36,7 +36,7 @@ TEST_P(PresetTests, run_and_verify) {
   task.Run();
   task.PostProcessing();
 
-  EXPECT_NEAR(out, test.ref, std::min(0.5, test.ref / 3));
+  EXPECT_NEAR(out, test.ref, std::abs(std::min(0.5, test.ref / 3)));
 }
 
 // clang-format off
