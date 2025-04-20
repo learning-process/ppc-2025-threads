@@ -8,7 +8,7 @@
 
 TEST(konkov_i_SparseMatmulTest_stl, SimpleTest) {
   ppc::core::TaskDataPtr task_data = std::make_shared<ppc::core::TaskData>();
-  konkov_i_sparse_matmul_ccs_stl::SparseMatmulTaskSTL task(task_data);
+  konkov_i_sparse_matmul_ccs_stl::SparseMatmulTask task(task_data);
 
   task.A_values = {5.0, 7.0, 9.0};
   task.A_row_indices = {0, 1, 2};
@@ -33,7 +33,7 @@ TEST(konkov_i_SparseMatmulTest_stl, SimpleTest) {
 
 TEST(konkov_i_SparseMatmulTest_stl, EmptyMatrixTest) {
   ppc::core::TaskDataPtr task_data = std::make_shared<ppc::core::TaskData>();
-  konkov_i_sparse_matmul_ccs_stl::SparseMatmulTaskSTL task(task_data);
+  konkov_i_sparse_matmul_ccs_stl::SparseMatmulTask task(task_data);
 
   task.A_col_ptr = {0};
   task.B_col_ptr = {0};
@@ -47,7 +47,7 @@ TEST(konkov_i_SparseMatmulTest_stl, EmptyMatrixTest) {
 
 TEST(konkov_i_SparseMatmulTest_stl, ComplexTest) {
   ppc::core::TaskDataPtr task_data = std::make_shared<ppc::core::TaskData>();
-  konkov_i_sparse_matmul_ccs_stl::SparseMatmulTaskSTL task(task_data);
+  konkov_i_sparse_matmul_ccs_stl::SparseMatmulTask task(task_data);
 
   task.A_values = {1.0, 2.0};
   task.A_row_indices = {0, 2};
@@ -72,7 +72,7 @@ TEST(konkov_i_SparseMatmulTest_stl, ComplexTest) {
 
 TEST(konkov_i_SparseMatmulTest_stl, IdentityMatrixTest) {
   ppc::core::TaskDataPtr task_data = std::make_shared<ppc::core::TaskData>();
-  konkov_i_sparse_matmul_ccs_stl::SparseMatmulTaskSTL task(task_data);
+  konkov_i_sparse_matmul_ccs_stl::SparseMatmulTask task(task_data);
 
   task.A_values = {1.0, 1.0, 1.0};
   task.A_row_indices = {0, 1, 2};

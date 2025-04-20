@@ -1,13 +1,15 @@
 #pragma once
+#include <mutex>
+#include <thread>
 #include <vector>
 
 #include "core/task/include/task.hpp"
 
 namespace konkov_i_sparse_matmul_ccs_stl {
 
-class SparseMatmulTaskSTL : public ppc::core::Task {
+class SparseMatmulTask : public ppc::core::Task {
  public:
-  explicit SparseMatmulTaskSTL(ppc::core::TaskDataPtr task_data);
+  explicit SparseMatmulTask(ppc::core::TaskDataPtr task_data);
 
   bool ValidationImpl() override;
   bool PreProcessingImpl() override;
@@ -17,7 +19,7 @@ class SparseMatmulTaskSTL : public ppc::core::Task {
   std::vector<double> A_values, B_values, C_values;
   std::vector<int> A_row_indices, B_row_indices, C_row_indices;
   std::vector<int> A_col_ptr, B_col_ptr, C_col_ptr;
-  int rowsA, colsA, rowsB, colsB;
+  int rowsA{}, colsA{}, rowsB{}, colsB{};
 };
 
 }  // namespace konkov_i_sparse_matmul_ccs_stl

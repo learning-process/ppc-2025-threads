@@ -12,7 +12,7 @@ TEST(konkov_i_SparseMatmulPerfTest_stl, test_pipeline_run) {
   constexpr int kSize = 5000;
 
   ppc::core::TaskDataPtr task_data = std::make_shared<ppc::core::TaskData>();
-  auto task = std::make_shared<konkov_i_sparse_matmul_ccs_stl::SparseMatmulTaskSTL>(task_data);
+  auto task = std::make_shared<konkov_i_sparse_matmul_ccs_stl::SparseMatmulTask>(task_data);
 
   std::vector<double> a_values(kSize, 2.0);
   std::vector<int> a_row_indices(kSize);
@@ -67,7 +67,7 @@ TEST(konkov_i_SparseMatmulPerfTest_stl, test_task_run) {
   constexpr int kSize = 5000;
 
   ppc::core::TaskDataPtr task_data = std::make_shared<ppc::core::TaskData>();
-  auto task = std::make_shared<konkov_i_sparse_matmul_ccs_stl::SparseMatmulTaskSTL>(task_data);
+  auto task = std::make_shared<konkov_i_sparse_matmul_ccs_stl::SparseMatmulTask>(task_data);
 
   std::vector<double> a_values(kSize, 2.0);
   std::vector<int> a_row_indices(kSize);
