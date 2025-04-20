@@ -168,8 +168,7 @@ bool yasakova_t_sparse_matrix_multiplication::TestTaskTBB::RunImpl() {
             }
           }
         }
-      }
-  );
+      });
 
   for (size_t row_index = 0; row_index < local_results.size(); ++row_index) {
     for (const auto& [col_index, value] : local_results[row_index]) {
