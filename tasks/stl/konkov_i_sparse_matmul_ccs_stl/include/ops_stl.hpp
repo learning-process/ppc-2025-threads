@@ -1,6 +1,4 @@
 #pragma once
-#include <mutex>
-#include <thread>
 #include <vector>
 
 #include "core/task/include/task.hpp"
@@ -19,7 +17,7 @@ class SparseMatmulTask : public ppc::core::Task {
   std::vector<double> A_values, B_values, C_values;
   std::vector<int> A_row_indices, B_row_indices, C_row_indices;
   std::vector<int> A_col_ptr, B_col_ptr, C_col_ptr;
-  int rowsA{}, colsA{}, rowsB{}, colsB{};
+  int rowsA, colsA, rowsB, colsB;
 };
 
-}  // namespace konkov_i_sparse_matmul_ccs_stl
+}  // namespace konkov_i_sparse_matmul_ccs
