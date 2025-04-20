@@ -24,8 +24,8 @@ struct CompressedRowStorageMatrix {
 };
 std::vector<ComplexNumber> ConvertMatrixToVector(const CompressedRowStorageMatrix& mat);
 CompressedRowStorageMatrix ConvertVectorToMatrix(std::vector<ComplexNumber>& vec);
-bool CompareMatrices(const CompressedRowStorageMatrix& firstMatrix, const CompressedRowStorageMatrix& secondMatrix);
-bool AreEqualElems(const ComplexNumber& firstMatrix, const ComplexNumber& secondMatrix, double tolerance);
+bool CompareMatrices(const CompressedRowStorageMatrix& first_matrix, const CompressedRowStorageMatrix& second_matrix);
+bool AreEqualElems(const ComplexNumber& first_matrix, const ComplexNumber& second_matrix, double tolerance);
 class TestTaskTBB : public ppc::core::Task {
  public:
   explicit TestTaskTBB(ppc::core::TaskDataPtr task_data) : Task(std::move(task_data)) {}

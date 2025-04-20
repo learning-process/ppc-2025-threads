@@ -22,40 +22,40 @@ yasakova_t_sparse_matrix_multiplication::CompressedRowStorageMatrix GenMatrix(
       right_border_col > num_cols || min_value > max_value) {
     throw("ERROR!");
   }
-  yasakova_t_sparse_matrix_multiplication::CompressedRowStorageMatrix firstMatrix((int)num_rows, (int)num_cols);
+  yasakova_t_sparse_matrix_multiplication::CompressedRowStorageMatrix first_matrix((int)num_rows, (int)num_cols);
   for (unsigned int i = left_border_row; i < right_border_row; i++) {
     for (unsigned int j = left_border_col; j < right_border_col; j++) {
-      firstMatrix.InsertElement((int)i, ComplexNumber(min_value + (rand() % max_value), min_value + (rand() % max_value)), (int)j);
+      first_matrix.InsertElement((int)i, ComplexNumber(min_value + (rand() % max_value), min_value + (rand() % max_value)), (int)j);
     }
   }
-  return firstMatrix;
+  return first_matrix;
 }
 }  // namespace
 TEST(kolodkin_g_multiplication_matrix__task_tbb, test_pipeline_run) {
   srand(time(nullptr));
-  yasakova_t_sparse_matrix_multiplication::CompressedRowStorageMatrix firstMatrix(400, 400);
-  yasakova_t_sparse_matrix_multiplication::CompressedRowStorageMatrix secondMatrix(400, 400);
-  std::vector<ComplexNumber> inputData = {};
-  std::vector<ComplexNumber> firstMatrixData;
-  std::vector<ComplexNumber> secondMatrixData;
-  std::vector<ComplexNumber> outputData(firstMatrix.columnCount * secondMatrix.rowCount * 100, 0);
+  yasakova_t_sparse_matrix_multiplication::CompressedRowStorageMatrix first_matrix(400, 400);
+  yasakova_t_sparse_matrix_multiplication::CompressedRowStorageMatrix second_matrix(400, 400);
+  std::vector<ComplexNumber> input_data = {};
+  std::vector<ComplexNumber> first_matrix_data;
+  std::vector<ComplexNumber> second_matrix_data;
+  std::vector<ComplexNumber> outputData(first_matrix.columnCount * second_matrix.rowCount * 100, 0);
 
-  firstMatrix = ::GenMatrix(400, 400, 0, 150, 0, 150, -100, 100);
-  secondMatrix = ::GenMatrix(400, 400, 50, 140, 50, 150, -100, 100);
-  firstMatrixData = yasakova_t_sparse_matrix_multiplication::ConvertMatrixToVector(firstMatrix);
-  secondMatrixData = yasakova_t_sparse_matrix_multiplication::ConvertMatrixToVector(secondMatrix);
-  inputData.reserve(firstMatrixData.size() + secondMatrixData.size());
-  for (unsigned int i = 0; i < firstMatrixData.size(); i++) {
-    inputData.emplace_back(firstMatrixData[i]);
+  first_matrix = ::GenMatrix(400, 400, 0, 150, 0, 150, -100, 100);
+  second_matrix = ::GenMatrix(400, 400, 50, 140, 50, 150, -100, 100);
+  first_matrix_data = yasakova_t_sparse_matrix_multiplication::ConvertMatrixToVector(first_matrix);
+  second_matrix_data = yasakova_t_sparse_matrix_multiplication::ConvertMatrixToVector(second_matrix);
+  input_data.reserve(first_matrix_data.size() + second_matrix_data.size());
+  for (unsigned int i = 0; i < first_matrix_data.size(); i++) {
+    input_data.emplace_back(first_matrix_data[i]);
   }
-  for (unsigned int i = 0; i < secondMatrixData.size(); i++) {
-    inputData.emplace_back(secondMatrixData[i]);
+  for (unsigned int i = 0; i < second_matrix_data.size(); i++) {
+    input_data.emplace_back(second_matrix_data[i]);
   }
 
   // Create task_data
   auto task_data_tbb = std::make_shared<ppc::core::TaskData>();
-  task_data_tbb->inputs.emplace_back(reinterpret_cast<uint8_t *>(inputData.data()));
-  task_data_tbb->inputs_count.emplace_back(inputData.size());
+  task_data_tbb->inputs.emplace_back(reinterpret_cast<uint8_t *>(input_data.data()));
+  task_data_tbb->inputs_count.emplace_back(input_data.size());
   task_data_tbb->outputs.emplace_back(reinterpret_cast<uint8_t *>(outputData.data()));
   task_data_tbb->outputs_count.emplace_back(outputData.size());
 
@@ -79,35 +79,35 @@ TEST(kolodkin_g_multiplication_matrix__task_tbb, test_pipeline_run) {
   auto perf_analyzer = std::make_shared<ppc::core::Perf>(test_task_tbb);
   perf_analyzer->PipelineRun(perf_attr, perf_results);
   ppc::core::Perf::PrintPerfStatistic(perf_results);
-  yasakova_t_sparse_matrix_multiplication::CompressedRowStorageMatrix actualResult =
+  yasakova_t_sparse_matrix_multiplication::CompressedRowStorageMatrix actual_result =
       yasakova_t_sparse_matrix_multiplication::ConvertVectorToMatrix(outputData);
 }
 
 TEST(kolodkin_g_multiplication_matrix__task_tbb, test_task_run) {
   srand(time(nullptr));
-  yasakova_t_sparse_matrix_multiplication::CompressedRowStorageMatrix firstMatrix(400, 400);
-  yasakova_t_sparse_matrix_multiplication::CompressedRowStorageMatrix secondMatrix(400, 400);
-  std::vector<ComplexNumber> inputData = {};
-  std::vector<ComplexNumber> firstMatrixData;
-  std::vector<ComplexNumber> secondMatrixData;
-  std::vector<ComplexNumber> outputData(firstMatrix.columnCount * secondMatrix.rowCount * 100, 0);
+  yasakova_t_sparse_matrix_multiplication::CompressedRowStorageMatrix first_matrix(400, 400);
+  yasakova_t_sparse_matrix_multiplication::CompressedRowStorageMatrix second_matrix(400, 400);
+  std::vector<ComplexNumber> input_data = {};
+  std::vector<ComplexNumber> first_matrix_data;
+  std::vector<ComplexNumber> second_matrix_data;
+  std::vector<ComplexNumber> outputData(first_matrix.columnCount * second_matrix.rowCount * 100, 0);
 
-  firstMatrix = ::GenMatrix(400, 400, 0, 150, 0, 150, -100, 100);
-  secondMatrix = ::GenMatrix(400, 400, 50, 140, 50, 150, -100, 100);
-  firstMatrixData = yasakova_t_sparse_matrix_multiplication::ConvertMatrixToVector(firstMatrix);
-  secondMatrixData = yasakova_t_sparse_matrix_multiplication::ConvertMatrixToVector(secondMatrix);
-  inputData.reserve(firstMatrixData.size() + secondMatrixData.size());
-  for (unsigned int i = 0; i < firstMatrixData.size(); i++) {
-    inputData.emplace_back(firstMatrixData[i]);
+  first_matrix = ::GenMatrix(400, 400, 0, 150, 0, 150, -100, 100);
+  second_matrix = ::GenMatrix(400, 400, 50, 140, 50, 150, -100, 100);
+  first_matrix_data = yasakova_t_sparse_matrix_multiplication::ConvertMatrixToVector(first_matrix);
+  second_matrix_data = yasakova_t_sparse_matrix_multiplication::ConvertMatrixToVector(second_matrix);
+  input_data.reserve(first_matrix_data.size() + second_matrix_data.size());
+  for (unsigned int i = 0; i < first_matrix_data.size(); i++) {
+    input_data.emplace_back(first_matrix_data[i]);
   }
-  for (unsigned int i = 0; i < secondMatrixData.size(); i++) {
-    inputData.emplace_back(secondMatrixData[i]);
+  for (unsigned int i = 0; i < second_matrix_data.size(); i++) {
+    input_data.emplace_back(second_matrix_data[i]);
   }
 
   // Create task_data
   auto task_data_tbb = std::make_shared<ppc::core::TaskData>();
-  task_data_tbb->inputs.emplace_back(reinterpret_cast<uint8_t *>(inputData.data()));
-  task_data_tbb->inputs_count.emplace_back(inputData.size());
+  task_data_tbb->inputs.emplace_back(reinterpret_cast<uint8_t *>(input_data.data()));
+  task_data_tbb->inputs_count.emplace_back(input_data.size());
   task_data_tbb->outputs.emplace_back(reinterpret_cast<uint8_t *>(outputData.data()));
   task_data_tbb->outputs_count.emplace_back(outputData.size());
 
@@ -131,6 +131,6 @@ TEST(kolodkin_g_multiplication_matrix__task_tbb, test_task_run) {
   auto perf_analyzer = std::make_shared<ppc::core::Perf>(test_task_tbb);
   perf_analyzer->TaskRun(perf_attr, perf_results);
   ppc::core::Perf::PrintPerfStatistic(perf_results);
-  yasakova_t_sparse_matrix_multiplication::CompressedRowStorageMatrix actualResult =
+  yasakova_t_sparse_matrix_multiplication::CompressedRowStorageMatrix actual_result =
       yasakova_t_sparse_matrix_multiplication::ConvertVectorToMatrix(outputData);
 }

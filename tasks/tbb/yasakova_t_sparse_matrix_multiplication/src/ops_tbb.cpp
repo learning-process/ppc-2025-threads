@@ -36,48 +36,48 @@ void yasakova_t_sparse_matrix_multiplication::CompressedRowStorageMatrix::Displa
   }
 }
 
-bool yasakova_t_sparse_matrix_multiplication::AreEqualElems(const ComplexNumber& firstMatrix, const ComplexNumber& secondMatrix, double tolerance) {
-  return std::abs(firstMatrix.real() - secondMatrix.real()) < tolerance && std::abs(firstMatrix.imag() - secondMatrix.imag()) < tolerance;
+bool yasakova_t_sparse_matrix_multiplication::AreEqualElems(const ComplexNumber& first_matrix, const ComplexNumber& second_matrix, double tolerance) {
+  return std::abs(first_matrix.real() - second_matrix.real()) < tolerance && std::abs(first_matrix.imag() - second_matrix.imag()) < tolerance;
 }
 
 std::vector<ComplexNumber> yasakova_t_sparse_matrix_multiplication::ConvertMatrixToVector(const CompressedRowStorageMatrix& mat) {
-  std::vector<ComplexNumber> actualResult = {};
-  actualResult.reserve(5 + mat.nonZeroValues.size() + mat.columnIndices.size() + mat.rowPointers.size());
-  actualResult.emplace_back((double)mat.rowCount);
-  actualResult.emplace_back((double)mat.columnCount);
-  actualResult.emplace_back((double)mat.nonZeroValues.size());
-  actualResult.emplace_back((double)mat.columnIndices.size());
-  actualResult.emplace_back((double)mat.rowPointers.size());
+  std::vector<ComplexNumber> actual_result = {};
+  actual_result.reserve(5 + mat.nonZeroValues.size() + mat.columnIndices.size() + mat.rowPointers.size());
+  actual_result.emplace_back((double)mat.rowCount);
+  actual_result.emplace_back((double)mat.columnCount);
+  actual_result.emplace_back((double)mat.nonZeroValues.size());
+  actual_result.emplace_back((double)mat.columnIndices.size());
+  actual_result.emplace_back((double)mat.rowPointers.size());
   for (unsigned int i = 0; i < (unsigned int)mat.nonZeroValues.size(); i++) {
-    actualResult.emplace_back(mat.nonZeroValues[i]);
+    actual_result.emplace_back(mat.nonZeroValues[i]);
   }
   for (unsigned int i = 0; i < (unsigned int)mat.columnIndices.size(); i++) {
-    actualResult.emplace_back(mat.columnIndices[i]);
+    actual_result.emplace_back(mat.columnIndices[i]);
   }
   for (unsigned int i = 0; i < (unsigned int)mat.rowPointers.size(); i++) {
-    actualResult.emplace_back(mat.rowPointers[i]);
+    actual_result.emplace_back(mat.rowPointers[i]);
   }
-  return actualResult;
+  return actual_result;
 }
 
 bool yasakova_t_sparse_matrix_multiplication::CompareMatrices(
-    const yasakova_t_sparse_matrix_multiplication::CompressedRowStorageMatrix& firstMatrix,
-    const yasakova_t_sparse_matrix_multiplication::CompressedRowStorageMatrix& secondMatrix) {
-  if (firstMatrix.columnCount != secondMatrix.columnCount || firstMatrix.rowCount != secondMatrix.rowCount) {
+    const yasakova_t_sparse_matrix_multiplication::CompressedRowStorageMatrix& first_matrix,
+    const yasakova_t_sparse_matrix_multiplication::CompressedRowStorageMatrix& second_matrix) {
+  if (first_matrix.columnCount != second_matrix.columnCount || first_matrix.rowCount != second_matrix.rowCount) {
     return false;
   }
-  for (unsigned int i = 0; i < (unsigned int)firstMatrix.rowCount; i++) {
-    unsigned int this_row_start = firstMatrix.rowPointers[i];
-    unsigned int this_row_end = firstMatrix.rowPointers[i + 1];
-    unsigned int other_row_start = secondMatrix.rowPointers[i];
-    unsigned int other_row_end = secondMatrix.rowPointers[i + 1];
+  for (unsigned int i = 0; i < (unsigned int)first_matrix.rowCount; i++) {
+    unsigned int this_row_start = first_matrix.rowPointers[i];
+    unsigned int this_row_end = first_matrix.rowPointers[i + 1];
+    unsigned int other_row_start = second_matrix.rowPointers[i];
+    unsigned int other_row_end = second_matrix.rowPointers[i + 1];
     if ((this_row_end - this_row_start) != (other_row_end - other_row_start)) {
       return false;
     }
     for (unsigned int j = this_row_start; j < this_row_end; j++) {
       bool found = false;
       for (unsigned int k = other_row_start; k < other_row_end; k++) {
-        if (firstMatrix.columnIndices[j] == secondMatrix.columnIndices[k] && AreEqualElems(firstMatrix.nonZeroValues[j], secondMatrix.nonZeroValues[k], 0.000001)) {
+        if (first_matrix.columnIndices[j] == second_matrix.columnIndices[k] && AreEqualElems(first_matrix.nonZeroValues[j], second_matrix.nonZeroValues[k], 0.000001)) {
           found = true;
           break;
         }
@@ -92,25 +92,25 @@ bool yasakova_t_sparse_matrix_multiplication::CompareMatrices(
 
 yasakova_t_sparse_matrix_multiplication::CompressedRowStorageMatrix yasakova_t_sparse_matrix_multiplication::ConvertVectorToMatrix(
     std::vector<ComplexNumber>& vec) {
-  CompressedRowStorageMatrix actualResult;
-  actualResult.rowCount = (int)vec[0].real();
-  actualResult.columnCount = (int)vec[1].real();
+  CompressedRowStorageMatrix actual_result;
+  actual_result.rowCount = (int)vec[0].real();
+  actual_result.columnCount = (int)vec[1].real();
   auto values_size = (unsigned int)vec[2].real();
   auto col_indices_size = (unsigned int)vec[3].real();
   auto row_ptr_size = (unsigned int)vec[4].real();
-  actualResult.nonZeroValues.reserve(values_size);
-  actualResult.columnIndices.reserve(col_indices_size);
-  actualResult.rowPointers.reserve(row_ptr_size);
+  actual_result.nonZeroValues.reserve(values_size);
+  actual_result.columnIndices.reserve(col_indices_size);
+  actual_result.rowPointers.reserve(row_ptr_size);
   for (unsigned int i = 0; i < values_size; i++) {
-    actualResult.nonZeroValues.emplace_back(vec[5 + i]);
+    actual_result.nonZeroValues.emplace_back(vec[5 + i]);
   }
   for (unsigned int i = 0; i < col_indices_size; i++) {
-    actualResult.columnIndices.emplace_back((int)vec[5 + values_size + i].real());
+    actual_result.columnIndices.emplace_back((int)vec[5 + values_size + i].real());
   }
   for (unsigned int i = 0; i < row_ptr_size; i++) {
-    actualResult.rowPointers.emplace_back((int)vec[5 + values_size + col_indices_size + i].real());
+    actual_result.rowPointers.emplace_back((int)vec[5 + values_size + col_indices_size + i].real());
   }
-  return actualResult;
+  return actual_result;
 }
 
 bool yasakova_t_sparse_matrix_multiplication::TestTaskTBB::PreProcessingImpl() {
