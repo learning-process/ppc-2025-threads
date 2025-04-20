@@ -20,4 +20,4 @@ class SparseMatmulTask : public ppc::core::Task {
   int rowsA, colsA, rowsB, colsB;
 };
 
-}  // namespace konkov_i_sparse_matmul_ccs
+}  // namespace konkov_i_sparse_matmul_ccs_stl

@@ -113,4 +113,4 @@ bool SparseMatmulTask::RunImpl() {
 
 bool SparseMatmulTask::PostProcessingImpl() { return true; }
 
-}  // namespace konkov_i_sparse_matmul_ccs
+}  // namespace konkov_i_sparse_matmul_ccs_stl
