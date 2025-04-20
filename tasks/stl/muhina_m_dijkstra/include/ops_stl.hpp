@@ -24,4 +24,4 @@ class TestTaskSTL : public ppc::core::Task {
   static const int kEndOfVertexList;
 };
 
-}  // namespace muhina_m_dijkstra_tbb
+}  // namespace muhina_m_dijkstra_stl
