@@ -165,10 +165,11 @@ bool yasakova_t_sparse_matrix_multiplication::TestTaskTBB::RunImpl() {
               unsigned int col_b = secondMatrix_.columnIndices[k];
               ComplexNumber value_b = secondMatrix_.nonZeroValues[k];
               local_results[i].emplace_back(col_b, value_a * value_b);
+            }
+          }
         }
       }
-    }
-  });
+  );
 
   for (size_t row_index = 0; row_index < local_results.size(); ++row_index) {
     for (const auto& [col_index, value] : local_results[row_index]) {
