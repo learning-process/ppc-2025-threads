@@ -14,9 +14,6 @@
 namespace {
 yasakova_t_sparse_matrix_multiplication::CompressedRowStorageMatrix GenMatrix(
     unsigned int num_rows, unsigned int num_cols, unsigned int left_border_row, unsigned int right_border_row,
-    unsigned int left_border_col, unsigned int right_border_col, int min_value, int max_value);
-yasakova_t_sparse_matrix_multiplication::CompressedRowStorageMatrix GenMatrix(
-    unsigned int num_rows, unsigned int num_cols, unsigned int left_border_row, unsigned int right_border_row,
     unsigned int left_border_col, unsigned int right_border_col, int min_value, int max_value) {
   if (left_border_row > right_border_row || left_border_col > right_border_col || right_border_row > num_rows ||
       right_border_col > num_cols || min_value > max_value) {
@@ -32,7 +29,7 @@ yasakova_t_sparse_matrix_multiplication::CompressedRowStorageMatrix GenMatrix(
   return first_matrix;
 }
 }  // namespace
-TEST(kolodkin_g_multiplication_matrix__task_tbb, test_pipeline_run) {
+TEST(yasakova_t_sparse_matrix_multiplication_tbb, test_pipeline_run) {
   srand(time(nullptr));
   yasakova_t_sparse_matrix_multiplication::CompressedRowStorageMatrix first_matrix(400, 400);
   yasakova_t_sparse_matrix_multiplication::CompressedRowStorageMatrix second_matrix(400, 400);
@@ -84,7 +81,7 @@ TEST(kolodkin_g_multiplication_matrix__task_tbb, test_pipeline_run) {
       yasakova_t_sparse_matrix_multiplication::ConvertVectorToMatrix(output_data);
 }
 
-TEST(kolodkin_g_multiplication_matrix__task_tbb, test_task_run) {
+TEST(yasakova_t_sparse_matrix_multiplication_tbb, test_task_run) {
   srand(time(nullptr));
   yasakova_t_sparse_matrix_multiplication::CompressedRowStorageMatrix first_matrix(400, 400);
   yasakova_t_sparse_matrix_multiplication::CompressedRowStorageMatrix second_matrix(400, 400);
