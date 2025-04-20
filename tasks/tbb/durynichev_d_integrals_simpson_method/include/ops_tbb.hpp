@@ -1,12 +1,11 @@
 #pragma once
 
-#include <tbb/mutex.h>
-
 #include <cstddef>
 #include <utility>
 #include <vector>
 
 #include "core/task/include/task.hpp"
+#include "oneapi/tbb/mutex.h"
 
 namespace durynichev_d_integrals_simpson_method_tbb {
 

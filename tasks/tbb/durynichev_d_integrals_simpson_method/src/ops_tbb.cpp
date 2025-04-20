@@ -1,11 +1,10 @@
 #include "tbb/durynichev_d_integrals_simpson_method/include/ops_tbb.hpp"
 
-#include <tbb/mutex.h>
-#include <tbb/parallel_for.h>
-
 #include <cmath>
 #include <vector>
 
+#include "oneapi/tbb/mutex.h"
+#include "oneapi/tbb/parallel_for.h"
 #include "oneapi/tbb/task_arena.h"
 #include "oneapi/tbb/task_group.h"
 
