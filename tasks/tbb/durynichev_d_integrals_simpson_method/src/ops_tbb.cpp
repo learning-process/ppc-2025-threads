@@ -79,7 +79,7 @@ double SimpsonIntegralTBB::Simpson2D(double x0, double x1, double y0, double y1)
     double local_sum = 0.0;
     for (int i = r.begin(); i < r.end(); ++i) {
       double x = x0 + (i * hx);
-      double coef_x;
+      double coef_x = 0;
       if (i == 0 || i == n_) {
         coef_x = 1.0;
       } else if (i % 2 != 0) {
@@ -90,7 +90,7 @@ double SimpsonIntegralTBB::Simpson2D(double x0, double x1, double y0, double y1)
 
       for (int j = 0; j <= n_; ++j) {
         double y = y0 + (j * hy);
-        double coef_y;
+        double coef_y = 0;
         if (j == 0 || j == n_) {
           coef_y = 1.0;
         } else if (j % 2 != 0) {
