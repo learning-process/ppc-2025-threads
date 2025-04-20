@@ -22,7 +22,7 @@ double chizhov_m_trapezoid_method_tbb::TrapezoidMethod(Function& f, size_t div, 
     h[i] = (upper_limits[i] - lower_limits[i]) / steps[i];
   }
 
-  long total_nodes = 1;
+  long long total_nodes = 1;
   for (const auto& step : steps) {
     total_nodes *= (step + 1);
   }
@@ -88,8 +88,8 @@ bool chizhov_m_trapezoid_method_tbb::TestTaskTBB::PreProcessingImpl() {
 }
 
 bool chizhov_m_trapezoid_method_tbb::TestTaskTBB::ValidationImpl() {
-  int* divisions_ptr = reinterpret_cast<int*>(task_data->inputs[0]);
-  int* dimension_ptr = reinterpret_cast<int*>(task_data->inputs[1]);
+  auto* divisions_ptr = reinterpret_cast<int*>(task_data->inputs[0]);
+  auto* dimension_ptr = reinterpret_cast<int*>(task_data->inputs[1]);
   if (*divisions_ptr <= 0 || *dimension_ptr <= 0) {
     return false;
   }
