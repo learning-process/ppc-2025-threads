@@ -1,5 +1,9 @@
 #include <gtest/gtest.h>
 
+#include <cstdlib>
+#include <ctime>
+#include <chrono>
+#include <iostream>
 #include <cstdint>
 #include <memory>
 #include <vector>
@@ -430,20 +434,23 @@ TEST(yasakova_t_sparse_matrix_multiplication, MultiplyImaginaryMatrices) {
 }
 
 TEST(yasakova_t_sparse_matrix_multiplication, MultiplyLargeSparseMatrices) {
+  // Инициализация генератора случайных чисел
+  std::srand(std::time(nullptr));
+
   // Create large sparse matrices (1000x1000 with only 1% non-zero elements)
   const int size = 1000;
-  const double sparsity = 0.01;
+  const double sparsity = 0.01; // 1% non-zero elements
   yasakova_t_sparse_matrix_multiplication::CompressedRowStorageMatrix first_matrix(size, size);
   yasakova_t_sparse_matrix_multiplication::CompressedRowStorageMatrix second_matrix(size, size);
   std::vector<ComplexNumber> input_data;
-  std::vector<ComplexNumber> output_data(size * size * 2, 0);
+  std::vector<ComplexNumber> output_data(size * size * 2, 0); // Allocate enough space
 
   // Fill first matrix with random sparse data
   for (int i = 0; i < size; ++i) {
     for (int j = 0; j < size; ++j) {
-      if (rand() / (double)RAND_MAX < sparsity) {
-        double real = rand() / (double)RAND_MAX * 10.0 - 5.0;
-        double imag = rand() / (double)RAND_MAX * 10.0 - 5.0;
+      if (std::rand() / (double)RAND_MAX < sparsity) {
+        double real = (std::rand() / (double)RAND_MAX * 10.0) - 5.0;
+        double imag = (std::rand() / (double)RAND_MAX * 10.0) - 5.0;
         first_matrix.InsertElement(i, ComplexNumber(real, imag), j);
       }
     }
@@ -452,9 +459,9 @@ TEST(yasakova_t_sparse_matrix_multiplication, MultiplyLargeSparseMatrices) {
   // Fill second matrix with random sparse data
   for (int i = 0; i < size; ++i) {
     for (int j = 0; j < size; ++j) {
-      if (rand() / (double)RAND_MAX < sparsity) {
-        double real = rand() / (double)RAND_MAX * 10.0 - 5.0;
-        double imag = rand() / (double)RAND_MAX * 10.0 - 5.0;
+      if (std::rand() / (double)RAND_MAX < sparsity) {
+        double real = (std::rand() / (double)RAND_MAX * 10.0) - 5.0;
+        double imag = (std::rand() / (double)RAND_MAX * 10.0) - 5.0;
         second_matrix.InsertElement(i, ComplexNumber(real, imag), j);
       }
     }
@@ -463,36 +470,36 @@ TEST(yasakova_t_sparse_matrix_multiplication, MultiplyLargeSparseMatrices) {
   // Convert matrices to vectors and prepare input data
   auto first_matrix_data = yasakova_t_sparse_matrix_multiplication::ConvertMatrixToVector(first_matrix);
   auto second_matrix_data = yasakova_t_sparse_matrix_multiplication::ConvertMatrixToVector(second_matrix);
-
+  
   input_data.reserve(first_matrix_data.size() + second_matrix_data.size());
   input_data.insert(input_data.end(), first_matrix_data.begin(), first_matrix_data.end());
   input_data.insert(input_data.end(), second_matrix_data.begin(), second_matrix_data.end());
 
   // Create task_data
   auto task_data_tbb = std::make_shared<ppc::core::TaskData>();
-  task_data_tbb->inputs.emplace_back(reinterpret_cast<uint8_t *>(input_data.data()));
+  task_data_tbb->inputs.emplace_back(reinterpret_cast<uint8_t*>(input_data.data()));
   task_data_tbb->inputs_count.emplace_back(input_data.size());
-  task_data_tbb->outputs.emplace_back(reinterpret_cast<uint8_t *>(output_data.data()));
+  task_data_tbb->outputs.emplace_back(reinterpret_cast<uint8_t*>(output_data.data()));
   task_data_tbb->outputs_count.emplace_back(output_data.size());
 
   // Create and run task
   yasakova_t_sparse_matrix_multiplication::TestTaskTBB test_task_tbb(task_data_tbb);
-
+  
   ASSERT_EQ(test_task_tbb.Validation(), true);
-
+  
   auto start_time = std::chrono::high_resolution_clock::now();
   test_task_tbb.PreProcessing();
   test_task_tbb.Run();
   test_task_tbb.PostProcessing();
   auto end_time = std::chrono::high_resolution_clock::now();
-
+  
   auto duration = std::chrono::duration_cast<std::chrono::milliseconds>(end_time - start_time);
-  std::cout << "Large sparse matrices multiplication took " << duration.count() << " ms" << std::endl;
+  std::cout << "Large sparse matrices multiplication took " << duration.count() << " ms\n";
 
   // Basic verification - check that output is not all zeros
   bool all_zeros = true;
-  for (const auto &val : output_data) {
-    if (val.real != 0.0 || val.imag != 0.0) {
+  for (const auto& val : output_data) {
+    if (val.real() != 0.0 || val.imag() != 0.0) {
       all_zeros = false;
       break;
     }
