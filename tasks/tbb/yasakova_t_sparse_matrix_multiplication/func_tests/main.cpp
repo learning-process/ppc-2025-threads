@@ -483,7 +483,7 @@ TEST(yasakova_t_sparse_matrix_multiplication, MultiplySingleElementMatrices) {
 
   input_data.insert(input_data.end(), first_matrix_data.begin(), first_matrix_data.end());
   input_data.insert(input_data.end(), second_matrix_data.begin(), second_matrix_data.end());
-  
+
   // Expected result is (2+3i)*(4+5i) = (8-15) + (10+12)i = (-7 + 22i)
   expected_result.InsertElement(0, ComplexNumber(-7, 22), 0);
 
