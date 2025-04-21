@@ -95,7 +95,7 @@ bool sadikov_i_sparse_matrix_multiplication_task_all::CCSMatrixALL::RunImpl() {
     boost::mpi::gatherv(m_world_, m_intermediate_data_.column_sums_and_indexes,
                         intermediate_component.column_sums_and_indexes.data(), m_sizes_.second, 0);
 
-    for (int i = 0; i < intermediate_component.values_and_indexes.size(); ++i) {
+    for (size_t i = 0; i < intermediate_component.values_and_indexes.size(); ++i) {
       if (intermediate_component.values_and_indexes[i].first != 0.0) {
         component.m_values[intermediate_component.values_and_indexes[i].second] =
             intermediate_component.values_and_indexes[i].first;
@@ -111,7 +111,7 @@ bool sadikov_i_sparse_matrix_multiplication_task_all::CCSMatrixALL::RunImpl() {
     std::erase_if(component.m_values, [&](auto &value) { return value == 0.0; });
     std::erase_if(component.m_rows, [&](auto &row) { return row == 0; });
     std::ranges::for_each(component.m_rows, [&](auto &row) { row--; });
-    for (int i = 1; i < component.m_elementsSum.size(); ++i) {
+    for (size_t i = 1; i < component.m_elementsSum.size(); ++i) {
       component.m_elementsSum[i] = component.m_elementsSum[i] + component.m_elementsSum[i - 1];
     }
     m_answerMatrix_ = SparseMatrix(m_sMatrix_.GetColumnsCount(), m_sMatrix_.GetColumnsCount(), component);
