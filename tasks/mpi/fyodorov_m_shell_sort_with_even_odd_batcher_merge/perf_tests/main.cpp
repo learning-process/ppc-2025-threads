@@ -2,17 +2,19 @@
 
 #include <algorithm>
 #include <chrono>
-// #include <cstddef>
+#include <cstddef>
 #include <cstdint>
 #include <memory>
 #include <random>
 #include <vector>
 
+#include "boost/mpi/communicator.hpp"
 #include "core/perf/include/perf.hpp"
 #include "core/task/include/task.hpp"
-#include "tbb/fyodorov_m_shell_sort_with_even_odd_batcher_merge/include/ops_tbb.hpp"
+#include "mpi/fyodorov_m_shell_sort_with_even_odd_batcher_merge/include/ops_mpi.hpp"
 
-TEST(fyodorov_m_shell_sort_with_even_odd_batcher_merge_tbb, test_pipeline_run) {
+
+TEST(fyodorov_m_shell_sort_with_even_odd_batcher_merge_mpi, test_pipeline_run) {
   constexpr int kCount = 520000;
 
   auto get_random_vector = [](int sz, int a, int b) -> std::vector<int> {
@@ -29,14 +31,14 @@ TEST(fyodorov_m_shell_sort_with_even_odd_batcher_merge_tbb, test_pipeline_run) {
   std::vector<int> input = get_random_vector(kCount, 0, 999);
   std::vector<int> output(kCount, 0);
 
-  auto task_data_tbb = std::make_shared<ppc::core::TaskData>();
-  task_data_tbb->inputs.emplace_back(reinterpret_cast<uint8_t *>(input.data()));
-  task_data_tbb->inputs_count.emplace_back(input.size());
-  task_data_tbb->outputs.emplace_back(reinterpret_cast<uint8_t *>(output.data()));
-  task_data_tbb->outputs_count.emplace_back(output.size());
+  auto task_data_mpi = std::make_shared<ppc::core::TaskData>();
+  task_data_mpi->inputs.emplace_back(reinterpret_cast<uint8_t *>(input.data()));
+  task_data_mpi->inputs_count.emplace_back(input.size());
+  task_data_mpi->outputs.emplace_back(reinterpret_cast<uint8_t *>(output.data()));
+  task_data_mpi->outputs_count.emplace_back(output.size());
 
   auto test_task_tbb =
-      std::make_shared<fyodorov_m_shell_sort_with_even_odd_batcher_merge_tbb::TestTaskTBB>(task_data_tbb);
+      std::make_shared<fyodorov_m_shell_sort_with_even_odd_batcher_merge_mpi::TestTaskMPI>(task_data_mpi);
 
   auto perf_attr = std::make_shared<ppc::core::PerfAttr>();
   perf_attr->num_running = 10;
@@ -76,14 +78,14 @@ TEST(fyodorov_m_shell_sort_with_even_odd_batcher_merge_tbb, test_task_run) {
   std::vector<int> input = get_random_vector(kCount, 0, 999);
   std::vector<int> output(kCount, 0);
 
-  auto task_data_tbb = std::make_shared<ppc::core::TaskData>();
-  task_data_tbb->inputs.emplace_back(reinterpret_cast<uint8_t *>(input.data()));
-  task_data_tbb->inputs_count.emplace_back(input.size());
-  task_data_tbb->outputs.emplace_back(reinterpret_cast<uint8_t *>(output.data()));
-  task_data_tbb->outputs_count.emplace_back(output.size());
+  auto task_data_mpi = std::make_shared<ppc::core::TaskData>();
+  task_data_mpi->inputs.emplace_back(reinterpret_cast<uint8_t *>(input.data()));
+  task_data_mpi->inputs_count.emplace_back(input.size());
+  task_data_mpi->outputs.emplace_back(reinterpret_cast<uint8_t *>(output.data()));
+  task_data_mpi->outputs_count.emplace_back(output.size());
 
   auto test_task_tbb =
-      std::make_shared<fyodorov_m_shell_sort_with_even_odd_batcher_merge_tbb::TestTaskTBB>(task_data_tbb);
+      std::make_shared<fyodorov_m_shell_sort_with_even_odd_batcher_merge_mpi::TestTaskMPI>(task_data_mpi);
 
   auto perf_attr = std::make_shared<ppc::core::PerfAttr>();
   perf_attr->num_running = 10;
