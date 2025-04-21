@@ -1,12 +1,13 @@
 #include "all/sadikov_I_SparseMatrixMultiplication/include/SparseMatrix.hpp"
 
+#include <assert.h>
 #include <omp.h>
 
 #include <algorithm>
 #include <cmath>
 #include <cstddef>
 #include <iostream>
-#include <thread>
+#include <optional>
 #include <utility>
 #include <vector>
 
@@ -62,10 +63,11 @@ double SparseMatrix::CalculateSum(const SparseMatrix& fmatrix, const SparseMatri
   return sum;
 }
 
-MPIParseData SparseMatrix::Multiplicate(const SparseMatrix& first_matrix, const SparseMatrix& second_matrix,
-                                        int second_displacement, int barier) {
-  MPIParseData component;
-  std::vector<int> intermediate_values(second_matrix.GetElementsSum().size());
+MatrixComponents SparseMatrix::Multiplicate(const SparseMatrix& first_matrix, const SparseMatrix& second_matrix,
+                                            int second_displacement, int barier) {
+  MatrixComponents component;
+  component.Resize(first_matrix.GetElementsSum().size() * second_matrix.GetElementsSum().size(),
+                   second_matrix.GetElementsSum().size());
   oneapi::tbb::task_arena arena(ppc::util::GetPPCNumThreads());
   arena.execute([&] {
     oneapi::tbb::parallel_for(
@@ -77,19 +79,14 @@ MPIParseData SparseMatrix::Multiplicate(const SparseMatrix& first_matrix, const 
               double sum = CalculateSum(first_matrix, second_matrix, first_matrix.GetElementsSum(),
                                         second_matrix.GetElementsSum(), static_cast<int>(i), static_cast<int>(j));
               if (sum != 0) {
-                component.values_and_indexes.emplace_back(sum, (i * first_matrix.GetElementsSum().size()) + j);
-                component.rows_and_indexes.emplace_back(j + 1, (i * first_matrix.GetElementsSum().size()) + j);
-                intermediate_values[i]++;
+                component.m_values[(i * first_matrix.GetElementsSum().size()) + j] = sum;
+                component.m_rows[(i * first_matrix.GetElementsSum().size()) + j] = j + 1;
+                component.m_elementsSum[i]++;
               }
             }
           }
         });
   });
-  for (int i = 0; i < static_cast<int>(intermediate_values.size()); ++i) {
-    if (intermediate_values[i] != 0) {
-      component.column_sums_and_indexes.emplace_back(intermediate_values[i], i);
-    }
-  }
   return {component};
 }
 

@@ -70,11 +70,11 @@ bool sadikov_i_sparse_matrix_multiplication_task_all::CCSMatrixALL::RunImpl() {
                                  m_world_.rank() == m_world_.size() - 1 ? m_sMatrix_.GetElementsSum().size()
                                                                         : m_displacements_[m_world_.rank() + 1]);
   if (m_world_.rank() != 0) {
-    m_world_.send(0, 0, static_cast<int>(m_intermediate_data_.values_and_indexes.size()));
-    m_world_.send(0, 1, static_cast<int>(m_intermediate_data_.column_sums_and_indexes.size()));
+    m_world_.send(0, 0, static_cast<int>(m_intermediate_data_.m_values.size()));
+    m_world_.send(0, 1, static_cast<int>(m_intermediate_data_.m_elementsSum.size()));
   } else {
-    m_sizes_.first[0] = m_intermediate_data_.values_and_indexes.size();
-    m_sizes_.second[0] = m_intermediate_data_.column_sums_and_indexes.size();
+    m_sizes_.first[0] = m_intermediate_data_.m_values.size();
+    m_sizes_.second[0] = m_intermediate_data_.m_elementsSum.size();
 
     for (int i = 1; i < m_world_.size(); ++i) {
       m_world_.recv(i, 0, m_sizes_.first[i]);
@@ -83,29 +83,26 @@ bool sadikov_i_sparse_matrix_multiplication_task_all::CCSMatrixALL::RunImpl() {
   }
   if (m_world_.rank() == 0) {
     MatrixComponents component;
-    component.Resize(m_fMatrix_.GetElementsSum().size() * m_sMatrix_.GetElementsSum().size(),
-                     m_sMatrix_.GetElementsSum().size());
-    MPIParseData intermediate_component;
-    intermediate_component.Resize(m_fMatrix_.GetElementsSum().size() * m_sMatrix_.GetElementsSum().size(),
-                                  m_sMatrix_.GetElementsSum().size());
-    boost::mpi::gatherv(m_world_, m_intermediate_data_.values_and_indexes,
-                        intermediate_component.values_and_indexes.data(), m_sizes_.first, 0);
-    boost::mpi::gatherv(m_world_, m_intermediate_data_.rows_and_indexes, intermediate_component.rows_and_indexes.data(),
-                        m_sizes_.first, 0);
-    boost::mpi::gatherv(m_world_, m_intermediate_data_.column_sums_and_indexes,
-                        intermediate_component.column_sums_and_indexes.data(), m_sizes_.second, 0);
-
-    for (size_t i = 0; i < intermediate_component.values_and_indexes.size(); ++i) {
-      if (intermediate_component.values_and_indexes[i].first != 0.0) {
-        component.m_values[intermediate_component.values_and_indexes[i].second] =
-            intermediate_component.values_and_indexes[i].first;
-        component.m_rows[intermediate_component.rows_and_indexes[i].second] =
-            intermediate_component.rows_and_indexes[i].first;
+    component.Resize(m_fMatrix_.GetElementsSum().size() * m_sMatrix_.GetElementsSum().size() * m_world_.size(),
+                     std::nullopt);
+    MatrixComponents intermediate_component;
+    intermediate_component.Resize(
+        m_fMatrix_.GetElementsSum().size() * m_sMatrix_.GetElementsSum().size() * m_world_.size(),
+        m_sMatrix_.GetElementsSum().size() * m_world_.size());
+    boost::mpi::gatherv(m_world_, m_intermediate_data_.m_values, intermediate_component.m_values.data(), m_sizes_.first,
+                        0);
+    boost::mpi::gatherv(m_world_, m_intermediate_data_.m_rows, intermediate_component.m_rows.data(), m_sizes_.first, 0);
+    boost::mpi::gatherv(m_world_, m_intermediate_data_.m_elementsSum, intermediate_component.m_elementsSum.data(),
+                        m_sizes_.second, 0);
+    for (size_t i = 0; i < intermediate_component.m_rows.size(); ++i) {
+      if (intermediate_component.m_values[i] != 0.0) {
+        component.m_values[i] = intermediate_component.m_values[i];
+        component.m_rows[i] = intermediate_component.m_rows[i];
       }
     }
-    std::ranges::for_each(intermediate_component.column_sums_and_indexes, [&](auto &pair) {
-      if (pair.first != 0) {
-        component.m_elementsSum[pair.second] = pair.first;
+    std::ranges::for_each(intermediate_component.m_elementsSum, [&](auto &element) {
+      if (element != 0) {
+        component.m_elementsSum.emplace_back(element);
       }
     });
     std::erase_if(component.m_values, [&](auto &value) { return value == 0.0; });
@@ -116,9 +113,9 @@ bool sadikov_i_sparse_matrix_multiplication_task_all::CCSMatrixALL::RunImpl() {
     }
     m_answerMatrix_ = SparseMatrix(m_sMatrix_.GetColumnsCount(), m_sMatrix_.GetColumnsCount(), component);
   } else {
-    boost::mpi::gatherv(m_world_, m_intermediate_data_.values_and_indexes, 0);
-    boost::mpi::gatherv(m_world_, m_intermediate_data_.rows_and_indexes, 0);
-    boost::mpi::gatherv(m_world_, m_intermediate_data_.column_sums_and_indexes, 0);
+    boost::mpi::gatherv(m_world_, m_intermediate_data_.m_values, 0);
+    boost::mpi::gatherv(m_world_, m_intermediate_data_.m_rows, 0);
+    boost::mpi::gatherv(m_world_, m_intermediate_data_.m_elementsSum, 0);
   }
   return true;
 }

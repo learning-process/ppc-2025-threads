@@ -3,27 +3,20 @@
 #include <cstddef>
 #include <utility>
 #include <vector>
+#include <optional>
 
 namespace sadikov_i_sparse_matrix_multiplication_task_all {
 struct MatrixComponents {
   std::vector<double> m_values;
   std::vector<int> m_rows;
   std::vector<int> m_elementsSum;
-  void Resize(size_t values_size, size_t sums_size) noexcept {
+  void Resize(size_t values_size, std::optional<size_t> sums_size) noexcept {
     m_values.resize(values_size);
     m_rows.resize(values_size);
-    m_elementsSum.resize(sums_size);
+    if (sums_size.has_value()) {
+      m_elementsSum.resize(sums_size.value());
+    }
   }
-};
-struct MPIParseData {
-  std::vector<std::pair<double, int>> values_and_indexes;
-  std::vector<std::pair<int, int>> rows_and_indexes;
-  std::vector<std::pair<int, int>> column_sums_and_indexes;
-  void Resize(int values_size, int column_sum_size) noexcept {
-    values_and_indexes.resize(values_size);
-    rows_and_indexes.resize(values_size);
-    column_sums_and_indexes.resize(column_sum_size);
-  };
 };
 class SparseMatrix {
   int m_rowsCount_ = 0;
@@ -47,7 +40,7 @@ class SparseMatrix {
   [[nodiscard]] int GetRowsCount() const noexcept { return m_rowsCount_; }
   static SparseMatrix MatrixToSparse(int rows_count, int columns_count, const std::vector<double>& values);
   static SparseMatrix Transpose(const SparseMatrix& matrix);
-  static MPIParseData Multiplicate(const SparseMatrix& first_matrix, const SparseMatrix& second_matrix,
+  static MatrixComponents Multiplicate(const SparseMatrix& first_matrix, const SparseMatrix& second_matrix,
                                    int second_displacement, int barier);
   template <typename Archive>
   void serialize(Archive& ar, const unsigned int) {

@@ -15,7 +15,7 @@ class CCSMatrixALL : public ppc::core::Task {
   SparseMatrix m_answerMatrix_;
   boost::mpi::communicator m_world_;
   std::vector<int> m_displacements_;
-  MPIParseData m_intermediate_data_;
+  MatrixComponents m_intermediate_data_;
   std::pair<std::vector<int>, std::vector<int>> m_sizes_;
   void CalculateDisplacements();
 
