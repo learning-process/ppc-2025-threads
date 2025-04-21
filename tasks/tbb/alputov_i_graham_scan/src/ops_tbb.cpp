@@ -48,17 +48,22 @@ void TestTaskTBB::RemoveDuplicates(std::vector<Point>& points) {
   points.erase(result.end(), points.end());
 }
 
-bool TestTaskTBB::CompareAngles(const Point& a, const Point& b, const Point& pivot) {
-  const auto dx1 = a.x - pivot.x;
-  const auto dy1 = a.y - pivot.y;
-  const auto dx2 = b.x - pivot.x;
-  const auto dy2 = b.y - pivot.y;
+bool TestTaskTBB::CompareAngles(const Point& first_point, const Point& second_point, const Point& pivot_point) {
+  const auto first_dx = first_point.x - pivot_point.x;
+  const auto first_dy = first_point.y - pivot_point.y;
+  const auto second_dx = second_point.x - pivot_point.x;
+  const auto second_dy = second_point.y - pivot_point.y;
 
-  const auto cross = (dx1 * dy2) - (dy1 * dx2);
-  if (std::abs(cross) < 1e-10) {
-    return (dx1 * dx1 + dy1 * dy1) < (dx2 * dx2 + dy2 * dy2);
+  const double cross_product = (first_dx * second_dy) - (first_dy * second_dx);
+  constexpr double Epsilon = 1e-10;
+
+  if (std::abs(cross_product) < Epsilon) {
+    const auto first_distance_squared = (first_dx * first_dx) + (first_dy * first_dy);
+    const auto second_distance_squared = (second_dx * second_dx) + (second_dy * second_dy);
+    return first_distance_squared < second_distance_squared;
   }
-  return cross > 0;
+
+  return cross_product > 0;
 }
 
 std::vector<Point> TestTaskTBB::SortPoints(const Point& pivot) const {
