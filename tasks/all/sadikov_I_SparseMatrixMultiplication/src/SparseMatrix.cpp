@@ -85,7 +85,7 @@ MPIParseData SparseMatrix::Multiplicate(const SparseMatrix& first_matrix, const 
           }
         });
   });
-  for (int i = 0; i < intermediate_values.size(); ++i) {
+  for (int i = 0; i < static_cast<int>(intermediate_values.size()); ++i) {
     if (intermediate_values[i] != 0) {
       component.column_sums_and_indexes.emplace_back(intermediate_values[i], i);
     }
