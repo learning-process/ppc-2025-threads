@@ -437,7 +437,7 @@ TEST(yasakova_t_sparse_matrix_multiplication, MultiplyEmptyMatrices) {
   std::vector<ComplexNumber> input_data = {};
   std::vector<ComplexNumber> first_matrix_data;
   std::vector<ComplexNumber> second_matrix_data;
-  std::vector<ComplexNumber> output_data(1, 0); // минимальный размер, так как матрицы пустые
+  std::vector<ComplexNumber> output_data(1, 0);
 
   first_matrix_data = yasakova_t_sparse_matrix_multiplication::ConvertMatrixToVector(first_matrix);
   second_matrix_data = yasakova_t_sparse_matrix_multiplication::ConvertMatrixToVector(second_matrix);
@@ -489,7 +489,7 @@ TEST(yasakova_t_sparse_matrix_multiplication, MultiplySingleElementMatrices) {
   for (unsigned int i = 0; i < second_matrix_data.size(); i++) {
     input_data.emplace_back(second_matrix_data[i]);
   }
-  
+
   // (3.5+2.1i)*(1.2+0.7i) = (3.5*1.2 - 2.1*0.7) + (3.5*0.7 + 2.1*1.2)i
   // = (4.2 - 1.47) + (2.45 + 2.52)i = 2.73 + 4.97i
   expected_result.InsertElement(0, ComplexNumber(2.73, 4.97), 0);
