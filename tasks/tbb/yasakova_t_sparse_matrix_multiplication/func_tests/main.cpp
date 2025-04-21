@@ -432,11 +432,11 @@ TEST(yasakova_t_sparse_matrix_multiplication, MultiplyImaginaryMatrices) {
 TEST(yasakova_t_sparse_matrix_multiplication, MultiplyLargeSparseMatrices) {
   // Create large sparse matrices (1000x1000 with only 1% non-zero elements)
   const int size = 1000;
-  const double sparsity = 0.01; // 1% non-zero elements
+  const double sparsity = 0.01;
   yasakova_t_sparse_matrix_multiplication::CompressedRowStorageMatrix first_matrix(size, size);
   yasakova_t_sparse_matrix_multiplication::CompressedRowStorageMatrix second_matrix(size, size);
   std::vector<ComplexNumber> input_data;
-  std::vector<ComplexNumber> output_data(size * size * 2, 0); // Allocate enough space
+  std::vector<ComplexNumber> output_data(size * size * 2, 0);
 
   // Fill first matrix with random sparse data
   for (int i = 0; i < size; ++i) {
@@ -470,9 +470,9 @@ TEST(yasakova_t_sparse_matrix_multiplication, MultiplyLargeSparseMatrices) {
 
   // Create task_data
   auto task_data_tbb = std::make_shared<ppc::core::TaskData>();
-  task_data_tbb->inputs.emplace_back(reinterpret_cast<uint8_t*>(input_data.data()));
+  task_data_tbb->inputs.emplace_back(reinterpret_cast<uint8_t *>(input_data.data()));
   task_data_tbb->inputs_count.emplace_back(input_data.size());
-  task_data_tbb->outputs.emplace_back(reinterpret_cast<uint8_t*>(output_data.data()));
+  task_data_tbb->outputs.emplace_back(reinterpret_cast<uint8_t *>(output_data.data()));
   task_data_tbb->outputs_count.emplace_back(output_data.size());
 
   // Create and run task
@@ -491,7 +491,7 @@ TEST(yasakova_t_sparse_matrix_multiplication, MultiplyLargeSparseMatrices) {
 
   // Basic verification - check that output is not all zeros
   bool all_zeros = true;
-  for (const auto& val : output_data) {
+  for (const auto &val : output_data) {
     if (val.real != 0.0 || val.imag != 0.0) {
       all_zeros = false;
       break;
