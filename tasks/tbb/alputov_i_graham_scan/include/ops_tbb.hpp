@@ -33,7 +33,8 @@ class TestTaskTBB : public ppc::core::Task {
   [[nodiscard]] std::vector<Point> SortPoints(const Point& pivot) const;
   static std::vector<Point> BuildHull(const std::vector<Point>& sorted_points, const Point& pivot);
   static void RemoveDuplicates(std::vector<Point>& points);
-  [[nodiscard]] static bool CompareAngles(const Point& a, const Point& b, const Point& pivot);
+  [[nodiscard]] static bool CompareAngles(const Point& first_point, const Point& second_point,
+                                          const Point& pivot_point);
 
   static double Cross(const Point& o, const Point& a, const Point& b);
 };

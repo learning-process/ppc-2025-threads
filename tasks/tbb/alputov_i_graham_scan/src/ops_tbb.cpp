@@ -55,9 +55,9 @@ bool TestTaskTBB::CompareAngles(const Point& first_point, const Point& second_po
   const auto second_dy = second_point.y - pivot_point.y;
 
   const double cross_product = (first_dx * second_dy) - (first_dy * second_dx);
-  constexpr double Epsilon = 1e-10;
+  constexpr double kEpsilon = 1e-10;
 
-  if (std::abs(cross_product) < Epsilon) {
+  if (std::abs(cross_product) < kEpsilon) {
     const auto first_distance_squared = (first_dx * first_dx) + (first_dy * first_dy);
     const auto second_distance_squared = (second_dx * second_dx) + (second_dy * second_dy);
     return first_distance_squared < second_distance_squared;
