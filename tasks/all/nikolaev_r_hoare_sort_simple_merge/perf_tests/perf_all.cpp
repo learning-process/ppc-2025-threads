@@ -20,9 +20,7 @@ std::vector<double> GenerateRandomVector(size_t len, double min_val = -1000.0, d
   std::mt19937 gen(rd());
   std::uniform_real_distribution<double> dis(min_val, max_val);
 
-  for (size_t i = 0; i < len; ++i) {
-    vect[i] = dis(gen);
-  }
+  std::ranges::generate(vect, [&]() { return dis(gen); });
 
   return vect;
 }
@@ -62,6 +60,14 @@ TEST(nikolaev_r_hoare_sort_simple_merge_all, test_pipeline_run) {
   if (world.rank() == 0) {
     ppc::core::Perf::PrintPerfStatistic(perf_results);
   }
+
+  std::vector<double> ref(in.size());
+  if (world.rank() == 0) {
+    std::ranges::copy(in, ref.begin());
+    std::ranges::sort(ref);
+  }
+
+  EXPECT_EQ(out, ref);
 }
 
 TEST(nikolaev_r_hoare_sort_simple_merge_all, test_task_run) {
@@ -97,4 +103,12 @@ TEST(nikolaev_r_hoare_sort_simple_merge_all, test_task_run) {
   if (world.rank() == 0) {
     ppc::core::Perf::PrintPerfStatistic(perf_results);
   }
+
+  std::vector<double> ref(in.size());
+  if (world.rank() == 0) {
+    std::ranges::copy(in, ref.begin());
+    std::ranges::sort(ref);
+  }
+
+  EXPECT_EQ(out, ref);
 }

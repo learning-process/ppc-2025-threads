@@ -19,9 +19,7 @@ std::vector<double> GenerateRandomVector(size_t len, double min_val = -1000.0, d
   std::mt19937 gen(rd());
   std::uniform_real_distribution<double> dis(min_val, max_val);
 
-  for (size_t i = 0; i < len; ++i) {
-    vect[i] = dis(gen);
-  }
+  std::ranges::generate(vect, [&]() { return dis(gen); });
 
   return vect;
 }
