@@ -442,15 +442,15 @@ TEST(yasakova_t_sparse_matrix_multiplication, MultiplyEmptyMatrices) {
   // Matrices are empty (no elements inserted)
   first_matrix_data = yasakova_t_sparse_matrix_multiplication::ConvertMatrixToVector(first_matrix);
   second_matrix_data = yasakova_t_sparse_matrix_multiplication::ConvertMatrixToVector(second_matrix);
-  
+
   input_data.insert(input_data.end(), first_matrix_data.begin(), first_matrix_data.end());
   input_data.insert(input_data.end(), second_matrix_data.begin(), second_matrix_data.end());
 
   // Create task_data
   auto task_data_tbb = std::make_shared<ppc::core::TaskData>();
-  task_data_tbb->inputs.emplace_back(reinterpret_cast<uint8_t*>(input_data.data()));
+  task_data_tbb->inputs.emplace_back(reinterpret_cast<uint8_t *>(input_data.data()));
   task_data_tbb->inputs_count.emplace_back(input_data.size());
-  task_data_tbb->outputs.emplace_back(reinterpret_cast<uint8_t*>(output_data.data()));
+  task_data_tbb->outputs.emplace_back(reinterpret_cast<uint8_t *>(output_data.data()));
   task_data_tbb->outputs_count.emplace_back(output_data.size());
 
   // Create Task
@@ -477,10 +477,10 @@ TEST(yasakova_t_sparse_matrix_multiplication, MultiplySingleElementMatrices) {
 
   first_matrix.InsertElement(0, ComplexNumber(2, 3), 0);
   second_matrix.InsertElement(0, ComplexNumber(4, 5), 0);
-  
+
   first_matrix_data = yasakova_t_sparse_matrix_multiplication::ConvertMatrixToVector(first_matrix);
   second_matrix_data = yasakova_t_sparse_matrix_multiplication::ConvertMatrixToVector(second_matrix);
-  
+
   input_data.insert(input_data.end(), first_matrix_data.begin(), first_matrix_data.end());
   input_data.insert(input_data.end(), second_matrix_data.begin(), second_matrix_data.end());
   
@@ -489,9 +489,9 @@ TEST(yasakova_t_sparse_matrix_multiplication, MultiplySingleElementMatrices) {
 
   // Create task_data
   auto task_data_tbb = std::make_shared<ppc::core::TaskData>();
-  task_data_tbb->inputs.emplace_back(reinterpret_cast<uint8_t*>(input_data.data()));
+  task_data_tbb->inputs.emplace_back(reinterpret_cast<uint8_t *>(input_data.data()));
   task_data_tbb->inputs_count.emplace_back(input_data.size());
-  task_data_tbb->outputs.emplace_back(reinterpret_cast<uint8_t*>(output_data.data()));
+  task_data_tbb->outputs.emplace_back(reinterpret_cast<uint8_t *>(output_data.data()));
   task_data_tbb->outputs_count.emplace_back(output_data.size());
 
   // Create Task
