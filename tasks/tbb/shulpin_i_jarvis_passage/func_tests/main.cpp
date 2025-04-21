@@ -129,7 +129,7 @@ TEST(shulpin_i_jarvis_tbb, random_10_points) {
   shulpin_tbb_test_module::RandomTestBody(input, expected);
 }
 
-TEST(shulpin_i_jarvis_omp, random_50_points) {
+TEST(shulpin_i_jarvis_tbb, random_50_points) {
   size_t num_points = 50;
 
   std::vector<shulpin_i_jarvis_tbb::Point> input = shulpin_tbb_test_module::GenerateRandomPoints(num_points);
@@ -138,7 +138,7 @@ TEST(shulpin_i_jarvis_omp, random_50_points) {
   shulpin_tbb_test_module::RandomTestBody(input, expected);
 }
 
-TEST(shulpin_i_jarvis_omp, random_100_points) {
+TEST(shulpin_i_jarvis_tbb, random_100_points) {
   size_t num_points = 100;
 
   std::vector<shulpin_i_jarvis_tbb::Point> input = shulpin_tbb_test_module::GenerateRandomPoints(num_points);
