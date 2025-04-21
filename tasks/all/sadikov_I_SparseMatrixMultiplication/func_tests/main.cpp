@@ -92,53 +92,53 @@ TEST_F(sadikov_i_matrix_multiplication_testing_all, test_rect_matrix) {
   FillTaskData(test_data);
   RunTask(test_out, test_data, true);
 }
-//
-//TEST_F(sadikov_i_matrix_multiplication_testing_all, test_square_matrix) {
-//  TestData test_data = {.first_matrix = {1.0, 0.0, 0.0, 0.0, 7.0, 0.0, 4.0, 9.0, 0.0},
-//                        .first_matrix_rows_count = 3,
-//                        .first_matrix_columns_count = 3,
-//                        .second_matrix = {0.0, 0.0, 3.0, 2.0, 0.0, 0.0, 10.0, 0.0, 0.0},
-//                        .second_matrix_rows_count = 3,
-//                        .second_matrix_columns_count = 3,
-//                        .multiplication_result = std::vector<double>(9)};
-//  std::vector<double> test_out{0.0, 0.0, 3.0, 14.0, 0.0, 0.0, 18.0, 0.0, 12.0};
-//  FillTaskData(test_data);
-//  RunTask(test_out, test_data, true);
-//}
-//
-//TEST_F(sadikov_i_matrix_multiplication_testing_all, test_empty_matrix) {
-//  TestData test_data;
-//  std::vector<double> test_out;
-//  FillTaskData(test_data);
-//  RunTask(test_out, test_data, true);
-//}
-//
-//TEST_F(sadikov_i_matrix_multiplication_testing_all, test_random_matrix) {
-//  constexpr int kSize = 40;
-//  TestData test_data = {.first_matrix = GetRandomMatrix(kSize * kSize),
-//                        .first_matrix_rows_count = kSize,
-//                        .first_matrix_columns_count = kSize,
-//                        .second_matrix = GetRandomMatrix(kSize * kSize),
-//                        .second_matrix_rows_count = kSize,
-//                        .second_matrix_columns_count = kSize,
-//                        .multiplication_result = std::vector<double>(kSize * kSize)};
-//  std::vector<double> test_out = sadikov_i_sparse_matrix_multiplication_task_all::BaseMatrixMultiplication(
-//      test_data.first_matrix, kSize, kSize, test_data.second_matrix, kSize, kSize);
-//  FillTaskData(test_data);
-//  RunTask(test_out, test_data, true);
-//}
 
-//TEST_F(sadikov_i_matrix_multiplication_testing_all, test_random_matrix2) {
-//  constexpr int kSize = 52;
-//  TestData test_data = {.first_matrix = GetRandomMatrix(kSize * kSize),
-//                        .first_matrix_rows_count = kSize,
-//                        .first_matrix_columns_count = kSize,
-//                        .second_matrix = GetRandomMatrix(kSize * kSize),
-//                        .second_matrix_rows_count = kSize,
-//                        .second_matrix_columns_count = kSize,
-//                        .multiplication_result = std::vector<double>(kSize * kSize)};
-//  std::vector<double> test_out = sadikov_i_sparse_matrix_multiplication_task_all::BaseMatrixMultiplication(
-//      test_data.first_matrix, kSize, kSize, test_data.second_matrix, kSize, kSize);
-//  FillTaskData(test_data);
-//  RunTask(test_out, test_data, true);
-//}
+TEST_F(sadikov_i_matrix_multiplication_testing_all, test_square_matrix) {
+  TestData test_data = {.first_matrix = {1.0, 0.0, 0.0, 0.0, 7.0, 0.0, 4.0, 9.0, 0.0},
+                        .first_matrix_rows_count = 3,
+                        .first_matrix_columns_count = 3,
+                        .second_matrix = {0.0, 0.0, 3.0, 2.0, 0.0, 0.0, 10.0, 0.0, 0.0},
+                        .second_matrix_rows_count = 3,
+                        .second_matrix_columns_count = 3,
+                        .multiplication_result = std::vector<double>(9)};
+  std::vector<double> test_out{0.0, 0.0, 3.0, 14.0, 0.0, 0.0, 18.0, 0.0, 12.0};
+  FillTaskData(test_data);
+  RunTask(test_out, test_data, true);
+}
+
+TEST_F(sadikov_i_matrix_multiplication_testing_all, test_empty_matrix) {
+  TestData test_data;
+  std::vector<double> test_out;
+  FillTaskData(test_data);
+  RunTask(test_out, test_data, true);
+}
+
+TEST_F(sadikov_i_matrix_multiplication_testing_all, test_random_matrix) {
+  constexpr int kSize = 40;
+  TestData test_data = {.first_matrix = GetRandomMatrix(kSize * kSize),
+                        .first_matrix_rows_count = kSize,
+                        .first_matrix_columns_count = kSize,
+                        .second_matrix = GetRandomMatrix(kSize * kSize),
+                        .second_matrix_rows_count = kSize,
+                        .second_matrix_columns_count = kSize,
+                        .multiplication_result = std::vector<double>(kSize * kSize)};
+  std::vector<double> test_out = sadikov_i_sparse_matrix_multiplication_task_all::BaseMatrixMultiplication(
+      test_data.first_matrix, kSize, kSize, test_data.second_matrix, kSize, kSize);
+  FillTaskData(test_data);
+  RunTask(test_out, test_data, true);
+}
+
+TEST_F(sadikov_i_matrix_multiplication_testing_all, test_random_matrix2) {
+  constexpr int kSize = 52;
+  TestData test_data = {.first_matrix = GetRandomMatrix(kSize * kSize),
+                        .first_matrix_rows_count = kSize,
+                        .first_matrix_columns_count = kSize,
+                        .second_matrix = GetRandomMatrix(kSize * kSize),
+                        .second_matrix_rows_count = kSize,
+                        .second_matrix_columns_count = kSize,
+                        .multiplication_result = std::vector<double>(kSize * kSize)};
+  std::vector<double> test_out = sadikov_i_sparse_matrix_multiplication_task_all::BaseMatrixMultiplication(
+      test_data.first_matrix, kSize, kSize, test_data.second_matrix, kSize, kSize);
+  FillTaskData(test_data);
+  RunTask(test_out, test_data, true);
+}

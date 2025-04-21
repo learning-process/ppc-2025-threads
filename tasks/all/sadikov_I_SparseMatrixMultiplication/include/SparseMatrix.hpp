@@ -1,9 +1,9 @@
 #pragma once
 
 #include <cstddef>
+#include <optional>
 #include <utility>
 #include <vector>
-#include <optional>
 
 namespace sadikov_i_sparse_matrix_multiplication_task_all {
 struct MatrixComponents {
@@ -41,7 +41,7 @@ class SparseMatrix {
   static SparseMatrix MatrixToSparse(int rows_count, int columns_count, const std::vector<double>& values);
   static SparseMatrix Transpose(const SparseMatrix& matrix);
   static MatrixComponents Multiplicate(const SparseMatrix& first_matrix, const SparseMatrix& second_matrix,
-                                   int second_displacement, int barier);
+                                       int second_displacement, int barier);
   template <typename Archive>
   void serialize(Archive& ar, const unsigned int) {
     ar & m_compontents_.m_values;
