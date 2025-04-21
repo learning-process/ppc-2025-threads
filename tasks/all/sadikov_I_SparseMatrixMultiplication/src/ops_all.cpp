@@ -102,7 +102,7 @@ bool sadikov_i_sparse_matrix_multiplication_task_all::CCSMatrixALL::RunImpl() {
     }
     std::ranges::for_each(intermediate_component.m_elementsSum, [&](auto &element) {
       if (element != 0) {
-        component.m_elementsSum.emplace_back(element);
+        component.m_elementsSum.emplace_back(element - 1);
       }
     });
     std::erase_if(component.m_values, [&](auto &value) { return value == 0.0; });

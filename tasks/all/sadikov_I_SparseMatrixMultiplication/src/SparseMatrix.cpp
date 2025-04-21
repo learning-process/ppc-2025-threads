@@ -75,6 +75,9 @@ MatrixComponents SparseMatrix::Multiplicate(const SparseMatrix& first_matrix, co
                                            (barier - second_displacement) / ppc::util::GetPPCNumThreads()),
         [&](const oneapi::tbb::blocked_range<size_t>& range) {
           for (size_t i = range.begin(); i != range.end(); ++i) {
+            if (component.m_elementsSum[i] == 0) {
+              component.m_elementsSum[i]++;
+            }
             for (size_t j = 0; j < first_matrix.GetElementsSum().size(); ++j) {
               double sum = CalculateSum(first_matrix, second_matrix, first_matrix.GetElementsSum(),
                                         second_matrix.GetElementsSum(), static_cast<int>(i), static_cast<int>(j));
