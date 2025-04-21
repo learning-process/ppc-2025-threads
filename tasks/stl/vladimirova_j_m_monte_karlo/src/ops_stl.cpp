@@ -58,10 +58,13 @@ bool vladimirova_j_m_monte_karlo_stl::TestTaskStl::RunImpl() {
   size_t successful_point = 0;
 
   size_t count_t = ppc::util::GetPPCNumThreads();
+  if (count_t == 0) {
+    return false;
+  }
   std::vector<std::thread> threads(count_t);
   std::vector<size_t> local_res(count_t, 0);
 
-  size_t dl = accuracy_ / (count_t + (size_t)(count_t == 0));
+  size_t dl = accuracy_ / count_t;
 
   for (size_t i = 1; i < count_t; i++) {
     local_res[i] = dl;
