@@ -67,11 +67,11 @@ bool FoxSeq::RunImpl() {
         // block calc
         for (size_t row = 0; row < k_; row++) {
           for (size_t col = 0; col < k_; col++) {
-			if (n_ - (k_ * j) < k_ && col >= n_ - (k_ * j)) {
-			  break;
-			}
+            if (n_ - (k_ * j) < k_ && col >= n_ - (k_ * j)) {
+              break;
+            }
             for (size_t m = 0; m < k_; m++) {
-              output_[(row + (i * k_)) * n_ + (col + (j * k_))] +=
+              output_[((row + (i * k_)) * n_) + (col + (j * k_))] +=
                   AtA((i * k_) + row, div1 + m) * AtB(div1 + m, (j * k_) + col);
             }
           }
