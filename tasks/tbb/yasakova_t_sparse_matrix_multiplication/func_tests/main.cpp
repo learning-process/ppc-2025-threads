@@ -479,7 +479,7 @@ TEST(yasakova_t_sparse_matrix_multiplication, MultiplySingleElementMatrices) {
 
   first_matrix.InsertElement(0, ComplexNumber(2, 3), 0);
   second_matrix.InsertElement(0, ComplexNumber(4, 5), 0);
-  
+
   first_matrix_data = yasakova_t_sparse_matrix_multiplication::ConvertMatrixToVector(first_matrix);
   second_matrix_data = yasakova_t_sparse_matrix_multiplication::ConvertMatrixToVector(second_matrix);
   input_data.reserve(first_matrix_data.size() + second_matrix_data.size());
