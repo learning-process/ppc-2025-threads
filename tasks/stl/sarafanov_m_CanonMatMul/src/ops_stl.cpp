@@ -3,8 +3,8 @@
 #include <algorithm>
 #include <cmath>
 #include <cstddef>
-#include <iostream>
 #include <thread>
+#include <utility>
 #include <vector>
 
 #include "core/util/include/util.hpp"
@@ -100,7 +100,7 @@ bool sarafanov_m_canon_mat_mul_stl::CanonMatMulOMP::RunImpl() {
   for (size_t i = 0; i < threads.size(); ++i) {
     threads[i] =
         std::thread(multiplicator, i * data_amount.step_size,
-                    i == threads.size() - 1 ? (i + 1) * data_amount.step_size + data_amount.residual_data_amount
+                    i == threads.size() - 1 ? ((i + 1) * data_amount.step_size) + data_amount.residual_data_amount
                                             : (i + 1) * data_amount.step_size,
                     i);
   }
