@@ -12,7 +12,7 @@
 #include "all/sadikov_I_SparseMatrixMultiplication/include/SparseMatrix.hpp"
 #include "all/sadikov_I_SparseMatrixMultiplication/include/ops_all.hpp"
 #include "core/task/include/task.hpp"
-
+// restart tests
 namespace {
 std::vector<double> GetRandomMatrix(int size) {
   std::vector<double> data(size);
