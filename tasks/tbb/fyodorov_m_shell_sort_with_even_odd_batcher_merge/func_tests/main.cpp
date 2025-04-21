@@ -234,3 +234,11 @@ TEST(fyodorov_m_shell_sort_with_even_odd_batcher_merge_tbb, test_single_element_
 
   EXPECT_EQ(output, expected_output);
 }
+
+TEST(fyodorov_m_shell_sort_with_even_odd_batcher_merge_tbb, HandlesDuplicateElements) {
+  std::vector<int> left = {1, 2, 2};
+  std::vector<int> right = {2, 3, 4};
+  std::vector<int> result(6);
+  fyodorov_m_shell_sort_with_even_odd_batcher_merge_tbb::TestTaskTBB::CallBatcherMerge(left, right, result);
+  EXPECT_EQ(result, std::vector<int>({1, 2, 2, 2, 3, 4}));
+}
