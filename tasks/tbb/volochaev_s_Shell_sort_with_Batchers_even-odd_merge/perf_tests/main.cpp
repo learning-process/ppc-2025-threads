@@ -11,7 +11,7 @@
 
 #include "core/perf/include/perf.hpp"
 #include "core/task/include/task.hpp"
-#include "seq/volochaev_s_Shell_sort_with_Batchers_even-odd_merge/include/ops_seq.hpp"
+#include "tbb/volochaev_s_Shell_sort_with_Batchers_even-odd_merge/include/ops_tbb.hpp"
 
 namespace {
 void GetRandomVector(std::vector<int> &v, int a, int b) {
@@ -29,7 +29,7 @@ void GetRandomVector(std::vector<int> &v, int a, int b) {
 }
 }  // namespace
 
-TEST(volochaev_s_Shell_sort_with_Batchers_even_odd_merge_seq, test_pipeline_run) {
+TEST(volochaev_s_Shell_sort_with_Batchers_even_odd_merge_tbb, test_pipeline_run) {
   constexpr int kSizeOfVector = 50000;
 
   // Create data
@@ -48,7 +48,7 @@ TEST(volochaev_s_Shell_sort_with_Batchers_even_odd_merge_seq, test_pipeline_run)
 
   // Create Task
   auto test_task_sequential =
-      std::make_shared<volochaev_s_shell_sort_with_batchers_even_odd_merge_seq::ShellSortSequential>(task_data_seq);
+      std::make_shared<volochaev_s_shell_sort_with_batchers_even_odd_merge_tbb::ShellSortTBB>(task_data_seq);
 
   // Create Perf attributes
   auto perf_attr = std::make_shared<ppc::core::PerfAttr>();
@@ -70,7 +70,7 @@ TEST(volochaev_s_Shell_sort_with_Batchers_even_odd_merge_seq, test_pipeline_run)
   ASSERT_EQ(ans, out);
 }
 
-TEST(volochaev_s_Shell_sort_with_Batchers_even_odd_merge_seq, test_task_run) {
+TEST(volochaev_s_Shell_sort_with_Batchers_even_odd_merge_tbb, test_task_run) {
   constexpr int kSizeOfVector = 50000;
 
   // Create data
@@ -89,7 +89,7 @@ TEST(volochaev_s_Shell_sort_with_Batchers_even_odd_merge_seq, test_task_run) {
 
   // Create Task
   auto test_task_sequential =
-      std::make_shared<volochaev_s_shell_sort_with_batchers_even_odd_merge_seq::ShellSortSequential>(task_data_seq);
+      std::make_shared<volochaev_s_shell_sort_with_batchers_even_odd_merge_tbb::ShellSortTBB>(task_data_seq);
 
   // Create Perf attributes
   auto perf_attr = std::make_shared<ppc::core::PerfAttr>();
