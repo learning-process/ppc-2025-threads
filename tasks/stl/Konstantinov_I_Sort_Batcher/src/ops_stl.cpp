@@ -43,7 +43,7 @@ void RadixSorted(std::vector<double>& arr) {
   size_t block_size = (n + thread_count - 1) / thread_count;
   std::vector<std::thread> threads;
   threads.reserve(thread_count);
-  for (int t = 0; t < thread_count; ++t) {
+  for (unsigned int t = 0; t < thread_count; ++t) {
     threads.emplace_back([&arr, &keys, t, block_size, n]() {
       size_t begin = t * block_size;
       size_t end = std::min(begin + block_size, n);
@@ -79,7 +79,7 @@ void RadixSorted(std::vector<double>& arr) {
   }
 
   threads.clear();
-  for (int t = 0; t < thread_count; ++t) {
+  for (unsigned int t = 0; t < thread_count; ++t) {
     threads.emplace_back([&arr, &keys, t, block_size, n]() {
       size_t begin = t * block_size;
       size_t end = std::min(begin + block_size, n);
