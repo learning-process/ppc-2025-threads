@@ -13,8 +13,8 @@
 
 TEST(yasakova_t_sparse_matrix_multiplication_tbb, test_pipeline_run) {
   srand(time(nullptr));
-  yasakova_t_sparse_matrix_multiplication::CompressedRowStorageMatrix first_matrix(400, 400);
-  yasakova_t_sparse_matrix_multiplication::CompressedRowStorageMatrix second_matrix(400, 400);
+  yasakova_t_sparse_matrix_multiplication::CompressedRowStorageMatrix first_matrix(500, 500);
+  yasakova_t_sparse_matrix_multiplication::CompressedRowStorageMatrix second_matrix(500, 500);
   std::vector<ComplexNumber> input_data = {};
   std::vector<ComplexNumber> first_matrix_data;
   std::vector<ComplexNumber> second_matrix_data;
@@ -65,8 +65,8 @@ TEST(yasakova_t_sparse_matrix_multiplication_tbb, test_pipeline_run) {
 
 TEST(yasakova_t_sparse_matrix_multiplication_tbb, test_task_run) {
   srand(time(nullptr));
-  yasakova_t_sparse_matrix_multiplication::CompressedRowStorageMatrix first_matrix(400, 400);
-  yasakova_t_sparse_matrix_multiplication::CompressedRowStorageMatrix second_matrix(400, 400);
+  yasakova_t_sparse_matrix_multiplication::CompressedRowStorageMatrix first_matrix(500, 500);
+  yasakova_t_sparse_matrix_multiplication::CompressedRowStorageMatrix second_matrix(500, 500);
   std::vector<ComplexNumber> input_data = {};
   std::vector<ComplexNumber> first_matrix_data;
   std::vector<ComplexNumber> second_matrix_data;
