@@ -97,17 +97,17 @@ TEST(muhina_m_dijkstra_stl, test_dijkstra_small_graph) {
     }
     graph_data.push_back(-1);
   }
-  auto task_data_stl = std::make_shared<ppc::core::TaskData>();
-  task_data_stl->inputs.emplace_back(reinterpret_cast<uint8_t*>(graph_data.data()));
-  task_data_stl->inputs_count.emplace_back(graph_data.size());
+  auto task_data_tbb = std::make_shared<ppc::core::TaskData>();
+  task_data_tbb->inputs.emplace_back(reinterpret_cast<uint8_t*>(graph_data.data()));
+  task_data_tbb->inputs_count.emplace_back(graph_data.size());
 
-  task_data_stl->inputs.emplace_back(reinterpret_cast<uint8_t*>(&start_vertex));
-  task_data_stl->inputs_count.emplace_back(sizeof(start_vertex));
+  task_data_tbb->inputs.emplace_back(reinterpret_cast<uint8_t*>(&start_vertex));
+  task_data_tbb->inputs_count.emplace_back(sizeof(start_vertex));
 
-  task_data_stl->outputs.emplace_back(reinterpret_cast<uint8_t*>(distances.data()));
-  task_data_stl->outputs_count.emplace_back(kNumVertices);
+  task_data_tbb->outputs.emplace_back(reinterpret_cast<uint8_t*>(distances.data()));
+  task_data_tbb->outputs_count.emplace_back(kNumVertices);
 
-  muhina_m_dijkstra_stl::TestTaskSTL task_task_stl(task_data_stl);
+  muhina_m_dijkstra_stl::TestTaskSTL task_task_stl(task_data_tbb);
   ASSERT_TRUE(task_task_stl.Validation());
   task_task_stl.PreProcessing();
   ASSERT_TRUE(task_task_stl.Run());
@@ -125,17 +125,17 @@ TEST(muhina_m_dijkstra_stl, test_dijkstra_validation_failure) {
   size_t num_vertices = 0;
   std::vector<int> distances(num_vertices, INT_MAX);
 
-  auto task_data_stl = std::make_shared<ppc::core::TaskData>();
-  task_data_stl->inputs.emplace_back(reinterpret_cast<uint8_t*>(graph_data.data()));
-  task_data_stl->inputs_count.emplace_back(graph_data.size());
+  auto task_data_tbb = std::make_shared<ppc::core::TaskData>();
+  task_data_tbb->inputs.emplace_back(reinterpret_cast<uint8_t*>(graph_data.data()));
+  task_data_tbb->inputs_count.emplace_back(graph_data.size());
 
-  task_data_stl->inputs.emplace_back(reinterpret_cast<uint8_t*>(&start_vertex));
-  task_data_stl->inputs_count.emplace_back(sizeof(start_vertex));
+  task_data_tbb->inputs.emplace_back(reinterpret_cast<uint8_t*>(&start_vertex));
+  task_data_tbb->inputs_count.emplace_back(sizeof(start_vertex));
 
-  task_data_stl->outputs.emplace_back(reinterpret_cast<uint8_t*>(distances.data()));
-  task_data_stl->outputs_count.emplace_back(num_vertices);
+  task_data_tbb->outputs.emplace_back(reinterpret_cast<uint8_t*>(distances.data()));
+  task_data_tbb->outputs_count.emplace_back(num_vertices);
 
-  muhina_m_dijkstra_stl::TestTaskSTL task_task_stl(task_data_stl);
+  muhina_m_dijkstra_stl::TestTaskSTL task_task_stl(task_data_tbb);
 
   ASSERT_FALSE(task_task_stl.Validation());
 }
@@ -165,17 +165,17 @@ TEST(muhina_m_dijkstra_stl, test_dijkstra_small_graph_non_zero_start) {
     graph_data.push_back(-1);
   }
 
-  auto task_data_stl = std::make_shared<ppc::core::TaskData>();
-  task_data_stl->inputs.emplace_back(reinterpret_cast<uint8_t*>(graph_data.data()));
-  task_data_stl->inputs_count.emplace_back(graph_data.size());
+  auto task_data_tbb = std::make_shared<ppc::core::TaskData>();
+  task_data_tbb->inputs.emplace_back(reinterpret_cast<uint8_t*>(graph_data.data()));
+  task_data_tbb->inputs_count.emplace_back(graph_data.size());
 
-  task_data_stl->inputs.emplace_back(reinterpret_cast<uint8_t*>(&start_vertex));
-  task_data_stl->inputs_count.emplace_back(sizeof(start_vertex));
+  task_data_tbb->inputs.emplace_back(reinterpret_cast<uint8_t*>(&start_vertex));
+  task_data_tbb->inputs_count.emplace_back(sizeof(start_vertex));
 
-  task_data_stl->outputs.emplace_back(reinterpret_cast<uint8_t*>(distances.data()));
-  task_data_stl->outputs_count.emplace_back(kNumVertices);
+  task_data_tbb->outputs.emplace_back(reinterpret_cast<uint8_t*>(distances.data()));
+  task_data_tbb->outputs_count.emplace_back(kNumVertices);
 
-  muhina_m_dijkstra_stl::TestTaskSTL task_task_stl(task_data_stl);
+  muhina_m_dijkstra_stl::TestTaskSTL task_task_stl(task_data_tbb);
   ASSERT_TRUE(task_task_stl.Validation());
   task_task_stl.PreProcessing();
   ASSERT_TRUE(task_task_stl.Run());
@@ -209,17 +209,17 @@ TEST(muhina_m_dijkstra_stl, test_negative_weight) {
     }
     graph_data.push_back(-1);
   }
-  auto task_data_stl = std::make_shared<ppc::core::TaskData>();
-  task_data_stl->inputs.emplace_back(reinterpret_cast<uint8_t*>(graph_data.data()));
-  task_data_stl->inputs_count.emplace_back(graph_data.size());
+  auto task_data_tbb = std::make_shared<ppc::core::TaskData>();
+  task_data_tbb->inputs.emplace_back(reinterpret_cast<uint8_t*>(graph_data.data()));
+  task_data_tbb->inputs_count.emplace_back(graph_data.size());
 
-  task_data_stl->inputs.emplace_back(reinterpret_cast<uint8_t*>(&start_vertex));
-  task_data_stl->inputs_count.emplace_back(sizeof(start_vertex));
+  task_data_tbb->inputs.emplace_back(reinterpret_cast<uint8_t*>(&start_vertex));
+  task_data_tbb->inputs_count.emplace_back(sizeof(start_vertex));
 
-  task_data_stl->outputs.emplace_back(reinterpret_cast<uint8_t*>(distances.data()));
-  task_data_stl->outputs_count.emplace_back(kNumVertices);
+  task_data_tbb->outputs.emplace_back(reinterpret_cast<uint8_t*>(distances.data()));
+  task_data_tbb->outputs_count.emplace_back(kNumVertices);
 
-  muhina_m_dijkstra_stl::TestTaskSTL task_task_stl(task_data_stl);
+  muhina_m_dijkstra_stl::TestTaskSTL task_task_stl(task_data_tbb);
   ASSERT_TRUE(task_task_stl.Validation());
   task_task_stl.PreProcessing();
   ASSERT_FALSE(task_task_stl.Run());
@@ -242,17 +242,17 @@ TEST(muhina_m_dijkstra_stl, test_dijkstra_random_graph) {
     }
     graph_data.push_back(-1);
   }
-  auto task_data_stl = std::make_shared<ppc::core::TaskData>();
-  task_data_stl->inputs.emplace_back(reinterpret_cast<uint8_t*>(graph_data.data()));
-  task_data_stl->inputs_count.emplace_back(graph_data.size());
+  auto task_data_tbb = std::make_shared<ppc::core::TaskData>();
+  task_data_tbb->inputs.emplace_back(reinterpret_cast<uint8_t*>(graph_data.data()));
+  task_data_tbb->inputs_count.emplace_back(graph_data.size());
 
-  task_data_stl->inputs.emplace_back(reinterpret_cast<uint8_t*>(&start_vertex));
-  task_data_stl->inputs_count.emplace_back(sizeof(start_vertex));
+  task_data_tbb->inputs.emplace_back(reinterpret_cast<uint8_t*>(&start_vertex));
+  task_data_tbb->inputs_count.emplace_back(sizeof(start_vertex));
 
-  task_data_stl->outputs.emplace_back(reinterpret_cast<uint8_t*>(distances.data()));
-  task_data_stl->outputs_count.emplace_back(num_vertices);
+  task_data_tbb->outputs.emplace_back(reinterpret_cast<uint8_t*>(distances.data()));
+  task_data_tbb->outputs_count.emplace_back(num_vertices);
 
-  muhina_m_dijkstra_stl::TestTaskSTL task_task_stl(task_data_stl);
+  muhina_m_dijkstra_stl::TestTaskSTL task_task_stl(task_data_tbb);
   ASSERT_TRUE(task_task_stl.Validation());
   task_task_stl.PreProcessing();
   ASSERT_TRUE(task_task_stl.Run());
@@ -270,15 +270,15 @@ TEST(muhina_m_dijkstra_stl, single_vertex_graph) {
   std::vector<int> graph_data = {-1};
   std::vector<int> distances(1, INT_MAX);
 
-  auto task_data_stl = std::make_shared<ppc::core::TaskData>();
-  task_data_stl->inputs.emplace_back(reinterpret_cast<uint8_t*>(graph_data.data()));
-  task_data_stl->inputs_count.emplace_back(graph_data.size());
-  task_data_stl->inputs.emplace_back(reinterpret_cast<uint8_t*>(&start_vertex));
-  task_data_stl->inputs_count.emplace_back(sizeof(start_vertex));
-  task_data_stl->outputs.emplace_back(reinterpret_cast<uint8_t*>(distances.data()));
-  task_data_stl->outputs_count.emplace_back(1);
+  auto task_data_tbb = std::make_shared<ppc::core::TaskData>();
+  task_data_tbb->inputs.emplace_back(reinterpret_cast<uint8_t*>(graph_data.data()));
+  task_data_tbb->inputs_count.emplace_back(graph_data.size());
+  task_data_tbb->inputs.emplace_back(reinterpret_cast<uint8_t*>(&start_vertex));
+  task_data_tbb->inputs_count.emplace_back(sizeof(start_vertex));
+  task_data_tbb->outputs.emplace_back(reinterpret_cast<uint8_t*>(distances.data()));
+  task_data_tbb->outputs_count.emplace_back(1);
 
-  muhina_m_dijkstra_stl::TestTaskSTL task_task_stl(task_data_stl);
+  muhina_m_dijkstra_stl::TestTaskSTL task_task_stl(task_data_tbb);
   ASSERT_TRUE(task_task_stl.Validation());
   task_task_stl.PreProcessing();
   ASSERT_TRUE(task_task_stl.Run());
@@ -317,17 +317,17 @@ TEST(muhina_m_dijkstra_stl, two_connected_components) {
     graph_data.push_back(-1);
   }
 
-  auto task_data_stl = std::make_shared<ppc::core::TaskData>();
-  task_data_stl->inputs.emplace_back(reinterpret_cast<uint8_t*>(graph_data.data()));
-  task_data_stl->inputs_count.emplace_back(graph_data.size());
+  auto task_data_tbb = std::make_shared<ppc::core::TaskData>();
+  task_data_tbb->inputs.emplace_back(reinterpret_cast<uint8_t*>(graph_data.data()));
+  task_data_tbb->inputs_count.emplace_back(graph_data.size());
 
-  task_data_stl->inputs.emplace_back(reinterpret_cast<uint8_t*>(&start_vertex));
-  task_data_stl->inputs_count.emplace_back(sizeof(start_vertex));
+  task_data_tbb->inputs.emplace_back(reinterpret_cast<uint8_t*>(&start_vertex));
+  task_data_tbb->inputs_count.emplace_back(sizeof(start_vertex));
 
-  task_data_stl->outputs.emplace_back(reinterpret_cast<uint8_t*>(distances.data()));
-  task_data_stl->outputs_count.emplace_back(kNumVertices);
+  task_data_tbb->outputs.emplace_back(reinterpret_cast<uint8_t*>(distances.data()));
+  task_data_tbb->outputs_count.emplace_back(kNumVertices);
 
-  muhina_m_dijkstra_stl::TestTaskSTL task_task_stl(task_data_stl);
+  muhina_m_dijkstra_stl::TestTaskSTL task_task_stl(task_data_tbb);
   ASSERT_TRUE(task_task_stl.Validation());
   task_task_stl.PreProcessing();
   ASSERT_TRUE(task_task_stl.Run());
@@ -356,17 +356,17 @@ TEST(muhina_m_dijkstra_stl, test_default_start_vertex) {
 
   std::vector<int> distances(kNumVertices, INT_MAX);
 
-  auto task_data_stl = std::make_shared<ppc::core::TaskData>();
-  task_data_stl->inputs.emplace_back(reinterpret_cast<uint8_t*>(graph_data.data()));
-  task_data_stl->inputs_count.emplace_back(graph_data.size());
+  auto task_data_tbb = std::make_shared<ppc::core::TaskData>();
+  task_data_tbb->inputs.emplace_back(reinterpret_cast<uint8_t*>(graph_data.data()));
+  task_data_tbb->inputs_count.emplace_back(graph_data.size());
 
-  task_data_stl->inputs.emplace_back(nullptr);
-  task_data_stl->inputs_count.emplace_back(0);
+  task_data_tbb->inputs.emplace_back(nullptr);
+  task_data_tbb->inputs_count.emplace_back(0);
 
-  task_data_stl->outputs.emplace_back(reinterpret_cast<uint8_t*>(distances.data()));
-  task_data_stl->outputs_count.emplace_back(kNumVertices);
+  task_data_tbb->outputs.emplace_back(reinterpret_cast<uint8_t*>(distances.data()));
+  task_data_tbb->outputs_count.emplace_back(kNumVertices);
 
-  muhina_m_dijkstra_stl::TestTaskSTL task_task_stl(task_data_stl);
+  muhina_m_dijkstra_stl::TestTaskSTL task_task_stl(task_data_tbb);
   ASSERT_TRUE(task_task_stl.Validation());
   task_task_stl.PreProcessing();
   ASSERT_TRUE(task_task_stl.Run());
