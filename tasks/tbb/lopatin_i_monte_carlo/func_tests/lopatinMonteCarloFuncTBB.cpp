@@ -296,7 +296,11 @@ TEST(lopatin_i_monte_carlo_tbb, 2DCosineFunction) {
 
 TEST(lopatin_i_monte_carlo_tbb, 2DSqrtFunction) {
   const int dimensions = 2;
+<<<<<<< HEAD
   const int iterations = 50000;
+=======
+  const int iterations = 30000;
+>>>>>>> master
   std::vector<double> bounds = lopatin_i_monte_carlo_tbb::GenerateBounds(0.0, 1.0, dimensions);
 
   auto task_data = std::make_shared<ppc::core::TaskData>();
