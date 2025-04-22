@@ -11,24 +11,6 @@
 #include "core/task/include/task.hpp"
 #include "tbb/yasakova_t_sparse_matrix_multiplication/include/ops_tbb.hpp"
 
-namespace {
-yasakova_t_sparse_matrix_multiplication::CompressedRowStorageMatrix GenMatrix(
-    unsigned int num_rows, unsigned int num_cols, unsigned int left_border_row, unsigned int right_border_row,
-    unsigned int left_border_col, unsigned int right_border_col, int min_value, int max_value) {
-  if (left_border_row > right_border_row || left_border_col > right_border_col || right_border_row > num_rows ||
-      right_border_col > num_cols || min_value > max_value) {
-    throw("ERROR!");
-  }
-  yasakova_t_sparse_matrix_multiplication::CompressedRowStorageMatrix first_matrix((int)num_rows, (int)num_cols);
-  for (unsigned int i = left_border_row; i < right_border_row; i++) {
-    for (unsigned int j = left_border_col; j < right_border_col; j++) {
-      first_matrix.InsertElement(
-          (int)i, ComplexNumber(min_value + (rand() % max_value), min_value + (rand() % max_value)), (int)j);
-    }
-  }
-  return first_matrix;
-}
-}  // namespace
 TEST(yasakova_t_sparse_matrix_multiplication_tbb, test_pipeline_run) {
   srand(time(nullptr));
   yasakova_t_sparse_matrix_multiplication::CompressedRowStorageMatrix first_matrix(400, 400);
@@ -38,8 +20,8 @@ TEST(yasakova_t_sparse_matrix_multiplication_tbb, test_pipeline_run) {
   std::vector<ComplexNumber> second_matrix_data;
   std::vector<ComplexNumber> output_data(first_matrix.columnCount * second_matrix.rowCount * 100, 0);
 
-  first_matrix = ::GenMatrix(400, 400, 0, 150, 0, 150, -100, 100);
-  second_matrix = ::GenMatrix(400, 400, 50, 140, 50, 150, -100, 100);
+  first_matrix = GenMatrix(400, 400, 0, 150, 0, 150, -100, 100);
+  second_matrix = GenMatrix(400, 400, 50, 140, 50, 150, -100, 100);
   first_matrix_data = yasakova_t_sparse_matrix_multiplication::ConvertMatrixToVector(first_matrix);
   second_matrix_data = yasakova_t_sparse_matrix_multiplication::ConvertMatrixToVector(second_matrix);
   input_data.reserve(first_matrix_data.size() + second_matrix_data.size());
@@ -90,8 +72,8 @@ TEST(yasakova_t_sparse_matrix_multiplication_tbb, test_task_run) {
   std::vector<ComplexNumber> second_matrix_data;
   std::vector<ComplexNumber> output_data(first_matrix.columnCount * second_matrix.rowCount * 100, 0);
 
-  first_matrix = ::GenMatrix(400, 400, 0, 150, 0, 150, -100, 100);
-  second_matrix = ::GenMatrix(400, 400, 50, 140, 50, 150, -100, 100);
+  first_matrix = GenMatrix(400, 400, 0, 150, 0, 150, -100, 100);
+  second_matrix = GenMatrix(400, 400, 50, 140, 50, 150, -100, 100);
   first_matrix_data = yasakova_t_sparse_matrix_multiplication::ConvertMatrixToVector(first_matrix);
   second_matrix_data = yasakova_t_sparse_matrix_multiplication::ConvertMatrixToVector(second_matrix);
   input_data.reserve(first_matrix_data.size() + second_matrix_data.size());

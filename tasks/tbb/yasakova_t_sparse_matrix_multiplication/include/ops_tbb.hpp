@@ -6,6 +6,23 @@
 
 using ComplexNumber = std::complex<double>;
 
+yasakova_t_sparse_matrix_multiplication::CompressedRowStorageMatrix GenMatrix(
+  unsigned int num_rows, unsigned int num_cols, unsigned int left_border_row, unsigned int right_border_row,
+  unsigned int left_border_col, unsigned int right_border_col, int min_value, int max_value) {
+if (left_border_row > right_border_row || left_border_col > right_border_col || right_border_row > num_rows ||
+    right_border_col > num_cols || min_value > max_value) {
+  throw("ERROR!");
+}
+yasakova_t_sparse_matrix_multiplication::CompressedRowStorageMatrix first_matrix((int)num_rows, (int)num_cols);
+for (unsigned int i = left_border_row; i < right_border_row; i++) {
+  for (unsigned int j = left_border_col; j < right_border_col; j++) {
+    first_matrix.InsertElement(
+        (int)i, ComplexNumber(min_value + (rand() % max_value), min_value + (rand() % max_value)), (int)j);
+  }
+}
+return first_matrix;
+}
+
 namespace yasakova_t_sparse_matrix_multiplication {
 
 struct CompressedRowStorageMatrix {
