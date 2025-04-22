@@ -33,14 +33,16 @@ double KeyToDouble(uint64_t key) {
 }
 
 void RadixSorted(std::vector<double>& arr) {
-  if (arr.empty()) return;
-
+  if (arr.empty()) {
+    return;
+  }
   size_t n = arr.size();
   std::vector<uint64_t> keys(n);
 
-  const int thread_count = std::thread::hardware_concurrency();
+  const auto thread_count = std::thread::hardware_concurrency();
   size_t block_size = (n + thread_count - 1) / thread_count;
   std::vector<std::thread> threads;
+  threads.reserve(thread_count);
   for (int t = 0; t < thread_count; ++t) {
     threads.emplace_back([&arr, &keys, t, block_size, n]() {
       size_t begin = t * block_size;
@@ -50,8 +52,9 @@ void RadixSorted(std::vector<double>& arr) {
       }
     });
   }
-  for (auto& th : threads) th.join();
-
+  for (auto& th : threads) {
+    th.join();
+  }
   const int radix = 256;
   std::vector<uint64_t> output_keys(n);
   for (int pass = 0; pass < 8; ++pass) {
@@ -59,7 +62,7 @@ void RadixSorted(std::vector<double>& arr) {
     std::vector<size_t> count(radix, 0);
 
     for (size_t i = 0; i < n; ++i) {
-      uint8_t byte = static_cast<uint8_t>((keys[i] >> shift) & 0xFF);
+      auto byte = static_cast<uint8_t>((keys[i] >> shift) & 0xFF);
       count[byte]++;
     }
 
@@ -68,7 +71,7 @@ void RadixSorted(std::vector<double>& arr) {
     }
 
     for (int i = static_cast<int>(n) - 1; i >= 0; --i) {
-      uint8_t byte = static_cast<uint8_t>((keys[i] >> shift) & 0xFF);
+      auto byte = static_cast<uint8_t>((keys[i] >> shift) & 0xFF);
       output_keys[--count[byte]] = keys[i];
     }
 
@@ -85,12 +88,15 @@ void RadixSorted(std::vector<double>& arr) {
       }
     });
   }
-  for (auto& th : threads) th.join();
+  for (auto& th : threads) {
+    th.join();
+  }
 }
 
 void BatcherOddEvenMerge(std::vector<double>& arr, int low, int high) {
-  if (high - low <= 1) return;
-
+  if (high - low <= 1) {
+    return;
+  }
   int mid = (low + high) / 2;
 
   BatcherOddEvenMerge(arr, low, mid);
