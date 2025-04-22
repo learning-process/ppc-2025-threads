@@ -506,3 +506,51 @@ TEST(yasakova_t_sparse_matrix_multiplication, MultiplyLargeSparseMatrices) {
   }
   ASSERT_FALSE(all_zeros);
 }
+
+TEST(yasakova_t_sparse_matrix_multiplication, MultiplyByIdentityMatrix) {
+  // Создаем произвольную разреженную матрицу 3x3
+  yasakova_t_sparse_matrix_multiplication::CompressedRowStorageMatrix input_matrix(3, 3);
+  input_matrix.InsertElement(0, ComplexNumber(1, 2), 1);
+  input_matrix.InsertElement(1, ComplexNumber(3, 4), 0);
+  input_matrix.InsertElement(1, ComplexNumber(5, 6), 2);
+  input_matrix.InsertElement(2, ComplexNumber(7, 8), 1);
+
+  // Создаем единичную матрицу 3x3
+  yasakova_t_sparse_matrix_multiplication::CompressedRowStorageMatrix identity_matrix(3, 3);
+  identity_matrix.InsertElement(0, ComplexNumber(1, 0), 0);
+  identity_matrix.InsertElement(1, ComplexNumber(1, 0), 1);
+  identity_matrix.InsertElement(2, ComplexNumber(1, 0), 2);
+
+  // Подготавливаем входные данные
+  std::vector<ComplexNumber> input_data;
+  auto input_matrix_data = yasakova_t_sparse_matrix_multiplication::ConvertMatrixToVector(input_matrix);
+  auto identity_matrix_data = yasakova_t_sparse_matrix_multiplication::ConvertMatrixToVector(identity_matrix);
+  
+  input_data.reserve(input_matrix_data.size() + identity_matrix_data.size());
+  input_data.insert(input_data.end(), input_matrix_data.begin(), input_matrix_data.end());
+  input_data.insert(input_data.end(), identity_matrix_data.begin(), identity_matrix_data.end());
+
+  // Выходной буфер
+  std::vector<ComplexNumber> output_data(input_matrix.rowCount * identity_matrix.columnCount * 2, 0);
+
+  // Создаем task_data
+  auto task_data_tbb = std::make_shared<ppc::core::TaskData>();
+  task_data_tbb->inputs.emplace_back(reinterpret_cast<uint8_t*>(input_data.data()));
+  task_data_tbb->inputs_count.emplace_back(input_data.size());
+  task_data_tbb->outputs.emplace_back(reinterpret_cast<uint8_t*>(output_data.data()));
+  task_data_tbb->outputs_count.emplace_back(output_data.size());
+
+  // Создаем и выполняем задачу
+  yasakova_t_sparse_matrix_multiplication::TestTaskTBB test_task_tbb(task_data_tbb);
+  
+  ASSERT_EQ(test_task_tbb.Validation(), true);
+  test_task_tbb.PreProcessing();
+  test_task_tbb.Run();
+  test_task_tbb.PostProcessing();
+
+  // Проверяем, что результат равен исходной матрице
+  yasakova_t_sparse_matrix_multiplication::CompressedRowStorageMatrix result_matrix =
+      yasakova_t_sparse_matrix_multiplication::ConvertVectorToMatrix(output_data);
+  
+  ASSERT_TRUE(yasakova_t_sparse_matrix_multiplication::CompareMatrices(result_matrix, input_matrix));
+}
