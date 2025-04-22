@@ -7,17 +7,16 @@
 
 namespace ermilova_d_shell_sort_batcher_even_odd_merger_seq {
 
-class TestTaskSequential : public ppc::core::Task {
+class SequentialTask : public ppc::core::Task {
  public:
-  explicit TestTaskSequential(ppc::core::TaskDataPtr task_data) : Task(std::move(task_data)) {}
+  explicit SequentialTask(ppc::core::TaskDataPtr task_data) : Task(std::move(task_data)) {}
   bool PreProcessingImpl() override;
   bool ValidationImpl() override;
   bool RunImpl() override;
   bool PostProcessingImpl() override;
 
  private:
-  std::vector<int> input_, output_;
-  bool is_descending_;
+  std::vector<int> data_;
 };
 
 }  // namespace ermilova_d_shell_sort_batcher_even_odd_merger_seq
