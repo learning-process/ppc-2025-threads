@@ -6,6 +6,7 @@
 #include <boost/mpi/collectives/scatterv.hpp>
 #include <boost/serialization/vector.hpp>  // NOLINT(*-include-cleaner)
 #include <cstddef>
+#include <functional>
 #include <queue>
 #include <random>
 #include <tuple>
@@ -97,7 +98,7 @@ bool nikolaev_r_hoare_sort_simple_merge_all::HoareSortSimpleMergeALL::
   if (rank == 0) {
     std::vector<double> global_sorted;
     using HeapElem = std::tuple<double, int, size_t>;
-    std::priority_queue<HeapElem, std::vector<HeapElem>, std::greater<HeapElem>> min_heap;
+    std::priority_queue<HeapElem, std::vector<HeapElem>, std::greater<>> min_heap;
 
     for (int i = 0; i < static_cast<int>(gathered.size()); ++i) {
       if (!gathered[i].empty()) {
