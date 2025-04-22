@@ -1,6 +1,7 @@
 #include <complex>
 #include <utility>
 #include <vector>
+#include <cstdlib>
 
 #include "core/task/include/task.hpp"
 
@@ -43,7 +44,7 @@ class TestTaskTBB : public ppc::core::Task {
 
 }  // namespace yasakova_t_sparse_matrix_multiplication
 
-yasakova_t_sparse_matrix_multiplication::CompressedRowStorageMatrix GenMatrix(
+inline yasakova_t_sparse_matrix_multiplication::CompressedRowStorageMatrix GenMatrix(
     unsigned int num_rows, unsigned int num_cols, unsigned int left_border_row, unsigned int right_border_row,
     unsigned int left_border_col, unsigned int right_border_col, int min_value, int max_value) {
   if (left_border_row > right_border_row || left_border_col > right_border_col || right_border_row > num_rows ||
