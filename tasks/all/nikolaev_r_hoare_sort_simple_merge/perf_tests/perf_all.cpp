@@ -5,6 +5,7 @@
 #include <cstdint>
 #include <memory>
 #include <random>
+#include <ranges>
 #include <vector>
 
 #include "../include/ops_all.hpp"

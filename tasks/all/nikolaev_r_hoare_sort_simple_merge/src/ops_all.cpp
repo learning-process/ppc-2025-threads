@@ -97,8 +97,7 @@ bool nikolaev_r_hoare_sort_simple_merge_all::HoareSortSimpleMergeALL::
   if (rank == 0) {
     std::vector<double> global_sorted;
     using HeapElem = std::tuple<double, int, size_t>;
-    auto cmp = [](const HeapElem &a, const HeapElem &b) { return std::get<0>(a) > std::get<0>(b); };
-    std::priority_queue<HeapElem, std::vector<HeapElem>, decltype(cmp)> min_heap(cmp);
+    std::priority_queue<HeapElem, std::vector<HeapElem>, std::greater<HeapElem>> min_heap;
 
     for (int i = 0; i < static_cast<int>(gathered.size()); ++i) {
       if (!gathered[i].empty()) {
