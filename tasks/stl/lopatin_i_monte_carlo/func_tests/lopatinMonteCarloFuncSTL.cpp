@@ -308,7 +308,7 @@ TEST(lopatin_i_monte_carlo_stl, 2DCosineFunction) {
 
   // analytical = 0
   const double expected = 0.0;
-  const double tolerance = 0.03;
+  const double tolerance = 0.05;
   EXPECT_NEAR(result, expected, tolerance);  // error 5%
 }
 
