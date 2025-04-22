@@ -2,6 +2,7 @@
 
 #include <atomic>
 #include <climits>
+#include <condition_variable>
 #include <cstddef>
 #include <cstdlib>
 #include <mutex>
