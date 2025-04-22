@@ -48,20 +48,16 @@ bool nikolaev_r_hoare_sort_simple_merge_all::HoareSortSimpleMergeALL::
 
   std::vector<double> local_vect(local_count);
 
-  if (rank == 0) {
-    std::vector<int> counts(comm_size);
-    std::vector<int> displs(comm_size);
+  std::vector<int> counts(comm_size);
+  std::vector<int> displs(comm_size);
 
-    size_t offset = 0;
-    for (int i = 0; i < comm_size; ++i) {
-      counts[i] = static_cast<int>(base_chunk + (i < static_cast<int>(remainder) ? 1 : 0));
-      displs[i] = static_cast<int>(offset);
-      offset += counts[i];
-    }
-    boost::mpi::scatterv(world_, vect_, counts, displs, local_vect.data(), static_cast<int>(local_vect.size()), 0);
-  } else {
-    boost::mpi::scatterv(world_, local_vect.data(), static_cast<int>(local_vect.size()), 0);
+  size_t offset = 0;
+  for (int i = 0; i < comm_size; ++i) {
+    counts[i] = static_cast<int>(base_chunk + (i < static_cast<int>(remainder) ? 1 : 0));
+    displs[i] = static_cast<int>(offset);
+    offset += counts[i];
   }
+  boost::mpi::scatterv(world_, vect_, counts, displs, local_vect.data(), static_cast<int>(local_vect.size()), 0);
 
   size_t num_threads = ppc::util::GetPPCNumThreads();
   num_threads = std::min(num_threads, local_vect.size());
