@@ -98,9 +98,7 @@ lavrentiev_a_ccs_stl::Sparse lavrentiev_a_ccs_stl::CCSSTL::MatMul(const Sparse &
                       ((i + 1) * thread_data_amount) + (matrix2.columnsSum.size() % ppc::util::GetPPCNumThreads()));
     }
   }
-  for (auto &current_thread : threads) {
-    current_thread.join();
-  }
+  std::ranges::for_each(threads, [&](std::thread &thread) { thread.join(); });
   for (size_t i = 1; i < temporary_matrix.columnsSum.size(); ++i) {
     temporary_matrix.columnsSum[i] = temporary_matrix.columnsSum[i] + temporary_matrix.columnsSum[i - 1];
   }
