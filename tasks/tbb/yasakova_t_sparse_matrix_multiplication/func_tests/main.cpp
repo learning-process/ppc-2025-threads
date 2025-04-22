@@ -525,7 +525,7 @@ TEST(yasakova_t_sparse_matrix_multiplication, MultiplyByIdentityMatrix) {
   std::vector<ComplexNumber> input_data;
   auto input_matrix_data = yasakova_t_sparse_matrix_multiplication::ConvertMatrixToVector(input_matrix);
   auto identity_matrix_data = yasakova_t_sparse_matrix_multiplication::ConvertMatrixToVector(identity_matrix);
-  
+
   input_data.reserve(input_matrix_data.size() + identity_matrix_data.size());
   input_data.insert(input_data.end(), input_matrix_data.begin(), input_matrix_data.end());
   input_data.insert(input_data.end(), identity_matrix_data.begin(), identity_matrix_data.end());
@@ -535,14 +535,14 @@ TEST(yasakova_t_sparse_matrix_multiplication, MultiplyByIdentityMatrix) {
 
   // Создаем task_data
   auto task_data_tbb = std::make_shared<ppc::core::TaskData>();
-  task_data_tbb->inputs.emplace_back(reinterpret_cast<uint8_t*>(input_data.data()));
+  task_data_tbb->inputs.emplace_back(reinterpret_cast<uint8_t *>(input_data.data()));
   task_data_tbb->inputs_count.emplace_back(input_data.size());
-  task_data_tbb->outputs.emplace_back(reinterpret_cast<uint8_t*>(output_data.data()));
+  task_data_tbb->outputs.emplace_back(reinterpret_cast<uint8_t *>(output_data.data()));
   task_data_tbb->outputs_count.emplace_back(output_data.size());
 
   // Создаем и выполняем задачу
   yasakova_t_sparse_matrix_multiplication::TestTaskTBB test_task_tbb(task_data_tbb);
-  
+
   ASSERT_EQ(test_task_tbb.Validation(), true);
   test_task_tbb.PreProcessing();
   test_task_tbb.Run();
@@ -551,6 +551,6 @@ TEST(yasakova_t_sparse_matrix_multiplication, MultiplyByIdentityMatrix) {
   // Проверяем, что результат равен исходной матрице
   yasakova_t_sparse_matrix_multiplication::CompressedRowStorageMatrix result_matrix =
       yasakova_t_sparse_matrix_multiplication::ConvertVectorToMatrix(output_data);
-  
+
   ASSERT_TRUE(yasakova_t_sparse_matrix_multiplication::CompareMatrices(result_matrix, input_matrix));
 }
