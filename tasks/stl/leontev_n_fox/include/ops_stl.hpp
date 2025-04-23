@@ -1,5 +1,6 @@
 #pragma once
 
+#include <cstddef>
 #include <utility>
 #include <vector>
 
@@ -7,7 +8,7 @@
 
 namespace leontev_n_fox_stl {
 
-std::vector<double> mat_mul(std::vector<double>& a, std::vector<double>& b, size_t n);
+std::vector<double> MatMul(std::vector<double>& a, std::vector<double>& b, size_t n);
 
 class FoxSTL : public ppc::core::Task {
  public:
@@ -18,14 +19,14 @@ class FoxSTL : public ppc::core::Task {
   bool PostProcessingImpl() override;
 
  private:
-  double at_a(size_t i, size_t j) const;
-  double at_b(size_t i, size_t j) const;
-  void mat_mul_blocks(size_t a_posX, size_t a_posY, size_t b_posX, size_t b_posY, size_t c_posX, size_t c_posY,
-                      size_t size);
+  [[nodiscard]] double AtA(size_t i, size_t j) const;
+  [[nodiscard]] double AtB(size_t i, size_t j) const;
+  void MatMulBlocks(size_t a_pos_x, size_t a_pos_y, size_t b_pos_x, size_t b_pos_y, size_t c_pos_x, size_t c_pos_y,
+                    size_t size);
   std::vector<double> input_a_;
   std::vector<double> input_b_;
   std::vector<double> output_;
-  size_t n;
+  size_t n_;
 };
 
 }  // namespace leontev_n_fox_stl
