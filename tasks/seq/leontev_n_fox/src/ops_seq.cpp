@@ -65,11 +65,8 @@ bool FoxSeq::RunImpl() {
       for (size_t l = 0; l < q; l++) {
         div1 = ((i + l) % q) * k_;
         // block calc
-        for (size_t row = 0; row < k_; row++) {
-          for (size_t col = 0; col < k_; col++) {
-            if (n_ - (k_ * j) < k_ && col >= n_ - (k_ * j)) {
-              break;
-            }
+        for (size_t row = 0; row < std::min(static_cast<size_t>(k_), n_ - (k_ * i)); row++) {
+          for (size_t col = 0; col < std::min(static_cast<size_t>(k_), n_ - (k_ * j)); col++) {
             for (size_t m = 0; m < k_; m++) {
               output_[((row + (i * k_)) * n_) + (col + (j * k_))] +=
                   AtA((i * k_) + row, div1 + m) * AtB(div1 + m, (j * k_) + col);
