@@ -108,7 +108,6 @@ bool vershinina_a_hoare_sort_stl::TestTaskSTL::RunImpl() {
   for (int i = 0; i < numthreads; i++) {
     threads[i].join();
   }
-
   BatcherMerge(thread_input_size, pointers, sizes, 32);
   return true;
 }
