@@ -40,19 +40,22 @@ void vavilov_v_cannon_all::CannonALL::InitialShift(std::vector<double>& local_A,
   std::vector<double> tmp_A(block_size_ * block_size_);
   std::vector<double> tmp_B(block_size_ * block_size_);
 
+  mpi::request reqs[4];
+  int req_count = 0;
+
   if (a_dest != rank) {
-    world_.send(a_dest, 0, local_A.data(), block_size_ * block_size_);
-    world_.recv(a_dest, 0, tmp_A.data(), block_size_ * block_size_);
-    local_A = tmp_A;
+    reqs[req_count++] = world_.isend(a_dest, 0, local_A.data(), block_size_ * block_size_);
+    reqs[req_count++] = world_.irecv(a_dest, 0, tmp_A.data(), block_size_ * block_size_);
   }
   if (b_dest != rank) {
-    world_.send(b_dest, 1, local_B.data(), block_size_ * block_size_);
-    world_.recv(b_dest, 1, tmp_B.data(), block_size_ * block_size_);
-    local_B = tmp_B;
+    reqs[req_count++] = world_.isend(b_dest, 1, local_B.data(), block_size_ * block_size_);
+    reqs[req_count++] = world_.irecv(b_dest, 1, tmp_B.data(), block_size_ * block_size_);
   }
 
-  std::cout << "[Rank " << rank << "] After InitialShift: local_A[0] = " << local_A[0]
-            << ", local_B[0] = " << local_B[0] << std::endl;
+  mpi::wait_all(reqs, reqs + req_count);
+
+  if (a_dest != rank) local_A = tmp_A;
+  if (b_dest != rank) local_B = tmp_B;
 }
 
 void vavilov_v_cannon_all::CannonALL::BlockMultiply(const std::vector<double>& local_A,
@@ -82,20 +85,21 @@ void vavilov_v_cannon_all::CannonALL::ShiftBlocks(std::vector<double>& local_A, 
   std::vector<double> tmp_A(block_size_ * block_size_);
   std::vector<double> tmp_B(block_size_ * block_size_);
 
+  mpi::request reqs[4];
+  int req_count = 0;
+
   if (left_dest != rank) {
-    world_.send(left_dest, 2, local_A.data(), block_size_ * block_size_);
-    world_.recv(left_dest, 2, tmp_A.data(), block_size_ * block_size_);
-    local_A = tmp_A;
+    reqs[req_count++] = world_.isend(left_dest, 2, local_A.data(), block_size_ * block_size_);
+    reqs[req_count++] = world_.irecv(left_dest, 2, tmp_A.data(), block_size_ * block_size_);
   }
-
   if (up_dest != rank) {
-    world_.send(up_dest, 3, local_B.data(), block_size_ * block_size_);
-    world_.recv(up_dest, 3, tmp_B.data(), block_size_ * block_size_);
-    local_B = tmp_B;
+    reqs[req_count++] = world_.isend(up_dest, 3, local_B.data(), block_size_ * block_size_);
+    reqs[req_count++] = world_.irecv(up_dest, 3, tmp_B.data(), block_size_ * block_size_);
   }
 
-  std::cout << "[Rank " << rank << "] After ShiftBlocks: local_A[0] = " << local_A[0] << ", local_B[0] = " << local_B[0]
-            << std::endl;
+  mpi::wait_all(reqs, reqs + req_count);
+  if (left_dest != rank) local_A = tmp_A;
+  if (up_dest != rank) local_B = tmp_B;
 }
 
 bool vavilov_v_cannon_all::CannonALL::RunImpl() {
@@ -142,20 +146,13 @@ bool vavilov_v_cannon_all::CannonALL::RunImpl() {
     world_.recv(0, 1, local_B.data(), block_size_sq);
   }
 
-  std::cout << "[Rank " << rank << "] After distribution: local_A[0] = " << local_A[0]
-            << ", local_B[0] = " << local_B[0] << std::endl;
-
   InitialShift(local_A, local_B);
   BlockMultiply(local_A, local_B, local_C);
-
-  std::cout << "[Rank " << rank << "] After first BlockMultiply: local_C[0] = " << local_C[0] << std::endl;
 
   for (int iter = 0; iter < num_blocks_ - 1; ++iter) {
     ShiftBlocks(local_A, local_B);
     BlockMultiply(local_A, local_B, local_C);
   }
-
-  std::cout << "[Rank " << rank << "] After all iterations: local_C[0] = " << local_C[0] << std::endl;
 
   if (rank == 0) {
     std::copy(local_C.begin(), local_C.end(), C_.begin());
