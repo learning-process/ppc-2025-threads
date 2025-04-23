@@ -6,6 +6,8 @@
 #include <thread>
 #include <vector>
 
+#include "core/util/include/util.hpp"
+
 bool vavilov_v_cannon_stl::CannonSTL::PreProcessingImpl() {
   N_ = static_cast<int>(std::sqrt(task_data->inputs_count[0]));
   num_blocks_ = static_cast<int>(std::sqrt(N_));
