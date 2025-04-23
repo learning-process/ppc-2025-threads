@@ -47,7 +47,7 @@ bool sharamygina_i_multi_dim_monte_carlo_tbb::MultiDimMonteCarloTask::RunImpl() 
             static_cast<unsigned long>(std::time(nullptr) ^ tbb::this_task_arena::current_thread_index()));
         std::uniform_real_distribution<double> distribution(0.0, 1.0);
 
-        for (int n = r.begin(); n != r.end(); ++n) {
+        for (int j = r.begin(); j != r.end(); ++j) {
           std::vector<double> random_point(dimension);
           for (size_t i = 0; i < dimension; ++i) {
             double low = boundaries_[2 * i];
