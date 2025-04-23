@@ -5,6 +5,7 @@
 #include <condition_variable>
 #include <cstddef>
 #include <cstdlib>
+#include <functional>
 #include <mutex>
 #include <queue>
 #include <thread>
@@ -16,10 +17,46 @@
 const int muhina_m_dijkstra_stl::TestTaskSTL::kEndOfVertexList = -1;
 
 namespace {
+void ProcessVertex(const std::pair<int, size_t>& current,
+                   const std::vector<std::vector<std::pair<size_t, int>>>& adj_list,
+                   std::vector<std::atomic<int>>& atomic_distances,
+                   std::priority_queue<std::pair<int, size_t>, std::vector<std::pair<int, size_t>>, std::greater<>>& pq,
+                   std::mutex& pq_mtx, std::condition_variable& cv, std::atomic<int>& active_threads) {
+  size_t u = current.second;
+  int dist_u = current.first;
+
+  int current_dist_u = atomic_distances[u].load(std::memory_order_relaxed);
+  if (dist_u > current_dist_u) {
+    active_threads--;
+    return;
+  }
+
+  for (const auto& neighbor : adj_list[u]) {
+    size_t v = neighbor.first;
+    int weight = neighbor.second;
+    int new_dist = dist_u + weight;
+
+    int old_dist = atomic_distances[v].load(std::memory_order_relaxed);
+    while (new_dist < old_dist) {
+      if (atomic_distances[v].compare_exchange_weak(old_dist, new_dist, std::memory_order_relaxed)) {
+        std::lock_guard<std::mutex> lock(pq_mtx);
+        pq.emplace(new_dist, v);
+        cv.notify_one();
+        break;
+      }
+      old_dist = atomic_distances[v].load(std::memory_order_relaxed);
+    }
+  }
+
+  active_threads--;
+  std::lock_guard<std::mutex> lock(pq_mtx);
+  cv.notify_all();
+}
+
 void RunDijkstraAlgorithm(const std::vector<std::vector<std::pair<size_t, int>>>& adj_list, std::vector<int>& distances,
                           size_t start_vertex, int num_threads) {
   using P = std::pair<int, size_t>;
-  std::priority_queue<P, std::vector<P>, std::greater<P>> pq;
+  std::priority_queue<P, std::vector<P>, std::greater<>> pq;
   std::mutex pq_mtx;
   std::condition_variable cv;
   std::atomic<bool> finished{false};
@@ -32,7 +69,7 @@ void RunDijkstraAlgorithm(const std::vector<std::vector<std::pair<size_t, int>>>
 
   {
     std::lock_guard<std::mutex> lock(pq_mtx);
-    pq.push({0, start_vertex});
+    pq.emplace(0, start_vertex);
   }
 
   auto worker = [&]() {
@@ -50,7 +87,9 @@ void RunDijkstraAlgorithm(const std::vector<std::vector<std::pair<size_t, int>>>
             return;
           }
           cv.wait(lock, [&] { return !pq.empty() || finished; });
-          if (finished) return;
+          if (finished) {
+            return;
+          }
         } else {
           current = pq.top();
           pq.pop();
@@ -60,39 +99,11 @@ void RunDijkstraAlgorithm(const std::vector<std::vector<std::pair<size_t, int>>>
         }
       }
 
-      if (!has_work) continue;
-
-      size_t u = current.second;
-      int dist_u = current.first;
-
-      int current_dist_u = atomic_distances[u].load(std::memory_order_relaxed);
-      if (dist_u > current_dist_u) {
-        active_threads--;
+      if (!has_work) {
         continue;
       }
 
-      for (const auto& neighbor : adj_list[u]) {
-        size_t v = neighbor.first;
-        int weight = neighbor.second;
-        int new_dist = dist_u + weight;
-
-        int old_dist = atomic_distances[v].load(std::memory_order_relaxed);
-        while (new_dist < old_dist) {
-          if (atomic_distances[v].compare_exchange_weak(old_dist, new_dist, std::memory_order_relaxed)) {
-            std::lock_guard<std::mutex> lock(pq_mtx);
-            pq.push({new_dist, v});
-            cv.notify_one();
-            break;
-          }
-          old_dist = atomic_distances[v].load(std::memory_order_relaxed);
-        }
-      }
-
-      active_threads--;
-      {
-        std::lock_guard<std::mutex> lock(pq_mtx);
-        cv.notify_all();
-      }
+      ProcessVertex(current, adj_list, atomic_distances, pq, pq_mtx, cv, active_threads);
     }
   };
 
