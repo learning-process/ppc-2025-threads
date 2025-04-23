@@ -85,7 +85,7 @@ TEST(leontev_n_fox_stl, 111x111_random) {
   }
 }
 
-TEST(leontev_n_fox_seq, 5x5) {
+TEST(leontev_n_fox_stl, 5x5) {
   size_t n = 5;
   std::vector<double> in_data = {1, 2, 3, 4, 5, 0, 1, 2, 3, 4, 5, 0, 1, 2, 3, 4, 5, 0, 1, 2, 3, 4, 5, 0, 1,
                                  0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0};

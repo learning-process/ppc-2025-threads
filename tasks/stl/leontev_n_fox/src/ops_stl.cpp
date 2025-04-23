@@ -38,8 +38,8 @@ std::vector<double> MatMul(std::vector<double>& a, std::vector<double>& b, size_
 
 void FoxSTL::MatMulBlocks(size_t a_pos_x, size_t a_pos_y, size_t b_pos_x, size_t b_pos_y, size_t c_pos_x,
                           size_t c_pos_y, size_t size) {
-  for (size_t j = 0; j < std::min(static_cast<size_t>(size), n_ - c_pos_x); j++) {
-    for (size_t i = 0; i < std::min(static_cast<size_t>(size), n_ - c_pos_y); i++) {
+  for (size_t j = 0; j < std::min(size, n_ - c_pos_x); j++) {
+    for (size_t i = 0; i < std::min(size, n_ - c_pos_y); i++) {
       for (size_t l = 0; l < size; l++) {
         output_[((i + c_pos_y) * n_) + (j + c_pos_x)] += AtA(i + a_pos_y, l + a_pos_x) * AtB(l + b_pos_y, j + b_pos_x);
       }
@@ -74,7 +74,7 @@ bool FoxSTL::RunImpl() {
   if (n_ % q == 0) {
     k = n_ / q;
   } else {
-    k = n_ / (q - 1);
+    k = n_ / q + 1;
   }
   for (size_t l = 0; l < q; l++) {
     for (size_t i = 0; i < q; i++) {
