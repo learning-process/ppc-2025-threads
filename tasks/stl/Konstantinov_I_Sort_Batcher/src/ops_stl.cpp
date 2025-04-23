@@ -39,11 +39,11 @@ void RadixSorted(std::vector<double>& arr) {
   size_t n = arr.size();
   std::vector<uint64_t> keys(n);
 
-  const auto thread_count = std::thread::hardware_concurrency();
+  const int thread_count = std::thread::hardware_concurrency();
   size_t block_size = (n + thread_count - 1) / thread_count;
   std::vector<std::thread> threads;
   threads.reserve(thread_count);
-  for (unsigned int t = 0; t < thread_count; ++t) {
+  for (int t = 0; t < thread_count; ++t) {
     threads.emplace_back([&arr, &keys, t, block_size, n]() {
       size_t begin = t * block_size;
       size_t end = std::min(begin + block_size, n);
@@ -57,21 +57,35 @@ void RadixSorted(std::vector<double>& arr) {
   }
   const int radix = 256;
   std::vector<uint64_t> output_keys(n);
+
   for (int pass = 0; pass < 8; ++pass) {
     int shift = pass * 8;
-    std::vector<size_t> count(radix, 0);
-
-    for (size_t i = 0; i < n; ++i) {
-      auto byte = static_cast<uint8_t>((keys[i] >> shift) & 0xFF);
-      count[byte]++;
+    std::vector<std::vector<size_t>> local_counts(thread_count, std::vector<size_t>(radix, 0));
+    threads.clear(); 
+    for (int t = 0; t < thread_count; ++t) {
+      threads.emplace_back([t, &keys, &local_counts, shift, block_size, n]() {
+        size_t begin = t * block_size;
+        size_t end = std::min(begin + block_size, n);
+        for (size_t i = begin; i < end; ++i) {
+          uint8_t byte = static_cast<uint8_t>((keys[i] >> shift) & 0xFF);
+          local_counts[t][byte]++;
+        }
+      });
     }
-
+    for (auto& thread : threads) {
+      thread.join();
+    }
+    std::vector<size_t> count(radix, 0);
+    for (int b = 0; b < radix; ++b)
+      for (int t = 0; t < thread_count; ++t) {
+        count[b] += local_counts[t][b];
+      }
     for (int i = 1; i < radix; ++i) {
       count[i] += count[i - 1];
     }
 
     for (int i = static_cast<int>(n) - 1; i >= 0; --i) {
-      auto byte = static_cast<uint8_t>((keys[i] >> shift) & 0xFF);
+      uint8_t byte = static_cast<uint8_t>((keys[i] >> shift) & 0xFF);
       output_keys[--count[byte]] = keys[i];
     }
 
@@ -79,7 +93,7 @@ void RadixSorted(std::vector<double>& arr) {
   }
 
   threads.clear();
-  for (unsigned int t = 0; t < thread_count; ++t) {
+  for (int t = 0; t < thread_count; ++t) {
     threads.emplace_back([&arr, &keys, t, block_size, n]() {
       size_t begin = t * block_size;
       size_t end = std::min(begin + block_size, n);

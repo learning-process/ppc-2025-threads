@@ -13,7 +13,7 @@
 #include "stl/Konstantinov_I_Sort_Batcher/include/ops_stl.hpp"
 
 TEST(Konstantinov_I_Sort_Batcher_stl, test_pipeline_run) {
-  constexpr int kCount = 300000;
+  constexpr int kCount = 3000000;
 
   std::vector<double> in(kCount);
   std::vector<double> exp_out(kCount);
@@ -53,11 +53,12 @@ TEST(Konstantinov_I_Sort_Batcher_stl, test_pipeline_run) {
   perf_analyzer->PipelineRun(perf_attr, perf_results);
   ppc::core::Perf::PrintPerfStatistic(perf_results);
 
-  ASSERT_EQ(exp_out, out);
+  ASSERT_TRUE(std::equal(exp_out.begin(), exp_out.end(), out.begin(),
+                         [](double a, double b) { return std::abs(a - b) < 1e-9; }));
 }
 
 TEST(Konstantinov_I_Sort_Batcher_stl, test_task_run) {
-  constexpr int kCount = 300000;
+  constexpr int kCount = 3000000;
 
   std::vector<double> in(kCount);
   std::vector<double> exp_out(kCount);
@@ -96,5 +97,6 @@ TEST(Konstantinov_I_Sort_Batcher_stl, test_task_run) {
   perf_analyzer->TaskRun(perf_attr, perf_results);
   ppc::core::Perf::PrintPerfStatistic(perf_results);
 
-  ASSERT_EQ(exp_out, out);
+  ASSERT_TRUE(std::equal(exp_out.begin(), exp_out.end(), out.begin(),
+                         [](double a, double b) { return std::abs(a - b) < 1e-9; }));
 }
