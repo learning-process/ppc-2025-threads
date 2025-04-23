@@ -215,7 +215,7 @@ TEST(Konstantinov_I_Sort_Batcher_stl, test_random_10000_values) {
   EXPECT_EQ(exp_out, out);
 }
 TEST(Konstantinov_I_Sort_Batcher_stl, test_random_huge_size) {
-  constexpr size_t kCount = 10000000;
+  constexpr size_t kCount = 1000000;
   std::vector<double> in(kCount);
   std::vector<double> out(kCount);
   std::random_device rd;

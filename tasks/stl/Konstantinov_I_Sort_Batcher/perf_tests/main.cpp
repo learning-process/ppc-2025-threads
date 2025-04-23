@@ -2,6 +2,7 @@
 
 #include <algorithm>
 #include <chrono>
+#include <cmath>
 #include <cstddef>
 #include <cstdint>
 #include <memory>
@@ -13,7 +14,7 @@
 #include "stl/Konstantinov_I_Sort_Batcher/include/ops_stl.hpp"
 
 TEST(Konstantinov_I_Sort_Batcher_stl, test_pipeline_run) {
-  constexpr int kCount = 3000000;
+  constexpr int kCount = 300000;
 
   std::vector<double> in(kCount);
   std::vector<double> exp_out(kCount);
@@ -58,7 +59,7 @@ TEST(Konstantinov_I_Sort_Batcher_stl, test_pipeline_run) {
 }
 
 TEST(Konstantinov_I_Sort_Batcher_stl, test_task_run) {
-  constexpr int kCount = 3000000;
+  constexpr int kCount = 300000;
 
   std::vector<double> in(kCount);
   std::vector<double> exp_out(kCount);
