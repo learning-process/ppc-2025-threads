@@ -113,7 +113,7 @@ void RadixSorted(std::vector<double>& arr) {
   }
   size_t n = arr.size();
   std::vector<uint64_t> keys(n);
-  const int thread_count = std::thread::hardware_concurrency();
+  const int thread_count = static_cast<int>(std::thread::hardware_concurrency());
 
   ParallelConvertToKeys(arr, keys, thread_count);
 
