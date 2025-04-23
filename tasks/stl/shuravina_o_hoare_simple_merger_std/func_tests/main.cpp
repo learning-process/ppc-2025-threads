@@ -2,10 +2,10 @@
 
 #include <cstdint>
 #include <memory>
+#include <stl/shuravina_o_hoare_simple_merger_std/include/ops_stl.hpp>
 #include <vector>
 
 #include "core/task/include/task.hpp"
-#include <stl/shuravina_o_hoare_simple_merger_std/include/ops_stl.hpp>
 
 TEST(shuravina_o_hoare_simple_merger_stl, test_sort) {
   std::vector<int> in = {5, 2, 9, 1, 5, 6};

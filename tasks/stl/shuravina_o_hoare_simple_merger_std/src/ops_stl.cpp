@@ -1,8 +1,7 @@
-#include <stl/shuravina_o_hoare_simple_merger_std/include/ops_stl.hpp>
-
 #include <algorithm>
 #include <cstdint>
 #include <memory>
+#include <stl/shuravina_o_hoare_simple_merger_std/include/ops_stl.hpp>
 #include <vector>
 
 namespace shuravina_o_hoare_simple_merger_stl {
