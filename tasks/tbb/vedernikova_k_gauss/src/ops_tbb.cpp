@@ -88,7 +88,6 @@ bool vedernikova_k_gauss_tbb::Gauss::RunImpl() {
     SetPixel(GetPixel(0, 0, channels_ - 1), 0, 0, channels_ - 1);
     return true;
   }
-  oneapi::tbb::task_arena arena(ppc::util::GetPPCNumThreads());
 
   tbb::parallel_for(tbb::blocked_range<size_t>(std::size_t(1), std::size_t(height_ - 1)),
                     [&](const tbb::blocked_range<size_t>) {
