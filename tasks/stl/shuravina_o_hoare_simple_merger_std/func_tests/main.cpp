@@ -2,10 +2,10 @@
 
 #include <cstdint>
 #include <memory>
-#include <stl/shuravina_o_hoare_simple_merger_std/include/ops_stl.hpp>
 #include <vector>
 
 #include "core/task/include/task.hpp"
+#include "stl/shuravina_o_hoare_simple_merger_std/include/ops_stl.hpp"
 
 TEST(shuravina_o_hoare_simple_merger_stl, test_sort) {
   std::vector<int> in = {5, 2, 9, 1, 5, 6};
@@ -19,10 +19,10 @@ TEST(shuravina_o_hoare_simple_merger_stl, test_sort) {
 
   auto test_task = std::make_shared<shuravina_o_hoare_simple_merger_stl::TestTaskSTL>(task_data);
 
-  ASSERT_TRUE(test_task->Validation());
-  ASSERT_TRUE(test_task->PreProcessing());
-  ASSERT_TRUE(test_task->Run());
-  ASSERT_TRUE(test_task->PostProcessing());
+  EXPECT_TRUE(test_task->Validation());
+  EXPECT_TRUE(test_task->PreProcessing());
+  EXPECT_TRUE(test_task->Run());
+  EXPECT_TRUE(test_task->PostProcessing());
 
   std::vector<int> expected = {1, 2, 5, 5, 6, 9};
   EXPECT_EQ(out, expected);
@@ -40,10 +40,10 @@ TEST(shuravina_o_hoare_simple_merger_stl, test_empty_array) {
 
   auto test_task = std::make_shared<shuravina_o_hoare_simple_merger_stl::TestTaskSTL>(task_data);
 
-  ASSERT_TRUE(test_task->Validation());
-  ASSERT_TRUE(test_task->PreProcessing());
-  ASSERT_TRUE(test_task->Run());
-  ASSERT_TRUE(test_task->PostProcessing());
+  EXPECT_TRUE(test_task->Validation());
+  EXPECT_TRUE(test_task->PreProcessing());
+  EXPECT_TRUE(test_task->Run());
+  EXPECT_TRUE(test_task->PostProcessing());
 
   std::vector<int> expected = {};
   EXPECT_EQ(out, expected);
@@ -61,10 +61,10 @@ TEST(shuravina_o_hoare_simple_merger_stl, test_sorted_array) {
 
   auto test_task = std::make_shared<shuravina_o_hoare_simple_merger_stl::TestTaskSTL>(task_data);
 
-  ASSERT_TRUE(test_task->Validation());
-  ASSERT_TRUE(test_task->PreProcessing());
-  ASSERT_TRUE(test_task->Run());
-  ASSERT_TRUE(test_task->PostProcessing());
+  EXPECT_TRUE(test_task->Validation());
+  EXPECT_TRUE(test_task->PreProcessing());
+  EXPECT_TRUE(test_task->Run());
+  EXPECT_TRUE(test_task->PostProcessing());
 
   std::vector<int> expected = {1, 2, 3, 4, 5};
   EXPECT_EQ(out, expected);
