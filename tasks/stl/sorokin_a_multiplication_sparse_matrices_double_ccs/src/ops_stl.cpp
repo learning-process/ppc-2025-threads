@@ -19,7 +19,7 @@ void ProcessFirstPass(int j, int m, const std::vector<int>& a_col_ptr, const std
     const int row_b = b_row_indices[t];
     for (int i = a_col_ptr[row_b]; i < a_col_ptr[row_b + 1]; ++i) {
       const int row_a = a_row_indices[i];
-      if (!temp_used[row_a]) {
+      if (temp_used[row_a] == 0) {
         temp_used[row_a] = 1;
         col_sizes[j]++;
       }
@@ -47,7 +47,7 @@ void ProcessSecondPass(int j, int m, const std::vector<int>& a_col_ptr, const st
 
   int pos = c_col_ptr[j];
   for (int i = 0; i < m; ++i) {
-    if (temp_used[i]) {
+    if (temp_used[i] != 0) {
       c_row_indices[pos] = i;
       c_values[pos] = temp_values[i];
       pos++;
@@ -70,7 +70,7 @@ void MultiplyCCS(const std::vector<double>& a_values, const std::vector<int>& a_
   std::atomic<int> next_j(0);
 
   auto first_pass_worker = [&]() {
-    int j;
+    int j = 0;
     while ((j = next_j.fetch_add(1, std::memory_order_relaxed)) < n) {
       ProcessFirstPass(j, m, a_col_ptr, a_row_indices, b_col_ptr, b_row_indices, col_sizes);
     }
@@ -97,7 +97,7 @@ void MultiplyCCS(const std::vector<double>& a_values, const std::vector<int>& a_
   next_j.store(0);
 
   auto second_pass_worker = [&]() {
-    int j;
+    int j = 0;
     while ((j = next_j.fetch_add(1, std::memory_order_relaxed)) < n) {
       ProcessSecondPass(j, m, a_col_ptr, a_row_indices, a_values, b_col_ptr, b_row_indices, b_values, c_col_ptr,
                         c_row_indices, c_values);
