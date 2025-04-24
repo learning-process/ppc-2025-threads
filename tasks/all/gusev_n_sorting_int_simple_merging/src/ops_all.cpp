@@ -25,7 +25,6 @@ void gusev_n_sorting_int_simple_merging_all::SortingIntSimpleMergingALL::RadixSo
     return;
   }
 
-  // Разделение на положительные и отрицательные числа выполняется только мастер-процессом
   std::vector<int> negatives;
   std::vector<int> positives;
 
@@ -39,14 +38,12 @@ void gusev_n_sorting_int_simple_merging_all::SortingIntSimpleMergingALL::RadixSo
     }
   }
 
-  // Broadcast размеров массивов для всех процессов
   int negatives_size = negatives.size();
   int positives_size = positives.size();
 
   boost::mpi::broadcast(world, negatives_size, 0);
   boost::mpi::broadcast(world, positives_size, 0);
 
-  // Синхронизация массивов между процессами
   if (rank != 0) {
     negatives.resize(negatives_size);
     positives.resize(positives_size);
@@ -55,19 +52,15 @@ void gusev_n_sorting_int_simple_merging_all::SortingIntSimpleMergingALL::RadixSo
   boost::mpi::broadcast(world, negatives, 0);
   boost::mpi::broadcast(world, positives, 0);
 
-  // Распределение работы между процессами
   if (size > 1) {
     if (rank == 0 && !negatives.empty()) {
-      // Мастер процесс сортирует отрицательные числа
       RadixSortForNonNegative(negatives);
       std::ranges::reverse(negatives);
       std::ranges::transform(negatives, negatives.begin(), std::negate{});
     } else if (rank == 1 && !positives.empty()) {
-      // Первый рабочий процесс сортирует положительные числа
       RadixSortForNonNegative(positives);
     }
   } else {
-    // Если процесс только один, используем TBB для распараллеливания
     oneapi::tbb::parallel_invoke(
         [&] {
           if (!negatives.empty()) {
@@ -83,27 +76,22 @@ void gusev_n_sorting_int_simple_merging_all::SortingIntSimpleMergingALL::RadixSo
         });
   }
 
-  // Сбор результатов
   if (size > 1) {
     if (rank == 1) {
-      // Отправляем отсортированные положительные числа мастеру
       world.send(0, 0, positives);
     } else if (rank == 0) {
-      // Мастер получает отсортированные положительные числа
       if (!positives.empty()) {
         world.recv(1, 0, positives);
       }
     }
   }
 
-  // Финальное объединение на мастере
   if (rank == 0) {
     arr.clear();
     arr.insert(arr.end(), negatives.begin(), negatives.end());
     arr.insert(arr.end(), positives.begin(), positives.end());
   }
 
-  // Синхронизация массива со всеми процессами
   boost::mpi::broadcast(world, arr, 0);
 
   world.barrier();
@@ -129,7 +117,7 @@ void gusev_n_sorting_int_simple_merging_all::SortingIntSimpleMergingALL::Countin
   std::vector<int> output(arr.size());
   std::vector<int> count(10, 0);
 
-  // Используем TBB для распараллеливания подсчета цифр
+  // Using tbb for parallel numeric
   oneapi::tbb::enumerable_thread_specific<std::vector<int>> tl_counts([&] { return std::vector<int>(10, 0); });
 
   oneapi::tbb::parallel_for(oneapi::tbb::blocked_range<size_t>(0, arr.size()),
@@ -147,7 +135,6 @@ void gusev_n_sorting_int_simple_merging_all::SortingIntSimpleMergingALL::Countin
     }
   }
 
-  // Используем MPI для объединения подсчетов со всех процессов
   if (size > 1) {
     std::vector<int> global_count(10, 0);
     boost::mpi::all_reduce(world, count.data(), 10, global_count.data(), std::plus<int>());
@@ -156,7 +143,6 @@ void gusev_n_sorting_int_simple_merging_all::SortingIntSimpleMergingALL::Countin
 
   std::partial_sum(count.begin(), count.end(), count.begin());
 
-  // Распределение элементов в соответствии с их цифрами
   for (auto i = arr.size(); i > 0; --i) {
     int digit = (arr[i - 1] / exp) % 10;
     output[--count[digit]] = arr[i - 1];
@@ -164,7 +150,6 @@ void gusev_n_sorting_int_simple_merging_all::SortingIntSimpleMergingALL::Countin
 
   arr = output;
 
-  // Синхронизация результатов между всеми процессами
   if (size > 1) {
     boost::mpi::broadcast(world, arr, 0);
   }
@@ -181,7 +166,6 @@ bool gusev_n_sorting_int_simple_merging_all::SortingIntSimpleMergingALL::Validat
   return task_data->inputs_count[0] == task_data->outputs_count[0];
 }
 
-// 504 Gateway Time-out =)
 bool gusev_n_sorting_int_simple_merging_all::SortingIntSimpleMergingALL::RunImpl() {
   RadixSort(input_);
   return true;
