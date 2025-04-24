@@ -1,6 +1,7 @@
 #include "stl/sorokin_a_multiplication_sparse_matrices_double_ccs/include/ops_stl.hpp"
 
 #include <algorithm>
+#include <atomic>
 #include <cmath>
 #include <cstddef>
 #include <thread>
@@ -13,13 +14,13 @@ namespace sorokin_a_multiplication_sparse_matrices_double_ccs_stl {
 void ProcessFirstPass(int j, int m, const std::vector<int>& a_col_ptr, const std::vector<int>& a_row_indices,
                       const std::vector<int>& b_col_ptr, const std::vector<int>& b_row_indices,
                       std::vector<int>& col_sizes) {
-  std::vector<bool> temp_used(m, false);
+  std::vector<char> temp_used(m, 0);
   for (int t = b_col_ptr[j]; t < b_col_ptr[j + 1]; ++t) {
     const int row_b = b_row_indices[t];
     for (int i = a_col_ptr[row_b]; i < a_col_ptr[row_b + 1]; ++i) {
       const int row_a = a_row_indices[i];
       if (!temp_used[row_a]) {
-        temp_used[row_a] = true;
+        temp_used[row_a] = 1;
         col_sizes[j]++;
       }
     }
@@ -32,7 +33,7 @@ void ProcessSecondPass(int j, int m, const std::vector<int>& a_col_ptr, const st
                        const std::vector<int>& c_col_ptr, std::vector<int>& c_row_indices,
                        std::vector<double>& c_values) {
   std::vector<double> temp_values(m, 0.0);
-  std::vector<bool> temp_used(m, false);
+  std::vector<char> temp_used(m, 0);
 
   for (int t = b_col_ptr[j]; t < b_col_ptr[j + 1]; ++t) {
     const int row_b = b_row_indices[t];
@@ -40,7 +41,7 @@ void ProcessSecondPass(int j, int m, const std::vector<int>& a_col_ptr, const st
     for (int i = a_col_ptr[row_b]; i < a_col_ptr[row_b + 1]; ++i) {
       const int row_a = a_row_indices[i];
       temp_values[row_a] += a_values[i] * val_b;
-      temp_used[row_a] = true;
+      temp_used[row_a] = 1;
     }
   }
 
@@ -62,20 +63,22 @@ void MultiplyCCS(const std::vector<double>& a_values, const std::vector<int>& a_
   c_col_ptr[0] = 0;
   std::vector<int> col_sizes(n, 0);
 
-  const int num_threads = ppc::util::GetPPCNumThreads();
-  std::vector<std::thread> threads;
-  threads.reserve(num_threads);
+  int num_threads = ppc::util::GetPPCNumThreads();
+  num_threads = std::min(num_threads, n);
 
-  auto process_first_pass_range = [&](int start, int end) {
-    for (int j = start; j < end; ++j) {
+  std::vector<std::thread> threads;
+  std::atomic<int> next_j(0);
+
+  auto first_pass_worker = [&]() {
+    int j;
+    while ((j = next_j.fetch_add(1, std::memory_order_relaxed)) < n) {
       ProcessFirstPass(j, m, a_col_ptr, a_row_indices, b_col_ptr, b_row_indices, col_sizes);
     }
   };
 
+  threads.reserve(num_threads);
   for (int t = 0; t < num_threads; ++t) {
-    const int start = (t * n) / num_threads;
-    const int end = ((t + 1) * n) / num_threads;
-    threads.emplace_back(process_first_pass_range, start, end);
+    threads.emplace_back(first_pass_worker);
   }
 
   for (auto& thread : threads) {
@@ -91,17 +94,18 @@ void MultiplyCCS(const std::vector<double>& a_values, const std::vector<int>& a_
   c_row_indices.resize(total_non_zero);
 
   threads.clear();
-  auto process_second_pass_range = [&](int start, int end) {
-    for (int j = start; j < end; ++j) {
+  next_j.store(0);
+
+  auto second_pass_worker = [&]() {
+    int j;
+    while ((j = next_j.fetch_add(1, std::memory_order_relaxed)) < n) {
       ProcessSecondPass(j, m, a_col_ptr, a_row_indices, a_values, b_col_ptr, b_row_indices, b_values, c_col_ptr,
                         c_row_indices, c_values);
     }
   };
 
   for (int t = 0; t < num_threads; ++t) {
-    const int start = (t * n) / num_threads;
-    const int end = ((t + 1) * n) / num_threads;
-    threads.emplace_back(process_second_pass_range, start, end);
+    threads.emplace_back(second_pass_worker);
   }
 
   for (auto& thread : threads) {
