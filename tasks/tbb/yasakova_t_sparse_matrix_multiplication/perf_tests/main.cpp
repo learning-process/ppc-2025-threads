@@ -104,7 +104,6 @@ TEST(yasakova_t_sparse_matrix_multiplication_tbb, test_task_run) {
   const int non_zero_elements = 10000;
   const int num_runs = 100;
   std::srand(std::time(nullptr));
-
   yasakova_t_sparse_matrix_multiplication::CompressedRowStorageMatrix first_matrix(matrix_size, matrix_size);
   yasakova_t_sparse_matrix_multiplication::CompressedRowStorageMatrix second_matrix(matrix_size, matrix_size);
 
