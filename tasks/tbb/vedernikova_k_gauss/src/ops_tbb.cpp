@@ -9,6 +9,7 @@
 #include <vector>
 
 #include "core/util/include/util.hpp"
+#include "oneapi/tbb/blocked_range.h"
 #include "oneapi/tbb/parallel_for.h"
 #include "oneapi/tbb/task_arena.h"
 
@@ -88,15 +89,15 @@ bool vedernikova_k_gauss_tbb::Gauss::RunImpl() {
     return true;
   }
   oneapi::tbb::task_arena arena(ppc::util::GetPPCNumThreads());
-  arena.execute([&] {
-    oneapi::tbb::parallel_for(std::size_t(1), std::size_t(height_ - 1), [&](std::size_t x) {
-      for (uint32_t j = 0; j < height_; j++) {
-        for (uint32_t i = 0; i < width_; i++) {
-          ComputePixel(i, j);
-        }
-      }
-    });
-  });
+
+  tbb::parallel_for(tbb::blocked_range<size_t>(std::size_t(1), std::size_t(height_ - 1)),
+                    [&](const tbb::blocked_range<size_t>) {
+                      for (uint32_t j = 0; j < height_; j++) {
+                        for (uint32_t i = 0; i < width_; i++) {
+                          ComputePixel(i, j);
+                        }
+                      }
+                    });
 
   return true;
 }
