@@ -42,7 +42,8 @@ class TestTaskTBB : public ppc::core::Task {
   CompressedRowStorageMatrix firstMatrix_, secondMatrix_;
 };
 
-inline void yasakova_t_sparse_matrix_multiplication::CompressedRowStorageMatrix::InsertElement(int row, ComplexNumber value,
+inline void yasakova_t_sparse_matrix_multiplication::CompressedRowStorageMatrix::InsertElement(int row,
+                                                                                               ComplexNumber value,
                                                                                                int col) {
   bool found = false;
   for (int j = rowPointers[row]; j < rowPointers[row + 1]; ++j) {
