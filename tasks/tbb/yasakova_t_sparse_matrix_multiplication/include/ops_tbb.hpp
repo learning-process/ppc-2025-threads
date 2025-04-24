@@ -44,11 +44,8 @@ class TestTaskTBB : public ppc::core::Task {
 
 }  // namespace yasakova_t_sparse_matrix_multiplication
 
-void yasakova_t_sparse_matrix_multiplication::CompressedRowStorageMatrix::InsertElement(int row, ComplexNumber value,
+inline yasakova_t_sparse_matrix_multiplication::CompressedRowStorageMatrix::InsertElement(int row, ComplexNumber value,
                                                                                         int col) {
-  if (row < 0 || row >= rowCount || col < 0 || col >= columnCount) {
-    throw std::out_of_range("InsertElement: row or column index out of range");
-  }
   for (int j = rowPointers[row]; j < rowPointers[row + 1]; ++j) {
     if (columnIndices[j] == col) {
       nonZeroValues[j] += value;
