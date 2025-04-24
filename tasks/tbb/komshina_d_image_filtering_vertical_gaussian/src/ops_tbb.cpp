@@ -81,7 +81,7 @@ bool komshina_d_image_filtering_vertical_gaussian_tbb::TestTaskTBB::ValidationIm
 }
 
 bool komshina_d_image_filtering_vertical_gaussian_tbb::TestTaskTBB::RunImpl() {
-  oneapi::tbb::task_arena arena(1);
+  oneapi::tbb::task_arena arena(ppc::util::GetPPCNumThreads());
   arena.execute([&] {
     oneapi::tbb::task_group tg;
     for (int thr = 0; thr < ppc::util::GetPPCNumThreads(); ++thr) {
