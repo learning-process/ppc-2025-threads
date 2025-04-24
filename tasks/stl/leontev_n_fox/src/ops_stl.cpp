@@ -38,8 +38,10 @@ std::vector<double> MatMul(std::vector<double>& a, std::vector<double>& b, size_
 
 void FoxSTL::MatMulBlocks(size_t a_pos_x, size_t a_pos_y, size_t b_pos_x, size_t b_pos_y, size_t c_pos_x,
                           size_t c_pos_y, size_t size) {
-  for (size_t j = 0; j < std::min(size, n_ - c_pos_x); j++) {
-    for (size_t i = 0; i < std::min(size, n_ - c_pos_y); i++) {
+  size_t row_max = (n_ >= c_pos_y) ? (n_ - c_pos_y) : 0;
+  size_t col_max = (n_ >= c_pos_x) ? (n_ - c_pos_x) : 0;
+  for (size_t j = 0; j < std::min(size, col_max); j++) {
+    for (size_t i = 0; i < std::min(size, row_max); i++) {
       for (size_t l = 0; l < size; l++) {
         output_[((i + c_pos_y) * n_) + (j + c_pos_x)] += AtA(i + a_pos_y, l + a_pos_x) * AtB(l + b_pos_y, j + b_pos_x);
       }
