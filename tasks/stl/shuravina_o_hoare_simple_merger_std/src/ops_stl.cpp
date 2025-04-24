@@ -20,6 +20,12 @@ bool TestTaskSTL::ValidationImpl() {
   if (task_data->inputs_count.empty() || task_data->outputs_count.empty()) {
     return false;
   }
+  if (task_data->inputs_count[0] > 0 && task_data->inputs[0] == nullptr) {
+    return false;
+  }
+  if (task_data->outputs_count[0] > 0 && task_data->outputs[0] == nullptr) {
+    return false;
+  }
   return task_data->inputs_count[0] == task_data->outputs_count[0];
 }
 
