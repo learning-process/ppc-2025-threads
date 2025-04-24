@@ -42,24 +42,4 @@ class TestTaskTBB : public ppc::core::Task {
   CompressedRowStorageMatrix firstMatrix_, secondMatrix_;
 };
 
-inline void yasakova_t_sparse_matrix_multiplication::CompressedRowStorageMatrix::InsertElement(int row,
-                                                                                               ComplexNumber value,
-                                                                                               int col) {
-  bool found = false;
-  for (int j = rowPointers[row]; j < rowPointers[row + 1]; ++j) {
-    if (columnIndices[j] == col) {
-      nonZeroValues[j] += value;
-      found = true;
-      break;
-    }
-  }
-  if (!found) {
-    columnIndices.emplace_back(col);
-    nonZeroValues.emplace_back(value);
-    for (int i = row + 1; i <= rowCount; ++i) {
-      rowPointers[i]++;
-    }
-  }
-}
-
 }  // namespace yasakova_t_sparse_matrix_multiplication

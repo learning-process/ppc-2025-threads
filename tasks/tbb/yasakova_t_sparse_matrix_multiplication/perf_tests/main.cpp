@@ -26,7 +26,7 @@ TEST(yasakova_t_sparse_matrix_multiplication_tbb, test_pipeline_run) {
     int row = rand() % matrix_size;
     int col = rand() % matrix_size;
     ComplexNumber value(-50 + (rand() % 100), -50 + (rand() % 100));
-    first_matrix.yasakova_t_sparse_matrix_multiplication::CompressedRowStorageMatrix::InsertElement(row, value, col);
+    first_matrix.InsertElement(row, value, col);
   }
 
   // Заполняем second_matrix случайными элементами
@@ -34,7 +34,7 @@ TEST(yasakova_t_sparse_matrix_multiplication_tbb, test_pipeline_run) {
     int row = rand() % matrix_size;
     int col = rand() % matrix_size;
     ComplexNumber value(-50 + (rand() % 100), -50 + (rand() % 100));
-    second_matrix.yasakova_t_sparse_matrix_multiplication::CompressedRowStorageMatrix::InsertElement(row, value, col);
+    second_matrix.InsertElement(row, value, col);
   }
 
   // Конвертируем матрицы в векторы для передачи в задачу
@@ -111,14 +111,14 @@ TEST(yasakova_t_sparse_matrix_multiplication_tbb, test_task_run) {
     int row = rand() % matrix_size;
     int col = rand() % matrix_size;
     ComplexNumber value(-50 + (rand() % 100), -50 + (rand() % 100));
-    first_matrix.yasakova_t_sparse_matrix_multiplication::CompressedRowStorageMatrix::InsertElement(row, value, col);
+    first_matrix.InsertElement(row, value, col);
   }
 
   for (int i = 0; i < non_zero_elements; ++i) {
     int row = rand() % matrix_size;
     int col = rand() % matrix_size;
     ComplexNumber value(-50 + (rand() % 100), -50 + (rand() % 100));
-    second_matrix.yasakova_t_sparse_matrix_multiplication::CompressedRowStorageMatrix::InsertElement(row, value, col);
+    second_matrix.InsertElement(row, value, col);
   }
 
   std::vector<ComplexNumber> first_matrix_data =
