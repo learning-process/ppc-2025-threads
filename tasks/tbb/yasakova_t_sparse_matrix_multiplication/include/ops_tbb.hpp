@@ -44,19 +44,21 @@ class TestTaskTBB : public ppc::core::Task {
 
 }  // namespace yasakova_t_sparse_matrix_multiplication
 
-inline yasakova_t_sparse_matrix_multiplication::CompressedRowStorageMatrix GenMatrix(
-    unsigned int num_rows, unsigned int num_cols, unsigned int left_border_row, unsigned int right_border_row,
-    unsigned int left_border_col, unsigned int right_border_col, int min_value, int max_value) {
-  if (left_border_row > right_border_row || left_border_col > right_border_col || right_border_row > num_rows ||
-      right_border_col > num_cols || min_value > max_value) {
-    throw("ERROR!");
+void yasakova_t_sparse_matrix_multiplication::CompressedRowStorageMatrix::InsertElement(int row, ComplexNumber value, int col) {
+  if (row < 0 || row >= rowCount || col < 0 || col >= columnCount) {
+    throw std::out_of_range("InsertElement: row or column index out of range");
   }
-  yasakova_t_sparse_matrix_multiplication::CompressedRowStorageMatrix first_matrix((int)num_rows, (int)num_cols);
-  for (unsigned int i = left_border_row; i < right_border_row; i++) {
-    for (unsigned int j = left_border_col; j < right_border_col; j++) {
-      first_matrix.InsertElement(
-          (int)i, ComplexNumber(min_value + (rand() % max_value), min_value + (rand() % max_value)), (int)j);
+  for (int j = rowPointers[row]; j < rowPointers[row + 1]; ++j) {
+    if (columnIndices[j] == col) {
+      nonZeroValues[j] += value;
+      return;
     }
   }
-  return first_matrix;
+  columnIndices.insert(columnIndices.begin() + rowPointers[row + 1], col);
+  nonZeroValues.insert(nonZeroValues.begin() + rowPointers[row + 1], value);
+
+  for (int i = row + 1; i <= rowCount; ++i) {
+    rowPointers[i]++;
+  }
 }
+
