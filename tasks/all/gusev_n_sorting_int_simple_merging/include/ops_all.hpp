@@ -1,5 +1,6 @@
 #pragma once
 
+#include <boost/mpi/communicator.hpp>
 #include <utility>
 #include <vector>
 
@@ -19,6 +20,12 @@ class SortingIntSimpleMergingALL : public ppc::core::Task {
   static void CountingSort(std::vector<int>& arr, int exp);
   static void RadixSortForNonNegative(std::vector<int>& arr);
   static void RadixSort(std::vector<int>& arr);
+
+  static void SplitBySign(const std::vector<int>& arr, std::vector<int>& negatives, std::vector<int>& positives);
+  static void MergeResults(std::vector<int>& arr, const std::vector<int>& negatives, const std::vector<int>& positives);
+  static void ProcessWithMpiOrTbb(int size, int rank, std::vector<int>& negatives, std::vector<int>& positives);
+  static void CollectResults(boost::mpi::communicator& world, int size, int rank, std::vector<int>& positives);
+
   std::vector<int> input_, output_;
 };
 

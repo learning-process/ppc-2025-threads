@@ -9,12 +9,31 @@
 #include <algorithm>
 #include <boost/mpi/collectives.hpp>
 #include <boost/mpi/communicator.hpp>
-#include <boost/serialization/vector.hpp>
+#include <boost/serialization/vector.hpp>  // IWYU pragma: keep
 #include <cmath>
 #include <cstddef>
 #include <functional>
 #include <numeric>
 #include <vector>
+
+void gusev_n_sorting_int_simple_merging_all::SortingIntSimpleMergingALL::SplitBySign(const std::vector<int>& arr,
+                                                                                     std::vector<int>& negatives,
+                                                                                     std::vector<int>& positives) {
+  for (int num : arr) {
+    if (num < 0) {
+      negatives.push_back(-num);
+    } else {
+      positives.push_back(num);
+    }
+  }
+}
+
+void gusev_n_sorting_int_simple_merging_all::SortingIntSimpleMergingALL::MergeResults(
+    std::vector<int>& arr, const std::vector<int>& negatives, const std::vector<int>& positives) {
+  arr.clear();
+  arr.insert(arr.end(), negatives.begin(), negatives.end());
+  arr.insert(arr.end(), positives.begin(), positives.end());
+}
 
 void gusev_n_sorting_int_simple_merging_all::SortingIntSimpleMergingALL::RadixSort(std::vector<int>& arr) {
   boost::mpi::communicator world;
@@ -29,13 +48,7 @@ void gusev_n_sorting_int_simple_merging_all::SortingIntSimpleMergingALL::RadixSo
   std::vector<int> positives;
 
   if (rank == 0) {
-    for (int num : arr) {
-      if (num < 0) {
-        negatives.push_back(-num);
-      } else {
-        positives.push_back(num);
-      }
-    }
+    SplitBySign(arr, negatives, positives);
   }
 
   std::size_t negatives_size = negatives.size();
@@ -52,6 +65,21 @@ void gusev_n_sorting_int_simple_merging_all::SortingIntSimpleMergingALL::RadixSo
   boost::mpi::broadcast(world, negatives, 0);
   boost::mpi::broadcast(world, positives, 0);
 
+  ProcessWithMpiOrTbb(size, rank, negatives, positives);
+
+  CollectResults(world, size, rank, positives);
+
+  if (rank == 0) {
+    MergeResults(arr, negatives, positives);
+  }
+
+  boost::mpi::broadcast(world, arr, 0);
+
+  world.barrier();
+}
+
+void gusev_n_sorting_int_simple_merging_all::SortingIntSimpleMergingALL::ProcessWithMpiOrTbb(
+    int size, int rank, std::vector<int>& negatives, std::vector<int>& positives) {
   if (size > 1) {
     if (rank == 0 && !negatives.empty()) {
       RadixSortForNonNegative(negatives);
@@ -77,7 +105,11 @@ void gusev_n_sorting_int_simple_merging_all::SortingIntSimpleMergingALL::RadixSo
           }
         });
   }
+}
 
+void gusev_n_sorting_int_simple_merging_all::SortingIntSimpleMergingALL::CollectResults(boost::mpi::communicator& world,
+                                                                                        int size, int rank,
+                                                                                        std::vector<int>& positives) {
   if (size > 1) {
     std::vector<int> sorted_positives;
 
@@ -91,16 +123,6 @@ void gusev_n_sorting_int_simple_merging_all::SortingIntSimpleMergingALL::RadixSo
       positives = sorted_positives;
     }
   }
-
-  if (rank == 0) {
-    arr.clear();
-    arr.insert(arr.end(), negatives.begin(), negatives.end());
-    arr.insert(arr.end(), positives.begin(), positives.end());
-  }
-
-  boost::mpi::broadcast(world, arr, 0);
-
-  world.barrier();
 }
 
 void gusev_n_sorting_int_simple_merging_all::SortingIntSimpleMergingALL::RadixSortForNonNegative(
