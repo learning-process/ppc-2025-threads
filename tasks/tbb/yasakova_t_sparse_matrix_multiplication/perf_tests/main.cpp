@@ -38,8 +38,10 @@ TEST(yasakova_t_sparse_matrix_multiplication_tbb, test_pipeline_run) {
   }
 
   // Конвертируем матрицы в векторы для передачи в задачу
-  std::vector<ComplexNumber> first_matrix_data = yasakova_t_sparse_matrix_multiplication::ConvertMatrixToVector(first_matrix);
-  std::vector<ComplexNumber> second_matrix_data = yasakova_t_sparse_matrix_multiplication::ConvertMatrixToVector(second_matrix);
+  std::vector<ComplexNumber> first_matrix_data =
+      yasakova_t_sparse_matrix_multiplication::ConvertMatrixToVector(first_matrix);
+  std::vector<ComplexNumber> second_matrix_data =
+      yasakova_t_sparse_matrix_multiplication::ConvertMatrixToVector(second_matrix);
 
   // Подготавливаем входные данные (конкатенация двух векторов)
   std::vector<ComplexNumber> input_data;
@@ -88,7 +90,7 @@ TEST(yasakova_t_sparse_matrix_multiplication_tbb, test_pipeline_run) {
 
   // Проверяем, что результат не нулевой
   bool is_result_non_zero = false;
-  for (const auto& elem : output_data) {
+  for (const auto &elem : output_data) {
     if (elem != ComplexNumber(0, 0)) {
       is_result_non_zero = true;
       break;
@@ -120,8 +122,10 @@ TEST(yasakova_t_sparse_matrix_multiplication_tbb, test_task_run) {
     second_matrix.InsertElement(row, value, col);
   }
 
-  std::vector<ComplexNumber> first_matrix_data = yasakova_t_sparse_matrix_multiplication::ConvertMatrixToVector(first_matrix);
-  std::vector<ComplexNumber> second_matrix_data = yasakova_t_sparse_matrix_multiplication::ConvertMatrixToVector(second_matrix);
+  std::vector<ComplexNumber> first_matrix_data =
+      yasakova_t_sparse_matrix_multiplication::ConvertMatrixToVector(first_matrix);
+  std::vector<ComplexNumber> second_matrix_data =
+      yasakova_t_sparse_matrix_multiplication::ConvertMatrixToVector(second_matrix);
 
   std::vector<ComplexNumber> input_data;
   input_data.reserve(first_matrix_data.size() + second_matrix_data.size());
@@ -160,7 +164,7 @@ TEST(yasakova_t_sparse_matrix_multiplication_tbb, test_task_run) {
   ASSERT_EQ(actual_result.columnCount, matrix_size);
 
   bool is_result_non_zero = false;
-  for (const auto& elem : output_data) {
+  for (const auto &elem : output_data) {
     if (elem != ComplexNumber(0, 0)) {
       is_result_non_zero = true;
       break;
