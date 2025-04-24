@@ -45,7 +45,7 @@ class TestTaskTBB : public ppc::core::Task {
 }  // namespace yasakova_t_sparse_matrix_multiplication
 
 inline yasakova_t_sparse_matrix_multiplication::CompressedRowStorageMatrix::InsertElement(int row, ComplexNumber value,
-                                                                                        int col) {
+                                                                                          int col) {
   for (int j = rowPointers[row]; j < rowPointers[row + 1]; ++j) {
     if (columnIndices[j] == col) {
       nonZeroValues[j] += value;
