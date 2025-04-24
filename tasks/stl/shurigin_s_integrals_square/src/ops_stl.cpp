@@ -1,5 +1,6 @@
 ﻿#include "stl/shurigin_s_integrals_square/include/ops_stl.hpp"
 
+#include <algorithm>
 #include <cmath>
 #include <cstddef>
 #include <exception>
@@ -15,7 +16,6 @@
 #include <vector>
 
 #include "core/task/include/task.hpp"
-
 namespace shurigin_s_integrals_square_stl {
 
 Integral::Integral(std::shared_ptr<ppc::core::TaskData> task_data)
@@ -197,7 +197,7 @@ bool Integral::ComputeOneDimensionalStl() {
   };
 
   for (unsigned int i = 0; i < num_workers; ++i) {
-    int count_for_this_worker = intervals_per_worker + (i < extra_intervals ? 1 : 0);
+    int count_for_this_worker = intervals_per_worker + (i < static_cast<unsigned int>(extra_intervals) ? 1 : 0);
     if (count_for_this_worker == 0) continue;
     int current_end_index = current_start_index + count_for_this_worker;
 
@@ -214,8 +214,11 @@ bool Integral::ComputeOneDimensionalStl() {
   }
 
   for (auto& t : threads) {
-    t.join();
+    if (t.joinable()) {
+      t.join();
+    }
   }
+
   result_ = total_sum * step;
   return true;
 }
@@ -262,7 +265,7 @@ double Integral::ComputeParallelOuterLoop(const std::function<double(const std::
   };
 
   for (unsigned int i = 0; i < num_workers; ++i) {
-    int count_for_this_worker = intervals_per_worker + (i < extra_intervals ? 1 : 0);
+    int count_for_this_worker = intervals_per_worker + (i < static_cast<unsigned int>(extra_intervals) ? 1 : 0);
     if (count_for_this_worker == 0) continue;
     int current_end_index = current_start_index + count_for_this_worker;
 
@@ -279,8 +282,11 @@ double Integral::ComputeParallelOuterLoop(const std::function<double(const std::
   }
 
   for (auto& t : threads) {
-    t.join();
+    if (t.joinable()) {
+      t.join();
+    }
   }
+
   return total_sum_outer * step0;
 }
 
@@ -298,7 +304,6 @@ double Integral::ComputeSequentialRecursive(const std::function<double(const std
 
   for (int i = 0; i < n[current_dim]; ++i) {
     point[current_dim] = base + static_cast<double>(i) * step;
-
     sum_over_dimension += ComputeSequentialRecursive(f, a, b, n, dim, point, current_dim + 1);
   }
 
