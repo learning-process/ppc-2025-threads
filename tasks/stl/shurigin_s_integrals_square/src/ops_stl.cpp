@@ -3,13 +3,14 @@
 #include <cmath>
 #include <cstddef>
 #include <exception>
-#include <execution>
 #include <functional>
+#include <future>
 #include <iostream>
 #include <memory>
 #include <numeric>
 #include <stdexcept>
 #include <string>
+#include <thread>
 #include <utility>
 #include <vector>
 
@@ -69,9 +70,9 @@ bool Integral::PreProcessingImpl() {
           lower_limit_index >= num_input_doubles) {
         throw std::out_of_range("Input data size is too small for the specified dimensions and required elements.");
       }
-      down_limits_[i] = inputs[i];
-      up_limits_[i] = inputs[i + dimensions_];
-      counts_[i] = static_cast<int>(inputs[i + (2 * dimensions_)]);
+      down_limits_[i] = inputs[lower_limit_index];
+      up_limits_[i] = inputs[upper_limit_index];
+      counts_[i] = static_cast<int>(inputs[count_index]);
 
       if (counts_[i] <= 0) {
         throw std::invalid_argument("Number of intervals must be positive for all dimensions.");
@@ -161,7 +162,7 @@ bool Integral::ComputeOneDimensionalStl() {
   const double upper = up_limits_[0];
   const int num_intervals = counts_[0];
 
-  if (num_intervals <= 0) [[unlikely]] {
+  if (num_intervals <= 0) {
     result_ = 0.0;
     return true;
   }
@@ -170,18 +171,51 @@ bool Integral::ComputeOneDimensionalStl() {
   const double half_step = 0.5 * step;
   const double base = lower + half_step;
 
-  std::vector<int> indices(num_intervals);
-  std::iota(indices.begin(), indices.end(), 0);
+  unsigned int num_workers = std::thread::hardware_concurrency();
+  if (num_workers == 0) {
+    num_workers = 1;
+  }
+  num_workers = std::min(num_workers, static_cast<unsigned int>(num_intervals));
 
-  auto transform_op = [this, base, step](int i) {
+  std::vector<std::thread> threads;
+  threads.reserve(num_workers);
+  std::vector<std::future<double>> futures;
+  futures.reserve(num_workers);
+
+  int intervals_per_worker = num_intervals / num_workers;
+  int extra_intervals = num_intervals % num_workers;
+  int current_start_index = 0;
+
+  auto worker_task = [this, base, step](int start_idx, int end_idx, std::promise<double> promise) {
+    double local_sum = 0.0;
     std::vector<double> point(1);
-    point[0] = base + static_cast<double>(i) * step;
-    return func_(point);
+    for (int i = start_idx; i < end_idx; ++i) {
+      point[0] = base + static_cast<double>(i) * step;
+      local_sum += func_(point);
+    }
+    promise.set_value(local_sum);
   };
 
-  double total_sum =
-      std::transform_reduce(std::execution::par, indices.begin(), indices.end(), 0.0, std::plus<>(), transform_op);
+  for (unsigned int i = 0; i < num_workers; ++i) {
+    int count_for_this_worker = intervals_per_worker + (i < extra_intervals ? 1 : 0);
+    if (count_for_this_worker == 0) continue;
+    int current_end_index = current_start_index + count_for_this_worker;
 
+    std::promise<double> promise;
+    futures.emplace_back(promise.get_future());
+    threads.emplace_back(worker_task, current_start_index, current_end_index, std::move(promise));
+
+    current_start_index = current_end_index;
+  }
+
+  double total_sum = 0.0;
+  for (auto& fut : futures) {
+    total_sum += fut.get();
+  }
+
+  for (auto& t : threads) {
+    t.join();
+  }
   result_ = total_sum * step;
   return true;
 }
@@ -195,20 +229,58 @@ double Integral::ComputeParallelOuterLoop(const std::function<double(const std::
 
   const double step0 = (b[0] - a[0]) / n[0];
   const double base0 = a[0] + (0.5 * step0);
+  const int num_intervals_outer = n[0];
 
-  std::vector<int> indices(n[0]);
-  std::iota(indices.begin(), indices.end(), 0);
+  if (num_intervals_outer <= 0) {
+    return 0.0;
+  }
 
-  auto transform_op = [&](int i) {
+  unsigned int num_workers = std::thread::hardware_concurrency();
+  if (num_workers == 0) {
+    num_workers = 1;
+  }
+  num_workers = std::min(num_workers, static_cast<unsigned int>(num_intervals_outer));
+
+  std::vector<std::thread> threads;
+  threads.reserve(num_workers);
+  std::vector<std::future<double>> futures;
+  futures.reserve(num_workers);
+
+  int intervals_per_worker = num_intervals_outer / num_workers;
+  int extra_intervals = num_intervals_outer % num_workers;
+  int current_start_index = 0;
+
+  auto worker_task = [this, f, &a, &b, &n, dim, initial_point, base0, step0](int start_idx, int end_idx,
+                                                                             std::promise<double> promise) {
+    double local_sum = 0.0;
     std::vector<double> current_point = initial_point;
-    current_point[0] = base0 + static_cast<double>(i) * step0;
-
-    return ComputeSequentialRecursive(f, a, b, n, dim, current_point, 1);
+    for (int i = start_idx; i < end_idx; ++i) {
+      current_point[0] = base0 + static_cast<double>(i) * step0;
+      local_sum += ComputeSequentialRecursive(f, a, b, n, dim, current_point, 1);
+    }
+    promise.set_value(local_sum);
   };
 
-  double total_sum_outer =
-      std::transform_reduce(std::execution::par, indices.begin(), indices.end(), 0.0, std::plus<>(), transform_op);
+  for (unsigned int i = 0; i < num_workers; ++i) {
+    int count_for_this_worker = intervals_per_worker + (i < extra_intervals ? 1 : 0);
+    if (count_for_this_worker == 0) continue;
+    int current_end_index = current_start_index + count_for_this_worker;
 
+    std::promise<double> promise;
+    futures.emplace_back(promise.get_future());
+    threads.emplace_back(worker_task, current_start_index, current_end_index, std::move(promise));
+
+    current_start_index = current_end_index;
+  }
+
+  double total_sum_outer = 0.0;
+  for (auto& fut : futures) {
+    total_sum_outer += fut.get();
+  }
+
+  for (auto& t : threads) {
+    t.join();
+  }
   return total_sum_outer * step0;
 }
 
