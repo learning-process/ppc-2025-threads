@@ -8,10 +8,8 @@
 #include <numeric>
 #include <vector>
 
-#include "core/util/include/util.hpp"
 #include "oneapi/tbb/blocked_range.h"
 #include "oneapi/tbb/parallel_for.h"
-#include "oneapi/tbb/task_arena.h"
 
 bool vedernikova_k_gauss_tbb::Gauss::ValidationImpl() {
   if (task_data->inputs_count.size() != 3 || task_data->outputs_count.empty()) {
