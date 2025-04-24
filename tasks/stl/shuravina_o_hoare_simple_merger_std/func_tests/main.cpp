@@ -27,7 +27,6 @@ TEST(shuravina_o_hoare_simple_merger_stl, test_sort) {
   std::vector<int> expected = {1, 2, 5, 5, 6, 9};
   EXPECT_EQ(out, expected);
 }
-
 TEST(shuravina_o_hoare_simple_merger_stl, test_empty_array) {
   std::vector<int> in = {};
   std::vector<int> out = {};
