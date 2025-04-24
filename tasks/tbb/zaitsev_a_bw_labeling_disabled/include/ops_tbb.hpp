@@ -29,11 +29,9 @@ class Labeler : public ppc::core::Task {
   Length size_;
   Length chunk_;
 
-  void LabelingRasterScan(Equivalencies& eqs, Ordinals& ordinals);
-  void CalculateReplacements(Replacements& replacements, Equivalencies& eqs, Ordinals& ordinals);
+  void LabelingRasterScan(Ordinals& ordinals);
   void GlobalizeLabels(Ordinals& ordinals);
   void UniteChunks();
-  void PerformReplacements(Replacements& replacements);
 
  public:
   explicit Labeler(ppc::core::TaskDataPtr task_data) : Task(std::move(task_data)) {}
