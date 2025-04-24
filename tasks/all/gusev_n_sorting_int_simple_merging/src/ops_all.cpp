@@ -38,8 +38,8 @@ void gusev_n_sorting_int_simple_merging_all::SortingIntSimpleMergingALL::RadixSo
     }
   }
 
-  int negatives_size = negatives.size();
-  int positives_size = positives.size();
+  std::size_t negatives_size = negatives.size();
+  std::size_t positives_size = positives.size();
 
   boost::mpi::broadcast(world, negatives_size, 0);
   boost::mpi::broadcast(world, positives_size, 0);
@@ -57,7 +57,9 @@ void gusev_n_sorting_int_simple_merging_all::SortingIntSimpleMergingALL::RadixSo
       RadixSortForNonNegative(negatives);
       std::ranges::reverse(negatives);
       std::ranges::transform(negatives, negatives.begin(), std::negate{});
-    } else if (rank == 1 && !positives.empty()) {
+    }
+
+    if (rank == 1 && !positives.empty()) {
       RadixSortForNonNegative(positives);
     }
   } else {
@@ -77,12 +79,16 @@ void gusev_n_sorting_int_simple_merging_all::SortingIntSimpleMergingALL::RadixSo
   }
 
   if (size > 1) {
-    if (rank == 1) {
-      world.send(0, 0, positives);
-    } else if (rank == 0) {
-      if (!positives.empty()) {
-        world.recv(1, 0, positives);
-      }
+    std::vector<int> sorted_positives;
+
+    if (rank == 1 && !positives.empty()) {
+      sorted_positives = positives;
+    }
+
+    boost::mpi::broadcast(world, sorted_positives, 1);
+
+    if (rank == 0 && !sorted_positives.empty()) {
+      positives = sorted_positives;
     }
   }
 
@@ -111,13 +117,11 @@ void gusev_n_sorting_int_simple_merging_all::SortingIntSimpleMergingALL::RadixSo
 
 void gusev_n_sorting_int_simple_merging_all::SortingIntSimpleMergingALL::CountingSort(std::vector<int>& arr, int exp) {
   boost::mpi::communicator world;
-  // int rank = world.rank();
   int size = world.size();
 
   std::vector<int> output(arr.size());
   std::vector<int> count(10, 0);
 
-  // Using tbb for parallel numeric
   oneapi::tbb::enumerable_thread_specific<std::vector<int>> tl_counts([&] { return std::vector<int>(10, 0); });
 
   oneapi::tbb::parallel_for(oneapi::tbb::blocked_range<size_t>(0, arr.size()),
@@ -137,7 +141,7 @@ void gusev_n_sorting_int_simple_merging_all::SortingIntSimpleMergingALL::Countin
 
   if (size > 1) {
     std::vector<int> global_count(10, 0);
-    boost::mpi::all_reduce(world, count.data(), 10, global_count.data(), std::plus<int>());
+    boost::mpi::all_reduce(world, count.data(), 10, global_count.data(), std::plus<>());
     count = global_count;
   }
 
