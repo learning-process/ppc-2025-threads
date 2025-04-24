@@ -143,14 +143,12 @@ bool vavilov_v_cannon_all::CannonALL::RunImpl() {
       if (p == 0) {
         std::copy(A_.begin() + block_idx, A_.begin() + block_idx + block_size_sq, local_A.begin());
         std::copy(B_.begin() + block_idx, B_.begin() + block_idx + block_size_sq, local_B.begin());
-      }
-      else {
+      } else {
         world_.send(p, 0, A_.data() + block_idx, block_size_sq);
         world_.send(p, 1, B_.data() + block_idx, block_size_sq);
       }
     }
-  }
-  else {
+  } else {
     world_.recv(0, 0, local_A.data(), block_size_sq);
     world_.recv(0, 1, local_B.data(), block_size_sq);
   }
@@ -171,18 +169,16 @@ bool vavilov_v_cannon_all::CannonALL::RunImpl() {
       int block_idx = (row * num_blocks_ + col) * block_size_sq;
       if (p == 0) {
         std::copy(local_C.begin(), local_C.end(), C_.begin() + block_idx);
-      }
-      else {
+      } else {
         std::vector<double> tmp_C(block_size_sq);
         world_.recv(p, 2, tmp_C.data(), block_size_sq);
         std::copy(tmp_C.begin(), tmp_C.end(), C_.begin() + block_idx);
       }
     }
-  }
-  else {
+  } else {
     world_.send(0, 2, local_C.data(), block_size_sq);
   }
-    return true;
+  return true;
 }
 
 bool vavilov_v_cannon_all::CannonALL::PostProcessingImpl() {
