@@ -1,6 +1,5 @@
 #pragma once
 
-#include <boost/mpi/communicator.hpp>
 #include <utility>
 #include <vector>
 

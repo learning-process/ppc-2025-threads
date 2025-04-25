@@ -3,21 +3,22 @@
 #include <oneapi/tbb/blocked_range.h>
 #include <oneapi/tbb/enumerable_thread_specific.h>
 #include <oneapi/tbb/parallel_for.h>
-#include <oneapi/tbb/parallel_invoke.h>
+#include <oneapi/tbb/parallel_invoke.h>  // IWYU pragma: keep
 #include <tbb/tbb.h>
 
 #include <algorithm>
 #include <boost/mpi/collectives.hpp>
-#include <boost/mpi/collectives/all_reduce.hpp>
+#include <boost/mpi/collectives/all_reduce.hpp>  // IWYU pragma: keep
 #include <boost/mpi/collectives/broadcast.hpp>
 #include <boost/mpi/collectives/gather.hpp>
-#include <boost/mpi/collectives/scatter.hpp>
+#include <boost/mpi/collectives/scatter.hpp>  // IWYU pragma: keep
 #include <boost/mpi/communicator.hpp>
 #include <boost/serialization/vector.hpp>  // IWYU pragma: keep
 #include <cmath>
 #include <cstddef>
 #include <functional>
 #include <numeric>
+#include <utility>
 #include <vector>
 
 void gusev_n_sorting_int_simple_merging_all::SortingIntSimpleMergingALL::SplitBySign(const std::vector<int>& arr,
@@ -56,7 +57,8 @@ std::vector<std::vector<int>> gusev_n_sorting_int_simple_merging_all::SortingInt
 
     if (current_chunk_size > 0) {
       size_t end = start + current_chunk_size;
-      chunks[i].insert(chunks[i].end(), arr.begin() + start, arr.begin() + end);
+      chunks[i].insert(chunks[i].end(), arr.begin() + static_cast<std::ptrdiff_t>(start),
+                       arr.begin() + static_cast<std::ptrdiff_t>(end));
       start = end;
     }
   }
@@ -75,13 +77,16 @@ std::vector<int> gusev_n_sorting_int_simple_merging_all::SortingIntSimpleMerging
   result.reserve(total_size);
 
   for (const auto& arr : arrays) {
-    if (arr.empty()) continue;
+    if (arr.empty()) {
+      continue;
+    }
 
     if (result.empty()) {
       result = arr;
     } else {
       std::vector<int> merged(result.size() + arr.size());
-      std::merge(result.begin(), result.end(), arr.begin(), arr.end(), merged.begin());
+      std::merge(result.begin(), result.end(), arr.begin(), arr.end(),
+                 merged.begin());  // NOLINT [modernize-use-ranges]
       result = std::move(merged);
     }
   }
@@ -89,7 +94,8 @@ std::vector<int> gusev_n_sorting_int_simple_merging_all::SortingIntSimpleMerging
   return result;
 }
 
-void gusev_n_sorting_int_simple_merging_all::SortingIntSimpleMergingALL::RadixSort(std::vector<int>& arr) {
+void gusev_n_sorting_int_simple_merging_all::SortingIntSimpleMergingALL::RadixSort(
+    std::vector<int>& arr) {  // NOLINT [readability-function-cognitive-complexity]
   boost::mpi::communicator world;
   int rank = world.rank();
   int size = world.size();
