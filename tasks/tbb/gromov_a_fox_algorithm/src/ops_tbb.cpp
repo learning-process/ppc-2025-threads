@@ -14,9 +14,9 @@ namespace {
 void FoxBlockMul(const std::vector<double>& a, const std::vector<double>& b, std::vector<double>& c, int n,
                  int block_size, int stage, int i, int j) {
   int start_k = stage * block_size;
-  for (int bi = i; bi < i + block_size && bi < n; ++bi) {
-    for (int bj = j; bj < j + block_size && bj < n; ++bj) {
-      for (int bk = start_k; bk < std::min((stage + 1) * block_size, n); ++bk) {
+  for (int bk = start_k; bk < std::min((stage + 1) * block_size, n); ++bk) {
+    for (int bi = i; bi < i + block_size && bi < n; ++bi) {
+      for (int bj = j; bj < j + block_size && bj < n; ++bj) {
         c[(bi * n) + bj] += a[(bi * n) + bk] * b[(bk * n) + bj];
       }
     }
@@ -44,10 +44,18 @@ bool gromov_a_fox_algorithm_tbb::TestTaskTBB::PreProcessingImpl() {
     return false;
   }
 
-  block_size_ = n_ / 2;
-  for (int i = 1; i <= n_; ++i) {
+  block_size_ = static_cast<int>(std::sqrt(n_));
+  for (int i = block_size_; i >= 1; --i) {
     if (n_ % i == 0) {
       block_size_ = i;
+      break;
+    }
+  }
+  for (int i = block_size_ + 1; i <= n_; ++i) {
+    if (n_ % i == 0) {
+      if (std::abs(i - static_cast<int>(std::sqrt(n_))) < std::abs(block_size_ - static_cast<int>(std::sqrt(n_)))) {
+        block_size_ = i;
+      }
       break;
     }
   }
@@ -69,14 +77,15 @@ bool gromov_a_fox_algorithm_tbb::TestTaskTBB::RunImpl() {
 
   oneapi::tbb::task_arena arena(ppc::util::GetPPCNumThreads());
   arena.execute([&] {
-    tbb::task_group tg;
     for (int stage = 0; stage < num_blocks; ++stage) {
-      for (int i = 0; i < n_; i += block_size_) {
-        for (int j = 0; j < n_; j += block_size_) {
-          tg.run([&, i, j, stage] { FoxBlockMul(A_, B_, output_, n_, block_size_, stage, i, j); });
-        }
-      }
-      tg.wait();
+      tbb::parallel_for(tbb::blocked_range2d<int>(0, n_, block_size_, 0, n_, block_size_),
+       [&](const tbb::blocked_range2d<int>& r) {
+         for (int i = r.rows().begin(); i < r.rows().end(); i += block_size_) {
+           for (int j = r.cols().begin(); j < r.cols().end(); j += block_size_) {
+             FoxBlockMul(A_, B_, output_, n_, block_size_, stage, i, j);
+           }
+         }
+       });
     }
   });
   return true;
