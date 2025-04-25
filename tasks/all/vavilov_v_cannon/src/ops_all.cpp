@@ -96,7 +96,6 @@ void vavilov_v_cannon_all::CannonALL::ShiftBlocks(std::vector<double>& local_A, 
 }
 
 bool vavilov_v_cannon_all::CannonALL::RunImpl() {
-
   int rank = world_.rank();
   int size = world_.size();
 
