@@ -41,13 +41,16 @@ void vavilov_v_cannon_all::CannonALL::InitialShift(std::vector<double>& local_A,
 
   std::vector<double> tmp_A(block_size_ * block_size_);
   std::vector<double> tmp_B(block_size_ * block_size_);
-
-  world_.sendrecv(local_A.data(), block_size_ * block_size_, mpi::get_mpi_datatype<double>(), a_dest, 0, tmp_A.data(),
-                  block_size_ * block_size_, mpi::get_mpi_datatype<double>(), a_src, 0);
-  world_.sendrecv(local_B.data(), block_size_ * block_size_, mpi::get_mpi_datatype<double>(), b_dest, 1, tmp_B.data(),
-                  block_size_ * block_size_, mpi::get_mpi_datatype<double>(), b_src, 1);
-  local_A = tmp_A;
-  local_B = tmp_B;
+  if (a_dest != rank) {
+    world_.send(a_dest, 0, local_A);
+    world_.recv(a_src, 0, tmp_A);
+    local_A = tmp_A;
+  }
+  if (b_dest != rank) {
+    world_.send(b_dest, 1, local_B);
+    world_.recv(b_src, 1, tmp_B);
+    local_B = tmp_B;
+  }
 }
 
 void vavilov_v_cannon_all::CannonALL::BlockMultiply(const std::vector<double>& local_A,
@@ -78,13 +81,16 @@ void vavilov_v_cannon_all::CannonALL::ShiftBlocks(std::vector<double>& local_A, 
 
   std::vector<double> tmp_A(block_size_ * block_size_);
   std::vector<double> tmp_B(block_size_ * block_size_);
-
-  world_.sendrecv(local_A.data(), block_size_ * block_size_, mpi::get_mpi_datatype<double>(), left_dest, 2,
-                  tmp_A.data(), block_size_ * block_size_, mpi::DOUBLE, left_src, 2);
-  world_.sendrecv(local_B.data(), block_size_ * block_size_, mpi::get_mpi_datatype<double>(), up_dest, 3, tmp_B.data(),
-                  block_size_ * block_size_, mpi::DOUBLE, up_src, 3);
-  local_A = tmp_A;
-  local_B = tmp_B;
+  if (left_dest != rank) {
+    world_.send(left_dest, 2, local_A);
+    world_.recv(left_src, 2, tmp_A);
+    local_A = tmp_A;
+  }
+  if (up_dest != rank) {
+    world_.send(up_dest, 3, local_B);
+    world_.recv(up_src, 3, tmp_B);
+    local_B = tmp_B;
+  }
 }
 
 bool vavilov_v_cannon_all::CannonALL::RunImpl() {
