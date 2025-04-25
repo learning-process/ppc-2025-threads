@@ -9,23 +9,14 @@
 #include "core/util/include/util.hpp"
 
 namespace {
-void MatMul(const std::vector<int> &in_vec, int rc_size, std::vector<int> &out_vec) {
-  for (int i = 0; i < rc_size; ++i) {
-    for (int j = 0; j < rc_size; ++j) {
-      out_vec[(i * rc_size) + j] = 0;
-      for (int k = 0; k < rc_size; ++k) {
-        out_vec[(i * rc_size) + j] += in_vec[(i * rc_size) + k] * in_vec[(k * rc_size) + j];
-      }
-    }
-  }
-}
 // clang-format off
   const std::vector<std::vector<double>> kernel = {
       {1.0 / 16, 2.0 / 16, 1.0 / 16},
       {2.0 / 16, 4.0 / 16, 2.0 / 16},
       {1.0 / 16, 2.0 / 16, 1.0 / 16}};
 // clang-format on
-void ThreadTask(const std::vector<int> &in_vec, int n, int m, std::vector<int> &res_vec, int begin_pos, int end_pos) {
+void ThreadTask(const std::vector<double> &in_vec, int n, int m, std::vector<double> &res_vec, int begin_pos,
+                int end_pos) {
   std::cout << "begin = " << begin_pos << ", end = " << end_pos << '\n';
   for (int i = begin_pos; i < end_pos; ++i) {
     for (int j = 0; j < m; ++j) {
@@ -67,8 +58,8 @@ bool morozov_e_lineare_image_filtering_block_gaussian_stl::TestTaskSTL::RunImpl(
   int count_el_remain = n_ % num_threads;
   int cur_count = 0;
   for (int i = 0; i < num_threads; ++i) {
-    threads[i] = std::thread(ThreadTask, std::cref(input_), n_, m_, std::ref(res_), cur_count,
-                             count_el + i < count_el_remain ? ++cur_count : cur_count);
+    int end_index = count_el + (i < count_el_remain ? ++cur_count : cur_count);
+    threads[i] = std::thread(ThreadTask, std::cref(input_), n_, m_, std::ref(res_), cur_count, end_index);
     cur_count += count_el;
   }
   for (int i = 0; i < num_threads; ++i) {
