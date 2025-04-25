@@ -34,7 +34,7 @@ double chizhov_m_trapezoid_method_tbb::TrapezoidMethod(Function& f, size_t div, 
 
   arena.execute([&] {
     result = oneapi::tbb::parallel_reduce(
-        tbb::blocked_range<long>(0, total_nodes), 0.0,
+        tbb::blocked_range<long>(0, total_nodes, 16), 0.0,
         [&](const tbb::blocked_range<long>& r, double local_res) {
           for (long i = r.begin(); i != r.end(); ++i) {
             int temp = static_cast<int>(i);
