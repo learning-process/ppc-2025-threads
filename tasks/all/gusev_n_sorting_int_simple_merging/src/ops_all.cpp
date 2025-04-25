@@ -10,6 +10,8 @@
 #include <boost/mpi/collectives.hpp>
 #include <boost/mpi/collectives/all_reduce.hpp>
 #include <boost/mpi/collectives/broadcast.hpp>
+#include <boost/mpi/collectives/gather.hpp>
+#include <boost/mpi/collectives/scatter.hpp>
 #include <boost/mpi/communicator.hpp>
 #include <boost/serialization/vector.hpp>  // IWYU pragma: keep
 #include <cmath>
@@ -37,6 +39,56 @@ void gusev_n_sorting_int_simple_merging_all::SortingIntSimpleMergingALL::MergeRe
   arr.insert(arr.end(), positives.begin(), positives.end());
 }
 
+std::vector<std::vector<int>> gusev_n_sorting_int_simple_merging_all::SortingIntSimpleMergingALL::DistributeArray(
+    const std::vector<int>& arr, int num_procs) {
+  std::vector<std::vector<int>> chunks(num_procs);
+
+  if (arr.empty()) {
+    return chunks;
+  }
+
+  size_t chunk_size = arr.size() / num_procs;
+  size_t remainder = arr.size() % num_procs;
+
+  size_t start = 0;
+  for (int i = 0; i < num_procs; ++i) {
+    size_t current_chunk_size = chunk_size + (i < remainder ? 1 : 0);
+
+    if (current_chunk_size > 0) {
+      size_t end = start + current_chunk_size;
+      chunks[i].insert(chunks[i].end(), arr.begin() + start, arr.begin() + end);
+      start = end;
+    }
+  }
+
+  return chunks;
+}
+
+std::vector<int> gusev_n_sorting_int_simple_merging_all::SortingIntSimpleMergingALL::MergeSortedArrays(
+    const std::vector<std::vector<int>>& arrays) {
+  std::vector<int> result;
+
+  size_t total_size = 0;
+  for (const auto& arr : arrays) {
+    total_size += arr.size();
+  }
+  result.reserve(total_size);
+
+  for (const auto& arr : arrays) {
+    if (arr.empty()) continue;
+
+    if (result.empty()) {
+      result = arr;
+    } else {
+      std::vector<int> merged(result.size() + arr.size());
+      std::merge(result.begin(), result.end(), arr.begin(), arr.end(), merged.begin());
+      result = std::move(merged);
+    }
+  }
+
+  return result;
+}
+
 void gusev_n_sorting_int_simple_merging_all::SortingIntSimpleMergingALL::RadixSort(std::vector<int>& arr) {
   boost::mpi::communicator world;
   int rank = world.rank();
@@ -53,78 +105,108 @@ void gusev_n_sorting_int_simple_merging_all::SortingIntSimpleMergingALL::RadixSo
     SplitBySign(arr, negatives, positives);
   }
 
-  std::size_t negatives_size = negatives.size();
-  std::size_t positives_size = positives.size();
-
+  size_t negatives_size = negatives.size();
+  size_t positives_size = positives.size();
   boost::mpi::broadcast(world, negatives_size, 0);
   boost::mpi::broadcast(world, positives_size, 0);
 
-  if (rank != 0) {
-    negatives.resize(negatives_size);
-    positives.resize(positives_size);
+  std::vector<int> sorted_negatives;
+  std::vector<int> sorted_positives;
+
+  if (negatives_size > 0) {
+    if (rank != 0) {
+      negatives.resize(negatives_size);
+    }
+    boost::mpi::broadcast(world, negatives, 0);
+
+    std::vector<std::vector<int>> neg_chunks;
+    if (rank == 0) {
+      neg_chunks = DistributeArray(negatives, size);
+    }
+
+    std::vector<int> my_neg_chunk;
+    if (size > 1) {
+      if (rank == 0) {
+        for (int i = 1; i < size; ++i) {
+          world.send(i, 0, neg_chunks[i]);
+        }
+        my_neg_chunk = std::move(neg_chunks[0]);
+      } else {
+        world.recv(0, 0, my_neg_chunk);
+      }
+    } else {
+      my_neg_chunk = negatives;
+    }
+
+    if (!my_neg_chunk.empty()) {
+      RadixSortForNonNegative(my_neg_chunk);
+    }
+
+    if (size > 1) {
+      std::vector<std::vector<int>> gathered_neg_chunks;
+      boost::mpi::gather(world, my_neg_chunk, gathered_neg_chunks, 0);
+
+      if (rank == 0) {
+        sorted_negatives = MergeSortedArrays(gathered_neg_chunks);
+
+        std::ranges::reverse(sorted_negatives);
+        std::ranges::transform(sorted_negatives, sorted_negatives.begin(), std::negate{});
+      }
+    } else {
+      sorted_negatives = std::move(my_neg_chunk);
+      std::ranges::reverse(sorted_negatives);
+      std::ranges::transform(sorted_negatives, sorted_negatives.begin(), std::negate{});
+    }
   }
 
-  boost::mpi::broadcast(world, negatives, 0);
-  boost::mpi::broadcast(world, positives, 0);
+  if (positives_size > 0) {
+    if (rank != 0) {
+      positives.resize(positives_size);
+    }
+    boost::mpi::broadcast(world, positives, 0);
 
-  ProcessWithMpiOrTbb(size, rank, negatives, positives);
+    std::vector<std::vector<int>> pos_chunks;
+    if (rank == 0) {
+      pos_chunks = DistributeArray(positives, size);
+    }
 
-  CollectResults(world, size, rank, positives);
+    std::vector<int> my_pos_chunk;
+    if (size > 1) {
+      if (rank == 0) {
+        for (int i = 1; i < size; ++i) {
+          world.send(i, 1, pos_chunks[i]);
+        }
+        my_pos_chunk = std::move(pos_chunks[0]);
+      } else {
+        world.recv(0, 1, my_pos_chunk);
+      }
+    } else {
+      my_pos_chunk = positives;
+    }
+
+    if (!my_pos_chunk.empty()) {
+      RadixSortForNonNegative(my_pos_chunk);
+    }
+
+    if (size > 1) {
+      std::vector<std::vector<int>> gathered_pos_chunks;
+      boost::mpi::gather(world, my_pos_chunk, gathered_pos_chunks, 0);
+
+      if (rank == 0) {
+        sorted_positives = MergeSortedArrays(gathered_pos_chunks);
+      }
+    } else {
+      sorted_positives = std::move(my_pos_chunk);
+    }
+  }
 
   if (rank == 0) {
-    MergeResults(arr, negatives, positives);
+    MergeResults(arr, sorted_negatives, sorted_positives);
   }
 
   boost::mpi::broadcast(world, arr, 0);
 
   world.barrier();
-}
-
-void gusev_n_sorting_int_simple_merging_all::SortingIntSimpleMergingALL::ProcessWithMpiOrTbb(
-    int size, int rank, std::vector<int>& negatives, std::vector<int>& positives) {
-  if (size > 1) {
-    if (rank == 0 && !negatives.empty()) {
-      RadixSortForNonNegative(negatives);
-      std::ranges::reverse(negatives);
-      std::ranges::transform(negatives, negatives.begin(), std::negate{});
-    }
-
-    if (rank == 1 && !positives.empty()) {
-      RadixSortForNonNegative(positives);
-    }
-  } else {
-    oneapi::tbb::parallel_invoke(
-        [&] {
-          if (!negatives.empty()) {
-            RadixSortForNonNegative(negatives);
-            std::ranges::reverse(negatives);
-            std::ranges::transform(negatives, negatives.begin(), std::negate{});
-          }
-        },
-        [&] {
-          if (!positives.empty()) {
-            RadixSortForNonNegative(positives);
-          }
-        });
-  }
-}
-
-void gusev_n_sorting_int_simple_merging_all::SortingIntSimpleMergingALL::CollectResults(boost::mpi::communicator& world,
-                                                                                        int size, int rank,
-                                                                                        std::vector<int>& positives) {
-  if (size > 1) {
-    std::vector<int> sorted_positives;
-
-    if (rank == 1 && !positives.empty()) {
-      sorted_positives = positives;
-    }
-
-    boost::mpi::broadcast(world, sorted_positives, 1);
-
-    if (rank == 0 && !sorted_positives.empty()) {
-      positives = sorted_positives;
-    }
-  }
 }
 
 void gusev_n_sorting_int_simple_merging_all::SortingIntSimpleMergingALL::RadixSortForNonNegative(
@@ -141,7 +223,7 @@ void gusev_n_sorting_int_simple_merging_all::SortingIntSimpleMergingALL::RadixSo
 
 void gusev_n_sorting_int_simple_merging_all::SortingIntSimpleMergingALL::CountingSort(std::vector<int>& arr, int exp) {
   boost::mpi::communicator world;
-  int size = world.size();
+  // int size = world.size();
 
   std::vector<int> output(arr.size());
   std::vector<int> count(10, 0);
@@ -163,12 +245,6 @@ void gusev_n_sorting_int_simple_merging_all::SortingIntSimpleMergingALL::Countin
     }
   }
 
-  if (size > 1) {
-    std::vector<int> global_count(10, 0);
-    boost::mpi::all_reduce(world, count.data(), 10, global_count.data(), std::plus<>());
-    count = global_count;
-  }
-
   std::partial_sum(count.begin(), count.end(), count.begin());
 
   for (auto i = arr.size(); i > 0; --i) {
@@ -177,10 +253,6 @@ void gusev_n_sorting_int_simple_merging_all::SortingIntSimpleMergingALL::Countin
   }
 
   arr = output;
-
-  if (size > 1) {
-    boost::mpi::broadcast(world, arr, 0);
-  }
 }
 
 bool gusev_n_sorting_int_simple_merging_all::SortingIntSimpleMergingALL::PreProcessingImpl() {

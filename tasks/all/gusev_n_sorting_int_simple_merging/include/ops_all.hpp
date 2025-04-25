@@ -23,8 +23,8 @@ class SortingIntSimpleMergingALL : public ppc::core::Task {
 
   static void SplitBySign(const std::vector<int>& arr, std::vector<int>& negatives, std::vector<int>& positives);
   static void MergeResults(std::vector<int>& arr, const std::vector<int>& negatives, const std::vector<int>& positives);
-  static void ProcessWithMpiOrTbb(int size, int rank, std::vector<int>& negatives, std::vector<int>& positives);
-  static void CollectResults(boost::mpi::communicator& world, int size, int rank, std::vector<int>& positives);
+  static std::vector<std::vector<int>> DistributeArray(const std::vector<int>& arr, int num_procs);
+  static std::vector<int> MergeSortedArrays(const std::vector<std::vector<int>>& arrays);
 
   std::vector<int> input_, output_;
 };
