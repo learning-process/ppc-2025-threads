@@ -87,7 +87,7 @@ INSTANTIATE_TEST_SUITE_P(SidorinaPGradientMethodStlTest, SidorinaPGradientMethod
 
 INSTANTIATE_TEST_SUITE_P(SidorinaPGradientMethodStlTestVal, SidorinaPGradientMethodStlTestVal,
                          ::testing::Values(Params(0, {2}, {4}, {0}, {2}, 1e-6),
-                                           Params(1, {}, {4}, {0}, {2}, 1e-6),
+                                           Params(1, {}, {3}, {0}, {2}, 1e-6),
                                            Params(-1, {2}, {4}, {0}, {2}, 1e-6),
                                            Params(1, {2}, {}, {0}, {2}, 1e-6),
                                            Params(1, {2}, {4}, {}, {2}, 1e-6),
