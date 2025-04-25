@@ -1,7 +1,7 @@
 #include "stl/morozov_e_lineare_image_filtering_block_gaussian_stl/include/ops_stl.hpp"
 
 #include <cmath>
-#include <cstddef>
+#include <functional>
 #include <iostream>
 #include <thread>
 #include <vector>
@@ -10,7 +10,7 @@
 
 namespace {
 // clang-format off
-  const std::vector<std::vector<double>> kernel = {
+  const std::vector<std::vector<double>> kErnel = {
       {1.0 / 16, 2.0 / 16, 1.0 / 16},
       {2.0 / 16, 4.0 / 16, 2.0 / 16},
       {1.0 / 16, 2.0 / 16, 1.0 / 16}};
@@ -27,7 +27,7 @@ void ThreadTask(const std::vector<double> &in_vec, int n, int m, std::vector<dou
         // Применяем ядро к текущему пикселю и его соседям
         for (int ki = -1; ki <= 1; ++ki) {
           for (int kj = -1; kj <= 1; ++kj) {
-            sum += in_vec[((i + ki) * m) + (j + kj)] * kernel[ki + 1][kj + 1];
+            sum += in_vec[((i + ki) * m) + (j + kj)] * kErnel[ki + 1][kj + 1];
           }
         }
         res_vec[(i * m) + j] = sum;
@@ -58,8 +58,11 @@ bool morozov_e_lineare_image_filtering_block_gaussian_stl::TestTaskSTL::RunImpl(
   int count_el_remain = n_ % num_threads;
   int cur_count = 0;
   for (int i = 0; i < num_threads; ++i) {
-    int end_index = count_el + (i < count_el_remain ? ++cur_count : cur_count);
+    int end_index = count_el + cur_count + (i < count_el_remain ? 1 : 0);
     threads[i] = std::thread(ThreadTask, std::cref(input_), n_, m_, std::ref(res_), cur_count, end_index);
+    if (i < count_el_remain) {
+      cur_count++;
+    }
     cur_count += count_el;
   }
   for (int i = 0; i < num_threads; ++i) {
