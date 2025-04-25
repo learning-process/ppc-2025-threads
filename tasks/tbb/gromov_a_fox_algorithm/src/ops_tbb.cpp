@@ -7,9 +7,9 @@
 #include <core/util/include/util.hpp>
 #include <vector>
 
-#include "oneapi/tbb/task_arena.h"
-#include "oneapi/tbb/parallel_for.h"
 #include "oneapi/tbb/blocked_range2d.h"
+#include "oneapi/tbb/parallel_for.h"
+#include "oneapi/tbb/task_arena.h"
 
 namespace {
 void FoxBlockMul(const std::vector<double>& a, const std::vector<double>& b, std::vector<double>& c, int n,
