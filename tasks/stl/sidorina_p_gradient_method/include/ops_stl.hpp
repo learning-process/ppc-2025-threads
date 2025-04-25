@@ -165,5 +165,4 @@ class GradientMethod : public ppc::core::Task {
   std::vector<double> result_;
 };
 
-
 }  // namespace sidorina_p_gradient_method_stl

@@ -141,5 +141,4 @@ TEST(sidorina_p_gradient_method_stl, test_task_run) {
     }
     EXPECT_NEAR(sum, b[i], tolerance);
   }
-  
 }
