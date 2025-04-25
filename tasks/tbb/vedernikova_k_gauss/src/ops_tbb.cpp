@@ -8,7 +8,7 @@
 #include <numeric>
 #include <vector>
 
-#include "oneapi/tbb/blocked_range.h"
+#include "oneapi/tbb/blocked_range2d.h"
 #include "oneapi/tbb/parallel_for.h"
 
 bool vedernikova_k_gauss_tbb::Gauss::ValidationImpl() {
@@ -87,8 +87,8 @@ bool vedernikova_k_gauss_tbb::Gauss::RunImpl() {
     return true;
   }
 
-  tbb::parallel_for(tbb::blocked_range<size_t>(std::size_t(1), std::size_t(height_ - 1)),
-                    [&](const tbb::blocked_range<size_t>) {
+  tbb::parallel_for(tbb::blocked_range2d<size_t>(std::size_t(1), std::size_t(height_ - 1), 1, std::size_t(width_)),
+                    [&](const tbb::blocked_range2d<size_t>) {
                       for (uint32_t j = 0; j < height_; j++) {
                         for (uint32_t i = 0; i < width_; i++) {
                           ComputePixel(i, j);
