@@ -51,6 +51,7 @@ void vavilov_v_cannon_all::CannonALL::InitialShift(std::vector<double>& local_A,
     world_.recv(b_src, 1, tmp_B);
     local_B = tmp_B;
   }
+  world_.barrier();
 }
 
 void vavilov_v_cannon_all::CannonALL::BlockMultiply(const std::vector<double>& local_A,
@@ -91,29 +92,35 @@ void vavilov_v_cannon_all::CannonALL::ShiftBlocks(std::vector<double>& local_A, 
     world_.recv(up_src, 3, tmp_B);
     local_B = tmp_B;
   }
+  world_.barrier();
 }
 
 bool vavilov_v_cannon_all::CannonALL::RunImpl() {
-  mpi::environment env;
 
   int rank = world_.rank();
   int size = world_.size();
 
-  int grid_size = static_cast<int>(std::sqrt(size));
-  if (grid_size * grid_size != size) {
+  num_blocks_row_ = static_cast<int>(std::sqrt(size));
+  while (num_blocks_row_ > 0 && size % num_blocks_row_ != 0) {
+    num_blocks_row_--;
+  }
+  if (num_blocks_row_ == 0) {
     if (rank == 0) {
-      std::cerr << "Number of processes must be a perfect square" << std::endl;
+      std::cerr << "Cannot form a valid grid for " << size << " processes" << std::endl;
     }
+    world_.barrier();
+    MPI_Abort(MPI_COMM_WORLD, 1);
     return false;
   }
-
-  if (N_ % grid_size != 0) {
+  num_blocks_col_ = size / num_blocks_row_;
+  if (N_ % num_blocks_row_ != 0 || N_ % num_blocks_col_ != 0) {
     if (rank == 0) {
-      std::cerr << "Matrix size must be divisible by grid size" << std::endl;
+      std::cerr << "Matrix size must be divisible by grid dimensions (" << num_blocks_row_ << "x" << num_blocks_col_ << ")" << std::endl;
     }
+    world_.barrier();
+    MPI_Abort(MPI_COMM_WORLD, 1);
     return false;
   }
-
   num_blocks_ = grid_size;
   block_size_ = N_ / num_blocks_;
   int block_size_sq = block_size_ * block_size_;
@@ -139,8 +146,11 @@ bool vavilov_v_cannon_all::CannonALL::RunImpl() {
     }
   }
 
-  std::vector<std::vector<double>> all_C(size, std::vector<double>(block_size_sq));
-  boost::mpi::all_gather(world_, local_C, all_C);
+  std::vector<std::vector<double>> all_C;
+    if (rank == 0) {
+      all_C.resize(size, std::vector<double>(block_size_sq));
+  }
+  boost::mpi::gather(world_, local_C, all_C, 0);
 
   if (rank == 0) {
     for (int p = 0; p < size; ++p) {
