@@ -59,7 +59,7 @@ TEST(morozov_e_lineare_image_filtering_block_gaussian_stl, test_pipeline_run) {
   ASSERT_EQ(image_res, real_res);
 }
 
-TEST(morozov_e_lineare_image_filtering_block_gaussian_seq, test_task_run) {
+TEST(morozov_e_lineare_image_filtering_block_gaussian_stl, test_task_run) {
   int n = 4000;
   int m = 4000;
   std::vector<double> image(n * m, 1.0);
