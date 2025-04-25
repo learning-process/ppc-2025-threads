@@ -30,8 +30,8 @@ bool morozov_e_lineare_image_filtering_block_gaussian_tbb::TestTaskTBB::RunImpl(
       {1.0 / 16, 2.0 / 16, 1.0 / 16}};
   // clang-format on
   tbb::parallel_for(tbb::blocked_range2d<int>(0, n_, 0, m_), [&](const tbb::blocked_range2d<int> &r) {
-    for (int i = 0; i < n_; ++i) {
-      for (int j = 0; j < m_; ++j) {
+    for (int i = r.rows().begin(); i < r.rows().end(); ++i) {
+      for (int j = r.cols().begin(); j < r.cols().end(); ++j) {
         if (i == 0 || j == 0 || i == n_ - 1 || j == m_ - 1) {
           res_[(i * m_) + j] = input_[(i * m_) + j];
         } else {
