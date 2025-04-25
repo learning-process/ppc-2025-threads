@@ -129,8 +129,8 @@ bool smirnov_i_radix_sort_simple_merge_stl::TestTaskSTL::RunImpl() {
       firstdq.push_back(std::move(local_mas));
     }
   }
-  flag = static_cast<int>(firstdq.size()) != 1;
-  bool std::vector<std::thread> threads(max_th);
+  bool flag = static_cast<int>(firstdq.size()) != 1;
+  std::vector<std::thread> threads(max_th);
   while (flag) {
     for (int i = 0; i < max_th; i++) {
       threads[i] = std::thread(&smirnov_i_radix_sort_simple_merge_stl::TestTaskSTL::Merging, this, std::ref(firstdq),
