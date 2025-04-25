@@ -22,8 +22,8 @@ class TestTaskSTL : public ppc::core::Task {
   std::vector<int> mas_, output_;
   static void RadixSort(std::vector<int> &mas);
   static std::vector<int> Merge(std::vector<int> &mas1, std::vector<int> &mas2);
-  void Merging(std::deque<std::vector<int>> &firstdq, std::deque<std::vector<int>> &seconddq, std::mutex &mtx);
-  std::vector<int> Sorting(int id, std::vector<int> &mas, int max_th);
+  static void Merging(std::deque<std::vector<int>> &firstdq, std::deque<std::vector<int>> &seconddq, std::mutex &mtx);
+  static std::vector<int> Sorting(int id, std::vector<int> &mas, int max_th);
 };
 
 }  // namespace smirnov_i_radix_sort_simple_merge_stl
