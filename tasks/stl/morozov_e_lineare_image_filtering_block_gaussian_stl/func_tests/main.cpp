@@ -13,12 +13,12 @@ std::vector<double> GenerateRandomVector(int n, int m) {
   std::mt19937 gen(rd());
   std::uniform_real_distribution<> distrib(0, 255);
   std::vector<double> vector(n * m);
-  // Создание матрицы
+  // РЎРѕР·РґР°РЅРёРµ РјР°С‚СЂРёС†С‹
 
-  // Заполнение матрицы случайными числами
+  // Р—Р°РїРѕР»РЅРµРЅРёРµ РјР°С‚СЂРёС†С‹ СЃР»СѓС‡Р°Р№РЅС‹РјРё С‡РёСЃР»Р°РјРё
   for (int i = 0; i < n; ++i) {
     for (int j = 0; j < m; ++j) {
-      vector[(i * n) + j] = distrib(gen);  // Генерация случайного числа
+      vector[(i * n) + j] = distrib(gen);  // Р“РµРЅРµСЂР°С†РёСЏ СЃР»СѓС‡Р°Р№РЅРѕРіРѕ С‡РёСЃР»Р°
     }
   }
   return vector;
@@ -323,7 +323,7 @@ TEST(morozov_e_lineare_image_filtering_block_gaussian_stl, random_test1) {
         res[(i * m) + j] = image[(i * m) + j];
       } else {
         double sum = 0.0;
-        // Применяем ядро к текущему пикселю и его соседям
+        // РџСЂРёРјРµРЅСЏРµРј СЏРґСЂРѕ Рє С‚РµРєСѓС‰РµРјСѓ РїРёРєСЃРµР»СЋ Рё РµРіРѕ СЃРѕСЃРµРґСЏРј
         for (int ki = -1; ki <= 1; ++ki) {
           for (int kj = -1; kj <= 1; ++kj) {
             sum += image[((i + ki) * m) + (j + kj)] * kernel[ki + 1][kj + 1];

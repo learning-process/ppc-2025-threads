@@ -33,7 +33,7 @@ void ThreadTask(const std::vector<int> &in_vec, int n, int m, std::vector<int> &
         res_vec[(i * m) + j] = in_vec[(i * m) + j];
       } else {
         double sum = 0.0;
-        // Применяем ядро к текущему пикселю и его соседям
+        // РџСЂРёРјРµРЅСЏРµРј СЏРґСЂРѕ Рє С‚РµРєСѓС‰РµРјСѓ РїРёРєСЃРµР»СЋ Рё РµРіРѕ СЃРѕСЃРµРґСЏРј
         for (int ki = -1; ki <= 1; ++ki) {
           for (int kj = -1; kj <= 1; ++kj) {
             sum += in_vec[((i + ki) * m) + (j + kj)] * kernel[ki + 1][kj + 1];
