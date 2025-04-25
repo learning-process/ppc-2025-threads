@@ -85,8 +85,7 @@ std::vector<int> gusev_n_sorting_int_simple_merging_all::SortingIntSimpleMerging
       result = arr;
     } else {
       std::vector<int> merged(result.size() + arr.size());
-      std::merge(result.begin(), result.end(), arr.begin(), arr.end(),
-                 merged.begin());  // NOLINT [modernize-use-ranges]
+      std::ranges::merge(result, arr, merged.begin());
       result = std::move(merged);
     }
   }
@@ -94,8 +93,95 @@ std::vector<int> gusev_n_sorting_int_simple_merging_all::SortingIntSimpleMerging
   return result;
 }
 
-void gusev_n_sorting_int_simple_merging_all::SortingIntSimpleMergingALL::RadixSort(
-    std::vector<int>& arr) {  // NOLINT [readability-function-cognitive-complexity]
+void gusev_n_sorting_int_simple_merging_all::SortingIntSimpleMergingALL::DistributeAndSortChunk(
+    std::vector<int>& chunk, std::vector<std::vector<int>>& chunks, int rank, int size, int tag) {
+  boost::mpi::communicator world;
+
+  std::vector<int> my_chunk;
+  if (size > 1) {
+    if (rank == 0) {
+      for (int i = 1; i < size; ++i) {
+        world.send(i, tag, chunks[i]);
+      }
+      my_chunk = std::move(chunks[0]);
+    } else {
+      world.recv(0, tag, my_chunk);
+    }
+  } else {
+    my_chunk = chunk;
+  }
+
+  if (!my_chunk.empty()) {
+    RadixSortForNonNegative(my_chunk);
+  }
+
+  chunk = std::move(my_chunk);
+}
+
+std::vector<int> gusev_n_sorting_int_simple_merging_all::SortingIntSimpleMergingALL::GatherSortedChunks(
+    const std::vector<int>& my_chunk, int rank, int size, int tag) {
+  boost::mpi::communicator world;
+
+  if (size <= 1) {
+    return my_chunk;
+  }
+
+  std::vector<std::vector<int>> gathered_chunks;
+  boost::mpi::gather(world, my_chunk, gathered_chunks, 0);
+
+  if (rank == 0) {
+    return MergeSortedArrays(gathered_chunks);
+  }
+
+  return {};
+}
+
+void gusev_n_sorting_int_simple_merging_all::SortingIntSimpleMergingALL::ProcessNegativeNumbers(
+    std::vector<int>& negatives, std::vector<int>& sorted_negatives, int rank, int size) {
+  boost::mpi::communicator world;
+
+  if (negatives.empty()) {
+    return;
+  }
+
+  std::vector<std::vector<int>> neg_chunks;
+  if (rank == 0) {
+    neg_chunks = DistributeArray(negatives, size);
+  }
+
+  std::vector<int> my_neg_chunk;
+  DistributeAndSortChunk(negatives, neg_chunks, rank, size, 0);
+  my_neg_chunk = std::move(negatives);
+
+  sorted_negatives = GatherSortedChunks(my_neg_chunk, rank, size, 0);
+
+  if (rank == 0 && !sorted_negatives.empty()) {
+    std::ranges::reverse(sorted_negatives);
+    std::ranges::transform(sorted_negatives, sorted_negatives.begin(), std::negate{});
+  }
+}
+
+void gusev_n_sorting_int_simple_merging_all::SortingIntSimpleMergingALL::ProcessPositiveNumbers(
+    std::vector<int>& positives, std::vector<int>& sorted_positives, int rank, int size) {
+  boost::mpi::communicator world;
+
+  if (positives.empty()) {
+    return;
+  }
+
+  std::vector<std::vector<int>> pos_chunks;
+  if (rank == 0) {
+    pos_chunks = DistributeArray(positives, size);
+  }
+
+  std::vector<int> my_pos_chunk;
+  DistributeAndSortChunk(positives, pos_chunks, rank, size, 1);
+  my_pos_chunk = std::move(positives);
+
+  sorted_positives = GatherSortedChunks(my_pos_chunk, rank, size, 1);
+}
+
+void gusev_n_sorting_int_simple_merging_all::SortingIntSimpleMergingALL::RadixSort(std::vector<int>& arr) {
   boost::mpi::communicator world;
   int rank = world.rank();
   int size = world.size();
@@ -125,44 +211,7 @@ void gusev_n_sorting_int_simple_merging_all::SortingIntSimpleMergingALL::RadixSo
     }
     boost::mpi::broadcast(world, negatives, 0);
 
-    std::vector<std::vector<int>> neg_chunks;
-    if (rank == 0) {
-      neg_chunks = DistributeArray(negatives, size);
-    }
-
-    std::vector<int> my_neg_chunk;
-    if (size > 1) {
-      if (rank == 0) {
-        for (int i = 1; i < size; ++i) {
-          world.send(i, 0, neg_chunks[i]);
-        }
-        my_neg_chunk = std::move(neg_chunks[0]);
-      } else {
-        world.recv(0, 0, my_neg_chunk);
-      }
-    } else {
-      my_neg_chunk = negatives;
-    }
-
-    if (!my_neg_chunk.empty()) {
-      RadixSortForNonNegative(my_neg_chunk);
-    }
-
-    if (size > 1) {
-      std::vector<std::vector<int>> gathered_neg_chunks;
-      boost::mpi::gather(world, my_neg_chunk, gathered_neg_chunks, 0);
-
-      if (rank == 0) {
-        sorted_negatives = MergeSortedArrays(gathered_neg_chunks);
-
-        std::ranges::reverse(sorted_negatives);
-        std::ranges::transform(sorted_negatives, sorted_negatives.begin(), std::negate{});
-      }
-    } else {
-      sorted_negatives = std::move(my_neg_chunk);
-      std::ranges::reverse(sorted_negatives);
-      std::ranges::transform(sorted_negatives, sorted_negatives.begin(), std::negate{});
-    }
+    ProcessNegativeNumbers(negatives, sorted_negatives, rank, size);
   }
 
   if (positives_size > 0) {
@@ -171,39 +220,7 @@ void gusev_n_sorting_int_simple_merging_all::SortingIntSimpleMergingALL::RadixSo
     }
     boost::mpi::broadcast(world, positives, 0);
 
-    std::vector<std::vector<int>> pos_chunks;
-    if (rank == 0) {
-      pos_chunks = DistributeArray(positives, size);
-    }
-
-    std::vector<int> my_pos_chunk;
-    if (size > 1) {
-      if (rank == 0) {
-        for (int i = 1; i < size; ++i) {
-          world.send(i, 1, pos_chunks[i]);
-        }
-        my_pos_chunk = std::move(pos_chunks[0]);
-      } else {
-        world.recv(0, 1, my_pos_chunk);
-      }
-    } else {
-      my_pos_chunk = positives;
-    }
-
-    if (!my_pos_chunk.empty()) {
-      RadixSortForNonNegative(my_pos_chunk);
-    }
-
-    if (size > 1) {
-      std::vector<std::vector<int>> gathered_pos_chunks;
-      boost::mpi::gather(world, my_pos_chunk, gathered_pos_chunks, 0);
-
-      if (rank == 0) {
-        sorted_positives = MergeSortedArrays(gathered_pos_chunks);
-      }
-    } else {
-      sorted_positives = std::move(my_pos_chunk);
-    }
+    ProcessPositiveNumbers(positives, sorted_positives, rank, size);
   }
 
   if (rank == 0) {

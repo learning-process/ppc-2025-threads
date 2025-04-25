@@ -25,6 +25,15 @@ class SortingIntSimpleMergingALL : public ppc::core::Task {
   static std::vector<std::vector<int>> DistributeArray(const std::vector<int>& arr, int num_procs);
   static std::vector<int> MergeSortedArrays(const std::vector<std::vector<int>>& arrays);
 
+  // Updated from RadixSort
+  static void ProcessNegativeNumbers(std::vector<int>& negatives, std::vector<int>& sorted_negatives, int rank,
+                                     int size);
+  static void ProcessPositiveNumbers(std::vector<int>& positives, std::vector<int>& sorted_positives, int rank,
+                                     int size);
+  static void DistributeAndSortChunk(std::vector<int>& chunk, std::vector<std::vector<int>>& chunks, int rank, int size,
+                                     int tag);
+  static std::vector<int> GatherSortedChunks(const std::vector<int>& my_chunk, int rank, int size, int tag);
+
   std::vector<int> input_, output_;
 };
 
