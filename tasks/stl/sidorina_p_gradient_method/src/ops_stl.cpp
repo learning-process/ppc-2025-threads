@@ -56,4 +56,5 @@ bool sidorina_p_gradient_method_stl::GradientMethod::PostProcessingImpl() {
     result_ptr[i] = result_[i];
   }
   return true;
+  
 }

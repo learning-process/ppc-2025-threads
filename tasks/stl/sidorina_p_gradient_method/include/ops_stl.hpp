@@ -55,12 +55,7 @@ inline std::vector<double> ConjugateGradientMethod(std::vector<double>& a, std::
   threads.reserve(size);
 
   for (int i = 0; i < size; ++i) {
-    threads.emplace_back(
-        [&residual, &b, &matrix_times_solution, i]() { residual[i] = b[i] - matrix_times_solution[i]; });
-  }
-
-  for (auto& thread : threads) {
-    thread.join();
+    residual[i] = b[i] - matrix_times_solution[i];
   }
 
   double residual_norm_squared = Dot(residual);
@@ -169,5 +164,6 @@ class GradientMethod : public ppc::core::Task {
   std::vector<double> solution_;
   std::vector<double> result_;
 };
+
 
 }  // namespace sidorina_p_gradient_method_stl
