@@ -4,6 +4,7 @@
 #include <cmath>
 #include <cstddef>
 #include <deque>
+#include <functional>
 #include <future>
 #include <mutex>
 #include <numeric>
@@ -67,10 +68,10 @@ std::vector<int> smirnov_i_radix_sort_simple_merge_stl::TestTaskSTL::Sorting(int
                                                                              int max_th) {
   int start = static_cast<int>(id * mas.size() / max_th);
   int end = static_cast<int>(std::min((id + 1) * mas.size() / max_th, mas.size()));
-  std::vector<int> local_mas_(end - start);
-  std::copy(mas.begin() + start, mas.begin() + end, local_mas_.data());
-  RadixSort(local_mas_);
-  return local_mas_;
+  std::vector<int> local_mas(end - start);
+  std::copy(mas.begin() + start, mas.begin() + end, local_mas.data());
+  RadixSort(local_mas);
+  return local_mas;
 }
 void smirnov_i_radix_sort_simple_merge_stl::TestTaskSTL::Merging(std::deque<std::vector<int>> &firstdq,
                                                                  std::deque<std::vector<int>> &seconddq,
@@ -111,10 +112,9 @@ bool smirnov_i_radix_sort_simple_merge_stl::TestTaskSTL::ValidationImpl() {
   return task_data->inputs_count[0] == task_data->outputs_count[0];
 }
 bool smirnov_i_radix_sort_simple_merge_stl::TestTaskSTL::RunImpl() {
-  int max_th = std::thread::hardware_concurrency();
+  int max_th = static_cast<int>(std::thread::hardware_concurrency());
   std::mutex mtxfirstdq;
   std::mutex mtx;
-  bool flag;
   std::vector<std::future<std::vector<int>>> ths(max_th);
   for (int i = 0; i < max_th; i++) {
     ths[i] = std::async(std::launch::async, &smirnov_i_radix_sort_simple_merge_stl::TestTaskSTL::Sorting, this, i,
@@ -130,7 +130,7 @@ bool smirnov_i_radix_sort_simple_merge_stl::TestTaskSTL::RunImpl() {
     }
   }
   flag = static_cast<int>(firstdq.size()) != 1;
-  std::vector<std::thread> threads(max_th);
+  bool std::vector<std::thread> threads(max_th);
   while (flag) {
     for (int i = 0; i < max_th; i++) {
       threads[i] = std::thread(&smirnov_i_radix_sort_simple_merge_stl::TestTaskSTL::Merging, this, std::ref(firstdq),
