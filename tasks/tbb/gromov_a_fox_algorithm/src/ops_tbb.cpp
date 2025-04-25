@@ -8,7 +8,8 @@
 #include <vector>
 
 #include "oneapi/tbb/task_arena.h"
-#include "oneapi/tbb/task_group.h"
+#include "oneapi/tbb/parallel_for.h"
+#include "oneapi/tbb/blocked_range2d.h"
 
 namespace {
 void FoxBlockMul(const std::vector<double>& a, const std::vector<double>& b, std::vector<double>& c, int n,
@@ -79,13 +80,13 @@ bool gromov_a_fox_algorithm_tbb::TestTaskTBB::RunImpl() {
   arena.execute([&] {
     for (int stage = 0; stage < num_blocks; ++stage) {
       tbb::parallel_for(tbb::blocked_range2d<int>(0, n_, block_size_, 0, n_, block_size_),
-       [&](const tbb::blocked_range2d<int>& r) {
-         for (int i = r.rows().begin(); i < r.rows().end(); i += block_size_) {
-           for (int j = r.cols().begin(); j < r.cols().end(); j += block_size_) {
-             FoxBlockMul(A_, B_, output_, n_, block_size_, stage, i, j);
-           }
-         }
-       });
+                        [&](const tbb::blocked_range2d<int>& r) {
+                          for (int i = r.rows().begin(); i < r.rows().end(); i += block_size_) {
+                            for (int j = r.cols().begin(); j < r.cols().end(); j += block_size_) {
+                              FoxBlockMul(A_, B_, output_, n_, block_size_, stage, i, j);
+                            }
+                          }
+                        });
     }
   });
   return true;
