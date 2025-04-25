@@ -51,7 +51,7 @@ std::vector<std::vector<int>> gusev_n_sorting_int_simple_merging_all::SortingInt
   size_t remainder = arr.size() % num_procs;
 
   size_t start = 0;
-  for (int i = 0; i < num_procs; ++i) {
+  for (size_t i = 0; i < static_cast<size_t>(num_procs); ++i) {
     size_t current_chunk_size = chunk_size + (i < remainder ? 1 : 0);
 
     if (current_chunk_size > 0) {
@@ -223,7 +223,6 @@ void gusev_n_sorting_int_simple_merging_all::SortingIntSimpleMergingALL::RadixSo
 
 void gusev_n_sorting_int_simple_merging_all::SortingIntSimpleMergingALL::CountingSort(std::vector<int>& arr, int exp) {
   boost::mpi::communicator world;
-  // int size = world.size();
 
   std::vector<int> output(arr.size());
   std::vector<int> count(10, 0);
