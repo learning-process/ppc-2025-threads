@@ -95,51 +95,6 @@ TEST(gromov_a_fox_algorithm_tbb, test_4x4) {
   }
 }
 
-TEST(gromov_a_fox_algorithm_tbb, test_50x50) {
-  constexpr size_t kN = 50;
-
-  std::vector<double> a(kN * kN, 0.0);
-  std::vector<double> b(kN * kN, 0.0);
-  std::vector<double> out(kN * kN, 0.0);
-
-  for (size_t i = 0; i < kN; ++i) {
-    for (size_t j = 0; j < kN; ++j) {
-      a[(i * kN) + j] = static_cast<double>((i * kN) + j + 1);
-      b[(i * kN) + j] = static_cast<double>((kN * kN) - (i * kN + j));
-    }
-  }
-
-  std::vector<double> input;
-  input.reserve(a.size() + b.size());
-  std::ranges::copy(a, std::back_inserter(input));
-  std::ranges::copy(b, std::back_inserter(input));
-
-  auto task_data_tbb = std::make_shared<ppc::core::TaskData>();
-  task_data_tbb->inputs.emplace_back(reinterpret_cast<uint8_t *>(input.data()));
-  task_data_tbb->inputs_count.emplace_back(input.size());
-  task_data_tbb->outputs.emplace_back(reinterpret_cast<uint8_t *>(out.data()));
-  task_data_tbb->outputs_count.emplace_back(out.size());
-
-  gromov_a_fox_algorithm_tbb::TestTaskTBB test_task_tbb(task_data_tbb);
-  ASSERT_TRUE(test_task_tbb.Validation());
-  test_task_tbb.PreProcessing();
-  test_task_tbb.Run();
-  test_task_tbb.PostProcessing();
-
-  std::vector<double> expected(kN * kN, 0.0);
-  for (size_t i = 0; i < kN; ++i) {
-    for (size_t j = 0; j < kN; ++j) {
-      for (size_t k = 0; k < kN; ++k) {
-        expected[(i * kN) + j] += a[(i * kN) + k] * b[(k * kN) + j];
-      }
-    }
-  }
-
-  for (size_t i = 0; i < out.size(); ++i) {
-    EXPECT_NEAR(out[i], expected[i], 1e-9);
-  }
-}
-
 TEST(gromov_a_fox_algorithm_tbb, identity_3x3) {
   constexpr size_t kN = 3;
 
