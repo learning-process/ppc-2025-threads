@@ -53,12 +53,12 @@ TEST(varfolomeev_g_histogram_linear_stretching_stl, test_opencv_image_validation
 TEST(varfolomeev_g_histogram_linear_stretching_stl, test_opencv_manual_64x64) {
   // loading template orginal img
   cv::Mat input_image =
-      cv::imread(ppc::util::GetAbsolutePath("STL/varfolomeev_g_histogram_linear_stretching/data/cobble_orig.jpg"),
+      cv::imread(ppc::util::GetAbsolutePath("stl/varfolomeev_g_histogram_linear_stretching/data/cobble_orig.jpg"),
                  cv::IMREAD_GRAYSCALE);
 
   // loading template modified img
   cv::Mat reference_image =
-      cv::imread(ppc::util::GetAbsolutePath("STL/varfolomeev_g_histogram_linear_stretching/data/cobble_mod.jpg"),
+      cv::imread(ppc::util::GetAbsolutePath("stl/varfolomeev_g_histogram_linear_stretching/data/cobble_mod.jpg"),
                  cv::IMREAD_GRAYSCALE);
 
   std::vector<uint8_t> input_vector(input_image.total());
