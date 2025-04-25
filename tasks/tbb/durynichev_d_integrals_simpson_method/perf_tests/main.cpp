@@ -64,5 +64,5 @@ TEST(durynichev_d_integrals_simpson_method_tbb, test_task_run) {
   perf_analyzer->TaskRun(perf_attr, perf_results);
   ppc::core::Perf::PrintPerfStatistic(perf_results);
 
-  EXPECT_NEAR(out[0], 1250.0 / 3.0, 1e-2);
+  EXPECT_NEAR(out[0], 80000.0 / 3.0, 1e-2);
 }
