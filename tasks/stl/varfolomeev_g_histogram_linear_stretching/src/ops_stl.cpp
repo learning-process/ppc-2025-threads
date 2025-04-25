@@ -4,7 +4,7 @@
 #include <cmath>
 #include <cstdint>
 #include <cstring>
-#include <execution>
+#include <thread>
 #include <vector>
 
 bool varfolomeev_g_histogram_linear_stretching_stl::TestTaskSTL ::PreProcessingImpl() {
