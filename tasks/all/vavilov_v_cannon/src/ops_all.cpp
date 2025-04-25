@@ -114,9 +114,6 @@ bool vavilov_v_cannon_all::CannonALL::RunImpl() {
   }
   num_blocks_col_ = size / num_blocks_row_;
   if (N_ % num_blocks_row_ != 0 || N_ % num_blocks_col_ != 0) {
-    if (rank == 0) {
-      std::cerr << "Matrix size must be divisible by grid dimensions (" << num_blocks_row_ << "x" << num_blocks_col_ << ")" << std::endl;
-    }
     world_.barrier();
     MPI_Abort(MPI_COMM_WORLD, 1);
     return false;
@@ -147,8 +144,8 @@ bool vavilov_v_cannon_all::CannonALL::RunImpl() {
   }
 
   std::vector<std::vector<double>> all_C;
-    if (rank == 0) {
-      all_C.resize(size, std::vector<double>(block_size_sq));
+  if (rank == 0) {
+    all_C.resize(size, std::vector<double>(block_size_sq));
   }
   boost::mpi::gather(world_, local_C, all_C, 0);
 
