@@ -171,7 +171,7 @@ bool burykin_m_radix_stl::RadixSTL::RunImpl() {
   const int min_parallel_size = 1000;  // Настройте этот параметр согласно вашим требованиям
 
   for (int shift = 0; shift < 32; shift += 8) {
-    std::array<int, 256> count;
+    std::array<int, 256> count{};
 
     // Используем параллельный расчет частот только если размер данных достаточно велик
     if (a.size() > min_parallel_size && num_threads > 1) {
