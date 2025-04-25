@@ -5,7 +5,6 @@
 #include <cstddef>
 #include <cstdint>
 #include <memory>
-#include <thread>
 #ifndef _WIN32
 #include <opencv2/opencv.hpp>
 #endif
