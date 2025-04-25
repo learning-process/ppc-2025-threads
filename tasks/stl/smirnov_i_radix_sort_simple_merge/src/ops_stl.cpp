@@ -117,7 +117,7 @@ bool smirnov_i_radix_sort_simple_merge_stl::TestTaskSTL::RunImpl() {
   std::mutex mtx;
   std::vector<std::future<std::vector<int>>> ths(max_th);
   for (int i = 0; i < max_th; i++) {
-    ths[i] = std::async(std::launch::async, &smirnov_i_radix_sort_simple_merge_stl::TestTaskSTL::Sorting, this, i,
+    ths[i] = std::async(std::launch::async, &smirnov_i_radix_sort_simple_merge_stl::TestTaskSTL::Sorting, i,
                         std::ref(mas_), max_th);
   }
   std::deque<std::vector<int>> firstdq;
@@ -133,7 +133,7 @@ bool smirnov_i_radix_sort_simple_merge_stl::TestTaskSTL::RunImpl() {
   std::vector<std::thread> threads(max_th);
   while (flag) {
     for (int i = 0; i < max_th; i++) {
-      threads[i] = std::thread(&smirnov_i_radix_sort_simple_merge_stl::TestTaskSTL::Merging, this, std::ref(firstdq),
+      threads[i] = std::thread(&smirnov_i_radix_sort_simple_merge_stl::TestTaskSTL::Merging, std::ref(firstdq),
                                std::ref(seconddq), std::ref(mtx));
     }
     for (auto &th : threads) {
