@@ -31,16 +31,13 @@ void vavilov_v_cannon_all::CannonALL::InitialShift(std::vector<double>& local_A,
   int rank = world_.rank();
   int grid_size = num_blocks_;
 
-  int grid_rows = num_blocks_row_;
-  int grid_cols = num_blocks_col_;
+  int row = rank / grid_size;
+  int col = rank % grid_size;
 
-  int row = rank / grid_cols;
-  int col = rank % grid_cols;
-
-  int a_dest = (row * grid_cols + (col - row + grid_cols) % grid_cols);
-  int a_src = (row * grid_cols + (col + row) % grid_cols);
-  int b_dest = (((row - col + grid_rows) % grid_rows) * grid_cols + col);
-  int b_src = (((row + col) % grid_rows) * grid_cols + col);
+  int a_dest = (row * grid_size + (col - row + grid_size) % grid_size);
+  int a_src = (row * grid_size + (col + row) % grid_size);
+  int b_dest = (((row - col + grid_size) % grid_size) * grid_size + col);
+  int b_src = (((row + col) % grid_size) * grid_size + col);
 
   std::vector<double> tmp_A(block_size_ * block_size_);
   std::vector<double> tmp_B(block_size_ * block_size_);
@@ -74,15 +71,14 @@ void vavilov_v_cannon_all::CannonALL::BlockMultiply(const std::vector<double>& l
 
 void vavilov_v_cannon_all::CannonALL::ShiftBlocks(std::vector<double>& local_A, std::vector<double>& local_B) {
   int rank = world_.rank();
-  int grid_rows = num_blocks_row_;
-  int grid_cols = num_blocks_col_;
-  int row = rank / grid_cols;
-  int col = rank % grid_cols;
+  int grid_size = num_blocks_;
+  int row = rank / grid_size;
+  int col = rank % grid_size;
 
-  int left_dest = (col == 0) ? (row * grid_cols + grid_cols - 1) : (rank - 1);
-  int left_src = (col == grid_cols - 1) ? (row * grid_cols) : (rank + 1);
-  int up_dest = (row == 0) ? ((grid_rows - 1) * grid_cols + col) : (rank - grid_cols);
-  int up_src = (row == grid_rows - 1) ? col : (rank + grid_cols);
+  int left_dest = (col == 0) ? (row * grid_size + grid_size - 1) : (rank - 1);
+  int left_src = (col == grid_size - 1) ? (row * grid_size) : (rank + 1);
+  int up_dest = (row == 0) ? ((grid_size - 1) * grid_size + col) : (rank - grid_size);
+  int up_src = (row == grid_size - 1) ? col : (rank + grid_size);
 
   std::vector<double> tmp_A(block_size_ * block_size_);
   std::vector<double> tmp_B(block_size_ * block_size_);
