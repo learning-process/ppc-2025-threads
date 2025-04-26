@@ -28,7 +28,7 @@ std::vector<int> GenerateRandomVector(size_t size, int min_val = -10000, int max
 }  // namespace
 
 TEST(burykin_m_radix_stl, test_pipeline_run) {
-  constexpr size_t kNumElements = 20000000;
+  constexpr size_t kNumElements = 50000000;
 
   std::vector<int> input = GenerateRandomVector(kNumElements);
   std::vector<int> expected = input;
@@ -63,7 +63,7 @@ TEST(burykin_m_radix_stl, test_pipeline_run) {
 }
 
 TEST(burykin_m_radix_stl, test_task_run) {
-  constexpr size_t kNumElements = 20000000;
+  constexpr size_t kNumElements = 50000000;
 
   std::vector<int> input = GenerateRandomVector(kNumElements);
   std::vector<int> expected = input;
