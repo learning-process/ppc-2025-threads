@@ -38,61 +38,61 @@ std::vector<double> GenerateSingleMatrix(int size) {
 }
 }  // namespace
 
- TEST(sarafanov_m_canon_mat_mul_all, test_clear_matrix) {
-   boost::mpi::communicator world;
-   constexpr size_t kCount = 0;
-   constexpr double kInaccuracy = 0.001;
-   std::vector<double> a_matrix;
-   std::vector<double> b_matrix;
-   std::vector<double> test_data;
-   std::vector<double> out(kCount, 0);
-   auto task_data_all = std::make_shared<ppc::core::TaskData>();
-   if (world.rank() == 0) {
-     task_data_all->inputs.emplace_back(reinterpret_cast<uint8_t *>(a_matrix.data()));
-     task_data_all->inputs.emplace_back(reinterpret_cast<uint8_t *>(b_matrix.data()));
-     for (int i = 0; i < 4; ++i) {
-       task_data_all->inputs_count.emplace_back(kCount);
-     }
-     task_data_all->outputs.emplace_back(reinterpret_cast<uint8_t *>(out.data()));
-     task_data_all->outputs_count.emplace_back(kCount);
-   }
-   sarafanov_m_canon_mat_mul_all::CanonMatMulALL test_task_all(task_data_all);
-   ASSERT_EQ(test_task_all.Validation(), true);
-   test_task_all.PreProcessing();
-   test_task_all.Run();
-   test_task_all.PostProcessing();
-   for (size_t i = 0; i < kCount; ++i) {
-     EXPECT_NEAR(out[i], test_data[i], kInaccuracy);
-   }
- }
+TEST(sarafanov_m_canon_mat_mul_all, test_clear_matrix) {
+  boost::mpi::communicator world;
+  constexpr size_t kCount = 0;
+  constexpr double kInaccuracy = 0.001;
+  std::vector<double> a_matrix;
+  std::vector<double> b_matrix;
+  std::vector<double> test_data;
+  std::vector<double> out(kCount, 0);
+  auto task_data_all = std::make_shared<ppc::core::TaskData>();
+  if (world.rank() == 0) {
+    task_data_all->inputs.emplace_back(reinterpret_cast<uint8_t *>(a_matrix.data()));
+    task_data_all->inputs.emplace_back(reinterpret_cast<uint8_t *>(b_matrix.data()));
+    for (int i = 0; i < 4; ++i) {
+      task_data_all->inputs_count.emplace_back(kCount);
+    }
+    task_data_all->outputs.emplace_back(reinterpret_cast<uint8_t *>(out.data()));
+    task_data_all->outputs_count.emplace_back(kCount);
+  }
+  sarafanov_m_canon_mat_mul_all::CanonMatMulALL test_task_all(task_data_all);
+  ASSERT_EQ(test_task_all.Validation(), true);
+  test_task_all.PreProcessing();
+  test_task_all.Run();
+  test_task_all.PostProcessing();
+  for (size_t i = 0; i < kCount; ++i) {
+    EXPECT_NEAR(out[i], test_data[i], kInaccuracy);
+  }
+}
 
- TEST(sarafanov_m_canon_mat_mul_all, test_1x1_matrix) {
-   boost::mpi::communicator world;
-   constexpr size_t kCount = 1;
-   constexpr double kInaccuracy = 0.001;
-   std::vector<double> a_matrix{18.0};
-   std::vector<double> b_matrix{18.0};
-   std::vector<double> test_data{324.0};
-   std::vector<double> out(kCount, 0);
-   auto task_data_all = std::make_shared<ppc::core::TaskData>();
-   if (world.rank() == 0) {
-     task_data_all->inputs.emplace_back(reinterpret_cast<uint8_t *>(a_matrix.data()));
-     task_data_all->inputs.emplace_back(reinterpret_cast<uint8_t *>(b_matrix.data()));
-     for (int i = 0; i < 4; ++i) {
-       task_data_all->inputs_count.emplace_back(kCount);
-     }
-     task_data_all->outputs.emplace_back(reinterpret_cast<uint8_t *>(out.data()));
-     task_data_all->outputs_count.emplace_back(kCount);
-   }
-   sarafanov_m_canon_mat_mul_all::CanonMatMulALL test_task_all(task_data_all);
-   ASSERT_EQ(test_task_all.Validation(), true);
-   test_task_all.PreProcessing();
-   test_task_all.Run();
-   test_task_all.PostProcessing();
-   for (size_t i = 0; i < kCount; ++i) {
-     EXPECT_NEAR(out[i], test_data[i], kInaccuracy);
-   }
- }
+TEST(sarafanov_m_canon_mat_mul_all, test_1x1_matrix) {
+  boost::mpi::communicator world;
+  constexpr size_t kCount = 1;
+  constexpr double kInaccuracy = 0.001;
+  std::vector<double> a_matrix{18.0};
+  std::vector<double> b_matrix{18.0};
+  std::vector<double> test_data{324.0};
+  std::vector<double> out(kCount, 0);
+  auto task_data_all = std::make_shared<ppc::core::TaskData>();
+  if (world.rank() == 0) {
+    task_data_all->inputs.emplace_back(reinterpret_cast<uint8_t *>(a_matrix.data()));
+    task_data_all->inputs.emplace_back(reinterpret_cast<uint8_t *>(b_matrix.data()));
+    for (int i = 0; i < 4; ++i) {
+      task_data_all->inputs_count.emplace_back(kCount);
+    }
+    task_data_all->outputs.emplace_back(reinterpret_cast<uint8_t *>(out.data()));
+    task_data_all->outputs_count.emplace_back(kCount);
+  }
+  sarafanov_m_canon_mat_mul_all::CanonMatMulALL test_task_all(task_data_all);
+  ASSERT_EQ(test_task_all.Validation(), true);
+  test_task_all.PreProcessing();
+  test_task_all.Run();
+  test_task_all.PostProcessing();
+  for (size_t i = 0; i < kCount; ++i) {
+    EXPECT_NEAR(out[i], test_data[i], kInaccuracy);
+  }
+}
 
 TEST(sarafanov_m_canon_mat_mul_all, test_2x2_matrix) {
   boost::mpi::communicator world;
@@ -124,35 +124,35 @@ TEST(sarafanov_m_canon_mat_mul_all, test_2x2_matrix) {
   }
 }
 
- TEST(sarafanov_m_canon_mat_mul_all, test_3x3_matrix) {
-   boost::mpi::communicator world;
-   constexpr size_t kCount = 3;
-   constexpr double kInaccuracy = 0.001;
-   std::vector<double> a_matrix{1.0, 4.0, 8.0, 5.0, 6.0, 2.0, 2.0, 7.0, 7.0};
-   std::vector<double> b_matrix{9.0, 1.0, 10.0, 12.0, 5.0, 2.0, 9.0, 7.0, 1.0};
-   std::vector<double> test_data{129.0, 77.0, 26.0, 135.0, 49.0, 64.0, 165.0, 86.0, 41.0};
-   std::vector<double> out(kCount * kCount, 0);
-   auto task_data_all = std::make_shared<ppc::core::TaskData>();
-   if (world.rank() == 0) {
-     task_data_all->inputs.emplace_back(reinterpret_cast<uint8_t *>(a_matrix.data()));
-     task_data_all->inputs.emplace_back(reinterpret_cast<uint8_t *>(b_matrix.data()));
-     for (int i = 0; i < 4; ++i) {
-       task_data_all->inputs_count.emplace_back(kCount);
-     }
-     task_data_all->outputs.emplace_back(reinterpret_cast<uint8_t *>(out.data()));
-     task_data_all->outputs_count.emplace_back(out.size());
-   }
-   sarafanov_m_canon_mat_mul_all::CanonMatMulALL test_task_all(task_data_all);
-   ASSERT_EQ(test_task_all.Validation(), true);
-   test_task_all.PreProcessing();
-   test_task_all.Run();
-   test_task_all.PostProcessing();
-   if (world.rank() == 0) {
-     for (size_t i = 0; i < kCount * kCount; ++i) {
-       EXPECT_NEAR(out[i], test_data[i], kInaccuracy);
-     }
-   }
- }
+TEST(sarafanov_m_canon_mat_mul_all, test_3x3_matrix) {
+  boost::mpi::communicator world;
+  constexpr size_t kCount = 3;
+  constexpr double kInaccuracy = 0.001;
+  std::vector<double> a_matrix{1.0, 4.0, 8.0, 5.0, 6.0, 2.0, 2.0, 7.0, 7.0};
+  std::vector<double> b_matrix{9.0, 1.0, 10.0, 12.0, 5.0, 2.0, 9.0, 7.0, 1.0};
+  std::vector<double> test_data{129.0, 77.0, 26.0, 135.0, 49.0, 64.0, 165.0, 86.0, 41.0};
+  std::vector<double> out(kCount * kCount, 0);
+  auto task_data_all = std::make_shared<ppc::core::TaskData>();
+  if (world.rank() == 0) {
+    task_data_all->inputs.emplace_back(reinterpret_cast<uint8_t *>(a_matrix.data()));
+    task_data_all->inputs.emplace_back(reinterpret_cast<uint8_t *>(b_matrix.data()));
+    for (int i = 0; i < 4; ++i) {
+      task_data_all->inputs_count.emplace_back(kCount);
+    }
+    task_data_all->outputs.emplace_back(reinterpret_cast<uint8_t *>(out.data()));
+    task_data_all->outputs_count.emplace_back(out.size());
+  }
+  sarafanov_m_canon_mat_mul_all::CanonMatMulALL test_task_all(task_data_all);
+  ASSERT_EQ(test_task_all.Validation(), true);
+  test_task_all.PreProcessing();
+  test_task_all.Run();
+  test_task_all.PostProcessing();
+  if (world.rank() == 0) {
+    for (size_t i = 0; i < kCount * kCount; ++i) {
+      EXPECT_NEAR(out[i], test_data[i], kInaccuracy);
+    }
+  }
+}
 
 TEST(sarafanov_m_canon_mat_mul_all, test_random_5x5_matrix) {
   boost::mpi::communicator world;
