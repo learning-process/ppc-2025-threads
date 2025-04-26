@@ -42,8 +42,8 @@ class SparseMatrix {
   static SparseMatrix Transpose(const SparseMatrix& matrix);
   static MatrixComponents Multiplicate(const SparseMatrix& first_matrix, const SparseMatrix& second_matrix,
                                        int second_displacement, int barier);
-  // NOLINTNEXTLINE(readability-identifier-naming)
   template <typename Archive>
+  // NOLINTNEXTLINE(readability-identifier-naming)
   void serialize(Archive& ar, const unsigned int) {
     ar & m_compontents_.m_values;
     ar & m_compontents_.m_rows;

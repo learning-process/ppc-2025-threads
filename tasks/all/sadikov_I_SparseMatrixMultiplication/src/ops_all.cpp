@@ -3,8 +3,7 @@
 #include <algorithm>
 #include <boost/mpi/collectives/broadcast.hpp>
 #include <boost/mpi/collectives/gatherv.hpp>
-// NOLINTNEXTLINE(readability-identifier-naming)
-#include <boost/serialization/vector.hpp>
+#include <boost/serialization/vector.hpp>  // NOLINT(*-include-cleaner)
 #include <cstddef>
 #include <optional>
 #include <vector>
