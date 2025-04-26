@@ -21,7 +21,7 @@ void sarafanov_m_canon_mat_mul_all::CanonMatMulALL::CalculateIndexes() {
     if (i == 0) {
       indexes_.emplace_back(0, part);
     } else {
-      indexes_.emplace_back(indexes_[i - 1].second, indexes_[i - 1].second + part);
+      indexes_.emplace_back(static_cast<int>(indexes_[i - 1].second), static_cast<int>(indexes_[i - 1].second + part));
     }
     if (balance != 0) {
       indexes_[i].second++;
@@ -141,7 +141,7 @@ bool sarafanov_m_canon_mat_mul_all::CanonMatMulALL::RunImpl() {
         answer[i] += intermediate_values[i + j * a_matrix_.GetSize()];
       }
     }
-    c_matrix_ = std::move(CanonMatrix(answer));
+    c_matrix_.SetBaseMatrix(std::move(answer));
   } else {
     boost::mpi::gatherv(world_, matrix_sum_on_process_.GetMatrix(), 0);
   }

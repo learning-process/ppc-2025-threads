@@ -89,8 +89,10 @@ TEST(sarafanov_m_canon_mat_mul_all, test_1x1_matrix) {
   test_task_all.PreProcessing();
   test_task_all.Run();
   test_task_all.PostProcessing();
-  for (size_t i = 0; i < kCount; ++i) {
-    EXPECT_NEAR(out[i], test_data[i], kInaccuracy);
+  if (world.rank() == 0) {
+    for (size_t i = 0; i < kCount; ++i) {
+      EXPECT_NEAR(out[i], test_data[i], kInaccuracy);
+    }
   }
 }
 
