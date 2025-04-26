@@ -30,7 +30,7 @@ class SparseMatrix {
  public:
   SparseMatrix() = default;
   SparseMatrix(int rows_count, int columns_count, MatrixComponents components) noexcept
-      : m_rowsCount_(rows_count), m_columnsCount_(columns_count), m_compontents_(std::move(components)){};
+      : m_rowsCount_(rows_count), m_columnsCount_(columns_count), m_compontents_(std::move(components)) {};
   [[nodiscard]] const MatrixComponents& GetMatrixComponents() const noexcept { return m_compontents_; }
   void SetMatrixData(const MatrixComponents& components, int rows_count, int columns_count);
   [[nodiscard]] const std::vector<double>& GetValues() const noexcept { return m_compontents_.m_values; }
