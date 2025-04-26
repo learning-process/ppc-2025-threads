@@ -50,7 +50,33 @@ TEST(smirnov_i_radix_sort_simple_merge_stl, test_scalar) {
   test_task_stl.PostProcessing();
   EXPECT_EQ(exp_out, out);
 }
+TEST(smirnov_i_radix_sort_simple_merge_stl, test_23_identical_elem) {
+  constexpr size_t kCount = 23;
 
+  // Create data
+  std::vector<int> in(kCount, 0);
+  std::vector<int> exp_out(kCount, 0);
+  std::vector<int> out(kCount);
+  for (size_t i = 0; i < kCount; i++) {
+    in[i] = 17;
+    exp_out[i] = 17;
+  }
+
+  // Create task_data
+  auto test_data_stl = std::make_shared<ppc::core::TaskData>();
+  test_data_stl->inputs.emplace_back(reinterpret_cast<uint8_t *>(in.data()));
+  test_data_stl->inputs_count.emplace_back(in.size());
+  test_data_stl->outputs.emplace_back(reinterpret_cast<uint8_t *>(out.data()));
+  test_data_stl->outputs_count.emplace_back(out.size());
+
+  // Create Task
+  smirnov_i_radix_sort_simple_merge_stl::TestTaskSTL test_task_stl(test_data_stl);
+  ASSERT_EQ(test_task_stl.Validation(), true);
+  test_task_stl.PreProcessing();
+  test_task_stl.Run();
+  test_task_stl.PostProcessing();
+  EXPECT_EQ(exp_out, out);
+}
 TEST(smirnov_i_radix_sort_simple_merge_stl, test_17_elem) {
   // Create data
   std::vector<int> in{6, 134, 0, 6, 7, 1, 2, 4, 5, 3268, 6, 1, 8, 4, 234, 123120, 4};

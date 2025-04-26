@@ -79,24 +79,23 @@ void smirnov_i_radix_sort_simple_merge_stl::TestTaskSTL::Merging(std::deque<std:
   std::vector<int> mas1{};
   std::vector<int> mas2{};
   std::vector<int> merge_mas{};
-  mtx.lock();
-  if (static_cast<int>(firstdq.size()) >= 2) {
-    mas1 = std::move(firstdq.front());
-    firstdq.pop_front();
-    mas2 = std::move(firstdq.front());
-    firstdq.pop_front();
-  } else {
-    mtx.unlock();
-    return;
+  {
+    std::lock_guard<std::mutex> lock(mtx);
+    if (static_cast<int>(firstdq.size()) >= 2) {
+      mas1 = std::move(firstdq.front());
+      firstdq.pop_front();
+      mas2 = std::move(firstdq.front());
+      firstdq.pop_front();
+    } else {
+      return;
+    }
   }
-  mtx.unlock();
   if (!mas1.empty() && !mas2.empty()) {
     merge_mas = Merge(mas1, mas2);
   }
   if (!merge_mas.empty()) {
-    mtx.lock();
+    std::lock_guard<std::mutex> lock(mtx);
     seconddq.push_back(std::move(merge_mas));
-    mtx.unlock();
   }
 }
 bool smirnov_i_radix_sort_simple_merge_stl::TestTaskSTL::PreProcessingImpl() {
