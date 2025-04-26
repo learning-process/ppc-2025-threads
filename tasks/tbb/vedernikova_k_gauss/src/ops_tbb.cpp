@@ -8,8 +8,9 @@
 #include <numeric>
 #include <vector>
 
-#include "oneapi/tbb/blocked_range2d.h"
+#include "oneapi/tbb/blocked_range.h"
 #include "oneapi/tbb/parallel_for.h"
+#include "oneapi/tbb/partitioner.h"
 
 bool vedernikova_k_gauss_tbb::Gauss::ValidationImpl() {
   if (task_data->inputs_count.size() != 3 || task_data->outputs_count.empty()) {
@@ -87,14 +88,16 @@ bool vedernikova_k_gauss_tbb::Gauss::RunImpl() {
     return true;
   }
 
-  tbb::parallel_for(tbb::blocked_range2d<size_t>(std::size_t(1), std::size_t(height_ - 1), 1, std::size_t(width_)),
-                    [&](const tbb::blocked_range2d<size_t>& r) {
-                      for (size_t j = r.cols().begin(); j < r.cols().end(); ++j) {
-                        for (size_t i = r.rows().begin(); i < r.rows().end(); ++i) {
-                          ComputePixel(i, j);
-                        }
-                      }
-                    });
+  tbb::parallel_for(
+      tbb::blocked_range<uint32_t>(std::uint32_t(1), std::uint32_t(width_)),
+      [&](const tbb::blocked_range<uint32_t>& r) {
+        for (uint32_t j = r.begin(); j < r.end(); ++j) {
+          for (uint32_t i = 0; i < width_; i++) {
+            ComputePixel(i, j);
+          }
+        }
+      },
+      tbb::auto_partitioner());
 
   return true;
 }
