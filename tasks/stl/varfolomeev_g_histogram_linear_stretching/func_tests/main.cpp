@@ -30,6 +30,49 @@ std::vector<uint8_t> GetRandomImage(int sz) {
 }
 }  // namespace
 
+TEST(varfolomeev_g_histogram_linear_stretching_stl, test_rounding) {
+  std::vector<uint8_t> in = {0, 1, 2, 3, 4, 5};
+  std::vector<uint8_t> out(in.size());
+  std::vector<uint8_t> expected_out = {0, 51, 102, 153, 204, 255};
+
+  // Create task_data
+  auto task_data_stl = std::make_shared<ppc::core::TaskData>();
+  task_data_stl->inputs.emplace_back(reinterpret_cast<uint8_t *>(in.data()));
+  task_data_stl->inputs_count.emplace_back(in.size());
+  task_data_stl->outputs.emplace_back(reinterpret_cast<uint8_t *>(out.data()));
+  task_data_stl->outputs_count.emplace_back(out.size());
+
+  // Create Task
+  varfolomeev_g_histogram_linear_stretching_stl::TestTaskSTL test_task_stl(task_data_stl);
+  ASSERT_EQ(test_task_stl.Validation(), true);
+  test_task_stl.PreProcessing();
+  test_task_stl.Run();
+  test_task_stl.PostProcessing();
+
+  EXPECT_EQ(expected_out, out);
+}
+
+TEST(varfolomeev_g_histogram_linear_stretching_stl, test_single_pixel) {
+  // Create data
+  std::vector<uint8_t> in{55};
+  std::vector<uint8_t> out(in.size());
+  // Create task_data
+  auto task_data_stl = std::make_shared<ppc::core::TaskData>();
+  task_data_stl->inputs.emplace_back(reinterpret_cast<uint8_t *>(in.data()));
+  task_data_stl->inputs_count.emplace_back(in.size());
+  task_data_stl->outputs.emplace_back(reinterpret_cast<uint8_t *>(out.data()));
+  task_data_stl->outputs_count.emplace_back(out.size());
+
+  // Create Task
+  varfolomeev_g_histogram_linear_stretching_stl::TestTaskSTL test_task_stl(task_data_stl);
+  ASSERT_EQ(test_task_stl.Validation(), true);
+  test_task_stl.PreProcessing();
+  test_task_stl.Run();
+  test_task_stl.PostProcessing();
+
+  EXPECT_EQ(in, out);
+}
+
 #ifndef _WIN32
 TEST(varfolomeev_g_histogram_linear_stretching_stl, test_opencv_image_validation) {
   // loading template orginal img
