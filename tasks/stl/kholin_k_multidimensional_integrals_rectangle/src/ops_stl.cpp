@@ -1,8 +1,8 @@
 #include "stl/kholin_k_multidimensional_integrals_rectangle/include/ops_stl.hpp"
 
-#include <algorithm>
 #include <cstddef>
 #include <functional>
+#include <numeric>
 #include <thread>
 #include <vector>
 
@@ -11,57 +11,49 @@
 double kholin_k_multidimensional_integrals_rectangle_stl::TestTaskSTL::Integrate(
     const Function& f, const std::vector<double>& l_limits, const std::vector<double>& u_limits,
     const std::vector<double>& h, std::vector<double> f_values, int curr_index_dim, size_t dim, double n) {
-  const int total_steps = static_cast<int>(n);
-  double sum = 0.0;
-
   if (curr_index_dim == static_cast<int>(dim)) {
     return f(f_values);
   }
 
-  if (curr_index_dim < count_level_par_) {
-    const int num_threads = ppc::util::GetPPCNumThreads();
-    const int tasks_per_thread = (total_steps + num_threads - 1) / num_threads;
+  const int total_steps = static_cast<int>(n);
+  double sum = 0.0;
 
-    std::vector<std::thread> threads;
-    std::vector<double> partial_sums(num_threads, 0.0);
+  if (curr_index_dim == 0) {
+    const int num_threads = ppc::util::GetPPCNumThreads();
+    std::vector<std::thread> threads(num_threads);
+    std::vector<double> thread_sums(num_threads, 0.0);
+
+    const int base_steps = total_steps / num_threads;
+    const int remainder = total_steps % num_threads;
 
     for (int t = 0; t < num_threads; ++t) {
-      int start = t * tasks_per_thread;
-      int end = std::min(start + tasks_per_thread, total_steps);
+      const int start = t * base_steps + (t < remainder ? t : remainder);
+      const int end = start + base_steps + (t < remainder ? 1 : 0);
 
-      if (start >= end) {
-        continue;
-      };
-
-      threads.emplace_back(
-          [this, &f, &l_limits, &u_limits, &h, start, end, curr_index_dim, dim, n, f_values, &partial_sums, t]() {
-            double local_sum = 0.0;
-            std::vector<double> local_f_values = f_values;
-
-            for (int i = start; i < end; ++i) {
-              local_f_values[curr_index_dim] =
-                  l_limits[curr_index_dim] + (static_cast<double>(i) + 0.5) * h[curr_index_dim];
-              local_sum += Integrate(f, l_limits, u_limits, h, local_f_values, curr_index_dim + 1, dim, n);
-            }
-            partial_sums[t] = local_sum;
-          });
+      threads[t] = std::thread([&, start, end, t]() {
+        std::vector<double> local_f_values = f_values;
+        double local_sum = 0.0;
+        for (int i = start; i < end; ++i) {
+          local_f_values[0] = l_limits[0] + (i + 0.5) * h[0];
+          local_sum += Integrate(f, l_limits, u_limits, h, local_f_values, 1, dim, n);
+        }
+        thread_sums[t] = local_sum;
+      });
     }
 
-    for (auto& thread : threads) {
-      thread.join();
+    for (auto& th : threads) {
+      if (th.joinable()) th.join();
     }
-
-    for (double partial : partial_sums) {
-      sum += partial;
-    }
+    sum = std::accumulate(thread_sums.begin(), thread_sums.end(), 0.0) * h[0];
   } else {
     for (int i = 0; i < total_steps; ++i) {
-      f_values[curr_index_dim] = l_limits[curr_index_dim] + (static_cast<double>(i) + 0.5) * h[curr_index_dim];
+      f_values[curr_index_dim] = l_limits[curr_index_dim] + (i + 0.5) * h[curr_index_dim];
       sum += Integrate(f, l_limits, u_limits, h, f_values, curr_index_dim + 1, dim, n);
     }
+    sum *= h[curr_index_dim];
   }
 
-  return sum * h[curr_index_dim];
+  return sum;
 }
 
 double kholin_k_multidimensional_integrals_rectangle_stl::TestTaskSTL::IntegrateWithRectangleMethod(
