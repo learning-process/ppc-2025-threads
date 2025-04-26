@@ -1,14 +1,12 @@
 #include "all/sadikov_I_SparseMatrixMultiplication/include/SparseMatrix.hpp"
 
-#include <assert.h>
-#include <omp.h>
+#include <oneapi/tbb/task_arena.h>
+#include <tbb/tbb.h>
 
 #include <algorithm>
 #include <cmath>
 #include <cstddef>
-#include <iostream>
 #include <optional>
-#include <utility>
 #include <vector>
 
 #include "core/util/include/util.hpp"
@@ -83,7 +81,7 @@ MatrixComponents SparseMatrix::Multiplicate(const SparseMatrix& first_matrix, co
                                         second_matrix.GetElementsSum(), static_cast<int>(i), static_cast<int>(j));
               if (sum != 0) {
                 component.m_values[(i * first_matrix.GetElementsSum().size()) + j] = sum;
-                component.m_rows[(i * first_matrix.GetElementsSum().size()) + j] = j + 1;
+                component.m_rows[(i * first_matrix.GetElementsSum().size()) + j] = static_cast<int>(j) + 1;
                 component.m_elementsSum[i]++;
               }
             }

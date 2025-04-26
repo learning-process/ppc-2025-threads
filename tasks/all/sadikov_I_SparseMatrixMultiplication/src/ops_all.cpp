@@ -1,9 +1,12 @@
 #include "all/sadikov_I_SparseMatrixMultiplication/include/ops_all.hpp"
 
-#include <boost/mpi/collectives/scatterv.hpp>
+#include <algorithm>
+#include <boost/mpi/collectives/broadcast.hpp>
+#include <boost/mpi/collectives/gatherv.hpp>
+// NOLINTNEXTLINE(readability-identifier-naming)
 #include <boost/serialization/vector.hpp>
 #include <cstddef>
-#include <iostream>
+#include <optional>
 #include <vector>
 
 #include "all/sadikov_I_SparseMatrixMultiplication/include/SparseMatrix.hpp"
@@ -11,7 +14,7 @@
 void sadikov_i_sparse_matrix_multiplication_task_all::CCSMatrixALL::CalculateDisplacements() {
   int n = static_cast<int>(m_sMatrix_.GetElementsSum().size()) % m_world_.size();
   int count = static_cast<int>(m_sMatrix_.GetElementsSum().size()) / m_world_.size();
-  if (m_sMatrix_.GetElementsSum().size() == 0) {
+  if (m_sMatrix_.GetElementsSum().empty()) {
     return;
   }
   m_displacements_.resize(m_world_.size());
@@ -36,9 +39,9 @@ bool sadikov_i_sparse_matrix_multiplication_task_all::CCSMatrixALL::PreProcessin
       return true;
     }
     auto *in_ptr = reinterpret_cast<double *>(task_data->inputs[0]);
-    auto fmatrix = std::vector<double>(in_ptr, in_ptr + fmatrix_rows_count * fmatrxix_columns_count);
+    auto fmatrix = std::vector<double>(in_ptr, in_ptr + (fmatrix_rows_count * fmatrxix_columns_count));
     auto *in_ptr2 = reinterpret_cast<double *>(task_data->inputs[1]);
-    auto smatrix = std::vector<double>(in_ptr2, in_ptr2 + smatrix_columns_count * smatrix_rows_count);
+    auto smatrix = std::vector<double>(in_ptr2, in_ptr2 + (smatrix_columns_count * smatrix_rows_count));
     m_fMatrix_ = SparseMatrix::MatrixToSparse(fmatrix_rows_count, fmatrxix_columns_count, fmatrix);
     m_sMatrix_ = SparseMatrix::MatrixToSparse(smatrix_rows_count, smatrix_columns_count, smatrix);
     m_fMatrix_ = SparseMatrix::Transpose(m_fMatrix_);
@@ -65,16 +68,16 @@ bool sadikov_i_sparse_matrix_multiplication_task_all::CCSMatrixALL::RunImpl() {
   if (m_displacements_.empty()) {
     return true;
   }
-  m_intermediate_data_ =
-      SparseMatrix::Multiplicate(m_fMatrix_, m_sMatrix_, m_displacements_[m_world_.rank()],
-                                 m_world_.rank() == m_world_.size() - 1 ? m_sMatrix_.GetElementsSum().size()
-                                                                        : m_displacements_[m_world_.rank() + 1]);
+  m_intermediate_data_ = SparseMatrix::Multiplicate(m_fMatrix_, m_sMatrix_, m_displacements_[m_world_.rank()],
+                                                    m_world_.rank() == m_world_.size() - 1
+                                                        ? static_cast<int>(m_sMatrix_.GetElementsSum().size())
+                                                        : static_cast<int>(m_displacements_[m_world_.rank() + 1]));
   if (m_world_.rank() != 0) {
     m_world_.send(0, 0, static_cast<int>(m_intermediate_data_.m_values.size()));
     m_world_.send(0, 1, static_cast<int>(m_intermediate_data_.m_elementsSum.size()));
   } else {
-    m_sizes_.first[0] = m_intermediate_data_.m_values.size();
-    m_sizes_.second[0] = m_intermediate_data_.m_elementsSum.size();
+    m_sizes_.first[0] = static_cast<int>(m_intermediate_data_.m_values.size());
+    m_sizes_.second[0] = static_cast<int>(m_intermediate_data_.m_elementsSum.size());
 
     for (int i = 1; i < m_world_.size(); ++i) {
       m_world_.recv(i, 0, m_sizes_.first[i]);

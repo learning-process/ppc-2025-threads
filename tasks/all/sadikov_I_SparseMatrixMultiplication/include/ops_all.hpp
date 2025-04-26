@@ -4,6 +4,7 @@
 #include <boost/mpi/communicator.hpp>
 #include <cmath>
 #include <utility>
+#include <vector>
 
 #include "all/sadikov_I_SparseMatrixMultiplication/include/SparseMatrix.hpp"
 #include "core/task/include/task.hpp"
