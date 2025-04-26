@@ -1,8 +1,8 @@
 #include "stl/kholin_k_multidimensional_integrals_rectangle/include/ops_stl.hpp"
 
 #include <algorithm>
+#include <cstddef>
 #include <functional>
-#include <future>
 #include <thread>
 #include <vector>
 
