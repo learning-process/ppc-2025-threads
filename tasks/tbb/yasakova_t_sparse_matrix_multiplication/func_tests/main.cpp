@@ -567,17 +567,17 @@ TEST(yasakova_t_sparse_matrix_multiplication, MultiplyMatricesWithZeroElements) 
 
   // First matrix with some zero and non-zero elements
   first_matrix.InsertElement(0, ComplexNumber(1, 0), 0);
-  first_matrix.InsertElement(0, ComplexNumber(0, 0), 1); // Explicit zero
-  first_matrix.InsertElement(1, ComplexNumber(0, 0), 0); // Explicit zero
+  first_matrix.InsertElement(0, ComplexNumber(0, 0), 1);
+  first_matrix.InsertElement(1, ComplexNumber(0, 0), 0);
   first_matrix.InsertElement(1, ComplexNumber(2, 0), 2);
-  first_matrix.InsertElement(2, ComplexNumber(0, 0), 1); // Explicit zero
+  first_matrix.InsertElement(2, ComplexNumber(0, 0), 1);
 
   // Second matrix with some zero and non-zero elements
   second_matrix.InsertElement(0, ComplexNumber(3, 0), 0);
-  second_matrix.InsertElement(0, ComplexNumber(0, 0), 2); // Explicit zero
-  second_matrix.InsertElement(1, ComplexNumber(0, 0), 1); // Explicit zero
+  second_matrix.InsertElement(0, ComplexNumber(0, 0), 2);
+  second_matrix.InsertElement(1, ComplexNumber(0, 0), 1);
   second_matrix.InsertElement(2, ComplexNumber(4, 0), 1);
-  second_matrix.InsertElement(2, ComplexNumber(0, 0), 2); // Explicit zero
+  second_matrix.InsertElement(2, ComplexNumber(0, 0), 2);
 
   first_matrix_data = yasakova_t_sparse_matrix_multiplication::ConvertMatrixToVector(first_matrix);
   second_matrix_data = yasakova_t_sparse_matrix_multiplication::ConvertMatrixToVector(second_matrix);
@@ -588,7 +588,7 @@ TEST(yasakova_t_sparse_matrix_multiplication, MultiplyMatricesWithZeroElements) 
   // Expected result
   expected_result.InsertElement(0, ComplexNumber(3, 0), 0);
   expected_result.InsertElement(1, ComplexNumber(8, 0), 1);
-  
+
   // Create task_data
   auto task_data_tbb = std::make_shared<ppc::core::TaskData>();
   task_data_tbb->inputs.emplace_back(reinterpret_cast<uint8_t *>(input_data.data()));
@@ -602,9 +602,9 @@ TEST(yasakova_t_sparse_matrix_multiplication, MultiplyMatricesWithZeroElements) 
   test_task_tbb.PreProcessing();
   test_task_tbb.Run();
   test_task_tbb.PostProcessing();
-  
+
   yasakova_t_sparse_matrix_multiplication::CompressedRowStorageMatrix actual_result =
       yasakova_t_sparse_matrix_multiplication::ConvertVectorToMatrix(output_data);
-  
+
   ASSERT_TRUE(yasakova_t_sparse_matrix_multiplication::CompareMatrices(actual_result, expected_result));
 }
