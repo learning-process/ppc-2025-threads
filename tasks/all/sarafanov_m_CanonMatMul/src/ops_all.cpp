@@ -21,7 +21,8 @@ void sarafanov_m_canon_mat_mul_all::CanonMatMulALL::CalculateIndexes() {
     if (i == 0) {
       indexes_.emplace_back(0, part);
     } else {
-      indexes_.emplace_back(static_cast<int>(indexes_[i - 1].second_), static_cast<int>(indexes_[i - 1].second_ + part));
+      indexes_.emplace_back(static_cast<int>(indexes_[i - 1].second_),
+                            static_cast<int>(indexes_[i - 1].second_ + part));
     }
     if (balance != 0) {
       indexes_[i].second_++;
