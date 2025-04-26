@@ -14,15 +14,16 @@
 #include "all/sarafanov_m_CanonMatMul/include/CanonMatrix.hpp"
 #include "core/util/include/util.hpp"
 
+sarafanov_m_canon_mat_mul_all::IndexesPair::IndexesPair(int first, int second) : first_(first), second_(second) {}
+
 void sarafanov_m_canon_mat_mul_all::CanonMatMulALL::CalculateIndexes() {
-  auto part = a_matrix_.GetSqrtSize() / world_.size();
-  auto balance = a_matrix_.GetSqrtSize() % world_.size();
+  int part = a_matrix_.GetSqrtSize() / world_.size();
+  int balance = a_matrix_.GetSqrtSize() % world_.size();
   for (int i = 0; i < world_.size(); ++i) {
     if (i == 0) {
-      indexes_.emplace_back(0, part);
+      indexes_.push_back(IndexesPair(0, part));
     } else {
-      indexes_.emplace_back(static_cast<int>(indexes_[i - 1].second_),
-                            static_cast<int>(indexes_[i - 1].second_ + part));
+      indexes_.push_back(IndexesPair(indexes_[i - 1].second_, indexes_[i - 1].second_ + part));
     }
     if (balance != 0) {
       indexes_[i].second_++;
