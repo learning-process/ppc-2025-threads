@@ -14,11 +14,6 @@ concurrency:
 
 jobs:
   ubuntu-gcc-build-perf-stats:
-    needs:
-      - ubuntu-gcc-build-codecov
-      - ubuntu-clang-sanitizer-test-extended
-      - windows-clang-test-extended
-      - windows-msvc-test-extended
     runs-on: ubuntu-24.04
     steps:
       - uses: actions/checkout@v4
