@@ -27,7 +27,7 @@ double kholin_k_multidimensional_integrals_rectangle_stl::TestTaskSTL::Integrate
     const int remainder = total_steps % num_threads;
 
     for (int t = 0; t < num_threads; ++t) {
-      const int start = t * base_steps + (t < remainder ? t : remainder);
+      const int start = (t * base_steps) + (t < remainder ? t : remainder);
       const int end = start + base_steps + (t < remainder ? 1 : 0);
 
       threads[t] = std::thread([&, start, end, t]() {
@@ -42,7 +42,9 @@ double kholin_k_multidimensional_integrals_rectangle_stl::TestTaskSTL::Integrate
     }
 
     for (auto& th : threads) {
-      if (th.joinable()) th.join();
+      if (th.joinable()) {
+        th.join();
+      }
     }
     sum = std::accumulate(thread_sums.begin(), thread_sums.end(), 0.0) * h[0];
   } else {
