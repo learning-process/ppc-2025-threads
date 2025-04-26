@@ -21,10 +21,10 @@ void sarafanov_m_canon_mat_mul_all::CanonMatMulALL::CalculateIndexes() {
     if (i == 0) {
       indexes_.emplace_back(0, part);
     } else {
-      indexes_.emplace_back(static_cast<int>(indexes_[i - 1].second), static_cast<int>(indexes_[i - 1].second + part));
+      indexes_.emplace_back(static_cast<int>(indexes_[i - 1].second_), static_cast<int>(indexes_[i - 1].second_ + part));
     }
     if (balance != 0) {
-      indexes_[i].second++;
+      indexes_[i].second_++;
       balance--;
     }
   }
@@ -119,7 +119,7 @@ bool sarafanov_m_canon_mat_mul_all::CanonMatMulALL::RunImpl() {
 #pragma omp parallel
   {
 #pragma omp for
-    for (int i = indexes_[world_.rank()].first; i < indexes_[world_.rank()].second; ++i) {
+    for (int i = indexes_[world_.rank()].first_; i < indexes_[world_.rank()].second_; ++i) {
       mul_results[omp_get_thread_num()] += a_matrix_.MultiplicateMatrix(b_matrix_, i);
     }
   }

@@ -9,12 +9,13 @@
 
 namespace sarafanov_m_canon_mat_mul_all {
 struct IndexesPair {
-  int first = 0;
-  int second = 0;
+  int first_ = 0;
+  int second_ = 0;
+  IndexesPair(int first, int second) : first_(first), second_(second) {}
   template <typename Archive>
   void serialize(Archive& archive, const unsigned int) {
-    archive & first;
-    archive & second;
+    archive & first_;
+    archive & second_;
   }
 };
 class CanonMatMulALL : public ppc::core::Task {
