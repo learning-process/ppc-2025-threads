@@ -87,7 +87,7 @@ bool vedernikova_k_gauss_tbb::Gauss::RunImpl() {
     return true;
   }
 
-  tbb::parallel_for(tbb::blocked_range2d<size_t>(std::size_t(1), std::size_t(width_ - 1), 1, std::size_t(height_)),
+  tbb::parallel_for(tbb::blocked_range2d<size_t>(std::size_t(1), std::size_t(height_ - 1), 1, std::size_t(width_)),
                     [&](const tbb::blocked_range2d<size_t>& r) {
                       for (size_t j = r.cols().begin(); j < r.cols().end(); ++j) {
                         for (size_t i = r.rows().begin(); i < r.rows().end(); ++i) {
