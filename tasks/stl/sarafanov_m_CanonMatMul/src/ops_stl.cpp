@@ -117,8 +117,6 @@ bool sarafanov_m_canon_mat_mul_stl::CanonMatMulOMP::RunImpl() {
 
 bool sarafanov_m_canon_mat_mul_stl::CanonMatMulOMP::PostProcessingImpl() {
   auto matrix = c_matrix_.GetMatrix();
-  for (size_t i = 0; i < matrix.size(); i++) {
-    reinterpret_cast<double *>(task_data->outputs[0])[i] = matrix[i];
-  }
+  std::ranges::copy(matrix, reinterpret_cast<double *>(task_data->outputs[0]));
   return true;
 }
