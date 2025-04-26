@@ -1,7 +1,7 @@
 #pragma once
 
+#include <cstddef>
 #include <functional>
-#include <thread>
 #include <utility>
 #include <vector>
 

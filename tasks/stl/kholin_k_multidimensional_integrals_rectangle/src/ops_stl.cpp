@@ -1,5 +1,6 @@
 #include "stl/kholin_k_multidimensional_integrals_rectangle/include/ops_stl.hpp"
 
+#include <algorithm>
 #include <functional>
 #include <future>
 #include <thread>
@@ -21,28 +22,37 @@ double kholin_k_multidimensional_integrals_rectangle_stl::TestTaskSTL::Integrate
     const int num_threads = ppc::util::GetPPCNumThreads();
     const int tasks_per_thread = (total_steps + num_threads - 1) / num_threads;
 
-    std::vector<std::future<double>> futures;
+    std::vector<std::thread> threads;
+    std::vector<double> partial_sums(num_threads, 0.0);
+
     for (int t = 0; t < num_threads; ++t) {
       int start = t * tasks_per_thread;
       int end = std::min(start + tasks_per_thread, total_steps);
 
-      if (start >= end) continue;
+      if (start >= end) {
+        continue;
+      };
 
-      futures.emplace_back(std::async(std::launch::async, [=, &f, &l_limits, &u_limits, &h]() {
-        double local_sum = 0.0;
-        std::vector<double> local_f_values = f_values;
+      threads.emplace_back(
+          [this, &f, &l_limits, &u_limits, &h, start, end, curr_index_dim, dim, n, f_values, &partial_sums, t]() {
+            double local_sum = 0.0;
+            std::vector<double> local_f_values = f_values;
 
-        for (int i = start; i < end; ++i) {
-          local_f_values[curr_index_dim] =
-              l_limits[curr_index_dim] + (static_cast<double>(i) + 0.5) * h[curr_index_dim];
-          local_sum += Integrate(f, l_limits, u_limits, h, local_f_values, curr_index_dim + 1, dim, n);
-        }
-        return local_sum;
-      }));
+            for (int i = start; i < end; ++i) {
+              local_f_values[curr_index_dim] =
+                  l_limits[curr_index_dim] + (static_cast<double>(i) + 0.5) * h[curr_index_dim];
+              local_sum += Integrate(f, l_limits, u_limits, h, local_f_values, curr_index_dim + 1, dim, n);
+            }
+            partial_sums[t] = local_sum;
+          });
     }
 
-    for (auto& future : futures) {
-      sum += future.get();
+    for (auto& thread : threads) {
+      thread.join();
+    }
+
+    for (double partial : partial_sums) {
+      sum += partial;
     }
   } else {
     for (int i = 0; i < total_steps; ++i) {
