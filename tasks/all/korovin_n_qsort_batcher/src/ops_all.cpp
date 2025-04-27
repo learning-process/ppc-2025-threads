@@ -142,6 +142,9 @@ bool TestTaskALL::RunImpl() {
   boost::mpi::communicator world;
   int rank = world.rank();
   int size = world.size();
+  if (size == 0) {
+    return true;
+  }
   int n = static_cast<int>(input_.size());
   std::vector<int> counts(size);
   std::vector<int> displs(size);
@@ -152,18 +155,15 @@ bool TestTaskALL::RunImpl() {
     displs[i] = (i == 0 ? 0 : displs[i - 1] + counts[i - 1]);
   }
   std::vector<int> local(counts[rank]);
+  int dummy = 0;
+  int* local_ptr = counts[rank] ? local.data() : &dummy;
+  const int* root_in = input_.empty() ? &dummy : input_.data();
   if (rank == 0) {
-    boost::mpi::scatterv(world, input_.data(), counts, displs, local.data(), counts[rank], 0);
+    boost::mpi::scatterv(world, root_in, counts, displs, local_ptr, counts[rank], 0);
   } else {
-    if (counts[rank] > 0) {
-      boost::mpi::scatterv(world, local.data(), counts[rank], 0);
-    } else {
-      boost::mpi::scatterv(world, static_cast<int*>(nullptr), 0, 0);
-    }
+    boost::mpi::scatterv(world, local_ptr, counts[rank], 0);
   }
-  int threads = ppc::util::GetPPCNumThreads();
-  ;
-  int p = std::max(threads, 1);
+  int p = std::max(ppc::util::GetPPCNumThreads(), 1);
   auto blocks = PartitionBlocks(local, p);
 #pragma omp parallel for schedule(static)
   for (int i = 0; i < p; i++) {
@@ -171,17 +171,12 @@ bool TestTaskALL::RunImpl() {
   }
   OddEvenMerge(blocks);
   if (rank == 0) {
-    boost::mpi::gatherv(world, local.data(), counts[rank], input_.data(), counts, displs, 0);
+    boost::mpi::gatherv(world, local_ptr, counts[rank], input_.data(), counts, displs, 0);
   } else {
-    if (counts[rank] > 0) {
-      boost::mpi::gatherv(world, local.data(), counts[rank], 0);
-    } else {
-      boost::mpi::gatherv(world, static_cast<int*>(nullptr), 0, 0);
-    }
+    boost::mpi::gatherv(world, local_ptr, counts[rank], 0);
   }
   if (rank == 0) {
-    int thr2 = omp_get_max_threads();
-    int p2 = std::max(thr2, 1);
+    int p2 = std::max(omp_get_max_threads(), 1);
     auto blocks2 = PartitionBlocks(input_, p2);
 #pragma omp parallel for schedule(static)
     for (int i = 0; i < p2; i++) {
