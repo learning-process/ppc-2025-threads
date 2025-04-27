@@ -2,11 +2,11 @@
 
 #include <algorithm>
 #include <cmath>
+#include <core/util/include/util.hpp>
 #include <cstddef>
 #include <thread>
 #include <vector>
 
-using namespace std;
 void odintsov_m_mulmatrix_cannon_stl::MulMatrixCannonSTL::ShiftRow(std::vector<double>& matrix, int root, int row,
                                                                    int shift) {
   shift = shift % root;
@@ -185,30 +185,35 @@ bool odintsov_m_mulmatrix_cannon_stl::MulMatrixCannonSTL::RunImpl() {
   int root = static_cast<int>(std::sqrt(szA_));
   int num_blocks = std::max(1, root / block_sz_);
   int grid_size = num_blocks;
+  const int raw_max = ppc::util::GetPPCNumThreads();
+  const int max_threads = std::max(1, raw_max);
+
+  const int threads_limit = std::min(num_blocks, max_threads);
 
   InitializeShift(matrixA_, root, grid_size, block_sz_, true);
   InitializeShift(matrixB_, root, grid_size, block_sz_, false);
 
   for (int step = 0; step < grid_size; ++step) {
-    std::vector<std::vector<double>> local_results(num_blocks, std::vector<double>(root * root, 0.0));
-    std::vector<std::thread> threads;
+    for (int offset = 0; offset < num_blocks; offset += threads_limit) {
+      int batch_size = std::min(threads_limit, num_blocks - offset);
 
-    threads.reserve(num_blocks);
+      std::vector<std::vector<double>> local_results(batch_size, std::vector<double>(root * root, 0.0));
+      std::vector<std::thread> threads;
+      threads.reserve(batch_size);
 
-    for (int bi = 0; bi < num_blocks; ++bi) {
-      threads.emplace_back(
-          [&, bi]() { ProcessBlock(bi, num_blocks, root, block_sz_, matrixA_, matrixB_, local_results[bi]); });
-    }
+      for (int bi = 0; bi < batch_size; ++bi) {
+        threads.emplace_back([&, bi]() {
+          ProcessBlock(offset + bi, num_blocks, root, block_sz_, matrixA_, matrixB_, local_results[bi]);
+        });
+      }
 
-    for (auto& t : threads) {
-      t.join();
-    }
+      for (auto& t : threads) t.join();
 
-    // Собираем локальные результаты в matrixC_.
-    const size_t matrix_size = matrixC_.size();
-    for (const auto& local_c : local_results) {
-      for (size_t i = 0; i < matrix_size; ++i) {
-        matrixC_[i] += local_c[i];
+      const size_t matrix_size = matrixC_.size();
+      for (const auto& local_c : local_results) {
+        for (size_t i = 0; i < matrix_size; ++i) {
+          matrixC_[i] += local_c[i];
+        }
       }
     }
 
