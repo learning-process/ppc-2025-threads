@@ -5,6 +5,7 @@
 #include <cstdint>
 #include <cstring>
 #include <thread>
+#include <utility>
 #include <vector>
 
 bool varfolomeev_g_histogram_linear_stretching_stl::TestTaskSTL ::PreProcessingImpl() {
