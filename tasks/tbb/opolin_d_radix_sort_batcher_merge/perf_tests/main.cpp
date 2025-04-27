@@ -67,6 +67,7 @@ TEST(opolin_d_radix_batcher_sort_tbb, test_pipeline_run) {
   auto perf_analyzer = std::make_shared<ppc::core::Perf>(test_task_tbb);
   perf_analyzer->PipelineRun(perf_attr, perf_results);
   ppc::core::Perf::PrintPerfStatistic(perf_results);
+  ASSERT_EQ(expected, out);
 }
 
 TEST(opolin_d_radix_batcher_sort_tbb, test_task_run) {
@@ -104,4 +105,5 @@ TEST(opolin_d_radix_batcher_sort_tbb, test_task_run) {
   auto perf_analyzer = std::make_shared<ppc::core::Perf>(test_task_tbb);
   perf_analyzer->TaskRun(perf_attr, perf_results);
   ppc::core::Perf::PrintPerfStatistic(perf_results);
+  ASSERT_EQ(expected, out);
 }
