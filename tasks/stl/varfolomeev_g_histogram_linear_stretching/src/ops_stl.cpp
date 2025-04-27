@@ -26,7 +26,7 @@ bool varfolomeev_g_histogram_linear_stretching_stl::TestTaskSTL ::RunImpl() {
   uint8_t max_val = *std::ranges::max_element(img_);
 
   if (max_val != min_val) {
-    const size_t num_threads = std::thread::hardware_concurrency();
+    const size_t num_threads = ppc::util::GetPPCNumThreads();
     std::vector<std::thread> threads;
     const size_t chunk_size = img_.size() / num_threads;
 
