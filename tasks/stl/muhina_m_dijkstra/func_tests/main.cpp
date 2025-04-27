@@ -381,10 +381,10 @@ TEST(muhina_m_dijkstra_stl, test_default_start_vertex) {
 TEST(muhina_m_dijkstra_stl, test_graph_with_self_loops) {
   constexpr size_t kNumVertices = 3;
   std::vector<std::vector<std::pair<size_t, int>>> adj_list(kNumVertices);
-  adj_list[0].emplace_back(0, 5);  
+  adj_list[0].emplace_back(0, 5);
   adj_list[0].emplace_back(1, 2);
   adj_list[1].emplace_back(2, 3);
-  adj_list[2].emplace_back(2, 1);  
+  adj_list[2].emplace_back(2, 1);
 
   size_t start_vertex = 0;
 
