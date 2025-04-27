@@ -64,8 +64,7 @@ void opolin_d_radix_batcher_sort_tbb::RadixSort(std::vector<uint32_t>& uns_vec) 
   const int rad = 256;
   std::vector<uint32_t> res(sz);
   for (int stage = 0; stage < 4; stage++) {
-    tbb::enumerable_thread_specific<std::vector<size_t>> local_counts(
-        [] { return std::vector<size_t>(rad, 0); });
+    tbb::enumerable_thread_specific<std::vector<size_t>> local_counts([] { return std::vector<size_t>(rad, 0); });
     int shift = stage * 8;
     tbb::parallel_for(tbb::blocked_range<size_t>(0, sz), [&](const tbb::blocked_range<size_t>& r) {
       auto& lc = local_counts.local();
