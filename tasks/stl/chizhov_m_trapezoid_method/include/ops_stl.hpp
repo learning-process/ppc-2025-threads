@@ -30,4 +30,4 @@ class TestTaskSTL : public ppc::core::Task {
   size_t dim_;
   double res_;
 };
-}  // namespace chizhov_m_trapezoid_method_omp
+}  // namespace chizhov_m_trapezoid_method_stl

@@ -3,8 +3,8 @@
 #include <cmath>
 #include <cstddef>
 #include <functional>
-#include <vector>
 #include <thread>
+#include <vector>
 
 double chizhov_m_trapezoid_method_stl::TrapezoidMethod(Function& f, size_t div, size_t dim,
                                                        std::vector<double>& lower_limits,
