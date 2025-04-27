@@ -43,7 +43,23 @@ TEST(zinoviev_a_convex_hull_components_tbb, test_pipeline_run) {
   perf_analyzer->PipelineRun(perf_attr, perf_results);
   ppc::core::Perf::PrintPerfStatistic(perf_results);
 
-  delete[] reinterpret_cast<zinoviev_a_convex_hull_components_tbb::Point*>(task_data->outputs[0]);
+  auto* output = reinterpret_cast<zinoviev_a_convex_hull_components_tbb::Point*>(task_data->outputs[0]);
+  size_t output_size = static_cast<size_t>(task_data->outputs_count[0]);
+  std::vector<zinoviev_a_convex_hull_components_tbb::Point> actual(output, output + output_size);
+
+  std::vector<zinoviev_a_convex_hull_components_tbb::Point> expected;
+  expected.push_back({0, 0});
+  expected.push_back({size - 1, 0});
+  expected.push_back({size - 1, size - 1});
+  expected.push_back({0, size - 1});
+
+  std::set<zinoviev_a_convex_hull_components_tbb::Point> actual_set(actual.begin(), actual.end());
+  std::set<zinoviev_a_convex_hull_components_tbb::Point> expected_set(expected.begin(), expected.end());
+
+  ASSERT_EQ(actual.size(), expected.size());
+  ASSERT_EQ(actual_set, expected_set);
+
+  delete[] output;
 }
 
 TEST(zinoviev_a_convex_hull_components_tbb, test_task_run) {
@@ -80,5 +96,21 @@ TEST(zinoviev_a_convex_hull_components_tbb, test_task_run) {
   perf_analyzer->TaskRun(perf_attr, perf_results);
   ppc::core::Perf::PrintPerfStatistic(perf_results);
 
-  delete[] reinterpret_cast<zinoviev_a_convex_hull_components_tbb::Point*>(task_data->outputs[0]);
+  auto* output = reinterpret_cast<zinoviev_a_convex_hull_components_tbb::Point*>(task_data->outputs[0]);
+  size_t output_size = static_cast<size_t>(task_data->outputs_count[0]);
+  std::vector<zinoviev_a_convex_hull_components_tbb::Point> actual(output, output + output_size);
+
+  std::vector<zinoviev_a_convex_hull_components_tbb::Point> expected;
+  expected.push_back({0, 0});
+  expected.push_back({size - 1, 0});
+  expected.push_back({size - 1, size - 1});
+  expected.push_back({0, size - 1});
+
+  std::set<zinoviev_a_convex_hull_components_tbb::Point> actual_set(actual.begin(), actual.end());
+  std::set<zinoviev_a_convex_hull_components_tbb::Point> expected_set(expected.begin(), expected.end());
+
+  ASSERT_EQ(actual.size(), expected.size());
+  ASSERT_EQ(actual_set, expected_set);
+
+  delete[] output;
 }
