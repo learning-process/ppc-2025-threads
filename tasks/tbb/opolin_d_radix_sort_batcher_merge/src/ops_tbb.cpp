@@ -8,6 +8,11 @@
 #include <cstdint>
 #include <vector>
 
+#include "oneapi/tbb/blocked_range.h"
+#include "oneapi/tbb/enumerable_thread_specific.h"
+#include "oneapi/tbb/parallel_for.h"
+#include "oneapi/tbb/parallel_invoke.h"
+
 bool opolin_d_radix_batcher_sort_tbb::RadixBatcherSortTaskTbb::PreProcessingImpl() {
   auto* in_ptr = reinterpret_cast<int*>(task_data->inputs[0]);
   input_ = std::vector<int>(in_ptr, in_ptr + size_);
