@@ -156,13 +156,10 @@ bool TestTaskALL::RunImpl() {
   }
   std::vector<int> local(counts[rank]);
   int dummy = 0;
-  int* local_ptr = counts[rank] ? local.data() : &dummy;
-  const int* root_in = input_.empty() ? &dummy : input_.data();
-  if (rank == 0) {
-    boost::mpi::scatterv(world, root_in, counts, displs, local_ptr, counts[rank], 0);
-  } else {
-    boost::mpi::scatterv(world, local_ptr, counts[rank], 0);
-  }
+  bool have_local = counts[rank] != 0;
+  int* local_ptr = have_local ? local.data() : &dummy;
+  const int* root_ptr = input_.empty() ? &dummy : input_.data();
+  boost::mpi::scatterv(world, root_ptr, counts, displs, local_ptr, counts[rank], 0);
   int p = std::max(ppc::util::GetPPCNumThreads(), 1);
   auto blocks = PartitionBlocks(local, p);
 #pragma omp parallel for schedule(static)
