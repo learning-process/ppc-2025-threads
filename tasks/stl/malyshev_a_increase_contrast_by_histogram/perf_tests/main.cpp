@@ -1,5 +1,6 @@
 #include <gtest/gtest.h>
 
+#include <algorithm>
 #include <chrono>
 #include <cstddef>
 #include <cstdint>
@@ -10,19 +11,27 @@
 #include "core/task/include/task.hpp"
 #include "stl/malyshev_a_increase_contrast_by_histogram/include/ops_stl.hpp"
 
+namespace {
+
+void FillData(std::vector<int> &data) {
+  uint8_t tmp = 20;
+  for (size_t i = 0; i < data.size(); i++) {
+    data[i] = tmp++;
+    if (tmp == 240) {
+      tmp = 20;
+    }
+  }
+}
+
+}  // namespace
+
 TEST(malyshev_a_increase_contrast_by_histogram_stl, test_pipeline_run) {
   constexpr int kCount = 150000000;
 
   std::vector<int> in(kCount);
   std::vector<int> out(kCount);
 
-  uint8_t tmp = 20;
-  for (size_t i = 0; i < in.size(); i++) {
-    in[i] = tmp++;
-    if (tmp == 240) {
-      tmp = 20;
-    }
-  }
+  FillData(in);
 
   auto task_data_stl = std::make_shared<ppc::core::TaskData>();
   task_data_stl->inputs.emplace_back(reinterpret_cast<uint8_t *>(in.data()));
@@ -46,6 +55,11 @@ TEST(malyshev_a_increase_contrast_by_histogram_stl, test_pipeline_run) {
   auto perf_analyzer = std::make_shared<ppc::core::Perf>(test_task_stl);
   perf_analyzer->PipelineRun(perf_attr, perf_results);
   ppc::core::Perf::PrintPerfStatistic(perf_results);
+
+  auto [input_min, input_max] = std::ranges::minmax_element(in);
+  auto [output_min, output_max] = std::ranges::minmax_element(out);
+  EXPECT_LE(*output_min, *input_min);
+  EXPECT_GE(*output_max, *input_max);
 }
 
 TEST(malyshev_a_increase_contrast_by_histogram_stl, test_task_run) {
@@ -54,13 +68,7 @@ TEST(malyshev_a_increase_contrast_by_histogram_stl, test_task_run) {
   std::vector<int> in(kCount);
   std::vector<int> out(kCount);
 
-  uint8_t tmp = 20;
-  for (size_t i = 0; i < in.size(); i++) {
-    in[i] = tmp++;
-    if (tmp == 240) {
-      tmp = 20;
-    }
-  }
+  FillData(in);
 
   auto task_data_stl = std::make_shared<ppc::core::TaskData>();
   task_data_stl->inputs.emplace_back(reinterpret_cast<uint8_t *>(in.data()));
@@ -84,4 +92,9 @@ TEST(malyshev_a_increase_contrast_by_histogram_stl, test_task_run) {
   auto perf_analyzer = std::make_shared<ppc::core::Perf>(test_task_stl);
   perf_analyzer->TaskRun(perf_attr, perf_results);
   ppc::core::Perf::PrintPerfStatistic(perf_results);
+
+  auto [input_min, input_max] = std::ranges::minmax_element(in);
+  auto [output_min, output_max] = std::ranges::minmax_element(out);
+  EXPECT_LE(*output_min, *input_min);
+  EXPECT_GE(*output_max, *input_max);
 }
