@@ -1,8 +1,10 @@
 #include <gtest/gtest.h>
 
 #include <chrono>
+#include <cstddef>
 #include <cstdint>
 #include <memory>
+#include <set>
 #include <vector>
 
 #include "core/perf/include/perf.hpp"
@@ -44,7 +46,7 @@ TEST(zinoviev_a_convex_hull_components_tbb, test_pipeline_run) {
   ppc::core::Perf::PrintPerfStatistic(perf_results);
 
   auto* output = reinterpret_cast<zinoviev_a_convex_hull_components_tbb::Point*>(task_data->outputs[0]);
-  size_t output_size = static_cast<size_t>(task_data->outputs_count[0]);
+  auto output_size = static_cast<size_t>(task_data->outputs_count[0]);
   std::vector<zinoviev_a_convex_hull_components_tbb::Point> actual(output, output + output_size);
 
   std::vector<zinoviev_a_convex_hull_components_tbb::Point> expected;
@@ -97,7 +99,7 @@ TEST(zinoviev_a_convex_hull_components_tbb, test_task_run) {
   ppc::core::Perf::PrintPerfStatistic(perf_results);
 
   auto* output = reinterpret_cast<zinoviev_a_convex_hull_components_tbb::Point*>(task_data->outputs[0]);
-  size_t output_size = static_cast<size_t>(task_data->outputs_count[0]);
+  auto output_size = static_cast<size_t>(task_data->outputs_count[0]);
   std::vector<zinoviev_a_convex_hull_components_tbb::Point> actual(output, output + output_size);
 
   std::vector<zinoviev_a_convex_hull_components_tbb::Point> expected;
