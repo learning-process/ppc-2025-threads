@@ -207,8 +207,9 @@ bool odintsov_m_mulmatrix_cannon_stl::MulMatrixCannonSTL::RunImpl() {
         });
       }
 
-      for (auto& t : threads) t.join();
-
+      for (auto& t : threads) {
+        t.join();
+      }
       const size_t matrix_size = matrixC_.size();
       for (const auto& local_c : local_results) {
         for (size_t i = 0; i < matrix_size; ++i) {
