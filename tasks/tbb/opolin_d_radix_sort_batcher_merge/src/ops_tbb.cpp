@@ -32,13 +32,13 @@ bool opolin_d_radix_batcher_sort_tbb::RadixBatcherSortTaskTbb::RunImpl() {
   std::vector<uint32_t> keys(size_);
   tbb::parallel_for(tbb::blocked_range<size_t>(0, size_), [&](const tbb::blocked_range<size_t>& r) {
     for (size_t i = r.begin(); i < r.end(); ++i) {
-      keys[i] = ConvertIntToKey(input_[i]);
+      keys[i] = ConvertIntToUint(input_[i]);
     }
   });
   RadixSort(keys);
   tbb::parallel_for(tbb::blocked_range<size_t>(0, size_), [&](const tbb::blocked_range<size_t>& r) {
     for (size_t i = r.begin(); i < r.end(); ++i) {
-      output_[i] = ConvertKeyToInt(keys[i]);
+      output_[i] = ConvertUintToInt(keys[i]);
     }
   });
   BatcherOddEvenMerge(output_, 0, static_cast<int>(size_));
