@@ -16,7 +16,7 @@ TEST(zinoviev_a_convex_hull_components_tbb, test_pipeline_run) {
   std::vector<int> input(size * size, 0);
   for (int i = 0; i < size; ++i) {
     input[i] = 1;
-    input[((size - 1) * size) + i] = 1;
+    input[((size - 2) * size) + i] = 1;
     input[i * size] = 1;
     input[(i * size) + (size - 1)] = 1;
   }
@@ -69,7 +69,7 @@ TEST(zinoviev_a_convex_hull_components_tbb, test_task_run) {
   std::vector<int> input(size * size, 0);
   for (int i = 0; i < size; ++i) {
     input[i] = 1;
-    input[((size - 1) * size) + i] = 1;
+    input[((size - 2) * size) + i] = 1;
     input[i * size] = 1;
     input[(i * size) + (size - 1)] = 1;
   }
