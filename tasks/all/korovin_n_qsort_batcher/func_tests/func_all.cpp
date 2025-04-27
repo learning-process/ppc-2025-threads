@@ -9,7 +9,6 @@
 
 #include "all/korovin_n_qsort_batcher/include/ops_all.hpp"
 #include "core/task/include/task.hpp"
-#include "core/util/include/util.hpp"
 
 namespace {
 struct GenParams {

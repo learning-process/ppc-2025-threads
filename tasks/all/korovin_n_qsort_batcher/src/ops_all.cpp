@@ -120,7 +120,9 @@ void TestTaskALL::OddEvenMerge(std::vector<BlockRange>& blocks) {
         changed_global = changed_global || changed_local;
       }
     }
-    if (!changed_global) break;
+    if (!changed_global) {
+      break;
+    }
   }
 }
 
@@ -141,8 +143,10 @@ bool TestTaskALL::RunImpl() {
   int rank = world.rank();
   int size = world.size();
   int n = static_cast<int>(input_.size());
-  std::vector<int> counts(size), displs(size);
-  int chunk = n / size, rem = n % size;
+  std::vector<int> counts(size);
+  std::vector<int> displs(size);
+  int chunk = n / size;
+  int rem = n % size;
   for (int i = 0; i < size; i++) {
     counts[i] = chunk + (i < rem ? 1 : 0);
     displs[i] = (i == 0 ? 0 : displs[i - 1] + counts[i - 1]);
@@ -151,7 +155,11 @@ bool TestTaskALL::RunImpl() {
   if (rank == 0) {
     boost::mpi::scatterv(world, input_.data(), counts, displs, local.data(), counts[rank], 0);
   } else {
-    boost::mpi::scatterv(world, local.data(), counts[rank], 0);
+    if (counts[rank] > 0) {
+      boost::mpi::scatterv(world, local.data(), counts[rank], 0);
+    } else {
+      boost::mpi::scatterv(world, static_cast<int*>(nullptr), 0, 0);
+    }
   }
   int threads = ppc::util::GetPPCNumThreads();
   ;
@@ -165,7 +173,11 @@ bool TestTaskALL::RunImpl() {
   if (rank == 0) {
     boost::mpi::gatherv(world, local.data(), counts[rank], input_.data(), counts, displs, 0);
   } else {
-    boost::mpi::gatherv(world, local.data(), counts[rank], 0);
+    if (counts[rank] > 0) {
+      boost::mpi::gatherv(world, local.data(), counts[rank], 0);
+    } else {
+      boost::mpi::gatherv(world, static_cast<int*>(nullptr), 0, 0);
+    }
   }
   if (rank == 0) {
     int thr2 = omp_get_max_threads();
