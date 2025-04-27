@@ -6,6 +6,8 @@
 #include <cmath>
 #include <vector>
 
+#include "oneapi/tbb/parallel_for.h"
+
 namespace {
 void FoxBlockMul(const std::vector<double>& a, const std::vector<double>& b, std::vector<double>& c, int n,
                  int block_size, int stage, int i, int j, int k) {
