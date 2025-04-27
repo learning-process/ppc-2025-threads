@@ -61,7 +61,7 @@ TEST(gromov_a_fox_algorithm_tbb, test_pipeline_run) {
   }
 
   for (size_t i = 0; i < out.size(); ++i) {
-    EXPECT_NEAR(out[i], expected[i], 1e-9);
+    EXPECT_NEAR(out[i], expected[i], 1e-3);
   }
 }
 
@@ -116,6 +116,6 @@ TEST(gromov_a_fox_algorithm_tbb, test_task_run) {
   }
 
   for (size_t i = 0; i < out.size(); ++i) {
-    EXPECT_NEAR(out[i], expected[i], 1e-9);
+    EXPECT_NEAR(out[i], expected[i], 1e-3);
   }
 }

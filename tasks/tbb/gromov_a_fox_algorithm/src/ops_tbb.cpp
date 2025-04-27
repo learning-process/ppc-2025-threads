@@ -4,22 +4,18 @@
 
 #include <algorithm>
 #include <cmath>
-#include <core/util/include/util.hpp>
 #include <vector>
-
-#include "oneapi/tbb/blocked_range2d.h"
-#include "oneapi/tbb/parallel_for.h"
-#include "oneapi/tbb/task_arena.h"
 
 namespace {
 void FoxBlockMul(const std::vector<double>& a, const std::vector<double>& b, std::vector<double>& c, int n,
-                 int block_size, int stage, int i, int j) {
-  int start_k = stage * block_size;
-  for (int bk = start_k; bk < std::min((stage + 1) * block_size, n); ++bk) {
-    for (int bi = i; bi < i + block_size && bi < n; ++bi) {
-      for (int bj = j; bj < j + block_size && bj < n; ++bj) {
-        c[(bi * n) + bj] += a[(bi * n) + bk] * b[(bk * n) + bj];
+                 int block_size, int stage, int i, int j, int k) {
+  for (int bi = i; bi < std::min(i + block_size, n); ++bi) {
+    for (int bj = j; bj < std::min(j + block_size, n); ++bj) {
+      double sum = 0.0;
+      for (int bk = k; bk < std::min(k + block_size, n); ++bk) {
+        sum += a[(bi * n) + bk] * b[(bk * n) + bj];
       }
+      c[(bi * n) + bj] += sum;
     }
   }
 }
@@ -74,21 +70,18 @@ bool gromov_a_fox_algorithm_tbb::TestTaskTBB::ValidationImpl() {
 }
 
 bool gromov_a_fox_algorithm_tbb::TestTaskTBB::RunImpl() {
-  int num_blocks = (n_ + block_size_ - 1) / block_size_;
+  const int num_blocks = (n_ + block_size_ - 1) / block_size_;
 
-  oneapi::tbb::task_arena arena(ppc::util::GetPPCNumThreads());
-  arena.execute([&] {
-    for (int stage = 0; stage < num_blocks; ++stage) {
-      tbb::parallel_for(tbb::blocked_range2d<int>(0, n_, block_size_, 0, n_, block_size_),
-                        [&](const tbb::blocked_range2d<int>& r) {
-                          for (int i = r.rows().begin(); i < r.rows().end(); i += block_size_) {
-                            for (int j = r.cols().begin(); j < r.cols().end(); j += block_size_) {
-                              FoxBlockMul(A_, B_, output_, n_, block_size_, stage, i, j);
-                            }
-                          }
-                        });
+  tbb::parallel_for(0, num_blocks * num_blocks, [&](int index) {
+    int i = index / num_blocks;
+    int j = index % num_blocks;
+
+    for (int step = 0; step < num_blocks; ++step) {
+      int k = (i + step) % num_blocks;
+      FoxBlockMul(A_, B_, output_, n_, block_size_, step, i * block_size_, j * block_size_, k * block_size_);
     }
   });
+
   return true;
 }
 
