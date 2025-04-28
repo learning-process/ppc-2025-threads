@@ -21,7 +21,11 @@ TEST(titov_s_image_filter_horiz_gaussian3x3_stl, test_pipeline_run) {
   for (size_t i = 0; i < kHeight; ++i) {
     for (size_t j = 0; j < kWidth; ++j) {
       input[(i * kWidth) + j] = (j % 3 == 0) ? 100.0 : 0.0;
-      expected[(i * kWidth) + j] = (j % 3 == 0) ? 50.0 : 25.0;
+      if (j == 14999) {
+        expected[(i * kWidth) + j] = 0.0;
+      } else {
+        expected[(i * kWidth) + j] = (j % 3 == 0) ? 50.0 : 25.0;
+      }
     }
   }
 
@@ -66,7 +70,11 @@ TEST(titov_s_image_filter_horiz_gaussian3x3_stl, test_task_run) {
   for (size_t i = 0; i < kHeight; ++i) {
     for (size_t j = 0; j < kWidth; ++j) {
       input[(i * kWidth) + j] = (j % 3 == 0) ? 100.0 : 0.0;
-      expected[(i * kWidth) + j] = (j % 3 == 0) ? 50.0 : 25.0;
+      if (j == 14999) {
+        expected[(i * kWidth) + j] = 0.0;
+      } else {
+        expected[(i * kWidth) + j] = (j % 3 == 0) ? 50.0 : 25.0;
+      }
     }
   }
 
