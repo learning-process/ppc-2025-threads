@@ -37,6 +37,7 @@ std::vector<double> MultMat(const std::vector<double> &a, const std::vector<doub
 }
 
 TEST(vavilov_v_cannon_all, test_random) {
+  boost::mpi::communicator world;
   constexpr int kN = 16;
   auto a = GenerateRandomMatrix(kN);
   auto b = GenerateRandomMatrix(kN);
@@ -44,25 +45,29 @@ TEST(vavilov_v_cannon_all, test_random) {
   std::vector<double> c(kN * kN, 0.0);
 
   auto task_data_all = std::make_shared<ppc::core::TaskData>();
-  task_data_all->inputs.emplace_back(reinterpret_cast<uint8_t *>(a.data()));
-  task_data_all->inputs.emplace_back(reinterpret_cast<uint8_t *>(b.data()));
-  task_data_all->inputs_count.emplace_back(a.size());
-  task_data_all->inputs_count.emplace_back(b.size());
-  task_data_all->outputs.emplace_back(reinterpret_cast<uint8_t *>(c.data()));
-  task_data_all->outputs_count.emplace_back(c.size());
+  if (world.rank() == 0) {
+    task_data_all->inputs.emplace_back(reinterpret_cast<uint8_t *>(a.data()));
+    task_data_all->inputs.emplace_back(reinterpret_cast<uint8_t *>(b.data()));
+    task_data_all->inputs_count.emplace_back(a.size());
+    task_data_all->inputs_count.emplace_back(b.size());
+    task_data_all->outputs.emplace_back(reinterpret_cast<uint8_t *>(c.data()));
+    task_data_all->outputs_count.emplace_back(c.size());
+  }
 
   vavilov_v_cannon_all::CannonALL task_all(task_data_all);
   ASSERT_TRUE(task_all.Validation());
   task_all.PreProcessing();
   task_all.Run();
   task_all.PostProcessing();
-
-  for (int i = 0; i < kN * kN; i++) {
-    EXPECT_NEAR(expected_output[i], c[i], 1e-6);
+  if (world.rank() == 0) {
+    for (int i = 0; i < kN * kN; i++) {
+      EXPECT_NEAR(expected_output[i], c[i], 1e-6);
+    }
   }
 }
 
 TEST(vavilov_v_cannon_all, test_fixed_4x4) {
+  boost::mpi::communicator world;
   constexpr int kN = 4;
   std::vector<double> a = {1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16};
   std::vector<double> b = {1, 0, 0, 1, 0, 1, 1, 0, 1, 0, 0, 1, 0, 1, 1, 0};
@@ -70,42 +75,49 @@ TEST(vavilov_v_cannon_all, test_fixed_4x4) {
   std::vector<double> c(kN * kN, 0.0);
 
   auto task_data_all = std::make_shared<ppc::core::TaskData>();
-  task_data_all->inputs.emplace_back(reinterpret_cast<uint8_t *>(a.data()));
-  task_data_all->inputs.emplace_back(reinterpret_cast<uint8_t *>(b.data()));
-  task_data_all->inputs_count.emplace_back(a.size());
-  task_data_all->inputs_count.emplace_back(b.size());
-  task_data_all->outputs.emplace_back(reinterpret_cast<uint8_t *>(c.data()));
-  task_data_all->outputs_count.emplace_back(c.size());
-
+  if (world.rank() == 0) {
+    task_data_all->inputs.emplace_back(reinterpret_cast<uint8_t *>(a.data()));
+    task_data_all->inputs.emplace_back(reinterpret_cast<uint8_t *>(b.data()));
+    task_data_all->inputs_count.emplace_back(a.size());
+    task_data_all->inputs_count.emplace_back(b.size());
+    task_data_all->outputs.emplace_back(reinterpret_cast<uint8_t *>(c.data()));
+    task_data_all->outputs_count.emplace_back(c.size());
+  }
   vavilov_v_cannon_all::CannonALL task_all(task_data_all);
   ASSERT_TRUE(task_all.Validation());
   task_all.PreProcessing();
   task_all.Run();
   task_all.PostProcessing();
-
-  for (int i = 0; i < kN * kN; i++) {
-    EXPECT_EQ(expected_output[i], c[i]);
+  if (world.rank() == 0) {
+    for (int i = 0; i < kN * kN; i++) {
+      EXPECT_EQ(expected_output[i], c[i]);
+    }
   }
 }
 
 TEST(vavilov_v_cannon_all, test_invalid_size_1) {
+  boost::mpi::communicator world;
   std::vector<double> a(2 * 2, 1.0);
   std::vector<double> b(3 * 2, 1.0);
   std::vector<double> c(2 * 2, 0.0);
 
   auto task_data_all = std::make_shared<ppc::core::TaskData>();
-  task_data_all->inputs.emplace_back(reinterpret_cast<uint8_t *>(a.data()));
-  task_data_all->inputs.emplace_back(reinterpret_cast<uint8_t *>(b.data()));
-  task_data_all->inputs_count.emplace_back(a.size());
-  task_data_all->inputs_count.emplace_back(b.size());
-  task_data_all->outputs.emplace_back(reinterpret_cast<uint8_t *>(c.data()));
-  task_data_all->outputs_count.emplace_back(c.size());
-
+  if (world.rank() == 0) {
+    task_data_all->inputs.emplace_back(reinterpret_cast<uint8_t *>(a.data()));
+    task_data_all->inputs.emplace_back(reinterpret_cast<uint8_t *>(b.data()));
+    task_data_all->inputs_count.emplace_back(a.size());
+    task_data_all->inputs_count.emplace_back(b.size());
+    task_data_all->outputs.emplace_back(reinterpret_cast<uint8_t *>(c.data()));
+    task_data_all->outputs_count.emplace_back(c.size());
+  }
   vavilov_v_cannon_all::CannonALL task_all(task_data_all);
-  ASSERT_FALSE(task_all.Validation());
+  if (world.rank() == 0) {
+    ASSERT_FALSE(task_all.Validation());
+  }
 }
 
 TEST(vavilov_v_cannon_all, test_225) {
+  boost::mpi::communicator world;
   constexpr int kN = 225;
   std::vector<double> a(kN * kN, 1.0);
   std::vector<double> b(kN * kN, 1.0);
@@ -113,25 +125,28 @@ TEST(vavilov_v_cannon_all, test_225) {
   std::vector<double> expected_output(kN * kN, kN);
 
   auto task_data_all = std::make_shared<ppc::core::TaskData>();
-  task_data_all->inputs.emplace_back(reinterpret_cast<uint8_t *>(a.data()));
-  task_data_all->inputs.emplace_back(reinterpret_cast<uint8_t *>(b.data()));
-  task_data_all->inputs_count.emplace_back(a.size());
-  task_data_all->inputs_count.emplace_back(b.size());
-  task_data_all->outputs.emplace_back(reinterpret_cast<uint8_t *>(c.data()));
-  task_data_all->outputs_count.emplace_back(c.size());
-
+  if (world.rank() == 0) {
+    task_data_all->inputs.emplace_back(reinterpret_cast<uint8_t *>(a.data()));
+    task_data_all->inputs.emplace_back(reinterpret_cast<uint8_t *>(b.data()));
+    task_data_all->inputs_count.emplace_back(a.size());
+    task_data_all->inputs_count.emplace_back(b.size());
+    task_data_all->outputs.emplace_back(reinterpret_cast<uint8_t *>(c.data()));
+    task_data_all->outputs_count.emplace_back(c.size());
+  }
   vavilov_v_cannon_all::CannonALL task_all(task_data_all);
   ASSERT_TRUE(task_all.Validation());
   task_all.PreProcessing();
   task_all.Run();
   task_all.PostProcessing();
-
-  for (int i = 0; i < kN * kN; i++) {
-    EXPECT_EQ(expected_output[i], c[i]);
+  if (world.rank() == 0) {
+    for (int i = 0; i < kN * kN; i++) {
+      EXPECT_EQ(expected_output[i], c[i]);
+    }
   }
 }
 
 TEST(vavilov_v_cannon_all, test_identity_matrix) {
+  boost::mpi::communicator world;
   constexpr int kN = 225;
   std::vector<double> a(kN * kN, 1.0);
   std::vector<double> b(kN * kN, 0.0);
@@ -144,25 +159,28 @@ TEST(vavilov_v_cannon_all, test_identity_matrix) {
   auto expected_output = a;
 
   auto task_data_all = std::make_shared<ppc::core::TaskData>();
-  task_data_all->inputs.emplace_back(reinterpret_cast<uint8_t *>(a.data()));
-  task_data_all->inputs.emplace_back(reinterpret_cast<uint8_t *>(b.data()));
-  task_data_all->inputs_count.emplace_back(a.size());
-  task_data_all->inputs_count.emplace_back(b.size());
-  task_data_all->outputs.emplace_back(reinterpret_cast<uint8_t *>(c.data()));
-  task_data_all->outputs_count.emplace_back(c.size());
-
+  if (world.rank() == 0) {
+    task_data_all->inputs.emplace_back(reinterpret_cast<uint8_t *>(a.data()));
+    task_data_all->inputs.emplace_back(reinterpret_cast<uint8_t *>(b.data()));
+    task_data_all->inputs_count.emplace_back(a.size());
+    task_data_all->inputs_count.emplace_back(b.size());
+    task_data_all->outputs.emplace_back(reinterpret_cast<uint8_t *>(c.data()));
+    task_data_all->outputs_count.emplace_back(c.size());
+  }
   vavilov_v_cannon_all::CannonALL task_all(task_data_all);
   ASSERT_TRUE(task_all.Validation());
   task_all.PreProcessing();
   task_all.Run();
   task_all.PostProcessing();
-
-  for (int i = 0; i < kN * kN; i++) {
-    EXPECT_EQ(expected_output[i], c[i]);
+  if (world.rank() == 0) {
+    for (int i = 0; i < kN * kN; i++) {
+      EXPECT_EQ(expected_output[i], c[i]);
+    }
   }
 }
 
 TEST(vavilov_v_cannon_all, test_zero_matrix) {
+  boost::mpi::communicator world;
   constexpr int kN = 225;
   std::vector<double> a(kN * kN, 1.0);
   std::vector<double> b(kN * kN, 0.0);
@@ -170,21 +188,23 @@ TEST(vavilov_v_cannon_all, test_zero_matrix) {
   std::vector<double> expected_output(kN * kN, 0.0);
 
   auto task_data_all = std::make_shared<ppc::core::TaskData>();
-  task_data_all->inputs.emplace_back(reinterpret_cast<uint8_t *>(a.data()));
-  task_data_all->inputs.emplace_back(reinterpret_cast<uint8_t *>(b.data()));
-  task_data_all->inputs_count.emplace_back(a.size());
-  task_data_all->inputs_count.emplace_back(b.size());
-  task_data_all->outputs.emplace_back(reinterpret_cast<uint8_t *>(c.data()));
-  task_data_all->outputs_count.emplace_back(c.size());
-
+  if (world.rank() == 0) {
+    task_data_all->inputs.emplace_back(reinterpret_cast<uint8_t *>(a.data()));
+    task_data_all->inputs.emplace_back(reinterpret_cast<uint8_t *>(b.data()));
+    task_data_all->inputs_count.emplace_back(a.size());
+    task_data_all->inputs_count.emplace_back(b.size());
+    task_data_all->outputs.emplace_back(reinterpret_cast<uint8_t *>(c.data()));
+    task_data_all->outputs_count.emplace_back(c.size());
+  }
   vavilov_v_cannon_all::CannonALL task_all(task_data_all);
   ASSERT_TRUE(task_all.Validation());
   task_all.PreProcessing();
   task_all.Run();
   task_all.PostProcessing();
-
-  for (int i = 0; i < kN * kN; i++) {
-    EXPECT_EQ(expected_output[i], c[i]);
+  if (world.rank() == 0) {
+    for (int i = 0; i < kN * kN; i++) {
+      EXPECT_EQ(expected_output[i], c[i]);
+    }
   }
 }
 }  // namespace
