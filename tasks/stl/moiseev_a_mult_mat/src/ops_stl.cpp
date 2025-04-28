@@ -36,53 +36,58 @@ bool moiseev_a_mult_mat_stl::MultMatSTL::ValidationImpl() {
          (task_data->inputs_count[0] == task_data->outputs_count[0]);
 }
 
-bool moiseev_a_mult_mat_stl::MultMatSTL::RunImpl() {  // NOLINT(readability-function-cognitive-complexity)
+void moiseev_a_mult_mat_stl::MultMatSTL::MultiplyBlock(const BlockDesc &desc) {
+  int block_row = desc.row;
+  int block_col = desc.col;
+  int block_step = desc.step;
+
+  int a_block_col = (block_row + block_step) % num_blocks_;
+  int b_block_row = a_block_col;
+
+  int row_base = block_row * block_size_;
+  int col_base = block_col * block_size_;
+  int a_col_base = a_block_col * block_size_;
+  int b_row_base = b_block_row * block_size_;
+
+  for (int i = 0; i < block_size_; ++i) {
+    for (int j = 0; j < block_size_; ++j) {
+      double sum = 0.0;
+      for (int k = 0; k < block_size_; ++k) {
+        double a = matrix_a_[(row_base + i) * matrix_size_ + (a_col_base + k)];
+        double b = matrix_b_[(b_row_base + k) * matrix_size_ + (col_base + j)];
+        sum += a * b;
+      }
+      matrix_c_[(row_base + i) * matrix_size_ + (col_base + j)] += sum;
+    }
+  }
+}
+
+bool moiseev_a_mult_mat_stl::MultMatSTL::RunImpl() {
   const std::size_t total_block_rows = num_blocks_;
-  const std::size_t num_threads = std::min(static_cast<std::size_t>(ppc::util::GetPPCNumThreads()), total_block_rows);
+  const std::size_t num_threads = std::min<std::size_t>(ppc::util::GetPPCNumThreads(), total_block_rows);
   std::vector<std::thread> threads(num_threads);
 
   auto worker = [this, total_block_rows, num_threads](std::size_t thread_index) {
-    std::size_t rows_per_thread = total_block_rows / num_threads;
-    std::size_t remainder = total_block_rows % num_threads;
-    std::size_t start = (thread_index * rows_per_thread) + std::min(thread_index, remainder);
-    std::size_t amount = rows_per_thread + (thread_index < remainder ? 1 : 0);
-    std::size_t end = start + amount;
+    std::size_t base = total_block_rows / num_threads;
+    std::size_t extra = total_block_rows % num_threads;
+    std::size_t start = thread_index * base + std::min(thread_index, extra);
+    std::size_t count = base + (thread_index < extra ? 1 : 0);
+    std::size_t end = start + count;
 
-    for (int block_row = static_cast<int>(start); block_row < static_cast<int>(end); ++block_row) {
-      for (int block_col = 0; block_col < num_blocks_; ++block_col) {
-        for (int block_step = 0; block_step < num_blocks_; ++block_step) {
-          int a_block_col = (block_row + block_step) % num_blocks_;
-          int b_block_row = a_block_col;
-
-          int block_row_start = block_row * block_size_;
-          int block_col_start = block_col * block_size_;
-          int a_col_start = a_block_col * block_size_;
-          int b_row_start = b_block_row * block_size_;
-
-          for (int row_offset = 0; row_offset < block_size_; ++row_offset) {
-            for (int col_offset = 0; col_offset < block_size_; ++col_offset) {
-              double block_result = 0.0;
-              for (int inner_dim_offset = 0; inner_dim_offset < block_size_; ++inner_dim_offset) {
-                double a_element =
-                    matrix_a_[((block_row_start + row_offset) * matrix_size_) + (a_col_start + inner_dim_offset)];
-                double b_element =
-                    matrix_b_[((b_row_start + inner_dim_offset) * matrix_size_) + (block_col_start + col_offset)];
-                block_result += a_element * b_element;
-              }
-              matrix_c_[((block_row_start + row_offset) * matrix_size_) + (block_col_start + col_offset)] +=
-                  block_result;
-            }
-          }
+    for (int br = static_cast<int>(start); br < static_cast<int>(end); ++br) {
+      for (int bc = 0; bc < num_blocks_; ++bc) {
+        for (int bs = 0; bs < num_blocks_; ++bs) {
+          MultiplyBlock({br, bc, bs});
         }
       }
     }
   };
 
-  for (std::size_t thread_i = 0; thread_i < num_threads; thread_i++) {
-    threads[thread_i] = std::thread(worker, thread_i);
+  for (std::size_t t = 0; t < num_threads; ++t) {
+    threads[t] = std::thread(worker, t);
   }
-  for (std::size_t thread_i = 0; thread_i < num_threads; thread_i++) {
-    threads[thread_i].join();
+  for (auto &th : threads) {
+    th.join();
   }
   return true;
 }

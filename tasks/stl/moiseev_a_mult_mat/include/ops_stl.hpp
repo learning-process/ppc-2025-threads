@@ -16,6 +16,13 @@ class MultMatSTL : public ppc::core::Task {
   bool PostProcessingImpl() override;
 
  private:
+  struct BlockDesc {
+    int row;
+    int col;
+    int step;
+  };
+
+  void MultiplyBlock(const BlockDesc &desc);
   std::vector<double> matrix_a_, matrix_b_, matrix_c_;
   int matrix_size_{};
   int num_blocks_{};

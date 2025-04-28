@@ -17,12 +17,24 @@ std::vector<double> GenerateRandomMatrix(size_t rows, size_t cols) {
   std::vector<double> matrix(rows * cols);
   std::random_device rd;
   std::mt19937 gen(rd());
-  std::uniform_real_distribution<double> dist(-10.0, 10.0);
+  std::uniform_real_distribution<double> dist(-100.0, 100.0);
 
   for (auto &val : matrix) {
     val = dist(gen);
   }
   return matrix;
+}
+
+void NaiveMultiply(const std::vector<double> &a, const std::vector<double> &b, std::vector<double> &c, size_t n) {
+  for (size_t i = 0; i < n; ++i) {
+    for (size_t j = 0; j < n; ++j) {
+      double sum = 0.0;
+      for (size_t k = 0; k < n; ++k) {
+        sum += a[(i * n) + k] * b[(k * n) + j];
+      }
+      c[(i * n) + j] = sum;
+    }
+  }
 }
 
 }  // namespace
@@ -34,18 +46,18 @@ TEST(moiseev_a_mult_mat_stl, test_pipeline_run) {
   auto matrix_b = GenerateRandomMatrix(kCount, kCount);
   std::vector<double> matrix_c(kCount * kCount, 0.0);
 
-  auto task_data_tbb = std::make_shared<ppc::core::TaskData>();
+  auto task_data_stl = std::make_shared<ppc::core::TaskData>();
 
-  task_data_tbb->inputs.emplace_back(reinterpret_cast<uint8_t *>(matrix_a.data()));
-  task_data_tbb->inputs_count.emplace_back(matrix_a.size());
+  task_data_stl->inputs.emplace_back(reinterpret_cast<uint8_t *>(matrix_a.data()));
+  task_data_stl->inputs_count.emplace_back(matrix_a.size());
 
-  task_data_tbb->inputs.emplace_back(reinterpret_cast<uint8_t *>(matrix_b.data()));
-  task_data_tbb->inputs_count.emplace_back(matrix_b.size());
+  task_data_stl->inputs.emplace_back(reinterpret_cast<uint8_t *>(matrix_b.data()));
+  task_data_stl->inputs_count.emplace_back(matrix_b.size());
 
-  task_data_tbb->outputs.emplace_back(reinterpret_cast<uint8_t *>(matrix_c.data()));
-  task_data_tbb->outputs_count.emplace_back(matrix_c.size());
+  task_data_stl->outputs.emplace_back(reinterpret_cast<uint8_t *>(matrix_c.data()));
+  task_data_stl->outputs_count.emplace_back(matrix_c.size());
 
-  auto test_task_tbb = std::make_shared<moiseev_a_mult_mat_stl::MultMatSTL>(task_data_tbb);
+  auto test_task_stl = std::make_shared<moiseev_a_mult_mat_stl::MultMatSTL>(task_data_stl);
 
   auto perf_attr = std::make_shared<ppc::core::PerfAttr>();
   perf_attr->num_running = 10;
@@ -57,9 +69,17 @@ TEST(moiseev_a_mult_mat_stl, test_pipeline_run) {
   };
 
   auto perf_results = std::make_shared<ppc::core::PerfResults>();
-  auto perf_analyzer = std::make_shared<ppc::core::Perf>(test_task_tbb);
+  auto perf_analyzer = std::make_shared<ppc::core::Perf>(test_task_stl);
   perf_analyzer->PipelineRun(perf_attr, perf_results);
   ppc::core::Perf::PrintPerfStatistic(perf_results);
+
+  std::vector<double> expected_matrix(kCount * kCount, 0.0);
+  NaiveMultiply(matrix_a, matrix_b, expected_matrix, kCount);
+
+  const double epsilon = 1e-6;
+  for (size_t i = 0; i < matrix_c.size(); ++i) {
+    EXPECT_NEAR(matrix_c[i], expected_matrix[i], epsilon);
+  }
 }
 
 TEST(moiseev_a_mult_mat_stl, test_task_run) {
@@ -69,18 +89,18 @@ TEST(moiseev_a_mult_mat_stl, test_task_run) {
   auto matrix_b = GenerateRandomMatrix(kCount, kCount);
   std::vector<double> matrix_c(kCount * kCount, 0.0);
 
-  auto task_data_tbb = std::make_shared<ppc::core::TaskData>();
+  auto task_data_stl = std::make_shared<ppc::core::TaskData>();
 
-  task_data_tbb->inputs.emplace_back(reinterpret_cast<uint8_t *>(matrix_a.data()));
-  task_data_tbb->inputs_count.emplace_back(matrix_a.size());
+  task_data_stl->inputs.emplace_back(reinterpret_cast<uint8_t *>(matrix_a.data()));
+  task_data_stl->inputs_count.emplace_back(matrix_a.size());
 
-  task_data_tbb->inputs.emplace_back(reinterpret_cast<uint8_t *>(matrix_b.data()));
-  task_data_tbb->inputs_count.emplace_back(matrix_b.size());
+  task_data_stl->inputs.emplace_back(reinterpret_cast<uint8_t *>(matrix_b.data()));
+  task_data_stl->inputs_count.emplace_back(matrix_b.size());
 
-  task_data_tbb->outputs.emplace_back(reinterpret_cast<uint8_t *>(matrix_c.data()));
-  task_data_tbb->outputs_count.emplace_back(matrix_c.size());
+  task_data_stl->outputs.emplace_back(reinterpret_cast<uint8_t *>(matrix_c.data()));
+  task_data_stl->outputs_count.emplace_back(matrix_c.size());
 
-  auto test_task_tbb = std::make_shared<moiseev_a_mult_mat_stl::MultMatSTL>(task_data_tbb);
+  auto test_task_stl = std::make_shared<moiseev_a_mult_mat_stl::MultMatSTL>(task_data_stl);
 
   auto perf_attr = std::make_shared<ppc::core::PerfAttr>();
   perf_attr->num_running = 10;
@@ -92,7 +112,15 @@ TEST(moiseev_a_mult_mat_stl, test_task_run) {
   };
 
   auto perf_results = std::make_shared<ppc::core::PerfResults>();
-  auto perf_analyzer = std::make_shared<ppc::core::Perf>(test_task_tbb);
+  auto perf_analyzer = std::make_shared<ppc::core::Perf>(test_task_stl);
   perf_analyzer->TaskRun(perf_attr, perf_results);
   ppc::core::Perf::PrintPerfStatistic(perf_results);
+
+  std::vector<double> expected_matrix(kCount * kCount, 0.0);
+  NaiveMultiply(matrix_a, matrix_b, expected_matrix, kCount);
+
+  const double epsilon = 1e-6;
+  for (size_t i = 0; i < matrix_c.size(); ++i) {
+    EXPECT_NEAR(matrix_c[i], expected_matrix[i], epsilon);
+  }
 }
