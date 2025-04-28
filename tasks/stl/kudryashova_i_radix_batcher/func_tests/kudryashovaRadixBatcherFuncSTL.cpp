@@ -9,7 +9,6 @@
 #include <vector>
 
 #include "core/task/include/task.hpp"
-#include "core/util/include/util.hpp"
 #include "stl/kudryashova_i_radix_batcher/include/kudryashovaRadixBatcherSTL.hpp"
 
 std::vector<double> kudryashova_i_radix_batcher_stl::GetRandomDoubleVector(int size) {
