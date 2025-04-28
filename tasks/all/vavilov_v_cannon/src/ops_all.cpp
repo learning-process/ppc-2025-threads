@@ -155,11 +155,11 @@ bool vavilov_v_cannon_all::CannonALL::RunImpl() {
         }
       }
     }
-    mpi::scatter(world_, tmp_A, local_A, 0);
-    mpi::scatter(world_, tmp_B, local_B, 0);
+    mpi::scatter(world_, tmp_A.data(), local_A.data(), 0);
+    mpi::scatter(world_, tmp_B.data(), local_B.data(), 0);
   } else {
-    mpi::scatter(world_, local_A, 0);
-    mpi::scatter(world_, local_B, 0);
+    mpi::scatter(world_, local_A.data(), 0);
+    mpi::scatter(world_, local_B.data(), 0);
   }
 
   InitialShift(local_A, local_B);
@@ -184,7 +184,7 @@ bool vavilov_v_cannon_all::CannonALL::RunImpl() {
       }
     }
   } else {
-    mpi::gather(world_, local_C, 0);
+    mpi::gather(world_, local_C.data(), 0);
   }
 
   return true;
