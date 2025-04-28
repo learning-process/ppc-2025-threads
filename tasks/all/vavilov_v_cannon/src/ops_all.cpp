@@ -47,15 +47,15 @@ void vavilov_v_cannon_all::CannonALL::InitialShift(std::vector<double>& local_A,
     reqs[0] = world_.isend(a_dest, 0, local_A.data(), block_size_ * block_size_);
     reqs[1] = world_.irecv(a_src, 0, tmp_A.data(), block_size_ * block_size_);
   } else {
-      tmp_A = local_A;
-    }
+    tmp_A = local_A;
+  }
 
   if (b_dest != rank) {
     reqs[2] = world_.isend(b_dest, 1, local_B.data(), block_size_ * block_size_);
     reqs[3] = world_.irecv(b_src, 1, tmp_B.data(), block_size_ * block_size_);
   } else {
-      tmp_B = local_B;
-    }
+    tmp_B = local_B;
+  }
 
   if (a_dest != rank || b_dest != rank) {
     mpi::wait_all(reqs, reqs + 4);
@@ -84,15 +84,15 @@ void vavilov_v_cannon_all::CannonALL::ShiftBlocks(std::vector<double>& local_A, 
     reqs[0] = world_.isend(left_dest, 2, local_A.data(), block_size_ * block_size_);
     reqs[1] = world_.irecv(left_src, 2, tmp_A.data(), block_size_ * block_size_);
   } else {
-      tmp_A = local_A;
-    }
+    tmp_A = local_A;
+  }
 
   if (up_dest != rank) {
     reqs[2] = world_.isend(up_dest, 3, local_B.data(), block_size_ * block_size_);
     reqs[3] = world_.irecv(up_src, 3, tmp_B.data(), block_size_ * block_size_);
   } else {
-      tmp_B = local_B;
-    }
+    tmp_B = local_B;
+  }
 
   if (left_dest != rank || up_dest != rank) {
     mpi::wait_all(reqs, reqs + 4);
@@ -151,9 +151,9 @@ bool vavilov_v_cannon_all::CannonALL::RunImpl() {
     mpi::scatterv(world_, A_.data(), sendcounts, displs, local_A.data(), block_size_sq, 0);
     mpi::scatterv(world_, B_.data(), sendcounts, displs, local_B.data(), block_size_sq, 0);
   } else {
-      mpi::scatterv(world_, local_A.data(), block_size_sq, 0);
-      mpi::scatterv(world_, local_B.data(), block_size_sq, 0);
-    }
+    mpi::scatterv(world_, local_A.data(), block_size_sq, 0);
+    mpi::scatterv(world_, local_B.data(), block_size_sq, 0);
+  }
 
   InitialShift(local_A, local_B);
   for (int iter = 0; iter < num_blocks_; ++iter) {
@@ -171,8 +171,8 @@ bool vavilov_v_cannon_all::CannonALL::RunImpl() {
   if (rank == 0) {
     mpi::gatherv(world_, local_C.data(), block_size_sq, C_.data(), sendcounts, displs, 0);
   } else {
-      mpi::gatherv(world_, local_C.data(), block_size_sq, 0);
-    }
+    mpi::gatherv(world_, local_C.data(), block_size_sq, 0);
+  }
 
   return true;
 }
