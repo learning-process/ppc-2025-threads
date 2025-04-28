@@ -31,7 +31,7 @@ void vavilov_v_cannon_all::CannonALL::InitialShift(std::vector<double>& local_A,
   int rank = world_.rank();
   int grid_size = num_blocks_;
   int row = rank / grid_size;
-  int col = rank % grid_size; 
+  int col = rank % grid_size;
   int a_dest = (row * grid_size + (col - row + grid_size) % grid_size);
   int a_src = (row * grid_size + (col + row) % grid_size);
   int b_dest = (((row - col + grid_size) % grid_size) * grid_size + col);
@@ -100,7 +100,7 @@ bool vavilov_v_cannon_all::CannonALL::RunImpl() {
       std::cerr << "Number of processes must be a perfect square" << std::endl;
     }
     return false;
-  } 
+  }
   if (N_ % grid_size != 0) {
     if (rank == 0) {
       std::cerr << "Matrix size must be divisible by grid size" << std::endl;
@@ -123,7 +123,7 @@ bool vavilov_v_cannon_all::CannonALL::RunImpl() {
   int block_idx = (row * num_blocks_ + col) * block_size_sq;
   std::copy(A_.begin() + block_idx, A_.begin() + block_idx + block_size_sq, local_A.begin());
   std::copy(B_.begin() + block_idx, B_.begin() + block_idx + block_size_sq, local_B.begin());
-  
+
   InitialShift(local_A, local_B);
   for (int iter = 0; iter < num_blocks_; ++iter) {
     BlockMultiply(local_A, local_B, local_C);
