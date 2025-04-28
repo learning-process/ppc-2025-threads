@@ -147,13 +147,9 @@ bool vavilov_v_cannon_all::CannonALL::RunImpl() {
     int col_p = p % grid_size;
     displs[p] = (row_p * block_size_ * N_ + col_p * block_size_);
   }
-  if (rank == 0) {
-    mpi::scatterv(world_, A_.data(), sendcounts, displs, local_A.data(), block_size_sq, 0);
-    mpi::scatterv(world_, B_.data(), sendcounts, displs, local_B.data(), block_size_sq, 0);
-  } else {
-    mpi::scatterv(world_, std::vector<double>(), local_A.data(), block_size_sq, 0);
-    mpi::scatterv(world_, std::vector<double>(), local_B.data(), block_size_sq, 0);
-  }
+  mpi::scatterv(world_, A_, sendcounts, displs, local_A, 0);
+  mpi::scatterv(world_, B_, sendcounts, displs, local_B, 0);
+
 
   InitialShift(local_A, local_B);
   for (int iter = 0; iter < num_blocks_; ++iter) {
@@ -168,11 +164,8 @@ bool vavilov_v_cannon_all::CannonALL::RunImpl() {
     int col_p = p % grid_size;
     displs[p] = (row_p * block_size_ * N_ + col_p * block_size_);
   }
-  if (rank == 0) {
-    mpi::gatherv(world_, local_C.data(), block_size_sq, C_.data(), sendcounts, displs, 0);
-  } else {
-    mpi::gatherv(world_, local_C.data(), block_size_sq, std::vector<double>(), 0);
-  }
+  mpi::gatherv(world_, local_C, C_, sendcounts, displs, 0);
+
 
   return true;
 }
