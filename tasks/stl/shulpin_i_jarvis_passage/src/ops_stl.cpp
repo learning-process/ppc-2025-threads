@@ -5,6 +5,7 @@
 #include <cstddef>
 #include <cstdint>
 #include <cstring>
+#include <future>
 #include <thread>
 #include <unordered_set>
 #include <utility>
@@ -86,8 +87,7 @@ void shulpin_i_jarvis_stl::JarvisSTLParallel::MakeJarvisPassageSTL(
   size_t total = input_jar.size();
   output_jar.clear();
 
-  std::unordered_set<shulpin_i_jarvis_stl::Point, shulpin_i_jarvis_stl::PointHash, shulpin_i_jarvis_stl::PointEqual>
-      unique_points;
+  std::unordered_set<Point, PointHash, PointEqual> unique_points;
 
   size_t start = 0;
   for (size_t i = 1; i < total; ++i) {
@@ -107,38 +107,32 @@ void shulpin_i_jarvis_stl::JarvisSTLParallel::MakeJarvisPassageSTL(
 
     size_t candidate = (active + 1) % total;
 
-    const unsigned num_threads = ppc::util::GetPPCNumThreads();
-    std::vector<std::thread> threads;
-    std::vector<size_t> local_candidates(num_threads, candidate);
+    size_t num_threads = ppc::util::GetPPCNumThreads();
+    std::vector<std::future<size_t>> futures;
+    futures.reserve(num_threads);
 
-    auto worker = [&](unsigned t) {
-      size_t from = t * total / num_threads;
-      size_t to = (t + 1 == num_threads) ? total : (t + 1) * total / num_threads;
-      size_t best = candidate;
+    for (size_t t = 0; t < num_threads; ++t) {
+      futures.emplace_back(std::async(std::launch::async, [&, t]() -> size_t {
+        size_t from = t * total / num_threads;
+        size_t to = (t + 1 == num_threads) ? total : (t + 1) * total / num_threads;
+        size_t best = candidate;
 
-      for (size_t i = from; i < to; ++i) {
-        if (i == active) {
-          continue;
+        for (size_t i = from; i < to; ++i) {
+          if (i == active) {
+            continue;
+          }
+          if (Orientation(current, input_jar[i], input_jar[best]) == 2) {
+            best = i;
+          }
         }
-        if (Orientation(current, input_jar[i], input_jar[best]) == 2) {
-          best = i;
-        }
-      }
-
-      local_candidates[t] = best;
-    };
-
-    threads.reserve(num_threads);
-    for (unsigned t = 0; t < num_threads; ++t) {
-      threads.emplace_back(worker, t);
-    }
-    for (auto& th : threads) {
-      th.join();
+        return best;
+      }));
     }
 
-    for (size_t i = 0; i < num_threads; ++i) {
-      if (Orientation(current, input_jar[local_candidates[i]], input_jar[candidate]) == 2) {
-        candidate = local_candidates[i];
+    for (auto& fut : futures) {
+      size_t local_best = fut.get();
+      if (Orientation(current, input_jar[local_best], input_jar[candidate]) == 2) {
+        candidate = local_best;
       }
     }
 
