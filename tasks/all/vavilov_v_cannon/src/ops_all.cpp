@@ -140,15 +140,25 @@ bool vavilov_v_cannon_all::CannonALL::RunImpl() {
   std::vector<double> local_B(block_size_sq);
   std::vector<double> local_C(block_size_sq, 0);
 
-  std::vector<int> sendcounts(size, block_size_sq);
-  std::vector<int> displs(size);
-  for (int p = 0; p < size; ++p) {
-    int row_p = p / grid_size;
-    int col_p = p % grid_size;
-    displs[p] = (row_p * block_size_ * N_ + col_p * block_size_);
+  if (rank == 0) {
+    std::vector<double> tmp_A(size * block_size_sq);
+    std::vector<double> tmp_B(size * block_size_sq);
+    for (int p = 0; p < size; ++p) {
+      int row_p = p / grid_size;
+      int col_p = p % grid_size;
+      for (int i = 0; i < block_size_; ++i) {
+        for (int j = 0; j < block_size_; ++j) {
+          tmp_A[p * block_size_sq + i * block_size_ + j] = A_[(row_p * block_size_ + i) * N_ + (col_p * block_size_ + j)];
+          tmp_B[p * block_size_sq + i * block_size_ + j] = B_[(row_p * block_size_ + i) * N_ + (col_p * block_size_ + j)];
+        }
+      }
+    }
+    mpi::scatter(world_, tmp_A, local_A, 0);
+    mpi::scatter(world_, tmp_B, local_B, 0);
+  } else {
+    mpi::scatter(world_, local_A, 0);
+    mpi::scatter(world_, local_B, 0);
   }
-  mpi::scatterv(world_, A_.data(), sendcounts, displs, local_A.data(), local_A.size(), 0);
-  mpi::scatterv(world_, B_.data(), sendcounts, displs, local_B.data(), local_B.size(), 0);
 
   InitialShift(local_A, local_B);
   for (int iter = 0; iter < num_blocks_; ++iter) {
@@ -158,15 +168,25 @@ bool vavilov_v_cannon_all::CannonALL::RunImpl() {
     }
   }
 
-  for (int p = 0; p < size; ++p) {
-    int row_p = p / grid_size;
-    int col_p = p % grid_size;
-    displs[p] = (row_p * block_size_ * N_ + col_p * block_size_);
+  if (rank == 0) {
+    std::vector<double> tmp_C(size * block_size_sq);
+    mpi::gather(world_, local_C, tmp_C, 0);
+    for (int p = 0; p < size; ++p) {
+      int row_p = p / grid_size;
+      int col_p = p % grid_size;
+      for (int i = 0; i < block_size_; ++i) {
+        for (int j = 0; j < block_size_; ++j) {
+          C_[(row_p * block_size_ + i) * N_ + (col_p * block_size_ + j)] = tmp_C[p * block_size_sq + i * block_size_ + j];
+        }
+      }
+    }
+  } else {
+    mpi::gather(world_, local_C, 0);
   }
-  mpi::gatherv(world_, local_C.data(), local_C.size(), C_.data(), sendcounts, displs, 0);
 
   return true;
 }
+
 
 bool vavilov_v_cannon_all::CannonALL::PostProcessingImpl() {
   std::ranges::copy(C_, reinterpret_cast<double*>(task_data->outputs[0]));
