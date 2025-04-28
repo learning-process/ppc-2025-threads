@@ -5,6 +5,8 @@
 #include <thread>
 #include <vector>
 
+#include "core/util/include/util.hpp"
+
 bool titov_s_image_filter_horiz_gaussian3x3_stl::GaussianFilterSTL::PreProcessingImpl() {
   unsigned int input_size = task_data->inputs_count[0];
   auto *in_ptr = reinterpret_cast<double *>(task_data->inputs[0]);
@@ -34,7 +36,7 @@ bool titov_s_image_filter_horiz_gaussian3x3_stl::GaussianFilterSTL::RunImpl() {
   const int width = width_;
   const int height = height_;
 
-  const auto num_threads = static_cast<int>(std::thread::hardware_concurrency());
+  const auto num_threads = ppc::util::GetPPCNumThreads();
   std::vector<std::thread> threads;
   threads.reserve(num_threads);
 
