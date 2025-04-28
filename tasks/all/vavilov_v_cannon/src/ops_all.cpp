@@ -148,8 +148,10 @@ bool vavilov_v_cannon_all::CannonALL::RunImpl() {
       int col_p = p % grid_size;
       for (int i = 0; i < block_size_; ++i) {
         for (int j = 0; j < block_size_; ++j) {
-          tmp_A[p * block_size_sq + i * block_size_ + j] = A_[(row_p * block_size_ + i) * N_ + (col_p * block_size_ + j)];
-          tmp_B[p * block_size_sq + i * block_size_ + j] = B_[(row_p * block_size_ + i) * N_ + (col_p * block_size_ + j)];
+          tmp_A[p * block_size_sq + i * block_size_ + j] =
+              A_[(row_p * block_size_ + i) * N_ + (col_p * block_size_ + j)];
+          tmp_B[p * block_size_sq + i * block_size_ + j] =
+              B_[(row_p * block_size_ + i) * N_ + (col_p * block_size_ + j)];
         }
       }
     }
@@ -176,7 +178,8 @@ bool vavilov_v_cannon_all::CannonALL::RunImpl() {
       int col_p = p % grid_size;
       for (int i = 0; i < block_size_; ++i) {
         for (int j = 0; j < block_size_; ++j) {
-          C_[(row_p * block_size_ + i) * N_ + (col_p * block_size_ + j)] = tmp_C[p * block_size_sq + i * block_size_ + j];
+          C_[(row_p * block_size_ + i) * N_ + (col_p * block_size_ + j)] =
+              tmp_C[p * block_size_sq + i * block_size_ + j];
         }
       }
     }
