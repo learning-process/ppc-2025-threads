@@ -11,50 +11,48 @@
 
 void kudryashova_i_radix_batcher_stl::RadixDoubleSort(std::vector<double> &data, size_t first, size_t last) {
   const size_t sort_size = last - first;
-  std::vector<uint64_t> converted(sort_size);
-  // Convert each double to uint64_t representation
+  if (sort_size == 0) {
+    return;
+  }
+  std::vector<uint64_t> converted;
+  converted.reserve(sort_size);
   for (size_t i = 0; i < sort_size; ++i) {
     double value = data[first + i];
     uint64_t bits = 0;
     std::memcpy(&bits, &value, sizeof(value));
-    converted[i] = ((bits & (1ULL << 63)) != 0) ? ~bits : bits ^ (1ULL << 63);  // sign of the number
+    converted.push_back(((bits & (1ULL << 63)) != 0) ? ~bits : bits ^ (1ULL << 63));
   }
-  std::vector<uint64_t> buffer(sort_size);
+  std::vector<uint64_t> buffer;
+  buffer.reserve(sort_size);
+  buffer.resize(sort_size);
   int bits_int_byte = 8;
-  int total_passes = sizeof(uint64_t);  // Total number of passes based on uint64_t size
+  int total_passes = sizeof(uint64_t);
   int max_byte_value = 255;
 
   for (int shift = 0; shift < total_passes; ++shift) {
-    size_t count[256] = {0};                      // Array to count occurrences of each byte
-    const int shift_loc = shift * bits_int_byte;  // Determine shift for the current pass
-
-    // Count occurrences of each byte in the current shift position
+    size_t count[256] = {0};
+    const int shift_loc = shift * bits_int_byte;
     for (const auto &num : converted) {
       ++count[(num >> shift_loc) & max_byte_value];
     }
-
     size_t total = 0;
-    // Convert the count array to a prefix sum array
     for (auto &safe : count) {
       size_t old = safe;
       safe = total;
       total += old;
     }
-    // Rearrange the elements based on the prefix sums
     for (const auto &num : converted) {
-      const uint64_t byte = (num >> shift_loc) & max_byte_value;
+      const uint8_t byte = (num >> shift_loc) & max_byte_value;
       buffer[count[byte]++] = num;
     }
     converted.swap(buffer);
   }
-  // Convert the sorted uint64_t representations back to double
   for (size_t i = 0; i < sort_size; ++i) {
     uint64_t bits = converted[i];
     bits = ((bits & (1ULL << 63)) != 0) ? (bits ^ (1ULL << 63)) : ~bits;
     std::memcpy(&data[first + i], &bits, sizeof(double));
   }
 }
-
 void kudryashova_i_radix_batcher_stl::BatcherMerge(std::vector<double> &target_array, size_t merge_start,
                                                    size_t mid_point, size_t merge_end) {
   const size_t total_elements = merge_end - merge_start;
