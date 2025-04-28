@@ -32,23 +32,44 @@ void vavilov_v_cannon_all::CannonALL::InitialShift(std::vector<double>& local_A,
   int grid_size = num_blocks_;
   int row = rank / grid_size;
   int col = rank % grid_size;
-  int a_dest = (row * grid_size + (col - row + grid_size) % grid_size);
-  int a_src = (row * grid_size + (col + row) % grid_size);
-  int b_dest = (((row - col + grid_size) % grid_size) * grid_size + col);
-  int b_src = (((row + col) % grid_size) * grid_size + col);
+  int a_dest = row * grid_size + (col - row + grid_size) % grid_size;
+  int a_src = row * grid_size + (col + row) % grid_size;
+  int b_dest = ((row - col + grid_size) % grid_size) * grid_size + col;
+  int b_src = ((row + col) % grid_size) * grid_size + col;
+
   std::vector<double> tmp_A(block_size_ * block_size_);
   std::vector<double> tmp_B(block_size_ * block_size_);
 
-  if (a_dest != rank) {
-    world_.send(a_dest, 0, local_A.data(), block_size_ * block_size_);
-    world_.recv(a_src, 0, tmp_A.data(), block_size_ * block_size_);
-    local_A = tmp_A;
-  }
-  if (b_dest != rank) {
-    world_.send(b_dest, 1, local_B.data(), block_size_ * block_size_);
-    world_.recv(b_src, 1, tmp_B.data(), block_size_ * block_size_);
-    local_B = tmp_B;
-  }
+  world_.sendrecv(local_A.data(), block_size_ * block_size_, a_dest, 0,
+                  tmp_A.data(), block_size_ * block_size_, a_src, 0);
+  local_A = tmp_A;
+
+  world_.sendrecv(local_B.data(), block_size_ * block_size_, b_dest, 1,
+                  tmp_B.data(), block_size_ * block_size_, b_src, 1);
+  local_B = tmp_B;
+}
+
+void vavilov_v_cannon_all::CannonALL::ShiftBlocks(std::vector<double>& local_A, std::vector<double>& local_B) {
+  int rank = world_.rank();
+  int grid_size = num_blocks_;
+  int row = rank / grid_size;
+  int col = rank % grid_size;
+
+  int left_dest = row * grid_size + (col == 0 ? grid_size - 1 : col - 1);
+  int left_src = row * grid_size + (col == grid_size - 1 ? 0 : col + 1);
+  int up_dest = (row == 0 ? grid_size - 1 : row - 1) * grid_size + col;
+  int up_src = (row == grid_size - 1 ? 0 : row + 1) * grid_size + col;
+
+  std::vector<double> tmp_A(block_size_ * block_size_);
+  std::vector<double> tmp_B(block_size_ * block_size_);
+
+  world_.sendrecv(local_A.data(), block_size_ * block_size_, left_dest, 2,
+                  tmp_A.data(), block_size_ * block_size_, left_src, 2);
+  local_A = tmp_A;
+
+  world_.sendrecv(local_B.data(), block_size_ * block_size_, up_dest, 3,
+                  tmp_B.data(), block_size_ * block_size_, up_src, 3);
+  local_B = tmp_B;
 }
 
 void vavilov_v_cannon_all::CannonALL::BlockMultiply(const std::vector<double>& local_A,
@@ -62,32 +83,6 @@ void vavilov_v_cannon_all::CannonALL::BlockMultiply(const std::vector<double>& l
       }
       local_C[i * block_size_ + j] += temp;
     }
-  }
-}
-
-void vavilov_v_cannon_all::CannonALL::ShiftBlocks(std::vector<double>& local_A, std::vector<double>& local_B) {
-  int rank = world_.rank();
-  int grid_size = num_blocks_;
-  int row = rank / grid_size;
-  int col = rank % grid_size;
-
-  int left_dest = (col == 0) ? (row * grid_size + grid_size - 1) : (rank - 1);
-  int left_src = (col == grid_size - 1) ? (row * grid_size) : (rank + 1);
-  int up_dest = (row == 0) ? ((grid_size - 1) * grid_size + col) : (rank - grid_size);
-  int up_src = (row == grid_size - 1) ? col : (rank + grid_size);
-
-  std::vector<double> tmp_A(block_size_ * block_size_);
-  std::vector<double> tmp_B(block_size_ * block_size_);
-
-  if (left_dest != rank) {
-    world_.send(left_dest, 2, local_A.data(), block_size_ * block_size_);
-    world_.recv(left_src, 2, tmp_A.data(), block_size_ * block_size_);
-    local_A = tmp_A;
-  }
-  if (up_dest != rank) {
-    world_.send(up_dest, 3, local_B.data(), block_size_ * block_size_);
-    world_.recv(up_src, 3, tmp_B.data(), block_size_ * block_size_);
-    local_B = tmp_B;
   }
 }
 
