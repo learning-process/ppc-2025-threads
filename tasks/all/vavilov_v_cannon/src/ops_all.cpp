@@ -40,12 +40,11 @@ void vavilov_v_cannon_all::CannonALL::InitialShift(std::vector<double>& local_A,
   std::vector<double> tmp_A(block_size_ * block_size_);
   std::vector<double> tmp_B(block_size_ * block_size_);
 
-  world_.sendrecv(local_A.data(), block_size_ * block_size_, a_dest, 0, tmp_A.data(), block_size_ * block_size_, a_src,
-                  0);
+  world_.send(a_dest, 0, local_A.data(), block_size_ * block_size_);
+  world_.recv(a_src, 0, tmp_A.data(), block_size_ * block_size_);
   local_A = tmp_A;
-
-  world_.sendrecv(local_B.data(), block_size_ * block_size_, b_dest, 1, tmp_B.data(), block_size_ * block_size_, b_src,
-                  1);
+  world_.send(b_dest, 1, local_B.data(), block_size_ * block_size_);
+  world_.recv(b_src, 1, tmp_B.data(), block_size_ * block_size_);
   local_B = tmp_B;
 }
 
@@ -63,12 +62,11 @@ void vavilov_v_cannon_all::CannonALL::ShiftBlocks(std::vector<double>& local_A, 
   std::vector<double> tmp_A(block_size_ * block_size_);
   std::vector<double> tmp_B(block_size_ * block_size_);
 
-  world_.sendrecv(local_A.data(), block_size_ * block_size_, left_dest, 2, tmp_A.data(), block_size_ * block_size_,
-                  left_src, 2);
+  world_.send(left_dest, 2, local_A.data(), block_size_ * block_size_);
+  world_.recv(left_src, 2, tmp_A.data(), block_size_ * block_size_);
   local_A = tmp_A;
-
-  world_.sendrecv(local_B.data(), block_size_ * block_size_, up_dest, 3, tmp_B.data(), block_size_ * block_size_,
-                  up_src, 3);
+  world_.send(up_dest, 3, local_B.data(), block_size_ * block_size_);
+  world_.recv(up_src, 3, tmp_B.data(), block_size_ * block_size_);
   local_B = tmp_B;
 }
 
