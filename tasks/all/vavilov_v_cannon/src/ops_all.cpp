@@ -38,7 +38,7 @@ void vavilov_v_cannon_all::CannonALL::InitialShift(std::vector<double>& local_A,
   int b_src = (((row + col) % grid_size) * grid_size + col);
   std::vector<double> tmp_A(block_size_ * block_size_);
   std::vector<double> tmp_B(block_size_ * block_size_);
-  
+
   if (a_dest != rank) {
     world_.send(a_dest, 0, local_A);
     world_.recv(a_src, 0, tmp_A);
@@ -113,11 +113,11 @@ bool vavilov_v_cannon_all::CannonALL::RunImpl() {
   int block_size_sq = block_size_ * block_size_;
   boost::mpi::broadcast(world_, A_, 0);
   boost::mpi::broadcast(world_, B_, 0);
-  
+
   std::vector<double> local_A(block_size_sq, 0);
   std::vector<double> local_B(block_size_sq, 0);
   std::vector<double> local_C(block_size_sq, 0);
- 
+
   int row = rank / grid_size;
   int col = rank % grid_size;
   int block_idx = (row * num_blocks_ + col) * block_size_sq;
@@ -131,10 +131,10 @@ bool vavilov_v_cannon_all::CannonALL::RunImpl() {
       ShiftBlocks(local_A, local_B);
     }
   }
- 
+
   std::vector<std::vector<double>> all_C(size, std::vector<double>(block_size_sq));
   boost::mpi::all_gather(world_, local_C, all_C);
- 
+
   if (rank == 0) {
     for (int p = 0; p < size; ++p) {
       int row_p = p / grid_size;
