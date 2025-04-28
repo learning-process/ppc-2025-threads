@@ -192,6 +192,31 @@ TEST(moiseev_a_mult_mat_stl, test_prime_values) {
   EXPECT_EQ(c, expected_c);
 }
 
+TEST(moiseev_a_mult_mat_stl, test_even_values) {
+  constexpr size_t kSize = 2;
+  std::vector<double> a = {2, 4, 6, 8};
+  std::vector<double> b = {2, 4, 6, 8};
+  std::vector<double> expected_c = {28, 40, 60, 88};
+
+  std::vector<double> c(kSize * kSize, 0.0);
+
+  auto task_data_stl = std::make_shared<ppc::core::TaskData>();
+  task_data_stl->inputs.emplace_back(reinterpret_cast<uint8_t *>(a.data()));
+  task_data_stl->inputs_count.emplace_back(a.size());
+  task_data_stl->inputs.emplace_back(reinterpret_cast<uint8_t *>(b.data()));
+  task_data_stl->inputs_count.emplace_back(b.size());
+  task_data_stl->outputs.emplace_back(reinterpret_cast<uint8_t *>(c.data()));
+  task_data_stl->outputs_count.emplace_back(c.size());
+
+  moiseev_a_mult_mat_stl::MultMatSTL test_task_stl(task_data_stl);
+  ASSERT_TRUE(test_task_stl.Validation());
+  test_task_stl.PreProcessing();
+  test_task_stl.Run();
+  test_task_stl.PostProcessing();
+
+  EXPECT_EQ(c, expected_c);
+}
+
 TEST(moiseev_a_mult_mat_stl, test_negative_values) {
   constexpr size_t kSize = 3;
   std::vector<double> a = {-1, 2, -3, 4, -5, 6, -7, 8, -9};

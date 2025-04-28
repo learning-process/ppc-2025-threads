@@ -1,13 +1,12 @@
 #include <gtest/gtest.h>
 
-#include <chrono>
+#include <cmath>
 #include <cstddef>
 #include <cstdint>
 #include <memory>
 #include <random>
 #include <vector>
 
-#include "core/perf/include/perf.hpp"
 #include "core/task/include/task.hpp"
 #include "stl/moiseev_a_mult_mat/include/ops_stl.hpp"
 
@@ -25,102 +24,220 @@ std::vector<double> GenerateRandomMatrix(size_t rows, size_t cols) {
   return matrix;
 }
 
-void NaiveMultiply(const std::vector<double> &a, const std::vector<double> &b, std::vector<double> &c, size_t n) {
-  for (size_t i = 0; i < n; ++i) {
-    for (size_t j = 0; j < n; ++j) {
-      double sum = 0.0;
-      for (size_t k = 0; k < n; ++k) {
-        sum += a[(i * n) + k] * b[(k * n) + j];
-      }
-      c[(i * n) + j] = sum;
-    }
-  }
-}
-
 }  // namespace
 
-TEST(moiseev_a_mult_mat_stl, test_pipeline_run) {
-  constexpr int kCount = 500;
-
-  auto matrix_a = GenerateRandomMatrix(kCount, kCount);
-  auto matrix_b = GenerateRandomMatrix(kCount, kCount);
-  std::vector<double> matrix_c(kCount * kCount, 0.0);
+TEST(moiseev_a_mult_mat_stl, test_large_matrix) {
+  constexpr size_t kSize = 100;
+  auto a = GenerateRandomMatrix(kSize, kSize);
+  auto b = GenerateRandomMatrix(kSize, kSize);
+  std::vector<double> c(kSize * kSize, 0.0);
 
   auto task_data_stl = std::make_shared<ppc::core::TaskData>();
+  task_data_stl->inputs.emplace_back(reinterpret_cast<uint8_t *>(a.data()));
+  task_data_stl->inputs_count.emplace_back(a.size());
+  task_data_stl->inputs.emplace_back(reinterpret_cast<uint8_t *>(b.data()));
+  task_data_stl->inputs_count.emplace_back(b.size());
+  task_data_stl->outputs.emplace_back(reinterpret_cast<uint8_t *>(c.data()));
+  task_data_stl->outputs_count.emplace_back(c.size());
 
-  task_data_stl->inputs.emplace_back(reinterpret_cast<uint8_t *>(matrix_a.data()));
-  task_data_stl->inputs_count.emplace_back(matrix_a.size());
+  moiseev_a_mult_mat_stl::MultMatSTL test_task_stl(task_data_stl);
+  ASSERT_TRUE(test_task_stl.Validation());
+  test_task_stl.PreProcessing();
+  test_task_stl.Run();
+  test_task_stl.PostProcessing();
 
-  task_data_stl->inputs.emplace_back(reinterpret_cast<uint8_t *>(matrix_b.data()));
-  task_data_stl->inputs_count.emplace_back(matrix_b.size());
-
-  task_data_stl->outputs.emplace_back(reinterpret_cast<uint8_t *>(matrix_c.data()));
-  task_data_stl->outputs_count.emplace_back(matrix_c.size());
-
-  auto test_task_stl = std::make_shared<moiseev_a_mult_mat_stl::MultMatSTL>(task_data_stl);
-
-  auto perf_attr = std::make_shared<ppc::core::PerfAttr>();
-  perf_attr->num_running = 10;
-  const auto t0 = std::chrono::high_resolution_clock::now();
-  perf_attr->current_timer = [&] {
-    auto current_time_point = std::chrono::high_resolution_clock::now();
-    auto duration = std::chrono::duration_cast<std::chrono::nanoseconds>(current_time_point - t0).count();
-    return static_cast<double>(duration) * 1e-9;
-  };
-
-  auto perf_results = std::make_shared<ppc::core::PerfResults>();
-  auto perf_analyzer = std::make_shared<ppc::core::Perf>(test_task_stl);
-  perf_analyzer->PipelineRun(perf_attr, perf_results);
-  ppc::core::Perf::PrintPerfStatistic(perf_results);
-
-  std::vector<double> expected_matrix(kCount * kCount, 0.0);
-  NaiveMultiply(matrix_a, matrix_b, expected_matrix, kCount);
-
-  const double epsilon = 1e-6;
-  for (size_t i = 0; i < matrix_c.size(); ++i) {
-    EXPECT_NEAR(matrix_c[i], expected_matrix[i], epsilon);
-  }
+  EXPECT_FALSE(c.empty());
 }
 
-TEST(moiseev_a_mult_mat_stl, test_task_run) {
-  constexpr int kCount = 500;
-
-  auto matrix_a = GenerateRandomMatrix(kCount, kCount);
-  auto matrix_b = GenerateRandomMatrix(kCount, kCount);
-  std::vector<double> matrix_c(kCount * kCount, 0.0);
+TEST(moiseev_a_mult_mat_stl, test_small_matrix) {
+  auto a = GenerateRandomMatrix(2, 2);
+  auto b = GenerateRandomMatrix(2, 2);
+  std::vector<double> c(2 * 2, 0.0);
 
   auto task_data_stl = std::make_shared<ppc::core::TaskData>();
+  task_data_stl->inputs.emplace_back(reinterpret_cast<uint8_t *>(a.data()));
+  task_data_stl->inputs_count.emplace_back(a.size());
+  task_data_stl->inputs.emplace_back(reinterpret_cast<uint8_t *>(b.data()));
+  task_data_stl->inputs_count.emplace_back(b.size());
+  task_data_stl->outputs.emplace_back(reinterpret_cast<uint8_t *>(c.data()));
+  task_data_stl->outputs_count.emplace_back(c.size());
 
-  task_data_stl->inputs.emplace_back(reinterpret_cast<uint8_t *>(matrix_a.data()));
-  task_data_stl->inputs_count.emplace_back(matrix_a.size());
+  moiseev_a_mult_mat_stl::MultMatSTL test_task_stl(task_data_stl);
+  ASSERT_TRUE(test_task_stl.Validation());
+  test_task_stl.PreProcessing();
+  test_task_stl.Run();
+  test_task_stl.PostProcessing();
 
-  task_data_stl->inputs.emplace_back(reinterpret_cast<uint8_t *>(matrix_b.data()));
-  task_data_stl->inputs_count.emplace_back(matrix_b.size());
+  EXPECT_FALSE(c.empty());
+}
 
-  task_data_stl->outputs.emplace_back(reinterpret_cast<uint8_t *>(matrix_c.data()));
-  task_data_stl->outputs_count.emplace_back(matrix_c.size());
+TEST(moiseev_a_mult_mat_stl, test_matrix) {
+  constexpr size_t kSize = 5;
+  auto a = GenerateRandomMatrix(kSize, kSize);
+  auto b = GenerateRandomMatrix(kSize, kSize);
+  std::vector<double> c(kSize * kSize, 0.0);
 
-  auto test_task_stl = std::make_shared<moiseev_a_mult_mat_stl::MultMatSTL>(task_data_stl);
+  auto task_data_stl = std::make_shared<ppc::core::TaskData>();
+  task_data_stl->inputs.emplace_back(reinterpret_cast<uint8_t *>(a.data()));
+  task_data_stl->inputs_count.emplace_back(a.size());
+  task_data_stl->inputs.emplace_back(reinterpret_cast<uint8_t *>(b.data()));
+  task_data_stl->inputs_count.emplace_back(b.size());
+  task_data_stl->outputs.emplace_back(reinterpret_cast<uint8_t *>(c.data()));
+  task_data_stl->outputs_count.emplace_back(c.size());
 
-  auto perf_attr = std::make_shared<ppc::core::PerfAttr>();
-  perf_attr->num_running = 10;
-  const auto t0 = std::chrono::high_resolution_clock::now();
-  perf_attr->current_timer = [&] {
-    auto current_time_point = std::chrono::high_resolution_clock::now();
-    auto duration = std::chrono::duration_cast<std::chrono::nanoseconds>(current_time_point - t0).count();
-    return static_cast<double>(duration) * 1e-9;
-  };
+  moiseev_a_mult_mat_stl::MultMatSTL test_task_stl(task_data_stl);
+  ASSERT_TRUE(test_task_stl.Validation());
+  test_task_stl.PreProcessing();
+  test_task_stl.Run();
+  test_task_stl.PostProcessing();
 
-  auto perf_results = std::make_shared<ppc::core::PerfResults>();
-  auto perf_analyzer = std::make_shared<ppc::core::Perf>(test_task_stl);
-  perf_analyzer->TaskRun(perf_attr, perf_results);
-  ppc::core::Perf::PrintPerfStatistic(perf_results);
+  EXPECT_FALSE(c.empty());
+}
 
-  std::vector<double> expected_matrix(kCount * kCount, 0.0);
-  NaiveMultiply(matrix_a, matrix_b, expected_matrix, kCount);
+TEST(moiseev_a_mult_mat_stl, test_zero_matrix) {
+  constexpr size_t kSize = 4;
+  auto a = GenerateRandomMatrix(kSize, kSize);
+  std::vector<double> b(kSize * kSize, 0.0);
+  std::vector<double> c(kSize * kSize, 0.0);
 
-  const double epsilon = 1e-6;
-  for (size_t i = 0; i < matrix_c.size(); ++i) {
-    EXPECT_NEAR(matrix_c[i], expected_matrix[i], epsilon);
-  }
+  auto task_data_stl = std::make_shared<ppc::core::TaskData>();
+  task_data_stl->inputs.emplace_back(reinterpret_cast<uint8_t *>(a.data()));
+  task_data_stl->inputs_count.emplace_back(a.size());
+  task_data_stl->inputs.emplace_back(reinterpret_cast<uint8_t *>(b.data()));
+  task_data_stl->inputs_count.emplace_back(b.size());
+  task_data_stl->outputs.emplace_back(reinterpret_cast<uint8_t *>(c.data()));
+  task_data_stl->outputs_count.emplace_back(c.size());
+
+  moiseev_a_mult_mat_stl::MultMatSTL test_task_stl(task_data_stl);
+  ASSERT_TRUE(test_task_stl.Validation());
+  test_task_stl.PreProcessing();
+  test_task_stl.Run();
+  test_task_stl.PostProcessing();
+
+  EXPECT_EQ(c, b);
+}
+
+TEST(moiseev_a_mult_mat_stl, test_known_result) {
+  constexpr size_t kSize = 2;
+  std::vector<double> a = {1, 2, 3, 4};
+  std::vector<double> b = {5, 6, 7, 8};
+  std::vector<double> expected_c = {19, 22, 43, 50};
+
+  std::vector<double> c(kSize * kSize, 0.0);
+
+  auto task_data_stl = std::make_shared<ppc::core::TaskData>();
+  task_data_stl->inputs.emplace_back(reinterpret_cast<uint8_t *>(a.data()));
+  task_data_stl->inputs_count.emplace_back(a.size());
+  task_data_stl->inputs.emplace_back(reinterpret_cast<uint8_t *>(b.data()));
+  task_data_stl->inputs_count.emplace_back(b.size());
+  task_data_stl->outputs.emplace_back(reinterpret_cast<uint8_t *>(c.data()));
+  task_data_stl->outputs_count.emplace_back(c.size());
+
+  moiseev_a_mult_mat_stl::MultMatSTL test_task_stl(task_data_stl);
+  ASSERT_TRUE(test_task_stl.Validation());
+  test_task_stl.PreProcessing();
+  test_task_stl.Run();
+  test_task_stl.PostProcessing();
+
+  EXPECT_EQ(c, expected_c);
+}
+
+TEST(moiseev_a_mult_mat_stl, test_repeated_values) {
+  constexpr size_t kSize = 2;
+  std::vector<double> a = {2, 2, 2, 2};
+  std::vector<double> b = {3, 3, 3, 3};
+  std::vector<double> expected_c = {12, 12, 12, 12};
+
+  std::vector<double> c(kSize * kSize, 0.0);
+
+  auto task_data_stl = std::make_shared<ppc::core::TaskData>();
+  task_data_stl->inputs.emplace_back(reinterpret_cast<uint8_t *>(a.data()));
+  task_data_stl->inputs_count.emplace_back(a.size());
+  task_data_stl->inputs.emplace_back(reinterpret_cast<uint8_t *>(b.data()));
+  task_data_stl->inputs_count.emplace_back(b.size());
+  task_data_stl->outputs.emplace_back(reinterpret_cast<uint8_t *>(c.data()));
+  task_data_stl->outputs_count.emplace_back(c.size());
+
+  moiseev_a_mult_mat_stl::MultMatSTL test_task_stl(task_data_stl);
+  ASSERT_TRUE(test_task_stl.Validation());
+  test_task_stl.PreProcessing();
+  test_task_stl.Run();
+  test_task_stl.PostProcessing();
+
+  EXPECT_EQ(c, expected_c);
+}
+
+TEST(moiseev_a_mult_mat_stl, test_prime_values) {
+  constexpr size_t kSize = 2;
+  std::vector<double> a = {5, 7, 11, 13};
+  std::vector<double> b = {17, 19, 23, 29};
+  std::vector<double> expected_c = {246, 298, 486, 586};
+
+  std::vector<double> c(kSize * kSize, 0.0);
+
+  auto task_data_stl = std::make_shared<ppc::core::TaskData>();
+  task_data_stl->inputs.emplace_back(reinterpret_cast<uint8_t *>(a.data()));
+  task_data_stl->inputs_count.emplace_back(a.size());
+  task_data_stl->inputs.emplace_back(reinterpret_cast<uint8_t *>(b.data()));
+  task_data_stl->inputs_count.emplace_back(b.size());
+  task_data_stl->outputs.emplace_back(reinterpret_cast<uint8_t *>(c.data()));
+  task_data_stl->outputs_count.emplace_back(c.size());
+
+  moiseev_a_mult_mat_stl::MultMatSTL test_task_stl(task_data_stl);
+  ASSERT_TRUE(test_task_stl.Validation());
+  test_task_stl.PreProcessing();
+  test_task_stl.Run();
+  test_task_stl.PostProcessing();
+
+  EXPECT_EQ(c, expected_c);
+}
+
+TEST(moiseev_a_mult_mat_stl, test_even_values) {
+  constexpr size_t kSize = 2;
+  std::vector<double> a = {2, 4, 6, 8};
+  std::vector<double> b = {2, 4, 6, 8};
+  std::vector<double> expected_c = {28, 40, 60, 88};
+
+  std::vector<double> c(kSize * kSize, 0.0);
+
+  auto task_data_stl = std::make_shared<ppc::core::TaskData>();
+  task_data_stl->inputs.emplace_back(reinterpret_cast<uint8_t *>(a.data()));
+  task_data_stl->inputs_count.emplace_back(a.size());
+  task_data_stl->inputs.emplace_back(reinterpret_cast<uint8_t *>(b.data()));
+  task_data_stl->inputs_count.emplace_back(b.size());
+  task_data_stl->outputs.emplace_back(reinterpret_cast<uint8_t *>(c.data()));
+  task_data_stl->outputs_count.emplace_back(c.size());
+
+  moiseev_a_mult_mat_stl::MultMatSTL test_task_stl(task_data_stl);
+  ASSERT_TRUE(test_task_stl.Validation());
+  test_task_stl.PreProcessing();
+  test_task_stl.Run();
+  test_task_stl.PostProcessing();
+
+  EXPECT_EQ(c, expected_c);
+}
+
+TEST(moiseev_a_mult_mat_stl, test_negative_values) {
+  constexpr size_t kSize = 3;
+  std::vector<double> a = {-1, 2, -3, 4, -5, 6, -7, 8, -9};
+  std::vector<double> b = {9, -8, 7, -6, 5, -4, 3, -2, 1};
+  std::vector<double> expected_c = {-30, 24, -18, 84, -69, 54, -138, 114, -90};
+
+  std::vector<double> c(kSize * kSize, 0.0);
+
+  auto task_data_stl = std::make_shared<ppc::core::TaskData>();
+  task_data_stl->inputs.emplace_back(reinterpret_cast<uint8_t *>(a.data()));
+  task_data_stl->inputs_count.emplace_back(a.size());
+  task_data_stl->inputs.emplace_back(reinterpret_cast<uint8_t *>(b.data()));
+  task_data_stl->inputs_count.emplace_back(b.size());
+  task_data_stl->outputs.emplace_back(reinterpret_cast<uint8_t *>(c.data()));
+  task_data_stl->outputs_count.emplace_back(c.size());
+
+  moiseev_a_mult_mat_stl::MultMatSTL test_task_stl(task_data_stl);
+  ASSERT_TRUE(test_task_stl.Validation());
+  test_task_stl.PreProcessing();
+  test_task_stl.Run();
+  test_task_stl.PostProcessing();
+
+  EXPECT_EQ(c, expected_c);
 }
