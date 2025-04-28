@@ -5,8 +5,9 @@
 #include <cstdint>
 #include <cstring>
 #include <thread>
-#include <utility>
 #include <vector>
+
+#include "core/util/include/util.hpp"
 
 bool varfolomeev_g_histogram_linear_stretching_stl::TestTaskSTL ::PreProcessingImpl() {
   // Init value for input and output
