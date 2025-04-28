@@ -111,9 +111,7 @@ TEST(vavilov_v_cannon_all, test_invalid_size_1) {
     task_data_all->outputs_count.emplace_back(c.size());
   }
   vavilov_v_cannon_all::CannonALL task_all(task_data_all);
-  if (world.rank() == 0) {
-    ASSERT_FALSE(task_all.Validation());
-  }
+  ASSERT_FALSE(task_all.Validation());
 }
 
 TEST(vavilov_v_cannon_all, test_225) {
