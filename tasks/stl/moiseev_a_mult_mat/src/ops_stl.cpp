@@ -53,11 +53,11 @@ void moiseev_a_mult_mat_stl::MultMatSTL::MultiplyBlock(const BlockDesc &desc) {
     for (int j = 0; j < block_size_; ++j) {
       double sum = 0.0;
       for (int k = 0; k < block_size_; ++k) {
-        double a = matrix_a_[(row_base + i) * matrix_size_ + (a_col_base + k)];
-        double b = matrix_b_[(b_row_base + k) * matrix_size_ + (col_base + j)];
+        double a = matrix_a_[((row_base + i) * matrix_size_) + (a_col_base + k)];
+        double b = matrix_b_[((b_row_base + k) * matrix_size_) + (col_base + j)];
         sum += a * b;
       }
-      matrix_c_[(row_base + i) * matrix_size_ + (col_base + j)] += sum;
+      matrix_c_[((row_base + i) * matrix_size_) + (col_base + j)] += sum;
     }
   }
 }
@@ -70,14 +70,14 @@ bool moiseev_a_mult_mat_stl::MultMatSTL::RunImpl() {
   auto worker = [&](std::size_t thread_index) {
     std::size_t base = total_block_rows / num_threads;
     std::size_t extra = total_block_rows % num_threads;
-    std::size_t start = thread_index * base + std::min(thread_index, extra);
+    std::size_t start = (thread_index * base) + std::min(thread_index, extra);
     std::size_t count = base + (thread_index < extra ? 1 : 0);
     std::size_t end = start + count;
 
     for (int br = static_cast<int>(start); br < static_cast<int>(end); ++br) {
       for (int bc = 0; bc < num_blocks_; ++bc) {
         for (int bs = 0; bs < num_blocks_; ++bs) {
-          MultiplyBlock({br, bc, bs});
+          MultiplyBlock({.row = br, .col = bc, .step = bs});
         }
       }
     }
