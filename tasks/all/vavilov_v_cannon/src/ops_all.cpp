@@ -138,8 +138,12 @@ bool vavilov_v_cannon_all::CannonALL::RunImpl() {
     }
   }
 
+  std::vector<double> gathered_C(size * block_size_sq);
+  boost::mpi::all_gather(world_, local_C.data(), block_size_sq, gathered_C);
   std::vector<std::vector<double>> all_C(size, std::vector<double>(block_size_sq));
-  boost::mpi::all_gather(world_, local_C.data(), block_size_sq, all_C);
+  for (int p = 0; p < size; ++p) {
+    std::copy(gathered_C.begin() + p * block_size_sq, gathered_C.begin() + (p + 1) * block_size_sq, all_C[p].begin());
+  }
 
   if (rank == 0) {
     for (int p = 0; p < size; ++p) {
