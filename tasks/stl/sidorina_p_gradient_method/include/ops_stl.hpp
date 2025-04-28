@@ -6,6 +6,7 @@
 #include <vector>
 
 #include "core/task/include/task.hpp"
+#include "core/util/include/util.hpp"
 
 namespace sidorina_p_gradient_method_stl {
 
@@ -51,8 +52,9 @@ inline std::vector<double> ConjugateGradientMethod(std::vector<double>& a, std::
   auto residual = std::vector<double>(size);
   auto direction = std::vector<double>(size);
 
+  int num_threads = ppc::util::GetPPCNumThreads();
   std::vector<std::thread> threads;
-  threads.reserve(size);
+  threads.reserve(num_threads < size ? num_threads : size);
 
   for (int i = 0; i < size; ++i) {
     residual[i] = b[i] - matrix_times_solution[i];
@@ -71,7 +73,7 @@ inline std::vector<double> ConjugateGradientMethod(std::vector<double>& a, std::
     double alpha = residual_norm_squared / direction_dot_matrix_times_direction;
 
     threads.clear();
-    threads.reserve(size);
+    threads.reserve(num_threads < size ? num_threads : size);
     for (int i = 0; i < size; ++i) {
       threads.emplace_back([&solution, &alpha, &direction, i]() { solution[i] += alpha * direction[i]; });
     }
@@ -81,7 +83,7 @@ inline std::vector<double> ConjugateGradientMethod(std::vector<double>& a, std::
     }
 
     threads.clear();
-    threads.reserve(size);
+    threads.reserve(num_threads < size ? num_threads : size);
     for (int i = 0; i < size; ++i) {
       threads.emplace_back(
           [&residual, &alpha, &matrix_times_direction, i]() { residual[i] -= alpha * matrix_times_direction[i]; });
@@ -96,7 +98,7 @@ inline std::vector<double> ConjugateGradientMethod(std::vector<double>& a, std::
     residual_norm_squared = new_residual_norm_squared;
 
     threads.clear();
-    threads.reserve(size);
+    threads.reserve(num_threads < size ? num_threads : size);
     for (int i = 0; i < size; ++i) {
       threads.emplace_back([&direction, &residual, &beta, i]() { direction[i] = residual[i] + beta * direction[i]; });
     }
