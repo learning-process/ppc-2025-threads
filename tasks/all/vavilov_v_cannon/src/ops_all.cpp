@@ -120,10 +120,16 @@ bool vavilov_v_cannon_all::CannonALL::RunImpl() {
 
   int row = rank / grid_size;
   int col = rank % grid_size;
-  int block_idx = (row * num_blocks_ + col) * block_size_sq;
-  std::copy(A_.begin() + block_idx, A_.begin() + block_idx + block_size_sq, local_A.begin());
-  std::copy(B_.begin() + block_idx, B_.begin() + block_idx + block_size_sq, local_B.begin());
-
+  for (int i = 0; i < block_size_; ++i) {
+    for (int j = 0; j < block_size_; ++j) {
+      int global_i = row * block_size_ + i;
+      int global_j = col * block_size_ + j;
+      if (global_i < N_ && global_j < N_) {
+        local_A[i * block_size_ + j] = A_[global_i * N_ + global_j];
+        local_B[i * block_size_ + j] = B_[global_i * N_ + global_j];
+      }
+    }
+  }
   InitialShift(local_A, local_B);
   for (int iter = 0; iter < num_blocks_; ++iter) {
     BlockMultiply(local_A, local_B, local_C);
@@ -133,14 +139,21 @@ bool vavilov_v_cannon_all::CannonALL::RunImpl() {
   }
 
   std::vector<std::vector<double>> all_C(size, std::vector<double>(block_size_sq));
-  boost::mpi::all_gather(world_, local_C, all_C);
+  boost::mpi::all_gather(world_, local_C.data(), block_size_sq, all_C);
 
   if (rank == 0) {
     for (int p = 0; p < size; ++p) {
       int row_p = p / grid_size;
       int col_p = p % grid_size;
-      int block_idx_p = (row_p * num_blocks_ + col_p) * block_size_sq;
-      std::copy(all_C[p].begin(), all_C[p].end(), C_.begin() + block_idx_p);
+      for (int i = 0; i < block_size_; ++i) {
+        for (int j = 0; j < block_size_; ++j) {
+          int global_i = row_p * block_size_ + i;
+          int global_j = col_p * block_size_ + j;
+          if (global_i < N_ && global_j < N_) {
+            C_[global_i * N_ + global_j] = all_C[p][i * block_size_ + j];
+          }
+        }
+      }
     }
   }
   return true;
