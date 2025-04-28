@@ -6,9 +6,9 @@
 #include <cstdint>
 #include <cstring>
 #include <thread>
+#include <unordered_set>
 #include <utility>
 #include <vector>
-#include <unordered_set>
 
 #include "core/util/include/util.hpp"
 

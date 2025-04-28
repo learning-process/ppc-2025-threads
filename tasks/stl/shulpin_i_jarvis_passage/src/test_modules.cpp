@@ -1,3 +1,5 @@
+#include "stl/shulpin_i_jarvis_passage/include/test_modules.hpp"
+
 #include <gtest/gtest.h>
 
 #include <cmath>
@@ -9,7 +11,6 @@
 #include <vector>
 
 #include "core/task/include/task.hpp"
-#include "stl/shulpin_i_jarvis_passage/include/test_modules.hpp"
 
 void shulpin_stl_test_module::VerifyResults(const std::vector<shulpin_i_jarvis_stl::Point> &expected,
                                             const std::vector<shulpin_i_jarvis_stl::Point> &result_seq,
