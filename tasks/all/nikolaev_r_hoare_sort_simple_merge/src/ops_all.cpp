@@ -34,90 +34,14 @@ bool nikolaev_r_hoare_sort_simple_merge_all::HoareSortSimpleMergeALL::Validation
   return true;
 }
 
-bool nikolaev_r_hoare_sort_simple_merge_all::HoareSortSimpleMergeALL::
-    RunImpl() {  // NOLINT(readability-function-cognitive-complexity)
+bool nikolaev_r_hoare_sort_simple_merge_all::HoareSortSimpleMergeALL::RunImpl() {
   int rank = world_.rank();
   int comm_size = world_.size();
 
-  size_t total_size = vect_size_;
-
-  boost::mpi::broadcast(world_, total_size, 0);
-
-  size_t base_chunk = total_size / comm_size;
-  size_t remainder = total_size % comm_size;
-  size_t local_count = base_chunk + (static_cast<size_t>(rank) < remainder ? 1 : 0);
-
-  std::vector<double> local_vect(local_count);
-
-  std::vector<int> counts(comm_size);
-  std::vector<int> displs(comm_size);
-
-  size_t offset = 0;
-  for (int i = 0; i < comm_size; ++i) {
-    counts[i] = static_cast<int>(base_chunk + (i < static_cast<int>(remainder) ? 1 : 0));
-    displs[i] = static_cast<int>(offset);
-    offset += counts[i];
-  }
-  boost::mpi::scatterv(world_, vect_, counts, displs, local_vect.data(), static_cast<int>(local_vect.size()), 0);
-
-  size_t num_threads = ppc::util::GetPPCNumThreads();
-  num_threads = std::min(num_threads, local_vect.size());
-  size_t seg_size = (!local_vect.empty()) ? local_vect.size() / num_threads : 0;
-  size_t seg_remainder = (!local_vect.empty()) ? local_vect.size() % num_threads : 0;
-  std::vector<std::pair<size_t, size_t>> segments;
-  size_t start = 0;
-  for (size_t i = 0; i < num_threads; ++i) {
-    size_t curr_size = seg_size + (i < seg_remainder ? 1 : 0);
-    if (curr_size > 0) {
-      segments.emplace_back(start, start + curr_size - 1);
-    }
-    start += curr_size;
-  }
-
-  oneapi::tbb::task_arena arena(static_cast<int>(num_threads));
-  arena.execute([&]() {
-    oneapi::tbb::task_group tg;
-    for (const auto &seg : segments) {
-      tg.run([&, seg]() { QuickSort(local_vect, seg.first, seg.second); });
-    }
-    tg.wait();
-  });
-
-  if (!segments.empty()) {
-    size_t merged_end = segments[0].second;
-    for (size_t i = 1; i < segments.size(); ++i) {
-      std::inplace_merge(local_vect.begin(), local_vect.begin() + static_cast<std::ptrdiff_t>(merged_end + 1),
-                         local_vect.begin() + static_cast<std::ptrdiff_t>(segments[i].second + 1));
-      merged_end = segments[i].second;
-    }
-  }
-
-  std::vector<std::vector<double>> gathered;
-  boost::mpi::gather(world_, local_vect, gathered, 0);
-
-  if (rank == 0) {
-    std::vector<double> global_sorted;
-    using HeapElem = std::tuple<double, int, size_t>;
-    std::priority_queue<HeapElem, std::vector<HeapElem>, std::greater<>> min_heap;
-
-    for (int i = 0; i < static_cast<int>(gathered.size()); ++i) {
-      if (!gathered[i].empty()) {
-        min_heap.emplace(gathered[i][0], i, 0);
-      }
-    }
-
-    while (!min_heap.empty()) {
-      auto [value, list_index, elem_index] = min_heap.top();
-      min_heap.pop();
-      global_sorted.push_back(value);
-      if (elem_index + 1 < gathered[list_index].size()) {
-        min_heap.emplace(gathered[list_index][elem_index + 1], list_index, elem_index + 1);
-      }
-    }
-    vect_ = std::move(global_sorted);
-  }
-
-  boost::mpi::broadcast(world_, vect_, 0);
+  size_t total_size = BroadcastTotalSize();
+  std::vector<double> local_vect = DistributeVector(total_size, rank, comm_size);
+  LocalSort(local_vect);
+  GlobalMerge(rank, local_vect);
 
   return true;
 }
@@ -157,4 +81,98 @@ void nikolaev_r_hoare_sort_simple_merge_all::HoareSortSimpleMergeALL::QuickSort(
     QuickSort(vec, low, pivot_pos - 1);
   }
   QuickSort(vec, pivot_pos + 1, high);
+}
+
+size_t nikolaev_r_hoare_sort_simple_merge_all::HoareSortSimpleMergeALL::BroadcastTotalSize() {
+  size_t total_size = vect_size_;
+  boost::mpi::broadcast(world_, total_size, 0);
+  return total_size;
+}
+
+std::vector<double> nikolaev_r_hoare_sort_simple_merge_all::HoareSortSimpleMergeALL::DistributeVector(size_t total_size,
+                                                                                                      int rank,
+                                                                                                      int comm_size) {
+  size_t base_chunk = total_size / comm_size;
+  size_t remainder = total_size % comm_size;
+  size_t local_count = base_chunk + (static_cast<size_t>(rank) < remainder ? 1 : 0);
+
+  std::vector<double> local_vect(local_count);
+  std::vector<int> counts(comm_size);
+  std::vector<int> displs(comm_size);
+  size_t offset = 0;
+
+  for (int i = 0; i < comm_size; ++i) {
+    counts[i] = static_cast<int>(base_chunk + (i < static_cast<int>(remainder) ? 1 : 0));
+    displs[i] = static_cast<int>(offset);
+    offset += counts[i];
+  }
+
+  boost::mpi::scatterv(world_, vect_, counts, displs, local_vect.data(), static_cast<int>(local_vect.size()), 0);
+  return local_vect;
+}
+
+void nikolaev_r_hoare_sort_simple_merge_all::HoareSortSimpleMergeALL::LocalSort(std::vector<double> &local_vect) {
+  size_t num_threads = ppc::util::GetPPCNumThreads();
+  num_threads = std::min(num_threads, local_vect.size());
+
+  size_t seg_size = !local_vect.empty() ? local_vect.size() / num_threads : 0;
+  size_t seg_remainder = !local_vect.empty() ? local_vect.size() % num_threads : 0;
+  std::vector<std::pair<size_t, size_t>> segments;
+
+  size_t start = 0;
+  for (size_t i = 0; i < num_threads; ++i) {
+    size_t curr_size = seg_size + (i < seg_remainder ? 1 : 0);
+    if (curr_size > 0) {
+      segments.emplace_back(start, start + curr_size - 1);
+    }
+    start += curr_size;
+  }
+
+  oneapi::tbb::task_arena arena(static_cast<int>(num_threads));
+  arena.execute([&]() {
+    oneapi::tbb::task_group tg;
+    for (const auto &seg : segments) {
+      tg.run([&, seg]() { QuickSort(local_vect, seg.first, seg.second); });
+    }
+    tg.wait();
+  });
+
+  if (!segments.empty()) {
+    size_t merged_end = segments[0].second;
+    for (size_t i = 1; i < segments.size(); ++i) {
+      std::inplace_merge(local_vect.begin(), local_vect.begin() + static_cast<std::ptrdiff_t>(merged_end + 1),
+                         local_vect.begin() + static_cast<std::ptrdiff_t>(segments[i].second + 1));
+      merged_end = segments[i].second;
+    }
+  }
+}
+
+void nikolaev_r_hoare_sort_simple_merge_all::HoareSortSimpleMergeALL::GlobalMerge(
+    int rank, const std::vector<double> &local_vect) {
+  std::vector<std::vector<double>> gathered;
+  boost::mpi::gather(world_, local_vect, gathered, 0);
+
+  if (rank == 0) {
+    std::vector<double> global_sorted;
+    using HeapElem = std::tuple<double, int, size_t>;
+    std::priority_queue<HeapElem, std::vector<HeapElem>, std::greater<>> min_heap;
+
+    for (int i = 0; i < static_cast<int>(gathered.size()); ++i) {
+      if (!gathered[i].empty()) {
+        min_heap.emplace(gathered[i][0], i, 0);
+      }
+    }
+
+    while (!min_heap.empty()) {
+      auto [value, list_index, elem_index] = min_heap.top();
+      min_heap.pop();
+      global_sorted.push_back(value);
+      if (elem_index + 1 < gathered[list_index].size()) {
+        min_heap.emplace(gathered[list_index][elem_index + 1], list_index, elem_index + 1);
+      }
+    }
+    vect_ = std::move(global_sorted);
+  }
+
+  boost::mpi::broadcast(world_, vect_, 0);
 }

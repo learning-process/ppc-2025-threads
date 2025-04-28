@@ -18,7 +18,11 @@ class HoareSortSimpleMergeALL : public ppc::core::Task {
   bool RunImpl() override;
   bool PostProcessingImpl() override;
 
-  void QuickSort(std::vector<double> &vec, size_t low, size_t high);
+  void QuickSort(std::vector<double>& vec, size_t low, size_t high);
+  size_t BroadcastTotalSize();
+  std::vector<double> DistributeVector(size_t total_size, int rank, int comm_size);
+  void LocalSort(std::vector<double>& local_vect);
+  void GlobalMerge(int rank, const std::vector<double>& local_vect);
 
  private:
   std::vector<double> vect_;
