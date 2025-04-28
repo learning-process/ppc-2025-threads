@@ -1,5 +1,7 @@
 #include "all/chernykh_a_multidimensional_integral_rectangle/include/ops_all.hpp"
 
+#include <omp.h>
+
 #include <algorithm>
 #include <boost/mpi.hpp>
 #include <boost/serialization/vector.hpp>
@@ -48,14 +50,18 @@ bool AllTask::RunImpl() {
   int start_point = world_.rank() * chunk_size;
   int end_point = (world_.rank() == world_.size() - 1) ? total_points : start_point + chunk_size;
 
-  double chunk_result = 0.0;
-  auto point = Point(dims_.size());
-  for (int i = start_point; i < end_point; i++) {
-    FillPoint(i, point);
-    chunk_result += func_(point);
+  double chunk_sum = 0.0;
+#pragma omp parallel
+  {
+    auto thread_point = Point(dims_.size());
+#pragma omp for reduction(+ : chunk_sum)
+    for (int i = start_point; i < end_point; i++) {
+      FillPoint(i, thread_point);
+      chunk_sum += func_(thread_point);
+    }
   }
 
-  boost::mpi::reduce(world_, chunk_result, result_, std::plus(), 0);
+  boost::mpi::reduce(world_, chunk_sum, result_, std::plus(), 0);
 
   if (world_.rank() == 0) {
     result_ *= GetScalingFactor();
