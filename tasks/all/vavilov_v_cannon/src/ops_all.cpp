@@ -190,7 +190,6 @@ bool vavilov_v_cannon_all::CannonALL::RunImpl() {
   return true;
 }
 
-
 bool vavilov_v_cannon_all::CannonALL::PostProcessingImpl() {
   std::ranges::copy(C_, reinterpret_cast<double*>(task_data->outputs[0]));
   return true;
