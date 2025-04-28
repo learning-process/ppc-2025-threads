@@ -6,6 +6,8 @@
 #include <thread>
 #include <vector>
 
+#include "core/util/include/util.hpp"
+
 bool vavilov_v_cannon_stl::CannonSTL::PreProcessingImpl() {
   N_ = static_cast<int>(std::sqrt(task_data->inputs_count[0]));
   num_blocks_ = static_cast<int>(std::sqrt(N_));
@@ -47,7 +49,7 @@ void vavilov_v_cannon_stl::CannonSTL::InitialShift() {
     }
   };
 
-  int num_threads = std::min(std::thread::hardware_concurrency(), static_cast<unsigned int>(num_blocks_));
+  int num_threads = std::min(ppc::util::GetPPCNumThreads(), num_blocks_);
   int blocks_per_thread = (num_blocks_ + num_threads - 1) / num_threads;
   for (int t = 0; t < num_threads; ++t) {
     int start = t * blocks_per_thread;
@@ -89,7 +91,7 @@ void vavilov_v_cannon_stl::CannonSTL::BlockMultiply() {
     }
   };
 
-  num_threads_ = std::min(std::thread::hardware_concurrency(), static_cast<unsigned int>(num_blocks_));
+  num_threads_ = std::min(ppc::util::GetPPCNumThreads(), num_blocks_);
   local_C.resize(num_threads_);
   int blocks_per_thread = (num_blocks_ + num_threads_ - 1) / num_threads_;
   int bi_range = blocks_per_thread * block_size_;
@@ -142,7 +144,7 @@ void vavilov_v_cannon_stl::CannonSTL::ShiftBlocks() {
     }
   };
 
-  int num_threads = std::min(std::thread::hardware_concurrency(), static_cast<unsigned int>(num_blocks_));
+  int num_threads = std::min(ppc::util::GetPPCNumThreads(), num_blocks_);
   int blocks_per_thread = (num_blocks_ + num_threads - 1) / num_threads;
   for (int t = 0; t < num_threads; ++t) {
     int start = t * blocks_per_thread;
