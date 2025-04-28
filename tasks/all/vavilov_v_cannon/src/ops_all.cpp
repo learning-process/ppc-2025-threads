@@ -145,7 +145,7 @@ bool vavilov_v_cannon_all::CannonALL::RunImpl() {
   for (int p = 0; p < size; ++p) {
     int row_p = p / grid_size;
     int col_p = p % grid_size;
-    displs[p] = (row_p * N_ + col_p) * block_size_;
+    displs[p] = (row_p * N_ + col_p) * block_size_ * block_size_;
   }
   if (rank == 0) {
     mpi::scatterv(world_, A_.data(), sendcounts, displs, local_A.data(), block_size_sq, 0);
@@ -166,7 +166,7 @@ bool vavilov_v_cannon_all::CannonALL::RunImpl() {
   for (int p = 0; p < size; ++p) {
     int row_p = p / grid_size;
     int col_p = p % grid_size;
-    displs[p] = (row_p * N_ + col_p) * block_size_;
+    displs[p] = (row_p * N_ + col_p) * block_size_ * block_size_;
   }
   if (rank == 0) {
     mpi::gatherv(world_, local_C.data(), block_size_sq, C_.data(), sendcounts, displs, 0);
