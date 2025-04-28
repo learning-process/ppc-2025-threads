@@ -91,7 +91,7 @@ bool kudryashova_i_radix_batcher_stl::TestTaskSTL::RunImpl() {
     return true;
   }
 
-  const size_t num_threads = ppc::util::GetPPCNumThreads();
+  const int num_threads = ppc::util::GetPPCNumThreads();
   const size_t sort_block_size = (input_size + num_threads - 1) / num_threads;
 
   std::vector<std::thread> sort_threads;
