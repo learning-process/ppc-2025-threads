@@ -2,6 +2,7 @@
 
 #include <algorithm>
 #include <cstddef>
+#include <cstdint>
 #include <cstring>
 #include <thread>
 #include <vector>
@@ -41,7 +42,7 @@ void kudryashova_i_radix_batcher_stl::RadixDoubleSort(std::vector<double> &data,
     }
     // Rearrange the elements based on the prefix sums
     for (const auto &num : converted) {
-      const uint8_t byte = (num >> shift_loc) & max_byte_value;
+      const uint64_t byte = (num >> shift_loc) & max_byte_value;
       buffer[count[byte]++] = num;
     }
     converted.swap(buffer);
