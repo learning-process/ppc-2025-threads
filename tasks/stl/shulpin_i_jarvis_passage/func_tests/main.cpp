@@ -114,7 +114,7 @@ TEST(shulpin_i_jarvis_stl, circle_r10_p200) {
   double radius = 10.0;
   size_t num_points = 200;
 
-  std::vector < shulpin_i_jarvis_stl::Point > input =
+  std::vector<shulpin_i_jarvis_stl::Point> input =
       shulpin_stl_test_module::GeneratePointsInCircle(num_points, center, radius);
   std::vector<shulpin_i_jarvis_stl::Point> expected = input;
 
