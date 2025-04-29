@@ -5,11 +5,10 @@
 #include <cstddef>
 #include <cstdint>
 #include <cstring>
-#include <future>
 #include <thread>
-#include <unordered_set>
 #include <utility>
 #include <vector>
+#include <unordered_set>
 
 #include "core/util/include/util.hpp"
 
@@ -84,61 +83,71 @@ bool shulpin_i_jarvis_stl::JarvisSequential::PostProcessingImpl() {
 
 void shulpin_i_jarvis_stl::JarvisSTLParallel::MakeJarvisPassageSTL(
     std::vector<shulpin_i_jarvis_stl::Point>& input_jar, std::vector<shulpin_i_jarvis_stl::Point>& output_jar) {
-  size_t total = input_jar.size();
   output_jar.clear();
 
-  std::unordered_set<Point, PointHash, PointEqual> unique_points;
+  std::unordered_set<shulpin_i_jarvis_stl::Point, shulpin_i_jarvis_stl::PointHash, shulpin_i_jarvis_stl::PointEqual>
+      unique_points;
 
-  size_t start = 0;
-  for (size_t i = 1; i < total; ++i) {
-    if (input_jar[i].x < input_jar[start].x ||
-        (input_jar[i].x == input_jar[start].x && input_jar[i].y < input_jar[start].y)) {
-      start = i;
+  size_t most_left = 0;
+  for (size_t i = 1; i < input_jar.size(); ++i) {
+    if (input_jar[i].x < input_jar[most_left].x ||
+        (input_jar[i].x == input_jar[most_left].x && input_jar[i].y < input_jar[most_left].y)) {
+      most_left = i;
     }
   }
 
-  size_t active = start;
+  const Point& minPoint = input_jar[most_left];
+  std::vector<Point> convexHull = {minPoint};
+  Point prevPoint = minPoint;
+  Point nextPoint;
+
+  auto findNextPoint = [](const Point& currentPoint, const std::vector<Point>& points, int start, int end,
+                          Point& candidate) {
+    for (int i = start; i < end; ++i) {
+      const auto& point = points[i];
+      if (point == currentPoint) continue;
+      double crossProduct = (point.y - currentPoint.y) * (candidate.x - currentPoint.x) -
+                            (point.x - currentPoint.x) * (candidate.y - currentPoint.y);
+      double distCurrentPoint = std::pow(point.x - currentPoint.x, 2) + std::pow(point.y - currentPoint.y, 2);
+      double distCandidate = std::pow(candidate.x - currentPoint.x, 2) + std::pow(candidate.y - currentPoint.y, 2);
+      if (crossProduct > 0 || (crossProduct == 0 && distCurrentPoint > distCandidate)) candidate = point;
+    }
+  };
+
   do {
-    const auto& current = input_jar[active];
-    if (unique_points.find(current) == unique_points.end()) {
-      output_jar.emplace_back(current);
-      unique_points.insert(current);
+    nextPoint = input_jar[0];
+    int numThreads = ppc::util::GetPPCNumThreads();
+    int chunkSize = input_jar.size() / numThreads;
+    std::vector<std::thread> threads;
+    std::vector<Point> candidates(numThreads, nextPoint);
+
+    for (int i = 0; i < numThreads; ++i) {
+      int start = i * chunkSize;
+      int end = (i == numThreads - 1) ? input_jar.size() : (i + 1) * chunkSize;
+      threads.emplace_back(findNextPoint, std::ref(prevPoint), std::cref(input_jar), start, end,
+                           std::ref(candidates[i]));
     }
 
-    size_t candidate = (active + 1) % total;
-
-    size_t num_threads = ppc::util::GetPPCNumThreads();
-    std::vector<std::future<size_t>> futures;
-    futures.reserve(num_threads);
-
-    for (size_t t = 0; t < num_threads; ++t) {
-      futures.emplace_back(std::async(std::launch::async, [&, t]() -> size_t {
-        size_t from = t * total / num_threads;
-        size_t to = (t + 1 == num_threads) ? total : (t + 1) * total / num_threads;
-        size_t best = candidate;
-
-        for (size_t i = from; i < to; ++i) {
-          if (i == active) {
-            continue;
-          }
-          if (Orientation(current, input_jar[i], input_jar[best]) == 2) {
-            best = i;
-          }
-        }
-        return best;
-      }));
+    for (auto& thread : threads) {
+      if (thread.joinable()) thread.join();
     }
 
-    for (auto& fut : futures) {
-      size_t local_best = fut.get();
-      if (Orientation(current, input_jar[local_best], input_jar[candidate]) == 2) {
-        candidate = local_best;
-      }
+    for (const auto& candidate : candidates) {
+      double crossProduct = (candidate.y - prevPoint.y) * (nextPoint.x - prevPoint.x) -
+                            (candidate.x - prevPoint.x) * (nextPoint.y - prevPoint.y);
+      double distPrevPoint = std::pow(candidate.x - prevPoint.x, 2) + std::pow(candidate.y - prevPoint.y, 2);
+      double distNextPoint = std::pow(nextPoint.x - prevPoint.x, 2) + std::pow(nextPoint.y - prevPoint.y, 2);
+      if (crossProduct > 0 || (crossProduct == 0 && distPrevPoint > distNextPoint)) nextPoint = candidate;
     }
 
-    active = candidate;
+    if (unique_points.find(nextPoint) == unique_points.end()) {
+      output_jar.push_back(nextPoint);
+      unique_points.insert(nextPoint);
+    }
 
-  } while (active != start);
+    prevPoint = nextPoint;
+
+  } while (nextPoint != minPoint);
 }
 
 bool shulpin_i_jarvis_stl::JarvisSTLParallel::PreProcessingImpl() {

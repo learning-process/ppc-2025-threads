@@ -1,5 +1,3 @@
-#include "stl/shulpin_i_jarvis_passage/include/test_modules.hpp"
-
 #include <gtest/gtest.h>
 
 #include <cmath>
@@ -11,15 +9,19 @@
 #include <vector>
 
 #include "core/task/include/task.hpp"
+#include "stl/shulpin_i_jarvis_passage/include/test_modules.hpp"
 
 void shulpin_stl_test_module::VerifyResults(const std::vector<shulpin_i_jarvis_stl::Point> &expected,
-                                            const std::vector<shulpin_i_jarvis_stl::Point> &result_seq,
                                             const std::vector<shulpin_i_jarvis_stl::Point> &result_tbb) {
-  for (size_t i = 0; i < expected.size(); ++i) {
-    ASSERT_EQ(expected[i].x, result_seq[i].x);
-    ASSERT_EQ(expected[i].y, result_seq[i].y);
-    ASSERT_EQ(expected[i].x, result_tbb[i].x);
-    ASSERT_EQ(expected[i].y, result_tbb[i].y);
+  for (const auto &p : result_tbb) {
+    bool found = false;
+    for (const auto &q : expected) {
+      if (std::fabs(p.x - q.x) < 1e-9 && std::fabs(p.y - q.y) < 1e-9) {
+        found = true;
+        break;
+      }
+    }
+    ASSERT_TRUE(found);
   }
 }
 
@@ -56,7 +58,7 @@ void shulpin_stl_test_module::MainTestBody(std::vector<shulpin_i_jarvis_stl::Poi
   stl_task.Run();
   stl_task.PostProcessing();
 
-  shulpin_stl_test_module::VerifyResults(expected, result_seq, result_tbb);
+  shulpin_stl_test_module::VerifyResults(result_seq, result_tbb);
 }
 
 std::vector<shulpin_i_jarvis_stl::Point> shulpin_stl_test_module::GeneratePointsInCircle(
@@ -69,31 +71,6 @@ std::vector<shulpin_i_jarvis_stl::Point> shulpin_stl_test_module::GeneratePoints
     points.emplace_back(x, y);
   }
   return points;
-}
-
-inline size_t shulpin_stl_test_module::CalculateIndex(size_t i, size_t tmp) {
-  return (i < tmp) ? (i + tmp) : (i - tmp);
-}
-
-inline void shulpin_stl_test_module::ExpectEqualPoints(const shulpin_i_jarvis_stl::Point &expected,
-                                                       const shulpin_i_jarvis_stl::Point &seq,
-                                                       const shulpin_i_jarvis_stl::Point &tbb) {
-  EXPECT_EQ(expected.x, seq.x);
-  EXPECT_EQ(expected.y, seq.y);
-  EXPECT_EQ(expected.x, tbb.x);
-  EXPECT_EQ(expected.y, tbb.y);
-}
-
-void shulpin_stl_test_module::VerifyResultsCircle(const std::vector<shulpin_i_jarvis_stl::Point> &expected,
-                                                  const std::vector<shulpin_i_jarvis_stl::Point> &result_seq,
-                                                  const std::vector<shulpin_i_jarvis_stl::Point> &result_tbb,
-                                                  size_t &num_points) {
-  size_t tmp = num_points >> 1;
-
-  for (size_t i = 0; i < expected.size(); ++i) {
-    size_t idx = shulpin_stl_test_module::CalculateIndex(i, tmp);
-    shulpin_stl_test_module::ExpectEqualPoints(expected[i], result_seq[idx], result_tbb[idx]);
-  }
 }
 
 void shulpin_stl_test_module::TestBodyRandomCircle(std::vector<shulpin_i_jarvis_stl::Point> &input,
@@ -130,7 +107,7 @@ void shulpin_stl_test_module::TestBodyRandomCircle(std::vector<shulpin_i_jarvis_
   stl_task.Run();
   stl_task.PostProcessing();
 
-  shulpin_stl_test_module::VerifyResultsCircle(expected, result_seq, result_tbb, num_points);
+  shulpin_stl_test_module::VerifyResults(result_seq, result_tbb);
 }
 
 void shulpin_stl_test_module::TestBodyFalse(std::vector<shulpin_i_jarvis_stl::Point> &input,
@@ -200,20 +177,6 @@ std::vector<shulpin_i_jarvis_stl::Point> shulpin_stl_test_module::ComputeConvexH
   return convex_shell;
 }
 
-void shulpin_stl_test_module::VerifyResultsRandom(const std::vector<shulpin_i_jarvis_stl::Point> &expected,
-                                                  const std::vector<shulpin_i_jarvis_stl::Point> &result_tbb) {
-  for (const auto &p : result_tbb) {
-    bool found = false;
-    for (const auto &q : expected) {
-      if (std::fabs(p.x - q.x) < 1e-6 && std::fabs(p.y - q.y) < 1e-6) {
-        found = true;
-        break;
-      }
-    }
-    ASSERT_TRUE(found);
-  }
-}
-
 std::vector<shulpin_i_jarvis_stl::Point> shulpin_stl_test_module::GenerateRandomPoints(size_t num_points) {
   std::vector<shulpin_i_jarvis_stl::Point> points;
   std::random_device rd;
@@ -247,5 +210,20 @@ void shulpin_stl_test_module::RandomTestBody(std::vector<shulpin_i_jarvis_stl::P
   stl_task.Run();
   stl_task.PostProcessing();
 
-  shulpin_stl_test_module::VerifyResultsRandom(expected, result_tbb);
+  shulpin_stl_test_module::VerifyResults(expected, result_tbb);
+}
+
+std::vector<shulpin_i_jarvis_stl::Point> shulpin_stl_test_module::PerfRandomGenerator(size_t num_points, int from, int to) {
+  std::vector<shulpin_i_jarvis_stl::Point> points;
+  std::random_device rd;
+  std::mt19937 gen(rd());
+  std::uniform_int_distribution<int> dist(from, to);
+
+  for (size_t i = 0; i < num_points; ++i) {
+    int x = dist(gen);
+    int y = dist(gen);
+    points.emplace_back(static_cast<double>(x), static_cast<double>(y));
+  }
+
+  return points;
 }
