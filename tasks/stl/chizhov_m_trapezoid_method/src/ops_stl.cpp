@@ -6,7 +6,7 @@
 #include <thread>
 #include <vector>
 
-double computeWeight(const std::vector<double>& point, const std::vector<double>& lower_limits,
+static double ComputeWeight(const std::vector<double>& point, const std::vector<double>& lower_limits,
                      const std::vector<double>& upper_limits) {
   double weight = 1.0;
   for (size_t j = 0; j < point.size(); j++) {
@@ -59,7 +59,7 @@ double chizhov_m_trapezoid_method_stl::TrapezoidMethod(Function& f, size_t div, 
           temp /= (steps[j] + 1);
         }
 
-        double weight = computeWeight(point, lower_limits, upper_limits);
+        double weight = ComputeWeight(point, lower_limits, upper_limits);
 
         local_results[t] += weight * f(point);
       }
