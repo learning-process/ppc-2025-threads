@@ -2,9 +2,11 @@
 
 #include <algorithm>
 #include <cmath>
+#include <condition_variable>
 #include <cstddef>
 #include <cstdint>
 #include <cstring>
+#include <mutex>
 #include <thread>
 #include <unordered_set>
 #include <utility>
@@ -81,6 +83,122 @@ bool shulpin_i_jarvis_stl::JarvisSequential::PostProcessingImpl() {
   return true;
 }
 
+#ifdef __linux__
+void shulpin_i_jarvis_stl::JarvisSTLParallel::MakeJarvisPassageSTL(
+    std::vector<shulpin_i_jarvis_stl::Point>& input_jar, std::vector<shulpin_i_jarvis_stl::Point>& output_jar) {
+  output_jar.clear();
+
+  std::unordered_set<Point, PointHash, PointEqual> unique_points;
+
+  size_t most_left = 0;
+  for (size_t i = 1; i < input_jar.size(); ++i) {
+    if (input_jar[i].x < input_jar[most_left].x ||
+        (input_jar[i].x == input_jar[most_left].x && input_jar[i].y < input_jar[most_left].y)) {
+      most_left = i;
+    }
+  }
+
+  const Point& minPoint = input_jar[most_left];
+  std::vector<Point> convexHull = {minPoint};
+  Point prevPoint = minPoint;
+  Point nextPoint;
+
+  int numThreads = static_cast<int>(ppc::util::GetPPCNumThreads());
+  int chunkSize = static_cast<int>(input_jar.size() / numThreads);
+
+  std::vector<std::thread> threads;
+  std::vector<Point> candidates(numThreads, input_jar[0]);
+  std::vector<bool> thread_ready(numThreads, false);
+  std::vector<bool> thread_done(numThreads, false);
+  std::mutex mtx;
+  std::condition_variable cv;
+  bool stop = false;
+
+  auto findNextPointThread = [&](int tid) {
+    while (true) {
+      std::unique_lock<std::mutex> lock(mtx);
+      cv.wait(lock, [&] { return thread_ready[tid] || stop; });
+
+      if (stop) return;
+
+      int start = tid * chunkSize;
+      int end = (tid == numThreads - 1) ? static_cast<int>(input_jar.size()) : (tid + 1) * chunkSize;
+      Point candidate = input_jar[start];
+
+      for (int i = start; i < end; ++i) {
+        const auto& point = input_jar[i];
+        if (point == prevPoint) continue;
+
+        double crossProduct = (point.y - prevPoint.y) * (candidate.x - prevPoint.x) -
+                              (point.x - prevPoint.x) * (candidate.y - prevPoint.y);
+        double dist1 = std::pow(point.x - prevPoint.x, 2) + std::pow(point.y - prevPoint.y, 2);
+        double dist2 = std::pow(candidate.x - prevPoint.x, 2) + std::pow(candidate.y - prevPoint.y, 2);
+
+        if (crossProduct > 0 || (crossProduct == 0 && dist1 > dist2)) {
+          candidate = point;
+        }
+      }
+
+      candidates[tid] = candidate;
+      thread_ready[tid] = false;
+      thread_done[tid] = true;
+      cv.notify_all();
+    }
+  };
+
+  for (int i = 0; i < numThreads; ++i) {
+    threads.emplace_back(findNextPointThread, i);
+  }
+
+  do {
+    nextPoint = input_jar[0];
+
+    {
+      std::unique_lock<std::mutex> lock(mtx);
+      for (int i = 0; i < numThreads; ++i) {
+        thread_ready[i] = true;
+        thread_done[i] = false;
+      }
+    }
+    cv.notify_all();
+
+    {
+      std::unique_lock<std::mutex> lock(mtx);
+      cv.wait(lock,
+              [&] { return std::all_of(thread_done.begin(), thread_done.end(), [](bool done) { return done; }); });
+    }
+
+    for (const auto& candidate : candidates) {
+      double crossProduct = (candidate.y - prevPoint.y) * (nextPoint.x - prevPoint.x) -
+                            (candidate.x - prevPoint.x) * (nextPoint.y - prevPoint.y);
+      double dist1 = std::pow(candidate.x - prevPoint.x, 2) + std::pow(candidate.y - prevPoint.y, 2);
+      double dist2 = std::pow(nextPoint.x - prevPoint.x, 2) + std::pow(nextPoint.y - prevPoint.y, 2);
+      if (crossProduct > 0 || (crossProduct == 0 && dist1 > dist2)) {
+        nextPoint = candidate;
+      }
+    }
+
+    if (unique_points.find(nextPoint) == unique_points.end()) {
+      output_jar.push_back(nextPoint);
+      unique_points.insert(nextPoint);
+    }
+
+    prevPoint = nextPoint;
+
+  } while (nextPoint != minPoint);
+
+  {
+    std::unique_lock<std::mutex> lock(mtx);
+    stop = true;
+    cv.notify_all();
+  }
+
+  for (auto& thread : threads) {
+    if (thread.joinable()) thread.join();
+  }
+}
+
+#else
 void shulpin_i_jarvis_stl::JarvisSTLParallel::MakeJarvisPassageSTL(
     std::vector<shulpin_i_jarvis_stl::Point>& input_jar, std::vector<shulpin_i_jarvis_stl::Point>& output_jar) {
   output_jar.clear();
@@ -149,6 +267,7 @@ void shulpin_i_jarvis_stl::JarvisSTLParallel::MakeJarvisPassageSTL(
 
   } while (nextPoint != minPoint);
 }
+#endif
 
 bool shulpin_i_jarvis_stl::JarvisSTLParallel::PreProcessingImpl() {
   std::vector<shulpin_i_jarvis_stl::Point> tmp_input;
