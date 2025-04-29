@@ -6,6 +6,19 @@
 #include <thread>
 #include <vector>
 
+double computeWeight(const std::vector<double>& point, const std::vector<double>& lower_limits,
+                     const std::vector<double>& upper_limits) {
+  double weight = 1.0;
+  for (size_t j = 0; j < point.size(); j++) {
+    if (point[j] == lower_limits[j] || point[j] == upper_limits[j]) {
+      weight *= 1.0;
+    } else {
+      weight *= 2.0;
+    }
+  }
+  return weight;
+}
+
 double chizhov_m_trapezoid_method_stl::TrapezoidMethod(Function& f, size_t div, size_t dim,
                                                        std::vector<double>& lower_limits,
                                                        std::vector<double>& upper_limits) {
@@ -24,11 +37,11 @@ double chizhov_m_trapezoid_method_stl::TrapezoidMethod(Function& f, size_t div, 
   }
 
   double result = 0.0;
-  int num_threads = std::thread::hardware_concurrency();
+  unsigned int num_threads = std::thread::hardware_concurrency();
   std::vector<double> local_results(num_threads, 0.0);
   std::vector<std::thread> threads(num_threads);
 
-  for (int t = 0; t < num_threads; ++t) {
+  for (unsigned int t = 0; t < num_threads; ++t) {
     threads[t] = std::thread([&, t]() {
       long long start = t * (total_nodes / num_threads);
       long long end = (t + 1) * (total_nodes / num_threads);
@@ -38,7 +51,6 @@ double chizhov_m_trapezoid_method_stl::TrapezoidMethod(Function& f, size_t div, 
 
       for (long long i = start; i < end; ++i) {
         int temp = static_cast<int>(i);
-        double weight = 1.0;
         std::vector<double> point(int_dim);
 
         for (int j = 0; j < int_dim; j++) {
@@ -47,13 +59,7 @@ double chizhov_m_trapezoid_method_stl::TrapezoidMethod(Function& f, size_t div, 
           temp /= (steps[j] + 1);
         }
 
-        for (int j = 0; j < int_dim; j++) {
-          if (point[j] == lower_limits[j] || point[j] == upper_limits[j]) {
-            weight *= 1.0;
-          } else {
-            weight *= 2.0;
-          }
-        }
+        double weight = computeWeight(point, lower_limits, upper_limits);
 
         local_results[t] += weight * f(point);
       }
