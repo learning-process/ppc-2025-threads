@@ -7,6 +7,29 @@
 
 namespace shuravina_o_hoare_simple_merger_stl {
 
+namespace {
+
+void Merge(std::vector<int>& arr, int left, int mid, int right) {
+  std::vector<int> temp(right - left + 1);
+  int i = left;
+  int j = mid + 1;
+  int k = 0;
+
+  while (i <= mid && j <= right) {
+    temp[k++] = (arr[i] <= arr[j]) ? arr[i++] : arr[j++];
+  }
+  while (i <= mid) {
+    temp[k++] = arr[i++];
+  }
+  while (j <= right) {
+    temp[k++] = arr[j++];
+  }
+
+  std::ranges::copy(temp, arr.begin() + left);
+}
+
+}  // namespace
+
 bool TestTaskSTL::PreProcessingImpl() {
   if (task_data->inputs_count.empty() || task_data->outputs_count.empty()) {
     return false;
@@ -83,25 +106,6 @@ void TestTaskSTL::ParallelQuickSort(std::vector<int>& arr, int left, int right) 
 #pragma omp section
     { ParallelQuickSort(arr, i, right); }
   }
-}
-
-static void Merge(std::vector<int>& arr, int left, int mid, int right) {
-  std::vector<int> temp(right - left + 1);
-  int i = left;
-  int j = mid + 1;
-  int k = 0;
-
-  while (i <= mid && j <= right) {
-    temp[k++] = (arr[i] <= arr[j]) ? arr[i++] : arr[j++];
-  }
-  while (i <= mid) {
-    temp[k++] = arr[i++];
-  }
-  while (j <= right) {
-    temp[k++] = arr[j++];
-  }
-
-  std::ranges::copy(temp, arr.begin() + left);
 }
 
 bool TestTaskSTL::RunImpl() {
