@@ -15,8 +15,6 @@ TEST(yasakova_t_sparse_matrix_multiplication_seq, test_pipeline_run) {
   const int matrix_size = 1000;
   const int non_zero_elements = 10000;
   const int num_runs = 100;
-
-  // Initialize random number generator
   std::srand(std::time(nullptr));
 
   // Create random sparse matrices
