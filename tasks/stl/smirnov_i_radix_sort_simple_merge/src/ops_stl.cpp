@@ -113,7 +113,7 @@ bool smirnov_i_radix_sort_simple_merge_stl::TestTaskSTL::ValidationImpl() {
   return task_data->inputs_count[0] == task_data->outputs_count[0];
 }
 bool smirnov_i_radix_sort_simple_merge_stl::TestTaskSTL::RunImpl() {
-  int max_th = ppc::util::GetPPCNumThreads();
+  const int max_th = ppc::util::GetPPCNumThreads();
   std::mutex mtxfirstdq;
   std::mutex mtx;
   std::vector<std::future<std::vector<int>>> ths(max_th);
@@ -131,11 +131,15 @@ bool smirnov_i_radix_sort_simple_merge_stl::TestTaskSTL::RunImpl() {
     }
   }
   bool flag = static_cast<int>(firstdq.size()) != 1;
-  std::vector<std::thread> threads(max_th);
+  std::vector<std::thread> threads{};
+  int pairs = max_th;
   while (flag) {
-    for (int i = 0; i < max_th; i++) {
-      threads[i] = std::thread(&smirnov_i_radix_sort_simple_merge_stl::TestTaskSTL::Merging, std::ref(firstdq),
-                               std::ref(seconddq), std::ref(mtx));
+    pairs = (static_cast<int>(firstdq.size()) + 1) / 2;
+    threads.clear();
+    threads.reserve(pairs);
+    for (int i = 0; i < pairs; i++) {
+      threads.push_back(std::thread(&smirnov_i_radix_sort_simple_merge_stl::TestTaskSTL::Merging, std::ref(firstdq),
+                                    std::ref(seconddq), std::ref(mtx)));
     }
     for (auto &th : threads) {
       th.join();
