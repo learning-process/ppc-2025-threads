@@ -117,9 +117,7 @@ void kondratev_ya_ccs_complex_multiplication_stl::CCSMatrix::FillResultFromTempC
   result.values.resize(total_nonzero);
   result.row_index.resize(total_nonzero);
 
-  for (int i = 0; i <= cols; i++) {
-    result.col_ptrs[i] = col_offsets[i];
-  }
+  std::ranges::copy(col_offsets, result.col_ptrs.begin());
 
   auto worker_fill = [&](int start_col, int end_col) {
     for (int col = start_col; col < end_col; ++col) {

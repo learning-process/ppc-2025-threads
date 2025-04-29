@@ -19,6 +19,34 @@ void FillMatrix(kondratev_ya_ccs_complex_multiplication_stl::CCSMatrix &matrix, 
   }
   matrix.col_ptrs[matrix.rows] = matrix.rows;
 }
+
+void CheckColumnPointers(const kondratev_ya_ccs_complex_multiplication_stl::CCSMatrix &matrix, int count) {
+  for (int i = 0; i < count; i++) {
+    ASSERT_EQ(matrix.col_ptrs[i], i);
+  }
+  ASSERT_EQ(matrix.col_ptrs[count], count);
+}
+
+void CheckRowIndices(const kondratev_ya_ccs_complex_multiplication_stl::CCSMatrix &matrix, int count) {
+  for (int i = 0; i < count; i++) {
+    ASSERT_EQ(matrix.row_index[i], i);
+  }
+}
+
+void CheckValues(const kondratev_ya_ccs_complex_multiplication_stl::CCSMatrix &matrix, int count,
+                 const std::complex<double> &value) {
+  for (int i = 0; i < count; i++) {
+    ASSERT_DOUBLE_EQ(matrix.values[i].real(), value.real());
+    ASSERT_DOUBLE_EQ(matrix.values[i].imag(), value.imag());
+  }
+}
+
+void CheckResult(kondratev_ya_ccs_complex_multiplication_stl::CCSMatrix &matrix, int count,
+                 std::complex<double> value) {
+  CheckColumnPointers(matrix, count);
+  CheckRowIndices(matrix, count);
+  CheckValues(matrix, count, value);
+}
 }  // namespace
 
 TEST(kondratev_ya_ccs_complex_multiplication_stl, test_pipeline_run) {
@@ -56,6 +84,7 @@ TEST(kondratev_ya_ccs_complex_multiplication_stl, test_pipeline_run) {
   auto perf_analyzer = std::make_shared<ppc::core::Perf>(test_task_stluential);
   perf_analyzer->PipelineRun(perf_attr, perf_results);
   ppc::core::Perf::PrintPerfStatistic(perf_results);
+  CheckResult(c, kCount, {4.0, 7.0});
 }
 
 TEST(kondratev_ya_ccs_complex_multiplication_stl, test_task_run) {
@@ -93,4 +122,5 @@ TEST(kondratev_ya_ccs_complex_multiplication_stl, test_task_run) {
   auto perf_analyzer = std::make_shared<ppc::core::Perf>(test_task_stluential);
   perf_analyzer->TaskRun(perf_attr, perf_results);
   ppc::core::Perf::PrintPerfStatistic(perf_results);
+  CheckResult(c, kCount, {4.0, 7.0});
 }
