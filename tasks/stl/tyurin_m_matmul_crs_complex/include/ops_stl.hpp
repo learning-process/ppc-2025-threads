@@ -11,7 +11,9 @@
 namespace utils {
 template <class InputIt, class Delimiter = char>
 void Iprint(std::ostream& os, InputIt first, InputIt last, Delimiter delimiter = ' ') {
-  if (last == first) return;
+  if (last == first) {
+    return;
+  }
   auto range = std::ranges::subrange{first, last};
   for (const auto& e : range | std::views::take(last - first - 1)) {
     os << e << delimiter;
