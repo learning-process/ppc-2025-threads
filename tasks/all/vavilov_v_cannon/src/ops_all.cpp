@@ -245,25 +245,32 @@ bool vavilov_v_cannon_all::CannonALL::RunImpl() {
   int rank = world_.rank();
   int size = world_.size();
 
-  // Находим наибольший квадрат процессов
+  if (rank == 0) {
+    std::cout << "Running with " << size << " processes" << std::endl;
+  }
+
   int grid_size = static_cast<int>(std::sqrt(size));
   int active_procs = grid_size * grid_size;
 
-  // Проверяем, участвует ли текущий процесс в вычислениях
   if (rank >= active_procs) {
+    if (rank == 0) {
+      std::cout << "Rank " << rank << " is inactive (active_procs = " << active_procs << ")" << std::endl;
+    }
     return true;
   }
 
-  // Создаем новую коммуникаторную группу только для активных процессов
   mpi::communicator active_world = world_.split(rank < active_procs ? 0 : MPI_UNDEFINED);
   if (rank >= active_procs) {
     return true;
   }
 
-  // Проверяем делимость размера матрицы
+  if (rank == 0) {
+    std::cout << "Active processes: " << active_procs << ", grid_size: " << grid_size << std::endl;
+  }
+
   if (N_ % grid_size != 0) {
     if (rank == 0) {
-      std::cerr << "Matrix size must be divisible by grid size (" << grid_size << ")" << std::endl;
+      std::cerr << "Matrix size (" << N_ << ") must be divisible by grid size (" << grid_size << ")" << std::endl;
     }
     return false;
   }
@@ -277,13 +284,16 @@ bool vavilov_v_cannon_all::CannonALL::RunImpl() {
 
   if (active_procs == 1) {
     if (rank == 0) {
+      std::cout << "Single process mode: performing sequential matrix multiplication" << std::endl;
       for (int i = 0; i < block_size_; ++i) {
         for (int j = 0; j < block_size_; ++j) {
           local_A[i * block_size_ + j] = A_[i * N_ + j];
           local_B[i * block_size_ + j] = B_[i * N_ + j];
         }
       }
+      // Выполняем умножение
       BlockMultiply(local_A, local_B, local_C);
+      // Копируем результат в C_
       for (int i = 0; i < block_size_; ++i) {
         for (int j = 0; j < block_size_; ++j) {
           C_[i * N_ + j] = local_C[i * block_size_ + j];
@@ -292,7 +302,9 @@ bool vavilov_v_cannon_all::CannonALL::RunImpl() {
     }
     return true;
   }
+
   if (rank == 0) {
+    std::cout << "Rank 0: Scattering matrices A and B" << std::endl;
     std::vector<double> tmp_A(active_procs * block_size_sq);
     std::vector<double> tmp_B(active_procs * block_size_sq);
     for (int p = 0; p < active_procs; ++p) {
@@ -318,23 +330,23 @@ bool vavilov_v_cannon_all::CannonALL::RunImpl() {
   int col_index = rank % num_blocks_;
   std::vector<mpi::request> reqs;
 
-  if (row_index != col_index) {
-    int dest_A = row_index * num_blocks_ + (col_index + row_index) % num_blocks_;
-    reqs.push_back(active_world.isend(dest_A, 0, local_A.data(), block_size_sq));
-    reqs.push_back(
-        active_world.irecv((row_index + num_blocks_ - row_index) % num_blocks_, 0, local_A.data(), block_size_sq));
-  }
-
-  if (row_index != col_index) {
-    int dest_B = ((row_index + col_index) % num_blocks_) * num_blocks_ + col_index;
-    reqs.push_back(active_world.isend(dest_B, 1, local_B.data(), block_size_sq));
-    reqs.push_back(
-        active_world.irecv((num_blocks_ - col_index) * num_blocks_ + col_index, 1, local_B.data(), block_size_sq));
-  }
-
-  if (!reqs.empty()) {
-    mpi::wait_all(reqs.begin(), reqs.end());
-    reqs.clear();
+  if (num_blocks_ > 1) {
+    if (row_index != col_index) {
+      int dest_A = row_index * num_blocks_ + (col_index + row_index) % num_blocks_;
+      int src_A = row_index * num_blocks_ + (col_index - row_index + num_blocks_) % num_blocks_;
+      reqs.push_back(active_world.isend(dest_A, 0, local_A.data(), block_size_sq));
+      reqs.push_back(active_world.irecv(src_A, 0, local_A.data(), block_size_sq));
+    }
+    if (row_index != col_index) {
+      int dest_B = ((row_index + col_index) % num_blocks_) * num_blocks_ + col_index;
+      int src_B = ((row_index - col_index + num_blocks_) % num_blocks_) * num_blocks_ + col_index;
+      reqs.push_back(active_world.isend(dest_B, 1, local_B.data(), block_size_sq));
+      reqs.push_back(active_world.irecv(src_B, 1, local_B.data(), block_size_sq));
+    }
+    if (!reqs.empty()) {
+      mpi::wait_all(reqs.begin(), reqs.end());
+      reqs.clear();
+    }
   }
 
   active_world.barrier();
@@ -358,6 +370,7 @@ bool vavilov_v_cannon_all::CannonALL::RunImpl() {
   }
 
   if (rank == 0) {
+    std::cout << "Rank 0: Gathering results" << std::endl;
     std::vector<double> tmp_C(active_procs * block_size_sq);
     mpi::gather(active_world, local_C.data(), block_size_sq, tmp_C.data(), 0);
     for (int p = 0; p < active_procs; ++p) {
