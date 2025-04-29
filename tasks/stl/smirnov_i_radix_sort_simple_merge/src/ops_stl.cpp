@@ -137,8 +137,8 @@ bool smirnov_i_radix_sort_simple_merge_stl::TestTaskSTL::RunImpl() {
     threads.clear();
     threads.reserve(pairs);
     for (int i = 0; i < pairs; i++) {
-      threads.emplace_back(std::thread(&smirnov_i_radix_sort_simple_merge_stl::TestTaskSTL::Merging, std::ref(firstdq),
-                                       std::ref(seconddq), std::ref(mtx)));
+      threads.emplace_back(&smirnov_i_radix_sort_simple_merge_stl::TestTaskSTL::Merging, std::ref(firstdq),
+                           std::ref(seconddq), std::ref(mtx));
     }
     for (auto &th : threads) {
       th.join();
