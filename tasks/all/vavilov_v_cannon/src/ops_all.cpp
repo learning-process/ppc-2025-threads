@@ -30,7 +30,7 @@ bool vavilov_v_cannon_all::CannonALL::ValidationImpl() {
   return task_data->inputs_count[0] == task_data->inputs_count[1] &&
          task_data->outputs_count[0] == task_data->inputs_count[0];
 }
-
+/*
 void vavilov_v_cannon_all::CannonALL::InitialShift(std::vector<double>& local_A, std::vector<double>& local_B) {
   int rank = world_.rank();
   int grid_size = num_blocks_;
@@ -105,7 +105,7 @@ void vavilov_v_cannon_all::CannonALL::ShiftBlocks(std::vector<double>& local_A, 
   local_A = tmp_A;
   local_B = tmp_B;
 }
-
+*/
 void vavilov_v_cannon_all::CannonALL::BlockMultiply(const std::vector<double>& local_A,
                                                     const std::vector<double>& local_B, std::vector<double>& local_C) {
 #pragma omp parallel for
@@ -120,7 +120,7 @@ void vavilov_v_cannon_all::CannonALL::BlockMultiply(const std::vector<double>& l
   }
 }
 
-bool vavilov_v_cannon_all::CannonALL::RunImpl() {
+bool CannonALL::RunImpl() {
   int rank = world_.rank();
   int size = world_.size();
   int grid_size = static_cast<int>(std::sqrt(size));
@@ -159,19 +159,64 @@ bool vavilov_v_cannon_all::CannonALL::RunImpl() {
         }
       }
     }
-    mpi::scatter(world_, tmp_A.data(), local_A.data(), 0);
-    mpi::scatter(world_, tmp_B.data(), local_B.data(), 0);
+    mpi::scatter(world_, tmp_A.data(), local_A.data(), block_size_sq, 0);
+    mpi::scatter(world_, tmp_B.data(), local_B.data(), block_size_sq, 0);
   } else {
-    mpi::scatter(world_, local_A.data(), 0);
-    mpi::scatter(world_, local_B.data(), 0);
+    mpi::scatter(world_, local_A.data(), block_size_sq, 0);
+    mpi::scatter(world_, local_B.data(), block_size_sq, 0);
   }
 
-  InitialShift(local_A, local_B);
-  for (int iter = 0; iter < num_blocks_; ++iter) {
-    BlockMultiply(local_A, local_B, local_C);
-    if (iter < num_blocks_ - 1) {
-      ShiftBlocks(local_A, local_B);
+  int row_index = rank / num_blocks_;
+  int col_index = rank % num_blocks_;
+  std::vector<mpi::request> reqs;
+  if (row_index != 0) {
+    int dest_A = (col_index < row_index) ? rank + num_blocks_ - row_index : rank - row_index;
+    reqs.push_back(world_.isend(dest_A, 0, local_A.data(), block_size_sq));
+  }
+  if (col_index != 0) {
+    int dest_B = (row_index < col_index) ? rank + (num_blocks_ - col_index) * num_blocks_ : rank - num_blocks_ * col_index;
+    reqs.push_back(world_.isend(dest_B, 1, local_B.data(), block_size_sq));
+  }
+  if (row_index != 0 && col_index != 0) {
+    reqs.push_back(world_.irecv(mpi::any_source, 0, local_A.data(), block_size_sq));
+    reqs.push_back(world_.irecv(mpi::any_source, 1, local_B.data(), block_size_sq));
+  } else if (row_index != 0) {
+    reqs.push_back(world_.irecv(mpi::any_source, 0, local_A.data(), block_size_sq));
+  } else if (col_index != 0) {
+    reqs.push_back(world_.irecv(mpi::any_source, 1, local_B.data(), block_size_sq));
+  }
+  if (!reqs.empty()) {
+    mpi::wait_all(reqs.begin(), reqs.end());
+    reqs.clear();
+  }
+
+  world_.barrier();
+  BlockMultiply(local_A, local_B, local_C);
+
+  for (int iter = 0; iter < num_blocks_ - 1; ++iter) {
+    int dest_A, src_A, dest_B, src_B;
+    if (rank == row_index * num_blocks_) {
+      dest_A = (row_index + 1) * num_blocks_ - 1;
+    } else {
+      dest_A = rank - 1;
     }
+    reqs.push_back(world_.isend(dest_A, 2, local_A.data(), block_size_sq));
+
+    if (rank < num_blocks_) {
+      dest_B = rank + (num_blocks_ - 1) * num_blocks_;
+    } else {
+      dest_B = rank - num_blocks_;
+    }
+    reqs.push_back(world_.isend(dest_B, 3, local_B.data(), block_size_sq));
+
+    // Receive new A and B
+    reqs.push_back(world_.irecv(mpi::any_source, 2, local_A.data(), block_size_sq));
+    reqs.push_back(world_.irecv(mpi::any_source, 3, local_B.data(), block_size_sq));
+
+    mpi::wait_all(reqs.begin(), reqs.end());
+    reqs.clear();
+
+    BlockMultiply(local_A, local_B, local_C);
   }
 
   if (rank == 0) {
