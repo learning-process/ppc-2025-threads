@@ -13,22 +13,27 @@
 namespace mpi = boost::mpi;
 
 bool vavilov_v_cannon_all::CannonALL::PreProcessingImpl() {
-  N_ = static_cast<int>(std::sqrt(task_data->inputs_count[0]));
-  num_blocks_ = static_cast<int>(std::sqrt(N_));
-  block_size_ = N_ / num_blocks_;
+  if (world_.rank() == 0) {
+    N_ = static_cast<int>(std::sqrt(task_data->inputs_count[0]));
+    num_blocks_ = static_cast<int>(std::sqrt(N_));
+    block_size_ = N_ / num_blocks_;
 
-  auto* a = reinterpret_cast<double*>(task_data->inputs[0]);
-  auto* b = reinterpret_cast<double*>(task_data->inputs[1]);
-  A_.assign(a, a + (N_ * N_));
-  B_.assign(b, b + (N_ * N_));
-  C_.assign(N_ * N_, 0);
+    auto* a = reinterpret_cast<double*>(task_data->inputs[0]);
+    auto* b = reinterpret_cast<double*>(task_data->inputs[1]);
+    A_.assign(a, a + (N_ * N_));
+    B_.assign(b, b + (N_ * N_));
+    C_.assign(N_ * N_, 0);
+  }
 
   return true;
 }
 
 bool vavilov_v_cannon_all::CannonALL::ValidationImpl() {
-  return task_data->inputs_count[0] == task_data->inputs_count[1] &&
-         task_data->outputs_count[0] == task_data->inputs_count[0];
+  if (world_.rank() == 0) {
+    return task_data->inputs_count[0] == task_data->inputs_count[1] &&
+           task_data->outputs_count[0] == task_data->inputs_count[0];
+  }
+  return true;
 }
 /*
 void vavilov_v_cannon_all::CannonALL::InitialShift(std::vector<double>& local_A, std::vector<double>& local_B) {
@@ -237,6 +242,8 @@ bool vavilov_v_cannon_all::CannonALL::RunImpl() {
 }
 
 bool vavilov_v_cannon_all::CannonALL::PostProcessingImpl() {
-  std::ranges::copy(C_, reinterpret_cast<double*>(task_data->outputs[0]));
+  if (world_.rank() == 0) {
+    std::ranges::copy(C_, reinterpret_cast<double*>(task_data->outputs[0]));
+  }
   return true;
 }
