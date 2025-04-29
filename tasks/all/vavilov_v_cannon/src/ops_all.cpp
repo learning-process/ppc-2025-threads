@@ -321,13 +321,15 @@ bool vavilov_v_cannon_all::CannonALL::RunImpl() {
   if (row_index != col_index) {
     int dest_A = row_index * num_blocks_ + (col_index + row_index) % num_blocks_;
     reqs.push_back(active_world.isend(dest_A, 0, local_A.data(), block_size_sq));
-    reqs.push_back(active_world.irecv((row_index + num_blocks_ - row_index) % num_blocks_, 0, local_A.data(), block_size_sq));
+    reqs.push_back(
+        active_world.irecv((row_index + num_blocks_ - row_index) % num_blocks_, 0, local_A.data(), block_size_sq));
   }
 
   if (row_index != col_index) {
     int dest_B = ((row_index + col_index) % num_blocks_) * num_blocks_ + col_index;
     reqs.push_back(active_world.isend(dest_B, 1, local_B.data(), block_size_sq));
-    reqs.push_back(active_world.irecv((num_blocks_ - col_index) * num_blocks_ + col_index, 1, local_B.data(), block_size_sq));
+    reqs.push_back(
+        active_world.irecv((num_blocks_ - col_index) * num_blocks_ + col_index, 1, local_B.data(), block_size_sq));
   }
 
   if (!reqs.empty()) {
