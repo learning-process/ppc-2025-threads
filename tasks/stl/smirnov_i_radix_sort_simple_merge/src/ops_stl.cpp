@@ -12,6 +12,8 @@
 #include <utility>
 #include <vector>
 
+#include "core/util/include/util.hpp"
+
 std::vector<int> smirnov_i_radix_sort_simple_merge_stl::TestTaskSTL::Merge(std::vector<int> &mas1,
                                                                            std::vector<int> &mas2) {
   std::vector<int> res;
