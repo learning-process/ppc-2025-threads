@@ -124,7 +124,7 @@ void vavilov_v_cannon_all::CannonALL::BlockMultiply(const std::vector<double>& l
     }
   }
 }
-
+/*
 bool vavilov_v_cannon_all::CannonALL::RunImpl() {
   int rank = world_.rank();
   int size = world_.size();
@@ -231,6 +231,58 @@ bool vavilov_v_cannon_all::CannonALL::RunImpl() {
         for (int j = 0; j < block_size_; ++j) {
           C_[(row_p * block_size_ + i) * N_ + (col_p * block_size_ + j)] =
               tmp_C[p * block_size_sq + i * block_size_ + j];
+        }
+      }
+    }
+  } else {
+    mpi::gather(world_, local_C.data(), block_size_sq, 0);
+  }
+
+  return true;
+}
+*/
+bool vavilov_v_cannon_all::CannonALL::RunImpl() {
+  int rank = world_.rank();
+  int size = world_.size();
+  block_size_ = N_ / size;
+  int block_size_sq = block_size_ * N_;
+  std::vector<double> local_A(block_size_sq);
+  std::vector<double> local_B(N_ * N_);
+  std::vector<double> local_C(block_size_sq, 0);
+
+  if (rank == 0) {
+    std::vector<double> tmp_A(size * block_size_sq);
+    for (int p = 0; p < size; ++p) {
+      for (int i = 0; i < block_size_; ++i) {
+        for (int j = 0; j < N_; ++j) {
+          tmp_A[p * block_size_sq + i * N_ + j] = A_[(p * block_size_ + i) * N_ + j];
+        }
+      }
+    }
+    mpi::scatter(world_, tmp_A.data(), local_A.data(), block_size_sq, 0);
+    mpi::bcast(world_, B_.data(), N_ * N_, 0); // B полностью рассылается всем
+  } else {
+    mpi::scatter(world_, local_A.data(), block_size_sq, 0);
+    mpi::bcast(world_, local_B.data(), N_ * N_, 0);
+  }
+
+  for (int i = 0; i < block_size_; ++i) {
+    for (int j = 0; j < N_; ++j) {
+      double temp = 0.0;
+      for (int k = 0; k < N_; ++k) {
+        temp += local_A[i * N_ + k] * local_B[k * N_ + j];
+      }
+      local_C[i * N_ + j] = temp;
+    }
+  }
+
+  if (rank == 0) {
+    std::vector<double> tmp_C(size * block_size_sq);
+    mpi::gather(world_, local_C.data(), block_size_sq, tmp_C.data(), 0);
+    for (int p = 0; p < size; ++p) {
+      for (int i = 0; i < block_size_; ++i) {
+        for (int j = 0; j < N_; ++j) {
+          C_[(p * block_size_ + i) * N_ + j] = tmp_C[p * block_size_sq + i * N_ + j];
         }
       }
     }
