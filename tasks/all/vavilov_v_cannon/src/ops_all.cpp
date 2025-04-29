@@ -244,50 +244,127 @@ bool vavilov_v_cannon_all::CannonALL::RunImpl() {
 bool vavilov_v_cannon_all::CannonALL::RunImpl() {
   int rank = world_.rank();
   int size = world_.size();
-  block_size_ = N_ / size;
-  int block_size_sq = block_size_ * N_;
+
+  // Находим наибольший квадрат процессов
+  int grid_size = static_cast<int>(std::sqrt(size));
+  int active_procs = grid_size * grid_size; // Число активных процессов
+
+  // Проверяем, участвует ли текущий процесс в вычислениях
+  if (rank >= active_procs) {
+    // Процесс не участвует, просто завершаем
+    return true;
+  }
+
+  // Создаем новую коммуникаторную группу только для активных процессов
+  mpi::communicator active_world = world_.split(rank < active_procs ? 0 : MPI_UNDEFINED);
+  if (rank >= active_procs) {
+    return true; // Неактивные процессы завершают выполнение
+  }
+
+  // Проверяем делимость размера матрицы
+  if (N_ % grid_size != 0) {
+    if (rank == 0) {
+      std::cerr << "Matrix size must be divisible by grid size (" << grid_size << ")" << std::endl;
+    }
+    return false;
+  }
+
+  num_blocks_ = grid_size;
+  block_size_ = N_ / num_blocks_;
+  int block_size_sq = block_size_ * block_size_;
   std::vector<double> local_A(block_size_sq);
-  std::vector<double> local_B(N_ * N_);
+  std::vector<double> local_B(block_size_sq);
   std::vector<double> local_C(block_size_sq, 0);
 
+  // Рассылка матриц A и B
   if (rank == 0) {
-    std::vector<double> tmp_A(size * block_size_sq);
-    for (int p = 0; p < size; ++p) {
+    std::vector<double> tmp_A(active_procs * block_size_sq);
+    std::vector<double> tmp_B(active_procs * block_size_sq);
+    for (int p = 0; p < active_procs; ++p) {
+      int row_p = p / grid_size;
+      int col_p = p % grid_size;
       for (int i = 0; i < block_size_; ++i) {
-        for (int j = 0; j < N_; ++j) {
-          tmp_A[p * block_size_sq + i * N_ + j] = A_[(p * block_size_ + i) * N_ + j];
+        for (int j = 0; j < block_size_; ++j) {
+          tmp_A[p * block_size_sq + i * block_size_ + j] =
+              A_[(row_p * block_size_ + i) * N_ + (col_p * block_size_ + j)];
+          tmp_B[p * block_size_sq + i * block_size_ + j] =
+              B_[(row_p * block_size_ + i) * N_ + (col_p * block_size_ + j)];
         }
       }
     }
-    mpi::scatter(world_, tmp_A.data(), local_A.data(), block_size_sq, 0);
-    mpi::broadcast(world_, B_.data(), N_ * N_, 0);
+    mpi::scatter(active_world, tmp_A.data(), local_A.data(), block_size_sq, 0);
+    mpi::scatter(active_world, tmp_B.data(), local_B.data(), block_size_sq, 0);
   } else {
-    mpi::scatter(world_, local_A.data(), block_size_sq, 0);
-    mpi::broadcast(world_, local_B.data(), N_ * N_, 0);
+    mpi::scatter(active_world, local_A.data(), block_size_sq, 0);
+    mpi::scatter(active_world, local_B.data(), block_size_sq, 0);
   }
 
-  for (int i = 0; i < block_size_; ++i) {
-    for (int j = 0; j < N_; ++j) {
-      double temp = 0.0;
-      for (int k = 0; k < N_; ++k) {
-        temp += local_A[i * N_ + k] * local_B[k * N_ + j];
-      }
-      local_C[i * N_ + j] = temp;
-    }
+  // Начальная перестановка блоков
+  int row_index = rank / num_blocks_;
+  int col_index = rank % num_blocks_;
+  std::vector<mpi::request> reqs;
+
+  if (row_index != 0) {
+    int dest_A = row_index * num_blocks_ + (col_index + row_index) % num_blocks_;
+    reqs.push_back(active_world.isend(dest_A, 0, local_A.data(), block_size_sq));
+    std::cout << "Rank " << rank << " sending A to " << dest_A << std::endl;
+  }
+  if (col_index != 0) {
+    int dest_B = ((row_index + col_index) % num_blocks_) * num_blocks_ + col_index;
+    reqs.push_back(active_world.isend(dest_B, 1, local_B.data(), block_size_sq));
+    std::cout << "Rank " << rank << " sending B to " << dest_B << std::endl;
+  }
+  if (row_index != 0 && col_index != 0) {
+    reqs.push_back(active_world.irecv(mpi::any_source, 0, local_A.data(), block_size_sq));
+    reqs.push_back(active_world.irecv(mpi::any_source, 1, local_B.data(), block_size_sq));
+  } else if (row_index != 0) {
+    reqs.push_back(active_world.irecv(mpi::any_source, 0, local_A.data(), block_size_sq));
+  } else if (col_index != 0) {
+    reqs.push_back(active_world.irecv(mpi::any_source, 1, local_B.data(), block_size_sq));
+  }
+  if (!reqs.empty()) {
+    mpi::wait_all(reqs.begin(), reqs.end());
+    reqs.clear();
   }
 
+  active_world.barrier();
+  BlockMultiply(local_A, local_B, local_C);
+
+  // Основной цикл Кэннона
+  for (int iter = 0; iter < num_blocks_ - 1; ++iter) {
+    int dest_A = row_index * num_blocks_ + (col_index == 0 ? num_blocks_ - 1 : col_index - 1);
+    reqs.push_back(active_world.isend(dest_A, 2, local_A.data(), block_size_sq));
+    std::cout << "Rank " << rank << " iter " << iter << " sending A to " << dest_A << std::endl;
+
+    int dest_B = (row_index == 0 ? num_blocks_ - 1 : row_index - 1) * num_blocks_ + col_index;
+    reqs.push_back(active_world.isend(dest_B, 3, local_B.data(), block_size_sq));
+    std::cout << "Rank " << rank << " iter " << iter << " sending B to " << dest_B << std::endl;
+
+    reqs.push_back(active_world.irecv(mpi::any_source, 2, local_A.data(), block_size_sq));
+    reqs.push_back(active_world.irecv(mpi::any_source, 3, local_B.data(), block_size_sq));
+
+    mpi::wait_all(reqs.begin(), reqs.end());
+    reqs.clear();
+
+    BlockMultiply(local_A, local_B, local_C);
+  }
+
+  // Сбор результатов
   if (rank == 0) {
-    std::vector<double> tmp_C(size * block_size_sq);
-    mpi::gather(world_, local_C.data(), block_size_sq, tmp_C.data(), 0);
-    for (int p = 0; p < size; ++p) {
+    std::vector<double> tmp_C(active_procs * block_size_sq);
+    mpi::gather(active_world, local_C.data(), block_size_sq, tmp_C.data(), 0);
+    for (int p = 0; p < active_procs; ++p) {
+      int row_p = p / grid_size;
+      int col_p = p % grid_size;
       for (int i = 0; i < block_size_; ++i) {
-        for (int j = 0; j < N_; ++j) {
-          C_[(p * block_size_ + i) * N_ + j] = tmp_C[p * block_size_sq + i * N_ + j];
+        for (int j = 0; j < block_size_; ++j) {
+          C_[(row_p * block_size_ + i) * N_ + (col_p * block_size_ + j)] =
+              tmp_C[p * block_size_sq + i * block_size_ + j];
         }
       }
     }
   } else {
-    mpi::gather(world_, local_C.data(), block_size_sq, 0);
+    mpi::gather(active_world, local_C.data(), block_size_sq, 0);
   }
 
   return true;
