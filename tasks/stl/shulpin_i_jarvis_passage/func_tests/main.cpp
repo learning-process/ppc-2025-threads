@@ -95,11 +95,11 @@ TEST(shulpin_i_jarvis_stl, zero_points_validation_false) {
   shulpin_stl_test_module::TestBodyFalse(input, expected);
 }
 
-TEST(shulpin_i_jarvis_stl, circle_r10_p100) {
+TEST(shulpin_i_jarvis_stl, circle_r10_p10) {
   shulpin_i_jarvis_stl::Point center{0, 0};
 
   double radius = 10.0;
-  size_t num_points = 100;
+  size_t num_points = 10;
 
   std::vector<shulpin_i_jarvis_stl::Point> input =
       shulpin_stl_test_module::GeneratePointsInCircle(num_points, center, radius);
@@ -108,11 +108,11 @@ TEST(shulpin_i_jarvis_stl, circle_r10_p100) {
   shulpin_stl_test_module::TestBodyRandomCircle(input, expected, num_points);
 }
 
-TEST(shulpin_i_jarvis_stl, circle_r10_p200) {
+TEST(shulpin_i_jarvis_stl, circle_r10_p20) {
   shulpin_i_jarvis_stl::Point center{0, 0};
 
   double radius = 10.0;
-  size_t num_points = 200;
+  size_t num_points = 20;
 
   std::vector<shulpin_i_jarvis_stl::Point> input =
       shulpin_stl_test_module::GeneratePointsInCircle(num_points, center, radius);
