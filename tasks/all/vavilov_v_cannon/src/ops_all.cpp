@@ -211,6 +211,7 @@ bool vavilov_v_cannon_all::CannonALL::RunImpl() {
       dest_B = rank - num_blocks_;
     }
     reqs.push_back(world_.isend(dest_B, 3, local_B.data(), block_size_sq));
+
     reqs.push_back(world_.irecv(mpi::any_source, 2, local_A.data(), block_size_sq));
     reqs.push_back(world_.irecv(mpi::any_source, 3, local_B.data(), block_size_sq));
 
@@ -222,7 +223,7 @@ bool vavilov_v_cannon_all::CannonALL::RunImpl() {
 
   if (rank == 0) {
     std::vector<double> tmp_C(size * block_size_sq);
-    mpi::gather(world_, local_C.data(), block_size_sq, tmp_C.data(), block_size_sq, 0);
+    mpi::gather(world_, local_C.data(), block_size_sq, tmp_C.data(), 0);
     for (int p = 0; p < size; ++p) {
       int row_p = p / grid_size;
       int col_p = p % grid_size;
