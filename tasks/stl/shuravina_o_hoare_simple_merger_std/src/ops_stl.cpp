@@ -23,15 +23,26 @@ bool TestTaskSTL::ValidationImpl() {
 }
 
 void TestTaskSTL::QuickSort(std::vector<int>& arr, int left, int right) {
-  if (left >= right) return;
+  if (left >= right) {
+    return;
+  }
 
   int pivot = arr[(left + right) / 2];
-  int i = left, j = right;
+  int i = left;
+  int j = right;
 
   while (i <= j) {
-    while (arr[i] < pivot) i++;
-    while (arr[j] > pivot) j--;
-    if (i <= j) std::swap(arr[i++], arr[j--]);
+    while (arr[i] < pivot) {
+      i++;
+    }
+    while (arr[j] > pivot) {
+      j--;
+    }
+    if (i <= j) {
+      std::swap(arr[i], arr[j]);
+      i++;
+      j--;
+    }
   }
 
   QuickSort(arr, left, j);
@@ -39,15 +50,26 @@ void TestTaskSTL::QuickSort(std::vector<int>& arr, int left, int right) {
 }
 
 void TestTaskSTL::ParallelQuickSort(std::vector<int>& arr, int left, int right) {
-  if (left >= right) return;
+  if (left >= right) {
+    return;
+  }
 
   int pivot = arr[(left + right) / 2];
-  int i = left, j = right;
+  int i = left;
+  int j = right;
 
   while (i <= j) {
-    while (arr[i] < pivot) i++;
-    while (arr[j] > pivot) j--;
-    if (i <= j) std::swap(arr[i++], arr[j--]);
+    while (arr[i] < pivot) {
+      i++;
+    }
+    while (arr[j] > pivot) {
+      j--;
+    }
+    if (i <= j) {
+      std::swap(arr[i], arr[j]);
+      i++;
+      j--;
+    }
   }
 
 #pragma omp parallel sections
@@ -59,15 +81,23 @@ void TestTaskSTL::ParallelQuickSort(std::vector<int>& arr, int left, int right) 
   }
 }
 
-void TestTaskSTL::Merge(std::vector<int>& arr, int left, int mid, int right) {
+static void Merge(std::vector<int>& arr, int left, int mid, int right) {
   std::vector<int> temp(right - left + 1);
-  int i = left, j = mid + 1, k = 0;
+  int i = left;
+  int j = mid + 1;
+  int k = 0;
 
-  while (i <= mid && j <= right) temp[k++] = (arr[i] <= arr[j]) ? arr[i++] : arr[j++];
-  while (i <= mid) temp[k++] = arr[i++];
-  while (j <= right) temp[k++] = arr[j++];
+  while (i <= mid && j <= right) {
+    temp[k++] = (arr[i] <= arr[j]) ? arr[i++] : arr[j++];
+  }
+  while (i <= mid) {
+    temp[k++] = arr[i++];
+  }
+  while (j <= right) {
+    temp[k++] = arr[j++];
+  }
 
-  std::copy(temp.begin(), temp.end(), arr.begin() + left);
+  std::ranges::copy(temp, arr.begin() + left);
 }
 
 bool TestTaskSTL::RunImpl() {
@@ -76,17 +106,19 @@ bool TestTaskSTL::RunImpl() {
     return true;
   }
 
-  const int size = input_.size();
+  const auto size = static_cast<int>(input_.size());
   ParallelQuickSort(input_, 0, size - 1);
-  Merge(input_, 0, size / 2 - 1, size - 1);
+  Merge(input_, 0, (size / 2) - 1, size - 1);
   output_ = input_;
   return true;
 }
 
 bool TestTaskSTL::PostProcessingImpl() {
-  if (output_.empty()) return true;
+  if (output_.empty()) {
+    return true;
+  }
   auto* out_ptr = reinterpret_cast<int*>(task_data->outputs[0]);
-  std::copy(output_.begin(), output_.end(), out_ptr);
+  std::ranges::copy(output_, out_ptr);
   return true;
 }
 
