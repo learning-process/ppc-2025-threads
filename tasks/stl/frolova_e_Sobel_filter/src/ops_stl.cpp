@@ -3,6 +3,7 @@
 #include <algorithm>
 #include <cmath>
 #include <cstddef>
+#include <thread>
 #include <vector>
 
 #include "core/util/include/util.hpp"
