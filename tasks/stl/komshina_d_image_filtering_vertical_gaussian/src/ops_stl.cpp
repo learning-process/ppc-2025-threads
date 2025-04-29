@@ -78,11 +78,11 @@ bool komshina_d_image_filtering_vertical_gaussian_stl::TestTaskSTL::ValidationIm
 
 bool komshina_d_image_filtering_vertical_gaussian_stl::TestTaskSTL::RunImpl() {
   const int num_threads = ppc::util::GetPPCNumThreads();
-  std::vector<std::thread> threads;
+  std::vector<std::thread> threads(num_threads);
 
-  for (int t = 0; t < num_threads; ++t) {
-    threads.emplace_back(GaussianVerticalFilter, std::cref(input_), std::ref(output_), width_, height_,
-                         std::cref(kernel_), t, num_threads);
+  for (int i = 0; i < num_threads; ++i) {
+    threads[i] = std::thread(GaussianVerticalFilter, std::cref(input_), std::ref(output_), width_, height_,
+                             std::cref(kernel_), i, num_threads);
   }
 
   for (auto &thread : threads) {
