@@ -247,7 +247,7 @@ bool vavilov_v_cannon_all::CannonALL::RunImpl() {
 
   // Находим наибольший квадрат процессов
   int grid_size = static_cast<int>(std::sqrt(size));
-  int active_procs = grid_size * grid_size; // Число активных процессов
+  int active_procs = grid_size * grid_size;
 
   // Проверяем, участвует ли текущий процесс в вычислениях
   if (rank >= active_procs) {
@@ -258,7 +258,7 @@ bool vavilov_v_cannon_all::CannonALL::RunImpl() {
   // Создаем новую коммуникаторную группу только для активных процессов
   mpi::communicator active_world = world_.split(rank < active_procs ? 0 : MPI_UNDEFINED);
   if (rank >= active_procs) {
-    return true; // Неактивные процессы завершают выполнение
+    return true;
   }
 
   // Проверяем делимость размера матрицы
