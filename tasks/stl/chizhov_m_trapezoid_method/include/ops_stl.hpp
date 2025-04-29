@@ -10,6 +10,9 @@
 namespace chizhov_m_trapezoid_method_stl {
 using Function = std::function<double(const std::vector<double>&)>;
 
+double ComputeWeight(const std::vector<double>& point, const std::vector<double>& lower_limits,
+                     const std::vector<double>& upper_limits);
+
 double TrapezoidMethod(Function& f, size_t div, size_t dim, std::vector<double>& lower_limits,
                        std::vector<double>& upper_limits);
 

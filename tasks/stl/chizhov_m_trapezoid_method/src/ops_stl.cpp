@@ -6,8 +6,9 @@
 #include <thread>
 #include <vector>
 
-static double ComputeWeight(const std::vector<double>& point, const std::vector<double>& lower_limits,
-                     const std::vector<double>& upper_limits) {
+double chizhov_m_trapezoid_method_stl::ComputeWeight(const std::vector<double>& point,
+                                                     const std::vector<double>& lower_limits,
+                                                     const std::vector<double>& upper_limits) {
   double weight = 1.0;
   for (size_t j = 0; j < point.size(); j++) {
     if (point[j] == lower_limits[j] || point[j] == upper_limits[j]) {
