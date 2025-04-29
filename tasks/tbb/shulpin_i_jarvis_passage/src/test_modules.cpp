@@ -222,9 +222,9 @@ std::vector<shulpin_i_jarvis_tbb::Point> shulpin_tbb_test_module::GenerateRandom
   std::uniform_int_distribution<int> dist(-10000, 10000);
 
   for (size_t i = 0; i < num_points; ++i) {
-    double x = dist(gen);
-    double y = dist(gen);
-    points.emplace_back(x, y);
+    int x = dist(gen);
+    int y = dist(gen);
+    points.emplace_back(static_cast<double>(x), static_cast<double>(y));
   }
 
   return points;
