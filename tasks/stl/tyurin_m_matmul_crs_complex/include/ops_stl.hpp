@@ -2,6 +2,7 @@
 
 #include <complex>
 #include <cstdint>
+#include <iostream>
 #include <ranges>
 #include <utility>
 #include <vector>
@@ -9,7 +10,7 @@
 #include "core/task/include/task.hpp"
 namespace utils {
 template <class InputIt, class Delimiter = char>
-void iprint(std::ostream& os, InputIt first, InputIt last, Delimiter delimiter = ' ') {
+void Iprint(std::ostream& os, InputIt first, InputIt last, Delimiter delimiter = ' ') {
   if (last == first) return;
   auto range = std::ranges::subrange{first, last};
   for (const auto& e : range | std::views::take(last - first - 1)) {
@@ -21,7 +22,7 @@ void iprint(std::ostream& os, InputIt first, InputIt last, Delimiter delimiter =
 struct Matrix {
   friend std::ostream& operator<<(std::ostream& os, const Matrix& m) {
     os << "M(" << m.rows << "," << m.cols << "): [";
-    utils::iprint(os, m.data.begin(), m.data.end());
+    utils::Iprint(os, m.data.begin(), m.data.end());
     os << ']';
     return os;
   }
@@ -29,7 +30,7 @@ struct Matrix {
   uint32_t cols;
   std::vector<std::complex<double>> data;
 
-  std::complex<double>& Get(uint32_t row, uint32_t col) { return data[row * cols + col]; }
+  std::complex<double>& Get(uint32_t row, uint32_t col) { return data[(row * cols) + col]; }
 
   bool operator==(const Matrix& other) const noexcept {
     return rows == other.rows && cols == other.cols && data == other.data;
