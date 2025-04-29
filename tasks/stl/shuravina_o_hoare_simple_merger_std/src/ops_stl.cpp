@@ -9,7 +9,7 @@ namespace shuravina_o_hoare_simple_merger_stl {
 
 namespace {
 
-void Merge(std::vector<int>& arr, int left, int mid, int right) {
+void merge_helper(std::vector<int>& arr, int left, int mid, int right) {
   std::vector<int> temp(right - left + 1);
   int i = left;
   int j = mid + 1;
@@ -112,7 +112,7 @@ bool TestTaskSTL::RunImpl() {
 
   const auto size = static_cast<int>(input_.size());
   ParallelQuickSort(input_, 0, size - 1);
-  Merge(input_, 0, (size / 2) - 1, size - 1);
+  merge_helper(input_, 0, (size / 2) - 1, size - 1);
   output_ = input_;
   return true;
 }
