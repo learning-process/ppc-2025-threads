@@ -260,10 +260,10 @@ bool vavilov_v_cannon_all::CannonALL::RunImpl() {
       }
     }
     mpi::scatter(world_, tmp_A.data(), local_A.data(), block_size_sq, 0);
-    mpi::bcast(world_, B_.data(), N_ * N_, 0);
+    mpi::broadcast(world_, B_.data(), N_ * N_, 0);
   } else {
     mpi::scatter(world_, local_A.data(), block_size_sq, 0);
-    mpi::bcast(world_, local_B.data(), N_ * N_, 0);
+    mpi::broadcast(world_, local_B.data(), N_ * N_, 0);
   }
 
   for (int i = 0; i < block_size_; ++i) {
