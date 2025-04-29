@@ -182,12 +182,7 @@ bool burykin_m_radix_stl::RadixSTL::RunImpl() {
 
     const auto index = ComputeIndices(count);
 
-    // Используем параллельное распределение только если размер данных достаточно велик
-    if (a.size() > min_parallel_size && num_threads > 1) {
-      DistributeElementsParallel(a, b, index, shift, num_threads);
-    } else {
-      DistributeElements(a, b, index, shift);
-    }
+    DistributeElementsParallel(a, b, index, shift, num_threads);
 
     a.swap(b);
   }
