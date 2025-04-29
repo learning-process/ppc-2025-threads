@@ -174,7 +174,8 @@ bool CannonALL::RunImpl() {
     reqs.push_back(world_.isend(dest_A, 0, local_A.data(), block_size_sq));
   }
   if (col_index != 0) {
-    int dest_B = (row_index < col_index) ? rank + (num_blocks_ - col_index) * num_blocks_ : rank - num_blocks_ * col_index;
+    int dest_B =
+        (row_index < col_index) ? rank + (num_blocks_ - col_index) * num_blocks_ : rank - num_blocks_ * col_index;
     reqs.push_back(world_.isend(dest_B, 1, local_B.data(), block_size_sq));
   }
   if (row_index != 0 && col_index != 0) {
