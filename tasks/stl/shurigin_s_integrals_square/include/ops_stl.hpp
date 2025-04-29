@@ -28,14 +28,14 @@ class Integral : public ppc::core::Task {
   int dimensions_;
   std::shared_ptr<ppc::core::TaskData> task_data_;
 
+  bool ComputeOneDimensionalStl();
+
   double ComputeParallelOuterLoop(const std::function<double(const std::vector<double>&)>& f,
                                   const std::vector<double>& a, const std::vector<double>& b, const std::vector<int>& n,
-                                  int dim, std::vector<double> initial_point);
+                                  int dim, const std::vector<double>& initial_point);
 
   double ComputeSequentialRecursive(const std::function<double(const std::vector<double>&)>& f,
                                     const std::vector<double>& a, const std::vector<double>& b,
                                     const std::vector<int>& n, int dim, std::vector<double>& point, int current_dim);
-
-  bool ComputeOneDimensionalStl();
 };
 }  // namespace shurigin_s_integrals_square_stl

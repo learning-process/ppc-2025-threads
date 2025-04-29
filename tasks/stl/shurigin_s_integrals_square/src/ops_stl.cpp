@@ -8,7 +8,6 @@
 #include <future>
 #include <iostream>
 #include <memory>
-#include <numeric>
 #include <stdexcept>
 #include <string>
 #include <thread>
@@ -62,9 +61,9 @@ bool Integral::PreProcessingImpl() {
     size_t num_input_doubles = task_data_->inputs_count[0] / sizeof(double);
 
     for (int i = 0; i < dimensions_; ++i) {
-      size_t count_index = static_cast<size_t>(i) + (2 * static_cast<size_t>(dimensions_));
-      size_t upper_limit_index = static_cast<size_t>(i) + static_cast<size_t>(dimensions_);
-      size_t lower_limit_index = static_cast<size_t>(i);
+      auto count_index = static_cast<size_t>(i) + (2 * static_cast<size_t>(dimensions_));
+      auto upper_limit_index = static_cast<size_t>(i) + static_cast<size_t>(dimensions_);
+      auto lower_limit_index = static_cast<size_t>(i);
 
       if (count_index >= num_input_doubles || upper_limit_index >= num_input_doubles ||
           lower_limit_index >= num_input_doubles) {
@@ -146,11 +145,12 @@ bool Integral::RunImpl() {
 
     if (dimensions_ == 1) {
       return ComputeOneDimensionalStl();
-    } else {
-      std::vector<double> initial_point(dimensions_);
-      result_ = ComputeParallelOuterLoop(func_, down_limits_, up_limits_, counts_, dimensions_, initial_point);
-      return true;
     }
+
+    std::vector<double> initial_point(dimensions_);
+    result_ = ComputeParallelOuterLoop(func_, down_limits_, up_limits_, counts_, dimensions_, initial_point);
+    return true;
+
   } catch (const std::exception& e) {
     std::cerr << "Error in RunImpl: " << e.what() << '\n';
     return false;
@@ -160,46 +160,54 @@ bool Integral::RunImpl() {
 bool Integral::ComputeOneDimensionalStl() {
   const double lower = down_limits_[0];
   const double upper = up_limits_[0];
-  const int num_intervals = counts_[0];
+  const int num_intervals_int = counts_[0];
 
-  if (num_intervals <= 0) {
+  if (num_intervals_int <= 0) {
     result_ = 0.0;
     return true;
   }
+  const size_t num_intervals = static_cast<size_t>(num_intervals_int);
 
-  const double step = (upper - lower) / num_intervals;
+  const double step = (upper - lower) / num_intervals_int;
   const double half_step = 0.5 * step;
   const double base = lower + half_step;
 
-  unsigned int num_workers = std::thread::hardware_concurrency();
-  if (num_workers == 0) {
-    num_workers = 1;
+  unsigned int num_workers_uint = std::thread::hardware_concurrency();
+  if (num_workers_uint == 0) {
+    num_workers_uint = 1;
   }
-  num_workers = std::min(num_workers, static_cast<unsigned int>(num_intervals));
+  const size_t num_workers = std::min(static_cast<size_t>(num_workers_uint), num_intervals);
+
+  if (num_workers == 0) {
+    result_ = 0.0;
+    return true;
+  }
 
   std::vector<std::thread> threads;
   threads.reserve(num_workers);
   std::vector<std::future<double>> futures;
   futures.reserve(num_workers);
 
-  int intervals_per_worker = num_intervals / num_workers;
-  int extra_intervals = num_intervals % num_workers;
-  int current_start_index = 0;
+  size_t intervals_per_worker = num_intervals / num_workers;
+  size_t extra_intervals = num_intervals % num_workers;
+  size_t current_start_index = 0;
 
-  auto worker_task = [this, base, step](int start_idx, int end_idx, std::promise<double> promise) {
+  auto worker_task = [this, base, step](size_t start_idx, size_t end_idx, std::promise<double> promise) {
     double local_sum = 0.0;
     std::vector<double> point(1);
-    for (int i = start_idx; i < end_idx; ++i) {
+    for (size_t i = start_idx; i < end_idx; ++i) {
       point[0] = base + static_cast<double>(i) * step;
       local_sum += func_(point);
     }
     promise.set_value(local_sum);
   };
 
-  for (unsigned int i = 0; i < num_workers; ++i) {
-    int count_for_this_worker = intervals_per_worker + (i < static_cast<unsigned int>(extra_intervals) ? 1 : 0);
-    if (count_for_this_worker == 0) continue;
-    int current_end_index = current_start_index + count_for_this_worker;
+  for (size_t i = 0; i < num_workers; ++i) {
+    size_t count_for_this_worker = intervals_per_worker + (i < extra_intervals ? 1 : 0);
+    if (count_for_this_worker == 0) {
+      continue;
+    }
+    size_t current_end_index = current_start_index + count_for_this_worker;
 
     std::promise<double> promise;
     futures.emplace_back(promise.get_future());
@@ -225,49 +233,57 @@ bool Integral::ComputeOneDimensionalStl() {
 
 double Integral::ComputeParallelOuterLoop(const std::function<double(const std::vector<double>&)>& f,
                                           const std::vector<double>& a, const std::vector<double>& b,
-                                          const std::vector<int>& n, int dim, std::vector<double> initial_point) {
+                                          const std::vector<int>& n, int dim,
+                                          const std::vector<double>& initial_point) {
   if (dim <= 1) {
     throw std::logic_error("ComputeParallelOuterLoop called with invalid dimension <= 1");
   }
 
-  const double step0 = (b[0] - a[0]) / n[0];
+  const int num_intervals_outer_int = n[0];
+  const double step0 = (b[0] - a[0]) / num_intervals_outer_int;
   const double base0 = a[0] + (0.5 * step0);
-  const int num_intervals_outer = n[0];
 
-  if (num_intervals_outer <= 0) {
+  if (num_intervals_outer_int <= 0) {
     return 0.0;
   }
+  const size_t num_intervals_outer = static_cast<size_t>(num_intervals_outer_int);
 
-  unsigned int num_workers = std::thread::hardware_concurrency();
-  if (num_workers == 0) {
-    num_workers = 1;
+  unsigned int num_workers_uint = std::thread::hardware_concurrency();
+  if (num_workers_uint == 0) {
+    num_workers_uint = 1;
   }
-  num_workers = std::min(num_workers, static_cast<unsigned int>(num_intervals_outer));
+  const size_t num_workers = std::min(static_cast<size_t>(num_workers_uint), num_intervals_outer);
+
+  if (num_workers == 0) {
+    return 0.0;
+  }
 
   std::vector<std::thread> threads;
   threads.reserve(num_workers);
   std::vector<std::future<double>> futures;
   futures.reserve(num_workers);
 
-  int intervals_per_worker = num_intervals_outer / num_workers;
-  int extra_intervals = num_intervals_outer % num_workers;
-  int current_start_index = 0;
+  size_t intervals_per_worker = num_intervals_outer / num_workers;
+  size_t extra_intervals = num_intervals_outer % num_workers;
+  size_t current_start_index = 0;
 
-  auto worker_task = [this, f, &a, &b, &n, dim, initial_point, base0, step0](int start_idx, int end_idx,
+  auto worker_task = [this, f, &a, &b, &n, dim, initial_point, base0, step0](size_t start_idx, size_t end_idx,
                                                                              std::promise<double> promise) {
     double local_sum = 0.0;
     std::vector<double> current_point = initial_point;
-    for (int i = start_idx; i < end_idx; ++i) {
+    for (size_t i = start_idx; i < end_idx; ++i) {
       current_point[0] = base0 + static_cast<double>(i) * step0;
       local_sum += ComputeSequentialRecursive(f, a, b, n, dim, current_point, 1);
     }
     promise.set_value(local_sum);
   };
 
-  for (unsigned int i = 0; i < num_workers; ++i) {
-    int count_for_this_worker = intervals_per_worker + (i < static_cast<unsigned int>(extra_intervals) ? 1 : 0);
-    if (count_for_this_worker == 0) continue;
-    int current_end_index = current_start_index + count_for_this_worker;
+  for (size_t i = 0; i < num_workers; ++i) {
+    size_t count_for_this_worker = intervals_per_worker + (i < extra_intervals ? 1 : 0);
+    if (count_for_this_worker == 0) {
+      continue;
+    }
+    size_t current_end_index = current_start_index + count_for_this_worker;
 
     std::promise<double> promise;
     futures.emplace_back(promise.get_future());
@@ -298,11 +314,16 @@ double Integral::ComputeSequentialRecursive(const std::function<double(const std
     return f(point);
   }
 
-  const double step = (b[current_dim] - a[current_dim]) / n[current_dim];
+  const int num_intervals_int = n[current_dim];
+  if (num_intervals_int <= 0) {
+    return 0.0;
+  }
+
+  const double step = (b[current_dim] - a[current_dim]) / num_intervals_int;
   const double base = a[current_dim] + (0.5 * step);
   double sum_over_dimension = 0.0;
 
-  for (int i = 0; i < n[current_dim]; ++i) {
+  for (int i = 0; i < num_intervals_int; ++i) {
     point[current_dim] = base + static_cast<double>(i) * step;
     sum_over_dimension += ComputeSequentialRecursive(f, a, b, n, dim, point, current_dim + 1);
   }
