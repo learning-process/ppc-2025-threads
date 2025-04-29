@@ -251,7 +251,6 @@ bool vavilov_v_cannon_all::CannonALL::RunImpl() {
 
   // Проверяем, участвует ли текущий процесс в вычислениях
   if (rank >= active_procs) {
-    // Процесс не участвует, просто завершаем
     return true;
   }
 
@@ -276,7 +275,23 @@ bool vavilov_v_cannon_all::CannonALL::RunImpl() {
   std::vector<double> local_B(block_size_sq);
   std::vector<double> local_C(block_size_sq, 0);
 
-  // Рассылка матриц A и B
+  if (active_procs == 1) {
+    if (rank == 0) {
+      for (int i = 0; i < block_size_; ++i) {
+        for (int j = 0; j < block_size_; ++j) {
+          local_A[i * block_size_ + j] = A_[i * N_ + j];
+          local_B[i * block_size_ + j] = B_[i * N_ + j];
+        }
+      }
+      BlockMultiply(local_A, local_B, local_C);
+      for (int i = 0; i < block_size_; ++i) {
+        for (int j = 0; j < block_size_; ++j) {
+          C_[i * N_ + j] = local_C[i * block_size_ + j];
+        }
+      }
+    }
+    return true;
+  }
   if (rank == 0) {
     std::vector<double> tmp_A(active_procs * block_size_sq);
     std::vector<double> tmp_B(active_procs * block_size_sq);
@@ -299,29 +314,22 @@ bool vavilov_v_cannon_all::CannonALL::RunImpl() {
     mpi::scatter(active_world, local_B.data(), block_size_sq, 0);
   }
 
-  // Начальная перестановка блоков
   int row_index = rank / num_blocks_;
   int col_index = rank % num_blocks_;
   std::vector<mpi::request> reqs;
 
-  if (row_index != 0) {
+  if (row_index != col_index) {
     int dest_A = row_index * num_blocks_ + (col_index + row_index) % num_blocks_;
     reqs.push_back(active_world.isend(dest_A, 0, local_A.data(), block_size_sq));
-    std::cout << "Rank " << rank << " sending A to " << dest_A << std::endl;
+    reqs.push_back(active_world.irecv((row_index + num_blocks_ - row_index) % num_blocks_, 0, local_A.data(), block_size_sq));
   }
-  if (col_index != 0) {
+
+  if (row_index != col_index) {
     int dest_B = ((row_index + col_index) % num_blocks_) * num_blocks_ + col_index;
     reqs.push_back(active_world.isend(dest_B, 1, local_B.data(), block_size_sq));
-    std::cout << "Rank " << rank << " sending B to " << dest_B << std::endl;
+    reqs.push_back(active_world.irecv((num_blocks_ - col_index) * num_blocks_ + col_index, 1, local_B.data(), block_size_sq));
   }
-  if (row_index != 0 && col_index != 0) {
-    reqs.push_back(active_world.irecv(mpi::any_source, 0, local_A.data(), block_size_sq));
-    reqs.push_back(active_world.irecv(mpi::any_source, 1, local_B.data(), block_size_sq));
-  } else if (row_index != 0) {
-    reqs.push_back(active_world.irecv(mpi::any_source, 0, local_A.data(), block_size_sq));
-  } else if (col_index != 0) {
-    reqs.push_back(active_world.irecv(mpi::any_source, 1, local_B.data(), block_size_sq));
-  }
+
   if (!reqs.empty()) {
     mpi::wait_all(reqs.begin(), reqs.end());
     reqs.clear();
@@ -330,18 +338,16 @@ bool vavilov_v_cannon_all::CannonALL::RunImpl() {
   active_world.barrier();
   BlockMultiply(local_A, local_B, local_C);
 
-  // Основной цикл Кэннона
   for (int iter = 0; iter < num_blocks_ - 1; ++iter) {
     int dest_A = row_index * num_blocks_ + (col_index == 0 ? num_blocks_ - 1 : col_index - 1);
+    int src_A = row_index * num_blocks_ + (col_index == num_blocks_ - 1 ? 0 : col_index + 1);
     reqs.push_back(active_world.isend(dest_A, 2, local_A.data(), block_size_sq));
-    std::cout << "Rank " << rank << " iter " << iter << " sending A to " << dest_A << std::endl;
+    reqs.push_back(active_world.irecv(src_A, 2, local_A.data(), block_size_sq));
 
     int dest_B = (row_index == 0 ? num_blocks_ - 1 : row_index - 1) * num_blocks_ + col_index;
+    int src_B = (row_index == num_blocks_ - 1 ? 0 : row_index + 1) * num_blocks_ + col_index;
     reqs.push_back(active_world.isend(dest_B, 3, local_B.data(), block_size_sq));
-    std::cout << "Rank " << rank << " iter " << iter << " sending B to " << dest_B << std::endl;
-
-    reqs.push_back(active_world.irecv(mpi::any_source, 2, local_A.data(), block_size_sq));
-    reqs.push_back(active_world.irecv(mpi::any_source, 3, local_B.data(), block_size_sq));
+    reqs.push_back(active_world.irecv(src_B, 3, local_B.data(), block_size_sq));
 
     mpi::wait_all(reqs.begin(), reqs.end());
     reqs.clear();
@@ -349,7 +355,6 @@ bool vavilov_v_cannon_all::CannonALL::RunImpl() {
     BlockMultiply(local_A, local_B, local_C);
   }
 
-  // Сбор результатов
   if (rank == 0) {
     std::vector<double> tmp_C(active_procs * block_size_sq);
     mpi::gather(active_world, local_C.data(), block_size_sq, tmp_C.data(), 0);
@@ -369,7 +374,6 @@ bool vavilov_v_cannon_all::CannonALL::RunImpl() {
 
   return true;
 }
-
 bool vavilov_v_cannon_all::CannonALL::PostProcessingImpl() {
   if (world_.rank() == 0) {
     std::ranges::copy(C_, reinterpret_cast<double*>(task_data->outputs[0]));
