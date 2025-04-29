@@ -8,7 +8,7 @@
 #include <vector>
 
 #include "core/task/include/task.hpp"
-#include "omp/yasakova_t_sparse_matrix_multiplication_omp/include/ops_omp.hpp"
+#include "omp/yasakova_t_sparse_matrix_multiplication/include/ops_omp.hpp"
 
 namespace {
 MatrixStructure GenerateRandomMatrix(uint32_t num_rows, uint32_t num_cols, double non_zero_percentage) {
