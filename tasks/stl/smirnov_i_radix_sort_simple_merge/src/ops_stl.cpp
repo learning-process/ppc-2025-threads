@@ -132,14 +132,13 @@ bool smirnov_i_radix_sort_simple_merge_stl::TestTaskSTL::RunImpl() {
   }
   bool flag = static_cast<int>(firstdq.size()) != 1;
   std::vector<std::thread> threads{};
-  int pairs = max_th;
   while (flag) {
-    pairs = (static_cast<int>(firstdq.size()) + 1) / 2;
+    int pairs = (static_cast<int>(firstdq.size()) + 1) / 2;
     threads.clear();
     threads.reserve(pairs);
     for (int i = 0; i < pairs; i++) {
-      threads.push_back(std::thread(&smirnov_i_radix_sort_simple_merge_stl::TestTaskSTL::Merging, std::ref(firstdq),
-                                    std::ref(seconddq), std::ref(mtx)));
+      threads.emplace_back(std::thread(&smirnov_i_radix_sort_simple_merge_stl::TestTaskSTL::Merging, std::ref(firstdq),
+                                       std::ref(seconddq), std::ref(mtx)));
     }
     for (auto &th : threads) {
       th.join();
