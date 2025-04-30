@@ -14,7 +14,6 @@
 #include "all/varfolomeev_g_histogram_linear_stretching/include/ops_all.hpp"
 #include "core/task/include/task.hpp"
 
-
 namespace {
 std::vector<uint8_t> GetRandomImage(int sz) {
   std::random_device dev;

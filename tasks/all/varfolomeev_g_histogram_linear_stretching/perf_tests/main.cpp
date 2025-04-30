@@ -13,7 +13,6 @@
 #include "core/perf/include/perf.hpp"
 #include "core/task/include/task.hpp"
 
-
 namespace {
 std::vector<uint8_t> GetRandomImage(int sz) {
   std::random_device dev;
