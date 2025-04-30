@@ -48,8 +48,8 @@ void ConvexHullSTL::BFS(const int* input_data, int width, int height, int start_
   const size_t start_idx = (static_cast<size_t>(start_y) * width) + start_x;
   visited[start_idx] = true;
 
-  constexpr int dx[] = {-1, 1, 0, 0};
-  constexpr int dy[] = {0, 0, -1, 1};
+  constexpr int kDx[] = {-1, 1, 0, 0};
+  constexpr int kDy[] = {0, 0, -1, 1};
 
   while (!queue.empty()) {
     Point p = queue.front();
@@ -57,8 +57,8 @@ void ConvexHullSTL::BFS(const int* input_data, int width, int height, int start_
     component.push_back(p);
 
     for (int i = 0; i < 4; ++i) {
-      int nx = p.x + dx[i];
-      int ny = p.y + dy[i];
+      int nx = p.x + kDx[i];
+      int ny = p.y + kDy[i];
       if (nx >= 0 && nx < width && ny >= 0 && ny < height) {
         const size_t nidx = (static_cast<size_t>(ny) * width) + nx;
         if (!visited[nidx] && input_data[nidx] != 0) {
@@ -85,7 +85,8 @@ std::vector<Point> ConvexHullSTL::FindConvexHull(const std::vector<Point>& point
   }
 
   std::vector<Point> sorted_points(points);
-  std::sort(sorted_points.begin(), sorted_points.end());
+  std::ranges::sort(sorted_points,
+                    [](const Point& a, const Point& b) { return a.x < b.x || (a.x == b.x && a.y < b.y); });
 
   std::vector<Point> hull;
   hull.reserve(sorted_points.size() * 2);
