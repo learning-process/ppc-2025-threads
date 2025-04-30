@@ -84,7 +84,7 @@ bool shulpin_i_jarvis_stl::JarvisSequential::PostProcessingImpl() {
 #ifdef __linux__
 void shulpin_i_jarvis_stl::JarvisSTLParallel::MakeJarvisPassageSTL(
     std::vector<shulpin_i_jarvis_stl::Point>& input_jar,
-    std::vector<shulpin_i_jarvis_stl::Point>& output_jar) {  // NOLINT(linux-version-function-cognitive-complexity)
+    std::vector<shulpin_i_jarvis_stl::Point>& output_jar) {  // NOLINT(readability-function-cognitive-complexity)
   output_jar.clear();
 
   std::unordered_set<Point, PointHash, PointEqual> unique_points;
