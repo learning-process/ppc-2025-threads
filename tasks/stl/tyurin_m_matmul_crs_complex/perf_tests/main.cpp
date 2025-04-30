@@ -13,9 +13,9 @@
 #include "stl/tyurin_m_matmul_crs_complex/include/ops_stl.hpp"
 
 namespace {
-Matrix RandMatrix(uint32_t rows, uint32_t cols, double percentage) {  // NOLINT(bugprone-easily-swappable-parameters)
+Matrix RandMatrix(uint32_t rows, uint32_t cols, double percentage) {
   std::mt19937 gen(std::random_device{}());
-  std::uniform_real_distribution<double> distr(-100, 100);
+  std::uniform_real_distribution<double> distr(-10000, 10000);
   Matrix res{.rows = rows, .cols = cols, .data = std::vector<std::complex<double>>(rows * cols)};
   std::ranges::generate(res.data, [&]() {
     const auto el = distr(gen);
@@ -66,6 +66,8 @@ TEST(tyurin_m_matmul_crs_complex_stl, test_pipeline_run) {
   auto perf_analyzer = std::make_shared<ppc::core::Perf>(task);
   perf_analyzer->PipelineRun(perf_attr, perf_results);
   ppc::core::Perf::PrintPerfStatistic(perf_results);
+
+  EXPECT_EQ(CRSToRegular(crs_out), MultiplyMat(lhs, rhs));
 }
 
 TEST(tyurin_m_matmul_crs_complex_stl, test_task_run) {
@@ -101,4 +103,6 @@ TEST(tyurin_m_matmul_crs_complex_stl, test_task_run) {
   auto perf_analyzer = std::make_shared<ppc::core::Perf>(task);
   perf_analyzer->TaskRun(perf_attr, perf_results);
   ppc::core::Perf::PrintPerfStatistic(perf_results);
+
+  EXPECT_EQ(CRSToRegular(crs_out), MultiplyMat(lhs, rhs));
 }

@@ -8,26 +8,8 @@
 #include <vector>
 
 #include "core/task/include/task.hpp"
-namespace utils {
-template <class InputIt, class Delimiter = char>
-void Iprint(std::ostream& os, InputIt first, InputIt last, Delimiter delimiter = ' ') {
-  if (last == first) {
-    return;
-  }
-  auto range = std::ranges::subrange{first, last};
-  for (const auto& e : range | std::views::take(last - first - 1)) {
-    os << e << delimiter;
-  }
-  os << range.back();
-}
-}  // namespace utils
+
 struct Matrix {
-  friend std::ostream& operator<<(std::ostream& os, const Matrix& m) {
-    os << "M(" << m.rows << "," << m.cols << "): [";
-    utils::Iprint(os, m.data.begin(), m.data.end());
-    os << ']';
-    return os;
-  }
   uint32_t rows;
   uint32_t cols;
   std::vector<std::complex<double>> data;
