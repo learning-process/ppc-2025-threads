@@ -5,7 +5,19 @@
 
 namespace shuravina_o_hoare_simple_merger_stl {
 
-bool TestTaskSTL::PreProcessing() {
+TestTaskSTL::TestTaskSTL(std::shared_ptr<ppc::core::TaskData> task_data) : Task(std::move(task_data)) {}
+
+bool TestTaskSTL::Validation() { return ValidationImpl(); }
+bool TestTaskSTL::PreProcessing() { return PreProcessingImpl(); }
+bool TestTaskSTL::Run() { return RunImpl(); }
+bool TestTaskSTL::PostProcessing() { return PostProcessingImpl(); }
+
+bool TestTaskSTL::ValidationImpl() {
+  return !task_data->inputs.empty() && !task_data->outputs.empty() &&
+         task_data->inputs_count[0] == task_data->outputs_count[0];
+}
+
+bool TestTaskSTL::PreProcessingImpl() {
   if (task_data->inputs.empty() || task_data->outputs.empty()) {
     return false;
   }
@@ -13,11 +25,6 @@ bool TestTaskSTL::PreProcessing() {
   input_ = std::vector<int>(in_ptr, in_ptr + task_data->inputs_count[0]);
   output_ = std::vector<int>(task_data->outputs_count[0], 0);
   return true;
-}
-
-bool TestTaskSTL::Validation() {
-  return !task_data->inputs.empty() && !task_data->outputs.empty() &&
-         task_data->inputs_count[0] == task_data->outputs_count[0];
 }
 
 void TestTaskSTL::QuickSort(std::vector<int>& arr, int left, int right) {
@@ -66,7 +73,7 @@ void TestTaskSTL::MergeHelper(std::vector<int>& arr, int left, int mid, int righ
   std::ranges::copy(temp, arr.begin() + left);
 }
 
-bool TestTaskSTL::Run() {
+bool TestTaskSTL::RunImpl() {
   if (input_.empty()) {
     output_ = input_;
     return true;
@@ -79,7 +86,7 @@ bool TestTaskSTL::Run() {
   return true;
 }
 
-bool TestTaskSTL::PostProcessing() {
+bool TestTaskSTL::PostProcessingImpl() {
   if (output_.empty()) {
     return true;
   }
