@@ -83,8 +83,7 @@ TEST(zinoviev_a_convex_hull_components_stl, SinglePixel) {
   constexpr int kHeight = 5;
   std::vector<int> input(25, 0);
   input[12] = 1;
-  const std::vector<zinoviev_a_convex_hull_components_stl::Point> expected{
-      {.x = 2, .y = 2}};
+  const std::vector<zinoviev_a_convex_hull_components_stl::Point> expected{{.x = 2, .y = 2}};
   RunAndValidate(input, expected, kWidth, kHeight);
 }
 
@@ -101,7 +100,7 @@ TEST(zinoviev_a_convex_hull_components_stl, CrossShapeTest) {
   constexpr int kHeight = 5;
   const std::vector<int> input = {0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 1, 1, 1, 1, 1, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0};
   const std::vector<zinoviev_a_convex_hull_components_stl::Point> expected{
-      {.x = 0, .y = 2}, {.x = 4, .y = 2}, {.x = 2, .y = 0}, {.x = 2,.y = 4}};
+      {.x = 0, .y = 2}, {.x = 4, .y = 2}, {.x = 2, .y = 0}, {.x = 2, .y = 4}};
   RunAndValidate(input, expected, kWidth, kHeight);
 }
 
