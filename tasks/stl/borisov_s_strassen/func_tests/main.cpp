@@ -40,7 +40,7 @@ std::vector<double> GenerateRandomMatrix(int rows, int cols, int seed, double mi
 
 }  // namespace
 
-TEST(borisov_s_strassen_seq, OneByOne) {
+TEST(borisov_s_strassen_stl, OneByOne) {
   std::vector<double> in_data = {1.0, 1.0, 1.0, 1.0, 7.5, 2.5};
 
   std::size_t output_count = 3;
@@ -53,7 +53,7 @@ TEST(borisov_s_strassen_seq, OneByOne) {
   task_data->outputs.push_back(reinterpret_cast<uint8_t*>(out_ptr));
   task_data->outputs_count.push_back(output_count);
 
-  borisov_s_strassen_stl::SequentialStrassenStl task(task_data);
+  borisov_s_strassen_stl::ParallelStrassenStl task(task_data);
 
   task.PreProcessingImpl();
   EXPECT_TRUE(task.ValidationImpl());
@@ -67,7 +67,7 @@ TEST(borisov_s_strassen_seq, OneByOne) {
   delete[] out_ptr;
 }
 
-TEST(borisov_s_strassen_seq, TwoByTwo) {
+TEST(borisov_s_strassen_stl, TwoByTwo) {
   std::vector<double> a = {1.0, 2.5, 3.0, 4.0};
   std::vector<double> b = {1.5, 2.0, 0.5, 3.5};
   std::vector<double> c_expected = {2.75, 10.75, 6.5, 20.0};
@@ -86,7 +86,7 @@ TEST(borisov_s_strassen_seq, TwoByTwo) {
   task_data->outputs.push_back(reinterpret_cast<uint8_t*>(out_ptr));
   task_data->outputs_count.push_back(output_count);
 
-  borisov_s_strassen_stl::SequentialStrassenStl task(task_data);
+  borisov_s_strassen_stl::ParallelStrassenStl task(task_data);
 
   task.PreProcessingImpl();
   EXPECT_TRUE(task.ValidationImpl());
@@ -102,7 +102,7 @@ TEST(borisov_s_strassen_seq, TwoByTwo) {
   delete[] out_ptr;
 }
 
-TEST(borisov_s_strassen_seq, Rectangular2x3_3x4) {
+TEST(borisov_s_strassen_stl, Rectangular2x3_3x4) {
   std::vector<double> a = {1.0, 2.5, 3.0, 4.0, 5.5, 6.0};
   std::vector<double> b = {0.5, 1.0, 2.0, 1.5, 2.0, 0.5, 1.0, 3.0, 4.0, 2.5, 0.5, 1.0};
 
@@ -122,7 +122,7 @@ TEST(borisov_s_strassen_seq, Rectangular2x3_3x4) {
   task_data->outputs.push_back(reinterpret_cast<uint8_t*>(out_ptr));
   task_data->outputs_count.push_back(output_count);
 
-  borisov_s_strassen_stl::SequentialStrassenStl task(task_data);
+  borisov_s_strassen_stl::ParallelStrassenStl task(task_data);
 
   task.PreProcessingImpl();
   EXPECT_TRUE(task.ValidationImpl());
@@ -145,7 +145,7 @@ TEST(borisov_s_strassen_seq, Rectangular2x3_3x4) {
   delete[] out_ptr;
 }
 
-TEST(borisov_s_strassen_seq, Square5x5_Random) {
+TEST(borisov_s_strassen_stl, Square5x5_Random) {
   const int n = 5;
 
   std::vector<double> a = GenerateRandomMatrix(n, n, 7777);
@@ -168,7 +168,7 @@ TEST(borisov_s_strassen_seq, Square5x5_Random) {
   task_data->outputs.push_back(reinterpret_cast<uint8_t*>(out_ptr));
   task_data->outputs_count.push_back(output_count);
 
-  borisov_s_strassen_stl::SequentialStrassenStl task(task_data);
+  borisov_s_strassen_stl::ParallelStrassenStl task(task_data);
 
   task.PreProcessingImpl();
   EXPECT_TRUE(task.ValidationImpl());
@@ -191,7 +191,7 @@ TEST(borisov_s_strassen_seq, Square5x5_Random) {
   delete[] out_ptr;
 }
 
-TEST(borisov_s_strassen_seq, Square20x20_Random) {
+TEST(borisov_s_strassen_stl, Square20x20_Random) {
   const int n = 20;
 
   std::vector<double> a = GenerateRandomMatrix(n, n, 7777);
@@ -214,7 +214,7 @@ TEST(borisov_s_strassen_seq, Square20x20_Random) {
   task_data->outputs.push_back(reinterpret_cast<uint8_t*>(out_ptr));
   task_data->outputs_count.push_back(output_count);
 
-  borisov_s_strassen_stl::SequentialStrassenStl task(task_data);
+  borisov_s_strassen_stl::ParallelStrassenStl task(task_data);
 
   task.PreProcessingImpl();
   EXPECT_TRUE(task.ValidationImpl());
@@ -237,7 +237,7 @@ TEST(borisov_s_strassen_seq, Square20x20_Random) {
   delete[] out_ptr;
 }
 
-TEST(borisov_s_strassen_seq, Square32x32_Random) {
+TEST(borisov_s_strassen_stl, Square32x32_Random) {
   const int n = 32;
 
   std::vector<double> a = GenerateRandomMatrix(n, n, 7777);
@@ -260,7 +260,7 @@ TEST(borisov_s_strassen_seq, Square32x32_Random) {
   task_data->outputs.push_back(reinterpret_cast<uint8_t*>(out_ptr));
   task_data->outputs_count.push_back(output_count);
 
-  borisov_s_strassen_stl::SequentialStrassenStl task(task_data);
+  borisov_s_strassen_stl::ParallelStrassenStl task(task_data);
 
   task.PreProcessingImpl();
   EXPECT_TRUE(task.ValidationImpl());
@@ -283,7 +283,7 @@ TEST(borisov_s_strassen_seq, Square32x32_Random) {
   delete[] out_ptr;
 }
 
-TEST(borisov_s_strassen_seq, Square128x128_Random) {
+TEST(borisov_s_strassen_stl, Square128x128_Random) {
   const int n = 128;
 
   std::vector<double> a = GenerateRandomMatrix(n, n, 7777);
@@ -306,7 +306,7 @@ TEST(borisov_s_strassen_seq, Square128x128_Random) {
   task_data->outputs.push_back(reinterpret_cast<uint8_t*>(out_ptr));
   task_data->outputs_count.push_back(output_count);
 
-  borisov_s_strassen_stl::SequentialStrassenStl task(task_data);
+  borisov_s_strassen_stl::ParallelStrassenStl task(task_data);
 
   task.PreProcessingImpl();
   EXPECT_TRUE(task.ValidationImpl());
@@ -329,7 +329,7 @@ TEST(borisov_s_strassen_seq, Square128x128_Random) {
   delete[] out_ptr;
 }
 
-TEST(borisov_s_strassen_seq, Square128x128_IdentityMatrix) {
+TEST(borisov_s_strassen_stl, Square128x128_IdentityMatrix) {
   const int n = 128;
 
   std::vector<double> a = GenerateRandomMatrix(n, n, 7777);
@@ -354,7 +354,7 @@ TEST(borisov_s_strassen_seq, Square128x128_IdentityMatrix) {
   task_data->outputs.push_back(reinterpret_cast<uint8_t*>(out_ptr));
   task_data->outputs_count.push_back(output_count);
 
-  borisov_s_strassen_stl::SequentialStrassenStl task(task_data);
+  borisov_s_strassen_stl::ParallelStrassenStl task(task_data);
 
   task.PreProcessingImpl();
   EXPECT_TRUE(task.ValidationImpl());
@@ -377,7 +377,7 @@ TEST(borisov_s_strassen_seq, Square128x128_IdentityMatrix) {
   delete[] out_ptr;
 }
 
-TEST(borisov_s_strassen_seq, Square129x129_Random) {
+TEST(borisov_s_strassen_stl, Square129x129_Random) {
   const int n = 129;
 
   std::vector<double> a = GenerateRandomMatrix(n, n, 7777);
@@ -400,7 +400,7 @@ TEST(borisov_s_strassen_seq, Square129x129_Random) {
   task_data->outputs.push_back(reinterpret_cast<uint8_t*>(out_ptr));
   task_data->outputs_count.push_back(output_count);
 
-  borisov_s_strassen_stl::SequentialStrassenStl task(task_data);
+  borisov_s_strassen_stl::ParallelStrassenStl task(task_data);
 
   task.PreProcessingImpl();
   EXPECT_TRUE(task.ValidationImpl());
@@ -423,7 +423,7 @@ TEST(borisov_s_strassen_seq, Square129x129_Random) {
   delete[] out_ptr;
 }
 
-TEST(borisov_s_strassen_seq, Square240x240_Random) {
+TEST(borisov_s_strassen_stl, Square240x240_Random) {
   const int n = 240;
 
   std::vector<double> a = GenerateRandomMatrix(n, n, 7777);
@@ -446,7 +446,7 @@ TEST(borisov_s_strassen_seq, Square240x240_Random) {
   task_data->outputs.push_back(reinterpret_cast<uint8_t*>(out_ptr));
   task_data->outputs_count.push_back(output_count);
 
-  borisov_s_strassen_stl::SequentialStrassenStl task(task_data);
+  borisov_s_strassen_stl::ParallelStrassenStl task(task_data);
 
   task.PreProcessingImpl();
   EXPECT_TRUE(task.ValidationImpl());
@@ -469,7 +469,99 @@ TEST(borisov_s_strassen_seq, Square240x240_Random) {
   delete[] out_ptr;
 }
 
-TEST(borisov_s_strassen_seq, ValidCase) {
+TEST(borisov_s_strassen_stl, Square512x512_Random) {
+  const int n = 512;
+
+  std::vector<double> a = GenerateRandomMatrix(n, n, 7777);
+  std::vector<double> b = GenerateRandomMatrix(n, n, 7777);
+
+  auto c_expected = MultiplyNaiveDouble(a, b, n, n, n);
+
+  std::vector<double> in_data = {static_cast<double>(n), static_cast<double>(n), static_cast<double>(n),
+                                 static_cast<double>(n)};
+  in_data.insert(in_data.end(), a.begin(), a.end());
+  in_data.insert(in_data.end(), b.begin(), b.end());
+
+  std::size_t output_count = 2 + (n * n);
+
+  auto task_data = std::make_shared<ppc::core::TaskData>();
+  task_data->inputs.push_back(reinterpret_cast<uint8_t*>(in_data.data()));
+  task_data->inputs_count.push_back(in_data.size());
+
+  auto* out_ptr = new double[output_count]();
+  task_data->outputs.push_back(reinterpret_cast<uint8_t*>(out_ptr));
+  task_data->outputs_count.push_back(output_count);
+
+  borisov_s_strassen_stl::ParallelStrassenStl task(task_data);
+
+  task.PreProcessingImpl();
+  EXPECT_TRUE(task.ValidationImpl());
+  task.RunImpl();
+  task.PostProcessingImpl();
+
+  EXPECT_DOUBLE_EQ(out_ptr[0], static_cast<double>(n));
+  EXPECT_DOUBLE_EQ(out_ptr[1], static_cast<double>(n));
+
+  std::vector<double> c_result(n * n);
+  for (int i = 0; i < n * n; ++i) {
+    c_result[i] = out_ptr[2 + i];
+  }
+
+  ASSERT_EQ(c_expected.size(), c_result.size());
+  for (std::size_t i = 0; i < c_expected.size(); ++i) {
+    EXPECT_NEAR(c_expected[i], c_result[i], 1e-9);
+  }
+
+  delete[] out_ptr;
+}
+
+TEST(borisov_s_strassen_stl, Square600x600_Random) {
+  const int n = 600;
+
+  std::vector<double> a = GenerateRandomMatrix(n, n, 7777);
+  std::vector<double> b = GenerateRandomMatrix(n, n, 7777);
+
+  auto c_expected = MultiplyNaiveDouble(a, b, n, n, n);
+
+  std::vector<double> in_data = {static_cast<double>(n), static_cast<double>(n), static_cast<double>(n),
+                                 static_cast<double>(n)};
+  in_data.insert(in_data.end(), a.begin(), a.end());
+  in_data.insert(in_data.end(), b.begin(), b.end());
+
+  std::size_t output_count = 2 + (n * n);
+
+  auto task_data = std::make_shared<ppc::core::TaskData>();
+  task_data->inputs.push_back(reinterpret_cast<uint8_t*>(in_data.data()));
+  task_data->inputs_count.push_back(in_data.size());
+
+  auto* out_ptr = new double[output_count]();
+  task_data->outputs.push_back(reinterpret_cast<uint8_t*>(out_ptr));
+  task_data->outputs_count.push_back(output_count);
+
+  borisov_s_strassen_stl::ParallelStrassenStl task(task_data);
+
+  task.PreProcessingImpl();
+  EXPECT_TRUE(task.ValidationImpl());
+  task.RunImpl();
+  task.PostProcessingImpl();
+
+  EXPECT_DOUBLE_EQ(out_ptr[0], static_cast<double>(n));
+  EXPECT_DOUBLE_EQ(out_ptr[1], static_cast<double>(n));
+
+  std::vector<double> c_result(n * n);
+  for (int i = 0; i < n * n; ++i) {
+    c_result[i] = out_ptr[2 + i];
+  }
+
+  ASSERT_EQ(c_expected.size(), c_result.size());
+  for (std::size_t i = 0; i < c_expected.size(); ++i) {
+    EXPECT_NEAR(c_expected[i], c_result[i], 1e-9);
+  }
+
+  delete[] out_ptr;
+}
+
+TEST(borisov_s_strassen_stl, ValidCase) {
   std::vector<double> input_data = {2.0, 3.0, 3.0, 2.0};
   input_data.insert(input_data.end(), {1.0, 2.0, 3.0, 4.0, 5.0, 6.0});
   input_data.insert(input_data.end(), {7.0, 8.0, 9.0, 10.0, 11.0, 12.0});
@@ -481,14 +573,14 @@ TEST(borisov_s_strassen_seq, ValidCase) {
   task_data->outputs.push_back(nullptr);
   task_data->outputs_count.push_back(0);
 
-  borisov_s_strassen_stl::SequentialStrassenStl task(task_data);
+  borisov_s_strassen_stl::ParallelStrassenStl task(task_data);
 
   task.PreProcessingImpl();
 
   EXPECT_TRUE(task.ValidationImpl());
 }
 
-TEST(borisov_s_strassen_seq, MismatchCase) {
+TEST(borisov_s_strassen_stl, MismatchCase) {
   std::vector<double> input_data = {
       2.0,
       2.0,
@@ -505,13 +597,13 @@ TEST(borisov_s_strassen_seq, MismatchCase) {
   task_data->outputs.push_back(nullptr);
   task_data->outputs_count.push_back(0);
 
-  borisov_s_strassen_stl::SequentialStrassenStl task(task_data);
+  borisov_s_strassen_stl::ParallelStrassenStl task(task_data);
 
   task.PreProcessingImpl();
   EXPECT_FALSE(task.ValidationImpl());
 }
 
-TEST(borisov_s_strassen_seq, NotEnoughDataCase) {
+TEST(borisov_s_strassen_stl, NotEnoughDataCase) {
   std::vector<double> input_data = {2.0, 2.0, 2.0, 2.0};
   input_data.insert(input_data.end(), {1.0, 2.0, 3.0, 4.0, 5.0, 6.0});
 
@@ -522,14 +614,14 @@ TEST(borisov_s_strassen_seq, NotEnoughDataCase) {
   task_data->outputs.push_back(nullptr);
   task_data->outputs_count.push_back(0);
 
-  borisov_s_strassen_stl::SequentialStrassenStl task(task_data);
+  borisov_s_strassen_stl::ParallelStrassenStl task(task_data);
 
   task.PreProcessingImpl();
 
   EXPECT_FALSE(task.ValidationImpl());
 }
 
-TEST(borisov_s_strassen_seq, Rectangular16x17_Random) {
+TEST(borisov_s_strassen_stl, Rectangular16x17_Random) {
   const int rows_a = 16;
   const int cols_a = 17;
   const int cols_b = 18;
@@ -554,7 +646,7 @@ TEST(borisov_s_strassen_seq, Rectangular16x17_Random) {
   task_data->outputs.push_back(reinterpret_cast<uint8_t*>(out_ptr));
   task_data->outputs_count.push_back(output_count);
 
-  borisov_s_strassen_stl::SequentialStrassenStl task(task_data);
+  borisov_s_strassen_stl::ParallelStrassenStl task(task_data);
 
   task.PreProcessingImpl();
   EXPECT_TRUE(task.ValidationImpl());
@@ -577,7 +669,7 @@ TEST(borisov_s_strassen_seq, Rectangular16x17_Random) {
   delete[] out_ptr;
 }
 
-TEST(borisov_s_strassen_seq, Rectangular19x23_Random) {
+TEST(borisov_s_strassen_stl, Rectangular19x23_Random) {
   const int rows_a = 19;
   const int cols_a = 23;
   const int cols_b = 21;
@@ -602,7 +694,7 @@ TEST(borisov_s_strassen_seq, Rectangular19x23_Random) {
   task_data->outputs.push_back(reinterpret_cast<uint8_t*>(out_ptr));
   task_data->outputs_count.push_back(output_count);
 
-  borisov_s_strassen_stl::SequentialStrassenStl task(task_data);
+  borisov_s_strassen_stl::ParallelStrassenStl task(task_data);
 
   task.PreProcessingImpl();
   EXPECT_TRUE(task.ValidationImpl());
@@ -625,7 +717,7 @@ TEST(borisov_s_strassen_seq, Rectangular19x23_Random) {
   delete[] out_ptr;
 }
 
-TEST(borisov_s_strassen_seq, Rectangular32x64_Random) {
+TEST(borisov_s_strassen_stl, Rectangular32x64_Random) {
   const int rows_a = 32;
   const int cols_a = 64;
   const int cols_b = 32;
@@ -650,7 +742,7 @@ TEST(borisov_s_strassen_seq, Rectangular32x64_Random) {
   task_data->outputs.push_back(reinterpret_cast<uint8_t*>(out_ptr));
   task_data->outputs_count.push_back(output_count);
 
-  borisov_s_strassen_stl::SequentialStrassenStl task(task_data);
+  borisov_s_strassen_stl::ParallelStrassenStl task(task_data);
 
   task.PreProcessingImpl();
   EXPECT_TRUE(task.ValidationImpl());

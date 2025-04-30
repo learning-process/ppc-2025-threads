@@ -7,9 +7,9 @@
 
 namespace borisov_s_strassen_stl {
 
-class SequentialStrassenStl : public ppc::core::Task {
+class ParallelStrassenStl : public ppc::core::Task {
  public:
-  explicit SequentialStrassenStl(ppc::core::TaskDataPtr task_data) : Task(std::move(task_data)) {}
+  explicit ParallelStrassenStl(ppc::core::TaskDataPtr task_data) : Task(std::move(task_data)) {}
 
   bool PreProcessingImpl() override;
   bool ValidationImpl() override;

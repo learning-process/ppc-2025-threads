@@ -26,7 +26,7 @@ std::vector<double> MultiplyNaive(const std::vector<double> &a, const std::vecto
 std::vector<double> AddMatr(const std::vector<double> &a, const std::vector<double> &b, int n) {
   std::vector<double> c(n * n);
   const int size = n * n;
-  const int thread_threshold = 512 * 512;
+  const int thread_threshold = 256 * 256;
 
   if (size < thread_threshold) {
     for (int i = 0; i < size; ++i) {
@@ -98,18 +98,14 @@ std::vector<double> SubMatr(const std::vector<double> &a, const std::vector<doub
 std::vector<double> SubMatrix(const std::vector<double> &m, int n, int row, int col, int size) {
   std::vector<double> sub(size * size);
   for (int i = 0; i < size; ++i) {
-    for (int j = 0; j < size; ++j) {
-      sub[(i * size) + j] = m[((row + i) * n) + (col + j)];
-    }
+    std::copy(m.begin() + (row + i) * n + col, m.begin() + (row + i) * n + col + size, sub.begin() + i * size);
   }
   return sub;
 }
 
 void SetSubMatrix(std::vector<double> &m, const std::vector<double> &sub, int n, int row, int col, int size) {
   for (int i = 0; i < size; ++i) {
-    for (int j = 0; j < size; ++j) {
-      m[((row + i) * n) + (col + j)] = sub[(i * size) + j];
-    }
+    std::copy(sub.begin() + i * size, sub.begin() + (i + 1) * size, m.begin() + (row + i) * n + col);
   }
 }
 
@@ -190,7 +186,7 @@ int NextPowerOfTwo(int n) {
 
 }  // namespace
 
-bool SequentialStrassenStl::PreProcessingImpl() {
+bool ParallelStrassenStl::PreProcessingImpl() {
   size_t input_count = task_data->inputs_count[0];
   auto *double_ptr = reinterpret_cast<double *>(task_data->inputs[0]);
   input_.assign(double_ptr, double_ptr + input_count);
@@ -210,7 +206,7 @@ bool SequentialStrassenStl::PreProcessingImpl() {
   return true;
 }
 
-bool SequentialStrassenStl::ValidationImpl() {
+bool ParallelStrassenStl::ValidationImpl() {
   if (colsA_ != rowsB_) {
     return false;
   }
@@ -220,7 +216,7 @@ bool SequentialStrassenStl::ValidationImpl() {
   return input_.size() >= needed;
 }
 
-bool SequentialStrassenStl::RunImpl() {
+bool ParallelStrassenStl::RunImpl() {
   size_t offset = 4;
   std::vector<double> a(rowsA_ * colsA_);
   for (int i = 0; i < rowsA_ * colsA_; ++i) {
@@ -268,7 +264,7 @@ bool SequentialStrassenStl::RunImpl() {
   return true;
 }
 
-bool SequentialStrassenStl::PostProcessingImpl() {
+bool ParallelStrassenStl::PostProcessingImpl() {
   auto *out_ptr = reinterpret_cast<double *>(task_data->outputs[0]);
   for (size_t i = 0; i < output_.size(); ++i) {
     out_ptr[i] = output_[i];

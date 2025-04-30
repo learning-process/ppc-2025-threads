@@ -25,7 +25,7 @@ void GenerateRandomMatrix(int rows, int cols, std::vector<double>& matrix) {
 
 }  // namespace
 
-TEST(borisov_s_strassen_perf_seq, test_pipeline_run) {
+TEST(borisov_s_strassen_perf_stl, test_pipeline_run) {
   constexpr int kRowsA = 1024;
   constexpr int kColsA = 512;
   constexpr int kRowsB = 512;
@@ -44,13 +44,13 @@ TEST(borisov_s_strassen_perf_seq, test_pipeline_run) {
   size_t output_count = 2 + (kRowsA * kColsB);
   std::vector<double> out(output_count, 0.0);
 
-  auto task_data_seq = std::make_shared<ppc::core::TaskData>();
-  task_data_seq->inputs.emplace_back(reinterpret_cast<uint8_t*>(in_data.data()));
-  task_data_seq->inputs_count.emplace_back(in_data.size());
-  task_data_seq->outputs.emplace_back(reinterpret_cast<uint8_t*>(out.data()));
-  task_data_seq->outputs_count.emplace_back(out.size());
+  auto task_data_stl = std::make_shared<ppc::core::TaskData>();
+  task_data_stl->inputs.emplace_back(reinterpret_cast<uint8_t*>(in_data.data()));
+  task_data_stl->inputs_count.emplace_back(in_data.size());
+  task_data_stl->outputs.emplace_back(reinterpret_cast<uint8_t*>(out.data()));
+  task_data_stl->outputs_count.emplace_back(out.size());
 
-  auto test_task_sequential = std::make_shared<borisov_s_strassen_stl::SequentialStrassenStl>(task_data_seq);
+  auto test_task_parallel = std::make_shared<borisov_s_strassen_stl::ParallelStrassenStl>(task_data_stl);
 
   auto perf_attr = std::make_shared<ppc::core::PerfAttr>();
   perf_attr->num_running = 10;
@@ -63,12 +63,12 @@ TEST(borisov_s_strassen_perf_seq, test_pipeline_run) {
 
   auto perf_results = std::make_shared<ppc::core::PerfResults>();
 
-  auto perf_analyzer = std::make_shared<ppc::core::Perf>(test_task_sequential);
+  auto perf_analyzer = std::make_shared<ppc::core::Perf>(test_task_parallel);
   perf_analyzer->PipelineRun(perf_attr, perf_results);
   ppc::core::Perf::PrintPerfStatistic(perf_results);
 }
 
-TEST(borisov_s_strassen_perf_seq, test_task_run) {
+TEST(borisov_s_strassen_perf_stl, test_task_run) {
   constexpr int kRowsA = 1024;
   constexpr int kColsA = 512;
   constexpr int kRowsB = 512;
@@ -87,13 +87,13 @@ TEST(borisov_s_strassen_perf_seq, test_task_run) {
   size_t output_count = 2 + (kRowsA * kColsB);
   std::vector<double> out(output_count, 0.0);
 
-  auto task_data_seq = std::make_shared<ppc::core::TaskData>();
-  task_data_seq->inputs.emplace_back(reinterpret_cast<uint8_t*>(in_data.data()));
-  task_data_seq->inputs_count.emplace_back(in_data.size());
-  task_data_seq->outputs.emplace_back(reinterpret_cast<uint8_t*>(out.data()));
-  task_data_seq->outputs_count.emplace_back(out.size());
+  auto task_data_stl = std::make_shared<ppc::core::TaskData>();
+  task_data_stl->inputs.emplace_back(reinterpret_cast<uint8_t*>(in_data.data()));
+  task_data_stl->inputs_count.emplace_back(in_data.size());
+  task_data_stl->outputs.emplace_back(reinterpret_cast<uint8_t*>(out.data()));
+  task_data_stl->outputs_count.emplace_back(out.size());
 
-  auto test_task_sequential = std::make_shared<borisov_s_strassen_stl::SequentialStrassenStl>(task_data_seq);
+  auto test_task_parallel = std::make_shared<borisov_s_strassen_stl::ParallelStrassenStl>(task_data_stl);
 
   auto perf_attr = std::make_shared<ppc::core::PerfAttr>();
   perf_attr->num_running = 10;
@@ -106,7 +106,7 @@ TEST(borisov_s_strassen_perf_seq, test_task_run) {
 
   auto perf_results = std::make_shared<ppc::core::PerfResults>();
 
-  auto perf_analyzer = std::make_shared<ppc::core::Perf>(test_task_sequential);
+  auto perf_analyzer = std::make_shared<ppc::core::Perf>(test_task_parallel);
   perf_analyzer->TaskRun(perf_attr, perf_results);
   ppc::core::Perf::PrintPerfStatistic(perf_results);
 }
