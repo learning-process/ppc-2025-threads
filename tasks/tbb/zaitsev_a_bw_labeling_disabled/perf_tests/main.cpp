@@ -59,7 +59,7 @@ bool IsIsomorphic(const std::vector<std::uint16_t>& first, std::vector<std::uint
 }  // namespace
 #endif
 
-TEST(zaitsev_a_labeling_seq, test_pipeline_run) {
+TEST(zaitsev_a_labeling_tbb, test_pipeline_run) {
 #ifndef _WIN32
   const int width = 1000;
   const int height = 1000;
@@ -102,7 +102,7 @@ TEST(zaitsev_a_labeling_seq, test_pipeline_run) {
   EXPECT_TRUE(true);
 }
 
-TEST(zaitsev_a_labeling_seq, test_task_run) {
+TEST(zaitsev_a_labeling_tbb, test_task_run) {
 #ifndef _WIN32
   const int width = 1000;
   const int height = 1000;
