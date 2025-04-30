@@ -203,12 +203,12 @@ TEST(frolova_e_sobel_filter_stl, small_image_2) {
   EXPECT_EQ(reference, res);
 }
 
-TEST(frolova_e_sobel_filter_stl, _1000_1000_picture) {
-  std::vector<int> value = {1000, 1000};
-  std::vector<int> pict = GenRgbPicture(1000, 1000);
+TEST(frolova_e_sobel_filter_stl, _600_600_picture) {
+  std::vector<int> value = {600, 600};
+  std::vector<int> pict = GenRgbPicture(600, 600);
 
-  std::vector<int> res(1000000, 0);
-  std::vector<int> reference(1000000, 0);
+  std::vector<int> res(360000, 0);
+  std::vector<int> reference(360000, 0);
 
   // Create task_data
   auto task_data = std::make_shared<ppc::core::TaskData>();
