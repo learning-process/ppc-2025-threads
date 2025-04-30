@@ -124,23 +124,11 @@ void vavilov_v_cannon_all::CannonALL::BlockMultiply(const std::vector<double>& l
     }
   }
 }
-/*
+
 bool vavilov_v_cannon_all::CannonALL::RunImpl() {
   int rank = world_.rank();
   int size = world_.size();
   int grid_size = static_cast<int>(std::sqrt(size));
-  if (grid_size * grid_size != size) {
-    if (rank == 0) {
-      std::cerr << "Number of processes must be a perfect square" << std::endl;
-    }
-    return false;
-  }
-  if (N_ % grid_size != 0) {
-    if (rank == 0) {
-      std::cerr << "Matrix size must be divisible by grid size" << std::endl;
-    }
-    return false;
-  }
 
   num_blocks_ = grid_size;
   block_size_ = N_ / num_blocks_;
@@ -240,7 +228,8 @@ bool vavilov_v_cannon_all::CannonALL::RunImpl() {
 
   return true;
 }
-*/
+
+/*
 bool vavilov_v_cannon_all::CannonALL::RunImpl() {
   int rank = world_.rank();
   int size = world_.size();
@@ -389,6 +378,7 @@ bool vavilov_v_cannon_all::CannonALL::RunImpl() {
 
   return true;
 }
+*/
 bool vavilov_v_cannon_all::CannonALL::PostProcessingImpl() {
   if (world_.rank() == 0) {
     std::ranges::copy(C_, reinterpret_cast<double*>(task_data->outputs[0]));
