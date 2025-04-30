@@ -61,22 +61,73 @@ void RunAndValidate(const std::vector<int>& input,
 }  // namespace
 
 TEST(zinoviev_a_convex_hull_components_stl, SquareShape) {
+  constexpr int kWidth = 5;
+  constexpr int kHeight = 5;
   const std::vector<int> input = {1, 1, 1, 1, 1, 1, 0, 0, 0, 1, 1, 0, 0, 0, 1, 1, 0, 0, 0, 1, 1, 1, 1, 1, 1};
   const std::vector<zinoviev_a_convex_hull_components_stl::Point> expected = {
       {.x = 0, .y = 0}, {.x = 4, .y = 0}, {.x = 3, .y = 4}, {.x = 0, .y = 4}};
-  RunAndValidate(input, expected, 5, 5);
+  RunAndValidate(input, expected, kWidth, kHeight);
 }
 
 TEST(zinoviev_a_convex_hull_components_stl, TriangleShape) {
+  constexpr int kWidth = 5;
+  constexpr int kHeight = 5;
   const std::vector<int> input = {1, 0, 0, 0, 0, 1, 1, 0, 0, 0, 1, 1, 1, 0, 0, 1, 1, 0, 0, 0, 1, 0, 0, 0, 0};
   const std::vector<zinoviev_a_convex_hull_components_stl::Point> expected = {
       {.x = 0, .y = 0}, {.x = 2, .y = 2}, {.x = 0, .y = 4}};
-  RunAndValidate(input, expected, 5, 5);
+  RunAndValidate(input, expected, kWidth, kHeight);
 }
 
 TEST(zinoviev_a_convex_hull_components_stl, SinglePixel) {
+  constexpr int kWidth = 5;
+  constexpr int kHeight = 5;
   std::vector<int> input(25, 0);
   input[12] = 1;
-  const std::vector<zinoviev_a_convex_hull_components_stl::Point> expected{{.x = 2, .y = 2}};
-  RunAndValidate(input, expected, 5, 5);
+  const std::vector<zinoviev_a_convex_hull_components_stl::Point> expected{
+      {.x = 2, .y = 2}};
+  RunAndValidate(input, expected, kWidth, kHeight);
+}
+
+TEST(zinoviev_a_convex_hull_components_stl, EmptyImageTest) {
+  constexpr int kWidth = 10;
+  constexpr int kHeight = 10;
+  const std::vector<int> input(100, 0);
+  const std::vector<zinoviev_a_convex_hull_components_stl::Point> expected;
+  RunAndValidate(input, expected, kWidth, kHeight);
+}
+
+TEST(zinoviev_a_convex_hull_components_stl, CrossShapeTest) {
+  constexpr int kWidth = 5;
+  constexpr int kHeight = 5;
+  const std::vector<int> input = {0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 1, 1, 1, 1, 1, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0};
+  const std::vector<zinoviev_a_convex_hull_components_stl::Point> expected{
+      {.x = 0, .y = 2}, {.x = 4, .y = 2}, {.x = 2, .y = 0}, {.x = 2,.y = 4}};
+  RunAndValidate(input, expected, kWidth, kHeight);
+}
+
+TEST(zinoviev_a_convex_hull_components_stl, SmallRectangleTest) {
+  constexpr int kWidth = 3;
+  constexpr int kHeight = 3;
+  const std::vector<int> input = {1, 1, 1, 1, 0, 1, 1, 1, 1};
+  const std::vector<zinoviev_a_convex_hull_components_stl::Point> expected{
+      {.x = 0, .y = 0}, {.x = 2, .y = 0}, {.x = 1, .y = 2}, {.x = 0, .y = 2}};
+  RunAndValidate(input, expected, kWidth, kHeight);
+}
+
+TEST(zinoviev_a_convex_hull_components_stl, DiamondShapeTest) {
+  constexpr int kWidth = 5;
+  constexpr int kHeight = 5;
+  const std::vector<int> input = {0, 0, 1, 0, 0, 0, 1, 1, 1, 0, 1, 1, 1, 1, 1, 0, 1, 1, 1, 0, 0, 0, 1, 0, 0};
+  const std::vector<zinoviev_a_convex_hull_components_stl::Point> expected{
+      {.x = 0, .y = 2}, {.x = 4, .y = 2}, {.x = 2, .y = 0}, {.x = 2, .y = 4}};
+  RunAndValidate(input, expected, kWidth, kHeight);
+}
+
+TEST(zinoviev_a_convex_hull_components_stl, RightTriangleTest) {
+  constexpr int kWidth = 4;
+  constexpr int kHeight = 4;
+  const std::vector<int> input = {1, 0, 0, 0, 1, 1, 0, 0, 1, 1, 1, 0, 1, 1, 1, 1};
+  const std::vector<zinoviev_a_convex_hull_components_stl::Point> expected{
+      {.x = 0, .y = 0}, {.x = 0, .y = 3}, {.x = 3, .y = 3}};
+  RunAndValidate(input, expected, kWidth, kHeight);
 }
