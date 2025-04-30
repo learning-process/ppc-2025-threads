@@ -10,7 +10,6 @@
 #include "core/util/include/util.hpp"
 
 namespace {
-namespace {
 void GaussianVerticalFilter(const std::vector<unsigned char> &input, std::vector<unsigned char> &output,
                             std::size_t width, std::size_t height, const std::vector<float> &kernel, int thread_id,
                             int num_threads) {
@@ -35,7 +34,6 @@ void GaussianVerticalFilter(const std::vector<unsigned char> &input, std::vector
     }
   }
 }
-}  // namespace
 }  // namespace
 
 bool komshina_d_image_filtering_vertical_gaussian_stl::TestTaskSTL::PreProcessingImpl() {
