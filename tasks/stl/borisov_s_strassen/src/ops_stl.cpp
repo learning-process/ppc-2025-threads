@@ -5,6 +5,8 @@
 #include <thread>
 #include <vector>
 
+#include "core/util/include/util.hpp"
+
 namespace borisov_s_strassen_stl {
 
 namespace {
@@ -33,7 +35,7 @@ std::vector<double> AddMatr(const std::vector<double> &a, const std::vector<doub
       c[i] = a[i] + b[i];
     }
   } else {
-    unsigned int hw_threads = std::thread::hardware_concurrency();
+    unsigned int hw_threads = ppc::util::GetPPCNumThreads();
     const int num_threads = static_cast<int>(hw_threads > 0 ? hw_threads : 1);
     std::vector<std::thread> threads;
     auto worker = [&](int start, int end) {
@@ -69,7 +71,7 @@ std::vector<double> SubMatr(const std::vector<double> &a, const std::vector<doub
       c[i] = a[i] - b[i];
     }
   } else {
-    unsigned int hw_threads = std::thread::hardware_concurrency();
+    unsigned int hw_threads = ppc::util::GetPPCNumThreads();
     const int num_threads = static_cast<int>(hw_threads > 0 ? hw_threads : 1);
     std::vector<std::thread> threads;
     auto worker = [&](int start, int end) {
