@@ -53,7 +53,6 @@ void RunAndValidate(const std::vector<int>& input,
 }
 }  // namespace
 
-
 TEST(zinoviev_a_convex_hull_components_stl, SquareShape) {
   const std::vector<int> input = {1, 1, 1, 1, 1, 1, 0, 0, 0, 1, 1, 0, 0, 0, 1, 1, 0, 0, 0, 1, 1, 1, 1, 1, 1};
   const std::vector<zinoviev_a_convex_hull_components_stl::Point> expected = {
