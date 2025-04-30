@@ -166,7 +166,7 @@ bool Integral::ComputeOneDimensionalStl() {
     result_ = 0.0;
     return true;
   }
-  const size_t num_intervals = static_cast<size_t>(num_intervals_int);
+  const auto num_intervals = static_cast<size_t>(num_intervals_int);
 
   const double step = (upper - lower) / num_intervals_int;
   const double half_step = 0.5 * step;
@@ -246,7 +246,7 @@ double Integral::ComputeParallelOuterLoop(const std::function<double(const std::
   if (num_intervals_outer_int <= 0) {
     return 0.0;
   }
-  const size_t num_intervals_outer = static_cast<size_t>(num_intervals_outer_int);
+  const auto num_intervals_outer = static_cast<size_t>(num_intervals_outer_int);
 
   unsigned int num_workers_uint = std::thread::hardware_concurrency();
   if (num_workers_uint == 0) {

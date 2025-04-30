@@ -165,7 +165,7 @@ TEST(shurigin_s_integrals_square_stl, test_integration_logarithm) {
   const double lower_bound = 1.0;
   const double upper_bound = 2.0;
   const int intervals = 1000;
-  const double expected_value = (2.0 * std::numbers::ln2 - 1.0);
+  const double expected_value = ((2.0 * std::numbers::ln2) - 1.0);
 
   std::vector<double> input_data = {lower_bound, upper_bound, static_cast<double>(intervals)};
   double output_data = 0.0;
@@ -177,8 +177,7 @@ TEST(shurigin_s_integrals_square_stl, test_integration_logarithm) {
   task_data->outputs_count.push_back(sizeof(double));
 
   shurigin_s_integrals_square_stl::Integral integral_task(task_data);
-  integral_task.SetFunction([](double x) {
-    return std::log(x); });
+  integral_task.SetFunction([](double x) { return std::log(x); });
 
   ASSERT_TRUE(integral_task.PreProcessingImpl());
   ASSERT_TRUE(integral_task.ValidationImpl());
