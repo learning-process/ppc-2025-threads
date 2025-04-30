@@ -1,6 +1,7 @@
 #include "stl/kudryashova_i_radix_batcher/include/kudryashovaRadixBatcherSTL.hpp"
 
 #include <algorithm>
+#include <array>
 #include <cstddef>
 #include <cstdint>
 #include <cstring>
@@ -30,7 +31,7 @@ void kudryashova_i_radix_batcher_stl::RadixDoubleSort(std::vector<double> &data,
   int max_byte_value = 255;
 
   for (int shift = 0; shift < total_passes; ++shift) {
-    size_t count[256] = {0};
+    std::array<size_t, 256> count = {0};
     const int shift_loc = shift * bits_int_byte;
     for (const auto &num : converted) {
       ++count[(num >> shift_loc) & max_byte_value];
@@ -101,7 +102,7 @@ bool kudryashova_i_radix_batcher_stl::TestTaskSTL::RunImpl() {
       break;
     }
 
-    sort_threads.emplace_back([&, block_start, block_end] { RadixDoubleSort(input_data_, block_start, block_end); });
+    sort_threads.emplace_back([this, block_start, block_end] { RadixDoubleSort(input_data_, block_start, block_end); });
   }
   for (auto &thread : sort_threads) {
     thread.join();
