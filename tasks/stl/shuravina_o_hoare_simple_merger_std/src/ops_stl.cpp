@@ -30,8 +30,12 @@ void TestTaskSTL::QuickSort(std::vector<int>& arr, int left, int right) {
   int j = right;
 
   while (i <= j) {
-    while (arr[i] < pivot) i++;
-    while (arr[j] > pivot) j--;
+    while (arr[i] < pivot) {
+      i++;
+    }
+    while (arr[j] > pivot) {
+      j--;
+    }
     if (i <= j) {
       std::swap(arr[i], arr[j]);
       i++;
@@ -52,10 +56,14 @@ void TestTaskSTL::MergeHelper(std::vector<int>& arr, int left, int mid, int righ
   while (i <= mid && j <= right) {
     temp[k++] = (arr[i] <= arr[j]) ? arr[i++] : arr[j++];
   }
-  while (i <= mid) temp[k++] = arr[i++];
-  while (j <= right) temp[k++] = arr[j++];
+  while (i <= mid) {
+    temp[k++] = arr[i++];
+  }
+  while (j <= right) {
+    temp[k++] = arr[j++];
+  }
 
-  std::copy(temp.begin(), temp.end(), arr.begin() + left);
+  std::ranges::copy(temp, arr.begin() + left);
 }
 
 bool TestTaskSTL::Run() {
@@ -76,7 +84,7 @@ bool TestTaskSTL::PostProcessing() {
     return true;
   }
   int* out_ptr = reinterpret_cast<int*>(task_data->outputs[0]);
-  std::copy(output_.begin(), output_.end(), out_ptr);
+  std::ranges::copy(output_, out_ptr);
   return true;
 }
 
