@@ -97,7 +97,7 @@ bool kalyakina_a_shell_with_simple_merge_stl::ShellSortSTL::RunImpl() {
   }
 
   auto sort = [&](unsigned int start_index, unsigned int end_index) { ShellSort(start_index, end_index); };
-  std::vector<std::thread> threads(ppc::util::GetPPCNumThreads());
+  std::vector<std::thread> threads(num);
   for (int i = 0; i < static_cast<int>(num); i++) {
     threads[i] = std::thread(sort, bounds[i].first, bounds[i].second);
   }
