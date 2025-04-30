@@ -83,7 +83,8 @@ bool shulpin_i_jarvis_stl::JarvisSequential::PostProcessingImpl() {
 
 #ifdef __linux__
 void shulpin_i_jarvis_stl::JarvisSTLParallel::MakeJarvisPassageSTL(
-    std::vector<shulpin_i_jarvis_stl::Point>& input_jar, std::vector<shulpin_i_jarvis_stl::Point>& output_jar) { // NOLINT(linux-version-function-cognitive-complexity)
+    std::vector<shulpin_i_jarvis_stl::Point>& input_jar,
+    std::vector<shulpin_i_jarvis_stl::Point>& output_jar) {  // NOLINT(linux-version-function-cognitive-complexity)
   output_jar.clear();
 
   std::unordered_set<Point, PointHash, PointEqual> unique_points;
@@ -225,7 +226,7 @@ void shulpin_i_jarvis_stl::JarvisSTLParallel::MakeJarvisPassageSTL(
         continue;
       }
       double cross_product = ((point.y - current_point.y) * (candidate.x - current_point.x)) -
-                            ((point.x - current_point.x) * (candidate.y - current_point.y));
+                             ((point.x - current_point.x) * (candidate.y - current_point.y));
       double dist_current_point = std::pow(point.x - current_point.x, 2) + std::pow(point.y - current_point.y, 2);
       double dist_candidate = std::pow(candidate.x - current_point.x, 2) + std::pow(candidate.y - current_point.y, 2);
       if (cross_product > 0 || (cross_product == 0 && dist_current_point > dist_candidate)) {
@@ -254,7 +255,7 @@ void shulpin_i_jarvis_stl::JarvisSTLParallel::MakeJarvisPassageSTL(
 
     for (const auto& candidate : candidates) {
       double cross_product = ((candidate.y - prev_point.y) * (next_point.x - prev_point.x)) -
-                            ((candidate.x - prev_point.x) * (next_point.y - prev_point.y));
+                             ((candidate.x - prev_point.x) * (next_point.y - prev_point.y));
       double dist_prev_point = std::pow(candidate.x - prev_point.x, 2) + std::pow(candidate.y - prev_point.y, 2);
       double dist_next_point = std::pow(next_point.x - prev_point.x, 2) + std::pow(next_point.y - prev_point.y, 2);
       if (cross_product > 0 || (cross_product == 0 && dist_prev_point > dist_next_point)) {
