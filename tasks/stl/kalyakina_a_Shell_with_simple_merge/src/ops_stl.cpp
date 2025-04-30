@@ -1,8 +1,9 @@
 #include "stl/kalyakina_a_Shell_with_simple_merge/include/ops_stl.hpp"
 
+#include <algorithm>
 #include <cmath>
-#include <cstddef>
 #include <thread>
+#include <utility>
 #include <vector>
 
 #include "core/util/include/util.hpp"
