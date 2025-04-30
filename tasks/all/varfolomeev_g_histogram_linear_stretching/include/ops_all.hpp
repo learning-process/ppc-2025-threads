@@ -18,15 +18,13 @@ class TestTaskALL : public ppc::core::Task {
   bool PostProcessingImpl() override;
 
  private:
-  int min_val_ = 0;
-  int max_val_ = 255;
   std::vector<uint8_t> input_image_, result_image_;
-  boost::mpi::communicator world_;
+  const boost::mpi::communicator world_;
 
-  void scatter_data(std::vector<uint8_t>& local_data);
-  void find_min_max(const std::vector<uint8_t>& local_data, int& min_val, int& max_val);
-  void stretch_histogram(std::vector<uint8_t>& local_data, int min_val, int max_val);
-  void gather_results(const std::vector<uint8_t>& local_data);
+  void ScatterData(std::vector<uint8_t>& local_data);
+  void FindMinMax(const std::vector<uint8_t>& local_data, int& min_val, int& max_val);
+  void StretchHistogram(std::vector<uint8_t>& local_data, int min_val, int max_val);
+  void GatherResults(const std::vector<uint8_t>& local_data);
 };
 
 }  // namespace varfolomeev_g_histogram_linear_stretching_all

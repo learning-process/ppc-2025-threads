@@ -27,14 +27,15 @@ bool varfolomeev_g_histogram_linear_stretching_all::TestTaskALL::PreProcessingIm
 
 bool varfolomeev_g_histogram_linear_stretching_all::TestTaskALL::RunImpl() {
   std::vector<uint8_t> local_data;
-  scatter_data(local_data);
+  ScatterData(local_data);
 
-  int min_val = 0, max_val = 255;
-  find_min_max(local_data, min_val, max_val);
+  int min_val = 0;
+  int max_val = 255;
+  FindMinMax(local_data, min_val, max_val);
 
-  stretch_histogram(local_data, min_val, max_val);
+  StretchHistogram(local_data, min_val, max_val);
 
-  gather_results(local_data);
+  GatherResults(local_data);
 
   return true;
 }
@@ -47,7 +48,7 @@ bool varfolomeev_g_histogram_linear_stretching_all::TestTaskALL::PostProcessingI
   return true;
 }
 
-void varfolomeev_g_histogram_linear_stretching_all::TestTaskALL::scatter_data(std::vector<uint8_t>& local_data) {
+void varfolomeev_g_histogram_linear_stretching_all::TestTaskALL::ScatterData(std::vector<uint8_t>& local_data) {
   if (world_.rank() == 0) {
     // Distribute data among processes
     for (int proc = 1; proc < world_.size(); ++proc) {
@@ -67,8 +68,8 @@ void varfolomeev_g_histogram_linear_stretching_all::TestTaskALL::scatter_data(st
   }
 }
 
-void varfolomeev_g_histogram_linear_stretching_all::TestTaskALL::find_min_max(const std::vector<uint8_t>& local_data,
-                                                                              int& min_val, int& max_val) {
+void varfolomeev_g_histogram_linear_stretching_all::TestTaskALL::FindMinMax(const std::vector<uint8_t>& local_data,
+                                                                            int& min_val, int& max_val) {
   // Find local min and max
   int local_min = 255, local_max = 0;
   if (!local_data.empty()) {
@@ -87,22 +88,18 @@ void varfolomeev_g_histogram_linear_stretching_all::TestTaskALL::find_min_max(co
   }
 }
 
-void varfolomeev_g_histogram_linear_stretching_all::TestTaskALL::stretch_histogram(std::vector<uint8_t>& local_data,
-                                                                                   int min_val, int max_val) {
-  if (min_val == max_val) return;
-
-    // const double scale = 255.0 / (max_val - min_val);
-
+void varfolomeev_g_histogram_linear_stretching_all::TestTaskALL::StretchHistogram(std::vector<uint8_t>& local_data,
+                                                                                  int min_val, int max_val) {
+  if (min_val != max_val) {
 #pragma omp parallel for
-  for (int i = 0; i < static_cast<int>(local_data.size()); ++i) {
-    // double stretched_value = (local_data[i] - min_val) * scale;
-    local_data[i] =
-        static_cast<uint8_t>(std::round(static_cast<double>(local_data[i] - min_val) * 255 / (max_val - min_val)));
+    for (int i = 0; i < static_cast<int>(local_data.size()); ++i) {
+      local_data[i] =
+          static_cast<uint8_t>(std::round(static_cast<double>(local_data[i] - min_val) * 255 / (max_val - min_val)));
+    }
   }
 }
 
-void varfolomeev_g_histogram_linear_stretching_all::TestTaskALL::gather_results(
-    const std::vector<uint8_t>& local_data) {
+void varfolomeev_g_histogram_linear_stretching_all::TestTaskALL::GatherResults(const std::vector<uint8_t>& local_data) {
   if (world_.rank() == 0) {
     result_image_.resize(input_image_.size());
 
