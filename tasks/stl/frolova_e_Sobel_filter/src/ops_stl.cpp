@@ -87,9 +87,7 @@ bool frolova_e_sobel_filter_stl::SobelFilterSTL::RunImpl() {
   for (size_t i = 0; i < actual_threads_grayscale; ++i) {
     size_t start = i * chunk_size;
     size_t end = std::min(start + chunk_size, total_pixels);
-    if (start < end) {
-      threads.emplace_back(grayscale_task, start, end);
-    }
+    threads.emplace_back(grayscale_task, start, end);
   }
 
   for (auto& thread : threads) {
@@ -129,9 +127,7 @@ bool frolova_e_sobel_filter_stl::SobelFilterSTL::RunImpl() {
   for (size_t i = 0; i < actual_threads_sobel; ++i) {
     size_t y_start = i * rows_per_thread;
     size_t y_end = std::min(y_start + rows_per_thread, height_);
-    if (y_start < y_end) {
-      threads.emplace_back(sobel_task, y_start, y_end);
-    }
+    threads.emplace_back(sobel_task, y_start, y_end);
   }
 
   for (auto& thread : threads) {
