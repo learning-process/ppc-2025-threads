@@ -21,9 +21,8 @@ class TestTaskSTL : public ppc::core::Task {
   std::vector<int> input_;
   std::vector<int> output_;
 
-  void QuickSort(std::vector<int>& arr, int left, int right);
-  void ParallelQuickSort(std::vector<int>& arr, int left, int right);
-  void MergeHelper(std::vector<int>& arr, int left, int mid, int right);
+  static void QuickSort(std::vector<int>& arr, int left, int right);
+  static void MergeHelper(std::vector<int>& arr, int left, int mid, int right);
 };
 
 }  // namespace shuravina_o_hoare_simple_merger_stl

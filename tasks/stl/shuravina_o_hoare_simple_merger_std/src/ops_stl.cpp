@@ -1,7 +1,5 @@
 #include "stl/shuravina_o_hoare_simple_merger_std/include/ops_stl.hpp"
 
-#include <omp.h>
-
 #include <algorithm>
 #include <vector>
 
@@ -32,12 +30,8 @@ void TestTaskSTL::QuickSort(std::vector<int>& arr, int left, int right) {
   int j = right;
 
   while (i <= j) {
-    while (arr[i] < pivot) {
-      i++;
-    }
-    while (arr[j] > pivot) {
-      j--;
-    }
+    while (arr[i] < pivot) i++;
+    while (arr[j] > pivot) j--;
     if (i <= j) {
       std::swap(arr[i], arr[j]);
       i++;
@@ -49,38 +43,6 @@ void TestTaskSTL::QuickSort(std::vector<int>& arr, int left, int right) {
   QuickSort(arr, i, right);
 }
 
-void TestTaskSTL::ParallelQuickSort(std::vector<int>& arr, int left, int right) {
-  if (left >= right) {
-    return;
-  }
-
-  int pivot = arr[(left + right) / 2];
-  int i = left;
-  int j = right;
-
-  while (i <= j) {
-    while (arr[i] < pivot) {
-      i++;
-    }
-    while (arr[j] > pivot) {
-      j--;
-    }
-    if (i <= j) {
-      std::swap(arr[i], arr[j]);
-      i++;
-      j--;
-    }
-  }
-
-#pragma omp parallel sections
-  {
-#pragma omp section
-    { ParallelQuickSort(arr, left, j); }
-#pragma omp section
-    { ParallelQuickSort(arr, i, right); }
-  }
-}
-
 void TestTaskSTL::MergeHelper(std::vector<int>& arr, int left, int mid, int right) {
   std::vector<int> temp(right - left + 1);
   int i = left;
@@ -90,12 +52,8 @@ void TestTaskSTL::MergeHelper(std::vector<int>& arr, int left, int mid, int righ
   while (i <= mid && j <= right) {
     temp[k++] = (arr[i] <= arr[j]) ? arr[i++] : arr[j++];
   }
-  while (i <= mid) {
-    temp[k++] = arr[i++];
-  }
-  while (j <= right) {
-    temp[k++] = arr[j++];
-  }
+  while (i <= mid) temp[k++] = arr[i++];
+  while (j <= right) temp[k++] = arr[j++];
 
   std::copy(temp.begin(), temp.end(), arr.begin() + left);
 }
@@ -106,8 +64,8 @@ bool TestTaskSTL::Run() {
     return true;
   }
 
-  int size = static_cast<int>(input_.size());
-  ParallelQuickSort(input_, 0, size - 1);
+  const int size = static_cast<int>(input_.size());
+  QuickSort(input_, 0, size - 1);
   MergeHelper(input_, 0, (size / 2) - 1, size - 1);
   output_ = input_;
   return true;
