@@ -1,4 +1,5 @@
 #include "stl/shulpin_i_jarvis_passage/include/test_modules.hpp"
+#include "stl/shulpin_i_jarvis_passage/include/ops_stl.hpp"
 
 #include <gtest/gtest.h>
 

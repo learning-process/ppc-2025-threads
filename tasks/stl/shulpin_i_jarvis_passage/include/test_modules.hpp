@@ -1,9 +1,10 @@
+#include <cstddef>
 #include <vector>
 
 #include "stl/shulpin_i_jarvis_passage/include/ops_stl.hpp"
 
 namespace shulpin_stl_test_module {
-void VerifyResults(const std::vector<shulpin_i_jarvis_stl::Point> &result_seq,
+void VerifyResults(const std::vector<shulpin_i_jarvis_stl::Point> &expected,
                    const std::vector<shulpin_i_jarvis_stl::Point> &result_tbb);
 
 void MainTestBody(std::vector<shulpin_i_jarvis_stl::Point> &input, std::vector<shulpin_i_jarvis_stl::Point> &expected);

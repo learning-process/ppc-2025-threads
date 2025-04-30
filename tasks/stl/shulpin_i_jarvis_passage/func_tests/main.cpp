@@ -2,7 +2,6 @@
 
 #include <cmath>
 #include <cstddef>
-#include <numbers>
 #include <vector>
 
 #include "stl/shulpin_i_jarvis_passage/include/ops_stl.hpp"

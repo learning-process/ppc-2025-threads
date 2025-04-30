@@ -4,12 +4,10 @@
 #include <cmath>
 #include <condition_variable>
 #include <cstddef>
-#include <cstdint>
 #include <cstring>
 #include <mutex>
 #include <thread>
 #include <unordered_set>
-#include <utility>
 #include <vector>
 
 #include "core/util/include/util.hpp"
@@ -85,7 +83,7 @@ bool shulpin_i_jarvis_stl::JarvisSequential::PostProcessingImpl() {
 
 #ifdef __linux__
 void shulpin_i_jarvis_stl::JarvisSTLParallel::MakeJarvisPassageSTL(
-    std::vector<shulpin_i_jarvis_stl::Point>& input_jar, std::vector<shulpin_i_jarvis_stl::Point>& output_jar) {
+    std::vector<shulpin_i_jarvis_stl::Point>& input_jar, std::vector<shulpin_i_jarvis_stl::Point>& output_jar) { // NOLINT(linux-version-function-cognitive-complexity)
   output_jar.clear();
 
   std::unordered_set<Point, PointHash, PointEqual> unique_points;
@@ -214,35 +212,39 @@ void shulpin_i_jarvis_stl::JarvisSTLParallel::MakeJarvisPassageSTL(
     }
   }
 
-  const Point& minPoint = input_jar[most_left];
-  std::vector<Point> convexHull = {minPoint};
-  Point prevPoint = minPoint;
-  Point nextPoint;
+  const Point& min_point = input_jar[most_left];
+  std::vector<Point> convex_hull = {min_point};
+  Point prev_point = min_point;
+  Point next_point;
 
-  auto findNextPoint = [](const Point& currentPoint, const std::vector<Point>& points, int start, int end,
+  auto findNextPoint = [](const Point& current_point, const std::vector<Point>& points, int start, int end,
                           Point& candidate) {
     for (int i = start; i < end; ++i) {
       const auto& point = points[i];
-      if (point == currentPoint) continue;
-      double crossProduct = (point.y - currentPoint.y) * (candidate.x - currentPoint.x) -
-                            (point.x - currentPoint.x) * (candidate.y - currentPoint.y);
-      double distCurrentPoint = std::pow(point.x - currentPoint.x, 2) + std::pow(point.y - currentPoint.y, 2);
-      double distCandidate = std::pow(candidate.x - currentPoint.x, 2) + std::pow(candidate.y - currentPoint.y, 2);
-      if (crossProduct > 0 || (crossProduct == 0 && distCurrentPoint > distCandidate)) candidate = point;
+      if (point == current_point) {
+        continue;
+      }
+      double cross_product = ((point.y - current_point.y) * (candidate.x - current_point.x)) -
+                            ((point.x - current_point.x) * (candidate.y - current_point.y));
+      double dist_current_point = std::pow(point.x - current_point.x, 2) + std::pow(point.y - current_point.y, 2);
+      double dist_candidate = std::pow(candidate.x - current_point.x, 2) + std::pow(candidate.y - current_point.y, 2);
+      if (cross_product > 0 || (cross_product == 0 && dist_current_point > dist_candidate)) {
+        candidate = point;
+      }
     }
   };
 
   do {
-    nextPoint = input_jar[0];
-    int numThreads = ppc::util::GetPPCNumThreads();
-    int chunkSize = input_jar.size() / numThreads;
+    next_point = input_jar[0];
+    int num_threads = ppc::util::GetPPCNumThreads();
+    int chunk_size = input_jar.size() / numThreads;
     std::vector<std::thread> threads;
-    std::vector<Point> candidates(numThreads, nextPoint);
+    std::vector<Point> candidates(num_threads, next_point);
 
-    for (int i = 0; i < numThreads; ++i) {
-      int start = i * chunkSize;
-      int end = (i == numThreads - 1) ? input_jar.size() : (i + 1) * chunkSize;
-      threads.emplace_back(findNextPoint, std::ref(prevPoint), std::cref(input_jar), start, end,
+    for (int i = 0; i < num_threads; ++i) {
+      int start = i * chunk_size;
+      int end = (i == num_threads - 1) ? input_jar.size() : (i + 1) * chunk_size;
+      threads.emplace_back(findNextPoint, std::ref(prev_point), std::cref(input_jar), start, end,
                            std::ref(candidates[i]));
     }
 
@@ -251,21 +253,23 @@ void shulpin_i_jarvis_stl::JarvisSTLParallel::MakeJarvisPassageSTL(
     }
 
     for (const auto& candidate : candidates) {
-      double crossProduct = (candidate.y - prevPoint.y) * (nextPoint.x - prevPoint.x) -
-                            (candidate.x - prevPoint.x) * (nextPoint.y - prevPoint.y);
-      double distPrevPoint = std::pow(candidate.x - prevPoint.x, 2) + std::pow(candidate.y - prevPoint.y, 2);
-      double distNextPoint = std::pow(nextPoint.x - prevPoint.x, 2) + std::pow(nextPoint.y - prevPoint.y, 2);
-      if (crossProduct > 0 || (crossProduct == 0 && distPrevPoint > distNextPoint)) nextPoint = candidate;
+      double cross_product = ((candidate.y - prev_point.y) * (next_point.x - prev_point.x)) -
+                            ((candidate.x - prev_point.x) * (next_point.y - prev_point.y));
+      double dist_prev_point = std::pow(candidate.x - prev_point.x, 2) + std::pow(candidate.y - prev_point.y, 2);
+      double dist_next_point = std::pow(next_point.x - prev_point.x, 2) + std::pow(next_point.y - prev_point.y, 2);
+      if (cross_product > 0 || (cross_product == 0 && dist_prev_point > dist_next_point)) {
+        next_point = candidate;
+      }
     }
 
-    if (unique_points.find(nextPoint) == unique_points.end()) {
-      output_jar.push_back(nextPoint);
-      unique_points.insert(nextPoint);
+    if (unique_points.find(next_point) == unique_points.end()) {
+      output_jar.push_back(next_point);
+      unique_points.insert(next_point);
     }
 
-    prevPoint = nextPoint;
+    prev_point = next_point;
 
-  } while (nextPoint != minPoint);
+  } while (next_point != min_point);
 }
 #endif
 

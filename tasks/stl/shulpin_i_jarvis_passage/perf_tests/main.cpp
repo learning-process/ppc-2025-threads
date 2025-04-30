@@ -12,14 +12,14 @@
 #include "stl/shulpin_i_jarvis_passage/include/ops_stl.hpp"
 #include "stl/shulpin_i_jarvis_passage/include/test_modules.hpp"
 
-constexpr int k = 100;
-constexpr int bound = 1000;
+constexpr int k_ = 100;
+constexpr int kBound = 1000;
 
 TEST(shulpin_i_jarvis_tbb, test_pipeline_run) {
   size_t num_points = 1000000;
-  std::vector<shulpin_i_jarvis_stl::Point> hull = {{-bound, bound}, {bound, bound}, {bound, -bound}, {-bound, -bound}};
+  std::vector<shulpin_i_jarvis_stl::Point> hull = {{-kBound, kBound}, {kBound, kBound}, {kBound, -kBound}, {-kBound, -kBound}};
   std::vector<shulpin_i_jarvis_stl::Point> input =
-      shulpin_stl_test_module::PerfRandomGenerator(num_points, -bound + k, bound - k);
+      shulpin_stl_test_module::PerfRandomGenerator(num_points, -kBound + k_, kBound - k_);
   std::vector<shulpin_i_jarvis_stl::Point> out(input.size());
   input.insert(input.end(), hull.begin(), hull.end());
 
@@ -54,9 +54,9 @@ TEST(shulpin_i_jarvis_tbb, test_pipeline_run) {
 
 TEST(shulpin_i_jarvis_tbb, test_task_run) {
   size_t num_points = 1000000;
-  std::vector<shulpin_i_jarvis_stl::Point> hull = {{-bound, bound}, {bound, bound}, {bound, -bound}, {-bound, -bound}};
+  std::vector<shulpin_i_jarvis_stl::Point> hull = {{-kBound, kBound}, {kBound, kBound}, {kBound, -kBound}, {-kBound, -kBound}};
   std::vector<shulpin_i_jarvis_stl::Point> input =
-      shulpin_stl_test_module::PerfRandomGenerator(num_points, -bound + k, bound - k);
+      shulpin_stl_test_module::PerfRandomGenerator(num_points, -kBound + k_, kBound - k_);
   std::vector<shulpin_i_jarvis_stl::Point> out(input.size());
   input.insert(input.end(), hull.begin(), hull.end());
 
