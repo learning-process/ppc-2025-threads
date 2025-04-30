@@ -5,17 +5,19 @@
 #include <iostream>
 #include <thread>
 #include <vector>
+#include <array>
 
 #include "core/util/include/util.hpp"
 
 namespace {
 // clang-format off
-  const std::vector<std::vector<double>> kErnel = {
-      {1.0 / 16, 2.0 / 16, 1.0 / 16},
-      {2.0 / 16, 4.0 / 16, 2.0 / 16},
-      {1.0 / 16, 2.0 / 16, 1.0 / 16}};
+  constexpr std::array<std::array<double, 3>, 3> kErnel = {{
+    {{1.0 / 16, 2.0 / 16, 1.0 / 16}},
+    {{2.0 / 16, 4.0 / 16, 2.0 / 16}},
+    {{1.0 / 16, 2.0 / 16, 1.0 / 16}}
+}};
 // clang-format on
-void ThreadTask(const std::vector<double> &in_vec, int n, int m, std::vector<double> &res_vec, int begin_pos,
+inline void ThreadTask(const std::vector<double> &in_vec, int n, int m, std::vector<double> &res_vec, int begin_pos,
                 int end_pos) {
   std::cout << "begin = " << begin_pos << ", end = " << end_pos << '\n';
   for (int i = begin_pos; i < end_pos; ++i) {
