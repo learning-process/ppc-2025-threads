@@ -9,9 +9,10 @@
 #include <random>
 #include <vector>
 
+#include "all/varfolomeev_g_histogram_linear_stretching/include/ops_all.hpp"
 #include "core/perf/include/perf.hpp"
 #include "core/task/include/task.hpp"
-#include "all/varfolomeev_g_histogram_linear_stretching/include/ops_all.hpp"
+
 
 namespace {
 std::vector<uint8_t> GetRandomImage(int sz) {
