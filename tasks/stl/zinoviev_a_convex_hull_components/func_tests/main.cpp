@@ -23,9 +23,9 @@ void SetupTaskData(const std::vector<int>& input, int width, int height, size_t 
 
 void VerifyResult(const std::vector<zinoviev_a_convex_hull_components_stl::Point>& actual,
                   const std::vector<zinoviev_a_convex_hull_components_stl::Point>& expected) {
-  std::vector<zinoviev_a_convex_hull_components_stl::Point> sorted_actual = actual;
+  auto sorted_actual = actual;
   std::sort(sorted_actual.begin(), sorted_actual.end());
-  std::vector<zinoviev_a_convex_hull_components_stl::Point> sorted_expected = expected;
+  auto sorted_expected = expected;
   std::sort(sorted_expected.begin(), sorted_expected.end());
   ASSERT_EQ(sorted_actual.size(), sorted_expected.size());
   for (size_t i = 0; i < sorted_actual.size(); ++i) {
@@ -52,6 +52,7 @@ void RunAndValidate(const std::vector<int>& input,
   delete[] reinterpret_cast<zinoviev_a_convex_hull_components_stl::Point*>(task_data->outputs[0]);
 }
 }  // namespace
+
 
 TEST(zinoviev_a_convex_hull_components_stl, SquareShape) {
   const std::vector<int> input = {1, 1, 1, 1, 1, 1, 0, 0, 0, 1, 1, 0, 0, 0, 1, 1, 0, 0, 0, 1, 1, 1, 1, 1, 1};

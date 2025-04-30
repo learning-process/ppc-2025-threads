@@ -1,6 +1,7 @@
 #include "stl/zinoviev_a_convex_hull_components/include/ops_stl.hpp"
 
 #include <algorithm>
+#include <ranges>
 #include <cstddef>
 #include <queue>
 #include <thread>
@@ -8,7 +9,6 @@
 #include <vector>
 
 #include "core/task/include/task.hpp"
-#include "core/util/include/util.hpp"
 
 using namespace zinoviev_a_convex_hull_components_stl;
 
@@ -25,11 +25,11 @@ bool ConvexHullSTL::PreProcessingImpl() noexcept {
 
   components_.clear();
 
-  std::vector<bool> visited(width * height, false);
+  std::vector<bool> visited(static_cast<size_t>(width) * height, false);
 
   for (int y = 0; y < height; ++y) {
     for (int x = 0; x < width; ++x) {
-      const size_t idx = static_cast<size_t>(y) * width + x;
+      const size_t idx = (static_cast<size_t>(y) * width) + x;
       if (!visited[idx] && input_data[idx] != 0) {
         std::vector<Point> component;
         BFS(input_data, width, height, x, y, visited, component);
@@ -45,11 +45,11 @@ void ConvexHullSTL::BFS(const int* input_data, int width, int height, int start_
                         std::vector<bool>& visited, std::vector<Point>& component) noexcept {
   std::queue<Point> queue;
   queue.push({start_x, start_y});
-  const size_t start_idx = static_cast<size_t>(start_y) * width + start_x;
+  const size_t start_idx = (static_cast<size_t>(start_y) * width) + start_x;
   visited[start_idx] = true;
 
-  const int dx[] = {-1, 1, 0, 0};
-  const int dy[] = {0, 0, -1, 1};
+  constexpr int dx[] = {-1, 1, 0, 0};
+  constexpr int dy[] = {0, 0, -1, 1};
 
   while (!queue.empty()) {
     Point p = queue.front();
@@ -60,7 +60,7 @@ void ConvexHullSTL::BFS(const int* input_data, int width, int height, int start_
       int nx = p.x + dx[i];
       int ny = p.y + dy[i];
       if (nx >= 0 && nx < width && ny >= 0 && ny < height) {
-        const size_t nidx = static_cast<size_t>(ny) * width + nx;
+        const size_t nidx = (static_cast<size_t>(ny) * width) + nx;
         if (!visited[nidx] && input_data[nidx] != 0) {
           visited[nidx] = true;
           queue.push({nx, ny});
@@ -76,7 +76,7 @@ bool ConvexHullSTL::ValidationImpl() noexcept {
 }
 
 int ConvexHullSTL::Cross(const Point& o, const Point& a, const Point& b) noexcept {
-  return (a.x - o.x) * (b.y - o.y) - (a.y - o.y) * (b.x - o.x);
+  return ((a.x - o.x) * (b.y - o.y)) - ((a.y - o.y) * (b.x - o.x));
 }
 
 std::vector<Point> ConvexHullSTL::FindConvexHull(const std::vector<Point>& points) noexcept {
@@ -116,6 +116,8 @@ bool ConvexHullSTL::RunImpl() noexcept {
   hulls_.resize(components_.size());
 
   std::vector<std::thread> threads;
+  threads.reserve(components_.size());
+
   for (size_t i = 0; i < components_.size(); ++i) {
     threads.emplace_back([this, i]() { hulls_[i] = FindConvexHull(components_[i]); });
   }
@@ -144,7 +146,7 @@ bool ConvexHullSTL::PostProcessingImpl() noexcept {
   auto* output = reinterpret_cast<Point*>(task_data->outputs[0]);
   size_t offset = 0;
   for (const auto& hull : hulls_) {
-    std::copy(hull.begin(), hull.end(), output + offset);
+    std::ranges::copy(hull, output + offset);
     offset += hull.size();
   }
 
