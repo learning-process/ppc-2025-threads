@@ -1,11 +1,11 @@
 #include "stl/morozov_e_lineare_image_filtering_block_gaussian_stl/include/ops_stl.hpp"
 
+#include <array>
 #include <cmath>
 #include <functional>
 #include <iostream>
 #include <thread>
 #include <vector>
-#include <array>
 
 #include "core/util/include/util.hpp"
 
@@ -18,7 +18,7 @@ namespace {
 }};
 // clang-format on
 inline void ThreadTask(const std::vector<double> &in_vec, int n, int m, std::vector<double> &res_vec, int begin_pos,
-                int end_pos) {
+                       int end_pos) {
   std::cout << "begin = " << begin_pos << ", end = " << end_pos << '\n';
   for (int i = begin_pos; i < end_pos; ++i) {
     for (int j = 0; j < m; ++j) {
