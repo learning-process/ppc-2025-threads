@@ -83,6 +83,11 @@ bool TestTaskSTL::RunImpl() {
     return true;
   }
 
+  if (std::is_sorted(input_.begin(), input_.end())) {
+    output_ = input_;
+    return true;
+  }
+
   const int size = static_cast<int>(input_.size());
   QuickSort(input_, 0, size - 1);
   MergeHelper(input_, 0, (size / 2) - 1, size - 1);
