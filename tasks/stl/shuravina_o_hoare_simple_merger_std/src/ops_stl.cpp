@@ -5,6 +5,8 @@
 #include <utility>
 #include <vector>
 
+#include "core/task/include/task.hpp"
+
 namespace shuravina_o_hoare_simple_merger_stl {
 
 TestTaskSTL::TestTaskSTL(std::shared_ptr<ppc::core::TaskData> task_data) : Task(std::move(task_data)) {}
