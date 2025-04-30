@@ -83,7 +83,7 @@ bool TestTaskSTL::RunImpl() {
     return true;
   }
 
-  if (std::is_sorted(input_.begin(), input_.end())) {
+  if (std::ranges::is_sorted(input_)) {
     output_ = input_;
     return true;
   }
