@@ -140,7 +140,7 @@ void volochaev_s_shell_sort_with_batchers_even_odd_merge_stl::ShellSortSTL::Para
 }
 
 void volochaev_s_shell_sort_with_batchers_even_odd_merge_stl::ShellSortSTL::FindThreadVariables() {
-  unsigned int max_threads = std::thread::hardware_concurrency();
+  unsigned int max_threads = ppc::util::GetPPCNumThreads();
   c_threads_ = static_cast<int>(std::pow(2, std::floor(std::log2(max_threads))));
   n_ = size_ + (((2 * c_threads_) - size_ % (2 * c_threads_))) % (2 * c_threads_);
   mass_.resize(n_, std::numeric_limits<int>::max());
