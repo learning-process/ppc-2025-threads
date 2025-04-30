@@ -299,10 +299,10 @@ bool vavilov_v_cannon_all::CannonALL::RunImpl() {
     std::cout << "Process grid: " << rows << " rows x " << cols << " cols" << std::endl;
   }
 
-  num_blocks_row_ = rows;
-  num_blocks_col_ = cols;
-  block_size_row_ = N_ / num_blocks_row_;
-  block_size_col_ = N_ / num_blocks_col_;
+  int num_blocks_row_ = rows;
+  int num_blocks_col_ = cols;
+  int block_size_row_ = N_ / num_blocks_row_;
+  int block_size_col_ = N_ / num_blocks_col_;
   int block_size_sq = block_size_row_ * block_size_col_;
 
   std::vector<double> local_A(block_size_sq);
