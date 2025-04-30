@@ -1,0 +1,153 @@
+#include "stl/zinoviev_a_convex_hull_components/include/ops_stl.hpp"
+
+#include <algorithm>
+#include <cstddef>
+#include <queue>
+#include <thread>
+#include <utility>
+#include <vector>
+
+#include "core/task/include/task.hpp"
+#include "core/util/include/util.hpp"
+
+using namespace zinoviev_a_convex_hull_components_stl;
+
+ConvexHullSTL::ConvexHullSTL(ppc::core::TaskDataPtr task_data) : Task(std::move(task_data)) {}
+
+bool ConvexHullSTL::PreProcessingImpl() noexcept {
+  if (!task_data || task_data->inputs.empty() || task_data->inputs_count.size() < 2) {
+    return false;
+  }
+
+  const auto* input_data = reinterpret_cast<int*>(task_data->inputs[0]);
+  const int width = static_cast<int>(task_data->inputs_count[0]);
+  const int height = static_cast<int>(task_data->inputs_count[1]);
+
+  components_.clear();
+
+  std::vector<bool> visited(width * height, false);
+
+  for (int y = 0; y < height; ++y) {
+    for (int x = 0; x < width; ++x) {
+      const size_t idx = static_cast<size_t>(y) * width + x;
+      if (!visited[idx] && input_data[idx] != 0) {
+        std::vector<Point> component;
+        BFS(input_data, width, height, x, y, visited, component);
+        components_.push_back(component);
+      }
+    }
+  }
+
+  return true;
+}
+
+void ConvexHullSTL::BFS(const int* input_data, int width, int height, int start_x, int start_y,
+                        std::vector<bool>& visited, std::vector<Point>& component) noexcept {
+  std::queue<Point> queue;
+  queue.push({start_x, start_y});
+  const size_t start_idx = static_cast<size_t>(start_y) * width + start_x;
+  visited[start_idx] = true;
+
+  const int dx[] = {-1, 1, 0, 0};
+  const int dy[] = {0, 0, -1, 1};
+
+  while (!queue.empty()) {
+    Point p = queue.front();
+    queue.pop();
+    component.push_back(p);
+
+    for (int i = 0; i < 4; ++i) {
+      int nx = p.x + dx[i];
+      int ny = p.y + dy[i];
+      if (nx >= 0 && nx < width && ny >= 0 && ny < height) {
+        const size_t nidx = static_cast<size_t>(ny) * width + nx;
+        if (!visited[nidx] && input_data[nidx] != 0) {
+          visited[nidx] = true;
+          queue.push({nx, ny});
+        }
+      }
+    }
+  }
+}
+
+bool ConvexHullSTL::ValidationImpl() noexcept {
+  return task_data->inputs_count.size() == 2 && task_data->outputs_count.size() == 1 &&
+         task_data->inputs_count[0] > 0 && task_data->inputs_count[1] > 0;
+}
+
+int ConvexHullSTL::Cross(const Point& o, const Point& a, const Point& b) noexcept {
+  return (a.x - o.x) * (b.y - o.y) - (a.y - o.y) * (b.x - o.x);
+}
+
+std::vector<Point> ConvexHullSTL::FindConvexHull(const std::vector<Point>& points) noexcept {
+  if (points.size() < 3) {
+    return points;
+  }
+
+  std::vector<Point> sorted_points(points);
+  std::sort(sorted_points.begin(), sorted_points.end());
+
+  std::vector<Point> hull;
+  hull.reserve(sorted_points.size() * 2);
+
+  for (const auto& p : sorted_points) {
+    while (hull.size() >= 2 && Cross(hull[hull.size() - 2], hull.back(), p) <= 0) {
+      hull.pop_back();
+    }
+    hull.push_back(p);
+  }
+
+  hull.pop_back();
+  for (auto it = sorted_points.rbegin(); it != sorted_points.rend(); ++it) {
+    while (hull.size() >= 2 && Cross(hull[hull.size() - 2], hull.back(), *it) <= 0) {
+      hull.pop_back();
+    }
+    hull.push_back(*it);
+  }
+
+  if (!hull.empty()) {
+    hull.pop_back();
+  }
+
+  return hull;
+}
+
+bool ConvexHullSTL::RunImpl() noexcept {
+  hulls_.resize(components_.size());
+
+  std::vector<std::thread> threads;
+  for (size_t i = 0; i < components_.size(); ++i) {
+    threads.emplace_back([this, i]() { hulls_[i] = FindConvexHull(components_[i]); });
+  }
+
+  for (auto& thread : threads) {
+    thread.join();
+  }
+
+  return true;
+}
+
+bool ConvexHullSTL::PostProcessingImpl() noexcept {
+  if (task_data->outputs.empty()) {
+    return false;
+  }
+
+  size_t total_points = 0;
+  for (const auto& hull : hulls_) {
+    total_points += hull.size();
+  }
+
+  if (static_cast<size_t>(task_data->outputs_count[0]) < total_points) {
+    return false;
+  }
+
+  auto* output = reinterpret_cast<Point*>(task_data->outputs[0]);
+  size_t offset = 0;
+  for (const auto& hull : hulls_) {
+    std::copy(hull.begin(), hull.end(), output + offset);
+    offset += hull.size();
+  }
+
+  task_data->outputs_count[0] = static_cast<int>(total_points);
+  return true;
+}
