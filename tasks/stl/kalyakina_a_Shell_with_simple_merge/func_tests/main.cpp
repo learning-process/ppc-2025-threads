@@ -7,7 +7,6 @@
 #include <vector>
 
 #include "core/task/include/task.hpp"
-#include "core/util/include/util.hpp"
 #include "stl/kalyakina_a_Shell_with_simple_merge/include/ops_stl.hpp"
 
 namespace {
