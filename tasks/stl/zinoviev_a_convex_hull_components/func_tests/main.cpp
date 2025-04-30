@@ -24,9 +24,16 @@ void SetupTaskData(const std::vector<int>& input, int width, int height, size_t 
 void VerifyResult(const std::vector<zinoviev_a_convex_hull_components_stl::Point>& actual,
                   const std::vector<zinoviev_a_convex_hull_components_stl::Point>& expected) {
   auto sorted_actual = actual;
-  std::sort(sorted_actual.begin(), sorted_actual.end());
   auto sorted_expected = expected;
-  std::sort(sorted_expected.begin(), sorted_expected.end());
+
+  auto point_comparator = [](const zinoviev_a_convex_hull_components_stl::Point& a,
+                             const zinoviev_a_convex_hull_components_stl::Point& b) {
+    return a.x < b.x || (a.x == b.x && a.y < b.y);
+  };
+
+  std::ranges::sort(sorted_actual, point_comparator);
+  std::ranges::sort(sorted_expected, point_comparator);
+
   ASSERT_EQ(sorted_actual.size(), sorted_expected.size());
   for (size_t i = 0; i < sorted_actual.size(); ++i) {
     ASSERT_EQ(sorted_actual[i].x, sorted_expected[i].x);
