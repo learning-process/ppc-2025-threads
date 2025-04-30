@@ -15,6 +15,8 @@ struct RGB {
   int B{};
 };
 
+std::vector<int> ToGrayScaleImg(std::vector<RGB>& color_img, size_t width, size_t height);
+
 int GetPixelSafe(const std::vector<int>& img, size_t x, size_t y, size_t width, size_t height);
 
 class SobelFilterSTL : public ppc::core::Task {
@@ -27,6 +29,7 @@ class SobelFilterSTL : public ppc::core::Task {
 
  private:
   std::vector<RGB> picture_;
+  std::vector<int> grayscale_image_;
   size_t width_{};
   size_t height_{};
   std::vector<int> res_image_;

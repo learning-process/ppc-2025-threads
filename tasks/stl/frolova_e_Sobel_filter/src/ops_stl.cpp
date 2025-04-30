@@ -8,6 +8,17 @@
 
 #include "core/util/include/util.hpp"
 
+std::vector<int> frolova_e_sobel_filter_stl::ToGrayScaleImg(std::vector<frolova_e_sobel_filter_stl::RGB>& color_img,
+                                                            size_t width, size_t height) {
+  std::vector<int> gray_scale_image(width * height);
+  for (size_t i = 0; i < width * height; i++) {
+    gray_scale_image[i] =
+        static_cast<int>((0.299 * color_img[i].R) + (0.587 * color_img[i].G) + (0.114 * color_img[i].B));
+  }
+
+  return gray_scale_image;
+}
+
 int frolova_e_sobel_filter_stl::GetPixelSafe(const std::vector<int>& img, size_t x, size_t y, size_t width,
                                              size_t height) {
   if (x >= width || y >= height) {
@@ -33,6 +44,7 @@ bool frolova_e_sobel_filter_stl::SobelFilterSTL::PreProcessingImpl() {
     pixel.B = picture_vector[i + 2];
     picture_.push_back(pixel);
   }
+  grayscale_image_ = frolova_e_sobel_filter_stl::ToGrayScaleImg(picture_, width_, height_);
 
   res_image_.resize(width_ * height_);
   return true;
@@ -69,46 +81,23 @@ bool frolova_e_sobel_filter_stl::SobelFilterSTL::ValidationImpl() {
 }
 
 bool frolova_e_sobel_filter_stl::SobelFilterSTL::RunImpl() {
-  std::vector<int> grayscale_image(width_ * height_);
   int num_threads = ppc::util::GetPPCNumThreads();
   std::vector<std::thread> threads;
-
-  auto grayscale_task = [&](size_t start, size_t end) {
-    for (size_t i = start; i < end; ++i) {
-      grayscale_image[i] =
-          static_cast<int>((0.299 * picture_[i].R) + (0.587 * picture_[i].G) + (0.114 * picture_[i].B));
-    }
-  };
-
-  size_t total_pixels = width_ * height_;
-  size_t actual_threads_grayscale = std::min(static_cast<size_t>(num_threads), total_pixels);
-  size_t chunk_size = (total_pixels + actual_threads_grayscale - 1) / actual_threads_grayscale;
-
-  for (size_t i = 0; i < actual_threads_grayscale; ++i) {
-    size_t start = i * chunk_size;
-    size_t end = std::min(start + chunk_size, total_pixels);
-    threads.emplace_back(grayscale_task, start, end);
-  }
-
-  for (auto& thread : threads) {
-    thread.join();
-  }
-  threads.clear();
 
   auto sobel_task = [&](size_t y_start, size_t y_end) {
     for (size_t y = y_start; y < y_end; ++y) {
       for (size_t x = 0; x < width_; ++x) {
         size_t base_idx = (y * width_) + x;
 
-        int p00 = GetPixelSafe(grayscale_image, x - 1, y - 1, width_, height_);
-        int p01 = GetPixelSafe(grayscale_image, x, y - 1, width_, height_);
-        int p02 = GetPixelSafe(grayscale_image, x + 1, y - 1, width_, height_);
-        int p10 = GetPixelSafe(grayscale_image, x - 1, y, width_, height_);
-        int p11 = GetPixelSafe(grayscale_image, x, y, width_, height_);
-        int p12 = GetPixelSafe(grayscale_image, x + 1, y, width_, height_);
-        int p20 = GetPixelSafe(grayscale_image, x - 1, y + 1, width_, height_);
-        int p21 = GetPixelSafe(grayscale_image, x, y + 1, width_, height_);
-        int p22 = GetPixelSafe(grayscale_image, x + 1, y + 1, width_, height_);
+        int p00 = GetPixelSafe(grayscale_image_, x - 1, y - 1, width_, height_);
+        int p01 = GetPixelSafe(grayscale_image_, x, y - 1, width_, height_);
+        int p02 = GetPixelSafe(grayscale_image_, x + 1, y - 1, width_, height_);
+        int p10 = GetPixelSafe(grayscale_image_, x - 1, y, width_, height_);
+        int p11 = GetPixelSafe(grayscale_image_, x, y, width_, height_);
+        int p12 = GetPixelSafe(grayscale_image_, x + 1, y, width_, height_);
+        int p20 = GetPixelSafe(grayscale_image_, x - 1, y + 1, width_, height_);
+        int p21 = GetPixelSafe(grayscale_image_, x, y + 1, width_, height_);
+        int p22 = GetPixelSafe(grayscale_image_, x + 1, y + 1, width_, height_);
 
         int res_x = (-1 * p00) + (0 * p01) + (1 * p02) + (-2 * p10) + (0 * p11) + (2 * p12) + (-1 * p20) + (0 * p21) +
                     (1 * p22);

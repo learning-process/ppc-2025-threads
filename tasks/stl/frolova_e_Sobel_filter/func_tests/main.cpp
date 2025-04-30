@@ -47,7 +47,7 @@ std::vector<frolova_e_sobel_filter_stl::RGB> ConvertToRGB(const std::vector<int>
   return picture;
 }
 
-std::vector<int> ToGrayScaleImg(std::vector<frolova_e_sobel_filter_stl::RGB> &color_img, size_t width, size_t height) {
+std::vector<int> ToGrayScaleImgNS(std::vector<frolova_e_sobel_filter_stl::RGB> &color_img, size_t width, size_t height) {
   std::vector<int> gray_scale_image(width * height);
 
   for (int i = 0; i < static_cast<int>(width * height); i++) {
@@ -227,7 +227,7 @@ TEST(frolova_e_sobel_filter_stl, _random_picture) {
 
   std::vector<frolova_e_sobel_filter_stl::RGB> picture = ConvertToRGB(pict);
   std::vector<int> gray_scale_image =
-      ToGrayScaleImg(picture, static_cast<size_t>(value[0]), static_cast<size_t>(value[1]));
+      ToGrayScaleImgNS(picture, static_cast<size_t>(value[0]), static_cast<size_t>(value[1]));
 
   reference = ApplySobelFilter(gray_scale_image, value[0], value[1]);
   test_task.PreProcessing();
