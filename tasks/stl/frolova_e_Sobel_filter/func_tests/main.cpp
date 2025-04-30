@@ -47,9 +47,9 @@ std::vector<frolova_e_sobel_filter_stl::RGB> ConvertToRGB(const std::vector<int>
   return picture;
 }
 
-std::vector<int> ToGrayScaleImgNS(std::vector<frolova_e_sobel_filter_stl::RGB> &color_img, size_t width, size_t height) {
+std::vector<int> ToGrayScaleImgNS(std::vector<frolova_e_sobel_filter_stl::RGB> &color_img, size_t width,
+                                  size_t height) {
   std::vector<int> gray_scale_image(width * height);
-
   for (int i = 0; i < static_cast<int>(width * height); i++) {
     gray_scale_image[i] =
         static_cast<int>((0.299 * color_img[i].R) + (0.587 * color_img[i].G) + (0.114 * color_img[i].B));
