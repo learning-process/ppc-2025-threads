@@ -293,7 +293,7 @@ bool vavilov_v_cannon_all::CannonALL::RunImpl() {
   int size = world_.size();
 
   if (rank == 0) {
-      std::cout << "Running Cannon's algorithm with " << size << " processes\n";
+    std::cout << "Running Cannon's algorithm with " << size << " processes\n";
   }
 
   int grid_rows = 1;
@@ -308,7 +308,7 @@ bool vavilov_v_cannon_all::CannonALL::RunImpl() {
 
   if (N_ % grid_rows != 0 || N_ % grid_cols != 0) {
     if (rank == 0) {
-    std::cerr << "Matrix size " << N_ << " must be divisible by " << grid_rows << " and " << grid_cols << "\n";
+      std::cerr << "Matrix size " << N_ << " must be divisible by " << grid_rows << " and " << grid_cols << "\n";
     }
     return false;
   }
@@ -422,7 +422,7 @@ bool vavilov_v_cannon_all::CannonALL::RunImpl() {
   }
 
   return true;
- }
+}
 
 bool vavilov_v_cannon_all::CannonALL::PostProcessingImpl() {
   if (world_.rank() == 0) {
