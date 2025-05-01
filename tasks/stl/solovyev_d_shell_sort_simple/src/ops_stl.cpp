@@ -1,5 +1,6 @@
 #include "stl/solovyev_d_shell_sort_simple/include/ops_stl.hpp"
 
+#include <algorithm>
 #include <cmath>
 #include <cstddef>
 #include <thread>
@@ -20,7 +21,7 @@ bool solovyev_d_shell_sort_simple_stl::TaskSTL::ValidationImpl() {
 }
 
 bool solovyev_d_shell_sort_simple_stl::TaskSTL::RunImpl() {
-  int num_threads = static_cast<int>(ppc::util::GetPPCNumThreads());
+  int num_threads = ppc::util::GetPPCNumThreads();
   for (int gap = static_cast<int>(input_.size()) / 2; gap > 0; gap /= 2) {
     int num_tasks = std::min(gap, num_threads);
     std::vector<std::thread> threads(num_tasks);
