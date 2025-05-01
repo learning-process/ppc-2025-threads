@@ -74,7 +74,6 @@ TEST(shulpin_i_jarvis_seq, test_pipeline_run) {
 
 TEST(shulpin_i_jarvis_seq, test_task_run) {
   size_t num_points = 1000000;
-  
   std::vector<shulpin_i_jarvis_seq::Point> hull = {
       {-kBound, kBound}, {kBound, kBound}, {kBound, -kBound}, {-kBound, -kBound}};
   std::vector<shulpin_i_jarvis_seq::Point> input =
