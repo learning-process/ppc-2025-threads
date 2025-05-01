@@ -62,7 +62,7 @@ class HoareOpenMP : public ppc::core::Task {
     auto partind = parallelism;
     for (auto wide = decltype(parallelism){1}; partind > 1; wide *= 2, partind /= 2) {
 #pragma omp parallel for if (blocks[wide].sz >= 40)
-      for (std::size_t k = 0; k < static_cast<std::size_t>(partind / 2); ++k) {
+      for (int k = 0; k < static_cast<int>(partind / 2); ++k) {
         const auto idx = 2 * wide * k;
         DoInplaceMerge(blocks.data() + idx, blocks.data() + idx + wide, reverse_ ? ReverseComp : StandardComp);
       }
