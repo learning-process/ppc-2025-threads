@@ -47,22 +47,23 @@ bool AllTask::RunImpl() {
   boost::mpi::broadcast(world_, dims_, 0);
 
   int total_points = GetTotalPoints();
-  int chunk_size = total_points / world_.size();
-  int start_point = world_.rank() * chunk_size;
-  int end_point = (world_.rank() == world_.size() - 1) ? total_points : start_point + chunk_size;
+  int points_per_process = total_points / world_.size();
+  int extra_points = total_points % world_.size();
+  int start_point = (world_.rank() * points_per_process) + std::min(world_.rank(), extra_points);
+  int end_point = start_point + points_per_process + (world_.rank() < extra_points ? 1 : 0);
 
-  double chunk_sum = 0.0;
+  double partial_sum = 0.0;
 #pragma omp parallel
   {
     auto thread_point = Point(dims_.size());
-#pragma omp for reduction(+ : chunk_sum)
+#pragma omp for reduction(+ : partial_sum)
     for (int i = start_point; i < end_point; i++) {
       FillPoint(i, thread_point);
-      chunk_sum += func_(thread_point);
+      partial_sum += func_(thread_point);
     }
   }
 
-  boost::mpi::reduce(world_, chunk_sum, result_, std::plus(), 0);
+  boost::mpi::reduce(world_, partial_sum, result_, std::plus(), 0);
 
   if (world_.rank() == 0) {
     result_ *= GetScalingFactor();
