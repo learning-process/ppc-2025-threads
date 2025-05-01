@@ -299,7 +299,7 @@ bool vavilov_v_cannon_all::CannonALL::RunImpl() {
   // Определяем размеры сетки процессов
   int grid_rows = 1;
   int grid_cols = size;
-  
+
   // Находим наиболее квадратную сетку процессов
   for (int i = static_cast<int>(std::sqrt(size)); i >= 1; --i) {
     if (size % i == 0) {
@@ -320,7 +320,7 @@ bool vavilov_v_cannon_all::CannonALL::RunImpl() {
 
   block_size_ = N_ / grid_rows;  // Для прямоугольной сетки block_size_ может быть разным по разным измерениям
   int block_size_sq = block_size_ * block_size_;
-  
+
   std::vector<double> local_A(block_size_sq);
   std::vector<double> local_B(block_size_sq);
   std::vector<double> local_C(block_size_sq, 0);
@@ -335,14 +335,14 @@ bool vavilov_v_cannon_all::CannonALL::RunImpl() {
       int col_p = p % grid_cols;
       for (int i = 0; i < block_size_; ++i) {
         for (int j = 0; j < block_size_; ++j) {
-          tmp_A[p * block_size_sq + i * block_size_ + j] = 
+          tmp_A[p * block_size_sq + i * block_size_ + j] =
               A_[(row_p * block_size_ + i) * N_ + (col_p * block_size_ + j)];
-          tmp_B[p * block_size_sq + i * block_size_ + j] = 
+          tmp_B[p * block_size_sq + i * block_size_ + j] =
               B_[(row_p * block_size_ + i) * N_ + (col_p * block_size_ + j)];
         }
       }
     }
-    
+
     mpi::scatter(world_, tmp_A.data(), local_A.data(), block_size_sq, 0);
     mpi::scatter(world_, tmp_B.data(), local_B.data(), block_size_sq, 0);
   } else {
@@ -387,10 +387,10 @@ bool vavilov_v_cannon_all::CannonALL::RunImpl() {
     int src_B = (row_index == grid_rows - 1 ? 0 : row_index + 1) * grid_cols + col_index;
     reqs.push_back(world_.isend(dest_B, 3, local_B.data(), block_size_sq));
     reqs.push_back(world_.irecv(src_B, 3, local_B.data(), block_size_sq));
-    
+
     mpi::wait_all(reqs.begin(), reqs.end());
     reqs.clear();
-    
+
     BlockMultiply(local_A, local_B, local_C);
   }
 
@@ -404,7 +404,7 @@ bool vavilov_v_cannon_all::CannonALL::RunImpl() {
       int col_p = p % grid_cols;
       for (int i = 0; i < block_size_; ++i) {
         for (int j = 0; j < block_size_; ++j) {
-          C_[(row_p * block_size_ + i) * N_ + (col_p * block_size_ + j)] = 
+          C_[(row_p * block_size_ + i) * N_ + (col_p * block_size_ + j)] =
               tmp_C[p * block_size_sq + i * block_size_ + j];
         }
       }
