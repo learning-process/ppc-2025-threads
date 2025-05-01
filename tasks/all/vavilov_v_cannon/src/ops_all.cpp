@@ -300,7 +300,7 @@ bool vavilov_v_cannon_all::CannonALL::RunImpl() {
   int grid_rows = 1;
   int grid_cols = size;
 
-  // Находим наиболее квадратную сетку процессов
+  // Находим наиболее сбалансированную сетку
   for (int i = static_cast<int>(std::sqrt(size)); i >= 1; --i) {
     if (size % i == 0) {
       grid_rows = i;
@@ -309,108 +309,106 @@ bool vavilov_v_cannon_all::CannonALL::RunImpl() {
     }
   }
 
-  // Если матрица не делится на сетку процессов, используем только часть процессов
+  // Проверяем, что матрица делится на блоки
   if (N_ % grid_rows != 0 || N_ % grid_cols != 0) {
     if (rank == 0) {
-      std::cerr << "Matrix size (" << N_ << ") must be divisible by grid dimensions (" << grid_rows << "x" << grid_cols
-                << ")" << std::endl;
+      std::cerr << "Matrix size must be divisible by grid dimensions" << std::endl;
     }
     return false;
   }
 
-  block_size_ = N_ / grid_rows;  // Для прямоугольной сетки block_size_ может быть разным по разным измерениям
-  int block_size_sq = block_size_ * block_size_;
+  int block_rows = N_ / grid_rows;
+  int block_cols = N_ / grid_cols;
+  int block_size_A = block_rows * block_cols;
+  int block_size_B = block_cols * block_rows;
 
-  std::vector<double> local_A(block_size_sq);
-  std::vector<double> local_B(block_size_sq);
-  std::vector<double> local_C(block_size_sq, 0);
+  std::vector<double> local_A(block_size_A);
+  std::vector<double> local_B(block_size_B);
+  std::vector<double> local_C(block_rows * block_rows, 0);
 
   // Распределение данных
   if (rank == 0) {
-    std::vector<double> tmp_A(size * block_size_sq);
-    std::vector<double> tmp_B(size * block_size_sq);
+    std::vector<double> tmp_A(size * block_size_A);
+    std::vector<double> tmp_B(size * block_size_B);
 
     for (int p = 0; p < size; ++p) {
       int row_p = p / grid_cols;
       int col_p = p % grid_cols;
-      for (int i = 0; i < block_size_; ++i) {
-        for (int j = 0; j < block_size_; ++j) {
-          tmp_A[p * block_size_sq + i * block_size_ + j] =
-              A_[(row_p * block_size_ + i) * N_ + (col_p * block_size_ + j)];
-          tmp_B[p * block_size_sq + i * block_size_ + j] =
-              B_[(row_p * block_size_ + i) * N_ + (col_p * block_size_ + j)];
+      for (int i = 0; i < block_rows; ++i) {
+        for (int j = 0; j < block_cols; ++j) {
+          tmp_A[p * block_size_A + i * block_cols + j] = 
+              A_[(row_p * block_rows + i) * N_ + (col_p * block_cols + j)];
+        }
+      }
+      for (int i = 0; i < block_cols; ++i) {
+        for (int j = 0; j < block_rows; ++j) {
+          tmp_B[p * block_size_B + i * block_rows + j] = 
+              B_[(col_p * block_cols + i) * N_ + (row_p * block_rows + j)];
         }
       }
     }
 
-    mpi::scatter(world_, tmp_A.data(), local_A.data(), block_size_sq, 0);
-    mpi::scatter(world_, tmp_B.data(), local_B.data(), block_size_sq, 0);
+    mpi::scatter(world_, tmp_A.data(), local_A.data(), block_size_A, 0);
+    mpi::scatter(world_, tmp_B.data(), local_B.data(), block_size_B, 0);
   } else {
-    mpi::scatter(world_, local_A.data(), block_size_sq, 0);
-    mpi::scatter(world_, local_B.data(), block_size_sq, 0);
+    mpi::scatter(world_, local_A.data(), block_size_A, 0);
+    mpi::scatter(world_, local_B.data(), block_size_B, 0);
   }
 
-  int row_index = rank / grid_cols;
-  int col_index = rank % grid_cols;
-  std::vector<mpi::request> reqs;
+  // Основное умножение
+  for (int k = 0; k < grid_cols; ++k) {
+    // Локальное умножение
+    for (int i = 0; i < block_rows; ++i) {
+      for (int j = 0; j < block_rows; ++j) {
+        double temp = 0.0;
+        for (int l = 0; l < block_cols; ++l) {
+          temp += local_A[i * block_cols + l] * local_B[l * block_rows + j];
+        }
+        local_C[i * block_rows + j] += temp;
+      }
+    }
 
-  // Начальное выравнивание данных
-  if (grid_cols > 1) {
-    // Сдвиг A влево на col_index позиций
-    int dest_A = row_index * grid_cols + (col_index + row_index) % grid_cols;
-    int src_A = row_index * grid_cols + (col_index - row_index + grid_cols) % grid_cols;
-    reqs.push_back(world_.isend(dest_A, 0, local_A.data(), block_size_sq));
-    reqs.push_back(world_.irecv(src_A, 0, local_A.data(), block_size_sq));
+    // Циклический сдвиг
+    if (k < grid_cols - 1) {
+      int next_proc = (rank + 1) % size;
+      int prev_proc = (rank - 1 + size) % size;
+      
+      mpi::request reqs[2];
+      reqs[0] = world_.isend(next_proc, 0, local_A.data(), block_size_A);
+      reqs[1] = world_.irecv(prev_proc, 0, local_A.data(), block_size_A);
+      mpi::wait_all(reqs, reqs + 2);
 
-    // Сдвиг B вверх на row_index позиций
-    int dest_B = ((row_index + col_index) % grid_rows) * grid_cols + col_index;
-    int src_B = ((row_index - col_index + grid_rows) % grid_rows) * grid_cols + col_index;
-    reqs.push_back(world_.isend(dest_B, 1, local_B.data(), block_size_sq));
-    reqs.push_back(world_.irecv(src_B, 1, local_B.data(), block_size_sq));
-
-    mpi::wait_all(reqs.begin(), reqs.end());
-    reqs.clear();
-  }
-
-  // Основной цикл умножения
-  BlockMultiply(local_A, local_B, local_C);
-
-  for (int iter = 0; iter < grid_cols - 1; ++iter) {
-    // Сдвиг A влево на 1
-    int dest_A = row_index * grid_cols + (col_index == 0 ? grid_cols - 1 : col_index - 1);
-    int src_A = row_index * grid_cols + (col_index == grid_cols - 1 ? 0 : col_index + 1);
-    reqs.push_back(world_.isend(dest_A, 2, local_A.data(), block_size_sq));
-    reqs.push_back(world_.irecv(src_A, 2, local_A.data(), block_size_sq));
-
-    // Сдвиг B вверх на 1
-    int dest_B = (row_index == 0 ? grid_rows - 1 : row_index - 1) * grid_cols + col_index;
-    int src_B = (row_index == grid_rows - 1 ? 0 : row_index + 1) * grid_cols + col_index;
-    reqs.push_back(world_.isend(dest_B, 3, local_B.data(), block_size_sq));
-    reqs.push_back(world_.irecv(src_B, 3, local_B.data(), block_size_sq));
-
-    mpi::wait_all(reqs.begin(), reqs.end());
-    reqs.clear();
-
-    BlockMultiply(local_A, local_B, local_C);
+      reqs[0] = world_.isend((rank + grid_cols) % size, 1, local_B.data(), block_size_B);
+      reqs[1] = world_.irecv((rank - grid_cols + size) % size, 1, local_B.data(), block_size_B);
+      mpi::wait_all(reqs, reqs + 2);
+    }
   }
 
   // Сбор результатов
   if (rank == 0) {
-    std::vector<double> tmp_C(size * block_size_sq);
-    mpi::gather(world_, local_C.data(), block_size_sq, tmp_C.data(), 0);
-
+    std::vector<double> tmp_C(N_ * N_);
+    // Собираем результаты от всех процессов
     for (int p = 0; p < size; ++p) {
       int row_p = p / grid_cols;
       int col_p = p % grid_cols;
-      for (int i = 0; i < block_size_; ++i) {
-        for (int j = 0; j < block_size_; ++j) {
-          C_[(row_p * block_size_ + i) * N_ + (col_p * block_size_ + j)] =
-              tmp_C[p * block_size_sq + i * block_size_ + j];
+      std::vector<double> recv_buf(block_rows * block_rows);
+
+      if (p == 0) {
+        recv_buf = local_C;
+      } else {
+        world_.recv(p, 2, recv_buf.data(), block_rows * block_rows);
+      }
+
+      for (int i = 0; i < block_rows; ++i) {
+        for (int j = 0; j < block_rows; ++j) {
+          tmp_C[(row_p * block_rows + i) * N_ + (col_p * block_rows + j)] = 
+              recv_buf[i * block_rows + j];
         }
       }
     }
+    std::copy(tmp_C.begin(), tmp_C.end(), C_.begin());
   } else {
-    mpi::gather(world_, local_C.data(), block_size_sq, 0);
+    world_.send(0, 2, local_C.data(), block_rows * block_rows);
   }
 
   return true;
