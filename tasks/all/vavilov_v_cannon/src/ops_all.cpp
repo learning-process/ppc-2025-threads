@@ -329,7 +329,7 @@ bool vavilov_v_cannon_all::CannonALL::RunImpl() {
   if (rank == 0) {
     std::vector<double> tmp_A(size * block_size_sq);
     std::vector<double> tmp_B(size * block_size_sq);
-    
+
     for (int p = 0; p < size; ++p) {
       int row_p = p / grid_cols;
       int col_p = p % grid_cols;
@@ -361,7 +361,7 @@ bool vavilov_v_cannon_all::CannonALL::RunImpl() {
     int src_A = row_index * grid_cols + (col_index - row_index + grid_cols) % grid_cols;
     reqs.push_back(world_.isend(dest_A, 0, local_A.data(), block_size_sq));
     reqs.push_back(world_.irecv(src_A, 0, local_A.data(), block_size_sq));
-    
+
     // Сдвиг B вверх на row_index позиций
     int dest_B = ((row_index + col_index) % grid_rows) * grid_cols + col_index;
     int src_B = ((row_index - col_index + grid_rows) % grid_rows) * grid_cols + col_index;
@@ -381,7 +381,7 @@ bool vavilov_v_cannon_all::CannonALL::RunImpl() {
     int src_A = row_index * grid_cols + (col_index == grid_cols - 1 ? 0 : col_index + 1);
     reqs.push_back(world_.isend(dest_A, 2, local_A.data(), block_size_sq));
     reqs.push_back(world_.irecv(src_A, 2, local_A.data(), block_size_sq));
-    
+
     // Сдвиг B вверх на 1
     int dest_B = (row_index == 0 ? grid_rows - 1 : row_index - 1) * grid_cols + col_index;
     int src_B = (row_index == grid_rows - 1 ? 0 : row_index + 1) * grid_cols + col_index;
@@ -398,7 +398,7 @@ bool vavilov_v_cannon_all::CannonALL::RunImpl() {
   if (rank == 0) {
     std::vector<double> tmp_C(size * block_size_sq);
     mpi::gather(world_, local_C.data(), block_size_sq, tmp_C.data(), 0);
-    
+
     for (int p = 0; p < size; ++p) {
       int row_p = p / grid_cols;
       int col_p = p % grid_cols;
