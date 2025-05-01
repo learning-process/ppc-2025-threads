@@ -5,6 +5,7 @@
 #include <tbb/tbb.h>
 
 #include <algorithm>
+#include <cstdio>
 #include <utility>
 #include <vector>
 
@@ -49,7 +50,7 @@ class HoareThreadBB : public ppc::core::Task {
   void MergeGroup(std::size_t b, std::size_t e, std::size_t wide, std::vector<Block>& blocks) {
     for (std::size_t k = b; k < e; ++k) {
       const auto idx = 2 * wide * k;
-      DoInplaceMerge(&blocks[idx], &blocks[idx + wide], reverse_ ? ReverseComp : StandardComp);
+      DoInplaceMerge(blocks.data() + idx, blocks.data() + idx + wide, reverse_ ? ReverseComp : StandardComp);
     }
   }
 
@@ -57,7 +58,7 @@ class HoareThreadBB : public ppc::core::Task {
     auto partind = parallelism;
     for (auto wide = decltype(parallelism){1}; partind > 1; wide *= 2, partind /= 2) {
       if (blocks[wide].sz < 40) {
-        MergeGroup(0, (partind / 2), wide, blocks);
+        MergeGroup(0, partind / 2, wide, blocks);
       } else {
         oneapi::tbb::parallel_for(
             oneapi::tbb::blocked_range<std::size_t>(0, (partind / 2), (partind / 2) / parallelism),
@@ -65,9 +66,9 @@ class HoareThreadBB : public ppc::core::Task {
       }
       if ((partind / 2) == 1) {
         DoInplaceMerge(&blocks.front(), &blocks.back(), reverse_ ? ReverseComp : StandardComp);
-      } else if (((partind / 2) & 2) != 0) {
-        DoInplaceMerge(&blocks[2 * wide * (partind / 2 - 2)], &blocks[2 * wide * (partind / 2 - 1)],
-                       reverse_ ? ReverseComp : StandardComp);
+      } else if ((partind / 2) % 2 != 0) {
+        DoInplaceMerge(blocks.data() + (2 * wide * ((partind / 2) - 2)),
+                       blocks.data() + (2 * wide * ((partind / 2) - 1)), reverse_ ? ReverseComp : StandardComp);
       }
     }
   }
