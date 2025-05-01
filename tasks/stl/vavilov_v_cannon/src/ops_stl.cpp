@@ -27,7 +27,7 @@ bool vavilov_v_cannon_stl::CannonSTL::ValidationImpl() {
          task_data->outputs_count[0] == task_data->inputs_count[0];
 }
 
-void vavilov_v_cannon_stl::CannonSTL::InitialShift() {
+void vavilov_v_cannon_stl::CannonSTL::InitialShift(int num_threads) {
   std::vector<double> a_tmp = A_;
   std::vector<double> b_tmp = B_;
   std::vector<std::thread> threads;
@@ -62,7 +62,7 @@ void vavilov_v_cannon_stl::CannonSTL::InitialShift() {
   }
 }
 
-void vavilov_v_cannon_stl::CannonSTL::BlockMultiply() {
+void vavilov_v_cannon_stl::CannonSTL::BlockMultiply(int num_threads) {
   std::vector<std::thread> threads;
   std::vector<std::vector<double>> local_C;
   int num_threads_ = num_blocks_;
@@ -120,7 +120,7 @@ void vavilov_v_cannon_stl::CannonSTL::BlockMultiply() {
   }
 }
 
-void vavilov_v_cannon_stl::CannonSTL::ShiftBlocks() {
+void vavilov_v_cannon_stl::CannonSTL::ShiftBlocks(int num_threads) {
   std::vector<double> a_tmp = A_;
   std::vector<double> b_tmp = B_;
   std::vector<std::thread> threads;
