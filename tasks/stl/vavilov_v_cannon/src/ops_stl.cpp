@@ -49,7 +49,6 @@ void vavilov_v_cannon_stl::CannonSTL::InitialShift() {
     }
   };
 
-  int num_threads = std::min(ppc::util::GetPPCNumThreads(), num_blocks_);
   int blocks_per_thread = (num_blocks_ + num_threads - 1) / num_threads;
   for (int t = 0; t < num_threads; ++t) {
     int start = t * blocks_per_thread;
@@ -91,7 +90,6 @@ void vavilov_v_cannon_stl::CannonSTL::BlockMultiply() {
     }
   };
 
-  num_threads_ = std::min(ppc::util::GetPPCNumThreads(), num_blocks_);
   local_C.resize(num_threads_);
   int blocks_per_thread = (num_blocks_ + num_threads_ - 1) / num_threads_;
   int bi_range = blocks_per_thread * block_size_;
@@ -144,7 +142,6 @@ void vavilov_v_cannon_stl::CannonSTL::ShiftBlocks() {
     }
   };
 
-  int num_threads = std::min(ppc::util::GetPPCNumThreads(), num_blocks_);
   int blocks_per_thread = (num_blocks_ + num_threads - 1) / num_threads;
   for (int t = 0; t < num_threads; ++t) {
     int start = t * blocks_per_thread;
@@ -159,10 +156,11 @@ void vavilov_v_cannon_stl::CannonSTL::ShiftBlocks() {
 }
 
 bool vavilov_v_cannon_stl::CannonSTL::RunImpl() {
-  InitialShift();
+  int num_threads = std::min(ppc::util::GetPPCNumThreads(), num_blocks_);
+  InitialShift(num_threads);
   for (int iter = 0; iter < num_blocks_; ++iter) {
-    BlockMultiply();
-    ShiftBlocks();
+    BlockMultiply(num_threads);
+    ShiftBlocks(num_threads);
   }
   return true;
 }
