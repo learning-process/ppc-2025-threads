@@ -281,7 +281,7 @@ bool gusev_n_sorting_int_simple_merging_all::SortingIntSimpleMergingALL::Validat
   if (task_data->inputs_count[0] == 0) {
     return true;
   }
-  
+
   if (task_data->inputs[0] == nullptr || task_data->outputs[0] == nullptr) {
     return false;
   }

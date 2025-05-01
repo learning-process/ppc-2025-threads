@@ -4,9 +4,9 @@
 #include <cstddef>
 #include <cstdint>
 #include <cstdlib>
+#include <limits>
 #include <memory>
 #include <vector>
-#include <limits>
 
 #include "all/gusev_n_sorting_int_simple_merging/include/ops_all.hpp"
 #include "core/task/include/task.hpp"
@@ -199,7 +199,7 @@ TEST(gusev_n_sorting_int_simple_merging_all, test_validation_nullptr) {
 
   auto task_data = CreateTaskData(in, out);
   task_data->inputs[0] = nullptr;
-  
+
   gusev_n_sorting_int_simple_merging_all::SortingIntSimpleMergingALL task(task_data);
   EXPECT_FALSE(task.Validation());
 }
