@@ -2,11 +2,12 @@
 
 #include <algorithm>
 #include <atomic>
-#include <execution>
 #include <functional>
 #include <numeric>
-#include <ranges>
+#include <thread>
 #include <vector>
+
+#include "core/util/include/util.hpp"
 
 bool laganina_e_component_labeling_stl::TestTaskSTL::ValidationImpl() {
   if (task_data == nullptr || task_data->inputs[0] == nullptr || task_data->outputs[0] == nullptr) {
@@ -41,16 +42,48 @@ bool laganina_e_component_labeling_stl::TestTaskSTL::PostProcessingImpl() {
 
 void laganina_e_component_labeling_stl::TestTaskSTL::InitializeParents(std::vector<int>& parent) {
   const int size = m_ * n_;
+  const int num_threads = ppc::util::GetPPCNumThreads();
+  const int chunk_size = (size + num_threads - 1) / num_threads;
 
-  std::for_each(std::execution::par_unseq, std::views::iota(0, size).begin(), std::views::iota(0, size).end(),
-                [&](int i) { parent[i] = binary_[i] ? i : -1; });
+  std::vector<std::thread> threads;
+  for (int t = 0; t < num_threads; ++t) {
+    const int start = t * chunk_size;
+    const int end = std::min(start + chunk_size, size);
+
+    threads.emplace_back([&, start, end] {
+      for (int i = start; i < end; ++i) {
+        parent[i] = binary_[i] ? i : -1;
+      }
+    });
+  }
+
+  for (auto& t : threads) t.join();
 }
 
 void laganina_e_component_labeling_stl::TestTaskSTL::ProcessSweep(bool reverse, std::vector<int>& parent,
                                                                   bool& changed) const {
-  changed = std::transform_reduce(std::execution::par_unseq, std::views::iota(0, m_).begin(),
-                                  std::views::iota(0, m_).end(), false, std::logical_or<>(),
-                                  [&](int row_idx) { return ProcessRow(row_idx, reverse, parent); });
+  const int num_threads = ppc::util::GetPPCNumThreads();
+  const int chunk_size = (m_ + num_threads - 1) / num_threads;
+  std::atomic<bool> global_changed(false);
+
+  std::vector<std::thread> threads;
+  for (int t = 0; t < num_threads; ++t) {
+    const int start = t * chunk_size;
+    const int end = std::min(start + chunk_size, m_);
+
+    threads.emplace_back([&, start, end] {
+      bool local_changed = false;
+      for (int row_idx = start; row_idx < end; ++row_idx) {
+        local_changed |= ProcessRow(row_idx, reverse, parent);
+      }
+      if (local_changed) {
+        global_changed = true;
+      }
+    });
+  }
+
+  for (auto& t : threads) t.join();
+  changed = global_changed.load();
 }
 
 bool laganina_e_component_labeling_stl::TestTaskSTL::ProcessRow(int row_idx, bool reverse,
@@ -119,40 +152,70 @@ bool laganina_e_component_labeling_stl::TestTaskSTL::UnionNodes(int a, int b, st
 
 void laganina_e_component_labeling_stl::TestTaskSTL::FinalizeRoots(std::vector<int>& parent) const {
   const int size = m_ * n_;
+  const int num_threads = ppc::util::GetPPCNumThreads();
+  const int chunk_size = (size + num_threads - 1) / num_threads;
 
-  std::for_each(std::execution::par_unseq, std::views::iota(0, size).begin(), std::views::iota(0, size).end(),
-                [&](int i) {
-                  if (parent[i] != -1) {
-                    parent[i] = FindRoot(parent, i);
-                  }
-                });
+  std::vector<std::thread> threads;
+  for (int t = 0; t < num_threads; ++t) {
+    const int start = t * chunk_size;
+    const int end = std::min(start + chunk_size, size);
+
+    threads.emplace_back([&, start, end] {
+      for (int i = start; i < end; ++i) {
+        if (parent[i] != -1) {
+          parent[i] = FindRoot(parent, i);
+        }
+      }
+    });
+  }
+
+  for (auto& t : threads) t.join();
 }
 
 void laganina_e_component_labeling_stl::TestTaskSTL::AssignLabels(std::vector<int>& parent) {
   const int size = m_ * n_;
-  std::vector<std::atomic<int>> labels(size + 1);
+  const int num_threads = ppc::util::GetPPCNumThreads();
+  std::vector<int> labels(size + 1, 0);
 
-  std::for_each(std::execution::par_unseq, std::views::iota(0, size + 1).begin(), std::views::iota(0, size + 1).end(),
-                [&](int i) { labels[i].store(0, std::memory_order_relaxed); });
+  std::atomic<int> current_label(1);
+  const int chunk_size = (size + num_threads - 1) / num_threads;
+  std::vector<std::thread> threads;
 
-  std::atomic<int> current_label = 1;
+  for (int t = 0; t < num_threads; ++t) {
+    const int start = t * chunk_size;
+    const int end = std::min(start + chunk_size, size);
 
-  std::for_each(std::execution::par_unseq, std::views::iota(0, size).begin(), std::views::iota(0, size).end(),
-                [&](int i) {
-                  if (parent[i] == i) {
-                    int expected = 0;
-                    labels[i].compare_exchange_strong(expected, current_label++, std::memory_order_release,
-                                                      std::memory_order_relaxed);
-                    // labels[i].compare_exchange_strong(expected, current_label++, std::memory_order_relaxed,
-                    //                                   std::memory_order_relaxed);
-                  }
-                });
+    threads.emplace_back([&, start, end] {
+      for (int i = start; i < end; ++i) {
+        if (parent[i] == i) {
+          labels[i] = current_label.fetch_add(1, std::memory_order_relaxed);
+        }
+      }
+    });
+    // threads.emplace_back([&, start, end] {
+    //   for (int i = start; i < end; ++i) {
+    //     if (parent[i] == i) {
+    //       labels[i] = current_label.fetch_add(1, std::memory_order_seq_cst);
+    //     }
+    //   }
+    // });
+  }
 
-  std::for_each(std::execution::par_unseq, std::views::iota(0, size).begin(), std::views::iota(0, size).end(),
-                [&](int i) { binary_[i] = (parent[i] != -1) ? labels[parent[i]].load(std::memory_order_acquire) : 0; });
-  /*std::for_each(std::execution::par_unseq, std::views::iota(0, size).begin(), std::views::iota(0, size).end(),
-                [&](int i) { binary_[i] = (parent[i] != -1) ? labels[parent[i]].load(std::memory_order_relaxed) : 0;
-     });*/
+  for (auto& t : threads) t.join();
+  threads.clear();
+
+  for (int t = 0; t < num_threads; ++t) {
+    const int start = t * chunk_size;
+    const int end = std::min(start + chunk_size, size);
+
+    threads.emplace_back([&, start, end] {
+      for (int i = start; i < end; ++i) {
+        binary_[i] = (parent[i] != -1) ? labels[parent[i]] : 0;
+      }
+    });
+  }
+
+  for (auto& t : threads) t.join();
 }
 
 void laganina_e_component_labeling_stl::TestTaskSTL::LabelConnectedComponents() {
