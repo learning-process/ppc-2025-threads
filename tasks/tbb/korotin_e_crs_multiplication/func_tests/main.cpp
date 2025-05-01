@@ -2,6 +2,7 @@
 
 #include <cstdint>
 #include <cstdlib>
+#include <iostream>
 #include <memory>
 #include <random>
 #include <stdexcept>
@@ -317,6 +318,9 @@ TEST(korotin_e_crs_multiplication_tbb, test_rnd_rnd_bords) {
   const unsigned int m = (rand() % 50) + 1;
   const unsigned int n = (rand() % 50) + 1;
   const unsigned int p = (rand() % 50) + 1;
+  std::cout << "\nm = " << m << std::endl;
+  std::cout << "\nn = " << n << std::endl;
+  std::cout << "\np = " << p << std::endl;
   std::vector<double> a;
   std::vector<double> b;
   std::vector<double> a_val;
@@ -329,7 +333,7 @@ TEST(korotin_e_crs_multiplication_tbb, test_rnd_rnd_bords) {
   b = korotin_e_crs_multiplication_tbb::GetRandomMatrix(n, p);
   korotin_e_crs_multiplication_tbb::MakeCRS(a_ri, a_col, a_val, a, m, n);
   korotin_e_crs_multiplication_tbb::MakeCRS(b_ri, b_col, b_val, b, n, p);
-
+  std::cout << "Im here1" << std::endl;
   auto task_data_tbb = std::make_shared<ppc::core::TaskData>();
   task_data_tbb->inputs.emplace_back(reinterpret_cast<uint8_t *>(a_ri.data()));
   task_data_tbb->inputs.emplace_back(reinterpret_cast<uint8_t *>(a_col.data()));
@@ -344,7 +348,7 @@ TEST(korotin_e_crs_multiplication_tbb, test_rnd_rnd_bords) {
   task_data_tbb->inputs_count.emplace_back(b_ri.size());
   task_data_tbb->inputs_count.emplace_back(b_col.size());
   task_data_tbb->inputs_count.emplace_back(b_val.size());
-
+  std::cout << "Im here2" << std::endl;
   std::vector<unsigned int> out_ri(a_ri.size(), 0);
   std::vector<unsigned int> out_col(m * p);
   std::vector<double> out_val(m * p);
@@ -352,23 +356,24 @@ TEST(korotin_e_crs_multiplication_tbb, test_rnd_rnd_bords) {
   task_data_tbb->outputs.emplace_back(reinterpret_cast<uint8_t *>(out_col.data()));
   task_data_tbb->outputs.emplace_back(reinterpret_cast<uint8_t *>(out_val.data()));
   task_data_tbb->outputs_count.emplace_back(out_ri.size());
-
+  std::cout << "Im here3" << std::endl;
   korotin_e_crs_multiplication_tbb::CrsMultiplicationTBB test_task_tbb(task_data_tbb);
   ASSERT_EQ(test_task_tbb.Validation(), true);
   test_task_tbb.PreProcessing();
   test_task_tbb.Run();
   test_task_tbb.PostProcessing();
-
+  std::cout << "Im here4" << std::endl;
   std::vector<double> c(m * p, 0);
   std::vector<double> c_val;
   std::vector<unsigned int> c_ri;
   std::vector<unsigned int> c_col;
   korotin_e_crs_multiplication_tbb::MatrixMultiplication(a, b, c, m, n, p);
-
+  std::cout << "Im here5" << std::endl;
   korotin_e_crs_multiplication_tbb::MakeCRS(c_ri, c_col, c_val, c, m, p);
   ASSERT_EQ(c_ri, out_ri);
   ASSERT_EQ(c_col, out_col);
   ASSERT_EQ(c_val, out_val);
+  std::cout << "Im here6" << std::endl;
 }
 
 TEST(korotin_e_crs_multiplication_tbb, test_rnd_17_37_53) {
