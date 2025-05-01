@@ -1,11 +1,14 @@
 #include <gtest/gtest.h>
 
+#include <cstddef>
+#include <cstdint>
 #include <memory>
 #include <vector>
 
 #include "core/task/include/task.hpp"
 #include "seq/trubin_a_algorithm_dijkstra/include/ops_seq.hpp"
 
+namespace {
 void RunDijkstraTest(const std::vector<int>& graph_data, int start_vertex, size_t vertex_count,
                      const std::vector<int>& expected) {
   std::vector<int> out(vertex_count, -42);
@@ -26,6 +29,7 @@ void RunDijkstraTest(const std::vector<int>& graph_data, int start_vertex, size_
 
   EXPECT_EQ(out, expected);
 }
+}  // namespace
 
 TEST(trubin_a_algorithm_dijkstra_seq, trivial_graph) { RunDijkstraTest({-1}, 0, 1, {0}); }
 

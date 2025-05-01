@@ -2,6 +2,9 @@
 
 #include <cmath>
 #include <cstddef>
+#include <limits>
+#include <queue>
+#include <utility>
 #include <vector>
 
 bool trubin_a_algorithm_dijkstra_seq::TestTaskSequential::PreProcessingImpl() {
@@ -82,7 +85,9 @@ bool trubin_a_algorithm_dijkstra_seq::TestTaskSequential::RunImpl() {
     auto [current_distance, u] = min_heap.top();
     min_heap.pop();
 
-    if (current_distance > distances_[u]) continue;
+    if (current_distance > distances_[u]) {
+      continue;
+    }
 
     for (const auto& edge : adjacency_list_[u]) {
       int new_dist = distances_[u] + edge.weight;
@@ -129,7 +134,7 @@ bool trubin_a_algorithm_dijkstra_seq::TestTaskSequential::BuildAdjacencyList(con
       return false;
     }
 
-    size_t to = static_cast<size_t>(graph_data[i]);
+    auto to = static_cast<size_t>(graph_data[i]);
     int weight = graph_data[i + 1];
 
     if (to >= num_vertices_ || weight < 0) {
