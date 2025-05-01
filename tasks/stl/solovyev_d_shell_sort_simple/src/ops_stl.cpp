@@ -70,7 +70,7 @@ bool solovyev_d_shell_sort_simple_stl::TaskSTL::RunImpl() {
     done = true;
   }
   cv.notify_all();
-  for (auto& th : threads) {
+  for (auto &th : threads) {
     if (th.joinable()) th.join();
   }
   return true;
