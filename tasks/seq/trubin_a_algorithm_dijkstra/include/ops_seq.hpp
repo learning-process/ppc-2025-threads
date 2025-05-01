@@ -10,6 +10,8 @@ namespace trubin_a_algorithm_dijkstra_seq {
 struct Edge {
   size_t to;
   int weight;
+
+  Edge(size_t to_, int weight_) : to(to_), weight(weight_) {}
 };
 
 class TestTaskSequential : public ppc::core::Task {
