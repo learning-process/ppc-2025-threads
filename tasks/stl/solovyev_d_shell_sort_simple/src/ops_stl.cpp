@@ -40,7 +40,7 @@ bool solovyev_d_shell_sort_simple_stl::TaskSTL::RunImpl() {
         }
       });
     }
-    for (auto& thread : threads) {
+    for (auto &thread : threads) {
       thread.join();
     }
   }
