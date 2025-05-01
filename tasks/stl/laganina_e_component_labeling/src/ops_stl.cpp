@@ -2,8 +2,6 @@
 
 #include <algorithm>
 #include <atomic>
-#include <functional>
-#include <numeric>
 #include <thread>
 #include <vector>
 
@@ -57,7 +55,9 @@ void laganina_e_component_labeling_stl::TestTaskSTL::InitializeParents(std::vect
     });
   }
 
-  for (auto& t : threads) t.join();
+  for (auto& t : threads) {
+    t.join();
+  }
 }
 
 void laganina_e_component_labeling_stl::TestTaskSTL::ProcessSweep(bool reverse, std::vector<int>& parent,
@@ -82,7 +82,9 @@ void laganina_e_component_labeling_stl::TestTaskSTL::ProcessSweep(bool reverse, 
     });
   }
 
-  for (auto& t : threads) t.join();
+  for (auto& t : threads) {
+    t.join();
+  }
   changed = global_changed.load();
 }
 
@@ -169,7 +171,9 @@ void laganina_e_component_labeling_stl::TestTaskSTL::FinalizeRoots(std::vector<i
     });
   }
 
-  for (auto& t : threads) t.join();
+  for (auto& t : threads) {
+    t.join();
+  }
 }
 
 void laganina_e_component_labeling_stl::TestTaskSTL::AssignLabels(std::vector<int>& parent) {
@@ -201,7 +205,9 @@ void laganina_e_component_labeling_stl::TestTaskSTL::AssignLabels(std::vector<in
     // });
   }
 
-  for (auto& t : threads) t.join();
+  for (auto& t : threads) {
+    t.join();
+  }
   threads.clear();
 
   for (int t = 0; t < num_threads; ++t) {
@@ -215,7 +221,9 @@ void laganina_e_component_labeling_stl::TestTaskSTL::AssignLabels(std::vector<in
     });
   }
 
-  for (auto& t : threads) t.join();
+  for (auto& t : threads) {
+    t.join();
+  }
 }
 
 void laganina_e_component_labeling_stl::TestTaskSTL::LabelConnectedComponents() {
