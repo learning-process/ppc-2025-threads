@@ -1,6 +1,6 @@
 #pragma once
 
-#include <boost/mpi.hpp>
+#include <boost/mpi/communicator.hpp>
 #include <boost/serialization/access.hpp>
 #include <functional>
 #include <utility>
@@ -31,7 +31,7 @@ class Dimension {
 
   friend class boost::serialization::access;
   template <class Archive>
-  void serialize(Archive &archive, unsigned version) {
+  void serialize(Archive &archive, unsigned version) {  // NOLINT(readability-identifier-naming)
     archive & lower_bound_;
     archive & upper_bound_;
     archive & steps_count_;
