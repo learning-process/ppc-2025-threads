@@ -336,14 +336,12 @@ bool vavilov_v_cannon_all::CannonALL::RunImpl() {
       int col_p = p % grid_cols;
       for (int i = 0; i < block_rows; ++i) {
         for (int j = 0; j < block_cols; ++j) {
-          tmp_A[p * block_size_A + i * block_cols + j] =
-              A_[(row_p * block_rows + i) * N_ + (col_p * block_cols + j)];
+          tmp_A[p * block_size_A + i * block_cols + j] = A_[(row_p * block_rows + i) * N_ + (col_p * block_cols + j)];
         }
       }
       for (int i = 0; i < block_cols; ++i) {
         for (int j = 0; j < block_rows; ++j) {
-          tmp_B[p * block_size_B + i * block_rows + j] =
-              B_[(col_p * block_cols + i) * N_ + (row_p * block_rows + j)];
+          tmp_B[p * block_size_B + i * block_rows + j] = B_[(col_p * block_cols + i) * N_ + (row_p * block_rows + j)];
         }
       }
     }
@@ -372,7 +370,7 @@ bool vavilov_v_cannon_all::CannonALL::RunImpl() {
     if (k < grid_cols - 1) {
       int next_proc = (rank + 1) % size;
       int prev_proc = (rank - 1 + size) % size;
-      
+
       mpi::request reqs[2];
       reqs[0] = world_.isend(next_proc, 0, local_A.data(), block_size_A);
       reqs[1] = world_.irecv(prev_proc, 0, local_A.data(), block_size_A);
@@ -401,8 +399,7 @@ bool vavilov_v_cannon_all::CannonALL::RunImpl() {
 
       for (int i = 0; i < block_rows; ++i) {
         for (int j = 0; j < block_rows; ++j) {
-          tmp_C[(row_p * block_rows + i) * N_ + (col_p * block_rows + j)] =
-              recv_buf[i * block_rows + j];
+          tmp_C[(row_p * block_rows + i) * N_ + (col_p * block_rows + j)] = recv_buf[i * block_rows + j];
         }
       }
     }
