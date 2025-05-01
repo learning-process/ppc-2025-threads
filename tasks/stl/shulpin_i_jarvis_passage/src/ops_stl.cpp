@@ -83,9 +83,11 @@ bool shulpin_i_jarvis_stl::JarvisSequential::PostProcessingImpl() {
 }
 
 #ifdef __linux__
+// this whole nolint block is for NOLINT(readability-function-cognitive-complexity). using it as end-of-line comment
+// doesn't work. all other linter warnings have been resolved
+// NOLINTBEGIN
 void shulpin_i_jarvis_stl::JarvisSTLParallel::MakeJarvisPassageSTL(
-    std::vector<shulpin_i_jarvis_stl::Point>& input_jar,
-    std::vector<shulpin_i_jarvis_stl::Point>& output_jar) {  // NOLINT(readability-function-cognitive-complexity)
+    std::vector<shulpin_i_jarvis_stl::Point>& input_jar, std::vector<shulpin_i_jarvis_stl::Point>& output_jar) {
   output_jar.clear();
 
   std::unordered_set<Point, PointHash, PointEqual> unique_points;
@@ -114,8 +116,7 @@ void shulpin_i_jarvis_stl::JarvisSTLParallel::MakeJarvisPassageSTL(
   std::condition_variable cv;
   bool stop = false;
 
-  // NOLINTBEGIN
-  auto findNextPointThread = [&](int tid) {  // NOLINT(readability-function-cognitive-complexity)
+  auto findNextPointThread = [&](int tid) {
     while (true) {
       std::unique_lock<std::mutex> lock(mtx);
       cv.wait(lock, [&] { return thread_ready[tid] || stop; });
@@ -150,9 +151,9 @@ void shulpin_i_jarvis_stl::JarvisSTLParallel::MakeJarvisPassageSTL(
       cv.notify_all();
     }
   };
-  // NOLINTEND
+
   for (int i = 0; i < num_threads; ++i) {
-    threads.emplace_back(findNextPointThread, i);  // NOLINT
+    threads.emplace_back(findNextPointThread, i);
   }
 
   do {
@@ -205,11 +206,10 @@ void shulpin_i_jarvis_stl::JarvisSTLParallel::MakeJarvisPassageSTL(
     }
   }
 }
-
+// NOLINTEND
 #else
 void shulpin_i_jarvis_stl::JarvisSTLParallel::MakeJarvisPassageSTL(
-    std::vector<shulpin_i_jarvis_stl::Point>& input_jar,
-    std::vector<shulpin_i_jarvis_stl::Point>& output_jar) {  // NOLINT(readability-function-cognitive-complexity)
+    std::vector<shulpin_i_jarvis_stl::Point>& input_jar, std::vector<shulpin_i_jarvis_stl::Point>& output_jar) {
   output_jar.clear();
 
   std::unordered_set<shulpin_i_jarvis_stl::Point, shulpin_i_jarvis_stl::PointHash, shulpin_i_jarvis_stl::PointEqual>
