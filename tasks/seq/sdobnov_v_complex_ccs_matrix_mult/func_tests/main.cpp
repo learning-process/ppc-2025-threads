@@ -22,7 +22,9 @@ TEST(sdobnov_v_complex_ccs_matrix_mult_seq, Multiply_IncompatibleDimensions) {
 }
 
 TEST(sdobnov_v_complex_ccs_matrix_mult_seq, Multiply_EmptyMatrices) {
-  sdobnov_v_complex_ccs_matrix_mult::SparseMatrixCCS m1(2, 3), m2(3, 4), result(2, 4);
+  sdobnov_v_complex_ccs_matrix_mult::SparseMatrixCCS m1(2, 3);
+  sdobnov_v_complex_ccs_matrix_mult::SparseMatrixCCS m2(3, 4);
+  sdobnov_v_complex_ccs_matrix_mult::SparseMatrixCCS result(2, 4);
   auto task_data = std::make_shared<ppc::core::TaskData>();
   task_data->inputs = {reinterpret_cast<uint8_t*>(&m1), reinterpret_cast<uint8_t*>(&m2)};
   task_data->outputs = {reinterpret_cast<uint8_t*>(&result)};

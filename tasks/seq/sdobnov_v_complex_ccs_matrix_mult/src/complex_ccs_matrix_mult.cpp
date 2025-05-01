@@ -101,10 +101,10 @@ bool sdobnov_v_complex_ccs_matrix_mult::SeqComplexCcsMatrixMult::RunImpl() {
       std::complex<double> val_m2 = M2_->values[idx_m2];
 
       for (int idx_m1 = M1_->col_p[row_m2]; idx_m1 < M1_->col_p[row_m2 + 1]; ++idx_m1) {
-        int rowM1 = M1_->row_i[idx_m1];
+        int row_m1 = M1_->row_i[idx_m1];
         std::complex<double> val_m1 = M1_->values[idx_m1];
 
-        row_buffer[rowM1] += val_m1 * val_m2;
+        row_buffer[row_m1] += val_m1 * val_m2;
       }
     }
 
