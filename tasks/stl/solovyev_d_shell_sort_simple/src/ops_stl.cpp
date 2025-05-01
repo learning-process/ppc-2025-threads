@@ -23,14 +23,14 @@ bool solovyev_d_shell_sort_simple_stl::TaskSTL::ValidationImpl() {
 bool solovyev_d_shell_sort_simple_stl::TaskSTL::RunImpl() {
   int num_threads = ppc::util::GetPPCNumThreads();
   for (int gap = static_cast<int>(input_.size()) / 2; gap > 0; gap /= 2) {
-    int num_tasks = std::min(gap, num_threads);
-    std::vector<std::thread> threads(num_tasks);
-    for (int t = 0; t < num_tasks; ++t) {
-      threads[t] = std::thread([this, gap, t, num_tasks]() {
-        for (int i = t; i < gap; i += num_tasks) {
+    std::vector<std::thread> threads;
+    threads.reserve(num_threads);
+    for (int t = 0; t < num_threads; ++t) {
+      threads.emplace_back([this, gap, t, num_threads]() {
+        for (int i = t; i < gap; i += num_threads) {
           for (size_t f = i + gap; f < input_.size(); f += gap) {
             int val = input_[f];
-            int j = static_cast<int>(f);
+            size_t j = f;
             while (j >= gap && input_[j - gap] > val) {
               input_[j] = input_[j - gap];
               j -= gap;
@@ -40,8 +40,8 @@ bool solovyev_d_shell_sort_simple_stl::TaskSTL::RunImpl() {
         }
       });
     }
-    for (auto &th : threads) {
-      th.join();
+    for (auto& thread : threads) {
+      thread.join();
     }
   }
   return true;
