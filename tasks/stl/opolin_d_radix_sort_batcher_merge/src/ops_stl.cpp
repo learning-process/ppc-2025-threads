@@ -85,7 +85,7 @@ uint32_t opolin_d_radix_batcher_sort_stl::IntToUnsigned(int value) { return stat
 int opolin_d_radix_batcher_sort_stl::UnsignedToInt(uint32_t value) { return static_cast<int>(value ^ (1u << 31)); }
 
 void opolin_d_radix_batcher_sort_stl::ParallelProcessRange(size_t total_size, unsigned int num_threads,
-                                                   const std::function<void(size_t start, size_t end)>& func) {
+                                                           const std::function<void(size_t start, size_t end)>& func) {
   if (total_size == 0 || num_threads == 0) {
     return;
   }
@@ -112,7 +112,7 @@ void opolin_d_radix_batcher_sort_stl::ParallelProcessRange(size_t total_size, un
 }
 
 void opolin_d_radix_batcher_sort_stl::ParallelRunTasks(const std::vector<std::function<void()>>& tasks,
-                                               unsigned int num_threads) {
+                                                       unsigned int num_threads) {
   if (tasks.empty() || num_threads == 0) {
     return;
   }
@@ -139,7 +139,8 @@ void opolin_d_radix_batcher_sort_stl::ParallelRunTasks(const std::vector<std::fu
   }
 }
 
-void opolin_d_radix_batcher_sort_stl::RadixSortLSD(std::vector<uint32_t>::iterator begin, std::vector<uint32_t>::iterator end) {
+void opolin_d_radix_batcher_sort_stl::RadixSortLSD(std::vector<uint32_t>::iterator begin,
+                                                   std::vector<uint32_t>::iterator end) {
   size_t n = std::distance(begin, end);
   if (n <= 1) {
     return;
@@ -170,8 +171,8 @@ void opolin_d_radix_batcher_sort_stl::RadixSortLSD(std::vector<uint32_t>::iterat
 }
 
 void opolin_d_radix_batcher_sort_stl::IterativeOddEvenBlockMerge(std::vector<uint32_t>::iterator data_begin,
-                                                         std::vector<uint32_t>::iterator data_end, size_t num_blocks,
-                                                         unsigned int num_threads) {
+                                                                 std::vector<uint32_t>::iterator data_end,
+                                                                 size_t num_blocks, unsigned int num_threads) {
   size_t n = std::distance(data_begin, data_end);
   if (num_blocks <= 1 || n <= 1) {
     return;
