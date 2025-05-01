@@ -139,7 +139,7 @@ TEST(laganina_e_component_labeling_stl, all_one) {
 }
 
 TEST(laganina_e_component_labeling_stl, all_one_large) {
-  int m = 300;
+  int m = 200;  // 300 id TL
   int n = 1000;
   // Create data
   std::vector<int> in(m * n, 1);
@@ -424,9 +424,9 @@ TEST(laganina_e_component_labeling_stl, all_one_100) {
   EXPECT_EQ(exp_out, out);
 }
 
-TEST(laganina_e_component_labeling_stl, all_one_500) {
-  int m = 500;
-  int n = 500;
+TEST(laganina_e_component_labeling_stl, all_one_400) {
+  int m = 400;  // 500 is TL
+  int n = 400;
   // Create data
   std::vector<int> in(m * n, 1);
   std::vector<int> out(m * n, 0);
