@@ -27,73 +27,17 @@ std::vector<double> MultiplyNaive(const std::vector<double> &a, const std::vecto
 
 std::vector<double> AddMatr(const std::vector<double> &a, const std::vector<double> &b, int n) {
   std::vector<double> c(n * n);
-  const int size = n * n;
-  const int thread_threshold = 256 * 256;
-
-  if (size < thread_threshold) {
-    for (int i = 0; i < size; ++i) {
-      c[i] = a[i] + b[i];
-    }
-  } else {
-    unsigned int hw_threads = ppc::util::GetPPCNumThreads();
-    const int num_threads = static_cast<int>(hw_threads > 0 ? hw_threads : 1);
-    std::vector<std::thread> threads;
-    auto worker = [&](int start, int end) {
-      for (int i = start; i < end; ++i) {
-        c[i] = a[i] + b[i];
-      }
-    };
-
-    int chunk = size / num_threads;
-    int remainder = size % num_threads;
-    int start = 0;
-    for (int t = 0; t < num_threads; ++t) {
-      int end = start + chunk + (t < remainder ? 1 : 0);
-      threads.emplace_back(worker, start, end);
-      start = end;
-    }
-
-    for (auto &th : threads) {
-      th.join();
-    }
+  for (int i = 0; i < n * n; ++i) {
+    c[i] = a[i] + b[i];
   }
-
   return c;
 }
 
 std::vector<double> SubMatr(const std::vector<double> &a, const std::vector<double> &b, int n) {
   std::vector<double> c(n * n);
-  const int size = n * n;
-  const int thread_threshold = 512 * 512;
-
-  if (size < thread_threshold) {
-    for (int i = 0; i < size; ++i) {
-      c[i] = a[i] - b[i];
-    }
-  } else {
-    unsigned int hw_threads = ppc::util::GetPPCNumThreads();
-    const int num_threads = static_cast<int>(hw_threads > 0 ? hw_threads : 1);
-    std::vector<std::thread> threads;
-    auto worker = [&](int start, int end) {
-      for (int i = start; i < end; ++i) {
-        c[i] = a[i] - b[i];
-      }
-    };
-
-    int chunk = size / num_threads;
-    int remainder = size % num_threads;
-    int start = 0;
-    for (int t = 0; t < num_threads; ++t) {
-      int end = start + chunk + (t < remainder ? 1 : 0);
-      threads.emplace_back(worker, start, end);
-      start = end;
-    }
-
-    for (auto &th : threads) {
-      th.join();
-    }
+  for (int i = 0; i < n * n; ++i) {
+    c[i] = a[i] - b[i];
   }
-
   return c;
 }
 
