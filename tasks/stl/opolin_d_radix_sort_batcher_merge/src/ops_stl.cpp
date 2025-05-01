@@ -1,4 +1,4 @@
-#include "stl/opolin_d_radix_batcher_sort/include/ops_stl.hpp"
+#include "stl/opolin_d_radix_sort_batcher_merge/include/ops_stl.hpp"
 
 #include <algorithm>
 #include <cmath>
