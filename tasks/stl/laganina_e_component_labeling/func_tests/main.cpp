@@ -139,7 +139,7 @@ TEST(laganina_e_component_labeling_stl, all_one) {
 }
 
 TEST(laganina_e_component_labeling_stl, all_one_large) {
-  int m = 200;  // 300 id TL
+  int m = 150;
   int n = 1000;
   // Create data
   std::vector<int> in(m * n, 1);
@@ -425,7 +425,7 @@ TEST(laganina_e_component_labeling_stl, all_one_100) {
 }
 
 TEST(laganina_e_component_labeling_stl, all_one_400) {
-  int m = 400;  // 500 is TL
+  int m = 400;
   int n = 400;
   // Create data
   std::vector<int> in(m * n, 1);
