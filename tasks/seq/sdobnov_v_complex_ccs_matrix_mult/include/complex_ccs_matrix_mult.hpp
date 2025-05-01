@@ -17,7 +17,7 @@ struct SparseMatrixCCS {
 
   SparseMatrixCCS(int r = 0, int c = 0) : rows(r), cols(c), col_p(c + 1, 0) {}
 
-  void addValue(int row, int col, const std::complex<double>& value);
+  void AddValue(int col, int row, const std::complex<double>& value);
 
   bool operator==(const SparseMatrixCCS& other) const;
 };
@@ -34,5 +34,5 @@ class SeqComplexCcsMatrixMult : public ppc::core::Task {
   SparseMatrixCCS *M1_, *M2_, *Res_;
 };
 
-SparseMatrixCCS generateRandomMatrix(int rows, int cols, double density, int seed);
+SparseMatrixCCS GenerateRandomMatrix(int rows, int cols, double density, int seed);
 }  // namespace sdobnov_v_complex_ccs_matrix_mult

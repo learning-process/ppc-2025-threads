@@ -2,11 +2,9 @@
 
 #include <chrono>
 #include <cmath>
-#include <complex>
 #include <cstddef>
 #include <cstdint>
 #include <memory>
-#include <random>
 #include <vector>
 
 #include "core/perf/include/perf.hpp"
@@ -16,13 +14,13 @@
 TEST(sdobnov_v_complex_ccs_matrix_mult, Performance_Pipeline_Run) {
   int rows = 200000;
   int cols = 200000;
-  auto A = sdobnov_v_complex_ccs_matrix_mult::generateRandomMatrix(rows, cols, 0.0001, 123);
-  auto B = sdobnov_v_complex_ccs_matrix_mult::generateRandomMatrix(cols, 1, 0.5, 321);
-  sdobnov_v_complex_ccs_matrix_mult::SparseMatrixCCS C(rows, 1);
+  auto a = sdobnov_v_complex_ccs_matrix_mult::GenerateRandomMatrix(rows, cols, 0.0001, 123);
+  auto b = sdobnov_v_complex_ccs_matrix_mult::GenerateRandomMatrix(cols, 1, 0.5, 321);
+  sdobnov_v_complex_ccs_matrix_mult::SparseMatrixCCS c(rows, 1);
 
   auto task_data = std::make_shared<ppc::core::TaskData>();
-  task_data->inputs = {reinterpret_cast<uint8_t*>(&A), reinterpret_cast<uint8_t*>(&B)};
-  task_data->outputs = {reinterpret_cast<uint8_t*>(&C)};
+  task_data->inputs = {reinterpret_cast<uint8_t*>(&a), reinterpret_cast<uint8_t*>(&b)};
+  task_data->outputs = {reinterpret_cast<uint8_t*>(&c)};
 
   auto test_task = std::make_shared<sdobnov_v_complex_ccs_matrix_mult::SeqComplexCcsMatrixMult>(task_data);
 
@@ -46,13 +44,13 @@ TEST(sdobnov_v_complex_ccs_matrix_mult, Performance_Pipeline_Run) {
 TEST(sdobnov_v_complex_ccs_matrix_mult, Performance_Task_Run) {
   int rows = 200000;
   int cols = 200000;
-  auto A = sdobnov_v_complex_ccs_matrix_mult::generateRandomMatrix(rows, cols, 0.0001, 456);
-  auto B = sdobnov_v_complex_ccs_matrix_mult::generateRandomMatrix(cols, 1, 0.5, 654);
-  sdobnov_v_complex_ccs_matrix_mult::SparseMatrixCCS C(rows, 1);
+  auto a = sdobnov_v_complex_ccs_matrix_mult::GenerateRandomMatrix(rows, cols, 0.0001, 456);
+  auto b = sdobnov_v_complex_ccs_matrix_mult::GenerateRandomMatrix(cols, 1, 0.5, 654);
+  sdobnov_v_complex_ccs_matrix_mult::SparseMatrixCCS c(rows, 1);
 
   auto task_data = std::make_shared<ppc::core::TaskData>();
-  task_data->inputs = {reinterpret_cast<uint8_t*>(&A), reinterpret_cast<uint8_t*>(&B)};
-  task_data->outputs = {reinterpret_cast<uint8_t*>(&C)};
+  task_data->inputs = {reinterpret_cast<uint8_t*>(&a), reinterpret_cast<uint8_t*>(&b)};
+  task_data->outputs = {reinterpret_cast<uint8_t*>(&c)};
 
   auto test_task = std::make_shared<sdobnov_v_complex_ccs_matrix_mult::SeqComplexCcsMatrixMult>(task_data);
 

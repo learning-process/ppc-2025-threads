@@ -1,14 +1,19 @@
 #include "seq/sdobnov_v_complex_ccs_matrix_mult/include/complex_ccs_matrix_mult.hpp"
 
+#include <cmath>
 #include <complex>
+#include <cstddef>
 #include <random>
+#include <stdexcept>
 #include <vector>
 
-void sdobnov_v_complex_ccs_matrix_mult::SparseMatrixCCS::addValue(int col, int row, const std::complex<double>& value) {
+void sdobnov_v_complex_ccs_matrix_mult::SparseMatrixCCS::AddValue(int col, int row, const std::complex<double>& value) {
   if (col < 0 || col >= cols || row < 0 || row >= rows) {
-    throw std::out_of_range("Invalid row or column index in addValue()");
+    throw std::out_of_range("Invalid row or column index in AddValue()");
   }
-  if (std::abs(value) < 1e-10) return;
+  if (std::abs(value) < 1e-10) {
+    return;
+  }
 
   int insert_pos = col_p[col + 1];
 
@@ -21,17 +26,25 @@ void sdobnov_v_complex_ccs_matrix_mult::SparseMatrixCCS::addValue(int col, int r
 }
 
 bool sdobnov_v_complex_ccs_matrix_mult::SparseMatrixCCS::operator==(const SparseMatrixCCS& other) const {
-  if (rows != other.rows || cols != other.cols) return false;
-  if (col_p != other.col_p || row_i != other.row_i) return false;
-  if (values.size() != other.values.size()) return false;
+  if (rows != other.rows || cols != other.cols) {
+    return false;
+  }
+  if (col_p != other.col_p || row_i != other.row_i) {
+    return false;
+  }
+  if (values.size() != other.values.size()) {
+    return false;
+  }
 
   for (size_t i = 0; i < values.size(); ++i) {
-    if (std::abs(values[i] - other.values[i]) > 1e-6) return false;
+    if (std::abs(values[i] - other.values[i]) > 1e-6) {
+      return false;
+    }
   }
   return true;
 }
 
-sdobnov_v_complex_ccs_matrix_mult::SparseMatrixCCS sdobnov_v_complex_ccs_matrix_mult::generateRandomMatrix(
+sdobnov_v_complex_ccs_matrix_mult::SparseMatrixCCS sdobnov_v_complex_ccs_matrix_mult::GenerateRandomMatrix(
     int rows, int cols, double density, int seed = 42) {
   if (density < 0.0 || density > 1.0) {
     throw std::invalid_argument("Density must be between 0.0 and 1.0");
@@ -46,7 +59,7 @@ sdobnov_v_complex_ccs_matrix_mult::SparseMatrixCCS sdobnov_v_complex_ccs_matrix_
     for (int row = 0; row < rows; ++row) {
       if (prob(gen) < density) {
         std::complex<double> value(val_dist(gen), val_dist(gen));
-        mat.addValue(col, row, value);
+        mat.AddValue(col, row, value);
       }
     }
   }
@@ -68,34 +81,34 @@ bool sdobnov_v_complex_ccs_matrix_mult::SeqComplexCcsMatrixMult::ValidationImpl(
 }
 
 bool sdobnov_v_complex_ccs_matrix_mult::SeqComplexCcsMatrixMult::RunImpl() {
-  int rows_M1 = M1_->rows;
-  int cols_M2 = M2_->cols;
+  int rows_m1 = M1_->rows;
+  int cols_m2 = M2_->cols;
 
-  Res_->rows = rows_M1;
-  Res_->cols = cols_M2;
+  Res_->rows = rows_m1;
+  Res_->cols = cols_m2;
   Res_->values.clear();
   Res_->row_i.clear();
-  Res_->col_p.assign(cols_M2 + 1, 0);
+  Res_->col_p.assign(cols_m2 + 1, 0);
 
-  std::vector<std::complex<double>> row_buffer(rows_M1, {0.0, 0.0});
+  std::vector<std::complex<double>> row_buffer(rows_m1, {0.0, 0.0});
 
-  for (int colM2 = 0; colM2 < cols_M2; ++colM2) {
+  for (int col_m2 = 0; col_m2 < cols_m2; ++col_m2) {
     std::vector<int> rows_in_col;
     std::vector<std::complex<double>> vals_in_col;
 
-    for (int idxM2 = M2_->col_p[colM2]; idxM2 < M2_->col_p[colM2 + 1]; ++idxM2) {
-      int rowM2 = M2_->row_i[idxM2];
-      std::complex<double> valM2 = M2_->values[idxM2];
+    for (int idx_m2 = M2_->col_p[col_m2]; idx_m2 < M2_->col_p[col_m2 + 1]; ++idx_m2) {
+      int row_m2 = M2_->row_i[idx_m2];
+      std::complex<double> val_m2 = M2_->values[idx_m2];
 
-      for (int idxM1 = M1_->col_p[rowM2]; idxM1 < M1_->col_p[rowM2 + 1]; ++idxM1) {
-        int rowM1 = M1_->row_i[idxM1];
-        std::complex<double> valM1 = M1_->values[idxM1];
+      for (int idx_m1 = M1_->col_p[row_m2]; idx_m1 < M1_->col_p[row_m2 + 1]; ++idx_m1) {
+        int rowM1 = M1_->row_i[idx_m1];
+        std::complex<double> val_m1 = M1_->values[idx_m1];
 
-        row_buffer[rowM1] += valM1 * valM2;
+        row_buffer[rowM1] += val_m1 * val_m2;
       }
     }
 
-    for (int row = 0; row < rows_M1; ++row) {
+    for (int row = 0; row < rows_m1; ++row) {
       if (std::abs(row_buffer[row]) > 1e-10) {
         rows_in_col.push_back(row);
         vals_in_col.push_back(row_buffer[row]);
@@ -103,7 +116,7 @@ bool sdobnov_v_complex_ccs_matrix_mult::SeqComplexCcsMatrixMult::RunImpl() {
       }
     }
 
-    Res_->col_p[colM2 + 1] = Res_->col_p[colM2] + static_cast<int>(vals_in_col.size());
+    Res_->col_p[col_m2 + 1] = Res_->col_p[col_m2] + static_cast<int>(vals_in_col.size());
     Res_->values.insert(Res_->values.end(), vals_in_col.begin(), vals_in_col.end());
     Res_->row_i.insert(Res_->row_i.end(), rows_in_col.begin(), rows_in_col.end());
   }
