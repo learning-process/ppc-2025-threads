@@ -5,8 +5,6 @@
 #include <thread>
 #include <vector>
 
-#include "core/util/include/util.hpp"
-
 namespace borisov_s_strassen_stl {
 
 namespace {
