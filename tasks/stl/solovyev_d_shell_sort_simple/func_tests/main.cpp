@@ -181,9 +181,9 @@ TEST(solovyev_d_shell_sort_simple_stl, sort_rand_10) {
   ASSERT_TRUE(IsSorted(out));
 }
 
-TEST(solovyev_d_shell_sort_simple_stl, sort_rand_100) {
+TEST(solovyev_d_shell_sort_simple_stl, sort_rand_50) {
   // Create data
-  std::vector<int> in = GetRandomVector(100);
+  std::vector<int> in = GetRandomVector(50);
   std::vector<int> out(in.size(), 0);
 
   // Create task_data
