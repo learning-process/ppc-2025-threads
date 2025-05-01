@@ -25,8 +25,8 @@ class CannonSTL : public ppc::core::Task {
   std::vector<double> B_;
   std::vector<double> C_;
 
-  void InitialShift();
-  void BlockMultiply();
-  void ShiftBlocks();
+  void InitialShift(int num_threads);
+  void BlockMultiply(int num_threads);
+  void ShiftBlocks(int num_threads);
 };
 }  // namespace vavilov_v_cannon_stl
