@@ -39,10 +39,10 @@ void vavilov_v_cannon_stl::CannonSTL::InitialShift() {
         int src_col = (bj + bi) % num_blocks_;
         for (int i = 0; i < block_size_; ++i) {
           for (int j = 0; j < block_size_; ++j) {
-            B_[(bi * block_size_ + i) * N_ + (bj * block_size_ + j)] =
-                b_tmp[(src_row * block_size_ + i) * N_ + (bj * block_size_ + j)];
-            A_[(bi * block_size_ + i) * N_ + (bj * block_size_ + j)] =
-                a_tmp[(bi * block_size_ + i) * N_ + (src_col * block_size_ + j)];
+            B_[(((bi * block_size_) + i) * N_) + ((bj * block_size_) + j)] =
+                b_tmp[(((src_row * block_size_) + i) * N_) + ((bj * block_size_) + j)];
+            A_[((bi * block_size_ + i) * N_) + ((bj * block_size_) + j)] =
+                a_tmp[(((bi * block_size_) + i) * N_) + ((src_col * block_size_) + j)];
           }
         }
       }
@@ -84,7 +84,7 @@ void vavilov_v_cannon_stl::CannonSTL::BlockMultiply() {
               int col_b = bj + (j - bj);
               temp += A_[(row_a * N_) + col_a] * B_[(row_b * N_) + col_b];
             }
-            local[(i - bi_start) * N_ + j] += temp;
+            local[((i - bi_start) * N_) + j] += temp;
           }
         }
       }
@@ -115,7 +115,7 @@ void vavilov_v_cannon_stl::CannonSTL::BlockMultiply() {
       const std::vector<double> &local = local_C[t];
       for (int i = bi_start; i < bi_end; ++i) {
         for (int j = 0; j < N_; ++j) {
-          C_[i * N_ + j] += local[(i - bi_start) * N_ + j];
+          C_[(i * N_) + j] += local[((i - bi_start) * N_) + j];
         }
       }
     }
@@ -134,10 +134,10 @@ void vavilov_v_cannon_stl::CannonSTL::ShiftBlocks() {
         int src_col = (bj + 1) % num_blocks_;
         for (int i = 0; i < block_size_; ++i) {
           for (int j = 0; j < block_size_; ++j) {
-            B_[(bi * block_size_ + i) * N_ + (bj * block_size_ + j)] =
-                b_tmp[(src_row * block_size_ + i) * N_ + (bj * block_size_ + j)];
-            A_[(bi * block_size_ + i) * N_ + (bj * block_size_ + j)] =
-                a_tmp[(bi * block_size_ + i) * N_ + (src_col * block_size_ + j)];
+            B_[(((bi * block_size_) + i) * N_) + ((bj * block_size_) + j)] =
+                b_tmp[(((src_row * block_size_) + i) * N_) + ((bj * block_size_) + j)];
+            A_[(((bi * block_size_) + i) * N_) + ((bj * block_size_) + j)] =
+                a_tmp[(((bi * block_size_) + i) * N_) + ((src_col * block_size_) + j)];
           }
         }
       }
