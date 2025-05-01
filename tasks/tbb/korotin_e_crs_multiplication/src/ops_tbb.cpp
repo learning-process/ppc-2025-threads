@@ -112,7 +112,7 @@ bool korotin_e_crs_multiplication_tbb::CrsMultiplicationTBB::RunImpl() {
   std::vector<unsigned int> temp_r_i(A_N_, 0);
   tbb::task_group tg;
 
-  std::vector<size_t> delta(magic_const, A_N_ / magic_const);
+  std::vector<size_t> delta(magic_const, (A_N_ - 1) / magic_const);
   for (i = 0; i < (A_N_ - 1) % magic_const; ++i) {
     delta[i]++;
   }
