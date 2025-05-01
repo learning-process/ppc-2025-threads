@@ -18,6 +18,7 @@ bool opolin_d_radix_batcher_sort_stl::RadixBatcherSortTaskStl::PreProcessingImpl
   input_ = std::vector<int>(in_ptr, in_ptr + size_);
   unsigned int output_size = task_data->outputs_count[0];
   output_ = std::vector<int>(output_size, 0);
+  unsigned_data_.resize(size_);
   return true;
 }
 
