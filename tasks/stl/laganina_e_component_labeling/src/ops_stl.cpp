@@ -8,6 +8,34 @@
 
 #include "core/util/include/util.hpp"
 
+namespace {
+int CountRootsInChunk(const std::vector<int>& parent, int start, int end) {
+  int count = 0;
+  for (int i = start; i < end; ++i) {
+    if (parent[i] == i) {
+      count++;
+    }
+  }
+  return count;
+}
+
+void LabelRootsInChunk(std::vector<int>& labels, const std::vector<int>& parent, int start, int end, int label_start) {
+  int current_label = label_start + 1;
+  for (int i = start; i < end; ++i) {
+    if (parent[i] == i) {
+      labels[i] = current_label++;
+    }
+  }
+}
+
+void PropagateLabelsInChunk(std::vector<int>& binary, const std::vector<int>& labels, const std::vector<int>& parent,
+                            int start, int end) {
+  for (int i = start; i < end; ++i) {
+    binary[i] = (parent[i] != -1) ? labels[parent[i]] : 0;
+  }
+}
+}  // namespace
+
 bool laganina_e_component_labeling_stl::TestTaskSTL::ValidationImpl() {
   if (task_data == nullptr || task_data->inputs[0] == nullptr || task_data->outputs[0] == nullptr) {
     return false;
@@ -183,74 +211,49 @@ void laganina_e_component_labeling_stl::TestTaskSTL::AssignLabels(std::vector<in
   std::vector<int> labels(size + 1, 0);
   const int chunk_size = (size + num_threads - 1) / num_threads;
 
-  std::vector<int> root_counts = [&] {
-    std::vector<int> counts(num_threads + 1, 0);
-    std::vector<std::future<int>> futures;
-
+  std::vector<int> root_counts(num_threads + 1, 0);
+  {
+    std::vector<std::future<int>> count_futures;
     for (int t = 0; t < num_threads; ++t) {
       const int start = t * chunk_size;
       const int end = std::min(start + chunk_size, size);
-
-      futures.push_back(std::async(std::launch::async, [&, start, end] {
-        int count = 0;
-        for (int i = start; i < end; ++i) {
-          if (parent[i] == i) {
-            count++;
-          }
-        }
-        return count;
-      }));
+      count_futures.push_back(std::async(std::launch::async, CountRootsInChunk, std::cref(parent), start, end));
     }
 
     for (int t = 0; t < num_threads; ++t) {
-      counts[t + 1] = futures[t].get();
+      root_counts[t + 1] = count_futures[t].get();
     }
 
     for (int t = 1; t <= num_threads; ++t) {
-      counts[t] += counts[t - 1];
+      root_counts[t] += root_counts[t - 1];
     }
-
-    return counts;
-  }();
+  }
 
   {
-    std::vector<std::future<void>> futures;
-
+    std::vector<std::future<void>> label_futures;
     for (int t = 0; t < num_threads; ++t) {
       const int start = t * chunk_size;
       const int end = std::min(start + chunk_size, size);
       const int label_start = root_counts[t];
-
-      futures.push_back(std::async(std::launch::async, [&, start, end, label_start] {
-        int current_label = label_start + 1;
-        for (int i = start; i < end; ++i) {
-          if (parent[i] == i) {
-            labels[i] = current_label++;
-          }
-        }
-      }));
+      label_futures.push_back(std::async(std::launch::async, LabelRootsInChunk, std::ref(labels), std::cref(parent),
+                                         start, end, label_start));
     }
 
-    for (auto& f : futures) {
+    for (auto& f : label_futures) {
       f.wait();
     }
   }
 
   {
-    std::vector<std::future<void>> futures;
-
+    std::vector<std::future<void>> propagate_futures;
     for (int t = 0; t < num_threads; ++t) {
       const int start = t * chunk_size;
       const int end = std::min(start + chunk_size, size);
-
-      futures.push_back(std::async(std::launch::async, [&, start, end] {
-        for (int i = start; i < end; ++i) {
-          binary_[i] = (parent[i] != -1) ? labels[parent[i]] : 0;
-        }
-      }));
+      propagate_futures.push_back(std::async(std::launch::async, PropagateLabelsInChunk, std::ref(binary_),
+                                             std::cref(labels), std::cref(parent), start, end));
     }
 
-    for (auto& f : futures) {
+    for (auto& f : propagate_futures) {
       f.wait();
     }
   }
