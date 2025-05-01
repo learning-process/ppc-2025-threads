@@ -230,8 +230,9 @@ bool lavrentiev_a_ccs_all::CCSALL::RunImpl() {
       data_collector.columnsSum[i] = data_collector.columnsSum[i] + data_collector.columnsSum[i - 1];
     }
     std::ranges::for_each(data_collector.rows, [&](auto &row) { row--; });
-    Answer_ = Sparse({B_.size.second, B_.size.second}, data_collector.elements, data_collector.rows,
-                     data_collector.columnsSum);
+    Answer_ = std::move(data_collector);
+    Answer_.size.first = B_.size.second;
+    Answer_.size.second = B_.size.second;
   } else {
     boost::mpi::gatherv(world_, Process_data_.elements, 0);
     boost::mpi::gatherv(world_, Process_data_.rows, 0);
