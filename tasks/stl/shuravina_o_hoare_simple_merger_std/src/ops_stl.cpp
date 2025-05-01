@@ -59,11 +59,6 @@ void TestTaskSTL::QuickSort(std::vector<int>& arr, int left, int right) {
 }
 
 void TestTaskSTL::MergeHelper(std::vector<int>& arr, int left, int mid, int right) {
-  volatile int dummy = 0;
-  for (int i = 0; i < 100; ++i) {
-    dummy += i;
-  }
-
   std::vector<int> temp(right - left + 1);
   int i = left;
   int j = mid + 1;
@@ -84,11 +79,6 @@ void TestTaskSTL::MergeHelper(std::vector<int>& arr, int left, int mid, int righ
 
 bool TestTaskSTL::RunImpl() {
   if (input_.empty()) {
-    output_ = input_;
-    return true;
-  }
-
-  if (std::ranges::is_sorted(input_)) {
     output_ = input_;
     return true;
   }
