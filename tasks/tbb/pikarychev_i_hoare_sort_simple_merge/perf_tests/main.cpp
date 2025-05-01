@@ -23,7 +23,7 @@ std::vector<T> GenerateReverseSortedVector(size_t size) {
 }
 }  // namespace
 
-TEST(pikarychev_i_hoare_sort_simple_merge, test_pipeline_run) {
+TEST(pikarychev_i_hoare_sort_simple_merge_tbb, test_pipeline_run) {
   std::random_device dev;
   std::mt19937 gen(dev());
   std::uniform_int_distribution<> dist(-5000, 5000);
@@ -55,7 +55,7 @@ TEST(pikarychev_i_hoare_sort_simple_merge, test_pipeline_run) {
   ppc::core::Perf::PrintPerfStatistic(perf_results);
 }
 
-TEST(pikarychev_i_hoare_sort_simple_merge, test_task_run) {
+TEST(pikarychev_i_hoare_sort_simple_merge_tbb, test_task_run) {
   std::random_device dev;
   std::mt19937 gen(dev());
   std::uniform_int_distribution<> dist(-5000, 5000);
