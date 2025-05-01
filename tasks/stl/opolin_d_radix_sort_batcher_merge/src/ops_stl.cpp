@@ -39,17 +39,18 @@ bool opolin_d_radix_batcher_sort_stl::RadixBatcherSortTaskStl::RunImpl() {
     output_ = input_;
     return true;
   }
-  num_threads = std::min((size_t)num_threads, (size_ + 1) / 2);
-  if (num_threads == 0) {
-    num_threads = 1;
+  size_t unum_threads = static_cast<size_t>(num_threads);
+  unum_threads = std::min((size_t)unum_threads, (size_ + 1) / 2);
+  if (unum_threads == 0) {
+    unum_threads = 1;
   }
-  ParallelProcessRange(size_, num_threads, [this](size_t start, size_t end) {
+  ParallelProcessRange(size_, unum_threads, [this](size_t start, size_t end) {
     for (size_t i = start; i < end; ++i) {
       unsigned_data_[i] = IntToUnsigned(input_[i]);
     }
   });
 
-  size_t block_size = (size_ + num_threads - 1) / num_threads;
+  size_t block_size = (size_ + unum_threads - 1) / unum_threads;
   size_t actual_num_blocks = (size_ + block_size - 1) / block_size;
   std::vector<std::function<void()>> sort_tasks;
 
@@ -62,10 +63,10 @@ bool opolin_d_radix_batcher_sort_stl::RadixBatcherSortTaskStl::RunImpl() {
     }
   }
   if (!sort_tasks.empty()) {
-    ParallelRunTasks(sort_tasks, num_threads);
+    ParallelRunTasks(sort_tasks, unum_threads);
   }
-  IterativeOddEvenBlockMerge(unsigned_data_.begin(), unsigned_data_.end(), actual_num_blocks, num_threads);
-  ParallelProcessRange(size_, num_threads, [this](size_t start, size_t end) {
+  IterativeOddEvenBlockMerge(unsigned_data_.begin(), unsigned_data_.end(), actual_num_blocks, unum_threads);
+  ParallelProcessRange(size_, unum_threads, [this](size_t start, size_t end) {
     for (size_t i = start; i < end; ++i) {
       output_[i] = UnsignedToInt(unsigned_data_[i]);
     }
