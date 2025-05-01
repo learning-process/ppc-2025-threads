@@ -21,6 +21,7 @@ int Orientation(const shulpin_i_jarvis_stl::Point& p, const shulpin_i_jarvis_stl
   }
   return (val > 0) ? 1 : 2;
 }
+
 }  // namespace
 
 void shulpin_i_jarvis_stl::JarvisSequential::MakeJarvisPassage(std::vector<shulpin_i_jarvis_stl::Point>& input_jar,
@@ -84,7 +85,7 @@ bool shulpin_i_jarvis_stl::JarvisSequential::PostProcessingImpl() {
 #ifdef __linux__
 void shulpin_i_jarvis_stl::JarvisSTLParallel::MakeJarvisPassageSTL(
     std::vector<shulpin_i_jarvis_stl::Point>& input_jar,
-    std::vector<shulpin_i_jarvis_stl::Point>& output_jar) {
+    std::vector<shulpin_i_jarvis_stl::Point>& output_jar) {  // NOLINT(readability-function-cognitive-complexity)
   output_jar.clear();
 
   std::unordered_set<Point, PointHash, PointEqual> unique_points;
@@ -97,18 +98,18 @@ void shulpin_i_jarvis_stl::JarvisSTLParallel::MakeJarvisPassageSTL(
     }
   }
 
-  const Point& minPoint = input_jar[most_left];
-  std::vector<Point> convexHull = {minPoint};
-  Point prevPoint = minPoint;
-  Point nextPoint;
+  const Point& min_point = input_jar[most_left];
+  std::vector<Point> convex_hull = {min_point};
+  Point prev_point = min_point;
+  Point next_point;
 
-  int numThreads = static_cast<int>(ppc::util::GetPPCNumThreads());
-  int chunkSize = static_cast<int>(input_jar.size() / numThreads);
+  int num_threads = ppc::util::GetPPCNumThreads();
+  int chunk_size = input_jar.size() / num_threads;
 
   std::vector<std::thread> threads;
-  std::vector<Point> candidates(numThreads, input_jar[0]);
-  std::vector<bool> thread_ready(numThreads, false);
-  std::vector<bool> thread_done(numThreads, false);
+  std::vector<Point> candidates(num_threads, input_jar[0]);
+  std::vector<bool> thread_ready(num_threads, false);
+  std::vector<bool> thread_done(num_threads, false);
   std::mutex mtx;
   std::condition_variable cv;
   bool stop = false;
@@ -119,22 +120,26 @@ void shulpin_i_jarvis_stl::JarvisSTLParallel::MakeJarvisPassageSTL(
       std::unique_lock<std::mutex> lock(mtx);
       cv.wait(lock, [&] { return thread_ready[tid] || stop; });
 
-      if (stop) return;
+      if (stop) {
+        return;
+      }
 
-      int start = tid * chunkSize;
-      int end = (tid == numThreads - 1) ? static_cast<int>(input_jar.size()) : (tid + 1) * chunkSize;
+      int start = tid * chunk_size;
+      int end = (tid == num_threads - 1) ? static_cast<int>(input_jar.size()) : (tid + 1) * chunk_size;
       Point candidate = input_jar[start];
 
       for (int i = start; i < end; ++i) {
         const auto& point = input_jar[i];
-        if (point == prevPoint) continue;
+        if (point == prev_point) {
+          continue;
+        }
 
-        double crossProduct = (point.y - prevPoint.y) * (candidate.x - prevPoint.x) -
-                              (point.x - prevPoint.x) * (candidate.y - prevPoint.y);
-        double dist1 = std::pow(point.x - prevPoint.x, 2) + std::pow(point.y - prevPoint.y, 2);
-        double dist2 = std::pow(candidate.x - prevPoint.x, 2) + std::pow(candidate.y - prevPoint.y, 2);
+        double cross_product = ((point.y - prev_point.y) * (candidate.x - prev_point.x)) -
+                               ((point.x - prev_point.x) * (candidate.y - prev_point.y));
+        double dist1 = std::pow(point.x - prev_point.x, 2) + std::pow(point.y - prev_point.y, 2);
+        double dist2 = std::pow(candidate.x - prev_point.x, 2) + std::pow(candidate.y - prev_point.y, 2);
 
-        if (crossProduct > 0 || (crossProduct == 0 && dist1 > dist2)) {
+        if (cross_product > 0 || (cross_product == 0 && dist1 > dist2)) {
           candidate = point;
         }
       }
@@ -146,16 +151,16 @@ void shulpin_i_jarvis_stl::JarvisSTLParallel::MakeJarvisPassageSTL(
     }
   };
   // NOLINTEND
-  for (int i = 0; i < numThreads; ++i) {
-    threads.emplace_back(findNextPointThread, i);
+  for (int i = 0; i < num_threads; ++i) {
+    threads.emplace_back(findNextPointThread, i);  // NOLINT
   }
 
   do {
-    nextPoint = input_jar[0];
+    next_point = input_jar[0];
 
     {
       std::unique_lock<std::mutex> lock(mtx);
-      for (int i = 0; i < numThreads; ++i) {
+      for (int i = 0; i < num_threads; ++i) {
         thread_ready[i] = true;
         thread_done[i] = false;
       }
@@ -169,23 +174,23 @@ void shulpin_i_jarvis_stl::JarvisSTLParallel::MakeJarvisPassageSTL(
     }
 
     for (const auto& candidate : candidates) {
-      double crossProduct = (candidate.y - prevPoint.y) * (nextPoint.x - prevPoint.x) -
-                            (candidate.x - prevPoint.x) * (nextPoint.y - prevPoint.y);
-      double dist1 = std::pow(candidate.x - prevPoint.x, 2) + std::pow(candidate.y - prevPoint.y, 2);
-      double dist2 = std::pow(nextPoint.x - prevPoint.x, 2) + std::pow(nextPoint.y - prevPoint.y, 2);
-      if (crossProduct > 0 || (crossProduct == 0 && dist1 > dist2)) {
-        nextPoint = candidate;
+      double cross_product = ((candidate.y - prev_point.y) * (next_point.x - prev_point.x)) -
+                             ((candidate.x - prev_point.x) * (next_point.y - prev_point.y));
+      double dist1 = std::pow(candidate.x - prev_point.x, 2) + std::pow(candidate.y - prev_point.y, 2);
+      double dist2 = std::pow(next_point.x - prev_point.x, 2) + std::pow(next_point.y - prev_point.y, 2);
+      if (cross_product > 0 || (cross_product == 0 && dist1 > dist2)) {
+        next_point = candidate;
       }
     }
 
-    if (unique_points.find(nextPoint) == unique_points.end()) {
-      output_jar.push_back(nextPoint);
-      unique_points.insert(nextPoint);
+    if (unique_points.find(next_point) == unique_points.end()) {
+      output_jar.push_back(next_point);
+      unique_points.insert(next_point);
     }
 
-    prevPoint = nextPoint;
+    prev_point = next_point;
 
-  } while (nextPoint != minPoint);
+  } while (next_point != min_point);
 
   {
     std::unique_lock<std::mutex> lock(mtx);
@@ -200,7 +205,8 @@ void shulpin_i_jarvis_stl::JarvisSTLParallel::MakeJarvisPassageSTL(
 
 #else
 void shulpin_i_jarvis_stl::JarvisSTLParallel::MakeJarvisPassageSTL(
-    std::vector<shulpin_i_jarvis_stl::Point>& input_jar, std::vector<shulpin_i_jarvis_stl::Point>& output_jar) {
+    std::vector<shulpin_i_jarvis_stl::Point>& input_jar,
+    std::vector<shulpin_i_jarvis_stl::Point>& output_jar) {  // NOLINT(readability-function-cognitive-complexity)
   output_jar.clear();
 
   std::unordered_set<shulpin_i_jarvis_stl::Point, shulpin_i_jarvis_stl::PointHash, shulpin_i_jarvis_stl::PointEqual>
@@ -239,7 +245,7 @@ void shulpin_i_jarvis_stl::JarvisSTLParallel::MakeJarvisPassageSTL(
   do {
     next_point = input_jar[0];
     int num_threads = ppc::util::GetPPCNumThreads();
-    int chunk_size = input_jar.size() / numThreads;
+    int chunk_size = input_jar.size() / num_threads;
     std::vector<std::thread> threads;
     std::vector<Point> candidates(num_threads, next_point);
 
