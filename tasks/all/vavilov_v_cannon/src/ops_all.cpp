@@ -312,8 +312,8 @@ bool vavilov_v_cannon_all::CannonALL::RunImpl() {
   // Если матрица не делится на сетку процессов, используем только часть процессов
   if (N_ % grid_rows != 0 || N_ % grid_cols != 0) {
     if (rank == 0) {
-      std::cerr << "Matrix size (" << N_ << ") must be divisible by grid dimensions ("
-                << grid_rows << "x" << grid_cols << ")" << std::endl;
+      std::cerr << "Matrix size (" << N_ << ") must be divisible by grid dimensions (" << grid_rows << "x" << grid_cols
+                << ")" << std::endl;
     }
     return false;
   }
@@ -367,7 +367,7 @@ bool vavilov_v_cannon_all::CannonALL::RunImpl() {
     int src_B = ((row_index - col_index + grid_rows) % grid_rows) * grid_cols + col_index;
     reqs.push_back(world_.isend(dest_B, 1, local_B.data(), block_size_sq));
     reqs.push_back(world_.irecv(src_B, 1, local_B.data(), block_size_sq));
-    
+
     mpi::wait_all(reqs.begin(), reqs.end());
     reqs.clear();
   }
