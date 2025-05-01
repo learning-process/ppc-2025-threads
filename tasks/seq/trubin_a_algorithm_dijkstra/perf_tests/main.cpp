@@ -24,7 +24,9 @@ std::vector<int> GenerateRandomDenseGraph(size_t num_vertices, size_t max_edges_
     std::unordered_set<size_t> used;
     while (used.size() < num_edges) {
       size_t to = rng() % num_vertices;
-      if (to == i || used.count(to)) continue;
+      if (to == i || used.contains(to)) {
+        continue;
+      }
       used.insert(to);
 
       graph_data.push_back(static_cast<int>(to));
