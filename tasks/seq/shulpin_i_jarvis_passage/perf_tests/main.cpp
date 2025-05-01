@@ -17,9 +17,8 @@ constexpr int k_ = 100;
 constexpr int kBound = 1000;
 
 namespace {
-std::vector<shulpin_i_jarvis_stl::Point> shulpin_stl_test_module::GenerateRandomPoints(size_t num_points, int from,
-                                                                                       int to) {
-  std::vector<shulpin_i_jarvis_stl::Point> points;
+std::vector<shulpin_i_jarvis_seq::Point> GenerateRandomPoints(size_t num_points, int from, int to) {
+  std::vector<shulpin_i_jarvis_seq::Point> points;
   std::random_device rd;
   std::mt19937 gen(rd());
   std::uniform_int_distribution<int> dist(from, to);
@@ -38,8 +37,7 @@ TEST(shulpin_i_jarvis_seq, test_pipeline_run) {
   size_t num_points = 1000000;
   std::vector<shulpin_i_jarvis_seq::Point> hull = {
       {-kBound, kBound}, {kBound, kBound}, {kBound, -kBound}, {-kBound, -kBound}};
-  std::vector<shulpin_i_jarvis_seq::Point> input =
-      shulpin_stl_test_module::GenerateRandomPoints(num_points, -kBound + k_, kBound - k_);
+  std::vector<shulpin_i_jarvis_seq::Point> input = GenerateRandomPoints(num_points, -kBound + k_, kBound - k_);
   std::vector<shulpin_i_jarvis_seq::Point> out(input.size());
   input.insert(input.end(), hull.begin(), hull.end());
 
@@ -76,8 +74,7 @@ TEST(shulpin_i_jarvis_seq, test_task_run) {
   size_t num_points = 1000000;
   std::vector<shulpin_i_jarvis_seq::Point> hull = {
       {-kBound, kBound}, {kBound, kBound}, {kBound, -kBound}, {-kBound, -kBound}};
-  std::vector<shulpin_i_jarvis_seq::Point> input =
-      shulpin_stl_test_module::GenerateRandomPoints(num_points, -kBound + k_, kBound - k_);
+  std::vector<shulpin_i_jarvis_seq::Point> input = GenerateRandomPoints(num_points, -kBound + k_, kBound - k_);
   std::vector<shulpin_i_jarvis_seq::Point> out(input.size());
   input.insert(input.end(), hull.begin(), hull.end());
 
