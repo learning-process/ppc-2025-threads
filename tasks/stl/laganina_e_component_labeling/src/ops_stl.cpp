@@ -4,6 +4,7 @@
 #include <atomic>
 #include <execution>
 #include <functional>
+#include <numeric>
 #include <ranges>
 #include <vector>
 
