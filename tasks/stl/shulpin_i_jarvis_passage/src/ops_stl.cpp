@@ -83,6 +83,7 @@ bool shulpin_i_jarvis_stl::JarvisSequential::PostProcessingImpl() {
 }
 
 #ifdef __linux__
+#warning "linux version"
 void shulpin_i_jarvis_stl::JarvisSTLParallel::MakeJarvisPassageSTL(
     std::vector<shulpin_i_jarvis_stl::Point>& input_jar,
     std::vector<shulpin_i_jarvis_stl::Point>& output_jar) {  // NOLINT(readability-function-cognitive-complexity)
@@ -104,7 +105,7 @@ void shulpin_i_jarvis_stl::JarvisSTLParallel::MakeJarvisPassageSTL(
   Point next_point;
 
   int num_threads = ppc::util::GetPPCNumThreads();
-  int chunk_size = input_jar.size() / num_threads;
+  int chunk_size = static_cast<int>(input_jar.size() / num_threads);
 
   std::vector<std::thread> threads;
   std::vector<Point> candidates(num_threads, input_jar[0]);
@@ -169,8 +170,9 @@ void shulpin_i_jarvis_stl::JarvisSTLParallel::MakeJarvisPassageSTL(
 
     {
       std::unique_lock<std::mutex> lock(mtx);
-      cv.wait(lock,
-              [&] { return std::all_of(thread_done.begin(), thread_done.end(), [](bool done) { return done; }); });
+      cv.wait(lock, [&] {
+        return std::ranges::all_of(thread_done.begin(), thread_done.end(), [](bool done) { return done; });
+      });
     }
 
     for (const auto& candidate : candidates) {
@@ -199,11 +201,14 @@ void shulpin_i_jarvis_stl::JarvisSTLParallel::MakeJarvisPassageSTL(
   }
 
   for (auto& thread : threads) {
-    if (thread.joinable()) thread.join();
+    if (thread.joinable()) {
+      thread.join();
+    }
   }
 }
 
 #else
+#warning "windows/macos version"
 void shulpin_i_jarvis_stl::JarvisSTLParallel::MakeJarvisPassageSTL(
     std::vector<shulpin_i_jarvis_stl::Point>& input_jar,
     std::vector<shulpin_i_jarvis_stl::Point>& output_jar) {  // NOLINT(readability-function-cognitive-complexity)
