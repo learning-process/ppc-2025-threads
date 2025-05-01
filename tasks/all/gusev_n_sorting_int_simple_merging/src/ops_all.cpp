@@ -26,7 +26,7 @@ void gusev_n_sorting_int_simple_merging_all::SortingIntSimpleMergingALL::SplitBy
                                                                                      std::vector<int>& positives) {
   for (int num : arr) {
     if (num < 0) {
-      negatives.push_back(-num);
+      negatives.push_back(std::abs(num));
     } else {
       positives.push_back(num);
     }
@@ -100,12 +100,9 @@ void gusev_n_sorting_int_simple_merging_all::SortingIntSimpleMergingALL::Distrib
   std::vector<int> my_chunk;
   if (size > 1) {
     if (rank == 0) {
-      for (int i = 1; i < size; ++i) {
-        world.send(i, tag, chunks[i]);
-      }
-      my_chunk = std::move(chunks[0]);
+      boost::mpi::scatter(world, chunks, my_chunk, 0);
     } else {
-      world.recv(0, tag, my_chunk);
+      boost::mpi::scatter(world, my_chunk, 0);
     }
   } else {
     my_chunk = chunk;
@@ -226,10 +223,6 @@ void gusev_n_sorting_int_simple_merging_all::SortingIntSimpleMergingALL::RadixSo
   if (rank == 0) {
     MergeResults(arr, sorted_negatives, sorted_positives);
   }
-
-  boost::mpi::broadcast(world, arr, 0);
-
-  world.barrier();
 }
 
 void gusev_n_sorting_int_simple_merging_all::SortingIntSimpleMergingALL::RadixSortForNonNegative(
@@ -285,6 +278,14 @@ bool gusev_n_sorting_int_simple_merging_all::SortingIntSimpleMergingALL::PreProc
 }
 
 bool gusev_n_sorting_int_simple_merging_all::SortingIntSimpleMergingALL::ValidationImpl() {
+  if (task_data->inputs_count[0] == 0) {
+    return true;
+  }
+  
+  if (task_data->inputs[0] == nullptr || task_data->outputs[0] == nullptr) {
+    return false;
+  }
+
   return task_data->inputs_count[0] == task_data->outputs_count[0];
 }
 

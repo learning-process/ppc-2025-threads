@@ -6,6 +6,7 @@
 #include <cstdlib>
 #include <memory>
 #include <vector>
+#include <limits>
 
 #include "all/gusev_n_sorting_int_simple_merging/include/ops_all.hpp"
 #include "core/task/include/task.hpp"
@@ -123,5 +124,93 @@ TEST(gusev_n_sorting_int_simple_merging_all, test_radix_sort_reverse_order) {
 
   std::vector<int> expected = in;
   std::ranges::sort(expected);
+  EXPECT_EQ(expected, out);
+}
+
+TEST(gusev_n_sorting_int_simple_merging_all, test_validation_empty) {
+  std::vector<int> in;
+  std::vector<int> out;
+
+  auto task_data = CreateTaskData(in, out);
+  gusev_n_sorting_int_simple_merging_all::SortingIntSimpleMergingALL task(task_data);
+  EXPECT_TRUE(task.Validation());
+}
+
+TEST(gusev_n_sorting_int_simple_merging_all, test_validation_size_mismatch) {
+  std::vector<int> in = {1, 2, 3};
+  std::vector<int> out(2);
+
+  auto task_data = CreateTaskData(in, out);
+  gusev_n_sorting_int_simple_merging_all::SortingIntSimpleMergingALL task(task_data);
+  EXPECT_FALSE(task.Validation());
+}
+
+TEST(gusev_n_sorting_int_simple_merging_all, test_radix_sort_int_min_max) {
+  std::vector<int> in = {std::numeric_limits<int>::max(), std::numeric_limits<int>::min(), 0};
+  std::vector<int> out(in.size());
+
+  auto task_data = CreateTaskData(in, out);
+  RunT(task_data);
+
+  std::vector<int> expected = in;
+  std::ranges::sort(expected);
+  EXPECT_EQ(expected, out);
+}
+
+TEST(gusev_n_sorting_int_simple_merging_all, test_radix_sort_all_negative) {
+  std::vector<int> in = {-5, -10, -15, -20, -25};
+  std::vector<int> out(in.size());
+
+  auto task_data = CreateTaskData(in, out);
+  RunT(task_data);
+
+  std::vector<int> expected = in;
+  std::ranges::sort(expected);
+  EXPECT_EQ(expected, out);
+}
+
+TEST(gusev_n_sorting_int_simple_merging_all, test_radix_sort_all_positive) {
+  std::vector<int> in = {5, 10, 15, 20, 25};
+  std::vector<int> out(in.size());
+
+  auto task_data = CreateTaskData(in, out);
+  RunT(task_data);
+
+  std::vector<int> expected = in;
+  std::ranges::sort(expected);
+  EXPECT_EQ(expected, out);
+}
+
+TEST(gusev_n_sorting_int_simple_merging_all, test_radix_sort_small_large_values) {
+  std::vector<int> in = {1, 1000000, 5, 5000000, 10, 10000000};
+  std::vector<int> out(in.size());
+
+  auto task_data = CreateTaskData(in, out);
+  RunT(task_data);
+
+  std::vector<int> expected = in;
+  std::ranges::sort(expected);
+  EXPECT_EQ(expected, out);
+}
+
+TEST(gusev_n_sorting_int_simple_merging_all, test_validation_nullptr) {
+  std::vector<int> in = {1, 2, 3};
+  std::vector<int> out(in.size());
+
+  auto task_data = CreateTaskData(in, out);
+  task_data->inputs[0] = nullptr;
+  
+  gusev_n_sorting_int_simple_merging_all::SortingIntSimpleMergingALL task(task_data);
+  EXPECT_FALSE(task.Validation());
+}
+
+TEST(gusev_n_sorting_int_simple_merging_all, test_radix_sort_already_sorted) {
+  std::vector<int> in = {-10, -5, 0, 5, 10, 15, 20};
+  std::vector<int> out(in.size());
+
+  auto task_data = CreateTaskData(in, out);
+  RunT(task_data);
+
+  std::vector<int> expected = in;
   EXPECT_EQ(expected, out);
 }
