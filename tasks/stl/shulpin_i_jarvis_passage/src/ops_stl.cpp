@@ -83,7 +83,6 @@ bool shulpin_i_jarvis_stl::JarvisSequential::PostProcessingImpl() {
 }
 
 #ifdef __linux__
-#warning "linux version"
 void shulpin_i_jarvis_stl::JarvisSTLParallel::MakeJarvisPassageSTL(
     std::vector<shulpin_i_jarvis_stl::Point>& input_jar,
     std::vector<shulpin_i_jarvis_stl::Point>& output_jar) {  // NOLINT(readability-function-cognitive-complexity)
@@ -116,7 +115,7 @@ void shulpin_i_jarvis_stl::JarvisSTLParallel::MakeJarvisPassageSTL(
   bool stop = false;
 
   // NOLINTBEGIN
-  auto findNextPointThread = [&](int tid) {
+  auto findNextPointThread = [&](int tid) {  // NOLINT(readability-function-cognitive-complexity)
     while (true) {
       std::unique_lock<std::mutex> lock(mtx);
       cv.wait(lock, [&] { return thread_ready[tid] || stop; });
@@ -208,7 +207,6 @@ void shulpin_i_jarvis_stl::JarvisSTLParallel::MakeJarvisPassageSTL(
 }
 
 #else
-#warning "windows/macos version"
 void shulpin_i_jarvis_stl::JarvisSTLParallel::MakeJarvisPassageSTL(
     std::vector<shulpin_i_jarvis_stl::Point>& input_jar,
     std::vector<shulpin_i_jarvis_stl::Point>& output_jar) {  // NOLINT(readability-function-cognitive-complexity)

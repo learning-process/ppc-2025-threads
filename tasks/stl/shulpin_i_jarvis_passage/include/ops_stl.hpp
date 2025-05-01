@@ -50,7 +50,7 @@ class JarvisSTLParallel : public ppc::core::Task {
   bool ValidationImpl() override;
   bool RunImpl() override;
   bool PostProcessingImpl() override;
-  void MakeJarvisPassageSTL(std::vector<shulpin_i_jarvis_stl::Point>& input,
+  static void MakeJarvisPassageSTL(std::vector<shulpin_i_jarvis_stl::Point>& input,
                             std::vector<shulpin_i_jarvis_stl::Point>& output);
 
  private:
