@@ -2,6 +2,7 @@
 
 #include <algorithm>
 #include <atomic>
+#include <future>
 #include <thread>
 #include <vector>
 
@@ -180,78 +181,70 @@ void laganina_e_component_labeling_stl::TestTaskSTL::AssignLabels(std::vector<in
   const int size = m_ * n_;
   const int num_threads = ppc::util::GetPPCNumThreads();
   std::vector<int> labels(size + 1, 0);
+  const int chunk_size = (size + num_threads - 1) / num_threads;
 
   std::vector<int> root_counts(num_threads + 1, 0);
-
   {
-    const int chunk_size = (size + num_threads - 1) / num_threads;
-    std::vector<std::thread> threads;
-
+    std::vector<std::future<int>> count_futures;
     for (int t = 0; t < num_threads; ++t) {
       const int start = t * chunk_size;
       const int end = std::min(start + chunk_size, size);
 
-      threads.emplace_back([&, start, end, t] {
-        int local_count = 0;
+      count_futures.push_back(std::async(std::launch::async, [&, start, end] {
+        int count = 0;
         for (int i = start; i < end; ++i) {
-          if (parent[i] == i) {
-            local_count++;
-          }
+          if (parent[i] == i) count++;
         }
-        root_counts[t + 1] = local_count;
-      });
+        return count;
+      }));
     }
 
-    for (auto& t : threads) {
-      t.join();
+    for (int t = 0; t < num_threads; ++t) {
+      root_counts[t + 1] = count_futures[t].get();
     }
-  }
 
-  for (int t = 1; t <= num_threads; ++t) {
-    root_counts[t] += root_counts[t - 1];
+    for (int t = 1; t <= num_threads; ++t) {
+      root_counts[t] += root_counts[t - 1];
+    }
   }
 
   {
-    const int chunk_size = (size + num_threads - 1) / num_threads;
-    std::vector<std::thread> threads;
-
+    std::vector<std::future<void>> label_futures;
     for (int t = 0; t < num_threads; ++t) {
       const int start = t * chunk_size;
       const int end = std::min(start + chunk_size, size);
       const int label_start = root_counts[t];
 
-      threads.emplace_back([&, start, end, label_start] {
+      label_futures.push_back(std::async(std::launch::async, [&, start, end, label_start] {
         int current_label = label_start + 1;
         for (int i = start; i < end; ++i) {
           if (parent[i] == i) {
             labels[i] = current_label++;
           }
         }
-      });
+      }));
     }
 
-    for (auto& t : threads) {
-      t.join();
+    for (auto& f : label_futures) {
+      f.wait();
     }
   }
 
   {
-    const int chunk_size = (size + num_threads - 1) / num_threads;
-    std::vector<std::thread> threads;
-
+    std::vector<std::future<void>> propagate_futures;
     for (int t = 0; t < num_threads; ++t) {
       const int start = t * chunk_size;
       const int end = std::min(start + chunk_size, size);
 
-      threads.emplace_back([&, start, end] {
+      propagate_futures.push_back(std::async(std::launch::async, [&, start, end] {
         for (int i = start; i < end; ++i) {
           binary_[i] = (parent[i] != -1) ? labels[parent[i]] : 0;
         }
-      });
+      }));
     }
 
-    for (auto& t : threads) {
-      t.join();
+    for (auto& f : propagate_futures) {
+      f.wait();
     }
   }
 }
