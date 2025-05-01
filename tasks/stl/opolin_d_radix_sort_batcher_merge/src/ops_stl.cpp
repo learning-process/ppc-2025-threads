@@ -80,11 +80,11 @@ bool opolin_d_radix_batcher_sort_stl::RadixBatcherSortTaskStl::PostProcessingImp
   return true;
 }
 
-uint32_t RadixBatcherSortTaskStl::IntToUnsigned(int value) { return static_cast<uint32_t>(value) ^ (1u << 31); }
+uint32_t opolin_d_radix_batcher_sort_stl::IntToUnsigned(int value) { return static_cast<uint32_t>(value) ^ (1u << 31); }
 
-int RadixBatcherSortTaskStl::UnsignedToInt(uint32_t value) { return static_cast<int>(value ^ (1u << 31)); }
+int opolin_d_radix_batcher_sort_stl::UnsignedToInt(uint32_t value) { return static_cast<int>(value ^ (1u << 31)); }
 
-void RadixBatcherSortTaskStl::ParallelProcessRange(size_t total_size, unsigned int num_threads,
+void opolin_d_radix_batcher_sort_stl::ParallelProcessRange(size_t total_size, unsigned int num_threads,
                                                    const std::function<void(size_t start, size_t end)>& func) {
   if (total_size == 0 || num_threads == 0) {
     return;
@@ -111,7 +111,7 @@ void RadixBatcherSortTaskStl::ParallelProcessRange(size_t total_size, unsigned i
   }
 }
 
-void RadixBatcherSortTaskStl::ParallelRunTasks(const std::vector<std::function<void()>>& tasks,
+void opolin_d_radix_batcher_sort_stl::ParallelRunTasks(const std::vector<std::function<void()>>& tasks,
                                                unsigned int num_threads) {
   if (tasks.empty() || num_threads == 0) {
     return;
@@ -139,7 +139,7 @@ void RadixBatcherSortTaskStl::ParallelRunTasks(const std::vector<std::function<v
   }
 }
 
-void RadixBatcherSortTaskStl::RadixSortLSD(std::vector<uint32_t>::iterator begin, std::vector<uint32_t>::iterator end) {
+void opolin_d_radix_batcher_sort_stl::RadixSortLSD(std::vector<uint32_t>::iterator begin, std::vector<uint32_t>::iterator end) {
   size_t n = std::distance(begin, end);
   if (n <= 1) {
     return;
@@ -169,7 +169,7 @@ void RadixBatcherSortTaskStl::RadixSortLSD(std::vector<uint32_t>::iterator begin
   }
 }
 
-void RadixBatcherSortTaskStl::IterativeOddEvenBlockMerge(std::vector<uint32_t>::iterator data_begin,
+void opolin_d_radix_batcher_sort_stl::IterativeOddEvenBlockMerge(std::vector<uint32_t>::iterator data_begin,
                                                          std::vector<uint32_t>::iterator data_end, size_t num_blocks,
                                                          unsigned int num_threads) {
   size_t n = std::distance(data_begin, data_end);
