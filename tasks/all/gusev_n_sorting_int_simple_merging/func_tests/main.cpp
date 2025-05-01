@@ -1,6 +1,7 @@
 #include <gtest/gtest.h>
 
 #include <algorithm>
+#include <boost/mpi/communicator.hpp>
 #include <cstddef>
 #include <cstdint>
 #include <cstdlib>
@@ -30,6 +31,13 @@ void RunT(ppc::core::TaskDataPtr& task_data) {
   ASSERT_TRUE(task.Run());
   ASSERT_TRUE(task.PostProcessing());
 }
+
+void CheckResults(const std::vector<int>& expected, const std::vector<int>& out) {
+  boost::mpi::communicator world;
+  if (world.rank() == 0) {
+    EXPECT_EQ(expected, out);
+  }
+}
 }  // namespace
 
 TEST(gusev_n_sorting_int_simple_merging_all, test_radix_sort_basic) {
@@ -41,7 +49,7 @@ TEST(gusev_n_sorting_int_simple_merging_all, test_radix_sort_basic) {
 
   std::vector<int> expected = in;
   std::ranges::sort(expected);
-  EXPECT_EQ(expected, out);
+  CheckResults(expected, out);
 }
 
 TEST(gusev_n_sorting_int_simple_merging_all, test_radix_sort_all_zeroes) {
@@ -53,7 +61,7 @@ TEST(gusev_n_sorting_int_simple_merging_all, test_radix_sort_all_zeroes) {
 
   std::vector<int> expected = in;
   std::ranges::sort(expected);
-  EXPECT_EQ(expected, out);
+  CheckResults(expected, out);
 }
 
 TEST(gusev_n_sorting_int_simple_merging_all, test_radix_sort_empty) {
@@ -63,7 +71,10 @@ TEST(gusev_n_sorting_int_simple_merging_all, test_radix_sort_empty) {
   auto task_data = CreateTaskData(in, out);
   RunT(task_data);
 
-  EXPECT_TRUE(out.empty());
+  boost::mpi::communicator world;
+  if (world.rank() == 0) {
+    EXPECT_TRUE(out.empty());
+  }
 }
 
 TEST(gusev_n_sorting_int_simple_merging_all, test_radix_sort_single_element) {
@@ -73,7 +84,7 @@ TEST(gusev_n_sorting_int_simple_merging_all, test_radix_sort_single_element) {
   auto task_data = CreateTaskData(in, out);
   RunT(task_data);
 
-  EXPECT_EQ(in, out);
+  CheckResults(in, out);
 }
 
 TEST(gusev_n_sorting_int_simple_merging_all, test_radix_sort_negative_numbers) {
@@ -85,7 +96,7 @@ TEST(gusev_n_sorting_int_simple_merging_all, test_radix_sort_negative_numbers) {
 
   std::vector<int> expected = in;
   std::ranges::sort(expected);
-  EXPECT_EQ(expected, out);
+  CheckResults(expected, out);
 }
 
 TEST(gusev_n_sorting_int_simple_merging_all, test_radix_sort_random) {
@@ -100,7 +111,7 @@ TEST(gusev_n_sorting_int_simple_merging_all, test_radix_sort_random) {
 
   std::vector<int> expected = in;
   std::ranges::sort(expected);
-  EXPECT_EQ(expected, out);
+  CheckResults(expected, out);
 }
 
 TEST(gusev_n_sorting_int_simple_merging_all, test_radix_sort_duplicates) {
@@ -112,7 +123,7 @@ TEST(gusev_n_sorting_int_simple_merging_all, test_radix_sort_duplicates) {
 
   std::vector<int> expected = in;
   std::ranges::sort(expected);
-  EXPECT_EQ(expected, out);
+  CheckResults(expected, out);
 }
 
 TEST(gusev_n_sorting_int_simple_merging_all, test_radix_sort_reverse_order) {
@@ -124,7 +135,7 @@ TEST(gusev_n_sorting_int_simple_merging_all, test_radix_sort_reverse_order) {
 
   std::vector<int> expected = in;
   std::ranges::sort(expected);
-  EXPECT_EQ(expected, out);
+  CheckResults(expected, out);
 }
 
 TEST(gusev_n_sorting_int_simple_merging_all, test_validation_empty) {
@@ -154,7 +165,7 @@ TEST(gusev_n_sorting_int_simple_merging_all, test_radix_sort_int_min_max) {
 
   std::vector<int> expected = in;
   std::ranges::sort(expected);
-  EXPECT_EQ(expected, out);
+  CheckResults(expected, out);
 }
 
 TEST(gusev_n_sorting_int_simple_merging_all, test_radix_sort_all_negative) {
@@ -166,7 +177,7 @@ TEST(gusev_n_sorting_int_simple_merging_all, test_radix_sort_all_negative) {
 
   std::vector<int> expected = in;
   std::ranges::sort(expected);
-  EXPECT_EQ(expected, out);
+  CheckResults(expected, out);
 }
 
 TEST(gusev_n_sorting_int_simple_merging_all, test_radix_sort_all_positive) {
@@ -178,7 +189,7 @@ TEST(gusev_n_sorting_int_simple_merging_all, test_radix_sort_all_positive) {
 
   std::vector<int> expected = in;
   std::ranges::sort(expected);
-  EXPECT_EQ(expected, out);
+  CheckResults(expected, out);
 }
 
 TEST(gusev_n_sorting_int_simple_merging_all, test_radix_sort_small_large_values) {
@@ -190,7 +201,7 @@ TEST(gusev_n_sorting_int_simple_merging_all, test_radix_sort_small_large_values)
 
   std::vector<int> expected = in;
   std::ranges::sort(expected);
-  EXPECT_EQ(expected, out);
+  CheckResults(expected, out);
 }
 
 TEST(gusev_n_sorting_int_simple_merging_all, test_validation_nullptr) {
@@ -212,5 +223,5 @@ TEST(gusev_n_sorting_int_simple_merging_all, test_radix_sort_already_sorted) {
   RunT(task_data);
 
   std::vector<int> expected = in;
-  EXPECT_EQ(expected, out);
+  CheckResults(expected, out);
 }
