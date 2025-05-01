@@ -13,21 +13,20 @@
 #include "seq/trubin_a_algorithm_dijkstra/include/ops_seq.hpp"
 
 namespace {
-std::vector<int> GenerateRandomDenseGraph(size_t kNumVertices, size_t kMaxEdgesPerVertex) {
+std::vector<int> GenerateRandomDenseGraph(size_t num_vertices, size_t max_edges_per_vertex) {
   std::vector<int> graph_data;
   std::mt19937 rng(42);
-  std::uniform_int_distribution<size_t> edge_count_dist(1, kMaxEdgesPerVertex);
+  std::uniform_int_distribution<size_t> edge_count_dist(1, max_edges_per_vertex);
   std::uniform_int_distribution<int> weight_dist(1, 10);
 
-  for (size_t i = 0; i < kNumVertices; ++i) {
+  for (size_t i = 0; i < num_vertices; ++i) {
     size_t num_edges = edge_count_dist(rng);
     std::unordered_set<size_t> used;
     while (used.size() < num_edges) {
-      size_t to = rng() % kNumVertices;
-      if (to == i || used.contains(to)) {
-        continue;
-      }
+      size_t to = rng() % num_vertices;
+      if (to == i || used.count(to)) continue;
       used.insert(to);
+
       graph_data.push_back(static_cast<int>(to));
       graph_data.push_back(weight_dist(rng));
     }
@@ -35,6 +34,7 @@ std::vector<int> GenerateRandomDenseGraph(size_t kNumVertices, size_t kMaxEdgesP
   }
   return graph_data;
 }
+
 }  // namespace
 
 TEST(trubin_a_algorithm_dijkstra_seq, test_pipeline_run) {
