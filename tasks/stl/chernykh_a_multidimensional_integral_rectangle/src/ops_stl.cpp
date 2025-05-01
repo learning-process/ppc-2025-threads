@@ -39,31 +39,28 @@ bool STLTask::PreProcessingImpl() {
 bool STLTask::RunImpl() {
   int total_points = GetTotalPoints();
   int num_threads = ppc::util::GetPPCNumThreads();
-  int chunk_size = total_points / num_threads;
+  int points_per_thread = total_points / num_threads;
+  int extra_points = total_points % num_threads;
 
   auto threads = std::vector<std::thread>();
-  auto thread_results = std::vector<double>(num_threads, 0.0);
+  auto partial_sums = std::vector<double>(num_threads, 0.0);
 
-  auto process_chunk = [&](int start, int end, int thread_index) -> void {
+  auto calculate_partial_sum = [&](int start_point, int end_point, int thread_index) -> void {
     auto thread_point = Point(dims_.size());
-    for (int i = start; i < end; i++) {
+    for (int i = start_point; i < end_point; i++) {
       FillPoint(i, thread_point);
-      thread_results[thread_index] += func_(thread_point);
+      partial_sums[thread_index] += func_(thread_point);
     }
   };
 
   for (int i = 0; i < num_threads; i++) {
-    int start = i * chunk_size;
-    int end = (i == num_threads - 1) ? total_points : start + chunk_size;
-    threads.emplace_back(process_chunk, start, end, i);
+    int start_point = (i * points_per_thread) + std::min(i, extra_points);
+    int end_point = start_point + points_per_thread + (i < extra_points ? 1 : 0);
+    threads.emplace_back(calculate_partial_sum, start_point, end_point, i);
   }
+  std::ranges::for_each(threads, [](std::thread &thread) -> void { thread.join(); });
 
-  for (auto &thread : threads) {
-    thread.join();
-  }
-
-  result_ = std::accumulate(thread_results.begin(), thread_results.end(), 0.0);
-  result_ *= GetScalingFactor();
+  result_ = std::accumulate(partial_sums.begin(), partial_sums.end(), 0.0) * GetScalingFactor();
   return true;
 }
 
