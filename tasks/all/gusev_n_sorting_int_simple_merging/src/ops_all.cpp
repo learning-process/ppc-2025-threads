@@ -290,7 +290,11 @@ bool gusev_n_sorting_int_simple_merging_all::SortingIntSimpleMergingALL::Validat
 }
 
 bool gusev_n_sorting_int_simple_merging_all::SortingIntSimpleMergingALL::RunImpl() {
+  boost::mpi::communicator world;
+  int rank = world.rank();
   RadixSort(input_);
+
+  boost::mpi::broadcast(world, input_, 0);
   return true;
 }
 
