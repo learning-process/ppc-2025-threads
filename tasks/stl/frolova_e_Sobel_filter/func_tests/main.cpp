@@ -123,6 +123,34 @@ TEST(frolova_e_sobel_filter_stl, small_image_1) {
   EXPECT_EQ(reference, res);
 }
 
+TEST(frolova_e_sobel_filter_stl, one_pixel) {
+  std::vector<int> value = {1, 1};
+  std::vector<int> pict = {0, 0, 0};
+
+  std::vector<int> res(1, 0);
+
+  std::vector<int> reference = {0};
+
+  // Create task_data
+  auto task_data = std::make_shared<ppc::core::TaskData>();
+  task_data->inputs.emplace_back(reinterpret_cast<uint8_t *>(value.data()));
+  task_data->inputs_count.emplace_back(value.size());
+
+  task_data->inputs.emplace_back(reinterpret_cast<uint8_t *>(pict.data()));
+  task_data->inputs_count.emplace_back(pict.size());
+
+  task_data->outputs.emplace_back(reinterpret_cast<uint8_t *>(res.data()));
+  task_data->outputs_count.emplace_back(res.size());
+
+  // Create Task
+  frolova_e_sobel_filter_stl::SobelFilterSTL test_task(task_data);
+  ASSERT_EQ(test_task.Validation(), true);
+  test_task.PreProcessing();
+  test_task.Run();
+  test_task.PostProcessing();
+  EXPECT_EQ(reference, res);
+}
+
 TEST(frolova_e_sobel_filter_stl, test_1) {
   std::vector<int> value = {10, 10};
   std::vector<int> pict = {
