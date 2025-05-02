@@ -140,7 +140,7 @@ void vavilov_v_cannon_stl::CannonSTL::ProcessSingleBlock(int bi, int bj, int bi_
 }
 
 void vavilov_v_cannon_stl::CannonSTL::MergeResults(int num_threads, int bi_range,
-                                                    const std::vector<std::vector<double>> &local_c) {
+                                                   const std::vector<std::vector<double>> &local_c) {
   for (int t = 0; t < num_threads; ++t) {
     const int bi_start = t * bi_range;
     const int bi_end = std::min(bi_start + bi_range, N_);
