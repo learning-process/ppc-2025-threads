@@ -122,3 +122,11 @@ TEST(trubin_a_algorithm_dijkstra_omp, multi_component_graph) {
 TEST(trubin_a_algorithm_dijkstra_omp, start_from_nonzero_vertex) {
   RunDijkstraTest({1, 3, -1, 2, 4, -1, 3, 2, -1, -1}, 2, 4, {-1, -1, 0, 2});
 }
+
+TEST(trubin_a_algorithm_dijkstra_omp, heavy_bucket_and_resize) {
+  RunDijkstraTest({1, 20, -1, 2, 1, -1, -1}, 0, 3, {0, 20, 21});
+}
+
+TEST(trubin_a_algorithm_dijkstra_omp, heavy_bucket_triggered) { RunDijkstraTest({1, 10, -1, -1}, 0, 2, {0, 10}); }
+
+TEST(trubin_a_algorithm_dijkstra_omp, bucket_resize_triggered) { RunDijkstraTest({1, 25, -1, -1}, 0, 2, {0, 25}); }

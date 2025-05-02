@@ -90,16 +90,13 @@ bool trubin_a_algorithm_dijkstra_omp::TestTaskOpenMP::RunImpl() {
   buckets[0].push_back(static_cast<int>(start_vertex_));
 
   while (true) {
-    size_t b = 0;
-    while (b < buckets.size() && buckets[b].empty()) {
-      ++b;
-    }
-    if (b == buckets.size()) {
+    auto it = std::find_if(buckets.begin(), buckets.end(), [](const auto& bucket) { return !bucket.empty(); });
+    if (it == buckets.end()) {
       break;
     }
 
     std::vector<int> current;
-    std::swap(current, buckets[b]);
+    std::swap(current, *it);
 
     ProcessCurrentBucket(current, buckets, delta, distances_atomic);
   }
