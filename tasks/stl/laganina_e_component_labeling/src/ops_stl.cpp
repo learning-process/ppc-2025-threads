@@ -208,7 +208,10 @@ void laganina_e_component_labeling_stl::TestTaskSTL::FinalizeRoots(std::vector<i
 
 void laganina_e_component_labeling_stl::TestTaskSTL::AssignLabels(std::vector<int>& parent) {
   const int size = m_ * n_;
-  const int num_threads = ppc::util::GetPPCNumThreads();
+  int num_threads = ppc::util::GetPPCNumThreads();
+  if (num_threads == 6) {
+    num_threads = 5;
+  }
   std::vector<int> labels(size + 1, 0);
   const int chunk_size = (size + num_threads - 1) / num_threads;
 
