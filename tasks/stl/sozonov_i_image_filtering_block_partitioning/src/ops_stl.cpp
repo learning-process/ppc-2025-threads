@@ -3,7 +3,9 @@
 #include <algorithm>
 #include <cmath>
 #include <cstddef>
+#include <functional>
 #include <thread>
+#include <utility>
 #include <vector>
 
 #include "core/util/include/util.hpp"
@@ -86,7 +88,9 @@ bool sozonov_i_image_filtering_block_partitioning_stl::TestTaskSTL::RunImpl() {
                              thread_blocks[t]);
   }
 
-  for (auto &t : threads) t.join();
+  for (auto &t : threads) {
+    t.join();
+  }
 
   return true;
 }
