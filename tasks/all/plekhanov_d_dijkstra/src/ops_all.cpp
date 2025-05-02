@@ -2,19 +2,17 @@
 
 #include <omp.h>
 
-#include <atomic>
-#include <boost/mpi.hpp>
-#include <boost/serialization/vector.hpp>
-#include <climits>
+#include <algorithm>
+#include <boost/mpi/communicator.hpp>
+#include <boost/mpi/collectives.hpp>
 #include <cstddef>
+#include <climits>
 #include <cstdlib>
+#include <functional>
 #include <mutex>
 #include <queue>
-#include <thread>
 #include <utility>
 #include <vector>
-
-#include "core/util/include/util.hpp"
 
 namespace plekhanov_d_dijkstra_all {
 
@@ -123,7 +121,7 @@ bool plekhanov_d_dijkstra_all::TestTaskALL::RunImpl() {
 
   if (world.rank() == 0) {
     distances_.assign(num_vertices_, INT_MAX);
-    for (int i = 0; i < num_vertices_; ++i) {
+    for (int i = 0; i < static_cast<int>(num_vertices_); ++i) {
       for (const auto& proc_dists : gathered) {
         distances_[i] = std::min(distances_[i], proc_dists[i]);
       }
