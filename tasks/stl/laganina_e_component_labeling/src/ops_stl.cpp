@@ -71,7 +71,7 @@ bool laganina_e_component_labeling_stl::TestTaskSTL::PostProcessingImpl() {
 void laganina_e_component_labeling_stl::TestTaskSTL::InitializeParents(std::vector<int>& parent) {
   const int size = m_ * n_;
   int num_threads = ppc::util::GetPPCNumThreads();
-  if (num_threads == 6) {
+  if (num_threads >= 6) {
     num_threads = 5;
   }
   const int chunk_size = (size + num_threads - 1) / num_threads;
@@ -96,7 +96,7 @@ void laganina_e_component_labeling_stl::TestTaskSTL::InitializeParents(std::vect
 void laganina_e_component_labeling_stl::TestTaskSTL::ProcessSweep(bool reverse, std::vector<int>& parent,
                                                                   bool& changed) const {
   int num_threads = ppc::util::GetPPCNumThreads();
-  if (num_threads == 6) {
+  if (num_threads >= 6) {
     num_threads = 5;
   }
   const int chunk_size = (m_ + num_threads - 1) / num_threads;
@@ -191,7 +191,7 @@ bool laganina_e_component_labeling_stl::TestTaskSTL::UnionNodes(int a, int b, st
 void laganina_e_component_labeling_stl::TestTaskSTL::FinalizeRoots(std::vector<int>& parent) const {
   const int size = m_ * n_;
   int num_threads = ppc::util::GetPPCNumThreads();
-  if (num_threads == 6) {
+  if (num_threads >= 6) {
     num_threads = 5;
   }
   const int chunk_size = (size + num_threads - 1) / num_threads;
@@ -218,7 +218,7 @@ void laganina_e_component_labeling_stl::TestTaskSTL::FinalizeRoots(std::vector<i
 void laganina_e_component_labeling_stl::TestTaskSTL::AssignLabels(std::vector<int>& parent) {
   const int size = m_ * n_;
   int num_threads = ppc::util::GetPPCNumThreads();
-  if (num_threads == 6) {
+  if (num_threads >= 6) {
     num_threads = 5;
   }
   std::vector<int> labels(size + 1, 0);
