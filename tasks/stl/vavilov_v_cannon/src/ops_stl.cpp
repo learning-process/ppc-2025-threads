@@ -32,10 +32,10 @@ bool vavilov_v_cannon_stl::CannonSTL::ValidationImpl() {
   return n % num_blocks == 0;
 }
 
-void vavilov_v_cannon_stl::CannonSTL::InitialShift(int num_threads, int blocks_per_thread) {
+void vavilov_v_cannon_stl::CannonSTL::InitialShift(int num_threads, int blocks_per_thread, std::vector<std::thread>& threads) {
   std::vector<double> a_tmp = A_;
   std::vector<double> b_tmp = B_;
-  std::vector<std::thread> threads;
+  threads.clear();
 
   auto shift_work = [&](int bi_start, int bi_end) {
     for (int bi = bi_start; bi < bi_end; ++bi) {
@@ -61,68 +61,8 @@ void vavilov_v_cannon_stl::CannonSTL::InitialShift(int num_threads, int blocks_p
       threads.emplace_back(shift_work, start, end);
     }
   }
-  for (auto &thread : threads) {
-    thread.join();
-  }
 }
-/*
-void vavilov_v_cannon_stl::CannonSTL::BlockMultiply(int num_threads) {
-  std::vector<std::thread> threads;
-  std::vector<std::vector<double>> local_c;
 
-  auto multiply_work = [&](int bi_start, int bi_end, int thread_id) {
-    std::vector<double> &local = local_c[thread_id];
-    local.resize((bi_end - bi_start) * N_, 0.0);
-
-    for (int bi = bi_start; bi < bi_end; bi += block_size_) {
-      for (int bj = 0; bj < N_; bj += block_size_) {
-        for (int i = bi; i < bi + block_size_; i++) {
-          for (int j = bj; j < bj + block_size_; j++) {
-            double temp = 0.0;
-            for (int k = 0; k < block_size_; k++) {
-              int row_a = bi + (i - bi);
-              int col_a = bj + k;
-              int row_b = bi + k;
-              int col_b = bj + (j - bj);
-              temp += A_[(row_a * N_) + col_a] * B_[(row_b * N_) + col_b];
-            }
-            local[((i - bi_start) * N_) + j] += temp;
-          }
-        }
-      }
-    }
-  };
-
-  local_c.resize(num_threads);
-  int blocks_per_thread = (num_blocks_ + num_threads - 1) / num_threads;
-  int bi_range = blocks_per_thread * block_size_;
-
-  for (int t = 0; t < num_threads; ++t) {
-    int bi_start = t * bi_range;
-    int bi_end = std::min(bi_start + bi_range, N_);
-    if (bi_start < N_) {
-      threads.emplace_back(multiply_work, bi_start, bi_end, t);
-    }
-  }
-
-  for (auto &thread : threads) {
-    thread.join();
-  }
-
-  for (int t = 0; t < num_threads; ++t) {
-    int bi_start = t * bi_range;
-    int bi_end = std::min(bi_start + bi_range, N_);
-    if (bi_start < N_) {
-      const std::vector<double> &local = local_c[t];
-      for (int i = bi_start; i < bi_end; ++i) {
-        for (int j = 0; j < N_; ++j) {
-          C_[(i * N_) + j] += local[((i - bi_start) * N_) + j];
-        }
-      }
-    }
-  }
-}
-*/
 void vavilov_v_cannon_stl::CannonSTL::ProcessSingleBlock(int bi, int bj, int bi_start, std::vector<double> &local) {
   for (int i = bi; i < bi + block_size_; i++) {
     for (int j = bj; j < bj + block_size_; j++) {
@@ -155,10 +95,10 @@ void vavilov_v_cannon_stl::CannonSTL::MergeResults(int num_threads, int bi_range
   }
 }
 
-void vavilov_v_cannon_stl::CannonSTL::BlockMultiply(int num_threads, int blocks_per_thread) {
-  std::vector<std::thread> threads;
+void vavilov_v_cannon_stl::CannonSTL::BlockMultiply(int num_threads, int blocks_per_thread, std::vector<std::thread>& threads) {
   std::vector<std::vector<double>> local_c(num_threads);
   const int bi_range = blocks_per_thread * block_size_;
+  threads.clear();
 
   auto process_block_range = [&](int bi_start, int bi_end, int thread_id) {
     std::vector<double> &local = local_c[thread_id];
@@ -179,17 +119,13 @@ void vavilov_v_cannon_stl::CannonSTL::BlockMultiply(int num_threads, int blocks_
     }
   }
 
-  for (auto &thread : threads) {
-    thread.join();
-  }
-
   MergeResults(num_threads, bi_range, local_c);
 }
 
-void vavilov_v_cannon_stl::CannonSTL::ShiftBlocks(int num_threads, int blocks_per_thread) {
+void vavilov_v_cannon_stl::CannonSTL::ShiftBlocks(int num_threads, int blocks_per_thread, std::vector<std::thread>& threads) {
   std::vector<double> a_tmp = A_;
   std::vector<double> b_tmp = B_;
-  std::vector<std::thread> threads;
+  threads.clear();
 
   auto shift_work = [&](int bi_start, int bi_end) {
     for (int bi = bi_start; bi < bi_end; ++bi) {
@@ -215,18 +151,22 @@ void vavilov_v_cannon_stl::CannonSTL::ShiftBlocks(int num_threads, int blocks_pe
       threads.emplace_back(shift_work, start, end);
     }
   }
-  for (auto &thread : threads) {
-    thread.join();
-  }
 }
 
 bool vavilov_v_cannon_stl::CannonSTL::RunImpl() {
   int num_threads = std::min(ppc::util::GetPPCNumThreads(), num_blocks_);
   int blocks_per_thread = (num_blocks_ + num_threads - 1) / num_threads;
-  InitialShift(num_threads, blocks_per_thread);
+  std::vector<std::thread> threads;
+  threads.reserve(num_threads);
+  InitialShift(num_threads, blocks_per_thread, threads);
   for (int iter = 0; iter < num_blocks_; ++iter) {
-    BlockMultiply(num_threads, blocks_per_thread);
-    ShiftBlocks(num_threads, blocks_per_thread);
+    BlockMultiply(num_threads, blocks_per_thread, threads);
+    ShiftBlocks(num_threads, blocks_per_thread, threads);
+  }
+  for (auto& thread : threads) {
+    if (thread.joinable()) {
+      thread.join();
+    }
   }
   return true;
 }
