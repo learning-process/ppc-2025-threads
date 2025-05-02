@@ -55,7 +55,7 @@ bool kozlova_e_contrast_enhancement_stl::TestTaskSTL::RunImpl() {
   auto process_rows = [&](size_t start_row, size_t end_row) {
     for (size_t row = start_row; row < end_row; ++row) {
       for (size_t col = 0; col < width_; ++col) {
-        size_t idx = row * width_ + col;
+        size_t idx = (row * width_) + col;
         output_[idx] = normalize_pixel(input_[idx]);
       }
     }

@@ -3,13 +3,11 @@
 #include <algorithm>
 #include <cstddef>
 #include <cstdint>
-#include <fstream>
+#include <cstdlib>
 #include <memory>
-#include <string>
 #include <vector>
 
 #include "core/task/include/task.hpp"
-#include "core/util/include/util.hpp"
 #include "stl/kozlova_e_contrast_enhancement/include/ops_stl.hpp"
 
 namespace {
