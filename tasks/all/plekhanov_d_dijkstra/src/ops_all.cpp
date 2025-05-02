@@ -3,10 +3,10 @@
 #include <omp.h>
 
 #include <algorithm>
-#include <boost/mpi/communicator.hpp>
 #include <boost/mpi/collectives.hpp>
-#include <cstddef>
+#include <boost/mpi/communicator.hpp>
 #include <climits>
+#include <cstddef>
 #include <cstdlib>
 #include <functional>
 #include <mutex>
