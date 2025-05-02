@@ -38,7 +38,7 @@ double chizhov_m_trapezoid_method_stl::TrapezoidMethod(Function& f, size_t div, 
   }
 
   double result = 0.0;
-  unsigned int num_threads = std::thread::hardware_concurrency();
+  auto num_threads = std::thread::hardware_concurrency();
   std::vector<double> local_results(num_threads, 0.0);
   std::vector<std::thread> threads(num_threads);
 
