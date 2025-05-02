@@ -25,8 +25,10 @@ class CannonSTL : public ppc::core::Task {
   std::vector<double> B_;
   std::vector<double> C_;
 
-  void InitialShift(int num_threads);
-  void BlockMultiply(int num_threads);
-  void ShiftBlocks(int num_threads);
+  void InitialShift(int num_threads, int blocks_per_thread);
+  void BlockMultiply(int num_threads, int blocks_per_thread);
+  void ShiftBlocks(int num_threads, int blocks_per_thread);
+  void process_single_block(int bi, int bj, int bi_start, std::vector<double>& local);
+  void merge_results(int num_threads, int bi_range, const std::vector<std::vector<double>>& local_c);
 };
 }  // namespace vavilov_v_cannon_stl
