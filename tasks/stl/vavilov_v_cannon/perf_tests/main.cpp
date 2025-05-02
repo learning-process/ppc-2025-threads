@@ -11,6 +11,7 @@
 
 TEST(vavilov_v_cannon_stl, test_pipeline_run) {
   constexpr int kN = 900;
+  constexpr int kNumblocks = 30;
   std::vector<double> a(kN * kN, 1.0);
   std::vector<double> b(kN * kN, 1.0);
   std::vector<double> c(kN * kN, 0.0);
@@ -21,6 +22,7 @@ TEST(vavilov_v_cannon_stl, test_pipeline_run) {
   task_data_stl->inputs.emplace_back(reinterpret_cast<uint8_t*>(b.data()));
   task_data_stl->inputs_count.emplace_back(a.size());
   task_data_stl->inputs_count.emplace_back(b.size());
+  task_data_stl->inputs_count.emplace_back(kNumblocks);
   task_data_stl->outputs.emplace_back(reinterpret_cast<uint8_t*>(c.data()));
   task_data_stl->outputs_count.emplace_back(c.size());
 
@@ -47,6 +49,7 @@ TEST(vavilov_v_cannon_stl, test_pipeline_run) {
 
 TEST(vavilov_v_cannon_stl, test_task_run) {
   constexpr int kN = 900;
+  constexpr int kNumblocks = 30;
   std::vector<double> a(kN * kN, 1.0);
   std::vector<double> b(kN * kN, 1.0);
   std::vector<double> c(kN * kN, 0.0);
@@ -57,6 +60,7 @@ TEST(vavilov_v_cannon_stl, test_task_run) {
   task_data_stl->inputs.emplace_back(reinterpret_cast<uint8_t*>(b.data()));
   task_data_stl->inputs_count.emplace_back(a.size());
   task_data_stl->inputs_count.emplace_back(b.size());
+  task_data_stl->inputs_count.emplace_back(kNumblocks);
   task_data_stl->outputs.emplace_back(reinterpret_cast<uint8_t*>(c.data()));
   task_data_stl->outputs_count.emplace_back(c.size());
 
