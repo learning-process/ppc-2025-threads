@@ -21,8 +21,8 @@ namespace boost {
 namespace mpi {
 template <>
 struct is_mpi_datatype<std::pair<int, int>> : public true_type {};
-}
-}
+}  // namespace mpi
+}  // namespace boost
 
 namespace plekhanov_d_dijkstra_all {
 
@@ -60,9 +60,9 @@ bool ConvertGraphToAdjacencyList(const std::vector<int>& graph_data, size_t num_
   return true;
 }
 
-}
+}  // namespace
 
-}
+}  // namespace plekhanov_d_dijkstra_all
 
 const int plekhanov_d_dijkstra_all::TestTaskALL::kEndOfVertexList = -1;
 
