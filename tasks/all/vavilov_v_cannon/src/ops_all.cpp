@@ -370,7 +370,7 @@ bool vavilov_v_cannon_all::CannonALL::RunImpl() {
       for (int p = 1; p < active_procs; ++p) {
         std::vector<double> temp(block_elements);
         world_.recv(p, 4, temp.data(), block_elements);
-        
+
         int row_p = p / grid_size;
         int col_p = p % grid_size;
         for (int i = 0; i < block_size; ++i) {
