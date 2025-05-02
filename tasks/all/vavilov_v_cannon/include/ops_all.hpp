@@ -28,9 +28,10 @@ class CannonALL : public ppc::core::Task {
   std::vector<double> C_;
   boost::mpi::communicator world_;
 
-  // void InitialShift(std::vector<double>& local_A, std::vector<double>& local_B);
+  void InitialShift(std::vector<double>& local_A, std::vector<double>& local_B);
   void BlockMultiply(const std::vector<double>& local_A, const std::vector<double>& local_B,
                      std::vector<double>& local_C);
-  // void ShiftBlocks(std::vector<double>& local_A, std::vector<double>& local_B);
+  void ShiftBlocks(std::vector<double>& local_A, std::vector<double>& local_B);
+  void CalculateGridDimensions(int size, int& rows, int& cols);
 };
 }  // namespace vavilov_v_cannon_all
