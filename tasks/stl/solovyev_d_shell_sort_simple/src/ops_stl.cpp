@@ -24,7 +24,9 @@ void solovyev_d_shell_sort_simple_stl::TaskSTL::ThreadWorker(int t) {
   while (true) {
     std::unique_lock<std::mutex> lock(m);
     cv.wait(lock, [&] { return ready || done; });
-    if (done) { return; }
+    if (done) {
+		return; 
+	}
     for (int i = t; i < gap; i += num_threads) {
       for (size_t f = i + gap; f < input_.size(); f += gap) {
         int val = input_[f];
@@ -65,7 +67,9 @@ bool solovyev_d_shell_sort_simple_stl::TaskSTL::RunImpl() {
   }
   cv.notify_all();
   for (auto &th : threads) {
-    if (th.joinable()) { th.join(); }
+    if (th.joinable()) {
+		th.join(); 
+	}
   }
   return true;
 }
