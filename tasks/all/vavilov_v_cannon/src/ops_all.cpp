@@ -292,133 +292,130 @@ bool vavilov_v_cannon_all::CannonALL::RunImpl() {
   int rank = world_.rank();
   int size = world_.size();
 
+  // Определение размеров сетки процессов
+  int grid_size = static_cast<int>(std::sqrt(size));
+  while (size % grid_size != 0 && grid_size > 1) {
+    grid_size--;
+  }
+  grid_size = std::max(1, grid_size);
+  int active_procs = grid_size * grid_size;
+
   if (rank == 0) {
-    std::cout << "Running Cannon's algorithm with " << size << " processes\n";
+    std::cout << "Running with " << active_procs << " active processes (grid: "  << grid_size << "x" << grid_size << ")\n";
   }
 
-  int grid_rows = 1;
-  int grid_cols = size;
-  for (int i = static_cast<int>(std::sqrt(size)); i >= 1; --i) {
-    if (size % i == 0) {
-      grid_rows = i;
-      grid_cols = size / i;
-      break;
-    }
-  }
-
-  if (N_ % grid_rows != 0 || N_ % grid_cols != 0) {
+  // Проверка делимости матрицы
+  if (N_ % grid_size != 0) {
     if (rank == 0) {
-      std::cerr << "Matrix size " << N_ << " must be divisible by " << grid_rows << " and " << grid_cols << "\n";
+      std::cerr << "Matrix size " << N_ << " must be divisible by grid size "  << grid_size << "\n";
     }
     return false;
   }
 
-  const int block_rows = N_ / grid_rows;
-  const int block_cols = N_ / grid_cols;
-  const int block_size_A = block_rows * block_cols;
-  const int block_size_B = block_cols * block_rows;
-  const int block_size_C = block_rows * block_rows;
+  int block_size = N_ / grid_size;
+  int block_elements = block_size * block_size;
 
-  std::vector<double> local_A(block_size_A);
-  std::vector<double> local_B(block_size_B);
-  std::vector<double> local_C(block_size_C, 0.0);
+  std::vector<double> local_A, local_B, local_C(block_elements, 0.0);
+
   // Распределение данных
-  if (rank == 0) {
-    std::vector<double> tmp_A(size * block_size_A);
-    std::vector<double> tmp_B(size * block_size_B);
+  if (rank < active_procs) {
+    if (rank == 0) {
+      std::vector<double> tmp_A(active_procs * block_elements);
+      std::vector<double> tmp_B(active_procs * block_elements);
 
-    for (int p = 0; p < size; ++p) {
-      int row = p / grid_cols;
-      int col = p % grid_cols;
-
-      // Распределение A
-      for (int i = 0; i < block_rows; ++i) {
-        for (int j = 0; j < block_cols; ++j) {
-          tmp_A[p * block_size_A + i * block_cols + j] = A_[(row * block_rows + i) * N_ + (col * block_cols + j)];
-        }
+      for (int p = 0; p < active_procs; ++p) {
+          int row = p / grid_size;
+          int col = p % grid_size;
+          for (int i = 0; i < block_size; ++i) {
+              for (int j = 0; j < block_size; ++j) {
+                tmp_A[p * block_elements + i * block_size + j] = 
+                    A_[(row * block_size + i) * N_ + (col * block_size + j)];
+                tmp_B[p * block_elements + i * block_size + j] = 
+                    B_[(row * block_size + i) * N_ + (col * block_size + j)];
+              }
+          }
       }
 
-      // Распределение B (транспонированное)
-      for (int i = 0; i < block_cols; ++i) {
-        for (int j = 0; j < block_rows; ++j) {
-          tmp_B[p * block_size_B + i * block_rows + j] = B_[(col * block_cols + i) * N_ + (row * block_rows + j)];
-        }
+      // Исправленный scatter
+      boost::mpi::scatter(world_, tmp_A, local_A, 0);
+      boost::mpi::scatter(world_, tmp_B, local_B, 0);
+      } else {
+          local_A.resize(block_elements);
+          local_B.resize(block_elements);
+          boost::mpi::scatter(world_, local_A, 0);
+          boost::mpi::scatter(world_, local_B, 0);
       }
-    }
-
-    mpi::scatter(world_, tmp_A.data(), block_size_A, local_A.data(), 0);
-    mpi::scatter(world_, tmp_B.data(), block_size_B, local_B.data(), 0);
-  } else {
-    mpi::scatter(world_, local_A.data(), block_size_A, 0);
-    mpi::scatter(world_, local_B.data(), block_size_B, 0);
   }
 
-  // Начальное выравнивание
-  int row = rank / grid_cols;
-  int col = rank % grid_cols;
+  // Основной алгоритм Кэннона
+  if (rank < active_procs) {
+    int row = rank / grid_size;
+    int col = rank % grid_size;
 
-  // Сдвиг A влево на 'row' позиций
-  int dest_A = row * grid_cols + (col + row) % grid_cols;
-  int src_A = row * grid_cols + (col - row + grid_cols) % grid_cols;
-  world_.sendrecv(local_A.data(), block_size_A, dest_A, 0, local_A.data(), block_size_A, src_A, 0);
+    // Начальное выравнивание
+    if (grid_size > 1) {
+      // Сдвиг A влево на 'row' позиций
+      int dest_A = row * grid_size + (col + row) % grid_size;
+      int src_A = row * grid_size + (col - row + grid_size) % grid_size;
+      world_.sendrecv(local_A.data(), block_elements, dest_A, 0,
+                      local_A.data(), block_elements, src_A, 0);
 
-  // Сдвиг B вверх на 'col' позиций
-  int dest_B = ((row + col) % grid_rows) * grid_cols + col;
-  int src_B = ((row - col + grid_rows) % grid_rows) * grid_cols + col;
-  world_.sendrecv(local_B.data(), block_size_B, dest_B, 1, local_B.data(), block_size_B, src_B, 1);
+      // Сдвиг B вверх на 'col' позиций
+      int dest_B = ((row + col) % grid_size) * grid_size + col;
+      int src_B = ((row - col + grid_size) % grid_size) * grid_size + col;
+      world_.sendrecv(local_B.data(), block_elements, dest_B, 1,
+                      local_B.data(), block_elements, src_B, 1);
+    }
 
-  // Основной цикл умножения
-  for (int step = 0; step < grid_cols; ++step) {
-    // Локальное умножение
-    for (int i = 0; i < block_rows; ++i) {
-      for (int j = 0; j < block_rows; ++j) {
-        double sum = 0.0;
-        for (int k = 0; k < block_cols; ++k) {
-          sum += local_A[i * block_cols + k] * local_B[k * block_rows + j];
+      // Основные итерации
+      for (int iter = 0; iter < grid_size; ++iter) {
+        BlockMultiply(local_A, local_B, local_C, block_size);
+
+        if (iter < grid_size - 1) {
+          // Циклический сдвиг A влево на 1
+          int left = row * grid_size + (col - 1 + grid_size) % grid_size;
+          int right = row * grid_size + (col + 1) % grid_size;
+          world_.sendrecv(local_A.data(), block_elements, left, 2,
+                          local_A.data(), block_elements, right, 2);
+
+          // Циклический сдвиг B вверх на 1
+          int up = ((row - 1 + grid_size) % grid_size) * grid_size + col;
+          int down = ((row + 1) % grid_size) * grid_size + col;
+          world_.sendrecv(local_B.data(), block_elements, up, 3,
+                          local_B.data(), block_elements, down, 3);
         }
-        local_C[i * block_rows + j] += sum;
-      }
     }
 
-    if (step < grid_cols - 1) {
-      // Циклический сдвиг A влево на 1
-      int left_neigh = row * grid_cols + (col - 1 + grid_cols) % grid_cols;
-      int right_neigh = row * grid_cols + (col + 1) % grid_cols;
-      world_.sendrecv(local_A.data(), block_size_A, left_neigh, 2, local_A.data(), block_size_A, right_neigh, 2);
-
-      // Циклический сдвиг B вверх на 1
-      int up_neigh = ((row - 1 + grid_rows) % grid_rows) * grid_cols + col;
-      int down_neigh = ((row + 1) % grid_rows) * grid_cols + col;
-      world_.sendrecv(local_B.data(), block_size_B, up_neigh, 3, local_B.data(), block_size_B, down_neigh, 3);
-    }
-  }
-  // Сбор результатов
-  if (rank == 0) {
-    std::vector<double> gathered_C(N_ * N_);
-
-    // Копируем данные от rank 0
-    for (int i = 0; i < block_rows; ++i) {
-      for (int j = 0; j < block_rows; ++j) {
-        gathered_C[i * N_ + j] = local_C[i * block_rows + j];
-      }
-    }
-
-    // Получаем данные от других процессов
-    for (int p = 1; p < size; ++p) {
-      std::vector<double> temp(block_size_C);
-      world_.recv(p, 4, temp.data(), block_size_C);
-      int row = p / grid_cols;
-      int col = p % grid_cols;
-      for (int i = 0; i < block_rows; ++i) {
-        for (int j = 0; j < block_rows; ++j) {
-          gathered_C[(row * block_rows + i) * N_ + (col * block_rows + j)] = temp[i * block_rows + j];
+      // Сбор результатов
+      if (rank == 0) {
+        std::vector<double> gathered_C(N_ * N_);
+        std::vector<std::vector<double>> recv_bufs(active_procs);
+        
+        // Копируем данные от rank 0
+        for (int i = 0; i < block_size; ++i) {
+          for (int j = 0; j < block_size; ++j) {
+            gathered_C[i * N_ + j] = local_C[i * block_size + j];
+          }
         }
-      }
-    }
 
-    std::copy(gathered_C.begin(), gathered_C.end(), C_.begin());
-  } else {
-    world_.send(0, 4, local_C.data(), block_size_C);
+          // Получаем данные от других процессов
+          for (int p = 1; p < active_procs; ++p) {
+            std::vector<double> temp(block_elements);
+            world_.recv(p, 4, temp.data(), block_elements);
+            
+            int row_p = p / grid_size;
+            int col_p = p % grid_size;
+            for (int i = 0; i < block_size; ++i) {
+              for (int j = 0; j < block_size; ++j) {
+                gathered_C[(row_p * block_size + i) * N_ + (col_p * block_size + j)] = temp[i * block_size + j];
+              }
+            }
+          }
+          
+          std::copy(gathered_C.begin(), gathered_C.end(), C_.begin());
+      } else {
+          world_.send(0, 4, local_C.data(), block_elements);
+      }
   }
 
   return true;
