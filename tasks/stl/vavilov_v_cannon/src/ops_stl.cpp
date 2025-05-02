@@ -223,10 +223,10 @@ void vavilov_v_cannon_stl::CannonSTL::ShiftBlocks(int num_threads, int blocks_pe
 bool vavilov_v_cannon_stl::CannonSTL::RunImpl() {
   int num_threads = std::min(ppc::util::GetPPCNumThreads(), num_blocks_);
   int blocks_per_thread = (num_blocks_ + num_threads - 1) / num_threads;
-  InitialShift(num_threads);
+  InitialShift(num_threads, blocks_per_thread);
   for (int iter = 0; iter < num_blocks_; ++iter) {
-    BlockMultiply(num_threads);
-    ShiftBlocks(num_threads);
+    BlockMultiply(num_threads, blocks_per_thread);
+    ShiftBlocks(num_threads, blocks_per_thread);
   }
   return true;
 }
