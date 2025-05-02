@@ -10,8 +10,8 @@
 #include <utility>
 #include <vector>
 
-#include "core/task/include/task.hpp"
 #include "all/plekhanov_d_dijkstra/include/ops_all.hpp"
+#include "core/task/include/task.hpp"
 
 namespace plekhanov_d_dijkstra_all {
 

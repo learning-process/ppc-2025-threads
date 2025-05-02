@@ -1,10 +1,10 @@
 #include "all/plekhanov_d_dijkstra/include/ops_all.hpp"
 
-#include <boost/mpi.hpp>
-#include <boost/serialization/vector.hpp>
 #include <omp.h>
 
 #include <atomic>
+#include <boost/mpi.hpp>
+#include <boost/serialization/vector.hpp>
 #include <climits>
 #include <cstddef>
 #include <cstdlib>
@@ -74,7 +74,7 @@ bool plekhanov_d_dijkstra_all::TestTaskALL::ValidationImpl() {
          task_data->outputs_count[0] > 0;
 }
 
-bool plekhanov_d_dijkstra_all::TestTaskALL::RunImpl() {;
+bool plekhanov_d_dijkstra_all::TestTaskALL::RunImpl() {
   boost::mpi::communicator world;
 
   std::vector<std::vector<std::pair<int, int>>> graph;
