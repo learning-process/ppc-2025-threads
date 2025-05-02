@@ -407,8 +407,8 @@ bool vavilov_v_cannon_all::CannonALL::RunImpl() {
   block_size_ = N_ / num_rows_;
   if (N_ % num_rows_ != 0 || N_ % num_cols_ != 0) {
     if (rank == 0) {
-      std::cerr << "Matrix size (" << N_ << ") must be divisible by grid dimensions (" << num_rows_ << "x" << num_cols_ << ")"
-                << std::endl;
+      std::cerr << "Matrix size (" << N_ << ") must be divisible by grid dimensions (" << num_rows_ << "x" << num_cols_
+                << ")" << std::endl;
     }
     return false;
   }
