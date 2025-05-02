@@ -1,11 +1,11 @@
+#include "stl/sharamygina_i_multi_dim_monte_carlo/include/ops_stl.h"
+
 #include <algorithm>
 #include <cstdlib>
 #include <ctime>
 #include <functional>
 #include <random>
 #include <vector>
-
-#include "stl/sharamygina_i_multi_dim_monte_carlo/include/ops_stl.h"
 
 bool sharamygina_i_multi_dim_monte_carlo_stl::MultiDimMonteCarloTask::PreProcessingImpl() {
   auto* raw_bounds = reinterpret_cast<double*>(task_data->inputs[0]);
