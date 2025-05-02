@@ -3,6 +3,7 @@
 #include <chrono>
 #include <cmath>
 #include <cstddef>
+#include <mutex>
 #include <thread>
 #include <vector>
 
@@ -22,18 +23,18 @@ bool solovyev_d_shell_sort_simple_stl::TaskSTL::ValidationImpl() {
 
 void solovyev_d_shell_sort_simple_stl::TaskSTL::ThreadWorker(int t) {
   while (true) {
-    std::unique_lock<std::mutex> lock(m);
-    cv.wait(lock, [&] { return ready || done; });
-    if (done) {
+    std::unique_lock<std::mutex> lock(m_);
+    cv_.wait(lock, [&] { return ready_ || done_; });
+    if (done_) {
       return;
     }
-    for (int i = t; i < gap; i += num_threads) {
-      for (size_t f = i + gap; f < input_.size(); f += gap) {
+    for (int i = t; i < gap_; i += num_threads_) {
+      for (size_t f = i + gap_; f < input_.size(); f += gap_) {
         int val = input_[f];
         size_t j = f;
-        while (j >= static_cast<size_t>(gap) && input_[j - gap] > val) {
-          input_[j] = input_[j - gap];
-          j -= gap;
+        while (j >= static_cast<size_t>(gap_) && input_[j - gap_] > val) {
+          input_[j] = input_[j - gap_];
+          j -= gap_;
         }
         input_[j] = val;
       }
@@ -42,30 +43,28 @@ void solovyev_d_shell_sort_simple_stl::TaskSTL::ThreadWorker(int t) {
 }
 
 bool solovyev_d_shell_sort_simple_stl::TaskSTL::RunImpl() {
-  num_threads = ppc::util::GetPPCNumThreads();
-  int current_gap = 0;
-  std::vector<std::thread> threads(num_threads);
-  for (int t = 0; t < num_threads; ++t) {
+  num_threads_ = ppc::util::GetPPCNumThreads();
+  std::vector<std::thread> threads(num_threads_);
+  for (int t = 0; t < num_threads_; ++t) {
     threads[t] = std::thread(&TaskSTL::ThreadWorker, this, t);
   }
-  for (gap = static_cast<int>(input_.size()) / 2; gap > 0; gap /= 2) {
+  for (gap_ = static_cast<int>(input_.size()) / 2; gap_ > 0; gap_ /= 2) {
     {
-      std::lock_guard<std::mutex> lock(m);
-      current_gap = gap;
-      ready = true;
+      std::lock_guard<std::mutex> lock(m_);
+      ready_ = true;
     }
-    cv.notify_all();
+    cv_.notify_all();
     std::this_thread::sleep_for(std::chrono::milliseconds(1));
     {
-      std::lock_guard<std::mutex> lock(m);
-      ready = false;
+      std::lock_guard<std::mutex> lock(m_);
+      ready_ = false;
     }
   }
   {
-    std::lock_guard<std::mutex> lock(m);
-    done = true;
+    std::lock_guard<std::mutex> lock(m_);
+    done_ = true;
   }
-  cv.notify_all();
+  cv_.notify_all();
   for (auto &th : threads) {
     if (th.joinable()) {
       th.join();

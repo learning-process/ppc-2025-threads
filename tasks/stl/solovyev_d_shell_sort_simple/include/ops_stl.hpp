@@ -20,12 +20,12 @@ class TaskSTL : public ppc::core::Task {
 
  private:
   std::vector<int> input_;
-  std::mutex m;
-  std::condition_variable cv;
-  bool ready = false;
-  bool done = false;
-  int gap = 0;
-  int num_threads = 0;
+  std::mutex m_;
+  std::condition_variable cv_;
+  bool ready_ = false;
+  bool done_ = false;
+  int gap_ = 0;
+  int num_threads_ = 0;
 };
 
 }  // namespace solovyev_d_shell_sort_simple_stl
