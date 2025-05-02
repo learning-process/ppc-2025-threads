@@ -324,12 +324,12 @@ bool vavilov_v_cannon_all::CannonALL::RunImpl() {
 
       boost::mpi::scatter(world_, tmp_A, local_A, 0);
       boost::mpi::scatter(world_, tmp_B, local_B, 0);
-      } else {
-        local_A.resize(block_elements);
-        local_B.resize(block_elements);
-        boost::mpi::scatter(world_, local_A, 0);
-        boost::mpi::scatter(world_, local_B, 0);
-      }
+    } else {
+      local_A.resize(block_elements);
+      local_B.resize(block_elements);
+      boost::mpi::scatter(world_, local_A, 0);
+      boost::mpi::scatter(world_, local_B, 0);
+    }
   }
 
   if (rank < active_procs) {
@@ -369,25 +369,25 @@ bool vavilov_v_cannon_all::CannonALL::RunImpl() {
         }
       }
 
-        for (int p = 1; p < active_procs; ++p) {
-          std::vector<double> temp(block_elements);
-          world_.recv(p, 4, temp.data(), block_elements);
-          
-          int row_p = p / grid_size;
-          int col_p = p % grid_size;
-          for (int i = 0; i < block_size; ++i) {
-            for (int j = 0; j < block_size; ++j) {
-              gathered_C[(row_p * block_size + i) * N_ + (col_p * block_size + j)] = temp[i * block_size + j];
-            }
+      for (int p = 1; p < active_procs; ++p) {
+        std::vector<double> temp(block_elements);
+        world_.recv(p, 4, temp.data(), block_elements);
+        
+        int row_p = p / grid_size;
+        int col_p = p % grid_size;
+        for (int i = 0; i < block_size; ++i) {
+          for (int j = 0; j < block_size; ++j) {
+            gathered_C[(row_p * block_size + i) * N_ + (col_p * block_size + j)] = temp[i * block_size + j];
           }
         }
+      }
         
         std::copy(gathered_C.begin(), gathered_C.end(), C_.begin());
     } else {
         world_.send(0, 4, local_C.data(), block_elements);
     }
-return true;
-}
+    return true;
+ }
 
 bool vavilov_v_cannon_all::CannonALL::PostProcessingImpl() {
   if (world_.rank() == 0) {
