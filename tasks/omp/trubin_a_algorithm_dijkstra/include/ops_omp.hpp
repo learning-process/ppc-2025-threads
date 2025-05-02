@@ -2,6 +2,7 @@
 
 #include <atomic>
 #include <cstddef>
+#include <unordered_map>
 #include <utility>
 #include <vector>
 
@@ -28,6 +29,9 @@ class TestTaskOpenMP : public ppc::core::Task {
   bool BuildAdjacencyList(const std::vector<int>& graph_data);
   void ProcessCurrentBucket(std::vector<int>& current, std::vector<std::vector<int>>& buckets, int delta,
                             std::vector<std::atomic<int>>& distances_atomic);
+  void ProcessSingleVertex(int u, int delta, std::vector<int>& next_bucket,
+                           std::unordered_map<size_t, std::vector<int>>& heavy_buckets,
+                           std::vector<std::atomic<int>>& distances_atomic);
   std::vector<std::vector<Edge>> adjacency_list_;
   std::vector<int> distances_;
   size_t start_vertex_ = 0;
