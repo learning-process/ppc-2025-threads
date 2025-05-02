@@ -5,9 +5,9 @@
 #include <atomic>
 #include <cmath>
 #include <cstddef>
-#include <functional>
+#include <iterator>
 #include <limits>
-#include <queue>
+#include <unordered_map>
 #include <utility>
 #include <vector>
 
@@ -94,62 +94,14 @@ bool trubin_a_algorithm_dijkstra_omp::TestTaskOpenMP::RunImpl() {
     while (b < buckets.size() && buckets[b].empty()) {
       ++b;
     }
-    if (b == buckets.size()) break;
+    if (b == buckets.size()) {
+      break;
+    }
 
     std::vector<int> current;
     std::swap(current, buckets[b]);
 
-    while (!current.empty()) {
-      std::vector<std::vector<int>> local_next(omp_get_max_threads());
-      std::vector<std::unordered_map<size_t, std::vector<int>>> local_heavy(omp_get_max_threads());
-
-#pragma omp parallel
-      {
-        int tid = omp_get_thread_num();
-        auto& next_bucket = local_next[tid];
-        auto& heavy_buckets = local_heavy[tid];
-
-#pragma omp for schedule(dynamic)
-        for (int i = 0; i < static_cast<int>(current.size()); ++i) {
-          int u = current[i];
-          int dist_u = distances_atomic[u].load(std::memory_order_relaxed);
-
-          for (const auto& edge : adjacency_list_[u]) {
-            int v = static_cast<int>(edge.to);
-            int weight = edge.weight;
-            int new_dist = dist_u + weight;
-
-            int old_dist = distances_atomic[v].load(std::memory_order_relaxed);
-            while (new_dist < old_dist) {
-              if (distances_atomic[v].compare_exchange_weak(old_dist, new_dist, std::memory_order_relaxed)) {
-                if (weight <= delta) {
-                  next_bucket.push_back(v);
-                } else {
-                  size_t bucket_idx = new_dist / delta;
-                  heavy_buckets[bucket_idx].push_back(v);
-                }
-                break;
-              }
-            }
-          }
-        }
-      }
-
-      current.clear();
-      for (auto& next : local_next) {
-        current.insert(current.end(), std::make_move_iterator(next.begin()), std::make_move_iterator(next.end()));
-      }
-
-      for (auto& heavy_map : local_heavy) {
-        for (auto& [bucket_idx, verts] : heavy_map) {
-          if (bucket_idx >= buckets.size()) {
-            buckets.resize(bucket_idx + 1);
-          }
-          buckets[bucket_idx].insert(buckets[bucket_idx].end(), std::make_move_iterator(verts.begin()),
-                                     std::make_move_iterator(verts.end()));
-        }
-      }
-    }
+    ProcessCurrentBucket(current, buckets, delta, distances_atomic);
   }
 
   for (size_t i = 0; i < num_vertices_; ++i) {
@@ -205,4 +157,59 @@ bool trubin_a_algorithm_dijkstra_omp::TestTaskOpenMP::BuildAdjacencyList(const s
   }
 
   return true;
+}
+void trubin_a_algorithm_dijkstra_omp::TestTaskOpenMP::ProcessCurrentBucket(
+    std::vector<int>& current, std::vector<std::vector<int>>& buckets, const int delta,
+    std::vector<std::atomic<int>>& distances_atomic) {
+  while (!current.empty()) {
+    std::vector<std::vector<int>> local_next(omp_get_max_threads());
+    std::vector<std::unordered_map<size_t, std::vector<int>>> local_heavy(omp_get_max_threads());
+
+#pragma omp parallel
+    {
+      int tid = omp_get_thread_num();
+      auto& next_bucket = local_next[tid];
+      auto& heavy_buckets = local_heavy[tid];
+
+#pragma omp for schedule(dynamic)
+      for (int i = 0; i < static_cast<int>(current.size()); ++i) {
+        int u = current[i];
+        int dist_u = distances_atomic[u].load(std::memory_order_relaxed);
+
+        for (const auto& edge : adjacency_list_[u]) {
+          int v = static_cast<int>(edge.to);
+          int weight = edge.weight;
+          int new_dist = dist_u + weight;
+
+          int old_dist = distances_atomic[v].load(std::memory_order_relaxed);
+          while (new_dist < old_dist) {
+            if (distances_atomic[v].compare_exchange_weak(old_dist, new_dist, std::memory_order_relaxed)) {
+              if (weight <= delta) {
+                next_bucket.push_back(v);
+              } else {
+                size_t bucket_idx = new_dist / delta;
+                heavy_buckets[bucket_idx].push_back(v);
+              }
+              break;
+            }
+          }
+        }
+      }
+    }
+
+    current.clear();
+    for (auto& next : local_next) {
+      current.insert(current.end(), std::make_move_iterator(next.begin()), std::make_move_iterator(next.end()));
+    }
+
+    for (auto& heavy_map : local_heavy) {
+      for (auto& [bucket_idx, verts] : heavy_map) {
+        if (bucket_idx >= buckets.size()) {
+          buckets.resize(bucket_idx + 1);
+        }
+        buckets[bucket_idx].insert(buckets[bucket_idx].end(), std::make_move_iterator(verts.begin()),
+                                   std::make_move_iterator(verts.end()));
+      }
+    }
+  }
 }

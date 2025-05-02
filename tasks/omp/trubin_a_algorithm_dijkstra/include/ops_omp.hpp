@@ -25,7 +25,8 @@ class TestTaskOpenMP : public ppc::core::Task {
 
  private:
   bool BuildAdjacencyList(const std::vector<int>& graph_data);
-
+  void ProcessCurrentBucket(std::vector<int>& current, std::vector<std::vector<int>>& buckets, int delta,
+                            std::vector<std::atomic<int>>& distances_atomic);
   std::vector<std::vector<Edge>> adjacency_list_;
   std::vector<int> distances_;
   size_t start_vertex_ = 0;
