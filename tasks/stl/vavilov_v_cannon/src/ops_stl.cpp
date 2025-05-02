@@ -9,11 +9,11 @@
 
 bool vavilov_v_cannon_stl::CannonSTL::PreProcessingImpl() {
   N_ = static_cast<int>(std::sqrt(task_data->inputs_count[0]));
-  num_blocks_ = static_cast<int>(std::sqrt(N_));
+  num_blocks_ = static_cast<int>(task_data->inputs_count[2]);
   block_size_ = N_ / num_blocks_;
 
-  auto *a = reinterpret_cast<double *>(task_data->inputs[0]);
-  auto *b = reinterpret_cast<double *>(task_data->inputs[1]);
+  auto* a = reinterpret_cast<double*>(task_data->inputs[0]);
+  auto* b = reinterpret_cast<double*>(task_data->inputs[1]);
   A_.assign(a, a + (N_ * N_));
   B_.assign(b, b + (N_ * N_));
   C_.assign(N_ * N_, 0);
@@ -22,8 +22,14 @@ bool vavilov_v_cannon_stl::CannonSTL::PreProcessingImpl() {
 }
 
 bool vavilov_v_cannon_stl::CannonSTL::ValidationImpl() {
-  return task_data->inputs_count[0] == task_data->inputs_count[1] &&
-         task_data->outputs_count[0] == task_data->inputs_count[0];
+  if (task_data->inputs_count[0] != task_data->inputs_count[1] ||
+      task_data->outputs_count[0] != task_data->inputs_count[0]) {
+    return false;
+  }
+
+  auto n = static_cast<int>(std::sqrt(task_data->inputs_count[0]));
+  auto num_blocks = static_cast<int>(task_data->inputs_count[2]);
+  return n % num_blocks == 0;
 }
 
 void vavilov_v_cannon_stl::CannonSTL::InitialShift(int num_threads, int blocks_per_thread) {
@@ -152,7 +158,6 @@ void vavilov_v_cannon_stl::CannonSTL::merge_results(int num_threads, int bi_rang
 void vavilov_v_cannon_stl::CannonSTL::BlockMultiply(int num_threads, int blocks_per_thread) {
   std::vector<std::thread> threads;
   std::vector<std::vector<double>> local_c(num_threads);
-  const int blocks_per_thread = (num_blocks_ + num_threads - 1) / num_threads;
   const int bi_range = blocks_per_thread * block_size_;
 
   auto process_block_range = [&](int bi_start, int bi_end, int thread_id) {
