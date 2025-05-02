@@ -18,7 +18,7 @@ double chizhov_m_trapezoid_method_seq::TrapezoidMethod(Function& f, size_t div, 
     h[i] = (upper_limits[i] - lower_limits[i]) / steps[i];
   }
 
-  int total_nodes = 1;
+  size_t total_nodes = 1;
   for (const auto& step : steps) {
     total_nodes *= (step + 1);
   }
@@ -26,11 +26,11 @@ double chizhov_m_trapezoid_method_seq::TrapezoidMethod(Function& f, size_t div, 
   double result = 0.0;
   std::vector<double> point(int_dim);
 
-  for (int i = 0; i < total_nodes; i++) {
-    int temp = i;
+  for (size_t i = 0; i < total_nodes; i++) {
+    size_t temp = i;
 
-    for (int j = 0; j < int_dim; j++) {
-      int node_index = temp % (steps[j] + 1);
+    for (size_t j = 0; j < int_dim; j++) {
+      size_t node_index = temp % (steps[j] + 1);
       point[j] = lower_limits[j] + node_index * h[j];
       temp /= (steps[j] + 1);
     }
