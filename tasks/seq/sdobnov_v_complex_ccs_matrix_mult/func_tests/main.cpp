@@ -2,6 +2,7 @@
 
 #include <cmath>
 #include <complex>
+#include <cstddef>
 #include <cstdint>
 #include <memory>
 #include <vector>
@@ -35,8 +36,8 @@ TEST(sdobnov_v_complex_ccs_matrix_mult_seq, Multiply_EmptyMatrices) {
   task.RunImpl();
   task.PostProcessingImpl();
 
-  ASSERT_EQ(static_cast<const int>(result.values.size()), 0);
-  ASSERT_EQ(result.row_i.size(), 0);
+  ASSERT_EQ(result.values.size(), static_cast<size_t>(0));
+  ASSERT_EQ(result.row_i.size(), static_cast<size_t>(0));
   for (int p : result.col_p) {
     ASSERT_EQ(p, 0);
   }
@@ -115,6 +116,6 @@ TEST(sdobnov_v_complex_ccs_matrix_mult_seq, Multiply_RandomSparseMatrices) {
   task.RunImpl();
   task.PostProcessingImpl();
 
-  ASSERT_EQ(result.col_p.size(), 9);
+  ASSERT_EQ(result.col_p.size(), static_cast<size_t>(9));
   ASSERT_EQ(result.values.size(), result.row_i.size());
 }
