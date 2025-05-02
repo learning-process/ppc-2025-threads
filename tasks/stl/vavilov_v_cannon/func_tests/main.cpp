@@ -38,6 +38,7 @@ std::vector<double> MultMat(const std::vector<double> &a, const std::vector<doub
 
 TEST(vavilov_v_cannon_stl, test_random) {
   constexpr int kN = 16;
+  constexpr int kNumblocks = 4;
   auto a = GenerateRandomMatrix(kN);
   auto b = GenerateRandomMatrix(kN);
   std::vector<double> expected_output = MultMat(a, b, kN);
@@ -48,6 +49,7 @@ TEST(vavilov_v_cannon_stl, test_random) {
   task_data_stl->inputs.emplace_back(reinterpret_cast<uint8_t *>(b.data()));
   task_data_stl->inputs_count.emplace_back(a.size());
   task_data_stl->inputs_count.emplace_back(b.size());
+  task_data_stl->inputs_count.emplace_back(kNumblocks);
   task_data_stl->outputs.emplace_back(reinterpret_cast<uint8_t *>(c.data()));
   task_data_stl->outputs_count.emplace_back(c.size());
 
@@ -64,6 +66,7 @@ TEST(vavilov_v_cannon_stl, test_random) {
 
 TEST(vavilov_v_cannon_stl, test_fixed_4x4) {
   constexpr int kN = 4;
+  constexpr int kNumblocks = 2;
   std::vector<double> a = {1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16};
   std::vector<double> b = {1, 0, 0, 1, 0, 1, 1, 0, 1, 0, 0, 1, 0, 1, 1, 0};
   std::vector<double> expected_output = {4, 6, 6, 4, 12, 14, 14, 12, 20, 22, 22, 20, 28, 30, 30, 28};
@@ -74,6 +77,7 @@ TEST(vavilov_v_cannon_stl, test_fixed_4x4) {
   task_data_stl->inputs.emplace_back(reinterpret_cast<uint8_t *>(b.data()));
   task_data_stl->inputs_count.emplace_back(a.size());
   task_data_stl->inputs_count.emplace_back(b.size());
+  task_data_stl->inputs_count.emplace_back(kNumblocks);
   task_data_stl->outputs.emplace_back(reinterpret_cast<uint8_t *>(c.data()));
   task_data_stl->outputs_count.emplace_back(c.size());
 
@@ -92,12 +96,14 @@ TEST(vavilov_v_cannon_stl, test_invalid_size_1) {
   std::vector<double> a(2 * 2, 1.0);
   std::vector<double> b(3 * 2, 1.0);
   std::vector<double> c(2 * 2, 0.0);
+  constexpr int kNumblocks = 1;
 
   auto task_data_stl = std::make_shared<ppc::core::TaskData>();
   task_data_stl->inputs.emplace_back(reinterpret_cast<uint8_t *>(a.data()));
   task_data_stl->inputs.emplace_back(reinterpret_cast<uint8_t *>(b.data()));
   task_data_stl->inputs_count.emplace_back(a.size());
   task_data_stl->inputs_count.emplace_back(b.size());
+  task_data_stl->inputs_count.emplace_back(kNumblocks);
   task_data_stl->outputs.emplace_back(reinterpret_cast<uint8_t *>(c.data()));
   task_data_stl->outputs_count.emplace_back(c.size());
 
@@ -106,7 +112,8 @@ TEST(vavilov_v_cannon_stl, test_invalid_size_1) {
 }
 
 TEST(vavilov_v_cannon_stl, test_256) {
-  constexpr int kN = 36;
+  constexpr int kN = 256;
+  constexpr int kNumblocks = 16;
   std::vector<double> a(kN * kN, 1.0);
   std::vector<double> b(kN * kN, 1.0);
   std::vector<double> c(kN * kN, 0.0);
@@ -117,6 +124,7 @@ TEST(vavilov_v_cannon_stl, test_256) {
   task_data_stl->inputs.emplace_back(reinterpret_cast<uint8_t *>(b.data()));
   task_data_stl->inputs_count.emplace_back(a.size());
   task_data_stl->inputs_count.emplace_back(b.size());
+  task_data_stl->inputs_count.emplace_back(kNumblocks);
   task_data_stl->outputs.emplace_back(reinterpret_cast<uint8_t *>(c.data()));
   task_data_stl->outputs_count.emplace_back(c.size());
 
@@ -132,7 +140,8 @@ TEST(vavilov_v_cannon_stl, test_256) {
 }
 
 TEST(vavilov_v_cannon_stl, test_identity_matrix) {
-  constexpr int kN = 36;
+  constexpr int kN = 256;
+  constexpr int kNumblocks = 16;
   std::vector<double> a(kN * kN, 1.0);
   std::vector<double> b(kN * kN, 0.0);
   std::vector<double> c(kN * kN, 0.0);
@@ -148,6 +157,7 @@ TEST(vavilov_v_cannon_stl, test_identity_matrix) {
   task_data_stl->inputs.emplace_back(reinterpret_cast<uint8_t *>(b.data()));
   task_data_stl->inputs_count.emplace_back(a.size());
   task_data_stl->inputs_count.emplace_back(b.size());
+  task_data_stl->inputs_count.emplace_back(kNumblocks);
   task_data_stl->outputs.emplace_back(reinterpret_cast<uint8_t *>(c.data()));
   task_data_stl->outputs_count.emplace_back(c.size());
 
@@ -163,7 +173,8 @@ TEST(vavilov_v_cannon_stl, test_identity_matrix) {
 }
 
 TEST(vavilov_v_cannon_stl, test_zero_matrix) {
-  constexpr int kN = 36;
+  constexpr int kN = 256;
+  constexpr int kNumblocks = 16;
   std::vector<double> a(kN * kN, 1.0);
   std::vector<double> b(kN * kN, 0.0);
   std::vector<double> c(kN * kN, 0.0);
@@ -174,6 +185,7 @@ TEST(vavilov_v_cannon_stl, test_zero_matrix) {
   task_data_stl->inputs.emplace_back(reinterpret_cast<uint8_t *>(b.data()));
   task_data_stl->inputs_count.emplace_back(a.size());
   task_data_stl->inputs_count.emplace_back(b.size());
+  task_data_stl->inputs_count.emplace_back(kNumblocks);
   task_data_stl->outputs.emplace_back(reinterpret_cast<uint8_t *>(c.data()));
   task_data_stl->outputs_count.emplace_back(c.size());
 
