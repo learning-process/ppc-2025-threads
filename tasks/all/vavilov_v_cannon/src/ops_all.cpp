@@ -292,7 +292,6 @@ bool vavilov_v_cannon_all::CannonALL::RunImpl() {
   int rank = world_.rank();
   int size = world_.size();
 
-  // Определение размеров сетки процессов
   int grid_size = static_cast<int>(std::sqrt(size));
   while (size % grid_size != 0 && grid_size > 1) {
     grid_size--;
@@ -305,7 +304,6 @@ bool vavilov_v_cannon_all::CannonALL::RunImpl() {
 
   std::vector<double> local_A, local_B, local_C(block_elements, 0.0);
 
-  // Распределение данных
   if (rank < active_procs) {
     if (rank == 0) {
       std::vector<double> tmp_A(active_procs * block_elements);
@@ -381,10 +379,10 @@ bool vavilov_v_cannon_all::CannonALL::RunImpl() {
           }
         }
       }
-        
-        std::copy(gathered_C.begin(), gathered_C.end(), C_.begin());
+
+      std::copy(gathered_C.begin(), gathered_C.end(), C_.begin());
     } else {
-        world_.send(0, 4, local_C.data(), block_elements);
+      world_.send(0, 4, local_C.data(), block_elements);
     }
     return true;
  }
