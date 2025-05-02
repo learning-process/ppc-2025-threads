@@ -32,7 +32,8 @@ bool vavilov_v_cannon_stl::CannonSTL::ValidationImpl() {
   return n % num_blocks == 0;
 }
 
-void vavilov_v_cannon_stl::CannonSTL::InitialShift(int num_threads, int blocks_per_thread, std::vector<std::thread>& threads) {
+void vavilov_v_cannon_stl::CannonSTL::InitialShift(int num_threads, int blocks_per_thread,
+                                                   std::vector<std::thread>& threads) {
   std::vector<double> a_tmp = A_;
   std::vector<double> b_tmp = B_;
   threads.clear();
@@ -95,7 +96,8 @@ void vavilov_v_cannon_stl::CannonSTL::MergeResults(int num_threads, int bi_range
   }
 }
 
-void vavilov_v_cannon_stl::CannonSTL::BlockMultiply(int num_threads, int blocks_per_thread, std::vector<std::thread>& threads) {
+void vavilov_v_cannon_stl::CannonSTL::BlockMultiply(int num_threads, int blocks_per_thread,
+                                                    std::vector<std::thread>& threads) {
   std::vector<std::vector<double>> local_c(num_threads);
   const int bi_range = blocks_per_thread * block_size_;
   threads.clear();
@@ -122,7 +124,8 @@ void vavilov_v_cannon_stl::CannonSTL::BlockMultiply(int num_threads, int blocks_
   MergeResults(num_threads, bi_range, local_c);
 }
 
-void vavilov_v_cannon_stl::CannonSTL::ShiftBlocks(int num_threads, int blocks_per_thread, std::vector<std::thread>& threads) {
+void vavilov_v_cannon_stl::CannonSTL::ShiftBlocks(int num_threads, int blocks_per_thread,
+                                                  std::vector<std::thread>& threads) {
   std::vector<double> a_tmp = A_;
   std::vector<double> b_tmp = B_;
   threads.clear();
@@ -163,7 +166,7 @@ bool vavilov_v_cannon_stl::CannonSTL::RunImpl() {
     BlockMultiply(num_threads, blocks_per_thread, threads);
     ShiftBlocks(num_threads, blocks_per_thread, threads);
   }
-  for (auto& thread : threads) {
+  for (auto &thread : threads) {
     if (thread.joinable()) {
       thread.join();
     }
