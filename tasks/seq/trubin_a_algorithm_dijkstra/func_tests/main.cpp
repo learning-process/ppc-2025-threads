@@ -90,3 +90,35 @@ TEST(trubin_a_algorithm_dijkstra_seq, negative_weight_should_fail) {
   EXPECT_TRUE(task.Validation());
   EXPECT_FALSE(task.PreProcessing());
 }
+
+TEST(trubin_a_algorithm_dijkstra_seq, validation_passes_on_empty_graph_and_outputs) {
+  auto task_data_seq = std::make_shared<ppc::core::TaskData>();
+  task_data_seq->inputs.emplace_back(nullptr);
+  task_data_seq->inputs_count.emplace_back(0);
+  task_data_seq->outputs.emplace_back(nullptr);
+  task_data_seq->outputs_count.emplace_back(0);
+  trubin_a_algorithm_dijkstra_seq::TestTaskSequential task(task_data_seq);
+  EXPECT_TRUE(task.Validation());
+}
+
+TEST(trubin_a_algorithm_dijkstra_seq, validation_fails_on_empty_counts) {
+  auto task_data_seq = std::make_shared<ppc::core::TaskData>();
+  task_data_seq->inputs.emplace_back(nullptr);
+  task_data_seq->outputs.emplace_back(nullptr);
+  trubin_a_algorithm_dijkstra_seq::TestTaskSequential task(task_data_seq);
+  EXPECT_FALSE(task.Validation());
+}
+
+TEST(trubin_a_algorithm_dijkstra_seq, validation_fails_on_empty_inputs) {
+  auto task_data_seq = std::make_shared<ppc::core::TaskData>();
+  trubin_a_algorithm_dijkstra_seq::TestTaskSequential task(task_data_seq);
+  EXPECT_FALSE(task.Validation());
+}
+
+TEST(trubin_a_algorithm_dijkstra_seq, multi_component_graph) {
+  RunDijkstraTest({1, 1, -1, -1, 3, 2, -1, -1}, 0, 4, {0, 1, -1, -1});
+}
+
+TEST(trubin_a_algorithm_dijkstra_seq, start_from_nonzero_vertex) {
+  RunDijkstraTest({1, 3, -1, 2, 4, -1, 3, 2, -1, -1}, 2, 4, {-1, -1, 0, 2});
+}
