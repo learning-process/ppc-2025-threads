@@ -15,7 +15,7 @@
 constexpr int k_ = 100;
 constexpr int kBound = 1000;
 
-TEST(shulpin_i_jarvis_tbb, test_pipeline_run) {
+TEST(shulpin_i_jarvis_stl, test_pipeline_run) {
   size_t num_points = 1000000;
   std::vector<shulpin_i_jarvis_stl::Point> hull = {
       {-kBound, kBound}, {kBound, kBound}, {kBound, -kBound}, {-kBound, -kBound}};
@@ -53,7 +53,7 @@ TEST(shulpin_i_jarvis_tbb, test_pipeline_run) {
   }
 }
 
-TEST(shulpin_i_jarvis_tbb, test_task_run) {
+TEST(shulpin_i_jarvis_stl, test_task_run) {
   size_t num_points = 1000000;
   std::vector<shulpin_i_jarvis_stl::Point> hull = {
       {-kBound, kBound}, {kBound, kBound}, {kBound, -kBound}, {-kBound, -kBound}};
