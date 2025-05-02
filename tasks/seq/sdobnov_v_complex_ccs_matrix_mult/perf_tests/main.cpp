@@ -10,7 +10,7 @@
 #include "core/task/include/task.hpp"
 #include "seq/sdobnov_v_complex_ccs_matrix_mult/include/complex_ccs_matrix_mult.hpp"
 
-TEST(sdobnov_v_complex_ccs_matrix_mult, Performance_Pipeline_Run) {
+TEST(sdobnov_v_complex_ccs_matrix_mult, test_pipeline_run) {
   int rows = 200000;
   int cols = 200000;
   auto a = sdobnov_v_complex_ccs_matrix_mult::GenerateRandomMatrix(rows, cols, 0.0001, 123);
@@ -40,7 +40,7 @@ TEST(sdobnov_v_complex_ccs_matrix_mult, Performance_Pipeline_Run) {
   ASSERT_TRUE(test_task->ValidationImpl());
 }
 
-TEST(sdobnov_v_complex_ccs_matrix_mult, Performance_Task_Run) {
+TEST(sdobnov_v_complex_ccs_matrix_mult, test_task_run) {
   int rows = 200000;
   int cols = 200000;
   auto a = sdobnov_v_complex_ccs_matrix_mult::GenerateRandomMatrix(rows, cols, 0.0001, 456);
