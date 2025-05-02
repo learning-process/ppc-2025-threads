@@ -94,6 +94,42 @@ std::vector<int> ApplySobelFilter(const std::vector<int> &gray_scale_image, size
 
 }  // namespace
 
+TEST(frolova_e_sobel_filter_stl, sharp_vertical_edge) {
+  std::vector<int> value = {5, 5};
+  std::vector<int> pict = {0, 0, 0, 0, 0, 0, 255, 255, 255, 255, 255, 255, 255, 255, 255,
+
+                           0, 0, 0, 0, 0, 0, 255, 255, 255, 255, 255, 255, 255, 255, 255,
+
+                           0, 0, 0, 0, 0, 0, 255, 255, 255, 255, 255, 255, 255, 255, 255,
+
+                           0, 0, 0, 0, 0, 0, 255, 255, 255, 255, 255, 255, 255, 255, 255,
+
+                           0, 0, 0, 0, 0, 0, 255, 255, 255, 255, 255, 255, 255, 255, 255};
+
+  std::vector<int> res(25, 0);
+
+  std::vector<int> reference = {0, 255, 255, 255, 255, 0, 255, 255, 0,   255, 0,   255, 255,
+                                0, 255, 0,   255, 255, 0, 255, 0,   255, 255, 255, 255};
+
+  auto task_data = std::make_shared<ppc::core::TaskData>();
+  task_data->inputs.emplace_back(reinterpret_cast<uint8_t *>(value.data()));
+  task_data->inputs_count.emplace_back(value.size());
+
+  task_data->inputs.emplace_back(reinterpret_cast<uint8_t *>(pict.data()));
+  task_data->inputs_count.emplace_back(pict.size());
+
+  task_data->outputs.emplace_back(reinterpret_cast<uint8_t *>(res.data()));
+  task_data->outputs_count.emplace_back(res.size());
+
+  frolova_e_sobel_filter_stl::SobelFilterSTL test_task(task_data);
+  ASSERT_EQ(test_task.Validation(), true);
+  test_task.PreProcessing();
+  test_task.Run();
+  test_task.PostProcessing();
+
+  EXPECT_EQ(reference, res);
+}
+
 TEST(frolova_e_sobel_filter_stl, small_image_1) {
   std::vector<int> value = {3, 3};
   std::vector<int> pict = {172, 47,  117, 192, 67, 251, 195, 103, 9,  211, 21, 242, 3,  87,
