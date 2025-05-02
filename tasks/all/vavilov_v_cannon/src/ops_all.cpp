@@ -384,7 +384,7 @@ bool vavilov_v_cannon_all::CannonALL::RunImpl() {
     } else {
       world_.send(0, 4, local_C.data(), block_elements);
     }
-  }  
+  }
   return true;
 }
 
