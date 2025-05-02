@@ -2,7 +2,6 @@
 
 #include <algorithm>
 #include <cmath>
-#include <mutex>
 #include <thread>
 #include <vector>
 
@@ -64,11 +63,10 @@ void vavilov_v_cannon_stl::CannonSTL::InitialShift(int num_threads) {
 
 void vavilov_v_cannon_stl::CannonSTL::BlockMultiply(int num_threads) {
   std::vector<std::thread> threads;
-  std::vector<std::vector<double>> local_C;
-  int num_threads_ = num_blocks_;
+  std::vector<std::vector<double>> local_c;
 
   auto multiply_work = [&](int bi_start, int bi_end, int thread_id) {
-    std::vector<double> &local = local_C[thread_id];
+    std::vector<double> &local = local_c[thread_id];
     local.resize((bi_end - bi_start) * N_, 0.0);
 
     for (int bi = bi_start; bi < bi_end; bi += block_size_) {
@@ -90,11 +88,11 @@ void vavilov_v_cannon_stl::CannonSTL::BlockMultiply(int num_threads) {
     }
   };
 
-  local_C.resize(num_threads_);
-  int blocks_per_thread = (num_blocks_ + num_threads_ - 1) / num_threads_;
+  local_c.resize(num_threads);
+  int blocks_per_thread = (num_blocks_ + num_threads - 1) / num_threads;
   int bi_range = blocks_per_thread * block_size_;
 
-  for (int t = 0; t < num_threads_; ++t) {
+  for (int t = 0; t < num_threads; ++t) {
     int bi_start = t * bi_range;
     int bi_end = std::min(bi_start + bi_range, N_);
     if (bi_start < N_) {
@@ -106,11 +104,11 @@ void vavilov_v_cannon_stl::CannonSTL::BlockMultiply(int num_threads) {
     thread.join();
   }
 
-  for (int t = 0; t < num_threads_; ++t) {
+  for (int t = 0; t < num_threads; ++t) {
     int bi_start = t * bi_range;
     int bi_end = std::min(bi_start + bi_range, N_);
     if (bi_start < N_) {
-      const std::vector<double> &local = local_C[t];
+      const std::vector<double> &local = local_c[t];
       for (int i = bi_start; i < bi_end; ++i) {
         for (int j = 0; j < N_; ++j) {
           C_[(i * N_) + j] += local[((i - bi_start) * N_) + j];
