@@ -174,27 +174,7 @@ void trubin_a_algorithm_dijkstra_omp::TestTaskOpenMP::ProcessCurrentBucket(
 
 #pragma omp for schedule(dynamic)
       for (int i = 0; i < static_cast<int>(current.size()); ++i) {
-        int u = current[i];
-        int dist_u = distances_atomic[u].load(std::memory_order_relaxed);
-
-        for (const auto& edge : adjacency_list_[u]) {
-          int v = static_cast<int>(edge.to);
-          int weight = edge.weight;
-          int new_dist = dist_u + weight;
-
-          int old_dist = distances_atomic[v].load(std::memory_order_relaxed);
-          while (new_dist < old_dist) {
-            if (distances_atomic[v].compare_exchange_weak(old_dist, new_dist, std::memory_order_relaxed)) {
-              if (weight <= delta) {
-                next_bucket.push_back(v);
-              } else {
-                size_t bucket_idx = new_dist / delta;
-                heavy_buckets[bucket_idx].push_back(v);
-              }
-              break;
-            }
-          }
-        }
+        ProcessSingleVertex(current[i], delta, next_bucket, heavy_buckets, distances_atomic);
       }
     }
 
@@ -210,6 +190,31 @@ void trubin_a_algorithm_dijkstra_omp::TestTaskOpenMP::ProcessCurrentBucket(
         }
         buckets[bucket_idx].insert(buckets[bucket_idx].end(), std::make_move_iterator(verts.begin()),
                                    std::make_move_iterator(verts.end()));
+      }
+    }
+  }
+}
+
+void trubin_a_algorithm_dijkstra_omp::TestTaskOpenMP::ProcessSingleVertex(
+    int u, int delta, std::vector<int>& next_bucket, std::unordered_map<size_t, std::vector<int>>& heavy_buckets,
+    std::vector<std::atomic<int>>& distances_atomic) {
+  int dist_u = distances_atomic[u].load(std::memory_order_relaxed);
+
+  for (const auto& edge : adjacency_list_[u]) {
+    int v = static_cast<int>(edge.to);
+    int weight = edge.weight;
+    int new_dist = dist_u + weight;
+
+    int old_dist = distances_atomic[v].load(std::memory_order_relaxed);
+    while (new_dist < old_dist) {
+      if (distances_atomic[v].compare_exchange_weak(old_dist, new_dist, std::memory_order_relaxed)) {
+        if (weight <= delta) {
+          next_bucket.push_back(v);
+        } else {
+          size_t bucket_idx = new_dist / delta;
+          heavy_buckets[bucket_idx].push_back(v);
+        }
+        break;
       }
     }
   }
