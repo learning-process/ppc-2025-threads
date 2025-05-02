@@ -12,8 +12,8 @@ bool vavilov_v_cannon_stl::CannonSTL::PreProcessingImpl() {
   num_blocks_ = static_cast<int>(task_data->inputs_count[2]);
   block_size_ = N_ / num_blocks_;
 
-  auto* a = reinterpret_cast<double*>(task_data->inputs[0]);
-  auto* b = reinterpret_cast<double*>(task_data->inputs[1]);
+  auto *a = reinterpret_cast<double *>(task_data->inputs[0]);
+  auto *b = reinterpret_cast<double *>(task_data->inputs[1]);
   A_.assign(a, a + (N_ * N_));
   B_.assign(b, b + (N_ * N_));
   C_.assign(N_ * N_, 0);
