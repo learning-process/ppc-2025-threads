@@ -2,6 +2,7 @@
 
 #include <omp.h>
 
+#include <algorithm>
 #include <atomic>
 #include <cmath>
 #include <cstddef>
@@ -90,7 +91,7 @@ bool trubin_a_algorithm_dijkstra_omp::TestTaskOpenMP::RunImpl() {
   buckets[0].push_back(static_cast<int>(start_vertex_));
 
   while (true) {
-    auto it = std::find_if(buckets.begin(), buckets.end(), [](const auto& bucket) { return !bucket.empty(); });
+    auto it = std::ranges::find_if(buckets, [](const auto& bucket) { return !bucket.empty(); });
     if (it == buckets.end()) {
       break;
     }
