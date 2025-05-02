@@ -178,11 +178,6 @@ bool vavilov_v_cannon_stl::CannonSTL::RunImpl() {
     ShiftBlocks(num_threads, blocks_per_thread, threads);
     JoinAllThreads(threads);
   }
-  for (auto &thread : threads) {
-    if (thread.joinable()) {
-      thread.join();
-    }
-  }
   return true;
 }
 
