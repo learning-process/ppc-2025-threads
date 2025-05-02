@@ -157,7 +157,7 @@ void vavilov_v_cannon_stl::CannonSTL::ShiftBlocks(int num_threads, int blocks_pe
 }
 
 void vavilov_v_cannon_stl::CannonSTL::JoinAllThreads(std::vector<std::thread> &threads) {
-  for (auto& thread : threads) {
+  for (auto &thread : threads) {
     if (thread.joinable()) {
       thread.join();
     }
