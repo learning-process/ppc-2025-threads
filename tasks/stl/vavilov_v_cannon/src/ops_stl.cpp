@@ -123,7 +123,7 @@ void vavilov_v_cannon_stl::CannonSTL::BlockMultiply(int num_threads) {
   }
 }
 */
-void vavilov_v_cannon_stl::CannonSTL::Process_single_block(int bi, int bj, int bi_start, std::vector<double> &local) {
+void vavilov_v_cannon_stl::CannonSTL::ProcessSingleBlock(int bi, int bj, int bi_start, std::vector<double> &local) {
   for (int i = bi; i < bi + block_size_; i++) {
     for (int j = bj; j < bj + block_size_; j++) {
       double temp = 0.0;
@@ -139,7 +139,7 @@ void vavilov_v_cannon_stl::CannonSTL::Process_single_block(int bi, int bj, int b
   }
 }
 
-void vavilov_v_cannon_stl::CannonSTL::Merge_results(int num_threads, int bi_range,
+void vavilov_v_cannon_stl::CannonSTL::MergeResults(int num_threads, int bi_range,
                                                     const std::vector<std::vector<double>> &local_c) {
   for (int t = 0; t < num_threads; ++t) {
     const int bi_start = t * bi_range;
@@ -166,7 +166,7 @@ void vavilov_v_cannon_stl::CannonSTL::BlockMultiply(int num_threads, int blocks_
 
     for (int bi = bi_start; bi < bi_end; bi += block_size_) {
       for (int bj = 0; bj < N_; bj += block_size_) {
-        Process_single_block(bi, bj, bi_start, local);
+        ProcessSingleBlock(bi, bj, bi_start, local);
       }
     }
   };
@@ -183,7 +183,7 @@ void vavilov_v_cannon_stl::CannonSTL::BlockMultiply(int num_threads, int blocks_
     thread.join();
   }
 
-  Merge_results(num_threads, bi_range, local_c);
+  MergeResults(num_threads, bi_range, local_c);
 }
 
 void vavilov_v_cannon_stl::CannonSTL::ShiftBlocks(int num_threads, int blocks_per_thread) {
