@@ -156,15 +156,27 @@ void vavilov_v_cannon_stl::CannonSTL::ShiftBlocks(int num_threads, int blocks_pe
   }
 }
 
+void vavilov_v_cannon_stl::CannonSTL::JoinAllThreads(std::vector<std::thread> &threads) {
+  for (auto& thread : threads) {
+    if (thread.joinable()) {
+      thread.join();
+    }
+  }
+  threads.clear();
+}
+
 bool vavilov_v_cannon_stl::CannonSTL::RunImpl() {
   int num_threads = std::min(ppc::util::GetPPCNumThreads(), num_blocks_);
   int blocks_per_thread = (num_blocks_ + num_threads - 1) / num_threads;
   std::vector<std::thread> threads;
   threads.reserve(num_threads);
   InitialShift(num_threads, blocks_per_thread, threads);
+  JoinAllThreads(threads);
   for (int iter = 0; iter < num_blocks_; ++iter) {
     BlockMultiply(num_threads, blocks_per_thread, threads);
+    JoinAllThreads(threads);
     ShiftBlocks(num_threads, blocks_per_thread, threads);
+    JoinAllThreads(threads);
   }
   for (auto &thread : threads) {
     if (thread.joinable()) {
