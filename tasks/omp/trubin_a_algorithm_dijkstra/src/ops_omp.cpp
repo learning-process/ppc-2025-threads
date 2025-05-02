@@ -124,6 +124,7 @@ bool trubin_a_algorithm_dijkstra_omp::TestTaskOpenMP::PostProcessingImpl() {
   for (size_t i = 0; i < num_vertices_; ++i) {
     out_ptr[i] = (distances_[i] == std::numeric_limits<int>::max()) ? -1 : distances_[i];
   }
+
   return true;
 }
 
