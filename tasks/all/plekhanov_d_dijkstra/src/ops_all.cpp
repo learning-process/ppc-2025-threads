@@ -17,6 +17,13 @@
 #include <utility>
 #include <vector>
 
+namespace boost {
+namespace mpi {
+template <>
+struct is_mpi_datatype<std::pair<int, int>> : public true_type {};
+}
+}
+
 namespace plekhanov_d_dijkstra_all {
 
 namespace {
@@ -33,6 +40,7 @@ bool ConvertGraphToAdjacencyList(const std::vector<int>& graph_data, size_t num_
       continue;
     }
     if (i + 1 >= graph_data.size()) {
+      if (i < graph_data.size() && graph_data[i] != -1) return false;
       break;
     }
     size_t dest = graph_data[i];
@@ -42,15 +50,19 @@ bool ConvertGraphToAdjacencyList(const std::vector<int>& graph_data, size_t num_
     }
     if (dest < num_vertices) {
       graph[current_vertex].emplace_back(static_cast<int>(dest), weight);
+    } else {
+      return false;
     }
     i += 2;
   }
+  if (i < graph_data.size()) return false;
+  if (current_vertex != num_vertices) return false;
   return true;
 }
 
-}  // namespace
+}
 
-}  // namespace plekhanov_d_dijkstra_all
+}
 
 const int plekhanov_d_dijkstra_all::TestTaskALL::kEndOfVertexList = -1;
 
@@ -66,6 +78,11 @@ bool plekhanov_d_dijkstra_all::TestTaskALL::PreProcessingImpl() {
   } else {
     start_vertex_ = 0;
   }
+
+  if (start_vertex_ < 0 || start_vertex_ >= static_cast<int>(num_vertices_)) {
+    return false;
+  }
+
   distances_[start_vertex_] = 0;
   return true;
 }
@@ -77,7 +94,6 @@ bool plekhanov_d_dijkstra_all::TestTaskALL::ValidationImpl() {
 
 bool plekhanov_d_dijkstra_all::TestTaskALL::RunImpl() {
   boost::mpi::communicator world;
-
   std::vector<std::vector<std::pair<int, int>>> graph;
   if (!ConvertGraphToAdjacencyList(graph_data_, num_vertices_, graph)) {
     return false;
@@ -90,7 +106,7 @@ bool plekhanov_d_dijkstra_all::TestTaskALL::RunImpl() {
   pq.emplace(0, start_vertex_);
   std::mutex pq_mutex;
 
-#pragma omp parallel
+#pragma omp parallel shared(graph, local_distances, pq, pq_mutex) default(none)
   {
     while (true) {
       int u = -1;
@@ -108,12 +124,19 @@ bool plekhanov_d_dijkstra_all::TestTaskALL::RunImpl() {
         }
       }
 
-      for (const auto& [v, weight] : graph[u]) {
-        int new_dist = cur_dist + weight;
-        if (new_dist < local_distances[v]) {
-          local_distances[v] = new_dist;
-          std::lock_guard<std::mutex> lock(pq_mutex);
-          pq.emplace(new_dist, v);
+      if (u != -1) {
+        for (const auto& edge : graph[u]) {
+          int v = edge.first;
+          int weight = edge.second;
+
+          if (local_distances[u] != INT_MAX) {
+            int new_dist = local_distances[u] + weight;
+            if (new_dist < local_distances[v]) {
+              local_distances[v] = new_dist;
+              std::lock_guard<std::mutex> lock(pq_mutex);
+              pq.emplace(new_dist, v);
+            }
+          }
         }
       }
     }
@@ -126,7 +149,9 @@ bool plekhanov_d_dijkstra_all::TestTaskALL::RunImpl() {
     distances_.assign(num_vertices_, INT_MAX);
     for (int i = 0; i < static_cast<int>(num_vertices_); ++i) {
       for (const auto& proc_dists : gathered) {
-        distances_[i] = std::min(distances_[i], proc_dists[i]);
+        if (static_cast<size_t>(i) < proc_dists.size()) {
+          distances_[i] = std::min(distances_[i], proc_dists[i]);
+        }
       }
     }
   }
