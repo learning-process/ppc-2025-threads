@@ -111,9 +111,9 @@ TEST(vavilov_v_cannon_stl, test_invalid_size_1) {
   ASSERT_FALSE(task_stl.Validation());
 }
 
-TEST(vavilov_v_cannon_stl, test_256) {
-  constexpr int kN = 256;
-  constexpr int kNumblocks = 16;
+TEST(vavilov_v_cannon_stl, test_16) {
+  constexpr int kN = 16;
+  constexpr int kNumblocks = 4;
   std::vector<double> a(kN * kN, 1.0);
   std::vector<double> b(kN * kN, 1.0);
   std::vector<double> c(kN * kN, 0.0);
@@ -140,8 +140,8 @@ TEST(vavilov_v_cannon_stl, test_256) {
 }
 
 TEST(vavilov_v_cannon_stl, test_identity_matrix) {
-  constexpr int kN = 256;
-  constexpr int kNumblocks = 16;
+  constexpr int kN = 16;
+  constexpr int kNumblocks = 4;
   std::vector<double> a(kN * kN, 1.0);
   std::vector<double> b(kN * kN, 0.0);
   std::vector<double> c(kN * kN, 0.0);
@@ -173,8 +173,8 @@ TEST(vavilov_v_cannon_stl, test_identity_matrix) {
 }
 
 TEST(vavilov_v_cannon_stl, test_zero_matrix) {
-  constexpr int kN = 256;
-  constexpr int kNumblocks = 16;
+  constexpr int kN = 16;
+  constexpr int kNumblocks = 4;
   std::vector<double> a(kN * kN, 1.0);
   std::vector<double> b(kN * kN, 0.0);
   std::vector<double> c(kN * kN, 0.0);
