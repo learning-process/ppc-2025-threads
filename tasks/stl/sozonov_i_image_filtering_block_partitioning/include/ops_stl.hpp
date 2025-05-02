@@ -7,6 +7,8 @@
 
 namespace sozonov_i_image_filtering_block_partitioning_stl {
 
+std::vector<double> ZeroEdges(std::vector<double> img, int wdth, int hght);
+
 class TestTaskSTL : public ppc::core::Task {
  public:
   explicit TestTaskSTL(ppc::core::TaskDataPtr task_data) : Task(std::move(task_data)) {}
