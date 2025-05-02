@@ -11,7 +11,7 @@ struct Edge {
   size_t to;
   int weight;
 
-  Edge(size_t to_, int weight_) : to(to_), weight(weight_) {}
+  Edge(size_t to, int weight) : to(to), weight(weight) {}
 };
 
 class TestTaskSequential : public ppc::core::Task {
