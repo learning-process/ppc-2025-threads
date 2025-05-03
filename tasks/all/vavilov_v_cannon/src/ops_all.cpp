@@ -527,7 +527,8 @@ bool vavilov_v_cannon_all::CannonALL::RunImpl() {
 }
 
 */
-void vavilov_v_cannon_all::CannonALL::CalculateBlockDistribution(int size, int total_blocks, std::vector<int>& block_counts,
+void vavilov_v_cannon_all::CannonALL::CalculateBlockDistribution(int size, int total_blocks,
+                                                                 std::vector<int>& block_counts,
                                                                  std::vector<int>& displacements) {
   block_counts.resize(size);
   displacements.resize(size);
@@ -537,7 +538,7 @@ void vavilov_v_cannon_all::CannonALL::CalculateBlockDistribution(int size, int t
   
   for (int i = 0; i < size; ++i) {
     block_counts[i] = blocks_per_process + (i < remainder ? 1 : 0);
-    displacements[i] = (i == 0) ? 0 : displacements[i-1] + block_counts[i-1];
+    displacements[i] = (i == 0) ? 0 : displacements[i - 1] + block_counts[i - 1];
   }
 }
 
@@ -553,8 +554,7 @@ bool vavilov_v_cannon_all::CannonALL::RunImpl() {
   block_size_ = N_ / grid_size_;
   if (N_ % grid_size_ != 0) {
     if (rank == 0) {
-      std::cerr << "Matrix size (" << N_ << ") must be divisible by block size (" 
-                << grid_size_ << ")" << std::endl;
+      std::cerr << "Matrix size (" << N_ << ") must be divisible by block size (" << grid_size_ << ")" << std::endl;
       }
     return false;
   }
@@ -573,7 +573,6 @@ bool vavilov_v_cannon_all::CannonALL::RunImpl() {
   if (rank == 0) {
     std::cout << "Rank 0: Scattering matrices A and B" << std::endl;
       
-      // Собираем все блоки в один массив
     std::vector<double> all_A_blocks(total_blocks * block_size_ * block_size_);
     std::vector<double> all_B_blocks(total_blocks * block_size_ * block_size_);
       
@@ -583,9 +582,9 @@ bool vavilov_v_cannon_all::CannonALL::RunImpl() {
           
       for (int i = 0; i < block_size_; ++i) {
         for (int j = 0; j < block_size_; ++j) {
-          all_A_blocks[block_idx * block_size_ * block_size_ + i * block_size_ + j] = 
+          all_A_blocks[block_idx * block_size_ * block_size_ + i * block_size_ + j] =
               A_[(block_row * block_size_ + i) * N_ + (block_col * block_size_ + j)];
-          all_B_blocks[block_idx * block_size_ * block_size_ + i * block_size_ + j] = 
+          all_B_blocks[block_idx * block_size_ * block_size_ + i * block_size_ + j] =
               B_[(block_row * block_size_ + i) * N_ + (block_col * block_size_ + j)];
         }
       }
@@ -598,10 +597,10 @@ bool vavilov_v_cannon_all::CannonALL::RunImpl() {
       send_displs[p] = displacements[p] * block_size_ * block_size_;
     }
       
-    mpi::scatterv(world_, all_A_blocks.data(), send_counts, send_displs, 
-                  local_A.data(), my_block_count * block_size_ * block_size_, 0);
-    mpi::scatterv(world_, all_B_blocks.data(), send_counts, send_displs, 
-                  local_B.data(), my_block_count * block_size_ * block_size_, 0);
+    mpi::scatterv(world_, all_A_blocks.data(), send_counts, send_displs, local_A.data(),
+                  my_block_count * block_size_ * block_size_, 0);
+    mpi::scatterv(world_, all_B_blocks.data(), send_counts, send_displs, local_B.data(),
+                  my_block_count * block_size_ * block_size_, 0);
   } else {
     mpi::scatterv(world_, local_A.data(), my_block_count * block_size_ * block_size_, 0);
     mpi::scatterv(world_, local_B.data(), my_block_count * block_size_ * block_size_, 0);
@@ -616,10 +615,8 @@ bool vavilov_v_cannon_all::CannonALL::RunImpl() {
       
     // Умножаем блок A на соответствующий блок B
     // (здесь можно добавить более сложную логику пересылки блоков при необходимости)
-    BlockMultiply(
-      &local_A[block_idx * block_size_ * block_size_],
-      &local_B[block_idx * block_size_ * block_size_],
-      &local_C[block_idx * block_size_ * block_size_]
+    BlockMultiply(&local_A[block_idx * block_size_ * block_size_], &local_B[block_idx * block_size_ * block_size_],
+                  &local_C[block_idx * block_size_ * block_size_]
     );
   }
 
@@ -634,8 +631,8 @@ bool vavilov_v_cannon_all::CannonALL::RunImpl() {
       recv_displs[p] = displacements[p] * block_size_ * block_size_;
     }
       
-    mpi::gatherv(world_, local_C.data(), my_block_count * block_size_ * block_size_,
-                 all_C_blocks.data(), recv_counts, recv_displs, 0);
+    mpi::gatherv(world_, local_C.data(), my_block_count * block_size_ * block_size_, all_C_blocks.data(), recv_counts,
+                 recv_displs, 0);
       
     // Собираем итоговую матрицу из блоков
     for (int block_idx = 0; block_idx < total_blocks; ++block_idx) {
@@ -645,7 +642,7 @@ bool vavilov_v_cannon_all::CannonALL::RunImpl() {
       for (int i = 0; i < block_size_; ++i) {
         for (int j = 0; j < block_size_; ++j) {
           C_[(block_row * block_size_ + i) * N_ + (block_col * block_size_ + j)] =
-          all_C_blocks[block_idx * block_size_ * block_size_ + i * block_size_ + j];
+              all_C_blocks[block_idx * block_size_ * block_size_ + i * block_size_ + j];
         }
       }
     }
