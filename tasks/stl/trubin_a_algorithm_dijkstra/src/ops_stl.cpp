@@ -1,5 +1,6 @@
 #include "stl/trubin_a_algorithm_dijkstra/include/ops_stl.hpp"
 
+#include <algorithm>
 #include <cmath>
 #include <condition_variable>
 #include <cstddef>
