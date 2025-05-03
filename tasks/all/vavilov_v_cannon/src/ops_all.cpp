@@ -274,6 +274,7 @@ bool vavilov_v_cannon_all::CannonALL::RunImpl() {
   return true;
 }
 */
+/*
 void vavilov_v_cannon_all::CannonALL::CalculateGridDimensions(int size, int& rows, int& cols) {
   // Находим такие rows и cols, чтобы rows * cols = size и rows максимально близко к cols
   rows = static_cast<int>(std::sqrt(size));
@@ -522,6 +523,108 @@ bool vavilov_v_cannon_all::CannonALL::RunImpl() {
     }
     return false;
   }
+
+  return true;
+}
+*/
+void vavilov_v_cannon_all::CannonALL::InitialShift(std::vector<double>& local_A, std::vector<double>& local_B) {
+  int rank = world_.rank();
+  int grid_size = num_blocks_;
+  int grid_coord_x = rank / grid_size;
+  int grid_coord_y = rank % grid_size;
+
+  std::vector<double> block_buffer(block_size_ * block_size_);
+
+  // Shift A: each row i shifts left by i positions
+  int dest_rank_a = grid_coord_x * grid_size + (grid_coord_y - grid_coord_x + grid_size) % grid_size;
+  int src_rank_a = grid_coord_x * grid_size + (grid_coord_y + grid_coord_x) % grid_size;
+
+  if (dest_rank_a != rank) {
+    world_.send(dest_rank_a, 0, local_A);
+    world_.recv(src_rank_a, 0, local_A);
+  }
+
+  // Shift B: each column j shifts up by j positions
+  int dest_rank_b = ((grid_coord_x - grid_coord_y + grid_size) % grid_size) * grid_size + grid_coord_y;
+  int src_rank_b = ((grid_coord_x + grid_coord_y) % grid_size) * grid_size + grid_coord_y;
+
+  if (dest_rank_b != rank) {
+    world_.send(dest_rank_b, 1, local_B);
+    world_.recv(src_rank_b, 1, local_B);
+  }
+}
+
+void vavilov_v_cannon_all::CannonALL::ShiftBlocks(std::vector<double>& local_A, std::vector<double>& local_B) {
+  int rank = world_.rank();
+  int grid_size = num_blocks_;
+
+  // Shift A left
+  int left_rank = (rank / grid_size) * grid_size + ((rank % grid_size) - 1 + grid_size) % grid_size;
+  int right_rank = (rank / grid_size) * grid_size + ((rank % grid_size) + 1) % grid_size;
+
+  if (left_rank != rank) {
+    world_.send(left_rank, 2, local_A);
+    world_.recv(right_rank, 2, local_A);
+  }
+
+  // Shift B up
+  int up_rank = (((rank / grid_size) - 1 + grid_size) % grid_size) * grid_size + (rank % grid_size);
+  int down_rank = (((rank / grid_size) + 1) % grid_size) * grid_size + (rank % grid_size);
+
+  if (up_rank != rank) {
+    world_.send(up_rank, 3, local_B);
+    world_.recv(down_rank, 3, local_B);
+  }
+}
+
+void vavilov_v_cannon_all::CannonALL::BlockMultiply(const std::vector<double>& local_A,
+                                                    const std::vector<double>& local_B, std::vector<double>& local_C) {
+#pragma omp parallel for
+  for (int i = 0; i < block_size_; ++i) {
+    for (int j = 0; j < block_size_; ++j) {
+      double temp = 0.0;
+      for (int k = 0; k < block_size_; ++k) {
+        temp += local_A[i * block_size_ + k] * local_B[k * block_size_ + j];
+      }
+      local_C[i * block_size_ + j] += temp;
+    }
+  }
+}
+
+bool vavilov_v_cannon_all::CannonALL::RunImpl() {
+  int rank = world_.rank();
+  int grid_size = num_blocks_;
+  if (grid_size * grid_size != world_.size()) {
+    return false;
+  }
+
+  std::vector<double> local_A(block_size_ * block_size_);
+  std::vector<double> local_B(block_size_ * block_size_);
+  std::vector<double> local_C(block_size_ * block_size_, 0.0);
+
+  int grid_coord_x = rank / grid_size;
+  int grid_coord_y = rank % grid_size;
+
+  for (int i = 0; i < block_size_; ++i) {
+    for (int j = 0; j < block_size_; ++j) {
+      local_A[i * block_size_ + j] = A_[(grid_coord_x * block_size_ + i) * N_ + (grid_coord_y * block_size_ + j)];
+      local_B[i * block_size_ + j] = B_[(grid_coord_x * block_size_ + i) * N_ + (grid_coord_y * block_size_ + j)];
+    }
+  }
+
+  InitialShift(local_A, local_B);
+  for (int iter = 0; iter < num_blocks_; ++iter) {
+    BlockMultiply(local_A, local_B, local_C);
+    ShiftBlocks(local_A, local_B);
+  }
+
+  for (int i = 0; i < block_size_; ++i) {
+    for (int j = 0; j < block_size_; ++j) {
+        C_[(grid_coord_x * block_size_ + i) * N_ + (grid_coord_y * block_size_ + j)] = local_C[i * block_size_ + j];
+      }
+  }
+
+  boost::mpi::all_reduce(world_, C_.data(), C_.size(), C_.data(), std::plus<double>());
 
   return true;
 }
