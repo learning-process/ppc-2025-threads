@@ -12,6 +12,8 @@
 #include <utility>
 #include <vector>
 
+#include "core/util/include/util.hpp"
+
 bool trubin_a_algorithm_dijkstra_omp::TestTaskOpenMP::PreProcessingImpl() {
   if (!validation_passed_) {
     return false;
@@ -160,10 +162,11 @@ bool trubin_a_algorithm_dijkstra_omp::TestTaskOpenMP::BuildAdjacencyList(const s
 void trubin_a_algorithm_dijkstra_omp::TestTaskOpenMP::ProcessCurrentBucket(
     std::vector<int>& current, std::vector<std::vector<int>>& buckets, const int delta,
     std::vector<std::atomic<int>>& distances_atomic) {
-  while (!current.empty()) {
-    std::vector<std::vector<int>> local_next(omp_get_max_threads());
-    std::vector<std::unordered_map<size_t, std::vector<int>>> local_heavy(omp_get_max_threads());
+  size_t num_threads = static_cast<size_t>(ppc::util::GetPPCNumThreads());
+  std::vector<std::vector<int>> local_next(num_threads);
+  std::vector<std::unordered_map<size_t, std::vector<int>>> local_heavy(num_threads);
 
+  while (!current.empty()) {
 #pragma omp parallel
     {
       int tid = omp_get_thread_num();
@@ -179,6 +182,7 @@ void trubin_a_algorithm_dijkstra_omp::TestTaskOpenMP::ProcessCurrentBucket(
     current.clear();
     for (auto& next : local_next) {
       current.insert(current.end(), std::make_move_iterator(next.begin()), std::make_move_iterator(next.end()));
+      next.clear();
     }
 
     for (auto& heavy_map : local_heavy) {
@@ -188,6 +192,7 @@ void trubin_a_algorithm_dijkstra_omp::TestTaskOpenMP::ProcessCurrentBucket(
         }
         buckets[bucket_idx].insert(buckets[bucket_idx].end(), std::make_move_iterator(verts.begin()),
                                    std::make_move_iterator(verts.end()));
+        verts.clear();
       }
     }
   }
