@@ -23,10 +23,10 @@ void RunDijkstraTest(const std::vector<int>& graph_data, int start_vertex, size_
 
   trubin_a_algorithm_dijkstra_seq::TestTaskSequential task(task_data_seq);
 
-  ASSERT_TRUE(task.Validation());
-  ASSERT_TRUE(task.PreProcessing());
-  ASSERT_TRUE(task.Run());
-  ASSERT_TRUE(task.PostProcessing());
+  EXPECT_TRUE(task.Validation());
+  EXPECT_TRUE(task.PreProcessing());
+  EXPECT_TRUE(task.Run());
+  EXPECT_TRUE(task.PostProcessing());
 
   EXPECT_EQ(out, expected);
 }
@@ -43,12 +43,27 @@ void RunDijkstraAndCheckNoExpected(const std::vector<int>& graph_data, int start
 
   trubin_a_algorithm_dijkstra_seq::TestTaskSequential task(task_data_seq);
 
-  ASSERT_TRUE(task.Validation());
-  ASSERT_TRUE(task.PreProcessing());
-  ASSERT_TRUE(task.Run());
-  ASSERT_TRUE(task.PostProcessing());
+  bool valid = task.Validation();
+  bool preprocessed = false;
+  bool ran = false;
+  bool postprocessed = false;
 
-  ASSERT_EQ(out.size(), num_vertices);
+  if (valid) {
+    preprocessed = task.PreProcessing();
+  }
+  if (preprocessed) {
+    ran = task.Run();
+  }
+  if (ran) {
+    postprocessed = task.PostProcessing();
+  }
+
+  EXPECT_TRUE(valid);
+  EXPECT_TRUE(preprocessed);
+  EXPECT_TRUE(ran);
+  EXPECT_TRUE(postprocessed);
+
+  EXPECT_EQ(out.size(), num_vertices);
   for (int dist : out) {
     EXPECT_GE(dist, -1);
   }
