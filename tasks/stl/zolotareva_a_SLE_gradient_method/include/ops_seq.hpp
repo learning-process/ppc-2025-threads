@@ -7,6 +7,7 @@
 
 #include "core/task/include/task.hpp"
 
+
 namespace zolotareva_a_sle_gradient_method_stl {
 void GenerateSle(std::vector<double>& a, std::vector<double>& b, int n);
 class TestTaskSTL : public ppc::core::Task {
@@ -31,8 +32,6 @@ class TestTaskSTL : public ppc::core::Task {
   std::vector<double> b_;
   std::vector<double> x_;
   int n_{0};
-  inline static int NUM_THREADS = std::thread::hardware_concurrency();
-  ;
 };
 
 }  // namespace zolotareva_a_sle_gradient_method_stl

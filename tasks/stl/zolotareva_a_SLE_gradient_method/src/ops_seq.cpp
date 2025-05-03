@@ -11,6 +11,8 @@
 #include <thread>
 #include <vector>
 
+#include "core/util/include/util.hpp"
+
 bool zolotareva_a_sle_gradient_method_stl::TestTaskSTL::PreProcessingImpl() {
   n_ = static_cast<int>(task_data->inputs_count[1]);
   a_.resize(n_ * n_);
@@ -101,6 +103,7 @@ void zolotareva_a_sle_gradient_method_stl::TestTaskSTL::ConjugateGradient(const 
 
 double zolotareva_a_sle_gradient_method_stl::TestTaskSTL::DotProduct(const std::vector<double>& vec1,
                                                                      const std::vector<double>& vec2, int n) {
+  int NUM_THREADS = ppc::util::GetPPCNumThreads();
   int block = (n + NUM_THREADS - 1) / NUM_THREADS;
   std::vector<std::future<double>> futures;
   for (int t = 0; t < NUM_THREADS; ++t) {
@@ -152,6 +155,7 @@ bool zolotareva_a_sle_gradient_method_stl::TestTaskSTL::IsPositiveAndSimm(const 
 }
 void zolotareva_a_sle_gradient_method_stl::TestTaskSTL::parallel_for(int start, int end,
                                                                      const std::function<void(int)>& f) {
+  int NUM_THREADS = ppc::util::GetPPCNumThreads();
   int total = end - start, block = (total + NUM_THREADS - 1) / NUM_THREADS;
   std::vector<std::thread> threads;
   for (int t = 0; t < NUM_THREADS; ++t) {
