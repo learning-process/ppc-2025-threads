@@ -577,7 +577,7 @@ bool vavilov_v_cannon_all::CannonALL::RunImpl() {
   // Каждый процесс получает свои блоки
   int blocks_per_proc = (num_blocks_ * num_blocks_) / active_procs;
   int extra_blocks = (num_blocks_ * num_blocks_) % active_procs;
-  
+
   int my_blocks = blocks_per_proc + (rank < extra_blocks ? 1 : 0);
   std::vector<double> local_A(my_blocks * block_size_ * block_size_);
   std::vector<double> local_B(my_blocks * block_size_ * block_size_);
@@ -592,7 +592,7 @@ bool vavilov_v_cannon_all::CannonALL::RunImpl() {
     for (int block_idx = 0; block_idx < num_blocks_ * num_blocks_; ++block_idx) {
       int block_row = block_idx / num_blocks_;
       int block_col = block_idx % num_blocks_;
-      
+
       for (int i = 0; i < block_size_; ++i) {
         for (int j = 0; j < block_size_; ++j) {
           all_A[block_idx * block_size_ * block_size_ + i * block_size_ + j] =
@@ -647,14 +647,13 @@ bool vavilov_v_cannon_all::CannonALL::RunImpl() {
       offset += counts[p];
     }
 
-    mpi::gatherv(active_world, local_C.data(), my_blocks * block_size_ * block_size_,
-                all_C.data(), counts, displs, 0);
+    mpi::gatherv(active_world, local_C.data(), my_blocks * block_size_ * block_size_, all_C.data(), counts, displs, 0);
 
     // Собираем итоговую матрицу
     for (int block_idx = 0; block_idx < num_blocks_ * num_blocks_; ++block_idx) {
       int block_row = block_idx / num_blocks_;
       int block_col = block_idx % num_blocks_;
-      
+
       for (int i = 0; i < block_size_; ++i) {
         for (int j = 0; j < block_size_; ++j) {
           C_[(block_row * block_size_ + i) * N_ + (block_col * block_size_ + j)] =
@@ -672,14 +671,14 @@ bool vavilov_v_cannon_all::CannonALL::RunImpl() {
 void vavilov_v_cannon_all::CannonALL::MultiplyAllBlocks(const std::vector<double>& local_A,
                                                         const std::vector<double>& local_B,
                                                         std::vector<double>& local_C) {
-  
+
   int my_blocks = local_A.size() / (block_size_ * block_size_);
-  
+
   for (int b = 0; b < my_blocks; ++b) {
     const double* A_block = &local_A[b * block_size_ * block_size_];
     const double* B_block = &local_B[b * block_size_ * block_size_];
     double* C_block = &local_C[b * block_size_ * block_size_];
-    
+
     for (int i = 0; i < block_size_; ++i) {
       for (int j = 0; j < block_size_; ++j) {
         double sum = 0.0;
