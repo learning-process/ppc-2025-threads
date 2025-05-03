@@ -2,7 +2,6 @@
 
 #include <cmath>
 #include <memory>
-#include <thread>
 #include <utility>
 #include <vector>
 
