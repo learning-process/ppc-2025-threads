@@ -74,7 +74,6 @@ std::vector<int> GenerateRandomGraph(size_t num_vertices, size_t max_edges_per_v
   return graph_data;
 }
 
-// Генерация плотного графа
 std::vector<int> GenerateRandomDenseGraph(size_t num_vertices, int max_weight) {
   std::vector<int> graph_data;
   std::mt19937 rng(42);
