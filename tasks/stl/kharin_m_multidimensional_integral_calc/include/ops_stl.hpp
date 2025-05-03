@@ -7,7 +7,6 @@
 
 #include "core/task/include/task.hpp"
 
-
 namespace kharin_m_multidimensional_integral_calc_stl {
 
 class TaskSTL : public ppc::core::Task {
