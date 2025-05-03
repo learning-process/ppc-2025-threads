@@ -288,34 +288,32 @@ void vavilov_v_cannon_all::CannonALL::InitialShift(std::vector<double>& local_A,
   int row = rank / num_cols_;
   int col = rank % num_cols_;
 
-  // Сдвиг A влево на row позиций
-  int a_dest = row * num_cols_ + (col - row + num_cols_) % num_cols_;
-  int a_src = row * num_cols_ + (col + row) % num_cols_;
+  int a_dest = row * num_cols_ + (col == 0 ? num_cols_ - 1 : col - 1);
+  int a_src = row * num_cols_ + (col == num_cols_ - 1 ? 0 : col + 1);
 
-  // Сдвиг B вверх на col позиций
-  int b_dest = ((row - col + num_rows_) % num_rows_) * num_cols_ + col;
-  int b_src = ((row + col) % num_rows_) * num_cols_ + col;
+  int b_dest = rank;
+  int b_src = rank;
 
   std::vector<double> tmp_A(block_size_ * block_size_);
   std::vector<double> tmp_B(block_size_ * block_size_);
 
-  mpi::request reqs[4];
-  if (a_dest != rank) {
-    reqs[0] = world_.isend(a_dest, 0, local_A.data(), block_size_ * block_size_);
-    reqs[1] = world_.irecv(a_src, 0, tmp_A.data(), block_size_ * block_size_);
-  } else {
-    tmp_A = local_A;
-  }
-
-  if (b_dest != rank) {
-    reqs[2] = world_.isend(b_dest, 1, local_B.data(), block_size_ * block_size_);
-    reqs[3] = world_.irecv(b_src, 1, tmp_B.data(), block_size_ * block_size_);
+  std::vector<mpi::request> reqs;
+  if (num_rows_ > 1 && b_dest != rank) {
+    reqs.push_back(world_.isend(b_dest, 1, local_B.data(), block_size_ * block_size_));
+    reqs.push_back(world_.irecv(b_src, 1, tmp_B.data(), block_size_ * block_size_));
   } else {
     tmp_B = local_B;
   }
 
-  if (a_dest != rank || b_dest != rank) {
-    mpi::wait_all(reqs, reqs + 4);
+  if (a_dest != rank) {
+    reqs.push_back(world_.isend(a_dest, 0, local_A.data(), block_size_ * block_size_));
+    reqs.push_back(world_.irecv(a_src, 0, tmp_A.data(), block_size_ * block_size_));
+  } else {
+    tmp_A = local_A;
+  }
+
+  if (!reqs.empty()) {
+    mpi::wait_all(reqs.begin(), reqs.end());
   }
 
   local_A = tmp_A;
