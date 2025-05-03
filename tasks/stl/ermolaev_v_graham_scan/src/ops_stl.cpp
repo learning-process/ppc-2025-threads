@@ -1,10 +1,8 @@
 #include "stl/ermolaev_v_graham_scan/include/ops_stl.hpp"
 
 #include <algorithm>
-#include <atomic>
 #include <cmath>
 #include <cstddef>
-#include <mutex>
 #include <thread>
 #include <vector>
 
