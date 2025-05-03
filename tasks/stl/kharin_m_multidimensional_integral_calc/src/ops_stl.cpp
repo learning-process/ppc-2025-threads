@@ -1,6 +1,7 @@
 #include "stl/kharin_m_multidimensional_integral_calc/include/ops_stl.hpp"
 
 #include <cstddef>
+#include <thread>
 #include <vector>
 
 #include "core/util/include/util.hpp"
