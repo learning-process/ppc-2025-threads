@@ -58,10 +58,10 @@ bool kharin_m_multidimensional_integral_calc_stl::TaskSTL::PreProcessingImpl() {
 bool kharin_m_multidimensional_integral_calc_stl::TaskSTL::RunImpl() {
   if (input_.empty()) {
     output_result_ = 0.0;
-    return true; // Интеграл от пустого множества - 0
+    return true;  // Интеграл от пустого множества - 0
   }
 
-  num_threads_ = std::min(static_cast<size_t>(ppc::util::GetPPCNumThreads()),input_.size());
+  num_threads_ = std::min(static_cast<size_t>(ppc::util::GetPPCNumThreads()), input_.size());
   std::vector<std::thread> threads;
   threads.reserve(num_threads_);
   std::vector<double> partial_sums(num_threads_, 0);
@@ -79,16 +79,17 @@ bool kharin_m_multidimensional_integral_calc_stl::TaskSTL::RunImpl() {
 
   size_t current_start_index = 0;
   for (int i = 0; i < num_threads_; ++i) {
-    int size = (i < remainder)?  (input_chunk_size +1) :  input_chunk_size;
+    int size = (i < remainder) ? (input_chunk_size + 1) : input_chunk_size;
     auto it_begin = input_.begin() + current_start_index;
     std::thread th(chunk_plus, it_begin, size, std::ref(partial_sums[i]));
     threads.push_back(std::move(th));
-    current_start_index += size; 
+    current_start_index += size;
   }
 
   for (auto& th : threads) {
     if (th.joinable()) {
-        th.join();
+      //  th.join();
+      th.join();
     }
   }
 

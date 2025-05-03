@@ -1,12 +1,12 @@
 #pragma once
 
 #include <cstddef>
+#include <thread>
 #include <utility>
 #include <vector>
 
 #include "core/task/include/task.hpp"
 
-#include <thread>
 
 namespace kharin_m_multidimensional_integral_calc_stl {
 
@@ -23,7 +23,7 @@ class TaskSTL : public ppc::core::Task {
   std::vector<size_t> grid_sizes_;  // Размеры сетки в каждом измерении
   std::vector<double> step_sizes_;  // Шаги интегрирования в каждом измерении
   double output_result_{0.0};       // Результат вычисления интеграла
-  int num_threads_{1};              // Количество потоков для параллельных вычислений
+  int num_threads_{1};
 };
 
 }  // namespace kharin_m_multidimensional_integral_calc_stl
