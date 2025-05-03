@@ -622,11 +622,20 @@ bool vavilov_v_cannon_all::CannonALL::RunImpl() {
 
   // Умножение блоков
   for (int block_idx = 0; block_idx < my_block_count; ++block_idx) {
-    // Для каждого блока A находим соответствующий блок B для умножения
-    int global_block_idx = displacements[rank] + block_idx;
+    std::vector<double> block_A(
+        local_A.begin() + block_idx * block_size_ * block_size_,
+        local_A.begin() + (block_idx + 1) * block_size_ * block_size_);
+    std::vector<double> block_B(
+        local_B.begin() + block_idx * block_size_ * block_size_,
+        local_B.begin() + (block_idx + 1) * block_size_ * block_size_);
+    std::vector<double> block_C(
+        local_C.begin() + block_idx * block_size_ * block_size_,
+        local_C.begin() + (block_idx + 1) * block_size_ * block_size_);
 
-    BlockMultiply(&local_A[block_idx * block_size_ * block_size_], &local_B[block_idx * block_size_ * block_size_],
-                  &local_C[block_idx * block_size_ * block_size_]);
+    BlockMultiply(block_A, block_B, block_C);
+
+    std::copy(block_C.begin(), block_C.end(),
+              local_C.begin() + block_idx * block_size_ * block_size_);
   }
 
   // Собираем результаты
