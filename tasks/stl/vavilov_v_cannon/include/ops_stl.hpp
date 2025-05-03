@@ -26,9 +26,9 @@ class CannonSTL : public ppc::core::Task {
   std::vector<double> B_;
   std::vector<double> C_;
 
-  void InitialShift(int num_threads, int blocks_per_thread, std::vector<std::thread>& threads);
-  void BlockMultiply(int num_threads, int blocks_per_thread, std::vector<std::thread>& threads);
-  void ShiftBlocks(int num_threads, int blocks_per_thread, std::vector<std::thread>& threads);
+  void InitialShift(int num_threads, int blocks_per_thread);
+  void BlockMultiply(int num_threads, int blocks_per_thread);
+  void ShiftBlocks(int num_threads, int blocks_per_thread);
   void ProcessSingleBlock(int bi, int bj, int bi_start, std::vector<double>& local);
   void MergeResults(int num_threads, int bi_range, const std::vector<std::vector<double>>& local_c);
 };
