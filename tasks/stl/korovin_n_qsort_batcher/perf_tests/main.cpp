@@ -4,18 +4,32 @@
 #include <chrono>
 #include <cstdint>
 #include <memory>
-#include <numeric>
+#include <random>
 #include <vector>
 
 #include "core/perf/include/perf.hpp"
 #include "core/task/include/task.hpp"
 #include "stl/korovin_n_qsort_batcher/include/ops_stl.hpp"
 
+namespace {
+constexpr int kSize = 7000000;
+constexpr int kSeed = 25;
+
+std::vector<int> GenerateRndArray(int size, int seed) {
+  std::mt19937 gen(seed);
+  std::uniform_int_distribution<int> dist(-1000, 1000);
+
+  std::vector<int> result(size);
+  for (auto &elem : result) {
+    elem = dist(gen);
+  }
+  return result;
+}
+}  // namespace
+
 TEST(korovin_n_qsort_batcher_stl, test_pipeline_run) {
-  constexpr int kSize = 250000;
-  std::vector<int> in(kSize);
+  std::vector<int> in = GenerateRndArray(kSize, kSeed);
   std::vector<int> out(in.size());
-  std::iota(in.rbegin(), in.rend(), 1);
 
   auto task_data_stl = std::make_shared<ppc::core::TaskData>();
   task_data_stl->inputs.emplace_back(reinterpret_cast<uint8_t *>(in.data()));
@@ -26,7 +40,7 @@ TEST(korovin_n_qsort_batcher_stl, test_pipeline_run) {
   auto test_task_stl = std::make_shared<korovin_n_qsort_batcher_stl::TestTaskSTL>(task_data_stl);
 
   auto perf_attr = std::make_shared<ppc::core::PerfAttr>();
-  perf_attr->num_running = 35;
+  perf_attr->num_running = 10;
   const auto t0 = std::chrono::high_resolution_clock::now();
   perf_attr->current_timer = [&] {
     auto current_time_point = std::chrono::high_resolution_clock::now();
@@ -43,10 +57,8 @@ TEST(korovin_n_qsort_batcher_stl, test_pipeline_run) {
 }
 
 TEST(korovin_n_qsort_batcher_stl, test_task_run) {
-  constexpr int kSize = 250000;
-  std::vector<int> in(kSize);
+  std::vector<int> in = GenerateRndArray(kSize, kSeed);
   std::vector<int> out(in.size());
-  std::iota(in.rbegin(), in.rend(), 1);
 
   auto task_data_stl = std::make_shared<ppc::core::TaskData>();
   task_data_stl->inputs.emplace_back(reinterpret_cast<uint8_t *>(in.data()));
@@ -57,7 +69,7 @@ TEST(korovin_n_qsort_batcher_stl, test_task_run) {
   auto test_task_stl = std::make_shared<korovin_n_qsort_batcher_stl::TestTaskSTL>(task_data_stl);
 
   auto perf_attr = std::make_shared<ppc::core::PerfAttr>();
-  perf_attr->num_running = 35;
+  perf_attr->num_running = 10;
   const auto t0 = std::chrono::high_resolution_clock::now();
   perf_attr->current_timer = [&] {
     auto current_time_point = std::chrono::high_resolution_clock::now();
