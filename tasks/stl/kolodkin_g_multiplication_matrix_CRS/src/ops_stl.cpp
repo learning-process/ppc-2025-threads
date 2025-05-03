@@ -144,7 +144,6 @@ bool kolodkin_g_multiplication_matrix_stl::TestTaskSTL::RunImpl() {
   std::cout << "NUM_THREADS: " << numThreads;
   std::vector<std::thread> threads(numThreads);
   std::vector<SparseMatrixCRS> local_results(numThreads, SparseMatrixCRS(A_.numRows, B_.numCols));
-  std::mutex mtx;
 
   auto worker = [&](unsigned int startRow, unsigned int endRow, int threadIndex) {
     SparseMatrixCRS local_c(A_.numRows, B_.numCols);
