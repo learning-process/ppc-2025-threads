@@ -34,7 +34,7 @@ std::vector<shulpin_i_jarvis_seq::Point> GenerateRandomPoints(size_t num_points,
 }  // namespace
 
 TEST(shulpin_i_jarvis_seq, test_pipeline_run) {
-  size_t num_points = 1000000;
+  size_t num_points = 5000000;
   std::vector<shulpin_i_jarvis_seq::Point> hull = {
       {-kBound, -kBound}, {kBound, -kBound}, {kBound, kBound}, {-kBound, kBound}};
   std::vector<shulpin_i_jarvis_seq::Point> input = GenerateRandomPoints(num_points, -kBound + k_, kBound - k_);
@@ -71,7 +71,7 @@ TEST(shulpin_i_jarvis_seq, test_pipeline_run) {
 }
 
 TEST(shulpin_i_jarvis_seq, test_task_run) {
-  size_t num_points = 1000000;
+  size_t num_points = 5000000;
   std::vector<shulpin_i_jarvis_seq::Point> hull = {
       {-kBound, -kBound}, {kBound, -kBound}, {kBound, kBound}, {-kBound, kBound}};
   std::vector<shulpin_i_jarvis_seq::Point> input = GenerateRandomPoints(num_points, -kBound + k_, kBound - k_);
