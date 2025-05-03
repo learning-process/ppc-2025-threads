@@ -671,7 +671,6 @@ bool vavilov_v_cannon_all::CannonALL::RunImpl() {
 void vavilov_v_cannon_all::CannonALL::MultiplyAllBlocks(const std::vector<double>& local_A,
                                                         const std::vector<double>& local_B,
                                                         std::vector<double>& local_C) {
-
   int my_blocks = local_A.size() / (block_size_ * block_size_);
 
   for (int b = 0; b < my_blocks; ++b) {
