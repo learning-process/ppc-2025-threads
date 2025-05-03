@@ -3,6 +3,7 @@
 #include <cstddef>
 #include <cstdint>
 #include <memory>
+#include <random>
 #include <vector>
 
 #include "core/task/include/task.hpp"
@@ -121,4 +122,91 @@ TEST(trubin_a_algorithm_dijkstra_seq, multi_component_graph) {
 
 TEST(trubin_a_algorithm_dijkstra_seq, start_from_nonzero_vertex) {
   RunDijkstraTest({1, 3, -1, 2, 4, -1, 3, 2, -1, -1}, 2, 4, {-1, -1, 0, 2});
+}
+
+TEST(trubin_a_algorithm_dijkstra_seq, random_graph) {
+  const size_t num_vertices = 20;
+  const size_t max_edges_per_vertex = 5;
+  const int max_weight = 20;
+  std::vector<int> graph_data;
+
+  std::mt19937 rng(42);
+  std::uniform_int_distribution<int> vertex_dist(0, num_vertices - 1);
+  std::uniform_int_distribution<int> weight_dist(1, max_weight);
+  std::uniform_int_distribution<int> edge_count_dist(0, max_edges_per_vertex);
+
+  for (size_t v = 0; v < num_vertices; ++v) {
+    int num_edges = edge_count_dist(rng);
+    for (int e = 0; e < num_edges; ++e) {
+      int to = vertex_dist(rng);
+      int weight = weight_dist(rng);
+      graph_data.push_back(to);
+      graph_data.push_back(weight);
+    }
+    graph_data.push_back(-1);
+  }
+
+  std::vector<int> out(num_vertices, -42);
+  int start_vertex = 0;
+
+  auto task_data_seq = std::make_shared<ppc::core::TaskData>();
+  task_data_seq->inputs.emplace_back(reinterpret_cast<uint8_t*>(graph_data.data()));
+  task_data_seq->inputs_count.emplace_back(graph_data.size());
+  task_data_seq->inputs.emplace_back(reinterpret_cast<uint8_t*>(&start_vertex));
+  task_data_seq->outputs.emplace_back(reinterpret_cast<uint8_t*>(out.data()));
+  task_data_seq->outputs_count.emplace_back(num_vertices);
+
+  trubin_a_algorithm_dijkstra_seq::TestTaskSequential task(task_data_seq);
+
+  ASSERT_TRUE(task.Validation());
+  ASSERT_TRUE(task.PreProcessing());
+  ASSERT_TRUE(task.Run());
+  ASSERT_TRUE(task.PostProcessing());
+
+  ASSERT_EQ(out.size(), num_vertices);
+  for (int dist : out) {
+    EXPECT_GE(dist, -1);
+  }
+}
+
+TEST(trubin_a_algorithm_dijkstra_seq, random_dense_graph) {
+  const size_t num_vertices = 30;
+  const int max_weight = 15;
+  std::vector<int> graph_data;
+
+  std::mt19937 rng(42);
+  std::uniform_int_distribution<int> weight_dist(1, max_weight);
+
+  for (size_t v = 0; v < num_vertices; ++v) {
+    for (size_t to = 0; to < num_vertices; ++to) {
+      if (v != to && (to + v) % 2 == 0) {
+        int weight = weight_dist(rng);
+        graph_data.push_back(static_cast<int>(to));
+        graph_data.push_back(weight);
+      }
+    }
+    graph_data.push_back(-1);
+  }
+
+  std::vector<int> out(num_vertices, -42);
+  int start_vertex = static_cast<int>(num_vertices / 2);
+
+  auto task_data_seq = std::make_shared<ppc::core::TaskData>();
+  task_data_seq->inputs.emplace_back(reinterpret_cast<uint8_t*>(graph_data.data()));
+  task_data_seq->inputs_count.emplace_back(graph_data.size());
+  task_data_seq->inputs.emplace_back(reinterpret_cast<uint8_t*>(&start_vertex));
+  task_data_seq->outputs.emplace_back(reinterpret_cast<uint8_t*>(out.data()));
+  task_data_seq->outputs_count.emplace_back(num_vertices);
+
+  trubin_a_algorithm_dijkstra_seq::TestTaskSequential task(task_data_seq);
+
+  ASSERT_TRUE(task.Validation());
+  ASSERT_TRUE(task.PreProcessing());
+  ASSERT_TRUE(task.Run());
+  ASSERT_TRUE(task.PostProcessing());
+
+  ASSERT_EQ(out.size(), num_vertices);
+  for (int dist : out) {
+    EXPECT_GE(dist, -1);
+  }
 }
