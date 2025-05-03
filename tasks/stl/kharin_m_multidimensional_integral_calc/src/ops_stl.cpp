@@ -3,6 +3,10 @@
 #include <cstddef>
 #include <thread>
 #include <vector>
+#include <algorithm>
+#include <functional>
+#include <utility>
+#include <iterator>
 
 #include "core/util/include/util.hpp"
 
@@ -70,17 +74,17 @@ bool kharin_m_multidimensional_integral_calc_stl::TaskSTL::RunImpl() {
   auto input_chunk_size = input_.size() / num_threads_;
   auto remainder = input_.size() % num_threads_;
 
-  auto chunk_plus = [&](std::vector<double>::iterator it_begin, int size, double& result_location) {
+  auto chunk_plus = [&](std::vector<double>::iterator it_begin, size_t size, double& result_location) {
     double local = 0;
-    for (int i = 0; i < size; ++i) {
+    for (size_t i = 0; i < size; ++i) {
       local += *(it_begin + i);
     }
     result_location = local;
   };
 
   size_t current_start_index = 0;
-  for (int i = 0; i < num_threads_; ++i) {
-    int size = (static_cast<size_t>(i) < remainder) ? (input_chunk_size + 1) : input_chunk_size;
+  for (size_t i = 0; i < num_threads_; ++i) {
+    size_t size = (static_cast<size_t>(i) < remainder) ? (input_chunk_size + 1) : input_chunk_size;
     auto it_begin = input_.begin() + current_start_index;
     std::thread th(chunk_plus, it_begin, size, std::ref(partial_sums[i]));
     threads.push_back(std::move(th));

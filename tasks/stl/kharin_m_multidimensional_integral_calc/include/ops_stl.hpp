@@ -21,7 +21,7 @@ class TaskSTL : public ppc::core::Task {
   std::vector<size_t> grid_sizes_;  // Размеры сетки в каждом измерении
   std::vector<double> step_sizes_;  // Шаги интегрирования в каждом измерении
   double output_result_{0.0};       // Результат вычисления интеграла
-  int num_threads_{1};
+  size_t num_threads_{1};
 };
 
 }  // namespace kharin_m_multidimensional_integral_calc_stl
