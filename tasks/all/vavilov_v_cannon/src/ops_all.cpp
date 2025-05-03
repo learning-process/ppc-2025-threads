@@ -634,7 +634,7 @@ bool vavilov_v_cannon_all::CannonALL::RunImpl() {
     for (int block_idx = 0; block_idx < total_blocks; ++block_idx) {
       int block_row = block_idx / (N_ / block_size_);
       int block_col = block_idx % (N_ / block_size_);
-          
+
       for (int i = 0; i < block_size_; ++i) {
         for (int j = 0; j < block_size_; ++j) {
           C_[(block_row * block_size_ + i) * N_ + (block_col * block_size_ + j)] =
