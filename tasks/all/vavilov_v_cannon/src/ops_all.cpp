@@ -620,8 +620,8 @@ bool vavilov_v_cannon_all::CannonALL::RunImpl() {
 
   for (int i = 0; i < block_size_; ++i) {
     for (int j = 0; j < block_size_; ++j) {
-        C_[(grid_coord_x * block_size_ + i) * N_ + (grid_coord_y * block_size_ + j)] = local_C[i * block_size_ + j];
-      }
+      C_[(grid_coord_x * block_size_ + i) * N_ + (grid_coord_y * block_size_ + j)] = local_C[i * block_size_ + j];
+    }
   }
 
   boost::mpi::all_reduce(world_, C_.data(), C_.size(), C_.data(), std::plus<double>());
