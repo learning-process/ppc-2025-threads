@@ -31,12 +31,35 @@ void RunDijkstraTest(const std::vector<int>& graph_data, int start_vertex, size_
   EXPECT_EQ(out, expected);
 }
 
+void RunDijkstraAndCheckNoExpected(const std::vector<int>& graph_data, int start_vertex, size_t num_vertices) {
+  std::vector<int> out(num_vertices, -42);
+
+  auto task_data_seq = std::make_shared<ppc::core::TaskData>();
+  task_data_seq->inputs.emplace_back(reinterpret_cast<uint8_t*>(const_cast<int*>(graph_data.data())));
+  task_data_seq->inputs_count.emplace_back(graph_data.size());
+  task_data_seq->inputs.emplace_back(reinterpret_cast<uint8_t*>(&start_vertex));
+  task_data_seq->outputs.emplace_back(reinterpret_cast<uint8_t*>(out.data()));
+  task_data_seq->outputs_count.emplace_back(num_vertices);
+
+  trubin_a_algorithm_dijkstra_seq::TestTaskSequential task(task_data_seq);
+
+  ASSERT_TRUE(task.Validation());
+  ASSERT_TRUE(task.PreProcessing());
+  ASSERT_TRUE(task.Run());
+  ASSERT_TRUE(task.PostProcessing());
+
+  ASSERT_EQ(out.size(), num_vertices);
+  for (int dist : out) {
+    EXPECT_GE(dist, -1);
+  }
+}
+
 std::vector<int> GenerateRandomGraph(size_t num_vertices, size_t max_edges_per_vertex, int max_weight) {
   std::vector<int> graph_data;
   std::mt19937 rng(42);
-  std::uniform_int_distribution<int> vertex_dist(0, num_vertices - 1);
+  std::uniform_int_distribution<int> vertex_dist(0, static_cast<int>(num_vertices - 1));
   std::uniform_int_distribution<int> weight_dist(1, max_weight);
-  std::uniform_int_distribution<int> edge_count_dist(0, max_edges_per_vertex);
+  std::uniform_int_distribution<int> edge_count_dist(0, static_cast<int>(max_edges_per_vertex));
 
   for (size_t v = 0; v < num_vertices; ++v) {
     int num_edges = edge_count_dist(rng);
@@ -51,6 +74,7 @@ std::vector<int> GenerateRandomGraph(size_t num_vertices, size_t max_edges_per_v
   return graph_data;
 }
 
+// Генерация плотного графа
 std::vector<int> GenerateRandomDenseGraph(size_t num_vertices, int max_weight) {
   std::vector<int> graph_data;
   std::mt19937 rng(42);
@@ -68,6 +92,7 @@ std::vector<int> GenerateRandomDenseGraph(size_t num_vertices, int max_weight) {
   }
   return graph_data;
 }
+
 }  // namespace
 
 TEST(trubin_a_algorithm_dijkstra_seq, trivial_graph) { RunDijkstraTest({-1}, 0, 1, {0}); }
@@ -167,54 +192,14 @@ TEST(trubin_a_algorithm_dijkstra_seq, random_graph) {
   const size_t max_edges_per_vertex = 5;
   const int max_weight = 20;
 
-  std::vector<int> graph_data = GenerateRandomGraph(num_vertices, max_edges_per_vertex, max_weight);
-  std::vector<int> out(num_vertices, -42);
-  int start_vertex = 0;
-
-  auto task_data_seq = std::make_shared<ppc::core::TaskData>();
-  task_data_seq->inputs.emplace_back(reinterpret_cast<uint8_t*>(graph_data.data()));
-  task_data_seq->inputs_count.emplace_back(graph_data.size());
-  task_data_seq->inputs.emplace_back(reinterpret_cast<uint8_t*>(&start_vertex));
-  task_data_seq->outputs.emplace_back(reinterpret_cast<uint8_t*>(out.data()));
-  task_data_seq->outputs_count.emplace_back(num_vertices);
-
-  trubin_a_algorithm_dijkstra_seq::TestTaskSequential task(task_data_seq);
-
-  ASSERT_TRUE(task.Validation());
-  ASSERT_TRUE(task.PreProcessing());
-  ASSERT_TRUE(task.Run());
-  ASSERT_TRUE(task.PostProcessing());
-
-  ASSERT_EQ(out.size(), num_vertices);
-  for (int dist : out) {
-    EXPECT_GE(dist, -1);
-  }
+  auto graph_data = GenerateRandomGraph(num_vertices, max_edges_per_vertex, max_weight);
+  RunDijkstraAndCheckNoExpected(graph_data, 0, num_vertices);
 }
 
 TEST(trubin_a_algorithm_dijkstra_seq, random_dense_graph) {
   const size_t num_vertices = 30;
   const int max_weight = 15;
 
-  std::vector<int> graph_data = GenerateRandomDenseGraph(num_vertices, max_weight);
-  std::vector<int> out(num_vertices, -42);
-  int start_vertex = static_cast<int>(num_vertices / 2);
-
-  auto task_data_seq = std::make_shared<ppc::core::TaskData>();
-  task_data_seq->inputs.emplace_back(reinterpret_cast<uint8_t*>(graph_data.data()));
-  task_data_seq->inputs_count.emplace_back(graph_data.size());
-  task_data_seq->inputs.emplace_back(reinterpret_cast<uint8_t*>(&start_vertex));
-  task_data_seq->outputs.emplace_back(reinterpret_cast<uint8_t*>(out.data()));
-  task_data_seq->outputs_count.emplace_back(num_vertices);
-
-  trubin_a_algorithm_dijkstra_seq::TestTaskSequential task(task_data_seq);
-
-  ASSERT_TRUE(task.Validation());
-  ASSERT_TRUE(task.PreProcessing());
-  ASSERT_TRUE(task.Run());
-  ASSERT_TRUE(task.PostProcessing());
-
-  ASSERT_EQ(out.size(), num_vertices);
-  for (int dist : out) {
-    EXPECT_GE(dist, -1);
-  }
+  auto graph_data = GenerateRandomDenseGraph(num_vertices, max_weight);
+  RunDijkstraAndCheckNoExpected(graph_data, static_cast<int>(num_vertices / 2), num_vertices);
 }
