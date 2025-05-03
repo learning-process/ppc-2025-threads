@@ -162,7 +162,7 @@ bool trubin_a_algorithm_dijkstra_omp::TestTaskOpenMP::BuildAdjacencyList(const s
 void trubin_a_algorithm_dijkstra_omp::TestTaskOpenMP::ProcessCurrentBucket(
     std::vector<int>& current, std::vector<std::vector<int>>& buckets, const int delta,
     std::vector<std::atomic<int>>& distances_atomic) {
-  size_t num_threads = static_cast<size_t>(ppc::util::GetPPCNumThreads());
+  auto num_threads = static_cast<size_t>(ppc::util::GetPPCNumThreads());
   std::vector<std::vector<int>> local_next(num_threads);
   std::vector<std::unordered_map<size_t, std::vector<int>>> local_heavy(num_threads);
 
