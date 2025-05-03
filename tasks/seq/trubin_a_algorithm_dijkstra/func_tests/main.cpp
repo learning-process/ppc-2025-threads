@@ -50,7 +50,7 @@ void RunDijkstraAndCheckNoExpected(const std::vector<int>& graph_data, int start
   ASSERT_TRUE(task.PostProcessing());
 
   ASSERT_EQ(out.size(), num_vertices);
-  EXPECT_TRUE(std::all_of(out.begin(), out.end(), [](int dist) { return dist >= -1; }));
+  EXPECT_TRUE(std::ranges::all_of(out, [](int dist) { return dist >= -1; }));
 }
 
 std::vector<int> GenerateRandomGraph(size_t num_vertices, size_t max_edges_per_vertex, int max_weight) {
