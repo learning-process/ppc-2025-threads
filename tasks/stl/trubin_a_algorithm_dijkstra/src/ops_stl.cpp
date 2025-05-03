@@ -86,9 +86,7 @@ bool trubin_a_algorithm_dijkstra_stl::TestTaskSTL::RunImpl() {
 
   size_t num_threads =
       std::min(static_cast<size_t>(ppc::util::GetPPCNumThreads()), num_vertices_ > 0 ? num_vertices_ : 1);
-  if (num_threads > 8) {
-    num_threads = 8;
-  }
+  num_threads = std::min<size_t>(num_threads, 8);
 
   std::mutex heap_mutex;
   std::mutex distances_mutex;
@@ -99,6 +97,7 @@ bool trubin_a_algorithm_dijkstra_stl::TestTaskSTL::RunImpl() {
   bool task_done = false;
 
   std::vector<std::thread> threads;
+  threads.reserve(num_threads);
   for (size_t t = 0; t < num_threads; ++t) {
     threads.emplace_back(
         [&]() { ThreadWorker(task_queue, task_mutex, task_cv, task_done, min_heap, distances_mutex, heap_mutex); });
@@ -173,7 +172,7 @@ void trubin_a_algorithm_dijkstra_stl::TestTaskSTL::ProcessEdge(
     size_t from, const Edge& edge,
     std::priority_queue<QueueElement, std::vector<QueueElement>, std::greater<>>& min_heap, std::mutex& distances_mutex,
     std::mutex& heap_mutex) {
-  int new_dist;
+  int new_dist = 0;
   bool should_add = false;
   {
     std::lock_guard<std::mutex> lock(distances_mutex);
@@ -209,7 +208,9 @@ void trubin_a_algorithm_dijkstra_stl::TestTaskSTL::ThreadWorker(
     {
       std::unique_lock<std::mutex> lock(task_mutex);
       task_cv.wait(lock, [&]() { return task_done || !task_queue.empty(); });
-      if (task_done && task_queue.empty()) break;
+      if (task_done && task_queue.empty()) {
+        break;
+      }
       block = std::move(task_queue.front());
       task_queue.pop();
     }
@@ -252,7 +253,9 @@ bool trubin_a_algorithm_dijkstra_stl::TestTaskSTL::ProcessNextVertex(
 
     for (size_t i = 0; i < total_edges; ++i) {
       size_t block_id = i / block_size;
-      if (block_id >= num_threads) block_id = num_threads - 1;
+      if (block_id >= num_threads) {
+        block_id = num_threads - 1;
+      }
       tasks[block_id].emplace_back(from_vertex, i);
     }
 
