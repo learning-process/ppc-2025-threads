@@ -558,14 +558,13 @@ bool vavilov_v_cannon_all::CannonALL::RunImpl() {
   int active_procs = num_rows_ * num_cols_;
 
   if (rank >= active_procs) {
-    return true; // Неактивные процессы завершают работу
+    return true;  // Неактивные процессы завершают работу
   }
 
   // Проверяем делимость
   if (N_ % num_blocks_ != 0) {
     if (rank == 0) {
-      std::cerr << "Matrix size " << N_ << " must be divisible by number of blocks " 
-                << num_blocks_ << std::endl;
+      std::cerr << "Matrix size " << N_ << " must be divisible by number of blocks " << num_blocks_ << std::endl;
     }
     return false;
   }
@@ -596,9 +595,9 @@ bool vavilov_v_cannon_all::CannonALL::RunImpl() {
       
       for (int i = 0; i < block_size_; ++i) {
         for (int j = 0; j < block_size_; ++j) {
-          all_A[block_idx * block_size_ * block_size_ + i * block_size_ + j] = 
+          all_A[block_idx * block_size_ * block_size_ + i * block_size_ + j] =
               A_[(block_row * block_size_ + i) * N_ + (block_col * block_size_ + j)];
-          all_B[block_idx * block_size_ * block_size_ + i * block_size_ + j] = 
+          all_B[block_idx * block_size_ * block_size_ + i * block_size_ + j] =
               B_[(block_row * block_size_ + i) * N_ + (block_col * block_size_ + j)];
         }
       }
@@ -670,7 +669,8 @@ bool vavilov_v_cannon_all::CannonALL::RunImpl() {
   return true;
 }
 
-void vavilov_v_cannon_all::CannonALL::MultiplyAllBlocks(const std::vector<double>& local_A, const std::vector<double>& local_B,
+void vavilov_v_cannon_all::CannonALL::MultiplyAllBlocks(const std::vector<double>& local_A,
+                                                        const std::vector<double>& local_B,
                                                         std::vector<double>& local_C) {
   
   int my_blocks = local_A.size() / (block_size_ * block_size_);
