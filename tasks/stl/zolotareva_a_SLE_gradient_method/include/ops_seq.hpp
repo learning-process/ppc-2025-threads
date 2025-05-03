@@ -7,7 +7,6 @@
 
 #include "core/task/include/task.hpp"
 
-
 namespace zolotareva_a_sle_gradient_method_stl {
 void GenerateSle(std::vector<double>& a, std::vector<double>& b, int n);
 class TestTaskSTL : public ppc::core::Task {
