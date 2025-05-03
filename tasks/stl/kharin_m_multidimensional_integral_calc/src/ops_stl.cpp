@@ -79,7 +79,7 @@ bool kharin_m_multidimensional_integral_calc_stl::TaskSTL::RunImpl() {
 
   size_t current_start_index = 0;
   for (int i = 0; i < num_threads_; ++i) {
-    int size = (i < remainder) ? (input_chunk_size + 1) : input_chunk_size;
+    int size = (static_cast<size_t>(i) < remainder) ? (input_chunk_size + 1) : input_chunk_size;
     auto it_begin = input_.begin() + current_start_index;
     std::thread th(chunk_plus, it_begin, size, std::ref(partial_sums[i]));
     threads.push_back(std::move(th));
