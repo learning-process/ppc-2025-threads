@@ -527,6 +527,21 @@ bool vavilov_v_cannon_all::CannonALL::RunImpl() {
 }
 
 */
+
+void vavilov_v_cannon_all::CannonALL::BlockMultiply(const std::vector<double>& local_A,
+                                                    const std::vector<double>& local_B, std::vector<double>& local_C) {
+#pragma omp parallel for
+  for (int i = 0; i < block_size_; ++i) {
+    for (int j = 0; j < block_size_; ++j) {
+      double temp = 0.0;
+      for (int k = 0; k < block_size_; ++k) {
+        temp += local_A[i * block_size_ + k] * local_B[k * block_size_ + j];
+      }
+      local_C[i * block_size_ + j] += temp;
+    }
+  }
+}
+
 void vavilov_v_cannon_all::CannonALL::CalculateBlockDistribution(int size, int total_blocks,
                                                                  std::vector<int>& block_counts,
                                                                  std::vector<int>& displacements) {
