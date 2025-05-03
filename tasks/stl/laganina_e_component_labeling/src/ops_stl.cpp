@@ -7,7 +7,7 @@
 #include <thread>
 #include <vector>
 
-#include "core/util/include/util.hpp"
+// #include "core/util/include/util.hpp"
 
 namespace {
 int CountRootsInChunk(const std::vector<int>& parent, int start, int end) {
