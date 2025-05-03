@@ -6,7 +6,6 @@
 #include <vector>
 
 #include "core/task/include/task.hpp"
-#include "core/util/include/util.hpp"
 #include "tbb/trubin_a_algorithm_dijkstra/include/ops_tbb.hpp"
 
 namespace {
