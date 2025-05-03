@@ -532,7 +532,7 @@ void vavilov_v_cannon_all::CannonALL::CalculateBlockDistribution(int size, int t
                                                                  std::vector<int>& displacements) {
   block_counts.resize(size);
   displacements.resize(size);
-  
+
   int blocks_per_process = total_blocks / size;
   int remainder = total_blocks % size;
 
@@ -613,8 +613,7 @@ bool vavilov_v_cannon_all::CannonALL::RunImpl() {
     int block_col = global_block_idx % (N_ / block_size_);
 
     BlockMultiply(&local_A[block_idx * block_size_ * block_size_], &local_B[block_idx * block_size_ * block_size_],
-                  &local_C[block_idx * block_size_ * block_size_]
-    );
+                  &local_C[block_idx * block_size_ * block_size_]);
   }
 
   // Собираем результаты
