@@ -30,6 +30,44 @@ void RunDijkstraTest(const std::vector<int>& graph_data, int start_vertex, size_
 
   EXPECT_EQ(out, expected);
 }
+
+std::vector<int> GenerateRandomGraph(size_t num_vertices, size_t max_edges_per_vertex, int max_weight) {
+  std::vector<int> graph_data;
+  std::mt19937 rng(42);
+  std::uniform_int_distribution<int> vertex_dist(0, num_vertices - 1);
+  std::uniform_int_distribution<int> weight_dist(1, max_weight);
+  std::uniform_int_distribution<int> edge_count_dist(0, max_edges_per_vertex);
+
+  for (size_t v = 0; v < num_vertices; ++v) {
+    int num_edges = edge_count_dist(rng);
+    for (int e = 0; e < num_edges; ++e) {
+      int to = vertex_dist(rng);
+      int weight = weight_dist(rng);
+      graph_data.push_back(to);
+      graph_data.push_back(weight);
+    }
+    graph_data.push_back(-1);
+  }
+  return graph_data;
+}
+
+std::vector<int> GenerateRandomDenseGraph(size_t num_vertices, int max_weight) {
+  std::vector<int> graph_data;
+  std::mt19937 rng(42);
+  std::uniform_int_distribution<int> weight_dist(1, max_weight);
+
+  for (size_t v = 0; v < num_vertices; ++v) {
+    for (size_t to = 0; to < num_vertices; ++to) {
+      if (v != to && (to + v) % 2 == 0) {
+        int weight = weight_dist(rng);
+        graph_data.push_back(static_cast<int>(to));
+        graph_data.push_back(weight);
+      }
+    }
+    graph_data.push_back(-1);
+  }
+  return graph_data;
+}
 }  // namespace
 
 TEST(trubin_a_algorithm_dijkstra_seq, trivial_graph) { RunDijkstraTest({-1}, 0, 1, {0}); }
@@ -128,24 +166,8 @@ TEST(trubin_a_algorithm_dijkstra_seq, random_graph) {
   const size_t num_vertices = 20;
   const size_t max_edges_per_vertex = 5;
   const int max_weight = 20;
-  std::vector<int> graph_data;
 
-  std::mt19937 rng(42);
-  std::uniform_int_distribution<int> vertex_dist(0, num_vertices - 1);
-  std::uniform_int_distribution<int> weight_dist(1, max_weight);
-  std::uniform_int_distribution<int> edge_count_dist(0, max_edges_per_vertex);
-
-  for (size_t v = 0; v < num_vertices; ++v) {
-    int num_edges = edge_count_dist(rng);
-    for (int e = 0; e < num_edges; ++e) {
-      int to = vertex_dist(rng);
-      int weight = weight_dist(rng);
-      graph_data.push_back(to);
-      graph_data.push_back(weight);
-    }
-    graph_data.push_back(-1);
-  }
-
+  std::vector<int> graph_data = GenerateRandomGraph(num_vertices, max_edges_per_vertex, max_weight);
   std::vector<int> out(num_vertices, -42);
   int start_vertex = 0;
 
@@ -172,22 +194,8 @@ TEST(trubin_a_algorithm_dijkstra_seq, random_graph) {
 TEST(trubin_a_algorithm_dijkstra_seq, random_dense_graph) {
   const size_t num_vertices = 30;
   const int max_weight = 15;
-  std::vector<int> graph_data;
 
-  std::mt19937 rng(42);
-  std::uniform_int_distribution<int> weight_dist(1, max_weight);
-
-  for (size_t v = 0; v < num_vertices; ++v) {
-    for (size_t to = 0; to < num_vertices; ++to) {
-      if (v != to && (to + v) % 2 == 0) {
-        int weight = weight_dist(rng);
-        graph_data.push_back(static_cast<int>(to));
-        graph_data.push_back(weight);
-      }
-    }
-    graph_data.push_back(-1);
-  }
-
+  std::vector<int> graph_data = GenerateRandomDenseGraph(num_vertices, max_weight);
   std::vector<int> out(num_vertices, -42);
   int start_vertex = static_cast<int>(num_vertices / 2);
 
