@@ -24,6 +24,28 @@ std::vector<double> ZeroEdges(std::vector<double> img, int wdth, int hght) {
 }
 }  // namespace sozonov_i_image_filtering_block_partitioning_stl
 
+TEST(sozonov_i_image_filtering_block_partitioning_stl, test_empty_image) {
+  const int width = 0;
+  const int height = 0;
+
+  // Create data
+  std::vector<double> in;
+  std::vector<double> out;
+
+  // Create task_data
+  auto task_data_stl = std::make_shared<ppc::core::TaskData>();
+  task_data_stl->inputs.emplace_back(reinterpret_cast<uint8_t *>(in.data()));
+  task_data_stl->inputs_count.emplace_back(in.size());
+  task_data_stl->inputs_count.emplace_back(width);
+  task_data_stl->inputs_count.emplace_back(height);
+  task_data_stl->outputs.emplace_back(reinterpret_cast<uint8_t *>(out.data()));
+  task_data_stl->outputs_count.emplace_back(out.size());
+
+  // Create Task
+  sozonov_i_image_filtering_block_partitioning_stl::TestTaskSTL test_task_stl(task_data_stl);
+  ASSERT_FALSE(test_task_stl.Validation());
+}
+
 TEST(sozonov_i_image_filtering_block_partitioning_stl, test_image_less_than_3x3) {
   const int width = 2;
   const int height = 2;

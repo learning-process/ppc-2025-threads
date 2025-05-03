@@ -3,7 +3,6 @@
 #include <algorithm>
 #include <cmath>
 #include <cstddef>
-#include <functional>
 #include <thread>
 #include <utility>
 #include <vector>
@@ -14,21 +13,20 @@ namespace {
 
 std::vector<double> kernel = {0.0625, 0.125, 0.0625, 0.125, 0.25, 0.125, 0.0625, 0.125, 0.0625};
 
-void ProcessBlockSet(const std::vector<double> &image, std::vector<double> &filtered_image, int width, int height,
-                     int block_size, const std::vector<std::pair<int, int>> &blocks) {
-  for (auto [start_i, start_j] : blocks) {
-    int end_i = std::min(start_i + block_size, height - 1);
-    int end_j = std::min(start_j + block_size, width - 1);
-    for (int i = std::max(1, start_i); i < end_i; ++i) {
-      for (int j = std::max(1, start_j); j < end_j; ++j) {
-        double sum = 0;
-        for (int l = -1; l <= 1; ++l) {
-          for (int k = -1; k <= 1; ++k) {
-            sum += image[((i - l) * width) + (j - k)] * kernel[((l + 1) * 3) + (k + 1)];
-          }
+void ProcessBlock(const std::vector<double> &image, std::vector<double> &filtered_image, int width, int height,
+                  int start_i, int start_j, int block_size) {
+  int end_i = std::min(start_i + block_size, height - 1);
+  int end_j = std::min(start_j + block_size, width - 1);
+
+  for (int i = std::max(1, start_i); i < end_i; ++i) {
+    for (int j = std::max(1, start_j); j < end_j; ++j) {
+      double sum = 0;
+      for (int l = -1; l <= 1; ++l) {
+        for (int k = -1; k <= 1; ++k) {
+          sum += image[((i - l) * width) + (j - k)] * kernel[((l + 1) * 3) + (k + 1)];
         }
-        filtered_image[(i * width) + j] = sum;
       }
+      filtered_image[(i * width) + j] = sum;
     }
   }
 }
@@ -70,22 +68,27 @@ bool sozonov_i_image_filtering_block_partitioning_stl::TestTaskSTL::ValidationIm
 }
 
 bool sozonov_i_image_filtering_block_partitioning_stl::TestTaskSTL::RunImpl() {
-  int block_size = 64;
+  const int block_size = 64;
   const int num_threads = ppc::util::GetPPCNumThreads();
-  std::vector<std::thread> threads(num_threads);
-  std::vector<std::vector<std::pair<int, int>>> thread_blocks(num_threads);
 
-  int block_id = 0;
+  std::vector<std::pair<int, int>> blocks;
   for (int i = 0; i < height_; i += block_size) {
     for (int j = 0; j < width_; j += block_size) {
-      thread_blocks[block_id % num_threads].emplace_back(i, j);
-      block_id++;
+      blocks.emplace_back(i, j);
     }
   }
 
+  std::atomic<int> block_id{0};
+  std::vector<std::thread> threads(num_threads);
+
   for (int t = 0; t < num_threads; ++t) {
-    threads[t] = std::thread(ProcessBlockSet, std::cref(image_), std::ref(filtered_image_), width_, height_, block_size,
-                             thread_blocks[t]);
+    threads[t] = std::thread([&]() {
+      int id;
+      while ((id = block_id.fetch_add(1)) < static_cast<int>(blocks.size())) {
+        const auto &[i, j] = blocks[id];
+        ProcessBlock(image_, filtered_image_, width_, height_, i, j, block_size);
+      }
+    });
   }
 
   for (auto &t : threads) {
