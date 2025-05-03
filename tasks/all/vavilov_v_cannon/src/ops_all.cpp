@@ -485,10 +485,15 @@ bool vavilov_v_cannon_all::CannonALL::RunImpl() {
     active_world.barrier();
     BlockMultiply(local_A, local_B, local_C);
 
-    // Основной цикл алгоритма Кэннона
-    for (int iter = 0; iter < num_rows_ - 1; ++iter) {
+    // Для сетки 1xN нужен дополнительный сдвиг A
+    if (num_rows_ == 1) {
       ShiftBlocks(local_A, local_B);
       BlockMultiply(local_A, local_B, local_C);
+    } else {
+      for (int iter = 0; iter < num_rows_ - 1; ++iter) {
+        ShiftBlocks(local_A, local_B);
+        BlockMultiply(local_A, local_B, local_C);
+      }
     }
 
     // Собираем результаты
