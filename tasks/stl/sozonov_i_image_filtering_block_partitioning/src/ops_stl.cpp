@@ -1,6 +1,7 @@
 #include "stl/sozonov_i_image_filtering_block_partitioning/include/ops_stl.hpp"
 
 #include <algorithm>
+#include <atomic>
 #include <cmath>
 #include <cstddef>
 #include <thread>
@@ -83,7 +84,7 @@ bool sozonov_i_image_filtering_block_partitioning_stl::TestTaskSTL::RunImpl() {
 
   for (int t = 0; t < num_threads; ++t) {
     threads[t] = std::thread([&]() {
-      int id;
+      int id = 0;
       while ((id = block_id.fetch_add(1)) < static_cast<int>(blocks.size())) {
         const auto &[i, j] = blocks[id];
         ProcessBlock(image_, filtered_image_, width_, height_, i, j, block_size);
