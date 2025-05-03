@@ -83,7 +83,7 @@ kondratev_ya_ccs_complex_multiplication_stl::CCSMatrix::ComputeColumns(const CCS
       std::vector<std::complex<double>> local_temp_col(rows);
 
       for (int result_col = start_col; result_col < end_col; ++result_col) {
-        std::fill(local_temp_col.begin(), local_temp_col.end(), std::complex<double>(0.0, 0.0));
+        std::ranges::fill(local_temp_col, std::complex<double>(0.0, 0.0));
 
         temp_cols[result_col].reserve(std::min(rows, other.col_ptrs[result_col + 1] - other.col_ptrs[result_col]));
 
