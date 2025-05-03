@@ -273,7 +273,7 @@ bool vavilov_v_cannon_all::CannonALL::RunImpl() {
 
   return true;
 }
-*/
+
 void vavilov_v_cannon_all::CannonALL::CalculateGridDimensions(int size, int& rows, int& cols) {
   // Находим такие rows и cols, чтобы rows * cols = size и rows максимально близко к cols
   rows = static_cast<int>(std::sqrt(size));
@@ -526,6 +526,135 @@ bool vavilov_v_cannon_all::CannonALL::RunImpl() {
   return true;
 }
 
+*/
+void vavilov_v_cannon_all::CannonALL::CalculateBlockDistribution(int size, int total_blocks, std::vector<int>& block_counts,
+                                                                 std::vector<int>& displacements) {
+  block_counts.resize(size);
+  displacements.resize(size);
+  
+  int blocks_per_process = total_blocks / size;
+  int remainder = total_blocks % size;
+  
+  for (int i = 0; i < size; ++i) {
+    block_counts[i] = blocks_per_process + (i < remainder ? 1 : 0);
+    displacements[i] = (i == 0) ? 0 : displacements[i-1] + block_counts[i-1];
+  }
+}
+
+bool vavilov_v_cannon_all::CannonALL::RunImpl() {
+  int rank = world_.rank();
+  int size = world_.size();
+
+  if (rank == 0) {
+    std::cout << "Running with " << size << " processes" << std::endl;
+  }
+
+  // Проверяем, делится ли размер матрицы на размеры блоков
+  block_size_ = N_ / grid_size_;
+  if (N_ % grid_size_ != 0) {
+    if (rank == 0) {
+      std::cerr << "Matrix size (" << N_ << ") must be divisible by block size (" 
+                << grid_size_ << ")" << std::endl;
+      }
+    return false;
+  }
+
+  int total_blocks = (N_ / block_size_) * (N_ / block_size_);
+  std::vector<int> block_counts, displacements;
+  CalculateBlockDistribution(size, total_blocks, block_counts, displacements);
+
+  // Каждый процесс получает информацию о том, сколько блоков ему нужно обработать
+  int my_block_count = block_counts[rank];
+  std::vector<double> local_A(my_block_count * block_size_ * block_size_);
+  std::vector<double> local_B(my_block_count * block_size_ * block_size_);
+  std::vector<double> local_C(my_block_count * block_size_ * block_size_, 0);
+
+  // Разбрасываем матрицы A и B
+  if (rank == 0) {
+    std::cout << "Rank 0: Scattering matrices A and B" << std::endl;
+      
+      // Собираем все блоки в один массив
+    std::vector<double> all_A_blocks(total_blocks * block_size_ * block_size_);
+    std::vector<double> all_B_blocks(total_blocks * block_size_ * block_size_);
+      
+    for (int block_idx = 0; block_idx < total_blocks; ++block_idx) {
+      int block_row = block_idx / (N_ / block_size_);
+      int block_col = block_idx % (N_ / block_size_);
+          
+      for (int i = 0; i < block_size_; ++i) {
+        for (int j = 0; j < block_size_; ++j) {
+          all_A_blocks[block_idx * block_size_ * block_size_ + i * block_size_ + j] = 
+              A_[(block_row * block_size_ + i) * N_ + (block_col * block_size_ + j)];
+          all_B_blocks[block_idx * block_size_ * block_size_ + i * block_size_ + j] = 
+              B_[(block_row * block_size_ + i) * N_ + (block_col * block_size_ + j)];
+        }
+      }
+    }
+      
+      // Разбрасываем блоки по процессам
+    std::vector<int> send_counts(size), send_displs(size);
+    for (int p = 0; p < size; ++p) {
+      send_counts[p] = block_counts[p] * block_size_ * block_size_;
+      send_displs[p] = displacements[p] * block_size_ * block_size_;
+    }
+      
+    mpi::scatterv(world_, all_A_blocks.data(), send_counts, send_displs, 
+                  local_A.data(), my_block_count * block_size_ * block_size_, 0);
+    mpi::scatterv(world_, all_B_blocks.data(), send_counts, send_displs, 
+                  local_B.data(), my_block_count * block_size_ * block_size_, 0);
+  } else {
+    mpi::scatterv(world_, local_A.data(), my_block_count * block_size_ * block_size_, 0);
+    mpi::scatterv(world_, local_B.data(), my_block_count * block_size_ * block_size_, 0);
+  }
+
+  // Умножение блоков
+  for (int block_idx = 0; block_idx < my_block_count; ++block_idx) {
+    // Для каждого блока A находим соответствующий блок B для умножения
+    int global_block_idx = displacements[rank] + block_idx;
+    int block_row = global_block_idx / (N_ / block_size_);
+    int block_col = global_block_idx % (N_ / block_size_);
+      
+    // Умножаем блок A на соответствующий блок B
+    // (здесь можно добавить более сложную логику пересылки блоков при необходимости)
+    BlockMultiply(
+      &local_A[block_idx * block_size_ * block_size_],
+      &local_B[block_idx * block_size_ * block_size_],
+      &local_C[block_idx * block_size_ * block_size_]
+    );
+  }
+
+  // Собираем результаты
+  if (rank == 0) {
+    std::cout << "Rank 0: Gathering results" << std::endl;
+    std::vector<double> all_C_blocks(total_blocks * block_size_ * block_size_);
+      
+    std::vector<int> recv_counts(size), recv_displs(size);
+    for (int p = 0; p < size; ++p) {
+      recv_counts[p] = block_counts[p] * block_size_ * block_size_;
+      recv_displs[p] = displacements[p] * block_size_ * block_size_;
+    }
+      
+    mpi::gatherv(world_, local_C.data(), my_block_count * block_size_ * block_size_,
+                 all_C_blocks.data(), recv_counts, recv_displs, 0);
+      
+    // Собираем итоговую матрицу из блоков
+    for (int block_idx = 0; block_idx < total_blocks; ++block_idx) {
+      int block_row = block_idx / (N_ / block_size_);
+      int block_col = block_idx % (N_ / block_size_);
+          
+      for (int i = 0; i < block_size_; ++i) {
+        for (int j = 0; j < block_size_; ++j) {
+          C_[(block_row * block_size_ + i) * N_ + (block_col * block_size_ + j)] =
+          all_C_blocks[block_idx * block_size_ * block_size_ + i * block_size_ + j];
+        }
+      }
+    }
+  } else {
+    mpi::gatherv(world_, local_C.data(), my_block_count * block_size_ * block_size_, 0);
+  }
+
+  return true;
+}
 bool vavilov_v_cannon_all::CannonALL::PostProcessingImpl() {
   if (world_.rank() == 0) {
     std::ranges::copy(C_, reinterpret_cast<double*>(task_data->outputs[0]));
