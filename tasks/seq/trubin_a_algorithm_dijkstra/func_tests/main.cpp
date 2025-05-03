@@ -1,5 +1,6 @@
 #include <gtest/gtest.h>
 
+#include <algorithm>
 #include <cstddef>
 #include <cstdint>
 #include <memory>
@@ -43,30 +44,13 @@ void RunDijkstraAndCheckNoExpected(const std::vector<int>& graph_data, int start
 
   trubin_a_algorithm_dijkstra_seq::TestTaskSequential task(task_data_seq);
 
-  bool valid = task.Validation();
-  bool preprocessed = false;
-  bool ran = false;
-  bool postprocessed = false;
+  ASSERT_TRUE(task.Validation());
+  ASSERT_TRUE(task.PreProcessing());
+  ASSERT_TRUE(task.Run());
+  ASSERT_TRUE(task.PostProcessing());
 
-  if (valid) {
-    preprocessed = task.PreProcessing();
-  }
-  if (preprocessed) {
-    ran = task.Run();
-  }
-  if (ran) {
-    postprocessed = task.PostProcessing();
-  }
-
-  EXPECT_TRUE(valid);
-  EXPECT_TRUE(preprocessed);
-  EXPECT_TRUE(ran);
-  EXPECT_TRUE(postprocessed);
-
-  EXPECT_EQ(out.size(), num_vertices);
-  for (int dist : out) {
-    EXPECT_GE(dist, -1);
-  }
+  ASSERT_EQ(out.size(), num_vertices);
+  EXPECT_TRUE(std::all_of(out.begin(), out.end(), [](int dist) { return dist >= -1; }));
 }
 
 std::vector<int> GenerateRandomGraph(size_t num_vertices, size_t max_edges_per_vertex, int max_weight) {
