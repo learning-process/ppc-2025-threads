@@ -1,13 +1,15 @@
 #include "tbb/trubin_a_algorithm_dijkstra/include/ops_tbb.hpp"
 
+#include <oneapi/tbb/blocked_range.h>
+#include <oneapi/tbb/parallel_for.h>
+#include <oneapi/tbb/task_arena.h>
+
 #include <atomic>
 #include <cstddef>
 #include <limits>
 #include <vector>
 
 #include "core/util/include/util.hpp"
-#include "tbb/global_control.h"
-#include "tbb/parallel_for.h"
 
 bool trubin_a_algorithm_dijkstra_tbb::TestTaskTBB::PreProcessingImpl() {
   if (!validation_passed_) {
@@ -67,6 +69,32 @@ bool trubin_a_algorithm_dijkstra_tbb::TestTaskTBB::ValidationImpl() {
   return true;
 }
 
+void trubin_a_algorithm_dijkstra_tbb::TestTaskTBB::UpdateDistancesInBlock(
+    const tbb::blocked_range<size_t>& r, std::vector<std::atomic<int>>& distances_atomic,
+    std::atomic<bool>& changed_flag) {
+  bool local_changed = false;
+  for (size_t u = r.begin(); u < r.end(); ++u) {
+    int u_dist = distances_atomic[u];
+    if (u_dist == std::numeric_limits<int>::max()) {
+      continue;
+    }
+
+    for (const auto& edge : adjacency_list_[u]) {
+      int new_dist = u_dist + edge.weight;
+      int old_dist = distances_atomic[edge.to].load();
+      while (new_dist < old_dist) {
+        if (distances_atomic[edge.to].compare_exchange_strong(old_dist, new_dist)) {
+          local_changed = true;
+          break;
+        }
+      }
+    }
+  }
+  if (local_changed) {
+    changed_flag = true;
+  }
+}
+
 bool trubin_a_algorithm_dijkstra_tbb::TestTaskTBB::RunImpl() {
   if (num_vertices_ == 0) {
     return true;
@@ -91,25 +119,7 @@ bool trubin_a_algorithm_dijkstra_tbb::TestTaskTBB::RunImpl() {
       changed = false;
 
       tbb::parallel_for(tbb::blocked_range<size_t>(0, num_vertices_, 512), [&](const tbb::blocked_range<size_t>& r) {
-        bool local_changed = false;
-        for (size_t u = r.begin(); u < r.end(); ++u) {
-          int u_dist = distances_atomic[u];
-          if (u_dist == std::numeric_limits<int>::max()) {
-            continue;
-          }
-
-          for (const auto& edge : adjacency_list_[u]) {
-            int new_dist = u_dist + edge.weight;
-            int old_dist = distances_atomic[edge.to].load();
-            while (new_dist < old_dist) {
-              if (distances_atomic[edge.to].compare_exchange_strong(old_dist, new_dist)) {
-                local_changed = true;
-                break;
-              }
-            }
-          }
-        }
-        if (local_changed) changed = true;
+        UpdateDistancesInBlock(r, distances_atomic, changed);
       });
     }
 
