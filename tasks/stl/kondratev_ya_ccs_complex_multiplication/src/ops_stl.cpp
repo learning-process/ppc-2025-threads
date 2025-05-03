@@ -3,7 +3,7 @@
 #include <algorithm>
 #include <cmath>
 #include <complex>
-#include <numeric>
+#include <cstddef>
 #include <thread>
 #include <utility>
 #include <vector>
@@ -64,42 +64,50 @@ kondratev_ya_ccs_complex_multiplication_stl::CCSMatrix::operator*(const CCSMatri
 
 std::vector<std::vector<std::pair<int, std::complex<double>>>>
 kondratev_ya_ccs_complex_multiplication_stl::CCSMatrix::ComputeColumns(const CCSMatrix &other) const {
+  int num_threads = ppc::util::GetPPCNumThreads();
   std::vector<std::vector<std::pair<int, std::complex<double>>>> temp_cols(other.cols);
 
-  auto worker = [&](int start_col, int end_col) {
-    for (int result_col = start_col; result_col < end_col; ++result_col) {
-      std::vector<std::complex<double>> local_temp_col(rows, std::complex<double>(0.0, 0.0));
+  int chunk_size = (other.cols + num_threads - 1) / num_threads;
 
-      for (int k = other.col_ptrs[result_col]; k < other.col_ptrs[result_col + 1]; k++) {
-        int row_other = other.row_index[k];
-        std::complex<double> val_other = other.values[k];
-
-        for (int i = col_ptrs[row_other]; i < col_ptrs[row_other + 1]; i++) {
-          int row_this = row_index[i];
-          local_temp_col[row_this] += values[i] * val_other;
-        }
-      }
-
-      for (int i = 0; i < rows; i++) {
-        if (!IsZero(local_temp_col[i])) {
-          temp_cols[result_col].emplace_back(i, local_temp_col[i]);
-        }
-      }
-    }
-  };
-
-  int num_threads = std::min(ppc::util::GetPPCNumThreads(), static_cast<int>(std::thread::hardware_concurrency()));
   std::vector<std::thread> threads;
-  int cols_per_thread = other.cols / num_threads;
+  threads.reserve(num_threads);
 
-  for (int i = 0; i < num_threads; ++i) {
-    int start_col = i * cols_per_thread;
-    int end_col = (i == num_threads - 1) ? other.cols : start_col + cols_per_thread;
-    threads.emplace_back(worker, start_col, end_col);
+  for (int thread_id = 0; thread_id < num_threads; ++thread_id) {
+    int start_col = thread_id * chunk_size;
+    int end_col = std::min(start_col + chunk_size, other.cols);
+
+    if (start_col >= other.cols) {
+      break;
+    }
+    threads.emplace_back([&, start_col, end_col]() {
+      std::vector<std::complex<double>> local_temp_col(rows);
+
+      for (int result_col = start_col; result_col < end_col; ++result_col) {
+        std::fill(local_temp_col.begin(), local_temp_col.end(), std::complex<double>(0.0, 0.0));
+
+        temp_cols[result_col].reserve(std::min(rows, other.col_ptrs[result_col + 1] - other.col_ptrs[result_col]));
+
+        for (int k = other.col_ptrs[result_col]; k < other.col_ptrs[result_col + 1]; k++) {
+          int row_other = other.row_index[k];
+          std::complex<double> val_other = other.values[k];
+
+          for (int i = col_ptrs[row_other]; i < col_ptrs[row_other + 1]; i++) {
+            int row_this = row_index[i];
+            local_temp_col[row_this] += values[i] * val_other;
+          }
+        }
+
+        for (int i = 0; i < rows; i++) {
+          if (!IsZero(local_temp_col[i])) {
+            temp_cols[result_col].emplace_back(i, local_temp_col[i]);
+          }
+        }
+      }
+    });
   }
 
-  for (auto &t : threads) {
-    t.join();
+  for (auto &thread : threads) {
+    thread.join();
   }
 
   return temp_cols;
@@ -108,40 +116,47 @@ kondratev_ya_ccs_complex_multiplication_stl::CCSMatrix::ComputeColumns(const CCS
 void kondratev_ya_ccs_complex_multiplication_stl::CCSMatrix::FillResultFromTempCols(
     const std::vector<std::vector<std::pair<int, std::complex<double>>>> &temp_cols, int cols, CCSMatrix &result) {
   std::vector<int> col_sizes(cols);
-  std::ranges::transform(temp_cols, col_sizes.begin(), [](const auto &col) { return static_cast<int>(col.size()); });
-
-  std::vector<int> col_offsets(cols + 1, 0);
-  std::partial_sum(col_sizes.begin(), col_sizes.end(), col_offsets.begin() + 1);
-
-  int total_nonzero = col_offsets[cols];
-  result.values.resize(total_nonzero);
-  result.row_index.resize(total_nonzero);
-
-  std::ranges::copy(col_offsets, result.col_ptrs.begin());
-
-  auto worker_fill = [&](int start_col, int end_col) {
-    for (int col = start_col; col < end_col; ++col) {
-      int offset = col_offsets[col];
-      for (const auto &[row, value] : temp_cols[col]) {
-        result.row_index[offset] = row;
-        result.values[offset] = value;
-        offset++;
-      }
-    }
-  };
-
-  int num_threads = std::min(ppc::util::GetPPCNumThreads(), static_cast<int>(std::thread::hardware_concurrency()));
-  std::vector<std::thread> threads;
-  int cols_per_thread = cols / num_threads;
-
-  threads.clear();
-  for (int i = 0; i < num_threads; ++i) {
-    int start_col = i * cols_per_thread;
-    int end_col = (i == num_threads - 1) ? cols : start_col + cols_per_thread;
-    threads.emplace_back(worker_fill, start_col, end_col);
+  for (int i = 0; i < cols; ++i) {
+    col_sizes[i] = static_cast<int>(temp_cols[i].size());
   }
 
-  for (auto &t : threads) {
-    t.join();
+  result.col_ptrs[0] = 0;
+  for (int i = 0; i < cols; ++i) {
+    result.col_ptrs[i + 1] = result.col_ptrs[i] + col_sizes[i];
+  }
+
+  int total_nonzeros = result.col_ptrs[cols];
+  result.values.resize(total_nonzeros);
+  result.row_index.resize(total_nonzeros);
+
+  int num_threads = ppc::util::GetPPCNumThreads();
+  int chunk_size = (cols + num_threads - 1) / num_threads;
+
+  std::vector<std::thread> threads;
+  threads.reserve(num_threads);
+
+  for (int thread_id = 0; thread_id < num_threads; ++thread_id) {
+    int start_col = thread_id * chunk_size;
+    int end_col = std::min(start_col + chunk_size, cols);
+
+    if (start_col >= cols) {
+      break;
+    }
+
+    threads.emplace_back([&, start_col, end_col]() {
+      for (int col = start_col; col < end_col; ++col) {
+        int offset = result.col_ptrs[col];
+        const auto &col_values = temp_cols[col];
+
+        for (size_t j = 0; j < col_values.size(); ++j) {
+          result.row_index[offset + j] = col_values[j].first;
+          result.values[offset + j] = col_values[j].second;
+        }
+      }
+    });
+  }
+
+  for (auto &thread : threads) {
+    thread.join();
   }
 }
