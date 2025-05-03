@@ -1,6 +1,7 @@
 #include <gtest/gtest.h>
 
 #include <chrono>
+#include <cstddef>
 #include <cstdint>
 #include <memory>
 #include <random>
@@ -37,6 +38,25 @@ std::vector<ermolaev_v_graham_scan_stl::Point> CreateInput(int count) {
 
   return input;
 }
+
+bool ValidateConvexHull(const std::vector<ermolaev_v_graham_scan_stl::Point>& hull, const size_t size) {
+  if (hull.size() < 3) {
+    return false;
+  }
+
+  for (size_t i = 0; i < size; i++) {
+    const auto& p1 = hull[i];
+    const auto& p2 = hull[(i + 1) % size];
+    const auto& p3 = hull[(i + 2) % size];
+
+    int cross = ((p2.x - p1.x) * (p3.y - p1.y)) - ((p3.x - p1.x) * (p2.y - p1.y));
+    if (cross < 0) {
+      return false;
+    }
+  }
+
+  return true;
+}
 }  // namespace
 
 TEST(ermolaev_v_graham_scan_stl, run_pipeline) {
@@ -62,6 +82,8 @@ TEST(ermolaev_v_graham_scan_stl, run_pipeline) {
   auto perf_analyzer = std::make_shared<ppc::core::Perf>(test_task_stluential);
   perf_analyzer->PipelineRun(perf_attr, perf_results);
   ppc::core::Perf::PrintPerfStatistic(perf_results);
+
+  ASSERT_TRUE(ValidateConvexHull(output, task_data_stl->outputs_count[0]));
 }
 
 TEST(ermolaev_v_graham_scan_stl, run_task) {
@@ -87,4 +109,6 @@ TEST(ermolaev_v_graham_scan_stl, run_task) {
   auto perf_analyzer = std::make_shared<ppc::core::Perf>(test_task_stluential);
   perf_analyzer->TaskRun(perf_attr, perf_results);
   ppc::core::Perf::PrintPerfStatistic(perf_results);
+
+  ASSERT_TRUE(ValidateConvexHull(output, task_data_stl->outputs_count[0]));
 }

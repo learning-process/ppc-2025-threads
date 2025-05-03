@@ -118,7 +118,7 @@ bool ermolaev_v_graham_scan_stl::TestTaskSTL::RunImpl() {
     return false;
   }
 
-  auto base_it = std::ranges::min_element(input_, [](const Point &a, const Point &b) { return a < b; });
+  auto base_it = std::ranges::min_element(input_);
   std::iter_swap(input_.begin(), base_it);
 
   ParallelSort(input_.begin() + 1, input_.end(), [&](const Point &a, const Point &b) {

@@ -67,9 +67,9 @@ void ermolaev_v_graham_scan_stl::TestTaskSTL::ParallelSort(Iterator begin, Itera
   std::vector<std::thread> threads;
   std::vector<size_t> chunk_offsets(num_threads + 1);
 
-  for (int i = 0; i <= num_threads; i++) {
-    chunk_offsets[i] = (i * n) / num_threads;
-  }
+  int i = 0;
+  std::transform(chunk_offsets.begin(), chunk_offsets.end(), chunk_offsets.begin(),
+                 [&](size_t _) { return ((i++) * n) / num_threads; });
 
   for (int i = 0; i < num_threads; i++) {
     threads.emplace_back([&, i]() { std::sort(begin + chunk_offsets[i], begin + chunk_offsets[i + 1], comp); });
