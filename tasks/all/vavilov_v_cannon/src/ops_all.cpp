@@ -407,10 +407,11 @@ bool vavilov_v_cannon_all::CannonALL::RunImpl() {
   mpi::broadcast(world_, N_, 0);
 
   // Проверяем, делится ли размер матрицы на размеры блоков
-  block_size_ = N_ / num_rows_; // Размер блока по строкам
+  block_size_ = N_ / num_rows_;
   if (N_ % num_rows_ != 0 || N_ % num_cols_ != 0) {
     if (rank == 0) {
-      std::cerr << "Matrix size (" << N_ << ") must be divisible by grid dimensions (" << num_rows_ << "x" << num_cols_ << ")" << std::endl;
+      std::cerr << "Matrix size (" << N_ << ") must be divisible by grid dimensions (" << num_rows_ << "x" << num_cols_
+                << ")" << std::endl;
     }
     return false;
   }
@@ -424,9 +425,10 @@ bool vavilov_v_cannon_all::CannonALL::RunImpl() {
   }
 
   int block_size_sq = block_size_ * block_size_;
-  if (block_size_sq <= 0 || block_size_sq > 1e9) { // Ограничение на размер блока
+  if (block_size_sq <= 0 || block_size_sq > 1e9) {
     if (rank == 0) {
-      std::cerr << "Invalid block_size_sq: " << block_size_sq << " (N_ = " << N_ << ", num_rows_ = " << num_rows_ << ")" << std::endl;
+      std::cerr << "Invalid block_size_sq: " << block_size_sq << " (N_ = " << N_ << ", num_rows_ = " << num_rows_ << ")"
+                << std::endl;
     }
     return false;
   }
@@ -512,8 +514,8 @@ bool vavilov_v_cannon_all::CannonALL::RunImpl() {
   } catch (const std::bad_alloc& e) {
     if (rank == 0) {
       std::cerr << "Bad allocation in RunImpl: " << e.what() << std::endl;
-      std::cerr << "N_ = " << N_ << ", num_rows_ = " << num_rows_ << ", num_cols_ = " << num_cols_ << ", block_size_ = "
-                << block_size_ << std::endl;
+      std::cerr << "N_ = " << N_ << ", num_rows_ = " << num_rows_ << ", num_cols_ = " << num_cols_
+                << ", block_size_ = " << block_size_ << std::endl;
     }
     return false;
   }
