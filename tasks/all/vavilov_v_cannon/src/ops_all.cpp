@@ -624,11 +624,11 @@ bool vavilov_v_cannon_all::CannonALL::RunImpl() {
   if (num_rows_ == num_cols_ && num_rows_ == num_blocks_) {
     // Идеальный случай - квадратная сетка процессов совпадает с разбиением на блоки
     InitialShift(local_A, local_B);
-    MultiplyBlocks(local_A, local_B, local_C);
+    BlockMultiply(local_A, local_B, local_C);
 
     for (int iter = 0; iter < num_blocks_ - 1; ++iter) {
       ShiftBlocks(local_A, local_B);
-      MultiplyBlocks(local_A, local_B, local_C);
+      BlockMultiply(local_A, local_B, local_C);
     }
   } else {
     // Общий случай - выполняем умножение без сдвигов
