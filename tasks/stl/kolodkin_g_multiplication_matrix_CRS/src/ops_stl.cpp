@@ -4,11 +4,8 @@
 #include <complex>
 #include <core/util/include/util.hpp>
 #include <cstddef>
-#include <execution>
 #include <iostream>
-#include <mutex>
 #include <thread>
-#include <unordered_map>
 #include <vector>
 
 void kolodkin_g_multiplication_matrix_stl::SparseMatrixCRS::AddValue(int row, Complex value, int col) {
@@ -140,14 +137,14 @@ bool kolodkin_g_multiplication_matrix_stl::TestTaskSTL::ValidationImpl() {
 
 bool kolodkin_g_multiplication_matrix_stl::TestTaskSTL::RunImpl() {
   SparseMatrixCRS c(A_.numRows, B_.numCols);
-  const int numThreads = ppc::util::GetPPCNumThreads();
-  std::cout << "NUM_THREADS: " << numThreads;
-  std::vector<std::thread> threads(numThreads);
-  std::vector<SparseMatrixCRS> local_results(numThreads, SparseMatrixCRS(A_.numRows, B_.numCols));
+  const int num_threads = ppc::util::GetPPCNumThreads();
+  std::cout << "NUM_THREADS: " << num_threads;
+  std::vector<std::thread> threads(num_threads);
+  std::vector<SparseMatrixCRS> local_results(num_threads, SparseMatrixCRS(A_.numRows, B_.numCols));
 
-  auto worker = [&](unsigned int startRow, unsigned int endRow, int threadIndex) {
+  auto worker = [&](unsigned int start_row, unsigned int end_row, int thread_index) {
     SparseMatrixCRS local_c(A_.numRows, B_.numCols);
-    for (unsigned int i = startRow; i < endRow; ++i) {
+    for (unsigned int i = start_row; i < end_row; ++i) {
       for (unsigned int j = A_.rowPtr[i]; j < (unsigned int)A_.rowPtr[i + 1]; ++j) {
         unsigned int col_a = A_.colIndices[j];
         Complex value_a = A_.values[j];
@@ -159,14 +156,14 @@ bool kolodkin_g_multiplication_matrix_stl::TestTaskSTL::RunImpl() {
         }
       }
     }
-    local_results[threadIndex] = local_c;
+    local_results[thread_index] = local_c;
   };
 
-  unsigned int rowsPerThread = A_.numRows / numThreads;
-  for (int t = 0; t < numThreads; ++t) {
-    unsigned int startRow = t * rowsPerThread;
-    unsigned int endRow = (t == numThreads - 1) ? A_.numRows : startRow + rowsPerThread;
-    threads[t] = std::thread(worker, startRow, endRow, t);
+  unsigned int rows_per_thread = A_.numRows / num_threads;
+  for (int t = 0; t < num_threads; ++t) {
+    unsigned int start_row = t * rows_per_thread;
+    unsigned int end_row = (t == num_threads - 1) ? A_.numRows : start_row + rows_per_thread;
+    threads[t] = std::thread(worker, start_row, end_row, t);
   }
 
   for (auto& thread : threads) {
@@ -176,7 +173,7 @@ bool kolodkin_g_multiplication_matrix_stl::TestTaskSTL::RunImpl() {
   for (const auto& local_c : local_results) {
     for (unsigned int i = 0; i < (unsigned int)local_c.numRows; ++i) {
       for (unsigned int j = local_c.rowPtr[i]; j < (unsigned int)local_c.rowPtr[i + 1]; ++j) {
-        c.AddValue(i, local_c.values[j], local_c.colIndices[j]);
+        c.AddValue((int)i, local_c.values[j], local_c.colIndices[j]);
       }
     }
   }
