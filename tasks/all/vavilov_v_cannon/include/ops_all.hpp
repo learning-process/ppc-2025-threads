@@ -23,6 +23,8 @@ class CannonALL : public ppc::core::Task {
   int N_;
   int block_size_;
   int num_blocks_;
+  int num_rows_;
+  int num_cols_;
   std::vector<double> A_;
   std::vector<double> B_;
   std::vector<double> C_;
