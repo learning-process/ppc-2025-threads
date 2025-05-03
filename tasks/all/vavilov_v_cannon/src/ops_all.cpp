@@ -551,10 +551,10 @@ bool vavilov_v_cannon_all::CannonALL::RunImpl() {
   }
 
   // Проверяем, делится ли размер матрицы на размеры блоков
-  block_size_ = N_ / grid_size_;
-  if (N_ % grid_size_ != 0) {
+  block_size_ = N_ / num_blocks_;
+  if (N_ % num_blocks_ != 0) {
     if (rank == 0) {
-      std::cerr << "Matrix size (" << N_ << ") must be divisible by block size (" << grid_size_ << ")" << std::endl;
+      std::cerr << "Matrix size (" << N_ << ") must be divisible by block size (" << num_blocks_ << ")" << std::endl;
     }
     return false;
   }
@@ -609,8 +609,6 @@ bool vavilov_v_cannon_all::CannonALL::RunImpl() {
   for (int block_idx = 0; block_idx < my_block_count; ++block_idx) {
     // Для каждого блока A находим соответствующий блок B для умножения
     int global_block_idx = displacements[rank] + block_idx;
-    int block_row = global_block_idx / (N_ / block_size_);
-    int block_col = global_block_idx % (N_ / block_size_);
 
     BlockMultiply(&local_A[block_idx * block_size_ * block_size_], &local_B[block_idx * block_size_ * block_size_],
                   &local_C[block_idx * block_size_ * block_size_]);
