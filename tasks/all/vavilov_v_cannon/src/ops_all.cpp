@@ -403,93 +403,119 @@ bool vavilov_v_cannon_all::CannonALL::RunImpl() {
     std::cout << "Active processes: " << active_procs << ", grid: " << num_rows_ << "x" << num_cols_ << std::endl;
   }
 
+  // Распределяем N_ на все процессы
+  mpi::broadcast(world_, N_, 0);
+
   // Проверяем, делится ли размер матрицы на размеры блоков
-  block_size_ = N_ / num_rows_;
+  block_size_ = N_ / num_rows_; // Размер блока по строкам
   if (N_ % num_rows_ != 0 || N_ % num_cols_ != 0) {
     if (rank == 0) {
-      std::cerr << "Matrix size (" << N_ << ") must be divisible by grid dimensions (" << num_rows_ << "x" << num_cols_
-                << ")" << std::endl;
+      std::cerr << "Matrix size (" << N_ << ") must be divisible by grid dimensions (" << num_rows_ << "x" << num_cols_ << ")" << std::endl;
+    }
+    return false;
+  }
+
+  // Проверяем корректность block_size_
+  if (block_size_ <= 0) {
+    if (rank == 0) {
+      std::cerr << "Invalid block_size: " << block_size_ << std::endl;
     }
     return false;
   }
 
   int block_size_sq = block_size_ * block_size_;
-  std::vector<double> local_A(block_size_sq);
-  std::vector<double> local_B(block_size_sq);
-  std::vector<double> local_C(block_size_sq, 0);
-
-  if (active_procs == 1) {
+  if (block_size_sq <= 0 || block_size_sq > 1e9) { // Ограничение на размер блока
     if (rank == 0) {
-      std::cout << "Single process mode: performing sequential matrix multiplication" << std::endl;
-      for (int i = 0; i < block_size_; ++i) {
-        for (int j = 0; j < block_size_; ++j) {
-          local_A[i * block_size_ + j] = A_[i * N_ + j];
-          local_B[i * block_size_ + j] = B_[i * N_ + j];
-        }
-      }
-      BlockMultiply(local_A, local_B, local_C);
-      for (int i = 0; i < block_size_; ++i) {
-        for (int j = 0; j < block_size_; ++j) {
-          C_[i * N_ + j] = local_C[i * block_size_ + j];
-        }
-      }
+      std::cerr << "Invalid block_size_sq: " << block_size_sq << " (N_ = " << N_ << ", num_rows_ = " << num_rows_ << ")" << std::endl;
     }
-    return true;
+    return false;
   }
 
-  // Разбрасываем матрицы A и B
-  if (rank == 0) {
-    std::cout << "Rank 0: Scattering matrices A and B" << std::endl;
-    std::vector<double> tmp_A(active_procs * block_size_sq);
-    std::vector<double> tmp_B(active_procs * block_size_sq);
-    for (int p = 0; p < active_procs; ++p) {
-      int row_p = p / num_cols_;
-      int col_p = p % num_cols_;
-      for (int i = 0; i < block_size_; ++i) {
-        for (int j = 0; j < block_size_; ++j) {
-          tmp_A[p * block_size_sq + i * block_size_ + j] =
-              A_[(row_p * block_size_ + i) * N_ + (col_p * block_size_ + j)];
-          tmp_B[p * block_size_sq + i * block_size_ + j] =
-              B_[(row_p * block_size_ + i) * N_ + (col_p * block_size_ + j)];
+  try {
+    std::vector<double> local_A(block_size_sq);
+    std::vector<double> local_B(block_size_sq);
+    std::vector<double> local_C(block_size_sq, 0);
+
+    if (active_procs == 1) {
+      if (rank == 0) {
+        std::cout << "Single process mode: performing sequential matrix multiplication" << std::endl;
+        for (int i = 0; i < block_size_; ++i) {
+          for (int j = 0; j < block_size_; ++j) {
+            local_A[i * block_size_ + j] = A_[i * N_ + j];
+            local_B[i * block_size_ + j] = B_[i * N_ + j];
+          }
+        }
+        BlockMultiply(local_A, local_B, local_C);
+        for (int i = 0; i < block_size_; ++i) {
+          for (int j = 0; j < block_size_; ++j) {
+            C_[i * N_ + j] = local_C[i * block_size_ + j];
+          }
         }
       }
+      return true;
     }
-    mpi::scatter(active_world, tmp_A.data(), local_A.data(), block_size_sq, 0);
-    mpi::scatter(active_world, tmp_B.data(), local_B.data(), block_size_sq, 0);
-  } else {
-    mpi::scatter(active_world, local_A.data(), block_size_sq, 0);
-    mpi::scatter(active_world, local_B.data(), block_size_sq, 0);
-  }
 
-  // Начальный сдвиг
-  InitialShift(local_A, local_B);
+    // Разбрасываем матрицы A и B
+    if (rank == 0) {
+      std::cout << "Rank 0: Scattering matrices A and B" << std::endl;
+      std::vector<double> tmp_A(active_procs * block_size_sq);
+      std::vector<double> tmp_B(active_procs * block_size_sq);
+      for (int p = 0; p < active_procs; ++p) {
+        int row_p = p / num_cols_;
+        int col_p = p % num_cols_;
+        for (int i = 0; i < block_size_; ++i) {
+          for (int j = 0; j < block_size_; ++j) {
+            tmp_A[p * block_size_sq + i * block_size_ + j] =
+                A_[(row_p * block_size_ + i) * N_ + (col_p * block_size_ + j)];
+            tmp_B[p * block_size_sq + i * block_size_ + j] =
+                B_[(row_p * block_size_ + i) * N_ + (col_p * block_size_ + j)];
+          }
+        }
+      }
+      mpi::scatter(active_world, tmp_A.data(), local_A.data(), block_size_sq, 0);
+      mpi::scatter(active_world, tmp_B.data(), local_B.data(), block_size_sq, 0);
+    } else {
+      mpi::scatter(active_world, local_A.data(), block_size_sq, 0);
+      mpi::scatter(active_world, local_B.data(), block_size_sq, 0);
+    }
 
-  active_world.barrier();
-  BlockMultiply(local_A, local_B, local_C);
+    // Начальный сдвиг
+    InitialShift(local_A, local_B);
 
-  // Основной цикл алгоритма Кэннона
-  for (int iter = 0; iter < num_rows_ - 1; ++iter) {
-    ShiftBlocks(local_A, local_B);
+    active_world.barrier();
     BlockMultiply(local_A, local_B, local_C);
-  }
 
-  // Собираем результаты
-  if (rank == 0) {
-    std::cout << "Rank 0: Gathering results" << std::endl;
-    std::vector<double> tmp_C(active_procs * block_size_sq);
-    mpi::gather(active_world, local_C.data(), block_size_sq, tmp_C.data(), 0);
-    for (int p = 0; p < active_procs; ++p) {
-      int row_p = p / num_cols_;
-      int col_p = p % num_cols_;
-      for (int i = 0; i < block_size_; ++i) {
-        for (int j = 0; j < block_size_; ++j) {
-          C_[(row_p * block_size_ + i) * N_ + (col_p * block_size_ + j)] =
-              tmp_C[p * block_size_sq + i * block_size_ + j];
+    // Основной цикл алгоритма Кэннона
+    for (int iter = 0; iter < num_rows_ - 1; ++iter) {
+      ShiftBlocks(local_A, local_B);
+      BlockMultiply(local_A, local_B, local_C);
+    }
+
+    // Собираем результаты
+    if (rank == 0) {
+      std::cout << "Rank 0: Gathering results" << std::endl;
+      std::vector<double> tmp_C(active_procs * block_size_sq);
+      mpi::gather(active_world, local_C.data(), block_size_sq, tmp_C.data(), 0);
+      for (int p = 0; p < active_procs; ++p) {
+        int row_p = p / num_cols_;
+        int col_p = p % num_cols_;
+        for (int i = 0; i < block_size_; ++i) {
+          for (int j = 0; j < block_size_; ++j) {
+            C_[(row_p * block_size_ + i) * N_ + (col_p * block_size_ + j)] =
+                tmp_C[p * block_size_sq + i * block_size_ + j];
+          }
         }
       }
+    } else {
+      mpi::gather(active_world, local_C.data(), block_size_sq, 0);
     }
-  } else {
-    mpi::gather(active_world, local_C.data(), block_size_sq, 0);
+  } catch (const std::bad_alloc& e) {
+    if (rank == 0) {
+      std::cerr << "Bad allocation in RunImpl: " << e.what() << std::endl;
+      std::cerr << "N_ = " << N_ << ", num_rows_ = " << num_rows_ << ", num_cols_ = " << num_cols_ << ", block_size_ = "
+                << block_size_ << std::endl;
+    }
+    return false;
   }
 
   return true;
