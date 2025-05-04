@@ -189,9 +189,8 @@ void opolin_d_radix_batcher_sort_stl::IterativeOddEvenBlockMerge(std::vector<uin
       auto merge_mid = data_begin + std::min(i + current_merge_block_size, n);
       auto merge_end = data_begin + std::min(i + 2 * current_merge_block_size, n);
       if (merge_mid < merge_end) {
-        merge_tasks.emplace_back([merge_begin, merge_mid, merge_end]() {
-          std::inplace_merge(merge_begin, merge_mid, merge_end);
-        });
+        merge_tasks.emplace_back(
+            [merge_begin, merge_mid, merge_end]() { std::inplace_merge(merge_begin, merge_mid, merge_end); });
       }
     }
     if (!merge_tasks.empty()) {
