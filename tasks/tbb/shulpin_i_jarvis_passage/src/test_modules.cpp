@@ -250,3 +250,19 @@ void shulpin_tbb_test_module::RandomTestBody(std::vector<shulpin_i_jarvis_tbb::P
 
   shulpin_tbb_test_module::VerifyResultsRandom(expected, result_tbb);
 }
+
+std::vector<shulpin_i_jarvis_tbb::Point> shulpin_stl_test_module::PerfRandomGenerator(size_t num_points, int from,
+                                                                                      int to) {
+  std::vector<shulpin_i_jarvis_tbb::Point> points;
+  std::random_device rd;
+  std::mt19937 gen(rd());
+  std::uniform_int_distribution<int> dist(from, to);
+
+  for (size_t i = 0; i < num_points; ++i) {
+    int x = dist(gen);
+    int y = dist(gen);
+    points.emplace_back(static_cast<double>(x), static_cast<double>(y));
+  }
+
+  return points;
+}
