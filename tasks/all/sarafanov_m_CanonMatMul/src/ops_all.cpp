@@ -21,9 +21,9 @@ void sarafanov_m_canon_mat_mul_all::CanonMatMulALL::CalculateIndexes() {
   int balance = static_cast<int>(a_matrix_.GetSqrtSize()) % world_.size();
   for (int i = 0; i < world_.size(); ++i) {
     if (i == 0) {
-      indexes_.emplace_back(IndexesPair(0, part));
+      indexes_.emplace_back(0, part);
     } else {
-      indexes_.emplace_back(IndexesPair(indexes_[i - 1].second, indexes_[i - 1].second + part));
+      indexes_.emplace_back(indexes_[i - 1].second, indexes_[i - 1].second + part);
     }
     if (balance != 0) {
       indexes_[i].second++;
@@ -135,7 +135,7 @@ bool sarafanov_m_canon_mat_mul_all::CanonMatMulALL::RunImpl() {
   }
   if (world_.rank() == 0) {
     std::vector<double> intermediate_values(a_matrix_.GetSize() * world_.size());
-    auto sizes = std::vector<int>(world_.size(), a_matrix_.GetSize());
+    auto sizes = std::vector<int>(world_.size(), static_cast<int>(a_matrix_.GetSize()));
     boost::mpi::gatherv(world_, matrix_sum_on_process_.GetMatrix(), intermediate_values.data(), sizes, 0);
     std::vector<double> answer(a_matrix_.GetSize());
     for (int i = 0; i < static_cast<int>(answer.size()); ++i) {
