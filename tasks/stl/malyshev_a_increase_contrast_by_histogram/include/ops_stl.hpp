@@ -18,7 +18,6 @@ class TestTaskSTL : public ppc::core::Task {
 
  private:
   std::vector<uint8_t> data_;
-  const int kThreshold_ = 50000;
 };
 
 }  // namespace malyshev_a_increase_contrast_by_histogram_stl

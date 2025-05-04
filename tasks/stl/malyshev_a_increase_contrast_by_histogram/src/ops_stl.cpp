@@ -4,9 +4,7 @@
 #include <cmath>
 #include <cstdint>
 #include <limits>
-#include <numeric>
 #include <thread>
-#include <utility>
 #include <vector>
 
 #include "core/util/include/util.hpp"
@@ -32,36 +30,9 @@ bool malyshev_a_increase_contrast_by_histogram_stl::TestTaskSTL::RunImpl() {
   uint8_t min_value = 0;
   uint8_t max_value = 0;
 
-  if (data_size < num_threads * kThreshold_) {
-    auto [temp_min, temp_max] = std::ranges::minmax_element(data_);
-    min_value = *temp_min;
-    max_value = *temp_max;
-  } else {
-    std::vector<std::pair<uint8_t, uint8_t>> local_minmax(
-        num_threads, std::make_pair(std::numeric_limits<uint8_t>::max(), std::numeric_limits<uint8_t>::min()));
-
-    for (int i = 0; i < num_threads; ++i) {
-      int start = i * grain_size;
-      int end = (i == num_threads - 1) ? data_size : start + grain_size;
-      threads.emplace_back([&, i, start, end]() {
-        auto [temp_min, temp_max] = std::ranges::minmax_element(data_.begin() + start, data_.begin() + end);
-        local_minmax[i] = std::make_pair(*temp_min, *temp_max);
-      });
-    }
-
-    for (auto& thread : threads) {
-      thread.join();
-    }
-
-    auto min_max_pair =
-        std::accumulate(local_minmax.begin(), local_minmax.end(),
-                        std::make_pair(std::numeric_limits<uint8_t>::max(), std::numeric_limits<uint8_t>::min()),
-                        [](const auto& acc, const auto& local) {
-                          return std::make_pair(std::min(acc.first, local.first), std::max(acc.second, local.second));
-                        });
-    min_value = min_max_pair.first;
-    max_value = min_max_pair.second;
-  }
+  auto [temp_min, temp_max] = std::ranges::minmax_element(data_);
+  min_value = *temp_min;
+  max_value = *temp_max;
 
   if (min_value == max_value) {
     return true;
