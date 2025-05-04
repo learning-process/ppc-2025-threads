@@ -1,7 +1,6 @@
 #pragma once
 
 #include <functional>
-#include <thread>
 #include <utility>
 #include <vector>
 
@@ -24,7 +23,7 @@ class TestTaskSTL : public ppc::core::Task {
                                       std::vector<double>& result, int n);
   inline static bool IsPositiveAndSimm(const double* a, int n);
 
-  static void parallel_for(int start, int end, const std::function<void(int)>& f);
+  static void ParallelFor(int start, int end, const std::function<void(int)>& f);
 
  private:
   std::vector<double> a_;
