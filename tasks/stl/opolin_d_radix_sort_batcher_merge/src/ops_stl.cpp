@@ -46,10 +46,10 @@ bool opolin_d_radix_batcher_sort_stl::RadixBatcherSortTaskStl::RunImpl() {
   }
   ParallelProcessRange(static_cast<size_t>(size_), static_cast<unsigned int>(unum_threads),
                        [this](size_t start, size_t end) {
-    for (size_t i = start; i < end; ++i) {
-      unsigned_data_[i] = IntToUnsigned(input_[i]);
-    }
-  });
+                         for (size_t i = start; i < end; ++i) {
+                           unsigned_data_[i] = IntToUnsigned(input_[i]);
+                         }
+                       });
 
   size_t block_size = (static_cast<size_t>(size_) + unum_threads - 1) / unum_threads;
   size_t actual_num_blocks = (static_cast<size_t>(size_) + block_size - 1) / block_size;
@@ -59,9 +59,10 @@ bool opolin_d_radix_batcher_sort_stl::RadixBatcherSortTaskStl::RunImpl() {
     size_t start = i * block_size;
     size_t end = std::min(start + block_size, static_cast<size_t>(size_));
     if (start < end) {
-      sort_tasks.emplace_back(
-          [this, start, end]() { RadixSortLSD(unsigned_data_.begin() + static_cast<ptrdiff_t>(start),
-                                              unsigned_data_.begin() + static_cast<ptrdiff_t>(end)); });
+      sort_tasks.emplace_back([this, start, end]() {
+        RadixSortLSD(unsigned_data_.begin() + static_cast<ptrdiff_t>(start),
+                     unsigned_data_.begin() + static_cast<ptrdiff_t>(end));
+      });
     }
   }
   if (!sort_tasks.empty()) {
@@ -71,10 +72,10 @@ bool opolin_d_radix_batcher_sort_stl::RadixBatcherSortTaskStl::RunImpl() {
                              static_cast<unsigned int>(unum_threads));
   ParallelProcessRange(static_cast<size_t>(size_), static_cast<unsigned int>(unum_threads),
                        [this](size_t start, size_t end) {
-    for (size_t i = start; i < end; ++i) {
-      output_[i] = UnsignedToInt(unsigned_data_[i]);
-    }
-  });
+                         for (size_t i = start; i < end; ++i) {
+                           output_[i] = UnsignedToInt(unsigned_data_[i]);
+                         }
+                       });
   return true;
 }
 
