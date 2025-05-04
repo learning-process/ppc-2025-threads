@@ -3,7 +3,7 @@
 #include <boost/mpi/collectives.hpp>
 #include <boost/mpi/communicator.hpp>
 #include <cstdint>
-#include <memory>
+#include <utility>
 #include <vector>
 
 #include "core/task/include/task.hpp"
