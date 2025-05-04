@@ -8,7 +8,6 @@
 
 #include "core/task/include/task.hpp"
 
-
 namespace varfolomeev_g_histogram_linear_stretching_all {
 
 class TestTaskALL : public ppc::core::Task {
