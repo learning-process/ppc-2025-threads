@@ -70,7 +70,7 @@ bool laganina_e_component_labeling_stl::TestTaskSTL::PostProcessingImpl() {
 
 void laganina_e_component_labeling_stl::TestTaskSTL::InitializeParents(std::vector<int>& parent) {
   const int size = m_ * n_;
-  int num_threads = (ppc::util::GetPPCNumThreads(), static_cast<int>(std::thread::hardware_concurrency()));
+  int num_threads = std::min(ppc::util::GetPPCNumThreads(), static_cast<int>(std::thread::hardware_concurrency()));
   const int chunk_size = (size + num_threads - 1) / num_threads;
 
   std::vector<std::thread> threads;
@@ -92,7 +92,7 @@ void laganina_e_component_labeling_stl::TestTaskSTL::InitializeParents(std::vect
 
 void laganina_e_component_labeling_stl::TestTaskSTL::ProcessSweep(bool reverse, std::vector<int>& parent,
                                                                   bool& changed) const {
-  int num_threads = (ppc::util::GetPPCNumThreads(), static_cast<int>(std::thread::hardware_concurrency()));
+  int num_threads = std::min(ppc::util::GetPPCNumThreads(), static_cast<int>(std::thread::hardware_concurrency()));
   const int chunk_size = (m_ + num_threads - 1) / num_threads;
   std::atomic<bool> global_changed(false);
 
@@ -184,7 +184,7 @@ bool laganina_e_component_labeling_stl::TestTaskSTL::UnionNodes(int a, int b, st
 
 void laganina_e_component_labeling_stl::TestTaskSTL::FinalizeRoots(std::vector<int>& parent) const {
   const int size = m_ * n_;
-  int num_threads = (ppc::util::GetPPCNumThreads(), static_cast<int>(std::thread::hardware_concurrency()));
+  int num_threads = std::min(ppc::util::GetPPCNumThreads(), static_cast<int>(std::thread::hardware_concurrency()));
   const int chunk_size = (size + num_threads - 1) / num_threads;
 
   std::vector<std::thread> threads;
@@ -208,7 +208,7 @@ void laganina_e_component_labeling_stl::TestTaskSTL::FinalizeRoots(std::vector<i
 
 void laganina_e_component_labeling_stl::TestTaskSTL::AssignLabels(std::vector<int>& parent) {
   const int size = m_ * n_;
-  int num_threads = (ppc::util::GetPPCNumThreads(), static_cast<int>(std::thread::hardware_concurrency()));
+  int num_threads = std::min(ppc::util::GetPPCNumThreads(), static_cast<int>(std::thread::hardware_concurrency()));
   std::vector<int> labels(size + 1, 0);
   const int chunk_size = (size + num_threads - 1) / num_threads;
 
