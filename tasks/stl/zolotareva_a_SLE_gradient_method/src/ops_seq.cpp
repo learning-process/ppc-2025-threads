@@ -3,6 +3,7 @@
 #include <algorithm>
 #include <cmath>
 #include <functional>
+#include <future>
 #include <thread>
 #include <vector>
 
