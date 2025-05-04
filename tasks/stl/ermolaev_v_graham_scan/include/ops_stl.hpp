@@ -45,7 +45,7 @@ class TestTaskSTL : public ppc::core::Task {
  private:
   std::vector<Point> input_, output_;
 
-  static int CrossProduct(const Point& p1, const Point& p2, const Point& p3);
+  static inline int CrossProduct(const Point& p1, const Point& p2, const Point& p3);
   bool CheckGrahamNecessaryConditions();
   void GrahamScan();
   bool IsAllCollinear();
@@ -58,18 +58,15 @@ class TestTaskSTL : public ppc::core::Task {
 template <typename Iterator, typename Comparator>
 void ermolaev_v_graham_scan_stl::TestTaskSTL::ParallelSort(Iterator begin, Iterator end, Comparator comp) {
   const size_t n = std::distance(begin, end);
-
-  if (n <= 1) {
-    return;
-  }
-
   const int num_threads = ppc::util::GetPPCNumThreads();
   std::vector<std::thread> threads;
   std::vector<size_t> chunk_offsets(num_threads + 1);
 
-  int i = 0;
-  std::transform(chunk_offsets.begin(), chunk_offsets.end(), chunk_offsets.begin(),
-                 [&](size_t _) { return ((i++) * n) / num_threads; });
+  {
+    int i = 0;
+    std::transform(chunk_offsets.begin(), chunk_offsets.end(), chunk_offsets.begin(),
+                   [&](size_t _) { return ((i++) * n) / num_threads; });
+  }
 
   for (int i = 0; i < num_threads; i++) {
     threads.emplace_back([&, i]() { std::sort(begin + chunk_offsets[i], begin + chunk_offsets[i + 1], comp); });
