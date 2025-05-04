@@ -66,9 +66,6 @@ TEST(kharin_m_multidimensional_integral_calc_stl, test_task_run) {
   task_data_stl->inputs_count.emplace_back(step_sizes.size());
   task_data_stl->outputs.emplace_back(reinterpret_cast<uint8_t*>(out.data()));
   task_data_stl->outputs_count.emplace_back(out.size());
-
-  // auto test_task_stluential =
-  //     std::make_shared<kharin_m_multidimensional_integral_calc_stl::TaskSTL>(task_data_stl);
   auto test_task_stluential = std::make_shared<kharin_m_multidimensional_integral_calc_stl::TaskSTL>(task_data_stl);
   auto perf_attr = std::make_shared<ppc::core::PerfAttr>();
   perf_attr->num_running = 10;  // Количество запусков для усреднения
