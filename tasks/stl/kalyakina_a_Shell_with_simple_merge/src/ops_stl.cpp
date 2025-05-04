@@ -43,7 +43,7 @@ void kalyakina_a_shell_with_simple_merge_stl::ShellSortSTL::ShellSort(unsigned i
 void kalyakina_a_shell_with_simple_merge_stl::ShellSortSTL::SimpleMergeSort(unsigned int left, unsigned int middle,
                                                                             unsigned int right) {
   std::vector<int> first_part(middle - left);
-  std::copy(output_.begin() + left, output_.begin() + middle, first_part.begin());
+  std::ranges::copy(output_.begin() + left, output_.begin() + middle, first_part.begin());
   unsigned int l = 0;
   unsigned int r = middle;
   unsigned int j = left;
