@@ -118,16 +118,21 @@ bool kholin_k_multidimensional_integrals_rectangle_all::TestTaskALL::RunImpl() {
   MPI_Bcast(&dim_, 1, mpi_size_t_, 0, MPI_COMM_WORLD);
   MPI_Bcast(&start_n_, 1, MPI_DOUBLE, 0, MPI_COMM_WORLD);
 
-  if (rank > 0) {
-    f_values_ = std::vector<double>(sz_values_);
-    lower_limits_ = std::vector<double>(sz_lower_limits_);
-    upper_limits_ = std::vector<double>(sz_upper_limits_);
+  if (rank >= 0) {
+    common_f_values_ = std::vector<double>(sz_values_);
+    common_lower_limits_ = std::vector<double>(sz_lower_limits_);
+    common_upper_limits_ = std::vector<double>(sz_upper_limits_);
+    if (rank == 0) {
+      common_f_values_.assign(f_values_.begin(), f_values_.end());
+      common_lower_limits_.assign(lower_limits_.begin(), lower_limits_.end());
+      common_upper_limits_.assign(upper_limits_.begin(), upper_limits_.end());
+    }
   }
-  MPI_Bcast(lower_limits_.data(), static_cast<int>(sz_lower_limits_), MPI_DOUBLE, 0, MPI_COMM_WORLD);
-  MPI_Bcast(upper_limits_.data(), static_cast<int>(sz_upper_limits_), MPI_DOUBLE, 0, MPI_COMM_WORLD);
-  MPI_Bcast(f_values_.data(), static_cast<int>(sz_values_), MPI_DOUBLE, 0, MPI_COMM_WORLD);
+  MPI_Bcast(common_lower_limits_.data(), static_cast<int>(sz_lower_limits_), MPI_DOUBLE, 0, MPI_COMM_WORLD);
+  MPI_Bcast(common_upper_limits_.data(), static_cast<int>(sz_upper_limits_), MPI_DOUBLE, 0, MPI_COMM_WORLD);
+  MPI_Bcast(common_f_values_.data(), static_cast<int>(sz_values_), MPI_DOUBLE, 0, MPI_COMM_WORLD);
 
-  RunMultistepSchemeMethodRectangle(f_, f_values_, lower_limits_, upper_limits_, dim_, start_n_);
+  RunMultistepSchemeMethodRectangle(f_, common_f_values_, common_lower_limits_, common_upper_limits_, dim_, start_n_);
   return true;
 }
 

@@ -38,6 +38,11 @@ class TestTaskALL : public ppc::core::Task {
   Function f_;
   std::vector<double> lower_limits_;
   std::vector<double> upper_limits_;
+
+  std::vector<double> common_f_values_;
+  std::vector<double> common_lower_limits_;
+  std::vector<double> common_upper_limits_;
+
   double start_n_;
 
   std::vector<double> local_l_limits_;
