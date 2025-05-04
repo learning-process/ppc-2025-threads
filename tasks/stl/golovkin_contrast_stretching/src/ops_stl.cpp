@@ -1,9 +1,6 @@
 #include "stl/golovkin_contrast_stretching/include/ops_stl.hpp"
 
 #include <algorithm>
-#include <iostream>
-#include <mutex>
-#include <thread>
 #include <vector>
 
 bool golovkin_contrast_stretching::ContrastStretchingSTL::ValidationImpl() {

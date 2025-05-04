@@ -2,13 +2,10 @@
 
 #include <cstddef>
 #include <cstdint>
-#include <fstream>
 #include <memory>
-#include <string>
 #include <vector>
 
 #include "core/task/include/task.hpp"
-#include "core/util/include/util.hpp"
 #include "stl/golovkin_contrast_stretching/include/ops_stl.hpp"
 
 TEST(golovkin_contrast_stretching, test_contrast_perf_1m) {
