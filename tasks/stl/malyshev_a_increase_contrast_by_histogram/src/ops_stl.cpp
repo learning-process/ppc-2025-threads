@@ -2,9 +2,9 @@
 
 #include <algorithm>
 #include <cmath>
-#include <cstddef>
 #include <cstdint>
 #include <limits>
+#include <numeric>
 #include <thread>
 #include <utility>
 #include <vector>
@@ -22,35 +22,45 @@ bool malyshev_a_increase_contrast_by_histogram_stl::TestTaskSTL::ValidationImpl(
 }
 
 bool malyshev_a_increase_contrast_by_histogram_stl::TestTaskSTL::RunImpl() {
-  size_t data_size = data_.size();
-  size_t num_threads = std::min(ppc::util::GetPPCNumThreads(), static_cast<int>(std::thread::hardware_concurrency()));
-  size_t grain_size = data_size / num_threads;
-
-  std::vector<std::pair<uint8_t, uint8_t>> local_minmax(
-      num_threads, std::make_pair(std::numeric_limits<uint8_t>::max(), std::numeric_limits<uint8_t>::min()));
+  int data_size = static_cast<int>(data_.size());
+  int num_threads = ppc::util::GetPPCNumThreads();
+  int grain_size = data_size / num_threads;
 
   std::vector<std::thread> threads;
-  for (size_t i = 0; i < num_threads; ++i) {
-    size_t start = i * grain_size;
-    size_t end = (i == num_threads - 1) ? data_size : start + grain_size;
-    threads.emplace_back([&, i, start, end]() {
-      auto& local = local_minmax[i];
-      for (size_t j = start; j < end; ++j) {
-        local.first = std::min(local.first, data_[j]);
-        local.second = std::max(local.second, data_[j]);
-      }
-    });
-  }
+  threads.reserve(num_threads);
 
-  for (auto& thread : threads) {
-    thread.join();
-  }
+  uint8_t min_value = 0;
+  uint8_t max_value = 0;
 
-  uint8_t min_value = std::numeric_limits<uint8_t>::max();
-  uint8_t max_value = std::numeric_limits<uint8_t>::min();
-  for (const auto& local : local_minmax) {
-    min_value = std::min(min_value, local.first);
-    max_value = std::max(max_value, local.second);
+  if (data_size < num_threads * kThreshold_) {
+    auto [temp_min, temp_max] = std::ranges::minmax_element(data_);
+    min_value = *temp_min;
+    max_value = *temp_max;
+  } else {
+    std::vector<std::pair<uint8_t, uint8_t>> local_minmax(
+        num_threads, std::make_pair(std::numeric_limits<uint8_t>::max(), std::numeric_limits<uint8_t>::min()));
+
+    for (int i = 0; i < num_threads; ++i) {
+      int start = i * grain_size;
+      int end = (i == num_threads - 1) ? data_size : start + grain_size;
+      threads.emplace_back([&, i, start, end]() {
+        auto [temp_min, temp_max] = std::ranges::minmax_element(data_.begin() + start, data_.begin() + end);
+        local_minmax[i] = std::make_pair(*temp_min, *temp_max);
+      });
+    }
+
+    for (auto& thread : threads) {
+      thread.join();
+    }
+
+    auto min_max_pair =
+        std::accumulate(local_minmax.begin(), local_minmax.end(),
+                        std::make_pair(std::numeric_limits<uint8_t>::max(), std::numeric_limits<uint8_t>::min()),
+                        [](const auto& acc, const auto& local) {
+                          return std::make_pair(std::min(acc.first, local.first), std::max(acc.second, local.second));
+                        });
+    min_value = min_max_pair.first;
+    max_value = min_max_pair.second;
   }
 
   if (min_value == max_value) {
@@ -61,13 +71,13 @@ bool malyshev_a_increase_contrast_by_histogram_stl::TestTaskSTL::RunImpl() {
   const auto range = max_value - min_value;
 
   threads.clear();
-  for (size_t i = 0; i < num_threads; ++i) {
-    size_t start = i * grain_size;
-    size_t end = (i == num_threads - 1) ? data_size : start + grain_size;
+  for (int i = 0; i < num_threads; ++i) {
+    int start = i * grain_size;
+    int end = (i == num_threads - 1) ? data_size : start + grain_size;
     threads.emplace_back([&, start, end]() {
-      for (size_t j = start; j < end; ++j) {
-        data_[j] = static_cast<uint8_t>((data_[j] - min_value) * spectrum / range);
-      }
+      std::ranges::for_each(data_.begin() + start, data_.begin() + end, [&](uint8_t& value) {
+        value = static_cast<uint8_t>((value - min_value) * spectrum / range);
+      });
     });
   }
 
