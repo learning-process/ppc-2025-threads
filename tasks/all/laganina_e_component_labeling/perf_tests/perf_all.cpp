@@ -4,7 +4,6 @@
 #include <cstddef>
 #include <cstdint>
 #include <memory>
-#include <string>
 #include <vector>
 
 #include "all/laganina_e_component_labeling/include/ops_all.hpp"

@@ -3,27 +3,18 @@
 #include <omp.h>
 
 #include <algorithm>
-#include <atomic>
-#include <boost/mpi.hpp>
 #include <boost/mpi/collectives.hpp>
 #include <boost/mpi/communicator.hpp>
 #include <boost/serialization/vector.hpp>  // NOLINT(misc-include-cleaner)
 #include <cassert>
-#include <cstdint>
-#include <functional>
-#include <future>
-#include <iostream>
-#include <map>
 #include <queue>
-#include <thread>
-#include <unordered_map>
 #include <utility>
 #include <vector>
 
 #include "boost/mpi/collectives/broadcast.hpp"
 
 bool laganina_e_component_labeling_all::TestTaskALL::ValidationImpl() {
-  if (world.rank() == 0) {
+  if (world_.rank() == 0) {
     if (task_data == nullptr || task_data->inputs[0] == nullptr || task_data->outputs[0] == nullptr) {
       return false;
     }
@@ -41,7 +32,7 @@ bool laganina_e_component_labeling_all::TestTaskALL::ValidationImpl() {
 }
 
 bool laganina_e_component_labeling_all::TestTaskALL::PreProcessingImpl() {
-  if (world.rank() == 0) {
+  if (world_.rank() == 0) {
     m_ = static_cast<int>(task_data->inputs_count[0]);
     n_ = static_cast<int>(task_data->inputs_count[1]);
     binary_.resize(m_ * n_);
@@ -51,36 +42,37 @@ bool laganina_e_component_labeling_all::TestTaskALL::PreProcessingImpl() {
   return true;
 }
 
+// NOLINTNEXTLINE(readability-function-cognitive-complexity)
 bool laganina_e_component_labeling_all::TestTaskALL::RunImpl() {
-  int size_of_sizes;
+  int size_of_sizes = 0;
   std::vector<int> sizes;
-  int col;
-  if (world.rank() == 0) {
+  int col = 0;
+  if (world_.rank() == 0) {
     col = n_;
-    int delta = (m_ + world.size() - 1) / world.size();
-    int last = m_ - delta * (world.size() - 1);
+    int delta = (m_ + world_.size() - 1) / world_.size();
+    int last = m_ - (delta * (world_.size() - 1));
     delta *= n_;
     last *= n_;
     for (int i = 0; i < n_ * m_ - last; i += delta) {
       sizes.push_back(delta);
     }
     sizes.push_back(last);
-    while (static_cast<int>(sizes.size()) < world.size()) {
+    while (static_cast<int>(sizes.size()) < world_.size()) {
       sizes.push_back(0);
     }
     size_of_sizes = static_cast<int>(sizes.size());
   }
 
-  boost::mpi::broadcast(world, size_of_sizes, 0);
+  boost::mpi::broadcast(world_, size_of_sizes, 0);
 
-  if (world.rank() != 0) {
+  if (world_.rank() != 0) {
     sizes.resize(size_of_sizes);
   }
-  boost::mpi::broadcast(world, sizes.data(), size_of_sizes, 0);
-  boost::mpi::broadcast(world, col, 0);
-  local_bin_.resize(sizes[world.rank()]);
+  boost::mpi::broadcast(world_, sizes.data(), size_of_sizes, 0);
+  boost::mpi::broadcast(world_, col, 0);
+  local_bin_.resize(sizes[world_.rank()]);
 
-  if (world.rank() == 0) {
+  if (world_.rank() == 0) {
     int start = 0;
     int end = sizes[0];
     std::copy(binary_.begin() + start, binary_.begin() + end, local_bin_.begin());
@@ -90,50 +82,50 @@ bool laganina_e_component_labeling_all::TestTaskALL::RunImpl() {
         end += sizes[i];
         std::vector<int> tmp(sizes[i]);
         std::copy(binary_.begin() + start, binary_.begin() + end, tmp.begin());
-        world.send(i, 0, tmp);
+        world_.send(i, 0, tmp);
       }
     }
   } else {
-    if (sizes[world.rank()] != 0) {
-      world.recv(0, 0, local_bin_);
+    if (sizes[world_.rank()] != 0) {
+      world_.recv(0, 0, local_bin_);
     }
   }
 
-  if (sizes[world.rank()] != 0) {
+  if (sizes[world_.rank()] != 0) {
     local_n_ = col;
-    local_m_ = sizes[world.rank()] / col;
+    local_m_ = sizes[world_.rank()] / col;
     LabelConnectedComponents();
     NormalizeLabels(local_bin_);
   }
 
-  if (world.rank() == 0) {
+  if (world_.rank() == 0) {
     binary_ = local_bin_;
     for (int i = 1; i < size_of_sizes; i++) {
       if (sizes[i] != 0) {
         std::vector<int> tmp(sizes[i]);
-        world.recv(i, 0, tmp);
+        world_.recv(i, 0, tmp);
         binary_.insert(binary_.end(), tmp.begin(), tmp.end());
       }
     }
   } else {
-    if (sizes[world.rank()] != 0) {
-      world.send(0, 0, local_bin_);
+    if (sizes[world_.rank()] != 0) {
+      world_.send(0, 0, local_bin_);
     }
   }
 
-  world.barrier();
+  world_.barrier();
 
-  if (world.rank() == 0) {
+  if (world_.rank() == 0) {
     RelabelImage();
   }
 
-  world.barrier();
+  world_.barrier();
 
   return true;
 }
 
 bool laganina_e_component_labeling_all::TestTaskALL::PostProcessingImpl() {
-  if (world.rank() == 0) {
+  if (world_.rank() == 0) {
     int* output = reinterpret_cast<int*>(task_data->outputs[0]);
     std::ranges::copy(binary_.cbegin(), binary_.cend(), output);
   }
@@ -284,15 +276,18 @@ void laganina_e_component_labeling_all::TestTaskALL::LabelConnectedComponents() 
   AssignLabels(parent);
 }
 
+// NOLINTNEXTLINE(readability-function-cognitive-complexity)
 void laganina_e_component_labeling_all::TestTaskALL::RelabelImage() {
-  if (binary_.empty() || m_ == 0 || n_ == 0) return;
+  if (binary_.empty() || m_ == 0 || n_ == 0) {
+    return;
+  }
 
   int current_label = -1;
   const std::vector<std::pair<int, int>> directions = {{-1, 0}, {1, 0}, {0, -1}, {0, 1}};
 
   for (int i = 0; i < m_; ++i) {
     for (int j = 0; j < n_; ++j) {
-      int idx = i * n_ + j;
+      int idx = (i * n_) + j;
 
       if (binary_[idx] > 0) {
         std::queue<std::pair<int, int>> q;
@@ -308,7 +303,7 @@ void laganina_e_component_labeling_all::TestTaskALL::RelabelImage() {
             int ny = y + dir.second;
 
             if (nx >= 0 && nx < m_ && ny >= 0 && ny < n_) {
-              int neighbor_idx = nx * n_ + ny;
+              int neighbor_idx = (nx * n_) + ny;
               if (binary_[neighbor_idx] > 0) {
                 binary_[neighbor_idx] = current_label;
                 q.emplace(nx, ny);
@@ -322,6 +317,8 @@ void laganina_e_component_labeling_all::TestTaskALL::RelabelImage() {
   }
 
   for (auto& val : binary_) {
-    if (val < 0) val = -val;
+    if (val < 0) {
+      val = -val;
+    }
   }
 }

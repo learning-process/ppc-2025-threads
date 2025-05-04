@@ -1,6 +1,6 @@
 #pragma once
 
-#include <boost/mpi.hpp>
+// #include <boost/mpi.hpp>
 #include <boost/mpi/collectives.hpp>
 #include <boost/mpi/communicator.hpp>
 #include <unordered_map>
@@ -20,7 +20,7 @@ class TestTaskALL : public ppc::core::Task {
   bool PostProcessingImpl() override;
 
  private:
-  boost::mpi::communicator world;
+  boost::mpi::communicator world_;
 
   int m_;
   int n_;

@@ -2,7 +2,6 @@
 
 #include <boost/mpi/collectives.hpp>
 #include <boost/mpi/communicator.hpp>
-#include <boost/mpi/environment.hpp>
 #include <cstdint>
 #include <memory>
 #include <vector>
@@ -12,8 +11,8 @@
 
 TEST(laganina_e_component_labeling_all, validation_test1) {
   boost::mpi::communicator world;
-  size_t m = 0;
-  size_t n = 1;
+  int m = 0;
+  int n = 1;
   // Create data
   std::vector<uint32_t> in(m * n, 0);
   std::vector<uint32_t> out(m * n, 0);
@@ -658,6 +657,7 @@ TEST(laganina_e_component_labeling_all, spiral_pattern) {
   }
 }
 
+// NOLINTNEXTLINE(readability-function-cognitive-complexity)
 TEST(laganina_e_component_labeling_all, ring_with_a_hole_100) {
   boost::mpi::communicator world;
   int m = 100;
