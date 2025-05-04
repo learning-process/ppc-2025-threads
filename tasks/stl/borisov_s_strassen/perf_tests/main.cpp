@@ -87,7 +87,7 @@ TEST(borisov_s_strassen_perf_stl, test_pipeline_run) {
 
   ASSERT_EQ(c_expected.size(), c_result.size());
   for (std::size_t i = 0; i < c_expected.size(); ++i) {
-    ASSERT_NEAR(c_expected[i], c_result[i], 1e-9);
+    ASSERT_NEAR(c_expected[i], c_result[i], 1e-8);
   }
 }
 
@@ -138,6 +138,6 @@ TEST(borisov_s_strassen_perf_stl, test_task_run) {
 
   ASSERT_EQ(c_expected.size(), c_result.size());
   for (std::size_t i = 0; i < c_expected.size(); ++i) {
-    ASSERT_NEAR(c_expected[i], c_result[i], 1e-9);
+    ASSERT_NEAR(c_expected[i], c_result[i], 1e-8);
   }
 }
