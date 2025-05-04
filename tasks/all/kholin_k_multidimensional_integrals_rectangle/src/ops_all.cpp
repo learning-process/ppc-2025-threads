@@ -1,6 +1,15 @@
 #include "all/kholin_k_multidimensional_integrals_rectangle/include/ops_all.hpp"
 
+#ifdef __clang__
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wcast-align"
+#endif
+
 #include <mpi.h>
+
+#ifdef __clang__
+#pragma clang diagnostic pop
+#endif
 #include <omp.h>
 
 #include <boost/mpi/collectives.hpp>

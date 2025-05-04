@@ -1,6 +1,15 @@
 #pragma once
 
+#ifdef __clang__
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wcast-align"
+#endif
+
 #include <mpi.h>
+
+#ifdef __clang__
+#pragma clang diagnostic pop
+#endif
 
 #include <boost/mpi/collectives.hpp>
 #include <cstddef>
