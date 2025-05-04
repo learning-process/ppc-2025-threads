@@ -1,9 +1,10 @@
 #pragma once
 
 #include <boost/mpi/communicator.hpp>
+#include <boost/mpi/collectives.hpp>
 #include <cstdint>
-#include <utility>
 #include <vector>
+#include <memory>
 
 #include "core/task/include/task.hpp"
 

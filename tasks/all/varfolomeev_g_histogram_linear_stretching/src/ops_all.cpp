@@ -5,7 +5,9 @@
 #include <algorithm>
 #include <boost/mpi/collectives.hpp>
 #include <boost/mpi/communicator.hpp>
+#include <boost/serialization/vector.hpp>
 #include <cmath>
+#include <cstddef>
 #include <cstdint>
 #include <vector>
 
@@ -53,7 +55,6 @@ bool varfolomeev_g_histogram_linear_stretching_all::TestTaskALL::PostProcessingI
 
 void varfolomeev_g_histogram_linear_stretching_all::TestTaskALL::ScatterData(std::vector<uint8_t>& local_data) {
   if (world_.rank() == 0) {
-    // Distribute data among processes
     for (int proc = 1; proc < world_.size(); ++proc) {
       std::vector<uint8_t> proc_data;
       for (size_t i = proc; i < input_image_.size(); i += world_.size()) {
@@ -62,7 +63,6 @@ void varfolomeev_g_histogram_linear_stretching_all::TestTaskALL::ScatterData(std
       world_.send(proc, 0, proc_data);
     }
 
-    // Process local portion
     for (size_t i = 0; i < input_image_.size(); i += world_.size()) {
       local_data.push_back(input_image_[i]);
     }
@@ -73,18 +73,17 @@ void varfolomeev_g_histogram_linear_stretching_all::TestTaskALL::ScatterData(std
 
 void varfolomeev_g_histogram_linear_stretching_all::TestTaskALL::FindMinMax(const std::vector<uint8_t>& local_data,
                                                                             int& min_val, int& max_val) {
-  // Find local min and max
-  int local_min = 255, local_max = 0;
+  int local_min = 255;
+  int local_max = 0;
+
   if (!local_data.empty()) {
-    local_min = *std::min_element(local_data.begin(), local_data.end());
-    local_max = *std::max_element(local_data.begin(), local_data.end());
+    local_min = *std::ranges::min_element(local_data);
+    local_max = *std::ranges::max_element(local_data);
   }
 
-  // Reduce to get global min and max
   boost::mpi::all_reduce(world_, local_min, min_val, boost::mpi::minimum<int>());
   boost::mpi::all_reduce(world_, local_max, max_val, boost::mpi::maximum<int>());
 
-  // Handle case when all pixels are equal
   if (min_val == max_val) {
     min_val = 0;
     max_val = 255;
@@ -96,8 +95,7 @@ void varfolomeev_g_histogram_linear_stretching_all::TestTaskALL::StretchHistogra
   if (min_val != max_val) {
 #pragma omp parallel for
     for (int i = 0; i < static_cast<int>(local_data.size()); ++i) {
-      local_data[i] =
-          static_cast<uint8_t>(std::round(static_cast<double>(local_data[i] - min_val) * 255 / (max_val - min_val)));
+      local_data[i] = static_cast<uint8_t>(std::round((local_data[i] - min_val) * 255.0 / (max_val - min_val)));
     }
   }
 }
@@ -106,21 +104,19 @@ void varfolomeev_g_histogram_linear_stretching_all::TestTaskALL::GatherResults(c
   if (world_.rank() == 0) {
     result_image_.resize(input_image_.size());
 
-    // Process local results
     for (size_t i = 0; i < local_data.size(); ++i) {
-      size_t pos = i * world_.size();
+      const size_t pos = i * world_.size();
       if (pos < result_image_.size()) {
         result_image_[pos] = local_data[i];
       }
     }
 
-    // Receive results from other processes
     for (int proc = 1; proc < world_.size(); ++proc) {
       std::vector<uint8_t> proc_data;
       world_.recv(proc, 0, proc_data);
 
       for (size_t i = 0; i < proc_data.size(); ++i) {
-        size_t pos = i * world_.size() + proc;
+        const size_t pos = (i * world_.size()) + proc;
         if (pos < result_image_.size()) {
           result_image_[pos] = proc_data[i];
         }
