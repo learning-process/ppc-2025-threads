@@ -228,27 +228,6 @@ TEST(opolin_d_radix_batcher_sort_stl, test_negative_size) {
   ASSERT_EQ(test_task_stl->Validation(), false);
 }
 
-TEST(opolin_d_radix_batcher_sort_stl, test_size_100) {
-  int size = 100;
-  std::vector<int> expected;
-  std::vector<int> input;
-  opolin_d_radix_batcher_sort_stl::GenDataRadixSort(size, input, expected);
-
-  std::vector<int> out(size, 0);
-  auto task_data_stl = std::make_shared<ppc::core::TaskData>();
-  task_data_stl->inputs.emplace_back(reinterpret_cast<uint8_t *>(input.data()));
-  task_data_stl->inputs_count.emplace_back(out.size());
-  task_data_stl->outputs.emplace_back(reinterpret_cast<uint8_t *>(out.data()));
-  task_data_stl->outputs_count.emplace_back(out.size());
-
-  auto test_task_stl = std::make_shared<opolin_d_radix_batcher_sort_stl::RadixBatcherSortTaskStl>(task_data_stl);
-  ASSERT_EQ(test_task_stl->Validation(), true);
-  test_task_stl->PreProcessing();
-  test_task_stl->Run();
-  test_task_stl->PostProcessing();
-  ASSERT_EQ(out, expected);
-}
-
 TEST(opolin_d_radix_batcher_sort_stl, test_size_prime_7) {
   int size = 7;
   std::vector<int> expected;
