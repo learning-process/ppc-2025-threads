@@ -32,7 +32,7 @@ void GenDataRadixSort(size_t size, std::vector<int> &vec, std::vector<int> &expe
 }  // namespace opolin_d_radix_batcher_sort_stl
 
 TEST(opolin_d_radix_batcher_sort_stl, test_pipeline_run) {
-  int size = 500000;
+  int size = 700000;
   std::vector<int> input;
   std::vector<int> expected;
   opolin_d_radix_batcher_sort_stl::GenDataRadixSort(size, input, expected);
@@ -70,7 +70,7 @@ TEST(opolin_d_radix_batcher_sort_stl, test_pipeline_run) {
 }
 
 TEST(opolin_d_radix_batcher_sort_stl, test_task_run) {
-  int size = 500000;
+  int size = 700000;
   std::vector<int> input;
   std::vector<int> expected;
   opolin_d_radix_batcher_sort_stl::GenDataRadixSort(size, input, expected);
