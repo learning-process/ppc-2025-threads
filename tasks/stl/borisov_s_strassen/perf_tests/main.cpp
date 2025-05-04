@@ -13,6 +13,21 @@
 
 namespace {
 
+std::vector<double> MultiplyNaiveDouble(const std::vector<double>& a, const std::vector<double>& b, int rows_a,
+                                        int cols_a, int cols_b) {
+  std::vector<double> c(rows_a * cols_b, 0.0);
+  for (int i = 0; i < rows_a; ++i) {
+    for (int j = 0; j < cols_b; ++j) {
+      double sum = 0.0;
+      for (int k = 0; k < cols_a; ++k) {
+        sum += a[(i * cols_a) + k] * b[(k * cols_b) + j];
+      }
+      c[(i * cols_b) + j] = sum;
+    }
+  }
+  return c;
+}
+
 void GenerateRandomMatrix(int rows, int cols, std::vector<double>& matrix) {
   std::random_device rd;
   std::mt19937 rng(rd());
@@ -66,6 +81,14 @@ TEST(borisov_s_strassen_perf_stl, test_pipeline_run) {
   auto perf_analyzer = std::make_shared<ppc::core::Perf>(test_task_parallel);
   perf_analyzer->PipelineRun(perf_attr, perf_results);
   ppc::core::Perf::PrintPerfStatistic(perf_results);
+
+  std::vector<double> c_expected = MultiplyNaiveDouble(a, b, kRowsA, kColsA, kColsB);
+  std::vector<double> c_result(out.begin() + 2, out.end());
+
+  ASSERT_EQ(c_expected.size(), c_result.size());
+  for (std::size_t i = 0; i < c_expected.size(); ++i) {
+    ASSERT_NEAR(c_expected[i], c_result[i], 1e-9);
+  }
 }
 
 TEST(borisov_s_strassen_perf_stl, test_task_run) {
@@ -109,4 +132,12 @@ TEST(borisov_s_strassen_perf_stl, test_task_run) {
   auto perf_analyzer = std::make_shared<ppc::core::Perf>(test_task_parallel);
   perf_analyzer->TaskRun(perf_attr, perf_results);
   ppc::core::Perf::PrintPerfStatistic(perf_results);
+
+  std::vector<double> c_expected = MultiplyNaiveDouble(a, b, kRowsA, kColsA, kColsB);
+  std::vector<double> c_result(out.begin() + 2, out.end());
+
+  ASSERT_EQ(c_expected.size(), c_result.size());
+  for (std::size_t i = 0; i < c_expected.size(); ++i) {
+    ASSERT_NEAR(c_expected[i], c_result[i], 1e-9);
+  }
 }
