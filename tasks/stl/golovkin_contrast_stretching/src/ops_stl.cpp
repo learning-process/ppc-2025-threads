@@ -1,5 +1,6 @@
 #include "stl/golovkin_contrast_stretching/include/ops_stl.hpp"
 
+#include <cstdint>
 #include <algorithm>
 #include <vector>
 
@@ -25,11 +26,11 @@ bool golovkin_contrast_stretching::ContrastStretchingSTL::PreProcessingImpl() {
 
 bool golovkin_contrast_stretching::ContrastStretchingSTL::RunImpl() {
   if (min_val_ == max_val_) {
-    std::fill(output_image_.begin(), output_image_.end(), 0);
+    std::ranges::fill(output_image_, 0);
     return true;
   }
 
-  std::transform(input_image_.begin(), input_image_.end(), output_image_.begin(), [this](uint8_t pixel) -> uint8_t {
+  std::ranges::transform(input_image_, output_image_.begin(), [this](uint8_t pixel) -> uint8_t {
     return static_cast<uint8_t>((static_cast<int>(pixel) - min_val_) * 255 / (max_val_ - min_val_));
   });
 
@@ -38,6 +39,6 @@ bool golovkin_contrast_stretching::ContrastStretchingSTL::RunImpl() {
 
 bool golovkin_contrast_stretching::ContrastStretchingSTL::PostProcessingImpl() {
   auto* output_ptr = reinterpret_cast<uint8_t*>(task_data->outputs[0]);
-  std::copy(output_image_.begin(), output_image_.end(), output_ptr);
+  std::ranges::copy(output_image_, output_ptr);
   return true;
 }
