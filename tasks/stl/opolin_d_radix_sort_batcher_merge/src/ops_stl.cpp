@@ -177,7 +177,7 @@ void opolin_d_radix_batcher_sort_stl::IterativeOddEvenBlockMerge(std::vector<uin
                                                                  size_t num_initial_blocks, size_t initial_block_size,
                                                                  unsigned int num_threads) {
   size_t n = std::distance(data_begin, data_end);
-  if (num_blocks <= 1 || n <= 1) {
+  if (num_initial_blocks <= 1 || n <= 1) {
     return;
   }
   size_t current_merge_block_size = initial_block_size;
