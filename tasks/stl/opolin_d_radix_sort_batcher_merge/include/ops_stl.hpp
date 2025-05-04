@@ -16,7 +16,7 @@ int UnsignedToInt(uint32_t value);
 void ParallelRunTasks(const std::vector<std::function<void()>>& tasks, unsigned int num_threads);
 void RadixSortLSD(std::vector<uint32_t>::iterator begin, std::vector<uint32_t>::iterator end);
 void IterativeOddEvenBlockMerge(std::vector<uint32_t>::iterator data_begin, std::vector<uint32_t>::iterator data_end,
-                                size_t num_blocks, unsigned int num_threads);
+                                size_t num_initial_blocks, size_t initial_block_size, unsigned int num_threads);
 class RadixBatcherSortTaskStl : public ppc::core::Task {
  public:
   explicit RadixBatcherSortTaskStl(ppc::core::TaskDataPtr task_data) : Task(std::move(task_data)) {}

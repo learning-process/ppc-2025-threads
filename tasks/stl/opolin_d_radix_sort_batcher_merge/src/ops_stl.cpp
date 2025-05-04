@@ -54,7 +54,7 @@ bool opolin_d_radix_batcher_sort_stl::RadixBatcherSortTaskStl::RunImpl() {
   size_t block_size = (size_ + unum_threads - 1) / unum_threads;
   size_t actual_num_blocks = (size_ + block_size - 1) / block_size;
   std::vector<std::function<void()>> sort_tasks;
-
+  sort_tasks.reserve(actual_num_blocks);
   for (unsigned int i = 0; i < actual_num_blocks; ++i) {
     size_t start = i * block_size;
     size_t end = std::min(start + block_size, static_cast<size_t>(size_));
@@ -66,7 +66,7 @@ bool opolin_d_radix_batcher_sort_stl::RadixBatcherSortTaskStl::RunImpl() {
   if (!sort_tasks.empty()) {
     ParallelRunTasks(sort_tasks, unum_threads);
   }
-  IterativeOddEvenBlockMerge(unsigned_data_.begin(), unsigned_data_.end(), actual_num_blocks, unum_threads);
+  IterativeOddEvenBlockMerge(unsigned_data_.begin(), unsigned_data_.end(), actual_num_blocks, block_size, unum_threads);
   ParallelProcessRange(static_cast<size_t>(size_), unum_threads, [this](size_t start, size_t end) {
     for (size_t i = start; i < end; ++i) {
       output_[i] = UnsignedToInt(unsigned_data_[i]);
@@ -174,33 +174,29 @@ void opolin_d_radix_batcher_sort_stl::RadixSortLSD(std::vector<uint32_t>::iterat
 
 void opolin_d_radix_batcher_sort_stl::IterativeOddEvenBlockMerge(std::vector<uint32_t>::iterator data_begin,
                                                                  std::vector<uint32_t>::iterator data_end,
-                                                                 size_t num_blocks, unsigned int num_threads) {
+                                                                 size_t num_initial_blocks, size_t initial_block_size,
+                                                                 unsigned int num_threads) {
   size_t n = std::distance(data_begin, data_end);
   if (num_blocks <= 1 || n <= 1) {
     return;
   }
-  std::vector<std::vector<uint32_t>::iterator> block_boundaries;
-  block_boundaries.push_back(data_begin);
-  size_t block_size = (n + num_blocks - 1) / num_blocks;
-  for (size_t i = 1; i < num_blocks; ++i) {
-    block_boundaries.push_back(data_begin + std::min(i * block_size, n));
-  }
-  block_boundaries.push_back(data_end);
-  for (size_t pass = 0; pass < num_blocks; ++pass) {
+  size_t current_merge_block_size = initial_block_size;
+  while (current_merge_block_size < n) {
     std::vector<std::function<void()>> merge_tasks;
-    size_t start_block_idx = (pass % 2 == 0) ? 0 : 1;
-    for (size_t i = start_block_idx; i + 1 < num_blocks; i += 2) {
-      auto merge_begin = block_boundaries[i];
-      auto merge_mid = block_boundaries[i + 1];
-      auto merge_end = block_boundaries[i + 2];
-      if (merge_mid >= merge_end) {
-        continue;
+
+    for (size_t i = 0; i < n; i += 2 * current_merge_block_size) {
+      auto merge_begin = data_begin + i;
+      auto merge_mid = data_begin + std::min(i + current_merge_block_size, n);
+      auto merge_end = data_begin + std::min(i + 2 * current_merge_block_size, n);
+      if (merge_mid < merge_end) {
+        merge_tasks.emplace_back([merge_begin, merge_mid, merge_end]() {
+          std::inplace_merge(merge_begin, merge_mid, merge_end);
+        });
       }
-      merge_tasks.emplace_back(
-          [merge_begin, merge_mid, merge_end]() { std::inplace_merge(merge_begin, merge_mid, merge_end); });
     }
     if (!merge_tasks.empty()) {
       ParallelRunTasks(merge_tasks, num_threads);
     }
+    current_merge_block_size *= 2;
   }
 }
