@@ -5,7 +5,7 @@
 #include <algorithm>
 #include <boost/mpi/collectives/broadcast.hpp>
 #include <boost/mpi/collectives/gatherv.hpp>
-#include <boost/serialization/vector.hpp>
+#include <boost/serialization/vector.hpp>  // NOLINT(*-include-cleaner)
 #include <cmath>
 #include <cstddef>
 #include <utility>
@@ -14,19 +14,19 @@
 #include "all/sarafanov_m_CanonMatMul/include/CanonMatrix.hpp"
 #include "core/util/include/util.hpp"
 
-sarafanov_m_canon_mat_mul_all::IndexesPair::IndexesPair(int first, int second) : first_(first), second_(second) {}
+sarafanov_m_canon_mat_mul_all::IndexesPair::IndexesPair(int first, int second) : first(first), second(second) {}
 
 void sarafanov_m_canon_mat_mul_all::CanonMatMulALL::CalculateIndexes() {
-  int part = a_matrix_.GetSqrtSize() / world_.size();
-  int balance = a_matrix_.GetSqrtSize() % world_.size();
+  int part = static_cast<int>(a_matrix_.GetSqrtSize()) / world_.size();
+  int balance = static_cast<int>(a_matrix_.GetSqrtSize()) % world_.size();
   for (int i = 0; i < world_.size(); ++i) {
     if (i == 0) {
-      indexes_.push_back(IndexesPair(0, part));
+      indexes_.emplace_back(IndexesPair(0, part));
     } else {
-      indexes_.push_back(IndexesPair(indexes_[i - 1].second_, indexes_[i - 1].second_ + part));
+      indexes_.emplace_back(IndexesPair(indexes_[i - 1].second, indexes_[i - 1].second + part));
     }
     if (balance != 0) {
-      indexes_[i].second_++;
+      indexes_[i].second++;
       balance--;
     }
   }
@@ -121,7 +121,7 @@ bool sarafanov_m_canon_mat_mul_all::CanonMatMulALL::RunImpl() {
 #pragma omp parallel
   {
 #pragma omp for
-    for (int i = indexes_[world_.rank()].first_; i < indexes_[world_.rank()].second_; ++i) {
+    for (int i = indexes_[world_.rank()].first; i < indexes_[world_.rank()].second; ++i) {
       mul_results[omp_get_thread_num()] += a_matrix_.MultiplicateMatrix(b_matrix_, i);
     }
   }
@@ -140,7 +140,7 @@ bool sarafanov_m_canon_mat_mul_all::CanonMatMulALL::RunImpl() {
     std::vector<double> answer(a_matrix_.GetSize());
     for (int i = 0; i < static_cast<int>(answer.size()); ++i) {
       for (int j = 0; j < world_.size(); ++j) {
-        answer[i] += intermediate_values[i + j * a_matrix_.GetSize()];
+        answer[i] += intermediate_values[i + (j * a_matrix_.GetSize())];
       }
     }
     c_matrix_.SetBaseMatrix(std::move(answer));

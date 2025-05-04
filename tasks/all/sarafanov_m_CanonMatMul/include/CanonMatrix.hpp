@@ -17,6 +17,7 @@ class CanonMatrix {
 
  public:
   template <typename Archive>
+  // NOLINTNEXTLINE(readability-identifier-naming)
   void serialize(Archive& archive, const unsigned int) {
     archive & matrix_;
     archive & size_;
