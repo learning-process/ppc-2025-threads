@@ -251,7 +251,7 @@ void shulpin_tbb_test_module::RandomTestBody(std::vector<shulpin_i_jarvis_tbb::P
   shulpin_tbb_test_module::VerifyResultsRandom(expected, result_tbb);
 }
 
-std::vector<shulpin_i_jarvis_tbb::Point> shulpin_stl_test_module::PerfRandomGenerator(size_t num_points, int from,
+std::vector<shulpin_i_jarvis_tbb::Point> shulpin_tbb_test_module::PerfRandomGenerator(size_t num_points, int from,
                                                                                       int to) {
   std::vector<shulpin_i_jarvis_tbb::Point> points;
   std::random_device rd;
