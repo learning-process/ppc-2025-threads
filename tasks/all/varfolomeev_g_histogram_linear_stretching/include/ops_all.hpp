@@ -1,12 +1,13 @@
 #pragma once
 
-#include <boost/mpi/communicator.hpp>
 #include <boost/mpi/collectives.hpp>
+#include <boost/mpi/communicator.hpp>
 #include <cstdint>
-#include <vector>
 #include <memory>
+#include <vector>
 
 #include "core/task/include/task.hpp"
+
 
 namespace varfolomeev_g_histogram_linear_stretching_all {
 
