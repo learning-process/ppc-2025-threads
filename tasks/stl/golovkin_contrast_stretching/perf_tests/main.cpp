@@ -17,7 +17,7 @@ TEST(golovkin_contrast_stretching, test_contrast_perf_1m) {
   std::vector<uint8_t> in(kCount);
   std::vector<uint8_t> out(kCount, 0);
 
-  // Заполним градиентом
+  // Р—Р°РїРѕР»РЅРёРј РіСЂР°РґРёРµРЅС‚РѕРј
   for (size_t i = 0; i < kCount; ++i) {
     in[i] = static_cast<uint8_t>(i % 256);
   }
@@ -35,7 +35,7 @@ TEST(golovkin_contrast_stretching, test_contrast_perf_1m) {
   task.Run();
   task.PostProcessing();
 
-  // Базовая проверка корректности
+  // Р‘Р°Р·РѕРІР°СЏ РїСЂРѕРІРµСЂРєР° РєРѕСЂСЂРµРєС‚РЅРѕСЃС‚Рё
   ASSERT_EQ(out.size(), in.size());
   EXPECT_GE(out[100], out[50]);
 }
@@ -46,7 +46,7 @@ TEST(golovkin_contrast_stretching, test_contrast_perf_1m2) {
   std::vector<uint8_t> in(kCount);
   std::vector<uint8_t> out(kCount, 0);
 
-  // Заполним градиентом
+  // Р—Р°РїРѕР»РЅРёРј РіСЂР°РґРёРµРЅС‚РѕРј
   for (size_t i = 0; i < kCount; ++i) {
     in[i] = static_cast<uint8_t>(i % 256);
   }
@@ -64,7 +64,7 @@ TEST(golovkin_contrast_stretching, test_contrast_perf_1m2) {
   task.Run();
   task.PostProcessing();
 
-  // Базовая проверка корректности
+  // Р‘Р°Р·РѕРІР°СЏ РїСЂРѕРІРµСЂРєР° РєРѕСЂСЂРµРєС‚РЅРѕСЃС‚Рё
   ASSERT_EQ(out.size(), in.size());
   EXPECT_GE(out[100], out[50]);
 }

@@ -7,7 +7,7 @@
 #include <mutex>
 
 bool golovkin_contrast_stretching::ContrastStretchingSTL::ValidationImpl() {
-  // Ожидаем один вход (одномерный массив), один выход того же размера
+  // РћР¶РёРґР°РµРј РѕРґРёРЅ РІС…РѕРґ (РѕРґРЅРѕРјРµСЂРЅС‹Р№ РјР°СЃСЃРёРІ), РѕРґРёРЅ РІС‹С…РѕРґ С‚РѕРіРѕ Р¶Рµ СЂР°Р·РјРµСЂР°
   return task_data->inputs_count[0] == task_data->outputs_count[0];
 }
 
@@ -18,7 +18,7 @@ bool golovkin_contrast_stretching::ContrastStretchingSTL::PreProcessingImpl() {
   input_image_.assign(input_ptr, input_ptr + image_size_);
   output_image_.resize(image_size_);
 
-  // Поиск min и max
+  // РџРѕРёСЃРє min Рё max
   auto [min_it, max_it] = std::minmax_element(input_image_.begin(), input_image_.end());
   min_val_ = *min_it;
   max_val_ = *max_it;

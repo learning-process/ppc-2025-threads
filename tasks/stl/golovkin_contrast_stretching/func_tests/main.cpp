@@ -35,9 +35,9 @@ TEST(golovkin_contrast_stretching, test_contrast_basic) {
 
 TEST(golovkin_contrast_stretching, test_contrast_flat_image) {
   constexpr size_t kSize = 10;
-  std::vector<uint8_t> in(kSize, 100);  // Все пиксели одинаковы
+  std::vector<uint8_t> in(kSize, 100);  // В¬СЃРµ РїРёРєСЃРµР»Рё РѕРґРёРЅР°РєРѕРІС‹
   std::vector<uint8_t> out(kSize, 0);
-  std::vector<uint8_t> expected(kSize, 0);  // Без контраста — все 0
+  std::vector<uint8_t> expected(kSize, 0);  // Р…РµР· РєРѕРЅС‚СЂР°СЃС‚Р° Р§ РІСЃРµ 0
 
   auto task_data = std::make_shared<ppc::core::TaskData>();
   task_data->inputs.emplace_back(reinterpret_cast<uint8_t *>(in.data()));
@@ -58,7 +58,7 @@ TEST(golovkin_contrast_stretching, test_all_maximum) {
   constexpr size_t kSize = 16;
   std::vector<uint8_t> in(kSize, 255);
   std::vector<uint8_t> out(kSize, 0);
-  std::vector<uint8_t> expected(kSize, 0);  // Min == Max => контраст 0
+  std::vector<uint8_t> expected(kSize, 0);  // Min == Max => РєРѕРЅС‚СЂР°СЃС‚ 0
 
   auto task_data = std::make_shared<ppc::core::TaskData>();
   task_data->inputs.emplace_back(reinterpret_cast<uint8_t *>(in.data()));
@@ -96,13 +96,13 @@ TEST(golovkin_contrast_stretching, test_gradient_image) {
   ASSERT_TRUE(task.Run());
   ASSERT_TRUE(task.PostProcessing());
 
-  EXPECT_EQ(out, in);  // Уже растянуто
+  EXPECT_EQ(out, in);  // вЂќР¶Рµ СЂР°СЃС‚В¤РЅСѓС‚Рѕ
 }
 
 TEST(golovkin_contrast_stretching, test_small_range) {
   std::vector<uint8_t> in = {100, 101, 102, 103, 104, 105};
   std::vector<uint8_t> out(in.size(), 0);
-  std::vector<uint8_t> expected = {0, 51, 102, 153, 204, 255};  // линейная интерполяция
+  std::vector<uint8_t> expected = {0, 51, 102, 153, 204, 255};  // Р»РёРЅРµР№РЅР°В¤ РёРЅС‚РµСЂРїРѕР»В¤С†РёВ¤
 
   auto task_data = std::make_shared<ppc::core::TaskData>();
   task_data->inputs.emplace_back(reinterpret_cast<uint8_t *>(in.data()));
@@ -181,7 +181,7 @@ TEST(golovkin_contrast_stretching, test_alternating_values) {
 
 TEST(golovkin_contrast_stretching, test_all_zeros) {
   std::vector<uint8_t> in(32, 0);
-  std::vector<uint8_t> out(in.size(), 123);  // чтобы убедиться в замене
+  std::vector<uint8_t> out(in.size(), 123);  // С‡С‚РѕР±С‹ СѓР±РµРґРёС‚СЊСЃВ¤ РІ Р·Р°РјРµРЅРµ
   std::vector<uint8_t> expected(32, 0);
 
   auto task_data = std::make_shared<ppc::core::TaskData>();
