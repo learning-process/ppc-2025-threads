@@ -1,12 +1,12 @@
 #include "stl/kharin_m_multidimensional_integral_calc/include/ops_stl.hpp"
 
-#include <cstddef>
-#include <thread>
-#include <vector>
 #include <algorithm>
+#include <cstddef>
 #include <functional>
+// #include <iterator>
+#include <thread>
 #include <utility>
-#include <iterator>
+#include <vector>
 
 #include "core/util/include/util.hpp"
 
@@ -77,15 +77,16 @@ bool kharin_m_multidimensional_integral_calc_stl::TaskSTL::RunImpl() {
   auto chunk_plus = [&](std::vector<double>::iterator it_begin, size_t size, double& result_location) {
     double local = 0;
     for (size_t i = 0; i < size; ++i) {
-      local += *(it_begin + i);
+      // Cast size_t to iterator difference_type to avoid narrowing conversion
+      local += *(it_begin + static_cast<std::vector<double>::difference_type>(i));
     }
     result_location = local;
   };
 
   size_t current_start_index = 0;
   for (size_t i = 0; i < num_threads_; ++i) {
-    size_t size = (static_cast<size_t>(i) < remainder) ? (input_chunk_size + 1) : input_chunk_size;
-    auto it_begin = input_.begin() + current_start_index;
+    size_t size = (i < remainder) ? (input_chunk_size + 1) : input_chunk_size;
+    auto it_begin = input_.begin() + static_cast<std::vector<double>::difference_type>(current_start_index);
     std::thread th(chunk_plus, it_begin, size, std::ref(partial_sums[i]));
     threads.push_back(std::move(th));
     current_start_index += size;
