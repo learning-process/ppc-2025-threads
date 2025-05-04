@@ -17,11 +17,14 @@ bool varfolomeev_g_histogram_linear_stretching_all::TestTaskALL::ValidationImpl(
 }
 
 bool varfolomeev_g_histogram_linear_stretching_all::TestTaskALL::PreProcessingImpl() {
+  input_image_.clear();
+  result_image_.clear();
   if (world_.rank() == 0) {
     input_image_.resize(task_data->inputs_count[0]);
     auto* input_ptr = reinterpret_cast<uint8_t*>(task_data->inputs[0]);
     std::copy(input_ptr, input_ptr + task_data->inputs_count[0], input_image_.begin());
   }
+
   return true;
 }
 

@@ -29,6 +29,13 @@ std::vector<uint8_t> GetRandomImage(int sz) {
 
   return res;
 }
+
+void CheckEQ(const std::vector<uint8_t> &expected_out, const std::vector<uint8_t> &out) {
+  boost::mpi::communicator world;
+  if (world.rank() == 0) {
+    EXPECT_EQ(expected_out, out);
+  }
+}
 }  // namespace
 
 TEST(varfolomeev_g_histogram_linear_stretching_all, test_rounding) {
@@ -50,7 +57,7 @@ TEST(varfolomeev_g_histogram_linear_stretching_all, test_rounding) {
   test_task_all.Run();
   test_task_all.PostProcessing();
 
-  EXPECT_EQ(expected_out, out);
+  CheckEQ(expected_out, out);
 }
 
 TEST(varfolomeev_g_histogram_linear_stretching_all, test_single_pixel) {
@@ -71,7 +78,7 @@ TEST(varfolomeev_g_histogram_linear_stretching_all, test_single_pixel) {
   test_task_all.Run();
   test_task_all.PostProcessing();
 
-  EXPECT_EQ(in, out);
+  CheckEQ(in, out);
 }
 
 #ifndef _WIN32
@@ -89,8 +96,11 @@ TEST(varfolomeev_g_histogram_linear_stretching_all, test_opencv_image_validation
   ASSERT_FALSE(reference_image.empty());
 
   // images validation
-  ASSERT_EQ(input_image.size(), reference_image.size());
-  ASSERT_EQ(input_image.type(), reference_image.type());
+  boost::mpi::communicator world;
+  if (world.rank() == 0) {
+    ASSERT_EQ(input_image.size(), reference_image.size());
+    ASSERT_EQ(input_image.type(), reference_image.type());
+  }
 }
 
 TEST(varfolomeev_g_histogram_linear_stretching_all, test_opencv_manual_64x64) {
@@ -125,11 +135,14 @@ TEST(varfolomeev_g_histogram_linear_stretching_all, test_opencv_manual_64x64) {
   test_task_all.RunImpl();
   test_task_all.PostProcessingImpl();
 
-  // check quality
-  cv::Mat result_image(input_image.rows, input_image.cols, CV_8UC1, output_vector.data());
-  double mse = cv::norm(result_image, reference_image, cv::NORM_L2) / (result_image.rows * result_image.cols);
-  double psnr = 10.0 * log10((255.0 * 255.0) / mse);
-  EXPECT_GT(psnr, 60.0);
+  boost::mpi::communicator world;
+  if (world.rank() == 0) {
+    // check quality
+    cv::Mat result_image(input_image.rows, input_image.cols, CV_8UC1, output_vector.data());
+    double mse = cv::norm(result_image, reference_image, cv::NORM_L2) / (result_image.rows * result_image.cols);
+    double psnr = 10.0 * log10((255.0 * 255.0) / mse);
+    EXPECT_GT(psnr, 60.0);
+  }
 }
 #endif
 
@@ -150,7 +163,7 @@ TEST(varfolomeev_g_histogram_linear_stretching_all, test_manual_9) {
   test_task_all.PreProcessing();
   test_task_all.Run();
   test_task_all.PostProcessing();
-  EXPECT_EQ(expected_out, out);
+  CheckEQ(expected_out, out);
 }
 
 TEST(varfolomeev_g_histogram_linear_stretching_all, test_manual_10) {
@@ -172,7 +185,7 @@ TEST(varfolomeev_g_histogram_linear_stretching_all, test_manual_10) {
   test_task_all.PreProcessing();
   test_task_all.Run();
   test_task_all.PostProcessing();
-  EXPECT_EQ(expected_out, out);
+  CheckEQ(expected_out, out);
 }
 
 TEST(varfolomeev_g_histogram_linear_stretching_all, test_manual_25) {
@@ -196,7 +209,7 @@ TEST(varfolomeev_g_histogram_linear_stretching_all, test_manual_25) {
   test_task_all.PreProcessing();
   test_task_all.Run();
   test_task_all.PostProcessing();
-  EXPECT_EQ(expected_out, out);
+  CheckEQ(expected_out, out);
 }
 
 TEST(varfolomeev_g_histogram_linear_stretching_all, test_stretched) {
@@ -218,7 +231,7 @@ TEST(varfolomeev_g_histogram_linear_stretching_all, test_stretched) {
   test_task_all.PreProcessing();
   test_task_all.Run();
   test_task_all.PostProcessing();
-  EXPECT_EQ(expected_out, out);
+  CheckEQ(expected_out, out);
 }
 
 TEST(varfolomeev_g_histogram_linear_stretching_all, test_boundary_values) {
@@ -238,7 +251,7 @@ TEST(varfolomeev_g_histogram_linear_stretching_all, test_boundary_values) {
   test_task_all.PreProcessing();
   test_task_all.Run();
   test_task_all.PostProcessing();
-  EXPECT_EQ(expected_out, out);
+  CheckEQ(expected_out, out);
 }
 
 TEST(varfolomeev_g_histogram_linear_stretching_all, test_flat) {
@@ -261,7 +274,7 @@ TEST(varfolomeev_g_histogram_linear_stretching_all, test_flat) {
   test_task_all.PreProcessing();
   test_task_all.Run();
   test_task_all.PostProcessing();
-  EXPECT_EQ(expected_out, out);
+  CheckEQ(expected_out, out);
 }
 
 TEST(varfolomeev_g_histogram_linear_stretching_all, test_full_black) {
@@ -282,7 +295,7 @@ TEST(varfolomeev_g_histogram_linear_stretching_all, test_full_black) {
   test_task_all.PreProcessing();
   test_task_all.Run();
   test_task_all.PostProcessing();
-  EXPECT_EQ(expected_out, out);
+  CheckEQ(expected_out, out);
 }
 
 TEST(varfolomeev_g_histogram_linear_stretching_all, test_full_white) {
@@ -304,7 +317,7 @@ TEST(varfolomeev_g_histogram_linear_stretching_all, test_full_white) {
   test_task_all.PreProcessing();
   test_task_all.Run();
   test_task_all.PostProcessing();
-  EXPECT_EQ(expected_out, out);
+  CheckEQ(expected_out, out);
 }
 
 TEST(varfolomeev_g_histogram_linear_stretching_all, test_single_non_flat_pixel) {
@@ -327,7 +340,7 @@ TEST(varfolomeev_g_histogram_linear_stretching_all, test_single_non_flat_pixel) 
   test_task_all.PreProcessing();
   test_task_all.Run();
   test_task_all.PostProcessing();
-  EXPECT_EQ(expected_out, out);
+  CheckEQ(expected_out, out);
 }
 
 TEST(varfolomeev_g_histogram_linear_stretching_all, test_single_non_flat_pixel_2) {
@@ -350,7 +363,7 @@ TEST(varfolomeev_g_histogram_linear_stretching_all, test_single_non_flat_pixel_2
   test_task_all.PreProcessing();
   test_task_all.Run();
   test_task_all.PostProcessing();
-  EXPECT_EQ(expected_out, out);
+  CheckEQ(expected_out, out);
 }
 
 TEST(varfolomeev_g_histogram_linear_stretching_all, test_10k_generated) {
@@ -382,7 +395,7 @@ TEST(varfolomeev_g_histogram_linear_stretching_all, test_10k_generated) {
   test_task_all.Run();
   test_task_all.PostProcessing();
 
-  EXPECT_EQ(expected_out, out);
+  CheckEQ(expected_out, out);
 }
 
 TEST(varfolomeev_g_histogram_linear_stretching_all, test_empty) {
@@ -398,7 +411,10 @@ TEST(varfolomeev_g_histogram_linear_stretching_all, test_empty) {
 
   // Create Task
   varfolomeev_g_histogram_linear_stretching_all::TestTaskALL test_task_all(task_data_all);
-  ASSERT_EQ(test_task_all.Validation(), false);
+  boost::mpi::communicator world;
+  if (world.rank() == 0) {
+    ASSERT_EQ(test_task_all.Validation(), false);
+  }
 }
 
 TEST(varfolomeev_g_histogram_linear_stretching_all, test_in_out_NE) {
@@ -411,8 +427,10 @@ TEST(varfolomeev_g_histogram_linear_stretching_all, test_in_out_NE) {
   task_data_all->inputs_count.emplace_back(in.size());
   task_data_all->outputs.emplace_back(reinterpret_cast<uint8_t *>(out.data()));
   task_data_all->outputs_count.emplace_back(out.size());
-
   // Create Task
   varfolomeev_g_histogram_linear_stretching_all::TestTaskALL test_task_all(task_data_all);
-  ASSERT_EQ(test_task_all.Validation(), false);
+  boost::mpi::communicator world;
+  if (world.rank() == 0) {
+    ASSERT_EQ(test_task_all.Validation(), false);
+  }
 }
