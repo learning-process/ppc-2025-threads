@@ -165,10 +165,10 @@ void opolin_d_radix_batcher_sort_stl::RadixSortLSD(std::vector<uint32_t>::iterat
       count[i] = cumulative_sum;
       cumulative_sum += current_count;
     }
-    for (auto it = std::make_reverse_iterator(end); it != std::make_reverse_iterator(begin); ++it) {
-      buffer[--count[(*it >> shift) & (RADIX - 1)]] = *it;
+    for (auto it = begin; it != end; ++it) {
+      buffer[count[(*it >> shift) & (RADIX - 1)]++] = *it;
     }
-    std::copy(buffer.begin(), buffer.end(), begin);
+    std::copy(buffer.begin(), buffer.begin() + n, begin);
   }
 }
 
