@@ -41,7 +41,7 @@ void TrivialMatrixMultiplication(const std::vector<double> &matrix_a, const std:
 }
 }  // namespace lysov_i_matrix_multiplication_fox_algorithm_stl
 
-TEST(lysov_i_matrix_multiplication_Fox_algorithm_omp, test_pipeline_run) {
+TEST(lysov_i_matrix_multiplication_Fox_algorithm_stl, test_pipeline_run) {
   // Create data
   size_t n = 800;
   size_t block_size = 30;
@@ -93,7 +93,7 @@ TEST(lysov_i_matrix_multiplication_Fox_algorithm_omp, test_pipeline_run) {
   }
 }
 
-TEST(lysov_i_matrix_multiplication_Fox_algorithm_omp, test_task_run) {
+TEST(lysov_i_matrix_multiplication_Fox_algorithm_stl, test_task_run) {
   size_t n = 800;
   size_t block_size = 30;
   int min_gen_value = -1e3;
