@@ -4,7 +4,10 @@
 #include <cstdlib>
 #include <ctime>
 #include <functional>
+#include <future>
+#include <numeric>
 #include <random>
+#include <thread>
 #include <vector>
 
 bool sharamygina_i_multi_dim_monte_carlo_stl::MultiDimMonteCarloTask::PreProcessingImpl() {
@@ -30,21 +33,44 @@ bool sharamygina_i_multi_dim_monte_carlo_stl::MultiDimMonteCarloTask::Validation
 bool sharamygina_i_multi_dim_monte_carlo_stl::MultiDimMonteCarloTask::RunImpl() {
   size_t dimension = boundaries_.size() / 2;
 
-  std::mt19937 engine(static_cast<unsigned long>(std::time(nullptr)));
-  std::uniform_real_distribution<double> distribution(0.0, 1.0);
+  const int num_threads = std::thread::hardware_concurrency();
+  std::vector<std::future<double>> futures;
 
-  double accumulator = 0.0;
+  int iterations_per_thread = number_of_iterations_ / num_threads;
+  int remainder = number_of_iterations_ % num_threads;
 
-  for (int n = 0; n < number_of_iterations_; ++n) {
-    std::vector<double> random_point(dimension);
-    for (size_t i = 0; i < dimension; ++i) {
-      double low = boundaries_[2 * i];
-      double high = boundaries_[(2 * i) + 1];
-      double t = distribution(engine);
-      random_point[i] = low + (high - low) * t;
-    }
-    accumulator += integrating_function_(random_point);
+  for (int t = 0; t < num_threads; ++t) {
+    int start = t * iterations_per_thread;
+    int end = (t == num_threads - 1) ? (start + iterations_per_thread + remainder) : (start + iterations_per_thread);
+
+    futures.push_back(std::async(std::launch::async, [this, start, end, dimension, t]() -> double {
+      std::random_device rd;
+      unsigned long seed = rd() + static_cast<unsigned long>(t);
+      std::mt19937 local_engine(seed);
+      std::uniform_real_distribution<double> local_distribution(0.0, 1.0);
+
+      double local_accumulator = 0.0;
+      std::vector<double> random_point(dimension);
+
+      for (int n = start; n < end; ++n) {
+        for (size_t i = 0; i < dimension; ++i) {
+          double low = boundaries_[2 * i];
+          double high = boundaries_[(2 * i) + 1];
+          double rnd = local_distribution(local_engine);
+          random_point[i] = low + (high - low) * rnd;
+        }
+        local_accumulator += integrating_function_(random_point);
+      }
+      return local_accumulator;
+    }));
   }
+
+  std::vector<double> results;
+  results.reserve(futures.size());
+  for (auto& future : futures) {
+    results.push_back(future.get());
+  }
+  double accumulator = std::reduce(results.begin(), results.end(), 0.0);
 
   double volume = 1.0;
   for (size_t i = 0; i < dimension; ++i) {
