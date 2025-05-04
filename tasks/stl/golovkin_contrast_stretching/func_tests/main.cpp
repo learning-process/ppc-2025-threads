@@ -14,7 +14,7 @@ TEST(golovkin_contrast_stretching, test_contrast_basic) {
   constexpr size_t kSize = 8;
   std::vector<uint8_t> in = {30, 60, 90, 120, 150, 180, 210, 240};
   std::vector<uint8_t> out(kSize, 0);
-  std::vector<uint8_t> expected = {0, 36, 72, 109, 145, 182, 218, 255};  
+  std::vector<uint8_t> expected = {0, 36, 72, 109, 145, 182, 218, 255};
 
   // Create task_data
   auto task_data = std::make_shared<ppc::core::TaskData>();

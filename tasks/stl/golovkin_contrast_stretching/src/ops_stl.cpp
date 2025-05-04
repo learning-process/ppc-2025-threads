@@ -2,9 +2,9 @@
 
 #include <algorithm>
 #include <iostream>
+#include <mutex>
 #include <thread>
 #include <vector>
-#include <mutex>
 
 bool golovkin_contrast_stretching::ContrastStretchingSTL::ValidationImpl() {
   // Ожидаем один вход (одномерный массив), один выход того же размера
