@@ -6,7 +6,6 @@
 
 #include "core/task/include/task.hpp"
 
-// namespace petrov_o_vertical_image_filtration_stl {
 namespace petrov_o_vertical_image_filtration_stl {
 
 class TaskSTL : public ppc::core::Task {
