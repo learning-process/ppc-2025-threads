@@ -12,7 +12,7 @@
 
 void kapustin_i_jarv_alg_stl::TestTaskSTL::Worker(size_t start, size_t end, size_t current_index,
                                                   std::atomic<size_t>& best_index) {
-  size_t local_best = best_index.load(); 
+  size_t local_best = best_index.load();
   for (size_t i = start; i < end; ++i) {
     if (i == current_index) {
       continue;
