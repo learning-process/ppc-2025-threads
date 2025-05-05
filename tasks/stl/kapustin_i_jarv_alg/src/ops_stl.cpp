@@ -3,48 +3,11 @@
 #include <algorithm>
 #include <cmath>
 #include <cstddef>
-#include <functional>
-#include <mutex>
 #include <thread>
 #include <utility>
 #include <vector>
 
 #include "core/util/include/util.hpp"
-
-void kapustin_i_jarv_alg_stl::TestTaskSTL::Worker(size_t start, size_t end, size_t current_index, size_t& best_index,
-                                                  std::mutex& mutex) {
-  size_t local_best = best_index;
-  for (size_t i = start; i < end; ++i) {
-    if (i == current_index) {
-      continue;
-    }
-
-    int orientation = Orientation(input_[current_index], input_[local_best], input_[i]);
-    bool better = false;
-    if (orientation > 0) {
-      better = true;
-    } else if (orientation == 0) {
-      better = CalculateDistance(input_[i], input_[current_index]) >
-               CalculateDistance(input_[local_best], input_[current_index]);
-    }
-    if (better) {
-      local_best = i;
-    }
-  }
-
-  std::lock_guard<std::mutex> lock(mutex);
-  int orientation = Orientation(input_[current_index], input_[best_index], input_[local_best]);
-  bool better = false;
-  if (orientation > 0) {
-    better = true;
-  } else if (orientation == 0) {
-    better = CalculateDistance(input_[local_best], input_[current_index]) >
-             CalculateDistance(input_[best_index], input_[current_index]);
-  }
-  if (better) {
-    best_index = local_best;
-  }
-}
 
 int kapustin_i_jarv_alg_stl::TestTaskSTL::CalculateDistance(const std::pair<int, int>& p1,
                                                             const std::pair<int, int>& p2) {
@@ -93,20 +56,50 @@ bool kapustin_i_jarv_alg_stl::TestTaskSTL::RunImpl() {
   auto num_threads = static_cast<size_t>(ppc::util::GetPPCNumThreads());
   const size_t chunk_size = (input_.size() + num_threads - 1) / num_threads;
 
+  std::vector<size_t> local_best(num_threads, static_cast<size_t>(-1));
+
   do {
-    size_t best_index = (current_index + 1) % input_.size();
-    std::mutex mutex;
+    for (size_t i = 0; i < num_threads; ++i) {
+      local_best[i] = (current_index + 1) % input_.size();
+    }
 
     std::vector<std::thread> threads;
     for (size_t i = 0; i < num_threads; ++i) {
       size_t start = i * chunk_size;
       size_t end = std::min(start + chunk_size, input_.size());
-      threads.emplace_back(&TestTaskSTL::Worker, this, start, end, current_index, std::ref(best_index),
-                           std::ref(mutex));
+      threads.emplace_back([&, i, start, end]() {
+        for (size_t j = start; j < end; ++j) {
+          if (j == current_index) continue;
+          int orientation = Orientation(input_[current_index], input_[local_best[i]], input_[j]);
+          bool better = false;
+          if (orientation > 0) {
+            better = true;
+          } else if (orientation == 0) {
+            better = CalculateDistance(input_[j], input_[current_index]) >
+                     CalculateDistance(input_[local_best[i]], input_[current_index]);
+          }
+          if (better) {
+            local_best[i] = j;
+          }
+        }
+      });
     }
 
-    for (auto& t : threads) {
-      t.join();
+    for (auto& t : threads) t.join();
+
+    size_t best_index = local_best[0];
+    for (size_t i = 1; i < num_threads; ++i) {
+      int orientation = Orientation(input_[current_index], input_[best_index], input_[local_best[i]]);
+      bool better = false;
+      if (orientation > 0) {
+        better = true;
+      } else if (orientation == 0) {
+        better = CalculateDistance(input_[local_best[i]], input_[current_index]) >
+                 CalculateDistance(input_[best_index], input_[current_index]);
+      }
+      if (better) {
+        best_index = local_best[i];
+      }
     }
 
     if (!output_.empty() && input_[best_index] == output_.front()) {
