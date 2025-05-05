@@ -4,11 +4,8 @@
 #include <cmath>
 #include <cstddef>
 #include <future>
-#include <iostream>
-#include <thread>
 #include <vector>
 
-#include "core/util/include/util.hpp"
 void lysov_i_matrix_multiplication_fox_algorithm_stl::ProcessBlock(const std::vector<double> &a,
                                                                    const std::vector<double> &b, std::vector<double> &c,
                                                                    std::size_t i, std::size_t j,
