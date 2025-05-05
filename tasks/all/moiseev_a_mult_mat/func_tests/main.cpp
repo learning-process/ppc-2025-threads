@@ -10,7 +10,6 @@
 #include "all/moiseev_a_mult_mat/include/ops_mpi.hpp"
 #include "core/task/include/task.hpp"
 
-
 namespace {
 
 std::vector<double> GenerateRandomMatrix(size_t rows, size_t cols) {

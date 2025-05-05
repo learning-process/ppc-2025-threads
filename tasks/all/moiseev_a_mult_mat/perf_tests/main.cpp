@@ -11,7 +11,6 @@
 #include "core/perf/include/perf.hpp"
 #include "core/task/include/task.hpp"
 
-
 namespace {
 
 std::vector<double> GenerateRandomMatrix(size_t rows, size_t cols) {
