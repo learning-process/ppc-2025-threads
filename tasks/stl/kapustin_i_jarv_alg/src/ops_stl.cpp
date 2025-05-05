@@ -1,7 +1,6 @@
 #include "stl/kapustin_i_jarv_alg/include/ops_stl.hpp"
 
 #include <algorithm>
-#include <atomic>
 #include <cmath>
 #include <cstddef>
 #include <thread>
@@ -9,6 +8,34 @@
 #include <vector>
 
 #include "core/util/include/util.hpp"
+
+void kapustin_i_jarv_alg_stl::TestTaskSTL::FindBestPointMultithreaded(size_t current_index,
+                                                                      std::vector<size_t>& local_best) {
+  size_t num_threads = static_cast<size_t>(ppc::util::GetPPCNumThreads());
+  const size_t chunk_size = (input_.size() + num_threads - 1) / num_threads;
+  std::vector<std::thread> threads;
+
+  for (size_t i = 0; i < num_threads; ++i) {
+    size_t start = i * chunk_size;
+    size_t end = std::min(start + chunk_size, input_.size());
+    threads.emplace_back([this, start, end, current_index, i, &local_best]() {
+      size_t local_best_index = local_best[i];
+      for (size_t j = start; j < end; ++j) {
+        if (j == current_index) continue;
+        int orientation = Orientation(input_[current_index], input_[local_best_index], input_[j]);
+        bool better = (orientation > 0) ||
+                      (orientation == 0 && CalculateDistance(input_[j], input_[current_index]) >
+                                               CalculateDistance(input_[local_best_index], input_[current_index]));
+        if (better) {
+          local_best_index = j;
+        }
+      }
+      local_best[i] = local_best_index;
+    });
+  }
+
+  for (auto& t : threads) t.join();
+}
 
 int kapustin_i_jarv_alg_stl::TestTaskSTL::CalculateDistance(const std::pair<int, int>& p1,
                                                             const std::pair<int, int>& p2) {
@@ -54,38 +81,15 @@ bool kapustin_i_jarv_alg_stl::TestTaskSTL::RunImpl() {
   output_.clear();
   output_.push_back(start_point);
 
-  auto num_threads = static_cast<size_t>(ppc::util::GetPPCNumThreads());
-  const size_t chunk_size = (input_.size() + num_threads - 1) / num_threads;
-
   size_t best_index = current_index;
 
   do {
-    std::vector<std::thread> threads;
-    std::vector<size_t> local_best(num_threads, best_index);
+    std::vector<size_t> local_best(ppc::util::GetPPCNumThreads(), best_index);
 
-    for (size_t i = 0; i < num_threads; ++i) {
-      size_t start = i * chunk_size;
-      size_t end = std::min(start + chunk_size, input_.size());
-      threads.emplace_back([this, start, end, current_index, i, &local_best]() {
-        size_t local_best_index = local_best[i];
-        for (size_t j = start; j < end; ++j) {
-          if (j == current_index) continue;
-          int orientation = Orientation(input_[current_index], input_[local_best_index], input_[j]);
-          bool better = (orientation > 0) ||
-                        (orientation == 0 && CalculateDistance(input_[j], input_[current_index]) >
-                                                 CalculateDistance(input_[local_best_index], input_[current_index]));
-          if (better) {
-            local_best_index = j;
-          }
-        }
-        local_best[i] = local_best_index;
-      });
-    }
-
-    for (auto& t : threads) t.join();
+    FindBestPointMultithreaded(current_index, local_best);
 
     best_index = local_best[0];
-    for (size_t i = 1; i < num_threads; ++i) {
+    for (size_t i = 1; i < local_best.size(); ++i) {
       int orientation = Orientation(input_[current_index], input_[best_index], input_[local_best[i]]);
       bool better =
           (orientation > 0) || (orientation == 0 && CalculateDistance(input_[local_best[i]], input_[current_index]) >
@@ -94,7 +98,6 @@ bool kapustin_i_jarv_alg_stl::TestTaskSTL::RunImpl() {
         best_index = local_best[i];
       }
     }
-
     if (!output_.empty() && input_[best_index] == output_.front()) {
       break;
     }
@@ -107,7 +110,6 @@ bool kapustin_i_jarv_alg_stl::TestTaskSTL::RunImpl() {
 
   return true;
 }
-
 bool kapustin_i_jarv_alg_stl::TestTaskSTL::PostProcessingImpl() {
   auto* result_ptr = reinterpret_cast<std::pair<int, int>*>(task_data->outputs[0]);
   std::ranges::copy(output_, result_ptr);
