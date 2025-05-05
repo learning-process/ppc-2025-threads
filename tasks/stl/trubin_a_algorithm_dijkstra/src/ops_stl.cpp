@@ -4,6 +4,7 @@
 #include <cmath>
 #include <condition_variable>
 #include <cstddef>
+#include <cstdio>
 #include <functional>
 #include <limits>
 #include <mutex>
