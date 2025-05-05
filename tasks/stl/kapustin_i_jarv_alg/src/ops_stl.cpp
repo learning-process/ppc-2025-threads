@@ -54,7 +54,7 @@ bool kapustin_i_jarv_alg_stl::TestTaskSTL::RunImpl() {
   output_.clear();
   output_.push_back(start_point);
 
-  const int num_threads = ppc::util::GetPPCNumThreads();
+  const size_t num_threads = static_cast<size_t>(ppc::util::GetPPCNumThreads());
   const size_t chunk_size = (input_.size() + num_threads - 1) / num_threads;
 
   do {
