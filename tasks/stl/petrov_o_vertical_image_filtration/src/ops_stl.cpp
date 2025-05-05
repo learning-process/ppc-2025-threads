@@ -50,7 +50,6 @@ void petrov_o_vertical_image_filtration_stl::TaskSTL::ProcessImageStripe(size_t 
 bool petrov_o_vertical_image_filtration_stl::TaskSTL::RunImpl() {
   unsigned int num_threads = ppc::util::GetPPCNumThreads();
 
-  //num_threads = std::min(std::max(2U, num_threads), static_cast<unsigned int>(height_ - 2));
   num_threads = std::min(num_threads, static_cast<unsigned int>(height_ - 2));
 
   if (num_threads <= 1) {
