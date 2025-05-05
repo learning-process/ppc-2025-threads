@@ -41,18 +41,18 @@ TEST(kolodkin_g_multiplication_matrix_stl, test_matmul_only_real) {
   c.AddValue(2, Complex(24, 0), 1);
   c.AddValue(2, Complex(35, 0), 0);
   // Create task_data
-  auto task_data_tbb = std::make_shared<ppc::core::TaskData>();
-  task_data_tbb->inputs.emplace_back(reinterpret_cast<uint8_t *>(in.data()));
-  task_data_tbb->inputs_count.emplace_back(in.size());
-  task_data_tbb->outputs.emplace_back(reinterpret_cast<uint8_t *>(out.data()));
-  task_data_tbb->outputs_count.emplace_back(out.size());
+  auto task_data_stl = std::make_shared<ppc::core::TaskData>();
+  task_data_stl->inputs.emplace_back(reinterpret_cast<uint8_t *>(in.data()));
+  task_data_stl->inputs_count.emplace_back(in.size());
+  task_data_stl->outputs.emplace_back(reinterpret_cast<uint8_t *>(out.data()));
+  task_data_stl->outputs_count.emplace_back(out.size());
 
   // Create Task
-  kolodkin_g_multiplication_matrix_stl::TestTaskSTL test_task_tbb(task_data_tbb);
-  ASSERT_EQ(test_task_tbb.Validation(), true);
-  test_task_tbb.PreProcessing();
-  test_task_tbb.Run();
-  test_task_tbb.PostProcessing();
+  kolodkin_g_multiplication_matrix_stl::TestTaskSTL test_task_stl(task_data_stl);
+  ASSERT_EQ(test_task_stl.Validation(), true);
+  test_task_stl.PreProcessing();
+  test_task_stl.Run();
+  test_task_stl.PostProcessing();
   kolodkin_g_multiplication_matrix_stl::SparseMatrixCRS res =
       kolodkin_g_multiplication_matrix_stl::ParseVectorIntoMatrix(out);
   ASSERT_TRUE(kolodkin_g_multiplication_matrix_stl::CheckMatrixesEquality(res, c));
@@ -86,15 +86,15 @@ TEST(kolodkin_g_multiplication_matrix_stl, test_matmul_not_equal_rows_and_cols) 
     in.emplace_back(in_b[i]);
   }
   // Create task_data
-  auto task_data_tbb = std::make_shared<ppc::core::TaskData>();
-  task_data_tbb->inputs.emplace_back(reinterpret_cast<uint8_t *>(in.data()));
-  task_data_tbb->inputs_count.emplace_back(in.size());
-  task_data_tbb->outputs.emplace_back(reinterpret_cast<uint8_t *>(out.data()));
-  task_data_tbb->outputs_count.emplace_back(out.size());
+  auto task_data_stl = std::make_shared<ppc::core::TaskData>();
+  task_data_stl->inputs.emplace_back(reinterpret_cast<uint8_t *>(in.data()));
+  task_data_stl->inputs_count.emplace_back(in.size());
+  task_data_stl->outputs.emplace_back(reinterpret_cast<uint8_t *>(out.data()));
+  task_data_stl->outputs_count.emplace_back(out.size());
 
   // Create Task
-  kolodkin_g_multiplication_matrix_stl::TestTaskSTL test_task_tbb(task_data_tbb);
-  ASSERT_EQ(test_task_tbb.Validation(), false);
+  kolodkin_g_multiplication_matrix_stl::TestTaskSTL test_task_stl(task_data_stl);
+  ASSERT_EQ(test_task_stl.Validation(), false);
 }
 
 TEST(kolodkin_g_multiplication_matrix_stl, test_matmul_with_imag) {
@@ -131,18 +131,18 @@ TEST(kolodkin_g_multiplication_matrix_stl, test_matmul_with_imag) {
   c.AddValue(2, Complex(0, 48), 1);
   c.AddValue(2, Complex(0, 70), 0);
   // Create task_data
-  auto task_data_tbb = std::make_shared<ppc::core::TaskData>();
-  task_data_tbb->inputs.emplace_back(reinterpret_cast<uint8_t *>(in.data()));
-  task_data_tbb->inputs_count.emplace_back(in.size());
-  task_data_tbb->outputs.emplace_back(reinterpret_cast<uint8_t *>(out.data()));
-  task_data_tbb->outputs_count.emplace_back(out.size());
+  auto task_data_stl = std::make_shared<ppc::core::TaskData>();
+  task_data_stl->inputs.emplace_back(reinterpret_cast<uint8_t *>(in.data()));
+  task_data_stl->inputs_count.emplace_back(in.size());
+  task_data_stl->outputs.emplace_back(reinterpret_cast<uint8_t *>(out.data()));
+  task_data_stl->outputs_count.emplace_back(out.size());
 
   // Create Task
-  kolodkin_g_multiplication_matrix_stl::TestTaskSTL test_task_tbb(task_data_tbb);
-  ASSERT_EQ(test_task_tbb.Validation(), true);
-  test_task_tbb.PreProcessing();
-  test_task_tbb.Run();
-  test_task_tbb.PostProcessing();
+  kolodkin_g_multiplication_matrix_stl::TestTaskSTL test_task_stl(task_data_stl);
+  ASSERT_EQ(test_task_stl.Validation(), true);
+  test_task_stl.PreProcessing();
+  test_task_stl.Run();
+  test_task_stl.PostProcessing();
   kolodkin_g_multiplication_matrix_stl::SparseMatrixCRS res =
       kolodkin_g_multiplication_matrix_stl::ParseVectorIntoMatrix(out);
   ASSERT_TRUE(kolodkin_g_multiplication_matrix_stl::CheckMatrixesEquality(res, c));
@@ -182,18 +182,18 @@ TEST(kolodkin_g_multiplication_matrix_stl, test_matmul_rectangular_matrix) {
   c.AddValue(1, Complex(15, 0), 0);
   c.AddValue(1, Complex(12, 0), 3);
   // Create task_data
-  auto task_data_tbb = std::make_shared<ppc::core::TaskData>();
-  task_data_tbb->inputs.emplace_back(reinterpret_cast<uint8_t *>(in.data()));
-  task_data_tbb->inputs_count.emplace_back(in.size());
-  task_data_tbb->outputs.emplace_back(reinterpret_cast<uint8_t *>(out.data()));
-  task_data_tbb->outputs_count.emplace_back(out.size());
+  auto task_data_stl = std::make_shared<ppc::core::TaskData>();
+  task_data_stl->inputs.emplace_back(reinterpret_cast<uint8_t *>(in.data()));
+  task_data_stl->inputs_count.emplace_back(in.size());
+  task_data_stl->outputs.emplace_back(reinterpret_cast<uint8_t *>(out.data()));
+  task_data_stl->outputs_count.emplace_back(out.size());
 
   // Create Task
-  kolodkin_g_multiplication_matrix_stl::TestTaskSTL test_task_tbb(task_data_tbb);
-  ASSERT_EQ(test_task_tbb.Validation(), true);
-  test_task_tbb.PreProcessing();
-  test_task_tbb.Run();
-  test_task_tbb.PostProcessing();
+  kolodkin_g_multiplication_matrix_stl::TestTaskSTL test_task_stl(task_data_stl);
+  ASSERT_EQ(test_task_stl.Validation(), true);
+  test_task_stl.PreProcessing();
+  test_task_stl.Run();
+  test_task_stl.PostProcessing();
   kolodkin_g_multiplication_matrix_stl::SparseMatrixCRS res =
       kolodkin_g_multiplication_matrix_stl::ParseVectorIntoMatrix(out);
   ASSERT_TRUE(kolodkin_g_multiplication_matrix_stl::CheckMatrixesEquality(res, c));
@@ -226,18 +226,18 @@ TEST(kolodkin_g_multiplication_matrix_stl, test_matmul_with_negative_elems) {
   c.AddValue(0, Complex(0, -12), 1);
   c.AddValue(1, Complex(0, -42), 0);
   // Create task_data
-  auto task_data_tbb = std::make_shared<ppc::core::TaskData>();
-  task_data_tbb->inputs.emplace_back(reinterpret_cast<uint8_t *>(in.data()));
-  task_data_tbb->inputs_count.emplace_back(in.size());
-  task_data_tbb->outputs.emplace_back(reinterpret_cast<uint8_t *>(out.data()));
-  task_data_tbb->outputs_count.emplace_back(out.size());
+  auto task_data_stl = std::make_shared<ppc::core::TaskData>();
+  task_data_stl->inputs.emplace_back(reinterpret_cast<uint8_t *>(in.data()));
+  task_data_stl->inputs_count.emplace_back(in.size());
+  task_data_stl->outputs.emplace_back(reinterpret_cast<uint8_t *>(out.data()));
+  task_data_stl->outputs_count.emplace_back(out.size());
 
   // Create Task
-  kolodkin_g_multiplication_matrix_stl::TestTaskSTL test_task_tbb(task_data_tbb);
-  ASSERT_EQ(test_task_tbb.Validation(), true);
-  test_task_tbb.PreProcessing();
-  test_task_tbb.Run();
-  test_task_tbb.PostProcessing();
+  kolodkin_g_multiplication_matrix_stl::TestTaskSTL test_task_stl(task_data_stl);
+  ASSERT_EQ(test_task_stl.Validation(), true);
+  test_task_stl.PreProcessing();
+  test_task_stl.Run();
+  test_task_stl.PostProcessing();
   kolodkin_g_multiplication_matrix_stl::SparseMatrixCRS res =
       kolodkin_g_multiplication_matrix_stl::ParseVectorIntoMatrix(out);
   ASSERT_TRUE(kolodkin_g_multiplication_matrix_stl::CheckMatrixesEquality(res, c));
@@ -270,18 +270,18 @@ TEST(kolodkin_g_multiplication_matrix_stl, test_matmul_with_double_elems) {
   c.AddValue(0, Complex(-1.56, -19.82), 1);
   c.AddValue(1, Complex(-3.51, -51.43), 0);
   // Create task_data
-  auto task_data_tbb = std::make_shared<ppc::core::TaskData>();
-  task_data_tbb->inputs.emplace_back(reinterpret_cast<uint8_t *>(in.data()));
-  task_data_tbb->inputs_count.emplace_back(in.size());
-  task_data_tbb->outputs.emplace_back(reinterpret_cast<uint8_t *>(out.data()));
-  task_data_tbb->outputs_count.emplace_back(out.size());
+  auto task_data_stl = std::make_shared<ppc::core::TaskData>();
+  task_data_stl->inputs.emplace_back(reinterpret_cast<uint8_t *>(in.data()));
+  task_data_stl->inputs_count.emplace_back(in.size());
+  task_data_stl->outputs.emplace_back(reinterpret_cast<uint8_t *>(out.data()));
+  task_data_stl->outputs_count.emplace_back(out.size());
 
   // Create Task
-  kolodkin_g_multiplication_matrix_stl::TestTaskSTL test_task_tbb(task_data_tbb);
-  ASSERT_EQ(test_task_tbb.Validation(), true);
-  test_task_tbb.PreProcessing();
-  test_task_tbb.Run();
-  test_task_tbb.PostProcessing();
+  kolodkin_g_multiplication_matrix_stl::TestTaskSTL test_task_stl(task_data_stl);
+  ASSERT_EQ(test_task_stl.Validation(), true);
+  test_task_stl.PreProcessing();
+  test_task_stl.Run();
+  test_task_stl.PostProcessing();
   kolodkin_g_multiplication_matrix_stl::SparseMatrixCRS res =
       kolodkin_g_multiplication_matrix_stl::ParseVectorIntoMatrix(out);
   ASSERT_TRUE(kolodkin_g_multiplication_matrix_stl::CheckMatrixesEquality(res, c));
@@ -315,18 +315,18 @@ TEST(kolodkin_g_multiplication_matrix_stl, test_matmul_row_by_col) {
   }
   c.AddValue(0, Complex(-14, 0), 0);
   // Create task_data
-  auto task_data_tbb = std::make_shared<ppc::core::TaskData>();
-  task_data_tbb->inputs.emplace_back(reinterpret_cast<uint8_t *>(in.data()));
-  task_data_tbb->inputs_count.emplace_back(in.size());
-  task_data_tbb->outputs.emplace_back(reinterpret_cast<uint8_t *>(out.data()));
-  task_data_tbb->outputs_count.emplace_back(out.size());
+  auto task_data_stl = std::make_shared<ppc::core::TaskData>();
+  task_data_stl->inputs.emplace_back(reinterpret_cast<uint8_t *>(in.data()));
+  task_data_stl->inputs_count.emplace_back(in.size());
+  task_data_stl->outputs.emplace_back(reinterpret_cast<uint8_t *>(out.data()));
+  task_data_stl->outputs_count.emplace_back(out.size());
 
   // Create Task
-  kolodkin_g_multiplication_matrix_stl::TestTaskSTL test_task_tbb(task_data_tbb);
-  ASSERT_EQ(test_task_tbb.Validation(), true);
-  test_task_tbb.PreProcessing();
-  test_task_tbb.Run();
-  test_task_tbb.PostProcessing();
+  kolodkin_g_multiplication_matrix_stl::TestTaskSTL test_task_stl(task_data_stl);
+  ASSERT_EQ(test_task_stl.Validation(), true);
+  test_task_stl.PreProcessing();
+  test_task_stl.Run();
+  test_task_stl.PostProcessing();
   kolodkin_g_multiplication_matrix_stl::SparseMatrixCRS res =
       kolodkin_g_multiplication_matrix_stl::ParseVectorIntoMatrix(out);
   ASSERT_TRUE(kolodkin_g_multiplication_matrix_stl::CheckMatrixesEquality(res, c));
@@ -362,18 +362,18 @@ TEST(kolodkin_g_multiplication_matrix_stl, test_matmul_diag_matrix) {
   c.AddValue(1, Complex(-4, 0), 1);
   c.AddValue(2, Complex(-9, 0), 2);
   // Create task_data
-  auto task_data_tbb = std::make_shared<ppc::core::TaskData>();
-  task_data_tbb->inputs.emplace_back(reinterpret_cast<uint8_t *>(in.data()));
-  task_data_tbb->inputs_count.emplace_back(in.size());
-  task_data_tbb->outputs.emplace_back(reinterpret_cast<uint8_t *>(out.data()));
-  task_data_tbb->outputs_count.emplace_back(out.size());
+  auto task_data_stl = std::make_shared<ppc::core::TaskData>();
+  task_data_stl->inputs.emplace_back(reinterpret_cast<uint8_t *>(in.data()));
+  task_data_stl->inputs_count.emplace_back(in.size());
+  task_data_stl->outputs.emplace_back(reinterpret_cast<uint8_t *>(out.data()));
+  task_data_stl->outputs_count.emplace_back(out.size());
 
   // Create Task
-  kolodkin_g_multiplication_matrix_stl::TestTaskSTL test_task_tbb(task_data_tbb);
-  ASSERT_EQ(test_task_tbb.Validation(), true);
-  test_task_tbb.PreProcessing();
-  test_task_tbb.Run();
-  test_task_tbb.PostProcessing();
+  kolodkin_g_multiplication_matrix_stl::TestTaskSTL test_task_stl(task_data_stl);
+  ASSERT_EQ(test_task_stl.Validation(), true);
+  test_task_stl.PreProcessing();
+  test_task_stl.Run();
+  test_task_stl.PostProcessing();
   kolodkin_g_multiplication_matrix_stl::SparseMatrixCRS res =
       kolodkin_g_multiplication_matrix_stl::ParseVectorIntoMatrix(out);
   ASSERT_TRUE(kolodkin_g_multiplication_matrix_stl::CheckMatrixesEquality(res, c));
@@ -413,18 +413,18 @@ TEST(kolodkin_g_multiplication_matrix_stl, test_matmul_only_imag) {
   c.AddValue(2, Complex(-24, 0), 1);
   c.AddValue(2, Complex(-35, 0), 0);
   // Create task_data
-  auto task_data_tbb = std::make_shared<ppc::core::TaskData>();
-  task_data_tbb->inputs.emplace_back(reinterpret_cast<uint8_t *>(in.data()));
-  task_data_tbb->inputs_count.emplace_back(in.size());
-  task_data_tbb->outputs.emplace_back(reinterpret_cast<uint8_t *>(out.data()));
-  task_data_tbb->outputs_count.emplace_back(out.size());
+  auto task_data_stl = std::make_shared<ppc::core::TaskData>();
+  task_data_stl->inputs.emplace_back(reinterpret_cast<uint8_t *>(in.data()));
+  task_data_stl->inputs_count.emplace_back(in.size());
+  task_data_stl->outputs.emplace_back(reinterpret_cast<uint8_t *>(out.data()));
+  task_data_stl->outputs_count.emplace_back(out.size());
 
   // Create Task
-  kolodkin_g_multiplication_matrix_stl::TestTaskSTL test_task_tbb(task_data_tbb);
-  ASSERT_EQ(test_task_tbb.Validation(), true);
-  test_task_tbb.PreProcessing();
-  test_task_tbb.Run();
-  test_task_tbb.PostProcessing();
+  kolodkin_g_multiplication_matrix_stl::TestTaskSTL test_task_stl(task_data_stl);
+  ASSERT_EQ(test_task_stl.Validation(), true);
+  test_task_stl.PreProcessing();
+  test_task_stl.Run();
+  test_task_stl.PostProcessing();
   kolodkin_g_multiplication_matrix_stl::SparseMatrixCRS res =
       kolodkin_g_multiplication_matrix_stl::ParseVectorIntoMatrix(out);
   ASSERT_TRUE(kolodkin_g_multiplication_matrix_stl::CheckMatrixesEquality(res, c));
