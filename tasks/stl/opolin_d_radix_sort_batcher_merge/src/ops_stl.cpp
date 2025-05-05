@@ -41,9 +41,6 @@ bool opolin_d_radix_batcher_sort_stl::RadixBatcherSortTaskStl::RunImpl() {
   }
   auto unum_threads = static_cast<size_t>(num_threads);
   unum_threads = std::min(unum_threads, (static_cast<size_t>(size_) + 1) / 2);
-  if (unum_threads == 0) {
-    unum_threads = 1;
-  }
   ParallelProcessRange(static_cast<size_t>(size_), static_cast<unsigned int>(unum_threads),
                        [this](size_t start, size_t end) {
                          for (size_t i = start; i < end; ++i) {
@@ -92,7 +89,7 @@ int opolin_d_radix_batcher_sort_stl::UnsignedToInt(uint32_t value) { return stat
 
 void opolin_d_radix_batcher_sort_stl::ParallelProcessRange(size_t total_size, unsigned int num_threads,
                                                            const std::function<void(size_t start, size_t end)>& func) {
-  if (total_size == 0 || num_threads == 0) {
+  if (total_size == 0) {
     return;
   }
   unsigned int actual_threads = std::min(num_threads, static_cast<unsigned int>(total_size));
@@ -119,7 +116,7 @@ void opolin_d_radix_batcher_sort_stl::ParallelProcessRange(size_t total_size, un
 
 void opolin_d_radix_batcher_sort_stl::ParallelRunTasks(const std::vector<std::function<void()>>& tasks,
                                                        unsigned int num_threads) {
-  if (tasks.empty() || num_threads == 0) {
+  if (tasks.empty()) {
     return;
   }
   unsigned int actual_threads = std::min(num_threads, static_cast<unsigned int>(tasks.size()));
