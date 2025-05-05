@@ -24,8 +24,11 @@ double kholin_k_multidimensional_integrals_rectangle_all::TestTaskALL::Integrate
   }
 
   double sum = 0.0;
+  const double l_limit = l_limits[curr_index_dim];
+  const double step = h[curr_index_dim];
+
   for (int i = 0; i < static_cast<int>(n); ++i) {
-    f_values[curr_index_dim] = l_limits[curr_index_dim] + (static_cast<double>(i) + 0.5) * h[curr_index_dim];
+    f_values[curr_index_dim] = l_limit + (static_cast<double>(i) + 0.5) * step;
     sum += Integrate(f, l_limits, u_limits, h, f_values, curr_index_dim + 1, dim, n);
   }
   return sum * h[curr_index_dim];
