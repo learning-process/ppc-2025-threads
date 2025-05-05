@@ -1,9 +1,12 @@
 #include "tbb/kholin_k_multidimensional_integrals_rectangle/include/ops_tbb.hpp"
 
+#include <tbb/blocked_range.h>
 #include <tbb/parallel_reduce.h>
+#include <tbb/partitioner.h>
 #include <tbb/tbb.h>
 
 #include <cmath>
+#include <cstddef>
 #include <functional>
 #include <vector>
 
@@ -15,7 +18,7 @@ double kholin_k_multidimensional_integrals_rectangle_tbb::TestTaskTBB::Integrate
   }
 
   const double step = h[curr_index_dim];
-  const double start_pos = l_limits[curr_index_dim] + 0.5 * step;
+  const double start_pos = l_limits[curr_index_dim] + (0.5 * step);
 
   return tbb::parallel_reduce(
              tbb::blocked_range<int>(0, static_cast<int>(n), 1000), 0.0,
@@ -27,7 +30,7 @@ double kholin_k_multidimensional_integrals_rectangle_tbb::TestTaskTBB::Integrate
                }
                return local_sum;
              },
-             std::plus<double>(), tbb::auto_partitioner()) *
+             std::plus<>(), tbb::auto_partitioner()) *
          step;
 }
 
