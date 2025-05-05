@@ -8,7 +8,7 @@
 #include "core/task/include/task.hpp"
 #include "stl/golovkin_contrast_stretching/include/ops_stl.hpp"
 
-TEST(golovkin_contrast_stretching, test_contrast_perf_1m) {
+TEST(golovkin_contrast_stretching, test_pipeline_run) {
   constexpr size_t kCount = 1'000'000;
 
   std::vector<uint8_t> in(kCount);
@@ -37,7 +37,7 @@ TEST(golovkin_contrast_stretching, test_contrast_perf_1m) {
   EXPECT_GE(out[100], out[50]);
 }
 
-TEST(golovkin_contrast_stretching, test_contrast_perf_1m2) {
+TEST(golovkin_contrast_stretching, test_task_run) {
   constexpr size_t kCount = 1'000'000;
 
   std::vector<uint8_t> in(kCount);
