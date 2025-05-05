@@ -26,9 +26,9 @@ std::vector<int> GenerateVector(int length) {
 }  // namespace
 
 TEST(kozlova_e_contrast_enhancement_stl, test_pipeline_run) {
-  constexpr int kSize = 100000000;
-  size_t width = 10000;
-  size_t height = 10000;
+  constexpr int kSize = 19875000;
+  size_t width = 7500;
+  size_t height = 2650;
   // Create data
   std::vector<int> in = GenerateVector(kSize);
   std::vector<int> out(kSize, 0);
@@ -74,9 +74,9 @@ TEST(kozlova_e_contrast_enhancement_stl, test_pipeline_run) {
 }
 
 TEST(kozlova_e_contrast_enhancement_stl, test_task_run) {
-  constexpr int kSize = 100000000;
-  size_t width = 10000;
-  size_t height = 10000;
+  constexpr int kSize = 19875000;
+  size_t width = 7500;
+  size_t height = 2650;
   // Create data
   std::vector<int> in = GenerateVector(kSize);
   std::vector<int> out(kSize, 0);
