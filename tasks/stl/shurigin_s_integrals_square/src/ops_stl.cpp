@@ -172,7 +172,7 @@ bool Integral::ComputeOneDimensionalStl() {
   const double half_step = 0.5 * step;
   const double base = lower + half_step;
 
-  unsigned int num_workers_uint = std::thread::hardware_concurrency();
+  unsigned int num_workers_uint = ppc::util::GetPPCNumThreads();
   if (num_workers_uint == 0) {
     num_workers_uint = 1;
   }
