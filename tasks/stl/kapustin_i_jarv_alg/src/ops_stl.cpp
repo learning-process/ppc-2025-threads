@@ -3,6 +3,7 @@
 #include <algorithm>
 #include <cmath>
 #include <cstddef>
+#include <functional>
 #include <mutex>
 #include <thread>
 #include <utility>
@@ -14,7 +15,9 @@ void kapustin_i_jarv_alg_stl::TestTaskSTL::Worker(size_t start, size_t end, size
                                                   std::mutex& mutex) {
   size_t local_best = best_index;
   for (size_t i = start; i < end; ++i) {
-    if (i == current_index) continue;
+    if (i == current_index) {
+      continue;
+    }
 
     int orientation = Orientation(input_[current_index], input_[local_best], input_[i]);
     bool better = false;
