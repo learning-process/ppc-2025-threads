@@ -4,8 +4,8 @@
 #include <cstdint>
 #include <fstream>
 #include <memory>
-#include <string>
 #include <random>
+#include <string>
 #include <vector>
 
 #include "core/task/include/task.hpp"
@@ -149,7 +149,6 @@ TEST(karaseva_a_test_task_stl, test_zero_rhs) {
     EXPECT_NEAR(solution[i], x_expected[i], kTolerance) << "Non-zero solution at index " << i;
   }
 }
-
 
 TEST(karaseva_a_test_task_stl, test_random_solution) {
   constexpr size_t kSize = 30;
