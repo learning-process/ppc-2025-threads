@@ -2,21 +2,21 @@
 
 #include <cmath>
 #include <cstddef>
-#include <numeric>
-#include <vector>
 #include <execution>
 #include <functional>
+#include <numeric>
+#include <vector>
 
 namespace {
-  int SimpsonCoeff(int i, int n) {
-    if (i == 0 || i == n) {
-      return 1;
-    }
-    if (i % 2 != 0) {
-      return 4;
-    }
-    return 2;
+int SimpsonCoeff(int i, int n) {
+  if (i == 0 || i == n) {
+    return 1;
   }
+  if (i % 2 != 0) {
+    return 4;
+  }
+  return 2;
+}
 }  // namespace
 
 namespace anufriev_d_integrals_simpson_stl {
@@ -47,7 +47,7 @@ double IntegralsSimpsonSTL::FunctionN(const std::vector<double>& coords) const {
 }
 
 double IntegralsSimpsonSTL::RecursiveSimpsonSum(int dim_index, std::vector<int>& idx,
-                                                 const std::vector<double>& steps) const {
+                                                const std::vector<double>& steps) const {
   if (dim_index == dimension_) {
     double coeff = 1.0;
     std::vector<double> coords(dimension_);
@@ -129,18 +129,12 @@ bool IntegralsSimpsonSTL::RunImpl() {
   std::vector<int> first_dim_indices(n_[0] + 1);
   std::iota(first_dim_indices.begin(), first_dim_indices.end(), 0);
 
-  double total_sum = std::transform_reduce(
-      std::execution::par,
-      first_dim_indices.begin(),
-      first_dim_indices.end(),
-      0.0,
-      std::plus<double>(),
-      [&](int i) {
-        std::vector<int> local_idx(dimension_);
-        local_idx[0] = i;
-
-        return RecursiveSimpsonSum(1, local_idx, steps);
-      });
+  double total_sum = std::transform_reduce(std::execution::par, first_dim_indices.begin(), first_dim_indices.end(), 0.0,
+                                           std::plus<double>(), [&](int i) {
+                                             std::vector<int> local_idx(dimension_);
+                                             local_idx[0] = i;
+                                             return RecursiveSimpsonSum(1, local_idx, steps);
+                                           });
 
   double coeff = 1.0;
   for (int i = 0; i < dimension_; i++) {

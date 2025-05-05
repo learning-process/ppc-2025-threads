@@ -6,7 +6,6 @@
 #include <vector>
 
 #include "core/task/include/task.hpp"
-
 #include "stl/anufriev_d_integrals_simpson/include/ops_stl.hpp"
 
 namespace {
