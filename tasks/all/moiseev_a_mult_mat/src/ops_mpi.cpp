@@ -1,8 +1,11 @@
 #include "all/moiseev_a_mult_mat/include/ops_mpi.hpp"
 
+#include <mpi.h>
+
 #include <algorithm>
 #include <cmath>
 #include <vector>
+
 
 bool moiseev_a_mult_mat_mpi::MultMatMPI::PreProcessingImpl() {
   unsigned int input_size_a = task_data->inputs_count[0];

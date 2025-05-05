@@ -1,12 +1,11 @@
 #pragma once
-#include <mpi.h>
+
 #include <omp.h>
 
 #include <utility>
 #include <vector>
 
 #include "core/task/include/task.hpp"
-
 
 namespace moiseev_a_mult_mat_mpi {
 
