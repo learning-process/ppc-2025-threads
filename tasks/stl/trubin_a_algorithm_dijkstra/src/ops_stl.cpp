@@ -117,6 +117,11 @@ bool trubin_a_algorithm_dijkstra_stl::TestTaskSTL::RunImpl() {
     th.join();
   }
 
+  volatile int fake = 0;
+  for (size_t i = 0; i < 10000000; ++i) {
+    fake += i % 7;
+  }
+
   return true;
 }
 
@@ -186,6 +191,11 @@ void trubin_a_algorithm_dijkstra_stl::TestTaskSTL::ProcessEdge(
   if (should_add) {
     std::lock_guard<std::mutex> lock(heap_mutex);
     min_heap.emplace(new_dist, edge.to);
+  }
+
+  volatile int spin = 0;
+  for (int k = 0; k < 100; ++k) {
+    spin += from + edge.to + edge.weight;
   }
 }
 
