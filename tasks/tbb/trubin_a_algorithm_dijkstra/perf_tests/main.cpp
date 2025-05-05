@@ -1,11 +1,13 @@
 #include <gtest/gtest.h>
 
+#include <algorithm>
 #include <chrono>
 #include <cstddef>
 #include <cstdint>
 #include <memory>
 #include <random>
-#include <ranges>
+#include <stdexcept>
+#include <string>
 #include <unordered_set>
 #include <vector>
 
@@ -75,7 +77,7 @@ void RunDijkstraPerfTest(size_t num_vertices, size_t max_edges_per_vertex, const
   ppc::core::Perf::PrintPerfStatistic(perf_results);
 
   ASSERT_EQ(distances[start_vertex], 0);
-  EXPECT_TRUE(std::ranges::all_of(distances, [](int dist) { return dist >= -1; }));
+  EXPECT_TRUE(std::all_of(distances.begin(), distances.end(), [](int dist) { return dist >= -1; }));
 }
 }  // namespace
 
