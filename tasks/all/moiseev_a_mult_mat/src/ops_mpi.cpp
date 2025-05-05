@@ -1,4 +1,4 @@
-#include "mpi/moiseev_a_mult_mat/include/ops_mpi.hpp"
+#include "all/moiseev_a_mult_mat/include/ops_mpi.hpp"
 
 #include <algorithm>
 #include <boost/mpi/collectives.hpp>
