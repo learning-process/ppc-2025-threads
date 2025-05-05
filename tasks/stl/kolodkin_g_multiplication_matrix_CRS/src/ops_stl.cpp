@@ -4,7 +4,6 @@
 #include <complex>
 #include <core/util/include/util.hpp>
 #include <cstddef>
-#include <iostream>
 #include <thread>
 #include <vector>
 
@@ -138,7 +137,6 @@ bool kolodkin_g_multiplication_matrix_stl::TestTaskSTL::ValidationImpl() {
 bool kolodkin_g_multiplication_matrix_stl::TestTaskSTL::RunImpl() {
   SparseMatrixCRS c(A_.numRows, B_.numCols);
   const int num_threads = ppc::util::GetPPCNumThreads();
-  std::cout << "NUM_THREADS: " << num_threads;
   std::vector<std::thread> threads(num_threads);
   std::vector<SparseMatrixCRS> local_results(num_threads, SparseMatrixCRS(A_.numRows, B_.numCols));
 
