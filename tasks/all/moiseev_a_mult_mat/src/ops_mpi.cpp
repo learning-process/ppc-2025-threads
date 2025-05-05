@@ -6,7 +6,6 @@
 #include <cmath>
 #include <vector>
 
-
 bool moiseev_a_mult_mat_mpi::MultMatMPI::PreProcessingImpl() {
   unsigned int input_size_a = task_data->inputs_count[0];
   unsigned int input_size_b = task_data->inputs_count[1];
