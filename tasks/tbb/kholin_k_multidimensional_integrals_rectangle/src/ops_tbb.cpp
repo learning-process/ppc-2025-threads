@@ -1,7 +1,7 @@
 #include "tbb/kholin_k_multidimensional_integrals_rectangle/include/ops_tbb.hpp"
 
+#include <oneapi/tbb/parallel_reduce.h>
 #include <tbb/blocked_range.h>
-#include <tbb/parallel_reduce.h>
 #include <tbb/partitioner.h>
 #include <tbb/tbb.h>
 
