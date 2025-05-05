@@ -2,7 +2,6 @@
 
 #include <algorithm>
 #include <cstdint>
-#include <ranges>
 #include <vector>
 
 bool golovkin_contrast_stretching::ContrastStretchingSTL::ValidationImpl() {
