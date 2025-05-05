@@ -132,15 +132,15 @@ bool IntegralsSimpsonSTL::ValidationImpl() {
 
 bool IntegralsSimpsonSTL::RunImpl() {
   if (dimension_ < 1) {
-      return false;
+    return false;
   }
 
   std::vector<double> steps(dimension_);
   for (int i = 0; i < dimension_; i++) {
-      if (n_[i] == 0) {
-            return false;
-      }
-      steps[i] = (b_[i] - a_[i]) / n_[i];
+    if (n_[i] == 0) {
+      return false;
+    }
+    steps[i] = (b_[i] - a_[i]) / n_[i];
   }
 
   std::vector<int> first_dim_indices(n_[0] + 1);
@@ -148,18 +148,19 @@ bool IntegralsSimpsonSTL::RunImpl() {
 
   double total_sum = 0.0;
   try {
-      total_sum = std::transform_reduce(std::execution::par, first_dim_indices.begin(), first_dim_indices.end(), 0.0,
-                  std::plus<double>(), [&](int i) -> double {
-                    if (dimension_ < 1) {
-                        throw std::logic_error("IntegralsSimpsonSTL::RunImpl: dimension_ < 1 inside parallel lambda!");
-                    }
-                    std::vector<int> local_idx(dimension_);
-                    local_idx[0] = i;
-                    return RecursiveSimpsonSum(1, local_idx, steps);
-                  });
+    total_sum = std::transform_reduce(
+        std::execution::par, first_dim_indices.begin(), first_dim_indices.end(), 0.0, std::plus<double>(),
+        [&](int i) -> double {
+          if (dimension_ < 1) {
+            throw std::logic_error("IntegralsSimpsonSTL::RunImpl: dimension_ < 1 inside parallel lambda!");
+          }
+          std::vector<int> local_idx(dimension_);
+          local_idx[0] = i;
+          return RecursiveSimpsonSum(1, local_idx, steps);
+        });
   } catch (const std::exception& e) {
-      (void)e;
-      return false;
+    (void)e;
+    return false;
   }
 
   double coeff = 1.0;
