@@ -1,5 +1,6 @@
 #include "stl/anufriev_d_integrals_simpson/include/ops_stl.hpp"
 
+#include <cassert>
 #include <cmath>
 #include <cstddef>
 #include <execution>
@@ -128,6 +129,7 @@ bool IntegralsSimpsonSTL::RunImpl() {
 
   std::vector<int> first_dim_indices(n_[0] + 1);
   std::iota(first_dim_indices.begin(), first_dim_indices.end(), 0);
+  assert(dimension_ >= 1 && "Dimension must be positive before starting parallel reduction");
 
   double total_sum = std::transform_reduce(std::execution::par, first_dim_indices.begin(), first_dim_indices.end(), 0.0,
                                            std::plus<double>(), [&](int i) {
