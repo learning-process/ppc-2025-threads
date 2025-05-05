@@ -165,7 +165,7 @@ bool IntegralsSimpsonSTL::RunImpl() {
 
   double coeff = 1.0;
   for (int i = 0; i < dimension_; i++) {
-        coeff *= steps[i] / 3.0;
+    coeff *= steps[i] / 3.0;
   }
 
   result_ = coeff * total_sum;
