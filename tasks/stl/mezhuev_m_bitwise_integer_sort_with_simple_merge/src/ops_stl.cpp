@@ -52,11 +52,11 @@ void ProcessNumbers(std::vector<int>& numbers, int max_value) {
 }  // namespace
 
 bool SortSTL::PreProcessingImpl() {
-  unsigned int input_size = task_data->inputs_count[0];
+  size_t input_size = task_data->inputs_count[0];
   auto* in_ptr = reinterpret_cast<int*>(task_data->inputs[0]);
 
   input_ = (input_size == 0) ? std::vector<int>() : std::vector<int>(in_ptr, in_ptr + input_size);
-  unsigned int output_size = task_data->outputs_count[0];
+  size_t output_size = task_data->outputs_count[0];
   output_ = std::vector<int>(output_size, 0);
 
   if (input_size == 0) {
