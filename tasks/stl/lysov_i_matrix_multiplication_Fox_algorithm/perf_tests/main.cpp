@@ -54,22 +54,22 @@ TEST(lysov_i_matrix_multiplication_Fox_algorithm_stl, test_pipeline_run) {
   std::vector<double> c(n * n, 0);
   std::vector<double> c_expected(n * n, 0);
   lysov_i_matrix_multiplication_fox_algorithm_stl::TrivialMatrixMultiplication(a, b, c_expected, n);
-  std::shared_ptr<ppc::core::TaskData> task_data_omp = std::make_shared<ppc::core::TaskData>();
-  task_data_omp->inputs.emplace_back(reinterpret_cast<uint8_t *>(&n));
-  task_data_omp->inputs.emplace_back(reinterpret_cast<uint8_t *>(a.data()));
-  task_data_omp->inputs.emplace_back(reinterpret_cast<uint8_t *>(b.data()));
-  task_data_omp->inputs.emplace_back(reinterpret_cast<uint8_t *>(&block_size));
-  task_data_omp->outputs.emplace_back(reinterpret_cast<uint8_t *>(c.data()));
-  task_data_omp->inputs_count.emplace_back(n * n);
-  task_data_omp->inputs_count.emplace_back(n * n);
-  task_data_omp->inputs_count.emplace_back(1);
-  task_data_omp->outputs_count.emplace_back(n * n);
+  std::shared_ptr<ppc::core::TaskData> task_data_stl = std::make_shared<ppc::core::TaskData>();
+  task_data_stl->inputs.emplace_back(reinterpret_cast<uint8_t *>(&n));
+  task_data_stl->inputs.emplace_back(reinterpret_cast<uint8_t *>(a.data()));
+  task_data_stl->inputs.emplace_back(reinterpret_cast<uint8_t *>(b.data()));
+  task_data_stl->inputs.emplace_back(reinterpret_cast<uint8_t *>(&block_size));
+  task_data_stl->outputs.emplace_back(reinterpret_cast<uint8_t *>(c.data()));
+  task_data_stl->inputs_count.emplace_back(n * n);
+  task_data_stl->inputs_count.emplace_back(n * n);
+  task_data_stl->inputs_count.emplace_back(1);
+  task_data_stl->outputs_count.emplace_back(n * n);
   ;
-  lysov_i_matrix_multiplication_fox_algorithm_stl::TestTaskSTL matrix_multiplication(task_data_omp);
+  lysov_i_matrix_multiplication_fox_algorithm_stl::TestTaskSTL matrix_multiplication(task_data_stl);
 
   // Create Task
   auto test_task_sequential =
-      std::make_shared<lysov_i_matrix_multiplication_fox_algorithm_stl::TestTaskSTL>(task_data_omp);
+      std::make_shared<lysov_i_matrix_multiplication_fox_algorithm_stl::TestTaskSTL>(task_data_stl);
 
   // Create Perf attributes
   auto perf_attr = std::make_shared<ppc::core::PerfAttr>();
@@ -105,20 +105,20 @@ TEST(lysov_i_matrix_multiplication_Fox_algorithm_stl, test_task_run) {
   std::vector<double> c(n * n, 0);
   std::vector<double> c_expected(n * n, 0);
   lysov_i_matrix_multiplication_fox_algorithm_stl::TrivialMatrixMultiplication(a, b, c_expected, n);
-  std::shared_ptr<ppc::core::TaskData> task_data_omp = std::make_shared<ppc::core::TaskData>();
-  task_data_omp->inputs.emplace_back(reinterpret_cast<uint8_t *>(&n));
-  task_data_omp->inputs.emplace_back(reinterpret_cast<uint8_t *>(a.data()));
-  task_data_omp->inputs.emplace_back(reinterpret_cast<uint8_t *>(b.data()));
-  task_data_omp->inputs.emplace_back(reinterpret_cast<uint8_t *>(&block_size));
-  task_data_omp->outputs.emplace_back(reinterpret_cast<uint8_t *>(c.data()));
-  task_data_omp->inputs_count.emplace_back(n * n);
-  task_data_omp->inputs_count.emplace_back(n * n);
-  task_data_omp->inputs_count.emplace_back(1);
-  task_data_omp->outputs_count.emplace_back(n * n);
+  std::shared_ptr<ppc::core::TaskData> task_data_stl = std::make_shared<ppc::core::TaskData>();
+  task_data_stl->inputs.emplace_back(reinterpret_cast<uint8_t *>(&n));
+  task_data_stl->inputs.emplace_back(reinterpret_cast<uint8_t *>(a.data()));
+  task_data_stl->inputs.emplace_back(reinterpret_cast<uint8_t *>(b.data()));
+  task_data_stl->inputs.emplace_back(reinterpret_cast<uint8_t *>(&block_size));
+  task_data_stl->outputs.emplace_back(reinterpret_cast<uint8_t *>(c.data()));
+  task_data_stl->inputs_count.emplace_back(n * n);
+  task_data_stl->inputs_count.emplace_back(n * n);
+  task_data_stl->inputs_count.emplace_back(1);
+  task_data_stl->outputs_count.emplace_back(n * n);
 
   // Create Task
   auto test_task_sequential =
-      std::make_shared<lysov_i_matrix_multiplication_fox_algorithm_stl::TestTaskSTL>(task_data_omp);
+      std::make_shared<lysov_i_matrix_multiplication_fox_algorithm_stl::TestTaskSTL>(task_data_stl);
 
   // Create Perf attributes
   auto perf_attr = std::make_shared<ppc::core::PerfAttr>();
