@@ -54,7 +54,7 @@ bool kapustin_i_jarv_alg_stl::TestTaskSTL::RunImpl() {
   output_.clear();
   output_.push_back(start_point);
 
-  const size_t num_threads = static_cast<size_t>(ppc::util::GetPPCNumThreads());
+  auto num_threads = static_cast<size_t>(ppc::util::GetPPCNumThreads());
   const size_t chunk_size = (input_.size() + num_threads - 1) / num_threads;
 
   do {
@@ -64,19 +64,33 @@ bool kapustin_i_jarv_alg_stl::TestTaskSTL::RunImpl() {
     auto worker = [&](size_t start, size_t end) {
       size_t local_best = best_index;
       for (size_t i = start; i < end; ++i) {
-        if (i == current_index) continue;
+        if (i == current_index) {
+          continue;
+        }
 
         int orientation = Orientation(input_[current_index], input_[local_best], input_[i]);
-        if (orientation > 0 || (orientation == 0 && CalculateDistance(input_[i], input_[current_index]) >
-                                                        CalculateDistance(input_[local_best], input_[current_index]))) {
+        bool better = false;
+        if (orientation > 0) {
+          better = true;
+        } else if (orientation == 0) {
+          better = CalculateDistance(input_[i], input_[current_index]) >
+                   CalculateDistance(input_[local_best], input_[current_index]);
+        }
+        if (better) {
           local_best = i;
         }
       }
 
       std::lock_guard<std::mutex> lock(mutex);
       int orientation = Orientation(input_[current_index], input_[best_index], input_[local_best]);
-      if (orientation > 0 || (orientation == 0 && CalculateDistance(input_[local_best], input_[current_index]) >
-                                                      CalculateDistance(input_[best_index], input_[current_index]))) {
+      bool better = false;
+      if (orientation > 0) {
+        better = true;
+      } else if (orientation == 0) {
+        better = CalculateDistance(input_[local_best], input_[current_index]) >
+                 CalculateDistance(input_[best_index], input_[current_index]);
+      }
+      if (better) {
         best_index = local_best;
       }
     };
