@@ -1,8 +1,8 @@
 #include "stl/golovkin_contrast_stretching/include/ops_stl.hpp"
 
 #include <algorithm>
-#include <ranges>
 #include <cstdint>
+#include <ranges>
 #include <vector>
 
 bool golovkin_contrast_stretching::ContrastStretchingSTL::ValidationImpl() {
