@@ -1,6 +1,7 @@
 #include "stl/kapustin_i_jarv_alg/include/ops_stl.hpp"
 
 #include <algorithm>
+#include <atomic>
 #include <cmath>
 #include <cstddef>
 #include <thread>
@@ -8,6 +9,41 @@
 #include <vector>
 
 #include "core/util/include/util.hpp"
+
+void kapustin_i_jarv_alg_stl::TestTaskSTL::Worker(size_t start, size_t end, size_t current_index,
+                                                  std::atomic<size_t>& best_index) {
+  size_t local_best = best_index.load(); 
+  for (size_t i = start; i < end; ++i) {
+    if (i == current_index) {
+      continue;
+    }
+
+    int orientation = Orientation(input_[current_index], input_[local_best], input_[i]);
+    bool better = false;
+    if (orientation > 0) {
+      better = true;
+    } else if (orientation == 0) {
+      better = CalculateDistance(input_[i], input_[current_index]) >
+               CalculateDistance(input_[local_best], input_[current_index]);
+    }
+    if (better) {
+      local_best = i;
+    }
+  }
+
+  size_t current_best = best_index.load();
+  int orientation = Orientation(input_[current_index], input_[current_best], input_[local_best]);
+  bool better = false;
+  if (orientation > 0) {
+    better = true;
+  } else if (orientation == 0) {
+    better = CalculateDistance(input_[local_best], input_[current_index]) >
+             CalculateDistance(input_[current_best], input_[current_index]);
+  }
+  if (better) {
+    best_index.store(local_best);
+  }
+}
 
 int kapustin_i_jarv_alg_stl::TestTaskSTL::CalculateDistance(const std::pair<int, int>& p1,
                                                             const std::pair<int, int>& p2) {
@@ -59,30 +95,14 @@ bool kapustin_i_jarv_alg_stl::TestTaskSTL::RunImpl() {
   std::vector<size_t> local_best(num_threads, static_cast<size_t>(-1));
 
   do {
-    for (size_t i = 0; i < num_threads; ++i) {
-      local_best[i] = (current_index + 1) % input_.size();
-    }
+    size_t best_index = (current_index + 1) % input_.size();
+    std::atomic<size_t> atomic_best_index(best_index);
 
     std::vector<std::thread> threads;
     for (size_t i = 0; i < num_threads; ++i) {
       size_t start = i * chunk_size;
       size_t end = std::min(start + chunk_size, input_.size());
-      threads.emplace_back([&, i, start, end]() {
-        for (size_t j = start; j < end; ++j) {
-          if (j == current_index) continue;
-          int orientation = Orientation(input_[current_index], input_[local_best[i]], input_[j]);
-          bool better = false;
-          if (orientation > 0) {
-            better = true;
-          } else if (orientation == 0) {
-            better = CalculateDistance(input_[j], input_[current_index]) >
-                     CalculateDistance(input_[local_best[i]], input_[current_index]);
-          }
-          if (better) {
-            local_best[i] = j;
-          }
-        }
-      });
+      threads.emplace_back(&TestTaskSTL::Worker, this, start, end, current_index, std::ref(atomic_best_index));
     }
 
     for (auto& t : threads) t.join();
@@ -101,6 +121,8 @@ bool kapustin_i_jarv_alg_stl::TestTaskSTL::RunImpl() {
         best_index = local_best[i];
       }
     }
+
+    best_index = atomic_best_index.load();
 
     if (!output_.empty() && input_[best_index] == output_.front()) {
       break;
