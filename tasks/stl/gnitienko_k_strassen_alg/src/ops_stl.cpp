@@ -1,5 +1,6 @@
 #include "stl/gnitienko_k_strassen_alg/include/ops_stl.hpp"
 
+#include <algorithm>
 #include <cmath>
 #include <core/util/include/util.hpp>
 #include <cstddef>
@@ -78,7 +79,7 @@ void gnitienko_k_strassen_algorithm_stl::StrassenAlgSTL::TrivialMultiply(const s
 
 void gnitienko_k_strassen_algorithm_stl::ParallelizeTasks(const std::vector<std::function<void(int)>>& tasks,
                                                           int avaliable_threads) {
-  int total_tasks = tasks.size();
+  int total_tasks = (int)tasks.size();
   int current_threads = std::min(avaliable_threads, total_tasks);
   int remaining_threads = std::max(avaliable_threads - current_threads, 0);
 
@@ -98,7 +99,9 @@ void gnitienko_k_strassen_algorithm_stl::ParallelizeTasks(const std::vector<std:
     tasks[i](0);
   }
 
-  for (auto& t : threads) t.join();
+  for (auto& t : threads) {
+    t.join();
+  }
 }
 
 void gnitienko_k_strassen_algorithm_stl::StrassenAlgSTL::StrassenMultiply(const std::vector<double>& a,
