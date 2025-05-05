@@ -1,6 +1,7 @@
 #include "stl/golovkin_contrast_stretching/include/ops_stl.hpp"
 
 #include <algorithm>
+#include <ranges>
 #include <cstdint>
 #include <vector>
 
@@ -17,7 +18,7 @@ bool golovkin_contrast_stretching::ContrastStretchingSTL::PreProcessingImpl() {
   output_image_.resize(image_size_);
 
   // Поиск min и max
-  auto [min_it, max_it] = std::minmax_element(input_image_.begin(), input_image_.end());
+  auto [min_it, max_it] = std::ranges::minmax_element(input_image_);
   min_val_ = *min_it;
   max_val_ = *max_it;
 
