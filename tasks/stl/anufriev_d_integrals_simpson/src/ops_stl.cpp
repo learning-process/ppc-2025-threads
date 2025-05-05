@@ -2,11 +2,11 @@
 
 #include <cmath>
 #include <cstddef>
-#include <numeric>
-#include <vector>
 #include <execution>
 #include <functional>
+#include <numeric>
 #include <stdexcept>
+#include <vector>
 
 namespace {
 
@@ -49,17 +49,18 @@ double IntegralsSimpsonSTL::FunctionN(const std::vector<double>& coords) const {
 }
 
 double IntegralsSimpsonSTL::RecursiveSimpsonSum(int dim_index, std::vector<int>& idx,
-                                                 const std::vector<double>& steps) const {
+                                                const std::vector<double>& steps) const {
   if (dim_index == dimension_) {
     double coeff = 1.0;
     std::vector<double> coords(dimension_);
     for (int d = 0; d < dimension_; ++d) {
-      if (d < 0 || static_cast<size_t>(d) >= idx.size() || static_cast<size_t>(d) >= steps.size() || static_cast<size_t>(d) >= a_.size()) {
-           throw std::out_of_range("Index out of bounds in RecursiveSimpsonSum inner loop");
+      if (d < 0 || static_cast<size_t>(d) >= idx.size() || static_cast<size_t>(d) >= steps.size() ||
+          static_cast<size_t>(d) >= a_.size()) {
+        throw std::out_of_range("Index out of bounds in RecursiveSimpsonSum inner loop");
       }
       coords[d] = a_[d] + idx[d] * steps[d];
       if (d < 0 || static_cast<size_t>(d) >= n_.size()) {
-          throw std::out_of_range("Index out of bounds for n_ in RecursiveSimpsonSum");
+        throw std::out_of_range("Index out of bounds for n_ in RecursiveSimpsonSum");
       }
       coeff *= SimpsonCoeff(idx[d], n_[d]);
     }
@@ -67,7 +68,7 @@ double IntegralsSimpsonSTL::RecursiveSimpsonSum(int dim_index, std::vector<int>&
   }
   double sum = 0.0;
   if (dim_index < 0 || static_cast<size_t>(dim_index) >= n_.size() || static_cast<size_t>(dim_index) >= idx.size()) {
-      throw std::out_of_range("Index out of bounds before RecursiveSimpsonSum loop");
+    throw std::out_of_range("Index out of bounds before RecursiveSimpsonSum loop");
   }
   for (int i = 0; i <= n_[dim_index]; ++i) {
     idx[dim_index] = i;
@@ -130,49 +131,50 @@ bool IntegralsSimpsonSTL::ValidationImpl() {
 }
 
 bool IntegralsSimpsonSTL::RunImpl() {
-    if (dimension_ < 1) {
-        return false;
-    }
+  if (dimension_ < 1) {
+      return false;
+  }
 
-    std::vector<double> steps(dimension_);
-    for (int i = 0; i < dimension_; i++) {
-        if (n_[i] == 0) {
-             return false;
-        }
-        steps[i] = (b_[i] - a_[i]) / n_[i];
-    }
+  std::vector<double> steps(dimension_);
+  for (int i = 0; i < dimension_; i++) {
+      if (n_[i] == 0) {
+            return false;
+      }
+      steps[i] = (b_[i] - a_[i]) / n_[i];
+  }
 
-    std::vector<int> first_dim_indices(n_[0] + 1);
-    std::iota(first_dim_indices.begin(), first_dim_indices.end(), 0);
+  std::vector<int> first_dim_indices(n_[0] + 1);
+  std::iota(first_dim_indices.begin(), first_dim_indices.end(), 0);
 
-    double total_sum = 0.0;
-    try {
-        total_sum = std::transform_reduce(std::execution::par, first_dim_indices.begin(), first_dim_indices.end(), 0.0,
-                    std::plus<double>(), [&](int i) -> double {
-                      if (dimension_ < 1) {
-                          throw std::logic_error("IntegralsSimpsonSTL::RunImpl: dimension_ < 1 inside parallel lambda!");
-                      }
-                      std::vector<int> local_idx(dimension_);
-                      local_idx[0] = i;
-                      return RecursiveSimpsonSum(1, local_idx, steps);
-                    });
-    } catch (const std::exception& e) {
-        (void)e;
-        return false;
-    }
+  double total_sum = 0.0;
+  try {
+      total_sum = std::transform_reduce(std::execution::par, first_dim_indices.begin(), first_dim_indices.end(), 0.0,
+                  std::plus<double>(), [&](int i) -> double {
+                    if (dimension_ < 1) {
+                        throw std::logic_error("IntegralsSimpsonSTL::RunImpl: dimension_ < 1 inside parallel lambda!");
+                    }
+                    std::vector<int> local_idx(dimension_);
+                    local_idx[0] = i;
+                    return RecursiveSimpsonSum(1, local_idx, steps);
+                  });
+  } catch (const std::exception& e) {
+      (void)e;
+      return false;
+  }
 
-    double coeff = 1.0;
-    for (int i = 0; i < dimension_; i++) {
-         coeff *= steps[i] / 3.0;
-    }
+  double coeff = 1.0;
+  for (int i = 0; i < dimension_; i++) {
+        coeff *= steps[i] / 3.0;
+  }
 
-    result_ = coeff * total_sum;
-    return true;
+  result_ = coeff * total_sum;
+  return true;
 }
 
 bool IntegralsSimpsonSTL::PostProcessingImpl() {
-  if (task_data->outputs.empty() || task_data->outputs[0] == nullptr || task_data->outputs_count.empty() || task_data->outputs_count[0] < sizeof(double)) {
-       return false;
+  if (task_data->outputs.empty() || task_data->outputs[0] == nullptr || task_data->outputs_count.empty() ||
+      task_data->outputs_count[0] < sizeof(double)) {
+    return false;
   }
   auto* out_ptr = reinterpret_cast<double*>(task_data->outputs[0]);
   out_ptr[0] = result_;
