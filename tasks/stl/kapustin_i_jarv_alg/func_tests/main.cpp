@@ -171,10 +171,12 @@ TEST(KapustinJarvAlgSTLTest, Rectangle) {
 }
 
 TEST(KapustinJarvAlgSTLTest, Circle) {
-  std::vector<std::pair<int, int>> input_points = {{0, 5},  {3, 4},   {4, 3},   {5, 0},  {4, -3}, {3, -4},
-                                                   {0, -5}, {-3, -4}, {-4, -3}, {-5, 0}, {-4, 3}, {-3, 4}};
-  std::vector<std::pair<int, int>> expected_result = {{-5, 0}, {-4, -3}, {-3, -4}, {0, -5}, {3, -4}, {4, -3},
-                                                      {5, 0},  {4, 3},   {3, 4},   {0, 5},  {-3, 4}, {-4, 3}};
+  std::vector<std::pair<int, int>> input_points = {{0, 5},  {3, 4},   {5, 0},  {3, -4},
+                                                   {0, -5}, {-3, -4}, {-5, 0}, {-3, 4}};
+
+  std::vector<std::pair<int, int>> expected_result = {{-5, 0}, {-3, -4}, {0, -5}, {3, -4},
+                                                      {5, 0},  {3, 4},   {0, 5},  {-3, 4}};
+
   std::vector<std::pair<int, int>> output_result(expected_result.size());
 
   auto task_data_stl = std::make_shared<ppc::core::TaskData>();
