@@ -21,7 +21,7 @@ struct Sparse {
     archive & elements;
     archive & rows;
     archive & columnsSum;
-  };
+  }
 };
 std::vector<int> GetDisplacements(int world_size, int columns_count);
 class CCSALL : public ppc::core::Task {
