@@ -8,7 +8,7 @@
 #include "core/task/include/task.hpp"
 #include "stl/golovkin_contrast_stretching/include/ops_stl.hpp"
 
-TEST(golovkin_contrast_stretching, test_contrast_basic) {
+TEST(golovkin_contrast_stretching_stl, test_contrast_basic) {
   constexpr size_t kSize = 8;
   std::vector<uint8_t> in = {30, 60, 90, 120, 150, 180, 210, 240};
   std::vector<uint8_t> out(kSize, 0);
@@ -31,7 +31,7 @@ TEST(golovkin_contrast_stretching, test_contrast_basic) {
   EXPECT_EQ(out, expected);
 }
 
-TEST(golovkin_contrast_stretching, test_contrast_flat_image) {
+TEST(golovkin_contrast_stretching_stl, test_contrast_flat_image) {
   constexpr size_t kSize = 10;
   std::vector<uint8_t> in(kSize, 100);  // ¬се пиксели одинаковы
   std::vector<uint8_t> out(kSize, 0);
@@ -52,7 +52,7 @@ TEST(golovkin_contrast_stretching, test_contrast_flat_image) {
   EXPECT_EQ(out, expected);
 }
 
-TEST(golovkin_contrast_stretching, test_all_maximum) {
+TEST(golovkin_contrast_stretching_stl, test_all_maximum) {
   constexpr size_t kSize = 16;
   std::vector<uint8_t> in(kSize, 255);
   std::vector<uint8_t> out(kSize, 0);
@@ -73,7 +73,7 @@ TEST(golovkin_contrast_stretching, test_all_maximum) {
   EXPECT_EQ(out, expected);
 }
 
-TEST(golovkin_contrast_stretching, test_gradient_image) {
+TEST(golovkin_contrast_stretching_stl, test_gradient_image) {
   constexpr size_t kSize = 256;
   std::vector<uint8_t> in(kSize);
   std::vector<uint8_t> out(kSize, 0);
@@ -97,7 +97,7 @@ TEST(golovkin_contrast_stretching, test_gradient_image) {
   EXPECT_EQ(out, in);  // ”же раст¤нуто
 }
 
-TEST(golovkin_contrast_stretching, test_small_range) {
+TEST(golovkin_contrast_stretching_stl, test_small_range) {
   std::vector<uint8_t> in = {100, 101, 102, 103, 104, 105};
   std::vector<uint8_t> out(in.size(), 0);
   std::vector<uint8_t> expected = {0, 51, 102, 153, 204, 255};  // линейна¤ интерпол¤ци¤
@@ -117,7 +117,7 @@ TEST(golovkin_contrast_stretching, test_small_range) {
   EXPECT_EQ(out, expected);
 }
 
-TEST(golovkin_contrast_stretching, test_extreme_values_only) {
+TEST(golovkin_contrast_stretching_stl, test_extreme_values_only) {
   std::vector<uint8_t> in = {0, 255, 0, 255, 0, 255};
   std::vector<uint8_t> out(in.size(), 0);
   std::vector<uint8_t> expected = {0, 255, 0, 255, 0, 255};
@@ -137,7 +137,7 @@ TEST(golovkin_contrast_stretching, test_extreme_values_only) {
   EXPECT_EQ(out, expected);
 }
 
-TEST(golovkin_contrast_stretching, test_min_max_near_extremes) {
+TEST(golovkin_contrast_stretching_stl, test_min_max_near_extremes) {
   std::vector<uint8_t> in = {1, 254, 1, 254};
   std::vector<uint8_t> out(in.size(), 0);
   std::vector<uint8_t> expected = {0, 255, 0, 255};
@@ -157,7 +157,7 @@ TEST(golovkin_contrast_stretching, test_min_max_near_extremes) {
   EXPECT_EQ(out, expected);
 }
 
-TEST(golovkin_contrast_stretching, test_alternating_values) {
+TEST(golovkin_contrast_stretching_stl, test_alternating_values) {
   std::vector<uint8_t> in = {10, 20, 10, 20, 10, 20};
   std::vector<uint8_t> out(in.size(), 0);
   std::vector<uint8_t> expected = {0, 255, 0, 255, 0, 255};  // (x - 10) * 255 / (20 - 10)
@@ -177,7 +177,7 @@ TEST(golovkin_contrast_stretching, test_alternating_values) {
   EXPECT_EQ(out, expected);
 }
 
-TEST(golovkin_contrast_stretching, test_all_zeros) {
+TEST(golovkin_contrast_stretching_stl, test_all_zeros) {
   std::vector<uint8_t> in(32, 0);
   std::vector<uint8_t> out(in.size(), 123);  // чтобы убедитьс¤ в замене
   std::vector<uint8_t> expected(32, 0);
@@ -197,7 +197,7 @@ TEST(golovkin_contrast_stretching, test_all_zeros) {
   EXPECT_EQ(out, expected);
 }
 
-TEST(golovkin_contrast_stretching, test_random_mid_range_values) {
+TEST(golovkin_contrast_stretching_stl, test_random_mid_range_values) {
   std::vector<uint8_t> in = {50, 60, 70, 80, 90, 100, 110, 120, 130, 140, 150};
   std::vector<uint8_t> out(in.size(), 0);
 
