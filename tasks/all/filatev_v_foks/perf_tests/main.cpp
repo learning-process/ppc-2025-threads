@@ -7,10 +7,10 @@
 #include <random>
 #include <vector>
 
-#include "core/perf/include/perf.hpp"
-#include "core/task/include/task.hpp"
 #include "boost/mpi/communicator.hpp"
 #include "all/filatev_v_foks/include/ops_all.hpp"
+#include "core/perf/include/perf.hpp"
+#include "core/task/include/task.hpp"
 
 namespace {
 
@@ -43,18 +43,18 @@ std::vector<double> IdentityMatrix(size_t size) {
 TEST(filatev_v_foks_all, test_pipeline_run) {
   boost::mpi::communicator world;
   constexpr int kCount = 800;
-  
+
   filatev_v_foks_all::MatrixSize size_a(kCount, kCount);
   filatev_v_foks_all::MatrixSize size_b(kCount, kCount);
   filatev_v_foks_all::MatrixSize size_c(kCount, kCount);
-  
+
   auto task_data = std::make_shared<ppc::core::TaskData>();
 
   size_t size_block = 40;
   std::vector<double> matrix_a;
   std::vector<double> matrix_c;
   std::vector<double> matrix_b;
-  
+
   if (world.rank() == 0) {
     matrix_a = GeneratMatrix(size_a);
     matrix_c.resize(size_c.n * size_c.m, 0.0);
@@ -105,18 +105,18 @@ TEST(filatev_v_foks_all, test_pipeline_run) {
 TEST(filatev_v_foks_all, test_task_run) {
   boost::mpi::communicator world;
   constexpr int kCount = 800;
-  
+
   filatev_v_foks_all::MatrixSize size_a(kCount, kCount);
   filatev_v_foks_all::MatrixSize size_b(kCount, kCount);
   filatev_v_foks_all::MatrixSize size_c(kCount, kCount);
-  
+
   auto task_data = std::make_shared<ppc::core::TaskData>();
 
   size_t size_block = 40;
   std::vector<double> matrix_a;
   std::vector<double> matrix_c;
   std::vector<double> matrix_b;
-  
+
   if (world.rank() == 0) {
     matrix_a = GeneratMatrix(size_a);
     matrix_c.resize(size_c.n * size_c.m, 0.0);

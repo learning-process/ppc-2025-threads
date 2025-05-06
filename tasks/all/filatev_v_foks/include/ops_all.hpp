@@ -41,7 +41,7 @@ class Focks : public ppc::core::Task {
   std::vector<double> matrix_b_;
   std::vector<double> matrix_c_;
   boost::mpi::communicator world_;
-  
+
   void Worker(size_t start_step, size_t end_step, size_t grid_size, std::mutex &mtx);
 };
 

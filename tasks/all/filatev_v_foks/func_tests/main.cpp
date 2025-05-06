@@ -6,9 +6,9 @@
 #include <random>
 #include <vector>
 
-#include "core/task/include/task.hpp"
 #include "boost/mpi/communicator.hpp"
 #include "all/filatev_v_foks/include/ops_all.hpp"
+#include "core/task/include/task.hpp"
 
 namespace {
 
@@ -19,7 +19,7 @@ std::vector<double> GeneratMatrix(filatev_v_foks_all::MatrixSize size) {
   std::mt19937 gen(rd());
   std::uniform_real_distribution<double> dist(-100.0, 100.0);
 
-  for (auto &el : matrix) {
+  for (auto& el : matrix) {
     el = dist(gen);
   }
 
@@ -36,7 +36,8 @@ std::vector<double> IdentityMatrix(size_t size) {
   return matrix;
 }
 
-void RunTest(size_t size_block, std::vector<size_t>& size, std::vector<double>& matrix_a, std::vector<double>& matrix_b, std::vector<double>& ans) {
+void RunTest(size_t size_block, std::vector<size_t>& size, std::vector<double>& matrix_a, std::vector<double>& matrix_b,
+             std::vector<double>& ans) {
   boost::mpi::communicator world;
 
   filatev_v_foks_all::MatrixSize size_a(size[0], size[1]);
@@ -53,13 +54,13 @@ void RunTest(size_t size_block, std::vector<size_t>& size, std::vector<double>& 
     task_data->inputs_count.emplace_back(size_b.m);
     task_data->inputs_count.emplace_back(size_block);
 
-    task_data->inputs.emplace_back(reinterpret_cast<uint8_t *>(matrix_a.data()));
-    task_data->inputs.emplace_back(reinterpret_cast<uint8_t *>(matrix_b.data()));
+    task_data->inputs.emplace_back(reinterpret_cast<uint8_t*>(matrix_a.data()));
+    task_data->inputs.emplace_back(reinterpret_cast<uint8_t*>(matrix_b.data()));
 
     task_data->outputs_count.emplace_back(size_c.n);
     task_data->outputs_count.emplace_back(size_c.m);
 
-    task_data->outputs.emplace_back(reinterpret_cast<uint8_t *>(matrix_c.data()));
+    task_data->outputs.emplace_back(reinterpret_cast<uint8_t*>(matrix_c.data()));
   }
 
   filatev_v_foks_all::Focks focks(task_data);
@@ -73,7 +74,8 @@ void RunTest(size_t size_block, std::vector<size_t>& size, std::vector<double>& 
   }
 }
 
-void TestError(size_t size_block, std::vector<size_t>& size, std::vector<double>& matrix_a, std::vector<double>& matrix_b) {
+void TestError(size_t size_block, std::vector<size_t>& size, std::vector<double>& matrix_a,
+               std::vector<double>& matrix_b) {
   boost::mpi::communicator world;
 
   filatev_v_foks_all::MatrixSize size_a(size[0], size[1]);
@@ -90,13 +92,13 @@ void TestError(size_t size_block, std::vector<size_t>& size, std::vector<double>
     task_data->inputs_count.emplace_back(size_b.m);
     task_data->inputs_count.emplace_back(size_block);
 
-    task_data->inputs.emplace_back(reinterpret_cast<uint8_t *>(matrix_a.data()));
-    task_data->inputs.emplace_back(reinterpret_cast<uint8_t *>(matrix_b.data()));
+    task_data->inputs.emplace_back(reinterpret_cast<uint8_t*>(matrix_a.data()));
+    task_data->inputs.emplace_back(reinterpret_cast<uint8_t*>(matrix_b.data()));
 
     task_data->outputs_count.emplace_back(size_c.n);
     task_data->outputs_count.emplace_back(size_c.m);
 
-    task_data->outputs.emplace_back(reinterpret_cast<uint8_t *>(matrix_c.data()));
+    task_data->outputs.emplace_back(reinterpret_cast<uint8_t*>(matrix_c.data()));
   }
 
   filatev_v_foks_all::Focks focks(task_data);
@@ -168,7 +170,7 @@ TEST(filatev_v_foks_all, test_matrix_10_10_block_5_IdentityMatrix) {
   size_t size_block = 5;
   std::vector<double> matrix_a = GeneratMatrix({10, 10});
   std::vector<double> matrix_b = IdentityMatrix(10);
-  
+
   RunTest(size_block, size, matrix_a, matrix_b, matrix_a);
 }
 
@@ -197,7 +199,7 @@ TEST(filatev_v_foks_all, test_error_matrix_size_b) {
   size_t size_block = 2;
   std::vector<double> matrix_a = {1, 5, 9, 13};
   std::vector<double> matrix_b = {8, 1, 1, 5};
-  
+
   TestError(size_block, size, matrix_a, matrix_b);
 }
 
@@ -206,7 +208,7 @@ TEST(filatev_v_foks_all, test_error_matrix_size_c) {
   size_t size_block = 2;
   std::vector<double> matrix_a = {1, 5, 9, 13};
   std::vector<double> matrix_b = {8, 1, 1, 5};
-  
+
   TestError(size_block, size, matrix_a, matrix_b);
 }
 
@@ -215,6 +217,6 @@ TEST(filatev_v_foks_all, test_error_size_block) {
   size_t size_block = 0;
   std::vector<double> matrix_a = {1, 5, 9, 13};
   std::vector<double> matrix_b = {8, 1, 1, 5};
-  
+
   TestError(size_block, size, matrix_a, matrix_b);
 }
