@@ -6,8 +6,8 @@
 #include <random>
 #include <vector>
 
-#include "boost/mpi/communicator.hpp"
 #include "all/filatev_v_foks/include/ops_all.hpp"
+#include "boost/mpi/communicator.hpp"
 #include "core/task/include/task.hpp"
 
 namespace {

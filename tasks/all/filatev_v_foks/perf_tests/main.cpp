@@ -7,8 +7,8 @@
 #include <random>
 #include <vector>
 
-#include "boost/mpi/communicator.hpp"
 #include "all/filatev_v_foks/include/ops_all.hpp"
+#include "boost/mpi/communicator.hpp"
 #include "core/perf/include/perf.hpp"
 #include "core/task/include/task.hpp"
 
@@ -100,7 +100,6 @@ TEST(filatev_v_foks_all, test_pipeline_run) {
     ASSERT_EQ(matrix_a, matrix_c);
   }
 }
-
 
 TEST(filatev_v_foks_all, test_task_run) {
   boost::mpi::communicator world;

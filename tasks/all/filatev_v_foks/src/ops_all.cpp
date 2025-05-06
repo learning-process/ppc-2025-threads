@@ -128,7 +128,7 @@ bool filatev_v_foks_all::Focks::RunImpl() {
       size_t thread_end = (t == num_threads - 1) ? end_step : thread_start + steps_per_thread;
       threads[t] = std::thread(&Focks::Worker, this, thread_start, thread_end, grid_size, std::ref(mtx));
     }
-      
+
     for (auto &thread : threads) {
       thread.join();
     }
@@ -152,7 +152,6 @@ bool filatev_v_foks_all::Focks::RunImpl() {
 
   return true;
 }
-
 
 bool filatev_v_foks_all::Focks::PostProcessingImpl() {
   if (world_.rank() == 0) {
