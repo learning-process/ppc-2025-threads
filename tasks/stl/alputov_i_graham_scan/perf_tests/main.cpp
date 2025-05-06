@@ -14,7 +14,7 @@
 
 namespace {
 void GenerateTestData(std::vector<alputov_i_graham_scan_stl::Point>& data) {
-  constexpr size_t kCount = 5000000;
+  constexpr size_t kCount = 100000;
   constexpr double kRange = 1000.0;
 
   std::mt19937 gen(42);

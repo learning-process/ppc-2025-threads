@@ -1,5 +1,6 @@
 #pragma once
 
+#include <array>
 #include <utility>
 #include <vector>
 
@@ -34,7 +35,8 @@ class TestTaskSTL : public ppc::core::Task {
   [[nodiscard]] std::vector<Point> BuildHull(const std::vector<Point>& sorted_points, const Point& pivot) const;
 
   static double Cross(const Point& o, const Point& a, const Point& b);
-  static bool CompareAngles(const Point& a, const Point& b, const Point& pivot);
+  static bool CompareAngles(const Point& first_point, const Point& second_point, const Point& pivot_point);
+  static void RemoveDuplicates(std::vector<Point>& points);
 };
 
 }  // namespace alputov_i_graham_scan_stl

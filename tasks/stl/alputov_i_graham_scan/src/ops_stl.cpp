@@ -4,7 +4,7 @@
 #include <cmath>
 #include <execution>
 #include <limits>
-#include <ranges>
+#include <memory>
 #include <vector>
 
 namespace alputov_i_graham_scan_stl {
@@ -13,7 +13,10 @@ Point::Point(double x, double y) : x(x), y(y) {}
 
 bool Point::operator<(const Point& other) const { return std::tie(y, x) < std::tie(other.y, other.x); }
 
-bool Point::operator==(const Point& other) const { return std::tie(x, y) == std::tie(other.x, other.y); }
+bool Point::operator==(const Point& other) const {
+  constexpr double kEpsilon = std::numeric_limits<double>::epsilon();
+  return std::abs(x - other.x) < kEpsilon && std::abs(y - other.y) < kEpsilon;
+}
 
 bool TestTaskSTL::PreProcessingImpl() {
   auto* input_ptr = reinterpret_cast<Point*>(task_data->inputs[0]);
@@ -26,26 +29,34 @@ bool TestTaskSTL::ValidationImpl() {
 }
 
 double TestTaskSTL::Cross(const Point& o, const Point& a, const Point& b) {
-  return ((a.x - o.x) * (b.y - o.y)) - ((a.y - o.y) * (b.x - o.x));
+  return (a.x - o.x) * (b.y - o.y) - (a.y - o.y) * (b.x - o.x);
 }
 
 Point TestTaskSTL::FindPivot() const {
-  return std::reduce(std::execution::par, input_points_.begin(), input_points_.end(),
-                     Point(std::numeric_limits<double>::max(), std::numeric_limits<double>::max()),
-                     [](const Point& a, const Point& b) { return a < b ? a : b; });
+  return *std::min_element(std::execution::par, input_points_.begin(), input_points_.end());
 }
 
-bool TestTaskSTL::CompareAngles(const Point& a, const Point& b, const Point& pivot) {
-  const auto dx1 = a.x - pivot.x;
-  const auto dy1 = a.y - pivot.y;
-  const auto dx2 = b.x - pivot.x;
-  const auto dy2 = b.y - pivot.y;
+bool TestTaskSTL::CompareAngles(const Point& first_point, const Point& second_point, const Point& pivot_point) {
+  const auto first_dx = first_point.x - pivot_point.x;
+  const auto first_dy = first_point.y - pivot_point.y;
+  const auto second_dx = second_point.x - pivot_point.x;
+  const auto second_dy = second_point.y - pivot_point.y;
 
-  const auto cross = (dx1 * dy2) - (dy1 * dx2);
-  if (std::abs(cross) < 1e-10) {
-    return (dx1 * dx1 + dy1 * dy1) < (dx2 * dx2 + dy2 * dy2);
+  const double cross_product = (first_dx * second_dy) - (first_dy * second_dx);
+  constexpr double kEpsilon = 1e-10;
+
+  if (std::abs(cross_product) < kEpsilon) {
+    const auto first_distance_squared = (first_dx * first_dx) + (first_dy * first_dy);
+    const auto second_distance_squared = (second_dx * second_dx) + (second_dy * second_dy);
+    return first_distance_squared < second_distance_squared;
   }
-  return cross > 0;
+
+  return cross_product > 0;
+}
+
+void TestTaskSTL::RemoveDuplicates(std::vector<Point>& points) {
+  auto result = std::unique(points.begin(), points.end());
+  points.erase(result, points.end());
 }
 
 std::vector<Point> TestTaskSTL::SortPoints(const Point& pivot) const {
@@ -58,11 +69,9 @@ std::vector<Point> TestTaskSTL::SortPoints(const Point& pivot) const {
   }
 
   std::sort(std::execution::par, points.begin(), points.end(),
-            [&pivot](const Point& a, const Point& b) { return CompareAngles(a, b, pivot); });
+            [&](const Point& a, const Point& b) { return CompareAngles(a, b, pivot); });
 
-  auto last = std::unique(points.begin(), points.end());
-  points.erase(last, points.end());
-
+  RemoveDuplicates(points);
   return points;
 }
 
@@ -100,7 +109,7 @@ bool TestTaskSTL::RunImpl() {
 
 bool TestTaskSTL::PostProcessingImpl() {
   auto* output_ptr = reinterpret_cast<Point*>(task_data->outputs[0]);
-  std::ranges::copy(convex_hull_, output_ptr);
+  std::copy(convex_hull_.begin(), convex_hull_.end(), output_ptr);
   return true;
 }
 
