@@ -111,16 +111,16 @@ bool moiseev_a_mult_mat_mpi::MultMatMPI::RunImpl() {  // NOLINT
         for (int j = 0; j < block_size; j++) {
           double sum = 0;
           for (int k = 0; k < block_size; k++) {
-            sum += a_block[i * block_size + k] * b_block[k * block_size + j];
+            sum += a_block[(i * block_size) + k] * b_block[(k * block_size) + j];
           }
-          c_block[i * block_size + j] += sum;
+          c_block[(i * block_size) + j] += sum;
         }
       }
 
       int next = (my_row + 1) % p;
       int prev = (my_row - 1 + p) % p;
       MPI_Sendrecv_replace(b_block.data(), static_cast<int>(b_block.size()), MPI_DOUBLE, (prev * p) + my_col, 0,
-                           next * p + my_col, 0, active_comm, MPI_STATUS_IGNORE);
+                           (next * p) + my_col, 0, active_comm, MPI_STATUS_IGNORE);
     }
 
     if (world_rank == 0) {
