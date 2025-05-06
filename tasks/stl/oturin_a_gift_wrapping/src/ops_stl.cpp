@@ -190,14 +190,10 @@ void oturin_a_gift_wrapping_stl::TestTaskSTL::FindSecondPoint(int start_index, i
       continue;
     }
     double t = ABTP(input_[start_index], input_[i]);
-    if (t > line_angle) {
-      line_angle = t;
+    if (t > line_angle || (t == line_angle && Distance(input_[start_index], input_[i]) <
+                                                  Distance(input_[start_index], input_[search_index]))) {
       search_index = i;
-    } else if (t == line_angle) {
-      if (Distance(input_[start_index], input_[i]) < Distance(input_[start_index], input_[search_index])) {
-        search_index = i;
-        line_angle = t;
-      }
+      line_angle = t;
     }
   }
 }
