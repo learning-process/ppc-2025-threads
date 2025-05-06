@@ -114,7 +114,7 @@ bool filatev_v_foks_all::Focks::RunImpl() {
   size_t remainder = total_steps % world_.size();
 
   size_t start_step = world_.rank() * steps_per_process + std::min<size_t>(world_.rank(), remainder);
-  size_t end_step = start_step + steps_per_process + (world_.rank() < remainder ? 1 : 0);
+  size_t end_step = start_step + steps_per_process + (static_cast<size_t>(world_.rank()) < remainder ? 1 : 0);
 
   size_t num_threads = ppc::util::GetPPCNumThreads();
   std::mutex mtx;
