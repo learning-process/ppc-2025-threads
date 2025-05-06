@@ -37,6 +37,8 @@ class TestTaskSTL : public ppc::core::Task {
   static double Cross(const Point& o, const Point& a, const Point& b);
   static bool CompareAngles(const Point& first_point, const Point& second_point, const Point& pivot_point);
   static void RemoveDuplicates(std::vector<Point>& points);
+
+  void ParallelSort(std::vector<Point>& points, const Point& pivot) const;
 };
 
 }  // namespace alputov_i_graham_scan_stl

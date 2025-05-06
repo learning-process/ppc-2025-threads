@@ -2,10 +2,13 @@
 
 #include <algorithm>
 #include <cmath>
-#include <execution>
 #include <limits>
 #include <memory>
+#include <mutex>
+#include <thread>
 #include <vector>
+
+#include "core/util/include/util.hpp"
 
 namespace alputov_i_graham_scan_stl {
 
@@ -33,7 +36,40 @@ double TestTaskSTL::Cross(const Point& o, const Point& a, const Point& b) {
 }
 
 Point TestTaskSTL::FindPivot() const {
-  return *std::min_element(std::execution::par, input_points_.begin(), input_points_.end());
+  const int num_threads = ppc::util::GetPPCNumThreads();
+  const size_t num_points = input_points_.size();
+  std::vector<std::thread> threads;
+  std::vector<Point> partial_minima(num_threads);
+  size_t points_per_thread = num_points / num_threads;
+  size_t remainder = num_points % num_threads;
+
+  for (int i = 0; i < num_threads; ++i) {
+    size_t start = i * points_per_thread + std::min(static_cast<size_t>(i), remainder);
+    size_t end = (i + 1) * points_per_thread + std::min(static_cast<size_t>(i + 1), remainder);
+
+    threads.emplace_back([&, i, start, end]() {
+      Point local_min = input_points_[start];
+      for (size_t j = start + 1; j < end; ++j) {
+        if (input_points_[j] < local_min) {
+          local_min = input_points_[j];
+        }
+      }
+      partial_minima[i] = local_min;
+    });
+  }
+
+  for (auto& thread : threads) {
+    thread.join();
+  }
+
+  Point global_min = partial_minima[0];
+  for (size_t i = 1; i < num_threads; ++i) {
+    if (partial_minima[i] < global_min) {
+      global_min = partial_minima[i];
+    }
+  }
+
+  return global_min;
 }
 
 bool TestTaskSTL::CompareAngles(const Point& first_point, const Point& second_point, const Point& pivot_point) {
@@ -59,6 +95,46 @@ void TestTaskSTL::RemoveDuplicates(std::vector<Point>& points) {
   points.erase(result, points.end());
 }
 
+void TestTaskSTL::ParallelSort(std::vector<Point>& points, const Point& pivot) const {
+  const int num_threads = ppc::util::GetPPCNumThreads();
+  const size_t num_points = points.size();
+
+  if (num_threads == 1 || num_points < num_threads * 2) {
+    std::sort(points.begin(), points.end(), [&](const Point& a, const Point& b) { return CompareAngles(a, b, pivot); });
+    return;
+  }
+
+  std::vector<std::thread> threads;
+  size_t points_per_thread = num_points / num_threads;
+  size_t remainder = num_points % num_threads;
+
+  for (int i = 0; i < num_threads; ++i) {
+    size_t start = i * points_per_thread + std::min(static_cast<size_t>(i), remainder);
+    size_t end = (i + 1) * points_per_thread + std::min(static_cast<size_t>(i + 1), remainder);
+
+    threads.emplace_back([&, start, end]() {
+      std::sort(points.begin() + start, points.begin() + end,
+                [&](const Point& a, const Point& b) { return CompareAngles(a, b, pivot); });
+    });
+  }
+
+  for (auto& thread : threads) {
+    thread.join();
+  }
+
+  std::vector<Point> temp(num_points);
+  for (size_t size = points_per_thread; size < num_points; size *= 2) {
+    for (size_t left = 0; left < num_points; left += 2 * size) {
+      size_t mid = std::min(left + size, num_points);
+      size_t right = std::min(left + 2 * size, num_points);
+
+      std::merge(points.begin() + left, points.begin() + mid, points.begin() + mid, points.begin() + right,
+                 temp.begin() + left, [&](const Point& a, const Point& b) { return CompareAngles(a, b, pivot); });
+    }
+    points.swap(temp);
+  }
+}
+
 std::vector<Point> TestTaskSTL::SortPoints(const Point& pivot) const {
   std::vector<Point> points;
   points.reserve(input_points_.size());
@@ -68,9 +144,7 @@ std::vector<Point> TestTaskSTL::SortPoints(const Point& pivot) const {
     }
   }
 
-  std::sort(std::execution::par, points.begin(), points.end(),
-            [&](const Point& a, const Point& b) { return CompareAngles(a, b, pivot); });
-
+  ParallelSort(points, pivot);
   RemoveDuplicates(points);
   return points;
 }
@@ -81,14 +155,25 @@ std::vector<Point> TestTaskSTL::BuildHull(const std::vector<Point>& sorted_point
   hull.push_back(pivot);
 
   for (const auto& p : sorted_points) {
-    while (hull.size() >= 2 && Cross(hull[hull.size() - 2], hull.back(), p) < 1e-10) {
-      hull.pop_back();
+    while (hull.size() >= 2) {
+      const double cross = Cross(hull[hull.size() - 2], hull.back(), p);
+      if (cross < 1e-8) {  // Увеличенный порог для устойчивости
+        hull.pop_back();
+      } else {
+        break;
+      }
     }
     hull.push_back(p);
   }
 
-  while (hull.size() >= 3 && Cross(hull[hull.size() - 2], hull.back(), hull[0]) < 1e-10) {
-    hull.pop_back();
+  // Проверка замыкания оболочки
+  while (hull.size() >= 3) {
+    const double cross = Cross(hull[hull.size() - 2], hull.back(), hull[0]);
+    if (cross < 1e-8) {  // Увеличенный порог для устойчивости
+      hull.pop_back();
+    } else {
+      break;
+    }
   }
 
   return hull;
