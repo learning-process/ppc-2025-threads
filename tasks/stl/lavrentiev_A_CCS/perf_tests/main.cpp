@@ -20,7 +20,7 @@ std::vector<double> GenerateRandomMatrix(int size, int sparse_size) {
   std::vector<double> data(size);
   std::random_device device;
   std::mt19937 generator(device());
-  std::uniform_int_distribution<> random_element(-10000, 10000);
+  std::uniform_int_distribution<> random_element(-500, 500);
   size = size / sparse_size;
   for (int i = 0; i < size; ++i) {
     data[i] = static_cast<double>(random_element(generator));
