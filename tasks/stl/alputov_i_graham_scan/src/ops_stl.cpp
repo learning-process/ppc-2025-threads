@@ -36,16 +36,16 @@ double TestTaskSTL::Cross(const Point& o, const Point& a, const Point& b) {
 }
 
 Point TestTaskSTL::FindPivot() const {
-  const int num_threads = ppc::util::GetPPCNumThreads();
+  const size_t num_threads = static_cast<size_t>(ppc::util::GetPPCNumThreads());
   const size_t num_points = input_points_.size();
   std::vector<std::thread> threads;
   std::vector<Point> partial_minima(num_threads);
   size_t points_per_thread = num_points / num_threads;
   size_t remainder = num_points % num_threads;
 
-  for (int i = 0; i < num_threads; ++i) {
-    size_t start = i * points_per_thread + std::min(static_cast<size_t>(i), remainder);
-    size_t end = (i + 1) * points_per_thread + std::min(static_cast<size_t>(i + 1), remainder);
+  for (size_t i = 0; i < num_threads; ++i) {
+    size_t start = i * points_per_thread + std::min(i, remainder);
+    size_t end = (i + 1) * points_per_thread + std::min(i + 1, remainder);
 
     threads.emplace_back([&, i, start, end]() {
       Point local_min = input_points_[start];
@@ -96,7 +96,7 @@ void TestTaskSTL::RemoveDuplicates(std::vector<Point>& points) {
 }
 
 void TestTaskSTL::ParallelSort(std::vector<Point>& points, const Point& pivot) const {
-  const int num_threads = ppc::util::GetPPCNumThreads();
+  const size_t num_threads = static_cast<size_t>(ppc::util::GetPPCNumThreads());
   const size_t num_points = points.size();
 
   if (num_threads == 1 || num_points < num_threads * 2) {
@@ -108,9 +108,9 @@ void TestTaskSTL::ParallelSort(std::vector<Point>& points, const Point& pivot) c
   size_t points_per_thread = num_points / num_threads;
   size_t remainder = num_points % num_threads;
 
-  for (int i = 0; i < num_threads; ++i) {
-    size_t start = i * points_per_thread + std::min(static_cast<size_t>(i), remainder);
-    size_t end = (i + 1) * points_per_thread + std::min(static_cast<size_t>(i + 1), remainder);
+  for (size_t i = 0; i < num_threads; ++i) {
+    size_t start = i * points_per_thread + std::min(i, remainder);
+    size_t end = (i + 1) * points_per_thread + std::min(i + 1, remainder);
 
     threads.emplace_back([&, start, end]() {
       std::sort(points.begin() + start, points.begin() + end,
@@ -157,7 +157,7 @@ std::vector<Point> TestTaskSTL::BuildHull(const std::vector<Point>& sorted_point
   for (const auto& p : sorted_points) {
     while (hull.size() >= 2) {
       const double cross = Cross(hull[hull.size() - 2], hull.back(), p);
-      if (cross < 1e-8) {  // Увеличенный порог для устойчивости
+      if (cross < 1e-8) {
         hull.pop_back();
       } else {
         break;
@@ -166,10 +166,9 @@ std::vector<Point> TestTaskSTL::BuildHull(const std::vector<Point>& sorted_point
     hull.push_back(p);
   }
 
-  // Проверка замыкания оболочки
   while (hull.size() >= 3) {
     const double cross = Cross(hull[hull.size() - 2], hull.back(), hull[0]);
-    if (cross < 1e-8) {  // Увеличенный порог для устойчивости
+    if (cross < 1e-8) {
       hull.pop_back();
     } else {
       break;
