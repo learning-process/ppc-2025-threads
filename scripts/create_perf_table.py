@@ -50,7 +50,9 @@ for table_name in result_tables:
     worksheet.set_column('A:Z', 23)
     right_bold_border = workbook.add_format({'bold': True, 'right': 2, 'bottom': 2})
     bottom_bold_border = workbook.add_format({'bold': True, 'bottom': 2})
-    cpu_num = multiprocessing.cpu_count()
+    cpu_num = os.environ.get("PROC_COUNT")
+    if cpu_num is None:
+        raise EnvironmentError("Required environment variable 'PROC_COUNT' is not set.")
     worksheet.write(0, 0, "cpu_num = " + str(cpu_num), right_bold_border)
 
     it = 1
