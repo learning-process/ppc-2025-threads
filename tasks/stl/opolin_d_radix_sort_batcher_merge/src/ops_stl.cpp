@@ -16,7 +16,7 @@ bool opolin_d_radix_batcher_sort_stl::RadixBatcherSortTaskStl::PreProcessingImpl
   auto* in_ptr = reinterpret_cast<int*>(task_data->inputs[0]);
   input_ = std::vector<int>(in_ptr, in_ptr + size_);
   unsigned int output_size = task_data->outputs_count[0];
-  output_ = std::vector<int>(output_size, 0);
+  output_ = std::vector<int>(output_size);
   unsigned_data_.resize(size_);
   return true;
 }
@@ -93,9 +93,6 @@ void opolin_d_radix_batcher_sort_stl::ParallelProcessRange(size_t total_size, un
     return;
   }
   unsigned int actual_threads = std::min(num_threads, static_cast<unsigned int>(total_size));
-  if (actual_threads == 0) {
-    actual_threads = 1;
-  }
   std::vector<std::thread> threads;
   threads.reserve(actual_threads);
   size_t block_size = (total_size + actual_threads - 1) / actual_threads;
