@@ -1,9 +1,7 @@
 #include "stl/solovyev_d_shell_sort_simple/include/ops_stl.hpp"
 
-#include <chrono>
 #include <cmath>
 #include <cstddef>
-#include <iostream>
 #include <mutex>
 #include <thread>
 #include <vector>
