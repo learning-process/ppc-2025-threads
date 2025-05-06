@@ -107,7 +107,7 @@ void BatcherOddEvenMerge(std::vector<uint64_t>& array, int left, int right, int 
   if (right_thread.joinable()) {
     right_thread.join();
   }
-  
+
   for (int i = left; i + 1 < right; i += 2) {
     if (array[i] > array[i + 1]) {
       std::swap(array[i], array[i + 1]);
