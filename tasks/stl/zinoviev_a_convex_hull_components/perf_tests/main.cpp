@@ -2,6 +2,7 @@
 
 #include <algorithm>
 #include <chrono>
+#include <cstddef>
 #include <cstdint>
 #include <memory>
 #include <vector>
@@ -11,6 +12,8 @@
 #include "stl/zinoviev_a_convex_hull_components/include/ops_stl.hpp"
 
 using namespace zinoviev_a_convex_hull_components_stl;
+
+namespace {
 
 void VerifyResult(const std::vector<Point>& actual, const std::vector<Point>& expected) {
   auto sorted_actual = actual;
@@ -28,6 +31,8 @@ void VerifyResult(const std::vector<Point>& actual, const std::vector<Point>& ex
   }
 }
 
+}  // namespace
+
 TEST(zinoviev_a_convex_hull_components_stl, test_pipeline_run) {
   const int size = 5000;
   std::vector<int> input(size * size, 0);
@@ -38,7 +43,8 @@ TEST(zinoviev_a_convex_hull_components_stl, test_pipeline_run) {
     input[(i * size) + (size - 1)] = 1;
   }
 
-  std::vector<Point> expected = {{0, 0}, {size - 1, 0}, {0, size - 1}, {size - 2, size - 1}};
+  const std::vector<Point> expected = {
+      {.x = 0, .y = 0}, {.x = size - 1, .y = 0}, {.x = 0, .y = size - 1}, {.x = size - 2, .y = size - 1}};
 
   auto task_data = std::make_shared<ppc::core::TaskData>();
   task_data->inputs.emplace_back(reinterpret_cast<uint8_t*>(input.data()));
@@ -81,7 +87,8 @@ TEST(zinoviev_a_convex_hull_components_stl, test_task_run) {
     input[(i * size) + (size - 1)] = 1;
   }
 
-  std::vector<Point> expected = {{0, 0}, {size - 1, 0}, {0, size - 1}, {size - 2, size - 1}};
+  const std::vector<Point> expected = {
+      {.x = 0, .y = 0}, {.x = size - 1, .y = 0}, {.x = 0, .y = size - 1}, {.x = size - 2, .y = size - 1}};
 
   auto task_data = std::make_shared<ppc::core::TaskData>();
   task_data->inputs.emplace_back(reinterpret_cast<uint8_t*>(input.data()));
