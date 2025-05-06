@@ -113,17 +113,33 @@ std::vector<Point> ConvexHullSTL::FindConvexHull(const std::vector<Point>& point
 }
 
 bool ConvexHullSTL::RunImpl() noexcept {
-  hulls_.resize(components_.size());
+  const size_t num_components = components_.size();
+  hulls_.resize(num_components);
 
-  std::vector<std::thread> threads;
-  threads.reserve(components_.size());
+  unsigned int num_threads = std::thread::hardware_concurrency();
+  if (num_threads == 0) {
+    num_threads = 1;
+  }
 
-  for (size_t i = 0; i < components_.size(); ++i) {
-    threads.emplace_back([this, i]() { hulls_[i] = FindConvexHull(components_[i]); });
+  std::vector<std::thread> threads(num_threads);
+  const size_t components_per_thread = (num_components + num_threads - 1) / num_threads;
+
+  auto process_components = [this](size_t start_idx, size_t end_idx) {
+    for (size_t i = start_idx; i < end_idx; ++i) {
+      hulls_[i] = FindConvexHull(components_[i]);
+    }
+  };
+
+  for (size_t t = 0; t < num_threads; ++t) {
+    const size_t start = t * components_per_thread;
+    const size_t end = std::min(start + components_per_thread, num_components);
+    threads[t] = std::thread(process_components, start, end);
   }
 
   for (auto& thread : threads) {
-    thread.join();
+    if (thread.joinable()) {
+      thread.join();
+    }
   }
 
   return true;
