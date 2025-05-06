@@ -1,7 +1,7 @@
 #include "all/filatev_v_foks/include/ops_all.hpp"
 
 #include <algorithm>
-#include <boost/mpi/collectives/broadcast.hpp>
+#include <boost/mpi/collectives/broadcast.hpp>  // IWYU pragma: keep
 #include <boost/serialization/vector.hpp>
 #include <cmath>
 #include <cstddef>
@@ -97,23 +97,13 @@ void filatev_v_foks_all::Focks::Worker(size_t start_step, size_t end_step, size_
 bool filatev_v_foks_all::Focks::RunImpl() {
   size_t grid_size = size_ / size_block_;
 
-  if (world_.rank() == 0) {
-    for (int dest = 1; dest < world_.size(); ++dest) {
-      world_.send(dest, 0, matrix_a_);
-      world_.send(dest, 1, matrix_b_);
-    }
-  } else {
-    world_.recv(0, 0, matrix_a_);
-    world_.recv(0, 1, matrix_b_);
-  }
-
   matrix_c_.assign(size_ * size_, 0);
 
   size_t total_steps = grid_size * grid_size * grid_size;
   size_t steps_per_process = total_steps / world_.size();
   size_t remainder = total_steps % world_.size();
 
-  size_t start_step = world_.rank() * steps_per_process + std::min<size_t>(world_.rank(), remainder);
+  size_t start_step = (world_.rank() * steps_per_process) + std::min<size_t>(world_.rank(), remainder);
   size_t end_step = start_step + steps_per_process + (static_cast<size_t>(world_.rank()) < remainder ? 1 : 0);
 
   size_t num_threads = ppc::util::GetPPCNumThreads();
@@ -124,7 +114,7 @@ bool filatev_v_foks_all::Focks::RunImpl() {
     size_t steps_per_thread = (end_step - start_step) / num_threads;
 
     for (size_t t = 0; t < num_threads; ++t) {
-      size_t thread_start = start_step + t * steps_per_thread;
+      size_t thread_start = start_step + (t * steps_per_thread);
       size_t thread_end = (t == num_threads - 1) ? end_step : thread_start + steps_per_thread;
       threads[t] = std::thread(&Focks::Worker, this, thread_start, thread_end, grid_size, std::ref(mtx));
     }
