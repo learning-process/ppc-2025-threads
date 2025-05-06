@@ -3,7 +3,6 @@
 #include <algorithm>
 #include <core/util/include/util.hpp>
 #include <cstddef>
-#include <mutex>
 #include <thread>
 #include <utility>
 #include <vector>
@@ -70,10 +69,12 @@ void ShellSort(int left, int right, std::vector<int>& arr) {
   std::vector<int> gaps;
   for (int k = 0;; ++k) {
     int gap = (k % 2 == 0) ? (9 * (1 << k) - (1 << (k / 2)) + 1) : (8 * (1 << k) - (6 * (1 << ((k + 1) / 2))) + 1);
-    if (gap > size) break;
+    if (gap > size) {
+      break;
+    }
     gaps.push_back(gap);
   }
-  std::reverse(gaps.begin(), gaps.end());
+  std::ranges::reverse(gaps);
 
   for (int gap : gaps) {
     for (int k = left + gap; k <= right; ++k) {
@@ -100,7 +101,8 @@ void Merge(int left, int mid, int right, std::vector<int>& arr, std::vector<int>
 
   auto buf_it = buffer.begin();
 
-  auto left_it = it_left, right_it = it_mid;
+  auto left_it = it_left;
+  auto right_it = it_mid;
   while (left_it != arr.begin() + mid + 1 && right_it != it_right) {
     *buf_it++ = (*left_it <= *right_it) ? *left_it++ : *right_it++;
   }
