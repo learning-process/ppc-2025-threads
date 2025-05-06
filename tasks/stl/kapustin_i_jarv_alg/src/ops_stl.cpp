@@ -22,7 +22,7 @@ void kapustin_i_jarv_alg_stl::TestTaskSTL::FindBestPointMultithreaded(size_t cur
   }
 
   for (size_t i = 0; i < num_threads; ++i) {
-    size_t start = i * chunk_size + std::min(i, remaining);
+    size_t start = (i * chunk_size) + std::min(i, remaining);
     size_t end = start + chunk_size + (i < remaining ? 1 : 0);
 
     threads.emplace_back([this, start, end, current_index, i, &local_best]() {
@@ -42,7 +42,9 @@ void kapustin_i_jarv_alg_stl::TestTaskSTL::FindBestPointMultithreaded(size_t cur
     });
   }
 
-  for (auto& t : threads) t.join();
+  for (auto& t : threads) {
+    t.join();
+  }
 }
 
 int kapustin_i_jarv_alg_stl::TestTaskSTL::CalculateDistance(const std::pair<int, int>& p1,
