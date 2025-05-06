@@ -1,3 +1,5 @@
+#include "stl/solovyev_d_shell_sort_simple/include/ops_stl.hpp"
+
 #include <chrono>
 #include <cmath>
 #include <cstddef>
@@ -7,7 +9,6 @@
 #include <vector>
 
 #include "core/util/include/util.hpp"
-#include "stl/solovyev_d_shell_sort_simple/include/ops_stl.hpp"
 
 bool solovyev_d_shell_sort_simple_stl::TaskSTL::PreProcessingImpl() {
   size_t input_size = task_data->inputs_count[0];
