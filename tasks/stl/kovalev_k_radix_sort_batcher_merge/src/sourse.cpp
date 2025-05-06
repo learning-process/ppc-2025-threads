@@ -161,10 +161,10 @@ bool kovalev_k_radix_sort_batcher_merge_stl::TestTaskSTD::RunImpl() {
     memcpy(tmp_, mas_, sizeof(long long int) * n_input_);
     return ret;
   }
-
+  bool ret = true;
   std::vector<std::thread> threads_loc_sort(effective_num_threads_);
   for (int i = 0; i < effective_num_threads_; ++i) {
-    threads_loc_sort[i] = std::thread([&, i]() { bool ret = RadixSigned(i * loc_lenght_, loc_lenght_); });
+    threads_loc_sort[i] = std::thread([&, i]() { ret = ret & RadixSigned(i * loc_lenght_, loc_lenght_); });
   }
   for (auto& thread : threads_loc_sort) {
     if (thread.joinable()) {
@@ -192,7 +192,7 @@ bool kovalev_k_radix_sort_batcher_merge_stl::TestTaskSTD::RunImpl() {
   }
 
   FinalMerge();
-  return true;
+  return ret;
 }
 
 bool kovalev_k_radix_sort_batcher_merge_stl::TestTaskSTD::PostProcessingImpl() {
