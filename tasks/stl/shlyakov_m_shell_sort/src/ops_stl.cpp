@@ -68,7 +68,7 @@ void ShellSort(int left, int right, std::vector<int>& arr) {
 
   std::vector<int> gaps;
   for (int k = 0;; ++k) {
-    int gap = (k % 2 == 0) ? (9 * (1 << k) - (1 << (k / 2)) + 1) : (8 * (1 << k) - (6 * (1 << ((k + 1) / 2))) + 1);
+    int gap = (k % 2 == 0) ? ((9 * (1 << k)) - (1 << (k / 2)) + 1) : ((8 * (1 << k)) - (6 * (1 << ((k + 1) / 2))) + 1);
     if (gap > size) {
       break;
     }
