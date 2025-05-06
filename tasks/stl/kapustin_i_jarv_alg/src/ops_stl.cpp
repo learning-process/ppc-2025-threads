@@ -12,33 +12,37 @@
 void kapustin_i_jarv_alg_stl::TestTaskSTL::FindBestPointMultithreaded(size_t current_index,
                                                                       std::vector<size_t>& local_best) {
   auto num_threads = static_cast<size_t>(ppc::util::GetPPCNumThreads());
-  const size_t chunk_size = (input_.size() + num_threads - 1) / num_threads;
+  const size_t chunk_size = input_.size() / num_threads;
+  size_t remaining = input_.size() % num_threads;
+
   std::vector<std::thread> threads;
+  local_best.resize(num_threads);
+  for (size_t i = 0; i < num_threads; ++i) {
+    local_best[i] = (current_index + 1) % input_.size();
+  }
 
   for (size_t i = 0; i < num_threads; ++i) {
-    size_t start = i * chunk_size;
-    size_t end = std::min(start + chunk_size, input_.size());
+    size_t start = i * chunk_size + std::min(i, remaining);
+    size_t end = start + chunk_size + (i < remaining ? 1 : 0);
+
     threads.emplace_back([this, start, end, current_index, i, &local_best]() {
-      size_t local_best_index = local_best[i];
+      size_t best = local_best[i];
       for (size_t j = start; j < end; ++j) {
         if (j == current_index) {
           continue;
         }
-        int orientation = Orientation(input_[current_index], input_[local_best_index], input_[j]);
-        bool better = (orientation > 0) ||
-                      (orientation == 0 && CalculateDistance(input_[j], input_[current_index]) >
-                                               CalculateDistance(input_[local_best_index], input_[current_index]));
+        int orient = Orientation(input_[current_index], input_[best], input_[j]);
+        bool better = (orient > 0) || (orient == 0 && CalculateDistance(input_[j], input_[current_index]) >
+                                                          CalculateDistance(input_[best], input_[current_index]));
         if (better) {
-          local_best_index = j;
+          best = j;
         }
       }
-      local_best[i] = local_best_index;
+      local_best[i] = best;
     });
   }
 
-  for (auto& t : threads) {
-    t.join();
-  }
+  for (auto& t : threads) t.join();
 }
 
 int kapustin_i_jarv_alg_stl::TestTaskSTL::CalculateDistance(const std::pair<int, int>& p1,
