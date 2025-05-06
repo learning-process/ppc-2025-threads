@@ -49,7 +49,7 @@ bool moiseev_a_mult_mat_mpi::MultMatMPI::RunImpl() {  // NOLINT
   const int p = grid_dim;
   const int block_size = matrix_size_ / p;
 
-  MPI_Comm active_comm = nullptr;
+  MPI_Comm active_comm{};
   int color = (world_rank < active_procs) ? 0 : MPI_UNDEFINED;
   MPI_Comm_split(MPI_COMM_WORLD, color, world_rank, &active_comm);
 
@@ -103,7 +103,7 @@ bool moiseev_a_mult_mat_mpi::MultMatMPI::RunImpl() {  // NOLINT
     MPI_Recv(b_block.data(), block_size * block_size, MPI_DOUBLE, 0, 1, MPI_COMM_WORLD, MPI_STATUS_IGNORE);
   }
 
-  MPI_Comm row_comm = nullptr;
+  MPI_Comm row_comm{};
   MPI_Comm_split(active_comm, my_row, my_col, &row_comm);
 
   for (int step = 0; step < p; step++) {
