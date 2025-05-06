@@ -1,6 +1,5 @@
 #include <omp.h>
 
-#include <atomic>
 #include <climits>
 #include <cmath>
 #include <cstdlib>
