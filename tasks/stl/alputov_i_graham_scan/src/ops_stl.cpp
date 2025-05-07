@@ -2,11 +2,11 @@
 
 #include <algorithm>
 #include <cmath>
-#include <cstddef>   // For size_t
-#include <iterator>  // For std::next, std::difference_type
+#include <cstddef>
+#include <iterator>
 #include <ranges>
 #include <thread>
-#include <tuple>  // For std::tie
+#include <tuple>
 #include <vector>
 
 #include "core/util/include/util.hpp"
@@ -35,11 +35,8 @@ double TestTaskSTL::Cross(const Point& o, const Point& a, const Point& b) {
   return ((a.x - o.x) * (b.y - o.y)) - ((a.y - o.y) * (b.x - o.x));
 }
 
-// Use std::ranges::min_element with an explicit comparator
 Point TestTaskSTL::FindPivot() const {
-  auto comparator = [](const Point& a, const Point& b) {
-    return a < b;
-  };
+  auto comparator = [](const Point& a, const Point& b) { return a < b; };
   return *std::ranges::min_element(input_points_, comparator);
 }
 
