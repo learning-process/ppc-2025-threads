@@ -2,7 +2,6 @@ import argparse
 import os
 import re
 import xlsxwriter
-import multiprocessing
 
 parser = argparse.ArgumentParser()
 parser.add_argument('-i', '--input', help='Input file path (logs of perf tests, .txt)', required=True)
