@@ -205,7 +205,6 @@ bool IntegralsSimpsonSTL::RunImpl() {
     }
   }
 
-
   for (auto& th : threads) {
     if (th.joinable()) {
       th.join();
@@ -220,7 +219,6 @@ bool IntegralsSimpsonSTL::RunImpl() {
       total_sum += p_sum;
     }
   }
-
 
   double coeff = 1.0;
   for (int i = 0; i < dimension_; i++) {
