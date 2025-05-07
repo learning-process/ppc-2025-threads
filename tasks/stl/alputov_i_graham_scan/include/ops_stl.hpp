@@ -1,6 +1,5 @@
 #pragma once
 
-#include <array>
 #include <utility>
 #include <vector>
 
@@ -13,6 +12,7 @@ struct Point {
   Point(double x = 0, double y = 0);
   bool operator<(const Point& other) const;
   bool operator==(const Point& other) const;
+  bool operator!=(const Point& other) const;
 };
 
 class TestTaskSTL : public ppc::core::Task {
@@ -31,14 +31,15 @@ class TestTaskSTL : public ppc::core::Task {
   std::vector<Point> convex_hull_;
 
   [[nodiscard]] Point FindPivot() const;
-  [[nodiscard]] std::vector<Point> SortPoints(const Point& pivot) const;
-  [[nodiscard]] std::vector<Point> BuildHull(const std::vector<Point>& sorted_points, const Point& pivot) const;
+  [[nodiscard]] std::vector<Point> SortPoints(const Point& pivot);
+  static std::vector<Point> BuildHull(const std::vector<Point>& sorted_points, const Point& pivot);
+  static void RemoveDuplicates(std::vector<Point>& points);
+  [[nodiscard]] static bool CompareAngles(const Point& first_point, const Point& second_point,
+                                          const Point& pivot_point);
 
   static double Cross(const Point& o, const Point& a, const Point& b);
-  static bool CompareAngles(const Point& first_point, const Point& second_point, const Point& pivot_point);
-  static void RemoveDuplicates(std::vector<Point>& points);
 
-  void ParallelSort(std::vector<Point>& points, const Point& pivot) const;
+  void ParallelSort(std::vector<Point>& points, auto comp);
 };
 
 }  // namespace alputov_i_graham_scan_stl

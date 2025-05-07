@@ -269,7 +269,7 @@ TEST(alputov_i_graham_scan_stl, circle_figure) {
   EXPECT_EQ(hull_set.size(), input.size());
 }
 
-/* TEST(alputov_i_graham_scan_stl, star_figure) {
+TEST(alputov_i_graham_scan_stl, star_figure) {
   size_t num_points_star = 10;
   std::vector<alputov_i_graham_scan_stl::Point> input = GenerateStarPoints(num_points_star);
   std::vector<alputov_i_graham_scan_stl::Point> output(input.size());
@@ -282,7 +282,7 @@ TEST(alputov_i_graham_scan_stl, circle_figure) {
 
   alputov_i_graham_scan_stl::TestTaskSTL task(task_data);
   ValidateStarConvexHull(task, input, num_points_star);
-}*/
+}
 
 TEST(alputov_i_graham_scan_stl, single_point) {
   std::vector<alputov_i_graham_scan_stl::Point> input = {{0, 0}};
