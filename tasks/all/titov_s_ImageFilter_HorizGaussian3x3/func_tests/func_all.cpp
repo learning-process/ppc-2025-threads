@@ -8,9 +8,11 @@
 #include <vector>
 
 #include "all/titov_s_ImageFilter_HorizGaussian3x3/include/ops_all.hpp"
+#include "boost/mpi/communicator.hpp"
 #include "core/task/include/task.hpp"
 
 TEST(titov_s_image_filter_horiz_gaussian3x3_all, test_10_1) {
+  boost::mpi::communicator world;
   constexpr size_t kWidth = 10;
   constexpr size_t kHeight = 10;
   std::vector<double> input_image(kWidth * kHeight, 1.0);
@@ -34,7 +36,6 @@ TEST(titov_s_image_filter_horiz_gaussian3x3_all, test_10_1) {
   task_data_all->inputs_count.emplace_back(input_image.size());
   task_data_all->outputs.emplace_back(reinterpret_cast<uint8_t*>(output_image.data()));
   task_data_all->outputs_count.emplace_back(output_image.size());
-
   titov_s_image_filter_horiz_gaussian3x3_all::GaussianFilterALL gaussian_filter_all(task_data_all);
 
   ASSERT_EQ(gaussian_filter_all.Validation(), true);
@@ -42,15 +43,17 @@ TEST(titov_s_image_filter_horiz_gaussian3x3_all, test_10_1) {
   gaussian_filter_all.PreProcessing();
   gaussian_filter_all.Run();
   gaussian_filter_all.PostProcessing();
-
-  for (size_t i = 0; i < kHeight; ++i) {
-    for (size_t j = 0; j < kWidth; ++j) {
-      ASSERT_NEAR(output_image[((i * kWidth)) + j], expected_output[((i * kWidth)) + j], 1e-5);
+  if (world.rank() == 0) {
+    for (size_t i = 0; i < kHeight; ++i) {
+      for (size_t j = 0; j < kWidth; ++j) {
+        ASSERT_NEAR(output_image[((i * kWidth)) + j], expected_output[((i * kWidth)) + j], 1e-5);
+      }
     }
   }
 }
 
 TEST(titov_s_image_filter_horiz_gaussian3x3_all, test_10_vertical_lines) {
+  boost::mpi::communicator world;
   constexpr size_t kWidth = 10;
   constexpr size_t kHeight = 10;
   std::vector<double> input_image(kWidth * kHeight, 0.0);
@@ -87,14 +90,17 @@ TEST(titov_s_image_filter_horiz_gaussian3x3_all, test_10_vertical_lines) {
   gaussian_filter_all.Run();
   gaussian_filter_all.PostProcessing();
 
-  for (size_t i = 0; i < kHeight; ++i) {
-    for (size_t j = 0; j < kWidth; ++j) {
-      ASSERT_NEAR(output_image[((i * kWidth)) + j], expected_output[((i * kWidth)) + j], 1e-5);
+  if (world.rank() == 0) {
+    for (size_t i = 0; i < kHeight; ++i) {
+      for (size_t j = 0; j < kWidth; ++j) {
+        ASSERT_NEAR(output_image[((i * kWidth)) + j], expected_output[((i * kWidth)) + j], 1e-5);
+      }
     }
   }
 }
 
 TEST(titov_s_image_filter_horiz_gaussian3x3_all, test_horizontal_lines) {
+  boost::mpi::communicator world;
   constexpr size_t kWidth = 10;
   constexpr size_t kHeight = 10;
   std::vector<double> input_image(kWidth * kHeight, 0.0);
@@ -129,14 +135,17 @@ TEST(titov_s_image_filter_horiz_gaussian3x3_all, test_horizontal_lines) {
   gaussian_filter_all.Run();
   gaussian_filter_all.PostProcessing();
 
-  for (size_t i = 0; i < kHeight; ++i) {
-    for (size_t j = 0; j < kWidth; ++j) {
-      ASSERT_NEAR(output_image[((i * kWidth)) + j], expected_output[((i * kWidth)) + j], 1e-5);
+  if (world.rank() == 0) {
+    for (size_t i = 0; i < kHeight; ++i) {
+      for (size_t j = 0; j < kWidth; ++j) {
+        ASSERT_NEAR(output_image[((i * kWidth)) + j], expected_output[((i * kWidth)) + j], 1e-5);
+      }
     }
   }
 }
 
 TEST(titov_s_image_filter_horiz_gaussian3x3_all, test_empty_image) {
+  boost::mpi::communicator world;
   constexpr size_t kWidth = 10;
   constexpr size_t kHeight = 10;
   std::vector<double> input_image(kWidth * kHeight, 0.0);
@@ -159,14 +168,17 @@ TEST(titov_s_image_filter_horiz_gaussian3x3_all, test_empty_image) {
   gaussian_filter_all.Run();
   gaussian_filter_all.PostProcessing();
 
-  for (size_t i = 0; i < kHeight; ++i) {
-    for (size_t j = 0; j < kWidth; ++j) {
-      ASSERT_NEAR(output_image[(i * kWidth) + j], expected_output[(i * kWidth) + j], 1e-5);
+  if (world.rank() == 0) {
+    for (size_t i = 0; i < kHeight; ++i) {
+      for (size_t j = 0; j < kWidth; ++j) {
+        ASSERT_NEAR(output_image[(i * kWidth) + j], expected_output[(i * kWidth) + j], 1e-5);
+      }
     }
   }
 }
 
 TEST(titov_s_image_filter_horiz_gaussian3x3_all, test_sharp_transitions) {
+  boost::mpi::communicator world;
   constexpr size_t kWidth = 10;
   constexpr size_t kHeight = 10;
   std::vector<double> input_image(kWidth * kHeight, 0.0);
@@ -207,14 +219,17 @@ TEST(titov_s_image_filter_horiz_gaussian3x3_all, test_sharp_transitions) {
   gaussian_filter_all.Run();
   gaussian_filter_all.PostProcessing();
 
-  for (size_t i = 0; i < kHeight; ++i) {
-    for (size_t j = 0; j < kWidth; ++j) {
-      ASSERT_NEAR(output_image[(i * kWidth) + j], expected_output[(i * kWidth) + j], 1e-5);
+  if (world.rank() == 0) {
+    for (size_t i = 0; i < kHeight; ++i) {
+      for (size_t j = 0; j < kWidth; ++j) {
+        ASSERT_NEAR(output_image[(i * kWidth) + j], expected_output[(i * kWidth) + j], 1e-5);
+      }
     }
   }
 }
 
 TEST(titov_s_image_filter_horiz_gaussian3x3_all, test_smooth_gradients) {
+  boost::mpi::communicator world;
   constexpr size_t kWidth = 10;
   constexpr size_t kHeight = 10;
   std::vector<double> input_image(kWidth * kHeight, 0.0);
@@ -248,14 +263,17 @@ TEST(titov_s_image_filter_horiz_gaussian3x3_all, test_smooth_gradients) {
   gaussian_filter_all.Run();
   gaussian_filter_all.PostProcessing();
 
-  for (size_t i = 0; i < kHeight; ++i) {
-    for (size_t j = 0; j < kWidth; ++j) {
-      ASSERT_NEAR(output_image[(i * kWidth) + j], expected_output[(i * kWidth) + j], 0.5);
+  if (world.rank() == 0) {
+    for (size_t i = 0; i < kHeight; ++i) {
+      for (size_t j = 0; j < kWidth; ++j) {
+        ASSERT_NEAR(output_image[(i * kWidth) + j], expected_output[(i * kWidth) + j], 0.5);
+      }
     }
   }
 }
 
 TEST(titov_s_image_filter_horiz_gaussian3x3_all, test_all_max) {
+  boost::mpi::communicator world;
   constexpr size_t kWidth = 10;
   constexpr size_t kHeight = 10;
   std::vector<double> input_image(kWidth * kHeight, 255.0);
@@ -283,14 +301,17 @@ TEST(titov_s_image_filter_horiz_gaussian3x3_all, test_all_max) {
   gaussian_filter_all.Run();
   gaussian_filter_all.PostProcessing();
 
-  for (size_t i = 0; i < kHeight; ++i) {
-    for (size_t j = 0; j < kWidth; ++j) {
-      ASSERT_NEAR(output_image[(i * kWidth) + j], expected_output[(i * kWidth) + j], 1e-5);
+  if (world.rank() == 0) {
+    for (size_t i = 0; i < kHeight; ++i) {
+      for (size_t j = 0; j < kWidth; ++j) {
+        ASSERT_NEAR(output_image[(i * kWidth) + j], expected_output[(i * kWidth) + j], 1e-5);
+      }
     }
   }
 }
 
 TEST(titov_s_image_filter_horiz_gaussian3x3_all, test_random_invariant_mean) {
+  boost::mpi::communicator world;
   constexpr size_t kWidth = 100;
   constexpr size_t kHeight = 100;
 
@@ -327,5 +348,7 @@ TEST(titov_s_image_filter_horiz_gaussian3x3_all, test_random_invariant_mean) {
   double avg_output =
       std::accumulate(output_image.begin(), output_image.end(), 0.0) / static_cast<double>(output_image.size());
 
-  ASSERT_NEAR(avg_input, avg_output, 1);
+  if (world.rank() == 0) {
+    ASSERT_NEAR(avg_input, avg_output, 1);
+  }
 }
