@@ -2,13 +2,12 @@
 
 #include <algorithm>
 #include <cmath>
-#include <cstddef>
-#include <iterator>
+#include <cstddef>   // For size_t
+#include <iterator>  // For std::next, std::difference_type
 #include <ranges>
 #include <thread>
-#include <tuple>
+#include <tuple>  // For std::tie
 #include <vector>
-//#include <vector>
 
 #include "core/util/include/util.hpp"
 
@@ -36,8 +35,13 @@ double TestTaskSTL::Cross(const Point& o, const Point& a, const Point& b) {
   return ((a.x - o.x) * (b.y - o.y)) - ((a.y - o.y) * (b.x - o.x));
 }
 
-// Revert to iterator-based std::min_element to avoid C3889/C2100 errors
-Point TestTaskSTL::FindPivot() const { return *std::min_element(input_points_.begin(), input_points_.end()); }
+// Use std::ranges::min_element with an explicit comparator
+Point TestTaskSTL::FindPivot() const {
+  auto comparator = [](const Point& a, const Point& b) {
+    return a < b;
+  };
+  return *std::ranges::min_element(input_points_, comparator);
+}
 
 void TestTaskSTL::RemoveDuplicates(std::vector<Point>& points) {
   auto result = std::ranges::unique(points);
@@ -133,14 +137,12 @@ void TestTaskSTL::ParallelSort(std::vector<Point>& points, auto comp) {
     chunk_offsets[i] = (i * n) / num_threads;
   }
 
-  // Get the difference_type for safety
-  using difference_type = typename std::vector<Point>::difference_type;
+  using DifferenceType = typename std::vector<Point>::difference_type;
 
   for (size_t i = 0; i < num_threads; ++i) {
     threads.emplace_back([&points, &comp, start_offset = chunk_offsets[i], end_offset = chunk_offsets[i + 1]]() {
-      // Use std::next with cast offset to avoid narrowing warning
-      auto start_it = std::next(points.begin(), static_cast<difference_type>(start_offset));
-      auto end_it = std::next(points.begin(), static_cast<difference_type>(end_offset));
+      auto start_it = std::next(points.begin(), static_cast<DifferenceType>(start_offset));
+      auto end_it = std::next(points.begin(), static_cast<DifferenceType>(end_offset));
       std::sort(start_it, end_it, comp);
     });
   }
@@ -149,11 +151,9 @@ void TestTaskSTL::ParallelSort(std::vector<Point>& points, auto comp) {
     t.join();
   }
 
-  // Perform inplace merges
   for (size_t i = 1; i < num_threads; ++i) {
-    // Use std::next with cast offset for merge iterators
-    auto mid_it = std::next(points.begin(), static_cast<difference_type>(chunk_offsets[i]));
-    auto end_it = std::next(points.begin(), static_cast<difference_type>(chunk_offsets[i + 1]));
+    auto mid_it = std::next(points.begin(), static_cast<DifferenceType>(chunk_offsets[i]));
+    auto end_it = std::next(points.begin(), static_cast<DifferenceType>(chunk_offsets[i + 1]));
     std::inplace_merge(points.begin(), mid_it, end_it, comp);
   }
 }
