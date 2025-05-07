@@ -38,7 +38,7 @@ void TestOfFunction(std::vector<int> &in) {
   std::shared_ptr<ppc::core::TaskData> task_data_all = std::make_shared<ppc::core::TaskData>();
 
   if (world.rank() == 0) {
-    out.resize(in.size());
+    out = std::vector<int>(in.size());
     task_data_all->inputs.emplace_back(reinterpret_cast<uint8_t *>(in.data()));
     task_data_all->inputs_count.emplace_back(in.size());
     task_data_all->outputs.emplace_back(reinterpret_cast<uint8_t *>(out.data()));
