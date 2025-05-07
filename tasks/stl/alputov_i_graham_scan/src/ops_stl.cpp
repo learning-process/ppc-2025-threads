@@ -1,10 +1,11 @@
 #include "stl/alputov_i_graham_scan/include/ops_stl.hpp"
 
 #include <algorithm>
+//#include <vector>
 #include <cmath>
 #include <limits>
 #include <ranges>
-#include <thread>  // For std::thread
+#include <thread>
 #include <tuple>
 #include <vector>
 
@@ -115,7 +116,7 @@ const std::vector<Point>& TestTaskSTL::GetConvexHull() const { return convex_hul
 
 void TestTaskSTL::ParallelSort(std::vector<Point>& points, auto comp) {
   const size_t n = points.size();
-  const int num_threads = std::min((int)n, ppc::util::GetPPCNumThreads());
+  const size_t num_threads = std::min(n, static_cast<size_t>(ppc::util::GetPPCNumThreads()));
 
   if (num_threads <= 1) {
     std::sort(points.begin(), points.end(), comp);
@@ -123,18 +124,17 @@ void TestTaskSTL::ParallelSort(std::vector<Point>& points, auto comp) {
   }
 
   std::vector<std::thread> threads;
+  threads.reserve(num_threads);
   std::vector<size_t> chunk_offsets(num_threads + 1);
 
-  {
-    int i = 0;
-    std::transform(chunk_offsets.begin(), chunk_offsets.end(), chunk_offsets.begin(),
-                   [&](size_t _) { return ((i++) * n) / num_threads; });
+  for (size_t i = 0; i <= num_threads; ++i) {
+    chunk_offsets[i] = (i * n) / num_threads;
   }
 
-  // Sort chunks in parallel
-  for (int i = 0; i < num_threads; i++) {
-    threads.emplace_back(
-        [&, i, comp]() { std::sort(points.begin() + chunk_offsets[i], points.begin() + chunk_offsets[i + 1], comp); });
+  for (size_t i = 0; i < num_threads; ++i) {
+    threads.emplace_back([&points, &comp, start = chunk_offsets[i], end = chunk_offsets[i + 1]]() {
+      std::sort(points.begin() + start, points.begin() + end, comp);
+    });
   }
 
   for (auto& t : threads) {
