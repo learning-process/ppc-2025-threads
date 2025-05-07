@@ -35,29 +35,22 @@ bool titov_s_image_filter_horiz_gaussian3x3_all::GaussianFilterALL::RunImpl() {
   const int width = width_;
   const int height = height_;
 
-  // Получаем информацию о ранге и размере коммуникатора
   const int world_size = world_.size();
   const int world_rank = world_.rank();
 
-  // Calculate rows per process
   const int rows_per_process = height / world_size;
   int start_row = world_rank * rows_per_process;
   int end_row = (world_rank == world_size - 1) ? height : (start_row + rows_per_process);
 
-  // Add overlap rows for boundary conditions
   if (world_rank > 0) start_row--;
   if (world_rank < world_size - 1) end_row++;
 
-  // Allocate local buffers
   std::vector<double> local_input((end_row - start_row) * width);
   std::vector<double> local_output((end_row - start_row) * width);
 
-  // Root process distributes data
   if (world_rank == 0) {
-    // Copy own data first
     std::copy(input_.begin() + start_row * width, input_.begin() + end_row * width, local_input.begin());
 
-    // Send to other processes
     for (int p = 1; p < world_size; p++) {
       int p_start = p * rows_per_process;
       int p_end = (p == world_size - 1) ? height : (p_start + rows_per_process);
@@ -70,7 +63,6 @@ bool titov_s_image_filter_horiz_gaussian3x3_all::GaussianFilterALL::RunImpl() {
     world_.recv(0, 0, local_input.data(), local_input.size());
   }
 
-  // STL threads for intra-process parallelism
   const int num_threads = ppc::util::GetPPCNumThreads();
   std::vector<std::thread> threads;
   threads.reserve(num_threads);
@@ -103,21 +95,17 @@ bool titov_s_image_filter_horiz_gaussian3x3_all::GaussianFilterALL::RunImpl() {
     t.join();
   }
 
-  // Gather results
   if (world_rank == 0) {
-    // Copy root's results (excluding overlaps)
     std::copy(local_output.begin() + (world_rank > 0 ? width : 0),
               local_output.end() - (world_rank < world_size - 1 ? width : 0),
               output_.begin() + (world_rank * rows_per_process) * width);
 
-    // Receive from other processes
     for (int p = 1; p < world_size; p++) {
       int p_start = p * rows_per_process;
       int p_end = (p == world_size - 1) ? height : (p_start + rows_per_process);
       world_.recv(p, 0, &output_[p_start * width], (p_end - p_start) * width);
     }
   } else {
-    // Send results to root (excluding overlaps)
     int send_start = (world_rank > 0) ? width : 0;
     int send_end = local_output.size() - ((world_rank < world_size - 1) ? width : 0);
     world_.send(0, 0, local_output.data() + send_start, send_end - send_start);
