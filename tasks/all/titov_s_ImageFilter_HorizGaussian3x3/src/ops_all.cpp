@@ -35,7 +35,7 @@ bool titov_s_image_filter_horiz_gaussian3x3_all::GaussianFilterALL::RunImpl() {
   const int width = width_;
   const int height = height_;
 
-  // Получаем информацию о ранге и размере коммуникатора
+  // РџРѕР»СѓС‡Р°РµРј РёРЅС„РѕСЂРјР°С†РёСЋ Рѕ СЂР°РЅРіРµ Рё СЂР°Р·РјРµСЂРµ РєРѕРјРјСѓРЅРёРєР°С‚РѕСЂР°
   const int world_size = world_.size();
   const int world_rank = world_.rank();
 
