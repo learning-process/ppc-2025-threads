@@ -3,6 +3,7 @@
 #include <algorithm>
 #include <cmath>
 #include <cstddef>
+#include <numbers>
 #include <thread>
 #include <utility>
 #include <vector>
@@ -184,7 +185,7 @@ bool oturin_a_gift_wrapping_stl::TestTaskSTL::RunImpl() {
 #endif
 
 void oturin_a_gift_wrapping_stl::TestTaskSTL::FindSecondPoint(int start_index, int &search_index) {
-  double line_angle = -5;
+  double line_angle = -std::numbers::pi;
   for (int i = 0; i < n_; i++) {
     if (i == start_index) {
       continue;
@@ -212,7 +213,7 @@ void oturin_a_gift_wrapping_stl::TestTaskSTL::SearchThreadP(std::size_t start, s
 #endif
 
 std::pair<int, double> oturin_a_gift_wrapping_stl::TestTaskSTL::SearchThread(std::size_t start, std::size_t end) {
-  double line_angle = -5;
+  double line_angle = -std::numbers::pi;
   std::size_t search_index = start;
   for (std::size_t i = start; i < end; i++) {
     double t = ABTP(output_[output_.size() - 2], output_.back(), input_[i]);
