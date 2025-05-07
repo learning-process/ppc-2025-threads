@@ -2,14 +2,11 @@
 
 #include <cstddef>
 #include <cstdint>
-#include <fstream>
 #include <memory>
 #include <random>
-#include <string>
 #include <vector>
 
 #include "core/task/include/task.hpp"
-#include "core/util/include/util.hpp"
 #include "stl/karaseva_e_congrad/include/ops_stl.hpp"
 
 namespace {
@@ -158,7 +155,9 @@ TEST(karaseva_a_test_task_stl, test_random_solution) {
 
   auto a_matrix = GenerateRandomSPDMatrix(kSize, gen());
   std::vector<double> x_expected(kSize);
-  for (auto &val : x_expected) val = dist(gen);
+  for (auto &val : x_expected) {
+    val = dist(gen);
+  }
 
   auto b_vector = MultiplyMatrixVector(a_matrix, x_expected, kSize);
   std::vector<double> solution(kSize, 0.0);
