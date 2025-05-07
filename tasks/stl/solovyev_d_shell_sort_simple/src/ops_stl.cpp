@@ -24,7 +24,7 @@ void solovyev_d_shell_sort_simple_stl::TaskSTL::ThreadWorker(int t) {
   int local_gap = 0;
   while (true) {
     std::unique_lock lock(m_);
-    cv_.wait(lock, [&] { return local_gap!=gap_ || done_; });
+    cv_.wait(lock, [&] { return local_gap != gap_ || done_; });
     if (done_) {
       return;
     }
