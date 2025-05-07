@@ -2,9 +2,9 @@
 
 #include <cmath>
 #include <cstddef>
+#include <exception>
 #include <functional>
 #include <stdexcept>
-#include <exception>
 #include <thread>
 #include <vector>
 
@@ -136,20 +136,20 @@ void IntegralsSimpsonSTL::ThreadTaskRunner(int start_idx, int end_idx, const std
   }
 
   for (int i = start_idx; i < end_idx; ++i) {
-    if (dimension_ < 1) { 
+    if (dimension_ < 1) {
       throw std::logic_error("Critical error: dimension_ became < 1 inside loop unexpectedly.");
     }
-    std::vector<int> local_idx(dimension_); 
-    local_idx[0] = i;                      
+    std::vector<int> local_idx(dimension_);
+    local_idx[0] = i;
 
     try {
       local_partial_sum += RecursiveSimpsonSum(1, local_idx, steps);
     } catch (const std::exception& e) {
-      (void)e; 
-      return; 
+      (void)e;
+      return;
     }
   }
-  *partial_sum_output = local_partial_sum; 
+  *partial_sum_output = local_partial_sum;
 }
 
 unsigned int IntegralsSimpsonSTL::DetermineNumThreads(int total_iterations) const {
@@ -168,7 +168,8 @@ unsigned int IntegralsSimpsonSTL::DetermineNumThreads(int total_iterations) cons
   return num_threads;
 }
 
-std::vector<IntegralsSimpsonSTL::IterationRange> IntegralsSimpsonSTL::DistributeIterations(int total_iterations, unsigned int num_threads) const {
+std::vector<IntegralsSimpsonSTL::IterationRange> IntegralsSimpsonSTL::DistributeIterations(
+    int total_iterations, unsigned int num_threads) const {
   std::vector<IterationRange> ranges;
   if (num_threads == 0 || total_iterations == 0) {
     return ranges;
@@ -199,7 +200,6 @@ std::vector<IntegralsSimpsonSTL::IterationRange> IntegralsSimpsonSTL::Distribute
   }
   return ranges;
 }
-
 
 bool IntegralsSimpsonSTL::RunImpl() {
   if (dimension_ < 1) {

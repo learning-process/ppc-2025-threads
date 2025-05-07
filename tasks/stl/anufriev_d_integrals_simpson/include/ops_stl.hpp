@@ -27,7 +27,10 @@ class IntegralsSimpsonSTL : public ppc::core::Task {
   double RecursiveSimpsonSum(int dim_index, std::vector<int>& idx, const std::vector<double>& steps) const;
   void ThreadTaskRunner(int start_idx, int end_idx, const std::vector<double>& steps, double* partial_sum_output);
   unsigned int DetermineNumThreads(int total_iterations) const;
-  struct IterationRange { int start; int end; };
+  struct IterationRange {
+    int start;
+    int end;
+  };
   std::vector<IterationRange> DistributeIterations(int total_iterations, unsigned int num_threads) const;
 };
 
