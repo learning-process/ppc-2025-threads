@@ -126,18 +126,25 @@ bool IntegralsSimpsonSTL::ValidationImpl() {
 void IntegralsSimpsonSTL::thread_task_runner(int start_idx, int end_idx, const std::vector<double>& steps,
                                              double* partial_sum_output) {
   double local_partial_sum = 0.0;
+
   if (dimension_ < 1) {
     *partial_sum_output = 0.0;
     return;
   }
 
   for (int i = start_idx; i < end_idx; ++i) {
+    if (dimension_ < 1) {
+    throw std::logic_error("Dimension became < 1 unexpectedly in thread_task_runner loop");
+    }
+
     std::vector<int> local_idx(dimension_);
     local_idx[0] = i;
+
     try {
       local_partial_sum += RecursiveSimpsonSum(1, local_idx, steps);
-    } catch (const std::exception&) {
-      *partial_sum_output = local_partial_sum;
+    } catch (const std::exception& e) {
+      (void)e; 
+      *partial_sum_output = local_partial_sum; 
       return;
     }
   }
