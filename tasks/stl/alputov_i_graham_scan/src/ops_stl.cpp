@@ -2,12 +2,13 @@
 
 #include <algorithm>
 #include <cmath>
-#include <limits>
+#include <cstddef>
+#include <iterator>
 #include <ranges>
 #include <thread>
 #include <tuple>
 #include <vector>
-// #include <vector>
+//#include <vector>
 
 #include "core/util/include/util.hpp"
 
@@ -35,6 +36,7 @@ double TestTaskSTL::Cross(const Point& o, const Point& a, const Point& b) {
   return ((a.x - o.x) * (b.y - o.y)) - ((a.y - o.y) * (b.x - o.x));
 }
 
+// Revert to iterator-based std::min_element to avoid C3889/C2100 errors
 Point TestTaskSTL::FindPivot() const { return *std::min_element(input_points_.begin(), input_points_.end()); }
 
 void TestTaskSTL::RemoveDuplicates(std::vector<Point>& points) {
@@ -131,9 +133,15 @@ void TestTaskSTL::ParallelSort(std::vector<Point>& points, auto comp) {
     chunk_offsets[i] = (i * n) / num_threads;
   }
 
+  // Get the difference_type for safety
+  using difference_type = typename std::vector<Point>::difference_type;
+
   for (size_t i = 0; i < num_threads; ++i) {
-    threads.emplace_back([&points, &comp, start = chunk_offsets[i], end = chunk_offsets[i + 1]]() {
-      std::sort(points.begin() + start, points.begin() + end, comp);
+    threads.emplace_back([&points, &comp, start_offset = chunk_offsets[i], end_offset = chunk_offsets[i + 1]]() {
+      // Use std::next with cast offset to avoid narrowing warning
+      auto start_it = std::next(points.begin(), static_cast<difference_type>(start_offset));
+      auto end_it = std::next(points.begin(), static_cast<difference_type>(end_offset));
+      std::sort(start_it, end_it, comp);
     });
   }
 
@@ -141,8 +149,12 @@ void TestTaskSTL::ParallelSort(std::vector<Point>& points, auto comp) {
     t.join();
   }
 
+  // Perform inplace merges
   for (size_t i = 1; i < num_threads; ++i) {
-    std::inplace_merge(points.begin(), points.begin() + chunk_offsets[i], points.begin() + chunk_offsets[i + 1], comp);
+    // Use std::next with cast offset for merge iterators
+    auto mid_it = std::next(points.begin(), static_cast<difference_type>(chunk_offsets[i]));
+    auto end_it = std::next(points.begin(), static_cast<difference_type>(chunk_offsets[i + 1]));
+    std::inplace_merge(points.begin(), mid_it, end_it, comp);
   }
 }
 
