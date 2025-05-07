@@ -50,7 +50,7 @@ void solovyev_d_shell_sort_simple_stl::TaskSTL::ThreadWorker(int t) {
     auto end = std::chrono::high_resolution_clock::now();
     {
       std::lock_guard<std::mutex> cout_lock(cout_mutex_);
-      std::cout<<"Thread "<<t<<" is done by "<<std::chrono::duration<double>(end - start).count()<<std::endl;
+      std::cout << "Thread " << t << " is done by " << std::chrono::duration<double>(end - start).count() << std::endl;
     }
     if (++threads_completed_ == num_threads_) {
       cv_done_.notify_one();
@@ -72,7 +72,7 @@ bool solovyev_d_shell_sort_simple_stl::TaskSTL::RunImpl() {
     }
     {
       std::lock_guard<std::mutex> cout_lock(cout_mutex_);
-      std::cout<<"Gap "<<gap_<<" is starting!"<<std::endl;
+      std::cout << "Gap " << gap_ << " is starting!" << std::endl;
     }
     cv_.notify_all();
     std::unique_lock lock(m_);
@@ -80,7 +80,7 @@ bool solovyev_d_shell_sort_simple_stl::TaskSTL::RunImpl() {
     threads_completed_ = 0;
     {
       std::lock_guard<std::mutex> cout_lock(cout_mutex_);
-      std::cout<<"Gap "<<gap_<<" is done!"<<std::endl;
+      std::cout << "Gap " << gap_ << " is done!" <<std::endl;
     }
     ready_ = false;
   }
