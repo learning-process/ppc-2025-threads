@@ -78,8 +78,8 @@ bool kalyakina_a_shell_with_simple_merge_all::ShellSortALL::PreProcessingImpl() 
 }
 
 bool kalyakina_a_shell_with_simple_merge_all::ShellSortALL::ValidationImpl() {
-  return (world.rank() != 0) || (task_data->inputs_count[0] > 0) && (task_data->outputs_count[0] > 0) &&
-                                    (task_data->inputs_count[0] == task_data->outputs_count[0]);
+  return (world.rank() != 0) || ((task_data->inputs_count[0] > 0) && (task_data->outputs_count[0] > 0) &&
+                                 (task_data->inputs_count[0] == task_data->outputs_count[0]));
 }
 
 bool kalyakina_a_shell_with_simple_merge_all::ShellSortALL::RunImpl() {
