@@ -1,13 +1,13 @@
 #include <gtest/gtest.h>
 
+#include <algorithm>
 #include <chrono>
+#include <cmath>
 #include <cstddef>
 #include <cstdint>
 #include <memory>
 #include <random>
 #include <vector>
-#include <cmath>
-#include <algorithm>
 
 #include "all/frolova_e_Sobel_filter/include/ops_all.hpp"
 #include "boost/mpi/communicator.hpp"

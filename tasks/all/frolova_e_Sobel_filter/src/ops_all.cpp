@@ -2,16 +2,13 @@
 
 #include <oneapi/tbb/blocked_range.h>
 #include <oneapi/tbb/parallel_for.h>
-#include <boost/mpi.hpp>
 
+#include <algorithm>
+#include <boost/mpi/collectives/broadcast.hpp>
 #include <cmath>
 #include <cstddef>
-#include <functional>
-#include <thread>
+#include <ranges>
 #include <vector>
-#include <cstddef>
-
-#include "core/util/include/util.hpp"
 
 std::vector<int> frolova_e_sobel_filter_all::ToGrayScaleImg(std::vector<frolova_e_sobel_filter_all::RGB>& color_img,
                                                             size_t width, size_t height) {
@@ -99,10 +96,10 @@ bool frolova_e_sobel_filter_all::SobelFilterALL::RunImpl() {
   int active_processes = std::min(size, static_cast<int>(height_));
 
   if (rank < active_processes) {
-    int rows_per_proc = height_ / active_processes;
-    int remainder = height_ % active_processes;
+    int rows_per_proc = static_cast<int>(height_ / active_processes);
+    int remainder = static_cast<int>(height_ % active_processes);
 
-    int y_start = rank * rows_per_proc + std::min(rank, remainder);
+    int y_start = (rank * rows_per_proc) + std::min(rank, remainder);
     int y_end = y_start + rows_per_proc + (rank < remainder ? 1 : 0);
     int local_rows = y_end - y_start;
 
@@ -128,9 +125,13 @@ bool frolova_e_sobel_filter_all::SobelFilterALL::RunImpl() {
         for (int i = 0; i < ext_rows; ++i) {
           int src_y = proc_y_start - top + i;
           if (src_y >= 0 && src_y < static_cast<int>(height_)) {
-            std::copy_n(gray.begin() + src_y * width_, width_, chunk.begin() + i * width_);
+            std::copy_n(gray.begin() + static_cast<std::vector<uint8_t>::difference_type>(src_y * width_),
+                        static_cast<std::vector<uint8_t>::difference_type>(width_),
+                        chunk.begin() + static_cast<std::vector<uint8_t>::difference_type>(i * width_));
+
           } else {
-            std::fill_n(chunk.begin() + i * width_, width_, 0);
+            std::fill_n(chunk.begin() + static_cast<std::vector<uint8_t>::difference_type>(i * width_),
+                        static_cast<std::vector<uint8_t>::difference_type>(width_), 0);
           }
         }
 
@@ -173,7 +174,7 @@ bool frolova_e_sobel_filter_all::SobelFilterALL::RunImpl() {
                       });
 
     if (world_.rank() == 0) {
-      std::copy(local_result.begin(), local_result.end(), res_image_.begin() + y_start * width_);
+      std::ranges::copy(local_result, res_image_.begin() + y_start * width_);
 
       for (int proc = 1; proc < active_processes; ++proc) {
         int proc_y_start = (proc * rows_per_proc) + std::min(proc, remainder);
