@@ -3,6 +3,7 @@
 #include <algorithm>
 #include <cstdint>
 #include <vector>
+#include <cstring>
 
 template <typename PixelType>
 bool golovkin_contrast_stretching::ContrastStretchingSTL<PixelType>::ValidationImpl() {
@@ -17,8 +18,9 @@ bool golovkin_contrast_stretching::ContrastStretchingSTL<PixelType>::PreProcessi
   // Исправляем расчет image_size_ для uint16_t
   image_size_ = task_data->inputs_count[0] / sizeof(PixelType);
 
-  if (image_size_ == 0) return true;
-
+  if (image_size_ == 0) {
+    return true;
+  }
   auto* input_ptr = reinterpret_cast<PixelType*>(task_data->inputs[0]);
   input_image_.assign(input_ptr, input_ptr + image_size_);
   output_image_.resize(image_size_);
@@ -32,7 +34,9 @@ bool golovkin_contrast_stretching::ContrastStretchingSTL<PixelType>::PreProcessi
 
 template <typename PixelType>
 bool golovkin_contrast_stretching::ContrastStretchingSTL<PixelType>::RunImpl() {
-  if (image_size_ == 0) return true;
+  if (image_size_ == 0) {
+    return true;
+  }
   if (min_val_ == max_val_) {
     std::ranges::fill(output_image_, 0);
     return true;
