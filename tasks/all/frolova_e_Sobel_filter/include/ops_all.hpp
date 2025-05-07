@@ -1,11 +1,9 @@
 #pragma once
 
-#include <boost/mpi/collectives.hpp>
 #include <boost/mpi/communicator.hpp>
-#include <boost/serialization/access.hpp>
-#include <boost/serialization/vector.hpp>
 #include <utility>
 #include <vector>
+#include <cstddef>
 
 #include "core/task/include/task.hpp"
 
@@ -35,9 +33,9 @@ class SobelFilterALL : public ppc::core::Task {
   size_t width_{};
   size_t height_{};
   std::vector<int> res_image_;
-  boost::mpi::communicator world;
+  boost::mpi::communicator world_;
 
-  std::vector<int> local_image;
+  std::vector<int> local_image_;
 };
 
 }  // namespace frolova_e_sobel_filter_all

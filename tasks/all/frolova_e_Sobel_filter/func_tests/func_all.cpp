@@ -9,7 +9,6 @@
 
 #include "all/frolova_e_Sobel_filter/include/ops_all.hpp"
 #include "core/task/include/task.hpp"
-#include "core/util/include/util.hpp"
 
 namespace {
 std::vector<int> GenRgbPicture(size_t width, size_t height) {
