@@ -1,13 +1,13 @@
 #include "stl/alputov_i_graham_scan/include/ops_stl.hpp"
 
 #include <algorithm>
-//#include <vector>
 #include <cmath>
 #include <limits>
 #include <ranges>
 #include <thread>
 #include <tuple>
 #include <vector>
+// #include <vector>
 
 #include "core/util/include/util.hpp"
 
