@@ -1,9 +1,7 @@
 #include "stl/solovyev_d_shell_sort_simple/include/ops_stl.hpp"
 
-#include <chrono>
 #include <cmath>
 #include <cstddef>
-#include <iostream>
 #include <mutex>
 #include <thread>
 #include <vector>
@@ -23,16 +21,12 @@ bool solovyev_d_shell_sort_simple_stl::TaskSTL::ValidationImpl() {
 }
 
 void solovyev_d_shell_sort_simple_stl::TaskSTL::ThreadWorker(int t) {
-  int local_gap = -1;
+  int local_gap = 0;
   while (true) {
-    auto start = std::chrono::high_resolution_clock::now();
     std::unique_lock lock(m_);
-    cv_.wait(lock, [&] { return ready_ || done_; });
+    cv_.wait(lock, [&] { return local_gap!=gap_ || done_; });
     if (done_) {
       return;
-    }
-    if (local_gap == gap_) {
-      continue;
     }
     local_gap = gap_;
     lock.unlock();
@@ -46,11 +40,6 @@ void solovyev_d_shell_sort_simple_stl::TaskSTL::ThreadWorker(int t) {
         }
         input_[j] = val;
       }
-    }
-    auto end = std::chrono::high_resolution_clock::now();
-    {
-      std::lock_guard<std::mutex> cout_lock(cout_mutex_);
-      std::cout << "Thread " << t << " is done by " << std::chrono::duration<double>(end - start).count() << std::endl;
     }
     if (++threads_completed_ == num_threads_) {
       cv_done_.notify_one();
@@ -66,23 +55,10 @@ bool solovyev_d_shell_sort_simple_stl::TaskSTL::RunImpl() {
     done_ = false;
   }
   for (gap_ = static_cast<int>(input_.size()) / 2; gap_ > 0; gap_ /= 2) {
-    {
-      std::lock_guard<std::mutex> lock(m_);
-      ready_ = true;
-    }
-    {
-      std::lock_guard<std::mutex> cout_lock(cout_mutex_);
-      std::cout << "Gap " << gap_ << " is starting!" << std::endl;
-    }
     cv_.notify_all();
     std::unique_lock lock(m_);
     cv_done_.wait(lock, [&] { return threads_completed_ == num_threads_; });
     threads_completed_ = 0;
-    {
-      std::lock_guard<std::mutex> cout_lock(cout_mutex_);
-      std::cout << "Gap " << gap_ << " is done!" << std::endl;
-    }
-    ready_ = false;
   }
   {
     std::lock_guard<std::mutex> lock(m_);
