@@ -1,10 +1,8 @@
 ﻿#include "stl/shlyakov_m_shell_sort/include/ops_stl.hpp"
 
 #include <algorithm>
-#include <core/util/include/util.hpp>
 #include <cstddef>
 #include <thread>
-#include <utility>
 #include <vector>
 
 namespace shlyakov_m_shell_sort_stl {
@@ -26,7 +24,10 @@ bool TestTaskSTL::RunImpl() {
     return true;
   }
 
-  int num_threads = std::thread::hardware_concurrency();
+  // Исправление сужающего преобразования
+  unsigned int hardware_threads = std::thread::hardware_concurrency();
+  int num_threads = (hardware_threads > 0) ? static_cast<int>(hardware_threads) : 1;
+
   int sub_arr_size = (array_size + num_threads - 1) / num_threads;
 
   std::vector<std::thread> threads;
@@ -54,7 +55,7 @@ bool TestTaskSTL::RunImpl() {
     for (int i = 0; i < new_num_threads; ++i) {
       int left = i * 2 * sub_arr_size;
       int mid = std::min(left + sub_arr_size - 1, array_size - 1);
-      int right = std::min(left + 2 * sub_arr_size - 1, array_size - 1);
+      int right = std::min(left + (2 * sub_arr_size) - 1, array_size - 1);  // Добавлены скобки
 
       if (mid < right) {
         threads.emplace_back([this, left, mid, right, &buffer]() { Merge(left, mid, right, input_, buffer); });
@@ -74,7 +75,6 @@ bool TestTaskSTL::RunImpl() {
   output_ = input_;
   return true;
 }
-
 
 void Merge(int left, int mid, int right, std::vector<int>& arr, std::vector<int>& buffer) {
   int i = left;
