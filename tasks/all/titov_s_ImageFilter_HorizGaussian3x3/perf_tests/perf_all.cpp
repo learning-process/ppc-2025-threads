@@ -6,9 +6,9 @@
 #include <memory>
 #include <vector>
 
+#include "all/titov_s_ImageFilter_HorizGaussian3x3/include/ops_all.hpp"
 #include "core/perf/include/perf.hpp"
 #include "core/task/include/task.hpp"
-#include "all/titov_s_ImageFilter_HorizGaussian3x3/include/ops_all.hpp"
 
 TEST(titov_s_image_filter_horiz_gaussian3x3_all, test_pipeline_run) {
   constexpr size_t kWidth = 15000;

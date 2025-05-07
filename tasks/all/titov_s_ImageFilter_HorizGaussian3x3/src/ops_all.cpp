@@ -1,10 +1,11 @@
+#include "all/titov_s_ImageFilter_HorizGaussian3x3/include/ops_all.hpp"
+
 #include <cmath>
 #include <cstddef>
 #include <thread>
 #include <vector>
 
 #include "core/util/include/util.hpp"
-#include "all/titov_s_ImageFilter_HorizGaussian3x3/include/ops_all.hpp"
 
 bool titov_s_image_filter_horiz_gaussian3x3_all::GaussianFilterALL::PreProcessingImpl() {
   unsigned int input_size = task_data->inputs_count[0];
@@ -94,7 +95,7 @@ bool titov_s_image_filter_horiz_gaussian3x3_all::GaussianFilterALL::RunImpl() {
   for (auto &t : threads) {
     t.join();
   }
-//utf
+
   if (world_rank == 0) {
     std::copy(local_output.begin() + (world_rank > 0 ? width : 0),
               local_output.end() - (world_rank < world_size - 1 ? width : 0),

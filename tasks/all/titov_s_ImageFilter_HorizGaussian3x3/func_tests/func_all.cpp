@@ -7,8 +7,8 @@
 #include <random>
 #include <vector>
 
-#include "core/task/include/task.hpp"
 #include "all/titov_s_ImageFilter_HorizGaussian3x3/include/ops_all.hpp"
+#include "core/task/include/task.hpp"
 
 TEST(titov_s_image_filter_horiz_gaussian3x3_all, test_10_1) {
   constexpr size_t kWidth = 10;
