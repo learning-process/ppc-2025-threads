@@ -21,120 +21,105 @@ bool TestTaskSTL::PreProcessingImpl() {
 bool TestTaskSTL::ValidationImpl() { return task_data->inputs_count[0] == task_data->outputs_count[0]; }
 
 bool TestTaskSTL::RunImpl() {
-  const int n = static_cast<int>(input_.size());
-  if (n < 2) {
+  int array_size = static_cast<int>(input_.size());
+  if (array_size < 2) {
     return true;
   }
 
-  const int max_threads = ppc::util::GetPPCNumThreads();
-  int threads = std::min(max_threads, n);
-  const int seg_size = (n + threads - 1) / threads;
+  int num_threads = std::thread::hardware_concurrency();
+  int sub_arr_size = (array_size + num_threads - 1) / num_threads;
 
-  std::vector<std::pair<int, int>> segs;
-  segs.reserve(threads);
-  for (int idx = 0; idx < threads; ++idx) {
-    const int l = idx * seg_size;
-    const int r = std::min(n - 1, l + seg_size - 1);
-    segs.emplace_back(l, r);
+  std::vector<std::thread> threads;
+
+  for (int i = 0; i < num_threads; ++i) {
+    int left = i * sub_arr_size;
+    int right = std::min(left + sub_arr_size - 1, array_size - 1);
+
+    if (left < right) {
+      threads.emplace_back([this, left, right]() { ShellSort(left, right, input_); });
+    }
   }
 
-  std::vector<std::thread> workers;
-  workers.reserve(threads);
-  for (const auto& seg : segs) {
-    const int l = seg.first;
-    const int r = seg.second;
-    workers.emplace_back([this, l, r] { ShellSort(l, r, input_); });
+  for (auto& thread : threads) {
+    if (thread.joinable()) {
+      thread.join();
+    }
   }
 
-  for (auto& t : workers) {
-    t.join();
-  }
+  std::vector<int> buffer(input_.size());
+  while (num_threads > 1) {
+    int new_num_threads = (num_threads + 1) / 2;
+    threads.clear();
 
-  std::vector<int> buf(input_.size());
+    for (int i = 0; i < new_num_threads; ++i) {
+      int left = i * 2 * sub_arr_size;
+      int mid = std::min(left + sub_arr_size - 1, array_size - 1);
+      int right = std::min(left + 2 * sub_arr_size - 1, array_size - 1);
 
-  int end = segs.front().second;
-  for (std::size_t i = 1; i < segs.size(); ++i) {
-    const int r = segs[i].second;
-    Merge(0, end, r, input_, buf);
-    end = r;
+      if (mid < right) {
+        threads.emplace_back([this, left, mid, right, &buffer]() { Merge(left, mid, right, input_, buffer); });
+      }
+    }
+
+    for (auto& thread : threads) {
+      if (thread.joinable()) {
+        thread.join();
+      }
+    }
+
+    sub_arr_size *= 2;
+    num_threads = new_num_threads;
   }
 
   output_ = input_;
   return true;
 }
 
-void ShellSort(int left, int right, std::vector<int>& arr) {
-  const int size = right - left + 1;
-
-  std::vector<int> gaps;
-  for (int k = 0;; ++k) {
-    int gap = (k % 2 == 0) ? ((9 * (1 << k)) - (1 << (k / 2)) + 1) : ((8 * (1 << k)) - (6 * (1 << ((k + 1) / 2))) + 1);
-    if (gap > size) {
-      break;
-    }
-    gaps.push_back(gap);
-  }
-  std::ranges::reverse(gaps);
-
-  for (int gap : gaps) {
-    for (int k = left + gap; k <= right; ++k) {
-      const int val = arr[k];
-      int j = k;
-      while (j >= left + gap && arr[j - gap] > val) {
-        arr[j] = arr[j - gap];
-        j -= gap;
-      }
-      arr[j] = val;
-    }
-  }
-}
 
 void Merge(int left, int mid, int right, std::vector<int>& arr, std::vector<int>& buffer) {
+  int i = left;
+  int j = mid + 1;
+  int k = 0;
   const int merge_size = right - left + 1;
+
   if (buffer.size() < static_cast<std::size_t>(merge_size)) {
     buffer.resize(static_cast<std::size_t>(merge_size));
   }
 
-  auto it_left = arr.begin() + left;
-  auto it_mid = arr.begin() + mid + 1;
-  auto it_right = arr.begin() + right + 1;
-
-  auto buf_it = buffer.begin();
-
-  auto left_it = it_left;
-  auto right_it = it_mid;
-  while (left_it != arr.begin() + mid + 1 && right_it != it_right) {
-    *buf_it++ = (*left_it <= *right_it) ? *left_it++ : *right_it++;
+  for (; i <= mid || j <= right;) {
+    if (i > mid) {
+      buffer[k++] = arr[j++];
+    } else if (j > right) {
+      buffer[k++] = arr[i++];
+    } else {
+      buffer[k++] = (arr[i] <= arr[j]) ? arr[i++] : arr[j++];
+    }
   }
-  std::copy(left_it, arr.begin() + mid + 1, buf_it);
-  std::copy(right_it, it_right, buf_it);
 
-  std::copy(buffer.begin(), buffer.begin() + merge_size, it_left);
+  for (size_t idx = 0; idx < static_cast<size_t>(k); ++idx) {
+    arr[left + idx] = buffer[idx];
+  }
 }
 
-void ParallelMerge(std::vector<std::pair<int, int>>& segs, std::vector<int>& arr, std::vector<int>& buffer) {
-  while (segs.size() > 1) {
-    std::vector<std::pair<int, int>> new_segs;
-    std::vector<std::thread> workers;
+void ShellSort(int left, int right, std::vector<int>& arr) {
+  int sub_array_size = right - left + 1;
+  int gap = 1;
 
-    for (size_t i = 0; i < segs.size(); i += 2) {
-      if (i + 1 < segs.size()) {
-        const int l = segs[i].first;
-        const int mid = segs[i].second;
-        const int r = segs[i + 1].second;
+  for (; gap <= sub_array_size / 3;) {
+    gap = gap * 3 + 1;
+  }
 
-        workers.emplace_back([&arr, &buffer, l, mid, r] { Merge(l, mid, r, arr, buffer); });
-        new_segs.emplace_back(l, r);
-      } else {
-        new_segs.push_back(segs[i]);
+  for (; gap > 0; gap /= 3) {
+    for (int k = left + gap; k <= right; ++k) {
+      int current_element = arr[k];
+      int j = k;
+
+      while (j >= left + gap && arr[j - gap] > current_element) {
+        arr[j] = arr[j - gap];
+        j -= gap;
       }
+      arr[j] = current_element;
     }
-
-    for (auto& t : workers) {
-      t.join();
-    }
-
-    segs = std::move(new_segs);
   }
 }
 
