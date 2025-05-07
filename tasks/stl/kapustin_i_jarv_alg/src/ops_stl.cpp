@@ -24,7 +24,7 @@ void kapustin_i_jarv_alg_stl::TestTaskSTL::FindBestPointMultithreaded(size_t cur
   std::mutex mtx;
 
   for (size_t i = 0; i < num_threads; ++i) {
-    size_t start = i * chunk_size + std::min(i, remaining);
+    size_t start = (i * chunk_size) + std::min(i, remaining);
     size_t end = start + chunk_size + (i < remaining ? 1 : 0);
 
     if (start >= end) {
