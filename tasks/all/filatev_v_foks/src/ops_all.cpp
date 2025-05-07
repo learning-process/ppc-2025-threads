@@ -89,8 +89,8 @@ bool filatev_v_foks_all::Focks::RunImpl() {
   boost::mpi::broadcast(world_, size_block_, 0);
   boost::mpi::broadcast(world_, size_, 0);
   if (world_.rank() != 0) {
-    matrix_a_.resize(size_);
-    matrix_b_.resize(size_);
+    matrix_a_.resize(size_ * size_);
+    matrix_b_.resize(size_ * size_);
   }
   boost::mpi::broadcast(world_, matrix_a_, 0);
   boost::mpi::broadcast(world_, matrix_b_, 0);
