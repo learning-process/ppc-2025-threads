@@ -38,7 +38,6 @@ bool titov_s_image_filter_horiz_gaussian3x3_all::GaussianFilterALL::RunImpl() {
   const int world_size = world_.size();
   const int world_rank = world_.rank();
 
-  // Распределение строк с учетом остатка
   const int rows_per_process = height / world_size;
   const int remainder = height % world_size;
   int start_row = world_rank * rows_per_process + std::min(world_rank, remainder);
@@ -48,7 +47,6 @@ bool titov_s_image_filter_horiz_gaussian3x3_all::GaussianFilterALL::RunImpl() {
   std::vector<double> local_input(local_rows * width);
   std::vector<double> local_output(local_rows * width, 0.0);
 
-  // Распределение данных
   if (world_rank == 0) {
     std::copy(input_.begin() + start_row * width, input_.begin() + end_row * width, local_input.begin());
     for (int p = 1; p < world_size; p++) {
@@ -61,7 +59,6 @@ bool titov_s_image_filter_horiz_gaussian3x3_all::GaussianFilterALL::RunImpl() {
     world_.recv(0, 0, local_input.data(), local_input.size());
   }
 
-  // Обработка данных
   const int num_threads = ppc::util::GetPPCNumThreads();
   std::vector<std::thread> threads;
   threads.reserve(num_threads);
@@ -85,7 +82,6 @@ bool titov_s_image_filter_horiz_gaussian3x3_all::GaussianFilterALL::RunImpl() {
 
   for (auto &t : threads) t.join();
 
-  // Сбор результатов
   if (world_rank == 0) {
     std::copy(local_output.begin(), local_output.end(), output_.begin() + start_row * width);
     for (int p = 1; p < world_size; p++) {
