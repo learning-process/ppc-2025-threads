@@ -138,7 +138,7 @@ TEST(frolova_e_sobel_filter_all, test_pipeline_run) {
   }
 }
 
-TEST(frolova_e_sobel_filter_tbb, test_task_run) {
+TEST(frolova_e_sobel_filter_all, test_task_run) {
   boost::mpi::communicator world;
   std::vector<int> value = {2000, 2000};
   std::vector<int> pict = GenRgbPicture(2000, 2000);
