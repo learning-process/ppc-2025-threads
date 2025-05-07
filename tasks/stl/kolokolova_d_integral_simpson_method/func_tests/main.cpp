@@ -2,12 +2,10 @@
 
 #include <cmath>
 #include <cstdint>
-#include <fstream>
 #include <memory>
 #include <vector>
 
 #include "core/task/include/task.hpp"
-#include "core/util/include/util.hpp"
 #include "stl/kolokolova_d_integral_simpson_method/include/ops_stl.hpp"
 
 TEST(kolokolova_d_integral_simpson_method_stl, test_easy_func) {

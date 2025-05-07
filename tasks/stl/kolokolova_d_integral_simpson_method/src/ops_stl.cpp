@@ -3,13 +3,8 @@
 #include <cmath>
 #include <cstddef>
 #include <functional>
-#include <mutex>
 #include <thread>
 #include <vector>
-
-#include "core/util/include/util.hpp"
-
-std::mutex mutex_;
 
 bool kolokolova_d_integral_simpson_method_stl::TestTaskSTL::PreProcessingImpl() {
   nums_variables_ = int(task_data->inputs_count[0]);
@@ -53,6 +48,7 @@ bool kolokolova_d_integral_simpson_method_stl::TestTaskSTL::RunImpl() {
   };
 
   std::vector<std::thread> threads;
+  threads.reserve(nums_variables_);
   for (int i = 0; i < nums_variables_; ++i) {
     threads.emplace_back(calculate_size_step, i);
   }
@@ -136,15 +132,16 @@ void kolokolova_d_integral_simpson_method_stl::TestTaskSTL::MultiplyCoeffandFunc
   int coeff_vec_size = int(coeff_vec.size());
   int function_vec_size = int(function_val.size());
 
-  unsigned int thread_count = std::thread::hardware_concurrency();
+  int thread_count = int(std::thread::hardware_concurrency());
   if (thread_count == 0) {
     thread_count = 1;
   }
 
   std::vector<std::thread> threads;
+  threads.reserve(thread_count);
   int section_size = function_vec_size / thread_count;
 
-  for (unsigned int t = 0; t < thread_count; ++t) {
+  for (int t = 0; t < thread_count; ++t) {
     threads.emplace_back([&, t, section_size, function_vec_size, coeff_vec_size]() {
       int start = t * section_size;
       int end = (t == thread_count - 1) ? function_vec_size : start + section_size;
@@ -160,7 +157,7 @@ void kolokolova_d_integral_simpson_method_stl::TestTaskSTL::MultiplyCoeffandFunc
 
   for (int iteration = 1; iteration < a; ++iteration) {
     threads.clear();
-    for (unsigned int t = 0; t < thread_count; ++t) {
+    for (int t = 0; t < thread_count; ++t) {
       threads.emplace_back([&, t, section_size, function_vec_size, coeff_vec_size, iteration]() {
         int start = t * section_size;
         int end = (t == thread_count - 1) ? function_vec_size : start + section_size;
@@ -178,23 +175,23 @@ void kolokolova_d_integral_simpson_method_stl::TestTaskSTL::MultiplyCoeffandFunc
   }
 }
 
-double kolokolova_d_integral_simpson_method_stl::TestTaskSTL::CreateOutputResult(std::vector<double> vec,
+double kolokolova_d_integral_simpson_method_stl::TestTaskSTL::CreateOutputResult(std::vector<double> const& vec,
                                                                                  std::vector<double> size_steps) const {
   double sum = 0;
 
   std::vector<std::thread> threads;
-  unsigned int thread_count = std::thread::hardware_concurrency();
+  int thread_count = int(std::thread::hardware_concurrency());
   if (thread_count == 0) {
     thread_count = 1;
   }
-
-  int section_size = vec.size() / thread_count;
+  threads.reserve(thread_count);
+  int section_size = int(vec.size()) / thread_count;
   std::vector<double> local_sums(thread_count, 0.0);
 
-  for (unsigned int t = 0; t < thread_count; ++t) {
+  for (int t = 0; t < thread_count; ++t) {
     threads.emplace_back([&, t, section_size, vec]() {
       int start = t * section_size;
-      int end = (t == thread_count - 1) ? vec.size() : start + section_size;
+      int end = (t == thread_count - 1) ? int(vec.size()) : start + section_size;
       double local_sum = 0;
       for (int i = start; i < end; i++) {
         local_sum += vec[i];

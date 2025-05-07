@@ -24,7 +24,7 @@ class TestTaskSTL : public ppc::core::Task {
   static std::vector<double> FindCoeff(int count_step);
   static void MultiplyCoeffandFunctionValue(std::vector<double>& function_val, const std::vector<double>& coeff_vec,
                                             int a);
-  [[nodiscard]] double CreateOutputResult(std::vector<double> vec, std::vector<double> size_steps) const;
+  [[nodiscard]] double CreateOutputResult(std::vector<double> const& vec, std::vector<double> size_steps) const;
   static bool CheckBorders(std::vector<int> vec);
 
  private:
