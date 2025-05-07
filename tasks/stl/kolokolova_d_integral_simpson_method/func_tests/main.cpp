@@ -1,10 +1,9 @@
 #include <gtest/gtest.h>
 
-#include <cstddef>
+#include <cmath>
 #include <cstdint>
 #include <fstream>
 #include <memory>
-#include <string>
 #include <vector>
 
 #include "core/task/include/task.hpp"
@@ -177,4 +176,104 @@ TEST(kolokolova_d_integral_simpson_method_stl, test_func_three_value2) {
   double ans = 25.7;
   double error = 0.1;
   ASSERT_NEAR(func_result, ans, error);
+}
+
+TEST(kolokolova_d_integral_simpson_method_stl, test_difficult_func1) {
+  auto func = [](std::vector<double> vec) { return (std::cos(vec[0]) * std::sin(vec[1])); };
+  std::vector<int> step = {20, 20};
+  std::vector<int> bord = {0, 1, 0, 3};
+  double func_result = 0.0;
+
+  // Create task_data
+  auto task_data_stl = std::make_shared<ppc::core::TaskData>();
+  task_data_stl->inputs.emplace_back(reinterpret_cast<uint8_t *>(step.data()));
+  task_data_stl->inputs_count.emplace_back(step.size());
+
+  task_data_stl->inputs.emplace_back(reinterpret_cast<uint8_t *>(bord.data()));
+  task_data_stl->inputs_count.emplace_back(bord.size());
+
+  task_data_stl->outputs.emplace_back(reinterpret_cast<uint8_t *>(&func_result));
+  task_data_stl->outputs_count.emplace_back(1);
+
+  // Create Task
+  kolokolova_d_integral_simpson_method_stl::TestTaskSTL test_task_stl(task_data_stl, func);
+  ASSERT_EQ(test_task_stl.Validation(), true);
+  test_task_stl.PreProcessing();
+  test_task_stl.Run();
+  test_task_stl.PostProcessing();
+  double ans = 1.6745;
+  double error = 0.0001;
+  ASSERT_NEAR(func_result, ans, error);
+}
+
+TEST(kolokolova_d_integral_simpson_method_stl, test_difficult_func2) {
+  auto func = [](std::vector<double> vec) { return std::exp(vec[1] + vec[0]) + std::sin(vec[1]) - std::cos(vec[0]); };
+  std::vector<int> step = {20, 20};
+  std::vector<int> bord = {0, 3, 1, 5};
+  double func_result = 0.0;
+
+  // Create task_data
+  auto task_data_stl = std::make_shared<ppc::core::TaskData>();
+  task_data_stl->inputs.emplace_back(reinterpret_cast<uint8_t *>(step.data()));
+  task_data_stl->inputs_count.emplace_back(step.size());
+
+  task_data_stl->inputs.emplace_back(reinterpret_cast<uint8_t *>(bord.data()));
+  task_data_stl->inputs_count.emplace_back(bord.size());
+
+  task_data_stl->outputs.emplace_back(reinterpret_cast<uint8_t *>(&func_result));
+  task_data_stl->outputs_count.emplace_back(1);
+
+  // Create Task
+  kolokolova_d_integral_simpson_method_stl::TestTaskSTL test_task_stl(task_data_stl, func);
+  ASSERT_EQ(test_task_stl.Validation(), true);
+  test_task_stl.PreProcessing();
+  test_task_stl.Run();
+  test_task_stl.PostProcessing();
+  double ans = 2780.9028;
+  double error = 0.0001;
+  ASSERT_NEAR(func_result, ans, error);
+}
+
+TEST(kolokolova_d_integral_simpson_method_stl, test_validation1) {
+  auto func = [](std::vector<double> vec) { return vec[0] * vec[1]; };
+  std::vector<int> step;
+  std::vector<int> bord = {0, 1, 0, 3};
+  double func_result = 0.0;
+
+  // Create task_data
+  auto task_data_stl = std::make_shared<ppc::core::TaskData>();
+  task_data_stl->inputs.emplace_back(reinterpret_cast<uint8_t *>(step.data()));
+  task_data_stl->inputs_count.emplace_back(step.size());
+
+  task_data_stl->inputs.emplace_back(reinterpret_cast<uint8_t *>(bord.data()));
+  task_data_stl->inputs_count.emplace_back(bord.size());
+
+  task_data_stl->outputs.emplace_back(reinterpret_cast<uint8_t *>(&func_result));
+  task_data_stl->outputs_count.emplace_back(1);
+
+  // Create Task
+  kolokolova_d_integral_simpson_method_stl::TestTaskSTL test_task_stl(task_data_stl, func);
+  ASSERT_EQ(test_task_stl.Validation(), false);
+}
+
+TEST(kolokolova_d_integral_simpson_method_stl, test_validation2) {
+  auto func = [](std::vector<double> vec) { return vec[0] * vec[1]; };
+  std::vector<int> step = {2, 2};
+  std::vector<int> bord;
+  double func_result = 0.0;
+
+  // Create task_data
+  auto task_data_stl = std::make_shared<ppc::core::TaskData>();
+  task_data_stl->inputs.emplace_back(reinterpret_cast<uint8_t *>(step.data()));
+  task_data_stl->inputs_count.emplace_back(step.size());
+
+  task_data_stl->inputs.emplace_back(reinterpret_cast<uint8_t *>(bord.data()));
+  task_data_stl->inputs_count.emplace_back(bord.size());
+
+  task_data_stl->outputs.emplace_back(reinterpret_cast<uint8_t *>(&func_result));
+  task_data_stl->outputs_count.emplace_back(1);
+
+  // Create Task
+  kolokolova_d_integral_simpson_method_stl::TestTaskSTL test_task_stl(task_data_stl, func);
+  ASSERT_EQ(test_task_stl.Validation(), false);
 }
