@@ -134,7 +134,7 @@ void IntegralsSimpsonSTL::thread_task_runner(int start_idx, int end_idx, const s
 
   for (int i = start_idx; i < end_idx; ++i) {
     if (dimension_ < 1) {
-    throw std::logic_error("Dimension became < 1 unexpectedly in thread_task_runner loop");
+      throw std::logic_error("Dimension became < 1 unexpectedly in thread_task_runner loop");
     }
 
     std::vector<int> local_idx(dimension_);
@@ -143,8 +143,8 @@ void IntegralsSimpsonSTL::thread_task_runner(int start_idx, int end_idx, const s
     try {
       local_partial_sum += RecursiveSimpsonSum(1, local_idx, steps);
     } catch (const std::exception& e) {
-      (void)e; 
-      *partial_sum_output = local_partial_sum; 
+      (void)e;
+      *partial_sum_output = local_partial_sum;
       return;
     }
   }
