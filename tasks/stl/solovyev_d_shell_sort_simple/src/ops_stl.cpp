@@ -80,7 +80,7 @@ bool solovyev_d_shell_sort_simple_stl::TaskSTL::RunImpl() {
     threads_completed_ = 0;
     {
       std::lock_guard<std::mutex> cout_lock(cout_mutex_);
-      std::cout << "Gap " << gap_ << " is done!" <<std::endl;
+      std::cout << "Gap " << gap_ << " is done!" << std::endl;
     }
     ready_ = false;
   }
