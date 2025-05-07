@@ -2,11 +2,7 @@
 
 #include <algorithm>
 #include <boost/mpi/collectives/broadcast.hpp>
-#include <boost/mpi/collectives/gather.hpp>
 #include <boost/mpi/communicator.hpp>
-#include <boost/mpi/environment.hpp>
-#include <boost/mpi/nonblocking.hpp>
-#include <boost/serialization/vector.hpp>
 #include <cmath>
 #include <vector>
 
@@ -44,7 +40,7 @@ bool moiseev_a_mult_mat_mpi::MultMatMPI::RunImpl() {  // NOLINT
   int world_rank = world.rank();
 
   int p = static_cast<int>(std::sqrt(world_size));
-  while (p > 1 && (matrix_size_ % p != 0 || (p * p) > world_size)) {
+  while ((p > 1) && (matrix_size_ % p != 0 || (p * p) > world_size)) {
     p--;
   }
   p = std::max(p, 1);
