@@ -34,7 +34,7 @@ TEST(kalyakina_a_shell_with_simple_merge_all, test_pipeline_run) {
 
   if (world.rank() == 0) {
     in = CreateReverseSortedVector(3000000, -1500000);
-    out.resize(in.size());
+    out = std::vector<int>(in.size());
     task_data_all->inputs.emplace_back(reinterpret_cast<uint8_t *>(in.data()));
     task_data_all->inputs_count.emplace_back(in.size());
     task_data_all->outputs.emplace_back(reinterpret_cast<uint8_t *>(out.data()));
@@ -77,7 +77,7 @@ TEST(kalyakina_a_shell_with_simple_merge_all, test_task_run) {
 
   if (world.rank() == 0) {
     in = CreateReverseSortedVector(3000000, -1500000);
-    out.resize(in.size());
+    out = std::vector<int>(in.size());
     task_data_all->inputs.emplace_back(reinterpret_cast<uint8_t *>(in.data()));
     task_data_all->inputs_count.emplace_back(in.size());
     task_data_all->outputs.emplace_back(reinterpret_cast<uint8_t *>(out.data()));
