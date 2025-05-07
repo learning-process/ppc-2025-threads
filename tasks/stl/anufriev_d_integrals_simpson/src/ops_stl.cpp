@@ -2,11 +2,11 @@
 
 #include <cmath>
 #include <cstddef>
-#include <execution>
-#include <functional>
 #include <numeric>
-#include <stdexcept>
 #include <vector>
+#include <stdexcept>
+#include <functional>
+#include <thread>
 
 namespace {
 
@@ -49,7 +49,7 @@ double IntegralsSimpsonSTL::FunctionN(const std::vector<double>& coords) const {
 }
 
 double IntegralsSimpsonSTL::RecursiveSimpsonSum(int dim_index, std::vector<int>& idx,
-                                                const std::vector<double>& steps) const {
+                                                 const std::vector<double>& steps) const {
   if (dim_index == dimension_) {
     double coeff = 1.0;
     std::vector<double> coords(dimension_);
@@ -70,8 +70,8 @@ double IntegralsSimpsonSTL::RecursiveSimpsonSum(int dim_index, std::vector<int>&
   if (dim_index < 0 || static_cast<size_t>(dim_index) >= n_.size() || static_cast<size_t>(dim_index) >= idx.size()) {
     throw std::out_of_range("Index out of bounds before RecursiveSimpsonSum loop");
   }
-  for (int i = 0; i <= n_[dim_index]; ++i) {
-    idx[dim_index] = i;
+  for (int i_rec = 0; i_rec <= n_[dim_index]; ++i_rec) {
+    idx[dim_index] = i_rec;
     sum += RecursiveSimpsonSum(dim_index + 1, idx, steps);
   }
   return sum;
@@ -81,30 +81,24 @@ bool IntegralsSimpsonSTL::PreProcessingImpl() {
   if (task_data->inputs.empty()) {
     return false;
   }
-
   auto* in_ptr = reinterpret_cast<double*>(task_data->inputs[0]);
   size_t in_size_bytes = task_data->inputs_count[0];
   size_t num_doubles = in_size_bytes / sizeof(double);
-
   if (num_doubles < 1) {
     return false;
   }
-
   int d = static_cast<int>(in_ptr[0]);
   if (d < 1) {
     return false;
   }
-
   size_t needed_count = static_cast<size_t>(3 * d) + 2;
   if (num_doubles < needed_count) {
     return false;
   }
-
   dimension_ = d;
   a_.resize(dimension_);
   b_.resize(dimension_);
   n_.resize(dimension_);
-
   int idx_ptr = 1;
   for (int i = 0; i < dimension_; i++) {
     a_[i] = in_ptr[idx_ptr++];
@@ -114,7 +108,6 @@ bool IntegralsSimpsonSTL::PreProcessingImpl() {
       return false;
     }
   }
-
   func_code_ = static_cast<int>(in_ptr[idx_ptr]);
   result_ = 0.0;
   return true;
@@ -130,38 +123,104 @@ bool IntegralsSimpsonSTL::ValidationImpl() {
   return true;
 }
 
+void IntegralsSimpsonSTL::thread_task_runner(int start_idx, int end_idx, const std::vector<double>& steps,
+                                             double* partial_sum_output) {
+  double local_partial_sum = 0.0;
+  if (dimension_ < 1) {
+    *partial_sum_output = 0.0;
+    return;
+  }
+
+  for (int i = start_idx; i < end_idx; ++i) {
+    std::vector<int> local_idx(dimension_);
+    local_idx[0] = i;
+    try {
+      local_partial_sum += RecursiveSimpsonSum(1, local_idx, steps);
+    } catch (const std::exception&) {
+      *partial_sum_output = local_partial_sum;
+      return;
+    }
+  }
+  *partial_sum_output = local_partial_sum;
+}
+
 bool IntegralsSimpsonSTL::RunImpl() {
   if (dimension_ < 1) {
+    return false;
+  }
+  if (n_.empty() || n_[0] < 0) {
     return false;
   }
 
   std::vector<double> steps(dimension_);
   for (int i = 0; i < dimension_; i++) {
-    if (n_[i] == 0) {
-      return false;
-    }
+    if (n_[i] == 0) return false;
     steps[i] = (b_[i] - a_[i]) / n_[i];
   }
 
-  std::vector<int> first_dim_indices(n_[0] + 1);
-  std::iota(first_dim_indices.begin(), first_dim_indices.end(), 0);
+  const int total_iterations_dim0 = n_[0] + 1;
+  if (total_iterations_dim0 <= 0) return false;
+
+  unsigned int num_threads = std::thread::hardware_concurrency();
+  if (num_threads == 0) {
+    num_threads = 2;
+  }
+  if (static_cast<unsigned int>(total_iterations_dim0) < num_threads) {
+    num_threads = static_cast<unsigned int>(total_iterations_dim0);
+  }
+   if (num_threads == 0 && total_iterations_dim0 > 0) {
+    num_threads = 1;
+  }
+  if (total_iterations_dim0 == 0){
+      num_threads = 0;
+  }
+
+  std::vector<std::thread> threads;
+  std::vector<double> partial_sums(num_threads, 0.0);
+
+  if (num_threads == 0 && total_iterations_dim0 > 0) {
+      thread_task_runner(0, total_iterations_dim0, steps, &partial_sums[0]);
+  } else if (num_threads > 0) {
+      threads.reserve(num_threads);
+      int iterations_per_thread = total_iterations_dim0 / num_threads;
+      int remaining_iterations = total_iterations_dim0 % num_threads;
+      int current_start_idx = 0;
+
+      for (unsigned int i = 0; i < num_threads; ++i) {
+          int current_end_idx = current_start_idx + iterations_per_thread;
+          if (remaining_iterations > 0) {
+          current_end_idx++;
+          remaining_iterations--;
+          }
+          if (current_end_idx > total_iterations_dim0) {
+          current_end_idx = total_iterations_dim0;
+          }
+
+          if (current_start_idx < current_end_idx) {
+          threads.emplace_back(&IntegralsSimpsonSTL::thread_task_runner, this, current_start_idx, current_end_idx,
+                                 std::cref(steps), &partial_sums[i]);
+          }
+          current_start_idx = current_end_idx;
+          if (current_start_idx >= total_iterations_dim0) break;
+      }
+  }
+
+
+  for (auto& th : threads) {
+    if (th.joinable()) {
+      th.join();
+    }
+  }
 
   double total_sum = 0.0;
-  try {
-    total_sum = std::transform_reduce(
-        std::execution::par, first_dim_indices.begin(), first_dim_indices.end(), 0.0, std::plus<double>(),
-        [&](int i) -> double {
-          if (dimension_ < 1) {
-            throw std::logic_error("IntegralsSimpsonSTL::RunImpl: dimension_ < 1 inside parallel lambda!");
-          }
-          std::vector<int> local_idx(dimension_);
-          local_idx[0] = i;
-          return RecursiveSimpsonSum(1, local_idx, steps);
-        });
-  } catch (const std::exception& e) {
-    (void)e;
-    return false;
+  if (num_threads == 0 && total_iterations_dim0 > 0 && !partial_sums.empty()){
+      total_sum = partial_sums[0];
+  } else {
+      for (double p_sum : partial_sums) {
+        total_sum += p_sum;
+      }
   }
+
 
   double coeff = 1.0;
   for (int i = 0; i < dimension_; i++) {

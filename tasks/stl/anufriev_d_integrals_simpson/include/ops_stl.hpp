@@ -18,15 +18,14 @@ class IntegralsSimpsonSTL : public ppc::core::Task {
 
  private:
   int dimension_{};
-
   std::vector<double> a_, b_;
   std::vector<int> n_;
   int func_code_{};
   double result_{};
 
   [[nodiscard]] double FunctionN(const std::vector<double>& coords) const;
-
   double RecursiveSimpsonSum(int dim_index, std::vector<int>& idx, const std::vector<double>& steps) const;
+  void thread_task_runner(int start_idx, int end_idx, const std::vector<double>& steps, double* partial_sum_output);
 };
 
 }  // namespace anufriev_d_integrals_simpson_stl
