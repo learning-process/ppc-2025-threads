@@ -14,7 +14,7 @@
 
 namespace {
 
-// Function to generate a random symmetric positive-definite matrix of size matrix_size x matrix_size.
+// Function to generate a random symmetric positive-definite matrix of size matrix_size x matrix_size
 // The matrix is computed as A = R^T * R
 std::vector<double> GenerateRandomSPDMatrix(size_t matrix_size, unsigned int seed = 42) {
   std::mt19937 gen(seed);
