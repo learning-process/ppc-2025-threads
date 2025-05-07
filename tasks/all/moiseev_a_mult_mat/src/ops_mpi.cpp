@@ -1,7 +1,5 @@
 #include "all/moiseev_a_mult_mat/include/ops_mpi.hpp"
 
-#include <omp.h>
-
 #include <algorithm>
 #include <boost/mpi/collectives/broadcast.hpp>
 #include <boost/mpi/collectives/gather.hpp>
@@ -11,7 +9,6 @@
 #include <boost/serialization/vector.hpp>
 #include <cmath>
 #include <vector>
-
 
 bool moiseev_a_mult_mat_mpi::MultMatMPI::PreProcessingImpl() {
   unsigned int input_size_a = task_data->inputs_count[0];
