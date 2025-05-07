@@ -59,12 +59,8 @@ bool karaseva_a_test_task_stl::TestTaskSTL::RunImpl() {
     const double alpha = rs_old / p_ap;
 
     // Update solution and residual vectors
-    std::ranges::transform(
-        x_, p, x_.begin(), [alpha](double x_i, double p_i) { return x_i + (alpha * p_i); }
-    );
-    std::ranges::transform(
-        r, ap, r.begin(), [alpha](double r_i, double ap_i) { return r_i - (alpha * ap_i); }
-    );
+    std::ranges::transform(x_, p, x_.begin(), [alpha](double x_i, double p_i) { return x_i + (alpha * p_i); });
+    std::ranges::transform(r, ap, r.begin(), [alpha](double r_i, double ap_i) { return r_i - (alpha * ap_i); });
 
     // Check convergence using residual norm
     double rs_new = std::inner_product(r.begin(), r.end(), r.begin(), 0.0);
@@ -74,9 +70,7 @@ bool karaseva_a_test_task_stl::TestTaskSTL::RunImpl() {
 
     // Update search direction with beta parameter
     const double beta = rs_new / rs_old;
-    std::ranges::transform(
-        r, p, p.begin(), [beta](double r_i, double p_i) { return r_i + (beta * p_i); }
-    );
+    std::ranges::transform(r, p, p.begin(), [beta](double r_i, double p_i) { return r_i + (beta * p_i); });
 
     rs_old = rs_new;
   }
