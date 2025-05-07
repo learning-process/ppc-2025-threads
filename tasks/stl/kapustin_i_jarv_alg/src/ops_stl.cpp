@@ -3,6 +3,7 @@
 #include <algorithm>
 #include <cmath>
 #include <cstddef>
+#include <mutex>
 #include <thread>
 #include <utility>
 #include <vector>
@@ -12,20 +13,25 @@
 void kapustin_i_jarv_alg_stl::TestTaskSTL::FindBestPointMultithreaded(size_t current_index,
                                                                       std::vector<size_t>& local_best) {
   auto num_threads = static_cast<size_t>(ppc::util::GetPPCNumThreads());
-  const size_t chunk_size = input_.size() / num_threads;
-  size_t remaining = input_.size() % num_threads;
+  const size_t total_points = input_.size();
+
+  const size_t chunk_size = total_points / num_threads;
+  const size_t remaining = total_points % num_threads;
 
   std::vector<std::thread> threads;
-  local_best.resize(num_threads);
-  for (size_t i = 0; i < num_threads; ++i) {
-    local_best[i] = (current_index + 1) % input_.size();
-  }
+  local_best.clear();
+  local_best.resize(num_threads, (current_index + 1) % total_points);
+  std::mutex mtx;
 
   for (size_t i = 0; i < num_threads; ++i) {
-    size_t start = (i * chunk_size) + std::min(i, remaining);
+    size_t start = i * chunk_size + std::min(i, remaining);
     size_t end = start + chunk_size + (i < remaining ? 1 : 0);
 
-    threads.emplace_back([this, start, end, current_index, i, &local_best]() {
+    if (start >= end) {
+      continue;
+    }
+
+    threads.emplace_back([this, start, end, current_index, i, &local_best, &mtx]() {
       size_t best = local_best[i];
       for (size_t j = start; j < end; ++j) {
         if (j == current_index) {
@@ -38,7 +44,10 @@ void kapustin_i_jarv_alg_stl::TestTaskSTL::FindBestPointMultithreaded(size_t cur
           best = j;
         }
       }
-      local_best[i] = best;
+      {
+        std::lock_guard<std::mutex> lock(mtx);
+        local_best[i] = best;
+      }
     });
   }
 
