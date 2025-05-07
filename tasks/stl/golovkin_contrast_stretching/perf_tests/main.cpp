@@ -14,6 +14,7 @@ TEST(golovkin_contrast_stretching_stl, test_pipeline_run) {
   std::vector<uint8_t> in(kCount);
   std::vector<uint8_t> out(kCount, 0);
 
+  // Заполним градиентом
   for (size_t i = 0; i < kCount; ++i) {
     in[i] = static_cast<uint8_t>(i % 256);
   }
@@ -31,6 +32,7 @@ TEST(golovkin_contrast_stretching_stl, test_pipeline_run) {
   task.Run();
   task.PostProcessing();
 
+  // Базовая проверка корректности
   ASSERT_EQ(out.size(), in.size());
   EXPECT_GE(out[100], out[50]);
 }
@@ -41,6 +43,7 @@ TEST(golovkin_contrast_stretching_stl, test_task_run) {
   std::vector<uint8_t> in(kCount);
   std::vector<uint8_t> out(kCount, 0);
 
+  // Заполним градиентом
   for (size_t i = 0; i < kCount; ++i) {
     in[i] = static_cast<uint8_t>(i % 256);
   }
@@ -58,6 +61,7 @@ TEST(golovkin_contrast_stretching_stl, test_task_run) {
   task.Run();
   task.PostProcessing();
 
+  // Базовая проверка корректности
   ASSERT_EQ(out.size(), in.size());
   EXPECT_GE(out[100], out[50]);
 }

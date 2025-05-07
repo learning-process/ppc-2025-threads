@@ -221,3 +221,42 @@ TEST(golovkin_contrast_stretching_stl, test_random_mid_range_values) {
 
   EXPECT_EQ(out, expected);
 }
+
+TEST(golovkin_contrast_stretching_stl, test_empty_input) {
+  std::vector<uint8_t> in;
+  std::vector<uint8_t> out;
+
+  auto task_data = std::make_shared<ppc::core::TaskData>();
+  task_data->inputs.emplace_back(reinterpret_cast<uint8_t *>(in.data()));
+  task_data->inputs_count.emplace_back(in.size());
+  task_data->outputs.emplace_back(reinterpret_cast<uint8_t *>(out.data()));
+  task_data->outputs_count.emplace_back(out.size());
+
+  golovkin_contrast_stretching::ContrastStretchingSTL task(task_data);
+  ASSERT_TRUE(task.Validation());
+  ASSERT_TRUE(task.PreProcessing());
+  ASSERT_TRUE(task.Run());
+  ASSERT_TRUE(task.PostProcessing());
+
+  EXPECT_TRUE(out.empty());
+}
+
+TEST(golovkin_contrast_stretching_stl, test_uint16_pixels) {
+  std::vector<uint16_t> in = {1000, 2000, 3000, 4000, 5000};
+  std::vector<uint16_t> out(in.size(), 0);
+  std::vector<uint16_t> expected = {0, 63, 127, 191, 255};
+
+  auto task_data = std::make_shared<ppc::core::TaskData>();
+  task_data->inputs.emplace_back(reinterpret_cast<uint8_t *>(in.data()));
+  task_data->inputs_count.emplace_back(in.size() * sizeof(uint16_t));
+  task_data->outputs.emplace_back(reinterpret_cast<uint8_t *>(out.data()));
+  task_data->outputs_count.emplace_back(out.size() * sizeof(uint16_t));
+
+  golovkin_contrast_stretching::ContrastStretchingSTL<uint16_t> task(task_data);
+  ASSERT_TRUE(task.Validation());
+  ASSERT_TRUE(task.PreProcessing());
+  ASSERT_TRUE(task.Run());
+  ASSERT_TRUE(task.PostProcessing());
+
+  EXPECT_EQ(out, expected);
+}
