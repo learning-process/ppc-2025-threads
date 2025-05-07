@@ -29,9 +29,9 @@ double chizhov_m_trapezoid_method_seq::TrapezoidMethod(Function& f, size_t div, 
   for (size_t i = 0; i < total_nodes; i++) {
     size_t temp = i;
 
-    for (size_t j = 0; j < int_dim; j++) {
+    for (int j = 0; j < int_dim; j++) {
       size_t node_index = temp % (steps[j] + 1);
-      point[j] = lower_limits[j] + node_index * h[j];
+      point[j] = lower_limits[j] + static_cast<double>(node_index) * h[j];
       temp /= (steps[j] + 1);
     }
 
