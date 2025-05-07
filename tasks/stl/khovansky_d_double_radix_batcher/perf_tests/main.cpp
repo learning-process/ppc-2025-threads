@@ -32,7 +32,7 @@ TEST(khovansky_d_double_radix_batcher_stl, test_pipeline_run) {
   task_data_stl->outputs_count.emplace_back(out.size());
 
   // Create Task
-  auto test_task_tbb = std::make_shared<khovansky_d_double_radix_batcher_stl::RadixSTL>(task_data_stl);
+  auto test_task_stl = std::make_shared<khovansky_d_double_radix_batcher_stl::RadixSTL>(task_data_stl);
 
   // Create Perf attributes
   auto perf_attr = std::make_shared<ppc::core::PerfAttr>();
@@ -48,7 +48,7 @@ TEST(khovansky_d_double_radix_batcher_stl, test_pipeline_run) {
   auto perf_results = std::make_shared<ppc::core::PerfResults>();
 
   // Create Perf analyzer
-  auto perf_analyzer = std::make_shared<ppc::core::Perf>(test_task_tbb);
+  auto perf_analyzer = std::make_shared<ppc::core::Perf>(test_task_stl);
   perf_analyzer->PipelineRun(perf_attr, perf_results);
   ppc::core::Perf::PrintPerfStatistic(perf_results);
   ASSERT_EQ(exp_out, out);
@@ -76,7 +76,7 @@ TEST(khovansky_d_double_radix_batcher_stl, test_task_run) {
   task_data_stl->outputs_count.emplace_back(out.size());
 
   // Create Task
-  auto test_task_tbb = std::make_shared<khovansky_d_double_radix_batcher_stl::RadixSTL>(task_data_stl);
+  auto test_task_stl = std::make_shared<khovansky_d_double_radix_batcher_stl::RadixSTL>(task_data_stl);
 
   // Create Perf attributes
   auto perf_attr = std::make_shared<ppc::core::PerfAttr>();
@@ -92,7 +92,7 @@ TEST(khovansky_d_double_radix_batcher_stl, test_task_run) {
   auto perf_results = std::make_shared<ppc::core::PerfResults>();
 
   // Create Perf analyzer
-  auto perf_analyzer = std::make_shared<ppc::core::Perf>(test_task_tbb);
+  auto perf_analyzer = std::make_shared<ppc::core::Perf>(test_task_stl);
   perf_analyzer->TaskRun(perf_attr, perf_results);
   ppc::core::Perf::PrintPerfStatistic(perf_results);
   ASSERT_EQ(exp_out, out);
