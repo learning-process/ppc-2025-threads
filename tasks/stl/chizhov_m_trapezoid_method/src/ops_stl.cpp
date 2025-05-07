@@ -1,6 +1,7 @@
 #include "stl/chizhov_m_trapezoid_method/include/ops_stl.hpp"
 
 #include <cmath>
+#include <core/util/include/util.hpp>
 #include <cstddef>
 #include <functional>
 #include <thread>
@@ -38,11 +39,11 @@ double chizhov_m_trapezoid_method_stl::TrapezoidMethod(Function& f, size_t div, 
   }
 
   double result = 0.0;
-  auto num_threads = std::thread::hardware_concurrency();
+  auto num_threads = ppc::util::GetPPCNumThreads();
   std::vector<double> local_results(num_threads, 0.0);
   std::vector<std::thread> threads(num_threads);
 
-  for (unsigned int t = 0; t < num_threads; ++t) {
+  for (int t = 0; t < num_threads; ++t) {
     threads[t] = std::thread([&, t]() {
       long long start = t * (total_nodes / num_threads);
       long long end = (t + 1) * (total_nodes / num_threads);
