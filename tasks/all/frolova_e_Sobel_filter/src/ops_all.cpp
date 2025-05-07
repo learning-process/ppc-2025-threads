@@ -146,32 +146,33 @@ bool frolova_e_sobel_filter_all::SobelFilterALL::RunImpl() {
       world.recv(0, 0, local_image);
     }
 
-    tbb::parallel_for(
-        tbb::blocked_range<int>(has_top, local_rows + has_top), [&](const tbb::blocked_range<int>& range) {
-          for (int y = range.begin(); y < range.end(); ++y) {
-            for (size_t x = 0; x < width_; ++x) {
-              int gx = 0;
-              int gy = 0;
+    tbb::parallel_for(tbb::blocked_range<int>(has_top, local_rows + has_top),
+                      [&](const tbb::blocked_range<int>& range) {
+                        for (int y = range.begin(); y < range.end(); ++y) {
+                          for (int x = 0; x < static_cast<int>(width_); ++x) {
+                            size_t base_idx = (y - has_top) * width_;
 
-              for (int dy = -1; dy <= 1; ++dy) {
-                for (int dx = -1; dx <= 1; ++dx) {
-                  int pixel =
-                      frolova_e_sobel_filter_all::GetPixelSafe(local_image, x + dx, y + dy, width_, extended_rows);
+                            int p00 = GetPixelSafe(local_image, x - 1, y - 1, width_, extended_rows);
+                            int p01 = GetPixelSafe(local_image, x, y - 1, width_, extended_rows);
+                            int p02 = GetPixelSafe(local_image, x + 1, y - 1, width_, extended_rows);
+                            int p10 = GetPixelSafe(local_image, x - 1, y, width_, extended_rows);
+                            int p11 = GetPixelSafe(local_image, x, y, width_, extended_rows);
+                            int p12 = GetPixelSafe(local_image, x + 1, y, width_, extended_rows);
+                            int p20 = GetPixelSafe(local_image, x - 1, y + 1, width_, extended_rows);
+                            int p21 = GetPixelSafe(local_image, x, y + 1, width_, extended_rows);
+                            int p22 = GetPixelSafe(local_image, x + 1, y + 1, width_, extended_rows);
 
-                  int kx = (dx == -1 ? -1 : (dx == 1 ? 1 : 0)) * (dy == 0 ? 2 : 1);
-                  int ky = (dy == -1 ? -1 : (dy == 1 ? 1 : 0)) * (dx == 0 ? 2 : 1);
+                            int res_x = (-1 * p00) + (0 * p01) + (1 * p02) + (-2 * p10) + (0 * p11) + (2 * p12) +
+                                        (-1 * p20) + (0 * p21) + (1 * p22);
 
-                  gx += pixel * kx;
-                  gy += pixel * ky;
-                }
-              }
+                            int res_y = (-1 * p00) + (-2 * p01) + (-1 * p02) + (0 * p10) + (0 * p11) + (0 * p12) +
+                                        (1 * p20) + (2 * p21) + (1 * p22);
 
-              int val = std::sqrt(gx * gx + gy * gy);
-              val = std::clamp(val, 0, 255);
-              local_result[(y - has_top) * width_ + x] = val;
-            }
-          }
-        });
+                            int gradient = static_cast<int>(std::sqrt(res_x * res_x + res_y * res_y));
+                            local_result[base_idx + x] = std::clamp(gradient, 0, 255);
+                          }
+                        }
+                      });
 
     if (world.rank() == 0) {
       std::copy(local_result.begin(), local_result.end(), res_image_.begin() + y_start * width_);
