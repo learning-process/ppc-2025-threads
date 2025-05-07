@@ -42,15 +42,6 @@ bool filatev_v_foks_all::Focks::PreProcessingImpl() {
       std::copy(temp_b + (i * size_b_.n), temp_b + ((i + 1) * size_b_.n), matrix_b_.data() + (i * size_));
     }
   }
-  boost::mpi::broadcast(world_, size_block_, 0);
-  boost::mpi::broadcast(world_, size_, 0);
-  if (world_.rank() != 0) {
-    matrix_a_.resize(size_);
-    matrix_b_.resize(size_);
-    matrix_c_.resize(size_);
-  }
-  boost::mpi::broadcast(world_, matrix_a_, 0);
-  boost::mpi::broadcast(world_, matrix_b_, 0);
   return true;
 }
 
@@ -95,6 +86,15 @@ void filatev_v_foks_all::Focks::Worker(size_t start_step, size_t end_step, size_
 }
 
 bool filatev_v_foks_all::Focks::RunImpl() {
+  boost::mpi::broadcast(world_, size_block_, 0);
+  boost::mpi::broadcast(world_, size_, 0);
+  if (world_.rank() != 0) {
+    matrix_a_.resize(size_);
+    matrix_b_.resize(size_);
+  }
+  boost::mpi::broadcast(world_, matrix_a_, 0);
+  boost::mpi::broadcast(world_, matrix_b_, 0);
+
   size_t grid_size = size_ / size_block_;
 
   matrix_c_.assign(size_ * size_, 0);
