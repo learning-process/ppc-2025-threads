@@ -75,7 +75,7 @@ bool titov_s_image_filter_horiz_gaussian3x3_all::GaussianFilterALL::RunImpl() {
     const int thread_start = t * rows_per_thread;
     const int thread_end = (t == num_threads - 1) ? local_height : (thread_start + rows_per_thread);
 
-    threads.emplace_back([=, &local_input, &local_output] {
+    threads.emplace_back([=, this, &local_input, &local_output] {
       for (int i = thread_start; i < thread_end; ++i) {
         const int row_offset = i * width;
         for (int j = 0; j < width; ++j) {
