@@ -15,6 +15,7 @@
 #include <vector>
 
 #include "core/task/include/task.hpp"
+#include "core/util/include/util.hpp"
 namespace shurigin_s_integrals_square_stl {
 
 Integral::Integral(std::shared_ptr<ppc::core::TaskData> task_data)
@@ -172,7 +173,7 @@ bool Integral::ComputeOneDimensionalStl() {
   const double half_step = 0.5 * step;
   const double base = lower + half_step;
 
-  unsigned int num_workers_uint = std::thread::hardware_concurrency();
+  unsigned int num_workers_uint = ppc::util::GetPPCNumThreads();
   if (num_workers_uint == 0) {
     num_workers_uint = 1;
   }
@@ -248,7 +249,7 @@ double Integral::ComputeParallelOuterLoop(const std::function<double(const std::
   }
   const auto num_intervals_outer = static_cast<size_t>(num_intervals_outer_int);
 
-  unsigned int num_workers_uint = std::thread::hardware_concurrency();
+  unsigned int num_workers_uint = ppc::util::GetPPCNumThreads();
   if (num_workers_uint == 0) {
     num_workers_uint = 1;
   }
