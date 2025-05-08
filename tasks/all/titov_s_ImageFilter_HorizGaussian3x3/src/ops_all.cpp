@@ -85,7 +85,6 @@ void titov_s_image_filter_horiz_gaussian3x3_all::GaussianFilterALL::ProcessRows(
 bool titov_s_image_filter_horiz_gaussian3x3_all::GaussianFilterALL::CollectResults(
     int world_rank, int world_size, int height, int width, int start_row, const std::vector<double> &local_output) {
   if (world_rank == 0) {
-
     std::copy(local_output.begin(), local_output.end(), output_.begin() + start_row * width);
 
     for (int p = 1; p < world_size; p++) {
