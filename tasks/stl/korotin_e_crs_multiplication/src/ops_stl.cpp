@@ -106,7 +106,6 @@ bool korotin_e_crs_multiplication_stl::CrsMultiplicationSTL::RunImpl() {
   std::ranges::fill(output_rI_.begin(), output_rI_.end(), 0);
   output_col_.clear();
   output_val_.clear();
-  // unsigned int magic_const = std::thread::hardware_concurrency();
   unsigned int magic_const = ppc::util::GetPPCNumThreads();
   std::vector<std::vector<double>> local_val(magic_const);
   std::vector<std::vector<unsigned int>> local_col(magic_const);
