@@ -83,7 +83,6 @@ bool plekhanov_d_dijkstra_all::TestTaskALL::ValidationImpl() {
 }
 
 bool plekhanov_d_dijkstra_all::TestTaskALL::RunImpl() {
-
   std::vector<std::vector<std::pair<int, int>>> adj_list;
   if (!ConvertGraphToAdjacencyList(graph_data_, num_vertices_, adj_list)) {
     return false;
