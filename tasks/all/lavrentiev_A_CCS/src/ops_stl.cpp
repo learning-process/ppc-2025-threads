@@ -143,7 +143,7 @@ std::vector<int> lavrentiev_a_ccs_all::GetDisplacements(int world_size, int colu
   int amount = columns_count % world_size;
   int count = columns_count / world_size;
   if (columns_count == 0) {
-    return std::vector<int>();
+    return {};
   }
   for (int i = 0; i < world_size; ++i) {
     if (i != 0) {
