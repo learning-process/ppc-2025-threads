@@ -1,5 +1,6 @@
 #include "stl/anufriev_d_integrals_simpson/include/ops_stl.hpp"
 
+#include <algorithm>
 #include <cmath>
 #include <cstddef>
 #include <exception>
@@ -152,31 +153,29 @@ void IntegralsSimpsonSTL::ThreadTaskRunner(int start_idx, int end_idx, const std
   *partial_sum_output = local_partial_sum;
 }
 
-unsigned int IntegralsSimpsonSTL::DetermineNumThreads(int total_iterations) const {
+unsigned int IntegralsSimpsonSTL::DetermineNumThreads(int total_iterations) {
   unsigned int num_threads = std::thread::hardware_concurrency();
   if (num_threads == 0) {
     num_threads = 2;
   }
-  if (total_iterations > 0) {
-    num_threads = std::min(num_threads, static_cast<unsigned int>(total_iterations));
-  } else {
-    num_threads = 0;
+  if (total_iterations <= 0) {
+    return 0;
   }
-  if (num_threads == 0 && total_iterations > 0) {
+  num_threads = std::min(num_threads, static_cast<unsigned int>(total_iterations));
+  
+  if (num_threads == 0) { 
     num_threads = 1;
   }
   return num_threads;
 }
 
 std::vector<IntegralsSimpsonSTL::IterationRange> IntegralsSimpsonSTL::DistributeIterations(
-    int total_iterations, unsigned int num_threads) const {
+    int total_iterations, unsigned int num_threads) {
   std::vector<IterationRange> ranges;
   if (num_threads == 0 || total_iterations == 0) {
     return ranges;
   }
-  ranges.reserve(num_threads);
-
-  unsigned int total_iter_unsigned = static_cast<unsigned int>(total_iterations);
+  auto total_iter_unsigned = static_cast<unsigned int>(total_iterations);
   unsigned int iterations_per_thread_unsigned = total_iter_unsigned / num_threads;
   unsigned int remaining_iterations_unsigned = total_iter_unsigned % num_threads;
 
@@ -187,6 +186,11 @@ std::vector<IntegralsSimpsonSTL::IterationRange> IntegralsSimpsonSTL::Distribute
       current_chunk_size++;
       remaining_iterations_unsigned--;
     }
+    
+    if (current_chunk_size == 0) {
+      break; 
+    }
+
     int current_end_idx = current_start_idx + static_cast<int>(current_chunk_size);
     current_end_idx = std::min(current_end_idx, total_iterations);
 
@@ -211,54 +215,42 @@ bool IntegralsSimpsonSTL::RunImpl() {
 
   std::vector<double> steps(dimension_);
   for (int i = 0; i < dimension_; i++) {
-    if (n_[i] == 0) return false;
+    if (n_[i] <= 0) {
+      return false;
+    }
     steps[i] = (b_[i] - a_[i]) / n_[i];
   }
 
   const int total_iterations_dim0 = n_[0] + 1;
-  if (total_iterations_dim0 <= 0) return false;
 
-  unsigned int num_threads = std::thread::hardware_concurrency();
-  if (num_threads == 0) {
-    num_threads = 2;
+  unsigned int num_actual_threads = DetermineNumThreads(total_iterations_dim0);
+  
+  if (num_actual_threads == 0 && total_iterations_dim0 > 0) {
+    num_actual_threads = 1;
   }
-  if (static_cast<unsigned int>(total_iterations_dim0) < num_threads) {
-    num_threads = static_cast<unsigned int>(total_iterations_dim0);
-  }
-  if (num_threads == 0 && total_iterations_dim0 > 0) {
-    num_threads = 1;
-  }
-  if (total_iterations_dim0 == 0) {
-    num_threads = 0;
-  }
-
+  
+  std::vector<double> partial_sums(num_actual_threads, 0.0); 
   std::vector<std::thread> threads;
-  std::vector<double> partial_sums(num_threads, 0.0);
 
-  if (num_threads == 0 && total_iterations_dim0 > 0) {
-    ThreadTaskRunner(0, total_iterations_dim0, steps, &partial_sums[0]);
-  } else if (num_threads > 0) {
-    threads.reserve(num_threads);
-    int iterations_per_thread = total_iterations_dim0 / num_threads;
-    int remaining_iterations = total_iterations_dim0 % num_threads;
-    int current_start_idx = 0;
+  if (num_actual_threads == 0) {
+  } else if (num_actual_threads == 1) {
+    if (!partial_sums.empty()) {
+      ThreadTaskRunner(0, total_iterations_dim0, steps, partial_sums.data());
+    }
+  } else {
+    std::vector<IterationRange> ranges = DistributeIterations(total_iterations_dim0, num_actual_threads);
+    
+    if (ranges.size() < num_actual_threads && !ranges.empty()) {
+      partial_sums.resize(ranges.size());
+    } else if (ranges.empty() && num_actual_threads > 0) {
+      partial_sums.clear();
+    }
 
-    for (unsigned int i = 0; i < num_threads; ++i) {
-      int current_end_idx = current_start_idx + iterations_per_thread;
-      if (remaining_iterations > 0) {
-        current_end_idx++;
-        remaining_iterations--;
-      }
-      if (current_end_idx > total_iterations_dim0) {
-        current_end_idx = total_iterations_dim0;
-      }
 
-      if (current_start_idx < current_end_idx) {
-        threads.emplace_back(&IntegralsSimpsonSTL::ThreadTaskRunner, this, current_start_idx, current_end_idx,
-                             std::cref(steps), &partial_sums[i]);
-      }
-      current_start_idx = current_end_idx;
-      if (current_start_idx >= total_iterations_dim0) break;
+    for (size_t i = 0; i < ranges.size(); ++i) {
+      const auto& range = ranges[i];
+      threads.emplace_back(&IntegralsSimpsonSTL::ThreadTaskRunner, this, range.start, range.end,
+                           std::cref(steps), &partial_sums[i]);
     }
   }
 
@@ -269,12 +261,8 @@ bool IntegralsSimpsonSTL::RunImpl() {
   }
 
   double total_sum = 0.0;
-  if (num_threads == 0 && total_iterations_dim0 > 0 && !partial_sums.empty()) {
-    total_sum = partial_sums[0];
-  } else {
-    for (double p_sum : partial_sums) {
-      total_sum += p_sum;
-    }
+  for (double p_sum : partial_sums) {
+    total_sum += p_sum;
   }
 
   double coeff = 1.0;

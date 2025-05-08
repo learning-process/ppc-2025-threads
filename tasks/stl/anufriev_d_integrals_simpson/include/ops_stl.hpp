@@ -17,6 +17,11 @@ class IntegralsSimpsonSTL : public ppc::core::Task {
   bool PostProcessingImpl() override;
 
  private:
+  struct IterationRange {
+    int start;
+    int end;
+  };
+
   int dimension_{};
   std::vector<double> a_, b_;
   std::vector<int> n_;
@@ -26,12 +31,9 @@ class IntegralsSimpsonSTL : public ppc::core::Task {
   [[nodiscard]] double FunctionN(const std::vector<double>& coords) const;
   double RecursiveSimpsonSum(int dim_index, std::vector<int>& idx, const std::vector<double>& steps) const;
   void ThreadTaskRunner(int start_idx, int end_idx, const std::vector<double>& steps, double* partial_sum_output);
-  unsigned int DetermineNumThreads(int total_iterations) const;
-  struct IterationRange {
-    int start;
-    int end;
-  };
-  std::vector<IterationRange> DistributeIterations(int total_iterations, unsigned int num_threads) const;
+  
+  [[nodiscard]] static unsigned int DetermineNumThreads(int total_iterations);
+  [[nodiscard]] static std::vector<IterationRange> DistributeIterations(int total_iterations, unsigned int num_threads);
 };
 
 }  // namespace anufriev_d_integrals_simpson_stl
