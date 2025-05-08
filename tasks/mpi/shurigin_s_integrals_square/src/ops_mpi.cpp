@@ -23,11 +23,11 @@ Integral::Integral(std::shared_ptr<ppc::core::TaskData> task_data_param)
       up_limits_(1, 0.0),
       counts_(1, 0),
       result_(0.0),
-      task_data_(task_data_param),
       func_(nullptr),
       dimensions_(1),
       mpi_rank_(0),
-      mpi_world_size_(1) {}
+      mpi_world_size_(1),
+      task_data_(task_data_param) {}
 
 void Integral::SetFunction(const std::function<double(double)>& func) {
   if (!func) {
