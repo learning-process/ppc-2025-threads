@@ -1,5 +1,6 @@
 ﻿#include "mpi/shurigin_s_integrals_square/include/ops_mpi.hpp"
 
+#include <mpi.h>
 #include <omp.h>
 
 #include <algorithm>
@@ -9,15 +10,12 @@
 #include <functional>
 #include <iostream>
 #include <memory>
-#include <numeric>
 #include <stdexcept>
-#include <string>
-#include <utility>
 #include <vector>
 
 namespace shurigin_s_integrals_square_mpi {
 
-Integral::Integral(std::shared_ptr<ppc::core::TaskData> task_data_param)
+Integral::Integral(const std::shared_ptr<ppc::core::TaskData>& task_data_param)
     : Task(task_data_param),
       down_limits_(1, 0.0),
       up_limits_(1, 0.0),
@@ -25,9 +23,9 @@ Integral::Integral(std::shared_ptr<ppc::core::TaskData> task_data_param)
       result_(0.0),
       func_(nullptr),
       dimensions_(1),
+      task_data_(task_data_param),
       mpi_rank_(0),
-      mpi_world_size_(1),
-      task_data_(task_data_param) {}
+      mpi_world_size_(1) {}
 
 void Integral::SetFunction(const std::function<double(double)>& func) {
   if (!func) {
@@ -59,7 +57,7 @@ bool Integral::PreProcessingImpl() {
     MPI_Comm_size(MPI_COMM_WORLD, &mpi_world_size_);
 
     if (mpi_rank_ == 0) {
-      if (!this->task_data_ || this->task_data_->inputs.empty() || !this->task_data_->inputs[0]) {
+      if (!this->task_data_ || this->task_data_->inputs.empty() || this->task_data_->inputs[0] == nullptr) {
         throw std::invalid_argument("Invalid input task data or input buffer on root.");
       }
       size_t expected_input_size_bytes = static_cast<size_t>(3 * dimensions_) * sizeof(double);
@@ -74,10 +72,10 @@ bool Integral::PreProcessingImpl() {
     up_limits_.resize(dimensions_);
     counts_.resize(dimensions_);
 
-    std::vector<double> all_data_buffer(3 * dimensions_);
+    std::vector<double> all_data_buffer(static_cast<size_t>(3 * dimensions_));
 
     if (mpi_rank_ == 0) {
-      double* inputs_ptr = reinterpret_cast<double*>(this->task_data_->inputs[0]);
+      auto* inputs_ptr = reinterpret_cast<double*>(this->task_data_->inputs[0]);
       for (int i = 0; i < dimensions_; ++i) {
         down_limits_[i] = inputs_ptr[i];
         up_limits_[i] = inputs_ptr[i + dimensions_];
@@ -89,19 +87,18 @@ bool Integral::PreProcessingImpl() {
         if (up_limits_[i] <= down_limits_[i]) {
           throw std::invalid_argument("Upper limit must be greater than lower limit.");
         }
-        all_data_buffer[i] = down_limits_[i];
-        all_data_buffer[i + dimensions_] = up_limits_[i];
-        all_data_buffer[i + 2 * dimensions_] = static_cast<double>(counts_[i]);
+        all_data_buffer[static_cast<size_t>(i)] = down_limits_[i];
+        all_data_buffer[static_cast<size_t>(i + dimensions_)] = up_limits_[i];
+        all_data_buffer[static_cast<size_t>(i + (2 * dimensions_))] = static_cast<double>(counts_[i]);
       }
     }
-
-    MPI_Bcast(all_data_buffer.data(), all_data_buffer.size(), MPI_DOUBLE, 0, MPI_COMM_WORLD);
+    MPI_Bcast(all_data_buffer.data(), static_cast<int>(all_data_buffer.size()), MPI_DOUBLE, 0, MPI_COMM_WORLD);
 
     if (mpi_rank_ != 0) {
       for (int i = 0; i < dimensions_; ++i) {
-        down_limits_[i] = all_data_buffer[i];
-        up_limits_[i] = all_data_buffer[i + dimensions_];
-        counts_[i] = static_cast<int>(all_data_buffer[i + 2 * dimensions_]);
+        down_limits_[i] = all_data_buffer[static_cast<size_t>(i)];
+        up_limits_[i] = all_data_buffer[static_cast<size_t>(i + dimensions_)];
+        counts_[i] = static_cast<int>(all_data_buffer[static_cast<size_t>(i + (2 * dimensions_))]);
       }
     }
 
@@ -119,21 +116,24 @@ bool Integral::ValidationImpl() {
     int validation_status = 1;
 
     if (mpi_rank_ == 0) {
+      bool root_data_valid = true;
       if (!this->task_data_) {
-        validation_status = 0;
+        root_data_valid = false;
       } else if (this->task_data_->inputs_count.empty() || this->task_data_->outputs_count.empty()) {
-        validation_status = 0;
+        root_data_valid = false;
       } else {
-        size_t expected_input_size = 3 * dimensions_ * sizeof(double);
+        size_t expected_input_size = static_cast<size_t>(3 * dimensions_) * sizeof(double);
         if (this->task_data_->inputs_count[0] != expected_input_size) {
-          validation_status = 0;
+          root_data_valid = false;
         }
         if (this->task_data_->outputs_count[0] != sizeof(double)) {
-          validation_status = 0;
+          root_data_valid = false;
         }
       }
-      if (validation_status == 0) {
-        std::cerr << "Rank 0 ValidationImpl Error: Basic task data validation failed." << std::endl;
+
+      if (!root_data_valid) {
+        validation_status = 0;
+        std::cerr << "Rank 0 ValidationImpl Error: Basic task data validation failed." << '\n';
       }
     }
 
@@ -168,27 +168,28 @@ bool Integral::RunImpl() {
     if (dimensions_ <= 0 || counts_.empty()) {
       throw std::runtime_error("RunImpl: Invalid dimensions or counts vector.");
     }
-    int N0 = counts_[0];
+    int n0 = counts_[0];
 
-    if (N0 > 0) {
+    if (n0 > 0) {
       double a0_full = down_limits_[0];
       double b0_full = up_limits_[0];
-      double h0_full_step = (b0_full - a0_full) / N0;
+      double h0_full_step = (b0_full - a0_full) / n0;
 
-      int chunk_size = N0 / mpi_world_size_;
-      int remainder = N0 % mpi_world_size_;
-      int local_n0_start_idx = mpi_rank_ * chunk_size + std::min(mpi_rank_, remainder);
+      int chunk_size = n0 / mpi_world_size_;
+      int remainder = n0 % mpi_world_size_;
+      int local_n0_start_idx = (mpi_rank_ * chunk_size) + std::min(mpi_rank_, remainder);
       int local_n0_end_idx = local_n0_start_idx + chunk_size + (mpi_rank_ < remainder ? 1 : 0);
 
       int local_n0 = local_n0_end_idx - local_n0_start_idx;
-      double local_a0 = a0_full + local_n0_start_idx * h0_full_step;
-      double local_b0 = local_a0 + local_n0 * h0_full_step;
+      double local_a0 = a0_full + (static_cast<double>(local_n0_start_idx) * h0_full_step);
+      double local_b0 = local_a0 + (static_cast<double>(local_n0) * h0_full_step);
 
       if (mpi_rank_ == mpi_world_size_ - 1) {
         local_b0 = b0_full;
       }
       local_a0 = std::max(a0_full, local_a0);
       local_b0 = std::min(b0_full, local_b0);
+
       if (local_a0 >= local_b0) {
         local_n0 = 0;
       }
@@ -250,7 +251,7 @@ double Integral::ComputeOuterParallelInnerSequential(const std::function<double(
 
 #pragma omp parallel
   {
-    std::vector<double> point(total_dims);
+    std::vector<double> point(static_cast<size_t>(total_dims));
     double private_sum = 0.0;
 #pragma omp for nowait
     for (int i = 0; i < n0_local; ++i) {
@@ -276,9 +277,9 @@ double Integral::ComputeSequentialRecursive(const std::function<double(const std
     throw std::out_of_range("Dimension index out of bounds in recursive call.");
   }
 
-  const int current_n = n[current_dim_idx];
-  const double current_a = a[current_dim_idx];
-  const double current_b = b[current_dim_idx];
+  const int current_n = n[static_cast<size_t>(current_dim_idx)];
+  const double current_a = a[static_cast<size_t>(current_dim_idx)];
+  const double current_b = b[static_cast<size_t>(current_dim_idx)];
 
   if (current_n <= 0) {
     throw std::runtime_error("Non-positive interval count in recursive call.");
@@ -291,7 +292,7 @@ double Integral::ComputeSequentialRecursive(const std::function<double(const std
   double integral_sum_for_this_dim = 0.0;
 
   for (int i = 0; i < current_n; ++i) {
-    point[current_dim_idx] = current_a + (static_cast<double>(i) + 0.5) * step;
+    point[static_cast<size_t>(current_dim_idx)] = current_a + (static_cast<double>(i) + 0.5) * step;
     integral_sum_for_this_dim += ComputeSequentialRecursive(f, a, b, n, total_dims, point, current_dim_idx + 1);
   }
 
@@ -301,14 +302,14 @@ double Integral::ComputeSequentialRecursive(const std::function<double(const std
 bool Integral::PostProcessingImpl() {
   try {
     if (mpi_rank_ == 0) {
-      if (!this->task_data_ || this->task_data_->outputs.empty() || !this->task_data_->outputs[0]) {
+      if (!this->task_data_ || this->task_data_->outputs.empty() || this->task_data_->outputs[0] == nullptr) {
         throw std::invalid_argument("Invalid output task data or output buffer on root.");
       }
       if (this->task_data_->outputs_count.empty() || this->task_data_->outputs_count[0] != sizeof(double)) {
         throw std::invalid_argument("Output data size mismatch on root.");
       }
 
-      double* outputs_ptr = reinterpret_cast<double*>(this->task_data_->outputs[0]);
+      auto* outputs_ptr = reinterpret_cast<double*>(this->task_data_->outputs[0]);
       outputs_ptr[0] = result_;
     }
     return true;

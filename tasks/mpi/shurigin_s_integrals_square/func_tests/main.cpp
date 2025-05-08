@@ -15,14 +15,14 @@
 namespace shurigin_s_integrals_square_mpi_func_test {
 constexpr double kTolerance = 1e-3;
 
-int get_mpi_rank() {
-  int rank_val;
+int static GetMpiRank() {
+  int rank_val=0;
   MPI_Comm_rank(MPI_COMM_WORLD, &rank_val);
   return rank_val;
 }
 
 TEST(ShuriginSIntegralsSquareMPI_Func, TestIntegrationXSquared) {
-  const int rank = get_mpi_rank();
+  const int rank = GetMpiRank();
 
   const double lower_bound = 0.0;
   const double upper_bound = 1.0;
@@ -67,7 +67,7 @@ TEST(ShuriginSIntegralsSquareMPI_Func, TestIntegrationXSquared) {
 }
 
 TEST(ShuriginSIntegralsSquareMPI_Func, TestIntegrationLinear) {
-  const int rank = get_mpi_rank();
+  const int rank = GetMpiRank();
 
   const double lower_bound = 0.0;
   const double upper_bound = 1.0;
@@ -112,7 +112,7 @@ TEST(ShuriginSIntegralsSquareMPI_Func, TestIntegrationLinear) {
 }
 
 TEST(ShuriginSIntegralsSquareMPI_Func, TestIntegrationSine) {
-  const int rank = get_mpi_rank();
+  const int rank = GetMpiRank();
 
   const double lower_bound = 0.0;
   const double upper_bound = std::numbers::pi;
@@ -157,7 +157,7 @@ TEST(ShuriginSIntegralsSquareMPI_Func, TestIntegrationSine) {
 }
 
 TEST(ShuriginSIntegralsSquareMPI_Func, TestIntegrationExponential) {
-  const int rank = get_mpi_rank();
+  const int rank = GetMpiRank();
 
   const double lower_bound = 0.0;
   const double upper_bound = 1.0;
@@ -220,7 +220,7 @@ TEST(ShuriginSIntegralsSquareMPI_Func, TestFunctionAssignment) {
 }
 
 TEST(ShuriginSIntegralsSquareMPI_Func, TestIntegrationCosine) {
-  const int rank = get_mpi_rank();
+  const int rank = GetMpiRank();
 
   const double lower_bound = 0.0;
   const double upper_bound = std::numbers::pi / 2.0;
@@ -265,7 +265,7 @@ TEST(ShuriginSIntegralsSquareMPI_Func, TestIntegrationCosine) {
 }
 
 TEST(ShuriginSIntegralsSquareMPI_Func, TestIntegrationLogarithm) {
-  const int rank = get_mpi_rank();
+  const int rank = GetMpiRank();
 
   const double lower_bound = 1.0;
   const double upper_bound = 2.0;
@@ -310,7 +310,7 @@ TEST(ShuriginSIntegralsSquareMPI_Func, TestIntegrationLogarithm) {
 }
 
 TEST(ShuriginSIntegralsSquareMPI_Func, TestIntegrationReciprocal) {
-  const int rank = get_mpi_rank();
+  const int rank = GetMpiRank();
 
   const double lower_bound = 1.0;
   const double upper_bound = 2.0;
@@ -355,7 +355,7 @@ TEST(ShuriginSIntegralsSquareMPI_Func, TestIntegrationReciprocal) {
 }
 
 TEST(ShuriginSIntegralsSquareMPI_Func, TestIntegrationSqrt) {
-  const int rank = get_mpi_rank();
+  const int rank = GetMpiRank();
 
   const double lower_bound = 0.0;
   const double upper_bound = 1.0;
@@ -400,7 +400,7 @@ TEST(ShuriginSIntegralsSquareMPI_Func, TestIntegrationSqrt) {
 }
 
 TEST(ShuriginSIntegralsSquareMPI_Func, TestIntegration2DProduct) {
-  const int rank = get_mpi_rank();
+  const int rank = GetMpiRank();
 
   const double lower_bound_x = 0.0;
   const double upper_bound_x = 1.0;
@@ -453,7 +453,7 @@ TEST(ShuriginSIntegralsSquareMPI_Func, TestIntegration2DProduct) {
 }
 
 TEST(ShuriginSIntegralsSquareMPI_Func, TestIntegration2DSquareSum) {
-  const int rank = get_mpi_rank();
+  const int rank = GetMpiRank();
 
   const double lower_bound_x = 0.0;
   const double upper_bound_x = 1.0;
@@ -507,7 +507,7 @@ TEST(ShuriginSIntegralsSquareMPI_Func, TestIntegration2DSquareSum) {
 }
 
 TEST(ShuriginSIntegralsSquareMPI_Func, TestIntegration2DSinSum) {
-  const int rank = get_mpi_rank();
+  const int rank = GetMpiRank();
 
   const double lower_bound_x = 0.0;
   const double upper_bound_x = std::numbers::pi / 2.0;
@@ -560,7 +560,7 @@ TEST(ShuriginSIntegralsSquareMPI_Func, TestIntegration2DSinSum) {
 }
 
 TEST(ShuriginSIntegralsSquareMPI_Func, TestIntegration3DProduct) {
-  const int rank = get_mpi_rank();
+  const int rank = GetMpiRank();
 
   const double lower_bound_x = 0.0;
   const double upper_bound_x = 1.0;

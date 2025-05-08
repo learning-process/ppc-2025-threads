@@ -3,6 +3,7 @@
 
 #include <chrono>
 #include <cmath>
+#include <cstddef>
 #include <cstdint>
 #include <memory>
 #include <vector>
@@ -13,14 +14,14 @@
 
 namespace shurigin_s_integrals_square_mpi_perf_test {
 
-int get_mpi_rank() {
-  int rank_val;
+static int GetMpiRank() {
+  int rank_val = 0;
   MPI_Comm_rank(MPI_COMM_WORLD, &rank_val);
   return rank_val;
 }
 
 TEST(ShuriginSIntegralsSquareMPI_Perf, TestPipelineRun) {
-  const int rank = get_mpi_rank();
+  const int rank = GetMpiRank();
 
   double down_limit_x = -1.0;
   double up_limit_x = 1.0;
@@ -86,7 +87,7 @@ TEST(ShuriginSIntegralsSquareMPI_Perf, TestPipelineRun) {
 }
 
 TEST(ShuriginSIntegralsSquareMPI_Perf, TestTaskRun) {
-  const int rank = get_mpi_rank();
+  const int rank = GetMpiRank();
 
   double down_limit_x = -1.0;
   double up_limit_x = 1.0;
