@@ -3,7 +3,6 @@
 #include <cmath>
 #include <cstddef>
 #include <thread>
-#include <vector>
 
 #include "core/util/include/util.hpp"
 
@@ -31,35 +30,31 @@ bool titov_s_image_filter_horiz_gaussian3x3_all::GaussianFilterALL::ValidationIm
   return task_data->inputs_count[0] == task_data->outputs_count[0];
 }
 
-bool titov_s_image_filter_horiz_gaussian3x3_all::GaussianFilterALL::RunImpl() {
-  const double sum = kernel_[0] + kernel_[1] + kernel_[2];
-  const int width = width_;
-  const int height = height_;
-  const int world_size = world_.size();
-  const int world_rank = world_.rank();
-
-  const int rows_per_process = height / world_size;
-  const int remainder = height % world_size;
-  int start_row = world_rank * rows_per_process + std::min(world_rank, remainder);
-  int end_row = start_row + rows_per_process + (world_rank < remainder ? 1 : 0);
-  const int local_rows = end_row - start_row;
-
-  std::vector<double> local_input(local_rows * width);
-  std::vector<double> local_output(local_rows * width, 0.0);
-
+bool titov_s_image_filter_horiz_gaussian3x3_all::GaussianFilterALL::DistributeData(int world_rank, int world_size,
+                                                                                   int height, int width, int start_row,
+                                                                                   int end_row,
+                                                                                   std::vector<double> &local_input) {
   if (world_rank == 0) {
     std::copy(input_.begin() + start_row * width, input_.begin() + end_row * width, local_input.begin());
+
     for (int p = 1; p < world_size; p++) {
-      int p_start = p * rows_per_process + std::min(p, remainder);
-      int p_end = p_start + rows_per_process + (p < remainder ? 1 : 0);
-      int p_size = (p_end - p_start) * width;
+      const int p_start = p * (height / world_size) + std::min(p, height % world_size);
+      const int p_end = p_start + (height / world_size) + (p < (height % world_size) ? 1 : 0);
+      const int p_size = (p_end - p_start) * width;
+
       world_.send(p, 0, input_.data() + p_start * width, p_size);
     }
   } else {
-    world_.recv(0, 0, local_input.data(), local_input.size());
+    world_.recv(0, 0, local_input.data(), static_cast<int>(local_input.size()));
   }
+  return true;
+}
 
-  const int num_threads = ppc::util::GetPPCNumThreads();
+void titov_s_image_filter_horiz_gaussian3x3_all::GaussianFilterALL::ProcessRows(const std::vector<double> &local_input,
+                                                                                std::vector<double> &local_output,
+                                                                                int width, int local_rows,
+                                                                                int num_threads) {
+  const double sum = kernel_[0] + kernel_[1] + kernel_[2];
   std::vector<std::thread> threads;
   threads.reserve(num_threads);
   const int rows_per_thread = (local_rows + num_threads - 1) / num_threads;
@@ -67,30 +62,69 @@ bool titov_s_image_filter_horiz_gaussian3x3_all::GaussianFilterALL::RunImpl() {
   for (int t = 0; t < num_threads; ++t) {
     const int thread_start = t * rows_per_thread;
     const int thread_end = std::min(thread_start + rows_per_thread, local_rows);
+
     threads.emplace_back([=, this, &local_input, &local_output] {
       for (int i = thread_start; i < thread_end; ++i) {
         const int row_offset = i * width;
         for (int j = 0; j < width; ++j) {
-          double left = (j > 0) ? local_input[row_offset + j - 1] : 0.0;
-          double center = local_input[row_offset + j];
-          double right = (j < width - 1) ? local_input[row_offset + j + 1] : 0.0;
+          const double left = (j > 0) ? local_input[row_offset + j - 1] : 0.0;
+          const double center = local_input[row_offset + j];
+          const double right = (j < (width - 1)) ? local_input[row_offset + j + 1] : 0.0;
+
           local_output[row_offset + j] = (left * kernel_[0] + center * kernel_[1] + right * kernel_[2]) / sum;
         }
       }
     });
   }
 
-  for (auto &t : threads) t.join();
+  for (auto &t : threads) {
+    t.join();
+  }
+}
 
+bool titov_s_image_filter_horiz_gaussian3x3_all::GaussianFilterALL::CollectResults(
+    int world_rank, int world_size, int height, int width, int start_row, const std::vector<double> &local_output) {
   if (world_rank == 0) {
+
     std::copy(local_output.begin(), local_output.end(), output_.begin() + start_row * width);
+
     for (int p = 1; p < world_size; p++) {
-      int p_start = p * rows_per_process + std::min(p, remainder);
-      int p_size = (rows_per_process + (p < remainder ? 1 : 0)) * width;
+      const int p_start = p * (height / world_size) + std::min(p, height % world_size);
+      const int p_end = p_start + (height / world_size) + (p < (height % world_size) ? 1 : 0);
+      const int p_size = (p_end - p_start) * width;
+
       world_.recv(p, 0, output_.data() + p_start * width, p_size);
     }
   } else {
-    world_.send(0, 0, local_output.data(), local_output.size());
+    world_.send(0, 0, local_output.data(), static_cast<int>(local_output.size()));
+  }
+  return true;
+}
+
+bool titov_s_image_filter_horiz_gaussian3x3_all::GaussianFilterALL::RunImpl() {
+  const int width = width_;
+  const int height = height_;
+  const int world_size = world_.size();
+  const int world_rank = world_.rank();
+  const int num_threads = ppc::util::GetPPCNumThreads();
+
+  const int rows_per_process = height / world_size;
+  const int remainder = height % world_size;
+  const int start_row = (world_rank * rows_per_process) + std::min(world_rank, remainder);
+  const int end_row = start_row + rows_per_process + ((world_rank < remainder) ? 1 : 0);
+  const int local_rows = end_row - start_row;
+
+  std::vector<double> local_input(local_rows * width);
+  std::vector<double> local_output(local_rows * width, 0.0);
+
+  if (!DistributeData(world_rank, world_size, height, width, start_row, end_row, local_input)) {
+    return false;
+  }
+
+  ProcessRows(local_input, local_output, width, local_rows, num_threads);
+
+  if (!CollectResults(world_rank, world_size, height, width, start_row, local_output)) {
+    return false;
   }
 
   MPI_Barrier(MPI_COMM_WORLD);

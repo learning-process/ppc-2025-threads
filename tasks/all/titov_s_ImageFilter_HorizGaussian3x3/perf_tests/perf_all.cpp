@@ -5,7 +5,6 @@
 #include <cstdint>
 #include <memory>
 #include <vector>
-#include <algorithm> 
 
 #include "all/titov_s_ImageFilter_HorizGaussian3x3/include/ops_all.hpp"
 #include "boost/mpi/communicator.hpp"

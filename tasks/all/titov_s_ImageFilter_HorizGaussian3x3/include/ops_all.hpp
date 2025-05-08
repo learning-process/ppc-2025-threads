@@ -2,7 +2,9 @@
 
 #include <boost/mpi/collectives.hpp>
 #include <boost/mpi/communicator.hpp>
+#include <mpi.h>
 #include <utility>
+#include <algorithm>
 #include <vector>
 
 #include "core/task/include/task.hpp"
@@ -16,6 +18,12 @@ class GaussianFilterALL : public ppc::core::Task {
   bool ValidationImpl() override;
   bool RunImpl() override;
   bool PostProcessingImpl() override;
+  bool DistributeData(int world_rank, int world_size, int height, int width, int start_row, int end_row,
+                      std::vector<double> &local_input);
+  void ProcessRows(const std::vector<double> &local_input, std::vector<double> &local_output, int width, int local_rows,
+                   int num_threads);
+  bool CollectResults(int world_rank, int world_size, int height, int width, int start_row,
+                      const std::vector<double> &local_output);
 
  private:
   std::vector<double> input_;
