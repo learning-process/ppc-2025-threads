@@ -11,6 +11,7 @@
 #include "core/task/include/task.hpp"
 
 TEST(titov_s_image_filter_horiz_gaussian3x3_all, test_pipeline_run) {
+  boost::mpi::communicator world;
   constexpr size_t kWidth = 15000;
   constexpr size_t kHeight = 15000;
   std::vector<double> input(kWidth * kHeight, 0.0);
@@ -52,14 +53,17 @@ TEST(titov_s_image_filter_horiz_gaussian3x3_all, test_pipeline_run) {
   perf_analyzer->PipelineRun(perf_attr, perf_results);
   ppc::core::Perf::PrintPerfStatistic(perf_results);
 
-  for (size_t i = 0; i < kHeight; ++i) {
-    for (size_t j = 0; j < kWidth; ++j) {
-      ASSERT_NEAR(output[(i * kWidth) + j], expected[(i * kWidth) + j], 1e-6);
+  if (world.rank() == 0) {
+    for (size_t i = 0; i < kHeight; ++i) {
+      for (size_t j = 0; j < kWidth; ++j) {
+        ASSERT_NEAR(output[(i * kWidth) + j], expected[(i * kWidth) + j], 1e-6);
+      }
     }
   }
 }
 
 TEST(titov_s_image_filter_horiz_gaussian3x3_all, test_task_run) {
+  boost::mpi::communicator world;
   constexpr size_t kWidth = 15000;
   constexpr size_t kHeight = 15000;
   std::vector<double> input(kWidth * kHeight, 0.0);
@@ -101,9 +105,11 @@ TEST(titov_s_image_filter_horiz_gaussian3x3_all, test_task_run) {
   perf_analyzer->TaskRun(perf_attr, perf_results);
   ppc::core::Perf::PrintPerfStatistic(perf_results);
 
-  for (size_t i = 0; i < kHeight; ++i) {
-    for (size_t j = 0; j < kWidth; ++j) {
-      ASSERT_NEAR(output[(i * kWidth) + j], expected[(i * kWidth) + j], 1e-6);
+  if (world.rank() == 0) {
+    for (size_t i = 0; i < kHeight; ++i) {
+      for (size_t j = 0; j < kWidth; ++j) {
+        ASSERT_NEAR(output[(i * kWidth) + j], expected[(i * kWidth) + j], 1e-6);
+      }
     }
   }
 }
