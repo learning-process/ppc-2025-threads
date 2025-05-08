@@ -88,22 +88,18 @@ bool plekhanov_d_dijkstra_all::TestTaskALL::RunImpl() {
   int rank = world.rank();
   int size = world.size();
   
-  // Разделяем граф между процессами
   std::vector<std::vector<std::pair<int, int>>> local_graph;
   if (!ConvertGraphToAdjacencyList(graph_data_, num_vertices_, local_graph)) {
     return false;
   }
 
-  // Вычисляем количество вершин на процесс
   int vertices_per_proc = (num_vertices_ + size - 1) / size;
 
-  // Инициализация локальных расстояний
   std::vector<int> local_distances(num_vertices_, INT_MAX);
   if (rank == 0) {
     local_distances[start_vertex_] = 0;
   }
 
-  // Приоритетная очередь для текущего процесса
   std::priority_queue<std::pair<int, int>, std::vector<std::pair<int, int>>, std::greater<>> pq;
   if (rank == 0) {
     pq.emplace(0, start_vertex_);
@@ -112,12 +108,11 @@ bool plekhanov_d_dijkstra_all::TestTaskALL::RunImpl() {
   std::mutex pq_mutex;
   bool done = false;
   int iteration = 0;
-  const int max_iterations = num_vertices_; // Максимальное количество итераций
+  const int max_iterations = num_vertices_;
 
   while (!done && iteration < max_iterations) {
     iteration++;
     
-    // Обработка вершин внутри процесса
     while (true) {
       int u = -1;
       int cur_dist = -1;
@@ -153,11 +148,9 @@ bool plekhanov_d_dijkstra_all::TestTaskALL::RunImpl() {
       }
     }
 
-    // Обмен расстояниями между процессами
     std::vector<std::vector<int>> all_distances;
     boost::mpi::all_gather(world, local_distances, all_distances);
 
-    // Обновление локальных расстояний
     bool updated = false;
     for (int i = 0; i < size; i++) {
       for (int j = 0; j < vertices_per_proc; j++) {
@@ -175,14 +168,12 @@ bool plekhanov_d_dijkstra_all::TestTaskALL::RunImpl() {
       }
     }
 
-    // Проверка завершения
     int local_empty = pq.empty() ? 1 : 0;
     int global_empty;
     boost::mpi::all_reduce(world, local_empty, global_empty, std::plus<int>());
     done = (global_empty == size) && !updated;
   }
 
-  // Собираем результаты на корневом процессе
   std::vector<std::vector<int>> gathered;
   boost::mpi::gather(world, local_distances, gathered, 0);
 
