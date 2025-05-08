@@ -1,5 +1,7 @@
 #include <gtest/gtest.h>
 
+#include <algorithm>
+#include <cmath>
 #include <cstddef>
 #include <cstdint>
 #include <memory>
@@ -233,7 +235,7 @@ TEST(karaseva_a_test_task_stl, test_large_system_200x200) {
   auto a_matrix = GenerateRandomSPDMatrix(kSize);
   std::vector<double> x_expected(kSize);
   for (size_t i = 0; i < kSize; ++i) {
-    x_expected[i] = 1.0 + std::sin(i * 0.1);
+    x_expected[i] = 1.0 + std::sin(static_cast<double>(i) * 0.1);
   }
 
   auto b_vector = MultiplyMatrixVector(a_matrix, x_expected, kSize);
@@ -268,7 +270,9 @@ TEST(karaseva_a_test_task_stl, test_ill_conditioned_system) {
   std::vector<double> a_matrix(kSize * kSize);
   for (size_t i = 0; i < kSize; ++i) {
     for (size_t j = 0; j < kSize; ++j) {
-      a_matrix[i * kSize + j] = 1.0 / (i + j + 1.0);
+      const double numerator = 1.0;
+      const double denominator = static_cast<double>(i) + static_cast<double>(j) + 1.0;
+      a_matrix[(i * kSize) + j] = numerator / denominator;
     }
   }
 
