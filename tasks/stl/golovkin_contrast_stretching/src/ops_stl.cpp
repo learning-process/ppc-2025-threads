@@ -15,7 +15,6 @@ bool golovkin_contrast_stretching::ContrastStretchingSTL<PixelType>::ValidationI
 
 template <typename PixelType>
 bool golovkin_contrast_stretching::ContrastStretchingSTL<PixelType>::PreProcessingImpl() {
-  // Исправляем расчет image_size_ для uint16_t
   image_size_ = task_data->inputs_count[0] / sizeof(PixelType);
 
   if (image_size_ == 0) {

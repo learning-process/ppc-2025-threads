@@ -14,14 +14,12 @@ TEST(golovkin_contrast_stretching_stl, test_contrast_basic) {
   std::vector<uint8_t> out(kSize, 0);
   std::vector<uint8_t> expected = {0, 36, 72, 109, 145, 182, 218, 255};
 
-  // Create task_data
   auto task_data = std::make_shared<ppc::core::TaskData>();
   task_data->inputs.emplace_back(reinterpret_cast<uint8_t *>(in.data()));
   task_data->inputs_count.emplace_back(in.size());
   task_data->outputs.emplace_back(reinterpret_cast<uint8_t *>(out.data()));
   task_data->outputs_count.emplace_back(out.size());
 
-  // Create and run task
   golovkin_contrast_stretching::ContrastStretchingSTL task(task_data);
   ASSERT_TRUE(task.Validation());
   ASSERT_TRUE(task.PreProcessing());
@@ -33,9 +31,9 @@ TEST(golovkin_contrast_stretching_stl, test_contrast_basic) {
 
 TEST(golovkin_contrast_stretching_stl, test_contrast_flat_image) {
   constexpr size_t kSize = 10;
-  std::vector<uint8_t> in(kSize, 100);  // ¬се пиксели одинаковы
+  std::vector<uint8_t> in(kSize, 100);
   std::vector<uint8_t> out(kSize, 0);
-  std::vector<uint8_t> expected(kSize, 0);  // Ѕез контраста Ч все 0
+  std::vector<uint8_t> expected(kSize, 0);
 
   auto task_data = std::make_shared<ppc::core::TaskData>();
   task_data->inputs.emplace_back(reinterpret_cast<uint8_t *>(in.data()));
@@ -56,7 +54,7 @@ TEST(golovkin_contrast_stretching_stl, test_all_maximum) {
   constexpr size_t kSize = 16;
   std::vector<uint8_t> in(kSize, 255);
   std::vector<uint8_t> out(kSize, 0);
-  std::vector<uint8_t> expected(kSize, 0);  // Min == Max => контраст 0
+  std::vector<uint8_t> expected(kSize, 0);
 
   auto task_data = std::make_shared<ppc::core::TaskData>();
   task_data->inputs.emplace_back(reinterpret_cast<uint8_t *>(in.data()));
@@ -94,13 +92,13 @@ TEST(golovkin_contrast_stretching_stl, test_gradient_image) {
   ASSERT_TRUE(task.Run());
   ASSERT_TRUE(task.PostProcessing());
 
-  EXPECT_EQ(out, in);  // ”же раст¤нуто
+  EXPECT_EQ(out, in);
 }
 
 TEST(golovkin_contrast_stretching_stl, test_small_range) {
   std::vector<uint8_t> in = {100, 101, 102, 103, 104, 105};
   std::vector<uint8_t> out(in.size(), 0);
-  std::vector<uint8_t> expected = {0, 51, 102, 153, 204, 255};  // линейна¤ интерпол¤ци¤
+  std::vector<uint8_t> expected = {0, 51, 102, 153, 204, 255};
 
   auto task_data = std::make_shared<ppc::core::TaskData>();
   task_data->inputs.emplace_back(reinterpret_cast<uint8_t *>(in.data()));
@@ -160,7 +158,7 @@ TEST(golovkin_contrast_stretching_stl, test_min_max_near_extremes) {
 TEST(golovkin_contrast_stretching_stl, test_alternating_values) {
   std::vector<uint8_t> in = {10, 20, 10, 20, 10, 20};
   std::vector<uint8_t> out(in.size(), 0);
-  std::vector<uint8_t> expected = {0, 255, 0, 255, 0, 255};  // (x - 10) * 255 / (20 - 10)
+  std::vector<uint8_t> expected = {0, 255, 0, 255, 0, 255};
 
   auto task_data = std::make_shared<ppc::core::TaskData>();
   task_data->inputs.emplace_back(reinterpret_cast<uint8_t *>(in.data()));
@@ -179,7 +177,7 @@ TEST(golovkin_contrast_stretching_stl, test_alternating_values) {
 
 TEST(golovkin_contrast_stretching_stl, test_all_zeros) {
   std::vector<uint8_t> in(32, 0);
-  std::vector<uint8_t> out(in.size(), 123);  // чтобы убедитьс¤ в замене
+  std::vector<uint8_t> out(in.size(), 123);
   std::vector<uint8_t> expected(32, 0);
 
   auto task_data = std::make_shared<ppc::core::TaskData>();
