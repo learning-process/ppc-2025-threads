@@ -112,7 +112,7 @@ bool plekhanov_d_dijkstra_all::TestTaskALL::RunImpl() {
 
   while (!done && iteration < max_iterations) {
     iteration++;
-    
+
     while (true) {
       int u = -1;
       int cur_dist = -1;
