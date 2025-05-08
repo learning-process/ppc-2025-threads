@@ -132,18 +132,25 @@ void kolokolova_d_integral_simpson_method_stl::TestTaskSTL::MultiplyCoeffandFunc
   int coeff_vec_size = int(coeff_vec.size());
   int function_vec_size = int(function_val.size());
 
+  // determine the number of threads for parallel processing
   int thread_count = int(std::thread::hardware_concurrency());
   if (thread_count == 0) {
     thread_count = 1;
   }
 
+  // vector for storing threads
   std::vector<std::thread> threads;
   threads.reserve(thread_count);
+
+  // calculate the section size for each thread
   int section_size = function_vec_size / thread_count;
 
+  // loop of multiplying function values ??by coefficients
   for (int t = 0; t < thread_count; ++t) {
     threads.emplace_back([&, t, section_size, function_vec_size, coeff_vec_size]() {
       int start = t * section_size;
+
+      // determine the start and end indices for the current thread
       int end = (t == thread_count - 1) ? function_vec_size : start + section_size;
       for (int i = start; i < end; ++i) {
         function_val[i] *= coeff_vec[i % coeff_vec_size];
@@ -151,15 +158,19 @@ void kolokolova_d_integral_simpson_method_stl::TestTaskSTL::MultiplyCoeffandFunc
     });
   }
 
+  // wait for all threads to complete
   for (auto& t : threads) {
     t.join();
   }
 
+  // additional iterations of multiplication by coefficients
   for (int iteration = 1; iteration < a; ++iteration) {
     threads.clear();
     for (int t = 0; t < thread_count; ++t) {
       threads.emplace_back([&, t, section_size, function_vec_size, coeff_vec_size, iteration]() {
         int start = t * section_size;
+
+        // determine the start and end indices for the current thread
         int end = (t == thread_count - 1) ? function_vec_size : start + section_size;
         for (int i = start; i < end; ++i) {
           int block_size = iteration * coeff_vec_size;
