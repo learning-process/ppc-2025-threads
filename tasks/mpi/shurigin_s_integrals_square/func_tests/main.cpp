@@ -16,7 +16,7 @@ namespace shurigin_s_integrals_square_mpi_func_test {
 constexpr double kTolerance = 1e-3;
 
 int static GetMpiRank() {
-  int rank_val=0;
+  int rank_val = 0;
   MPI_Comm_rank(MPI_COMM_WORLD, &rank_val);
   return rank_val;
 }
