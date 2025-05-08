@@ -2,11 +2,16 @@
 
 #include <cstddef>
 #include <cstdint>
+#include <iostream>
 #include <memory>
+#ifndef _WIN32
+#include <opencv2/opencv.hpp>
+#endif
 #include <random>
 #include <vector>
 
 #include "core/task/include/task.hpp"
+#include "core/util/include/util.hpp"
 #include "seq/makhov_m_linear_image_filtering_vertical/include/ops_seq.hpp"
 
 namespace {
@@ -24,6 +29,67 @@ std::vector<uint8_t> GenerateRandomImage(int height, int width) {
   return image;
 }
 }  // namespace
+
+#ifndef _WIN32
+TEST(makhov_m_linear_image_filtering_vertical_seq, test_opencv_image_validation) {
+  cv::Mat input_image =
+      cv::imread(ppc::util::GetAbsolutePath("seq/makhov_m_linear_image_filtering_vertical/data/10x10_orig.jpg"),
+                 cv::IMREAD_COLOR);
+  ASSERT_FALSE(input_image.empty());
+}
+
+TEST(makhov_m_linear_image_filtering_vertical_seq, test_opencv_10x10_image) {
+  int width = 10;
+  int height = 10;
+
+  cv::Mat input_image =
+      cv::imread(ppc::util::GetAbsolutePath("seq/makhov_m_linear_image_filtering_vertical/data/10x10_orig.jpg"),
+                 cv::IMREAD_COLOR);
+
+  cv::Mat reference_image =
+      cv::imread(ppc::util::GetAbsolutePath("seq/makhov_m_linear_image_filtering_vertical/data/10x10_redacted.jpg"),
+                 cv::IMREAD_COLOR);
+
+    cv::cvtColor(input_image, input_image, cv::COLOR_BGR2RGB);
+    cv::cvtColor(reference_image, reference_image, cv::COLOR_BGR2RGB);
+
+    std::vector<uint8_t> input_vector;
+    std::vector<uint8_t> output_vector;
+    std::vector<uint8_t> expected_output_vector;
+
+    if (input_image.type() == CV_8UC3) {
+        input_vector.assign(input_image.data, input_image.data + input_image.total() * 3);
+        output_vector.assign(input_image.data, input_image.data + input_image.total() * 3);
+    } else {
+        std::cerr << "Format error" << std::endl;
+    }
+
+    if (reference_image.type() == CV_8UC3) {
+      expected_output_vector.assign(reference_image.data, reference_image.data + reference_image.total() * 3);
+  } else {
+      std::cerr << "Format error" << std::endl;
+  }
+
+  auto task_data_seq = std::make_shared<ppc::core::TaskData>();
+  task_data_seq->inputs.emplace_back(reinterpret_cast<uint8_t *>(input_vector.data()));
+  task_data_seq->inputs_count.push_back(width);
+  task_data_seq->inputs_count.push_back(height);
+  task_data_seq->outputs.emplace_back(reinterpret_cast<uint8_t *>(output_vector.data()));
+  task_data_seq->outputs_count.emplace_back(output_vector.size());
+
+  makhov_m_linear_image_filtering_vertical_seq::TaskSequential test_task_sequential(task_data_seq);
+  ASSERT_EQ(test_task_sequential.Validation(), true);
+  test_task_sequential.PreProcessing();
+  test_task_sequential.Run();
+  test_task_sequential.PostProcessing();
+
+  cv::Mat result_image(input_image.rows, input_image.cols, CV_8UC3, output_vector.data());
+  double mse = cv::norm(result_image, reference_image, cv::NORM_L2) / (result_image.rows * result_image.cols);
+  double psnr = 10.0 * log10((255.0 * 255.0) / mse);
+  EXPECT_GT(psnr, 40.0);
+}
+
+#endif
 
 TEST(makhov_m_linear_image_filtering_vertical_seq, test_synthetic_image_3x3) {
   int width = 3;

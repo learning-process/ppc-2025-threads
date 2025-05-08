@@ -5,6 +5,7 @@
 #include <cstddef>
 #include <cstdint>
 #include <cstring>
+#include <iostream>
 #include <vector>
 
 bool makhov_m_linear_image_filtering_vertical_seq::TaskSequential::PreProcessingImpl() {
