@@ -12,9 +12,10 @@ namespace kalyakina_a_shell_with_simple_merge_all {
 class ShellSortALL : public ppc::core::Task {
   static std::vector<unsigned int> CalculationOfGapLengths(unsigned int size);
   void ShellSort(std::vector<int>& vec);
-  static std::vector<int> SimpleMergeSort(const std::vector<int>& vec1, const std::vector<int>& vec2);
 
  public:
+  static std::vector<int> SimpleMergeSort(const std::vector<int>& vec1, const std::vector<int>& vec2);
+
   explicit ShellSortALL(ppc::core::TaskDataPtr task_data) : Task(std::move(task_data)) {}
   bool PreProcessingImpl() override;
   bool ValidationImpl() override;

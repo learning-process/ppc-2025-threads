@@ -30,6 +30,15 @@ std::vector<int> CreateRandomVector(unsigned int size, const int left, const int
   return result;
 }
 
+std::vector<int> CreateSortedVector(unsigned int size, const int left) {
+  std::vector<int> result;
+  unsigned int i = 0;
+  while (i < size) {
+    result.push_back(left + static_cast<int>(i++));
+  }
+  return result;
+}
+
 void TestOfFunction(std::vector<int> &in) {
   boost::mpi::communicator world;
 
@@ -179,4 +188,37 @@ TEST(kalyakina_a_shell_with_simple_merge_all, random_vector_1000) {
 TEST(kalyakina_a_shell_with_simple_merge_all, random_vector_10000) {
   std::vector<int> in = CreateRandomVector(10000, -7000, 7000);
   TestOfFunction(in);
+}
+
+TEST(kalyakina_a_shell_with_simple_merge_all, simple_merge_sort_100) {
+  std::vector<int> vec1 = CreateSortedVector(100, -50);
+  std::vector<int> vec2 = CreateSortedVector(100, -50);
+
+  std::vector<int> res = kalyakina_a_shell_with_simple_merge_all::ShellSortALL::SimpleMergeSort(vec1, vec2);
+  ASSERT_TRUE(std::ranges::is_sorted(res.begin(), res.end()));
+
+  res = kalyakina_a_shell_with_simple_merge_all::ShellSortALL::SimpleMergeSort(vec2, vec1);
+  ASSERT_TRUE(std::ranges::is_sorted(res.begin(), res.end()));
+}
+
+TEST(kalyakina_a_shell_with_simple_merge_all, simple_merge_sort_1000) {
+  std::vector<int> vec1 = CreateSortedVector(1000, -500);
+  std::vector<int> vec2 = CreateSortedVector(1000, -500);
+
+  std::vector<int> res = kalyakina_a_shell_with_simple_merge_all::ShellSortALL::SimpleMergeSort(vec1, vec2);
+  ASSERT_TRUE(std::ranges::is_sorted(res.begin(), res.end()));
+
+  res = kalyakina_a_shell_with_simple_merge_all::ShellSortALL::SimpleMergeSort(vec2, vec1);
+  ASSERT_TRUE(std::ranges::is_sorted(res.begin(), res.end()));
+}
+
+TEST(kalyakina_a_shell_with_simple_merge_all, simple_merge_sort_10000) {
+  std::vector<int> vec1 = CreateSortedVector(10000, -5000);
+  std::vector<int> vec2 = CreateSortedVector(10000, -5000);
+
+  std::vector<int> res = kalyakina_a_shell_with_simple_merge_all::ShellSortALL::SimpleMergeSort(vec1, vec2);
+  ASSERT_TRUE(std::ranges::is_sorted(res.begin(), res.end()));
+
+  res = kalyakina_a_shell_with_simple_merge_all::ShellSortALL::SimpleMergeSort(vec2, vec1);
+  ASSERT_TRUE(std::ranges::is_sorted(res.begin(), res.end()));
 }
