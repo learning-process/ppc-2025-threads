@@ -3,7 +3,7 @@
 #include <algorithm>
 #include <boost/mpi/collectives/broadcast.hpp>
 #include <boost/mpi/collectives/gatherv.hpp>
-#include <boost/serialization/vector.hpp>
+#include <boost/serialization/vector.hpp>  // NOLINT(*-include-cleaner)
 #include <cmath>
 #include <cstddef>
 #include <numeric>
@@ -99,13 +99,13 @@ lavrentiev_a_ccs_all::Sparse lavrentiev_a_ccs_all::CCSALL::MatMul(const Sparse &
       }
     }
   };
-  int thread_data_amount = static_cast<int>(interval_end - interval_begin) / ppc::util::GetPPCNumThreads();
+  int thread_data_amount = (interval_end - interval_begin) / ppc::util::GetPPCNumThreads();
   for (size_t i = 0; i < threads.size(); ++i) {
     if (i != threads.size() - 1) {
-      threads[i] = std::thread(matrix_multiplicator, interval_begin + i * thread_data_amount,
-                               interval_begin + (i + 1) * thread_data_amount);
+      threads[i] = std::thread(matrix_multiplicator, interval_begin + (i * thread_data_amount),
+                               interval_begin + ((i + 1) * thread_data_amount));
     } else {
-      threads[i] = std::thread(matrix_multiplicator, interval_begin + i * thread_data_amount,
+      threads[i] = std::thread(matrix_multiplicator, interval_begin + (i * thread_data_amount),
                                interval_begin + ((i + 1) * thread_data_amount) +
                                    ((interval_end - interval_begin) % ppc::util::GetPPCNumThreads()));
     }
@@ -185,8 +185,8 @@ void lavrentiev_a_ccs_all::CCSALL::CollectSizes() {
     world_.send(0, 0, static_cast<int>(Process_data_.elements.size()));
     world_.send(0, 1, static_cast<int>(Process_data_.columnsSum.size()));
   } else {
-    sum_sizes_.resize(world_.size(), Process_data_.columnsSum.size());
-    elements_sizes_.resize(world_.size(), Process_data_.elements.size());
+    sum_sizes_.resize(world_.size(), static_cast<int>(Process_data_.columnsSum.size()));
+    elements_sizes_.resize(world_.size(), static_cast<int>(Process_data_.elements.size()));
     for (int i = 1; i < world_.size(); ++i) {
       world_.recv(i, 0, elements_sizes_[i]);
       world_.recv(i, 1, sum_sizes_[i]);

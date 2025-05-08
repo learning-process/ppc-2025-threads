@@ -1,7 +1,6 @@
 #pragma once
 
 #include <boost/mpi/communicator.hpp>
-#include <boost/serialization/vector.hpp>
 #include <cmath>
 #include <utility>
 #include <vector>
@@ -15,6 +14,7 @@ struct Sparse {
   std::vector<int> rows;
   std::vector<int> columnsSum;
   template <typename Archive>
+  // NOLINTNEXTLINE(readability-identifier-naming)
   void serialize(Archive& archive, const unsigned int) {
     archive & size.first;
     archive & size.second;
