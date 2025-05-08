@@ -53,6 +53,7 @@ bool solovyev_d_shell_sort_simple_stl::TaskSTL::RunImpl() {
   for (int t = 0; t < num_threads_; ++t) {
     threads[t] = std::thread(&TaskSTL::ThreadWorker, this, t);
     done_ = false;
+    threads_completed_ = 0;
   }
   for (gap_ = static_cast<int>(input_.size()) / 2; gap_ > 0; gap_ /= 2) {
     cv_.notify_all();
@@ -61,7 +62,6 @@ bool solovyev_d_shell_sort_simple_stl::TaskSTL::RunImpl() {
   }
   {
     std::lock_guard<std::mutex> lock(m_);
-    threads_completed_ = 0;
     done_ = true;
   }
   cv_.notify_all();
