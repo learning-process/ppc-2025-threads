@@ -1,5 +1,6 @@
 #pragma once
 
+#include <boost/mpi/communicator.hpp>
 #include <cstddef>
 #include <utility>
 #include <vector>
@@ -17,6 +18,7 @@ class TestTaskALL : public ppc::core::Task {
   bool PostProcessingImpl() override;
 
  private:
+  boost::mpi::communicator world_;
   std::vector<int> graph_data_;
   std::vector<int> distances_;
   size_t start_vertex_;

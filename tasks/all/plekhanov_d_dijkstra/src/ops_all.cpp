@@ -3,8 +3,7 @@
 #include <omp.h>
 
 #include <algorithm>
-#include <boost/mpi/collectives.hpp>
-#include <boost/mpi/communicator.hpp>
+#include <boost/mpi.hpp>
 #include <boost/serialization/vector.hpp>
 #include <climits>
 #include <cstddef>
@@ -84,48 +83,41 @@ bool plekhanov_d_dijkstra_all::TestTaskALL::ValidationImpl() {
 }
 
 bool plekhanov_d_dijkstra_all::TestTaskALL::RunImpl() {
-  boost::mpi::communicator world;
-  std::vector<std::vector<std::pair<int, int>>> graph;
-  if (!ConvertGraphToAdjacencyList(graph_data_, num_vertices_, graph)) {
+
+  std::vector<std::vector<std::pair<int, int>>> adj_list;
+  if (!ConvertGraphToAdjacencyList(graph_data_, num_vertices_, adj_list)) {
     return false;
   }
 
-  std::vector<int> local_distances(num_vertices_, INT_MAX);
-  local_distances[start_vertex_] = 0;
+  const int INF = INT_MAX;
+  std::vector<int> local_dist(num_vertices_, INF);
+  local_dist[start_vertex_] = 0;
 
-  std::priority_queue<std::pair<int, int>, std::vector<std::pair<int, int>>, std::greater<>> pq;
-  pq.emplace(0, start_vertex_);
-  std::mutex pq_mutex;
+  const int chunk_size = (num_vertices_ + world_.size() - 1) / world_.size();
+  const int start = world_.rank() * chunk_size;
+  const int end = std::min(start + chunk_size, static_cast<int>(num_vertices_));
 
-#pragma omp parallel shared(graph, local_distances, pq, pq_mutex) default(none)
-  {
-    while (true) {
-      int u = -1;
-      int cur_dist = -1;
+#pragma omp parallel for schedule(dynamic)
+  for (int u = start; u < end; ++u) {
+    if (local_dist[u] == INF) continue;
 
-      {
-        std::lock_guard<std::mutex> lock(pq_mutex);
-        if (!pq.empty()) {
-          auto top = pq.top();
-          pq.pop();
-          u = top.second;
-          cur_dist = top.first;
-        } else {
-          break;
-        }
-      }
+    std::priority_queue<std::pair<int, int>, std::vector<std::pair<int, int>>, std::greater<>> pq;
+    pq.emplace(local_dist[u], u);
 
-      if (u != -1) {
-        for (const auto& edge : graph[u]) {
-          int v = edge.first;
-          int weight = edge.second;
+    while (!pq.empty()) {
+      auto [dist, node] = pq.top();
+      pq.pop();
 
-          if (local_distances[u] != INT_MAX) {
-            int new_dist = local_distances[u] + weight;
-            if (new_dist < local_distances[v]) {
-              local_distances[v] = new_dist;
-              std::lock_guard<std::mutex> lock(pq_mutex);
-              pq.emplace(new_dist, v);
+      if (dist > local_dist[node]) continue;
+
+      for (const auto& [neighbor, weight] : adj_list[node]) {
+        int new_dist = dist + weight;
+        if (new_dist < local_dist[neighbor]) {
+#pragma omp critical
+          {
+            if (new_dist < local_dist[neighbor]) {
+              local_dist[neighbor] = new_dist;
+              pq.emplace(new_dist, neighbor);
             }
           }
         }
@@ -133,21 +125,14 @@ bool plekhanov_d_dijkstra_all::TestTaskALL::RunImpl() {
     }
   }
 
-  std::vector<std::vector<int>> gathered;
-  boost::mpi::gather(world, local_distances, gathered, 0);
+  std::vector<int> global_dist(num_vertices_);
+  boost::mpi::all_reduce(world_, local_dist.data(), num_vertices_, global_dist.data(), boost::mpi::minimum<int>());
 
-  if (world.rank() == 0) {
-    distances_.assign(num_vertices_, INT_MAX);
-    for (int i = 0; i < static_cast<int>(num_vertices_); ++i) {
-      for (const auto& proc_dists : gathered) {
-        if (static_cast<size_t>(i) < proc_dists.size()) {
-          distances_[i] = std::min(distances_[i], proc_dists[i]);
-        }
-      }
-    }
+#pragma omp parallel for
+  for (int i = 0; i < num_vertices_; ++i) {
+    distances_[i] = global_dist[i];
   }
 
-  boost::mpi::broadcast(world, distances_, 0);
   return true;
 }
 
