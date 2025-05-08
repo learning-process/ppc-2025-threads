@@ -1,11 +1,13 @@
 #include "all/titov_s_ImageFilter_HorizGaussian3x3/include/ops_all.hpp"
+
 #include <mpi.h>
+
 #include <algorithm>
 #include <cmath>
 #include <cstddef>
+#include <memory>
 #include <thread>
 #include <vector>
-#include <memory>
 
 #include "core/util/include/util.hpp"
 
