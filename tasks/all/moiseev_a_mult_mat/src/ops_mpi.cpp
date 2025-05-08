@@ -1,7 +1,5 @@
 #include "all/moiseev_a_mult_mat/include/ops_mpi.hpp"
 
-#include <mpi.h>
-
 #include <algorithm>
 #include <boost/mpi/collectives/broadcast.hpp>
 #include <boost/mpi/communicator.hpp>
@@ -50,7 +48,7 @@ bool moiseev_a_mult_mat_mpi::MultMatMPI::RunImpl() {  // NOLINT
   int active_procs = p * p;
   int block = matrix_size_ / p;
 
-  boost::mpi::communicator active = world.split(world_rank < active_procs ? 0 : MPI_UNDEFINED, world_rank);
+  boost::mpi::communicator active = world.split(world_rank < active_procs ? 0 : 1, world_rank);
   bool is_active = (world_rank < active_procs);
 
   if (is_active) {
