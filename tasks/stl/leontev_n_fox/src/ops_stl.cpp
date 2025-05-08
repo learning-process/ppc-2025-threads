@@ -72,17 +72,18 @@ bool FoxSTL::RunImpl() {
     return false;
   }
   size_t k = 0;
-  std::vector<std::thread> threads(num_threads);
   if (n_ % q == 0) {
     k = n_ / q;
   } else {
     k = n_ / q + 1;
   }
   for (size_t l = 0; l < q; l++) {
+    std::vector<std::thread> threads;
+    threads.reserve(q * q);
     for (size_t i = 0; i < q; i++) {
       for (size_t j = 0; j < q; j++) {
         div1 = ((i + l) % q) * k;
-        threads[(i * q) + j] = std::thread(&FoxSTL::MatMulBlocks, this, div1, i * k, j * k, div1, j * k, i * k, k);
+        threads.emplace_back(&FoxSTL::MatMulBlocks, this, div1, i * k, j * k, div1, j * k, i * k, k);
       }
     }
     for (size_t i = 0; i < q * q; i++) {
