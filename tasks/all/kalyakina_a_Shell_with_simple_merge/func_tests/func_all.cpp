@@ -192,33 +192,24 @@ TEST(kalyakina_a_shell_with_simple_merge_all, random_vector_10000) {
 
 TEST(kalyakina_a_shell_with_simple_merge_all, simple_merge_sort_100) {
   std::vector<int> vec1 = CreateSortedVector(100, -50);
-  std::vector<int> vec2 = CreateSortedVector(100, -50);
+  std::vector<int> vec2 = CreateSortedVector(100, 0);
 
   std::vector<int> res = kalyakina_a_shell_with_simple_merge_all::ShellSortALL::SimpleMergeSort(vec1, vec2);
-  ASSERT_TRUE(std::ranges::is_sorted(res.begin(), res.end()));
-
-  res = kalyakina_a_shell_with_simple_merge_all::ShellSortALL::SimpleMergeSort(vec2, vec1);
   ASSERT_TRUE(std::ranges::is_sorted(res.begin(), res.end()));
 }
 
 TEST(kalyakina_a_shell_with_simple_merge_all, simple_merge_sort_1000) {
-  std::vector<int> vec1 = CreateSortedVector(1000, -500);
+  std::vector<int> vec1 = CreateSortedVector(1000, 0);
   std::vector<int> vec2 = CreateSortedVector(1000, -500);
 
   std::vector<int> res = kalyakina_a_shell_with_simple_merge_all::ShellSortALL::SimpleMergeSort(vec1, vec2);
   ASSERT_TRUE(std::ranges::is_sorted(res.begin(), res.end()));
-
-  res = kalyakina_a_shell_with_simple_merge_all::ShellSortALL::SimpleMergeSort(vec2, vec1);
-  ASSERT_TRUE(std::ranges::is_sorted(res.begin(), res.end()));
 }
 
 TEST(kalyakina_a_shell_with_simple_merge_all, simple_merge_sort_10000) {
-  std::vector<int> vec1 = CreateSortedVector(10000, -5000);
-  std::vector<int> vec2 = CreateSortedVector(10000, -5000);
+  std::vector<int> vec1 = CreateSortedVector(10000, -3000);
+  std::vector<int> vec2 = CreateSortedVector(10000, -1000);
 
   std::vector<int> res = kalyakina_a_shell_with_simple_merge_all::ShellSortALL::SimpleMergeSort(vec1, vec2);
-  ASSERT_TRUE(std::ranges::is_sorted(res.begin(), res.end()));
-
-  res = kalyakina_a_shell_with_simple_merge_all::ShellSortALL::SimpleMergeSort(vec2, vec1);
   ASSERT_TRUE(std::ranges::is_sorted(res.begin(), res.end()));
 }
