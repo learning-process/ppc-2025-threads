@@ -1,4 +1,4 @@
-// Golovkin Maksims
+// Golovkin Maksim
 #pragma once
 
 #include <cstddef>

@@ -1,4 +1,4 @@
-// Golovkin Maksims
+// Golovkin Maksim
 #include <gtest/gtest.h>
 
 #include <cstddef>
