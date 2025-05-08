@@ -47,7 +47,6 @@ std::shared_ptr<ppc::core::TaskData> CreateTaskData(std::vector<double>& input, 
                                                     std::vector<double>& output) {
   auto task_data = std::make_shared<ppc::core::TaskData>();
 
-  // Убедитесь, что передаем не-const указатели, так как TaskData может модифицировать данные
   task_data->inputs.emplace_back(reinterpret_cast<uint8_t*>(input.data()));
   task_data->inputs_count.emplace_back(input.size() * sizeof(double));
 
