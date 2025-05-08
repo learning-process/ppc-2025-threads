@@ -2,7 +2,6 @@
 
 #include <boost/mpi/collectives.hpp>
 #include <boost/mpi/communicator.hpp>
-#include <boost/serialization/vector.hpp>  // NOLINT(*-include-cleaner)
 #include <utility>
 #include <vector>
 
@@ -26,7 +25,7 @@ class ShellSortALL : public ppc::core::Task {
   std::vector<int> input_;
   std::vector<int> output_;
   std::vector<unsigned int> Sedgwick_sequence_;
-  boost::mpi::communicator world;
+  boost::mpi::communicator world_;
 };
 
 }  // namespace kalyakina_a_shell_with_simple_merge_all

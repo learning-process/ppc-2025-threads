@@ -1,8 +1,10 @@
 #include "all/kalyakina_a_Shell_with_simple_merge/include/ops_all.hpp"
 
 #include <algorithm>
+#include <boost/mpi/collectives/broadcast.hpp>
+#include <boost/mpi/collectives/scatterv.hpp>
+#include <boost/serialization/vector.hpp>  // NOLINT(*-include-cleaner)
 #include <cmath>
-#include <utility>
 #include <vector>
 
 #include "core/util/include/util.hpp"
@@ -66,7 +68,7 @@ std::vector<int> kalyakina_a_shell_with_simple_merge_all::ShellSortALL::SimpleMe
 }
 
 bool kalyakina_a_shell_with_simple_merge_all::ShellSortALL::PreProcessingImpl() {
-  if (world.rank() == 0) {
+  if (world_.rank() == 0) {
     input_ = std::vector<int>(task_data->inputs_count[0]);
     auto *in_ptr = reinterpret_cast<int *>(task_data->inputs[0]);
     std::copy(in_ptr, in_ptr + task_data->inputs_count[0], input_.begin());
@@ -78,50 +80,50 @@ bool kalyakina_a_shell_with_simple_merge_all::ShellSortALL::PreProcessingImpl() 
 }
 
 bool kalyakina_a_shell_with_simple_merge_all::ShellSortALL::ValidationImpl() {
-  return (world.rank() != 0) || ((task_data->inputs_count[0] > 0) && (task_data->outputs_count[0] > 0) &&
-                                 (task_data->inputs_count[0] == task_data->outputs_count[0]));
+  return (world_.rank() != 0) || ((task_data->inputs_count[0] > 0) && (task_data->outputs_count[0] > 0) &&
+                                  (task_data->inputs_count[0] == task_data->outputs_count[0]));
 }
 
 bool kalyakina_a_shell_with_simple_merge_all::ShellSortALL::RunImpl() {
-  unsigned int num;
-  std::vector<int> distr(static_cast<unsigned int>(world.size()), 0);
-  std::vector<int> displ(static_cast<unsigned int>(world.size()), 0);
+  unsigned int num = 0;
+  std::vector<int> distr(static_cast<unsigned int>(world_.size()), 0);
+  std::vector<int> displ(static_cast<unsigned int>(world_.size()), 0);
 
-  if (world.rank() == 0) {
-    num = (static_cast<unsigned int>(world.size()) > input_.size()) ? input_.size()
-                                                                    : static_cast<unsigned int>(world.size());
+  if (world_.rank() == 0) {
+    num = (static_cast<unsigned int>(world_.size()) > input_.size()) ? input_.size()
+                                                                     : static_cast<unsigned int>(world_.size());
     unsigned int part = input_.size() / num;
     unsigned int reminder = input_.size() % num;
 
     for (unsigned int i = 0; i < num; i++) {
-      distr[i] = (i < reminder) ? part + 1 : part;
-      displ[i] = (i == 0) ? 0 : displ[i - 1] + distr[i - 1];
+      distr[i] = (i < reminder) ? static_cast<int>(part + 1) : static_cast<int>(part);
+      displ[i] = (i == 0) ? 0 : static_cast<int>(displ[i - 1] + distr[i - 1]);
     }
   }
 
-  boost::mpi::broadcast(world, num, 0);
-  boost::mpi::broadcast(world, distr, 0);
-  boost::mpi::broadcast(world, displ, 0);
-  std::vector<int> local_res(distr[world.rank()]);
-  Sedgwick_sequence_ = CalculationOfGapLengths(distr[world.rank()]);
+  boost::mpi::broadcast(world_, num, 0);
+  boost::mpi::broadcast(world_, distr, 0);
+  boost::mpi::broadcast(world_, displ, 0);
+  std::vector<int> local_res(distr[world_.rank()]);
+  Sedgwick_sequence_ = CalculationOfGapLengths(distr[world_.rank()]);
 
-  boost::mpi::scatterv(world, input_.data(), distr, displ, local_res.data(), distr[world.rank()], 0);
+  boost::mpi::scatterv(world_, input_.data(), distr, displ, local_res.data(), distr[world_.rank()], 0);
 
   ShellSort(local_res);
 
   unsigned int step = 1;
   while (step <= num) {
     step *= 2;
-    if (((world.rank() - step / 2) % step) == 0) {
-      world.send(world.rank() - step / 2, 0, local_res);
-    } else if ((world.rank() % step == 0) && (static_cast<unsigned int>(world.size()) > world.rank() + step / 2)) {
+    if (((world_.rank() - step / 2) % step) == 0) {
+      world_.send(static_cast<int>(world_.rank() - (step / 2)), 0, local_res);
+    } else if ((world_.rank() % step == 0) && (static_cast<unsigned int>(world_.size()) > world_.rank() + step / 2)) {
       std::vector<int> message;
-      world.recv(world.rank() + step / 2, 0, message);
+      world_.recv(static_cast<int>(world_.rank() + (step / 2)), 0, message);
       local_res = SimpleMergeSort(local_res, message);
     }
   }
 
-  if (world.rank() == 0) {
+  if (world_.rank() == 0) {
     output_ = local_res;
   }
 
@@ -129,7 +131,7 @@ bool kalyakina_a_shell_with_simple_merge_all::ShellSortALL::RunImpl() {
 }
 
 bool kalyakina_a_shell_with_simple_merge_all::ShellSortALL::PostProcessingImpl() {
-  if (world.rank() == 0) {
+  if (world_.rank() == 0) {
     std::ranges::copy(output_, reinterpret_cast<int *>(task_data->outputs[0]));
   }
 
