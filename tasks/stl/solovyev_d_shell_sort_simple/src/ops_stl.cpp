@@ -58,10 +58,10 @@ bool solovyev_d_shell_sort_simple_stl::TaskSTL::RunImpl() {
     cv_.notify_all();
     std::unique_lock lock(m_);
     cv_done_.wait(lock, [&] { return threads_completed_ == num_threads_; });
-    threads_completed_ = 0;
   }
   {
     std::lock_guard<std::mutex> lock(m_);
+    threads_completed_ = 0;
     done_ = true;
   }
   cv_.notify_all();
