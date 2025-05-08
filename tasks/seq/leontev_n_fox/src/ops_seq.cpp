@@ -47,8 +47,7 @@ bool FoxSeq::PreProcessingImpl() {
 }
 
 bool FoxSeq::ValidationImpl() {
-  return (input_a_.size() == n_ * n_ && input_b_.size() == n_ * n_ &&
-          output_.size() == n_ * n_);
+  return (input_a_.size() == n_ * n_ && input_b_.size() == n_ * n_ && output_.size() == n_ * n_);
 }
 
 bool FoxSeq::RunImpl() {
