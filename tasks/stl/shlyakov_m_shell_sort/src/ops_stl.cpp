@@ -24,7 +24,6 @@ bool TestTaskSTL::RunImpl() {
     return true;
   }
 
-  // Исправление сужающего преобразования
   unsigned int hardware_threads = std::thread::hardware_concurrency();
   int num_threads = (hardware_threads > 0) ? static_cast<int>(hardware_threads) : 1;
 
@@ -55,10 +54,13 @@ bool TestTaskSTL::RunImpl() {
     for (int i = 0; i < new_num_threads; ++i) {
       int left = i * 2 * sub_arr_size;
       int mid = std::min(left + sub_arr_size - 1, array_size - 1);
-      int right = std::min(left + (2 * sub_arr_size) - 1, array_size - 1);  // Добавлены скобки
+      int right = std::min(left + (2 * sub_arr_size) - 1, array_size - 1);
 
       if (mid < right) {
-        threads.emplace_back([this, left, mid, right, &buffer]() { Merge(left, mid, right, input_, buffer); });
+        threads.emplace_back([this, left, mid, right]() {
+          std::vector<int> local_buffer(input_.size());
+          Merge(left, mid, right, input_, local_buffer);
+        });
       }
     }
 
