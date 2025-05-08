@@ -275,3 +275,25 @@ TEST(kolokolova_d_integral_simpson_method_stl, test_validation2) {
   kolokolova_d_integral_simpson_method_stl::TestTaskSTL test_task_stl(task_data_stl, func);
   ASSERT_EQ(test_task_stl.Validation(), false);
 }
+
+TEST(kolokolova_d_integral_simpson_method_stl, test_validation3) {
+  auto func = [](std::vector<double> vec) { return vec[0] * vec[1]; };
+  std::vector<int> step = {2, 2};
+  std::vector<int> bord = {10, 0, 20, 5};
+  double func_result = 0.0;
+
+  // Create task_data
+  auto task_data_stl = std::make_shared<ppc::core::TaskData>();
+  task_data_stl->inputs.emplace_back(reinterpret_cast<uint8_t *>(step.data()));
+  task_data_stl->inputs_count.emplace_back(step.size());
+
+  task_data_stl->inputs.emplace_back(reinterpret_cast<uint8_t *>(bord.data()));
+  task_data_stl->inputs_count.emplace_back(bord.size());
+
+  task_data_stl->outputs.emplace_back(reinterpret_cast<uint8_t *>(&func_result));
+  task_data_stl->outputs_count.emplace_back(1);
+
+  // Create Task
+  kolokolova_d_integral_simpson_method_stl::TestTaskSTL test_task_stl(task_data_stl, func);
+  ASSERT_EQ(test_task_stl.Validation(), false);
+}
