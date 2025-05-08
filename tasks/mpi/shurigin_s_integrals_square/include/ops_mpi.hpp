@@ -1,18 +1,18 @@
 ﻿#pragma once
-#include <mpi.h>  // MPI include
+#include <mpi.h>
 
 #include <cmath>
 #include <functional>
 #include <memory>
-#include <string>  // For std::string in exceptions
+#include <string>
 #include <vector>
 
-#include "core/task/include/task.hpp"  // Стандартный путь, если ваш проект так настроен
+#include "core/task/include/task.hpp"
 
 namespace shurigin_s_integrals_square_mpi {
 class Integral : public ppc::core::Task {
  public:
-  explicit Integral(std::shared_ptr<ppc::core::TaskData> task_data_param);  // Изменено имя параметра
+  explicit Integral(std::shared_ptr<ppc::core::TaskData> task_data_param);
 
   void SetFunction(const std::function<double(double)>& func);
   void SetFunction(const std::function<double(const std::vector<double>&)>& func, int dimensions = 1);
@@ -30,14 +30,11 @@ class Integral : public ppc::core::Task {
   std::function<double(const std::vector<double>&)> func_;
   int dimensions_;
 
-  // Возвращаем локальный член task_data_
-  std::shared_ptr<ppc::core::TaskData> task_data_;  // <--- ВОТ ЭТО ВАЖНО
+  std::shared_ptr<ppc::core::TaskData> task_data_;
 
-  // MPI specific members
   int mpi_rank_;
   int mpi_world_size_;
 
-  // Helper methods for computation
   double ComputeOneDimensionalOMP(const std::function<double(const std::vector<double>&)>& f, double a_local,
                                   double b_local, int n_local);
 
