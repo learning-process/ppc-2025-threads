@@ -1,5 +1,4 @@
 #include <gtest/gtest.h>
-#include <mpi.h>
 
 #include <chrono>
 #include <cstddef>
@@ -27,14 +26,22 @@ void InitializeInputData(std::vector<double>& input) {
 void InitializeExpectedData(std::vector<double>& expected) {
   for (size_t i = 0; i < kHeight; ++i) {
     for (size_t j = 0; j < kWidth; ++j) {
-      expected[(i * kWidth) + j] = (j == kWidth - 1) ? 0.0 : (j % 3 == 0) ? 50.0 : 25.0;
+      if (j == kWidth - 1) {
+        expected[(i * kWidth) + j] = 0.0;
+      } else if (j % 3 == 0) {
+        expected[(i * kWidth) + j] = 50.0;
+      } else {
+        expected[(i * kWidth) + j] = 25.0;
+      }
     }
   }
 }
 
 void VerifyResults(const std::vector<double>& output, const std::vector<double>& expected,
                    const boost::mpi::communicator& world) {
-  if (world.rank() != 0) return;
+  if (world.rank() != 0) {
+    return;
+  }
 
   for (size_t i = 0; i < kHeight; ++i) {
     for (size_t j = 0; j < kWidth; ++j) {
@@ -71,8 +78,9 @@ std::shared_ptr<ppc::core::PerfAttr> CreatePerfAttr() {
   return perf_attr;
 }
 
-void RunPerformanceTest(std::shared_ptr<ppc::core::Task> test_task, std::shared_ptr<ppc::core::PerfAttr> perf_attr,
-                        std::shared_ptr<ppc::core::PerfResults> perf_results, bool pipeline) {
+void RunPerformanceTest(const std::shared_ptr<ppc::core::Task>& test_task,
+                        const std::shared_ptr<ppc::core::PerfAttr>& perf_attr,
+                        const std::shared_ptr<ppc::core::PerfResults>& perf_results, bool pipeline) {
   auto perf_analyzer = std::make_shared<ppc::core::Perf>(test_task);
   if (pipeline) {
     perf_analyzer->PipelineRun(perf_attr, perf_results);

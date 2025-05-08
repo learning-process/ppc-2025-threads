@@ -40,9 +40,10 @@ bool titov_s_image_filter_horiz_gaussian3x3_all::GaussianFilterALL::DistributeDa
                                                                                    int end_row,
                                                                                    std::vector<double> &local_input) {
   if (world_rank == 0) {
-    std::copy(input_.begin() + start_row * width, input_.begin() + end_row * width, local_input.begin());
+    auto src_range = std::ranges::subrange(input_.begin() + start_row * width, input_.begin() + end_row * width);
+    std::ranges::copy(src_range, local_input.begin());
 
-    for (int p = 1; p < world_size; p++) {
+    for (int p = 1; p < world_size; ++p) {
       const int p_start = (p * (height / world_size)) + std::min(p, height % world_size);
       const int p_end = p_start + (height / world_size) + ((p < (height % world_size)) ? 1 : 0);
       const int p_size = (p_end - p_start) * width;
@@ -90,9 +91,9 @@ void titov_s_image_filter_horiz_gaussian3x3_all::GaussianFilterALL::ProcessRows(
 bool titov_s_image_filter_horiz_gaussian3x3_all::GaussianFilterALL::CollectResults(
     int world_rank, int world_size, int height, int width, int start_row, const std::vector<double> &local_output) {
   if (world_rank == 0) {
-    std::copy(local_output.begin(), local_output.end(), output_.begin() + start_row * width);
+    std::ranges::copy(local_output, output_.begin() + start_row * width);
 
-    for (int p = 1; p < world_size; p++) {
+    for (int p = 1; p < world_size; ++p) {
       const int p_start = p * (height / world_size) + std::min(p, height % world_size);
       const int p_end = p_start + (height / world_size) + (p < (height % world_size) ? 1 : 0);
       const int p_size = (p_end - p_start) * width;
