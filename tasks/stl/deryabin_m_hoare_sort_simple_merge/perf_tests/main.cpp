@@ -11,9 +11,9 @@
 
 #include "core/perf/include/perf.hpp"
 #include "core/task/include/task.hpp"
-#include "tbb/deryabin_m_hoare_sort_simple_merge/include/ops_tbb.hpp"
+#include "stl/deryabin_m_hoare_sort_simple_merge/include/ops_stl.hpp"
 
-TEST(deryabin_m_hoare_sort_simple_merge_tbb, test_pipeline_run_TBB) {
+TEST(deryabin_m_hoare_sort_simple_merge_stl, test_pipeline_run_STL) {
   // Create data
   std::random_device rd;
   std::mt19937 gen(rd());
@@ -28,15 +28,15 @@ TEST(deryabin_m_hoare_sort_simple_merge_tbb, test_pipeline_run_TBB) {
   std::vector<double> true_solution(input_array);
   std::ranges::sort(true_solution.begin(), true_solution.end());
 
-  auto task_data_tbb = std::make_shared<ppc::core::TaskData>();
-  task_data_tbb->inputs.emplace_back(reinterpret_cast<uint8_t*>(in_array.data()));
-  task_data_tbb->inputs_count.emplace_back(input_array.size());
-  task_data_tbb->inputs_count.emplace_back(chunk_count);
-  task_data_tbb->outputs.emplace_back(reinterpret_cast<uint8_t*>(out_array.data()));
-  task_data_tbb->outputs_count.emplace_back(output_array.size());
+  auto task_data_stl = std::make_shared<ppc::core::TaskData>();
+  task_data_stl->inputs.emplace_back(reinterpret_cast<uint8_t*>(in_array.data()));
+  task_data_stl->inputs_count.emplace_back(input_array.size());
+  task_data_stl->inputs_count.emplace_back(chunk_count);
+  task_data_stl->outputs.emplace_back(reinterpret_cast<uint8_t*>(out_array.data()));
+  task_data_stl->outputs_count.emplace_back(output_array.size());
 
-  auto hoare_sort_simple_merge_task_tbb =
-      std::make_shared<deryabin_m_hoare_sort_simple_merge_tbb::HoareSortTaskTBB>(task_data_tbb);
+  auto hoare_sort_simple_merge_task_stl =
+      std::make_shared<deryabin_m_hoare_sort_simple_merge_stl::HoareSortTaskSTL>(task_data_stl);
 
   auto task_data_seq = std::make_shared<ppc::core::TaskData>();
   task_data_seq->inputs.emplace_back(reinterpret_cast<uint8_t*>(in_array.data()));
@@ -46,7 +46,7 @@ TEST(deryabin_m_hoare_sort_simple_merge_tbb, test_pipeline_run_TBB) {
   task_data_seq->outputs_count.emplace_back(output_array.size());
 
   auto hoare_sort_simple_merge_task_seq =
-      std::make_shared<deryabin_m_hoare_sort_simple_merge_tbb::HoareSortTaskSequential>(task_data_seq);
+      std::make_shared<deryabin_m_hoare_sort_simple_merge_stl::HoareSortTaskSequential>(task_data_seq);
 
   auto perf_attr = std::make_shared<ppc::core::PerfAttr>();
   perf_attr->num_running = 10;
@@ -59,15 +59,15 @@ TEST(deryabin_m_hoare_sort_simple_merge_tbb, test_pipeline_run_TBB) {
 
   auto perf_results = std::make_shared<ppc::core::PerfResults>();
 
-  auto perf_analyzer_tbb = std::make_shared<ppc::core::Perf>(hoare_sort_simple_merge_task_tbb);
+  auto perf_analyzer_stl = std::make_shared<ppc::core::Perf>(hoare_sort_simple_merge_task_stl);
   auto perf_analyzer_seq = std::make_shared<ppc::core::Perf>(hoare_sort_simple_merge_task_seq);
-  perf_analyzer_tbb->PipelineRun(perf_attr, perf_results);
+  perf_analyzer_stl->PipelineRun(perf_attr, perf_results);
   perf_analyzer_seq->PipelineRun(perf_attr, perf_results);
   ppc::core::Perf::PrintPerfStatistic(perf_results);
   ASSERT_EQ(true_solution, out_array[0]);
 }
 
-TEST(deryabin_m_hoare_sort_simple_merge_tbb, test_task_run_TBB) {
+TEST(deryabin_m_hoare_sort_simple_merge_stl, test_task_run_STL) {
   // Create data
   std::random_device rd;
   std::mt19937 gen(rd());
@@ -82,15 +82,15 @@ TEST(deryabin_m_hoare_sort_simple_merge_tbb, test_task_run_TBB) {
   std::vector<double> true_solution(input_array);
   std::ranges::sort(true_solution.begin(), true_solution.end());
 
-  auto task_data_tbb = std::make_shared<ppc::core::TaskData>();
-  task_data_tbb->inputs.emplace_back(reinterpret_cast<uint8_t*>(in_array.data()));
-  task_data_tbb->inputs_count.emplace_back(input_array.size());
-  task_data_tbb->inputs_count.emplace_back(chunk_count);
-  task_data_tbb->outputs.emplace_back(reinterpret_cast<uint8_t*>(out_array.data()));
-  task_data_tbb->outputs_count.emplace_back(output_array.size());
+  auto task_data_stl = std::make_shared<ppc::core::TaskData>();
+  task_data_stl->inputs.emplace_back(reinterpret_cast<uint8_t*>(in_array.data()));
+  task_data_stl->inputs_count.emplace_back(input_array.size());
+  task_data_stl->inputs_count.emplace_back(chunk_count);
+  task_data_stl->outputs.emplace_back(reinterpret_cast<uint8_t*>(out_array.data()));
+  task_data_stl->outputs_count.emplace_back(output_array.size());
 
-  auto hoare_sort_simple_merge_task_tbb =
-      std::make_shared<deryabin_m_hoare_sort_simple_merge_tbb::HoareSortTaskTBB>(task_data_tbb);
+  auto hoare_sort_simple_merge_task_stl =
+      std::make_shared<deryabin_m_hoare_sort_simple_merge_stl::HoareSortTaskSTL>(task_data_stl);
 
   auto task_data_seq = std::make_shared<ppc::core::TaskData>();
   task_data_seq->inputs.emplace_back(reinterpret_cast<uint8_t*>(in_array.data()));
@@ -100,7 +100,7 @@ TEST(deryabin_m_hoare_sort_simple_merge_tbb, test_task_run_TBB) {
   task_data_seq->outputs_count.emplace_back(output_array.size());
 
   auto hoare_sort_simple_merge_task_seq =
-      std::make_shared<deryabin_m_hoare_sort_simple_merge_tbb::HoareSortTaskSequential>(task_data_seq);
+      std::make_shared<deryabin_m_hoare_sort_simple_merge_stl::HoareSortTaskSequential>(task_data_seq);
 
   auto perf_attr = std::make_shared<ppc::core::PerfAttr>();
   perf_attr->num_running = 10;
@@ -113,9 +113,9 @@ TEST(deryabin_m_hoare_sort_simple_merge_tbb, test_task_run_TBB) {
 
   auto perf_results = std::make_shared<ppc::core::PerfResults>();
 
-  auto perf_analyzer_tbb = std::make_shared<ppc::core::Perf>(hoare_sort_simple_merge_task_tbb);
+  auto perf_analyzer_stl = std::make_shared<ppc::core::Perf>(hoare_sort_simple_merge_task_stl);
   auto perf_analyzer_seq = std::make_shared<ppc::core::Perf>(hoare_sort_simple_merge_task_seq);
-  perf_analyzer_tbb->TaskRun(perf_attr, perf_results);
+  perf_analyzer_stl->TaskRun(perf_attr, perf_results);
   perf_analyzer_seq->TaskRun(perf_attr, perf_results);
   ppc::core::Perf::PrintPerfStatistic(perf_results);
   ASSERT_EQ(true_solution, out_array[0]);
