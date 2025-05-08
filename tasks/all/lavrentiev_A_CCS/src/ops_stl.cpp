@@ -138,24 +138,23 @@ std::vector<double> lavrentiev_a_ccs_all::CCSALL::ConvertFromSparse(const Sparse
   return nmatrix;
 }
 
-std::vector<int> lavrentiev_a_ccs_all::GetDisplacements(int world_size, int columns_count) {
-  std::vector<int> displacements(world_size);
-  int amount = columns_count % world_size;
-  int count = columns_count / world_size;
-  if (columns_count == 0) {
-    return {};
+void lavrentiev_a_ccs_all::CCSALL::GetDisplacements() {
+  displ_.resize(world_.size());
+  int amount = static_cast<int>(B_.columnsSum.size()) % world_.size();
+  int count = static_cast<int>(B_.columnsSum.size()) / world_.size();
+  if (static_cast<int>(B_.columnsSum.size()) == 0) {
+    return;
   }
-  for (int i = 0; i < world_size; ++i) {
+  for (int i = 0; i < world_.size(); ++i) {
     if (i != 0) {
-      displacements[i] = count + displacements[i - 1];
+      displ_[i] = count + displ_[i - 1];
       if (amount != 0) {
-        displacements[i]++;
+        displ_[i]++;
         amount--;
       }
     }
   }
-  displacements.emplace_back(columns_count);
-  return displacements;
+  displ_.emplace_back(static_cast<int>(B_.columnsSum.size()));
 }
 
 bool lavrentiev_a_ccs_all::CCSALL::PreProcessingImpl() {
@@ -172,7 +171,7 @@ bool lavrentiev_a_ccs_all::CCSALL::PreProcessingImpl() {
     auto *in_ptr2 = reinterpret_cast<double *>(task_data->inputs[1]);
     auto bm = std::vector<double>(in_ptr2, in_ptr2 + (B_.size.first * B_.size.second));
     B_ = ConvertToSparse(B_.size, bm);
-    displ_ = GetDisplacements(world_.size(), static_cast<int>(B_.columnsSum.size()));
+    GetDisplacements();
   }
   return true;
 }

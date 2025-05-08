@@ -23,7 +23,6 @@ struct Sparse {
     archive & columnsSum;
   }
 };
-std::vector<int> GetDisplacements(int world_size, int columns_count);
 class CCSALL : public ppc::core::Task {
  private:
   [[nodiscard]] bool IsEmpty() const;
@@ -33,6 +32,7 @@ class CCSALL : public ppc::core::Task {
   static int GetElementsCount(int index, const std::vector<int>& columns_sum);
   static std::vector<double> ConvertFromSparse(const Sparse& matrix);
   static int CalculateStartIndex(int index, const std::vector<int>& columns_sum);
+  void GetDisplacements();
   void CollectSizes();
 
   Sparse A_;
