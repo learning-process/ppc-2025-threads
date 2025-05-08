@@ -1,8 +1,6 @@
 #include <gtest/gtest.h>
+#include <mpi.h>
 
-#include <cstddef>
-#include <cstdint>
-#include <memory>
 #include <numeric>
 #include <random>
 #include <vector>
@@ -11,342 +9,163 @@
 #include "boost/mpi/communicator.hpp"
 #include "core/task/include/task.hpp"
 
-TEST(titov_s_image_filter_horiz_gaussian3x3_all, test_10_1) {
-  boost::mpi::communicator world;
-  constexpr size_t kWidth = 10;
-  constexpr size_t kHeight = 10;
-  std::vector<double> input_image(kWidth * kHeight, 1.0);
-  std::vector<double> output_image(kWidth * kHeight, 1.0);
-  std::vector<double> expected_output(kWidth * kHeight, 1.0);
-  std::vector<int> kernel = {1, 2, 1};
+namespace {
+constexpr size_t kSmallWidth = 10;
+constexpr size_t kSmallHeight = 10;
+constexpr size_t kLargeWidth = 100;
+constexpr size_t kLargeHeight = 100;
 
-  for (size_t i = 0; i < kHeight; ++i) {
-    for (size_t j = 0; j < kWidth; ++j) {
-      if (j == 0 || j == kWidth - 1) {
-        expected_output[((i * kWidth)) + j] = 0.75;
-      } else {
-        expected_output[((i * kWidth)) + j] = 1.0;
-      }
+struct TestData {
+  std::vector<double> input;
+  std::vector<double> expected;
+  std::vector<double> output;
+  std::vector<int> kernel = {1, 2, 1};
+};
+
+TestData CreateUniformTestData(double value = 1.0) {
+  TestData data;
+  data.input.resize(kSmallWidth * kSmallHeight, value);
+  data.expected.resize(kSmallWidth * kSmallHeight, value);
+  data.output.resize(kSmallWidth * kSmallHeight);
+
+  for (size_t i = 0; i < kSmallHeight; ++i) {
+    data.expected[i * kSmallWidth] = data.expected[(i + 1) * kSmallWidth - 1] = value * 0.75;
+    for (size_t j = 1; j < kSmallWidth - 1; ++j) {
+      data.expected[i * kSmallWidth + j] = value;
     }
   }
+  return data;
+}
 
-  auto task_data_all = std::make_shared<ppc::core::TaskData>();
-  task_data_all->inputs.emplace_back(reinterpret_cast<uint8_t*>(input_image.data()));
-  task_data_all->inputs.emplace_back(reinterpret_cast<uint8_t*>(kernel.data()));
-  task_data_all->inputs_count.emplace_back(input_image.size());
-  task_data_all->outputs.emplace_back(reinterpret_cast<uint8_t*>(output_image.data()));
-  task_data_all->outputs_count.emplace_back(output_image.size());
-  titov_s_image_filter_horiz_gaussian3x3_all::GaussianFilterALL gaussian_filter_all(task_data_all);
+TestData CreateVerticalLinesTestData() {
+  TestData data;
+  data.input.resize(kSmallWidth * kSmallHeight);
+  data.expected.resize(kSmallWidth * kSmallHeight);
+  data.output.resize(kSmallWidth * kSmallHeight);
 
-  ASSERT_EQ(gaussian_filter_all.Validation(), true);
+  for (size_t i = 0; i < kSmallHeight; ++i) {
+    data.input[i * kSmallWidth + 2] = 1.0;
+    data.input[i * kSmallWidth + 7] = 1.0;
 
-  gaussian_filter_all.PreProcessing();
-  gaussian_filter_all.Run();
-  gaussian_filter_all.PostProcessing();
+    data.expected[i * kSmallWidth + 1] = 0.25;
+    data.expected[i * kSmallWidth + 2] = 0.5;
+    data.expected[i * kSmallWidth + 3] = 0.25;
+    data.expected[i * kSmallWidth + 6] = 0.25;
+    data.expected[i * kSmallWidth + 7] = 0.5;
+    data.expected[i * kSmallWidth + 8] = 0.25;
+  }
+  return data;
+}
+
+TestData CreateSharpTransitionTestData() {
+  TestData data;
+  data.input.resize(kSmallWidth * kSmallHeight);
+  data.expected.resize(kSmallWidth * kSmallHeight);
+  data.output.resize(kSmallWidth * kSmallHeight);
+
+  for (size_t i = 0; i < kSmallHeight; ++i) {
+    for (size_t j = 0; j < kSmallWidth / 2; ++j) {
+      data.input[i * kSmallWidth + j] = 0.0;
+    }
+    for (size_t j = kSmallWidth / 2; j < kSmallWidth; ++j) {
+      data.input[i * kSmallWidth + j] = 1.0;
+    }
+
+    data.expected[i * kSmallWidth + 4] = 0.25;
+    data.expected[i * kSmallWidth + 5] = 0.75;
+    for (size_t j = 6; j < 9; ++j) {
+      data.expected[i * kSmallWidth + j] = 1.0;
+    }
+    data.expected[i * kSmallWidth + 9] = 0.75;
+  }
+  return data;
+}
+
+void RunTestAndVerify(TestData& data, const boost::mpi::communicator& world) {
+  auto task_data = std::make_shared<ppc::core::TaskData>();
+
+  // For inputs, we need to cast away constness since TaskData expects non-const pointers
+  task_data->inputs.emplace_back(reinterpret_cast<uint8_t*>(data.input.data()));
+  task_data->inputs.emplace_back(reinterpret_cast<uint8_t*>(data.kernel.data()));
+  task_data->inputs_count.emplace_back(data.input.size());
+  task_data->inputs_count.emplace_back(data.kernel.size());
+
+  // Output is non-const by design
+  task_data->outputs.emplace_back(reinterpret_cast<uint8_t*>(data.output.data()));
+  task_data->outputs_count.emplace_back(data.output.size());
+
+  titov_s_image_filter_horiz_gaussian3x3_all::GaussianFilterALL filter(task_data);
+  ASSERT_TRUE(filter.Validation());
+
+  filter.PreProcessing();
+  filter.Run();
+  filter.PostProcessing();
+
   if (world.rank() == 0) {
-    for (size_t i = 0; i < kHeight; ++i) {
-      for (size_t j = 0; j < kWidth; ++j) {
-        ASSERT_NEAR(output_image[((i * kWidth)) + j], expected_output[((i * kWidth)) + j], 1e-5);
-      }
+    for (size_t i = 0; i < data.input.size(); ++i) {
+      ASSERT_NEAR(data.output[i], data.expected[i], 1e-5);
     }
   }
 }
+}  // namespace
 
-TEST(titov_s_image_filter_horiz_gaussian3x3_all, test_10_vertical_lines) {
+TEST(titov_s_image_filter_horiz_gaussian3x3_all, test_uniform) {
   boost::mpi::communicator world;
-  constexpr size_t kWidth = 10;
-  constexpr size_t kHeight = 10;
-  std::vector<double> input_image(kWidth * kHeight, 0.0);
-  std::vector<double> output_image(kWidth * kHeight, 0.0);
-  std::vector<double> expected_output(kWidth * kHeight, 0.0);
-  std::vector<int> kernel = {1, 2, 1};
-
-  for (size_t i = 0; i < kHeight; ++i) {
-    input_image[((i * kWidth)) + 2] = 1.0;
-    input_image[((i * kWidth)) + 7] = 1.0;
-  }
-
-  for (size_t i = 0; i < kHeight; ++i) {
-    expected_output[((i * kWidth)) + 1] = 0.25;
-    expected_output[((i * kWidth)) + 2] = 0.5;
-    expected_output[((i * kWidth)) + 3] = 0.25;
-    expected_output[((i * kWidth)) + 6] = 0.25;
-    expected_output[((i * kWidth)) + 7] = 0.5;
-    expected_output[((i * kWidth)) + 8] = 0.25;
-  }
-
-  auto task_data_all = std::make_shared<ppc::core::TaskData>();
-  task_data_all->inputs.emplace_back(reinterpret_cast<uint8_t*>(input_image.data()));
-  task_data_all->inputs.emplace_back(reinterpret_cast<uint8_t*>(kernel.data()));
-  task_data_all->inputs_count.emplace_back(input_image.size());
-  task_data_all->outputs.emplace_back(reinterpret_cast<uint8_t*>(output_image.data()));
-  task_data_all->outputs_count.emplace_back(output_image.size());
-
-  titov_s_image_filter_horiz_gaussian3x3_all::GaussianFilterALL gaussian_filter_all(task_data_all);
-
-  ASSERT_EQ(gaussian_filter_all.Validation(), true);
-
-  gaussian_filter_all.PreProcessing();
-  gaussian_filter_all.Run();
-  gaussian_filter_all.PostProcessing();
-
-  if (world.rank() == 0) {
-    for (size_t i = 0; i < kHeight; ++i) {
-      for (size_t j = 0; j < kWidth; ++j) {
-        ASSERT_NEAR(output_image[((i * kWidth)) + j], expected_output[((i * kWidth)) + j], 1e-5);
-      }
-    }
-  }
+  auto test_data = CreateUniformTestData();
+  RunTestAndVerify(test_data, world);
 }
 
-TEST(titov_s_image_filter_horiz_gaussian3x3_all, test_horizontal_lines) {
+TEST(titov_s_image_filter_horiz_gaussian3x3_all, test_vertical_lines) {
   boost::mpi::communicator world;
-  constexpr size_t kWidth = 10;
-  constexpr size_t kHeight = 10;
-  std::vector<double> input_image(kWidth * kHeight, 0.0);
-  std::vector<double> output_image(kWidth * kHeight, 0.0);
-  std::vector<double> expected_output(kWidth * kHeight, 0.0);
-  std::vector<int> kernel = {1, 2, 1};
-
-  for (size_t j = 0; j < kWidth; ++j) {
-    input_image[(2 * kWidth) + j] = 1.0;
-    input_image[(7 * kWidth) + j] = 1.0;
-  }
-
-  expected_output[2 * kWidth] = expected_output[(3 * kWidth) - 1] = expected_output[7 * kWidth] =
-      expected_output[(8 * kWidth) - 1] = 0.75;
-  for (size_t i = 1; i < kWidth - 1; ++i) {
-    expected_output[(2 * kWidth) + i] = 1.0;
-    expected_output[(7 * kWidth) + i] = 1.0;
-  }
-
-  auto task_data_all = std::make_shared<ppc::core::TaskData>();
-  task_data_all->inputs.emplace_back(reinterpret_cast<uint8_t*>(input_image.data()));
-  task_data_all->inputs.emplace_back(reinterpret_cast<uint8_t*>(kernel.data()));
-  task_data_all->inputs_count.emplace_back(input_image.size());
-  task_data_all->outputs.emplace_back(reinterpret_cast<uint8_t*>(output_image.data()));
-  task_data_all->outputs_count.emplace_back(output_image.size());
-
-  titov_s_image_filter_horiz_gaussian3x3_all::GaussianFilterALL gaussian_filter_all(task_data_all);
-
-  ASSERT_EQ(gaussian_filter_all.Validation(), true);
-
-  gaussian_filter_all.PreProcessing();
-  gaussian_filter_all.Run();
-  gaussian_filter_all.PostProcessing();
-
-  if (world.rank() == 0) {
-    for (size_t i = 0; i < kHeight; ++i) {
-      for (size_t j = 0; j < kWidth; ++j) {
-        ASSERT_NEAR(output_image[((i * kWidth)) + j], expected_output[((i * kWidth)) + j], 1e-5);
-      }
-    }
-  }
-}
-
-TEST(titov_s_image_filter_horiz_gaussian3x3_all, test_empty_image) {
-  boost::mpi::communicator world;
-  constexpr size_t kWidth = 10;
-  constexpr size_t kHeight = 10;
-  std::vector<double> input_image(kWidth * kHeight, 0.0);
-  std::vector<double> output_image(kWidth * kHeight, 0.0);
-  std::vector<double> expected_output(kWidth * kHeight, 0.0);
-  std::vector<int> kernel = {1, 2, 1};
-
-  auto task_data_all = std::make_shared<ppc::core::TaskData>();
-  task_data_all->inputs.emplace_back(reinterpret_cast<uint8_t*>(input_image.data()));
-  task_data_all->inputs.emplace_back(reinterpret_cast<uint8_t*>(kernel.data()));
-  task_data_all->inputs_count.emplace_back(input_image.size());
-  task_data_all->outputs.emplace_back(reinterpret_cast<uint8_t*>(output_image.data()));
-  task_data_all->outputs_count.emplace_back(output_image.size());
-
-  titov_s_image_filter_horiz_gaussian3x3_all::GaussianFilterALL gaussian_filter_all(task_data_all);
-
-  ASSERT_EQ(gaussian_filter_all.Validation(), true);
-
-  gaussian_filter_all.PreProcessing();
-  gaussian_filter_all.Run();
-  gaussian_filter_all.PostProcessing();
-
-  if (world.rank() == 0) {
-    for (size_t i = 0; i < kHeight; ++i) {
-      for (size_t j = 0; j < kWidth; ++j) {
-        ASSERT_NEAR(output_image[(i * kWidth) + j], expected_output[(i * kWidth) + j], 1e-5);
-      }
-    }
-  }
+  auto test_data = CreateVerticalLinesTestData();
+  RunTestAndVerify(test_data, world);
 }
 
 TEST(titov_s_image_filter_horiz_gaussian3x3_all, test_sharp_transitions) {
   boost::mpi::communicator world;
-  constexpr size_t kWidth = 10;
-  constexpr size_t kHeight = 10;
-  std::vector<double> input_image(kWidth * kHeight, 0.0);
-  std::vector<double> output_image(kWidth * kHeight, 0.0);
-  std::vector<double> expected_output(kWidth * kHeight, 0.0);
-  std::vector<int> kernel = {1, 2, 1};
-
-  for (size_t i = 0; i < kHeight; ++i) {
-    for (size_t j = 0; j < kWidth / 2; ++j) {
-      input_image[(i * kWidth) + j] = 0.0;
-    }
-    for (size_t j = kWidth / 2; j < kWidth; ++j) {
-      input_image[(i * kWidth) + j] = 1.0;
-    }
-  }
-
-  for (size_t i = 0; i < kHeight; ++i) {
-    expected_output[(i * kWidth) + 4] = 0.25;
-    expected_output[(i * kWidth) + 5] = 0.75;
-    expected_output[(i * kWidth) + 6] = 1.0;
-    expected_output[(i * kWidth) + 7] = 1.0;
-    expected_output[(i * kWidth) + 8] = 1.0;
-    expected_output[(i * kWidth) + 9] = 0.75;
-  }
-
-  auto task_data_all = std::make_shared<ppc::core::TaskData>();
-  task_data_all->inputs.emplace_back(reinterpret_cast<uint8_t*>(input_image.data()));
-  task_data_all->inputs.emplace_back(reinterpret_cast<uint8_t*>(kernel.data()));
-  task_data_all->inputs_count.emplace_back(input_image.size());
-  task_data_all->outputs.emplace_back(reinterpret_cast<uint8_t*>(output_image.data()));
-  task_data_all->outputs_count.emplace_back(output_image.size());
-
-  titov_s_image_filter_horiz_gaussian3x3_all::GaussianFilterALL gaussian_filter_all(task_data_all);
-
-  ASSERT_EQ(gaussian_filter_all.Validation(), true);
-
-  gaussian_filter_all.PreProcessing();
-  gaussian_filter_all.Run();
-  gaussian_filter_all.PostProcessing();
-
-  if (world.rank() == 0) {
-    for (size_t i = 0; i < kHeight; ++i) {
-      for (size_t j = 0; j < kWidth; ++j) {
-        ASSERT_NEAR(output_image[(i * kWidth) + j], expected_output[(i * kWidth) + j], 1e-5);
-      }
-    }
-  }
+  auto test_data = CreateSharpTransitionTestData();
+  RunTestAndVerify(test_data, world);
 }
 
-TEST(titov_s_image_filter_horiz_gaussian3x3_all, test_smooth_gradients) {
+TEST(titov_s_image_filter_horiz_gaussian3x3_all, test_empty_image) {
   boost::mpi::communicator world;
-  constexpr size_t kWidth = 10;
-  constexpr size_t kHeight = 10;
-  std::vector<double> input_image(kWidth * kHeight, 0.0);
-  std::vector<double> output_image(kWidth * kHeight, 0.0);
-  std::vector<double> expected_output(kWidth * kHeight, 0.0);
-  std::vector<int> kernel = {1, 2, 1};
-
-  for (size_t i = 0; i < kHeight; ++i) {
-    for (size_t j = 0; j < kWidth; ++j) {
-      input_image[(i * kWidth) + j] = expected_output[(i * kWidth) + j] = static_cast<double>(j) / (kWidth - 1);
-    }
-  }
-
-  for (size_t i = 0; i < kHeight; ++i) {
-    expected_output[(i * kWidth)] = 0.03;
-    expected_output[((i + 1) * kWidth) - 1] = 0.72;
-  }
-
-  auto task_data_all = std::make_shared<ppc::core::TaskData>();
-  task_data_all->inputs.emplace_back(reinterpret_cast<uint8_t*>(input_image.data()));
-  task_data_all->inputs.emplace_back(reinterpret_cast<uint8_t*>(kernel.data()));
-  task_data_all->inputs_count.emplace_back(input_image.size());
-  task_data_all->outputs.emplace_back(reinterpret_cast<uint8_t*>(output_image.data()));
-  task_data_all->outputs_count.emplace_back(output_image.size());
-
-  titov_s_image_filter_horiz_gaussian3x3_all::GaussianFilterALL gaussian_filter_all(task_data_all);
-
-  ASSERT_EQ(gaussian_filter_all.Validation(), true);
-
-  gaussian_filter_all.PreProcessing();
-  gaussian_filter_all.Run();
-  gaussian_filter_all.PostProcessing();
-
-  if (world.rank() == 0) {
-    for (size_t i = 0; i < kHeight; ++i) {
-      for (size_t j = 0; j < kWidth; ++j) {
-        ASSERT_NEAR(output_image[(i * kWidth) + j], expected_output[(i * kWidth) + j], 0.5);
-      }
-    }
-  }
-}
-
-TEST(titov_s_image_filter_horiz_gaussian3x3_all, test_all_max) {
-  boost::mpi::communicator world;
-  constexpr size_t kWidth = 10;
-  constexpr size_t kHeight = 10;
-  std::vector<double> input_image(kWidth * kHeight, 255.0);
-  std::vector<double> output_image(kWidth * kHeight, 0.0);
-  std::vector<double> expected_output(kWidth * kHeight, 255.0);
-  std::vector<int> kernel = {1, 2, 1};
-
-  for (size_t i = 0; i < kHeight; ++i) {
-    expected_output[(i * kWidth)] = 191.25;
-    expected_output[((i + 1) * kWidth) - 1] = 191.25;
-  }
-
-  auto task_data_all = std::make_shared<ppc::core::TaskData>();
-  task_data_all->inputs.emplace_back(reinterpret_cast<uint8_t*>(input_image.data()));
-  task_data_all->inputs.emplace_back(reinterpret_cast<uint8_t*>(kernel.data()));
-  task_data_all->inputs_count.emplace_back(input_image.size());
-  task_data_all->outputs.emplace_back(reinterpret_cast<uint8_t*>(output_image.data()));
-  task_data_all->outputs_count.emplace_back(output_image.size());
-
-  titov_s_image_filter_horiz_gaussian3x3_all::GaussianFilterALL gaussian_filter_all(task_data_all);
-
-  ASSERT_EQ(gaussian_filter_all.Validation(), true);
-
-  gaussian_filter_all.PreProcessing();
-  gaussian_filter_all.Run();
-  gaussian_filter_all.PostProcessing();
-
-  if (world.rank() == 0) {
-    for (size_t i = 0; i < kHeight; ++i) {
-      for (size_t j = 0; j < kWidth; ++j) {
-        ASSERT_NEAR(output_image[(i * kWidth) + j], expected_output[(i * kWidth) + j], 1e-5);
-      }
-    }
-  }
+  TestData data;
+  data.input.resize(kSmallWidth * kSmallHeight);
+  data.expected.resize(kSmallWidth * kSmallHeight);
+  data.output.resize(kSmallWidth * kSmallHeight);
+  RunTestAndVerify(data, world);
 }
 
 TEST(titov_s_image_filter_horiz_gaussian3x3_all, test_random_invariant_mean) {
   boost::mpi::communicator world;
-  constexpr size_t kWidth = 100;
-  constexpr size_t kHeight = 100;
+  TestData data;
+  data.input.resize(kLargeWidth * kLargeHeight);
+  data.output.resize(kLargeWidth * kLargeHeight);
 
-  std::vector<double> input_image(kWidth * kHeight);
   std::random_device rd;
   std::mt19937 gen(rd());
   std::uniform_real_distribution<> dis(0.0, 255.0);
-
-  for (size_t i = 0; i < kWidth * kHeight; ++i) {
-    input_image[i] = dis(gen);
+  for (auto& val : data.input) {
+    val = dis(gen);
   }
 
-  std::vector<int> kernel = {1, 2, 1};
+  auto task_data = std::make_shared<ppc::core::TaskData>();
+  task_data->inputs.emplace_back(reinterpret_cast<uint8_t*>(data.input.data()));
+  task_data->inputs.emplace_back(reinterpret_cast<uint8_t*>(data.kernel.data()));
+  task_data->inputs_count.emplace_back(data.input.size());
+  task_data->inputs_count.emplace_back(data.kernel.size());
+  task_data->outputs.emplace_back(reinterpret_cast<uint8_t*>(data.output.data()));
+  task_data->outputs_count.emplace_back(data.output.size());
 
-  std::vector<double> output_image(kWidth * kHeight, 0.0);
+  titov_s_image_filter_horiz_gaussian3x3_all::GaussianFilterALL filter(task_data);
+  ASSERT_TRUE(filter.Validation());
 
-  auto task_data_all = std::make_shared<ppc::core::TaskData>();
-  task_data_all->inputs.emplace_back(reinterpret_cast<uint8_t*>(input_image.data()));
-  task_data_all->inputs.emplace_back(reinterpret_cast<uint8_t*>(kernel.data()));
-  task_data_all->inputs_count.emplace_back(input_image.size());
-  task_data_all->outputs.emplace_back(reinterpret_cast<uint8_t*>(output_image.data()));
-  task_data_all->outputs_count.emplace_back(output_image.size());
+  filter.PreProcessing();
+  filter.Run();
+  filter.PostProcessing();
 
-  titov_s_image_filter_horiz_gaussian3x3_all::GaussianFilterALL gaussian_filter_all(task_data_all);
-
-  ASSERT_EQ(gaussian_filter_all.Validation(), true);
-
-  gaussian_filter_all.PreProcessing();
-  gaussian_filter_all.Run();
-  gaussian_filter_all.PostProcessing();
-
-  double avg_input =
-      std::accumulate(input_image.begin(), input_image.end(), 0.0) / static_cast<double>(input_image.size());
-  double avg_output =
-      std::accumulate(output_image.begin(), output_image.end(), 0.0) / static_cast<double>(output_image.size());
+  double avg_input = std::accumulate(data.input.begin(), data.input.end(), 0.0) / data.input.size();
+  double avg_output = std::accumulate(data.output.begin(), data.output.end(), 0.0) / data.output.size();
 
   if (world.rank() == 0) {
     ASSERT_NEAR(avg_input, avg_output, 1);

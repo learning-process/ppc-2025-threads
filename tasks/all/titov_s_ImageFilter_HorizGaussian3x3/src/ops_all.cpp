@@ -1,8 +1,11 @@
 #include "all/titov_s_ImageFilter_HorizGaussian3x3/include/ops_all.hpp"
-
+#include <mpi.h>
+#include <algorithm>
 #include <cmath>
 #include <cstddef>
 #include <thread>
+#include <vector>
+#include <memory>
 
 #include "core/util/include/util.hpp"
 
@@ -38,11 +41,11 @@ bool titov_s_image_filter_horiz_gaussian3x3_all::GaussianFilterALL::DistributeDa
     std::copy(input_.begin() + start_row * width, input_.begin() + end_row * width, local_input.begin());
 
     for (int p = 1; p < world_size; p++) {
-      const int p_start = p * (height / world_size) + std::min(p, height % world_size);
-      const int p_end = p_start + (height / world_size) + (p < (height % world_size) ? 1 : 0);
+      const int p_start = (p * (height / world_size)) + std::min(p, height % world_size);
+      const int p_end = p_start + (height / world_size) + ((p < (height % world_size)) ? 1 : 0);
       const int p_size = (p_end - p_start) * width;
 
-      world_.send(p, 0, input_.data() + p_start * width, p_size);
+      world_.send(p, 0, input_.data() + (p_start * width), p_size);
     }
   } else {
     world_.recv(0, 0, local_input.data(), static_cast<int>(local_input.size()));
@@ -109,8 +112,11 @@ bool titov_s_image_filter_horiz_gaussian3x3_all::GaussianFilterALL::RunImpl() {
 
   const int rows_per_process = height / world_size;
   const int remainder = height % world_size;
-  const int start_row = (world_rank * rows_per_process) + std::min(world_rank, remainder);
-  const int end_row = start_row + rows_per_process + ((world_rank < remainder) ? 1 : 0);
+
+  const int extra_row = (world_rank < remainder) ? 1 : 0;
+  const int start_row = world_rank * rows_per_process + std::min(world_rank, remainder);
+  const int end_row = start_row + rows_per_process + extra_row;
+
   const int local_rows = end_row - start_row;
 
   std::vector<double> local_input(local_rows * width);
@@ -132,6 +138,6 @@ bool titov_s_image_filter_horiz_gaussian3x3_all::GaussianFilterALL::RunImpl() {
 
 bool titov_s_image_filter_horiz_gaussian3x3_all::GaussianFilterALL::PostProcessingImpl() {
   auto *out_ptr = reinterpret_cast<double *>(task_data->outputs[0]);
-  std::copy(output_.begin(), output_.end(), out_ptr);
+  std::ranges::copy(output_, out_ptr);
   return true;
 }
