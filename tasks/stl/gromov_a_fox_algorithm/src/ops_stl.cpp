@@ -154,8 +154,7 @@ bool TestTaskSTL::RunImpl() {
   }
 
   num_threads_to_use = std::min(num_threads_to_use, total_C_blocks_to_compute);
-  if (num_threads_to_use == 0 && total_C_blocks_to_compute > 0)
-    num_threads_to_use = 1;
+  if (num_threads_to_use == 0 && total_C_blocks_to_compute > 0) num_threads_to_use = 1;
 
   std::vector<std::thread> threads;
   threads.reserve(num_threads_to_use);
