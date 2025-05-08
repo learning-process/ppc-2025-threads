@@ -30,7 +30,6 @@ bool ConvertGraphToAdjacencyList(const std::vector<int>& graph_data, size_t num_
       continue;
     }
     if (i + 1 >= graph_data.size()) {
-      if (i < graph_data.size() && graph_data[i] != -1) return false;
       break;
     }
     size_t dest = graph_data[i];
@@ -40,13 +39,9 @@ bool ConvertGraphToAdjacencyList(const std::vector<int>& graph_data, size_t num_
     }
     if (dest < num_vertices) {
       graph[current_vertex].emplace_back(static_cast<int>(dest), weight);
-    } else {
-      return false;
     }
     i += 2;
   }
-  if (i < graph_data.size()) return false;
-  if (current_vertex != num_vertices) return false;
   return true;
 }
 
@@ -78,7 +73,7 @@ bool plekhanov_d_dijkstra_all::TestTaskALL::ValidationImpl() {
 }
 
 bool plekhanov_d_dijkstra_all::TestTaskALL::RunImpl() {
-  std::vector<std::vector<std::pair<int, int>>> adj_list;
+  std::vector<std::vector<std::pair<int, int>>> adj_list(num_vertices_);
   if (!ConvertGraphToAdjacencyList(graph_data_, num_vertices_, adj_list)) {
     return false;
   }
