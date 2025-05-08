@@ -56,13 +56,13 @@ TEST(shlyakov_m_shell_sort_stl, test_pipeline_run) {
   std::ranges::sort(expected);
   std::vector<int> out(in.size());
 
-  auto task_data_tbb = std::make_shared<ppc::core::TaskData>();
-  task_data_tbb->inputs.emplace_back(reinterpret_cast<uint8_t*>(in.data()));
-  task_data_tbb->inputs_count.emplace_back(in.size());
-  task_data_tbb->outputs.emplace_back(reinterpret_cast<uint8_t*>(out.data()));
-  task_data_tbb->outputs_count.emplace_back(out.size());
+  auto task_data_stl = std::make_shared<ppc::core::TaskData>();
+  task_data_stl->inputs.emplace_back(reinterpret_cast<uint8_t*>(in.data()));
+  task_data_stl->inputs_count.emplace_back(in.size());
+  task_data_stl->outputs.emplace_back(reinterpret_cast<uint8_t*>(out.data()));
+  task_data_stl->outputs_count.emplace_back(out.size());
 
-  auto test_task_tbb = std::make_shared<shlyakov_m_shell_sort_stl::TestTaskSTL>(task_data_tbb);
+  auto test_task_tbb = std::make_shared<shlyakov_m_shell_sort_stl::TestTaskSTL>(task_data_stl);
 
   auto perf_attr = std::make_shared<ppc::core::PerfAttr>();
   perf_attr->num_running = 1000;
@@ -90,13 +90,13 @@ TEST(shlyakov_m_shell_sort_stl, test_task_run) {
   std::ranges::sort(expected);
   std::vector<int> out(in.size());
 
-  auto task_data_tbb = std::make_shared<ppc::core::TaskData>();
-  task_data_tbb->inputs.emplace_back(reinterpret_cast<uint8_t*>(in.data()));
-  task_data_tbb->inputs_count.emplace_back(in.size());
-  task_data_tbb->outputs.emplace_back(reinterpret_cast<uint8_t*>(out.data()));
-  task_data_tbb->outputs_count.emplace_back(out.size());
+  auto task_data_stl = std::make_shared<ppc::core::TaskData>();
+  task_data_stl->inputs.emplace_back(reinterpret_cast<uint8_t*>(in.data()));
+  task_data_stl->inputs_count.emplace_back(in.size());
+  task_data_stl->outputs.emplace_back(reinterpret_cast<uint8_t*>(out.data()));
+  task_data_stl->outputs_count.emplace_back(out.size());
 
-  auto test_task_tbb = std::make_shared<shlyakov_m_shell_sort_stl::TestTaskSTL>(task_data_tbb);
+  auto test_task_tbb = std::make_shared<shlyakov_m_shell_sort_stl::TestTaskSTL>(task_data_stl);
 
   auto perf_attr = std::make_shared<ppc::core::PerfAttr>();
   perf_attr->num_running = 1000;
