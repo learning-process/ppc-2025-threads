@@ -68,11 +68,6 @@ bool plekhanov_d_dijkstra_all::TestTaskALL::PreProcessingImpl() {
   } else {
     start_vertex_ = 0;
   }
-
-  if (start_vertex_ < 0 || start_vertex_ >= static_cast<int>(num_vertices_)) {
-    return false;
-  }
-
   distances_[start_vertex_] = 0;
   return true;
 }
@@ -128,7 +123,7 @@ bool plekhanov_d_dijkstra_all::TestTaskALL::RunImpl() {
   boost::mpi::all_reduce(world_, local_dist.data(), num_vertices_, global_dist.data(), boost::mpi::minimum<int>());
 
 #pragma omp parallel for
-  for (int i = 0; i < num_vertices_; ++i) {
+  for (int i = 0; i < static_cast<int>(num_vertices_); ++i) {
     distances_[i] = global_dist[i];
   }
 
