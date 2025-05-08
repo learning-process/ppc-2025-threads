@@ -116,7 +116,7 @@ bool sorochkin_d_radix_double_sort_simple_merge_stl::SortTask::RunImpl() {
     };
     if (multithreaded) {
       threads.resize(jh);
-      std::ranges::generate(threads, [&, i = 0]() mutable { return std::thread([&] { run(i, i + 1); }); });
+      std::ranges::generate(threads, [&, i = 0]() mutable { return std::thread([&](int j) { run(j, j + 1); }, i); });
       std::ranges::for_each(threads, [](auto &thread) { thread.join(); });
     } else {
       run(0, jh);
