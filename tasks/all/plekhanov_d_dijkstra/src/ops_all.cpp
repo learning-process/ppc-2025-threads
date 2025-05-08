@@ -3,10 +3,8 @@
 #include <omp.h>
 
 #include <algorithm>
-#include <boost/mpi.hpp>
 #include <boost/mpi/collectives.hpp>
 #include <boost/mpi/communicator.hpp>
-#include <boost/serialization/utility.hpp>
 #include <boost/serialization/vector.hpp>
 #include <climits>
 #include <cstddef>
@@ -16,13 +14,6 @@
 #include <queue>
 #include <utility>
 #include <vector>
-
-namespace boost {
-namespace mpi {
-template <>
-struct is_mpi_datatype<std::pair<int, int>> : public true_type {};
-}  // namespace mpi
-}  // namespace boost
 
 namespace plekhanov_d_dijkstra_all {
 
@@ -94,20 +85,39 @@ bool plekhanov_d_dijkstra_all::TestTaskALL::ValidationImpl() {
 
 bool plekhanov_d_dijkstra_all::TestTaskALL::RunImpl() {
   boost::mpi::communicator world;
-  std::vector<std::vector<std::pair<int, int>>> graph;
-  if (!ConvertGraphToAdjacencyList(graph_data_, num_vertices_, graph)) {
+  int rank = world.rank();
+  int size = world.size();
+  
+  // Разделяем граф между процессами
+  std::vector<std::vector<std::pair<int, int>>> local_graph;
+  if (!ConvertGraphToAdjacencyList(graph_data_, num_vertices_, local_graph)) {
     return false;
   }
 
+  // Вычисляем количество вершин на процесс
+  int vertices_per_proc = (num_vertices_ + size - 1) / size;
+
+  // Инициализация локальных расстояний
   std::vector<int> local_distances(num_vertices_, INT_MAX);
-  local_distances[start_vertex_] = 0;
+  if (rank == 0) {
+    local_distances[start_vertex_] = 0;
+  }
 
+  // Приоритетная очередь для текущего процесса
   std::priority_queue<std::pair<int, int>, std::vector<std::pair<int, int>>, std::greater<>> pq;
-  pq.emplace(0, start_vertex_);
-  std::mutex pq_mutex;
+  if (rank == 0) {
+    pq.emplace(0, start_vertex_);
+  }
 
-#pragma omp parallel shared(graph, local_distances, pq, pq_mutex) default(none)
-  {
+  std::mutex pq_mutex;
+  bool done = false;
+  int iteration = 0;
+  const int max_iterations = num_vertices_; // Максимальное количество итераций
+
+  while (!done && iteration < max_iterations) {
+    iteration++;
+    
+    // Обработка вершин внутри процесса
     while (true) {
       int u = -1;
       int cur_dist = -1;
@@ -124,8 +134,10 @@ bool plekhanov_d_dijkstra_all::TestTaskALL::RunImpl() {
         }
       }
 
-      if (u != -1) {
-        for (const auto& edge : graph[u]) {
+      if (u != -1 && cur_dist == local_distances[u]) {
+        #pragma omp parallel for schedule(dynamic)
+        for (int i = 0; i < local_graph[u].size(); i++) {
+          const auto& edge = local_graph[u][i];
           int v = edge.first;
           int weight = edge.second;
 
@@ -140,23 +152,52 @@ bool plekhanov_d_dijkstra_all::TestTaskALL::RunImpl() {
         }
       }
     }
+
+    // Обмен расстояниями между процессами
+    std::vector<std::vector<int>> all_distances;
+    boost::mpi::all_gather(world, local_distances, all_distances);
+
+    // Обновление локальных расстояний
+    bool updated = false;
+    for (int i = 0; i < size; i++) {
+      for (int j = 0; j < vertices_per_proc; j++) {
+        int global_vertex = i * vertices_per_proc + j;
+        if (global_vertex < num_vertices_) {
+          int old_dist = local_distances[global_vertex];
+          local_distances[global_vertex] = std::min(local_distances[global_vertex], 
+                                                  all_distances[i][global_vertex]);
+          if (old_dist != local_distances[global_vertex]) {
+            updated = true;
+            std::lock_guard<std::mutex> lock(pq_mutex);
+            pq.emplace(local_distances[global_vertex], global_vertex);
+          }
+        }
+      }
+    }
+
+    // Проверка завершения
+    int local_empty = pq.empty() ? 1 : 0;
+    int global_empty;
+    boost::mpi::all_reduce(world, local_empty, global_empty, std::plus<int>());
+    done = (global_empty == size) && !updated;
   }
 
+  // Собираем результаты на корневом процессе
   std::vector<std::vector<int>> gathered;
   boost::mpi::gather(world, local_distances, gathered, 0);
 
-  if (world.rank() == 0) {
+  if (rank == 0) {
     distances_.assign(num_vertices_, INT_MAX);
-    for (int i = 0; i < static_cast<int>(num_vertices_); ++i) {
-      for (const auto& proc_dists : gathered) {
-        if (static_cast<size_t>(i) < proc_dists.size()) {
-          distances_[i] = std::min(distances_[i], proc_dists[i]);
+    for (int i = 0; i < size; ++i) {
+      for (int j = 0; j < vertices_per_proc; ++j) {
+        int global_vertex = i * vertices_per_proc + j;
+        if (global_vertex < num_vertices_) {
+          distances_[global_vertex] = std::min(distances_[global_vertex], gathered[i][global_vertex]);
         }
       }
     }
   }
 
-  boost::mpi::broadcast(world, distances_, 0);
   return true;
 }
 
