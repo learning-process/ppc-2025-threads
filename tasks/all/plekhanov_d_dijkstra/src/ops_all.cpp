@@ -70,7 +70,7 @@ bool plekhanov_d_dijkstra_all::TestTaskALL::PreProcessingImpl() {
     start_vertex_ = 0;
   }
 
-  if (start_vertex_ < 0 || start_vertex_ >= static_cast<unsigned long>(num_vertices_)) {
+  if (start_vertex_ >= static_cast<unsigned long>(num_vertices_)) {
     return false;
   }
 
@@ -89,6 +89,7 @@ bool plekhanov_d_dijkstra_all::TestTaskALL::RunImpl() {
   int size = world.size();
 
   std::vector<std::vector<std::pair<int, int>>> local_graph;
+  local_graph.resize(num_vertices_);
   if (!ConvertGraphToAdjacencyList(graph_data_, num_vertices_, local_graph)) {
     return false;
   }
