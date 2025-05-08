@@ -19,11 +19,11 @@ namespace shurigin_s_integrals_square_mpi {
 
 Integral::Integral(std::shared_ptr<ppc::core::TaskData> task_data_param)
     : Task(task_data_param),
-      task_data_(task_data_param),
       down_limits_(1, 0.0),
       up_limits_(1, 0.0),
       counts_(1, 0),
       result_(0.0),
+      task_data_(task_data_param),
       func_(nullptr),
       dimensions_(1),
       mpi_rank_(0),
