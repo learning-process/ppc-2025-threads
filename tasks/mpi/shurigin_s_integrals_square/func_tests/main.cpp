@@ -7,7 +7,7 @@
 #include <memory>
 #include <numbers>
 #include <vector>
-#include <mpi.h>
+
 #include "boost/mpi/communicator.hpp"
 #include "core/task/include/task.hpp"
 #include "mpi/shurigin_s_integrals_square/include/ops_mpi.hpp"

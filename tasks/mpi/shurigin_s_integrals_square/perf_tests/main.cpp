@@ -5,7 +5,7 @@
 #include <cstdint>
 #include <memory>
 #include <vector>
-#include <mpi.h>
+
 #include "boost/mpi/communicator.hpp"
 #include "core/perf/include/perf.hpp"
 #include "core/task/include/task.hpp"
