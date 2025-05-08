@@ -11,8 +11,6 @@
 
 namespace {
 
-// Function to generate a random symmetric positive-definite matrix of size matrix_size x matrix_size
-// The matrix is computed as A = R^T * R
 std::vector<double> GenerateRandomSPDMatrix(size_t matrix_size, unsigned int seed = 42) {
   std::mt19937 gen(seed);
   std::uniform_real_distribution<double> dist(0.1, 1.0);
@@ -21,7 +19,6 @@ std::vector<double> GenerateRandomSPDMatrix(size_t matrix_size, unsigned int see
     r_matrix[i] = dist(gen);
   }
   std::vector<double> a_matrix(matrix_size * matrix_size, 0.0);
-  // Compute a_matrix = R^T * R
   for (size_t i = 0; i < matrix_size; ++i) {
     for (size_t j = 0; j < matrix_size; ++j) {
       for (size_t k = 0; k < matrix_size; ++k) {
@@ -29,15 +26,13 @@ std::vector<double> GenerateRandomSPDMatrix(size_t matrix_size, unsigned int see
       }
     }
   }
-  // Add diagonal dominance
   for (size_t i = 0; i < matrix_size; ++i) {
     a_matrix[(i * matrix_size) + i] += static_cast<double>(matrix_size);
   }
   return a_matrix;
 }
 
-// Helper function to multiply a_matrix (size matrix_size x matrix_size) by vector x (length matrix_size)
-std::vector<double> MultiplyMatrixVector(const std::vector<double> &a_matrix, const std::vector<double> &x,
+std::vector<double> MultiplyMatrixVector(const std::vector<double>& a_matrix, const std::vector<double>& x,
                                          size_t matrix_size) {
   std::vector<double> result(matrix_size, 0.0);
   for (size_t i = 0; i < matrix_size; ++i) {
@@ -54,34 +49,27 @@ TEST(karaseva_a_test_task_stl, test_cg_solution_accuracy) {
   constexpr size_t kSize = 50;
   constexpr double kTolerance = 1e-6;
 
-  // Generate SPD matrix and exact solution
   auto a_matrix = GenerateRandomSPDMatrix(kSize);
-  std::vector<double> x_expected(kSize, 1.0);  // Expected solution vector (all ones)
+  std::vector<double> x_expected(kSize, 1.0);
   auto b_vector = MultiplyMatrixVector(a_matrix, x_expected, kSize);
-
-  // Create buffers for data
   std::vector<double> solution(kSize, 0.0);
 
-  // Create task data
   auto task_data_stl = std::make_shared<ppc::core::TaskData>();
-  task_data_stl->inputs.emplace_back(reinterpret_cast<uint8_t *>(a_matrix.data()));
+  task_data_stl->inputs.emplace_back(reinterpret_cast<uint8_t*>(a_matrix.data()));
   task_data_stl->inputs_count.emplace_back(a_matrix.size());
-  task_data_stl->inputs.emplace_back(reinterpret_cast<uint8_t *>(b_vector.data()));
+  task_data_stl->inputs.emplace_back(reinterpret_cast<uint8_t*>(b_vector.data()));
   task_data_stl->inputs_count.emplace_back(b_vector.size());
-  task_data_stl->outputs.emplace_back(reinterpret_cast<uint8_t *>(solution.data()));
+  task_data_stl->outputs.emplace_back(reinterpret_cast<uint8_t*>(solution.data()));
   task_data_stl->outputs_count.emplace_back(solution.size());
 
-  // Create and run task
   karaseva_a_test_task_stl::TestTaskSTL test_task_stl(task_data_stl);
   ASSERT_TRUE(test_task_stl.Validation());
   test_task_stl.PreProcessing();
   test_task_stl.Run();
   test_task_stl.PostProcessing();
 
-  // Verify solution accuracy
   for (size_t i = 0; i < kSize; ++i) {
-    EXPECT_NEAR(solution[i], x_expected[i], kTolerance)
-        << "Mismatch at index " << i << ". Expected: " << x_expected[i] << ", Actual: " << solution[i];
+    EXPECT_NEAR(solution[i], x_expected[i], kTolerance);
   }
 }
 
@@ -92,19 +80,16 @@ TEST(karaseva_a_test_task_stl, test_small_matrix_2x2) {
   std::vector<double> a_matrix = {4.0, 1.0, 1.0, 3.0};
   std::vector<double> x_expected = {1.0, -2.0};
   auto b_vector = MultiplyMatrixVector(a_matrix, x_expected, kSize);
-
   std::vector<double> solution(kSize, 0.0);
 
-  // Create task data
   auto task_data_stl = std::make_shared<ppc::core::TaskData>();
-  task_data_stl->inputs.emplace_back(reinterpret_cast<uint8_t *>(a_matrix.data()));
+  task_data_stl->inputs.emplace_back(reinterpret_cast<uint8_t*>(a_matrix.data()));
   task_data_stl->inputs_count.emplace_back(a_matrix.size());
-  task_data_stl->inputs.emplace_back(reinterpret_cast<uint8_t *>(b_vector.data()));
+  task_data_stl->inputs.emplace_back(reinterpret_cast<uint8_t*>(b_vector.data()));
   task_data_stl->inputs_count.emplace_back(b_vector.size());
-  task_data_stl->outputs.emplace_back(reinterpret_cast<uint8_t *>(solution.data()));
+  task_data_stl->outputs.emplace_back(reinterpret_cast<uint8_t*>(solution.data()));
   task_data_stl->outputs_count.emplace_back(solution.size());
 
-  // Create and run task
   karaseva_a_test_task_stl::TestTaskSTL test_task_stl(task_data_stl);
   ASSERT_TRUE(test_task_stl.Validation());
   test_task_stl.PreProcessing();
@@ -112,7 +97,7 @@ TEST(karaseva_a_test_task_stl, test_small_matrix_2x2) {
   test_task_stl.PostProcessing();
 
   for (size_t i = 0; i < kSize; ++i) {
-    EXPECT_NEAR(solution[i], x_expected[i], kTolerance) << "Mismatch at index " << i;
+    EXPECT_NEAR(solution[i], x_expected[i], kTolerance);
   }
 }
 
@@ -123,19 +108,16 @@ TEST(karaseva_a_test_task_stl, test_zero_rhs) {
   auto a_matrix = GenerateRandomSPDMatrix(kSize);
   std::vector<double> x_expected(kSize, 0.0);
   std::vector<double> b_vector(kSize, 0.0);
-
   std::vector<double> solution(kSize, 1.0);
 
-  // Create task data
   auto task_data_stl = std::make_shared<ppc::core::TaskData>();
-  task_data_stl->inputs.emplace_back(reinterpret_cast<uint8_t *>(a_matrix.data()));
+  task_data_stl->inputs.emplace_back(reinterpret_cast<uint8_t*>(a_matrix.data()));
   task_data_stl->inputs_count.emplace_back(a_matrix.size());
-  task_data_stl->inputs.emplace_back(reinterpret_cast<uint8_t *>(b_vector.data()));
+  task_data_stl->inputs.emplace_back(reinterpret_cast<uint8_t*>(b_vector.data()));
   task_data_stl->inputs_count.emplace_back(b_vector.size());
-  task_data_stl->outputs.emplace_back(reinterpret_cast<uint8_t *>(solution.data()));
+  task_data_stl->outputs.emplace_back(reinterpret_cast<uint8_t*>(solution.data()));
   task_data_stl->outputs_count.emplace_back(solution.size());
 
-  // Create and run task
   karaseva_a_test_task_stl::TestTaskSTL test_task_stl(task_data_stl);
   ASSERT_TRUE(test_task_stl.Validation());
   test_task_stl.PreProcessing();
@@ -143,7 +125,7 @@ TEST(karaseva_a_test_task_stl, test_zero_rhs) {
   test_task_stl.PostProcessing();
 
   for (size_t i = 0; i < kSize; ++i) {
-    EXPECT_NEAR(solution[i], x_expected[i], kTolerance) << "Non-zero solution at index " << i;
+    EXPECT_NEAR(solution[i], x_expected[i], kTolerance);
   }
 }
 
@@ -155,23 +137,21 @@ TEST(karaseva_a_test_task_stl, test_random_solution) {
 
   auto a_matrix = GenerateRandomSPDMatrix(kSize, gen());
   std::vector<double> x_expected(kSize);
-  for (auto &val : x_expected) {
+  for (auto& val : x_expected) {
     val = dist(gen);
   }
 
   auto b_vector = MultiplyMatrixVector(a_matrix, x_expected, kSize);
   std::vector<double> solution(kSize, 0.0);
 
-  // Create task data
   auto task_data_stl = std::make_shared<ppc::core::TaskData>();
-  task_data_stl->inputs.emplace_back(reinterpret_cast<uint8_t *>(a_matrix.data()));
+  task_data_stl->inputs.emplace_back(reinterpret_cast<uint8_t*>(a_matrix.data()));
   task_data_stl->inputs_count.emplace_back(a_matrix.size());
-  task_data_stl->inputs.emplace_back(reinterpret_cast<uint8_t *>(b_vector.data()));
+  task_data_stl->inputs.emplace_back(reinterpret_cast<uint8_t*>(b_vector.data()));
   task_data_stl->inputs_count.emplace_back(b_vector.size());
-  task_data_stl->outputs.emplace_back(reinterpret_cast<uint8_t *>(solution.data()));
+  task_data_stl->outputs.emplace_back(reinterpret_cast<uint8_t*>(solution.data()));
   task_data_stl->outputs_count.emplace_back(solution.size());
 
-  // Create and run task
   karaseva_a_test_task_stl::TestTaskSTL test_task_stl(task_data_stl);
   ASSERT_TRUE(test_task_stl.Validation());
   test_task_stl.PreProcessing();
@@ -179,6 +159,142 @@ TEST(karaseva_a_test_task_stl, test_random_solution) {
   test_task_stl.PostProcessing();
 
   for (size_t i = 0; i < kSize; ++i) {
-    EXPECT_NEAR(solution[i], x_expected[i], kTolerance) << "Mismatch at index " << i;
+    EXPECT_NEAR(solution[i], x_expected[i], kTolerance);
   }
+}
+
+TEST(karaseva_a_test_task_stl, test_validation_fail_non_square_matrix) {
+  std::vector<double> a_matrix(3 * 2, 1.0);
+  std::vector<double> b_vector(3, 1.0);
+  std::vector<double> solution(3, 0.0);
+
+  auto task_data = std::make_shared<ppc::core::TaskData>();
+  task_data->inputs.emplace_back(reinterpret_cast<uint8_t*>(a_matrix.data()));
+  task_data->inputs_count.emplace_back(a_matrix.size());
+  task_data->inputs.emplace_back(reinterpret_cast<uint8_t*>(b_vector.data()));
+  task_data->inputs_count.emplace_back(b_vector.size());
+  task_data->outputs.emplace_back(reinterpret_cast<uint8_t*>(solution.data()));
+  task_data->outputs_count.emplace_back(solution.size());
+
+  karaseva_a_test_task_stl::TestTaskSTL test_task(task_data);
+  ASSERT_FALSE(test_task.Validation());
+}
+
+TEST(karaseva_a_test_task_stl, test_validation_fail_output_size) {
+  constexpr size_t kSize = 5;
+  auto a_matrix = GenerateRandomSPDMatrix(kSize);
+  std::vector<double> b_vector(kSize, 1.0);
+  std::vector<double> solution(kSize + 1, 0.0);
+
+  auto task_data = std::make_shared<ppc::core::TaskData>();
+  task_data->inputs.emplace_back(reinterpret_cast<uint8_t*>(a_matrix.data()));
+  task_data->inputs_count.emplace_back(a_matrix.size());
+  task_data->inputs.emplace_back(reinterpret_cast<uint8_t*>(b_vector.data()));
+  task_data->inputs_count.emplace_back(b_vector.size());
+  task_data->outputs.emplace_back(reinterpret_cast<uint8_t*>(solution.data()));
+  task_data->outputs_count.emplace_back(solution.size());
+
+  karaseva_a_test_task_stl::TestTaskSTL test_task(task_data);
+  ASSERT_FALSE(test_task.Validation());
+}
+
+TEST(karaseva_a_test_task_stl, test_large_system_100x100) {
+  constexpr size_t kSize = 100;
+  constexpr double kTolerance = 1e-6;
+
+  auto a_matrix = GenerateRandomSPDMatrix(kSize);
+  std::vector<double> x_expected(kSize, 1.0);
+  auto b_vector = MultiplyMatrixVector(a_matrix, x_expected, kSize);
+  std::vector<double> solution(kSize, 0.0);
+
+  auto task_data = std::make_shared<ppc::core::TaskData>();
+  task_data->inputs.emplace_back(reinterpret_cast<uint8_t*>(a_matrix.data()));
+  task_data->inputs_count.emplace_back(a_matrix.size());
+  task_data->inputs.emplace_back(reinterpret_cast<uint8_t*>(b_vector.data()));
+  task_data->inputs_count.emplace_back(b_vector.size());
+  task_data->outputs.emplace_back(reinterpret_cast<uint8_t*>(solution.data()));
+  task_data->outputs_count.emplace_back(solution.size());
+
+  karaseva_a_test_task_stl::TestTaskSTL test_task(task_data);
+  ASSERT_TRUE(test_task.Validation());
+  test_task.PreProcessing();
+  test_task.Run();
+  test_task.PostProcessing();
+
+  for (size_t i = 0; i < kSize; ++i) {
+    EXPECT_NEAR(solution[i], x_expected[i], kTolerance);
+  }
+}
+
+TEST(karaseva_a_test_task_stl, test_large_system_200x200) {
+  constexpr size_t kSize = 200;
+  constexpr double kTolerance = 1e-6;
+
+  auto a_matrix = GenerateRandomSPDMatrix(kSize);
+  std::vector<double> x_expected(kSize);
+  for (size_t i = 0; i < kSize; ++i) {
+    x_expected[i] = 1.0 + std::sin(i * 0.1);
+  }
+
+  auto b_vector = MultiplyMatrixVector(a_matrix, x_expected, kSize);
+  std::vector<double> solution(kSize, 0.0);
+
+  auto task_data = std::make_shared<ppc::core::TaskData>();
+  task_data->inputs.emplace_back(reinterpret_cast<uint8_t*>(a_matrix.data()));
+  task_data->inputs_count.emplace_back(a_matrix.size());
+  task_data->inputs.emplace_back(reinterpret_cast<uint8_t*>(b_vector.data()));
+  task_data->inputs_count.emplace_back(b_vector.size());
+  task_data->outputs.emplace_back(reinterpret_cast<uint8_t*>(solution.data()));
+  task_data->outputs_count.emplace_back(solution.size());
+
+  karaseva_a_test_task_stl::TestTaskSTL test_task(task_data);
+  ASSERT_TRUE(test_task.Validation());
+  test_task.PreProcessing();
+  test_task.Run();
+  test_task.PostProcessing();
+
+  double max_absolute_error = 0.0;
+  for (size_t i = 0; i < kSize; ++i) {
+    const double error = std::abs(solution[i] - x_expected[i]);
+    max_absolute_error = std::max(max_absolute_error, error);
+  }
+  EXPECT_LT(max_absolute_error, kTolerance);
+}
+
+TEST(karaseva_a_test_task_stl, test_ill_conditioned_system) {
+  constexpr size_t kSize = 50;
+  constexpr double kTolerance = 1e-4;
+
+  std::vector<double> a_matrix(kSize * kSize);
+  for (size_t i = 0; i < kSize; ++i) {
+    for (size_t j = 0; j < kSize; ++j) {
+      a_matrix[i * kSize + j] = 1.0 / (i + j + 1.0);
+    }
+  }
+
+  std::vector<double> x_expected(kSize, 1.0);
+  auto b_vector = MultiplyMatrixVector(a_matrix, x_expected, kSize);
+  std::vector<double> solution(kSize, 0.0);
+
+  auto task_data = std::make_shared<ppc::core::TaskData>();
+  task_data->inputs.emplace_back(reinterpret_cast<uint8_t*>(a_matrix.data()));
+  task_data->inputs_count.emplace_back(a_matrix.size());
+  task_data->inputs.emplace_back(reinterpret_cast<uint8_t*>(b_vector.data()));
+  task_data->inputs_count.emplace_back(b_vector.size());
+  task_data->outputs.emplace_back(reinterpret_cast<uint8_t*>(solution.data()));
+  task_data->outputs_count.emplace_back(solution.size());
+
+  karaseva_a_test_task_stl::TestTaskSTL test_task(task_data);
+  ASSERT_TRUE(test_task.Validation());
+  test_task.PreProcessing();
+  test_task.Run();
+  test_task.PostProcessing();
+
+  double residual_norm = 0.0;
+  auto residual = MultiplyMatrixVector(a_matrix, solution, kSize);
+  for (size_t i = 0; i < kSize; ++i) {
+    residual[i] -= b_vector[i];
+    residual_norm += residual[i] * residual[i];
+  }
+  EXPECT_LT(std::sqrt(residual_norm), kTolerance);
 }
