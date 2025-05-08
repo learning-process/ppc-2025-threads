@@ -5,7 +5,6 @@
 #include <algorithm>
 #include <cmath>
 #include <cstddef>
-#include <memory>
 #include <thread>
 #include <vector>
 
@@ -94,11 +93,11 @@ bool titov_s_image_filter_horiz_gaussian3x3_all::GaussianFilterALL::CollectResul
     std::ranges::copy(local_output, output_.begin() + start_row * width);
 
     for (int p = 1; p < world_size; ++p) {
-      const int p_start = p * (height / world_size) + std::min(p, height % world_size);
+      const int p_start = (p * (height / world_size)) + std::min(p, height % world_size);
       const int p_end = p_start + (height / world_size) + (p < (height % world_size) ? 1 : 0);
       const int p_size = (p_end - p_start) * width;
 
-      world_.recv(p, 0, output_.data() + p_start * width, p_size);
+      world_.recv(p, 0, output_.data() + (p_start * width), p_size);
     }
   } else {
     world_.send(0, 0, local_output.data(), static_cast<int>(local_output.size()));
@@ -117,7 +116,7 @@ bool titov_s_image_filter_horiz_gaussian3x3_all::GaussianFilterALL::RunImpl() {
   const int remainder = height % world_size;
 
   const int extra_row = (world_rank < remainder) ? 1 : 0;
-  const int start_row = world_rank * rows_per_process + std::min(world_rank, remainder);
+  const int start_row = (world_rank * rows_per_process) + std::min(world_rank, remainder);
   const int end_row = start_row + rows_per_process + extra_row;
 
   const int local_rows = end_row - start_row;

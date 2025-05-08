@@ -32,7 +32,7 @@ TestData CreateUniformTestData(double value = 1.0) {
 
   for (size_t i = 0; i < kSmallHeight; ++i) {
     const size_t row_start = i * kSmallWidth;
-    const size_t row_end = (i + 1) * kSmallWidth - 1;
+    const size_t row_end = ((i + 1) * kSmallWidth) - 1;
     data.expected[row_start] = data.expected[row_end] = value * 0.75;
 
     for (size_t j = 1; j < kSmallWidth - 1; ++j) {
@@ -168,8 +168,8 @@ TEST(titov_s_image_filter_horiz_gaussian3x3_all, test_random_invariant_mean) {
   filter.Run();
   filter.PostProcessing();
 
-  const double input_size = static_cast<double>(data.input.size());
-  const double output_size = static_cast<double>(data.output.size());
+  const auto input_size = static_cast<double>(data.input.size());
+  const auto output_size = static_cast<double>(data.output.size());
   double avg_input = std::accumulate(data.input.begin(), data.input.end(), 0.0) / input_size;
   double avg_output = std::accumulate(data.output.begin(), data.output.end(), 0.0) / output_size;
 
