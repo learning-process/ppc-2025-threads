@@ -87,7 +87,7 @@ bool plekhanov_d_dijkstra_all::TestTaskALL::RunImpl() {
   boost::mpi::communicator world;
   int rank = world.rank();
   int size = world.size();
-  
+
   std::vector<std::vector<std::pair<int, int>>> local_graph;
   if (!ConvertGraphToAdjacencyList(graph_data_, num_vertices_, local_graph)) {
     return false;
@@ -130,7 +130,7 @@ bool plekhanov_d_dijkstra_all::TestTaskALL::RunImpl() {
       }
 
       if (u != -1 && cur_dist == local_distances[u]) {
-        #pragma omp parallel for schedule(dynamic)
+#pragma omp parallel for schedule(dynamic)
         for (int i = 0; i < local_graph[u].size(); i++) {
           const auto& edge = local_graph[u][i];
           int v = edge.first;
@@ -157,8 +157,7 @@ bool plekhanov_d_dijkstra_all::TestTaskALL::RunImpl() {
         int global_vertex = i * vertices_per_proc + j;
         if (global_vertex < num_vertices_) {
           int old_dist = local_distances[global_vertex];
-          local_distances[global_vertex] = std::min(local_distances[global_vertex], 
-                                                  all_distances[i][global_vertex]);
+          local_distances[global_vertex] = std::min(local_distances[global_vertex], all_distances[i][global_vertex]);
           if (old_dist != local_distances[global_vertex]) {
             updated = true;
             std::lock_guard<std::mutex> lock(pq_mutex);
