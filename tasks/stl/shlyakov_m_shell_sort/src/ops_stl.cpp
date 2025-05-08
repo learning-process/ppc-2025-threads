@@ -5,6 +5,8 @@
 #include <thread>
 #include <vector>
 
+#include "core/util/include/util.hpp"
+
 namespace shlyakov_m_shell_sort_stl {
 
 bool TestTaskSTL::PreProcessingImpl() {
@@ -24,7 +26,7 @@ bool TestTaskSTL::RunImpl() {
     return true;
   }
 
-  unsigned int hardware_threads = std::thread::hardware_concurrency();
+  unsigned int hardware_threads = ppc::util::GetPPCNumThreads();
   int num_threads = (hardware_threads > 0) ? static_cast<int>(hardware_threads) : 1;
 
   int sub_arr_size = (array_size + num_threads - 1) / num_threads;
