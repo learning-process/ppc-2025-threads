@@ -1,9 +1,9 @@
 #include "all/titov_s_ImageFilter_HorizGaussian3x3/include/ops_all.hpp"
 
 #include <algorithm>
-#include <ranges>
 #include <cmath>
 #include <cstddef>
+#include <ranges>
 #include <thread>
 #include <vector>
 
