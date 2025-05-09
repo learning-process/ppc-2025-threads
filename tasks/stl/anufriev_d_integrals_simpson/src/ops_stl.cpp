@@ -5,7 +5,6 @@
 #include <cstddef>
 #include <exception>
 #include <functional>
-#include <stdexcept>
 #include <thread>
 #include <vector>
 
@@ -119,11 +118,10 @@ void IntegralsSimpsonSTL::ThreadTaskRunner(int start_idx, int end_idx, const std
   double local_partial_sum = 0.0;
   *partial_sum_output = 0.0;
 
-  if (dimension_ < 1) {
-    return;
-  }
-
   for (int i = start_idx; i < end_idx; ++i) {
+    if (this->dimension_ < 1) {
+      return;
+    }
     std::vector<int> local_idx(dimension_);
     local_idx[0] = i;
 
