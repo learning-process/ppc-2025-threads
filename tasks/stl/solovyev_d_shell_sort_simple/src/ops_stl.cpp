@@ -26,7 +26,7 @@ bool solovyev_d_shell_sort_simple_stl::TaskSTL::RunImpl() {
 
   std::vector<std::thread> threads(num_threads_);
   for (int t = 0; t < num_threads_; ++t) {
-    threads[t] = std::thread([&,t] {
+    threads[t] = std::thread([&, t] {
       for (int gap_ = static_cast<int>(input_.size()) / 2; gap_ > 0; gap_ /= 2) {
         sync_point.arrive_and_wait();
         for (int i = t; i < gap_; i += num_threads_) {
