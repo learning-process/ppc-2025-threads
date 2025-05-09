@@ -1,5 +1,6 @@
 #include <gtest/gtest.h>
 
+#include <cmath>
 #include <cstddef>
 #include <cstdint>
 #include <iostream>
@@ -56,16 +57,16 @@ TEST(makhov_m_linear_image_filtering_vertical_seq, test_opencv_10x10_image) {
   std::vector<uint8_t> expected_output_vector;
 
   if (input_image.type() == CV_8UC3) {
-    input_vector.assign(input_image.data, input_image.data + input_image.total() * 3);
-    output_vector.assign(input_image.data, input_image.data + input_image.total() * 3);
+    input_vector.assign(input_image.data, input_image.data + (input_image.total() * 3));
+    output_vector.assign(input_image.data, input_image.data + (input_image.total() * 3));
   } else {
-    std::cerr << "Format error" << std::endl;
+    std::cerr << "Format error" << '\n';
   }
 
   if (reference_image.type() == CV_8UC3) {
-    expected_output_vector.assign(reference_image.data, reference_image.data + reference_image.total() * 3);
+    expected_output_vector.assign(reference_image.data, reference_image.data + (reference_image.total() * 3));
   } else {
-    std::cerr << "Format error" << std::endl;
+    std::cerr << "Format error" << '\n';
   }
 
   auto task_data_seq = std::make_shared<ppc::core::TaskData>();
