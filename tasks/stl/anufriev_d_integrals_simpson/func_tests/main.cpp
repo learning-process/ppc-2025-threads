@@ -228,7 +228,7 @@ TEST(anufriev_d_integrals_simpson_stl_coverage, ManyIterations_PossibleSingleThr
 }
 
 TEST(anufriev_d_integrals_simpson_stl_coverage, TestWithFuncCode1_2D) {
-  std::vector<double> in = {2, 0.0, kPi / 2.0, 50, 0.0, kPi / 2.0, 50, 1};              
+  std::vector<double> in = {2, 0.0, kPi / 2.0, 50, 0.0, kPi / 2.0, 50, 1};
   std::vector<double> out_buffer(1, 0.0);
   auto td = MakeTaskData(in, out_buffer);
   anufriev_d_integrals_simpson_stl::IntegralsSimpsonSTL task(td);
