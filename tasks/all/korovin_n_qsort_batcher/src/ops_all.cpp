@@ -14,6 +14,7 @@
 #include <ranges>
 #include <span>
 #include <vector>
+#include <views>
 
 #include "core/util/include/util.hpp"
 
