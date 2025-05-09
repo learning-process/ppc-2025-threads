@@ -82,7 +82,6 @@ bool deryabin_m_hoare_sort_simple_merge_stl::HoareSortTaskSequential::Validation
 bool deryabin_m_hoare_sort_simple_merge_stl::HoareSortTaskSTL::RunImpl() {
   const int num_threads = ppc::util::GetPPCNumThreads();  // Получаем число доступных потоков
 
-  // Лямбда для параллельного выполнения задачи 
   auto parallel_for = [num_threads](int start, int end, auto&& func) {
     const int total_tasks = end - start;
     const int chunk_size = std::max(1, total_tasks / num_threads);
@@ -99,7 +98,6 @@ bool deryabin_m_hoare_sort_simple_merge_stl::HoareSortTaskSTL::RunImpl() {
         }      
       });
     }
-    
     for (auto& t : threads) {
       t.join();
     }
