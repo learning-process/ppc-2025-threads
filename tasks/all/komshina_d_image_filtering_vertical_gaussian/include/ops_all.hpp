@@ -3,7 +3,6 @@
 #include <algorithm>
 #include <boost/mpi/collectives.hpp>
 #include <boost/mpi/communicator.hpp>
-#include <boost/mpi.hpp>
 #include <cmath>
 #include <cstddef>
 #include <utility>
@@ -15,7 +14,7 @@ namespace komshina_d_image_filtering_vertical_gaussian_all {
 
 class TestTaskALL : public ppc::core::Task {
  public:
-  explicit TestTaskALL(ppc::core::TaskDataPtr task_data) : Task(std::move(task_data)), world_() {}
+  explicit TestTaskALL(ppc::core::TaskDataPtr task_data) : Task(std::move(task_data)) {}
 
   bool PreProcessingImpl() override;
   bool ValidationImpl() override;

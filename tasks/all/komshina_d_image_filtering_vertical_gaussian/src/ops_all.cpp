@@ -1,13 +1,9 @@
-#include "all/komshina_d_image_filtering_vertical_gaussian/include/ops_all.hpp"
-
 #include <algorithm>
 #include <cmath>
+#include <cstddef>
 #include <vector>
 
-#include "boost/mpi/collectives/broadcast.hpp"
-#include "boost/mpi/collectives/gatherv.hpp"
-#include "boost/mpi/collectives/scatterv.hpp"
-#include "core/util/include/util.hpp"
+#include "all/komshina_d_image_filtering_vertical_gaussian/include/ops_all.hpp"
 
 bool komshina_d_image_filtering_vertical_gaussian_all::TestTaskALL::PreProcessingImpl() {
   width_ = task_data->inputs_count[0];
@@ -76,19 +72,21 @@ bool komshina_d_image_filtering_vertical_gaussian_all::TestTaskALL::RunImpl() {
         float total = 0.0F;
         for (int k = -kernel_radius; k <= kernel_radius; ++k) {
           int yk = y + k;
-          if (yk < 0 || yk >= height_int) continue;
-          std::size_t idx = (yk * width_int + x) * 3 + c;
+          if (yk < 0 || yk >= height_int) {
+            continue;
+          }
+          std::size_t idx = ((yk * width_int + x) * 3) + c;
           total += static_cast<float>(input_ref[idx]) * kernel_ref[k + kernel_radius];
         }
         std::size_t local_y = y - start_row_int;
-        local_output[(local_y * width_int + x) * 3 + c] = std::clamp(static_cast<int>(std::round(total)), 0, 255);
+        local_output[((local_y * width_int + x) * 3) + c] = std::clamp(static_cast<int>(std::round(total)), 0, 255);
       }
     }
   }
 
   if (rank == 0) {
     output_.resize(input_.size());
-    std::copy(local_output.begin(), local_output.end(), output_.begin());
+    std::ranges::copy(local_output, output_.begin());
 
     for (int src = 1; src < size; ++src) {
       std::size_t src_start = src * rows_per_proc;
