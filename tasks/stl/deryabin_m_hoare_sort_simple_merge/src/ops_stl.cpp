@@ -3,6 +3,8 @@
 #include <algorithm>
 #include <cmath>
 #include <cstddef>
+#include <functional>
+#include <stack>
 #include <numbers>
 #include <thread>
 #include <vector>
@@ -99,8 +101,8 @@ bool deryabin_m_hoare_sort_simple_merge_stl::HoareSortTaskSTL::ValidationImpl() 
 bool deryabin_m_hoare_sort_simple_merge_stl::HoareSortTaskSTL::RunImpl() {
   const size_t num_threads = ppc::util::GetPPCNumThreads();
   std::vector<std::thread> workers;
-  auto parallel_for = [&workers, num_threads](size_t start, size_t end, std::function<void(size_t)> func) {
-    workers.reserve(num_threads);
+  workers.reserve(num_threads); 
+  auto parallel_for = [&workers, num_threads](size_t start, size_t end, const std::function<void(size_t)>& func) {
     const size_t total = end - start;
     const size_t chunk_size = std::max<size_t>(1, total / num_threads);
     for (size_t i = 0; i < num_threads; ++i) {
@@ -113,7 +115,9 @@ bool deryabin_m_hoare_sort_simple_merge_stl::HoareSortTaskSTL::RunImpl() {
       });
     }
     for (auto& worker : workers) {
-      worker.join();
+      if (worker.joinable()) {
+        worker.join();
+      }
     }
     workers.clear();
   };
