@@ -9,8 +9,7 @@
 #include <vector>
 
 #include "core/task/include/task.hpp"
-#include "core/util/include/util.hpp"
-#include "#include "stl/deryabin_m_hoare_sort_simple_merge/include/ops_stl.hpp"
+#include "stl/deryabin_m_hoare_sort_simple_merge/include/ops_stl.hpp"
 
 TEST(deryabin_m_hoare_sort_simple_merge_stl, test_random_array) {
   // Create data
