@@ -3,7 +3,6 @@
 #include <barrier>
 #include <cmath>
 #include <cstddef>
-#include <iostream>
 #include <thread>
 #include <vector>
 
