@@ -119,7 +119,8 @@ bool petrov_a_radix_double_batcher_stl::TestTaskParallelStl::RunImpl() {
     thds[i].join();
   }
 
-  ParallelOddEvenBatcherMerge(bsz, vb, 33);
+  const int par_if_greater = 33;
+  ParallelOddEvenBatcherMerge(bsz, vb, par_if_greater);
 
   return true;
 }
