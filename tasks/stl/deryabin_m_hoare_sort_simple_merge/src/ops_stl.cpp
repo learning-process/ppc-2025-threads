@@ -4,8 +4,8 @@
 #include <cmath>
 #include <cstddef>
 #include <functional>
-#include <stack>
 #include <numbers>
+#include <stack>
 #include <thread>
 #include <vector>
 
