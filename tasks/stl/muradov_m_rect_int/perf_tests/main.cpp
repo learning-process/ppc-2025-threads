@@ -13,8 +13,8 @@
 #include "stl/muradov_m_rect_int/include/ops_stl.hpp"
 
 TEST(muradov_m_rect_int_stl, test_pipeline_run) {
-  std::size_t iterations = 480;
-  std::vector<std::pair<double, double>> bounds(3, {-1.0, 1.0});
+  std::size_t iterations = 475;
+  std::vector<std::pair<double, double>> bounds(3, {-3.0, 3.0});
   double out = 0.0;
 
   auto task_data_stl = std::make_shared<ppc::core::TaskData>();
@@ -25,11 +25,9 @@ TEST(muradov_m_rect_int_stl, test_pipeline_run) {
   task_data_stl->outputs.emplace_back(reinterpret_cast<uint8_t *>(&out));
   task_data_stl->outputs_count.emplace_back(1);
 
-  // Create Task
   auto test_task_stluential = std::make_shared<muradov_m_rect_int_stl::RectIntTaskSTLPar>(
       task_data_stl, [](const auto &args) { return (args[0] * args[1]) + std::pow(args[1], 2); });
 
-  // Create Perf attributes
   auto perf_attr = std::make_shared<ppc::core::PerfAttr>();
   perf_attr->num_running = 10;
   const auto t0 = std::chrono::high_resolution_clock::now();
@@ -39,18 +37,18 @@ TEST(muradov_m_rect_int_stl, test_pipeline_run) {
     return static_cast<double>(duration) * 1e-9;
   };
 
-  // Create and init perf results
   auto perf_results = std::make_shared<ppc::core::PerfResults>();
 
-  // Create Perf analyzer
   auto perf_analyzer = std::make_shared<ppc::core::Perf>(test_task_stluential);
   perf_analyzer->PipelineRun(perf_attr, perf_results);
   ppc::core::Perf::PrintPerfStatistic(perf_results);
+
+  EXPECT_NEAR(out, 648, 0.3);
 }
 
 TEST(muradov_m_rect_int_stl, test_task_run) {
-  std::size_t iterations = 480;
-  std::vector<std::pair<double, double>> bounds(3, {-1.0, 1.0});
+  std::size_t iterations = 475;
+  std::vector<std::pair<double, double>> bounds(3, {-3.0, 3.0});
   double out = 0.0;
 
   auto task_data_stl = std::make_shared<ppc::core::TaskData>();
@@ -82,4 +80,6 @@ TEST(muradov_m_rect_int_stl, test_task_run) {
   auto perf_analyzer = std::make_shared<ppc::core::Perf>(test_task_stluential);
   perf_analyzer->TaskRun(perf_attr, perf_results);
   ppc::core::Perf::PrintPerfStatistic(perf_results);
+
+  EXPECT_NEAR(out, 648, 0.3);
 }

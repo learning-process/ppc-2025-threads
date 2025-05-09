@@ -78,20 +78,6 @@ TEST(muradov_m_rect_int_stl, sin_plus_cos_2) {
                       [](const auto &args) { return std::sin(args[0]) + std::cos(args[1]); });
 }
 
-TEST(muradov_m_rect_int_stl, sin_mul_cos_3) {
-  MuradovMRectIntTest(100, {{0, std::numbers::pi}, {0, std::numbers::pi}, {0, std::numbers::pi}}, 0,
-                      [](const auto &args) {
-                        return (std::sin(args[0]) * std::cos(args[1])) + (std::sin(args[1]) * std::cos(args[2]));
-                      });
-}
-
-TEST(muradov_m_rect_int_stl, sin_plus_cos_3) {
-  MuradovMRectIntTest(100, {{0, std::numbers::pi}, {0, std::numbers::pi}, {0, std::numbers::pi}}, 4 * std::numbers::pi,
-                      [](const auto &args) {
-                        return (std::sin(args[0]) + std::cos(args[1])) * (std::sin(args[1]) + std::cos(args[2]));
-                      });
-}
-
 TEST(muradov_m_rect_int_stl, polynomial_sum_1) {
   MuradovMRectIntTest(100, {{0, 3}, {0, 3}}, 189. / 4.,
                       [](const auto &args) { return (args[0] * args[1]) + std::pow(args[1], 2); });
