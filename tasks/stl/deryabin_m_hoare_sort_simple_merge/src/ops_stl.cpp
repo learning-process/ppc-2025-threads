@@ -129,7 +129,7 @@ bool deryabin_m_hoare_sort_simple_merge_stl::HoareSortTaskSTL::RunImpl() {
     parallel_for(0, chunks_per_step, [this, i](size_t j) {
       const size_t left = j * (min_chunk_size_ << (i + 1));
       const size_t right = ((j + 1) * (min_chunk_size_ << (i + 1))) - 1;
-      MergeTwoParts(input_array_A_, left, right, dimension_);
+      MergeTwoParts(input_array_A_, left, right);
     });
   }
   return true;
