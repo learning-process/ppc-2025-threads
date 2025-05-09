@@ -10,59 +10,42 @@
 #include "core/util/include/util.hpp"
 
 void deryabin_m_hoare_sort_simple_merge_stl::HoaraSort(std::vector<double>& a, size_t first, size_t last) {
-  if (first >= last) {
-    return;
+  std::stack<std::pair<size_t, size_t>> stack;
+  stack.push({first, last});
+  while (!stack.empty()) {
+    auto [first, last] = stack.top();
+    stack.pop();
+    if (first >= last) {
+      continue;
+    }
+    size_t i = first;
+    size_t j = last;
+    double tmp = 0;
+    double x =
+        std::max(std::min(a[first], a[(first + last) / 2]),
+                 std::min(std::max(a[first], a[(first + last) / 2]),
+                          a[last]));
+    do {
+      while (a[i] < x) {
+        i++;
+      }
+      while (a[j] > x) {
+        j--;
+      }
+      if (i < j && a[i] > a[j]) {
+        tmp = a[i];
+        a[i] = a[j];
+        a[j] = tmp;
+      }
+    } while (i < j);
+    stack.push({i + 1, last});
+    stack.push({first, j});
   }
-  size_t i = first;
-  size_t j = last;
-  double tmp = 0;
-  double x =
-      std::max(std::min(a[first], a[(first + last) / 2]),
-               std::min(std::max(a[first], a[(first + last) / 2]),
-                        a[last]));  // Выбор опорного элемента как медианы первого, среднего и последнего элементов
-  do {
-    while (a[i] < x) {
-      i++;
-    }
-    while (a[j] > x) {
-      j--;
-    }
-    if (i < j && a[i] > a[j]) {
-      tmp = a[i];
-      a[i] = a[j];
-      a[j] = tmp;
-    }
-  } while (i < j);
-  HoaraSort(a, i + 1, last);
-  HoaraSort(a, first, j);
 }
 
-void deryabin_m_hoare_sort_simple_merge_stl::MergeTwoParts(std::vector<double>& a, size_t left, size_t right,
-                                                           size_t dimension) {
-  size_t middle = (right - left) / 2;
-  size_t l_cur = 0;
-  size_t r_cur = 0;
-  std::vector<double> l_buff(middle + 1);
-  std::vector<double> r_buff(middle + 1);
-  std::copy(a.begin() + (long)left, a.begin() + (long)left + (long)middle + 1, l_buff.begin());
-  std::copy(a.begin() + (long)left + (long)middle + 1, a.begin() + (long)right + 1, r_buff.begin());
-  for (size_t i = left; i <= right; i++) {
-    if (l_cur <= middle && r_cur <= middle) {
-      if (l_buff[l_cur] < r_buff[r_cur]) {
-        a[i] = l_buff[l_cur];
-        l_cur++;
-      } else {
-        a[i] = r_buff[r_cur];
-        r_cur++;
-      }
-    } else if (l_cur <= middle) {
-      a[i] = l_buff[l_cur];
-      l_cur++;
-    } else {
-      a[i] = r_buff[r_cur];
-      r_cur++;
-    }
-  }
+void MergeTwoParts(std::vector<double>& arr, size_t left, size_t right) {
+    size_t mid = left + (right - left) / 2;
+    std::inplace_merge(arr.begin() + left, arr.begin() + mid + 1, arr.begin() + right + 1);
 }
 
 bool deryabin_m_hoare_sort_simple_merge_stl::HoareSortTaskSequential::PreProcessingImpl() {
@@ -117,21 +100,24 @@ bool deryabin_m_hoare_sort_simple_merge_stl::HoareSortTaskSTL::ValidationImpl() 
 
 bool deryabin_m_hoare_sort_simple_merge_stl::HoareSortTaskSTL::RunImpl() {
   const size_t num_threads = ppc::util::GetPPCNumThreads();
-  auto parallel_for = [num_threads](size_t start, size_t end, auto&& func) {
-    std::vector<std::thread> threads;
+  std::vector<std::thread> workers;
+  auto parallel_for = [&workers, num_threads](size_t start, size_t end, std::function<void(size_t)> func) {
+    workers.reserve(num_threads);
     const size_t total = end - start;
-    const size_t base_chunk = total / num_threads;
-    const size_t remainder = total % num_threads;
+    const size_t chunk_size = std::max<size_t>(1, total / num_threads);
     for (size_t i = 0; i < num_threads; ++i) {
-      const size_t chunk_start = start + i * base_chunk + std::min(i, remainder);
-      const size_t chunk_end = chunk_start + base_chunk + (i < remainder ? 1 : 0);
-      threads.emplace_back([=, &func] {
+      const size_t chunk_start = start + i * chunk_size;
+      const size_t chunk_end = (i == num_threads - 1) ? end : chunk_start + chunk_size;
+      workers.emplace_back([=, &func] {
         for (size_t j = chunk_start; j < chunk_end; ++j) {
           func(j);
         }
       });
     }
-    for (auto& t : threads) t.join();
+    for (auto& worker : workers) {
+      worker.join();
+    }
+    workers.clear();
   };
   parallel_for(0, chunk_count_, [this](size_t count) {
     HoaraSort(input_array_A_, count * min_chunk_size_, ((count + 1) * min_chunk_size_) - 1);
