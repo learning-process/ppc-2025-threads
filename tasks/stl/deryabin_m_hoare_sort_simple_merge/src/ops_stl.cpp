@@ -11,20 +11,20 @@
 
 #include "core/util/include/util.hpp"
 
-void deryabin_m_hoare_sort_simple_merge_stl::HoaraSort(std::vector<double>& a, size_t first, size_t last) {
+void deryabin_m_hoare_sort_simple_merge_stl::HoaraSort(std::vector<double>& a, size_t first_, size_t last_) {
   std::stack<std::pair<size_t, size_t>> stack;
-  stack.push({first, last});
+  stack.push({first_, last_});
   while (!stack.empty()) {
-    auto [first, last] = stack.top();
+    auto [first_, last_] = stack.top();
     stack.pop();
-    if (first >= last) {
+    if (first_ >= last_) {
       continue;
     }
-    size_t i = first;
-    size_t j = last;
+    size_t i = first_;
+    size_t j = last_;
     double tmp = 0;
-    double x = std::max(std::min(a[first], a[(first + last) / 2]),
-                        std::min(std::max(a[first], a[(first + last) / 2]), a[last]));
+    double x = std::max(std::min(a[first_], a[(first_ + last_) / 2]),
+                        std::min(std::max(a[first_], a[(first_ + last_) / 2]), a[last_]));
     do {
       while (a[i] < x) {
         i++;
@@ -38,8 +38,8 @@ void deryabin_m_hoare_sort_simple_merge_stl::HoaraSort(std::vector<double>& a, s
         a[j] = tmp;
       }
     } while (i < j);
-    stack.push({i + 1, last});
-    stack.push({first, j});
+    stack.push({i + 1, last_});
+    stack.push({first_, j});
   }
 }
 
@@ -134,7 +134,6 @@ bool deryabin_m_hoare_sort_simple_merge_stl::HoareSortTaskSTL::RunImpl() {
   }
   return true;
 }
-
 bool deryabin_m_hoare_sort_simple_merge_stl::HoareSortTaskSTL::PostProcessingImpl() {
   reinterpret_cast<std::vector<double>*>(task_data->outputs[0])[0] = input_array_A_;
   return true;
