@@ -103,12 +103,10 @@ bool deryabin_m_hoare_sort_simple_merge_stl::HoareSortTaskSTL::RunImpl() {
     }
   };
 
-  // 1. Параллельная сортировка чанков
   parallel_for(0, chunk_count_, [this](int count) {
     HoaraSort(input_array_A_, count * min_chunk_size_, ((count + 1) * min_chunk_size_) - 1);
   });
 
-  // 2. Параллельное слияние
   const int merge_steps = static_cast<int>(std::log2(chunk_count_));
   for (int i = 0; i < merge_steps; ++i) {
     const int chunks_per_step = chunk_count_ >> (i + 1);
