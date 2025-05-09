@@ -95,9 +95,9 @@ bool deryabin_m_hoare_sort_simple_merge_stl::HoareSortTaskSTL::RunImpl() {
       threads.emplace_back([=, &func] {
         for (int j = chunk_start; j < chunk_end; ++j) {
           func(j);
-        }      
+      }      
       });
-     }
+    }
     for (auto& t : threads) {
       t.join();
     }
