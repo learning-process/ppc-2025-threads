@@ -2,7 +2,7 @@
 
 #include <algorithm>
 #include <cmath>
-#include <iostream>
+#include <thread>
 #include <vector>
 
 #include "core/util/include/util.hpp"
@@ -14,35 +14,37 @@ void FoxBlockMul(const std::vector<double>& a, const std::vector<double>& b, std
     for (int bj = C_start_col_idx; bj < std::min(C_start_col_idx + block_size, n); ++bj) {
       double sum = 0.0;
       for (int bk = AB_common_dim_start_idx; bk < std::min(AB_common_dim_start_idx + block_size, n); ++bk) {
-        if ((bi * n + bk < a.size()) && (bk * n + bj < b.size())) {
-          sum += a[(bi * n) + bk] * b[(bk * n) + bj];
+        if (static_cast<std::vector<double>::size_type>(bi * n + bk) < a.size() &&
+            static_cast<std::vector<double>::size_type>(bk * n + bj) < b.size()) {
+          sum += a[static_cast<std::vector<double>::size_type>(bi * n + bk)] *
+                 b[static_cast<std::vector<double>::size_type>(bk * n + bj)];
         }
       }
-      if (bi * n + bj < c.size()) {
-        c[(bi * n) + bj] += sum;
+      if (static_cast<std::vector<double>::size_type>(bi * n + bj) < c.size()) {
+        c[static_cast<std::vector<double>::size_type>(bi * n + bj)] += sum;
       }
     }
   }
 }
-
 }  // namespace
 
 namespace gromov_a_fox_algorithm_stl {
 
 bool TestTaskSTL::PreProcessingImpl() {
-  if (task_data->inputs_count.empty() || task_data->inputs.empty() || task_data->inputs_count[0] == 0) {
-    if (!task_data->inputs_count.empty() && task_data->inputs_count[0] == 0) {
-      if (task_data->outputs_count.empty() || task_data->outputs_count[0] != 0) {
-        return false;
-      }
-      n_ = 0;
-      block_size_ = 0;
-      A_.clear();
-      B_.clear();
-      output_.clear();
-      return true;
-    }
+  if (task_data->inputs_count.empty() || task_data->inputs.empty()) {
     return false;
+  }
+
+  if (task_data->inputs_count[0] == 0) {
+    if (task_data->outputs_count.empty() || task_data->outputs_count[0] != 0) {
+      return false;
+    }
+    n_ = 0;
+    block_size_ = 0;
+    A_.clear();
+    B_.clear();
+    output_.clear();
+    return true;
   }
 
   unsigned int total_input_elements = task_data->inputs_count[0];
@@ -51,6 +53,9 @@ bool TestTaskSTL::PreProcessingImpl() {
   }
 
   unsigned int elements_per_matrix = total_input_elements / 2;
+  if (elements_per_matrix == 0) {  // Should not happen if total_input_elements > 0
+    return false;
+  }
 
   if (task_data->outputs_count.empty() || task_data->outputs.empty() ||
       task_data->outputs_count[0] != elements_per_matrix) {
@@ -62,17 +67,22 @@ bool TestTaskSTL::PreProcessingImpl() {
   B_.assign(in_ptr + elements_per_matrix, in_ptr + total_input_elements);
   output_.assign(elements_per_matrix, 0.0);
 
-  n_ = static_cast<int>(std::sqrt(elements_per_matrix));
-  if (n_ * n_ != static_cast<int>(elements_per_matrix)) {
-    return false;
+  double sqrt_elements = std::sqrt(static_cast<double>(elements_per_matrix));
+  n_ = static_cast<int>(sqrt_elements);
+
+  if (static_cast<double>(n_ * n_) != static_cast<double>(elements_per_matrix) || n_ <= 0) {
+    if (elements_per_matrix == 0 && n_ == 0) { /* ok for 0x0 */
+    } else
+      return false;
   }
+  if (n_ == 0 && elements_per_matrix > 0) return false;
 
   if (n_ == 0) {
     block_size_ = 0;
     return true;
   }
 
-  int optimal_block_size_sqrt = static_cast<int>(std::sqrt(n_));
+  int optimal_block_size_sqrt = static_cast<int>(std::sqrt(static_cast<double>(n_)));
   if (optimal_block_size_sqrt == 0) optimal_block_size_sqrt = 1;
 
   block_size_ = 1;
@@ -91,7 +101,6 @@ bool TestTaskSTL::PreProcessingImpl() {
       break;
     }
   }
-
   return block_size_ > 0;
 }
 
@@ -110,12 +119,21 @@ bool TestTaskSTL::ValidationImpl() {
     return false;
   }
   unsigned int matrix_size = input_size / 2;
-  auto sqrt_matrix_size = static_cast<unsigned int>(std::sqrt(matrix_size));
+  if (matrix_size == 0) {
+    return task_data->outputs_count[0] == 0;
+  }
 
-  return matrix_size == task_data->outputs_count[0] && sqrt_matrix_size * sqrt_matrix_size == matrix_size;
+  auto sqrt_matrix_size_double = std::sqrt(static_cast<double>(matrix_size));
+  auto sqrt_matrix_size_uint = static_cast<unsigned int>(sqrt_matrix_size_double);
+
+  return matrix_size == task_data->outputs_count[0] && sqrt_matrix_size_uint * sqrt_matrix_size_uint == matrix_size;
 }
 
 void TestTaskSTL::WorkerFunction(int start_block_idx, int end_block_idx, int num_blocks_dim) {
+  if (n_ == 0 || block_size_ == 0 || (num_blocks_dim == 0 && n_ > 0)) {
+    return;
+  }
+
   for (int linear_idx = start_block_idx; linear_idx < end_block_idx; ++linear_idx) {
     int block_row_C = linear_idx / num_blocks_dim;
     int block_col_C = linear_idx % num_blocks_dim;
@@ -134,17 +152,17 @@ bool TestTaskSTL::RunImpl() {
   if (n_ == 0) {
     return true;
   }
-  if (block_size_ == 0 && n_ > 0) {
+  if (block_size_ == 0) {
     return false;
   }
 
   const int num_blocks_dim = (n_ + block_size_ - 1) / block_size_;
-  const int total_C_blocks_to_compute = num_blocks_dim * num_blocks_dim;
-
-  if (total_C_blocks_to_compute == 0 && n_ > 0) {
+  if (num_blocks_dim == 0 && n_ > 0) {
     return false;
   }
-  if (total_C_blocks_to_compute == 0 && n_ == 0) {
+  const int total_C_blocks_to_compute = num_blocks_dim * num_blocks_dim;
+
+  if (total_C_blocks_to_compute == 0) {  // Covers n_ == 0 as well
     return true;
   }
 
@@ -154,7 +172,7 @@ bool TestTaskSTL::RunImpl() {
   }
 
   num_threads_to_use = std::min(num_threads_to_use, total_C_blocks_to_compute);
-  if (num_threads_to_use == 0 && total_C_blocks_to_compute > 0) num_threads_to_use = 1;
+  if (num_threads_to_use == 0) num_threads_to_use = 1;
 
   std::vector<std::thread> threads;
   threads.reserve(num_threads_to_use);
@@ -178,7 +196,6 @@ bool TestTaskSTL::RunImpl() {
       th.join();
     }
   }
-
   return true;
 }
 
@@ -188,10 +205,10 @@ bool TestTaskSTL::PostProcessingImpl() {
   }
 
   if (n_ == 0) {
-    return task_data->outputs_count[0] == 0;
+    return task_data->outputs_count[0] == 0 && output_.empty();
   }
 
-  if (output_.size() != task_data->outputs_count[0]) {
+  if (output_.size() != task_data->outputs_count[0] || (output_.empty() && n_ != 0)) {
     return false;
   }
 
