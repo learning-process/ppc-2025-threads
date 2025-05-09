@@ -5,6 +5,7 @@
 #include <future>
 #include <limits>
 #include <ranges>
+#include <thread>
 #include <vector>
 
 #include "core/util/include/util.hpp"
@@ -141,7 +142,7 @@ void volochaev_s_shell_sort_with_batchers_even_odd_merge_stl::ShellSortSTL::Para
 }
 
 void volochaev_s_shell_sort_with_batchers_even_odd_merge_stl::ShellSortSTL::FindThreadVariables() {
-  auto max_threads = static_cast<unsigned int>(ppc::util::GetPPCNumThreads());
+  auto max_threads = std::min(static_cast<unsigned int>(ppc::util::GetPPCNumThreads()), std::thread::hardware_concurrency());
   c_threads_ = static_cast<int>(std::pow(2, std::floor(std::log2(max_threads))));
   n_ = size_ + (((2 * c_threads_) - size_ % (2 * c_threads_))) % (2 * c_threads_);
   mass_.resize(n_, std::numeric_limits<int>::max());
