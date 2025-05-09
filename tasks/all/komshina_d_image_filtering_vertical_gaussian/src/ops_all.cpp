@@ -1,9 +1,9 @@
+#include "all/komshina_d_image_filtering_vertical_gaussian/include/ops_all.hpp"
+
 #include <algorithm>
 #include <cmath>
 #include <cstddef>
 #include <vector>
-
-#include "all/komshina_d_image_filtering_vertical_gaussian/include/ops_all.hpp"
 
 bool komshina_d_image_filtering_vertical_gaussian_all::TestTaskALL::PreProcessingImpl() {
   width_ = task_data->inputs_count[0];
@@ -95,7 +95,7 @@ bool komshina_d_image_filtering_vertical_gaussian_all::TestTaskALL::RunImpl() {
 
       std::vector<unsigned char> temp(chunk_size);
       world_.recv(src, 0, temp);
-      std::copy(temp.begin(), temp.end(), output_.begin() + src_start * width_ * 3);
+      std::ranges::copy(temp, output_.begin() + static_cast<std::ptrdiff_t>(src_start * width_ * 3));
     }
   } else {
     world_.send(0, 0, local_output);

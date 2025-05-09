@@ -8,8 +8,8 @@
 #include <random>
 #include <vector>
 
-#include "core/task/include/task.hpp"
 #include "all/komshina_d_image_filtering_vertical_gaussian/include/ops_all.hpp"
+#include "core/task/include/task.hpp"
 
 TEST(komshina_d_image_filtering_vertical_gaussian_all, SinglePixelImage) {
   std::size_t width = 1;
