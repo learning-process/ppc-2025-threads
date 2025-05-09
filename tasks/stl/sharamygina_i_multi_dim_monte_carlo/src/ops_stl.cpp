@@ -33,7 +33,7 @@ bool sharamygina_i_multi_dim_monte_carlo_stl::MultiDimMonteCarloTask::Validation
 bool sharamygina_i_multi_dim_monte_carlo_stl::MultiDimMonteCarloTask::RunImpl() {
   size_t dimension = boundaries_.size() / 2;
 
-  const int num_threads = static_cast<int>(std::thread::hardware_concurrency());
+  const int num_threads = ppc::util::GetPPCNumThreads();
   std::vector<std::future<double>> futures;
 
   int iterations_per_thread = number_of_iterations_ / num_threads;
