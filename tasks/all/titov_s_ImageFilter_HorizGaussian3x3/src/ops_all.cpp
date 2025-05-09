@@ -1,8 +1,7 @@
 #include "all/titov_s_ImageFilter_HorizGaussian3x3/include/ops_all.hpp"
 
-#include <mpi.h>
-
 #include <algorithm>
+#include <ranges>
 #include <cmath>
 #include <cstddef>
 #include <thread>
@@ -134,7 +133,7 @@ bool titov_s_image_filter_horiz_gaussian3x3_all::GaussianFilterALL::RunImpl() {
     return false;
   }
 
-  MPI_Barrier(MPI_COMM_WORLD);
+  world_.barrier();
   return true;
 }
 
