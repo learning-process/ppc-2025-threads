@@ -11,9 +11,9 @@
 
 #include "core/util/include/util.hpp"
 
-void deryabin_m_hoare_sort_simple_merge_stl::HoaraSort(std::vector<double>& a, size_t first_, size_t last_) {
+void deryabin_m_hoare_sort_simple_merge_stl::HoaraSort(std::vector<double>& a, size_t first, size_t last) {
   std::stack<std::pair<size_t, size_t>> stack;
-  stack.push({first_, last_});
+  stack.push({first, last});
   while (!stack.empty()) {
     auto [first_, last_] = stack.top();
     stack.pop();
