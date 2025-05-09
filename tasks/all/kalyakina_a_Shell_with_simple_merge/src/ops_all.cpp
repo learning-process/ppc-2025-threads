@@ -71,7 +71,7 @@ bool kalyakina_a_shell_with_simple_merge_all::ShellSortALL::PreProcessingImpl() 
   if (world_.rank() == 0) {
     input_ = std::vector<int>(task_data->inputs_count[0]);
     auto *in_ptr = reinterpret_cast<int *>(task_data->inputs[0]);
-    std::copy(in_ptr, in_ptr + task_data->inputs_count[0], input_.begin());
+    std::ranges::copy(in_ptr, in_ptr + task_data->inputs_count[0], input_.begin());
 
     output_ = std::vector<int>(task_data->inputs_count[0]);
   }
