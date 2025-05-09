@@ -9,8 +9,6 @@
 
 #include "core/util/include/util.hpp"
 
-using namespace std::chrono_literals;
-
 bool solovyev_d_shell_sort_simple_stl::TaskSTL::PreProcessingImpl() {
   size_t input_size = task_data->inputs_count[0];
   auto *in_ptr = reinterpret_cast<int *>(task_data->inputs[0]);
@@ -26,7 +24,7 @@ bool solovyev_d_shell_sort_simple_stl::TaskSTL::ValidationImpl() {
 void solovyev_d_shell_sort_simple_stl::TaskSTL::ThreadWorker(int t) {
   int local_gap = 0;
   while (true) {
-    std::this_thread::sleep_for(0.01ms);
+    std::this_thread::sleep_for(std::chrono::duration<double, std::milli>(0.01));
     std::unique_lock lock(m_);
     cv_.wait(lock, [&] { return local_gap != gap_ || done_; });
     if (done_) {
