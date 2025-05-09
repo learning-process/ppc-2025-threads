@@ -52,6 +52,8 @@ TEST(kazunin_n_montecarlo_stl, test_pipeline_run) {
   auto perf_analyzer = std::make_shared<ppc::core::Perf>(test_task);
   perf_analyzer->PipelineRun(perf_attr, perf_results);
   ppc::core::Perf::PrintPerfStatistic(perf_results);
+
+  EXPECT_NEAR(out, 4.539, 0.05);
 }
 
 TEST(kazunin_n_montecarlo_stl, test_task_run) {
@@ -88,4 +90,6 @@ TEST(kazunin_n_montecarlo_stl, test_task_run) {
   auto perf_analyzer = std::make_shared<ppc::core::Perf>(test_task);
   perf_analyzer->TaskRun(perf_attr, perf_results);
   ppc::core::Perf::PrintPerfStatistic(perf_results);
+
+  EXPECT_NEAR(out, 4.539, 0.05);
 }
