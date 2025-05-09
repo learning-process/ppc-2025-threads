@@ -1,9 +1,9 @@
 #include "stl/solovyev_d_shell_sort_simple/include/ops_stl.hpp"
 
-#include <chrono>
+#include <barrier>
 #include <cmath>
 #include <cstddef>
-#include <mutex>
+#include <iostream>
 #include <thread>
 #include <vector>
 
@@ -21,52 +21,29 @@ bool solovyev_d_shell_sort_simple_stl::TaskSTL::ValidationImpl() {
   return task_data->inputs_count[0] == task_data->outputs_count[0];
 }
 
-void solovyev_d_shell_sort_simple_stl::TaskSTL::ThreadWorker(int t) {
-  int local_gap = 0;
-  while (true) {
-    std::this_thread::sleep_for(std::chrono::duration<double, std::milli>(0.01));
-    std::unique_lock lock(m_);
-    cv_.wait(lock, [&] { return local_gap != gap_ || done_; });
-    if (done_) {
-      return;
-    }
-    local_gap = gap_;
-    lock.unlock();
-    for (int i = t; i < local_gap; i += num_threads_) {
-      for (size_t f = i + local_gap; f < input_.size(); f += local_gap) {
-        int val = input_[f];
-        size_t j = f;
-        while (j >= static_cast<size_t>(local_gap) && input_[j - local_gap] > val) {
-          input_[j] = input_[j - local_gap];
-          j -= local_gap;
-        }
-        input_[j] = val;
-      }
-    }
-    if (++threads_completed_ == num_threads_) {
-      cv_done_.notify_one();
-    }
-  }
-}
-
 bool solovyev_d_shell_sort_simple_stl::TaskSTL::RunImpl() {
   num_threads_ = ppc::util::GetPPCNumThreads();
+  std::barrier sync_point(num_threads_);
+
   std::vector<std::thread> threads(num_threads_);
   for (int t = 0; t < num_threads_; ++t) {
-    threads[t] = std::thread(&TaskSTL::ThreadWorker, this, t);
-    done_ = false;
+    threads[t] = std::thread([&,t] {
+      for (int gap_ = static_cast<int>(input_.size()) / 2; gap_ > 0; gap_ /= 2) {
+        sync_point.arrive_and_wait();
+        for (int i = t; i < gap_; i += num_threads_) {
+          for (size_t f = i + gap_; f < input_.size(); f += gap_) {
+            int val = input_[f];
+            size_t j = f;
+            while (j >= static_cast<size_t>(gap_) && input_[j - gap_] > val) {
+              input_[j] = input_[j - gap_];
+              j -= gap_;
+            }
+            input_[j] = val;
+          }
+        }
+      }
+    });
   }
-  for (gap_ = static_cast<int>(input_.size()) / 2; gap_ > 0; gap_ /= 2) {
-    cv_.notify_all();
-    std::unique_lock lock(m_);
-    cv_done_.wait(lock, [&] { return threads_completed_ == num_threads_; });
-    threads_completed_ = 0;
-  }
-  {
-    std::lock_guard<std::mutex> lock(m_);
-    done_ = true;
-  }
-  cv_.notify_all();
   for (auto &th : threads) {
     if (th.joinable()) {
       th.join();
