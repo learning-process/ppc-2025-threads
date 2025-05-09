@@ -32,9 +32,8 @@ std::vector<uint8_t> GenerateRandomImage(int height, int width) {
 
 #ifndef _WIN32
 TEST(makhov_m_linear_image_filtering_vertical_seq, test_opencv_image_validation) {
-  cv::Mat input_image =
-      cv::imread(ppc::util::GetAbsolutePath("seq/makhov_m_linear_image_filtering_vertical/data/10x10_orig.jpg"),
-                 cv::IMREAD_COLOR);
+  cv::Mat input_image = cv::imread(
+      ppc::util::GetAbsolutePath("seq/makhov_m_linear_image_filtering_vertical/data/10x10_orig.jpg"), cv::IMREAD_COLOR);
   ASSERT_FALSE(input_image.empty());
 }
 
@@ -42,32 +41,31 @@ TEST(makhov_m_linear_image_filtering_vertical_seq, test_opencv_10x10_image) {
   int width = 10;
   int height = 10;
 
-  cv::Mat input_image =
-      cv::imread(ppc::util::GetAbsolutePath("seq/makhov_m_linear_image_filtering_vertical/data/10x10_orig.jpg"),
-                 cv::IMREAD_COLOR);
+  cv::Mat input_image = cv::imread(
+      ppc::util::GetAbsolutePath("seq/makhov_m_linear_image_filtering_vertical/data/10x10_orig.jpg"), cv::IMREAD_COLOR);
 
   cv::Mat reference_image =
       cv::imread(ppc::util::GetAbsolutePath("seq/makhov_m_linear_image_filtering_vertical/data/10x10_redacted.jpg"),
                  cv::IMREAD_COLOR);
 
-    cv::cvtColor(input_image, input_image, cv::COLOR_BGR2RGB);
-    cv::cvtColor(reference_image, reference_image, cv::COLOR_BGR2RGB);
+  cv::cvtColor(input_image, input_image, cv::COLOR_BGR2RGB);
+  cv::cvtColor(reference_image, reference_image, cv::COLOR_BGR2RGB);
 
-    std::vector<uint8_t> input_vector;
-    std::vector<uint8_t> output_vector;
-    std::vector<uint8_t> expected_output_vector;
+  std::vector<uint8_t> input_vector;
+  std::vector<uint8_t> output_vector;
+  std::vector<uint8_t> expected_output_vector;
 
-    if (input_image.type() == CV_8UC3) {
-        input_vector.assign(input_image.data, input_image.data + input_image.total() * 3);
-        output_vector.assign(input_image.data, input_image.data + input_image.total() * 3);
-    } else {
-        std::cerr << "Format error" << std::endl;
-    }
-
-    if (reference_image.type() == CV_8UC3) {
-      expected_output_vector.assign(reference_image.data, reference_image.data + reference_image.total() * 3);
+  if (input_image.type() == CV_8UC3) {
+    input_vector.assign(input_image.data, input_image.data + input_image.total() * 3);
+    output_vector.assign(input_image.data, input_image.data + input_image.total() * 3);
   } else {
-      std::cerr << "Format error" << std::endl;
+    std::cerr << "Format error" << std::endl;
+  }
+
+  if (reference_image.type() == CV_8UC3) {
+    expected_output_vector.assign(reference_image.data, reference_image.data + reference_image.total() * 3);
+  } else {
+    std::cerr << "Format error" << std::endl;
   }
 
   auto task_data_seq = std::make_shared<ppc::core::TaskData>();
