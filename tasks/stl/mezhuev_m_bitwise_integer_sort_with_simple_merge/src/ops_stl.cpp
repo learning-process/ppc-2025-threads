@@ -3,7 +3,9 @@
 #include <algorithm>
 #include <cmath>
 #include <cstddef>
+#include <ranges>
 #include <thread>
+#include <utility>
 #include <vector>
 
 namespace mezhuev_m_bitwise_integer_sort_stl {
@@ -33,7 +35,7 @@ void RadixSort(std::vector<int>& data, int exp) {
     count[i] += count[i - 1];
   }
 
-  for (int i = data.size() - 1; i >= 0; --i) {
+  for (size_t i = data.size() - 1; i != size_t(-1); --i) {
     int digit = (data[i] / exp) % 10;
     output[--count[digit]] = data[i];
   }
@@ -48,7 +50,6 @@ void ProcessNumbers(std::vector<int>& numbers, int max_value) {
     exp *= 10;
   }
 }
-
 }  // namespace
 
 bool SortSTL::PreProcessingImpl() {
@@ -60,7 +61,7 @@ bool SortSTL::PreProcessingImpl() {
 
   if (input_.empty()) return true;
 
-  max_value_ = *std::max_element(input_.begin(), input_.end(), [](int a, int b) { return std::abs(a) < std::abs(b); });
+  max_value_ = *std::ranges::max_element(input_, [](int a, int b) { return std::abs(a) < std::abs(b); });
   max_value_ = std::abs(max_value_);
 
   return true;
@@ -74,23 +75,24 @@ bool SortSTL::RunImpl() {
     return true;
   }
 
-  std::vector<int> negative, positive;
+  std::vector<int> negative;
+  std::vector<int> positive;
   SeparateNumbers(input_, negative, positive);
 
   auto sort_in_threads = [&](std::vector<int>& numbers) {
-    int num_threads = std::thread::hardware_concurrency();
+    size_t num_threads = std::thread::hardware_concurrency();
     if (num_threads == 0) num_threads = 4;
 
     size_t chunk_size = numbers.size() / num_threads;
     std::vector<std::thread> threads;
 
-    for (int i = 0; i < num_threads; ++i) {
+    for (size_t i = 0; i < num_threads; ++i) {
       size_t start = i * chunk_size;
       size_t end = (i == num_threads - 1) ? numbers.size() : start + chunk_size;
       threads.emplace_back([&, start, end]() {
         std::vector<int> chunk(numbers.begin() + start, numbers.begin() + end);
         ProcessNumbers(chunk, max_value_);
-        std::copy(chunk.begin(), chunk.end(), numbers.begin() + start);
+        std::ranges::copy(chunk.begin(), chunk.end(), numbers.begin() + start);
       });
     }
 
@@ -98,13 +100,13 @@ bool SortSTL::RunImpl() {
       thread.join();
     }
 
-    std::sort(numbers.begin(), numbers.end());
+    std::ranges::sort(numbers);
   };
 
   sort_in_threads(positive);
   sort_in_threads(negative);
 
-  std::reverse(negative.begin(), negative.end());
+  std::ranges::reverse(negative);
   for (int& num : negative) num = -num;
 
   output_.clear();
@@ -118,7 +120,7 @@ bool SortSTL::PostProcessingImpl() {
   if (input_.empty()) return true;
 
   auto* out_ptr = reinterpret_cast<int*>(task_data->outputs[0]);
-  std::copy(output_.begin(), output_.end(), out_ptr);
+  std::ranges::copy(output_.begin(), output_.end(), out_ptr);
 
   return true;
 }
