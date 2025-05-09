@@ -10,8 +10,9 @@
 #include <cmath>
 #include <cstddef>
 #include <iterator>
-#include <numeric>
 #include <random>
+#include <ranges>
+#include <span>
 #include <vector>
 
 #include "core/util/include/util.hpp"
