@@ -33,7 +33,7 @@ bool solovyev_d_shell_sort_simple_stl::TaskSTL::RunImpl() {
           for (size_t f = i + gap; f < input_.size(); f += gap) {
             int val = input_[f];
             size_t j = f;
-            while (j >= static_cast<size_t>(gap_) && input_[j - gap] > val) {
+            while (j >= static_cast<size_t>(gap) && input_[j - gap] > val) {
               input_[j] = input_[j - gap];
               j -= gap;
             }
