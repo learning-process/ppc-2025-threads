@@ -13,8 +13,8 @@
 #include "omp/muradov_m_rect_int/include/ops_omp.hpp"
 
 TEST(muradov_m_rect_int_omp, test_pipeline_run) {
-  std::size_t iterations = 480;
-  std::vector<std::pair<double, double>> bounds(3, {-1.0, 1.0});
+  std::size_t iterations = 475;
+  std::vector<std::pair<double, double>> bounds(3, {-3.0, 3.0});
   double out = 0.0;
 
   auto task_data_omp = std::make_shared<ppc::core::TaskData>();
@@ -43,12 +43,12 @@ TEST(muradov_m_rect_int_omp, test_pipeline_run) {
   perf_analyzer->PipelineRun(perf_attr, perf_results);
   ppc::core::Perf::PrintPerfStatistic(perf_results);
 
-  EXPECT_NEAR(out, 2.6, 0.3);
+  EXPECT_NEAR(out, 648, 0.3);
 }
 
 TEST(muradov_m_rect_int_omp, test_task_run) {
-  std::size_t iterations = 480;
-  std::vector<std::pair<double, double>> bounds(3, {-1.0, 1.0});
+  std::size_t iterations = 475;
+  std::vector<std::pair<double, double>> bounds(3, {-3.0, 3.0});
   double out = 0.0;
 
   auto task_data_omp = std::make_shared<ppc::core::TaskData>();
@@ -81,5 +81,5 @@ TEST(muradov_m_rect_int_omp, test_task_run) {
   perf_analyzer->TaskRun(perf_attr, perf_results);
   ppc::core::Perf::PrintPerfStatistic(perf_results);
 
-  EXPECT_NEAR(out, 2.6, 0.3);
+  EXPECT_NEAR(out, 648, 0.3);
 }
