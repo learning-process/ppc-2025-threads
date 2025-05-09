@@ -55,22 +55,12 @@ double IntegralsSimpsonSTL::RecursiveSimpsonSum(int dim_index, std::vector<int>&
     double coeff = 1.0;
     std::vector<double> coords(dimension_);
     for (int d = 0; d < dimension_; ++d) {
-      if (d < 0 || static_cast<size_t>(d) >= idx.size() || static_cast<size_t>(d) >= steps.size() ||
-          static_cast<size_t>(d) >= a_.size()) {
-        throw std::out_of_range("Index out of bounds in RecursiveSimpsonSum inner loop");
-      }
       coords[d] = a_[d] + idx[d] * steps[d];
-      if (d < 0 || static_cast<size_t>(d) >= n_.size()) {
-        throw std::out_of_range("Index out of bounds for n_ in RecursiveSimpsonSum");
-      }
       coeff *= SimpsonCoeff(idx[d], n_[d]);
     }
     return coeff * FunctionN(coords);
   }
   double sum = 0.0;
-  if (dim_index < 0 || static_cast<size_t>(dim_index) >= n_.size() || static_cast<size_t>(dim_index) >= idx.size()) {
-    throw std::out_of_range("Index out of bounds before RecursiveSimpsonSum loop");
-  }
   for (int i_rec = 0; i_rec <= n_[dim_index]; ++i_rec) {
     idx[dim_index] = i_rec;
     sum += RecursiveSimpsonSum(dim_index + 1, idx, steps);
@@ -127,9 +117,6 @@ bool IntegralsSimpsonSTL::ValidationImpl() {
 void IntegralsSimpsonSTL::ThreadTaskRunner(int start_idx, int end_idx, const std::vector<double>& steps,
                                            double* partial_sum_output) {
   double local_partial_sum = 0.0;
-  if (partial_sum_output == nullptr) {
-    throw std::invalid_argument("partial_sum_output cannot be null in ThreadTaskRunner");
-  }
   *partial_sum_output = 0.0;
 
   if (dimension_ < 1) {
@@ -137,9 +124,6 @@ void IntegralsSimpsonSTL::ThreadTaskRunner(int start_idx, int end_idx, const std
   }
 
   for (int i = start_idx; i < end_idx; ++i) {
-    if (dimension_ < 1) {
-      throw std::logic_error("Critical error: dimension_ became < 1 inside loop unexpectedly.");
-    }
     std::vector<int> local_idx(dimension_);
     local_idx[0] = i;
 
@@ -232,12 +216,11 @@ bool IntegralsSimpsonSTL::RunImpl() {
   std::vector<double> partial_sums(num_actual_threads, 0.0);
   std::vector<std::thread> threads;
 
-  if (num_actual_threads == 0) {
-  } else if (num_actual_threads == 1) {
+  if (num_actual_threads == 1) {
     if (!partial_sums.empty()) {
       ThreadTaskRunner(0, total_iterations_dim0, steps, partial_sums.data());
     }
-  } else {
+  } else if (num_actual_threads != 0) {
     std::vector<IterationRange> ranges = DistributeIterations(total_iterations_dim0, num_actual_threads);
 
     if (ranges.size() < num_actual_threads && !ranges.empty()) {
