@@ -3,7 +3,6 @@
 #include <algorithm>
 #include <cmath>
 #include <cstddef>
-#include <ranges>
 #include <thread>
 #include <utility>
 #include <vector>
@@ -59,7 +58,9 @@ bool SortSTL::PreProcessingImpl() {
   input_ = (input_size == 0) ? std::vector<int>() : std::vector<int>(in_ptr, in_ptr + input_size);
   output_ = std::vector<int>(input_size, 0);
 
-  if (input_.empty()) return true;
+  if (input_.empty()) {
+    return true;
+  }
 
   max_value_ = *std::ranges::max_element(input_, [](int a, int b) { return std::abs(a) < std::abs(b); });
   max_value_ = std::abs(max_value_);
@@ -81,7 +82,9 @@ bool SortSTL::RunImpl() {
 
   auto sort_in_threads = [&](std::vector<int>& numbers) {
     size_t num_threads = std::thread::hardware_concurrency();
-    if (num_threads == 0) num_threads = 4;
+    if (num_threads == 0) {
+      num_threads = 4;
+    }
 
     size_t chunk_size = numbers.size() / num_threads;
     std::vector<std::thread> threads;
@@ -90,10 +93,14 @@ bool SortSTL::RunImpl() {
       size_t start = i * chunk_size;
       size_t end = (i == num_threads - 1) ? numbers.size() : start + chunk_size;
       threads.emplace_back([&, start, end]() {
-        std::vector<int> chunk(numbers.begin() + start, numbers.begin() + end);
+        auto start_iter = numbers.begin() + static_cast<std::vector<int>::difference_type>(start);
+        auto end_iter = numbers.begin() + static_cast<std::vector<int>::difference_type>(end);
+        std::vector<int> chunk(start_iter, end_iter);
         ProcessNumbers(chunk, max_value_);
-        std::ranges::copy(chunk.begin(), chunk.end(), numbers.begin() + start);
+        std::ranges::copy(chunk.begin(), chunk.end(),
+                          numbers.begin() + static_cast<std::vector<int>::difference_type>(start));
       });
+
     }
 
     for (auto& thread : threads) {
@@ -107,7 +114,9 @@ bool SortSTL::RunImpl() {
   sort_in_threads(negative);
 
   std::ranges::reverse(negative);
-  for (int& num : negative) num = -num;
+  for (int& num : negative) {
+    num = -num;
+  }
 
   output_.clear();
   output_.insert(output_.end(), negative.begin(), negative.end());
@@ -117,7 +126,9 @@ bool SortSTL::RunImpl() {
 }
 
 bool SortSTL::PostProcessingImpl() {
-  if (input_.empty()) return true;
+  if (input_.empty()) {
+    return true;
+  }
 
   auto* out_ptr = reinterpret_cast<int*>(task_data->outputs[0]);
   std::ranges::copy(output_.begin(), output_.end(), out_ptr);
