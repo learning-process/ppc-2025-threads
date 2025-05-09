@@ -166,7 +166,6 @@ bool TestTaskALL::RunImpl() {
   for (int i = 0; i < p; i++) {
     QuickSort(blocks[i].low, blocks[i].high, 0);
   }
-  OddEvenMerge(blocks);
   if (rank == 0) {
     boost::mpi::gatherv(world, local_ptr, counts[rank], input_.data(), counts, displs, 0);
   } else {
