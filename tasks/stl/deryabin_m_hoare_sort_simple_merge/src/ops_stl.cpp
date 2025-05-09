@@ -97,7 +97,7 @@ bool deryabin_m_hoare_sort_simple_merge_stl::HoareSortTaskSTL::RunImpl() {
           func(j);
         }      
       });
-    }
+     }
     for (auto& t : threads) {
       t.join();
     }
