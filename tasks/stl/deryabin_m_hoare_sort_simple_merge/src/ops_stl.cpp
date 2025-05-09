@@ -84,21 +84,21 @@ bool deryabin_m_hoare_sort_simple_merge_stl::HoareSortTaskSTL::RunImpl() {
 
   // Лямбда для параллельного выполнения задачи 
   auto parallel_for = [num_threads](int start, int end, auto&& func) {
-      const int total_tasks = end - start;
-      const int chunk_size = std::max(1, total_tasks / num_threads);
+    const int total_tasks = end - start;
+    const int chunk_size = std::max(1, total_tasks / num_threads);
 
-      std::vector<std::thread> threads;
-      threads.reserve(num_threads);
+    std::vector<std::thread> threads;
+    threads.reserve(num_threads);
 
-      for (int i = 0; i < num_threads; ++i) {
-          const int chunk_start = start + i * chunk_size;
-          const int chunk_end = (i == num_threads - 1) ? end : (start + (i + 1) * chunk_size);
-          threads.emplace_back([=, &func] {
-              for (int j = chunk_start; j < chunk_end; ++j) {
-                  func(j);
-              }
-          });
-      }
+    for (int i = 0; i < num_threads; ++i) {
+      const int chunk_start = start + i * chunk_size;
+      const int chunk_end = (i == num_threads - 1) ? end : (start + (i + 1) * chunk_size);
+      threads.emplace_back([=, &func] {
+        for (int j = chunk_start; j < chunk_end; ++j) {
+          func(j);
+        }      
+      });
+    }
     
     for (auto& t : threads) {
       t.join();
