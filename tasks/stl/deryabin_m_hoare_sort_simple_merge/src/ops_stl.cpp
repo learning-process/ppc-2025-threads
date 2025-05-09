@@ -116,7 +116,7 @@ bool deryabin_m_hoare_sort_simple_merge_stl::HoareSortTaskSTL::ValidationImpl() 
 }
 
 bool deryabin_m_hoare_sort_simple_merge_stl::HoareSortTaskSTL::RunImpl() {
-  const int num_threads = ppc::util::GetPPCNumThreads();
+  const size_t num_threads = ppc::util::GetPPCNumThreads();
   auto parallel_for = [num_threads](size_t start, size_t end, auto&& func) {
     std::vector<std::thread> threads;
     const size_t total = end - start;
