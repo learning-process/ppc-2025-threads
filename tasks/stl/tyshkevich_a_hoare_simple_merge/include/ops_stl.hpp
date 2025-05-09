@@ -1,6 +1,9 @@
 #pragma once
 
 #include <algorithm>
+#include <cstddef>
+#include <cstdint>
+#include <span>
 #include <thread>
 #include <utility>
 #include <vector>
@@ -123,11 +126,12 @@ class HoareSortTask : public ppc::core::Task {
   }
 
  private:
-  void HoareSort(std::span<T> arr, int64_t low, int64_t high) {
-    const auto partition = [&cmp = this->cmp_](std::span<T> region, int64_t plo, int64_t phi) -> int64_t {
+  void HoareSort(std::span<T> arr, std::int64_t low, std::int64_t high) {
+    const auto partition = [&cmp = this->cmp_](std::span<T> region, std::int64_t plo,
+                                               std::int64_t phi) -> std::int64_t {
       const auto& pivot = region[phi];
-      int64_t e = plo - 1;
-      for (int64_t j = plo; j <= phi - 1; j++) {
+      std::int64_t e = plo - 1;
+      for (std::int64_t j = plo; j <= phi - 1; j++) {
         if (cmp(region[j], pivot)) {
           std::swap(region[++e], region[j]);
         }
@@ -137,7 +141,7 @@ class HoareSortTask : public ppc::core::Task {
     };
 
     if (low < high) {
-      int64_t p = partition(arr, low, high);
+      std::int64_t p = partition(arr, low, high);
       HoareSort(arr, low, p - 1);
       HoareSort(arr, p + 1, high);
     }

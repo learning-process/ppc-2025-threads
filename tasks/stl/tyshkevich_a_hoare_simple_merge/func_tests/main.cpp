@@ -79,20 +79,20 @@ TEST(tyshkevich_a_hoare_simple_merge_stl, test_11_lt) { TestSort<int>(11, std::l
 TEST(tyshkevich_a_hoare_simple_merge_stl, test_13_gt) { TestSort<int>(13, std::greater<>()); }
 TEST(tyshkevich_a_hoare_simple_merge_stl, test_13_lt) { TestSort<int>(13, std::less<>()); }
 
-TEST(tyshkevich_a_hoare_simple_merge_stl, test_19_gt) { TestSort<int>(13, std::greater<>()); }
-TEST(tyshkevich_a_hoare_simple_merge_stl, test_19_lt) { TestSort<int>(13, std::less<>()); }
+TEST(tyshkevich_a_hoare_simple_merge_stl, test_19_gt) { TestSort<int>(19, std::greater<>()); }
+TEST(tyshkevich_a_hoare_simple_merge_stl, test_19_lt) { TestSort<int>(19, std::less<>()); }
 
-TEST(tyshkevich_a_hoare_simple_merge_stl, test_23_gt) { TestSort<int>(13, std::greater<>()); }
-TEST(tyshkevich_a_hoare_simple_merge_stl, test_23_lt) { TestSort<int>(13, std::less<>()); }
+TEST(tyshkevich_a_hoare_simple_merge_stl, test_23_gt) { TestSort<int>(23, std::greater<>()); }
+TEST(tyshkevich_a_hoare_simple_merge_stl, test_23_lt) { TestSort<int>(23, std::less<>()); }
 
-TEST(tyshkevich_a_hoare_simple_merge_stl, test_31_gt) { TestSort<int>(13, std::greater<>()); }
-TEST(tyshkevich_a_hoare_simple_merge_stl, test_31_lt) { TestSort<int>(13, std::less<>()); }
+TEST(tyshkevich_a_hoare_simple_merge_stl, test_31_gt) { TestSort<int>(31, std::greater<>()); }
+TEST(tyshkevich_a_hoare_simple_merge_stl, test_31_lt) { TestSort<int>(31, std::less<>()); }
 
-TEST(tyshkevich_a_hoare_simple_merge_stl, test_64_gt) { TestSort<int>(13, std::greater<>()); }
-TEST(tyshkevich_a_hoare_simple_merge_stl, test_64_lt) { TestSort<int>(13, std::less<>()); }
+TEST(tyshkevich_a_hoare_simple_merge_stl, test_64_gt) { TestSort<int>(64, std::greater<>()); }
+TEST(tyshkevich_a_hoare_simple_merge_stl, test_64_lt) { TestSort<int>(64, std::less<>()); }
 
-TEST(tyshkevich_a_hoare_simple_merge_stl, test_100_gt) { TestSort<int>(13, std::greater<>()); }
-TEST(tyshkevich_a_hoare_simple_merge_stl, test_100_lt) { TestSort<int>(13, std::less<>()); }
+TEST(tyshkevich_a_hoare_simple_merge_stl, test_100_gt) { TestSort<int>(100, std::greater<>()); }
+TEST(tyshkevich_a_hoare_simple_merge_stl, test_100_lt) { TestSort<int>(100, std::less<>()); }
 
 TEST(tyshkevich_a_hoare_simple_merge_stl, test_homogeneous_gt) { TestSort<int>({1, 1, 1}, std::greater<>()); }
 TEST(tyshkevich_a_hoare_simple_merge_stl, test_homogeneous_lt) { TestSort<int>({1, 1, 1}, std::less<>()); }
