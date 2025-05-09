@@ -1,6 +1,7 @@
 #include "stl/sharamygina_i_multi_dim_monte_carlo/include/ops_stl.h"
 
 #include <algorithm>
+#include <core/util/include/util.hpp>
 #include <cstdlib>
 #include <ctime>
 #include <functional>
