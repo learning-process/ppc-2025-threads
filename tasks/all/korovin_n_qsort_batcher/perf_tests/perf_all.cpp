@@ -32,7 +32,6 @@ TEST(korovin_n_qsort_batcher_all, test_pipeline_run) {
   boost::mpi::communicator world;
   std::vector<int> in = GenerateRndArray(kSize, kSeed);
   std::vector<int> out(in.size());
-  std::iota(in.rbegin(), in.rend(), 1);
 
   auto task_data_all = std::make_shared<ppc::core::TaskData>();
   task_data_all->inputs.emplace_back(reinterpret_cast<uint8_t *>(in.data()));
@@ -66,7 +65,6 @@ TEST(korovin_n_qsort_batcher_all, test_task_run) {
   boost::mpi::communicator world;
   std::vector<int> in = GenerateRndArray(kSize, kSeed);
   std::vector<int> out(in.size());
-  std::iota(in.rbegin(), in.rend(), 1);
 
   auto task_data_all = std::make_shared<ppc::core::TaskData>();
   task_data_all->inputs.emplace_back(reinterpret_cast<uint8_t *>(in.data()));
