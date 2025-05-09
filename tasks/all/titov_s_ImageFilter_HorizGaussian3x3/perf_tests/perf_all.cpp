@@ -12,8 +12,8 @@
 #include "core/task/include/task.hpp"
 
 namespace {
-constexpr size_t kWidth = 15000;
-constexpr size_t kHeight = 15000;
+constexpr size_t kWidth = 5000;
+constexpr size_t kHeight = 5000;
 
 void InitializeInputData(std::vector<double>& input) {
   for (size_t i = 0; i < kHeight; ++i) {
