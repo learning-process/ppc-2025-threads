@@ -100,7 +100,6 @@ bool SortSTL::RunImpl() {
         std::ranges::copy(chunk.begin(), chunk.end(),
                           numbers.begin() + static_cast<std::vector<int>::difference_type>(start));
       });
-
     }
 
     for (auto& thread : threads) {
