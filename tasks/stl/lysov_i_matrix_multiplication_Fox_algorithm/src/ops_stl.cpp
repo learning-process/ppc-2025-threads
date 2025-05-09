@@ -2,8 +2,10 @@
 
 #include <algorithm>
 #include <cmath>
+#include <core/util/include/util.hpp>
 #include <cstddef>
 #include <future>
+#include <thread>
 #include <vector>
 
 void lysov_i_matrix_multiplication_fox_algorithm_stl::ProcessBlock(const std::vector<double> &a,
@@ -66,23 +68,32 @@ bool lysov_i_matrix_multiplication_fox_algorithm_stl::TestTaskSTL::ValidationImp
 bool lysov_i_matrix_multiplication_fox_algorithm_stl::TestTaskSTL::RunImpl() {
   const std::size_t num_blocks = (n_ + block_size_ - 1) / block_size_;
 
+  std::size_t max_thr = ppc::util::GetPPCNumThreads();
+  if (max_thr == 0) max_thr = 4;
+
+  std::atomic<std::size_t> task{0};
+
+  auto worker = [&](std::size_t step) {
+    while (true) {
+      std::size_t idx = task.fetch_add(1, std::memory_order_relaxed);
+      if (idx >= num_blocks * num_blocks) break;
+
+      std::size_t i = idx / num_blocks;
+      std::size_t j = idx % num_blocks;
+      std::size_t a_row = (i + step) % num_blocks;
+
+      ProcessBlock(a_, b_, c_, i, j, a_row, block_size_, n_);
+    }
+  };
+
   for (std::size_t step = 0; step < num_blocks; ++step) {
-    std::vector<std::future<void>> tasks;
+    task.store(0, std::memory_order_relaxed);
+    std::vector<std::thread> pool;
+    pool.reserve(max_thr);
+    for (std::size_t t = 0; t < max_thr; ++t) pool.emplace_back(worker, step);
 
-    for (std::size_t i = 0; i < num_blocks; ++i) {
-      for (std::size_t j = 0; j < num_blocks; ++j) {
-        std::size_t a_block_row = (i + step) % num_blocks;
-
-        tasks.emplace_back(std::async(std::launch::async,
-                                      [=, this]() { ProcessBlock(a_, b_, c_, i, j, a_block_row, block_size_, n_); }));
-      }
-    }
-
-    for (auto &task : tasks) {
-      task.get();
-    }
+    for (auto &th : pool) th.join();
   }
-
   return true;
 }
 
