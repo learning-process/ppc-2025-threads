@@ -27,15 +27,15 @@ bool solovyev_d_shell_sort_simple_stl::TaskSTL::RunImpl() {
   std::vector<std::thread> threads(num_threads_);
   for (int t = 0; t < num_threads_; ++t) {
     threads[t] = std::thread([&, t] {
-      for (int gap_ = static_cast<int>(input_.size()) / 2; gap_ > 0; gap_ /= 2) {
+      for (int gap = static_cast<int>(input_.size()) / 2; gap > 0; gap /= 2) {
         sync_point.arrive_and_wait();
-        for (int i = t; i < gap_; i += num_threads_) {
-          for (size_t f = i + gap_; f < input_.size(); f += gap_) {
+        for (int i = t; i < gap; i += num_threads_) {
+          for (size_t f = i + gap; f < input_.size(); f += gap) {
             int val = input_[f];
             size_t j = f;
-            while (j >= static_cast<size_t>(gap_) && input_[j - gap_] > val) {
-              input_[j] = input_[j - gap_];
-              j -= gap_;
+            while (j >= static_cast<size_t>(gap_) && input_[j - gap] > val) {
+              input_[j] = input_[j - gap];
+              j -= gap;
             }
             input_[j] = val;
           }
