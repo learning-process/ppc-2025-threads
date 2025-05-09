@@ -8,7 +8,6 @@
 #include <future>
 #include <numeric>
 #include <random>
-#include <thread>
 #include <vector>
 
 bool sharamygina_i_multi_dim_monte_carlo_stl::MultiDimMonteCarloTask::PreProcessingImpl() {
