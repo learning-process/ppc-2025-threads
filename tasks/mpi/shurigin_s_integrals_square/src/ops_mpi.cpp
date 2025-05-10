@@ -1,4 +1,8 @@
-﻿#include "mpi/shurigin_s_integrals_square/include/ops_mpi.hpp"
+﻿#if defined(OMPI_MAJOR_VERSION) && defined(OMPI_MINOR_VERSION) && !defined(OMPI_SKIP_MPICXX)
+#define OMPI_SKIP_MPICXX
+#endif
+
+#include "mpi/shurigin_s_integrals_square/include/ops_mpi.hpp"
 
 #include <mpi.h>
 #include <omp.h>
