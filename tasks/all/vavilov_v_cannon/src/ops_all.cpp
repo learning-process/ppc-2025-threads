@@ -7,7 +7,6 @@
 #include <boost/mpi/communicator.hpp>
 #include <boost/serialization/utility.hpp>
 #include <boost/serialization/vector.hpp>
-#include <cblas>
 #include <cmath>
 #include <vector>
 
@@ -285,11 +284,7 @@ bool vavilov_v_cannon_all::CannonALL::RunImpl() {
   mpi::wait_all(reqs, reqs + req_count);
 
   // Первое умножение
-  cblas_dgemm(CblasRowMajor, CblasNoTrans, CblasNoTrans,
-              block_size_, block_size_, block_size_,
-              1.0, local_A.data(), block_size_,
-              local_B.data(), block_size_,
-              1.0, local_C.data(), block_size_);
+  BlockMultiply(local_A, local_B, local_C);
 
   // Основной цикл
   for (int iter = 0; iter < num_blocks_ - 1; ++iter) {
@@ -304,11 +299,7 @@ bool vavilov_v_cannon_all::CannonALL::RunImpl() {
 
     mpi::wait_all(reqs, reqs + req_count);
 
-    cblas_dgemm(CblasRowMajor, CblasNoTrans, CblasNoTrans,
-                block_size_, block_size_, block_size_,
-                1.0, local_A.data(), block_size_,
-                local_B.data(), block_size_,
-                1.0, local_C.data(), block_size_);
+    BlockMultiply(local_A, local_B, local_C);
   }
 
   std::vector<double> tmp_C;
