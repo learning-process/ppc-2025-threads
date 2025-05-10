@@ -1,9 +1,9 @@
 #include "stl/durynichev_d_integrals_simpson_method/include/ops_stl.hpp"
 
 #include <cmath>
+#include <functional>
 #include <thread>
 #include <vector>
-#include <functional>
 
 #include "core/util/include/util.hpp"
 
@@ -66,10 +66,8 @@ bool SimpsonIntegralSTL::RunImpl() {
 
 bool SimpsonIntegralSTL::PostProcessingImpl() {
   double final_result = 0.0;
-  int iteration_count = 0;
   for (double res : results_) {
     final_result += res;
-    iteration_count++;
   }
   reinterpret_cast<double*>(task_data->outputs[0])[0] = final_result;
   return true;
@@ -100,7 +98,7 @@ void SimpsonIntegralSTL::Simpson2D(double x0, double x1, double y0, double y1, d
 
   for (int i = 0; i <= n_; i++) {
     double x = x0 + (i * hx);
-    double coef_x;
+    double coef_x = 0.0;
     if (i == 0 || i == n_) {
       coef_x = 1;
     } else if (i % 2 != 0) {
@@ -111,7 +109,7 @@ void SimpsonIntegralSTL::Simpson2D(double x0, double x1, double y0, double y1, d
 
     for (int j = 0; j <= n_; j++) {
       double y = y0 + (j * hy);
-      double coef_y;
+      double coef_y = 0.0;
       if (j == 0 || j == n_) {
         coef_y = 1;
       } else if (j % 2 != 0) {
