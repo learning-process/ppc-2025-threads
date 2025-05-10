@@ -3,14 +3,13 @@
 #include <omp.h>
 
 #include <algorithm>
-#include <boost/mpi.hpp>
-#include <boost/serialization/vector.hpp>
+#include <boost/mpi/collectives.hpp>
+#include <boost/mpi/operations.hpp>
+#include <boost/serialization/vector.hpp>  // NOLINT(misc-include-cleaner)
 #include <climits>
 #include <cstddef>
 #include <cstdlib>
 #include <functional>
-#include <mutex>
-#include <queue>
 #include <utility>
 #include <vector>
 
@@ -43,6 +42,84 @@ bool ConvertGraphToAdjacencyList(const std::vector<int>& graph_data, size_t num_
     i += 2;
   }
   return true;
+}
+
+void ProcessLocalChunk(const std::vector<std::vector<std::pair<int, int>>>& adj_list,
+                      std::vector<int>& local_dist, size_t start, size_t end, bool& updated) {
+  const int inf = INT_MAX;
+#pragma omp parallel for schedule(dynamic)
+  for (int u = start; u < end; ++u) {
+    if (local_dist[u] == inf) {
+      continue;
+    }
+
+    for (const auto& [neighbor, weight] : adj_list[u]) {
+      int new_dist = local_dist[u] + weight;
+      if (new_dist < local_dist[neighbor]) {
+#pragma omp critical
+        {
+          if (new_dist < local_dist[neighbor]) {
+            local_dist[neighbor] = new_dist;
+            updated = true;
+          }
+        }
+      }
+    }
+  }
+}
+
+void UpdateLocalDistances(const std::vector<int>& global_dist, std::vector<int>& local_dist, bool& updated) {
+#pragma omp parallel for
+  for (int i = 0; i < static_cast<int>(local_dist.size()); ++i) {
+    if (global_dist[i] < local_dist[i]) {
+      local_dist[i] = global_dist[i];
+      updated = true;
+    }
+  }
+}
+
+void ProcessAllVertices(const std::vector<std::vector<std::pair<int, int>>>& adj_list,
+                       std::vector<int>& local_dist, bool& updated) {
+  const int inf = INT_MAX;
+#pragma omp parallel for schedule(dynamic)
+  for (int u = 0; u < static_cast<int>(local_dist.size()); ++u) {
+    if (local_dist[u] == inf) {
+      continue;
+    }
+
+    for (const auto& [neighbor, weight] : adj_list[u]) {
+      int new_dist = local_dist[u] + weight;
+      if (new_dist < local_dist[neighbor]) {
+#pragma omp critical
+        {
+          if (new_dist < local_dist[neighbor]) {
+            local_dist[neighbor] = new_dist;
+            updated = true;
+          }
+        }
+      }
+    }
+  }
+}
+
+bool CheckGlobalUpdate(const boost::mpi::communicator& world, bool local_updated) {
+  int local_updated_int = local_updated ? 1 : 0;
+  int global_updated = 0;
+  boost::mpi::all_reduce(world, local_updated_int, global_updated, std::plus<>());
+  return (global_updated > 0);
+}
+
+void UpdateFinalDistances(const boost::mpi::communicator& world,
+                         const std::vector<int>& local_dist,
+                         std::vector<int>& distances) {
+  std::vector<int> final_dist(local_dist.size());
+  boost::mpi::all_reduce(world, local_dist.data(), static_cast<int>(local_dist.size()),
+                         final_dist.data(), boost::mpi::minimum<int>());
+
+#pragma omp parallel for
+  for (int i = 0; i < static_cast<int>(distances.size()); ++i) {
+    distances[i] = final_dist[i];
+  }
 }
 
 }  // namespace
@@ -78,83 +155,34 @@ bool plekhanov_d_dijkstra_all::TestTaskALL::RunImpl() {
     return false;
   }
 
-  const int INF = INT_MAX;
-  std::vector<int> local_dist(num_vertices_, INF);
+  const int inf = INT_MAX;
+  std::vector<int> local_dist(num_vertices_, inf);
   local_dist[start_vertex_] = 0;
 
-  const int chunk_size = (num_vertices_ + world_.size() - 1) / world_.size();
-  const int start = world_.rank() * chunk_size;
-  const int end = std::min(start + chunk_size, static_cast<int>(num_vertices_));
+  const size_t chunk_size = (num_vertices_ + world_.size() - 1) / world_.size();
+  const size_t start = world_.rank() * chunk_size;
+  const size_t end = std::min(start + chunk_size, num_vertices_);
 
   bool updated = true;
-  int iteration = 0;
-  const int max_iterations = num_vertices_;
+  size_t iteration = 0;
+  const size_t max_iterations = num_vertices_;
 
   while (updated && iteration < max_iterations) {
     updated = false;
     iteration++;
 
-#pragma omp parallel for schedule(dynamic)
-    for (int u = start; u < end; ++u) {
-      if (local_dist[u] == INF) continue;
-
-      for (const auto& [neighbor, weight] : adj_list[u]) {
-        int new_dist = local_dist[u] + weight;
-        if (new_dist < local_dist[neighbor]) {
-#pragma omp critical
-          {
-            if (new_dist < local_dist[neighbor]) {
-              local_dist[neighbor] = new_dist;
-              updated = true;
-            }
-          }
-        }
-      }
-    }
+    ProcessLocalChunk(adj_list, local_dist, start, end, updated);
 
     std::vector<int> global_dist(num_vertices_);
-    boost::mpi::all_reduce(world_, local_dist.data(), num_vertices_, global_dist.data(), boost::mpi::minimum<int>());
+    boost::mpi::all_reduce(world_, local_dist.data(), static_cast<int>(num_vertices_),
+                           global_dist.data(), boost::mpi::minimum<int>());
 
-#pragma omp parallel for
-    for (int i = 0; i < static_cast<int>(num_vertices_); ++i) {
-      if (global_dist[i] < local_dist[i]) {
-        local_dist[i] = global_dist[i];
-        updated = true;
-      }
-    }
-
-#pragma omp parallel for schedule(dynamic)
-    for (int u = 0; u < static_cast<int>(num_vertices_); ++u) {
-      if (local_dist[u] == INF) continue;
-
-      for (const auto& [neighbor, weight] : adj_list[u]) {
-        int new_dist = local_dist[u] + weight;
-        if (new_dist < local_dist[neighbor]) {
-#pragma omp critical
-          {
-            if (new_dist < local_dist[neighbor]) {
-              local_dist[neighbor] = new_dist;
-              updated = true;
-            }
-          }
-        }
-      }
-    }
-
-    int local_updated = updated ? 1 : 0;
-    int global_updated;
-    boost::mpi::all_reduce(world_, local_updated, global_updated, std::plus<int>());
-    updated = (global_updated > 0);
+    UpdateLocalDistances(global_dist, local_dist, updated);
+    ProcessAllVertices(adj_list, local_dist, updated);
+    updated = CheckGlobalUpdate(world_, updated);
   }
 
-  std::vector<int> final_dist(num_vertices_);
-  boost::mpi::all_reduce(world_, local_dist.data(), num_vertices_, final_dist.data(), boost::mpi::minimum<int>());
-
-#pragma omp parallel for
-  for (int i = 0; i < static_cast<int>(num_vertices_); ++i) {
-    distances_[i] = final_dist[i];
-  }
-
+  UpdateFinalDistances(world_, local_dist, distances_);
   return true;
 }
 
