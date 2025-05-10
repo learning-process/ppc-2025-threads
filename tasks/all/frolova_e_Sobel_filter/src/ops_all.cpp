@@ -7,7 +7,6 @@
 #include <boost/mpi/collectives/broadcast.hpp>
 #include <cmath>
 #include <cstddef>
-#include <ranges>
 #include <vector>
 
 std::vector<int> frolova_e_sobel_filter_all::ToGrayScaleImg(std::vector<frolova_e_sobel_filter_all::RGB>& color_img,
@@ -27,6 +26,48 @@ int frolova_e_sobel_filter_all::GetPixelSafe(const std::vector<int>& img, size_t
     return 0;
   }
   return img[(y * width) + x];
+}
+
+void frolova_e_sobel_filter_all::ApplySobelKernel(const std::vector<int>& local_image_, std::vector<int>& local_result,
+                                                  int width_, int extended_rows, int has_top, int local_rows) {
+  tbb::parallel_for(tbb::blocked_range<int>(has_top, local_rows + has_top), [&](const tbb::blocked_range<int>& range) {
+    for (int y = range.begin(); y < range.end(); ++y) {
+      for (int x = 0; x < static_cast<int>(width_); ++x) {
+        size_t base_idx = (y - has_top) * width_;
+
+        int p00 = GetPixelSafe(local_image_, x - 1, y - 1, width_, extended_rows);
+        int p01 = GetPixelSafe(local_image_, x, y - 1, width_, extended_rows);
+        int p02 = GetPixelSafe(local_image_, x + 1, y - 1, width_, extended_rows);
+        int p10 = GetPixelSafe(local_image_, x - 1, y, width_, extended_rows);
+        int p11 = GetPixelSafe(local_image_, x, y, width_, extended_rows);
+        int p12 = GetPixelSafe(local_image_, x + 1, y, width_, extended_rows);
+        int p20 = GetPixelSafe(local_image_, x - 1, y + 1, width_, extended_rows);
+        int p21 = GetPixelSafe(local_image_, x, y + 1, width_, extended_rows);
+        int p22 = GetPixelSafe(local_image_, x + 1, y + 1, width_, extended_rows);
+
+        int res_x = (-1 * p00) + (0 * p01) + (1 * p02) + (-2 * p10) + (0 * p11) + (2 * p12) + (-1 * p20) + (0 * p21) +
+                    (1 * p22);
+
+        int res_y = (-1 * p00) + (-2 * p01) + (-1 * p02) + (0 * p10) + (0 * p11) + (0 * p12) + (1 * p20) + (2 * p21) +
+                    (1 * p22);
+
+        int gradient = static_cast<int>(std::sqrt((res_x * res_x) + (res_y * res_y)));
+        local_result[base_idx + x] = std::clamp(gradient, 0, 255);
+      }
+    }
+  });
+}
+
+void frolova_e_sobel_filter_all::InitWorkArea(int active_processes, int rows_per_proc, int remainder, int rank,
+                                              int& y_start, int& local_rows, int& has_top, int& has_bottom,
+                                              int& extended_rows) {
+  y_start = (rank * rows_per_proc) + std::min(rank, remainder);
+  int y_end = y_start + rows_per_proc + (rank < remainder ? 1 : 0);
+  local_rows = y_end - y_start;
+
+  has_top = (rank > 0) ? 1 : 0;
+  has_bottom = (rank < active_processes - 1) ? 1 : 0;
+  extended_rows = local_rows + has_top + has_bottom;
 }
 
 bool frolova_e_sobel_filter_all::SobelFilterALL::PreProcessingImpl() {
@@ -99,13 +140,8 @@ bool frolova_e_sobel_filter_all::SobelFilterALL::RunImpl() {
     int rows_per_proc = static_cast<int>(height_ / active_processes);
     int remainder = static_cast<int>(height_ % active_processes);
 
-    int y_start = (rank * rows_per_proc) + std::min(rank, remainder);
-    int y_end = y_start + rows_per_proc + (rank < remainder ? 1 : 0);
-    int local_rows = y_end - y_start;
-
-    int has_top = (rank > 0) ? 1 : 0;
-    int has_bottom = (rank < active_processes - 1) ? 1 : 0;
-    int extended_rows = local_rows + has_top + has_bottom;
+    InitWorkArea(active_processes, rows_per_proc, remainder, rank, y_start, local_rows, has_top, has_bottom,
+                 extended_rows);
 
     local_image_.resize(extended_rows * width_);
     std::vector<int> local_result(local_rows * width_);
@@ -145,33 +181,8 @@ bool frolova_e_sobel_filter_all::SobelFilterALL::RunImpl() {
       world_.recv(0, 0, local_image_);
     }
 
-    tbb::parallel_for(tbb::blocked_range<int>(has_top, local_rows + has_top),
-                      [&](const tbb::blocked_range<int>& range) {
-                        for (int y = range.begin(); y < range.end(); ++y) {
-                          for (int x = 0; x < static_cast<int>(width_); ++x) {
-                            size_t base_idx = (y - has_top) * width_;
-
-                            int p00 = GetPixelSafe(local_image_, x - 1, y - 1, width_, extended_rows);
-                            int p01 = GetPixelSafe(local_image_, x, y - 1, width_, extended_rows);
-                            int p02 = GetPixelSafe(local_image_, x + 1, y - 1, width_, extended_rows);
-                            int p10 = GetPixelSafe(local_image_, x - 1, y, width_, extended_rows);
-                            int p11 = GetPixelSafe(local_image_, x, y, width_, extended_rows);
-                            int p12 = GetPixelSafe(local_image_, x + 1, y, width_, extended_rows);
-                            int p20 = GetPixelSafe(local_image_, x - 1, y + 1, width_, extended_rows);
-                            int p21 = GetPixelSafe(local_image_, x, y + 1, width_, extended_rows);
-                            int p22 = GetPixelSafe(local_image_, x + 1, y + 1, width_, extended_rows);
-
-                            int res_x = (-1 * p00) + (0 * p01) + (1 * p02) + (-2 * p10) + (0 * p11) + (2 * p12) +
-                                        (-1 * p20) + (0 * p21) + (1 * p22);
-
-                            int res_y = (-1 * p00) + (-2 * p01) + (-1 * p02) + (0 * p10) + (0 * p11) + (0 * p12) +
-                                        (1 * p20) + (2 * p21) + (1 * p22);
-
-                            int gradient = static_cast<int>(std::sqrt((res_x * res_x) + (res_y * res_y)));
-                            local_result[base_idx + x] = std::clamp(gradient, 0, 255);
-                          }
-                        }
-                      });
+    frolova_e_sobel_filter_all::ApplySobelKernel(local_image_, local_result, width_, extended_rows, has_top,
+                                                 local_rows);
 
     if (world_.rank() == 0) {
       std::ranges::copy(local_result, res_image_.begin() + y_start * width_);
