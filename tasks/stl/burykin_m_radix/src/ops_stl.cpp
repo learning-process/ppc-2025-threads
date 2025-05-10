@@ -30,7 +30,7 @@ std::array<int, 256> burykin_m_radix_stl::RadixSTL::ComputeFrequencyParallel(con
   for (int t = 0; t < num_threads; ++t) {
     threads[t] = std::thread([&, t]() {
       const int start = t * chunk_size;
-      const int end = (t == num_threads - 1) ? a.size() : (t + 1) * chunk_size;
+      const int end = (t == num_threads - 1) ? a.size() - 1 : (t + 1) * chunk_size;
 
       for (int i = start; i < end; ++i) {
         unsigned int key = ((static_cast<unsigned int>(a[i]) >> shift) & 0xFFU);
