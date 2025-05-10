@@ -23,8 +23,7 @@ void deryabin_m_hoare_sort_simple_merge_stl::HoaraSort(std::vector<double>& a, s
     size_t i = first_;
     size_t j = last_;
     double tmp = 0;
-    double x = std::max(std::min(a[first_], a[(first_ + last_) / 2]),
-                        std::min(std::max(a[first_], a[(first_ + last_) / 2]), a[last_]));
+    double x = a[(first_ + last_) / 2];
     do {
       while (a[i] < x) {
         i++;
