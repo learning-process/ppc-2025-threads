@@ -22,8 +22,7 @@ bool SimpsonIntegralSTL::PreProcessingImpl() {
 }
 
 bool SimpsonIntegralSTL::ValidationImpl() {
-  bool is_valid = task_data->inputs_count[0] >= 3 && task_data->outputs_count[0] == 1 && (n_ % 2 == 0);
-  return is_valid;
+  return task_data->inputs_count[0] >= 3 && task_data->outputs_count[0] == 1 && (n_ % 2 == 0);
 }
 
 bool SimpsonIntegralSTL::RunImpl() {
@@ -58,9 +57,6 @@ bool SimpsonIntegralSTL::RunImpl() {
     thread.join();
   }
 
-  if (num_threads > 0) {
-    return true;
-  }
   return true;
 }
 
