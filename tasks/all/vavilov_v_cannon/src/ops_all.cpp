@@ -398,8 +398,8 @@ bool vavilov_v_cannon_all::CannonALL::RunImpl() {
     mpi::scatter(active_world, scatter_A.data(), local_A.data(), block_size_sq, 0);
     mpi::scatter(active_world, scatter_B.data(), local_B.data(), block_size_sq, 0);
   } else {
-    mpi::scatter(active_world, nullptr, local_A.data(), block_size_sq, 0);
-    mpi::scatter(active_world, nullptr, local_B.data(), block_size_sq, 0);
+    mpi::scatter(active_world, local_A.data(), block_size_sq, 0);
+    mpi::scatter(active_world, local_B.data(), block_size_sq, 0);
   }
 
   // Начальный сдвиг
