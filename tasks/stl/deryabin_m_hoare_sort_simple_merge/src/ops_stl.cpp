@@ -23,7 +23,8 @@ void deryabin_m_hoare_sort_simple_merge_stl::HoaraSort(std::vector<double>& a, s
     size_t i = first_;
     size_t j = last_;
     double tmp = 0;
-    double x = a[(first_ + last_) / 2];
+    double x = std::max(std::min(a[first_], a[(first_ + last_) / 2]),
+                        std::min(std::max(a[first_], a[(first_ + last_) / 2]), a[last_]));
     do {
       while (a[i] < x) {
         i++;
@@ -131,6 +132,7 @@ bool deryabin_m_hoare_sort_simple_merge_stl::HoareSortTaskSTL::RunImpl() {
       MergeTwoParts(input_array_A_, left, right);
     });
   }
+  workers.clear();
   return true;
 }
 
