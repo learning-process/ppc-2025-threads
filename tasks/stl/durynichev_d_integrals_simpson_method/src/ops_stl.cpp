@@ -3,6 +3,7 @@
 #include <cmath>
 #include <thread>
 #include <vector>
+#include <functional>
 
 #include "core/util/include/util.hpp"
 
@@ -65,11 +66,12 @@ bool SimpsonIntegralSTL::RunImpl() {
 
 bool SimpsonIntegralSTL::PostProcessingImpl() {
   double final_result = 0.0;
+  int iteration_count = 0;
   for (double res : results_) {
     final_result += res;
+    iteration_count++;
   }
   reinterpret_cast<double*>(task_data->outputs[0])[0] = final_result;
-  final_result = 0.0;
   return true;
 }
 
@@ -98,11 +100,25 @@ void SimpsonIntegralSTL::Simpson2D(double x0, double x1, double y0, double y1, d
 
   for (int i = 0; i <= n_; i++) {
     double x = x0 + (i * hx);
-    double coef_x = (i == 0 || i == n_) ? 1 : (i % 2 != 0 ? 4 : 2);
+    double coef_x;
+    if (i == 0 || i == n_) {
+      coef_x = 1;
+    } else if (i % 2 != 0) {
+      coef_x = 4;
+    } else {
+      coef_x = 2;
+    }
 
     for (int j = 0; j <= n_; j++) {
       double y = y0 + (j * hy);
-      double coef_y = (j == 0 || j == n_) ? 1 : (j % 2 != 0 ? 4 : 2);
+      double coef_y;
+      if (j == 0 || j == n_) {
+        coef_y = 1;
+      } else if (j % 2 != 0) {
+        coef_y = 4;
+      } else {
+        coef_y = 2;
+      }
       sum += coef_x * coef_y * Func2D(x, y);
     }
   }
