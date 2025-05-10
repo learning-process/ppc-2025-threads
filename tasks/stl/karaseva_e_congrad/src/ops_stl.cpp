@@ -3,8 +3,8 @@
 #include <algorithm>
 #include <cmath>
 #include <cstddef>
-#include <execution>
 #include <numeric>
+#include <thread>
 #include <vector>
 
 bool karaseva_a_test_task_stl::TestTaskSTL::PreProcessingImpl() {
@@ -31,63 +31,82 @@ bool karaseva_a_test_task_stl::TestTaskSTL::ValidationImpl() {
   return valid_input && valid_output;
 }
 
+template <typename Func>
+void karaseva_a_test_task_stl::TestTaskSTL::Parallel(size_t start, size_t end, Func func) {
+  // Manual parallelization with thread pool
+  const size_t num_threads = std::thread::hardware_concurrency();
+  const size_t chunk_size = (end - start + num_threads - 1) / num_threads;
+
+  std::vector<std::thread> threads;
+  for (size_t i = 0; i < num_threads; ++i) {
+    const size_t chunk_start = start + i * chunk_size;
+    const size_t chunk_end = std::min(end, chunk_start + chunk_size);
+    if (chunk_start < chunk_end) {
+      threads.emplace_back([=]() {
+        for (size_t j = chunk_start; j < chunk_end; ++j) {
+          func(j);
+        }
+      });
+    }
+  }
+
+  for (auto& thread : threads) {
+    if (thread.joinable()) {
+      thread.join();
+    }
+  }
+}
+
 bool karaseva_a_test_task_stl::TestTaskSTL::RunImpl() {
-  // Initialize residual vector and search direction
+  // Initialize residual vector r = b - Ax (x is zero initially)
   std::vector<double> r = b_;
-  std::vector<double> p = r;
-  std::vector<double> ap(size_);
+  std::vector<double> p = r;      // Initial search direction
+  std::vector<double> ap(size_);  // Buffer for matrix-vector product
 
-  // Parallel computation of initial residual squared norm
-  double rs_old = std::transform_reduce(std::execution::par,  // Parallel execution policy
-                                        r.cbegin(), r.cend(), r.cbegin(), 0.0);
+  // Calculate initial residual squared norm using parallel reduction
+  double rs_old = 0.0;
+  Parallel(0, size_, [&](size_t i) { rs_old += r[i] * r[i]; });
 
-  const double tolerance = 1e-10;
-  const size_t max_iterations = size_;
+  const double tolerance = 1e-10;       // Convergence threshold
+  const size_t max_iterations = size_;  // Max iterations (up to problem size)
 
-  // Generate indices for parallel matrix-vector product
-  std::vector<size_t> indices(size_);
-  std::iota(indices.begin(), indices.end(), 0);
-
-  // Main conjugate gradient loop with parallel computations
+  // Conjugate gradient main loop
   for (size_t k = 0; k < max_iterations; ++k) {
-    // Parallel matrix-vector product using indices
-    std::for_each(std::execution::par, indices.begin(), indices.end(), [&](size_t i) {
-      const auto row_start = A_.begin() + static_cast<std::ptrdiff_t>(i * size_);
-      ap[i] = std::inner_product(row_start, row_start + static_cast<std::ptrdiff_t>(size_), p.cbegin(), 0.0);
+    // Compute matrix-vector product: ap = A * p using parallel row processing
+    Parallel(0, size_, [&](size_t i) {
+      double sum = 0.0;
+      for (size_t j = 0; j < size_; ++j) {
+        sum += A_[i * size_ + j] * p[j];
+      }
+      ap[i] = sum;
     });
 
-    // Parallel computation of p^T*A*p
-    double p_ap = std::transform_reduce(std::execution::par,  // Parallel execution policy
-                                        p.cbegin(), p.cend(), ap.cbegin(), 0.0);
+    // Calculate denominator for alpha: p^T * A * p using parallel reduction
+    double p_ap = 0.0;
+    Parallel(0, size_, [&](size_t i) { p_ap += p[i] * ap[i]; });
 
     if (std::fabs(p_ap) < 1e-15) {
       break;
     }
     const double alpha = rs_old / p_ap;
 
-    // Parallel vector updates using transform
-    std::transform(std::execution::par,  // Parallel execution
-                   x_.cbegin(), x_.cend(), p.cbegin(), x_.begin(),
-                   [alpha](double x, double p_val) { return x + (alpha * p_val); });
+    // Parallel update of solution and residual vectors
+    Parallel(0, size_, [&](size_t i) {
+      x_[i] += alpha * p[i];
+      r[i] -= alpha * ap[i];
+    });
 
-    std::transform(std::execution::par,  // Parallel execution
-                   r.cbegin(), r.cend(), ap.cbegin(), r.begin(),
-                   [alpha](double r_val, double ap_val) { return r_val - (alpha * ap_val); });
-
-    // Parallel residual norm calculation
-    double rs_new = std::transform_reduce(std::execution::par,  // Parallel execution policy
-                                          r.cbegin(), r.cend(), r.cbegin(), 0.0);
+    // Check convergence using residual norm
+    double rs_new = 0.0;
+    Parallel(0, size_, [&](size_t i) { rs_new += r[i] * r[i]; });
 
     if (rs_new < tolerance * tolerance) {
       break;
     }
 
+    // Update search direction with beta parameter
     const double beta = rs_new / rs_old;
-
-    // Parallel direction update
-    std::transform(std::execution::par,  // Parallel execution
-                   r.cbegin(), r.cend(), p.cbegin(), p.begin(),
-                   [beta](double r_val, double p_val) { return r_val + (beta * p_val); });
+    Parallel(0, size_, [&](size_t i) { p[i] = r[i] + beta * p[i]; });
 
     rs_old = rs_new;
   }
