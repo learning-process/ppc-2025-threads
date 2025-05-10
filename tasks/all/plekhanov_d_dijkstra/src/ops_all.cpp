@@ -44,8 +44,8 @@ bool ConvertGraphToAdjacencyList(const std::vector<int>& graph_data, size_t num_
   return true;
 }
 
-void ProcessLocalChunk(const std::vector<std::vector<std::pair<int, int>>>& adj_list,
-                       std::vector<int>& local_dist, size_t start, size_t end, bool& updated) {
+void ProcessLocalChunk(const std::vector<std::vector<std::pair<int, int>>>& adj_list, std::vector<int>& local_dist,
+                       size_t start, size_t end, bool& updated) {
   const int inf = INT_MAX;
 #pragma omp parallel for schedule(dynamic)
   for (int u = start; u < end; ++u) {
@@ -78,8 +78,8 @@ void UpdateLocalDistances(const std::vector<int>& global_dist, std::vector<int>&
   }
 }
 
-void ProcessAllVertices(const std::vector<std::vector<std::pair<int, int>>>& adj_list,
-                        std::vector<int>& local_dist, bool& updated) {
+void ProcessAllVertices(const std::vector<std::vector<std::pair<int, int>>>& adj_list, std::vector<int>& local_dist,
+                        bool& updated) {
   const int inf = INT_MAX;
 #pragma omp parallel for schedule(dynamic)
   for (int u = 0; u < static_cast<int>(local_dist.size()); ++u) {
