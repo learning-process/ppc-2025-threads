@@ -88,16 +88,15 @@ void RunValidationFailureTest() {
 }
 
 std::vector<std::vector<std::pair<size_t, int>>> GenerateRandomGraph(size_t num_vertices) {
-  std::random_device rd;
-  std::mt19937 gen(rd());
-  std::uniform_int_distribution<> dis(1, 10);
-
+  srand(static_cast<unsigned int>(time(nullptr)));
   std::vector<std::vector<std::pair<size_t, int>>> adj_list(num_vertices);
   for (size_t i = 0; i < num_vertices; ++i) {
-    for (size_t j = i + 1; j < num_vertices; ++j) {
-      if (gen() % 2 == 0) {
-        adj_list[i].emplace_back(j, dis(gen));
-        adj_list[j].emplace_back(i, dis(gen));
+    for (size_t j = 0; j < num_vertices; ++j) {
+      if (i != j) {
+        if (rand() % 3 == 0) {
+          int weight = (rand() % 10) + 1;
+          adj_list[i].emplace_back(j, weight);
+        }
       }
     }
   }
