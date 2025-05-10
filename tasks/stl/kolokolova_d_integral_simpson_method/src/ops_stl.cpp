@@ -6,6 +6,8 @@
 #include <thread>
 #include <vector>
 
+#include "core/util/include/util.hpp"
+
 bool kolokolova_d_integral_simpson_method_stl::TestTaskSTL::PreProcessingImpl() {
   nums_variables_ = int(task_data->inputs_count[0]);
 
@@ -132,10 +134,11 @@ void kolokolova_d_integral_simpson_method_stl::TestTaskSTL::MultiplyCoeffandFunc
   int coeff_vec_size = int(coeff_vec.size());
   int function_vec_size = int(function_val.size());
 
-  // determine the number of threads for parallel processing
-  int thread_count = int(std::thread::hardware_concurrency());
-  if (thread_count == 0) {
-    thread_count = 1;
+  // Determine the number of threads for parallel processing using GetPPCNumThreads
+  int thread_count = ppc::util::GetPPCNumThreads();
+  if (thread_count <= 0 || thread_count > int(std::thread::hardware_concurrency())) {
+    // Use maximum available threads if GetPPCNumThreads gives a non-viable count
+    thread_count = int(std::thread::hardware_concurrency());
   }
 
   // vector for storing threads
