@@ -11,6 +11,12 @@
 
 #include "core/util/include/util.hpp"
 
+size_t deryabin_m_hoare_sort_simple_merge_stl::fast_log2(size_t n) {
+    size_t log = 0;
+    while (n >>= 1) ++log; 
+    return log;
+}
+
 void deryabin_m_hoare_sort_simple_merge_stl::HoaraSort(std::vector<double>& a, size_t first, size_t last) {
   if (first >= last) {
     return;
@@ -68,7 +74,7 @@ bool deryabin_m_hoare_sort_simple_merge_stl::HoareSortTaskSequential::RunImpl() 
     HoaraSort(input_array_A_, count * min_chunk_size_, ((count + 1) * min_chunk_size_) - 1);
     count++;
   }
-  size_t num_of_lvls = 8 * sizeof(chunk_count_) - __builtin_clzll(chunk_count_ - 1) - 1;
+  size_t num_of_lvls = fast_log2(chunk_count_);
   for (size_t i = 0; i < num_of_lvls; i++) {
     for (size_t j = 0; j < chunk_count; j++) {
       MergeTwoParts(input_array_A_, j * min_chunk_size_ << (i + 1), ((j + 1) * min_chunk_size_ << (i + 1)) - 1);
@@ -103,18 +109,17 @@ bool deryabin_m_hoare_sort_simple_merge_stl::HoareSortTaskSTL::RunImpl() {
   workers.reserve(num_threads);
   auto parallel_for = [&](size_t start, size_t end, auto&& func) {
     size_t num_chunk_per_thread = (end - start) / num_threads;
-    size_t start_;
     for (size_t i = 0; i < num_threads - 1; ++i) {
       workers.emplace_back([=, &func] {
-        start_ = start + i * num_chunk_per_thread;
+        size_t start_ = start + i * num_chunk_per_thread;
         size_t end_ = start_ + num_chunk_per_thread;
         for (size_t j = start_; j < end_;) {
           func(j++);
         }
       });
     }
-    start_ = start + (num_threads - 1) * num_chunk_per_thread;
     workers.emplace_back([=, &func] {
+      size_t start_ = start + (num_threads - 1) * num_chunk_per_thread;
       for (size_t j = start_; j < end;) {
         func(j++);
       }
@@ -127,7 +132,7 @@ bool deryabin_m_hoare_sort_simple_merge_stl::HoareSortTaskSTL::RunImpl() {
   parallel_for(0, chunk_count_, [this](size_t count) {
     HoaraSort(input_array_A_, count * min_chunk_size_, ((count + 1) * min_chunk_size_) - 1);
   });
-  size_t num_of_lvls = 8 * sizeof(chunk_count_) - __builtin_clzll(chunk_count_ - 1) - 1;
+  size_t num_of_lvls = fast_log2(chunk_count_);
   for (size_t i = 0; i < num_of_lvls; ++i) {
     parallel_for(0, chunk_count_ >> (i + 1), [this, i](size_t j) {
       MergeTwoParts(input_array_A_, j * min_chunk_size_ << (i + 1), ((j + 1) * min_chunk_size_ << (i + 1)) - 1);
