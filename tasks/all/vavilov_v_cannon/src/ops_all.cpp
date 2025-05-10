@@ -23,8 +23,8 @@ static int vavilov_v_cannon_all::CannonALL::find_compatible_q(int size, int N) {
   return q > 0 ? q : 1;
 }
 
-static void vavilov_v_cannon_all::CannonALL::extract_block(const std::vector<double>& matrix, double* block,
-                                                           int N, int K, int block_row, int block_col) {
+static void vavilov_v_cannon_all::CannonALL::extract_block(const std::vector<double>& matrix, double* block, int N,
+                                                           int K, int block_row, int block_col) {
   for (int i = 0; i < K; ++i) {
     for (int j = 0; j < K; ++j) {
       block[i * K + j] = matrix[(block_row * K + i) * N + (block_col * K + j)];
