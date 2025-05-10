@@ -44,7 +44,7 @@ void deryabin_m_hoare_sort_simple_merge_stl::HoaraSort(std::vector<double>& a, s
 }
 
 void deryabin_m_hoare_sort_simple_merge_stl::MergeTwoParts(std::vector<double>& arr, size_t left, size_t right) {
-  std::inplace_merge(arr.begin() + left, arr.begin() + (left + right) >> 1 + 1, arr.begin() + right + 1);
+  std::inplace_merge(arr.begin() + left, arr.begin() + ((left + right) >> 1) + 1, arr.begin() + right + 1);
 }
 
 bool deryabin_m_hoare_sort_simple_merge_stl::HoareSortTaskSequential::PreProcessingImpl() {
@@ -63,13 +63,12 @@ bool deryabin_m_hoare_sort_simple_merge_stl::HoareSortTaskSequential::Validation
 
 bool deryabin_m_hoare_sort_simple_merge_stl::HoareSortTaskSequential::RunImpl() {
   size_t count = 0;
-  size_t chunk_count = chunk_count_;
   while (count != chunk_count_) {
     HoaraSort(input_array_A_, count * min_chunk_size_, ((count + 1) * min_chunk_size_) - 1);
     count++;
   }
-  size_t num_of _lvls = 8 * sizeof(chunk_count_) - __builtin_clzll(chunk_count_ - 1) - 1;
-  for (size_t i = 0; i < num_of _lvls; i++) {
+  size_t num_of_lvls = 8 * sizeof(chunk_count_) - __builtin_clzll(chunk_count_ - 1) - 1;
+  for (size_t i = 0; i < num_of_lvls; i++) {
     for (size_t j = 0; j < chunk_count; j++) {
       MergeTwoParts(input_array_A_, j * min_chunk_size_ << (i + 1), ((j + 1) * min_chunk_size_ << (i + 1)) - 1);
       chunk_count--;
@@ -126,8 +125,8 @@ bool deryabin_m_hoare_sort_simple_merge_stl::HoareSortTaskSTL::RunImpl() {
   parallel_for(0, chunk_count_, [this](size_t count) {
     HoaraSort(input_array_A_, count * min_chunk_size_, ((count + 1) * min_chunk_size_) - 1);
   });
-  size_t num_of _lvls = 8 * sizeof(chunk_count_) - __builtin_clzll(chunk_count_ - 1) - 1;
-  for (int i = 0; i < num_of _lvls; ++i) {
+  size_t num_of_lvls = 8 * sizeof(chunk_count_) - __builtin_clzll(chunk_count_ - 1) - 1;
+  for (int i = 0; i < num_of_lvls; ++i) {
     parallel_for(0, chunk_count_ >> (i + 1), [this, i](size_t j) {
       MergeTwoParts(input_array_A_, j * min_chunk_size_ << (i + 1), ((j + 1) * min_chunk_size_ << (i + 1)) - 1);
     });
