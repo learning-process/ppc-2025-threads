@@ -83,7 +83,6 @@ bool Integral::PreProcessingImpl() {
         throw std::invalid_argument(
             "PreProcessingImpl Error: Invalid input task data or input buffer on root process.");
       }
-
       if (dimensions_ <= 0) {
         throw std::invalid_argument(
             "PreProcessingImpl Error on root: Dimensions not set (<=0) prior to PreProcessing. Call SetFunction with "
@@ -165,7 +164,7 @@ bool Integral::ValidationImpl() {
       return false;
     }
 
-    int global_validation_status = 1;
+    int global_validation_status_from_root = 1;
 
     if (mpi_rank_ == 0) {
       bool root_data_valid = true;
@@ -188,13 +187,13 @@ bool Integral::ValidationImpl() {
         }
       }
       if (!root_data_valid) {
-        global_validation_status = 0;
+        global_validation_status_from_root = 0;
       }
     }
 
-    MPI_Bcast(&global_validation_status, 1, MPI_INT, 0, MPI_COMM_WORLD);
+    MPI_Bcast(&global_validation_status_from_root, 1, MPI_INT, 0, MPI_COMM_WORLD);
 
-    if (global_validation_status == 0) {
+    if (global_validation_status_from_root == 0) {
       if (mpi_rank_ != 0)
         std::cerr << "Rank " << mpi_rank_ << " ValidationImpl Error: Root process reported validation failure."
                   << std::endl;
@@ -215,9 +214,8 @@ bool Integral::ValidationImpl() {
       local_validation_ok = false;
     }
 
-    int current_process_status = (global_validation_status == 1 && local_validation_ok) ? 1 : 0;
+    int current_process_status = local_validation_ok ? 1 : 0;
     int final_overall_status;
-
     MPI_Allreduce(&current_process_status, &final_overall_status, 1, MPI_INT, MPI_MIN, MPI_COMM_WORLD);
 
     return (final_overall_status == 1);
@@ -295,16 +293,33 @@ double Integral::ComputeOneDimensionalOMP(const std::function<double(const std::
     return 0.0;
   }
   const double step = (b_local - a_local) / n_local;
-  double total_sum_omp = 0.0;
+
+  int max_threads = 1;
+#ifdef _OPENMP
+  max_threads = omp_get_max_threads();
+#endif
+  std::vector<double> partial_sums(max_threads, 0.0);
+
 #pragma omp parallel
   {
+    int thread_id = 0;
+#ifdef _OPENMP
+    thread_id = omp_get_thread_num();
+#endif
+
     std::vector<double> point(1);
-#pragma omp for schedule(static) reduction(+ : total_sum_omp)
+#pragma omp for schedule(static)
     for (int i = 0; i < n_local; ++i) {
       point[0] = a_local + (static_cast<double>(i) + 0.5) * step;
-      total_sum_omp += f(point);
+      partial_sums[thread_id] += f(point);
     }
   }
+
+  double total_sum_omp = 0.0;
+  for (int i = 0; i < max_threads; ++i) {
+    total_sum_omp += partial_sums[i];
+  }
+
   return total_sum_omp * step;
 }
 
@@ -317,16 +332,34 @@ double Integral::ComputeOuterParallelInnerSequential(const std::function<double(
     return 0.0;
   }
   const double h0_local_step = (b0_local_mpi - a0_local_mpi) / n0_local_mpi;
-  double outer_integral_sum_omp = 0.0;
+
+  int max_threads = 1;
+#ifdef _OPENMP
+  max_threads = omp_get_max_threads();
+#endif
+  std::vector<double> partial_sums_outer(max_threads, 0.0);
+
 #pragma omp parallel
   {
+    int thread_id = 0;
+#ifdef _OPENMP
+    thread_id = omp_get_thread_num();
+#endif
+
     std::vector<double> current_point(static_cast<size_t>(total_dims));
-#pragma omp for schedule(static) reduction(+ : outer_integral_sum_omp)
+#pragma omp for schedule(static)
     for (int i = 0; i < n0_local_mpi; ++i) {
       current_point[0] = a0_local_mpi + (static_cast<double>(i) + 0.5) * h0_local_step;
-      outer_integral_sum_omp += ComputeSequentialRecursive(f, full_a, full_b, full_n, total_dims, current_point, 1);
+      partial_sums_outer[thread_id] +=
+          ComputeSequentialRecursive(f, full_a, full_b, full_n, total_dims, current_point, 1);
     }
   }
+
+  double outer_integral_sum_omp = 0.0;
+  for (int i = 0; i < max_threads; ++i) {
+    outer_integral_sum_omp += partial_sums_outer[i];
+  }
+
   return outer_integral_sum_omp * h0_local_step;
 }
 
