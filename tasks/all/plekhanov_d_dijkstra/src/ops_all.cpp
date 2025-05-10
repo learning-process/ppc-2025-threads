@@ -4,6 +4,8 @@
 
 #include <algorithm>
 #include <boost/mpi/collectives.hpp>
+#include <boost/mpi/collectives/all_reduce.hpp>
+#include <boost/mpi/communicator.hpp>
 #include <boost/mpi/operations.hpp>
 #include <boost/serialization/vector.hpp>  // NOLINT(misc-include-cleaner)
 #include <climits>
@@ -48,7 +50,7 @@ void ProcessLocalChunk(const std::vector<std::vector<std::pair<int, int>>>& adj_
                        size_t start, size_t end, bool& updated) {
   const int inf = INT_MAX;
 #pragma omp parallel for schedule(dynamic)
-  for (int u = start; u < static_cast<int>(end); ++u) {
+  for (int u = static_cast<int>(start); u < static_cast<int>(end); ++u) {
     if (local_dist[u] == inf) {
       continue;
     }
