@@ -14,11 +14,14 @@
 
 namespace shurigin_s_integrals_square_mpi_perf_test {
 
-static int GetMpiRank() {
+namespace {
+
+int GetMpiRank() {
   int rank_val = 0;
   MPI_Comm_rank(MPI_COMM_WORLD, &rank_val);
   return rank_val;
 }
+}  // namespace
 
 TEST(ShuriginSIntegralsSquareMPI_Perf, TestPipelineRun) {
   const int rank = GetMpiRank();
