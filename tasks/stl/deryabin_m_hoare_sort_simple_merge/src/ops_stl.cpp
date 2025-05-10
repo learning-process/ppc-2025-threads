@@ -11,7 +11,7 @@
 
 #include "core/util/include/util.hpp"
 
-void deryabin_m_hoare_sort_simple_merge_tbb::HoaraSort(std::vector<double>& a, size_t first, size_t last) {
+void deryabin_m_hoare_sort_simple_merge_stl::HoaraSort(std::vector<double>& a, size_t first, size_t last) {
   if (first >= last) {
     return;
   }
