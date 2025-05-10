@@ -35,5 +35,7 @@ class CannonALL : public ppc::core::Task {
                      std::vector<double>& local_C);
   void ShiftBlocks(std::vector<double>& local_A, std::vector<double>& local_B);
   void CalculateGridDimensions(int size, int& rows, int& cols);
+  static int find_compatible_q(int size, int N);
+  static void extract_block(const std::vector<double>& matrix, double* block, int N, int K, int block_row, int block_col);
 };
 }  // namespace vavilov_v_cannon_all
