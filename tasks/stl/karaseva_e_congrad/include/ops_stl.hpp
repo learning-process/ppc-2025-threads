@@ -1,6 +1,7 @@
 #pragma once
 
 #include <cstddef>
+#include <thread>
 #include <utility>
 #include <vector>
 
@@ -17,6 +18,10 @@ class TestTaskSTL : public ppc::core::Task {
   bool PostProcessingImpl() override;
 
  private:
+  // Helper function for parallel execution
+  template <typename Func>
+  void Parallel(size_t start, size_t end, Func func);
+
   std::vector<double> A_;  // Coefficient matrix
   std::vector<double> b_;  // Right-hand side vector
   std::vector<double> x_;  // Solution vector
