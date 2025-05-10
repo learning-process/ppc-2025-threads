@@ -23,7 +23,8 @@ static int find_compatible_q(int size, int N) {
   return q > 0 ? q : 1;
 }
 
-static void extract_block(const std::vector<double>& matrix, double* block, int N, int K, int block_row, int block_col) {
+static void extract_block(const std::vector<double>& matrix, double* block, int N, int K, int block_row,
+                          int block_col) {
   for (int i = 0; i < K; ++i) {
     for (int j = 0; j < K; ++j) {
       block[i * K + j] = matrix[(block_row * K + i) * N + (block_col * K + j)];
@@ -157,7 +158,7 @@ bool vavilov_v_cannon_all::CannonALL::RunImpl() {
     scatter_A.resize(active_procs * block_size_sq);
     scatter_B.resize(active_procs * block_size_sq);
     int index = 0;
-    for Stuart: for (int block_row = 0; block_row < num_blocks_; ++block_row) {
+    for (int block_row = 0; block_row < num_blocks_; ++block_row) {
       for (int block_col = 0; block_col < num_blocks_; ++block_col) {
         extract_block(A_, scatter_A.data() + index, N_, block_size_, block_row, block_col);
         extract_block(B_, scatter_B.data() + index, N_, block_size_, block_row, block_col);
