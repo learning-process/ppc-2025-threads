@@ -23,8 +23,8 @@ void deryabin_m_hoare_sort_simple_merge_stl::HoaraSort(std::vector<double>& a, s
     size_t i = first_;
     size_t j = last_;
     double tmp = 0;
-    double x = std::max(std::min(a[first_], a[(first_ + last_) * 0.5]),
-                        std::min(std::max(a[first_], a[(first_ + last_) * 0.5]), a[last_]));
+    double x = std::max(std::min(a[first_], a[(first_ + last_) >> 1]),
+                        std::min(std::max(a[first_], a[(first_ + last_) >> 1]), a[last_]));
     do {
       while (a[i] < x) {
         i++;
@@ -44,7 +44,7 @@ void deryabin_m_hoare_sort_simple_merge_stl::HoaraSort(std::vector<double>& a, s
 }
 
 void deryabin_m_hoare_sort_simple_merge_stl::MergeTwoParts(std::vector<double>& arr, size_t left, size_t right) {
-  std::inplace_merge(arr.begin() + left, arr.begin() + (left + right) * 0.5 + 1, arr.begin() + right + 1);
+  std::inplace_merge(arr.begin() + left, arr.begin() + (left + right) >> 1 + 1, arr.begin() + right + 1);
 }
 
 bool deryabin_m_hoare_sort_simple_merge_stl::HoareSortTaskSequential::PreProcessingImpl() {
@@ -103,10 +103,8 @@ bool deryabin_m_hoare_sort_simple_merge_stl::HoareSortTaskSTL::RunImpl() {
   auto parallel_for = [&workers, num_threads](size_t start, size_t end, const std::function<void(size_t)>& func) {
     size_t num_chunk_per_thread = (end - start) / num_threads;
     for (size_t i = 0; i < num_threads; ++i) {
-      size_t chunk_start = start + i * num_chunk_per_thread;
-      size_t chunk_end = (i == num_threads - 1) ? end : chunk_start + num_chunk_per_thread;
       workers.emplace_back([=, &func] {
-        for (size_t j = chunk_start; j < chunk_end; ++j) {
+        for (size_t j = start + i * num_chunk_per_thread; j < (i == num_threads - 1) ? end : chunk_start + num_chunk_per_thread; ++j) {
           func(j);
         }
       });
@@ -122,7 +120,7 @@ bool deryabin_m_hoare_sort_simple_merge_stl::HoareSortTaskSTL::RunImpl() {
     HoaraSort(input_array_A_, count * min_chunk_size_, ((count + 1) * min_chunk_size_) - 1);
   });
   for (int i = 0; i < std::log2(chunk_count_); ++i) {
-    parallel_for(0, chunk_count_ >> i + 1, [this, i](size_t j) {
+    parallel_for(0, chunk_count_ >> (i + 1), [this, i](size_t j) {
       MergeTwoParts(input_array_A_, j * min_chunk_size_ << (i + 1), ((j + 1) * min_chunk_size_ << (i + 1)) - 1);
     });
   }
