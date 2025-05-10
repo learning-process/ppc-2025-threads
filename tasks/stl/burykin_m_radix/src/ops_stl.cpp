@@ -22,17 +22,21 @@ std::array<int, 256> burykin_m_radix_stl::RadixSTL::ComputeFrequency(const std::
 
 std::array<int, 256> burykin_m_radix_stl::RadixSTL::ComputeFrequencyParallel(const std::vector<int>& a, const int shift,
                                                                              int num_threads) {
+  if (a.empty()) {
+    return std::array<int, 256>{};
+  }
+
   std::vector<std::array<int, 256>> thread_counts(num_threads);
   std::vector<std::thread> threads(num_threads);
 
-  const int chunk_size = a.size() / num_threads;
+  const size_t chunk_size = a.size() / static_cast<size_t>(num_threads);
 
   for (int t = 0; t < num_threads; ++t) {
     threads[t] = std::thread([&, t]() {
-      const int start = t * chunk_size;
-      const int end = (t == num_threads - 1) ? a.size() - 1 : (t + 1) * chunk_size;
+      const size_t start = static_cast<size_t>(t) * chunk_size;
+      const size_t end = (t == num_threads - 1) ? a.size() : (static_cast<size_t>(t) + 1) * chunk_size;
 
-      for (int i = start; i < end; ++i) {
+      for (size_t i = start; i < end; ++i) {
         unsigned int key = ((static_cast<unsigned int>(a[i]) >> shift) & 0xFFU);
         if (shift == 24) {
           key ^= 0x80;
@@ -75,21 +79,17 @@ void burykin_m_radix_stl::RadixSTL::DistributeElements(const std::vector<int>& a
   }
 }
 
-void burykin_m_radix_stl::RadixSTL::DistributeElementsParallel(const std::vector<int>& a, std::vector<int>& b,
-                                                               const std::array<int, 256>& global_index,
-                                                               const int shift, int num_threads) {
-  std::vector<std::array<int, 256>> thread_indices(num_threads);
-  std::vector<std::array<int, 256>> thread_counts(num_threads);
-
-  const int chunk_size = a.size() / num_threads;
+void burykin_m_radix_stl::RadixSTL::ComputeThreadCounts(const std::vector<int>& a,
+                                                        std::vector<std::array<int, 256>>& thread_counts,
+                                                        const int shift, int num_threads, size_t chunk_size) {
   std::vector<std::thread> freq_threads(num_threads);
 
   for (int t = 0; t < num_threads; ++t) {
     freq_threads[t] = std::thread([&, t]() {
-      const int start = t * chunk_size;
-      const int end = (t == num_threads - 1) ? a.size() : (t + 1) * chunk_size;
+      const size_t start = static_cast<size_t>(t) * chunk_size;
+      const size_t end = (t == num_threads - 1) ? a.size() : (static_cast<size_t>(t) + 1) * chunk_size;
 
-      for (int i = start; i < end; ++i) {
+      for (size_t i = start; i < end; ++i) {
         unsigned int key = ((static_cast<unsigned int>(a[i]) >> shift) & 0xFFU);
         if (shift == 24) {
           key ^= 0x80;
@@ -102,7 +102,11 @@ void burykin_m_radix_stl::RadixSTL::DistributeElementsParallel(const std::vector
   for (auto& thread : freq_threads) {
     thread.join();
   }
+}
 
+void burykin_m_radix_stl::RadixSTL::ComputeThreadIndices(std::vector<std::array<int, 256>>& thread_indices,
+                                                         const std::vector<std::array<int, 256>>& thread_counts,
+                                                         const std::array<int, 256>& global_index, int num_threads) {
   for (int k = 0; k < 256; ++k) {
     int offset = global_index[k];
     for (int t = 0; t < num_threads; ++t) {
@@ -110,15 +114,28 @@ void burykin_m_radix_stl::RadixSTL::DistributeElementsParallel(const std::vector
       offset += thread_counts[t][k];
     }
   }
+}
+
+void burykin_m_radix_stl::RadixSTL::DistributeElementsParallel(const std::vector<int>& a, std::vector<int>& b,
+                                                               const std::array<int, 256>& global_index,
+                                                               const int shift, int num_threads) {
+  std::vector<std::array<int, 256>> thread_indices(num_threads);
+  std::vector<std::array<int, 256>> thread_counts(num_threads);
+
+  const size_t chunk_size = a.size() / static_cast<size_t>(num_threads);
+
+  ComputeThreadCounts(a, thread_counts, shift, num_threads, chunk_size);
+
+  ComputeThreadIndices(thread_indices, thread_counts, global_index, num_threads);
 
   std::vector<std::thread> dist_threads(num_threads);
 
   for (int t = 0; t < num_threads; ++t) {
     dist_threads[t] = std::thread([&, t]() {
-      const int start = t * chunk_size;
-      const int end = (t == num_threads - 1) ? a.size() : (t + 1) * chunk_size;
+      const size_t start = static_cast<size_t>(t) * chunk_size;
+      const size_t end = (t == num_threads - 1) ? a.size() : (static_cast<size_t>(t) + 1) * chunk_size;
 
-      for (int i = start; i < end; ++i) {
+      for (size_t i = start; i < end; ++i) {
         unsigned int key = ((static_cast<unsigned int>(a[i]) >> shift) & 0xFFU);
         if (shift == 24) {
           key ^= 0x80;

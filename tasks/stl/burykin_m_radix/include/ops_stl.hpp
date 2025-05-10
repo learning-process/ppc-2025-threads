@@ -22,6 +22,11 @@ class RadixSTL : public ppc::core::Task {
   static void DistributeElements(const std::vector<int>& a, std::vector<int>& b, std::array<int, 256> index, int shift);
   static void DistributeElementsParallel(const std::vector<int>& a, std::vector<int>& b,
                                          const std::array<int, 256>& global_index, int shift, int num_threads);
+  static void ComputeThreadCounts(const std::vector<int>& a, std::vector<std::array<int, 256>>& thread_counts,
+                                  int shift, int num_threads, size_t chunk_size);
+  static void ComputeThreadIndices(std::vector<std::array<int, 256>>& thread_indices,
+                                   const std::vector<std::array<int, 256>>& thread_counts,
+                                   const std::array<int, 256>& global_index, int num_threads);
 
  private:
   std::vector<int> input_, output_;
