@@ -13,17 +13,24 @@
 
 TEST(titov_s_image_filter_horiz_gaussian3x3_all, test_pipeline_run) {
   boost::mpi::communicator world;
-  constexpr size_t kWidth = 300;
-  constexpr size_t kHeight = 300;
+  constexpr size_t kWidth = 15000;
+  constexpr size_t kHeight = 15000;
   std::vector<double> input(kWidth * kHeight, 0.0);
   std::vector<double> output(kWidth * kHeight, 0.0);
   std::vector<double> expected(kWidth * kHeight, 0.0);
   std::vector<int> kernel = {1, 2, 1};
 
-  auto init_cell = [&](size_t i, size_t j) {
-    const size_t idx = i * kWidth + j;
+ auto init_cell = [&](size_t i, size_t j) {
+    const size_t idx = (i * kWidth) + j;
     input[idx] = (j % 3 == 0) ? 100.0 : 0.0;
-    expected[idx] = (j == kWidth - 1) ? 0.0 : (j % 3 == 0) ? 50.0 : 25.0;
+
+    if (j == kWidth - 1) {
+      expected[idx] = 0.0;
+    } else if (j % 3 == 0) {
+      expected[idx] = 50.0;
+    } else {
+      expected[idx] = 25.0;
+    }
   };
 
   for (size_t i = 0; i < kHeight; ++i) {
@@ -55,7 +62,7 @@ TEST(titov_s_image_filter_horiz_gaussian3x3_all, test_pipeline_run) {
   perf_analyzer->PipelineRun(perf_attr, perf_results);
   ppc::core::Perf::PrintPerfStatistic(perf_results);
   auto verify_cell = [&](size_t i, size_t j) {
-    const size_t idx = i * kWidth + j;
+    const size_t idx = (i * kWidth) + j;
     ASSERT_NEAR(output[idx], expected[idx], 1e-6) << "Mismatch at [" << i << "," << j << "]";
   };
 
@@ -70,17 +77,24 @@ TEST(titov_s_image_filter_horiz_gaussian3x3_all, test_pipeline_run) {
 
 TEST(titov_s_image_filter_horiz_gaussian3x3_all, test_task_run) {
   boost::mpi::communicator world;
-  constexpr size_t kWidth = 300;
-  constexpr size_t kHeight = 300;
+  constexpr size_t kWidth = 15000;
+  constexpr size_t kHeight = 15000;
   std::vector<double> input(kWidth * kHeight, 0.0);
   std::vector<double> output(kWidth * kHeight, 0.0);
   std::vector<double> expected(kWidth * kHeight, 0.0);
   std::vector<int> kernel = {1, 2, 1};
 
   auto init_cell = [&](size_t i, size_t j) {
-    const size_t idx = i * kWidth + j;
+    const size_t idx = (i * kWidth) + j;
     input[idx] = (j % 3 == 0) ? 100.0 : 0.0;
-    expected[idx] = (j == kWidth - 1) ? 0.0 : (j % 3 == 0) ? 50.0 : 25.0;
+
+    if (j == kWidth - 1) {
+      expected[idx] = 0.0;
+    } else if (j % 3 == 0) {
+      expected[idx] = 50.0;
+    } else {
+      expected[idx] = 25.0;
+    }
   };
 
   for (size_t i = 0; i < kHeight; ++i) {
@@ -113,7 +127,7 @@ TEST(titov_s_image_filter_horiz_gaussian3x3_all, test_task_run) {
   ppc::core::Perf::PrintPerfStatistic(perf_results);
 
   auto verify_cell = [&](size_t i, size_t j) {
-    const size_t idx = i * kWidth + j;
+    const size_t idx = (i * kWidth) + j;
     ASSERT_NEAR(output[idx], expected[idx], 1e-6) << "Mismatch at [" << i << "," << j << "]";
   };
 
