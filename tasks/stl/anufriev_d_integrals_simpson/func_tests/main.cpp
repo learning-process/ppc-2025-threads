@@ -145,7 +145,7 @@ TEST(anufriev_d_integrals_simpson_stl_coverage, MinValidIterationsN0_is_2_2D) {
   auto td = MakeTaskData(in, out_buffer);
   anufriev_d_integrals_simpson_stl::IntegralsSimpsonSTL task(td);
   ASSERT_TRUE(task.Validation());
-  ASSERT_TRUE(task.PreProcessing());;
+  ASSERT_TRUE(task.PreProcessing());
   ASSERT_TRUE(task.Run());
   ASSERT_TRUE(task.PostProcessing());
   EXPECT_NEAR(out_buffer[0], 2.0 / 3.0, 1e-5);
@@ -205,7 +205,7 @@ TEST(anufriev_d_integrals_simpson_stl_coverage, Preprocessing_InvalidN_Zero) {
   auto td = MakeTaskData(in, out_buffer);
   anufriev_d_integrals_simpson_stl::IntegralsSimpsonSTL task(td);
   ASSERT_TRUE(task.Validation());
-  ASSERT_TRUE(task.PreProcessing());;
+  ASSERT_TRUE(task.PreProcessing());
 }
 
 TEST(anufriev_d_integrals_simpson_stl_coverage, Preprocessing_InvalidN_Odd) {
