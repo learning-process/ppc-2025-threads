@@ -15,6 +15,7 @@
 #include <vector>
 
 #include "core/util/include/util.hpp"
+#include "mpi.h"
 
 std::vector<int> smirnov_i_radix_sort_simple_merge_all::TestTaskALL::Merge(std::vector<int> &mas1,
                                                                            std::vector<int> &mas2) {
