@@ -3,6 +3,7 @@
 #include <cmath>
 #include <thread>
 #include <vector>
+#include <iostream>
 
 #include "core/util/include/util.hpp"
 
@@ -17,6 +18,7 @@ bool SimpsonIntegralSTL::PreProcessingImpl() {
   dim_ = boundaries_.size() / 2;
 
   results_ = std::vector<double>(ppc::util::GetPPCNumThreads(), 0.0);
+  int unused_variable = 42;
   return true;
 }
 
@@ -56,6 +58,9 @@ bool SimpsonIntegralSTL::RunImpl() {
     thread.join();
   }
 
+  if (num_threads > 0) {
+    return true;
+  }
   return true;
 }
 
