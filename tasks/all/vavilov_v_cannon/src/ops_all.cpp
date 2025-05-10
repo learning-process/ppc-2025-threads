@@ -76,7 +76,7 @@ void vavilov_v_cannon_all::CannonALL::InitialShift(std::vector<double>& local_A,
     reqs[0] = world_.isend(send_rank_A, 0, local_A.data(), block_size_ * block_size_);
     reqs[1] = world_.irecv(recv_rank_A, 0, tmp_A.data(), block_size_ * block_size_);
     mpi::wait_all(reqs, reqs + 2);
-    local_A = tmp_A;
+    std::swap(local_A, tmp_A);
   }
 
   for (int i = 0; i < col; ++i) {
@@ -84,7 +84,7 @@ void vavilov_v_cannon_all::CannonALL::InitialShift(std::vector<double>& local_A,
     reqs[0] = world_.isend(send_rank_B, 1, local_B.data(), block_size_ * block_size_);
     reqs[1] = world_.irecv(recv_rank_B, 1, tmp_B.data(), block_size_ * block_size_);
     mpi::wait_all(reqs, reqs + 2);
-    local_B = tmp_B;
+    std::swap(local_B, tmp_B);
   }
 }
 
@@ -112,8 +112,8 @@ void vavilov_v_cannon_all::CannonALL::ShiftBlocks(std::vector<double>& local_A, 
   reqs[3] = world_.irecv(recv_rank_B, 3, tmp_B.data(), block_size_ * block_size_);
 
   mpi::wait_all(reqs, reqs + 4);
-  local_A = tmp_A;
-  local_B = tmp_B;
+  std::swap(local_A, tmp_A);
+  std::swap(local_B, tmp_B);
 }
 
 void vavilov_v_cannon_all::CannonALL::BlockMultiply(const std::vector<double>& local_A,
