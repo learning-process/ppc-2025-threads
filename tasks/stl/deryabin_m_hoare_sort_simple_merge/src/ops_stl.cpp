@@ -103,7 +103,7 @@ bool deryabin_m_hoare_sort_simple_merge_stl::HoareSortTaskSTL::RunImpl() {
   workers.reserve(num_threads);
   auto parallel_for = [&workers, num_threads](size_t start, size_t end, const std::function<void(size_t)>& func) {
     const size_t total = end - start;
-    const size_t chunk_size = std::max<size_t>(1, total / num_threads);
+    const size_t chunk_size = total / num_threads;
     for (size_t i = 0; i < num_threads; ++i) {
       const size_t chunk_start = start + i * chunk_size;
       const size_t chunk_end = (i == num_threads - 1) ? end : chunk_start + chunk_size;
