@@ -11,7 +11,7 @@
 
 #include "core/util/include/util.hpp"
 
-size_t deryabin_m_hoare_sort_simple_merge_stl::num_of_lvls(size_t n) {
+size_t num_of_lvls(size_t n) {
   size_t log = 0;
   while (n >>= 1) ++log;
   return log;
