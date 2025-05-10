@@ -38,6 +38,7 @@ void karaseva_a_test_task_stl::TestTaskSTL::Parallel(size_t start, size_t end, F
   const size_t chunk_size = (end - start + num_threads - 1) / num_threads;
 
   std::vector<std::thread> threads;
+  threads.reserve(num_threads);
   for (size_t i = 0; i < num_threads; ++i) {
     const size_t chunk_start = start + i * chunk_size;
     const size_t chunk_end = std::min(end, chunk_start + chunk_size);
@@ -60,19 +61,22 @@ void karaseva_a_test_task_stl::TestTaskSTL::Parallel(size_t start, size_t end, F
 bool karaseva_a_test_task_stl::TestTaskSTL::RunImpl() {
   // Initialize residual vector r = b - Ax (x is zero initially)
   std::vector<double> r = b_;
-  std::vector<double> p = r;      // Initial search direction
-  std::vector<double> ap(size_);  // Buffer for matrix-vector product
+  std::vector<double> p = r;
+  std::vector<double> ap(size_);
 
-  // Calculate initial residual squared norm using parallel reduction
-  double rs_old = 0.0;
-  Parallel(0, size_, [&](size_t i) { rs_old += r[i] * r[i]; });
+  // Calculate initial residual squared norm with thread-local accumulation
+  std::vector<double> thread_rs_old(std::thread::hardware_concurrency(), 0.0);
+  Parallel(0, size_, [&](size_t i) {
+    const size_t thread_id = std::hash<std::thread::id>{}(std::this_thread::get_id()) % thread_rs_old.size();
+    thread_rs_old[thread_id] += r[i] * r[i];
+  });
+  double rs_old = std::accumulate(thread_rs_old.begin(), thread_rs_old.end(), 0.0);
 
-  const double tolerance = 1e-10;       // Convergence threshold
-  const size_t max_iterations = size_;  // Max iterations (up to problem size)
+  const double tolerance = 1e-10;
+  const size_t max_iterations = 2 * size_;  // Increased iteration limit
 
-  // Conjugate gradient main loop
   for (size_t k = 0; k < max_iterations; ++k) {
-    // Compute matrix-vector product: ap = A * p using parallel row processing
+    // Matrix-vector product with thread-local storage
     Parallel(0, size_, [&](size_t i) {
       double sum = 0.0;
       for (size_t j = 0; j < size_; ++j) {
@@ -81,30 +85,33 @@ bool karaseva_a_test_task_stl::TestTaskSTL::RunImpl() {
       ap[i] = sum;
     });
 
-    // Calculate denominator for alpha: p^T * A * p using parallel reduction
-    double p_ap = 0.0;
-    Parallel(0, size_, [&](size_t i) { p_ap += p[i] * ap[i]; });
+    // Parallel reduction for p_ap
+    std::vector<double> thread_p_ap(std::thread::hardware_concurrency(), 0.0);
+    Parallel(0, size_, [&](size_t i) {
+      const size_t thread_id = std::hash<std::thread::id>{}(std::this_thread::get_id()) % thread_p_ap.size();
+      thread_p_ap[thread_id] += p[i] * ap[i];
+    });
+    double p_ap = std::accumulate(thread_p_ap.begin(), thread_p_ap.end(), 0.0);
 
-    if (std::fabs(p_ap) < 1e-15) {
-      break;
-    }
+    if (std::fabs(p_ap) < 1e-15) break;
     const double alpha = rs_old / p_ap;
 
-    // Parallel update of solution and residual vectors
+    // Update vectors in parallel
     Parallel(0, size_, [&](size_t i) {
       x_[i] += alpha * p[i];
       r[i] -= alpha * ap[i];
     });
 
-    // Check convergence using residual norm
-    double rs_new = 0.0;
-    Parallel(0, size_, [&](size_t i) { rs_new += r[i] * r[i]; });
+    // Residual norm calculation with thread-local accumulation
+    std::vector<double> thread_rs_new(std::thread::hardware_concurrency(), 0.0);
+    Parallel(0, size_, [&](size_t i) {
+      const size_t thread_id = std::hash<std::thread::id>{}(std::this_thread::get_id()) % thread_rs_new.size();
+      thread_rs_new[thread_id] += r[i] * r[i];
+    });
+    double rs_new = std::accumulate(thread_rs_new.begin(), thread_rs_new.end(), 0.0);
 
-    if (rs_new < tolerance * tolerance) {
-      break;
-    }
+    if (rs_new < tolerance * tolerance) break;
 
-    // Update search direction with beta parameter
     const double beta = rs_new / rs_old;
     Parallel(0, size_, [&](size_t i) { p[i] = r[i] + beta * p[i]; });
 
@@ -115,7 +122,6 @@ bool karaseva_a_test_task_stl::TestTaskSTL::RunImpl() {
 }
 
 bool karaseva_a_test_task_stl::TestTaskSTL::PostProcessingImpl() {
-  // Copy solution vector to output buffer
   auto* x_ptr = reinterpret_cast<double*>(task_data->outputs[0]);
   std::ranges::copy(x_, x_ptr);
   return true;
