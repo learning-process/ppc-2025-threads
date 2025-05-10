@@ -104,7 +104,8 @@ bool deryabin_m_hoare_sort_simple_merge_stl::HoareSortTaskSTL::RunImpl() {
     size_t num_chunk_per_thread = (end - start) / num_threads;
     for (size_t i = 0; i < num_threads; ++i) {
       workers.emplace_back([=, &func] {
-        for (size_t j = start + i * num_chunk_per_thread; j < (i == num_threads - 1) ? end : chunk_start + num_chunk_per_thread; ++j) {
+        for (size_t j = start + i * num_chunk_per_thread;
+             j < (i == num_threads - 1) ? end : chunk_start + num_chunk_per_thread; ++j) {
           func(j);
         }
       });
