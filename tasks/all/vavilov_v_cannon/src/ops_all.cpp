@@ -129,7 +129,7 @@ void vavilov_v_cannon_all::CannonALL::BlockMultiply(const std::vector<double>& l
     }
   }
 }
-
+/*
 bool vavilov_v_cannon_all::CannonALL::RunImpl() {
   int rank = world_.rank();
   int size = world_.size();
@@ -194,6 +194,89 @@ bool vavilov_v_cannon_all::CannonALL::RunImpl() {
   mpi::gather(active_world, local_C.data(), block_size_sq, tmp_C.data(), 0);
 
   // Rearrange result into C_
+  if (rank == 0) {
+    for (int block_row = 0; block_row < num_blocks_; ++block_row) {
+      for (int block_col = 0; block_col < num_blocks_; ++block_col) {
+        int block_rank = block_row * num_blocks_ + block_col;
+        int block_index = block_rank * block_size_sq;
+        for (int i = 0; i < block_size_; ++i) {
+          for (int j = 0; j < block_size_; ++j) {
+            int global_row = block_row * block_size_ + i;
+            int global_col = block_col * block_size_ + j;
+            C_[global_row * N_ + global_col] = tmp_C[block_index + i * block_size_ + j];
+          }
+        }
+      }
+    }
+  }
+
+  return true;
+}
+*/
+
+bool vavilov_v_cannon_all::CannonALL::RunImpl() {
+  int rank = world_.rank();
+  int size = world_.size();
+
+  mpi::broadcast(world_, N_, 0);
+
+  // Находим совместимый размер сетки
+  num_blocks_ = find_compatible_q(size, N_);
+  block_size_ = N_ / num_blocks_;
+  int block_size_sq = block_size_ * block_size_;
+
+  // Создаём субкоммуникатор для активных процессов
+  int active_procs = num_blocks_ * num_blocks_;
+  mpi::communicator active_world = world_.split(rank < active_procs ? 0 : MPI_UNDEFINED);
+  if (rank >= active_procs) {
+    return true;
+  }
+
+  // Инициализируем локальные матрицы
+  std::vector<double> local_A(block_size_sq);
+  std::vector<double> local_B(block_size_sq);
+  std::vector<double> local_C(block_size_sq, 0);
+
+  // Раздача матриц A и B
+  if (rank == 0) {
+    std::vector<double> scatter_A(active_procs * block_size_sq);
+    std::vector<double> scatter_B(active_procs * block_size_sq);
+    int index = 0;
+    for (int block_row = 0; block_row < num_blocks_; ++block_row) {
+      for (int block_col = 0; block_col < num_blocks_; ++block_col) {
+        extract_block(A_, scatter_A.data() + index, N_, block_size_, block_row, block_col);
+        extract_block(B_, scatter_B.data() + index, N_, block_size_, block_row, block_col);
+        index += block_size_sq;
+      }
+    }
+    mpi::scatter(active_world, scatter_A.data(), local_A.data(), block_size_sq, 0);
+    mpi::scatter(active_world, scatter_B.data(), local_B.data(), block_size_sq, 0);
+  } else {
+    mpi::scatter(active_world, nullptr, local_A.data(), block_size_sq, 0);
+    mpi::scatter(active_world, nullptr, local_B.data(), block_size_sq, 0);
+  }
+
+  // Начальное выравнивание
+  InitialShift(local_A, local_B);
+
+  // Основной цикл вычислений
+  for (int iter = 0; iter < num_blocks_; ++iter) {
+    // Выполняем умножение блоков
+    BlockMultiply(local_A, local_B, local_C);
+    if (iter < num_blocks_ - 1) {
+      // Сдвигаем блоки для следующей итерации
+      ShiftBlocks(local_A, local_B);
+    }
+  }
+
+  // Сбор результатов
+  std::vector<double> tmp_C;
+  if (rank == 0) {
+    tmp_C.resize(active_procs * block_size_sq);
+  }
+  mpi::gather(active_world, local_C.data(), block_size_sq, tmp_C.data(), 0);
+
+  // Формирование итоговой матрицы C_
   if (rank == 0) {
     for (int block_row = 0; block_row < num_blocks_; ++block_row) {
       for (int block_col = 0; block_col < num_blocks_; ++block_col) {
