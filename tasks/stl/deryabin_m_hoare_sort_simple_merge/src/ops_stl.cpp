@@ -15,10 +15,10 @@ void deryabin_m_hoare_sort_simple_merge_stl::HoaraSort(std::vector<double>& a, s
   std::stack<std::pair<size_t, size_t>> stack;
   stack.push({first, last});
   while (!stack.empty()) {
-    if (first >= last) {
+    auto [first_, last_] = stack.top();
+    if (first_ >= last_) {
       continue;
     }
-    auto [first_, last_] = stack.top();
     stack.pop();
     size_t i = first_;
     size_t j = last_;
