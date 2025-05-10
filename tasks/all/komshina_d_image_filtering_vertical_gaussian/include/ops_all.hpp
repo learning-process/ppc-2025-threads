@@ -21,6 +21,8 @@ class TestTaskALL : public ppc::core::Task {
   bool PostProcessingImpl() override;
 
  private:
+  std::vector<unsigned char> FilterLocalRegion(std::size_t start_row, std::size_t end_row) const;
+
   boost::mpi::communicator world_;
   std::vector<unsigned char> input_;
   std::vector<unsigned char> output_;

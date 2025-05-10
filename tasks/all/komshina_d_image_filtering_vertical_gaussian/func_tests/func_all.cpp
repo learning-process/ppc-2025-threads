@@ -193,3 +193,40 @@ TEST(komshina_d_image_filtering_vertical_gaussian_all, EdgeHandling) {
     EXPECT_LE(pixel, 255);
   }
 }
+
+TEST(komshina_d_image_filtering_vertical_gaussian_all, MultiProcessDataGathering) {
+  int rank, size;
+  MPI_Comm_rank(MPI_COMM_WORLD, &rank);
+  MPI_Comm_size(MPI_COMM_WORLD, &size);
+
+  if (size < 2) GTEST_SKIP() << "Test requires at least 2 MPI processes";
+
+  std::size_t width = 4;
+  std::size_t height = 4;
+  std::vector<unsigned char> in(width * height * 3, static_cast<unsigned char>(rank * 50));
+  std::vector<float> kernel = {1, 1, 1, 1, 1, 1, 1, 1, 1};
+  std::vector<unsigned char> out(width * height * 3);
+
+  std::shared_ptr<ppc::core::TaskData> task_data = std::make_shared<ppc::core::TaskData>();
+  task_data->inputs.emplace_back(in.data());
+  task_data->inputs_count.emplace_back(width);
+  task_data->inputs_count.emplace_back(height);
+  task_data->inputs.emplace_back(reinterpret_cast<uint8_t*>(kernel.data()));
+  task_data->inputs_count.emplace_back(kernel.size());
+  task_data->outputs.emplace_back(out.data());
+  task_data->outputs_count.emplace_back(out.size());
+
+  komshina_d_image_filtering_vertical_gaussian_all::TestTaskALL test_task(task_data);
+
+  ASSERT_TRUE(test_task.Validation());
+  test_task.PreProcessing();
+  test_task.Run();
+  test_task.PostProcessing();
+
+  if (rank == 0) {
+    for (size_t i = 0; i < out.size(); ++i) {
+      EXPECT_GE(out[i], 0);
+      EXPECT_LE(out[i], 255);
+    }
+  }
+}

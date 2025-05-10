@@ -52,37 +52,7 @@ bool komshina_d_image_filtering_vertical_gaussian_all::TestTaskALL::RunImpl() {
   std::size_t start_row = rank * rows_per_proc;
   std::size_t end_row = (rank == size - 1) ? height_ : start_row + rows_per_proc;
 
-  const int kernel_radius = static_cast<int>(kernel_.size() / 2);
-  std::size_t local_height = end_row - start_row;
-  std::vector<unsigned char> local_output(local_height * width_ * 3);
-
-  auto& input_ref = input_;
-  auto& kernel_ref = kernel_;
-
-  int start_row_int = static_cast<int>(start_row);
-  int end_row_int = static_cast<int>(end_row);
-  int width_int = static_cast<int>(width_);
-  int height_int = static_cast<int>(height_);
-
-#pragma omp parallel for default(none) shared(local_output, input_ref, kernel_ref) \
-    firstprivate(start_row_int, end_row_int, width_int, height_int, kernel_radius)
-  for (int y = start_row_int; y < end_row_int; ++y) {
-    for (int x = 0; x < width_int; ++x) {
-      for (int c = 0; c < 3; ++c) {
-        float total = 0.0F;
-        for (int k = -kernel_radius; k <= kernel_radius; ++k) {
-          int yk = y + k;
-          if (yk < 0 || yk >= height_int) {
-            continue;
-          }
-          std::size_t idx = ((yk * width_int + x) * 3) + c;
-          total += static_cast<float>(input_ref[idx]) * kernel_ref[k + kernel_radius];
-        }
-        std::size_t local_y = y - start_row_int;
-        local_output[((local_y * width_int + x) * 3) + c] = std::clamp(static_cast<int>(std::round(total)), 0, 255);
-      }
-    }
-  }
+  std::vector<unsigned char> local_output = FilterLocalRegion(start_row, end_row);
 
   if (rank == 0) {
     output_.resize(input_.size());
@@ -103,6 +73,38 @@ bool komshina_d_image_filtering_vertical_gaussian_all::TestTaskALL::RunImpl() {
 
   world_.barrier();
   return true;
+}
+
+std::vector<unsigned char> komshina_d_image_filtering_vertical_gaussian_all::TestTaskALL::FilterLocalRegion(
+    std::size_t start_row, std::size_t end_row) const {
+  const int kernel_radius = static_cast<int>(kernel_.size() / 2);
+  std::size_t local_height = end_row - start_row;
+  std::vector<unsigned char> local_output(local_height * width_ * 3);
+
+  int start_row_int = static_cast<int>(start_row);
+  int end_row_int = static_cast<int>(end_row);
+  int width_int = static_cast<int>(width_);
+  int height_int = static_cast<int>(height_);
+
+#pragma omp parallel for default(none) shared(local_output) \
+    firstprivate(start_row_int, end_row_int, width_int, height_int, kernel_radius)
+  for (int y = start_row_int; y < end_row_int; ++y) {
+    for (int x = 0; x < width_int; ++x) {
+      for (int c = 0; c < 3; ++c) {
+        float total = 0.0F;
+        for (int k = -kernel_radius; k <= kernel_radius; ++k) {
+          int yk = y + k;
+          if (yk < 0 || yk >= height_int) continue;
+          std::size_t idx = ((yk * width_int + x) * 3) + c;
+          total += static_cast<float>(input_[idx]) * kernel_[k + kernel_radius];
+        }
+        std::size_t local_y = y - start_row_int;
+        local_output[((local_y * width_int + x) * 3) + c] = std::clamp(static_cast<int>(std::round(total)), 0, 255);
+      }
+    }
+  }
+
+  return local_output;
 }
 
 bool komshina_d_image_filtering_vertical_gaussian_all::TestTaskALL::PostProcessingImpl() {
