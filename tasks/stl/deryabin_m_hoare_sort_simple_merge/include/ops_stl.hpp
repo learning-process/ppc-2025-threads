@@ -8,7 +8,6 @@
 
 namespace deryabin_m_hoare_sort_simple_merge_stl {
 
-size_t num_of_lvls(size_t n);
 void HoaraSort(std::vector<double>& a, size_t first, size_t last);
 void MergeTwoParts(std::vector<double>& a, size_t left, size_t right);
 
