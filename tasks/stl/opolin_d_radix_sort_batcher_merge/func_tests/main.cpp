@@ -172,7 +172,7 @@ TEST(opolin_d_radix_batcher_sort_stl, test_equal_values) {
 }
 
 TEST(opolin_d_radix_batcher_sort_stl, test_reversed) {
-  int size = 10;
+  int size = 11;
   std::vector<int> expected;
   std::vector<int> input;
   input = {12, 8, 6, 3, 2, 0, -4, -6, -7, -10, -12};
