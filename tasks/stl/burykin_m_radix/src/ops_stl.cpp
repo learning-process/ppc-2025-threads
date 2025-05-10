@@ -1,9 +1,7 @@
 #include "stl/burykin_m_radix/include/ops_stl.hpp"
 
-#include <algorithm>
 #include <array>
 #include <cstddef>
-#include <numeric>
 #include <thread>
 #include <utility>
 #include <vector>
@@ -22,20 +20,15 @@ std::array<int, 256> burykin_m_radix_stl::RadixSTL::ComputeFrequency(const std::
   return count;
 }
 
-void ComputeFrequencyParallel(const std::vector<int>& a, const int shift, std::array<int, 256>& count, int start_idx,
-                              int end_idx) {
-  std::array<int, 256> local_count = {};
-  for (int i = start_idx; i < end_idx; ++i) {
-    const int v = a[i];
+void burykin_m_radix_stl::RadixSTL::ComputeFrequencyParallel(const std::vector<int>& a, const int shift, size_t start,
+                                                             size_t end, std::array<int, 256>& local_count) {
+  for (size_t i = start; i < end; ++i) {
+    int v = a[i];
     unsigned int key = ((static_cast<unsigned int>(v) >> shift) & 0xFFU);
     if (shift == 24) {
       key ^= 0x80;
     }
     ++local_count[key];
-  }
-
-  for (int i = 0; i < 256; ++i) {
-    count[i] += local_count[i];
   }
 }
 
@@ -58,25 +51,21 @@ void burykin_m_radix_stl::RadixSTL::DistributeElements(const std::vector<int>& a
   }
 }
 
-void DistributeElementsParallel(const std::vector<int>& a, std::vector<int>& b,
-                                const std::array<int, 256>& global_index,
-                                std::vector<std::array<int, 256>>& local_counts, const int shift, int thread_id,
-                                int start_idx, int end_idx) {
-  std::array<int, 256> index = global_index;
+void burykin_m_radix_stl::RadixSTL::DistributeElementsParallel(const std::vector<int>& a, std::vector<int>& b,
+                                                               const std::array<int, 256>& index, const int shift,
+                                                               size_t start, size_t end,
+                                                               std::vector<std::array<int, 256>>& local_indices) {
+  std::array<int, 256> thread_index = index;
+  size_t thread_id = local_indices.data() - &thread_index;
 
-  for (int i = 0; i < 256; ++i) {
-    for (int t = 0; t < thread_id; ++t) {
-      index[i] += local_counts[t][i];
-    }
-  }
-
-  for (int i = start_idx; i < end_idx; ++i) {
-    const int v = a[i];
+  for (size_t i = start; i < end; ++i) {
+    int v = a[i];
     unsigned int key = ((static_cast<unsigned int>(v) >> shift) & 0xFFU);
     if (shift == 24) {
       key ^= 0x80;
     }
-    b[index[key]++] = v;
+    b[thread_index[key]++] = v;
+    local_indices[thread_id][key] = thread_index[key];
   }
 }
 
@@ -102,29 +91,25 @@ bool burykin_m_radix_stl::RadixSTL::RunImpl() {
   std::vector<int> b(a.size());
 
   const int num_threads = ppc::util::GetPPCNumThreads();
-  const size_t elements_per_thread = a.size() / num_threads + ((a.size() % num_threads) ? 1 : 0);
 
   for (int shift = 0; shift < 32; shift += 8) {
-    std::array<int, 256> count = {};
-    std::vector<std::thread> freq_threads;
-    std::vector<std::array<int, 256>> local_counts(num_threads);
+    std::vector<std::array<int, 256>> thread_counts(num_threads, std::array<int, 256>{});
+    std::vector<std::thread> threads(num_threads);
+
+    const size_t chunk_size = a.size() / num_threads;
 
     for (int t = 0; t < num_threads; ++t) {
-      int start_idx = t * elements_per_thread;
-      int end_idx = std::min(start_idx + elements_per_thread, a.size());
-
-      if (start_idx < a.size()) {
-        freq_threads.emplace_back([&a, shift, &local_counts, t, start_idx, end_idx]() {
-          ComputeFrequencyParallel(a, shift, local_counts[t], start_idx, end_idx);
-        });
-      }
+      size_t start = t * chunk_size;
+      size_t end = (t == num_threads - 1) ? a.size() : (t + 1) * chunk_size;
+      threads[t] = std::thread(ComputeFrequencyParallel, std::ref(a), shift, start, end, std::ref(thread_counts[t]));
     }
 
-    for (auto& thread : freq_threads) {
+    for (auto& thread : threads) {
       thread.join();
     }
 
-    for (const auto& local_count : local_counts) {
+    std::array<int, 256> count = {};
+    for (const auto& local_count : thread_counts) {
       for (int i = 0; i < 256; ++i) {
         count[i] += local_count[i];
       }
@@ -132,38 +117,30 @@ bool burykin_m_radix_stl::RadixSTL::RunImpl() {
 
     const auto index = ComputeIndices(count);
 
-    std::vector<std::thread> dist_threads;
+    std::vector<std::array<int, 256>> thread_indices(num_threads);
+    std::array<int, 256> current_index = index;
 
-    std::vector<std::array<int, 256>> thread_key_counts(num_threads);
+    for (int i = 0; i < 256; ++i) {
+      int bucket_size = count[i];
+      int per_thread = bucket_size / num_threads;
+      int remainder = bucket_size % num_threads;
 
-    for (int t = 0; t < num_threads; ++t) {
-      int start_idx = t * elements_per_thread;
-      int end_idx = std::min(start_idx + elements_per_thread, a.size());
-
-      if (start_idx < a.size()) {
-        for (int i = start_idx; i < end_idx; ++i) {
-          const int v = a[i];
-          unsigned int key = ((static_cast<unsigned int>(v) >> shift) & 0xFFU);
-          if (shift == 24) {
-            key ^= 0x80;
-          }
-          ++thread_key_counts[t][key];
-        }
+      int pos = current_index[i];
+      for (int t = 0; t < num_threads; ++t) {
+        thread_indices[t][i] = pos;
+        int items = per_thread + (t < remainder ? 1 : 0);
+        pos += items;
       }
     }
 
     for (int t = 0; t < num_threads; ++t) {
-      int start_idx = t * elements_per_thread;
-      int end_idx = std::min(start_idx + elements_per_thread, a.size());
-
-      if (start_idx < a.size()) {
-        dist_threads.emplace_back([&a, &b, &index, &thread_key_counts, shift, t, start_idx, end_idx]() {
-          DistributeElementsParallel(a, b, index, thread_key_counts, shift, t, start_idx, end_idx);
-        });
-      }
+      size_t start = t * chunk_size;
+      size_t end = (t == num_threads - 1) ? a.size() : (t + 1) * chunk_size;
+      threads[t] = std::thread(DistributeElementsParallel, std::ref(a), std::ref(b), std::ref(index), shift, start, end,
+                               std::ref(thread_indices));
     }
 
-    for (auto& thread : dist_threads) {
+    for (auto& thread : threads) {
       thread.join();
     }
 
