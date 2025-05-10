@@ -118,7 +118,6 @@ bool deryabin_m_hoare_sort_simple_merge_stl::HoareSortTaskSTL::RunImpl() {
         worker.join();
       }
     }
-    workers.clear();
   };
   parallel_for(0, chunk_count_, [this](size_t count) {
     HoaraSort(input_array_A_, count * min_chunk_size_, ((count + 1) * min_chunk_size_) - 1);
@@ -138,6 +137,5 @@ bool deryabin_m_hoare_sort_simple_merge_stl::HoareSortTaskSTL::RunImpl() {
 
 bool deryabin_m_hoare_sort_simple_merge_stl::HoareSortTaskSTL::PostProcessingImpl() {
   reinterpret_cast<std::vector<double>*>(task_data->outputs[0])[0] = input_array_A_;
-  input_array_A_.clear();
   return true;
 }
