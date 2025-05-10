@@ -116,7 +116,7 @@ bool plekhanov_d_dijkstra_all::TestTaskALL::RunImpl() {
     boost::mpi::all_reduce(world_, local_dist.data(), num_vertices_, global_dist.data(), boost::mpi::minimum<int>());
 
 #pragma omp parallel for
-    for (int i = 0; i < num_vertices_; ++i) {
+    for (int i = 0; i < static_cast<int>(num_vertices_); ++i) {
       if (global_dist[i] < local_dist[i]) {
         local_dist[i] = global_dist[i];
         updated = true;
@@ -124,7 +124,7 @@ bool plekhanov_d_dijkstra_all::TestTaskALL::RunImpl() {
     }
 
 #pragma omp parallel for schedule(dynamic)
-    for (int u = 0; u < num_vertices_; ++u) {
+    for (int u = 0; u < static_cast<int>(num_vertices_); ++u) {
       if (local_dist[u] == INF) continue;
 
       for (const auto& [neighbor, weight] : adj_list[u]) {
