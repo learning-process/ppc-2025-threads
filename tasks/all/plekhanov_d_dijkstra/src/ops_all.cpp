@@ -48,7 +48,7 @@ void ProcessLocalChunk(const std::vector<std::vector<std::pair<int, int>>>& adj_
                        size_t start, size_t end, bool& updated) {
   const int inf = INT_MAX;
 #pragma omp parallel for schedule(dynamic)
-  for (int u = start; u < end; ++u) {
+  for (int u = start; u < static_cast<int>(end); ++u) {
     if (local_dist[u] == inf) {
       continue;
     }
