@@ -3,7 +3,6 @@
 #include <cmath>
 #include <thread>
 #include <vector>
-#include <iostream>
 
 #include "core/util/include/util.hpp"
 
@@ -18,12 +17,12 @@ bool SimpsonIntegralSTL::PreProcessingImpl() {
   dim_ = boundaries_.size() / 2;
 
   results_ = std::vector<double>(ppc::util::GetPPCNumThreads(), 0.0);
-  int unused_variable = 42;
   return true;
 }
 
 bool SimpsonIntegralSTL::ValidationImpl() {
-  return task_data->inputs_count[0] >= 3 && task_data->outputs_count[0] == 1 && (n_ % 2 == 0);
+  bool is_valid = task_data->inputs_count[0] >= 3 && task_data->outputs_count[0] == 1 && (n_ % 2 == 0);
+  return is_valid;
 }
 
 bool SimpsonIntegralSTL::RunImpl() {
@@ -36,7 +35,7 @@ bool SimpsonIntegralSTL::RunImpl() {
     double interval_size = (b - a) / num_threads;
 
     for (int i = 0; i < num_threads; ++i) {
-      double sub_a = a + i * interval_size;
+      double sub_a = a + (i * interval_size);
       double sub_b = (i == num_threads - 1) ? b : sub_a + interval_size;
       threads[i] = std::thread(&SimpsonIntegralSTL::Simpson1D, this, sub_a, sub_b, std::ref(results_[i]));
     }
@@ -48,7 +47,7 @@ bool SimpsonIntegralSTL::RunImpl() {
     double interval_size_x = (x1 - x0) / num_threads;
 
     for (int i = 0; i < num_threads; ++i) {
-      double sub_x0 = x0 + i * interval_size_x;
+      double sub_x0 = x0 + (i * interval_size_x);
       double sub_x1 = (i == num_threads - 1) ? x1 : sub_x0 + interval_size_x;
       threads[i] = std::thread(&SimpsonIntegralSTL::Simpson2D, this, sub_x0, sub_x1, y0, y1, std::ref(results_[i]));
     }
@@ -70,6 +69,7 @@ bool SimpsonIntegralSTL::PostProcessingImpl() {
     final_result += res;
   }
   reinterpret_cast<double*>(task_data->outputs[0])[0] = final_result;
+  final_result = 0.0;
   return true;
 }
 
@@ -82,10 +82,10 @@ void SimpsonIntegralSTL::Simpson1D(double a, double b, double& result) const {
   double sum = Func1D(a) + Func1D(b);
 
   for (int i = 1; i < n_; i += 2) {
-    sum += 4 * Func1D(a + i * h);
+    sum += 4 * Func1D(a + (i * h));
   }
   for (int i = 2; i < n_ - 1; i += 2) {
-    sum += 2 * Func1D(a + i * h);
+    sum += 2 * Func1D(a + (i * h));
   }
 
   result = sum * h / 3.0;
@@ -97,11 +97,11 @@ void SimpsonIntegralSTL::Simpson2D(double x0, double x1, double y0, double y1, d
   double sum = 0.0;
 
   for (int i = 0; i <= n_; i++) {
-    double x = x0 + i * hx;
+    double x = x0 + (i * hx);
     double coef_x = (i == 0 || i == n_) ? 1 : (i % 2 != 0 ? 4 : 2);
 
     for (int j = 0; j <= n_; j++) {
-      double y = y0 + j * hy;
+      double y = y0 + (j * hy);
       double coef_y = (j == 0 || j == n_) ? 1 : (j % 2 != 0 ? 4 : 2);
       sum += coef_x * coef_y * Func2D(x, y);
     }
