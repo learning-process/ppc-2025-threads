@@ -3,6 +3,8 @@
 #include <algorithm>
 #include <cmath>
 #include <cstddef>
+#include <execution>
+#include <iterator>
 #include <numeric>
 #include <vector>
 
@@ -31,46 +33,55 @@ bool karaseva_a_test_task_stl::TestTaskSTL::ValidationImpl() {
 }
 
 bool karaseva_a_test_task_stl::TestTaskSTL::RunImpl() {
-  // Initialize residual vector r = b - Ax (x is zero initially)
+  // Initialize residual vector and search direction
   std::vector<double> r = b_;
-  std::vector<double> p = r;      // Initial search direction
-  std::vector<double> ap(size_);  // Buffer for matrix-vector product
+  std::vector<double> p = r;
+  std::vector<double> ap(size_);
 
-  // Calculate initial residual squared norm
-  double rs_old = std::inner_product(r.begin(), r.end(), r.begin(), 0.0);
+  // Parallel computation of initial residual squared norm
+  double rs_old = std::transform_reduce(std::execution::par,  // Parallel execution policy
+                                        r.cbegin(), r.cend(), r.cbegin(), 0.0);
 
-  const double tolerance = 1e-10;       // Convergence threshold
-  const size_t max_iterations = size_;  // Max iterations (up to problem size)
+  const double tolerance = 1e-10;
+  const size_t max_iterations = size_;
 
-  // Conjugate gradient main loop
+  // Generate indices for parallel access
+  std::vector<size_t> indices(size_);
+  std::iota(indices.begin(), indices.end(), 0);
+
+  // Main conjugate gradient loop
   for (size_t k = 0; k < max_iterations; ++k) {
-    // Compute matrix-vector product: ap = A * p
-    for (size_t i = 0; i < size_; ++i) {
-      const auto offset = static_cast<std::ptrdiff_t>(i * size_);
-      auto row_start = A_.begin() + offset;
-      ap[i] = std::inner_product(row_start, row_start + static_cast<std::ptrdiff_t>(size_), p.begin(), 0.0);
-    }
+    // Parallel matrix-vector product computation
+    std::for_each(std::execution::par, indices.begin(), indices.end(), [&](size_t i) {
+      const auto row_start = A_.begin() + i * size_;
+      ap[i] = std::inner_product(row_start, row_start + static_cast<std::ptrdiff_t>(size_), p.cbegin(), 0.0);
+    });
 
-    // Calculate denominator for alpha: p^T * A * p
-    double p_ap = std::inner_product(p.begin(), p.end(), ap.begin(), 0.0);
-    if (std::fabs(p_ap) < 1e-15) {
-      break;
-    }
+    // Parallel computation of p^T*A*p
+    double p_ap = std::transform_reduce(std::execution::par,  // Parallel execution
+                                        p.cbegin(), p.cend(), ap.cbegin(), 0.0);
+
+    if (std::fabs(p_ap) < 1e-15) break;
     const double alpha = rs_old / p_ap;
 
-    // Update solution and residual vectors
-    std::ranges::transform(x_, p, x_.begin(), [alpha](double x_i, double p_i) { return x_i + (alpha * p_i); });
-    std::ranges::transform(r, ap, r.begin(), [alpha](double r_i, double ap_i) { return r_i - (alpha * ap_i); });
+    // Parallel vector updates
+    std::transform(std::execution::par, x_.cbegin(), x_.cend(), p.cbegin(), x_.begin(),
+                   [alpha](double x, double p_val) { return x + alpha * p_val; });
 
-    // Check convergence using residual norm
-    double rs_new = std::inner_product(r.begin(), r.end(), r.begin(), 0.0);
-    if (rs_new < tolerance * tolerance) {
-      break;
-    }
+    std::transform(std::execution::par, r.cbegin(), r.cend(), ap.cbegin(), r.begin(),
+                   [alpha](double r_val, double ap_val) { return r_val - alpha * ap_val; });
 
-    // Update search direction with beta parameter
+    // Parallel residual norm calculation
+    double rs_new = std::transform_reduce(std::execution::par,  // Parallel execution
+                                          r.cbegin(), r.cend(), r.cbegin(), 0.0);
+
+    if (rs_new < tolerance * tolerance) break;
+
     const double beta = rs_new / rs_old;
-    std::ranges::transform(r, p, p.begin(), [beta](double r_i, double p_i) { return r_i + (beta * p_i); });
+
+    // Parallel direction update
+    std::transform(std::execution::par, r.cbegin(), r.cend(), p.cbegin(), p.begin(),
+                   [beta](double r_val, double p_val) { return r_val + beta * p_val; });
 
     rs_old = rs_new;
   }
