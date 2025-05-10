@@ -1,4 +1,28 @@
-﻿namespace shurigin_s_integrals_square_mpi {
+﻿#ifdef __clang__
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wcast-align"
+#endif
+
+#include "mpi/shurigin_s_integrals_square/include/ops_mpi.hpp"
+
+#include <mpi.h>
+#include <omp.h>
+
+#include <algorithm>
+#include <cmath>
+#include <cstddef>
+#include <functional>
+#include <iostream>
+#include <memory>
+#include <stdexcept>
+#include <string>
+#include <vector>
+
+#ifdef __clang__
+#pragma clang diagnostic pop
+#endif
+
+namespace shurigin_s_integrals_square_mpi {
 
 Integral::Integral(const std::shared_ptr<ppc::core::TaskData>& task_data_param)
     : Task(task_data_param),
