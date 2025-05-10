@@ -11,7 +11,7 @@
 
 #include "core/util/include/util.hpp"
 
-size_t deryabin_m_hoare_sort_simple_merge_stl::fast_log2(size_t n) {
+size_t deryabin_m_hoare_sort_simple_merge_stl::num_of_lvls(size_t n) {
   size_t log = 0;
   while (n >>= 1) ++log;
   return log;
@@ -74,7 +74,7 @@ bool deryabin_m_hoare_sort_simple_merge_stl::HoareSortTaskSequential::RunImpl() 
     HoaraSort(input_array_A_, count * min_chunk_size_, ((count + 1) * min_chunk_size_) - 1);
     count++;
   }
-  for (size_t i = 0; i < fast_log2(chunk_count_); i++) {
+  for (size_t i = 0; i < num_of_lvls(chunk_count_); i++) {
     for (size_t j = 0; j < chunk_count; j++) {
       MergeTwoParts(input_array_A_, j * min_chunk_size_ << (i + 1), ((j + 1) * min_chunk_size_ << (i + 1)) - 1);
       chunk_count--;
@@ -130,7 +130,7 @@ bool deryabin_m_hoare_sort_simple_merge_stl::HoareSortTaskSTL::RunImpl() {
   parallel_for(0, chunk_count_, [this](size_t count) {
     HoaraSort(input_array_A_, count * min_chunk_size_, ((count + 1) * min_chunk_size_) - 1);
   });
-  for (size_t i = 0; i < fast_log2(chunk_count_); ++i) {
+  for (size_t i = 0; i < num_of_lvls(chunk_count_); ++i) {
     parallel_for(0, chunk_count_ >> (i + 1), [this, i](size_t j) {
       MergeTwoParts(input_array_A_, j * min_chunk_size_ << (i + 1), ((j + 1) * min_chunk_size_ << (i + 1)) - 1);
     });
