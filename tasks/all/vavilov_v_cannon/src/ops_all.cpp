@@ -7,6 +7,7 @@
 #include <boost/mpi/communicator.hpp>
 #include <boost/serialization/utility.hpp>
 #include <boost/serialization/vector.hpp>
+#include <cblas>
 #include <cmath>
 #include <vector>
 
@@ -129,7 +130,7 @@ void vavilov_v_cannon_all::CannonALL::BlockMultiply(const std::vector<double>& l
     }
   }
 }
-
+/*
 bool vavilov_v_cannon_all::CannonALL::RunImpl() {
   int rank = world_.rank();
   int size = world_.size();
@@ -212,34 +213,37 @@ bool vavilov_v_cannon_all::CannonALL::RunImpl() {
 
   return true;
 }
-/*
+*/
+
 bool vavilov_v_cannon_all::CannonALL::RunImpl() {
   int rank = world_.rank();
   int size = world_.size();
 
   mpi::broadcast(world_, N_, 0);
 
-  // Находим совместимый размер сетки
   num_blocks_ = find_compatible_q(size, N_);
   block_size_ = N_ / num_blocks_;
   int block_size_sq = block_size_ * block_size_;
 
-  // Создаём субкоммуникатор для активных процессов
   int active_procs = num_blocks_ * num_blocks_;
   mpi::communicator active_world = world_.split(rank < active_procs ? 0 : MPI_UNDEFINED);
   if (rank >= active_procs) {
     return true;
   }
 
-  // Инициализируем локальные матрицы
+  rank = active_world.rank();
+  size = active_world.size();
+
   std::vector<double> local_A(block_size_sq);
   std::vector<double> local_B(block_size_sq);
   std::vector<double> local_C(block_size_sq, 0);
 
   // Раздача матриц A и B
+  std::vector<double> scatter_A;
+  std::vector<double> scatter_B;
   if (rank == 0) {
-    std::vector<double> scatter_A(active_procs * block_size_sq);
-    std::vector<double> scatter_B(active_procs * block_size_sq);
+    scatter_A.resize(active_procs * block_size_sq);
+    scatter_B.resize(active_procs * block_size_sq);
     int index = 0;
     for (int block_row = 0; block_row < num_blocks_; ++block_row) {
       for (int block_col = 0; block_col < num_blocks_; ++block_col) {
@@ -248,34 +252,71 @@ bool vavilov_v_cannon_all::CannonALL::RunImpl() {
         index += block_size_sq;
       }
     }
-    mpi::scatter(active_world, scatter_A.data(), local_A.data(), block_size_sq, 0);
-    mpi::scatter(active_world, scatter_B.data(), local_B.data(), block_size_sq, 0);
+    mpi::scatter(active_world, scatter_A, local_A.data(), block_size_sq, 0);
+    mpi::scatter(active_world, scatter_B, local_B.data(), block_size_sq, 0);
   } else {
-    mpi::scatter(active_world, nullptr, local_A.data(), block_size_sq, 0);
-    mpi::scatter(active_world, nullptr, local_B.data(), block_size_sq, 0);
+    mpi::scatter(active_world, local_A.data(), block_size_sq, 0);
+    mpi::scatter(active_world, local_B.data(), block_size_sq, 0);
   }
+
+  int row_index = rank / num_blocks_;
+  int col_index = rank % num_blocks_;
 
   // Начальное выравнивание
-  InitialShift(local_A, local_B);
+  mpi::request reqs[4];
+  int req_count = 0;
+  if (row_index != 0) {
+    int dest_rank_A = (col_index < row_index) ? rank + num_blocks_ - row_index : rank - row_index;
+    reqs[req_count++] = active_world.isend(dest_rank_A, 0, local_A.data(), block_size_sq);
+  }
+  if (col_index != 0) {
+    int dest_rank_B = (row_index < col_index) ? rank + (num_blocks_ - col_index) * num_blocks_
+                                             : rank - num_blocks_ * col_index;
+    reqs[req_count++] = active_world.isend(dest_rank_B, 1, local_B.data(), block_size_sq);
+  }
+  if (row_index != 0 && col_index != 0) {
+    reqs[req_count++] = active_world.irecv(mpi::any_source, 0, local_A.data(), block_size_sq);
+    reqs[req_count++] = active_world.irecv(mpi::any_source, 1, local_B.data(), block_size_sq);
+  } else if (row_index == 0 && col_index != 0) {
+    reqs[req_count++] = active_world.irecv(mpi::any_source, 1, local_B.data(), block_size_sq);
+  } else if (row_index != 0 && col_index == 0) {
+    reqs[req_count++] = active_world.irecv(mpi::any_source, 0, local_A.data(), block_size_sq);
+  }
+  mpi::wait_all(reqs, reqs + req_count);
 
-  // Основной цикл вычислений
-  for (int iter = 0; iter < num_blocks_; ++iter) {
-    // Выполняем умножение блоков
-    BlockMultiply(local_A, local_B, local_C);
-    if (iter < num_blocks_ - 1) {
-      // Сдвигаем блоки для следующей итерации
-      ShiftBlocks(local_A, local_B);
-    }
+  // Первое умножение
+  cblas_dgemm(CblasRowMajor, CblasNoTrans, CblasNoTrans,
+              block_size_, block_size_, block_size_,
+              1.0, local_A.data(), block_size_,
+              local_B.data(), block_size_,
+              1.0, local_C.data(), block_size_);
+
+  // Основной цикл
+  for (int iter = 0; iter < num_blocks_ - 1; ++iter) {
+    req_count = 0;
+    int dest_rank_A = (rank == row_index * num_blocks_) ? (row_index + 1) * num_blocks_ - 1 : rank - 1;
+    reqs[req_count++] = active_world.isend(dest_rank_A, 0, local_A.data(), block_size_sq);
+    reqs[req_count++] = active_world.irecv(mpi::any_source, 0, local_A.data(), block_size_sq);
+
+    int dest_rank_B = (rank < num_blocks_) ? rank + (num_blocks_ - 1) * num_blocks_ : rank - num_blocks_;
+    reqs[req_count++] = active_world.isend(dest_rank_B, 1, local_B.data(), block_size_sq);
+    reqs[req_count++] = active_world.irecv(mpi::any_source, 1, local_B.data(), block_size_sq);
+
+    mpi::wait_all(reqs, reqs + req_count);
+
+    cblas_dgemm(CblasRowMajor, CblasNoTrans, CblasNoTrans,
+                block_size_, block_size_, block_size_,
+                1.0, local_A.data(), block_size_,
+                local_B.data(), block_size_,
+                1.0, local_C.data(), block_size_);
   }
 
-  // Сбор результатов
   std::vector<double> tmp_C;
   if (rank == 0) {
     tmp_C.resize(active_procs * block_size_sq);
   }
   mpi::gather(active_world, local_C.data(), block_size_sq, tmp_C.data(), 0);
 
-  // Формирование итоговой матрицы C_
   if (rank == 0) {
     for (int block_row = 0; block_row < num_blocks_; ++block_row) {
       for (int block_col = 0; block_col < num_blocks_; ++block_col) {
@@ -294,7 +335,7 @@ bool vavilov_v_cannon_all::CannonALL::RunImpl() {
 
   return true;
 }
-*/
+
 bool vavilov_v_cannon_all::CannonALL::PostProcessingImpl() {
   if (world_.rank() == 0) {
     std::ranges::copy(C_, reinterpret_cast<double*>(task_data->outputs[0]));
