@@ -214,7 +214,7 @@ bool Integral::ValidationImpl() {
       local_validation_ok = false;
     }
 
-    int current_process_status = local_validation_ok ? 1 : 0;
+    int current_process_status = (global_validation_status_from_root == 1 && local_validation_ok) ? 1 : 0;
     int final_overall_status;
     MPI_Allreduce(&current_process_status, &final_overall_status, 1, MPI_INT, MPI_MIN, MPI_COMM_WORLD);
 
@@ -294,11 +294,17 @@ double Integral::ComputeOneDimensionalOMP(const std::function<double(const std::
   }
   const double step = (b_local - a_local) / n_local;
 
-  int max_threads = 1;
+  int num_threads_to_use = 1;
 #ifdef _OPENMP
-  max_threads = omp_get_max_threads();
+#pragma omp parallel
+  {
+#pragma omp single
+    num_threads_to_use = omp_get_num_threads();
+  }
+  if (num_threads_to_use == 0) num_threads_to_use = 1;
 #endif
-  std::vector<double> partial_sums(max_threads, 0.0);
+
+  std::vector<double> partial_sums(num_threads_to_use, 0.0);
 
 #pragma omp parallel
   {
@@ -308,6 +314,7 @@ double Integral::ComputeOneDimensionalOMP(const std::function<double(const std::
 #endif
 
     std::vector<double> point(1);
+
 #pragma omp for schedule(static)
     for (int i = 0; i < n_local; ++i) {
       point[0] = a_local + (static_cast<double>(i) + 0.5) * step;
@@ -316,7 +323,7 @@ double Integral::ComputeOneDimensionalOMP(const std::function<double(const std::
   }
 
   double total_sum_omp = 0.0;
-  for (int i = 0; i < max_threads; ++i) {
+  for (int i = 0; i < num_threads_to_use; ++i) {
     total_sum_omp += partial_sums[i];
   }
 
@@ -333,11 +340,17 @@ double Integral::ComputeOuterParallelInnerSequential(const std::function<double(
   }
   const double h0_local_step = (b0_local_mpi - a0_local_mpi) / n0_local_mpi;
 
-  int max_threads = 1;
+  int num_threads_to_use = 1;
 #ifdef _OPENMP
-  max_threads = omp_get_max_threads();
+#pragma omp parallel
+  {
+#pragma omp single
+    num_threads_to_use = omp_get_num_threads();
+  }
+  if (num_threads_to_use == 0) num_threads_to_use = 1;
 #endif
-  std::vector<double> partial_sums_outer(max_threads, 0.0);
+
+  std::vector<double> partial_sums_outer(num_threads_to_use, 0.0);
 
 #pragma omp parallel
   {
@@ -347,6 +360,7 @@ double Integral::ComputeOuterParallelInnerSequential(const std::function<double(
 #endif
 
     std::vector<double> current_point(static_cast<size_t>(total_dims));
+
 #pragma omp for schedule(static)
     for (int i = 0; i < n0_local_mpi; ++i) {
       current_point[0] = a0_local_mpi + (static_cast<double>(i) + 0.5) * h0_local_step;
@@ -356,7 +370,7 @@ double Integral::ComputeOuterParallelInnerSequential(const std::function<double(
   }
 
   double outer_integral_sum_omp = 0.0;
-  for (int i = 0; i < max_threads; ++i) {
+  for (int i = 0; i < num_threads_to_use; ++i) {
     outer_integral_sum_omp += partial_sums_outer[i];
   }
 
