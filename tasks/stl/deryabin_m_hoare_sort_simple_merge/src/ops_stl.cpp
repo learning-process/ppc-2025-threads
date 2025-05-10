@@ -68,7 +68,8 @@ bool deryabin_m_hoare_sort_simple_merge_stl::HoareSortTaskSequential::RunImpl() 
     HoaraSort(input_array_A_, count * min_chunk_size_, ((count + 1) * min_chunk_size_) - 1);
     count++;
   }
-  for (size_t i = 0; i < (size_t)(log((double)chunk_count_) / std::numbers::ln2); i++) {
+  size_t num_of _lvls = 8 * sizeof(chunk_count_) - __builtin_clzll(chunk_count_ - 1) - 1;
+  for (size_t i = 0; i < num_of _lvls; i++) {
     for (size_t j = 0; j < chunk_count; j++) {
       MergeTwoParts(input_array_A_, j * min_chunk_size_ << (i + 1), ((j + 1) * min_chunk_size_ << (i + 1)) - 1);
       chunk_count--;
@@ -97,30 +98,36 @@ bool deryabin_m_hoare_sort_simple_merge_stl::HoareSortTaskSTL::ValidationImpl() 
 }
 
 bool deryabin_m_hoare_sort_simple_merge_stl::HoareSortTaskSTL::RunImpl() {
-  size_t num_threads = ppc::util::GetPPCNumThreads();
+  size_t num_threads = std::thread::hardware_concurrency();
   std::vector<std::thread> workers;
   workers.reserve(num_threads);
-  auto parallel_for = [&workers, num_threads](size_t start, size_t end, const std::function<void(size_t)>& func) {
+  auto parallel_for = [&](size_t start, size_t end, auto&& func) {
     size_t num_chunk_per_thread = (end - start) / num_threads;
-    for (size_t i = 0; i < num_threads; ++i) {
+    for (size_t i = 0; i < num_threads - 1; ++i) {
       workers.emplace_back([=, &func] {
-        for (size_t j = start + i * num_chunk_per_thread;
-             j < (i == num_threads - 1) ? end : chunk_start + num_chunk_per_thread; ++j) {
-          func(j);
+        size_t start_ = start + i * num_chunk_per_thread;
+        size_t end_ = start_ + num_chunk_per_thread;
+        for (size_t j = start_; j < end_; ) {
+          func(j++);
         }
       });
     }
-    for (auto& worker : workers) {
-      if (worker.joinable()) {
-        worker.join();
+    start_ = start + (num_threads - 1) * num_chunk_per_thread;
+    workers.emplace_back([=, &func] {
+      for (size_t j = start_; j < end; ) {
+        func(j++);
       }
+    });
+    for (auto& worker : workers) {
+      worker.join();
     }
     workers.clear();
   };
   parallel_for(0, chunk_count_, [this](size_t count) {
     HoaraSort(input_array_A_, count * min_chunk_size_, ((count + 1) * min_chunk_size_) - 1);
   });
-  for (int i = 0; i < std::log2(chunk_count_); ++i) {
+  size_t num_of _lvls = 8 * sizeof(chunk_count_) - __builtin_clzll(chunk_count_ - 1) - 1;
+  for (int i = 0; i < num_of _lvls; ++i) {
     parallel_for(0, chunk_count_ >> (i + 1), [this, i](size_t j) {
       MergeTwoParts(input_array_A_, j * min_chunk_size_ << (i + 1), ((j + 1) * min_chunk_size_ << (i + 1)) - 1);
     });
