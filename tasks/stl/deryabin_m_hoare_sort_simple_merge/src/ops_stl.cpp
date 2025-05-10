@@ -12,9 +12,9 @@
 #include "core/util/include/util.hpp"
 
 size_t deryabin_m_hoare_sort_simple_merge_stl::fast_log2(size_t n) {
-    size_t log = 0;
-    while (n >>= 1) ++log; 
-    return log;
+  size_t log = 0;
+  while (n >>= 1) ++log;
+  return log;
 }
 
 void deryabin_m_hoare_sort_simple_merge_stl::HoaraSort(std::vector<double>& a, size_t first, size_t last) {
