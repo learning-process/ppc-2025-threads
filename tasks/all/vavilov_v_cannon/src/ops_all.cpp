@@ -25,6 +25,7 @@ int vavilov_v_cannon_all::CannonALL::find_compatible_q(int size, int N) {
 
 void vavilov_v_cannon_all::CannonALL::extract_block(const std::vector<double>& matrix, double* block, int N, int K,
                                                     int block_row, int block_col) {
+#pragma omp parallel for
   for (int i = 0; i < K; ++i) {
     for (int j = 0; j < K; ++j) {
       block[i * K + j] = matrix[(block_row * K + i) * N + (block_col * K + j)];
@@ -419,6 +420,7 @@ bool vavilov_v_cannon_all::CannonALL::RunImpl() {
 
   // Формируем итоговую матрицу C_
   if (rank == 0) {
+#pragma omp parallel for
     for (int i = 0; i < num_blocks_; ++i) {
       for (int j = 0; j < num_blocks_; ++j) {
         int block_idx = (i * num_blocks_ + j) * block_size_sq;
