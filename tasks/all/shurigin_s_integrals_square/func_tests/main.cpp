@@ -10,7 +10,7 @@
 #include <vector>
 
 #include "core/task/include/task.hpp"
-#include "mpi/shurigin_s_integrals_square/include/ops_mpi.hpp"
+#include "all/shurigin_s_integrals_square/include/ops_mpi.hpp"
 
 namespace shurigin_s_integrals_square_mpi_func_test {
 constexpr double kTolerance = 1e-3;

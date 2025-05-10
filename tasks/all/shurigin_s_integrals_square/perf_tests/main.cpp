@@ -10,7 +10,7 @@
 
 #include "core/perf/include/perf.hpp"
 #include "core/task/include/task.hpp"
-#include "mpi/shurigin_s_integrals_square/include/ops_mpi.hpp"
+#include "all/shurigin_s_integrals_square/include/ops_mpi.hpp"
 
 namespace shurigin_s_integrals_square_mpi_perf_test {
 

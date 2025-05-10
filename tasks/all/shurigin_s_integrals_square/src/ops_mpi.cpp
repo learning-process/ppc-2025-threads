@@ -1,4 +1,4 @@
-﻿#include "mpi/shurigin_s_integrals_square/include/ops_mpi.hpp"
+﻿#include "all/shurigin_s_integrals_square/include/ops_mpi.hpp"
 
 #include <algorithm>
 #include <cmath>
