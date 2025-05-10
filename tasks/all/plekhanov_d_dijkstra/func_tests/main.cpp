@@ -1,6 +1,6 @@
 #include <gtest/gtest.h>
 
-#include <climits> 
+#include <climits>
 #include <cstddef>
 #include <cstdint>
 #include <cstdlib>
