@@ -20,11 +20,14 @@ std::vector<int> ToGrayScaleImg(std::vector<RGB>& color_img, size_t width, size_
 
 int GetPixelSafe(const std::vector<int>& img, size_t x, size_t y, size_t width, size_t height);
 
-void ApplySobelKernel(const std::vector<int>& input_image, std::vector<int>& output_image, int width, int height,
-                      int has_top, int local_rows);
+void ApplySobelKernel(const std::vector<int>& local_image, std::vector<int>& local_result, int width,
+                      int extended_rows, int has_top, int local_rows);
 
 void InitWorkArea(int active_processes, int rows_per_proc, int remainder, int rank, int& y_start, int& local_rows,
                   int& has_top, int& has_bottom, int& extended_rows);
+
+void InitProcWorkArea(int proc, int active_processes, int rows_per_proc, int remainder, int& y_start, int& local_rows,
+                      int& has_top, int& has_bottom, int& extended_rows);
 
 class SobelFilterALL : public ppc::core::Task {
  public:
@@ -33,6 +36,11 @@ class SobelFilterALL : public ppc::core::Task {
   bool ValidationImpl() override;
   bool RunImpl() override;
   bool PostProcessingImpl() override;
+
+  void CollectWorkerResults(const std::vector<int>& local_result, int rows_per_proc, int remainder,
+                            int active_processes);
+  void CopyOrZeroLine(std::vector<int>& chunk, const std::vector<int>& gray, int i, int proc_y_start, int top,
+                      int width, int height);
 
  private:
   std::vector<RGB> picture_;
@@ -45,11 +53,11 @@ class SobelFilterALL : public ppc::core::Task {
   std::vector<int> local_image_;
   std::vector<int> local_result_;
 
-  int y_start;
-  int local_rows;
-  int has_top;
-  int has_bottom;
-  int extended_rows;
+  int y_start_;
+  int local_rows_;
+  int has_top_;
+  int has_bottom_;
+  int extended_rows_;
 };
 
 }  // namespace frolova_e_sobel_filter_all

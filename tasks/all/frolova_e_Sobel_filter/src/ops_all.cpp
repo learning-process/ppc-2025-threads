@@ -28,22 +28,22 @@ int frolova_e_sobel_filter_all::GetPixelSafe(const std::vector<int>& img, size_t
   return img[(y * width) + x];
 }
 
-void frolova_e_sobel_filter_all::ApplySobelKernel(const std::vector<int>& local_image_, std::vector<int>& local_result,
-                                                  int width_, int extended_rows, int has_top, int local_rows) {
+void frolova_e_sobel_filter_all::ApplySobelKernel(const std::vector<int>& local_image, std::vector<int>& local_result,
+                                                  int width, int extended_rows, int has_top, int local_rows) {
   tbb::parallel_for(tbb::blocked_range<int>(has_top, local_rows + has_top), [&](const tbb::blocked_range<int>& range) {
     for (int y = range.begin(); y < range.end(); ++y) {
-      for (int x = 0; x < static_cast<int>(width_); ++x) {
-        size_t base_idx = (y - has_top) * width_;
+      for (int x = 0; x < width; ++x) {
+        size_t base_idx = (y - has_top) * width;
 
-        int p00 = GetPixelSafe(local_image_, x - 1, y - 1, width_, extended_rows);
-        int p01 = GetPixelSafe(local_image_, x, y - 1, width_, extended_rows);
-        int p02 = GetPixelSafe(local_image_, x + 1, y - 1, width_, extended_rows);
-        int p10 = GetPixelSafe(local_image_, x - 1, y, width_, extended_rows);
-        int p11 = GetPixelSafe(local_image_, x, y, width_, extended_rows);
-        int p12 = GetPixelSafe(local_image_, x + 1, y, width_, extended_rows);
-        int p20 = GetPixelSafe(local_image_, x - 1, y + 1, width_, extended_rows);
-        int p21 = GetPixelSafe(local_image_, x, y + 1, width_, extended_rows);
-        int p22 = GetPixelSafe(local_image_, x + 1, y + 1, width_, extended_rows);
+        int p00 = GetPixelSafe(local_image, x - 1, y - 1, width, extended_rows);
+        int p01 = GetPixelSafe(local_image, x, y - 1, width, extended_rows);
+        int p02 = GetPixelSafe(local_image, x + 1, y - 1, width, extended_rows);
+        int p10 = GetPixelSafe(local_image, x - 1, y, width, extended_rows);
+        int p11 = GetPixelSafe(local_image, x, y, width, extended_rows);
+        int p12 = GetPixelSafe(local_image, x + 1, y, width, extended_rows);
+        int p20 = GetPixelSafe(local_image, x - 1, y + 1, width, extended_rows);
+        int p21 = GetPixelSafe(local_image, x, y + 1, width, extended_rows);
+        int p22 = GetPixelSafe(local_image, x + 1, y + 1, width, extended_rows);
 
         int res_x = (-1 * p00) + (0 * p01) + (1 * p02) + (-2 * p10) + (0 * p11) + (2 * p12) + (-1 * p20) + (0 * p21) +
                     (1 * p22);
@@ -69,6 +69,51 @@ void frolova_e_sobel_filter_all::InitWorkArea(int active_processes, int rows_per
   has_bottom = (rank < active_processes - 1) ? 1 : 0;
   extended_rows = local_rows + has_top + has_bottom;
 }
+
+void frolova_e_sobel_filter_all::InitProcWorkArea(int proc, int active_processes, int rows_per_proc, int remainder,
+                                                  int& y_start, int& local_rows, int& has_top, int& has_bottom,
+                                                  int& extended_rows) {
+  y_start = (proc * rows_per_proc) + std::min(proc, remainder);
+  int y_end = y_start + rows_per_proc + (proc < remainder ? 1 : 0);
+  local_rows = y_end - y_start;
+
+  has_top = (proc > 0) ? 1 : 0;
+  has_bottom = (proc < active_processes - 1) ? 1 : 0;
+  extended_rows = local_rows + has_top + has_bottom;
+}
+
+void frolova_e_sobel_filter_all::SobelFilterALL::CollectWorkerResults(const std::vector<int>& local_result,
+                                                                      int rows_per_proc, int remainder,
+                                                                      int active_processes) {
+  std::ranges::copy(local_result, res_image_.begin() + y_start_ * width_);
+
+  for (int proc = 1; proc < active_processes; ++proc) {
+    int proc_y_start = (proc * rows_per_proc) + std::min(proc, remainder);
+    int proc_y_end = proc_y_start + rows_per_proc + (proc < remainder ? 1 : 0);
+    int proc_local_rows = proc_y_end - proc_y_start;
+
+    std::vector<int> proc_result(proc_local_rows * width_);
+    world_.recv(proc, 1, proc_result);
+
+    std::copy(proc_result.begin(), proc_result.end(), res_image_.begin() + proc_y_start * width_);
+  }
+}
+
+void frolova_e_sobel_filter_all::SobelFilterALL::CopyOrZeroLine(std::vector<int>& chunk, const std::vector<int>& gray,
+                                                                int i, int proc_y_start, int top, int width,
+                                                                int height) {
+  int src_y = proc_y_start - top + i;
+
+  auto dst_offset = static_cast<std::vector<uint8_t>::difference_type>(i * width);
+
+  if (src_y >= 0 && src_y < height) {
+    auto src_offset = static_cast<std::vector<uint8_t>::difference_type>(src_y * width);
+    std::copy_n(gray.begin() + src_offset, width, chunk.begin() + dst_offset);
+  } else {
+    std::fill_n(chunk.begin() + dst_offset, width, 0);
+  }
+}
+
 
 bool frolova_e_sobel_filter_all::SobelFilterALL::PreProcessingImpl() {
   // Init value for input and output
@@ -140,35 +185,23 @@ bool frolova_e_sobel_filter_all::SobelFilterALL::RunImpl() {
     int rows_per_proc = static_cast<int>(height_ / active_processes);
     int remainder = static_cast<int>(height_ % active_processes);
 
-    InitWorkArea(active_processes, rows_per_proc, remainder, rank, y_start, local_rows, has_top, has_bottom,
-                 extended_rows);
+    InitWorkArea(active_processes, rows_per_proc, remainder, rank, y_start_, local_rows_, has_top_, has_bottom_,
+                 extended_rows_);
 
-    local_image_.resize(extended_rows * width_);
-    std::vector<int> local_result(local_rows * width_);
+    local_image_.resize(extended_rows_ * width_);
+    std::vector<int> local_result(local_rows_ * width_);
 
     if (rank == 0) {
       std::vector<int> gray = grayscale_image_;
       for (int proc = 0; proc < active_processes; proc++) {
-        int proc_y_start = (proc * rows_per_proc) + std::min(proc, remainder);
-        int proc_y_end = proc_y_start + rows_per_proc + (proc < remainder ? 1 : 0);
-        int proc_local_rows = proc_y_end - proc_y_start;
 
-        int top = (proc > 0) ? 1 : 0;
-        int bottom = (proc < active_processes - 1) ? 1 : 0;
-        int ext_rows = proc_local_rows + top + bottom;
+        int proc_y_start, proc_local_rows, top, bottom, ext_rows;
+        InitProcWorkArea(proc, active_processes, rows_per_proc, remainder, proc_y_start, proc_local_rows, top, bottom,
+                         ext_rows);
 
         std::vector<int> chunk(ext_rows * width_, 0);
         for (int i = 0; i < ext_rows; ++i) {
-          int src_y = proc_y_start - top + i;
-          if (src_y >= 0 && src_y < static_cast<int>(height_)) {
-            std::copy_n(gray.begin() + static_cast<std::vector<uint8_t>::difference_type>(src_y * width_),
-                        static_cast<std::vector<uint8_t>::difference_type>(width_),
-                        chunk.begin() + static_cast<std::vector<uint8_t>::difference_type>(i * width_));
-
-          } else {
-            std::fill_n(chunk.begin() + static_cast<std::vector<uint8_t>::difference_type>(i * width_),
-                        static_cast<std::vector<uint8_t>::difference_type>(width_), 0);
-          }
+          CopyOrZeroLine(chunk, gray, i, proc_y_start, top, width_, static_cast<int>(height_));
         }
 
         if (proc == 0) {
@@ -181,23 +214,11 @@ bool frolova_e_sobel_filter_all::SobelFilterALL::RunImpl() {
       world_.recv(0, 0, local_image_);
     }
 
-    frolova_e_sobel_filter_all::ApplySobelKernel(local_image_, local_result, width_, extended_rows, has_top,
-                                                 local_rows);
+    frolova_e_sobel_filter_all::ApplySobelKernel(local_image_, local_result, width_, extended_rows_, has_top_,
+                                                 local_rows_);
 
     if (world_.rank() == 0) {
-      std::ranges::copy(local_result, res_image_.begin() + y_start * width_);
-
-      for (int proc = 1; proc < active_processes; ++proc) {
-        int proc_y_start = (proc * rows_per_proc) + std::min(proc, remainder);
-        int proc_y_end = proc_y_start + rows_per_proc + (proc < remainder ? 1 : 0);
-        int proc_local_rows = proc_y_end - proc_y_start;
-
-        std::vector<int> proc_result(proc_local_rows * width_);
-
-        world_.recv(proc, 1, proc_result);
-
-        std::copy(proc_result.begin(), proc_result.end(), res_image_.begin() + proc_y_start * width_);
-      }
+      CollectWorkerResults(local_result, rows_per_proc, remainder, active_processes);
     } else {
       world_.send(0, 1, local_result);
     }
