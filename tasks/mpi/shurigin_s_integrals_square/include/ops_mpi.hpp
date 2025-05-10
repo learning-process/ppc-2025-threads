@@ -1,11 +1,11 @@
 ﻿#pragma once
 
 #include <cmath>
-#include <functional>    
-#include <memory>        
-#include <vector>        
+#include <functional>
+#include <memory>
+#include <vector>
 
-#include "core/task/include/task.hpp"     
+#include "core/task/include/task.hpp"
 
 namespace shurigin_s_integrals_square_mpi {
 
@@ -46,4 +46,4 @@ class Integral : public ppc::core::Task {
                                            std::vector<double>& current_eval_point, int current_dim_index);
 };
 
-}    
+}  // namespace shurigin_s_integrals_square_mpi
