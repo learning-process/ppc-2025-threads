@@ -45,7 +45,7 @@ bool ConvertGraphToAdjacencyList(const std::vector<int>& graph_data, size_t num_
 }
 
 void ProcessLocalChunk(const std::vector<std::vector<std::pair<int, int>>>& adj_list,
-                      std::vector<int>& local_dist, size_t start, size_t end, bool& updated) {
+                       std::vector<int>& local_dist, size_t start, size_t end, bool& updated) {
   const int inf = INT_MAX;
 #pragma omp parallel for schedule(dynamic)
   for (int u = start; u < end; ++u) {
@@ -79,7 +79,7 @@ void UpdateLocalDistances(const std::vector<int>& global_dist, std::vector<int>&
 }
 
 void ProcessAllVertices(const std::vector<std::vector<std::pair<int, int>>>& adj_list,
-                       std::vector<int>& local_dist, bool& updated) {
+                        std::vector<int>& local_dist, bool& updated) {
   const int inf = INT_MAX;
 #pragma omp parallel for schedule(dynamic)
   for (int u = 0; u < static_cast<int>(local_dist.size()); ++u) {
@@ -109,12 +109,11 @@ bool CheckGlobalUpdate(const boost::mpi::communicator& world, bool local_updated
   return (global_updated > 0);
 }
 
-void UpdateFinalDistances(const boost::mpi::communicator& world,
-                         const std::vector<int>& local_dist,
-                         std::vector<int>& distances) {
+void UpdateFinalDistances(const boost::mpi::communicator& world, const std::vector<int>& local_dist,
+                          std::vector<int>& distances) {
   std::vector<int> final_dist(local_dist.size());
-  boost::mpi::all_reduce(world, local_dist.data(), static_cast<int>(local_dist.size()),
-                         final_dist.data(), boost::mpi::minimum<int>());
+  boost::mpi::all_reduce(world, local_dist.data(), static_cast<int>(local_dist.size()), final_dist.data(),
+                         boost::mpi::minimum<int>());
 
 #pragma omp parallel for
   for (int i = 0; i < static_cast<int>(distances.size()); ++i) {
@@ -174,8 +173,8 @@ bool plekhanov_d_dijkstra_all::TestTaskALL::RunImpl() {
     ProcessLocalChunk(adj_list, local_dist, start, end, updated);
 
     std::vector<int> global_dist(num_vertices_);
-    boost::mpi::all_reduce(world_, local_dist.data(), static_cast<int>(num_vertices_),
-                           global_dist.data(), boost::mpi::minimum<int>());
+    boost::mpi::all_reduce(world_, local_dist.data(), static_cast<int>(num_vertices_), global_dist.data(),
+                           boost::mpi::minimum<int>());
 
     UpdateLocalDistances(global_dist, local_dist, updated);
     ProcessAllVertices(adj_list, local_dist, updated);
