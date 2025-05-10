@@ -156,16 +156,10 @@ bool burykin_m_radix_stl::RadixSTL::RunImpl() {
 
   const int num_threads = ppc::util::GetPPCNumThreads();
 
-  const int min_parallel_size = 1000;
-
   for (int shift = 0; shift < 32; shift += 8) {
     std::array<int, 256> count{};
 
-    if (a.size() > min_parallel_size && num_threads > 1) {
-      count = ComputeFrequencyParallel(a, shift, num_threads);
-    } else {
-      count = ComputeFrequency(a, shift);
-    }
+    count = ComputeFrequencyParallel(a, shift, num_threads);
 
     const auto index = ComputeIndices(count);
 
