@@ -269,8 +269,8 @@ bool vavilov_v_cannon_all::CannonALL::RunImpl() {
     reqs[req_count++] = active_world.isend(dest_rank_A, 0, local_A.data(), block_size_sq);
   }
   if (col_index != 0) {
-    int dest_rank_B = (row_index < col_index) ? rank + (num_blocks_ - col_index) * num_blocks_
-                                             : rank - num_blocks_ * col_index;
+    int dest_rank_B =
+        (row_index < col_index) ? rank + (num_blocks_ - col_index) * num_blocks_ : rank - num_blocks_ * col_index;
     reqs[req_count++] = active_world.isend(dest_rank_B, 1, local_B.data(), block_size_sq);
   }
   if (row_index != 0 && col_index != 0) {
