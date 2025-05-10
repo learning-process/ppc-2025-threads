@@ -9,8 +9,8 @@
 #include <numbers>
 #include <vector>
 
-#include "core/task/include/task.hpp"
 #include "all/shurigin_s_integrals_square/include/ops_mpi.hpp"
+#include "core/task/include/task.hpp"
 
 namespace shurigin_s_integrals_square_mpi_func_test {
 constexpr double kTolerance = 1e-3;

@@ -8,9 +8,9 @@
 #include <memory>
 #include <vector>
 
+#include "all/shurigin_s_integrals_square/include/ops_mpi.hpp"
 #include "core/perf/include/perf.hpp"
 #include "core/task/include/task.hpp"
-#include "all/shurigin_s_integrals_square/include/ops_mpi.hpp"
 
 namespace shurigin_s_integrals_square_mpi_perf_test {
 
