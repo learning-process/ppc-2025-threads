@@ -73,12 +73,13 @@ bool lysov_i_matrix_multiplication_fox_algorithm_stl::TestTaskSTL::RunImpl() {
     max_thr = 4;
   }
 
-  std::atomic<std::size_t> task{0};
+  std::atomic<std::size_t> task_idx{0};
 
   auto worker = [&](std::size_t step) {
+    const std::size_t total_tasks = num_blocks * num_blocks;
     while (true) {
-      std::size_t idx = task.fetch_add(1, std::memory_order_relaxed);
-      if (idx >= num_blocks * num_blocks) {
+      std::size_t idx = task_idx.fetch_add(1, std::memory_order_relaxed);
+      if (idx >= total_tasks) {
         break;
       }
 
@@ -91,13 +92,14 @@ bool lysov_i_matrix_multiplication_fox_algorithm_stl::TestTaskSTL::RunImpl() {
   };
 
   for (std::size_t step = 0; step < num_blocks; ++step) {
-    task.store(0, std::memory_order_relaxed);
+    task_idx.store(0, std::memory_order_relaxed);
+    const std::size_t threads_to_run = std::min<std::size_t>(max_thr, num_blocks * num_blocks);
+
     std::vector<std::thread> pool;
-    pool.reserve(max_thr);
-    for (std::size_t t = 0; t < max_thr; ++t) {
+    pool.reserve(threads_to_run);
+    for (std::size_t t = 0; t < threads_to_run; ++t) {
       pool.emplace_back(worker, step);
     }
-
     for (auto &th : pool) {
       th.join();
     }
