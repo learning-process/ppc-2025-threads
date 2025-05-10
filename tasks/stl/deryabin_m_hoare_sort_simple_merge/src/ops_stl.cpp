@@ -102,7 +102,7 @@ bool deryabin_m_hoare_sort_simple_merge_stl::HoareSortTaskSTL::ValidationImpl() 
 }
 
 bool deryabin_m_hoare_sort_simple_merge_stl::HoareSortTaskSTL::RunImpl() {
-  const size_t num_threads = ppc::util::GetPPCNumThreads();
+  const size_t num_threads = std::thread::hardware_concurrency();
   std::vector<std::thread> workers;
   workers.reserve(num_threads);
   auto parallel_for = [&](size_t start, size_t end, auto&& func) {
@@ -120,7 +120,9 @@ bool deryabin_m_hoare_sort_simple_merge_stl::HoareSortTaskSTL::RunImpl() {
       }
     });
     for (auto& worker : workers) {
-      worker.join();
+      if (worker.joinable()) {
+        worker.join();
+      }
     }
     workers.clear();
   };
