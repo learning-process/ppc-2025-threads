@@ -1,6 +1,5 @@
 #define USE_MATH_DEFINES
 #include <gtest/gtest.h>
-#include <mpi.h>
 
 #include <cmath>
 #include <cstdint>
@@ -11,6 +10,15 @@
 
 #include "all/shurigin_s_integrals_square/include/ops_mpi.hpp"
 #include "core/task/include/task.hpp"
+#ifdef __clang__
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wcast-align"
+#endif
+
+#include <mpi.h>
+#ifdef __clang__
+#pragma clang diagnostic pop
+#endif
 
 namespace shurigin_s_integrals_square_mpi_func_test {
 constexpr double kTolerance = 1e-3;
