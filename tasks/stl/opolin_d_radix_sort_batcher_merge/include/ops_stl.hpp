@@ -12,7 +12,7 @@ namespace opolin_d_radix_batcher_sort_stl {
 void ParallelProcessRange(size_t total_size, unsigned int num_threads, const std::function<void(size_t, size_t)>& func);
 uint32_t IntToUnsigned(int value);
 int UnsignedToInt(uint32_t value);
-void ParallelRunTasks(const std::vector<std::function<void()>>& tasks, unsigned int num_threads);
+void ParallelRunTasks(const std::vector<std::function<void()>>& tasks);
 void RadixSortLSD(std::vector<uint32_t>::iterator begin, std::vector<uint32_t>::iterator end);
 void IterativeOddEvenBlockMerge(std::vector<uint32_t>::iterator data_begin, std::vector<uint32_t>::iterator data_end,
                                 size_t num_initial_blocks, size_t initial_block_size, unsigned int num_threads);
