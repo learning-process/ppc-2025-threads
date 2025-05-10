@@ -35,7 +35,7 @@ bool vavilov_v_cannon_all::CannonALL::ValidationImpl() {
   }
   return true;
 }
-/*
+
 void vavilov_v_cannon_all::CannonALL::InitialShift(std::vector<double>& local_A, std::vector<double>& local_B) {
   int rank = world_.rank();
   int grid_size = num_blocks_;
@@ -273,7 +273,7 @@ bool vavilov_v_cannon_all::CannonALL::RunImpl() {
 
   return true;
 }
-*/
+
 /*
 void vavilov_v_cannon_all::CannonALL::CalculateGridDimensions(int size, int& rows, int& cols) {
   // Находим такие rows и cols, чтобы rows * cols = size и rows максимально близко к cols
@@ -455,8 +455,6 @@ bool vavilov_v_cannon_all::CannonALL::RunImpl() {
       }
       return true;
     }
-
-    // Разбрасываем матрицы A и B
     if (rank == 0) {
       std::cout << "Rank 0: Scattering matrices A and B" << std::endl;
       std::vector<double> tmp_A(active_procs * block_size_sq);
@@ -527,144 +525,6 @@ bool vavilov_v_cannon_all::CannonALL::RunImpl() {
   return true;
 }
 */
-void vavilov_v_cannon_all::CannonALL::InitialShift(std::vector<double>& local_A, std::vector<double>& local_B) {
-  int rank = world_.rank();
-  int grid_size = num_blocks_;
-  int grid_coord_x = rank / grid_size;
-  int grid_coord_y = rank % grid_size;
-
-  int dest_rank_a = grid_coord_x * grid_size + (grid_coord_y - grid_coord_x + grid_size) % grid_size;
-  int src_rank_a = grid_coord_x * grid_size + (grid_coord_y + grid_coord_x) % grid_size;
-
-  if (src_rank_a != rank) {
-    world_.send(dest_rank_a, 0, local_A);
-    world_.recv(src_rank_a, 0, local_A);
-  }
-  int dest_rank_b = ((grid_coord_x - grid_coord_y + grid_size) % grid_size) * grid_size + grid_coord_y;
-  int src_rank_b = ((grid_coord_x + grid_coord_y) % grid_size) * grid_size + grid_coord_y;
-
-  if (src_rank_b != rank) {
-    world_.send(dest_rank_b, 1, local_B);
-    world_.recv(src_rank_b, 1, local_B);
-  }
-}
-
-void vavilov_v_cannon_all::CannonALL::ShiftBlocks(std::vector<double>& local_A, std::vector<double>& local_B) {
-  int rank = world_.rank();
-  int grid_size = num_blocks_;
-  int grid_coord_x = rank / grid_size;
-  int grid_coord_y = rank % grid_size;
-
-  // Shift A left
-  int left_rank = grid_coord_x * grid_size + (grid_coord_y - 1 + grid_size) % grid_size;
-  int right_rank = grid_coord_x * grid_size + (grid_coord_y + 1) % grid_size;
-
-  std::vector<double> temp_A(block_size_ * block_size_);
-  if (right_rank != rank) {
-    world_.send(left_rank, 2, local_A);
-    world_.recv(right_rank, 2, temp_A);
-    local_A = temp_A;
-  } else {
-    local_A = local_A;
-  }
-
-  // Shift B up
-  int up_rank = ((grid_coord_x - 1 + grid_size) % grid_size) * grid_size + grid_coord_y;
-  int down_rank = ((grid_coord_x + 1) % grid_size) * grid_size + grid_coord_y;
-
-  std::vector<double> temp_B(block_size_ * block_size_);
-  if (down_rank != rank) {
-    world_.send(up_rank, 3, local_B);
-    world_.recv(down_rank, 3, temp_B);
-    local_B = temp_B;
-  } else {
-    local_B = local_B;
-  }
-}
-
-void vavilov_v_cannon_all::CannonALL::BlockMultiply(const std::vector<double>& local_A,
-                                                    const std::vector<double>& local_B, std::vector<double>& local_C) {
-#pragma omp parallel for
-  for (int i = 0; i < block_size_; ++i) {
-    for (int j = 0; j < block_size_; ++j) {
-      double temp = 0.0;
-      for (int k = 0; k < block_size_; ++k) {
-        temp += local_A[i * block_size_ + k] * local_B[k * block_size_ + j];
-      }
-      local_C[i * block_size_ + j] += temp;
-    }
-  }
-}
-
-bool vavilov_v_cannon_all::CannonALL::RunImpl() {
-  int rank = world_.rank();
-  int grid_size = num_blocks_;
-  if (grid_size * grid_size != world_.size()) {
-    if (world_.size() == 1) {
-      std::vector<double> local_A(block_size_ * block_size_);
-      std::vector<double> local_B(block_size_ * block_size_);
-      std::vector<double> local_C(block_size_ * block_size_, 0.0);
-
-      for (int bi = 0; bi < num_blocks_; ++bi) {
-        for (int bj = 0; bj < num_blocks_; ++bj) {
-          for (int i = 0; i < block_size_; ++i) {
-            for (int j = 0; j < block_size_; ++j) {
-              local_A[i * block_size_ + j] = A_[(bi * block_size_ + i) * N_ + (bj * block_size_ + j)];
-              local_B[i * block_size_ + j] = B_[(bi * block_size_ + i) * N_ + (bj * block_size_ + j)];
-            }
-          }
-
-          BlockMultiply(local_A, local_B, local_C);
-          for (int i = 0; i < block_size_; ++i) {
-            for (int j = 0; j < block_size_; ++j) {
-              C_[(bi * block_size_ + i) * N_ + (bj * block_size_ + j)] += local_C[i * block_size_ + j];
-            }
-          }
-          local_C.assign(local_C.size(), 0.0);
-        }
-      }
-      return true;
-    }
-    return false;
-  }
-
-  // Each process handles one block
-  std::vector<double> local_A(block_size_ * block_size_);
-  std::vector<double> local_B(block_size_ * block_size_);
-  std::vector<double> local_C(block_size_ * block_size_, 0.0);
-
-  // Scatter initial blocks
-  int grid_coord_x = rank / grid_size;
-  int grid_coord_y = rank % grid_size;
-
-  // Initialize local_A and local_B with block (grid_coord_x, grid_coord_y)
-  for (int i = 0; i < block_size_; ++i) {
-    for (int j = 0; j < block_size_; ++j) {
-      local_A[i * block_size_ + j] = A_[(grid_coord_x * block_size_ + i) * N_ + (grid_coord_y * block_size_ + j)];
-      local_B[i * block_size_ + j] = B_[(grid_coord_x * block_size_ + i) * N_ + (grid_coord_y * block_size_ + j)];
-    }
-  }
-
-  // Cannon's algorithm
-  InitialShift(local_A, local_B);
-  for (int iter = 0; iter < num_blocks_; ++iter) {
-    BlockMultiply(local_A, local_B, local_C);
-    ShiftBlocks(local_A, local_B);
-  }
-
-  // Gather result back to C_
-  for (int i = 0; i < block_size_; ++i) {
-    for (int j = 0; j < block_size_; ++j) {
-      C_[(grid_coord_x * block_size_ + i) * N_ + (grid_coord_y * block_size_ + j)] = local_C[i * block_size_ + j];
-    }
-  }
-
-  // Use all_reduce to collect all blocks into C_ on all processes
-  boost::mpi::all_reduce(world_, C_.data(), C_.size(), C_.data(), std::plus<double>());
-
-  return true;
-}
-
 bool vavilov_v_cannon_all::CannonALL::PostProcessingImpl() {
   if (world_.rank() == 0) {
     std::ranges::copy(C_, reinterpret_cast<double*>(task_data->outputs[0]));
