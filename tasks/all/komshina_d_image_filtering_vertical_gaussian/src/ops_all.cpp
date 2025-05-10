@@ -94,7 +94,9 @@ std::vector<unsigned char> komshina_d_image_filtering_vertical_gaussian_all::Tes
         float total = 0.0F;
         for (int k = -kernel_radius; k <= kernel_radius; ++k) {
           int yk = y + k;
-          if (yk < 0 || yk >= height_int) continue;
+          if (yk < 0 || yk >= height_int) {
+            continue;
+          }
           std::size_t idx = ((yk * width_int + x) * 3) + c;
           total += static_cast<float>(input_[idx]) * kernel_[k + kernel_radius];
         }

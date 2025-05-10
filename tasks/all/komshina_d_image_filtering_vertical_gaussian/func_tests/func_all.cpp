@@ -1,5 +1,7 @@
 #include <gtest/gtest.h>
 
+#include <mpi.h>
+
 #include <cmath>
 #include <cstddef>
 #include <cstdint>
@@ -195,11 +197,14 @@ TEST(komshina_d_image_filtering_vertical_gaussian_all, EdgeHandling) {
 }
 
 TEST(komshina_d_image_filtering_vertical_gaussian_all, MultiProcessDataGathering) {
-  int rank, size;
+  int rank = 0;
+  int size = 0;
   MPI_Comm_rank(MPI_COMM_WORLD, &rank);
   MPI_Comm_size(MPI_COMM_WORLD, &size);
 
-  if (size < 2) GTEST_SKIP() << "Test requires at least 2 MPI processes";
+  if (size < 2) {
+    GTEST_SKIP() << "Test requires at least 2 MPI processes";
+  }
 
   std::size_t width = 4;
   std::size_t height = 4;
