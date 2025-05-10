@@ -85,7 +85,9 @@ void frolova_e_sobel_filter_all::InitProcWorkArea(int proc, int active_processes
 void frolova_e_sobel_filter_all::SobelFilterALL::CollectWorkerResults(const std::vector<int>& local_result,
                                                                       int rows_per_proc, int remainder,
                                                                       int active_processes) {
-  std::ranges::copy(local_result, res_image_.begin() + y_start_ * width_);
+  std::ranges::copy(local_result,
+                    res_image_.begin() + static_cast<std::vector<int>::difference_type>(y_start_ * width_));
+
 
   for (int proc = 1; proc < active_processes; ++proc) {
     int proc_y_start = (proc * rows_per_proc) + std::min(proc, remainder);
@@ -95,7 +97,9 @@ void frolova_e_sobel_filter_all::SobelFilterALL::CollectWorkerResults(const std:
     std::vector<int> proc_result(proc_local_rows * width_);
     world_.recv(proc, 1, proc_result);
 
-    std::copy(proc_result.begin(), proc_result.end(), res_image_.begin() + proc_y_start * width_);
+    std::ranges::copy(proc_result, res_image_.begin() + proc_y_start * width_);
+
+
   }
 }
 
@@ -104,16 +108,16 @@ void frolova_e_sobel_filter_all::SobelFilterALL::CopyOrZeroLine(std::vector<int>
                                                                 int height) {
   int src_y = proc_y_start - top + i;
 
-  auto dst_offset = static_cast<std::vector<uint8_t>::difference_type>(i * width);
+  auto dst_offset = static_cast<std::vector<uint8_t>::difference_type>(width) * i;
+
 
   if (src_y >= 0 && src_y < height) {
-    auto src_offset = static_cast<std::vector<uint8_t>::difference_type>(src_y * width);
+    auto src_offset = static_cast<std::vector<uint8_t>::difference_type>(width) * src_y;
     std::copy_n(gray.begin() + src_offset, width, chunk.begin() + dst_offset);
   } else {
     std::fill_n(chunk.begin() + dst_offset, width, 0);
   }
 }
-
 
 bool frolova_e_sobel_filter_all::SobelFilterALL::PreProcessingImpl() {
   // Init value for input and output
@@ -194,14 +198,18 @@ bool frolova_e_sobel_filter_all::SobelFilterALL::RunImpl() {
     if (rank == 0) {
       std::vector<int> gray = grayscale_image_;
       for (int proc = 0; proc < active_processes; proc++) {
+        int proc_y_start = 0;
+        int proc_local_rows = 0;
+        int top = 0;
+        int bottom = 0;
+        int ext_rows = 0;
 
-        int proc_y_start, proc_local_rows, top, bottom, ext_rows;
         InitProcWorkArea(proc, active_processes, rows_per_proc, remainder, proc_y_start, proc_local_rows, top, bottom,
                          ext_rows);
 
         std::vector<int> chunk(ext_rows * width_, 0);
         for (int i = 0; i < ext_rows; ++i) {
-          CopyOrZeroLine(chunk, gray, i, proc_y_start, top, width_, static_cast<int>(height_));
+          CopyOrZeroLine(chunk, gray, i, proc_y_start, top, static_cast<int>(width_), static_cast<int>(height_));
         }
 
         if (proc == 0) {
@@ -214,7 +222,7 @@ bool frolova_e_sobel_filter_all::SobelFilterALL::RunImpl() {
       world_.recv(0, 0, local_image_);
     }
 
-    frolova_e_sobel_filter_all::ApplySobelKernel(local_image_, local_result, width_, extended_rows_, has_top_,
+    frolova_e_sobel_filter_all::ApplySobelKernel(local_image_, local_result, static_cast<int>(width_), extended_rows_, has_top_,
                                                  local_rows_);
 
     if (world_.rank() == 0) {

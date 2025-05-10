@@ -1,6 +1,5 @@
 #pragma once
 
-#include <boost/mpi/collectives/broadcast.hpp>
 #include <boost/mpi/communicator.hpp>
 #include <cstddef>
 #include <utility>
@@ -20,8 +19,8 @@ std::vector<int> ToGrayScaleImg(std::vector<RGB>& color_img, size_t width, size_
 
 int GetPixelSafe(const std::vector<int>& img, size_t x, size_t y, size_t width, size_t height);
 
-void ApplySobelKernel(const std::vector<int>& local_image, std::vector<int>& local_result, int width,
-                      int extended_rows, int has_top, int local_rows);
+void ApplySobelKernel(const std::vector<int>& local_image, std::vector<int>& local_result, int width, int extended_rows,
+                      int has_top, int local_rows);
 
 void InitWorkArea(int active_processes, int rows_per_proc, int remainder, int rank, int& y_start, int& local_rows,
                   int& has_top, int& has_bottom, int& extended_rows);
@@ -39,8 +38,8 @@ class SobelFilterALL : public ppc::core::Task {
 
   void CollectWorkerResults(const std::vector<int>& local_result, int rows_per_proc, int remainder,
                             int active_processes);
-  void CopyOrZeroLine(std::vector<int>& chunk, const std::vector<int>& gray, int i, int proc_y_start, int top,
-                      int width, int height);
+  static void CopyOrZeroLine(std::vector<int>& chunk, const std::vector<int>& gray, int i, int proc_y_start, int top,
+                             int width, int height);
 
  private:
   std::vector<RGB> picture_;
