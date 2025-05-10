@@ -1,4 +1,4 @@
-﻿#include "all/shurigin_s_integrals_square/include/ops_mpi.hpp"
+﻿#include "mpi/shurigin_s_integrals_square/include/ops_mpi.hpp"
 
 #include <algorithm>
 #include <cmath>
@@ -14,9 +14,7 @@
 #pragma clang diagnostic push
 #pragma clang diagnostic ignored "-Wcast-align"
 #endif
-
 #include <mpi.h>
-
 #ifdef __clang__
 #pragma clang diagnostic pop
 #endif
@@ -38,11 +36,11 @@ Integral::Integral(const std::shared_ptr<ppc::core::TaskData>& task_data_param)
 
 void Integral::SetFunction(const std::function<double(double)>& func) {
   if (!func) {
-    throw std::invalid_argument("Function provided is null (1D).");
+    throw std::invalid_argument("SetFunction (1D): Function is null.");
   }
   func_ = [func](const std::vector<double>& point) {
-    if (point.empty() || point.size() < 1) {
-      throw std::runtime_error("Internal error: Point vector is empty or too small in 1D wrapper.");
+    if (point.empty()) {
+      throw std::runtime_error("1D Wrapper: Point vector is empty.");
     }
     return func(point[0]);
   };
@@ -54,10 +52,10 @@ void Integral::SetFunction(const std::function<double(double)>& func) {
 
 void Integral::SetFunction(const std::function<double(const std::vector<double>&)>& func, int dims_param) {
   if (!func) {
-    throw std::invalid_argument("Function provided is null (ND).");
+    throw std::invalid_argument("SetFunction (ND): Function is null.");
   }
   if (dims_param <= 0) {
-    throw std::invalid_argument("Dimensions must be positive.");
+    throw std::invalid_argument("SetFunction (ND): Dimensions must be positive.");
   }
   func_ = func;
   dimensions_ = dims_param;
@@ -69,56 +67,49 @@ void Integral::SetFunction(const std::function<double(const std::vector<double>&
 bool Integral::PreProcessingImpl() {
   try {
     if (!this->task_data) {
-      throw std::invalid_argument("PreProcessingImpl Error: TaskData (task_data) is not set (null).");
+      std::cerr << "Rank " << mpi_rank_ << " PreProc Error: TaskData is null.\n";
+      return false;
     }
 
     MPI_Comm_rank(MPI_COMM_WORLD, &mpi_rank_);
     MPI_Comm_size(MPI_COMM_WORLD, &mpi_world_size_);
 
-    int temp_dimensions_on_root = 0;
-
     if (mpi_rank_ == 0) {
-      if (this->task_data->inputs.empty() || this->task_data->inputs[0] == nullptr ||
-          this->task_data->inputs_count.empty()) {
-        throw std::invalid_argument(
-            "PreProcessingImpl Error: Invalid input task data or input buffer on root process.");
-      }
       if (dimensions_ <= 0) {
-        throw std::invalid_argument(
-            "PreProcessingImpl Error on root: Dimensions not set (<=0) prior to PreProcessing. Call SetFunction with "
-            "dimensions.");
+        std::cerr << "Rank 0 PreProc Error: Dimensions not set or invalid.\n";
+        return false;
       }
-      temp_dimensions_on_root = dimensions_;
-
-      size_t expected_num_elements = static_cast<size_t>(3 * temp_dimensions_on_root);
-      size_t actual_num_elements = this->task_data->inputs_count[0] / sizeof(double);
-
-      if (actual_num_elements != expected_num_elements) {
-        throw std::invalid_argument("PreProcessingImpl Error on root: Input data size mismatch. Expected " +
-                                    std::to_string(expected_num_elements) + " doubles (for " +
-                                    std::to_string(temp_dimensions_on_root) + " dimensions), got " +
-                                    std::to_string(actual_num_elements) + " doubles.");
+      if (this->task_data->inputs.empty() || this->task_data->inputs_count.empty() || !this->task_data->inputs[0]) {
+        std::cerr << "Rank 0 PreProc Error: Invalid inputs or inputs_count.\n";
+        return false;
       }
 
-      down_limits_.resize(temp_dimensions_on_root);
-      up_limits_.resize(temp_dimensions_on_root);
-      counts_.resize(temp_dimensions_on_root);
+      size_t expected_elements = static_cast<size_t>(3 * dimensions_);
+      size_t actual_elements = this->task_data->inputs_count[0] / sizeof(double);
+
+      if (actual_elements != expected_elements) {
+        std::cerr << "Rank 0 PreProc Error: Input size mismatch. Expected " << expected_elements << " doubles, got "
+                  << actual_elements << " doubles.\n";
+        return false;
+      }
+
+      down_limits_.resize(dimensions_);
+      up_limits_.resize(dimensions_);
+      counts_.resize(dimensions_);
 
       auto* inputs_ptr = reinterpret_cast<double*>(this->task_data->inputs[0]);
-      for (int i = 0; i < temp_dimensions_on_root; ++i) {
+      for (int i = 0; i < dimensions_; ++i) {
         down_limits_[i] = inputs_ptr[i];
-        up_limits_[i] = inputs_ptr[i + temp_dimensions_on_root];
-        counts_[i] = static_cast<int>(inputs_ptr[i + (2 * temp_dimensions_on_root)]);
+        up_limits_[i] = inputs_ptr[i + dimensions_];
+        counts_[i] = static_cast<int>(inputs_ptr[i + (2 * dimensions_)]);
 
         if (counts_[i] <= 0) {
-          throw std::invalid_argument(
-              "PreProcessingImpl Error on root: Number of intervals (counts) must be positive for dimension " +
-              std::to_string(i));
+          std::cerr << "Rank 0 PreProc Error: Counts must be positive for dim " << i << "\n";
+          return false;
         }
         if (up_limits_[i] <= down_limits_[i]) {
-          throw std::invalid_argument(
-              "PreProcessingImpl Error on root: Upper limit must be greater than lower limit for dimension " +
-              std::to_string(i));
+          std::cerr << "Rank 0 PreProc Error: Upper limit <= lower for dim " << i << "\n";
+          return false;
         }
       }
     }
@@ -126,9 +117,9 @@ bool Integral::PreProcessingImpl() {
     MPI_Bcast(&dimensions_, 1, MPI_INT, 0, MPI_COMM_WORLD);
 
     if (dimensions_ <= 0 && mpi_rank_ != 0) {
-      throw std::runtime_error("Rank " + std::to_string(mpi_rank_) +
-                               " PreProcessingImpl Error: Received invalid dimensions_ (" +
-                               std::to_string(dimensions_) + ") from Bcast.");
+      std::cerr << "Rank " << mpi_rank_ << " PreProc Error: Invalid dimensions after Bcast.\n";
+      MPI_Abort(MPI_COMM_WORLD, 1);
+      return false;
     }
 
     if (mpi_rank_ != 0) {
@@ -145,7 +136,7 @@ bool Integral::PreProcessingImpl() {
     return true;
 
   } catch (const std::exception& e) {
-    std::cerr << "Rank " << mpi_rank_ << " Error in PreProcessingImpl: " << e.what() << std::endl;
+    std::cerr << "Rank " << mpi_rank_ << " PreProc Exception: " << e.what() << "\n";
     MPI_Abort(MPI_COMM_WORLD, 1);
     return false;
   }
@@ -154,74 +145,58 @@ bool Integral::PreProcessingImpl() {
 bool Integral::ValidationImpl() {
   try {
     if (!this->task_data) {
-      if (mpi_rank_ == 0) std::cerr << "Rank 0 ValidationImpl Error: TaskData (task_data) is null." << std::endl;
+      if (mpi_rank_ == 0) std::cerr << "Rank 0 Validation Error: TaskData is null.\n";
       return false;
     }
 
     if (dimensions_ <= 0) {
-      std::cerr << "Rank " << mpi_rank_ << " ValidationImpl Error: dimensions_ is not positive (" << dimensions_ << ")."
-                << std::endl;
+      std::cerr << "Rank " << mpi_rank_ << " Validation Error: dimensions_ not positive.\n";
       return false;
     }
 
-    int global_validation_status_from_root = 1;
-
+    int root_validation_ok = 1;
     if (mpi_rank_ == 0) {
-      bool root_data_valid = true;
       if (this->task_data->inputs_count.empty() || this->task_data->outputs_count.empty()) {
-        root_data_valid = false;
-        std::cerr << "Rank 0 ValidationImpl Error: inputs_count or outputs_count is empty." << std::endl;
+        std::cerr << "Rank 0 Validation Error: inputs_count or outputs_count empty.\n";
+        root_validation_ok = 0;
       } else {
-        size_t expected_num_elements_input = static_cast<size_t>(3 * dimensions_);
-        size_t actual_num_elements_input = this->task_data->inputs_count[0] / sizeof(double);
-
-        if (actual_num_elements_input != expected_num_elements_input) {
-          root_data_valid = false;
-          std::cerr << "Rank 0 ValidationImpl Error: Input data size mismatch. Expected " << expected_num_elements_input
-                    << " doubles, got " << actual_num_elements_input << " doubles." << std::endl;
+        size_t expected_elements_input = static_cast<size_t>(3 * dimensions_);
+        if (this->task_data->inputs_count[0] != expected_elements_input * sizeof(double)) {
+          std::cerr << "Rank 0 Validation Error: Input size mismatch.\n";
+          root_validation_ok = 0;
         }
         if (this->task_data->outputs_count[0] != sizeof(double)) {
-          root_data_valid = false;
-          std::cerr << "Rank 0 ValidationImpl Error: Output data size mismatch. Expected " << sizeof(double)
-                    << " bytes, got " << this->task_data->outputs_count[0] << " bytes." << std::endl;
+          std::cerr << "Rank 0 Validation Error: Output size mismatch.\n";
+          root_validation_ok = 0;
         }
-      }
-      if (!root_data_valid) {
-        global_validation_status_from_root = 0;
       }
     }
 
-    MPI_Bcast(&global_validation_status_from_root, 1, MPI_INT, 0, MPI_COMM_WORLD);
+    MPI_Bcast(&root_validation_ok, 1, MPI_INT, 0, MPI_COMM_WORLD);
 
-    if (global_validation_status_from_root == 0) {
-      if (mpi_rank_ != 0)
-        std::cerr << "Rank " << mpi_rank_ << " ValidationImpl Error: Root process reported validation failure."
-                  << std::endl;
+    if (root_validation_ok == 0) {
+      if (mpi_rank_ != 0) std::cerr << "Rank " << mpi_rank_ << " Validation Error: Root validation failed.\n";
       return false;
     }
 
-    bool local_validation_ok = true;
+    int local_validation_ok_flag = 1;
     if (!func_) {
-      std::cerr << "Rank " << mpi_rank_ << " ValidationImpl Error: Integration function is not set." << std::endl;
-      local_validation_ok = false;
+      std::cerr << "Rank " << mpi_rank_ << " Validation Error: Function not set.\n";
+      local_validation_ok_flag = 0;
     }
     if (static_cast<int>(down_limits_.size()) != dimensions_ || static_cast<int>(up_limits_.size()) != dimensions_ ||
         static_cast<int>(counts_.size()) != dimensions_) {
-      std::cerr << "Rank " << mpi_rank_
-                << " ValidationImpl Error: Mismatch in vector sizes after PreProcessing for dimensions_ = "
-                << dimensions_ << ". down_limits: " << down_limits_.size() << ", up_limits: " << up_limits_.size()
-                << ", counts: " << counts_.size() << std::endl;
-      local_validation_ok = false;
+      std::cerr << "Rank " << mpi_rank_ << " Validation Error: Vector sizes mismatch.\n";
+      local_validation_ok_flag = 0;
     }
 
-    int current_process_status = (global_validation_status_from_root == 1 && local_validation_ok) ? 1 : 0;
-    int final_overall_status;
-    MPI_Allreduce(&current_process_status, &final_overall_status, 1, MPI_INT, MPI_MIN, MPI_COMM_WORLD);
+    int final_status;
+    MPI_Allreduce(&local_validation_ok_flag, &final_status, 1, MPI_INT, MPI_MIN, MPI_COMM_WORLD);
 
-    return (final_overall_status == 1);
+    return (final_status == 1);
 
   } catch (const std::exception& e) {
-    std::cerr << "Rank " << mpi_rank_ << " Error in ValidationImpl: " << e.what() << std::endl;
+    std::cerr << "Rank " << mpi_rank_ << " Validation Exception: " << e.what() << "\n";
     MPI_Abort(MPI_COMM_WORLD, 1);
     return false;
   }
@@ -229,15 +204,12 @@ bool Integral::ValidationImpl() {
 
 bool Integral::RunImpl() {
   try {
-    if (!func_) {
-      throw std::runtime_error("RunImpl Error: Function is not set.");
-    }
-    if (dimensions_ <= 0 || counts_.empty() || down_limits_.empty() || up_limits_.empty()) {
-      throw std::runtime_error("RunImpl Error: Invalid dimensions or improperly initialized limits/counts vectors.");
-    }
-    if (static_cast<int>(counts_.size()) != dimensions_ || static_cast<int>(down_limits_.size()) != dimensions_ ||
+    if (!func_ || dimensions_ <= 0 || counts_.empty() || down_limits_.empty() || up_limits_.empty() ||
+        static_cast<int>(counts_.size()) != dimensions_ || static_cast<int>(down_limits_.size()) != dimensions_ ||
         static_cast<int>(up_limits_.size()) != dimensions_) {
-      throw std::runtime_error("RunImpl Error: Mismatch between dimensions_ and sizes of limits/counts vectors.");
+      std::cerr << "Rank " << mpi_rank_ << " RunImpl Error: Preconditions not met (func, dims, vectors).\n";
+      MPI_Abort(MPI_COMM_WORLD, 1);
+      return false;
     }
 
     double local_integral_sum = 0.0;
@@ -281,7 +253,7 @@ bool Integral::RunImpl() {
     MPI_Reduce(&local_integral_sum, &result_, 1, MPI_DOUBLE, MPI_SUM, 0, MPI_COMM_WORLD);
     return true;
   } catch (const std::exception& e) {
-    std::cerr << "Rank " << mpi_rank_ << " Error in RunImpl: " << e.what() << std::endl;
+    std::cerr << "Rank " << mpi_rank_ << " RunImpl Exception: " << e.what() << "\n";
     MPI_Abort(MPI_COMM_WORLD, 1);
     return false;
   }
@@ -293,40 +265,17 @@ double Integral::ComputeOneDimensionalOMP(const std::function<double(const std::
     return 0.0;
   }
   const double step = (b_local - a_local) / n_local;
-
-  int num_threads_to_use = 1;
-#ifdef _OPENMP
-#pragma omp parallel
-  {
-#pragma omp single
-    num_threads_to_use = omp_get_num_threads();
-  }
-  if (num_threads_to_use == 0) num_threads_to_use = 1;
-#endif
-
-  std::vector<double> partial_sums(num_threads_to_use, 0.0);
+  double total_sum_omp = 0.0;
 
 #pragma omp parallel
   {
-    int thread_id = 0;
-#ifdef _OPENMP
-    thread_id = omp_get_thread_num();
-#endif
-
     std::vector<double> point(1);
-
-#pragma omp for schedule(static)
+#pragma omp for schedule(static) reduction(+ : total_sum_omp)
     for (int i = 0; i < n_local; ++i) {
       point[0] = a_local + (static_cast<double>(i) + 0.5) * step;
-      partial_sums[thread_id] += f(point);
+      total_sum_omp += f(point);
     }
   }
-
-  double total_sum_omp = 0.0;
-  for (int i = 0; i < num_threads_to_use; ++i) {
-    total_sum_omp += partial_sums[i];
-  }
-
   return total_sum_omp * step;
 }
 
@@ -339,41 +288,17 @@ double Integral::ComputeOuterParallelInnerSequential(const std::function<double(
     return 0.0;
   }
   const double h0_local_step = (b0_local_mpi - a0_local_mpi) / n0_local_mpi;
-
-  int num_threads_to_use = 1;
-#ifdef _OPENMP
-#pragma omp parallel
-  {
-#pragma omp single
-    num_threads_to_use = omp_get_num_threads();
-  }
-  if (num_threads_to_use == 0) num_threads_to_use = 1;
-#endif
-
-  std::vector<double> partial_sums_outer(num_threads_to_use, 0.0);
+  double outer_integral_sum_omp = 0.0;
 
 #pragma omp parallel
   {
-    int thread_id = 0;
-#ifdef _OPENMP
-    thread_id = omp_get_thread_num();
-#endif
-
     std::vector<double> current_point(static_cast<size_t>(total_dims));
-
-#pragma omp for schedule(static)
+#pragma omp for schedule(static) reduction(+ : outer_integral_sum_omp)
     for (int i = 0; i < n0_local_mpi; ++i) {
       current_point[0] = a0_local_mpi + (static_cast<double>(i) + 0.5) * h0_local_step;
-      partial_sums_outer[thread_id] +=
-          ComputeSequentialRecursive(f, full_a, full_b, full_n, total_dims, current_point, 1);
+      outer_integral_sum_omp += ComputeSequentialRecursive(f, full_a, full_b, full_n, total_dims, current_point, 1);
     }
   }
-
-  double outer_integral_sum_omp = 0.0;
-  for (int i = 0; i < num_threads_to_use; ++i) {
-    outer_integral_sum_omp += partial_sums_outer[i];
-  }
-
   return outer_integral_sum_omp * h0_local_step;
 }
 
@@ -385,22 +310,12 @@ double Integral::ComputeSequentialRecursive(const std::function<double(const std
   if (current_dim_index == total_dims) {
     return f(current_eval_point);
   }
-  if (current_dim_index < 0 || static_cast<size_t>(current_dim_index) >= n_all_dims.size() ||
-      static_cast<size_t>(current_dim_index) >= a_all_dims.size() ||
-      static_cast<size_t>(current_dim_index) >= b_all_dims.size() ||
-      static_cast<size_t>(current_dim_index) >= current_eval_point.size()) {
-    throw std::out_of_range(
-        "Dimension index out of bounds in recursive call. Index: " + std::to_string(current_dim_index) +
-        ", total_dims: " + std::to_string(total_dims) + ", n_size: " + std::to_string(n_all_dims.size()) +
-        ", a_size: " + std::to_string(a_all_dims.size()) + ", b_size: " + std::to_string(b_all_dims.size()) +
-        ", point_size: " + std::to_string(current_eval_point.size()));
-  }
   const int n_for_current_dim = n_all_dims[static_cast<size_t>(current_dim_index)];
   const double a_for_current_dim = a_all_dims[static_cast<size_t>(current_dim_index)];
   const double b_for_current_dim = b_all_dims[static_cast<size_t>(current_dim_index)];
   if (n_for_current_dim <= 0) {
-    throw std::runtime_error("Non-positive interval count (n) in recursive call for dimension " +
-                             std::to_string(current_dim_index));
+    std::cerr << "Recursive Error: N <= 0 for dim " << current_dim_index << "\n";
+    return 0.0;
   }
   if (a_for_current_dim >= b_for_current_dim) {
     return 0.0;
@@ -420,26 +335,20 @@ bool Integral::PostProcessingImpl() {
   try {
     if (mpi_rank_ == 0) {
       if (!this->task_data) {
-        throw std::invalid_argument("PostProcessingImpl Error: TaskData (task_data) is null on root.");
+        std::cerr << "Rank 0 PostProc Error: TaskData is null.\n";
+        return false;
       }
-      if (this->task_data->outputs.empty() || this->task_data->outputs[0] == nullptr) {
-        throw std::invalid_argument(
-            "PostProcessingImpl Error: Invalid output task data or output buffer on root process.");
-      }
-      if (this->task_data->outputs_count.empty() || this->task_data->outputs_count[0] != sizeof(double)) {
-        throw std::invalid_argument("PostProcessingImpl Error: Output data size mismatch on root process. Expected " +
-                                    std::to_string(sizeof(double)) + " bytes, got " +
-                                    (this->task_data->outputs_count.empty()
-                                         ? "0 (outputs_count empty)"
-                                         : std::to_string(this->task_data->outputs_count[0])) +
-                                    " bytes.");
+      if (this->task_data->outputs.empty() || !this->task_data->outputs[0] || this->task_data->outputs_count.empty() ||
+          this->task_data->outputs_count[0] != sizeof(double)) {
+        std::cerr << "Rank 0 PostProc Error: Invalid outputs or outputs_count.\n";
+        return false;
       }
       auto* outputs_ptr = reinterpret_cast<double*>(this->task_data->outputs[0]);
       outputs_ptr[0] = result_;
     }
     return true;
   } catch (const std::exception& e) {
-    std::cerr << "Rank " << mpi_rank_ << " Error in PostProcessingImpl: " << e.what() << std::endl;
+    std::cerr << "Rank " << mpi_rank_ << " PostProc Exception: " << e.what() << "\n";
     MPI_Abort(MPI_COMM_WORLD, 1);
     return false;
   }
