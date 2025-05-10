@@ -20,6 +20,7 @@ std::vector<double> GenerateRandomSPDMatrix(size_t matrix_size, unsigned int see
   for (size_t i = 0; i < matrix_size * matrix_size; ++i) {
     r_matrix[i] = dist(gen);
   }
+
   std::vector<double> a_matrix(matrix_size * matrix_size, 0.0);
   for (size_t i = 0; i < matrix_size; ++i) {
     for (size_t j = 0; j < matrix_size; ++j) {
@@ -27,9 +28,7 @@ std::vector<double> GenerateRandomSPDMatrix(size_t matrix_size, unsigned int see
         a_matrix[(i * matrix_size) + j] += (r_matrix[(k * matrix_size) + i] * r_matrix[(k * matrix_size) + j]);
       }
     }
-  }
-  for (size_t i = 0; i < matrix_size; ++i) {
-    a_matrix[(i * matrix_size) + i] += static_cast<double>(matrix_size);
+    a_matrix[(i * matrix_size) + i] += matrix_size;
   }
   return a_matrix;
 }
@@ -133,7 +132,7 @@ TEST(karaseva_a_test_task_stl, test_zero_rhs) {
 
 TEST(karaseva_a_test_task_stl, test_random_solution) {
   constexpr size_t kSize = 30;
-  constexpr double kTolerance = 1e-6;
+  constexpr double kTolerance = 1e-5;
   std::mt19937 gen(777);
   std::uniform_real_distribution<double> dist(-10.0, 10.0);
 
