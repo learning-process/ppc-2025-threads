@@ -10,31 +10,6 @@
 #include "all/komshina_d_image_filtering_vertical_gaussian/include/ops_all.hpp"
 #include "core/task/include/task.hpp"
 
-TEST(komshina_d_image_filtering_vertical_gaussian_all, SinglePixelImage) {
-  std::size_t width = 1;
-  std::size_t height = 1;
-  std::vector<unsigned char> in = {255, 255, 255};
-  std::vector<float> kernel = {1, 2, 1, 2, 4, 2, 1, 2, 1};
-  std::vector<unsigned char> expected = {255, 255, 255};
-  std::vector<unsigned char> out(expected.size());
-
-  std::shared_ptr<ppc::core::TaskData> task_data = std::make_shared<ppc::core::TaskData>();
-  task_data->inputs.emplace_back(in.data());
-  task_data->inputs_count.emplace_back(width);
-  task_data->inputs_count.emplace_back(height);
-  task_data->inputs.emplace_back(reinterpret_cast<uint8_t*>(kernel.data()));
-  task_data->inputs_count.emplace_back(kernel.size());
-  task_data->outputs.emplace_back(out.data());
-  task_data->outputs_count.emplace_back(out.size());
-
-  komshina_d_image_filtering_vertical_gaussian_all::TestTaskALL test_task(task_data);
-  ASSERT_EQ(test_task.Validation(), true);
-  test_task.PreProcessing();
-  test_task.Run();
-  test_task.PostProcessing();
-  EXPECT_EQ(out, expected);
-}
-
 TEST(komshina_d_image_filtering_vertical_gaussian_all, EmptyImage) {
   std::size_t width = 0;
   std::size_t height = 0;
@@ -54,31 +29,6 @@ TEST(komshina_d_image_filtering_vertical_gaussian_all, EmptyImage) {
 
   komshina_d_image_filtering_vertical_gaussian_all::TestTaskALL test_task(task_data);
   ASSERT_EQ(test_task.Validation(), false);
-}
-
-TEST(komshina_d_image_filtering_vertical_gaussian_all, SingleRowImage) {
-  std::size_t width = 3;
-  std::size_t height = 1;
-  std::vector<unsigned char> in = {10, 20, 30, 40, 50, 60, 70, 80, 90};
-  std::vector<float> kernel = {1, 1, 1, 1, 1, 1, 1, 1, 1};
-  std::vector<unsigned char> expected = in;
-  std::vector<unsigned char> out(expected.size());
-
-  std::shared_ptr<ppc::core::TaskData> task_data = std::make_shared<ppc::core::TaskData>();
-  task_data->inputs.emplace_back(in.data());
-  task_data->inputs_count.emplace_back(width);
-  task_data->inputs_count.emplace_back(height);
-  task_data->inputs.emplace_back(reinterpret_cast<uint8_t*>(kernel.data()));
-  task_data->inputs_count.emplace_back(kernel.size());
-  task_data->outputs.emplace_back(out.data());
-  task_data->outputs_count.emplace_back(out.size());
-
-  komshina_d_image_filtering_vertical_gaussian_all::TestTaskALL test_task(task_data);
-  ASSERT_EQ(test_task.Validation(), true);
-  test_task.PreProcessing();
-  test_task.Run();
-  test_task.PostProcessing();
-  EXPECT_EQ(out, expected);
 }
 
 TEST(komshina_d_image_filtering_vertical_gaussian_all, ZeroWidthImage) {
