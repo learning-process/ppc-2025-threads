@@ -11,7 +11,6 @@
 #include <utility>
 #include <vector>
 
-
 #include "all/plekhanov_d_dijkstra/include/ops_all.hpp"
 #include "core/task/include/task.hpp"
 
