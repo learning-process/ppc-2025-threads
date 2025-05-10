@@ -4,7 +4,6 @@
 #include <cmath>
 #include <cstddef>
 #include <execution>
-#include <iterator>
 #include <numeric>
 #include <vector>
 
@@ -38,50 +37,57 @@ bool karaseva_a_test_task_stl::TestTaskSTL::RunImpl() {
   std::vector<double> p = r;
   std::vector<double> ap(size_);
 
-  // Parallel computation of initial residual squared norm
-  double rs_old = std::transform_reduce(std::execution::par,  // Parallel execution policy
+  // Parallel reduction for initial residual norm
+  double rs_old = std::transform_reduce(std::execution::par,  // Parallel policy
                                         r.cbegin(), r.cend(), r.cbegin(), 0.0);
 
   const double tolerance = 1e-10;
   const size_t max_iterations = size_;
 
-  // Generate indices for parallel access
+  // Create indices for parallel iteration
   std::vector<size_t> indices(size_);
   std::iota(indices.begin(), indices.end(), 0);
 
-  // Main conjugate gradient loop
+  // Main CG loop with parallel computations
   for (size_t k = 0; k < max_iterations; ++k) {
-    // Parallel matrix-vector product computation
+    // Parallel matrix-vector product using indices
     std::for_each(std::execution::par, indices.begin(), indices.end(), [&](size_t i) {
-      const auto row_start = A_.begin() + i * size_;
+      const auto row_start = A_.begin() + static_cast<std::ptrdiff_t>(i * size_);
       ap[i] = std::inner_product(row_start, row_start + static_cast<std::ptrdiff_t>(size_), p.cbegin(), 0.0);
     });
 
-    // Parallel computation of p^T*A*p
-    double p_ap = std::transform_reduce(std::execution::par,  // Parallel execution
+    // Parallel reduction for p^T*A*p
+    double p_ap = std::transform_reduce(std::execution::par,  // Parallel policy
                                         p.cbegin(), p.cend(), ap.cbegin(), 0.0);
 
-    if (std::fabs(p_ap) < 1e-15) break;
+    if (std::fabs(p_ap) < 1e-15) {
+      break;
+    }
     const double alpha = rs_old / p_ap;
 
     // Parallel vector updates
-    std::transform(std::execution::par, x_.cbegin(), x_.cend(), p.cbegin(), x_.begin(),
-                   [alpha](double x, double p_val) { return x + alpha * p_val; });
+    std::transform(std::execution::par,  // Parallel policy
+                   x_.cbegin(), x_.cend(), p.cbegin(), x_.begin(),
+                   [alpha](double x, double p_val) { return x + (alpha * p_val); });
 
-    std::transform(std::execution::par, r.cbegin(), r.cend(), ap.cbegin(), r.begin(),
-                   [alpha](double r_val, double ap_val) { return r_val - alpha * ap_val; });
+    std::transform(std::execution::par,  // Parallel policy
+                   r.cbegin(), r.cend(), ap.cbegin(), r.begin(),
+                   [alpha](double r_val, double ap_val) { return r_val - (alpha * ap_val); });
 
     // Parallel residual norm calculation
-    double rs_new = std::transform_reduce(std::execution::par,  // Parallel execution
+    double rs_new = std::transform_reduce(std::execution::par,  // Parallel policy
                                           r.cbegin(), r.cend(), r.cbegin(), 0.0);
 
-    if (rs_new < tolerance * tolerance) break;
+    if (rs_new < tolerance * tolerance) {
+      break;
+    }
 
     const double beta = rs_new / rs_old;
 
     // Parallel direction update
-    std::transform(std::execution::par, r.cbegin(), r.cend(), p.cbegin(), p.begin(),
-                   [beta](double r_val, double p_val) { return r_val + beta * p_val; });
+    std::transform(std::execution::par,  // Parallel policy
+                   r.cbegin(), r.cend(), p.cbegin(), p.begin(),
+                   [beta](double r_val, double p_val) { return r_val + (beta * p_val); });
 
     rs_old = rs_new;
   }
