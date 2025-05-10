@@ -20,7 +20,7 @@ TEST(titov_s_image_filter_horiz_gaussian3x3_all, test_pipeline_run) {
   std::vector<double> expected(kWidth * kHeight, 0.0);
   std::vector<int> kernel = {1, 2, 1};
 
- auto init_cell = [&](size_t i, size_t j) {
+  auto init_cell = [&](size_t i, size_t j) {
     const size_t idx = (i * kWidth) + j;
     input[idx] = (j % 3 == 0) ? 100.0 : 0.0;
 
