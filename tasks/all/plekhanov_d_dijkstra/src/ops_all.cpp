@@ -94,14 +94,14 @@ bool plekhanov_d_dijkstra_all::TestTaskALL::RunImpl() {
     updated = false;
     iteration++;
 
-    #pragma omp parallel for schedule(dynamic)
+#pragma omp parallel for schedule(dynamic)
     for (int u = start; u < end; ++u) {
       if (local_dist[u] == INF) continue;
 
       for (const auto& [neighbor, weight] : adj_list[u]) {
         int new_dist = local_dist[u] + weight;
         if (new_dist < local_dist[neighbor]) {
-          #pragma omp critical
+#pragma omp critical
           {
             if (new_dist < local_dist[neighbor]) {
               local_dist[neighbor] = new_dist;
@@ -115,7 +115,7 @@ bool plekhanov_d_dijkstra_all::TestTaskALL::RunImpl() {
     std::vector<int> global_dist(num_vertices_);
     boost::mpi::all_reduce(world_, local_dist.data(), num_vertices_, global_dist.data(), boost::mpi::minimum<int>());
 
-    #pragma omp parallel for
+#pragma omp parallel for
     for (int i = 0; i < num_vertices_; ++i) {
       if (global_dist[i] < local_dist[i]) {
         local_dist[i] = global_dist[i];
@@ -123,14 +123,14 @@ bool plekhanov_d_dijkstra_all::TestTaskALL::RunImpl() {
       }
     }
 
-    #pragma omp parallel for schedule(dynamic)
+#pragma omp parallel for schedule(dynamic)
     for (int u = 0; u < num_vertices_; ++u) {
       if (local_dist[u] == INF) continue;
 
       for (const auto& [neighbor, weight] : adj_list[u]) {
         int new_dist = local_dist[u] + weight;
         if (new_dist < local_dist[neighbor]) {
-          #pragma omp critical
+#pragma omp critical
           {
             if (new_dist < local_dist[neighbor]) {
               local_dist[neighbor] = new_dist;
@@ -150,7 +150,7 @@ bool plekhanov_d_dijkstra_all::TestTaskALL::RunImpl() {
   std::vector<int> final_dist(num_vertices_);
   boost::mpi::all_reduce(world_, local_dist.data(), num_vertices_, final_dist.data(), boost::mpi::minimum<int>());
 
-  #pragma omp parallel for
+#pragma omp parallel for
   for (int i = 0; i < static_cast<int>(num_vertices_); ++i) {
     distances_[i] = final_dist[i];
   }
