@@ -11,7 +11,7 @@
 
 TEST(vavilov_v_cannon_all, test_pipeline_run) {
   boost::mpi::communicator world;
-  constexpr int kN = 625;
+  constexpr int kN = 900;
   std::vector<double> a(kN * kN, 1.0);
   std::vector<double> b(kN * kN, 1.0);
   std::vector<double> c(kN * kN, 0.0);
@@ -52,7 +52,7 @@ TEST(vavilov_v_cannon_all, test_pipeline_run) {
 
 TEST(vavilov_v_cannon_all, test_task_run) {
   boost::mpi::communicator world;
-  constexpr int kN = 625;
+  constexpr int kN = 900;
   std::vector<double> a(kN * kN, 1.0);
   std::vector<double> b(kN * kN, 1.0);
   std::vector<double> c(kN * kN, 0.0);
