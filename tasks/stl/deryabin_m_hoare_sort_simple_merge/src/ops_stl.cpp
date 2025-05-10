@@ -68,7 +68,7 @@ bool deryabin_m_hoare_sort_simple_merge_stl::HoareSortTaskSequential::Validation
 }
 
 bool deryabin_m_hoare_sort_simple_merge_stl::HoareSortTaskSequential::RunImpl() {
-  const size_t count = 0;
+  size_t count = 0;
   size_t chunk_count = chunk_count_;
   while (count != chunk_count_) {
     HoaraSort(input_array_A_, count * min_chunk_size_, ((count + 1) * min_chunk_size_) - 1);
