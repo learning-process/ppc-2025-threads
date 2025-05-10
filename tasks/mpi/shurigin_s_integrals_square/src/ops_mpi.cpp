@@ -1,12 +1,4 @@
-﻿#ifdef __clang__
-#pragma clang diagnostic push
-#pragma clang diagnostic ignored "-Wcast-align"
-#endif
-
-#include "mpi/shurigin_s_integrals_square/include/ops_mpi.hpp"
-
-#include <mpi.h>
-#include <omp.h>
+﻿#include "mpi/shurigin_s_integrals_square/include/ops_mpi.hpp"
 
 #include <algorithm>
 #include <cmath>
@@ -19,8 +11,17 @@
 #include <vector>
 
 #ifdef __clang__
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wcast-align"
+#endif
+
+#include <mpi.h>
+
+#ifdef __clang__
 #pragma clang diagnostic pop
 #endif
+
+#include <omp.h>
 
 namespace shurigin_s_integrals_square_mpi {
 
@@ -45,6 +46,10 @@ void Integral::SetFunction(const std::function<double(double)>& func) {
     }
     return func(point[0]);
   };
+  dimensions_ = 1;
+  down_limits_.assign(1, 0.0);
+  up_limits_.assign(1, 1.0);
+  counts_.assign(1, 100);
 }
 
 void Integral::SetFunction(const std::function<double(const std::vector<double>&)>& func, int dims_param) {
@@ -56,81 +61,78 @@ void Integral::SetFunction(const std::function<double(const std::vector<double>&
   }
   func_ = func;
   dimensions_ = dims_param;
+  down_limits_.assign(dimensions_, 0.0);
+  up_limits_.assign(dimensions_, 1.0);
+  counts_.assign(dimensions_, 100);
 }
 
 bool Integral::PreProcessingImpl() {
   try {
-    if (!this->taskData) {
-      throw std::invalid_argument("TaskData is not set (null).");
+    if (!this->task_data) {
+      throw std::invalid_argument("PreProcessingImpl Error: TaskData (task_data) is not set (null).");
     }
 
     MPI_Comm_rank(MPI_COMM_WORLD, &mpi_rank_);
     MPI_Comm_size(MPI_COMM_WORLD, &mpi_world_size_);
 
-    int temp_dimensions = 0;
+    int temp_dimensions_on_root = 0;
 
     if (mpi_rank_ == 0) {
-      if (this->taskData->inputs.empty() || this->taskData->inputs[0] == nullptr ||
-          this->taskData->inputs_count.empty()) {
-        throw std::invalid_argument("Invalid input task data or input buffer on root process.");
-      }
-
-      if (dimensions_ <= 0 && this->taskData->inputs_count[0] >= 3 * sizeof(double)) {
-        size_t num_elements = this->taskData->inputs_count[0] / sizeof(double);
-        if (num_elements % 3 != 0 || num_elements == 0) {
-          throw std::invalid_argument(
-              "Cannot determine dimensions from input data size on root. Size is not a multiple of 3 or is zero.");
-        }
-        temp_dimensions = static_cast<int>(num_elements / 3);
-        if (temp_dimensions <= 0) {
-          throw std::invalid_argument("Deduced dimensions are not positive from input data size on root.");
-        }
-        dimensions_ = temp_dimensions;
-        std::cout << "Rank 0: Deduced dimensions = " << dimensions_ << " from input data." << std::endl;
-      } else if (dimensions_ <= 0) {
+      if (this->task_data->inputs.empty() || this->task_data->inputs[0] == nullptr ||
+          this->task_data->inputs_count.empty()) {
         throw std::invalid_argument(
-            "Dimensions not set prior to PreProcessing and cannot be deduced (input size too small or dimensions_ was "
-            "0).");
+            "PreProcessingImpl Error: Invalid input task data or input buffer on root process.");
       }
-      temp_dimensions = dimensions_;
 
-      size_t expected_num_elements = static_cast<size_t>(3 * temp_dimensions);
-      size_t actual_num_elements = this->taskData->inputs_count[0] / sizeof(double);
+      if (dimensions_ <= 0) {
+        throw std::invalid_argument(
+            "PreProcessingImpl Error on root: Dimensions not set (<=0) prior to PreProcessing. Call SetFunction with "
+            "dimensions.");
+      }
+      temp_dimensions_on_root = dimensions_;
+
+      size_t expected_num_elements = static_cast<size_t>(3 * temp_dimensions_on_root);
+      size_t actual_num_elements = this->task_data->inputs_count[0] / sizeof(double);
 
       if (actual_num_elements != expected_num_elements) {
-        throw std::invalid_argument(
-            "Input data size mismatch on root. Expected " + std::to_string(expected_num_elements) + " doubles (for " +
-            std::to_string(temp_dimensions) + " dimensions), got " + std::to_string(actual_num_elements) + " doubles.");
+        throw std::invalid_argument("PreProcessingImpl Error on root: Input data size mismatch. Expected " +
+                                    std::to_string(expected_num_elements) + " doubles (for " +
+                                    std::to_string(temp_dimensions_on_root) + " dimensions), got " +
+                                    std::to_string(actual_num_elements) + " doubles.");
       }
 
-      down_limits_.resize(temp_dimensions);
-      up_limits_.resize(temp_dimensions);
-      counts_.resize(temp_dimensions);
+      down_limits_.resize(temp_dimensions_on_root);
+      up_limits_.resize(temp_dimensions_on_root);
+      counts_.resize(temp_dimensions_on_root);
 
-      auto* inputs_ptr = reinterpret_cast<double*>(this->taskData->inputs[0]);
-      for (int i = 0; i < temp_dimensions; ++i) {
+      auto* inputs_ptr = reinterpret_cast<double*>(this->task_data->inputs[0]);
+      for (int i = 0; i < temp_dimensions_on_root; ++i) {
         down_limits_[i] = inputs_ptr[i];
-        up_limits_[i] = inputs_ptr[i + temp_dimensions];
-        counts_[i] = static_cast<int>(inputs_ptr[i + (2 * temp_dimensions)]);
+        up_limits_[i] = inputs_ptr[i + temp_dimensions_on_root];
+        counts_[i] = static_cast<int>(inputs_ptr[i + (2 * temp_dimensions_on_root)]);
 
         if (counts_[i] <= 0) {
-          throw std::invalid_argument("Number of intervals (counts) must be positive for dimension " +
-                                      std::to_string(i));
+          throw std::invalid_argument(
+              "PreProcessingImpl Error on root: Number of intervals (counts) must be positive for dimension " +
+              std::to_string(i));
         }
         if (up_limits_[i] <= down_limits_[i]) {
-          throw std::invalid_argument("Upper limit must be greater than lower limit for dimension " +
-                                      std::to_string(i));
+          throw std::invalid_argument(
+              "PreProcessingImpl Error on root: Upper limit must be greater than lower limit for dimension " +
+              std::to_string(i));
         }
       }
     }
 
     MPI_Bcast(&dimensions_, 1, MPI_INT, 0, MPI_COMM_WORLD);
 
+    if (dimensions_ <= 0 && mpi_rank_ != 0) {
+      throw std::runtime_error("Rank " + std::to_string(mpi_rank_) +
+                               " PreProcessingImpl Error: Received invalid dimensions_ (" +
+                               std::to_string(dimensions_) + ") from Bcast.");
+    }
+
     if (mpi_rank_ != 0) {
-      if (dimensions_ <= 0) {
-        throw std::runtime_error("Rank " + std::to_string(mpi_rank_) + ": Received invalid dimensions_ (" +
-                                 std::to_string(dimensions_) + ") from Bcast.");
-      }
       down_limits_.resize(dimensions_);
       up_limits_.resize(dimensions_);
       counts_.resize(dimensions_);
@@ -152,8 +154,8 @@ bool Integral::PreProcessingImpl() {
 
 bool Integral::ValidationImpl() {
   try {
-    if (!this->taskData) {
-      if (mpi_rank_ == 0) std::cerr << "Rank 0 ValidationImpl Error: TaskData is null." << std::endl;
+    if (!this->task_data) {
+      if (mpi_rank_ == 0) std::cerr << "Rank 0 ValidationImpl Error: TaskData (task_data) is null." << std::endl;
       return false;
     }
 
@@ -167,22 +169,22 @@ bool Integral::ValidationImpl() {
 
     if (mpi_rank_ == 0) {
       bool root_data_valid = true;
-      if (this->taskData->inputs_count.empty() || this->taskData->outputs_count.empty()) {
+      if (this->task_data->inputs_count.empty() || this->task_data->outputs_count.empty()) {
         root_data_valid = false;
         std::cerr << "Rank 0 ValidationImpl Error: inputs_count or outputs_count is empty." << std::endl;
       } else {
         size_t expected_num_elements_input = static_cast<size_t>(3 * dimensions_);
-        size_t actual_num_elements_input = this->taskData->inputs_count[0] / sizeof(double);
+        size_t actual_num_elements_input = this->task_data->inputs_count[0] / sizeof(double);
 
         if (actual_num_elements_input != expected_num_elements_input) {
           root_data_valid = false;
           std::cerr << "Rank 0 ValidationImpl Error: Input data size mismatch. Expected " << expected_num_elements_input
                     << " doubles, got " << actual_num_elements_input << " doubles." << std::endl;
         }
-        if (this->taskData->outputs_count[0] != sizeof(double)) {
+        if (this->task_data->outputs_count[0] != sizeof(double)) {
           root_data_valid = false;
           std::cerr << "Rank 0 ValidationImpl Error: Output data size mismatch. Expected " << sizeof(double)
-                    << " bytes, got " << this->taskData->outputs_count[0] << " bytes." << std::endl;
+                    << " bytes, got " << this->task_data->outputs_count[0] << " bytes." << std::endl;
         }
       }
       if (!root_data_valid) {
@@ -199,9 +201,10 @@ bool Integral::ValidationImpl() {
       return false;
     }
 
+    bool local_validation_ok = true;
     if (!func_) {
       std::cerr << "Rank " << mpi_rank_ << " ValidationImpl Error: Integration function is not set." << std::endl;
-      global_validation_status = 0;
+      local_validation_ok = false;
     }
     if (static_cast<int>(down_limits_.size()) != dimensions_ || static_cast<int>(up_limits_.size()) != dimensions_ ||
         static_cast<int>(counts_.size()) != dimensions_) {
@@ -209,13 +212,15 @@ bool Integral::ValidationImpl() {
                 << " ValidationImpl Error: Mismatch in vector sizes after PreProcessing for dimensions_ = "
                 << dimensions_ << ". down_limits: " << down_limits_.size() << ", up_limits: " << up_limits_.size()
                 << ", counts: " << counts_.size() << std::endl;
-      global_validation_status = 0;
+      local_validation_ok = false;
     }
 
-    int final_status;
-    MPI_Allreduce(&global_validation_status, &final_status, 1, MPI_INT, MPI_MIN, MPI_COMM_WORLD);
+    int current_process_status = (global_validation_status == 1 && local_validation_ok) ? 1 : 0;
+    int final_overall_status;
 
-    return (final_status == 1);
+    MPI_Allreduce(&current_process_status, &final_overall_status, 1, MPI_INT, MPI_MIN, MPI_COMM_WORLD);
+
+    return (final_overall_status == 1);
 
   } catch (const std::exception& e) {
     std::cerr << "Rank " << mpi_rank_ << " Error in ValidationImpl: " << e.what() << std::endl;
@@ -258,10 +263,14 @@ bool Integral::RunImpl() {
         if (mpi_rank_ == mpi_world_size_ - 1) {
           b0_local = b0_global;
         }
-        a0_local = std::max(a0_global, a0_local);
-        b0_local = std::min(b0_global, b0_local);
+        a0_local = std::max(a0_global, std::min(b0_global, a0_local));
+        b0_local = std::min(b0_global, std::max(a0_global, b0_local));
 
-        if (a0_local < b0_local) {
+        if (a0_local >= b0_local) {
+          n0_local_count = 0;
+        }
+
+        if (n0_local_count > 0) {
           if (dimensions_ == 1) {
             local_integral_sum = ComputeOneDimensionalOMP(func_, a0_local, b0_local, n0_local_count);
           } else {
@@ -331,9 +340,13 @@ double Integral::ComputeSequentialRecursive(const std::function<double(const std
   }
   if (current_dim_index < 0 || static_cast<size_t>(current_dim_index) >= n_all_dims.size() ||
       static_cast<size_t>(current_dim_index) >= a_all_dims.size() ||
-      static_cast<size_t>(current_dim_index) >= b_all_dims.size()) {
-    throw std::out_of_range("Dimension index out of bounds in recursive call. Index: " +
-                            std::to_string(current_dim_index) + ", total_dims: " + std::to_string(total_dims));
+      static_cast<size_t>(current_dim_index) >= b_all_dims.size() ||
+      static_cast<size_t>(current_dim_index) >= current_eval_point.size()) {
+    throw std::out_of_range(
+        "Dimension index out of bounds in recursive call. Index: " + std::to_string(current_dim_index) +
+        ", total_dims: " + std::to_string(total_dims) + ", n_size: " + std::to_string(n_all_dims.size()) +
+        ", a_size: " + std::to_string(a_all_dims.size()) + ", b_size: " + std::to_string(b_all_dims.size()) +
+        ", point_size: " + std::to_string(current_eval_point.size()));
   }
   const int n_for_current_dim = n_all_dims[static_cast<size_t>(current_dim_index)];
   const double a_for_current_dim = a_all_dims[static_cast<size_t>(current_dim_index)];
@@ -359,18 +372,22 @@ double Integral::ComputeSequentialRecursive(const std::function<double(const std
 bool Integral::PostProcessingImpl() {
   try {
     if (mpi_rank_ == 0) {
-      if (!this->taskData) {
-        throw std::invalid_argument("PostProcessingImpl Error: TaskData is null on root.");
+      if (!this->task_data) {
+        throw std::invalid_argument("PostProcessingImpl Error: TaskData (task_data) is null on root.");
       }
-      if (this->taskData->outputs.empty() || this->taskData->outputs[0] == nullptr) {
-        throw std::invalid_argument("Invalid output task data or output buffer on root process.");
-      }
-      if (this->taskData->outputs_count.empty() || this->taskData->outputs_count[0] != sizeof(double)) {
+      if (this->task_data->outputs.empty() || this->task_data->outputs[0] == nullptr) {
         throw std::invalid_argument(
-            "Output data size mismatch on root process. Expected " + std::to_string(sizeof(double)) + ", got " +
-            (this->taskData->outputs_count.empty() ? "0" : std::to_string(this->taskData->outputs_count[0])));
+            "PostProcessingImpl Error: Invalid output task data or output buffer on root process.");
       }
-      auto* outputs_ptr = reinterpret_cast<double*>(this->taskData->outputs[0]);
+      if (this->task_data->outputs_count.empty() || this->task_data->outputs_count[0] != sizeof(double)) {
+        throw std::invalid_argument("PostProcessingImpl Error: Output data size mismatch on root process. Expected " +
+                                    std::to_string(sizeof(double)) + " bytes, got " +
+                                    (this->task_data->outputs_count.empty()
+                                         ? "0 (outputs_count empty)"
+                                         : std::to_string(this->task_data->outputs_count[0])) +
+                                    " bytes.");
+      }
+      auto* outputs_ptr = reinterpret_cast<double*>(this->task_data->outputs[0]);
       outputs_ptr[0] = result_;
     }
     return true;

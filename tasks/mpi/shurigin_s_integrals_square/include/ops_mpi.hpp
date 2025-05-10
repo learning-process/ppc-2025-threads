@@ -25,9 +25,12 @@ class Integral : public ppc::core::Task {
   std::vector<double> down_limits_;
   std::vector<double> up_limits_;
   std::vector<int> counts_;
+
   double result_;
+
   std::function<double(const std::vector<double>&)> func_;
   int dimensions_;
+
   int mpi_rank_;
   int mpi_world_size_;
 
