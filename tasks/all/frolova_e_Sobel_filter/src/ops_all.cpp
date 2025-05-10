@@ -7,6 +7,7 @@
 #include <boost/mpi/collectives/broadcast.hpp>
 #include <cmath>
 #include <cstddef>
+#include <cstdint>
 #include <vector>
 
 std::vector<int> frolova_e_sobel_filter_all::ToGrayScaleImg(std::vector<frolova_e_sobel_filter_all::RGB>& color_img,
@@ -88,7 +89,6 @@ void frolova_e_sobel_filter_all::SobelFilterALL::CollectWorkerResults(const std:
   std::ranges::copy(local_result,
                     res_image_.begin() + static_cast<std::vector<int>::difference_type>(y_start_ * width_));
 
-
   for (int proc = 1; proc < active_processes; ++proc) {
     int proc_y_start = (proc * rows_per_proc) + std::min(proc, remainder);
     int proc_y_end = proc_y_start + rows_per_proc + (proc < remainder ? 1 : 0);
@@ -97,9 +97,8 @@ void frolova_e_sobel_filter_all::SobelFilterALL::CollectWorkerResults(const std:
     std::vector<int> proc_result(proc_local_rows * width_);
     world_.recv(proc, 1, proc_result);
 
-    std::ranges::copy(proc_result, res_image_.begin() + proc_y_start * width_);
-
-
+    using DiffT = std::vector<int>::difference_type;
+    std::ranges::copy(proc_result, res_image_.begin() + static_cast<DiffT>(proc_y_start * width_));
   }
 }
 
@@ -109,7 +108,6 @@ void frolova_e_sobel_filter_all::SobelFilterALL::CopyOrZeroLine(std::vector<int>
   int src_y = proc_y_start - top + i;
 
   auto dst_offset = static_cast<std::vector<uint8_t>::difference_type>(width) * i;
-
 
   if (src_y >= 0 && src_y < height) {
     auto src_offset = static_cast<std::vector<uint8_t>::difference_type>(width) * src_y;
@@ -222,8 +220,8 @@ bool frolova_e_sobel_filter_all::SobelFilterALL::RunImpl() {
       world_.recv(0, 0, local_image_);
     }
 
-    frolova_e_sobel_filter_all::ApplySobelKernel(local_image_, local_result, static_cast<int>(width_), extended_rows_, has_top_,
-                                                 local_rows_);
+    frolova_e_sobel_filter_all::ApplySobelKernel(local_image_, local_result, static_cast<int>(width_), extended_rows_,
+                                                 has_top_, local_rows_);
 
     if (world_.rank() == 0) {
       CollectWorkerResults(local_result, rows_per_proc, remainder, active_processes);
