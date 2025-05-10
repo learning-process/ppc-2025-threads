@@ -201,8 +201,8 @@ TEST(komshina_d_image_filtering_vertical_gaussian_all, MpiReceiveChunksIntoOutpu
   MPI_Comm_rank(MPI_COMM_WORLD, &rank_int);
   MPI_Comm_size(MPI_COMM_WORLD, &size_int);
 
-  std::size_t rank = static_cast<std::size_t>(rank_int);
-  std::size_t size = static_cast<std::size_t>(size_int);
+  auto rank = static_cast<std::size_t>(rank_int);
+  auto size = static_cast<std::size_t>(size_int);
 
   if (size < 2) {
     return;
