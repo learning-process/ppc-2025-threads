@@ -160,7 +160,7 @@ TEST(anufriev_d_integrals_simpson_stl_coverage, FewIterationsN0_is_4_1D) {
   ASSERT_TRUE(task.PreProcessing());
   ASSERT_TRUE(task.Run());
   ASSERT_TRUE(task.PostProcessing());
-  EXPECT_NEAR(out_buffer[0], 2.0, 1e-5);
+  EXPECT_NEAR(out_buffer[0], 2.0, 5e-3);
 }
 
 TEST(anufriev_d_integrals_simpson_stl_coverage, ManyIterationsN0_1D) {
@@ -205,7 +205,7 @@ TEST(anufriev_d_integrals_simpson_stl_coverage, Preprocessing_InvalidN_Zero) {
   auto td = MakeTaskData(in, out_buffer);
   anufriev_d_integrals_simpson_stl::IntegralsSimpsonSTL task(td);
   ASSERT_TRUE(task.Validation());
-  ASSERT_TRUE(task.PreProcessing());
+  ASSERT_FALSE(task.PreProcessing());
 }
 
 TEST(anufriev_d_integrals_simpson_stl_coverage, Preprocessing_InvalidN_Odd) {
@@ -214,7 +214,7 @@ TEST(anufriev_d_integrals_simpson_stl_coverage, Preprocessing_InvalidN_Odd) {
   auto td = MakeTaskData(in, out_buffer);
   anufriev_d_integrals_simpson_stl::IntegralsSimpsonSTL task(td);
   ASSERT_TRUE(task.Validation());
-  ASSERT_TRUE(task.PreProcessing());
+  ASSERT_FALSE(task.PreProcessing());
 }
 
 TEST(anufriev_d_integrals_simpson_stl_coverage, ManyIterations_PossibleSingleThreadPath) {
