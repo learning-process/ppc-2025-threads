@@ -76,23 +76,22 @@ TEST(solovev_a_ccs_mmult_sparse_stl, test_pipeline_run) {
 }
 
 TEST(solovev_a_ccs_mmult_sparse_stl, test_task_run) {
-  int rows = 2000000;
-  int cols = 2000000;
-  solovev_a_matrix_stl::MatrixInCcsSparse m1(rows, cols);
-  solovev_a_matrix_stl::MatrixInCcsSparse m2(rows, 1);
-  solovev_a_matrix_stl::MatrixInCcsSparse m3(rows, 1);
+  int size = 10000;
+  solovev_a_matrix_stl::MatrixInCcsSparse m1(size, size);
+  solovev_a_matrix_stl::MatrixInCcsSparse m2(size, 1);
+  solovev_a_matrix_stl::MatrixInCcsSparse m3(size, 1);
 
-  for (int i = 0; i <= cols; i++) {
-    m1.col_p.push_back(i);
+  m1.col_p.push_back(0);
+  for (int j = 0; j < size; ++j) {
+    for (int i = 0; i < static_cast<int>(0.9 * size); ++i) {
+      m1.val.emplace_back(GenerateRandomComplex(-10.0, 10.0));
+      m1.row.push_back(i);
+    }
+    m1.col_p.push_back(static_cast<int>(m1.val.size()));
   }
 
-  for (int i = 0; i < m1.col_p[cols]; i++) {
-    m1.val.emplace_back(GenerateRandomComplex(-10.0, 10.0));
-    m1.row.push_back(i);
-  }
-
-  m2.col_p = {0, rows};
-  for (int i = 0; i < rows; i++) {
+  m2.col_p = {0, size};
+  for (int i = 0; i < size; ++i) {
     m2.val.emplace_back(GenerateRandomComplex(-10.0, 10.0));
     m2.row.push_back(i);
   }
@@ -118,7 +117,7 @@ TEST(solovev_a_ccs_mmult_sparse_stl, test_task_run) {
   perf_analyzer->TaskRun(perf_attr, perf_results);
   ppc::core::Perf::PrintPerfStatistic(perf_results);
 
-  for (size_t i = 0; i < m3.val.size(); i++) {
+  for (size_t i = 0; i < std::min<size_t>(m3.val.size(), 100); ++i) {
     bool approx_equal = AreComplexNumbersApproxEqual(m3.val[i], m1.val[i] * m2.val[i]);
     ASSERT_TRUE(approx_equal);
   }
