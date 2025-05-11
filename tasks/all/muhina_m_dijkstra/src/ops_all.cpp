@@ -7,6 +7,8 @@
 
 #include <algorithm>
 #include <boost/mpi/collectives.hpp>
+#include <boost/mpi/collectives/all_reduce.hpp>
+#include <boost/mpi/collectives/broadcast.hpp>
 #include <boost/mpi/communicator.hpp>
 #include <boost/mpi/datatype.hpp>
 #include <boost/serialization/access.hpp>
@@ -15,33 +17,6 @@
 #include <functional>
 #include <utility>
 #include <vector>
-
-struct MinVertex {
-  int distance;
-  int vertex;
-
-  friend class boost::serialization::access;
-  template <class Archive>
-  void Serialize(Archive& ar, const unsigned int version) {
-    ar & distance;
-    ar & vertex;
-  }
-};
-
-namespace boost::mpi {
-template <>
-struct is_mpi_datatype<MinVertex> : boost::mpl::true_ {};
-
-template <>
-struct minimum<MinVertex> {
-  MinVertex operator()(const MinVertex& a, const MinVertex& b) const {
-    if (b.distance < a.distance || (b.distance == a.distance && b.vertex < a.vertex)) {
-      return b;
-    }
-    return a;
-  }
-};
-}  // namespace boost::mpi
 
 namespace {
 bool ProcessLocalQueue(oneapi::tbb::concurrent_priority_queue<std::pair<int, int>, std::greater<>>& pq,
@@ -59,10 +34,10 @@ bool ProcessLocalQueue(oneapi::tbb::concurrent_priority_queue<std::pair<int, int
   return false;
 }
 
-MinVertex SynchronizeMinDistance(boost::mpi::communicator& world, int local_distance, int local_vertex) {
-  MinVertex local_min{.distance = local_distance, .vertex = local_vertex};
-  MinVertex global_min;
-  boost::mpi::all_reduce(world, local_min, global_min, boost::mpi::minimum<MinVertex>());
+std::pair<int, int> SynchronizeMinDistance(boost::mpi::communicator& world, int local_distance, int local_vertex) {
+  std::pair<int, int> local_min{local_distance, local_vertex};
+  std::pair<int, int> global_min;
+  boost::mpi::all_reduce(world, local_min, global_min, boost::mpi::minimum<std::pair<int, int>>());
   return global_min;
 }
 
@@ -113,13 +88,13 @@ void RunDijkstraAlgorithm(const std::vector<std::vector<std::pair<size_t, int>>>
     int local_vertex = -1;
     ProcessLocalQueue(pq, local_distance, local_vertex);
 
-    MinVertex global_min = SynchronizeMinDistance(world, local_distance, local_vertex);
-    if (global_min.distance == INT_MAX) {
+    std::pair<int, int> global_min = SynchronizeMinDistance(world, local_distance, local_vertex);
+    if (global_min.first == INT_MAX) {
       break;
     }
 
-    const auto u = static_cast<size_t>(global_min.vertex);
-    const int dist_u = global_min.distance;
+    const auto u = static_cast<size_t>(global_min.second);
+    const int dist_u = global_min.first;
 
     if (u >= num_vertices || dist_u > local_distances[u]) {
       continue;
@@ -169,7 +144,7 @@ bool muhina_m_dijkstra_all::TestTaskALL::PreProcessingImpl() {
   }
 
   distances_.resize(num_vertices_);
-  std::ranges::fill(distances_, INT_MAX);
+  std::ranges::fill(distances_.begin(), distances_.end(), INT_MAX);
 
   if (task_data->inputs.size() > 1 && task_data->inputs[1] != nullptr) {
     if (world_.rank() == 0) {
