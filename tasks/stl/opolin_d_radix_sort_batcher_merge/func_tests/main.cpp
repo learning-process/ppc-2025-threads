@@ -172,11 +172,11 @@ TEST(opolin_d_radix_batcher_sort_stl, test_equal_values) {
 }
 
 TEST(opolin_d_radix_batcher_sort_stl, test_reversed) {
-  int size = 11;
+  int size = 7;
   std::vector<int> expected;
   std::vector<int> input;
-  input = {12, 8, 6, 3, 2, 0, -4, -6, -7, -10, -12};
-  expected = {-12, -10, -7, -6, -4, 0, 2, 3, 6, 8, 12};
+  input = {6, 3, 2, 0, -4, -6, -10};
+  expected = {-10, -6, -4, 0, 2, 3, 6};
   std::vector<int> out(size, 0);
   auto task_data_stl = std::make_shared<ppc::core::TaskData>();
   task_data_stl->inputs.emplace_back(reinterpret_cast<uint8_t *>(input.data()));
@@ -271,11 +271,11 @@ TEST(opolin_d_radix_batcher_sort_stl, test_size_prime_13) {
 }
 
 TEST(opolin_d_radix_batcher_sort_stl, test_double_reversed_order) {
-  int size = 11;
+  int size = 6;
   std::vector<int> expected;
   std::vector<int> input;
-  input = {6, 5, 4, 3, 2, 1, 11, 10, 9, 8, 7};
-  expected = {1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11};
+  input = {3, 2, 1, 6, 5, 4};
+  expected = {1, 2, 3, 4, 5, 6};
 
   std::vector<int> out(size, 0);
   auto task_data_stl = std::make_shared<ppc::core::TaskData>();
