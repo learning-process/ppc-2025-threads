@@ -9,7 +9,7 @@
 
 void processPhase1(solovev_a_matrix_stl::SeqMatMultCcs* self, int col, std::vector<int>& available) {
   for (int i = self->M2_->col_p[col]; i < self->M2_->col_p[col + 1]; ++i) {
-  int r = self->M2_->row[i];
+    int r = self->M2_->row[i];
     if (r < 0 || r >= self->M1_->c_n) {
       continue;
     }
@@ -23,7 +23,8 @@ void processPhase1(solovev_a_matrix_stl::SeqMatMultCcs* self, int col, std::vect
   self->counts_[col] = std::accumulate(available.begin(), available.end(), 0);
 }
 
-void processPhase2(solovev_a_matrix_stl::SeqMatMultCcs* self, int col, std::vector<int>& available, std::vector<std::complex<double>>& cask) {
+void processPhase2(solovev_a_matrix_stl::SeqMatMultCcs* self, int col, std::vector<int>& available,
+                   std::vector<std::complex<double>>& cask) {
   cask.assign(self->r_n_, {0.0, 0.0});
   for (int i = self->M2_->col_p[col]; i < self->M2_->col_p[col + 1]; ++i) {
     int r = self->M2_->row[i];
