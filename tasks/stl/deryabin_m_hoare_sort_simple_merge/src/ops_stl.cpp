@@ -12,17 +12,14 @@
 #include "core/util/include/util.hpp"
 
 void deryabin_m_hoare_sort_simple_merge_stl::HoaraSort(std::vector<double>& a, size_t first, size_t last) {
-  if (first >= last) {
-    return;
-  }
   std::stack<std::pair<size_t, size_t>> stack;
   stack.push({first, last});
   while (!stack.empty()) {
     auto [first_, last_] = stack.top();
+    stack.pop();
     if (first_ >= last_) {
       continue;
     }
-    stack.pop();
     size_t i = first_;
     size_t j = last_;
     double tmp = 0;
