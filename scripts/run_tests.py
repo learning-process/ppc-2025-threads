@@ -89,7 +89,7 @@ class PPCRunner:
         command = "--gtest_also_run_disabled_tests "
         command += f"--gtest_repeat={repeats_count} "
         command += "--gtest_recreate_environments_when_repeating "
-        command += "--gtest_color=0 "
+        command += "--gtest_filter=zaitsev* "
         return command
 
     def run_threads(self):
