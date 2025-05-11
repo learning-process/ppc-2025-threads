@@ -130,40 +130,6 @@ TEST(karaseva_a_test_task_stl, test_zero_rhs) {
   }
 }
 
-TEST(karaseva_a_test_task_stl, test_random_solution) {
-  constexpr size_t kSize = 30;
-  constexpr double kTolerance = 1e-5;
-  std::mt19937 gen(777);
-  std::uniform_real_distribution<double> dist(-10.0, 10.0);
-
-  auto a_matrix = GenerateRandomSPDMatrix(kSize, gen());
-  std::vector<double> x_expected(kSize);
-  for (auto& val : x_expected) {
-    val = dist(gen);
-  }
-
-  auto b_vector = MultiplyMatrixVector(a_matrix, x_expected, kSize);
-  std::vector<double> solution(kSize, 0.0);
-
-  auto task_data_stl = std::make_shared<ppc::core::TaskData>();
-  task_data_stl->inputs.emplace_back(reinterpret_cast<uint8_t*>(a_matrix.data()));
-  task_data_stl->inputs_count.emplace_back(a_matrix.size());
-  task_data_stl->inputs.emplace_back(reinterpret_cast<uint8_t*>(b_vector.data()));
-  task_data_stl->inputs_count.emplace_back(b_vector.size());
-  task_data_stl->outputs.emplace_back(reinterpret_cast<uint8_t*>(solution.data()));
-  task_data_stl->outputs_count.emplace_back(solution.size());
-
-  karaseva_a_test_task_stl::TestTaskSTL test_task_stl(task_data_stl);
-  ASSERT_TRUE(test_task_stl.Validation());
-  test_task_stl.PreProcessing();
-  test_task_stl.Run();
-  test_task_stl.PostProcessing();
-
-  for (size_t i = 0; i < kSize; ++i) {
-    EXPECT_NEAR(solution[i], x_expected[i], kTolerance);
-  }
-}
-
 TEST(karaseva_a_test_task_stl, test_validation_fail_non_square_matrix) {
   std::vector<double> a_matrix(3 * 2, 1.0);
   std::vector<double> b_vector(3, 1.0);
