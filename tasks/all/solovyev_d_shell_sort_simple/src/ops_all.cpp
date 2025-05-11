@@ -2,16 +2,16 @@
 
 #include <algorithm>
 #include <barrier>
-#include <boost/mpi.hpp>
-#include <boost/serialization/vector.hpp>
+#include <boost/mpi/communicator.hpp>
+#include <boost/mpi/collectives/scatterv.hpp>
+#include <boost/mpi/collectives/gatherv.hpp>
 #include <cmath>
 #include <cstddef>
 #include <thread>
+#include <utility>
 #include <vector>
 
 #include "core/util/include/util.hpp"
-#include "oneapi/tbb/task_arena.h"
-#include "oneapi/tbb/task_group.h"
 
 bool solovyev_d_shell_sort_simple_all::TaskALL::PreProcessingImpl() {
   size_t input_size = task_data->inputs_count[0];
@@ -24,7 +24,7 @@ bool solovyev_d_shell_sort_simple_all::TaskALL::ValidationImpl() {
   return task_data->inputs_count[0] == task_data->outputs_count[0];
 }
 
-void solovyev_d_shell_sort_simple_all::TaskALL::ShellSort(std::vector<int>& data){
+void solovyev_d_shell_sort_simple_all::TaskALL::ShellSort(std::vector<int>& data) const {
   std::barrier sync_point(num_threads_);
   std::vector<std::thread> threads(num_threads_);
   for (int t = 0; t < num_threads_; ++t) {
@@ -52,7 +52,7 @@ void solovyev_d_shell_sort_simple_all::TaskALL::ShellSort(std::vector<int>& data
   }   	
 }
 
-void finalMerge(std::vector<int>& data, const std::vector<int>& send_counts, const std::vector<int>& displs) {
+static void FinalMerge(std::vector<int>& data, const std::vector<int>& send_counts, const std::vector<int>& displs) {
   struct Block {
     int start;
     int end;
@@ -80,7 +80,7 @@ void finalMerge(std::vector<int>& data, const std::vector<int>& send_counts, con
     result.push_back(min_val);
     blocks[min_block].index++;
     if (blocks[min_block].index >= blocks[min_block].end) {
-      blocks.erase(blocks.begin() + min_block);  // Этот блок закончился
+      blocks.erase(blocks.begin() + static_cast<long>(min_block));
     }
   }
   data = std::move(result);
@@ -91,10 +91,11 @@ bool solovyev_d_shell_sort_simple_all::TaskALL::RunImpl() {
   int rank = world_.rank();
   int size = world_.size();
   
-  std::vector<int> send_counts(size), displs(size);
+  std::vector<int> send_counts(size);
+  std::vector<int> displs(size);
   
-  int base_size = input_.size() / size;
-  int remainder = input_.size() % size;
+  int base_size = static_cast<int>(input_.size()) / size;
+  int remainder = static_cast<int>(input_.size()) % size;
   
   for (int i = 0; i < size; ++i) {
     send_counts[i] = base_size + (i < remainder ? 1 : 0);
@@ -106,7 +107,7 @@ bool solovyev_d_shell_sort_simple_all::TaskALL::RunImpl() {
   solovyev_d_shell_sort_simple_all::TaskALL::ShellSort(local_data);
   boost::mpi::gatherv(world_, local_data, input_.data(), send_counts, displs, 0);
   if (rank == 0) {
-    finalMerge(input_,send_counts,displs);
+    FinalMerge(input_,send_counts,displs);
 	
   }
   return true;

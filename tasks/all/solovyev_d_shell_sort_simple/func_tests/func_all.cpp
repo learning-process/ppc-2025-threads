@@ -1,5 +1,6 @@
 #include <gtest/gtest.h>
 
+#include <boost/mpi/communicator.hpp>
 #include <climits>
 #include <cstddef>
 #include <cstdint>
@@ -9,7 +10,6 @@
 
 #include "all/solovyev_d_shell_sort_simple/include/ops_all.hpp"
 #include "core/task/include/task.hpp"
-#include "core/util/include/util.hpp"
 
 namespace {
 std::vector<int> GetRandomVector(int sz) {

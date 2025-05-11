@@ -14,7 +14,7 @@ class TaskALL : public ppc::core::Task {
   explicit TaskALL(ppc::core::TaskDataPtr task_data) : Task(std::move(task_data)) {}
   bool PreProcessingImpl() override;
   bool ValidationImpl() override;
-  void ShellSort(std::vector<int>& data);
+  void ShellSort(std::vector<int>& data) const;
   bool RunImpl() override;
   bool PostProcessingImpl() override;
 
@@ -25,4 +25,4 @@ class TaskALL : public ppc::core::Task {
   int num_threads_ = 0;
 };
 
-}  // solovyev_d_shell_sort_simple_all
+}  // namespace solovyev_d_shell_sort_simple_all
