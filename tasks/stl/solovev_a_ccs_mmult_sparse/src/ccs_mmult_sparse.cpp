@@ -7,61 +7,70 @@
 #include <thread>
 #include <vector>
 
+void processPhase1(solovev_a_matrix_stl::SeqMatMultCcs* self, int col, std::vector<int>& available) {
+  for (int i = self->M2_->col_p[col]; i < self->M2_->col_p[col + 1]; ++i) {
+  int r = self->M2_->row[i];
+    if (r < 0 || r >= self->M1_->c_n) {
+      continue;
+    }
+    for (int j = self->M1_->col_p[r]; j < self->M1_->col_p[r + 1]; ++j) {
+      int rr = self->M1_->row[j];
+      if (rr >= 0 && rr < self->r_n_) {
+        available[rr] = 1;
+      }
+    }
+  }
+  self->counts_[col] = std::accumulate(available.begin(), available.end(), 0);
+}
+
+void processPhase2(solovev_a_matrix_stl::SeqMatMultCcs* self, int col, std::vector<int>& available, std::vector<std::complex<double>>& cask) {
+  cask.assign(self->r_n_, {0.0, 0.0});
+  for (int i = self->M2_->col_p[col]; i < self->M2_->col_p[col + 1]; ++i) {
+    int r = self->M2_->row[i];
+    if (r < 0 || r >= self->M1_->c_n) {
+      continue;
+    }
+    auto v2 = self->M2_->val[i];
+    for (int j = self->M1_->col_p[r]; j < self->M1_->col_p[r + 1]; ++j) {
+      int rr = self->M1_->row[j];
+      if (rr >= 0 && rr < self->r_n_) {
+        cask[rr] += self->M1_->val[j] * v2;
+        available[rr] = 1;
+      }
+    }
+  }
+  int pos = self->M3_->col_p[col];
+  for (int rr = 0; rr < self->r_n_; ++rr) {
+    if (available[rr] != 0) {
+      self->M3_->row[pos] = rr;
+      self->M3_->val[pos++] = cask[rr];
+    }
+  }
+}
+
+void notifyCompletion(solovev_a_matrix_stl::SeqMatMultCcs* self) {
+  int done = self->completed_.fetch_add(1) + 1;
+  if (done == self->c_n_) {
+    std::lock_guard<std::mutex> lk(self->mtx_);
+    self->cv_done_.notify_all();
+  }
+}
+
 void solovev_a_matrix_stl::SeqMatMultCcs::WorkerLoop(solovev_a_matrix_stl::SeqMatMultCcs* self) {
   static thread_local std::vector<int> available;
   static thread_local std::vector<std::complex<double>> cask;
-
   while (true) {
     int col = self->next_col_.fetch_add(1);
     if (col >= self->c_n_) {
       break;
     }
     available.assign(self->r_n_, 0);
-
     if (self->phase_ == 1) {
-      for (int i = self->M2_->col_p[col]; i < self->M2_->col_p[col + 1]; ++i) {
-        int r = self->M2_->row[i];
-        if (r < 0 || r >= self->M1_->c_n) {
-          continue;
-        }
-        for (int j = self->M1_->col_p[r]; j < self->M1_->col_p[r + 1]; ++j) {
-          int rr = self->M1_->row[j];
-          if (rr >= 0 && rr < self->r_n_) {
-            available[rr] = 1;
-          }
-        }
-      }
-      self->counts_[col] = std::accumulate(available.begin(), available.end(), 0);
+      processPhase1(self, col, available);
     } else if (self->phase_ == 2) {
-      cask.assign(self->r_n_, {0.0, 0.0});
-      for (int i = self->M2_->col_p[col]; i < self->M2_->col_p[col + 1]; ++i) {
-        int r = self->M2_->row[i];
-        if (r < 0 || r >= self->M1_->c_n) {
-          continue;
-        }
-        auto v2 = self->M2_->val[i];
-        for (int j = self->M1_->col_p[r]; j < self->M1_->col_p[r + 1]; ++j) {
-          int rr = self->M1_->row[j];
-          if (rr >= 0 && rr < self->r_n_) {
-            cask[rr] += self->M1_->val[j] * v2;
-            available[rr] = 1;
-          }
-        }
-      }
-      int pos = self->M3_->col_p[col];
-      for (int rr = 0; rr < self->r_n_; ++rr) {
-        if (available[rr] != 0) {
-          self->M3_->row[pos] = rr;
-          self->M3_->val[pos++] = cask[rr];
-        }
-      }
+      processPhase2(self, col, available, cask);
     }
-
-    int done = self->completed_.fetch_add(1) + 1;
-    if (done == self->c_n_) {
-      std::lock_guard<std::mutex> lk(self->mtx_);
-      self->cv_done_.notify_all();
-    }
+    notifyCompletion(self);
   }
 }
 
