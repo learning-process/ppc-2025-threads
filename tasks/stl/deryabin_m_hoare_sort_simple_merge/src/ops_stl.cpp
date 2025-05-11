@@ -15,24 +15,25 @@ void deryabin_m_hoare_sort_simple_merge_stl::HoaraSort(std::vector<double>& a, s
   if (first >= last) {
     return;
   }
-  size_t i = first;
-  size_t j = last;
-  double tmp = 0;
-  double x = std::max(std::min(a[first], a[(first + last) >> 1]),
+  const double x = std::max(std::min(a[first], a[(first + last) >> 1]),
                       std::min(std::max(a[first], a[(first + last) >> 1]), a[last]));
+  double* pi = &a[first];
+  double* pj = &a[last];
   do {
-    while (a[i] < x) {
-      i++;
+    while (*pi < x) {
+      pi++;
     }
-    while (a[j] > x) {
-      j--;
+    while (*pj > x) {
+      pj--;
     }
-    if (i < j && a[i] > a[j]) {
-      tmp = a[i];
-      a[i] = a[j];
-      a[j] = tmp;
+    if (*pi > *pj) {
+      const double tmp = *pi;
+      *pi = *pj;
+      *pj = tmp;
     }
-  } while (i < j);
+  } while (pi < pj);
+  const size_t j = pj - a.data(); 
+  const size_t i = pi - a.data();
   HoaraSort(a, first, j);
   HoaraSort(a, i + 1, last);
 }
@@ -57,7 +58,6 @@ bool deryabin_m_hoare_sort_simple_merge_stl::HoareSortTaskSequential::Validation
 
 bool deryabin_m_hoare_sort_simple_merge_stl::HoareSortTaskSequential::RunImpl() {
   size_t count = 0;
-  size_t chunk_count = chunk_count_;
   while (count != chunk_count_) {
     HoaraSort(input_array_A_, count * min_chunk_size_, ((count + 1) * min_chunk_size_) - 1);
     count++;
@@ -67,6 +67,7 @@ bool deryabin_m_hoare_sort_simple_merge_stl::HoareSortTaskSequential::RunImpl() 
     while (n >>= 1) ++log;
     return log;
   };
+  size_t chunk_count = chunk_count_;
   for (size_t i = 0; i < num_of_lvls(chunk_count_); i++) {
     for (size_t j = 0; j < chunk_count; j++) {
       MergeTwoParts(input_array_A_, j * min_chunk_size_ << (i + 1), ((j + 1) * min_chunk_size_ << (i + 1)) - 1);
