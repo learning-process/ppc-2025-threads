@@ -22,7 +22,7 @@ bool solovyev_d_shell_sort_simple_stl::TaskSTL::ValidationImpl() {
 }
 
 bool solovyev_d_shell_sort_simple_stl::TaskSTL::RunImpl() {
-  num_threads_ = std::max(1,ppc::util::GetPPCNumThreads());
+  num_threads_ = std::max(1, ppc::util::GetPPCNumThreads());
   std::barrier sync_point(num_threads_);
 
   std::vector<std::thread> threads(num_threads_);
