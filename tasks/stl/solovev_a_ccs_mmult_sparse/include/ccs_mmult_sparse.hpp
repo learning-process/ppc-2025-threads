@@ -34,8 +34,9 @@ class SeqMatMultCcs : public ppc::core::Task {
   bool RunImpl() override;
   bool PostProcessingImpl() override;
 
-  static void processPhase1(SeqMatMultCcs* self, int col, std::vector<int>& available);		
-  static void processPhase2(SeqMatMultCcs* self, int col, std::vector<int>& available, std::vector<std::complex<double>>& cask);		
+  static void processPhase1(SeqMatMultCcs* self, int col, std::vector<int>& available);
+  static void processPhase2(SeqMatMultCcs* self, int col, std::vector<int>& available,
+                            std::vector<std::complex<double>>& cask);
   static void notifyCompletion(SeqMatMultCcs* self);
   static void WorkerLoop(SeqMatMultCcs* self);
 
