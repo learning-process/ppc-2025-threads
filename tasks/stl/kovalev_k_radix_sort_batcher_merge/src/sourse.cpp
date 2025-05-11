@@ -192,7 +192,7 @@ bool kovalev_k_radix_sort_batcher_merge_stl::TestTaskSTD::RunImpl() {
         unsigned int len = loc_lenght_ * (effective_num_threads_ / i);
 
         bool local_result = OddEvenMerge(tmp_ + (stride * 2 * len) + bias, mas_ + (stride * 2 * len) + bias,
-                                       mas_ + (stride * 2 * len) + len + bias, len - bias, len - bias);
+                                         mas_ + (stride * 2 * len) + len + bias, len - bias, len - bias);
         std::lock_guard<std::mutex> lock(mtx);
         ret = ret && local_result;
       });
