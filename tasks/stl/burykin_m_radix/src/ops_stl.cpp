@@ -174,7 +174,7 @@ bool burykin_m_radix_stl::RadixSTL::RunImpl() {
 
   constexpr size_t kParallelThreshold = 3000;
   const bool use_parallel = a.size() >= kParallelThreshold;
-  const int num_threads = use_parallel ? std::min(ppc::util::GetPPCNumThreads(), 4) : 1;
+  const int num_threads = use_parallel ? std::min(ppc::util::GetPPCNumThreads(), 3) : 1;
 
   for (int shift = 0; shift < 32; shift += 8) {
     std::array<int, 256> count{};
