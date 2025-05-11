@@ -1,10 +1,8 @@
 #include <gtest/gtest.h>
 
-#include <algorithm>
 #include <chrono>
 #include <cstddef>
 #include <cstdint>
-#include <iterator>
 #include <memory>
 #include <vector>
 
@@ -12,28 +10,11 @@
 #include "core/task/include/task.hpp"
 #include "stl/gromov_a_fox_algorithm/include/ops_stl.hpp"
 
-namespace {
-std::vector<double> NaiveMatrixMultiply(const std::vector<double>& a, const std::vector<double>& b, size_t n) {
-  if (n == 0) {
-    return {};
-  }
-  std::vector<double> result(n * n, 0.0);
-  for (size_t i = 0; i < n; ++i) {
-    for (size_t j = 0; j < n; ++j) {
-      for (size_t k = 0; k < n; ++k) {
-        result[(i * n) + j] += a[(i * n) + k] * b[(k * n) + j];
-      }
-    }
-  }
-  return result;
-}
-}  // namespace
-
 TEST(gromov_a_fox_algorithm_stl, test_pipeline_run) {
   constexpr size_t kN = 400;
 
-  std::vector<double> a(kN * kN);
-  std::vector<double> b(kN * kN);
+  std::vector<double> a(kN * kN, 0.0);
+  std::vector<double> b(kN * kN, 0.0);
   std::vector<double> out(kN * kN, 0.0);
 
   for (size_t i = 0; i < kN; ++i) {
@@ -44,14 +25,13 @@ TEST(gromov_a_fox_algorithm_stl, test_pipeline_run) {
   }
 
   std::vector<double> input;
-  input.reserve(a.size() + b.size());
-  std::ranges::copy(a, std::back_inserter(input));
-  std::ranges::copy(b, std::back_inserter(input));
+  input.insert(input.end(), a.begin(), a.end());
+  input.insert(input.end(), b.begin(), b.end());
 
   auto task_data_stl = std::make_shared<ppc::core::TaskData>();
-  task_data_stl->inputs.emplace_back(reinterpret_cast<uint8_t*>(input.data()));
+  task_data_stl->inputs.emplace_back(reinterpret_cast<uint8_t *>(input.data()));
   task_data_stl->inputs_count.emplace_back(input.size());
-  task_data_stl->outputs.emplace_back(reinterpret_cast<uint8_t*>(out.data()));
+  task_data_stl->outputs.emplace_back(reinterpret_cast<uint8_t *>(out.data()));
   task_data_stl->outputs_count.emplace_back(out.size());
 
   auto test_task_stl = std::make_shared<gromov_a_fox_algorithm_stl::TestTaskSTL>(task_data_stl);
@@ -71,19 +51,25 @@ TEST(gromov_a_fox_algorithm_stl, test_pipeline_run) {
   perf_analyzer->PipelineRun(perf_attr, perf_results);
   ppc::core::Perf::PrintPerfStatistic(perf_results);
 
-  std::vector<double> expected = NaiveMatrixMultiply(a, b, kN);
+  std::vector<double> expected(kN * kN, 0.0);
+  for (size_t i = 0; i < kN; ++i) {
+    for (size_t j = 0; j < kN; ++j) {
+      for (size_t k = 0; k < kN; ++k) {
+        expected[(i * kN) + j] += a[(i * kN) + k] * b[(k * kN) + j];
+      }
+    }
+  }
 
-  ASSERT_EQ(out.size(), expected.size());
   for (size_t i = 0; i < out.size(); ++i) {
-    EXPECT_NEAR(out[i], expected[i], 1e-3);
+    EXPECT_NEAR(out[i], expected[i], 1e-9);
   }
 }
 
 TEST(gromov_a_fox_algorithm_stl, test_task_run) {
   constexpr size_t kN = 400;
 
-  std::vector<double> a(kN * kN);
-  std::vector<double> b(kN * kN);
+  std::vector<double> a(kN * kN, 0.0);
+  std::vector<double> b(kN * kN, 0.0);
   std::vector<double> out(kN * kN, 0.0);
 
   for (size_t i = 0; i < kN; ++i) {
@@ -94,14 +80,13 @@ TEST(gromov_a_fox_algorithm_stl, test_task_run) {
   }
 
   std::vector<double> input;
-  input.reserve(a.size() + b.size());
-  std::ranges::copy(a, std::back_inserter(input));
-  std::ranges::copy(b, std::back_inserter(input));
+  input.insert(input.end(), a.begin(), a.end());
+  input.insert(input.end(), b.begin(), b.end());
 
   auto task_data_stl = std::make_shared<ppc::core::TaskData>();
-  task_data_stl->inputs.emplace_back(reinterpret_cast<uint8_t*>(input.data()));
+  task_data_stl->inputs.emplace_back(reinterpret_cast<uint8_t *>(input.data()));
   task_data_stl->inputs_count.emplace_back(input.size());
-  task_data_stl->outputs.emplace_back(reinterpret_cast<uint8_t*>(out.data()));
+  task_data_stl->outputs.emplace_back(reinterpret_cast<uint8_t *>(out.data()));
   task_data_stl->outputs_count.emplace_back(out.size());
 
   auto test_task_stl = std::make_shared<gromov_a_fox_algorithm_stl::TestTaskSTL>(task_data_stl);
@@ -121,10 +106,16 @@ TEST(gromov_a_fox_algorithm_stl, test_task_run) {
   perf_analyzer->TaskRun(perf_attr, perf_results);
   ppc::core::Perf::PrintPerfStatistic(perf_results);
 
-  std::vector<double> expected = NaiveMatrixMultiply(a, b, kN);
+  std::vector<double> expected(kN * kN, 0.0);
+  for (size_t i = 0; i < kN; ++i) {
+    for (size_t j = 0; j < kN; ++j) {
+      for (size_t k = 0; k < kN; ++k) {
+        expected[(i * kN) + j] += a[(i * kN) + k] * b[(k * kN) + j];
+      }
+    }
+  }
 
-  ASSERT_EQ(out.size(), expected.size());
   for (size_t i = 0; i < out.size(); ++i) {
-    EXPECT_NEAR(out[i], expected[i], 1e-3);
+    EXPECT_NEAR(out[i], expected[i], 1e-9);
   }
 }

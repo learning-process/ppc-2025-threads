@@ -1,6 +1,5 @@
 #pragma once
 
-#include <thread>
 #include <utility>
 #include <vector>
 
@@ -17,7 +16,6 @@ class TestTaskSTL : public ppc::core::Task {
   bool PostProcessingImpl() override;
 
  private:
-  void WorkerFunction(int start_block_idx, int end_block_idx, int num_blocks_dim);
   std::vector<double> A_, B_, output_;
   int n_;
   int block_size_;
