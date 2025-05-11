@@ -37,7 +37,7 @@ void deryabin_m_hoare_sort_simple_merge_stl::HoaraSort(std::vector<double>& a, s
   HoaraSort(a, i + 1, last);
 }
 
-void deryabin_m_hoare_sort_simple_merge_stl::MergeTwoParts(std::vector<double>& arr, size_t left, size_t right) {
+void deryabin_m_hoare_sort_simple_merge_stl::MergeTwoParts(std::vector<double>& a, size_t left, size_t right) {
   size_t middle = (right - left) >> 1;
   size_t l_cur = 0;
   size_t r_cur = 0;
