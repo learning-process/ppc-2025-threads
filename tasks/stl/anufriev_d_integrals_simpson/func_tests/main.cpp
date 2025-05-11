@@ -1,6 +1,7 @@
 #include <gtest/gtest.h>
 
 #include <cstdint>
+#include <exception>
 #include <memory>
 #include <numbers>
 #include <vector>
@@ -248,7 +249,7 @@ TEST(anufriev_d_integrals_simpson_stl, Run_Without_PreProcessing) {
   std::vector<double> out = {0.0};
   auto td = MakeTaskData(in, out);
   IntegralsSimpsonSTL task(td);
-  EXPECT_THROW(task.Run(), std::exception);
+  EXPECT_THROW(task.Run(), ::std::exception);
 }
 
 TEST(anufriev_d_integrals_simpson_stl, PostProcessing_Only) {
@@ -256,7 +257,7 @@ TEST(anufriev_d_integrals_simpson_stl, PostProcessing_Only) {
   std::vector<double> out = {0.0};
   auto td = MakeTaskData(in, out);
   IntegralsSimpsonSTL task(td);
-  EXPECT_THROW(task.PostProcessing(), std::exception);
+  EXPECT_THROW(task.PostProcessing(), ::std::exception);
 }
 
 TEST(anufriev_d_integrals_simpson_stl, Validation_EmptyOutputsCount) {
