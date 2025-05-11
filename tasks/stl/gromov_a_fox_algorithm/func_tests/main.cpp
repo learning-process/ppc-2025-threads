@@ -42,6 +42,50 @@ TEST(gromov_a_fox_algorithm_stl, test_4x4) {
   }
 }
 
+TEST(gromov_a_fox_algorithm_stl, test_15x15) {
+  constexpr size_t kN = 15;
+
+  std::vector<double> a(kN * kN, 0.0);
+  std::vector<double> b(kN * kN, 0.0);
+  std::vector<double> out(kN * kN, 0.0);
+
+  for (size_t i = 0; i < kN; ++i) {
+    for (size_t j = 0; j < kN; ++j) {
+      a[(i * kN) + j] = static_cast<double>((i * kN) + j + 1);
+      b[(i * kN) + j] = static_cast<double>((kN * kN) - (i * kN + j));
+    }
+  }
+
+  std::vector<double> input;
+  input.insert(input.end(), a.begin(), a.end());
+  input.insert(input.end(), b.begin(), b.end());
+
+  auto task_data_stl = std::make_shared<ppc::core::TaskData>();
+  task_data_stl->inputs.emplace_back(reinterpret_cast<uint8_t *>(input.data()));
+  task_data_stl->inputs_count.emplace_back(input.size());
+  task_data_stl->outputs.emplace_back(reinterpret_cast<uint8_t *>(out.data()));
+  task_data_stl->outputs_count.emplace_back(out.size());
+
+  gromov_a_fox_algorithm_stl::TestTaskSTL test_task_stl(task_data_stl);
+  ASSERT_TRUE(test_task_stl.Validation());
+  test_task_stl.PreProcessing();
+  test_task_stl.Run();
+  test_task_stl.PostProcessing();
+
+  std::vector<double> expected(kN * kN, 0.0);
+  for (size_t i = 0; i < kN; ++i) {
+    for (size_t j = 0; j < kN; ++j) {
+      for (size_t k = 0; k < kN; ++k) {
+        expected[(i * kN) + j] += a[(i * kN) + k] * b[(k * kN) + j];
+      }
+    }
+  }
+
+  for (size_t i = 0; i < out.size(); ++i) {
+    EXPECT_NEAR(out[i], expected[i], 1e-9);
+  }
+}
+
 TEST(gromov_a_fox_algorithm_stl, identity_3x3) {
   constexpr size_t kN = 3;
 

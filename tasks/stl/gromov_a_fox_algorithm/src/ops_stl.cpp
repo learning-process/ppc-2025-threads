@@ -1,5 +1,6 @@
 #include "stl/gromov_a_fox_algorithm/include/ops_stl.hpp"
 
+#include <algorithm>
 #include <cmath>
 #include <mutex>
 #include <thread>
@@ -22,6 +23,7 @@ void FoxBlockMul(const std::vector<double>& a, const std::vector<double>& b, std
   }
 }
 }  // namespace
+
 
 bool gromov_a_fox_algorithm_stl::TestTaskSTL::PreProcessingImpl() {
   unsigned int input_size = task_data->inputs_count[0];
@@ -73,7 +75,7 @@ bool gromov_a_fox_algorithm_stl::TestTaskSTL::ValidationImpl() {
 
 bool gromov_a_fox_algorithm_stl::TestTaskSTL::RunImpl() {
   int num_blocks = (n_ + block_size_ - 1) / block_size_;
-  const int num_threads = ppc::util::GetPPCNumThreads();
+  const int num_threads = std::min(ppc::util::GetPPCNumThreads(), 8);
   std::vector<std::thread> threads;
 
   int num_block_rows = num_blocks;
@@ -103,6 +105,7 @@ bool gromov_a_fox_algorithm_stl::TestTaskSTL::RunImpl() {
 
   return true;
 }
+
 
 bool gromov_a_fox_algorithm_stl::TestTaskSTL::PostProcessingImpl() {
   for (size_t i = 0; i < output_.size(); ++i) {
