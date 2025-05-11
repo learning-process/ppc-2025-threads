@@ -95,12 +95,15 @@ bool deryabin_m_hoare_sort_simple_merge_stl::HoareSortTaskSTL::RunImpl() {
     const size_t num_chunk_per_thread = (end - start) / num_threads;
     for (size_t i = 0; i < num_threads - 1; ++i)
       workers.emplace_back([=, &func] {
-        for (size_t j = start + i * num_chunk_per_thread; j < start + (i + 1) * num_chunk_per_thread;) func(j++);
+        for (size_t j = start + i * num_chunk_per_thread; j < start + (i + 1) * num_chunk_per_thread; ++j) func(j);
       });
     workers.emplace_back([=, &func] {
-      for (size_t j = start + (num_threads - 1) * num_chunk_per_thread; j < end;) func(j++);
+      for (size_t j = start + (num_threads - 1) * num_chunk_per_thread; j < end; ++j) func(j);
     });
-    for (auto& worker : workers) worker.join();
+    for (auto& worker : workers) {
+      worker.join();
+      workers.clear();
+    }
   };
   parallel_for(0, chunk_count_, [this](size_t count) {
     HoaraSort(input_array_A_, count * min_chunk_size_, ((count + 1) * min_chunk_size_) - 1);
