@@ -12,31 +12,35 @@
 #include "core/util/include/util.hpp"
 
 void deryabin_m_hoare_sort_simple_merge_stl::HoaraSort(std::vector<double>& a, size_t first, size_t last) {
-  if (first >= last) {
-    return;
+  std::stack<std::pair<size_t, size_t>> stack;
+  stack.push({first, last});
+  while (!stack.empty()) {
+    auto [first_, last_] = stack.top();
+    stack.pop();
+    if (first_ >= last_) {
+      continue;
+    }
+    size_t i = first_;
+    size_t j = last_;
+    double tmp = 0;
+    double x = std::max(std::min(a[first_], a[(first_ + last_) >> 1]),
+                        std::min(std::max(a[first_], a[(first_ + last_) >> 1]), a[last_]));
+    do {
+      while (a[i] < x) {
+        i++;
+      }
+      while (a[j] > x) {
+        j--;
+      }
+      if (i < j && a[i] > a[j]) {
+        tmp = a[i];
+        a[i] = a[j];
+        a[j] = tmp;
+      }
+    } while (i < j);
+    stack.push({first_, j});
+    stack.push({i + 1, last_});
   }
-  size_t i = first;
-  size_t j = last;
-  double tmp = 0;
-  double x =
-      std::max(std::min(a[first], a[(first + last) / 2]),
-               std::min(std::max(a[first], a[(first + last) / 2]),
-                        a[last]));  // выбор опорного элемента как медианы первого, среднего и последнего элементов
-  do {
-    while (a[i] < x) {
-      i++;
-    }
-    while (a[j] > x) {
-      j--;
-    }
-    if (i < j && a[i] > a[j]) {
-      tmp = a[i];
-      a[i] = a[j];
-      a[j] = tmp;
-    }
-  } while (i < j);
-  HoaraSort(a, i + 1, last);
-  HoaraSort(a, first, j);
 }
 
 void deryabin_m_hoare_sort_simple_merge_stl::MergeTwoParts(std::vector<double>& arr, size_t left, size_t right) {
