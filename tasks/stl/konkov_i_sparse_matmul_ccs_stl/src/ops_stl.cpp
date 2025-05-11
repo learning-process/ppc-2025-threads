@@ -1,6 +1,7 @@
 #include "stl/konkov_i_sparse_matmul_ccs_stl/include/ops_stl.hpp"
 
 #include <algorithm>
+#include <core/util/include/util.hpp>
 #include <cstddef>
 #include <thread>
 #include <unordered_map>
@@ -8,7 +9,6 @@
 #include <vector>
 
 #include "core/task/include/task.hpp"
-#include <core/util/include/util.hpp>
 
 namespace konkov_i_sparse_matmul_ccs_stl {
 
