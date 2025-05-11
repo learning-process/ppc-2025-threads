@@ -66,8 +66,30 @@ TEST(burykin_m_radix_stl, ReverseSorted) {
   EXPECT_EQ(output, expected);
 }
 
-TEST(burykin_m_radix_stl, RandomVector) {
+TEST(burykin_m_radix_stl, RandomVector_1000) {
   constexpr size_t kSize = 1000;
+  std::vector<int> input = GenerateRandomVector(kSize);
+  std::vector<int> expected = input;
+  std::ranges::sort(expected);
+  std::vector<int> output(kSize, 0);
+
+  auto task_data = std::make_shared<ppc::core::TaskData>();
+  task_data->inputs.push_back(reinterpret_cast<uint8_t*>(input.data()));
+  task_data->inputs_count.push_back(static_cast<std::uint32_t>(input.size()));
+  task_data->outputs.push_back(reinterpret_cast<uint8_t*>(output.data()));
+  task_data->outputs_count.push_back(static_cast<std::uint32_t>(output.size()));
+
+  burykin_m_radix_stl::RadixSTL task(task_data);
+  ASSERT_TRUE(task.Validation());
+  task.PreProcessing();
+  task.Run();
+  task.PostProcessing();
+
+  EXPECT_EQ(output, expected);
+}
+
+TEST(burykin_m_radix_stl, RandomVector_5000) {
+  constexpr size_t kSize = 5000;
   std::vector<int> input = GenerateRandomVector(kSize);
   std::vector<int> expected = input;
   std::ranges::sort(expected);

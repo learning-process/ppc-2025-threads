@@ -171,7 +171,7 @@ bool burykin_m_radix_stl::RadixSTL::RunImpl() {
   std::vector<int> a = std::move(input_);
   std::vector<int> b(a.size());
 
-  constexpr size_t kParallelThreshold = 100000;
+  constexpr size_t kParallelThreshold = 5000;
   const bool use_parallel = a.size() >= kParallelThreshold;
   const int num_threads = use_parallel ? ppc::util::GetPPCNumThreads() : 1;
 
