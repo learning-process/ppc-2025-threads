@@ -8,6 +8,7 @@
 #include <vector>
 
 #include "core/task/include/task.hpp"
+#include <core/util/include/util.hpp>
 
 namespace konkov_i_sparse_matmul_ccs_stl {
 
@@ -91,7 +92,7 @@ void SparseMatmulTask::MergeThreadResults(int num_threads, const std::vector<std
 }
 
 bool SparseMatmulTask::RunImpl() {
-  auto num_threads = static_cast<int>(std::thread::hardware_concurrency());
+  auto num_threads = ppc::util::GetPPCNumThreads();
   if (num_threads == 0) {
     num_threads = 4;  // fallback
   }
