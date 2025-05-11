@@ -1,6 +1,7 @@
 #include <gtest/gtest.h>
 
 #include <chrono>
+#include <cstdint>  
 #include <functional>
 #include <memory>
 #include <vector>
@@ -29,7 +30,7 @@ TEST(prokhorov_n_multidimensional_integrals_by_trapezoidal_method_seq, test_pipe
       std::make_shared<prokhorov_n_multidimensional_integrals_by_trapezoidal_method_seq::TestTaskSequential>(
           task_data_seq);
 
-  test_task_sequential->setFunction([](const std::vector<double>& point) { return point[0] * point[1] * point[2]; });
+  test_task_sequential->SetFunction([](const std::vector<double>& point) { return point[0] * point[1] * point[2]; });
 
   auto perf_attr = std::make_shared<ppc::core::PerfAttr>();
   perf_attr->num_running = 10;
@@ -67,7 +68,7 @@ TEST(prokhorov_n_multidimensional_integrals_by_trapezoidal_method_seq, test_task
       std::make_shared<prokhorov_n_multidimensional_integrals_by_trapezoidal_method_seq::TestTaskSequential>(
           task_data_seq);
 
-  test_task_sequential->setFunction([](const std::vector<double>& point) { return point[0] + point[1]; });
+  test_task_sequential->SetFunction([](const std::vector<double>& point) { return point[0] + point[1]; });
 
   auto perf_attr = std::make_shared<ppc::core::PerfAttr>();
   perf_attr->num_running = 10;

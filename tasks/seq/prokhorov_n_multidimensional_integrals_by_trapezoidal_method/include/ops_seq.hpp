@@ -16,7 +16,7 @@ class TestTaskSequential : public ppc::core::Task {
   bool RunImpl() override;
   bool PostProcessingImpl() override;
 
-  void setFunction(std::function<double(const std::vector<double>&)> func) { function_ = std::move(func); }
+  void SetFunction(std::function<double(const std::vector<double>&)> func) { function_ = std::move(func); }
 
  private:
   std::vector<double> lower_limits_;
