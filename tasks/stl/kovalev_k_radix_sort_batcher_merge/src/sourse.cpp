@@ -203,7 +203,7 @@ bool kovalev_k_radix_sort_batcher_merge_stl::TestTaskSTD::RunImpl() {
       }
     }
   }
-  return ret.load() && FinalMerge();
+  return ret && FinalMerge();
 }
 
 bool kovalev_k_radix_sort_batcher_merge_stl::TestTaskSTD::PostProcessingImpl() {
