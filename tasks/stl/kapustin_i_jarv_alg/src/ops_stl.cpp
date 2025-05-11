@@ -12,31 +12,37 @@
 
 void kapustin_i_jarv_alg_stl::TestTaskSTL::FindBestPointMultithreaded(size_t current_index,
                                                                       std::vector<size_t>& local_best) {
-  auto num_threads = static_cast<size_t>(ppc::util::GetPPCNumThreads());
   const size_t total_points = input_.size();
+  const size_t max_threads = static_cast<size_t>(ppc::util::GetPPCNumThreads());
 
-  const size_t chunk_size = total_points / num_threads;
-  const size_t remaining = total_points % num_threads;
-
-  std::vector<std::thread> threads;
+  const size_t num_threads = std::min(max_threads, total_points);
   local_best.clear();
   local_best.resize(num_threads, (current_index + 1) % total_points);
-  std::mutex mtx;
+
+  std::vector<std::pair<size_t, size_t>> thread_ranges(num_threads);
+  size_t base = total_points / num_threads;
+  size_t rem = total_points % num_threads;
+
+  size_t start = 0;
+  for (size_t i = 0; i < num_threads; ++i) {
+    size_t end = start + base + (i < rem ? 1 : 0);
+    thread_ranges[i] = {start, end};
+    start = end;
+  }
+
+  std::vector<std::thread> threads;
 
   for (size_t i = 0; i < num_threads; ++i) {
-    size_t start = (i * chunk_size) + std::min(i, remaining);
-    size_t end = start + chunk_size + (i < remaining ? 1 : 0);
+    threads.emplace_back([this, i, &thread_ranges, current_index, &local_best]() {
+      size_t start = thread_ranges[i].first;
+      size_t end = thread_ranges[i].second;
 
-    if (start >= end) {
-      continue;
-    }
-
-    threads.emplace_back([this, start, end, current_index, i, &local_best, &mtx]() {
-      size_t best = local_best[i];
+      size_t best = (start == current_index) ? (start + 1) % input_.size() : start;
       for (size_t j = start; j < end; ++j) {
         if (j == current_index) {
           continue;
         }
+
         int orient = Orientation(input_[current_index], input_[best], input_[j]);
         bool better = (orient > 0) || (orient == 0 && CalculateDistance(input_[j], input_[current_index]) >
                                                           CalculateDistance(input_[best], input_[current_index]));
@@ -44,10 +50,7 @@ void kapustin_i_jarv_alg_stl::TestTaskSTL::FindBestPointMultithreaded(size_t cur
           best = j;
         }
       }
-      {
-        std::lock_guard<std::mutex> lock(mtx);
-        local_best[i] = best;
-      }
+      local_best[i] = best;
     });
   }
 
