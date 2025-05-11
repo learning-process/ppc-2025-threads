@@ -2,11 +2,14 @@
 
 #include <algorithm>
 #include <cmath>
+#include <numeric>
 #include <cstddef>
 #include <thread>
 #include <vector>
 
-bool karaseva_a_test_task_stl::TestTaskSTL::PreProcessingImpl() {
+using namespace karaseva_a_test_task_stl; // NOLINT
+
+bool TestTaskSTL::PreProcessingImpl() {
   // Set system size from input data
   size_ = task_data->inputs_count[1];
   auto* a_ptr = reinterpret_cast<double*>(task_data->inputs[0]);
@@ -20,222 +23,173 @@ bool karaseva_a_test_task_stl::TestTaskSTL::PreProcessingImpl() {
   return true;
 }
 
-bool karaseva_a_test_task_stl::TestTaskSTL::ValidationImpl() {
+bool TestTaskSTL::ValidationImpl() {
   // Validate matrix and vector dimensions
   const bool valid_input = task_data->inputs_count[0] == task_data->inputs_count[1] * task_data->inputs_count[1];
   const bool valid_output = task_data->outputs_count[0] == task_data->inputs_count[1];
   return valid_input && valid_output;
 }
 
-bool karaseva_a_test_task_stl::TestTaskSTL::RunImpl() {
+// Helper functions to reduce cognitive complexity
+namespace {
+void ParallelInit(std::vector<double>& r, std::vector<double>& p, const std::vector<double>& b, size_t size) {
+  const size_t num_threads = std::max<size_t>(1, std::thread::hardware_concurrency());
+  std::vector<std::thread> threads;
+  const size_t chunk_size = (size + num_threads - 1) / num_threads;
+
+  for (size_t t = 0; t < num_threads; ++t) {
+    const size_t start = t * chunk_size;
+    const size_t end = std::min(start + chunk_size, size);
+    threads.emplace_back([start, end, &r, &p, &b]() {
+      for (size_t i = start; i < end; ++i) {
+        r[i] = b[i];
+        p[i] = r[i];
+      }
+    });
+  }
+
+  for (auto& thread : threads) {
+    thread.join();
+  }
+}
+
+double ParallelDotProduct(const std::vector<double>& a, const std::vector<double>& b, size_t size) {
+  const size_t num_threads = std::max<size_t>(1, std::thread::hardware_concurrency());
+  std::vector<std::thread> threads(num_threads);
+  std::vector<double> partial_sums(num_threads, 0.0);
+  const size_t chunk_size = (size + num_threads - 1) / num_threads;
+
+  for (size_t t = 0; t < num_threads; ++t) {
+    const size_t start = t * chunk_size;
+    const size_t end = std::min(start + chunk_size, size);
+    threads[t] = std::thread([start, end, &a, &b, &partial_sums, t]() {
+      double sum = 0.0;
+      for (size_t i = start; i < end; ++i) {
+        sum += a[i] * b[i];
+      }
+      partial_sums[t] = sum;
+    });
+  }
+
+  for (auto& thread : threads) {
+    thread.join();
+  }
+
+  return std::accumulate(partial_sums.begin(), partial_sums.end(), 0.0);
+}
+
+void MatrixVectorMultiply(const std::vector<double>& A, std::vector<double>& ap, const std::vector<double>& p,
+                          size_t size) {
+  const size_t num_threads = std::max<size_t>(1, std::thread::hardware_concurrency());
+  std::vector<std::thread> threads;
+  const size_t chunk_size = (size + num_threads - 1) / num_threads;
+
+  for (size_t t = 0; t < num_threads; ++t) {
+    const size_t start = t * chunk_size;
+    const size_t end = std::min(start + chunk_size, size);
+    threads.emplace_back([start, end, &A, &ap, &p, size]() {
+      for (size_t i = start; i < end; ++i) {
+        ap[i] = 0.0;
+        for (size_t j = 0; j < size; ++j) {
+          ap[i] += A[(i * size) + j] * p[j];
+        }
+      }
+    });
+  }
+
+  for (auto& thread : threads) {
+    thread.join();
+  }
+}
+
+void ParallelVectorUpdate(std::vector<double>& x, std::vector<double>& r, const std::vector<double>& p,
+                          const std::vector<double>& ap, double alpha, size_t size) {
+  const size_t num_threads = std::max<size_t>(1, std::thread::hardware_concurrency());
+  std::vector<std::thread> threads;
+  const size_t chunk_size = (size + num_threads - 1) / num_threads;
+
+  for (size_t t = 0; t < num_threads; ++t) {
+    const size_t start = t * chunk_size;
+    const size_t end = std::min(start + chunk_size, size);
+    threads.emplace_back([start, end, &x, &r, &p, &ap, alpha]() {
+      for (size_t i = start; i < end; ++i) {
+        x[i] += alpha * p[i];
+        r[i] -= alpha * ap[i];
+      }
+    });
+  }
+
+  for (auto& thread : threads) {
+    thread.join();
+  }
+}
+
+void UpdateSearchDirection(std::vector<double>& p, const std::vector<double>& r, double beta, size_t size) {
+  const size_t num_threads = std::max<size_t>(1, std::thread::hardware_concurrency());
+  std::vector<std::thread> threads;
+  const size_t chunk_size = (size + num_threads - 1) / num_threads;
+
+  for (size_t t = 0; t < num_threads; ++t) {
+    const size_t start = t * chunk_size;
+    const size_t end = std::min(start + chunk_size, size);
+    threads.emplace_back([start, end, &p, &r, beta]() {
+      for (size_t i = start; i < end; ++i) {
+        p[i] = r[i] + beta * p[i];
+      }
+    });
+  }
+
+  for (auto& thread : threads) {
+    thread.join();
+  }
+}
+}  // namespace
+
+bool TestTaskSTL::RunImpl() {
   std::vector<double> r(size_);
   std::vector<double> p(size_);
   std::vector<double> ap(size_);
 
-  // Parallel initialization of residual and search direction vectors
-  {
-    const size_t num_threads =
-        std::max(static_cast<size_t>(1), static_cast<size_t>(std::thread::hardware_concurrency()));
-    std::vector<std::thread> threads;
-    const size_t chunk_size = (size_ + num_threads - 1) / num_threads;
+  // 1. Initialize residual and search direction vectors
+  ParallelInit(r, p, b_, size_);
 
-    for (size_t t = 0; t < num_threads; ++t) {
-      const size_t start = t * chunk_size;
-      const size_t end = std::min(start + chunk_size, size_);
-      // Explicit capture of 'this' for class member access
-      threads.emplace_back([this, start, end, &r, &p]() {
-        for (size_t i = start; i < end; ++i) {
-          r[i] = this->b_[i];  // Access through captured 'this'
-          p[i] = r[i];
-        }
-      });
-    }
-
-    for (auto& thread : threads) {
-      thread.join();
-    }
-  }
-
-  double rs_old = 0.0;
-  // Parallel reduction for initial residual norm
-  {
-    const size_t num_threads =
-        std::max(static_cast<size_t>(1), static_cast<size_t>(std::thread::hardware_concurrency()));
-    std::vector<std::thread> threads(num_threads);
-    std::vector<double> partial_sums(num_threads, 0.0);
-    const size_t chunk_size = (size_ + num_threads - 1) / num_threads;
-
-    for (size_t t = 0; t < num_threads; ++t) {
-      const size_t start = t * chunk_size;
-      const size_t end = std::min(start + chunk_size, size_);
-      threads[t] = std::thread([start, end, &r, &partial_sums, t]() {
-        double sum = 0.0;
-        for (size_t i = start; i < end; ++i) {
-          sum += r[i] * r[i];
-        }
-        partial_sums[t] = sum;
-      });
-    }
-
-    for (auto& thread : threads) {
-      thread.join();
-    }
-
-    for (const auto& sum : partial_sums) {
-      rs_old += sum;
-    }
-  }
+  // 2. Compute initial residual norm
+  double rs_old = ParallelDotProduct(r, r, size_);
 
   const double tolerance = 1e-10;
   const size_t max_iterations = size_;
 
-  // Main CG loop
+  // 3. Main CG loop
   for (size_t k = 0; k < max_iterations; ++k) {
-    // Parallel matrix-vector multiplication
-    {
-      const size_t num_threads =
-          std::max(static_cast<size_t>(1), static_cast<size_t>(std::thread::hardware_concurrency()));
-      std::vector<std::thread> threads;
-      const size_t chunk_size = (size_ + num_threads - 1) / num_threads;
+    // 3.1 Matrix-vector multiplication
+    MatrixVectorMultiply(A_, ap, p, size_);
 
-      for (size_t t = 0; t < num_threads; ++t) {
-        const size_t start = t * chunk_size;
-        const size_t end = std::min(start + chunk_size, size_);
-        // Capture 'this' for accessing matrix A_
-        threads.emplace_back([this, start, end, &ap, &p]() {
-          for (size_t i = start; i < end; ++i) {
-            ap[i] = 0.0;
-            for (size_t j = 0; j < this->size_; ++j) {
-              ap[i] += this->A_[(i * this->size_) + j] * p[j];
-            }
-          }
-        });
-      }
-
-      for (auto& thread : threads) {
-        thread.join();
-      }
+    // 3.2 Compute dot product
+    const double p_ap = ParallelDotProduct(p, ap, size_);
+    if (std::fabs(p_ap) < 1e-15) {
+      break;
     }
 
-    // Parallel dot product p^T * ap
-    double p_ap = 0.0;
-    {
-      const size_t num_threads =
-          std::max(static_cast<size_t>(1), static_cast<size_t>(std::thread::hardware_concurrency()));
-      std::vector<std::thread> threads(num_threads);
-      std::vector<double> partial_sums(num_threads, 0.0);
-      const size_t chunk_size = (size_ + num_threads - 1) / num_threads;
-
-      for (size_t t = 0; t < num_threads; ++t) {
-        const size_t start = t * chunk_size;
-        const size_t end = std::min(start + chunk_size, size_);
-        threads[t] = std::thread([start, end, &p, &ap, &partial_sums, t]() {
-          double sum = 0.0;
-          for (size_t i = start; i < end; ++i) {
-            sum += p[i] * ap[i];
-          }
-          partial_sums[t] = sum;
-        });
-      }
-
-      for (auto& thread : threads) {
-        thread.join();
-      }
-
-      for (const auto& sum : partial_sums) {
-        p_ap += sum;
-      }
-    }
-
-    if (std::fabs(p_ap) < 1e-15) break;
+    // 3.3 Compute alpha and update vectors
     const double alpha = rs_old / p_ap;
+    ParallelVectorUpdate(x_, r, p, ap, alpha, size_);
 
-    // Parallel vector updates
-    {
-      const size_t num_threads =
-          std::max(static_cast<size_t>(1), static_cast<size_t>(std::thread::hardware_concurrency()));
-      std::vector<std::thread> threads;
-      const size_t chunk_size = (size_ + num_threads - 1) / num_threads;
-
-      for (size_t t = 0; t < num_threads; ++t) {
-        const size_t start = t * chunk_size;
-        const size_t end = std::min(start + chunk_size, size_);
-        // Corrected capture list: use 'this' instead of '&x_'
-        threads.emplace_back([this, start, end, alpha, &p, &r, &ap]() {
-          for (size_t i = start; i < end; ++i) {
-            this->x_[i] += alpha * p[i];  // Access x_ through 'this'
-            r[i] -= alpha * ap[i];
-          }
-        });
-      }
-
-      for (auto& thread : threads) {
-        thread.join();
-      }
+    // 3.4 Check convergence
+    const double rs_new = ParallelDotProduct(r, r, size_);
+    if (rs_new < tolerance * tolerance) {
+      break;
     }
 
-    // Convergence check
-    double rs_new = 0.0;
-    {
-      const size_t num_threads =
-          std::max(static_cast<size_t>(1), static_cast<size_t>(std::thread::hardware_concurrency()));
-      std::vector<std::thread> threads(num_threads);
-      std::vector<double> partial_sums(num_threads, 0.0);
-      const size_t chunk_size = (size_ + num_threads - 1) / num_threads;
-
-      for (size_t t = 0; t < num_threads; ++t) {
-        const size_t start = t * chunk_size;
-        const size_t end = std::min(start + chunk_size, size_);
-        threads[t] = std::thread([start, end, &r, &partial_sums, t]() {
-          double sum = 0.0;
-          for (size_t i = start; i < end; ++i) {
-            sum += r[i] * r[i];
-          }
-          partial_sums[t] = sum;
-        });
-      }
-
-      for (auto& thread : threads) {
-        thread.join();
-      }
-
-      for (const auto& sum : partial_sums) {
-        rs_new += sum;
-      }
-    }
-
-    if (rs_new < tolerance * tolerance) break;
-
-    // Update search direction
+    // 3.5 Update search direction
     const double beta = rs_new / rs_old;
-    {
-      const size_t num_threads =
-          std::max(static_cast<size_t>(1), static_cast<size_t>(std::thread::hardware_concurrency()));
-      std::vector<std::thread> threads;
-      const size_t chunk_size = (size_ + num_threads - 1) / num_threads;
-
-      for (size_t t = 0; t < num_threads; ++t) {
-        const size_t start = t * chunk_size;
-        const size_t end = std::min(start + chunk_size, size_);
-        threads.emplace_back([start, end, beta, &p, &r]() {
-          for (size_t i = start; i < end; ++i) {
-            p[i] = r[i] + beta * p[i];
-          }
-        });
-      }
-
-      for (auto& thread : threads) {
-        thread.join();
-      }
-    }
-
+    UpdateSearchDirection(p, r, beta, size_);
     rs_old = rs_new;
   }
 
   return true;
 }
 
-bool karaseva_a_test_task_stl::TestTaskSTL::PostProcessingImpl() {
+bool TestTaskSTL::PostProcessingImpl() {
   auto* x_ptr = reinterpret_cast<double*>(task_data->outputs[0]);
   for (size_t i = 0; i < x_.size(); ++i) {
     x_ptr[i] = x_[i];
