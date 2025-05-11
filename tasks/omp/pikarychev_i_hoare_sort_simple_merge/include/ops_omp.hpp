@@ -15,7 +15,6 @@ class HoareOpenMP : public ppc::core::Task {
   struct Block {
     T* e;
     std::size_t sz;
-    bool merged{false};
   };
 
  public:
@@ -88,7 +87,6 @@ class HoareOpenMP : public ppc::core::Task {
  private:
   static void DoInplaceMerge(Block* b1, Block* b2, bool (*comp)(const T&, const T&)) {
     std::inplace_merge(b1->e, b2->e, b2->e + b2->sz, comp);
-    b2->merged = true;
     b1->sz += b2->sz;
   }
 
