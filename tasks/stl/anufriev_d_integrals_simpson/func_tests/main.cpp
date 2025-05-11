@@ -283,7 +283,7 @@ TEST(anufriev_d_integrals_simpson_stl, 3D_SumOfSquares) {
 }
 
 TEST(anufriev_d_integrals_simpson_stl, 1D_SinFunction) {
-  std::vector<double> in = {1, 0.0, kPi/2, 100, 1};
+  std::vector<double> in = {1, 0.0, kPi / 2, 100, 1};
   std::vector<double> out(1, 0.0);
   auto td = MakeTaskData(in, out);
   IntegralsSimpsonSTL task(td);
@@ -307,10 +307,10 @@ TEST(anufriev_d_integrals_simpson_stl, test_PreProcessingImpl_small_input_size) 
   double dummy = 0.0;
   auto td = std::make_shared<ppc::core::TaskData>();
   td->inputs.push_back(reinterpret_cast<uint8_t*>(&dummy));
-  td->inputs_count.push_back(static_cast<uint32_t>(sizeof(double) / 2));  // 4 байта
+  td->inputs_count.push_back(static_cast<uint32_t>(sizeof(double) / 2));
   std::vector<double> out(1);
   td->outputs.push_back(reinterpret_cast<uint8_t*>(out.data()));
   td->outputs_count.push_back(static_cast<uint32_t>(sizeof(double)));
   anufriev_d_integrals_simpson_stl::IntegralsSimpsonSTL task(td);
   EXPECT_FALSE(task.PreProcessingImpl());
-} // namespace anufriev_d_integrals_simpson_stl
+}  // namespace anufriev_d_integrals_simpson_stl
