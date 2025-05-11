@@ -32,8 +32,8 @@ void deryabin_m_hoare_sort_simple_merge_stl::HoaraSort(std::vector<double>& a, s
       *pj = tmp;
     }
   } while (pi < pj);
-  const size_t j = pj - a.data(); 
-                                                  const size_t i = pi - a.data();
+  const size_t j = pj - a.data();
+  const size_t i = pi - a.data();
   HoaraSort(a, first, j);
   HoaraSort(a, i + 1, last);
 }
