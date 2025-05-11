@@ -122,7 +122,6 @@ TEST(muhina_m_dijkstra_all, test_pipeline_run) {
 TEST(muhina_m_dijkstra_all, test_task_run) {
   constexpr size_t kNumVertices = 5000;
   size_t start_vertex = 0;
-  
 
   auto adj_list = GenerateLargeGraph(kNumVertices);
   auto graph_data = ConvertGraphToData(adj_list);
@@ -162,4 +161,3 @@ TEST(muhina_m_dijkstra_all, test_task_run) {
     }
   }
 }
-
