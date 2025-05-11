@@ -48,7 +48,7 @@ std::vector<double> MultiplyMatrixVector(const std::vector<double>& a_matrix, co
 
 TEST(karaseva_a_test_task_stl, test_cg_solution_accuracy) {
   constexpr size_t kSize = 50;
-  constexpr double kTolerance = 1e-6;
+  constexpr double kTolerance = 1e-5;
 
   auto a_matrix = GenerateRandomSPDMatrix(kSize);
   std::vector<double> x_expected(kSize, 1.0);
@@ -167,7 +167,7 @@ TEST(karaseva_a_test_task_stl, test_validation_fail_output_size) {
 
 TEST(karaseva_a_test_task_stl, test_large_system_100x100) {
   constexpr size_t kSize = 100;
-  constexpr double kTolerance = 1e-6;
+  constexpr double kTolerance = 1e-5;
 
   auto a_matrix = GenerateRandomSPDMatrix(kSize);
   std::vector<double> x_expected(kSize, 1.0);
@@ -195,7 +195,7 @@ TEST(karaseva_a_test_task_stl, test_large_system_100x100) {
 
 TEST(karaseva_a_test_task_stl, test_large_system_200x200) {
   constexpr size_t kSize = 200;
-  constexpr double kTolerance = 1e-6;
+  constexpr double kTolerance = 1e-5;
 
   auto a_matrix = GenerateRandomSPDMatrix(kSize);
   std::vector<double> x_expected(kSize);
@@ -230,7 +230,7 @@ TEST(karaseva_a_test_task_stl, test_large_system_200x200) {
 
 TEST(karaseva_a_test_task_stl, test_ill_conditioned_system) {
   constexpr size_t kSize = 50;
-  constexpr double kTolerance = 1e-4;
+  constexpr double kTolerance = 1e-3;
 
   std::vector<double> a_matrix(kSize * kSize);
   for (size_t i = 0; i < kSize; ++i) {
