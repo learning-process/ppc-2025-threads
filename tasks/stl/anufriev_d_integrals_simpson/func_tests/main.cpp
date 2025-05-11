@@ -24,6 +24,8 @@ std::shared_ptr<ppc::core::TaskData> MakeTaskData(const std::vector<double>& ele
 }
 }  // namespace
 
+using namespace anufriev_d_integrals_simpson_stl;
+
 TEST(anufriev_d_integrals_simpson_stl, test_1D_sin) {
   std::vector<double> in = {1, 0.0, kPi / 2.0, 100, 1};
   std::vector<double> out_buffer(1, 0.0);
@@ -127,7 +129,7 @@ TEST(anufriev_d_integrals_simpson_stl, test_no_output_buffer) {
   EXPECT_FALSE(task.Validation());
 }
 
-TEST(anufriev_d_integrals_simpson_stl_coverage, MinValidIterationsN0_is_2_1D) {
+TEST(anufriev_d_integrals_simpson_stl, MinValidIterationsN0_is_2_1D) {
   std::vector<double> in = {1, 0.0, 3.0, 2, 0};
   std::vector<double> out_buffer(1, 0.0);
   auto td = MakeTaskData(in, out_buffer);
@@ -139,7 +141,7 @@ TEST(anufriev_d_integrals_simpson_stl_coverage, MinValidIterationsN0_is_2_1D) {
   EXPECT_NEAR(out_buffer[0], 9.0, 1e-5);
 }
 
-TEST(anufriev_d_integrals_simpson_stl_coverage, MinValidIterationsN0_is_2_2D) {
+TEST(anufriev_d_integrals_simpson_stl, MinValidIterationsN0_is_2_2D) {
   std::vector<double> in = {2, 0.0, 1.0, 2, 0.0, 1.0, 2, 0};
   std::vector<double> out_buffer(1, 0.0);
   auto td = MakeTaskData(in, out_buffer);
@@ -151,7 +153,7 @@ TEST(anufriev_d_integrals_simpson_stl_coverage, MinValidIterationsN0_is_2_2D) {
   EXPECT_NEAR(out_buffer[0], 2.0 / 3.0, 1e-5);
 }
 
-TEST(anufriev_d_integrals_simpson_stl_coverage, FewIterationsN0_is_4_1D) {
+TEST(anufriev_d_integrals_simpson_stl, FewIterationsN0_is_4_1D) {
   std::vector<double> in = {1, 0.0, kPi, 4, 1};
   std::vector<double> out_buffer(1, 0.0);
   auto td = MakeTaskData(in, out_buffer);
@@ -163,7 +165,7 @@ TEST(anufriev_d_integrals_simpson_stl_coverage, FewIterationsN0_is_4_1D) {
   EXPECT_NEAR(out_buffer[0], 2.0, 5e-3);
 }
 
-TEST(anufriev_d_integrals_simpson_stl_coverage, ManyIterationsN0_1D) {
+TEST(anufriev_d_integrals_simpson_stl, ManyIterationsN0_1D) {
   std::vector<double> in = {1, 0.0, 1.0, 100, 0};
   std::vector<double> out_buffer(1, 0.0);
   auto td = MakeTaskData(in, out_buffer);
@@ -175,7 +177,7 @@ TEST(anufriev_d_integrals_simpson_stl_coverage, ManyIterationsN0_1D) {
   EXPECT_NEAR(out_buffer[0], 1.0 / 3.0, 1e-4);
 }
 
-TEST(anufriev_d_integrals_simpson_stl_coverage, MultiDim_N_Mismatch) {
+TEST(anufriev_d_integrals_simpson_stl, MultiDim_N_Mismatch) {
   std::vector<double> in = {2, 0.0, 1.0, 100, 0.0, 1.0, 2, 0};
   std::vector<double> out_buffer(1, 0.0);
   auto td = MakeTaskData(in, out_buffer);
@@ -187,7 +189,7 @@ TEST(anufriev_d_integrals_simpson_stl_coverage, MultiDim_N_Mismatch) {
   EXPECT_NEAR(out_buffer[0], 2.0 / 3.0, 1e-4);
 }
 
-TEST(anufriev_d_integrals_simpson_stl_coverage, MultiDim_N_Mismatch_Reversed) {
+TEST(anufriev_d_integrals_simpson_stl, MultiDim_N_Mismatch_Reversed) {
   std::vector<double> in = {2, 0.0, 1.0, 2, 0.0, 1.0, 100, 0};
   std::vector<double> out_buffer(1, 0.0);
   auto td = MakeTaskData(in, out_buffer);
@@ -199,7 +201,7 @@ TEST(anufriev_d_integrals_simpson_stl_coverage, MultiDim_N_Mismatch_Reversed) {
   EXPECT_NEAR(out_buffer[0], 2.0 / 3.0, 1e-4);
 }
 
-TEST(anufriev_d_integrals_simpson_stl_coverage, Preprocessing_InvalidN_Zero) {
+TEST(anufriev_d_integrals_simpson_stl, Preprocessing_InvalidN_Zero) {
   std::vector<double> in = {1, 0.0, 1.0, 0, 0};
   std::vector<double> out_buffer(1, 0.0);
   auto td = MakeTaskData(in, out_buffer);
@@ -208,7 +210,7 @@ TEST(anufriev_d_integrals_simpson_stl_coverage, Preprocessing_InvalidN_Zero) {
   ASSERT_FALSE(task.PreProcessing());
 }
 
-TEST(anufriev_d_integrals_simpson_stl_coverage, Preprocessing_InvalidN_Odd) {
+TEST(anufriev_d_integrals_simpson_stl, Preprocessing_InvalidN_Odd) {
   std::vector<double> in = {1, 0.0, 1.0, 3, 0};
   std::vector<double> out_buffer(1, 0.0);
   auto td = MakeTaskData(in, out_buffer);
@@ -217,7 +219,7 @@ TEST(anufriev_d_integrals_simpson_stl_coverage, Preprocessing_InvalidN_Odd) {
   ASSERT_FALSE(task.PreProcessing());
 }
 
-TEST(anufriev_d_integrals_simpson_stl_coverage, ManyIterations_PossibleSingleThreadPath) {
+TEST(anufriev_d_integrals_simpson_stl, ManyIterations_PossibleSingleThreadPath) {
   std::vector<double> in = {1, 0.0, 2.0, 200, 0};
   std::vector<double> out_buffer(1, 0.0);
   auto td = MakeTaskData(in, out_buffer);
@@ -229,7 +231,7 @@ TEST(anufriev_d_integrals_simpson_stl_coverage, ManyIterations_PossibleSingleThr
   EXPECT_NEAR(out_buffer[0], 8.0 / 3.0, 1e-4);
 }
 
-TEST(anufriev_d_integrals_simpson_stl_coverage, TestWithFuncCode1_2D) {
+TEST(anufriev_d_integrals_simpson_stl, TestWithFuncCode1_2D) {
   std::vector<double> in = {2, 0.0, kPi / 2.0, 50, 0.0, kPi / 2.0, 50, 1};
   std::vector<double> out_buffer(1, 0.0);
   auto td = MakeTaskData(in, out_buffer);
@@ -240,3 +242,75 @@ TEST(anufriev_d_integrals_simpson_stl_coverage, TestWithFuncCode1_2D) {
   ASSERT_TRUE(task.PostProcessing());
   EXPECT_NEAR(out_buffer[0], 1.0, 1e-3);
 }
+
+TEST(anufriev_d_integrals_simpson_stl, Run_Without_PreProcessing) {
+  std::vector<double> in = {1, 0.0, 1.0, 2, 0};
+  std::vector<double> out = {0.0};
+  auto td = MakeTaskData(in, out);
+  IntegralsSimpsonSTL task(td);
+  EXPECT_THROW(task.Run(), std::exception);
+}
+
+TEST(anufriev_d_integrals_simpson_stl, PostProcessing_Only) {
+  std::vector<double> in = {1, 0.0, 1.0, 2, 0};
+  std::vector<double> out = {0.0};
+  auto td = MakeTaskData(in, out);
+  IntegralsSimpsonSTL task(td);
+  EXPECT_THROW(task.PostProcessing(), std::exception);
+}
+
+TEST(anufriev_d_integrals_simpson_stl, Validation_EmptyOutputsCount) {
+  std::vector<double> in = {1, 0.0, 1.0, 2, 0};
+  std::vector<double> out(1, 0.0);
+  auto td = std::make_shared<ppc::core::TaskData>();
+  td->inputs.push_back(reinterpret_cast<uint8_t*>(const_cast<double*>(in.data())));
+  td->inputs_count.push_back(static_cast<uint32_t>(in.size() * sizeof(double)));
+  td->outputs.push_back(reinterpret_cast<uint8_t*>(out.data()));
+  IntegralsSimpsonSTL task(td);
+  EXPECT_FALSE(task.Validation());
+}
+
+TEST(anufriev_d_integrals_simpson_stl, 3D_SumOfSquares) {
+  std::vector<double> in = {3, 0.0, 1.0, 10, 0.0, 2.0, 10, 0.0, 3.0, 10, 0};
+  std::vector<double> out(1, 0.0);
+  auto td = MakeTaskData(in, out);
+  IntegralsSimpsonSTL task(td);
+  ASSERT_TRUE(task.Validation());
+  ASSERT_TRUE(task.PreProcessing());
+  ASSERT_TRUE(task.Run());
+  ASSERT_TRUE(task.PostProcessing());
+  EXPECT_GT(out[0], 0.0);
+}
+
+TEST(anufriev_d_integrals_simpson_stl, 1D_SinFunction) {
+  std::vector<double> in = {1, 0.0, kPi/2, 100, 1};
+  std::vector<double> out(1, 0.0);
+  auto td = MakeTaskData(in, out);
+  IntegralsSimpsonSTL task(td);
+  ASSERT_TRUE(task.Validation());
+  ASSERT_TRUE(task.PreProcessing());
+  ASSERT_TRUE(task.Run());
+  ASSERT_TRUE(task.PostProcessing());
+  EXPECT_NEAR(out[0], 1.0, 1e-3);
+}
+
+TEST(anufriev_d_integrals_simpson_stl, test_ValidationImpl_no_outputs) {
+  std::vector<double> in = {1, 0.0, 1.0, 2, 0};
+  auto td = std::make_shared<ppc::core::TaskData>();
+  td->inputs.push_back(reinterpret_cast<uint8_t*>(const_cast<double*>(in.data())));
+  td->inputs_count.push_back(static_cast<uint32_t>(in.size() * sizeof(double)));
+  anufriev_d_integrals_simpson_stl::IntegralsSimpsonSTL task(td);
+  EXPECT_FALSE(task.ValidationImpl());
+}
+
+TEST(anufriev_d_integrals_simpson_stl, test_PreProcessingImpl_small_input_size) {
+  double dummy = 0.0;
+  auto td = std::make_shared<ppc::core::TaskData>();
+  td->inputs.push_back(reinterpret_cast<uint8_t*>(&dummy));
+  td->inputs_count.push_back(static_cast<uint32_t>(sizeof(double) / 2));  // 4 байта
+  std::vector<double> out(1);
+  td->outputs.push_back(reinterpret_cast<uint8_t*>(out.data()));
+  td->outputs_count.push_back(static_cast<uint32_t>(sizeof(double)));
+  anufriev_d_integrals_simpson_stl::IntegralsSimpsonSTL task(td);
+  EXPECT_FALSE(task.PreProcessingImpl());
+} // namespace anufriev_d_integrals_simpson_stl
