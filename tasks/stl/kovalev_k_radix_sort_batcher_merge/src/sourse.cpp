@@ -1,5 +1,6 @@
 #include <omp.h>
 
+#include <atomic>
 #include <climits>
 #include <cmath>
 #include <cstdlib>
@@ -165,10 +166,13 @@ bool kovalev_k_radix_sort_batcher_merge_stl::TestTaskSTD::RunImpl() {
     memcpy(tmp_, mas_, sizeof(long long int) * n_input_);
     return ret;
   }
-  bool ret = true;
+  std::atomic<bool> ret{true};
   std::vector<std::thread> threads_loc_sort(effective_num_threads_);
   for (int i = 0; i < effective_num_threads_; ++i) {
-    threads_loc_sort[i] = std::thread([&, i]() { ret = ret & RadixSigned(i * loc_lenght_, loc_lenght_); });
+    threads_loc_sort[i] = std::thread([&, i]() {
+      bool loc_result = ret & RadixSigned(i * loc_lenght_, loc_lenght_);
+      ret.fetch_and(loc_result);
+    });
   }
   for (auto& thread : threads_loc_sort) {
     if (thread.joinable()) {
@@ -184,8 +188,9 @@ bool kovalev_k_radix_sort_batcher_merge_stl::TestTaskSTD::RunImpl() {
         unsigned int bias = t % 2;
         unsigned int len = loc_lenght_ * (effective_num_threads_ / i);
 
-        OddEvenMerge(tmp_ + (stride * 2 * len) + bias, mas_ + (stride * 2 * len) + bias,
-                     mas_ + (stride * 2 * len) + len + bias, len - bias, len - bias);
+        bool loc_result = OddEvenMerge(tmp_ + (stride * 2 * len) + bias, mas_ + (stride * 2 * len) + bias,
+                                       mas_ + (stride * 2 * len) + len + bias, len - bias, len - bias);
+        ret.fetch_and(loc_result);
       });
     }
     for (auto& thread : threads) {
@@ -194,9 +199,7 @@ bool kovalev_k_radix_sort_batcher_merge_stl::TestTaskSTD::RunImpl() {
       }
     }
   }
-
-  FinalMerge();
-  return ret;
+  return ret.load() && FinalMerge();
 }
 
 bool kovalev_k_radix_sort_batcher_merge_stl::TestTaskSTD::PostProcessingImpl() {
