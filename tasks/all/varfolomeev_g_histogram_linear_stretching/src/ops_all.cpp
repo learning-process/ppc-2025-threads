@@ -3,12 +3,14 @@
 #include <omp.h>
 
 #include <algorithm>
+#include <boost/mpi.hpp>
 #include <boost/mpi/collectives.hpp>
-#include <boost/mpi/communicator.hpp>
+#include <boost/mpi/collectives/all_reduce.hpp>
 #include <boost/mpi/operations.hpp>
 #include <cmath>
 #include <cstddef>
 #include <cstdint>
+#include <vector>
 
 bool varfolomeev_g_histogram_linear_stretching_all::TestTaskALL::ValidationImpl() {
   if (world_.rank() == 0) {
@@ -33,11 +35,11 @@ bool varfolomeev_g_histogram_linear_stretching_all::TestTaskALL::RunImpl() {
   std::vector<uint8_t> local_data;
   ScatterData(local_data);
 
-  int min_val = 0;
-  int max_val = 255;
-  FindMinMax(local_data, min_val, max_val);
+  int global_min = 0;
+  int global_max = 255;
+  FindMinMax(local_data, global_min, global_max);
 
-  StretchHistogram(local_data, min_val, max_val);
+  StretchHistogram(local_data, global_min, global_max);
 
   GatherResults(local_data);
 
@@ -71,7 +73,7 @@ void varfolomeev_g_histogram_linear_stretching_all::TestTaskALL::ScatterData(std
 }
 
 void varfolomeev_g_histogram_linear_stretching_all::TestTaskALL::FindMinMax(const std::vector<uint8_t>& local_data,
-                                                                            int& min_val, int& max_val) {
+                                                                            int& global_min, int& global_max) {
   int local_min = 255;
   int local_max = 0;
 
@@ -80,21 +82,22 @@ void varfolomeev_g_histogram_linear_stretching_all::TestTaskALL::FindMinMax(cons
     local_max = *std::ranges::max_element(local_data);
   }
 
-  boost::mpi::all_reduce(world_, min_val, local_min, boost::mpi::minimum<int>());
-  boost::mpi::all_reduce(world_, local_max, max_val, boost::mpi::maximum<int>());
+  boost::mpi::all_reduce(world_, local_min, global_min, boost::mpi::minimum<int>());
+  boost::mpi::all_reduce(world_, local_max, global_max, boost::mpi::maximum<int>());
 
-  if (min_val == max_val) {
-    min_val = 0;
-    max_val = 255;
+  if (global_min == global_max) {
+    global_min = 0;
+    global_max = 255;
   }
 }
 
 void varfolomeev_g_histogram_linear_stretching_all::TestTaskALL::StretchHistogram(std::vector<uint8_t>& local_data,
-                                                                                  int min_val, int max_val) {
-  if (min_val != max_val) {
+                                                                                  int global_min, int global_max) {
+  if (global_min != global_max) {
 #pragma omp parallel for
     for (int i = 0; i < static_cast<int>(local_data.size()); ++i) {
-      local_data[i] = static_cast<uint8_t>(std::round((local_data[i] - min_val) * 255.0 / (max_val - min_val)));
+      local_data[i] =
+          static_cast<uint8_t>(std::round((local_data[i] - global_min) * 255.0 / (global_max - global_min)));
     }
   }
 }
