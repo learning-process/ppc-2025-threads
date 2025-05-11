@@ -6,7 +6,6 @@
 #include <boost/serialization/vector.hpp>
 #include <cmath>
 #include <cstddef>
-#include <iostream>
 #include <thread>
 #include <vector>
 
