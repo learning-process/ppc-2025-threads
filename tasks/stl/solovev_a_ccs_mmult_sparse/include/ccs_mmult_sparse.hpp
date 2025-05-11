@@ -1,12 +1,10 @@
 #pragma once
 
-#include <algorithm>
 #include <atomic>
 #include <complex>
 #include <condition_variable>
 #include <memory>
 #include <mutex>
-#include <numeric>
 #include <thread>
 #include <utility>
 #include <vector>
@@ -36,7 +34,7 @@ class SeqMatMultCcs : public ppc::core::Task {
   bool RunImpl() override;
   bool PostProcessingImpl() override;
 
-  static void worker_loop(SeqMatMultCcs* self);
+  static void WorkerLoop(SeqMatMultCcs* self);
 
  private:
   MatrixInCcsSparse *M1_, *M2_, *M3_;
