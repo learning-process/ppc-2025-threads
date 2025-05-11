@@ -20,18 +20,13 @@ void deryabin_m_hoare_sort_simple_merge_stl::HoaraSort(std::vector<double>& a, s
   double* pi = &a[first];
   double* pj = &a[last];
   do {
-    while (*pi < x) {
-      pi++;
-    }
-    while (*pj > x) {
-      pj--;
-    }
-    if (*pi > *pj) {
-      const double tmp = *pi;
-      *pi = *pj;
-      *pj = tmp;
-    }
-  } while (pi < pj);
+    while (*pi < x) pi++;
+    while (*pj > x) pj--;
+    if (pi > pj) break;
+    const double tmp = *pi;
+    *pi = *pj;
+    *pj = tmp;
+  } while (true);
   const size_t j = pj - a.data();
   const size_t i = pi - a.data();
   HoaraSort(a, first, j);
