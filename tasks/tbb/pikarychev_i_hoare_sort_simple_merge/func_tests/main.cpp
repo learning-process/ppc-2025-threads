@@ -121,3 +121,8 @@ TEST(pikarychev_i_hoare_sort_simple_merge_tbb, reverse_116) { PerformTest(116, t
 TEST(pikarychev_i_hoare_sort_simple_merge_tbb, reverse_125) { PerformTest(125, true); }
 TEST(pikarychev_i_hoare_sort_simple_merge_tbb, reverse_126) { PerformTest(126, true); }
 TEST(pikarychev_i_hoare_sort_simple_merge_tbb, reverse_127) { PerformTest(127, true); }
+
+TEST(pikarychev_i_hoare_sort_simple_merge_tbb, standard_2_reversed) { PerformTest(2, true); }
+TEST(pikarychev_i_hoare_sort_simple_merge_tbb, standard_3_reversed) { PerformTest(3, true); }
+TEST(pikarychev_i_hoare_sort_simple_merge_tbb, standard_4_reversed) { PerformTest(4, true); }
+TEST(pikarychev_i_hoare_sort_simple_merge_tbb, standard_5_reversed) { PerformTest(5, true); }
