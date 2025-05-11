@@ -42,24 +42,22 @@ bool laganina_e_component_labeling_all::TestTaskALL::PreProcessingImpl() {
   return true;
 }
 
-// NOLINTNEXTLINE(readability-function-cognitive-complexity)
 bool laganina_e_component_labeling_all::TestTaskALL::RunImpl() {
   int size_of_sizes = 0;
   std::vector<int> sizes;
   int col = 0;
   if (world_.rank() == 0) {
     col = n_;
-    int delta = (m_ + world_.size() - 1) / world_.size();
-    int last = m_ - (delta * (world_.size() - 1));
+    int delta = (m_ + world.size() - 1) / world.size();
+    int last = m_ - delta * (world.size() - 1);
     delta *= n_;
     last *= n_;
-    for (int i = 0; i < n_ * m_ - last; i += delta) {
-      sizes.push_back(delta);
+    int i = 0;
+    sizes.resize(world.size(), 0);
+    for (; i < n_ * m_ - last; i += delta) {
+      sizes[i / delta] = delta;
     }
-    sizes.push_back(last);
-    while (static_cast<int>(sizes.size()) < world_.size()) {
-      sizes.push_back(0);
-    }
+    sizes[i / delta] = last;
     size_of_sizes = static_cast<int>(sizes.size());
   }
 
