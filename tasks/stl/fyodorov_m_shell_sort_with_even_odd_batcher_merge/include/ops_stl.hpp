@@ -1,13 +1,10 @@
 #pragma once
 
-#include <algorithm>
 #include <cmath>
-#include <cstddef>
-#include <execution>
-#include <vector>
 #include <utility>
-#include "core/task/include/task.hpp"
+#include <vector>
 
+#include "core/task/include/task.hpp"
 
 namespace fyodorov_m_shell_sort_with_even_odd_batcher_merge_stl {
 

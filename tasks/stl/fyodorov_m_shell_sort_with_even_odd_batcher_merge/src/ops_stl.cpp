@@ -1,7 +1,10 @@
 #include "stl/fyodorov_m_shell_sort_with_even_odd_batcher_merge/include/ops_stl.hpp"
 
+#include <algorithm>
 #include <cmath>
 #include <cstddef>
+#include <execution>
+#include <numeric>
 #include <vector>
 
 namespace fyodorov_m_shell_sort_with_even_odd_batcher_merge_stl {
@@ -52,8 +55,9 @@ void TestTaskSTL::ShellSort() {
 
   for (auto it = gaps.rbegin(); it != gaps.rend(); ++it) {
     int gap = *it;
-    if (gap == 0) continue; // Гарантируем, что шаг не нулевой
-
+    if (gap == 0) {
+      continue;  // Гарантируем, что шаг не нулевой
+    }
     std::vector<int> groups(gap);
     std::iota(groups.begin(), groups.end(), 0);
 
