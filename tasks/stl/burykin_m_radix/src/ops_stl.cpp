@@ -1,5 +1,6 @@
 #include "stl/burykin_m_radix/include/ops_stl.hpp"
 
+#include <algorithm>
 #include <array>
 #include <cstddef>
 #include <thread>
@@ -171,9 +172,9 @@ bool burykin_m_radix_stl::RadixSTL::RunImpl() {
   std::vector<int> a = std::move(input_);
   std::vector<int> b(a.size());
 
-  constexpr size_t kParallelThreshold = 5000;
+  constexpr size_t kParallelThreshold = 3000;
   const bool use_parallel = a.size() >= kParallelThreshold;
-  const int num_threads = use_parallel ? ppc::util::GetPPCNumThreads() : 1;
+  const int num_threads = use_parallel ? std::min(ppc::util::GetPPCNumThreads(), 4) : 1;
 
   for (int shift = 0; shift < 32; shift += 8) {
     std::array<int, 256> count{};

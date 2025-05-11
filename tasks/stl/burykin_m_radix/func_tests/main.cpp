@@ -88,8 +88,8 @@ TEST(burykin_m_radix_stl, RandomVector_1000) {
   EXPECT_EQ(output, expected);
 }
 
-TEST(burykin_m_radix_stl, RandomVector_5000) {
-  constexpr size_t kSize = 5000;
+TEST(burykin_m_radix_stl, RandomVector_3000) {
+  constexpr size_t kSize = 3000;
   std::vector<int> input = GenerateRandomVector(kSize);
   std::vector<int> expected = input;
   std::ranges::sort(expected);
