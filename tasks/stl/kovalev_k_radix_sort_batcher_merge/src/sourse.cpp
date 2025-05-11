@@ -137,7 +137,7 @@ bool kovalev_k_radix_sort_batcher_merge_stl::TestTaskSTD::ValidationImpl() {
 bool kovalev_k_radix_sort_batcher_merge_stl::TestTaskSTD::PreProcessingImpl() {
   n_input_ = task_data->inputs_count[0];
 
-  effective_num_threads_ = static_cast<int>(std::pow(2, std::floor(std::log2(ppc::util::GetPPCNumThreads()))));
+  effective_num_threads_ = static_cast<int>(std::pow(2, std::floor(std::log2(std::min(static_cast(ppc::util::GetPPCNumThreads()), std::thread::hardware_concurrency())))));
   auto e_n_f = static_cast<unsigned int>(effective_num_threads_);
   n_ = n_input_ + (((2 * e_n_f) - n_input_ % (2 * e_n_f))) % (2 * e_n_f);
   loc_lenght_ = n_ / effective_num_threads_;
@@ -156,7 +156,7 @@ bool kovalev_k_radix_sort_batcher_merge_stl::TestTaskSTD::PreProcessingImpl() {
 }
 
 bool kovalev_k_radix_sort_batcher_merge_stl::TestTaskSTD::RunImpl() {
-  if (static_cast<unsigned int>(ppc::util::GetPPCNumThreads()) > 2 * n_input_ || ppc::util::GetPPCNumThreads() == 1) {
+  if (static_cast<unsigned int>(std::min(static_cast(ppc::util::GetPPCNumThreads()), std::thread::hardware_concurrency())) > 2 * n_input_ || ppc::util::GetPPCNumThreads() == 1) {
     bool ret = RadixSigned(0, n_input_);
     memcpy(tmp_, mas_, sizeof(long long int) * n_input_);
     return ret;
