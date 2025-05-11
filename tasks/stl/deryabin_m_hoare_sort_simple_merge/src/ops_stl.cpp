@@ -31,7 +31,8 @@ void deryabin_m_hoare_sort_simple_merge_stl::HoaraSort(std::vector<double>& a, s
 }
 
 void deryabin_m_hoare_sort_simple_merge_stl::MergeTwoParts(std::vector<double>& arr, size_t left, size_t right) {
-  std::inplace_merge(arr.begin() + static_cast<long>(left), arr.begin() + (static_cast<long>(left + right) >> 1) + 1, arr.begin() + static_cast<long>(right) + 1);
+  std::inplace_merge(arr.begin() + static_cast<long>(left), arr.begin() + (static_cast<long>(left + right) >> 1) + 1,
+                     arr.begin() + static_cast<long>(right) + 1);
 }
 
 bool deryabin_m_hoare_sort_simple_merge_stl::HoareSortTaskSequential::PreProcessingImpl() {
