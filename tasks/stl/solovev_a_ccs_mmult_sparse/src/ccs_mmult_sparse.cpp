@@ -7,7 +7,8 @@
 #include <thread>
 #include <vector>
 
-void solovev_a_matrix_stl::SeqMatMultCcs::ProcessPhase1(solovev_a_matrix_stl::SeqMatMultCcs* self, int col, std::vector<int>& available) {
+void solovev_a_matrix_stl::SeqMatMultCcs::ProcessPhase1(solovev_a_matrix_stl::SeqMatMultCcs* self, int col,
+                                                        std::vector<int>& available) {
   for (int i = self->M2_->col_p[col]; i < self->M2_->col_p[col + 1]; ++i) {
     int r = self->M2_->row[i];
     if (r < 0 || r >= self->M1_->c_n) {
@@ -23,8 +24,9 @@ void solovev_a_matrix_stl::SeqMatMultCcs::ProcessPhase1(solovev_a_matrix_stl::Se
   self->counts_[col] = std::accumulate(available.begin(), available.end(), 0);
 }
 
-void solovev_a_matrix_stl::SeqMatMultCcs::ProcessPhase2(solovev_a_matrix_stl::SeqMatMultCcs* self, int col, std::vector<int>& available,
-                   std::vector<std::complex<double>>& cask) {
+void solovev_a_matrix_stl::SeqMatMultCcs::ProcessPhase2(solovev_a_matrix_stl::SeqMatMultCcs* self, int col,
+                                                        std::vector<int>& available,
+                                                        std::vector<std::complex<double>>& cask) {
   cask.assign(self->r_n_, {0.0, 0.0});
   for (int i = self->M2_->col_p[col]; i < self->M2_->col_p[col + 1]; ++i) {
     int r = self->M2_->row[i];
