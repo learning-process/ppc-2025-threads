@@ -274,7 +274,6 @@ void laganina_e_component_labeling_all::TestTaskALL::LabelConnectedComponents() 
   AssignLabels(parent);
 }
 
-// NOLINTNEXTLINE(readability-function-cognitive-complexity)
 void laganina_e_component_labeling_all::TestTaskALL::RelabelImage() {
   if (binary_.empty() || m_ == 0 || n_ == 0) {
     return;
@@ -285,35 +284,47 @@ void laganina_e_component_labeling_all::TestTaskALL::RelabelImage() {
 
   for (int i = 0; i < m_; ++i) {
     for (int j = 0; j < n_; ++j) {
-      int idx = (i * n_) + j;
-
+      const int idx = (i * n_) + j;
       if (binary_[idx] > 0) {
-        std::queue<std::pair<int, int>> q;
-        q.emplace(i, j);
-        binary_[idx] = current_label;
-
-        while (!q.empty()) {
-          auto [x, y] = q.front();
-          q.pop();
-
-          for (const auto& dir : directions) {
-            int nx = x + dir.first;
-            int ny = y + dir.second;
-
-            if (nx >= 0 && nx < m_ && ny >= 0 && ny < n_) {
-              int neighbor_idx = (nx * n_) + ny;
-              if (binary_[neighbor_idx] > 0) {
-                binary_[neighbor_idx] = current_label;
-                q.emplace(nx, ny);
-              }
-            }
-          }
-        }
+        ProcessConnectedComponent(i, j, current_label, directions);
         current_label--;
       }
     }
   }
 
+  Normalize();
+}
+
+bool laganina_e_component_labeling_all::TestTaskALL::IsValidCoordinate(int x, int y) {
+  return (x >= 0) && (x < m_) && (y >= 0) && (y < n_);
+}
+
+void laganina_e_component_labeling_all::TestTaskALL::ProcessConnectedComponent(
+    int start_x, int start_y, int label, const std::vector<std::pair<int, int>>& directions) {
+  std::queue<std::pair<int, int>> queue;
+  queue.emplace(start_x, start_y);
+  binary_[(start_x * n_) + start_y] = label;
+
+  while (!queue.empty()) {
+    const auto [x, y] = queue.front();
+    queue.pop();
+
+    for (const auto& dir : directions) {
+      const int nx = x + dir.first;
+      const int ny = y + dir.second;
+
+      if (IsValidCoordinate(nx, ny)) {
+        const int neighbor_idx = (nx * n_) + ny;
+        if (binary_[neighbor_idx] > 0) {
+          binary_[neighbor_idx] = label;
+          queue.emplace(nx, ny);
+        }
+      }
+    }
+  }
+}
+
+void laganina_e_component_labeling_all::TestTaskALL::Normalize() {
   for (auto& val : binary_) {
     if (val < 0) {
       val = -val;
