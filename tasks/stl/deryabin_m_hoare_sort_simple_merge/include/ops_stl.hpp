@@ -20,10 +20,10 @@ class HoareSortTaskSequential : public ppc::core::Task {
   bool PostProcessingImpl() override;
 
  private:
-  std::vector<double> input_array_A_;  
-  size_t dimension_;                  
-  size_t min_chunk_size_; 
-  size_t chunk_count_;  
+          std::vector<double> input_array_A_;  
+                 size_t dimension_;                  
+              size_t min_chunk_size_; 
+                            size_t chunk_count_;  
 };
 class HoareSortTaskSTL : public ppc::core::Task {
  public:
@@ -34,9 +34,9 @@ class HoareSortTaskSTL : public ppc::core::Task {
   bool PostProcessingImpl() override;
 
  private:
-  std::vector<double> input_array_A_; 
-  size_t dimension_;                 
-  size_t min_chunk_size_;  
-  size_t chunk_count_;  
+                      std::vector<double> input_array_A_; 
+             size_t dimension_;                 
+                   size_t min_chunk_size_;  
+            size_t chunk_count_;  
 };
 }  // namespace deryabin_m_hoare_sort_simple_merge_stl
