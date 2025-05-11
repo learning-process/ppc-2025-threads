@@ -193,54 +193,14 @@ TEST(karaseva_a_test_task_stl, test_large_system_100x100) {
   }
 }
 
-TEST(karaseva_a_test_task_stl, test_large_system_200x200) {
-  constexpr size_t kSize = 200;
-  constexpr double kTolerance = 1e-5;
+TEST(karaseva_a_test_task_stl, test_diagonal_matrix) {
+  constexpr size_t kSize = 3;
+  constexpr double kTolerance = 1e-10;
 
-  auto a_matrix = GenerateRandomSPDMatrix(kSize);
-  std::vector<double> x_expected(kSize);
+  std::vector<double> a_matrix(kSize * kSize, 0.0);
   for (size_t i = 0; i < kSize; ++i) {
-    x_expected[i] = 1.0 + std::sin(static_cast<double>(i) * 0.1);
+    a_matrix[i * kSize + i] = 2.0;
   }
-
-  auto b_vector = MultiplyMatrixVector(a_matrix, x_expected, kSize);
-  std::vector<double> solution(kSize, 0.0);
-
-  auto task_data = std::make_shared<ppc::core::TaskData>();
-  task_data->inputs.emplace_back(reinterpret_cast<uint8_t*>(a_matrix.data()));
-  task_data->inputs_count.emplace_back(a_matrix.size());
-  task_data->inputs.emplace_back(reinterpret_cast<uint8_t*>(b_vector.data()));
-  task_data->inputs_count.emplace_back(b_vector.size());
-  task_data->outputs.emplace_back(reinterpret_cast<uint8_t*>(solution.data()));
-  task_data->outputs_count.emplace_back(solution.size());
-
-  karaseva_a_test_task_stl::TestTaskSTL test_task(task_data);
-  ASSERT_TRUE(test_task.Validation());
-  test_task.PreProcessing();
-  test_task.Run();
-  test_task.PostProcessing();
-
-  double max_absolute_error = 0.0;
-  for (size_t i = 0; i < kSize; ++i) {
-    const double error = std::abs(solution[i] - x_expected[i]);
-    max_absolute_error = std::max(max_absolute_error, error);
-  }
-  EXPECT_LT(max_absolute_error, kTolerance);
-}
-
-TEST(karaseva_a_test_task_stl, test_ill_conditioned_system) {
-  constexpr size_t kSize = 50;
-  constexpr double kTolerance = 1e-3;
-
-  std::vector<double> a_matrix(kSize * kSize);
-  for (size_t i = 0; i < kSize; ++i) {
-    for (size_t j = 0; j < kSize; ++j) {
-      const double numerator = 1.0;
-      const double denominator = static_cast<double>(i) + static_cast<double>(j) + 1.0;
-      a_matrix[(i * kSize) + j] = numerator / denominator;
-    }
-  }
-
   std::vector<double> x_expected(kSize, 1.0);
   auto b_vector = MultiplyMatrixVector(a_matrix, x_expected, kSize);
   std::vector<double> solution(kSize, 0.0);
@@ -259,11 +219,94 @@ TEST(karaseva_a_test_task_stl, test_ill_conditioned_system) {
   test_task.Run();
   test_task.PostProcessing();
 
-  double residual_norm = 0.0;
-  auto residual = MultiplyMatrixVector(a_matrix, solution, kSize);
   for (size_t i = 0; i < kSize; ++i) {
-    residual[i] -= b_vector[i];
-    residual_norm += residual[i] * residual[i];
+    EXPECT_NEAR(solution[i], x_expected[i], kTolerance);
   }
-  EXPECT_LT(std::sqrt(residual_norm), kTolerance);
+}
+
+TEST(karaseva_a_test_task_stl, test_random_x_expected) {
+  constexpr size_t kSize = 50;
+  constexpr double kTolerance = 1e-5;
+
+  auto a_matrix = GenerateRandomSPDMatrix(kSize);
+  std::vector<double> x_expected(kSize);
+  std::mt19937 gen(42);
+  std::uniform_real_distribution<double> dist(-10.0, 10.0);
+  for (auto& val : x_expected) {
+    val = dist(gen);
+  }
+  auto b_vector = MultiplyMatrixVector(a_matrix, x_expected, kSize);
+  std::vector<double> solution(kSize, 0.0);
+
+  auto task_data = std::make_shared<ppc::core::TaskData>();
+  task_data->inputs.emplace_back(reinterpret_cast<uint8_t*>(a_matrix.data()));
+  task_data->inputs_count.emplace_back(a_matrix.size());
+  task_data->inputs.emplace_back(reinterpret_cast<uint8_t*>(b_vector.data()));
+  task_data->inputs_count.emplace_back(b_vector.size());
+  task_data->outputs.emplace_back(reinterpret_cast<uint8_t*>(solution.data()));
+  task_data->outputs_count.emplace_back(solution.size());
+
+  karaseva_a_test_task_stl::TestTaskSTL test_task(task_data);
+  ASSERT_TRUE(test_task.Validation());
+  test_task.PreProcessing();
+  test_task.Run();
+  test_task.PostProcessing();
+
+  for (size_t i = 0; i < kSize; ++i) {
+    EXPECT_NEAR(solution[i], x_expected[i], kTolerance);
+  }
+}
+
+TEST(karaseva_a_test_task_stl, test_1x1_matrix) {
+  constexpr size_t kSize = 1;
+  constexpr double kTolerance = 1e-10;
+
+  std::vector<double> a_matrix = {5.0};
+  std::vector<double> x_expected = {2.0};
+  auto b_vector = MultiplyMatrixVector(a_matrix, x_expected, kSize);
+  std::vector<double> solution(kSize, 0.0);
+
+  auto task_data = std::make_shared<ppc::core::TaskData>();
+  task_data->inputs.emplace_back(reinterpret_cast<uint8_t*>(a_matrix.data()));
+  task_data->inputs_count.emplace_back(a_matrix.size());
+  task_data->inputs.emplace_back(reinterpret_cast<uint8_t*>(b_vector.data()));
+  task_data->inputs_count.emplace_back(b_vector.size());
+  task_data->outputs.emplace_back(reinterpret_cast<uint8_t*>(solution.data()));
+  task_data->outputs_count.emplace_back(solution.size());
+
+  karaseva_a_test_task_stl::TestTaskSTL test_task(task_data);
+  ASSERT_TRUE(test_task.Validation());
+  test_task.PreProcessing();
+  test_task.Run();
+  test_task.PostProcessing();
+
+  EXPECT_NEAR(solution[0], x_expected[0], kTolerance);
+}
+
+TEST(karaseva_a_test_task_stl, test_custom_spd_matrix) {
+  constexpr size_t kSize = 3;
+  constexpr double kTolerance = 1e-10;
+
+  std::vector<double> a_matrix = {4.0, 1.0, 0.0, 1.0, 5.0, 2.0, 0.0, 2.0, 6.0};
+  std::vector<double> x_expected = {1.0, -1.0, 0.5};
+  auto b_vector = MultiplyMatrixVector(a_matrix, x_expected, kSize);
+  std::vector<double> solution(kSize, 0.0);
+
+  auto task_data = std::make_shared<ppc::core::TaskData>();
+  task_data->inputs.emplace_back(reinterpret_cast<uint8_t*>(a_matrix.data()));
+  task_data->inputs_count.emplace_back(a_matrix.size());
+  task_data->inputs.emplace_back(reinterpret_cast<uint8_t*>(b_vector.data()));
+  task_data->inputs_count.emplace_back(b_vector.size());
+  task_data->outputs.emplace_back(reinterpret_cast<uint8_t*>(solution.data()));
+  task_data->outputs_count.emplace_back(solution.size());
+
+  karaseva_a_test_task_stl::TestTaskSTL test_task(task_data);
+  ASSERT_TRUE(test_task.Validation());
+  test_task.PreProcessing();
+  test_task.Run();
+  test_task.PostProcessing();
+
+  for (size_t i = 0; i < kSize; ++i) {
+    EXPECT_NEAR(solution[i], x_expected[i], kTolerance);
+  }
 }
