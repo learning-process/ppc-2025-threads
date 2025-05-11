@@ -295,7 +295,7 @@ void laganina_e_component_labeling_all::TestTaskALL::RelabelImage() {
   Normalize();
 }
 
-bool laganina_e_component_labeling_all::TestTaskALL::IsValidCoordinate(int x, int y) {
+bool laganina_e_component_labeling_all::TestTaskALL::IsValidCoordinate(int x, int y) const {
   return (x >= 0) && (x < m_) && (y >= 0) && (y < n_);
 }
 
