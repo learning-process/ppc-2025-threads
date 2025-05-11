@@ -2,8 +2,8 @@
 
 #include <algorithm>
 #include <barrier>
-#include <boost/mpi/collectives/scatterv.hpp>
 #include <boost/mpi/collectives/gatherv.hpp>
+#include <boost/mpi/collectives/scatterv.hpp>
 #include <boost/mpi/communicator.hpp>
 #include <cmath>
 #include <cstddef>
