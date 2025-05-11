@@ -6,7 +6,7 @@
 #include <thread>
 #include <vector>
 
-void deryabin_m_hoare_sort_simple_merge_stl::HoaraSort(std::vector<double>& a, size_t first, size_t last) {
+void deryabin_m_hoare_sort_simple_merge_stl::HoareSort(std::vector<double>& a, size_t first, size_t last) {
   if (first >= last) {
     return;
   }
@@ -26,8 +26,8 @@ void deryabin_m_hoare_sort_simple_merge_stl::HoaraSort(std::vector<double>& a, s
   } while (pi < pj);
   const size_t j = pj - a.data();
   const size_t i = pi - a.data();
-  HoaraSort(a, first, j);
-  HoaraSort(a, i + 1, last);
+  HoareSort(a, first, j);
+  HoareSort(a, i + 1, last);
 }
 
 bool deryabin_m_hoare_sort_simple_merge_stl::HoareSortTaskSequential::PreProcessingImpl() {
@@ -47,7 +47,7 @@ bool deryabin_m_hoare_sort_simple_merge_stl::HoareSortTaskSequential::Validation
 bool deryabin_m_hoare_sort_simple_merge_stl::HoareSortTaskSequential::RunImpl() {
   size_t count = 0;
   while (count != chunk_count_) {
-    HoaraSort(input_array_A_, count * min_chunk_size_, ((count + 1) * min_chunk_size_) - 1);
+    HoareSort(input_array_A_, count * min_chunk_size_, ((count + 1) * min_chunk_size_) - 1);
     count++;
   }
   const auto num_of_lvls = [](size_t n) {
@@ -111,7 +111,7 @@ bool deryabin_m_hoare_sort_simple_merge_stl::HoareSortTaskSTL::RunImpl() {
     workers.clear();
   };
   parallel_for(0, chunk_count_, [this](size_t count) {
-    HoaraSort(input_array_A_, count * min_chunk_size_, ((count + 1) * min_chunk_size_) - 1);
+    HoareSort(input_array_A_, count * min_chunk_size_, ((count + 1) * min_chunk_size_) - 1);
   });
   const auto num_of_lvls = [](size_t n) { // Вычисялем сколько уровней слияния потребуется как логарифм по основанию 2 от числа частей chunk_count_
     size_t log = 0;
