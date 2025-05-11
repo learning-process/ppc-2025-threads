@@ -30,11 +30,6 @@ void deryabin_m_hoare_sort_simple_merge_stl::HoaraSort(std::vector<double>& a, s
   HoaraSort(a, i + 1, last);
 }
 
-void deryabin_m_hoare_sort_simple_merge_stl::MergeTwoParts(std::vector<double>& arr, size_t left, size_t right) {
-  std::inplace_merge(arr.begin() + static_cast<long>(left), arr.begin() + (static_cast<long>(left + right) >> 1) + 1,
-                     arr.begin() + static_cast<long>(right) + 1);
-}
-
 bool deryabin_m_hoare_sort_simple_merge_stl::HoareSortTaskSequential::PreProcessingImpl() {
   input_array_A_ = reinterpret_cast<std::vector<double>*>(task_data->inputs[0])[0];
   dimension_ = task_data->inputs_count[0];
@@ -65,7 +60,8 @@ bool deryabin_m_hoare_sort_simple_merge_stl::HoareSortTaskSequential::RunImpl() 
   size_t chunk_count = chunk_count_;
   for (size_t i = 0; i < num_of_lvls(chunk_count_); i++) {
     for (size_t j = 0; j < chunk_count; j++) {
-      MergeTwoParts(input_array_A_, j * min_chunk_size_ << (i + 1), ((j + 1) * min_chunk_size_ << (i + 1)) - 1);
+      std::inplace_merge(input_array_A_.begin() + static_cast<long>(j * min_chunk_size_ << (i + 1)), input_array_A_.begin() + static_cast<long>(((j << 1 | 1) * (min_chunk_size_ << i))),
+                     input_array_A_.begin() + static_cast<long>((j + 1) * min_chunk_size_ << (i + 1)));
       chunk_count--;
     }
   }
@@ -125,7 +121,8 @@ bool deryabin_m_hoare_sort_simple_merge_stl::HoareSortTaskSTL::RunImpl() {
   };
   for (size_t i = 0; i < num_of_lvls(chunk_count_); ++i) {
     parallel_for(0, chunk_count_ >> (i + 1), [this, i](size_t j) {
-      MergeTwoParts(input_array_A_, j * min_chunk_size_ << (i + 1), ((j + 1) * min_chunk_size_ << (i + 1)) - 1);
+      std::inplace_merge(input_array_A_.begin() + static_cast<long>(j * min_chunk_size_ << (i + 1)), input_array_A_.begin() + static_cast<long>(((j << 1 | 1) * (min_chunk_size_ << i))),
+                     input_array_A_.begin() + static_cast<long>((j + 1) * min_chunk_size_ << (i + 1)));
     });
   }
   return true;
