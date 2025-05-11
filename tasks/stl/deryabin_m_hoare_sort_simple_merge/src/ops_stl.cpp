@@ -12,11 +12,8 @@
 #include "core/util/include/util.hpp"
 
 void deryabin_m_hoare_sort_simple_merge_stl::HoaraSort(std::vector<double>& a, size_t first, size_t last) {
-  if (first >= last) {
-    return;
-  }
-  const double x = std::max(std::min(a[first], a[(first + last) >> 1]),
-                            std::min(std::max(a[first], a[(first + last) >> 1]), a[last]));
+  if (first >= last) return;
+  const double x = a[(first + last) >> 1];
   double* pi = &a[first];
   double* pj = &a[last];
   do {
