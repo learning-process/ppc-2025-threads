@@ -99,7 +99,8 @@ bool solovev_a_matrix_stl::SeqMatMultCcs::RunImpl() {
     cv_done_.wait(lk, [&]() { return completed_.load() >= c_n_; });
   }
 
-  for (auto& th : workers_) if (th.joinable()) th.join();
+  for (auto& th : workers_)
+    if (th.joinable()) th.join();
 
   for (int i = 0; i < c_n_; ++i) {
     M3_->col_p[i + 1] = M3_->col_p[i] + counts_[i];
@@ -125,7 +126,8 @@ bool solovev_a_matrix_stl::SeqMatMultCcs::RunImpl() {
     cv_done_.wait(lk, [&]() { return completed_.load() >= c_n_; });
   }
 
-  for (auto& th : workers_) if (th.joinable()) th.join();
+  for (auto& th : workers_)
+    if (th.joinable()) th.join();
   workers_.clear();
 
   return true;
