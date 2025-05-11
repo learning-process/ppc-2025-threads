@@ -12,39 +12,58 @@
 #include "core/util/include/util.hpp"
 
 void deryabin_m_hoare_sort_simple_merge_stl::HoaraSort(std::vector<double>& a, size_t first, size_t last) {
-  std::stack<std::pair<size_t, size_t>> stack;
-  stack.push({first, last});
-  while (!stack.empty()) {
-    auto [first_, last_] = stack.top();
-    stack.pop();
-    if (first_ >= last_) {
-      continue;
-    }
-    size_t i = first_;
-    size_t j = last_;
-    double tmp = 0;
-    double x = std::max(std::min(a[first_], a[(first_ + last_) >> 1]),
-                        std::min(std::max(a[first_], a[(first_ + last_) >> 1]), a[last_]));
-    do {
-      while (a[i] < x) {
-        i++;
-      }
-      while (a[j] > x) {
-        j--;
-      }
-      if (i < j && a[i] > a[j]) {
-        tmp = a[i];
-        a[i] = a[j];
-        a[j] = tmp;
-      }
-    } while (i < j);
-    stack.push({first_, j});
-    stack.push({i + 1, last_});
+  if (first >= last) {
+    return;
   }
+  size_t i = first;
+  size_t j = last;
+  double tmp = 0;
+  double x =
+      std::max(std::min(a[first], a[(first + last) >> 1]),
+               std::min(std::max(a[first], a[(first + last) >> 1]),
+                        a[last]));
+  do {
+    while (a[i] < x) {
+      i++;
+    }
+    while (a[j] > x) {
+      j--;
+    }
+    if (i < j && a[i] > a[j]) {
+      tmp = a[i];
+      a[i] = a[j];
+      a[j] = tmp;
+    }
+  } while (i < j);
+  HoaraSort(a, first, j);
+  HoaraSort(a, i + 1, last);
 }
 
 void deryabin_m_hoare_sort_simple_merge_stl::MergeTwoParts(std::vector<double>& arr, size_t left, size_t right) {
-  std::inplace_merge(arr.begin() + left, arr.begin() + ((left + right) >> 1) + 1, arr.begin() + right + 1);
+  size_t middle = (right - left) >> 1;
+  size_t l_cur = 0;
+  size_t r_cur = 0;
+  std::vector<double> l_buff(middle + 1);
+  std::vector<double> r_buff(middle + 1);
+  std::copy(a.begin() + (long)left, a.begin() + (long)left + (long)middle + 1, l_buff.begin());
+  std::copy(a.begin() + (long)left + (long)middle + 1, a.begin() + (long)right + 1, r_buff.begin());
+  for (size_t i = left; i <= right; i++) {
+    if (l_cur <= middle && r_cur <= middle) {
+      if (l_buff[l_cur] < r_buff[r_cur]) {
+        a[i] = l_buff[l_cur];
+        l_cur++;
+      } else {
+        a[i] = r_buff[r_cur];
+        r_cur++;
+      }
+    } else if (l_cur <= middle) {
+      a[i] = l_buff[l_cur];
+      l_cur++;
+    } else {
+      a[i] = r_buff[r_cur];
+      r_cur++;
+    }
+  }
 }
 
 bool deryabin_m_hoare_sort_simple_merge_stl::HoareSortTaskSequential::PreProcessingImpl() {
