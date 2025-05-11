@@ -3,7 +3,6 @@
 #include <algorithm>
 #include <cmath>
 #include <cstddef>
-#include <mutex>
 #include <thread>
 #include <utility>
 #include <vector>
@@ -12,8 +11,8 @@
 
 void kapustin_i_jarv_alg_stl::TestTaskSTL::FindBestPointMultithreaded(size_t current_index,
                                                                       std::vector<size_t>& local_best) {
-  const size_t total_points = input_.size();
-  const size_t max_threads = static_cast<size_t>(ppc::util::GetPPCNumThreads());
+  const auto total_points = input_.size();
+  const auto max_threads = static_cast<size_t>(ppc::util::GetPPCNumThreads());
 
   const size_t num_threads = std::min(max_threads, total_points);
   local_best.clear();
@@ -31,6 +30,7 @@ void kapustin_i_jarv_alg_stl::TestTaskSTL::FindBestPointMultithreaded(size_t cur
   }
 
   std::vector<std::thread> threads;
+  threads.reserve(num_threads);
 
   for (size_t i = 0; i < num_threads; ++i) {
     threads.emplace_back([this, i, &thread_ranges, current_index, &local_best]() {
