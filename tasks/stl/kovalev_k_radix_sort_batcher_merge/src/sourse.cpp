@@ -5,10 +5,10 @@
 #include <cmath>
 #include <cstdlib>
 #include <cstring>
+#include <mutex>
 #include <thread>
 #include <vector>
 
-#include "core/util/include/util.hpp"
 #include "stl/kovalev_k_radix_sort_batcher_merge/include/header.hpp"
 
 bool kovalev_k_radix_sort_batcher_merge_stl::TestTaskSTD::RadixUnsigned(unsigned long long* inp_arr,
@@ -138,9 +138,9 @@ bool kovalev_k_radix_sort_batcher_merge_stl::TestTaskSTD::ValidationImpl() {
 bool kovalev_k_radix_sort_batcher_merge_stl::TestTaskSTD::PreProcessingImpl() {
   n_input_ = task_data->inputs_count[0];
 
-  effective_num_threads_ =
-      static_cast<int>(std::pow(2, std::floor(std::log2(std::min(static_cast(ppc::util::GetPPCNumThreads()),
-                                                                 std::thread::hardware_concurrency())))));
+  effective_num_threads_ = static_cast<int>(
+      std::pow(2, std::floor(std::log2(std::min(static_cast<unsigned int>(ppc::util::GetPPCNumThreads()),
+                                                std::thread::hardware_concurrency())))));
   auto e_n_f = static_cast<unsigned int>(effective_num_threads_);
   n_ = n_input_ + (((2 * e_n_f) - n_input_ % (2 * e_n_f))) % (2 * e_n_f);
   loc_lenght_ = n_ / effective_num_threads_;
@@ -159,19 +159,21 @@ bool kovalev_k_radix_sort_batcher_merge_stl::TestTaskSTD::PreProcessingImpl() {
 }
 
 bool kovalev_k_radix_sort_batcher_merge_stl::TestTaskSTD::RunImpl() {
-  if (static_cast<unsigned int>(
-          std::min(static_cast(ppc::util::GetPPCNumThreads()), std::thread::hardware_concurrency())) > 2 * n_input_ ||
+  if (static_cast<unsigned int>(std::min(static_cast<unsigned int>(ppc::util::GetPPCNumThreads()),
+                                         std::thread::hardware_concurrency())) > 2 * n_input_ ||
       ppc::util::GetPPCNumThreads() == 1) {
     bool ret = RadixSigned(0, n_input_);
     memcpy(tmp_, mas_, sizeof(long long int) * n_input_);
     return ret;
   }
-  std::atomic<bool> ret{true};
+  bool ret = true;
+  std::mutex mtx_loc_sort;
   std::vector<std::thread> threads_loc_sort(effective_num_threads_);
   for (int i = 0; i < effective_num_threads_; ++i) {
     threads_loc_sort[i] = std::thread([&, i]() {
-      bool loc_result = ret & RadixSigned(i * loc_lenght_, loc_lenght_);
-      ret.fetch_and(loc_result);
+      bool local_result = RadixSigned(i * loc_lenght_, loc_lenght_);
+      std::lock_guard<std::mutex> lock(mtx_loc_sort);
+      ret = ret && local_result;
     });
   }
   for (auto& thread : threads_loc_sort) {
@@ -180,6 +182,7 @@ bool kovalev_k_radix_sort_batcher_merge_stl::TestTaskSTD::RunImpl() {
     }
   }
 
+  std::mutex mtx;
   for (unsigned int i = effective_num_threads_; i > 1; i /= 2) {
     std::vector<std::thread> threads(i);
     for (unsigned int t = 0; t < i; ++t) {
@@ -188,9 +191,10 @@ bool kovalev_k_radix_sort_batcher_merge_stl::TestTaskSTD::RunImpl() {
         unsigned int bias = t % 2;
         unsigned int len = loc_lenght_ * (effective_num_threads_ / i);
 
-        bool loc_result = OddEvenMerge(tmp_ + (stride * 2 * len) + bias, mas_ + (stride * 2 * len) + bias,
+        bool local_result = OddEvenMerge(tmp_ + (stride * 2 * len) + bias, mas_ + (stride * 2 * len) + bias,
                                        mas_ + (stride * 2 * len) + len + bias, len - bias, len - bias);
-        ret.fetch_and(loc_result);
+        std::lock_guard<std::mutex> lock(mtx);
+        ret = ret && local_result;
       });
     }
     for (auto& thread : threads) {
