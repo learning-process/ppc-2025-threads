@@ -104,6 +104,6 @@ INSTANTIATE_TEST_SUITE_P(vasilev_s_simpson_multidim_test_stl, PresetTests, ::tes
         {0.0, 1.0},
       },
       .ref = 0.56,
-    },
+    }
 ));
 // clang-format on
