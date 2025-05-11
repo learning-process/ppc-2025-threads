@@ -48,12 +48,12 @@ bool laganina_e_component_labeling_all::TestTaskALL::RunImpl() {
   int col = 0;
   if (world_.rank() == 0) {
     col = n_;
-    int delta = (m_ + world.size() - 1) / world.size();
-    int last = m_ - delta * (world.size() - 1);
+    int delta = (m_ + world_.size() - 1) / world_.size();
+    int last = m_ - (delta * (world_.size() - 1));
     delta *= n_;
     last *= n_;
     int i = 0;
-    sizes.resize(world.size(), 0);
+    sizes.resize(world_.size(), 0);
     for (; i < n_ * m_ - last; i += delta) {
       sizes[i / delta] = delta;
     }
