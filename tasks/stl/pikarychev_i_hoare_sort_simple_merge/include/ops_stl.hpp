@@ -1,11 +1,9 @@
 #pragma once
 
-#include <oneapi/tbb/parallel_for.h>
-#include <oneapi/tbb/task_arena.h>
-#include <tbb/tbb.h>
-
 #include <algorithm>
+#include <cstddef>
 #include <cstdio>
+#include <thread>
 #include <utility>
 #include <vector>
 
@@ -15,7 +13,7 @@
 namespace pikarychev_i_hoare_sort_simple_merge {
 
 template <class T>
-class HoareThreadBB : public ppc::core::Task {
+class HoareSTL : public ppc::core::Task {
   struct Block {
     T* e;
     std::size_t sz;
@@ -23,7 +21,7 @@ class HoareThreadBB : public ppc::core::Task {
   };
 
  public:
-  explicit HoareThreadBB(ppc::core::TaskDataPtr task_data) : Task(std::move(task_data)) {}
+  explicit HoareSTL(ppc::core::TaskDataPtr task_data) : Task(std::move(task_data)) {}
 
   bool ValidationImpl() override {
     const auto input_size = task_data->inputs_count[0];
@@ -40,11 +38,11 @@ class HoareThreadBB : public ppc::core::Task {
   }
 
   void SortInParallel(std::size_t parallelism, std::vector<Block>& blocks) {
-    oneapi::tbb::parallel_for(oneapi::tbb::blocked_range<std::size_t>(0, parallelism, 1), [&](const auto& r) {
-      for (std::size_t i = r.begin(); i < r.end(); i++) {
-        DoSort(blocks[i].e, 0, blocks[i].sz - 1, reverse_ ? ReverseComp : StandardComp);
-      }
-    });
+    std::vector<std::jthread> workers(parallelism);
+    for (std::size_t t = 0; t < parallelism; t++) {
+      workers[t] = std::jthread(
+          [&](std::size_t i) { DoSort(blocks[i].e, 0, blocks[i].sz - 1, reverse_ ? ReverseComp : StandardComp); }, t);
+    }
   }
 
   void MergeGroup(std::size_t b, std::size_t e, std::size_t wide, std::vector<Block>& blocks) {
@@ -55,14 +53,21 @@ class HoareThreadBB : public ppc::core::Task {
   }
 
   void MergeInParallel(std::size_t parallelism, std::vector<Block>& blocks) {
+    std::vector<std::thread> workers;
+    workers.reserve(parallelism);
+
     auto partind = parallelism;
     for (auto wide = decltype(parallelism){1}; partind > 1; wide *= 2, partind /= 2) {
       if (blocks[wide].sz < 40) {
         MergeGroup(0, partind / 2, wide, blocks);
       } else {
-        oneapi::tbb::parallel_for(
-            oneapi::tbb::blocked_range<std::size_t>(0, (partind / 2), (partind / 2) / parallelism),
-            [&](const auto& r) { MergeGroup(r.begin(), r.end(), wide, blocks); });
+        workers.resize(partind / 2);
+        for (std::size_t t = 0; t < workers.size(); t++) {
+          workers[t] = std::thread([&](std::size_t i) { MergeGroup(i, i + 1, wide, blocks); }, t);
+        }
+        for (auto& w : workers) {
+          w.join();
+        }
       }
       if ((partind / 2) == 1) {
         DoInplaceMerge(&blocks.front(), &blocks.back(), reverse_ ? ReverseComp : StandardComp);
@@ -92,11 +97,8 @@ class HoareThreadBB : public ppc::core::Task {
       pointer += blocks[i].sz;
     }
 
-    oneapi::tbb::task_arena arena(parallelism);
-    arena.execute([&] {
-      SortInParallel(parallelism, blocks);
-      MergeInParallel(parallelism, blocks);
-    });
+    SortInParallel(parallelism, blocks);
+    MergeInParallel(parallelism, blocks);
 
     return true;
   }

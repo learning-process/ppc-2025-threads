@@ -10,7 +10,7 @@
 #include <utility>
 #include <vector>
 
-#include "../include/ops_tbb.hpp"
+#include "../include/ops_stl.hpp"
 #include "core/perf/include/perf.hpp"
 #include "core/task/include/task.hpp"
 
@@ -23,7 +23,7 @@ std::vector<T> GenerateReverseSortedVector(size_t size) {
 }
 }  // namespace
 
-TEST(pikarychev_i_hoare_sort_simple_merge_tbb, test_pipeline_run) {
+TEST(pikarychev_i_hoare_sort_simple_merge_stl, test_pipeline_run) {
   std::random_device dev;
   std::mt19937 gen(dev());
   std::uniform_int_distribution<> dist(-5000, 5000);
@@ -39,7 +39,7 @@ TEST(pikarychev_i_hoare_sort_simple_merge_tbb, test_pipeline_run) {
   task_data->inputs_count.emplace_back(in.size());
   task_data->outputs.emplace_back(reinterpret_cast<uint8_t *>(out.data()));
   task_data->outputs_count.emplace_back(out.size());
-  auto task = pikarychev_i_hoare_sort_simple_merge::HoareThreadBB<int>(task_data);
+  auto task = pikarychev_i_hoare_sort_simple_merge::HoareSTL<int>(task_data);
 
   auto perf_attr = std::make_shared<ppc::core::PerfAttr>();
   perf_attr->num_running = 10;
@@ -55,7 +55,7 @@ TEST(pikarychev_i_hoare_sort_simple_merge_tbb, test_pipeline_run) {
   ppc::core::Perf::PrintPerfStatistic(perf_results);
 }
 
-TEST(pikarychev_i_hoare_sort_simple_merge_tbb, test_task_run) {
+TEST(pikarychev_i_hoare_sort_simple_merge_stl, test_task_run) {
   std::random_device dev;
   std::mt19937 gen(dev());
   std::uniform_int_distribution<> dist(-5000, 5000);
@@ -71,7 +71,7 @@ TEST(pikarychev_i_hoare_sort_simple_merge_tbb, test_task_run) {
   task_data->inputs_count.emplace_back(in.size());
   task_data->outputs.emplace_back(reinterpret_cast<uint8_t *>(out.data()));
   task_data->outputs_count.emplace_back(out.size());
-  auto task = pikarychev_i_hoare_sort_simple_merge::HoareThreadBB<int>(task_data);
+  auto task = pikarychev_i_hoare_sort_simple_merge::HoareSTL<int>(task_data);
 
   auto perf_attr = std::make_shared<ppc::core::PerfAttr>();
   perf_attr->num_running = 10;
