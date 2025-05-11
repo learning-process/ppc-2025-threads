@@ -93,21 +93,17 @@ bool deryabin_m_hoare_sort_simple_merge_stl::HoareSortTaskSTL::RunImpl() {
   workers.reserve(num_threads);
   auto parallel_for = [&](size_t start, size_t end, auto&& func) {
     const size_t num_chunk_per_thread = (end - start) / num_threads;
-    for (size_t i = 0; i < num_threads - 1; ++i) {
+    for (size_t i = 0; i < num_threads - 1; ++i)
       workers.emplace_back([=, &func] {
-        for (size_t j = start + i * num_chunk_per_thread; j < start + (i + 1) * num_chunk_per_thread;) {
+        for (size_t j = start + i * num_chunk_per_thread; j < start + (i + 1) * num_chunk_per_thread;)
           func(j++);
-        }
       });
-    }
     workers.emplace_back([=, &func] {
-      for (size_t j = start + (num_threads - 1) * num_chunk_per_thread; j < end;) {
+      for (size_t j = start + (num_threads - 1) * num_chunk_per_thread; j < end;)
         func(j++);
-      }
     });
-    for (auto& worker : workers) {
+    for (auto& worker : workers)
       worker.join();
-    }
     workers.clear();
   };
   parallel_for(0, chunk_count_, [this](size_t count) {
@@ -118,11 +114,10 @@ bool deryabin_m_hoare_sort_simple_merge_stl::HoareSortTaskSTL::RunImpl() {
     while (n >>= 1) ++log;
     return log;
   };
-  for (size_t i = 0; i < num_of_lvls(chunk_count_); ++i) {
+  for (size_t i = 0; i < num_of_lvls(chunk_count_); ++i)
     parallel_for(0, chunk_count_ >> (i + 1), [this, i](size_t j) {
       MergeTwoParts(input_array_A_, j * min_chunk_size_ << (i + 1), ((j + 1) * min_chunk_size_ << (i + 1)) - 1);
     });
-  }
   return true;
 }
 
