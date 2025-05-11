@@ -1,8 +1,8 @@
 #include "all/Konstantinov_I_Sort_Batcher/include/ops_all.hpp"
 
+#include <algorithm>
 #include <boost/mpi/collectives.hpp>
 #include <boost/mpi/communicator.hpp>
-#include <algorithm>
 #include <cmath>
 #include <cstddef>
 #include <cstdint>

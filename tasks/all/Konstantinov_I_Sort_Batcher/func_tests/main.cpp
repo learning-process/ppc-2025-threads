@@ -7,8 +7,9 @@
 #include <random>
 #include <vector>
 
-#include "core/task/include/task.hpp"
 #include "all/Konstantinov_I_Sort_Batcher/include/ops_all.hpp"
+#include "core/task/include/task.hpp"
+
 
 TEST(Konstantinov_I_Sort_Batcher_all, test_empty_array) {
   std::vector<double> in = {};
