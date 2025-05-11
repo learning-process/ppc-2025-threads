@@ -12,13 +12,13 @@ void solovev_a_matrix_stl::SeqMatMultCcs::worker_loop(solovev_a_matrix_stl::SeqM
 
     int col = self->next_col_.fetch_add(1);
     if (col >= self->c_n_) {
-    int done = self->completed_.fetch_add(1) + 1;
-    if (done == self->c_n_) {
-      std::lock_guard<std::mutex> lk(self->mtx_);
-      self->cv_done_.notify_all();
+      int done = self->completed_.fetch_add(1) + 1;
+      if (done == self->c_n_) {
+        std::lock_guard<std::mutex> lk(self->mtx_);
+        self->cv_done_.notify_all();
+      }
+      break;
     }
-    break;
-  }
 
     available.assign(self->r_n_, 0);
 
