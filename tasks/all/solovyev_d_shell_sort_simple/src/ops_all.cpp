@@ -51,7 +51,7 @@ void solovyev_d_shell_sort_simple_all::TaskALL::ShellSort(std::vector<int>& data
     }
   }
 }
-namespace{
+namespace {
 void FinalMerge(std::vector<int>& data, const std::vector<int>& send_counts, const std::vector<int>& displs) {
   struct Block {
     int start;
@@ -85,7 +85,7 @@ void FinalMerge(std::vector<int>& data, const std::vector<int>& send_counts, con
   }
   data = std::move(result);
 }
-} // namespace
+}  // namespace
 bool solovyev_d_shell_sort_simple_all::TaskALL::RunImpl() {
   num_threads_ = std::max(1, ppc::util::GetPPCNumThreads());
   int rank = world_.rank();
