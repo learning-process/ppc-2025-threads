@@ -86,9 +86,7 @@ bool trubin_a_algorithm_dijkstra_stl::TestTaskSTL::RunImpl() {
   std::priority_queue<QueueElement, std::vector<QueueElement>, std::greater<>> min_heap;
   min_heap.emplace(0, start_vertex_);
 
-  size_t num_threads =
-      std::min(static_cast<size_t>(ppc::util::GetPPCNumThreads()), num_vertices_ > 0 ? num_vertices_ : 1);
-  num_threads = std::min<size_t>(num_threads, 8);
+  size_t num_threads = std::min({static_cast<size_t>(ppc::util::GetPPCNumThreads()), num_vertices_, size_t(8)});
 
   std::mutex heap_mutex;
   std::mutex distances_mutex;

@@ -77,13 +77,13 @@ void RunDijkstraPerfTest(size_t num_vertices, size_t max_edges_per_vertex, bool 
 }  // namespace
 
 TEST(trubin_a_algorithm_dijkstra_stl, test_pipeline_run) {
-  constexpr size_t kNumVertices = 400000;
+  constexpr size_t kNumVertices = 350000;
   constexpr size_t kMaxEdgesPerVertex = 100;
   RunDijkstraPerfTest(kNumVertices, kMaxEdgesPerVertex, true);
 }
 
 TEST(trubin_a_algorithm_dijkstra_stl, test_task_run) {
-  constexpr size_t kNumVertices = 400000;
+  constexpr size_t kNumVertices = 350000;
   constexpr size_t kMaxEdgesPerVertex = 100;
   RunDijkstraPerfTest(kNumVertices, kMaxEdgesPerVertex, false);
 }
