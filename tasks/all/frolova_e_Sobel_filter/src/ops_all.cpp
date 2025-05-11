@@ -106,7 +106,6 @@ void frolova_e_sobel_filter_all::SobelFilterALL::CopyOrZeroLine(std::vector<int>
                                                                 int i, int proc_y_start, int top, int width,
                                                                 int height) {
   int src_y = proc_y_start - top + i;
-
   auto dst_offset = static_cast<std::vector<uint8_t>::difference_type>(width) * i;
 
   if (src_y >= 0 && src_y < height) {
