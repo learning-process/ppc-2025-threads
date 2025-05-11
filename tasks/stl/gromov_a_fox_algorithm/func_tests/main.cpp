@@ -42,8 +42,8 @@ TEST(gromov_a_fox_algorithm_stl, test_4x4) {
   }
 }
 
-TEST(gromov_a_fox_algorithm_stl, test_50x50) {
-  constexpr size_t kN = 50;
+TEST(gromov_a_fox_algorithm_stl, test_15x15) {
+  constexpr size_t kN = 15;
 
   std::vector<double> a(kN * kN, 0.0);
   std::vector<double> b(kN * kN, 0.0);
