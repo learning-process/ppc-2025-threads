@@ -69,11 +69,11 @@ void solovev_a_matrix_stl::SeqMatMultCcs::WorkerLoop(solovev_a_matrix_stl::SeqMa
     }
     available.assign(self->r_n_, 0);
     if (self->phase_ == 1) {
-      processPhase1(self, col, available);
+      ProcessPhase1(self, col, available);
     } else if (self->phase_ == 2) {
-      processPhase2(self, col, available, cask);
+      ProcessPhase2(self, col, available, cask);
     }
-    notifyCompletion(self);
+    NotifyCompletion(self);
   }
 }
 
