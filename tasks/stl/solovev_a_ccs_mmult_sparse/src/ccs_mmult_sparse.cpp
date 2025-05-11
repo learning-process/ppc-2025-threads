@@ -15,7 +15,7 @@ void solovev_a_matrix_stl::SeqMatMultCcs::WorkerLoop(solovev_a_matrix_stl::SeqMa
     int col = self->next_col_.fetch_add(1);
     if (col >= self->c_n_) {
       break;
-    } 
+    }
     available.assign(self->r_n_, 0);
 
     if (self->phase_ == 1) {
@@ -91,7 +91,7 @@ bool solovev_a_matrix_stl::SeqMatMultCcs::RunImpl() {
   if (M1_->col_p.size() != static_cast<size_t>(M1_->c_n) + 1 ||
       M2_->col_p.size() != static_cast<size_t>(M2_->c_n) + 1) {
     return false;
-}
+  }
 
   counts_.assign(c_n_, 0);
   M3_->col_p.assign(c_n_ + 1, 0);
