@@ -2,12 +2,12 @@
 
 #include <algorithm>
 #include <cmath>
-#include <numeric>
 #include <cstddef>
+#include <numeric>
 #include <thread>
 #include <vector>
 
-using namespace karaseva_a_test_task_stl; // NOLINT
+using namespace karaseva_a_test_task_stl;
 
 bool TestTaskSTL::PreProcessingImpl() {
   // Set system size from input data
