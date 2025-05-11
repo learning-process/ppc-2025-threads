@@ -3,22 +3,23 @@
 #include <algorithm>
 #include <cmath>
 #include <cstddef>
-#include <functional>
-#include <numbers>
-#include <stack>
 #include <thread>
 #include <vector>
 
-#include "core/util/include/util.hpp"
-
 void deryabin_m_hoare_sort_simple_merge_stl::HoaraSort(std::vector<double>& a, size_t first, size_t last) {
-  if (first >= last) return;
+  if (first >= last) {
+    return;
+  }
   const double x = a[(first + last) >> 1];
   double* pi = &a[first];
   double* pj = &a[last];
   do {
-    while (*pi < x) pi++;
-    while (*pj > x) pj--;
+    while (*pi < x) {
+      pi++;
+    }
+    while (*pj > x) {
+      pj--;
+    }
     const double tmp = *pi;
     *pi = *pj;
     *pj = tmp;
@@ -30,7 +31,7 @@ void deryabin_m_hoare_sort_simple_merge_stl::HoaraSort(std::vector<double>& a, s
 }
 
 void deryabin_m_hoare_sort_simple_merge_stl::MergeTwoParts(std::vector<double>& arr, size_t left, size_t right) {
-  std::inplace_merge(arr.begin() + left, arr.begin() + ((left + right) >> 1) + 1, arr.begin() + right + 1);
+  std::inplace_merge(arr.begin() + static_cast<long>(left), arr.begin() + (static_cast<long>(left + right) >> 1) + 1, arr.begin() + static_cast<long>(right) + 1);
 }
 
 bool deryabin_m_hoare_sort_simple_merge_stl::HoareSortTaskSequential::PreProcessingImpl() {
@@ -55,7 +56,9 @@ bool deryabin_m_hoare_sort_simple_merge_stl::HoareSortTaskSequential::RunImpl() 
   }
   const auto num_of_lvls = [](size_t n) {
     size_t log = 0;
-    while (n >>= 1) ++log;
+    while (n >>= 1) {
+      ++log;
+    }
     return log;
   };
   size_t chunk_count = chunk_count_;
@@ -95,12 +98,18 @@ bool deryabin_m_hoare_sort_simple_merge_stl::HoareSortTaskSTL::RunImpl() {
     const size_t num_chunk_per_thread = (end - start) / num_threads;
     for (size_t i = 0; i < num_threads - 1; ++i)
       workers.emplace_back([=, &func] {
-        for (size_t j = start + i * num_chunk_per_thread; j < start + (i + 1) * num_chunk_per_thread; ++j) func(j);
+        for (size_t j = start + (i * num_chunk_per_thread); j < start + (i + 1) * num_chunk_per_thread; ++j) {
+          func(j);
+        }
       });
     workers.emplace_back([=, &func] {
-      for (size_t j = start + (num_threads - 1) * num_chunk_per_thread; j < end; ++j) func(j);
+      for (size_t j = start + ((num_threads - 1) * num_chunk_per_thread); j < end; ++j) {
+        func(j);
+      }
     });
-    for (auto& worker : workers) worker.join();
+    for (auto& worker : workers) {
+      worker.join();
+    }
     workers.clear();
   };
   parallel_for(0, chunk_count_, [this](size_t count) {
@@ -108,13 +117,16 @@ bool deryabin_m_hoare_sort_simple_merge_stl::HoareSortTaskSTL::RunImpl() {
   });
   const auto num_of_lvls = [](size_t n) {
     size_t log = 0;
-    while (n >>= 1) ++log;
+    while (n >>= 1) {
+      ++log;
+    }
     return log;
   };
-  for (size_t i = 0; i < num_of_lvls(chunk_count_); ++i)
+  for (size_t i = 0; i < num_of_lvls(chunk_count_); ++i) {
     parallel_for(0, chunk_count_ >> (i + 1), [this, i](size_t j) {
       MergeTwoParts(input_array_A_, j * min_chunk_size_ << (i + 1), ((j + 1) * min_chunk_size_ << (i + 1)) - 1);
     });
+  }
   return true;
 }
 
