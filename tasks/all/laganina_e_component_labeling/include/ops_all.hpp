@@ -39,6 +39,10 @@ class TestTaskALL : public ppc::core::Task {
   void AssignLabels(std::vector<int>& parent);
   void LabelConnectedComponents();
   void RelabelImage();
+  bool IsValidCoordinate(int x, int y);
+  void Normalize();
+  void ProcessConnectedComponent(int start_x, int start_y, int label,
+                                 const std::vector<std::pair<int, int>>& directions);
 };
 
 inline void NormalizeLabels(std::vector<int>& vec) {
