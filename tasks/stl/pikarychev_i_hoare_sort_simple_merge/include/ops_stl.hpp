@@ -37,11 +37,11 @@ class HoareSTL : public ppc::core::Task {
     return true;
   }
 
-   void SortInParallel(std::size_t parallelism, std::vector<Block>& blocks) {
-    std::vector<std::thread> workers(parallelism);
+  void SortInParallel(std::size_t parallelism, std::vector<Block>& blocks) {
+   std::vector<std::thread> workers(parallelism);
     for (std::size_t t = 0; t < parallelism; t++) {
-      workers[t] = std::thread(
-          [&](std::size_t i) { DoSort(blocks[i].e, 0, blocks[i].sz - 1, reverse_ ? ReverseComp : StandardComp); }, t);
+        workers[t] = std::thread(
+            [&](std::size_t i) { DoSort(blocks[i].e, 0, blocks[i].sz - 1, reverse_ ? ReverseComp : StandardComp); }, t);
     }
     for (auto& thd : workers) {
       thd.join();
