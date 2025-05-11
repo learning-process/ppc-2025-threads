@@ -22,11 +22,10 @@ void deryabin_m_hoare_sort_simple_merge_stl::HoaraSort(std::vector<double>& a, s
   do {
     while (*pi < x) pi++;
     while (*pj > x) pj--;
-    if (pi > pj) break;
     const double tmp = *pi;
     *pi = *pj;
     *pj = tmp;
-  } while (true);
+  } while (pi < pj);
   const size_t j = pj - a.data();
   const size_t i = pi - a.data();
   HoaraSort(a, first, j);
