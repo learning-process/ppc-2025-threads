@@ -316,7 +316,7 @@ TEST(kovalev_k_radix_sort_batcher_merge_stl, Test_215718_int) {
   ASSERT_EQ(count_viol, 0);
 }
 
-TEST(kovalev_k_radix_sort_batcher_merge_stl, Test_2000000_int) {
+TEST(kovalev_k_radix_sort_batcher_merge_stl, Test_1062041_int) {
   const unsigned int length = 1062041;
   std::vector<long long int> in(length);
   std::random_device rd;
