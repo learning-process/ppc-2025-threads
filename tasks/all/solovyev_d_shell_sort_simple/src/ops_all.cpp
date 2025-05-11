@@ -2,9 +2,9 @@
 
 #include <algorithm>
 #include <barrier>
-#include <boost/mpi/communicator.hpp>
 #include <boost/mpi/collectives/scatterv.hpp>
 #include <boost/mpi/collectives/gatherv.hpp>
+#include <boost/mpi/communicator.hpp>
 #include <cmath>
 #include <cstddef>
 #include <thread>
@@ -15,7 +15,7 @@
 
 bool solovyev_d_shell_sort_simple_all::TaskALL::PreProcessingImpl() {
   size_t input_size = task_data->inputs_count[0];
-  auto *in_ptr = reinterpret_cast<int *>(task_data->inputs[0]);
+  auto* in_ptr = reinterpret_cast<int*>(task_data->inputs[0]);
   input_ = std::vector<int>(in_ptr, in_ptr + input_size);
   return true;
 }
@@ -45,11 +45,11 @@ void solovyev_d_shell_sort_simple_all::TaskALL::ShellSort(std::vector<int>& data
       }
     });
   }
-  for (auto &th : threads) {
+  for (auto& th : threads) {
     if (th.joinable()) {
       th.join();
     }
-  }   	
+  }
 }
 
 static void FinalMerge(std::vector<int>& data, const std::vector<int>& send_counts, const std::vector<int>& displs) {
@@ -90,13 +90,10 @@ bool solovyev_d_shell_sort_simple_all::TaskALL::RunImpl() {
   num_threads_ = std::max(1, ppc::util::GetPPCNumThreads());
   int rank = world_.rank();
   int size = world_.size();
-  
   std::vector<int> send_counts(size);
   std::vector<int> displs(size);
-  
   int base_size = static_cast<int>(input_.size()) / size;
   int remainder = static_cast<int>(input_.size()) % size;
-  
   for (int i = 0; i < size; ++i) {
     send_counts[i] = base_size + (i < remainder ? 1 : 0);
     displs[i] = (i == 0) ? 0 : (displs[i - 1] + send_counts[i - 1]);
@@ -107,15 +104,14 @@ bool solovyev_d_shell_sort_simple_all::TaskALL::RunImpl() {
   solovyev_d_shell_sort_simple_all::TaskALL::ShellSort(local_data);
   boost::mpi::gatherv(world_, local_data, input_.data(), send_counts, displs, 0);
   if (rank == 0) {
-    FinalMerge(input_,send_counts,displs);
-	
+    FinalMerge(input_, send_counts, displs);
   }
   return true;
 }
 
 bool solovyev_d_shell_sort_simple_all::TaskALL::PostProcessingImpl() {
   for (size_t i = 0; i < input_.size(); i++) {
-    reinterpret_cast<int *>(task_data->outputs[0])[i] = input_[i];
+    reinterpret_cast<int*>(task_data->outputs[0])[i] = input_[i];
   }
   return true;
 }
