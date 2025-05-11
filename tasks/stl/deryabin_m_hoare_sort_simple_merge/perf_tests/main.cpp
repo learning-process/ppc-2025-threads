@@ -14,7 +14,6 @@
 #include "stl/deryabin_m_hoare_sort_simple_merge/include/ops_stl.hpp"
 
 TEST(deryabin_m_hoare_sort_simple_merge_stl, test_pipeline_run_STL) {
-  // Create data
   std::random_device rd;
   std::mt19937 gen(rd());
   std::uniform_real_distribution<> distribution(-100, 100);
@@ -68,7 +67,6 @@ TEST(deryabin_m_hoare_sort_simple_merge_stl, test_pipeline_run_STL) {
 }
 
 TEST(deryabin_m_hoare_sort_simple_merge_stl, test_task_run_STL) {
-  // Create data
   std::random_device rd;
   std::mt19937 gen(rd());
   std::uniform_real_distribution<> distribution(-100, 100);
