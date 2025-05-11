@@ -17,7 +17,7 @@ std::vector<int> GenerateRandomDenseGraph(size_t num_vertices, size_t max_edges_
   std::vector<int> graph_data;
   std::mt19937 rng(42);
   std::uniform_int_distribution<size_t> edge_count_dist(1, max_edges_per_vertex);
-  std::uniform_int_distribution<int> weight_dist(1, 10);
+  std::uniform_int_distribution<int> weight_dist(100, 1000);
 
   for (size_t i = 0; i < num_vertices; ++i) {
     size_t num_edges = edge_count_dist(rng);
@@ -77,13 +77,13 @@ void RunDijkstraPerfTest(size_t num_vertices, size_t max_edges_per_vertex, bool 
 }  // namespace
 
 TEST(trubin_a_algorithm_dijkstra_stl, test_pipeline_run) {
-  constexpr size_t kNumVertices = 200000;
+  constexpr size_t kNumVertices = 400000;
   constexpr size_t kMaxEdgesPerVertex = 100;
   RunDijkstraPerfTest(kNumVertices, kMaxEdgesPerVertex, true);
 }
 
 TEST(trubin_a_algorithm_dijkstra_stl, test_task_run) {
-  constexpr size_t kNumVertices = 200000;
+  constexpr size_t kNumVertices = 400000;
   constexpr size_t kMaxEdgesPerVertex = 100;
   RunDijkstraPerfTest(kNumVertices, kMaxEdgesPerVertex, false);
 }
