@@ -8,6 +8,7 @@
 #include <vector>
 
 #include "core/task/include/task.hpp"
+#include "core/util/include/util.hpp"
 
 using namespace zinoviev_a_convex_hull_components_stl;
 
@@ -116,29 +117,47 @@ bool ConvexHullSTL::RunImpl() noexcept {
   const size_t num_components = components_.size();
   hulls_.resize(num_components);
 
-  unsigned int num_threads = std::thread::hardware_concurrency();
+  unsigned int num_threads = ppc::util::GetPPCNumThreads();
+
   if (num_threads == 0) {
     num_threads = 1;
   }
 
-  std::vector<std::thread> threads(num_threads);
-  const size_t components_per_thread = (num_components + num_threads - 1) / num_threads;
-
-  auto process_components = [this](size_t start_idx, size_t end_idx) {
-    for (size_t i = start_idx; i < end_idx; ++i) {
-      hulls_[i] = FindConvexHull(components_[i]);
-    }
-  };
-
-  for (size_t t = 0; t < num_threads; ++t) {
-    const size_t start = t * components_per_thread;
-    const size_t end = std::min(start + components_per_thread, num_components);
-    threads[t] = std::thread(process_components, start, end);
+  if (num_components == 0) {
+    return true;
   }
 
-  for (auto& thread : threads) {
-    if (thread.joinable()) {
-      thread.join();
+  size_t actual_num_threads = std::min(static_cast<size_t>(num_threads), num_components);
+  if (actual_num_threads == 0 && num_components > 0) {
+    actual_num_threads = 1;
+  } else if (num_components == 0) {
+    actual_num_threads = 0;
+  }
+
+  if (actual_num_threads > 0) {
+    std::vector<std::thread> threads(actual_num_threads);
+    const size_t components_per_thread = (num_components + actual_num_threads - 1) / actual_num_threads;
+
+    auto process_components = [this](size_t start_idx, size_t end_idx) {
+      for (size_t i = start_idx; i < end_idx; ++i) {
+        if (i < components_.size()) {
+          hulls_[i] = FindConvexHull(components_[i]);
+        }
+      }
+    };
+
+    for (size_t t = 0; t < actual_num_threads; ++t) {
+      const size_t start = t * components_per_thread;
+      const size_t end = std::min(start + components_per_thread, num_components);
+      if (start < end) {
+        threads[t] = std::thread(process_components, start, end);
+      }
+    }
+
+    for (size_t t = 0; t < actual_num_threads; ++t) {
+      if (threads[t].joinable()) {
+        threads[t].join();
+      }
     }
   }
 
@@ -155,17 +174,30 @@ bool ConvexHullSTL::PostProcessingImpl() noexcept {
     total_points += hull.size();
   }
 
-  if (static_cast<size_t>(task_data->outputs_count[0]) < total_points) {
-    return false;
+  if (task_data->outputs_count.empty() || static_cast<size_t>(task_data->outputs_count[0]) < total_points) {
+    if (total_points > 0) {
+      return false;
+    }
   }
 
   auto* output = reinterpret_cast<Point*>(task_data->outputs[0]);
   size_t offset = 0;
   for (const auto& hull : hulls_) {
-    std::ranges::copy(hull, output + offset);
-    offset += hull.size();
+    if (!hull.empty()) {
+      if (offset + hull.size() <= static_cast<size_t>(task_data->outputs_count[0])) {
+        std::ranges::copy(hull, output + offset);
+        offset += hull.size();
+      } else {
+        return false;
+      }
+    }
   }
 
-  task_data->outputs_count[0] = static_cast<int>(total_points);
+  if (!task_data->outputs_count.empty()) {
+    task_data->outputs_count[0] = static_cast<int>(total_points);
+  } else if (total_points > 0) {
+    return false;
+  }
+
   return true;
 }
