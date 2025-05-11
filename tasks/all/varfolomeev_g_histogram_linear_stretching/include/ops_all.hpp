@@ -24,7 +24,7 @@ class TestTaskALL : public ppc::core::Task {
 
   void ScatterData(std::vector<uint8_t>& local_data);
   void FindMinMax(const std::vector<uint8_t>& local_data, int& min_val, int& max_val);
-  void StretchHistogram(std::vector<uint8_t>& local_data, int min_val, int max_val);
+  static void StretchHistogram(std::vector<uint8_t>& local_data, int min_val, int max_val);
   void GatherResults(const std::vector<uint8_t>& local_data);
 };
 

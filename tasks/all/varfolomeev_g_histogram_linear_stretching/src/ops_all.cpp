@@ -5,11 +5,10 @@
 #include <algorithm>
 #include <boost/mpi/collectives.hpp>
 #include <boost/mpi/communicator.hpp>
-#include <boost/serialization/vector.hpp>
+#include <boost/mpi/operations.hpp>
 #include <cmath>
 #include <cstddef>
 #include <cstdint>
-#include <vector>
 
 bool varfolomeev_g_histogram_linear_stretching_all::TestTaskALL::ValidationImpl() {
   if (world_.rank() == 0) {
@@ -24,7 +23,7 @@ bool varfolomeev_g_histogram_linear_stretching_all::TestTaskALL::PreProcessingIm
   if (world_.rank() == 0) {
     input_image_.resize(task_data->inputs_count[0]);
     auto* input_ptr = reinterpret_cast<uint8_t*>(task_data->inputs[0]);
-    std::copy(input_ptr, input_ptr + task_data->inputs_count[0], input_image_.begin());
+    std::ranges::copy(input_ptr, input_ptr + task_data->inputs_count[0], input_image_.begin());
   }
 
   return true;
@@ -48,7 +47,7 @@ bool varfolomeev_g_histogram_linear_stretching_all::TestTaskALL::RunImpl() {
 bool varfolomeev_g_histogram_linear_stretching_all::TestTaskALL::PostProcessingImpl() {
   if (world_.rank() == 0) {
     auto* output_ptr = reinterpret_cast<uint8_t*>(task_data->outputs[0]);
-    std::copy(result_image_.begin(), result_image_.end(), output_ptr);
+    std::ranges::copy(result_image_.begin(), result_image_.end(), output_ptr);
   }
   return true;
 }
@@ -60,14 +59,14 @@ void varfolomeev_g_histogram_linear_stretching_all::TestTaskALL::ScatterData(std
       for (size_t i = proc; i < input_image_.size(); i += world_.size()) {
         proc_data.push_back(input_image_[i]);
       }
-      world_.send(proc, 0, proc_data);
+      world_.send(proc, 0, proc_data);  // NOLINT
     }
 
     for (size_t i = 0; i < input_image_.size(); i += world_.size()) {
       local_data.push_back(input_image_[i]);
     }
   } else {
-    world_.recv(0, 0, local_data);
+    world_.recv(0, 0, local_data);  // NOLINT
   }
 }
 
@@ -81,7 +80,7 @@ void varfolomeev_g_histogram_linear_stretching_all::TestTaskALL::FindMinMax(cons
     local_max = *std::ranges::max_element(local_data);
   }
 
-  boost::mpi::all_reduce(world_, local_min, min_val, boost::mpi::minimum<int>());
+  boost::mpi::all_reduce(world_, min_val, local_min, boost::mpi::minimum<int>());
   boost::mpi::all_reduce(world_, local_max, max_val, boost::mpi::maximum<int>());
 
   if (min_val == max_val) {
@@ -113,7 +112,7 @@ void varfolomeev_g_histogram_linear_stretching_all::TestTaskALL::GatherResults(c
 
     for (int proc = 1; proc < world_.size(); ++proc) {
       std::vector<uint8_t> proc_data;
-      world_.recv(proc, 0, proc_data);
+      world_.recv(proc, 0, proc_data);  // NOLINT
 
       for (size_t i = 0; i < proc_data.size(); ++i) {
         const size_t pos = (i * world_.size()) + proc;
@@ -123,6 +122,6 @@ void varfolomeev_g_histogram_linear_stretching_all::TestTaskALL::GatherResults(c
       }
     }
   } else {
-    world_.send(0, 0, local_data);
+    world_.send(0, 0, local_data);  // NOLINT
   }
 }
