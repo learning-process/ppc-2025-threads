@@ -3,7 +3,6 @@
 #include <omp.h>
 
 #include <algorithm>
-#include <boost/mpi.hpp>
 #include <boost/mpi/collectives.hpp>
 #include <boost/mpi/collectives/all_reduce.hpp>
 #include <boost/mpi/operations.hpp>
