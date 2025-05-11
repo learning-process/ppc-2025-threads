@@ -78,7 +78,7 @@ double ParallelDotProduct(const std::vector<double>& a, const std::vector<double
   return std::accumulate(partial_sums.begin(), partial_sums.end(), 0.0);
 }
 
-void MatrixVectorMultiply(const std::vector<double>& A, std::vector<double>& ap, const std::vector<double>& p,
+void MatrixVectorMultiply(const std::vector<double>& a, std::vector<double>& ap, const std::vector<double>& p,
                           size_t size) {
   const size_t num_threads = std::max<size_t>(1, std::thread::hardware_concurrency());
   std::vector<std::thread> threads;
@@ -87,11 +87,11 @@ void MatrixVectorMultiply(const std::vector<double>& A, std::vector<double>& ap,
   for (size_t t = 0; t < num_threads; ++t) {
     const size_t start = t * chunk_size;
     const size_t end = std::min(start + chunk_size, size);
-    threads.emplace_back([start, end, &A, &ap, &p, size]() {
+    threads.emplace_back([start, end, &a, &ap, &p, size]() {
       for (size_t i = start; i < end; ++i) {
         ap[i] = 0.0;
         for (size_t j = 0; j < size; ++j) {
-          ap[i] += A[(i * size) + j] * p[j];
+          ap[i] += a[(i * size) + j] * p[j];
         }
       }
     });
