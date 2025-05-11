@@ -113,16 +113,16 @@ bool deryabin_m_hoare_sort_simple_merge_stl::HoareSortTaskSTL::RunImpl() {
   parallel_for(0, chunk_count_, [this](size_t count) {
     HoaraSort(input_array_A_, count * min_chunk_size_, ((count + 1) * min_chunk_size_) - 1);
   });
-  const auto num_of_lvls = [](size_t n) {
+  const auto num_of_lvls = [](size_t n) { // Вычисялем сколько уровней слияния потребуется как логарифм по основанию 2 от числа частей chunk_count_
     size_t log = 0;
     while (n >>= 1) {
       ++log;
     }
     return log;
   };
-  for (size_t i = 0; i < num_of_lvls(chunk_count_); ++i) {
-    parallel_for(0, chunk_count_ >> (i + 1), [this, i](size_t j) {
-      std::inplace_merge(input_array_A_.begin() + static_cast<long>(j * min_chunk_size_ << (i + 1)),
+  for (size_t i = 0; i < num_of_lvls(chunk_count_); ++i) { // На каждом уровне сливаются пары соседних блоков размером min_chunk_size_ × 2^i 
+    parallel_for(0, chunk_count_ >> (i + 1), [this, i](size_t j) { // Распределение слияний между потоками на каждом уровне
+      std::inplace_merge(input_array_A_.begin() + static_cast<long>(j * min_chunk_size_ << (i + 1)), // Вызов std::inplace_merge для слияния двух подмассивов, отсортированных функцией HoareSort
                          input_array_A_.begin() + static_cast<long>(((j << 1 | 1) * (min_chunk_size_ << i))),
                          input_array_A_.begin() + static_cast<long>((j + 1) * min_chunk_size_ << (i + 1)));
     });
