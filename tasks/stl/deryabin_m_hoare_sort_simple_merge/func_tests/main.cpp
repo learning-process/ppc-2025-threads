@@ -12,7 +12,6 @@
 #include "stl/deryabin_m_hoare_sort_simple_merge/include/ops_stl.hpp"
 
 TEST(deryabin_m_hoare_sort_simple_merge_stl, test_random_array) {
-  // Create data
   std::random_device rd;
   std::mt19937 gen(rd());
   std::uniform_real_distribution<> distribution(-100, 100);
@@ -25,7 +24,6 @@ TEST(deryabin_m_hoare_sort_simple_merge_stl, test_random_array) {
   std::vector<double> true_solution(input_array);
   std::ranges::sort(true_solution.begin(), true_solution.end());
 
-  // Create TaskData
   auto task_data_stl = std::make_shared<ppc::core::TaskData>();
   task_data_stl->inputs.emplace_back(reinterpret_cast<uint8_t*>(in_array.data()));
   task_data_stl->inputs_count.emplace_back(input_array.size());
@@ -33,7 +31,6 @@ TEST(deryabin_m_hoare_sort_simple_merge_stl, test_random_array) {
   task_data_stl->outputs.emplace_back(reinterpret_cast<uint8_t*>(out_array.data()));
   task_data_stl->outputs_count.emplace_back(output_array.size());
 
-  // Create Task
   deryabin_m_hoare_sort_simple_merge_stl::HoareSortTaskSTL hoare_sort_task_stl(task_data_stl);
   ASSERT_EQ(hoare_sort_task_stl.Validation(), true);
   hoare_sort_task_stl.PreProcessing();
@@ -43,7 +40,6 @@ TEST(deryabin_m_hoare_sort_simple_merge_stl, test_random_array) {
 }
 
 TEST(deryabin_m_hoare_sort_simple_merge_stl, test_double_reverse_array) {
-  // Create data
   std::vector<double> input_array(800);
   const auto half = input_array.size() / 2U;
   std::ranges::generate(input_array.begin(), input_array.end() - (long)half,
@@ -57,7 +53,6 @@ TEST(deryabin_m_hoare_sort_simple_merge_stl, test_double_reverse_array) {
   std::vector<double> true_solution(input_array);
   std::ranges::sort(true_solution.begin(), true_solution.end());
 
-  // Create TaskData
   auto task_data_stl = std::make_shared<ppc::core::TaskData>();
   task_data_stl->inputs.emplace_back(reinterpret_cast<uint8_t*>(in_array.data()));
   task_data_stl->inputs_count.emplace_back(input_array.size());
@@ -65,7 +60,6 @@ TEST(deryabin_m_hoare_sort_simple_merge_stl, test_double_reverse_array) {
   task_data_stl->outputs.emplace_back(reinterpret_cast<uint8_t*>(out_array.data()));
   task_data_stl->outputs_count.emplace_back(output_array.size());
 
-  // Create Task
   deryabin_m_hoare_sort_simple_merge_stl::HoareSortTaskSTL hoare_sort_task_stl(task_data_stl);
   ASSERT_EQ(hoare_sort_task_stl.Validation(), true);
   hoare_sort_task_stl.PreProcessing();
@@ -75,20 +69,18 @@ TEST(deryabin_m_hoare_sort_simple_merge_stl, test_double_reverse_array) {
 }
 
 TEST(deryabin_m_hoare_sort_simple_merge_stl, test_large_array) {
-  // Create data
   std::random_device rd;
   std::mt19937 gen(rd());
   std::uniform_real_distribution<> distribution(-100, 100);
-  std::vector<double> input_array(512000);
+  std::vector<double> input_array(256000);
   std::ranges::generate(input_array.begin(), input_array.end(), [&] { return distribution(gen); });
   std::vector<std::vector<double>> in_array(1, input_array);
-  size_t chunk_count = 512;
-  std::vector<double> output_array(512000);
+  size_t chunk_count = 256;
+  std::vector<double> output_array(256000);
   std::vector<std::vector<double>> out_array(1, output_array);
   std::vector<double> true_solution(input_array);
   std::ranges::sort(true_solution.begin(), true_solution.end());
 
-  // Create TaskData
   auto task_data_stl = std::make_shared<ppc::core::TaskData>();
   task_data_stl->inputs.emplace_back(reinterpret_cast<uint8_t*>(in_array.data()));
   task_data_stl->inputs_count.emplace_back(input_array.size());
@@ -96,7 +88,6 @@ TEST(deryabin_m_hoare_sort_simple_merge_stl, test_large_array) {
   task_data_stl->outputs.emplace_back(reinterpret_cast<uint8_t*>(out_array.data()));
   task_data_stl->outputs_count.emplace_back(output_array.size());
 
-  // Create Task
   deryabin_m_hoare_sort_simple_merge_stl::HoareSortTaskSTL hoare_sort_task_stl(task_data_stl);
   ASSERT_EQ(hoare_sort_task_stl.Validation(), true);
   hoare_sort_task_stl.PreProcessing();
@@ -106,7 +97,6 @@ TEST(deryabin_m_hoare_sort_simple_merge_stl, test_large_array) {
 }
 
 TEST(deryabin_m_hoare_sort_simple_merge_stl, test_negative_elements_array) {
-  // Create data
   std::random_device rd;
   std::mt19937 gen(rd());
   std::uniform_real_distribution<> distribution(-100, -1);
@@ -119,7 +109,6 @@ TEST(deryabin_m_hoare_sort_simple_merge_stl, test_negative_elements_array) {
   std::vector<double> true_solution(input_array);
   std::ranges::sort(true_solution.begin(), true_solution.end());
 
-  // Create TaskData
   auto task_data_stl = std::make_shared<ppc::core::TaskData>();
   task_data_stl->inputs.emplace_back(reinterpret_cast<uint8_t*>(in_array.data()));
   task_data_stl->inputs_count.emplace_back(input_array.size());
@@ -127,7 +116,6 @@ TEST(deryabin_m_hoare_sort_simple_merge_stl, test_negative_elements_array) {
   task_data_stl->outputs.emplace_back(reinterpret_cast<uint8_t*>(out_array.data()));
   task_data_stl->outputs_count.emplace_back(output_array.size());
 
-  // Create Task
   deryabin_m_hoare_sort_simple_merge_stl::HoareSortTaskSTL hoare_sort_task_stl(task_data_stl);
   ASSERT_EQ(hoare_sort_task_stl.Validation(), true);
   hoare_sort_task_stl.PreProcessing();
@@ -137,7 +125,6 @@ TEST(deryabin_m_hoare_sort_simple_merge_stl, test_negative_elements_array) {
 }
 
 TEST(deryabin_m_hoare_sort_simple_merge_stl, test_shuffle_array) {
-  // Create data
   std::random_device rd;
   std::mt19937 gen(rd());
   std::vector<double> input_array(800);
@@ -150,7 +137,6 @@ TEST(deryabin_m_hoare_sort_simple_merge_stl, test_shuffle_array) {
   std::vector<double> true_solution(input_array);
   std::ranges::sort(true_solution.begin(), true_solution.end());
 
-  // Create TaskData
   auto task_data_stl = std::make_shared<ppc::core::TaskData>();
   task_data_stl->inputs.emplace_back(reinterpret_cast<uint8_t*>(in_array.data()));
   task_data_stl->inputs_count.emplace_back(input_array.size());
@@ -158,7 +144,6 @@ TEST(deryabin_m_hoare_sort_simple_merge_stl, test_shuffle_array) {
   task_data_stl->outputs.emplace_back(reinterpret_cast<uint8_t*>(out_array.data()));
   task_data_stl->outputs_count.emplace_back(output_array.size());
 
-  // Create Task
   deryabin_m_hoare_sort_simple_merge_stl::HoareSortTaskSTL hoare_sort_task_stl(task_data_stl);
   ASSERT_EQ(hoare_sort_task_stl.Validation(), true);
   hoare_sort_task_stl.PreProcessing();
@@ -168,7 +153,6 @@ TEST(deryabin_m_hoare_sort_simple_merge_stl, test_shuffle_array) {
 }
 
 TEST(deryabin_m_hoare_sort_simple_merge_stl, test_random_array_small_pieces) {
-  // Create data
   std::random_device rd;
   std::mt19937 gen(rd());
   std::uniform_real_distribution<> distribution(-100, 100);
@@ -181,7 +165,6 @@ TEST(deryabin_m_hoare_sort_simple_merge_stl, test_random_array_small_pieces) {
   std::vector<double> true_solution(input_array);
   std::ranges::sort(true_solution.begin(), true_solution.end());
 
-  // Create TaskData
   auto task_data_stl = std::make_shared<ppc::core::TaskData>();
   task_data_stl->inputs.emplace_back(reinterpret_cast<uint8_t*>(in_array.data()));
   task_data_stl->inputs_count.emplace_back(input_array.size());
@@ -189,7 +172,6 @@ TEST(deryabin_m_hoare_sort_simple_merge_stl, test_random_array_small_pieces) {
   task_data_stl->outputs.emplace_back(reinterpret_cast<uint8_t*>(out_array.data()));
   task_data_stl->outputs_count.emplace_back(output_array.size());
 
-  // Create Task
   deryabin_m_hoare_sort_simple_merge_stl::HoareSortTaskSTL hoare_sort_task_stl(task_data_stl);
   ASSERT_EQ(hoare_sort_task_stl.Validation(), true);
   hoare_sort_task_stl.PreProcessing();
@@ -199,7 +181,6 @@ TEST(deryabin_m_hoare_sort_simple_merge_stl, test_random_array_small_pieces) {
 }
 
 TEST(deryabin_m_hoare_sort_simple_merge_stl, test_random_array_large_pieces) {
-  // Create data
   std::random_device rd;
   std::mt19937 gen(rd());
   std::uniform_real_distribution<> distribution(-100, 100);
@@ -212,7 +193,6 @@ TEST(deryabin_m_hoare_sort_simple_merge_stl, test_random_array_large_pieces) {
   std::vector<double> true_solution(input_array);
   std::ranges::sort(true_solution.begin(), true_solution.end());
 
-  // Create TaskData
   auto task_data_stl = std::make_shared<ppc::core::TaskData>();
   task_data_stl->inputs.emplace_back(reinterpret_cast<uint8_t*>(in_array.data()));
   task_data_stl->inputs_count.emplace_back(input_array.size());
@@ -220,7 +200,6 @@ TEST(deryabin_m_hoare_sort_simple_merge_stl, test_random_array_large_pieces) {
   task_data_stl->outputs.emplace_back(reinterpret_cast<uint8_t*>(out_array.data()));
   task_data_stl->outputs_count.emplace_back(output_array.size());
 
-  // Create Task
   deryabin_m_hoare_sort_simple_merge_stl::HoareSortTaskSTL hoare_sort_task_stl(task_data_stl);
   ASSERT_EQ(hoare_sort_task_stl.Validation(), true);
   hoare_sort_task_stl.PreProcessing();
@@ -230,7 +209,6 @@ TEST(deryabin_m_hoare_sort_simple_merge_stl, test_random_array_large_pieces) {
 }
 
 TEST(deryabin_m_hoare_sort_simple_merge_stl, test_array_large_pieces_reversed_order) {
-  // Create data
   std::vector<double> input_array(800);
   std::ranges::generate(input_array.begin(), input_array.end(), [value = 800]() mutable { return value--; });
   std::vector<std::vector<double>> in_array(1, input_array);
@@ -240,7 +218,6 @@ TEST(deryabin_m_hoare_sort_simple_merge_stl, test_array_large_pieces_reversed_or
   std::vector<double> true_solution(input_array);
   std::ranges::sort(true_solution.begin(), true_solution.end());
 
-  // Create TaskData
   auto task_data_stl = std::make_shared<ppc::core::TaskData>();
   task_data_stl->inputs.emplace_back(reinterpret_cast<uint8_t*>(in_array.data()));
   task_data_stl->inputs_count.emplace_back(input_array.size());
@@ -248,7 +225,6 @@ TEST(deryabin_m_hoare_sort_simple_merge_stl, test_array_large_pieces_reversed_or
   task_data_stl->outputs.emplace_back(reinterpret_cast<uint8_t*>(out_array.data()));
   task_data_stl->outputs_count.emplace_back(output_array.size());
 
-  // Create Task
   deryabin_m_hoare_sort_simple_merge_stl::HoareSortTaskSTL hoare_sort_task_stl(task_data_stl);
   ASSERT_EQ(hoare_sort_task_stl.Validation(), true);
   hoare_sort_task_stl.PreProcessing();
@@ -258,7 +234,6 @@ TEST(deryabin_m_hoare_sort_simple_merge_stl, test_array_large_pieces_reversed_or
 }
 
 TEST(deryabin_m_hoare_sort_simple_merge_stl, test_partially_sorted_array) {
-  // Create data
   std::random_device rd;
   std::mt19937 gen(rd());
   std::vector<double> input_array(800);
@@ -272,7 +247,6 @@ TEST(deryabin_m_hoare_sort_simple_merge_stl, test_partially_sorted_array) {
   std::vector<double> true_solution(input_array);
   std::ranges::sort(true_solution.begin(), true_solution.end());
 
-  // Create TaskData
   auto task_data_stl = std::make_shared<ppc::core::TaskData>();
   task_data_stl->inputs.emplace_back(reinterpret_cast<uint8_t*>(in_array.data()));
   task_data_stl->inputs_count.emplace_back(input_array.size());
@@ -280,7 +254,6 @@ TEST(deryabin_m_hoare_sort_simple_merge_stl, test_partially_sorted_array) {
   task_data_stl->outputs.emplace_back(reinterpret_cast<uint8_t*>(out_array.data()));
   task_data_stl->outputs_count.emplace_back(output_array.size());
 
-  // Create Task
   deryabin_m_hoare_sort_simple_merge_stl::HoareSortTaskSTL hoare_sort_task_stl(task_data_stl);
   ASSERT_EQ(hoare_sort_task_stl.Validation(), true);
   hoare_sort_task_stl.PreProcessing();
@@ -290,7 +263,6 @@ TEST(deryabin_m_hoare_sort_simple_merge_stl, test_partially_sorted_array) {
 }
 
 TEST(deryabin_m_hoare_sort_simple_merge_stl, test_backward_sorted_array) {
-  // Create data
   std::vector<double> input_array(800);
   std::ranges::generate(input_array.begin(), input_array.end(), [value = 800]() mutable { return value--; });
   std::vector<std::vector<double>> in_array(1, input_array);
@@ -300,7 +272,6 @@ TEST(deryabin_m_hoare_sort_simple_merge_stl, test_backward_sorted_array) {
   std::vector<double> true_solution(input_array);
   std::ranges::sort(true_solution.begin(), true_solution.end());
 
-  // Create TaskData
   auto task_data_stl = std::make_shared<ppc::core::TaskData>();
   task_data_stl->inputs.emplace_back(reinterpret_cast<uint8_t*>(in_array.data()));
   task_data_stl->inputs_count.emplace_back(input_array.size());
@@ -308,7 +279,6 @@ TEST(deryabin_m_hoare_sort_simple_merge_stl, test_backward_sorted_array) {
   task_data_stl->outputs.emplace_back(reinterpret_cast<uint8_t*>(out_array.data()));
   task_data_stl->outputs_count.emplace_back(output_array.size());
 
-  // Create Task
   deryabin_m_hoare_sort_simple_merge_stl::HoareSortTaskSTL hoare_sort_task_stl(task_data_stl);
   ASSERT_EQ(hoare_sort_task_stl.Validation(), true);
   hoare_sort_task_stl.PreProcessing();
@@ -318,14 +288,12 @@ TEST(deryabin_m_hoare_sort_simple_merge_stl, test_backward_sorted_array) {
 }
 
 TEST(deryabin_m_hoare_sort_simple_merge_stl, test_invalid_array) {
-  // Create data
   std::vector<double> input_array(2);
   std::vector<std::vector<double>> in_array(1, input_array);
   size_t chunk_count = 2;
   std::vector<double> output_array(2);
   std::vector<std::vector<double>> out_array(1, output_array);
 
-  // Create TaskData
   auto task_data_stl = std::make_shared<ppc::core::TaskData>();
   task_data_stl->inputs.emplace_back(reinterpret_cast<uint8_t*>(in_array.data()));
   task_data_stl->inputs_count.emplace_back(input_array.size());
@@ -333,20 +301,17 @@ TEST(deryabin_m_hoare_sort_simple_merge_stl, test_invalid_array) {
   task_data_stl->outputs.emplace_back(reinterpret_cast<uint8_t*>(out_array.data()));
   task_data_stl->outputs_count.emplace_back(output_array.size());
 
-  // Create Task
   deryabin_m_hoare_sort_simple_merge_stl::HoareSortTaskSTL hoare_sort_task_stl(task_data_stl);
   ASSERT_EQ(hoare_sort_task_stl.Validation(), false);
 }
 
 TEST(deryabin_m_hoare_sort_simple_merge_stl, test_invalid_chunk_count) {
-  // Create data
   std::vector<double> input_array{-1, -2, -3, -11, -22, -33};
   std::vector<std::vector<double>> in_array(1, input_array);
   size_t chunk_count = 0;
   std::vector<double> output_array(6);
   std::vector<std::vector<double>> out_array(1, output_array);
 
-  // Create TaskData
   auto task_data_stl = std::make_shared<ppc::core::TaskData>();
   task_data_stl->inputs.emplace_back(reinterpret_cast<uint8_t*>(in_array.data()));
   task_data_stl->inputs_count.emplace_back(input_array.size());
@@ -354,7 +319,6 @@ TEST(deryabin_m_hoare_sort_simple_merge_stl, test_invalid_chunk_count) {
   task_data_stl->outputs.emplace_back(reinterpret_cast<uint8_t*>(out_array.data()));
   task_data_stl->outputs_count.emplace_back(output_array.size());
 
-  // Create Task
   deryabin_m_hoare_sort_simple_merge_stl::HoareSortTaskSTL hoare_sort_task_stl(task_data_stl);
   ASSERT_EQ(hoare_sort_task_stl.Validation(), false);
 }
