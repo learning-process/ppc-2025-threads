@@ -1,7 +1,6 @@
 #include <gtest/gtest.h>
 
 #include <cstdint>
-#include <exception>
 #include <memory>
 #include <numbers>
 #include <vector>
