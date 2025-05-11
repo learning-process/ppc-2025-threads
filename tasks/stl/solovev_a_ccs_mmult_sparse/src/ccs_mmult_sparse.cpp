@@ -8,17 +8,8 @@ void solovev_a_matrix_stl::SeqMatMultCcs::worker_loop(solovev_a_matrix_stl::SeqM
   thread_local std::vector<std::complex<double>> cask;
 
   while (true) {
-    if (self->terminate_.load()) break;
-
     int col = self->next_col_.fetch_add(1);
-    if (col >= self->c_n_) {
-      int done = self->completed_.fetch_add(1) + 1;
-      if (done == self->c_n_) {
-        std::lock_guard<std::mutex> lk(self->mtx_);
-        self->cv_done_.notify_all();
-      }
-      break;
-    }
+    if (col >= self->c_n_) break;
 
     available.assign(self->r_n_, 0);
 
@@ -95,20 +86,20 @@ bool solovev_a_matrix_stl::SeqMatMultCcs::RunImpl() {
   unsigned num_threads = std::thread::hardware_concurrency();
   if (num_threads == 0) num_threads = 1;
 
-  std::call_once(init_flag_, [&]() {
-    for (unsigned i = 0; i < num_threads; ++i) {
-      workers_.emplace_back(worker_loop, this);
-    }
-  });
-
   next_col_.store(0);
   completed_.store(0);
-  terminate_.store(false);
   phase_ = 1;
+  workers_.clear();
+  for (unsigned i = 0; i < num_threads; ++i) {
+    workers_.emplace_back(worker_loop, this);
+  }
+
   {
     std::unique_lock<std::mutex> lk(mtx_);
     cv_done_.wait(lk, [&]() { return completed_.load() >= c_n_; });
   }
+
+  for (auto& th : workers_) if (th.joinable()) th.join();
 
   for (int i = 0; i < c_n_; ++i) {
     M3_->col_p[i + 1] = M3_->col_p[i] + counts_[i];
@@ -123,18 +114,18 @@ bool solovev_a_matrix_stl::SeqMatMultCcs::RunImpl() {
 
   next_col_.store(0);
   completed_.store(0);
-  terminate_.store(false);
   phase_ = 2;
+  workers_.clear();
+  for (unsigned i = 0; i < num_threads; ++i) {
+    workers_.emplace_back(worker_loop, this);
+  }
+
   {
     std::unique_lock<std::mutex> lk(mtx_);
     cv_done_.wait(lk, [&]() { return completed_.load() >= c_n_; });
   }
 
-  terminate_.store(true);
-  next_col_.store(0);
-  for (auto& th : workers_) {
-    if (th.joinable()) th.join();
-  }
+  for (auto& th : workers_) if (th.joinable()) th.join();
   workers_.clear();
 
   return true;
