@@ -27,7 +27,7 @@ bool AreComplexNumbersApproxEqual(const std::complex<double>& c1, const std::com
 }
 }  // namespace
 
-TEST(solovev_a_ccs_mmult_sparse_seq, test_pipeline_run) {
+TEST(solovev_a_ccs_mmult_sparse_stl, test_pipeline_run) {
   int rows = 2000000;
   int cols = 2000000;
   solovev_a_matrix_stl::MatrixInCcsSparse m1(rows, cols);
@@ -75,7 +75,7 @@ TEST(solovev_a_ccs_mmult_sparse_seq, test_pipeline_run) {
   }
 }
 
-TEST(solovev_a_ccs_mmult_sparse_seq, test_task_run) {
+TEST(solovev_a_ccs_mmult_sparse_stl, test_task_run) {
   int rows = 2000000;
   int cols = 2000000;
   solovev_a_matrix_stl::MatrixInCcsSparse m1(rows, cols);
