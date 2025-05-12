@@ -106,9 +106,12 @@ bool koshkin_m_radix_int_simple_merge::StlT::RunImpl() {
   const auto parlevel = blocks.size();
 
   {
-    std::vector<std::jthread> threads(parlevel);
+    std::vector<std::thread> threads(parlevel);
     for (std::size_t j = 0; j < parlevel; j++) {
-      threads[j] = std::jthread([&](std::size_t i) { blocks[i] = RadixIntegerSort(intermediate_blocks[i]); }, j);
+      threads[j] = std::thread([&](std::size_t i) { blocks[i] = RadixIntegerSort(intermediate_blocks[i]); }, j);
+    }
+    for (auto &t : threads) {
+      t.join();
     }
   }
 
