@@ -206,7 +206,7 @@ bool lavrentiev_a_ccs_all::CCSALL::RunImpl() {
   boost::mpi::broadcast(world_, displ_, 0);
   boost::mpi::broadcast(world_, A_, 0);
   boost::mpi::broadcast(world_, B_, 0);
-  if (displ_.empty()) {
+  if (displ_.empty() || IsEmpty()) {
     return true;
   }
   Process_data_ = MatMul(A_, B_, displ_[world_.rank()], displ_[world_.rank() + 1]);
@@ -242,7 +242,10 @@ bool lavrentiev_a_ccs_all::CCSALL::RunImpl() {
 
 bool lavrentiev_a_ccs_all::CCSALL::PostProcessingImpl() {
   if (world_.rank() == 0) {
-    std::ranges::copy(ConvertFromSparse(Answer_), reinterpret_cast<double *>(task_data->outputs[0]));
+    auto answer = ConvertFromSparse(Answer_);
+    if (!answer.empty()) {
+      std::ranges::copy(answer, reinterpret_cast<double *>(task_data->outputs[0]));
+    }
   }
   return true;
 }

@@ -18,7 +18,7 @@ std::vector<double> GenerateRandomMatrix(int size, int sparse_size) {
   std::vector<double> data(size);
   std::random_device device;
   std::mt19937 generator(device());
-  std::uniform_int_distribution<> random_element(-10000, 10000);
+  std::uniform_int_distribution<> random_element(-500, 500);
   size = size / sparse_size;
   for (int i = 0; i < size; ++i) {
     data[i] = static_cast<double>(random_element(generator));
@@ -174,6 +174,21 @@ TEST(lavrentiev_a_ccs_all, test_12x12_matrix) {
 TEST(lavrentiev_a_ccs_all, test_25x25_matrix) {
   boost::mpi::communicator world;
   auto task = TestData({25, 25}, {25, 25}, 5, world);
+  auto test_task_all = task.CreateTask();
+  ASSERT_EQ(test_task_all.Validation(), true);
+  test_task_all.PreProcessing();
+  test_task_all.Run();
+  test_task_all.PostProcessing();
+  if (world.rank() == 0) {
+    for (size_t i = 0; i < task.result.size(); ++i) {
+      EXPECT_NEAR(task.result[i], task.random_data[i], kEpsilon);
+    }
+  }
+}
+
+TEST(lavrentiev_a_ccs_all, test_10x0_matrix) {
+  boost::mpi::communicator world;
+  auto task = TestData({0, 10}, {10, 0}, 5, world);
   auto test_task_all = task.CreateTask();
   ASSERT_EQ(test_task_all.Validation(), true);
   test_task_all.PreProcessing();
