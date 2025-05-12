@@ -197,12 +197,8 @@ bool vavilov_v_cannon_all::CannonALL::RunImpl() {
   int rank = world_.rank();
   int size = world_.size();
 
-  mpi::broadcast(world_, N_, 0);
-
   // Find compatible grid size
   num_blocks_ = find_compatible_q(size, N_);
-  block_size_ = N_ / num_blocks_;
-  int block_size_sq = block_size_ * block_size_;
 
   // Create sub-communicator for active processes
   int active_procs = num_blocks_ * num_blocks_;
@@ -224,8 +220,13 @@ bool vavilov_v_cannon_all::CannonALL::RunImpl() {
         ShiftBlocksone();
       }
     }
+    world_.barrier();
     return true;
   }
+
+  mpi::broadcast(active_world, N_, 0);
+  block_size_ = N_ / num_blocks_;
+  int block_size_sq = block_size_ * block_size_;
 
   // Initialize local matrices
   std::vector<double> local_A(block_size_sq);
