@@ -203,7 +203,7 @@ bool vavilov_v_cannon_all::CannonALL::RunImpl() {
   num_blocks_ = find_compatible_q(size, N_);
   block_size_ = N_ / num_blocks_;
   int block_size_sq = block_size_ * block_size_;
-  
+
   // Create sub-communicator for active processes
   int active_procs = num_blocks_ * num_blocks_;
   mpi::communicator active_world = world_.split(rank < active_procs ? 0 : MPI_UNDEFINED);
