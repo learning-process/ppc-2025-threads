@@ -172,7 +172,7 @@ void vavilov_v_cannon_all::CannonALL::BlockMultiplyone() {
   }
 }
 
-void vavilov_v_cannon_all::CannonAll::ShiftBlocksone() {
+void vavilov_v_cannon_all::CannonALL::ShiftBlocksone() {
   std::vector<double> a_tmp = A_;
   std::vector<double> b_tmp = B_;
 
