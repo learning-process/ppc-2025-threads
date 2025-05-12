@@ -6,23 +6,13 @@
 
 #include <algorithm>
 #include <atomic>
-#include <boost/mpi/collectives/all_reduce.hpp>
+#include <boost/mpi/collectives/broadcast.hpp>
 #include <boost/mpi/communicator.hpp>
 #include <cstddef>
 #include <limits>
 #include <vector>
 
 #include "core/util/include/util.hpp"
-
-namespace {
-std::vector<int> MinElementwise(const std::vector<int>& a, const std::vector<int>& b) {
-  std::vector<int> result(a.size());
-  for (size_t i = 0; i < a.size(); ++i) {
-    result[i] = std::min(a[i], b[i]);
-  }
-  return result;
-}
-}  // namespace
 
 bool trubin_a_algorithm_dijkstra_all::TestTaskALL::PreProcessingImpl() {
   if (!validation_passed_) {
@@ -136,8 +126,7 @@ bool trubin_a_algorithm_dijkstra_all::TestTaskALL::RunImpl() {
       distances_snapshot[i] = distances_atomic[i].load();
     }
 
-    std::vector<int> reduced_snapshot(num_vertices_);
-    boost::mpi::broadcast(world, distances_snapshot.data(), distances_snapshot.size(), 0);
+    boost::mpi::broadcast(world, distances_snapshot.data(), static_cast<int>(distances_snapshot.size()), 0);
 
     for (size_t i = 0; i < num_vertices_; ++i) {
       distances_atomic[i] = distances_snapshot[i];
