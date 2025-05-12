@@ -62,8 +62,8 @@ void MatrixMultiplication(const std::vector<double> &a, const std::vector<double
   }
 }
 
-void UselessFuncForTidyOne(std::vector<double> &a, std::vector<double> &b) {
-  for (unsigned int i = 0; i < (m * n) / 2; i++) {
+void UselessFuncForTidyOne(const unsigned int n, std::vector<double> &a, std::vector<double> &b) {
+  for (unsigned int i = 0; i < (n * n) / 2; i++) {
     a[i * 2] = 0;
     b[(i * 2) + 1] = 0;
   }
@@ -175,7 +175,7 @@ TEST(korotin_e_crs_multiplication_all, test_rndcrs_stat_zeroes) {
   if (world.rank() == 0) {
     a = korotin_e_crs_multiplication_all::GetRandomMatrix(m, n);
     b = korotin_e_crs_multiplication_all::GetRandomMatrix(n, p);
-    UselessFuncForTidyOne(a, b);
+    UselessFuncForTidyOne(n, a, b);
 
     korotin_e_crs_multiplication_all::MakeCRS(a_ri, a_col, a_val, a, m, n);
     korotin_e_crs_multiplication_all::MakeCRS(b_ri, b_col, b_val, b, n, p);
