@@ -38,4 +38,8 @@ void MakeCRS(std::vector<unsigned int> &r_i, std::vector<unsigned int> &col, std
 void MatrixMultiplication(const std::vector<double> &a, const std::vector<double> &b, std::vector<double> &c,
                           unsigned int m, unsigned int n, unsigned int p);
 
+void UselessFuncForTidyOne(std::vector<double> &a, std::vector<double> &b);
+
+void UselessFuncForTidyTwo(const unsigned int n, std::vector<double> &a, std::vector<double> &b);
+
 }  // namespace korotin_e_crs_multiplication_all
