@@ -1,22 +1,25 @@
 #include "stl/trubin_a_algorithm_dijkstra/include/ops_stl.hpp"
 
 #include <algorithm>
-#include <cmath>
+#include <atomic>
+#include <climits>
 #include <condition_variable>
 #include <cstddef>
 #include <cstdio>
 #include <functional>
 #include <limits>
 #include <mutex>
+#include <numeric>
 #include <queue>
 #include <thread>
+#include <unordered_map>
 #include <utility>
 #include <vector>
 
 #include "core/util/include/util.hpp"
 
 bool trubin_a_algorithm_dijkstra_stl::TestTaskSTL::PreProcessingImpl() {
-  if (!validation_passed_) {
+  if (!this->validation_passed_) {
     return false;
   }
 
@@ -61,7 +64,7 @@ bool trubin_a_algorithm_dijkstra_stl::TestTaskSTL::ValidationImpl() {
   }
 
   if (task_data->outputs_count[0] == 0 && task_data->inputs_count[0] == 0) {
-    validation_passed_ = true;
+    this->validation_passed_ = true;
     return true;
   }
 
@@ -69,64 +72,106 @@ bool trubin_a_algorithm_dijkstra_stl::TestTaskSTL::ValidationImpl() {
     return false;
   }
 
-  validation_passed_ = true;
+  this->validation_passed_ = true;
   return true;
 }
 
-bool trubin_a_algorithm_dijkstra_stl::TestTaskSTL::RunImpl() {
-  if (num_vertices_ == 0) {
-    return true;
-  }
+void trubin_a_algorithm_dijkstra_stl::TestTaskSTL::WorkerThread(
+    std::priority_queue<std::pair<int, size_t>, std::vector<std::pair<int, size_t>>, std::greater<>>& pq,
+    std::mutex& pq_mutex, std::condition_variable& cv, std::atomic<bool>& terminate_flag,
+    std::atomic<int>& workers_running, std::vector<std::atomic<int>>& atomic_distances) {
+  while (!terminate_flag.load(std::memory_order_acquire)) {
+    std::pair<int, size_t> current;
+    {
+      std::unique_lock<std::mutex> lock(pq_mutex);
+      if (pq.empty()) {
+        if (workers_running == 0) {
+          terminate_flag = true;
+          cv.notify_all();
+          return;
+        }
+        cv.wait(lock, [&] { return !pq.empty() || terminate_flag.load(); });
+        if (terminate_flag.load()) return;
+      }
+      current = pq.top();
+      pq.pop();
+      ++workers_running;
+    }
 
-  if (start_vertex_ >= num_vertices_) {
-    return false;
+    size_t u = current.second;
+    int dist_u = current.first;
+    int known = atomic_distances[u].load(std::memory_order_relaxed);
+    if (dist_u > known) {
+      --workers_running;
+      continue;
+    }
+
+    for (const auto& edge : adjacency_list_[u]) {
+      size_t v = edge.to;
+      int weight = edge.weight;
+
+      int candidate = dist_u + weight;
+      int current_dist = atomic_distances[v].load(std::memory_order_relaxed);
+
+      while (candidate < current_dist) {
+        if (atomic_distances[v].compare_exchange_weak(current_dist, candidate, std::memory_order_relaxed)) {
+          std::lock_guard<std::mutex> lock(pq_mutex);
+          pq.emplace(candidate, v);
+          cv.notify_one();
+          break;
+        }
+      }
+    }
+
+    --workers_running;
+    std::lock_guard<std::mutex> lock(pq_mutex);
+    cv.notify_all();
   }
+}
+
+bool trubin_a_algorithm_dijkstra_stl::TestTaskSTL::RunImpl() {
+  if (num_vertices_ == 0) return true;
+  if (start_vertex_ >= num_vertices_) return false;
 
   using QueueElement = std::pair<int, size_t>;
-  std::priority_queue<QueueElement, std::vector<QueueElement>, std::greater<>> min_heap;
-  min_heap.emplace(0, start_vertex_);
+  std::priority_queue<QueueElement, std::vector<QueueElement>, std::greater<>> pq;
+  std::mutex pq_mutex;
+  std::condition_variable cv;
+  std::atomic<bool> terminate_flag{false};
+  std::atomic<int> workers_running{0};
 
-  size_t num_threads = std::min({static_cast<size_t>(ppc::util::GetPPCNumThreads()), num_vertices_, size_t(8)});
-
-  std::mutex heap_mutex;
-  std::mutex distances_mutex;
-
-  std::queue<std::vector<std::pair<size_t, size_t>>> task_queue;
-  std::mutex task_mutex;
-  std::condition_variable task_cv;
-  bool task_done = false;
-
-  std::vector<std::thread> threads;
-  threads.reserve(num_threads);
-  for (size_t t = 0; t < num_threads; ++t) {
-    threads.emplace_back(
-        [&]() { ThreadWorker(task_queue, task_mutex, task_cv, task_done, min_heap, distances_mutex, heap_mutex); });
-  }
-
-  while (ProcessNextVertex(min_heap, heap_mutex, distances_mutex, task_queue, task_mutex, task_cv, num_threads)) {
+  std::vector<std::atomic<int>> atomic_distances(num_vertices_);
+  for (size_t i = 0; i < num_vertices_; ++i) {
+    atomic_distances[i].store(distances_[i], std::memory_order_relaxed);
   }
 
   {
-    std::lock_guard<std::mutex> lock(task_mutex);
-    task_done = true;
+    std::lock_guard<std::mutex> lock(pq_mutex);
+    pq.emplace(0, start_vertex_);
   }
-  task_cv.notify_all();
 
-  for (auto& th : threads) {
-    th.join();
+  int thread_count = ppc::util::GetPPCNumThreads();
+  std::vector<std::thread> thread_pool;
+  thread_pool.reserve(thread_count);
+
+  for (int i = 0; i < thread_count; ++i) {
+    thread_pool.emplace_back(&TestTaskSTL::WorkerThread, this, std::ref(pq), std::ref(pq_mutex), std::ref(cv),
+                             std::ref(terminate_flag), std::ref(workers_running), std::ref(atomic_distances));
+  }
+  for (auto& t : thread_pool) {
+    t.join();
+  }
+
+  for (size_t i = 0; i < num_vertices_; ++i) {
+    distances_[i] = atomic_distances[i].load(std::memory_order_relaxed);
   }
 
   return true;
 }
 
 bool trubin_a_algorithm_dijkstra_stl::TestTaskSTL::PostProcessingImpl() {
-  if (num_vertices_ == 0) {
-    return true;
-  }
-
-  if (task_data->outputs.empty() || task_data->outputs[0] == nullptr) {
-    return false;
-  }
+  if (num_vertices_ == 0) return true;
+  if (task_data->outputs.empty() || task_data->outputs[0] == nullptr) return false;
 
   auto* out_ptr = reinterpret_cast<int*>(task_data->outputs[0]);
   for (size_t i = 0; i < num_vertices_; ++i) {
@@ -137,138 +182,20 @@ bool trubin_a_algorithm_dijkstra_stl::TestTaskSTL::PostProcessingImpl() {
 }
 
 bool trubin_a_algorithm_dijkstra_stl::TestTaskSTL::BuildAdjacencyList(const std::vector<int>& graph_data) {
-  size_t current_vertex = 0;
-  size_t i = 0;
-
+  size_t current_vertex = 0, i = 0;
   while (i < graph_data.size()) {
     if (graph_data[i] == kEndOfVertexList) {
-      if (current_vertex >= num_vertices_) {
-        return false;
-      }
+      if (current_vertex >= num_vertices_) return false;
       current_vertex++;
       i++;
       continue;
     }
-
-    if (i + 1 >= graph_data.size()) {
-      return false;
-    }
-
-    auto to = static_cast<size_t>(graph_data[i]);
+    if (i + 1 >= graph_data.size()) return false;
+    size_t to = static_cast<size_t>(graph_data[i]);
     int weight = graph_data[i + 1];
-
-    if (to >= num_vertices_ || weight < 0) {
-      return false;
-    }
-
+    if (to >= num_vertices_ || weight < 0) return false;
     adjacency_list_[current_vertex].emplace_back(to, weight);
     i += 2;
   }
-
-  return true;
-}
-
-void trubin_a_algorithm_dijkstra_stl::TestTaskSTL::ProcessEdge(
-    size_t from, const Edge& edge,
-    std::priority_queue<QueueElement, std::vector<QueueElement>, std::greater<>>& min_heap, std::mutex& distances_mutex,
-    std::mutex& heap_mutex) {
-  int new_dist = 0;
-  bool should_add = false;
-  {
-    std::lock_guard<std::mutex> lock(distances_mutex);
-    new_dist = distances_[from] + edge.weight;
-    if (new_dist < distances_[edge.to]) {
-      distances_[edge.to] = new_dist;
-      should_add = true;
-    }
-  }
-  if (should_add) {
-    std::lock_guard<std::mutex> lock(heap_mutex);
-    min_heap.emplace(new_dist, edge.to);
-  }
-}
-
-void trubin_a_algorithm_dijkstra_stl::TestTaskSTL::ProcessTaskBlock(
-    const std::vector<std::pair<size_t, size_t>>& block,
-    std::priority_queue<QueueElement, std::vector<QueueElement>, std::greater<>>& min_heap, std::mutex& distances_mutex,
-    std::mutex& heap_mutex) {
-  for (const auto& [from, edge_idx] : block) {
-    const auto& edge = adjacency_list_[from][edge_idx];
-    ProcessEdge(from, edge, min_heap, distances_mutex, heap_mutex);
-  }
-}
-
-void trubin_a_algorithm_dijkstra_stl::TestTaskSTL::ThreadWorker(
-    std::queue<std::vector<std::pair<size_t, size_t>>>& task_queue, std::mutex& task_mutex,
-    std::condition_variable& task_cv, bool& task_done,
-    std::priority_queue<QueueElement, std::vector<QueueElement>, std::greater<>>& min_heap, std::mutex& distances_mutex,
-    std::mutex& heap_mutex) {
-  while (true) {
-    std::vector<std::pair<size_t, size_t>> block;
-    {
-      std::unique_lock<std::mutex> lock(task_mutex);
-      task_cv.wait(lock, [&]() { return task_done || !task_queue.empty(); });
-      if (task_done && task_queue.empty()) {
-        break;
-      }
-      block = std::move(task_queue.front());
-      task_queue.pop();
-    }
-    ProcessTaskBlock(block, min_heap, distances_mutex, heap_mutex);
-  }
-}
-
-bool trubin_a_algorithm_dijkstra_stl::TestTaskSTL::ProcessNextVertex(
-    std::priority_queue<QueueElement, std::vector<QueueElement>, std::greater<>>& min_heap, std::mutex& heap_mutex,
-    std::mutex& distances_mutex, std::queue<std::vector<std::pair<size_t, size_t>>>& task_queue, std::mutex& task_mutex,
-    std::condition_variable& task_cv, size_t num_threads) {
-  size_t from_vertex = 0;
-  {
-    std::lock_guard<std::mutex> lock(heap_mutex);
-    if (min_heap.empty()) {
-      return false;
-    }
-    auto [dist, u] = min_heap.top();
-    min_heap.pop();
-    if (dist > distances_[u]) {
-      return true;
-    }
-    from_vertex = u;
-  }
-
-  const auto& edges = adjacency_list_[from_vertex];
-  size_t total_edges = edges.size();
-  if (total_edges == 0) {
-    return true;
-  }
-
-  if (total_edges < num_threads * 4) {
-    for (size_t i = 0; i < total_edges; ++i) {
-      const auto& edge = edges[i];
-      ProcessEdge(from_vertex, edge, min_heap, distances_mutex, heap_mutex);
-    }
-  } else {
-    size_t block_size = (total_edges + num_threads - 1) / num_threads;
-    std::vector<std::vector<std::pair<size_t, size_t>>> tasks(num_threads);
-
-    for (size_t i = 0; i < total_edges; ++i) {
-      size_t block_id = i / block_size;
-      if (block_id >= num_threads) {
-        block_id = num_threads - 1;
-      }
-      tasks[block_id].emplace_back(from_vertex, i);
-    }
-
-    {
-      std::lock_guard<std::mutex> lock(task_mutex);
-      for (auto& task : tasks) {
-        if (!task.empty()) {
-          task_queue.emplace(std::move(task));
-        }
-      }
-    }
-    task_cv.notify_all();
-  }
-
   return true;
 }
