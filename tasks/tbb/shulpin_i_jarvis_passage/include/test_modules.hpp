@@ -40,4 +40,6 @@ std::vector<shulpin_i_jarvis_tbb::Point> GenerateRandomPoints(size_t num_points)
 
 void RandomTestBody(std::vector<shulpin_i_jarvis_tbb::Point> &input,
                     std::vector<shulpin_i_jarvis_tbb::Point> &expected);
+
+std::vector<shulpin_i_jarvis_tbb::Point> PerfRandomGenerator(size_t num_points, int from, int to);
 }  // namespace shulpin_tbb_test_module
