@@ -61,7 +61,7 @@ void TestTaskSTL::ShellSort() {
     std::vector<int> groups(gap);
     std::iota(groups.begin(), groups.end(), 0);
 
-    std::for_each(std::execution::par, groups.begin(), groups.end(), [this, gap, n, &input_ref](int group) {
+    std::for_each(std::execution::par, groups.begin(), groups.end(), [gap, n, &input_ref](int group) {
       for (int i = group + gap; i < n; i += gap) {
         int temp = input_ref[i];
         int j = i;
