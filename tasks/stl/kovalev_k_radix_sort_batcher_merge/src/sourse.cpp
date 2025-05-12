@@ -1,8 +1,8 @@
 #include <omp.h>
 
-#include <atomic>
 #include <climits>
 #include <cmath>
+#include <core/util/include/util.hpp>
 #include <cstdlib>
 #include <cstring>
 #include <mutex>
