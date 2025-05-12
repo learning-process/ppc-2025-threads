@@ -1,7 +1,11 @@
 #include "all/korotin_e_crs_multiplication/include/ops_all.hpp"
 
 #include <algorithm>
-#include <boost/mpi.hpp>
+#include <boost/mpi/collectives.hpp>
+#include <boost/mpi/collectives/broadcast.hpp>
+#include <boost/mpi/collectives/gather.hpp>
+#include <boost/mpi/collectives/reduce.hpp>
+#include <boost/serialization/utility.hpp>
 #include <cmath>
 #include <cstddef>
 #include <functional>
@@ -87,8 +91,8 @@ void korotin_e_crs_multiplication_all::CrsMultiplicationALL::MulTask(size_t l, s
 void korotin_e_crs_multiplication_all::CrsMultiplicationALL::TrpB(std::vector<unsigned int> &tr_i,
                                                                   std::vector<unsigned int> &tcol,
                                                                   std::vector<double> &tval) {
-  unsigned int k;
-  unsigned int s;
+  unsigned int k = 0;
+  unsigned int s = 0;
   for (k = 0; k < B_Nz_; k++) {
     tr_i[B_col_[k] + 1]++;
   }
@@ -103,7 +107,7 @@ void korotin_e_crs_multiplication_all::CrsMultiplicationALL::TrpB(std::vector<un
 
   for (k = 0; k < B_N_ - 1; k++) {
     for (s = B_rI_[k]; s < B_rI_[k + 1]; s++) {
-      tval[tr_i[B_col_[s]]] = B_val_[j];
+      tval[tr_i[B_col_[s]]] = B_val_[s];
       tcol[tr_i[B_col_[s]]] = k;
       tr_i[B_col_[s]]++;
     }
@@ -119,7 +123,6 @@ void korotin_e_crs_multiplication_all::CrsMultiplicationALL::TrpB(std::vector<un
 
 bool korotin_e_crs_multiplication_all::CrsMultiplicationALL::RunImpl() {
   unsigned int i = 0;
-  unsigned int j = 0;
   unsigned int tr_i_sz = 0;
 
   if (world_.rank() == 0) {

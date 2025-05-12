@@ -131,6 +131,7 @@ TEST(korotin_e_crs_multiplication_all, test_rnd_50_50_50) {
   }
 }
 
+// NOLINTNEXTLINE(readability-function-cognitive-complexity)
 TEST(korotin_e_crs_multiplication_all, test_rndcrs_stat_zeroes) {
   boost::mpi::communicator world;
   const unsigned int m = 50;
@@ -206,6 +207,7 @@ TEST(korotin_e_crs_multiplication_all, test_rndcrs_stat_zeroes) {
   }
 }
 
+// NOLINTNEXTLINE(readability-function-cognitive-complexity)
 TEST(korotin_e_crs_multiplication_all, test_rndcrs) {
   boost::mpi::communicator world;
   const unsigned int m = 50;
