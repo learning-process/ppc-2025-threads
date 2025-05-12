@@ -132,6 +132,7 @@ TEST(polikanov_v_rectangles_stl, sin_arg_pow_2_pow_2__3D) {
   RunFuncTest(std::vector<polikanov_v_rectangles::IntegrationBound>(3, {0, 1}), 80, 0.0, [](const auto &p) {
     return std::pow(std::pow(p[0], 2), 2) * std::pow(std::pow(p[1], 2), 2) * std::pow(std::pow(p[2], 2), 2);
   });
+}
 
 TEST(polikanov_v_rectangles_tbb, sqrt) {
   RunFuncTest(std::vector<polikanov_v_rectangles::IntegrationBound>(1, {0, 1}), 150, 2. / 3.,
