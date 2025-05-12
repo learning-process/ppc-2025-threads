@@ -4,7 +4,9 @@
 #include <cmath>
 #include <cstddef>
 #include <execution>
+#include <future>
 #include <numeric>
+#include <thread>
 #include <vector>
 
 namespace fyodorov_m_shell_sort_with_even_odd_batcher_merge_stl {
@@ -55,23 +57,30 @@ void TestTaskSTL::ShellSort() {
 
   for (auto it = gaps.rbegin(); it != gaps.rend(); ++it) {
     int gap = *it;
-    if (gap == 0) {
-      continue;  // Гарантируем, что шаг не нулевой
-    }
+    if (gap == 0) continue;
+
     std::vector<int> groups(gap);
     std::iota(groups.begin(), groups.end(), 0);
 
-    std::for_each(std::execution::par, groups.begin(), groups.end(), [gap, n, &input_ref](int group) {
-      for (int i = group + gap; i < n; i += gap) {
-        int temp = input_ref[i];
-        int j = i;
-        while (j >= gap && input_ref[j - gap] > temp) {
-          input_ref[j] = input_ref[j - gap];
-          j -= gap;
+    std::vector<std::future<void>> futures;
+
+    for (int group : groups) {
+      futures.push_back(std::async(std::launch::async, [gap, n, &input_ref, group]() {
+        for (int i = group + gap; i < n; i += gap) {
+          int temp = input_ref[i];
+          int j = i;
+          while (j >= gap && input_ref[j - gap] > temp) {
+            input_ref[j] = input_ref[j - gap];
+            j -= gap;
+          }
+          input_ref[j] = temp;
         }
-        input_ref[j] = temp;
-      }
-    });
+      }));
+    }
+
+    for (auto& future : futures) {
+      future.wait();
+    }
   }
 }
 
