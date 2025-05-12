@@ -32,7 +32,7 @@ int GetMpiRank() {
 }
 }  // namespace
 
-TEST(ShuriginSIntegralsSquareMPI_Perf, TestPipelineRun) {
+TEST(ShuriginSIntegralsSquareMPI_Perf, test_pipeline_run) {
   const int rank = GetMpiRank();
 
   double down_limit_x = -1.0;
@@ -98,7 +98,7 @@ TEST(ShuriginSIntegralsSquareMPI_Perf, TestPipelineRun) {
   MPI_Barrier(MPI_COMM_WORLD);
 }
 
-TEST(ShuriginSIntegralsSquareMPI_Perf, TestTaskRun) {
+TEST(ShuriginSIntegralsSquareMPI_Perf, test_task_run) {
   const int rank = GetMpiRank();
 
   double down_limit_x = -1.0;
