@@ -10,13 +10,14 @@
 
 #include "core/perf/include/perf.hpp"
 #include "core/task/include/task.hpp"
-#include "seq/vershinina_a_hoare_sort_seq/include/ops_seq.hpp"
+#include "stl/vershinina_a_hoare_sort_stl/include/ops_stl.hpp"
+
 namespace {
-std::vector<int> GetRandomVector(int len) {
+std::vector<double> GetRandomVector(int len) {
   std::random_device dev;
   std::mt19937 gen(dev());
   std::uniform_int_distribution<> distr(-100, 100);
-  std::vector<int> vec(len);
+  std::vector<double> vec(len);
   size_t vec_size = vec.size();
   for (size_t i = 0; i < vec_size; i++) {
     vec[i] = distr(gen);
@@ -25,18 +26,18 @@ std::vector<int> GetRandomVector(int len) {
 }
 }  // namespace
 
-TEST(vershinina_a_hoare_sort_seq, test_pipeline_run) {
-  std::vector<int> in;
-  std::vector<int> out(16000);
-  in = GetRandomVector(16000);
+TEST(vershinina_a_hoare_sort_stl, test_pipeline_run) {
+  std::vector<double> in;
+  std::vector<double> out(300000);
+  in = GetRandomVector(300000);
 
   auto task_data_seq = std::make_shared<ppc::core::TaskData>();
-  task_data_seq->inputs.emplace_back(reinterpret_cast<uint8_t *>(in.data()));
+  task_data_seq->inputs.emplace_back(reinterpret_cast<uint8_t*>(in.data()));
   task_data_seq->inputs_count.emplace_back(in.size());
-  task_data_seq->outputs.emplace_back(reinterpret_cast<uint8_t *>(out.data()));
+  task_data_seq->outputs.emplace_back(reinterpret_cast<uint8_t*>(out.data()));
   task_data_seq->outputs_count.emplace_back(out.size());
 
-  auto test_task_sequential = std::make_shared<vershinina_a_hoare_sort_seq::TestTaskSequential>(task_data_seq);
+  auto test_task_sequential = std::make_shared<vershinina_a_hoare_sort_stl::TestTaskSTL>(task_data_seq);
 
   auto perf_attr = std::make_shared<ppc::core::PerfAttr>();
   perf_attr->num_running = 10;
@@ -55,18 +56,18 @@ TEST(vershinina_a_hoare_sort_seq, test_pipeline_run) {
   ASSERT_TRUE(std::ranges::is_sorted(out));
 }
 
-TEST(vershinina_a_hoare_sort_seq, test_task_run) {
-  std::vector<int> in;
-  std::vector<int> out(16000);
-  in = GetRandomVector(16000);
+TEST(vershinina_a_hoare_sort_stl, test_task_run) {
+  std::vector<double> in;
+  std::vector<double> out(300000);
+  in = GetRandomVector(300000);
 
   auto task_data_seq = std::make_shared<ppc::core::TaskData>();
-  task_data_seq->inputs.emplace_back(reinterpret_cast<uint8_t *>(in.data()));
+  task_data_seq->inputs.emplace_back(reinterpret_cast<uint8_t*>(in.data()));
   task_data_seq->inputs_count.emplace_back(in.size());
-  task_data_seq->outputs.emplace_back(reinterpret_cast<uint8_t *>(out.data()));
+  task_data_seq->outputs.emplace_back(reinterpret_cast<uint8_t*>(out.data()));
   task_data_seq->outputs_count.emplace_back(out.size());
 
-  auto test_task_sequential = std::make_shared<vershinina_a_hoare_sort_seq::TestTaskSequential>(task_data_seq);
+  auto test_task_sequential = std::make_shared<vershinina_a_hoare_sort_stl::TestTaskSTL>(task_data_seq);
 
   auto perf_attr = std::make_shared<ppc::core::PerfAttr>();
   perf_attr->num_running = 10;
