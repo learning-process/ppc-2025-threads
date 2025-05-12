@@ -220,3 +220,129 @@ TEST(fyodorov_m_shell_sort_with_even_odd_batcher_merge_stl, test_single_element_
 
   EXPECT_EQ(output, expected_output);
 }
+
+TEST(fyodorov_m_shell_sort_with_even_odd_batcher_merge_stl, test_two_element) {
+  std::vector<int> input = {5, 2};
+  std::vector<int> expected_output = {2, 5};
+
+  std::vector<int> output(input.size(), 0);
+
+  auto task_data_stl = std::make_shared<ppc::core::TaskData>();
+  task_data_stl->inputs.emplace_back(reinterpret_cast<uint8_t *>(input.data()));
+  task_data_stl->inputs_count.emplace_back(input.size());
+  task_data_stl->outputs.emplace_back(reinterpret_cast<uint8_t *>(output.data()));
+  task_data_stl->outputs_count.emplace_back(output.size());
+
+  fyodorov_m_shell_sort_with_even_odd_batcher_merge_stl::TestTaskSTL test_task_stl(task_data_stl);
+  ASSERT_EQ(test_task_stl.Validation(), true);
+  test_task_stl.PreProcessing();
+  test_task_stl.Run();
+  test_task_stl.PostProcessing();
+
+  EXPECT_EQ(output, expected_output);
+}
+
+TEST(fyodorov_m_shell_sort_with_even_odd_batcher_merge_stl, test_reverse_negative_array) {
+  std::vector<int> input = {-1, -2, -3};
+  std::vector<int> expected_output = {-3, -2, -1};
+
+  std::vector<int> output(input.size(), 0);
+
+  auto task_data_stl = std::make_shared<ppc::core::TaskData>();
+  task_data_stl->inputs.emplace_back(reinterpret_cast<uint8_t *>(input.data()));
+  task_data_stl->inputs_count.emplace_back(input.size());
+  task_data_stl->outputs.emplace_back(reinterpret_cast<uint8_t *>(output.data()));
+  task_data_stl->outputs_count.emplace_back(output.size());
+
+  fyodorov_m_shell_sort_with_even_odd_batcher_merge_stl::TestTaskSTL test_task_stl(task_data_stl);
+  ASSERT_EQ(test_task_stl.Validation(), true);
+  test_task_stl.PreProcessing();
+  test_task_stl.Run();
+  test_task_stl.PostProcessing();
+
+  EXPECT_EQ(output, expected_output);
+}
+
+TEST(fyodorov_m_shell_sort_with_even_odd_batcher_merge_stl, test_reverse_negative_duplicate_sequence) {
+  std::vector<int> input = {3, 3, 2, 2, 1, 1};
+  std::vector<int> expected_output = {1, 1, 2, 2, 3, 3};
+
+  std::vector<int> output(input.size(), 0);
+
+  auto task_data_stl = std::make_shared<ppc::core::TaskData>();
+  task_data_stl->inputs.emplace_back(reinterpret_cast<uint8_t *>(input.data()));
+  task_data_stl->inputs_count.emplace_back(input.size());
+  task_data_stl->outputs.emplace_back(reinterpret_cast<uint8_t *>(output.data()));
+  task_data_stl->outputs_count.emplace_back(output.size());
+
+  fyodorov_m_shell_sort_with_even_odd_batcher_merge_stl::TestTaskSTL test_task_stl(task_data_stl);
+  ASSERT_EQ(test_task_stl.Validation(), true);
+  test_task_stl.PreProcessing();
+  test_task_stl.Run();
+  test_task_stl.PostProcessing();
+
+  EXPECT_EQ(output, expected_output);
+}
+
+TEST(fyodorov_m_shell_sort_with_even_odd_batcher_merge_stl, test_partially_sorted_array) {
+  std::vector<int> input = {1, 3, 2, 4, 6, 5};
+  std::vector<int> expected_output = {1, 2, 3, 4, 5, 6};
+
+  std::vector<int> output(input.size(), 0);
+
+  auto task_data_stl = std::make_shared<ppc::core::TaskData>();
+  task_data_stl->inputs.emplace_back(reinterpret_cast<uint8_t *>(input.data()));
+  task_data_stl->inputs_count.emplace_back(input.size());
+  task_data_stl->outputs.emplace_back(reinterpret_cast<uint8_t *>(output.data()));
+  task_data_stl->outputs_count.emplace_back(output.size());
+
+  fyodorov_m_shell_sort_with_even_odd_batcher_merge_stl::TestTaskSTL test_task_stl(task_data_stl);
+  ASSERT_EQ(test_task_stl.Validation(), true);
+  test_task_stl.PreProcessing();
+  test_task_stl.Run();
+  test_task_stl.PostProcessing();
+
+  EXPECT_EQ(output, expected_output);
+}
+
+TEST(fyodorov_m_shell_sort_with_even_odd_batcher_merge_stl, test_mixed_even_odd) {
+  std::vector<int> input = {7, 2, 5, 4, 3, 6};
+  std::vector<int> expected_output = {2, 3, 4, 5, 6, 7};
+
+  std::vector<int> output(input.size(), 0);
+
+  auto task_data_stl = std::make_shared<ppc::core::TaskData>();
+  task_data_stl->inputs.emplace_back(reinterpret_cast<uint8_t *>(input.data()));
+  task_data_stl->inputs_count.emplace_back(input.size());
+  task_data_stl->outputs.emplace_back(reinterpret_cast<uint8_t *>(output.data()));
+  task_data_stl->outputs_count.emplace_back(output.size());
+
+  fyodorov_m_shell_sort_with_even_odd_batcher_merge_stl::TestTaskSTL test_task_stl(task_data_stl);
+  ASSERT_EQ(test_task_stl.Validation(), true);
+  test_task_stl.PreProcessing();
+  test_task_stl.Run();
+  test_task_stl.PostProcessing();
+
+  EXPECT_EQ(output, expected_output);
+}
+
+TEST(fyodorov_m_shell_sort_with_even_odd_batcher_merge_stl, test_alternating_positive_negative) {
+  std::vector<int> input = {1, -2, 3, -4, 5, -6};
+  std::vector<int> expected_output = {-6, -4, -2, 1, 3, 5};
+
+  std::vector<int> output(input.size(), 0);
+
+  auto task_data_stl = std::make_shared<ppc::core::TaskData>();
+  task_data_stl->inputs.emplace_back(reinterpret_cast<uint8_t *>(input.data()));
+  task_data_stl->inputs_count.emplace_back(input.size());
+  task_data_stl->outputs.emplace_back(reinterpret_cast<uint8_t *>(output.data()));
+  task_data_stl->outputs_count.emplace_back(output.size());
+
+  fyodorov_m_shell_sort_with_even_odd_batcher_merge_stl::TestTaskSTL test_task_stl(task_data_stl);
+  ASSERT_EQ(test_task_stl.Validation(), true);
+  test_task_stl.PreProcessing();
+  test_task_stl.Run();
+  test_task_stl.PostProcessing();
+
+  EXPECT_EQ(output, expected_output);
+}

@@ -1,9 +1,11 @@
 #include "stl/fyodorov_m_shell_sort_with_even_odd_batcher_merge/include/ops_stl.hpp"
 
 #include <cmath>
+#include <cstddef>
 #include <future>
 #include <numeric>
 #include <vector>
+
 
 namespace fyodorov_m_shell_sort_with_even_odd_batcher_merge_stl {
 
