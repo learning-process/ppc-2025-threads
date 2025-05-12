@@ -1,5 +1,6 @@
 #include <omp.h>
 
+#include <algorithm>
 #include <climits>
 #include <cmath>
 #include <core/util/include/util.hpp>
