@@ -195,70 +195,29 @@ TEST(komshina_d_image_filtering_vertical_gaussian_all, EdgeHandling) {
   }
 }
 
-TEST(komshina_d_image_filtering_vertical_gaussian_all, MultiProcessDataGathering) {
+TEST(komshina_d_image_filtering_vertical_gaussian_all, ReceiveFromMultipleProcesses) {
   int rank = 0;
   int size = 0;
   MPI_Comm_rank(MPI_COMM_WORLD, &rank);
   MPI_Comm_size(MPI_COMM_WORLD, &size);
 
-  if (size < 2) {
-    GTEST_SKIP() << "Test requires at least 2 MPI processes";
+  if (size < 3) {
+    GTEST_SKIP() << "Test requires at least 3 MPI processes";
   }
 
-  std::size_t width = 4;
-  std::size_t height = 4;
-  std::vector<unsigned char> in(width * height * 3, static_cast<unsigned char>(rank * 50));
-  std::vector<float> kernel = {1, 1, 1, 1, 1, 1, 1, 1, 1};
-  std::vector<unsigned char> out(width * height * 3);
-
-  std::shared_ptr<ppc::core::TaskData> task_data = std::make_shared<ppc::core::TaskData>();
-  task_data->inputs.emplace_back(in.data());
-  task_data->inputs_count.emplace_back(width);
-  task_data->inputs_count.emplace_back(height);
-  task_data->inputs.emplace_back(reinterpret_cast<uint8_t*>(kernel.data()));
-  task_data->inputs_count.emplace_back(kernel.size());
-  task_data->outputs.emplace_back(out.data());
-  task_data->outputs_count.emplace_back(out.size());
-
-  komshina_d_image_filtering_vertical_gaussian_all::TestTaskALL test_task(task_data);
-
-  ASSERT_TRUE(test_task.Validation());
-  test_task.PreProcessing();
-  test_task.Run();
-  test_task.PostProcessing();
-
-  if (rank == 0) {
-    for (size_t i = 0; i < out.size(); ++i) {
-      EXPECT_GE(out[i], 0);
-      EXPECT_LE(out[i], 255);
-    }
-  }
-}
-
-TEST(komshina_d_image_filtering_vertical_gaussian_all, SingleProcessNoMPITransfer) {
-  int rank = 0;
-  int size = 0;
-  MPI_Comm_rank(MPI_COMM_WORLD, &rank);
-  MPI_Comm_size(MPI_COMM_WORLD, &size);
-
-  if (size != 1) {
-    GTEST_SKIP();
-  }
-
-  std::size_t width = 3;
+  std::size_t width = 6;
   std::size_t height = 6;
   std::vector<float> kernel = {1, 2, 1, 2, 4, 2, 1, 2, 1};
 
-  std::vector<unsigned char> image(height * width * 3, 100);
-  std::vector<unsigned char> output(height * width * 3, 0);
+  std::vector<unsigned char> input(width * height * 3, rank * 50);
+  std::vector<unsigned char> output(width * height * 3, 0);
 
   std::shared_ptr<ppc::core::TaskData> task_data = std::make_shared<ppc::core::TaskData>();
-  task_data->inputs.emplace_back(image.data());
+  task_data->inputs.emplace_back(input.data());
   task_data->inputs_count.emplace_back(width);
   task_data->inputs_count.emplace_back(height);
   task_data->inputs.emplace_back(reinterpret_cast<uint8_t*>(kernel.data()));
   task_data->inputs_count.emplace_back(kernel.size());
-
   task_data->outputs.emplace_back(output.data());
   task_data->outputs_count.emplace_back(output.size());
 
@@ -269,7 +228,10 @@ TEST(komshina_d_image_filtering_vertical_gaussian_all, SingleProcessNoMPITransfe
   test_task.Run();
   test_task.PostProcessing();
 
-  for (std::size_t i = 0; i < output.size(); ++i) {
-    EXPECT_GE(output[i], 0);
+  if (rank == 0) {
+    for (size_t i = 0; i < output.size(); ++i) {
+      EXPECT_GE(output[i], 0);
+      EXPECT_LE(output[i], 255);
+    }
   }
 }
