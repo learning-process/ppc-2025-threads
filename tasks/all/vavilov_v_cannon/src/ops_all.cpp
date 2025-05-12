@@ -204,6 +204,8 @@ bool vavilov_v_cannon_all::CannonALL::RunImpl() {
   block_size_ = N_ / num_blocks_;
   int block_size_sq = block_size_ * block_size_;
   if (num_blocks_ == 1 && size > 1) {
+    int active_procs = 1;
+    mpi::communicator active_world = world_.split(rank < active_procs ? 0 : MPI_UNDEFINED);
     num_blocks_ = static_cast<int>(std::sqrt(N_));
     if (rank == 0) {
       InitialShiftone();
@@ -212,7 +214,6 @@ bool vavilov_v_cannon_all::CannonALL::RunImpl() {
         ShiftBlocksone();
       }
     }
-    world_.barrier();
     return true;
   }
 
