@@ -207,7 +207,7 @@ bool vavilov_v_cannon_all::CannonALL::RunImpl() {
     int active_procs = 1;
     mpi::communicator active_world = world_.split(rank < active_procs ? 0 : MPI_UNDEFINED);
     num_blocks_ = static_cast<int>(std::sqrt(N_));
-    if (rank == 0) {
+    if (active_world.rank() == 0) {
       InitialShiftone();
       for (int iter = 0; iter < num_blocks_; ++iter) {
         BlockMultiplyone();
