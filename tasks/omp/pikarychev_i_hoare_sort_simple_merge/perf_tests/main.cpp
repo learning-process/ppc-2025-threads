@@ -53,6 +53,8 @@ TEST(pikarychev_i_hoare_sort_simple_merge_omp, test_pipeline_run) {
   auto perf_analyzer = std::make_shared<ppc::core::Perf>(std::make_shared<decltype(task)>(std::move(task)));
   perf_analyzer->PipelineRun(perf_attr, perf_results);
   ppc::core::Perf::PrintPerfStatistic(perf_results);
+
+  EXPECT_TRUE(std::ranges::is_sorted(out));
 }
 
 TEST(pikarychev_i_hoare_sort_simple_merge_omp, test_task_run) {
@@ -85,4 +87,6 @@ TEST(pikarychev_i_hoare_sort_simple_merge_omp, test_task_run) {
   auto perf_analyzer = std::make_shared<ppc::core::Perf>(std::make_shared<decltype(task)>(std::move(task)));
   perf_analyzer->TaskRun(perf_attr, perf_results);
   ppc::core::Perf::PrintPerfStatistic(perf_results);
+
+  EXPECT_TRUE(std::ranges::is_sorted(out));
 }
