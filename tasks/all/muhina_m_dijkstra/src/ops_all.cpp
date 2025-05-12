@@ -10,8 +10,7 @@
 #include <boost/mpi/collectives/all_reduce.hpp>
 #include <boost/mpi/collectives/broadcast.hpp>
 #include <boost/mpi/communicator.hpp>
-#include <boost/mpi/datatype.hpp>
-#include <boost/serialization/access.hpp>
+#include <boost/mpi/operations.hpp>
 #include <climits>
 #include <cstddef>
 #include <functional>
