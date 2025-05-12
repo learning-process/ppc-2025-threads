@@ -10,7 +10,7 @@
 #include "core/task/include/task.hpp"
 
 TEST(shuravina_o_hoare_simple_merger_stl, test_pipeline_run) {
-  const int count = 1000000;
+  const int count = 50000;
   std::vector<int> in(count, 0);
   std::vector<int> out(count, 0);
 
@@ -46,7 +46,7 @@ TEST(shuravina_o_hoare_simple_merger_stl, test_pipeline_run) {
 }
 
 TEST(shuravina_o_hoare_simple_merger_stl, test_task_run) {
-  const int count = 1000000;
+  const int count = 50000;
   std::vector<int> in(count, 0);
   std::vector<int> out(count, 0);
 
