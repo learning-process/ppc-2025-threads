@@ -1,6 +1,5 @@
 #include "stl/trubin_a_algorithm_dijkstra/include/ops_stl.hpp"
 
-#include <algorithm>
 #include <atomic>
 #include <climits>
 #include <condition_variable>
@@ -9,10 +8,8 @@
 #include <functional>
 #include <limits>
 #include <mutex>
-#include <numeric>
 #include <queue>
 #include <thread>
-#include <unordered_map>
 #include <utility>
 #include <vector>
 
@@ -91,7 +88,9 @@ void trubin_a_algorithm_dijkstra_stl::TestTaskSTL::WorkerThread(
           return;
         }
         cv.wait(lock, [&] { return !pq.empty() || terminate_flag.load(); });
-        if (terminate_flag.load()) return;
+        if (terminate_flag.load()) {
+          return;
+        }
       }
       current = pq.top();
       pq.pop();
@@ -130,8 +129,12 @@ void trubin_a_algorithm_dijkstra_stl::TestTaskSTL::WorkerThread(
 }
 
 bool trubin_a_algorithm_dijkstra_stl::TestTaskSTL::RunImpl() {
-  if (num_vertices_ == 0) return true;
-  if (start_vertex_ >= num_vertices_) return false;
+  if (num_vertices_ == 0) {
+    return true;
+  }
+  if (start_vertex_ >= num_vertices_) {
+    return false;
+  }
 
   using QueueElement = std::pair<int, size_t>;
   std::priority_queue<QueueElement, std::vector<QueueElement>, std::greater<>> pq;
@@ -170,8 +173,12 @@ bool trubin_a_algorithm_dijkstra_stl::TestTaskSTL::RunImpl() {
 }
 
 bool trubin_a_algorithm_dijkstra_stl::TestTaskSTL::PostProcessingImpl() {
-  if (num_vertices_ == 0) return true;
-  if (task_data->outputs.empty() || task_data->outputs[0] == nullptr) return false;
+  if (num_vertices_ == 0) {
+    return true;
+  }
+  if (task_data->outputs.empty() || task_data->outputs[0] == nullptr) {
+    return false;
+  }
 
   auto* out_ptr = reinterpret_cast<int*>(task_data->outputs[0]);
   for (size_t i = 0; i < num_vertices_; ++i) {
@@ -182,18 +189,25 @@ bool trubin_a_algorithm_dijkstra_stl::TestTaskSTL::PostProcessingImpl() {
 }
 
 bool trubin_a_algorithm_dijkstra_stl::TestTaskSTL::BuildAdjacencyList(const std::vector<int>& graph_data) {
-  size_t current_vertex = 0, i = 0;
+  size_t current_vertex = 0;
+  size_t i = 0;
   while (i < graph_data.size()) {
     if (graph_data[i] == kEndOfVertexList) {
-      if (current_vertex >= num_vertices_) return false;
+      if (current_vertex >= num_vertices_) {
+        return false;
+      }
       current_vertex++;
       i++;
       continue;
     }
-    if (i + 1 >= graph_data.size()) return false;
-    size_t to = static_cast<size_t>(graph_data[i]);
+    if (i + 1 >= graph_data.size()) {
+      return false;
+    }
+    auto to = static_cast<size_t>(graph_data[i]);
     int weight = graph_data[i + 1];
-    if (to >= num_vertices_ || weight < 0) return false;
+    if (to >= num_vertices_ || weight < 0) {
+      return false;
+    }
     adjacency_list_[current_vertex].emplace_back(to, weight);
     i += 2;
   }
