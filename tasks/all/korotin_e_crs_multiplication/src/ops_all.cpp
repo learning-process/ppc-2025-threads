@@ -1,10 +1,10 @@
 #include "all/korotin_e_crs_multiplication/include/ops_all.hpp"
 
 #include <algorithm>
-#include <boost/serialization/vector.hpp>
+#include <boost/mpi.hpp>
 #include <cmath>
 #include <cstddef>
-#include <numeric>
+#include <functional>
 #include <thread>
 #include <vector>
 
@@ -84,21 +84,52 @@ void korotin_e_crs_multiplication_all::CrsMultiplicationALL::MulTask(size_t l, s
   }
 }
 
+void korotin_e_crs_multiplication_all::CrsMultiplicationALL::TrpB(std::vector<unsigned int> &tr_i, std::vector<unsigned int> &tcol, std::vector<double> &tval) {
+  unsigned int k;
+  unsigned int s;
+  for (k = 0; k < B_Nz_; k++) {
+    tr_i[B_col_[k] + 1]++;
+  }
+
+  // printf("%d is here1.625\n", world_.rank());
+
+  for (k = 1; k < tr_i.size(); k++) {
+    tr_i[k] += tr_i[k - 1];
+  }
+
+  // printf("%d is here1.75\n", world_.rank());
+
+  for (k = 0; k < B_N_ - 1; k++) {
+    for (s = B_rI_[k]; s < B_rI_[k + 1]; s++) {
+      tval[tr_i[B_col_[s]]] = B_val_[j];
+      tcol[tr_i[B_col_[s]]] = k;
+      tr_i[B_col_[s]]++;
+    }
+  }
+
+  // printf("%d is here1.875\n", world_.rank());
+
+  for (k = tr_i.size() - 1; k > 0; k--) {
+    tr_i[k] = tr_i[k - 1];
+  }
+  tr_i[0] = 0;
+}
+
 bool korotin_e_crs_multiplication_all::CrsMultiplicationALL::RunImpl() {
   unsigned int i = 0;
   unsigned int j = 0;
-  unsigned int tr_i_sz;
+  unsigned int tr_i_sz = 0;
 
   if (world_.rank() == 0) {
-    tr_i_sz = *std::max_element(B_col_.begin(), B_col_.end());
+    tr_i_sz = *std::ranges::max_element(B_col_.begin(), B_col_.end());
     // printf("World size: %d\n", world_.size());
   }
 
-  broadcast(world_, tr_i_sz, 0);
-  broadcast(world_, A_N_, 0);
-  broadcast(world_, A_Nz_, 0);
-  broadcast(world_, B_Nz_, 0);
-  broadcast(world_, output_size_, 0);
+  boost::mpi::broadcast(world_, tr_i_sz, 0);
+  boost::mpi::broadcast(world_, A_N_, 0);
+  boost::mpi::broadcast(world_, A_Nz_, 0);
+  boost::mpi::broadcast(world_, B_Nz_, 0);
+  boost::mpi::broadcast(world_, output_size_, 0);
 
   // printf("%d is here1\n", world_.rank());
 
@@ -109,32 +140,7 @@ bool korotin_e_crs_multiplication_all::CrsMultiplicationALL::RunImpl() {
   // printf("%d is here1.5\n", world_.rank());
 
   if (world_.rank() == 0) {
-    for (i = 0; i < B_Nz_; i++) {
-      tr_i[B_col_[i] + 1]++;
-    }
-
-    // printf("%d is here1.625\n", world_.rank());
-
-    for (i = 1; i < tr_i.size(); i++) {
-      tr_i[i] += tr_i[i - 1];
-    }
-
-    // printf("%d is here1.75\n", world_.rank());
-
-    for (i = 0; i < B_N_ - 1; i++) {
-      for (j = B_rI_[i]; j < B_rI_[i + 1]; j++) {
-        tval[tr_i[B_col_[j]]] = B_val_[j];
-        tcol[tr_i[B_col_[j]]] = i;
-        tr_i[B_col_[j]]++;
-      }
-    }
-
-    // printf("%d is here1.875\n", world_.rank());
-
-    for (i = tr_i.size() - 1; i > 0; i--) {
-      tr_i[i] = tr_i[i - 1];
-    }
-    tr_i[0] = 0;
+    CrsMultiplicationALL::TrpB(tr_i, tcol, tval);
   } else {
     A_rI_ = std::vector<unsigned int>(A_N_);
     A_col_ = std::vector<unsigned int>(A_Nz_);
@@ -143,12 +149,12 @@ bool korotin_e_crs_multiplication_all::CrsMultiplicationALL::RunImpl() {
 
   // printf("%d is here2\n", world_.rank());
 
-  broadcast(world_, A_rI_.data(), A_rI_.size(), 0);
-  broadcast(world_, A_col_.data(), A_col_.size(), 0);
-  broadcast(world_, A_val_.data(), A_val_.size(), 0);
-  broadcast(world_, tr_i.data(), tr_i.size(), 0);
-  broadcast(world_, tcol.data(), tcol.size(), 0);
-  broadcast(world_, tval.data(), tval.size(), 0);
+  boost::mpi::broadcast(world_, A_rI_.data(), static_cast<int>(A_rI_.size()), 0);
+  boost::mpi::broadcast(world_, A_col_.data(), static_cast<int>(A_col_.size()), 0);
+  boost::mpi::broadcast(world_, A_val_.data(), static_cast<int>(A_val_.size()), 0);
+  boost::mpi::broadcast(world_, tr_i.data(), static_cast<int>(tr_i.size()), 0);
+  boost::mpi::broadcast(world_, tcol.data(), static_cast<int>(tcol.size()), 0);
+  boost::mpi::broadcast(world_, tval.data(), static_cast<int>(tval.size()), 0);
 
   // printf("%d is here3\n", world_.rank());
 
@@ -209,9 +215,9 @@ bool korotin_e_crs_multiplication_all::CrsMultiplicationALL::RunImpl() {
   std::vector<std::vector<double>> gathered_val;
   std::vector<std::vector<unsigned int>> gathered_col;
   std::vector<unsigned int> temp_r_i_all(A_N_, 0);
-  gather(world_, output_col_, gathered_col, 0);
-  gather(world_, output_val_, gathered_val, 0);
-  reduce(world_, temp_r_i, temp_r_i_all, std::plus<unsigned int>(), 0);
+  boost::mpi::gather(world_, output_col_, gathered_col, 0);
+  boost::mpi::gather(world_, output_val_, gathered_val, 0);
+  boost::mpi::reduce(world_, temp_r_i, temp_r_i_all, std::plus<>(), 0);
 
   // printf("%d is here9\n", world_.rank());
 

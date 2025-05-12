@@ -1,7 +1,6 @@
 #include <gtest/gtest.h>
 
 #include <boost/mpi/communicator.hpp>
-#include <boost/mpi/environment.hpp>
 #include <cstdint>
 #include <cstdlib>
 #include <memory>
@@ -160,8 +159,6 @@ TEST(korotin_e_crs_multiplication_all, test_rndcrs_stat_zeroes) {
     b = korotin_e_crs_multiplication_all::GetRandomMatrix(n, p);
     for (unsigned int i = 0; i < (m * n) / 2; i++) {
       a[i * 2] = 0;
-    }
-    for (unsigned int i = 0; i < (n * p) / 2; i++) {
       b[(i * 2) + 1] = 0;
     }
 
@@ -203,8 +200,6 @@ TEST(korotin_e_crs_multiplication_all, test_rndcrs_stat_zeroes) {
   test_task_all.PostProcessing();
 
   if (world.rank() == 0) {
-    if (c_col.size() != out_col.size()) std::cout << "\n" << c_col.size() << "   " << out_col.size() << std::endl;
-
     ASSERT_EQ(c_ri, out_ri);
     ASSERT_EQ(c_col, out_col);
     ASSERT_EQ(c_val, out_val);
@@ -244,8 +239,6 @@ TEST(korotin_e_crs_multiplication_all, test_rndcrs) {
     std::uniform_int_distribution<unsigned int> b_distrib(0, (n * p) - 1);
     for (unsigned int i = 0; i < (m * n) - m; i++) {
       a[a_distrib(gen)] = 0;
-    }
-    for (unsigned int i = 0; i < (n * p) - p; i++) {
       b[b_distrib(gen)] = 0;
     }
 
@@ -287,8 +280,6 @@ TEST(korotin_e_crs_multiplication_all, test_rndcrs) {
   test_task_all.PostProcessing();
 
   if (world.rank() == 0) {
-    if (c_col.size() != out_col.size()) std::cout << "\n" << c_col.size() << "   " << out_col.size() << std::endl;
-
     ASSERT_EQ(c_ri, out_ri);
     ASSERT_EQ(c_col, out_col);
     ASSERT_EQ(c_val, out_val);
