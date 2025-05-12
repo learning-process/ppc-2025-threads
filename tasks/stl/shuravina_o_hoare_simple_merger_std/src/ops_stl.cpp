@@ -8,6 +8,7 @@
 #include <vector>
 
 #include "core/task/include/task.hpp"
+#include <core/util/include/util.hpp>
 
 namespace shuravina_o_hoare_simple_merger_stl {
 
@@ -66,8 +67,15 @@ void TestTaskSTL::QuickSort(std::vector<int>& arr, int left, int right) {
   std::swap(arr[i], arr[right - 1]);
 
   const int parallel_threshold = 5000;
-  if (right - left > parallel_threshold) {
-    auto future = std::async(std::launch::async, [&arr, left, i]() { QuickSort(arr, left, i - 1); });
+  const int max_threads = ppc::util::GetPPCNumThreads();
+  static std::atomic<int> thread_counter(0);
+
+  if ((right - left > parallel_threshold) && (thread_counter.load() < max_threads)) {
+    thread_counter++;
+    auto future = std::async(std::launch::async, [&arr, left, i]() {
+      QuickSort(arr, left, i - 1);
+      thread_counter--;
+    });
     QuickSort(arr, i + 1, right);
     future.get();
   } else {
@@ -80,7 +88,11 @@ void TestTaskSTL::MergeHelper(std::vector<int>& arr, int left, int mid, int righ
   std::vector<int> temp(right - left + 1);
 
   const int parallel_threshold = 10000;
-  if (right - left > parallel_threshold) {
+  const int max_threads = ppc::util::GetPPCNumThreads();
+  static std::atomic<int> thread_counter(0);
+
+  if ((right - left > parallel_threshold) && (thread_counter.load() < max_threads)) {
+    thread_counter++;
     auto future = std::async(std::launch::async, [&arr, &temp, left, mid, right]() {
       int i = left;
       int j = mid + 1;
@@ -96,6 +108,7 @@ void TestTaskSTL::MergeHelper(std::vector<int>& arr, int left, int mid, int righ
       while (i <= mid) {
         temp[k++] = arr[i++];
       }
+      thread_counter--;
     });
 
     int i = mid + 1 + ((right - left) / 2);
