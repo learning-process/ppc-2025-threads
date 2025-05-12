@@ -5,7 +5,7 @@
 #include <boost/mpi/collectives/broadcast.hpp>
 #include <boost/mpi/collectives/gather.hpp>
 #include <boost/mpi/collectives/reduce.hpp>
-#include <boost/serialization/vector.hpp>
+#include <boost/serialization/vector.hpp> // NOLINT(misc-include-cleaner)
 #include <cmath>
 #include <cstddef>
 #include <functional>
