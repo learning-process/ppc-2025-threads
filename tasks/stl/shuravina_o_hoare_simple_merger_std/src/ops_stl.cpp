@@ -4,7 +4,6 @@
 #include <execution>
 #include <future>
 #include <memory>
-#include <thread>
 #include <utility>
 #include <vector>
 
@@ -39,10 +38,16 @@ void TestTaskSTL::QuickSort(std::vector<int>& arr, int left, int right) {
     return;
   }
 
-  int mid = left + (right - left) / 2;
-  if (arr[left] > arr[mid]) std::swap(arr[left], arr[mid]);
-  if (arr[left] > arr[right]) std::swap(arr[left], arr[right]);
-  if (arr[mid] > arr[right]) std::swap(arr[mid], arr[right]);
+  int mid = left + ((right - left) / 2);
+  if (arr[left] > arr[mid]) {
+    std::swap(arr[left], arr[mid]);
+  }
+  if (arr[left] > arr[right]) {
+    std::swap(arr[left], arr[right]);
+  }
+  if (arr[mid] > arr[right]) {
+    std::swap(arr[mid], arr[right]);
+  }
   int pivot = arr[mid];
   std::swap(arr[mid], arr[right - 1]);
 
@@ -53,7 +58,9 @@ void TestTaskSTL::QuickSort(std::vector<int>& arr, int left, int right) {
     }
     while (arr[--j] > pivot) {
     }
-    if (i >= j) break;
+    if (i >= j) {
+      break;
+    }
     std::swap(arr[i], arr[j]);
   }
   std::swap(arr[i], arr[right - 1]);
@@ -78,20 +85,35 @@ void TestTaskSTL::MergeHelper(std::vector<int>& arr, int left, int mid, int righ
       int i = left;
       int j = mid + 1;
       int k = 0;
-      while (i <= mid && j <= mid + (right - left) / 2) {
-        temp[k++] = (arr[i] <= arr[j]) ? arr[i++] : arr[j++];
+      int half_point = mid + ((right - left) / 2);
+      while (i <= mid && j <= half_point) {
+        if (arr[i] <= arr[j]) {
+          temp[k++] = arr[i++];
+        } else {
+          temp[k++] = arr[j++];
+        }
       }
-      while (i <= mid) temp[k++] = arr[i++];
+      while (i <= mid) {
+        temp[k++] = arr[i++];
+      }
     });
 
-    int i = mid + 1 + (right - left) / 2;
+    int i = mid + 1 + ((right - left) / 2);
     int j = mid + 1;
-    int k = (right - left) / 2 + 1;
+    int k = ((right - left) / 2) + 1;
     while (i <= right && j <= right) {
-      temp[k++] = (arr[i] <= arr[j]) ? arr[i++] : arr[j++];
+      if (arr[i] <= arr[j]) {
+        temp[k++] = arr[i++];
+      } else {
+        temp[k++] = arr[j++];
+      }
     }
-    while (i <= right) temp[k++] = arr[i++];
-    while (j <= right) temp[k++] = arr[j++];
+    while (i <= right) {
+      temp[k++] = arr[i++];
+    }
+    while (j <= right) {
+      temp[k++] = arr[j++];
+    }
 
     future.get();
   } else {
@@ -99,17 +121,25 @@ void TestTaskSTL::MergeHelper(std::vector<int>& arr, int left, int mid, int righ
     int j = mid + 1;
     int k = 0;
     while (i <= mid && j <= right) {
-      temp[k++] = (arr[i] <= arr[j]) ? arr[i++] : arr[j++];
+      if (arr[i] <= arr[j]) {
+        temp[k++] = arr[i++];
+      } else {
+        temp[k++] = arr[j++];
+      }
     }
-    while (i <= mid) temp[k++] = arr[i++];
-    while (j <= right) temp[k++] = arr[j++];
+    while (i <= mid) {
+      temp[k++] = arr[i++];
+    }
+    while (j <= right) {
+      temp[k++] = arr[j++];
+    }
   }
 
   const int copy_threshold = 5000;
   if (temp.size() > copy_threshold) {
     std::copy(std::execution::par, temp.begin(), temp.end(), arr.begin() + left);
   } else {
-    std::copy(temp.begin(), temp.end(), arr.begin() + left);
+    std::ranges::copy(temp.begin(), temp.end(), arr.begin() + left);
   }
 }
 
@@ -136,7 +166,7 @@ bool TestTaskSTL::PostProcessingImpl() {
   if (output_.size() > 5000) {
     std::copy(std::execution::par, output_.begin(), output_.end(), out_ptr);
   } else {
-    std::copy(output_.begin(), output_.end(), out_ptr);
+    std::ranges::copy(output_.begin(), output_.end(), out_ptr);
   }
 
   return true;
