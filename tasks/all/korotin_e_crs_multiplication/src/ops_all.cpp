@@ -84,7 +84,9 @@ void korotin_e_crs_multiplication_all::CrsMultiplicationALL::MulTask(size_t l, s
   }
 }
 
-void korotin_e_crs_multiplication_all::CrsMultiplicationALL::TrpB(std::vector<unsigned int> &tr_i, std::vector<unsigned int> &tcol, std::vector<double> &tval) {
+void korotin_e_crs_multiplication_all::CrsMultiplicationALL::TrpB(std::vector<unsigned int> &tr_i,
+                                                                  std::vector<unsigned int> &tcol,
+                                                                  std::vector<double> &tval) {
   unsigned int k;
   unsigned int s;
   for (k = 0; k < B_Nz_; k++) {
