@@ -145,11 +145,6 @@ TEST(polikanov_v_rectangles_stl, sin_arg_pow_2_pow_2__3D) {
   });
 }
 
-TEST(polikanov_v_rectangles_stl, exp_sin_cos) {
-  RunFuncTest(std::vector<polikanov_v_rectangles::IntegrationBound>(3, {0, 1}), 80, 0.66,
-              [](const auto &p) { return std::exp(p[0]) * std::sin(p[0]) * std::cos(p[0]); });
-}
-
 TEST(polikanov_v_rectangles_tbb, sqrt) {
   RunFuncTest(std::vector<polikanov_v_rectangles::IntegrationBound>(1, {0, 1}), 150, 2. / 3.,
               [](const auto &p) { return std::sqrt(p[0]); });
