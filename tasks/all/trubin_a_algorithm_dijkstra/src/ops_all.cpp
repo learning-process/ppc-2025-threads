@@ -137,10 +137,10 @@ bool trubin_a_algorithm_dijkstra_all::TestTaskALL::RunImpl() {
     }
 
     std::vector<int> reduced_snapshot(num_vertices_);
-    boost::mpi::all_reduce(world, distances_snapshot, reduced_snapshot, MinElementwise);
+    boost::mpi::broadcast(world, distances_snapshot.data(), distances_snapshot.size(), 0);
 
     for (size_t i = 0; i < num_vertices_; ++i) {
-      distances_atomic[i] = reduced_snapshot[i];
+      distances_atomic[i] = distances_snapshot[i];
     }
 
     distances_.resize(num_vertices_);
