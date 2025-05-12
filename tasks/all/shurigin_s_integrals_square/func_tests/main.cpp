@@ -26,7 +26,7 @@ constexpr double kTolerance = 1e-3;
 
 namespace {}
 
-class ShuriginSIntegralsSquareMPI_Func_Fixture : public ::testing::Test {
+class ShuriginSIntegralsSquareMpiFuncFixture : public ::testing::Test {
  protected:
   std::shared_ptr<ppc::core::TaskData> task_data;
   double output_data = 0.0;
@@ -61,7 +61,7 @@ class ShuriginSIntegralsSquareMPI_Func_Fixture : public ::testing::Test {
   }
 };
 
-TEST_F(ShuriginSIntegralsSquareMPI_Func_Fixture, TestIntegrationXSquared) {
+TEST_F(ShuriginSIntegralsSquareMpiFuncFixture, TestIntegrationXSquared) {
   const double lower_bound = 0.0;
   const double upper_bound = 1.0;
   const int intervals = 10000;
@@ -86,7 +86,7 @@ TEST_F(ShuriginSIntegralsSquareMPI_Func_Fixture, TestIntegrationXSquared) {
   }
 }
 
-TEST_F(ShuriginSIntegralsSquareMPI_Func_Fixture, TestIntegrationLinear) {
+TEST_F(ShuriginSIntegralsSquareMpiFuncFixture, TestIntegrationLinear) {
   const double lower_bound = 0.0;
   const double upper_bound = 1.0;
   const int intervals = 10000;
@@ -110,7 +110,7 @@ TEST_F(ShuriginSIntegralsSquareMPI_Func_Fixture, TestIntegrationLinear) {
   }
 }
 
-TEST_F(ShuriginSIntegralsSquareMPI_Func_Fixture, TestIntegrationSine) {
+TEST_F(ShuriginSIntegralsSquareMpiFuncFixture, TestIntegrationSine) {
   const double lower_bound = 0.0;
   const double upper_bound = std::numbers::pi;
   const int intervals = 20000;
@@ -134,7 +134,7 @@ TEST_F(ShuriginSIntegralsSquareMPI_Func_Fixture, TestIntegrationSine) {
   }
 }
 
-TEST_F(ShuriginSIntegralsSquareMPI_Func_Fixture, TestIntegrationExponential) {
+TEST_F(ShuriginSIntegralsSquareMpiFuncFixture, TestIntegrationExponential) {
   const double lower_bound = 0.0;
   const double upper_bound = 1.0;
   const int intervals = 10000;
@@ -177,7 +177,7 @@ TEST(ShuriginSIntegralsSquareMPI_Func, TestFunctionAssignment) {
   ASSERT_DOUBLE_EQ(func_nd(test_point_nd), expected_func_eval_nd);
 }
 
-TEST_F(ShuriginSIntegralsSquareMPI_Func_Fixture, TestIntegrationCosine) {
+TEST_F(ShuriginSIntegralsSquareMpiFuncFixture, TestIntegrationCosine) {
   const double lower_bound = 0.0;
   const double upper_bound = std::numbers::pi / 2.0;
   const int intervals = 10000;
@@ -201,7 +201,7 @@ TEST_F(ShuriginSIntegralsSquareMPI_Func_Fixture, TestIntegrationCosine) {
   }
 }
 
-TEST_F(ShuriginSIntegralsSquareMPI_Func_Fixture, TestIntegrationLogarithm) {
+TEST_F(ShuriginSIntegralsSquareMpiFuncFixture, TestIntegrationLogarithm) {
   const double lower_bound = 1.0;
   const double upper_bound = 2.0;
   const int intervals = 10000;
@@ -225,7 +225,7 @@ TEST_F(ShuriginSIntegralsSquareMPI_Func_Fixture, TestIntegrationLogarithm) {
   }
 }
 
-TEST_F(ShuriginSIntegralsSquareMPI_Func_Fixture, TestIntegrationReciprocal) {
+TEST_F(ShuriginSIntegralsSquareMpiFuncFixture, TestIntegrationReciprocal) {
   const double lower_bound = 1.0;
   const double upper_bound = 2.0;
   const int intervals = 10000;
@@ -249,7 +249,7 @@ TEST_F(ShuriginSIntegralsSquareMPI_Func_Fixture, TestIntegrationReciprocal) {
   }
 }
 
-TEST_F(ShuriginSIntegralsSquareMPI_Func_Fixture, TestIntegrationSqrt) {
+TEST_F(ShuriginSIntegralsSquareMpiFuncFixture, TestIntegrationSqrt) {
   const double lower_bound = 0.0;
   const double upper_bound = 1.0;
   const int intervals = 10000;
@@ -273,7 +273,7 @@ TEST_F(ShuriginSIntegralsSquareMPI_Func_Fixture, TestIntegrationSqrt) {
   }
 }
 
-TEST_F(ShuriginSIntegralsSquareMPI_Func_Fixture, TestIntegration2DProduct) {
+TEST_F(ShuriginSIntegralsSquareMpiFuncFixture, TestIntegration2DProduct) {
   const double lower_bound_x = 0.0;
   const double upper_bound_x = 1.0;
   const double lower_bound_y = 0.0;
@@ -305,7 +305,7 @@ TEST_F(ShuriginSIntegralsSquareMPI_Func_Fixture, TestIntegration2DProduct) {
   }
 }
 
-TEST_F(ShuriginSIntegralsSquareMPI_Func_Fixture, TestIntegration2DSquareSum) {
+TEST_F(ShuriginSIntegralsSquareMpiFuncFixture, TestIntegration2DSquareSum) {
   const double lower_bound_x = 0.0;
   const double upper_bound_x = 1.0;
   const double lower_bound_y = 0.0;
@@ -338,7 +338,7 @@ TEST_F(ShuriginSIntegralsSquareMPI_Func_Fixture, TestIntegration2DSquareSum) {
   }
 }
 
-TEST_F(ShuriginSIntegralsSquareMPI_Func_Fixture, TestIntegration2DSinSum) {
+TEST_F(ShuriginSIntegralsSquareMpiFuncFixture, TestIntegration2DSinSum) {
   const double lower_bound_x = 0.0;
   const double upper_bound_x = std::numbers::pi / 2.0;
   const double lower_bound_y = 0.0;
@@ -370,7 +370,7 @@ TEST_F(ShuriginSIntegralsSquareMPI_Func_Fixture, TestIntegration2DSinSum) {
   }
 }
 
-TEST_F(ShuriginSIntegralsSquareMPI_Func_Fixture, TestIntegration3DProduct) {
+TEST_F(ShuriginSIntegralsSquareMpiFuncFixture, TestIntegration3DProduct) {
   const double lower_bound_x = 0.0;
   const double upper_bound_x = 1.0;
   const double lower_bound_y = 0.0;
