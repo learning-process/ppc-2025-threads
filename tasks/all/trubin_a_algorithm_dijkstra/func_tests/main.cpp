@@ -2,7 +2,6 @@
 
 #include <algorithm>
 #include <boost/mpi/communicator.hpp>
-#include <boost/mpi/environment.hpp>
 #include <cstddef>
 #include <cstdint>
 #include <memory>

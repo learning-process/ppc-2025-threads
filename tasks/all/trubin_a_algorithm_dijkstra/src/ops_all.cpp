@@ -4,10 +4,10 @@
 #include <oneapi/tbb/parallel_for.h>
 #include <oneapi/tbb/task_arena.h>
 
+#include <algorithm>
 #include <atomic>
 #include <boost/mpi/collectives/all_reduce.hpp>
 #include <boost/mpi/communicator.hpp>
-#include <boost/serialization/vector.hpp>
 #include <cstddef>
 #include <limits>
 #include <vector>
@@ -128,11 +128,9 @@ bool trubin_a_algorithm_dijkstra_all::TestTaskALL::RunImpl() {
     size_t local_start = rank * block_size;
     size_t local_end = std::min(local_start + block_size, num_vertices_);
 
-    // Параллельная обработка локальных данных
     tbb::parallel_for(tbb::blocked_range<size_t>(local_start, local_end, 512),
                       [&](const tbb::blocked_range<size_t>& r) { UpdateDistancesInBlock(r, distances_atomic); });
 
-    // Агрегируем результаты с использованием MPI
     std::vector<int> distances_snapshot(num_vertices_);
     for (size_t i = 0; i < num_vertices_; ++i) {
       distances_snapshot[i] = distances_atomic[i].load();
@@ -141,12 +139,10 @@ bool trubin_a_algorithm_dijkstra_all::TestTaskALL::RunImpl() {
     std::vector<int> reduced_snapshot(num_vertices_);
     boost::mpi::all_reduce(world, distances_snapshot, reduced_snapshot, MinElementwise);
 
-    // Обновляем итоговые расстояния
     for (size_t i = 0; i < num_vertices_; ++i) {
       distances_atomic[i] = reduced_snapshot[i];
     }
 
-    // Финальная обработка расстояний
     distances_.resize(num_vertices_);
     for (size_t i = 0; i < num_vertices_; ++i) {
       int d = distances_atomic[i];
