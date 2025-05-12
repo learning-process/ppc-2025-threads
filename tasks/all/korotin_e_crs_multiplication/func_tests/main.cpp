@@ -175,7 +175,7 @@ TEST(korotin_e_crs_multiplication_all, test_rndcrs_stat_zeroes) {
   if (world.rank() == 0) {
     a = korotin_e_crs_multiplication_all::GetRandomMatrix(m, n);
     b = korotin_e_crs_multiplication_all::GetRandomMatrix(n, p);
-    UselessFuncForTidyOne(n, a, b);
+    korotin_e_crs_multiplication_all::UselessFuncForTidyOne(n, a, b);
 
     korotin_e_crs_multiplication_all::MakeCRS(a_ri, a_col, a_val, a, m, n);
     korotin_e_crs_multiplication_all::MakeCRS(b_ri, b_col, b_val, b, n, p);
@@ -247,7 +247,7 @@ TEST(korotin_e_crs_multiplication_all, test_rndcrs) {
   if (world.rank() == 0) {
     a = korotin_e_crs_multiplication_all::GetRandomMatrix(m, n);
     b = korotin_e_crs_multiplication_all::GetRandomMatrix(n, p);
-    UselessFuncForTidyTwo(n, a, b);
+    korotin_e_crs_multiplication_all::UselessFuncForTidyTwo(n, a, b);
 
     korotin_e_crs_multiplication_all::MakeCRS(a_ri, a_col, a_val, a, m, n);
     korotin_e_crs_multiplication_all::MakeCRS(b_ri, b_col, b_val, b, n, p);
