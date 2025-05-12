@@ -212,6 +212,7 @@ bool vavilov_v_cannon_all::CannonALL::RunImpl() {
         ShiftBlocksone();
       }
     }
+    world_.barrier();
     return true;
   }
 
