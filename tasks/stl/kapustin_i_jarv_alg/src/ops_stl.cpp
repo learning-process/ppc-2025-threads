@@ -151,7 +151,7 @@ int kapustin_i_jarv_alg_stl::TestTaskSTL::CalculateDistance(const std::pair<int,
 
 int kapustin_i_jarv_alg_stl::TestTaskSTL::Orientation(const std::pair<int, int>& p, const std::pair<int, int>& q,
                                                       const std::pair<int, int>& r) {
-  const int val = (q.second - p.second) * (r.first - q.first) - (q.first - p.first) * (r.second - q.second);
+  const int val = ((q.second - p.second) * (r.first - q.first)) - ((q.first - p.first) * (r.second - q.second));
 
   if (val == 0) {
     return 0;
