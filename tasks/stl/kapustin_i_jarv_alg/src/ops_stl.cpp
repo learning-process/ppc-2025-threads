@@ -60,10 +60,10 @@ void kapustin_i_jarv_alg_stl::TestTaskSTL::FindBestPointMultithreaded(size_t cur
         } else if (orient == 0) {
           const int dx1 = candidate.first - current_point.first;
           const int dy1 = candidate.second - current_point.second;
-          const int dist1 = dx1 * dx1 + dy1 * dy1;
+          const int dist1 = (dx1 * dx1) + (dy1 * dy1);
           const int dx2 = best_point.first - current_point.first;
           const int dy2 = best_point.second - current_point.second;
-          const int dist2 = dx2 * dx2 + dy2 * dy2;
+          const int dist2 = (dx2 * dx2) + (dy2 * dy2);
 
           if (dist1 > dist2) {
             best = j;
@@ -104,15 +104,13 @@ bool kapustin_i_jarv_alg_stl::TestTaskSTL::RunImpl() {
   output_.clear();
   output_.push_back(start_point);
   unique_points.insert(start_point);
-
-  size_t best_index = current_index;
   const size_t num_threads = std::min(static_cast<size_t>(ppc::util::GetPPCNumThreads()), input_.size());
 
   do {
     std::vector<size_t> local_best(num_threads, (current_index + 1) % input_.size());
     FindBestPointMultithreaded(current_index, local_best);
 
-    best_index = local_best[0];
+    size_t best_index = local_best[0];
     for (size_t i = 1; i < local_best.size(); ++i) {
       const int orient = Orientation(input_[current_index], input_[best_index], input_[local_best[i]]);
       if (orient > 0 || (orient == 0 && CalculateDistance(input_[local_best[i]], input_[current_index]) >
@@ -124,7 +122,7 @@ bool kapustin_i_jarv_alg_stl::TestTaskSTL::RunImpl() {
     if (input_[best_index] == start_point) {
       break;
     }
-    if (unique_points.count(input_[best_index])) {
+    if (unique_points.contains(input_[best_index])) {
       continue;
     }
 
@@ -140,7 +138,7 @@ bool kapustin_i_jarv_alg_stl::TestTaskSTL::RunImpl() {
 
 bool kapustin_i_jarv_alg_stl::TestTaskSTL::PostProcessingImpl() {
   auto* result_ptr = reinterpret_cast<std::pair<int, int>*>(task_data->outputs[0]);
-  std::copy(output_.begin(), output_.end(), result_ptr);
+  std::ranges::copy(output_, result_ptr);
   return true;
 }
 
@@ -153,6 +151,10 @@ int kapustin_i_jarv_alg_stl::TestTaskSTL::CalculateDistance(const std::pair<int,
 
 int kapustin_i_jarv_alg_stl::TestTaskSTL::Orientation(const std::pair<int, int>& p, const std::pair<int, int>& q,
                                                       const std::pair<int, int>& r) {
-  const int val = ((q.second - p.second) * (r.first - q.first)) - ((q.first - p.first) * (r.second - q.second));
-  return (val == 0) ? 0 : ((val > 0) ? 1 : -1);
+  const int val = (q.second - p.second) * (r.first - q.first) - (q.first - p.first) * (r.second - q.second);
+
+  if (val == 0) {
+    return 0;
+  }
+  return val > 0 ? 1 : -1;
 }
