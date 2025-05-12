@@ -12,42 +12,33 @@
 void kapustin_i_jarv_alg_stl::TestTaskSTL::FindBestPointMultithreaded(size_t current_index,
                                                                       std::vector<size_t>& local_best) {
   const auto total_points = input_.size();
-  const auto max_threads = static_cast<size_t>(ppc::util::GetPPCNumThreads());
+  const auto num_threads = local_best.size();
 
-  const size_t num_threads = std::min(max_threads, total_points);
-  local_best.clear();
-  local_best.resize(num_threads, (current_index + 1) % total_points);
-
-  std::vector<std::pair<size_t, size_t>> thread_ranges(num_threads);
-  size_t base = total_points / num_threads;
-  size_t rem = total_points % num_threads;
-
-  size_t start = 0;
-  for (size_t i = 0; i < num_threads; ++i) {
-    size_t end = start + base + (i < rem ? 1 : 0);
-    thread_ranges[i] = {start, end};
-    start = end;
-  }
+  const size_t chunk_size = (total_points + num_threads - 1) / num_threads;
 
   std::vector<std::thread> threads;
   threads.reserve(num_threads);
 
   for (size_t i = 0; i < num_threads; ++i) {
-    threads.emplace_back([this, i, &thread_ranges, current_index, &local_best]() {
-      size_t start = thread_ranges[i].first;
-      size_t end = thread_ranges[i].second;
+    const size_t start = i * chunk_size;
+    const size_t end = std::min(start + chunk_size, total_points);
 
-      size_t best = (start == current_index) ? (start + 1) % input_.size() : start;
+    threads.emplace_back([this, current_index, &local_best, i, start, end, total_points]() {
+      size_t best = (current_index + 1) % total_points;
+
       for (size_t j = start; j < end; ++j) {
         if (j == current_index) {
           continue;
         }
-
-        int orient = Orientation(input_[current_index], input_[best], input_[j]);
-        bool better = (orient > 0) || (orient == 0 && CalculateDistance(input_[j], input_[current_index]) >
-                                                          CalculateDistance(input_[best], input_[current_index]));
-        if (better) {
+        const int orient = Orientation(input_[current_index], input_[best], input_[j]);
+        if (orient > 0) {
           best = j;
+        } else if (orient == 0) {
+          const int dist_current = CalculateDistance(input_[j], input_[current_index]);
+          const int dist_best = CalculateDistance(input_[best], input_[current_index]);
+          if (dist_current > dist_best) {
+            best = j;
+          }
         }
       }
       local_best[i] = best;
