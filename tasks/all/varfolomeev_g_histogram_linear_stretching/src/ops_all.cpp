@@ -11,6 +11,87 @@
 #include <cstdint>
 #include <vector>
 
+namespace {
+void varfolomeev_g_histogram_linear_stretching_all::TestTaskALL::ScatterData(std::vector<uint8_t>& local_data) {
+  if (world_.rank() == 0) {
+    int total_size = input_image_.size();
+    int world_size = world_.size();
+
+    std::vector<int> counts(world_.size());
+    std::vector<int> displs(world_.size());
+
+    int base_count = total_size / world_size;
+    int remainder = total_size % world_size;
+
+    for (int i = 0; i < world_size; ++i) {
+      counts[i] = base_count + (i < remainder ? 1 : 0);
+      displs[i] = (i == 0) ? 0 : (displs[i - 1] + counts[i - 1]);
+    }
+
+    for (int proc = 1; proc < world_.size(); ++proc) {
+      std::vector<uint8_t> proc_data(input_image_.begin() + displs[proc],
+                                     input_image_.begin() + displs[proc] + counts[proc]);
+      world_.send(proc, 0, proc_data);
+    }
+    local_data.assign(input_image_.begin(), input_image_.begin() + counts[0]);
+  } else {
+    world_.recv(0, 0, local_data);
+  }
+}
+
+void varfolomeev_g_histogram_linear_stretching_all::TestTaskALL::GatherResults(const std::vector<uint8_t>& local_data) {
+  int total_size = input_image_.size();
+  int world_size = world_.size();
+
+  std::vector<int> counts(world_size);
+  std::vector<int> displs(world_size);
+
+  int base_count = total_size / world_size;
+  int remainder = total_size % world_size;
+
+  for (int i = 0; i < world_size; ++i) {
+    counts[i] = base_count + (i < remainder ? 1 : 0);
+    displs[i] = (i == 0) ? 0 : (displs[i - 1] + counts[i - 1]);
+  }
+
+  if (world_.rank() == 0) {
+    result_image_.resize(total_size);
+  }
+
+  boost::mpi::gatherv(world_, local_data.data(), local_data.size(), result_image_.data(), counts, displs, 0);
+}
+
+void varfolomeev_g_histogram_linear_stretching_all::TestTaskALL::FindMinMax(const std::vector<uint8_t>& local_data,
+                                                                            int& global_min, int& global_max) {
+  int local_min = 255;
+  int local_max = 0;
+
+  if (!local_data.empty()) {
+    local_min = *std::ranges::min_element(local_data);
+    local_max = *std::ranges::max_element(local_data);
+  }
+
+  boost::mpi::all_reduce(world_, local_min, global_min, boost::mpi::minimum<int>());
+  boost::mpi::all_reduce(world_, local_max, global_max, boost::mpi::maximum<int>());
+
+  if (global_min == global_max) {
+    global_min = 0;
+    global_max = 255;
+  }
+}
+
+void varfolomeev_g_histogram_linear_stretching_all::TestTaskALL::StretchHistogram(std::vector<uint8_t>& local_data,
+                                                                                  int global_min, int global_max) {
+  if (global_min != global_max) {
+#pragma omp parallel for
+    for (int i = 0; i < static_cast<int>(local_data.size()); ++i) {
+      local_data[i] =
+          static_cast<uint8_t>(std::round((local_data[i] - global_min) * 255.0 / (global_max - global_min)));
+    }
+  }
+}
+}  // namespace
+
 bool varfolomeev_g_histogram_linear_stretching_all::TestTaskALL::ValidationImpl() {
   if (world_.rank() == 0) {
     return task_data->inputs_count[0] == task_data->outputs_count[0] && task_data->inputs_count[0] > 0;
@@ -51,79 +132,4 @@ bool varfolomeev_g_histogram_linear_stretching_all::TestTaskALL::PostProcessingI
     std::ranges::copy(result_image_.begin(), result_image_.end(), output_ptr);
   }
   return true;
-}
-
-void varfolomeev_g_histogram_linear_stretching_all::TestTaskALL::ScatterData(std::vector<uint8_t>& local_data) {
-  if (world_.rank() == 0) {
-    for (int proc = 1; proc < world_.size(); ++proc) {
-      std::vector<uint8_t> proc_data;
-      for (size_t i = proc; i < input_image_.size(); i += world_.size()) {
-        proc_data.push_back(input_image_[i]);
-      }
-      world_.send(proc, 0, proc_data);  // NOLINT
-    }
-
-    for (size_t i = 0; i < input_image_.size(); i += world_.size()) {
-      local_data.push_back(input_image_[i]);
-    }
-  } else {
-    world_.recv(0, 0, local_data);  // NOLINT
-  }
-}
-
-void varfolomeev_g_histogram_linear_stretching_all::TestTaskALL::FindMinMax(const std::vector<uint8_t>& local_data,
-                                                                            int& global_min, int& global_max) {
-  int local_min = 255;
-  int local_max = 0;
-
-  if (!local_data.empty()) {
-    local_min = *std::ranges::min_element(local_data);
-    local_max = *std::ranges::max_element(local_data);
-  }
-
-  boost::mpi::all_reduce(world_, local_min, global_min, boost::mpi::minimum<int>());
-  boost::mpi::all_reduce(world_, local_max, global_max, boost::mpi::maximum<int>());
-
-  if (global_min == global_max) {
-    global_min = 0;
-    global_max = 255;
-  }
-}
-
-void varfolomeev_g_histogram_linear_stretching_all::TestTaskALL::StretchHistogram(std::vector<uint8_t>& local_data,
-                                                                                  int global_min, int global_max) {
-  if (global_min != global_max) {
-#pragma omp parallel for
-    for (int i = 0; i < static_cast<int>(local_data.size()); ++i) {
-      local_data[i] =
-          static_cast<uint8_t>(std::round((local_data[i] - global_min) * 255.0 / (global_max - global_min)));
-    }
-  }
-}
-
-void varfolomeev_g_histogram_linear_stretching_all::TestTaskALL::GatherResults(const std::vector<uint8_t>& local_data) {
-  if (world_.rank() == 0) {
-    result_image_.resize(input_image_.size());
-
-    for (size_t i = 0; i < local_data.size(); ++i) {
-      const size_t pos = i * world_.size();
-      if (pos < result_image_.size()) {
-        result_image_[pos] = local_data[i];
-      }
-    }
-
-    for (int proc = 1; proc < world_.size(); ++proc) {
-      std::vector<uint8_t> proc_data;
-      world_.recv(proc, 0, proc_data);  // NOLINT
-
-      for (size_t i = 0; i < proc_data.size(); ++i) {
-        const size_t pos = (i * world_.size()) + proc;
-        if (pos < result_image_.size()) {
-          result_image_[pos] = proc_data[i];
-        }
-      }
-    }
-  } else {
-    world_.send(0, 0, local_data);  // NOLINT
-  }
 }
