@@ -203,23 +203,7 @@ bool vavilov_v_cannon_all::CannonALL::RunImpl() {
   num_blocks_ = find_compatible_q(size, N_);
   block_size_ = N_ / num_blocks_;
   int block_size_sq = block_size_ * block_size_;
-  if (num_blocks_ == 1 && size > 1) {
-    int active_procs = 1;
-    mpi::communicator active_world = world_.split(rank < active_procs ? 0 : MPI_UNDEFINED);
-    if (rank >= active_procs) {
-      return true;
-    }
-    num_blocks_ = static_cast<int>(std::sqrt(N_));
-    if (active_world.rank() == 0) {
-      InitialShiftone();
-      for (int iter = 0; iter < num_blocks_; ++iter) {
-        BlockMultiplyone();
-        ShiftBlocksone();
-      }
-    }
-    return true;
-  }
-
+  
   // Create sub-communicator for active processes
   int active_procs = num_blocks_ * num_blocks_;
   mpi::communicator active_world = world_.split(rank < active_procs ? 0 : MPI_UNDEFINED);
@@ -230,6 +214,18 @@ bool vavilov_v_cannon_all::CannonALL::RunImpl() {
   // Update rank and size for the new communicator
   rank = active_world.rank();
   size = active_world.size();
+
+  if (num_blocks_ == 1 && size > 1) {
+    num_blocks_ = static_cast<int>(std::sqrt(N_));
+    if (rank == 0) {
+      InitialShiftone();
+      for (int iter = 0; iter < num_blocks_; ++iter) {
+        BlockMultiplyone();
+        ShiftBlocksone();
+      }
+    }
+    return true;
+  }
 
   // Initialize local matrices
   std::vector<double> local_A(block_size_sq);
