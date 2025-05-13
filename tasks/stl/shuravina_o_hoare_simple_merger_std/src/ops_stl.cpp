@@ -1,9 +1,8 @@
 #include "stl/shuravina_o_hoare_simple_merger_std/include/ops_stl.hpp"
 
 #include <algorithm>
-#include <core/util/include/util.hpp>
 #include <atomic>
-#include <execution>
+#include <core/util/include/util.hpp>
 #include <future>
 #include <memory>
 #include <utility>
@@ -86,11 +85,11 @@ void TestTaskSTL::MergeHelper(std::vector<int>& arr, int left, int mid, int righ
   if ((right - left > parallel_threshold) && (thread_counter.load() < ppc::util::GetPPCNumThreads())) {
     thread_counter++;
     auto future = std::async(std::launch::async, [&]() {
-      merge_segment(left, mid + 1, mid, mid + (right - left) / 2, 0);
+      merge_segment(left, mid + 1, mid, mid + ((right - left) / 2), 0);
       thread_counter--;
     });
 
-    merge_segment(mid + 1 + (right - left) / 2, mid + 1, right, right, (right - left) / 2 + 1);
+    merge_segment(mid + 1 + ((right - left) / 2), mid + 1, right, right, ((right - left) / 2) + 1);
     future.get();
   } else {
     merge_segment(left, mid + 1, mid, right, 0);
