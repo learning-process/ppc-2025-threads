@@ -17,6 +17,66 @@
 #include "core/util/include/util.hpp"
 #include "mpi.h"
 
+void smirnov_i_radix_sort_simple_merge_all::TestTaskALL::DistributeData(int rank, int size, int n,
+                                                                        std::vector<int> &sendcounts,
+                                                                        std::vector<int> &displs,
+                                                                        std::vector<int> &local_data,
+                                                                        const std::vector<int> &data) {
+  for (int i = 0; i < size; i++) {
+    sendcounts[i] = n / size + (i < n % size ? 1 : 0);
+    displs[i] = (i == 0) ? 0 : displs[i - 1] + sendcounts[i - 1];
+  }
+  local_data.resize(sendcounts[rank]);
+  MPI_Scatterv(data.data(), sendcounts.data(), displs.data(), MPI_INT, local_data.data(), sendcounts[rank], MPI_INT, 0,
+               MPI_COMM_WORLD);
+}
+void smirnov_i_radix_sort_simple_merge_all::TestTaskALL::ProcessThreads(int max_th,
+                                                                        std::deque<std::vector<int>> &firstdq,
+                                                                        std::deque<std::vector<int>> &seconddq,
+                                                                        std::vector<std::thread> &threads,
+                                                                        std::mutex &mtx) {
+  bool flag = static_cast<int>(firstdq.size()) != 1;
+  while (flag) {
+    int pairs = (static_cast<int>(firstdq.size()) + 1) / 2;
+    threads.clear();
+    threads.reserve(pairs);
+    for (int i = 0; i < pairs; i++) {
+      threads.emplace_back(&smirnov_i_radix_sort_simple_merge_all::TestTaskALL::Merging, std::ref(firstdq),
+                           std::ref(seconddq), std::ref(mtx));
+    }
+    for (auto &th : threads) {
+      th.join();
+    }
+    if (static_cast<int>(firstdq.size()) == 1) {
+      seconddq.push_back(std::move(firstdq.front()));
+      firstdq.pop_front();
+    }
+    std::swap(firstdq, seconddq);
+    flag = static_cast<int>(firstdq.size()) != 1;
+    if (firstdq.empty() && seconddq.empty()) {
+      flag = false;
+    }
+  }
+}
+void smirnov_i_radix_sort_simple_merge_all::TestTaskALL::CollectData(int rank, int size,
+                                                                     std::deque<std::vector<int>> &globdq_a,
+                                                                     std::vector<int> &local_res) {
+  for (int i = 0; i < size; i++) {
+    std::vector<int> local_sorted;
+    if (i == 0) {
+      local_sorted = local_res;
+    } else {
+      int res_size = 0;
+      MPI_Recv(&res_size, 1, MPI_INT, i, 0, MPI_COMM_WORLD, MPI_STATUS_IGNORE);
+      local_sorted.clear();
+      local_sorted.resize(res_size);
+      MPI_Recv(local_sorted.data(), res_size, MPI_INT, i, 0, MPI_COMM_WORLD, MPI_STATUS_IGNORE);
+    }
+    if (!local_sorted.empty()) {
+      globdq_a.push_back(std::move(local_sorted));
+    }
+  }
+}
 std::vector<int> smirnov_i_radix_sort_simple_merge_all::TestTaskALL::Merge(std::vector<int> &mas1,
                                                                            std::vector<int> &mas2) {
   std::vector<int> res;
@@ -123,7 +183,7 @@ bool smirnov_i_radix_sort_simple_merge_all::TestTaskALL::ValidationImpl() {
   MPI_Bcast(&is_valid, 1, MPI_C_BOOL, 0, MPI_COMM_WORLD);
   return is_valid;
 }
-// NOLINTNEXTLINE(readability-function-cognitive-complexity)
+
 bool smirnov_i_radix_sort_simple_merge_all::TestTaskALL::RunImpl() {
   int size = 0;
   int rank = 0;
@@ -131,21 +191,13 @@ bool smirnov_i_radix_sort_simple_merge_all::TestTaskALL::RunImpl() {
   MPI_Comm_rank(MPI_COMM_WORLD, &rank);
   std::vector<int> sendcounts(size);
   std::vector<int> displs(size, 0);
-  int offset = 0;
   int n = 0;
   if (rank == 0) {
     n = static_cast<int>(mas_.size());
   }
   MPI_Bcast(&n, 1, MPI_INT, 0, MPI_COMM_WORLD);
-  for (int i = 0; i < size; i++) {
-    sendcounts[i] = n / size + (i < n % size ? 1 : 0);
-    displs[i] = offset;
-    offset += sendcounts[i];
-  }
-  std::vector<int> local_mas(sendcounts[rank]);
-  MPI_Scatterv(mas_.data(), sendcounts.data(), displs.data(), MPI_INT, local_mas.data(), sendcounts[rank], MPI_INT, 0,
-               MPI_COMM_WORLD);
-
+  std::vector<int> local_mas{};
+  DistributeData(rank, size, n, sendcounts, displs, local_mas, mas_);
   const int max_th = ppc::util::GetPPCNumThreads();
   std::mutex mtxfirstdq;
   std::mutex mtx;
@@ -163,56 +215,22 @@ bool smirnov_i_radix_sort_simple_merge_all::TestTaskALL::RunImpl() {
       firstdq.push_back(std::move(local_th_mas));
     }
   }
-  bool flag = static_cast<int>(firstdq.size()) != 1;
   std::vector<std::thread> threads{};
-  while (flag) {
-    int pairs = (static_cast<int>(firstdq.size()) + 1) / 2;
-    threads.clear();
-    threads.reserve(pairs);
-    for (int i = 0; i < pairs; i++) {
-      threads.emplace_back(&smirnov_i_radix_sort_simple_merge_all::TestTaskALL::Merging, std::ref(firstdq),
-                           std::ref(seconddq), std::ref(mtx));
-    }
-    for (auto &th : threads) {
-      th.join();
-    }
-    if (static_cast<int>(firstdq.size()) == 1) {
-      seconddq.push_back(std::move(firstdq.front()));
-      firstdq.pop_front();
-    }
-    std::swap(firstdq, seconddq);
-    flag = static_cast<int>(firstdq.size()) != 1;
-    if (firstdq.empty() && seconddq.empty()) {
-      flag = false;
-    }
-  }
+  ProcessThreads(max_th, firstdq, seconddq, threads, std::ref(mtx));
   std::vector<int> local_res;
   if (!firstdq.empty()) {
     local_res = std::move(firstdq.front());
   }
+
   std::deque<std::vector<int>> globdq_a;
   if (rank == 0) {
-    std::vector<int> local_sorted;
-    for (int i = 0; i < size; i++) {
-      if (i == 0) {
-        local_sorted = local_res;
-      } else {
-        int res_size = 0;
-        MPI_Recv(&res_size, 1, MPI_INT, i, 0, MPI_COMM_WORLD, MPI_STATUS_IGNORE);
-        local_sorted.clear();
-        local_sorted.resize(res_size);
-        MPI_Recv(local_sorted.data(), res_size, MPI_INT, i, 0, MPI_COMM_WORLD, MPI_STATUS_IGNORE);
-      }
-      if (!local_sorted.empty()) {
-        globdq_a.push_back(std::move(local_sorted));
-      }
-    }
+    CollectData(rank, size, globdq_a, local_res);
   } else {
-    int send_size = static_cast<int>(local_res.size());
+    int send_size = local_res.size();
     MPI_Send(&send_size, 1, MPI_INT, 0, 0, MPI_COMM_WORLD);
     MPI_Send(local_res.data(), send_size, MPI_INT, 0, 0, MPI_COMM_WORLD);
   }
-
+  bool flag = false;
   if (rank == 0) {
     flag = static_cast<int>(globdq_a.size()) != 1;
     std::vector<std::thread> ts{};
