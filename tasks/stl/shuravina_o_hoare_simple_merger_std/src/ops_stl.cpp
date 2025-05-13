@@ -1,14 +1,11 @@
 #include "stl/shuravina_o_hoare_simple_merger_std/include/ops_stl.hpp"
 
 #include <algorithm>
-#include <execution>
-#include <future>
 #include <memory>
 #include <utility>
 #include <vector>
 
 #include "core/task/include/task.hpp"
-#include <core/util/include/util.hpp>
 
 namespace shuravina_o_hoare_simple_merger_stl {
 
@@ -39,123 +36,46 @@ void TestTaskSTL::QuickSort(std::vector<int>& arr, int left, int right) {
     return;
   }
 
-  int mid = left + ((right - left) / 2);
-  if (arr[left] > arr[mid]) {
-    std::swap(arr[left], arr[mid]);
-  }
-  if (arr[left] > arr[right]) {
-    std::swap(arr[left], arr[right]);
-  }
-  if (arr[mid] > arr[right]) {
-    std::swap(arr[mid], arr[right]);
-  }
-  int pivot = arr[mid];
-  std::swap(arr[mid], arr[right - 1]);
-
+  int pivot = arr[(left + right) / 2];
   int i = left;
-  int j = right - 1;
-  while (true) {
-    while (arr[++i] < pivot) {
-    }
-    while (arr[--j] > pivot) {
-    }
-    if (i >= j) {
-      break;
-    }
-    std::swap(arr[i], arr[j]);
-  }
-  std::swap(arr[i], arr[right - 1]);
+  int j = right;
 
-  const int parallel_threshold = 5000;
-  const int max_threads = ppc::util::GetPPCNumThreads();
-  static std::atomic<int> thread_counter(0);
-
-  if ((right - left > parallel_threshold) && (thread_counter.load() < max_threads)) {
-    thread_counter++;
-    auto future = std::async(std::launch::async, [&arr, left, i]() {
-      QuickSort(arr, left, i - 1);
-      thread_counter--;
-    });
-    QuickSort(arr, i + 1, right);
-    future.get();
-  } else {
-    QuickSort(arr, left, i - 1);
-    QuickSort(arr, i + 1, right);
+  while (i <= j) {
+    while (arr[i] < pivot) {
+      i++;
+    }
+    while (arr[j] > pivot) {
+      j--;
+    }
+    if (i <= j) {
+      std::swap(arr[i], arr[j]);
+      i++;
+      j--;
+    }
   }
+
+  QuickSort(arr, left, j);
+  QuickSort(arr, i, right);
 }
 
 void TestTaskSTL::MergeHelper(std::vector<int>& arr, int left, int mid, int right) {
   std::vector<int> temp(right - left + 1);
+  int i = left;
+  int j = mid + 1;
+  int k = 0;
 
-  const int parallel_threshold = 10000;
-  const int max_threads = ppc::util::GetPPCNumThreads();
-  static std::atomic<int> thread_counter(0);
-
-  if ((right - left > parallel_threshold) && (thread_counter.load() < max_threads)) {
-    thread_counter++;
-    auto future = std::async(std::launch::async, [&arr, &temp, left, mid, right]() {
-      int i = left;
-      int j = mid + 1;
-      int k = 0;
-      int half_point = mid + ((right - left) / 2);
-      while (i <= mid && j <= half_point) {
-        if (arr[i] <= arr[j]) {
-          temp[k++] = arr[i++];
-        } else {
-          temp[k++] = arr[j++];
-        }
-      }
-      while (i <= mid) {
-        temp[k++] = arr[i++];
-      }
-      thread_counter--;
-    });
-
-    int i = mid + 1 + ((right - left) / 2);
-    int j = mid + 1;
-    int k = ((right - left) / 2) + 1;
-    while (i <= right && j <= right) {
-      if (arr[i] <= arr[j]) {
-        temp[k++] = arr[i++];
-      } else {
-        temp[k++] = arr[j++];
-      }
-    }
-    while (i <= right) {
-      temp[k++] = arr[i++];
-    }
-    while (j <= right) {
-      temp[k++] = arr[j++];
-    }
-
-    future.get();
-  } else {
-    int i = left;
-    int j = mid + 1;
-    int k = 0;
-    while (i <= mid && j <= right) {
-      if (arr[i] <= arr[j]) {
-        temp[k++] = arr[i++];
-      } else {
-        temp[k++] = arr[j++];
-      }
-    }
-    while (i <= mid) {
-      temp[k++] = arr[i++];
-    }
-    while (j <= right) {
-      temp[k++] = arr[j++];
-    }
+  while (i <= mid && j <= right) {
+    temp[k++] = (arr[i] <= arr[j]) ? arr[i++] : arr[j++];
+  }
+  while (i <= mid) {
+    temp[k++] = arr[i++];
+  }
+  while (j <= right) {
+    temp[k++] = arr[j++];
   }
 
-  const int copy_threshold = 5000;
-  if (temp.size() > copy_threshold) {
-    std::copy(std::execution::par, temp.begin(), temp.end(), arr.begin() + left);
-  } else {
-    std::ranges::copy(temp.begin(), temp.end(), arr.begin() + left);
-  }
+  std::ranges::copy(temp, arr.begin() + left);
 }
-
 bool TestTaskSTL::RunImpl() {
   if (input_.empty()) {
     output_ = input_;
@@ -165,7 +85,6 @@ bool TestTaskSTL::RunImpl() {
   const int size = static_cast<int>(input_.size());
   QuickSort(input_, 0, size - 1);
   MergeHelper(input_, 0, (size / 2) - 1, size - 1);
-
   output_ = input_;
   return true;
 }
@@ -175,13 +94,7 @@ bool TestTaskSTL::PostProcessingImpl() {
     return true;
   }
   int* out_ptr = reinterpret_cast<int*>(task_data->outputs[0]);
-
-  if (output_.size() > 5000) {
-    std::copy(std::execution::par, output_.begin(), output_.end(), out_ptr);
-  } else {
-    std::ranges::copy(output_.begin(), output_.end(), out_ptr);
-  }
-
+  std::ranges::copy(output_, out_ptr);
   return true;
 }
 
