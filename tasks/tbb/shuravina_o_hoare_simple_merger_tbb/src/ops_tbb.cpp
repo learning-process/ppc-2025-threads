@@ -1,7 +1,6 @@
 #include "tbb/shuravina_o_hoare_simple_merger_tbb/include/ops_tbb.hpp"
 
 #include <algorithm>
-#include <cstddef>
 #include <vector>
 
 #include "oneapi/tbb/parallel_invoke.h"
@@ -32,7 +31,7 @@ void TestTaskTBB::QuickSort(std::vector<int>& arr, int low, int high) {
 
 void TestTaskTBB::ParallelQuickSort(std::vector<int>& arr, int low, int high) {
   if (low < high) {
-    if (high - low < PARALLEL_THRESHOLD) {
+    if (high - low < static_cast<int>(kParallelThreshold)) {
       QuickSort(arr, low, high);
       return;
     }
@@ -66,7 +65,7 @@ bool TestTaskTBB::ValidationImpl() {
 bool TestTaskTBB::RunImpl() {
   auto size = input_.size();
   if (size > 0) {
-    if (size < PARALLEL_THRESHOLD) {
+    if (size < kParallelThreshold) {
       QuickSort(input_, 0, static_cast<int>(size) - 1);
     } else {
       ParallelQuickSort(input_, 0, static_cast<int>(size) - 1);
