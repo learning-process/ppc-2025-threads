@@ -209,7 +209,7 @@ std::vector<MatrixCRS> tyurin_m_matmul_crs_complex_all::TestTaskAll::Gather(Matr
   workers = std::max(1, workers);  // Wnull-dereference
 
   std::vector<MatrixCRS> v(workers);
-  v[0] = std::move(local_res);
+  *(v.begin()) = std::move(local_res);
   for (int p = 1; p < workers; ++p) {
     v[p] = MatrixCRS::Recv(MPI_COMM_WORLD, p);
   }

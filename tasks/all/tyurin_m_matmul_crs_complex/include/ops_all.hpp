@@ -50,7 +50,7 @@ struct MatrixCRS {
 
   void Bcast(MPI_Comm comm, int root) {
     int sizes[3] = {int(data.size()), int(rowptr.size()), int(colind.size())};
-    MPI_Bcast(sizes, std::size(sizes), MPI_INT32_T, root, comm);
+    MPI_Bcast(sizes, std::size(sizes), MPI_INT, root, comm);
 
     data.resize(sizes[0]);
     MPI_Bcast(data.data(), static_cast<int>(data.size() * sizeof(decltype(data)::value_type)), MPI_CHAR, root, comm);
@@ -58,20 +58,20 @@ struct MatrixCRS {
     MPI_Bcast(&cols_count, 1, MPI_UINT32_T, root, comm);
 
     rowptr.resize(sizes[1]);
-    MPI_Bcast(rowptr.data(), static_cast<int>(rowptr.size()), MPI_UINT32_T, root, comm);
+    MPI_Bcast(rowptr.data(), static_cast<int>(rowptr.size()), MPI_UNSIGNED, root, comm);
 
     colind.resize(sizes[2]);
-    MPI_Bcast(colind.data(), static_cast<int>(colind.size()), MPI_UINT32_T, root, comm);
+    MPI_Bcast(colind.data(), static_cast<int>(colind.size()), MPI_UNSIGNED, root, comm);
   }
 
   void Send(MPI_Comm comm, int dest) const {
     int sizes[3] = {int(data.size()), int(rowptr.size()), int(colind.size())};
-    MPI_Send(sizes, std::size(sizes), MPI_INT32_T, dest, 0, comm);
+    MPI_Send(sizes, std::size(sizes), MPI_INT, dest, 0, comm);
 
     MPI_Send(data.data(), static_cast<int>(data.size() * sizeof(decltype(data)::value_type)), MPI_CHAR, dest, 0, comm);
     MPI_Send(&cols_count, 1, MPI_UINT32_T, dest, 0, comm);
-    MPI_Send(rowptr.data(), static_cast<int>(rowptr.size()), MPI_UINT32_T, dest, 0, comm);
-    MPI_Send(colind.data(), static_cast<int>(colind.size()), MPI_UINT32_T, dest, 0, comm);
+    MPI_Send(rowptr.data(), static_cast<int>(rowptr.size()), MPI_INT, dest, 0, comm);
+    MPI_Send(colind.data(), static_cast<int>(colind.size()), MPI_INT, dest, 0, comm);
   }
 
   [[nodiscard]] MatrixCRS ExtractPart(const TSubrange& row_range) const {
@@ -95,20 +95,20 @@ struct MatrixCRS {
     const TSubrange idx_range{rowptr[row_range.first], rowptr[row_range.second]};
 
     int sizes[2] = {idx_range.second - idx_range.first, row_range.second - row_range.first + 1};
-    MPI_Send(sizes, std::size(sizes), MPI_INT32_T, dest, 0, comm);
+    MPI_Send(sizes, std::size(sizes), MPI_INT, dest, 0, comm);
 
     MPI_Send(data.data() + idx_range.first, sizes[0] * static_cast<int>(sizeof(decltype(data)::value_type)), MPI_CHAR,
              dest, 0, comm);
     MPI_Send(&cols_count, 1, MPI_UINT32_T, dest, 0, comm);
-    MPI_Send(rowptr.data() + row_range.first, sizes[1], MPI_UINT32_T, dest, 0, comm);
-    MPI_Send(colind.data() + idx_range.first, sizes[0], MPI_UINT32_T, dest, 0, comm);
+    MPI_Send(rowptr.data() + row_range.first, sizes[1], MPI_UNSIGNED, dest, 0, comm);
+    MPI_Send(colind.data() + idx_range.first, sizes[0], MPI_UNSIGNED, dest, 0, comm);
   }
 
   static MatrixCRS Recv(MPI_Comm comm, int source) {
     MatrixCRS res{};
 
     int sizes[2]{};
-    MPI_Recv(sizes, std::size(sizes), MPI_INT32_T, source, 0, comm, MPI_STATUS_IGNORE);
+    MPI_Recv(sizes, std::size(sizes), MPI_INT, source, 0, comm, MPI_STATUS_IGNORE);
 
     res.data.resize(sizes[0]);
     MPI_Recv(res.data.data(), sizes[0] * static_cast<int>(sizeof(decltype(data)::value_type)), MPI_CHAR, source, 0,
@@ -117,10 +117,10 @@ struct MatrixCRS {
     MPI_Recv(&res.cols_count, 1, MPI_UINT32_T, source, 0, comm, MPI_STATUS_IGNORE);
 
     res.rowptr.resize(sizes[1]);
-    MPI_Recv(res.rowptr.data(), sizes[1], MPI_UINT32_T, source, 0, comm, MPI_STATUS_IGNORE);
+    MPI_Recv(res.rowptr.data(), sizes[1], MPI_UNSIGNED, source, 0, comm, MPI_STATUS_IGNORE);
 
     res.colind.resize(sizes[0]);
-    MPI_Recv(res.colind.data(), sizes[0], MPI_UINT32_T, source, 0, comm, MPI_STATUS_IGNORE);
+    MPI_Recv(res.colind.data(), sizes[0], MPI_UNSIGNED, source, 0, comm, MPI_STATUS_IGNORE);
 
     return res;
   }
