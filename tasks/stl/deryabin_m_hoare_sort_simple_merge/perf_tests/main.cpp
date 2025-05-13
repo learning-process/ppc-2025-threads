@@ -21,7 +21,7 @@ TEST(deryabin_m_hoare_sort_simple_merge_stl, test_pipeline_run_STL) {
   std::ranges::generate(input_array.begin(), input_array.end(), [&] { return distribution(gen); });
   std::shuffle(input_array.begin(), input_array.end(), gen);
   std::vector<std::vector<double>> in_array(1, input_array);
-  size_t chunk_count = 256;
+  size_t chunk_count = 16;
   std::vector<double> output_array_stl(512000);
   std::vector<std::vector<double>> out_array_stl(1, output_array_stl);
   std::vector<double> output_array_seq(512000);
@@ -77,7 +77,7 @@ TEST(deryabin_m_hoare_sort_simple_merge_stl, test_task_run_STL) {
   std::ranges::generate(input_array.begin(), input_array.end(), [&] { return distribution(gen); });
   std::shuffle(input_array.begin(), input_array.end(), gen);
   std::vector<std::vector<double>> in_array(1, input_array);
-  size_t chunk_count = 256;
+  size_t chunk_count = 16;
   std::vector<double> output_array_stl(512000);
   std::vector<std::vector<double>> out_array_stl(1, output_array_stl);
   std::vector<double> output_array_seq(512000);
