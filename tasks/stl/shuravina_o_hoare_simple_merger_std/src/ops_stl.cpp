@@ -58,84 +58,42 @@ void TestTaskSTL::QuickSort(std::vector<int>& arr, int left, int right) {
     }
   }
 
-  const int parallel_threshold = 5000;
-  const int max_threads = ppc::util::GetPPCNumThreads();
-  static std::atomic<int> thread_counter(0);
-
-  if ((right - left > parallel_threshold) && (thread_counter.load() < max_threads)) {
-    thread_counter++;
-    auto future = std::async(std::launch::async, [&arr, left, j]() {
-      QuickSort(arr, left, j);
-      thread_counter--;
-    });
-    QuickSort(arr, i, right);
-    future.get();
-  } else {
-    QuickSort(arr, left, j);
-    QuickSort(arr, i, right);
-  }
-}
-
-void TestTaskSTL::MergeSequential(std::vector<int>& arr, std::vector<int>& temp, int left, int mid, int right) {
-  int i = left;
-  int j = mid + 1;
-  int k = 0;
-
-  while (i <= mid && j <= right) {
-    temp[k++] = (arr[i] <= arr[j]) ? arr[i++] : arr[j++];
-  }
-  while (i <= mid) {
-    temp[k++] = arr[i++];
-  }
-  while (j <= right) {
-    temp[k++] = arr[j++];
-  }
-}
-
-void TestTaskSTL::MergeParallel(std::vector<int>& arr, std::vector<int>& temp, int left, int mid, int right) {
-  static std::atomic<int> thread_counter(0);
-  thread_counter++;
-
-  auto future = std::async(std::launch::async, [&]() {
-    int i = left;
-    int j = mid + 1;
-    int k = 0;
-    int half_point = mid + (right - left) / 2;
-
-    while (i <= mid && j <= half_point) {
-      temp[k++] = (arr[i] <= arr[j]) ? arr[i++] : arr[j++];
-    }
-    while (i <= mid) {
-      temp[k++] = arr[i++];
-    }
-    thread_counter--;
-  });
-
-  int i = mid + 1 + (right - left) / 2;
-  int j = mid + 1;
-  int k = (right - left) / 2 + 1;
-
-  while (i <= right && j <= right) {
-    temp[k++] = (arr[i] <= arr[j]) ? arr[i++] : arr[j++];
-  }
-  while (i <= right) {
-    temp[k++] = arr[i++];
-  }
-  while (j <= right) {
-    temp[k++] = arr[j++];
-  }
-
-  future.get();
+  QuickSort(arr, left, j);
+  QuickSort(arr, i, right);
 }
 
 void TestTaskSTL::MergeHelper(std::vector<int>& arr, int left, int mid, int right) {
   std::vector<int> temp(right - left + 1);
   const int parallel_threshold = 10000;
+  static std::atomic<int> thread_counter(0);
 
-  if ((right - left > parallel_threshold) && (ppc::util::GetPPCNumThreads() > 1)) {
-    MergeParallel(arr, temp, left, mid, right);
+  auto merge_segment = [&](int start_i, int start_j, int end_i, int end_j, int start_k) {
+    int i = start_i;
+    int j = start_j;
+    int k = start_k;
+
+    while (i <= end_i && j <= end_j) {
+      temp[k++] = (arr[i] <= arr[j]) ? arr[i++] : arr[j++];
+    }
+    while (i <= end_i) {
+      temp[k++] = arr[i++];
+    }
+    while (j <= end_j) {
+      temp[k++] = arr[j++];
+    }
+  };
+
+  if ((right - left > parallel_threshold) && (thread_counter.load() < ppc::util::GetPPCNumThreads())) {
+    thread_counter++;
+    auto future = std::async(std::launch::async, [&]() {
+      merge_segment(left, mid + 1, mid, mid + (right - left) / 2, 0);
+      thread_counter--;
+    });
+
+    merge_segment(mid + 1 + (right - left) / 2, mid + 1, right, right, (right - left) / 2 + 1);
+    future.get();
   } else {
-    MergeSequential(arr, temp, left, mid, right);
+    merge_segment(left, mid + 1, mid, right, 0);
   }
 
   std::ranges::copy(temp, arr.begin() + left);

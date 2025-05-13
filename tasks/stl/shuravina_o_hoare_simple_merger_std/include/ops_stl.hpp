@@ -22,8 +22,6 @@ class TestTaskSTL : public ppc::core::Task {
 
   static void QuickSort(std::vector<int>& arr, int left, int right);
   static void MergeHelper(std::vector<int>& arr, int left, int mid, int right);
-  static void MergeSequential(std::vector<int>& arr, std::vector<int>& temp, int left, int mid, int right);
-  static void MergeParallel(std::vector<int>& arr, std::vector<int>& temp, int left, int mid, int right);
 
   bool ValidationImpl() override;
   bool PreProcessingImpl() override;
