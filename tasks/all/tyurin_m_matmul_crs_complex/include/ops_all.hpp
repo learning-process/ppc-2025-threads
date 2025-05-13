@@ -70,8 +70,8 @@ struct MatrixCRS {
 
     MPI_Send(data.data(), static_cast<int>(data.size() * sizeof(decltype(data)::value_type)), MPI_CHAR, dest, 0, comm);
     MPI_Send(&cols_count, 1, MPI_UINT32_T, dest, 0, comm);
-    MPI_Send(rowptr.data(), static_cast<int>(rowptr.size()), MPI_INT, dest, 0, comm);
-    MPI_Send(colind.data(), static_cast<int>(colind.size()), MPI_INT, dest, 0, comm);
+    MPI_Send(rowptr.data(), static_cast<int>(rowptr.size()), MPI_UNSIGNED, dest, 0, comm);
+    MPI_Send(colind.data(), static_cast<int>(colind.size()), MPI_UNSIGNED, dest, 0, comm);
   }
 
   [[nodiscard]] MatrixCRS ExtractPart(const TSubrange& row_range) const {
