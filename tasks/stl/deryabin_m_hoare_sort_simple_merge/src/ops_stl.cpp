@@ -91,7 +91,7 @@ bool deryabin_m_hoare_sort_simple_merge_stl::HoareSortTaskSTL::RunImpl() {
   if (chunk_count_ < num_threads) {
     // Увеличиваем число кусочков до ближайшей степени двойки >= num_threads,
     // чтобы эффективно загрузить все доступные потоки
-    chunk_count_ = 1 << std::bit_width(num_threads - 1);
+    chunk_count_ = 1ULL << std::bit_width(num_threads - 1);
   }
   auto parallel_for = [&](size_t start, size_t end, auto&& func) {
     const size_t num_chunk_per_thread = (end - start) / num_threads;
