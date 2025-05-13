@@ -37,14 +37,13 @@ void kapustin_i_jarv_alg_stl::TestTaskSTL::FindBestPointMultithreaded(size_t cur
   std::vector<std::thread> threads;
   threads.reserve(num_threads);
 
-  for (size_t i = 0; i < num_threads; ++i) {
-    const size_t start = i * chunk_size;
+  for (size_t thread_id = 0; thread_id < num_threads; ++thread_id) {
+    const size_t start = thread_id * chunk_size;
     const size_t end = std::min(start + chunk_size, total_points);
 
-    threads.emplace_back([this, current_index, &local_best, i, start, end, total_points]() {
-      size_t best = (current_index + 1) % total_points;
+    threads.emplace_back([this, current_index, &local_best, thread_id, start, end]() {
       const auto& current_point = input_[current_index];
-
+      size_t best = (current_index + 1) % input_.size();
       for (size_t j = start; j < end; ++j) {
         if (j == current_index) {
           continue;
@@ -60,17 +59,16 @@ void kapustin_i_jarv_alg_stl::TestTaskSTL::FindBestPointMultithreaded(size_t cur
         } else if (orient == 0) {
           const int dx1 = candidate.first - current_point.first;
           const int dy1 = candidate.second - current_point.second;
-          const int dist1 = (dx1 * dx1) + (dy1 * dy1);
           const int dx2 = best_point.first - current_point.first;
           const int dy2 = best_point.second - current_point.second;
+          const int dist1 = (dx1 * dx1) + (dy1 * dy1);
           const int dist2 = (dx2 * dx2) + (dy2 * dy2);
-
           if (dist1 > dist2) {
             best = j;
           }
         }
       }
-      local_best[i] = best;
+      local_best[thread_id] = best;
     });
   }
 
@@ -102,9 +100,11 @@ bool kapustin_i_jarv_alg_stl::TestTaskSTL::RunImpl() {
   const auto start_point = current_point_;
   size_t current_index = leftmost_index_;
   output_.clear();
+  output_.reserve(input_.size());
+
   output_.push_back(start_point);
   unique_points.insert(start_point);
-  const size_t num_threads = std::min(static_cast<size_t>(ppc::util::GetPPCNumThreads()), input_.size());
+  const auto num_threads = std::min(static_cast<size_t>(ppc::util::GetPPCNumThreads()), input_.size());
 
   do {
     std::vector<size_t> local_best(num_threads, (current_index + 1) % input_.size());
@@ -125,12 +125,10 @@ bool kapustin_i_jarv_alg_stl::TestTaskSTL::RunImpl() {
     if (unique_points.contains(input_[best_index])) {
       continue;
     }
-
     current_point_ = input_[best_index];
     output_.push_back(current_point_);
     unique_points.insert(current_point_);
     current_index = best_index;
-
   } while (current_point_ != start_point);
 
   return true;
@@ -152,7 +150,6 @@ int kapustin_i_jarv_alg_stl::TestTaskSTL::CalculateDistance(const std::pair<int,
 int kapustin_i_jarv_alg_stl::TestTaskSTL::Orientation(const std::pair<int, int>& p, const std::pair<int, int>& q,
                                                       const std::pair<int, int>& r) {
   const int val = ((q.second - p.second) * (r.first - q.first)) - ((q.first - p.first) * (r.second - q.second));
-
   if (val == 0) {
     return 0;
   }
