@@ -33,6 +33,12 @@ class TestTaskALL : public ppc::core::Task {
   void UpdateDistancesInBlock(const tbb::blocked_range<size_t>& r, std::vector<std::atomic<int>>& distances_atomic);
   void RunAlgorithm(boost::mpi::communicator& world, int rank, int size);
 
+  void InitializeAtomicDistances(std::vector<std::atomic<int>>& distances_atomic) const;
+  void ProcessBlock(const tbb::blocked_range<size_t>& r, std::atomic<bool>& local_changed,
+                    std::vector<std::atomic<int>>& distances_atomic) const;
+  void SyncGlobalDistances(boost::mpi::communicator& world, std::vector<std::atomic<int>>& distances_atomic) const;
+  void FinalizeDistances(const std::vector<std::atomic<int>>& distances_atomic);
+
   std::vector<std::vector<Edge>> adjacency_list_;
   std::vector<int> distances_;
   size_t start_vertex_ = 0;
