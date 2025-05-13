@@ -12,6 +12,7 @@
 #include <cstddef>
 #include <functional>
 #include <limits>
+#include <stdexcept>
 #include <vector>
 
 #include "core/util/include/util.hpp"
