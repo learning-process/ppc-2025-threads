@@ -4,6 +4,7 @@
 #include <cmath>
 #include <cstddef>
 #include <vector>
+#include <numeric>
 
 bool komshina_d_image_filtering_vertical_gaussian_all::TestTaskALL::PreProcessingImpl() {
   width_ = task_data->inputs_count[0];
@@ -17,8 +18,7 @@ bool komshina_d_image_filtering_vertical_gaussian_all::TestTaskALL::PreProcessin
   auto* kernel_ptr = reinterpret_cast<float*>(task_data->inputs[1]);
   kernel_.assign(kernel_ptr, kernel_ptr + kernel_size);
 
-  output_.resize(input_.size(), 0);
-
+  output_.resize(input_size, 0);
   return true;
 }
 
@@ -47,71 +47,93 @@ bool komshina_d_image_filtering_vertical_gaussian_all::TestTaskALL::ValidationIm
 bool komshina_d_image_filtering_vertical_gaussian_all::TestTaskALL::RunImpl() {
   const int rank = world_.rank();
   const int size = world_.size();
+  const int kChannels = 3;
+  const int kRadius = static_cast<int>(kernel_.size() / 2);
 
-  std::size_t rows_per_proc = height_ / size;
-  std::size_t start_row = rank * rows_per_proc;
-  std::size_t end_row = (rank == size - 1) ? height_ : start_row + rows_per_proc;
+  int rows_per_proc = height_ / size;
+  int remainder = height_ % size;
+  int local_height = rows_per_proc + (rank < remainder ? 1 : 0);
+  int offset = rank * rows_per_proc + std::min(rank, remainder);
 
-  std::vector<unsigned char> local_output = FilterLocalRegion(start_row, end_row);
+  int halo_top = (offset > 0) ? kRadius : 0;
+  int halo_bottom = ((offset + local_height) < static_cast<int>(height_)) ? kRadius : 0;
+  int total_rows = local_height + halo_top + halo_bottom;
+  int local_input_size = total_rows * width_ * kChannels;
+
+  std::vector<unsigned char> local_input(local_input_size);
 
   if (rank == 0) {
-    output_.resize(input_.size());
-    std::ranges::copy(local_output, output_.begin());
+    for (int i = 0; i < size; ++i) {
+      int lh = rows_per_proc + (i < remainder ? 1 : 0);
+      int off = i * rows_per_proc + std::min(i, remainder);
 
-    for (int src = 1; src < size; ++src) {
-      std::size_t src_start = src * rows_per_proc;
-      std::size_t src_end = (src == size - 1) ? height_ : src_start + rows_per_proc;
-      std::size_t chunk_size = (src_end - src_start) * width_ * 3;
+      int halo_t = (off > 0) ? kRadius : 0;
+      int halo_b = ((off + lh) < static_cast<int>(height_)) ? kRadius : 0;
+      int rows = lh + halo_t + halo_b;
 
-      std::vector<unsigned char> temp(chunk_size);
-      world_.recv(src, 0, temp);
-      std::ranges::copy(temp, output_.begin() + static_cast<std::ptrdiff_t>(src_start * width_ * 3));
+      int start_row = off - halo_t;
+      int start_idx = std::max(start_row, 0) * width_ * kChannels;
+      int count = rows * width_ * kChannels;
+
+      if (i == 0) {
+        std::copy(input_.begin() + start_idx, input_.begin() + start_idx + count, local_input.begin());
+      } else {
+        std::vector<unsigned char> temp(input_.begin() + start_idx, input_.begin() + start_idx + count);
+        world_.send(i, 0, temp);
+      }
     }
   } else {
-    world_.send(0, 0, local_output);
+    world_.recv(0, 0, local_input);
   }
 
-  world_.barrier();
-  return true;
-}
+  std::vector<unsigned char> local_output(local_height * width_ * kChannels, 0);
 
-std::vector<unsigned char> komshina_d_image_filtering_vertical_gaussian_all::TestTaskALL::FilterLocalRegion(
-    std::size_t start_row, std::size_t end_row) const {
-  const int kernel_radius = static_cast<int>(kernel_.size() / 2);
-  std::size_t local_height = end_row - start_row;
-  std::vector<unsigned char> local_output(local_height * width_ * 3);
+const std::size_t width = width_;
+  const std::vector<float>& kernel = kernel_;
 
-  int start_row_int = static_cast<int>(start_row);
-  int end_row_int = static_cast<int>(end_row);
-  int width_int = static_cast<int>(width_);
-  int height_int = static_cast<int>(height_);
+#pragma omp parallel for default(none) shared(local_input, local_output, kernel) \
+    firstprivate(local_height, width, kRadius, halo_top)
+  for (int y = halo_top; y < halo_top + local_height; ++y) {
+    for (std::size_t x = 0; x < width; ++x) {
+      std::size_t base_idx = ((y - halo_top) * width + x) * kChannels;
 
-#pragma omp parallel for default(none) shared(local_output) \
-    firstprivate(start_row_int, end_row_int, width_int, height_int, kernel_radius)
-  for (int y = start_row_int; y < end_row_int; ++y) {
-    for (int x = 0; x < width_int; ++x) {
-      for (int c = 0; c < 3; ++c) {
-        float total = 0.0F;
-        for (int k = -kernel_radius; k <= kernel_radius; ++k) {
-          int yk = y + k;
-          if (yk < 0 || yk >= height_int) {
-            continue;
-          }
-          std::size_t idx = ((yk * width_int + x) * 3) + c;
-          total += static_cast<float>(input_[idx]) * kernel_[k + kernel_radius];
+      for (int c = 0; c < kChannels; ++c) {
+        float sum = 0.0f;
+
+        for (int k = -kRadius; k <= kRadius; ++k) {
+          int yy = y + k;
+          if (yy < 0 || yy >= static_cast<int>(total_rows)) continue;
+
+          std::size_t idx = ((yy * width + x) * kChannels) + c;
+          sum += static_cast<float>(local_input[idx]) * kernel[k + kRadius];
         }
-        std::size_t local_y = y - start_row_int;
-        local_output[((local_y * width_int + x) * 3) + c] = std::clamp(static_cast<int>(std::round(total)), 0, 255);
+
+        local_output[base_idx + c] = std::clamp(static_cast<int>(std::round(sum)), 0, 255);
       }
     }
   }
 
-  return local_output;
+  if (rank == 0) {
+    std::copy(local_output.begin(), local_output.end(), output_.begin() + offset * width_ * kChannels);
+
+    for (int i = 1; i < size; ++i) {
+      int lh = rows_per_proc + (i < remainder ? 1 : 0);
+      std::vector<unsigned char> temp(lh * width_ * kChannels);
+      world_.recv(i, 1, temp);
+
+      int target_offset = (i * rows_per_proc + std::min(i, remainder)) * width_ * kChannels;
+      std::copy(temp.begin(), temp.end(), output_.begin() + target_offset);
+    }
+  } else {
+    world_.send(0, 1, local_output);
+  }
+
+  return true;
 }
 
 bool komshina_d_image_filtering_vertical_gaussian_all::TestTaskALL::PostProcessingImpl() {
   if (world_.rank() == 0) {
-    std::ranges::copy(output_, task_data->outputs[0]);
+    std::ranges::copy(output_, reinterpret_cast<unsigned char*>(task_data->outputs[0]));
   }
   return true;
 }
