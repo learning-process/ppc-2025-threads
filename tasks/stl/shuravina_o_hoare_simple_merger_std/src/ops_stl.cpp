@@ -1,6 +1,10 @@
 #include "stl/shuravina_o_hoare_simple_merger_std/include/ops_stl.hpp"
 
 #include <algorithm>
+#include <core/util/include/util.hpp>
+#include <atomic>
+#include <execution>
+#include <future>
 #include <memory>
 #include <utility>
 #include <vector>
@@ -54,12 +58,25 @@ void TestTaskSTL::QuickSort(std::vector<int>& arr, int left, int right) {
     }
   }
 
-  QuickSort(arr, left, j);
-  QuickSort(arr, i, right);
+  const int parallel_threshold = 5000;
+  const int max_threads = ppc::util::GetPPCNumThreads();
+  static std::atomic<int> thread_counter(0);
+
+  if ((right - left > parallel_threshold) && (thread_counter.load() < max_threads)) {
+    thread_counter++;
+    auto future = std::async(std::launch::async, [&arr, left, j]() {
+      QuickSort(arr, left, j);
+      thread_counter--;
+    });
+    QuickSort(arr, i, right);
+    future.get();
+  } else {
+    QuickSort(arr, left, j);
+    QuickSort(arr, i, right);
+  }
 }
 
-void TestTaskSTL::MergeHelper(std::vector<int>& arr, int left, int mid, int right) {
-  std::vector<int> temp(right - left + 1);
+void TestTaskSTL::MergeSequential(std::vector<int>& arr, std::vector<int>& temp, int left, int mid, int right) {
   int i = left;
   int j = mid + 1;
   int k = 0;
@@ -73,9 +90,57 @@ void TestTaskSTL::MergeHelper(std::vector<int>& arr, int left, int mid, int righ
   while (j <= right) {
     temp[k++] = arr[j++];
   }
+}
+
+void TestTaskSTL::MergeParallel(std::vector<int>& arr, std::vector<int>& temp, int left, int mid, int right) {
+  static std::atomic<int> thread_counter(0);
+  thread_counter++;
+
+  auto future = std::async(std::launch::async, [&]() {
+    int i = left;
+    int j = mid + 1;
+    int k = 0;
+    int half_point = mid + (right - left) / 2;
+
+    while (i <= mid && j <= half_point) {
+      temp[k++] = (arr[i] <= arr[j]) ? arr[i++] : arr[j++];
+    }
+    while (i <= mid) {
+      temp[k++] = arr[i++];
+    }
+    thread_counter--;
+  });
+
+  int i = mid + 1 + (right - left) / 2;
+  int j = mid + 1;
+  int k = (right - left) / 2 + 1;
+
+  while (i <= right && j <= right) {
+    temp[k++] = (arr[i] <= arr[j]) ? arr[i++] : arr[j++];
+  }
+  while (i <= right) {
+    temp[k++] = arr[i++];
+  }
+  while (j <= right) {
+    temp[k++] = arr[j++];
+  }
+
+  future.get();
+}
+
+void TestTaskSTL::MergeHelper(std::vector<int>& arr, int left, int mid, int right) {
+  std::vector<int> temp(right - left + 1);
+  const int parallel_threshold = 10000;
+
+  if ((right - left > parallel_threshold) && (ppc::util::GetPPCNumThreads() > 1)) {
+    MergeParallel(arr, temp, left, mid, right);
+  } else {
+    MergeSequential(arr, temp, left, mid, right);
+  }
 
   std::ranges::copy(temp, arr.begin() + left);
 }
+
 bool TestTaskSTL::RunImpl() {
   if (input_.empty()) {
     output_ = input_;
