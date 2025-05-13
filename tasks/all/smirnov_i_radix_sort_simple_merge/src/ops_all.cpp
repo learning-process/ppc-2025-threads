@@ -226,7 +226,7 @@ bool smirnov_i_radix_sort_simple_merge_all::TestTaskALL::RunImpl() {
   if (rank == 0) {
     CollectData(rank, size, globdq_a, local_res);
   } else {
-    int send_size = local_res.size();
+    int send_size = static_cast<int>(local_res.size());
     MPI_Send(&send_size, 1, MPI_INT, 0, 0, MPI_COMM_WORLD);
     MPI_Send(local_res.data(), send_size, MPI_INT, 0, 0, MPI_COMM_WORLD);
   }
