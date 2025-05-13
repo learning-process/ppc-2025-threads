@@ -3,8 +3,42 @@
 #include <algorithm>
 #include <cmath>
 #include <cstddef>
-#include <vector>
 #include <numeric>
+#include <vector>
+
+namespace {
+
+void VerticalGaussianFilter(const std::vector<unsigned char>& local_input, std::vector<unsigned char>& local_output,
+                            const std::vector<float>& kernel, std::size_t local_height, std::size_t width,
+                            std::size_t k_radius, std::size_t halo_top) {
+  const std::size_t k_channels = 3;
+
+#pragma omp parallel for default(none) \
+    shared(local_input, local_output, kernel, local_height, width, k_radius, halo_top)
+  for (std::ptrdiff_t y = static_cast<std::ptrdiff_t>(halo_top);
+       y < static_cast<std::ptrdiff_t>(halo_top + local_height); ++y) {
+    for (std::size_t x = 0; x < width; ++x) {
+      std::size_t base_idx = ((static_cast<std::size_t>(y) - halo_top) * width + x) * k_channels;
+
+      for (std::size_t c = 0; c < k_channels; ++c) {
+        float sum = 0.0f;
+
+        for (std::ptrdiff_t k = -static_cast<std::ptrdiff_t>(k_radius); k <= static_cast<std::ptrdiff_t>(k_radius);
+             ++k) {
+          std::ptrdiff_t yy = y + k;
+          if (yy < 0 || yy >= static_cast<std::ptrdiff_t>(local_height)) continue;
+
+          std::size_t idx = (static_cast<std::size_t>(yy) * width + x) * k_channels + c;
+          sum += static_cast<float>(local_input[idx]) * kernel[k + k_radius];
+        }
+
+        local_output[base_idx + c] = std::clamp(static_cast<int>(std::round(sum)), 0, 255);
+      }
+    }
+  }
+}
+
+}  // namespace
 
 bool komshina_d_image_filtering_vertical_gaussian_all::TestTaskALL::PreProcessingImpl() {
   width_ = task_data->inputs_count[0];
@@ -47,33 +81,33 @@ bool komshina_d_image_filtering_vertical_gaussian_all::TestTaskALL::ValidationIm
 bool komshina_d_image_filtering_vertical_gaussian_all::TestTaskALL::RunImpl() {
   const int rank = world_.rank();
   const int size = world_.size();
-  const int kChannels = 3;
-  const int kRadius = static_cast<int>(kernel_.size() / 2);
+  const std::size_t k_channels = 3;
+  const std::size_t k_radius = kernel_.size() / 2;
 
-  int rows_per_proc = height_ / size;
-  int remainder = height_ % size;
-  int local_height = rows_per_proc + (rank < remainder ? 1 : 0);
-  int offset = rank * rows_per_proc + std::min(rank, remainder);
+  std::size_t rows_per_proc = height_ / static_cast<std::size_t>(size);
+  std::size_t remainder = height_ % static_cast<std::size_t>(size);
+  std::size_t local_height = rows_per_proc + (rank < remainder ? 1 : 0);
+  std::size_t offset = (rank * rows_per_proc) + std::min<std::size_t>(rank, remainder);
 
-  int halo_top = (offset > 0) ? kRadius : 0;
-  int halo_bottom = ((offset + local_height) < static_cast<int>(height_)) ? kRadius : 0;
-  int total_rows = local_height + halo_top + halo_bottom;
-  int local_input_size = total_rows * width_ * kChannels;
+  std::size_t halo_top = (offset > 0) ? k_radius : 0;
+  std::size_t halo_bottom = ((offset + local_height) < height_) ? k_radius : 0;
+  std::size_t total_rows = local_height + halo_top + halo_bottom;
+  std::size_t local_input_size = total_rows * width_ * k_channels;
 
   std::vector<unsigned char> local_input(local_input_size);
 
   if (rank == 0) {
     for (int i = 0; i < size; ++i) {
-      int lh = rows_per_proc + (i < remainder ? 1 : 0);
-      int off = i * rows_per_proc + std::min(i, remainder);
+      std::size_t lh = rows_per_proc + (i < remainder ? 1 : 0);
+      std::size_t off = (i * rows_per_proc) + std::min<std::size_t>(i, remainder);
 
-      int halo_t = (off > 0) ? kRadius : 0;
-      int halo_b = ((off + lh) < static_cast<int>(height_)) ? kRadius : 0;
-      int rows = lh + halo_t + halo_b;
+      std::size_t halo_t = (off > 0) ? k_radius : 0;
+      std::size_t halo_b = ((off + lh) < height_) ? k_radius : 0;
+      std::size_t rows = lh + halo_t + halo_b;
 
-      int start_row = off - halo_t;
-      int start_idx = std::max(start_row, 0) * width_ * kChannels;
-      int count = rows * width_ * kChannels;
+      std::ptrdiff_t start_row = static_cast<std::ptrdiff_t>(off) - static_cast<std::ptrdiff_t>(halo_t);
+      std::size_t start_idx = std::max<ptrdiff_t>(start_row, 0) * width_ * k_channels;
+      std::size_t count = rows * width_ * k_channels;
 
       if (i == 0) {
         std::copy(input_.begin() + start_idx, input_.begin() + start_idx + count, local_input.begin());
@@ -86,43 +120,20 @@ bool komshina_d_image_filtering_vertical_gaussian_all::TestTaskALL::RunImpl() {
     world_.recv(0, 0, local_input);
   }
 
-  std::vector<unsigned char> local_output(local_height * width_ * kChannels, 0);
+  std::vector<unsigned char> local_output(local_height * width_ * k_channels, 0);
 
-const std::size_t width = width_;
-  const std::vector<float>& kernel = kernel_;
-
-#pragma omp parallel for default(none) shared(local_input, local_output, kernel) \
-    firstprivate(local_height, width, kRadius, halo_top)
-  for (int y = halo_top; y < halo_top + local_height; ++y) {
-    for (std::size_t x = 0; x < width; ++x) {
-      std::size_t base_idx = ((y - halo_top) * width + x) * kChannels;
-
-      for (int c = 0; c < kChannels; ++c) {
-        float sum = 0.0f;
-
-        for (int k = -kRadius; k <= kRadius; ++k) {
-          int yy = y + k;
-          if (yy < 0 || yy >= static_cast<int>(total_rows)) continue;
-
-          std::size_t idx = ((yy * width + x) * kChannels) + c;
-          sum += static_cast<float>(local_input[idx]) * kernel[k + kRadius];
-        }
-
-        local_output[base_idx + c] = std::clamp(static_cast<int>(std::round(sum)), 0, 255);
-      }
-    }
-  }
+  VerticalGaussianFilter(local_input, local_output, kernel_, local_height, width_, k_radius, halo_top);
 
   if (rank == 0) {
-    std::copy(local_output.begin(), local_output.end(), output_.begin() + offset * width_ * kChannels);
+    std::ranges::copy(local_output, output_.begin() + offset * width_ * k_channels);
 
     for (int i = 1; i < size; ++i) {
-      int lh = rows_per_proc + (i < remainder ? 1 : 0);
-      std::vector<unsigned char> temp(lh * width_ * kChannels);
+      std::size_t lh = rows_per_proc + (i < remainder ? 1 : 0);
+      std::vector<unsigned char> temp(lh * width_ * k_channels);
       world_.recv(i, 1, temp);
 
-      int target_offset = (i * rows_per_proc + std::min(i, remainder)) * width_ * kChannels;
-      std::copy(temp.begin(), temp.end(), output_.begin() + target_offset);
+      std::size_t target_offset = (i * rows_per_proc + std::min<std::size_t>(i, remainder)) * width_ * k_channels;
+      std::ranges::copy(temp, output_.begin() + target_offset);
     }
   } else {
     world_.send(0, 1, local_output);

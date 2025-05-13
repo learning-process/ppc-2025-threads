@@ -196,14 +196,15 @@ TEST(komshina_d_image_filtering_vertical_gaussian_all, EdgeHandling) {
 }
 
 TEST(komshina_d_image_filtering_vertical_gaussian_all, MPI_Scatter_PartitionsCorrect) {
-  int rank, size;
+  int rank = 0;
+  int size = 0;
   MPI_Comm_rank(MPI_COMM_WORLD, &rank);
   MPI_Comm_size(MPI_COMM_WORLD, &size);
 
   std::size_t width = 3;
   std::size_t height = 10;
   std::vector<unsigned char> in(width * height * 3, 100);
-  std::vector<float> kernel(9, 1.0f);
+  std::vector<float> kernel(9, 1.0F);
   std::vector<unsigned char> out(in.size());
 
   std::shared_ptr<ppc::core::TaskData> task_data = std::make_shared<ppc::core::TaskData>();
@@ -231,14 +232,16 @@ TEST(komshina_d_image_filtering_vertical_gaussian_all, MPI_Scatter_PartitionsCor
 }
 
 TEST(komshina_d_image_filtering_vertical_gaussian_all, MPI_SingleProcess) {
-  int size;
+  int size = 0;
   MPI_Comm_size(MPI_COMM_WORLD, &size);
-  if (size != 1) GTEST_SKIP() << "Single process test";
+  if (size != 1) {
+    GTEST_SKIP() << "Single process test";
+  }
 
   std::size_t width = 4;
   std::size_t height = 4;
   std::vector<unsigned char> in(width * height * 3, 128);
-  std::vector<float> kernel(9, 1.0f);
+  std::vector<float> kernel(9, 1.0F);
   std::vector<unsigned char> out(in.size(), 0);
 
   std::shared_ptr<ppc::core::TaskData> task_data = std::make_shared<ppc::core::TaskData>();
@@ -263,15 +266,18 @@ TEST(komshina_d_image_filtering_vertical_gaussian_all, MPI_SingleProcess) {
 }
 
 TEST(komshina_d_image_filtering_vertical_gaussian_all, MPI_MoreProcessesThanRows) {
-  int rank, size;
+  int rank = 0;
+  int size = 0;
   MPI_Comm_rank(MPI_COMM_WORLD, &rank);
   MPI_Comm_size(MPI_COMM_WORLD, &size);
-  if (size < 5) GTEST_SKIP() << "Test requires at least 5 MPI processes";
+  if (size < 5) {
+    GTEST_SKIP() << "Test requires at least 5 MPI processes";
+  }
 
   std::size_t width = 3;
   std::size_t height = 3;
   std::vector<unsigned char> in(width * height * 3, 200);
-  std::vector<float> kernel(9, 1.0f);
+  std::vector<float> kernel(9, 1.0F);
   std::vector<unsigned char> out(in.size(), 0);
 
   std::shared_ptr<ppc::core::TaskData> task_data = std::make_shared<ppc::core::TaskData>();
