@@ -25,7 +25,7 @@ yasakova_t_sparse_matrix_multiplication_stl::CompressedRowStorage GenMatrix(
   yasakova_t_sparse_matrix_multiplication_stl::CompressedRowStorage left_matrix((int)num_rows, (int)num_cols);
   for (unsigned int i = left_border_row; i < right_border_row; i++) {
     for (unsigned int j = left_border_col; j < right_border_col; j++) {
-      left_matrix.InsertElement((int)i, std::complex<double>(min_value + (rand() % max_value), min_value + (rand() % max_value)), (int)j);
+      left_matrix.InsertElement((int)i, Complex(min_value + (rand() % max_value), min_value + (rand() % max_value)), (int)j);
     }
   }
   return left_matrix;
@@ -35,10 +35,10 @@ TEST(yasakova_t_sparse_matrix_multiplication_task_stl, test_pipeline_run) {
   srand(time(nullptr));
   yasakova_t_sparse_matrix_multiplication_stl::CompressedRowStorage left_matrix(400, 400);
   yasakova_t_sparse_matrix_multiplication_stl::CompressedRowStorage right_matrix(400, 400);
-  std::vector<std::complex<double>> input_data = {};
-  std::vector<std::complex<double>> left_matrix_data;
-  std::vector<std::complex<double>> right_matrix_data;
-  std::vector<std::complex<double>> output_buffer(left_matrix.columnCount * right_matrix.rowCount * 100, 0);
+  std::vector<Complex> input_data = {};
+  std::vector<Complex> left_matrix_data;
+  std::vector<Complex> right_matrix_data;
+  std::vector<Complex> output_buffer(left_matrix.columnCount * right_matrix.rowCount * 100, 0);
 
   left_matrix = ::GenMatrix(400, 400, 0, 150, 0, 150, -100, 100);
   right_matrix = ::GenMatrix(400, 400, 50, 140, 50, 150, -100, 100);
@@ -87,10 +87,10 @@ TEST(yasakova_t_sparse_matrix_multiplication_task_stl, test_task_run) {
   srand(time(nullptr));
   yasakova_t_sparse_matrix_multiplication_stl::CompressedRowStorage left_matrix(400, 400);
   yasakova_t_sparse_matrix_multiplication_stl::CompressedRowStorage right_matrix(400, 400);
-  std::vector<std::complex<double>> input_data = {};
-  std::vector<std::complex<double>> left_matrix_data;
-  std::vector<std::complex<double>> right_matrix_data;
-  std::vector<std::complex<double>> output_buffer(left_matrix.columnCount * right_matrix.rowCount * 100, 0);
+  std::vector<Complex> input_data = {};
+  std::vector<Complex> left_matrix_data;
+  std::vector<Complex> right_matrix_data;
+  std::vector<Complex> output_buffer(left_matrix.columnCount * right_matrix.rowCount * 100, 0);
 
   left_matrix = ::GenMatrix(400, 400, 0, 150, 0, 150, -100, 100);
   right_matrix = ::GenMatrix(400, 400, 50, 140, 50, 150, -100, 100);
