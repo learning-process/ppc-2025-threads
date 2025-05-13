@@ -1,5 +1,7 @@
 #include "stl/karaseva_e_congrad/include/ops_stl.hpp"
 
+#include "core/util/include/util.hpp"
+
 #include <algorithm>
 #include <cmath>
 #include <cstddef>
@@ -104,10 +106,22 @@ void MatrixVectorMultiply(const std::vector<double>& a, std::vector<double>& ap,
 
 void ParallelVectorUpdate(std::vector<double>& x, std::vector<double>& r, const std::vector<double>& p,
                           const std::vector<double>& ap, double alpha, size_t size) {
-  const size_t num_threads = std::max<size_t>(1, std::thread::hardware_concurrency());
+  // Get thread count using PPC utility with validation
+  int thread_count = ppc::util::GetPPCNumThreads();
+  const int max_hardware_threads = static_cast<int>(std::thread::hardware_concurrency());
+
+  // Validate thread count
+  if (thread_count <= 0 || thread_count > max_hardware_threads) {
+    thread_count = max_hardware_threads > 0 ? max_hardware_threads : 1;
+  }
+
+  // Ensure minimum 1 thread
+  const size_t num_threads = static_cast<size_t>(std::max(1, thread_count));
+
   std::vector<std::thread> threads;
   const size_t chunk_size = (size + num_threads - 1) / num_threads;
 
+  // Parallel execution
   for (size_t t = 0; t < num_threads; ++t) {
     const size_t start = t * chunk_size;
     const size_t end = std::min(start + chunk_size, size);
@@ -119,6 +133,7 @@ void ParallelVectorUpdate(std::vector<double>& x, std::vector<double>& r, const 
     });
   }
 
+  // Join threads
   for (auto& thread : threads) {
     thread.join();
   }
