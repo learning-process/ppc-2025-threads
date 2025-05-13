@@ -3,11 +3,10 @@
 #include <omp.h>
 
 #include <algorithm>
-#include <boost/mpi/collectives.hpp>
+#include <boost/mpi/collectives/gatherv.hpp>
 #include <boost/mpi/collectives/all_reduce.hpp>
 #include <boost/mpi/operations.hpp>
 #include <cmath>
-#include <cstddef>
 #include <cstdint>
 #include <vector>
 
@@ -25,8 +24,8 @@ void StretchHistogram(std::vector<uint8_t>& local_data, int global_min, int glob
 
 void varfolomeev_g_histogram_linear_stretching_all::TestTaskALL::ScatterData(std::vector<uint8_t>& local_data) {
   if (world_.rank() == 0) {
-    int total_size = input_image_.size();
-    int world_size = world_.size();
+    int total_size = static_cast<int>(input_image_.size());
+    int world_size = static_cast<int>(world_.size());
 
     std::vector<int> counts(world_.size());
     std::vector<int> displs(world_.size());
@@ -69,7 +68,7 @@ void varfolomeev_g_histogram_linear_stretching_all::TestTaskALL::GatherResults(c
     result_image_.resize(total_size);
   }
 
-  boost::mpi::gatherv(world_, local_data.data(), local_data.size(), result_image_.data(), counts, displs, 0);
+  boost::mpi::gatherv(world_, local_data.data(), static_cast<int>(local_data.size()), result_image_.data(), counts, displs, 0);
 }
 
 void varfolomeev_g_histogram_linear_stretching_all::TestTaskALL::FindMinMax(const std::vector<uint8_t>& local_data,
