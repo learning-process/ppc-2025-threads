@@ -14,6 +14,7 @@
 #include <climits>
 #include <cstddef>
 #include <functional>
+#include <iterator>
 #include <utility>
 #include <vector>
 
@@ -123,7 +124,8 @@ bool muhina_m_dijkstra_all::TestTaskALL::PreProcessingImpl() {
     if (in_ptr == nullptr) {
       return false;
     }
-    graph_data_.assign(in_ptr, in_ptr + input_size);
+    graph_data_.reserve(input_size);
+    std::ranges::copy(in_ptr, in_ptr + input_size, std::back_inserter(graph_data_));
     for (int proc = 1; proc < world_.size(); proc++) {
       world_.send(proc, 0, graph_data_);
     }
@@ -159,8 +161,8 @@ bool muhina_m_dijkstra_all::TestTaskALL::PreProcessingImpl() {
 
 bool muhina_m_dijkstra_all::TestTaskALL::ValidationImpl() {
   if (world_.rank() == 0) {
-    return !task_data->inputs_count.empty() && task_data->inputs_count[0] > 0;
-    return !task_data->outputs_count.empty() && task_data->outputs_count[0] > 0;
+    return !task_data->inputs_count.empty() && task_data->inputs_count[0] > 0 && !task_data->outputs_count.empty() &&
+           task_data->outputs_count[0] > 0;
   }
   return true;
 }
