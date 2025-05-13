@@ -7,9 +7,10 @@
 #include <algorithm>
 #include <atomic>
 #include <boost/mpi/collectives/all_reduce.hpp>
-#include <boost/mpi/collectives/broadcast.hpp>
 #include <boost/mpi/communicator.hpp>
+#include <boost/mpi/operations.hpp>
 #include <cstddef>
+#include <functional>
 #include <limits>
 #include <vector>
 
@@ -105,6 +106,11 @@ bool trubin_a_algorithm_dijkstra_all::TestTaskALL::RunImpl() {
   int rank = world.rank();
   int size = world.size();
 
+  RunAlgorithm(world, rank, size);
+  return true;
+}
+
+void trubin_a_algorithm_dijkstra_all::TestTaskALL::RunAlgorithm(boost::mpi::communicator& world, int rank, int size) {
   const int num_threads = ppc::util::GetPPCNumThreads();
   oneapi::tbb::task_arena arena(num_threads);
 
@@ -115,9 +121,9 @@ bool trubin_a_algorithm_dijkstra_all::TestTaskALL::RunImpl() {
     }
     distances_atomic[start_vertex_] = 0;
 
-    size_t block_size = (num_vertices_ + size - 1) / size;
-    size_t local_start = rank * block_size;
-    size_t local_end = std::min(local_start + block_size, num_vertices_);
+    const size_t block_size = (num_vertices_ + size - 1) / size;
+    const size_t local_start = rank * block_size;
+    const size_t local_end = std::min(local_start + block_size, num_vertices_);
 
     bool global_changed = true;
 
@@ -127,11 +133,13 @@ bool trubin_a_algorithm_dijkstra_all::TestTaskALL::RunImpl() {
       tbb::parallel_for(tbb::blocked_range<size_t>(local_start, local_end, 512),
                         [&](const tbb::blocked_range<size_t>& r) {
                           for (size_t u = r.begin(); u < r.end(); ++u) {
-                            int u_dist = distances_atomic[u];
-                            if (u_dist == std::numeric_limits<int>::max()) continue;
+                            const int u_dist = distances_atomic[u];
+                            if (u_dist == std::numeric_limits<int>::max()) {
+                              continue;
+                            }
 
                             for (const auto& edge : adjacency_list_[u]) {
-                              int new_dist = u_dist + edge.weight;
+                              const int new_dist = u_dist + edge.weight;
                               int old_dist = distances_atomic[edge.to].load();
                               while (new_dist < old_dist) {
                                 if (distances_atomic[edge.to].compare_exchange_strong(old_dist, new_dist)) {
@@ -143,18 +151,22 @@ bool trubin_a_algorithm_dijkstra_all::TestTaskALL::RunImpl() {
                           }
                         });
 
-      int local_flag = local_changed.load() ? 1 : 0;
+      const int local_flag = local_changed.load() ? 1 : 0;
       int global_flag = 0;
-      boost::mpi::all_reduce(world, local_flag, global_flag, std::plus<int>());
+
+      boost::mpi::all_reduce(world, local_flag, global_flag, std::plus<>());
+
       global_changed = (global_flag != 0);
 
       std::vector<int> distances_snapshot(num_vertices_);
       for (size_t i = 0; i < num_vertices_; ++i) {
         distances_snapshot[i] = distances_atomic[i].load();
       }
+
       std::vector<int> global_distances(num_vertices_);
       boost::mpi::all_reduce(world, distances_snapshot.data(), num_vertices_, global_distances.data(),
                              boost::mpi::minimum<int>());
+
       for (size_t i = 0; i < num_vertices_; ++i) {
         distances_atomic[i] = global_distances[i];
       }
@@ -162,12 +174,10 @@ bool trubin_a_algorithm_dijkstra_all::TestTaskALL::RunImpl() {
 
     distances_.resize(num_vertices_);
     for (size_t i = 0; i < num_vertices_; ++i) {
-      int d = distances_atomic[i];
+      const int d = distances_atomic[i];
       distances_[i] = (d == std::numeric_limits<int>::max()) ? -1 : d;
     }
   });
-
-  return true;
 }
 
 bool trubin_a_algorithm_dijkstra_all::TestTaskALL::PostProcessingImpl() {

@@ -3,6 +3,7 @@
 #include <oneapi/tbb/blocked_range.h>
 
 #include <atomic>
+#include <boost/mpi/communicator.hpp>
 #include <cstddef>
 #include <utility>
 #include <vector>
@@ -30,6 +31,7 @@ class TestTaskALL : public ppc::core::Task {
  private:
   bool BuildAdjacencyList(const std::vector<int>& graph_data);
   void UpdateDistancesInBlock(const tbb::blocked_range<size_t>& r, std::vector<std::atomic<int>>& distances_atomic);
+  void RunAlgorithm(boost::mpi::communicator& world, int rank, int size);
 
   std::vector<std::vector<Edge>> adjacency_list_;
   std::vector<int> distances_;
