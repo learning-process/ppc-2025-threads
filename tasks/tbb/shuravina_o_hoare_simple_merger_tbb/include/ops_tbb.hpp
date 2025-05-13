@@ -2,6 +2,7 @@
 
 #include <cstddef>
 #include <memory>
+#include <utility>
 #include <vector>
 
 #include "core/task/include/task.hpp"
@@ -23,7 +24,7 @@ class TestTaskTBB : public ppc::core::Task {
 
   void QuickSort(std::vector<int>& arr, int low, int high);
   void ParallelQuickSort(std::vector<int>& arr, int low, int high);
-  int Partition(std::vector<int>& arr, int low, int high);
+  static int Partition(std::vector<int>& arr, int low, int high);
 };
 
 }  // namespace shuravina_o_hoare_simple_merger_tbb

@@ -81,7 +81,7 @@ bool TestTaskTBB::PostProcessingImpl() {
   }
 
   auto* out_ptr = reinterpret_cast<int*>(task_data->outputs[0]);
-  std::copy(output_.begin(), output_.end(), out_ptr);
+  std::ranges::copy(output_.begin(), output_.end(), out_ptr);
   return true;
 }
 
