@@ -86,25 +86,32 @@ bool vedernikova_k_gauss_stl::Gauss::RunImpl() {
     SetPixel(GetPixel(0, 0, channels_ - 1), 0, 0, channels_ - 1);
     return true;
   }
-  const uint32_t num = std::min(uint32_t(ppc::util::GetPPCNumThreads()), height_);
-  std::vector<std::thread> threads(num);
-  for (uint32_t t = 0; t < num; t++) {
-    threads[t] = std::thread([&, t] {
-      uint32_t n = height_ / num;
-      if (t < height_ % num) {
-        n++;
-      }
-      uint32_t top = (n * t) + std::min(height_ % num, t);
-      uint32_t bottom = std::min(top + n, width_ - 1);
-      for (uint32_t j = std::max(top, uint32_t(1)); j < bottom; j++) {
-        for (uint32_t i = 1; i < width_ - 1; i++) {
-          ComputePixel(i, j);
-        }
-      }
-    });
+  const int h = (int)height_;
+  const int w = (int)width_;
+
+  const int tnum = std::min(h, ppc::util::GetPPCNumThreads());
+
+  const int base = h / tnum;
+  const int extra = h % tnum;
+
+  std::vector<std::thread> threads(tnum);
+  int cur = 0;
+  for (int k = 0; k < tnum; k++) {
+    const int cnt = base + ((k < extra) ? 1 : 0);
+    threads[k] = std::thread(
+        [&](int rbegin, int rcnt) {
+          for (int j = rbegin; j < rbegin + rcnt; j++) {
+            for (int i = 0; i < w; i++) {
+              ComputePixel(i, j);
+            }
+          }
+        },
+        cur, cnt);
+    cur += cnt;
   }
-  for (uint32_t t = 0; t < num; t++) {
-    threads[t].join();
+  for (auto& t : threads) {
+    t.join();
   }
+
   return true;
 }
