@@ -1,6 +1,7 @@
 #include "stl/deryabin_m_hoare_sort_simple_merge/include/ops_stl.hpp"
 
 #include <algorithm>
+#include <bit>
 #include <cmath>
 #include <cstddef>
 #include <thread>
@@ -52,15 +53,8 @@ bool deryabin_m_hoare_sort_simple_merge_stl::HoareSortTaskSequential::RunImpl() 
     HoareSort(input_array_A_, count * min_chunk_size_, ((count + 1) * min_chunk_size_) - 1);
     count++;
   }
-  const auto num_of_lvls = [](size_t n) {
-    size_t log = 0;
-    while (n >>= 1) {
-      ++log;
-    }
-    return log;
-  };
   size_t chunk_count = chunk_count_;
-  for (size_t i = 0; i < num_of_lvls(chunk_count_); i++) {
+  for (size_t i = 0; i < std::bit_width(chunk_count_) - 1; i++) {
     for (size_t j = 0; j < chunk_count; j++) {
       std::inplace_merge(input_array_A_.begin() + static_cast<long>(j * min_chunk_size_ << (i + 1)),
                          input_array_A_.begin() + static_cast<long>(((j << 1 | 1) * (min_chunk_size_ << i))),
@@ -94,6 +88,11 @@ bool deryabin_m_hoare_sort_simple_merge_stl::HoareSortTaskSTL::RunImpl() {
   const size_t num_threads = ppc::util::GetPPCNumThreads();
   std::vector<std::thread> workers;
   workers.reserve(num_threads);
+  if (chunk_count_ < num_threads) {
+    // Увеличиваем число кусочков до ближайшей степени двойки >= num_threads,
+    // чтобы эффективно загрузить все доступные потоки
+    chunk_count_ = 1 << std::bit_width(num_threads - 1);
+  }
   auto parallel_for = [&](size_t start, size_t end, auto&& func) {
     const size_t num_chunk_per_thread = (end - start) / num_threads;
     for (size_t i = 0; i < num_threads - 1; ++i) {
@@ -124,7 +123,7 @@ bool deryabin_m_hoare_sort_simple_merge_stl::HoareSortTaskSTL::RunImpl() {
     }
     return log;
   };
-  for (size_t i = 0; i < num_of_lvls(chunk_count_);
+  for (size_t i = 0; i < std::bit_width(chunk_count_) - 1;
        ++i) {  // На каждом уровне сливаются пары соседних блоков размером min_chunk_size_ × 2^i
     parallel_for(
         0, chunk_count_ >> (i + 1), [this, i](size_t j) {  // Распределение слияний между потоками на каждом уровне
