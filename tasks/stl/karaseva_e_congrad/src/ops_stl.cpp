@@ -1,13 +1,13 @@
 #include "stl/karaseva_e_congrad/include/ops_stl.hpp"
 
-#include "core/util/include/util.hpp"
-
 #include <algorithm>
 #include <cmath>
 #include <cstddef>
 #include <numeric>
 #include <thread>
 #include <vector>
+
+#include "core/util/include/util.hpp"
 
 using namespace karaseva_a_test_task_stl;
 
