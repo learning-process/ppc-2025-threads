@@ -21,6 +21,10 @@ class TestTaskALL : public ppc::core::Task {
  private:
   std::vector<uint8_t> input_image_, result_image_;
   const boost::mpi::communicator world_;
+
+  void ScatterData(std::vector<uint8_t>& local_data);
+  void FindMinMax(const std::vector<uint8_t>& local_data, int& global_min, int& global_max);
+  void GatherResults(const std::vector<uint8_t>& local_data);
 };
 
 }  // namespace varfolomeev_g_histogram_linear_stretching_all

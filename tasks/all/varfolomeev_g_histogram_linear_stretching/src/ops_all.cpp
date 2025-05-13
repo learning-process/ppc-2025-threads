@@ -12,7 +12,18 @@
 #include <vector>
 
 namespace {
-void ScatterData(std::vector<uint8_t>& local_data) {
+void StretchHistogram(std::vector<uint8_t>& local_data, int global_min, int global_max) {
+  if (global_min != global_max) {
+#pragma omp parallel for
+    for (int i = 0; i < static_cast<int>(local_data.size()); ++i) {
+      local_data[i] =
+          static_cast<uint8_t>(std::round((local_data[i] - global_min) * 255.0 / (global_max - global_min)));
+    }
+  }
+}
+}  // namespace
+
+void varfolomeev_g_histogram_linear_stretching_all::TestTaskALL::ScatterData(std::vector<uint8_t>& local_data) {
   if (world_.rank() == 0) {
     int total_size = input_image_.size();
     int world_size = world_.size();
@@ -39,7 +50,7 @@ void ScatterData(std::vector<uint8_t>& local_data) {
   }
 }
 
-void GatherResults(const std::vector<uint8_t>& local_data) {
+void varfolomeev_g_histogram_linear_stretching_all::TestTaskALL::GatherResults(const std::vector<uint8_t>& local_data) {
   int total_size = input_image_.size();
   int world_size = world_.size();
 
@@ -61,7 +72,8 @@ void GatherResults(const std::vector<uint8_t>& local_data) {
   boost::mpi::gatherv(world_, local_data.data(), local_data.size(), result_image_.data(), counts, displs, 0);
 }
 
-void FindMinMax(const std::vector<uint8_t>& local_data, int& global_min, int& global_max) {
+void varfolomeev_g_histogram_linear_stretching_all::TestTaskALL::FindMinMax(const std::vector<uint8_t>& local_data,
+                                                                            int& global_min, int& global_max) {
   int local_min = 255;
   int local_max = 0;
 
@@ -78,17 +90,6 @@ void FindMinMax(const std::vector<uint8_t>& local_data, int& global_min, int& gl
     global_max = 255;
   }
 }
-
-void StretchHistogram(std::vector<uint8_t>& local_data, int global_min, int global_max) {
-  if (global_min != global_max) {
-#pragma omp parallel for
-    for (int i = 0; i < static_cast<int>(local_data.size()); ++i) {
-      local_data[i] =
-          static_cast<uint8_t>(std::round((local_data[i] - global_min) * 255.0 / (global_max - global_min)));
-    }
-  }
-}
-}  // namespace
 
 bool varfolomeev_g_histogram_linear_stretching_all::TestTaskALL::ValidationImpl() {
   if (world_.rank() == 0) {
