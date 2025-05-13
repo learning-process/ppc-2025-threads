@@ -7,7 +7,7 @@
 
 #include "core/task/include/task.hpp"
 
-namespace sdobnov_v_complex_ccs_matrix_mult {
+namespace sdobnov_v_complex_ccs_matrix_mult_seq {
 struct SparseMatrixCCS {
   int rows;
   int cols;
@@ -35,4 +35,4 @@ class SeqComplexCcsMatrixMult : public ppc::core::Task {
 };
 
 SparseMatrixCCS GenerateRandomMatrix(int rows, int cols, double density, int seed);
-}  // namespace sdobnov_v_complex_ccs_matrix_mult
+}  // namespace sdobnov_v_complex_ccs_matrix_mult_seq

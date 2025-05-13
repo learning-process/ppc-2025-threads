@@ -7,7 +7,8 @@
 #include <stdexcept>
 #include <vector>
 
-void sdobnov_v_complex_ccs_matrix_mult::SparseMatrixCCS::AddValue(int col, int row, const std::complex<double>& value) {
+void sdobnov_v_complex_ccs_matrix_mult_seq::SparseMatrixCCS::AddValue(int col, int row,
+                                                                      const std::complex<double>& value) {
   if (col < 0 || col >= cols || row < 0 || row >= rows) {
     throw std::out_of_range("Invalid row or column index in AddValue()");
   }
@@ -25,7 +26,7 @@ void sdobnov_v_complex_ccs_matrix_mult::SparseMatrixCCS::AddValue(int col, int r
   }
 }
 
-bool sdobnov_v_complex_ccs_matrix_mult::SparseMatrixCCS::operator==(const SparseMatrixCCS& other) const {
+bool sdobnov_v_complex_ccs_matrix_mult_seq::SparseMatrixCCS::operator==(const SparseMatrixCCS& other) const {
   if (rows != other.rows || cols != other.cols) {
     return false;
   }
@@ -44,7 +45,7 @@ bool sdobnov_v_complex_ccs_matrix_mult::SparseMatrixCCS::operator==(const Sparse
   return true;
 }
 
-sdobnov_v_complex_ccs_matrix_mult::SparseMatrixCCS sdobnov_v_complex_ccs_matrix_mult::GenerateRandomMatrix(
+sdobnov_v_complex_ccs_matrix_mult_seq::SparseMatrixCCS sdobnov_v_complex_ccs_matrix_mult_seq::GenerateRandomMatrix(
     int rows, int cols, double density, int seed = 42) {
   if (density < 0.0 || density > 1.0) {
     throw std::invalid_argument("Density must be between 0.0 and 1.0");
@@ -67,20 +68,20 @@ sdobnov_v_complex_ccs_matrix_mult::SparseMatrixCCS sdobnov_v_complex_ccs_matrix_
   return mat;
 }
 
-bool sdobnov_v_complex_ccs_matrix_mult::SeqComplexCcsMatrixMult::PreProcessingImpl() {
+bool sdobnov_v_complex_ccs_matrix_mult_seq::SeqComplexCcsMatrixMult::PreProcessingImpl() {
   M1_ = reinterpret_cast<SparseMatrixCCS*>(task_data->inputs[0]);
   M2_ = reinterpret_cast<SparseMatrixCCS*>(task_data->inputs[1]);
   Res_ = reinterpret_cast<SparseMatrixCCS*>(task_data->outputs[0]);
   return true;
 }
 
-bool sdobnov_v_complex_ccs_matrix_mult::SeqComplexCcsMatrixMult::ValidationImpl() {
+bool sdobnov_v_complex_ccs_matrix_mult_seq::SeqComplexCcsMatrixMult::ValidationImpl() {
   int m1_cols_n = reinterpret_cast<SparseMatrixCCS*>(task_data->inputs[0])->cols;
   int m2_rows_n = reinterpret_cast<SparseMatrixCCS*>(task_data->inputs[1])->rows;
   return (m1_cols_n == m2_rows_n);
 }
 
-bool sdobnov_v_complex_ccs_matrix_mult::SeqComplexCcsMatrixMult::RunImpl() {
+bool sdobnov_v_complex_ccs_matrix_mult_seq::SeqComplexCcsMatrixMult::RunImpl() {
   int rows_m1 = M1_->rows;
   int cols_m2 = M2_->cols;
 
@@ -124,4 +125,4 @@ bool sdobnov_v_complex_ccs_matrix_mult::SeqComplexCcsMatrixMult::RunImpl() {
   return true;
 }
 
-bool sdobnov_v_complex_ccs_matrix_mult::SeqComplexCcsMatrixMult::PostProcessingImpl() { return true; }
+bool sdobnov_v_complex_ccs_matrix_mult_seq::SeqComplexCcsMatrixMult::PostProcessingImpl() { return true; }

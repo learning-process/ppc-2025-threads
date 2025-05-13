@@ -10,18 +10,18 @@
 #include "core/task/include/task.hpp"
 #include "seq/sdobnov_v_complex_ccs_matrix_mult/include/complex_ccs_matrix_mult.hpp"
 
-TEST(sdobnov_v_complex_ccs_matrix_mult, test_pipeline_run) {
+TEST(sdobnov_v_complex_ccs_matrix_mult_seq, test_pipeline_run) {
   int rows = 200000;
   int cols = 200000;
-  auto a = sdobnov_v_complex_ccs_matrix_mult::GenerateRandomMatrix(rows, cols, 0.0001, 123);
-  auto b = sdobnov_v_complex_ccs_matrix_mult::GenerateRandomMatrix(cols, 1, 0.5, 321);
-  sdobnov_v_complex_ccs_matrix_mult::SparseMatrixCCS c(rows, 1);
+  auto a = sdobnov_v_complex_ccs_matrix_mult_seq::GenerateRandomMatrix(rows, cols, 0.0001, 123);
+  auto b = sdobnov_v_complex_ccs_matrix_mult_seq::GenerateRandomMatrix(cols, 1, 0.5, 321);
+  sdobnov_v_complex_ccs_matrix_mult_seq::SparseMatrixCCS c(rows, 1);
 
   auto task_data = std::make_shared<ppc::core::TaskData>();
   task_data->inputs = {reinterpret_cast<uint8_t*>(&a), reinterpret_cast<uint8_t*>(&b)};
   task_data->outputs = {reinterpret_cast<uint8_t*>(&c)};
 
-  auto test_task = std::make_shared<sdobnov_v_complex_ccs_matrix_mult::SeqComplexCcsMatrixMult>(task_data);
+  auto test_task = std::make_shared<sdobnov_v_complex_ccs_matrix_mult_seq::SeqComplexCcsMatrixMult>(task_data);
 
   auto perf_attr = std::make_shared<ppc::core::PerfAttr>();
   perf_attr->num_running = 5;
@@ -40,18 +40,18 @@ TEST(sdobnov_v_complex_ccs_matrix_mult, test_pipeline_run) {
   ASSERT_TRUE(test_task->ValidationImpl());
 }
 
-TEST(sdobnov_v_complex_ccs_matrix_mult, test_task_run) {
+TEST(sdobnov_v_complex_ccs_matrix_mult_seq, test_task_run) {
   int rows = 200000;
   int cols = 200000;
-  auto a = sdobnov_v_complex_ccs_matrix_mult::GenerateRandomMatrix(rows, cols, 0.0001, 456);
-  auto b = sdobnov_v_complex_ccs_matrix_mult::GenerateRandomMatrix(cols, 1, 0.5, 654);
-  sdobnov_v_complex_ccs_matrix_mult::SparseMatrixCCS c(rows, 1);
+  auto a = sdobnov_v_complex_ccs_matrix_mult_seq::GenerateRandomMatrix(rows, cols, 0.0001, 456);
+  auto b = sdobnov_v_complex_ccs_matrix_mult_seq::GenerateRandomMatrix(cols, 1, 0.5, 654);
+  sdobnov_v_complex_ccs_matrix_mult_seq::SparseMatrixCCS c(rows, 1);
 
   auto task_data = std::make_shared<ppc::core::TaskData>();
   task_data->inputs = {reinterpret_cast<uint8_t*>(&a), reinterpret_cast<uint8_t*>(&b)};
   task_data->outputs = {reinterpret_cast<uint8_t*>(&c)};
 
-  auto test_task = std::make_shared<sdobnov_v_complex_ccs_matrix_mult::SeqComplexCcsMatrixMult>(task_data);
+  auto test_task = std::make_shared<sdobnov_v_complex_ccs_matrix_mult_seq::SeqComplexCcsMatrixMult>(task_data);
 
   auto perf_attr = std::make_shared<ppc::core::PerfAttr>();
   perf_attr->num_running = 5;
