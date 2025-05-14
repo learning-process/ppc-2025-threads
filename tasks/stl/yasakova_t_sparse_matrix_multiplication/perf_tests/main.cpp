@@ -54,15 +54,15 @@ TEST(yasakova_t_sparse_matrix_multiplication_stl, test_pipeline_run) {
   std::vector<std::complex<double>> output_data(matrix_size * matrix_size, std::complex<double>(0, 0));
 
   // Создаем данные задачи
-  auto task_data_tbb = std::make_shared<ppc::core::TaskData>();
-  task_data_tbb->inputs.emplace_back(reinterpret_cast<uint8_t *>(input_data.data()));
-  task_data_tbb->inputs_count.emplace_back(input_data.size());
-  task_data_tbb->outputs.emplace_back(reinterpret_cast<uint8_t *>(output_data.data()));
-  task_data_tbb->outputs_count.emplace_back(output_data.size());
+  auto task_data_stl = std::make_shared<ppc::core::TaskData>();
+  task_data_stl->inputs.emplace_back(reinterpret_cast<uint8_t *>(input_data.data()));
+  task_data_stl->inputs_count.emplace_back(input_data.size());
+  task_data_stl->outputs.emplace_back(reinterpret_cast<uint8_t *>(output_data.data()));
+  task_data_stl->outputs_count.emplace_back(output_data.size());
 
   // Создаем задачу
-  auto test_task_tbb =
-      std::make_shared<yasakova_t_sparse_matrix_multiplication_stl::SparseMatrixMultiTask>(task_data_tbb);
+  auto test_task_stl =
+      std::make_shared<yasakova_t_sparse_matrix_multiplication_stl::SparseMatrixMultiTask>(task_data_stl);
 
   // Создаем атрибуты для измерения производительности
   auto perf_attr = std::make_shared<ppc::core::PerfAttr>();
@@ -78,7 +78,7 @@ TEST(yasakova_t_sparse_matrix_multiplication_stl, test_pipeline_run) {
   auto perf_results = std::make_shared<ppc::core::PerfResults>();
 
   // Запускаем анализ производительности
-  auto perf_analyzer = std::make_shared<ppc::core::Perf>(test_task_tbb);
+  auto perf_analyzer = std::make_shared<ppc::core::Perf>(test_task_stl);
   perf_analyzer->PipelineRun(perf_attr, perf_results);
   ppc::core::Perf::PrintPerfStatistic(perf_results);
 
@@ -135,14 +135,14 @@ TEST(yasakova_t_sparse_matrix_multiplication_stl, test_task_run) {
 
   std::vector<std::complex<double>> output_data(matrix_size * matrix_size, std::complex<double>(0, 0));
 
-  auto task_data_tbb = std::make_shared<ppc::core::TaskData>();
-  task_data_tbb->inputs.emplace_back(reinterpret_cast<uint8_t *>(input_data.data()));
-  task_data_tbb->inputs_count.emplace_back(input_data.size());
-  task_data_tbb->outputs.emplace_back(reinterpret_cast<uint8_t *>(output_data.data()));
-  task_data_tbb->outputs_count.emplace_back(output_data.size());
+  auto task_data_stl = std::make_shared<ppc::core::TaskData>();
+  task_data_stl->inputs.emplace_back(reinterpret_cast<uint8_t *>(input_data.data()));
+  task_data_stl->inputs_count.emplace_back(input_data.size());
+  task_data_stl->outputs.emplace_back(reinterpret_cast<uint8_t *>(output_data.data()));
+  task_data_stl->outputs_count.emplace_back(output_data.size());
 
-  auto test_task_tbb =
-      std::make_shared<yasakova_t_sparse_matrix_multiplication_stl::SparseMatrixMultiTask>(task_data_tbb);
+  auto test_task_stl =
+      std::make_shared<yasakova_t_sparse_matrix_multiplication_stl::SparseMatrixMultiTask>(task_data_stl);
 
   auto perf_attr = std::make_shared<ppc::core::PerfAttr>();
   perf_attr->num_running = num_runs;
@@ -155,7 +155,7 @@ TEST(yasakova_t_sparse_matrix_multiplication_stl, test_task_run) {
 
   auto perf_results = std::make_shared<ppc::core::PerfResults>();
 
-  auto perf_analyzer = std::make_shared<ppc::core::Perf>(test_task_tbb);
+  auto perf_analyzer = std::make_shared<ppc::core::Perf>(test_task_stl);
   perf_analyzer->TaskRun(perf_attr, perf_results);
   ppc::core::Perf::PrintPerfStatistic(perf_results);
 

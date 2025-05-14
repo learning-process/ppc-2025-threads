@@ -40,7 +40,7 @@ bool yasakova_t_sparse_matrix_multiplication_stl::AreClose(const std::complex<do
 }
 
 std::vector<std::complex<double>> yasakova_t_sparse_matrix_multiplication_stl::ConvertToDense(
-    const CompressedRowStorage& matrix) {
+    const CompressedRowStorage& mat) {
   std::vector<std::complex<double>> actual_result = {};
   actual_result.reserve(5 + mat.nonZeroValues.size() + mat.columnIndices.size() + mat.rowPointers.size());
   actual_result.emplace_back((double)mat.rowCount);
