@@ -209,7 +209,7 @@ std::vector<MatrixCRS> tyurin_m_matmul_crs_complex_all::TestTaskAll::Gather(Matr
   workers = std::max(1, workers);  // Wnull-dereference
 
   std::vector<MatrixCRS> v(workers);
-  
+
 #pragma GCC diagnostic push
 #pragma GCC diagnostic ignored "-Wnull-dereference"
   v[0] = std::move(local_res);
