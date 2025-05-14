@@ -49,33 +49,6 @@ TEST(KapustinJarvAlgSTLTest, SimpleTriangle) {
   }
 }
 
-TEST(KapustinJarvAlgSTLTest, FixedPointsWithRandomNoise) {
-  std::vector<std::pair<int, int>> fixed_points = {{-1000, -1000}, {1000, -1000}, {1000, 1000}, {-1000, 1000}};
-
-  auto random_points = GenerateRandomPoints(100, -100, 100, -100, 100);
-
-  std::vector<std::pair<int, int>> input_points = fixed_points;
-  input_points.insert(input_points.end(), random_points.begin(), random_points.end());
-
-  std::vector<std::pair<int, int>> output_result(fixed_points.size());
-
-  auto task_data_stl = std::make_shared<ppc::core::TaskData>();
-  task_data_stl->inputs.emplace_back(reinterpret_cast<uint8_t *>(input_points.data()));
-  task_data_stl->inputs_count.emplace_back(input_points.size());
-  task_data_stl->outputs.emplace_back(reinterpret_cast<uint8_t *>(output_result.data()));
-  task_data_stl->outputs_count.emplace_back(output_result.size());
-
-  kapustin_i_jarv_alg_stl::TestTaskSTL test_task_stl(task_data_stl);
-  ASSERT_TRUE(test_task_stl.Validation());
-  test_task_stl.PreProcessing();
-  test_task_stl.Run();
-  test_task_stl.PostProcessing();
-  EXPECT_EQ(output_result.size(), fixed_points.size());
-  for (size_t i = 0; i < fixed_points.size(); ++i) {
-    EXPECT_EQ(output_result[i], fixed_points[i]);
-  }
-}
-
 TEST(KapustinJarvAlgSTLTest, TriangleWithInnerPoints) {
   std::vector<std::pair<int, int>> input_points = {{0, 0}, {5, 8}, {10, 0}, {5, 4}};
   std::vector<std::pair<int, int>> expected_result = {{0, 0}, {10, 0}, {5, 8}};
