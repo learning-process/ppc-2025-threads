@@ -14,8 +14,7 @@ void VerticalGaussianFilter(const std::vector<unsigned char>& local_input, std::
 
 #pragma omp parallel for default(none) \
     shared(local_input, local_output, kernel, local_height, width, k_radius, halo_top)
-  for (auto y = static_cast<std::ptrdiff_t>(halo_top);
-       y < static_cast<std::ptrdiff_t>(halo_top + local_height); ++y) {
+  for (auto y = static_cast<std::ptrdiff_t>(halo_top); y < static_cast<std::ptrdiff_t>(halo_top + local_height); ++y) {
     for (std::size_t x = 0; x < width; ++x) {
       std::size_t base_idx = ((static_cast<std::size_t>(y) - halo_top) * width + x) * k_channels;
 
@@ -29,7 +28,7 @@ void VerticalGaussianFilter(const std::vector<unsigned char>& local_input, std::
             continue;
           }
 
-          std::size_t idx = ((static_cast<std::size_t>(yy) * width) + x) * k_channels + c;
+          std::size_t idx = (((static_cast<std::size_t>(yy) * width) + x) * k_channels) + c;
           sum += static_cast<float>(local_input[idx]) * kernel[k + k_radius];
         }
 
@@ -100,8 +99,8 @@ bool komshina_d_image_filtering_vertical_gaussian_all::TestTaskALL::RunImpl() {
 
   if (rank == 0) {
     for (int i = 0; i < size; ++i) {
-      std::size_t si = static_cast<std::size_t>(i);
-      std::size_t lh = rows_per_proc + ((si < remainder) ? 1 : 0);
+      auto si = static_cast<std::size_t>(i);
+      auto lh = rows_per_proc + ((si < remainder) ? 1 : 0);
       std::size_t off = (si * rows_per_proc) + std::min<std::size_t>(si, remainder);
 
       std::size_t halo_t = (off > 0) ? k_radius : 0;
