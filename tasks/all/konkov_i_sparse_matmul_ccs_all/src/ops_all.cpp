@@ -67,6 +67,7 @@ void SparseMatmulTask::ProcessColumn(int col_b, std::vector<double>& local_value
   }
 }
 
+
 bool SparseMatmulTask::RunImpl() {
   int rank = world.rank();
   int size = world.size();
@@ -94,6 +95,11 @@ bool SparseMatmulTask::RunImpl() {
   };
 
   std::vector<std::thread> threads;
+  for (int t = 0; t < num_threads; ++t) {
+    threads.emplace_back(worker, t);
+  }
+  for (auto& t : threads) t.join();
+
   for (int col = start_col; col < end_col; ++col) {
     for (int t = 0; t < num_threads; ++t) {
       local_col_ptr[col + 1] += thread_col_ptrs[t][col + 1];
