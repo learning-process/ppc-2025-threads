@@ -1,13 +1,13 @@
 #include <gtest/gtest.h>
-#include <boost/mpi.hpp>
 
+#include <boost/mpi.hpp>
 #include <chrono>
 #include <memory>
 #include <vector>
 
+#include "all/konkov_i_sparse_matmul_ccs_all/include/ops_all.hpp"
 #include "core/perf/include/perf.hpp"
 #include "core/task/include/task.hpp"
-#include "all/konkov_i_sparse_matmul_ccs_all/include/ops_all.hpp"
 
 TEST(konkov_i_SparseMatmulPerfTest_all, test_pipeline_run) {
   boost::mpi::environment env;
