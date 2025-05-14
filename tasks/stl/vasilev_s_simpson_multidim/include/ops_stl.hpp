@@ -2,6 +2,7 @@
 
 #include <cstddef>
 #include <future>
+#include <span>
 #include <utility>
 #include <vector>
 
