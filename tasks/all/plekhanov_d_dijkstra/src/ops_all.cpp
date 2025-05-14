@@ -143,7 +143,7 @@ bool plekhanov_d_dijkstra_all::TestTaskALL::PreProcessingImpl() {
 
 bool plekhanov_d_dijkstra_all::TestTaskALL::ValidationImpl() {
   if (world_.rank() == 0) {
-        return !task_data->inputs_count.empty() && task_data->inputs_count[0] > 0 && !task_data->outputs_count.empty() &&
+    return !task_data->inputs_count.empty() && task_data->inputs_count[0] > 0 && !task_data->outputs_count.empty() &&
            task_data->outputs_count[0] > 0;
   }
   return true;
