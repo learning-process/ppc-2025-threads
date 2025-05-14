@@ -1,7 +1,7 @@
 #pragma once
 
 #include <cstddef>
-#include <span>
+#include <future>
 #include <utility>
 #include <vector>
 
@@ -26,6 +26,8 @@ class SimpsonTaskStl : public ppc::core::Task {
   bool PostProcessingImpl() override;
 
  private:
+  void ComputeThreadSum(std::pair<std::size_t, std::size_t> range, std::promise<double>&& promise);
+
   IntegrandFunction func_;
   std::size_t arity_;
   std::size_t approxs_;
