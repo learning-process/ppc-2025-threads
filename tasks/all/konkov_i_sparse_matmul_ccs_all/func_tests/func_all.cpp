@@ -28,10 +28,10 @@ TEST(konkov_i_SparseMatmulTest_all, SimpleTest) {
     task.colsB = 3;
   }
 
-  ASSERT_TRUE(task.ValidationImpl());
-  ASSERT_TRUE(task.PreProcessingImpl());
-  ASSERT_TRUE(task.RunImpl());
-  ASSERT_TRUE(task.PostProcessingImpl());
+  EXPECT_TRUE(task.ValidationImpl());
+  EXPECT_TRUE(task.PreProcessingImpl());
+  EXPECT_TRUE(task.RunImpl());
+  EXPECT_TRUE(task.PostProcessingImpl());
 
   if (world.rank() == 0) {
     std::vector<double> expected_values = {15.0, 28.0, 18.0};
@@ -79,10 +79,10 @@ TEST(konkov_i_SparseMatmulTest_all, ComplexTest) {
     task.colsB = 3;
   }
 
-  ASSERT_TRUE(task.ValidationImpl());
-  ASSERT_TRUE(task.PreProcessingImpl());
-  ASSERT_TRUE(task.RunImpl());
-  ASSERT_TRUE(task.PostProcessingImpl());
+  EXPECT_TRUE(task.ValidationImpl());
+  EXPECT_TRUE(task.PreProcessingImpl());
+  EXPECT_TRUE(task.RunImpl());
+  EXPECT_TRUE(task.PostProcessingImpl());
 
   if (world.rank() == 0) {
     std::vector<double> expected_values = {8.0};
@@ -111,14 +111,17 @@ TEST(konkov_i_SparseMatmulTest_all, IdentityMatrixTest) {
     task.colsB = 3;
   }
 
-  ASSERT_TRUE(task.ValidationImpl());
-  ASSERT_TRUE(task.PreProcessingImpl());
-  ASSERT_TRUE(task.RunImpl());
-  ASSERT_TRUE(task.PostProcessingImpl());
+  EXPECT_TRUE(task.PreProcessingImpl());
+  EXPECT_TRUE(task.RunImpl());
+  EXPECT_TRUE(task.PostProcessingImpl());
 
   if (world.rank() == 0) {
     EXPECT_EQ(task.C_values, task.B_values);
     EXPECT_EQ(task.C_row_indices, task.B_row_indices);
     EXPECT_EQ(task.C_col_ptr, task.B_col_ptr);
+  } else {
+    EXPECT_TRUE(task.C_values.empty());
+    EXPECT_TRUE(task.C_row_indices.empty());
+    EXPECT_TRUE(task.C_col_ptr.empty());
   }
 }

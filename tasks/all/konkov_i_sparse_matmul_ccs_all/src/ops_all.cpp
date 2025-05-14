@@ -1,145 +1,132 @@
 #include "all/konkov_i_sparse_matmul_ccs_all/include/ops_all.hpp"
 
 #include <algorithm>
-#include <boost/mpi/collectives.hpp>
+#include <boost/serialization/vector.hpp>
 #include <core/util/include/util.hpp>
-#include <map>
+#include <cstddef>
 #include <thread>
 #include <unordered_map>
+#include <utility>
+#include <vector>
 
 namespace konkov_i_sparse_matmul_ccs_all {
 
-SparseMatmulTask::SparseMatmulTask(ppc::core::TaskDataPtr task_data)
-    : ppc::core::Task(std::move(task_data)), world_(boost::mpi::communicator()) {}
+SparseMatmulTask::SparseMatmulTask(ppc::core::TaskDataPtr task_data) : ppc::core::Task(std::move(task_data)) {}
 
 bool SparseMatmulTask::ValidationImpl() {
-  if (world_.rank() != 0) return true;
-  return colsA == rowsB && rowsA > 0 && colsB > 0 && !A_col_ptr.empty() && !B_col_ptr.empty();
-}
-
-bool SparseMatmulTask::PreProcessingImpl() {
-  // Broadcast matrix dimensions
-  int a_dims[2]{rowsA, colsA};
-  int b_dims[2]{rowsB, colsB};
-  boost::mpi::broadcast(world_, a_dims, 2, 0);
-  boost::mpi::broadcast(world_, b_dims, 2, 0);
-  rowsA = a_dims[0];
-  colsA = a_dims[1];
-  rowsB = b_dims[0];
-  colsB = b_dims[1];
-
-  // Broadcast matrix A
-  std::vector<int> a_sizes(3);
-  if (world_.rank() == 0) {
-    a_sizes = {static_cast<int>(A_values.size()), static_cast<int>(A_row_indices.size()),
-               static_cast<int>(A_col_ptr.size())};
-  }
-  boost::mpi::broadcast(world_, a_sizes, 0);
-
-  if (world_.rank() != 0) {
-    A_values.resize(a_sizes[0]);
-    A_row_indices.resize(a_sizes[1]);
-    A_col_ptr.resize(a_sizes[2]);
-  }
-  boost::mpi::broadcast(world_, A_values, 0);
-  boost::mpi::broadcast(world_, A_row_indices, 0);
-  boost::mpi::broadcast(world_, A_col_ptr, 0);
-
-  // Broadcast matrix B
-  std::vector<int> b_sizes(3);
-  if (world_.rank() == 0) {
-    b_sizes = {static_cast<int>(B_values.size()), static_cast<int>(B_row_indices.size()),
-               static_cast<int>(B_col_ptr.size())};
-  }
-  boost::mpi::broadcast(world_, b_sizes, 0);
-
-  if (world_.rank() != 0) {
-    B_values.resize(b_sizes[0]);
-    B_row_indices.resize(b_sizes[1]);
-    B_col_ptr.resize(b_sizes[2]);
-  }
-  boost::mpi::broadcast(world_, B_values, 0);
-  boost::mpi::broadcast(world_, B_row_indices, 0);
-  boost::mpi::broadcast(world_, B_col_ptr, 0);
-
-  C_col_ptr.assign(colsB + 1, 0);
-  C_row_indices.clear();
-  C_values.clear();
+  if (colsA != rowsB || rowsA <= 0 || colsB <= 0) return false;
+  if (A_col_ptr.empty() || B_col_ptr.empty()) return false;
   return true;
 }
 
-bool SparseMatmulTask::RunImpl() {
-  std::vector<int> my_columns;
-  for (int col_b = world_.rank(); col_b < colsB; col_b += world_.size()) {
-    my_columns.push_back(col_b);
+bool SparseMatmulTask::PreProcessingImpl() {
+  C_col_ptr.clear();
+  C_row_indices.clear();
+  C_values.clear();
+
+  boost::mpi::broadcast(world, A_values, 0);
+  boost::mpi::broadcast(world, A_row_indices, 0);
+  boost::mpi::broadcast(world, A_col_ptr, 0);
+  boost::mpi::broadcast(world, rowsA, 0);
+  boost::mpi::broadcast(world, colsA, 0);
+
+  boost::mpi::broadcast(world, B_values, 0);
+  boost::mpi::broadcast(world, B_row_indices, 0);
+  boost::mpi::broadcast(world, B_col_ptr, 0);
+  boost::mpi::broadcast(world, rowsB, 0);
+  boost::mpi::broadcast(world, colsB, 0);
+
+  return true;
+}
+
+void SparseMatmulTask::ProcessColumn(int col_b, std::vector<double>& local_values, std::vector<int>& local_rows,
+                                     std::vector<int>& local_col_ptr) {
+  std::unordered_map<int, double> column_result;
+
+  for (int j = B_col_ptr[col_b]; j < B_col_ptr[col_b + 1]; ++j) {
+    int row_b = B_row_indices[j];
+    double val_b = B_values[j];
+
+    for (int k = A_col_ptr[row_b]; k < A_col_ptr[row_b + 1]; ++k) {
+      int row_a = A_row_indices[k];
+      double val_a = A_values[k];
+      column_result[row_a] += val_a * val_b;
+    }
   }
 
-  auto num_threads = ppc::util::GetPPCNumThreads();
-  if (num_threads == 0) num_threads = 4;
+  std::vector<int> rows;
+  for (const auto& pair : column_result) {
+    if (pair.second != 0.0) rows.push_back(pair.first);
+  }
+  std::sort(rows.begin(), rows.end());
 
-  std::vector<std::vector<std::tuple<int, std::vector<double>, std::vector<int>>>> thread_results(num_threads);
+  local_col_ptr[col_b + 1] = rows.size();
+  for (int row : rows) {
+    local_values.push_back(column_result[row]);
+    local_rows.push_back(row);
+  }
+}
 
-  auto worker = [&](int tid) {
-    for (size_t i = tid; i < my_columns.size(); i += num_threads) {
-      int col_b = my_columns[i];
-      std::unordered_map<int, double> column_result;
+bool SparseMatmulTask::RunImpl() {
+  int rank = world.rank();
+  int size = world.size();
 
-      for (int j = B_col_ptr[col_b]; j < B_col_ptr[col_b + 1]; ++j) {
-        int row_b = B_row_indices[j];
-        double val_b = B_values[j];
-        for (int k = A_col_ptr[row_b]; k < A_col_ptr[row_b + 1]; ++k) {
-          int row_a = A_row_indices[k];
-          double val_a = A_values[k];
-          column_result[row_a] += val_a * val_b;
-        }
-      }
+  int base_cols = colsB / size;
+  int extra_cols = colsB % size;
+  int start_col = rank * base_cols + std::min(rank, extra_cols);
+  int end_col = start_col + base_cols + (rank < extra_cols ? 1 : 0);
 
-      std::vector<int> rows;
-      std::vector<double> values;
-      for (auto&& [row, val] : column_result) {
-        if (val != 0.0) {
-          rows.push_back(row);
-          values.push_back(val);
-        }
-      }
-      std::sort(rows.begin(), rows.end());
-      thread_results[tid].emplace_back(col_b, values, rows);
+  std::vector<double> local_values;
+  std::vector<int> local_rows;
+  std::vector<int> local_col_ptr(colsB + 1, 0);
+
+  int num_threads = ppc::util::GetPPCNumThreads();
+  if (num_threads <= 0) num_threads = 4;
+
+  std::vector<std::vector<double>> thread_values(num_threads);
+  std::vector<std::vector<int>> thread_rows(num_threads);
+  std::vector<std::vector<int>> thread_col_ptrs(num_threads, std::vector<int>(colsB + 1, 0));
+
+  auto worker = [&](int thread_id) {
+    for (int col = start_col + thread_id; col < end_col; col += num_threads) {
+      ProcessColumn(col, thread_values[thread_id], thread_rows[thread_id], thread_col_ptrs[thread_id]);
     }
   };
 
   std::vector<std::thread> threads;
-  for (int t = 0; t < num_threads; ++t) threads.emplace_back(worker, t);
+  for (int t = 0; t < num_threads; ++t) {
+    threads.emplace_back(worker, t);
+  }
   for (auto& t : threads) t.join();
 
-  std::vector<std::tuple<int, std::vector<double>, std::vector<int>>> local_results;
-  for (auto& res : thread_results) {
-    local_results.insert(local_results.end(), res.begin(), res.end());
+  for (int t = 0; t < num_threads; ++t) {
+    local_values.insert(local_values.end(), thread_values[t].begin(), thread_values[t].end());
+    local_rows.insert(local_rows.end(), thread_rows[t].begin(), thread_rows[t].end());
+    for (int col = 0; col < colsB; ++col) {
+      local_col_ptr[col + 1] += thread_col_ptrs[t][col + 1];
+    }
   }
 
-  if (world_.rank() != 0) {
-    world_.send(0, 0, local_results);
-  } else {
-    std::map<int, std::pair<std::vector<double>, std::vector<int>>> results_map;
+  for (int col = 1; col <= colsB; ++col) {
+    local_col_ptr[col] += local_col_ptr[col - 1];
+  }
 
-    for (auto& [col, vals, rows] : local_results) {
-      results_map[col] = {vals, rows};
-    }
+  std::vector<std::vector<double>> all_values;
+  std::vector<std::vector<int>> all_rows;
+  std::vector<std::vector<int>> all_col_ptrs;
 
-    for (int src = 1; src < world_.size(); ++src) {
-      std::vector<std::tuple<int, std::vector<double>, std::vector<int>>> remote_results;
-      world_.recv(src, 0, remote_results);
+  boost::mpi::gather(world, local_values, all_values, 0);
+  boost::mpi::gather(world, local_rows, all_rows, 0);
+  boost::mpi::gather(world, local_col_ptr, all_col_ptrs, 0);
 
-      for (auto& [col, vals, rows] : remote_results) {
-        results_map[col] = {vals, rows};
-      }
-    }
-
+  if (rank == 0) {
     C_col_ptr.resize(colsB + 1, 0);
-    for (int col = 0; col < colsB; ++col) {
-      auto& [vals, rows] = results_map[col];
-      C_values.insert(C_values.end(), vals.begin(), vals.end());
-      C_row_indices.insert(C_row_indices.end(), rows.begin(), rows.end());
-      C_col_ptr[col + 1] = C_col_ptr[col] + vals.size();
+    for (int i = 0; i < size; ++i) {
+      C_values.insert(C_values.end(), all_values[i].begin(), all_values[i].end());
+      C_row_indices.insert(C_row_indices.end(), all_rows[i].begin(), all_rows[i].end());
+      for (int col = 0; col <= colsB; ++col) {
+        C_col_ptr[col] += all_col_ptrs[i][col];
+      }
     }
   }
 

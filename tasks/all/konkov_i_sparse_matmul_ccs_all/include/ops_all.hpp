@@ -21,7 +21,9 @@ class SparseMatmulTask : public ppc::core::Task {
   int rowsA, colsA, rowsB, colsB;
 
  private:
-  boost::mpi::communicator world_;
+  boost::mpi::communicator world;
+  void ProcessColumn(int col_b, std::vector<double>& local_values, std::vector<int>& local_rows,
+                     std::vector<int>& local_col_ptr);
 };
 
 }  // namespace konkov_i_sparse_matmul_ccs_all
