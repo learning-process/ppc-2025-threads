@@ -123,25 +123,45 @@ bool SparseMatmulTask::RunImpl() {
   std::vector<std::vector<int>> all_rows;
   std::vector<std::vector<int>> all_col_ptrs;
 
+  std::vector<int> proc_start_cols(size), proc_end_cols(size);
+
+  int base = colsB / size;
+  int extra = colsB % size;
+  proc_start_cols[rank] = rank * base + std::min(rank, extra);
+  proc_end_cols[rank] = proc_start_cols[rank] + base + (rank < extra ? 1 : 0);
+
+  boost::mpi::gather(world, proc_start_cols[rank], proc_start_cols, 0);
+  boost::mpi::gather(world, proc_end_cols[rank], proc_end_cols, 0);
+
   boost::mpi::gather(world, local_values, all_values, 0);
   boost::mpi::gather(world, local_rows, all_rows, 0);
   boost::mpi::gather(world, local_col_ptr, all_col_ptrs, 0);
 
   if (rank == 0) {
     C_col_ptr.resize(colsB + 1, 0);
+    std::vector<int> offsets(size, 0);
 
-    for (int i = 0; i < size; ++i) {
-      C_values.insert(C_values.end(), all_values[i].begin(), all_values[i].end());
-      C_row_indices.insert(C_row_indices.end(), all_rows[i].begin(), all_rows[i].end());
+    for (int col = 0; col < colsB; ++col) {
+      for (int proc = 0; proc < size; ++proc) {
+        if (col >= proc_start_cols[proc] && col < proc_end_cols[proc]) {
+          int local_col = col - proc_start_cols[proc];
 
-      int local_start = i * base_cols + std::min(i, extra_cols);
-      int local_cols = base_cols + (i < extra_cols ? 1 : 0);
+          int start_idx = all_col_ptrs[proc][local_col];
+          int end_idx = all_col_ptrs[proc][local_col + 1];
 
-      for (int j = 0; j < local_cols; ++j) {
-        int global_col = local_start + j;
-        int count = all_col_ptrs[i][global_col + 1] - all_col_ptrs[i][global_col];
-        C_col_ptr[global_col + 1] = C_col_ptr[global_col] + count;
+          for (int k = start_idx; k < end_idx; k++) {
+            C_values.push_back(all_values[proc][k]);
+            C_row_indices.push_back(all_rows[proc][k]);
+          }
+
+          C_col_ptr[col + 1] += (end_idx - start_idx);
+          break;
+        }
       }
+    }
+
+    for (int col = 1; col <= colsB; ++col) {
+      C_col_ptr[col] += C_col_ptr[col - 1];
     }
   }
 
