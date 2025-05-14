@@ -54,18 +54,19 @@ void SparseMatmulTask::ProcessColumn(int col_b, std::vector<double>& local_value
     }
   }
 
-  std::vector<int> rows;
-  for (const auto& pair : column_result) {
-    if (pair.second != 0.0) rows.push_back(pair.first);
+  std::vector<std::pair<int, double>> sorted_entries;
+  for (const auto& [row, val] : column_result) {
+    if (val != 0.0) sorted_entries.emplace_back(row, val);
   }
-  std::sort(rows.begin(), rows.end());
+  std::sort(sorted_entries.begin(), sorted_entries.end());
 
-  local_col_ptr[col_b + 1] = rows.size();
-  for (int row : rows) {
-    local_values.push_back(column_result[row]);
+  local_col_ptr[col_b + 1] = static_cast<int>(sorted_entries.size());
+  for (const auto& [row, val] : sorted_entries) {
     local_rows.push_back(row);
+    local_values.push_back(val);
   }
 }
+
 
 bool SparseMatmulTask::RunImpl() {
   int rank = world.rank();
