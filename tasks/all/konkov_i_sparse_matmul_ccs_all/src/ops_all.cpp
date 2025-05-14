@@ -102,11 +102,6 @@ bool SparseMatmulTask::RunImpl() {
   MPI_Comm_rank(MPI_COMM_WORLD, &rank);
   MPI_Comm_size(MPI_COMM_WORLD, &size);
 
-  auto num_threads = ppc::util::GetPPCNumThreads();
-  if (num_threads == 0) {
-    num_threads = 4;
-  }
-
   std::vector<double> process_values;
   std::vector<int> process_row_indices;
   std::vector<int> process_col_ptr(colsB + 1, 0);
@@ -128,7 +123,6 @@ bool SparseMatmulTask::RunImpl() {
     std::vector<std::pair<int, double>> sorted_elements(column_result.begin(), column_result.end());
     std::sort(sorted_elements.begin(), sorted_elements.end());
 
-    int start_idx = process_values.size();
     for (const auto& [row, val] : sorted_elements) {
       process_values.push_back(val);
       process_row_indices.push_back(row);
@@ -154,7 +148,8 @@ bool SparseMatmulTask::RunImpl() {
 
       for (int col = 0; col < colsB; ++col) {
         if (recv_col_ptr[col] != recv_col_ptr[col + 1]) {
-          auto insert_pos = C_col_ptr[col] + (C_col_ptr[col + 1] - C_col_ptr[col]);
+          int insert_pos = C_col_ptr[col + 1];
+
           C_values.insert(C_values.begin() + insert_pos, recv_values.begin() + recv_col_ptr[col],
                           recv_values.begin() + recv_col_ptr[col + 1]);
           C_row_indices.insert(C_row_indices.begin() + insert_pos, recv_row_indices.begin() + recv_col_ptr[col],
@@ -169,7 +164,7 @@ bool SparseMatmulTask::RunImpl() {
   } else {
     MPI_Send(process_col_ptr.data(), colsB + 1, MPI_INT, 0, 0, MPI_COMM_WORLD);
     MPI_Send(process_values.data(), process_values.size(), MPI_DOUBLE, 0, 1, MPI_COMM_WORLD);
-    MPI_Send(process_row_indices.data(), process_row_indices.size(), MPI_INT, 0, 2, MPI_COMM_WORLD);
+    MPI_Send(process_row_indices.data(), process_values.size(), MPI_INT, 0, 2, MPI_COMM_WORLD);
   }
 
   return true;
