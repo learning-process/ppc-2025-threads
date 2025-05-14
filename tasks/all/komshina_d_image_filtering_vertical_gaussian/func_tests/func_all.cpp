@@ -302,3 +302,44 @@ TEST(komshina_d_image_filtering_vertical_gaussian_all, MPI_MoreProcessesThanRows
     }
   }
 }
+
+TEST(komshina_d_image_filtering_vertical_gaussian_all, MPI_DataDistributionBranches) {
+  int rank = 0;
+  int size = 0;
+  MPI_Comm_rank(MPI_COMM_WORLD, &rank);
+  MPI_Comm_size(MPI_COMM_WORLD, &size);
+
+  if (size < 2) {
+    GTEST_SKIP() << "Test requires at least 2 MPI processes";
+  }
+
+  std::size_t width = 2;
+  std::size_t height = 5;
+
+  std::vector<unsigned char> in(width * height * 3);
+  std::iota(in.begin(), in.end(), 0);
+
+  std::vector<float> kernel(9, 1.0F);
+  std::vector<unsigned char> out(in.size(), 0);
+
+  std::shared_ptr<ppc::core::TaskData> task_data = std::make_shared<ppc::core::TaskData>();
+  task_data->inputs.emplace_back(in.data());
+  task_data->inputs_count.emplace_back(width);
+  task_data->inputs_count.emplace_back(height);
+  task_data->inputs.emplace_back(reinterpret_cast<uint8_t*>(kernel.data()));
+  task_data->inputs_count.emplace_back(kernel.size());
+  task_data->outputs.emplace_back(out.data());
+  task_data->outputs_count.emplace_back(out.size());
+
+  komshina_d_image_filtering_vertical_gaussian_all::TestTaskALL test_task(task_data);
+  ASSERT_TRUE(test_task.Validation());
+  test_task.PreProcessing();
+  test_task.Run();
+  test_task.PostProcessing();
+
+  MPI_Barrier(MPI_COMM_WORLD);
+  for (auto val : out) {
+    EXPECT_GE(val, 0);
+    EXPECT_LE(val, 255);
+  }
+}
