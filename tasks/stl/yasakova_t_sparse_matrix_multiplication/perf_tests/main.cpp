@@ -4,6 +4,7 @@
 #include <cstdint>
 #include <cstdlib>
 #include <ctime>
+#include <complex>
 #include <memory>
 #include <vector>
 
@@ -25,7 +26,7 @@ TEST(yasakova_t_sparse_matrix_multiplication_stl, test_pipeline_run) {
   for (int i = 0; i < non_zero_elements; ++i) {
     int row = rand() % matrix_size;
     int col = rand() % matrix_size;
-    yasakova_t_sparse_matrix_multiplication_stl::std::complex<double> value(-50 + (rand() % 100), -50 + (rand() % 100));
+    std::complex<double> value(-50 + (rand() % 100), -50 + (rand() % 100));
     first_matrix.InsertElement(row, value, col);
   }
 
@@ -33,24 +34,24 @@ TEST(yasakova_t_sparse_matrix_multiplication_stl, test_pipeline_run) {
   for (int i = 0; i < non_zero_elements; ++i) {
     int row = rand() % matrix_size;
     int col = rand() % matrix_size;
-    yasakova_t_sparse_matrix_multiplication_stl::std::complex<double> value(-50 + (rand() % 100), -50 + (rand() % 100));
+    std::complex<double> value(-50 + (rand() % 100), -50 + (rand() % 100));
     second_matrix.InsertElement(row, value, col);
   }
 
   // Конвертируем матрицы в векторы для передачи в задачу
-  std::vector<yasakova_t_sparse_matrix_multiplication_stl::std::complex<double>> first_matrix_data =
+  std::vector<std::complex<double>> first_matrix_data =
       yasakova_t_sparse_matrix_multiplication_stl::ConvertToDense(first_matrix);
-  std::vector<yasakova_t_sparse_matrix_multiplication_stl::std::complex<double>> second_matrix_data =
+  std::vector<std::complex<double>> second_matrix_data =
       yasakova_t_sparse_matrix_multiplication_stl::ConvertToDense(second_matrix);
 
   // Подготавливаем входные данные (конкатенация двух векторов)
-  std::vector<yasakova_t_sparse_matrix_multiplication_stl::std::complex<double>> input_data;
+  std::vector<std::complex<double>> input_data;
   input_data.reserve(first_matrix_data.size() + second_matrix_data.size());
   input_data.insert(input_data.end(), first_matrix_data.begin(), first_matrix_data.end());
   input_data.insert(input_data.end(), second_matrix_data.begin(), second_matrix_data.end());
 
   // Подготавливаем вектор для результата
-  std::vector<yasakova_t_sparse_matrix_multiplication_stl::std::complex<double>> output_data(matrix_size * matrix_size, yasakova_t_sparse_matrix_multiplication_stl::std::complex<double>(0, 0));
+  std::vector<std::complex<double>> output_data(matrix_size * matrix_size, std::complex<double>(0, 0));
 
   // Создаем данные задачи
   auto task_data_tbb = std::make_shared<ppc::core::TaskData>();
@@ -91,7 +92,7 @@ TEST(yasakova_t_sparse_matrix_multiplication_stl, test_pipeline_run) {
   // Проверяем, что результат не нулевой
   bool is_result_non_zero = false;
   for (const auto &elem : output_data) {
-    if (elem != yasakova_t_sparse_matrix_multiplication_stl::std::complex<double>(0, 0)) {
+    if (elem != std::complex<double>(0, 0)) {
       is_result_non_zero = true;
       break;
     }
@@ -110,28 +111,28 @@ TEST(yasakova_t_sparse_matrix_multiplication_stl, test_task_run) {
   for (int i = 0; i < non_zero_elements; ++i) {
     int row = rand() % matrix_size;
     int col = rand() % matrix_size;
-    yasakova_t_sparse_matrix_multiplication_stl::std::complex<double> value(-50 + (rand() % 100), -50 + (rand() % 100));
+    std::complex<double> value(-50 + (rand() % 100), -50 + (rand() % 100));
     first_matrix.InsertElement(row, value, col);
   }
 
   for (int i = 0; i < non_zero_elements; ++i) {
     int row = rand() % matrix_size;
     int col = rand() % matrix_size;
-    yasakova_t_sparse_matrix_multiplication_stl::std::complex<double> value(-50 + (rand() % 100), -50 + (rand() % 100));
+    std::complex<double> value(-50 + (rand() % 100), -50 + (rand() % 100));
     second_matrix.InsertElement(row, value, col);
   }
 
-  std::vector<yasakova_t_sparse_matrix_multiplication_stl::std::complex<double>> first_matrix_data =
+  std::vector<std::complex<double>> first_matrix_data =
       yasakova_t_sparse_matrix_multiplication_stl::ConvertToDense(first_matrix);
-  std::vector<yasakova_t_sparse_matrix_multiplication_stl::std::complex<double>> second_matrix_data =
+  std::vector<std::complex<double>> second_matrix_data =
       yasakova_t_sparse_matrix_multiplication_stl::ConvertToDense(second_matrix);
 
-  std::vector<yasakova_t_sparse_matrix_multiplication_stl::std::complex<double>> input_data;
+  std::vector<std::complex<double>> input_data;
   input_data.reserve(first_matrix_data.size() + second_matrix_data.size());
   input_data.insert(input_data.end(), first_matrix_data.begin(), first_matrix_data.end());
   input_data.insert(input_data.end(), second_matrix_data.begin(), second_matrix_data.end());
 
-  std::vector<yasakova_t_sparse_matrix_multiplication_stl::std::complex<double>> output_data(matrix_size * matrix_size, yasakova_t_sparse_matrix_multiplication_stl::std::complex<double>(0, 0));
+  std::vector<std::complex<double>> output_data(matrix_size * matrix_size, std::complex<double>(0, 0));
 
   auto task_data_tbb = std::make_shared<ppc::core::TaskData>();
   task_data_tbb->inputs.emplace_back(reinterpret_cast<uint8_t *>(input_data.data()));
@@ -164,7 +165,7 @@ TEST(yasakova_t_sparse_matrix_multiplication_stl, test_task_run) {
 
   bool is_result_non_zero = false;
   for (const auto &elem : output_data) {
-    if (elem != yasakova_t_sparse_matrix_multiplication_stl::std::complex<double>(0, 0)) {
+    if (elem != std::complex<double>(0, 0)) {
       is_result_non_zero = true;
       break;
     }
