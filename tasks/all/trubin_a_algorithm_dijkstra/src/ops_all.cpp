@@ -64,7 +64,7 @@ bool trubin_a_algorithm_dijkstra_all::TestTaskALL::ValidationImpl() {
     return true;
   }
 
-  if (!task_data->outputs[0] || task_data->outputs_count[0] == 0) {
+  if (task_data->outputs[0] == nullptr || task_data->outputs_count[0] == 0) {
     return false;
   }
 
