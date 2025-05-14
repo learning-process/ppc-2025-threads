@@ -10,6 +10,7 @@ namespace konkov_i_sparse_matmul_ccs_all {
 class SparseMatmulTask : public ppc::core::Task {
  public:
   explicit SparseMatmulTask(ppc::core::TaskDataPtr task_data);
+  ~SparseMatmulTask();
 
   bool ValidationImpl() override;
   bool PreProcessingImpl() override;
@@ -25,6 +26,7 @@ class SparseMatmulTask : public ppc::core::Task {
   void ProcessColumns(int start_col, int end_col);
   void GatherResults();
   int world_rank, world_size;
+  bool mpi_initialized;
 };
 
 }  // namespace konkov_i_sparse_matmul_ccs_all

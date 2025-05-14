@@ -5,18 +5,29 @@
 #include <algorithm>
 #include <core/util/include/util.hpp>
 #include <cstddef>
-#include <thread>
 #include <unordered_map>
-#include <utility>
 #include <vector>
 
 #include "core/task/include/task.hpp"
 
 namespace konkov_i_sparse_matmul_ccs_all {
 
-SparseMatmulTask::SparseMatmulTask(ppc::core::TaskDataPtr task_data) : ppc::core::Task(std::move(task_data)) {
+SparseMatmulTask::SparseMatmulTask(ppc::core::TaskDataPtr task_data)
+    : ppc::core::Task(std::move(task_data)), mpi_initialized(false) {
+  int initialized;
+  MPI_Initialized(&initialized);
+  if (!initialized) {
+    MPI_Init(nullptr, nullptr);
+    mpi_initialized = true;
+  }
   MPI_Comm_rank(MPI_COMM_WORLD, &world_rank);
   MPI_Comm_size(MPI_COMM_WORLD, &world_size);
+}
+
+SparseMatmulTask::~SparseMatmulTask() {
+  if (mpi_initialized) {
+    MPI_Finalize();
+  }
 }
 
 bool SparseMatmulTask::ValidationImpl() {
@@ -30,44 +41,44 @@ bool SparseMatmulTask::ValidationImpl() {
 }
 
 bool SparseMatmulTask::PreProcessingImpl() {
-  C_col_ptr.resize(colsB + 1, 0);
+  C_col_ptr.assign(colsB + 1, 0);
   C_row_indices.clear();
   C_values.clear();
 
-  // Broadcast matrix data to all processes
-  if (world_size > 1) {
-    // Broadcast matrix A
-    int a_size = A_values.size();
-    MPI_Bcast(&a_size, 1, MPI_INT, 0, MPI_COMM_WORLD);
+  // Broadcast matrix dimensions first
+  MPI_Bcast(&rowsA, 1, MPI_INT, 0, MPI_COMM_WORLD);
+  MPI_Bcast(&colsA, 1, MPI_INT, 0, MPI_COMM_WORLD);
+  MPI_Bcast(&rowsB, 1, MPI_INT, 0, MPI_COMM_WORLD);
+  MPI_Bcast(&colsB, 1, MPI_INT, 0, MPI_COMM_WORLD);
 
-    if (world_rank != 0) {
-      A_values.resize(a_size);
-      A_row_indices.resize(a_size);
-      A_col_ptr.resize(colsA + 1);
-    }
+  // Broadcast matrix A
+  int a_size = A_values.size();
+  MPI_Bcast(&a_size, 1, MPI_INT, 0, MPI_COMM_WORLD);
 
-    MPI_Bcast(A_values.data(), a_size, MPI_DOUBLE, 0, MPI_COMM_WORLD);
-    MPI_Bcast(A_row_indices.data(), a_size, MPI_INT, 0, MPI_COMM_WORLD);
-    MPI_Bcast(A_col_ptr.data(), colsA + 1, MPI_INT, 0, MPI_COMM_WORLD);
-    MPI_Bcast(&rowsA, 1, MPI_INT, 0, MPI_COMM_WORLD);
-    MPI_Bcast(&colsA, 1, MPI_INT, 0, MPI_COMM_WORLD);
-
-    // Broadcast matrix B
-    int b_size = B_values.size();
-    MPI_Bcast(&b_size, 1, MPI_INT, 0, MPI_COMM_WORLD);
-
-    if (world_rank != 0) {
-      B_values.resize(b_size);
-      B_row_indices.resize(b_size);
-      B_col_ptr.resize(colsB + 1);
-    }
-
-    MPI_Bcast(B_values.data(), b_size, MPI_DOUBLE, 0, MPI_COMM_WORLD);
-    MPI_Bcast(B_row_indices.data(), b_size, MPI_INT, 0, MPI_COMM_WORLD);
-    MPI_Bcast(B_col_ptr.data(), colsB + 1, MPI_INT, 0, MPI_COMM_WORLD);
-    MPI_Bcast(&rowsB, 1, MPI_INT, 0, MPI_COMM_WORLD);
-    MPI_Bcast(&colsB, 1, MPI_INT, 0, MPI_COMM_WORLD);
+  if (world_rank != 0) {
+    A_values.resize(a_size);
+    A_row_indices.resize(a_size);
+    A_col_ptr.resize(colsA + 1);
   }
+
+  MPI_Bcast(A_values.data(), a_size, MPI_DOUBLE, 0, MPI_COMM_WORLD);
+  MPI_Bcast(A_row_indices.data(), a_size, MPI_INT, 0, MPI_COMM_WORLD);
+  MPI_Bcast(A_col_ptr.data(), colsA + 1, MPI_INT, 0, MPI_COMM_WORLD);
+
+  // Broadcast matrix B
+  int b_size = B_values.size();
+  MPI_Bcast(&b_size, 1, MPI_INT, 0, MPI_COMM_WORLD);
+
+  if (world_rank != 0) {
+    B_values.resize(b_size);
+    B_row_indices.resize(b_size);
+    B_col_ptr.resize(colsB + 1);
+  }
+
+  MPI_Bcast(B_values.data(), b_size, MPI_DOUBLE, 0, MPI_COMM_WORLD);
+  MPI_Bcast(B_row_indices.data(), b_size, MPI_INT, 0, MPI_COMM_WORLD);
+  MPI_Bcast(B_col_ptr.data(), colsB + 1, MPI_INT, 0, MPI_COMM_WORLD);
+
   return true;
 }
 
@@ -106,65 +117,62 @@ void SparseMatmulTask::ProcessColumns(int start_col, int end_col) {
 void SparseMatmulTask::GatherResults() {
   if (world_size == 1) return;
 
-  // Gather the number of non-zero elements per column from all processes
-  std::vector<int> all_col_counts(colsB * world_size, 0);
+  // First gather the column counts from all processes
   std::vector<int> local_col_counts(colsB, 0);
-
   for (int col = 0; col < colsB; ++col) {
     local_col_counts[col] = C_col_ptr[col + 1] - C_col_ptr[col];
   }
 
+  std::vector<int> all_col_counts(colsB * world_size);
   MPI_Allgather(local_col_counts.data(), colsB, MPI_INT, all_col_counts.data(), colsB, MPI_INT, MPI_COMM_WORLD);
 
-  // Calculate displacements for each process
-  std::vector<int> displacements(world_size + 1, 0);
-  for (int proc = 0; proc < world_size; ++proc) {
-    for (int col = 0; col < colsB; ++col) {
-      displacements[proc + 1] += all_col_counts[proc * colsB + col];
+  // Calculate displacements for each column
+  std::vector<int> col_offsets(colsB + 1, 0);
+  for (int col = 0; col < colsB; ++col) {
+    int total = 0;
+    for (int proc = 0; proc < world_size; ++proc) {
+      total += all_col_counts[proc * colsB + col];
     }
+    col_offsets[col + 1] = col_offsets[col] + total;
   }
 
-  // Gather all values and row indices
-  std::vector<double> all_values(displacements[world_size]);
-  std::vector<int> all_row_indices(displacements[world_size]);
+  // Prepare to gather all values and row indices
+  std::vector<double> gathered_values(col_offsets[colsB]);
+  std::vector<int> gathered_row_indices(col_offsets[colsB]);
 
-  MPI_Gatherv(C_values.data(), C_values.size(), MPI_DOUBLE, all_values.data(), &displacements[1], displacements.data(),
-              MPI_DOUBLE, 0, MPI_COMM_WORLD);
+  // For each column, gather from all processes
+  for (int col = 0; col < colsB; ++col) {
+    // Calculate the size each process contributes to this column
+    std::vector<int> recv_counts(world_size);
+    std::vector<int> displs(world_size + 1, 0);
 
-  MPI_Gatherv(C_row_indices.data(), C_row_indices.size(), MPI_INT, all_row_indices.data(), &displacements[1],
-              displacements.data(), MPI_INT, 0, MPI_COMM_WORLD);
-
-  // On root process, merge the results
-  if (world_rank == 0) {
-    std::vector<double> merged_values;
-    std::vector<int> merged_row_indices;
-    std::vector<int> merged_col_ptr(colsB + 1, 0);
-
-    for (int col = 0; col < colsB; ++col) {
-      int total_nnz = 0;
-      for (int proc = 0; proc < world_size; ++proc) {
-        total_nnz += all_col_counts[proc * colsB + col];
-      }
-      merged_col_ptr[col + 1] = merged_col_ptr[col] + total_nnz;
-
-      for (int proc = 0; proc < world_size; ++proc) {
-        int proc_nnz = all_col_counts[proc * colsB + col];
-        if (proc_nnz > 0) {
-          int offset = proc * colsB + col;
-          int start = (offset == 0) ? 0 : displacements[offset];
-          int end = start + proc_nnz;
-
-          for (int i = start; i < end; ++i) {
-            merged_values.push_back(all_values[i]);
-            merged_row_indices.push_back(all_row_indices[i]);
-          }
-        }
-      }
+    for (int proc = 0; proc < world_size; ++proc) {
+      recv_counts[proc] = all_col_counts[proc * colsB + col];
+      displs[proc + 1] = displs[proc] + recv_counts[proc];
     }
 
-    C_values = merged_values;
-    C_row_indices = merged_row_indices;
-    C_col_ptr = merged_col_ptr;
+    // Gather values for this column
+    double* val_ptr = C_values.data() + C_col_ptr[col];
+    double* gathered_val_ptr = gathered_values.data() + col_offsets[col];
+    MPI_Allgatherv(val_ptr, local_col_counts[col], MPI_DOUBLE, gathered_val_ptr, recv_counts.data(), displs.data(),
+                   MPI_DOUBLE, MPI_COMM_WORLD);
+
+    // Gather row indices for this column
+    int* row_ptr = C_row_indices.data() + C_col_ptr[col];
+    int* gathered_row_ptr = gathered_row_indices.data() + col_offsets[col];
+    MPI_Allgatherv(row_ptr, local_col_counts[col], MPI_INT, gathered_row_ptr, recv_counts.data(), displs.data(),
+                   MPI_INT, MPI_COMM_WORLD);
+  }
+
+  // On root process, build the final result
+  if (world_rank == 0) {
+    C_values = gathered_values;
+    C_row_indices = gathered_row_indices;
+    C_col_ptr = col_offsets;
+  } else {
+    C_values.clear();
+    C_row_indices.clear();
+    C_col_ptr.assign(colsB + 1, 0);
   }
 }
 
