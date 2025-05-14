@@ -122,9 +122,6 @@ bool kapustin_i_jarv_alg_stl::TestTaskSTL::RunImpl() {
     if (input_[best_index] == start_point) {
       break;
     }
-    if (unique_points.contains(input_[best_index])) {
-      continue;
-    }
     current_point_ = input_[best_index];
     output_.push_back(current_point_);
     unique_points.insert(current_point_);

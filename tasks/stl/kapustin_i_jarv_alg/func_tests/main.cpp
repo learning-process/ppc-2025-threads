@@ -12,8 +12,7 @@
 
 namespace {
 std::vector<std::pair<int, int>> GenerateRandomPoints(size_t count, int min_x, int max_x, int min_y, int max_y) {
-  std::random_device rd;
-  std::mt19937 rng(rd());
+  std::mt19937 rng(42);
   std::uniform_int_distribution<int> dist_x(min_x, max_x);
   std::uniform_int_distribution<int> dist_y(min_y, max_y);
 
@@ -53,7 +52,7 @@ TEST(KapustinJarvAlgSTLTest, SimpleTriangle) {
 TEST(KapustinJarvAlgSTLTest, FixedPointsWithRandomNoise) {
   std::vector<std::pair<int, int>> fixed_points = {{-1000, -1000}, {1000, -1000}, {1000, 1000}, {-1000, 1000}};
 
-  auto random_points = GenerateRandomPoints(10, 10, 10, 10, 10);
+  auto random_points = GenerateRandomPoints(100, -100, 100, -100, 100);
 
   std::vector<std::pair<int, int>> input_points = fixed_points;
   input_points.insert(input_points.end(), random_points.begin(), random_points.end());
