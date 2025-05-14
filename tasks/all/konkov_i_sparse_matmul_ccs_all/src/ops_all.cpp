@@ -94,21 +94,24 @@ bool SparseMatmulTask::RunImpl() {
   };
 
   std::vector<std::thread> threads;
-  for (int t = 0; t < num_threads; ++t) {
-    threads.emplace_back(worker, t);
-  }
-  for (auto& t : threads) t.join();
-
-  for (int t = 0; t < num_threads; ++t) {
-    local_values.insert(local_values.end(), thread_values[t].begin(), thread_values[t].end());
-    local_rows.insert(local_rows.end(), thread_rows[t].begin(), thread_rows[t].end());
-    for (int col = 0; col < colsB; ++col) {
+  for (int col = start_col; col < end_col; ++col) {
+    for (int t = 0; t < num_threads; ++t) {
       local_col_ptr[col + 1] += thread_col_ptrs[t][col + 1];
     }
   }
 
-  for (int col = 1; col <= colsB; ++col) {
+  for (int col = start_col + 1; col <= end_col; ++col) {
     local_col_ptr[col] += local_col_ptr[col - 1];
+  }
+
+  int shift = local_col_ptr[start_col];
+  for (int col = end_col + 1; col <= colsB; ++col) {
+    local_col_ptr[col] = shift;
+  }
+
+  for (int t = 0; t < num_threads; ++t) {
+    local_values.insert(local_values.end(), thread_values[t].begin(), thread_values[t].end());
+    local_rows.insert(local_rows.end(), thread_rows[t].begin(), thread_rows[t].end());
   }
 
   std::vector<std::vector<double>> all_values;
