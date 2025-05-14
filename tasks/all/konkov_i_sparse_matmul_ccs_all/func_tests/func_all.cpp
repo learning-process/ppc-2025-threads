@@ -7,6 +7,9 @@
 #include "core/task/include/task.hpp"
 
 TEST(konkov_i_SparseMatmulTest_all, SimpleTest) {
+  int rank;
+  MPI_Comm_rank(MPI_COMM_WORLD, &rank);
+
   ppc::core::TaskDataPtr task_data = std::make_shared<ppc::core::TaskData>();
   konkov_i_sparse_matmul_ccs_all::SparseMatmulTask task(task_data);
 
@@ -27,8 +30,10 @@ TEST(konkov_i_SparseMatmulTest_all, SimpleTest) {
   EXPECT_TRUE(task.RunImpl());
   EXPECT_TRUE(task.PostProcessingImpl());
 
-  std::vector<double> expected_values = {15.0, 28.0, 18.0};
-  EXPECT_EQ(task.C_values, expected_values);
+  if (rank == 0) {
+    std::vector<double> expected_values = {15.0, 28.0, 18.0};
+    EXPECT_EQ(task.C_values, expected_values);
+  }
 }
 
 TEST(konkov_i_SparseMatmulTest_all, EmptyMatrixTest) {
@@ -46,6 +51,9 @@ TEST(konkov_i_SparseMatmulTest_all, EmptyMatrixTest) {
 }
 
 TEST(konkov_i_SparseMatmulTest_all, ComplexTest) {
+  int rank;
+  MPI_Comm_rank(MPI_COMM_WORLD, &rank);
+
   ppc::core::TaskDataPtr task_data = std::make_shared<ppc::core::TaskData>();
   konkov_i_sparse_matmul_ccs_all::SparseMatmulTask task(task_data);
 
@@ -66,11 +74,16 @@ TEST(konkov_i_SparseMatmulTest_all, ComplexTest) {
   EXPECT_TRUE(task.RunImpl());
   EXPECT_TRUE(task.PostProcessingImpl());
 
-  std::vector<double> expected_values = {8.0};
-  EXPECT_EQ(task.C_values, expected_values);
+  if (rank == 0) {
+    std::vector<double> expected_values = {8.0};
+    EXPECT_EQ(task.C_values, expected_values);
+  }
 }
 
 TEST(konkov_i_SparseMatmulTest_all, IdentityMatrixTest) {
+  int rank;
+  MPI_Comm_rank(MPI_COMM_WORLD, &rank);
+
   ppc::core::TaskDataPtr task_data = std::make_shared<ppc::core::TaskData>();
   konkov_i_sparse_matmul_ccs_all::SparseMatmulTask task(task_data);
 
@@ -88,7 +101,9 @@ TEST(konkov_i_SparseMatmulTest_all, IdentityMatrixTest) {
 
   EXPECT_TRUE(task.RunImpl());
 
-  EXPECT_EQ(task.C_values, task.B_values);
-  EXPECT_EQ(task.C_row_indices, task.B_row_indices);
-  EXPECT_EQ(task.C_col_ptr, task.B_col_ptr);
+  if (rank == 0) {
+    EXPECT_EQ(task.C_values, task.B_values);
+    EXPECT_EQ(task.C_row_indices, task.B_row_indices);
+    EXPECT_EQ(task.C_col_ptr, task.B_col_ptr);
+  }
 }

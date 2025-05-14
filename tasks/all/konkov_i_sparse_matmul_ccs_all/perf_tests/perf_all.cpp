@@ -1,4 +1,5 @@
 #include <gtest/gtest.h>
+#include <mpi.h>
 
 #include <chrono>
 #include <memory>
@@ -9,6 +10,9 @@
 #include "core/task/include/task.hpp"
 
 TEST(konkov_i_SparseMatmulPerfTest_all, test_pipeline_run) {
+  int rank;
+  MPI_Comm_rank(MPI_COMM_WORLD, &rank);
+
   constexpr int kSize = 5000;
 
   ppc::core::TaskDataPtr task_data = std::make_shared<ppc::core::TaskData>();
@@ -56,14 +60,19 @@ TEST(konkov_i_SparseMatmulPerfTest_all, test_pipeline_run) {
   auto perf_analyzer = std::make_shared<ppc::core::Perf>(task);
   perf_analyzer->PipelineRun(perf_attr, perf_results);
 
-  const double expected_value = 6.0;
-  for (const auto& val : task->C_values) {
-    ASSERT_NEAR(val, expected_value, 1e-9);
+  if (rank == 0) {
+    const double expected_value = 6.0;
+    for (const auto& val : task->C_values) {
+      ASSERT_NEAR(val, expected_value, 1e-9);
+    }
+    ASSERT_EQ(task->C_col_ptr.back(), kSize);
   }
-  ASSERT_EQ(task->C_col_ptr.back(), kSize);
 }
 
 TEST(konkov_i_SparseMatmulPerfTest_all, test_task_run) {
+  int rank;
+  MPI_Comm_rank(MPI_COMM_WORLD, &rank);
+
   constexpr int kSize = 5000;
 
   ppc::core::TaskDataPtr task_data = std::make_shared<ppc::core::TaskData>();
@@ -111,9 +120,11 @@ TEST(konkov_i_SparseMatmulPerfTest_all, test_task_run) {
   auto perf_analyzer = std::make_shared<ppc::core::Perf>(task);
   perf_analyzer->PipelineRun(perf_attr, perf_results);
 
-  const double expected_value = 6.0;
-  for (const auto& val : task->C_values) {
-    ASSERT_NEAR(val, expected_value, 1e-9);
+  if (rank == 0) {
+    const double expected_value = 6.0;
+    for (const auto& val : task->C_values) {
+      ASSERT_NEAR(val, expected_value, 1e-9);
+    }
+    ASSERT_EQ(task->C_col_ptr.back(), kSize);
   }
-  ASSERT_EQ(task->C_col_ptr.back(), kSize);
 }
