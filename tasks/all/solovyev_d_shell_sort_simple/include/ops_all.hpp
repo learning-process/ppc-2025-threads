@@ -20,7 +20,6 @@ class TaskALL : public ppc::core::Task {
 
  private:
   std::vector<int> input_;
-  int rc_size_{};
   boost::mpi::communicator world_;
   int num_threads_ = 0;
 };
