@@ -130,8 +130,10 @@ bool SparseMatmulTask::RunImpl() {
   proc_start_cols[rank] = rank * base + std::min(rank, extra);
   proc_end_cols[rank] = proc_start_cols[rank] + base + (rank < extra ? 1 : 0);
 
-  boost::mpi::gather(world, proc_start_cols[rank], proc_start_cols, 0);
-  boost::mpi::gather(world, proc_end_cols[rank], proc_end_cols, 0);
+  int local_start_col = proc_start_cols[rank];
+  int local_end_col = proc_end_cols[rank];
+  boost::mpi::gather(world, local_start_col, proc_start_cols, 0);
+  boost::mpi::gather(world, local_end_col, proc_end_cols, 0);
 
   boost::mpi::gather(world, local_values, all_values, 0);
   boost::mpi::gather(world, local_rows, all_rows, 0);
