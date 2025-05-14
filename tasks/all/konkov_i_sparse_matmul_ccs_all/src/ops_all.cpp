@@ -67,7 +67,6 @@ void SparseMatmulTask::ProcessColumn(int col_b, std::vector<double>& local_value
   }
 }
 
-
 bool SparseMatmulTask::RunImpl() {
   int rank = world.rank();
   int size = world.size();
