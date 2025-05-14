@@ -129,7 +129,6 @@ bool SparseMatmulTask::RunImpl() {
 
   if (rank == 0) {
     C_col_ptr.resize(colsB + 1, 0);
-    int offset = 0;
 
     for (int i = 0; i < size; ++i) {
       C_values.insert(C_values.end(), all_values[i].begin(), all_values[i].end());
