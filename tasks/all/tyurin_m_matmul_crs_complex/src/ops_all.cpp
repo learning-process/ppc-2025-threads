@@ -210,10 +210,14 @@ std::vector<MatrixCRS> tyurin_m_matmul_crs_complex_all::TestTaskAll::Gather(Matr
 
   std::vector<MatrixCRS> v(workers);
 
+#ifndef _MSC_VER
 #pragma GCC diagnostic push
 #pragma GCC diagnostic ignored "-Wnull-dereference"
+#endif
   v[0] = std::move(local_res);
+#ifndef _MSC_VER
 #pragma GCC diagnostic pop
+#endif
 
   for (int p = 1; p < workers; ++p) {
     v[p] = MatrixCRS::Recv(MPI_COMM_WORLD, p);
