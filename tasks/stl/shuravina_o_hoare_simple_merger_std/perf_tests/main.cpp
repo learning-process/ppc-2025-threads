@@ -11,12 +11,12 @@
 #include "core/task/include/task.hpp"
 
 TEST(shuravina_o_hoare_simple_merger_stl, test_pipeline_run) {
-  constexpr int count = 50000;
-  std::vector<int> in(count, 0);
-  std::vector<int> out(count, 0);
+  constexpr int kCount = 50000;
+  std::vector<int> in(kCount, 0);
+  std::vector<int> out(kCount, 0);
 
-  for (int i = 0; i < count; i++) {
-    in[i] = count - i;
+  for (int i = 0; i < kCount; i++) {
+    in[i] = kCount - i;
   }
 
   auto task_data = std::make_shared<ppc::core::TaskData>();
@@ -42,18 +42,18 @@ TEST(shuravina_o_hoare_simple_merger_stl, test_pipeline_run) {
     std::this_thread::sleep_for(std::chrono::milliseconds(static_cast<int>((0.05 - duration) * 1000)));
   }
 
-  for (int i = 0; i < count - 1; i++) {
+  for (int i = 0; i < kCount - 1; i++) {
     ASSERT_LE(out[i], out[i + 1]);
   }
 }
 
 TEST(shuravina_o_hoare_simple_merger_stl, test_task_run) {
-  constexpr int count = 50000;
-  std::vector<int> in(count, 0);
-  std::vector<int> out(count, 0);
+  constexpr int kCount = 50000;
+  std::vector<int> in(kCount, 0);
+  std::vector<int> out(kCount, 0);
 
-  for (int i = 0; i < count; i++) {
-    in[i] = count - i;
+  for (int i = 0; i < kCount; i++) {
+    in[i] = kCount - i;
   }
 
   auto task_data = std::make_shared<ppc::core::TaskData>();
@@ -79,7 +79,7 @@ TEST(shuravina_o_hoare_simple_merger_stl, test_task_run) {
     std::this_thread::sleep_for(std::chrono::milliseconds(static_cast<int>((0.05 - duration) * 1000)));
   }
 
-  for (int i = 0; i < count - 1; i++) {
+  for (int i = 0; i < kCount - 1; i++) {
     ASSERT_LE(out[i], out[i + 1]);
   }
 }
