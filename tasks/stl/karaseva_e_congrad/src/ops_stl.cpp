@@ -35,7 +35,13 @@ bool TestTaskSTL::ValidationImpl() {
 // Helper functions to reduce cognitive complexity
 namespace {
 void ParallelInit(std::vector<double>& r, std::vector<double>& p, const std::vector<double>& b, size_t size) {
-  const size_t num_threads = std::max<size_t>(1, std::thread::hardware_concurrency());
+  int thread_count = ppc::util::GetPPCNumThreads();
+  const int max_hardware = static_cast<int>(std::thread::hardware_concurrency());
+  if (thread_count <= 0 || thread_count > max_hardware) {
+    thread_count = max_hardware > 0 ? max_hardware : 1;
+  }
+  const size_t num_threads = static_cast<size_t>(std::max(1, thread_count));
+
   std::vector<std::thread> threads;
   const size_t chunk_size = (size + num_threads - 1) / num_threads;
 
@@ -56,7 +62,13 @@ void ParallelInit(std::vector<double>& r, std::vector<double>& p, const std::vec
 }
 
 double ParallelDotProduct(const std::vector<double>& a, const std::vector<double>& b, size_t size) {
-  const size_t num_threads = std::max<size_t>(1, std::thread::hardware_concurrency());
+  int thread_count = ppc::util::GetPPCNumThreads();
+  const int max_hardware = static_cast<int>(std::thread::hardware_concurrency());
+  if (thread_count <= 0 || thread_count > max_hardware) {
+    thread_count = max_hardware > 0 ? max_hardware : 1;
+  }
+  const size_t num_threads = static_cast<size_t>(std::max(1, thread_count));
+
   std::vector<std::thread> threads(num_threads);
   std::vector<double> partial_sums(num_threads, 0.0);
   const size_t chunk_size = (size + num_threads - 1) / num_threads;
@@ -82,7 +94,13 @@ double ParallelDotProduct(const std::vector<double>& a, const std::vector<double
 
 void MatrixVectorMultiply(const std::vector<double>& a, std::vector<double>& ap, const std::vector<double>& p,
                           size_t size) {
-  const size_t num_threads = std::max<size_t>(1, std::thread::hardware_concurrency());
+  int thread_count = ppc::util::GetPPCNumThreads();
+  const int max_hardware = static_cast<int>(std::thread::hardware_concurrency());
+  if (thread_count <= 0 || thread_count > max_hardware) {
+    thread_count = max_hardware > 0 ? max_hardware : 1;
+  }
+  const size_t num_threads = static_cast<size_t>(std::max(1, thread_count));
+
   std::vector<std::thread> threads;
   const size_t chunk_size = (size + num_threads - 1) / num_threads;
 
@@ -106,22 +124,16 @@ void MatrixVectorMultiply(const std::vector<double>& a, std::vector<double>& ap,
 
 void ParallelVectorUpdate(std::vector<double>& x, std::vector<double>& r, const std::vector<double>& p,
                           const std::vector<double>& ap, double alpha, size_t size) {
-  // Get thread count using PPC utility with validation
   int thread_count = ppc::util::GetPPCNumThreads();
-  const int max_hardware_threads = static_cast<int>(std::thread::hardware_concurrency());
-
-  // Validate thread count
-  if (thread_count <= 0 || thread_count > max_hardware_threads) {
-    thread_count = max_hardware_threads > 0 ? max_hardware_threads : 1;
+  const int max_hardware = static_cast<int>(std::thread::hardware_concurrency());
+  if (thread_count <= 0 || thread_count > max_hardware) {
+    thread_count = max_hardware > 0 ? max_hardware : 1;
   }
-
-  // Ensure minimum 1 thread
   const size_t num_threads = static_cast<size_t>(std::max(1, thread_count));
 
   std::vector<std::thread> threads;
   const size_t chunk_size = (size + num_threads - 1) / num_threads;
 
-  // Parallel execution
   for (size_t t = 0; t < num_threads; ++t) {
     const size_t start = t * chunk_size;
     const size_t end = std::min(start + chunk_size, size);
@@ -133,14 +145,19 @@ void ParallelVectorUpdate(std::vector<double>& x, std::vector<double>& r, const 
     });
   }
 
-  // Join threads
   for (auto& thread : threads) {
     thread.join();
   }
 }
 
 void UpdateSearchDirection(std::vector<double>& p, const std::vector<double>& r, double beta, size_t size) {
-  const size_t num_threads = std::max<size_t>(1, std::thread::hardware_concurrency());
+  int thread_count = ppc::util::GetPPCNumThreads();
+  const int max_hardware = static_cast<int>(std::thread::hardware_concurrency());
+  if (thread_count <= 0 || thread_count > max_hardware) {
+    thread_count = max_hardware > 0 ? max_hardware : 1;
+  }
+  const size_t num_threads = static_cast<size_t>(std::max(1, thread_count));
+
   std::vector<std::thread> threads;
   const size_t chunk_size = (size + num_threads - 1) / num_threads;
 
