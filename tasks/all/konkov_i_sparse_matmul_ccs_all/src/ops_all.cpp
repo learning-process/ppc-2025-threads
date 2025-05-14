@@ -80,42 +80,20 @@ void SparseMatmulTask::ProcessColumn(int thread_id, int col_b, std::vector<doubl
 void SparseMatmulTask::MergeThreadResults(int num_threads, const std::vector<std::vector<double>>& thread_c_values,
                                           const std::vector<std::vector<int>>& thread_c_row_indices,
                                           const std::vector<std::vector<int>>& thread_c_col_ptr) {
-  std::vector<std::unordered_map<int, double>> column_results(colsB);
-
-  for (int t = 0; t < num_threads; ++t) {
-    int offset = 0;
-    for (int col = 0; col < colsB; ++col) {
-      int start = thread_c_col_ptr[t][col];
+  for (int col = 0; col < colsB; ++col) {
+    for (int t = 0; t < num_threads; ++t) {
+      int start = (col == 0) ? 0 : thread_c_col_ptr[t][col];
       int end = thread_c_col_ptr[t][col + 1];
 
-      for (int i = start; i < end; ++i) {
-        int row = thread_c_row_indices[t][i];
-        double val = thread_c_values[t][i];
-        column_results[col][row] += val;
-      }
+      C_col_ptr[col + 1] += end - start;
+      C_values.insert(C_values.end(), thread_c_values[t].begin() + start, thread_c_values[t].begin() + end);
+      C_row_indices.insert(C_row_indices.end(), thread_c_row_indices[t].begin() + start,
+                           thread_c_row_indices[t].begin() + end);
     }
   }
 
-  C_col_ptr.resize(colsB + 1, 0);
-  C_values.clear();
-  C_row_indices.clear();
-
-  for (int col = 0; col < colsB; ++col) {
-    C_col_ptr[col + 1] = C_col_ptr[col];
-
-    std::vector<int> rows;
-    for (const auto& pair : column_results[col]) {
-      if (pair.second != 0.0) {
-        rows.push_back(pair.first);
-      }
-    }
-    std::sort(rows.begin(), rows.end());
-
-    for (int row : rows) {
-      C_values.push_back(column_results[col][row]);
-      C_row_indices.push_back(row);
-      C_col_ptr[col + 1]++;
-    }
+  for (int col = 1; col <= colsB; ++col) {
+    C_col_ptr[col] += C_col_ptr[col - 1];
   }
 }
 
@@ -126,7 +104,7 @@ bool SparseMatmulTask::RunImpl() {
 
   auto num_threads = ppc::util::GetPPCNumThreads();
   if (num_threads == 0) {
-    num_threads = 4;  // fallback
+    num_threads = 4;
   }
 
   std::vector<std::vector<double>> thread_c_values(num_threads);
@@ -134,7 +112,7 @@ bool SparseMatmulTask::RunImpl() {
   std::vector<std::vector<int>> thread_c_col_ptr(num_threads, std::vector<int>(colsB + 1, 0));
 
   auto worker = [&](int thread_id) {
-    for (int col_b = thread_id + rank; col_b < colsB; col_b += num_threads * size) {
+    for (int col_b = rank * num_threads + thread_id; col_b < colsB; col_b += size * num_threads) {
       ProcessColumn(thread_id, col_b, thread_c_values[thread_id], thread_c_row_indices[thread_id],
                     thread_c_col_ptr[thread_id]);
     }
@@ -154,14 +132,23 @@ bool SparseMatmulTask::RunImpl() {
     thread.join();
   }
 
-  if (rank == 0) {
-    std::vector<std::unordered_map<int, double>> global_column_results(colsB);
+  std::vector<double> process_values;
+  std::vector<int> process_row_indices;
+  std::vector<int> process_col_ptr(colsB + 1, 0);
 
-    for (int col = 0; col < colsB; ++col) {
-      for (int i = C_col_ptr[col]; i < C_col_ptr[col + 1]; ++i) {
-        global_column_results[col][C_row_indices[i]] += C_values[i];
-      }
+  for (int t = 0; t < num_threads; ++t) {
+    process_values.insert(process_values.end(), thread_c_values[t].begin(), thread_c_values[t].end());
+    process_row_indices.insert(process_row_indices.end(), thread_c_row_indices[t].begin(),
+                               thread_c_row_indices[t].end());
+    for (int col = 0; col <= colsB; ++col) {
+      process_col_ptr[col] += thread_c_col_ptr[t][col];
     }
+  }
+
+  if (rank == 0) {
+    C_values = std::move(process_values);
+    C_row_indices = std::move(process_row_indices);
+    C_col_ptr = std::move(process_col_ptr);
 
     for (int src = 1; src < size; ++src) {
       std::vector<int> recv_col_ptr(colsB + 1);
@@ -175,49 +162,20 @@ bool SparseMatmulTask::RunImpl() {
       MPI_Recv(recv_row_indices.data(), values_size, MPI_INT, src, 2, MPI_COMM_WORLD, MPI_STATUS_IGNORE);
 
       for (int col = 0; col < colsB; ++col) {
-        for (int i = recv_col_ptr[col]; i < recv_col_ptr[col + 1]; ++i) {
-          global_column_results[col][recv_row_indices[i]] += recv_values[i];
+        int start = recv_col_ptr[col];
+        int end = recv_col_ptr[col + 1];
+
+        for (int i = start; i < end; ++i) {
+          C_values.push_back(recv_values[i]);
+          C_row_indices.push_back(recv_row_indices[i]);
         }
-      }
-    }
-
-    C_col_ptr.resize(colsB + 1, 0);
-    C_values.clear();
-    C_row_indices.clear();
-
-    for (int col = 0; col < colsB; ++col) {
-      C_col_ptr[col + 1] = C_col_ptr[col];
-
-      std::vector<int> rows;
-      for (const auto& pair : global_column_results[col]) {
-        if (pair.second != 0.0) {
-          rows.push_back(pair.first);
-        }
-      }
-      std::sort(rows.begin(), rows.end());
-
-      for (int row : rows) {
-        C_values.push_back(global_column_results[col][row]);
-        C_row_indices.push_back(row);
-        C_col_ptr[col + 1]++;
+        C_col_ptr[col + 1] += (end - start);
       }
     }
   } else {
-    // Send results to rank 0
-    std::vector<double> send_values;
-    std::vector<int> send_row_indices, send_col_ptr(colsB + 1, 0);
-
-    for (int t = 0; t < num_threads; ++t) {
-      send_values.insert(send_values.end(), thread_c_values[t].begin(), thread_c_values[t].end());
-      send_row_indices.insert(send_row_indices.end(), thread_c_row_indices[t].begin(), thread_c_row_indices[t].end());
-      for (int col = 0; col <= colsB; ++col) {
-        send_col_ptr[col] += thread_c_col_ptr[t][col];
-      }
-    }
-
-    MPI_Send(send_col_ptr.data(), colsB + 1, MPI_INT, 0, 0, MPI_COMM_WORLD);
-    MPI_Send(send_values.data(), send_values.size(), MPI_DOUBLE, 0, 1, MPI_COMM_WORLD);
-    MPI_Send(send_row_indices.data(), send_row_indices.size(), MPI_INT, 0, 2, MPI_COMM_WORLD);
+    MPI_Send(process_col_ptr.data(), colsB + 1, MPI_INT, 0, 0, MPI_COMM_WORLD);
+    MPI_Send(process_values.data(), process_values.size(), MPI_DOUBLE, 0, 1, MPI_COMM_WORLD);
+    MPI_Send(process_row_indices.data(), process_row_indices.size(), MPI_INT, 0, 2, MPI_COMM_WORLD);
   }
 
   return true;
