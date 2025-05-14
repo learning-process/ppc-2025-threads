@@ -107,42 +107,33 @@ bool SparseMatmulTask::RunImpl() {
     num_threads = 4;
   }
 
-  std::vector<std::vector<double>> thread_c_values(num_threads);
-  std::vector<std::vector<int>> thread_c_row_indices(num_threads);
-  std::vector<std::vector<int>> thread_c_col_ptr(num_threads, std::vector<int>(colsB + 1, 0));
-
-  auto worker = [&](int thread_id) {
-    for (int col_b = rank * num_threads + thread_id; col_b < colsB; col_b += size * num_threads) {
-      ProcessColumn(thread_id, col_b, thread_c_values[thread_id], thread_c_row_indices[thread_id],
-                    thread_c_col_ptr[thread_id]);
-    }
-
-    for (int col = 1; col <= colsB; ++col) {
-      thread_c_col_ptr[thread_id][col] += thread_c_col_ptr[thread_id][col - 1];
-    }
-  };
-
-  std::vector<std::thread> threads;
-  threads.reserve(num_threads);
-  for (int t = 0; t < num_threads; ++t) {
-    threads.emplace_back(worker, t);
-  }
-
-  for (auto& thread : threads) {
-    thread.join();
-  }
-
   std::vector<double> process_values;
   std::vector<int> process_row_indices;
   std::vector<int> process_col_ptr(colsB + 1, 0);
 
-  for (int t = 0; t < num_threads; ++t) {
-    process_values.insert(process_values.end(), thread_c_values[t].begin(), thread_c_values[t].end());
-    process_row_indices.insert(process_row_indices.end(), thread_c_row_indices[t].begin(),
-                               thread_c_row_indices[t].end());
-    for (int col = 0; col <= colsB; ++col) {
-      process_col_ptr[col] += thread_c_col_ptr[t][col];
+  for (int col_b = rank; col_b < colsB; col_b += size) {
+    std::unordered_map<int, double> column_result;
+
+    for (int j = B_col_ptr[col_b]; j < B_col_ptr[col_b + 1]; ++j) {
+      int row_b = B_row_indices[j];
+      double val_b = B_values[j];
+
+      for (int k = A_col_ptr[row_b]; k < A_col_ptr[row_b + 1]; ++k) {
+        int row_a = A_row_indices[k];
+        double val_a = A_values[k];
+        column_result[row_a] += val_a * val_b;
+      }
     }
+
+    std::vector<std::pair<int, double>> sorted_elements(column_result.begin(), column_result.end());
+    std::sort(sorted_elements.begin(), sorted_elements.end());
+
+    int start_idx = process_values.size();
+    for (const auto& [row, val] : sorted_elements) {
+      process_values.push_back(val);
+      process_row_indices.push_back(row);
+    }
+    process_col_ptr[col_b + 1] = process_values.size();
   }
 
   if (rank == 0) {
@@ -162,14 +153,17 @@ bool SparseMatmulTask::RunImpl() {
       MPI_Recv(recv_row_indices.data(), values_size, MPI_INT, src, 2, MPI_COMM_WORLD, MPI_STATUS_IGNORE);
 
       for (int col = 0; col < colsB; ++col) {
-        int start = recv_col_ptr[col];
-        int end = recv_col_ptr[col + 1];
+        if (recv_col_ptr[col] != recv_col_ptr[col + 1]) {
+          auto insert_pos = C_col_ptr[col] + (C_col_ptr[col + 1] - C_col_ptr[col]);
+          C_values.insert(C_values.begin() + insert_pos, recv_values.begin() + recv_col_ptr[col],
+                          recv_values.begin() + recv_col_ptr[col + 1]);
+          C_row_indices.insert(C_row_indices.begin() + insert_pos, recv_row_indices.begin() + recv_col_ptr[col],
+                               recv_row_indices.begin() + recv_col_ptr[col + 1]);
 
-        for (int i = start; i < end; ++i) {
-          C_values.push_back(recv_values[i]);
-          C_row_indices.push_back(recv_row_indices[i]);
+          for (int c = col + 1; c <= colsB; ++c) {
+            C_col_ptr[c] += (recv_col_ptr[col + 1] - recv_col_ptr[col]);
+          }
         }
-        C_col_ptr[col + 1] += (end - start);
       }
     }
   } else {
