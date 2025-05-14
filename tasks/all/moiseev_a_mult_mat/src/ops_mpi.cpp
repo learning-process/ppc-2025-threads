@@ -135,9 +135,9 @@ void moiseev_a_mult_mat_mpi::MultMatMPI::ComputeLocalBlock(boost::mpi::communica
       for (int j = 0; j < block; ++j) {
         double sum = 0;
         for (int k = 0; k < block; ++k) {
-          sum += a_block[i * block + k] * b_block[k * block + j];
+          sum += a_block[(i * block) + k] * b_block[(k * block) + j];
         }
-        c_block[i * block + j] += sum;
+        c_block[(i * block) + j] += sum;
       }
     }
 
