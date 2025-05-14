@@ -235,6 +235,7 @@ TEST(komshina_d_image_filtering_vertical_gaussian_all, MPI_Scatter_PartitionsCor
 TEST(komshina_d_image_filtering_vertical_gaussian_all, MPI_SingleProcess) {
   int size = 0;
   MPI_Comm_size(MPI_COMM_WORLD, &size);
+
   if (size != 1) {
     GTEST_SKIP() << "Single process test";
   }
