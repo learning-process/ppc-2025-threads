@@ -3,29 +3,11 @@
 #include <cstddef>
 #include <cstdint>
 #include <memory>
-#include <random>
 #include <utility>
 #include <vector>
 
 #include "core/task/include/task.hpp"
 #include "stl/kapustin_i_jarv_alg/include/ops_stl.hpp"
-
-namespace {
-std::vector<std::pair<int, int>> GenerateRandomPoints(size_t count, int min_x, int max_x, int min_y, int max_y) {
-  std::mt19937 rng(42);
-  std::uniform_int_distribution<int> dist_x(min_x, max_x);
-  std::uniform_int_distribution<int> dist_y(min_y, max_y);
-
-  std::vector<std::pair<int, int>> random_points;
-  random_points.reserve(count);
-
-  for (size_t i = 0; i < count; ++i) {
-    random_points.emplace_back(dist_x(rng), dist_y(rng));
-  }
-
-  return random_points;
-}
-}  // namespace
 
 TEST(KapustinJarvAlgSTLTest, SimpleTriangle) {
   std::vector<std::pair<int, int>> input_points = {{0, 0}, {5, 5}, {10, 0}};
