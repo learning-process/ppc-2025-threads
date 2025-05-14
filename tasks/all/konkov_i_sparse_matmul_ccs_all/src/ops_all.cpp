@@ -119,21 +119,16 @@ bool SparseMatmulTask::RunImpl() {
     local_rows.insert(local_rows.end(), thread_rows[t].begin(), thread_rows[t].end());
   }
 
+  std::vector<int> proc_start_cols(size), proc_end_cols(size);
+  proc_start_cols[rank] = start_col;
+  proc_end_cols[rank] = end_col;
+
+  boost::mpi::gather(world, start_col, proc_start_cols, 0);
+  boost::mpi::gather(world, end_col, proc_end_cols, 0);
+
   std::vector<std::vector<double>> all_values;
   std::vector<std::vector<int>> all_rows;
   std::vector<std::vector<int>> all_col_ptrs;
-
-  std::vector<int> proc_start_cols(size), proc_end_cols(size);
-
-  int base = colsB / size;
-  int extra = colsB % size;
-  proc_start_cols[rank] = rank * base + std::min(rank, extra);
-  proc_end_cols[rank] = proc_start_cols[rank] + base + (rank < extra ? 1 : 0);
-
-  int local_start_col = proc_start_cols[rank];
-  int local_end_col = proc_end_cols[rank];
-  boost::mpi::gather(world, local_start_col, proc_start_cols, 0);
-  boost::mpi::gather(world, local_end_col, proc_end_cols, 0);
 
   boost::mpi::gather(world, local_values, all_values, 0);
   boost::mpi::gather(world, local_rows, all_rows, 0);
@@ -148,10 +143,11 @@ bool SparseMatmulTask::RunImpl() {
       for (int proc = 0; proc < size; ++proc) {
         if (col >= proc_start_cols[proc] && col < proc_end_cols[proc]) {
           int local_col = col - proc_start_cols[proc];
+
           int start = all_col_ptrs[proc][local_col];
           int end = all_col_ptrs[proc][local_col + 1];
 
-          for (int i = start; i < end; i++) {
+          for (int i = start; i < end; ++i) {
             sorted_values.push_back(all_values[proc][i]);
             sorted_rows.push_back(all_rows[proc][i]);
           }
