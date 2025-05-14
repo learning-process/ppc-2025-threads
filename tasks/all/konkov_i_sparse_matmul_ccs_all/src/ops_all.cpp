@@ -80,20 +80,42 @@ void SparseMatmulTask::ProcessColumn(int thread_id, int col_b, std::vector<doubl
 void SparseMatmulTask::MergeThreadResults(int num_threads, const std::vector<std::vector<double>>& thread_c_values,
                                           const std::vector<std::vector<int>>& thread_c_row_indices,
                                           const std::vector<std::vector<int>>& thread_c_col_ptr) {
-  for (int col = 0; col < colsB; ++col) {
-    for (int t = 0; t < num_threads; ++t) {
-      int start = (col == 0) ? 0 : thread_c_col_ptr[t][col];
+  std::vector<std::unordered_map<int, double>> column_results(colsB);
+
+  for (int t = 0; t < num_threads; ++t) {
+    int offset = 0;
+    for (int col = 0; col < colsB; ++col) {
+      int start = thread_c_col_ptr[t][col];
       int end = thread_c_col_ptr[t][col + 1];
 
-      C_col_ptr[col + 1] += end - start;
-      C_values.insert(C_values.end(), thread_c_values[t].begin() + start, thread_c_values[t].begin() + end);
-      C_row_indices.insert(C_row_indices.end(), thread_c_row_indices[t].begin() + start,
-                           thread_c_row_indices[t].begin() + end);
+      for (int i = start; i < end; ++i) {
+        int row = thread_c_row_indices[t][i];
+        double val = thread_c_values[t][i];
+        column_results[col][row] += val;
+      }
     }
   }
 
-  for (int col = 1; col <= colsB; ++col) {
-    C_col_ptr[col] += C_col_ptr[col - 1];
+  C_col_ptr.resize(colsB + 1, 0);
+  C_values.clear();
+  C_row_indices.clear();
+
+  for (int col = 0; col < colsB; ++col) {
+    C_col_ptr[col + 1] = C_col_ptr[col];
+
+    std::vector<int> rows;
+    for (const auto& pair : column_results[col]) {
+      if (pair.second != 0.0) {
+        rows.push_back(pair.first);
+      }
+    }
+    std::sort(rows.begin(), rows.end());
+
+    for (int row : rows) {
+      C_values.push_back(column_results[col][row]);
+      C_row_indices.push_back(row);
+      C_col_ptr[col + 1]++;
+    }
   }
 }
 
@@ -133,31 +155,51 @@ bool SparseMatmulTask::RunImpl() {
   }
 
   if (rank == 0) {
-    C_values.clear();
-    C_row_indices.clear();
-    C_col_ptr.assign(colsB + 1, 0);
+    std::vector<std::unordered_map<int, double>> global_column_results(colsB);
 
-    MergeThreadResults(num_threads, thread_c_values, thread_c_row_indices, thread_c_col_ptr);
+    for (int col = 0; col < colsB; ++col) {
+      for (int i = C_col_ptr[col]; i < C_col_ptr[col + 1]; ++i) {
+        global_column_results[col][C_row_indices[i]] += C_values[i];
+      }
+    }
 
-    // Gather results from other processes
     for (int src = 1; src < size; ++src) {
-      std::vector<double> recv_values;
-      std::vector<int> recv_row_indices, recv_col_ptr(colsB + 1);
-
+      std::vector<int> recv_col_ptr(colsB + 1);
       MPI_Recv(recv_col_ptr.data(), colsB + 1, MPI_INT, src, 0, MPI_COMM_WORLD, MPI_STATUS_IGNORE);
 
       int values_size = recv_col_ptr.back();
-      recv_values.resize(values_size);
-      recv_row_indices.resize(values_size);
+      std::vector<double> recv_values(values_size);
+      std::vector<int> recv_row_indices(values_size);
 
       MPI_Recv(recv_values.data(), values_size, MPI_DOUBLE, src, 1, MPI_COMM_WORLD, MPI_STATUS_IGNORE);
       MPI_Recv(recv_row_indices.data(), values_size, MPI_INT, src, 2, MPI_COMM_WORLD, MPI_STATUS_IGNORE);
 
-      // Merge received data
-      C_values.insert(C_values.end(), recv_values.begin(), recv_values.end());
-      C_row_indices.insert(C_row_indices.end(), recv_row_indices.begin(), recv_row_indices.end());
-      for (int col = 0; col <= colsB; ++col) {
-        C_col_ptr[col] += recv_col_ptr[col];
+      for (int col = 0; col < colsB; ++col) {
+        for (int i = recv_col_ptr[col]; i < recv_col_ptr[col + 1]; ++i) {
+          global_column_results[col][recv_row_indices[i]] += recv_values[i];
+        }
+      }
+    }
+
+    C_col_ptr.resize(colsB + 1, 0);
+    C_values.clear();
+    C_row_indices.clear();
+
+    for (int col = 0; col < colsB; ++col) {
+      C_col_ptr[col + 1] = C_col_ptr[col];
+
+      std::vector<int> rows;
+      for (const auto& pair : global_column_results[col]) {
+        if (pair.second != 0.0) {
+          rows.push_back(pair.first);
+        }
+      }
+      std::sort(rows.begin(), rows.end());
+
+      for (int row : rows) {
+        C_values.push_back(global_column_results[col][row]);
+        C_row_indices.push_back(row);
+        C_col_ptr[col + 1]++;
       }
     }
   } else {
