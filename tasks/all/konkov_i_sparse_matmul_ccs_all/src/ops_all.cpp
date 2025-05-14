@@ -102,9 +102,15 @@ bool SparseMatmulTask::RunImpl() {
   MPI_Comm_rank(MPI_COMM_WORLD, &rank);
   MPI_Comm_size(MPI_COMM_WORLD, &size);
 
-  std::vector<double> process_values;
-  std::vector<int> process_row_indices;
-  std::vector<int> process_col_ptr(colsB + 1, 0);
+  if (rank == 0) {
+    C_values.clear();
+    C_row_indices.clear();
+    C_col_ptr.assign(colsB + 1, 0);
+  }
+
+  std::vector<double> local_values;
+  std::vector<int> local_row_indices;
+  std::vector<int> local_col_ptr(colsB + 1, 0);
 
   for (int col_b = rank; col_b < colsB; col_b += size) {
     std::unordered_map<int, double> column_result;
@@ -114,57 +120,64 @@ bool SparseMatmulTask::RunImpl() {
       double val_b = B_values[j];
 
       for (int k = A_col_ptr[row_b]; k < A_col_ptr[row_b + 1]; ++k) {
+        if (k >= static_cast<int>(A_row_indices.size())) continue;
+
         int row_a = A_row_indices[k];
         double val_a = A_values[k];
         column_result[row_a] += val_a * val_b;
       }
     }
 
-    std::vector<std::pair<int, double>> sorted_elements(column_result.begin(), column_result.end());
-    std::sort(sorted_elements.begin(), sorted_elements.end());
+    std::vector<std::pair<int, double>> sorted(column_result.begin(), column_result.end());
+    std::sort(sorted.begin(), sorted.end());
 
-    for (const auto& [row, val] : sorted_elements) {
-      process_values.push_back(val);
-      process_row_indices.push_back(row);
+    local_col_ptr[col_b + 1] = local_values.size() + sorted.size();
+    for (const auto& [row, val] : sorted) {
+      local_values.push_back(val);
+      local_row_indices.push_back(row);
     }
-    process_col_ptr[col_b + 1] = process_values.size();
   }
 
   if (rank == 0) {
-    C_values = std::move(process_values);
-    C_row_indices = std::move(process_row_indices);
-    C_col_ptr = std::move(process_col_ptr);
+    C_values = local_values;
+    C_row_indices = local_row_indices;
+    C_col_ptr = local_col_ptr;
 
     for (int src = 1; src < size; ++src) {
       std::vector<int> recv_col_ptr(colsB + 1);
       MPI_Recv(recv_col_ptr.data(), colsB + 1, MPI_INT, src, 0, MPI_COMM_WORLD, MPI_STATUS_IGNORE);
 
-      int values_size = recv_col_ptr.back();
-      std::vector<double> recv_values(values_size);
-      std::vector<int> recv_row_indices(values_size);
+      int data_size = recv_col_ptr.back();
+      if (data_size > 0) {
+        std::vector<double> recv_values(data_size);
+        std::vector<int> recv_rows(data_size);
 
-      MPI_Recv(recv_values.data(), values_size, MPI_DOUBLE, src, 1, MPI_COMM_WORLD, MPI_STATUS_IGNORE);
-      MPI_Recv(recv_row_indices.data(), values_size, MPI_INT, src, 2, MPI_COMM_WORLD, MPI_STATUS_IGNORE);
+        MPI_Recv(recv_values.data(), data_size, MPI_DOUBLE, src, 1, MPI_COMM_WORLD, MPI_STATUS_IGNORE);
+        MPI_Recv(recv_rows.data(), data_size, MPI_INT, src, 2, MPI_COMM_WORLD, MPI_STATUS_IGNORE);
 
-      for (int col = 0; col < colsB; ++col) {
-        if (recv_col_ptr[col] != recv_col_ptr[col + 1]) {
-          int insert_pos = C_col_ptr[col + 1];
+        for (int col = 0; col < colsB; ++col) {
+          int start = recv_col_ptr[col];
+          int end = recv_col_ptr[col + 1];
 
-          C_values.insert(C_values.begin() + insert_pos, recv_values.begin() + recv_col_ptr[col],
-                          recv_values.begin() + recv_col_ptr[col + 1]);
-          C_row_indices.insert(C_row_indices.begin() + insert_pos, recv_row_indices.begin() + recv_col_ptr[col],
-                               recv_row_indices.begin() + recv_col_ptr[col + 1]);
+          if (start != end) {
+            int insert_pos = C_col_ptr[col + 1];
+            C_values.insert(C_values.begin() + insert_pos, recv_values.begin() + start, recv_values.begin() + end);
+            C_row_indices.insert(C_row_indices.begin() + insert_pos, recv_rows.begin() + start,
+                                 recv_rows.begin() + end);
 
-          for (int c = col + 1; c <= colsB; ++c) {
-            C_col_ptr[c] += (recv_col_ptr[col + 1] - recv_col_ptr[col]);
+            for (int c = col + 1; c <= colsB; ++c) {
+              C_col_ptr[c] += (end - start);
+            }
           }
         }
       }
     }
   } else {
-    MPI_Send(process_col_ptr.data(), colsB + 1, MPI_INT, 0, 0, MPI_COMM_WORLD);
-    MPI_Send(process_values.data(), process_values.size(), MPI_DOUBLE, 0, 1, MPI_COMM_WORLD);
-    MPI_Send(process_row_indices.data(), process_values.size(), MPI_INT, 0, 2, MPI_COMM_WORLD);
+    MPI_Send(local_col_ptr.data(), colsB + 1, MPI_INT, 0, 0, MPI_COMM_WORLD);
+    if (!local_values.empty()) {
+      MPI_Send(local_values.data(), local_values.size(), MPI_DOUBLE, 0, 1, MPI_COMM_WORLD);
+      MPI_Send(local_row_indices.data(), local_row_indices.size(), MPI_INT, 0, 2, MPI_COMM_WORLD);
+    }
   }
 
   return true;
