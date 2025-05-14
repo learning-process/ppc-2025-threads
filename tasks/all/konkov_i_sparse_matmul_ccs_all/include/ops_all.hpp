@@ -13,11 +13,6 @@ class SparseMatmulTask : public ppc::core::Task {
 
   bool ValidationImpl() override;
   bool PreProcessingImpl() override;
-  void ProcessColumn(int thread_id, int col_b, std::vector<double>& thread_values, std::vector<int>& thread_row_indices,
-                     std::vector<int>& thread_col_ptr);
-  void MergeThreadResults(int num_threads, const std::vector<std::vector<double>>& thread_c_values,
-                          const std::vector<std::vector<int>>& thread_c_row_indices,
-                          const std::vector<std::vector<int>>& thread_c_col_ptr);
   bool RunImpl() override;
   bool PostProcessingImpl() override;
 
@@ -27,7 +22,7 @@ class SparseMatmulTask : public ppc::core::Task {
   int rowsA, colsA, rowsB, colsB;
 
  private:
-  void DistributeData();
+  void ProcessColumns(int start_col, int end_col);
   void GatherResults();
   int world_rank, world_size;
 };
