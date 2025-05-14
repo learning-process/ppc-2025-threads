@@ -16,6 +16,7 @@ class TestTaskALL : public ppc::core::Task {
   bool ValidationImpl() override;
   bool RunImpl() override;
   bool PostProcessingImpl() override;
+  int GetRank() const { return world_.rank(); }
 
  private:
   boost::mpi::communicator world_;

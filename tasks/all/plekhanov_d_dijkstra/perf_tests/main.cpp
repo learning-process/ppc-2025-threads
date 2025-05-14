@@ -118,7 +118,9 @@ TEST(plekhanov_d_dijkstra_all, test_pipeline_run) {
   perf_analyzer->PipelineRun(perf_attr, perf_results);
   ppc::core::Perf::PrintPerfStatistic(perf_results);
   std::vector<int> expected = plekhanov_d_dijkstra_all::CalculateExpectedResult(adj_list, start_vertex);
-  EXPECT_EQ(distances, expected);
+  if (test_task_all->GetRank() == 0) {
+    EXPECT_EQ(distances, expected);
+  }
 }
 
 TEST(plekhanov_d_dijkstra_all, test_task_run) {
@@ -163,5 +165,7 @@ TEST(plekhanov_d_dijkstra_all, test_task_run) {
   perf_analyzer->TaskRun(perf_attr, perf_results);
   ppc::core::Perf::PrintPerfStatistic(perf_results);
   std::vector<int> expected = plekhanov_d_dijkstra_all::CalculateExpectedResult(adj_list, start_vertex);
-  EXPECT_EQ(distances, expected);
+  if (test_task_all->GetRank() == 0) {
+    EXPECT_EQ(distances, expected);
+  }
 }

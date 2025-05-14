@@ -22,8 +22,10 @@ void ValidateTaskSuccess(TestTaskALL &test_task, std::vector<int> &distances,
                          const std::vector<ExpectedResultType> &expected_result) {
   ASSERT_TRUE(test_task.Run());
   test_task.PostProcessing();
-  for (size_t i = 0; i < distances.size(); ++i) {
-    EXPECT_EQ(distances[i], expected_result[i]);
+  if (test_task.GetRank() == 0) {
+    for (size_t i = 0; i < distances.size(); ++i) {
+      EXPECT_EQ(distances[i], expected_result[i]);
+    }
   }
 }
 
@@ -85,7 +87,9 @@ void RunValidationFailureTest() {
   task_data_all->outputs_count.emplace_back(num_vertices);
 
   TestTaskALL test_task_all(task_data_all);
+  if (test_task_all.GetRank() == 0) {
   ASSERT_FALSE(test_task_all.Validation());
+  }
 }
 
 std::vector<std::vector<std::pair<size_t, int>>> GenerateRandomGraph(size_t num_vertices) {

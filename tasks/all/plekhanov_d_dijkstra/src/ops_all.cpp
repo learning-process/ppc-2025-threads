@@ -15,8 +15,6 @@
 #include <utility>
 #include <vector>
 
-namespace plekhanov_d_dijkstra_all {
-
 namespace {
 
 bool ConvertGraphToAdjacencyList(const std::vector<int>& graph_data, size_t num_vertices,
@@ -125,8 +123,6 @@ void UpdateFinalDistances(const boost::mpi::communicator& world, const std::vect
 
 }  // namespace
 
-}  // namespace plekhanov_d_dijkstra_all
-
 const int plekhanov_d_dijkstra_all::TestTaskALL::kEndOfVertexList = -1;
 
 bool plekhanov_d_dijkstra_all::TestTaskALL::PreProcessingImpl() {
@@ -146,8 +142,11 @@ bool plekhanov_d_dijkstra_all::TestTaskALL::PreProcessingImpl() {
 }
 
 bool plekhanov_d_dijkstra_all::TestTaskALL::ValidationImpl() {
+  if (world_.rank() == 0) {
   return !task_data->inputs_count.empty() && task_data->inputs_count[0] > 0 && !task_data->outputs_count.empty() &&
          task_data->outputs_count[0] > 0;
+  }
+  return true;
 }
 
 bool plekhanov_d_dijkstra_all::TestTaskALL::RunImpl() {
@@ -183,14 +182,16 @@ bool plekhanov_d_dijkstra_all::TestTaskALL::RunImpl() {
     updated = CheckGlobalUpdate(world_, updated);
   }
 
-  UpdateFinalDistances(world_, local_dist, distances_);
+  ::UpdateFinalDistances(world_, local_dist, distances_);
   return true;
 }
 
 bool plekhanov_d_dijkstra_all::TestTaskALL::PostProcessingImpl() {
-  auto* output = reinterpret_cast<int*>(task_data->outputs[0]);
-  for (size_t i = 0; i < distances_.size(); ++i) {
-    output[i] = distances_[i];
+  if (world_.rank() == 0) {
+    auto* output = reinterpret_cast<int*>(task_data->outputs[0]);
+    for (size_t i = 0; i < distances_.size(); ++i) {
+      output[i] = distances_[i];
+    }
   }
   return true;
 }
