@@ -3,12 +3,12 @@
 #include <algorithm>
 #include <core/util/include/util.hpp>
 #include <cstddef>
+#include <map>
 #include <thread>
 #include <unordered_map>
 #include <vector>
 
 #include "core/task/include/task.hpp"
-#include <map>
 
 namespace konkov_i_sparse_matmul_ccs_all {
 
