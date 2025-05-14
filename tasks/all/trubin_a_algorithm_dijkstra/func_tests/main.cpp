@@ -204,3 +204,13 @@ TEST(trubin_a_algorithm_dijkstra_all, complex_cycle_graph) {
   std::vector<int> graph = {1, 1, -1, 2, 1, -1, 0, 1, 3, 1, -1, -1};
   RunDijkstraTest(graph, 0, 4, {0, 1, 2, 3});
 }
+
+TEST(trubin_a_algorithm_dijkstra_all, self_loop_does_not_affect_shortest_path) {
+  std::vector<int> graph = {0, 1, 1, 10, -1, -1};
+  RunDijkstraTest(graph, 0, 2, {0, 10});
+}
+
+TEST(trubin_a_algorithm_dijkstra_all, multiple_vertices_no_edges) {
+  std::vector<int> graph = {-1, -1, -1};
+  RunDijkstraTest(graph, 0, 3, {0, -1, -1});
+}

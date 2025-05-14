@@ -54,11 +54,8 @@ bool trubin_a_algorithm_dijkstra_all::TestTaskALL::PreProcessingImpl() {
 }
 
 bool trubin_a_algorithm_dijkstra_all::TestTaskALL::ValidationImpl() {
-  if (task_data->inputs.empty() || task_data->outputs.empty()) {
-    return false;
-  }
-
-  if (task_data->inputs_count.empty() || task_data->outputs_count.empty()) {
+  if (task_data->inputs.empty() || task_data->outputs.empty() || task_data->inputs_count.empty() ||
+      task_data->outputs_count.empty()) {
     return false;
   }
 
@@ -67,7 +64,7 @@ bool trubin_a_algorithm_dijkstra_all::TestTaskALL::ValidationImpl() {
     return true;
   }
 
-  if (task_data->outputs[0] == nullptr || task_data->outputs_count[0] == 0) {
+  if (!task_data->outputs[0] || task_data->outputs_count[0] == 0) {
     return false;
   }
 
