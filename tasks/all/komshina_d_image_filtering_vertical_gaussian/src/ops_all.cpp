@@ -92,37 +92,9 @@ bool komshina_d_image_filtering_vertical_gaussian_all::TestTaskALL::RunImpl() {
 
   std::size_t halo_top = (offset > 0) ? k_radius : 0;
   std::size_t halo_bottom = ((offset + local_height) < height_) ? k_radius : 0;
-  std::size_t total_rows = local_height + halo_top + halo_bottom;
-  std::size_t local_input_size = total_rows * width_ * k_channels;
 
-  std::vector<unsigned char> local_input(local_input_size);
-
-  if (rank == 0) {
-    for (int i = 0; i < size; ++i) {
-      auto si = static_cast<std::size_t>(i);
-      auto lh = rows_per_proc + ((si < remainder) ? 1 : 0);
-      std::size_t off = (si * rows_per_proc) + std::min<std::size_t>(si, remainder);
-
-      std::size_t halo_t = (off > 0) ? k_radius : 0;
-      std::size_t halo_b = ((off + lh) < height_) ? k_radius : 0;
-      std::size_t rows = lh + halo_t + halo_b;
-
-      std::ptrdiff_t start_row = static_cast<std::ptrdiff_t>(off) - static_cast<std::ptrdiff_t>(halo_t);
-      std::size_t start_idx = static_cast<std::size_t>(std::max<ptrdiff_t>(start_row, 0)) * width_ * k_channels;
-      std::size_t count = rows * width_ * k_channels;
-
-      if (i == 0) {
-        std::copy(input_.begin() + static_cast<std::ptrdiff_t>(start_idx),
-                  input_.begin() + static_cast<std::ptrdiff_t>(start_idx + count), local_input.begin());
-      } else {
-        std::vector<unsigned char> temp(input_.begin() + static_cast<std::ptrdiff_t>(start_idx),
-                                        input_.begin() + static_cast<std::ptrdiff_t>(start_idx + count));
-        world_.send(i, 0, temp);
-      }
-    }
-  } else {
-    world_.recv(0, 0, local_input);
-  }
+  std::vector<unsigned char> local_input =
+      DistributeInputToProcesses(rank, size, k_radius, local_height, offset, halo_top, halo_bottom);
 
   std::vector<unsigned char> local_output(local_height * width_ * k_channels, 0);
 
@@ -145,6 +117,41 @@ bool komshina_d_image_filtering_vertical_gaussian_all::TestTaskALL::RunImpl() {
   }
 
   return true;
+}
+
+std::vector<unsigned char> komshina_d_image_filtering_vertical_gaussian_all::TestTaskALL::DistributeInputToProcesses(
+    int rank, int size, std::size_t k_radius, std::size_t local_height, std::size_t offset, std::size_t halo_top,
+    std::size_t halo_bottom) {
+  const std::size_t k_channels = 3;
+  std::size_t total_rows = local_height + halo_top + halo_bottom;
+  std::vector<unsigned char> local_input(total_rows * width_ * k_channels);
+
+  if (rank == 0) {
+    for (int i = 0; i < size; ++i) {
+      auto si = static_cast<std::size_t>(i);
+      auto lh = height_ / static_cast<std::size_t>(size) + ((si < (height_ % size)) ? 1 : 0);
+      std::size_t off = (si * (height_ / static_cast<std::size_t>(size))) + std::min(si, height_ % size);
+
+      std::size_t halo_t = (off > 0) ? k_radius : 0;
+      std::size_t halo_b = ((off + lh) < height_) ? k_radius : 0;
+      std::size_t rows = lh + halo_t + halo_b;
+
+      std::ptrdiff_t start_row = static_cast<std::ptrdiff_t>(off) - static_cast<std::ptrdiff_t>(halo_t);
+      std::size_t start_idx = std::max<std::ptrdiff_t>(start_row, 0) * width_ * k_channels;
+      std::size_t count = rows * width_ * k_channels;
+
+      if (i == 0) {
+        std::copy(input_.begin() + start_idx, input_.begin() + start_idx + count, local_input.begin());
+      } else {
+        std::vector<unsigned char> temp(input_.begin() + start_idx, input_.begin() + start_idx + count);
+        world_.send(i, 0, temp);
+      }
+    }
+  } else {
+    world_.recv(0, 0, local_input);
+  }
+
+  return local_input;
 }
 
 bool komshina_d_image_filtering_vertical_gaussian_all::TestTaskALL::PostProcessingImpl() {
