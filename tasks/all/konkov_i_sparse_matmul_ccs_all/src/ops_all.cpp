@@ -129,11 +129,19 @@ bool SparseMatmulTask::RunImpl() {
 
   if (rank == 0) {
     C_col_ptr.resize(colsB + 1, 0);
+    int offset = 0;
+
     for (int i = 0; i < size; ++i) {
       C_values.insert(C_values.end(), all_values[i].begin(), all_values[i].end());
       C_row_indices.insert(C_row_indices.end(), all_rows[i].begin(), all_rows[i].end());
-      for (int col = 0; col <= colsB; ++col) {
-        C_col_ptr[col] += all_col_ptrs[i][col];
+
+      int local_start = i * base_cols + std::min(i, extra_cols);
+      int local_cols = base_cols + (i < extra_cols ? 1 : 0);
+
+      for (int j = 0; j < local_cols; ++j) {
+        int global_col = local_start + j;
+        int count = all_col_ptrs[i][global_col + 1] - all_col_ptrs[i][global_col];
+        C_col_ptr[global_col + 1] = C_col_ptr[global_col] + count;
       }
     }
   }
