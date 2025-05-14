@@ -88,7 +88,7 @@ void RunValidationFailureTest() {
 
   TestTaskALL test_task_all(task_data_all);
   if (test_task_all.GetRank() == 0) {
-  ASSERT_FALSE(test_task_all.Validation());
+    ASSERT_FALSE(test_task_all.Validation());
   }
 }
 
