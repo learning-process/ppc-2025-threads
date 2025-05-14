@@ -1,6 +1,6 @@
 #include <gtest/gtest.h>
-#include <mpi.h>
 
+#include <boost/mpi.hpp>
 #include <chrono>
 #include <memory>
 #include <vector>
@@ -10,21 +10,20 @@
 #include "core/task/include/task.hpp"
 
 TEST(konkov_i_SparseMatmulPerfTest_all, test_pipeline_run) {
-  int rank;
-  MPI_Init(nullptr, nullptr);
-  MPI_Comm_rank(MPI_COMM_WORLD, &rank);
+  boost::mpi::environment env;
+  boost::mpi::communicator world;
 
   constexpr int kSize = 5000;
   ppc::core::TaskDataPtr task_data = std::make_shared<ppc::core::TaskData>();
   auto task = std::make_shared<konkov_i_sparse_matmul_ccs_all::SparseMatmulTask>(task_data);
 
-  std::vector<double> a_values(kSize, 2.0);
-  std::vector<int> a_row_indices(kSize), a_col_ptr(kSize + 1);
-  std::vector<double> b_values(kSize, 3.0);
-  std::vector<int> b_row_indices(kSize), b_col_ptr(kSize + 1);
+  if (world.rank() == 0) {
+    std::vector<double> a_values(kSize, 2.0);
+    std::vector<int> a_row_indices(kSize), a_col_ptr(kSize + 1);
+    std::vector<double> b_values(kSize, 3.0);
+    std::vector<int> b_row_indices(kSize), b_col_ptr(kSize + 1);
 
-  if (rank == 0) {
-    for (int i = 0; i < kSize; i++) {
+    for (int i = 0; i < kSize; ++i) {
       a_row_indices[i] = b_row_indices[i] = i;
       a_col_ptr[i] = b_col_ptr[i] = i;
     }
@@ -56,31 +55,28 @@ TEST(konkov_i_SparseMatmulPerfTest_all, test_pipeline_run) {
   auto perf_analyzer = std::make_shared<ppc::core::Perf>(task);
   perf_analyzer->PipelineRun(perf_attr, perf_results);
 
-  if (rank == 0) {
+  if (world.rank() == 0) {
     for (const auto& val : task->C_values) {
       ASSERT_NEAR(val, 6.0, 1e-9);
     }
   }
-
-  MPI_Finalize();
 }
 
 TEST(konkov_i_SparseMatmulPerfTest_all, test_task_run) {
-  int rank;
-  MPI_Init(nullptr, nullptr);
-  MPI_Comm_rank(MPI_COMM_WORLD, &rank);
+  boost::mpi::environment env;
+  boost::mpi::communicator world;
 
   constexpr int kSize = 5000;
   ppc::core::TaskDataPtr task_data = std::make_shared<ppc::core::TaskData>();
   auto task = std::make_shared<konkov_i_sparse_matmul_ccs_all::SparseMatmulTask>(task_data);
 
-  std::vector<double> a_values(kSize, 2.0);
-  std::vector<int> a_row_indices(kSize), a_col_ptr(kSize + 1);
-  std::vector<double> b_values(kSize, 3.0);
-  std::vector<int> b_row_indices(kSize), b_col_ptr(kSize + 1);
+  if (world.rank() == 0) {
+    std::vector<double> a_values(kSize, 2.0);
+    std::vector<int> a_row_indices(kSize), a_col_ptr(kSize + 1);
+    std::vector<double> b_values(kSize, 3.0);
+    std::vector<int> b_row_indices(kSize), b_col_ptr(kSize + 1);
 
-  if (rank == 0) {
-    for (int i = 0; i < kSize; i++) {
+    for (int i = 0; i < kSize; ++i) {
       a_row_indices[i] = b_row_indices[i] = i;
       a_col_ptr[i] = b_col_ptr[i] = i;
     }
@@ -112,11 +108,9 @@ TEST(konkov_i_SparseMatmulPerfTest_all, test_task_run) {
   auto perf_analyzer = std::make_shared<ppc::core::Perf>(task);
   perf_analyzer->TaskRun(perf_attr, perf_results);
 
-  if (rank == 0) {
+  if (world.rank() == 0) {
     for (const auto& val : task->C_values) {
       ASSERT_NEAR(val, 6.0, 1e-9);
     }
   }
-
-  MPI_Finalize();
 }

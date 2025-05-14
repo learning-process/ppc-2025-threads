@@ -1,6 +1,5 @@
 #pragma once
-#include <mpi.h>
-
+#include <boost/mpi.hpp>
 #include <vector>
 
 #include "core/task/include/task.hpp"
@@ -20,6 +19,9 @@ class SparseMatmulTask : public ppc::core::Task {
   std::vector<int> A_row_indices, B_row_indices, C_row_indices;
   std::vector<int> A_col_ptr, B_col_ptr, C_col_ptr;
   int rowsA, colsA, rowsB, colsB;
+
+ private:
+  boost::mpi::communicator world_;
 };
 
 }  // namespace konkov_i_sparse_matmul_ccs_all
