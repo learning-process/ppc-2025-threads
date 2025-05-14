@@ -129,7 +129,7 @@ std::vector<unsigned char> komshina_d_image_filtering_vertical_gaussian_all::Tes
   if (rank == 0) {
     for (int i = 0; i < size; ++i) {
       auto si = static_cast<std::size_t>(i);
-      auto lh = height_ / static_cast<std::size_t>(size) + ((si < (height_ % size)) ? 1 : 0);
+      auto lh = (height_ / static_cast<std::size_t>(size)) + ((si < (height_ % size)) ? 1 : 0);
       std::size_t off = (si * (height_ / static_cast<std::size_t>(size))) + std::min(si, height_ % size);
 
       std::size_t halo_t = (off > 0) ? k_radius : 0;
@@ -141,9 +141,12 @@ std::vector<unsigned char> komshina_d_image_filtering_vertical_gaussian_all::Tes
       std::size_t count = rows * width_ * k_channels;
 
       if (i == 0) {
-        std::copy(input_.begin() + start_idx, input_.begin() + start_idx + count, local_input.begin());
+        std::copy(input_.begin() + static_cast<std::ptrdiff_t>(start_idx),
+                  input_.begin() + static_cast<std::ptrdiff_t>(start_idx + count), local_input.begin());
+
       } else {
-        std::vector<unsigned char> temp(input_.begin() + start_idx, input_.begin() + start_idx + count);
+        std::vector<unsigned char> temp(input_.begin() + static_cast<std::ptrdiff_t>(start_idx),
+                                        input_.begin() + static_cast<std::ptrdiff_t>(start_idx + count));
         world_.send(i, 0, temp);
       }
     }
