@@ -61,7 +61,8 @@ TEST(yasakova_t_sparse_matrix_multiplication_stl, test_pipeline_run) {
   task_data_tbb->outputs_count.emplace_back(output_data.size());
 
   // Создаем задачу
-  auto test_task_tbb = std::make_shared<yasakova_t_sparse_matrix_multiplication_stl::SparseMatrixMultiTask>(task_data_tbb);
+  auto test_task_tbb =
+      std::make_shared<yasakova_t_sparse_matrix_multiplication_stl::SparseMatrixMultiTask>(task_data_tbb);
 
   // Создаем атрибуты для измерения производительности
   auto perf_attr = std::make_shared<ppc::core::PerfAttr>();
@@ -140,7 +141,8 @@ TEST(yasakova_t_sparse_matrix_multiplication_stl, test_task_run) {
   task_data_tbb->outputs.emplace_back(reinterpret_cast<uint8_t *>(output_data.data()));
   task_data_tbb->outputs_count.emplace_back(output_data.size());
 
-  auto test_task_tbb = std::make_shared<yasakova_t_sparse_matrix_multiplication_stl::SparseMatrixMultiTask>(task_data_tbb);
+  auto test_task_tbb =
+      std::make_shared<yasakova_t_sparse_matrix_multiplication_stl::SparseMatrixMultiTask>(task_data_tbb);
 
   auto perf_attr = std::make_shared<ppc::core::PerfAttr>();
   perf_attr->num_running = num_runs;

@@ -8,7 +8,9 @@
 #include <thread>
 #include <vector>
 
-void yasakova_t_sparse_matrix_multiplication_stl::CompressedRowStorage::InsertElement(int row_idx, std::complex<double> val, int col_idx) {
+void yasakova_t_sparse_matrix_multiplication_stl::CompressedRowStorage::InsertElement(int row_idx,
+                                                                                      std::complex<double> val,
+                                                                                      int col_idx) {
   for (int j = rowPointers[row_idx]; j < rowPointers[row_idx + 1]; ++j) {
     if (columnIndices[j] == col_idx) {
       nonZeroValues[j] += val;
@@ -31,11 +33,14 @@ void yasakova_t_sparse_matrix_multiplication_stl::CompressedRowStorage::DisplayM
   }
 }
 
-bool yasakova_t_sparse_matrix_multiplication_stl::AreClose(const std::complex<double>& left_matrix, const std::complex<double>& right_matrix, double epsilon) {
-  return std::abs(left_matrix.real() - right_matrix.real()) < epsilon && std::abs(left_matrix.imag() - right_matrix.imag()) < epsilon;
+bool yasakova_t_sparse_matrix_multiplication_stl::AreClose(const std::complex<double>& left_matrix,
+                                                           const std::complex<double>& right_matrix, double epsilon) {
+  return std::abs(left_matrix.real() - right_matrix.real()) < epsilon &&
+         std::abs(left_matrix.imag() - right_matrix.imag()) < epsilon;
 }
 
-std::vector<std::complex<double>> yasakova_t_sparse_matrix_multiplication_stl::ConvertToDense(const CompressedRowStorage& mat) {
+std::vector<std::complex<double>> yasakova_t_sparse_matrix_multiplication_stl::ConvertToDense(
+    const CompressedRowStorage& matrix) {
   std::vector<std::complex<double>> actual_result = {};
   actual_result.reserve(5 + mat.nonZeroValues.size() + mat.columnIndices.size() + mat.rowPointers.size());
   actual_result.emplace_back((double)mat.rowCount);
@@ -71,7 +76,8 @@ bool yasakova_t_sparse_matrix_multiplication_stl::CompareMatrices(
     for (unsigned int j = this_row_start; j < this_row_end; ++j) {
       bool found = false;
       for (unsigned int k = other_row_start; k < other_row_end; ++k) {
-        if (left_matrix.columnIndices[j] == right_matrix.columnIndices[k] && AreClose(left_matrix.nonZeroValues[j], right_matrix.nonZeroValues[k], 0.000001)) {
+        if (left_matrix.columnIndices[j] == right_matrix.columnIndices[k] &&
+            AreClose(left_matrix.nonZeroValues[j], right_matrix.nonZeroValues[k], 0.000001)) {
           found = true;
           break;
         }
@@ -83,8 +89,8 @@ bool yasakova_t_sparse_matrix_multiplication_stl::CompareMatrices(
   }
   return true;
 }
-yasakova_t_sparse_matrix_multiplication_stl::CompressedRowStorage yasakova_t_sparse_matrix_multiplication_stl::ConvertToSparse(
-    std::vector<std::complex<double>>& vec) {
+yasakova_t_sparse_matrix_multiplication_stl::CompressedRowStorage
+yasakova_t_sparse_matrix_multiplication_stl::ConvertToSparse(std::vector<std::complex<double>>& vec) {
   CompressedRowStorage actual_result;
   actual_result.rowCount = (int)vec[0].real();
   actual_result.columnCount = (int)vec[1].real();
@@ -114,8 +120,10 @@ bool yasakova_t_sparse_matrix_multiplication_stl::SparseMatrixMultiTask::PreProc
   std::vector<std::complex<double>> matrix_a = {};
   std::vector<std::complex<double>> matrix_b = {};
   matrix_a.reserve(5 + (unsigned int)(inputData_[2].real() + inputData_[3].real() + inputData_[4].real()));
-  matrix_b.reserve(inputData_.size() - (unsigned int)(5 + inputData_[2].real() + inputData_[3].real() + inputData_[4].real()));
-  for (unsigned int i = 0; i < (unsigned int)(5 + inputData_[2].real() + inputData_[3].real() + inputData_[4].real()); i++) {
+  matrix_b.reserve(inputData_.size() -
+                   (unsigned int)(5 + inputData_[2].real() + inputData_[3].real() + inputData_[4].real()));
+  for (unsigned int i = 0; i < (unsigned int)(5 + inputData_[2].real() + inputData_[3].real() + inputData_[4].real());
+       i++) {
     matrix_a.emplace_back(inputData_[i]);
   }
   for (auto i = (unsigned int)(5 + inputData_[2].real() + inputData_[3].real() + inputData_[4].real());
@@ -139,7 +147,8 @@ bool yasakova_t_sparse_matrix_multiplication_stl::SparseMatrixMultiTask::RunImpl
   CompressedRowStorage expected_result(firstMatrix_.rowCount, secondMatrix_.columnCount);
   const int num_threads = ppc::util::GetPPCNumThreads();
   std::vector<std::thread> threads(num_threads);
-  std::vector<CompressedRowStorage> thread_results(num_threads, CompressedRowStorage(firstMatrix_.rowCount, secondMatrix_.columnCount));
+  std::vector<CompressedRowStorage> thread_results(
+      num_threads, CompressedRowStorage(firstMatrix_.rowCount, secondMatrix_.columnCount));
 
   auto multiply_task = [&](unsigned int start_row, unsigned int end_row, int thread_index) {
     CompressedRowStorage local_result(firstMatrix_.rowCount, secondMatrix_.columnCount);
@@ -147,7 +156,8 @@ bool yasakova_t_sparse_matrix_multiplication_stl::SparseMatrixMultiTask::RunImpl
       for (unsigned int j = firstMatrix_.rowPointers[i]; j < (unsigned int)firstMatrix_.rowPointers[i + 1]; ++j) {
         unsigned int col_a = firstMatrix_.columnIndices[j];
         std::complex<double> value_a = firstMatrix_.nonZeroValues[j];
-        for (unsigned int k = secondMatrix_.rowPointers[col_a]; k < (unsigned int)secondMatrix_.rowPointers[col_a + 1]; ++k) {
+        for (unsigned int k = secondMatrix_.rowPointers[col_a]; k < (unsigned int)secondMatrix_.rowPointers[col_a + 1];
+             ++k) {
           unsigned int col_b = secondMatrix_.columnIndices[k];
           std::complex<double> value_b = secondMatrix_.nonZeroValues[k];
 
