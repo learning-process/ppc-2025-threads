@@ -4,8 +4,6 @@
 #include <atomic>
 #include <cmath>
 #include <cstddef>
-#include <memory>
-#include <ranges>
 #include <thread>
 #include <vector>
 
