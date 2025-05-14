@@ -140,31 +140,34 @@ bool SparseMatmulTask::RunImpl() {
   boost::mpi::gather(world, local_col_ptr, all_col_ptrs, 0);
 
   if (rank == 0) {
-    C_col_ptr.resize(colsB + 1, 0);
-    std::vector<int> offsets(size, 0);
+    std::vector<double> sorted_values;
+    std::vector<int> sorted_rows;
+    std::vector<int> sorted_col_ptr(colsB + 1, 0);
 
     for (int col = 0; col < colsB; ++col) {
       for (int proc = 0; proc < size; ++proc) {
         if (col >= proc_start_cols[proc] && col < proc_end_cols[proc]) {
           int local_col = col - proc_start_cols[proc];
+          int start = all_col_ptrs[proc][local_col];
+          int end = all_col_ptrs[proc][local_col + 1];
 
-          int start_idx = all_col_ptrs[proc][local_col];
-          int end_idx = all_col_ptrs[proc][local_col + 1];
-
-          for (int k = start_idx; k < end_idx; k++) {
-            C_values.push_back(all_values[proc][k]);
-            C_row_indices.push_back(all_rows[proc][k]);
+          for (int i = start; i < end; i++) {
+            sorted_values.push_back(all_values[proc][i]);
+            sorted_rows.push_back(all_rows[proc][i]);
           }
-
-          C_col_ptr[col + 1] += (end_idx - start_idx);
+          sorted_col_ptr[col + 1] += (end - start);
           break;
         }
       }
     }
 
     for (int col = 1; col <= colsB; ++col) {
-      C_col_ptr[col] += C_col_ptr[col - 1];
+      sorted_col_ptr[col] += sorted_col_ptr[col - 1];
     }
+
+    C_values = sorted_values;
+    C_row_indices = sorted_rows;
+    C_col_ptr = sorted_col_ptr;
   }
 
   return true;
