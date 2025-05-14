@@ -7,6 +7,8 @@
 #include <utility>
 #include <vector>
 
+#include "core/util/include/util.hpp"
+
 namespace mezhuev_m_bitwise_integer_sort_stl {
 
 namespace {
@@ -81,7 +83,7 @@ bool SortSTL::RunImpl() {
   SeparateNumbers(input_, negative, positive);
 
   auto sort_in_threads = [&](std::vector<int>& numbers) {
-    size_t num_threads = std::thread::hardware_concurrency();
+    size_t num_threads = ppc::util::GetPPCNumThreads();
     if (num_threads == 0) {
       num_threads = 4;
     }
