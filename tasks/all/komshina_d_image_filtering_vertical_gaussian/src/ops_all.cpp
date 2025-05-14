@@ -132,7 +132,7 @@ bool komshina_d_image_filtering_vertical_gaussian_all::TestTaskALL::RunImpl() {
     std::ranges::copy(local_output, output_.begin() + static_cast<std::ptrdiff_t>(offset * width_ * k_channels));
 
     for (int i = 1; i < size; ++i) {
-      std::size_t si = static_cast<std::size_t>(i);
+      auto si = static_cast<std::size_t>(i);
       std::size_t lh = rows_per_proc + ((si < remainder) ? 1 : 0);
       std::vector<unsigned char> temp(lh * width_ * k_channels);
       world_.recv(i, 1, temp);
