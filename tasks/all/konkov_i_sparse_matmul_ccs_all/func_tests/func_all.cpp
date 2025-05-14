@@ -1,4 +1,5 @@
 #include <gtest/gtest.h>
+#include <mpi.h>
 
 #include <memory>
 #include <vector>
@@ -8,102 +9,127 @@
 
 TEST(konkov_i_SparseMatmulTest_all, SimpleTest) {
   int rank;
+  MPI_Init(nullptr, nullptr);
   MPI_Comm_rank(MPI_COMM_WORLD, &rank);
 
   ppc::core::TaskDataPtr task_data = std::make_shared<ppc::core::TaskData>();
   konkov_i_sparse_matmul_ccs_all::SparseMatmulTask task(task_data);
 
-  task.A_values = {5.0, 7.0, 9.0};
-  task.A_row_indices = {0, 1, 2};
-  task.A_col_ptr = {0, 1, 2, 3};
-  task.rowsA = 3;
-  task.colsA = 3;
+  if (rank == 0) {
+    task.A_values = {5.0, 7.0, 9.0};
+    task.A_row_indices = {0, 1, 2};
+    task.A_col_ptr = {0, 1, 2, 3};
+    task.rowsA = 3;
+    task.colsA = 3;
 
-  task.B_values = {3.0, 4.0, 2.0};
-  task.B_row_indices = {0, 1, 2};
-  task.B_col_ptr = {0, 1, 2, 3};
-  task.rowsB = 3;
-  task.colsB = 3;
+    task.B_values = {3.0, 4.0, 2.0};
+    task.B_row_indices = {0, 1, 2};
+    task.B_col_ptr = {0, 1, 2, 3};
+    task.rowsB = 3;
+    task.colsB = 3;
+  }
 
-  EXPECT_TRUE(task.ValidationImpl());
-  EXPECT_TRUE(task.PreProcessingImpl());
-  EXPECT_TRUE(task.RunImpl());
-  EXPECT_TRUE(task.PostProcessingImpl());
+  ASSERT_TRUE(task.ValidationImpl());
+  ASSERT_TRUE(task.PreProcessingImpl());
+  ASSERT_TRUE(task.RunImpl());
+  ASSERT_TRUE(task.PostProcessingImpl());
 
   if (rank == 0) {
     std::vector<double> expected_values = {15.0, 28.0, 18.0};
     EXPECT_EQ(task.C_values, expected_values);
   }
+
+  MPI_Finalize();
 }
 
 TEST(konkov_i_SparseMatmulTest_all, EmptyMatrixTest) {
-  ppc::core::TaskDataPtr task_data = std::make_shared<ppc::core::TaskData>();
-  konkov_i_sparse_matmul_ccs_all::SparseMatmulTask task(task_data);
-
-  task.A_col_ptr = {0};
-  task.B_col_ptr = {0};
-  task.rowsA = 0;
-  task.colsA = 0;
-  task.rowsB = 0;
-  task.colsB = 0;
-
-  EXPECT_FALSE(task.ValidationImpl());
-}
-
-TEST(konkov_i_SparseMatmulTest_all, ComplexTest) {
   int rank;
+  MPI_Init(nullptr, nullptr);
   MPI_Comm_rank(MPI_COMM_WORLD, &rank);
 
   ppc::core::TaskDataPtr task_data = std::make_shared<ppc::core::TaskData>();
   konkov_i_sparse_matmul_ccs_all::SparseMatmulTask task(task_data);
 
-  task.A_values = {1.0, 2.0};
-  task.A_row_indices = {0, 2};
-  task.A_col_ptr = {0, 1, 1, 2};
-  task.rowsA = 3;
-  task.colsA = 3;
+  if (rank == 0) {
+    task.A_col_ptr = {0};
+    task.B_col_ptr = {0};
+    task.rowsA = 0;
+    task.colsA = 0;
+    task.rowsB = 0;
+    task.colsB = 0;
+  }
 
-  task.B_values = {3.0, 4.0};
-  task.B_row_indices = {1, 2};
-  task.B_col_ptr = {0, 0, 1, 2};
-  task.rowsB = 3;
-  task.colsB = 3;
+  EXPECT_FALSE(task.ValidationImpl());
+  MPI_Finalize();
+}
 
-  EXPECT_TRUE(task.ValidationImpl());
-  EXPECT_TRUE(task.PreProcessingImpl());
-  EXPECT_TRUE(task.RunImpl());
-  EXPECT_TRUE(task.PostProcessingImpl());
+TEST(konkov_i_SparseMatmulTest_all, ComplexTest) {
+  int rank;
+  MPI_Init(nullptr, nullptr);
+  MPI_Comm_rank(MPI_COMM_WORLD, &rank);
+
+  ppc::core::TaskDataPtr task_data = std::make_shared<ppc::core::TaskData>();
+  konkov_i_sparse_matmul_ccs_all::SparseMatmulTask task(task_data);
+
+  if (rank == 0) {
+    task.A_values = {1.0, 2.0};
+    task.A_row_indices = {0, 2};
+    task.A_col_ptr = {0, 1, 1, 2};
+    task.rowsA = 3;
+    task.colsA = 3;
+
+    task.B_values = {3.0, 4.0};
+    task.B_row_indices = {1, 2};
+    task.B_col_ptr = {0, 0, 1, 2};
+    task.rowsB = 3;
+    task.colsB = 3;
+  }
+
+  ASSERT_TRUE(task.ValidationImpl());
+  ASSERT_TRUE(task.PreProcessingImpl());
+  ASSERT_TRUE(task.RunImpl());
+  ASSERT_TRUE(task.PostProcessingImpl());
 
   if (rank == 0) {
     std::vector<double> expected_values = {8.0};
     EXPECT_EQ(task.C_values, expected_values);
   }
+
+  MPI_Finalize();
 }
 
 TEST(konkov_i_SparseMatmulTest_all, IdentityMatrixTest) {
   int rank;
+  MPI_Init(nullptr, nullptr);
   MPI_Comm_rank(MPI_COMM_WORLD, &rank);
 
   ppc::core::TaskDataPtr task_data = std::make_shared<ppc::core::TaskData>();
   konkov_i_sparse_matmul_ccs_all::SparseMatmulTask task(task_data);
 
-  task.A_values = {1.0, 1.0, 1.0};
-  task.A_row_indices = {0, 1, 2};
-  task.A_col_ptr = {0, 1, 2, 3};
-  task.rowsA = 3;
-  task.colsA = 3;
+  if (rank == 0) {
+    task.A_values = {1.0, 1.0, 1.0};
+    task.A_row_indices = {0, 1, 2};
+    task.A_col_ptr = {0, 1, 2, 3};
+    task.rowsA = 3;
+    task.colsA = 3;
 
-  task.B_values = {1.0, 2.0, 3.0};
-  task.B_row_indices = {0, 1, 2};
-  task.B_col_ptr = {0, 1, 2, 3};
-  task.rowsB = 3;
-  task.colsB = 3;
+    task.B_values = {1.0, 2.0, 3.0};
+    task.B_row_indices = {0, 1, 2};
+    task.B_col_ptr = {0, 1, 2, 3};
+    task.rowsB = 3;
+    task.colsB = 3;
+  }
 
-  EXPECT_TRUE(task.RunImpl());
+  ASSERT_TRUE(task.ValidationImpl());
+  ASSERT_TRUE(task.PreProcessingImpl());
+  ASSERT_TRUE(task.RunImpl());
+  ASSERT_TRUE(task.PostProcessingImpl());
 
   if (rank == 0) {
     EXPECT_EQ(task.C_values, task.B_values);
     EXPECT_EQ(task.C_row_indices, task.B_row_indices);
     EXPECT_EQ(task.C_col_ptr, task.B_col_ptr);
   }
+
+  MPI_Finalize();
 }
