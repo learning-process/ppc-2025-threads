@@ -1,8 +1,10 @@
 #include "all/titov_s_ImageFilter_HorizGaussian3x3/include/ops_all.hpp"
 
 #include <algorithm>
+#include <atomic>
 #include <cmath>
 #include <cstddef>
+#include <memory>
 #include <ranges>
 #include <thread>
 #include <vector>
@@ -37,20 +39,26 @@ bool titov_s_image_filter_horiz_gaussian3x3_all::GaussianFilterALL::DistributeDa
                                                                                    int height, int width, int start_row,
                                                                                    int end_row,
                                                                                    std::vector<double> &local_input) {
-  if (world_rank == 0) {
-    auto src_range = std::ranges::subrange(input_.begin() + start_row * width, input_.begin() + end_row * width);
-    std::ranges::copy(src_range, local_input.begin());
+  std::vector<int> counts(world_size);
+  std::vector<int> displs(world_size);
 
-    for (int p = 1; p < world_size; ++p) {
-      const int p_start = (p * (height / world_size)) + std::min(p, height % world_size);
-      const int p_end = p_start + (height / world_size) + ((p < (height % world_size)) ? 1 : 0);
-      const int p_size = (p_end - p_start) * width;
-
-      world_.send(p, 0, input_.data() + (p_start * width), p_size);
-    }
-  } else {
-    world_.recv(0, 0, local_input.data(), static_cast<int>(local_input.size()));
+  int offset = 0;
+  for (int p = 0; p < world_size; ++p) {
+    int rows_for_p = (height / world_size) + (p < (height % world_size) ? 1 : 0);
+    counts[p] = rows_for_p * width;
+    displs[p] = offset;
+    offset += counts[p];
   }
+
+  if (world_rank == 0) {
+    for (int p = 1; p < world_size; ++p) {
+      world_.send(p, 0, &input_[displs[p]], counts[p]);
+    }
+    std::ranges::copy(input_.begin(), input_.begin() + counts[0], local_input.begin());
+  } else {
+    world_.recv(0, 0, local_input.data(), counts[world_rank]);
+  }
+
   return true;
 }
 
@@ -59,24 +67,36 @@ void titov_s_image_filter_horiz_gaussian3x3_all::GaussianFilterALL::ProcessRows(
                                                                                 int width, int local_rows,
                                                                                 int num_threads) {
   const double sum = kernel_[0] + kernel_[1] + kernel_[2];
+  const double k0 = kernel_[0];
+  const double k1 = kernel_[1];
+  const double k2 = kernel_[2];
+
+  auto process_row = [&](int i) {
+    const int row_offset = i * width;
+    const double *in_row = local_input.data() + row_offset;
+    double *out_row = local_output.data() + row_offset;
+
+    out_row[0] = (in_row[0] * k1 + in_row[1] * k2) / sum;
+
+    for (int j = 1; j < width - 1; ++j) {
+      out_row[j] = (in_row[j - 1] * k0 + in_row[j] * k1 + in_row[j + 1] * k2) / sum;
+    }
+
+    out_row[width - 1] = (in_row[width - 2] * k0 + in_row[width - 1] * k1) / sum;
+  };
+
   std::vector<std::thread> threads;
   threads.reserve(num_threads);
-  const int rows_per_thread = (local_rows + num_threads - 1) / num_threads;
+  std::atomic<int> next_row{0};
 
   for (int t = 0; t < num_threads; ++t) {
-    const int thread_start = t * rows_per_thread;
-    const int thread_end = std::min(thread_start + rows_per_thread, local_rows);
-
-    threads.emplace_back([=, this, &local_input, &local_output] {
-      for (int i = thread_start; i < thread_end; ++i) {
-        const int row_offset = i * width;
-        for (int j = 0; j < width; ++j) {
-          const double left = (j > 0) ? local_input[row_offset + j - 1] : 0.0;
-          const double center = local_input[row_offset + j];
-          const double right = (j < (width - 1)) ? local_input[row_offset + j + 1] : 0.0;
-
-          local_output[row_offset + j] = (left * kernel_[0] + center * kernel_[1] + right * kernel_[2]) / sum;
+    threads.emplace_back([&] {
+      while (true) {
+        int row = next_row.fetch_add(1, std::memory_order_relaxed);
+        if (row >= local_rows) {
+          break;
         }
+        process_row(row);
       }
     });
   }
@@ -88,19 +108,27 @@ void titov_s_image_filter_horiz_gaussian3x3_all::GaussianFilterALL::ProcessRows(
 
 bool titov_s_image_filter_horiz_gaussian3x3_all::GaussianFilterALL::CollectResults(
     int world_rank, int world_size, int height, int width, int start_row, const std::vector<double> &local_output) {
+  std::vector<int> counts(world_size);
+  std::vector<int> displs(world_size);
+
+  int offset = 0;
+  for (int p = 0; p < world_size; ++p) {
+    int rows_for_p = (height / world_size) + (p < (height % world_size) ? 1 : 0);
+    counts[p] = rows_for_p * width;
+    displs[p] = offset;
+    offset += counts[p];
+  }
+
   if (world_rank == 0) {
-    std::ranges::copy(local_output, output_.begin() + start_row * width);
+    std::ranges::copy(local_output.begin(), local_output.end(), output_.begin() + displs[0]);
 
     for (int p = 1; p < world_size; ++p) {
-      const int p_start = (p * (height / world_size)) + std::min(p, height % world_size);
-      const int p_end = p_start + (height / world_size) + (p < (height % world_size) ? 1 : 0);
-      const int p_size = (p_end - p_start) * width;
-
-      world_.recv(p, 0, output_.data() + (p_start * width), p_size);
+      world_.recv(p, 0, &output_[displs[p]], counts[p]);
     }
   } else {
-    world_.send(0, 0, local_output.data(), static_cast<int>(local_output.size()));
+    world_.send(0, 0, local_output.data(), counts[world_rank]);
   }
+
   return true;
 }
 
@@ -111,14 +139,20 @@ bool titov_s_image_filter_horiz_gaussian3x3_all::GaussianFilterALL::RunImpl() {
   const int world_rank = world_.rank();
   const int num_threads = ppc::util::GetPPCNumThreads();
 
+  if (world_size > height) {
+    return false;
+  }
+
   const int rows_per_process = height / world_size;
   const int remainder = height % world_size;
-
   const int extra_row = (world_rank < remainder) ? 1 : 0;
   const int start_row = (world_rank * rows_per_process) + std::min(world_rank, remainder);
   const int end_row = start_row + rows_per_process + extra_row;
-
   const int local_rows = end_row - start_row;
+
+  if (local_rows <= 0 || width <= 0) {
+    return false;
+  }
 
   std::vector<double> local_input(local_rows * width);
   std::vector<double> local_output(local_rows * width, 0.0);
