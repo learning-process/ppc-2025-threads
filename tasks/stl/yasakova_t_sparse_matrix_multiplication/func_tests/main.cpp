@@ -12,20 +12,20 @@ TEST(yasakova_t_sparse_matrix_multiplication_stl, TestRealNumbersMultiplication)
   yasakova_t_sparse_matrix_multiplication_stl::CompressedRowStorage left_matrix(3, 3);
   yasakova_t_sparse_matrix_multiplication_stl::CompressedRowStorage right_matrix(3, 3);
   yasakova_t_sparse_matrix_multiplication_stl::CompressedRowStorage expected_result(3, 3);
-  std::vector<Complex> input_data = {};
-  std::vector<Complex> left_matrix_data;
-  std::vector<Complex> right_matrix_data;
-  std::vector<Complex> output_buffer(left_matrix.columnCount * right_matrix.rowCount * 100, 0);
+  std::vector<std::complex<double>> input_data = {};
+  std::vector<std::complex<double>> left_matrix_data;
+  std::vector<std::complex<double>> right_matrix_data;
+  std::vector<std::complex<double>> output_buffer(left_matrix.columnCount * right_matrix.rowCount * 100, 0);
 
-  left_matrix.InsertElement(0, Complex(1, 0), 0);
-  left_matrix.InsertElement(0, Complex(2, 0), 2);
-  left_matrix.InsertElement(1, Complex(3, 0), 1);
-  left_matrix.InsertElement(2, Complex(4, 0), 0);
-  left_matrix.InsertElement(2, Complex(5, 0), 1);
+  left_matrix.InsertElement(0, std::complex<double>(1, 0), 0);
+  left_matrix.InsertElement(0, std::complex<double>(2, 0), 2);
+  left_matrix.InsertElement(1, std::complex<double>(3, 0), 1);
+  left_matrix.InsertElement(2, std::complex<double>(4, 0), 0);
+  left_matrix.InsertElement(2, std::complex<double>(5, 0), 1);
 
-  right_matrix.InsertElement(0, Complex(6, 0), 1);
-  right_matrix.InsertElement(1, Complex(7, 0), 0);
-  right_matrix.InsertElement(2, Complex(8, 0), 2);
+  right_matrix.InsertElement(0, std::complex<double>(6, 0), 1);
+  right_matrix.InsertElement(1, std::complex<double>(7, 0), 0);
+  right_matrix.InsertElement(2, std::complex<double>(8, 0), 2);
   left_matrix_data = yasakova_t_sparse_matrix_multiplication_stl::ConvertToDense(left_matrix);
   right_matrix_data = yasakova_t_sparse_matrix_multiplication_stl::ConvertToDense(right_matrix);
   input_data.reserve(left_matrix_data.size() + right_matrix_data.size());
@@ -35,11 +35,11 @@ TEST(yasakova_t_sparse_matrix_multiplication_stl, TestRealNumbersMultiplication)
   for (unsigned int i = 0; i < right_matrix_data.size(); i++) {
     input_data.emplace_back(right_matrix_data[i]);
   }
-  expected_result.InsertElement(0, Complex(6, 0), 1);
-  expected_result.InsertElement(0, Complex(16, 0), 2);
-  expected_result.InsertElement(1, Complex(21, 0), 0);
-  expected_result.InsertElement(2, Complex(24, 0), 1);
-  expected_result.InsertElement(2, Complex(35, 0), 0);
+  expected_result.InsertElement(0, std::complex<double>(6, 0), 1);
+  expected_result.InsertElement(0, std::complex<double>(16, 0), 2);
+  expected_result.InsertElement(1, std::complex<double>(21, 0), 0);
+  expected_result.InsertElement(2, std::complex<double>(24, 0), 1);
+  expected_result.InsertElement(2, std::complex<double>(35, 0), 0);
   // Create task_data
   auto task_data_stl = std::make_shared<ppc::core::TaskData>();
   task_data_stl->inputs.emplace_back(reinterpret_cast<uint8_t *>(input_data.data()));
@@ -62,20 +62,20 @@ TEST(yasakova_t_sparse_matrix_multiplication_stl, TestIncompatibleDimensions) {
   // Create data
   yasakova_t_sparse_matrix_multiplication_stl::CompressedRowStorage left_matrix(3, 3);
   yasakova_t_sparse_matrix_multiplication_stl::CompressedRowStorage right_matrix(5, 3);
-  std::vector<Complex> input_data = {};
-  std::vector<Complex> left_matrix_data;
-  std::vector<Complex> right_matrix_data;
-  std::vector<Complex> output_buffer(left_matrix.columnCount * right_matrix.rowCount * 100, 0);
+  std::vector<std::complex<double>> input_data = {};
+  std::vector<std::complex<double>> left_matrix_data;
+  std::vector<std::complex<double>> right_matrix_data;
+  std::vector<std::complex<double>> output_buffer(left_matrix.columnCount * right_matrix.rowCount * 100, 0);
 
-  left_matrix.InsertElement(0, Complex(1, 0), 0);
-  left_matrix.InsertElement(0, Complex(2, 0), 2);
-  left_matrix.InsertElement(1, Complex(3, 0), 1);
-  left_matrix.InsertElement(2, Complex(4, 0), 0);
-  left_matrix.InsertElement(2, Complex(5, 0), 1);
+  left_matrix.InsertElement(0, std::complex<double>(1, 0), 0);
+  left_matrix.InsertElement(0, std::complex<double>(2, 0), 2);
+  left_matrix.InsertElement(1, std::complex<double>(3, 0), 1);
+  left_matrix.InsertElement(2, std::complex<double>(4, 0), 0);
+  left_matrix.InsertElement(2, std::complex<double>(5, 0), 1);
 
-  right_matrix.InsertElement(0, Complex(6, 0), 1);
-  right_matrix.InsertElement(1, Complex(7, 0), 0);
-  right_matrix.InsertElement(2, Complex(8, 0), 2);
+  right_matrix.InsertElement(0, std::complex<double>(6, 0), 1);
+  right_matrix.InsertElement(1, std::complex<double>(7, 0), 0);
+  right_matrix.InsertElement(2, std::complex<double>(8, 0), 2);
   left_matrix_data = yasakova_t_sparse_matrix_multiplication_stl::ConvertToDense(left_matrix);
   right_matrix_data = yasakova_t_sparse_matrix_multiplication_stl::ConvertToDense(right_matrix);
   input_data.reserve(left_matrix_data.size() + right_matrix_data.size());
@@ -102,20 +102,20 @@ TEST(yasakova_t_sparse_matrix_multiplication_stl, TestComplexNumbersMultiplicati
   yasakova_t_sparse_matrix_multiplication_stl::CompressedRowStorage left_matrix(3, 3);
   yasakova_t_sparse_matrix_multiplication_stl::CompressedRowStorage right_matrix(3, 3);
   yasakova_t_sparse_matrix_multiplication_stl::CompressedRowStorage expected_result(3, 3);
-  std::vector<Complex> input_data = {};
-  std::vector<Complex> left_matrix_data;
-  std::vector<Complex> right_matrix_data;
-  std::vector<Complex> output_buffer(left_matrix.columnCount * right_matrix.rowCount * 100, 0);
+  std::vector<std::complex<double>> input_data = {};
+  std::vector<std::complex<double>> left_matrix_data;
+  std::vector<std::complex<double>> right_matrix_data;
+  std::vector<std::complex<double>> output_buffer(left_matrix.columnCount * right_matrix.rowCount * 100, 0);
 
-  left_matrix.InsertElement(0, Complex(1, 1), 0);
-  left_matrix.InsertElement(0, Complex(2, 2), 2);
-  left_matrix.InsertElement(1, Complex(3, 3), 1);
-  left_matrix.InsertElement(2, Complex(4, 4), 0);
-  left_matrix.InsertElement(2, Complex(5, 5), 1);
+  left_matrix.InsertElement(0, std::complex<double>(1, 1), 0);
+  left_matrix.InsertElement(0, std::complex<double>(2, 2), 2);
+  left_matrix.InsertElement(1, std::complex<double>(3, 3), 1);
+  left_matrix.InsertElement(2, std::complex<double>(4, 4), 0);
+  left_matrix.InsertElement(2, std::complex<double>(5, 5), 1);
 
-  right_matrix.InsertElement(0, Complex(6, 6), 1);
-  right_matrix.InsertElement(1, Complex(7, 7), 0);
-  right_matrix.InsertElement(2, Complex(8, 8), 2);
+  right_matrix.InsertElement(0, std::complex<double>(6, 6), 1);
+  right_matrix.InsertElement(1, std::complex<double>(7, 7), 0);
+  right_matrix.InsertElement(2, std::complex<double>(8, 8), 2);
   left_matrix_data = yasakova_t_sparse_matrix_multiplication_stl::ConvertToDense(left_matrix);
   right_matrix_data = yasakova_t_sparse_matrix_multiplication_stl::ConvertToDense(right_matrix);
   input_data.reserve(left_matrix_data.size() + right_matrix_data.size());
@@ -125,11 +125,11 @@ TEST(yasakova_t_sparse_matrix_multiplication_stl, TestComplexNumbersMultiplicati
   for (unsigned int i = 0; i < right_matrix_data.size(); i++) {
     input_data.emplace_back(right_matrix_data[i]);
   }
-  expected_result.InsertElement(0, Complex(0, 12), 1);
-  expected_result.InsertElement(0, Complex(0, 32), 2);
-  expected_result.InsertElement(1, Complex(0, 42), 0);
-  expected_result.InsertElement(2, Complex(0, 48), 1);
-  expected_result.InsertElement(2, Complex(0, 70), 0);
+  expected_result.InsertElement(0, std::complex<double>(0, 12), 1);
+  expected_result.InsertElement(0, std::complex<double>(0, 32), 2);
+  expected_result.InsertElement(1, std::complex<double>(0, 42), 0);
+  expected_result.InsertElement(2, std::complex<double>(0, 48), 1);
+  expected_result.InsertElement(2, std::complex<double>(0, 70), 0);
   // Create task_data
   auto task_data_stl = std::make_shared<ppc::core::TaskData>();
   task_data_stl->inputs.emplace_back(reinterpret_cast<uint8_t *>(input_data.data()));
@@ -153,20 +153,20 @@ TEST(yasakova_t_sparse_matrix_multiplication_stl, test_matmul_rectangular_matrix
   yasakova_t_sparse_matrix_multiplication_stl::CompressedRowStorage left_matrix(2, 3);
   yasakova_t_sparse_matrix_multiplication_stl::CompressedRowStorage right_matrix(3, 4);
   yasakova_t_sparse_matrix_multiplication_stl::CompressedRowStorage expected_result(2, 4);
-  std::vector<Complex> input_data = {};
-  std::vector<Complex> left_matrix_data;
-  std::vector<Complex> right_matrix_data;
-  std::vector<Complex> output_buffer(left_matrix.columnCount * right_matrix.rowCount * 100, 0);
+  std::vector<std::complex<double>> input_data = {};
+  std::vector<std::complex<double>> left_matrix_data;
+  std::vector<std::complex<double>> right_matrix_data;
+  std::vector<std::complex<double>> output_buffer(left_matrix.columnCount * right_matrix.rowCount * 100, 0);
 
-  left_matrix.InsertElement(0, Complex(1, 0), 1);
-  left_matrix.InsertElement(0, Complex(2, 0), 2);
-  left_matrix.InsertElement(1, Complex(3, 0), 1);
+  left_matrix.InsertElement(0, std::complex<double>(1, 0), 1);
+  left_matrix.InsertElement(0, std::complex<double>(2, 0), 2);
+  left_matrix.InsertElement(1, std::complex<double>(3, 0), 1);
 
-  right_matrix.InsertElement(0, Complex(3, 0), 2);
-  right_matrix.InsertElement(1, Complex(5, 0), 0);
-  right_matrix.InsertElement(1, Complex(4, 0), 3);
-  right_matrix.InsertElement(2, Complex(7, 0), 0);
-  right_matrix.InsertElement(2, Complex(8, 0), 1);
+  right_matrix.InsertElement(0, std::complex<double>(3, 0), 2);
+  right_matrix.InsertElement(1, std::complex<double>(5, 0), 0);
+  right_matrix.InsertElement(1, std::complex<double>(4, 0), 3);
+  right_matrix.InsertElement(2, std::complex<double>(7, 0), 0);
+  right_matrix.InsertElement(2, std::complex<double>(8, 0), 1);
   left_matrix_data = yasakova_t_sparse_matrix_multiplication_stl::ConvertToDense(left_matrix);
   right_matrix_data = yasakova_t_sparse_matrix_multiplication_stl::ConvertToDense(right_matrix);
   input_data.reserve(left_matrix_data.size() + right_matrix_data.size());
@@ -176,11 +176,11 @@ TEST(yasakova_t_sparse_matrix_multiplication_stl, test_matmul_rectangular_matrix
   for (unsigned int i = 0; i < right_matrix_data.size(); i++) {
     input_data.emplace_back(right_matrix_data[i]);
   }
-  expected_result.InsertElement(0, Complex(19, 0), 0);
-  expected_result.InsertElement(0, Complex(4, 0), 3);
-  expected_result.InsertElement(0, Complex(16, 0), 1);
-  expected_result.InsertElement(1, Complex(15, 0), 0);
-  expected_result.InsertElement(1, Complex(12, 0), 3);
+  expected_result.InsertElement(0, std::complex<double>(19, 0), 0);
+  expected_result.InsertElement(0, std::complex<double>(4, 0), 3);
+  expected_result.InsertElement(0, std::complex<double>(16, 0), 1);
+  expected_result.InsertElement(1, std::complex<double>(15, 0), 0);
+  expected_result.InsertElement(1, std::complex<double>(12, 0), 3);
   // Create task_data
   auto task_data_stl = std::make_shared<ppc::core::TaskData>();
   task_data_stl->inputs.emplace_back(reinterpret_cast<uint8_t *>(input_data.data()));
@@ -204,16 +204,16 @@ TEST(yasakova_t_sparse_matrix_multiplication_stl, test_matmul_with_negative_elem
   yasakova_t_sparse_matrix_multiplication_stl::CompressedRowStorage left_matrix(2, 2);
   yasakova_t_sparse_matrix_multiplication_stl::CompressedRowStorage right_matrix(2, 2);
   yasakova_t_sparse_matrix_multiplication_stl::CompressedRowStorage expected_result(2, 2);
-  std::vector<Complex> input_data = {};
-  std::vector<Complex> left_matrix_data;
-  std::vector<Complex> right_matrix_data;
-  std::vector<Complex> output_buffer(left_matrix.columnCount * right_matrix.rowCount * 100, 0);
+  std::vector<std::complex<double>> input_data = {};
+  std::vector<std::complex<double>> left_matrix_data;
+  std::vector<std::complex<double>> right_matrix_data;
+  std::vector<std::complex<double>> output_buffer(left_matrix.columnCount * right_matrix.rowCount * 100, 0);
 
-  left_matrix.InsertElement(0, Complex(-1, -1), 0);
-  left_matrix.InsertElement(1, Complex(3, 3), 1);
+  left_matrix.InsertElement(0, std::complex<double>(-1, -1), 0);
+  left_matrix.InsertElement(1, std::complex<double>(3, 3), 1);
 
-  right_matrix.InsertElement(0, Complex(6, 6), 1);
-  right_matrix.InsertElement(1, Complex(-7, -7), 0);
+  right_matrix.InsertElement(0, std::complex<double>(6, 6), 1);
+  right_matrix.InsertElement(1, std::complex<double>(-7, -7), 0);
   left_matrix_data = yasakova_t_sparse_matrix_multiplication_stl::ConvertToDense(left_matrix);
   right_matrix_data = yasakova_t_sparse_matrix_multiplication_stl::ConvertToDense(right_matrix);
   input_data.reserve(left_matrix_data.size() + right_matrix_data.size());
@@ -223,8 +223,8 @@ TEST(yasakova_t_sparse_matrix_multiplication_stl, test_matmul_with_negative_elem
   for (unsigned int i = 0; i < right_matrix_data.size(); i++) {
     input_data.emplace_back(right_matrix_data[i]);
   }
-  expected_result.InsertElement(0, Complex(0, -12), 1);
-  expected_result.InsertElement(1, Complex(0, -42), 0);
+  expected_result.InsertElement(0, std::complex<double>(0, -12), 1);
+  expected_result.InsertElement(1, std::complex<double>(0, -42), 0);
   // Create task_data
   auto task_data_stl = std::make_shared<ppc::core::TaskData>();
   task_data_stl->inputs.emplace_back(reinterpret_cast<uint8_t *>(input_data.data()));
@@ -248,16 +248,16 @@ TEST(yasakova_t_sparse_matrix_multiplication_stl, test_matmul_with_double_elems)
   yasakova_t_sparse_matrix_multiplication_stl::CompressedRowStorage left_matrix(2, 2);
   yasakova_t_sparse_matrix_multiplication_stl::CompressedRowStorage right_matrix(2, 2);
   yasakova_t_sparse_matrix_multiplication_stl::CompressedRowStorage expected_result(2, 2);
-  std::vector<Complex> input_data = {};
-  std::vector<Complex> left_matrix_data;
-  std::vector<Complex> right_matrix_data;
-  std::vector<Complex> output_buffer(left_matrix.columnCount * right_matrix.rowCount * 100, 0);
+  std::vector<std::complex<double>> input_data = {};
+  std::vector<std::complex<double>> left_matrix_data;
+  std::vector<std::complex<double>> right_matrix_data;
+  std::vector<std::complex<double>> output_buffer(left_matrix.columnCount * right_matrix.rowCount * 100, 0);
 
-  left_matrix.InsertElement(0, Complex(-1.7, -1.5), 0);
-  left_matrix.InsertElement(1, Complex(3.7, 3.1), 1);
+  left_matrix.InsertElement(0, std::complex<double>(-1.7, -1.5), 0);
+  left_matrix.InsertElement(1, std::complex<double>(3.7, 3.1), 1);
 
-  right_matrix.InsertElement(0, Complex(6.3, 6.1), 1);
-  right_matrix.InsertElement(1, Complex(-7.4, -7.7), 0);
+  right_matrix.InsertElement(0, std::complex<double>(6.3, 6.1), 1);
+  right_matrix.InsertElement(1, std::complex<double>(-7.4, -7.7), 0);
   left_matrix_data = yasakova_t_sparse_matrix_multiplication_stl::ConvertToDense(left_matrix);
   right_matrix_data = yasakova_t_sparse_matrix_multiplication_stl::ConvertToDense(right_matrix);
   input_data.reserve(left_matrix_data.size() + right_matrix_data.size());
@@ -267,8 +267,8 @@ TEST(yasakova_t_sparse_matrix_multiplication_stl, test_matmul_with_double_elems)
   for (unsigned int i = 0; i < right_matrix_data.size(); i++) {
     input_data.emplace_back(right_matrix_data[i]);
   }
-  expected_result.InsertElement(0, Complex(-1.56, -19.82), 1);
-  expected_result.InsertElement(1, Complex(-3.51, -51.43), 0);
+  expected_result.InsertElement(0, std::complex<double>(-1.56, -19.82), 1);
+  expected_result.InsertElement(1, std::complex<double>(-3.51, -51.43), 0);
   // Create task_data
   auto task_data_stl = std::make_shared<ppc::core::TaskData>();
   task_data_stl->inputs.emplace_back(reinterpret_cast<uint8_t *>(input_data.data()));
@@ -292,18 +292,18 @@ TEST(yasakova_t_sparse_matrix_multiplication_stl, test_matmul_row_by_col) {
   yasakova_t_sparse_matrix_multiplication_stl::CompressedRowStorage left_matrix(1, 3);
   yasakova_t_sparse_matrix_multiplication_stl::CompressedRowStorage right_matrix(3, 1);
   yasakova_t_sparse_matrix_multiplication_stl::CompressedRowStorage expected_result(1, 1);
-  std::vector<Complex> input_data = {};
-  std::vector<Complex> left_matrix_data;
-  std::vector<Complex> right_matrix_data;
-  std::vector<Complex> output_buffer(left_matrix.columnCount * right_matrix.rowCount * 100, 0);
+  std::vector<std::complex<double>> input_data = {};
+  std::vector<std::complex<double>> left_matrix_data;
+  std::vector<std::complex<double>> right_matrix_data;
+  std::vector<std::complex<double>> output_buffer(left_matrix.columnCount * right_matrix.rowCount * 100, 0);
 
-  left_matrix.InsertElement(0, Complex(-1, 0), 0);
-  left_matrix.InsertElement(0, Complex(-2, 0), 1);
-  left_matrix.InsertElement(0, Complex(-3, 0), 2);
+  left_matrix.InsertElement(0, std::complex<double>(-1, 0), 0);
+  left_matrix.InsertElement(0, std::complex<double>(-2, 0), 1);
+  left_matrix.InsertElement(0, std::complex<double>(-3, 0), 2);
 
-  right_matrix.InsertElement(0, Complex(1, 0), 0);
-  right_matrix.InsertElement(1, Complex(2, 0), 0);
-  right_matrix.InsertElement(2, Complex(3, 0), 0);
+  right_matrix.InsertElement(0, std::complex<double>(1, 0), 0);
+  right_matrix.InsertElement(1, std::complex<double>(2, 0), 0);
+  right_matrix.InsertElement(2, std::complex<double>(3, 0), 0);
   left_matrix_data = yasakova_t_sparse_matrix_multiplication_stl::ConvertToDense(left_matrix);
   right_matrix_data = yasakova_t_sparse_matrix_multiplication_stl::ConvertToDense(right_matrix);
   input_data.reserve(left_matrix_data.size() + right_matrix_data.size());
@@ -313,7 +313,7 @@ TEST(yasakova_t_sparse_matrix_multiplication_stl, test_matmul_row_by_col) {
   for (unsigned int i = 0; i < right_matrix_data.size(); i++) {
     input_data.emplace_back(right_matrix_data[i]);
   }
-  expected_result.InsertElement(0, Complex(-14, 0), 0);
+  expected_result.InsertElement(0, std::complex<double>(-14, 0), 0);
   // Create task_data
   auto task_data_stl = std::make_shared<ppc::core::TaskData>();
   task_data_stl->inputs.emplace_back(reinterpret_cast<uint8_t *>(input_data.data()));
@@ -337,18 +337,18 @@ TEST(yasakova_t_sparse_matrix_multiplication_stl, test_matmul_diag_matrix) {
   yasakova_t_sparse_matrix_multiplication_stl::CompressedRowStorage left_matrix(3, 3);
   yasakova_t_sparse_matrix_multiplication_stl::CompressedRowStorage right_matrix(3, 3);
   yasakova_t_sparse_matrix_multiplication_stl::CompressedRowStorage expected_result(3, 3);
-  std::vector<Complex> input_data = {};
-  std::vector<Complex> left_matrix_data;
-  std::vector<Complex> right_matrix_data;
-  std::vector<Complex> output_buffer(left_matrix.columnCount * right_matrix.rowCount * 100, 0);
+  std::vector<std::complex<double>> input_data = {};
+  std::vector<std::complex<double>> left_matrix_data;
+  std::vector<std::complex<double>> right_matrix_data;
+  std::vector<std::complex<double>> output_buffer(left_matrix.columnCount * right_matrix.rowCount * 100, 0);
 
-  left_matrix.InsertElement(0, Complex(-1, 0), 0);
-  left_matrix.InsertElement(1, Complex(-2, 0), 1);
-  left_matrix.InsertElement(2, Complex(-3, 0), 2);
+  left_matrix.InsertElement(0, std::complex<double>(-1, 0), 0);
+  left_matrix.InsertElement(1, std::complex<double>(-2, 0), 1);
+  left_matrix.InsertElement(2, std::complex<double>(-3, 0), 2);
 
-  right_matrix.InsertElement(0, Complex(1, 0), 0);
-  right_matrix.InsertElement(1, Complex(2, 0), 1);
-  right_matrix.InsertElement(2, Complex(3, 0), 2);
+  right_matrix.InsertElement(0, std::complex<double>(1, 0), 0);
+  right_matrix.InsertElement(1, std::complex<double>(2, 0), 1);
+  right_matrix.InsertElement(2, std::complex<double>(3, 0), 2);
   left_matrix_data = yasakova_t_sparse_matrix_multiplication_stl::ConvertToDense(left_matrix);
   right_matrix_data = yasakova_t_sparse_matrix_multiplication_stl::ConvertToDense(right_matrix);
   input_data.reserve(left_matrix_data.size() + right_matrix_data.size());
@@ -358,9 +358,9 @@ TEST(yasakova_t_sparse_matrix_multiplication_stl, test_matmul_diag_matrix) {
   for (unsigned int i = 0; i < right_matrix_data.size(); i++) {
     input_data.emplace_back(right_matrix_data[i]);
   }
-  expected_result.InsertElement(0, Complex(-1, 0), 0);
-  expected_result.InsertElement(1, Complex(-4, 0), 1);
-  expected_result.InsertElement(2, Complex(-9, 0), 2);
+  expected_result.InsertElement(0, std::complex<double>(-1, 0), 0);
+  expected_result.InsertElement(1, std::complex<double>(-4, 0), 1);
+  expected_result.InsertElement(2, std::complex<double>(-9, 0), 2);
   // Create task_data
   auto task_data_stl = std::make_shared<ppc::core::TaskData>();
   task_data_stl->inputs.emplace_back(reinterpret_cast<uint8_t *>(input_data.data()));
@@ -384,20 +384,20 @@ TEST(yasakova_t_sparse_matrix_multiplication_stl, test_matmul_only_imag) {
   yasakova_t_sparse_matrix_multiplication_stl::CompressedRowStorage left_matrix(3, 3);
   yasakova_t_sparse_matrix_multiplication_stl::CompressedRowStorage right_matrix(3, 3);
   yasakova_t_sparse_matrix_multiplication_stl::CompressedRowStorage expected_result(3, 3);
-  std::vector<Complex> input_data = {};
-  std::vector<Complex> left_matrix_data;
-  std::vector<Complex> right_matrix_data;
-  std::vector<Complex> output_buffer(left_matrix.columnCount * right_matrix.rowCount * 100, 0);
+  std::vector<std::complex<double>> input_data = {};
+  std::vector<std::complex<double>> left_matrix_data;
+  std::vector<std::complex<double>> right_matrix_data;
+  std::vector<std::complex<double>> output_buffer(left_matrix.columnCount * right_matrix.rowCount * 100, 0);
 
-  left_matrix.InsertElement(0, Complex(0, 1), 0);
-  left_matrix.InsertElement(0, Complex(0, 2), 2);
-  left_matrix.InsertElement(1, Complex(0, 3), 1);
-  left_matrix.InsertElement(2, Complex(0, 4), 0);
-  left_matrix.InsertElement(2, Complex(0, 5), 1);
+  left_matrix.InsertElement(0, std::complex<double>(0, 1), 0);
+  left_matrix.InsertElement(0, std::complex<double>(0, 2), 2);
+  left_matrix.InsertElement(1, std::complex<double>(0, 3), 1);
+  left_matrix.InsertElement(2, std::complex<double>(0, 4), 0);
+  left_matrix.InsertElement(2, std::complex<double>(0, 5), 1);
 
-  right_matrix.InsertElement(0, Complex(0, 6), 1);
-  right_matrix.InsertElement(1, Complex(0, 7), 0);
-  right_matrix.InsertElement(2, Complex(0, 8), 2);
+  right_matrix.InsertElement(0, std::complex<double>(0, 6), 1);
+  right_matrix.InsertElement(1, std::complex<double>(0, 7), 0);
+  right_matrix.InsertElement(2, std::complex<double>(0, 8), 2);
   left_matrix_data = yasakova_t_sparse_matrix_multiplication_stl::ConvertToDense(left_matrix);
   right_matrix_data = yasakova_t_sparse_matrix_multiplication_stl::ConvertToDense(right_matrix);
   input_data.reserve(left_matrix_data.size() + right_matrix_data.size());
@@ -407,11 +407,11 @@ TEST(yasakova_t_sparse_matrix_multiplication_stl, test_matmul_only_imag) {
   for (unsigned int i = 0; i < right_matrix_data.size(); i++) {
     input_data.emplace_back(right_matrix_data[i]);
   }
-  expected_result.InsertElement(0, Complex(-6, 0), 1);
-  expected_result.InsertElement(0, Complex(-16, 0), 2);
-  expected_result.InsertElement(1, Complex(-21, 0), 0);
-  expected_result.InsertElement(2, Complex(-24, 0), 1);
-  expected_result.InsertElement(2, Complex(-35, 0), 0);
+  expected_result.InsertElement(0, std::complex<double>(-6, 0), 1);
+  expected_result.InsertElement(0, std::complex<double>(-16, 0), 2);
+  expected_result.InsertElement(1, std::complex<double>(-21, 0), 0);
+  expected_result.InsertElement(2, std::complex<double>(-24, 0), 1);
+  expected_result.InsertElement(2, std::complex<double>(-35, 0), 0);
   // Create task_data
   auto task_data_stl = std::make_shared<ppc::core::TaskData>();
   task_data_stl->inputs.emplace_back(reinterpret_cast<uint8_t *>(input_data.data()));
