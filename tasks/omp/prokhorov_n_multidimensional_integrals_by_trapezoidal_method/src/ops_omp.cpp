@@ -7,6 +7,11 @@
 
 namespace prokhorov_n_multidimensional_integrals_by_trapezoidal_method_omp {
 
+static double parallelTrapezoidalIntegration(const std::function<double(const std::vector<double>&)>& func,
+                                             const std::vector<double>& lower, const std::vector<double>& upper,
+                                             const std::vector<int>& steps, size_t current_dim,
+                                             std::vector<double>& point);
+
 bool TestTaskOpenMP::PreProcessingImpl() {
   auto* lower_ptr = reinterpret_cast<double*>(task_data->inputs[0]);
   auto* upper_ptr = reinterpret_cast<double*>(task_data->inputs[1]);
@@ -29,7 +34,7 @@ bool TestTaskOpenMP::ValidationImpl() {
 
 double parallelTrapezoidalIntegration(const std::function<double(const std::vector<double>&)>& func,
                                       const std::vector<double>& lower, const std::vector<double>& upper,
-                                      const std::vector<int>& steps, int current_dim, std::vector<double>& point) {
+                                      const std::vector<int>& steps, size_t current_dim, std::vector<double>& point) {
   if (current_dim == lower.size()) {
     return func(point);
   }
