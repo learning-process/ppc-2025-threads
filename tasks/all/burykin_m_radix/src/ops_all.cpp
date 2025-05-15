@@ -83,7 +83,6 @@ bool burykin_m_radix_all::RadixALL::PreProcessingImpl() {
   int local_size = input_size / world_.size();
   int remainder = input_size % world_.size();
 
-  int local_start = world_.rank() * local_size + std::min(world_.rank(), remainder);
   if (world_.rank() < remainder) {
     local_size += 1;
   }
