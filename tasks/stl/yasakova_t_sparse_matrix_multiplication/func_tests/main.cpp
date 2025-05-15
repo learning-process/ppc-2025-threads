@@ -436,14 +436,14 @@ TEST(yasakova_t_sparse_matrix_multiplication_stl, TestEmptyMatrixMultiplication)
   yasakova_t_sparse_matrix_multiplication_stl::CompressedRowStorage left_matrix(0, 0);
   yasakova_t_sparse_matrix_multiplication_stl::CompressedRowStorage right_matrix(0, 0);
   yasakova_t_sparse_matrix_multiplication_stl::CompressedRowStorage expected_result(0, 0);
-  
+
   std::vector<std::complex<double>> input_data;
   std::vector<std::complex<double>> output_buffer(1, 0);
 
   auto task_data = std::make_shared<ppc::core::TaskData>();
-  task_data->inputs.emplace_back(reinterpret_cast<uint8_t*>(input_data.data()));
+  task_data->inputs.emplace_back(reinterpret_cast<uint8_t *>(input_data.data()));
   task_data->inputs_count.emplace_back(input_data.size());
-  task_data->outputs.emplace_back(reinterpret_cast<uint8_t*>(output_buffer.data()));
+  task_data->outputs.emplace_back(reinterpret_cast<uint8_t *>(output_buffer.data()));
   task_data->outputs_count.emplace_back(output_buffer.size());
 
   yasakova_t_sparse_matrix_multiplication_stl::SparseMatrixMultiTask task(task_data);
@@ -451,7 +451,7 @@ TEST(yasakova_t_sparse_matrix_multiplication_stl, TestEmptyMatrixMultiplication)
   task.PreProcessing();
   task.Run();
   task.PostProcessing();
-  
+
   ASSERT_EQ(output_buffer[0], std::complex<double>(0, 0));
 }
 
@@ -460,7 +460,7 @@ TEST(yasakova_t_sparse_matrix_multiplication_stl, TestIdentityMatrixMultiplicati
   yasakova_t_sparse_matrix_multiplication_stl::CompressedRowStorage left_matrix(3, 3);
   yasakova_t_sparse_matrix_multiplication_stl::CompressedRowStorage right_matrix(3, 3);
   yasakova_t_sparse_matrix_multiplication_stl::CompressedRowStorage expected_result(3, 3);
-  
+
   // Create identity matrix
   for (int i = 0; i < 3; ++i) {
     right_matrix.InsertElement(i, std::complex<double>(1, 0), i);
@@ -481,13 +481,13 @@ TEST(yasakova_t_sparse_matrix_multiplication_stl, TestIdentityMatrixMultiplicati
   std::vector<std::complex<double>> input_data;
   input_data.insert(input_data.end(), left_data.begin(), left_data.end());
   input_data.insert(input_data.end(), right_data.begin(), right_data.end());
-  
+
   std::vector<std::complex<double>> output_buffer(left_matrix.columnCount * right_matrix.rowCount * 100, 0);
 
   auto task_data = std::make_shared<ppc::core::TaskData>();
-  task_data->inputs.emplace_back(reinterpret_cast<uint8_t*>(input_data.data()));
+  task_data->inputs.emplace_back(reinterpret_cast<uint8_t *>(input_data.data()));
   task_data->inputs_count.emplace_back(input_data.size());
-  task_data->outputs.emplace_back(reinterpret_cast<uint8_t*>(output_buffer.data()));
+  task_data->outputs.emplace_back(reinterpret_cast<uint8_t *>(output_buffer.data()));
   task_data->outputs_count.emplace_back(output_buffer.size());
 
   yasakova_t_sparse_matrix_multiplication_stl::SparseMatrixMultiTask task(task_data);
@@ -495,7 +495,7 @@ TEST(yasakova_t_sparse_matrix_multiplication_stl, TestIdentityMatrixMultiplicati
   task.PreProcessing();
   task.Run();
   task.PostProcessing();
-  
+
   auto actual_result = yasakova_t_sparse_matrix_multiplication_stl::ConvertToSparse(output_buffer);
   ASSERT_TRUE(yasakova_t_sparse_matrix_multiplication_stl::CompareMatrices(actual_result, expected_result));
 }
@@ -509,9 +509,9 @@ TEST(yasakova_t_sparse_matrix_multiplication_stl, TestLargeSparseMatrixMultiplic
 
   // Fill matrices with diagonal pattern
   for (int i = 0; i < size; ++i) {
-    left_matrix.InsertElement(i, std::complex<double>(i+1, 0), i);
-    right_matrix.InsertElement(i, std::complex<double>(size-i, 0), i);
-    expected_result.InsertElement(i, std::complex<double>((i+1)*(size-i), 0), i);
+    left_matrix.InsertElement(i, std::complex<double>(i + 1, 0), i);
+    right_matrix.InsertElement(i, std::complex<double>(size - i, 0), i);
+    expected_result.InsertElement(i, std::complex<double>((i + 1) * (size - i), 0), i);
   }
 
   // Prepare input data
@@ -520,13 +520,13 @@ TEST(yasakova_t_sparse_matrix_multiplication_stl, TestLargeSparseMatrixMultiplic
   std::vector<std::complex<double>> input_data;
   input_data.insert(input_data.end(), left_data.begin(), left_data.end());
   input_data.insert(input_data.end(), right_data.begin(), right_data.end());
-  
+
   std::vector<std::complex<double>> output_buffer(left_matrix.columnCount * right_matrix.rowCount * 100, 0);
 
   auto task_data = std::make_shared<ppc::core::TaskData>();
-  task_data->inputs.emplace_back(reinterpret_cast<uint8_t*>(input_data.data()));
+  task_data->inputs.emplace_back(reinterpret_cast<uint8_t *>(input_data.data()));
   task_data->inputs_count.emplace_back(input_data.size());
-  task_data->outputs.emplace_back(reinterpret_cast<uint8_t*>(output_buffer.data()));
+  task_data->outputs.emplace_back(reinterpret_cast<uint8_t *>(output_buffer.data()));
   task_data->outputs_count.emplace_back(output_buffer.size());
 
   yasakova_t_sparse_matrix_multiplication_stl::SparseMatrixMultiTask task(task_data);
@@ -534,7 +534,7 @@ TEST(yasakova_t_sparse_matrix_multiplication_stl, TestLargeSparseMatrixMultiplic
   task.PreProcessing();
   task.Run();
   task.PostProcessing();
-  
+
   auto actual_result = yasakova_t_sparse_matrix_multiplication_stl::ConvertToSparse(output_buffer);
   ASSERT_TRUE(yasakova_t_sparse_matrix_multiplication_stl::CompareMatrices(actual_result, expected_result));
 }
