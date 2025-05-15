@@ -89,7 +89,6 @@ bool SortTBB::RunImpl() {
     tg.wait();
   });
 
-  std::ranges::reverse(negative);
   output_.clear();
   output_.insert(output_.end(), negative.begin(), negative.end());
   output_.insert(output_.end(), positive.begin(), positive.end());
