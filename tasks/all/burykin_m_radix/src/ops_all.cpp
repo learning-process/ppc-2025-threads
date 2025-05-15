@@ -140,13 +140,24 @@ bool burykin_m_radix_all::RadixALL::RunImpl() {
 
   output_ = std::move(a);
 
-  if (world_.rank() == 0) {
-    for (size_t i = 0; i < output_.size(); ++i) {
-      reinterpret_cast<int*>(task_data->outputs[0])[i] = output_[i];
+  if (world_.rank() != 0) {
+    boost::mpi::gather(world_, output_.data(), output_.size(), 0);
+  } else {
+    std::vector<int> gathered_result;
+    boost::mpi::gather(world_, output_.data(), output_.size(), gathered_result, 0);
+    if (!gathered_result.empty()) {
+      output_ = std::move(gathered_result);
     }
   }
 
   return true;
 }
 
-bool burykin_m_radix_all::RadixALL::PostProcessingImpl() { return true; }
+bool burykin_m_radix_all::RadixALL::PostProcessingImpl() {
+  if (world_.rank() == 0) {
+    for (size_t i = 0; i < output_.size(); ++i) {
+      reinterpret_cast<int*>(task_data->outputs[0])[i] = output_[i];
+    }
+  }
+  return true;
+}
