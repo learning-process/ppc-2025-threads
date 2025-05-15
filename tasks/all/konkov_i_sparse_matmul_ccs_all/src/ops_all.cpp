@@ -39,8 +39,7 @@ bool SparseMatmulTask::PreProcessingImpl() {
   return true;
 }
 
-void SparseMatmulTask::ProcessColumn(int col_b, int start_col,
-                                     std::vector<double>& local_values, std::vector<int>& local_rows, std::vector<int>& local_col_ptr) {
+void SparseMatmulTask::ProcessColumn(int col_b, int start_col, std::vector<double>& local_values, std::vector<int>& local_rows, std::vector<int>& local_col_ptr) {
   std::unordered_map<int, double> column_result;
 
   for (int j = B_col_ptr[col_b]; j < B_col_ptr[col_b + 1]; ++j) {
