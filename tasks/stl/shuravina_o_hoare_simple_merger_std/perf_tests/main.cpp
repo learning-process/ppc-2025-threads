@@ -3,14 +3,14 @@
 #include <chrono>
 #include <cstdint>
 #include <memory>
+#include <stl/shuravina_o_hoare_simple_merger_std/include/ops_stl.hpp>
 #include <vector>
 
 #include "core/perf/include/perf.hpp"
 #include "core/task/include/task.hpp"
-#include "stl/shuravina_o_hoare_simple_merger_std/include/ops_stl.hpp"
 
 TEST(shuravina_o_hoare_simple_merger_stl, test_pipeline_run) {
-  const int count = 500000;
+  const int count = 1000000;
   std::vector<int> in(count, 0);
   std::vector<int> out(count, 0);
 
@@ -46,7 +46,7 @@ TEST(shuravina_o_hoare_simple_merger_stl, test_pipeline_run) {
 }
 
 TEST(shuravina_o_hoare_simple_merger_stl, test_task_run) {
-  const int count = 500000;
+  const int count = 1000000;
   std::vector<int> in(count, 0);
   std::vector<int> out(count, 0);
 

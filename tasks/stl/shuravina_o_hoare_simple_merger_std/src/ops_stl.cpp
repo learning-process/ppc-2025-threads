@@ -1,13 +1,14 @@
 #include "stl/shuravina_o_hoare_simple_merger_std/include/ops_stl.hpp"
 
 #include <algorithm>
+#include <atomic>
+#include <core/util/include/util.hpp>
+#include <future>
 #include <memory>
-#include <thread>
 #include <utility>
 #include <vector>
 
 #include "core/task/include/task.hpp"
-#include "core/util/include/util.hpp"
 
 namespace shuravina_o_hoare_simple_merger_stl {
 
@@ -38,18 +39,7 @@ void TestTaskSTL::QuickSort(std::vector<int>& arr, int left, int right) {
     return;
   }
 
-  int mid = left + ((right - left) / 2);
-  if (arr[mid] < arr[left]) {
-    std::swap(arr[left], arr[mid]);
-  }
-  if (arr[right] < arr[left]) {
-    std::swap(arr[left], arr[right]);
-  }
-  if (arr[mid] < arr[right]) {
-    std::swap(arr[mid], arr[right]);
-  }
-  
-  int pivot = arr[right];
+  int pivot = arr[(left + right) / 2];
   int i = left;
   int j = right;
 
@@ -73,18 +63,36 @@ void TestTaskSTL::QuickSort(std::vector<int>& arr, int left, int right) {
 
 void TestTaskSTL::MergeHelper(std::vector<int>& arr, int left, int mid, int right) {
   std::vector<int> temp(right - left + 1);
-  int i = left;
-  int j = mid + 1;
-  int k = 0;
+  const int parallel_threshold = 10000;
+  static std::atomic<int> thread_counter(0);
 
-  while (i <= mid && j <= right) {
-    temp[k++] = (arr[i] <= arr[j]) ? arr[i++] : arr[j++];
-  }
-  while (i <= mid) {
-    temp[k++] = arr[i++];
-  }
-  while (j <= right) {
-    temp[k++] = arr[j++];
+  auto merge_segment = [&](int start_i, int start_j, int end_i, int end_j, int start_k) {
+    int i = start_i;
+    int j = start_j;
+    int k = start_k;
+
+    while (i <= end_i && j <= end_j) {
+      temp[k++] = (arr[i] <= arr[j]) ? arr[i++] : arr[j++];
+    }
+    while (i <= end_i) {
+      temp[k++] = arr[i++];
+    }
+    while (j <= end_j) {
+      temp[k++] = arr[j++];
+    }
+  };
+
+  if ((right - left > parallel_threshold) && (thread_counter.load() < ppc::util::GetPPCNumThreads())) {
+    thread_counter++;
+    auto future = std::async(std::launch::async, [&]() {
+      merge_segment(left, mid + 1, mid, mid + ((right - left) / 2), 0);
+      thread_counter--;
+    });
+
+    merge_segment(mid + 1 + ((right - left) / 2), mid + 1, right, right, ((right - left) / 2) + 1);
+    future.get();
+  } else {
+    merge_segment(left, mid + 1, mid, right, 0);
   }
 
   std::ranges::copy(temp, arr.begin() + left);
@@ -97,32 +105,8 @@ bool TestTaskSTL::RunImpl() {
   }
 
   const int size = static_cast<int>(input_.size());
-  const int num_threads = ppc::util::GetPPCNumThreads();
-  const int chunk_size = size / num_threads;
-
-  std::vector<std::thread> threads;
-  for (int i = 0; i < num_threads; ++i) {
-    int start = i * chunk_size;
-    int end = (i == (num_threads - 1)) ? (size - 1) : (((i + 1) * chunk_size) - 1);
-    threads.emplace_back([this, start, end]() { QuickSort(input_, start, end); });
-  }
-
-  for (auto& t : threads) {
-    t.join();
-  }
-  threads.clear();
-
-  for (int merge_size = chunk_size; merge_size < size; merge_size *= 2) {
-    for (int left = 0; left < size; left += (2 * merge_size)) {
-      int mid = left + merge_size - 1;
-      if (mid >= (size - 1)) {
-        break;
-      }
-      int right = std::min(left + (2 * merge_size) - 1, size - 1);
-      MergeHelper(input_, left, mid, right);
-    }
-  }
-
+  QuickSort(input_, 0, size - 1);
+  MergeHelper(input_, 0, (size / 2) - 1, size - 1);
   output_ = input_;
   return true;
 }
