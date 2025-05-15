@@ -109,12 +109,13 @@ bool SparseMatmulTask::RunImpl() {
 
   int base_cols = colsB / size;
   int extra_cols = colsB % size;
-  int start_col = rank * base_cols + std::min(rank, extra_cols);
-  int end_col = start_col + base_cols + (rank < extra_cols ? 1 : 0);
+  int start_col =
+      (rank < extra_cols) ? (base_cols + 1) * rank : (base_cols + 1) * extra_cols + base_cols * (rank - extra_cols);
+  int end_col = start_col + ((rank < extra_cols) ? (base_cols + 1) : base_cols);
   int num_local_cols = end_col - start_col;
 
-  std::cout << "[RunImpl] Rank " << rank << " columns: [" << start_col << ", " << end_col << ")"
-            << " (local cols: " << num_local_cols << ")" << std::endl;
+  std::cout << "[Process " << rank << "] Columns: [" << start_col << ", " << end_col << ")\n";
+  std::cout << "[Process " << rank << "] Local columns to process: " << num_local_cols << std::endl;
 
   std::vector<double> local_values;
   std::vector<int> local_rows;
