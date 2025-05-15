@@ -1,7 +1,9 @@
 #include "stl/shuravina_o_hoare_simple_merger_std/include/ops_stl.hpp"
 
 #include <algorithm>
+#include <memory>
 #include <thread>
+#include <utility>
 #include <vector>
 
 #include "core/task/include/task.hpp"
@@ -36,18 +38,28 @@ void TestTaskSTL::QuickSort(std::vector<int>& arr, int left, int right) {
     return;
   }
 
-  int mid = left + (right - left) / 2;
-  if (arr[mid] < arr[left]) std::swap(arr[left], arr[mid]);
-  if (arr[right] < arr[left]) std::swap(arr[left], arr[right]);
-  if (arr[mid] < arr[right]) std::swap(arr[mid], arr[right]);
-
+  int mid = left + ((right - left) / 2);
+  if (arr[mid] < arr[left]) {
+    std::swap(arr[left], arr[mid]);
+  }
+  if (arr[right] < arr[left]) {
+    std::swap(arr[left], arr[right]);
+  }
+  if (arr[mid] < arr[right]) {
+    std::swap(arr[mid], arr[right]);
+  }
+  
   int pivot = arr[right];
   int i = left;
   int j = right;
 
   while (i <= j) {
-    while (arr[i] < pivot) i++;
-    while (arr[j] > pivot) j--;
+    while (arr[i] < pivot) {
+      i++;
+    }
+    while (arr[j] > pivot) {
+      j--;
+    }
     if (i <= j) {
       std::swap(arr[i], arr[j]);
       i++;
@@ -75,7 +87,7 @@ void TestTaskSTL::MergeHelper(std::vector<int>& arr, int left, int mid, int righ
     temp[k++] = arr[j++];
   }
 
-  std::copy(temp.begin(), temp.end(), arr.begin() + left);
+  std::ranges::copy(temp, arr.begin() + left);
 }
 
 bool TestTaskSTL::RunImpl() {
@@ -91,7 +103,7 @@ bool TestTaskSTL::RunImpl() {
   std::vector<std::thread> threads;
   for (int i = 0; i < num_threads; ++i) {
     int start = i * chunk_size;
-    int end = (i == num_threads - 1) ? size - 1 : (i + 1) * chunk_size - 1;
+    int end = (i == (num_threads - 1)) ? (size - 1) : (((i + 1) * chunk_size) - 1);
     threads.emplace_back([this, start, end]() { QuickSort(input_, start, end); });
   }
 
@@ -101,10 +113,12 @@ bool TestTaskSTL::RunImpl() {
   threads.clear();
 
   for (int merge_size = chunk_size; merge_size < size; merge_size *= 2) {
-    for (int left = 0; left < size; left += 2 * merge_size) {
+    for (int left = 0; left < size; left += (2 * merge_size)) {
       int mid = left + merge_size - 1;
-      if (mid >= size - 1) break;
-      int right = std::min(left + 2 * merge_size - 1, size - 1);
+      if (mid >= (size - 1)) {
+        break;
+      }
+      int right = std::min(left + (2 * merge_size) - 1, size - 1);
       MergeHelper(input_, left, mid, right);
     }
   }
@@ -118,7 +132,7 @@ bool TestTaskSTL::PostProcessingImpl() {
     return true;
   }
   int* out_ptr = reinterpret_cast<int*>(task_data->outputs[0]);
-  std::copy(output_.begin(), output_.end(), out_ptr);
+  std::ranges::copy(output_, out_ptr);
   return true;
 }
 
