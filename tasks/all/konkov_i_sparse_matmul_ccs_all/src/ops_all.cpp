@@ -152,9 +152,17 @@ bool SparseMatmulTask::RunImpl() {
   for (int col = 1; col <= num_local_cols; ++col) {
     local_col_ptr[col] += local_col_ptr[col - 1];
   }
-  for (int t = 0; t < num_threads; ++t) {
-    local_values.insert(local_values.end(), thread_values[t].begin(), thread_values[t].end());
-    local_rows.insert(local_rows.end(), thread_rows[t].begin(), thread_rows[t].end());
+  for (int local_col = 0; local_col < num_local_cols; ++local_col) {
+    int col_start = local_values.size();
+    for (int t = 0; t < num_threads; ++t) {
+      int start = thread_col_ptrs[t][local_col];
+      int end = thread_col_ptrs[t][local_col + 1];
+      for (int i = start; i < end; ++i) {
+        local_values.push_back(thread_values[t][i]);
+        local_rows.push_back(thread_rows[t][i]);
+      }
+    }
+    local_col_ptr[local_col + 1] = local_values.size();
   }
 
   std::cout << "[Aggregation] Rank " << rank << " results:\n";
