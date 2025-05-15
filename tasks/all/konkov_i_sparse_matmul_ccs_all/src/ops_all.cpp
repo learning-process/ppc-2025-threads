@@ -153,7 +153,6 @@ bool SparseMatmulTask::RunImpl() {
     local_col_ptr[col] += local_col_ptr[col - 1];
   }
   for (int local_col = 0; local_col < num_local_cols; ++local_col) {
-    int col_start = local_values.size();
     for (int t = 0; t < num_threads; ++t) {
       int start = thread_col_ptrs[t][local_col];
       int end = thread_col_ptrs[t][local_col + 1];
