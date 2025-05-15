@@ -37,7 +37,6 @@ double parallelTrapezoidalIntegration(const std::function<double(const std::vect
   double h = (upper[current_dim] - lower[current_dim]) / steps[current_dim];
   double sum = 0.0;
 
-  // Убедиться, что у point нужный размер
   if (point.size() <= current_dim) {
     point.resize(current_dim + 1);
   }
