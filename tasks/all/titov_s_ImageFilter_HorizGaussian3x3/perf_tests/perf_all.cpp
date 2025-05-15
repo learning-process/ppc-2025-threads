@@ -13,8 +13,8 @@
 
 TEST(titov_s_image_filter_horiz_gaussian3x3_all, test_pipeline_run) {
   boost::mpi::communicator world;
-  constexpr size_t kWidth = 300;
-  constexpr size_t kHeight = 300;
+  constexpr size_t kWidth = 9000;
+  constexpr size_t kHeight = 9000;
   std::vector<double> input(kWidth * kHeight, 0.0);
   std::vector<double> output(kWidth * kHeight, 0.0);
   std::vector<double> expected(kWidth * kHeight, 0.0);
@@ -77,8 +77,8 @@ TEST(titov_s_image_filter_horiz_gaussian3x3_all, test_pipeline_run) {
 
 TEST(titov_s_image_filter_horiz_gaussian3x3_all, test_task_run) {
   boost::mpi::communicator world;
-  constexpr size_t kWidth = 300;
-  constexpr size_t kHeight = 300;
+  constexpr size_t kWidth = 9000;
+  constexpr size_t kHeight = 9000;
   std::vector<double> input(kWidth * kHeight, 0.0);
   std::vector<double> output(kWidth * kHeight, 0.0);
   std::vector<double> expected(kWidth * kHeight, 0.0);
