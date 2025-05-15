@@ -40,8 +40,7 @@ bool SparseMatmulTask::PreProcessingImpl() {
 }
 
 void SparseMatmulTask::ProcessColumn(int col_b, int start_col,
-                                     std::vector<double>& local_values, std::vector<int>& local_rows,
-                                     std::vector<int>& local_col_ptr) {
+                                     std::vector<double>& local_values, std::vector<int>& local_rows, std::vector<int>& local_col_ptr) {
   std::unordered_map<int, double> column_result;
 
   for (int j = B_col_ptr[col_b]; j < B_col_ptr[col_b + 1]; ++j) {
@@ -93,8 +92,7 @@ bool SparseMatmulTask::RunImpl() {
 
   auto worker = [&](int thread_id) {
     for (int col = start_col + thread_id; col < end_col; col += num_threads) {
-      ProcessColumn(col, start_col, thread_values[thread_id],
-                    thread_rows[thread_id], thread_col_ptrs[thread_id]);
+      ProcessColumn(col, start_col, thread_values[thread_id], thread_rows[thread_id], thread_col_ptrs[thread_id]);
     }
   };
 
