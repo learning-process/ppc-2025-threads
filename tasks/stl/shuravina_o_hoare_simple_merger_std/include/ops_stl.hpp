@@ -1,5 +1,6 @@
 #pragma once
 
+#include <cstddef>
 #include <memory>
 #include <vector>
 
@@ -22,8 +23,8 @@ class TestTaskSTL : public ppc::core::Task {
   size_t chunk_count_;
   size_t min_chunk_size_;
 
-  static void QuickSort(std::vector<double>& arr, int left, int right);
-  static void MergeHelper(std::vector<double>& arr, int left, int mid, int right);
+  static void QuickSort(std::vector<double>& arr, size_t left, size_t right);
+  static void MergeHelper(std::vector<double>& arr, size_t left, size_t mid, size_t right);
 
   bool ValidationImpl() override;
   bool PreProcessingImpl() override;
