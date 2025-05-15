@@ -1,7 +1,7 @@
 #include <gtest/gtest.h>
 
 #include <chrono>
-#include <cstdint>  
+#include <cstdint>
 #include <functional>
 #include <memory>
 #include <vector>

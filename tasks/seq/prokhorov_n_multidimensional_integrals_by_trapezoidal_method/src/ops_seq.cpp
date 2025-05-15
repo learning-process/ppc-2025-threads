@@ -1,7 +1,7 @@
 #include "seq/prokhorov_n_multidimensional_integrals_by_trapezoidal_method/include/ops_seq.hpp"
 
 #include <cmath>
-#include <functional>  
+#include <functional>
 #include <vector>
 
 namespace prokhorov_n_multidimensional_integrals_by_trapezoidal_method_seq {
@@ -11,7 +11,7 @@ bool TestTaskSequential::PreProcessingImpl() {
   auto* upper_ptr = reinterpret_cast<double*>(task_data->inputs[1]);
   auto* steps_ptr = reinterpret_cast<int*>(task_data->inputs[2]);
 
-  dimensions_ = static_cast<int>(task_data->inputs_count[0] / sizeof(double));  
+  dimensions_ = static_cast<int>(task_data->inputs_count[0] / sizeof(double));
 
   lower_limits_ = std::vector<double>(lower_ptr, lower_ptr + dimensions_);
   upper_limits_ = std::vector<double>(upper_ptr, upper_ptr + dimensions_);
@@ -26,7 +26,7 @@ bool TestTaskSequential::ValidationImpl() {
          (task_data->inputs_count[0] / sizeof(double) == task_data->inputs_count[2] / sizeof(int));
 }
 
-namespace {  
+namespace {
 
 static double TrapezoidalIntegration(const std::function<double(const std::vector<double>&)>& func,
                                      const std::vector<double>& lower, const std::vector<double>& upper,
@@ -48,7 +48,7 @@ static double TrapezoidalIntegration(const std::function<double(const std::vecto
   return sum * h;
 }
 
-} 
+}  // namespace
 
 bool TestTaskSequential::RunImpl() {
   std::vector<double> point;
@@ -61,4 +61,4 @@ bool TestTaskSequential::PostProcessingImpl() {
   return true;
 }
 
-}  
+}  // namespace prokhorov_n_multidimensional_integrals_by_trapezoidal_method_seq

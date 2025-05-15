@@ -1,16 +1,16 @@
 #include <gtest/gtest.h>
 
 #include <cmath>
-#include <cstdint>  
+#include <cstdint>
 #include <functional>
 #include <memory>
-#include <numbers>  
+#include <numbers>
 #include <vector>
 
 #include "core/task/include/task.hpp"
 #include "seq/prokhorov_n_multidimensional_integrals_by_trapezoidal_method/include/ops_seq.hpp"
 
-constexpr double kPi = std::numbers::pi;  
+constexpr double kPi = std::numbers::pi;
 
 TEST(prokhorov_n_multidimensional_integrals_by_trapezoidal_method_seq, test_integral_1d_quadratic) {
   std::vector<double> lower = {0.0};
@@ -44,7 +44,7 @@ TEST(prokhorov_n_multidimensional_integrals_by_trapezoidal_method_seq, test_inte
 
 TEST(prokhorov_n_multidimensional_integrals_by_trapezoidal_method_seq, test_integral_1d_sin) {
   std::vector<double> lower = {0.0};
-  std::vector<double> upper = {kPi / 2};  
+  std::vector<double> upper = {kPi / 2};
   std::vector<int> steps = {10000};
   double expected = 1.0;
   double result = 0.0;
@@ -76,7 +76,7 @@ TEST(prokhorov_n_multidimensional_integrals_by_trapezoidal_method_seq, test_inte
   std::vector<double> lower = {-1.0, -1.0};
   std::vector<double> upper = {1.0, 1.0};
   std::vector<int> steps = {500, 500};
-  double expected = kPi; 
+  double expected = kPi;
   double result = 0.0;
 
   auto task_data_seq = std::make_shared<ppc::core::TaskData>();
@@ -102,4 +102,3 @@ TEST(prokhorov_n_multidimensional_integrals_by_trapezoidal_method_seq, test_inte
 
   EXPECT_NEAR(result, expected, 1e-2);
 }
-
