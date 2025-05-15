@@ -7,7 +7,6 @@
 #include <boost/mpi/collectives/gatherv.hpp>
 #include <boost/serialization/vector.hpp>  // NOLINT(*-include-cleaner)
 #include <cmath>
-#include <cstddef>
 #include <utility>
 #include <vector>
 
