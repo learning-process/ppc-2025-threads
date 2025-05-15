@@ -90,7 +90,6 @@ bool SparseMatmulTask::RunImpl() {
 
   auto worker = [&](int thread_id) {
     for (int col = start_col + thread_id; col < end_col; col += num_threads) {
-      int local_col = col - start_col;
       ProcessColumn(col, thread_values[thread_id], thread_rows[thread_id], thread_col_ptrs[thread_id]);
     }
   };
