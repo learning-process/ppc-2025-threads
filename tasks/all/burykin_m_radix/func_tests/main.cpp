@@ -7,8 +7,8 @@
 #include <random>
 #include <vector>
 
-#include "core/task/include/task.hpp"
 #include "all/burykin_m_radix/include/ops_all.hpp"
+#include "core/task/include/task.hpp"
 
 namespace {
 

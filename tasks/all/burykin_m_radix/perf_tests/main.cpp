@@ -8,9 +8,9 @@
 #include <random>
 #include <vector>
 
+#include "all/burykin_m_radix/include/ops_all.hpp"
 #include "core/perf/include/perf.hpp"
 #include "core/task/include/task.hpp"
-#include "all/burykin_m_radix/include/ops_all.hpp"
 
 namespace {
 
