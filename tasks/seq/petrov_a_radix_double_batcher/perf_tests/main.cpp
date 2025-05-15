@@ -8,9 +8,9 @@
 #include <numeric>
 #include <vector>
 
+#include "../include/ops_seq.hpp"
 #include "core/perf/include/perf.hpp"
 #include "core/task/include/task.hpp"
-#include "seq/petrov_a_radix_double_batcher/include/ops_seq.hpp"
 
 namespace {
 std::vector<double> CreateVector(size_t size) {
@@ -21,7 +21,7 @@ std::vector<double> CreateVector(size_t size) {
 }  // namespace
 
 TEST(petrov_a_radix_double_batcher_seq, test_pipeline_run) {
-  auto in = CreateVector(22222222);
+  auto in = CreateVector(22222000);
   std::vector<double> out(in.size());
 
   auto task_data_seq = std::make_shared<ppc::core::TaskData>();
@@ -48,7 +48,7 @@ TEST(petrov_a_radix_double_batcher_seq, test_pipeline_run) {
 }
 
 TEST(petrov_a_radix_double_batcher_seq, test_task_run) {
-  auto in = CreateVector(22222222);
+  auto in = CreateVector(22222000);
   std::vector<double> out(in.size());
 
   auto task_data_seq = std::make_shared<ppc::core::TaskData>();
