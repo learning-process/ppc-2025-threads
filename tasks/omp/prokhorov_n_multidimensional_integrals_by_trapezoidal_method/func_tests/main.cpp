@@ -1,9 +1,9 @@
 #include <gtest/gtest.h>
 
 #include <cmath>
-#include <cstdint>  // Добавлено для uint8_t
+#include <cstdint>  // Г„Г®ГЎГ ГўГ«ГҐГ­Г® Г¤Г«Гї uint8_t
 #include <memory>
-#include <numbers>  // Добавлено для std::numbers::pi
+#include <numbers>  // Г„Г®ГЎГ ГўГ«ГҐГ­Г® Г¤Г«Гї std::numbers::pi
 #include <vector>
 
 #include "core/task/include/task.hpp"
