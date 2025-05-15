@@ -12,6 +12,7 @@
 #include "core/task/include/task.hpp"
 #include "stl/mezhuev_m_bitwise_integer_sort_with_simple_merge/include/ops_stl.hpp"
 
+// tests
 TEST(mezhuev_m_bitwise_integer_sort_stl, test_pipeline_run) {
   constexpr int kCount = 1500 * 1500;
 
