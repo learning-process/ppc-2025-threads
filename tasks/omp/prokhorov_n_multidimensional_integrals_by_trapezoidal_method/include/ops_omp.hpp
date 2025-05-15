@@ -1,5 +1,6 @@
 #pragma once
 
+#include <cstddef>
 #include <functional>
 #include <utility>
 #include <vector>
@@ -10,13 +11,13 @@ namespace prokhorov_n_multidimensional_integrals_by_trapezoidal_method_omp {
 
 class TestTaskOpenMP : public ppc::core::Task {
  public:
-  explicit TestTaskOpenMP(ppc::core::TaskDataPtr task_data) : Task(std::move(task_data)) {}
+  explicit TestTaskOpenMP(ppc::core::TaskDataPtr task_data);
   bool PreProcessingImpl() override;
   bool ValidationImpl() override;
   bool RunImpl() override;
   bool PostProcessingImpl() override;
 
-  void setFunction(std::function<double(const std::vector<double>&)> func) { function_ = std::move(func); }
+  void SetFunction(std::function<double(const std::vector<double>&)> func) { function_ = std::move(func); }
 
  private:
   std::vector<double> lower_limits_;

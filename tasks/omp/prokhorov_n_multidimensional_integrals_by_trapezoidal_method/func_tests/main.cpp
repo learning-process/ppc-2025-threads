@@ -1,13 +1,15 @@
 #include <gtest/gtest.h>
 
 #include <cmath>
+#include <cstdint>  // Добавлено для uint8_t
 #include <memory>
+#include <numbers>  // Добавлено для std::numbers::pi
 #include <vector>
 
 #include "core/task/include/task.hpp"
 #include "omp/prokhorov_n_multidimensional_integrals_by_trapezoidal_method/include/ops_omp.hpp"
 
-const double PI = 3.14159265358979323846;
+const double kPi = std::numbers::pi;
 
 TEST(prokhorov_n_multidimensional_integrals_by_trapezoidal_method_omp, test_integral_1d_quadratic) {
   std::vector<double> lower = {0.0};
@@ -28,7 +30,7 @@ TEST(prokhorov_n_multidimensional_integrals_by_trapezoidal_method_omp, test_inte
 
   prokhorov_n_multidimensional_integrals_by_trapezoidal_method_omp::TestTaskOpenMP test_task_omp(task_data_omp);
 
-  test_task_omp.setFunction([](const std::vector<double>& point) { return point[0] * point[0]; });
+  test_task_omp.SetFunction([](const std::vector<double>& point) { return point[0] * point[0]; });
 
   ASSERT_EQ(test_task_omp.Validation(), true);
   test_task_omp.PreProcessing();
@@ -57,7 +59,7 @@ TEST(prokhorov_n_multidimensional_integrals_by_trapezoidal_method_omp, test_inte
 
   prokhorov_n_multidimensional_integrals_by_trapezoidal_method_omp::TestTaskOpenMP test_task_omp(task_data_omp);
 
-  test_task_omp.setFunction([](const std::vector<double>& point) { return point[0] + point[1]; });
+  test_task_omp.SetFunction([](const std::vector<double>& point) { return point[0] + point[1]; });
 
   ASSERT_EQ(test_task_omp.Validation(), true);
   test_task_omp.PreProcessing();
@@ -86,7 +88,7 @@ TEST(prokhorov_n_multidimensional_integrals_by_trapezoidal_method_omp, test_inte
 
   prokhorov_n_multidimensional_integrals_by_trapezoidal_method_omp::TestTaskOpenMP test_task_omp(task_data_omp);
 
-  test_task_omp.setFunction([](const std::vector<double>& point) { return point[0] * point[1] * point[2]; });
+  test_task_omp.SetFunction([](const std::vector<double>& point) { return point[0] * point[1] * point[2]; });
 
   ASSERT_EQ(test_task_omp.Validation(), true);
   test_task_omp.PreProcessing();
@@ -100,7 +102,7 @@ TEST(prokhorov_n_multidimensional_integrals_by_trapezoidal_method_omp, test_inte
   std::vector<double> lower = {-1.0, -1.0};
   std::vector<double> upper = {1.0, 1.0};
   std::vector<int> steps = {1000, 1000};
-  double expected = PI;
+  double expected = kPi;
   double result = 0.0;
 
   auto task_data_omp = std::make_shared<ppc::core::TaskData>();
@@ -115,7 +117,7 @@ TEST(prokhorov_n_multidimensional_integrals_by_trapezoidal_method_omp, test_inte
 
   prokhorov_n_multidimensional_integrals_by_trapezoidal_method_omp::TestTaskOpenMP test_task_omp(task_data_omp);
 
-  test_task_omp.setFunction(
+  test_task_omp.SetFunction(
       [](const std::vector<double>& point) { return (point[0] * point[0] + point[1] * point[1] <= 1.0) ? 1.0 : 0.0; });
 
   ASSERT_EQ(test_task_omp.Validation(), true);
