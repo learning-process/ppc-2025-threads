@@ -92,7 +92,11 @@ bool SparseMatmulTask::RunImpl() {
 
   auto worker = [&](int thread_id) {
     for (int col = start_col + thread_id; col < end_col; col += num_threads) {
+      int local_col = col - start_col;
+      size_t prev_size = thread_values[thread_id].size();
       ProcessColumn(col, start_col, thread_values[thread_id], thread_rows[thread_id], thread_col_ptrs[thread_id]);
+      size_t new_size = thread_values[thread_id].size();
+      thread_col_ptrs[thread_id][local_col + 1] = static_cast<int>(new_size - prev_size);
     }
   };
 
@@ -117,9 +121,11 @@ bool SparseMatmulTask::RunImpl() {
     local_rows.insert(local_rows.end(), thread_rows[t].begin(), thread_rows[t].end());
   }
 
-  std::vector<int> proc_start_cols(size), proc_end_cols(size);
-  proc_start_cols[rank] = start_col;
-  proc_end_cols[rank] = end_col;
+  std::vector<int> proc_start_cols, proc_end_cols;
+  if (rank == 0) {
+    proc_start_cols.resize(size);
+    proc_end_cols.resize(size);
+  }
 
   boost::mpi::gather(world, start_col, proc_start_cols, 0);
   boost::mpi::gather(world, end_col, proc_end_cols, 0);
