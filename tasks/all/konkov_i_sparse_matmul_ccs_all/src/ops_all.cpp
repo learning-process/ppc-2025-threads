@@ -13,13 +13,17 @@ namespace konkov_i_sparse_matmul_ccs_all {
 SparseMatmulTask::SparseMatmulTask(ppc::core::TaskDataPtr task_data) : ppc::core::Task(std::move(task_data)) {}
 
 bool SparseMatmulTask::ValidationImpl() {
-  if (colsA != rowsB || rowsA <= 0 || colsB <= 0) {
-    return false;
+  bool valid = true;
+  if (world.rank() == 0) {
+    if (colsA != rowsB || rowsA <= 0 || colsB <= 0) {
+      valid = false;
+    }
+    if (A_col_ptr.empty() || B_col_ptr.empty()) {
+      valid = false;
+    }
   }
-  if (A_col_ptr.empty() || B_col_ptr.empty()) {
-    return false;
-  }
-  return true;
+  boost::mpi::broadcast(world, valid, 0);
+  return valid;
 }
 
 bool SparseMatmulTask::PreProcessingImpl() {
