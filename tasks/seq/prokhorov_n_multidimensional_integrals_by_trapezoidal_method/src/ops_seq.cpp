@@ -1,6 +1,7 @@
 #include "seq/prokhorov_n_multidimensional_integrals_by_trapezoidal_method/include/ops_seq.hpp"
 
 #include <cmath>
+#include <cstddef>
 #include <functional>
 #include <vector>
 
@@ -28,9 +29,9 @@ bool TestTaskSequential::ValidationImpl() {
 
 namespace {
 
-static double TrapezoidalIntegration(const std::function<double(const std::vector<double>&)>& func,
-                                     const std::vector<double>& lower, const std::vector<double>& upper,
-                                     const std::vector<int>& steps, size_t current_dim, std::vector<double> point) {
+double TrapezoidalIntegration(const std::function<double(const std::vector<double>&)>& func,
+                              const std::vector<double>& lower, const std::vector<double>& upper,
+                              const std::vector<int>& steps, size_t current_dim, std::vector<double> point) {
   if (current_dim == lower.size()) {
     return func(point);
   }
