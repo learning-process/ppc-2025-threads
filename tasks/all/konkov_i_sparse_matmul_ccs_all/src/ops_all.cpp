@@ -136,21 +136,28 @@ bool SparseMatmulTask::RunImpl() {
     C_col_ptr.resize(colsB + 1, 0);
 
     for (int global_col = 0; global_col < colsB; ++global_col) {
+      std::vector<std::pair<int, double>> merged_entries;
+
       for (int proc = 0; proc < size; ++proc) {
         if (global_col >= proc_start_cols[proc] && global_col < proc_end_cols[proc]) {
           int local_col = global_col - proc_start_cols[proc];
-
           int start = all_col_ptrs[proc][local_col];
           int end = all_col_ptrs[proc][local_col + 1];
 
           for (int i = start; i < end; ++i) {
-            C_values.push_back(all_values[proc][i]);
-            C_row_indices.push_back(all_rows[proc][i]);
+            merged_entries.emplace_back(all_rows[proc][i], all_values[proc][i]);
           }
-          C_col_ptr[global_col + 1] = C_col_ptr[global_col] + (end - start);
-          break;
         }
       }
+
+      std::sort(merged_entries.begin(), merged_entries.end());
+
+      for (const auto& [row, val] : merged_entries) {
+        C_row_indices.push_back(row);
+        C_values.push_back(val);
+      }
+
+      C_col_ptr[global_col + 1] = static_cast<int>(C_values.size());
     }
   }
 
