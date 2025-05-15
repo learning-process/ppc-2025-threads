@@ -22,7 +22,7 @@ class SparseMatmulTask : public ppc::core::Task {
 
  private:
   boost::mpi::communicator world;
-  void ProcessColumn(int col_b, std::vector<double>& local_values, std::vector<int>& local_rows,
+  void ProcessColumn(int col_b, int start_col, std::vector<double>& local_values, std::vector<int>& local_rows,
                      std::vector<int>& local_col_ptr);
 };
 
