@@ -4,9 +4,8 @@
 #include <boost/serialization/vector.hpp>
 #include <core/util/include/util.hpp>
 #include <cstddef>
+#include <map>
 #include <thread>
-#include <unordered_map>
-#include <utility>
 #include <vector>
 
 namespace konkov_i_sparse_matmul_ccs_all {
@@ -41,7 +40,7 @@ bool SparseMatmulTask::PreProcessingImpl() {
 
 void SparseMatmulTask::ProcessColumn(int col_b, std::vector<double>& local_values, std::vector<int>& local_rows,
                                      std::vector<int>& local_col_ptr) {
-  std::unordered_map<int, double> column_result;
+  std::map<int, double> column_result;
 
   for (int j = B_col_ptr[col_b]; j < B_col_ptr[col_b + 1]; ++j) {
     int row_b = B_row_indices[j];
@@ -54,16 +53,12 @@ void SparseMatmulTask::ProcessColumn(int col_b, std::vector<double>& local_value
     }
   }
 
-  std::vector<std::pair<int, double>> sorted_entries;
+  local_col_ptr[col_b + 1] = static_cast<int>(column_result.size());
   for (const auto& [row, val] : column_result) {
-    if (val != 0.0) sorted_entries.emplace_back(row, val);
-  }
-  std::sort(sorted_entries.begin(), sorted_entries.end());
-
-  local_col_ptr[col_b + 1] = static_cast<int>(sorted_entries.size());
-  for (const auto& [row, val] : sorted_entries) {
-    local_rows.push_back(row);
-    local_values.push_back(val);
+    if (val != 0.0) {
+      local_rows.push_back(row);
+      local_values.push_back(val);
+    }
   }
 }
 
@@ -136,7 +131,7 @@ bool SparseMatmulTask::RunImpl() {
     C_col_ptr.resize(colsB + 1, 0);
 
     for (int global_col = 0; global_col < colsB; ++global_col) {
-      std::vector<std::pair<int, double>> merged_entries;
+      std::map<int, double> merged_column;
 
       for (int proc = 0; proc < size; ++proc) {
         if (global_col >= proc_start_cols[proc] && global_col < proc_end_cols[proc]) {
@@ -145,14 +140,12 @@ bool SparseMatmulTask::RunImpl() {
           int end = all_col_ptrs[proc][local_col + 1];
 
           for (int i = start; i < end; ++i) {
-            merged_entries.emplace_back(all_rows[proc][i], all_values[proc][i]);
+            merged_column[all_rows[proc][i]] = all_values[proc][i];
           }
         }
       }
 
-      std::sort(merged_entries.begin(), merged_entries.end());
-
-      for (const auto& [row, val] : merged_entries) {
+      for (const auto& [row, val] : merged_column) {
         C_row_indices.push_back(row);
         C_values.push_back(val);
       }
