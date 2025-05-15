@@ -3,8 +3,12 @@
 #include <omp.h>
 
 #include <cmath>
+#include <cstddef>
 #include <functional>
+#include <utility>
 #include <vector>
+
+#include "core/task/include/task.hpp"
 
 namespace prokhorov_n_multidimensional_integrals_by_trapezoidal_method_omp {
 namespace {
