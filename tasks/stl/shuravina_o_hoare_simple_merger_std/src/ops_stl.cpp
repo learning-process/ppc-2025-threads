@@ -107,7 +107,7 @@ bool TestTaskSTL::RunImpl() {
 
   for (size_t i = 0; i < chunk_count_; ++i) {
     const size_t start = i * min_chunk_size_;
-    const size_t end = (i == chunk_count_ - 1) ? (input_.size() - 1) : ((i + 1) * min_chunk_size_ - 1);
+    const size_t end = (i == chunk_count_ - 1) ? (input_.size() - 1) : (((i + 1) * min_chunk_size_) - 1);
     workers.emplace_back([this, start, end]() { QuickSort(input_, start, end); });
   }
   for (auto& t : workers) {
