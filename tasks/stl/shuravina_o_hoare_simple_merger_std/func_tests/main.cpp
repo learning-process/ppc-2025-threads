@@ -33,19 +33,17 @@ TEST(shuravina_o_hoare_simple_merger_stl, test_empty_array) {
   std::vector<int> out = {};
 
   auto task_data = std::make_shared<ppc::core::TaskData>();
-  if (!in.empty()) {
-    task_data->inputs.emplace_back(reinterpret_cast<uint8_t*>(in.data()));
-  } else {
-    task_data->inputs.emplace_back(nullptr);
-  }
-  task_data->inputs_count.emplace_back(in.size());
+  task_data->inputs.emplace_back(nullptr);
+  task_data->inputs_count.emplace_back(0);
+  task_data->outputs.emplace_back(nullptr);
+  task_data->outputs_count.emplace_back(0);
 
-  if (!out.empty()) {
-    task_data->outputs.emplace_back(reinterpret_cast<uint8_t*>(out.data()));
-  } else {
-    task_data->outputs.emplace_back(nullptr);
-  }
-  task_data->outputs_count.emplace_back(out.size());
+  auto test_task = std::make_shared<shuravina_o_hoare_simple_merger_stl::TestTaskSTL>(task_data);
+
+  EXPECT_TRUE(test_task->Validation());
+  EXPECT_TRUE(test_task->PreProcessing());
+  EXPECT_TRUE(test_task->Run());
+  EXPECT_TRUE(test_task->PostProcessing());
 }
 
 TEST(shuravina_o_hoare_simple_merger_stl, test_sorted_array) {

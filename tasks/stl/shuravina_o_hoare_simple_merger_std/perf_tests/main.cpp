@@ -3,25 +3,20 @@
 #include <chrono>
 #include <cstdint>
 #include <memory>
-#include <random>
-#include <stl/shuravina_o_hoare_simple_merger_std/include/ops_stl.hpp>
 #include <vector>
 
 #include "core/perf/include/perf.hpp"
 #include "core/task/include/task.hpp"
+#include "stl/shuravina_o_hoare_simple_merger_std/include/ops_stl.hpp"
 
 TEST(shuravina_o_hoare_simple_merger_stl, test_pipeline_run) {
-  constexpr int kCount = 512000;
-  std::vector<double> in(kCount, 0);
+  const int count = 500000;
+  std::vector<int> in(count, 0);
+  std::vector<int> out(count, 0);
 
-  std::random_device rd;
-  std::mt19937 gen(rd());
-  std::uniform_real_distribution<> dist(-1000.0, 1000.0);
-  for (auto& val : in) {
-    val = dist(gen);
+  for (int i = 0; i < count; i++) {
+    in[i] = count - i;
   }
-
-  std::vector<double> out(kCount, 0);
 
   auto task_data = std::make_shared<ppc::core::TaskData>();
   task_data->inputs.emplace_back(reinterpret_cast<uint8_t*>(in.data()));
@@ -45,23 +40,19 @@ TEST(shuravina_o_hoare_simple_merger_stl, test_pipeline_run) {
   perf_analyzer->PipelineRun(perf_attr, perf_results);
   ppc::core::Perf::PrintPerfStatistic(perf_results);
 
-  for (int i = 0; i < kCount - 1; i++) {
+  for (int i = 0; i < count - 1; i++) {
     ASSERT_LE(out[i], out[i + 1]);
   }
 }
 
 TEST(shuravina_o_hoare_simple_merger_stl, test_task_run) {
-  constexpr int kCount = 512000;
-  std::vector<double> in(kCount, 0);
+  const int count = 500000;
+  std::vector<int> in(count, 0);
+  std::vector<int> out(count, 0);
 
-  std::random_device rd;
-  std::mt19937 gen(rd());
-  std::uniform_real_distribution<> dist(-1000.0, 1000.0);
-  for (auto& val : in) {
-    val = dist(gen);
+  for (int i = 0; i < count; i++) {
+    in[i] = count - i;
   }
-
-  std::vector<double> out(kCount, 0);
 
   auto task_data = std::make_shared<ppc::core::TaskData>();
   task_data->inputs.emplace_back(reinterpret_cast<uint8_t*>(in.data()));
@@ -85,7 +76,7 @@ TEST(shuravina_o_hoare_simple_merger_stl, test_task_run) {
   perf_analyzer->TaskRun(perf_attr, perf_results);
   ppc::core::Perf::PrintPerfStatistic(perf_results);
 
-  for (int i = 0; i < kCount - 1; i++) {
+  for (int i = 0; i < count - 1; i++) {
     ASSERT_LE(out[i], out[i + 1]);
   }
 }

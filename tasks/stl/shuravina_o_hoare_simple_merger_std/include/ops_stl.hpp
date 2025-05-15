@@ -1,6 +1,5 @@
 #pragma once
 
-#include <cstddef>
 #include <memory>
 #include <vector>
 
@@ -19,13 +18,11 @@ class TestTaskSTL : public ppc::core::Task {
   bool PostProcessing() override;
 
  private:
-  std::vector<double> input_;
-  std::vector<double> output_;
-  size_t chunk_count_{};
-  size_t min_chunk_size_{};
+  std::vector<int> input_;
+  std::vector<int> output_;
 
-  static void QuickSort(std::vector<double>& arr, size_t left, size_t right);
-  static void MergeHelper(std::vector<double>& arr, size_t left, size_t mid, size_t right);
+  static void QuickSort(std::vector<int>& arr, int left, int right);
+  static void MergeHelper(std::vector<int>& arr, int left, int mid, int right);
 
   bool ValidationImpl() override;
   bool PreProcessingImpl() override;

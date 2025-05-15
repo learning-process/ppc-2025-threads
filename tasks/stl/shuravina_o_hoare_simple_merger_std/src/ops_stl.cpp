@@ -1,10 +1,7 @@
 #include "stl/shuravina_o_hoare_simple_merger_std/include/ops_stl.hpp"
 
 #include <algorithm>
-#include <cstddef>
-#include <memory>
 #include <thread>
-#include <utility>
 #include <vector>
 
 #include "core/task/include/task.hpp"
@@ -20,7 +17,7 @@ bool TestTaskSTL::Run() { return RunImpl(); }
 bool TestTaskSTL::PostProcessing() { return PostProcessingImpl(); }
 
 bool TestTaskSTL::ValidationImpl() {
-  return task_data->inputs_count.size() >= 2 && task_data->inputs_count[0] > 2 && task_data->inputs_count[1] >= 2 &&
+  return !task_data->inputs.empty() && !task_data->outputs.empty() &&
          task_data->inputs_count[0] == task_data->outputs_count[0];
 }
 
@@ -28,55 +25,45 @@ bool TestTaskSTL::PreProcessingImpl() {
   if (task_data->inputs.empty() || task_data->outputs.empty()) {
     return false;
   }
-  input_ = *reinterpret_cast<std::vector<double>*>(task_data->inputs[0]);
-  output_.resize(task_data->outputs_count[0]);
-  chunk_count_ = task_data->inputs_count[1];
-  min_chunk_size_ = input_.size() / chunk_count_;
+  int* in_ptr = reinterpret_cast<int*>(task_data->inputs[0]);
+  input_ = std::vector<int>(in_ptr, in_ptr + task_data->inputs_count[0]);
+  output_ = std::vector<int>(task_data->outputs_count[0], 0);
   return true;
 }
 
-void TestTaskSTL::QuickSort(std::vector<double>& arr, size_t left, size_t right) {
+void TestTaskSTL::QuickSort(std::vector<int>& arr, int left, int right) {
   if (left >= right) {
     return;
   }
 
-  const double pivot = arr[(left + right) / 2];
-  size_t i = left;
-  size_t j = right;
+  int mid = left + (right - left) / 2;
+  if (arr[mid] < arr[left]) std::swap(arr[left], arr[mid]);
+  if (arr[right] < arr[left]) std::swap(arr[left], arr[right]);
+  if (arr[mid] < arr[right]) std::swap(arr[mid], arr[right]);
+
+  int pivot = arr[right];
+  int i = left;
+  int j = right;
 
   while (i <= j) {
-    while (arr[i] < pivot) {
-      i++;
-    }
-    while (arr[j] > pivot) {
-      if (j > 0) {
-        j--;
-      } else {
-        break;
-      }
-    }
+    while (arr[i] < pivot) i++;
+    while (arr[j] > pivot) j--;
     if (i <= j) {
       std::swap(arr[i], arr[j]);
       i++;
-      if (j > 0) {
-        j--;
-      }
+      j--;
     }
   }
 
-  if (j > left) {
-    QuickSort(arr, left, j);
-  }
-  if (i < right) {
-    QuickSort(arr, i, right);
-  }
+  QuickSort(arr, left, j);
+  QuickSort(arr, i, right);
 }
 
-void TestTaskSTL::MergeHelper(std::vector<double>& arr, size_t left, size_t mid, size_t right) {
-  std::vector<double> temp(right - left + 1);
-  size_t i = left;
-  size_t j = mid + 1;
-  size_t k = 0;
+void TestTaskSTL::MergeHelper(std::vector<int>& arr, int left, int mid, int right) {
+  std::vector<int> temp(right - left + 1);
+  int i = left;
+  int j = mid + 1;
+  int k = 0;
 
   while (i <= mid && j <= right) {
     temp[k++] = (arr[i] <= arr[j]) ? arr[i++] : arr[j++];
@@ -88,7 +75,7 @@ void TestTaskSTL::MergeHelper(std::vector<double>& arr, size_t left, size_t mid,
     temp[k++] = arr[j++];
   }
 
-  std::ranges::copy(temp, arr.begin() + static_cast<long>(left));
+  std::copy(temp.begin(), temp.end(), arr.begin() + left);
 }
 
 bool TestTaskSTL::RunImpl() {
@@ -97,37 +84,29 @@ bool TestTaskSTL::RunImpl() {
     return true;
   }
 
-  const size_t num_threads = ppc::util::GetPPCNumThreads();
-  std::vector<std::thread> workers;
+  const int size = static_cast<int>(input_.size());
+  const int num_threads = ppc::util::GetPPCNumThreads();
+  const int chunk_size = size / num_threads;
 
-  if (chunk_count_ < num_threads) {
-    chunk_count_ = num_threads;
-    min_chunk_size_ = input_.size() / chunk_count_;
+  std::vector<std::thread> threads;
+  for (int i = 0; i < num_threads; ++i) {
+    int start = i * chunk_size;
+    int end = (i == num_threads - 1) ? size - 1 : (i + 1) * chunk_size - 1;
+    threads.emplace_back([this, start, end]() { QuickSort(input_, start, end); });
   }
 
-  for (size_t i = 0; i < chunk_count_; ++i) {
-    const size_t start = i * min_chunk_size_;
-    const size_t end = (i == chunk_count_ - 1) ? (input_.size() - 1) : (((i + 1) * min_chunk_size_) - 1);
-    workers.emplace_back([this, start, end]() { QuickSort(input_, start, end); });
-  }
-  for (auto& t : workers) {
+  for (auto& t : threads) {
     t.join();
   }
-  workers.clear();
+  threads.clear();
 
-  for (size_t merge_size = min_chunk_size_; merge_size < input_.size(); merge_size *= 2) {
-    for (size_t left = 0; left < input_.size(); left += (2 * merge_size)) {
-      const size_t mid = left + merge_size - 1;
-      if (mid >= input_.size() - 1) {
-        break;
-      }
-      const size_t right = std::min(left + (2 * merge_size) - 1, input_.size() - 1);
-      workers.emplace_back([this, left, mid, right]() { MergeHelper(input_, left, mid, right); });
+  for (int merge_size = chunk_size; merge_size < size; merge_size *= 2) {
+    for (int left = 0; left < size; left += 2 * merge_size) {
+      int mid = left + merge_size - 1;
+      if (mid >= size - 1) break;
+      int right = std::min(left + 2 * merge_size - 1, size - 1);
+      MergeHelper(input_, left, mid, right);
     }
-    for (auto& t : workers) {
-      t.join();
-    }
-    workers.clear();
   }
 
   output_ = input_;
@@ -138,7 +117,8 @@ bool TestTaskSTL::PostProcessingImpl() {
   if (output_.empty()) {
     return true;
   }
-  *reinterpret_cast<std::vector<double>*>(task_data->outputs[0]) = output_;
+  int* out_ptr = reinterpret_cast<int*>(task_data->outputs[0]);
+  std::copy(output_.begin(), output_.end(), out_ptr);
   return true;
 }
 
