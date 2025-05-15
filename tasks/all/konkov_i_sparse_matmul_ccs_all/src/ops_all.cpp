@@ -150,9 +150,15 @@ bool SparseMatmulTask::RunImpl() {
           int start = all_col_ptrs[proc][local_col];
           int end = all_col_ptrs[proc][local_col + 1];
 
+          std::vector<std::pair<int, double>> entries;
           for (int i = start; i < end; ++i) {
-            C_values.push_back(all_values[proc][i]);
-            C_row_indices.push_back(all_rows[proc][i]);
+            entries.emplace_back(all_rows[proc][i], all_values[proc][i]);
+          }
+          std::sort(entries.begin(), entries.end());
+
+          for (const auto& [row, val] : entries) {
+            C_row_indices.push_back(row);
+            C_values.push_back(val);
           }
           C_col_ptr[global_col + 1] = C_col_ptr[global_col] + (end - start);
           break;
