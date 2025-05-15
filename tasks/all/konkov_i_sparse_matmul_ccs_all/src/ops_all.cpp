@@ -133,7 +133,14 @@ bool SparseMatmulTask::RunImpl() {
     std::cout << "[Thread " << thread_id << "] Started on rank " << rank << std::endl;
     for (int col = start_col + thread_id; col < end_col; col += num_threads) {
       std::cout << "[Thread " << thread_id << "] Processing column " << col << std::endl;
+      int local_col = col - start_col;
+      size_t initial_size = thread_values[thread_id].size();
       ProcessColumn(col, start_col, thread_values[thread_id], thread_rows[thread_id], thread_col_ptrs[thread_id]);
+      thread_col_ptrs[thread_id][local_col + 1] = thread_values[thread_id].size() - initial_size;
+    }
+    // Compute cumulative sums for each thread's col_ptrs
+    for (int lc = 1; lc <= num_local_cols; ++lc) {
+      thread_col_ptrs[thread_id][lc] += thread_col_ptrs[thread_id][lc - 1];
     }
   };
 
@@ -144,14 +151,7 @@ bool SparseMatmulTask::RunImpl() {
   for (auto& t : threads) t.join();
 
   std::cout << "\n[Aggregation] Rank " << rank << " merging thread data..." << std::endl;
-  for (int local_col = 0; local_col < num_local_cols; ++local_col) {
-    for (int t = 0; t < num_threads; ++t) {
-      local_col_ptr[local_col + 1] += thread_col_ptrs[t][local_col + 1];
-    }
-  }
-  for (int col = 1; col <= num_local_cols; ++col) {
-    local_col_ptr[col] += local_col_ptr[col - 1];
-  }
+  // Merge thread data into local_values and local_rows
   for (int local_col = 0; local_col < num_local_cols; ++local_col) {
     for (int t = 0; t < num_threads; ++t) {
       int start = thread_col_ptrs[t][local_col];
