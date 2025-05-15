@@ -17,11 +17,13 @@ class TestTaskSTL : public ppc::core::Task {
   bool PostProcessing() override;
 
  private:
-  std::vector<int> input_;
-  std::vector<int> output_;
+  std::vector<double> input_;
+  std::vector<double> output_;
+  size_t chunk_count_;
+  size_t min_chunk_size_;
 
-  static void QuickSort(std::vector<int>& arr, int left, int right);
-  static void MergeHelper(std::vector<int>& arr, int left, int mid, int right);
+  static void QuickSort(std::vector<double>& arr, int left, int right);
+  static void MergeHelper(std::vector<double>& arr, int left, int mid, int right);
 
   bool ValidationImpl() override;
   bool PreProcessingImpl() override;
