@@ -31,7 +31,7 @@ void solovyev_d_shell_sort_simple_all::TaskALL::ShellSort(std::vector<int>& data
     threads[t] = std::thread([&, t] {
       for (size_t gap = data.size() / 2; gap > 0; gap /= 2) {
         sync_point.arrive_and_wait();
-        for (int i = t; i < gap; i += num_threads_) {
+        for (size_t i = t; i < gap; i += num_threads_) {
           for (size_t f = i + gap; f < data.size(); f += gap) {
             int val = data[f];
             size_t j = f;
