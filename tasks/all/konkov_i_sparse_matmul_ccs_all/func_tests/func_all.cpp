@@ -8,6 +8,30 @@
 #include "all/konkov_i_sparse_matmul_ccs_all/include/ops_all.hpp"
 #include "core/task/include/task.hpp"
 
+namespace {
+
+void SetupIdentityMatrices(konkov_i_sparse_matmul_ccs_all::SparseMatmulTask& task) {
+  task.A_values = {1.0, 1.0, 1.0};
+  task.A_row_indices = {0, 1, 2};
+  task.A_col_ptr = {0, 1, 2, 3};
+  task.rowsA = 3;
+  task.colsA = 3;
+
+  task.B_values = {1.0, 2.0, 3.0};
+  task.B_row_indices = {0, 1, 2};
+  task.B_col_ptr = {0, 1, 2, 3};
+  task.rowsB = 3;
+  task.colsB = 3;
+}
+
+void VerifyIdentityResult(const konkov_i_sparse_matmul_ccs_all::SparseMatmulTask& task) {
+  EXPECT_EQ(task.C_values, task.B_values);
+  EXPECT_EQ(task.C_row_indices, task.B_row_indices);
+  EXPECT_EQ(task.C_col_ptr, task.B_col_ptr);
+}
+
+}  // namespace
+
 TEST(konkov_i_SparseMatmulTest_all, SimpleTest) {
   boost::mpi::environment env;
   boost::mpi::communicator world;
@@ -99,17 +123,7 @@ TEST(konkov_i_SparseMatmulTest_all, IdentityMatrixTest) {
   konkov_i_sparse_matmul_ccs_all::SparseMatmulTask task(task_data);
 
   if (world.rank() == 0) {
-    task.A_values = {1.0, 1.0, 1.0};
-    task.A_row_indices = {0, 1, 2};
-    task.A_col_ptr = {0, 1, 2, 3};
-    task.rowsA = 3;
-    task.colsA = 3;
-
-    task.B_values = {1.0, 2.0, 3.0};
-    task.B_row_indices = {0, 1, 2};
-    task.B_col_ptr = {0, 1, 2, 3};
-    task.rowsB = 3;
-    task.colsB = 3;
+    SetupIdentityMatrices(task);
   }
 
   EXPECT_TRUE(task.PreProcessingImpl());
@@ -117,9 +131,7 @@ TEST(konkov_i_SparseMatmulTest_all, IdentityMatrixTest) {
   EXPECT_TRUE(task.PostProcessingImpl());
 
   if (world.rank() == 0) {
-    EXPECT_EQ(task.C_values, task.B_values);
-    EXPECT_EQ(task.C_row_indices, task.B_row_indices);
-    EXPECT_EQ(task.C_col_ptr, task.B_col_ptr);
+    VerifyIdentityResult(task);
   } else {
     EXPECT_TRUE(task.C_values.empty());
     EXPECT_TRUE(task.C_row_indices.empty());
