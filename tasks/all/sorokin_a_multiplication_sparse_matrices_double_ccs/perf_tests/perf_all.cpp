@@ -87,7 +87,9 @@ TEST(sorokin_a_multiplication_sparse_matrices_double_ccs_all, test_pipeline_run)
   // Create Perf analyzer
   auto perf_analyzer = std::make_shared<ppc::core::Perf>(test_task_tbb);
   perf_analyzer->PipelineRun(perf_attr, perf_results);
-  if (world.rank() == 0) ppc::core::Perf::PrintPerfStatistic(perf_results);
+  if (world.rank() == 0) {
+    ppc::core::Perf::PrintPerfStatistic(perf_results);
+  }
 
   std::vector<double> res_values(msize, 1);
   if (world.rank() == 0) {
@@ -173,7 +175,9 @@ TEST(sorokin_a_multiplication_sparse_matrices_double_ccs_all, test_task_run) {
   // Create Perf analyzer
   auto perf_analyzer = std::make_shared<ppc::core::Perf>(test_task_tbb);
   perf_analyzer->TaskRun(perf_attr, perf_results);
-  if (world.rank() == 0) ppc::core::Perf::PrintPerfStatistic(perf_results);
+  if (world.rank() == 0) {
+    ppc::core::Perf::PrintPerfStatistic(perf_results);
+  }
 
   std::vector<double> res_values(msize, 1);
   if (world.rank() == 0) {
