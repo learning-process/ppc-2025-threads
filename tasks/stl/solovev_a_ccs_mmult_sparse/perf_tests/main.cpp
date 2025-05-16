@@ -123,4 +123,3 @@ TEST(solovev_a_ccs_mmult_sparse_stl, test_task_run) {
     ASSERT_TRUE(approx_equal);
   }
 }
-
