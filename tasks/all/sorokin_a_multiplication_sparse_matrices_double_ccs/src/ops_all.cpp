@@ -1,5 +1,6 @@
 #include "all/sorokin_a_multiplication_sparse_matrices_double_ccs/include/ops_all.hpp"
 
+#include <algorithm>
 #include <cmath>
 #include <cstddef>
 #include <vector>
@@ -13,18 +14,12 @@ void MultiplyCCS(boost::mpi::communicator& world, const std::vector<double>& a_v
                  int n, std::vector<int>& c_col_ptr) {
   const int rank = world.rank();
   const int size = world.size();
-
-  if (rank == 0) {
-    if (a_values.size() > static_cast<size_t>(m * k) || b_values.size() > static_cast<size_t>(k * n)) {
-      throw std::invalid_argument("Invalid val pointer size");
-    }
-  }
   world.barrier();
 
   const int base_cols_per_proc = n / size;
   const int remainder = n % size;
-  int start_col;
-  int num_local_cols;
+  int start_col = 0;
+  int num_local_cols = 0;
 
   start_col = rank * base_cols_per_proc + std::min(rank, remainder);
   num_local_cols = base_cols_per_proc + (rank < remainder ? 1 : 0);
@@ -35,7 +30,7 @@ void MultiplyCCS(boost::mpi::communicator& world, const std::vector<double>& a_v
 
   if (rank == 0) {
     for (int p = 0; p < size; ++p) {
-      const int p_start = p * base_cols_per_proc + std::min(p, remainder);
+      const int p_start = (p * base_cols_per_proc) + std::min(p, remainder);
       const int p_num_cols = base_cols_per_proc + (p < remainder ? 1 : 0);
       const int b_start_idx = b_col_ptr[p_start];
       const int b_end_idx = b_col_ptr[p_start + p_num_cols];
@@ -126,7 +121,7 @@ void MultiplyCCS(boost::mpi::communicator& world, const std::vector<double>& a_v
     std::vector<int> gather_nnz(n, 0);
 
     for (int p = 0; p < size; ++p) {
-      const int p_start = p * base_cols_per_proc + std::min(p, remainder);
+      const int p_start = (p * base_cols_per_proc) + std::min(p, remainder);
       const int p_num_cols = base_cols_per_proc + (p < remainder ? 1 : 0);
       std::vector<int> p_nnz(p_num_cols);
 
@@ -151,7 +146,7 @@ void MultiplyCCS(boost::mpi::communicator& world, const std::vector<double>& a_v
     c_row_indices.resize(c_col_ptr.back());
 
     for (int p = 0; p < size; ++p) {
-      const int p_start = p * base_cols_per_proc + std::min(p, remainder);
+      const int p_start = (p * base_cols_per_proc) + std::min(p, remainder);
       const int p_num_cols = base_cols_per_proc + (p < remainder ? 1 : 0);
 
       if (p == 0) {
