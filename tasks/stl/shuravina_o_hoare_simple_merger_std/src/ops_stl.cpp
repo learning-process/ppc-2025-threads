@@ -5,6 +5,7 @@
 #include <core/util/include/util.hpp>
 #include <future>
 #include <memory>
+#include <thread>
 #include <utility>
 #include <vector>
 
@@ -64,6 +65,7 @@ void TestTaskSTL::QuickSort(std::vector<int>& arr, int left, int right) {
 void TestTaskSTL::MergeHelper(std::vector<int>& arr, int left, int mid, int right) {
   std::vector<int> temp(right - left + 1);
   const int parallel_threshold = 10000;
+  const int num_threads = ppc::util::GetPPCNumThreads();
   static std::atomic<int> thread_counter(0);
 
   auto merge_segment = [&](int start_i, int start_j, int end_i, int end_j, int start_k) {
@@ -82,15 +84,29 @@ void TestTaskSTL::MergeHelper(std::vector<int>& arr, int left, int mid, int righ
     }
   };
 
-  if ((right - left > parallel_threshold) && (thread_counter.load() < ppc::util::GetPPCNumThreads())) {
-    thread_counter++;
-    auto future = std::async(std::launch::async, [&]() {
-      merge_segment(left, mid + 1, mid, mid + ((right - left) / 2), 0);
-      thread_counter--;
-    });
+  if ((right - left > parallel_threshold) && (thread_counter.load() < num_threads)) {
+    int segment_size = (right - left) / num_threads;
+    std::vector<std::future<void>> futures;
 
-    merge_segment(mid + 1 + ((right - left) / 2), mid + 1, right, right, ((right - left) / 2) + 1);
-    future.get();
+    for (int i = 0; i < num_threads; ++i) {
+      int start = left + i * segment_size;
+      int end = (i == num_threads - 1) ? right : start + segment_size - 1;
+      int middle = start + (end - start) / 2;
+
+      if (thread_counter.load() < num_threads) {
+        thread_counter++;
+        futures.push_back(std::async(std::launch::async, [&, start, middle, end]() {
+          merge_segment(start, middle + 1, middle, end, start - left);
+          thread_counter--;
+        }));
+      } else {
+        merge_segment(start, middle + 1, middle, end, start - left);
+      }
+    }
+
+    for (auto& future : futures) {
+      future.get();
+    }
   } else {
     merge_segment(left, mid + 1, mid, right, 0);
   }
