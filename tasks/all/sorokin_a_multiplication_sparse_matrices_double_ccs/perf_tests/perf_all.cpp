@@ -8,7 +8,6 @@
 #include <vector>
 
 #include "all/sorokin_a_multiplication_sparse_matrices_double_ccs/include/ops_all.hpp"
-#include "boost/mpi/communicator.hpp"
 #include "core/perf/include/perf.hpp"
 #include "core/task/include/task.hpp"
 
