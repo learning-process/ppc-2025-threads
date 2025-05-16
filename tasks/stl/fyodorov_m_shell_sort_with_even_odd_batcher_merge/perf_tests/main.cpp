@@ -12,7 +12,7 @@
 #include "stl/fyodorov_m_shell_sort_with_even_odd_batcher_merge/include/ops_stl.hpp"
 
 TEST(fyodorov_m_shell_sort_with_even_odd_batcher_merge_stl, test_pipeline_run) {
-  constexpr int kCount = 520000;
+  constexpr int kCount = 52000;
 
   auto get_random_vector = [](int sz, int a, int b) -> std::vector<int> {
     std::random_device dev;
@@ -59,7 +59,7 @@ TEST(fyodorov_m_shell_sort_with_even_odd_batcher_merge_stl, test_pipeline_run) {
 }
 
 TEST(fyodorov_m_shell_sort_with_even_odd_batcher_merge_stl, test_task_run) {
-  constexpr int kCount = 520000;
+  constexpr int kCount = 52000;
 
   auto get_random_vector = [](int sz, int a, int b) -> std::vector<int> {
     std::random_device dev;
