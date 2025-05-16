@@ -3,6 +3,7 @@
 #include <array>
 #include <boost/mpi/collectives.hpp>
 #include <boost/mpi/communicator.hpp>
+#include <cassert>
 #include <functional>
 #include <utility>
 #include <vector>
@@ -21,6 +22,7 @@ std::array<int, 256> burykin_m_radix_all::RadixALL::ComputeFrequency(const std::
       if (shift == 24) {
         key ^= 0x80;
       }
+      assert(key < 256);  // Prevent out-of-bounds access
       ++local_count[key];
     }
 
@@ -55,6 +57,7 @@ void burykin_m_radix_all::RadixALL::DistributeElements(const std::vector<int>& a
     if (shift == 24) {
       key ^= 0x80;
     }
+    assert(key < 256);  // Prevent out-of-bounds access
 
     int pos = 0;
 #pragma omp critical
@@ -135,30 +138,25 @@ bool burykin_m_radix_all::RadixALL::RunImpl() {
         auto local_count = ComputeFrequency(a, shift);
         std::array<int, 256> global_count = {};
 
-        world_.barrier();
-
-        for (int i = 0; i < 256; ++i) {
-          boost::mpi::all_reduce(world_, local_count[i], global_count[i], std::plus<int>());
-        }
+        // Use collective operation to sum counts across all ranks
+        boost::mpi::all_reduce(world_, local_count, global_count, std::plus<int>());
 
         const auto global_index = ComputeIndices(global_count);
         std::array<int, 256> prefix_sum = {};
 
+        // Calculate prefix sum for ranks > 0
         if (world_.rank() > 0) {
           for (int i = 0; i < 256; ++i) {
-            int sum = 0;
+            int sum = local_count[i];  // Start with own count
             for (int j = 0; j < world_.rank(); ++j) {
-              std::array<int, 256> other_count = {};
-              if (j == world_.rank()) {
-                other_count = local_count;
-              } else {
-                world_.recv(j, 0, other_count);
-              }
+              std::array<int, 256> other_count;
+              world_.recv(j, 0, other_count);
               sum += other_count[i];
             }
             prefix_sum[i] = sum;
           }
         } else {
+          // Rank 0 sends local_count to other ranks
           for (int i = 1; i < world_.size(); ++i) {
             world_.send(i, 0, local_count);
           }
