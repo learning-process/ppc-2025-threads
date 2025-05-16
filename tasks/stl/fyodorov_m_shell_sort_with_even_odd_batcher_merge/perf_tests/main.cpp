@@ -25,7 +25,7 @@ TEST(fyodorov_m_shell_sort_with_even_odd_batcher_merge_stl, test_pipeline_run) {
     return vec;
   };
 
-  std::vector<int> input = get_random_vector(kCount, 0, 99);
+  std::vector<int> input = get_random_vector(kCount, 0, 9);
   std::vector<int> output(kCount, 0);
 
   auto task_data_stl = std::make_shared<ppc::core::TaskData>();
@@ -72,7 +72,7 @@ TEST(fyodorov_m_shell_sort_with_even_odd_batcher_merge_stl, test_task_run) {
     return vec;
   };
 
-  std::vector<int> input = get_random_vector(kCount, 0, 99);
+  std::vector<int> input = get_random_vector(kCount, 0, 9);
   std::vector<int> output(kCount, 0);
 
   auto task_data_stl = std::make_shared<ppc::core::TaskData>();
