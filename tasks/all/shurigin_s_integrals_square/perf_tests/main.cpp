@@ -11,11 +11,10 @@
 
 #include <chrono>
 #include <cmath>
+#include <cstddef>
 #include <cstdint>
 #include <iostream>
 #include <memory>
-#include <numeric>
-#include <stdexcept>
 #include <vector>
 
 #include "all/shurigin_s_integrals_square/include/ops_mpi.hpp"
@@ -24,7 +23,7 @@
 
 namespace shurigin_s_integrals_square_mpi_test {
 
-auto test_function_2d = [](const std::vector<double>& point) {
+static auto test_function_2d = [](const std::vector<double>& point) {
   if (point.size() < 2) {
   }
   double x = point[0];
@@ -32,8 +31,8 @@ auto test_function_2d = [](const std::vector<double>& point) {
   return std::cos((x * x) + (y * y)) * (1 + (x * x) + (y * y));
 };
 
-const double expected_result = 4.35751;
-const double epsilon = 1e-3;
+const double kExpectedResult = 4.35751;
+const double kEpsilon = 1e-3;
 
 TEST(shurigin_s_integrals_square_mpi, test_pipeline_run) {
   int rank = 0;
@@ -55,10 +54,11 @@ TEST(shurigin_s_integrals_square_mpi, test_pipeline_run) {
   inputs_data.push_back(static_cast<double>(count_x));
   inputs_data.push_back(static_cast<double>(count_y));
 
-  if (inputs_data.size() != static_cast<size_t>(3 * dimensions)) {
+  if (inputs_data.size() != static_cast<size_t>(3) * dimensions) {
     if (rank == 0) {
       std::cerr << "Error in test setup: Prepared inputs_data size mismatch!\n";
-      std::cerr << "Expected size: " << (3 * dimensions) << ", Actual size: " << inputs_data.size() << "\n";
+      std::cerr << "Expected size: " << (static_cast<size_t>(3) * dimensions) << ", Actual size: " << inputs_data.size()
+                << "\n";
     }
     FAIL() << "Test setup failed: Prepared inputs_data size mismatch.";
   }
@@ -97,7 +97,7 @@ TEST(shurigin_s_integrals_square_mpi, test_pipeline_run) {
 
     ppc::core::Perf::PrintPerfStatistic(perf_results);
 
-    ASSERT_NEAR(result_vec[0], expected_result, epsilon);
+    ASSERT_NEAR(result_vec[0], kExpectedResult, kEpsilon);
   }
 }
 
@@ -121,10 +121,11 @@ TEST(shurigin_s_integrals_square_mpi, test_task_run) {
   inputs_data.push_back(static_cast<double>(count_x));
   inputs_data.push_back(static_cast<double>(count_y));
 
-  if (inputs_data.size() != static_cast<size_t>(3 * dimensions)) {
+  if (inputs_data.size() != static_cast<size_t>(3) * dimensions) {
     if (rank == 0) {
       std::cerr << "Error in test setup: Prepared inputs_data size mismatch!\n";
-      std::cerr << "Expected size: " << (3 * dimensions) << ", Actual size: " << inputs_data.size() << "\n";
+      std::cerr << "Expected size: " << (static_cast<size_t>(3) * dimensions) << ", Actual size: " << inputs_data.size()
+                << "\n";
     }
     FAIL() << "Test setup failed: Prepared inputs_data size mismatch.";
   }
@@ -163,7 +164,7 @@ TEST(shurigin_s_integrals_square_mpi, test_task_run) {
 
     ppc::core::Perf::PrintPerfStatistic(perf_results);
 
-    ASSERT_NEAR(result_vec[0], expected_result, epsilon);
+    ASSERT_NEAR(result_vec[0], kExpectedResult, kEpsilon);
   }
 }
 
