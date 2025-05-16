@@ -8,6 +8,9 @@
 #include <unordered_map>
 #include <vector>
 
+BOOST_CLASS_TRACKING(std::vector<double>, boost::serialization::track_never)
+BOOST_CLASS_TRACKING(std::vector<int>, boost::serialization::track_never)
+
 namespace konkov_i_sparse_matmul_ccs_all {
 
 SparseMatmulTask::SparseMatmulTask(ppc::core::TaskDataPtr task_data) : ppc::core::Task(std::move(task_data)) {}
