@@ -140,42 +140,50 @@ int shulpin_stl_test_module::Orientation(const shulpin_i_jarvis_stl::Point &p, c
 std::vector<shulpin_i_jarvis_stl::Point> shulpin_stl_test_module::ComputeConvexHull(
     std::vector<shulpin_i_jarvis_stl::Point> raw_points) {
   std::vector<shulpin_i_jarvis_stl::Point> convex_shell{};
-  const size_t count = raw_points.size();
+  std::unordered_set<shulpin_i_jarvis_stl::Point, shulpin_i_jarvis_stl::PointHash, shulpin_i_jarvis_stl::PointEqual>
+      unique_points;
 
-  size_t ref_idx = 0;
-  for (size_t idx = 1; idx < count; ++idx) {
-    const auto &p = raw_points[idx];
-    const auto &ref = raw_points[ref_idx];
-    if ((p.x < ref.x) || (p.x == ref.x && p.y < ref.y)) {
-      ref_idx = idx;
+  size_t most_left = 0;
+  for (size_t i = 1; i < raw_points.size(); ++i) {
+    if (raw_points[i].x < raw_points[most_left].x ||
+        (raw_points[i].x == raw_points[most_left].x && raw_points[i].y < raw_points[most_left].y)) {
+      most_left = i;
     }
   }
 
-  std::vector<bool> included(count, false);
-  size_t current = ref_idx;
+  const shulpin_i_jarvis_stl::Point &min_point = raw_points[most_left];
+  shulpin_i_jarvis_stl::Point prev_point = min_point;
+  shulpin_i_jarvis_stl::Point next_point;
 
-  while (true) {
-    convex_shell.push_back(raw_points[current]);
-    included[current] = true;
+  convex_shell.push_back(min_point);
+  unique_points.insert(min_point);
 
-    size_t next = (current + 1) % count;
+  do {
+    next_point = raw_points[0];
 
-    for (size_t trial = 0; trial < count; ++trial) {
-      if (trial == current || trial == next) {
+    for (const auto &point : raw_points) {
+      if (point == prev_point) {
         continue;
       }
 
-      int orient = shulpin_stl_test_module::Orientation(raw_points[current], raw_points[trial], raw_points[next]);
-      if (orient == 2) {
-        next = trial;
+      double cross_product = ((point.y - prev_point.y) * (next_point.x - prev_point.x)) -
+                             ((point.x - prev_point.x) * (next_point.y - prev_point.y));
+      double dist1 = std::pow(point.x - prev_point.x, 2) + std::pow(point.y - prev_point.y, 2);
+      double dist2 = std::pow(next_point.x - prev_point.x, 2) + std::pow(next_point.y - prev_point.y, 2);
+
+      if (cross_product > 0 || (cross_product == 0 && dist1 > dist2)) {
+        next_point = point;
       }
     }
 
-    current = next;
-    if (current == ref_idx) {
-      break;
+    if (unique_points.find(next_point) == unique_points.end()) {
+      convex_shell.push_back(next_point);
+      unique_points.insert(next_point);
     }
-  }
+
+    prev_point = next_point;
+
+  } while (next_point != min_point);
   return convex_shell;
 }
 
