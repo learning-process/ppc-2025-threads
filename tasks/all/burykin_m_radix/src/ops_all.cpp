@@ -190,13 +190,9 @@ bool burykin_m_radix_all::RadixALL::RunImpl() {
       int remainder = total_count % world_.size();
 
       for (int rank = 0; rank < world_.size(); ++rank) {
-        int rank_count = per_proc + (rank < remainder ? 1 : 0);
-
         // For the current process, count elements to send to each rank
         if (world_.rank() == rank) {
           for (int other_rank = 0; other_rank < world_.size(); ++other_rank) {
-            int start_idx = (other_rank > 0) ? global_index[i] + per_proc * other_rank + std::min(other_rank, remainder)
-                                             : global_index[i];
             int count = per_proc + (other_rank < remainder ? 1 : 0);
 
             if (count > 0) {
