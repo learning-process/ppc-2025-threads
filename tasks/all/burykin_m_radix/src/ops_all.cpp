@@ -138,8 +138,8 @@ bool burykin_m_radix_all::RadixALL::RunImpl() {
         auto local_count = ComputeFrequency(a, shift);
         std::array<int, 256> global_count = {};
 
-        // Use collective operation to sum counts across all ranks
-        boost::mpi::all_reduce(world_, local_count, global_count, std::plus<int>());
+        // Use all_reduce on raw data to sum counts element-wise
+        boost::mpi::all_reduce(world_, local_count.data(), 256, global_count.data(), std::plus<int>());
 
         const auto global_index = ComputeIndices(global_count);
         std::array<int, 256> prefix_sum = {};
