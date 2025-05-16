@@ -280,7 +280,9 @@ TEST(sorokin_a_multiplication_sparse_matrices_double_ccs_all, test_val_k_0) {
 
   // Create Task
   sorokin_a_multiplication_sparse_matrices_double_ccs_all::TestTaskALL test_task_tbb(task_data_tbb);
-  if (world.rank() == 0) ASSERT_EQ(test_task_tbb.Validation(), false);
+  if (world.rank() == 0) {
+    ASSERT_EQ(test_task_tbb.Validation(), false);
+  }
 }
 
 TEST(sorokin_a_multiplication_sparse_matrices_double_ccs_all, test_val_m_0) {
@@ -327,5 +329,7 @@ TEST(sorokin_a_multiplication_sparse_matrices_double_ccs_all, test_val_m_0) {
 
   // Create Task
   sorokin_a_multiplication_sparse_matrices_double_ccs_all::TestTaskALL test_task_tbb(task_data_tbb);
-  if (world.rank() == 0) ASSERT_EQ(test_task_tbb.Validation(), false);
+  if (world.rank() == 0) {
+    ASSERT_EQ(test_task_tbb.Validation(), false);
+  }
 }

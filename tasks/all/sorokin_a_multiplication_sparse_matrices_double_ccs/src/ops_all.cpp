@@ -2,11 +2,7 @@
 
 #include <cmath>
 #include <cstddef>
-#include <functional>
-#include <thread>
 #include <vector>
-
-#include "core/util/include/util.hpp"
 
 namespace sorokin_a_multiplication_sparse_matrices_double_ccs_all {
 
@@ -27,7 +23,8 @@ void MultiplyCCS(boost::mpi::communicator& world, const std::vector<double>& a_v
 
   const int base_cols_per_proc = n / size;
   const int remainder = n % size;
-  int start_col, num_local_cols;
+  int start_col;
+  int num_local_cols;
 
   start_col = rank * base_cols_per_proc + std::min(rank, remainder);
   num_local_cols = base_cols_per_proc + (rank < remainder ? 1 : 0);
