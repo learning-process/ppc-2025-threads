@@ -76,6 +76,8 @@ TEST(shurigin_s_integrals_square_mpi, test_pipeline_run) {
     task_data->inputs_count.emplace_back(inputs_data.size() * sizeof(double));
     task_data->outputs.emplace_back(reinterpret_cast<uint8_t*>(result_vec.data()));
     task_data->outputs_count.emplace_back(result_vec.size() * sizeof(double));
+  } else {
+    task_data = std::make_shared<ppc::core::TaskData>();
   }
 
   auto test_task_mpi = std::make_shared<shurigin_s_integrals_square_mpi::Integral>(task_data);
@@ -86,7 +88,7 @@ TEST(shurigin_s_integrals_square_mpi, test_pipeline_run) {
     auto perf_attr = std::make_shared<ppc::core::PerfAttr>();
     perf_attr->num_running = 10;
 
-    auto t0 = std::chrono::high_resolution_clock::now();
+    const auto t0 = std::chrono::high_resolution_clock::now();
     perf_attr->current_timer = [&, t0] {
       auto current_time_point = std::chrono::high_resolution_clock::now();
       auto duration = std::chrono::duration_cast<std::chrono::nanoseconds>(current_time_point - t0).count();
@@ -113,7 +115,7 @@ TEST(shurigin_s_integrals_square_mpi, test_task_run) {
   double down_limit_x = -1.0;
   double up_limit_x = 1.0;
   double down_limit_y = -1.0;
-  double up_limit_y = 1.0;
+  up_limit_y = 1.0;
   int count_x = 5000;
   int count_y = 5000;
   int dimensions = 2;
@@ -122,7 +124,7 @@ TEST(shurigin_s_integrals_square_mpi, test_task_run) {
   inputs_data.push_back(down_limit_x);
   inputs_data.push_back(down_limit_y);
   inputs_data.push_back(up_limit_x);
-  inputs_back(up_limit_y);
+  inputs_data.push_back(up_limit_y);
   inputs_data.push_back(static_cast<double>(count_x));
   inputs_data.push_back(static_cast<double>(count_y));
 
@@ -159,7 +161,7 @@ TEST(shurigin_s_integrals_square_mpi, test_task_run) {
     auto perf_attr = std::make_shared<ppc::core::PerfAttr>();
     perf_attr->num_running = 10;
 
-    auto t0 = std::chrono::high_resolution_clock::now();
+    const auto t0 = std::chrono::high_resolution_clock::now();
     perf_attr->current_timer = [&, t0] {
       auto current_time_point = std::chrono::high_resolution_clock::now();
       auto duration = std::chrono::duration_cast<std::chrono::nanoseconds>(current_time_point - t0).count();
