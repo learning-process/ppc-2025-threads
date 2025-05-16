@@ -70,14 +70,15 @@ TEST(shurigin_s_integrals_square_mpi, test_pipeline_run) {
 
   std::shared_ptr<ppc::core::TaskData> task_data = nullptr;
 
+  task_data = std::make_shared<ppc::core::TaskData>();
   if (rank == 0) {
-    task_data = std::make_shared<ppc::core::TaskData>();
     task_data->inputs.emplace_back(reinterpret_cast<uint8_t*>(inputs_data.data()));
     task_data->inputs_count.emplace_back(inputs_data.size() * sizeof(double));
     task_data->outputs.emplace_back(reinterpret_cast<uint8_t*>(result_vec.data()));
     task_data->outputs_count.emplace_back(result_vec.size() * sizeof(double));
   } else {
-    task_data = std::make_shared<ppc::core::TaskData>();
+    task_data->outputs.emplace_back(reinterpret_cast<uint8_t*>(result_vec.data()));
+    task_data->outputs_count.emplace_back(result_vec.size() * sizeof(double));
   }
 
   auto test_task_mpi = std::make_shared<shurigin_s_integrals_square_mpi::Integral>(task_data);
@@ -103,8 +104,6 @@ TEST(shurigin_s_integrals_square_mpi, test_pipeline_run) {
     ppc::core::Perf::PrintPerfStatistic(perf_results);
 
     ASSERT_NEAR(result_vec[0], kExpectedResult, kEpsilon);
-  } else {
-    test_task_mpi->PipelineRun(nullptr, nullptr);
   }
 }
 
@@ -115,7 +114,7 @@ TEST(shurigin_s_integrals_square_mpi, test_task_run) {
   double down_limit_x = -1.0;
   double up_limit_x = 1.0;
   double down_limit_y = -1.0;
-  up_limit_y = 1.0;
+  double up_limit_y = 1.0;
   int count_x = 5000;
   int count_y = 5000;
   int dimensions = 2;
@@ -141,14 +140,13 @@ TEST(shurigin_s_integrals_square_mpi, test_task_run) {
 
   std::shared_ptr<ppc::core::TaskData> task_data = nullptr;
 
+  task_data = std::make_shared<ppc::core::TaskData>();
   if (rank == 0) {
-    task_data = std::make_shared<ppc::core::TaskData>();
     task_data->inputs.emplace_back(reinterpret_cast<uint8_t*>(inputs_data.data()));
     task_data->inputs_count.emplace_back(inputs_data.size() * sizeof(double));
     task_data->outputs.emplace_back(reinterpret_cast<uint8_t*>(result_vec.data()));
     task_data->outputs_count.emplace_back(result_vec.size() * sizeof(double));
   } else {
-    task_data = std::make_shared<ppc::core::TaskData>();
     task_data->outputs.emplace_back(reinterpret_cast<uint8_t*>(result_vec.data()));
     task_data->outputs_count.emplace_back(result_vec.size() * sizeof(double));
   }
@@ -176,8 +174,6 @@ TEST(shurigin_s_integrals_square_mpi, test_task_run) {
     ppc::core::Perf::PrintPerfStatistic(perf_results);
 
     ASSERT_NEAR(result_vec[0], kExpectedResult, kEpsilon);
-  } else {
-    test_task_mpi->TaskRun(nullptr, nullptr);
   }
 }
 
