@@ -101,7 +101,6 @@ TEST(frolova_e_sobel_filter_stl, black_image) {
   std::vector<int> pict(75, 0);
 
   std::vector<int> res(25, 0);
-
   std::vector<int> reference(25, 0);
 
   auto task_data = std::make_shared<ppc::core::TaskData>();
