@@ -1,7 +1,6 @@
 #include "stl/solovev_a_ccs_mmult_sparse/include/ccs_mmult_sparse.hpp"
 
 #include <complex>
-#include <cstddef>
 #include <mutex>
 #include <numeric>
 #include <thread>
