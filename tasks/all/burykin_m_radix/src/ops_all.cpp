@@ -76,41 +76,46 @@ bool burykin_m_radix_all::RadixALL::PreProcessingImpl() {
   const unsigned int input_size = task_data->inputs_count[0];
   auto* in_ptr = reinterpret_cast<int*>(task_data->inputs[0]);
 
-  if (world_.rank() == 0) {
-    input_ = std::vector<int>(in_ptr, in_ptr + input_size);
-  }
-
+  // Set up data distribution
   int local_size = input_size / world_.size();
   int remainder = input_size % world_.size();
 
+  // Adjust local size for processes that get an extra element
   if (world_.rank() < remainder) {
     local_size += 1;
   }
 
-  if (world_.rank() != 0) {
-    input_.resize(local_size);
-  }
+  // Resize input vector for all processes
+  input_.resize(local_size);
 
+  // Distribute data from root to all processes
   if (world_.size() > 1) {
-    if (world_.rank() == 0) {
-      std::vector<int> send_counts(world_.size());
-      std::vector<int> displs(world_.size());
+    std::vector<int> send_counts(world_.size());
+    std::vector<int> displs(world_.size());
 
-      for (int i = 0; i < world_.size(); ++i) {
-        send_counts[i] = input_size / world_.size();
-        if (i < remainder) {
-          send_counts[i]++;
-        }
-        displs[i] = i > 0 ? displs[i - 1] + send_counts[i - 1] : 0;
+    for (int i = 0; i < world_.size(); ++i) {
+      send_counts[i] = input_size / world_.size();
+      if (i < remainder) {
+        send_counts[i]++;
       }
+      displs[i] = i > 0 ? displs[i - 1] + send_counts[i - 1] : 0;
+    }
 
-      MPI_Scatterv(input_.data(), send_counts.data(), displs.data(), MPI_INT, MPI_IN_PLACE, local_size, MPI_INT, 0,
+    // Use Scatterv with proper handling for root process
+    if (world_.rank() == 0) {
+      // Only copy data on root
+      std::vector<int> temp_input(in_ptr, in_ptr + input_size);
+      MPI_Scatterv(temp_input.data(), send_counts.data(), displs.data(), MPI_INT, input_.data(), local_size, MPI_INT, 0,
                    world_);
     } else {
       MPI_Scatterv(nullptr, nullptr, nullptr, MPI_INT, input_.data(), local_size, MPI_INT, 0, world_);
     }
+  } else {
+    // Single process case - just copy the data
+    input_ = std::vector<int>(in_ptr, in_ptr + input_size);
   }
 
+  // Prepare output buffer
   output_.resize(local_size);
   return true;
 }
@@ -120,6 +125,7 @@ bool burykin_m_radix_all::RadixALL::ValidationImpl() {
 }
 
 bool burykin_m_radix_all::RadixALL::RunImpl() {
+  // Handle empty input case
   if (input_.empty()) {
     return true;
   }
@@ -127,58 +133,51 @@ bool burykin_m_radix_all::RadixALL::RunImpl() {
   std::vector<int> a = std::move(input_);
   std::vector<int> b(a.size());
 
-#pragma omp parallel
-  {
-#pragma omp single
-    {
-      for (int shift = 0; shift < 32; shift += 8) {
-        auto local_count = ComputeFrequency(a, shift);
-        std::array<int, 256> global_count = {};
+  // Perform radix sort for each byte
+  for (int shift = 0; shift < 32; shift += 8) {
+    // Compute local frequency counts
+    auto local_count = ComputeFrequency(a, shift);
+    std::array<int, 256> global_count = {};
 
-        world_.barrier();
-
-        for (int i = 0; i < 256; ++i) {
-          boost::mpi::all_reduce(world_, local_count[i], global_count[i], std::plus<int>());
-        }
-
-        const auto global_index = ComputeIndices(global_count);
-        std::array<int, 256> prefix_sum = {};
-
-        if (world_.rank() > 0) {
-          for (int i = 0; i < 256; ++i) {
-            int sum = 0;
-            for (int j = 0; j < world_.rank(); ++j) {
-              std::array<int, 256> other_count = {};
-              if (j == world_.rank()) {
-                other_count = local_count;
-              } else {
-                world_.recv(j, 0, other_count);
-              }
-              sum += other_count[i];
-            }
-            prefix_sum[i] = sum;
-          }
-        } else {
-          for (int i = 1; i < world_.size(); ++i) {
-            world_.send(i, 0, local_count);
-          }
-        }
-
-        std::array<int, 256> local_index = global_index;
-        for (int i = 0; i < 256; ++i) {
-          local_index[i] += prefix_sum[i];
-        }
-
-        DistributeElements(a, b, local_index, shift);
-
-        a.swap(b);
-        world_.barrier();
-      }
+    // Sum up counts across all processes using all_reduce
+    for (int i = 0; i < 256; ++i) {
+      boost::mpi::all_reduce(world_, local_count[i], global_count[i], std::plus<int>());
     }
+
+    // Calculate global indices based on global counts
+    const auto global_index = ComputeIndices(global_count);
+
+    // Calculate offset for current process
+    std::array<int, 256> prefix_sum = {};
+
+    // Calculate prefix sums for each bucket across processes
+    for (int i = 0; i < 256; ++i) {
+      std::vector<int> all_counts(world_.size());
+      boost::mpi::all_gather(world_, local_count[i], all_counts);
+
+      int sum = 0;
+      for (int j = 0; j < world_.rank(); ++j) {
+        sum += all_counts[j];
+      }
+      prefix_sum[i] = sum;
+    }
+
+    // Calculate local start indices
+    std::array<int, 256> local_index = global_index;
+    for (int i = 0; i < 256; ++i) {
+      local_index[i] += prefix_sum[i];
+    }
+
+    // Distribute elements into buckets
+    DistributeElements(a, b, local_index, shift);
+
+    // Swap buffers for next iteration
+    a.swap(b);
   }
 
   output_ = std::move(a);
 
+  // Gather results to root process
   int total_size = task_data->inputs_count[0];
   std::vector<int> all_results;
 
@@ -186,6 +185,7 @@ bool burykin_m_radix_all::RadixALL::RunImpl() {
     all_results.resize(total_size);
   }
 
+  // Calculate sizes and displacements for gathering
   std::vector<int> recv_counts(world_.size());
   std::vector<int> displs(world_.size());
   int remainder = total_size % world_.size();
@@ -198,6 +198,7 @@ bool burykin_m_radix_all::RadixALL::RunImpl() {
     displs[i] = i > 0 ? displs[i - 1] + recv_counts[i - 1] : 0;
   }
 
+  // Gather results to root process
   MPI_Gatherv(output_.data(), output_.size(), MPI_INT, world_.rank() == 0 ? all_results.data() : nullptr,
               recv_counts.data(), displs.data(), MPI_INT, 0, world_);
 
@@ -219,6 +220,5 @@ bool burykin_m_radix_all::RadixALL::PostProcessingImpl() {
     }
   }
 
-  world_.barrier();
   return true;
 }
