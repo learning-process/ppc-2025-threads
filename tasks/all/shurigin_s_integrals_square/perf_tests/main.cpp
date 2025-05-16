@@ -21,8 +21,6 @@
 #include "core/perf/include/perf.hpp"
 #include "core/task/include/task.hpp"
 
-namespace shurigin_s_integrals_square_mpi_test {
-
 static auto test_function_2d = [](const std::vector<double>& point) {
   if (point.size() < 2) {
   }
@@ -30,6 +28,8 @@ static auto test_function_2d = [](const std::vector<double>& point) {
   double y = point[1];
   return std::cos((x * x) + (y * y)) * (1 + (x * x) + (y * y));
 };
+
+namespace shurigin_s_integrals_square_mpi_test {
 
 const double kExpectedResult = 4.35751;
 const double kEpsilon = 1e-3;
