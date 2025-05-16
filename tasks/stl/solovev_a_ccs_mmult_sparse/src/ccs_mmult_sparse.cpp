@@ -102,11 +102,6 @@ bool solovev_a_matrix_stl::SeqMatMultCcs::RunImpl() {
   M3_->r_n = r_n_;
   M3_->c_n = c_n_;
 
-  if (M1_->col_p.size() != static_cast<size_t>(M1_->c_n) + 1 ||
-      M2_->col_p.size() != static_cast<size_t>(M2_->c_n) + 1) {
-    return false;
-  }
-
   counts_.assign(c_n_, 0);
   M3_->col_p.assign(c_n_ + 1, 0);
 
