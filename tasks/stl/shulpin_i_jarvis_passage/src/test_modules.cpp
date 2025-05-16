@@ -128,15 +128,6 @@ void shulpin_stl_test_module::TestBodyFalse(std::vector<shulpin_i_jarvis_stl::Po
   ASSERT_EQ(stl_task.Validation(), false);
 }
 
-int shulpin_stl_test_module::Orientation(const shulpin_i_jarvis_stl::Point &p, const shulpin_i_jarvis_stl::Point &q,
-                                         const shulpin_i_jarvis_stl::Point &r) {
-  double val = ((q.y - p.y) * (r.x - q.x)) - ((q.x - p.x) * (r.y - q.y));
-  if (std::fabs(val) < 1e-9) {
-    return 0;
-  }
-  return (val > 0) ? 1 : 2;
-}
-
 std::vector<shulpin_i_jarvis_stl::Point> shulpin_stl_test_module::ComputeConvexHull(
     std::vector<shulpin_i_jarvis_stl::Point> raw_points) {
   std::vector<shulpin_i_jarvis_stl::Point> convex_shell{};
