@@ -72,8 +72,6 @@ TEST(konkov_i_SparseMatmulPerfTest_all, test_pipeline_run) {
   }
 }
 
-// Остальные тесты остаются без изменений...
-
 TEST(konkov_i_SparseMatmulPerfTest_all, test_task_run) {
   boost::mpi::environment env;
   boost::mpi::communicator world;
