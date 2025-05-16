@@ -1,11 +1,16 @@
 ﻿#include "all/konkov_i_sparse_matmul_ccs_all/include/ops_all.hpp"
 
 #include <algorithm>
+#include <boost/mpi/collectives/broadcast.hpp>
+#include <boost/mpi/collectives/gather.hpp>
+#include <boost/serialization/tracking.hpp>
+#include <boost/serialization/tracking_enum.hpp>
 #include <boost/serialization/vector.hpp>
 #include <core/util/include/util.hpp>
 #include <cstddef>
 #include <thread>
 #include <unordered_map>
+#include <utility>
 #include <vector>
 
 BOOST_CLASS_TRACKING(std::vector<double>, boost::serialization::track_never)
@@ -17,7 +22,7 @@ SparseMatmulTask::SparseMatmulTask(ppc::core::TaskDataPtr task_data) : ppc::core
 
 bool SparseMatmulTask::ValidationImpl() {
   bool valid = true;
-  if (world.rank() == 0) {
+  if (world_.rank() == 0) {
     if (colsA != rowsB || rowsA <= 0 || colsB <= 0) {
       valid = false;
     }
@@ -25,7 +30,7 @@ bool SparseMatmulTask::ValidationImpl() {
       valid = false;
     }
   }
-  boost::mpi::broadcast(world, valid, 0);
+  boost::mpi::broadcast(world_, valid, 0);
   return valid;
 }
 
@@ -34,17 +39,17 @@ bool SparseMatmulTask::PreProcessingImpl() {
   C_row_indices.clear();
   C_values.clear();
 
-  boost::mpi::broadcast(world, A_values, 0);
-  boost::mpi::broadcast(world, A_row_indices, 0);
-  boost::mpi::broadcast(world, A_col_ptr, 0);
-  boost::mpi::broadcast(world, rowsA, 0);
-  boost::mpi::broadcast(world, colsA, 0);
+  boost::mpi::broadcast(world_, A_values, 0);
+  boost::mpi::broadcast(world_, A_row_indices, 0);
+  boost::mpi::broadcast(world_, A_col_ptr, 0);
+  boost::mpi::broadcast(world_, rowsA, 0);
+  boost::mpi::broadcast(world_, colsA, 0);
 
-  boost::mpi::broadcast(world, B_values, 0);
-  boost::mpi::broadcast(world, B_row_indices, 0);
-  boost::mpi::broadcast(world, B_col_ptr, 0);
-  boost::mpi::broadcast(world, rowsB, 0);
-  boost::mpi::broadcast(world, colsB, 0);
+  boost::mpi::broadcast(world_, B_values, 0);
+  boost::mpi::broadcast(world_, B_row_indices, 0);
+  boost::mpi::broadcast(world_, B_col_ptr, 0);
+  boost::mpi::broadcast(world_, rowsB, 0);
+  boost::mpi::broadcast(world_, colsB, 0);
 
   return true;
 }
@@ -66,7 +71,9 @@ void SparseMatmulTask::ProcessColumn(int col_b, int start_col, std::vector<doubl
 
   std::vector<std::pair<int, double>> sorted_entries;
   for (const auto& [row, val] : column_result) {
-    if (val != 0.0) sorted_entries.emplace_back(row, val);
+    if (val != 0.0) {
+      sorted_entries.emplace_back(row, val);
+    }
   }
   std::sort(sorted_entries.begin(), sorted_entries.end());
 
@@ -80,8 +87,8 @@ void SparseMatmulTask::ProcessColumn(int col_b, int start_col, std::vector<doubl
 }
 
 bool SparseMatmulTask::RunImpl() {
-  int rank = world.rank();
-  int size = world.size();
+  int rank = world_.rank();
+  int size = world_.size();
 
   int base_cols = colsB / size;
   int extra_cols = colsB % size;
@@ -106,7 +113,7 @@ bool SparseMatmulTask::RunImpl() {
       int local_col = col - start_col;
       size_t initial_size = thread_values[thread_id].size();
       ProcessColumn(col, start_col, thread_values[thread_id], thread_rows[thread_id], thread_col_ptrs[thread_id]);
-      thread_col_ptrs[thread_id][local_col + 1] = thread_values[thread_id].size() - initial_size;
+      thread_col_ptrs[thread_id][local_col + 1] = static_cast<int>(thread_values[thread_id].size() - initial_size);
     }
     for (int lc = 1; lc <= num_local_cols; ++lc) {
       thread_col_ptrs[thread_id][lc] += thread_col_ptrs[thread_id][lc - 1];
@@ -114,10 +121,13 @@ bool SparseMatmulTask::RunImpl() {
   };
 
   std::vector<std::thread> threads;
+  threads.reserve(num_threads);
   for (int t = 0; t < num_threads; ++t) {
     threads.emplace_back(worker, t);
   }
-  for (auto& t : threads) t.join();
+  for (auto& t : threads) {
+    t.join();
+  }
 
   for (int local_col = 0; local_col < num_local_cols; ++local_col) {
     for (int t = 0; t < num_threads; ++t) {
@@ -131,20 +141,21 @@ bool SparseMatmulTask::RunImpl() {
     local_col_ptr[local_col + 1] = local_values.size();
   }
 
-  std::vector<int> proc_start_cols(size), proc_end_cols(size);
+  std::vector<int> proc_start_cols(size);
+  std::vector<int> proc_end_cols(size);
   proc_start_cols[rank] = start_col;
   proc_end_cols[rank] = end_col;
 
-  boost::mpi::gather(world, start_col, proc_start_cols, 0);
-  boost::mpi::gather(world, end_col, proc_end_cols, 0);
+  boost::mpi::gather(world_, start_col, proc_start_cols, 0);
+  boost::mpi::gather(world_, end_col, proc_end_cols, 0);
 
   std::vector<std::vector<double>> all_values;
   std::vector<std::vector<int>> all_rows;
   std::vector<std::vector<int>> all_col_ptrs;
 
-  boost::mpi::gather(world, local_values, all_values, 0);
-  boost::mpi::gather(world, local_rows, all_rows, 0);
-  boost::mpi::gather(world, local_col_ptr, all_col_ptrs, 0);
+  boost::mpi::gather(world_, local_values, all_values, 0);
+  boost::mpi::gather(world_, local_rows, all_rows, 0);
+  boost::mpi::gather(world_, local_col_ptr, all_col_ptrs, 0);
 
   if (rank == 0) {
     C_col_ptr.resize(colsB + 1, 0);
@@ -154,7 +165,6 @@ bool SparseMatmulTask::RunImpl() {
           int local_col = global_col - proc_start_cols[proc];
           int start = all_col_ptrs[proc][local_col];
           int end = all_col_ptrs[proc][local_col + 1];
-
           for (int i = start; i < end; ++i) {
             C_values.push_back(all_values[proc][i]);
             C_row_indices.push_back(all_rows[proc][i]);

@@ -1,5 +1,5 @@
 #pragma once
-#include <boost/mpi.hpp>
+#include <boost/mpi/communicator.hpp>
 #include <vector>
 
 #include "core/task/include/task.hpp"
@@ -21,7 +21,7 @@ class SparseMatmulTask : public ppc::core::Task {
   int rowsA, colsA, rowsB, colsB;
 
  private:
-  boost::mpi::communicator world;
+  boost::mpi::communicator world_;
   void ProcessColumn(int col_b, int start_col, std::vector<double>& local_values, std::vector<int>& local_rows,
                      std::vector<int>& local_col_ptr);
 };
