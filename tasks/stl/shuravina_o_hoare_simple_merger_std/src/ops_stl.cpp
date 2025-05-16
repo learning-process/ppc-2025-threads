@@ -5,7 +5,6 @@
 #include <core/util/include/util.hpp>
 #include <future>
 #include <memory>
-#include <thread>
 #include <utility>
 #include <vector>
 
@@ -85,13 +84,13 @@ void TestTaskSTL::MergeHelper(std::vector<int>& arr, int left, int mid, int righ
   };
 
   if ((right - left > parallel_threshold) && (thread_counter.load() < num_threads)) {
-    int segment_size = (right - left) / num_threads;
+    const int segment_size = (right - left) / num_threads;
     std::vector<std::future<void>> futures;
 
     for (int i = 0; i < num_threads; ++i) {
-      int start = left + i * segment_size;
-      int end = (i == num_threads - 1) ? right : start + segment_size - 1;
-      int middle = start + (end - start) / 2;
+      const int start = left + (i * segment_size);
+      const int end = (i == num_threads - 1) ? right : (start + segment_size - 1);
+      const int middle = start + ((end - start) / 2);
 
       if (thread_counter.load() < num_threads) {
         thread_counter++;
