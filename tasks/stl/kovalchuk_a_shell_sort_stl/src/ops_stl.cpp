@@ -2,6 +2,7 @@
 
 #include <algorithm>
 #include <thread>
+#include <utility>
 #include <vector>
 
 #include "core/task/include/task.hpp"
@@ -54,14 +55,16 @@ void ShellSortSTL::ShellSort() {
     }
 
     for (auto& thread : threads) {
-      if (thread.joinable()) thread.join();
+      if (thread.joinable()) {
+        thread.join();
+      }
     }
   }
 }
 
 bool ShellSortSTL::PostProcessingImpl() {
   auto* output_ptr = reinterpret_cast<int*>(task_data->outputs[0]);
-  std::copy(input_.begin(), input_.end(), output_ptr);
+  std::ranges::copy(input_, output_ptr);
   return true;
 }
 
