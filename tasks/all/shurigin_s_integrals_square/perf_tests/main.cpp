@@ -21,13 +21,16 @@
 #include "core/perf/include/perf.hpp"
 #include "core/task/include/task.hpp"
 
-static auto test_function_2d = [](const std::vector<double>& point) {
+namespace {
+auto test_function_2d = [](const std::vector<double>& point) {
   if (point.size() < 2) {
+    return 0.0;
   }
   double x = point[0];
   double y = point[1];
   return std::cos((x * x) + (y * y)) * (1 + (x * x) + (y * y));
 };
+}  // namespace
 
 namespace shurigin_s_integrals_square_mpi_test {
 
@@ -83,8 +86,8 @@ TEST(shurigin_s_integrals_square_mpi, test_pipeline_run) {
     auto perf_attr = std::make_shared<ppc::core::PerfAttr>();
     perf_attr->num_running = 10;
 
-    const auto t0 = std::chrono::high_resolution_clock::now();
-    perf_attr->current_timer = [&] {
+    auto t0 = std::chrono::high_resolution_clock::now();
+    perf_attr->current_timer = [&, t0] {
       auto current_time_point = std::chrono::high_resolution_clock::now();
       auto duration = std::chrono::duration_cast<std::chrono::nanoseconds>(current_time_point - t0).count();
       return static_cast<double>(duration) * 1e-9;
@@ -98,6 +101,8 @@ TEST(shurigin_s_integrals_square_mpi, test_pipeline_run) {
     ppc::core::Perf::PrintPerfStatistic(perf_results);
 
     ASSERT_NEAR(result_vec[0], kExpectedResult, kEpsilon);
+  } else {
+    test_task_mpi->PipelineRun(nullptr, nullptr);
   }
 }
 
@@ -117,7 +122,7 @@ TEST(shurigin_s_integrals_square_mpi, test_task_run) {
   inputs_data.push_back(down_limit_x);
   inputs_data.push_back(down_limit_y);
   inputs_data.push_back(up_limit_x);
-  inputs_data.push_back(up_limit_y);
+  inputs_back(up_limit_y);
   inputs_data.push_back(static_cast<double>(count_x));
   inputs_data.push_back(static_cast<double>(count_y));
 
@@ -140,6 +145,10 @@ TEST(shurigin_s_integrals_square_mpi, test_task_run) {
     task_data->inputs_count.emplace_back(inputs_data.size() * sizeof(double));
     task_data->outputs.emplace_back(reinterpret_cast<uint8_t*>(result_vec.data()));
     task_data->outputs_count.emplace_back(result_vec.size() * sizeof(double));
+  } else {
+    task_data = std::make_shared<ppc::core::TaskData>();
+    task_data->outputs.emplace_back(reinterpret_cast<uint8_t*>(result_vec.data()));
+    task_data->outputs_count.emplace_back(result_vec.size() * sizeof(double));
   }
 
   auto test_task_mpi = std::make_shared<shurigin_s_integrals_square_mpi::Integral>(task_data);
@@ -150,8 +159,8 @@ TEST(shurigin_s_integrals_square_mpi, test_task_run) {
     auto perf_attr = std::make_shared<ppc::core::PerfAttr>();
     perf_attr->num_running = 10;
 
-    const auto t0 = std::chrono::high_resolution_clock::now();
-    perf_attr->current_timer = [&] {
+    auto t0 = std::chrono::high_resolution_clock::now();
+    perf_attr->current_timer = [&, t0] {
       auto current_time_point = std::chrono::high_resolution_clock::now();
       auto duration = std::chrono::duration_cast<std::chrono::nanoseconds>(current_time_point - t0).count();
       return static_cast<double>(duration) * 1e-9;
@@ -165,6 +174,8 @@ TEST(shurigin_s_integrals_square_mpi, test_task_run) {
     ppc::core::Perf::PrintPerfStatistic(perf_results);
 
     ASSERT_NEAR(result_vec[0], kExpectedResult, kEpsilon);
+  } else {
+    test_task_mpi->TaskRun(nullptr, nullptr);
   }
 }
 
