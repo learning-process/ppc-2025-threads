@@ -52,6 +52,9 @@ void TestTaskSTL::ShellSort() {
 
   auto& input_ref = input_;
 
+  unsigned int num_threads = std::thread::hardware_concurrency();
+  if (num_threads == 0) num_threads = 1;
+
   for (auto it = gaps.rbegin(); it != gaps.rend(); ++it) {
     int gap = *it;
     if (gap == 0) {
@@ -60,19 +63,28 @@ void TestTaskSTL::ShellSort() {
     std::vector<int> groups(gap);
     std::iota(groups.begin(), groups.end(), 0);
 
+    size_t num_groups = groups.size();
+    size_t threads_to_use = std::min(num_groups, static_cast<size_t>(num_threads));
     std::vector<std::future<void>> futures;
-    futures.reserve(groups.size());
+    futures.reserve(threads_to_use);
 
-    for (int group : groups) {
-      futures.push_back(std::async(std::launch::async, [gap, n, &input_ref, group]() {
-        for (int i = group + gap; i < n; i += gap) {
-          int temp = input_ref[i];
-          int j = i;
-          while (j >= gap && input_ref[j - gap] > temp) {
-            input_ref[j] = input_ref[j - gap];
-            j -= gap;
+    for (size_t t = 0; t < threads_to_use; ++t) {
+      futures.push_back(std::async(std::launch::async, [t, threads_to_use, num_groups, gap, n, &input_ref, &groups]() {
+        size_t groups_per_thread = num_groups / threads_to_use;
+        size_t extra = num_groups % threads_to_use;
+        size_t start = t * groups_per_thread + std::min(t, extra);
+        size_t end = start + groups_per_thread + (t < extra ? 1 : 0);
+        for (size_t g = start; g < end; ++g) {
+          int group = groups[g];
+          for (int i = group + gap; i < n; i += gap) {
+            int temp = input_ref[i];
+            int j = i;
+            while (j >= gap && input_ref[j - gap] > temp) {
+              input_ref[j] = input_ref[j - gap];
+              j -= gap;
+            }
+            input_ref[j] = temp;
           }
-          input_ref[j] = temp;
         }
       }));
     }
