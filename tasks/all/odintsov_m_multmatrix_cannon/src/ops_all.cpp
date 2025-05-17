@@ -1,8 +1,8 @@
 #include "all/odintsov_m_multmatrix_cannon/include/ops_all.hpp"
 
 #include <algorithm>
-#include <boost/mpi/broadcast.hpp>
 #include <boost/mpi/collectives.hpp>
+#include <boost/mpi/communicator.hpp>
 #include <boost/mpi/operations.hpp>
 #include <boost/mpi/reduce.hpp>
 #include <cmath>
