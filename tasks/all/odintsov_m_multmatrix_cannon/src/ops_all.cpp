@@ -218,16 +218,17 @@ bool odintsov_m_mulmatrix_cannon_all::MulMatrixCannonALL::ValidationImpl() {
 bool odintsov_m_mulmatrix_cannon_all::MulMatrixCannonALL::RunImpl() {
   int rank = com_.rank();
   int size = com_.size();
-  int count_a = static_cast<int>(matrixA_.size());
-  int count_b = static_cast<int>(matrixB_.size());
-  if (rank != 0) {
-    matrixA_.resize(count_a);
-    matrixB_.resize(count_b);
-  }
+
   // Считываем параметры на всех рангах
   boost::mpi::broadcast(com_, szA_, /*root=*/0);
   boost::mpi::broadcast(com_, block_sz_, /*root=*/0);
 
+  int count_a = szA_ * szA_;
+  int count_b = count_a;
+  if (rank != 0) {
+    matrixA_.resize(count_a);
+    matrixB_.resize(count_b);
+  }
   // Вычисляем размер матрицы (root × root) и параметры блоков
   int root = static_cast<int>(std::round(std::sqrt(szA_)));
   int num_blocks = std::max(1, root / block_sz_);
