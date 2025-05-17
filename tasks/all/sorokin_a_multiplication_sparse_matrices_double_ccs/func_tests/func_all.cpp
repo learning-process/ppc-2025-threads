@@ -71,7 +71,9 @@ void CreateAndRunTask(std::shared_ptr<ppc::core::TaskData> &task_data) {
 }  // namespace
 
 TEST(sorokin_a_multiplication_sparse_matrices_double_ccs_all, test_3x3_x_3x3) {
-  int m = 3, k = 3, n = 3;
+  int m = 3;
+  int k = 3;
+  int n = 3;
 
   std::vector<double> a_values = {2, 4, 1, 3, 5};
   std::vector<double> a_row_indices = {1, 2, 0, 1, 2};
@@ -99,7 +101,9 @@ TEST(sorokin_a_multiplication_sparse_matrices_double_ccs_all, test_3x3_x_3x3) {
 }
 
 TEST(sorokin_a_multiplication_sparse_matrices_double_ccs_all, test_2x3_x_3x2) {
-  int m = 2, k = 3, n = 2;
+  int m = 2;
+  int k = 3;
+  int n = 2;
 
   std::vector<double> a_values = {1.0, 2.0, 3.0};
   std::vector<double> a_row_indices = {0, 1, 1};
@@ -127,7 +131,9 @@ TEST(sorokin_a_multiplication_sparse_matrices_double_ccs_all, test_2x3_x_3x2) {
 }
 
 TEST(sorokin_a_multiplication_sparse_matrices_double_ccs_all, test_3x2_x_2x4) {
-  int m = 3, k = 2, n = 4;
+  int m = 3;
+  int k = 2;
+  int n = 4;
 
   std::vector<double> a_values = {1.0, 3.0, 2.0};
   std::vector<double> a_row_indices = {1, 2, 0};
