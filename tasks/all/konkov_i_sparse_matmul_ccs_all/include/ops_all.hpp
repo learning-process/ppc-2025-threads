@@ -24,6 +24,11 @@ class SparseMatmulTask : public ppc::core::Task {
   boost::mpi::communicator world_;
   void ProcessColumn(int col_b, int start_col, std::vector<double>& local_values, std::vector<int>& local_rows,
                      std::vector<int>& local_col_ptr);
+  void MergeThreadResults(const std::vector<std::vector<double>>& thread_values,
+                          const std::vector<std::vector<int>>& thread_rows,
+                          const std::vector<std::vector<int>>& thread_col_ptrs, std::vector<double>& local_values,
+                          std::vector<int>& local_rows, std::vector<int>& local_col_ptr, int num_local_cols,
+                          int num_threads);
 };
 
 }  // namespace konkov_i_sparse_matmul_ccs_all

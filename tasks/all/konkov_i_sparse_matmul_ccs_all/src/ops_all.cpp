@@ -3,7 +3,9 @@
 #include <algorithm>
 #include <boost/mpi/collectives/broadcast.hpp>
 #include <boost/mpi/collectives/gather.hpp>
-#include <boost/serialization/vector.hpp>
+#include <boost/serialization/tracking.hpp>
+#include <boost/serialization/tracking_enum.hpp>
+#include <core/task/include/task.hpp>
 #include <core/util/include/util.hpp>
 #include <cstddef>
 #include <thread>
@@ -84,14 +86,33 @@ void SparseMatmulTask::ProcessColumn(int col_b, int start_col, std::vector<doubl
   }
 }
 
+void SparseMatmulTask::MergeThreadResults(const std::vector<std::vector<double>>& thread_values,
+                                          const std::vector<std::vector<int>>& thread_rows,
+                                          const std::vector<std::vector<int>>& thread_col_ptrs,
+                                          std::vector<double>& local_values, std::vector<int>& local_rows,
+                                          std::vector<int>& local_col_ptr, int num_local_cols, int num_threads) {
+  for (int local_col = 0; local_col < num_local_cols; ++local_col) {
+    for (int t = 0; t < num_threads; ++t) {
+      int start = thread_col_ptrs[t][local_col];
+      int end = thread_col_ptrs[t][local_col + 1];
+      for (int i = start; i < end; ++i) {
+        local_values.push_back(thread_values[t][i]);
+        local_rows.push_back(thread_rows[t][i]);
+      }
+    }
+    local_col_ptr[local_col + 1] = static_cast<int>(local_values.size());
+  }
+}
+
 bool SparseMatmulTask::RunImpl() {
   int rank = world_.rank();
   int size = world_.size();
 
   int base_cols = colsB / size;
   int extra_cols = colsB % size;
-  int start_col =
-      (rank < extra_cols) ? ((base_cols + 1) * rank) : ((base_cols + 1) * extra_cols + base_cols * (rank - extra_cols));
+  int start_col = (rank < extra_cols) 
+      ? ((base_cols + 1) * rank) 
+      : (((base_cols + 1) * extra_cols) + (base_cols * (rank - extra_cols)));
   int end_col = start_col + ((rank < extra_cols) ? (base_cols + 1) : base_cols);
   int num_local_cols = end_col - start_col;
 
@@ -99,10 +120,7 @@ bool SparseMatmulTask::RunImpl() {
   std::vector<int> local_rows;
   std::vector<int> local_col_ptr(num_local_cols + 1, 0);
 
-  int num_threads = ppc::util::GetPPCNumThreads();
-  if (num_threads <= 0) {
-    num_threads = 4;
-  }
+  int num_threads = std::max(ppc::util::GetPPCNumThreads(), 1);
 
   std::vector<std::vector<double>> thread_values(num_threads);
   std::vector<std::vector<int>> thread_rows(num_threads);
@@ -129,17 +147,7 @@ bool SparseMatmulTask::RunImpl() {
     t.join();
   }
 
-  for (int local_col = 0; local_col < num_local_cols; ++local_col) {
-    for (int t = 0; t < num_threads; ++t) {
-      int start = thread_col_ptrs[t][local_col];
-      int end = thread_col_ptrs[t][local_col + 1];
-      for (int i = start; i < end; ++i) {
-        local_values.push_back(thread_values[t][i]);
-        local_rows.push_back(thread_rows[t][i]);
-      }
-    }
-    local_col_ptr[local_col + 1] = static_cast<int>(local_values.size());
-  }
+  MergeThreadResults(thread_values, thread_rows, thread_col_ptrs, local_values, local_rows, local_col_ptr, num_local_cols, num_threads);
 
   std::vector<int> proc_start_cols(size);
   std::vector<int> proc_end_cols(size);

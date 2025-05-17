@@ -30,6 +30,18 @@ void VerifyIdentityResult(const konkov_i_sparse_matmul_ccs_all::SparseMatmulTask
   EXPECT_EQ(task.C_col_ptr, task.B_col_ptr);
 }
 
+void ExecuteTestSteps(konkov_i_sparse_matmul_ccs_all::SparseMatmulTask& task) {
+  EXPECT_TRUE(task.PreProcessingImpl());
+  EXPECT_TRUE(task.RunImpl());
+  EXPECT_TRUE(task.PostProcessingImpl());
+}
+
+void VerifyEmptyResult(const konkov_i_sparse_matmul_ccs_all::SparseMatmulTask& task) {
+  EXPECT_TRUE(task.C_values.empty());
+  EXPECT_TRUE(task.C_row_indices.empty());
+  EXPECT_TRUE(task.C_col_ptr.empty());
+}
+
 }  // namespace
 
 TEST(konkov_i_SparseMatmulTest_all, SimpleTest) {
@@ -126,15 +138,11 @@ TEST(konkov_i_SparseMatmulTest_all, IdentityMatrixTest) {
     SetupIdentityMatrices(task);
   }
 
-  EXPECT_TRUE(task.PreProcessingImpl());
-  EXPECT_TRUE(task.RunImpl());
-  EXPECT_TRUE(task.PostProcessingImpl());
+  ExecuteTestSteps(task);
 
   if (world.rank() == 0) {
     VerifyIdentityResult(task);
   } else {
-    EXPECT_TRUE(task.C_values.empty());
-    EXPECT_TRUE(task.C_row_indices.empty());
-    EXPECT_TRUE(task.C_col_ptr.empty());
+    VerifyEmptyResult(task);
   }
 }
