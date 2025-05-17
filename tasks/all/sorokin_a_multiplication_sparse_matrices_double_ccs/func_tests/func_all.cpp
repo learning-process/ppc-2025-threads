@@ -9,7 +9,8 @@
 #include "all/sorokin_a_multiplication_sparse_matrices_double_ccs/include/ops_all.hpp"
 #include "core/task/include/task.hpp"
 
-void CreateTaskData(std::shared_ptr<ppc::core::TaskData> &task_data, int m, int k, int n, std::vector<double> &a_values,
+static void CreateTaskData(std::shared_ptr<ppc::core::TaskData> &task_data, int m, int k, int n,
+                           std::vector<double> &a_values,
                     std::vector<double> &a_row_indices, std::vector<double> &a_col_ptr, std::vector<double> &b_values,
                     std::vector<double> &b_row_indices, std::vector<double> &b_col_ptr, std::vector<double> &c_values,
                     std::vector<double> &c_row_indices, std::vector<double> &c_col_ptr) {
@@ -40,14 +41,14 @@ void CreateTaskData(std::shared_ptr<ppc::core::TaskData> &task_data, int m, int 
   task_data->outputs_count.emplace_back(c_col_ptr.size());
 }
 
-void CheckVectors(const std::vector<double> &expected, const std::vector<double> &actual) {
+static void CheckVectors(const std::vector<double> &expected, const std::vector<double> &actual) {
   ASSERT_EQ(expected.size(), actual.size());
   for (size_t i = 0; i < actual.size(); ++i) {
     ASSERT_NEAR(expected[i], actual[i], 1e-9);
   }
 }
 
-void AssertResult(const std::vector<double> &c_values, const std::vector<double> &r_values,
+static void AssertResult(const std::vector<double> &c_values, const std::vector<double> &r_values,
                   const std::vector<double> &c_row_indices, const std::vector<double> &r_row_indices,
                   const std::vector<double> &c_col_ptr, const std::vector<double> &r_col_ptr) {
   boost::mpi::communicator world;
@@ -58,7 +59,7 @@ void AssertResult(const std::vector<double> &c_values, const std::vector<double>
   }
 }
 
-void CreateAndRunTask(std::shared_ptr<ppc::core::TaskData> &task_data) {
+static void CreateAndRunTask(std::shared_ptr<ppc::core::TaskData> &task_data) {
   sorokin_a_multiplication_sparse_matrices_double_ccs_all::TestTaskALL test_task(task_data);
   ASSERT_TRUE(test_task.Validation());
   test_task.PreProcessing();
