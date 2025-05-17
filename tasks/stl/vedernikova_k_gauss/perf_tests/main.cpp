@@ -1,37 +1,37 @@
 #include <gtest/gtest.h>
 
-#include <algorithm>
 #include <chrono>
-#include <cstddef>
 #include <cstdint>
 #include <memory>
-#include <numeric>
+#include <tuple>
 #include <vector>
 
-#include "../include/ops_stl.hpp"
 #include "core/perf/include/perf.hpp"
 #include "core/task/include/task.hpp"
+#include "stl/vedernikova_k_gauss/include/ops_stl.hpp"
 
 namespace {
-std::vector<double> CreateVector(size_t size) {
-  std::vector<double> vec(size);
-  std::iota(vec.rbegin(), vec.rend(), 0);
-  return vec;
-}
-}  // namespace
 
-TEST(petrov_a_radix_double_batcher_stl, test_pipeline_run) {
-  auto in = CreateVector(22222000);
-  std::vector<double> out(in.size());
+using Pars = std::tuple<uint32_t, uint32_t, uint32_t, uint8_t>;
+
+TEST(vedernikova_k_gauss_test_stl, test_pipeline_run) {
+  const auto &[width, height, channels, brightness] = Pars(1000, 300, 4, 128);
+  const uint32_t size = width * height * channels;
+  std::vector<uint8_t> in(size, brightness);
+  std::vector<uint8_t> out(size);
 
   auto task_data_stl = std::make_shared<ppc::core::TaskData>();
-  task_data_stl->inputs.emplace_back(reinterpret_cast<uint8_t *>(in.data()));
-  task_data_stl->inputs_count.emplace_back(in.size());
+  task_data_stl->inputs.emplace_back(const_cast<uint8_t *>(reinterpret_cast<const uint8_t *>(in.data())));
+  task_data_stl->inputs_count.emplace_back(width);
+  task_data_stl->inputs_count.emplace_back(height);
+  task_data_stl->inputs_count.emplace_back(channels);
   task_data_stl->outputs.emplace_back(reinterpret_cast<uint8_t *>(out.data()));
   task_data_stl->outputs_count.emplace_back(out.size());
 
-  auto task = std::make_shared<petrov_a_radix_double_batcher_stl::TestTaskParallelStl>(task_data_stl);
+  // Create Task
+  auto test_task_stl = std::make_shared<vedernikova_k_gauss_stl::Gauss>(task_data_stl);
 
+  // Create Perf attributes
   auto perf_attr = std::make_shared<ppc::core::PerfAttr>();
   perf_attr->num_running = 10;
   const auto t0 = std::chrono::high_resolution_clock::now();
@@ -40,25 +40,35 @@ TEST(petrov_a_radix_double_batcher_stl, test_pipeline_run) {
     auto duration = std::chrono::duration_cast<std::chrono::nanoseconds>(current_time_point - t0).count();
     return static_cast<double>(duration) * 1e-9;
   };
+
+  // Create and init perf results
   auto perf_results = std::make_shared<ppc::core::PerfResults>();
-  auto perf_analyzer = std::make_shared<ppc::core::Perf>(task);
+
+  // Create Perf analyzer
+  auto perf_analyzer = std::make_shared<ppc::core::Perf>(test_task_stl);
   perf_analyzer->PipelineRun(perf_attr, perf_results);
   ppc::core::Perf::PrintPerfStatistic(perf_results);
-  ASSERT_TRUE(std::ranges::is_sorted(out));
+  ASSERT_EQ(in, out);
 }
 
-TEST(petrov_a_radix_double_batcher_stl, test_task_run) {
-  auto in = CreateVector(22222000);
-  std::vector<double> out(in.size());
+TEST(vedernikova_k_gauss_test_stl, test_task_run) {
+  const auto &[width, height, channels, brightness] = Pars(1000, 300, 4, 128);
+  const uint32_t size = width * height * channels;
+  std::vector<uint8_t> in(size, brightness);
+  std::vector<uint8_t> out(size);
 
   auto task_data_stl = std::make_shared<ppc::core::TaskData>();
-  task_data_stl->inputs.emplace_back(reinterpret_cast<uint8_t *>(in.data()));
-  task_data_stl->inputs_count.emplace_back(in.size());
+  task_data_stl->inputs.emplace_back(const_cast<uint8_t *>(reinterpret_cast<const uint8_t *>(in.data())));
+  task_data_stl->inputs_count.emplace_back(width);
+  task_data_stl->inputs_count.emplace_back(height);
+  task_data_stl->inputs_count.emplace_back(channels);
   task_data_stl->outputs.emplace_back(reinterpret_cast<uint8_t *>(out.data()));
   task_data_stl->outputs_count.emplace_back(out.size());
 
-  auto task = std::make_shared<petrov_a_radix_double_batcher_stl::TestTaskParallelStl>(task_data_stl);
+  // Create Task
+  auto test_task_stl = std::make_shared<vedernikova_k_gauss_stl::Gauss>(task_data_stl);
 
+  // Create Perf attributes
   auto perf_attr = std::make_shared<ppc::core::PerfAttr>();
   perf_attr->num_running = 10;
   const auto t0 = std::chrono::high_resolution_clock::now();
@@ -67,9 +77,14 @@ TEST(petrov_a_radix_double_batcher_stl, test_task_run) {
     auto duration = std::chrono::duration_cast<std::chrono::nanoseconds>(current_time_point - t0).count();
     return static_cast<double>(duration) * 1e-9;
   };
+
+  // Create and init perf results
   auto perf_results = std::make_shared<ppc::core::PerfResults>();
-  auto perf_analyzer = std::make_shared<ppc::core::Perf>(task);
+
+  // Create Perf analyzer
+  auto perf_analyzer = std::make_shared<ppc::core::Perf>(test_task_stl);
   perf_analyzer->TaskRun(perf_attr, perf_results);
   ppc::core::Perf::PrintPerfStatistic(perf_results);
-  ASSERT_TRUE(std::ranges::is_sorted(out));
+  ASSERT_EQ(in, out);
 }
+}  // namespace
