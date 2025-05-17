@@ -5,11 +5,11 @@
 #include <boost/mpi/collectives/gather.hpp>
 #include <boost/serialization/tracking.hpp>
 #include <boost/serialization/tracking_enum.hpp>
+#include <boost/serialization/vector.hpp>
 #include <core/task/include/task.hpp>
 #include <core/util/include/util.hpp>
 #include <cstddef>
 #include <thread>
-#include <boost/serialization/vector.hpp>
 #include <unordered_map>
 #include <utility>
 #include <vector>
