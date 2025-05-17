@@ -197,7 +197,11 @@ bool vavilov_v_cannon_all::CannonALL::RunImpl() {
   int rank = world_.rank();
   int size = world_.size();
 
+  mpi::broadcast(world_, N_, 0);
+
   num_blocks_ = find_optimal_grid_size(size, N_);
+  block_size_ = N_ / num_blocks_;
+  int block_size_sq = block_size_ * block_size_;
 
   int active_procs = num_blocks_ * num_blocks_;
   mpi::communicator active_world = world_.split(rank < active_procs ? 0 : MPI_UNDEFINED);
@@ -219,10 +223,6 @@ bool vavilov_v_cannon_all::CannonALL::RunImpl() {
     }
     return true;
   }
-
-  mpi::broadcast(active_world, N_, 0);
-  block_size_ = N_ / num_blocks_;
-  int block_size_sq = block_size_ * block_size_;
 
   std::vector<double> local_A(block_size_sq);
   std::vector<double> local_B(block_size_sq);
