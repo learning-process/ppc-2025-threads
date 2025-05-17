@@ -42,25 +42,21 @@ void CreateTaskData(std::shared_ptr<ppc::core::TaskData> &task_data, int m, int 
   task_data->outputs_count.emplace_back(c_col_ptr.size());
 }
 
+void CheckVectors(const std::vector<double> &expected, const std::vector<double> &actual) {
+  ASSERT_EQ(expected.size(), actual.size());
+  for (size_t i = 0; i < actual.size(); ++i) {
+    ASSERT_NEAR(expected[i], actual[i], 1e-9);
+  }
+}
+
 void AssertResult(const std::vector<double> &c_values, const std::vector<double> &r_values,
                   const std::vector<double> &c_row_indices, const std::vector<double> &r_row_indices,
                   const std::vector<double> &c_col_ptr, const std::vector<double> &r_col_ptr) {
   boost::mpi::communicator world;
   if (world.rank() == 0) {
-    ASSERT_EQ(c_values.size(), r_values.size());
-    for (size_t i = 0; i < r_values.size(); ++i) {
-      ASSERT_NEAR(c_values[i], r_values[i], 1e-9);
-    }
-
-    ASSERT_EQ(c_row_indices.size(), r_row_indices.size());
-    for (size_t i = 0; i < r_row_indices.size(); ++i) {
-      ASSERT_NEAR(c_row_indices[i], r_row_indices[i], 1e-9);
-    }
-
-    ASSERT_EQ(c_col_ptr.size(), r_col_ptr.size());
-    for (size_t i = 0; i < r_col_ptr.size(); ++i) {
-      ASSERT_NEAR(c_col_ptr[i], r_col_ptr[i], 1e-9);
-    }
+    CheckVectors(c_values, r_values);
+    CheckVectors(c_row_indices, r_row_indices);
+    CheckVectors(c_col_ptr, r_col_ptr);
   }
 }
 
