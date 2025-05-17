@@ -201,6 +201,7 @@ void Labeler::Prepare() {
   labels_.resize(size_, 0);
 }
 
+// NOLINTNEXTLINE
 void Labeler::Collect() {
   Labels labels;
   if (world_.rank() == 0) {
@@ -212,6 +213,53 @@ void Labeler::Collect() {
     height_ = full_height_;
     size_ = height_ * width_;
     labels_ = std::move(labels);
+    assert(size_ == labels_);
+  }
+
+  Ordinals ordinals(world_.size(), 0);
+  boost::mpi::gather(world_, std::ranges::max(labels_), ordinals.data(), 0);
+  if (world_.rank() == 0) {
+    Ordinal shift = 0;
+    auto displs = displs_;
+    displs.push_back(static_cast<int>(size_));
+    for (unsigned long j = 1; j < displs.size(); j++) {
+      for (int i = displs[j - 1]; i < displs[j]; i++) {
+        if (labels_[i] != 0) {
+          labels_[i] += shift;
+        }
+      }
+      shift += ordinals[j - 1];
+    }
+
+    DisjointSet dsj(width_);
+    long start_pos = 0;
+    long end_pos = width_;
+
+    for (unsigned long i = 0; i < counts_.size() - 1; i++) {
+      start_pos += counts_[i];
+      end_pos += counts_[i];
+      for (long pos = start_pos; pos < end_pos; pos++) {
+        if (labels_[pos] == 0) {
+          continue;
+        }
+        Ordinal lower = labels_[pos];
+        for (long shift = -1; shift < 2; shift++) {
+          if ((pos == start_pos && shift == -1) || (pos == end_pos - 1 && shift == 1)) {
+            continue;
+          }
+          long neighbour_pos = std::clamp(pos + shift, start_pos, end_pos - 1) - width_;
+          if (neighbour_pos < 0 || neighbour_pos >= static_cast<long>(size_) || labels_[neighbour_pos] == 0) {
+            continue;
+          }
+          Ordinal upper = labels_[neighbour_pos];
+          dsj.UnionRank(lower, upper);
+        }
+      }
+    }
+
+    for (Length i = 0; i < size_; i++) {
+      labels_[i] = dsj.FindParent(labels_[i]);
+    }
   }
 }
 
@@ -242,13 +290,6 @@ bool Labeler::RunImpl() {
   LabelingRasterScan(ordinals);
   GlobalizeLabels(ordinals);
   UniteChunks();
-
-  for (Length i = 0; i < size_ + 1; i++) {
-    if (i % width_ == 0) {
-      std::cout << "\n";
-    }
-    std::cout << labels_[i] << " ";
-  }
 
   Collect();
   return true;

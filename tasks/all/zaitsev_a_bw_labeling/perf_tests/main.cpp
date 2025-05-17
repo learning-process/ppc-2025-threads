@@ -5,6 +5,8 @@
 #include <map>
 #include <memory>
 
+#include "boost/mpi/communicator.hpp"
+
 #ifndef _WIN32
 #include <opencv2/opencv.hpp>
 #endif
@@ -14,7 +16,6 @@
 #include "all/zaitsev_a_bw_labeling/include/ops_mpi.hpp"
 #include "core/perf/include/perf.hpp"
 #include "core/task/include/task.hpp"
-
 
 #ifndef _WIN32
 namespace {
@@ -62,6 +63,8 @@ bool IsIsomorphic(const std::vector<std::uint16_t>& first, std::vector<std::uint
 
 TEST(zaitsev_a_labeling_mpi, test_pipeline_run) {
 #ifndef _WIN32
+
+  boost::mpi::communicator world;
   const int width = 1000;
   const int height = 1000;
   std::vector<std::uint8_t> in(width * height);
@@ -98,13 +101,15 @@ TEST(zaitsev_a_labeling_mpi, test_pipeline_run) {
   auto perf_analyzer = std::make_shared<ppc::core::Perf>(test_task_sequential);
   perf_analyzer->PipelineRun(perf_attr, perf_results);
   ppc::core::Perf::PrintPerfStatistic(perf_results);
-  EXPECT_TRUE(IsIsomorphic(exp, out));
+
+  EXPECT_TRUE(world.rank() != 0 || IsIsomorphic(exp, out));
 #endif
   EXPECT_TRUE(true);
 }
 
 TEST(zaitsev_a_labeling_mpi, test_task_run) {
 #ifndef _WIN32
+  boost::mpi::communicator world;
   const int width = 1000;
   const int height = 1000;
   std::vector<std::uint8_t> in(width * height);
@@ -141,7 +146,7 @@ TEST(zaitsev_a_labeling_mpi, test_task_run) {
   auto perf_analyzer = std::make_shared<ppc::core::Perf>(test_task_sequential);
   perf_analyzer->TaskRun(perf_attr, perf_results);
   ppc::core::Perf::PrintPerfStatistic(perf_results);
-  EXPECT_TRUE(IsIsomorphic(exp, out));
+  EXPECT_TRUE(world.rank() != 0 || IsIsomorphic(exp, out));
 #endif
   EXPECT_TRUE(true);
 }

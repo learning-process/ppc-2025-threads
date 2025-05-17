@@ -41,8 +41,8 @@ class zaitsev_a_labeling_test_mpi : public ::testing::TestWithParam<std::string>
     std::mt19937 gen(rd());
     std::uniform_int_distribution<> distr(min_size, max_size);
 
-    int width = 10;   // distr(gen);
-    int height = 10;  // distr(gen);
+    int width = distr(gen);
+    int height = distr(gen);
 
     cv::Mat img(height, width, CV_8UC1);
     cv::randu(img, 0, 2);
@@ -151,15 +151,15 @@ TEST_P(zaitsev_a_labeling_test_mpi, returns_correct_label_map) {
 
 // clang-format off
 INSTANTIATE_TEST_SUITE_P(zaitsev_a_labeling_test_tbb, zaitsev_a_labeling_test_mpi, ::testing::Values(
-    // "help.jpg",
-    // "kittens.jpg",
-    // "rombs.jpg",
-    // "silly.jpg",
-    // "trig.jpg",
-    // "rand",
-    // "rand",
-    // "rand",
-    // "rand",
+    "help.jpg",
+    "kittens.jpg",
+    "rombs.jpg",
+    "silly.jpg",
+    "trig.jpg",
+    "rand",
+    "rand",
+    "rand",
+    "rand",
     "rand"
   )
 );
