@@ -10,10 +10,11 @@
 #include "core/task/include/task.hpp"
 
 static void CreateTaskData(std::shared_ptr<ppc::core::TaskData> &task_data, int m, int k, int n,
-                           std::vector<double> &a_values,
-                    std::vector<double> &a_row_indices, std::vector<double> &a_col_ptr, std::vector<double> &b_values,
-                    std::vector<double> &b_row_indices, std::vector<double> &b_col_ptr, std::vector<double> &c_values,
-                    std::vector<double> &c_row_indices, std::vector<double> &c_col_ptr) {
+                           std::vector<double> &a_values, std::vector<double> &a_row_indices,
+                           std::vector<double> &a_col_ptr, std::vector<double> &b_values,
+                           std::vector<double> &b_row_indices, std::vector<double> &b_col_ptr,
+                           std::vector<double> &c_values, std::vector<double> &c_row_indices,
+                           std::vector<double> &c_col_ptr) {
   task_data = std::make_shared<ppc::core::TaskData>();
   task_data->inputs_count.emplace_back(m);
   task_data->inputs_count.emplace_back(k);
@@ -49,8 +50,8 @@ static void CheckVectors(const std::vector<double> &expected, const std::vector<
 }
 
 static void AssertResult(const std::vector<double> &c_values, const std::vector<double> &r_values,
-                  const std::vector<double> &c_row_indices, const std::vector<double> &r_row_indices,
-                  const std::vector<double> &c_col_ptr, const std::vector<double> &r_col_ptr) {
+                         const std::vector<double> &c_row_indices, const std::vector<double> &r_row_indices,
+                         const std::vector<double> &c_col_ptr, const std::vector<double> &r_col_ptr) {
   boost::mpi::communicator world;
   if (world.rank() == 0) {
     CheckVectors(c_values, r_values);
