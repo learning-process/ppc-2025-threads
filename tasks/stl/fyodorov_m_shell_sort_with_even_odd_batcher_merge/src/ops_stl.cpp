@@ -68,7 +68,7 @@ void TestTaskSTL::LaunchTasksForGroups(int gap, int n, size_t num_groups, size_t
       size_t start = (t * groups_per_thread) + std::min(t, extra);
       size_t end = start + groups_per_thread + (t < extra ? 1 : 0);
       for (size_t g = start; g < end; ++g) {
-        ProcessGroup(gap, n, input_, groups[g]);
+        TestTaskSTL::ProcessGroup(gap, n, input_, groups[g]);
       }
     }));
   }
