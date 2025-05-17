@@ -31,9 +31,9 @@ class CannonALL : public ppc::core::Task {
   void InitialShift(std::vector<double>& local_A, std::vector<double>& local_B);
   void BlockMultiply(const std::vector<double>& local_A, const std::vector<double>& local_B,
                      std::vector<double>& local_C);
-  void ShiftBlocksone();
-  void InitialShiftone();
-  void BlockMultiplyone();
+  // void ShiftBlocksone();
+  // void InitialShiftone();
+  // void BlockMultiplyone();
   void ShiftBlocks(std::vector<double>& local_A, std::vector<double>& local_B);
   static int find_optimal_grid_size(int size, int N);
   static void take_block(const std::vector<double>& matrix, double* block, int N, int K, int block_row, int block_col);
