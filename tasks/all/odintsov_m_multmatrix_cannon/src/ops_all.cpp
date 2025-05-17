@@ -222,7 +222,7 @@ bool odintsov_m_mulmatrix_cannon_all::MulMatrixCannonALL::RunImpl() {
   int count_b = static_cast<int>(matrixB_.size());
   if (rank != 0) {
     matrixA_.resize(count_a);
-    matrixB_.resize(count_b); 
+    matrixB_.resize(count_b);
   }
   // Считываем параметры на всех рангах
   boost::mpi::broadcast(com_, szA_, /*root=*/0);
