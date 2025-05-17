@@ -377,7 +377,6 @@ bool vavilov_v_cannon_all::CannonALL::RunImpl() {
   mpi::gather(active_world, local_C.data(), block_size_sq, tmp_C.data(), 0);
 
   if (rank == 0) {
-#pragma omp parallel for
     for (int block_row = 0; block_row < num_blocks_; ++block_row) {
       for (int block_col = 0; block_col < num_blocks_; ++block_col) {
         int block_rank = block_row * num_blocks_ + block_col;
