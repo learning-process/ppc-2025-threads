@@ -12,23 +12,23 @@
 
 namespace mpi = boost::mpi;
 
-int vavilov_v_cannon_all::CannonALL::find_compatible_q(int size, int N) {
-  int q = std::floor(std::sqrt(size));
-  while (q > 0) {
-    if (N % q == 0) {
+int vavilov_v_cannon_all::CannonALL::find_optimal_grid_size(int size, int N) {
+  int grid = std::floor(std::sqrt(size));
+  while (grid > 0) {
+    if (N % grid == 0) {
       break;
     }
-    --q;
+    --grid;
   }
-  return q > 0 ? q : 1;
+  return grid > 0 ? grid : 1;
 }
 
-void vavilov_v_cannon_all::CannonALL::extract_block(const std::vector<double>& matrix, double* block, int N, int K,
+void vavilov_v_cannon_all::CannonALL::take_block(const std::vector<double>& matrix, double* block, int N, int K,
                                                     int block_row, int block_col) {
 #pragma omp parallel for
   for (int i = 0; i < K; ++i) {
     for (int j = 0; j < K; ++j) {
-      block[i * K + j] = matrix[(block_row * K + i) * N + (block_col * K + j)];
+      block[(i * K) + j] = matrix[(((block_row * K) + i) * N) + ((block_col * K) + j)];
     }
   }
 }
@@ -63,11 +63,11 @@ void vavilov_v_cannon_all::CannonALL::InitialShift(std::vector<double>& local_A,
   int row = rank / grid_size;
   int col = rank % grid_size;
 
-  int send_rank_A = row * grid_size + (col + grid_size - 1) % grid_size;
-  int recv_rank_A = row * grid_size + (col + 1) % grid_size;
+  int send_rank_A = (row * grid_size) + (col + grid_size - 1) % grid_size;
+  int recv_rank_A = (row * grid_size) + (col + 1) % grid_size;
 
-  int send_rank_B = col + grid_size * ((row + grid_size - 1) % grid_size);
-  int recv_rank_B = col + grid_size * ((row + 1) % grid_size);
+  int send_rank_B = col + (grid_size * ((row + grid_size - 1) % grid_size));
+  int recv_rank_B = col + (grid_size * ((row + 1) % grid_size));
 
   std::vector<double> tmp_A(block_size_ * block_size_);
   std::vector<double> tmp_B(block_size_ * block_size_);
@@ -96,12 +96,12 @@ void vavilov_v_cannon_all::CannonALL::ShiftBlocks(std::vector<double>& local_A, 
   int col = rank % grid_size;
 
   // Shift A left
-  int send_rank_A = row * grid_size + (col + grid_size - 1) % grid_size;
-  int recv_rank_A = row * grid_size + (col + 1) % grid_size;
+  int send_rank_A = (row * grid_size) + (col + grid_size - 1) % grid_size;
+  int recv_rank_A = (row * grid_size) + (col + 1) % grid_size;
 
   // Shift B up
-  int send_rank_B = col + grid_size * ((row + grid_size - 1) % grid_size);
-  int recv_rank_B = col + grid_size * ((row + 1) % grid_size);
+  int send_rank_B = col + (grid_size * ((row + grid_size - 1) % grid_size));
+  int recv_rank_B = col + (grid_size * ((row + 1) % grid_size));
 
   std::vector<double> tmp_A(block_size_ * block_size_);
   std::vector<double> tmp_B(block_size_ * block_size_);
@@ -124,9 +124,9 @@ void vavilov_v_cannon_all::CannonALL::BlockMultiply(const std::vector<double>& l
     for (int j = 0; j < block_size_; ++j) {
       double temp = 0.0;
       for (int k = 0; k < block_size_; ++k) {
-        temp += local_A[i * block_size_ + k] * local_B[k * block_size_ + j];
+        temp += local_A[(i * block_size_) + k] * local_B[(k * block_size_) + j];
       }
-      local_C[i * block_size_ + j] += temp;
+      local_C[(i * block_size_) + j] += temp;
     }
   }
 }
@@ -197,17 +197,14 @@ bool vavilov_v_cannon_all::CannonALL::RunImpl() {
   int rank = world_.rank();
   int size = world_.size();
 
-  // Find compatible grid size
-  num_blocks_ = find_compatible_q(size, N_);
+  num_blocks_ = find_optimal_grid_size(size, N_);
 
-  // Create sub-communicator for active processes
   int active_procs = num_blocks_ * num_blocks_;
   mpi::communicator active_world = world_.split(rank < active_procs ? 0 : MPI_UNDEFINED);
   if (rank >= active_procs) {
     return true;
   }
 
-  // Update rank and size for the new communicator
   rank = active_world.rank();
   size = active_world.size();
 
@@ -220,7 +217,6 @@ bool vavilov_v_cannon_all::CannonALL::RunImpl() {
         ShiftBlocksone();
       }
     }
-    world_.barrier();
     return true;
   }
 
@@ -228,12 +224,10 @@ bool vavilov_v_cannon_all::CannonALL::RunImpl() {
   block_size_ = N_ / num_blocks_;
   int block_size_sq = block_size_ * block_size_;
 
-  // Initialize local matrices
   std::vector<double> local_A(block_size_sq);
   std::vector<double> local_B(block_size_sq);
   std::vector<double> local_C(block_size_sq, 0);
 
-  // Scatter matrices A and B
   std::vector<double> scatter_A;
   std::vector<double> scatter_B;
   if (rank == 0) {
@@ -242,8 +236,8 @@ bool vavilov_v_cannon_all::CannonALL::RunImpl() {
     int index = 0;
     for (int block_row = 0; block_row < num_blocks_; ++block_row) {
       for (int block_col = 0; block_col < num_blocks_; ++block_col) {
-        extract_block(A_, scatter_A.data() + index, N_, block_size_, block_row, block_col);
-        extract_block(B_, scatter_B.data() + index, N_, block_size_, block_row, block_col);
+        take_block(A_, scatter_A.data() + index, N_, block_size_, block_row, block_col);
+        take_block(B_, scatter_B.data() + index, N_, block_size_, block_row, block_col);
         index += block_size_sq;
       }
     }
@@ -252,34 +246,30 @@ bool vavilov_v_cannon_all::CannonALL::RunImpl() {
   mpi::scatter(active_world, scatter_A.data(), local_A.data(), block_size_sq, 0);
   mpi::scatter(active_world, scatter_B.data(), local_B.data(), block_size_sq, 0);
 
-  // Perform initial alignment
   InitialShift(local_A, local_B);
 
-  // Main computation loop
   BlockMultiply(local_A, local_B, local_C);
   for (int iter = 0; iter < num_blocks_ - 1; ++iter) {
     ShiftBlocks(local_A, local_B);
     BlockMultiply(local_A, local_B, local_C);
   }
 
-  // Gather results
   std::vector<double> tmp_C;
   if (rank == 0) {
     tmp_C.resize(active_procs * block_size_sq);
   }
   mpi::gather(active_world, local_C.data(), block_size_sq, tmp_C.data(), 0);
 
-  // Rearrange result into C_
   if (rank == 0) {
     for (int block_row = 0; block_row < num_blocks_; ++block_row) {
       for (int block_col = 0; block_col < num_blocks_; ++block_col) {
-        int block_rank = block_row * num_blocks_ + block_col;
+        int block_rank = (block_row * num_blocks_) + block_col;
         int block_index = block_rank * block_size_sq;
         for (int i = 0; i < block_size_; ++i) {
           for (int j = 0; j < block_size_; ++j) {
-            int global_row = block_row * block_size_ + i;
-            int global_col = block_col * block_size_ + j;
-            C_[global_row * N_ + global_col] = tmp_C[block_index + i * block_size_ + j];
+            int global_row = (block_row * block_size_) + i;
+            int global_col = (block_col * block_size_) + j;
+            C_[(global_row * N_) + global_col] = tmp_C[block_index + (i * block_size_) + j];
           }
         }
       }
@@ -296,7 +286,7 @@ bool vavilov_v_cannon_all::CannonALL::RunImpl() {
 
   mpi::broadcast(world_, N_, 0);
 
-  num_blocks_ = find_compatible_q(size, N_);
+  num_blocks_ = find_optimal_grid_size(size, N_);
   block_size_ = N_ / num_blocks_;
   int block_size_sq = block_size_ * block_size_;
 
@@ -322,8 +312,8 @@ bool vavilov_v_cannon_all::CannonALL::RunImpl() {
     int index = 0;
     for (int block_row = 0; block_row < num_blocks_; ++block_row) {
       for (int block_col = 0; block_col < num_blocks_; ++block_col) {
-        extract_block(A_, scatter_A.data() + index, N_, block_size_, block_row, block_col);
-        extract_block(B_, scatter_B.data() + index, N_, block_size_, block_row, block_col);
+        take_block(A_, scatter_A.data() + index, N_, block_size_, block_row, block_col);
+        take_block(B_, scatter_B.data() + index, N_, block_size_, block_row, block_col);
         index += block_size_sq;
       }
     }
@@ -451,7 +441,7 @@ bool vavilov_v_cannon_all::CannonALL::RunImpl() {
   int size = world_.size();
 
   mpi::broadcast(world_, N_, 0);
-  num_blocks_ = find_compatible_q(size, N_);
+  num_blocks_ = find_optimal_grid_size(size, N_);
   block_size_ = N_ / num_blocks_;
   int block_size_sq = block_size_ * block_size_;
 
@@ -468,8 +458,8 @@ bool vavilov_v_cannon_all::CannonALL::RunImpl() {
     std::vector<double> scatter_B(num_blocks_ * num_blocks_ * block_size_sq);
     for (int i = 0; i < num_blocks_; ++i) {
       for (int j = 0; j < num_blocks_; ++j) {
-        extract_block(A_, scatter_A.data() + (i * num_blocks_ + j) * block_size_sq, N_, block_size_, i, j);
-        extract_block(B_, scatter_B.data() + (i * num_blocks_ + j) * block_size_sq, N_, block_size_, i, j);
+        take_block(A_, scatter_A.data() + (i * num_blocks_ + j) * block_size_sq, N_, block_size_, i, j);
+        take_block(B_, scatter_B.data() + (i * num_blocks_ + j) * block_size_sq, N_, block_size_, i, j);
       }
     }
     mpi::scatter(active_world, scatter_A.data(), local_A.data(), block_size_sq, 0);
