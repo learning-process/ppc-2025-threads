@@ -219,16 +219,16 @@ void Labeler::Collect() {
   Ordinals ordinals(world_.size(), 0);
   boost::mpi::gather(world_, std::ranges::max(labels_), ordinals.data(), 0);
   if (world_.rank() == 0) {
-    Ordinal shift = 0;
+    Ordinal shifttt = 0;
     auto displs = displs_;
     displs.push_back(static_cast<int>(size_));
     for (unsigned long j = 1; j < displs.size(); j++) {
       for (int i = displs[j - 1]; i < displs[j]; i++) {
         if (labels_[i] != 0) {
-          labels_[i] += shift;
+          labels_[i] += shifttt;
         }
       }
-      shift += ordinals[j - 1];
+      shifttt += ordinals[j - 1];
     }
 
     DisjointSet dsj(width_);
