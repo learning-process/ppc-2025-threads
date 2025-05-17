@@ -9,7 +9,7 @@
 #include "all/sorokin_a_multiplication_sparse_matrices_double_ccs/include/ops_all.hpp"
 #include "core/task/include/task.hpp"
 
-namespace sorokin_a_multiplication_sparse_matrices_double_ccs_all_test {
+namespace {
 static void CreateTaskData(std::shared_ptr<ppc::core::TaskData> &task_data, int m, int k, int n,
                            std::vector<double> &a_values, std::vector<double> &a_row_indices,
                            std::vector<double> &a_col_ptr, std::vector<double> &b_values,
@@ -68,7 +68,7 @@ static void CreateAndRunTask(std::shared_ptr<ppc::core::TaskData> &task_data) {
   test_task.Run();
   test_task.PostProcessing();
 }
-}  // namespace sorokin_a_multiplication_sparse_matrices_double_ccs_all_test
+}  // namespace
 
 TEST(sorokin_a_multiplication_sparse_matrices_double_ccs_all, test_3x3_x_3x3) {
   int m = 3;
