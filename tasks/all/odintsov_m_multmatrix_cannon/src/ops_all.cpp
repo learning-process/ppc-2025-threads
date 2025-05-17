@@ -3,17 +3,13 @@
 #include <algorithm>
 #include <boost/mpi/collectives.hpp>
 #include <boost/mpi/communicator.hpp>
-#include <boost/mpi/operations.hpp>
-#include <boost/mpi/reduce.hpp>
 #include <cmath>
 #include <cstddef>
-#include <functional>
-#include <thread>
 #include <vector>
 
 using namespace std;
-void odintsov_m_mulmatrix_cannon_all::MulMatrixCannonALL::ShiftRow(std::vector<double>& matrix, int root, int row,
-                                                                   int shift) {
+static void odintsov_m_mulmatrix_cannon_all::MulMatrixCannonALL::ShiftRow(std::vector<double>& matrix, int root,
+                                                                          int row, int shift) {
   shift = shift % root;
   std::vector<double> tmp(root);
   for (int j = 0; j < root; j++) {
@@ -24,8 +20,8 @@ void odintsov_m_mulmatrix_cannon_all::MulMatrixCannonALL::ShiftRow(std::vector<d
   }
 }
 
-void odintsov_m_mulmatrix_cannon_all::MulMatrixCannonALL::ShiftColumn(std::vector<double>& matrix, int root, int col,
-                                                                      int shift) {
+static void odintsov_m_mulmatrix_cannon_all::MulMatrixCannonALL::ShiftColumn(std::vector<double>& matrix, int root,
+                                                                             int col, int shift) {
   shift = shift % root;
   std::vector<double> tmp(root);
 
@@ -108,9 +104,9 @@ int odintsov_m_mulmatrix_cannon_all::MulMatrixCannonALL::GetBlockSize(int n) {
   }
   return 1;
 }
-void odintsov_m_mulmatrix_cannon_all::MulMatrixCannonALL::CopyBlock(const std::vector<double>& matrix,
-                                                                    std::vector<double>& block, int start, int root,
-                                                                    int block_sz) {
+static void odintsov_m_mulmatrix_cannon_all::MulMatrixCannonALL::CopyBlock(const std::vector<double>& matrix,
+                                                                           std::vector<double>& block, int start,
+                                                                           int root, int block_sz) {
   for (int i = 0; i < block_sz; i++) {
     for (int j = 0; j < block_sz; j++) {
       int index = start + (i * root) + j;
@@ -118,9 +114,9 @@ void odintsov_m_mulmatrix_cannon_all::MulMatrixCannonALL::CopyBlock(const std::v
     }
   }
 }
-void odintsov_m_mulmatrix_cannon_all::MulMatrixCannonALL::InitializeShift(std::vector<double>& matrix, int root,
-                                                                          int grid_size, int block_sz,
-                                                                          bool is_row_shift) {
+static void odintsov_m_mulmatrix_cannon_all::MulMatrixCannonALL::InitializeShift(std::vector<double>& matrix, int root,
+                                                                                 int grid_size, int block_sz,
+                                                                                 bool is_row_shift) {
   for (int b = 0; b < grid_size; ++b) {
     for (int index = b * block_sz; index < (b + 1) * block_sz; ++index) {
       for (int shift = 0; shift < b; ++shift) {
@@ -134,11 +130,11 @@ void odintsov_m_mulmatrix_cannon_all::MulMatrixCannonALL::InitializeShift(std::v
   }
 }
 
-void odintsov_m_mulmatrix_cannon_all::MulMatrixCannonALL::ProcessBlockMul(int bi, int bj_start, int bj_end, int root,
-                                                                          int block_sz,
-                                                                          const std::vector<double>& matrix_a,
-                                                                          const std::vector<double>& matrix_b,
-                                                                          std::vector<double>& local_c) {
+static void odintsov_m_mulmatrix_cannon_all::MulMatrixCannonALL::ProcessBlockMul(int bi, int bj_start, int bj_end,
+                                                                                 int root, int block_sz,
+                                                                                 const std::vector<double>& matrix_a,
+                                                                                 const std::vector<double>& matrix_b,
+                                                                                 std::vector<double>& local_c) {
   std::vector<double> a_block(block_sz * block_sz);
   std::vector<double> b_block(block_sz * block_sz);
 
@@ -166,11 +162,11 @@ void odintsov_m_mulmatrix_cannon_all::MulMatrixCannonALL::ProcessBlockMul(int bi
   }
 }
 
-void odintsov_m_mulmatrix_cannon_all::MulMatrixCannonALL::ProcessBlockSTL(int bi, int num_blocks, int root,
-                                                                          int block_sz,
-                                                                          const std::vector<double>& matrix_a,
-                                                                          const std::vector<double>& matrix_b,
-                                                                          std::vector<double>& local_c) {
+static void odintsov_m_mulmatrix_cannon_all::MulMatrixCannonALL::ProcessBlockSTL(int bi, int num_blocks, int root,
+                                                                                 int block_sz,
+                                                                                 const std::vector<double>& matrix_a,
+                                                                                 const std::vector<double>& matrix_b,
+                                                                                 std::vector<double>& local_c) {
   int tcount = 1;
   std::vector<std::thread> threads;
   threads.reserve(tcount);
