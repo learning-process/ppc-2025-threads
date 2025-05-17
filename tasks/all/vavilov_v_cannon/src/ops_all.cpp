@@ -56,7 +56,7 @@ bool vavilov_v_cannon_all::CannonALL::ValidationImpl() {
   }
   return true;
 }
-/*
+
 void vavilov_v_cannon_all::CannonALL::InitialShift(std::vector<double>& local_A, std::vector<double>& local_B) {
   int rank = world_.rank();
   int grid_size = num_blocks_;
@@ -130,7 +130,7 @@ void vavilov_v_cannon_all::CannonALL::BlockMultiply(const std::vector<double>& l
     }
   }
 }
-
+/*
 void vavilov_v_cannon_all::CannonALL::InitialShiftone() {
   std::vector<double> a_tmp = A_;
   std::vector<double> b_tmp = B_;
@@ -280,7 +280,7 @@ bool vavilov_v_cannon_all::CannonALL::RunImpl() {
   return true;
 }
 */
-/*
+
 bool vavilov_v_cannon_all::CannonALL::RunImpl() {
   int rank = world_.rank();
   int size = world_.size();
@@ -376,6 +376,7 @@ bool vavilov_v_cannon_all::CannonALL::RunImpl() {
   mpi::gather(active_world, local_C.data(), block_size_sq, tmp_C.data(), 0);
 
   if (rank == 0) {
+#pragma omp parallel for
     for (int block_row = 0; block_row < num_blocks_; ++block_row) {
       for (int block_col = 0; block_col < num_blocks_; ++block_col) {
         int block_rank = block_row * num_blocks_ + block_col;
@@ -385,115 +386,6 @@ bool vavilov_v_cannon_all::CannonALL::RunImpl() {
             int global_row = block_row * block_size_ + i;
             int global_col = block_col * block_size_ + j;
             C_[global_row * N_ + global_col] = tmp_C[block_index + i * block_size_ + j];
-          }
-        }
-      }
-    }
-  }
-
-  return true;
-}
-
-*/
-void vavilov_v_cannon_all::CannonALL::InitialShift(std::vector<double>& local_A, std::vector<double>& local_B) {
-  int rank = world_.rank();
-  int grid_size = num_blocks_;
-  int row = rank / grid_size;
-  int col = rank % grid_size;
-
-  // Сдвиг A влево на 'row' позиций
-  if (row != 0) {
-    int send_rank = row * grid_size + (col + grid_size - row) % grid_size;
-    int recv_rank = row * grid_size + (col + row) % grid_size;
-    world_.send(send_rank, 0, local_A.data(), block_size_ * block_size_);
-    world_.recv(recv_rank, 0, local_A.data(), block_size_ * block_size_);
-  }
-
-  // Сдвиг B вверх на 'col' позиций
-  if (col != 0) {
-    int send_rank = col + grid_size * ((row + grid_size - col) % grid_size);
-    int recv_rank = col + grid_size * ((row + col) % grid_size);
-    world_.send(send_rank, 1, local_B.data(), block_size_ * block_size_);
-    world_.recv(recv_rank, 1, local_B.data(), block_size_ * block_size_);
-  }
-}
-
-void vavilov_v_cannon_all::CannonALL::ShiftBlocks(std::vector<double>& local_A, std::vector<double>& local_B) {
-  int rank = world_.rank();
-  int grid_size = num_blocks_;
-  int row = rank / grid_size;
-  int col = rank % grid_size;
-
-  // Сдвиг A влево на 1 позицию
-  int send_A = row * grid_size + (col + grid_size - 1) % grid_size;
-  int recv_A = row * grid_size + (col + 1) % grid_size;
-  world_.send(send_A, 2, local_A.data(), block_size_ * block_size_);
-  world_.recv(recv_A, 2, local_A.data(), block_size_ * block_size_);
-
-  // Сдвиг B вверх на 1 позицию
-  int send_B = col + grid_size * ((row + grid_size - 1) % grid_size);
-  int recv_B = col + grid_size * ((row + 1) % grid_size);
-  world_.send(send_B, 3, local_B.data(), block_size_ * block_size_);
-  world_.recv(recv_B, 3, local_B.data(), block_size_ * block_size_);
-}
-
-bool vavilov_v_cannon_all::CannonALL::RunImpl() {
-  int rank = world_.rank();
-  int size = world_.size();
-
-  mpi::broadcast(world_, N_, 0);
-  num_blocks_ = find_optimal_grid_size(size, N_);
-  block_size_ = N_ / num_blocks_;
-  int block_size_sq = block_size_ * block_size_;
-
-  // Создаём под-коммуникатор для активных процессов
-  mpi::communicator active_world = world_.split(rank < num_blocks_ * num_blocks_ ? 0 : MPI_UNDEFINED);
-  if (rank >= num_blocks_ * num_blocks_) return true;
-
-  rank = active_world.rank();
-  std::vector<double> local_A(block_size_sq), local_B(block_size_sq), local_C(block_size_sq, 0.0);
-
-  // Разделяем данные (scatter)
-  if (rank == 0) {
-    std::vector<double> scatter_A(num_blocks_ * num_blocks_ * block_size_sq);
-    std::vector<double> scatter_B(num_blocks_ * num_blocks_ * block_size_sq);
-    for (int i = 0; i < num_blocks_; ++i) {
-      for (int j = 0; j < num_blocks_; ++j) {
-        take_block(A_, scatter_A.data() + (i * num_blocks_ + j) * block_size_sq, N_, block_size_, i, j);
-        take_block(B_, scatter_B.data() + (i * num_blocks_ + j) * block_size_sq, N_, block_size_, i, j);
-      }
-    }
-    mpi::scatter(active_world, scatter_A.data(), local_A.data(), block_size_sq, 0);
-    mpi::scatter(active_world, scatter_B.data(), local_B.data(), block_size_sq, 0);
-  } else {
-    mpi::scatter(active_world, local_A.data(), block_size_sq, 0);
-    mpi::scatter(active_world, local_B.data(), block_size_sq, 0);
-  }
-
-  // Начальный сдвиг
-  InitialShift(local_A, local_B);
-
-  // Основной цикл
-  BlockMultiply(local_A, local_B, local_C);
-  for (int iter = 1; iter < num_blocks_; ++iter) {
-    ShiftBlocks(local_A, local_B);
-    BlockMultiply(local_A, local_B, local_C);
-  }
-
-  // Сбор результатов (gather)
-  std::vector<double> gathered_C;
-  if (rank == 0) gathered_C.resize(num_blocks_ * num_blocks_ * block_size_sq);
-  mpi::gather(active_world, local_C.data(), block_size_sq, gathered_C.data(), 0);
-
-  // Формируем итоговую матрицу C_
-  if (rank == 0) {
-#pragma omp parallel for
-    for (int i = 0; i < num_blocks_; ++i) {
-      for (int j = 0; j < num_blocks_; ++j) {
-        int block_idx = (i * num_blocks_ + j) * block_size_sq;
-        for (int bi = 0; bi < block_size_; ++bi) {
-          for (int bj = 0; bj < block_size_; ++bj) {
-            C_[(i * block_size_ + bi) * N_ + (j * block_size_ + bj)] = gathered_C[block_idx + bi * block_size_ + bj];
           }
         }
       }
