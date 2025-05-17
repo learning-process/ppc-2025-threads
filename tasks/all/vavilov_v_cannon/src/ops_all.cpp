@@ -56,7 +56,7 @@ bool vavilov_v_cannon_all::CannonALL::ValidationImpl() {
   }
   return true;
 }
-
+/*
 void vavilov_v_cannon_all::CannonALL::InitialShift(std::vector<double>& local_A, std::vector<double>& local_B) {
   int rank = world_.rank();
   int grid_size = num_blocks_;
@@ -281,7 +281,7 @@ bool vavilov_v_cannon_all::CannonALL::RunImpl() {
   return true;
 }
 */
-
+/*
 bool vavilov_v_cannon_all::CannonALL::RunImpl() {
   int rank = world_.rank();
   int size = world_.size();
@@ -395,7 +395,7 @@ bool vavilov_v_cannon_all::CannonALL::RunImpl() {
   return true;
 }
 
-/*
+*/
 void vavilov_v_cannon_all::CannonALL::InitialShift(std::vector<double>& local_A, std::vector<double>& local_B) {
   int rank = world_.rank();
   int grid_size = num_blocks_;
@@ -503,7 +503,7 @@ bool vavilov_v_cannon_all::CannonALL::RunImpl() {
 
   return true;
 }
-*/
+
 bool vavilov_v_cannon_all::CannonALL::PostProcessingImpl() {
   if (world_.rank() == 0) {
     std::ranges::copy(C_, reinterpret_cast<double*>(task_data->outputs[0]));
