@@ -131,7 +131,6 @@ void vavilov_v_cannon_all::CannonALL::BlockMultiply(const std::vector<double>& l
   }
 }
 
-/*
 void vavilov_v_cannon_all::CannonALL::InitialShiftone() {
   std::vector<double> a_tmp = A_;
   std::vector<double> b_tmp = B_;
