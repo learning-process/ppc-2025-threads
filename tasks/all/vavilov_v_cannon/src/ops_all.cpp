@@ -24,7 +24,7 @@ int vavilov_v_cannon_all::CannonALL::find_optimal_grid_size(int size, int N) {
 }
 
 void vavilov_v_cannon_all::CannonALL::take_block(const std::vector<double>& matrix, double* block, int N, int K,
-                                                    int block_row, int block_col) {
+                                                 int block_row, int block_col) {
 #pragma omp parallel for
   for (int i = 0; i < K; ++i) {
     for (int j = 0; j < K; ++j) {
