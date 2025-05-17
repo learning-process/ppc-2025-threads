@@ -5,7 +5,7 @@
 #include <boost/mpi/collectives/gather.hpp>
 #include <boost/serialization/tracking.hpp>
 #include <boost/serialization/tracking_enum.hpp>
-#include <boost/serialization/vector.hpp> // NOLINT
+#include <boost/serialization/vector.hpp>  // NOLINT
 #include <core/task/include/task.hpp>
 #include <core/util/include/util.hpp>
 #include <cstddef>
