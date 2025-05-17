@@ -8,6 +8,7 @@
 
 #include "all/sorokin_a_multiplication_sparse_matrices_double_ccs/include/ops_all.hpp"
 #include "core/task/include/task.hpp"
+
 namespace sorokin_a_multiplication_sparse_matrices_double_ccs_all_test {
 static void CreateTaskData(std::shared_ptr<ppc::core::TaskData> &task_data, int m, int k, int n,
                            std::vector<double> &a_values, std::vector<double> &a_row_indices,
