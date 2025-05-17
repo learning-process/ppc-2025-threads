@@ -110,9 +110,8 @@ bool SparseMatmulTask::RunImpl() {
 
   int base_cols = colsB / size;
   int extra_cols = colsB % size;
-  int start_col = (rank < extra_cols) 
-      ? ((base_cols + 1) * rank) 
-      : (((base_cols + 1) * extra_cols) + (base_cols * (rank - extra_cols)));
+  int start_col = (rank < extra_cols) ? ((base_cols + 1) * rank)
+                                      : (((base_cols + 1) * extra_cols) + (base_cols * (rank - extra_cols)));
   int end_col = start_col + ((rank < extra_cols) ? (base_cols + 1) : base_cols);
   int num_local_cols = end_col - start_col;
 
@@ -147,7 +146,8 @@ bool SparseMatmulTask::RunImpl() {
     t.join();
   }
 
-  MergeThreadResults(thread_values, thread_rows, thread_col_ptrs, local_values, local_rows, local_col_ptr, num_local_cols, num_threads);
+  MergeThreadResults(thread_values, thread_rows, thread_col_ptrs, local_values, local_rows, local_col_ptr, 
+                     num_local_cols, num_threads);
 
   std::vector<int> proc_start_cols(size);
   std::vector<int> proc_end_cols(size);
