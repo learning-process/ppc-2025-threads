@@ -8,7 +8,7 @@
 
 #include "all/sorokin_a_multiplication_sparse_matrices_double_ccs/include/ops_all.hpp"
 #include "core/task/include/task.hpp"
-
+namespace sorokin_a_multiplication_sparse_matrices_double_ccs_all_test {
 static void CreateTaskData(std::shared_ptr<ppc::core::TaskData> &task_data, int m, int k, int n,
                            std::vector<double> &a_values, std::vector<double> &a_row_indices,
                            std::vector<double> &a_col_ptr, std::vector<double> &b_values,
@@ -67,6 +67,7 @@ static void CreateAndRunTask(std::shared_ptr<ppc::core::TaskData> &task_data) {
   test_task.Run();
   test_task.PostProcessing();
 }
+}  // namespace sorokin_a_multiplication_sparse_matrices_double_ccs_all_test
 
 TEST(sorokin_a_multiplication_sparse_matrices_double_ccs_all, test_3x3_x_3x3) {
   int m = 3;
@@ -86,16 +87,18 @@ TEST(sorokin_a_multiplication_sparse_matrices_double_ccs_all, test_3x3_x_3x3) {
   std::vector<double> c_col_ptr(4);
 
   std::shared_ptr<ppc::core::TaskData> task_data;
-  CreateTaskData(task_data, m, k, n, a_values, a_row_indices, a_col_ptr, b_values, b_row_indices, b_col_ptr, c_values,
-                 c_row_indices, c_col_ptr);
+  sorokin_a_multiplication_sparse_matrices_double_ccs_all_test::CreateTaskData(
+      task_data, m, k, n, a_values, a_row_indices, a_col_ptr, b_values, b_row_indices, b_col_ptr, c_values,
+      c_row_indices, c_col_ptr);
 
-  CreateAndRunTask(task_data);
+  sorokin_a_multiplication_sparse_matrices_double_ccs_all_test::CreateAndRunTask(task_data);
 
   std::vector<double> r_values = {8, 14, 4, 6, 12};
   std::vector<double> r_row_indices = {1, 2, 0, 1, 2};
   std::vector<double> r_col_ptr = {0, 2, 2, 5};
 
-  AssertResult(c_values, r_values, c_row_indices, r_row_indices, c_col_ptr, r_col_ptr);
+  sorokin_a_multiplication_sparse_matrices_double_ccs_all_test::AssertResult(c_values, r_values, c_row_indices,
+                                                                             r_row_indices, c_col_ptr, r_col_ptr);
 }
 
 TEST(sorokin_a_multiplication_sparse_matrices_double_ccs_all, test_2x3_x_3x2) {
@@ -116,16 +119,18 @@ TEST(sorokin_a_multiplication_sparse_matrices_double_ccs_all, test_2x3_x_3x2) {
   std::vector<double> c_col_ptr(2);
 
   std::shared_ptr<ppc::core::TaskData> task_data;
-  CreateTaskData(task_data, m, k, n, a_values, a_row_indices, a_col_ptr, b_values, b_row_indices, b_col_ptr, c_values,
+  sorokin_a_multiplication_sparse_matrices_double_ccs_all_test::CreateTaskData(
+      task_data, m, k, n, a_values, a_row_indices, a_col_ptr, b_values, b_row_indices, b_col_ptr, c_values,
                  c_row_indices, c_col_ptr);
 
-  CreateAndRunTask(task_data);
+  sorokin_a_multiplication_sparse_matrices_double_ccs_all_test::CreateAndRunTask(task_data);
 
   std::vector<double> r_values = {2.0, 4.0, 15.0};
   std::vector<double> r_row_indices = {1, 0, 1};
   std::vector<double> r_col_ptr = {0, 1};
 
-  AssertResult(c_values, r_values, c_row_indices, r_row_indices, c_col_ptr, r_col_ptr);
+  sorokin_a_multiplication_sparse_matrices_double_ccs_all_test::AssertResult(c_values, r_values, c_row_indices,
+                                                                             r_row_indices, c_col_ptr, r_col_ptr);
 }
 
 TEST(sorokin_a_multiplication_sparse_matrices_double_ccs_all, test_3x2_x_2x4) {
@@ -146,16 +151,18 @@ TEST(sorokin_a_multiplication_sparse_matrices_double_ccs_all, test_3x2_x_2x4) {
   std::vector<double> c_col_ptr(5);
 
   std::shared_ptr<ppc::core::TaskData> task_data;
-  CreateTaskData(task_data, m, k, n, a_values, a_row_indices, a_col_ptr, b_values, b_row_indices, b_col_ptr, c_values,
+  sorokin_a_multiplication_sparse_matrices_double_ccs_all_test::CreateTaskData(
+      task_data, m, k, n, a_values, a_row_indices, a_col_ptr, b_values, b_row_indices, b_col_ptr, c_values,
                  c_row_indices, c_col_ptr);
 
-  CreateAndRunTask(task_data);
+  sorokin_a_multiplication_sparse_matrices_double_ccs_all_test::CreateAndRunTask(task_data);
 
   std::vector<double> r_values = {8.0, 1.0, 3.0, 10.0};
   std::vector<double> r_row_indices = {0, 1, 2, 0};
   std::vector<double> r_col_ptr = {0, 1, 3, 3, 4};
 
-  AssertResult(c_values, r_values, c_row_indices, r_row_indices, c_col_ptr, r_col_ptr);
+  sorokin_a_multiplication_sparse_matrices_double_ccs_all_test::AssertResult(c_values, r_values, c_row_indices,
+                                                                             r_row_indices, c_col_ptr, r_col_ptr);
 }
 
 TEST(sorokin_a_multiplication_sparse_matrices_double_ccs_all, test_val_k_0) {
