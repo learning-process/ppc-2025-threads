@@ -8,7 +8,7 @@
 #include <numeric>
 #include <vector>
 
-#include "../include/ops_omp.hpp"
+#include "../include/ops_seq.hpp"
 #include "core/perf/include/perf.hpp"
 #include "core/task/include/task.hpp"
 
@@ -20,17 +20,17 @@ std::vector<double> CreateVector(size_t size) {
 }
 }  // namespace
 
-TEST(petrov_a_radix_double_batcher_omp, test_pipeline_run) {
+TEST(petrov_a_radix_double_batcher_seq, test_pipeline_run) {
   auto in = CreateVector(22222000);
   std::vector<double> out(in.size());
 
-  auto task_data_omp = std::make_shared<ppc::core::TaskData>();
-  task_data_omp->inputs.emplace_back(reinterpret_cast<uint8_t *>(in.data()));
-  task_data_omp->inputs_count.emplace_back(in.size());
-  task_data_omp->outputs.emplace_back(reinterpret_cast<uint8_t *>(out.data()));
-  task_data_omp->outputs_count.emplace_back(out.size());
+  auto task_data_seq = std::make_shared<ppc::core::TaskData>();
+  task_data_seq->inputs.emplace_back(reinterpret_cast<uint8_t *>(in.data()));
+  task_data_seq->inputs_count.emplace_back(in.size());
+  task_data_seq->outputs.emplace_back(reinterpret_cast<uint8_t *>(out.data()));
+  task_data_seq->outputs_count.emplace_back(out.size());
 
-  auto task = std::make_shared<petrov_a_radix_double_batcher_omp::TestTaskParallelOmp>(task_data_omp);
+  auto task = std::make_shared<petrov_a_radix_double_batcher_seq::TestTaskSequential>(task_data_seq);
 
   auto perf_attr = std::make_shared<ppc::core::PerfAttr>();
   perf_attr->num_running = 10;
@@ -47,17 +47,17 @@ TEST(petrov_a_radix_double_batcher_omp, test_pipeline_run) {
   ASSERT_TRUE(std::ranges::is_sorted(out));
 }
 
-TEST(petrov_a_radix_double_batcher_omp, test_task_run) {
+TEST(petrov_a_radix_double_batcher_seq, test_task_run) {
   auto in = CreateVector(22222000);
   std::vector<double> out(in.size());
 
-  auto task_data_omp = std::make_shared<ppc::core::TaskData>();
-  task_data_omp->inputs.emplace_back(reinterpret_cast<uint8_t *>(in.data()));
-  task_data_omp->inputs_count.emplace_back(in.size());
-  task_data_omp->outputs.emplace_back(reinterpret_cast<uint8_t *>(out.data()));
-  task_data_omp->outputs_count.emplace_back(out.size());
+  auto task_data_seq = std::make_shared<ppc::core::TaskData>();
+  task_data_seq->inputs.emplace_back(reinterpret_cast<uint8_t *>(in.data()));
+  task_data_seq->inputs_count.emplace_back(in.size());
+  task_data_seq->outputs.emplace_back(reinterpret_cast<uint8_t *>(out.data()));
+  task_data_seq->outputs_count.emplace_back(out.size());
 
-  auto task = std::make_shared<petrov_a_radix_double_batcher_omp::TestTaskParallelOmp>(task_data_omp);
+  auto task = std::make_shared<petrov_a_radix_double_batcher_seq::TestTaskSequential>(task_data_seq);
 
   auto perf_attr = std::make_shared<ppc::core::PerfAttr>();
   perf_attr->num_running = 10;
