@@ -8,6 +8,8 @@
 #include <thread>
 #include <vector>
 
+#include "core/util/include/util.hpp"
+
 namespace {
 
 int SimpsonCoeff(int i, int n) {
@@ -124,19 +126,13 @@ void IntegralsSimpsonSTL::ThreadTaskRunner(int start_idx, int end_idx, const std
     }
     std::vector<int> local_idx(dimension_);
     local_idx[0] = i;
-
-    try {
-      local_partial_sum += RecursiveSimpsonSum(1, local_idx, steps);
-    } catch (const std::exception& e) {
-      (void)e;
-      return;
-    }
+    local_partial_sum += RecursiveSimpsonSum(1, local_idx, steps);
   }
   *partial_sum_output = local_partial_sum;
 }
 
 unsigned int IntegralsSimpsonSTL::DetermineNumThreads(int total_iterations) {
-  unsigned int num_threads = std::thread::hardware_concurrency();
+  unsigned int num_threads = ppc::util::GetPPCNumThreads();
   if (num_threads == 0) {
     num_threads = 2;
   }
