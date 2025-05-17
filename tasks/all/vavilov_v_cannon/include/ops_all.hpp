@@ -23,8 +23,6 @@ class CannonALL : public ppc::core::Task {
   int N_;
   int block_size_;
   int num_blocks_;
-  // int num_rows_;
-  // int num_cols_;
   std::vector<double> A_;
   std::vector<double> B_;
   std::vector<double> C_;
@@ -37,8 +35,8 @@ class CannonALL : public ppc::core::Task {
   void InitialShiftone();
   void BlockMultiplyone();
   void ShiftBlocks(std::vector<double>& local_A, std::vector<double>& local_B);
-  static int find_compatible_q(int size, int N);
-  static void extract_block(const std::vector<double>& matrix, double* block, int N, int K, int block_row,
+  static int find_optimal_grid_size(int size, int N);
+  static void take_block(const std::vector<double>& matrix, double* block, int N, int K, int block_row,
                             int block_col);
 };
 }  // namespace vavilov_v_cannon_all
