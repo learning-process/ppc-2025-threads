@@ -104,6 +104,77 @@ void ComputeLocalC(const std::vector<double>& a_values, const std::vector<int>& 
   }
 }
 
+void GatherNnz(boost::mpi::communicator& world, int size, int base_cols_per_proc, int remainder,
+               const std::vector<int>& local_nnz, std::vector<int>& gather_nnz) {
+  for (int p = 0; p < size; ++p) {
+    const int p_start = (p * base_cols_per_proc) + std::min(p, remainder);
+    const int p_num_cols = base_cols_per_proc + (p < remainder ? 1 : 0);
+    std::vector<int> p_nnz;
+
+    if (p == 0) {
+      for (int j = 0; j < p_num_cols; ++j) {
+        gather_nnz[p_start + j] = local_nnz[j];
+      }
+    } else {
+      world.recv(p, 3, p_nnz);
+      for (int j = 0; j < p_num_cols; ++j) {
+        gather_nnz[p_start + j] = p_nnz[j];
+      }
+    }
+  }
+}
+
+void BuildColPtr(const std::vector<int>& gather_nnz, std::vector<int>& c_col_ptr) {
+  c_col_ptr[0] = 0;
+  for (size_t j = 0; j < gather_nnz.size(); ++j) {
+    c_col_ptr[j + 1] = c_col_ptr[j] + gather_nnz[j];
+  }
+}
+
+void GatherData(boost::mpi::communicator& world, int size, int base_cols_per_proc, int remainder,
+                const std::vector<int>& local_c_col_ptr, const std::vector<double>& local_c_values,
+                const std::vector<int>& local_c_row_indices, std::vector<double>& c_values,
+                std::vector<int>& c_row_indices, const std::vector<int>& c_col_ptr,
+                const std::vector<int>& gather_nnz) {
+  for (int p = 0; p < size; ++p) {
+    const int p_start = (p * base_cols_per_proc) + std::min(p, remainder);
+    const int p_num_cols = base_cols_per_proc + (p < remainder ? 1 : 0);
+
+    if (p == 0) {
+      for (int j = 0; j < p_num_cols; ++j) {
+        const int global_j = p_start + j;
+        const int start = c_col_ptr[global_j];
+        const int count = gather_nnz[global_j];
+        std::copy(local_c_values.begin() + local_c_col_ptr[j], local_c_values.begin() + local_c_col_ptr[j] + count,
+                  c_values.begin() + start);
+        std::copy(local_c_row_indices.begin() + local_c_col_ptr[j],
+                  local_c_row_indices.begin() + local_c_col_ptr[j] + count, c_row_indices.begin() + start);
+      }
+    } else {
+      for (int j = 0; j < p_num_cols; ++j) {
+        const int global_j = p_start + j;
+        const int start = c_col_ptr[global_j];
+        const int count = gather_nnz[global_j];
+        world.recv(p, global_j, c_row_indices.data() + start, count);
+        world.recv(p, global_j, c_values.data() + start, count);
+      }
+    }
+  }
+}
+
+void SendLocalData(boost::mpi::communicator& world, int num_local_cols, int start_col,
+                   const std::vector<int>& local_nnz, const std::vector<int>& local_c_col_ptr,
+                   const std::vector<int>& local_c_row_indices, const std::vector<double>& local_c_values) {
+  world.send(0, 3, local_nnz);
+  for (int j = 0; j < num_local_cols; ++j) {
+    const int global_j = start_col + j;
+    const int start = local_c_col_ptr[j];
+    const int count = local_nnz[j];
+    world.send(0, global_j, local_c_row_indices.data() + start, count);
+    world.send(0, global_j, local_c_values.data() + start, count);
+  }
+}
+
 void GatherResults(boost::mpi::communicator& world, int rank, int size, int n, int base_cols_per_proc, int remainder,
                    int num_local_cols, int start_col, const std::vector<int>& local_nnz,
                    const std::vector<double>& local_c_values, const std::vector<int>& local_c_row_indices,
@@ -113,64 +184,17 @@ void GatherResults(boost::mpi::communicator& world, int rank, int size, int n, i
     c_col_ptr.resize(n + 1);
     std::vector<int> gather_nnz(n, 0);
 
-    for (int p = 0; p < size; ++p) {
-      const int p_start = (p * base_cols_per_proc) + std::min(p, remainder);
-      const int p_num_cols = base_cols_per_proc + (p < remainder ? 1 : 0);
-      std::vector<int> p_nnz(p_num_cols);
+    GatherNnz(world, size, base_cols_per_proc, remainder, local_nnz, gather_nnz);
 
-      if (p == 0) {
-        for (int j = 0; j < p_num_cols; ++j) {
-          gather_nnz[p_start + j] = local_nnz[j];
-        }
-      } else {
-        world.recv(p, 3, p_nnz);
-        for (int j = 0; j < p_num_cols; ++j) {
-          gather_nnz[p_start + j] = p_nnz[j];
-        }
-      }
-    }
-
-    c_col_ptr[0] = 0;
-    for (int j = 0; j < n; ++j) {
-      c_col_ptr[j + 1] = c_col_ptr[j] + gather_nnz[j];
-    }
+    BuildColPtr(gather_nnz, c_col_ptr);
 
     c_values.resize(c_col_ptr.back());
     c_row_indices.resize(c_col_ptr.back());
 
-    for (int p = 0; p < size; ++p) {
-      const int p_start = (p * base_cols_per_proc) + std::min(p, remainder);
-      const int p_num_cols = base_cols_per_proc + (p < remainder ? 1 : 0);
-
-      if (p == 0) {
-        for (int j = 0; j < p_num_cols; ++j) {
-          const int global_j = p_start + j;
-          const int start = c_col_ptr[global_j];
-          const int count = gather_nnz[global_j];
-          std::copy(local_c_values.begin() + local_c_col_ptr[j], local_c_values.begin() + local_c_col_ptr[j] + count,
-                    c_values.begin() + start);
-          std::copy(local_c_row_indices.begin() + local_c_col_ptr[j],
-                    local_c_row_indices.begin() + local_c_col_ptr[j] + count, c_row_indices.begin() + start);
-        }
-      } else {
-        for (int j = 0; j < p_num_cols; ++j) {
-          const int global_j = p_start + j;
-          const int start = c_col_ptr[global_j];
-          const int count = gather_nnz[global_j];
-          world.recv(p, global_j, c_row_indices.data() + start, count);
-          world.recv(p, global_j, c_values.data() + start, count);
-        }
-      }
-    }
+    GatherData(world, size, base_cols_per_proc, remainder, local_c_col_ptr, local_c_values, local_c_row_indices,
+               c_values, c_row_indices, c_col_ptr, gather_nnz);
   } else {
-    world.send(0, 3, local_nnz);
-    for (int j = 0; j < num_local_cols; ++j) {
-      const int global_j = start_col + j;
-      const int start = local_c_col_ptr[j];
-      const int count = local_nnz[j];
-      world.send(0, global_j, local_c_row_indices.data() + start, count);
-      world.send(0, global_j, local_c_values.data() + start, count);
-    }
+    SendLocalData(world, num_local_cols, start_col, local_nnz, local_c_col_ptr, local_c_row_indices, local_c_values);
   }
 }
 
@@ -185,7 +209,7 @@ void MultiplyCCS(boost::mpi::communicator& world, const std::vector<double>& a_v
 
   const int base_cols_per_proc = n / size;
   const int remainder = n % size;
-  const int start_col = rank * base_cols_per_proc + std::min(rank, remainder);
+  const int start_col = (rank * base_cols_per_proc) + std::min(rank, remainder);
   const int num_local_cols = base_cols_per_proc + (rank < remainder ? 1 : 0);
 
   std::vector<double> local_b_values;

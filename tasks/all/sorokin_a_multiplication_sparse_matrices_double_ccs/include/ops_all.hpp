@@ -55,4 +55,14 @@ void GatherResults(boost::mpi::communicator &world, int rank, int size, int n, i
                    const std::vector<double> &local_c_values, const std::vector<int> &local_c_row_indices,
                    const std::vector<int> &local_c_col_ptr, std::vector<double> &c_values,
                    std::vector<int> &c_row_indices, std::vector<int> &c_col_ptr);
+void SendLocalData(boost::mpi::communicator &world, int num_local_cols, int start_col,
+                   const std::vector<int> &local_nnz, const std::vector<int> &local_c_col_ptr,
+                   const std::vector<int> &local_c_row_indices, const std::vector<double> &local_c_values);
+void GatherData(boost::mpi::communicator &world, int size, int base_cols_per_proc, int remainder,
+                const std::vector<int> &local_c_col_ptr, const std::vector<double> &local_c_values,
+                const std::vector<int> &local_c_row_indices, std::vector<double> &c_values,
+                std::vector<int> &c_row_indices, const std::vector<int> &c_col_ptr, const std::vector<int> &gather_nnz);
+void BuildColPtr(const std::vector<int> &gather_nnz, std::vector<int> &c_col_ptr);
+void GatherNnz(boost::mpi::communicator &world, int size, int base_cols_per_proc, int remainder,
+               const std::vector<int> &local_nnz, std::vector<int> &gather_nnz);
 }  // namespace sorokin_a_multiplication_sparse_matrices_double_ccs_all
