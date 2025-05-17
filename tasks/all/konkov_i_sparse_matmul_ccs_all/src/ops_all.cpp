@@ -9,6 +9,7 @@
 #include <core/util/include/util.hpp>
 #include <cstddef>
 #include <thread>
+#include <boost/serialization/vector.hpp>
 #include <unordered_map>
 #include <utility>
 #include <vector>
