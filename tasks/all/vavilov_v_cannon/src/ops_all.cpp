@@ -131,6 +131,7 @@ void vavilov_v_cannon_all::CannonALL::BlockMultiply(const std::vector<double>& l
   }
 }
 
+/*
 void vavilov_v_cannon_all::CannonALL::InitialShiftone() {
   std::vector<double> a_tmp = A_;
   std::vector<double> b_tmp = B_;
@@ -192,7 +193,7 @@ void vavilov_v_cannon_all::CannonALL::ShiftBlocksone() {
     }
   }
 }
-
+*/
 bool vavilov_v_cannon_all::CannonALL::RunImpl() {
   int rank = world_.rank();
   int size = world_.size();
@@ -211,7 +212,7 @@ bool vavilov_v_cannon_all::CannonALL::RunImpl() {
 
   rank = active_world.rank();
   size = active_world.size();
-
+  /*
   if (num_blocks_ == 1 && size > 1) {
     num_blocks_ = static_cast<int>(std::sqrt(N_));
     if (rank == 0) {
@@ -223,7 +224,7 @@ bool vavilov_v_cannon_all::CannonALL::RunImpl() {
     }
     return true;
   }
-
+  */
   std::vector<double> local_A(block_size_sq);
   std::vector<double> local_B(block_size_sq);
   std::vector<double> local_C(block_size_sq, 0);
