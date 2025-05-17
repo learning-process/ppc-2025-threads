@@ -379,13 +379,13 @@ bool vavilov_v_cannon_all::CannonALL::RunImpl() {
 #pragma omp parallel for
     for (int block_row = 0; block_row < num_blocks_; ++block_row) {
       for (int block_col = 0; block_col < num_blocks_; ++block_col) {
-        int block_rank = block_row * num_blocks_ + block_col;
+        int block_rank = (block_row * num_blocks_) + block_col;
         int block_index = block_rank * block_size_sq;
         for (int i = 0; i < block_size_; ++i) {
           for (int j = 0; j < block_size_; ++j) {
-            int global_row = block_row * block_size_ + i;
-            int global_col = block_col * block_size_ + j;
-            C_[global_row * N_ + global_col] = tmp_C[block_index + i * block_size_ + j];
+            int global_row = (block_row * block_size_) + i;
+            int global_col = (block_col * block_size_) + j;
+            C_[(global_row * N_) + global_col] = tmp_C[block_index + (i * block_size_) + j];
           }
         }
       }
