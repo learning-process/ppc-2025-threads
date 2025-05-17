@@ -1,9 +1,11 @@
 #include "stl/fyodorov_m_shell_sort_with_even_odd_batcher_merge/include/ops_stl.hpp"
 
+#include <algorithm>
 #include <cmath>
 #include <cstddef>
 #include <future>
 #include <numeric>
+#include <thread>
 #include <vector>
 
 namespace fyodorov_m_shell_sort_with_even_odd_batcher_merge_stl {
@@ -53,7 +55,9 @@ void TestTaskSTL::ShellSort() {
   auto& input_ref = input_;
 
   unsigned int num_threads = std::thread::hardware_concurrency();
-  if (num_threads == 0) num_threads = 1;
+  if (num_threads == 0) {
+    num_threads = 1;
+  }
 
   for (auto it = gaps.rbegin(); it != gaps.rend(); ++it) {
     int gap = *it;
@@ -72,7 +76,7 @@ void TestTaskSTL::ShellSort() {
       futures.push_back(std::async(std::launch::async, [t, threads_to_use, num_groups, gap, n, &input_ref, &groups]() {
         size_t groups_per_thread = num_groups / threads_to_use;
         size_t extra = num_groups % threads_to_use;
-        size_t start = t * groups_per_thread + std::min(t, extra);
+        size_t start = (t * groups_per_thread) + std::min(t, extra);
         size_t end = start + groups_per_thread + (t < extra ? 1 : 0);
         for (size_t g = start; g < end; ++g) {
           int group = groups[g];
