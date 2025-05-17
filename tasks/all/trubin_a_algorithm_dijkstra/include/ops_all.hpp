@@ -30,7 +30,6 @@ class TestTaskALL : public ppc::core::Task {
 
  private:
   bool BuildAdjacencyList(const std::vector<int>& graph_data);
-  void UpdateDistancesInBlock(const tbb::blocked_range<size_t>& r, std::vector<std::atomic<int>>& distances_atomic);
   void RunAlgorithm(boost::mpi::communicator& world, int rank, int size);
 
   void InitializeAtomicDistances(std::vector<std::atomic<int>>& distances_atomic) const;

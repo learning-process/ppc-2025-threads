@@ -72,26 +72,6 @@ bool trubin_a_algorithm_dijkstra_all::TestTaskALL::ValidationImpl() {
   return true;
 }
 
-void trubin_a_algorithm_dijkstra_all::TestTaskALL::UpdateDistancesInBlock(
-    const tbb::blocked_range<size_t>& r, std::vector<std::atomic<int>>& distances_atomic) {
-  for (size_t u = r.begin(); u < r.end(); ++u) {
-    int u_dist = distances_atomic[u];
-    if (u_dist == std::numeric_limits<int>::max()) {
-      continue;
-    }
-
-    for (const auto& edge : adjacency_list_[u]) {
-      int new_dist = u_dist + edge.weight;
-      int old_dist = distances_atomic[edge.to].load();
-      while (new_dist < old_dist) {
-        if (distances_atomic[edge.to].compare_exchange_strong(old_dist, new_dist)) {
-          break;
-        }
-      }
-    }
-  }
-}
-
 bool trubin_a_algorithm_dijkstra_all::TestTaskALL::RunImpl() {
   if (num_vertices_ == 0) {
     return true;
