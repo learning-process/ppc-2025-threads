@@ -10,12 +10,10 @@
 #include "core/task/include/task.hpp"
 
 namespace {
-static void CreateTaskData(std::shared_ptr<ppc::core::TaskData> &task_data, int m, int k, int n,
-                           std::vector<double> &a_values, std::vector<double> &a_row_indices,
-                           std::vector<double> &a_col_ptr, std::vector<double> &b_values,
-                           std::vector<double> &b_row_indices, std::vector<double> &b_col_ptr,
-                           std::vector<double> &c_values, std::vector<double> &c_row_indices,
-                           std::vector<double> &c_col_ptr) {
+void CreateTaskData(std::shared_ptr<ppc::core::TaskData> &task_data, int m, int k, int n, std::vector<double> &a_values,
+                    std::vector<double> &a_row_indices, std::vector<double> &a_col_ptr, std::vector<double> &b_values,
+                    std::vector<double> &b_row_indices, std::vector<double> &b_col_ptr, std::vector<double> &c_values,
+                    std::vector<double> &c_row_indices, std::vector<double> &c_col_ptr) {
   task_data = std::make_shared<ppc::core::TaskData>();
   task_data->inputs_count.emplace_back(m);
   task_data->inputs_count.emplace_back(k);
@@ -43,16 +41,16 @@ static void CreateTaskData(std::shared_ptr<ppc::core::TaskData> &task_data, int 
   task_data->outputs_count.emplace_back(c_col_ptr.size());
 }
 
-static void CheckVectors(const std::vector<double> &expected, const std::vector<double> &actual) {
+void CheckVectors(const std::vector<double> &expected, const std::vector<double> &actual) {
   ASSERT_EQ(expected.size(), actual.size());
   for (size_t i = 0; i < actual.size(); ++i) {
     ASSERT_NEAR(expected[i], actual[i], 1e-9);
   }
 }
 
-static void AssertResult(const std::vector<double> &c_values, const std::vector<double> &r_values,
-                         const std::vector<double> &c_row_indices, const std::vector<double> &r_row_indices,
-                         const std::vector<double> &c_col_ptr, const std::vector<double> &r_col_ptr) {
+void AssertResult(const std::vector<double> &c_values, const std::vector<double> &r_values,
+                  const std::vector<double> &c_row_indices, const std::vector<double> &r_row_indices,
+                  const std::vector<double> &c_col_ptr, const std::vector<double> &r_col_ptr) {
   boost::mpi::communicator world;
   if (world.rank() == 0) {
     CheckVectors(c_values, r_values);
@@ -61,7 +59,7 @@ static void AssertResult(const std::vector<double> &c_values, const std::vector<
   }
 }
 
-static void CreateAndRunTask(std::shared_ptr<ppc::core::TaskData> &task_data) {
+void CreateAndRunTask(std::shared_ptr<ppc::core::TaskData> &task_data) {
   sorokin_a_multiplication_sparse_matrices_double_ccs_all::TestTaskALL test_task(task_data);
   ASSERT_TRUE(test_task.Validation());
   test_task.PreProcessing();
@@ -88,18 +86,16 @@ TEST(sorokin_a_multiplication_sparse_matrices_double_ccs_all, test_3x3_x_3x3) {
   std::vector<double> c_col_ptr(4);
 
   std::shared_ptr<ppc::core::TaskData> task_data;
-  sorokin_a_multiplication_sparse_matrices_double_ccs_all_test::CreateTaskData(
-      task_data, m, k, n, a_values, a_row_indices, a_col_ptr, b_values, b_row_indices, b_col_ptr, c_values,
-      c_row_indices, c_col_ptr);
+  CreateTaskData(task_data, m, k, n, a_values, a_row_indices, a_col_ptr, b_values, b_row_indices, b_col_ptr, c_values,
+                 c_row_indices, c_col_ptr);
 
-  sorokin_a_multiplication_sparse_matrices_double_ccs_all_test::CreateAndRunTask(task_data);
+  CreateAndRunTask(task_data);
 
   std::vector<double> r_values = {8, 14, 4, 6, 12};
   std::vector<double> r_row_indices = {1, 2, 0, 1, 2};
   std::vector<double> r_col_ptr = {0, 2, 2, 5};
 
-  sorokin_a_multiplication_sparse_matrices_double_ccs_all_test::AssertResult(c_values, r_values, c_row_indices,
-                                                                             r_row_indices, c_col_ptr, r_col_ptr);
+  AssertResult(c_values, r_values, c_row_indices, r_row_indices, c_col_ptr, r_col_ptr);
 }
 
 TEST(sorokin_a_multiplication_sparse_matrices_double_ccs_all, test_2x3_x_3x2) {
@@ -120,18 +116,16 @@ TEST(sorokin_a_multiplication_sparse_matrices_double_ccs_all, test_2x3_x_3x2) {
   std::vector<double> c_col_ptr(2);
 
   std::shared_ptr<ppc::core::TaskData> task_data;
-  sorokin_a_multiplication_sparse_matrices_double_ccs_all_test::CreateTaskData(
-      task_data, m, k, n, a_values, a_row_indices, a_col_ptr, b_values, b_row_indices, b_col_ptr, c_values,
-      c_row_indices, c_col_ptr);
+  CreateTaskData(task_data, m, k, n, a_values, a_row_indices, a_col_ptr, b_values, b_row_indices, b_col_ptr, c_values,
+                 c_row_indices, c_col_ptr);
 
-  sorokin_a_multiplication_sparse_matrices_double_ccs_all_test::CreateAndRunTask(task_data);
+  CreateAndRunTask(task_data);
 
   std::vector<double> r_values = {2.0, 4.0, 15.0};
   std::vector<double> r_row_indices = {1, 0, 1};
   std::vector<double> r_col_ptr = {0, 1};
 
-  sorokin_a_multiplication_sparse_matrices_double_ccs_all_test::AssertResult(c_values, r_values, c_row_indices,
-                                                                             r_row_indices, c_col_ptr, r_col_ptr);
+  AssertResult(c_values, r_values, c_row_indices, r_row_indices, c_col_ptr, r_col_ptr);
 }
 
 TEST(sorokin_a_multiplication_sparse_matrices_double_ccs_all, test_3x2_x_2x4) {
@@ -152,18 +146,16 @@ TEST(sorokin_a_multiplication_sparse_matrices_double_ccs_all, test_3x2_x_2x4) {
   std::vector<double> c_col_ptr(5);
 
   std::shared_ptr<ppc::core::TaskData> task_data;
-  sorokin_a_multiplication_sparse_matrices_double_ccs_all_test::CreateTaskData(
-      task_data, m, k, n, a_values, a_row_indices, a_col_ptr, b_values, b_row_indices, b_col_ptr, c_values,
-      c_row_indices, c_col_ptr);
+  CreateTaskData(task_data, m, k, n, a_values, a_row_indices, a_col_ptr, b_values, b_row_indices, b_col_ptr, c_values,
+                 c_row_indices, c_col_ptr);
 
-  sorokin_a_multiplication_sparse_matrices_double_ccs_all_test::CreateAndRunTask(task_data);
+  CreateAndRunTask(task_data);
 
   std::vector<double> r_values = {8.0, 1.0, 3.0, 10.0};
   std::vector<double> r_row_indices = {0, 1, 2, 0};
   std::vector<double> r_col_ptr = {0, 1, 3, 3, 4};
 
-  sorokin_a_multiplication_sparse_matrices_double_ccs_all_test::AssertResult(c_values, r_values, c_row_indices,
-                                                                             r_row_indices, c_col_ptr, r_col_ptr);
+  AssertResult(c_values, r_values, c_row_indices, r_row_indices, c_col_ptr, r_col_ptr);
 }
 
 TEST(sorokin_a_multiplication_sparse_matrices_double_ccs_all, test_val_k_0) {
