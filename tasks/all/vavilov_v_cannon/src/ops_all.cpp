@@ -281,7 +281,6 @@ bool vavilov_v_cannon_all::CannonALL::RunImpl() {
   return true;
 }
 */
-  
 
 bool vavilov_v_cannon_all::CannonALL::RunImpl() {
   int rank = world_.rank();
