@@ -1,13 +1,12 @@
 #include "all/odintsov_m_multmatrix_cannon/include/ops_all.hpp"
 
 #include <algorithm>
+#include <boost/mpi/broadcast.hpp>
 #include <boost/mpi/collectives.hpp>
 #include <boost/mpi/operations.hpp>
-#include <boost/serialization/vector.hpp>
+#include <boost/mpi/reduce.hpp>
 #include <cmath>
-#include <core/util/include/util.hpp>
 #include <cstddef>
-#include <execution>
 #include <functional>
 #include <thread>
 #include <vector>
@@ -135,48 +134,57 @@ void odintsov_m_mulmatrix_cannon_all::MulMatrixCannonALL::InitializeShift(std::v
   }
 }
 
-void odintsov_m_mulmatrix_cannon_all::MulMatrixCannonALL::ProcessBlock(int bi, int num_blocks, int root, int block_sz,
-                                                                       const std::vector<double>& matrix_a,
-                                                                       const std::vector<double>& matrix_b,
-                                                                       std::vector<double>& local_c) {
-  int tcount = 1;
+void odintsov_m_mulmatrix_cannon_all::MulMatrixCannonALL::ProcessBlockMul(int bi, int bj_start, int bj_end, int root,
+                                                                          int block_sz,
+                                                                          const std::vector<double>& matrix_a,
+                                                                          const std::vector<double>& matrix_b,
+                                                                          std::vector<double>& local_c) {
+  std::vector<double> a_block(block_sz * block_sz);
+  std::vector<double> b_block(block_sz * block_sz);
 
+  for (int bj = bj_start; bj < bj_end; ++bj) {
+    // Копирование подблока
+    for (int i = 0; i < block_sz; ++i) {
+      for (int j = 0; j < block_sz; ++j) {
+        int row = (bi * block_sz) + i;
+        int col = (bj * block_sz) + j;
+        a_block[(i * block_sz) + j] = matrix_a[(row * root) + col];
+        b_block[(i * block_sz) + j] = matrix_b[(row * root) + col];
+      }
+    }
+
+    // Перемножение и накопление
+    for (int i = 0; i < block_sz; ++i) {
+      for (int k = 0; k < block_sz; ++k) {
+        double a_ik = a_block[(i * block_sz) + k];
+        int base = (((bi * block_sz) + i) * root) + (bj * block_sz);
+        for (int j = 0; j < block_sz; ++j) {
+          local_c[base + j] += a_ik * b_block[(k * block_sz) + j];
+        }
+      }
+    }
+  }
+}
+
+void odintsov_m_mulmatrix_cannon_all::MulMatrixCannonALL::ProcessBlockSTL(int bi, int num_blocks, int root,
+                                                                          int block_sz,
+                                                                          const std::vector<double>& matrix_a,
+                                                                          const std::vector<double>& matrix_b,
+                                                                          std::vector<double>& local_c) {
+  int tcount = 1;
   std::vector<std::thread> threads;
   threads.reserve(tcount);
 
   for (int t = 0; t < tcount; ++t) {
     int bj_start = (num_blocks * t) / tcount;
     int bj_end = (num_blocks * (t + 1)) / tcount;
-
-    threads.emplace_back([=, &matrix_a, &matrix_b, &local_c]() {
-      std::vector<double> a_block(block_sz * block_sz);
-      std::vector<double> b_block(block_sz * block_sz);
-
-      for (int bj = bj_start; bj < bj_end; ++bj) {
-        // Заполняем a_block и b_block
-        for (int i = 0; i < block_sz; ++i)
-          for (int j = 0; j < block_sz; ++j) {
-            int row = bi * block_sz + i;
-            int col = bj * block_sz + j;
-            a_block[i * block_sz + j] = matrix_a[row * root + col];
-            b_block[i * block_sz + j] = matrix_b[row * root + col];
-          }
-
-        // Перемножаем блоки и добавляем в local_c
-        for (int i = 0; i < block_sz; ++i) {
-          for (int k = 0; k < block_sz; ++k) {
-            double a_ik = a_block[i * block_sz + k];
-            int base = (bi * block_sz + i) * root + bj * block_sz;
-            for (int j = 0; j < block_sz; ++j) {
-              local_c[base + j] += a_ik * b_block[k * block_sz + j];
-            }
-          }
-        }
-      }
-    });
+    threads.emplace_back(&MulMatrixCannonALL::ProcessBlockRange, bi, bj_start, bj_end, root, block_sz,
+                         std::cref(matrix_a), std::cref(matrix_b), std::ref(local_c));
   }
 
-  for (auto& th : threads) th.join();
+  for (auto& th : threads) {
+    th.join();
+  }
 }
 
 bool odintsov_m_mulmatrix_cannon_all::MulMatrixCannonALL::PreProcessingImpl() {
@@ -195,7 +203,7 @@ bool odintsov_m_mulmatrix_cannon_all::MulMatrixCannonALL::PreProcessingImpl() {
 }
 
 bool odintsov_m_mulmatrix_cannon_all::MulMatrixCannonALL::ValidationImpl() {
-  if (com.rank() == 0) {
+  if (com_.rank() == 0) {
     if (task_data->inputs_count[0] != task_data->inputs_count[1]) {
       return false;
     }
@@ -207,37 +215,47 @@ bool odintsov_m_mulmatrix_cannon_all::MulMatrixCannonALL::ValidationImpl() {
   return true;
 }
 
+#include <boost/mpi/all_reduce.hpp>
+#include <boost/mpi/broadcast.hpp>
+
 bool odintsov_m_mulmatrix_cannon_all::MulMatrixCannonALL::RunImpl() {
-  int rank = com.rank();
-  int size = com.size();
-  boost::mpi::broadcast(com, szA_, /*root=*/0);
-  boost::mpi::broadcast(com, block_sz_, /*root=*/0);
+  int rank = com_.rank();
+  int size = com_.size();
+
+  // Считываем параметры на всех рангах
+  boost::mpi::broadcast(com_, szA_, /*root=*/0);
+  boost::mpi::broadcast(com_, block_sz_, /*root=*/0);
 
   // Вычисляем размер матрицы (root × root) и параметры блоков
   int root = static_cast<int>(std::round(std::sqrt(szA_)));
   int num_blocks = std::max(1, root / block_sz_);
   int steps = num_blocks;
+
   // 1) Начальная инициализация сдвигов на rank 0
   if (rank == 0) {
-    InitializeShift(matrixA_, root, steps, block_sz_, /*isA=*/true);
-    InitializeShift(matrixB_, root, steps, block_sz_, /*isA=*/false);
+    InitializeShift(matrixA_, root, steps, block_sz_, /*is_row_shift=*/true);
+    InitializeShift(matrixB_, root, steps, block_sz_, /*is_row_shift=*/false);
   }
+
   // 2) Рассылка первоначально сдвинутых A и B всем процессам
-  boost::mpi::broadcast(com, matrixA_, /*root=*/0);
-  boost::mpi::broadcast(com, matrixB_, /*root=*/0);
+  boost::mpi::broadcast(com_, matrixA_, /*root=*/0);
+  boost::mpi::broadcast(com_, matrixB_, /*root=*/0);
+
   // 3) Локальный накопитель результата за все шаги
-  std::vector<double> local_C(root * root, 0.0);
+  std::vector<double> local_c_acc(root * root, 0.0);
 
   for (int step = 0; step < steps; ++step) {
     // 3.1) Локальный вектор для этого шага
     std::vector<double> local_c(root * root, 0.0);
-    // 3.2) Каждый процесс обрабатывает блоки bi = rank, rank+size, ...
+
+    // 3.2) Каждый процесс обрабатывает блоки bi = rank, rank+size, …
     for (int bi = rank; bi < num_blocks; bi += size) {
-      ProcessBlock(bi, num_blocks, root, block_sz_, matrixA_, matrixB_, local_c);
+      ProcessBlockSTL(bi, num_blocks, root, block_sz_, matrixA_, matrixB_, local_c);
     }
-    // 3.3) Аккумулируем во внешний local_C
+
+    // 3.3) Аккумулируем во внешний local_c_acc
     for (int i = 0; i < root * root; ++i) {
-      local_C[i] += local_c[i];
+      local_c_acc[i] += local_c[i];
     }
 
     // 3.4) Сдвиги перед следующим шагом — только на rank 0
@@ -247,22 +265,23 @@ bool odintsov_m_mulmatrix_cannon_all::MulMatrixCannonALL::RunImpl() {
     }
 
     // 3.5) Рассылка обновлённых A и B
-    boost::mpi::broadcast(com, matrixA_, /*root=*/0);
-    boost::mpi::broadcast(com, matrixB_, /*root=*/0);
+    boost::mpi::broadcast(com_, matrixA_, /*root=*/0);
+    boost::mpi::broadcast(com_, matrixB_, /*root=*/0);
   }
 
   // 4) Подготавливаем matrixC_ только на rank 0
   if (rank == 0) {
     matrixC_.assign(root * root, 0.0);
   }
-  matrixC_.assign(root * root, 0.0);
 
-  boost::mpi::all_reduce(com, local_C.data(), root * root, matrixC_.data(), std::plus<double>());
+  // 5) Сводим накопленные данные в matrixC_ на rank 0
+  boost::mpi::all_reduce(com_, local_c_acc.data(), root * root, matrixC_.data(), std::plus<>());
+
   return true;
 }
 
 bool odintsov_m_mulmatrix_cannon_all::MulMatrixCannonALL::PostProcessingImpl() {
-  if (com.rank() == 0) {
+  if (com_.rank() == 0) {
     std::size_t sz_c = matrixC_.size();
     for (std::size_t i = 0; i < sz_c; i++) {
       reinterpret_cast<double*>(task_data->outputs[0])[i] = matrixC_[i];

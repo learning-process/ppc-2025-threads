@@ -27,16 +27,19 @@ class MulMatrixCannonALL : public ppc::core::Task {
   static void CopyBlock(const std::vector<double>& matrix, std::vector<double>& block, int start, int root,
                         int block_sz);
   static void InitializeShift(std::vector<double>& matrix, int root, int grid_size, int block_sz, bool is_row_shift);
+  static void ProcessBlockMul(int bi, int bj_start, int bj_end, int root, int block_sz,
+                              const std::vector<double>& matrix_a, const std::vector<double>& matrix_b,
+                              std::vector<double>& local_c);
   void ProcessBlock(int block_idx, int root, int block_sz, const std::vector<double>& matrix_a,
                     const std::vector<double>& matrix_b, std::vector<double>& local_c_partial);
-  void ProcessBlock(int bi, int num_blocks, int root, int block_sz, const std::vector<double>& matrix_a,
-                    const std::vector<double>& matrix_b, std::vector<double>& local_c);
+  static void ProcessBlockSTL(int bi, int num_blocks, int root, int block_sz, const std::vector<double>& matrix_a,
+                              const std::vector<double>& matrix_b, std::vector<double>& local_c);
 
   std::vector<double> matrixA_, matrixB_;
   unsigned int szA_ = 0, szB_ = 0;
   int block_sz_ = 0;
   std::vector<double> matrixC_;
-  boost::mpi::communicator com;
+  boost::mpi::communicator com_;
 };
 
 }  // namespace odintsov_m_mulmatrix_cannon_all
