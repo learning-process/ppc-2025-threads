@@ -13,7 +13,7 @@
 #include <vector>
 
 using namespace std;
-void odintsov_m_mulmatrix_cannon_all::MulMatrixCannonALL::static ShiftRow(std::vector<double>& matrix, int root,
+void odintsov_m_mulmatrix_cannon_all::MulMatrixCannonALL::ShiftRow(std::vector<double>& matrix, int root,
                                                                           int row, int shift) {
   shift = shift % root;
   std::vector<double> tmp(root);
