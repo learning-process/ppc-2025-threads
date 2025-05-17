@@ -139,33 +139,44 @@ void odintsov_m_mulmatrix_cannon_all::MulMatrixCannonALL::ProcessBlock(int bi, i
                                                                        const std::vector<double>& matrix_a,
                                                                        const std::vector<double>& matrix_b,
                                                                        std::vector<double>& local_c) {
-  // Вместо threads запускаем for_each параллельно по bj
-  std::vector<int> bj_range(num_blocks);
-  std::iota(bj_range.begin(), bj_range.end(), 0);
+  int tcount = 1;
 
-  std::for_each(std::execution::par, bj_range.begin(), bj_range.end(), [&](int bj) {
-    std::vector<double> a_block(block_sz * block_sz);
-    std::vector<double> b_block(block_sz * block_sz);
+  std::vector<std::thread> threads;
+  threads.reserve(tcount);
 
-    for (int i = 0; i < block_sz; ++i) {
-      for (int j = 0; j < block_sz; ++j) {
-        int row = bi * block_sz + i;
-        int col = bj * block_sz + j;
-        a_block[i * block_sz + j] = matrix_a[row * root + col];
-        b_block[i * block_sz + j] = matrix_b[row * root + col];
-      }
-    }
+  for (int t = 0; t < tcount; ++t) {
+    int bj_start = (num_blocks * t) / tcount;
+    int bj_end = (num_blocks * (t + 1)) / tcount;
 
-    for (int i = 0; i < block_sz; ++i) {
-      for (int k = 0; k < block_sz; ++k) {
-        double a_ik = a_block[i * block_sz + k];
-        int base = (bi * block_sz + i) * root + bj * block_sz;
-        for (int j = 0; j < block_sz; ++j) {
-          local_c[base + j] += a_ik * b_block[k * block_sz + j];
+    threads.emplace_back([=, &matrix_a, &matrix_b, &local_c]() {
+      std::vector<double> a_block(block_sz * block_sz);
+      std::vector<double> b_block(block_sz * block_sz);
+
+      for (int bj = bj_start; bj < bj_end; ++bj) {
+        // Заполняем a_block и b_block
+        for (int i = 0; i < block_sz; ++i)
+          for (int j = 0; j < block_sz; ++j) {
+            int row = bi * block_sz + i;
+            int col = bj * block_sz + j;
+            a_block[i * block_sz + j] = matrix_a[row * root + col];
+            b_block[i * block_sz + j] = matrix_b[row * root + col];
+          }
+
+        // Перемножаем блоки и добавляем в local_c
+        for (int i = 0; i < block_sz; ++i) {
+          for (int k = 0; k < block_sz; ++k) {
+            double a_ik = a_block[i * block_sz + k];
+            int base = (bi * block_sz + i) * root + bj * block_sz;
+            for (int j = 0; j < block_sz; ++j) {
+              local_c[base + j] += a_ik * b_block[k * block_sz + j];
+            }
+          }
         }
       }
-    }
-  });
+    });
+  }
+
+  for (auto& th : threads) th.join();
 }
 
 bool odintsov_m_mulmatrix_cannon_all::MulMatrixCannonALL::PreProcessingImpl() {
