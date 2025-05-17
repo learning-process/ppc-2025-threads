@@ -21,5 +21,7 @@ class TestTaskSTL : public ppc::core::Task {
 
   void ShellSort();
   static void BatcherMerge(std::vector<int>& left, std::vector<int>& right, std::vector<int>& result);
+  void LaunchTasksForGroups(int gap, int n, size_t num_groups, size_t threads_to_use, const std::vector<int>& groups);
+  void ProcessGroup(int gap, int n, std::vector<int>& input_ref, int group);
 };
 }  // namespace fyodorov_m_shell_sort_with_even_odd_batcher_merge_stl
