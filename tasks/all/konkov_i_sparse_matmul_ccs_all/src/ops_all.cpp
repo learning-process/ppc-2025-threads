@@ -146,7 +146,7 @@ bool SparseMatmulTask::RunImpl() {
     t.join();
   }
 
-  MergeThreadResults(thread_values, thread_rows, thread_col_ptrs, local_values, local_rows, local_col_ptr, 
+  MergeThreadResults(thread_values, thread_rows, thread_col_ptrs, local_values, local_rows, local_col_ptr,
                      num_local_cols, num_threads);
 
   std::vector<int> proc_start_cols(size);
