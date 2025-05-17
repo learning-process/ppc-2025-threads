@@ -218,8 +218,8 @@ bool odintsov_m_mulmatrix_cannon_all::MulMatrixCannonALL::ValidationImpl() {
 bool odintsov_m_mulmatrix_cannon_all::MulMatrixCannonALL::RunImpl() {
   int rank = com_.rank();
   int size = com_.size();
-  int countA = static_cast<int>(matrixA_.size());
-  int countB = static_cast<int>(matrixB_.size());
+  int count_A = static_cast<int>(matrixA_.size());
+  int count_B = static_cast<int>(matrixB_.size());
   // Считываем параметры на всех рангах
   boost::mpi::broadcast(com_, szA_, /*root=*/0);
   boost::mpi::broadcast(com_, block_sz_, /*root=*/0);
@@ -236,8 +236,8 @@ bool odintsov_m_mulmatrix_cannon_all::MulMatrixCannonALL::RunImpl() {
   }
 
   // 2) Рассылка первоначально сдвинутых A и B всем процессам
-  boost::mpi::broadcast(com_, matrixA_.data(), countA, /*root=*/0);
-  boost::mpi::broadcast(com_, matrixB_.data(), countB, /*root=*/0);
+  boost::mpi::broadcast(com_, matrixA_.data(), count_A, /*root=*/0);
+  boost::mpi::broadcast(com_, matrixB_.data(), count_B, /*root=*/0);
 
   // 3) Локальный накопитель результата за все шаги
   std::vector<double> local_c_acc(root * root, 0.0);
@@ -263,8 +263,8 @@ bool odintsov_m_mulmatrix_cannon_all::MulMatrixCannonALL::RunImpl() {
     }
 
     // 3.5) Рассылка обновлённых A и B
-    boost::mpi::broadcast(com_, matrixA_.data(), countA, /*root=*/0);
-    boost::mpi::broadcast(com_, matrixB_.data(), countB, /*root=*/0);
+    boost::mpi::broadcast(com_, matrixA_.data(), count_A, /*root=*/0);
+    boost::mpi::broadcast(com_, matrixB_.data(), count_B, /*root=*/0);
   }
 
   // 4) Подготавливаем matrixC_ только на rank 0
