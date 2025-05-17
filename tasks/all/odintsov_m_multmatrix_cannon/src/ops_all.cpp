@@ -5,7 +5,6 @@
 #include <boost/mpi/collectives/all_reduce.hpp>  // для boost::mpi::all_reduce
 #include <boost/mpi/collectives/broadcast.hpp>   // для boost::mpi::broadcast
 #include <boost/mpi/communicator.hpp>
-#include <boost/serialization/vector.hpp>  // для сериализации std::vector<double>
 #include <cmath>
 #include <cstddef>
 #include <functional>
@@ -13,8 +12,8 @@
 #include <vector>
 
 using namespace std;
-void odintsov_m_mulmatrix_cannon_all::MulMatrixCannonALL::ShiftRow(std::vector<double>& matrix, int root,
-                                                                          int row, int shift) {
+void odintsov_m_mulmatrix_cannon_all::MulMatrixCannonALL::ShiftRow(std::vector<double>& matrix, int root, int row,
+                                                                   int shift) {
   shift = shift % root;
   std::vector<double> tmp(root);
   for (int j = 0; j < root; j++) {
