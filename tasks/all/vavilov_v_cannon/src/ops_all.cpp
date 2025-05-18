@@ -127,25 +127,17 @@ void vavilov_v_cannon_all::CannonALL::BlockMultiply(const std::vector<double>& l
   }
 }
 
-void vavilov_v_cannon_all::CannonALL::GatherResults(std::vector<double>& local_c, std::vector<double>& tmp_c,
-                                                    int active_procs, int block_size_sq) {
-  if (rank == 0) {
-    tmp_c.resize(active_procs * block_size_sq);
-  }
-  mpi::gather(active_world, local_c.data(), block_size_sq, tmp_c.data(), 0);
-
-  if (rank == 0) {
+void vavilov_v_cannon_all::CannonALL::GatherResults(std::vector<double>& tmp_c, int block_size_sq) {
 #pragma omp parallel for
-    for (int block_row = 0; block_row < num_blocks_; ++block_row) {
-      for (int block_col = 0; block_col < num_blocks_; ++block_col) {
-        int block_rank = (block_row * num_blocks_) + block_col;
-        int block_index = block_rank * block_size_sq;
-        for (int i = 0; i < block_size_; ++i) {
-          for (int j = 0; j < block_size_; ++j) {
-            int global_row = (block_row * block_size_) + i;
-            int global_col = (block_col * block_size_) + j;
-            C_[(global_row * N_) + global_col] = tmp_c[block_index + (i * block_size_) + j];
-          }
+  for (int block_row = 0; block_row < num_blocks_; ++block_row) {
+    for (int block_col = 0; block_col < num_blocks_; ++block_col) {
+      int block_rank = (block_row * num_blocks_) + block_col;
+      int block_index = block_rank * block_size_sq;
+      for (int i = 0; i < block_size_; ++i) {
+        for (int j = 0; j < block_size_; ++j) {
+          int global_row = (block_row * block_size_) + i;
+          int global_col = (block_col * block_size_) + j;
+          C_[(global_row * N_) + global_col] = tmp_c[block_index + (i * block_size_) + j];
         }
       }
     }
@@ -208,7 +200,13 @@ bool vavilov_v_cannon_all::CannonALL::RunImpl() {
   }
 
   std::vector<double> tmp_c;
-  GatherResults(local_c, tmp_c, active_procs, block_size_sq);
+  if (rank == 0) {
+    tmp_c.resize(active_procs * block_size_sq);
+  }
+  mpi::gather(active_world, local_c.data(), block_size_sq, tmp_c.data(), 0);
+  if (rank == 0){
+    GatherResults(tmp_c, block_size_sq);
+  }
 
   return true;
 }
@@ -290,8 +288,14 @@ bool vavilov_v_cannon_all::CannonALL::RunImpl() {
   }
 
   std::vector<double> tmp_c;
-  GatherResults(local_c, tmp_c, active_procs, block_size_sq);
-
+  if (rank == 0) {
+    tmp_c.resize(active_procs * block_size_sq);
+  }
+  mpi::gather(active_world, local_c.data(), block_size_sq, tmp_c.data(), 0);
+  if (rank == 0){
+    GatherResults(tmp_c, block_size_sq);
+  }
+  
   return true;
 }
 
