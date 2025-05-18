@@ -1,12 +1,12 @@
 #include <gtest/gtest.h>
 
+#include <boost/mpi/communicator.hpp>
 #include <cstdint>
 #include <memory>
 #include <random>
 #include <vector>
 
 #include "all/vavilov_v_cannon/include/ops_all.hpp"
-#include <boost/mpi/communicator.hpp>
 #include "core/task/include/task.hpp"
 
 namespace mpi = boost::mpi;
