@@ -5,7 +5,6 @@
 #include <cstddef>
 #include <thread>
 #include <vector>
-#include <iostream>
 
 #include "core/util/include/util.hpp"
 
@@ -38,7 +37,6 @@ bool zaytsev_d_sobel_stl::TestTaskSTL::RunImpl() {
   int total = rows * cols;
 
   const int num_threads = ppc::util::GetPPCNumThreads();
-  std::cout << num_threads<<std::endl;
   std::vector<std::thread> threads;
   threads.reserve(num_threads);
   auto worker = [&](int start, int end) {
