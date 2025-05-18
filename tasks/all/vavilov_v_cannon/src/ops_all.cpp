@@ -23,7 +23,7 @@ int vavilov_v_cannon_all::CannonALL::FindOptimalGridSize(int size, int n) {
   return grid > 0 ? grid : 1;
 }
 
-void vavilov_v_cannon_all::CannonALL::TakeBlock(const std::vector<double>& matrix, double* block, int n, int n,
+void vavilov_v_cannon_all::CannonALL::TakeBlock(const std::vector<double>& matrix, double* block, int n, int k,
                                                  int block_row, int block_col) {
 #pragma omp parallel for
   for (int i = 0; i < k; ++i) {
@@ -333,7 +333,7 @@ bool vavilov_v_cannon_all::CannonALL::RunImpl() {
   }
   if (col_index != 0) {
     int dest_rank_b =
-        (row_index < col_index) ? rank + (num_blocks_ - col_index) * num_blocks_ : rank - num_blocks_ * col_index;
+        (row_index < col_index) ? rank + ((num_blocks_ - col_index) * num_blocks_) : rank - (num_blocks_ * col_index);
     reqs[req_count++] = active_world.isend(dest_rank_b, 1, local_b.data(), block_size_sq);
   }
   if (row_index != 0 && col_index != 0) {
@@ -350,11 +350,11 @@ bool vavilov_v_cannon_all::CannonALL::RunImpl() {
 
   for (int iter = 0; iter < num_blocks_ - 1; ++iter) {
     req_count = 0;
-    int dest_rank_a = (rank == row_index * num_blocks_) ? (row_index + 1) * num_blocks_ - 1 : rank - 1;
+    int dest_rank_a = (rank == row_index * num_blocks_) ? ((row_index + 1) * num_blocks_) - 1 : rank - 1;
     reqs[req_count++] = active_world.isend(dest_rank_a, 0, local_a.data(), block_size_sq);
     reqs[req_count++] = active_world.irecv(mpi::any_source, 0, local_a.data(), block_size_sq);
 
-    int dest_rank_b = (rank < num_blocks_) ? rank + (num_blocks_ - 1) * num_blocks_ : rank - num_blocks_;
+    int dest_rank_b = (rank < num_blocks_) ? rank + ((num_blocks_ - 1) * num_blocks_) : rank - num_blocks_;
     reqs[req_count++] = active_world.isend(dest_rank_b, 1, local_b.data(), block_size_sq);
     reqs[req_count++] = active_world.irecv(mpi::any_source, 1, local_b.data(), block_size_sq);
 
