@@ -1,8 +1,8 @@
 #include "all/vavilov_v_cannon/include/ops_all.hpp"
 
 #include <algorithm>
-#include <boost/mpi/collectives.hpp>
 #include <boost/mpi.hpp>
+#include <boost/mpi/collectives.hpp>
 #include <boost/mpi/communicator.hpp>
 #include <boost/mpi/request.hpp>
 #include <cmath>
