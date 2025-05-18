@@ -164,7 +164,7 @@ bool vavilov_v_cannon_all::CannonALL::RunImpl() {
 
   mpi::broadcast(world_, N_, 0);
 
-  num_blocks_ = find_optimal_grid_size(size, N_);
+  num_blocks_ = FindOptimalGridSize(size, N_);
   block_size_ = N_ / num_blocks_;
   int block_size_sq = block_size_ * block_size_;
 
