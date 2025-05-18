@@ -31,13 +31,13 @@ class TestTaskALL : public ppc::core::Task {
 
  private:
   double result_output_ = 0;
-  double local_results_output = 0;
   int nums_variables_ = 0;
   int remainder_ = 0;
   std::vector<double> results_func;
   std::vector<double> local_results_func;
   int size_local_results_func = 0;
   std::vector<double> coeff;
+  std::vector<double> vec_coeff;
   std::vector<double> local_coeff;
   int size_local_coeff = 0;
   int remainder_coeff = 0;
@@ -46,7 +46,6 @@ class TestTaskALL : public ppc::core::Task {
   std::vector<double> size_step;
   std::vector<double> local_size_step;
   int size_local_size_step = 0;
-  int remainder_size_step = 0;
   std::vector<std::vector<double>> points;
   std::function<double(std::vector<double>)> func_;
   boost::mpi::communicator world_;

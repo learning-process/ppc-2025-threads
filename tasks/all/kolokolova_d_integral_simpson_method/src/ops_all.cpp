@@ -70,12 +70,20 @@ bool kolokolova_d_integral_simpson_method_all::TestTaskALL::RunImpl() {
     results_func = FindFunctionValue(points, func_);
     coeff = FindCoeff(steps_[0]);
 
+    vec_coeff = std::vector<double>(int(results_func.size()));
+    for (int i = 0; i < int(vec_coeff.size()); ++i) {
+      vec_coeff[i] = coeff[i % int(coeff.size())];
+      //std::cout << vec_coeff[i] << " ";
+    }
+
     size_local_results_func = int(results_func.size()) / int(world_.size());
     remainder_ = int(results_func.size()) % int(world_.size());
-    size_local_coeff = int(results_func.size()) / int(world_.size());
-    remainder_coeff = int(results_func.size()) % int(world_.size());
+    size_local_results_func += remainder_;
+    size_local_coeff = int(vec_coeff.size()) / int(world_.size());
+    remainder_coeff = int(vec_coeff.size()) % int(world_.size());
+    size_local_coeff += remainder_;
     size_local_size_step = int(size_step.size()) / int(world_.size());
-    remainder_size_step = int(size_step.size()) % int(world_.size());
+    //remainder_size_step = int(size_step.size()) % int(world_.size());
   }
 
   broadcast(world_, size_local_results_func, 0);
@@ -85,41 +93,96 @@ bool kolokolova_d_integral_simpson_method_all::TestTaskALL::RunImpl() {
 
   if (world_.rank() == 0) {
     for (int proc = 1; proc < world_.size(); proc++) {
-      world_.send(proc, 0, results_func.data() + proc * size_local_results_func + remainder_, size_local_results_func);
+      //world_.send(proc, 0, results_func.data() + proc * size_local_results_func + remainder_, size_local_results_func);
+      world_.send(proc, 0, results_func.data() + proc * size_local_results_func, size_local_results_func);
     }
   }
 
-  size_local_results_func += remainder_;
+  //size_local_results_func += remainder_;
   local_results_func = std::vector<double>(size_local_results_func);
 
   if (world_.rank() == 0) {
-    local_results_func = std::vector<double>(results_func.begin(), results_func.begin() + size_local_results_func);
+
+    /*local_results_func.resize(size_local_results_func + remainder_);
+
+    local_results_func =
+        std::vector<double>(results_func.begin(), results_func.begin() + size_local_results_func + remainder_);
+    size_local_results_func += remainder_;*/
+
+    local_results_func =
+        std::vector<double>(results_func.begin(), results_func.begin() + size_local_results_func + remainder_);
   } else {
     world_.recv(0, 0, local_results_func.data(), size_local_results_func);
   }
 
+  //for (int i = 0; i < int(results_func.size()); i++) {
+  //  std::cout << "BEFORE RESULT " << i << " " << results_func[i] << "\n";
+  //}
+
   if (world_.rank() == 0) {
     for (int proc = 1; proc < world_.size(); proc++) {
-      world_.send(proc, 0, coeff.data() + proc * size_local_coeff + remainder_coeff, size_local_coeff);
+      //world_.send(proc, 0, vec_coeff.data() + proc * size_local_coeff + remainder_, size_local_coeff);
+      world_.send(proc, 0, vec_coeff.data() + proc * size_local_coeff, size_local_coeff);
     }
   }
 
-  size_local_coeff += remainder_coeff;
+  //size_local_coeff += remainder_coeff;
   local_coeff = std::vector<double>(size_local_coeff);
 
   if (world_.rank() == 0) {
-    local_coeff = std::vector<double>(coeff.begin(), coeff.begin() + size_local_coeff);
+    //local_coeff = std::vector<double>(vec_coeff.begin(), vec_coeff.begin() + size_local_coeff + remainder_coeff);
+    local_coeff = std::vector<double>(vec_coeff.begin(), vec_coeff.begin() + size_local_coeff);
   } else {
     world_.recv(0, 0, local_coeff.data(), size_local_coeff);
   }
 
-  MultiplyCoeffandFunctionValue(local_results_func, local_coeff, nums_variables_);
+  //for (int i = 0; i < int(local_results_func.size()); i++) {
+  //  std::cout << "before for " << i << " " << local_results_func[i] << "\n";
+  //}
 
-  for (int i = 0; i < int(local_results_func.size()); i++) {
-    std::cout << "Local " << i << " " << local_results_func[i] << "\n";
+  //for (int i = 0; i < int(local_coeff.size()); i++) {
+  //  std::cout << "COEFF " << i << " " << local_coeff[i] << "\n";
+  //}
+
+  //MultiplyCoeffandFunctionValue(local_results_func, local_coeff, nums_variables_);
+
+  //int coeff_vec_size = int(local_coeff.size());
+  int function_vec_size = int(local_results_func.size());
+
+  // initial multiplication
+  for (int i = 0; i < function_vec_size; ++i) {
+    local_results_func[i] *= local_coeff[i];
   }
 
+  //for (int i = 0; i < int(local_results_func.size()); i++) {
+  //  std::cout << "\nafter for " << i << " " << local_results_func[i] << "\n";
+  //}
+
+  // Здесь все корректно и для 4 тоже
+
+  gather(world_, local_results_func.data(), size_local_results_func, results_func, 0);
+
   if (world_.rank() == 0) {
+    //for (int i = 0; i < int(results_func.size()); i++) {
+    //  std::cout << "Result func " << i << " " << results_func[i] << "\n";
+    //}
+    //  perform additional iterations on a
+
+    //for (int i = 0; i < int(results_func.size()); i++) {
+    //  std::cout << "after gather " << i << " " << results_func[i] << "\n";
+    //}
+
+    for (int iteration = 1; iteration < nums_variables_; ++iteration) {
+      for (int i = 0; i < int(results_func.size()); ++i) {
+        int block_size = iteration * int (coeff.size());
+        int current_n_index = (i / block_size) % int(coeff.size());
+        results_func[i] *= coeff[current_n_index];
+      }
+    }
+
+    //for (int i = 0; i < int(results_func.size()); i++) {
+    //  std::cout << "after for " << i << " " << results_func[i] << "\n";
+    //}
     result_output_ = CreateOutputResult(results_func, size_step);
   }
 
@@ -174,22 +237,22 @@ std::vector<double> kolokolova_d_integral_simpson_method_all::TestTaskALL::FindC
 
 void kolokolova_d_integral_simpson_method_all::TestTaskALL::MultiplyCoeffandFunctionValue(
     std::vector<double>& function_val, const std::vector<double>& coeff_vec, int a) {
-  int coeff_vec_size = int(coeff_vec.size());
-  int function_vec_size = int(function_val.size());
+  //int coeff_vec_size = int(coeff_vec.size());
+  //int function_vec_size = int(function_val.size());
 
-  // initial multiplication
-  for (int i = 0; i < function_vec_size; ++i) {
-    function_val[i] *= coeff_vec[i % coeff_vec_size];
-  }
+  //// initial multiplication
+  //for (int i = 0; i < function_vec_size; ++i) {
+  //  function_val[i] *= coeff_vec[i % coeff_vec_size];
+  //}
 
-  // perform additional iterations on a
-  for (int iteration = 1; iteration < a; ++iteration) {
-    for (int i = 0; i < function_vec_size; ++i) {
-      int block_size = iteration * coeff_vec_size;
-      int current_n_index = (i / block_size) % coeff_vec_size;
-      function_val[i] *= coeff_vec[current_n_index];
-    }
-  }
+  //// perform additional iterations on a
+  //for (int iteration = 1; iteration < a; ++iteration) {
+  //  for (int i = 0; i < function_vec_size; ++i) {
+  //    int block_size = iteration * coeff_vec_size;
+  //    int current_n_index = (i / block_size) % coeff_vec_size;
+  //    function_val[i] *= coeff_vec[current_n_index];
+  //  }
+  //}
 }
 
 double kolokolova_d_integral_simpson_method_all::TestTaskALL::CreateOutputResult(std::vector<double> vec,
