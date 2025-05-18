@@ -171,7 +171,7 @@ void odintsov_m_mulmatrix_cannon_all::MulMatrixCannonALL::ProcessBlockSTL(int bi
                                                                           const std::vector<double>& matrix_a,
                                                                           const std::vector<double>& matrix_b,
                                                                           std::vector<double>& local_c) {
-  int tcount = 1;
+  int tcount = num_blocks;
   std::vector<thread> threads;
   threads.reserve(tcount);
 
@@ -228,6 +228,7 @@ bool odintsov_m_mulmatrix_cannon_all::MulMatrixCannonALL::RunImpl() {
   if (rank != 0) {
     matrixA_.resize(count_a);
     matrixB_.resize(count_b);
+    matrixC_.resize(count_a);
   }
   // Вычисляем размер матрицы (root × root) и параметры блоков
   int root = static_cast<int>(std::round(std::sqrt(szA_)));
