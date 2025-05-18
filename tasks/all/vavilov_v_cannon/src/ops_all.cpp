@@ -2,13 +2,9 @@
 
 #include <algorithm>
 #include <boost/mpi/collectives.hpp>
-// #include <boost/mpi/collectives/gatherv.hpp>
-// #include <boost/mpi/collectives/scatterv.hpp>
 #include <boost/mpi.hpp>
 #include <boost/mpi/communicator.hpp>
 #include <boost/mpi/request.hpp>
-// #include <boost/serialization/utility.hpp>
-// #include <boost/serialization/vector.hpp>
 #include <cmath>
 #include <vector>
 
@@ -130,69 +126,7 @@ void vavilov_v_cannon_all::CannonALL::BlockMultiply(const std::vector<double>& l
     }
   }
 }
-/*
-void vavilov_v_cannon_all::CannonALL::InitialShiftone() {
-  std::vector<double> a_tmp = A_;
-  std::vector<double> b_tmp = B_;
 
-#pragma omp parallel for
-  for (int bi = 0; bi < num_blocks_; ++bi) {
-    for (int bj = 0; bj < num_blocks_; ++bj) {
-      int src_row = (bi + bj) % num_blocks_;
-      int src_col = (bj + bi) % num_blocks_;
-      for (int i = 0; i < block_size_; ++i) {
-        for (int j = 0; j < block_size_; ++j) {
-          B_[(((bi * block_size_) + i) * N_) + ((bj * block_size_) + j)] =
-              b_tmp[(((src_row * block_size_) + i) * N_) + ((bj * block_size_) + j)];
-          A_[(((bi * block_size_) + i) * N_) + ((bj * block_size_) + j)] =
-              a_tmp[(((bi * block_size_) + i) * N_) + ((src_col * block_size_) + j)];
-        }
-      }
-    }
-  }
-}
-void vavilov_v_cannon_all::CannonALL::BlockMultiplyone() {
-#pragma omp parallel for
-  for (int bi = 0; bi < num_blocks_; ++bi) {
-    for (int bj = 0; bj < num_blocks_; ++bj) {
-      for (int i = 0; i < block_size_; ++i) {
-        for (int j = 0; j < block_size_; ++j) {
-          double temp = 0.0;
-          for (int k = 0; k < block_size_; ++k) {
-            int row = (bi * block_size_) + i;
-            int col = (bj * block_size_) + j;
-            int k_idx = (bj * block_size_) + k;
-            int k_row = (bi * block_size_) + k;
-            temp += A_[(row * N_) + k_idx] * B_[(k_row * N_) + col];
-          }
-          C_[(((bi * block_size_) + i) * N_) + ((bj * block_size_) + j)] += temp;
-        }
-      }
-    }
-  }
-}
-
-void vavilov_v_cannon_all::CannonALL::ShiftBlocksone() {
-  std::vector<double> a_tmp = A_;
-  std::vector<double> b_tmp = B_;
-
-#pragma omp parallel for
-  for (int bi = 0; bi < num_blocks_; ++bi) {
-    for (int bj = 0; bj < num_blocks_; ++bj) {
-      int src_row = (bi + 1) % num_blocks_;
-      int src_col = (bj + 1) % num_blocks_;
-      for (int i = 0; i < block_size_; ++i) {
-        for (int j = 0; j < block_size_; ++j) {
-          B_[(((bi * block_size_) + i) * N_) + ((bj * block_size_) + j)] =
-              b_tmp[(((src_row * block_size_) + i) * N_) + ((bj * block_size_) + j)];
-          A_[(((bi * block_size_) + i) * N_) + ((bj * block_size_) + j)] =
-              a_tmp[(((bi * block_size_) + i) * N_) + ((src_col * block_size_) + j)];
-        }
-      }
-    }
-  }
-}
-*/
 /*
 bool vavilov_v_cannon_all::CannonALL::RunImpl() {
   int rank = world_.rank();
@@ -212,18 +146,6 @@ bool vavilov_v_cannon_all::CannonALL::RunImpl() {
 
   rank = active_world.rank();
   size = active_world.size();
-
-  if (num_blocks_ == 1 && size > 1) {
-    num_blocks_ = static_cast<int>(std::sqrt(N_));
-    if (rank == 0) {
-      InitialShiftone();
-      for (int iter = 0; iter < num_blocks_; ++iter) {
-        BlockMultiplyone();
-        ShiftBlocksone();
-      }
-    }
-    return true;
-  }
 
   std::vector<double> local_A(block_size_sq);
   std::vector<double> local_B(block_size_sq);
