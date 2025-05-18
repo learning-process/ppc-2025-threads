@@ -4,9 +4,9 @@
 #include <boost/mpi/collectives.hpp>
 // #include <boost/mpi/collectives/gatherv.hpp>
 // #include <boost/mpi/collectives/scatterv.hpp>
+#include <boost/mpi.hpp>
 #include <boost/mpi/communicator.hpp>
 #include <boost/mpi/request.hpp>
-#include <boost/mpi.hpp>
 // #include <boost/serialization/utility.hpp>
 // #include <boost/serialization/vector.hpp>
 #include <cmath>
