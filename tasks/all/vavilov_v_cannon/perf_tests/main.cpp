@@ -10,8 +10,6 @@
 #include "core/perf/include/perf.hpp"
 #include "core/task/include/task.hpp"
 
-namespace mpi = boost::mpi;
-
 TEST(vavilov_v_cannon_all, test_pipeline_run) {
   boost::mpi::communicator world;
   constexpr int kN = 900;
