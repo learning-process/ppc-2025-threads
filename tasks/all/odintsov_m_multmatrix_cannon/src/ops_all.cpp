@@ -223,8 +223,8 @@ bool odintsov_m_mulmatrix_cannon_all::MulMatrixCannonALL::RunImpl() {
   boost::mpi::broadcast(com_, szA_, /*root=*/0);
   boost::mpi::broadcast(com_, block_sz_, /*root=*/0);
 
-  int count_a = szA_ * szA_;
-  int count_b = count_a;
+  size_t count_a = szA_;
+  size_t count_b = count_a;
   if (rank != 0) {
     matrixA_.resize(count_a);
     matrixB_.resize(count_b);
