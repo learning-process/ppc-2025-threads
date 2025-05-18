@@ -28,14 +28,14 @@ class CannonALL : public ppc::core::Task {
   std::vector<double> C_;
   boost::mpi::communicator world_;
 
-  void InitialShift(std::vector<double>& local_A, std::vector<double>& local_B);
-  void BlockMultiply(const std::vector<double>& local_A, const std::vector<double>& local_B,
-                     std::vector<double>& local_C);
+  void InitialShift(std::vector<double>& local_a, std::vector<double>& local_b);
+  void BlockMultiply(const std::vector<double>& local_a, const std::vector<double>& local_b,
+                     std::vector<double>& local_c);
   // void ShiftBlocksone();
   // void InitialShiftone();
   // void BlockMultiplyone();
-  void ShiftBlocks(std::vector<double>& local_A, std::vector<double>& local_B);
-  static int find_optimal_grid_size(int size, int N);
-  static void take_block(const std::vector<double>& matrix, double* block, int N, int K, int block_row, int block_col);
+  void ShiftBlocks(std::vector<double>& local_a, std::vector<double>& local_b);
+  static int FindOptimalGridSize(int size, int n);
+  static void TakeBlock(const std::vector<double>& matrix, double* block, int n, int k, int block_row, int block_col);
 };
 }  // namespace vavilov_v_cannon_all
