@@ -2,7 +2,6 @@
 
 #include <algorithm>
 #include <cmath>
-#include <cstddef>
 #include <thread>
 #include <vector>
 
@@ -44,12 +43,14 @@ bool zaytsev_d_sobel_stl::TestTaskSTL::RunImpl() {
       int i = 1 + (idx / cols);
       int j = 1 + (idx % cols);
 
-      int sumgx = 0, sumgy = 0;
+      int sumgx = 0;
+      int sumgy = 0;
       for (int di = -1; di <= 1; ++di) {
         for (int dj = -1; dj <= 1; ++dj) {
           int ni = i + di;
           int nj = j + dj;
-          int kr = di + 1, kc = dj + 1;
+          int kr = di + 1;
+          int kc = dj + 1;
           int pix = input_[(ni * width_) + nj];
           sumgx += pix * gxkernel[kr][kc];
           sumgy += pix * gykernel[kr][kc];
