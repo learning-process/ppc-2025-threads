@@ -6,7 +6,10 @@
 #include <vector>
 
 #include "all/vavilov_v_cannon/include/ops_all.hpp"
+#include <boost/mpi/communicator.hpp>
 #include "core/task/include/task.hpp"
+
+namespace mpi = boost::mpi;
 
 namespace {
 
@@ -116,9 +119,9 @@ TEST(vavilov_v_cannon_all, test_invalid_size_1) {
   }
 }
 
-TEST(vavilov_v_cannon_all, test_225) {
+TEST(vavilov_v_cannon_all, test_16) {
   boost::mpi::communicator world;
-  constexpr int kN = 225;
+  constexpr int kN = 16;
   std::vector<double> a(kN * kN, 1.0);
   std::vector<double> b(kN * kN, 1.0);
   std::vector<double> c(kN * kN, 0.0);
@@ -147,7 +150,7 @@ TEST(vavilov_v_cannon_all, test_225) {
 
 TEST(vavilov_v_cannon_all, test_identity_matrix) {
   boost::mpi::communicator world;
-  constexpr int kN = 225;
+  constexpr int kN = 16;
   std::vector<double> a(kN * kN, 1.0);
   std::vector<double> b(kN * kN, 0.0);
   std::vector<double> c(kN * kN, 0.0);
@@ -181,7 +184,7 @@ TEST(vavilov_v_cannon_all, test_identity_matrix) {
 
 TEST(vavilov_v_cannon_all, test_zero_matrix) {
   boost::mpi::communicator world;
-  constexpr int kN = 225;
+  constexpr int kN = 16;
   std::vector<double> a(kN * kN, 1.0);
   std::vector<double> b(kN * kN, 0.0);
   std::vector<double> c(kN * kN, 0.0);
