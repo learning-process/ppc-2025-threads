@@ -127,6 +127,31 @@ void vavilov_v_cannon_all::CannonALL::BlockMultiply(const std::vector<double>& l
   }
 }
 
+void vavilov_v_cannon_all::CannonALL::GatherResults(std::vector<double>& local_c,
+                                                    std::vector<double>& tmp_c, int active_procs, int block_size_sq) {
+  if (rank == 0) {
+    tmp_c.resize(active_procs * block_size_sq);
+  }
+  mpi::gather(active_world, local_c.data(), block_size_sq, tmp_c.data(), 0);
+
+  if (rank == 0) {
+#pragma omp parallel for
+    for (int block_row = 0; block_row < num_blocks_; ++block_row) {
+      for (int block_col = 0; block_col < num_blocks_; ++block_col) {
+        int block_rank = (block_row * num_blocks_) + block_col;
+        int block_index = block_rank * block_size_sq;
+        for (int i = 0; i < block_size_; ++i) {
+          for (int j = 0; j < block_size_; ++j) {
+            int global_row = (block_row * block_size_) + i;
+            int global_col = (block_col * block_size_) + j;
+            C_[(global_row * N_) + global_col] = tmp_c[block_index + (i * block_size_) + j];
+          }
+        }
+      }
+    }
+  }
+}
+
 /*
 bool vavilov_v_cannon_all::CannonALL::RunImpl() {
   int rank = world_.rank();
@@ -147,57 +172,38 @@ bool vavilov_v_cannon_all::CannonALL::RunImpl() {
   rank = active_world.rank();
   size = active_world.size();
 
-  std::vector<double> local_A(block_size_sq);
-  std::vector<double> local_B(block_size_sq);
-  std::vector<double> local_C(block_size_sq, 0);
+  std::vector<double> local_a(block_size_sq);
+  std::vector<double> local_b(block_size_sq);
+  std::vector<double> local_c(block_size_sq, 0);
 
-  std::vector<double> scatter_A;
-  std::vector<double> scatter_B;
+  std::vector<double> scatter_a;
+  std::vector<double> scatter_b;
   if (rank == 0) {
-    scatter_A.resize(active_procs * block_size_sq);
-    scatter_B.resize(active_procs * block_size_sq);
+    scatter_a.resize(active_procs * block_size_sq);
+    scatter_b.resize(active_procs * block_size_sq);
     int index = 0;
     for (int block_row = 0; block_row < num_blocks_; ++block_row) {
       for (int block_col = 0; block_col < num_blocks_; ++block_col) {
-        take_block(A_, scatter_A.data() + index, N_, block_size_, block_row, block_col);
-        take_block(B_, scatter_B.data() + index, N_, block_size_, block_row, block_col);
+        take_block(a_, scatter_a.data() + index, N_, block_size_, block_row, block_col);
+        take_block(b_, scatter_b.data() + index, N_, block_size_, block_row, block_col);
         index += block_size_sq;
       }
     }
   }
 
-  mpi::scatter(active_world, scatter_A.data(), local_A.data(), block_size_sq, 0);
-  mpi::scatter(active_world, scatter_B.data(), local_B.data(), block_size_sq, 0);
+  mpi::scatter(active_world, scatter_a.data(), local_a.data(), block_size_sq, 0);
+  mpi::scatter(active_world, scatter_b.data(), local_b.data(), block_size_sq, 0);
 
-  InitialShift(local_A, local_B);
+  InitialShift(local_a, local_b);
 
-  BlockMultiply(local_A, local_B, local_C);
+  BlockMultiply(local_a, local_b, local_c);
   for (int iter = 0; iter < num_blocks_ - 1; ++iter) {
-    ShiftBlocks(local_A, local_B);
-    BlockMultiply(local_A, local_B, local_C);
+    ShiftBlocks(local_a, local_b);
+    BlockMultiply(local_a, local_b, local_c);
   }
 
-  std::vector<double> tmp_C;
-  if (rank == 0) {
-    tmp_C.resize(active_procs * block_size_sq);
-  }
-  mpi::gather(active_world, local_C.data(), block_size_sq, tmp_C.data(), 0);
-
-  if (rank == 0) {
-    for (int block_row = 0; block_row < num_blocks_; ++block_row) {
-      for (int block_col = 0; block_col < num_blocks_; ++block_col) {
-        int block_rank = (block_row * num_blocks_) + block_col;
-        int block_index = block_rank * block_size_sq;
-        for (int i = 0; i < block_size_; ++i) {
-          for (int j = 0; j < block_size_; ++j) {
-            int global_row = (block_row * block_size_) + i;
-            int global_col = (block_col * block_size_) + j;
-            C_[(global_row * N_) + global_col] = tmp_C[block_index + (i * block_size_) + j];
-          }
-        }
-      }
-    }
-  }
+  std::vector<double> tmp_c;
+  GatherResults(local_c, tmp_c, active_procs, block_size_sq);
 
   return true;
 }
@@ -288,27 +294,7 @@ bool vavilov_v_cannon_all::CannonALL::RunImpl() {
   }
 
   std::vector<double> tmp_c;
-  if (rank == 0) {
-    tmp_c.resize(active_procs * block_size_sq);
-  }
-  mpi::gather(active_world, local_c.data(), block_size_sq, tmp_c.data(), 0);
-
-  if (rank == 0) {
-#pragma omp parallel for
-    for (int block_row = 0; block_row < num_blocks_; ++block_row) {
-      for (int block_col = 0; block_col < num_blocks_; ++block_col) {
-        int block_rank = (block_row * num_blocks_) + block_col;
-        int block_index = block_rank * block_size_sq;
-        for (int i = 0; i < block_size_; ++i) {
-          for (int j = 0; j < block_size_; ++j) {
-            int global_row = (block_row * block_size_) + i;
-            int global_col = (block_col * block_size_) + j;
-            C_[(global_row * N_) + global_col] = tmp_c[block_index + (i * block_size_) + j];
-          }
-        }
-      }
-    }
-  }
+  GatherResults(local_c, tmp_c, active_procs, block_size_sq);
 
   return true;
 }
