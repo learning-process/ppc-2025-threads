@@ -204,7 +204,7 @@ bool vavilov_v_cannon_all::CannonALL::RunImpl() {
     tmp_c.resize(active_procs * block_size_sq);
   }
   mpi::gather(active_world, local_c.data(), block_size_sq, tmp_c.data(), 0);
-  if (rank == 0){
+  if (rank == 0) {
     GatherResults(tmp_c, block_size_sq);
   }
 
@@ -292,10 +292,10 @@ bool vavilov_v_cannon_all::CannonALL::RunImpl() {
     tmp_c.resize(active_procs * block_size_sq);
   }
   mpi::gather(active_world, local_c.data(), block_size_sq, tmp_c.data(), 0);
-  if (rank == 0){
+  if (rank == 0) {
     GatherResults(tmp_c, block_size_sq);
   }
-  
+
   return true;
 }
 
