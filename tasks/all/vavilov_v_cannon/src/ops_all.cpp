@@ -152,8 +152,8 @@ void vavilov_v_cannon_all::CannonALL::GatherResults(std::vector<double>& local_c
   }
 }
 
-void vavilov_v_cannon_all::CannonALL::PrepareScatterData(std::vector<double>& scatter_a,
-                                                         std::vector<double>& scatter_b, int active_procs, int block_size_sq) {
+void vavilov_v_cannon_all::CannonALL::PrepareScatterData(std::vector<double>& scatter_a, std::vector<double>& scatter_b,
+                                                         int active_procs, int block_size_sq) {
   scatter_a.resize(active_procs * block_size_sq);
   scatter_b.resize(active_procs * block_size_sq);
   int index = 0;
@@ -193,16 +193,7 @@ bool vavilov_v_cannon_all::CannonALL::RunImpl() {
   std::vector<double> scatter_a;
   std::vector<double> scatter_b;
   if (rank == 0) {
-    scatter_a.resize(active_procs * block_size_sq);
-    scatter_b.resize(active_procs * block_size_sq);
-    int index = 0;
-    for (int block_row = 0; block_row < num_blocks_; ++block_row) {
-      for (int block_col = 0; block_col < num_blocks_; ++block_col) {
-        take_block(a_, scatter_a.data() + index, N_, block_size_, block_row, block_col);
-        take_block(b_, scatter_b.data() + index, N_, block_size_, block_row, block_col);
-        index += block_size_sq;
-      }
-    }
+    PrepareScatterData(scatter_a, scatter_b, active_procs, block_size_sq);
   }
 
   mpi::scatter(active_world, scatter_a.data(), local_a.data(), block_size_sq, 0);
