@@ -2,8 +2,8 @@
 
 #include <algorithm>
 #include <boost/mpi/collectives.hpp>
-#include <boost/mpi/collectives/all_reduce.hpp>  // для boost::mpi::all_reduce
-#include <boost/mpi/collectives/broadcast.hpp>   // для boost::mpi::broadcast
+#include <boost/mpi/collectives/broadcast.hpp>  // для boost::mpi::broadcast
+#include <boost/mpi/collectives/reduce.hpp>
 #include <boost/mpi/communicator.hpp>
 #include <cmath>
 #include <cstddef>
@@ -108,16 +108,7 @@ int odintsov_m_mulmatrix_cannon_all::MulMatrixCannonALL::GetBlockSize(int n) {
   }
   return 1;
 }
-void odintsov_m_mulmatrix_cannon_all::MulMatrixCannonALL::CopyBlock(const std::vector<double>& matrix,
-                                                                    std::vector<double>& block, int start, int root,
-                                                                    int block_sz) {
-  for (int i = 0; i < block_sz; i++) {
-    for (int j = 0; j < block_sz; j++) {
-      int index = start + (i * root) + j;
-      block[(i * block_sz) + j] = matrix[index];
-    }
-  }
-}
+
 void odintsov_m_mulmatrix_cannon_all::MulMatrixCannonALL::InitializeShift(std::vector<double>& matrix, int root,
                                                                           int grid_size, int block_sz,
                                                                           bool is_row_shift) {
@@ -278,7 +269,7 @@ bool odintsov_m_mulmatrix_cannon_all::MulMatrixCannonALL::RunImpl() {
   }
 
   // 5) Сводим накопленные данные в matrixC_ на rank 0
-  boost::mpi::all_reduce(com_, local_c_acc.data(), root * root, matrixC_.data(), std::plus<>());
+  boost::mpi::reduce(com_, local_c_acc.data(), root * root, matrixC_.data(), std::plus<double>(), 0);
 
   return true;
 }

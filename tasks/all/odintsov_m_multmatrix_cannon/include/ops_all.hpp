@@ -24,14 +24,10 @@ class MulMatrixCannonALL : public ppc::core::Task {
   void ShiftBlocksLeft(std::vector<double>& matrix, int root, int block_sz) const;
   static bool IsSquere(unsigned int num);
   static int GetBlockSize(int n);
-  static void CopyBlock(const std::vector<double>& matrix, std::vector<double>& block, int start, int root,
-                        int block_sz);
   static void InitializeShift(std::vector<double>& matrix, int root, int grid_size, int block_sz, bool is_row_shift);
   static void ProcessBlockMul(int bi, int bj_start, int bj_end, int root, int block_sz,
                               const std::vector<double>& matrix_a, const std::vector<double>& matrix_b,
                               std::vector<double>& local_c);
-  void ProcessBlock(int block_idx, int root, int block_sz, const std::vector<double>& matrix_a,
-                    const std::vector<double>& matrix_b, std::vector<double>& local_c_partial);
   static void ProcessBlockSTL(int bi, int num_blocks, int root, int block_sz, const std::vector<double>& matrix_a,
                               const std::vector<double>& matrix_b, std::vector<double>& local_c);
 
