@@ -81,8 +81,7 @@ class PPCRunner:
     def __run_exec(command):
         result = subprocess.run(command, shell=True, env=os.environ)
         if result.returncode != 0:
-            print(f"[WARNING] Subprocess return {result.returncode}")
-            # raise Exception(f"Subprocess return {result.returncode}.")
+            raise Exception(f"Subprocess return {result.returncode}.")
 
     @staticmethod
     def __get_gtest_settings(repeats_count):
