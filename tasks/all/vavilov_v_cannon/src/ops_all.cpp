@@ -5,6 +5,8 @@
 // #include <boost/mpi/collectives/gatherv.hpp>
 // #include <boost/mpi/collectives/scatterv.hpp>
 #include <boost/mpi/communicator.hpp>
+#include <boost/mpi/request.hpp>
+#include <boost/mpi.hpp>
 // #include <boost/serialization/utility.hpp>
 // #include <boost/serialization/vector.hpp>
 #include <cmath>
@@ -346,7 +348,7 @@ bool vavilov_v_cannon_all::CannonALL::RunImpl() {
   }
   mpi::wait_all(reqs, reqs + req_count);
 
-  BlockMultiply(local_A, local_B, local_C);
+  BlockMultiply(local_a, local_b, local_c);
 
   for (int iter = 0; iter < num_blocks_ - 1; ++iter) {
     req_count = 0;
