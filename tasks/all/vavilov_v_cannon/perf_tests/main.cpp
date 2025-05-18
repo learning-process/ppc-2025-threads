@@ -1,12 +1,12 @@
 #include <gtest/gtest.h>
 
+#include <boost/mpi/communicator.hpp>
 #include <chrono>
 #include <cstdint>
 #include <memory>
 #include <vector>
 
 #include "all/vavilov_v_cannon/include/ops_all.hpp"
-#include <boost/mpi/communicator.hpp>
 #include "core/perf/include/perf.hpp"
 #include "core/task/include/task.hpp"
 
