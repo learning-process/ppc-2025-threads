@@ -2,6 +2,7 @@
 
 #include <algorithm>
 #include <boost/mpi/collectives/broadcast.hpp>
+#include <boost/mpi/collectives/scatterv.hpp>
 #include <boost/serialization/vector.hpp>  // NOLINT(misc-include-cleaner)
 #include <cmath>
 #include <cstddef>
@@ -138,24 +139,25 @@ bool ermolaev_v_graham_scan_all::TestTaskALL::RunImpl() {
     size_t min_idx = IndexOfMinElement();
     std::iter_swap(input_.begin(), input_.begin() + static_cast<int>(min_idx));
     min_point = input_[0];
-
-    int points_per_proc = static_cast<int>(input_.size()) / size;
-    int remainder = static_cast<int>(input_.size()) % size;
-
-    int start_idx = 1;
-    int end_idx = points_per_proc + (remainder > 0 ? 1 : 0);
-    local_points_.assign(input_.begin() + start_idx, input_.begin() + end_idx);
-
-    int current_idx = end_idx;
-    for (int i = 1; i < size; i++) {
-      int current_points = points_per_proc + (i < remainder ? 1 : 0);
-      std::vector<Point> to_send(input_.begin() + current_idx, input_.begin() + current_idx + current_points);
-      world_.send(i, 0, to_send);
-      current_idx += current_points;
-    }
-  } else {
-    world_.recv(0, 0, local_points_);
   }
+
+  int data_size = static_cast<int>(input_.size());
+  boost::mpi::broadcast(world_, data_size, 0);
+
+  int points_per_proc = (data_size - 1) / size;
+  int remainder = (data_size - 1) % size;
+
+  std::vector<int> counts(size);
+  std::vector<int> displs(size);
+
+  for (int i = 0; i < size; ++i) {
+    counts[i] = points_per_proc + (i < remainder ? 1 : 0);
+    displs[i] = (i == 0) ? 1 : displs[i - 1] + counts[i - 1];
+  }
+
+  local_points_.resize(counts[rank]);
+
+  boost::mpi::scatterv(world_, input_.data() + 1, counts, displs, local_points_.data(), counts[rank], 0);
   boost::mpi::broadcast(world_, min_point, 0);
 
   auto comp = [&](const Point &a, const Point &b) {
