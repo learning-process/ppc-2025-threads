@@ -73,15 +73,15 @@ bool kolokolova_d_integral_simpson_method_all::TestTaskALL::RunImpl() {
     size_local_results_func = int(results_func.size()) / int(world_.size());
     remainder_ = int(results_func.size()) % int(world_.size());
     size_local_coeff = int(results_func.size()) / int(world_.size());
-    remainder_coeff = int(coeff.size()) / int(world_.size());
-    std::cout << "Size MPI " << world_.size() << "\n";
-    std::cout << "Size " << size_local_results_func << "\n";
-    std::cout << "Remainder " << remainder_ << "\n";
+    remainder_coeff = int(results_func.size()) % int(world_.size());
+    size_local_size_step = int(size_step.size()) / int(world_.size());
+    remainder_size_step = int(size_step.size()) % int(world_.size());
   }
 
   broadcast(world_, size_local_results_func, 0);
   broadcast(world_, nums_variables_, 0);
   broadcast(world_, size_local_coeff, 0);
+  broadcast(world_, size_local_size_step, 0);
 
   if (world_.rank() == 0) {
     for (int proc = 1; proc < world_.size(); proc++) {
@@ -100,7 +100,7 @@ bool kolokolova_d_integral_simpson_method_all::TestTaskALL::RunImpl() {
 
   if (world_.rank() == 0) {
     for (int proc = 1; proc < world_.size(); proc++) {
-      world_.send(proc, 0, coeff.data() + proc * size_local_coeff + remainder_, size_local_coeff);
+      world_.send(proc, 0, coeff.data() + proc * size_local_coeff + remainder_coeff, size_local_coeff);
     }
   }
 
@@ -113,11 +113,16 @@ bool kolokolova_d_integral_simpson_method_all::TestTaskALL::RunImpl() {
     world_.recv(0, 0, local_coeff.data(), size_local_coeff);
   }
 
-  MultiplyCoeffandFunctionValue(results_func, coeff, nums_variables_);
+  MultiplyCoeffandFunctionValue(local_results_func, local_coeff, nums_variables_);
+
+  for (int i = 0; i < int(local_results_func.size()); i++) {
+    std::cout << "Local " << i << " " << local_results_func[i] << "\n";
+  }
 
   if (world_.rank() == 0) {
     result_output_ = CreateOutputResult(results_func, size_step);
   }
+
   return true;
 }
 
