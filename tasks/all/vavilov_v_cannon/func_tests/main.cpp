@@ -9,8 +9,6 @@
 #include "all/vavilov_v_cannon/include/ops_all.hpp"
 #include "core/task/include/task.hpp"
 
-namespace mpi = boost::mpi;
-
 namespace {
 
 using namespace vavilov_v_cannon_all;
