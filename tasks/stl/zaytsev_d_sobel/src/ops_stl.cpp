@@ -57,7 +57,7 @@ bool zaytsev_d_sobel_stl::TestTaskSTL::RunImpl() {
         }
       }
 
-      int mag = static_cast<int>(std::sqrt(sumgx * sumgx + sumgy * sumgy));
+      int mag = static_cast<int>(std::sqrt((sumgx * sumgx) + (sumgy * sumgy)));
       output_[(i * width_) + j] = std::min(mag, 255);
     }
   };
