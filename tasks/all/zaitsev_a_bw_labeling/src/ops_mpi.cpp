@@ -1,17 +1,21 @@
 #include "all/zaitsev_a_bw_labeling/include/ops_mpi.hpp"
 
-#include <oneapi/tbb/mutex.h>
 #include <oneapi/tbb/parallel_for.h>
 
 #include <algorithm>
 #include <boost/mpi/collectives.hpp>
-#include <boost/serialization/vector.hpp>
+#include <cassert>
 #include <cmath>
 #include <cstdint>
 #include <map>
 #include <set>
+#include <utility>
 #include <vector>
 
+#include "boost/mpi/collectives/broadcast.hpp"
+#include "boost/mpi/collectives/gather.hpp"
+#include "boost/mpi/collectives/gatherv.hpp"
+#include "boost/mpi/collectives/scatterv.hpp"
 #include "core/util/include/util.hpp"
 #include "oneapi/tbb/detail/_range_common.h"
 #include "oneapi/tbb/task_arena.h"
@@ -180,7 +184,7 @@ void Labeler::Share() {
   int offset = 0;
 
   for (int i = 0; i < world_.size(); ++i) {
-    int h = height / world_.size() + (i < remainder ? 1 : 0);
+    int h = (height / world_.size()) + (i < remainder ? 1 : 0);
     counts_[i] = h * width;
     displs_[i] = offset;
     offset += counts_[i];
