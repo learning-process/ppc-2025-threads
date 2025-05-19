@@ -65,7 +65,7 @@ void BuildCColPtr(boost::mpi::communicator& world, const std::vector<int>& nnz_p
   if (world.rank() == 0) {
     c_col_ptr.resize(n + 1);
     c_col_ptr[0] = 0;
-    for (int j = 0; j < n; ++j) {
+    for (size_t j = 0; j < n; ++j) {
       c_col_ptr[j + 1] = c_col_ptr[j] + nnz_per_column[j];
     }
   }
