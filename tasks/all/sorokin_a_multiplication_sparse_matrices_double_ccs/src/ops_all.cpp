@@ -120,27 +120,22 @@ void MultiplyCCS(boost::mpi::communicator& world, const std::vector<double>& a_v
   int rank = world.rank();
   int size = world.size();
 
-  // Распределение столбцов
   int cols_per_process = n / size;
   int remainder = n % size;
   int start_col = (rank * cols_per_process) + std::min(rank, remainder);
   int end_col = start_col + cols_per_process + (rank < remainder ? 1 : 0);
   int local_cols = end_col - start_col;
 
-  // Вычисление локальных ненулевых элементов
   std::vector<int> local_nnz(local_cols, 0);
   ComputeLocalNNZ(start_col, local_cols, b_col_ptr, b_row_indices, a_col_ptr, a_row_indices, m, local_nnz);
 
-  // Сбор данных
   std::vector<int> nnz_per_column(n, 0);
   std::vector<int> recv_counts(size);
   std::vector<int> displs(size);
   GatherNNZData(world, local_nnz, local_cols, start_col, nnz_per_column, recv_counts, displs);
 
-  // Построение структуры колонок
   BuildCColPtr(world, nnz_per_column, c_col_ptr);
 
-  // Вычисление значений только на корневом процессе
   if (rank == 0) {
     ComputeCValuesAndIndices(a_values, a_row_indices, a_col_ptr, b_values, b_row_indices, b_col_ptr, m, n, c_values,
                              c_row_indices, c_col_ptr);
