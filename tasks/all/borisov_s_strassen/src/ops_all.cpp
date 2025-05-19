@@ -1,7 +1,7 @@
 #include "all/borisov_s_strassen/include/ops_all.hpp"
 
 #include <algorithm>
-#include <boost/serialization/vector.hpp> // NOLINT(*-include-cleaner)
+#include <boost/serialization/vector.hpp>  // NOLINT(*-include-cleaner)
 #include <cstddef>
 #include <thread>
 #include <vector>
