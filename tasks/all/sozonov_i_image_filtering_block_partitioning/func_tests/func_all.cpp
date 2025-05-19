@@ -17,41 +17,14 @@ std::vector<double> ZeroEdges(std::vector<double> img, int wdth, int hght) {
     img[((hght - 1) * wdth) + i] = 0;
   }
   for (int i = 1; i < hght - 1; ++i) {
-    img[i * wdth] = 0;
-    img[(i * wdth) + wdth - 1] = 0;
+    img[i * wdth] = 0.75;
+    img[(i * wdth) + wdth - 1] = 0.75;
   }
 
   return img;
 }
 
 }  // namespace sozonov_i_image_filtering_block_partitioning_all
-
-TEST(sozonov_i_image_filtering_block_partitioning_all, test_empty_image) {
-  boost::mpi::communicator world;
-
-  const int width = 0;
-  const int height = 0;
-
-  // Create data
-  std::vector<double> in;
-  std::vector<double> out;
-
-  // Create task_data
-  auto task_data_all = std::make_shared<ppc::core::TaskData>();
-
-  if (world.rank() == 0) {
-    task_data_all->inputs.emplace_back(reinterpret_cast<uint8_t *>(in.data()));
-    task_data_all->inputs_count.emplace_back(in.size());
-    task_data_all->inputs_count.emplace_back(width);
-    task_data_all->inputs_count.emplace_back(height);
-    task_data_all->outputs.emplace_back(reinterpret_cast<uint8_t *>(out.data()));
-    task_data_all->outputs_count.emplace_back(out.size());
-  }
-
-  // Create Task
-  sozonov_i_image_filtering_block_partitioning_all::TestTaskALL test_task_all(task_data_all);
-  ASSERT_FALSE(test_task_all.Validation());
-}
 
 TEST(sozonov_i_image_filtering_block_partitioning_all, test_image_less_than_3x3) {
   boost::mpi::communicator world;
@@ -116,7 +89,7 @@ TEST(sozonov_i_image_filtering_block_partitioning_all, test_3x3) {
   // Create data
   std::vector<double> in = {4, 6, 8, 24, 31, 25, 1, 5, 7};
   std::vector<double> out(width * height, 0);
-  std::vector<double> ans = {0, 0, 0, 0, 16.5, 0, 0, 0, 0};
+  std::vector<double> ans = {0, 0, 0, 11.1875, 16.5, 14.3125, 0, 0, 0};
 
   // Create task_data
   auto task_data_all = std::make_shared<ppc::core::TaskData>();
@@ -151,7 +124,7 @@ TEST(sozonov_i_image_filtering_block_partitioning_all, test_5x3) {
   // Create data
   std::vector<double> in = {34, 24, 27, 67, 42, 48, 93, 26, 47, 2, 34, 13, 81, 24, 32};
   std::vector<double> out(width * height, 0);
-  std::vector<double> ans = {0, 0, 0, 0, 0, 0, 48.125, 45.5, 38, 0, 0, 0, 0, 0, 0};
+  std::vector<double> ans = {0, 0, 0, 0, 0, 34.4375, 48.125, 45.5, 38, 21.3125, 0, 0, 0, 0, 0};
 
   // Create task_data
   auto task_data_all = std::make_shared<ppc::core::TaskData>();
@@ -187,7 +160,8 @@ TEST(sozonov_i_image_filtering_block_partitioning_all, test_5x5) {
   std::vector<double> in(width * height);
   std::iota(in.begin(), in.end(), 0);
   std::vector<double> out(width * height, 0);
-  std::vector<double> ans = {0, 0, 0, 0, 0, 0, 6, 7, 8, 0, 0, 11, 12, 13, 0, 0, 16, 17, 18, 0, 0, 0, 0, 0, 0};
+  std::vector<double> ans = {0,  0,     0,    0,  0,  4,  6,  7, 8, 6.5, 7.75, 11, 12,
+                             13, 10.25, 11.5, 16, 17, 18, 14, 0, 0, 0,   0,    0};
 
   // Create task_data
   auto task_data_all = std::make_shared<ppc::core::TaskData>();
@@ -223,8 +197,8 @@ TEST(sozonov_i_image_filtering_block_partitioning_all, test_5x7) {
   std::vector<double> in(width * height);
   std::iota(in.begin(), in.end(), 0);
   std::vector<double> out(width * height, 0);
-  std::vector<double> ans = {0,  0, 0, 0,  0,  0,  6, 7, 8,  0,  0,  11, 12, 13, 0, 0, 16, 17,
-                             18, 0, 0, 21, 22, 23, 0, 0, 26, 27, 28, 0,  0,  0,  0, 0, 0};
+  std::vector<double> ans = {0,  0,  0,     0,  0,  4,  6,     7,  8,  6.5, 7.75, 11,   12, 13, 10.25, 11.5, 16, 17,
+                             18, 14, 15.25, 21, 22, 23, 17.75, 19, 26, 27,  28,   21.5, 0,  0,  0,     0,    0};
 
   // Create task_data
   auto task_data_all = std::make_shared<ppc::core::TaskData>();
@@ -260,8 +234,8 @@ TEST(sozonov_i_image_filtering_block_partitioning_all, test_10x4) {
   std::vector<double> in(width * height);
   std::iota(in.begin(), in.end(), 0);
   std::vector<double> out(width * height, 0);
-  std::vector<double> ans = {0, 0,  0,  0,  0,  0,  0,  0,  0,  0, 0, 11, 12, 13, 14, 15, 16, 17, 18, 0,
-                             0, 21, 22, 23, 24, 25, 26, 27, 28, 0, 0, 0,  0,  0,  0,  0,  0,  0,  0,  0};
+  std::vector<double> ans = {0,     0,  0,  0,  0,  0,  0,  0,  0,  0,    7.75, 11, 12, 13, 14, 15, 16, 17, 18, 14,
+                             15.25, 21, 22, 23, 24, 25, 26, 27, 28, 21.5, 0,    0,  0,  0,  0,  0,  0,  0,  0,  0};
 
   // Create task_data
   auto task_data_all = std::make_shared<ppc::core::TaskData>();

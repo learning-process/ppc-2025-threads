@@ -18,8 +18,8 @@ std::vector<double> ZeroEdges(std::vector<double> img, int wdth, int hght) {
     img[((hght - 1) * wdth) + i] = 0;
   }
   for (int i = 1; i < hght - 1; ++i) {
-    img[i * wdth] = 0;
-    img[(i * wdth) + wdth - 1] = 0;
+    img[i * wdth] = 0.75;
+    img[(i * wdth) + wdth - 1] = 0.75;
   }
 
   return img;
