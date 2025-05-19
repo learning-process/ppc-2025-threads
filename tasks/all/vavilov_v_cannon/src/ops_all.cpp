@@ -8,6 +8,7 @@
 #include <boost/mpi/request.hpp>
 #include <cmath>
 #include <vector>
+#include <mpi.h>
 
 namespace mpi = boost::mpi;
 
