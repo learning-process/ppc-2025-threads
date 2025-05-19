@@ -63,7 +63,7 @@ bool tyurin_m_matmul_crs_complex_all::TestTaskAll::PreProcessingImpl() {
   return true;
 }
 
-bool tyurin_m_matmul_crs_complex_all::TestTaskAll::RunImpl() {  // NOLINT(readability-function-cognitive-complexity)
+bool tyurin_m_matmul_crs_complex_all::TestTaskAll::RunImpl() {
   int row_offset{};
   int idx_offset{};
   auto local_lhs = Scatter(row_offset, idx_offset);
@@ -81,33 +81,36 @@ bool tyurin_m_matmul_crs_complex_all::TestTaskAll::RunImpl() {  // NOLINT(readab
   const std::size_t avg = rows / nthreads;
   const std::size_t nextra = rows % nthreads;
 
+  auto mulrow = [&](uint32_t i) {
+    for (uint32_t j = 0; j < cols; ++j) {
+      auto ii = local_lhs.rowptr[i - row_offset];
+      auto ij = rhs_.rowptr[j];
+      std::complex<double> summul = 0.0;
+      while (ii < local_lhs.rowptr[i + 1 - row_offset] && ij < rhs_.rowptr[j + 1]) {
+        if (local_lhs.colind[ii - idx_offset] < rhs_.colind[ij]) {
+          ++ii;
+        } else if (local_lhs.colind[ii - idx_offset] > rhs_.colind[ij]) {
+          ++ij;
+        } else {
+          summul += local_lhs.data[ii++ - idx_offset] * rhs_.data[ij++];
+        }
+      }
+      if (summul != 0.0) {
+        buf[i - row_offset].emplace_back(summul, j);
+      }
+    }
+  };
+  auto thexec = [&](uint32_t thread_rows_begin, uint32_t thread_rows_end) {
+    for (uint32_t i = row_offset + thread_rows_begin; i < row_offset + thread_rows_end; ++i) {
+      mulrow(i);
+    }
+  };
+
   std::vector<std::thread> threads(nthreads);
   uint32_t cur = 0;
   for (std::size_t t = 0; t < nthreads; t++) {
     uint32_t forthread = avg + ((t < nextra) ? 1 : 0);
-    threads[t] = std::thread(
-        [&](uint32_t thread_rows_begin, uint32_t thread_rows_end) {
-          for (uint32_t i = row_offset + thread_rows_begin; i < row_offset + thread_rows_end; ++i) {
-            for (uint32_t j = 0; j < cols; ++j) {
-              auto ii = local_lhs.rowptr[i - row_offset];
-              auto ij = rhs_.rowptr[j];
-              std::complex<double> summul = 0.0;
-              while (ii < local_lhs.rowptr[i + 1 - row_offset] && ij < rhs_.rowptr[j + 1]) {
-                if (local_lhs.colind[ii - idx_offset] < rhs_.colind[ij]) {
-                  ++ii;
-                } else if (local_lhs.colind[ii - idx_offset] > rhs_.colind[ij]) {
-                  ++ij;
-                } else {
-                  summul += local_lhs.data[ii++ - idx_offset] * rhs_.data[ij++];
-                }
-              }
-              if (summul != 0.0) {
-                buf[i - row_offset].emplace_back(summul, j);
-              }
-            }
-          }
-        },
-        cur, cur + forthread);
+    threads[t] = std::thread(thexec, cur, cur + forthread);
     cur += forthread;
   }
   std::ranges::for_each(threads, [](auto &thread) { thread.join(); });
@@ -149,8 +152,8 @@ bool tyurin_m_matmul_crs_complex_all::TestTaskAll::PostProcessingImpl() {
     auto prev_it_rowp = rowptr_iter;
 
     rowptr_iter = std::copy(part.rowptr.begin() + 1, part.rowptr.end(), rowptr_iter);
-    colind_iter = std::copy(part.colind.begin(), part.colind.end(), colind_iter);  // NOLINT(modernize-use-ranges)
-    data_iter = std::copy(part.data.begin(), part.data.end(), data_iter);          // NOLINT(modernize-use-ranges)
+    colind_iter = std::ranges::copy(part.colind, colind_iter).out;
+    data_iter = std::ranges::copy(part.data, data_iter).out;
 
     std::ranges::for_each(std::ranges::subrange{prev_it_rowp, rowptr_iter}, [&](auto &rp) { rp += nz; });
     nz = *(rowptr_iter - 1);
