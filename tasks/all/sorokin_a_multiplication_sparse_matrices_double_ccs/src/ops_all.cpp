@@ -7,6 +7,8 @@
 #include <cstddef>
 #include <vector>
 
+#include "boost/mpi/collectives/broadcast.hpp"
+#include "boost/mpi/collectives/gather.hpp"
 #include "boost/mpi/collectives/gatherv.hpp"
 
 namespace sorokin_a_multiplication_sparse_matrices_double_ccs_all {
@@ -21,7 +23,7 @@ void MultiplyCCS(boost::mpi::communicator& world, const std::vector<double>& a_v
 
   int cols_per_process = n / size;
   int remainder = n % size;
-  int start_col = rank * cols_per_process + std::min(rank, remainder);
+  int start_col = (rank * cols_per_process) + std::min(rank, remainder);
   int end_col = start_col + cols_per_process + (rank < remainder ? 1 : 0);
   int local_cols = end_col - start_col;
   std::vector<int> local_nnz(local_cols, 0);
@@ -41,10 +43,12 @@ void MultiplyCCS(boost::mpi::communicator& world, const std::vector<double>& a_v
   }
 
   std::vector<int> nnz_per_column(n, 0);
-  std::vector<int> recv_counts(size), displs(size);
+  std::vector<int> recv_counts(size);
+  std::vector<int> displs(size);
 
   if (rank == 0) {
-    std::vector<int> all_start_cols(size), all_local_cols(size);
+    std::vector<int> all_start_cols(size);
+    std::vector<int> all_local_cols(size);
     boost::mpi::gather(world, start_col, all_start_cols, 0);
     boost::mpi::gather(world, local_cols, all_local_cols, 0);
 
