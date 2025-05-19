@@ -16,7 +16,7 @@ class TestTaskOpenMP : public ppc::core::Task {
   bool RunImpl() override;
   bool PostProcessingImpl() override;
 
-  void SetFunction(std::function<double(const std::vector<double>&)> func) { function_ = std::move(func); }
+  void SetFunction(const std::function<double(const std::vector<double>&)>& func) { function_ = func; }
 
  private:
   std::vector<double> lower_limits_;

@@ -1,4 +1,4 @@
-#include <gtest/gtest.h>
+﻿#include <gtest/gtest.h>
 
 #include <chrono>
 #include <cstdint>
@@ -12,7 +12,7 @@
 TEST(prokhorov_n_multidimensional_integrals_by_trapezoidal_method_omp, test_pipeline_run) {
   std::vector<double> lower = {0.0, 0.0, 0.0};
   std::vector<double> upper = {1.0, 1.0, 1.0};
-  std::vector<int> steps = {200, 200, 200};
+  std::vector<int> steps = {500, 500, 500};
   double result = 0.0;
 
   auto task_data_omp = std::make_shared<ppc::core::TaskData>();
@@ -51,7 +51,7 @@ TEST(prokhorov_n_multidimensional_integrals_by_trapezoidal_method_omp, test_pipe
 TEST(prokhorov_n_multidimensional_integrals_by_trapezoidal_method_omp, test_task_run) {
   std::vector<double> lower = {0.0, 0.0};
   std::vector<double> upper = {1.0, 1.0};
-  std::vector<int> steps = {1000, 1000};
+  std::vector<int> steps = {2000, 2000};
   double result = 0.0;
 
   auto task_data_omp = std::make_shared<ppc::core::TaskData>();
