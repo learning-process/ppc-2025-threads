@@ -42,7 +42,7 @@ namespace test_utils {
 
 constexpr double kTol = 1e-9;
 
-inline bool IsMaster() {
+bool IsMaster() {
   static boost::mpi::communicator world;
   return world.rank() == 0;
 }
