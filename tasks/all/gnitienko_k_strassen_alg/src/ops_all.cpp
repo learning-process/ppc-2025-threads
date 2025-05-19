@@ -4,7 +4,7 @@
 #pragma warning(disable : 4245)
 #endif
 #include <algorithm>
-#include <boost/mpi/collectives.hpp>
+#include <boost/mpi/collectives/broadcast.hpp>
 #include <boost/mpi/nonblocking.hpp>
 #include <boost/mpi/request.hpp>
 #include <cmath>
@@ -14,6 +14,8 @@
 #include <thread>
 #include <utility>
 #include <vector>
+
+// NOLINTBEGIN(clang-analyzer-optin.mpi.MPI-Checker)
 
 bool gnitienko_k_strassen_algorithm_all::StrassenAlgAll::PreProcessingImpl() {
   if (world_.rank() == 0) {
@@ -237,16 +239,9 @@ void gnitienko_k_strassen_algorithm_all::StrassenAlgAll::StrassenMultiply(const 
   }
 }
 
-bool gnitienko_k_strassen_algorithm_all::StrassenAlgAll::RunImpl() {
-  int rank = world_.rank();
-  int size_proc = world_.size();
-  int max_threads = ppc::util::GetPPCNumThreads();
-
-  boost::mpi::broadcast(world_, size_, 0);
-
-  const int half_size = size_ / 2;
+void gnitienko_k_strassen_algorithm_all::StrassenAlgAll::MPILogic(int rank, int half_size, int size_proc,
+                                                                  int max_threads) {
   const int block_size = half_size * half_size;
-
   if (rank == 0) {
     output_.resize(size_ * size_);
 
@@ -387,6 +382,19 @@ bool gnitienko_k_strassen_algorithm_all::StrassenAlgAll::RunImpl() {
 
     boost::mpi::wait_all(send_reqs.begin(), send_reqs.end());
   }
+}
+
+bool gnitienko_k_strassen_algorithm_all::StrassenAlgAll::RunImpl() {
+  int rank = world_.rank();
+  int size_proc = world_.size();
+  int max_threads = ppc::util::GetPPCNumThreads();
+
+  boost::mpi::broadcast(world_, size_, 0);
+
+  const int half_size = size_ / 2;
+
+  MPILogic(rank, half_size, size_proc, max_threads);
+
   world_.barrier();
 
   return true;
@@ -400,3 +408,5 @@ bool gnitienko_k_strassen_algorithm_all::StrassenAlgAll::PostProcessingImpl() {
   }
   return true;
 }
+
+// NOLINTEND(clang-analyzer-optin.mpi.MPI-Checker)

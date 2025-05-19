@@ -32,6 +32,7 @@ class StrassenAlgAll : public ppc::core::Task {
                         int avaliable_threads);
   static void AddMatrix(const std::vector<double>& a, const std::vector<double>& b, std::vector<double>& c, int size);
   static void SubMatrix(const std::vector<double>& a, const std::vector<double>& b, std::vector<double>& c, int size);
+  void MPILogic(int rank, int half_size, int size_proc, int max_threads);
 };
 
 void ParallelizeTasks(const std::vector<std::function<void(int)>>& tasks, int avaliable_threads);
