@@ -12,6 +12,7 @@ void ComputeLocalC(const std::vector<double>& a_values, const std::vector<int>& 
                    const std::vector<int>& local_b_row_indices, const std::vector<int>& local_b_col_ptr, int m,
                    int num_local_cols, std::vector<int>& local_nnz, std::vector<double>& local_c_values,
                    std::vector<int>& local_c_row_indices, std::vector<int>& local_c_col_ptr) {
+  const int k = static_cast<int>(a_col_ptr.size()) - 1;
   std::vector<std::vector<int>> rows(num_local_cols);
   std::vector<std::vector<double>> values(num_local_cols);
 
@@ -20,6 +21,10 @@ void ComputeLocalC(const std::vector<double>& a_values, const std::vector<int>& 
     std::vector<double> tmp(m, 0.0);
     for (int t = local_b_col_ptr[j]; t < local_b_col_ptr[j + 1]; ++t) {
       const int row_b = local_b_row_indices[t];
+      if (row_b < 0 || row_b >= k) {
+        std::cerr << "Invalid row_b index: " << row_b << std::endl;
+        continue;
+      }
       const double val_b = local_b_values[t];
       for (int i = a_col_ptr[row_b]; i < a_col_ptr[row_b + 1]; ++i) {
         const int row_a = a_row_indices[i];
@@ -42,15 +47,17 @@ void ComputeLocalC(const std::vector<double>& a_values, const std::vector<int>& 
     local_c_col_ptr[j + 1] = local_c_col_ptr[j] + local_nnz[j];
   }
 
-  local_c_values.resize(local_c_col_ptr.back());
-  local_c_row_indices.resize(local_c_col_ptr.back());
+  const int total_nnz = local_c_col_ptr.back();
+  local_c_values.resize(total_nnz);
+  local_c_row_indices.resize(total_nnz);
 
 #pragma omp parallel for
   for (int j = 0; j < num_local_cols; ++j) {
     const int offset = local_c_col_ptr[j];
-    for (size_t k = 0; k < rows[j].size(); ++k) {
-      local_c_row_indices[offset + k] = rows[j][k];
-      local_c_values[offset + k] = values[j][k];
+    const size_t num_elements = rows[j].size();
+    for (size_t elem_idx = 0; elem_idx < num_elements; ++elem_idx) {
+      local_c_row_indices[offset + elem_idx] = rows[j][elem_idx];
+      local_c_values[offset + elem_idx] = values[j][elem_idx];
     }
   }
 }
