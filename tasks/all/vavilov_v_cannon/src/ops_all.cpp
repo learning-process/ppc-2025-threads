@@ -2,8 +2,8 @@
 
 #include <algorithm>
 #include <boost/mpi/collectives/broadcast.hpp>
-#include <boost/mpi/collectives/scatter.hpp>
 #include <boost/mpi/collectives/gather.hpp>
+#include <boost/mpi/collectives/scatter.hpp>
 #include <boost/mpi/communicator.hpp>
 #include <boost/mpi/request.hpp>
 #include <cmath>
@@ -70,7 +70,7 @@ void vavilov_v_cannon_all::CannonALL::InitialShift(std::vector<double>& local_a,
 
   std::vector<double> tmp_a(block_size_ * block_size_);
   std::vector<double> tmp_b(block_size_ * block_size_);
-
+  /*
   for (int i = 0; i < row; ++i) {
     mpi::request reqs[2];
     reqs[0] = world_.isend(send_rank_a, 0, local_a.data(), block_size_ * block_size_);
@@ -78,12 +78,24 @@ void vavilov_v_cannon_all::CannonALL::InitialShift(std::vector<double>& local_a,
     mpi::wait_all(reqs, reqs + 2);
     std::swap(local_a, tmp_a);
   }
-
+  */
+  for (int i = 0; i < row; ++i) {
+    world_.send(send_rank_a, 0, local_a.data(), block_size_ * block_size_);
+    world_.recv(recv_rank_a, 0, tmp_a.data(), block_size_ * block_size_);
+    std::swap(local_a, tmp_a);
+  }
+  /*
   for (int i = 0; i < col; ++i) {
     mpi::request reqs[2];
     reqs[0] = world_.isend(send_rank_b, 1, local_b.data(), block_size_ * block_size_);
     reqs[1] = world_.irecv(recv_rank_b, 1, tmp_b.data(), block_size_ * block_size_);
     mpi::wait_all(reqs, reqs + 2);
+    std::swap(local_b, tmp_b);
+  }
+  */
+  for (int i = 0; i < col; ++i) {
+    world_.send(send_rank_b, 1, local_b.data(), block_size_ * block_size_);
+    world_.recv(recv_rank_b, 1, tmp_b.data(), block_size_ * block_size_);
     std::swap(local_b, tmp_b);
   }
 }
@@ -102,7 +114,7 @@ void vavilov_v_cannon_all::CannonALL::ShiftBlocks(std::vector<double>& local_a, 
 
   std::vector<double> tmp_a(block_size_ * block_size_);
   std::vector<double> tmp_b(block_size_ * block_size_);
-
+  /*
   mpi::request reqs[4];
   reqs[0] = world_.isend(send_rank_a, 2, local_a.data(), block_size_ * block_size_);
   reqs[1] = world_.irecv(recv_rank_a, 2, tmp_a.data(), block_size_ * block_size_);
@@ -111,6 +123,14 @@ void vavilov_v_cannon_all::CannonALL::ShiftBlocks(std::vector<double>& local_a, 
 
   mpi::wait_all(reqs, reqs + 4);
   std::swap(local_a, tmp_a);
+  std::swap(local_b, tmp_b);
+  */
+  world_.send(send_rank_a, 2, local_a.data(), block_size_ * block_size_);
+  world_.recv(recv_rank_a, 2, tmp_a.data(), block_size_ * block_size_);
+  std::swap(local_a, tmp_a);
+
+  world_.send(send_rank_b, 3, local_b.data(), block_size_ * block_size_);
+  world_.recv(recv_rank_b, 3, tmp_b.data(), block_size_ * block_size_);
   std::swap(local_b, tmp_b);
 }
 
