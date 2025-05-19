@@ -45,18 +45,23 @@ void GenerateRandomMatrix(int rows, int cols, std::vector<double>& matrix) {
 TEST(borisov_s_strassen_mpi_perf, pipeline_run) {
   boost::mpi::communicator world;
 
-  constexpr int kRowsA = 512, kColsA = 512;
-  constexpr int kRowsB = 512, kColsB = 512;
+  constexpr int kRowsA = 512;
+  constexpr int kColsA = 512;
+  constexpr int kRowsB = 512;
+  constexpr int kColsB = 512;
 
-  std::vector<double> A, B, in_buf, out_buf;
+  std::vector<double> a;
+  std::vector<double> b;
+  std::vector<double> in_buf;
+  std::vector<double> out_buf;
   if (world.rank() == 0) {
-    GenerateRandomMatrix(kRowsA, kColsA, A);
-    GenerateRandomMatrix(kRowsB, kColsB, B);
+    GenerateRandomMatrix(kRowsA, kColsA, a);
+    GenerateRandomMatrix(kRowsB, kColsB, b);
     in_buf = {static_cast<double>(kRowsA), static_cast<double>(kColsA), static_cast<double>(kRowsB),
               static_cast<double>(kColsB)};
-    in_buf.insert(in_buf.end(), A.begin(), A.end());
-    in_buf.insert(in_buf.end(), B.begin(), B.end());
-    out_buf.assign(2 + kRowsA * kColsB, 0.0);
+    in_buf.insert(in_buf.end(), a.begin(), a.end());
+    in_buf.insert(in_buf.end(), b.begin(), b.end());
+    out_buf.assign(2 + (kRowsA * kColsB), 0.0);
   }
 
   auto task_data = std::make_shared<ppc::core::TaskData>();
@@ -83,28 +88,35 @@ TEST(borisov_s_strassen_mpi_perf, pipeline_run) {
   perf->PipelineRun(perf_attr, perf_results);
   if (world.rank() == 0) {
     ppc::core::Perf::PrintPerfStatistic(perf_results);
-    auto expected = MultiplyNaive(A, B, kRowsA, kColsA, kColsB);
+    auto expected = MultiplyNaive(a, b, kRowsA, kColsA, kColsB);
     std::vector<double> got(out_buf.begin() + 2, out_buf.end());
     ASSERT_EQ(expected.size(), got.size());
-    for (size_t i = 0; i < expected.size(); ++i) ASSERT_NEAR(expected[i], got[i], 1e-8);
+    for (size_t i = 0; i < expected.size(); ++i) {
+      ASSERT_NEAR(expected[i], got[i], 1e-8);
+    }
   }
 }
 
 TEST(borisov_s_strassen_mpi_perf, task_run) {
   boost::mpi::communicator world;
 
-  constexpr int kRowsA = 512, kColsA = 512;
-  constexpr int kRowsB = 512, kColsB = 512;
+  constexpr int kRowsA = 512;
+  constexpr int kColsA = 512;
+  constexpr int kRowsB = 512;
+  constexpr int kColsB = 512;
 
-  std::vector<double> A, B, in_buf, out_buf;
+  std::vector<double> a;
+  std::vector<double> b;
+  std::vector<double> in_buf;
+  std::vector<double> out_buf;
   if (world.rank() == 0) {
-    GenerateRandomMatrix(kRowsA, kColsA, A);
-    GenerateRandomMatrix(kRowsB, kColsB, B);
+    GenerateRandomMatrix(kRowsA, kColsA, a);
+    GenerateRandomMatrix(kRowsB, kColsB, b);
     in_buf = {static_cast<double>(kRowsA), static_cast<double>(kColsA), static_cast<double>(kRowsB),
               static_cast<double>(kColsB)};
-    in_buf.insert(in_buf.end(), A.begin(), A.end());
-    in_buf.insert(in_buf.end(), B.begin(), B.end());
-    out_buf.assign(2 + kRowsA * kColsB, 0.0);
+    in_buf.insert(in_buf.end(), a.begin(), a.end());
+    in_buf.insert(in_buf.end(), b.begin(), b.end());
+    out_buf.assign(2 + (kRowsA * kColsB), 0.0);
   }
 
   auto task_data = std::make_shared<ppc::core::TaskData>();
@@ -131,9 +143,11 @@ TEST(borisov_s_strassen_mpi_perf, task_run) {
   perf->TaskRun(perf_attr, perf_results);
   if (world.rank() == 0) {
     ppc::core::Perf::PrintPerfStatistic(perf_results);
-    auto expected = MultiplyNaive(A, B, kRowsA, kColsA, kColsB);
+    auto expected = MultiplyNaive(a, b, kRowsA, kColsA, kColsB);
     std::vector<double> got(out_buf.begin() + 2, out_buf.end());
     ASSERT_EQ(expected.size(), got.size());
-    for (size_t i = 0; i < expected.size(); ++i) ASSERT_NEAR(expected[i], got[i], 1e-8);
+    for (size_t i = 0; i < expected.size(); ++i) {
+      ASSERT_NEAR(expected[i], got[i], 1e-8);
+    }
   }
 }

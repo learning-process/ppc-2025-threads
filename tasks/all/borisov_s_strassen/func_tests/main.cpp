@@ -164,7 +164,7 @@ TEST(borisov_s_strassen_all, Square5x5_Random) {
   in_data.insert(in_data.end(), a.begin(), a.end());
   in_data.insert(in_data.end(), b.begin(), b.end());
 
-  std::size_t output_count = 2 + n * n;
+  std::size_t output_count = 2 + (n * n);
 
   auto task_data = std::make_shared<ppc::core::TaskData>();
   task_data->inputs.push_back(reinterpret_cast<uint8_t*>(in_data.data()));
@@ -212,7 +212,7 @@ TEST(borisov_s_strassen_all, Square20x20_Random) {
   in_data.insert(in_data.end(), a.begin(), a.end());
   in_data.insert(in_data.end(), b.begin(), b.end());
 
-  std::size_t output_count = 2 + n * n;
+  std::size_t output_count = 2 + (n * n);
 
   auto task_data = std::make_shared<ppc::core::TaskData>();
   task_data->inputs.push_back(reinterpret_cast<uint8_t*>(in_data.data()));
@@ -260,7 +260,7 @@ TEST(borisov_s_strassen_all, Square32x32_Random) {
   in_data.insert(in_data.end(), a.begin(), a.end());
   in_data.insert(in_data.end(), b.begin(), b.end());
 
-  std::size_t output_count = 2 + n * n;
+  std::size_t output_count = 2 + (n * n);
 
   auto task_data = std::make_shared<ppc::core::TaskData>();
   task_data->inputs.push_back(reinterpret_cast<uint8_t*>(in_data.data()));
@@ -308,7 +308,7 @@ TEST(borisov_s_strassen_all, Square128x128_Random) {
   in_data.insert(in_data.end(), a.begin(), a.end());
   in_data.insert(in_data.end(), b.begin(), b.end());
 
-  std::size_t output_count = 2 + n * n;
+  std::size_t output_count = 2 + (n * n);
 
   auto task_data = std::make_shared<ppc::core::TaskData>();
   task_data->inputs.push_back(reinterpret_cast<uint8_t*>(in_data.data()));
@@ -349,14 +349,16 @@ TEST(borisov_s_strassen_all, Square128x128_IdentityMatrix) {
   std::vector<double> a = GenerateRandomMatrix(n, n, 7777);
 
   std::vector<double> e(n * n, 0.0);
-  for (int i = 0; i < n; ++i) e[(i * n) + i] = 1.0;
+  for (int i = 0; i < n; ++i) {
+    e[(i * n) + i] = 1.0;
+  }
 
   std::vector<double> in_data = {static_cast<double>(n), static_cast<double>(n), static_cast<double>(n),
                                  static_cast<double>(n)};
   in_data.insert(in_data.end(), a.begin(), a.end());
   in_data.insert(in_data.end(), e.begin(), e.end());
 
-  std::size_t output_count = 2 + n * n;
+  std::size_t output_count = 2 + (n * n);
 
   auto task_data = std::make_shared<ppc::core::TaskData>();
   task_data->inputs.push_back(reinterpret_cast<uint8_t*>(in_data.data()));
@@ -404,7 +406,7 @@ TEST(borisov_s_strassen_all, Square129x129_Random) {
   in_data.insert(in_data.end(), a.begin(), a.end());
   in_data.insert(in_data.end(), b.begin(), b.end());
 
-  std::size_t output_count = 2 + n * n;
+  std::size_t output_count = 2 + (n * n);
 
   auto task_data = std::make_shared<ppc::core::TaskData>();
   task_data->inputs.push_back(reinterpret_cast<uint8_t*>(in_data.data()));
@@ -452,7 +454,7 @@ TEST(borisov_s_strassen_all, Square240x240_Random) {
   in_data.insert(in_data.end(), a.begin(), a.end());
   in_data.insert(in_data.end(), b.begin(), b.end());
 
-  std::size_t output_count = 2 + n * n;
+  std::size_t output_count = 2 + (n * n);
 
   auto task_data = std::make_shared<ppc::core::TaskData>();
   task_data->inputs.push_back(reinterpret_cast<uint8_t*>(in_data.data()));
@@ -500,7 +502,7 @@ TEST(borisov_s_strassen_all, Square512x512_Random) {
   in_data.insert(in_data.end(), a.begin(), a.end());
   in_data.insert(in_data.end(), b.begin(), b.end());
 
-  std::size_t output_count = 2 + n * n;
+  std::size_t output_count = 2 + (n * n);
 
   auto task_data = std::make_shared<ppc::core::TaskData>();
   task_data->inputs.push_back(reinterpret_cast<uint8_t*>(in_data.data()));
@@ -548,7 +550,7 @@ TEST(borisov_s_strassen_all, Square600x600_Random) {
   in_data.insert(in_data.end(), a.begin(), a.end());
   in_data.insert(in_data.end(), b.begin(), b.end());
 
-  std::size_t output_count = 2 + n * n;
+  std::size_t output_count = 2 + (n * n);
 
   auto task_data = std::make_shared<ppc::core::TaskData>();
   task_data->inputs.push_back(reinterpret_cast<uint8_t*>(in_data.data()));
@@ -638,7 +640,9 @@ TEST(borisov_s_strassen_all, NotEnoughDataCase) {
 
 TEST(borisov_s_strassen_all, Rectangular16x17_Random) {
   boost::mpi::communicator world;
-  const int rows_a = 16, cols_a = 17, cols_b = 18;
+  const int rows_a = 16;
+  const int cols_a = 17;
+  const int cols_b = 18;
   std::vector<double> a = GenerateRandomMatrix(rows_a, cols_a, 7777);
   std::vector<double> b = GenerateRandomMatrix(cols_a, cols_b, 7777);
 
@@ -649,7 +653,7 @@ TEST(borisov_s_strassen_all, Rectangular16x17_Random) {
   in_data.insert(in_data.end(), a.begin(), a.end());
   in_data.insert(in_data.end(), b.begin(), b.end());
 
-  std::size_t output_count = 2 + rows_a * cols_b;
+  std::size_t output_count = 2 + (rows_a * cols_b);
 
   auto task_data = std::make_shared<ppc::core::TaskData>();
   task_data->inputs.push_back(reinterpret_cast<uint8_t*>(in_data.data()));
@@ -699,7 +703,7 @@ TEST(borisov_s_strassen_all, Rectangular19x23_Random) {
   in_data.insert(in_data.end(), a.begin(), a.end());
   in_data.insert(in_data.end(), b.begin(), b.end());
 
-  std::size_t output_count = 2 + rows_a * cols_b;
+  std::size_t output_count = 2 + (rows_a * cols_b);
 
   auto task_data = std::make_shared<ppc::core::TaskData>();
   task_data->inputs.push_back(reinterpret_cast<uint8_t*>(in_data.data()));
@@ -749,7 +753,7 @@ TEST(borisov_s_strassen_all, Rectangular32x64_Random) {
   in_data.insert(in_data.end(), a.begin(), a.end());
   in_data.insert(in_data.end(), b.begin(), b.end());
 
-  std::size_t output_count = 2 + rows_a * cols_b;
+  std::size_t output_count = 2 + (rows_a * cols_b);
 
   auto task_data = std::make_shared<ppc::core::TaskData>();
   task_data->inputs.push_back(reinterpret_cast<uint8_t*>(in_data.data()));
