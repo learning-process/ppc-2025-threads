@@ -1,5 +1,7 @@
 #include "all/vavilov_v_cannon/include/ops_all.hpp"
 
+#include <mpi.h>
+
 #include <algorithm>
 #include <boost/mpi/collectives/broadcast.hpp>
 #include <boost/mpi/collectives/gather.hpp>
@@ -8,7 +10,6 @@
 #include <boost/mpi/request.hpp>
 #include <cmath>
 #include <vector>
-#include <mpi.h>
 
 namespace mpi = boost::mpi;
 
