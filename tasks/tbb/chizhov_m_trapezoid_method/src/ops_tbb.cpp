@@ -28,31 +28,34 @@ double chizhov_m_trapezoid_method_tbb::TrapezoidMethod(Function& f, size_t div, 
   }
 
   double result = 0.0;
-  const int num_threads = std::thread::hardware_concurrency();
+
+  const int num_threads = ppc::util::GetPPCNumThreads();
   oneapi::tbb::task_arena arena(num_threads);
 
   arena.execute([&] {
     result = oneapi::tbb::parallel_reduce(
-        tbb::blocked_range<long>(0, total_nodes), 0.0,
+        tbb::blocked_range<long>(0, total_nodes, 16), 0.0,
         [&](const tbb::blocked_range<long>& r, double local_res) {
-          std::vector<double> points(int_dim);
           for (long i = r.begin(); i != r.end(); ++i) {
             int temp = static_cast<int>(i);
             double weight = 1.0;
+            std::vector<double> point(int_dim);
 
             for (int j = 0; j < int_dim; j++) {
               int node_index = temp % (steps[j] + 1);
-              points[j] = lower_limits[j] + node_index * h[j];
+              point[j] = lower_limits[j] + node_index * h[j];
               temp /= (steps[j] + 1);
             }
 
             for (int j = 0; j < int_dim; j++) {
-              if (points[j] != lower_limits[j] && points[j] != upper_limits[j]) {
+              if (point[j] == lower_limits[j] || point[j] == upper_limits[j]) {
+                weight *= 1.0;
+              } else {
                 weight *= 2.0;
               }
             }
 
-            local_res += weight * f(points);
+            local_res += weight * f(point);
           }
           return local_res;
         },
