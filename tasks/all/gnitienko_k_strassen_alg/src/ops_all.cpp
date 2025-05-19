@@ -1,6 +1,8 @@
 #include "all/gnitienko_k_strassen_alg/include/ops_all.hpp"
 
+#ifdef _MSC_VER
 #pragma warning(disable : 4245)
+#endif
 #include <algorithm>
 #include <boost/serialization/vector.hpp>
 #include <cmath>
