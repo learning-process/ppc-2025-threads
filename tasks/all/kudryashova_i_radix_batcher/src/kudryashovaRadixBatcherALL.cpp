@@ -142,7 +142,7 @@ bool kudryashova_i_radix_batcher_all::TestTaskALL::PreProcessingImpl() {
     counts_.resize(world_.size());
     displs_.resize(world_.size());
 
-    for (size_t i = 0; i < static_cast<int>(world_.size()); ++i) {
+    for (int i = 0; i < world_.size(); ++i) {
       size_t chunk_size = (i < remainder) ? base_chunk + 1 : base_chunk;
       counts_[i] = static_cast<int>(chunk_size);
       displs_[i] = (i == 0) ? 0 : displs_[i - 1] + counts_[i - 1];
@@ -199,7 +199,7 @@ bool kudryashova_i_radix_batcher_all::TestTaskALL::RunImpl() {
   if (world_.rank() == 0) {
     all_data_.resize(total_size);
     displs_[0] = 0;
-    for (size_t p = 1; p < static_cast<int>(world_.size()); ++p) {
+    for (int p = 1; p < world_.size(); ++p) {
       displs_[p] = displs_[p - 1] + local_sizes[p - 1];
     }
   }
