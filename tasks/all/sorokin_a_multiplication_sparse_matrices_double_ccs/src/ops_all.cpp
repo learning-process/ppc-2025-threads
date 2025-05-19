@@ -6,49 +6,12 @@
 #include <cstddef>
 #include <vector>
 
-namespace sorokin_a_multiplication_sparse_matrices_double_ccs_all {
-
-void DistributeBColumns(boost::mpi::communicator& world, int rank, int size, const std::vector<double>& b_values,
-                        const std::vector<int>& b_row_indices, const std::vector<int>& b_col_ptr, int n,
-                        int base_cols_per_proc, int remainder, std::vector<double>& local_b_values,
-                        std::vector<int>& local_b_row_indices, std::vector<int>& local_b_col_ptr) {
-  if (rank == 0) {
-    for (int p = 0; p < size; ++p) {
-      const int p_start = (p * base_cols_per_proc) + std::min(p, remainder);
-      const int p_num_cols = base_cols_per_proc + (p < remainder ? 1 : 0);
-      const int b_start_idx = b_col_ptr[p_start];
-      const int b_end_idx = b_col_ptr[p_start + p_num_cols];
-
-      std::vector<double> p_b_values(b_values.begin() + b_start_idx, b_values.begin() + b_end_idx);
-      std::vector<int> p_b_row_indices(b_row_indices.begin() + b_start_idx, b_row_indices.begin() + b_end_idx);
-      std::vector<int> p_b_col_ptr(p_num_cols + 1);
-
-      for (int i = 0; i <= p_num_cols; ++i) {
-        p_b_col_ptr[i] = b_col_ptr[p_start + i] - b_start_idx;
-      }
-
-      if (p == 0) {
-        local_b_values.swap(p_b_values);
-        local_b_row_indices.swap(p_b_row_indices);
-        local_b_col_ptr.swap(p_b_col_ptr);
-      } else {
-        world.send(p, 0, p_b_values);
-        world.send(p, 1, p_b_row_indices);
-        world.send(p, 2, p_b_col_ptr);
-      }
-    }
-  } else {
-    world.recv(0, 0, local_b_values);
-    world.recv(0, 1, local_b_row_indices);
-    world.recv(0, 2, local_b_col_ptr);
-  }
-}
-
-static void ComputeLocalC(const std::vector<double>& a_values, const std::vector<int>& a_row_indices,
-                          const std::vector<int>& a_col_ptr, const std::vector<double>& local_b_values,
-                          const std::vector<int>& local_b_row_indices, const std::vector<int>& local_b_col_ptr, int m,
-                          int num_local_cols, std::vector<int>& local_nnz, std::vector<double>& local_c_values,
-                          std::vector<int>& local_c_row_indices, std::vector<int>& local_c_col_ptr) {
+namespace {
+void ComputeLocalC(const std::vector<double>& a_values, const std::vector<int>& a_row_indices,
+                   const std::vector<int>& a_col_ptr, const std::vector<double>& local_b_values,
+                   const std::vector<int>& local_b_row_indices, const std::vector<int>& local_b_col_ptr, int m,
+                   int num_local_cols, std::vector<int>& local_nnz, std::vector<double>& local_c_values,
+                   std::vector<int>& local_c_row_indices, std::vector<int>& local_c_col_ptr) {
   std::vector<std::vector<int>> rows(num_local_cols);
   std::vector<std::vector<double>> values(num_local_cols);
 
@@ -89,6 +52,45 @@ static void ComputeLocalC(const std::vector<double>& a_values, const std::vector
       local_c_row_indices[offset + k] = rows[j][k];
       local_c_values[offset + k] = values[j][k];
     }
+  }
+}
+}  // namespace
+
+namespace sorokin_a_multiplication_sparse_matrices_double_ccs_all {
+
+void DistributeBColumns(boost::mpi::communicator& world, int rank, int size, const std::vector<double>& b_values,
+                        const std::vector<int>& b_row_indices, const std::vector<int>& b_col_ptr, int n,
+                        int base_cols_per_proc, int remainder, std::vector<double>& local_b_values,
+                        std::vector<int>& local_b_row_indices, std::vector<int>& local_b_col_ptr) {
+  if (rank == 0) {
+    for (int p = 0; p < size; ++p) {
+      const int p_start = (p * base_cols_per_proc) + std::min(p, remainder);
+      const int p_num_cols = base_cols_per_proc + (p < remainder ? 1 : 0);
+      const int b_start_idx = b_col_ptr[p_start];
+      const int b_end_idx = b_col_ptr[p_start + p_num_cols];
+
+      std::vector<double> p_b_values(b_values.begin() + b_start_idx, b_values.begin() + b_end_idx);
+      std::vector<int> p_b_row_indices(b_row_indices.begin() + b_start_idx, b_row_indices.begin() + b_end_idx);
+      std::vector<int> p_b_col_ptr(p_num_cols + 1);
+
+      for (int i = 0; i <= p_num_cols; ++i) {
+        p_b_col_ptr[i] = b_col_ptr[p_start + i] - b_start_idx;
+      }
+
+      if (p == 0) {
+        local_b_values.swap(p_b_values);
+        local_b_row_indices.swap(p_b_row_indices);
+        local_b_col_ptr.swap(p_b_col_ptr);
+      } else {
+        world.send(p, 0, p_b_values);
+        world.send(p, 1, p_b_row_indices);
+        world.send(p, 2, p_b_col_ptr);
+      }
+    }
+  } else {
+    world.recv(0, 0, local_b_values);
+    world.recv(0, 1, local_b_row_indices);
+    world.recv(0, 2, local_b_col_ptr);
   }
 }
 
