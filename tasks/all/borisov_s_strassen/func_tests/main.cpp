@@ -31,760 +31,384 @@ std::vector<double> MultiplyNaiveDouble(const std::vector<double>& a, const std:
 std::vector<double> GenerateRandomMatrix(int rows, int cols, int seed, double min_val = -50.0, double max_val = 50.0) {
   std::mt19937 rng(seed);
   std::uniform_real_distribution<double> dist(min_val, max_val);
-  std::vector<double> matrix(rows * cols);
-  for (double& x : matrix) {
-    x = dist(rng);
+  std::vector<double> m(rows * cols);
+  for (double& v : m) {
+    v = dist(rng);
   }
-  return matrix;
+  return m;
 }
 
-}  // namespace
+namespace test_utils {
 
-TEST(borisov_s_strassen_all, OneByOne) {
-  std::vector<double> in_data = {1.0, 1.0, 1.0, 1.0, 7.5, 2.5};
-  std::size_t output_count = 3;
+constexpr double kTol = 1e-9;
 
-  auto task_data = std::make_shared<ppc::core::TaskData>();
-  task_data->inputs.push_back(reinterpret_cast<uint8_t*>(in_data.data()));
-  task_data->inputs_count.push_back(in_data.size());
+bool IsMaster() {
+  static boost::mpi::communicator world;
+  return world.rank() == 0;
+}
 
-  auto* out_ptr = new double[output_count]();
-  task_data->outputs.push_back(reinterpret_cast<uint8_t*>(out_ptr));
-  task_data->outputs_count.push_back(output_count);
+using UniqueBuf = std::unique_ptr<double[]>;
 
-  borisov_s_strassen_all::ParallelStrassenMpiStl task(task_data);
+UniqueBuf ExecuteTask(const std::vector<double>& in, std::size_t out_count) {
+  auto data = std::make_shared<ppc::core::TaskData>();
 
+  data->inputs.emplace_back(reinterpret_cast<uint8_t*>(const_cast<double*>(in.data())));
+  data->inputs_count.emplace_back(in.size());
+
+  UniqueBuf out(new double[out_count]());
+  data->outputs.emplace_back(reinterpret_cast<uint8_t*>(out.get()));
+  data->outputs_count.emplace_back(out_count);
+
+  borisov_s_strassen_all::ParallelStrassenMpiStl task(data);
   task.PreProcessingImpl();
-  ASSERT_TRUE(task.ValidationImpl());
+  EXPECT_TRUE(task.ValidationImpl());
   task.RunImpl();
   task.PostProcessingImpl();
 
-  boost::mpi::communicator world;
-  if (world.rank() == 0) {
-    EXPECT_DOUBLE_EQ(out_ptr[0], 1.0);
-    EXPECT_DOUBLE_EQ(out_ptr[1], 1.0);
-    EXPECT_DOUBLE_EQ(out_ptr[2], 18.75);
-    delete[] out_ptr;
+  return out;
+}
+
+void ExpectVectorNear(const std::vector<double>& expected, const double* actual, std::size_t offset,
+                      double tol = kTol) {
+  for (std::size_t i = 0; i < expected.size(); ++i) {
+    EXPECT_NEAR(expected[i], actual[offset + i], tol);
+  }
+}
+
+}  // namespace test_utils
+}  // namespace
+
+TEST(borisov_s_strassen_all, OneByOne) {
+  std::vector<double> in = {1.0, 1.0, 1.0, 1.0, 7.5, 2.5};
+  auto out = test_utils::ExecuteTask(in, 3);
+
+  if (test_utils::IsMaster()) {
+    EXPECT_DOUBLE_EQ(out[0], 1.0);
+    EXPECT_DOUBLE_EQ(out[1], 1.0);
+    EXPECT_DOUBLE_EQ(out[2], 18.75);
   }
 }
 
 TEST(borisov_s_strassen_all, TwoByTwo) {
-  boost::mpi::communicator world;
-  std::vector<double> a = {1.0, 2.5, 3.0, 4.0};
-  std::vector<double> b = {1.5, 2.0, 0.5, 3.5};
-  std::vector<double> c_expected = {2.75, 10.75, 6.5, 20.0};
+  const std::vector<double> a = {1.0, 2.5, 3.0, 4.0};
+  const std::vector<double> b = {1.5, 2.0, 0.5, 3.5};
+  const std::vector<double> c_exp = {2.75, 10.75, 6.5, 20.0};
 
-  std::vector<double> in_data = {2.0, 2.0, 2.0, 2.0};
-  in_data.insert(in_data.end(), a.begin(), a.end());
-  in_data.insert(in_data.end(), b.begin(), b.end());
+  std::vector<double> in = {2.0, 2.0, 2.0, 2.0};
+  in.insert(in.end(), a.begin(), a.end());
+  in.insert(in.end(), b.begin(), b.end());
 
-  std::size_t output_count = 2 + 4;
+  auto out = test_utils::ExecuteTask(in, 6);
 
-  auto task_data = std::make_shared<ppc::core::TaskData>();
-  task_data->inputs.push_back(reinterpret_cast<uint8_t*>(in_data.data()));
-  task_data->inputs_count.push_back(in_data.size());
-
-  auto* out_ptr = new double[output_count]();
-  task_data->outputs.push_back(reinterpret_cast<uint8_t*>(out_ptr));
-  task_data->outputs_count.push_back(output_count);
-
-  borisov_s_strassen_all::ParallelStrassenMpiStl task(task_data);
-
-  task.PreProcessingImpl();
-  EXPECT_TRUE(task.ValidationImpl());
-  task.RunImpl();
-  task.PostProcessingImpl();
-
-  if (world.rank() == 0) {
-    EXPECT_DOUBLE_EQ(out_ptr[0], 2.0);
-    EXPECT_DOUBLE_EQ(out_ptr[1], 2.0);
-    for (int i = 0; i < 4; ++i) {
-      EXPECT_NEAR(out_ptr[2 + i], c_expected[i], 1e-9);
-    }
-
-    delete[] out_ptr;
+  if (test_utils::IsMaster()) {
+    EXPECT_DOUBLE_EQ(out[0], 2.0);
+    EXPECT_DOUBLE_EQ(out[1], 2.0);
+    test_utils::ExpectVectorNear(c_exp, out.get(), 2);
   }
 }
 
 TEST(borisov_s_strassen_all, Rectangular2x3_3x4) {
-  boost::mpi::communicator world;
-  std::vector<double> a = {1.0, 2.5, 3.0, 4.0, 5.5, 6.0};
-  std::vector<double> b = {0.5, 1.0, 2.0, 1.5, 2.0, 0.5, 1.0, 3.0, 4.0, 2.5, 0.5, 1.0};
+  const std::vector<double> a = {1.0, 2.5, 3.0, 4.0, 5.5, 6.0};
+  const std::vector<double> b = {0.5, 1.0, 2.0, 1.5, 2.0, 0.5, 1.0, 3.0, 4.0, 2.5, 0.5, 1.0};
+  const auto c_exp = MultiplyNaiveDouble(a, b, 2, 3, 4);
 
-  auto c_expected = MultiplyNaiveDouble(a, b, 2, 3, 4);
+  std::vector<double> in = {2.0, 3.0, 3.0, 4.0};
+  in.insert(in.end(), a.begin(), a.end());
+  in.insert(in.end(), b.begin(), b.end());
 
-  std::vector<double> in_data = {2.0, 3.0, 3.0, 4.0};
-  in_data.insert(in_data.end(), a.begin(), a.end());
-  in_data.insert(in_data.end(), b.begin(), b.end());
+  auto out = test_utils::ExecuteTask(in, 10);
 
-  std::size_t output_count = 2 + 8;
-
-  auto task_data = std::make_shared<ppc::core::TaskData>();
-  task_data->inputs.push_back(reinterpret_cast<uint8_t*>(in_data.data()));
-  task_data->inputs_count.push_back(in_data.size());
-
-  auto* out_ptr = new double[output_count]();
-  task_data->outputs.push_back(reinterpret_cast<uint8_t*>(out_ptr));
-  task_data->outputs_count.push_back(output_count);
-
-  borisov_s_strassen_all::ParallelStrassenMpiStl task(task_data);
-
-  task.PreProcessingImpl();
-  EXPECT_TRUE(task.ValidationImpl());
-  task.RunImpl();
-  task.PostProcessingImpl();
-
-  if (world.rank() == 0) {
-    EXPECT_DOUBLE_EQ(out_ptr[0], 2.0);
-    EXPECT_DOUBLE_EQ(out_ptr[1], 4.0);
-
-    std::vector<double> c_result(8);
-    for (int i = 0; i < 8; ++i) {
-      c_result[i] = out_ptr[2 + i];
-    }
-
-    ASSERT_EQ(c_expected.size(), c_result.size());
-    for (std::size_t i = 0; i < c_expected.size(); ++i) {
-      EXPECT_NEAR(c_expected[i], c_result[i], 1e-9);
-    }
-
-    delete[] out_ptr;
+  if (test_utils::IsMaster()) {
+    EXPECT_DOUBLE_EQ(out[0], 2.0);
+    EXPECT_DOUBLE_EQ(out[1], 4.0);
+    test_utils::ExpectVectorNear(c_exp, out.get(), 2);
   }
 }
 
 TEST(borisov_s_strassen_all, Square5x5_Random) {
-  boost::mpi::communicator world;
   const int n = 5;
-  std::vector<double> a = GenerateRandomMatrix(n, n, 7777);
-  std::vector<double> b = GenerateRandomMatrix(n, n, 7777);
+  auto a = GenerateRandomMatrix(n, n, 7777);
+  auto b = GenerateRandomMatrix(n, n, 7777);
+  auto c_exp = MultiplyNaiveDouble(a, b, n, n, n);
 
-  auto c_expected = MultiplyNaiveDouble(a, b, n, n, n);
+  std::vector<double> in = {double(n), double(n), double(n), double(n)};
+  in.insert(in.end(), a.begin(), a.end());
+  in.insert(in.end(), b.begin(), b.end());
 
-  std::vector<double> in_data = {static_cast<double>(n), static_cast<double>(n), static_cast<double>(n),
-                                 static_cast<double>(n)};
-  in_data.insert(in_data.end(), a.begin(), a.end());
-  in_data.insert(in_data.end(), b.begin(), b.end());
+  auto out = test_utils::ExecuteTask(in, 2 + (n * n));
 
-  std::size_t output_count = 2 + (n * n);
-
-  auto task_data = std::make_shared<ppc::core::TaskData>();
-  task_data->inputs.push_back(reinterpret_cast<uint8_t*>(in_data.data()));
-  task_data->inputs_count.push_back(in_data.size());
-
-  auto* out_ptr = new double[output_count]();
-  task_data->outputs.push_back(reinterpret_cast<uint8_t*>(out_ptr));
-  task_data->outputs_count.push_back(output_count);
-
-  borisov_s_strassen_all::ParallelStrassenMpiStl task(task_data);
-
-  task.PreProcessingImpl();
-  EXPECT_TRUE(task.ValidationImpl());
-  task.RunImpl();
-  task.PostProcessingImpl();
-
-  if (world.rank() == 0) {
-    EXPECT_DOUBLE_EQ(out_ptr[0], static_cast<double>(n));
-    EXPECT_DOUBLE_EQ(out_ptr[1], static_cast<double>(n));
-
-    std::vector<double> c_result(n * n);
-    for (int i = 0; i < n * n; ++i) {
-      c_result[i] = out_ptr[2 + i];
-    }
-
-    ASSERT_EQ(c_expected.size(), c_result.size());
-    for (std::size_t i = 0; i < c_expected.size(); ++i) {
-      EXPECT_NEAR(c_expected[i], c_result[i], 1e-9);
-    }
-
-    delete[] out_ptr;
+  if (test_utils::IsMaster()) {
+    EXPECT_DOUBLE_EQ(out[0], n);
+    EXPECT_DOUBLE_EQ(out[1], n);
+    test_utils::ExpectVectorNear(c_exp, out.get(), 2);
   }
 }
 
 TEST(borisov_s_strassen_all, Square20x20_Random) {
-  boost::mpi::communicator world;
   const int n = 20;
-  std::vector<double> a = GenerateRandomMatrix(n, n, 7777);
-  std::vector<double> b = GenerateRandomMatrix(n, n, 7777);
+  auto a = GenerateRandomMatrix(n, n, 7777);
+  auto b = GenerateRandomMatrix(n, n, 7777);
+  auto c_exp = MultiplyNaiveDouble(a, b, n, n, n);
 
-  auto c_expected = MultiplyNaiveDouble(a, b, n, n, n);
+  std::vector<double> in = {static_cast<double>(n), static_cast<double>(n), static_cast<double>(n),
+                            static_cast<double>(n)};
+  in.insert(in.end(), a.begin(), a.end());
+  in.insert(in.end(), b.begin(), b.end());
 
-  std::vector<double> in_data = {static_cast<double>(n), static_cast<double>(n), static_cast<double>(n),
-                                 static_cast<double>(n)};
-  in_data.insert(in_data.end(), a.begin(), a.end());
-  in_data.insert(in_data.end(), b.begin(), b.end());
+  auto out = test_utils::ExecuteTask(in, 2 + (n * n));
 
-  std::size_t output_count = 2 + (n * n);
-
-  auto task_data = std::make_shared<ppc::core::TaskData>();
-  task_data->inputs.push_back(reinterpret_cast<uint8_t*>(in_data.data()));
-  task_data->inputs_count.push_back(in_data.size());
-
-  auto* out_ptr = new double[output_count]();
-  task_data->outputs.push_back(reinterpret_cast<uint8_t*>(out_ptr));
-  task_data->outputs_count.push_back(output_count);
-
-  borisov_s_strassen_all::ParallelStrassenMpiStl task(task_data);
-
-  task.PreProcessingImpl();
-  EXPECT_TRUE(task.ValidationImpl());
-  task.RunImpl();
-  task.PostProcessingImpl();
-
-  if (world.rank() == 0) {
-    EXPECT_DOUBLE_EQ(out_ptr[0], static_cast<double>(n));
-    EXPECT_DOUBLE_EQ(out_ptr[1], static_cast<double>(n));
-
-    std::vector<double> c_result(n * n);
-    for (int i = 0; i < n * n; ++i) {
-      c_result[i] = out_ptr[2 + i];
-    }
-
-    ASSERT_EQ(c_expected.size(), c_result.size());
-    for (std::size_t i = 0; i < c_expected.size(); ++i) {
-      EXPECT_NEAR(c_expected[i], c_result[i], 1e-9);
-    }
-
-    delete[] out_ptr;
+  if (test_utils::IsMaster()) {
+    EXPECT_DOUBLE_EQ(out[0], n);
+    EXPECT_DOUBLE_EQ(out[1], n);
+    test_utils::ExpectVectorNear(c_exp, out.get(), 2);
   }
 }
 
 TEST(borisov_s_strassen_all, Square32x32_Random) {
-  boost::mpi::communicator world;
   const int n = 32;
-  std::vector<double> a = GenerateRandomMatrix(n, n, 7777);
-  std::vector<double> b = GenerateRandomMatrix(n, n, 7777);
+  auto a = GenerateRandomMatrix(n, n, 7777);
+  auto b = GenerateRandomMatrix(n, n, 7777);
+  auto c_exp = MultiplyNaiveDouble(a, b, n, n, n);
 
-  auto c_expected = MultiplyNaiveDouble(a, b, n, n, n);
+  std::vector<double> in = {static_cast<double>(n), static_cast<double>(n), static_cast<double>(n),
+                            static_cast<double>(n)};
+  in.insert(in.end(), a.begin(), a.end());
+  in.insert(in.end(), b.begin(), b.end());
 
-  std::vector<double> in_data = {static_cast<double>(n), static_cast<double>(n), static_cast<double>(n),
-                                 static_cast<double>(n)};
-  in_data.insert(in_data.end(), a.begin(), a.end());
-  in_data.insert(in_data.end(), b.begin(), b.end());
+  auto out = test_utils::ExecuteTask(in, 2 + (n * n));
 
-  std::size_t output_count = 2 + (n * n);
-
-  auto task_data = std::make_shared<ppc::core::TaskData>();
-  task_data->inputs.push_back(reinterpret_cast<uint8_t*>(in_data.data()));
-  task_data->inputs_count.push_back(in_data.size());
-
-  auto* out_ptr = new double[output_count]();
-  task_data->outputs.push_back(reinterpret_cast<uint8_t*>(out_ptr));
-  task_data->outputs_count.push_back(output_count);
-
-  borisov_s_strassen_all::ParallelStrassenMpiStl task(task_data);
-
-  task.PreProcessingImpl();
-  EXPECT_TRUE(task.ValidationImpl());
-  task.RunImpl();
-  task.PostProcessingImpl();
-
-  if (world.rank() == 0) {
-    EXPECT_DOUBLE_EQ(out_ptr[0], static_cast<double>(n));
-    EXPECT_DOUBLE_EQ(out_ptr[1], static_cast<double>(n));
-
-    std::vector<double> c_result(n * n);
-    for (int i = 0; i < n * n; ++i) {
-      c_result[i] = out_ptr[2 + i];
-    }
-
-    ASSERT_EQ(c_expected.size(), c_result.size());
-    for (std::size_t i = 0; i < c_expected.size(); ++i) {
-      EXPECT_NEAR(c_expected[i], c_result[i], 1e-9);
-    }
-
-    delete[] out_ptr;
+  if (test_utils::IsMaster()) {
+    EXPECT_DOUBLE_EQ(out[0], n);
+    EXPECT_DOUBLE_EQ(out[1], n);
+    test_utils::ExpectVectorNear(c_exp, out.get(), 2);
   }
 }
 
 TEST(borisov_s_strassen_all, Square128x128_Random) {
-  boost::mpi::communicator world;
   const int n = 128;
-  std::vector<double> a = GenerateRandomMatrix(n, n, 7777);
-  std::vector<double> b = GenerateRandomMatrix(n, n, 7777);
+  auto a = GenerateRandomMatrix(n, n, 7777);
+  auto b = GenerateRandomMatrix(n, n, 7777);
+  auto c_exp = MultiplyNaiveDouble(a, b, n, n, n);
 
-  auto c_expected = MultiplyNaiveDouble(a, b, n, n, n);
+  std::vector<double> in = {static_cast<double>(n), static_cast<double>(n), static_cast<double>(n),
+                            static_cast<double>(n)};
+  in.insert(in.end(), a.begin(), a.end());
+  in.insert(in.end(), b.begin(), b.end());
 
-  std::vector<double> in_data = {static_cast<double>(n), static_cast<double>(n), static_cast<double>(n),
-                                 static_cast<double>(n)};
-  in_data.insert(in_data.end(), a.begin(), a.end());
-  in_data.insert(in_data.end(), b.begin(), b.end());
+  auto out = test_utils::ExecuteTask(in, 2 + (n * n));
 
-  std::size_t output_count = 2 + (n * n);
-
-  auto task_data = std::make_shared<ppc::core::TaskData>();
-  task_data->inputs.push_back(reinterpret_cast<uint8_t*>(in_data.data()));
-  task_data->inputs_count.push_back(in_data.size());
-
-  auto* out_ptr = new double[output_count]();
-  task_data->outputs.push_back(reinterpret_cast<uint8_t*>(out_ptr));
-  task_data->outputs_count.push_back(output_count);
-
-  borisov_s_strassen_all::ParallelStrassenMpiStl task(task_data);
-
-  task.PreProcessingImpl();
-  EXPECT_TRUE(task.ValidationImpl());
-  task.RunImpl();
-  task.PostProcessingImpl();
-
-  if (world.rank() == 0) {
-    EXPECT_DOUBLE_EQ(out_ptr[0], static_cast<double>(n));
-    EXPECT_DOUBLE_EQ(out_ptr[1], static_cast<double>(n));
-
-    std::vector<double> c_result(n * n);
-    for (int i = 0; i < n * n; ++i) {
-      c_result[i] = out_ptr[2 + i];
-    }
-
-    ASSERT_EQ(c_expected.size(), c_result.size());
-    for (std::size_t i = 0; i < c_expected.size(); ++i) {
-      EXPECT_NEAR(c_expected[i], c_result[i], 1e-9);
-    }
-
-    delete[] out_ptr;
+  if (test_utils::IsMaster()) {
+    EXPECT_DOUBLE_EQ(out[0], n);
+    EXPECT_DOUBLE_EQ(out[1], n);
+    test_utils::ExpectVectorNear(c_exp, out.get(), 2);
   }
 }
 
 TEST(borisov_s_strassen_all, Square128x128_IdentityMatrix) {
-  boost::mpi::communicator world;
   const int n = 128;
-  std::vector<double> a = GenerateRandomMatrix(n, n, 7777);
-
+  auto a = GenerateRandomMatrix(n, n, 7777);
   std::vector<double> e(n * n, 0.0);
   for (int i = 0; i < n; ++i) {
     e[(i * n) + i] = 1.0;
   }
 
-  std::vector<double> in_data = {static_cast<double>(n), static_cast<double>(n), static_cast<double>(n),
-                                 static_cast<double>(n)};
-  in_data.insert(in_data.end(), a.begin(), a.end());
-  in_data.insert(in_data.end(), e.begin(), e.end());
+  std::vector<double> in = {static_cast<double>(n), static_cast<double>(n), static_cast<double>(n),
+                            static_cast<double>(n)};
+  in.insert(in.end(), a.begin(), a.end());
+  in.insert(in.end(), e.begin(), e.end());
 
-  std::size_t output_count = 2 + (n * n);
+  auto out = test_utils::ExecuteTask(in, 2 + (n * n));
 
-  auto task_data = std::make_shared<ppc::core::TaskData>();
-  task_data->inputs.push_back(reinterpret_cast<uint8_t*>(in_data.data()));
-  task_data->inputs_count.push_back(in_data.size());
-
-  auto* out_ptr = new double[output_count]();
-  task_data->outputs.push_back(reinterpret_cast<uint8_t*>(out_ptr));
-  task_data->outputs_count.push_back(output_count);
-
-  borisov_s_strassen_all::ParallelStrassenMpiStl task(task_data);
-
-  task.PreProcessingImpl();
-  EXPECT_TRUE(task.ValidationImpl());
-  task.RunImpl();
-  task.PostProcessingImpl();
-
-  if (world.rank() == 0) {
-    EXPECT_DOUBLE_EQ(out_ptr[0], static_cast<double>(n));
-    EXPECT_DOUBLE_EQ(out_ptr[1], static_cast<double>(n));
-
-    std::vector<double> c_result(n * n);
-    for (int i = 0; i < n * n; ++i) {
-      c_result[i] = out_ptr[2 + i];
-    }
-
-    ASSERT_EQ(a.size(), c_result.size());
-    for (std::size_t i = 0; i < a.size(); ++i) {
-      EXPECT_NEAR(a[i], c_result[i], 1e-9);
-    }
-
-    delete[] out_ptr;
+  if (test_utils::IsMaster()) {
+    EXPECT_DOUBLE_EQ(out[0], n);
+    EXPECT_DOUBLE_EQ(out[1], n);
+    test_utils::ExpectVectorNear(a, out.get(), 2);
   }
 }
 
 TEST(borisov_s_strassen_all, Square129x129_Random) {
-  boost::mpi::communicator world;
   const int n = 129;
-  std::vector<double> a = GenerateRandomMatrix(n, n, 7777);
-  std::vector<double> b = GenerateRandomMatrix(n, n, 7777);
+  auto a = GenerateRandomMatrix(n, n, 7777);
+  auto b = GenerateRandomMatrix(n, n, 7777);
+  auto c_exp = MultiplyNaiveDouble(a, b, n, n, n);
 
-  auto c_expected = MultiplyNaiveDouble(a, b, n, n, n);
+  std::vector<double> in = {static_cast<double>(n), static_cast<double>(n), static_cast<double>(n),
+                            static_cast<double>(n)};
+  in.insert(in.end(), a.begin(), a.end());
+  in.insert(in.end(), b.begin(), b.end());
 
-  std::vector<double> in_data = {static_cast<double>(n), static_cast<double>(n), static_cast<double>(n),
-                                 static_cast<double>(n)};
-  in_data.insert(in_data.end(), a.begin(), a.end());
-  in_data.insert(in_data.end(), b.begin(), b.end());
+  auto out = test_utils::ExecuteTask(in, 2 + (n * n));
 
-  std::size_t output_count = 2 + (n * n);
-
-  auto task_data = std::make_shared<ppc::core::TaskData>();
-  task_data->inputs.push_back(reinterpret_cast<uint8_t*>(in_data.data()));
-  task_data->inputs_count.push_back(in_data.size());
-
-  auto* out_ptr = new double[output_count]();
-  task_data->outputs.push_back(reinterpret_cast<uint8_t*>(out_ptr));
-  task_data->outputs_count.push_back(output_count);
-
-  borisov_s_strassen_all::ParallelStrassenMpiStl task(task_data);
-
-  task.PreProcessingImpl();
-  EXPECT_TRUE(task.ValidationImpl());
-  task.RunImpl();
-  task.PostProcessingImpl();
-
-  if (world.rank() == 0) {
-    EXPECT_DOUBLE_EQ(out_ptr[0], static_cast<double>(n));
-    EXPECT_DOUBLE_EQ(out_ptr[1], static_cast<double>(n));
-
-    std::vector<double> c_result(n * n);
-    for (int i = 0; i < n * n; ++i) {
-      c_result[i] = out_ptr[2 + i];
-    }
-
-    ASSERT_EQ(c_expected.size(), c_result.size());
-    for (std::size_t i = 0; i < c_expected.size(); ++i) {
-      EXPECT_NEAR(c_expected[i], c_result[i], 1e-9);
-    }
-
-    delete[] out_ptr;
+  if (test_utils::IsMaster()) {
+    EXPECT_DOUBLE_EQ(out[0], n);
+    EXPECT_DOUBLE_EQ(out[1], n);
+    test_utils::ExpectVectorNear(c_exp, out.get(), 2);
   }
 }
 
 TEST(borisov_s_strassen_all, Square240x240_Random) {
-  boost::mpi::communicator world;
   const int n = 240;
-  std::vector<double> a = GenerateRandomMatrix(n, n, 7777);
-  std::vector<double> b = GenerateRandomMatrix(n, n, 7777);
+  auto a = GenerateRandomMatrix(n, n, 7777);
+  auto b = GenerateRandomMatrix(n, n, 7777);
+  auto c_exp = MultiplyNaiveDouble(a, b, n, n, n);
 
-  auto c_expected = MultiplyNaiveDouble(a, b, n, n, n);
+  std::vector<double> in = {static_cast<double>(n), static_cast<double>(n), static_cast<double>(n),
+                            static_cast<double>(n)};
+  in.insert(in.end(), a.begin(), a.end());
+  in.insert(in.end(), b.begin(), b.end());
 
-  std::vector<double> in_data = {static_cast<double>(n), static_cast<double>(n), static_cast<double>(n),
-                                 static_cast<double>(n)};
-  in_data.insert(in_data.end(), a.begin(), a.end());
-  in_data.insert(in_data.end(), b.begin(), b.end());
+  auto out = test_utils::ExecuteTask(in, 2 + (n * n));
 
-  std::size_t output_count = 2 + (n * n);
-
-  auto task_data = std::make_shared<ppc::core::TaskData>();
-  task_data->inputs.push_back(reinterpret_cast<uint8_t*>(in_data.data()));
-  task_data->inputs_count.push_back(in_data.size());
-
-  auto* out_ptr = new double[output_count]();
-  task_data->outputs.push_back(reinterpret_cast<uint8_t*>(out_ptr));
-  task_data->outputs_count.push_back(output_count);
-
-  borisov_s_strassen_all::ParallelStrassenMpiStl task(task_data);
-
-  task.PreProcessingImpl();
-  EXPECT_TRUE(task.ValidationImpl());
-  task.RunImpl();
-  task.PostProcessingImpl();
-
-  if (world.rank() == 0) {
-    EXPECT_DOUBLE_EQ(out_ptr[0], static_cast<double>(n));
-    EXPECT_DOUBLE_EQ(out_ptr[1], static_cast<double>(n));
-
-    std::vector<double> c_result(n * n);
-    for (int i = 0; i < n * n; ++i) {
-      c_result[i] = out_ptr[2 + i];
-    }
-
-    ASSERT_EQ(c_expected.size(), c_result.size());
-    for (std::size_t i = 0; i < c_expected.size(); ++i) {
-      EXPECT_NEAR(c_expected[i], c_result[i], 1e-9);
-    }
-
-    delete[] out_ptr;
+  if (test_utils::IsMaster()) {
+    EXPECT_DOUBLE_EQ(out[0], n);
+    EXPECT_DOUBLE_EQ(out[1], n);
+    test_utils::ExpectVectorNear(c_exp, out.get(), 2);
   }
 }
 
 TEST(borisov_s_strassen_all, Square512x512_Random) {
-  boost::mpi::communicator world;
   const int n = 512;
-  std::vector<double> a = GenerateRandomMatrix(n, n, 7777);
-  std::vector<double> b = GenerateRandomMatrix(n, n, 7777);
+  auto a = GenerateRandomMatrix(n, n, 7777);
+  auto b = GenerateRandomMatrix(n, n, 7777);
+  auto c_exp = MultiplyNaiveDouble(a, b, n, n, n);
 
-  auto c_expected = MultiplyNaiveDouble(a, b, n, n, n);
+  std::vector<double> in = {static_cast<double>(n), static_cast<double>(n), static_cast<double>(n),
+                            static_cast<double>(n)};
+  in.insert(in.end(), a.begin(), a.end());
+  in.insert(in.end(), b.begin(), b.end());
 
-  std::vector<double> in_data = {static_cast<double>(n), static_cast<double>(n), static_cast<double>(n),
-                                 static_cast<double>(n)};
-  in_data.insert(in_data.end(), a.begin(), a.end());
-  in_data.insert(in_data.end(), b.begin(), b.end());
+  auto out = test_utils::ExecuteTask(in, 2 + (n * n));
 
-  std::size_t output_count = 2 + (n * n);
-
-  auto task_data = std::make_shared<ppc::core::TaskData>();
-  task_data->inputs.push_back(reinterpret_cast<uint8_t*>(in_data.data()));
-  task_data->inputs_count.push_back(in_data.size());
-
-  auto* out_ptr = new double[output_count]();
-  task_data->outputs.push_back(reinterpret_cast<uint8_t*>(out_ptr));
-  task_data->outputs_count.push_back(output_count);
-
-  borisov_s_strassen_all::ParallelStrassenMpiStl task(task_data);
-
-  task.PreProcessingImpl();
-  EXPECT_TRUE(task.ValidationImpl());
-  task.RunImpl();
-  task.PostProcessingImpl();
-
-  if (world.rank() == 0) {
-    EXPECT_DOUBLE_EQ(out_ptr[0], static_cast<double>(n));
-    EXPECT_DOUBLE_EQ(out_ptr[1], static_cast<double>(n));
-
-    std::vector<double> c_result(n * n);
-    for (int i = 0; i < n * n; ++i) {
-      c_result[i] = out_ptr[2 + i];
-    }
-
-    ASSERT_EQ(c_expected.size(), c_result.size());
-    for (std::size_t i = 0; i < c_expected.size(); ++i) {
-      EXPECT_NEAR(c_expected[i], c_result[i], 1e-9);
-    }
-
-    delete[] out_ptr;
+  if (test_utils::IsMaster()) {
+    EXPECT_DOUBLE_EQ(out[0], n);
+    EXPECT_DOUBLE_EQ(out[1], n);
+    test_utils::ExpectVectorNear(c_exp, out.get(), 2);
   }
 }
 
 TEST(borisov_s_strassen_all, Square600x600_Random) {
-  boost::mpi::communicator world;
   const int n = 600;
-  std::vector<double> a = GenerateRandomMatrix(n, n, 7777);
-  std::vector<double> b = GenerateRandomMatrix(n, n, 7777);
+  auto a = GenerateRandomMatrix(n, n, 7777);
+  auto b = GenerateRandomMatrix(n, n, 7777);
+  auto c_exp = MultiplyNaiveDouble(a, b, n, n, n);
 
-  auto c_expected = MultiplyNaiveDouble(a, b, n, n, n);
+  std::vector<double> in = {double(n), double(n), double(n), double(n)};
+  in.insert(in.end(), a.begin(), a.end());
+  in.insert(in.end(), b.begin(), b.end());
 
-  std::vector<double> in_data = {static_cast<double>(n), static_cast<double>(n), static_cast<double>(n),
-                                 static_cast<double>(n)};
-  in_data.insert(in_data.end(), a.begin(), a.end());
-  in_data.insert(in_data.end(), b.begin(), b.end());
+  auto out = test_utils::ExecuteTask(in, 2 + (n * n));
 
-  std::size_t output_count = 2 + (n * n);
-
-  auto task_data = std::make_shared<ppc::core::TaskData>();
-  task_data->inputs.push_back(reinterpret_cast<uint8_t*>(in_data.data()));
-  task_data->inputs_count.push_back(in_data.size());
-
-  auto* out_ptr = new double[output_count]();
-  task_data->outputs.push_back(reinterpret_cast<uint8_t*>(out_ptr));
-  task_data->outputs_count.push_back(output_count);
-
-  borisov_s_strassen_all::ParallelStrassenMpiStl task(task_data);
-
-  task.PreProcessingImpl();
-  EXPECT_TRUE(task.ValidationImpl());
-  task.RunImpl();
-  task.PostProcessingImpl();
-
-  if (world.rank() == 0) {
-    EXPECT_DOUBLE_EQ(out_ptr[0], static_cast<double>(n));
-    EXPECT_DOUBLE_EQ(out_ptr[1], static_cast<double>(n));
-
-    std::vector<double> c_result(n * n);
-    for (int i = 0; i < n * n; ++i) {
-      c_result[i] = out_ptr[2 + i];
-    }
-
-    ASSERT_EQ(c_expected.size(), c_result.size());
-    for (std::size_t i = 0; i < c_expected.size(); ++i) {
-      EXPECT_NEAR(c_expected[i], c_result[i], 1e-9);
-    }
-
-    delete[] out_ptr;
+  if (test_utils::IsMaster()) {
+    EXPECT_DOUBLE_EQ(out[0], n);
+    EXPECT_DOUBLE_EQ(out[1], n);
+    test_utils::ExpectVectorNear(c_exp, out.get(), 2);
   }
 }
 
 TEST(borisov_s_strassen_all, ValidCase) {
-  boost::mpi::communicator world;
-  std::vector<double> input_data = {2.0, 3.0, 3.0, 2.0};
-  input_data.insert(input_data.end(), {1.0, 2.0, 3.0, 4.0, 5.0, 6.0});
-  input_data.insert(input_data.end(), {7.0, 8.0, 9.0, 10.0, 11.0, 12.0});
+  std::vector<double> in = {2.0, 3.0, 3.0, 2.0, 1.0, 2.0, 3.0, 4.0, 5.0, 6.0, 7.0, 8.0, 9.0, 10.0, 11.0, 12.0};
 
-  auto task_data = std::make_shared<ppc::core::TaskData>();
-  task_data->inputs.push_back(reinterpret_cast<uint8_t*>(input_data.data()));
-  task_data->inputs_count.push_back(input_data.size());
-  task_data->outputs.push_back(nullptr);
-  task_data->outputs_count.push_back(0);
+  auto data = std::make_shared<ppc::core::TaskData>();
+  data->inputs.emplace_back(reinterpret_cast<uint8_t*>(in.data()));
+  data->inputs_count.emplace_back(in.size());
+  data->outputs.emplace_back(nullptr);
+  data->outputs_count.emplace_back(0);
 
-  borisov_s_strassen_all::ParallelStrassenMpiStl task(task_data);
-
+  borisov_s_strassen_all::ParallelStrassenMpiStl task(data);
   task.PreProcessingImpl();
   EXPECT_TRUE(task.ValidationImpl());
 }
 
 TEST(borisov_s_strassen_all, MismatchCase) {
-  boost::mpi::communicator world;
-  std::vector<double> input_data = {2.0, 2.0, 3.0, 3.0};
-  input_data.insert(input_data.end(), {1.0, 2.0, 3.0, 4.0});
-  input_data.insert(input_data.end(), {5.0, 6.0, 7.0, 8.0, 9.0});
+  std::vector<double> in = {2.0, 2.0, 3.0, 3.0, 1.0, 2.0, 3.0, 4.0, 5.0, 6.0, 7.0, 8.0, 9.0};
 
-  auto task_data = std::make_shared<ppc::core::TaskData>();
-  task_data->inputs.push_back(reinterpret_cast<uint8_t*>(input_data.data()));
-  task_data->inputs_count.push_back(input_data.size());
-  task_data->outputs.push_back(nullptr);
-  task_data->outputs_count.push_back(0);
+  auto data = std::make_shared<ppc::core::TaskData>();
+  data->inputs.emplace_back(reinterpret_cast<uint8_t*>(in.data()));
+  data->inputs_count.emplace_back(in.size());
+  data->outputs.emplace_back(nullptr);
+  data->outputs_count.emplace_back(0);
 
-  borisov_s_strassen_all::ParallelStrassenMpiStl task(task_data);
-
+  borisov_s_strassen_all::ParallelStrassenMpiStl task(data);
   task.PreProcessingImpl();
   EXPECT_FALSE(task.ValidationImpl());
 }
 
 TEST(borisov_s_strassen_all, NotEnoughDataCase) {
-  boost::mpi::communicator world;
-  std::vector<double> input_data = {2.0, 2.0, 2.0, 2.0};
-  input_data.insert(input_data.end(), {1.0, 2.0, 3.0, 4.0, 5.0, 6.0});
+  std::vector<double> in = {2.0, 2.0, 2.0, 2.0, 1.0, 2.0, 3.0, 4.0, 5.0, 6.0};
 
-  auto task_data = std::make_shared<ppc::core::TaskData>();
-  task_data->inputs.push_back(reinterpret_cast<uint8_t*>(input_data.data()));
-  task_data->inputs_count.push_back(input_data.size());
-  task_data->outputs.push_back(nullptr);
-  task_data->outputs_count.push_back(0);
+  auto data = std::make_shared<ppc::core::TaskData>();
+  data->inputs.emplace_back(reinterpret_cast<uint8_t*>(in.data()));
+  data->inputs_count.emplace_back(in.size());
+  data->outputs.emplace_back(nullptr);
+  data->outputs_count.emplace_back(0);
 
-  borisov_s_strassen_all::ParallelStrassenMpiStl task(task_data);
-
+  borisov_s_strassen_all::ParallelStrassenMpiStl task(data);
   task.PreProcessingImpl();
   EXPECT_FALSE(task.ValidationImpl());
 }
 
 TEST(borisov_s_strassen_all, Rectangular16x17_Random) {
-  boost::mpi::communicator world;
-  const int rows_a = 16;
-  const int cols_a = 17;
-  const int cols_b = 18;
-  std::vector<double> a = GenerateRandomMatrix(rows_a, cols_a, 7777);
-  std::vector<double> b = GenerateRandomMatrix(cols_a, cols_b, 7777);
+  const int r = 16;
+  const int c = 17;
+  const int cb = 18;
+  auto a = GenerateRandomMatrix(r, c, 7777);
+  auto b = GenerateRandomMatrix(c, cb, 7777);
+  auto c_exp = MultiplyNaiveDouble(a, b, r, c, cb);
 
-  auto c_expected = MultiplyNaiveDouble(a, b, rows_a, cols_a, cols_b);
+  std::vector<double> in = {static_cast<double>(r), static_cast<double>(c), static_cast<double>(c),
+                            static_cast<double>(cb)};
+  in.insert(in.end(), a.begin(), a.end());
+  in.insert(in.end(), b.begin(), b.end());
 
-  std::vector<double> in_data = {static_cast<double>(rows_a), static_cast<double>(cols_a), static_cast<double>(cols_a),
-                                 static_cast<double>(cols_b)};
-  in_data.insert(in_data.end(), a.begin(), a.end());
-  in_data.insert(in_data.end(), b.begin(), b.end());
+  auto out = test_utils::ExecuteTask(in, 2 + (r * cb));
 
-  std::size_t output_count = 2 + (rows_a * cols_b);
-
-  auto task_data = std::make_shared<ppc::core::TaskData>();
-  task_data->inputs.push_back(reinterpret_cast<uint8_t*>(in_data.data()));
-  task_data->inputs_count.push_back(in_data.size());
-
-  auto* out_ptr = new double[output_count]();
-  task_data->outputs.push_back(reinterpret_cast<uint8_t*>(out_ptr));
-  task_data->outputs_count.push_back(output_count);
-
-  borisov_s_strassen_all::ParallelStrassenMpiStl task(task_data);
-
-  task.PreProcessingImpl();
-  EXPECT_TRUE(task.ValidationImpl());
-  task.RunImpl();
-  task.PostProcessingImpl();
-
-  if (world.rank() == 0) {
-    EXPECT_DOUBLE_EQ(out_ptr[0], static_cast<double>(rows_a));
-    EXPECT_DOUBLE_EQ(out_ptr[1], static_cast<double>(cols_b));
-
-    std::vector<double> c_result(rows_a * cols_b);
-    for (int i = 0; i < rows_a * cols_b; ++i) {
-      c_result[i] = out_ptr[2 + i];
-    }
-
-    ASSERT_EQ(c_expected.size(), c_result.size());
-    for (std::size_t i = 0; i < c_expected.size(); ++i) {
-      EXPECT_NEAR(c_expected[i], c_result[i], 1e-9);
-    }
-
-    delete[] out_ptr;
+  if (test_utils::IsMaster()) {
+    EXPECT_DOUBLE_EQ(out[0], r);
+    EXPECT_DOUBLE_EQ(out[1], cb);
+    test_utils::ExpectVectorNear(c_exp, out.get(), 2);
   }
 }
 
 TEST(borisov_s_strassen_all, Rectangular19x23_Random) {
-  boost::mpi::communicator world;
-  const int rows_a = 19;
-  const int cols_a = 23;
-  const int cols_b = 21;
-  std::vector<double> a = GenerateRandomMatrix(rows_a, cols_a, 7777);
-  std::vector<double> b = GenerateRandomMatrix(cols_a, cols_b, 7777);
+  const int r = 19;
+  const int c = 23;
+  const int cb = 21;
+  auto a = GenerateRandomMatrix(r, c, 7777);
+  auto b = GenerateRandomMatrix(c, cb, 7777);
+  auto c_exp = MultiplyNaiveDouble(a, b, r, c, cb);
 
-  auto c_expected = MultiplyNaiveDouble(a, b, rows_a, cols_a, cols_b);
+  std::vector<double> in = {static_cast<double>(r), static_cast<double>(c), static_cast<double>(c),
+                            static_cast<double>(cb)};
+  in.insert(in.end(), a.begin(), a.end());
+  in.insert(in.end(), b.begin(), b.end());
 
-  std::vector<double> in_data = {static_cast<double>(rows_a), static_cast<double>(cols_a), static_cast<double>(cols_a),
-                                 static_cast<double>(cols_b)};
-  in_data.insert(in_data.end(), a.begin(), a.end());
-  in_data.insert(in_data.end(), b.begin(), b.end());
+  auto out = test_utils::ExecuteTask(in, 2 + (r * cb));
 
-  std::size_t output_count = 2 + (rows_a * cols_b);
-
-  auto task_data = std::make_shared<ppc::core::TaskData>();
-  task_data->inputs.push_back(reinterpret_cast<uint8_t*>(in_data.data()));
-  task_data->inputs_count.push_back(in_data.size());
-
-  auto* out_ptr = new double[output_count]();
-  task_data->outputs.push_back(reinterpret_cast<uint8_t*>(out_ptr));
-  task_data->outputs_count.push_back(output_count);
-
-  borisov_s_strassen_all::ParallelStrassenMpiStl task(task_data);
-
-  task.PreProcessingImpl();
-  EXPECT_TRUE(task.ValidationImpl());
-  task.RunImpl();
-  task.PostProcessingImpl();
-
-  if (world.rank() == 0) {
-    EXPECT_DOUBLE_EQ(out_ptr[0], static_cast<double>(rows_a));
-    EXPECT_DOUBLE_EQ(out_ptr[1], static_cast<double>(cols_b));
-
-    std::vector<double> c_result(rows_a * cols_b);
-    for (int i = 0; i < rows_a * cols_b; ++i) {
-      c_result[i] = out_ptr[2 + i];
-    }
-
-    ASSERT_EQ(c_expected.size(), c_result.size());
-    for (std::size_t i = 0; i < c_expected.size(); ++i) {
-      EXPECT_NEAR(c_expected[i], c_result[i], 1e-9);
-    }
-
-    delete[] out_ptr;
+  if (test_utils::IsMaster()) {
+    EXPECT_DOUBLE_EQ(out[0], r);
+    EXPECT_DOUBLE_EQ(out[1], cb);
+    test_utils::ExpectVectorNear(c_exp, out.get(), 2);
   }
 }
 
 TEST(borisov_s_strassen_all, Rectangular32x64_Random) {
-  boost::mpi::communicator world;
-  const int rows_a = 32;
-  const int cols_a = 64;
-  const int cols_b = 32;
-  std::vector<double> a = GenerateRandomMatrix(rows_a, cols_a, 7777);
-  std::vector<double> b = GenerateRandomMatrix(cols_a, cols_b, 7777);
+  const int r = 32;
+  const int c = 64;
+  const int cb = 32;
+  auto a = GenerateRandomMatrix(r, c, 7777);
+  auto b = GenerateRandomMatrix(c, cb, 7777);
+  auto c_exp = MultiplyNaiveDouble(a, b, r, c, cb);
 
-  auto c_expected = MultiplyNaiveDouble(a, b, rows_a, cols_a, cols_b);
+  std::vector<double> in = {static_cast<double>(r), static_cast<double>(c), static_cast<double>(c),
+                            static_cast<double>(cb)};
+  in.insert(in.end(), a.begin(), a.end());
+  in.insert(in.end(), b.begin(), b.end());
 
-  std::vector<double> in_data = {static_cast<double>(rows_a), static_cast<double>(cols_a), static_cast<double>(cols_a),
-                                 static_cast<double>(cols_b)};
-  in_data.insert(in_data.end(), a.begin(), a.end());
-  in_data.insert(in_data.end(), b.begin(), b.end());
+  auto out = test_utils::ExecuteTask(in, 2 + (r * cb));
 
-  std::size_t output_count = 2 + (rows_a * cols_b);
-
-  auto task_data = std::make_shared<ppc::core::TaskData>();
-  task_data->inputs.push_back(reinterpret_cast<uint8_t*>(in_data.data()));
-  task_data->inputs_count.push_back(in_data.size());
-
-  auto* out_ptr = new double[output_count]();
-  task_data->outputs.push_back(reinterpret_cast<uint8_t*>(out_ptr));
-  task_data->outputs_count.push_back(output_count);
-
-  borisov_s_strassen_all::ParallelStrassenMpiStl task(task_data);
-
-  task.PreProcessingImpl();
-  EXPECT_TRUE(task.ValidationImpl());
-  task.RunImpl();
-  task.PostProcessingImpl();
-
-  if (world.rank() == 0) {
-    EXPECT_DOUBLE_EQ(out_ptr[0], static_cast<double>(rows_a));
-    EXPECT_DOUBLE_EQ(out_ptr[1], static_cast<double>(cols_b));
-
-    std::vector<double> c_result(rows_a * cols_b);
-    for (int i = 0; i < rows_a * cols_b; ++i) {
-      c_result[i] = out_ptr[2 + i];
-    }
-
-    ASSERT_EQ(c_expected.size(), c_result.size());
-    for (std::size_t i = 0; i < c_expected.size(); ++i) {
-      EXPECT_NEAR(c_expected[i], c_result[i], 1e-9);
-    }
-
-    delete[] out_ptr;
+  if (test_utils::IsMaster()) {
+    EXPECT_DOUBLE_EQ(out[0], r);
+    EXPECT_DOUBLE_EQ(out[1], cb);
+    test_utils::ExpectVectorNear(c_exp, out.get(), 2);
   }
 }
