@@ -45,7 +45,7 @@ void DistributeBColumns(boost::mpi::communicator &world, int rank, int size, con
 void CalculateLocalNNZ(const std::vector<int> &a_row_indices, const std::vector<int> &a_col_ptr,
                        const std::vector<int> &local_b_row_indices, const std::vector<int> &local_b_col_ptr, int m,
                        int num_local_cols, std::vector<int> &local_nnz);
-void ComputeLocalC(const std::vector<double> &a_values, const std::vector<int> &a_row_indices,
+static void ComputeLocalC(const std::vector<double> &a_values, const std::vector<int> &a_row_indices,
                    const std::vector<int> &a_col_ptr, const std::vector<double> &local_b_values,
                    const std::vector<int> &local_b_row_indices, const std::vector<int> &local_b_col_ptr, int m,
                    int num_local_cols, const std::vector<int> &local_nnz, std::vector<double> &local_c_values,

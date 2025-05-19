@@ -44,11 +44,11 @@ void DistributeBColumns(boost::mpi::communicator& world, int rank, int size, con
   }
 }
 
-void ComputeLocalC(const std::vector<double>& a_values, const std::vector<int>& a_row_indices,
-                   const std::vector<int>& a_col_ptr, const std::vector<double>& local_b_values,
-                   const std::vector<int>& local_b_row_indices, const std::vector<int>& local_b_col_ptr, int m,
-                   int num_local_cols, std::vector<int>& local_nnz, std::vector<double>& local_c_values,
-                   std::vector<int>& local_c_row_indices, std::vector<int>& local_c_col_ptr) {
+static void ComputeLocalC(const std::vector<double>& a_values, const std::vector<int>& a_row_indices,
+                          const std::vector<int>& a_col_ptr, const std::vector<double>& local_b_values,
+                          const std::vector<int>& local_b_row_indices, const std::vector<int>& local_b_col_ptr, int m,
+                          int num_local_cols, std::vector<int>& local_nnz, std::vector<double>& local_c_values,
+                          std::vector<int>& local_c_row_indices, std::vector<int>& local_c_col_ptr) {
   std::vector<std::vector<int>> rows(num_local_cols);
   std::vector<std::vector<double>> values(num_local_cols);
 
@@ -70,7 +70,7 @@ void ComputeLocalC(const std::vector<double>& a_values, const std::vector<int>& 
         values[j].push_back(tmp[row]);
       }
     }
-    local_nnz[j] = rows[j].size();
+    local_nnz[j] = static_cast<int>(rows[j].size());
   }
 
   local_c_col_ptr.resize(num_local_cols + 1);
