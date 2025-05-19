@@ -4,6 +4,7 @@
 #include <boost/serialization/vector.hpp>  // NOLINT(*-include-cleaner)
 #include <cstddef>
 #include <thread>
+#include <utility>
 #include <vector>
 
 #include "boost/mpi/collectives/broadcast.hpp"
