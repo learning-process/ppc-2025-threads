@@ -285,7 +285,7 @@ bool ParallelStrassenMpiStl::RunImpl() {
 bool ParallelStrassenMpiStl::PostProcessingImpl() {
   if (world_.rank() == 0) {
     auto* out = reinterpret_cast<double*>(task_data->outputs[0]);
-    std::copy(output_.begin(), output_.end(), out);
+    std::ranges::copy(output_, out);
   }
 
   return true;
