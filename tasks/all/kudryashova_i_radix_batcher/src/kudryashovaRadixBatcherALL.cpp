@@ -136,14 +136,14 @@ bool kudryashova_i_radix_batcher_all::TestTaskALL::PreProcessingImpl() {
     std::copy_n(reinterpret_cast<double*>(task_data->inputs[0]), task_data->inputs_count[0], input_data_.begin());
 
     n_ = input_data_.size();
-    size_t base_chunk = n_ / world_.size();
-    size_t remainder = n_ % world_.size();
+    int base_chunk = n_ / world_.size();
+    int remainder = n_ % world_.size();
 
     counts_.resize(world_.size());
     displs_.resize(world_.size());
 
     for (int i = 0; i < world_.size(); ++i) {
-      size_t chunk_size = (i < remainder) ? base_chunk + 1 : base_chunk;
+      int chunk_size = (i < remainder) ? base_chunk + 1 : base_chunk;
       counts_[i] = static_cast<int>(chunk_size);
       displs_[i] = (i == 0) ? 0 : displs_[i - 1] + counts_[i - 1];
     }
