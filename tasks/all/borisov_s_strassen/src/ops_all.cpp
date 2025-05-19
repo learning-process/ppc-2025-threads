@@ -1,11 +1,11 @@
-#include <algorithm>
+#include "all/borisov_s_strassen/include/ops_all.hpp"
 
-#include <boost/serialization/vector.hpp> // NOLINT(*-include-cleaner)
+#include <algorithm>
 #include <cstddef>
 #include <thread>
 #include <vector>
 
-#include "all/borisov_s_strassen/include/ops_all.hpp"
+#include <boost/serialization/vector.hpp> // NOLINT(*-include-cleaner)
 #include "boost/mpi/collectives/broadcast.hpp"
 
 namespace borisov_s_strassen_all {
