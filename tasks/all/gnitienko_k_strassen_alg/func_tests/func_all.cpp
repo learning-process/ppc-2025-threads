@@ -1,6 +1,6 @@
 #include <gtest/gtest.h>
 
-#include <boost/mpi.hpp>
+#include <boost/mpi/communicator.hpp>
 #include <cstddef>
 #include <cstdint>
 #include <memory>
@@ -15,7 +15,7 @@ double min_val = -100.0;
 double max_val = 100.0;
 static std::vector<double> GenMatrix(size_t size);
 static void TrivialMultiply(const std::vector<double> &a, const std::vector<double> &b, std::vector<double> &c,
-                            size_t size, boost::mpi::communicator world);
+                            size_t size, const boost::mpi::communicator &world);
 
 std::vector<double> GenMatrix(size_t size) {
   std::vector<double> matrix(size * size);
@@ -40,7 +40,7 @@ std::vector<double> IdentityMatrix(size_t size) {
 }
 
 void TrivialMultiply(const std::vector<double> &a, const std::vector<double> &b, std::vector<double> &c, size_t size,
-                     boost::mpi::communicator world) {
+                     const boost::mpi::communicator &world) {
   if (world.rank() == 0) {
     for (size_t i = 0; i < size; ++i) {
       for (size_t j = 0; j < size; ++j) {
@@ -54,7 +54,7 @@ void TrivialMultiply(const std::vector<double> &a, const std::vector<double> &b,
 }
 
 void TestMultiply(std::vector<double> &a, std::vector<double> &b, std::vector<double> &out,
-                  std::vector<double> &expected, boost::mpi::communicator world, size_t size = 0) {
+                  std::vector<double> &expected, const boost::mpi::communicator &world, size_t size = 0) {
   // Create task_data
   auto task_data_all = std::make_shared<ppc::core::TaskData>();
   if (world.rank() == 0) {

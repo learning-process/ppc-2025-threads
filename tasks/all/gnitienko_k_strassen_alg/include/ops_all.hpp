@@ -1,10 +1,10 @@
 #pragma once
 
+#include <boost/mpi/communicator.hpp>
 #include <functional>
 #include <utility>
 #include <vector>
 
-#include "boost/mpi.hpp"
 #include "core/task/include/task.hpp"
 
 namespace gnitienko_k_strassen_algorithm_all {
@@ -24,7 +24,7 @@ class StrassenAlgAll : public ppc::core::Task {
   int size_{};
   int TRIVIAL_MULTIPLICATION_BOUND_ = 32;
   int extend_ = 0;
-  boost::mpi::communicator world;
+  boost::mpi::communicator world_;
 
   static void TrivialMultiply(const std::vector<double>& a, const std::vector<double>& b, std::vector<double>& c,
                               int size);

@@ -4,7 +4,9 @@
 #pragma warning(disable : 4245)
 #endif
 #include <algorithm>
-#include <boost/serialization/vector.hpp>
+#include <boost/mpi/collectives.hpp>
+#include <boost/mpi/nonblocking.hpp>
+#include <boost/mpi/request.hpp>
 #include <cmath>
 #include <core/util/include/util.hpp>
 #include <cstddef>
@@ -13,10 +15,8 @@
 #include <utility>
 #include <vector>
 
-#include "boost/mpi.hpp"
-
 bool gnitienko_k_strassen_algorithm_all::StrassenAlgAll::PreProcessingImpl() {
-  if (world.rank() == 0) {
+  if (world_.rank() == 0) {
     size_t input_size = task_data->inputs_count[0];
     auto* in_ptr = reinterpret_cast<double*>(task_data->inputs[0]);
     input_1_ = std::vector<double>(in_ptr, in_ptr + input_size);
@@ -53,7 +53,7 @@ bool gnitienko_k_strassen_algorithm_all::StrassenAlgAll::PreProcessingImpl() {
 }
 
 bool gnitienko_k_strassen_algorithm_all::StrassenAlgAll::ValidationImpl() {
-  return world.rank() == 0 ? task_data->inputs_count[0] == task_data->outputs_count[0] : true;
+  return world_.rank() == 0 ? task_data->inputs_count[0] == task_data->outputs_count[0] : true;
 }
 
 void gnitienko_k_strassen_algorithm_all::StrassenAlgAll::AddMatrix(const std::vector<double>& a,
@@ -238,11 +238,11 @@ void gnitienko_k_strassen_algorithm_all::StrassenAlgAll::StrassenMultiply(const 
 }
 
 bool gnitienko_k_strassen_algorithm_all::StrassenAlgAll::RunImpl() {
-  int rank = world.rank();
-  int size_proc = world.size();
+  int rank = world_.rank();
+  int size_proc = world_.size();
   int max_threads = ppc::util::GetPPCNumThreads();
 
-  boost::mpi::broadcast(world, size_, 0);
+  boost::mpi::broadcast(world_, size_, 0);
 
   const int half_size = size_ / 2;
   const int block_size = half_size * half_size;
@@ -273,23 +273,23 @@ bool gnitienko_k_strassen_algorithm_all::StrassenAlgAll::RunImpl() {
       }
     }
 
-    std::vector<std::vector<double>> As(7, std::vector<double>(block_size));
-    std::vector<std::vector<double>> Bs(7, std::vector<double>(block_size));
+    std::vector<std::vector<double>> as(7, std::vector<double>(block_size));
+    std::vector<std::vector<double>> bs(7, std::vector<double>(block_size));
 
-    AddMatrix(a11, a22, As[0], half_size);
-    AddMatrix(b11, b22, Bs[0], half_size);
-    AddMatrix(a21, a22, As[1], half_size);
-    Bs[1] = b11;
-    As[2] = a11;
-    SubMatrix(b12, b22, Bs[2], half_size);
-    As[3] = a22;
-    SubMatrix(b21, b11, Bs[3], half_size);
-    AddMatrix(a11, a12, As[4], half_size);
-    Bs[4] = b22;
-    SubMatrix(a21, a11, As[5], half_size);
-    AddMatrix(b11, b12, Bs[5], half_size);
-    SubMatrix(a12, a22, As[6], half_size);
-    AddMatrix(b21, b22, Bs[6], half_size);
+    AddMatrix(a11, a22, as[0], half_size);
+    AddMatrix(b11, b22, bs[0], half_size);
+    AddMatrix(a21, a22, as[1], half_size);
+    bs[1] = b11;
+    as[2] = a11;
+    SubMatrix(b12, b22, bs[2], half_size);
+    as[3] = a22;
+    SubMatrix(b21, b11, bs[3], half_size);
+    AddMatrix(a11, a12, as[4], half_size);
+    bs[4] = b22;
+    SubMatrix(a21, a11, as[5], half_size);
+    AddMatrix(b11, b12, bs[5], half_size);
+    SubMatrix(a12, a22, as[6], half_size);
+    AddMatrix(b21, b22, bs[6], half_size);
 
     std::vector<std::vector<double>> mul_res(7, std::vector<double>(block_size));
 
@@ -305,23 +305,23 @@ bool gnitienko_k_strassen_algorithm_all::StrassenAlgAll::RunImpl() {
 
     for (int proc = 1; proc < std::min(size_proc, 7); ++proc) {
       int num_tasks_proc = (int)tasks_for_procs[proc].size();
-      reqs_send.push_back(world.isend(proc, 0, num_tasks_proc));
-      reqs_send.push_back(world.isend(proc, 50, tasks_for_procs[proc]));
+      reqs_send.push_back(world_.isend(proc, 0, num_tasks_proc));
+      reqs_send.push_back(world_.isend(proc, 50, tasks_for_procs[proc]));
 
       for (int t : tasks_for_procs[proc]) {
-        reqs_send.push_back(world.isend(proc, 101 + t * 2, As[t]));
-        reqs_send.push_back(world.isend(proc, 102 + t * 2, Bs[t]));
+        reqs_send.push_back(world_.isend(proc, 101 + (t * 2), as[t]));
+        reqs_send.push_back(world_.isend(proc, 102 + (t * 2), bs[t]));
       }
     }
     boost::mpi::wait_all(reqs_send.begin(), reqs_send.end());
 
     for (int t : tasks_for_procs[0]) {
-      StrassenMultiply(As[t], Bs[t], mul_res[t], half_size, max_threads);
+      StrassenMultiply(as[t], bs[t], mul_res[t], half_size, max_threads);
     }
 
     for (int proc = 1; proc < std::min(size_proc, 7); ++proc) {
       for (int t : tasks_for_procs[proc]) {
-        reqs_recv.push_back(world.irecv(proc, t + 2, mul_res[t]));
+        reqs_recv.push_back(world_.irecv(proc, t + 2, mul_res[t]));
       }
     }
     boost::mpi::wait_all(reqs_recv.begin(), reqs_recv.end());
@@ -358,11 +358,11 @@ bool gnitienko_k_strassen_algorithm_all::StrassenAlgAll::RunImpl() {
     }
 
   } else if (rank < std::min(size_proc, 7) && rank != 0) {
-    int num_tasks;
-    world.recv(0, 0, num_tasks);
+    int num_tasks = 0;
+    world_.recv(0, 0, num_tasks);
 
     std::vector<int> tasks(num_tasks);
-    world.recv(0, 50, tasks);
+    world_.recv(0, 50, tasks);
 
     std::vector<std::vector<double>> a_local(num_tasks, std::vector<double>(block_size));
     std::vector<std::vector<double>> b_local(num_tasks, std::vector<double>(block_size));
@@ -370,8 +370,8 @@ bool gnitienko_k_strassen_algorithm_all::StrassenAlgAll::RunImpl() {
 
     for (int i = 0; i < num_tasks; ++i) {
       int t = tasks[i];
-      recv_reqs.push_back(world.irecv(0, 101 + t * 2, a_local[i]));
-      recv_reqs.push_back(world.irecv(0, 102 + t * 2, b_local[i]));
+      recv_reqs.push_back(world_.irecv(0, 101 + (t * 2), a_local[i]));
+      recv_reqs.push_back(world_.irecv(0, 102 + (t * 2), b_local[i]));
     }
 
     boost::mpi::wait_all(recv_reqs.begin(), recv_reqs.end());
@@ -382,18 +382,18 @@ bool gnitienko_k_strassen_algorithm_all::StrassenAlgAll::RunImpl() {
     for (int i = 0; i < num_tasks; ++i) {
       int t = tasks[i];
       StrassenMultiply(a_local[i], b_local[i], c_local[i], half_size, max_threads);
-      send_reqs.push_back(world.isend(0, t + 2, c_local[i]));
+      send_reqs.push_back(world_.isend(0, t + 2, c_local[i]));
     }
 
     boost::mpi::wait_all(send_reqs.begin(), send_reqs.end());
   }
-  world.barrier();
+  world_.barrier();
 
   return true;
 }
 
 bool gnitienko_k_strassen_algorithm_all::StrassenAlgAll::PostProcessingImpl() {
-  if (world.rank() == 0) {
+  if (world_.rank() == 0) {
     for (size_t i = 0; i < output_.size(); i++) {
       reinterpret_cast<double*>(task_data->outputs[0])[i] = output_[i];
     }
