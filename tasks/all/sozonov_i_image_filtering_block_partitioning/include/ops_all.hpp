@@ -1,6 +1,5 @@
 #pragma once
 
-#include <boost/mpi/collectives.hpp>
 #include <boost/mpi/communicator.hpp>
 #include <utility>
 #include <vector>
@@ -22,7 +21,7 @@ class TestTaskALL : public ppc::core::Task {
  private:
   std::vector<double> image_, filtered_image_;
   int width_{}, height_{};
-  boost::mpi::communicator world;
+  boost::mpi::communicator world_;
 };
 
 }  // namespace sozonov_i_image_filtering_block_partitioning_all

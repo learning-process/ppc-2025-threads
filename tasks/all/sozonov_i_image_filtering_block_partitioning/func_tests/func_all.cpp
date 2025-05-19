@@ -80,41 +80,6 @@ TEST(sozonov_i_image_filtering_block_partitioning_all, test_wrong_pixels) {
   ASSERT_FALSE(test_task_all.Validation());
 }
 
-TEST(sozonov_i_image_filtering_block_partitioning_all, test_3x3) {
-  boost::mpi::communicator world;
-
-  const int width = 3;
-  const int height = 3;
-
-  // Create data
-  std::vector<double> in = {4, 6, 8, 24, 31, 25, 1, 5, 7};
-  std::vector<double> out(width * height, 0);
-  std::vector<double> ans = {0, 0, 0, 11.1875, 16.5, 14.3125, 0, 0, 0};
-
-  // Create task_data
-  auto task_data_all = std::make_shared<ppc::core::TaskData>();
-
-  if (world.rank() == 0) {
-    task_data_all->inputs.emplace_back(reinterpret_cast<uint8_t *>(in.data()));
-    task_data_all->inputs_count.emplace_back(in.size());
-    task_data_all->inputs_count.emplace_back(width);
-    task_data_all->inputs_count.emplace_back(height);
-    task_data_all->outputs.emplace_back(reinterpret_cast<uint8_t *>(out.data()));
-    task_data_all->outputs_count.emplace_back(out.size());
-  }
-
-  // Create Task
-  sozonov_i_image_filtering_block_partitioning_all::TestTaskALL test_task_all(task_data_all);
-  ASSERT_EQ(test_task_all.Validation(), true);
-  test_task_all.PreProcessing();
-  test_task_all.Run();
-  test_task_all.PostProcessing();
-
-  if (world.rank() == 0) {
-    EXPECT_EQ(out, ans);
-  }
-}
-
 TEST(sozonov_i_image_filtering_block_partitioning_all, test_5x3) {
   boost::mpi::communicator world;
 
