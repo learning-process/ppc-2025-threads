@@ -11,7 +11,7 @@
 #include "tbb/shuravina_o_hoare_simple_merger_tbb/include/ops_tbb.hpp"
 
 TEST(shuravina_o_hoare_simple_merger_tbb, test_pipeline_run) {
-  constexpr int kCount = 50000;
+  constexpr int kCount = 1000000;
 
   std::vector<int> in(kCount, 0);
   std::vector<int> out(kCount, 0);
@@ -49,7 +49,7 @@ TEST(shuravina_o_hoare_simple_merger_tbb, test_pipeline_run) {
 }
 
 TEST(shuravina_o_hoare_simple_merger_tbb, test_task_run) {
-  constexpr int kCount = 50000;
+  constexpr int kCount = 1000000;
 
   std::vector<int> in(kCount, 0);
   std::vector<int> out(kCount, 0);
