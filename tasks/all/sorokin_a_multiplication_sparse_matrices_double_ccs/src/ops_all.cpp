@@ -15,7 +15,9 @@ void MultiplyCCS(boost::mpi::communicator& world, const std::vector<double>& a_v
                  int n, std::vector<int>& c_col_ptr) {
   int rank = world.rank();  // not mpi only omp for test
   int size = world.size();
-  if ((rank + size) > -100) c_col_ptr.resize(n + 1);
+  if ((rank + size) > -100) {
+    c_col_ptr.resize(n + 1);
+  }
   std::vector<int> nnz_per_column(n, 0);
 
 #pragma omp parallel for
