@@ -28,12 +28,10 @@ TEST(kudryashova_i_radix_batcher_all, all_radix_test_1) {
   std::vector<double> global_vector = {5.69, -2.11, 0.52};
   std::vector<double> result(global_vector_size);
   std::shared_ptr<ppc::core::TaskData> task_data = std::make_shared<ppc::core::TaskData>();
-  if (world.rank() == 0) {
-    task_data->inputs.emplace_back(reinterpret_cast<uint8_t *>(global_vector.data()));
-    task_data->inputs_count.emplace_back(global_vector.size());
-    task_data->outputs.emplace_back(reinterpret_cast<uint8_t *>(result.data()));
-    task_data->outputs_count.emplace_back(result.size());
-  }
+  task_data->inputs.emplace_back(reinterpret_cast<uint8_t *>(global_vector.data()));
+  task_data->inputs_count.emplace_back(global_vector.size());
+  task_data->outputs.emplace_back(reinterpret_cast<uint8_t *>(result.data()));
+  task_data->outputs_count.emplace_back(result.size());
   kudryashova_i_radix_batcher_all::TestTaskALL task_all(task_data);
   ASSERT_TRUE(task_all.ValidationImpl());
   task_all.PreProcessingImpl();
@@ -53,12 +51,10 @@ TEST(kudryashova_i_radix_batcher_all, all_radix_test_2) {
                                        -15.823, -6.971, 3.1615, 0.0,     10.1415};
   std::vector<double> result(global_vector_size);
   std::shared_ptr<ppc::core::TaskData> task_data = std::make_shared<ppc::core::TaskData>();
-  if (world.rank() == 0) {
-    task_data->inputs.emplace_back(reinterpret_cast<uint8_t *>(global_vector.data()));
-    task_data->inputs_count.emplace_back(global_vector.size());
-    task_data->outputs.emplace_back(reinterpret_cast<uint8_t *>(result.data()));
-    task_data->outputs_count.emplace_back(result.size());
-  }
+  task_data->inputs.emplace_back(reinterpret_cast<uint8_t *>(global_vector.data()));
+  task_data->inputs_count.emplace_back(global_vector.size());
+  task_data->outputs.emplace_back(reinterpret_cast<uint8_t *>(result.data()));
+  task_data->outputs_count.emplace_back(result.size());
   kudryashova_i_radix_batcher_all::TestTaskALL task_all(task_data);
   ASSERT_TRUE(task_all.ValidationImpl());
   task_all.PreProcessingImpl();
@@ -77,12 +73,10 @@ TEST(kudryashova_i_radix_batcher_all, all_radix_all_zero_elem_test_3) {
   std::vector<double> global_vector = {0.00, 0.00, 0.00, 0.00, 0.00, 0.00, 0.00};
   std::vector<double> result(global_vector_size);
   std::shared_ptr<ppc::core::TaskData> task_data = std::make_shared<ppc::core::TaskData>();
-  if (world.rank() == 0) {
-    task_data->inputs.emplace_back(reinterpret_cast<uint8_t *>(global_vector.data()));
-    task_data->inputs_count.emplace_back(global_vector.size());
-    task_data->outputs.emplace_back(reinterpret_cast<uint8_t *>(result.data()));
-    task_data->outputs_count.emplace_back(result.size());
-  }
+  task_data->inputs.emplace_back(reinterpret_cast<uint8_t *>(global_vector.data()));
+  task_data->inputs_count.emplace_back(global_vector.size());
+  task_data->outputs.emplace_back(reinterpret_cast<uint8_t *>(result.data()));
+  task_data->outputs_count.emplace_back(result.size());
   kudryashova_i_radix_batcher_all::TestTaskALL task_all(task_data);
   ASSERT_TRUE(task_all.ValidationImpl());
   task_all.PreProcessingImpl();
@@ -108,9 +102,11 @@ TEST(kudryashova_i_radix_batcher_all, all_radix_random_test_1) {
   task_all.PreProcessingImpl();
   task_all.RunImpl();
   task_all.PostProcessingImpl();
-  std::vector<double> sorted_global_vector = global_vector;
-  std::ranges::sort(sorted_global_vector);
-  ASSERT_EQ(result, sorted_global_vector);
+  if (world.rank() == 0) {
+    std::vector<double> sorted_global_vector = global_vector;
+    std::ranges::sort(sorted_global_vector);
+    ASSERT_EQ(result, sorted_global_vector);
+  }
 }
 
 TEST(kudryashova_i_radix_batcher_all, all_radix_random_test_2) {
@@ -128,9 +124,11 @@ TEST(kudryashova_i_radix_batcher_all, all_radix_random_test_2) {
   task_all.PreProcessingImpl();
   task_all.RunImpl();
   task_all.PostProcessingImpl();
-  std::vector<double> sorted_global_vector = global_vector;
-  std::ranges::sort(sorted_global_vector);
-  ASSERT_EQ(result, sorted_global_vector);
+  if (world.rank() == 0) {
+    std::vector<double> sorted_global_vector = global_vector;
+    std::ranges::sort(sorted_global_vector);
+    ASSERT_EQ(result, sorted_global_vector);
+  }
 }
 
 TEST(kudryashova_i_radix_batcher_all, all_radix_test_regular_order) {
@@ -149,7 +147,9 @@ TEST(kudryashova_i_radix_batcher_all, all_radix_test_regular_order) {
   task_all.PreProcessingImpl();
   task_all.RunImpl();
   task_all.PostProcessingImpl();
-  ASSERT_EQ(result, global_vector);
+  if (world.rank() == 0) {
+    ASSERT_EQ(result, global_vector);
+  }
 }
 
 TEST(kudryashova_i_radix_batcher_all, all_radix_test_reverse_order) {
@@ -168,7 +168,9 @@ TEST(kudryashova_i_radix_batcher_all, all_radix_test_reverse_order) {
   task_all.PreProcessingImpl();
   task_all.RunImpl();
   task_all.PostProcessingImpl();
-  std::vector<double> sorted_global_vector = global_vector;
-  std::ranges::sort(sorted_global_vector);
-  ASSERT_EQ(result, sorted_global_vector);
+  if (world.rank() == 0) {
+    std::vector<double> sorted_global_vector = global_vector;
+    std::ranges::sort(sorted_global_vector);
+    ASSERT_EQ(result, sorted_global_vector);
+  }
 }
