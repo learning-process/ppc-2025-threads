@@ -5,6 +5,7 @@
 #include <boost/serialization/vector.hpp>  // NOLINT(misc-include-cleaner)
 #include <cmath>
 #include <cstddef>
+#include <numeric>
 #include <vector>
 
 #include "boost/mpi/collectives/broadcast.hpp"
@@ -65,9 +66,7 @@ void BuildCColPtr(boost::mpi::communicator& world, const std::vector<int>& nnz_p
   if (world.rank() == 0) {
     c_col_ptr.resize(n + 1);
     c_col_ptr[0] = 0;
-    for (size_t j = 0; j < n; ++j) {
-      c_col_ptr[j + 1] = c_col_ptr[j] + nnz_per_column[j];
-    }
+    std::partial_sum(nnz_per_column.begin(), nnz_per_column.end(), c_col_ptr.begin() + 1);
   }
   boost::mpi::broadcast(world, c_col_ptr, 0);
 }
