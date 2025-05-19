@@ -61,7 +61,7 @@ void GatherNNZData(boost::mpi::communicator& world, const std::vector<int>& loca
 
 void BuildCColPtr(boost::mpi::communicator& world, const std::vector<int>& nnz_per_column,
                   std::vector<int>& c_col_ptr) {
-  int n = nnz_per_column.size();
+  size_t n = nnz_per_column.size();
   if (world.rank() == 0) {
     c_col_ptr.resize(n + 1);
     c_col_ptr[0] = 0;
