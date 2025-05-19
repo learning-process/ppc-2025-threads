@@ -44,31 +44,37 @@ void DistributeBColumns(boost::mpi::communicator& world, int rank, int size, con
   }
 }
 
-void CalculateLocalNNZ(const std::vector<int>& a_row_indices, const std::vector<int>& a_col_ptr,
-                       const std::vector<int>& local_b_row_indices, const std::vector<int>& local_b_col_ptr, int m,
-                       int num_local_cols, std::vector<int>& local_nnz) {
-#pragma omp parallel for
-  for (int j = 0; j < num_local_cols; ++j) {
-    std::vector<bool> used(m, false);
-    for (int t = local_b_col_ptr[j]; t < local_b_col_ptr[j + 1]; ++t) {
-      const int row_b = local_b_row_indices[t];
-      for (int i = a_col_ptr[row_b]; i < a_col_ptr[row_b + 1]; ++i) {
-        const int row_a = a_row_indices[i];
-        if (!used[row_a]) {
-          used[row_a] = true;
-          local_nnz[j]++;
-        }
-      }
-    }
-  }
-}
-
 void ComputeLocalC(const std::vector<double>& a_values, const std::vector<int>& a_row_indices,
                    const std::vector<int>& a_col_ptr, const std::vector<double>& local_b_values,
                    const std::vector<int>& local_b_row_indices, const std::vector<int>& local_b_col_ptr, int m,
-                   int num_local_cols, const std::vector<int>& local_nnz, std::vector<double>& local_c_values,
+                   int num_local_cols, std::vector<int>& local_nnz, std::vector<double>& local_c_values,
                    std::vector<int>& local_c_row_indices, std::vector<int>& local_c_col_ptr) {
-  local_c_col_ptr.resize(num_local_cols + 1, 0);
+  std::vector<std::vector<int>> rows(num_local_cols);
+  std::vector<std::vector<double>> values(num_local_cols);
+
+#pragma omp parallel for
+  for (int j = 0; j < num_local_cols; ++j) {
+    std::vector<double> tmp(m, 0.0);
+    for (int t = local_b_col_ptr[j]; t < local_b_col_ptr[j + 1]; ++t) {
+      const int row_b = local_b_row_indices[t];
+      const double val_b = local_b_values[t];
+      for (int i = a_col_ptr[row_b]; i < a_col_ptr[row_b + 1]; ++i) {
+        const int row_a = a_row_indices[i];
+        tmp[row_a] += a_values[i] * val_b;
+      }
+    }
+
+    for (int row = 0; row < m; ++row) {
+      if (tmp[row] != 0.0) {
+        rows[j].push_back(row);
+        values[j].push_back(tmp[row]);
+      }
+    }
+    local_nnz[j] = rows[j].size();
+  }
+
+  local_c_col_ptr.resize(num_local_cols + 1);
+  local_c_col_ptr[0] = 0;
   for (int j = 0; j < num_local_cols; ++j) {
     local_c_col_ptr[j + 1] = local_c_col_ptr[j] + local_nnz[j];
   }
@@ -78,28 +84,10 @@ void ComputeLocalC(const std::vector<double>& a_values, const std::vector<int>& 
 
 #pragma omp parallel for
   for (int j = 0; j < num_local_cols; ++j) {
-    std::vector<double> tmp(m, 0.0);
-    std::vector<bool> used(m, false);
-    int pos = local_c_col_ptr[j];
-
-    for (int t = local_b_col_ptr[j]; t < local_b_col_ptr[j + 1]; ++t) {
-      const int row_b = local_b_row_indices[t];
-      const double val_b = local_b_values[t];
-      for (int i = a_col_ptr[row_b]; i < a_col_ptr[row_b + 1]; ++i) {
-        const int row_a = a_row_indices[i];
-        tmp[row_a] += a_values[i] * val_b;
-        if (!used[row_a]) {
-          used[row_a] = true;
-        }
-      }
-    }
-
-    for (int row = 0; row < m; ++row) {
-      if (used[row] && tmp[row] != 0) {
-        local_c_row_indices[pos] = row;
-        local_c_values[pos] = tmp[row];
-        pos++;
-      }
+    const int offset = local_c_col_ptr[j];
+    for (size_t k = 0; k < rows[j].size(); ++k) {
+      local_c_row_indices[offset + k] = rows[j][k];
+      local_c_values[offset + k] = values[j][k];
     }
   }
 }
@@ -221,8 +209,6 @@ void MultiplyCCS(boost::mpi::communicator& world, const std::vector<double>& a_v
   world.barrier();
 
   std::vector<int> local_nnz(num_local_cols, 0);
-  CalculateLocalNNZ(a_row_indices, a_col_ptr, local_b_row_indices, local_b_col_ptr, m, num_local_cols, local_nnz);
-
   std::vector<double> local_c_values;
   std::vector<int> local_c_row_indices;
   std::vector<int> local_c_col_ptr;
