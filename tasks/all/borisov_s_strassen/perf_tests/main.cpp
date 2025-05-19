@@ -15,8 +15,8 @@
 
 namespace {
 
-std::vector<double> MultiplyNaive(const std::vector<double>& a, const std::vector<double>& b, int rows_a,
-                                        int cols_a, int cols_b) {
+std::vector<double> MultiplyNaive(const std::vector<double>& a, const std::vector<double>& b, int rows_a, int cols_a,
+                                  int cols_b) {
   std::vector<double> c(rows_a * cols_b, 0.0);
   for (int i = 0; i < rows_a; ++i) {
     for (int j = 0; j < cols_b; ++j) {
