@@ -1,5 +1,5 @@
 #include <algorithm>
-#include <boost/serialization/vector.hpp>
+#include <boost/serialization/vector.hpp> // NOLINT(*-include-cleaner)
 #include <cstddef>
 #include <thread>
 #include <vector>

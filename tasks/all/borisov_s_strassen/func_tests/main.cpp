@@ -8,6 +8,7 @@
 #include <vector>
 
 #include "all/borisov_s_strassen/include/ops_all.hpp"
+#include "boost/mpi/communicator.hpp"
 #include "core/task/include/task.hpp"
 
 namespace {

@@ -3,6 +3,7 @@
 #include <utility>
 #include <vector>
 
+#include "boost/mpi/communicator.hpp"
 #include "core/task/include/task.hpp"
 
 namespace borisov_s_strassen_all {
