@@ -134,7 +134,12 @@ bool kudryashova_i_radix_batcher_all::TestTaskALL::PreProcessingImpl() {
     }
     input_data_.resize(task_data->inputs_count[0]);
     std::copy_n(reinterpret_cast<double*>(task_data->inputs[0]), task_data->inputs_count[0], input_data_.begin());
+  }
+  return true;
+}
 
+bool kudryashova_i_radix_batcher_all::TestTaskALL::RunImpl() {
+  if (world_.rank() == 0) {
     n_ = input_data_.size();
     int base_chunk = n_ / world_.size();
     int remainder = n_ % world_.size();
@@ -151,11 +156,6 @@ bool kudryashova_i_radix_batcher_all::TestTaskALL::PreProcessingImpl() {
   mpi::broadcast(world_, n_, 0);
   mpi::broadcast(world_, counts_, 0);
   mpi::broadcast(world_, displs_, 0);
-
-  return true;
-}
-
-bool kudryashova_i_radix_batcher_all::TestTaskALL::RunImpl() {
   int local_size = 0;
   mpi::scatter(world_, counts_, local_size, 0);
   std::vector<double> local_data(local_size);
