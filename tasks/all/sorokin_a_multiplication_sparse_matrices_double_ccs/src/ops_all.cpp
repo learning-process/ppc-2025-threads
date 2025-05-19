@@ -22,7 +22,6 @@ void ComputeLocalC(const std::vector<double>& a_values, const std::vector<int>& 
     for (int t = local_b_col_ptr[j]; t < local_b_col_ptr[j + 1]; ++t) {
       const int row_b = local_b_row_indices[t];
       if (row_b < 0 || row_b >= k) {
-        std::cerr << "Invalid row_b index: " << row_b << std::endl;
         continue;
       }
       const double val_b = local_b_values[t];
