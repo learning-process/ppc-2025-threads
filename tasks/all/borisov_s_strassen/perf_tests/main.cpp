@@ -41,7 +41,7 @@ void GenerateRandomMatrix(int rows, int cols, std::vector<double>& matrix) {
 
 }  // namespace
 
-TEST(borisov_s_strassen_mpi_perf, pipeline_run) {
+TEST(borisov_s_strassen_all, test_pipeline_run) {
   boost::mpi::communicator world;
 
   constexpr int kRowsA = 512;
@@ -96,7 +96,7 @@ TEST(borisov_s_strassen_mpi_perf, pipeline_run) {
   }
 }
 
-TEST(borisov_s_strassen_mpi_perf, task_run) {
+TEST(borisov_s_strassen_all, test_task_run) {
   boost::mpi::communicator world;
 
   constexpr int kRowsA = 512;
