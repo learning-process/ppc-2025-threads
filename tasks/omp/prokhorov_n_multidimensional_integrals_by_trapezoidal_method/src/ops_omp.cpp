@@ -5,7 +5,6 @@
 #include <cmath>
 #include <cstddef>
 #include <functional>
-#include <utility>
 #include <vector>
 
 #include "core/task/include/task.hpp"
@@ -74,9 +73,13 @@ bool TestTaskOpenMP::RunImpl() {
 }
 
 bool TestTaskOpenMP::PostProcessingImpl() {
-  if (task_data->outputs.empty()) return false;
-  double* output_ptr = reinterpret_cast<double*>(task_data->outputs[0]);
-  if (output_ptr == nullptr) return false;
+  if (task_data->outputs.empty()) {
+    return false;
+  }
+  auto* output_ptr = reinterpret_cast<double*>(task_data->outputs[0]);
+  if (output_ptr == nullptr) {
+    return false;
+  }
   *output_ptr = result_;
   return true;
 }
