@@ -210,6 +210,9 @@ bool kudryashova_i_radix_batcher_all::TestTaskALL::RunImpl() {
 }
 
 bool kudryashova_i_radix_batcher_all::TestTaskALL::ValidationImpl() {
+  if (world_.rank() == 0) {
+    return true;
+  }
   return true;
 }
 
