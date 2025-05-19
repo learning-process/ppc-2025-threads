@@ -18,14 +18,13 @@ class TestTaskTBB : public ppc::core::Task {
   bool PostProcessingImpl() override;
 
  private:
-  std::vector<double> input_;
-  std::vector<double> output_;
+  std::vector<int> input_;
+  std::vector<int> output_;
   static const size_t kParallelThreshold = 1000;
-  size_t chunk_count_;
 
-  void QuickSort(std::vector<double>& arr, size_t low, size_t high);
-  void ParallelQuickSort(std::vector<double>& arr, size_t low, size_t high);
-  static size_t Partition(std::vector<double>& arr, size_t low, size_t high);
+  void QuickSort(std::vector<int>& arr, int low, int high);
+  void ParallelQuickSort(std::vector<int>& arr, int low, int high);
+  static int Partition(std::vector<int>& arr, int low, int high);
 };
 
 }  // namespace shuravina_o_hoare_simple_merger_tbb
