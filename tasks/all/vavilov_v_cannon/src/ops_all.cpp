@@ -1,8 +1,8 @@
 #include "all/vavilov_v_cannon/include/ops_all.hpp"
 
 #include <algorithm>
-#include <boost/mpi.hpp>
 #include <boost/mpi/collectives.hpp>
+#include <boost/mpi.hpp>
 #include <boost/mpi/communicator.hpp>
 #include <boost/mpi/request.hpp>
 #include <cmath>
@@ -175,7 +175,6 @@ bool vavilov_v_cannon_all::CannonALL::RunImpl() {
   }
 
   rank = active_world.rank();
-  size = active_world.size();
 
   std::vector<double> local_a(block_size_sq);
   std::vector<double> local_b(block_size_sq);
@@ -228,7 +227,6 @@ bool vavilov_v_cannon_all::CannonALL::RunImpl() {
   }
 
   rank = active_world.rank();
-  size = active_world.size();
 
   std::vector<double> local_a(block_size_sq);
   std::vector<double> local_b(block_size_sq);
