@@ -77,10 +77,12 @@ TEST(kudryashova_i_radix_batcher_all, all_radix_all_zero_elem_test_3) {
   std::vector<double> global_vector = {0.00, 0.00, 0.00, 0.00, 0.00, 0.00, 0.00};
   std::vector<double> result(global_vector_size);
   std::shared_ptr<ppc::core::TaskData> task_data = std::make_shared<ppc::core::TaskData>();
-  task_data->inputs.emplace_back(reinterpret_cast<uint8_t *>(global_vector.data()));
-  task_data->inputs_count.emplace_back(global_vector.size());
-  task_data->outputs.emplace_back(reinterpret_cast<uint8_t *>(result.data()));
-  task_data->outputs_count.emplace_back(result.size());
+  if (world.rank() == 0) {
+    task_data->inputs.emplace_back(reinterpret_cast<uint8_t *>(global_vector.data()));
+    task_data->inputs_count.emplace_back(global_vector.size());
+    task_data->outputs.emplace_back(reinterpret_cast<uint8_t *>(result.data()));
+    task_data->outputs_count.emplace_back(result.size());
+  }
   kudryashova_i_radix_batcher_all::TestTaskALL task_all(task_data);
   ASSERT_TRUE(task_all.ValidationImpl());
   task_all.PreProcessingImpl();
@@ -97,10 +99,12 @@ TEST(kudryashova_i_radix_batcher_all, all_radix_random_test_1) {
   std::vector<double> global_vector = kudryashova_i_radix_batcher_all::GetRandomDoubleVector(global_vector_size);
   std::vector<double> result(global_vector_size);
   std::shared_ptr<ppc::core::TaskData> task_data = std::make_shared<ppc::core::TaskData>();
-  task_data->inputs.emplace_back(reinterpret_cast<uint8_t *>(global_vector.data()));
-  task_data->inputs_count.emplace_back(global_vector.size());
-  task_data->outputs.emplace_back(reinterpret_cast<uint8_t *>(result.data()));
-  task_data->outputs_count.emplace_back(result.size());
+  if (world.rank() == 0) {
+    task_data->inputs.emplace_back(reinterpret_cast<uint8_t *>(global_vector.data()));
+    task_data->inputs_count.emplace_back(global_vector.size());
+    task_data->outputs.emplace_back(reinterpret_cast<uint8_t *>(result.data()));
+    task_data->outputs_count.emplace_back(result.size());
+  }
   kudryashova_i_radix_batcher_all::TestTaskALL task_all(task_data);
   ASSERT_TRUE(task_all.ValidationImpl());
   task_all.PreProcessingImpl();
@@ -119,10 +123,12 @@ TEST(kudryashova_i_radix_batcher_all, all_radix_random_test_2) {
   std::vector<double> global_vector = kudryashova_i_radix_batcher_all::GetRandomDoubleVector(global_vector_size);
   std::vector<double> result(global_vector_size);
   std::shared_ptr<ppc::core::TaskData> task_data = std::make_shared<ppc::core::TaskData>();
-  task_data->inputs.emplace_back(reinterpret_cast<uint8_t *>(global_vector.data()));
-  task_data->inputs_count.emplace_back(global_vector.size());
-  task_data->outputs.emplace_back(reinterpret_cast<uint8_t *>(result.data()));
-  task_data->outputs_count.emplace_back(result.size());
+  if (world.rank() == 0) {
+    task_data->inputs.emplace_back(reinterpret_cast<uint8_t *>(global_vector.data()));
+    task_data->inputs_count.emplace_back(global_vector.size());
+    task_data->outputs.emplace_back(reinterpret_cast<uint8_t *>(result.data()));
+    task_data->outputs_count.emplace_back(result.size());
+  }
   kudryashova_i_radix_batcher_all::TestTaskALL task_all(task_data);
   ASSERT_TRUE(task_all.ValidationImpl());
   task_all.PreProcessingImpl();
@@ -142,10 +148,12 @@ TEST(kudryashova_i_radix_batcher_all, all_radix_test_regular_order) {
   std::ranges::sort(global_vector);
   std::vector<double> result(global_vector_size);
   std::shared_ptr<ppc::core::TaskData> task_data = std::make_shared<ppc::core::TaskData>();
-  task_data->inputs.emplace_back(reinterpret_cast<uint8_t *>(global_vector.data()));
-  task_data->inputs_count.emplace_back(global_vector.size());
-  task_data->outputs.emplace_back(reinterpret_cast<uint8_t *>(result.data()));
-  task_data->outputs_count.emplace_back(result.size());
+  if (world.rank() == 0) {
+    task_data->inputs.emplace_back(reinterpret_cast<uint8_t *>(global_vector.data()));
+    task_data->inputs_count.emplace_back(global_vector.size());
+    task_data->outputs.emplace_back(reinterpret_cast<uint8_t *>(result.data()));
+    task_data->outputs_count.emplace_back(result.size());
+  }
   kudryashova_i_radix_batcher_all::TestTaskALL task_all(task_data);
   ASSERT_TRUE(task_all.ValidationImpl());
   task_all.PreProcessingImpl();
