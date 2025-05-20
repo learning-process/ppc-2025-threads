@@ -10,7 +10,7 @@
 #include "core/task/include/task.hpp"
 
 // Тест для 2D интеграла (3x3 сетка)
-TEST(kharin_m_multidimensional_integral_calc_stl, test_integral_3x3) {
+TEST(kharin_m_multidimensional_integral_calc_all, test_integral_3x3) {
   std::vector<double> in = {1.0, 2.0, 3.0, 4.0, 5.0, 6.0, 7.0, 8.0, 9.0};
   std::vector<size_t> grid_sizes = {3, 3};
   std::vector<double> step_sizes = {1.0, 1.0};
@@ -27,7 +27,7 @@ TEST(kharin_m_multidimensional_integral_calc_stl, test_integral_3x3) {
   task_data_stl->outputs.emplace_back(reinterpret_cast<uint8_t*>(out.data()));
   task_data_stl->outputs_count.emplace_back(out.size());
 
-  kharin_m_multidimensional_integral_calc_stl::TaskSTL task(task_data_stl);
+  kharin_m_multidimensional_integral_calc_all::TaskALL task(task_data_stl);
   ASSERT_TRUE(task.Validation());
   task.PreProcessing();
   task.Run();
@@ -37,7 +37,7 @@ TEST(kharin_m_multidimensional_integral_calc_stl, test_integral_3x3) {
 }
 
 // Тест для 1D интеграла
-TEST(kharin_m_multidimensional_integral_calc_stl, test_integral_1d) {
+TEST(kharin_m_multidimensional_integral_calc_all, test_integral_1d) {
   std::vector<double> in = {1.0, 2.0, 3.0};
   std::vector<size_t> grid_sizes = {3};
   std::vector<double> step_sizes = {0.5};
@@ -54,7 +54,7 @@ TEST(kharin_m_multidimensional_integral_calc_stl, test_integral_1d) {
   task_data_stl->outputs.emplace_back(reinterpret_cast<uint8_t*>(out.data()));
   task_data_stl->outputs_count.emplace_back(out.size());
 
-  kharin_m_multidimensional_integral_calc_stl::TaskSTL task(task_data_stl);
+  kharin_m_multidimensional_integral_calc_all::TaskALL task(task_data_stl);
   ASSERT_TRUE(task.Validation());
   task.PreProcessing();
   task.Run();
@@ -64,7 +64,7 @@ TEST(kharin_m_multidimensional_integral_calc_stl, test_integral_1d) {
 }
 
 // Тест для 3D интеграла (2x2x2 сетка)
-TEST(kharin_m_multidimensional_integral_calc_stl, test_integral_3d) {
+TEST(kharin_m_multidimensional_integral_calc_all, test_integral_3d) {
   std::vector<double> in(8, 1.0);  // 2x2x2 сетка, все значения = 1.0
   std::vector<size_t> grid_sizes = {2, 2, 2};
   std::vector<double> step_sizes = {1.0, 1.0, 1.0};
@@ -81,7 +81,7 @@ TEST(kharin_m_multidimensional_integral_calc_stl, test_integral_3d) {
   task_data_stl->outputs.emplace_back(reinterpret_cast<uint8_t*>(out.data()));
   task_data_stl->outputs_count.emplace_back(out.size());
 
-  kharin_m_multidimensional_integral_calc_stl::TaskSTL task(task_data_stl);
+  kharin_m_multidimensional_integral_calc_all::TaskALL task(task_data_stl);
   ASSERT_TRUE(task.Validation());
   task.PreProcessing();
   task.Run();
@@ -90,7 +90,7 @@ TEST(kharin_m_multidimensional_integral_calc_stl, test_integral_3d) {
   EXPECT_DOUBLE_EQ(out[0], expected_out);
 }
 
-TEST(kharin_m_multidimensional_integral_calc_stl, test_invalid_input_count) {
+TEST(kharin_m_multidimensional_integral_calc_all, test_invalid_input_count) {
   auto task_data_stl = std::make_shared<ppc::core::TaskData>();
   // Добавляем только два входа вместо трех
   task_data_stl->inputs.emplace_back(nullptr);
@@ -100,11 +100,11 @@ TEST(kharin_m_multidimensional_integral_calc_stl, test_invalid_input_count) {
   task_data_stl->outputs.emplace_back(nullptr);
   task_data_stl->outputs_count.emplace_back(1);
 
-  kharin_m_multidimensional_integral_calc_stl::TaskSTL task(task_data_stl);
+  kharin_m_multidimensional_integral_calc_all::TaskALL task(task_data_stl);
   EXPECT_FALSE(task.Validation());
 }
 
-TEST(kharin_m_multidimensional_integral_calc_stl, test_invalid_output_count) {
+TEST(kharin_m_multidimensional_integral_calc_all, test_invalid_output_count) {
   std::vector<double> in = {1.0, 2.0, 3.0};
   std::vector<size_t> grid_sizes = {3};
   std::vector<double> step_sizes = {0.5};
@@ -120,11 +120,11 @@ TEST(kharin_m_multidimensional_integral_calc_stl, test_invalid_output_count) {
   task_data_stl->outputs.emplace_back(reinterpret_cast<uint8_t*>(out.data()));
   task_data_stl->outputs_count.emplace_back(out.size());  // 2 вместо 1
 
-  kharin_m_multidimensional_integral_calc_stl::TaskSTL task(task_data_stl);
+  kharin_m_multidimensional_integral_calc_all::TaskALL task(task_data_stl);
   EXPECT_FALSE(task.Validation());
 }
 
-TEST(kharin_m_multidimensional_integral_calc_stl, test_mismatch_grid_step_sizes) {
+TEST(kharin_m_multidimensional_integral_calc_all, test_mismatch_grid_step_sizes) {
   std::vector<double> in = {1.0, 2.0, 3.0};
   std::vector<size_t> grid_sizes = {3};         // 1 измерение
   std::vector<double> step_sizes = {0.5, 0.5};  // 2 шага — несоответствие
@@ -140,11 +140,11 @@ TEST(kharin_m_multidimensional_integral_calc_stl, test_mismatch_grid_step_sizes)
   task_data_stl->outputs.emplace_back(reinterpret_cast<uint8_t*>(out.data()));
   task_data_stl->outputs_count.emplace_back(out.size());
 
-  kharin_m_multidimensional_integral_calc_stl::TaskSTL task(task_data_stl);
+  kharin_m_multidimensional_integral_calc_all::TaskALL task(task_data_stl);
   EXPECT_FALSE(task.Validation());
 }
 
-TEST(kharin_m_multidimensional_integral_calc_stl, test_invalid_input_size) {
+TEST(kharin_m_multidimensional_integral_calc_all, test_invalid_input_size) {
   std::vector<double> in = {1.0, 2.0};  // 2 элемента, но для сетки 3x3 нужно 9
   std::vector<size_t> grid_sizes = {3, 3};
   std::vector<double> step_sizes = {1.0, 1.0};
@@ -160,12 +160,12 @@ TEST(kharin_m_multidimensional_integral_calc_stl, test_invalid_input_size) {
   task_data_stl->outputs.emplace_back(reinterpret_cast<uint8_t*>(out.data()));
   task_data_stl->outputs_count.emplace_back(out.size());
 
-  kharin_m_multidimensional_integral_calc_stl::TaskSTL task(task_data_stl);
+  kharin_m_multidimensional_integral_calc_all::TaskALL task(task_data_stl);
   ASSERT_TRUE(task.Validation());  // Валидация должна пройти, так как размеры входов проверяются в PreProcessing
   EXPECT_FALSE(task.PreProcessing());
 }
 
-TEST(kharin_m_multidimensional_integral_calc_stl, test_random_data) {
+TEST(kharin_m_multidimensional_integral_calc_all, test_random_data) {
   constexpr size_t kDim = 100;
   std::vector<double> in(kDim * kDim);
   std::random_device rd;
@@ -191,7 +191,7 @@ TEST(kharin_m_multidimensional_integral_calc_stl, test_random_data) {
   task_data_stl->outputs.emplace_back(reinterpret_cast<uint8_t*>(out.data()));
   task_data_stl->outputs_count.emplace_back(out.size());
 
-  kharin_m_multidimensional_integral_calc_stl::TaskSTL task(task_data_stl);
+  kharin_m_multidimensional_integral_calc_all::TaskALL task(task_data_stl);
   ASSERT_TRUE(task.Validation());
   task.PreProcessing();
   task.Run();
@@ -200,7 +200,7 @@ TEST(kharin_m_multidimensional_integral_calc_stl, test_random_data) {
   EXPECT_NEAR(out[0], expected_out, 1e-6);
 }
 
-TEST(kharin_m_multidimensional_integral_calc_stl, test_negative_step) {
+TEST(kharin_m_multidimensional_integral_calc_all, test_negative_step) {
   std::vector<double> in = {1.0, 2.0, 3.0};
   std::vector<size_t> grid_sizes = {3};
   std::vector<double> step_sizes = {-0.5};  // Отрицательный шаг
@@ -216,12 +216,12 @@ TEST(kharin_m_multidimensional_integral_calc_stl, test_negative_step) {
   task_data_stl->outputs.emplace_back(reinterpret_cast<uint8_t*>(out.data()));
   task_data_stl->outputs_count.emplace_back(out.size());
 
-  kharin_m_multidimensional_integral_calc_stl::TaskSTL task(task_data_stl);
+  kharin_m_multidimensional_integral_calc_all::TaskALL task(task_data_stl);
   ASSERT_TRUE(task.Validation());      // Валидация структуры входов проходит
   EXPECT_FALSE(task.PreProcessing());  // Предобработка должна завершиться неудачно из-за отрицательного шага
 }
 
-TEST(kharin_m_multidimensional_integral_calc_stl, test_integral_4d) {
+TEST(kharin_m_multidimensional_integral_calc_all, test_integral_4d) {
   std::vector<double> in(16, 1.0);  // 2x2x2x2 сетка, все значения = 1.0
   std::vector<size_t> grid_sizes = {2, 2, 2, 2};
   std::vector<double> step_sizes = {1.0, 1.0, 1.0, 1.0};
@@ -238,7 +238,7 @@ TEST(kharin_m_multidimensional_integral_calc_stl, test_integral_4d) {
   task_data_stl->outputs.emplace_back(reinterpret_cast<uint8_t*>(out.data()));
   task_data_stl->outputs_count.emplace_back(out.size());
 
-  kharin_m_multidimensional_integral_calc_stl::TaskSTL task(task_data_stl);
+  kharin_m_multidimensional_integral_calc_all::TaskALL task(task_data_stl);
   ASSERT_TRUE(task.Validation());
   task.PreProcessing();
   task.Run();
@@ -247,7 +247,7 @@ TEST(kharin_m_multidimensional_integral_calc_stl, test_integral_4d) {
   EXPECT_DOUBLE_EQ(out[0], expected_out);
 }
 
-TEST(kharin_m_multidimensional_integral_calc_stl, test_integral_5d) {
+TEST(kharin_m_multidimensional_integral_calc_all, test_integral_5d) {
   std::vector<double> in(3 * 2 * 2 * 2 * 2, 2.0);  // 3x2x2x2x2 сетка, все значения = 2.0
   std::vector<size_t> grid_sizes = {3, 2, 2, 2, 2};
   std::vector<double> step_sizes = {0.5, 0.5, 0.5, 0.5, 0.5};
@@ -267,7 +267,7 @@ TEST(kharin_m_multidimensional_integral_calc_stl, test_integral_5d) {
   task_data_stl->outputs.emplace_back(reinterpret_cast<uint8_t*>(out.data()));
   task_data_stl->outputs_count.emplace_back(out.size());
 
-  kharin_m_multidimensional_integral_calc_stl::TaskSTL task(task_data_stl);
+  kharin_m_multidimensional_integral_calc_all::TaskALL task(task_data_stl);
   ASSERT_TRUE(task.Validation());
   task.PreProcessing();
   task.Run();
