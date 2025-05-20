@@ -43,7 +43,7 @@ bool TrapezoidalMethodALL::PreProcessingImpl() {
   return true;
 }
 bool TrapezoidalMethodALL::RunImpl() {
-  res_ = TrapezoidalMethodOmp(data_.bounds, 50);
+  res_ = TrapezoidalMethodOmp(data_.bounds, 100);
 
   return true;
 }
