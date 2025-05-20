@@ -73,7 +73,7 @@ TEST(kozlova_e_contrast_enhancement_all, test_pipeline_run) {
     uint8_t max_value = *std::ranges::max_element(in);
 
     for (size_t i = 0; i < in.size(); ++i) {
-      uint8_t expected = static_cast<uint8_t>(((in[i] - min_value) / (double)(max_value - min_value)) * 255);
+      auto expected = static_cast<uint8_t>(((in[i] - min_value) / (double)(max_value - min_value)) * 255);
       expected = std::clamp((int)expected, 0, 255);
       EXPECT_EQ(out[i], expected);
     }
@@ -127,7 +127,7 @@ TEST(kozlova_e_contrast_enhancement_all, test_task_run) {
     uint8_t max_value = *std::ranges::max_element(in);
 
     for (size_t i = 0; i < in.size(); ++i) {
-      uint8_t expected = static_cast<uint8_t>(((in[i] - min_value) / (double)(max_value - min_value)) * 255);
+      auto expected = static_cast<uint8_t>(((in[i] - min_value) / (double)(max_value - min_value)) * 255);
       expected = std::clamp((int)expected, 0, 255);
       EXPECT_EQ(out[i], expected);
     }

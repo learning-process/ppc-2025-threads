@@ -73,8 +73,8 @@ bool kozlova_e_contrast_enhancement_all::TestTaskAll::RunImpl() {
     local_max = *std::ranges::max_element(local_input);
   }
 
-  uint8_t global_min;
-  uint8_t global_max;
+  uint8_t global_min = 0;
+  uint8_t global_max = 0;
 
   boost::mpi::all_reduce(world_, local_min, global_min, boost::mpi::minimum<uint8_t>());
   boost::mpi::all_reduce(world_, local_max, global_max, boost::mpi::maximum<uint8_t>());

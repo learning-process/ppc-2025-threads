@@ -34,7 +34,7 @@ std::shared_ptr<ppc::core::TaskData> CreateTaskData(std::vector<uint8_t>& in, st
 }
 
 void TestRun(std::vector<uint8_t> in, std::vector<uint8_t> out, size_t width, size_t height,
-             boost::mpi::communicator world) {
+             const boost::mpi::communicator& world) {
   std::shared_ptr<ppc::core::TaskData> task_data_all = std::make_shared<ppc::core::TaskData>();
   if (world.rank() == 0) {
     task_data_all = CreateTaskData(in, out, width, height);
@@ -60,7 +60,7 @@ void TestRun(std::vector<uint8_t> in, std::vector<uint8_t> out, size_t width, si
 }
 
 void TestValidation(std::vector<uint8_t> in, std::vector<uint8_t> out, size_t width, size_t height,
-                    boost::mpi::communicator world) {
+                    const boost::mpi::communicator& world) {
   std::shared_ptr<ppc::core::TaskData> task_data_all = std::make_shared<ppc::core::TaskData>();
   if (world.rank() == 0) {
     task_data_all = CreateTaskData(in, out, width, height);
