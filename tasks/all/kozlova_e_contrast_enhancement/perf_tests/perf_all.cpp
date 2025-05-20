@@ -19,7 +19,7 @@ std::vector<uint8_t> GenerateVector(size_t length);
 std::vector<uint8_t> GenerateVector(size_t length) {
   std::vector<uint8_t> vec;
   vec.reserve(length);
-  for (int i = 0; i < length; ++i) {
+  for (size_t i = 0; i < length; ++i) {
     vec.push_back(rand() % 256);
   }
   return vec;
