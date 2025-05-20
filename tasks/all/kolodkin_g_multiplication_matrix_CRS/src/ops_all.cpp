@@ -262,7 +262,7 @@ bool kolodkin_g_multiplication_matrix_all::TestTaskALL::RunImpl() {
 
     std::vector<CoordVal> all_results;
     all_results.reserve(total_bytes / sizeof(CoordVal));
-    auto *ptr = reinterpret_cast<CoordVal*>(recv_buffer.data());
+    auto* ptr = reinterpret_cast<CoordVal*>(recv_buffer.data());
     size_t count_coords = total_bytes / sizeof(CoordVal);
     for (size_t i = 0; i < count_coords; ++i) {
       all_results.push_back(ptr[i]);
