@@ -173,31 +173,38 @@ bool odintsov_m_mulmatrix_cannon_tbb::MulMatrixCannonTBB::RunImpl() {
   InitializeShift(matrixA_, root, grid_size, block_sz_, true);
   InitializeShift(matrixB_, root, grid_size, block_sz_, false);
 
-  tbb::mutex mtx;
   for (int step = 0; step < grid_size; step++) {
-    // Параллельное выполнение по блокам по строкам (bi)
-    tbb::parallel_for(0, num_blocks, [&](int bi) {
-      std::vector<double> local_block_a(block_sz_ * block_sz_, 0);
-      std::vector<double> local_block_b(block_sz_ * block_sz_, 0);
+    tbb::parallel_for(tbb::blocked_range2d<int>(0, num_blocks, 0, num_blocks), [&](const tbb::blocked_range2d<int>& r) {
+      std::vector<double> local_block_a(block_sz_ * block_sz_);
+      std::vector<double> local_block_b(block_sz_ * block_sz_);
+      std::vector<double> local_result(block_sz_ * block_sz_, 0);
 
-      for (int bj = 0; bj < num_blocks; bj++) {
-        int start = ((bi * block_sz_) * root) + (bj * block_sz_);
-        // Копируем блоки локально из глобальных матриц
-        CopyBlock(matrixA_, local_block_a, start, root, block_sz_);
-        CopyBlock(matrixB_, local_block_b, start, root, block_sz_);
+      for (int bi = r.rows().begin(); bi != r.rows().end(); ++bi) {
+        for (int bj = r.cols().begin(); bj != r.cols().end(); ++bj) {
+          int start = ((bi * block_sz_) * root) + (bj * block_sz_);
 
-        // Вычисляем произведение блоков
-        for (int i = 0; i < block_sz_; i++) {
-          for (int k = 0; k < block_sz_; k++) {
-            double a_ik = local_block_a[(i * block_sz_) + k];
-            for (int j = 0; j < block_sz_; j++) {
-              int index = ((bi * block_sz_ + i) * root) + (bj * block_sz_ + j);
-              {
-                tbb::mutex::scoped_lock lock(mtx);
-                matrixC_[index] += a_ik * local_block_b[(k * block_sz_) + j];
+          // Копируем блоки локально
+          CopyBlock(matrixA_, local_block_a, start, root, block_sz_);
+          CopyBlock(matrixB_, local_block_b, start, root, block_sz_);
+
+          // Вычисляем произведение блоков
+          for (int i = 0; i < block_sz_; i++) {
+            for (int k = 0; k < block_sz_; k++) {
+              double a_ik = local_block_a[i * block_sz_ + k];
+              for (int j = 0; j < block_sz_; j++) {
+                local_result[i * block_sz_ + j] += a_ik * local_block_b[k * block_sz_ + j];
               }
             }
           }
+
+          // Записываем результат
+          for (int i = 0; i < block_sz_; i++) {
+            for (int j = 0; j < block_sz_; j++) {
+              int index = ((bi * block_sz_ + i) * root) + (bj * block_sz_ + j);
+              matrixC_[index] += local_result[i * block_sz_ + j];
+            }
+          }
+          std::fill(local_result.begin(), local_result.end(), 0);
         }
       }
     });
