@@ -55,7 +55,7 @@ bool golovkin_contrast_stretching::ContrastStretchingSTL<PixelType>::RunImpl() {
     size_t start = t * chunk_size;
     size_t end = (t == num_threads - 1) ? image_size_ : start + chunk_size;
 
-    threads.emplace_back([=] {
+    threads.emplace_back([=, this] {
       for (size_t i = start; i < end; ++i) {
         double stretched = (input_image_[i] - min_val_) * scale;
 
