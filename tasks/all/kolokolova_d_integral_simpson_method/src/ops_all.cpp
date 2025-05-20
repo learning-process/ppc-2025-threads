@@ -1,5 +1,7 @@
 #include "all/kolokolova_d_integral_simpson_method/include/ops_all.hpp"
 
+#include <oneapi/tbb/parallel_for.h>
+
 #include <cmath>
 #include <cstddef>
 #include <functional>
@@ -8,8 +10,6 @@
 #include <vector>
 
 #include "core/util/include/util.hpp"
-#include "oneapi/tbb/task_arena.h"
-#include "oneapi/tbb/task_group.h"
 
 bool kolokolova_d_integral_simpson_method_all::TestTaskALL::PreProcessingImpl() {
   if (world_.rank() == 0) {
@@ -50,21 +50,26 @@ bool kolokolova_d_integral_simpson_method_all::TestTaskALL::ValidationImpl() {
 
 bool kolokolova_d_integral_simpson_method_all::TestTaskALL::RunImpl() {
   if (world_.rank() == 0) {
-    //  Find size of step
+    //   Find size of step
     size_step.resize(nums_variables_);
-    for (int i = 0; i < nums_variables_; i++) {
-      double a = (double((borders_[(2 * i) + 1] - borders_[2 * i])) / double(steps_[i]));
-      size_step[i] = a;
-    }
-    //  Create vector of points
-    for (int i = 0; i < nums_variables_; i++) {
-      std::vector<double> vec;
-      for (int j = 0; j < steps_[i] + 1; j++) {
-        auto num = double(borders_[2 * i] + (double(j) * size_step[i]));
-        vec.push_back(num);
+    tbb::parallel_for(tbb::blocked_range<int>(0, nums_variables_), [&](const tbb::blocked_range<int>& r) {
+      for (int i = r.begin(); i < r.end(); ++i) {
+        double a = (double((borders_[(2 * i) + 1] - borders_[2 * i])) / double(steps_[i]));
+        size_step[i] = a;
       }
-      points.push_back(vec);
-    }
+    });
+    //  Create vector of points
+    points.resize(nums_variables_);
+    tbb::parallel_for(tbb::blocked_range<int>(0, nums_variables_), [&](const tbb::blocked_range<int>& r) {
+      for (int i = r.begin(); i < r.end(); ++i) {
+        std::vector<double> vec;
+        for (int j = 0; j < steps_[i] + 1; ++j) {
+          auto num = double(borders_[2 * i] + (double(j) * size_step[i]));
+          vec.push_back(num);
+        }
+        points[i] = vec;
+      }
+    });
     results_func.resize(int(points.size()));
     coeff.resize(steps_[0]);
     results_func = FindFunctionValue(points, func_);
@@ -122,20 +127,19 @@ bool kolokolova_d_integral_simpson_method_all::TestTaskALL::RunImpl() {
 
   int function_vec_size = int(local_results_func.size());
 
-  // initial multiplication
-  for (int i = 0; i < function_vec_size; ++i) {
-    local_results_func[i] *= local_coeff[i];
-  }
+  tbb::parallel_for(0, function_vec_size, [&](int i) { local_results_func[i] *= local_coeff[i % local_coeff.size()]; });
 
   gather(world_, local_results_func.data(), size_local_results_func, results_func, 0);
 
   if (world_.rank() == 0) {
     for (int iteration = 1; iteration < nums_variables_; ++iteration) {
-      for (int i = 0; i < int(results_func.size()); ++i) {
-        int block_size = iteration * int(coeff.size());
-        int current_n_index = (i / block_size) % int(coeff.size());
-        results_func[i] *= coeff[current_n_index];
-      }
+      tbb::parallel_for(tbb::blocked_range<size_t>(0, results_func.size()), [&](const tbb::blocked_range<size_t>& r) {
+        for (size_t i = r.begin(); i < r.end(); ++i) {
+          int block_size = iteration * int(coeff.size());
+          int current_n_index = (i / block_size) % int(coeff.size());
+          results_func[i] *= coeff[current_n_index];
+        }
+      });
     }
   }
 
