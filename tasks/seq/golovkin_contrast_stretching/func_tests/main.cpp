@@ -21,7 +21,7 @@ TEST(golovkin_contrast_stretching_seq, test_contrast_basic) {
   task_data->outputs.emplace_back(reinterpret_cast<uint8_t *>(out.data()));
   task_data->outputs_count.emplace_back(out.size());
 
-  golovkin_contrast_stretching::ContrastStretchingSTL task(task_data);
+  golovkin_contrast_stretching::ContrastStretchingSeq task(task_data);
   ASSERT_TRUE(task.Validation());
   ASSERT_TRUE(task.PreProcessing());
   ASSERT_TRUE(task.Run());
@@ -42,7 +42,7 @@ TEST(golovkin_contrast_stretching_seq, test_contrast_flat_image) {
   task_data->outputs.emplace_back(reinterpret_cast<uint8_t *>(out.data()));
   task_data->outputs_count.emplace_back(out.size());
 
-  golovkin_contrast_stretching::ContrastStretchingSTL task(task_data);
+  golovkin_contrast_stretching::ContrastStretchingSeq task(task_data);
   ASSERT_TRUE(task.Validation());
   ASSERT_TRUE(task.PreProcessing());
   ASSERT_TRUE(task.Run());
@@ -63,7 +63,7 @@ TEST(golovkin_contrast_stretching_seq, test_all_maximum) {
   task_data->outputs.emplace_back(reinterpret_cast<uint8_t *>(out.data()));
   task_data->outputs_count.emplace_back(out.size());
 
-  golovkin_contrast_stretching::ContrastStretchingSTL task(task_data);
+  golovkin_contrast_stretching::ContrastStretchingSeq task(task_data);
   ASSERT_TRUE(task.Validation());
   ASSERT_TRUE(task.PreProcessing());
   ASSERT_TRUE(task.Run());
@@ -87,7 +87,7 @@ TEST(golovkin_contrast_stretching_seq, test_gradient_image) {
   task_data->outputs.emplace_back(reinterpret_cast<uint8_t *>(out.data()));
   task_data->outputs_count.emplace_back(out.size());
 
-  golovkin_contrast_stretching::ContrastStretchingSTL task(task_data);
+  golovkin_contrast_stretching::ContrastStretchingSeq task(task_data);
   ASSERT_TRUE(task.Validation());
   ASSERT_TRUE(task.PreProcessing());
   ASSERT_TRUE(task.Run());
@@ -107,7 +107,7 @@ TEST(golovkin_contrast_stretching_seq, test_small_range) {
   task_data->outputs.emplace_back(reinterpret_cast<uint8_t *>(out.data()));
   task_data->outputs_count.emplace_back(out.size());
 
-  golovkin_contrast_stretching::ContrastStretchingSTL task(task_data);
+  golovkin_contrast_stretching::ContrastStretchingSeq task(task_data);
   ASSERT_TRUE(task.Validation());
   ASSERT_TRUE(task.PreProcessing());
   ASSERT_TRUE(task.Run());
@@ -127,7 +127,7 @@ TEST(golovkin_contrast_stretching_seq, test_extreme_values_only) {
   task_data->outputs.emplace_back(reinterpret_cast<uint8_t *>(out.data()));
   task_data->outputs_count.emplace_back(out.size());
 
-  golovkin_contrast_stretching::ContrastStretchingSTL task(task_data);
+  golovkin_contrast_stretching::ContrastStretchingSeq task(task_data);
   ASSERT_TRUE(task.Validation());
   ASSERT_TRUE(task.PreProcessing());
   ASSERT_TRUE(task.Run());
@@ -147,7 +147,7 @@ TEST(golovkin_contrast_stretching_seq, test_min_max_near_extremes) {
   task_data->outputs.emplace_back(reinterpret_cast<uint8_t *>(out.data()));
   task_data->outputs_count.emplace_back(out.size());
 
-  golovkin_contrast_stretching::ContrastStretchingSTL task(task_data);
+  golovkin_contrast_stretching::ContrastStretchingSeq task(task_data);
   ASSERT_TRUE(task.Validation());
   ASSERT_TRUE(task.PreProcessing());
   ASSERT_TRUE(task.Run());
@@ -167,7 +167,7 @@ TEST(golovkin_contrast_stretching_seq, test_alternating_values) {
   task_data->outputs.emplace_back(reinterpret_cast<uint8_t *>(out.data()));
   task_data->outputs_count.emplace_back(out.size());
 
-  golovkin_contrast_stretching::ContrastStretchingSTL task(task_data);
+  golovkin_contrast_stretching::ContrastStretchingSeq task(task_data);
   ASSERT_TRUE(task.Validation());
   ASSERT_TRUE(task.PreProcessing());
   ASSERT_TRUE(task.Run());
@@ -187,7 +187,7 @@ TEST(golovkin_contrast_stretching_seq, test_all_zeros) {
   task_data->outputs.emplace_back(reinterpret_cast<uint8_t *>(out.data()));
   task_data->outputs_count.emplace_back(out.size());
 
-  golovkin_contrast_stretching::ContrastStretchingSTL task(task_data);
+  golovkin_contrast_stretching::ContrastStretchingSeq task(task_data);
   ASSERT_TRUE(task.Validation());
   ASSERT_TRUE(task.PreProcessing());
   ASSERT_TRUE(task.Run());
@@ -212,7 +212,7 @@ TEST(golovkin_contrast_stretching_seq, test_random_mid_range_values) {
   task_data->outputs.emplace_back(reinterpret_cast<uint8_t *>(out.data()));
   task_data->outputs_count.emplace_back(out.size());
 
-  golovkin_contrast_stretching::ContrastStretchingSTL task(task_data);
+  golovkin_contrast_stretching::ContrastStretchingSeq task(task_data);
   ASSERT_TRUE(task.Validation());
   ASSERT_TRUE(task.PreProcessing());
   ASSERT_TRUE(task.Run());
@@ -231,7 +231,7 @@ TEST(golovkin_contrast_stretching_seq, test_empty_input) {
   task_data->outputs.emplace_back(reinterpret_cast<uint8_t *>(out.data()));
   task_data->outputs_count.emplace_back(out.size());
 
-  golovkin_contrast_stretching::ContrastStretchingSTL task(task_data);
+  golovkin_contrast_stretching::ContrastStretchingSeq task(task_data);
   ASSERT_TRUE(task.Validation());
   ASSERT_TRUE(task.PreProcessing());
   ASSERT_TRUE(task.Run());
@@ -251,7 +251,7 @@ TEST(golovkin_contrast_stretching_seq, test_uint16_pixels) {
   task_data->outputs.emplace_back(reinterpret_cast<uint8_t *>(out.data()));
   task_data->outputs_count.emplace_back(out.size() * sizeof(uint16_t));
 
-  golovkin_contrast_stretching::ContrastStretchingSTL<uint16_t> task(task_data);
+  golovkin_contrast_stretching::ContrastStretchingSeq<uint16_t> task(task_data);
   ASSERT_TRUE(task.Validation());
   ASSERT_TRUE(task.PreProcessing());
   ASSERT_TRUE(task.Run());

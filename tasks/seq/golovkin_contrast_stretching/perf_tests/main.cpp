@@ -7,7 +7,7 @@
 #include <vector>
 
 #include "core/task/include/task.hpp"
-#include "seq/golovkin_contrast_stretching/include/ops_stl.hpp"
+#include "seq/golovkin_contrast_stretching/include/ops_seq.hpp"
 
 TEST(golovkin_contrast_stretching_seq, test_pipeline_run) {
   constexpr size_t kCount = 1'000'000;
@@ -25,7 +25,7 @@ TEST(golovkin_contrast_stretching_seq, test_pipeline_run) {
   task_data_stl->outputs.emplace_back(reinterpret_cast<uint8_t *>(out.data()));
   task_data_stl->outputs_count.emplace_back(out.size());
 
-  golovkin_contrast_stretching::ContrastStretchingSTL task(task_data_stl);
+  golovkin_contrast_stretching::ContrastStretchingSeq task(task_data_stl);
 
   ASSERT_TRUE(task.Validation());
   task.PreProcessing();
@@ -52,7 +52,7 @@ TEST(golovkin_contrast_stretching_seq, test_task_run) {
   task_data_stl->outputs.emplace_back(reinterpret_cast<uint8_t *>(out.data()));
   task_data_stl->outputs_count.emplace_back(out.size());
 
-  golovkin_contrast_stretching::ContrastStretchingSTL task(task_data_stl);
+  golovkin_contrast_stretching::ContrastStretchingSeq task(task_data_stl);
 
   ASSERT_TRUE(task.Validation());
   task.PreProcessing();
