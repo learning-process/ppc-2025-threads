@@ -34,7 +34,7 @@ void ShellSortSTL::ShellSort() {
 
   int n = static_cast<int>(input_.size());
   for (int gap = n / 2; gap > 0; gap /= 2) {
-    int num_threads = std::min(static_cast<int>(std::thread::hardware_concurrency()), gap);
+    int num_threads = std::min(ppc::util::GetPPCNumThreads(), gap);
     std::vector<std::thread> threads;
     threads.reserve(num_threads);
 
