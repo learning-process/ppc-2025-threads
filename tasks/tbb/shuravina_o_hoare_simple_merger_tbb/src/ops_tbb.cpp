@@ -3,8 +3,11 @@
 #include <tbb/parallel_invoke.h>
 
 #include <algorithm>
+#include <cstddef>
 #include <cstdint>
+#include <memory>
 #include <utility>
+#include <vector>
 
 namespace shuravina_o_hoare_simple_merger_tbb {
 
@@ -19,7 +22,9 @@ bool HoareSortTBB::Run() { return RunImpl(); }
 bool HoareSortTBB::PostProcessing() { return PostProcessingImpl(); }
 
 bool HoareSortTBB::ValidationImpl() {
-  if (!task_data) return false;
+  if (!task_data) {
+    return false;
+  }
   return task_data->inputs_count.size() == 1 && task_data->outputs_count.size() == 1 &&
          task_data->inputs_count[0] == task_data->outputs_count[0];
 }
@@ -39,7 +44,9 @@ bool HoareSortTBB::PreProcessingImpl() {
 }
 
 bool HoareSortTBB::RunImpl() {
-  if (data_.empty()) return false;
+  if (data_.empty()) {
+    return false;
+  }
 
   try {
     ParallelQuickSort(data_.data(), 0, data_.size() - 1);

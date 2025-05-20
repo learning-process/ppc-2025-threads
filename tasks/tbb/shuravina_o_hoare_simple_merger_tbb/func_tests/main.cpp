@@ -53,11 +53,11 @@ TEST(shuravina_o_hoare_simple_merger_tbb, test_random_array) {
   task_data_tbb->outputs.emplace_back(reinterpret_cast<uint8_t*>(out.data()));
   task_data_tbb->outputs_count.emplace_back(out.size());
 
-  shuravina_o_hoare_simple_merger_tbb::TestTaskTBB test_task_tbb(task_data_tbb);
-  ASSERT_EQ(test_task_tbb.Validation(), true);
-  test_task_tbb.PreProcessing();
-  test_task_tbb.Run();
-  test_task_tbb.PostProcessing();
+  auto sorter = std::make_shared<shuravina_o_hoare_simple_merger_tbb::HoareSortTBB>(task_data_tbb);
+  ASSERT_EQ(sorter->Validation(), true);
+  sorter->PreProcessing();
+  sorter->Run();
+  sorter->PostProcessing();
 
   ASSERT_TRUE(IsSorted(out));
 }
@@ -72,11 +72,11 @@ TEST(shuravina_o_hoare_simple_merger_tbb, test_empty_array) {
   task_data_tbb->outputs.emplace_back(reinterpret_cast<uint8_t*>(out.data()));
   task_data_tbb->outputs_count.emplace_back(out.size());
 
-  shuravina_o_hoare_simple_merger_tbb::TestTaskTBB test_task_tbb(task_data_tbb);
-  ASSERT_EQ(test_task_tbb.Validation(), true);
-  test_task_tbb.PreProcessing();
-  test_task_tbb.Run();
-  test_task_tbb.PostProcessing();
+  auto sorter = std::make_shared<shuravina_o_hoare_simple_merger_tbb::HoareSortTBB>(task_data_tbb);
+  ASSERT_EQ(sorter->Validation(), true);
+  sorter->PreProcessing();
+  sorter->Run();
+  sorter->PostProcessing();
 
   EXPECT_EQ(out, in);
 }
@@ -91,11 +91,11 @@ TEST(shuravina_o_hoare_simple_merger_tbb, test_sorted_array) {
   task_data_tbb->outputs.emplace_back(reinterpret_cast<uint8_t*>(out.data()));
   task_data_tbb->outputs_count.emplace_back(out.size());
 
-  shuravina_o_hoare_simple_merger_tbb::TestTaskTBB test_task_tbb(task_data_tbb);
-  ASSERT_EQ(test_task_tbb.Validation(), true);
-  test_task_tbb.PreProcessing();
-  test_task_tbb.Run();
-  test_task_tbb.PostProcessing();
+  auto sorter = std::make_shared<shuravina_o_hoare_simple_merger_tbb::HoareSortTBB>(task_data_tbb);
+  ASSERT_EQ(sorter->Validation(), true);
+  sorter->PreProcessing();
+  sorter->Run();
+  sorter->PostProcessing();
 
   EXPECT_EQ(out, in);
 }
