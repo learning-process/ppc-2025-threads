@@ -8,9 +8,9 @@
 #include "core/perf/include/perf.hpp"
 #include "core/task/include/task.hpp"
 
-using namespace khasanyanov_k_trapezoid_method_mpi;
+using namespace khasanyanov_k_trapezoid_method_all;
 
-TEST(khasanyanov_k_trapezoid_method_mpi, test_pipeline_run) {
+TEST(khasanyanov_k_trapezoid_method_all, test_pipeline_run) {
   constexpr double kPrecision = 0.01;
   double result{};
   auto f = [](const std::vector<double>& x) -> double {
@@ -21,9 +21,9 @@ TEST(khasanyanov_k_trapezoid_method_mpi, test_pipeline_run) {
 
   auto task_data_seq = std::make_shared<ppc::core::TaskData>();
   TaskContext context{.function = f, .bounds = bounds, .precision = kPrecision};
-  TrapezoidalMethodMPI::CreateTaskData(task_data_seq, context, &result);
+  TrapezoidalMethodALL::CreateTaskData(task_data_seq, context, &result);
 
-  auto task = std::make_shared<TrapezoidalMethodMPI>(task_data_seq, f);
+  auto task = std::make_shared<TrapezoidalMethodALL>(task_data_seq, f);
 
   auto perf_attr = std::make_shared<ppc::core::PerfAttr>();
   perf_attr->num_running = 10;
@@ -41,7 +41,7 @@ TEST(khasanyanov_k_trapezoid_method_mpi, test_pipeline_run) {
   ppc::core::Perf::PrintPerfStatistic(perf_results);
 }
 
-TEST(khasanyanov_k_trapezoid_method_mpi, test_task_run) {
+TEST(khasanyanov_k_trapezoid_method_all, test_task_run) {
   constexpr double kPrecision = 0.01;
   double result{};
   auto f = [](const std::vector<double>& x) -> double {
@@ -52,9 +52,9 @@ TEST(khasanyanov_k_trapezoid_method_mpi, test_task_run) {
 
   auto task_data_seq = std::make_shared<ppc::core::TaskData>();
   TaskContext context{.function = f, .bounds = bounds, .precision = kPrecision};
-  TrapezoidalMethodMPI::CreateTaskData(task_data_seq, context, &result);
+  TrapezoidalMethodALL::CreateTaskData(task_data_seq, context, &result);
 
-  auto task = std::make_shared<TrapezoidalMethodMPI>(task_data_seq, f);
+  auto task = std::make_shared<TrapezoidalMethodALL>(task_data_seq, f);
 
   auto perf_attr = std::make_shared<ppc::core::PerfAttr>();
   perf_attr->num_running = 10;

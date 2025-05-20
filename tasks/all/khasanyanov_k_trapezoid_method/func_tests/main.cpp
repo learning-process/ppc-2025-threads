@@ -8,9 +8,9 @@
 #include "boost/mpi/communicator.hpp"
 #include "core/task/include/task.hpp"
 
-using namespace khasanyanov_k_trapezoid_method_mpi;
+using namespace khasanyanov_k_trapezoid_method_all;
 
-TEST(khasanyanov_k_trapezoid_method_mpi, test_integrate_1) {
+TEST(khasanyanov_k_trapezoid_method_all, test_integrate_1) {
   boost::mpi::communicator world;
   constexpr double kPrecision = 0.01;
   double result{};
@@ -20,8 +20,8 @@ TEST(khasanyanov_k_trapezoid_method_mpi, test_integrate_1) {
 
   auto task_data_seq = std::make_shared<ppc::core::TaskData>();
   TaskContext context{.function = f, .bounds = bounds, .precision = kPrecision};
-  TrapezoidalMethodMPI::CreateTaskData(task_data_seq, context, &result);
-  TrapezoidalMethodMPI task(task_data_seq, f);
+  TrapezoidalMethodALL::CreateTaskData(task_data_seq, context, &result);
+  TrapezoidalMethodALL task(task_data_seq, f);
 
   ASSERT_TRUE(task.Validation());
 
@@ -33,7 +33,7 @@ TEST(khasanyanov_k_trapezoid_method_mpi, test_integrate_1) {
   }
 }
 
-TEST(khasanyanov_k_trapezoid_method_mpi, test_integrate_2) {
+TEST(khasanyanov_k_trapezoid_method_all, test_integrate_2) {
   boost::mpi::communicator world;
   constexpr double kPrecision = 0.01;
   double result{};
@@ -43,8 +43,8 @@ TEST(khasanyanov_k_trapezoid_method_mpi, test_integrate_2) {
 
   auto task_data_seq = std::make_shared<ppc::core::TaskData>();
   TaskContext context{.function = f, .bounds = bounds, .precision = kPrecision};
-  TrapezoidalMethodMPI::CreateTaskData(task_data_seq, context, &result);
-  TrapezoidalMethodMPI task(task_data_seq, f);
+  TrapezoidalMethodALL::CreateTaskData(task_data_seq, context, &result);
+  TrapezoidalMethodALL task(task_data_seq, f);
 
   ASSERT_TRUE(task.Validation());
 
@@ -56,7 +56,7 @@ TEST(khasanyanov_k_trapezoid_method_mpi, test_integrate_2) {
   }
 }
 
-TEST(khasanyanov_k_trapezoid_method_mpi, test_integrate_3) {
+TEST(khasanyanov_k_trapezoid_method_all, test_integrate_3) {
   boost::mpi::communicator world;
   constexpr double kPrecision = 0.01;
   double result{};
@@ -66,8 +66,8 @@ TEST(khasanyanov_k_trapezoid_method_mpi, test_integrate_3) {
 
   auto task_data_seq = std::make_shared<ppc::core::TaskData>();
   TaskContext context{.function = f, .bounds = bounds, .precision = kPrecision};
-  TrapezoidalMethodMPI::CreateTaskData(task_data_seq, context, &result);
-  TrapezoidalMethodMPI task(task_data_seq, f);
+  TrapezoidalMethodALL::CreateTaskData(task_data_seq, context, &result);
+  TrapezoidalMethodALL task(task_data_seq, f);
 
   ASSERT_TRUE(task.Validation());
 
@@ -79,7 +79,7 @@ TEST(khasanyanov_k_trapezoid_method_mpi, test_integrate_3) {
   }
 }
 
-TEST(khasanyanov_k_trapezoid_method_mpi, test_integrate_4) {
+TEST(khasanyanov_k_trapezoid_method_all, test_integrate_4) {
   boost::mpi::communicator world;
   constexpr double kPrecision = 0.01;
   double result{};
@@ -89,8 +89,8 @@ TEST(khasanyanov_k_trapezoid_method_mpi, test_integrate_4) {
 
   auto task_data_seq = std::make_shared<ppc::core::TaskData>();
   TaskContext context{.function = f, .bounds = bounds, .precision = kPrecision};
-  TrapezoidalMethodMPI::CreateTaskData(task_data_seq, context, &result);
-  TrapezoidalMethodMPI task(task_data_seq, f);
+  TrapezoidalMethodALL::CreateTaskData(task_data_seq, context, &result);
+  TrapezoidalMethodALL task(task_data_seq, f);
 
   ASSERT_TRUE(task.Validation());
 
@@ -102,7 +102,7 @@ TEST(khasanyanov_k_trapezoid_method_mpi, test_integrate_4) {
   }
 }
 
-TEST(khasanyanov_k_trapezoid_method_mpi, test_invalid_input) {
+TEST(khasanyanov_k_trapezoid_method_all, test_invalid_input) {
   boost::mpi::communicator world;
   constexpr double kPrecision = 0.01;
   auto f = [](const std::vector<double>& x) -> double { return sin(x[0]) - x[1]; };
@@ -111,8 +111,8 @@ TEST(khasanyanov_k_trapezoid_method_mpi, test_invalid_input) {
 
   auto task_data_seq = std::make_shared<ppc::core::TaskData>();
   TaskContext context{.function = f, .bounds = bounds, .precision = kPrecision};
-  TrapezoidalMethodMPI::CreateTaskData(task_data_seq, context, nullptr);
-  TrapezoidalMethodMPI task(task_data_seq, f);
+  TrapezoidalMethodALL::CreateTaskData(task_data_seq, context, nullptr);
+  TrapezoidalMethodALL task(task_data_seq, f);
 
   if (world.rank() == 0) {
     ASSERT_FALSE(task.Validation());

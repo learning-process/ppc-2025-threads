@@ -15,12 +15,12 @@
 #include "boost/mpi/collectives/reduce.hpp"
 #include "core/task/include/task.hpp"
 
-using namespace khasanyanov_k_trapezoid_method_mpi;
+using namespace khasanyanov_k_trapezoid_method_all;
 
-const int TrapezoidalMethodMPI::kDefaultSteps = 10;
-const int TrapezoidalMethodMPI::kMaxSteps = 250;
+const int TrapezoidalMethodALL::kDefaultSteps = 10;
+const int TrapezoidalMethodALL::kMaxSteps = 250;
 
-void TrapezoidalMethodMPI::CreateTaskData(std::shared_ptr<ppc::core::TaskData> &task_data, TaskContext &context,
+void TrapezoidalMethodALL::CreateTaskData(std::shared_ptr<ppc::core::TaskData> &task_data, TaskContext &context,
                                           double *out) {
   task_data->inputs.emplace_back(reinterpret_cast<uint8_t *>(&context));
   task_data->inputs_count.emplace_back(context.bounds.size());
@@ -28,7 +28,7 @@ void TrapezoidalMethodMPI::CreateTaskData(std::shared_ptr<ppc::core::TaskData> &
   task_data->outputs_count.emplace_back(1);
 }
 
-bool TrapezoidalMethodMPI::ValidationImpl() {
+bool TrapezoidalMethodALL::ValidationImpl() {
   if (comm_.rank() == 0) {
     auto *data = reinterpret_cast<TaskContext *>(task_data->inputs[0]);
     return data != nullptr && task_data->inputs_count[0] > 0 && task_data->outputs[0] != nullptr;
@@ -36,25 +36,25 @@ bool TrapezoidalMethodMPI::ValidationImpl() {
   return true;
 }
 
-bool TrapezoidalMethodMPI::PreProcessingImpl() {
+bool TrapezoidalMethodALL::PreProcessingImpl() {
   if (comm_.rank() == 0) {
     data_ = *reinterpret_cast<TaskContext *>(task_data->inputs[0]);
   }
   return true;
 }
-bool TrapezoidalMethodMPI::RunImpl() {
+bool TrapezoidalMethodALL::RunImpl() {
   res_ = TrapezoidalMethodOmp(data_.bounds, 50);
 
   return true;
 }
-bool TrapezoidalMethodMPI::PostProcessingImpl() {
+bool TrapezoidalMethodALL::PostProcessingImpl() {
   if (comm_.rank() == 0) {
     *reinterpret_cast<double *>(task_data->outputs[0]) = res_;
   }
   return true;
 }
 
-double TrapezoidalMethodMPI::TrapezoidalMethodOmp(const IntegrationBounds &bounds, int steps) {
+double TrapezoidalMethodALL::TrapezoidalMethodOmp(const IntegrationBounds &bounds, int steps) {
   const int rank = comm_.rank();
   const int size = comm_.size();
 

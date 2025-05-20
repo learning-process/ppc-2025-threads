@@ -1,5 +1,5 @@
-#ifndef INTEGRATE_MPI_HPP
-#define INTEGRATE_MPI_HPP
+#ifndef INTEGRATE_ALL_HPP
+#define INTEGRATE_ALL_HPP
 
 #include <functional>
 #include <memory>
@@ -9,7 +9,7 @@
 #include "boost/mpi/communicator.hpp"
 #include "core/task/include/task.hpp"
 
-namespace khasanyanov_k_trapezoid_method_mpi {
+namespace khasanyanov_k_trapezoid_method_all {
 
 using IntegrationFunction = std::function<double(const std::vector<double> &)>;
 using Bounds = std::pair<double, double>;
@@ -21,9 +21,9 @@ struct TaskContext {
   double precision;
 };
 
-class TrapezoidalMethodMPI : public ppc::core::Task {
+class TrapezoidalMethodALL : public ppc::core::Task {
  public:
-  explicit TrapezoidalMethodMPI(ppc::core::TaskDataPtr task_data, IntegrationFunction function)
+  explicit TrapezoidalMethodALL(ppc::core::TaskDataPtr task_data, IntegrationFunction function)
       : Task(std::move(task_data)), function_(std::move(function)) {}
   bool PreProcessingImpl() override;
   bool ValidationImpl() override;
@@ -44,6 +44,6 @@ class TrapezoidalMethodMPI : public ppc::core::Task {
   double res_{};
 };
 
-}  // namespace khasanyanov_k_trapezoid_method_mpi
+}  // namespace khasanyanov_k_trapezoid_method_all
 
 #endif
