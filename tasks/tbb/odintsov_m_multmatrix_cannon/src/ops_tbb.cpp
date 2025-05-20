@@ -1,7 +1,6 @@
 #include "tbb/odintsov_m_multmatrix_cannon/include/ops_tbb.hpp"
 
 #include <oneapi/tbb/global_control.h>
-#include <oneapi/tbb/mutex.h>
 #include <oneapi/tbb/parallel_for.h>
 #include <tbb/tbb.h>
 
@@ -145,6 +144,37 @@ bool odintsov_m_mulmatrix_cannon_tbb::MulMatrixCannonTBB::PreProcessingImpl() {
   block_sz_ = GetBlockSize(static_cast<int>(sqrt(szA_)));
   return true;
 }
+void MulMatrixCannonTBB::MultiplyBlock(int bi, int bj, int root) {
+  // Локальные буферы для A, B и результата
+  std::vector<double> localA(block_sz_ * block_sz_);
+  std::vector<double> localB(block_sz_ * block_sz_);
+  std::vector<double> localC(block_sz_ * block_sz_, 0.0);
+
+  // Начальный индекс блока в развернутой матрице
+  int start = (bi * block_sz_) * root + (bj * block_sz_);
+
+  // Копируем блоки из глобальных матриц
+  CopyBlock(matrixA_, localA, start, root, block_sz_);
+  CopyBlock(matrixB_, localB, start, root, block_sz_);
+
+  // Собственно умножение блока A на блок B → localC
+  for (int i = 0; i < block_sz_; ++i) {
+    for (int k = 0; k < block_sz_; ++k) {
+      double a = localA[(i * block_sz_) + k];
+      for (int j = 0; j < block_sz_; ++j) {
+        localC[(i * block_sz_) + j] += a * localB[(k * block_sz_) + j];
+      }
+    }
+  }
+
+  // Аккумуляция результата в глобальную матрицу C
+  for (int i = 0; i < block_sz_; ++i) {
+    for (int j = 0; j < block_sz_; ++j) {
+      int idx = (((bi * block_sz_) + i) * root) + ((bj * block_sz_) + j);
+      matrixC_[idx] += localC[(i * block_sz_) + j];
+    }
+  }
+}
 
 bool odintsov_m_mulmatrix_cannon_tbb::MulMatrixCannonTBB::ValidationImpl() {
   if (task_data->inputs_count[0] != task_data->inputs_count[1]) {
@@ -157,62 +187,32 @@ bool odintsov_m_mulmatrix_cannon_tbb::MulMatrixCannonTBB::ValidationImpl() {
   return true;
 }
 
-bool odintsov_m_mulmatrix_cannon_tbb::MulMatrixCannonTBB::RunImpl() {
-  // Определяем число потоков, доступное в системе.
+bool MulMatrixCannonTBB::RunImpl() {
   int num_threads = ppc::util::GetPPCNumThreads();
-
-  // Создаем global_control с корректным числом потоков.
   oneapi::tbb::global_control gc(oneapi::tbb::global_control::max_allowed_parallelism, num_threads);
 
   int root = static_cast<int>(std::sqrt(szA_));
-  // Если root/block_sz_ меньше 1, гарантируем минимум 1 итерацию.
   int num_blocks = std::max(1, root / block_sz_);
-  int grid_size = num_blocks;  // grid_size = root / block_sz_
+  int grid_size = num_blocks;
 
-  // Начальные сдвиги матриц
+  // Начальные сдвиги
   InitializeShift(matrixA_, root, grid_size, block_sz_, true);
   InitializeShift(matrixB_, root, grid_size, block_sz_, false);
 
-  for (int step = 0; step < grid_size; step++) {
+  for (int step = 0; step < grid_size; ++step) {
     tbb::parallel_for(tbb::blocked_range2d<int>(0, num_blocks, 0, num_blocks), [&](const tbb::blocked_range2d<int>& r) {
-      std::vector<double> local_block_a(block_sz_ * block_sz_);
-      std::vector<double> local_block_b(block_sz_ * block_sz_);
-      std::vector<double> local_result(block_sz_ * block_sz_, 0);
-
       for (int bi = r.rows().begin(); bi != r.rows().end(); ++bi) {
         for (int bj = r.cols().begin(); bj != r.cols().end(); ++bj) {
-          int start = ((bi * block_sz_) * root) + (bj * block_sz_);
-
-          // Копируем блоки локально
-          CopyBlock(matrixA_, local_block_a, start, root, block_sz_);
-          CopyBlock(matrixB_, local_block_b, start, root, block_sz_);
-
-          // Вычисляем произведение блоков
-          for (int i = 0; i < block_sz_; i++) {
-            for (int k = 0; k < block_sz_; k++) {
-              double a_ik = local_block_a[i * block_sz_ + k];
-              for (int j = 0; j < block_sz_; j++) {
-                local_result[i * block_sz_ + j] += a_ik * local_block_b[k * block_sz_ + j];
-              }
-            }
-          }
-
-          // Записываем результат
-          for (int i = 0; i < block_sz_; i++) {
-            for (int j = 0; j < block_sz_; j++) {
-              int index = ((bi * block_sz_ + i) * root) + (bj * block_sz_ + j);
-              matrixC_[index] += local_result[i * block_sz_ + j];
-            }
-          }
-          std::fill(local_result.begin(), local_result.end(), 0);
+          MultiplyBlock(bi, bj, root);
         }
       }
     });
 
-    // Последовательные сдвиги после каждого шага
+    // Пост-шафты
     ShiftBlocksLeft(matrixA_, root, block_sz_);
     ShiftBlocksUp(matrixB_, root, block_sz_);
   }
+
   return true;
 }
 
