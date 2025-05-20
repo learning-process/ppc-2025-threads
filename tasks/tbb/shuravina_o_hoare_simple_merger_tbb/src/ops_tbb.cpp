@@ -1,88 +1,95 @@
 #include "tbb/shuravina_o_hoare_simple_merger_tbb/include/ops_tbb.hpp"
 
-#include <algorithm>
-#include <vector>
+#include <tbb/parallel_invoke.h>
 
-#include "oneapi/tbb/parallel_invoke.h"
+#include <algorithm>
 
 namespace shuravina_o_hoare_simple_merger_tbb {
 
-int TestTaskTBB::Partition(std::vector<int>& arr, int low, int high) {
-  int pivot = arr[high];
-  int i = low - 1;
+HoareSortTBB::HoareSortTBB(std::shared_ptr<ppc::core::TaskData> task_data) : Task(std::move(task_data)) {}
 
-  for (int j = low; j < high; ++j) {
-    if (arr[j] <= pivot) {
-      ++i;
-      std::swap(arr[i], arr[j]);
-    }
-  }
-  std::swap(arr[i + 1], arr[high]);
-  return i + 1;
+bool HoareSortTBB::Validation() {
+  if (!task_data) return false;
+  return task_data->inputs_count.size() == 1 && task_data->outputs_count.size() == 1 &&
+         task_data->inputs_count[0] == task_data->outputs_count[0];
 }
 
-void TestTaskTBB::QuickSort(std::vector<int>& arr, int low, int high) {
-  if (low < high) {
-    int pi = Partition(arr, low, high);
-    QuickSort(arr, low, pi - 1);
-    QuickSort(arr, pi + 1, high);
-  }
-}
-
-void TestTaskTBB::ParallelQuickSort(std::vector<int>& arr, int low, int high) {
-  if (low < high) {
-    if (high - low < static_cast<int>(kParallelThreshold)) {
-      QuickSort(arr, low, high);
-      return;
+bool HoareSortTBB::PreProcessing() {
+  try {
+    if (!task_data || task_data->inputs.empty() || task_data->inputs_count.empty()) {
+      return false;
     }
 
-    int pi = Partition(arr, low, high);
-
-    tbb::parallel_invoke([&] { ParallelQuickSort(arr, low, pi - 1); }, [&] { ParallelQuickSort(arr, pi + 1, high); });
-  }
-}
-
-bool TestTaskTBB::PreProcessingImpl() {
-  if (task_data->inputs.empty() || task_data->outputs.empty()) {
+    auto* input_data = reinterpret_cast<int*>(task_data->inputs[0]);
+    data_ = std::vector<int>(input_data, input_data + task_data->inputs_count[0]);
+    return true;
+  } catch (...) {
     return false;
   }
-
-  auto* in_ptr = reinterpret_cast<int*>(task_data->inputs[0]);
-  auto input_size = task_data->inputs_count[0];
-  input_ = std::vector<int>(in_ptr, in_ptr + input_size);
-  output_ = std::vector<int>(input_size, 0);
-
-  return true;
 }
 
-bool TestTaskTBB::ValidationImpl() {
-  if (task_data->inputs.empty() || task_data->outputs.empty()) {
+bool HoareSortTBB::Run() {
+  if (data_.empty()) return false;
+
+  try {
+    ParallelQuickSort(data_.data(), 0, data_.size() - 1);
+    return true;
+  } catch (...) {
     return false;
   }
-  return task_data->inputs_count[0] == task_data->outputs_count[0];
 }
 
-bool TestTaskTBB::RunImpl() {
-  auto size = input_.size();
-  if (size > 0) {
-    if (size < kParallelThreshold) {
-      QuickSort(input_, 0, static_cast<int>(size) - 1);
-    } else {
-      ParallelQuickSort(input_, 0, static_cast<int>(size) - 1);
+bool HoareSortTBB::PostProcessing() {
+  try {
+    if (!task_data || task_data->outputs.empty()) {
+      return false;
     }
-    output_ = input_;
-  }
-  return true;
-}
 
-bool TestTaskTBB::PostProcessingImpl() {
-  if (output_.empty() || task_data->outputs[0] == nullptr) {
+    auto* output_data = reinterpret_cast<int*>(task_data->outputs[0]);
+    std::copy(data_.begin(), data_.end(), output_data);
+    return true;
+  } catch (...) {
     return false;
   }
+}
 
-  auto* out_ptr = reinterpret_cast<int*>(task_data->outputs[0]);
-  std::ranges::copy(output_.begin(), output_.end(), out_ptr);
-  return true;
+size_t HoareSortTBB::Partition(int* arr, size_t left, size_t right) {
+  int pivot = arr[(left + right) / 2];
+  while (left <= right) {
+    while (arr[left] < pivot) ++left;
+    while (arr[right] > pivot) --right;
+    if (left <= right) {
+      std::swap(arr[left], arr[right]);
+      ++left;
+      --right;
+    }
+  }
+  return left;
+}
+
+void HoareSortTBB::SequentialQuickSort(int* arr, size_t left, size_t right) {
+  if (left >= right) return;
+
+  size_t p = Partition(arr, left, right);
+  if (left < p - 1) SequentialQuickSort(arr, left, p - 1);
+  if (p < right) SequentialQuickSort(arr, p, right);
+}
+
+void HoareSortTBB::ParallelQuickSort(int* arr, size_t left, size_t right) {
+  if (right - left < kThreshold) {
+    SequentialQuickSort(arr, left, right);
+    return;
+  }
+
+  size_t p = Partition(arr, left, right);
+
+  if (left < p - 1 && p < right) {
+    tbb::parallel_invoke([&] { ParallelQuickSort(arr, left, p - 1); }, [&] { ParallelQuickSort(arr, p, right); });
+  } else if (left < p - 1) {
+    ParallelQuickSort(arr, left, p - 1);
+  } else if (p < right) {
+    ParallelQuickSort(arr, p, right);
+  }
 }
 
 }  // namespace shuravina_o_hoare_simple_merger_tbb

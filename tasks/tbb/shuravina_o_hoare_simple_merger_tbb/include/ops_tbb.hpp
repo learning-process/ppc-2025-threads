@@ -1,30 +1,28 @@
 #pragma once
 
-#include <cstddef>
+#include <cstdint>
 #include <memory>
-#include <utility>
 #include <vector>
 
 #include "core/task/include/task.hpp"
 
 namespace shuravina_o_hoare_simple_merger_tbb {
 
-class TestTaskTBB : public ppc::core::Task {
+class HoareSortTBB : public ppc::core::Task {
  public:
-  explicit TestTaskTBB(std::shared_ptr<ppc::core::TaskData> task_data) : Task(std::move(task_data)) {}
-  bool PreProcessingImpl() override;
-  bool ValidationImpl() override;
-  bool RunImpl() override;
-  bool PostProcessingImpl() override;
+  explicit HoareSortTBB(std::shared_ptr<ppc::core::TaskData> task_data);
+  bool Validation() override;
+  bool PreProcessing() override;
+  bool Run() override;
+  bool PostProcessing() override;
 
  private:
-  std::vector<int> input_;
-  std::vector<int> output_;
-  static const size_t kParallelThreshold = 1000;
+  std::vector<int> data_;
+  static constexpr size_t kThreshold = 10000;
 
-  void QuickSort(std::vector<int>& arr, int low, int high);
-  void ParallelQuickSort(std::vector<int>& arr, int low, int high);
-  static int Partition(std::vector<int>& arr, int low, int high);
+  void SequentialQuickSort(int* arr, size_t left, size_t right);
+  size_t Partition(int* arr, size_t left, size_t right);
+  void ParallelQuickSort(int* arr, size_t left, size_t right);
 };
 
 }  // namespace shuravina_o_hoare_simple_merger_tbb
