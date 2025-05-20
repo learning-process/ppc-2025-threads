@@ -17,7 +17,6 @@ TEST(kolokolova_d_integral_simpson_method_all, test_pipeline_run) {
   std::vector<int> step = {130, 130, 130};
   std::vector<int> bord = {1, 11, 2, 10, 0, 10};
   double func_result = 0.0;
-  boost::mpi::communicator world;
 
   // Create task_data
   std::shared_ptr<ppc::core::TaskData> task_data = std::make_shared<ppc::core::TaskData>();
@@ -48,6 +47,7 @@ TEST(kolokolova_d_integral_simpson_method_all, test_pipeline_run) {
 
   double ans = 927638.04;
   double error = 1.0;
+  boost::mpi::communicator world;
   if (world.rank() == 0) {
     ppc::core::Perf::PrintPerfStatistic(perf_results);
     ASSERT_NEAR(func_result, ans, error);
@@ -61,7 +61,6 @@ TEST(kolokolova_d_integral_simpson_method_all, test_task_run) {
   std::vector<int> step = {130, 130, 130};
   std::vector<int> bord = {1, 11, 2, 10, 0, 10};
   double func_result = 0.0;
-  boost::mpi::communicator world;
 
   // Create task_data
   std::shared_ptr<ppc::core::TaskData> task_data = std::make_shared<ppc::core::TaskData>();
@@ -88,10 +87,11 @@ TEST(kolokolova_d_integral_simpson_method_all, test_task_run) {
   };
   auto perf_results = std::make_shared<ppc::core::PerfResults>();
   auto perf_analyzer = std::make_shared<ppc::core::Perf>(test_task_all);
-  perf_analyzer->PipelineRun(perf_attr, perf_results);
+  perf_analyzer->TaskRun(perf_attr, perf_results);
 
   double ans = 927638.04;
   double error = 1.0;
+  boost::mpi::communicator world;
   if (world.rank() == 0) {
     ppc::core::Perf::PrintPerfStatistic(perf_results);
     ASSERT_NEAR(func_result, ans, error);

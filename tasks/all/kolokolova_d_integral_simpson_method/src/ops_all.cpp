@@ -1,6 +1,7 @@
 #include "all/kolokolova_d_integral_simpson_method/include/ops_all.hpp"
 
 #include <oneapi/tbb/parallel_for.h>
+#include <oneapi/tbb/parallel_reduce.h>
 
 #include <cmath>
 #include <cstddef>
@@ -171,9 +172,16 @@ bool kolokolova_d_integral_simpson_method_all::TestTaskALL::RunImpl() {
     world_.recv(0, 0, local_size_step.data(), size_local_size_step);
   }
 
-  for (size_t i = 0; i < local_results_func.size(); i++) {
-    local_results_output += local_results_func[i];
-  }
+  double sum = tbb::parallel_reduce(
+      tbb::blocked_range<size_t>(0, local_results_func.size()), 0.0,
+      [&](const tbb::blocked_range<size_t>& r, double init) {
+        for (size_t i = r.begin(); i < r.end(); ++i) {
+          init += local_results_func[i];
+        }
+        return init;
+      },
+      std::plus<double>());
+  local_results_output += sum;
 
   for (size_t i = 0; i < local_size_step.size(); i++) {
     local_results_output *= local_size_step[i];
