@@ -8,6 +8,8 @@
 #include <thread>
 #include <vector>
 
+#include "core/util/include/util.hpp"
+
 template <typename PixelType>
 bool golovkin_contrast_stretching::ContrastStretchingSTL<PixelType>::ValidationImpl() {
   if (task_data->inputs.empty() || task_data->outputs.empty()) {
@@ -36,7 +38,9 @@ bool golovkin_contrast_stretching::ContrastStretchingSTL<PixelType>::PreProcessi
 
 template <typename PixelType>
 bool golovkin_contrast_stretching::ContrastStretchingSTL<PixelType>::RunImpl() {
-  if (image_size_ == 0) return true;
+  if (image_size_ == 0) {
+    return true;
+  }
   if (min_val_ == max_val_) {
     std::ranges::fill(output_image_, 0);
     return true;
@@ -44,8 +48,13 @@ bool golovkin_contrast_stretching::ContrastStretchingSTL<PixelType>::RunImpl() {
 
   const double scale = 255.0 / (max_val_ - min_val_);
 
-  unsigned int num_threads = ppc::util::GetPPCNumThreads();
+  unsigned int num_threads = 0;
+  num_threads = ppc::GetPPCNumThreads();
   num_threads = std::min(num_threads, static_cast<unsigned int>(image_size_));
+
+  if (num_threads == 0) {
+    num_threads = 1;
+  }
 
   size_t chunk_size = image_size_ / num_threads;
 
