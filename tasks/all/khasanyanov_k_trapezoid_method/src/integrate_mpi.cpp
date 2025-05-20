@@ -1,13 +1,18 @@
 #include "../include/integrate_mpi.hpp"
 
+#include <algorithm>
 #include <boost/serialization/utility.hpp>  // NOLINT(*-include-cleaner)
 #include <boost/serialization/vector.hpp>   // NOLINT(*-include-cleaner)
 #include <cmath>
+#include <cstddef>
 #include <cstdint>
+#include <functional>
 #include <memory>
+#include <stdexcept>
+#include <vector>
 
-#include "boost/mpi/collectives/all_reduce.hpp"
 #include "boost/mpi/collectives/broadcast.hpp"
+#include "boost/mpi/collectives/reduce.hpp"
 #include "core/task/include/task.hpp"
 
 using namespace khasanyanov_k_trapezoid_method_mpi;

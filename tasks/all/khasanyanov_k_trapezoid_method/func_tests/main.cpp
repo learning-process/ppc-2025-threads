@@ -5,6 +5,7 @@
 #include <vector>
 
 #include "../include/integrate_mpi.hpp"
+#include "boost/mpi/communicator.hpp"
 #include "core/task/include/task.hpp"
 
 using namespace khasanyanov_k_trapezoid_method_mpi;
