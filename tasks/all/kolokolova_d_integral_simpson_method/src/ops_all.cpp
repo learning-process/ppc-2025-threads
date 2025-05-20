@@ -75,12 +75,16 @@ bool kolokolova_d_integral_simpson_method_all::TestTaskALL::RunImpl() {
       vec_coeff[i] = coeff[i % int(coeff.size())];
     }
 
+    while (int(results_func.size()) % world_.size() != 0) {
+      results_func.push_back(0.0);
+    }
+
+    while (int(vec_coeff.size()) % world_.size() != 0) {
+      vec_coeff.push_back(0.0);
+    }
+
     size_local_results_func = int(results_func.size()) / int(world_.size());
-    remainder_ = int(results_func.size()) % int(world_.size());
-    size_local_results_func += remainder_;
     size_local_coeff = int(vec_coeff.size()) / int(world_.size());
-    remainder_coeff = int(vec_coeff.size()) % int(world_.size());
-    size_local_coeff += remainder_coeff;
     size_local_size_step = int(size_step.size());
   }
 
@@ -98,7 +102,6 @@ bool kolokolova_d_integral_simpson_method_all::TestTaskALL::RunImpl() {
 
   if (world_.rank() == 0) {
     local_results_func = std::vector<double>(results_func.begin(), results_func.begin() + size_local_results_func);
-    results_func.resize(size_local_results_func * int(world_.size()));
   } else {
     world_.recv(0, 0, local_results_func.data(), size_local_results_func);
   }

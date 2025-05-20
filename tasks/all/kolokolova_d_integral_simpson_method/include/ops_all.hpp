@@ -32,7 +32,6 @@ class TestTaskALL : public ppc::core::Task {
  private:
   double result_output_ = 0;
   int nums_variables_ = 0;
-  int remainder_ = 0;
   std::vector<double> results_func;
   std::vector<double> local_results_func;
   int size_local_results_func = 0;
@@ -40,7 +39,6 @@ class TestTaskALL : public ppc::core::Task {
   std::vector<double> vec_coeff;
   std::vector<double> local_coeff;
   int size_local_coeff = 0;
-  int remainder_coeff = 0;
   std::vector<int> steps_;
   std::vector<int> borders_;
   std::vector<double> size_step;
