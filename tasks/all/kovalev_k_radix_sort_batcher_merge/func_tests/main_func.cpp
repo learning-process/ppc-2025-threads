@@ -9,21 +9,28 @@
 #include <random>
 #include <vector>
 
-#include "core/task/include/task.hpp"
 #include "all/kovalev_k_radix_sort_batcher_merge/include/header.hpp"
+#include "core/task/include/task.hpp"
 
 const long long int kMinLl = std::numeric_limits<long long>::lowest(), kMaxLl = std::numeric_limits<long long>::max();
 
 TEST(kovalev_k_radix_sort_batcher_merge_all, zero_length) {
   std::vector<long long int> in;
   std::vector<long long int> out;
+  boost::mpi::communicator world;
   std::shared_ptr<ppc::core::TaskData> task_data_all = std::make_shared<ppc::core::TaskData>();
-  task_data_all->inputs_count.emplace_back(in.size());
-  task_data_all->inputs.emplace_back(reinterpret_cast<uint8_t *>(in.data()));
-  task_data_all->outputs.emplace_back(reinterpret_cast<uint8_t *>(out.data()));
-  task_data_all->outputs_count.emplace_back(out.size());
+  if (world.rank() == 0) {
+    if (world.rank() == 0) {
+      task_data_all->inputs_count.emplace_back(in.size());
+      task_data_all->inputs.emplace_back(reinterpret_cast<uint8_t *>(in.data()));
+      task_data_all->outputs.emplace_back(reinterpret_cast<uint8_t *>(out.data()));
+      task_data_all->outputs_count.emplace_back(out.size());
+    }
+  }
   kovalev_k_radix_sort_batcher_merge_all::TestTaskAll test_task_all(task_data_all);
-  ASSERT_FALSE(test_task_all.ValidationImpl());
+  if (world.rank() == 0) {
+    ASSERT_FALSE(test_task_all.ValidationImpl());
+  }
 }
 
 TEST(kovalev_k_radix_sort_batcher_merge_all, not_equal_lengths) {
@@ -31,12 +38,17 @@ TEST(kovalev_k_radix_sort_batcher_merge_all, not_equal_lengths) {
   std::vector<long long int> in(length);
   std::vector<long long int> out(2 * length);
   std::shared_ptr<ppc::core::TaskData> task_data_all = std::make_shared<ppc::core::TaskData>();
-  task_data_all->inputs_count.emplace_back(in.size());
-  task_data_all->inputs.emplace_back(reinterpret_cast<uint8_t *>(in.data()));
-  task_data_all->outputs.emplace_back(reinterpret_cast<uint8_t *>(out.data()));
-  task_data_all->outputs_count.emplace_back(out.size());
+  boost::mpi::communicator world;
+  if (world.rank() == 0) {
+    task_data_all->inputs_count.emplace_back(in.size());
+    task_data_all->inputs.emplace_back(reinterpret_cast<uint8_t *>(in.data()));
+    task_data_all->outputs.emplace_back(reinterpret_cast<uint8_t *>(out.data()));
+    task_data_all->outputs_count.emplace_back(out.size());
+  }
   kovalev_k_radix_sort_batcher_merge_all::TestTaskAll test_task_all(task_data_all);
-  ASSERT_FALSE(test_task_all.ValidationImpl());
+  if (world.rank() == 0) {
+    ASSERT_FALSE(test_task_all.ValidationImpl());
+  }
 }
 
 TEST(kovalev_k_radix_sort_batcher_merge_all, Test_No_viol_10_int) {
@@ -46,22 +58,27 @@ TEST(kovalev_k_radix_sort_batcher_merge_all, Test_No_viol_10_int) {
   std::vector<long long int> in(length, alpha);
   std::vector<long long int> out(length);
   std::shared_ptr<ppc::core::TaskData> task_data_all = std::make_shared<ppc::core::TaskData>();
-  task_data_all->inputs_count.emplace_back(in.size());
-  task_data_all->inputs.emplace_back(reinterpret_cast<uint8_t *>(in.data()));
-  task_data_all->outputs.emplace_back(reinterpret_cast<uint8_t *>(out.data()));
-  task_data_all->outputs_count.emplace_back(out.size());
+  boost::mpi::communicator world;
+  if (world.rank() == 0) {
+    task_data_all->inputs_count.emplace_back(in.size());
+    task_data_all->inputs.emplace_back(reinterpret_cast<uint8_t *>(in.data()));
+    task_data_all->outputs.emplace_back(reinterpret_cast<uint8_t *>(out.data()));
+    task_data_all->outputs_count.emplace_back(out.size());
+  }
   kovalev_k_radix_sort_batcher_merge_all::TestTaskAll test_task_all(task_data_all);
   ASSERT_TRUE(test_task_all.Validation());
   test_task_all.PreProcessing();
   test_task_all.Run();
   test_task_all.PostProcessing();
-  int count_viol = 0;
-  for (unsigned int i = 0; i < length; i++) {
-    if (out[i] != in[i]) {
-      count_viol++;
+  if (world.rank() == 0) {
+    int count_viol = 0;
+    for (unsigned int i = 0; i < length; i++) {
+      if (out[i] != in[i]) {
+        count_viol++;
+      }
     }
+    ASSERT_EQ(count_viol, 0);
   }
-  ASSERT_EQ(count_viol, 0);
 }
 
 TEST(kovalev_k_radix_sort_batcher_merge_all, Test_2_int) {
@@ -73,23 +90,28 @@ TEST(kovalev_k_radix_sort_batcher_merge_all, Test_2_int) {
   std::ranges::generate(in.begin(), in.end(), [&]() { return dis(gen); });
   std::vector<long long int> out(length);
   std::shared_ptr<ppc::core::TaskData> task_data_all = std::make_shared<ppc::core::TaskData>();
-  task_data_all->inputs_count.emplace_back(in.size());
-  task_data_all->inputs.emplace_back(reinterpret_cast<uint8_t *>(in.data()));
-  task_data_all->outputs.emplace_back(reinterpret_cast<uint8_t *>(out.data()));
-  task_data_all->outputs_count.emplace_back(out.size());
+  boost::mpi::communicator world;
+  if (world.rank() == 0) {
+    task_data_all->inputs_count.emplace_back(in.size());
+    task_data_all->inputs.emplace_back(reinterpret_cast<uint8_t *>(in.data()));
+    task_data_all->outputs.emplace_back(reinterpret_cast<uint8_t *>(out.data()));
+    task_data_all->outputs_count.emplace_back(out.size());
+  }
   kovalev_k_radix_sort_batcher_merge_all::TestTaskAll test_task_all(task_data_all);
   ASSERT_TRUE(test_task_all.Validation());
   test_task_all.PreProcessing();
   test_task_all.Run();
   test_task_all.PostProcessing();
-  std::ranges::sort(in.begin(), in.end(), [](long long int a, long long int b) { return a < b; });
-  int count_viol = 0;
-  for (unsigned int i = 0; i < length; i++) {
-    if (out[i] != in[i]) {
-      count_viol++;
+  if (world.rank() == 0) {
+    std::ranges::sort(in.begin(), in.end(), [](long long int a, long long int b) { return a < b; });
+    int count_viol = 0;
+    for (unsigned int i = 0; i < length; i++) {
+      if (out[i] != in[i]) {
+        count_viol++;
+      }
     }
+    ASSERT_EQ(count_viol, 0);
   }
-  ASSERT_EQ(count_viol, 0);
 }
 
 TEST(kovalev_k_radix_sort_batcher_merge_all, Test_5_int) {
@@ -101,23 +123,28 @@ TEST(kovalev_k_radix_sort_batcher_merge_all, Test_5_int) {
   std::ranges::generate(in.begin(), in.end(), [&]() { return dis(gen); });
   std::vector<long long int> out(length);
   std::shared_ptr<ppc::core::TaskData> task_data_all = std::make_shared<ppc::core::TaskData>();
-  task_data_all->inputs_count.emplace_back(in.size());
-  task_data_all->inputs.emplace_back(reinterpret_cast<uint8_t *>(in.data()));
-  task_data_all->outputs.emplace_back(reinterpret_cast<uint8_t *>(out.data()));
-  task_data_all->outputs_count.emplace_back(out.size());
+  boost::mpi::communicator world;
+  if (world.rank() == 0) {
+    task_data_all->inputs_count.emplace_back(in.size());
+    task_data_all->inputs.emplace_back(reinterpret_cast<uint8_t *>(in.data()));
+    task_data_all->outputs.emplace_back(reinterpret_cast<uint8_t *>(out.data()));
+    task_data_all->outputs_count.emplace_back(out.size());
+  }
   kovalev_k_radix_sort_batcher_merge_all::TestTaskAll test_task_all(task_data_all);
   ASSERT_TRUE(test_task_all.Validation());
   test_task_all.PreProcessing();
   test_task_all.Run();
   test_task_all.PostProcessing();
-  std::ranges::sort(in.begin(), in.end(), [](long long int a, long long int b) { return a < b; });
-  int count_viol = 0;
-  for (unsigned int i = 0; i < length; i++) {
-    if (out[i] != in[i]) {
-      count_viol++;
+  if (world.rank() == 0) {
+    std::ranges::sort(in.begin(), in.end(), [](long long int a, long long int b) { return a < b; });
+    int count_viol = 0;
+    for (unsigned int i = 0; i < length; i++) {
+      if (out[i] != in[i]) {
+        count_viol++;
+      }
     }
+    ASSERT_EQ(count_viol, 0);
   }
-  ASSERT_EQ(count_viol, 0);
 }
 
 TEST(kovalev_k_radix_sort_batcher_merge_all, Test_793_int) {
@@ -129,23 +156,28 @@ TEST(kovalev_k_radix_sort_batcher_merge_all, Test_793_int) {
   std::ranges::generate(in.begin(), in.end(), [&]() { return dis(gen); });
   std::vector<long long int> out(length);
   std::shared_ptr<ppc::core::TaskData> task_data_all = std::make_shared<ppc::core::TaskData>();
-  task_data_all->inputs_count.emplace_back(in.size());
-  task_data_all->inputs.emplace_back(reinterpret_cast<uint8_t *>(in.data()));
-  task_data_all->outputs.emplace_back(reinterpret_cast<uint8_t *>(out.data()));
-  task_data_all->outputs_count.emplace_back(out.size());
+  boost::mpi::communicator world;
+  if (world.rank() == 0) {
+    task_data_all->inputs_count.emplace_back(in.size());
+    task_data_all->inputs.emplace_back(reinterpret_cast<uint8_t *>(in.data()));
+    task_data_all->outputs.emplace_back(reinterpret_cast<uint8_t *>(out.data()));
+    task_data_all->outputs_count.emplace_back(out.size());
+  }
   kovalev_k_radix_sort_batcher_merge_all::TestTaskAll test_task_all(task_data_all);
   ASSERT_TRUE(test_task_all.Validation());
   test_task_all.PreProcessing();
   test_task_all.Run();
   test_task_all.PostProcessing();
-  std::ranges::sort(in.begin(), in.end(), [](long long int a, long long int b) { return a < b; });
-  int count_viol = 0;
-  for (unsigned int i = 0; i < length; i++) {
-    if (out[i] != in[i]) {
-      count_viol++;
+  if (world.rank() == 0) {
+    std::ranges::sort(in.begin(), in.end(), [](long long int a, long long int b) { return a < b; });
+    int count_viol = 0;
+    for (unsigned int i = 0; i < length; i++) {
+      if (out[i] != in[i]) {
+        count_viol++;
+      }
     }
+    ASSERT_EQ(count_viol, 0);
   }
-  ASSERT_EQ(count_viol, 0);
 }
 
 TEST(kovalev_k_radix_sort_batcher_merge_all, Test_1000_int) {
@@ -157,23 +189,28 @@ TEST(kovalev_k_radix_sort_batcher_merge_all, Test_1000_int) {
   std::ranges::generate(in.begin(), in.end(), [&]() { return dis(gen); });
   std::vector<long long int> out(length);
   std::shared_ptr<ppc::core::TaskData> task_data_all = std::make_shared<ppc::core::TaskData>();
-  task_data_all->inputs_count.emplace_back(in.size());
-  task_data_all->inputs.emplace_back(reinterpret_cast<uint8_t *>(in.data()));
-  task_data_all->outputs.emplace_back(reinterpret_cast<uint8_t *>(out.data()));
-  task_data_all->outputs_count.emplace_back(out.size());
+  boost::mpi::communicator world;
+  if (world.rank() == 0) {
+    task_data_all->inputs_count.emplace_back(in.size());
+    task_data_all->inputs.emplace_back(reinterpret_cast<uint8_t *>(in.data()));
+    task_data_all->outputs.emplace_back(reinterpret_cast<uint8_t *>(out.data()));
+    task_data_all->outputs_count.emplace_back(out.size());
+  }
   kovalev_k_radix_sort_batcher_merge_all::TestTaskAll test_task_all(task_data_all);
   ASSERT_TRUE(test_task_all.Validation());
   test_task_all.PreProcessing();
   test_task_all.Run();
   test_task_all.PostProcessing();
-  std::ranges::sort(in.begin(), in.end(), [](long long int a, long long int b) { return a < b; });
-  int count_viol = 0;
-  for (unsigned int i = 0; i < length; i++) {
-    if (out[i] != in[i]) {
-      count_viol++;
+  if (world.rank() == 0) {
+    std::ranges::sort(in.begin(), in.end(), [](long long int a, long long int b) { return a < b; });
+    int count_viol = 0;
+    for (unsigned int i = 0; i < length; i++) {
+      if (out[i] != in[i]) {
+        count_viol++;
+      }
     }
+    ASSERT_EQ(count_viol, 0);
   }
-  ASSERT_EQ(count_viol, 0);
 }
 
 TEST(kovalev_k_radix_sort_batcher_merge_all, Test_2158_int) {
@@ -185,23 +222,28 @@ TEST(kovalev_k_radix_sort_batcher_merge_all, Test_2158_int) {
   std::ranges::generate(in.begin(), in.end(), [&]() { return dis(gen); });
   std::vector<long long int> out(length);
   std::shared_ptr<ppc::core::TaskData> task_data_all = std::make_shared<ppc::core::TaskData>();
-  task_data_all->inputs_count.emplace_back(in.size());
-  task_data_all->inputs.emplace_back(reinterpret_cast<uint8_t *>(in.data()));
-  task_data_all->outputs.emplace_back(reinterpret_cast<uint8_t *>(out.data()));
-  task_data_all->outputs_count.emplace_back(out.size());
+  boost::mpi::communicator world;
+  if (world.rank() == 0) {
+    task_data_all->inputs_count.emplace_back(in.size());
+    task_data_all->inputs.emplace_back(reinterpret_cast<uint8_t *>(in.data()));
+    task_data_all->outputs.emplace_back(reinterpret_cast<uint8_t *>(out.data()));
+    task_data_all->outputs_count.emplace_back(out.size());
+  }
   kovalev_k_radix_sort_batcher_merge_all::TestTaskAll test_task_all(task_data_all);
   ASSERT_TRUE(test_task_all.Validation());
   test_task_all.PreProcessing();
   test_task_all.Run();
   test_task_all.PostProcessing();
-  std::ranges::sort(in.begin(), in.end(), [](long long int a, long long int b) { return a < b; });
-  int count_viol = 0;
-  for (unsigned int i = 0; i < length; i++) {
-    if (out[i] != in[i]) {
-      count_viol++;
+  if (world.rank() == 0) {
+    std::ranges::sort(in.begin(), in.end(), [](long long int a, long long int b) { return a < b; });
+    int count_viol = 0;
+    for (unsigned int i = 0; i < length; i++) {
+      if (out[i] != in[i]) {
+        count_viol++;
+      }
     }
+    ASSERT_EQ(count_viol, 0);
   }
-  ASSERT_EQ(count_viol, 0);
 }
 
 TEST(kovalev_k_radix_sort_batcher_merge_all, Test_4763_int) {
@@ -213,23 +255,28 @@ TEST(kovalev_k_radix_sort_batcher_merge_all, Test_4763_int) {
   std::ranges::generate(in.begin(), in.end(), [&]() { return dis(gen); });
   std::vector<long long int> out(length);
   std::shared_ptr<ppc::core::TaskData> task_data_all = std::make_shared<ppc::core::TaskData>();
-  task_data_all->inputs_count.emplace_back(in.size());
-  task_data_all->inputs.emplace_back(reinterpret_cast<uint8_t *>(in.data()));
-  task_data_all->outputs.emplace_back(reinterpret_cast<uint8_t *>(out.data()));
-  task_data_all->outputs_count.emplace_back(out.size());
+  boost::mpi::communicator world;
+  if (world.rank() == 0) {
+    task_data_all->inputs_count.emplace_back(in.size());
+    task_data_all->inputs.emplace_back(reinterpret_cast<uint8_t *>(in.data()));
+    task_data_all->outputs.emplace_back(reinterpret_cast<uint8_t *>(out.data()));
+    task_data_all->outputs_count.emplace_back(out.size());
+  }
   kovalev_k_radix_sort_batcher_merge_all::TestTaskAll test_task_all(task_data_all);
   ASSERT_TRUE(test_task_all.Validation());
   test_task_all.PreProcessing();
   test_task_all.Run();
   test_task_all.PostProcessing();
-  std::ranges::sort(in.begin(), in.end(), [](long long int a, long long int b) { return a < b; });
-  int count_viol = 0;
-  for (unsigned int i = 0; i < length; i++) {
-    if (out[i] != in[i]) {
-      count_viol++;
+  if (world.rank() == 0) {
+    std::ranges::sort(in.begin(), in.end(), [](long long int a, long long int b) { return a < b; });
+    int count_viol = 0;
+    for (unsigned int i = 0; i < length; i++) {
+      if (out[i] != in[i]) {
+        count_viol++;
+      }
     }
+    ASSERT_EQ(count_viol, 0);
   }
-  ASSERT_EQ(count_viol, 0);
 }
 
 TEST(kovalev_k_radix_sort_batcher_merge_all, Test_5000_int) {
@@ -241,23 +288,28 @@ TEST(kovalev_k_radix_sort_batcher_merge_all, Test_5000_int) {
   std::ranges::generate(in.begin(), in.end(), [&]() { return dis(gen); });
   std::vector<long long int> out(length);
   std::shared_ptr<ppc::core::TaskData> task_data_all = std::make_shared<ppc::core::TaskData>();
-  task_data_all->inputs_count.emplace_back(in.size());
-  task_data_all->inputs.emplace_back(reinterpret_cast<uint8_t *>(in.data()));
-  task_data_all->outputs.emplace_back(reinterpret_cast<uint8_t *>(out.data()));
-  task_data_all->outputs_count.emplace_back(out.size());
+  boost::mpi::communicator world;
+  if (world.rank() == 0) {
+    task_data_all->inputs_count.emplace_back(in.size());
+    task_data_all->inputs.emplace_back(reinterpret_cast<uint8_t *>(in.data()));
+    task_data_all->outputs.emplace_back(reinterpret_cast<uint8_t *>(out.data()));
+    task_data_all->outputs_count.emplace_back(out.size());
+  }
   kovalev_k_radix_sort_batcher_merge_all::TestTaskAll test_task_all(task_data_all);
   ASSERT_TRUE(test_task_all.Validation());
   test_task_all.PreProcessing();
   test_task_all.Run();
   test_task_all.PostProcessing();
-  std::ranges::sort(in.begin(), in.end(), [](long long int a, long long int b) { return a < b; });
-  int count_viol = 0;
-  for (unsigned int i = 0; i < length; i++) {
-    if (out[i] != in[i]) {
-      count_viol++;
+  if (world.rank() == 0) {
+    std::ranges::sort(in.begin(), in.end(), [](long long int a, long long int b) { return a < b; });
+    int count_viol = 0;
+    for (unsigned int i = 0; i < length; i++) {
+      if (out[i] != in[i]) {
+        count_viol++;
+      }
     }
+    ASSERT_EQ(count_viol, 0);
   }
-  ASSERT_EQ(count_viol, 0);
 }
 
 TEST(kovalev_k_radix_sort_batcher_merge_all, Test_178892_int) {
@@ -269,23 +321,28 @@ TEST(kovalev_k_radix_sort_batcher_merge_all, Test_178892_int) {
   std::ranges::generate(in.begin(), in.end(), [&]() { return dis(gen); });
   std::vector<long long int> out(length);
   std::shared_ptr<ppc::core::TaskData> task_data_all = std::make_shared<ppc::core::TaskData>();
-  task_data_all->inputs_count.emplace_back(in.size());
-  task_data_all->inputs.emplace_back(reinterpret_cast<uint8_t *>(in.data()));
-  task_data_all->outputs.emplace_back(reinterpret_cast<uint8_t *>(out.data()));
-  task_data_all->outputs_count.emplace_back(out.size());
+  boost::mpi::communicator world;
+  if (world.rank() == 0) {
+    task_data_all->inputs_count.emplace_back(in.size());
+    task_data_all->inputs.emplace_back(reinterpret_cast<uint8_t *>(in.data()));
+    task_data_all->outputs.emplace_back(reinterpret_cast<uint8_t *>(out.data()));
+    task_data_all->outputs_count.emplace_back(out.size());
+  }
   kovalev_k_radix_sort_batcher_merge_all::TestTaskAll test_task_all(task_data_all);
   ASSERT_TRUE(test_task_all.Validation());
   test_task_all.PreProcessing();
   test_task_all.Run();
   test_task_all.PostProcessing();
-  std::ranges::sort(in.begin(), in.end(), [](long long int a, long long int b) { return a < b; });
-  int count_viol = 0;
-  for (unsigned int i = 0; i < length; i++) {
-    if (out[i] != in[i]) {
-      count_viol++;
+  if (world.rank() == 0) {
+    std::ranges::sort(in.begin(), in.end(), [](long long int a, long long int b) { return a < b; });
+    int count_viol = 0;
+    for (unsigned int i = 0; i < length; i++) {
+      if (out[i] != in[i]) {
+        count_viol++;
+      }
     }
+    ASSERT_EQ(count_viol, 0);
   }
-  ASSERT_EQ(count_viol, 0);
 }
 
 TEST(kovalev_k_radix_sort_batcher_merge_all, Test_215718_int) {
@@ -297,23 +354,28 @@ TEST(kovalev_k_radix_sort_batcher_merge_all, Test_215718_int) {
   std::ranges::generate(in.begin(), in.end(), [&]() { return dis(gen); });
   std::vector<long long int> out(length);
   std::shared_ptr<ppc::core::TaskData> task_data_all = std::make_shared<ppc::core::TaskData>();
-  task_data_all->inputs_count.emplace_back(in.size());
-  task_data_all->inputs.emplace_back(reinterpret_cast<uint8_t *>(in.data()));
-  task_data_all->outputs.emplace_back(reinterpret_cast<uint8_t *>(out.data()));
-  task_data_all->outputs_count.emplace_back(out.size());
+  boost::mpi::communicator world;
+  if (world.rank() == 0) {
+    task_data_all->inputs_count.emplace_back(in.size());
+    task_data_all->inputs.emplace_back(reinterpret_cast<uint8_t *>(in.data()));
+    task_data_all->outputs.emplace_back(reinterpret_cast<uint8_t *>(out.data()));
+    task_data_all->outputs_count.emplace_back(out.size());
+  }
   kovalev_k_radix_sort_batcher_merge_all::TestTaskAll test_task_all(task_data_all);
   ASSERT_TRUE(test_task_all.Validation());
   test_task_all.PreProcessing();
   test_task_all.Run();
   test_task_all.PostProcessing();
-  std::ranges::sort(in.begin(), in.end(), [](long long int a, long long int b) { return a < b; });
-  int count_viol = 0;
-  for (unsigned int i = 0; i < length; i++) {
-    if (out[i] != in[i]) {
-      count_viol++;
+  if (world.rank() == 0) {
+    std::ranges::sort(in.begin(), in.end(), [](long long int a, long long int b) { return a < b; });
+    int count_viol = 0;
+    for (unsigned int i = 0; i < length; i++) {
+      if (out[i] != in[i]) {
+        count_viol++;
+      }
     }
+    ASSERT_EQ(count_viol, 0);
   }
-  ASSERT_EQ(count_viol, 0);
 }
 
 TEST(kovalev_k_radix_sort_batcher_merge_all, Test_2000000_int) {
@@ -325,23 +387,28 @@ TEST(kovalev_k_radix_sort_batcher_merge_all, Test_2000000_int) {
   std::ranges::generate(in.begin(), in.end(), [&]() { return dis(gen); });
   std::vector<long long int> out(length);
   std::shared_ptr<ppc::core::TaskData> task_data_all = std::make_shared<ppc::core::TaskData>();
-  task_data_all->inputs_count.emplace_back(in.size());
-  task_data_all->inputs.emplace_back(reinterpret_cast<uint8_t *>(in.data()));
-  task_data_all->outputs.emplace_back(reinterpret_cast<uint8_t *>(out.data()));
-  task_data_all->outputs_count.emplace_back(out.size());
+  boost::mpi::communicator world;
+  if (world.rank() == 0) {
+    task_data_all->inputs_count.emplace_back(in.size());
+    task_data_all->inputs.emplace_back(reinterpret_cast<uint8_t *>(in.data()));
+    task_data_all->outputs.emplace_back(reinterpret_cast<uint8_t *>(out.data()));
+    task_data_all->outputs_count.emplace_back(out.size());
+  }
   kovalev_k_radix_sort_batcher_merge_all::TestTaskAll test_task_all(task_data_all);
   ASSERT_TRUE(test_task_all.Validation());
   test_task_all.PreProcessing();
   test_task_all.Run();
   test_task_all.PostProcessing();
-  std::ranges::sort(in.begin(), in.end(), [](long long int a, long long int b) { return a < b; });
-  int count_viol = 0;
-  for (unsigned int i = 0; i < length; i++) {
-    if (out[i] != in[i]) {
-      count_viol++;
+  if (world.rank() == 0) {
+    std::ranges::sort(in.begin(), in.end(), [](long long int a, long long int b) { return a < b; });
+    int count_viol = 0;
+    for (unsigned int i = 0; i < length; i++) {
+      if (out[i] != in[i]) {
+        count_viol++;
+      }
     }
+    ASSERT_EQ(count_viol, 0);
   }
-  ASSERT_EQ(count_viol, 0);
 }
 
 TEST(kovalev_k_radix_sort_batcher_merge_all, Test_244852_int) {
@@ -353,23 +420,28 @@ TEST(kovalev_k_radix_sort_batcher_merge_all, Test_244852_int) {
   std::ranges::generate(in.begin(), in.end(), [&]() { return dis(gen); });
   std::vector<long long int> out(length);
   std::shared_ptr<ppc::core::TaskData> task_data_all = std::make_shared<ppc::core::TaskData>();
-  task_data_all->inputs_count.emplace_back(in.size());
-  task_data_all->inputs.emplace_back(reinterpret_cast<uint8_t *>(in.data()));
-  task_data_all->outputs.emplace_back(reinterpret_cast<uint8_t *>(out.data()));
-  task_data_all->outputs_count.emplace_back(out.size());
+  boost::mpi::communicator world;
+  if (world.rank() == 0) {
+    task_data_all->inputs_count.emplace_back(in.size());
+    task_data_all->inputs.emplace_back(reinterpret_cast<uint8_t *>(in.data()));
+    task_data_all->outputs.emplace_back(reinterpret_cast<uint8_t *>(out.data()));
+    task_data_all->outputs_count.emplace_back(out.size());
+  }
   kovalev_k_radix_sort_batcher_merge_all::TestTaskAll test_task_all(task_data_all);
   ASSERT_TRUE(test_task_all.Validation());
   test_task_all.PreProcessing();
   test_task_all.Run();
   test_task_all.PostProcessing();
-  std::ranges::sort(in.begin(), in.end(), [](long long int a, long long int b) { return a < b; });
-  int count_viol = 0;
-  for (unsigned int i = 0; i < length; i++) {
-    if (out[i] != in[i]) {
-      count_viol++;
+  if (world.rank() == 0) {
+    std::ranges::sort(in.begin(), in.end(), [](long long int a, long long int b) { return a < b; });
+    int count_viol = 0;
+    for (unsigned int i = 0; i < length; i++) {
+      if (out[i] != in[i]) {
+        count_viol++;
+      }
     }
+    ASSERT_EQ(count_viol, 0);
   }
-  ASSERT_EQ(count_viol, 0);
 }
 
 TEST(kovalev_k_radix_sort_batcher_merge_all, Test_875014_int) {
@@ -381,21 +453,26 @@ TEST(kovalev_k_radix_sort_batcher_merge_all, Test_875014_int) {
   std::ranges::generate(in.begin(), in.end(), [&]() { return dis(gen); });
   std::vector<long long int> out(length);
   std::shared_ptr<ppc::core::TaskData> task_data_all = std::make_shared<ppc::core::TaskData>();
-  task_data_all->inputs_count.emplace_back(in.size());
-  task_data_all->inputs.emplace_back(reinterpret_cast<uint8_t *>(in.data()));
-  task_data_all->outputs.emplace_back(reinterpret_cast<uint8_t *>(out.data()));
-  task_data_all->outputs_count.emplace_back(out.size());
+  boost::mpi::communicator world;
+  if (world.rank() == 0) {
+    task_data_all->inputs_count.emplace_back(in.size());
+    task_data_all->inputs.emplace_back(reinterpret_cast<uint8_t *>(in.data()));
+    task_data_all->outputs.emplace_back(reinterpret_cast<uint8_t *>(out.data()));
+    task_data_all->outputs_count.emplace_back(out.size());
+  }
   kovalev_k_radix_sort_batcher_merge_all::TestTaskAll test_task_all(task_data_all);
   ASSERT_TRUE(test_task_all.Validation());
   test_task_all.PreProcessing();
   test_task_all.Run();
   test_task_all.PostProcessing();
-  std::ranges::sort(in.begin(), in.end(), [](long long int a, long long int b) { return a < b; });
-  int count_viol = 0;
-  for (unsigned int i = 0; i < length; i++) {
-    if (out[i] != in[i]) {
-      count_viol++;
+  if (world.rank() == 0) {
+    std::ranges::sort(in.begin(), in.end(), [](long long int a, long long int b) { return a < b; });
+    int count_viol = 0;
+    for (unsigned int i = 0; i < length; i++) {
+      if (out[i] != in[i]) {
+        count_viol++;
+      }
     }
+    ASSERT_EQ(count_viol, 0);
   }
-  ASSERT_EQ(count_viol, 0);
 }

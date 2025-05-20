@@ -20,13 +20,14 @@ class TestTaskAll : public ppc::core::Task {
 
  public:
   explicit TestTaskAll(std::shared_ptr<ppc::core::TaskData> task_data) : Task(std::move(task_data)) {
-    if (world.rank() == 0) n_input_ = taskData->inputs_count[0];
+    if (world.rank() == 0) n_input_ = task_data->inputs_count[0];
   }
   static bool RadixUnsigned(unsigned long long *, unsigned long long *, unsigned int);
-  [[nodiscard]] bool RadixSigned(unsigned int, unsigned int) const;
+  bool RadixSigned(unsigned int, unsigned int);
   static bool Countbyte(unsigned long long *, int *, unsigned int, unsigned int);
-  static bool OddEvenMerge(long long int *, long long int *, const long long int *, unsigned int, unsigned int);
-  bool FinalMerge();
+  bool OddEvenMergeOMP(long long int *, long long int *, const long long int *, unsigned int, unsigned int);
+  bool OddEvenMergeMPI(unsigned int);
+  bool FinalMergeOMP();
   bool BatcherSortOMP();
   bool PreProcessingImpl() override;
   bool ValidationImpl() override;
