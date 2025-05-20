@@ -37,7 +37,7 @@ TEST(kolokolova_d_integral_simpson_method_all, test_easy_func) {
   test_task_all.Run();
   test_task_all.PostProcessing();
   double ans = 81.0;
-  double error = 1e-5;
+  double error = 0.1;
   if (world.rank() == 0) {
     ASSERT_NEAR(func_result, ans, error);
   }

@@ -137,7 +137,49 @@ bool kolokolova_d_integral_simpson_method_all::TestTaskALL::RunImpl() {
         results_func[i] *= coeff[current_n_index];
       }
     }
-    result_output_ = CreateOutputResult(results_func, size_step);
+  }
+
+  if (world_.rank() == 0) {
+    for (int proc = 1; proc < world_.size(); proc++) {
+      world_.send(proc, 0, results_func.data() + proc * size_local_results_func, size_local_results_func);
+    }
+  }
+
+  local_results_func = std::vector<double>(size_local_results_func);
+
+  if (world_.rank() == 0) {
+    local_results_func = std::vector<double>(results_func.begin(), results_func.begin() + size_local_results_func);
+  } else {
+    world_.recv(0, 0, local_results_func.data(), size_local_results_func);
+  }
+
+  if (world_.rank() == 0) {
+    for (int proc = 1; proc < world_.size(); proc++) {
+      world_.send(proc, 0, size_step.data(), size_local_size_step);
+    }
+  }
+
+  local_size_step = std::vector<double>(size_local_size_step);
+
+  if (world_.rank() == 0) {
+    local_size_step = std::vector<double>(size_step.begin(), size_step.begin() + size_local_size_step);
+  } else {
+    world_.recv(0, 0, local_size_step.data(), size_local_size_step);
+  }
+
+  for (size_t i = 0; i < local_results_func.size(); i++) {
+    local_results_output += local_results_func[i];
+  }
+
+  for (size_t i = 0; i < local_size_step.size(); i++) {
+    local_results_output *= local_size_step[i];
+  }
+
+  reduce(world_, local_results_output, result_output_, std::plus(), 0);
+
+  if (world_.rank() == 0) {
+    // divided by 3 to the power
+    result_output_ /= pow(3, nums_variables_);
   }
   return true;
 }

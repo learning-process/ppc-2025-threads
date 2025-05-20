@@ -55,11 +55,11 @@ TEST(kolokolova_d_integral_simpson_method_all, test_task_run) {
   // Create Perf analyzer
   auto perf_analyzer = std::make_shared<ppc::core::Perf>(test_task_all);
   perf_analyzer->TaskRun(perf_attr, perf_results);
-  ppc::core::Perf::PrintPerfStatistic(perf_results);
 
   double ans = 927300.25;
   double error = 1.0;
   if (world.rank() == 0) {
+    ppc::core::Perf::PrintPerfStatistic(perf_results);
     ASSERT_NEAR(func_result, ans, error);
   }
 }

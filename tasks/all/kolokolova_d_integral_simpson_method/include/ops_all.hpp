@@ -32,6 +32,7 @@ class TestTaskALL : public ppc::core::Task {
  private:
   double result_output_ = 0;
   int nums_variables_ = 0;
+  double local_results_output = 0;
   std::vector<double> results_func;
   std::vector<double> local_results_func;
   int size_local_results_func = 0;
