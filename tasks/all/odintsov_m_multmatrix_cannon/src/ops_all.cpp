@@ -162,7 +162,8 @@ void odintsov_m_mulmatrix_cannon_all::MulMatrixCannonALL::ProcessBlockSTL(int bi
                                                                           const std::vector<double>& matrix_a,
                                                                           const std::vector<double>& matrix_b,
                                                                           std::vector<double>& local_c) {
-  int tcount = num_blocks;
+  int max_threads = ppc::util::GetPPCNumThreads();
+  int tcount = std::min(max_threads, num_blocks);
   std::vector<thread> threads;
   threads.reserve(tcount);
 
