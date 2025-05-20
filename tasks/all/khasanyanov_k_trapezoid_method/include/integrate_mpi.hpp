@@ -5,7 +5,6 @@
 #include <memory>
 #include <utility>
 
-#include "../include/integrator.hpp"
 #include "boost/mpi/communicator.hpp"
 #include "core/task/include/task.hpp"
 

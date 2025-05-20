@@ -6,7 +6,6 @@
 #include <cstdint>
 #include <memory>
 
-#include "../include/integrator.hpp"
 #include "boost/mpi/collectives/all_reduce.hpp"
 #include "boost/mpi/collectives/broadcast.hpp"
 #include "core/task/include/task.hpp"
