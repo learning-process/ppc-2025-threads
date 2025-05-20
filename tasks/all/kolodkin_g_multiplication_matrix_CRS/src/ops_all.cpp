@@ -1,13 +1,14 @@
 #include "all/kolodkin_g_multiplication_matrix_CRS/include/ops_all.hpp"
 
+#include <mpi.h>
+
+#include <algorithm>
 #include <cmath>
 #include <complex>
 #include <core/util/include/util.hpp>
 #include <cstddef>
-#include <iostream>
 #include <map>
 #include <thread>
-#include <unordered_map>
 #include <vector>
 
 void kolodkin_g_multiplication_matrix_all::SparseMatrixCRS::AddValue(int row, Complex value, int col) {
@@ -112,6 +113,41 @@ kolodkin_g_multiplication_matrix_all::SparseMatrixCRS kolodkin_g_multiplication_
   return res;
 }
 
+kolodkin_g_multiplication_matrix_all::SparseMatrixCRS kolodkin_g_multiplication_matrix_all::BuildResultMatrix(
+    const std::vector<kolodkin_g_multiplication_matrix_all::CoordVal>& all_results, int a_num_rows, int b_num_cols) {
+  kolodkin_g_multiplication_matrix_all::SparseMatrixCRS c(a_num_rows, b_num_cols);
+  std::map<std::pair<int, int>, Complex> result_map;
+
+  for (const auto& rv : all_results) {
+    result_map[{rv.row, rv.col}] += rv.value;
+  }
+
+  c.rowPtr.resize(a_num_rows + 1);
+  c.values.reserve(result_map.size());
+  c.colIndices.reserve(result_map.size());
+
+  c.rowPtr[0] = 0;
+
+  for (int i = 0; i < a_num_rows; ++i) {
+    for (auto& kv : result_map) {
+      if (kv.first.first == i && kv.second != Complex(0)) {
+        c.colIndices.push_back(kv.first.second);
+        c.values.push_back(kv.second);
+      }
+    }
+    c.rowPtr[i + 1] = static_cast<int>(c.colIndices.size());
+
+    for (auto it = result_map.begin(); it != result_map.end();) {
+      if (it->first.first == i) {
+        it = result_map.erase(it);
+      } else {
+        ++it;
+      }
+    }
+  }
+  return c;
+}
+
 bool kolodkin_g_multiplication_matrix_all::TestTaskALL::PreProcessingImpl() {
   // Init value for input and output
   unsigned int input_size = task_data->inputs_count[0];
@@ -142,125 +178,99 @@ bool kolodkin_g_multiplication_matrix_all::TestTaskALL::ValidationImpl() {
 }
 
 bool kolodkin_g_multiplication_matrix_all::TestTaskALL::RunImpl() {
-  int rank, size;
+  int rank = 0;
+  int size = 0;
   MPI_Comm_rank(MPI_COMM_WORLD, &rank);
   MPI_Comm_size(MPI_COMM_WORLD, &size);
-  int aNumRows = A_.numRows;
-  int aNumCols = A_.numCols;
-  int bNumRows = B_.numRows;
-  int bNumCols = B_.numCols;
+  int a_num_rows = A_.numRows;
+  int a_num_cols = A_.numCols;
+  int b_num_rows = B_.numRows;
+  int b_num_cols = B_.numCols;
 
-  MPI_Bcast(&aNumRows, 1, MPI_INT, 0, MPI_COMM_WORLD);
-  MPI_Bcast(&aNumCols, 1, MPI_INT, 0, MPI_COMM_WORLD);
-  MPI_Bcast(&bNumRows, 1, MPI_INT, 0, MPI_COMM_WORLD);
-  MPI_Bcast(&bNumCols, 1, MPI_INT, 0, MPI_COMM_WORLD);
+  MPI_Bcast(&a_num_rows, 1, MPI_INT, 0, MPI_COMM_WORLD);
+  MPI_Bcast(&a_num_cols, 1, MPI_INT, 0, MPI_COMM_WORLD);
+  MPI_Bcast(&b_num_rows, 1, MPI_INT, 0, MPI_COMM_WORLD);
+  MPI_Bcast(&b_num_cols, 1, MPI_INT, 0, MPI_COMM_WORLD);
 
-  int rowPerProc = aNumRows / size;
-  int remainder = aNumRows % size;
+  int row_per_proc = a_num_rows / size;
+  int remainder = a_num_rows % size;
 
-  int startRow = rank * rowPerProc + std::min(rank, remainder);
-  int endRow = startRow + rowPerProc + (rank < remainder ? 1 : 0);
+  int start_row = (rank * row_per_proc) + std::min(rank, remainder);
+  int end_row = start_row + row_per_proc + (rank < remainder ? 1 : 0);
 
-  std::vector<CoordVal> localResults;
+  std::vector<CoordVal> local_results;
 
-  int numThreads = ppc::util::GetPPCNumThreads();
+  int num_threads = ppc::util::GetPPCNumThreads();
 
-  std::vector<std::thread> threads(numThreads);
-  std::vector<std::vector<CoordVal>> threadResults(numThreads);
-  int chunkSize = (endRow - startRow) / numThreads;
-  int currentStart = startRow;
+  std::vector<std::thread> threads(num_threads);
+  std::vector<std::vector<CoordVal>> thread_results(num_threads);
+  int chunk_size = (end_row - start_row) / num_threads;
+  int current_start = start_row;
 
-  auto processPart = [&](int startI, int endI, int threadIndex) {
-    std::vector<CoordVal>& localThreadResults = threadResults[threadIndex];
-    for (int i = startI; i < endI; ++i) {
-      for (int jIdx = A_.rowPtr[i]; jIdx < A_.rowPtr[i + 1]; ++jIdx) {
-        int colA = A_.colIndices[jIdx];
-        Complex valueA = A_.values[jIdx];
+  auto process_part = [&](int start_i, int end_i, int thread_index) {
+    std::vector<CoordVal>& local_thread_results = thread_results[thread_index];
+    for (int i = start_i; i < end_i; ++i) {
+      for (int j_idx = A_.rowPtr[i]; j_idx < A_.rowPtr[i + 1]; ++j_idx) {
+        int col_a = A_.colIndices[j_idx];
+        Complex value_a = A_.values[j_idx];
 
-        for (int kIdx = B_.rowPtr[colA]; kIdx < B_.rowPtr[colA + 1]; ++kIdx) {
-          int colB = B_.colIndices[kIdx];
-          Complex valueB = B_.values[kIdx];
+        for (int k_idx = B_.rowPtr[col_a]; k_idx < B_.rowPtr[col_a + 1]; ++k_idx) {
+          int col_b = B_.colIndices[k_idx];
+          Complex value_b = B_.values[k_idx];
 
-          AddResult(localThreadResults, i, colB, valueA * valueB);
+          AddResult(local_thread_results, i, col_b, value_a * value_b);
         }
       }
     }
   };
 
-  for (int t = 0; t < numThreads; ++t) {
-    int threadStart = currentStart + (chunkSize * t);
-    int threadEnd = (t == numThreads - 1) ? endRow : threadStart + chunkSize;
-    threads[t] = std::thread(processPart, threadStart, threadEnd, t);
+  for (int t = 0; t < num_threads; ++t) {
+    int thread_start = current_start + (chunk_size * t);
+    int thread_end = (t == num_threads - 1) ? end_row : thread_start + chunk_size;
+    threads[t] = std::thread(process_part, thread_start, thread_end, t);
   }
   for (auto& th : threads) {
     th.join();
   }
-  for (const auto& vec : threadResults) {
-    localResults.insert(localResults.end(), vec.begin(), vec.end());
+  for (const auto& vec : thread_results) {
+    local_results.insert(local_results.end(), vec.begin(), vec.end());
   }
 
-  int localSizeBytes = static_cast<int>(localResults.size() * sizeof(CoordVal));
+  int local_size_bytes = static_cast<int>(local_results.size() * sizeof(CoordVal));
 
-  std::vector<int> recvCounts(size);
-  MPI_Gather(&localSizeBytes, 1, MPI_INT, recvCounts.data(), 1, MPI_INT, 0, MPI_COMM_WORLD);
+  std::vector<int> recv_counts(size);
+  MPI_Gather(&local_size_bytes, 1, MPI_INT, recv_counts.data(), 1, MPI_INT, 0, MPI_COMM_WORLD);
 
   if (rank == 0) {
     std::vector<int> displs(size);
     if (!displs.empty()) {
       displs[0] = 0;
       for (int i = 1; i < size; ++i) {
-        displs[i] = displs[i - 1] + recvCounts[i - 1];
+        displs[i] = displs[i - 1] + recv_counts[i - 1];
       }
     }
-    int totalBytes = displs[size - 1] + recvCounts[size - 1];
+    int total_bytes = displs[size - 1] + recv_counts[size - 1];
 
-    std::vector<char> recvBuffer(totalBytes);
+    std::vector<char> recv_buffer(total_bytes);
 
-    std::vector<CoordVal> sendBuffer(localResults.begin(), localResults.end());
+    std::vector<CoordVal> send_buffer(local_results.begin(), local_results.end());
 
-    MPI_Gatherv(sendBuffer.data(), static_cast<int>(sendBuffer.size() * sizeof(CoordVal)), MPI_BYTE, recvBuffer.data(),
-                recvCounts.data(), displs.data(), MPI_BYTE, 0, MPI_COMM_WORLD);
+    MPI_Gatherv(send_buffer.data(), static_cast<int>(send_buffer.size() * sizeof(CoordVal)), MPI_BYTE,
+                recv_buffer.data(), recv_counts.data(), displs.data(), MPI_BYTE, 0, MPI_COMM_WORLD);
 
-    std::vector<CoordVal> allResults;
-    allResults.reserve(totalBytes / sizeof(CoordVal));
-    CoordVal* ptr = reinterpret_cast<CoordVal*>(recvBuffer.data());
-    size_t countCoords = totalBytes / sizeof(CoordVal);
-    for (size_t i = 0; i < countCoords; ++i) {
-      allResults.push_back(ptr[i]);
+    std::vector<CoordVal> all_results;
+    all_results.reserve(total_bytes / sizeof(CoordVal));
+    CoordVal* ptr = reinterpret_cast<CoordVal*>(recv_buffer.data());
+    size_t count_coords = total_bytes / sizeof(CoordVal);
+    for (size_t i = 0; i < count_coords; ++i) {
+      all_results.push_back(ptr[i]);
     }
-    SparseMatrixCRS C(aNumRows, bNumCols);
-    std::map<std::pair<int, int>, Complex> resultMap;
-
-    for (const auto& rv : allResults) {
-      resultMap[{rv.row, rv.col}] += rv.value;
-    }
-
-    C.rowPtr.resize(aNumRows + 1);
-    C.values.reserve(resultMap.size());
-    C.colIndices.reserve(resultMap.size());
-
-    C.rowPtr[0] = 0;
-
-    for (int i = 0; i < aNumRows; ++i) {
-      for (auto& kv : resultMap) {
-        if (kv.first.first == i && kv.second != Complex(0)) {
-          C.colIndices.push_back(kv.first.second);
-          C.values.push_back(kv.second);
-        }
-      }
-      C.rowPtr[i + 1] = static_cast<int>(C.colIndices.size());
-
-      for (auto it = resultMap.begin(); it != resultMap.end();) {
-        if (it->first.first == i)
-          it = resultMap.erase(it);
-        else
-          ++it;
-      }
-    }
-    output_ = ParseMatrixIntoVec(C);
+    kolodkin_g_multiplication_matrix_all::SparseMatrixCRS c(a_num_rows, b_num_cols);
+    c = BuildResultMatrix(all_results, a_num_rows, b_num_cols);
+    output_ = ParseMatrixIntoVec(c);
 
   } else {
-    MPI_Gatherv(localResults.data(), static_cast<int>(localResults.size() * sizeof(CoordVal)), MPI_BYTE, nullptr,
+    MPI_Gatherv(local_results.data(), static_cast<int>(local_results.size() * sizeof(CoordVal)), MPI_BYTE, nullptr,
                 nullptr, nullptr, MPI_BYTE, 0, MPI_COMM_WORLD);
   }
 

@@ -35,6 +35,8 @@ struct SparseMatrixCRS {
 };
 std::vector<Complex> ParseMatrixIntoVec(const SparseMatrixCRS& mat);
 SparseMatrixCRS ParseVectorIntoMatrix(std::vector<Complex>& vec);
+SparseMatrixCRS BuildResultMatrix(const std::vector<kolodkin_g_multiplication_matrix_all::CoordVal>& all_results,
+                                  int a_num_rows, int b_num_cols);
 bool CheckMatrixesEquality(const SparseMatrixCRS& a, const SparseMatrixCRS& b);
 bool AreEqualElems(const Complex& a, const Complex& b, double epsilon);
 class TestTaskALL : public ppc::core::Task {
