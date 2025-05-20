@@ -4,6 +4,7 @@
 #include <functional>
 #include <thread>
 #include <utility>
+
 #include "core/util/include/util.hpp"
 
 bool kharin_m_multidimensional_integral_calc_all::TaskALL::ValidationImpl() {

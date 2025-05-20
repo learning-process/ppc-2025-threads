@@ -3,6 +3,7 @@
 #include <boost/mpi.hpp>
 #include <cstddef>
 #include <vector>
+
 #include "core/task/include/task.hpp"
 
 namespace kharin_m_multidimensional_integral_calc_all {
@@ -16,13 +17,13 @@ class TaskALL : public ppc::core::Task {
   bool PostProcessingImpl() override;
 
  private:
-  std::vector<double> input_;        // Входные данные, только в rank 0
-  std::vector<double> local_input_;  // Локальная часть входных данных для каждого процесса
-  std::vector<size_t> grid_sizes_;   // Размеры сетки в каждом измерении
-  std::vector<double> step_sizes_;   // Шаги интегрирования в каждом измерении
-  double output_result_;             // Результат вычисления интеграла, только в rank 0
-  boost::mpi::communicator world_;   // Коммуникатор MPI
-  size_t num_threads_{1};            // Количество потоков в каждом процессе
+  std::vector<double> input_;
+  std::vector<double> local_input_;
+  std::vector<size_t> grid_sizes_;
+  std::vector<double> step_sizes_;
+  double output_result_;
+  boost::mpi::communicator world_;
+  size_t num_threads_{1};
 };
 
 }  // namespace kharin_m_multidimensional_integral_calc_all
