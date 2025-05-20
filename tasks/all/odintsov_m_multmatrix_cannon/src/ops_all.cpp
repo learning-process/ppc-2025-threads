@@ -6,6 +6,7 @@
 #include <boost/mpi/collectives/reduce.hpp>
 #include <boost/mpi/communicator.hpp>
 #include <cmath>
+#include <core/util/include/util.hpp>
 #include <cstddef>
 #include <functional>
 #include <thread>
@@ -270,7 +271,7 @@ bool odintsov_m_mulmatrix_cannon_all::MulMatrixCannonALL::RunImpl() {
   }
 
   // 5) Сводим накопленные данные в matrixC_ на rank 0
-  boost::mpi::reduce(com_, local_c_acc.data(), root * root, matrixC_.data(), std::plus<double>(), 0);
+  boost::mpi::reduce(com_, local_c_acc.data(), root * root, matrixC_.data(), std::plus<>(), 0);
 
   return true;
 }
