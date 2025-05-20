@@ -1,12 +1,12 @@
 #include "all/shulpin_i_jarvis_passage/include/test_modules.hpp"
 
 #include <gtest/gtest.h>
+#include <mpi.h>
 
 #include <cmath>
 #include <cstddef>
 #include <cstdint>
 #include <memory>
-#include <mpi.h>
 #include <numbers>
 #include <random>
 #include <unordered_set>

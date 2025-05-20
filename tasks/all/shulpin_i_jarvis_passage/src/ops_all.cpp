@@ -1,10 +1,11 @@
 #include "all/shulpin_i_jarvis_passage/include/ops_all.hpp"
 
+#include <mpi.h>
+
 #include <algorithm>
 #include <cmath>
 #include <cstddef>
 #include <cstring>
-#include <mpi.h>
 #include <thread>
 #include <unordered_set>
 #include <vector>
@@ -46,7 +47,8 @@ shulpin_i_jarvis_all::Point FindLocalCandidate(const shulpin_i_jarvis_all::Point
   };
 
   std::vector<std::thread> threads;
-  threads.reserve(num_threads); 
+  threads.reserve(num_threads);
+
   for (int t = 0; t < num_threads; ++t) {
     threads.emplace_back(worker, t);
   }
