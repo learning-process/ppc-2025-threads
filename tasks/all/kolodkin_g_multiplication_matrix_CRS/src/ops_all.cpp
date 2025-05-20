@@ -163,45 +163,16 @@ bool kolodkin_g_multiplication_matrix_all::TestTaskALL::RunImpl() {
 
   std::vector<CoordVal> localResults;
 
-  if (rank == 0) {
-    int numThreads = ppc::util::GetPPCNumThreads();
+  int numThreads = ppc::util::GetPPCNumThreads();
 
-    std::vector<std::thread> threads(numThreads);
-    std::vector<std::vector<CoordVal>> threadResults(numThreads);
-    int chunkSize = (endRow - startRow) / numThreads;
-    int currentStart = startRow;
+  std::vector<std::thread> threads(numThreads);
+  std::vector<std::vector<CoordVal>> threadResults(numThreads);
+  int chunkSize = (endRow - startRow) / numThreads;
+  int currentStart = startRow;
 
-    auto processPart = [&](int startI, int endI, int threadIndex) {
-      std::vector<CoordVal>& localThreadResults = threadResults[threadIndex];
-      for (int i = startI; i < endI; ++i) {
-        for (int jIdx = A_.rowPtr[i]; jIdx < A_.rowPtr[i + 1]; ++jIdx) {
-          int colA = A_.colIndices[jIdx];
-          Complex valueA = A_.values[jIdx];
-
-          for (int kIdx = B_.rowPtr[colA]; kIdx < B_.rowPtr[colA + 1]; ++kIdx) {
-            int colB = B_.colIndices[kIdx];
-            Complex valueB = B_.values[kIdx];
-
-            AddResult(localThreadResults, i, colB, valueA * valueB);
-          }
-        }
-      }
-    };
-
-    for (int t = 0; t < numThreads; ++t) {
-      int threadStart = currentStart + (chunkSize * t);
-      int threadEnd = (t == numThreads - 1) ? endRow : threadStart + chunkSize;
-      threads[t] = std::thread(processPart, threadStart, threadEnd, t);
-    }
-    for (auto& th : threads) {
-      th.join();
-    }
-    for (const auto& vec : threadResults) {
-      localResults.insert(localResults.end(), vec.begin(), vec.end());
-    }
-
-  } else {
-    for (int i = startRow; i < endRow; ++i) {
+  auto processPart = [&](int startI, int endI, int threadIndex) {
+    std::vector<CoordVal>& localThreadResults = threadResults[threadIndex];
+    for (int i = startI; i < endI; ++i) {
       for (int jIdx = A_.rowPtr[i]; jIdx < A_.rowPtr[i + 1]; ++jIdx) {
         int colA = A_.colIndices[jIdx];
         Complex valueA = A_.values[jIdx];
@@ -210,10 +181,22 @@ bool kolodkin_g_multiplication_matrix_all::TestTaskALL::RunImpl() {
           int colB = B_.colIndices[kIdx];
           Complex valueB = B_.values[kIdx];
 
-          AddResult(localResults, i, colB, valueA * valueB);
+          AddResult(localThreadResults, i, colB, valueA * valueB);
         }
       }
     }
+  };
+
+  for (int t = 0; t < numThreads; ++t) {
+    int threadStart = currentStart + (chunkSize * t);
+    int threadEnd = (t == numThreads - 1) ? endRow : threadStart + chunkSize;
+    threads[t] = std::thread(processPart, threadStart, threadEnd, t);
+  }
+  for (auto& th : threads) {
+    th.join();
+  }
+  for (const auto& vec : threadResults) {
+    localResults.insert(localResults.end(), vec.begin(), vec.end());
   }
 
   int localSizeBytes = static_cast<int>(localResults.size() * sizeof(CoordVal));
