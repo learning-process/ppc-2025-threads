@@ -2,10 +2,9 @@
 
 #include <algorithm>
 #include <cmath>
-#include <condition_variable>
 #include <cstddef>
 #include <cstring>
-#include <mutex>
+#include <mpi.h>
 #include <thread>
 #include <unordered_set>
 #include <vector>
@@ -22,7 +21,7 @@ int Orientation(const shulpin_i_jarvis_all::Point& p, const shulpin_i_jarvis_all
   return (val > 0) ? 1 : 2;
 }
 
-shulpin_i_jarvis_all::Point findLocalCandidate(const shulpin_i_jarvis_all::Point& current,
+shulpin_i_jarvis_all::Point FindLocalCandidate(const shulpin_i_jarvis_all::Point& current,
                                                const std::vector<shulpin_i_jarvis_all::Point>& points,
                                                int num_threads) {
   std::vector<shulpin_i_jarvis_all::Point> local_cand(num_threads, points.front());
@@ -34,7 +33,9 @@ shulpin_i_jarvis_all::Point findLocalCandidate(const shulpin_i_jarvis_all::Point
     shulpin_i_jarvis_all::Point& candidate = local_cand[tid];
     for (size_t i = start; i < end; ++i) {
       const auto& p = points[i];
-      if (p == current) continue;
+      if (p == current) {
+        continue;
+      }
       double cross = ((p.y - current.y) * (candidate.x - current.x)) - ((p.x - current.x) * (candidate.y - current.y));
       double d_p = std::pow(p.x - current.x, 2) + std::pow(p.y - current.y, 2);
       double d_c = std::pow(candidate.x - current.x, 2) + std::pow(candidate.y - current.y, 2);
@@ -45,11 +46,14 @@ shulpin_i_jarvis_all::Point findLocalCandidate(const shulpin_i_jarvis_all::Point
   };
 
   std::vector<std::thread> threads;
+  threads.reserve(num_threads); 
   for (int t = 0; t < num_threads; ++t) {
     threads.emplace_back(worker, t);
   }
   for (auto& th : threads) {
-    if (th.joinable()) th.join();
+    if (th.joinable()) {
+      th.join();
+    }
   }
 
   shulpin_i_jarvis_all::Point best = local_cand[0];
@@ -125,164 +129,40 @@ bool shulpin_i_jarvis_all::JarvisSequential::PostProcessingImpl() {
   return true;
 }
 
-// this whole nolint block is for NOLINT(readability-function-cognitive-complexity). using it as end-of-line comment
-// doesn't work. all other linter warnings have been resolved
-// NOLINTBEGIN
-/*
-void shulpin_i_jarvis_all::JarvisSTLParallel::MakeJarvisPassageSTL(
-    std::vector<shulpin_i_jarvis_all::Point>& input_jar, std::vector<shulpin_i_jarvis_all::Point>& output_jar) {
-  output_jar.clear();
-
-  std::unordered_set<Point, PointHash, PointEqual> unique_points;
-
-  size_t most_left = 0;
-  for (size_t i = 1; i < input_jar.size(); ++i) {
-    if (input_jar[i].x < input_jar[most_left].x ||
-        (input_jar[i].x == input_jar[most_left].x && input_jar[i].y < input_jar[most_left].y)) {
-      most_left = i;
-    }
-  }
-
-  const Point& min_point = input_jar[most_left];
-  std::vector<Point> convex_hull = {min_point};
-  Point prev_point = min_point;
-  Point next_point;
-
-  int num_threads = ppc::util::GetPPCNumThreads();
-  int chunk_size = static_cast<int>(input_jar.size() / num_threads);
-
-  std::vector<std::thread> threads;
-  std::vector<Point> candidates(num_threads, input_jar[0]);
-  std::vector<bool> thread_ready(num_threads, false);
-  std::vector<bool> thread_done(num_threads, false);
-  std::mutex mtx;
-  std::condition_variable cv;
-  bool stop = false;
-
-  auto findNextPointThread = [&](int tid) {
-    while (true) {
-      std::unique_lock<std::mutex> lock(mtx);
-      cv.wait(lock, [&] { return thread_ready[tid] || stop; });
-
-      if (stop) {
-        return;
-      }
-
-      int start = tid * chunk_size;
-      int end = (tid == num_threads - 1) ? static_cast<int>(input_jar.size()) : (tid + 1) * chunk_size;
-      Point candidate = input_jar[start];
-
-      for (int i = start; i < end; ++i) {
-        const auto& point = input_jar[i];
-        if (point == prev_point) {
-          continue;
-        }
-
-        double cross_product = ((point.y - prev_point.y) * (candidate.x - prev_point.x)) -
-                               ((point.x - prev_point.x) * (candidate.y - prev_point.y));
-        double dist1 = std::pow(point.x - prev_point.x, 2) + std::pow(point.y - prev_point.y, 2);
-        double dist2 = std::pow(candidate.x - prev_point.x, 2) + std::pow(candidate.y - prev_point.y, 2);
-
-        if (cross_product > 0 || (cross_product == 0 && dist1 > dist2)) {
-          candidate = point;
-        }
-      }
-
-      candidates[tid] = candidate;
-      thread_ready[tid] = false;
-      thread_done[tid] = true;
-      cv.notify_all();
-    }
-  };
-
-  for (int i = 0; i < num_threads; ++i) {
-    threads.emplace_back(findNextPointThread, i);
-  }
-
-  do {
-    next_point = input_jar[0];
-
-    {
-      std::unique_lock<std::mutex> lock(mtx);
-      for (int i = 0; i < num_threads; ++i) {
-        thread_ready[i] = true;
-        thread_done[i] = false;
-      }
-    }
-    cv.notify_all();
-
-    {
-      std::unique_lock<std::mutex> lock(mtx);
-      cv.wait(lock, [&] {
-        return std::ranges::all_of(thread_done.begin(), thread_done.end(), [](bool done) { return done; });
-      });
-    }
-
-    for (const auto& candidate : candidates) {
-      double cross_product = ((candidate.y - prev_point.y) * (next_point.x - prev_point.x)) -
-                             ((candidate.x - prev_point.x) * (next_point.y - prev_point.y));
-      double dist1 = std::pow(candidate.x - prev_point.x, 2) + std::pow(candidate.y - prev_point.y, 2);
-      double dist2 = std::pow(next_point.x - prev_point.x, 2) + std::pow(next_point.y - prev_point.y, 2);
-      if (cross_product > 0 || (cross_product == 0 && dist1 > dist2)) {
-        next_point = candidate;
-      }
-    }
-
-    if (unique_points.find(next_point) == unique_points.end()) {
-      output_jar.push_back(next_point);
-      unique_points.insert(next_point);
-    }
-
-    prev_point = next_point;
-
-  } while (next_point != min_point);
-
-  {
-    std::unique_lock<std::mutex> lock(mtx);
-    stop = true;
-    cv.notify_all();
-  }
-
-  for (auto& thread : threads) {
-    if (thread.joinable()) {
-      thread.join();
-    }
-  }
-}
-*/
-// NOLINTEND
+// NOLINTNEXTLINE(readability-function-cognitive-complexity)
 void shulpin_i_jarvis_all::JarvisALLParallel::MakeJarvisPassageALL(
     std::vector<shulpin_i_jarvis_all::Point>& input_jar, std::vector<shulpin_i_jarvis_all::Point>& output_jar) {
   output_jar.clear();
 
-  MPI_Datatype MPI_POINT;
-  MPI_Type_contiguous(2, MPI_DOUBLE, &MPI_POINT);
-  MPI_Type_commit(&MPI_POINT);
+  MPI_Datatype mpi_point = MPI_DATATYPE_NULL;
+  MPI_Type_contiguous(2, MPI_DOUBLE, &mpi_point);
+  MPI_Type_commit(&mpi_point);
 
-  size_t N = input_jar.size();
-  MPI_Bcast(&N, 1, MPI_UNSIGNED_LONG, 0, MPI_COMM_WORLD);
+  size_t n = input_jar.size();
+  MPI_Bcast(&n, 1, MPI_UnSIGnED_LOnG, 0, MPI_COMM_WORLD);
 
   if (rank_ != 0) {
-    input_jar.resize(N);
+    input_jar.resize(n);
   }
 
-  MPI_Bcast(input_jar.data(), N, MPI_POINT, 0, MPI_COMM_WORLD);
+  MPI_Bcast(input_jar.data(), n, mpi_point, 0, MPI_COMM_WORLD);
 
   size_t most_left = 0;
   if (rank_ == 0) {
-    for (size_t i = 1; i < N; ++i) {
+    for (size_t i = 1; i < n; ++i) {
       if (input_jar[i].x < input_jar[most_left].x ||
           (input_jar[i].x == input_jar[most_left].x && input_jar[i].y < input_jar[most_left].y)) {
         most_left = i;
       }
     }
   }
-  MPI_Bcast(&most_left, 1, MPI_UNSIGNED_LONG, 0, MPI_COMM_WORLD);
+  MPI_Bcast(&most_left, 1, MPI_UnSIGnED_LOnG, 0, MPI_COMM_WORLD);
   Point min_point = input_jar[most_left];
 
-  std::vector<int> counts(world_size_), displs(world_size_);
-  int base = static_cast<int>(N / world_size_);
-  int rem = static_cast<int>(N % world_size_);
+  std::vector<int> counts(world_size_);
+  std::vector<int> displs(world_size_);
+  int base = static_cast<int>(n / world_size_);
+  int rem = static_cast<int>(n % world_size_);
   int offset = 0;
   for (int i = 0; i < world_size_; ++i) {
     counts[i] = base + (i < rem ? 1 : 0);
@@ -291,7 +171,7 @@ void shulpin_i_jarvis_all::JarvisALLParallel::MakeJarvisPassageALL(
   }
 
   std::vector<Point> local_points(counts[rank_]);
-  MPI_Scatterv(input_jar.data(), counts.data(), displs.data(), MPI_POINT, local_points.data(), counts[rank_], MPI_POINT,
+  MPI_Scatterv(input_jar.data(), counts.data(), displs.data(), mpi_point, local_points.data(), counts[rank_], mpi_point,
                0, MPI_COMM_WORLD);
 
   std::unordered_set<Point, PointHash, PointEqual> unique_points;
@@ -302,20 +182,20 @@ void shulpin_i_jarvis_all::JarvisALLParallel::MakeJarvisPassageALL(
 
   Point prev_point = min_point;
   Point next_point;
-  int num_threads = ppc::util::GetPPCNumThreads();
+  int num_threads = ppc::util::GetPPCnumThreads();
 
   bool done = false;
 
   do {
-    MPI_Bcast(&prev_point, 1, MPI_POINT, 0, MPI_COMM_WORLD);
+    MPI_Bcast(&prev_point, 1, mpi_point, 0, MPI_COMM_WORLD);
 
-    Point local_candidate = findLocalCandidate(prev_point, local_points, num_threads);
+    Point local_candidate = FindLocalCandidate(prev_point, local_points, num_threads);
 
     std::vector<Point> all_cand;
     if (rank_ == 0) {
       all_cand.resize(world_size_);
     }
-    MPI_Gather(&local_candidate, 1, MPI_POINT, all_cand.data(), 1, MPI_POINT, 0, MPI_COMM_WORLD);
+    MPI_Gather(&local_candidate, 1, mpi_point, all_cand.data(), 1, mpi_point, 0, MPI_COMM_WORLD);
 
     if (rank_ == 0) {
       next_point = all_cand[0];
@@ -338,14 +218,14 @@ void shulpin_i_jarvis_all::JarvisALLParallel::MakeJarvisPassageALL(
       }
     }
 
-    MPI_Bcast(&next_point, 1, MPI_POINT, 0, MPI_COMM_WORLD);
+    MPI_Bcast(&next_point, 1, mpi_point, 0, MPI_COMM_WORLD);
     MPI_Bcast(&done, 1, MPI_C_BOOL, 0, MPI_COMM_WORLD);
 
     prev_point = next_point;
 
   } while (!done);
 
-  MPI_Type_free(&MPI_POINT);
+  MPI_Type_free(&mpi_point);
 }
 
 bool shulpin_i_jarvis_all::JarvisALLParallel::PreProcessingImpl() {

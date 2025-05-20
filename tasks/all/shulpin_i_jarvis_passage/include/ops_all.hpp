@@ -56,7 +56,7 @@ class JarvisALLParallel : public ppc::core::Task {
   bool RunImpl() override;
   bool PostProcessingImpl() override;
   void MakeJarvisPassageALL(std::vector<shulpin_i_jarvis_all::Point>& input,
-                            std::vector<shulpin_i_jarvis_all::Point>& output);
+                            std::vector<shulpin_i_jarvis_all::Point>& output) const;
 
  private:
   int rank_;

@@ -2,6 +2,7 @@
 
 #include <cmath>
 #include <cstddef>
+#include <mpi.h>
 #include <vector>
 
 #include "all/shulpin_i_jarvis_passage/include/ops_all.hpp"

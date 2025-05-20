@@ -6,6 +6,7 @@
 #include <cstddef>
 #include <cstdint>
 #include <memory>
+#include <mpi.h>
 #include <numbers>
 #include <random>
 #include <unordered_set>
