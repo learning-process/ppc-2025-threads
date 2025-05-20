@@ -44,13 +44,14 @@ bool golovkin_contrast_stretching::ContrastStretchingSTL<PixelType>::RunImpl() {
 
   const double scale = 255.0 / (max_val_ - min_val_);
 
-  unsigned int num_threads = std::thread::hardware_concurrency();
-  if (num_threads == 0) num_threads = 4;
+  unsigned int num_threads = ppc::util::GetPPCNumThreads();
   num_threads = std::min(num_threads, static_cast<unsigned int>(image_size_));
 
   size_t chunk_size = image_size_ / num_threads;
 
   std::vector<std::thread> threads;
+  threads.reserve(num_threads);
+
   for (unsigned int t = 0; t < num_threads; ++t) {
     size_t start = t * chunk_size;
     size_t end = (t == num_threads - 1) ? image_size_ : start + chunk_size;
