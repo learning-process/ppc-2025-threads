@@ -1,6 +1,6 @@
 #pragma once
 
-#include <boost/mpi/communicator.hpp> 
+#include <boost/mpi/communicator.hpp>
 #include <boost/mpi/environment.hpp>
 #include <cstddef>
 #include <vector>

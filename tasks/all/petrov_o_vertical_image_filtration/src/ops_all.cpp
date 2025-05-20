@@ -47,39 +47,40 @@ bool TaskAll::ValidationImpl() {
   return task_data->outputs_count[0] == (width - 2) * (height - 2);
 }
 
-void TaskAll::apply_gaussian_filter_tbb(std::vector<int>& local_output_ref, size_t my_start_output_row_val, size_t my_num_rows_val, size_t output_cols_val) {
-    if (my_num_rows_val == 0) {
-        return;
-    }
-    int num_tbb_threads = ppc::util::GetPPCNumThreads();
-    if (num_tbb_threads <= 0) {
-      num_tbb_threads = oneapi::tbb::info::default_concurrency();
-    }
-    if (num_tbb_threads <= 0) {
-      num_tbb_threads = 1;
-    }
+void TaskAll::apply_gaussian_filter_tbb(std::vector<int> &local_output_ref, size_t my_start_output_row_val,
+                                        size_t my_num_rows_val, size_t output_cols_val) {
+  if (my_num_rows_val == 0) {
+    return;
+  }
+  int num_tbb_threads = ppc::util::GetPPCNumThreads();
+  if (num_tbb_threads <= 0) {
+    num_tbb_threads = oneapi::tbb::info::default_concurrency();
+  }
+  if (num_tbb_threads <= 0) {
+    num_tbb_threads = 1;
+  }
 
-    oneapi::tbb::task_arena arena(num_tbb_threads);
-    arena.execute([&] {
-      tbb::parallel_for(tbb::blocked_range<size_t>(0, my_num_rows_val), [&](const tbb::blocked_range<size_t> &r_range) {
-        for (size_t local_i_out = r_range.begin(); local_i_out != r_range.end(); ++local_i_out) {
-          size_t global_i_out = my_start_output_row_val + local_i_out;
-          size_t i_in = global_i_out + 1;
+  oneapi::tbb::task_arena arena(num_tbb_threads);
+  arena.execute([&] {
+    tbb::parallel_for(tbb::blocked_range<size_t>(0, my_num_rows_val), [&](const tbb::blocked_range<size_t> &r_range) {
+      for (size_t local_i_out = r_range.begin(); local_i_out != r_range.end(); ++local_i_out) {
+        size_t global_i_out = my_start_output_row_val + local_i_out;
+        size_t i_in = global_i_out + 1;
 
-          for (size_t j_out = 0; j_out < output_cols_val; ++j_out) {
-            size_t j_in = j_out + 1;
-            float sum = 0.0F;
-            for (int ki = -1; ki <= 1; ++ki) {
-              for (int kj = -1; kj <= 1; ++kj) {
-                sum += static_cast<float>(input_[((i_in + ki) * width_) + (j_in + kj)]) *
-                       gaussian_kernel_[static_cast<size_t>((ki + 1) * 3 + (kj + 1))];
-              }
+        for (size_t j_out = 0; j_out < output_cols_val; ++j_out) {
+          size_t j_in = j_out + 1;
+          float sum = 0.0F;
+          for (int ki = -1; ki <= 1; ++ki) {
+            for (int kj = -1; kj <= 1; ++kj) {
+              sum += static_cast<float>(input_[((i_in + ki) * width_) + (j_in + kj)]) *
+                     gaussian_kernel_[static_cast<size_t>((ki + 1) * 3 + (kj + 1))];
             }
-            local_output_ref[(local_i_out * output_cols_val) + j_out] = static_cast<int>(sum);
           }
+          local_output_ref[(local_i_out * output_cols_val) + j_out] = static_cast<int>(sum);
         }
-      });
+      }
     });
+  });
 }
 
 bool TaskAll::RunImpl() {

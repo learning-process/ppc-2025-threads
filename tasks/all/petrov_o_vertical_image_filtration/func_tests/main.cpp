@@ -192,7 +192,7 @@ TEST(petrov_o_vertical_image_filtration_all, test_gaussian_filter_rectangular) {
   test_task_all.PostProcessing();
 
   // Check result
-  if (test_task_all.GetRank() == 0) { 
+  if (test_task_all.GetRank() == 0) {
     std::vector<int> expected_out = {6, 7};
     EXPECT_EQ(out, expected_out);
   }
