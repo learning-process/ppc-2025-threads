@@ -230,28 +230,6 @@ std::vector<double> kolokolova_d_integral_simpson_method_all::TestTaskALL::FindC
   return result_coeff;
 }
 
-void kolokolova_d_integral_simpson_method_all::TestTaskALL::MultiplyCoeffandFunctionValue(
-    std::vector<double>& function_val, const std::vector<double>& coeff_vec, int a) {}
-
-double kolokolova_d_integral_simpson_method_all::TestTaskALL::CreateOutputResult(std::vector<double> vec,
-                                                                                 std::vector<double> size_steps) const {
-  double sum = 0;
-
-  // sum all of vector elements
-  for (size_t i = 0; i < vec.size(); i++) {
-    sum += vec[i];
-  }
-
-  // multiply by the length of steps
-  for (size_t i = 0; i < size_steps.size(); i++) {
-    sum *= size_steps[i];
-  }
-
-  // divided by 3 to the power
-  sum /= pow(3, nums_variables_);
-
-  return sum;
-}
 bool kolokolova_d_integral_simpson_method_all::TestTaskALL::CheckBorders(std::vector<int> vec) {
   size_t i = 0;
   while (i < vec.size()) {
