@@ -147,7 +147,7 @@ void shulpin_i_jarvis_all::JarvisALLParallel::MakeJarvisPassageALL(
     input_jar.resize(n);
   }
 
-  MPI_Bcast(input_jar.data(), n, mpi_point, 0, MPI_COMM_WORLD);
+  MPI_Bcast(input_jar.data(), static_cast<int>(n), mpi_point, 0, MPI_COMM_WORLD);
 
   size_t most_left = 0;
   if (rank_ == 0) {
