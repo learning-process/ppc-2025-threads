@@ -4,8 +4,8 @@
 #include <algorithm>
 #include <cstdint>
 #include <cstring>
-#include <thread>
 #include <mutex>
+#include <thread>
 #include <vector>
 
 template <typename PixelType>
