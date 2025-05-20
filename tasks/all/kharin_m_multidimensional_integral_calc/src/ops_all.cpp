@@ -1,15 +1,15 @@
 #include "all/kharin_m_multidimensional_integral_calc/include/ops_all.hpp"
 
 #include <algorithm>
+#include <boost/mpi/collectives/broadcast.hpp>
+#include <boost/mpi/collectives/scatterv.hpp>
 #include <boost/serialization/utility.hpp>
+#include <boost/serialization/vector.hpp>  // NOLINT(*-include-cleaner)
 #include <functional>
 #include <thread>
 #include <utility>
 
 #include "boost/mpi/collectives/reduce.hpp"
-#include <boost/mpi/collectives/broadcast.hpp>
-#include <boost/mpi/collectives/scatterv.hpp>
-#include <boost/serialization/vector.hpp>  // NOLINT(*-include-cleaner)
 
 bool kharin_m_multidimensional_integral_calc_all::TaskALL::ValidationImpl() {
   if (world_.rank() == 0) {
