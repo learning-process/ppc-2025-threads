@@ -39,6 +39,62 @@ namespace {
 
 double TrapezoidalIntegration(const std::function<double(const std::vector<double>&)>& func,
                               const std::vector<double>& lower, const std::vector<double>& upper,
+                              const std::vector<int>& steps, size_t current_dim, const std::vector<double>& point);
+
+double CalculateWeight(int i, int steps_dim) { return (i == 0 || i == steps_dim) ? 0.5 : 1.0; }
+
+double SequentialIntegration(const std::function<double(const std::vector<double>&)>& func,
+                             const std::vector<double>& lower, const std::vector<double>& upper,
+                             const std::vector<int>& steps, size_t current_dim, std::vector<double>& point, double h) {
+  double sum = 0.0;
+  for (int i = 0; i <= steps[current_dim]; ++i) {
+    point[current_dim] = lower[current_dim] + i * h;
+    double weight = CalculateWeight(i, steps[current_dim]);
+    sum += weight * TrapezoidalIntegration(func, lower, upper, steps, current_dim + 1, point);
+  }
+  return sum * h;
+}
+
+void ThreadIntegration(const std::function<double(const std::vector<double>&)>& func, const std::vector<double>& lower,
+                       const std::vector<double>& upper, const std::vector<int>& steps, size_t current_dim,
+                       const std::vector<double>& new_point, double h, int start, int end,
+                       std::vector<double>& partial_sums) {
+  auto local_point = new_point;
+  for (int i = start; i < end; ++i) {
+    local_point[current_dim] = lower[current_dim] + i * h;
+    double weight = CalculateWeight(i, steps[current_dim]);
+    partial_sums[i] = weight * TrapezoidalIntegration(func, lower, upper, steps, current_dim + 1, local_point);
+  }
+}
+
+double ParallelIntegration(const std::function<double(const std::vector<double>&)>& func,
+                           const std::vector<double>& lower, const std::vector<double>& upper,
+                           const std::vector<int>& steps, size_t current_dim, const std::vector<double>& new_point,
+                           double h) {
+  std::vector<double> partial_sums(steps[current_dim] + 1, 0.0);
+  const int num_threads = std::min(ppc::util::GetPPCNumThreads(), 4);
+  std::vector<std::thread> threads(num_threads);
+  int chunk_size = (steps[current_dim] + 1) / num_threads;
+
+  for (int t = 0; t < num_threads; ++t) {
+    int start = t * chunk_size;
+    int end = (t == num_threads - 1) ? steps[current_dim] + 1 : (t + 1) * chunk_size;
+
+    threads[t] = std::thread(ThreadIntegration, std::ref(func), std::ref(lower), std::ref(upper), std::ref(steps),
+                             current_dim, std::ref(new_point), h, start, end, std::ref(partial_sums));
+  }
+
+  for (auto& thread : threads) {
+    if (thread.joinable()) {
+      thread.join();
+    }
+  }
+
+  return std::accumulate(partial_sums.begin(), partial_sums.end(), 0.0) * h;
+}
+
+double TrapezoidalIntegration(const std::function<double(const std::vector<double>&)>& func,
+                              const std::vector<double>& lower, const std::vector<double>& upper,
                               const std::vector<int>& steps, size_t current_dim, const std::vector<double>& point) {
   if (current_dim == lower.size()) {
     return func(point);
@@ -53,46 +109,14 @@ double TrapezoidalIntegration(const std::function<double(const std::vector<doubl
     return 0.0;
   }
 
-  double sum = 0.0;
   std::vector<double> new_point = point;
   new_point.push_back(0.0);
 
   if (current_dim >= lower.size() - 1 || steps[current_dim] < 1000) {
-    for (int i = 0; i <= steps[current_dim]; ++i) {
-      new_point[current_dim] = lower[current_dim] + i * h;
-      double weight = (i == 0 || i == steps[current_dim]) ? 0.5 : 1.0;
-      sum += weight * TrapezoidalIntegration(func, lower, upper, steps, current_dim + 1, new_point);
-    }
-    return sum * h;
+    return SequentialIntegration(func, lower, upper, steps, current_dim, new_point, h);
   }
 
-  std::vector<double> partial_sums(steps[current_dim] + 1, 0.0);
-  const int num_threads = std::min(ppc::util::GetPPCNumThreads(), 4);
-  std::vector<std::thread> threads(num_threads);
-  int chunk_size = (steps[current_dim] + 1) / num_threads;
-
-  for (int t = 0; t < num_threads; ++t) {
-    int start = t * chunk_size;
-    int end = (t == num_threads - 1) ? steps[current_dim] + 1 : (t + 1) * chunk_size;
-
-    threads[t] = std::thread([&, start, end, current_dim, h, new_point]() {
-      auto local_point = new_point;
-      for (int i = start; i < end; ++i) {
-        local_point[current_dim] = lower[current_dim] + i * h;
-        double weight = (i == 0 || i == steps[current_dim]) ? 0.5 : 1.0;
-        partial_sums[i] = weight * TrapezoidalIntegration(func, lower, upper, steps, current_dim + 1, local_point);
-      }
-    });
-  }
-
-  for (auto& thread : threads) {
-    if (thread.joinable()) {
-      thread.join();
-    }
-  }
-
-  sum = std::accumulate(partial_sums.begin(), partial_sums.end(), 0.0);
-  return sum * h;
+  return ParallelIntegration(func, lower, upper, steps, current_dim, new_point, h);
 }
 
 }  // namespace

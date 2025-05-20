@@ -31,8 +31,8 @@ TEST(prokhorov_n_multidimensional_integrals_by_trapezoidal_method_stl, test_pipe
       std::make_shared<prokhorov_n_multidimensional_integrals_by_trapezoidal_method_stl::TestTaskSTL>(task_data_stl);
 
   test_task_stl->SetFunction([](const std::vector<double>& point) {
-    return std::exp(point[0] * point[1]) * std::sin(point[2]) + std::sqrt(point[0] + point[1] + point[2]) +
-           std::log(1.0 + point[0] * point[1] * point[2]);
+    return (std::exp((point[0] * point[1])) * std::sin(point[2])) + std::sqrt((point[0] + point[1] + point[2])) +
+           std::log((1.0 + (point[0] * point[1] * point[2])));
   });
 
   auto perf_attr = std::make_shared<ppc::core::PerfAttr>();
@@ -71,8 +71,8 @@ TEST(prokhorov_n_multidimensional_integrals_by_trapezoidal_method_stl, test_task
       std::make_shared<prokhorov_n_multidimensional_integrals_by_trapezoidal_method_stl::TestTaskSTL>(task_data_stl);
 
   test_task_stl->SetFunction([](const std::vector<double>& point) {
-    return std::pow(point[0], 2.0) * std::cos(point[1]) +
-           std::exp(point[0] + point[1]) * std::log(1.0 + point[0] * point[1]);
+    return (std::pow(point[0], 2.0) * std::cos(point[1])) +
+           (std::exp((point[0] + point[1])) * std::log((1.0 + (point[0] * point[1]))));
   });
 
   auto perf_attr = std::make_shared<ppc::core::PerfAttr>();
