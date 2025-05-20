@@ -7,8 +7,10 @@
 #include <complex>
 #include <core/util/include/util.hpp>
 #include <cstddef>
+#include <iostream>
 #include <map>
 #include <thread>
+#include <utility>
 #include <vector>
 
 void kolodkin_g_multiplication_matrix_all::SparseMatrixCRS::AddValue(int row, Complex value, int col) {
@@ -260,7 +262,7 @@ bool kolodkin_g_multiplication_matrix_all::TestTaskALL::RunImpl() {
 
     std::vector<CoordVal> all_results;
     all_results.reserve(total_bytes / sizeof(CoordVal));
-    CoordVal* ptr = reinterpret_cast<CoordVal*>(recv_buffer.data());
+    auto ptr = reinterpret_cast<CoordVal*>(recv_buffer.data());
     size_t count_coords = total_bytes / sizeof(CoordVal);
     for (size_t i = 0; i < count_coords; ++i) {
       all_results.push_back(ptr[i]);
