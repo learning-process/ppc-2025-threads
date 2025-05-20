@@ -72,7 +72,7 @@ TEST(petrov_o_vertical_image_filtration_all, test_gaussian_filter_3x3) {
   test_task_all.PostProcessing();
 
   // Check result
-  if (test_task_all.get_rank() == 0) {
+  if (test_task_all.GetRank() == 0) {
     std::vector<int> expected_out = {5};
     EXPECT_EQ(out, expected_out);
   }
@@ -102,7 +102,7 @@ TEST(petrov_o_vertical_image_filtration_all, test_gaussian_filter_5x5) {
   test_task_all.PostProcessing();
 
   // Check result
-  if (test_task_all.get_rank() == 0) {
+  if (test_task_all.GetRank() == 0) {
     std::vector<int> expected_out = {7, 8, 9, 12, 13, 14, 17, 18, 19};
     EXPECT_EQ(out, expected_out);
   }
@@ -133,7 +133,7 @@ TEST(petrov_o_vertical_image_filtration_all, test_gaussian_filter_const_data) {
   test_task_all.PostProcessing();
 
   // Check result
-  if (test_task_all.get_rank() == 0) {
+  if (test_task_all.GetRank() == 0) {
     EXPECT_EQ(out, expected_out);
   }
 }
@@ -163,7 +163,7 @@ TEST(petrov_o_vertical_image_filtration_all, test_gaussian_filter_large_data) {
   test_task_all.PostProcessing();
 
   // Check result
-  if (test_task_all.get_rank() == 0) {
+  if (test_task_all.GetRank() == 0) {
     EXPECT_EQ(out, expected_out);
   }
 }
@@ -192,7 +192,7 @@ TEST(petrov_o_vertical_image_filtration_all, test_gaussian_filter_rectangular) {
   test_task_all.PostProcessing();
 
   // Check result
-  if (test_task_all.get_rank() == 0) {
+  if (test_task_all.GetRank() == 0) { 
     std::vector<int> expected_out = {6, 7};
     EXPECT_EQ(out, expected_out);
   }
@@ -264,7 +264,8 @@ TEST(petrov_o_vertical_image_filtration_all, test_gaussian_filter_random) {
   test_task_all.Run();
   test_task_all.PostProcessing();
 
-  if (test_task_all.get_rank() == 0) {
+  // Check result
+  if (test_task_all.GetRank() == 0) {
     const std::vector<float> gaussian_kernel = {1.0F / 16.0F, 2.0F / 16.0F, 1.0F / 16.0F, 2.0F / 16.0F, 4.0F / 16.0F,
                                                 2.0F / 16.0F, 1.0F / 16.0F, 2.0F / 16.0F, 1.0F / 16.0F};
 

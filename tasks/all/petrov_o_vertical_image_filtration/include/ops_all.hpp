@@ -1,8 +1,8 @@
 #pragma once
 
-#include <boost/mpi.hpp>
+#include <boost/mpi/communicator.hpp> 
+#include <boost/mpi/environment.hpp>
 #include <cstddef>
-#include <utility>
 #include <vector>
 // #include <iostream>
 
@@ -17,9 +17,11 @@ class TaskAll : public ppc::core::Task {
   bool ValidationImpl() override;
   bool RunImpl() override;
   bool PostProcessingImpl() override;
-  int get_rank() const { return world_.rank(); }
+  [[nodiscard]] int GetRank() const { return world_.rank(); }
 
  private:
+  void apply_gaussian_filter_tbb(std::vector<int>& local_output_ref, size_t my_start_output_row_val,
+                                 size_t my_num_rows_val, size_t output_cols_val);
   std::vector<int> input_;
   std::vector<int> output_;
   size_t width_{}, height_{};

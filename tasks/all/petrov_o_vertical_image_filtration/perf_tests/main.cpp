@@ -13,9 +13,9 @@ TEST(petrov_o_vertical_image_filtration_all, test_pipeline_run) {
   constexpr int kCount = 5000;
 
   // Create data
-  std::vector<int> in(kCount * kCount, 1);
-  std::vector<int> out((kCount - 2) * (kCount - 2), 0);
-  std::vector<int> expected_out((kCount - 2) * (kCount - 2), 1);
+  std::vector<int> in(static_cast<size_t>(kCount) * kCount, 1);
+  std::vector<int> out(static_cast<size_t>(kCount - 2) * (kCount - 2), 0);
+  std::vector<int> expected_out(static_cast<size_t>(kCount - 2) * (kCount - 2), 1);
 
   // Create task_data
   auto task_data_all = std::make_shared<ppc::core::TaskData>();
@@ -46,7 +46,7 @@ TEST(petrov_o_vertical_image_filtration_all, test_pipeline_run) {
   auto perf_analyzer = std::make_shared<ppc::core::Perf>(test_task_all);
   perf_analyzer->PipelineRun(perf_attr, perf_results);
   ppc::core::Perf::PrintPerfStatistic(perf_results);
-  if (test_task_all.get_rank() == 0) {
+  if (test_task_all->GetRank() == 0) {
     ASSERT_EQ(expected_out, out);
   }
 }
@@ -55,9 +55,9 @@ TEST(petrov_o_vertical_image_filtration_all, test_task_run) {
   constexpr int kCount = 5000;
 
   // Create data
-  std::vector<int> in(kCount * kCount, 1);
-  std::vector<int> out((kCount - 2) * (kCount - 2), 0);
-  std::vector<int> expected_out((kCount - 2) * (kCount - 2), 1);
+  std::vector<int> in(static_cast<size_t>(kCount) * kCount, 1);
+  std::vector<int> out(static_cast<size_t>(kCount - 2) * (kCount - 2), 0);
+  std::vector<int> expected_out(static_cast<size_t>(kCount - 2) * (kCount - 2), 1);
 
   // Create task_data
   auto task_data_all = std::make_shared<ppc::core::TaskData>();
@@ -87,7 +87,7 @@ TEST(petrov_o_vertical_image_filtration_all, test_task_run) {
   auto perf_analyzer = std::make_shared<ppc::core::Perf>(test_task_all);
   perf_analyzer->TaskRun(perf_attr, perf_results);
   ppc::core::Perf::PrintPerfStatistic(perf_results);
-  if (test_task_all.get_rank() == 0) {
+  if (test_task_all->GetRank() == 0) {
     ASSERT_EQ(expected_out, out);
   }
 }
