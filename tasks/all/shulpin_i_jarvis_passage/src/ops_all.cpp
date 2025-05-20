@@ -131,7 +131,7 @@ bool shulpin_i_jarvis_all::JarvisSequential::PostProcessingImpl() {
   return true;
 }
 
-// NOLINTNEXTLINE(readability-function-cognitive-complexity)
+// NOLINTNEXTLINE(readability-function-cognitive-complexity, readability-make-member-function-const)
 void shulpin_i_jarvis_all::JarvisALLParallel::MakeJarvisPassageALL(
     std::vector<shulpin_i_jarvis_all::Point>& input_jar, std::vector<shulpin_i_jarvis_all::Point>& output_jar) {
   output_jar.clear();
@@ -141,7 +141,7 @@ void shulpin_i_jarvis_all::JarvisALLParallel::MakeJarvisPassageALL(
   MPI_Type_commit(&mpi_point);
 
   size_t n = input_jar.size();
-  MPI_Bcast(&n, 1, MPI_UnSIGnED_LOnG, 0, MPI_COMM_WORLD);
+  MPI_Bcast(&n, 1, MPI_UNSIGNED_LONG, 0, MPI_COMM_WORLD);
 
   if (rank_ != 0) {
     input_jar.resize(n);
@@ -158,7 +158,7 @@ void shulpin_i_jarvis_all::JarvisALLParallel::MakeJarvisPassageALL(
       }
     }
   }
-  MPI_Bcast(&most_left, 1, MPI_UnSIGnED_LOnG, 0, MPI_COMM_WORLD);
+  MPI_Bcast(&most_left, 1, MPI_UNSIGNED_LONG, 0, MPI_COMM_WORLD);
   Point min_point = input_jar[most_left];
 
   std::vector<int> counts(world_size_);
@@ -184,7 +184,7 @@ void shulpin_i_jarvis_all::JarvisALLParallel::MakeJarvisPassageALL(
 
   Point prev_point = min_point;
   Point next_point;
-  int num_threads = ppc::util::GetPPCnumThreads();
+  int num_threads = ppc::util::GetPPCNumThreads();
 
   bool done = false;
 
