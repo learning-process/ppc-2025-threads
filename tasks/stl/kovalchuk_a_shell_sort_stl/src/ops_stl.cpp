@@ -5,6 +5,7 @@
 #include <utility>
 #include <vector>
 
+#include "../modules/core/util/include/util.hpp"
 #include "core/task/include/task.hpp"
 
 namespace kovalchuk_a_shell_sort_stl {
