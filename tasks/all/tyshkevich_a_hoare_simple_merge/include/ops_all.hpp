@@ -5,14 +5,14 @@
 #include <tbb/tbb.h>
 
 #include <algorithm>
+#include <boost/mpi/collectives/broadcast.hpp>  // NOLINT
+#include <boost/mpi/communicator.hpp>
 #include <cstddef>
 #include <cstdint>
 #include <span>
 #include <utility>
 #include <vector>
 
-#include "boost/mpi/collectives/broadcast.hpp"
-#include "boost/mpi/communicator.hpp"
 #include "core/task/include/task.hpp"
 #include "core/util/include/util.hpp"
 
@@ -139,7 +139,7 @@ class HoareSortTask : public ppc::core::Task {
       overall_size = input_.size();
       std::copy(input_.begin(), input_.end(), output_.begin());
     }
-    boost::mpi::broadcast(world_, overall_size, 0);
+    boost::mpi::broadcast(world_, overall_size, 0);  // NOLINT(misc-include-cleaner)
 
     const int procs = std::min(int(overall_size), world_.size());
     const int rank = world_.rank();
