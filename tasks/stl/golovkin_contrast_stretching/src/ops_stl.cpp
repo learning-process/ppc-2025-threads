@@ -5,6 +5,8 @@
 #include <cstdint>
 #include <cstring>
 #include <vector>
+#include <thread>
+#include <mutex>
 
 template <typename PixelType>
 bool golovkin_contrast_stretching::ContrastStretchingSTL<PixelType>::ValidationImpl() {
@@ -34,25 +36,43 @@ bool golovkin_contrast_stretching::ContrastStretchingSTL<PixelType>::PreProcessi
 
 template <typename PixelType>
 bool golovkin_contrast_stretching::ContrastStretchingSTL<PixelType>::RunImpl() {
-  if (image_size_ == 0) {
-    return true;
-  }
+  if (image_size_ == 0) return true;
   if (min_val_ == max_val_) {
     std::ranges::fill(output_image_, 0);
     return true;
   }
 
   const double scale = 255.0 / (max_val_ - min_val_);
-  std::ranges::transform(input_image_, output_image_.begin(), [this, scale](PixelType pixel) {
-    double stretched = (pixel - min_val_) * scale;
 
-    if constexpr (std::is_same_v<PixelType, uint8_t>) {
-      return static_cast<uint8_t>(std::clamp(static_cast<int>(stretched + 1e-9), 0, 255));
-    } else if constexpr (std::is_same_v<PixelType, uint16_t>) {
-      return static_cast<uint16_t>(std::clamp(static_cast<int>(stretched + 1e-9), 0, 255));
-    }
-    return static_cast<PixelType>(stretched);
-  });
+  unsigned int num_threads = std::thread::hardware_concurrency();
+  if (num_threads == 0) num_threads = 4;
+  num_threads = std::min(num_threads, static_cast<unsigned int>(image_size_));
+
+  size_t chunk_size = image_size_ / num_threads;
+
+  std::vector<std::thread> threads;
+  for (unsigned int t = 0; t < num_threads; ++t) {
+    size_t start = t * chunk_size;
+    size_t end = (t == num_threads - 1) ? image_size_ : start + chunk_size;
+
+    threads.emplace_back([=] {
+      for (size_t i = start; i < end; ++i) {
+        double stretched = (input_image_[i] - min_val_) * scale;
+
+        if constexpr (std::is_same_v<PixelType, uint8_t>) {
+          output_image_[i] = static_cast<uint8_t>(std::clamp(static_cast<int>(stretched + 1e-9), 0, 255));
+        } else if constexpr (std::is_same_v<PixelType, uint16_t>) {
+          output_image_[i] = static_cast<uint16_t>(std::clamp(static_cast<int>(stretched + 1e-9), 0, 255));
+        } else {
+          output_image_[i] = static_cast<PixelType>(stretched);
+        }
+      }
+    });
+  }
+
+  for (auto& thread : threads) {
+    thread.join();
+  }
 
   return true;
 }
