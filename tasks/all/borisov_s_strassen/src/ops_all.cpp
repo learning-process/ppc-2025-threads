@@ -169,20 +169,6 @@ bool ParallelStrassenMpiStl::PreProcessingImpl() {
 
     output_.resize(2 + (rowsA_ * colsB_));
   }
-
-  boost::mpi::broadcast(world_, rowsA_, 0);
-  boost::mpi::broadcast(world_, colsA_, 0);
-  boost::mpi::broadcast(world_, rowsB_, 0);
-  boost::mpi::broadcast(world_, colsB_, 0);
-  boost::mpi::broadcast(world_, m_, 0);
-
-  if (world_.rank() != 0) {
-    a_pad_.resize(m_ * m_);
-    b_pad_.resize(m_ * m_);
-  }
-  boost::mpi::broadcast(world_, a_pad_, 0);
-  boost::mpi::broadcast(world_, b_pad_, 0);
-
   return true;
 }
 
@@ -196,6 +182,19 @@ bool ParallelStrassenMpiStl::ValidationImpl() {
 }
 
 bool ParallelStrassenMpiStl::RunImpl() {
+  boost::mpi::broadcast(world_, rowsA_, 0);
+  boost::mpi::broadcast(world_, colsA_, 0);
+  boost::mpi::broadcast(world_, rowsB_, 0);
+  boost::mpi::broadcast(world_, colsB_, 0);
+  boost::mpi::broadcast(world_, m_, 0);
+
+  if (world_.rank() != 0) {
+    a_pad_.resize(m_ * m_);
+    b_pad_.resize(m_ * m_);
+  }
+  boost::mpi::broadcast(world_, a_pad_, 0);
+  boost::mpi::broadcast(world_, b_pad_, 0);
+
   if (m_ == 1) {
     if (world_.rank() == 0) {
       output_[0] = static_cast<double>(rowsA_);
