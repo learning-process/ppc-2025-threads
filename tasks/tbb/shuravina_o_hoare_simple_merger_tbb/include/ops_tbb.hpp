@@ -1,6 +1,6 @@
 #pragma once
 
-#include <cstdint>
+#include <cstddef>
 #include <memory>
 #include <vector>
 
@@ -18,11 +18,16 @@ class HoareSortTBB : public ppc::core::Task {
 
  private:
   std::vector<int> data_;
-  static constexpr size_t kThreshold = 10000;
+  static constexpr std::size_t kThreshold = 10000;
 
-  void SequentialQuickSort(int* arr, size_t left, size_t right);
-  size_t Partition(int* arr, size_t left, size_t right);
-  void ParallelQuickSort(int* arr, size_t left, size_t right);
+  void SequentialQuickSort(int* arr, std::size_t left, std::size_t right);
+  std::size_t Partition(int* arr, std::size_t left, std::size_t right);
+  void ParallelQuickSort(int* arr, std::size_t left, std::size_t right);
+
+  bool ValidationImpl() override;
+  bool PreProcessingImpl() override;
+  bool RunImpl() override;
+  bool PostProcessingImpl() override;
 };
 
 }  // namespace shuravina_o_hoare_simple_merger_tbb
