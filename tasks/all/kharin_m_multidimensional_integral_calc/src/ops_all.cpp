@@ -2,6 +2,7 @@
 
 #include <algorithm>
 #include <boost/serialization/utility.hpp>
+#include <boost/serialization/vector.hpp>  // Added for std::vector serialization
 #include <functional>
 #include <thread>
 #include <utility>
@@ -9,6 +10,7 @@
 #include "boost/mpi/collectives/broadcast.hpp"
 #include "boost/mpi/collectives/reduce.hpp"
 #include "boost/mpi/collectives/scatterv.hpp"
+#include "core/perf/include/core.hpp"  // Added for ppc::util::GetPPCNumThreads (adjust path if necessary)
 
 bool kharin_m_multidimensional_integral_calc_all::TaskALL::ValidationImpl() {
   if (world_.rank() == 0) {
@@ -53,9 +55,10 @@ bool kharin_m_multidimensional_integral_calc_all::TaskALL::PreProcessingImpl() {
       displacements[i] = static_cast<int>(offset);
       offset += size;
     }
-    boost::mpi::scatterv(world_, input_, send_counts, displacements, local_input_.data(), 0);
+    boost::mpi::scatterv(world_, input_, send_counts, displacements, local_input_.data(),
+                         static_cast<int>(local_input_.size()), 0);
   } else {
-    boost::mpi::scatterv(world_, local_input_, 0);
+    boost::mpi::scatterv(world_, local_input_.data(), static_cast<int>(local_input_.size()), 0);
   }
   for (const auto& h : step_sizes_) {
     if (h <= 0.0) return false;
