@@ -10,27 +10,6 @@
 #include "oneapi/tbb/parallel_invoke.h"
 
 namespace shuravina_o_hoare_simple_merger_tbb {
-namespace {
-
-std::size_t Partition(int* arr, std::size_t left, std::size_t right) {
-  int pivot = arr[(left + right) / 2];
-  while (left <= right) {
-    while (arr[left] < pivot) {
-      ++left;
-    }
-    while (arr[right] > pivot) {
-      --right;
-    }
-    if (left <= right) {
-      std::swap(arr[left], arr[right]);
-      ++left;
-      --right;
-    }
-  }
-  return left;
-}
-
-}  // namespace
 
 HoareSortTBB::HoareSortTBB(std::shared_ptr<ppc::core::TaskData> task_data) : Task(std::move(task_data)) {}
 
@@ -89,6 +68,24 @@ bool HoareSortTBB::PostProcessingImpl() {
   } catch (...) {
     return false;
   }
+}
+
+std::size_t HoareSortTBB::Partition(int* arr, std::size_t left, std::size_t right) {
+  int pivot = arr[(left + right) / 2];
+  while (left <= right) {
+    while (arr[left] < pivot) {
+      ++left;
+    }
+    while (arr[right] > pivot) {
+      --right;
+    }
+    if (left <= right) {
+      std::swap(arr[left], arr[right]);
+      ++left;
+      --right;
+    }
+  }
+  return left;
 }
 
 void HoareSortTBB::SequentialQuickSort(int* arr, std::size_t left, std::size_t right) {
