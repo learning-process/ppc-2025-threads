@@ -1,7 +1,5 @@
 #include "tbb/shuravina_o_hoare_simple_merger_tbb/include/ops_tbb.hpp"
 
-#include <tbb/parallel_invoke.h>
-
 #include <algorithm>
 #include <cstddef>
 #include <memory>
@@ -9,6 +7,7 @@
 #include <vector>
 
 #include "core/task/include/task.hpp"
+#include "oneapi/tbb/parallel_invoke.h"
 
 namespace shuravina_o_hoare_simple_merger_tbb {
 namespace {
