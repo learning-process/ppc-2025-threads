@@ -13,7 +13,7 @@
 TEST(prokhorov_n_multidimensional_integrals_by_trapezoidal_method_seq, test_pipeline_run) {
   std::vector<double> lower = {0.0, 0.0, 0.0};
   std::vector<double> upper = {1.0, 1.0, 1.0};
-  std::vector<int> steps = {100, 100, 100};
+  std::vector<int> steps = {200, 200, 200};
   double result = 0.0;
 
   auto task_data_seq = std::make_shared<ppc::core::TaskData>();
@@ -51,7 +51,7 @@ TEST(prokhorov_n_multidimensional_integrals_by_trapezoidal_method_seq, test_pipe
 TEST(prokhorov_n_multidimensional_integrals_by_trapezoidal_method_seq, test_task_run) {
   std::vector<double> lower = {0.0, 0.0};
   std::vector<double> upper = {1.0, 1.0};
-  std::vector<int> steps = {200, 200};
+  std::vector<int> steps = {400, 400};
   double result = 0.0;
 
   auto task_data_seq = std::make_shared<ppc::core::TaskData>();

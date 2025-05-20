@@ -13,6 +13,9 @@ bool TestTaskSequential::PreProcessingImpl() {
   auto* steps_ptr = reinterpret_cast<int*>(task_data->inputs[2]);
 
   dimensions_ = static_cast<int>(task_data->inputs_count[0] / sizeof(double));
+  if (dimensions_ == 0) {
+    return false;
+  }
 
   lower_limits_ = std::vector<double>(lower_ptr, lower_ptr + dimensions_);
   upper_limits_ = std::vector<double>(upper_ptr, upper_ptr + dimensions_);
@@ -52,6 +55,9 @@ double TrapezoidalIntegration(const std::function<double(const std::vector<doubl
 }  // namespace
 
 bool TestTaskSequential::RunImpl() {
+  if (!function_) {
+    return false;
+  }
   std::vector<double> point;
   result_ = TrapezoidalIntegration(function_, lower_limits_, upper_limits_, steps_, 0, point);
   return true;
