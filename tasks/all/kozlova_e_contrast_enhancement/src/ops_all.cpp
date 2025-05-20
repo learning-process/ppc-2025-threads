@@ -5,14 +5,12 @@
 #include <boost/mpi/collectives/broadcast.hpp>
 #include <boost/mpi/collectives/gatherv.hpp>
 #include <boost/mpi/collectives/scatterv.hpp>
-#include <boost/serialization/vector.hpp>
+#include <boost/mpi/operations.hpp>
 #include <cmath>
 #include <cstddef>
 #include <cstdint>
-#include <thread>
+#include <utility>
 #include <vector>
-
-#include "core/util/include/util.hpp"
 
 bool kozlova_e_contrast_enhancement_all::TestTaskAll::PreProcessingImpl() {
   if (world_.rank() == 0) {
@@ -35,25 +33,25 @@ bool kozlova_e_contrast_enhancement_all::TestTaskAll::ValidationImpl() {
     size_t check_height = task_data->inputs_count[2];
     return size == task_data->outputs_count[0] && size > 0 && (size % 2 == 0) && check_width >= 1 &&
            check_height >= 1 && (size == check_height * check_width);
-  } else
-    return true;
+  }
+  return true;
 }
 
 bool kozlova_e_contrast_enhancement_all::TestTaskAll::RunImpl() {
   int rank = world_.rank();
   int proc_count = world_.size();
 
-  size_t input_size;
+  size_t input_size = 0;
   if (rank == 0) {
     input_size = input_.size();
   }
 
   boost::mpi::broadcast(world_, input_size, 0);
   input_.resize(input_size);
-  boost::mpi::broadcast(world_, input_.data(), input_.size(), 0);
+  boost::mpi::broadcast(world_, input_.data(), (int)input_.size(), 0);
 
-  int local_size = input_size / proc_count;
-  int remainder = input_size % proc_count;
+  int local_size = (int)input_size / proc_count;
+  int remainder = (int)input_size % proc_count;
   std::vector<int> counts(proc_count, local_size);
   for (int i = 0; i < remainder; ++i) {
     counts[i]++;
@@ -71,11 +69,12 @@ bool kozlova_e_contrast_enhancement_all::TestTaskAll::RunImpl() {
   uint8_t local_min = 255;
   uint8_t local_max = 0;
   if (!local_input.empty()) {
-    local_min = *std::min_element(local_input.begin(), local_input.end());
-    local_max = *std::max_element(local_input.begin(), local_input.end());
+    local_min = *std::ranges::min_element(local_input);
+    local_max = *std::ranges::max_element(local_input);
   }
 
-  uint8_t global_min, global_max;
+  uint8_t global_min;
+  uint8_t global_max;
 
   boost::mpi::all_reduce(world_, local_min, global_min, boost::mpi::minimum<uint8_t>());
   boost::mpi::all_reduce(world_, local_max, global_max, boost::mpi::maximum<uint8_t>());
@@ -85,7 +84,7 @@ bool kozlova_e_contrast_enhancement_all::TestTaskAll::RunImpl() {
   std::vector<uint8_t> local_output(local_input.size());
 
   if (global_min == global_max) {
-    std::copy(local_input.begin(), local_input.end(), local_output.begin());
+    std::ranges::copy(local_input, local_output.data());
   } else {
 #pragma omp parallel for schedule(static)
     for (int i = 0; i < static_cast<int>(local_input.size()); ++i) {
