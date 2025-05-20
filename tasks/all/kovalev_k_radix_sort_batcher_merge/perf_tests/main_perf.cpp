@@ -10,9 +10,9 @@
 #include <random>
 #include <vector>
 
+#include "all/kovalev_k_radix_sort_batcher_merge/include/header.hpp"
 #include "core/perf/include/perf.hpp"
 #include "core/task/include/task.hpp"
-#include "all/kovalev_k_radix_sort_batcher_merge/include/header.hpp"
 
 const long long int kMinLl = std::numeric_limits<long long>::lowest(), kMaxLl = std::numeric_limits<long long>::max();
 
