@@ -10,7 +10,6 @@
 #include <boost/mpi/collectives/broadcast.hpp>
 #include <boost/mpi/collectives/scatterv.hpp>
 #include <boost/serialization/vector.hpp>  // NOLINT(*-include-cleaner)
-#include "core/perf/include/core.hpp"  // Added for ppc::util::GetPPCNumThreads (adjust path if necessary)
 
 bool kharin_m_multidimensional_integral_calc_all::TaskALL::ValidationImpl() {
   if (world_.rank() == 0) {
