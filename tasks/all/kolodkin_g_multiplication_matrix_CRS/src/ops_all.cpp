@@ -223,9 +223,11 @@ bool kolodkin_g_multiplication_matrix_all::TestTaskALL::RunImpl() {
 
   if (rank == 0) {
     std::vector<int> displs(size);
-    displs[0] = 0;
-    for (int i = 1; i < size; ++i) {
-      displs[i] = displs[i - 1] + recvCounts[i - 1];
+    if (!displs.empty()) {
+      displs[0] = 0;
+      for (int i = 1; i < size; ++i) {
+        displs[i] = displs[i - 1] + recvCounts[i - 1];
+      }
     }
     int totalBytes = displs[size - 1] + recvCounts[size - 1];
 

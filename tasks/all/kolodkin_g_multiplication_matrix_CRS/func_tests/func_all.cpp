@@ -1,5 +1,6 @@
 #include <gtest/gtest.h>
 
+#include <boost/mpi/communicator.hpp>
 #include <cstdint>
 #include <iostream>
 #include <memory>
@@ -42,9 +43,6 @@ TEST(kolodkin_g_multiplication_matrix_all, test_matmul_only_real) {
   c.AddValue(2, Complex(24, 0), 1);
   c.AddValue(2, Complex(35, 0), 0);
   std::vector<Complex> resc = kolodkin_g_multiplication_matrix_all::ParseMatrixIntoVec(c);
-  /* for (unsigned int i = 0; i < resc.size(); i++) {
-    std::cout << "Elem:  " << i << "   " << resc[i]<<std::endl;
-  }*/
   // Create task_data
   auto task_data_all = std::make_shared<ppc::core::TaskData>();
   task_data_all->inputs.emplace_back(reinterpret_cast<uint8_t *>(in.data()));
@@ -60,8 +58,10 @@ TEST(kolodkin_g_multiplication_matrix_all, test_matmul_only_real) {
   test_task_all.PostProcessing();
   kolodkin_g_multiplication_matrix_all::SparseMatrixCRS res =
       kolodkin_g_multiplication_matrix_all::ParseVectorIntoMatrix(out);
-  // res.PrintSparseMatrix(res);
-  ASSERT_TRUE(kolodkin_g_multiplication_matrix_all::CheckMatrixesEquality(res, c));
+  boost::mpi::communicator world;
+  if (world.rank() == 0) {
+    ASSERT_TRUE(kolodkin_g_multiplication_matrix_all::CheckMatrixesEquality(res, c));
+  }
 }
 
 TEST(kolodkin_g_multiplication_matrix_all, test_matmul_not_equal_rows_and_cols) {
@@ -100,7 +100,10 @@ TEST(kolodkin_g_multiplication_matrix_all, test_matmul_not_equal_rows_and_cols) 
 
   // Create Task
   kolodkin_g_multiplication_matrix_all::TestTaskALL test_task_all(task_data_all);
-  ASSERT_EQ(test_task_all.Validation(), false);
+  boost::mpi::communicator world;
+  if (world.rank() == 0) {
+    ASSERT_EQ(test_task_all.Validation(), false);
+  }
 }
 
 TEST(kolodkin_g_multiplication_matrix_all, test_matmul_with_imag) {
@@ -151,7 +154,10 @@ TEST(kolodkin_g_multiplication_matrix_all, test_matmul_with_imag) {
   test_task_all.PostProcessing();
   kolodkin_g_multiplication_matrix_all::SparseMatrixCRS res =
       kolodkin_g_multiplication_matrix_all::ParseVectorIntoMatrix(out);
-  ASSERT_TRUE(kolodkin_g_multiplication_matrix_all::CheckMatrixesEquality(res, c));
+  boost::mpi::communicator world;
+  if (world.rank() == 0) {
+    ASSERT_TRUE(kolodkin_g_multiplication_matrix_all::CheckMatrixesEquality(res, c));
+  }
 }
 
 TEST(kolodkin_g_multiplication_matrix_all, test_matmul_rectangular_matrix) {
@@ -202,7 +208,10 @@ TEST(kolodkin_g_multiplication_matrix_all, test_matmul_rectangular_matrix) {
   test_task_all.PostProcessing();
   kolodkin_g_multiplication_matrix_all::SparseMatrixCRS res =
       kolodkin_g_multiplication_matrix_all::ParseVectorIntoMatrix(out);
-  ASSERT_TRUE(kolodkin_g_multiplication_matrix_all::CheckMatrixesEquality(res, c));
+  boost::mpi::communicator world;
+  if (world.rank() == 0) {
+    ASSERT_TRUE(kolodkin_g_multiplication_matrix_all::CheckMatrixesEquality(res, c));
+  }
 }
 
 TEST(kolodkin_g_multiplication_matrix_all, test_matmul_with_negative_elems) {
@@ -246,7 +255,10 @@ TEST(kolodkin_g_multiplication_matrix_all, test_matmul_with_negative_elems) {
   test_task_all.PostProcessing();
   kolodkin_g_multiplication_matrix_all::SparseMatrixCRS res =
       kolodkin_g_multiplication_matrix_all::ParseVectorIntoMatrix(out);
-  ASSERT_TRUE(kolodkin_g_multiplication_matrix_all::CheckMatrixesEquality(res, c));
+  boost::mpi::communicator world;
+  if (world.rank() == 0) {
+    ASSERT_TRUE(kolodkin_g_multiplication_matrix_all::CheckMatrixesEquality(res, c));
+  }
 }
 
 TEST(kolodkin_g_multiplication_matrix_all, test_matmul_with_double_elems) {
@@ -290,7 +302,10 @@ TEST(kolodkin_g_multiplication_matrix_all, test_matmul_with_double_elems) {
   test_task_all.PostProcessing();
   kolodkin_g_multiplication_matrix_all::SparseMatrixCRS res =
       kolodkin_g_multiplication_matrix_all::ParseVectorIntoMatrix(out);
-  ASSERT_TRUE(kolodkin_g_multiplication_matrix_all::CheckMatrixesEquality(res, c));
+  boost::mpi::communicator world;
+  if (world.rank() == 0) {
+    ASSERT_TRUE(kolodkin_g_multiplication_matrix_all::CheckMatrixesEquality(res, c));
+  }
 }
 
 TEST(kolodkin_g_multiplication_matrix_all, test_matmul_row_by_col) {
@@ -335,7 +350,10 @@ TEST(kolodkin_g_multiplication_matrix_all, test_matmul_row_by_col) {
   test_task_all.PostProcessing();
   kolodkin_g_multiplication_matrix_all::SparseMatrixCRS res =
       kolodkin_g_multiplication_matrix_all::ParseVectorIntoMatrix(out);
-  ASSERT_TRUE(kolodkin_g_multiplication_matrix_all::CheckMatrixesEquality(res, c));
+  boost::mpi::communicator world;
+  if (world.rank() == 0) {
+    ASSERT_TRUE(kolodkin_g_multiplication_matrix_all::CheckMatrixesEquality(res, c));
+  }
 }
 
 TEST(kolodkin_g_multiplication_matrix_all, test_matmul_diag_matrix) {
@@ -382,7 +400,10 @@ TEST(kolodkin_g_multiplication_matrix_all, test_matmul_diag_matrix) {
   test_task_all.PostProcessing();
   kolodkin_g_multiplication_matrix_all::SparseMatrixCRS res =
       kolodkin_g_multiplication_matrix_all::ParseVectorIntoMatrix(out);
-  ASSERT_TRUE(kolodkin_g_multiplication_matrix_all::CheckMatrixesEquality(res, c));
+  boost::mpi::communicator world;
+  if (world.rank() == 0) {
+    ASSERT_TRUE(kolodkin_g_multiplication_matrix_all::CheckMatrixesEquality(res, c));
+  }
 }
 
 TEST(kolodkin_g_multiplication_matrix_all, test_matmul_only_imag) {
@@ -433,5 +454,8 @@ TEST(kolodkin_g_multiplication_matrix_all, test_matmul_only_imag) {
   test_task_all.PostProcessing();
   kolodkin_g_multiplication_matrix_all::SparseMatrixCRS res =
       kolodkin_g_multiplication_matrix_all::ParseVectorIntoMatrix(out);
-  ASSERT_TRUE(kolodkin_g_multiplication_matrix_all::CheckMatrixesEquality(res, c));
+  boost::mpi::communicator world;
+  if (world.rank() == 0) {
+    ASSERT_TRUE(kolodkin_g_multiplication_matrix_all::CheckMatrixesEquality(res, c));
+  }
 }
