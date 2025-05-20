@@ -2,16 +2,20 @@
 
 #include <algorithm>
 #include <chrono>
+#include <cstddef>
+#include <cstdint>
+#include <memory>
 #include <numeric>
 #include <random>
 #include <vector>
 
 #include "core/perf/include/perf.hpp"
+#include "core/task/include/task.hpp"
 #include "tbb/shuravina_o_hoare_simple_merger_tbb/include/ops_tbb.hpp"
 
 namespace {
-constexpr size_t kLargeSize = 500000;
-constexpr size_t kMediumSize = 100000;
+constexpr std::size_t kLargeSize = 500000;
+constexpr std::size_t kMediumSize = 100000;
 }  // namespace
 
 TEST(shuravina_o_hoare_simple_merger_tbb, perf_pipeline) {
@@ -39,14 +43,14 @@ TEST(shuravina_o_hoare_simple_merger_tbb, perf_pipeline) {
   perf_analyzer->PipelineRun(perf_attr, perf_results);
   ppc::core::Perf::PrintPerfStatistic(perf_results);
 
-  ASSERT_TRUE(std::is_sorted(input.begin(), input.end()));
+  ASSERT_TRUE(std::ranges::is_sorted(input));
 }
 
 TEST(shuravina_o_hoare_simple_merger_tbb, perf_task_run) {
   std::vector<int> input(kMediumSize);
   std::random_device rd;
   std::mt19937 gen(rd());
-  std::generate(input.begin(), input.end(), [&] { return gen() % 10000; });
+  std::ranges::generate(input, [&] { return gen() % 10000; });
 
   auto task_data = std::make_shared<ppc::core::TaskData>();
   task_data->inputs.emplace_back(reinterpret_cast<uint8_t*>(input.data()));
@@ -69,5 +73,5 @@ TEST(shuravina_o_hoare_simple_merger_tbb, perf_task_run) {
   perf_analyzer->TaskRun(perf_attr, perf_results);
   ppc::core::Perf::PrintPerfStatistic(perf_results);
 
-  ASSERT_TRUE(std::is_sorted(input.begin(), input.end()));
+  ASSERT_TRUE(std::ranges::is_sorted(input));
 }

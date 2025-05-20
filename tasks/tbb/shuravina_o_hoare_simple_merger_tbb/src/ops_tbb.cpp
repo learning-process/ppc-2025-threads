@@ -4,10 +4,11 @@
 
 #include <algorithm>
 #include <cstddef>
-#include <cstdint>
 #include <memory>
 #include <utility>
 #include <vector>
+
+#include "core/task/include/task.hpp"
 
 namespace shuravina_o_hoare_simple_merger_tbb {
 
@@ -70,7 +71,7 @@ bool HoareSortTBB::PostProcessingImpl() {
   }
 }
 
-std::size_t HoareSortTBB::Partition(int* arr, std::size_t left, std::size_t right) {
+static std::size_t Partition(int* arr, std::size_t left, std::size_t right) {
   int pivot = arr[(left + right) / 2];
   while (left <= right) {
     while (arr[left] < pivot) {
