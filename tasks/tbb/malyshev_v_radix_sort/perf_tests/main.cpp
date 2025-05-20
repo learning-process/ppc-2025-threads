@@ -17,7 +17,7 @@ TEST(malyshev_v_radix_sort_tbb, test_pipeline_run) {
   std::vector<double> out(kCount);
 
   for (int i = 0; i < kCount; ++i) {
-    in[i] = static_cast<double>(rand()) / RAND_MAX * 1000.0;
+    in[i] = (static_cast<double>(rand()) / RAND_MAX * 2000.0) - 1000.0;
   }
 
   auto task_data = std::make_shared<ppc::core::TaskData>();
@@ -51,7 +51,7 @@ TEST(malyshev_v_radix_sort_tbb, test_task_run) {
   std::vector<double> out(kCount);
 
   for (int i = 0; i < kCount; ++i) {
-    in[i] = static_cast<double>(rand()) / RAND_MAX * 1000.0;
+    in[i] = (static_cast<double>(rand()) / RAND_MAX * 2000.0) - 1000.0;
   }
 
   auto task_data = std::make_shared<ppc::core::TaskData>();

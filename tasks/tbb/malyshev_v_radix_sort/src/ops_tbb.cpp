@@ -25,26 +25,34 @@ uint64_t ConvertDoubleToUInt64(double d) {
 }
 
 void RadixSort(std::vector<double>& data, int exp) {
+  const size_t data_size = data.size();
   std::vector<int> count(256, 0);
-  std::vector<double> output(data.size());
+  std::vector<double> output(data_size);
 
-  for (size_t i = 0; i < data.size(); ++i) {
-    uint64_t bits = ConvertDoubleToUInt64(data[i]);
-    int digit = static_cast<int>((bits >> (exp * 8)) & 0xFF);
-    count[digit]++;
-  }
+  tbb::parallel_for(tbb::blocked_range<size_t>(0, data_size), [&](const tbb::blocked_range<size_t>& r) {
+    std::vector<int> local_count(256, 0);
+    for (size_t i = r.begin(); i < r.end(); ++i) {
+      uint64_t bits = ConvertDoubleToUInt64(data[i]);
+      int digit = static_cast<int>((bits >> (exp * 8)) & 0xFF);
+      local_count[digit]++;
+    }
+    for (int j = 0; j < 256; ++j) {
+      tbb::atomic<int>& global = count[j];
+      global.fetch_and_add(local_count[j]);
+    }
+  });
 
   for (int i = 1; i < 256; ++i) {
     count[i] += count[i - 1];
   }
 
-  for (size_t i = data.size(); i-- > 0;) {
+  for (size_t i = data_size; i-- > 0;) {
     uint64_t bits = ConvertDoubleToUInt64(data[i]);
     int digit = static_cast<int>((bits >> (exp * 8)) & 0xFF);
     output[--count[digit]] = data[i];
   }
 
-  data = output;
+  data = std::move(output);
 }
 
 void ProcessNumbers(std::vector<double>& numbers) {
