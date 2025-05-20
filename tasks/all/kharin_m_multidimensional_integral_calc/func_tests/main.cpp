@@ -6,8 +6,8 @@
 #include <random>
 #include <vector>
 
-#include "core/task/include/task.hpp"
 #include "all/kharin_m_multidimensional_integral_calc/include/ops_all.hpp"
+#include "core/task/include/task.hpp"
 
 // Тест для 2D интеграла (3x3 сетка)
 TEST(kharin_m_multidimensional_integral_calc_stl, test_integral_3x3) {
