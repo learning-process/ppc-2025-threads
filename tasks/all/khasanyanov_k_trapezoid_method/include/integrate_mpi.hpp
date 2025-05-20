@@ -4,6 +4,7 @@
 #include <functional>
 #include <memory>
 #include <utility>
+#include <vector>
 
 #include "boost/mpi/communicator.hpp"
 #include "core/task/include/task.hpp"
