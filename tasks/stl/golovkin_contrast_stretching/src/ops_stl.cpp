@@ -4,9 +4,9 @@
 #include <algorithm>
 #include <cstdint>
 #include <cstring>
-#include <vector>
 #include <thread>
 #include <mutex>
+#include <vector>
 
 template <typename PixelType>
 bool golovkin_contrast_stretching::ContrastStretchingSTL<PixelType>::ValidationImpl() {
