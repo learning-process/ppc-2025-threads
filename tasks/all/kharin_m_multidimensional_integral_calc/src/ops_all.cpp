@@ -10,6 +10,7 @@
 #include <utility>
 
 #include "boost/mpi/collectives/reduce.hpp"
+#include "core/include/utils.hpp"
 
 bool kharin_m_multidimensional_integral_calc_all::TaskALL::ValidationImpl() {
   if (world_.rank() == 0) {
