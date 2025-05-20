@@ -1,7 +1,7 @@
 #include "all/kharin_m_multidimensional_integral_calc/include/ops_all.hpp"
 
-#include <boost/serialization/utility.hpp>
 #include <algorithm>
+#include <boost/serialization/utility.hpp>
 #include <functional>
 #include <thread>
 #include <utility>
@@ -9,7 +9,6 @@
 #include "boost/mpi/collectives/broadcast.hpp"
 #include "boost/mpi/collectives/reduce.hpp"
 #include "boost/mpi/collectives/scatterv.hpp"
-
 
 bool kharin_m_multidimensional_integral_calc_all::TaskALL::ValidationImpl() {
   if (world_.rank() == 0) {
@@ -54,7 +53,7 @@ bool kharin_m_multidimensional_integral_calc_all::TaskALL::PreProcessingImpl() {
       displacements[i] = static_cast<int>(offset);
       offset += size;
     }
-    boost::mpi::scatterv(world_, input_, send_counts, displacements, local_input_, 0);
+    boost::mpi::scatterv(world_, input_, send_counts, displacements, local_input_.data(), 0);
   } else {
     boost::mpi::scatterv(world_, local_input_, 0);
   }
