@@ -1,9 +1,9 @@
 #include "all/kharin_m_multidimensional_integral_calc/include/ops_all.hpp"
 
 #include <algorithm>
+#include <boost/mpi/collectives/all_reduce.hpp>
 #include <boost/mpi/collectives/broadcast.hpp>
 #include <boost/mpi/collectives/scatterv.hpp>
-#include <boost/mpi/collectives/all_reduce.hpp> // Добавляем недостающий заголовок
 #include <cstddef>
 #include <functional>
 #include <thread>
@@ -18,8 +18,7 @@ bool kharin_m_multidimensional_integral_calc_all::TaskALL::ValidationImpl() {
   if (world_.rank() == 0) {
     // Объединяем условия с одинаковым телом в одно составное условие
     if (task_data->inputs.size() != 3 || task_data->outputs.size() != 1 ||
-        task_data->inputs_count[1] != task_data->inputs_count[2] ||
-        task_data->outputs_count[0] != 1) {
+        task_data->inputs_count[1] != task_data->inputs_count[2] || task_data->outputs_count[0] != 1) {
       is_valid = false;
     }
   }
