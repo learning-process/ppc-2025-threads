@@ -64,7 +64,7 @@ TEST(dormidontov_e_kannon_seq, mat16) {
   size_t test_num_blocks = 2;
   matrix A = {1, -1, 1, -1, 1, -1, 1, -1, 1, -1, 1, -1, 1, -1, 1, -1};
   matrix B = {1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0};
-  matrix ans = NaiveMultipilication(A,B,test_side_size);
+  matrix ans = NaiveMultipilication(A, B, test_side_size);
   matrix C(test_side_size * test_side_size, 0.0);
 
   auto task_data_seq = std::make_shared<ppc::core::TaskData>();
@@ -161,7 +161,7 @@ TEST(dormidontov_e_kannon_seq, mat27x27) {
   matrix A(test_side_size * test_side_size, 1);
   matrix B(test_side_size * test_side_size, 1);
   matrix C(test_side_size * test_side_size, 0);
-  matrix ans = NaiveMultipilication(A,B,test_side_size);
+  matrix ans = NaiveMultipilication(A, B, test_side_size);
 
   auto task_data_seq = std::make_shared<ppc::core::TaskData>();
   task_data_seq->inputs.emplace_back(reinterpret_cast<uint8_t*>(A.data()));
