@@ -36,49 +36,47 @@ void dormidontov_e_kannon_tbb::TbbTask::StartingShift() {
   std::swap(A_buffer_, A_);
   std::swap(B_buffer_, B_);
 
-  for (size_t block_i = 0; block_i < num_blocks_; ++block_i) {
-    for (size_t block_j = 0; block_j < num_blocks_; ++block_j) {
-      size_t row;
-      size_t col;
-      col = row = (block_j + block_i) % num_blocks_;
-      tbb::parallel_for(tbb::blocked_range2d<size_t>(block_i, block_i + block_size_, block_j, block_j + block_size_),
-                        [&](const tbb::blocked_range2d<size_t>& r) {
-                          for (size_t i = r.rows().begin(); i != r.rows().end(); i++) {
-                            for (size_t j = r.cols().begin(); j != r.cols().end(); j++) {
-                              A_[idx(idx(block_i, i, block_size_), idx(block_j, j, block_size_), side_size_)] =
-                                  A_buffer_[idx(idx(block_i, i, block_size_), idx(col, j, block_size_), side_size_)];
-                              B_[idx(idx(block_i, i, block_size_), idx(block_j, j, block_size_), side_size_)] =
-                                  B_buffer_[idx(idx(row, i, block_size_), idx(block_j, j, block_size_), side_size_)];
-                            }
-                          }
-                        });
-    }
-  }
+  tbb::parallel_for(tbb::blocked_range<size_t>(0, num_blocks_), [&](const tbb::blocked_range<size_t>& r) {
+      for (size_t block_i = r.begin(); block_i != r.end(); ++block_i) {
+        for (size_t block_j = 0; block_j < num_blocks_; ++block_j) {
+          size_t row;
+          size_t col;
+          col = row = (block_j + block_i) % num_blocks_;
+          for (size_t i = 0; i < block_size_; ++i) {
+            for (size_t j = 0; j < block_size_; ++j) {
+              A_[idx(idx(block_i, i, block_size_), idx(block_j, j, block_size_), side_size_)] =
+                  A_buffer_[idx(idx(block_i, i, block_size_), idx(col, j, block_size_), side_size_)];
+              B_[idx(idx(block_i, i, block_size_), idx(block_j, j, block_size_), side_size_)] =
+                  B_buffer_[idx(idx(row, i, block_size_), idx(block_j, j, block_size_), side_size_)];
+            }
+          }
+        }
+      }
+  });
 }
 
 void dormidontov_e_kannon_tbb::TbbTask::IterationShift() {
   std::swap(A_buffer_, A_);
   std::swap(B_buffer_, B_);
 
-  for (size_t block_i = 0; block_i < num_blocks_; ++block_i) {
-    for (size_t block_j = 0; block_j < num_blocks_; ++block_j) {
-      size_t row;
-      size_t col;
-      row = (block_i + 1) % num_blocks_;
-      col = (block_j + 1) % num_blocks_;
-      tbb::parallel_for(tbb::blocked_range2d<size_t>(block_i, block_i + block_size_, block_j, block_j + block_size_),
-                        [&](const tbb::blocked_range2d<size_t>& r) {
-                          for (size_t i = r.rows().begin(); i != r.rows().end(); i++) {
-                            for (size_t j = r.cols().begin(); j != r.cols().end(); j++) {
-                              A_[idx(idx(block_i, i, block_size_), idx(block_j, j, block_size_), side_size_)] =
-                                  A_buffer_[idx(idx(block_i, i, block_size_), idx(col, j, block_size_), side_size_)];
-                              B_[idx(idx(block_i, i, block_size_), idx(block_j, j, block_size_), side_size_)] =
-                                  B_buffer_[idx(idx(row, i, block_size_), idx(block_j, j, block_size_), side_size_)];
-                            }
-                          }
-                        });
+  tbb::parallel_for(tbb::blocked_range<size_t>(0, num_blocks_), [&](const tbb::blocked_range<size_t>& r) {
+    for (size_t block_i = r.begin(); block_i != r.end(); ++block_i) {
+      for (size_t block_j = 0; block_j < num_blocks_; ++block_j) {
+        size_t row;
+        size_t col;
+        row = (block_i + 1) % num_blocks_;
+        col = (block_j + 1) % num_blocks_;
+        for (size_t i = 0; i < block_size_; ++i) {
+          for (size_t j = 0; j < block_size_; ++j) {
+            A_[idx(idx(block_i, i, block_size_), idx(block_j, j, block_size_), side_size_)] =
+                A_buffer_[idx(idx(block_i, i, block_size_), idx(col, j, block_size_), side_size_)];
+            B_[idx(idx(block_i, i, block_size_), idx(block_j, j, block_size_), side_size_)] =
+                B_buffer_[idx(idx(row, i, block_size_), idx(block_j, j, block_size_), side_size_)];
+          }
+        }
+      }
     }
-  }
+  });
 }
 
 void dormidontov_e_kannon_tbb::TbbTask::MultImpl() {
@@ -95,13 +93,14 @@ void dormidontov_e_kannon_tbb::TbbTask::MultImpl() {
       }
     }
   }
+}
 
 bool dormidontov_e_kannon_tbb::TbbTask::RunImpl() {
-    StartingShift();
-    for (size_t iter = 0; iter < num_blocks_; ++iter) {
-      MultImpl();
-      IterationShift();
-    }
+  StartingShift();
+  for (size_t iter = 0; iter < num_blocks_; ++iter) {
+    MultImpl();
+    IterationShift();
+  }
   return true;
 }
 
