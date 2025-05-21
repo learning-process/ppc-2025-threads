@@ -1,4 +1,4 @@
-#include "stl/deryabin_m_hoare_sort_simple_merge/include/ops_stl.hpp"
+#include "mpi/deryabin_m_hoare_sort_simple_merge/include/ops_mpi.hpp"
 
 #include <algorithm>
 #include <bit>
@@ -9,7 +9,7 @@
 
 #include "core/util/include/util.hpp"
 
-void deryabin_m_hoare_sort_simple_merge_stl::HoareSort(std::vector<double>& a, size_t first, size_t last) {
+void deryabin_m_hoare_sort_simple_merge_mpi::HoareSort(std::vector<double>& a, size_t first, size_t last) {
   if (first >= last) {
     return;
   }
@@ -33,7 +33,7 @@ void deryabin_m_hoare_sort_simple_merge_stl::HoareSort(std::vector<double>& a, s
   HoareSort(a, i + 1, last);
 }
 
-bool deryabin_m_hoare_sort_simple_merge_stl::HoareSortTaskSequential::PreProcessingImpl() {
+bool deryabin_m_hoare_sort_simple_merge_mpi::HoareSortTaskSequential::PreProcessingImpl() {
   input_array_A_ = reinterpret_cast<std::vector<double>*>(task_data->inputs[0])[0];
   dimension_ = task_data->inputs_count[0];
   chunk_count_ = task_data->inputs_count[1];
@@ -41,13 +41,13 @@ bool deryabin_m_hoare_sort_simple_merge_stl::HoareSortTaskSequential::PreProcess
   return true;
 }
 
-bool deryabin_m_hoare_sort_simple_merge_stl::HoareSortTaskSequential::ValidationImpl() {
+bool deryabin_m_hoare_sort_simple_merge_mpi::HoareSortTaskSequential::ValidationImpl() {
   return static_cast<unsigned short>(task_data->inputs_count[0]) > 2 &&
          static_cast<unsigned short>(task_data->inputs_count[1]) >= 2 &&
          task_data->inputs_count[0] == task_data->outputs_count[0];
 }
 
-bool deryabin_m_hoare_sort_simple_merge_stl::HoareSortTaskSequential::RunImpl() {
+bool deryabin_m_hoare_sort_simple_merge_mpi::HoareSortTaskSequential::RunImpl() {
   size_t count = 0;
   while (count != chunk_count_) {
     HoareSort(input_array_A_, count * min_chunk_size_, ((count + 1) * min_chunk_size_) - 1);
@@ -65,12 +65,12 @@ bool deryabin_m_hoare_sort_simple_merge_stl::HoareSortTaskSequential::RunImpl() 
   return true;
 }
 
-bool deryabin_m_hoare_sort_simple_merge_stl::HoareSortTaskSequential::PostProcessingImpl() {
+bool deryabin_m_hoare_sort_simple_merge_mpi::HoareSortTaskSequential::PostProcessingImpl() {
   reinterpret_cast<std::vector<double>*>(task_data->outputs[0])[0] = input_array_A_;
   return true;
 }
 
-bool deryabin_m_hoare_sort_simple_merge_stl::HoareSortTaskSTL::PreProcessingImpl() {
+bool deryabin_m_hoare_sort_simple_merge_mpi::HoareSortTaskMPI::PreProcessingImpl() {
   input_array_A_ = reinterpret_cast<std::vector<double>*>(task_data->inputs[0])[0];
   dimension_ = task_data->inputs_count[0];
   chunk_count_ = task_data->inputs_count[1];
@@ -78,13 +78,13 @@ bool deryabin_m_hoare_sort_simple_merge_stl::HoareSortTaskSTL::PreProcessingImpl
   return true;
 }
 
-bool deryabin_m_hoare_sort_simple_merge_stl::HoareSortTaskSTL::ValidationImpl() {
+bool deryabin_m_hoare_sort_simple_merge_mpi::HoareSortTaskMPI::ValidationImpl() {
   return static_cast<unsigned short>(task_data->inputs_count[0]) > 2 &&
          static_cast<unsigned short>(task_data->inputs_count[1]) >= 2 &&
          task_data->inputs_count[0] == task_data->outputs_count[0];
 }
 
-bool deryabin_m_hoare_sort_simple_merge_stl::HoareSortTaskSTL::RunImpl() {
+bool deryabin_m_hoare_sort_simple_merge_mpi::HoareSortTaskMPI::RunImpl() {
   const size_t num_threads = ppc::util::GetPPCNumThreads();
   std::vector<std::thread> workers;
   workers.reserve(num_threads);
@@ -117,8 +117,8 @@ bool deryabin_m_hoare_sort_simple_merge_stl::HoareSortTaskSTL::RunImpl() {
     HoareSort(input_array_A_, count * min_chunk_size_, ((count + 1) * min_chunk_size_) - 1);
   });
   for (size_t i = 0; i < static_cast<size_t>(std::bit_width(chunk_count_) -
-                                             1);  // Вычисялем сколько уровней слияния потребуется как логарифм по
-                                                  // основанию 2 от числа частей chunk_count_
+                             1);  // Вычисялем сколько уровней слияния потребуется как логарифм по
+                                  // основанию 2 от числа частей chunk_count_
        ++i) {  // На каждом уровне сливаются пары соседних блоков размером min_chunk_size_ × 2^i
     parallel_for(
         0, chunk_count_ >> (i + 1), [this, i](size_t j) {  // Распределение слияний между потоками на каждом уровне
@@ -133,7 +133,7 @@ bool deryabin_m_hoare_sort_simple_merge_stl::HoareSortTaskSTL::RunImpl() {
   return true;
 }
 
-bool deryabin_m_hoare_sort_simple_merge_stl::HoareSortTaskSTL::PostProcessingImpl() {
+bool deryabin_m_hoare_sort_simple_merge_mpi::HoareSortTaskMPI::PostProcessingImpl() {
   reinterpret_cast<std::vector<double>*>(task_data->outputs[0])[0] = input_array_A_;
   return true;
 }
