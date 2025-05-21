@@ -38,7 +38,7 @@ bool ConvexHullMPI::PreProcessingImpl() noexcept {
 
   for (int y = 0; y < local_height; ++y) {
     for (int x = 0; x < local_width; ++x) {
-      local_input_data[static_cast<size_t>(y) * static_cast<size_t>(local_width) + static_cast<size_t>(x)] =
+      local_input_data[(static_cast<size_t>(y) * static_cast<size_t>(local_width)) + static_cast<size_t>(x)] =
           global_input_data[((local_start_row + y) * global_width) + x];
     }
   }
@@ -47,7 +47,7 @@ bool ConvexHullMPI::PreProcessingImpl() noexcept {
 
   for (int y = 0; y < local_height; ++y) {
     for (int x = 0; x < local_width; ++x) {
-      size_t idx = static_cast<size_t>(y) * static_cast<size_t>(local_width) + static_cast<size_t>(x);
+      size_t idx = (static_cast<size_t>(y) * static_cast<size_t>(local_width)) + static_cast<size_t>(x);
       if (!visited[idx] && local_input_data[idx] != 0) {
         std::vector<Point> component;
         BFS(local_input_data.data(), local_width, local_height, x, y, visited, component);
@@ -80,7 +80,7 @@ void ConvexHullMPI::BFS(const int* local_input_data, int local_width, int local_
                         std::vector<bool>& visited, std::vector<Point>& component) noexcept {
   std::queue<Point> queue;
   queue.push({start_x, start_y});
-  size_t start_idx = static_cast<size_t>(start_y) * static_cast<size_t>(local_width) + static_cast<size_t>(start_x);
+  size_t start_idx = (static_cast<size_t>(start_y) * static_cast<size_t>(local_width)) + static_cast<size_t>(start_x);
   visited[start_idx] = true;
 
   constexpr int kDx[] = {-1, 1, 0, 0};
@@ -95,7 +95,7 @@ void ConvexHullMPI::BFS(const int* local_input_data, int local_width, int local_
       int nx = p.x + kDx[i];
       int ny = p.y + kDy[i];
       if (nx >= 0 && nx < local_width && ny >= 0 && ny < local_height) {
-        size_t nidx = static_cast<size_t>(ny) * static_cast<size_t>(local_width) + static_cast<size_t>(nx);
+        size_t nidx = (static_cast<size_t>(ny) * static_cast<size_t>(local_width)) + static_cast<size_t>(nx);
         if (!visited[nidx] && local_input_data[nidx] != 0) {
           visited[nidx] = true;
           queue.push({nx, ny});
@@ -207,8 +207,9 @@ bool ConvexHullMPI::RunImpl() noexcept {
   int global_component_index = 0;
   for (int i = 0; i < comm_size_; ++i) {
     for (int j = 0; j < send_counts[static_cast<size_t>(i)]; ++j) {
+      size_t idx = static_cast<size_t>(displacements[i]) + static_cast<size_t>(j);
       recv_buffer_sizes[static_cast<size_t>(global_component_index)] =
-          static_cast<int>(all_component_sizes[static_cast<size_t>(displacements[i] + j)] * sizeof(Point));
+          static_cast<int>(all_component_sizes[idx] * sizeof(Point));
       recv_buffer_displacements[static_cast<size_t>(global_component_index)] = current_recv_offset;
       current_recv_offset += recv_buffer_sizes[static_cast<size_t>(global_component_index)];
       global_component_index++;
@@ -222,7 +223,8 @@ bool ConvexHullMPI::RunImpl() noexcept {
   global_component_index = 0;
   for (int i = 0; i < comm_size_; ++i) {
     for (int j = 0; j < send_counts[static_cast<size_t>(i)]; ++j) {
-      int num_points = all_component_sizes[static_cast<size_t>(displacements[i] + j)];
+      size_t idx = static_cast<size_t>(displacements[i]) + static_cast<size_t>(j);
+      int num_points = all_component_sizes[idx];
       global_components_[static_cast<size_t>(global_component_index)].resize(static_cast<size_t>(num_points));
       std::copy(recv_buffer.begin() + recv_buffer_index, recv_buffer.begin() + recv_buffer_index + num_points,
                 global_components_[static_cast<size_t>(global_component_index)].begin());
