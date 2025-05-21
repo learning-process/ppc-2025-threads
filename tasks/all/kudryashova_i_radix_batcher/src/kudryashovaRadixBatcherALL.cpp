@@ -149,63 +149,45 @@ bool kudryashova_i_radix_batcher_all::TestTaskALL::RunImpl() {
 
     for (int i = 0; i < world_.size(); ++i) {
       int chunk_size = (i < remainder) ? base_chunk + 1 : base_chunk;
-      counts_[i] = static_cast<int>(chunk_size);
+      counts_[i] = chunk_size;
       displs_[i] = (i == 0) ? 0 : displs_[i - 1] + counts_[i - 1];
     }
   }
+
   mpi::broadcast(world_, n_, 0);
   mpi::broadcast(world_, counts_, 0);
   mpi::broadcast(world_, displs_, 0);
-  int local_size = 0;
-  mpi::scatter(world_, counts_, local_size, 0);
+
+  int local_size = counts_[world_.rank()];
   std::vector<double> local_data(local_size);
   boost::mpi::scatterv(world_, world_.rank() == 0 ? input_data_.data() : nullptr, counts_, displs_, local_data.data(),
                        local_size, 0);
+
   RadixDoubleSort(local_data, 0, local_data.size());
+
   std::vector<double> global_data;
   if (world_.rank() == 0) {
     global_data.resize(n_);
   }
-  boost::mpi::gatherv(world_, local_data.data(), static_cast<int>(local_data.size()), global_data.data(), counts_,
+  boost::mpi::gatherv(world_, local_data.data(), local_size, world_.rank() == 0 ? global_data.data() : nullptr, counts_,
                       displs_, 0);
+
   if (world_.rank() == 0) {
     input_data_ = global_data;
-    size_t current_merge_size = n_ / world_.size();
-    if (n_ % world_.size() != 0) {
-      current_merge_size = (n_ + world_.size() - 1) / world_.size();
-    }
-
-    for (; current_merge_size < n_; current_merge_size *= 2) {
-      size_t merge_group_size = 2 * current_merge_size;
-      size_t total_merge_groups = (n_ + merge_group_size - 1) / merge_group_size;
-
-      tbb::parallel_for(tbb::blocked_range<size_t>(0, total_merge_groups), [&](const auto& range) {
-        for (size_t group_index = range.begin(); group_index != range.end(); ++group_index) {
-          size_t merge_start = group_index * merge_group_size;
-          size_t merge_mid = std::min(merge_start + current_merge_size, n_);
-          size_t merge_end = std::min(merge_start + merge_group_size, n_);
-          if (merge_mid < merge_end) {
-            BatcherMerge(input_data_, merge_start, merge_mid, merge_end);
-          }
+    size_t current_block_size = *std::max_element(counts_.begin(), counts_.end());
+    while (current_block_size < n_) {
+      size_t next_block_size = std::min(2 * current_block_size, n_);
+      for (size_t start = 0; start < n_; start += next_block_size) {
+        size_t mid = std::min(start + current_block_size, n_);
+        size_t end = std::min(start + next_block_size, n_);
+        if (mid < end) {
+          BatcherMerge(input_data_, start, mid, end);
         }
-      });
+      }
+      current_block_size = next_block_size;
     }
+    all_data_ = input_data_;
   }
-
-  size_t total_size = task_data->inputs_count[0];
-  std::vector<int> local_sizes(world_.size());
-  mpi::gather(world_, static_cast<int>(input_data_.size()), local_sizes, 0);
-
-  if (world_.rank() == 0) {
-    all_data_.resize(total_size);
-    displs_[0] = 0;
-    for (int p = 1; p < world_.size(); ++p) {
-      displs_[p] = displs_[p - 1] + local_sizes[p - 1];
-    }
-  }
-
-  boost::mpi::gatherv(world_, input_data_.data(), static_cast<int>(input_data_.size()), all_data_.data(), local_sizes,
-                      displs_, 0);
   return true;
 }
 

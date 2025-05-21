@@ -25,7 +25,7 @@ std::vector<double> kudryashova_i_radix_batcher_all::GetRandomDoubleVector(int s
 TEST(kudryashova_i_radix_batcher_all, all_radix_test_1) {
   boost::mpi::communicator world;
   int global_vector_size = 3;
-  std::vector<double> global_vector;
+  std::vector<double> global_vector(global_vector_size);
   std::vector<double> result(global_vector_size);
   std::shared_ptr<ppc::core::TaskData> task_data = std::make_shared<ppc::core::TaskData>();
   if (world.rank() == 0) {
