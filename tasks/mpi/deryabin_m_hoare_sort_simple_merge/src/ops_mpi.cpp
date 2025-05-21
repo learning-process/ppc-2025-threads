@@ -36,8 +36,8 @@ void deryabin_m_hoare_sort_simple_merge_mpi::HoareSort(std::vector<double>& a, s
   const size_t j = pj - a.data();
   const size_t i = pi - a.data();
   if (available_threads > 1) {
-    oneapi::tbb::tg.run([&a, &first, &j]() { HoaraSort(a, first, j, tg, available_threads >> 1); });
-    oneapi::tbb::tg.run([&a, &i, &last]() { HoaraSort(a, i + 1, last, tg, available_threads - (available_threads >> 1)); });
+    oneapi::tbb::tg.run([&a, &first, &j, &tg, &available_threads]() { HoaraSort(a, first, j, tg, available_threads >> 1); });
+    oneapi::tbb::tg.run([&a, &i, &last, &tg, &available_threads]() { HoaraSort(a, i + 1, last, tg, available_threads - (available_threads >> 1)); });
   } else {
     HoareSort(a, first, j, tg, 1);
     HoareSort(a, i + 1, last, tg, 1);
@@ -82,17 +82,22 @@ bool deryabin_m_hoare_sort_simple_merge_mpi::HoareSortTaskSequential::PostProces
 }
 
 bool deryabin_m_hoare_sort_simple_merge_mpi::HoareSortTaskMPI::PreProcessingImpl() {
-  input_array_A_ = reinterpret_cast<std::vector<double>*>(task_data->inputs[0])[0];
-  dimension_ = task_data->inputs_count[0];
-  chunk_count_ = task_data->inputs_count[1];
-  min_chunk_size_ = dimension_ / chunk_count_;
+  if (world_.rank() == 0) {
+    input_array_A_ = reinterpret_cast<std::vector<double>*>(task_data->inputs[0])[0];
+    dimension_ = task_data->inputs_count[0];
+    chunk_count_ = task_data->inputs_count[1];
+    min_chunk_size_ = dimension_ / chunk_count_; 
+  }
   return true;
 }
 
 bool deryabin_m_hoare_sort_simple_merge_mpi::HoareSortTaskMPI::ValidationImpl() {
-  return static_cast<unsigned short>(task_data->inputs_count[0]) > 2 &&
-         static_cast<unsigned short>(task_data->inputs_count[1]) >= 2 &&
-         task_data->inputs_count[0] == task_data->outputs_count[0];
+  if (world_.rank() == 0) {
+    return static_cast<unsigned short>(task_data->inputs_count[0]) > 2 &&
+      static_cast<unsigned short>(task_data->inputs_count[1]) >= 2 &&
+      task_data->inputs_count[0] == task_data->outputs_count[0];
+  }
+  return true;
 }
 
 bool deryabin_m_hoare_sort_simple_merge_mpi::HoareSortTaskMPI::RunImpl() {
