@@ -29,8 +29,8 @@ void deryabin_m_hoare_sort_simple_merge_mpi::HoareSort(std::vector<double>& a, s
   } while (pi < pj);
   const size_t j = pj - a.data();
   const size_t i = pi - a.data();
-  HoareSort(a, first, j);
-  HoareSort(a, i + 1, last);
+  oneapi::tbb::parallel_invoke([&a, &first, &j]() { HoaraSort(a, first, j); },
+                               [&a, &i, &last]() { HoaraSort(a, i + 1, last); });
 }
 
 bool deryabin_m_hoare_sort_simple_merge_mpi::HoareSortTaskSequential::PreProcessingImpl() {
