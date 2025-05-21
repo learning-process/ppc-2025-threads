@@ -150,6 +150,8 @@ bool deryabin_m_hoare_sort_simple_merge_mpi::HoareSortTaskMPI::RunImpl() {
 }
 
 bool deryabin_m_hoare_sort_simple_merge_mpi::HoareSortTaskMPI::PostProcessingImpl() {
-  reinterpret_cast<std::vector<double>*>(task_data->outputs[0])[0] = input_array_A_;
+  if (world_.rank() == 0) {
+    reinterpret_cast<std::vector<double>*>(task_data->outputs[0])[0] = input_array_A_;
+  }
   return true;
 }
