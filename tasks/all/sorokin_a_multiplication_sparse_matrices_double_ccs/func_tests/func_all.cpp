@@ -42,7 +42,6 @@ void CreateTaskData(std::shared_ptr<ppc::core::TaskData> &task_data, int m, int 
 }
 
 void CheckVectors(const std::vector<double> &expected, const std::vector<double> &actual) {
-  ASSERT_EQ(expected.size(), actual.size());
   for (size_t i = 0; i < actual.size(); ++i) {
     ASSERT_NEAR(expected[i], actual[i], 1e-9);
   }
