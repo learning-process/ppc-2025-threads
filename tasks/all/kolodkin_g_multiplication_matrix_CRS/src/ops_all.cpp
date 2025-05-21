@@ -172,11 +172,14 @@ bool kolodkin_g_multiplication_matrix_all::TestTaskALL::PreProcessingImpl() {
 }
 
 bool kolodkin_g_multiplication_matrix_all::TestTaskALL::ValidationImpl() {
-  // Check equality of counts elements
-  unsigned int input_size = task_data->inputs_count[0];
-  auto* in_ptr = reinterpret_cast<Complex*>(task_data->inputs[0]);
-  std::vector<Complex> vec = std::vector<Complex>(in_ptr, in_ptr + input_size);
-  return !(vec[1] != vec[5 + (int)(vec[2].real() + vec[3].real() + vec[4].real())].real());
+  if (world_.rank() == 0) {
+    // Check equality of counts elements
+    unsigned int input_size = task_data->inputs_count[0];
+    auto* in_ptr = reinterpret_cast<Complex*>(task_data->inputs[0]);
+    std::vector<Complex> vec = std::vector<Complex>(in_ptr, in_ptr + input_size);
+    return !(vec[1] != vec[5 + (int)(vec[2].real() + vec[3].real() + vec[4].real())].real());
+  }
+  return true;
 }
 
 bool kolodkin_g_multiplication_matrix_all::TestTaskALL::RunImpl() {
