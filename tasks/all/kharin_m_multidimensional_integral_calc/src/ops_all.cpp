@@ -29,6 +29,8 @@ bool kharin_m_multidimensional_integral_calc_all::TaskALL::ValidationImpl() {
 }
 
 bool kharin_m_multidimensional_integral_calc_all::TaskALL::PreProcessingImpl() {
+  bool is_valid = true;  // По умолчанию все верно
+  
   if (world_.rank() == 0) {
     auto* input_ptr = reinterpret_cast<double*>(task_data->inputs[0]);
     size_t input_size = task_data->inputs_count[0];
@@ -43,10 +45,16 @@ bool kharin_m_multidimensional_integral_calc_all::TaskALL::PreProcessingImpl() {
       total_size *= n;
     }
     if (total_size != input_size) {
-      return false;
+      is_valid = false;  // Отметим ошибку
     }
   }
-  // Синхронизация перед рассылкой
+  // Синхронизируем результат проверки между всеми процессами
+  boost::mpi::broadcast(world_, is_valid, 0);
+  // Если данные невалидны, возвращаем false на всех процессах
+  if (!is_valid) {
+    return false;
+  }
+
   world_.barrier();
   boost::mpi::broadcast(world_, grid_sizes_, 0);
   boost::mpi::broadcast(world_, step_sizes_, 0);
@@ -61,7 +69,6 @@ bool kharin_m_multidimensional_integral_calc_all::TaskALL::PreProcessingImpl() {
   size_t rank = world_.rank();
   size_t local_size = (rank < remainder) ? chunk_size + 1 : chunk_size;
   local_input_.resize(local_size);
-
   // Распределение данных
   if (world_.rank() == 0) {
     std::vector<int> send_counts(p);
@@ -78,14 +85,13 @@ bool kharin_m_multidimensional_integral_calc_all::TaskALL::PreProcessingImpl() {
   } else {
     boost::mpi::scatterv(world_, local_input_.data(), static_cast<int>(local_input_.size()), 0);
   }
-
-  // Синхронизация после распределения
   world_.barrier();
-
-  if (!std::all_of(step_sizes_.begin(), step_sizes_.end(), [](double h) { return h > 0.0; })) {
-    return false;
-  }
-  return true;
+  // Проверка шагов
+  bool steps_valid = std::all_of(step_sizes_.begin(), step_sizes_.end(), 
+                                [](double h) { return h > 0.0; });
+  // Синхронизируем результат проверки шагов
+  boost::mpi::all_reduce(world_, steps_valid, steps_valid, std::logical_and<bool>());
+  return steps_valid;
 }
 
 double kharin_m_multidimensional_integral_calc_all::TaskALL::ComputeLocalSum() {
