@@ -35,7 +35,7 @@ void VerifyResult(const std::vector<Point>& actual, const std::vector<Point>& ex
 }  // namespace
 
 TEST(zinoviev_a_convex_hull_components_all, test_pipeline_run) {
-  int rank;
+  int rank = 0;
   MPI_Comm_rank(MPI_COMM_WORLD, &rank);
 
   const int size = 500;
@@ -84,7 +84,7 @@ TEST(zinoviev_a_convex_hull_components_all, test_pipeline_run) {
 }
 
 TEST(zinoviev_a_convex_hull_components_all, test_task_run) {
-  int rank;
+  int rank = 0;
   MPI_Comm_rank(MPI_COMM_WORLD, &rank);
 
   const int size = 500;

@@ -1,17 +1,15 @@
 #include "all/zinoviev_a_convex_hull_components/include/ops_all.hpp"
 
-#include <mpi.h>
-
 #include <algorithm>
 #include <cstddef>
 #include <numeric>
 #include <queue>
-#include <thread>
+#include <mpi.h>
+
 #include <utility>
 #include <vector>
 
 #include "core/task/include/task.hpp"
-// #include "core/util/include/util.hpp" // Закомментировал неиспользуемый заголовок
 
 using namespace zinoviev_a_convex_hull_components_all;
 
@@ -48,7 +46,7 @@ bool ConvexHullMPI::PreProcessingImpl() noexcept {
 
   for (int y = 0; y < local_height; ++y) {
     for (int x = 0; x < local_width; ++x) {
-      const size_t idx = static_cast<size_t>(y * local_width + x);
+      auto idx = static_cast<size_t>(y * local_width + x);
       if (!visited[idx] && local_input_data[idx] != 0) {
         std::vector<Point> component;
         BFS(local_input_data.data(), local_width, local_height, x, y, visited, component);
@@ -81,7 +79,7 @@ void ConvexHullMPI::BFS(const int* local_input_data, int local_width, int local_
                         std::vector<bool>& visited, std::vector<Point>& component) noexcept {
   std::queue<Point> queue;
   queue.push({start_x, start_y});
-  const size_t start_idx = static_cast<size_t>(start_y * local_width + start_x);
+  auto start_idx = static_cast<size_t>(start_y * local_width + start_x);
   visited[start_idx] = true;
 
   constexpr int kDx[] = {-1, 1, 0, 0};
@@ -96,7 +94,7 @@ void ConvexHullMPI::BFS(const int* local_input_data, int local_width, int local_
       int nx = p.x + kDx[i];
       int ny = p.y + kDy[i];
       if (nx >= 0 && nx < local_width && ny >= 0 && ny < local_height) {
-        const size_t nidx = static_cast<size_t>(ny * local_width + nx);
+        auto nidx = static_cast<size_t>(ny * local_width + nx);
         if (!visited[nidx] && local_input_data[nidx] != 0) {
           visited[nidx] = true;
           queue.push({nx, ny});
@@ -274,8 +272,7 @@ bool ConvexHullMPI::PostProcessingImpl() noexcept {
   for (size_t i = 0; i < global_hulls_.size(); ++i) {
     send_hull_sizes[i] = static_cast<int>(global_hulls_[i].size());
   }
-  std::vector<int> recv_counts_hulls(
-      all_hull_counts.empty() ? 0 : *std::max_element(all_hull_counts.begin(), all_hull_counts.end()), 0);
+  std::vector<int> recv_counts_hulls(all_hull_counts.empty() ? 0 : *std::ranges::max_element(all_hull_counts), 0);
   std::vector<int> recv_displs_hulls(all_hull_counts.size(), 0);
   if (rank_ == 0) {
     int current_size = 0;
@@ -299,7 +296,7 @@ bool ConvexHullMPI::PostProcessingImpl() noexcept {
     send_hull_point_counts.push_back(static_cast<int>(hull.size()));
     send_hull_point_displs.push_back(current_point_offset);
     local_hull_points_flat.insert(local_hull_points_flat.end(), hull.begin(), hull.end());
-    current_point_offset += hull.size();
+    current_point_offset += static_cast<int>(hull.size());
   }
 
   std::vector<int> recv_hull_point_counts(total_points, 0);
@@ -307,7 +304,7 @@ bool ConvexHullMPI::PostProcessingImpl() noexcept {
   std::vector<Point> gathered_hull_points(total_points);
   if (rank_ == 0) {
     int hull_index = 0;
-    for (int i = 0; i < all_hull_counts.size(); ++i) {
+    for (size_t i = 0; i < all_hull_counts.size(); ++i) {
       for (int j = 0; j < all_hull_counts[i]; ++j) {
         recv_hull_point_counts[hull_index] = all_hulls_flat_sizes[recv_displs_hulls[i] + j];
         recv_hull_point_displs[i + 1] += recv_hull_point_counts[hull_index];
