@@ -1,11 +1,11 @@
 #include "all/zinoviev_a_convex_hull_components/include/ops_all.hpp"
 
+#include <mpi.h>
+
 #include <algorithm>
 #include <cstddef>
 #include <numeric>
 #include <queue>
-#include <mpi.h>
-
 #include <utility>
 #include <vector>
 
