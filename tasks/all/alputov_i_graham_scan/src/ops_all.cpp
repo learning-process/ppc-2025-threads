@@ -107,7 +107,7 @@ bool TestTaskALL::RunImpl() {
   if (rank_ == 0) {
     current_total_num_points = input_points_.size();
   }
-  MPI_Bcast(¤t_total_num_points, 1, MPI_UNSIGNED_LONG, 0, MPI_COMM_WORLD);
+  MPI_Bcast(&current_total_num_points, 1, MPI_UNSIGNED_LONG, 0, MPI_COMM_WORLD);
 
   if (current_total_num_points < 3) {
     if (rank_ == 0) {
