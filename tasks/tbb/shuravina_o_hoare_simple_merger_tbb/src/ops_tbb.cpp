@@ -2,9 +2,9 @@
 
 #include <algorithm>
 #include <cstddef>
+#include <exception>
 #include <iostream>
 #include <memory>
-#include <stdexcept>
 #include <utility>
 #include <vector>
 
@@ -13,7 +13,7 @@
 
 namespace shuravina_o_hoare_simple_merger_tbb {
 
-HoareSortTBB::HoareSortTBB(std::shared_ptr<ppc::core::TaskData> task_data) : Task(std::move(task_data)), data_() {}
+HoareSortTBB::HoareSortTBB(std::shared_ptr<ppc::core::TaskData> task_data) : Task(std::move(task_data)) {}
 
 bool HoareSortTBB::Validation() { return ValidationImpl(); }
 
@@ -35,7 +35,7 @@ bool HoareSortTBB::ValidationImpl() {
   if (task_data->inputs.empty() || task_data->outputs.empty()) {
     return false;
   }
-  if (!task_data->inputs[0] || !task_data->outputs[0]) {
+  if ((task_data->inputs[0] == nullptr) || (task_data->outputs[0] == nullptr)) {
     return false;
   }
   return task_data->inputs_count.size() == 1 && task_data->outputs_count.size() == 1 &&
@@ -52,10 +52,10 @@ bool HoareSortTBB::PreProcessingImpl() {
     data_ = std::vector<int>(input_data, input_data + task_data->inputs_count[0]);
     return true;
   } catch (const std::exception& e) {
-    std::cerr << "PreProcessing error: " << e.what() << std::endl;
+    std::cerr << "PreProcessing error: " << e.what() << '\n';
     return false;
   } catch (...) {
-    std::cerr << "Unknown PreProcessing error" << std::endl;
+    std::cerr << "Unknown PreProcessing error\n";
     return false;
   }
 }
@@ -69,10 +69,10 @@ bool HoareSortTBB::RunImpl() {
     ParallelQuickSort(data_.data(), 0, data_.size() - 1);
     return true;
   } catch (const std::exception& e) {
-    std::cerr << "Run error: " << e.what() << std::endl;
+    std::cerr << "Run error: " << e.what() << '\n';
     return false;
   } catch (...) {
-    std::cerr << "Unknown Run error" << std::endl;
+    std::cerr << "Unknown Run error\n";
     return false;
   }
 }
@@ -87,16 +87,18 @@ bool HoareSortTBB::PostProcessingImpl() {
     std::ranges::copy(data_, output_data);
     return true;
   } catch (const std::exception& e) {
-    std::cerr << "PostProcessing error: " << e.what() << std::endl;
+    std::cerr << "PostProcessing error: " << e.what() << '\n';
     return false;
   } catch (...) {
-    std::cerr << "Unknown PostProcessing error" << std::endl;
+    std::cerr << "Unknown PostProcessing error\n";
     return false;
   }
 }
 
 std::size_t HoareSortTBB::Partition(int* arr, std::size_t left, std::size_t right) {
-  if (right == 0) return 0;
+  if (right == 0) {
+    return 0;
+  }
 
   int pivot = arr[(left + right) / 2];
   while (left <= right) {
@@ -156,10 +158,10 @@ void HoareSortTBB::ParallelQuickSort(int* arr, std::size_t left, std::size_t rig
       ParallelQuickSort(arr, p, right);
     }
   } catch (const std::exception& e) {
-    std::cerr << "Exception in ParallelQuickSort: " << e.what() << std::endl;
+    std::cerr << "Exception in ParallelQuickSort: " << e.what() << '\n';
     throw;
   } catch (...) {
-    std::cerr << "Unknown exception in ParallelQuickSort" << std::endl;
+    std::cerr << "Unknown exception in ParallelQuickSort\n";
     throw;
   }
 }
