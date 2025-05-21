@@ -114,7 +114,6 @@ TEST(sharamygina_i_multi_dim_monte_carlo_all, EmptyOutputValidationTest) {
 
   int iterations = 30000;
   std::vector<double> boundaries = GetBoundaries(0.0, 1.0, 1);
-  double result = 0.0;
   auto test_function = [](const std::vector<double>& values) {
     assert(values.size() == 2);
     return std::sin(values[0]);

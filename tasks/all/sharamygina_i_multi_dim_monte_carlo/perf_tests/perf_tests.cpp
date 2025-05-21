@@ -34,6 +34,7 @@ TEST(sharamygina_i_multi_dim_monte_carlo_all, test_pipeline_run) {
     return (values[0] * values[3]) + values[2] - (0.3 * values[1]) + std::sin(values[4]) +
            std::exp(values[5] + values[6]);
   };
+  double result = 0.0;
 
   auto task_data = std::make_shared<ppc::core::TaskData>();
   if (world.rank() == 0) {
@@ -42,7 +43,6 @@ TEST(sharamygina_i_multi_dim_monte_carlo_all, test_pipeline_run) {
     task_data->inputs.emplace_back(reinterpret_cast<uint8_t*>(&iterations));
     task_data->inputs_count.emplace_back(1);
 
-    double result = 0.0;
     task_data->outputs.emplace_back(reinterpret_cast<uint8_t*>(&result));
     task_data->outputs_count.emplace_back(1);
   }
@@ -83,6 +83,7 @@ TEST(sharamygina_i_multi_dim_monte_carlo_all, test_task_run) {
     return (values[0] * values[3]) + values[2] - (0.3 * values[1]) + std::sin(values[4]) +
            std::exp(values[5] + values[6]);
   };
+  double result = 0.0;
 
   auto task_data = std::make_shared<ppc::core::TaskData>();
   if (world.rank() == 0) {
@@ -91,7 +92,6 @@ TEST(sharamygina_i_multi_dim_monte_carlo_all, test_task_run) {
     task_data->inputs.emplace_back(reinterpret_cast<uint8_t*>(&iterations));
     task_data->inputs_count.emplace_back(1);
 
-    double result = 0.0;
     task_data->outputs.emplace_back(reinterpret_cast<uint8_t*>(&result));
     task_data->outputs_count.emplace_back(1);
   }
