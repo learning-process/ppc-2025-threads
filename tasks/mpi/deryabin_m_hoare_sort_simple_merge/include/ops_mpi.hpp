@@ -1,5 +1,7 @@
 #pragma once
 
+#include <boost/mpi/collectives.hpp>
+#include <boost/mpi/communicator.hpp>
 #include <cstddef>
 #include <utility>
 #include <vector>
