@@ -8,6 +8,8 @@
 #include <thread>
 #include <vector>
 
+#include "core/util/include/util.hpp"
+
 template <typename PixelType>
 bool golovkin_contrast_stretching::ContrastStretchingSTL<PixelType>::ValidationImpl() {
   if (task_data->inputs.empty() || task_data->outputs.empty()) {
