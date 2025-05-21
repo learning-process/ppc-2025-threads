@@ -9,7 +9,7 @@
 #include <vector>
 
 #include "core/task/include/task.hpp"
-#include "stl/deryabin_m_hoare_sort_simple_merge/include/ops_mpi.hpp"
+#include "mpi/deryabin_m_hoare_sort_simple_merge/include/ops_mpi.hpp"
 
 TEST(deryabin_m_hoare_sort_simple_merge_mpi, test_random_array) {
   std::random_device rd;
