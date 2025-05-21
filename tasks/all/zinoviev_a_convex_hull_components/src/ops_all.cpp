@@ -34,19 +34,20 @@ bool ConvexHullMPI::PreProcessingImpl() noexcept {
   int local_end_row = local_ranges[(rank_ * 2) + 1];
   int local_height = local_end_row - local_start_row;
   int local_width = global_width;
-  std::vector<int> local_input_data(static_cast<size_t>(local_width) * local_height);
+  std::vector<int> local_input_data(static_cast<size_t>(local_width) * static_cast<size_t>(local_height));
 
   for (int y = 0; y < local_height; ++y) {
     for (int x = 0; x < local_width; ++x) {
-      local_input_data[y * local_width + x] = global_input_data[((local_start_row + y) * global_width) + x];
+      local_input_data[static_cast<size_t>(y) * static_cast<size_t>(local_width) + static_cast<size_t>(x)] =
+          global_input_data[((local_start_row + y) * global_width) + x];
     }
   }
 
-  std::vector<bool> visited(static_cast<size_t>(local_width) * local_height, false);
+  std::vector<bool> visited(static_cast<size_t>(local_width) * static_cast<size_t>(local_height), false);
 
   for (int y = 0; y < local_height; ++y) {
     for (int x = 0; x < local_width; ++x) {
-      auto idx = static_cast<size_t>(y * local_width + x);
+      size_t idx = static_cast<size_t>(y) * static_cast<size_t>(local_width) + static_cast<size_t>(x);
       if (!visited[idx] && local_input_data[idx] != 0) {
         std::vector<Point> component;
         BFS(local_input_data.data(), local_width, local_height, x, y, visited, component);
@@ -62,14 +63,14 @@ bool ConvexHullMPI::PreProcessingImpl() noexcept {
 }
 
 std::vector<int> ConvexHullMPI::CalculateLocalRanges(int global_size) const noexcept {
-  std::vector<int> ranges(comm_size_ * 2);
+  std::vector<int> ranges(static_cast<size_t>(comm_size_) * 2);
   int base_size = global_size / comm_size_;
   int remainder = global_size % comm_size_;
   int current_start = 0;
   for (int i = 0; i < comm_size_; ++i) {
     int size = base_size + (i < remainder ? 1 : 0);
-    ranges[i * 2] = current_start;
-    ranges[(i * 2) + 1] = current_start + size;
+    ranges[static_cast<size_t>(i) * 2] = current_start;
+    ranges[(static_cast<size_t>(i) * 2) + 1] = current_start + size;
     current_start += size;
   }
   return ranges;
@@ -79,7 +80,7 @@ void ConvexHullMPI::BFS(const int* local_input_data, int local_width, int local_
                         std::vector<bool>& visited, std::vector<Point>& component) noexcept {
   std::queue<Point> queue;
   queue.push({start_x, start_y});
-  auto start_idx = static_cast<size_t>(start_y * local_width + start_x);
+  size_t start_idx = static_cast<size_t>(start_y) * static_cast<size_t>(local_width) + static_cast<size_t>(start_x);
   visited[start_idx] = true;
 
   constexpr int kDx[] = {-1, 1, 0, 0};
@@ -94,7 +95,7 @@ void ConvexHullMPI::BFS(const int* local_input_data, int local_width, int local_
       int nx = p.x + kDx[i];
       int ny = p.y + kDy[i];
       if (nx >= 0 && nx < local_width && ny >= 0 && ny < local_height) {
-        auto nidx = static_cast<size_t>(ny * local_width + nx);
+        size_t nidx = static_cast<size_t>(ny) * static_cast<size_t>(local_width) + static_cast<size_t>(nx);
         if (!visited[nidx] && local_input_data[nidx] != 0) {
           visited[nidx] = true;
           queue.push({nx, ny});
@@ -154,31 +155,31 @@ bool ConvexHullMPI::RunImpl() noexcept {
   }
 
   int num_local_components = static_cast<int>(local_components_.size());
-  std::vector<int> send_counts(comm_size_);
+  std::vector<int> send_counts(static_cast<size_t>(comm_size_));
   MPI_Allgather(&num_local_components, 1, MPI_INT, send_counts.data(), 1, MPI_INT, MPI_COMM_WORLD);
 
-  std::vector<int> displacements(comm_size_, 0);
+  std::vector<int> displacements(static_cast<size_t>(comm_size_), 0);
   int total_components = 0;
   for (int i = 0; i < comm_size_; ++i) {
-    displacements[i] = total_components;
-    total_components += send_counts[i];
+    displacements[static_cast<size_t>(i)] = total_components;
+    total_components += send_counts[static_cast<size_t>(i)];
   }
 
-  global_components_.resize(total_components);
-  std::vector<int> recv_counts(comm_size_);
+  global_components_.resize(static_cast<size_t>(total_components));
+  std::vector<int> recv_counts(static_cast<size_t>(comm_size_));
   std::vector<MPI_Request> send_requests(local_components_.size());
-  std::vector<MPI_Request> recv_requests(total_components);
-  std::vector<MPI_Status> statuses(total_components + local_components_.size());
+  std::vector<MPI_Request> recv_requests(static_cast<size_t>(total_components));
+  std::vector<MPI_Status> statuses(static_cast<size_t>(total_components) + local_components_.size());
 
-  std::vector<std::vector<Point>> all_local_components(total_components);
+  std::vector<std::vector<Point>> all_local_components(static_cast<size_t>(total_components));
   std::vector<int> component_sizes(local_components_.size());
-  std::vector<int> all_component_sizes(total_components);
-  std::vector<int> component_displacements(comm_size_, 0);
-  std::vector<int> all_component_displacements(total_components, 0);
+  std::vector<int> all_component_sizes(static_cast<size_t>(total_components));
+  std::vector<int> component_displacements(static_cast<size_t>(comm_size_), 0);
+  std::vector<int> all_component_displacements(static_cast<size_t>(total_components), 0);
   int current_displacement = 0;
   for (int i = 0; i < comm_size_; ++i) {
-    component_displacements[i] = current_displacement;
-    current_displacement += send_counts[i];
+    component_displacements[static_cast<size_t>(i)] = current_displacement;
+    current_displacement += send_counts[static_cast<size_t>(i)];
   }
 
   for (size_t i = 0; i < local_components_.size(); ++i) {
@@ -198,17 +199,18 @@ bool ConvexHullMPI::RunImpl() noexcept {
     send_buffer.insert(send_buffer.end(), local_components_[i].begin(), local_components_[i].end());
   }
 
-  std::vector<Point> recv_buffer(std::accumulate(all_component_sizes.begin(), all_component_sizes.end(), 0));
-  std::vector<int> recv_buffer_sizes(total_components);
-  std::vector<int> recv_buffer_displacements(total_components, 0);
+  std::vector<Point> recv_buffer(
+      static_cast<size_t>(std::accumulate(all_component_sizes.begin(), all_component_sizes.end(), 0)));
+  std::vector<int> recv_buffer_sizes(static_cast<size_t>(total_components));
+  std::vector<int> recv_buffer_displacements(static_cast<size_t>(total_components), 0);
   int current_recv_offset = 0;
   int global_component_index = 0;
   for (int i = 0; i < comm_size_; ++i) {
-    for (int j = 0; j < send_counts[i]; ++j) {
-      recv_buffer_sizes[global_component_index] =
-          static_cast<int>(all_component_sizes[displacements[i] + j] * sizeof(Point));
-      recv_buffer_displacements[global_component_index] = current_recv_offset;
-      current_recv_offset += recv_buffer_sizes[global_component_index];
+    for (int j = 0; j < send_counts[static_cast<size_t>(i)]; ++j) {
+      recv_buffer_sizes[static_cast<size_t>(global_component_index)] =
+          static_cast<int>(all_component_sizes[static_cast<size_t>(displacements[i] + j)] * sizeof(Point));
+      recv_buffer_displacements[static_cast<size_t>(global_component_index)] = current_recv_offset;
+      current_recv_offset += recv_buffer_sizes[static_cast<size_t>(global_component_index)];
       global_component_index++;
     }
   }
@@ -219,11 +221,11 @@ bool ConvexHullMPI::RunImpl() noexcept {
   int recv_buffer_index = 0;
   global_component_index = 0;
   for (int i = 0; i < comm_size_; ++i) {
-    for (int j = 0; j < send_counts[i]; ++j) {
-      int num_points = all_component_sizes[displacements[i] + j];
-      global_components_[global_component_index].resize(num_points);
+    for (int j = 0; j < send_counts[static_cast<size_t>(i)]; ++j) {
+      int num_points = all_component_sizes[static_cast<size_t>(displacements[i] + j)];
+      global_components_[static_cast<size_t>(global_component_index)].resize(static_cast<size_t>(num_points));
       std::copy(recv_buffer.begin() + recv_buffer_index, recv_buffer.begin() + recv_buffer_index + num_points,
-                global_components_[global_component_index].begin());
+                global_components_[static_cast<size_t>(global_component_index)].begin());
       recv_buffer_index += num_points;
       global_component_index++;
     }
@@ -254,16 +256,16 @@ bool ConvexHullMPI::PostProcessingImpl() noexcept {
   }
 
   std::vector<int> all_hull_sizes(total_points);
-  std::vector<int> all_hull_counts(comm_size_);
-  std::vector<int> all_hull_displacements(comm_size_, 0);
+  std::vector<int> all_hull_counts(static_cast<size_t>(comm_size_));
+  std::vector<int> all_hull_displacements(static_cast<size_t>(comm_size_), 0);
   int num_global_hulls = static_cast<int>(global_hulls_.size());
   MPI_Gather(&num_global_hulls, 1, MPI_INT, all_hull_counts.data(), 1, MPI_INT, 0, MPI_COMM_WORLD);
 
   if (rank_ == 0) {
     int current_displacement = 0;
     for (int i = 0; i < comm_size_; ++i) {
-      all_hull_displacements[i] = current_displacement;
-      current_displacement += all_hull_counts[i];
+      all_hull_displacements[static_cast<size_t>(i)] = current_displacement;
+      current_displacement += all_hull_counts[static_cast<size_t>(i)];
     }
   }
 
@@ -303,7 +305,7 @@ bool ConvexHullMPI::PostProcessingImpl() noexcept {
   std::vector<int> recv_hull_point_displs(all_hull_counts.size() + 1, 0);
   std::vector<Point> gathered_hull_points(total_points);
   if (rank_ == 0) {
-    int hull_index = 0;
+    size_t hull_index = 0;
     for (size_t i = 0; i < all_hull_counts.size(); ++i) {
       for (int j = 0; j < all_hull_counts[i]; ++j) {
         recv_hull_point_counts[hull_index] = all_hulls_flat_sizes[recv_displs_hulls[i] + j];
@@ -314,7 +316,7 @@ bool ConvexHullMPI::PostProcessingImpl() noexcept {
     for (size_t i = 1; i < recv_hull_point_displs.size(); ++i) {
       recv_hull_point_displs[i] += recv_hull_point_displs[i - 1];
     }
-    gathered_hull_points.resize(recv_hull_point_displs.back());
+    gathered_hull_points.resize(static_cast<size_t>(recv_hull_point_displs.back()));
   }
 
   MPI_Gatherv(local_hull_points_flat.data(), static_cast<int>(local_hull_points_flat.size() * sizeof(Point)), MPI_BYTE,
