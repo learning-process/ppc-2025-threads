@@ -17,7 +17,6 @@ class TestTaskALL : public ppc::core::Task {
   bool RunImpl() override;
   bool PostProcessingImpl() override;
   inline static bool IsPositiveAndSimm(const double* a, int n);
-  
 
  private:
   std::vector<double> a_;
