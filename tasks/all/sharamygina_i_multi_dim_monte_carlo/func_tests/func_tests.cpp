@@ -394,7 +394,6 @@ TEST(sharamygina_i_multi_dim_monte_carlo_all, 3DSinFunctionWithDifferentBoundari
     task_data->inputs_count.emplace_back(boundaries.size());
     task_data->inputs.emplace_back(reinterpret_cast<uint8_t*>(&iterations));
     task_data->inputs_count.emplace_back(1);
-    double result = 0.0;
     task_data->outputs.emplace_back(reinterpret_cast<uint8_t*>(&result));
     task_data->outputs_count.emplace_back(1);
   }
