@@ -24,7 +24,7 @@ class TestTaskALL : public ppc::core::Task {
  private:
   std::vector<int> input_;
   std::vector<int> output_;
-  boost::mpi::communicator world;
+  boost::mpi::communicator world_;
 };
 
 }  // namespace shlyakov_m_shell_sort_all
