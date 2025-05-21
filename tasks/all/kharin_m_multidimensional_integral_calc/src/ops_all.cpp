@@ -29,7 +29,7 @@ bool kharin_m_multidimensional_integral_calc_all::TaskALL::ValidationImpl() {
 }
 
 bool kharin_m_multidimensional_integral_calc_all::TaskALL::PreProcessingImpl() {
-  bool is_valid = true;  // По умолчанию все верно
+  bool is_valid = true;
   if (world_.rank() == 0) {
     auto* input_ptr = reinterpret_cast<double*>(task_data->inputs[0]);
     size_t input_size = task_data->inputs_count[0];
@@ -39,34 +39,40 @@ bool kharin_m_multidimensional_integral_calc_all::TaskALL::PreProcessingImpl() {
     grid_sizes_ = std::vector<size_t>(sizes_ptr, sizes_ptr + d);
     auto* steps_ptr = reinterpret_cast<double*>(task_data->inputs[2]);
     step_sizes_ = std::vector<double>(steps_ptr, steps_ptr + d);
+  
+    // Проверка размера входных данных
     size_t total_size = 1;
     for (auto n : grid_sizes_) {
       total_size *= n;
     }
     if (total_size != input_size) {
-      is_valid = false;  // Отметим ошибку
+      is_valid = false;
     }
   }
   // Синхронизируем результат проверки между всеми процессами
   boost::mpi::broadcast(world_, is_valid, 0);
+
   // Если данные невалидны, возвращаем false на всех процессах
   if (!is_valid) {
     return false;
   }
-  world_.barrier();
+  // Теперь транслируем grid_sizes_ и step_sizes_ на все процессы
   boost::mpi::broadcast(world_, grid_sizes_, 0);
   boost::mpi::broadcast(world_, step_sizes_, 0);
-
+  // Распределение данных между процессами
   size_t total_size = 1;
   for (auto n : grid_sizes_) {
     total_size *= n;
   }
+
   size_t p = world_.size();
   size_t chunk_size = total_size / p;
   size_t remainder = total_size % p;
   size_t rank = world_.rank();
   size_t local_size = (rank < remainder) ? chunk_size + 1 : chunk_size;
+
   local_input_.resize(local_size);
+
   // Распределение данных
   if (world_.rank() == 0) {
     std::vector<int> send_counts(p);
@@ -83,22 +89,30 @@ bool kharin_m_multidimensional_integral_calc_all::TaskALL::PreProcessingImpl() {
   } else {
     boost::mpi::scatterv(world_, local_input_.data(), static_cast<int>(local_input_.size()), 0);
   }
-  world_.barrier();
-  // Проверка шагов - исправлено для предотвращения ошибки aliased buffers
+
+  // Проверка шагов - исправление проблемы с буферами
   bool local_steps_valid = std::all_of(step_sizes_.begin(), step_sizes_.end(), [](double h) { return h > 0.0; });
-  bool all_steps_valid = false;  // Отдельная переменная для результата
+  bool all_steps_valid;  // Отдельная переменная для результата
   boost::mpi::all_reduce(world_, local_steps_valid, all_steps_valid, std::logical_and<bool>());
+
   return all_steps_valid;
 }
 
 double kharin_m_multidimensional_integral_calc_all::TaskALL::ComputeLocalSum() {
   if (local_input_.empty()) return 0.0;
+
+  // Определение количества потоков
   num_threads_ = std::min(static_cast<size_t>(ppc::util::GetPPCNumThreads()), local_input_.size());
+  if (num_threads_ == 0) return 0.0;  // Дополнительная проверка
+
   std::vector<std::thread> threads;
   threads.reserve(num_threads_);
   std::vector<double> partial_sums(num_threads_, 0.0);
+
+  // Распределение работы между потоками
   auto input_chunk_size = local_input_.size() / num_threads_;
   auto remainder = local_input_.size() % num_threads_;
+
   auto chunk_plus = [&](std::vector<double>::iterator it_begin, size_t size, double& result_location) {
     double local = 0.0;
     for (size_t i = 0; i < size; ++i) {
@@ -106,6 +120,7 @@ double kharin_m_multidimensional_integral_calc_all::TaskALL::ComputeLocalSum() {
     }
     result_location = local;
   };
+
   size_t current_start_index = 0;
   for (size_t i = 0; i < num_threads_; ++i) {
     size_t size = (i < remainder) ? (input_chunk_size + 1) : input_chunk_size;
@@ -114,26 +129,31 @@ double kharin_m_multidimensional_integral_calc_all::TaskALL::ComputeLocalSum() {
     threads.push_back(std::move(th));
     current_start_index += size;
   }
+
+  // Ожидание завершения потоков
   for (auto& th : threads) {
     if (th.joinable()) {
       th.join();
     }
   }
+
+  // Суммирование частичных результатов
   double local_sum = 0.0;
   for (const auto& partial : partial_sums) {
     local_sum += partial;
   }
+
   return local_sum;
 }
 
 bool kharin_m_multidimensional_integral_calc_all::TaskALL::RunImpl() {
   double local_sum = ComputeLocalSum();
-  world_.barrier();
+
+  // Сбор результатов от всех процессов
   double total_sum = 0.0;
   boost::mpi::reduce(world_, local_sum, total_sum, std::plus<double>(), 0);
 
-  // Синхронизация после сборки
-  world_.barrier();
+  // Синхронизация перед дальнейшей обработкой
   if (world_.rank() == 0) {
     double volume_element = 1.0;
     for (const auto& h : step_sizes_) {
@@ -145,7 +165,13 @@ bool kharin_m_multidimensional_integral_calc_all::TaskALL::RunImpl() {
 }
 
 bool kharin_m_multidimensional_integral_calc_all::TaskALL::PostProcessingImpl() {
+  // Отправка результата всем процессам
   boost::mpi::broadcast(world_, output_result_, 0);
-  reinterpret_cast<double*>(task_data->outputs[0])[0] = output_result_;
+
+  // Запись результата в выходные данные
+  if (task_data->outputs.size() > 0 && task_data->outputs_count.size() > 0 && task_data->outputs_count[0] > 0) {
+    reinterpret_cast<double*>(task_data->outputs[0])[0] = output_result_;
+  }
+
   return true;
 }
