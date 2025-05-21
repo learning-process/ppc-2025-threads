@@ -3,7 +3,7 @@
 #include <algorithm>
 #include <boost/mpi/collectives/broadcast.hpp>
 #include <boost/mpi/collectives/scatterv.hpp>
-#include <boost/serialization/vector.hpp>
+#include <boost/mpi/collectives/all_reduce.hpp> // Добавляем недостающий заголовок
 #include <cstddef>
 #include <functional>
 #include <thread>
@@ -16,11 +16,10 @@
 bool kharin_m_multidimensional_integral_calc_all::TaskALL::ValidationImpl() {
   bool is_valid = true;
   if (world_.rank() == 0) {
-    if (task_data->inputs.size() != 3 || task_data->outputs.size() != 1) {
-      is_valid = false;
-    } else if (task_data->inputs_count[1] != task_data->inputs_count[2]) {
-      is_valid = false;
-    } else if (task_data->outputs_count[0] != 1) {
+    // Объединяем условия с одинаковым телом в одно составное условие
+    if (task_data->inputs.size() != 3 || task_data->outputs.size() != 1 ||
+        task_data->inputs_count[1] != task_data->inputs_count[2] ||
+        task_data->outputs_count[0] != 1) {
       is_valid = false;
     }
   }
@@ -90,19 +89,23 @@ bool kharin_m_multidimensional_integral_calc_all::TaskALL::PreProcessingImpl() {
   }
 
   // Проверка шагов - исправление проблемы с буферами
-  bool local_steps_valid = std::all_of(step_sizes_.begin(), step_sizes_.end(), [](double h) { return h > 0.0; });
-  bool all_steps_valid;  // Отдельная переменная для результата
-  boost::mpi::all_reduce(world_, local_steps_valid, all_steps_valid, std::logical_and<bool>());
-
+  bool local_steps_valid = std::ranges::all_of(step_sizes_, [](double h) { return h > 0.0; });
+  bool all_steps_valid = false;  // Инициализация переменной
+  // Использование прозрачного функтора вместо std::logical_and<bool>()
+  boost::mpi::all_reduce(world_, local_steps_valid, all_steps_valid, std::logical_and<>());
   return all_steps_valid;
 }
 
 double kharin_m_multidimensional_integral_calc_all::TaskALL::ComputeLocalSum() {
-  if (local_input_.empty()) return 0.0;
+  if (local_input_.empty()) {
+    return 0.0;
+  }
 
   // Определение количества потоков
   num_threads_ = std::min(static_cast<size_t>(ppc::util::GetPPCNumThreads()), local_input_.size());
-  if (num_threads_ == 0) return 0.0;  // Дополнительная проверка
+  if (num_threads_ == 0) {
+    return 0.0;  // Дополнительная проверка
+  }
 
   std::vector<std::thread> threads;
   threads.reserve(num_threads_);
@@ -150,7 +153,8 @@ bool kharin_m_multidimensional_integral_calc_all::TaskALL::RunImpl() {
 
   // Сбор результатов от всех процессов
   double total_sum = 0.0;
-  boost::mpi::reduce(world_, local_sum, total_sum, std::plus<double>(), 0);
+  // Использование прозрачного функтора вместо std::plus<double>()
+  boost::mpi::reduce(world_, local_sum, total_sum, std::plus<>(), 0);
 
   // Синхронизация перед дальнейшей обработкой
   if (world_.rank() == 0) {
@@ -168,7 +172,7 @@ bool kharin_m_multidimensional_integral_calc_all::TaskALL::PostProcessingImpl() 
   boost::mpi::broadcast(world_, output_result_, 0);
 
   // Запись результата в выходные данные
-  if (task_data->outputs.size() > 0 && task_data->outputs_count.size() > 0 && task_data->outputs_count[0] > 0) {
+  if (!task_data->outputs.empty() && !task_data->outputs_count.empty() && task_data->outputs_count[0] > 0) {
     reinterpret_cast<double*>(task_data->outputs[0])[0] = output_result_;
   }
 
