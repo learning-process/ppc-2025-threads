@@ -94,7 +94,7 @@ bool zolotareva_a_sle_gradient_method_all::TestTaskALL::RunImpl() {
   std::vector<double> p = r;
 
   int local_rows_0 = base_rows + remainder;
-  if (world_size < 1) world size = 1;
+  if (world_size < 1) world_size = 1;
   std::vector<int> recvcounts(world_size, base_rows);
   recvcounts[0] = local_rows_0;
   std::vector<int> displs(world_size, 0);
