@@ -1,7 +1,5 @@
 #pragma once
 
-#include <mpi.h>
-
 #include <vector>
 
 #include "core/task/include/task.hpp"
@@ -35,7 +33,7 @@ class ConvexHullMPI : public ppc::core::Task {
   static int Cross(const Point& o, const Point& a, const Point& b) noexcept;
   static void BFS(const int* local_input_data, int local_width, int local_height, int start_x, int start_y,
                   std::vector<bool>& visited, std::vector<Point>& component) noexcept;
-  std::vector<int> calculate_local_ranges(int global_size) const noexcept;
+  [[nodiscard]] std::vector<int> CalculateLocalRanges(int global_size) const noexcept;
 };
 
 }  // namespace zinoviev_a_convex_hull_components_all
