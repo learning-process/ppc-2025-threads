@@ -68,6 +68,7 @@ bool kolokolova_d_integral_simpson_method_all::TestTaskALL::ValidationImpl() {
 }
 
 bool kolokolova_d_integral_simpson_method_all::TestTaskALL::RunImpl() {
+  // Send vector sizes to all processes
   boost::mpi::broadcast(world_, size_local_results_func_, 0);
   boost::mpi::broadcast(world_, nums_variables_, 0);
   boost::mpi::broadcast(world_, size_local_coeff_, 0);
@@ -76,6 +77,7 @@ bool kolokolova_d_integral_simpson_method_all::TestTaskALL::RunImpl() {
   local_results_func_ = std::vector<double>(size_local_results_func_);
   local_coeff_ = std::vector<double>(size_local_coeff_);
 
+  // Sending vectors with coefficients and function values
   if (world_.rank() == 0) {
     for (int proc = 1; proc < world_.size(); proc++) {
       world_.communicator::send(proc, 0, results_func_.data() + (proc * size_local_results_func_),
@@ -97,6 +99,7 @@ bool kolokolova_d_integral_simpson_method_all::TestTaskALL::RunImpl() {
 
   int function_vec_size = int(local_results_func_.size());
 
+  // Multiplication by coefficients
   tbb::parallel_for(0, function_vec_size,
                     [&](int i) { local_results_func_[i] *= local_coeff_[i % local_coeff_.size()]; });
 
@@ -128,6 +131,7 @@ bool kolokolova_d_integral_simpson_method_all::TestTaskALL::RunImpl() {
     world_.communicator::recv(0, 0, local_size_step_.data(), size_local_size_step_);
   }
 
+  // Formation of the result
   double sum = tbb::parallel_reduce(
       tbb::blocked_range<size_t>(0, local_results_func_.size()), 0.0,
       [&](const tbb::blocked_range<size_t>& r, double init) {
