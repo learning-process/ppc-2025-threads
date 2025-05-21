@@ -49,9 +49,9 @@ TEST(prokhorov_n_multidimensional_integrals_by_trapezoidal_method_seq, test_pipe
 }
 
 TEST(prokhorov_n_multidimensional_integrals_by_trapezoidal_method_seq, test_task_run) {
-  std::vector<double> lower = {0.0, 0.0};
-  std::vector<double> upper = {1.0, 1.0};
-  std::vector<int> steps = {400, 400};
+  std::vector<double> lower = {0.0, 0.0, 0.0};
+  std::vector<double> upper = {1.0, 1.0, 1.0};
+  std::vector<int> steps = {200, 200, 200};
   double result = 0.0;
 
   auto task_data_seq = std::make_shared<ppc::core::TaskData>();
@@ -68,7 +68,7 @@ TEST(prokhorov_n_multidimensional_integrals_by_trapezoidal_method_seq, test_task
       std::make_shared<prokhorov_n_multidimensional_integrals_by_trapezoidal_method_seq::TestTaskSequential>(
           task_data_seq);
 
-  test_task_sequential->SetFunction([](const std::vector<double>& point) { return point[0] + point[1]; });
+  test_task_sequential->SetFunction([](const std::vector<double>& point) { return point[0] + point[1] + point[2]; });
 
   auto perf_attr = std::make_shared<ppc::core::PerfAttr>();
   perf_attr->num_running = 10;
@@ -84,4 +84,7 @@ TEST(prokhorov_n_multidimensional_integrals_by_trapezoidal_method_seq, test_task
   auto perf_analyzer = std::make_shared<ppc::core::Perf>(test_task_sequential);
   perf_analyzer->TaskRun(perf_attr, perf_results);
   ppc::core::Perf::PrintPerfStatistic(perf_results);
+
+  double expected = 1.5;
+  ASSERT_NEAR(result, expected, 0.01);
 }
