@@ -41,7 +41,9 @@ double TrapezoidalIntegration(const std::function<double(const std::vector<doubl
                               const std::vector<double>& lower, const std::vector<double>& upper,
                               const std::vector<int>& steps, size_t current_dim, const std::vector<double>& point);
 
-double CalculateWeight(int i, int steps_dim) { return (i == 0 || i == steps_dim) ? 0.5 : 1.0; }
+inline double CalculateWeight(int i, int steps_dim) {
+  return (static_cast<unsigned>(i - 1) >= static_cast<unsigned>(steps_dim - 1)) ? 0.5 : 1.0;
+}
 
 double SequentialIntegration(const std::function<double(const std::vector<double>&)>& func,
                              const std::vector<double>& lower, const std::vector<double>& upper,
@@ -131,7 +133,9 @@ bool TestTaskSTL::RunImpl() {
 }
 
 bool TestTaskSTL::PostProcessingImpl() {
-  *reinterpret_cast<double*>(task_data->outputs[0]) = result_;
+  if (!task_data->outputs.empty() && task_data->outputs[0] != nullptr) {
+    *reinterpret_cast<double*>(task_data->outputs[0]) = result_;
+  }
   return true;
 }
 
