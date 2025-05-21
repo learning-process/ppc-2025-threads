@@ -89,7 +89,7 @@ bool deryabin_m_hoare_sort_simple_merge_mpi::HoareSortTaskMPI::PreProcessingImpl
     input_array_A_ = reinterpret_cast<std::vector<double>*>(task_data->inputs[0])[0];
     dimension_ = task_data->inputs_count[0];
     chunk_count_ = task_data->inputs_count[1];
-                                                                       min_chunk_size_ = dimension_ / chunk_count_;
+    min_chunk_size_ = dimension_ / chunk_count_;
   }
   return true;
 }
