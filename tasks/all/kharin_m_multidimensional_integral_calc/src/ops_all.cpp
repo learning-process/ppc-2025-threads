@@ -142,8 +142,7 @@ bool kharin_m_multidimensional_integral_calc_all::TaskALL::RunImpl() {
 }
 
 bool kharin_m_multidimensional_integral_calc_all::TaskALL::PostProcessingImpl() {
-  if (world_.rank() == 0) {
-    reinterpret_cast<double*>(task_data->outputs[0])[0] = output_result_;
-  }
+  boost::mpi::broadcast(world_, output_result_, 0);
+  reinterpret_cast<double*>(task_data->outputs[0])[0] = output_result_;
   return true;
 }
