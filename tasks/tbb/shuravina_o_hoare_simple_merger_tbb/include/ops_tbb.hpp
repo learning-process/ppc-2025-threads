@@ -21,7 +21,7 @@ class HoareSortTBB : public ppc::core::Task {
   static constexpr std::size_t kThreshold = 10000;
 
   void SequentialQuickSort(int* arr, std::size_t left, std::size_t right);
-  std::size_t Partition(int* arr, std::size_t left, std::size_t right);
+  static std::size_t Partition(int* arr, std::size_t left, std::size_t right);
   void ParallelQuickSort(int* arr, std::size_t left, std::size_t right);
 
   bool ValidationImpl() override;
