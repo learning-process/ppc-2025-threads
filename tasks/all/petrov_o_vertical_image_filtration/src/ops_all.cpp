@@ -5,12 +5,12 @@
 #include <oneapi/tbb/parallel_for.h>
 #include <oneapi/tbb/task_arena.h>
 
-#include <boost/mpi/collectives.hpp>
 #include <cmath>
 #include <cstddef>
 #include <utility>
 #include <vector>
 
+#include "boost/mpi/collectives/gatherv.hpp"
 #include "core/task/include/task.hpp"
 #include "core/util/include/util.hpp"
 
@@ -73,7 +73,7 @@ void TaskAll::ApplyGaussianFilterTbb(std::vector<int> &local_output_ref, size_t 
               size_t kernel_col = static_cast<size_t>(kj + 1);
               sum += static_cast<float>(input_[((i_in + ki) * width_) + (j_in + kj)]) *
                      gaussian_kernel_[(kernel_row * 3) + kernel_col];
-                     //gaussian_kernel_[static_cast<size_t>(((ki + 1) * 3) + (kj + 1))];
+              // gaussian_kernel_[static_cast<size_t>(((ki + 1) * 3) + (kj + 1))];
             }
           }
           local_output_ref[(local_i_out * output_cols_val) + j_out] = static_cast<int>(sum);
@@ -127,10 +127,8 @@ bool TaskAll::RunImpl() {
         displs[static_cast<size_t>(r_idx)] = current_displ;
         current_displ += recv_counts[static_cast<size_t>(r_idx)];
       }
-      // NOLINTNEXTLINE(misc-include-cleaner) - Tidy thinks gatherv is not included, but <boost/mpi/collectives.hpp> is included.
       boost::mpi::gatherv(world_, local_output, output_.data(), recv_counts, displs, 0);
     } else {
-      // NOLINTNEXTLINE(misc-include-cleaner) - Tidy thinks gatherv is not included, but <boost/mpi/collectives.hpp> is included.
       boost::mpi::gatherv(world_, local_output, 0);
     }
   } else if (rank == 0) {
