@@ -143,7 +143,7 @@ bool TestTaskALL::RunImpl() {
     return true;
   }
   int current_rank_in_active_comm;
-  MPI_Comm_rank(active_comm_, ¤t_rank_in_active_comm);
+  MPI_Comm_rank(active_comm_, &current_rank_in_active_comm);
 
   if (current_rank_in_active_comm == 0) {
     pivot_ = FindPivot(input_points_);
