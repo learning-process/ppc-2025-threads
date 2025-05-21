@@ -1,13 +1,15 @@
 #include "tbb/malyshev_v_radix_sort/include/ops_tbb.hpp"
 
+#include <oneapi/tbb/parallel_for.h>
 #include <oneapi/tbb/task_arena.h>
 #include <oneapi/tbb/task_group.h>
-#include <tbb/tbb.h>
 
 #include <algorithm>
+#include <atomic>
 #include <cmath>
 #include <cstddef>
 #include <cstdint>
+#include <utility>
 #include <vector>
 
 namespace malyshev_v_radix_sort_tbb {
@@ -26,7 +28,11 @@ uint64_t ConvertDoubleToUInt64(double d) {
 
 void RadixSort(std::vector<double>& data, int exp) {
   const size_t data_size = data.size();
-  std::vector<int> count(256, 0);
+  std::vector<std::atomic<int>> count(256);
+  for (auto& c : count) {
+    c.store(0, std::memory_order_relaxed);
+  }
+
   std::vector<double> output(data_size);
 
   tbb::parallel_for(tbb::blocked_range<size_t>(0, data_size), [&](const tbb::blocked_range<size_t>& r) {
@@ -37,13 +43,15 @@ void RadixSort(std::vector<double>& data, int exp) {
       local_count[digit]++;
     }
     for (int j = 0; j < 256; ++j) {
-      tbb::atomic<int>& global = count[j];
-      global.fetch_and_add(local_count[j]);
+      count[j].fetch_add(local_count[j], std::memory_order_relaxed);
     }
   });
 
+  int prev = count[0].load(std::memory_order_relaxed);
   for (int i = 1; i < 256; ++i) {
-    count[i] += count[i - 1];
+    int current = count[i].load(std::memory_order_relaxed);
+    count[i].store(prev + current, std::memory_order_relaxed);
+    prev += current;
   }
 
   for (size_t i = data_size; i-- > 0;) {
