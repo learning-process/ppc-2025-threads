@@ -3,7 +3,7 @@
 #include <algorithm>
 #include <boost/mpi/collectives/broadcast.hpp>
 #include <boost/mpi/collectives/scatterv.hpp>
-#include <boost/serialization/vector.hpp>  // NOLINT(*-include-cleaner)
+#include <boost/serialization/vector.hpp>
 #include <cstddef>
 #include <functional>
 #include <thread>
@@ -16,7 +16,6 @@
 bool kharin_m_multidimensional_integral_calc_all::TaskALL::ValidationImpl() {
   bool is_valid = true;
   if (world_.rank() == 0) {
-    // Проверяем структуру данных
     if (task_data->inputs.size() != 3 || task_data->outputs.size() != 1) {
       is_valid = false;
     } else if (task_data->inputs_count[1] != task_data->inputs_count[2]) {
@@ -25,7 +24,6 @@ bool kharin_m_multidimensional_integral_calc_all::TaskALL::ValidationImpl() {
       is_valid = false;
     }
   }
-  // Рассылаем результат валидации всем процессам
   boost::mpi::broadcast(world_, is_valid, 0);
   return is_valid;
 }
@@ -48,8 +46,11 @@ bool kharin_m_multidimensional_integral_calc_all::TaskALL::PreProcessingImpl() {
       return false;
     }
   }
+  // Синхронизация перед рассылкой
+  world_.barrier();
   boost::mpi::broadcast(world_, grid_sizes_, 0);
   boost::mpi::broadcast(world_, step_sizes_, 0);
+  
   size_t total_size = 1;
   for (auto n : grid_sizes_) {
     total_size *= n;
@@ -60,6 +61,8 @@ bool kharin_m_multidimensional_integral_calc_all::TaskALL::PreProcessingImpl() {
   size_t rank = world_.rank();
   size_t local_size = (rank < remainder) ? chunk_size + 1 : chunk_size;
   local_input_.resize(local_size);
+
+  // Распределение данных
   if (world_.rank() == 0) {
     std::vector<int> send_counts(p);
     std::vector<int> displacements(p);
@@ -75,6 +78,10 @@ bool kharin_m_multidimensional_integral_calc_all::TaskALL::PreProcessingImpl() {
   } else {
     boost::mpi::scatterv(world_, local_input_.data(), static_cast<int>(local_input_.size()), 0);
   }
+  
+  // Синхронизация после распределения
+  world_.barrier();
+
   if (!std::all_of(step_sizes_.begin(), step_sizes_.end(), [](double h) { return h > 0.0; })) {
     return false;
   }
@@ -118,8 +125,12 @@ double kharin_m_multidimensional_integral_calc_all::TaskALL::ComputeLocalSum() {
 
 bool kharin_m_multidimensional_integral_calc_all::TaskALL::RunImpl() {
   double local_sum = ComputeLocalSum();
+  // Синхронизация перед сбором результатов
+  world_.barrier();
   double total_sum = 0.0;
   boost::mpi::reduce(world_, local_sum, total_sum, std::plus<>(), 0);
+  // Синхронизация после сборки
+  world_.barrier();
   if (world_.rank() == 0) {
     double volume_element = 1.0;
     for (const auto& h : step_sizes_) {
