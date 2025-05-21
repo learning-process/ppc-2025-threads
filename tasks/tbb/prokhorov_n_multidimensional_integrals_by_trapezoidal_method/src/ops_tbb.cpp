@@ -1,13 +1,12 @@
 #include "tbb/prokhorov_n_multidimensional_integrals_by_trapezoidal_method/include/ops_tbb.hpp"
 
-#include <tbb/tbb.h>
+#include <tbb/blocked_range.h>
+#include <tbb/parallel_reduce.h>
 
 #include <cmath>
 #include <cstddef>
 #include <functional>
 #include <vector>
-
-#include "core/util/include/util.hpp"
 
 namespace prokhorov_n_multidimensional_integrals_by_trapezoidal_method_tbb {
 
@@ -73,7 +72,7 @@ class RecursiveIntegrator {
             }
             return local_sum;
           },
-          std::plus<double>());
+          std::plus<>());
     } else {
       for (int i = 0; i <= steps_[current_dim]; ++i) {
         point[current_dim] = lower_[current_dim] + i * h[current_dim];
