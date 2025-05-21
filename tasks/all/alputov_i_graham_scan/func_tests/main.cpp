@@ -66,7 +66,6 @@ void ExecuteAndValidateTask(alputov_i_graham_scan_all::TestTaskALL& task) {
   ASSERT_TRUE(task.PostProcessing());
 }
 
-NOLINTNEXTLINE(readability - function - cognitive - complexity)
 void AssertPointsEqual(const std::vector<alputov_i_graham_scan_all::Point>& actual,
                        const std::vector<alputov_i_graham_scan_all::Point>& expected) {
   ASSERT_EQ(actual.size(), expected.size());
@@ -198,7 +197,6 @@ TEST(alputov_i_graham_scan_all, perfect_square_case) {
   }
 }
 
-NOLINTNEXTLINE(readability - function - cognitive - complexity)
 TEST(alputov_i_graham_scan_all, random_100_points) {
   int rank{};
   MPI_Comm_rank(MPI_COMM_WORLD, &rank);
