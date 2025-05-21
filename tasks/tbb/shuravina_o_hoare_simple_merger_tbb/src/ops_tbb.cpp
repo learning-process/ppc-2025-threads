@@ -63,7 +63,7 @@ bool HoareSortTBB::PostProcessingImpl() {
     }
 
     auto* output_data = reinterpret_cast<int*>(task_data->outputs[0]);
-    std::copy(data_.begin(), data_.end(), output_data);
+    std::ranges::copy(data_, output_data);
     return true;
   } catch (...) {
     return false;
@@ -77,7 +77,9 @@ std::size_t HoareSortTBB::Partition(int* arr, std::size_t left, std::size_t righ
       ++left;
     }
     while (arr[right] > pivot) {
-      if (right == 0) break;
+      if (right == 0) {
+        break;
+      }
       --right;
     }
     if (left <= right) {
