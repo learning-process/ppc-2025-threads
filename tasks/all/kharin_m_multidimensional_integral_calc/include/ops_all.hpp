@@ -3,6 +3,8 @@
 #include <boost/mpi/collectives.hpp>
 #include <boost/mpi/communicator.hpp>
 #include <cstddef>
+#include <memory>
+#include <utility>
 #include <vector>
 
 #include "core/task/include/task.hpp"
@@ -18,6 +20,7 @@ class TaskALL : public ppc::core::Task {
   bool PostProcessingImpl() override;
 
  private:
+  double ComputeLocalSum();
   std::vector<double> input_;
   std::vector<double> local_input_;
   std::vector<size_t> grid_sizes_;
