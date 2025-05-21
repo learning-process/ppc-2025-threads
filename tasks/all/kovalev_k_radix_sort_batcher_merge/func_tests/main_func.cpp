@@ -88,11 +88,6 @@ TEST(kovalev_k_radix_sort_batcher_merge_all, Test_2_int) {
   std::mt19937 gen(rd());
   std::uniform_int_distribution<long long int> dis(kMinLl, kMaxLl);
   std::ranges::generate(in.begin(), in.end(), [&]() { return dis(gen); });
-  for (int i = 0; i < length; i++) {
-    in[i] = -5 + rand() % 9;
-    std::cout << in[i] << ' ';
-  }
-  std::cout << '\n';
   std::vector<long long int> out(length);
   std::shared_ptr<ppc::core::TaskData> task_data_all = std::make_shared<ppc::core::TaskData>();
   boost::mpi::communicator world;
