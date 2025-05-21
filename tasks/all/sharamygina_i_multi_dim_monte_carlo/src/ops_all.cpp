@@ -2,9 +2,6 @@
 
 #include <algorithm>
 #include <boost/mpi/collectives.hpp>
-#include <boost/mpi/collectives/broadcast.hpp>
-#include <boost/mpi/collectives/reduce.hpp>
-#include <boost/mpi/communicator.hpp>
 #include <cstdlib>
 #include <ctime>
 #include <functional>
@@ -20,16 +17,12 @@ bool sharamygina_i_multi_dim_monte_carlo_all::MultiDimMonteCarloTask::PreProcess
     boundaries_.resize(total_bounds_count);
     std::copy(raw_bounds, raw_bounds + total_bounds_count, boundaries_.begin());
 
-    auto* function_ptr = reinterpret_cast<std::function<double(const std::vector<double>&)>*>(task_data->inputs[2]);
-    integrating_function_ = *function_ptr;
-
     int* iter_ptr = reinterpret_cast<int*>(task_data->inputs[1]);
     number_of_iterations_ = *iter_ptr;
   }
 
   boost::mpi::broadcast(world_, boundaries_, 0);
   boost::mpi::broadcast(world_, number_of_iterations_, 0);
-  boost::mpi::broadcast(world_, integrating_function_, 0);
 
   return true;
 }
@@ -37,9 +30,8 @@ bool sharamygina_i_multi_dim_monte_carlo_all::MultiDimMonteCarloTask::PreProcess
 bool sharamygina_i_multi_dim_monte_carlo_all::MultiDimMonteCarloTask::ValidationImpl() {
   if (world_.rank() == 0) {
     return task_data && !task_data->outputs_count.empty() && !task_data->outputs.empty() &&
-           !task_data->inputs.empty() && task_data->outputs_count[0] == 1 && (task_data->inputs_count.size() == 3) &&
-           (task_data->inputs_count[0] % 2 == 0) && (task_data->inputs_count[1] == 1) &&
-           (task_data->inputs_count[2] == 1);
+           !task_data->inputs.empty() && task_data->outputs_count[0] == 1 && (task_data->inputs_count.size() == 2) &&
+           (task_data->inputs_count[0] % 2 == 0) && (task_data->inputs_count[1] == 1);
   }
   return true;
 }

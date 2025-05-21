@@ -10,7 +10,10 @@
 namespace sharamygina_i_multi_dim_monte_carlo_all {
 class MultiDimMonteCarloTask : public ppc::core::Task {
  public:
-  explicit MultiDimMonteCarloTask(std::shared_ptr<ppc::core::TaskData> task_data) : Task(std::move(task_data)) {}
+  explicit MultiDimMonteCarloTask(std::shared_ptr<ppc::core::TaskData> task_data,
+                                  std::function<double(const std::vector<double>&)> integrating_function)
+      : Task(std::move(task_data)), integrating_function_(std::move(integrating_function)) {}
+
   bool PreProcessingImpl() override;
   bool ValidationImpl() override;
   bool RunImpl() override;
