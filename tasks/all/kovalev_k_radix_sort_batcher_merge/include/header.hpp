@@ -19,7 +19,7 @@ class TestTaskAll : public ppc::core::Task {
   boost::mpi::communicator world;
 
  public:
-  explicit TestTaskAll(std::shared_ptr<ppc::core::TaskData> task_data) : Task(std::move(task_data)) {
+  explicit TestTaskAll(std::shared_ptr<ppc::core::TaskData> task_data) : Task(task_data) {
     if (world.rank() == 0) n_input_ = task_data->inputs_count[0];
   }
   static bool RadixUnsigned(unsigned long long *, unsigned long long *, unsigned int);
@@ -27,7 +27,7 @@ class TestTaskAll : public ppc::core::Task {
   static bool Countbyte(unsigned long long *, int *, unsigned int, unsigned int);
   bool OddEvenMergeOMP(long long int *, long long int *, const long long int *, unsigned int, unsigned int);
   bool OddEvenMergeMPI(unsigned int);
-  bool FinalMergeOMP();
+  bool FinalMergeOMP(unsigned int);
   bool BatcherSortOMP();
   bool PreProcessingImpl() override;
   bool ValidationImpl() override;

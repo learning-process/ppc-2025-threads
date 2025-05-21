@@ -29,7 +29,15 @@ bool kovalev_k_radix_sort_batcher_merge_all::TestTaskAll::RadixSigned(unsigned i
   auto* tmp = reinterpret_cast<unsigned long long*>(loc_tmp_.data() + start);
   unsigned int count = 0;
   bool ret = RadixUnsigned(mas, tmp, size);
-  while (count < size && mas[count] >= 0) {
+
+  //std::cout << "after RadixUnsigned myrank = " << world.rank() << " my_threadnum = " << omp_get_thread_num() << "\n";
+  //for (unsigned int i = 0; i < size; i++) {
+  //  std::cout << loc_[start + i] << ' ';
+  //}
+  //std::cout << "\n\n";
+  //fflush(stdout);
+
+  while (count < size && loc_[start + count] >= 0) {
     count++;
   }
   if (count == size) {
@@ -38,6 +46,13 @@ bool kovalev_k_radix_sort_batcher_merge_all::TestTaskAll::RadixSigned(unsigned i
   memcpy(tmp, mas + count, sizeof(long long int) * (size - count));
   memcpy(tmp + (size - count), mas, sizeof(long long int) * (count));
   memcpy(mas, tmp, sizeof(long long int) * size);
+
+  // std::cout << "in the end of RadixSigned myrank = " << world.rank() << " my_threadnum = " << omp_get_thread_num() << "\n";
+  //for (unsigned int i = 0; i < size; i++) {
+  //  std::cout << loc_[start + i] << ' ';
+  //}
+  //std::cout << "\n\n";
+  //fflush(stdout);
   return ret;
 }
 
@@ -98,12 +113,12 @@ bool kovalev_k_radix_sort_batcher_merge_all::TestTaskAll::OddEvenMergeOMP(long l
   return true;
 }
 
-bool kovalev_k_radix_sort_batcher_merge_all::TestTaskAll::FinalMergeOMP() {
+bool kovalev_k_radix_sort_batcher_merge_all::TestTaskAll::FinalMergeOMP(unsigned int n) {
   unsigned int iter_even = 0;
   unsigned int iter_odd = 1;
   unsigned int iter_tmp = 0;
 
-  while (iter_even < n_ && iter_odd < n_) {
+  while (iter_even < n && iter_odd < n) {
     if (loc_[iter_even] < loc_[iter_odd]) {
       loc_tmp_[iter_tmp] = loc_[iter_even];
       iter_even += 2;
@@ -114,13 +129,13 @@ bool kovalev_k_radix_sort_batcher_merge_all::TestTaskAll::FinalMergeOMP() {
     iter_tmp++;
   }
 
-  while (iter_even < n_) {
+  while (iter_even < n) {
     loc_tmp_[iter_tmp] = loc_[iter_even];
     iter_even += 2;
     iter_tmp++;
   }
 
-  while (iter_odd < n_) {
+  while (iter_odd < n) {
     loc_tmp_[iter_tmp] = loc_[iter_odd];
     iter_odd += 2;
     iter_tmp++;
@@ -138,20 +153,42 @@ bool kovalev_k_radix_sort_batcher_merge_all::TestTaskAll::BatcherSortOMP() {
   unsigned int effective_num_threads_ =
       static_cast<int>(std::pow(2, std::floor(std::log2(ppc::util::GetPPCNumThreads()))));
   auto e_n_f = static_cast<unsigned int>(effective_num_threads_);
-  unsigned int n_by_thread = loc_proc_lenght_ + (((2 * e_n_f) - loc_proc_lenght_ % (2 * e_n_f))) % (2 * e_n_f);
-  unsigned int loc_lenght_ = n_by_thread / effective_num_threads_;
+  unsigned int n_by_proc = loc_proc_lenght_ + (((2 * e_n_f) - loc_proc_lenght_ % (2 * e_n_f))) % (2 * e_n_f);
+  unsigned int loc_lenght_ = n_by_proc / effective_num_threads_;
 
-  loc_.resize(n_by_thread);
-  loc_tmp_.resize(n_by_thread);
+  /*std ::cout << "\n\n BatcherSortOMP params: effective_num_threads_ = " << effective_num_threads_
+             << " n_by_proc = " << n_by_proc << " loc_lenght_ = " << loc_lenght_ << "\n\n";*/
 
-  for (unsigned int i = loc_proc_lenght_; i < n_by_thread; i++) {
+  loc_.resize(n_by_proc);
+  loc_tmp_.resize(n_by_proc);
+
+  for (unsigned int i = loc_proc_lenght_; i < n_by_proc; i++) {
     loc_[i] = LLONG_MAX;
   }
+
+  //std ::cout << "\n\n";
+
+  /*std::cout << "before RadixSigned myrank = " << world.rank() << "\n";
+  for (unsigned int i = 0; i < n_by_proc; i++) {
+    std::cout << loc_[i] << ' ';
+  }
+  fflush(stdout);*/
 
   bool ret1 = true;
   bool ret2 = true;
 #pragma omp parallel num_threads(effective_num_threads_)
-  { ret1 = ret1 && RadixSigned(omp_get_thread_num() * loc_lenght_, loc_lenght_); }
+  {
+    ret1 = ret1 && RadixSigned(omp_get_thread_num() * loc_lenght_, loc_lenght_);
+  }
+  /*
+  std ::cout << "\n\n";
+
+  std::cout << "after RadixSigned myrank = " << world.rank() << "\n";
+  for (unsigned int i = 0; i < n_by_proc; i++) {
+    std::cout << loc_[i] << ' ';
+  }
+  std ::cout << "\n\n";
+  fflush(stdout);*/
 
   for (unsigned int i = effective_num_threads_; i > 1; i /= 2) {
 #pragma omp parallel num_threads(i)
@@ -165,21 +202,39 @@ bool kovalev_k_radix_sort_batcher_merge_all::TestTaskAll::BatcherSortOMP() {
                                   loc_.data() + (stride * 2 * len) + len + bias, len - bias, len - bias);
     }
   }
-  FinalMergeOMP();
+
+  /*std::cout << "before FinalMergeOMP myrank = " << world.rank() << "\n";
+  for (unsigned int i = 0; i < n_by_proc; i++) {
+    std::cout << loc_[i] << ' ';
+  }
+  std ::cout << "\n\n";
+  fflush(stdout);*/
+  FinalMergeOMP(n_by_proc);
+  /*std::cout << "after FinalMergeOMP myrank = " << world.rank() << "\n";
+  for (unsigned int i = 0; i < n_by_proc; i++) {
+    std::cout << loc_tmp_[i] << ' ';
+  }
+  std ::cout << "\n\n";
+  fflush(stdout);*/
   return (ret1 && ret2);
 }
 
 bool kovalev_k_radix_sort_batcher_merge_all::TestTaskAll::ValidationImpl() {
+  // std::cout << "myrank= " << world.rank() << " validation\n ";
   if (world.rank() == 0) {
     if (task_data->inputs.empty() || task_data->outputs.empty() || task_data->inputs_count[0] <= 0 ||
         task_data->outputs_count[0] != n_input_ || task_data->inputs_count[0] != task_data->outputs_count[0])
       return false;
+    // fflush(stdout);
   }
+  // std::cout << "myrank= " << world.rank() << " eof validation\n";
   return true;
 }
 
 bool kovalev_k_radix_sort_batcher_merge_all::TestTaskAll::PreProcessingImpl() {
   boost::mpi::broadcast(world, n_input_, 0);
+  // std::cout << "myrank= " << world.rank() << " pre_processing\n" << n_input_ << "\n";
+  // fflush(stdout);
 
   effective_num_procs_ = static_cast<int>(std::pow(2, std::floor(std::log2(world.size()))));
   auto e_n_f = static_cast<unsigned int>(effective_num_procs_);
@@ -198,16 +253,47 @@ bool kovalev_k_radix_sort_batcher_merge_all::TestTaskAll::PreProcessingImpl() {
     }
   }
 
+  // std::cout << "myrank= " << world.rank() << " before resize " << n_input_ << "\n";
+
   loc_.resize(loc_proc_lenght_);
   loc_tmp_.resize(loc_proc_lenght_);
+
+  // std::cout << "myrank= " << world.rank() << " after resize " << n_input_ << "\n";
 
   return true;
 }
 
 bool kovalev_k_radix_sort_batcher_merge_all::TestTaskAll::RunImpl() {
+  /*if (static_cast<unsigned int>(world.size()) > 2 * n_input_) {
+    bool ret = true;
+    if (world.rank() == 0) {
+      ret = BatcherSortOMP();
+    }
+    return ret;
+  }*/
+  // std::cout << "myrank= " << world.rank() << " run " << n_input_ << "\n";
+  // fflush(stdout);
   boost::mpi::scatter(world, mas_.data(), loc_.data(), loc_proc_lenght_, 0);
 
+  //std::cout << "before BatcherSortOMP myrank= " << world.rank() << "\n";
+  //for (unsigned int i = 0; i < loc_proc_lenght_; i++) {
+  //  std::cout << loc_[i] << ' ';
+  //}
+  //std::cout << "\n";
+  //fflush(stdout);
+
   BatcherSortOMP();
+
+  void* ptr_tmp1 = loc_tmp_.data();
+  void* ptr_loc1 = loc_.data();
+  memcpy(ptr_loc1, ptr_tmp1, sizeof(long long int) * loc_proc_lenght_);
+
+  //std::cout << "after BatcherSortOMP myrank= " << world.rank() << "\n";
+  //for (unsigned int i = 0; i < loc_proc_lenght_; i++) {
+  //  std::cout << loc_tmp_[i] << ' ';
+  //}
+  //std::cout << "\n";
+  //fflush(stdout);
 
   bool ret = true;
 
@@ -215,15 +301,23 @@ bool kovalev_k_radix_sort_batcher_merge_all::TestTaskAll::RunImpl() {
     if (world.rank() < static_cast<int>(i)) {
       unsigned int len = loc_proc_lenght_ * (effective_num_procs_ / i);
 
+      /*std::cout << "\nmyrank= " << world.rank() << " goto OddEvenMergeMPI i = " << i << "\n";
+      fflush(stdout);*/
       ret = ret && OddEvenMergeMPI(len);
 
+      /* std::cout << "myrank= " << world.rank() << " after OddEvenMergeMPI i = " << i << "\n";
+       fflush(stdout);*/
+
       if (world.rank() > 0 && world.rank() % 2 == 0) {
+        //std::cout << "myrank= " << world.rank() << " in 1st if()\n";
         world.send(world.rank() / 2, 0, loc_tmp_.data(), 2 * len);
       }
       if (world.rank() > 0 && world.rank() < static_cast<int>(i) / 2) {
+        //std::cout << "myrank= " << world.rank() << " in 2st if()\n";
         loc_.resize(2 * len);
         world.recv(world.rank() * 2, 0, loc_.data(), 2 * len);
-      } else if (world.rank() > 0) {
+      } else if (world.rank() == 0 && static_cast<int>(i) != 2) {
+        //std::cout << "myrank= " << world.rank() << " in else if()\n";
         void* ptr_tmp = loc_tmp_.data();
         void* ptr_loc = loc_.data();
         memcpy(ptr_loc, ptr_tmp, sizeof(long long int) * 2 * len);
@@ -235,11 +329,24 @@ bool kovalev_k_radix_sort_batcher_merge_all::TestTaskAll::RunImpl() {
 }
 
 bool kovalev_k_radix_sort_batcher_merge_all::TestTaskAll::OddEvenMergeMPI(unsigned int len) {
+  /*std::cout << "in OddEvenMergeMPI len = " << len << "\n";
+  fflush(stdout);*/
   if (world.rank() % 2 == 0) {
     loc_.resize(2 * len);
     loc_tmp_.resize(2 * len);
 
     world.recv(world.rank() + 1, 0, loc_.data() + len, len);
+
+    /*std::cout << "myrank= " << world.rank() << " was in OddEvenMergeMPI " << "\n";
+    for (unsigned int i = 0; i < len; i++) {
+      std::cout << loc_[i] << ' ';
+    }
+    std::cout << "\n recv in OddEvenMergeMPI " << "\n";
+    for (unsigned int i = 0; i < len; i++) {
+      std::cout << loc_[len + i] << ' ';
+    }
+    fflush(stdout);*/
+
     unsigned int iter_l = 0;
     unsigned int iter_r = 0;
     unsigned int iter_tmp = 0;
@@ -266,7 +373,11 @@ bool kovalev_k_radix_sort_batcher_merge_all::TestTaskAll::OddEvenMergeMPI(unsign
       iter_r++;
       iter_tmp++;
     }
-
+    /*std::cout << "\neof in OddEvenMergeMPI my_tmp_data" << "\n";
+    for (unsigned int i = 0; i < 2 * len; i++) {
+      std::cout << loc_tmp_[i] << ' ';
+    }
+    fflush(stdout);*/
   } else {
     world.send(world.rank() - 1, 0, loc_.data(), len);
   }
@@ -274,7 +385,7 @@ bool kovalev_k_radix_sort_batcher_merge_all::TestTaskAll::OddEvenMergeMPI(unsign
 }
 
 bool kovalev_k_radix_sort_batcher_merge_all::TestTaskAll::PostProcessingImpl() {
-  if (world.rank() > 0) {
+  if (world.rank() == 0) {
     void* ptr_output = task_data->outputs[0];
     void* ptr_loc = loc_tmp_.data();
     memcpy(ptr_output, ptr_loc, sizeof(long long int) * n_input_);
