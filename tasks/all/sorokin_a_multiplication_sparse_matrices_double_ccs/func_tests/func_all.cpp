@@ -77,7 +77,7 @@ TEST(sorokin_a_multiplication_sparse_matrices_double_ccs_all, test_3x3_x_3x3) {
   task_data_tbb->outputs_count.emplace_back(c_col_ptr.size());
 
   // Create Task
-  sorokin_a_multiplication_sparse_matrices_double_ccs_all::TestTaskAll test_task_tbb(task_data_tbb);
+  sorokin_a_multiplication_sparse_matrices_double_ccs_all::TestTaskALL test_task_tbb(task_data_tbb);
   ASSERT_EQ(test_task_tbb.Validation(), true);
   test_task_tbb.PreProcessing();
   test_task_tbb.Run();
@@ -147,7 +147,7 @@ TEST(sorokin_a_multiplication_sparse_matrices_double_ccs_all, test_3x2_x_2x4) {
   task_data_tbb->outputs_count.emplace_back(c_col_ptr.size());
 
   // Create Task
-  sorokin_a_multiplication_sparse_matrices_double_ccs_all::TestTaskAll test_task_tbb(task_data_tbb);
+  sorokin_a_multiplication_sparse_matrices_double_ccs_all::TestTaskALL test_task_tbb(task_data_tbb);
   ASSERT_EQ(test_task_tbb.Validation(), true);
   test_task_tbb.PreProcessing();
   test_task_tbb.Run();
@@ -217,7 +217,7 @@ TEST(sorokin_a_multiplication_sparse_matrices_double_ccs_all, test_2x3_x_3x2) {
   task_data_tbb->outputs_count.emplace_back(c_col_ptr.size());
 
   // Create Task
-  sorokin_a_multiplication_sparse_matrices_double_ccs_all::TestTaskAll test_task_tbb(task_data_tbb);
+  sorokin_a_multiplication_sparse_matrices_double_ccs_all::TestTaskALL test_task_tbb(task_data_tbb);
   ASSERT_EQ(test_task_tbb.Validation(), true);
   test_task_tbb.PreProcessing();
   test_task_tbb.Run();
