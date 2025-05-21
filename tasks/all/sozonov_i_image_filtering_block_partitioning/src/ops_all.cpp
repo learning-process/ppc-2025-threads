@@ -5,9 +5,124 @@
 #include <boost/mpi/collectives/broadcast.hpp>
 #include <boost/mpi/collectives/gather.hpp>
 #include <boost/mpi/collectives/gatherv.hpp>
+#include <boost/mpi/communicator.hpp>
 #include <cmath>
 #include <cstddef>
 #include <vector>
+
+namespace {
+
+std::vector<double> kernel = {0.0625, 0.125, 0.0625, 0.125, 0.25, 0.125, 0.0625, 0.125, 0.0625};
+
+int ComputeBlockSizes(std::vector<int> &block_size, int width, int height, boost::mpi::communicator world) {
+  int delta = width / world.size();
+  if (width % world.size() != 0) {
+    delta++;
+  }
+  if (world.rank() >= world.size() - (world.size() * delta) + width) {
+    delta--;
+  }
+  delta += 2;
+
+  gather(world, delta, block_size.data(), 0);
+  return delta;
+}
+
+std::vector<double> DistributeImage(const std::vector<double> &image, int delta, const std::vector<int> &block_size,
+                                    int width, int height, boost::mpi::communicator world) {
+  std::vector<double> local_image(delta * height, 0);
+  std::vector<double> send_image(delta * height);
+
+  if (world.size() == 1) {
+#pragma omp parallel for
+    for (int i = 0; i < height; ++i) {
+      for (int j = 1; j < width + 1; ++j) {
+        local_image[(i * (width + 2)) + j] = image[(i * width) + j - 1];
+      }
+    }
+  } else {
+    if (world.rank() == 0) {
+#pragma omp parallel for
+      for (int i = 0; i < height; ++i) {
+        for (int j = 0; j < delta - 1; ++j) {
+          local_image[(i * delta) + j + 1] = image[(i * width) + j];
+        }
+      }
+      int idx = delta - 2;
+      for (int proc = 1; proc < world.size(); ++proc) {
+        send_image = std::vector<double>(delta * height, 0);
+        int block = block_size[proc];
+
+#pragma omp parallel for
+        for (int i = 0; i < height; ++i) {
+          for (int j = -1; j < block - (proc == world.size() - 1 ? 2 : 1); ++j) {
+            send_image[(i * block) + j + 1] = image[(i * width) + j + idx];
+          }
+        }
+
+        if (proc != world.size() - 1) idx += block - 2;
+
+        world.send(proc, 0, send_image.data(), block * height);
+      }
+    } else {
+      world.recv(0, 0, local_image.data(), delta * height);
+    }
+  }
+
+  return local_image;
+}
+
+std::vector<double> FilterLocalImage(const std::vector<double> &local_image, int delta, int height) {
+  std::vector<double> local_filtered_image(delta * height, 0);
+
+#pragma omp parallel for
+  for (int i = 1; i < height - 1; ++i) {
+    for (int j = 1; j < delta - 1; ++j) {
+      double sum = 0;
+      for (int l = -1; l <= 1; ++l) {
+        for (int k = -1; k <= 1; ++k) {
+          sum += local_image[((i - l) * delta) + j - k] * kernel[((l + 1) * 3) + k + 1];
+        }
+      }
+      local_filtered_image[(i * delta) + j] = sum;
+    }
+  }
+
+  return local_filtered_image;
+}
+
+std::vector<double> ExtractFilteredData(const std::vector<double> &filtered, int delta, int height) {
+  std::vector<double> back_image((delta - 2) * height);
+
+#pragma omp parallel for
+  for (int i = 0; i < height; ++i) {
+    for (int j = 1; j < delta - 1; ++j) {
+      back_image[(i * (delta - 2)) + j - 1] = filtered[(i * delta) + j];
+    }
+  }
+
+  return back_image;
+}
+
+std::vector<double> AssembleFinalImage(const std::vector<double> &gathered_image, const std::vector<int> &block_size,
+                                       int width, int height, boost::mpi::communicator world) {
+  std::vector<double> filtered_image(width * height);
+
+  int idx = 0;
+  for (int proc = 0; proc < world.size(); ++proc) {
+#pragma omp parallel for
+    for (int i = 0; i < height; ++i) {
+      for (int j = 0; j < block_size[proc] - 2; ++j) {
+        filtered_image[(i * width) + j + idx] = gathered_image[(i * (block_size[proc] - 2)) + j + (idx * height)];
+      }
+    }
+    idx += block_size[proc] - 2;
+  }
+
+  return filtered_image;
+}
+
+}  // namespace
 
 bool sozonov_i_image_filtering_block_partitioning_all::TestTaskALL::PreProcessingImpl() {
   if (world_.rank() == 0) {
@@ -54,93 +169,14 @@ bool sozonov_i_image_filtering_block_partitioning_all::TestTaskALL::RunImpl() {
   broadcast(world_, height_, 0);
 
   std::vector<int> block_size(world_.size());
+  int delta = ComputeBlockSizes(block_size, width_, height_, world_);
 
-  int delta = width_ / world_.size();
-  if (width_ % world_.size() != 0) {
-    delta++;
-  }
-  if (world_.rank() >= world_.size() - (world_.size() * delta) + width_) {
-    delta--;
-  }
-
-  delta = delta + 2;
-
-  gather(world_, delta, block_size.data(), 0);
-
-  std::vector<double> local_image(delta * height_, 0);
-  std::vector<double> send_image(delta * height_);
-
-  if (world_.size() == 1) {
-#pragma omp parallel for
-    for (int i = 0; i < height_; ++i) {
-      for (int j = 1; j < width_ + 1; ++j) {
-        local_image[(i * (width_ + 2)) + j] = image_[(i * width_) + j - 1];
-      }
-    }
-  } else {
-    if (world_.rank() == 0) {
-#pragma omp parallel for
-      for (int i = 0; i < height_; ++i) {
-        for (int j = 0; j < delta - 1; ++j) {
-          local_image[(i * delta) + j + 1] = image_[(i * width_) + j];
-        }
-      }
-      int idx = delta - 2;
-      for (int proc = 1; proc < world_.size(); ++proc) {
-        send_image = std::vector<double>(delta * height_, 0);
-        if (proc == world_.size() - 1) {
-#pragma omp parallel for
-          for (int i = 0; i < height_; ++i) {
-            for (int j = -1; j < block_size[proc] - 2; ++j) {
-              send_image[(i * block_size[proc]) + j + 1] = image_[(i * width_) + j + idx];
-            }
-          }
-        } else {
-#pragma omp parallel for
-          for (int i = 0; i < height_; ++i) {
-            for (int j = -1; j < block_size[proc] - 1; ++j) {
-              send_image[(i * block_size[proc]) + j + 1] = image_[(i * width_) + j + idx];
-            }
-          }
-          idx += block_size[proc] - 2;
-        }
-        world_.send(proc, 0, send_image.data(), block_size[proc] * height_);
-      }
-    } else {
-      world_.recv(0, 0, local_image.data(), delta * height_);
-    }
-  }
-
-  std::vector<double> kernel = {0.0625, 0.125, 0.0625, 0.125, 0.25, 0.125, 0.0625, 0.125, 0.0625};
-
-  std::vector<double> local_filtered_image(delta * height_, 0);
-
-#pragma omp parallel for
-  for (int i = 1; i < height_ - 1; ++i) {
-    for (int j = 1; j < delta - 1; ++j) {
-      double sum = 0;
-      for (int l = -1; l <= 1; ++l) {
-        for (int k = -1; k <= 1; ++k) {
-          sum += local_image[((i - l) * delta) + j - k] * kernel[((l + 1) * 3) + k + 1];
-        }
-      }
-      local_filtered_image[(i * delta) + j] = sum;
-    }
-  }
-
-  std::vector<double> back_image((delta - 2) * height_);
-
-#pragma omp parallel for
-  for (int i = 0; i < height_; ++i) {
-    for (int j = 1; j < delta - 1; ++j) {
-      back_image[(i * (delta - 2)) + j - 1] = local_filtered_image[(i * delta) + j];
-    }
-  }
+  std::vector<double> local_image = DistributeImage(image_, delta, block_size, width_, height_, world_);
+  std::vector<double> local_filtered_image = FilterLocalImage(local_image, delta, height_);
+  std::vector<double> back_image = ExtractFilteredData(local_filtered_image, delta, height_);
 
   std::vector<int> recv_counts(world_.size());
-
   if (world_.rank() == 0) {
-#pragma omp parallel for
     for (int i = 0; i < world_.size(); ++i) {
       recv_counts[i] = (block_size[i] - 2) * height_;
     }
@@ -150,16 +186,7 @@ bool sozonov_i_image_filtering_block_partitioning_all::TestTaskALL::RunImpl() {
   gatherv(world_, back_image, gathered_image.data(), recv_counts, 0);
 
   if (world_.rank() == 0) {
-    int idx = 0;
-    for (int proc = 0; proc < world_.size(); ++proc) {
-#pragma omp parallel for
-      for (int i = 0; i < height_; ++i) {
-        for (int j = 0; j < block_size[proc] - 2; ++j) {
-          filtered_image_[(i * width_) + j + idx] = gathered_image[(i * (block_size[proc] - 2)) + j + (idx * height_)];
-        }
-      }
-      idx += block_size[proc] - 2;
-    }
+    filtered_image_ = AssembleFinalImage(gathered_image, block_size, width_, height_, world_);
   }
 
   return true;
