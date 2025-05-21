@@ -23,7 +23,7 @@ bool dormidontov_e_kannon_seq::SeqTask::ValidationImpl() {
   side_size_ = static_cast<size_t>(std::sqrt(matrix_size_));
   num_blocks_ = static_cast<size_t>(task_data->inputs_count[2]);
 
-  return task_data->inputs_count[0] == task_data->inputs_count[1] && 
+  return task_data->inputs_count[0] == task_data->inputs_count[1] &&
          task_data->outputs_count[0] == task_data->inputs_count[0] && side_size_ % num_blocks_ == 0;
 }
 
