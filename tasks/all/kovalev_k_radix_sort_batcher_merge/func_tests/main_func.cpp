@@ -12,8 +12,7 @@
 #include "all/kovalev_k_radix_sort_batcher_merge/include/header.hpp"
 #include "core/task/include/task.hpp"
 
-const long long int kMinLl = /*std::numeric_limits<long long>::lowest()*/ -10,
-                    kMaxLl = /*std::numeric_limits<long long>::max()*/ 10;
+const long long int kMinLl = std::numeric_limits<long long>::lowest(), kMaxLl = std::numeric_limits<long long>::max();
 
 TEST(kovalev_k_radix_sort_batcher_merge_all, zero_length) {
   std::vector<long long int> in;
