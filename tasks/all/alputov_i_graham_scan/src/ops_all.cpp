@@ -101,13 +101,12 @@ bool TestTaskALL::PreProcessingImpl() {
   return true;
 }
 
-NOLINTNEXTLINE(readability - function - cognitive - complexity)
 bool TestTaskALL::RunImpl() {
   size_t current_total_num_points = 0;
   if (rank_ == 0) {
     current_total_num_points = input_points_.size();
   }
-  MPI_Bcast(&current_total_num_points, 1, MPI_UNSIGNED_LONG, 0, MPI_COMM_WORLD);
+  MPI_Bcast(¤t_total_num_points, 1, MPI_UNSIGNED_LONG, 0, MPI_COMM_WORLD);
 
   if (current_total_num_points < 3) {
     if (rank_ == 0) {
@@ -136,21 +135,22 @@ bool TestTaskALL::RunImpl() {
     active_comm_ = MPI_COMM_NULL;
   }
 
-  int color = (rank_ < active_procs_count_) ? 0 : 1;
+  int color = (rank_ < active_procs_count_ && active_procs_count_ > 0) ? 0 : 1;
   MPI_Comm_split(MPI_COMM_WORLD, color, rank_, &active_comm_);
 
   if (color == 1) {
     return true;
   }
-  MPI_Comm_rank(active_comm_, &rank_);
+  int current_rank_in_active_comm;
+  MPI_Comm_rank(active_comm_, ¤t_rank_in_active_comm);
 
-  if (rank_ == 0) {
+  if (current_rank_in_active_comm == 0) {
     pivot_ = FindPivot(input_points_);
   }
   MPI_Bcast(&pivot_, 1, mpi_point_datatype_, 0, active_comm_);
 
   std::vector<Point> points_to_sort_globally;
-  if (rank_ == 0) {
+  if (current_rank_in_active_comm == 0) {
     for (const auto& p : input_points_) {
       if (p != pivot_) {
         points_to_sort_globally.push_back(p);
@@ -159,23 +159,23 @@ bool TestTaskALL::RunImpl() {
   }
 
   size_t num_points_to_scatter = 0;
-  if (rank_ == 0) {
+  if (current_rank_in_active_comm == 0) {
     num_points_to_scatter = points_to_sort_globally.size();
   }
   MPI_Bcast(&num_points_to_scatter, 1, MPI_UNSIGNED_LONG, 0, active_comm_);
 
   if (num_points_to_scatter == 0) {
-    if (rank_ == 0) {
+    if (current_rank_in_active_comm == 0) {
       convex_hull_ = {pivot_};
     }
     return true;
   }
 
-  std::vector<int> send_counts(active_procs_count_);
-  std::vector<int> displs(active_procs_count_);
+  std::vector<int> send_counts((current_rank_in_active_comm == 0) ? active_procs_count_ : 0);
+  std::vector<int> displs((current_rank_in_active_comm == 0) ? active_procs_count_ : 0);
   int local_recv_count = 0;
 
-  if (rank_ == 0) {
+  if (current_rank_in_active_comm == 0) {
     int base_count = static_cast<int>(num_points_to_scatter / static_cast<size_t>(active_procs_count_));
     int remainder = static_cast<int>(num_points_to_scatter % static_cast<size_t>(active_procs_count_));
     displs[0] = 0;
@@ -189,19 +189,22 @@ bool TestTaskALL::RunImpl() {
   MPI_Scatter(send_counts.data(), 1, MPI_INT, &local_recv_count, 1, MPI_INT, 0, active_comm_);
 
   local_points_.resize(local_recv_count);
-  MPI_Scatterv(rank_ == 0 ? points_to_sort_globally.data() : nullptr, send_counts.data(), displs.data(),
-               mpi_point_datatype_, local_points_.data(), local_recv_count, mpi_point_datatype_, 0, active_comm_);
+  MPI_Scatterv((current_rank_in_active_comm == 0) ? points_to_sort_globally.data() : nullptr,
+               (current_rank_in_active_comm == 0) ? send_counts.data() : nullptr,
+               (current_rank_in_active_comm == 0) ? displs.data() : nullptr, mpi_point_datatype_, local_points_.data(),
+               local_recv_count, mpi_point_datatype_, 0, active_comm_);
 
   if (!local_points_.empty()) {
     LocalParallelSort(local_points_, pivot_);
   }
 
-  std::vector<int> local_sizes(active_procs_count_);
+  std::vector<int> local_sizes((current_rank_in_active_comm == 0) ? active_procs_count_ : 0);
   int my_local_size_after_sort = static_cast<int>(local_points_.size());
-  MPI_Gather(&my_local_size_after_sort, 1, MPI_INT, local_sizes.data(), 1, MPI_INT, 0, active_comm_);
+  MPI_Gather(&my_local_size_after_sort, 1, MPI_INT, (current_rank_in_active_comm == 0) ? local_sizes.data() : nullptr,
+             1, MPI_INT, 0, active_comm_);
 
   int total_sorted_points_count = 0;
-  if (rank_ == 0) {
+  if (current_rank_in_active_comm == 0) {
     globally_sorted_points_.clear();
     displs[0] = 0;
     for (int i = 0; i < active_procs_count_; ++i) {
@@ -213,10 +216,12 @@ bool TestTaskALL::RunImpl() {
     globally_sorted_points_.resize(total_sorted_points_count);
   }
 
-  MPI_Gatherv(local_points_.data(), my_local_size_after_sort, mpi_point_datatype_, globally_sorted_points_.data(),
-              local_sizes.data(), displs.data(), mpi_point_datatype_, 0, active_comm_);
+  MPI_Gatherv(local_points_.data(), my_local_size_after_sort, mpi_point_datatype_,
+              (current_rank_in_active_comm == 0) ? globally_sorted_points_.data() : nullptr,
+              (current_rank_in_active_comm == 0) ? local_sizes.data() : nullptr,
+              (current_rank_in_active_comm == 0) ? displs.data() : nullptr, mpi_point_datatype_, 0, active_comm_);
 
-  if (rank_ == 0) {
+  if (current_rank_in_active_comm == 0) {
     if (total_sorted_points_count > 0) {
       LocalParallelSort(globally_sorted_points_, pivot_);
       RemoveDuplicates(globally_sorted_points_);
@@ -232,7 +237,7 @@ bool TestTaskALL::RunImpl() {
 }
 
 bool TestTaskALL::PostProcessingImpl() {
-  if (rank_ == 0) {
+  if (this->rank_ == 0) {
     int* hull_size_ptr = reinterpret_cast<int*>(task_data->outputs[0]);
     *hull_size_ptr = static_cast<int>(convex_hull_.size());
 
@@ -249,7 +254,7 @@ Point TestTaskALL::FindPivot(const std::vector<Point>& points) {
   if (points.empty()) {
     throw std::runtime_error("Cannot find pivot in empty set of points.");
   }
-  return *std::ranges::min_element(points);
+  return *std::ranges::min_element(points, [](const Point& a, const Point& b) { return a < b; });
 }
 
 double TestTaskALL::CrossProduct(const Point& o, const Point& a, const Point& b) {
@@ -272,7 +277,7 @@ void TestTaskALL::RemoveDuplicates(std::vector<Point>& points) {
   if (points.empty()) {
     return;
   }
-  points.erase(std::ranges::unique(points).end(), points.end());
+  points.erase(std::ranges::unique(points).begin(), points.end());
 }
 
 std::vector<Point> TestTaskALL::BuildHull(const std::vector<Point>& sorted_points, const Point& pivot) {
@@ -315,7 +320,10 @@ void TestTaskALL::LocalParallelSort(std::vector<Point>& points, const Point& piv
   auto comparator = [&](const Point& a, const Point& b) { return CompareAngles(a, b, pivot_for_sort); };
 
   const size_t n = points.size();
-  const size_t num_threads = std::min(n, static_cast<size_t>(ppc::util::GetPPCNumThreads()));
+  const size_t num_threads_hint = static_cast<size_t>(ppc::util::GetPPCNumThreads());
+  const size_t num_threads =
+      std::max(static_cast<size_t>(1),
+               std::min({n / 1000, num_threads_hint, static_cast<size_t>(std::thread::hardware_concurrency())}));
 
   if (num_threads <= 1 || n < 1000) {
     std::ranges::sort(points, comparator);
@@ -334,9 +342,11 @@ void TestTaskALL::LocalParallelSort(std::vector<Point>& points, const Point& piv
 
   for (size_t i = 0; i < num_threads; ++i) {
     threads.emplace_back([&points, comparator, start_offset = chunk_offsets[i], end_offset = chunk_offsets[i + 1]]() {
-      auto start_it = std::next(points.begin(), static_cast<DifferenceType>(start_offset));
-      auto end_it = std::next(points.begin(), static_cast<DifferenceType>(end_offset));
-      std::ranges::sort(std::ranges::subrange(start_it, end_it), comparator);
+      if (start_offset < end_offset) {
+        auto start_it = std::next(points.begin(), static_cast<DifferenceType>(start_offset));
+        auto end_it = std::next(points.begin(), static_cast<DifferenceType>(end_offset));
+        std::ranges::sort(std::ranges::subrange(start_it, end_it), comparator);
+      }
     });
   }
 
@@ -347,7 +357,9 @@ void TestTaskALL::LocalParallelSort(std::vector<Point>& points, const Point& piv
   for (size_t i = 1; i < num_threads; ++i) {
     auto first_unsorted_chunk_start = std::next(points.begin(), static_cast<DifferenceType>(chunk_offsets[i]));
     auto first_unsorted_chunk_end = std::next(points.begin(), static_cast<DifferenceType>(chunk_offsets[i + 1]));
-    std::inplace_merge(points.begin(), first_unsorted_chunk_start, first_unsorted_chunk_end, comparator);
+    if (points.begin() < first_unsorted_chunk_start && first_unsorted_chunk_start < first_unsorted_chunk_end) {
+      std::inplace_merge(points.begin(), first_unsorted_chunk_start, first_unsorted_chunk_end, comparator);
+    }
   }
 }
 
