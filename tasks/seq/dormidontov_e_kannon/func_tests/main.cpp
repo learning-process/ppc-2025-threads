@@ -8,11 +8,6 @@
 #include "core/task/include/task.hpp"
 #include "seq/dormidontov_e_kannon/include/ops_seq.hpp"
 
-namespace dormidontov_e_kannon_omp {
-matrix GenMatrix(size_t n);
-matrix NaiveMultipilication(const matrix& A, const matrix& B, size_t n);
-}  // namespace dormidontov_e_kannon_omp
-
 namespace dormidontov_e_kannon_seq {
 matrix GenMatrix(size_t n) {
   matrix mat(n * n);
