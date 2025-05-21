@@ -80,14 +80,12 @@ void dormidontov_e_kannon_tbb::TbbTask::IterationShift() {
 }
 
 void dormidontov_e_kannon_tbb::TbbTask::MultImpl() {
-  for (size_t iter = 0; iter < num_blocks_; ++iter) {
-    for (size_t block_i = 0; block_i < side_size_; block_i += block_size_) {
-      for (size_t block_j = 0; block_j < side_size_; block_j += block_size_) {
-        for (size_t i = block_i; i < block_i + block_size_; i++) {
-          for (size_t j = block_j; j < block_j + block_size_; j++) {
-            for (size_t k = 0; k < block_size_; k++) {
-              C_[idx(i, j, side_size_)] += A_[idx(i, block_j + k, side_size_)] * B_[idx(block_i + k, j, side_size_)];
-            }
+  for (size_t block_i = 0; block_i < side_size_; block_i += block_size_) {
+    for (size_t block_j = 0; block_j < side_size_; block_j += block_size_) {
+      for (size_t i = block_i; i < block_i + block_size_; i++) {
+        for (size_t j = block_j; j < block_j + block_size_; j++) {
+          for (size_t k = 0; k < block_size_; k++) {
+            C_[idx(i, j, side_size_)] += A_[idx(i, block_j + k, side_size_)] * B_[idx(block_i + k, j, side_size_)];
           }
         }
       }
