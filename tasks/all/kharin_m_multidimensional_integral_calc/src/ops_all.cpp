@@ -30,7 +30,6 @@ bool kharin_m_multidimensional_integral_calc_all::TaskALL::ValidationImpl() {
 
 bool kharin_m_multidimensional_integral_calc_all::TaskALL::PreProcessingImpl() {
   bool is_valid = true;  // По умолчанию все верно
-  
   if (world_.rank() == 0) {
     auto* input_ptr = reinterpret_cast<double*>(task_data->inputs[0]);
     size_t input_size = task_data->inputs_count[0];
@@ -87,8 +86,7 @@ bool kharin_m_multidimensional_integral_calc_all::TaskALL::PreProcessingImpl() {
   }
   world_.barrier();
   // Проверка шагов
-  bool steps_valid = std::all_of(step_sizes_.begin(), step_sizes_.end(), 
-                                [](double h) { return h > 0.0; });
+  bool steps_valid = std::all_of(step_sizes_.begin(), step_sizes_.end(), [](double h) { return h > 0.0; });
   // Синхронизируем результат проверки шагов
   boost::mpi::all_reduce(world_, steps_valid, steps_valid, std::logical_and<bool>());
   return steps_valid;
