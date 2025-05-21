@@ -19,7 +19,7 @@ bool kharin_m_multidimensional_integral_calc_all::TaskALL::ValidationImpl() {
     // Проверяем структуру данных
     if (task_data->inputs.size() != 3 || task_data->outputs.size() != 1) {
       is_valid = false;
-    } else if (task_data->inputs_count[1] != task_data->inputs_count[2]) { // Проверка соответствия grid_sizes и step_sizes
+    } else if (task_data->inputs_count[1] != task_data->inputs_count[2]) {
       is_valid = false;
     } else if (task_data->outputs_count[0] != 1) {
       is_valid = false;
