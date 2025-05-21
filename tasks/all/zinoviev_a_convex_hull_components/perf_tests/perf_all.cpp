@@ -38,7 +38,7 @@ TEST(zinoviev_a_convex_hull_components_all, test_pipeline_run) {
   int rank = 0;
   MPI_Comm_rank(MPI_COMM_WORLD, &rank);
 
-  const int size = 500;
+  const int size = 5000;
   std::vector<int> input(size * size, 0);
   for (int i = 0; i < size; ++i) {
     input[i] = 1;
@@ -87,7 +87,7 @@ TEST(zinoviev_a_convex_hull_components_all, test_task_run) {
   int rank = 0;
   MPI_Comm_rank(MPI_COMM_WORLD, &rank);
 
-  const int size = 500;
+  const int size = 5000;
   std::vector<int> input(size * size, 0);
   for (int i = 0; i < size; ++i) {
     input[i] = 1;
