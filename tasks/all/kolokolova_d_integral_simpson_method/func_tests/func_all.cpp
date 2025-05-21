@@ -1,14 +1,13 @@
 #include <gtest/gtest.h>
 
 #include <cmath>
-#include <cstddef>
 #include <cstdint>
 #include <memory>
 #include <vector>
 
 #include "all/kolokolova_d_integral_simpson_method/include/ops_all.hpp"
+#include "boost/mpi/communicator.hpp"
 #include "core/task/include/task.hpp"
-#include "core/util/include/util.hpp"
 
 TEST(kolokolova_d_integral_simpson_method_all, test_easy_func) {
   auto func = [](std::vector<double> vec) { return vec[0] * vec[1]; };

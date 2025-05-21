@@ -3,14 +3,13 @@
 #include <oneapi/tbb/parallel_for.h>
 #include <oneapi/tbb/parallel_reduce.h>
 
+#include <boost/mpi/collectives/broadcast.hpp>
+#include <boost/mpi/collectives/gather.hpp>
+#include <boost/mpi/collectives/reduce.hpp>
 #include <cmath>
 #include <cstddef>
 #include <functional>
-#include <iostream>
-#include <thread>
 #include <vector>
-
-#include "core/util/include/util.hpp"
 
 bool kolokolova_d_integral_simpson_method_all::TestTaskALL::PreProcessingImpl() {
   if (world_.rank() == 0) {
@@ -29,6 +28,25 @@ bool kolokolova_d_integral_simpson_method_all::TestTaskALL::PreProcessingImpl() 
     }
 
     result_output_ = 0;
+
+    // Find size of step
+    size_step_.resize(nums_variables_);
+    CalculateStepSizes();
+
+    //  Create vector of points
+    points_.resize(nums_variables_);
+    CreatePointsVector();
+
+    results_func_.resize(int(points_.size()));
+    coeff_.resize(steps_[0]);
+    results_func_ = FindFunctionValue(points_, func_);
+    coeff_ = FindCoeff(steps_[0]);
+
+    PrepareCoefficientsAndResults();
+
+    size_local_results_func_ = int(results_func_.size()) / world_.size();
+    size_local_coeff_ = int(vec_coeff_.size()) / world_.size();
+    size_local_size_step_ = int(size_step_.size());
   }
   return true;
 }
@@ -50,144 +68,82 @@ bool kolokolova_d_integral_simpson_method_all::TestTaskALL::ValidationImpl() {
 }
 
 bool kolokolova_d_integral_simpson_method_all::TestTaskALL::RunImpl() {
-  if (world_.rank() == 0) {
-    //   Find size of step
-    size_step.resize(nums_variables_);
-    tbb::parallel_for(tbb::blocked_range<int>(0, nums_variables_), [&](const tbb::blocked_range<int>& r) {
-      for (int i = r.begin(); i < r.end(); ++i) {
-        double a = (double((borders_[(2 * i) + 1] - borders_[2 * i])) / double(steps_[i]));
-        size_step[i] = a;
-      }
-    });
-    //  Create vector of points
-    points.resize(nums_variables_);
-    tbb::parallel_for(tbb::blocked_range<int>(0, nums_variables_), [&](const tbb::blocked_range<int>& r) {
-      for (int i = r.begin(); i < r.end(); ++i) {
-        std::vector<double> vec;
-        for (int j = 0; j < steps_[i] + 1; ++j) {
-          auto num = double(borders_[2 * i] + (double(j) * size_step[i]));
-          vec.push_back(num);
-        }
-        points[i] = vec;
-      }
-    });
-    results_func.resize(int(points.size()));
-    coeff.resize(steps_[0]);
-    results_func = FindFunctionValue(points, func_);
-    coeff = FindCoeff(steps_[0]);
+  boost::mpi::broadcast(world_, size_local_results_func_, 0);
+  boost::mpi::broadcast(world_, nums_variables_, 0);
+  boost::mpi::broadcast(world_, size_local_coeff_, 0);
+  boost::mpi::broadcast(world_, size_local_size_step_, 0);
 
-    vec_coeff = std::vector<double>(int(results_func.size()));
-    for (int i = 0; i < int(vec_coeff.size()); ++i) {
-      vec_coeff[i] = coeff[i % int(coeff.size())];
-    }
-
-    while (int(results_func.size()) % world_.size() != 0) {
-      results_func.push_back(0.0);
-    }
-
-    while (int(vec_coeff.size()) % world_.size() != 0) {
-      vec_coeff.push_back(0.0);
-    }
-
-    size_local_results_func = int(results_func.size()) / int(world_.size());
-    size_local_coeff = int(vec_coeff.size()) / int(world_.size());
-    size_local_size_step = int(size_step.size());
-  }
-
-  broadcast(world_, size_local_results_func, 0);
-  broadcast(world_, nums_variables_, 0);
-  broadcast(world_, size_local_coeff, 0);
-  broadcast(world_, size_local_size_step, 0);
+  local_results_func_ = std::vector<double>(size_local_results_func_);
+  local_coeff_ = std::vector<double>(size_local_coeff_);
 
   if (world_.rank() == 0) {
     for (int proc = 1; proc < world_.size(); proc++) {
-      world_.send(proc, 0, results_func.data() + proc * size_local_results_func, size_local_results_func);
+      world_.communicator::send(proc, 0, results_func_.data() + (proc * size_local_results_func_),
+                                size_local_results_func_);
     }
-  }
-  local_results_func = std::vector<double>(size_local_results_func);
-
-  if (world_.rank() == 0) {
-    local_results_func = std::vector<double>(results_func.begin(), results_func.begin() + size_local_results_func);
+    local_results_func_ = std::vector<double>(results_func_.begin(), results_func_.begin() + size_local_results_func_);
   } else {
-    world_.recv(0, 0, local_results_func.data(), size_local_results_func);
+    world_.communicator::recv(0, 0, local_results_func_.data(), size_local_results_func_);
   }
 
   if (world_.rank() == 0) {
     for (int proc = 1; proc < world_.size(); proc++) {
-      world_.send(proc, 0, vec_coeff.data() + proc * size_local_coeff, size_local_coeff);
+      world_.communicator::send(proc, 0, vec_coeff_.data() + (proc * size_local_coeff_), size_local_coeff_);
     }
-  }
-
-  local_coeff = std::vector<double>(size_local_coeff);
-
-  if (world_.rank() == 0) {
-    local_coeff = std::vector<double>(vec_coeff.begin(), vec_coeff.begin() + size_local_coeff);
+    local_coeff_ = std::vector<double>(vec_coeff_.begin(), vec_coeff_.begin() + size_local_coeff_);
   } else {
-    world_.recv(0, 0, local_coeff.data(), size_local_coeff);
+    world_.communicator::recv(0, 0, local_coeff_.data(), size_local_coeff_);
   }
 
-  int function_vec_size = int(local_results_func.size());
+  int function_vec_size = int(local_results_func_.size());
 
-  tbb::parallel_for(0, function_vec_size, [&](int i) { local_results_func[i] *= local_coeff[i % local_coeff.size()]; });
+  tbb::parallel_for(0, function_vec_size,
+                    [&](int i) { local_results_func_[i] *= local_coeff_[i % local_coeff_.size()]; });
 
-  gather(world_, local_results_func.data(), size_local_results_func, results_func, 0);
+  boost::mpi::gather(world_, local_results_func_.data(), size_local_results_func_, results_func_, 0);
 
   if (world_.rank() == 0) {
-    for (int iteration = 1; iteration < nums_variables_; ++iteration) {
-      tbb::parallel_for(tbb::blocked_range<size_t>(0, results_func.size()), [&](const tbb::blocked_range<size_t>& r) {
-        for (size_t i = r.begin(); i < r.end(); ++i) {
-          int block_size = iteration * int(coeff.size());
-          int current_n_index = (i / block_size) % int(coeff.size());
-          results_func[i] *= coeff[current_n_index];
-        }
-      });
+    ApplyCoefficientIteration();
+  }
+
+  local_results_func_ = std::vector<double>(size_local_results_func_);
+  local_size_step_ = std::vector<double>(size_local_size_step_);
+
+  if (world_.rank() == 0) {
+    for (int proc = 1; proc < world_.size(); proc++) {
+      world_.communicator::send(proc, 0, results_func_.data() + (proc * size_local_results_func_),
+                                size_local_results_func_);
     }
+    local_results_func_ = std::vector<double>(results_func_.begin(), results_func_.begin() + size_local_results_func_);
+  } else {
+    world_.communicator::recv(0, 0, local_results_func_.data(), size_local_results_func_);
   }
 
   if (world_.rank() == 0) {
     for (int proc = 1; proc < world_.size(); proc++) {
-      world_.send(proc, 0, results_func.data() + proc * size_local_results_func, size_local_results_func);
+      world_.communicator::send(proc, 0, size_step_.data(), size_local_size_step_);
     }
-  }
-
-  local_results_func = std::vector<double>(size_local_results_func);
-
-  if (world_.rank() == 0) {
-    local_results_func = std::vector<double>(results_func.begin(), results_func.begin() + size_local_results_func);
+    local_size_step_ = std::vector<double>(size_step_.begin(), size_step_.begin() + size_local_size_step_);
   } else {
-    world_.recv(0, 0, local_results_func.data(), size_local_results_func);
-  }
-
-  if (world_.rank() == 0) {
-    for (int proc = 1; proc < world_.size(); proc++) {
-      world_.send(proc, 0, size_step.data(), size_local_size_step);
-    }
-  }
-
-  local_size_step = std::vector<double>(size_local_size_step);
-
-  if (world_.rank() == 0) {
-    local_size_step = std::vector<double>(size_step.begin(), size_step.begin() + size_local_size_step);
-  } else {
-    world_.recv(0, 0, local_size_step.data(), size_local_size_step);
+    world_.communicator::recv(0, 0, local_size_step_.data(), size_local_size_step_);
   }
 
   double sum = tbb::parallel_reduce(
-      tbb::blocked_range<size_t>(0, local_results_func.size()), 0.0,
+      tbb::blocked_range<size_t>(0, local_results_func_.size()), 0.0,
       [&](const tbb::blocked_range<size_t>& r, double init) {
         for (size_t i = r.begin(); i < r.end(); ++i) {
-          init += local_results_func[i];
+          init += local_results_func_[i];
         }
         return init;
       },
-      std::plus<double>());
-  local_results_output += sum;
+      std::plus<>());
+  local_results_output_ += sum;
 
-  for (size_t i = 0; i < local_size_step.size(); i++) {
-    local_results_output *= local_size_step[i];
+  for (size_t i = 0; i < local_size_step_.size(); i++) {
+    local_results_output_ *= local_size_step_[i];
   }
 
-  reduce(world_, local_results_output, result_output_, std::plus(), 0);
+  boost::mpi::reduce(world_, local_results_output_, result_output_, std::plus(), 0);
 
   if (world_.rank() == 0) {
     // divided by 3 to the power
@@ -251,4 +207,51 @@ bool kolokolova_d_integral_simpson_method_all::TestTaskALL::CheckBorders(std::ve
     i += 2;
   }
   return true;
+}
+
+void kolokolova_d_integral_simpson_method_all::TestTaskALL::CalculateStepSizes() {
+  tbb::parallel_for(tbb::blocked_range<int>(0, nums_variables_), [&](const tbb::blocked_range<int>& r) {
+    for (int i = r.begin(); i < r.end(); ++i) {
+      double a = (double((borders_[(2 * i) + 1] - borders_[2 * i])) / double(steps_[i]));
+      size_step_[i] = a;
+    }
+  });
+}
+
+void kolokolova_d_integral_simpson_method_all::TestTaskALL::CreatePointsVector() {
+  tbb::parallel_for(tbb::blocked_range<int>(0, nums_variables_), [&](const tbb::blocked_range<int>& r) {
+    for (int i = r.begin(); i < r.end(); ++i) {
+      std::vector<double> vec;
+      for (int j = 0; j < steps_[i] + 1; ++j) {
+        auto num = double(borders_[2 * i] + (double(j) * size_step_[i]));
+        vec.push_back(num);
+      }
+      points_[i] = vec;
+    }
+  });
+}
+
+void kolokolova_d_integral_simpson_method_all::TestTaskALL::PrepareCoefficientsAndResults() {
+  vec_coeff_ = std::vector<double>(int(results_func_.size()));
+  for (int i = 0; i < int(vec_coeff_.size()); ++i) {
+    vec_coeff_[i] = coeff_[i % int(coeff_.size())];
+  }
+  while (int(results_func_.size()) % world_.size() != 0) {
+    results_func_.push_back(0.0);
+  }
+  while (int(vec_coeff_.size()) % world_.size() != 0) {
+    vec_coeff_.push_back(0.0);
+  }
+}
+
+void kolokolova_d_integral_simpson_method_all::TestTaskALL::ApplyCoefficientIteration() {
+  for (int iteration = 1; iteration < nums_variables_; ++iteration) {
+    tbb::parallel_for(tbb::blocked_range<size_t>(0, results_func_.size()), [&](const tbb::blocked_range<size_t>& r) {
+      for (size_t i = r.begin(); i < r.end(); ++i) {
+        int block_size = iteration * int(coeff_.size());
+        int current_n_index = (int(i) / block_size) % int(coeff_.size());
+        results_func_[i] *= coeff_[current_n_index];
+      }
+    });
+  }
 }
