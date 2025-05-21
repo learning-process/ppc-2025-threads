@@ -4,7 +4,6 @@
 #include <algorithm>
 #include <cstdint>
 #include <cstring>
-#include <mutex>
 #include <thread>
 #include <vector>
 
@@ -49,7 +48,7 @@ bool golovkin_contrast_stretching::ContrastStretchingSTL<PixelType>::RunImpl() {
   const double scale = 255.0 / (max_val_ - min_val_);
 
   unsigned int num_threads = 0;
-  num_threads = ppc::GetPPCNumThreads();
+  num_threads = ppc::util::GetPPCNumThreads();
   num_threads = std::min(num_threads, static_cast<unsigned int>(image_size_));
 
   if (num_threads == 0) {
