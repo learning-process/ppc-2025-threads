@@ -147,7 +147,7 @@ bool kudryashova_i_radix_batcher_all::TestTaskALL::RunImpl() {
 
     for (size_t i = 0; i < static_cast<size_t>(world_.size()); ++i) {
       size_t chunk_size = (i < remainder) ? base_chunk + 1 : base_chunk;
-      counts_[i] = chunk_size;
+      counts_[i] = static_cast<int>(chunk_size);
       displs_[i] = (i == 0) ? 0 : displs_[i - 1] + counts_[i - 1];
     }
   }
