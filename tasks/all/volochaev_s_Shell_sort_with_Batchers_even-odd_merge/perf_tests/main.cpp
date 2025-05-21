@@ -9,7 +9,7 @@
 #include <stdexcept>
 #include <vector>
 
-#include "all/volochaev_s_Shell_sort_with_Batchers_even-odd_merge/include/ops_all.hpp"
+#include "all\volochaev_s_Shell_sort_with_Batchers_even-odd_merge\include\ops_all.hpp"
 #include "core/perf/include/perf.hpp"
 #include "core/task/include/task.hpp"
 

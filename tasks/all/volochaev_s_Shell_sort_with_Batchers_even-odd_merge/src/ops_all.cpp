@@ -1,4 +1,4 @@
-#include "all/volochaev_s_shell_sort_with_batchers_even-odd_merge_all/include/ops_all.hpp"
+#include "all\volochaev_s_Shell_sort_with_Batchers_even-odd_merge\include\ops_all.hpp"
 
 #include <mpi.h>
 
