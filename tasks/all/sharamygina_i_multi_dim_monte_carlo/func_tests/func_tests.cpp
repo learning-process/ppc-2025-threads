@@ -26,6 +26,7 @@ TEST(sharamygina_i_multi_dim_monte_carlo_all, WrongInputCountValidationTest) {
   boost::mpi::communicator world;
 
   int iterations = 30000;
+  double result = 0.0;
   std::vector<double> boundaries = GetBoundaries(0.0, 1.0, 1);
 
   std::shared_ptr<ppc::core::TaskData> task_data = std::make_shared<ppc::core::TaskData>();
@@ -35,7 +36,6 @@ TEST(sharamygina_i_multi_dim_monte_carlo_all, WrongInputCountValidationTest) {
     task_data->inputs.emplace_back(reinterpret_cast<uint8_t*>(&iterations));
     task_data->inputs_count.emplace_back(3);
 
-    double result = 0.0;
     task_data->outputs.emplace_back(reinterpret_cast<uint8_t*>(&result));
     task_data->outputs_count.emplace_back(1);
   }
@@ -55,6 +55,7 @@ TEST(sharamygina_i_multi_dim_monte_carlo_all, WrongOutputCountValidationTest) {
   boost::mpi::communicator world;
 
   int iterations = 30000;
+  double result = 0.0;
   std::vector<double> boundaries = GetBoundaries(0.0, 1.0, 1);
 
   std::shared_ptr<ppc::core::TaskData> task_data = std::make_shared<ppc::core::TaskData>();
@@ -64,7 +65,6 @@ TEST(sharamygina_i_multi_dim_monte_carlo_all, WrongOutputCountValidationTest) {
     task_data->inputs.emplace_back(reinterpret_cast<uint8_t*>(&iterations));
     task_data->inputs_count.emplace_back(1);
 
-    double result = 0.0;
     task_data->outputs.emplace_back(reinterpret_cast<uint8_t*>(&result));
     task_data->outputs_count.emplace_back(0);
   }
@@ -84,6 +84,7 @@ TEST(sharamygina_i_multi_dim_monte_carlo_all, WrongBoundariesValidationTest) {
   boost::mpi::communicator world;
 
   int iterations = 30000;
+  double result = 0.0;
   std::vector<double> boundaries = GetBoundaries(0.0, 1.0, 1);
 
   std::shared_ptr<ppc::core::TaskData> task_data = std::make_shared<ppc::core::TaskData>();
@@ -93,7 +94,6 @@ TEST(sharamygina_i_multi_dim_monte_carlo_all, WrongBoundariesValidationTest) {
     task_data->inputs.emplace_back(reinterpret_cast<uint8_t*>(&iterations));
     task_data->inputs_count.emplace_back(1);
 
-    double result = 0.0;
     task_data->outputs.emplace_back(reinterpret_cast<uint8_t*>(&result));
     task_data->outputs_count.emplace_back(1);
   }
@@ -111,12 +111,15 @@ TEST(sharamygina_i_multi_dim_monte_carlo_all, WrongBoundariesValidationTest) {
 
 TEST(sharamygina_i_multi_dim_monte_carlo_all, EmptyOutputValidationTest) {
   boost::mpi::communicator world;
+
   int iterations = 30000;
   std::vector<double> boundaries = GetBoundaries(0.0, 1.0, 1);
+  double result = 0.0;
   auto test_function = [](const std::vector<double>& values) {
     assert(values.size() == 2);
     return std::sin(values[0]);
   };
+
   std::shared_ptr<ppc::core::TaskData> task_data = std::make_shared<ppc::core::TaskData>();
   if (world.rank() == 0) {
     task_data->inputs.emplace_back(reinterpret_cast<uint8_t*>(boundaries.data()));
@@ -133,12 +136,14 @@ TEST(sharamygina_i_multi_dim_monte_carlo_all, EmptyOutputValidationTest) {
 
 TEST(sharamygina_i_multi_dim_monte_carlo_all, EmptyInputValidationTest) {
   boost::mpi::communicator world;
+
+  double result = 0.0;
+
   std::shared_ptr<ppc::core::TaskData> task_data = std::make_shared<ppc::core::TaskData>();
   if (world.rank() == 0) {
     task_data->inputs_count.emplace_back(2);
     task_data->inputs_count.emplace_back(1);
     task_data->inputs_count.emplace_back(1);
-    double result = 0.0;
     task_data->outputs.emplace_back(reinterpret_cast<uint8_t*>(&result));
     task_data->outputs_count.emplace_back(0);
   }
@@ -151,7 +156,10 @@ TEST(sharamygina_i_multi_dim_monte_carlo_all, EmptyInputValidationTest) {
 
 TEST(sharamygina_i_multi_dim_monte_carlo_all, 1DSinFunction) {
   boost::mpi::communicator world;
+
   int iterations = 30000;
+  double result = 0.0;
+
   std::vector<double> boundaries = GetBoundaries(0.0, 1.0, 1);
   auto test_function = [](const std::vector<double>& values) {
     assert(values.size() == 1);
@@ -163,7 +171,6 @@ TEST(sharamygina_i_multi_dim_monte_carlo_all, 1DSinFunction) {
     task_data->inputs_count.emplace_back(boundaries.size());
     task_data->inputs.emplace_back(reinterpret_cast<uint8_t*>(&iterations));
     task_data->inputs_count.emplace_back(1);
-    double result = 0.0;
     task_data->outputs.emplace_back(reinterpret_cast<uint8_t*>(&result));
     task_data->outputs_count.emplace_back(1);
   }
@@ -181,19 +188,21 @@ TEST(sharamygina_i_multi_dim_monte_carlo_all, 1DSinFunction) {
 
 TEST(sharamygina_i_multi_dim_monte_carlo_all, 2DFunction) {
   boost::mpi::communicator world;
+
   int iterations = 30000;
   std::vector<double> boundaries = GetBoundaries(0.0, 1.0, 2);
   auto test_function = [](const std::vector<double>& values) {
     assert(values.size() == 2);
     return values[0] + values[1];
   };
+  double result = 0.0;
+
   std::shared_ptr<ppc::core::TaskData> task_data = std::make_shared<ppc::core::TaskData>();
   if (world.rank() == 0) {
     task_data->inputs.emplace_back(reinterpret_cast<uint8_t*>(boundaries.data()));
     task_data->inputs_count.emplace_back(boundaries.size());
     task_data->inputs.emplace_back(reinterpret_cast<uint8_t*>(&iterations));
     task_data->inputs_count.emplace_back(1);
-    double result = 0.0;
     task_data->outputs.emplace_back(reinterpret_cast<uint8_t*>(&result));
     task_data->outputs_count.emplace_back(1);
   }
@@ -211,19 +220,21 @@ TEST(sharamygina_i_multi_dim_monte_carlo_all, 2DFunction) {
 
 TEST(sharamygina_i_multi_dim_monte_carlo_all, 3DFunction) {
   boost::mpi::communicator world;
+
   int iterations = 30000;
   std::vector<double> boundaries = GetBoundaries(0.0, 3.0, 3);
   auto test_function = [](const std::vector<double>& values) {
     assert(values.size() == 3);
     return 1.0;
   };
+  double result = 0.0;
+
   std::shared_ptr<ppc::core::TaskData> task_data = std::make_shared<ppc::core::TaskData>();
   if (world.rank() == 0) {
     task_data->inputs.emplace_back(reinterpret_cast<uint8_t*>(boundaries.data()));
     task_data->inputs_count.emplace_back(boundaries.size());
     task_data->inputs.emplace_back(reinterpret_cast<uint8_t*>(&iterations));
     task_data->inputs_count.emplace_back(1);
-    double result = 0.0;
     task_data->outputs.emplace_back(reinterpret_cast<uint8_t*>(&result));
     task_data->outputs_count.emplace_back(1);
   }
@@ -241,19 +252,21 @@ TEST(sharamygina_i_multi_dim_monte_carlo_all, 3DFunction) {
 
 TEST(sharamygina_i_multi_dim_monte_carlo_all, 4DFunction) {
   boost::mpi::communicator world;
+
   int iterations = 30000;
   std::vector<double> boundaries = GetBoundaries(-1.0, 5.0, 4);
   auto test_function = [](const std::vector<double>& values) {
     assert(values.size() == 4);
     return (values[0] * values[3]) + values[2] - (0.3 * values[1]);
   };
+  double result = 0.0;
+
   std::shared_ptr<ppc::core::TaskData> task_data = std::make_shared<ppc::core::TaskData>();
   if (world.rank() == 0) {
     task_data->inputs.emplace_back(reinterpret_cast<uint8_t*>(boundaries.data()));
     task_data->inputs_count.emplace_back(boundaries.size());
     task_data->inputs.emplace_back(reinterpret_cast<uint8_t*>(&iterations));
     task_data->inputs_count.emplace_back(1);
-    double result = 0.0;
     task_data->outputs.emplace_back(reinterpret_cast<uint8_t*>(&result));
     task_data->outputs_count.emplace_back(1);
   }
@@ -271,19 +284,21 @@ TEST(sharamygina_i_multi_dim_monte_carlo_all, 4DFunction) {
 
 TEST(sharamygina_i_multi_dim_monte_carlo_all, 2DExpFunction) {
   boost::mpi::communicator world;
+
   int iterations = 30000;
   std::vector<double> boundaries = GetBoundaries(1.0, 1.5, 2);
   auto test_function = [](const std::vector<double>& values) {
     assert(values.size() == 2);
     return std::exp(values[0] + values[1]);
   };
+  double result = 0.0;
+
   std::shared_ptr<ppc::core::TaskData> task_data = std::make_shared<ppc::core::TaskData>();
   if (world.rank() == 0) {
     task_data->inputs.emplace_back(reinterpret_cast<uint8_t*>(boundaries.data()));
     task_data->inputs_count.emplace_back(boundaries.size());
     task_data->inputs.emplace_back(reinterpret_cast<uint8_t*>(&iterations));
     task_data->inputs_count.emplace_back(1);
-    double result = 0.0;
     task_data->outputs.emplace_back(reinterpret_cast<uint8_t*>(&result));
     task_data->outputs_count.emplace_back(1);
   }
@@ -301,19 +316,21 @@ TEST(sharamygina_i_multi_dim_monte_carlo_all, 2DExpFunction) {
 
 TEST(sharamygina_i_multi_dim_monte_carlo_all, 10DFunction) {
   boost::mpi::communicator world;
+
   int iterations = 30000;
   std::vector<double> boundaries = GetBoundaries(0.0, 1.0, 10);
   auto test_function = [](const std::vector<double>& values) {
     assert(values.size() == 10);
     return 5 + values[0];
   };
+  double result = 0.0;
+
   std::shared_ptr<ppc::core::TaskData> task_data = std::make_shared<ppc::core::TaskData>();
   if (world.rank() == 0) {
     task_data->inputs.emplace_back(reinterpret_cast<uint8_t*>(boundaries.data()));
     task_data->inputs_count.emplace_back(boundaries.size());
     task_data->inputs.emplace_back(reinterpret_cast<uint8_t*>(&iterations));
     task_data->inputs_count.emplace_back(1);
-    double result = 0.0;
     task_data->outputs.emplace_back(reinterpret_cast<uint8_t*>(&result));
     task_data->outputs_count.emplace_back(1);
   }
@@ -331,19 +348,21 @@ TEST(sharamygina_i_multi_dim_monte_carlo_all, 10DFunction) {
 
 TEST(sharamygina_i_multi_dim_monte_carlo_all, 3DFunctionWithDifferentBoundaries) {
   boost::mpi::communicator world;
+
   int iterations = 30000;
   std::vector<double> boundaries = {1.0, 2.0, 1.3, 4.4, 0.5, 0.98};
   auto test_function = [](const std::vector<double>& values) {
     assert(values.size() == 3);
     return 1.0;
   };
+  double result = 0.0;
+
   std::shared_ptr<ppc::core::TaskData> task_data = std::make_shared<ppc::core::TaskData>();
   if (world.rank() == 0) {
     task_data->inputs.emplace_back(reinterpret_cast<uint8_t*>(boundaries.data()));
     task_data->inputs_count.emplace_back(boundaries.size());
     task_data->inputs.emplace_back(reinterpret_cast<uint8_t*>(&iterations));
     task_data->inputs_count.emplace_back(1);
-    double result = 0.0;
     task_data->outputs.emplace_back(reinterpret_cast<uint8_t*>(&result));
     task_data->outputs_count.emplace_back(1);
   }
@@ -361,12 +380,15 @@ TEST(sharamygina_i_multi_dim_monte_carlo_all, 3DFunctionWithDifferentBoundaries)
 
 TEST(sharamygina_i_multi_dim_monte_carlo_all, 3DSinFunctionWithDifferentBoundaries) {
   boost::mpi::communicator world;
+
   int iterations = 30000;
   std::vector<double> boundaries = {1.0, 2.0, 1.3, 4.4, 0.5, 0.98};
   auto test_function = [](const std::vector<double>& values) {
     assert(values.size() == 3);
     return std::sin(values[0]) + std::cos(values[1]) + std::exp(values[2]);
   };
+  double result = 0.0;
+
   std::shared_ptr<ppc::core::TaskData> task_data = std::make_shared<ppc::core::TaskData>();
   if (world.rank() == 0) {
     task_data->inputs.emplace_back(reinterpret_cast<uint8_t*>(boundaries.data()));
