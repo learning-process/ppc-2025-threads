@@ -48,7 +48,7 @@ bool kharin_m_multidimensional_integral_calc_all::TaskALL::PreProcessingImpl() {
       is_valid = false;
     }
   }
-  // Синхронизируем результат проверки между всеми процессами
+  // Синхронизируем результат проверки между процессами
   boost::mpi::broadcast(world_, is_valid, 0);
 
   // Если данные невалидны, возвращаем false на всех процессах
