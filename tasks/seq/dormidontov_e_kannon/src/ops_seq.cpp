@@ -24,7 +24,7 @@ bool dormidontov_e_kannon_seq::SeqTask::ValidationImpl() {
   num_blocks_ = static_cast<size_t>(task_data->inputs_count[2]);
 
   return task_data->inputs_count[0] == task_data->inputs_count[1] && 
-    task_data->outputs_count[0] == task_data->inputs_count[0] && side_size_ % num_blocks_ == 0;
+         task_data->outputs_count[0] == task_data->inputs_count[0] && side_size_ % num_blocks_ == 0;
 }
 
 void dormidontov_e_kannon_seq::SeqTask::StartingShift() {
