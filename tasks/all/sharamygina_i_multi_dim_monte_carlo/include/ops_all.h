@@ -1,4 +1,5 @@
 #pragma once
+#include <boost/mpi/communicator.hpp>
 #include <functional>
 #include <memory>
 #include <utility>
