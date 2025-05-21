@@ -14,7 +14,7 @@
 
 #include "core/util/include/util.hpp"
 
-using zaitsev_a_labeling_stl::Labeler;
+using zaitsev_a_labeling_tbb::Labeler;
 
 namespace {
 

@@ -20,7 +20,7 @@ using Ordinals = std::vector<Ordinal>;
 using Replacements = std::vector<std::uint16_t>;
 using DisjointSet = zaitsev_a_disjoint_set::DisjointSet<uint16_t>;
 
-namespace zaitsev_a_labeling_stl {
+namespace zaitsev_a_labeling_tbb {
 class Labeler : public ppc::core::Task {
   Image image_;
   Labels labels_;
@@ -43,4 +43,4 @@ class Labeler : public ppc::core::Task {
   bool PostProcessingImpl() override;
 };
 
-}  // namespace zaitsev_a_labeling_stl
+}  // namespace zaitsev_a_labeling_tbb

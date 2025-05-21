@@ -115,7 +115,7 @@ TEST_F(zaitsev_a_labeling_test_tbb, validation_fails_on_incorrect_input) {
   task_data_seq->outputs_count.emplace_back(out.size());
   task_data_seq->outputs.emplace_back(reinterpret_cast<std::uint8_t*>(out.data()));
 
-  zaitsev_a_labeling_stl::Labeler intask(task_data_seq);
+  zaitsev_a_labeling_tbb::Labeler intask(task_data_seq);
   EXPECT_FALSE(intask.ValidationImpl());
 }
 #ifndef _WIN32
@@ -132,7 +132,7 @@ TEST_P(zaitsev_a_labeling_test_tbb, returns_correct_label_map) {
   task_data_seq->outputs_count.emplace_back(out.size());
   task_data_seq->outputs.emplace_back(reinterpret_cast<std::uint8_t*>(out.data()));
 
-  zaitsev_a_labeling_stl::Labeler task(task_data_seq);
+  zaitsev_a_labeling_tbb::Labeler task(task_data_seq);
   ASSERT_TRUE(task.ValidationImpl());
   task.PreProcessingImpl();
   task.RunImpl();
@@ -142,7 +142,7 @@ TEST_P(zaitsev_a_labeling_test_tbb, returns_correct_label_map) {
 }
 
 // clang-format off
-INSTANTIATE_TEST_SUITE_P(zaitsev_a_labeling_test_stl, zaitsev_a_labeling_test_tbb, ::testing::Values(
+INSTANTIATE_TEST_SUITE_P(zaitsev_a_labeling_test_tbb, zaitsev_a_labeling_test_tbb, ::testing::Values(
     "help.jpg",
     "kittens.jpg",
     "rombs.jpg",
