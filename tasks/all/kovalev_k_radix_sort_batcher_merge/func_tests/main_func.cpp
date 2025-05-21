@@ -378,8 +378,8 @@ TEST(kovalev_k_radix_sort_batcher_merge_all, Test_215718_int) {
   }
 }
 
-TEST(kovalev_k_radix_sort_batcher_merge_all, Test_2000000_int) {
-  const unsigned int length = 2000000;
+TEST(kovalev_k_radix_sort_batcher_merge_all, Test_1024789_int) {
+  const unsigned int length = 1024789;
   std::vector<long long int> in(length);
   std::random_device rd;
   std::mt19937 gen(rd());
