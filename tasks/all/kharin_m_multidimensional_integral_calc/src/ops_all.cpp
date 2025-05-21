@@ -53,7 +53,6 @@ bool kharin_m_multidimensional_integral_calc_all::TaskALL::PreProcessingImpl() {
   if (!is_valid) {
     return false;
   }
-
   world_.barrier();
   boost::mpi::broadcast(world_, grid_sizes_, 0);
   boost::mpi::broadcast(world_, step_sizes_, 0);
@@ -80,16 +79,17 @@ bool kharin_m_multidimensional_integral_calc_all::TaskALL::PreProcessingImpl() {
       offset += size;
     }
     boost::mpi::scatterv(world_, input_, send_counts, displacements, local_input_.data(),
-                         static_cast<int>(local_input_.size()), 0);
-  } else {
+                        static_cast<int>(local_input_.size()), 0);
+  }
+  else {
     boost::mpi::scatterv(world_, local_input_.data(), static_cast<int>(local_input_.size()), 0);
   }
   world_.barrier();
-  // Проверка шагов
-  bool steps_valid = std::all_of(step_sizes_.begin(), step_sizes_.end(), [](double h) { return h > 0.0; });
-  // Синхронизируем результат проверки шагов
-  boost::mpi::all_reduce(world_, steps_valid, steps_valid, std::logical_and<bool>());
-  return steps_valid;
+  // Проверка шагов - исправлено для предотвращения ошибки aliased buffers
+  bool local_steps_valid = std::all_of(step_sizes_.begin(), step_sizes_.end(), [](double h) { return h > 0.0; });
+  bool all_steps_valid = false;  // Отдельная переменная для результата
+  boost::mpi::all_reduce(world_, local_steps_valid, all_steps_valid, std::logical_and<bool>());
+  return all_steps_valid;
 }
 
 double kharin_m_multidimensional_integral_calc_all::TaskALL::ComputeLocalSum() {
@@ -129,10 +129,10 @@ double kharin_m_multidimensional_integral_calc_all::TaskALL::ComputeLocalSum() {
 
 bool kharin_m_multidimensional_integral_calc_all::TaskALL::RunImpl() {
   double local_sum = ComputeLocalSum();
-  // Синхронизация перед сбором результатов
   world_.barrier();
   double total_sum = 0.0;
-  boost::mpi::reduce(world_, local_sum, total_sum, std::plus<>(), 0);
+  boost::mpi::reduce(world_, local_sum, total_sum, std::plus<double>(), 0);
+
   // Синхронизация после сборки
   world_.barrier();
   if (world_.rank() == 0) {
