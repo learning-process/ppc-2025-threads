@@ -80,8 +80,7 @@ bool kharin_m_multidimensional_integral_calc_all::TaskALL::PreProcessingImpl() {
     }
     boost::mpi::scatterv(world_, input_, send_counts, displacements, local_input_.data(),
                         static_cast<int>(local_input_.size()), 0);
-  }
-  else {
+  } else {
     boost::mpi::scatterv(world_, local_input_.data(), static_cast<int>(local_input_.size()), 0);
   }
   world_.barrier();
