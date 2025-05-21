@@ -14,8 +14,8 @@
 
 namespace sidorina_p_gradient_method_all {
 
-inline std::vector<double> MultiplyMatrixByVector(boost::mpi::communicator& world, const std::vector<double>& a, std::vector<double>& vec,
-                                                  int size) {
+inline std::vector<double> MultiplyMatrixByVector(boost::mpi::communicator& world, const std::vector<double>& a,
+                                                  std::vector<double>& vec, int size) {
   int rank = world.rank();
   int wsize = world.size();
   std::vector<int> rows_per_process(wsize, size / wsize);
@@ -97,8 +97,9 @@ inline double Dot(const std::vector<double>& vec) {
   return sum;
 }
 
-inline std::vector<double> ConjugateGradientMethod(boost::mpi::communicator& world, std::vector<double>& a, std::vector<double>& b,
-                                                   std::vector<double> solution, double tolerance, int size) {
+inline std::vector<double> ConjugateGradientMethod(boost::mpi::communicator& world, std::vector<double>& a,
+                                                   std::vector<double>& b, std::vector<double> solution,
+                                                   double tolerance, int size) {
   std::vector<double> matrix_times_solution = MultiplyMatrixByVector(world, a, solution, size);
 
   auto residual = std::vector<double>(size);

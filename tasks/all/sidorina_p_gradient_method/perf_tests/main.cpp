@@ -7,9 +7,9 @@
 #include <random>
 #include <vector>
 
+#include "all/sidorina_p_gradient_method/include/ops_all.hpp"
 #include "core/perf/include/perf.hpp"
 #include "core/task/include/task.hpp"
-#include "all/sidorina_p_gradient_method/include/ops_all.hpp"
 
 TEST(sidorina_p_gradient_method_all, test_pipeline_run) {
   int size = static_cast<int>(std::pow(2, 12));

@@ -6,8 +6,8 @@
 #include <tuple>
 #include <vector>
 
-#include "core/task/include/task.hpp"
 #include "all/sidorina_p_gradient_method/include/ops_all.hpp"
+#include "core/task/include/task.hpp"
 
 using Params =
     std::tuple<int, std::vector<double>, std::vector<double>, std::vector<double>, std::vector<double>, double>;
