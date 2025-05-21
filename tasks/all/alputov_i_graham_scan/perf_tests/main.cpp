@@ -15,6 +15,8 @@
 #include "core/task/include/task.hpp"
 
 // Helper to convert std::vector<Point> to std::vector<double>
+
+namespace {
 std::vector<double> PointsToDoublesPerf(const std::vector<alputov_i_graham_scan_all::Point>& points) {
   std::vector<double> doubles;
   doubles.reserve(points.size() * 2);
@@ -25,7 +27,6 @@ std::vector<double> PointsToDoublesPerf(const std::vector<alputov_i_graham_scan_
   return doubles;
 }
 
-namespace {
 constexpr int kPerfPointCount = 100000;  // Adjusted for reasonable MPI perf test duration
 
 std::vector<alputov_i_graham_scan_all::Point> GeneratePerfData(int count) {
