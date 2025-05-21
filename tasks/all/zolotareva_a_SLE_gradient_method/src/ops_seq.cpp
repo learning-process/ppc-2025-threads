@@ -171,13 +171,13 @@ void zolotareva_a_sle_gradient_method_all::TestTaskALL::CalculateIterations(
       local_dot_p_ap += p[i] * ap[i];
     }
 
-    double global_dot_pAp = 0;
-    boost::mpi::all_reduce(world_, local_dot_p_ap, global_dot_pAp, std::plus<>());
-    if (global_dot_pAp == 0.0) {
+    double global_dot_p_ap = 0;
+    boost::mpi::all_reduce(world_, local_dot_p_ap, global_dot_p_ap, std::plus<>());
+    if (global_dot_p_ap == 0.0) {
       break;
     }
 
-    double alpha = rs_global_old / global_dot_pAp;
+    double alpha = rs_global_old / global_dot_p_ap;
 
 #pragma omp parallel for
     for (int i = 0; i < local_rows_; ++i) {
