@@ -8,9 +8,9 @@
 #include <memory>
 #include <vector>
 
+#include "all/sharamygina_i_multi_dim_monte_carlo/include/ops_all.h"
 #include "core/perf/include/perf.hpp"
 #include "core/task/include/task.hpp"
-#include "all/sharamygina_i_multi_dim_monte_carlo/include/ops_all.h"
 
 namespace {
 std::vector<double> GetBoundaries(double left, double right, unsigned int dimension) {
