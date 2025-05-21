@@ -1,6 +1,7 @@
 #include <gtest/gtest.h>
 
 #include <algorithm>
+#include <boost/mpi/communicator.hpp>
 #include <cstdint>
 #include <ctime>
 #include <functional>
@@ -10,7 +11,6 @@
 
 #include "all/kudryashova_i_radix_batcher/include/kudryashovaRadixBatcherALL.hpp"
 #include "core/task/include/task.hpp"
-#include "core/util/include/util.hpp"
 
 std::vector<double> kudryashova_i_radix_batcher_all::GetRandomDoubleVector(int size) {
   std::vector<double> vector(size);

@@ -9,9 +9,7 @@
 #include <algorithm>
 #include <array>
 #include <boost/mpi/collectives/broadcast.hpp>
-#include <boost/mpi/collectives/gather.hpp>
 #include <boost/mpi/collectives/gatherv.hpp>
-#include <boost/mpi/collectives/scatter.hpp>
 #include <boost/mpi/collectives/scatterv.hpp>
 #include <boost/mpi/communicator.hpp>
 #include <boost/serialization/vector.hpp>
@@ -141,14 +139,14 @@ bool kudryashova_i_radix_batcher_all::TestTaskALL::PreProcessingImpl() {
 bool kudryashova_i_radix_batcher_all::TestTaskALL::RunImpl() {
   if (world_.rank() == 0) {
     n_ = input_data_.size();
-    int base_chunk = n_ / world_.size();
-    int remainder = n_ % world_.size();
+    size_t base_chunk = n_ / world_.size();
+    size_t remainder = n_ % world_.size();
 
     counts_.resize(world_.size());
     displs_.resize(world_.size());
 
-    for (int i = 0; i < world_.size(); ++i) {
-      int chunk_size = (i < remainder) ? base_chunk + 1 : base_chunk;
+    for (size_t i = 0; i < static_cast<size_t>(world_.size()); ++i) {
+      size_t chunk_size = (i < remainder) ? base_chunk + 1 : base_chunk;
       counts_[i] = chunk_size;
       displs_[i] = (i == 0) ? 0 : displs_[i - 1] + counts_[i - 1];
     }
@@ -174,7 +172,7 @@ bool kudryashova_i_radix_batcher_all::TestTaskALL::RunImpl() {
 
   if (world_.rank() == 0) {
     input_data_ = global_data;
-    size_t current_block_size = *std::max_element(counts_.begin(), counts_.end());
+    size_t current_block_size = *std::ranges::max_element(counts_);
     while (current_block_size < n_) {
       size_t next_block_size = std::min(2 * current_block_size, n_);
       for (size_t start = 0; start < n_; start += next_block_size) {
