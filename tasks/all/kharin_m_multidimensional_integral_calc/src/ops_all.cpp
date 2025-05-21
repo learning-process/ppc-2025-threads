@@ -14,18 +14,20 @@
 #include "core/util/include/util.hpp"
 
 bool kharin_m_multidimensional_integral_calc_all::TaskALL::ValidationImpl() {
+  bool is_valid = true;
   if (world_.rank() == 0) {
+    // Проверяем структуру данных
     if (task_data->inputs.size() != 3 || task_data->outputs.size() != 1) {
-      return false;
-    }
-    if (task_data->inputs_count[1] != task_data->inputs_count[2]) {
-      return false;
-    }
-    if (task_data->outputs_count[0] != 1) {
-      return false;
+      is_valid = false;
+    } else if (task_data->inputs_count[1] != task_data->inputs_count[2]) { // Проверка соответствия grid_sizes и step_sizes
+      is_valid = false;
+    } else if (task_data->outputs_count[0] != 1) {
+      is_valid = false;
     }
   }
-  return true;
+  // Рассылаем результат валидации всем процессам
+  boost::mpi::broadcast(world_, is_valid, 0);
+  return is_valid;
 }
 
 bool kharin_m_multidimensional_integral_calc_all::TaskALL::PreProcessingImpl() {
