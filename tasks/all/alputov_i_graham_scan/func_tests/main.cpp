@@ -11,8 +11,8 @@
 #include <set>
 #include <vector>
 
-#include "core/task/include/task.hpp"
 #include "all/alputov_i_graham_scan/include/ops_all.hpp"  // Changed from ../include
+#include "core/task/include/task.hpp"
 
 namespace {
 // Helper to convert std::vector<Point> to std::vector<double> for task input

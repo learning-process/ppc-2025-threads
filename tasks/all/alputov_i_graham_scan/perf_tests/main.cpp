@@ -10,9 +10,9 @@
 #include <utility>  // For std::pair in VerifyHullBasic
 #include <vector>
 
+#include "all/alputov_i_graham_scan/include/ops_all.hpp"  // Changed from ../include
 #include "core/perf/include/perf.hpp"
 #include "core/task/include/task.hpp"
-#include "all/alputov_i_graham_scan/include/ops_all.hpp"  // Changed from ../include
 
 // Helper to convert std::vector<Point> to std::vector<double>
 std::vector<double> PointsToDoublesPerf(const std::vector<alputov_i_graham_scan_all::Point>& points) {

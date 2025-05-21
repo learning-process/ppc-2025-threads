@@ -1,4 +1,4 @@
-#include "all/alputov_i_graham_scan/include/ops_all.hpp" 
+#include "all/alputov_i_graham_scan/include/ops_all.hpp"
 
 #include <algorithm>
 #include <chrono>  // For std::chrono (potentially, if used internally for GetPPCNumThreads or similar)
