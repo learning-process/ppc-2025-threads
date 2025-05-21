@@ -17,6 +17,7 @@ class MultiDimMonteCarloTask : public ppc::core::Task {
 
  private:
   std::vector<double> boundaries_;
+  boost::mpi::communicator world_;
   int number_of_iterations_ = 0;
   double final_result_ = 0.0;
   std::function<double(const std::vector<double>&)> integrating_function_;

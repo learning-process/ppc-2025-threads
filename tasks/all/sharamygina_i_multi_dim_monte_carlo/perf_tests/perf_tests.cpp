@@ -1,5 +1,6 @@
 #include <gtest/gtest.h>
 
+#include <boost/mpi/communicator.hpp>
 #include <cassert>
 #include <chrono>
 #include <cmath>
@@ -24,6 +25,8 @@ std::vector<double> GetBoundaries(double left, double right, unsigned int dimens
 }  // namespace
 
 TEST(sharamygina_i_multi_dim_monte_carlo_all, test_pipeline_run) {
+  boost::mpi::communicator world;
+
   int iterations = 15000000;
   std::vector<double> boundaries = GetBoundaries(0.0, 1.2, 7);
   auto test_function = [](const std::vector<double>& values) {
@@ -34,17 +37,18 @@ TEST(sharamygina_i_multi_dim_monte_carlo_all, test_pipeline_run) {
   std::function<double(const std::vector<double>&)> function_ptr = test_function;
 
   auto task_data = std::make_shared<ppc::core::TaskData>();
+  if (world.rank == 0) {
+    task_data->inputs.emplace_back(reinterpret_cast<uint8_t*>(boundaries.data()));
+    task_data->inputs_count.emplace_back(boundaries.size());
+    task_data->inputs.emplace_back(reinterpret_cast<uint8_t*>(&iterations));
+    task_data->inputs_count.emplace_back(1);
+    task_data->inputs.emplace_back(reinterpret_cast<uint8_t*>(&function_ptr));
+    task_data->inputs_count.emplace_back(1);
 
-  task_data->inputs.emplace_back(reinterpret_cast<uint8_t*>(boundaries.data()));
-  task_data->inputs_count.emplace_back(boundaries.size());
-  task_data->inputs.emplace_back(reinterpret_cast<uint8_t*>(&iterations));
-  task_data->inputs_count.emplace_back(1);
-  task_data->inputs.emplace_back(reinterpret_cast<uint8_t*>(&function_ptr));
-  task_data->inputs_count.emplace_back(1);
-
-  double result = 0.0;
-  task_data->outputs.emplace_back(reinterpret_cast<uint8_t*>(&result));
-  task_data->outputs_count.emplace_back(1);
+    double result = 0.0;
+    task_data->outputs.emplace_back(reinterpret_cast<uint8_t*>(&result));
+    task_data->outputs_count.emplace_back(1);
+  }
 
   auto task = std::make_shared<sharamygina_i_multi_dim_monte_carlo_all::MultiDimMonteCarloTask>(task_data);
 
@@ -66,10 +70,14 @@ TEST(sharamygina_i_multi_dim_monte_carlo_all, test_pipeline_run) {
 
   double expected = 18.093354135967223;
   double tol = 0.03 * expected;
-  EXPECT_NEAR(result, expected, tol);
+  if (world.rank() == 0) {
+    EXPECT_NEAR(result, expected, tol);
+  }
 }
 
 TEST(sharamygina_i_multi_dim_monte_carlo_all, test_task_run) {
+  boost::mpi::communicator world;
+
   int iterations = 15000000;
   std::vector<double> boundaries = GetBoundaries(0.0, 1.2, 7);
   auto test_function = [](const std::vector<double>& values) {
@@ -80,17 +88,18 @@ TEST(sharamygina_i_multi_dim_monte_carlo_all, test_task_run) {
   std::function<double(const std::vector<double>&)> function_ptr = test_function;
 
   auto task_data = std::make_shared<ppc::core::TaskData>();
+  if (world.rank() == 0) {
+    task_data->inputs.emplace_back(reinterpret_cast<uint8_t*>(boundaries.data()));
+    task_data->inputs_count.emplace_back(boundaries.size());
+    task_data->inputs.emplace_back(reinterpret_cast<uint8_t*>(&iterations));
+    task_data->inputs_count.emplace_back(1);
+    task_data->inputs.emplace_back(reinterpret_cast<uint8_t*>(&function_ptr));
+    task_data->inputs_count.emplace_back(1);
 
-  task_data->inputs.emplace_back(reinterpret_cast<uint8_t*>(boundaries.data()));
-  task_data->inputs_count.emplace_back(boundaries.size());
-  task_data->inputs.emplace_back(reinterpret_cast<uint8_t*>(&iterations));
-  task_data->inputs_count.emplace_back(1);
-  task_data->inputs.emplace_back(reinterpret_cast<uint8_t*>(&function_ptr));
-  task_data->inputs_count.emplace_back(1);
-
-  double result = 0.0;
-  task_data->outputs.emplace_back(reinterpret_cast<uint8_t*>(&result));
-  task_data->outputs_count.emplace_back(1);
+    double result = 0.0;
+    task_data->outputs.emplace_back(reinterpret_cast<uint8_t*>(&result));
+    task_data->outputs_count.emplace_back(1);
+  }
 
   auto task = std::make_shared<sharamygina_i_multi_dim_monte_carlo_all::MultiDimMonteCarloTask>(task_data);
 
@@ -112,5 +121,7 @@ TEST(sharamygina_i_multi_dim_monte_carlo_all, test_task_run) {
 
   double expected = 18.093354135967223;
   double tol = 0.03 * expected;
-  EXPECT_NEAR(result, expected, tol);
+  if (world.rank() == 0) {
+    EXPECT_NEAR(result, expected, tol);
+  }
 }
