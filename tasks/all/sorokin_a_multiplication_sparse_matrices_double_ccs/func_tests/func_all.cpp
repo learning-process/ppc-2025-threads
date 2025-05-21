@@ -48,15 +48,12 @@ void CheckVectors(const std::vector<double> &expected, const std::vector<double>
   }
 }
 
-void AssertResult(boost::mpi::communicator world;
-                  const std::vector<double> &c_values, const std::vector<double> &r_values,
+void AssertResult(const std::vector<double> &c_values, const std::vector<double> &r_values,
                   const std::vector<double> &c_row_indices, const std::vector<double> &r_row_indices,
                   const std::vector<double> &c_col_ptr, const std::vector<double> &r_col_ptr) {
-  if (world.rank() == 0) {
-    CheckVectors(c_values, r_values);
-    CheckVectors(c_row_indices, r_row_indices);
-    CheckVectors(c_col_ptr, r_col_ptr);
-  }
+  CheckVectors(c_values, r_values);
+  CheckVectors(c_row_indices, r_row_indices);
+  CheckVectors(c_col_ptr, r_col_ptr);
 }
 
 void CreateAndRunTask(std::shared_ptr<ppc::core::TaskData> &task_data) {
@@ -99,11 +96,14 @@ TEST(sorokin_a_multiplication_sparse_matrices_double_ccs_all, test_3x3_x_3x3) {
   std::vector<double> r_row_indices = {1, 2, 0, 1, 2};
   std::vector<double> r_col_ptr = {0, 2, 2, 5};
 
-  sorokin_a_multiplication_sparse_matrices_double_ccs_all::AssertResult(world, c_values, r_values, c_row_indices,
-                                                                        r_row_indices, c_col_ptr, r_col_ptr);
+  if (world.rank() == 0) {
+    sorokin_a_multiplication_sparse_matrices_double_ccs_all::AssertResult(c_values, r_values, c_row_indices,
+                                                                          r_row_indices, c_col_ptr, r_col_ptr);
+  }
 }
 
 TEST(sorokin_a_multiplication_sparse_matrices_double_ccs_all, test_2x3_x_3x2) {
+  boost::mpi::communicator world;
   int m = 2;
   int k = 3;
   int n = 2;
@@ -132,11 +132,14 @@ TEST(sorokin_a_multiplication_sparse_matrices_double_ccs_all, test_2x3_x_3x2) {
   std::vector<double> r_row_indices = {1, 0, 1};
   std::vector<double> r_col_ptr = {0, 1};
 
-  sorokin_a_multiplication_sparse_matrices_double_ccs_all::AssertResult(world, c_values, r_values, c_row_indices,
-                                                                        r_row_indices, c_col_ptr, r_col_ptr);
+  if (world.rank() == 0) {
+    sorokin_a_multiplication_sparse_matrices_double_ccs_all::AssertResult(c_values, r_values, c_row_indices,
+                                                                          r_row_indices, c_col_ptr, r_col_ptr);
+  }
 }
 
 TEST(sorokin_a_multiplication_sparse_matrices_double_ccs_all, test_3x2_x_2x4) {
+  boost::mpi::communicator world;
   int m = 3;
   int k = 2;
   int n = 4;
@@ -165,8 +168,10 @@ TEST(sorokin_a_multiplication_sparse_matrices_double_ccs_all, test_3x2_x_2x4) {
   std::vector<double> r_row_indices = {0, 1, 2, 0};
   std::vector<double> r_col_ptr = {0, 1, 3, 3, 4};
 
-  sorokin_a_multiplication_sparse_matrices_double_ccs_all::AssertResult(world, c_values, r_values, c_row_indices,
-                                                                        r_row_indices, c_col_ptr, r_col_ptr);
+  if (world.rank() == 0) {
+    sorokin_a_multiplication_sparse_matrices_double_ccs_all::AssertResult(c_values, r_values, c_row_indices,
+                                                                          r_row_indices, c_col_ptr, r_col_ptr);
+  }
 }
 
 TEST(sorokin_a_multiplication_sparse_matrices_double_ccs_all, test_val_k_0) {
