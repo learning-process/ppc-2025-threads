@@ -50,7 +50,7 @@ bool kharin_m_multidimensional_integral_calc_all::TaskALL::PreProcessingImpl() {
   world_.barrier();
   boost::mpi::broadcast(world_, grid_sizes_, 0);
   boost::mpi::broadcast(world_, step_sizes_, 0);
-  
+
   size_t total_size = 1;
   for (auto n : grid_sizes_) {
     total_size *= n;
@@ -78,7 +78,7 @@ bool kharin_m_multidimensional_integral_calc_all::TaskALL::PreProcessingImpl() {
   } else {
     boost::mpi::scatterv(world_, local_input_.data(), static_cast<int>(local_input_.size()), 0);
   }
-  
+
   // Синхронизация после распределения
   world_.barrier();
 
