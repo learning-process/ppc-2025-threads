@@ -45,7 +45,7 @@ bool HoareSortTBB::PreProcessingImpl() {
 
 bool HoareSortTBB::RunImpl() {
   if (data_.empty()) {
-    return false;
+    return true;
   }
 
   try {
@@ -63,7 +63,7 @@ bool HoareSortTBB::PostProcessingImpl() {
     }
 
     auto* output_data = reinterpret_cast<int*>(task_data->outputs[0]);
-    std::ranges::copy(data_.begin(), data_.end(), output_data);
+    std::copy(data_.begin(), data_.end(), output_data);
     return true;
   } catch (...) {
     return false;
@@ -77,12 +77,15 @@ std::size_t HoareSortTBB::Partition(int* arr, std::size_t left, std::size_t righ
       ++left;
     }
     while (arr[right] > pivot) {
+      if (right == 0) break;
       --right;
     }
     if (left <= right) {
       std::swap(arr[left], arr[right]);
       ++left;
-      --right;
+      if (right > 0) {
+        --right;
+      }
     }
   }
   return left;
@@ -94,7 +97,8 @@ void HoareSortTBB::SequentialQuickSort(int* arr, std::size_t left, std::size_t r
   }
 
   std::size_t p = Partition(arr, left, right);
-  if (left < p - 1) {
+
+  if (p > 0 && left < p - 1) {
     SequentialQuickSort(arr, left, p - 1);
   }
   if (p < right) {
@@ -103,6 +107,10 @@ void HoareSortTBB::SequentialQuickSort(int* arr, std::size_t left, std::size_t r
 }
 
 void HoareSortTBB::ParallelQuickSort(int* arr, std::size_t left, std::size_t right) {
+  if (left >= right) {
+    return;
+  }
+
   if (right - left < kThreshold) {
     SequentialQuickSort(arr, left, right);
     return;
@@ -110,9 +118,9 @@ void HoareSortTBB::ParallelQuickSort(int* arr, std::size_t left, std::size_t rig
 
   std::size_t p = Partition(arr, left, right);
 
-  if (left < p - 1 && p < right) {
+  if (p > 0 && left < p - 1 && p < right) {
     tbb::parallel_invoke([&] { ParallelQuickSort(arr, left, p - 1); }, [&] { ParallelQuickSort(arr, p, right); });
-  } else if (left < p - 1) {
+  } else if (p > 0 && left < p - 1) {
     ParallelQuickSort(arr, left, p - 1);
   } else if (p < right) {
     ParallelQuickSort(arr, p, right);
