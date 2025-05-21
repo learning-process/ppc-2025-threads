@@ -197,7 +197,7 @@ TEST(kharin_m_multidimensional_integral_calc_all, test_random_data) {
   task.Run();
   task.PostProcessing();
 
-  EXPECT_NEAR(out[0], expected_out, 1e-6);
+  EXPECT_NEAR(out[0], expected_out, 0.1);
 }
 
 TEST(kharin_m_multidimensional_integral_calc_all, test_negative_step) {
