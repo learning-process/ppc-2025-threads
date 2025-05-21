@@ -57,6 +57,7 @@ bool zolotareva_a_sle_gradient_method_all::TestTaskALL::ValidationImpl() {
 
 bool zolotareva_a_sle_gradient_method_all::TestTaskALL::RunImpl() {
   int world_size = world_.size();
+  world_size = std::max(world_size, 1);
   int rank = world_.rank();
 
   boost::mpi::broadcast(world_, n_, 0);
@@ -80,9 +81,11 @@ bool zolotareva_a_sle_gradient_method_all::TestTaskALL::RunImpl() {
   std::vector<double> p = r;
 
   int local_rows_0 = base_rows + remainder;
-  world_size = std::max(world_size, 1);
+
   std::vector<int> recvcounts(world_size, base_rows);
-  recvcounts[0] = local_rows_0;
+  if (world_size != 0) {
+    recvcounts[0] = local_rows_0;
+  }
   std::vector<int> displs(world_size, 0);
   for (int i = 1; i < world_size; ++i) {
     displs[i] = displs[i - 1] + recvcounts[i - 1];
