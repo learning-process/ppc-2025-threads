@@ -366,14 +366,14 @@ TEST(kolodkin_g_multiplication_matrix_all, test_matmul_big_diag_matrix) {
   std::vector<Complex> out(a.numCols * b.numRows * 100, 0);
 
   for (unsigned int i = 0; i < 100; i++) {
-    a.AddValue(i, Complex(1, 0), i);
+    a.AddValue(static_cast<int>(i), Complex(1, 0), static_cast<int>(i));
   }
   for (unsigned int i = 0; i < 100; i++) {
-    b.AddValue(i, Complex(1, 0), i);
+    b.AddValue(static_cast<int>(i), Complex(1, 0), static_cast<int>(i));
   }
 
   for (unsigned int i = 0; i < 100; i++) {
-    c.AddValue(i, Complex(1, 0), i);
+    c.AddValue(static_cast<int>(i), Complex(1, 0), static_cast<int>(i));
   }
 
   in_a = kolodkin_g_multiplication_matrix_all::ParseMatrixIntoVec(a);
