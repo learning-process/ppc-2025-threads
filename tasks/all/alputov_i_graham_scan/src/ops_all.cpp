@@ -252,7 +252,7 @@ bool TestTaskALL::PostProcessingImpl() {
 
 Point TestTaskALL::FindPivot(const std::vector<Point>& points) {
   if (points.empty()) {
-    throw std::runtime_error("Cannot find pivot in empty set of points.");
+    throw std::runtime_error("Cannot find pivot in empty set of points. ");
   }
   return *std::ranges::min_element(points, [](const Point& a, const Point& b) { return a < b; });
 }
