@@ -69,8 +69,8 @@ void TaskAll::ApplyGaussianFilterTbb(std::vector<int> &local_output_ref, size_t 
           float sum = 0.0F;
           for (int ki = -1; ki <= 1; ++ki) {
             for (int kj = -1; kj <= 1; ++kj) {
-              size_t kernel_row = static_cast<size_t>(ki + 1);
-              size_t kernel_col = static_cast<size_t>(kj + 1);
+              auto kernel_row = static_cast<size_t>(ki + 1);
+              auto kernel_col = static_cast<size_t>(kj + 1);
               sum += static_cast<float>(input_[((i_in + ki) * width_) + (j_in + kj)]) *
                      gaussian_kernel_[(kernel_row * 3) + kernel_col];
               // gaussian_kernel_[static_cast<size_t>(((ki + 1) * 3) + (kj + 1))];
