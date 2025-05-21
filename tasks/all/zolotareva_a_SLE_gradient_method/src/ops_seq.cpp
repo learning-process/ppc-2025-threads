@@ -1,8 +1,10 @@
 #include "all/zolotareva_a_SLE_gradient_method/include/ops_seq.hpp"
 
+#include <mpi.h>
 #include <omp.h>
 
 #include <algorithm>
+#include <boost/mpi.hpp>
 #include <cmath>
 #include <vector>
 
