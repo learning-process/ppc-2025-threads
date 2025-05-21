@@ -355,23 +355,27 @@ TEST(kolodkin_g_multiplication_matrix_all, test_matmul_row_by_col) {
   }
 }
 
-TEST(kolodkin_g_multiplication_matrix_all, test_matmul_diag_matrix) {
+TEST(kolodkin_g_multiplication_matrix_all, test_matmul_big_diag_matrix) {
   // Create data
-  kolodkin_g_multiplication_matrix_all::SparseMatrixCRS a(3, 3);
-  kolodkin_g_multiplication_matrix_all::SparseMatrixCRS b(3, 3);
-  kolodkin_g_multiplication_matrix_all::SparseMatrixCRS c(3, 3);
+  kolodkin_g_multiplication_matrix_all::SparseMatrixCRS a(100, 100);
+  kolodkin_g_multiplication_matrix_all::SparseMatrixCRS b(100, 100);
+  kolodkin_g_multiplication_matrix_all::SparseMatrixCRS c(100, 100);
   std::vector<Complex> in = {};
   std::vector<Complex> in_a;
   std::vector<Complex> in_b;
   std::vector<Complex> out(a.numCols * b.numRows * 100, 0);
 
-  a.AddValue(0, Complex(-1, 0), 0);
-  a.AddValue(1, Complex(-2, 0), 1);
-  a.AddValue(2, Complex(-3, 0), 2);
+  for (unsigned int i = 0; i < 100; i++) {
+    a.AddValue(i, Complex(1, 0), i);
+  }
+  for (unsigned int i = 0; i < 100; i++) {
+    b.AddValue(i, Complex(1, 0), i);
+  }
 
-  b.AddValue(0, Complex(1, 0), 0);
-  b.AddValue(1, Complex(2, 0), 1);
-  b.AddValue(2, Complex(3, 0), 2);
+  for (unsigned int i = 0; i < 100; i++) {
+    c.AddValue(i, Complex(1, 0), i);
+  }
+
   in_a = kolodkin_g_multiplication_matrix_all::ParseMatrixIntoVec(a);
   in_b = kolodkin_g_multiplication_matrix_all::ParseMatrixIntoVec(b);
   in.reserve(in_a.size() + in_b.size());
@@ -381,9 +385,6 @@ TEST(kolodkin_g_multiplication_matrix_all, test_matmul_diag_matrix) {
   for (unsigned int i = 0; i < in_b.size(); i++) {
     in.emplace_back(in_b[i]);
   }
-  c.AddValue(0, Complex(-1, 0), 0);
-  c.AddValue(1, Complex(-4, 0), 1);
-  c.AddValue(2, Complex(-9, 0), 2);
   // Create task_data
   auto task_data_all = std::make_shared<ppc::core::TaskData>();
   task_data_all->inputs.emplace_back(reinterpret_cast<uint8_t *>(in.data()));
