@@ -11,7 +11,7 @@
 
 #include "core/perf/include/perf.hpp"
 #include "core/task/include/task.hpp"
-#include "stl/deryabin_m_hoare_sort_simple_merge/include/ops_stl.hpp"
+#include "mpi/deryabin_m_hoare_sort_simple_merge/include/ops_mpi.hpp"
 
 TEST(deryabin_m_hoare_sort_simple_merge_mpi, test_pipeline_run_MPI) {
   std::random_device rd;
