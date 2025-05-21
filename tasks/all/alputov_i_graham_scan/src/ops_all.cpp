@@ -37,6 +37,7 @@ TestTaskALL::TestTaskALL(ppc::core::TaskDataPtr task_data) : Task(std::move(task
   }
 }
 
+
 void TestTaskALL::CleanupMPIResources() {
   if (!mpi_resources_active_) {
     return;
