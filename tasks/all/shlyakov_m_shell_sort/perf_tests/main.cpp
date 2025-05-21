@@ -56,7 +56,7 @@ TEST(shlyakov_m_shell_sort_all, test_pipeline_run) {
   std::ranges::sort(expected);
   std::vector<int> out(in.size());
 
-  if (world.rank() == 0) {
+  if (world_.rank() == 0) {
     auto task_data_tbb = std::make_shared<ppc::core::TaskData>();
     task_data_tbb->inputs.emplace_back(reinterpret_cast<uint8_t*>(in.data()));
     task_data_tbb->inputs_count.emplace_back(in.size());
@@ -81,7 +81,7 @@ TEST(shlyakov_m_shell_sort_all, test_pipeline_run) {
   perf_analyzer->PipelineRun(perf_attr, perf_results);
   ppc::core::Perf::PrintPerfStatistic(perf_results);
 
-  if (world.rank() == 0) {
+  if (world_.rank() == 0) {
     EXPECT_TRUE(IsSorted(out));
   }
 }
@@ -94,7 +94,7 @@ TEST(shlyakov_m_shell_sort_all, test_task_run) {
   std::ranges::sort(expected);
   std::vector<int> out(in.size());
 
-  if (world.rank() == 0) {
+  if (world_.rank() == 0) {
     auto task_data_tbb = std::make_shared<ppc::core::TaskData>();
     task_data_tbb->inputs.emplace_back(reinterpret_cast<uint8_t*>(in.data()));
     task_data_tbb->inputs_count.emplace_back(in.size());
@@ -119,7 +119,7 @@ TEST(shlyakov_m_shell_sort_all, test_task_run) {
   perf_analyzer->TaskRun(perf_attr, perf_results);
   ppc::core::Perf::PrintPerfStatistic(perf_results);
 
-  if (world.rank() == 0) {
+  if (world_.rank() == 0) {
     EXPECT_TRUE(IsSorted(out));
   }
 }

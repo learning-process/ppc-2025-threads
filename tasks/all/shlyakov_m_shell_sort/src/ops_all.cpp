@@ -15,7 +15,7 @@
 namespace shlyakov_m_shell_sort_all {
 
 bool TestTaskALL::PreProcessingImpl() {
-  if (world.rank() == 0) {
+  if (world_.rank() == 0) {
     const std::size_t sz = task_data->inputs_count[0];
     auto* ptr = reinterpret_cast<int*>(task_data->inputs[0]);
     input_.assign(ptr, ptr + sz);
@@ -24,7 +24,7 @@ bool TestTaskALL::PreProcessingImpl() {
 }
 
 bool TestTaskALL::ValidationImpl() {
-  if (world.rank() == 0) {
+  if (world_.rank() == 0) {
     return task_data->inputs_count[0] == task_data->outputs_count[0];
   } else {
     return 1;
@@ -33,27 +33,27 @@ bool TestTaskALL::ValidationImpl() {
 
 bool TestTaskALL::RunImpl() {
   int size = input_.size();
-  boost::mpi::broadcast(world, size, 0);
+  boost::mpi::broadcast(world_, size, 0);
 
-  int delta = size / world.size();
-  int extra = size % world.size();
-  std::vector<int> local_sizes(world.size(), delta);
+  int delta = size / world_.size();
+  int extra = size % world_.size();
+  std::vector<int> local_sizes(world_.size(), delta);
 
-  if (world.rank() == 0) {
+  if (world_.rank() == 0) {
     for (int i = 0; i < extra; ++i) local_sizes[i]++;
   }
 
   std::vector<int> local_data;
-  if (world.rank() == 0) {
+  if (world_.rank() == 0) {
     std::vector<std::vector<int>> chunks;
     int offset = 0;
-    for (int i = 0; i < world.size(); ++i) {
+    for (int i = 0; i < world_.size(); ++i) {
       chunks.emplace_back(input_.begin() + offset, input_.begin() + offset + local_sizes[i]);
       offset += local_sizes[i];
     }
-    boost::mpi::scatter(world, chunks, local_data, 0);
+    boost::mpi::scatter(world_, chunks, local_data, 0);
   } else {
-    boost::mpi::scatter(world, local_data, 0);
+    boost::mpi::scatter(world_, local_data, 0);
   }
 
   const int n = static_cast<int>(local_data.size());
@@ -83,9 +83,9 @@ bool TestTaskALL::RunImpl() {
   }
 
   std::vector<std::vector<int>> gathered_data;
-  boost::mpi::gather(world, local_data, gathered_data, 0);
+  boost::mpi::gather(world_, local_data, gathered_data, 0);
 
-  if (world.rank() == 0) {
+  if (world_.rank() == 0) {
     output_.clear();
     for (auto& chunk : gathered_data) {
       Merge(0, output_.size() - 1, chunk.size() - 1, output_, chunk);
@@ -141,7 +141,7 @@ void Merge(int left, int mid, int right, std::vector<int>& arr, std::vector<int>
 }
 
 bool TestTaskALL::PostProcessingImpl() {
-  if (world.rank() == 0) {
+  if (world_.rank() == 0) {
     for (std::size_t idx = 0; idx < output_.size(); ++idx) {
       reinterpret_cast<int*>(task_data->outputs[0])[idx] = output_[idx];
     }
