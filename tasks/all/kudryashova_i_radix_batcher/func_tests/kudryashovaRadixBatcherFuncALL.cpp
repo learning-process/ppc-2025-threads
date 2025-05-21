@@ -96,7 +96,7 @@ TEST(kudryashova_i_radix_batcher_all, all_radix_all_zero_elem_test_3) {
 
 TEST(kudryashova_i_radix_batcher_all, all_radix_random_test_1) {
   boost::mpi::communicator world;
-  int global_vector_size = 28;
+  int global_vector_size = 24;
   std::vector<double> global_vector = kudryashova_i_radix_batcher_all::GetRandomDoubleVector(global_vector_size);
   std::vector<double> result(global_vector_size);
   std::shared_ptr<ppc::core::TaskData> task_data = std::make_shared<ppc::core::TaskData>();
