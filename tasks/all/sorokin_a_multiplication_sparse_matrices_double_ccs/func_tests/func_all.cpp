@@ -86,9 +86,8 @@ TEST(sorokin_a_multiplication_sparse_matrices_double_ccs_all, test_3x3_x_3x3) {
 
   std::shared_ptr<ppc::core::TaskData> task_data;
   sorokin_a_multiplication_sparse_matrices_double_ccs_all::CreateTaskData(task_data, m, k, n, a_values, a_row_indices,
-                                                                        a_col_ptr, b_values, b_row_indices, b_col_ptr,
-                                                                        c_values,
-                 c_row_indices, c_col_ptr);
+                                                                          a_col_ptr, b_values, b_row_indices, b_col_ptr,
+                                                                          c_values, c_row_indices, c_col_ptr);
 
   sorokin_a_multiplication_sparse_matrices_double_ccs_all::CreateAndRunTask(task_data);
 
@@ -123,8 +122,7 @@ TEST(sorokin_a_multiplication_sparse_matrices_double_ccs_all, test_2x3_x_3x2) {
   std::shared_ptr<ppc::core::TaskData> task_data;
   sorokin_a_multiplication_sparse_matrices_double_ccs_all::CreateTaskData(task_data, m, k, n, a_values, a_row_indices,
                                                                           a_col_ptr, b_values, b_row_indices, b_col_ptr,
-                                                                          c_values,
-                 c_row_indices, c_col_ptr);
+                                                                          c_values, c_row_indices, c_col_ptr);
 
   sorokin_a_multiplication_sparse_matrices_double_ccs_all::CreateAndRunTask(task_data);
 
@@ -159,8 +157,7 @@ TEST(sorokin_a_multiplication_sparse_matrices_double_ccs_all, test_3x2_x_2x4) {
   std::shared_ptr<ppc::core::TaskData> task_data;
   sorokin_a_multiplication_sparse_matrices_double_ccs_all::CreateTaskData(task_data, m, k, n, a_values, a_row_indices,
                                                                           a_col_ptr, b_values, b_row_indices, b_col_ptr,
-                                                                          c_values,
-                 c_row_indices, c_col_ptr);
+                                                                          c_values, c_row_indices, c_col_ptr);
 
   sorokin_a_multiplication_sparse_matrices_double_ccs_all::CreateAndRunTask(task_data);
 
