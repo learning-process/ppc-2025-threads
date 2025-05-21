@@ -6,6 +6,7 @@
 #include <cmath>
 #include <cstdint>
 #include <limits>
+#include <utility>
 #include <vector>
 
 #include "boost/mpi/collectives/all_reduce.hpp"
@@ -13,6 +14,7 @@
 #include "boost/mpi/collectives/gatherv.hpp"
 #include "boost/mpi/collectives/scatterv.hpp"
 #include "boost/mpi/operations.hpp"
+#include "boost/serialization/utility.hpp"
 
 bool malyshev_a_increase_contrast_by_histogram_all::TestTaskALL::PreProcessingImpl() {
   if (world_.rank() == 0) {
@@ -41,16 +43,12 @@ bool malyshev_a_increase_contrast_by_histogram_all::TestTaskALL::RunImpl() {
   int local_size = (rank == size - 1) ? (data_size - (rank * chunk_size)) : chunk_size;
 
   std::vector<int> sendcounts(size);
-  for (int i = 0; i < size; i++) {
-    sendcounts[i] = (i == size - 1) ? (data_size - (i * chunk_size)) : chunk_size;
-  }
+  std::fill(sendcounts.begin(), sendcounts.end() - 1, chunk_size);
+  sendcounts.back() = data_size - (size - 1) * chunk_size;
 
   std::vector<uint8_t> local_data;
   local_data.resize(local_size);
   boost::mpi::scatterv(world_, data_, sendcounts, local_data.data(), 0);
-
-  auto min_value = std::numeric_limits<uint8_t>::max();
-  auto max_value = std::numeric_limits<uint8_t>::min();
 
   auto local_min = std::numeric_limits<uint8_t>::max();
   auto local_max = std::numeric_limits<uint8_t>::min();
@@ -80,9 +78,16 @@ bool malyshev_a_increase_contrast_by_histogram_all::TestTaskALL::RunImpl() {
     local_max = std::max(local_max, local_data[i]);
   }
 #endif
+  std::pair<uint8_t, uint8_t> local_minmax = {local_min, local_max};
+  std::pair<uint8_t, uint8_t> global_minmax;
 
-  boost::mpi::all_reduce(world_, local_min, min_value, boost::mpi::minimum<uint8_t>());
-  boost::mpi::all_reduce(world_, local_max, max_value, boost::mpi::maximum<uint8_t>());
+  boost::mpi::all_reduce(world_, local_minmax, global_minmax,
+                         [](const std::pair<uint8_t, uint8_t>& a, const std::pair<uint8_t, uint8_t>& b) {
+                           return std::make_pair(std::min(a.first, b.first), std::max(a.second, b.second));
+                         });
+
+  auto min_value = global_minmax.first;
+  auto max_value = global_minmax.second;
 
   if (min_value == max_value) {
     return true;
