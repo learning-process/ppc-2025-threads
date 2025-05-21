@@ -87,7 +87,7 @@ TEST(kolokolova_d_integral_simpson_method_all, test_task_run) {
   };
   auto perf_results = std::make_shared<ppc::core::PerfResults>();
   auto perf_analyzer = std::make_shared<ppc::core::Perf>(test_task_all);
-  perf_analyzer->TaskRun(perf_attr, perf_results);
+  perf_analyzer->PipelineRun(perf_attr, perf_results);
 
   double ans = 927638.04;
   double error = 1.0;

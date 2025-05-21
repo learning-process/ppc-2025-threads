@@ -68,6 +68,9 @@ bool kolokolova_d_integral_simpson_method_all::TestTaskALL::ValidationImpl() {
 }
 
 bool kolokolova_d_integral_simpson_method_all::TestTaskALL::RunImpl() {
+  int rank = world_.rank();
+  int size = world_.size();
+
   // Send vector sizes to all processes
   boost::mpi::broadcast(world_, size_local_results_func_, 0);
   boost::mpi::broadcast(world_, nums_variables_, 0);
@@ -78,8 +81,8 @@ bool kolokolova_d_integral_simpson_method_all::TestTaskALL::RunImpl() {
   local_coeff_ = std::vector<double>(size_local_coeff_);
 
   // Sending vectors with coefficients and function values
-  if (world_.rank() == 0) {
-    for (int proc = 1; proc < world_.size(); proc++) {
+  if (rank == 0) {
+    for (int proc = 1; proc < size; proc++) {
       world_.communicator::send(proc, 0, results_func_.data() + (proc * size_local_results_func_),
                                 size_local_results_func_);
     }
@@ -88,8 +91,8 @@ bool kolokolova_d_integral_simpson_method_all::TestTaskALL::RunImpl() {
     world_.communicator::recv(0, 0, local_results_func_.data(), size_local_results_func_);
   }
 
-  if (world_.rank() == 0) {
-    for (int proc = 1; proc < world_.size(); proc++) {
+  if (rank == 0) {
+    for (int proc = 1; proc < size; proc++) {
       world_.communicator::send(proc, 0, vec_coeff_.data() + (proc * size_local_coeff_), size_local_coeff_);
     }
     local_coeff_ = std::vector<double>(vec_coeff_.begin(), vec_coeff_.begin() + size_local_coeff_);
@@ -105,15 +108,15 @@ bool kolokolova_d_integral_simpson_method_all::TestTaskALL::RunImpl() {
 
   boost::mpi::gather(world_, local_results_func_.data(), size_local_results_func_, results_func_, 0);
 
-  if (world_.rank() == 0) {
+  if (rank == 0) {
     ApplyCoefficientIteration();
   }
 
   local_results_func_ = std::vector<double>(size_local_results_func_);
   local_size_step_ = std::vector<double>(size_local_size_step_);
 
-  if (world_.rank() == 0) {
-    for (int proc = 1; proc < world_.size(); proc++) {
+  if (rank == 0) {
+    for (int proc = 1; proc < size; proc++) {
       world_.communicator::send(proc, 0, results_func_.data() + (proc * size_local_results_func_),
                                 size_local_results_func_);
     }
@@ -122,8 +125,8 @@ bool kolokolova_d_integral_simpson_method_all::TestTaskALL::RunImpl() {
     world_.communicator::recv(0, 0, local_results_func_.data(), size_local_results_func_);
   }
 
-  if (world_.rank() == 0) {
-    for (int proc = 1; proc < world_.size(); proc++) {
+  if (rank == 0) {
+    for (int proc = 1; proc < size; proc++) {
       world_.communicator::send(proc, 0, size_step_.data(), size_local_size_step_);
     }
     local_size_step_ = std::vector<double>(size_step_.begin(), size_step_.begin() + size_local_size_step_);
@@ -149,7 +152,7 @@ bool kolokolova_d_integral_simpson_method_all::TestTaskALL::RunImpl() {
 
   boost::mpi::reduce(world_, local_results_output_, result_output_, std::plus(), 0);
 
-  if (world_.rank() == 0) {
+  if (rank == 0) {
     // divided by 3 to the power
     result_output_ /= pow(3, nums_variables_);
   }
