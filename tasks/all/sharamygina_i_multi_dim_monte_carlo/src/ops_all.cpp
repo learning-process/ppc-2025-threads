@@ -1,7 +1,10 @@
 #include "all/sharamygina_i_multi_dim_monte_carlo/include/ops_all.h"
 
+#include <omp.h>
+
 #include <algorithm>
 #include <boost/mpi/collectives.hpp>
+#include <boost/serialization/vector.hpp>
 #include <cstdlib>
 #include <ctime>
 #include <functional>
