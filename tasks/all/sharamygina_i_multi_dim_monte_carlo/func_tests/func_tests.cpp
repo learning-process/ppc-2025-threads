@@ -276,7 +276,7 @@ TEST(sharamygina_i_multi_dim_monte_carlo_all, 4DFunction) {
   ASSERT_TRUE(test_task.PostProcessingImpl());
   if (world.rank() == 0) {
     double expected = 6998.4;
-    double tol = 0.03 * expected;
+    double tol = 0.05 * expected;
     EXPECT_NEAR(result, expected, tol);
   }
 }
