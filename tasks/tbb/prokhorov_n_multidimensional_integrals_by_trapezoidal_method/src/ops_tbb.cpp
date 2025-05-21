@@ -30,6 +30,9 @@ bool TestTaskTBB::PreProcessingImpl() {
 }
 
 bool TestTaskTBB::ValidationImpl() {
+  if (task_data->inputs_count[0] == 0 || task_data->inputs_count[1] == 0 || task_data->inputs_count[2] == 0) {
+    return false;
+  }
   return (task_data->inputs_count[0] == task_data->inputs_count[1]) &&
          (task_data->inputs_count[0] / sizeof(double) == task_data->inputs_count[2] / sizeof(int));
 }
@@ -43,56 +46,59 @@ class RecursiveIntegrator {
       : func_(func), lower_(lower), upper_(upper), steps_(steps) {}
 
   double Compute() {
-    std::vector<double> point;
-    return ParallelTrapezoidalIntegration(0, point);
+    std::vector<double> point(lower_.size());
+    std::vector<double> h(lower_.size());
+    for (size_t i = 0; i < lower_.size(); ++i) {
+      h[i] = (upper_[i] - lower_[i]) / steps_[i];
+    }
+    return ParallelTrapezoidalIntegration(0, point, h);
   }
 
  private:
-  double ParallelTrapezoidalIntegration(size_t current_dim, std::vector<double> point) {
+  double ParallelTrapezoidalIntegration(size_t current_dim, std::vector<double>& point, const std::vector<double>& h) {
     if (current_dim == lower_.size()) {
       return func_(point);
     }
 
-    const double h = (upper_[current_dim] - lower_[current_dim]) / steps_[current_dim];
     double sum = 0.0;
-
-    point.push_back(0.0);
 
     if (current_dim == 0) {
       sum = tbb::parallel_reduce(
           tbb::blocked_range<int>(0, steps_[current_dim] + 1), 0.0,
           [&](const tbb::blocked_range<int>& r, double local_sum) {
             for (int i = r.begin(); i < r.end(); ++i) {
-              point[current_dim] = lower_[current_dim] + i * h;
+              point[current_dim] = lower_[current_dim] + i * h[current_dim];
               double weight = (i == 0 || i == steps_[current_dim]) ? 0.5 : 1.0;
-              local_sum += weight * SequentialTrapezoidalIntegration(current_dim + 1, point);
+              local_sum += weight * SequentialTrapezoidalIntegration(current_dim + 1, point, h);
             }
             return local_sum;
           },
           std::plus<double>());
     } else {
-      sum = SequentialTrapezoidalIntegration(current_dim, point);
+      for (int i = 0; i <= steps_[current_dim]; ++i) {
+        point[current_dim] = lower_[current_dim] + i * h[current_dim];
+        double weight = (i == 0 || i == steps_[current_dim]) ? 0.5 : 1.0;
+        sum += weight * SequentialTrapezoidalIntegration(current_dim + 1, point, h);
+      }
     }
 
-    return sum * h;
+    return sum * h[current_dim];
   }
 
-  double SequentialTrapezoidalIntegration(size_t current_dim, std::vector<double>& point) {
+  double SequentialTrapezoidalIntegration(size_t current_dim, std::vector<double>& point,
+                                          const std::vector<double>& h) {
     if (current_dim == lower_.size()) {
       return func_(point);
     }
 
-    const double h = (upper_[current_dim] - lower_[current_dim]) / steps_[current_dim];
     double sum = 0.0;
-
-    point.push_back(0.0);
     for (int i = 0; i <= steps_[current_dim]; ++i) {
-      point[current_dim] = lower_[current_dim] + i * h;
+      point[current_dim] = lower_[current_dim] + i * h[current_dim];
       double weight = (i == 0 || i == steps_[current_dim]) ? 0.5 : 1.0;
-      sum += weight * SequentialTrapezoidalIntegration(current_dim + 1, point);
+      sum += weight * SequentialTrapezoidalIntegration(current_dim + 1, point, h);
     }
 
-    return sum * h;
+    return sum * h[current_dim];
   }
 
   const std::function<double(const std::vector<double>&)>& func_;
