@@ -9,11 +9,6 @@
 #include "omp/dormidontov_e_kannon/include/ops_omp.hpp"
 
 namespace dormidontov_e_kannon_omp {
-matrix GenMatrix(size_t n);
-matrix NaiveMultipilication(const matrix& A, const matrix& B, size_t n);
-}  // namespace dormidontov_e_kannon_omp
-
-namespace dormidontov_e_kannon_omp {
 matrix GenMatrix(size_t n) {
   matrix mat(n * n);
   std::mt19937 gen(1337);

@@ -13,6 +13,9 @@ inline size_t idx(size_t row, size_t column, size_t n) { return (row * n) + colu
 
 using matrix = std::vector<double>;
 
+matrix GenMatrix(size_t n);
+matrix NaiveMultipilication(const matrix& A, const matrix& B, size_t n);
+
 class OmpTask : public ppc::core::Task {
  public:
   explicit OmpTask(std::shared_ptr<ppc::core::TaskData> task_data) : Task(std::move(task_data)) {}
