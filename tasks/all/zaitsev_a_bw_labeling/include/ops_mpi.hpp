@@ -37,6 +37,8 @@ class Labeler : public ppc::core::Task {
   void Share();
   void Prepare();
   void Collect();
+  void Sequenize();
+  void UniteOnBorders();
 
   void LabelingRasterScan(Ordinals& ordinals);
   void GlobalizeLabels(Ordinals& ordinals);
