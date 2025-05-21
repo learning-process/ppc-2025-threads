@@ -248,15 +248,19 @@ TEST(petrov_o_vertical_image_filtration_all, test_gaussian_filter_random) {
   constexpr size_t kWidth = 10;
   constexpr size_t kHeight = 10;
 
-  std::vector<int> in = GenerateRandomInput(kWidth, kHeight);
   std::vector<int> out((kWidth - 2) * (kHeight - 2), 0);
 
   auto task_data_all = std::make_shared<ppc::core::TaskData>();
-  task_data_all->inputs.emplace_back(reinterpret_cast<uint8_t *>(in.data()));
-  task_data_all->inputs_count.emplace_back(kWidth);
-  task_data_all->inputs_count.emplace_back(kHeight);
-  task_data_all->outputs.emplace_back(reinterpret_cast<uint8_t *>(out.data()));
-  task_data_all->outputs_count.emplace_back(out.size());
+
+  if (test_task_all.GetRank() == 0) {
+    std::vector<int> in = GenerateRandomInput(kWidth, kHeight);
+
+    task_data_all->inputs.emplace_back(reinterpret_cast<uint8_t *>(in.data()));
+    task_data_all->inputs_count.emplace_back(kWidth);
+    task_data_all->inputs_count.emplace_back(kHeight);
+    task_data_all->outputs.emplace_back(reinterpret_cast<uint8_t *>(out.data()));
+    task_data_all->outputs_count.emplace_back(out.size());
+  }
 
   petrov_o_vertical_image_filtration_all::TaskAll test_task_all(task_data_all);
   ASSERT_TRUE(test_task_all.Validation());
