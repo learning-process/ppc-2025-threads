@@ -117,8 +117,8 @@ bool deryabin_m_hoare_sort_simple_merge_mpi::HoareSortTaskMPI::RunImpl() {
     HoareSort(input_array_A_, count * min_chunk_size_, ((count + 1) * min_chunk_size_) - 1);
   });
   for (size_t i = 0; i < static_cast<size_t>(std::bit_width(chunk_count_) -
-                             1);  // Вычисялем сколько уровней слияния потребуется как логарифм по
-                                  // основанию 2 от числа частей chunk_count_
+                                             1);  // Вычисялем сколько уровней слияния потребуется как логарифм по
+                                                  // основанию 2 от числа частей chunk_count_
        ++i) {  // На каждом уровне сливаются пары соседних блоков размером min_chunk_size_ × 2^i
     parallel_for(
         0, chunk_count_ >> (i + 1), [this, i](size_t j) {  // Распределение слияний между потоками на каждом уровне
