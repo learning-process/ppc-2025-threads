@@ -14,7 +14,7 @@ bool dormidontov_e_kannon_seq::SeqTask::PreProcessingImpl() {
   A_buffer_.assign(matrix_size_, 0);
   B_buffer_.assign(matrix_size_, 0);
   C_.assign(matrix_size_, 0);
-  
+
   return true;
 }
 
@@ -73,9 +73,8 @@ void dormidontov_e_kannon_seq::SeqTask::IterationShift() {
 
 bool dormidontov_e_kannon_seq::SeqTask::RunImpl() {
   StartingShift();
-  
-  for (size_t iter = 0; iter < num_blocks_; ++iter) {
 
+  for (size_t iter = 0; iter < num_blocks_; ++iter) {
     for (size_t block_i = 0; block_i < side_size_; block_i += block_size_) {
       for (size_t block_j = 0; block_j < side_size_; block_j += block_size_) {
         for (size_t i = block_i; i < block_i + block_size_; i++) {
