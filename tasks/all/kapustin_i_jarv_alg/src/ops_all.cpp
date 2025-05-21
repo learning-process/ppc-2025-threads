@@ -9,6 +9,46 @@
 #include <utility>
 #include <vector>
 
+std::pair<int, int> kapustin_i_jarv_alg_all::TestTaskAll::FindLocalBestOMP(size_t start, size_t end,
+                                                                           size_t current_index,
+                                                                           const std::pair<int, int>& init_best) {
+  std::pair<int, int> local_best = init_best;
+
+#pragma omp parallel
+  {
+    std::pair<int, int> thread_best = local_best;
+
+#pragma omp for nowait
+    for (int i = static_cast<int>(start); i < static_cast<int>(end); ++i) {
+      if (static_cast<size_t>(i) == current_index) {
+        continue;
+      }
+
+      int orient = Orientation(input_[current_index], thread_best, input_[i]);
+      if (orient == 0) {
+        int dist_best = CalculateDistance(input_[current_index], thread_best);
+        int dist_i = CalculateDistance(input_[current_index], input_[i]);
+        if (dist_i > dist_best) {
+          thread_best = input_[i];
+        }
+      } else if (orient > 0) {
+        thread_best = input_[i];
+      }
+    }
+
+#pragma omp critical
+    {
+      int orient = Orientation(input_[current_index], local_best, thread_best);
+      if (orient > 0 || (orient == 0 && CalculateDistance(input_[current_index], thread_best) >
+                                            CalculateDistance(input_[current_index], local_best))) {
+        local_best = thread_best;
+      }
+    }
+  }
+
+  return local_best;
+}
+
 int kapustin_i_jarv_alg_all::TestTaskAll::CalculateDistance(const std::pair<int, int>& p1,
                                                             const std::pair<int, int>& p2) {
   return static_cast<int>(std::pow(p1.first - p2.first, 2) + std::pow(p1.second - p2.second, 2));
@@ -48,7 +88,8 @@ bool kapustin_i_jarv_alg_all::TestTaskAll::PreProcessingImpl() {
 bool kapustin_i_jarv_alg_all::TestTaskAll::ValidationImpl() { return !task_data->inputs.empty(); }
 
 bool kapustin_i_jarv_alg_all::TestTaskAll::RunImpl() {
-  int rank, size;
+  int rank = 0;
+  int size = 0;
   MPI_Comm_rank(MPI_COMM_WORLD, &rank);
   MPI_Comm_size(MPI_COMM_WORLD, &size);
 
@@ -63,40 +104,10 @@ bool kapustin_i_jarv_alg_all::TestTaskAll::RunImpl() {
 
     size_t chunk_size = input_.size() / size;
     size_t remainder = input_.size() % size;
-    size_t start = rank * chunk_size + std::min(static_cast<size_t>(rank), remainder);
+    size_t start = (rank * chunk_size) + std::min(static_cast<size_t>(rank), remainder);
     size_t end = start + chunk_size + (rank < static_cast<int>(remainder) ? 1 : 0);
 
-#pragma omp parallel
-    {
-      std::pair<int, int> thread_best = local_best;
-
-#pragma omp for nowait
-      for (int i = static_cast<int>(start); i < static_cast<int>(end); ++i) {
-        if (static_cast<size_t>(i) == current_index) {
-          continue;
-        }
-
-        int orient = Orientation(input_[current_index], thread_best, input_[i]);
-        if (orient == 0) {
-          int dist_best = CalculateDistance(input_[current_index], thread_best);
-          int dist_i = CalculateDistance(input_[current_index], input_[i]);
-          if (dist_i > dist_best) {
-            thread_best = input_[i];
-          }
-        } else if (orient > 0) {
-          thread_best = input_[i];
-        }
-      }
-
-#pragma omp critical
-      {
-        int orient = Orientation(input_[current_index], local_best, thread_best);
-        if (orient > 0 || (orient == 0 && CalculateDistance(input_[current_index], thread_best) >
-                                              CalculateDistance(input_[current_index], local_best))) {
-          local_best = thread_best;
-        }
-      }
-    }
+    local_best = FindLocalBestOMP(start, end, current_index, local_best);
 
     int local_data[3] = {local_best.first, local_best.second, CalculateDistance(current_point_, local_best)};
     int* all_data = new int[3 * size];
@@ -108,8 +119,8 @@ bool kapustin_i_jarv_alg_all::TestTaskAll::RunImpl() {
 
     for (int i = 0; i < size; ++i) {
       int x = all_data[i * 3];
-      int y = all_data[i * 3 + 1];
-      int dist = all_data[i * 3 + 2];
+      int y = all_data[(i * 3) + 1];
+      int dist = all_data[(i * 3) + 2];
       std::pair<int, int> candidate = {x, y};
 
       int orient = Orientation(current_point_, global_best, candidate);

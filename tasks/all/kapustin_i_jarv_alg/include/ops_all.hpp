@@ -23,6 +23,8 @@ class TestTaskAll : public ppc::core::Task {
   std::pair<int, int> current_point_;
   std::pair<int, int> next_point_;
   size_t leftmost_index_;
+  std::pair<int, int> FindLocalBestOMP(size_t start, size_t end, size_t current_index,
+                                       const std::pair<int, int>& init_best);
 
   [[nodiscard]] static int Orientation(const std::pair<int, int>& p, const std::pair<int, int>& q,
                                        const std::pair<int, int>& r);
