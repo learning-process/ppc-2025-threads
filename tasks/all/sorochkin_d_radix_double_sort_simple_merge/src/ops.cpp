@@ -169,7 +169,7 @@ bool sorochkin_d_radix_double_sort_simple_merge_all::SortTask::RunImpl() {
     const auto active_threads = numthreads - i;
 
 #pragma omp parallel for if (multithreaded)
-    for (std::size_t j = 0; j < active_threads; j += 2 * i) {
+    for (int j = 0; j < static_cast<int>(active_threads); j += 2 * static_cast<int>(i)) {
       auto &left = chunks[j];
       auto &right = chunks[j + i];
 
