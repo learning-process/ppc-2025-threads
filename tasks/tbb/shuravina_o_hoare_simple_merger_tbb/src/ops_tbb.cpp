@@ -2,7 +2,9 @@
 
 #include <algorithm>
 #include <cstddef>
+#include <iostream>
 #include <memory>
+#include <stdexcept>
 #include <utility>
 #include <vector>
 
@@ -11,7 +13,7 @@
 
 namespace shuravina_o_hoare_simple_merger_tbb {
 
-HoareSortTBB::HoareSortTBB(std::shared_ptr<ppc::core::TaskData> task_data) : Task(std::move(task_data)) {}
+HoareSortTBB::HoareSortTBB(std::shared_ptr<ppc::core::TaskData> task_data) : Task(std::move(task_data)), data_() {}
 
 bool HoareSortTBB::Validation() { return ValidationImpl(); }
 
@@ -19,10 +21,21 @@ bool HoareSortTBB::PreProcessing() { return PreProcessingImpl(); }
 
 bool HoareSortTBB::Run() { return RunImpl(); }
 
-bool HoareSortTBB::PostProcessing() { return PostProcessingImpl(); }
+bool HoareSortTBB::PostProcessing() {
+  bool result = PostProcessingImpl();
+  data_.clear();
+  data_.shrink_to_fit();
+  return result;
+}
 
 bool HoareSortTBB::ValidationImpl() {
   if (!task_data) {
+    return false;
+  }
+  if (task_data->inputs.empty() || task_data->outputs.empty()) {
+    return false;
+  }
+  if (!task_data->inputs[0] || !task_data->outputs[0]) {
     return false;
   }
   return task_data->inputs_count.size() == 1 && task_data->outputs_count.size() == 1 &&
@@ -31,14 +44,18 @@ bool HoareSortTBB::ValidationImpl() {
 
 bool HoareSortTBB::PreProcessingImpl() {
   try {
-    if (!task_data || task_data->inputs.empty() || task_data->inputs_count.empty()) {
+    if (!ValidationImpl()) {
       return false;
     }
 
     auto* input_data = reinterpret_cast<int*>(task_data->inputs[0]);
     data_ = std::vector<int>(input_data, input_data + task_data->inputs_count[0]);
     return true;
+  } catch (const std::exception& e) {
+    std::cerr << "PreProcessing error: " << e.what() << std::endl;
+    return false;
   } catch (...) {
+    std::cerr << "Unknown PreProcessing error" << std::endl;
     return false;
   }
 }
@@ -51,26 +68,36 @@ bool HoareSortTBB::RunImpl() {
   try {
     ParallelQuickSort(data_.data(), 0, data_.size() - 1);
     return true;
+  } catch (const std::exception& e) {
+    std::cerr << "Run error: " << e.what() << std::endl;
+    return false;
   } catch (...) {
+    std::cerr << "Unknown Run error" << std::endl;
     return false;
   }
 }
 
 bool HoareSortTBB::PostProcessingImpl() {
   try {
-    if (!task_data || task_data->outputs.empty()) {
+    if (!ValidationImpl()) {
       return false;
     }
 
     auto* output_data = reinterpret_cast<int*>(task_data->outputs[0]);
     std::ranges::copy(data_, output_data);
     return true;
+  } catch (const std::exception& e) {
+    std::cerr << "PostProcessing error: " << e.what() << std::endl;
+    return false;
   } catch (...) {
+    std::cerr << "Unknown PostProcessing error" << std::endl;
     return false;
   }
 }
 
 std::size_t HoareSortTBB::Partition(int* arr, std::size_t left, std::size_t right) {
+  if (right == 0) return 0;
+
   int pivot = arr[(left + right) / 2];
   while (left <= right) {
     while (arr[left] < pivot) {
@@ -120,12 +147,20 @@ void HoareSortTBB::ParallelQuickSort(int* arr, std::size_t left, std::size_t rig
 
   std::size_t p = Partition(arr, left, right);
 
-  if (p > 0 && left < p - 1 && p < right) {
-    tbb::parallel_invoke([&] { ParallelQuickSort(arr, left, p - 1); }, [&] { ParallelQuickSort(arr, p, right); });
-  } else if (p > 0 && left < p - 1) {
-    ParallelQuickSort(arr, left, p - 1);
-  } else if (p < right) {
-    ParallelQuickSort(arr, p, right);
+  try {
+    if (p > 0 && left < p - 1 && p < right) {
+      tbb::parallel_invoke([&] { ParallelQuickSort(arr, left, p - 1); }, [&] { ParallelQuickSort(arr, p, right); });
+    } else if (p > 0 && left < p - 1) {
+      ParallelQuickSort(arr, left, p - 1);
+    } else if (p < right) {
+      ParallelQuickSort(arr, p, right);
+    }
+  } catch (const std::exception& e) {
+    std::cerr << "Exception in ParallelQuickSort: " << e.what() << std::endl;
+    throw;
+  } catch (...) {
+    std::cerr << "Unknown exception in ParallelQuickSort" << std::endl;
+    throw;
   }
 }
 
