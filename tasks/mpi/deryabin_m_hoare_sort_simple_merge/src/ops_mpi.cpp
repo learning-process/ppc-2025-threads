@@ -7,7 +7,7 @@
 #include <thread>
 #include <vector>
 
-#include "core/util/include/util.hpp"
+#include "oneapi/tbb/parallel_for.h"
 
 void deryabin_m_hoare_sort_simple_merge_mpi::HoareSort(std::vector<double>& a, size_t first, size_t last) {
   if (first >= last) {
