@@ -20,8 +20,8 @@ class TaskAll : public ppc::core::Task {
   [[nodiscard]] int GetRank() const { return world_.rank(); }
 
  private:
-  void apply_gaussian_filter_tbb(std::vector<int>& local_output_ref, size_t my_start_output_row_val,
-                                 size_t my_num_rows_val, size_t output_cols_val);
+  void ApplyGaussianFilterTbb(std::vector<int>& local_output_ref, size_t my_start_output_row_val,
+                              size_t my_num_rows_val, size_t output_cols_val);
   std::vector<int> input_;
   std::vector<int> output_;
   size_t width_{}, height_{};

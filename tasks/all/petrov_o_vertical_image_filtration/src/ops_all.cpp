@@ -5,10 +5,7 @@
 #include <oneapi/tbb/parallel_for.h>
 #include <oneapi/tbb/task_arena.h>
 
-#include <algorithm>
 #include <boost/mpi/collectives.hpp>
-#include <boost/mpi/communicator.hpp>
-#include <boost/mpi/environment.hpp>
 #include <cmath>
 #include <cstddef>
 #include <utility>
@@ -47,8 +44,8 @@ bool TaskAll::ValidationImpl() {
   return task_data->outputs_count[0] == (width - 2) * (height - 2);
 }
 
-void TaskAll::apply_gaussian_filter_tbb(std::vector<int> &local_output_ref, size_t my_start_output_row_val,
-                                        size_t my_num_rows_val, size_t output_cols_val) {
+void TaskAll::ApplyGaussianFilterTbb(std::vector<int> &local_output_ref, size_t my_start_output_row_val,
+                                     size_t my_num_rows_val, size_t output_cols_val) {
   if (my_num_rows_val == 0) {
     return;
   }
@@ -73,7 +70,7 @@ void TaskAll::apply_gaussian_filter_tbb(std::vector<int> &local_output_ref, size
           for (int ki = -1; ki <= 1; ++ki) {
             for (int kj = -1; kj <= 1; ++kj) {
               sum += static_cast<float>(input_[((i_in + ki) * width_) + (j_in + kj)]) *
-                     gaussian_kernel_[static_cast<size_t>((ki + 1) * 3 + (kj + 1))];
+                     gaussian_kernel_[static_cast<size_t>(((ki + 1) * 3) + (kj + 1))];
             }
           }
           local_output_ref[(local_i_out * output_cols_val) + j_out] = static_cast<int>(sum);
@@ -112,7 +109,7 @@ bool TaskAll::RunImpl() {
     local_output.resize(my_num_rows * output_cols);
   }
 
-  apply_gaussian_filter_tbb(local_output, my_start_output_row, my_num_rows, output_cols);
+  ApplyGaussianFilterTbb(local_output, my_start_output_row, my_num_rows, output_cols);
 
   if (total_output_rows > 0) {
     if (rank == 0) {
