@@ -25,10 +25,11 @@ std::vector<double> kudryashova_i_radix_batcher_all::GetRandomDoubleVector(int s
 TEST(kudryashova_i_radix_batcher_all, all_radix_test_1) {
   boost::mpi::communicator world;
   int global_vector_size = 3;
-  std::vector<double> global_vector = {5.69, -2.11, 0.52};
+  std::vector<double> global_vector;
   std::vector<double> result(global_vector_size);
   std::shared_ptr<ppc::core::TaskData> task_data = std::make_shared<ppc::core::TaskData>();
   if (world.rank() == 0) {
+    global_vector = {5.69, -2.11, 0.52};
     task_data->inputs.emplace_back(reinterpret_cast<uint8_t *>(global_vector.data()));
     task_data->inputs_count.emplace_back(global_vector.size());
     task_data->outputs.emplace_back(reinterpret_cast<uint8_t *>(result.data()));
@@ -49,11 +50,12 @@ TEST(kudryashova_i_radix_batcher_all, all_radix_test_1) {
 TEST(kudryashova_i_radix_batcher_all, all_radix_test_2) {
   boost::mpi::communicator world;
   int global_vector_size = 11;
-  std::vector<double> global_vector = {-8.55,   1.85,   -4.0,   2.81828, 8.77,   -5.56562,
-                                       -15.823, -6.971, 3.1615, 0.0,     10.1415};
+  std::vector<double> global_vector;
   std::vector<double> result(global_vector_size);
   std::shared_ptr<ppc::core::TaskData> task_data = std::make_shared<ppc::core::TaskData>();
   if (world.rank() == 0) {
+    global_vector = {-8.55,   1.85,   -4.0,   2.81828, 8.77,   -5.56562,
+                                         -15.823, -6.971, 3.1615, 0.0,     10.1415};
     task_data->inputs.emplace_back(reinterpret_cast<uint8_t *>(global_vector.data()));
     task_data->inputs_count.emplace_back(global_vector.size());
     task_data->outputs.emplace_back(reinterpret_cast<uint8_t *>(result.data()));

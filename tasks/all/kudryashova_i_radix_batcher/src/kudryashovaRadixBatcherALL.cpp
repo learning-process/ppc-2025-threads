@@ -211,7 +211,14 @@ bool kudryashova_i_radix_batcher_all::TestTaskALL::RunImpl() {
 
 bool kudryashova_i_radix_batcher_all::TestTaskALL::ValidationImpl() {
   if (world_.rank() == 0) {
-    return true;
+    if (task_data->inputs.empty() || task_data->inputs[0] == nullptr || task_data->inputs_count.empty() ||
+        task_data->inputs_count[0] == 0) {
+      return false;
+    }
+    if (task_data->outputs.empty() || task_data->outputs[0] == nullptr || task_data->outputs_count.empty() ||
+        task_data->outputs_count[0] != task_data->inputs_count[0]) {
+      return false;
+    }
   }
   return true;
 }
