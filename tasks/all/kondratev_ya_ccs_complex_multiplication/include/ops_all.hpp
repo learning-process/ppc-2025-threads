@@ -71,7 +71,7 @@ class TestTaskALL : public ppc::core::Task {
   CCSMatrix a_, b_, c_;
   boost::mpi::communicator world_;
 
-  [[nodiscard]] std::pair<int, int> GetLocalColumnRange(int rank, int total_cols);
+  [[nodiscard]] static std::pair<int, int> GetLocalColumnRange(int rank, int total_cols);
   void CreateLocalMatrix(int rank, int size, const std::vector<std::pair<int, int>>& all_local_cols, CCSMatrix& out);
   void MergeResults(const std::vector<CCSMatrix>& all_results, const std::vector<std::pair<int, int>>& all_local_cols);
   static void ProcessBlocksInParallel(const std::vector<CCSMatrix>& all_results,

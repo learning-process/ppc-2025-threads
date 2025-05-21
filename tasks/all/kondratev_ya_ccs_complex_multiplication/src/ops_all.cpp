@@ -3,6 +3,7 @@
 #include <algorithm>
 #include <boost/mpi/collectives/broadcast.hpp>
 #include <boost/mpi/collectives/gather.hpp>
+#include <boost/mpi/communicator.hpp>
 #include <cmath>
 #include <complex>
 #include <cstddef>
@@ -31,7 +32,9 @@ bool kondratev_ya_ccs_complex_multiplication_all::IsEqual(const std::complex<dou
 
 std::pair<int, int> kondratev_ya_ccs_complex_multiplication_all::TestTaskALL::GetLocalColumnRange(int rank,
                                                                                                   int total_cols) {
-  int world_size = world_.size();
+  boost::mpi::communicator world;
+  int world_size = world.size();
+
   int cols_per_proc = total_cols / world_size;
   int remainder = total_cols % world_size;
 
