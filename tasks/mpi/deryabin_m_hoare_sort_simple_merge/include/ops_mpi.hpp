@@ -6,7 +6,7 @@
 
 #include "core/task/include/task.hpp"
 
-namespace deryabin_m_hoare_sort_simple_merge_stl {
+namespace deryabin_m_hoare_sort_simple_merge_mpi {
 
 void HoareSort(std::vector<double>& a, size_t first, size_t last);
 
@@ -24,9 +24,9 @@ class HoareSortTaskSequential : public ppc::core::Task {
   size_t min_chunk_size_;
   size_t chunk_count_;
 };
-class HoareSortTaskSTL : public ppc::core::Task {
+class HoareSortTaskMPI : public ppc::core::Task {
  public:
-  explicit HoareSortTaskSTL(ppc::core::TaskDataPtr task_data) : Task(std::move(task_data)) {}
+  explicit HoareSortTaskMPI(ppc::core::TaskDataPtr task_data) : Task(std::move(task_data)) {}
   bool PreProcessingImpl() override;
   bool ValidationImpl() override;
   bool RunImpl() override;
@@ -38,4 +38,4 @@ class HoareSortTaskSTL : public ppc::core::Task {
   size_t min_chunk_size_;
   size_t chunk_count_;
 };
-}  // namespace deryabin_m_hoare_sort_simple_merge_stl
+}  // namespace deryabin_m_hoare_sort_simple_merge_mpi
