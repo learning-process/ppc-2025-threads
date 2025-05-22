@@ -19,17 +19,17 @@ TEST(kharin_m_multidimensional_integral_calc_all, test_pipeline_run) {
   std::vector<double> out(1, 0.0);
   double expected_out = static_cast<double>(kDim * kDim) * 0.01 * 0.01;
 
-  auto task_data_stl = std::make_shared<ppc::core::TaskData>();
-  task_data_stl->inputs.emplace_back(reinterpret_cast<uint8_t*>(in.data()));
-  task_data_stl->inputs_count.emplace_back(in.size());
-  task_data_stl->inputs.emplace_back(reinterpret_cast<uint8_t*>(grid_sizes.data()));
-  task_data_stl->inputs_count.emplace_back(grid_sizes.size());
-  task_data_stl->inputs.emplace_back(reinterpret_cast<uint8_t*>(step_sizes.data()));
-  task_data_stl->inputs_count.emplace_back(step_sizes.size());
-  task_data_stl->outputs.emplace_back(reinterpret_cast<uint8_t*>(out.data()));
-  task_data_stl->outputs_count.emplace_back(out.size());
+  auto task_data_all = std::make_shared<ppc::core::TaskData>();
+  task_data_all->inputs.emplace_back(reinterpret_cast<uint8_t*>(in.data()));
+  task_data_all->inputs_count.emplace_back(in.size());
+  task_data_all->inputs.emplace_back(reinterpret_cast<uint8_t*>(grid_sizes.data()));
+  task_data_all->inputs_count.emplace_back(grid_sizes.size());
+  task_data_all->inputs.emplace_back(reinterpret_cast<uint8_t*>(step_sizes.data()));
+  task_data_all->inputs_count.emplace_back(step_sizes.size());
+  task_data_all->outputs.emplace_back(reinterpret_cast<uint8_t*>(out.data()));
+  task_data_all->outputs_count.emplace_back(out.size());
 
-  auto test_task_stluential = std::make_shared<kharin_m_multidimensional_integral_calc_all::TaskALL>(task_data_stl);
+  auto test_task_alluential = std::make_shared<kharin_m_multidimensional_integral_calc_all::TaskALL>(task_data_all);
   auto perf_attr = std::make_shared<ppc::core::PerfAttr>();
   perf_attr->num_running = 10;  // Количество запусков для усреднения
   const auto t0 = std::chrono::high_resolution_clock::now();
@@ -41,7 +41,7 @@ TEST(kharin_m_multidimensional_integral_calc_all, test_pipeline_run) {
 
   auto perf_results = std::make_shared<ppc::core::PerfResults>();
 
-  auto perf_analyzer = std::make_shared<ppc::core::Perf>(test_task_stluential);
+  auto perf_analyzer = std::make_shared<ppc::core::Perf>(test_task_alluential);
   perf_analyzer->PipelineRun(perf_attr, perf_results);
   ppc::core::Perf::PrintPerfStatistic(perf_results);
 
@@ -57,16 +57,16 @@ TEST(kharin_m_multidimensional_integral_calc_all, test_task_run) {
   std::vector<double> out(1, 0.0);
   double expected_out = static_cast<double>(kDim * kDim) * 0.01 * 0.01;
 
-  auto task_data_stl = std::make_shared<ppc::core::TaskData>();
-  task_data_stl->inputs.emplace_back(reinterpret_cast<uint8_t*>(in.data()));
-  task_data_stl->inputs_count.emplace_back(in.size());
-  task_data_stl->inputs.emplace_back(reinterpret_cast<uint8_t*>(grid_sizes.data()));
-  task_data_stl->inputs_count.emplace_back(grid_sizes.size());
-  task_data_stl->inputs.emplace_back(reinterpret_cast<uint8_t*>(step_sizes.data()));
-  task_data_stl->inputs_count.emplace_back(step_sizes.size());
-  task_data_stl->outputs.emplace_back(reinterpret_cast<uint8_t*>(out.data()));
-  task_data_stl->outputs_count.emplace_back(out.size());
-  auto test_task_stluential = std::make_shared<kharin_m_multidimensional_integral_calc_all::TaskALL>(task_data_stl);
+  auto task_data_all = std::make_shared<ppc::core::TaskData>();
+  task_data_all->inputs.emplace_back(reinterpret_cast<uint8_t*>(in.data()));
+  task_data_all->inputs_count.emplace_back(in.size());
+  task_data_all->inputs.emplace_back(reinterpret_cast<uint8_t*>(grid_sizes.data()));
+  task_data_all->inputs_count.emplace_back(grid_sizes.size());
+  task_data_all->inputs.emplace_back(reinterpret_cast<uint8_t*>(step_sizes.data()));
+  task_data_all->inputs_count.emplace_back(step_sizes.size());
+  task_data_all->outputs.emplace_back(reinterpret_cast<uint8_t*>(out.data()));
+  task_data_all->outputs_count.emplace_back(out.size());
+  auto test_task_alluential = std::make_shared<kharin_m_multidimensional_integral_calc_all::TaskALL>(task_data_all);
   auto perf_attr = std::make_shared<ppc::core::PerfAttr>();
   perf_attr->num_running = 10;  // Количество запусков для усреднения
   const auto t0 = std::chrono::high_resolution_clock::now();
@@ -78,7 +78,7 @@ TEST(kharin_m_multidimensional_integral_calc_all, test_task_run) {
 
   auto perf_results = std::make_shared<ppc::core::PerfResults>();
 
-  auto perf_analyzer = std::make_shared<ppc::core::Perf>(test_task_stluential);
+  auto perf_analyzer = std::make_shared<ppc::core::Perf>(test_task_alluential);
   perf_analyzer->TaskRun(perf_attr, perf_results);
   ppc::core::Perf::PrintPerfStatistic(perf_results);
 

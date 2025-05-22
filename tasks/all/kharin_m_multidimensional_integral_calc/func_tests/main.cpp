@@ -18,17 +18,17 @@ TEST(kharin_m_multidimensional_integral_calc_all, test_integral_3x3) {
   std::vector<double> out(1, 0.0);
   double expected_out = 45.0;  // Сумма 1+2+...+9 = 45 * 1.0 * 1.0
 
-  auto task_data_stl = std::make_shared<ppc::core::TaskData>();
-  task_data_stl->inputs.emplace_back(reinterpret_cast<uint8_t*>(in.data()));
-  task_data_stl->inputs_count.emplace_back(in.size());
-  task_data_stl->inputs.emplace_back(reinterpret_cast<uint8_t*>(grid_sizes.data()));
-  task_data_stl->inputs_count.emplace_back(grid_sizes.size());
-  task_data_stl->inputs.emplace_back(reinterpret_cast<uint8_t*>(step_sizes.data()));
-  task_data_stl->inputs_count.emplace_back(step_sizes.size());
-  task_data_stl->outputs.emplace_back(reinterpret_cast<uint8_t*>(out.data()));
-  task_data_stl->outputs_count.emplace_back(out.size());
+  auto task_data_all = std::make_shared<ppc::core::TaskData>();
+  task_data_all->inputs.emplace_back(reinterpret_cast<uint8_t*>(in.data()));
+  task_data_all->inputs_count.emplace_back(in.size());
+  task_data_all->inputs.emplace_back(reinterpret_cast<uint8_t*>(grid_sizes.data()));
+  task_data_all->inputs_count.emplace_back(grid_sizes.size());
+  task_data_all->inputs.emplace_back(reinterpret_cast<uint8_t*>(step_sizes.data()));
+  task_data_all->inputs_count.emplace_back(step_sizes.size());
+  task_data_all->outputs.emplace_back(reinterpret_cast<uint8_t*>(out.data()));
+  task_data_all->outputs_count.emplace_back(out.size());
 
-  kharin_m_multidimensional_integral_calc_all::TaskALL task(task_data_stl);
+  kharin_m_multidimensional_integral_calc_all::TaskALL task(task_data_all);
   ASSERT_TRUE(task.Validation());
   task.PreProcessing();
   task.Run();
@@ -45,17 +45,17 @@ TEST(kharin_m_multidimensional_integral_calc_all, test_integral_1d) {
   std::vector<double> out(1, 0.0);
   double expected_out = (1.0 + 2.0 + 3.0) * 0.5;  // 6.0 * 0.5 = 3.0
 
-  auto task_data_stl = std::make_shared<ppc::core::TaskData>();
-  task_data_stl->inputs.emplace_back(reinterpret_cast<uint8_t*>(in.data()));
-  task_data_stl->inputs_count.emplace_back(in.size());
-  task_data_stl->inputs.emplace_back(reinterpret_cast<uint8_t*>(grid_sizes.data()));
-  task_data_stl->inputs_count.emplace_back(grid_sizes.size());
-  task_data_stl->inputs.emplace_back(reinterpret_cast<uint8_t*>(step_sizes.data()));
-  task_data_stl->inputs_count.emplace_back(step_sizes.size());
-  task_data_stl->outputs.emplace_back(reinterpret_cast<uint8_t*>(out.data()));
-  task_data_stl->outputs_count.emplace_back(out.size());
+  auto task_data_all = std::make_shared<ppc::core::TaskData>();
+  task_data_all->inputs.emplace_back(reinterpret_cast<uint8_t*>(in.data()));
+  task_data_all->inputs_count.emplace_back(in.size());
+  task_data_all->inputs.emplace_back(reinterpret_cast<uint8_t*>(grid_sizes.data()));
+  task_data_all->inputs_count.emplace_back(grid_sizes.size());
+  task_data_all->inputs.emplace_back(reinterpret_cast<uint8_t*>(step_sizes.data()));
+  task_data_all->inputs_count.emplace_back(step_sizes.size());
+  task_data_all->outputs.emplace_back(reinterpret_cast<uint8_t*>(out.data()));
+  task_data_all->outputs_count.emplace_back(out.size());
 
-  kharin_m_multidimensional_integral_calc_all::TaskALL task(task_data_stl);
+  kharin_m_multidimensional_integral_calc_all::TaskALL task(task_data_all);
   ASSERT_TRUE(task.Validation());
   task.PreProcessing();
   task.Run();
@@ -72,17 +72,17 @@ TEST(kharin_m_multidimensional_integral_calc_all, test_integral_3d) {
   std::vector<double> out(1, 0.0);
   double expected_out = 8.0 * 1.0 * 1.0 * 1.0;  // 8.0
 
-  auto task_data_stl = std::make_shared<ppc::core::TaskData>();
-  task_data_stl->inputs.emplace_back(reinterpret_cast<uint8_t*>(in.data()));
-  task_data_stl->inputs_count.emplace_back(in.size());
-  task_data_stl->inputs.emplace_back(reinterpret_cast<uint8_t*>(grid_sizes.data()));
-  task_data_stl->inputs_count.emplace_back(grid_sizes.size());
-  task_data_stl->inputs.emplace_back(reinterpret_cast<uint8_t*>(step_sizes.data()));
-  task_data_stl->inputs_count.emplace_back(step_sizes.size());
-  task_data_stl->outputs.emplace_back(reinterpret_cast<uint8_t*>(out.data()));
-  task_data_stl->outputs_count.emplace_back(out.size());
+  auto task_data_all = std::make_shared<ppc::core::TaskData>();
+  task_data_all->inputs.emplace_back(reinterpret_cast<uint8_t*>(in.data()));
+  task_data_all->inputs_count.emplace_back(in.size());
+  task_data_all->inputs.emplace_back(reinterpret_cast<uint8_t*>(grid_sizes.data()));
+  task_data_all->inputs_count.emplace_back(grid_sizes.size());
+  task_data_all->inputs.emplace_back(reinterpret_cast<uint8_t*>(step_sizes.data()));
+  task_data_all->inputs_count.emplace_back(step_sizes.size());
+  task_data_all->outputs.emplace_back(reinterpret_cast<uint8_t*>(out.data()));
+  task_data_all->outputs_count.emplace_back(out.size());
 
-  kharin_m_multidimensional_integral_calc_all::TaskALL task(task_data_stl);
+  kharin_m_multidimensional_integral_calc_all::TaskALL task(task_data_all);
   ASSERT_TRUE(task.Validation());
   task.PreProcessing();
   task.Run();
@@ -92,16 +92,16 @@ TEST(kharin_m_multidimensional_integral_calc_all, test_integral_3d) {
 }
 
 TEST(kharin_m_multidimensional_integral_calc_all, test_invalid_input_count) {
-  auto task_data_stl = std::make_shared<ppc::core::TaskData>();
+  auto task_data_all = std::make_shared<ppc::core::TaskData>();
   // Добавляем только два входа вместо трех
-  task_data_stl->inputs.emplace_back(nullptr);
-  task_data_stl->inputs_count.emplace_back(0);
-  task_data_stl->inputs.emplace_back(nullptr);
-  task_data_stl->inputs_count.emplace_back(0);
-  task_data_stl->outputs.emplace_back(nullptr);
-  task_data_stl->outputs_count.emplace_back(1);
+  task_data_all->inputs.emplace_back(nullptr);
+  task_data_all->inputs_count.emplace_back(0);
+  task_data_all->inputs.emplace_back(nullptr);
+  task_data_all->inputs_count.emplace_back(0);
+  task_data_all->outputs.emplace_back(nullptr);
+  task_data_all->outputs_count.emplace_back(1);
 
-  kharin_m_multidimensional_integral_calc_all::TaskALL task(task_data_stl);
+  kharin_m_multidimensional_integral_calc_all::TaskALL task(task_data_all);
   EXPECT_FALSE(task.Validation());
 }
 
@@ -111,17 +111,17 @@ TEST(kharin_m_multidimensional_integral_calc_all, test_invalid_output_count) {
   std::vector<double> step_sizes = {0.5};
   std::vector<double> out(2, 0.0);  // Некорректно: должно быть 1 выходное значение
 
-  auto task_data_stl = std::make_shared<ppc::core::TaskData>();
-  task_data_stl->inputs.emplace_back(reinterpret_cast<uint8_t*>(in.data()));
-  task_data_stl->inputs_count.emplace_back(in.size());
-  task_data_stl->inputs.emplace_back(reinterpret_cast<uint8_t*>(grid_sizes.data()));
-  task_data_stl->inputs_count.emplace_back(grid_sizes.size());
-  task_data_stl->inputs.emplace_back(reinterpret_cast<uint8_t*>(step_sizes.data()));
-  task_data_stl->inputs_count.emplace_back(step_sizes.size());
-  task_data_stl->outputs.emplace_back(reinterpret_cast<uint8_t*>(out.data()));
-  task_data_stl->outputs_count.emplace_back(out.size());  // 2 вместо 1
+  auto task_data_all = std::make_shared<ppc::core::TaskData>();
+  task_data_all->inputs.emplace_back(reinterpret_cast<uint8_t*>(in.data()));
+  task_data_all->inputs_count.emplace_back(in.size());
+  task_data_all->inputs.emplace_back(reinterpret_cast<uint8_t*>(grid_sizes.data()));
+  task_data_all->inputs_count.emplace_back(grid_sizes.size());
+  task_data_all->inputs.emplace_back(reinterpret_cast<uint8_t*>(step_sizes.data()));
+  task_data_all->inputs_count.emplace_back(step_sizes.size());
+  task_data_all->outputs.emplace_back(reinterpret_cast<uint8_t*>(out.data()));
+  task_data_all->outputs_count.emplace_back(out.size());  // 2 вместо 1
 
-  kharin_m_multidimensional_integral_calc_all::TaskALL task(task_data_stl);
+  kharin_m_multidimensional_integral_calc_all::TaskALL task(task_data_all);
   EXPECT_FALSE(task.Validation());
 }
 
@@ -131,17 +131,17 @@ TEST(kharin_m_multidimensional_integral_calc_all, test_mismatch_grid_step_sizes)
   std::vector<double> step_sizes = {0.5, 0.5};  // 2 шага — несоответствие
   std::vector<double> out(1, 0.0);
 
-  auto task_data_stl = std::make_shared<ppc::core::TaskData>();
-  task_data_stl->inputs.emplace_back(reinterpret_cast<uint8_t*>(in.data()));
-  task_data_stl->inputs_count.emplace_back(in.size());
-  task_data_stl->inputs.emplace_back(reinterpret_cast<uint8_t*>(grid_sizes.data()));
-  task_data_stl->inputs_count.emplace_back(grid_sizes.size());
-  task_data_stl->inputs.emplace_back(reinterpret_cast<uint8_t*>(step_sizes.data()));
-  task_data_stl->inputs_count.emplace_back(step_sizes.size());
-  task_data_stl->outputs.emplace_back(reinterpret_cast<uint8_t*>(out.data()));
-  task_data_stl->outputs_count.emplace_back(out.size());
+  auto task_data_all = std::make_shared<ppc::core::TaskData>();
+  task_data_all->inputs.emplace_back(reinterpret_cast<uint8_t*>(in.data()));
+  task_data_all->inputs_count.emplace_back(in.size());
+  task_data_all->inputs.emplace_back(reinterpret_cast<uint8_t*>(grid_sizes.data()));
+  task_data_all->inputs_count.emplace_back(grid_sizes.size());
+  task_data_all->inputs.emplace_back(reinterpret_cast<uint8_t*>(step_sizes.data()));
+  task_data_all->inputs_count.emplace_back(step_sizes.size());
+  task_data_all->outputs.emplace_back(reinterpret_cast<uint8_t*>(out.data()));
+  task_data_all->outputs_count.emplace_back(out.size());
 
-  kharin_m_multidimensional_integral_calc_all::TaskALL task(task_data_stl);
+  kharin_m_multidimensional_integral_calc_all::TaskALL task(task_data_all);
   EXPECT_FALSE(task.Validation());
 }
 
@@ -168,17 +168,17 @@ TEST(kharin_m_multidimensional_integral_calc_all, test_random_data) {
   std::vector<double> step_sizes = {0.1, 0.1};
   std::vector<double> out(1, 0.0);
 
-  auto task_data_stl = std::make_shared<ppc::core::TaskData>();
-  task_data_stl->inputs.emplace_back(reinterpret_cast<uint8_t*>(in.data()));
-  task_data_stl->inputs_count.emplace_back(in.size());
-  task_data_stl->inputs.emplace_back(reinterpret_cast<uint8_t*>(grid_sizes.data()));
-  task_data_stl->inputs_count.emplace_back(grid_sizes.size());
-  task_data_stl->inputs.emplace_back(reinterpret_cast<uint8_t*>(step_sizes.data()));
-  task_data_stl->inputs_count.emplace_back(step_sizes.size());
-  task_data_stl->outputs.emplace_back(reinterpret_cast<uint8_t*>(out.data()));
-  task_data_stl->outputs_count.emplace_back(out.size());
+  auto task_data_all = std::make_shared<ppc::core::TaskData>();
+  task_data_all->inputs.emplace_back(reinterpret_cast<uint8_t*>(in.data()));
+  task_data_all->inputs_count.emplace_back(in.size());
+  task_data_all->inputs.emplace_back(reinterpret_cast<uint8_t*>(grid_sizes.data()));
+  task_data_all->inputs_count.emplace_back(grid_sizes.size());
+  task_data_all->inputs.emplace_back(reinterpret_cast<uint8_t*>(step_sizes.data()));
+  task_data_all->inputs_count.emplace_back(step_sizes.size());
+  task_data_all->outputs.emplace_back(reinterpret_cast<uint8_t*>(out.data()));
+  task_data_all->outputs_count.emplace_back(out.size());
 
-  kharin_m_multidimensional_integral_calc_all::TaskALL task(task_data_stl);
+  kharin_m_multidimensional_integral_calc_all::TaskALL task(task_data_all);
   ASSERT_TRUE(task.Validation());
   task.PreProcessing();
   task.Run();
@@ -196,17 +196,17 @@ TEST(kharin_m_multidimensional_integral_calc_all, test_negative_step) {
   std::vector<double> step_sizes = {-0.5};  // Отрицательный шаг
   std::vector<double> out(1, 0.0);
 
-  auto task_data_stl = std::make_shared<ppc::core::TaskData>();
-  task_data_stl->inputs.emplace_back(reinterpret_cast<uint8_t*>(in.data()));
-  task_data_stl->inputs_count.emplace_back(in.size());
-  task_data_stl->inputs.emplace_back(reinterpret_cast<uint8_t*>(grid_sizes.data()));
-  task_data_stl->inputs_count.emplace_back(grid_sizes.size());
-  task_data_stl->inputs.emplace_back(reinterpret_cast<uint8_t*>(step_sizes.data()));
-  task_data_stl->inputs_count.emplace_back(step_sizes.size());
-  task_data_stl->outputs.emplace_back(reinterpret_cast<uint8_t*>(out.data()));
-  task_data_stl->outputs_count.emplace_back(out.size());
+  auto task_data_all = std::make_shared<ppc::core::TaskData>();
+  task_data_all->inputs.emplace_back(reinterpret_cast<uint8_t*>(in.data()));
+  task_data_all->inputs_count.emplace_back(in.size());
+  task_data_all->inputs.emplace_back(reinterpret_cast<uint8_t*>(grid_sizes.data()));
+  task_data_all->inputs_count.emplace_back(grid_sizes.size());
+  task_data_all->inputs.emplace_back(reinterpret_cast<uint8_t*>(step_sizes.data()));
+  task_data_all->inputs_count.emplace_back(step_sizes.size());
+  task_data_all->outputs.emplace_back(reinterpret_cast<uint8_t*>(out.data()));
+  task_data_all->outputs_count.emplace_back(out.size());
 
-  kharin_m_multidimensional_integral_calc_all::TaskALL task(task_data_stl);
+  kharin_m_multidimensional_integral_calc_all::TaskALL task(task_data_all);
   ASSERT_TRUE(task.Validation());
   task.PreProcessing();
   EXPECT_FALSE(task.Run());
@@ -219,17 +219,17 @@ TEST(kharin_m_multidimensional_integral_calc_all, test_integral_4d) {
   std::vector<double> out(1, 0.0);
   double expected_out = 16.0 * 1.0 * 1.0 * 1.0 * 1.0;  // 16 точек * объем 1.0 = 16.0
 
-  auto task_data_stl = std::make_shared<ppc::core::TaskData>();
-  task_data_stl->inputs.emplace_back(reinterpret_cast<uint8_t*>(in.data()));
-  task_data_stl->inputs_count.emplace_back(in.size());
-  task_data_stl->inputs.emplace_back(reinterpret_cast<uint8_t*>(grid_sizes.data()));
-  task_data_stl->inputs_count.emplace_back(grid_sizes.size());
-  task_data_stl->inputs.emplace_back(reinterpret_cast<uint8_t*>(step_sizes.data()));
-  task_data_stl->inputs_count.emplace_back(step_sizes.size());
-  task_data_stl->outputs.emplace_back(reinterpret_cast<uint8_t*>(out.data()));
-  task_data_stl->outputs_count.emplace_back(out.size());
+  auto task_data_all = std::make_shared<ppc::core::TaskData>();
+  task_data_all->inputs.emplace_back(reinterpret_cast<uint8_t*>(in.data()));
+  task_data_all->inputs_count.emplace_back(in.size());
+  task_data_all->inputs.emplace_back(reinterpret_cast<uint8_t*>(grid_sizes.data()));
+  task_data_all->inputs_count.emplace_back(grid_sizes.size());
+  task_data_all->inputs.emplace_back(reinterpret_cast<uint8_t*>(step_sizes.data()));
+  task_data_all->inputs_count.emplace_back(step_sizes.size());
+  task_data_all->outputs.emplace_back(reinterpret_cast<uint8_t*>(out.data()));
+  task_data_all->outputs_count.emplace_back(out.size());
 
-  kharin_m_multidimensional_integral_calc_all::TaskALL task(task_data_stl);
+  kharin_m_multidimensional_integral_calc_all::TaskALL task(task_data_all);
   ASSERT_TRUE(task.Validation());
   task.PreProcessing();
   task.Run();
@@ -248,17 +248,17 @@ TEST(kharin_m_multidimensional_integral_calc_all, test_integral_5d) {
   double volume_element = 0.5 * 0.5 * 0.5 * 0.5 * 0.5;
   double expected_out = sum_values * volume_element;
 
-  auto task_data_stl = std::make_shared<ppc::core::TaskData>();
-  task_data_stl->inputs.emplace_back(reinterpret_cast<uint8_t*>(in.data()));
-  task_data_stl->inputs_count.emplace_back(in.size());
-  task_data_stl->inputs.emplace_back(reinterpret_cast<uint8_t*>(grid_sizes.data()));
-  task_data_stl->inputs_count.emplace_back(grid_sizes.size());
-  task_data_stl->inputs.emplace_back(reinterpret_cast<uint8_t*>(step_sizes.data()));
-  task_data_stl->inputs_count.emplace_back(step_sizes.size());
-  task_data_stl->outputs.emplace_back(reinterpret_cast<uint8_t*>(out.data()));
-  task_data_stl->outputs_count.emplace_back(out.size());
+  auto task_data_all = std::make_shared<ppc::core::TaskData>();
+  task_data_all->inputs.emplace_back(reinterpret_cast<uint8_t*>(in.data()));
+  task_data_all->inputs_count.emplace_back(in.size());
+  task_data_all->inputs.emplace_back(reinterpret_cast<uint8_t*>(grid_sizes.data()));
+  task_data_all->inputs_count.emplace_back(grid_sizes.size());
+  task_data_all->inputs.emplace_back(reinterpret_cast<uint8_t*>(step_sizes.data()));
+  task_data_all->inputs_count.emplace_back(step_sizes.size());
+  task_data_all->outputs.emplace_back(reinterpret_cast<uint8_t*>(out.data()));
+  task_data_all->outputs_count.emplace_back(out.size());
 
-  kharin_m_multidimensional_integral_calc_all::TaskALL task(task_data_stl);
+  kharin_m_multidimensional_integral_calc_all::TaskALL task(task_data_all);
   ASSERT_TRUE(task.Validation());
   task.PreProcessing();
   task.Run();
