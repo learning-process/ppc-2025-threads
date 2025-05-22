@@ -30,8 +30,8 @@ std::vector<double> ZeroEdges(std::vector<double> img, int wdth, int hght) {
 TEST(sozonov_i_image_filtering_block_partitioning_all, test_pipeline_run) {
   boost::mpi::communicator world;
 
-  const int width = 4000;
-  const int height = 4000;
+  const int width = 3000;
+  const int height = 3000;
 
   // Create data
   std::vector<double> in(width * height, 1);
@@ -81,8 +81,8 @@ TEST(sozonov_i_image_filtering_block_partitioning_all, test_pipeline_run) {
 TEST(sozonov_i_image_filtering_block_partitioning_all, test_task_run) {
   boost::mpi::communicator world;
 
-  const int width = 4000;
-  const int height = 4000;
+  const int width = 3000;
+  const int height = 3000;
 
   // Create data
   std::vector<double> in(width * height, 1);

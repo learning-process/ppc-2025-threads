@@ -12,9 +12,9 @@
 
 namespace {
 
-std::vector<double> kernel = {0.0625, 0.125, 0.0625, 0.125, 0.25, 0.125, 0.0625, 0.125, 0.0625};
+const std::vector<double> kernel = {0.0625, 0.125, 0.0625, 0.125, 0.25, 0.125, 0.0625, 0.125, 0.0625};
 
-int ComputeBlockSizes(std::vector<int> &block_size, int width, int height, boost::mpi::communicator world) {
+int ComputeBlockSizes(std::vector<int> &block_size, int width, int height, const boost::mpi::communicator &world) {
   int delta = width / world.size();
   if (width % world.size() != 0) {
     delta++;
@@ -28,45 +28,59 @@ int ComputeBlockSizes(std::vector<int> &block_size, int width, int height, boost
   return delta;
 }
 
-std::vector<double> DistributeImage(const std::vector<double> &image, int delta, const std::vector<int> &block_size,
-                                    int width, int height, boost::mpi::communicator world) {
-  std::vector<double> local_image(delta * height, 0);
-  std::vector<double> send_image(delta * height);
+std::vector<double> CopySingleProcessImage(const std::vector<double> &image, int width, int height) {
+  std::vector<double> local_image((width + 2) * height, 0);
+  for (int i = 0; i < height; ++i) {
+    for (int j = 1; j < width + 1; ++j) {
+      local_image[(i * (width + 2)) + j] = image[(i * width) + j - 1];
+    }
+  }
+  return local_image;
+}
 
-  if (world.size() == 1) {
+void SendBlocksToOtherProcesses(const std::vector<double> &image, int delta, const std::vector<int> &block_size,
+                                int width, int height, const boost::mpi::communicator &world,
+                                std::vector<double> &local_image) {
+  std::vector<double> send_image(delta * height);
+#pragma omp parallel for
+  for (int i = 0; i < height; ++i) {
+    for (int j = 0; j < delta - 1; ++j) {
+      local_image[(i * delta) + j + 1] = image[(i * width) + j];
+    }
+  }
+
+  int idx = delta - 2;
+  for (int proc = 1; proc < world.size(); ++proc) {
+    send_image.assign(delta * height, 0);
+    int block = block_size[proc];
+
 #pragma omp parallel for
     for (int i = 0; i < height; ++i) {
-      for (int j = 1; j < width + 1; ++j) {
-        local_image[(i * (width + 2)) + j] = image[(i * width) + j - 1];
+      for (int j = -1; j < block - (proc == world.size() - 1 ? 2 : 1); ++j) {
+        send_image[(i * block) + j + 1] = image[(i * width) + j + idx];
       }
     }
+
+    if (proc != world.size() - 1) {
+      idx += block - 2;
+    }
+
+    world.send(proc, 0, send_image.data(), block * height);
+  }
+}
+
+std::vector<double> DistributeImage(const std::vector<double> &image, int delta, const std::vector<int> &block_size,
+                                    int width, int height, const boost::mpi::communicator &world) {
+  std::vector<double> local_image(delta * height, 0);
+
+  if (world.size() == 1) {
+    return CopySingleProcessImage(image, width, height);
+  }
+
+  if (world.rank() == 0) {
+    SendBlocksToOtherProcesses(image, delta, block_size, width, height, world, local_image);
   } else {
-    if (world.rank() == 0) {
-#pragma omp parallel for
-      for (int i = 0; i < height; ++i) {
-        for (int j = 0; j < delta - 1; ++j) {
-          local_image[(i * delta) + j + 1] = image[(i * width) + j];
-        }
-      }
-      int idx = delta - 2;
-      for (int proc = 1; proc < world.size(); ++proc) {
-        send_image = std::vector<double>(delta * height, 0);
-        int block = block_size[proc];
-
-#pragma omp parallel for
-        for (int i = 0; i < height; ++i) {
-          for (int j = -1; j < block - (proc == world.size() - 1 ? 2 : 1); ++j) {
-            send_image[(i * block) + j + 1] = image[(i * width) + j + idx];
-          }
-        }
-
-        if (proc != world.size() - 1) idx += block - 2;
-
-        world.send(proc, 0, send_image.data(), block * height);
-      }
-    } else {
-      world.recv(0, 0, local_image.data(), delta * height);
-    }
+    world.recv(0, 0, local_image.data(), delta * height);
   }
 
   return local_image;
@@ -105,7 +119,7 @@ std::vector<double> ExtractFilteredData(const std::vector<double> &filtered, int
 }
 
 std::vector<double> AssembleFinalImage(const std::vector<double> &gathered_image, const std::vector<int> &block_size,
-                                       int width, int height, boost::mpi::communicator world) {
+                                       int width, int height, const boost::mpi::communicator &world) {
   std::vector<double> filtered_image(width * height);
 
   int idx = 0;
