@@ -1,4 +1,4 @@
-#include "mpi/oturin_a_gift_wrapping/include/ops_mpi.hpp"
+#include "all/oturin_a_gift_wrapping/include/ops_all.hpp"
 
 #include <oneapi/tbb/blocked_range.h>
 #include <oneapi/tbb/parallel_reduce.h>
@@ -7,7 +7,7 @@
 #include <cmath>
 #include <vector>
 
-double oturin_a_gift_wrapping_mpi::ABTP(Coord a, Coord b, Coord c) {
+double oturin_a_gift_wrapping_all::ABTP(Coord a, Coord b, Coord c) {
   Coord ab = {.x = b.x - a.x, .y = b.y - a.y};
   Coord cb = {.x = b.x - c.x, .y = b.y - c.y};
   double dot = ((ab.x * cb.x) + (ab.y * cb.y));
@@ -15,18 +15,18 @@ double oturin_a_gift_wrapping_mpi::ABTP(Coord a, Coord b, Coord c) {
   return fabs(atan2(cross, dot));
 }
 
-double oturin_a_gift_wrapping_mpi::ABTP(Coord a, Coord c) {
+double oturin_a_gift_wrapping_all::ABTP(Coord a, Coord c) {
   Coord b{.x = a.x, .y = (a.y - 1)};
   return ABTP(b, a, c);
 }
 
-double oturin_a_gift_wrapping_mpi::Distance(Coord a, Coord b) {
+double oturin_a_gift_wrapping_all::Distance(Coord a, Coord b) {
   int t1 = a.x - b.x;
   int t2 = a.y - b.y;
   return sqrt((t1 * t1) + (t2 * t2));
 }
 
-bool oturin_a_gift_wrapping_mpi::TestTaskMPI::PreProcessingImpl() {
+bool oturin_a_gift_wrapping_all::TestTaskALL::PreProcessingImpl() {
   if (world_.rank() == 0) {
     // Init value for input and output
     unsigned int input_size = task_data->inputs_count[0];
@@ -51,11 +51,11 @@ bool oturin_a_gift_wrapping_mpi::TestTaskMPI::PreProcessingImpl() {
   return !std::ranges::all_of(input_.begin(), input_.end(), are_same);
 }
 
-bool oturin_a_gift_wrapping_mpi::TestTaskMPI::ValidationImpl() {
+bool oturin_a_gift_wrapping_all::TestTaskALL::ValidationImpl() {
   return task_data->inputs_count[0] >= 3;  // task requires 3 or more points to wrap
 }
 
-void oturin_a_gift_wrapping_mpi::TestTaskMPI::PointSearcher::operator()(const tbb::blocked_range<int> &r) {
+void oturin_a_gift_wrapping_all::TestTaskALL::PointSearcher::operator()(const tbb::blocked_range<int> &r) {
   int begin = r.begin();
   int end = r.end();
   const Coord penultimate_element = p_->output_[p_->output_.size() - 2];
@@ -67,7 +67,7 @@ void oturin_a_gift_wrapping_mpi::TestTaskMPI::PointSearcher::operator()(const tb
   }
 }
 
-void oturin_a_gift_wrapping_mpi::TestTaskMPI::PointSearcher::join(const PointSearcher &x) {
+void oturin_a_gift_wrapping_all::TestTaskALL::PointSearcher::join(const PointSearcher &x) {
   if (line_angle_ <= x.line_angle_ &&
       (line_angle_ != x.line_angle_ || Distance(p_->output_.back(), p_->input_[x.search_index]) <
                                            Distance(p_->output_.back(), p_->input_[search_index]))) {
@@ -76,7 +76,7 @@ void oturin_a_gift_wrapping_mpi::TestTaskMPI::PointSearcher::join(const PointSea
   }
 }
 
-bool oturin_a_gift_wrapping_mpi::TestTaskMPI::RunImpl() {
+bool oturin_a_gift_wrapping_all::TestTaskALL::RunImpl() {
   double line_angle = -5;
   int search_index = 0;
   int start_index = 0;
@@ -140,14 +140,14 @@ bool oturin_a_gift_wrapping_mpi::TestTaskMPI::RunImpl() {
   return true;
 }
 
-bool oturin_a_gift_wrapping_mpi::TestTaskMPI::PostProcessingImpl() {
+bool oturin_a_gift_wrapping_all::TestTaskALL::PostProcessingImpl() {
   auto *result_ptr = reinterpret_cast<Coord *>(task_data->outputs[0]);
   std::ranges::copy(output_.begin(), output_.end(), result_ptr);
   world_.barrier();
   return true;
 }
 
-int oturin_a_gift_wrapping_mpi::TestTaskMPI::FindMostLeft() {
+int oturin_a_gift_wrapping_all::TestTaskALL::FindMostLeft() {
   Coord most_left = input_[0];
   int start_index = 0;
   for (int i = 1; i < n_; i++) {
@@ -159,7 +159,7 @@ int oturin_a_gift_wrapping_mpi::TestTaskMPI::FindMostLeft() {
   return start_index;
 }
 
-void oturin_a_gift_wrapping_mpi::TestTaskMPI::PointSearch(const double t, double &line_angle, int &search_index,
+void oturin_a_gift_wrapping_all::TestTaskALL::PointSearch(const double t, double &line_angle, int &search_index,
                                                           const int i) {
   if (t < line_angle) {
     return;
@@ -173,7 +173,7 @@ void oturin_a_gift_wrapping_mpi::TestTaskMPI::PointSearch(const double t, double
   }
 }
 
-void oturin_a_gift_wrapping_mpi::TestTaskMPI::SearchSecondPoint(int start_index, int &search_index) {
+void oturin_a_gift_wrapping_all::TestTaskALL::SearchSecondPoint(int start_index, int &search_index) {
   double line_angle = -5;
   for (int i = 0; i < n_; i++) {
     if (i == start_index) {

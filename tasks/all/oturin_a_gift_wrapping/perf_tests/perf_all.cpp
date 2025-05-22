@@ -8,13 +8,13 @@
 #include <random>
 #include <vector>
 
+#include "all/oturin_a_gift_wrapping/include/ops_all.hpp"
 #include "boost/mpi/communicator.hpp"
 #include "core/perf/include/perf.hpp"
 #include "core/task/include/task.hpp"
-#include "mpi/oturin_a_gift_wrapping/include/ops_mpi.hpp"
 
 namespace {
-oturin_a_gift_wrapping_mpi::Coord RandCoord(int r) {
+oturin_a_gift_wrapping_all::Coord RandCoord(int r) {
   std::random_device dev;
   std::mt19937 rng(dev());
   std::uniform_int_distribution<int> dist(-r, r);
@@ -22,9 +22,9 @@ oturin_a_gift_wrapping_mpi::Coord RandCoord(int r) {
 }
 }  // namespace
 
-TEST(oturin_a_gift_wrapping_mpi, test_pipeline_run) {
+TEST(oturin_a_gift_wrapping_all, test_pipeline_run) {
   int count = 250000;
-  using namespace oturin_a_gift_wrapping_mpi;
+  using namespace oturin_a_gift_wrapping_all;
 
   // Create data
   std::vector<Coord> in(count);
@@ -35,14 +35,14 @@ TEST(oturin_a_gift_wrapping_mpi, test_pipeline_run) {
   in.insert(in.end(), ans.begin(), ans.end());
 
   // Create task_data
-  auto task_data_mpi = std::make_shared<ppc::core::TaskData>();
-  task_data_mpi->inputs.emplace_back(reinterpret_cast<uint8_t *>(in.data()));
-  task_data_mpi->inputs_count.emplace_back(in.size());
-  task_data_mpi->outputs.emplace_back(reinterpret_cast<uint8_t *>(out.data()));
-  task_data_mpi->outputs_count.emplace_back(out.size());
+  auto task_data_all = std::make_shared<ppc::core::TaskData>();
+  task_data_all->inputs.emplace_back(reinterpret_cast<uint8_t *>(in.data()));
+  task_data_all->inputs_count.emplace_back(in.size());
+  task_data_all->outputs.emplace_back(reinterpret_cast<uint8_t *>(out.data()));
+  task_data_all->outputs_count.emplace_back(out.size());
 
   // Create Task
-  auto test_task_mpi = std::make_shared<oturin_a_gift_wrapping_mpi::TestTaskMPI>(task_data_mpi);
+  auto test_task_all = std::make_shared<oturin_a_gift_wrapping_all::TestTaskALL>(task_data_all);
 
   // Create Perf attributes
   auto perf_attr = std::make_shared<ppc::core::PerfAttr>();
@@ -58,7 +58,7 @@ TEST(oturin_a_gift_wrapping_mpi, test_pipeline_run) {
   auto perf_results = std::make_shared<ppc::core::PerfResults>();
 
   // Create Perf analyzer
-  auto perf_analyzer = std::make_shared<ppc::core::Perf>(test_task_mpi);
+  auto perf_analyzer = std::make_shared<ppc::core::Perf>(test_task_all);
   perf_analyzer->PipelineRun(perf_attr, perf_results);
 
   // Create Perf analyzer
@@ -73,9 +73,9 @@ TEST(oturin_a_gift_wrapping_mpi, test_pipeline_run) {
   }
 }
 
-TEST(oturin_a_gift_wrapping_mpi, test_task_run) {
+TEST(oturin_a_gift_wrapping_all, test_task_run) {
   int count = 250000;
-  using namespace oturin_a_gift_wrapping_mpi;
+  using namespace oturin_a_gift_wrapping_all;
 
   // Create data
   std::vector<Coord> in(count);
@@ -86,14 +86,14 @@ TEST(oturin_a_gift_wrapping_mpi, test_task_run) {
   in.insert(in.end(), ans.begin(), ans.end());
 
   // Create task_data
-  auto task_data_mpi = std::make_shared<ppc::core::TaskData>();
-  task_data_mpi->inputs.emplace_back(reinterpret_cast<uint8_t *>(in.data()));
-  task_data_mpi->inputs_count.emplace_back(in.size());
-  task_data_mpi->outputs.emplace_back(reinterpret_cast<uint8_t *>(out.data()));
-  task_data_mpi->outputs_count.emplace_back(out.size());
+  auto task_data_all = std::make_shared<ppc::core::TaskData>();
+  task_data_all->inputs.emplace_back(reinterpret_cast<uint8_t *>(in.data()));
+  task_data_all->inputs_count.emplace_back(in.size());
+  task_data_all->outputs.emplace_back(reinterpret_cast<uint8_t *>(out.data()));
+  task_data_all->outputs_count.emplace_back(out.size());
 
   // Create Task
-  auto test_task_mpi = std::make_shared<oturin_a_gift_wrapping_mpi::TestTaskMPI>(task_data_mpi);
+  auto test_task_all = std::make_shared<oturin_a_gift_wrapping_all::TestTaskALL>(task_data_all);
 
   // Create Perf attributes
   auto perf_attr = std::make_shared<ppc::core::PerfAttr>();
@@ -109,7 +109,7 @@ TEST(oturin_a_gift_wrapping_mpi, test_task_run) {
   auto perf_results = std::make_shared<ppc::core::PerfResults>();
 
   // Create Perf analyzer
-  auto perf_analyzer = std::make_shared<ppc::core::Perf>(test_task_mpi);
+  auto perf_analyzer = std::make_shared<ppc::core::Perf>(test_task_all);
   perf_analyzer->TaskRun(perf_attr, perf_results);
 
   // Create Perf analyzer
