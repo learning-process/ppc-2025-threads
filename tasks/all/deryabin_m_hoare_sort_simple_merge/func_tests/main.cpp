@@ -8,8 +8,8 @@
 #include <random>
 #include <vector>
 
-#include "core/task/include/task.hpp"
 #include "all/deryabin_m_hoare_sort_simple_merge/include/ops_all.hpp"
+#include "core/task/include/task.hpp"
 
 TEST(deryabin_m_hoare_sort_simple_merge_mpi, test_random_array) {
   std::random_device rd;
