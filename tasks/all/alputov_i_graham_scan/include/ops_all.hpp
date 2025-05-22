@@ -11,7 +11,7 @@ namespace alputov_i_graham_scan_all {
 
 struct Point {
   double x, y;
-  Point(double xIn = 0, double yIn = 0) : x(xIn), y(yIn) {}
+  Point(double x_in = 0, double y_in = 0) : x(x_in), y(y_in) {}
   bool operator<(const Point& other) const {
     if (y != other.y) {
       return y < other.y;
@@ -49,6 +49,12 @@ class TestTaskALL : public ppc::core::Task {
   Point pivot_;
   std::vector<Point> local_points_;
   std::vector<Point> globally_sorted_points_;
+
+  // Helper methods for RunImpl
+  bool InitializeRun(size_t& current_total_num_points_ref, int& current_rank_in_active_comm_out);
+  size_t DistributePointsAndBroadcastPivot(int current_rank_in_active_comm);
+  int SortLocalAndGatherSortedPoints(int current_rank_in_active_comm);
+  void ConstructFinalHullOnRoot(int current_rank_in_active_comm, int total_sorted_points_count);
 
   static Point FindPivot(const std::vector<Point>& points);
   static bool CompareAngles(const Point& p1, const Point& p2, const Point& pivot);

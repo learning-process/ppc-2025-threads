@@ -68,7 +68,7 @@ bool VerifyHullBasic(const std::vector<alputov_i_graham_scan_all::Point>& origin
 
 struct TaskALLDeleter {
   void operator()(alputov_i_graham_scan_all::TestTaskALL* p) const {
-    if (p) {
+    if (p != nullptr) {
       p->CleanupMPIResources();
       delete p;
     }

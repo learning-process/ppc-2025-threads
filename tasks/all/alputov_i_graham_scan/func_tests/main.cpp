@@ -87,12 +87,25 @@ void AssertPointsEqual(const std::vector<alputov_i_graham_scan_all::Point>& actu
 
 struct TaskALLDeleter {
   void operator()(alputov_i_graham_scan_all::TestTaskALL* p) const {
-    if (p) {
+    if (p != nullptr) {
       p->CleanupMPIResources();
       delete p;
     }
   }
 };
+
+void ValidateRandom100PointsResult(int hull_size_actual,
+                                   const std::vector<alputov_i_graham_scan_all::Point>& input_points_with_corners,
+                                   const std::vector<alputov_i_graham_scan_all::Point>& actual_hull) {
+  ASSERT_GE(hull_size_actual, 4);
+  ASSERT_LE(hull_size_actual, static_cast<int>(input_points_with_corners.size()));
+
+  std::set<alputov_i_graham_scan_all::Point> actual_set(actual_hull.begin(), actual_hull.end());
+  ASSERT_TRUE(actual_set.count({-1500, -1500}));
+  ASSERT_TRUE(actual_set.count({1500, -1500}));
+  ASSERT_TRUE(actual_set.count({1500, 1500}));
+  ASSERT_TRUE(actual_set.count({-1500, 1500}));
+}
 
 }  // namespace
 
@@ -224,15 +237,8 @@ TEST(alputov_i_graham_scan_all, random_100_points) {
   ExecuteAndValidateTask(*task);
 
   if (rank == 0) {
-    ASSERT_GE(hull_size_actual, 4);
-    ASSERT_LE(hull_size_actual, static_cast<int>(input_points.size()));
     std::vector<alputov_i_graham_scan_all::Point> actual_hull = DoublesToPoints(output_hull_doubles, hull_size_actual);
-
-    std::set<alputov_i_graham_scan_all::Point> actual_set(actual_hull.begin(), actual_hull.end());
-    ASSERT_TRUE(actual_set.count({-1500, -1500}));
-    ASSERT_TRUE(actual_set.count({1500, -1500}));
-    ASSERT_TRUE(actual_set.count({1500, 1500}));
-    ASSERT_TRUE(actual_set.count({-1500, 1500}));
+    ValidateRandom100PointsResult(hull_size_actual, input_points, actual_hull);
   }
 }
 

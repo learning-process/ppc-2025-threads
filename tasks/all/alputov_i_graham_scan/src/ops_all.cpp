@@ -101,20 +101,19 @@ bool TestTaskALL::PreProcessingImpl() {
   return true;
 }
 
-bool TestTaskALL::RunImpl() {
-  size_t current_total_num_points = 0;
+bool TestTaskALL::InitializeRun(size_t& current_total_num_points_ref, int& current_rank_in_active_comm_out) {
   if (rank_ == 0) {
-    current_total_num_points = input_points_.size();
+    current_total_num_points_ref = input_points_.size();
   }
-  MPI_Bcast(&current_total_num_points, 1, MPI_UNSIGNED_LONG, 0, MPI_COMM_WORLD);
+  MPI_Bcast(&current_total_num_points_ref, 1, MPI_UNSIGNED_LONG, 0, MPI_COMM_WORLD);
 
-  if (current_total_num_points < 3) {
+  if (current_total_num_points_ref < 3) {
     if (rank_ == 0) {
-      if (current_total_num_points == 0) {
+      if (current_total_num_points_ref == 0) {
         convex_hull_.clear();
-      } else if (current_total_num_points == 1) {
+      } else if (current_total_num_points_ref == 1) {
         convex_hull_ = {input_points_[0]};
-      } else if (current_total_num_points == 2) {
+      } else {  // current_total_num_points_ref == 2
         if (input_points_[0] < input_points_[1]) {
           convex_hull_ = {input_points_[0], input_points_[1]};
         } else {
@@ -122,11 +121,12 @@ bool TestTaskALL::RunImpl() {
         }
       }
     }
-    return true;
+    return false;  // Indicates RunImpl should terminate
   }
 
-  active_procs_count_ = std::min(world_size_, static_cast<int>(current_total_num_points));
-  if (active_procs_count_ == 0 && current_total_num_points > 0) {
+  active_procs_count_ = std::min(world_size_, static_cast<int>(current_total_num_points_ref));
+  if (active_procs_count_ == 0 && current_total_num_points_ref > 0) {
+    // This case should ideally not be hit if current_total_num_points_ref >= 3
     active_procs_count_ = 1;
   }
 
@@ -139,78 +139,88 @@ bool TestTaskALL::RunImpl() {
   MPI_Comm_split(MPI_COMM_WORLD, color, rank_, &active_comm_);
 
   if (color == 1) {
-    return true;
+    return false;  // Indicates RunImpl should terminate for inactive processes
   }
-  int current_rank_in_active_comm;
-  MPI_Comm_rank(active_comm_, &current_rank_in_active_comm);
 
+  MPI_Comm_rank(active_comm_, &current_rank_in_active_comm_out);
+  return true;  // Continue with RunImpl
+}
+
+size_t TestTaskALL::DistributePointsAndBroadcastPivot(int current_rank_in_active_comm) {
   if (current_rank_in_active_comm == 0) {
     pivot_ = FindPivot(input_points_);
   }
   MPI_Bcast(&pivot_, 1, mpi_point_datatype_, 0, active_comm_);
 
-  std::vector<Point> points_to_sort_globally;
+  std::vector<Point> points_to_sort_globally_on_root;  // Only used on root
   if (current_rank_in_active_comm == 0) {
     for (const auto& p : input_points_) {
       if (p != pivot_) {
-        points_to_sort_globally.push_back(p);
+        points_to_sort_globally_on_root.push_back(p);
       }
     }
   }
 
   size_t num_points_to_scatter = 0;
   if (current_rank_in_active_comm == 0) {
-    num_points_to_scatter = points_to_sort_globally.size();
+    num_points_to_scatter = points_to_sort_globally_on_root.size();
   }
   MPI_Bcast(&num_points_to_scatter, 1, MPI_UNSIGNED_LONG, 0, active_comm_);
 
   if (num_points_to_scatter == 0) {
-    if (current_rank_in_active_comm == 0) {
-      convex_hull_ = {pivot_};
-    }
-    return true;
+    return 0;  // Signal that only pivot might form the hull
   }
 
-  std::vector<int> send_counts((current_rank_in_active_comm == 0) ? active_procs_count_ : 0);
-  std::vector<int> displs((current_rank_in_active_comm == 0) ? active_procs_count_ : 0);
+  std::vector<int> send_counts_for_scatterv(active_procs_count_);
+  std::vector<int> displs_for_scatterv(active_procs_count_);
   int local_recv_count = 0;
 
   if (current_rank_in_active_comm == 0) {
     int base_count = static_cast<int>(num_points_to_scatter / static_cast<size_t>(active_procs_count_));
     int remainder = static_cast<int>(num_points_to_scatter % static_cast<size_t>(active_procs_count_));
-    displs[0] = 0;
+    displs_for_scatterv[0] = 0;
     for (int i = 0; i < active_procs_count_; ++i) {
-      send_counts[i] = base_count + (i < remainder ? 1 : 0);
+      send_counts_for_scatterv[i] = base_count + (i < remainder ? 1 : 0);
       if (i > 0) {
-        displs[i] = displs[i - 1] + send_counts[i - 1];
+        displs_for_scatterv[i] = displs_for_scatterv[i - 1] + send_counts_for_scatterv[i - 1];
       }
     }
   }
-  MPI_Scatter(send_counts.data(), 1, MPI_INT, &local_recv_count, 1, MPI_INT, 0, active_comm_);
+
+  MPI_Scatter((current_rank_in_active_comm == 0) ? send_counts_for_scatterv.data() : nullptr, 1, MPI_INT,
+              &local_recv_count, 1, MPI_INT, 0, active_comm_);
 
   local_points_.resize(local_recv_count);
-  MPI_Scatterv((current_rank_in_active_comm == 0) ? points_to_sort_globally.data() : nullptr,
-               (current_rank_in_active_comm == 0) ? send_counts.data() : nullptr,
-               (current_rank_in_active_comm == 0) ? displs.data() : nullptr, mpi_point_datatype_, local_points_.data(),
-               local_recv_count, mpi_point_datatype_, 0, active_comm_);
+  MPI_Scatterv((current_rank_in_active_comm == 0) ? points_to_sort_globally_on_root.data() : nullptr,
+               (current_rank_in_active_comm == 0) ? send_counts_for_scatterv.data() : nullptr,
+               (current_rank_in_active_comm == 0) ? displs_for_scatterv.data() : nullptr, mpi_point_datatype_,
+               local_points_.data(), local_recv_count, mpi_point_datatype_, 0, active_comm_);
 
+  return num_points_to_scatter;
+}
+
+int TestTaskALL::SortLocalAndGatherSortedPoints(int current_rank_in_active_comm) {
   if (!local_points_.empty()) {
     LocalParallelSort(local_points_, pivot_);
   }
 
-  std::vector<int> local_sizes((current_rank_in_active_comm == 0) ? active_procs_count_ : 0);
+  std::vector<int> local_sizes_recv_on_root(active_procs_count_);
   int my_local_size_after_sort = static_cast<int>(local_points_.size());
-  MPI_Gather(&my_local_size_after_sort, 1, MPI_INT, (current_rank_in_active_comm == 0) ? local_sizes.data() : nullptr,
-             1, MPI_INT, 0, active_comm_);
+
+  MPI_Gather(&my_local_size_after_sort, 1, MPI_INT,
+             (current_rank_in_active_comm == 0) ? local_sizes_recv_on_root.data() : nullptr, 1, MPI_INT, 0,
+             active_comm_);
 
   int total_sorted_points_count = 0;
+  std::vector<int> displs_for_gatherv;  // Only needed on root
+
   if (current_rank_in_active_comm == 0) {
-    globally_sorted_points_.clear();
-    displs[0] = 0;
+    displs_for_gatherv.resize(active_procs_count_);
+    displs_for_gatherv[0] = 0;
     for (int i = 0; i < active_procs_count_; ++i) {
-      total_sorted_points_count += local_sizes[i];
+      total_sorted_points_count += local_sizes_recv_on_root[i];
       if (i > 0) {
-        displs[i] = displs[i - 1] + local_sizes[i - 1];
+        displs_for_gatherv[i] = displs_for_gatherv[i - 1] + local_sizes_recv_on_root[i - 1];
       }
     }
     globally_sorted_points_.resize(total_sorted_points_count);
@@ -218,12 +228,17 @@ bool TestTaskALL::RunImpl() {
 
   MPI_Gatherv(local_points_.data(), my_local_size_after_sort, mpi_point_datatype_,
               (current_rank_in_active_comm == 0) ? globally_sorted_points_.data() : nullptr,
-              (current_rank_in_active_comm == 0) ? local_sizes.data() : nullptr,
-              (current_rank_in_active_comm == 0) ? displs.data() : nullptr, mpi_point_datatype_, 0, active_comm_);
+              (current_rank_in_active_comm == 0) ? local_sizes_recv_on_root.data() : nullptr,
+              (current_rank_in_active_comm == 0) ? displs_for_gatherv.data() : nullptr, mpi_point_datatype_, 0,
+              active_comm_);
 
+  return total_sorted_points_count;  // Meaningful only on root
+}
+
+void TestTaskALL::ConstructFinalHullOnRoot(int current_rank_in_active_comm, int total_sorted_points_count) {
   if (current_rank_in_active_comm == 0) {
     if (total_sorted_points_count > 0) {
-      LocalParallelSort(globally_sorted_points_, pivot_);
+      LocalParallelSort(globally_sorted_points_, pivot_);  // Merge sorted sub-arrays
       RemoveDuplicates(globally_sorted_points_);
     }
 
@@ -233,6 +248,28 @@ bool TestTaskALL::RunImpl() {
       convex_hull_ = BuildHull(globally_sorted_points_, pivot_);
     }
   }
+}
+
+bool TestTaskALL::RunImpl() {
+  size_t current_total_num_points = 0;
+  int current_rank_in_active_comm = 0;  // Initialized for safety
+
+  if (!InitializeRun(current_total_num_points, current_rank_in_active_comm)) {
+    return true;  // Small set handled or current process is inactive
+  }
+
+  size_t num_points_to_scatter = DistributePointsAndBroadcastPivot(current_rank_in_active_comm);
+
+  if (num_points_to_scatter == 0) {
+    if (current_rank_in_active_comm == 0) {
+      convex_hull_ = {pivot_};
+    }
+    return true;
+  }
+
+  int total_sorted_points_count = SortLocalAndGatherSortedPoints(current_rank_in_active_comm);
+  ConstructFinalHullOnRoot(current_rank_in_active_comm, total_sorted_points_count);
+
   return true;
 }
 
@@ -319,8 +356,8 @@ void TestTaskALL::LocalParallelSort(std::vector<Point>& points, const Point& piv
 
   auto comparator = [&](const Point& a, const Point& b) { return CompareAngles(a, b, pivot_for_sort); };
 
-  const size_t n = points.size();
-  const size_t num_threads_hint = static_cast<size_t>(ppc::util::GetPPCNumThreads());
+  const auto n = points.size();
+  const auto num_threads_hint = static_cast<size_t>(ppc::util::GetPPCNumThreads());
   const size_t num_threads =
       std::max(static_cast<size_t>(1),
                std::min({n / 1000, num_threads_hint, static_cast<size_t>(std::thread::hardware_concurrency())}));
