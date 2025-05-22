@@ -6,8 +6,9 @@
 #include <memory>
 #include <vector>
 
-#include "core/task/include/task.hpp"
 #include "all/khovansky_d_double_radix_batcher/include/ops_all.hpp"
+#include "core/task/include/task.hpp"
+
 
 TEST(khovansky_d_double_radix_batcher_all, invalid_input) {
   boost::mpi::communicator world;

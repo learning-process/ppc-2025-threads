@@ -7,9 +7,10 @@
 #include <memory>
 #include <vector>
 
+#include "all/khovansky_d_double_radix_batcher/include/ops_all.hpp"
 #include "core/perf/include/perf.hpp"
 #include "core/task/include/task.hpp"
-#include "all/khovansky_d_double_radix_batcher/include/ops_all.hpp"
+
 
 TEST(khovansky_d_double_radix_batcher_all, test_pipeline_run) {
   constexpr int kCount = 1000000;

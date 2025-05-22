@@ -6,13 +6,13 @@
 #include <boost/mpi/collectives/gather.hpp>
 #include <boost/mpi/collectives/scatter.hpp>
 #include <boost/mpi/communicator.hpp>
-#include <boost/mpi/request.hpp> 
+#include <boost/mpi/request.hpp>
 #include <cmath>
 #include <cstddef>
 #include <cstdint>
 #include <cstring>
-#include <limits>
 #include <iterator>
+#include <limits>
 #include <ranges>
 #include <thread>
 #include <vector>
@@ -155,12 +155,12 @@ bool khovansky_d_double_radix_batcher_all::RadixAll::RunImpl() {
   }
   size_t n = local.size();
   const int thread_count = std::max(1, std::min(static_cast<int>(n), ppc::util::GetPPCNumThreads()));
-  RadixSort(local, thread_count); 
-  
+  RadixSort(local, thread_count);
+
   int stages = static_cast<int>(std::ceil(std::log2(size)));
   for (int stage = 0; stage < stages; ++stage) {
     int offset = 1 << (stages - stage - 1);
-    
+
     for (int step = offset; step > 0; step >>= 1) {
       int partner = rank ^ step;
       if (partner >= size) {
