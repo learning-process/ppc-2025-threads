@@ -39,8 +39,8 @@ void deryabin_m_hoare_sort_simple_merge_mpi::HoaraSort(std::vector<double>& a, s
       HoaraSort(a, i + 1, last, available_threads - (available_threads >> 1));
     });
   } else {
-    HoaraSort(a, first, j, tg, 1);
-    HoaraSort(a, i + 1, last, tg, 1);
+    HoaraSort(a, first, j, 1);
+    HoaraSort(a, i + 1, last, 1);
   }
 }
 
@@ -53,7 +53,7 @@ void deryabin_m_hoare_sort_simple_merge_mpi::MergeTwoParts(std::vector<double>& 
   const size_t mid = first + size / 2;
   if (available_threads > 1) {
     oneapi::tbb::task_group tg;
-    tg.run([&, first, mid, available_threads]() { MergeTwoParts(a, first, mid, tg, available_threads / 2); });
+    tg.run([&, first, mid, available_threads]() { MergeTwoParts(a, first, mid, available_threads / 2); });
     tg.run([&, last, mid, available_threads]() {
       MergeTwoParts(a, mid, last, available_threads - available_threads / 2);
     });
