@@ -188,7 +188,6 @@ TEST(kharin_m_multidimensional_integral_calc_all, test_random_data) {
   std::vector<size_t> grid_sizes = {kDim, kDim};
   std::vector<double> step_sizes = {0.1, 0.1};
   std::vector<double> out(1, 0.0);
-  double expected_out = expected_sum * 0.1 * 0.1;
 
   auto task_data_stl = std::make_shared<ppc::core::TaskData>();
   task_data_stl->inputs.emplace_back(reinterpret_cast<uint8_t*>(in.data()));
