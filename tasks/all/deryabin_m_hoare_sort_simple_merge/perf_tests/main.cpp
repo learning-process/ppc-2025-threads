@@ -9,9 +9,9 @@
 #include <random>
 #include <vector>
 
+#include "all/deryabin_m_hoare_sort_simple_merge/include/ops_all.hpp"
 #include "core/perf/include/perf.hpp"
 #include "core/task/include/task.hpp"
-#include "all/deryabin_m_hoare_sort_simple_merge/include/ops_all.hpp"
 
 TEST(deryabin_m_hoare_sort_simple_merge_mpi, test_pipeline_run_MPI) {
   std::random_device rd;
