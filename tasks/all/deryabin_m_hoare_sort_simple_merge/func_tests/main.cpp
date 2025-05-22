@@ -1,6 +1,7 @@
 #include <gtest/gtest.h>
 
 #include <algorithm>
+#include <boost/mpi/communicator.hpp>
 #include <cstddef>
 #include <cstdint>
 #include <cstdlib>
@@ -25,18 +26,22 @@ TEST(deryabin_m_hoare_sort_simple_merge_mpi, test_random_array) {
   std::ranges::sort(true_solution.begin(), true_solution.end());
 
   auto task_data_mpi = std::make_shared<ppc::core::TaskData>();
-  task_data_mpi->inputs.emplace_back(reinterpret_cast<uint8_t*>(in_array.data()));
-  task_data_mpi->inputs_count.emplace_back(input_array.size());
-  task_data_mpi->inputs_count.emplace_back(chunk_count);
-  task_data_mpi->outputs.emplace_back(reinterpret_cast<uint8_t*>(out_array.data()));
-  task_data_mpi->outputs_count.emplace_back(output_array.size());
+  if (world.rank() == 0) {
+    task_data_mpi->inputs.emplace_back(reinterpret_cast<uint8_t*>(in_array.data()));
+    task_data_mpi->inputs_count.emplace_back(input_array.size());
+    task_data_mpi->inputs_count.emplace_back(chunk_count);
+    task_data_mpi->outputs.emplace_back(reinterpret_cast<uint8_t*>(out_array.data()));
+    task_data_mpi->outputs_count.emplace_back(output_array.size());
+  }
 
   deryabin_m_hoare_sort_simple_merge_mpi::HoareSortTaskMPI hoare_sort_task_mpi(task_data_mpi);
   ASSERT_EQ(hoare_sort_task_mpi.Validation(), true);
   hoare_sort_task_mpi.PreProcessing();
   hoare_sort_task_mpi.Run();
   hoare_sort_task_mpi.PostProcessing();
-  ASSERT_EQ(true_solution, out_array[0]);
+  if (world.rank() == 0) {
+    ASSERT_EQ(true_solution, out_array[0]); 
+  }
 }
 
 TEST(deryabin_m_hoare_sort_simple_merge_mpi, test_double_reverse_array) {
@@ -54,18 +59,22 @@ TEST(deryabin_m_hoare_sort_simple_merge_mpi, test_double_reverse_array) {
   std::ranges::sort(true_solution.begin(), true_solution.end());
 
   auto task_data_mpi = std::make_shared<ppc::core::TaskData>();
-  task_data_mpi->inputs.emplace_back(reinterpret_cast<uint8_t*>(in_array.data()));
-  task_data_mpi->inputs_count.emplace_back(input_array.size());
-  task_data_mpi->inputs_count.emplace_back(chunk_count);
-  task_data_mpi->outputs.emplace_back(reinterpret_cast<uint8_t*>(out_array.data()));
-  task_data_mpi->outputs_count.emplace_back(output_array.size());
+  if (world.rank() == 0) {
+    task_data_mpi->inputs.emplace_back(reinterpret_cast<uint8_t*>(in_array.data()));
+    task_data_mpi->inputs_count.emplace_back(input_array.size());
+    task_data_mpi->inputs_count.emplace_back(chunk_count);
+    task_data_mpi->outputs.emplace_back(reinterpret_cast<uint8_t*>(out_array.data()));
+    task_data_mpi->outputs_count.emplace_back(output_array.size());
+  }
 
   deryabin_m_hoare_sort_simple_merge_mpi::HoareSortTaskMPI hoare_sort_task_mpi(task_data_mpi);
   ASSERT_EQ(hoare_sort_task_mpi.Validation(), true);
   hoare_sort_task_mpi.PreProcessing();
   hoare_sort_task_mpi.Run();
   hoare_sort_task_mpi.PostProcessing();
-  ASSERT_EQ(true_solution, out_array[0]);
+  if (world.rank() == 0) {
+    ASSERT_EQ(true_solution, out_array[0]); 
+  }
 }
 
 TEST(deryabin_m_hoare_sort_simple_merge_mpi, test_large_array) {
@@ -82,18 +91,22 @@ TEST(deryabin_m_hoare_sort_simple_merge_mpi, test_large_array) {
   std::ranges::sort(true_solution.begin(), true_solution.end());
 
   auto task_data_mpi = std::make_shared<ppc::core::TaskData>();
-  task_data_mpi->inputs.emplace_back(reinterpret_cast<uint8_t*>(in_array.data()));
-  task_data_mpi->inputs_count.emplace_back(input_array.size());
-  task_data_mpi->inputs_count.emplace_back(chunk_count);
-  task_data_mpi->outputs.emplace_back(reinterpret_cast<uint8_t*>(out_array.data()));
-  task_data_mpi->outputs_count.emplace_back(output_array.size());
+  if (world.rank() == 0) {
+    task_data_mpi->inputs.emplace_back(reinterpret_cast<uint8_t*>(in_array.data()));
+    task_data_mpi->inputs_count.emplace_back(input_array.size());
+    task_data_mpi->inputs_count.emplace_back(chunk_count);
+    task_data_mpi->outputs.emplace_back(reinterpret_cast<uint8_t*>(out_array.data()));
+    task_data_mpi->outputs_count.emplace_back(output_array.size());
+  }
 
   deryabin_m_hoare_sort_simple_merge_mpi::HoareSortTaskMPI hoare_sort_task_mpi(task_data_mpi);
   ASSERT_EQ(hoare_sort_task_mpi.Validation(), true);
   hoare_sort_task_mpi.PreProcessing();
   hoare_sort_task_mpi.Run();
   hoare_sort_task_mpi.PostProcessing();
-  ASSERT_EQ(true_solution, out_array[0]);
+  if (world.rank() == 0) {
+    ASSERT_EQ(true_solution, out_array[0]); 
+  }
 }
 
 TEST(deryabin_m_hoare_sort_simple_merge_mpi, test_negative_elements_array) {
@@ -110,18 +123,22 @@ TEST(deryabin_m_hoare_sort_simple_merge_mpi, test_negative_elements_array) {
   std::ranges::sort(true_solution.begin(), true_solution.end());
 
   auto task_data_mpi = std::make_shared<ppc::core::TaskData>();
-  task_data_mpi->inputs.emplace_back(reinterpret_cast<uint8_t*>(in_array.data()));
-  task_data_mpi->inputs_count.emplace_back(input_array.size());
-  task_data_mpi->inputs_count.emplace_back(chunk_count);
-  task_data_mpi->outputs.emplace_back(reinterpret_cast<uint8_t*>(out_array.data()));
-  task_data_mpi->outputs_count.emplace_back(output_array.size());
+  if (world.rank() == 0) {
+    task_data_mpi->inputs.emplace_back(reinterpret_cast<uint8_t*>(in_array.data()));
+    task_data_mpi->inputs_count.emplace_back(input_array.size());
+    task_data_mpi->inputs_count.emplace_back(chunk_count);
+    task_data_mpi->outputs.emplace_back(reinterpret_cast<uint8_t*>(out_array.data()));
+    task_data_mpi->outputs_count.emplace_back(output_array.size());
+  }
 
   deryabin_m_hoare_sort_simple_merge_mpi::HoareSortTaskMPI hoare_sort_task_mpi(task_data_mpi);
   ASSERT_EQ(hoare_sort_task_mpi.Validation(), true);
   hoare_sort_task_mpi.PreProcessing();
   hoare_sort_task_mpi.Run();
   hoare_sort_task_mpi.PostProcessing();
-  ASSERT_EQ(true_solution, out_array[0]);
+  if (world.rank() == 0) {
+    ASSERT_EQ(true_solution, out_array[0]); 
+  }
 }
 
 TEST(deryabin_m_hoare_sort_simple_merge_mpi, test_shuffle_array) {
@@ -138,18 +155,22 @@ TEST(deryabin_m_hoare_sort_simple_merge_mpi, test_shuffle_array) {
   std::ranges::sort(true_solution.begin(), true_solution.end());
 
   auto task_data_mpi = std::make_shared<ppc::core::TaskData>();
-  task_data_mpi->inputs.emplace_back(reinterpret_cast<uint8_t*>(in_array.data()));
-  task_data_mpi->inputs_count.emplace_back(input_array.size());
-  task_data_mpi->inputs_count.emplace_back(chunk_count);
-  task_data_mpi->outputs.emplace_back(reinterpret_cast<uint8_t*>(out_array.data()));
-  task_data_mpi->outputs_count.emplace_back(output_array.size());
+  if (world.rank() == 0) {
+    task_data_mpi->inputs.emplace_back(reinterpret_cast<uint8_t*>(in_array.data()));
+    task_data_mpi->inputs_count.emplace_back(input_array.size());
+    task_data_mpi->inputs_count.emplace_back(chunk_count);
+    task_data_mpi->outputs.emplace_back(reinterpret_cast<uint8_t*>(out_array.data()));
+    task_data_mpi->outputs_count.emplace_back(output_array.size());
+  }
 
   deryabin_m_hoare_sort_simple_merge_mpi::HoareSortTaskMPI hoare_sort_task_mpi(task_data_mpi);
   ASSERT_EQ(hoare_sort_task_mpi.Validation(), true);
   hoare_sort_task_mpi.PreProcessing();
   hoare_sort_task_mpi.Run();
   hoare_sort_task_mpi.PostProcessing();
-  ASSERT_EQ(true_solution, out_array[0]);
+  if (world.rank() == 0) {
+    ASSERT_EQ(true_solution, out_array[0]); 
+  }
 }
 
 TEST(deryabin_m_hoare_sort_simple_merge_mpi, test_random_array_small_pieces) {
@@ -166,18 +187,22 @@ TEST(deryabin_m_hoare_sort_simple_merge_mpi, test_random_array_small_pieces) {
   std::ranges::sort(true_solution.begin(), true_solution.end());
 
   auto task_data_mpi = std::make_shared<ppc::core::TaskData>();
-  task_data_mpi->inputs.emplace_back(reinterpret_cast<uint8_t*>(in_array.data()));
-  task_data_mpi->inputs_count.emplace_back(input_array.size());
-  task_data_mpi->inputs_count.emplace_back(chunk_count);
-  task_data_mpi->outputs.emplace_back(reinterpret_cast<uint8_t*>(out_array.data()));
-  task_data_mpi->outputs_count.emplace_back(output_array.size());
+  if (world.rank() == 0) {
+    task_data_mpi->inputs.emplace_back(reinterpret_cast<uint8_t*>(in_array.data()));
+    task_data_mpi->inputs_count.emplace_back(input_array.size());
+    task_data_mpi->inputs_count.emplace_back(chunk_count);
+    task_data_mpi->outputs.emplace_back(reinterpret_cast<uint8_t*>(out_array.data()));
+    task_data_mpi->outputs_count.emplace_back(output_array.size());
+  }
 
   deryabin_m_hoare_sort_simple_merge_mpi::HoareSortTaskMPI hoare_sort_task_mpi(task_data_mpi);
   ASSERT_EQ(hoare_sort_task_mpi.Validation(), true);
   hoare_sort_task_mpi.PreProcessing();
   hoare_sort_task_mpi.Run();
   hoare_sort_task_mpi.PostProcessing();
-  ASSERT_EQ(true_solution, out_array[0]);
+  if (world.rank() == 0) {
+    ASSERT_EQ(true_solution, out_array[0]); 
+  }
 }
 
 TEST(deryabin_m_hoare_sort_simple_merge_mpi, test_random_array_large_pieces) {
@@ -194,18 +219,22 @@ TEST(deryabin_m_hoare_sort_simple_merge_mpi, test_random_array_large_pieces) {
   std::ranges::sort(true_solution.begin(), true_solution.end());
 
   auto task_data_mpi = std::make_shared<ppc::core::TaskData>();
-  task_data_mpi->inputs.emplace_back(reinterpret_cast<uint8_t*>(in_array.data()));
-  task_data_mpi->inputs_count.emplace_back(input_array.size());
-  task_data_mpi->inputs_count.emplace_back(chunk_count);
-  task_data_mpi->outputs.emplace_back(reinterpret_cast<uint8_t*>(out_array.data()));
-  task_data_mpi->outputs_count.emplace_back(output_array.size());
+  if (world.rank() == 0) {
+    task_data_mpi->inputs.emplace_back(reinterpret_cast<uint8_t*>(in_array.data()));
+    task_data_mpi->inputs_count.emplace_back(input_array.size());
+    task_data_mpi->inputs_count.emplace_back(chunk_count);
+    task_data_mpi->outputs.emplace_back(reinterpret_cast<uint8_t*>(out_array.data()));
+    task_data_mpi->outputs_count.emplace_back(output_array.size());
+  }
 
   deryabin_m_hoare_sort_simple_merge_mpi::HoareSortTaskMPI hoare_sort_task_mpi(task_data_mpi);
   ASSERT_EQ(hoare_sort_task_mpi.Validation(), true);
   hoare_sort_task_mpi.PreProcessing();
   hoare_sort_task_mpi.Run();
   hoare_sort_task_mpi.PostProcessing();
-  ASSERT_EQ(true_solution, out_array[0]);
+  if (world.rank() == 0) {
+    ASSERT_EQ(true_solution, out_array[0]); 
+  }
 }
 
 TEST(deryabin_m_hoare_sort_simple_merge_mpi, test_array_large_pieces_reversed_order) {
@@ -219,18 +248,22 @@ TEST(deryabin_m_hoare_sort_simple_merge_mpi, test_array_large_pieces_reversed_or
   std::ranges::sort(true_solution.begin(), true_solution.end());
 
   auto task_data_mpi = std::make_shared<ppc::core::TaskData>();
-  task_data_mpi->inputs.emplace_back(reinterpret_cast<uint8_t*>(in_array.data()));
-  task_data_mpi->inputs_count.emplace_back(input_array.size());
-  task_data_mpi->inputs_count.emplace_back(chunk_count);
-  task_data_mpi->outputs.emplace_back(reinterpret_cast<uint8_t*>(out_array.data()));
-  task_data_mpi->outputs_count.emplace_back(output_array.size());
+  if (world.rank() == 0) {
+    task_data_mpi->inputs.emplace_back(reinterpret_cast<uint8_t*>(in_array.data()));
+    task_data_mpi->inputs_count.emplace_back(input_array.size());
+    task_data_mpi->inputs_count.emplace_back(chunk_count);
+    task_data_mpi->outputs.emplace_back(reinterpret_cast<uint8_t*>(out_array.data()));
+    task_data_mpi->outputs_count.emplace_back(output_array.size());
+  }
 
   deryabin_m_hoare_sort_simple_merge_mpi::HoareSortTaskMPI hoare_sort_task_mpi(task_data_mpi);
   ASSERT_EQ(hoare_sort_task_mpi.Validation(), true);
   hoare_sort_task_mpi.PreProcessing();
   hoare_sort_task_mpi.Run();
   hoare_sort_task_mpi.PostProcessing();
-  ASSERT_EQ(true_solution, out_array[0]);
+  if (world.rank() == 0) {
+    ASSERT_EQ(true_solution, out_array[0]); 
+  }
 }
 
 TEST(deryabin_m_hoare_sort_simple_merge_mpi, test_partially_sorted_array) {
@@ -248,18 +281,22 @@ TEST(deryabin_m_hoare_sort_simple_merge_mpi, test_partially_sorted_array) {
   std::ranges::sort(true_solution.begin(), true_solution.end());
 
   auto task_data_mpi = std::make_shared<ppc::core::TaskData>();
-  task_data_mpi->inputs.emplace_back(reinterpret_cast<uint8_t*>(in_array.data()));
-  task_data_mpi->inputs_count.emplace_back(input_array.size());
-  task_data_mpi->inputs_count.emplace_back(chunk_count);
-  task_data_mpi->outputs.emplace_back(reinterpret_cast<uint8_t*>(out_array.data()));
-  task_data_mpi->outputs_count.emplace_back(output_array.size());
+  if (world.rank() == 0) {
+    task_data_mpi->inputs.emplace_back(reinterpret_cast<uint8_t*>(in_array.data()));
+    task_data_mpi->inputs_count.emplace_back(input_array.size());
+    task_data_mpi->inputs_count.emplace_back(chunk_count);
+    task_data_mpi->outputs.emplace_back(reinterpret_cast<uint8_t*>(out_array.data()));
+    task_data_mpi->outputs_count.emplace_back(output_array.size());
+  }
 
   deryabin_m_hoare_sort_simple_merge_mpi::HoareSortTaskMPI hoare_sort_task_mpi(task_data_mpi);
   ASSERT_EQ(hoare_sort_task_mpi.Validation(), true);
   hoare_sort_task_mpi.PreProcessing();
   hoare_sort_task_mpi.Run();
   hoare_sort_task_mpi.PostProcessing();
-  ASSERT_EQ(true_solution, out_array[0]);
+  if (world.rank() == 0) {
+    ASSERT_EQ(true_solution, out_array[0]); 
+  }
 }
 
 TEST(deryabin_m_hoare_sort_simple_merge_mpi, test_backward_sorted_array) {
@@ -273,18 +310,22 @@ TEST(deryabin_m_hoare_sort_simple_merge_mpi, test_backward_sorted_array) {
   std::ranges::sort(true_solution.begin(), true_solution.end());
 
   auto task_data_mpi = std::make_shared<ppc::core::TaskData>();
-  task_data_mpi->inputs.emplace_back(reinterpret_cast<uint8_t*>(in_array.data()));
-  task_data_mpi->inputs_count.emplace_back(input_array.size());
-  task_data_mpi->inputs_count.emplace_back(chunk_count);
-  task_data_mpi->outputs.emplace_back(reinterpret_cast<uint8_t*>(out_array.data()));
-  task_data_mpi->outputs_count.emplace_back(output_array.size());
+  if (world.rank() == 0) {
+    task_data_mpi->inputs.emplace_back(reinterpret_cast<uint8_t*>(in_array.data()));
+    task_data_mpi->inputs_count.emplace_back(input_array.size());
+    task_data_mpi->inputs_count.emplace_back(chunk_count);
+    task_data_mpi->outputs.emplace_back(reinterpret_cast<uint8_t*>(out_array.data()));
+    task_data_mpi->outputs_count.emplace_back(output_array.size());
+  }
 
   deryabin_m_hoare_sort_simple_merge_mpi::HoareSortTaskMPI hoare_sort_task_mpi(task_data_mpi);
   ASSERT_EQ(hoare_sort_task_mpi.Validation(), true);
   hoare_sort_task_mpi.PreProcessing();
   hoare_sort_task_mpi.Run();
   hoare_sort_task_mpi.PostProcessing();
-  ASSERT_EQ(true_solution, out_array[0]);
+  if (world.rank() == 0) {
+    ASSERT_EQ(true_solution, out_array[0]); 
+  }
 }
 
 TEST(deryabin_m_hoare_sort_simple_merge_mpi, test_invalid_array) {
@@ -295,14 +336,18 @@ TEST(deryabin_m_hoare_sort_simple_merge_mpi, test_invalid_array) {
   std::vector<std::vector<double>> out_array(1, output_array);
 
   auto task_data_mpi = std::make_shared<ppc::core::TaskData>();
-  task_data_mpi->inputs.emplace_back(reinterpret_cast<uint8_t*>(in_array.data()));
-  task_data_mpi->inputs_count.emplace_back(input_array.size());
-  task_data_mpi->inputs_count.emplace_back(chunk_count);
-  task_data_mpi->outputs.emplace_back(reinterpret_cast<uint8_t*>(out_array.data()));
-  task_data_mpi->outputs_count.emplace_back(output_array.size());
+  if (world.rank() == 0) {
+    task_data_mpi->inputs.emplace_back(reinterpret_cast<uint8_t*>(in_array.data()));
+    task_data_mpi->inputs_count.emplace_back(input_array.size());
+    task_data_mpi->inputs_count.emplace_back(chunk_count);
+    task_data_mpi->outputs.emplace_back(reinterpret_cast<uint8_t*>(out_array.data()));
+    task_data_mpi->outputs_count.emplace_back(output_array.size());
+  }
 
   deryabin_m_hoare_sort_simple_merge_mpi::HoareSortTaskMPI hoare_sort_task_mpi(task_data_mpi);
-  ASSERT_EQ(hoare_sort_task_mpi.Validation(), false);
+  if (world.rank() == 0) {
+    ASSERT_EQ(hoare_sort_task_mpi.Validation(), false);
+  }
 }
 
 TEST(deryabin_m_hoare_sort_simple_merge_mpi, test_invalid_chunk_count) {
@@ -313,12 +358,16 @@ TEST(deryabin_m_hoare_sort_simple_merge_mpi, test_invalid_chunk_count) {
   std::vector<std::vector<double>> out_array(1, output_array);
 
   auto task_data_mpi = std::make_shared<ppc::core::TaskData>();
-  task_data_mpi->inputs.emplace_back(reinterpret_cast<uint8_t*>(in_array.data()));
-  task_data_mpi->inputs_count.emplace_back(input_array.size());
-  task_data_mpi->inputs_count.emplace_back(chunk_count);
-  task_data_mpi->outputs.emplace_back(reinterpret_cast<uint8_t*>(out_array.data()));
-  task_data_mpi->outputs_count.emplace_back(output_array.size());
+  if (world.rank() == 0) {
+    task_data_mpi->inputs.emplace_back(reinterpret_cast<uint8_t*>(in_array.data()));
+    task_data_mpi->inputs_count.emplace_back(input_array.size());
+    task_data_mpi->inputs_count.emplace_back(chunk_count);
+    task_data_mpi->outputs.emplace_back(reinterpret_cast<uint8_t*>(out_array.data()));
+    task_data_mpi->outputs_count.emplace_back(output_array.size());
+  }
 
   deryabin_m_hoare_sort_simple_merge_mpi::HoareSortTaskMPI hoare_sort_task_mpi(task_data_mpi);
-  ASSERT_EQ(hoare_sort_task_mpi.Validation(), false);
+  if (world.rank() == 0) {
+    ASSERT_EQ(hoare_sort_task_mpi.Validation(), false);
+  }
 }
