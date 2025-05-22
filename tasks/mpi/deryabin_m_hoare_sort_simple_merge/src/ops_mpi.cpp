@@ -3,8 +3,8 @@
 #include <oneapi/tbb/task_group.h>
 
 #include <algorithm>
-#include <boost/mpi/collectives/broadcast.hpp>
 #include <bit>
+#include <boost/mpi/collectives/broadcast.hpp>
 #include <cmath>
 #include <core/util/include/util.hpp>
 #include <cstddef>
