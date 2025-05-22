@@ -1,7 +1,5 @@
 #include "mpi/deryabin_m_hoare_sort_simple_merge/include/ops_mpi.hpp"
 
-#include <tbb/tbb.h>
-
 #include <algorithm>
 #include <bit>
 #include <cmath>
