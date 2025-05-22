@@ -138,7 +138,7 @@ bool deryabin_m_hoare_sort_simple_merge_mpi::HoareSortTaskMPI::RunImpl() {
   const size_t num_threads = ppc::util::GetPPCNumThreads();
   if (world.rank() != world.size() - 1) {
     HoaraSort(input_array_A_, static_cast<size_t>(world.rank()) * num_chunk_per_proc * min_chunk_size_,
-             ((static_cast<size_t>(world.rank()) + 1) * num_chunk_per_proc * min_chunk_size_) - 1, tg, num_threads);
+              ((static_cast<size_t>(world.rank()) + 1) * num_chunk_per_proc * min_chunk_size_) - 1, tg, num_threads);
   } else {
     HoaraSort(input_array_A_, static_cast<size_t>(world.rank()) * num_chunk_per_proc * min_chunk_size_, dimension_ - 1,
               tg, num_threads);
@@ -152,7 +152,7 @@ bool deryabin_m_hoare_sort_simple_merge_mpi::HoareSortTaskMPI::RunImpl() {
     size_t partner = static_cast<size_t>(world.rank()) ^ step;
     if ((static_cast<size_t>(world.rank()) & step) == 0) {
         world.send(world.rank() + 1, world.rank(), input_array_A_.data() + static_cast<unsigned short>(world.rank() * num_chunk_per_proc * min_chunk_size_) << (i + 1),
-                 static_cast<unsigned short>(num_chunk_per_proc * min_chunk_size_) << i;  
+                  static_cast<unsigned short>(num_chunk_per_proc * min_chunk_size_) << i;  
     } else {
       world.recv(
           world.rank() - 1, world.rank() - 1,
