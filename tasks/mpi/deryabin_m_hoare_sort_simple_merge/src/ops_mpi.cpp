@@ -64,7 +64,7 @@ void deryabin_m_hoare_sort_simple_merge_mpi::MergeTwoParts(std::vector<double>& 
   } else {
     std::inplace_merge(a.begin() + first, a.begin() + mid, a.begin() + last);
   }
- }
+}
 
 bool deryabin_m_hoare_sort_simple_merge_mpi::HoareSortTaskSequential::PreProcessingImpl() {
   input_array_A_ = reinterpret_cast<std::vector<double>*>(task_data->inputs[0])[0];
@@ -152,8 +152,7 @@ bool deryabin_m_hoare_sort_simple_merge_mpi::HoareSortTaskMPI::RunImpl() {
     size_t partner = static_cast<size_t>(world.rank()) ^ step;
     if ((static_cast<size_t>(world.rank()) & step) == 0) {
         world.send(world.rank() + 1, world.rank(), input_array_A_.data() + static_cast<unsigned short>(world.rank() * num_chunk_per_proc * min_chunk_size_) << (i + 1),
-                static_cast<unsigned short>(num_chunk_per_proc * min_chunk_size_) << i;
-        break;  
+                static_cast<unsigned short>(num_chunk_per_proc * min_chunk_size_) << i;  
     } else {
       world.recv(
           world.rank() - 1, world.rank() - 1,
