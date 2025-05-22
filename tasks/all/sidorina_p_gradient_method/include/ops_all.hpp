@@ -4,15 +4,16 @@
 
 #include <boost/mpi/collectives.hpp>
 #include <boost/mpi/collectives/reduce.hpp>
-#include "boost/mpi/collectives/broadcast.hpp"
-#include "boost/mpi/collectives/gatherv.hpp"
-#include "boost/mpi/collectives/scatterv.hpp"
 #include <boost/mpi/communicator.hpp>
 #include <boost/serialization/vector.hpp>
 #include <cmath>
-#include <functional> 
+#include <functional>
 #include <utility>
 #include <vector>
+
+ #include "boost/mpi/collectives/broadcast.hpp"
+ #include "boost/mpi/collectives/gatherv.hpp"
+ #include "boost/mpi/collectives/scatterv.hpp"
 
 #include "core/task/include/task.hpp"
 
