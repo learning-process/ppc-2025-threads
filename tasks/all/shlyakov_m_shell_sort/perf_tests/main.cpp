@@ -1,7 +1,7 @@
 #include <gtest/gtest.h>
 
 #include <algorithm>
-#include <boost/mpi.hpp>
+#include <boost/mpi/communicator.hpp>
 #include <chrono>
 #include <cstddef>
 #include <cstdint>
@@ -15,7 +15,7 @@
 #include "core/task/include/task.hpp"
 
 namespace {
-std::vector<int> GenerateRandomArray(size_t size) {
+std::vector<int> GenerateRandomArray(std::size_t size) {
   unsigned seed = std::chrono::system_clock::now().time_since_epoch().count();
   std::default_random_engine generator(seed);
 
@@ -30,7 +30,7 @@ std::vector<int> GenerateRandomArray(size_t size) {
   std::uniform_int_distribution<int> distribution(min_val, max_val);
 
   std::vector<int> arr(size);
-  for (size_t i = 0; i < size; ++i) {
+  for (std::size_t i = 0; i < size; ++i) {
     arr[i] = distribution(generator);
   }
   return arr;
@@ -40,7 +40,7 @@ bool IsSorted(const std::vector<int>& arr) {
   if (arr.empty()) {
     return true;
   }
-  for (size_t i = 1; i < arr.size(); ++i) {
+  for (std::size_t i = 1; i < arr.size(); ++i) {
     if (arr[i - 1] > arr[i]) {
       return false;
     }
@@ -51,15 +51,16 @@ bool IsSorted(const std::vector<int>& arr) {
 
 TEST(shlyakov_m_shell_sort_all, test_pipeline_run) {
   boost::mpi::communicator world;
-  constexpr size_t kCount = 100000;
+  constexpr std::size_t kCount = 100000;
 
   std::vector<int> in = GenerateRandomArray(kCount);
   std::vector<int> expected = in;
   std::ranges::sort(expected);
   std::vector<int> out(in.size());
 
-  if (world_.rank() == 0) {
-    auto task_data_tbb = std::make_shared<ppc::core::TaskData>();
+  std::shared_ptr<ppc::core::TaskData> task_data_tbb;
+  if (world.rank() == 0) {
+    task_data_tbb = std::make_shared<ppc::core::TaskData>();
     task_data_tbb->inputs.emplace_back(reinterpret_cast<uint8_t*>(in.data()));
     task_data_tbb->inputs_count.emplace_back(in.size());
     task_data_tbb->outputs.emplace_back(reinterpret_cast<uint8_t*>(out.data()));
@@ -83,22 +84,23 @@ TEST(shlyakov_m_shell_sort_all, test_pipeline_run) {
   perf_analyzer->PipelineRun(perf_attr, perf_results);
   ppc::core::Perf::PrintPerfStatistic(perf_results);
 
-  if (world_.rank() == 0) {
+  if (world.rank() == 0) {
     EXPECT_TRUE(IsSorted(out));
   }
 }
 
 TEST(shlyakov_m_shell_sort_all, test_task_run) {
   boost::mpi::communicator world;
-  constexpr size_t kCount = 100000;
+  constexpr std::size_t kCount = 100000;
 
   std::vector<int> in = GenerateRandomArray(kCount);
   std::vector<int> expected = in;
   std::ranges::sort(expected);
   std::vector<int> out(in.size());
 
-  if (world_.rank() == 0) {
-    auto task_data_tbb = std::make_shared<ppc::core::TaskData>();
+  std::shared_ptr<ppc::core::TaskData> task_data_tbb;
+  if (world.rank() == 0) {
+    task_data_tbb = std::make_shared<ppc::core::TaskData>();
     task_data_tbb->inputs.emplace_back(reinterpret_cast<uint8_t*>(in.data()));
     task_data_tbb->inputs_count.emplace_back(in.size());
     task_data_tbb->outputs.emplace_back(reinterpret_cast<uint8_t*>(out.data()));
@@ -122,7 +124,7 @@ TEST(shlyakov_m_shell_sort_all, test_task_run) {
   perf_analyzer->TaskRun(perf_attr, perf_results);
   ppc::core::Perf::PrintPerfStatistic(perf_results);
 
-  if (world_.rank() == 0) {
+  if (world.rank() == 0) {
     EXPECT_TRUE(IsSorted(out));
   }
 }
