@@ -3,10 +3,14 @@
 #include <oneapi/tbb/parallel_for.h>
 
 #include <boost/mpi/collectives.hpp>
+#include <boost/mpi/collectives/reduce.hpp>
+#include "boost/mpi/collectives/broadcast.hpp"
+#include "boost/mpi/collectives/gatherv.hpp"
+#include "boost/mpi/collectives/scatterv.hpp"
 #include <boost/mpi/communicator.hpp>
-#include <boost/serialization/array.hpp>
 #include <boost/serialization/vector.hpp>
 #include <cmath>
+#include <functional> 
 #include <utility>
 #include <vector>
 
@@ -37,7 +41,7 @@ inline std::vector<double> MultiplyMatrixByVector(boost::mpi::communicator& worl
   std::vector<double> local_result(local_rows, 0.0);
   for (int i = 0; i < local_rows; ++i) {
     for (int j = 0; j < size; ++j) {
-      local_result[i] += local_matrix[i * size + j] * vec[j];
+      local_result[i] += local_matrix[(i * size) + j] * vec[j];
     }
   }
   std::vector<double> result;
@@ -49,7 +53,7 @@ inline std::vector<double> MultiplyMatrixByVector(boost::mpi::communicator& worl
   for (int i = 1; i < wsize; ++i) {
     recv_displs[i] = recv_displs[i - 1] + recv_sizes[i - 1];
   }
-  gatherv(world, local_result.data(), local_result.size(), result.data(), recv_sizes, recv_displs, 0);
+  gatherv(world, local_result.data(), int(local_result.size()), result.data(), recv_sizes, recv_displs, 0);
   broadcast(world, result, 0);
 
   return result;
@@ -66,10 +70,10 @@ inline double VectorNorm(const std::vector<double>& vec) {
 inline double Dot(boost::mpi::communicator& world, const std::vector<double>& vec1, const std::vector<double>& vec2) {
   int rank = world.rank();
   int size = world.size();
-  size_t global_size = vec1.size();
+  int global_size = vec1.size();
   std::vector<int> sizes(size, global_size / size);
   std::vector<int> displs(size, 0);
-  for (size_t i = 0; i < global_size % size; ++i) {
+  for (int i = 0; i < global_size % size; ++i) {
     sizes[i]++;
   }
   for (int i = 1; i < size; ++i) {
@@ -207,7 +211,7 @@ class GradientMethod : public ppc::core::Task {
   std::vector<double> b_;
   std::vector<double> solution_;
   std::vector<double> result_;
-  boost::mpi::communicator world;
+  boost::mpi::communicator world_;
 };
 
 }  // namespace sidorina_p_gradient_method_all

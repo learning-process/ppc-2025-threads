@@ -46,7 +46,7 @@ bool sidorina_p_gradient_method_all::GradientMethod::ValidationImpl() {
 }
 
 bool sidorina_p_gradient_method_all::GradientMethod::RunImpl() {
-  result_ = ConjugateGradientMethod(world, a_, b_, solution_, tolerance_, size_);
+  result_ = ConjugateGradientMethod(world_, a_, b_, solution_, tolerance_, size_);
   return true;
 }
 
