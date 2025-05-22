@@ -1,13 +1,13 @@
 #include "mpi/deryabin_m_hoare_sort_simple_merge/include/ops_mpi.hpp"
 
+#include <oneapi/tbb/task_group.h>
+
 #include <algorithm>
 #include <bit>
 #include <cmath>
 #include <core/util/include/util.hpp>
 #include <cstddef>
 #include <vector>
-
-#include <oneapi/tbb/task_group.h>
 
 void deryabin_m_hoare_sort_simple_merge_mpi::HoaraSort(std::vector<double>& a, size_t first, size_t last) {
   if (first >= last) {
