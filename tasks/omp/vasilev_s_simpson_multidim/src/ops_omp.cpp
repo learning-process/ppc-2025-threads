@@ -6,6 +6,8 @@
 #include <numeric>
 #include <vector>
 
+#include "core/util/include/util.hpp"
+
 bool vasilev_s_simpson_multidim::SimpsonTaskOmp::ValidationImpl() {
   const auto arity = task_data->inputs_count[0];
 
@@ -45,7 +47,8 @@ bool vasilev_s_simpson_multidim::SimpsonTaskOmp::RunImpl() {
 
   double isum = 0.;
   std::vector<double> coordbuf(arity_);
-#pragma omp parallel for reduction(+ : isum) firstprivate(coordbuf)
+#pragma omp parallel for reduction(+ : isum) firstprivate(coordbuf) \
+    schedule(static, gridcap_ / ppc::util::GetPPCNumThreads())
   for (auto ip = decltype(igridcap){0}; ip < igridcap; ip++) {
     auto p = ip;
     double coefficient = 1.;
