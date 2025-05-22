@@ -11,7 +11,6 @@
 #include "core/perf/include/perf.hpp"
 #include "core/task/include/task.hpp"
 
-
 TEST(khovansky_d_double_radix_batcher_all, test_pipeline_run) {
   constexpr int kCount = 1000000;
 
