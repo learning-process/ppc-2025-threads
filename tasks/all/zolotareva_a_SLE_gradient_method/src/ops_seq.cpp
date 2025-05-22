@@ -8,6 +8,7 @@
 #include <boost/mpi/collectives/broadcast.hpp>
 #include <cmath>
 #include <functional>
+#include <stdexcept>
 #include <vector>
 
 bool zolotareva_a_sle_gradient_method_all::TestTaskALL::PreProcessingImpl() {
@@ -25,7 +26,6 @@ bool zolotareva_a_sle_gradient_method_all::TestTaskALL::PreProcessingImpl() {
       }
     }
   }
-
   return true;
 }
 
