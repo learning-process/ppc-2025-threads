@@ -34,8 +34,7 @@ void deryabin_m_hoare_sort_simple_merge_mpi::HoaraSort(std::vector<double>& a, s
   const size_t j = pj - a.data();
   const size_t i = pi - a.data();
   if (available_threads > 1) {
-    tg.run(
-        [&a, &first, &j, &tg, &available_threads]() { HoaraSort(a, first, j, tg, available_threads >> 1); });
+    tg.run([&a, &first, &j, &tg, &available_threads]() { HoaraSort(a, first, j, tg, available_threads >> 1); });
     tg.run([&a, &i, &last, &tg, &available_threads]() {
       HoaraSort(a, i + 1, last, tg, available_threads - (available_threads >> 1));
     });
@@ -53,8 +52,7 @@ void deryabin_m_hoare_sort_simple_merge_mpi::MergeTwoParts(std::vector<double>& 
   const size_t size = last - first;
   const size_t mid = first + size / 2;
   if (available_threads > 1) {
-    tg.run(
-        [&, first, mid, available_threads]() { MergeTwoParts(a, first, mid, tg, available_threads / 2); });
+    tg.run([&, first, mid, available_threads]() { MergeTwoParts(a, first, mid, tg, available_threads / 2); });
     tg.run([&, last, mid, available_threads]() {
       MergeTwoParts(a, mid, last, tg, available_threads - available_threads / 2);
     });
@@ -149,8 +147,10 @@ bool deryabin_m_hoare_sort_simple_merge_mpi::HoareSortTaskMPI::RunImpl() {
        ++i) {  // На каждом уровне сливаются пары соседних блоков размером min_chunk_size_ × 2^i
     size_t step = 1 << i;
     if ((static_cast<size_t>(world.rank()) & step) == 0) {
-        world.send(world.rank() + 1, world.rank(), input_array_A_.data() + static_cast<size_t>(world.rank() * num_chunk_per_proc * min_chunk_size_) << (i + 1),
-                   static_cast<size_t>(num_chunk_per_proc * min_chunk_size_) << i);
+      world.send(world.rank() + 1, world.rank(),
+                 input_array_A_.data() + static_cast<size_t>(world.rank() * num_chunk_per_proc * min_chunk_size_)
+                     << (i + 1),
+                 static_cast<size_t>(num_chunk_per_proc * min_chunk_size_) << i);
     } else {
       world.recv(
           world.rank() - 1, world.rank() - 1,
@@ -158,10 +158,12 @@ bool deryabin_m_hoare_sort_simple_merge_mpi::HoareSortTaskMPI::RunImpl() {
               << (i + 1),
           static_cast<unsigned short>(num_chunk_per_proc * min_chunk_size_) << i);
       if (world.rank() != world.size() - 1) {
-        MergeTwoParts(input_array_A_, static_cast<size_t>((world.rank() - 1) * num_chunk_per_proc * min_chunk_size_) << (i + 1),
+        MergeTwoParts(input_array_A_,
+                      static_cast<size_t>((world.rank() - 1) * num_chunk_per_proc * min_chunk_size_) << (i + 1),
                       ((world.rank() + 1) * num_chunk_per_proc * min_chunk_size_) << (i + 1) - 1, tg, num_threads);
       } else {
-        MergeTwoParts(input_array_A_, static_cast<size_t>((world.rank() - 1) * num_chunk_per_proc * min_chunk_size_) << (i + 1),
+        MergeTwoParts(input_array_A_,
+                      static_cast<size_t>((world.rank() - 1) * num_chunk_per_proc * min_chunk_size_) << (i + 1),
                       dimension_ - 1, tg, num_threads);
       }
     }
