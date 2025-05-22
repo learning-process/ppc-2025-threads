@@ -58,6 +58,7 @@ std::shared_ptr<ppc::core::TaskData> CreateTaskData(const std::vector<int>& in, 
 }
 }  // namespace
 
+// NOLINTNEXTLINE(readability-function-cognitive-complexity)
 TEST(shlyakov_m_shell_sort_all, test_pipeline_run) {
   boost::mpi::communicator world;
   constexpr std::size_t kCount = 100000;
@@ -94,6 +95,7 @@ TEST(shlyakov_m_shell_sort_all, test_pipeline_run) {
   }
 }
 
+// NOLINTNEXTLINE(readability-function-cognitive-complexity)
 TEST(shlyakov_m_shell_sort_all, test_task_run) {
   boost::mpi::communicator world;
   constexpr std::size_t kCount = 100000;

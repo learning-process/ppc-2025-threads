@@ -57,6 +57,7 @@ std::shared_ptr<ppc::core::TaskData> CreateTaskData(const std::vector<int>& in, 
 }
 }  // namespace
 
+// NOLINTNEXTLINE(readability-function-cognitive-complexity)
 TEST(shlyakov_m_shell_sort_all, Test_Empty_Array) {
   boost::mpi::communicator world;
   std::vector<int> in;
@@ -78,6 +79,7 @@ TEST(shlyakov_m_shell_sort_all, Test_Empty_Array) {
   }
 }
 
+// NOLINTNEXTLINE(readability-function-cognitive-complexity)
 TEST(shlyakov_m_shell_sort_all, Test_Already_Sorted_Array) {
   boost::mpi::communicator world;
   std::vector<int> in = {1, 2, 3, 4, 5};
@@ -101,6 +103,7 @@ TEST(shlyakov_m_shell_sort_all, Test_Already_Sorted_Array) {
   }
 }
 
+// NOLINTNEXTLINE(readability-function-cognitive-complexity)
 TEST(shlyakov_m_shell_sort_all, Test_Reverse_Sorted_Array) {
   boost::mpi::communicator world;
   std::vector<int> in = {5, 4, 3, 2, 1};
@@ -124,6 +127,7 @@ TEST(shlyakov_m_shell_sort_all, Test_Reverse_Sorted_Array) {
   }
 }
 
+// NOLINTNEXTLINE(readability-function-cognitive-complexity)
 TEST(shlyakov_m_shell_sort_all, Test_Random_Array_Small) {
   boost::mpi::communicator world;
   std::vector<int> in = GenerateRandomArray(10);
@@ -148,6 +152,7 @@ TEST(shlyakov_m_shell_sort_all, Test_Random_Array_Small) {
   }
 }
 
+// NOLINTNEXTLINE(readability-function-cognitive-complexity)
 TEST(shlyakov_m_shell_sort_all, Test_Random_Array_Large) {
   boost::mpi::communicator world;
   size_t array_size = 200;
@@ -173,6 +178,7 @@ TEST(shlyakov_m_shell_sort_all, Test_Random_Array_Large) {
   }
 }
 
+// NOLINTNEXTLINE(readability-function-cognitive-complexity)
 TEST(shlyakov_m_shell_sort_all, Test_Random_Array_With_Simple_Size) {
   boost::mpi::communicator world;
   size_t array_size = 241;
@@ -198,6 +204,7 @@ TEST(shlyakov_m_shell_sort_all, Test_Random_Array_With_Simple_Size) {
   }
 }
 
+// NOLINTNEXTLINE(readability-function-cognitive-complexity)
 TEST(shlyakov_m_shell_sort_all, Test_Random_Array_With_500) {
   boost::mpi::communicator world;
   size_t array_size = 500;
@@ -223,6 +230,7 @@ TEST(shlyakov_m_shell_sort_all, Test_Random_Array_With_500) {
   }
 }
 
+// NOLINTNEXTLINE(readability-function-cognitive-complexity)
 TEST(shlyakov_m_shell_sort_all, Test_Random_Array_With_501) {
   boost::mpi::communicator world;
   size_t array_size = 501;
@@ -248,6 +256,7 @@ TEST(shlyakov_m_shell_sort_all, Test_Random_Array_With_501) {
   }
 }
 
+// NOLINTNEXTLINE(readability-function-cognitive-complexity)
 TEST(shlyakov_m_shell_sort_all, Test_Random_Array_With_1000) {
   boost::mpi::communicator world;
   size_t array_size = 1000;
@@ -273,6 +282,7 @@ TEST(shlyakov_m_shell_sort_all, Test_Random_Array_With_1000) {
   }
 }
 
+// NOLINTNEXTLINE(readability-function-cognitive-complexity)
 TEST(shlyakov_m_shell_sort_all, Test_Random_Array_With_1001) {
   boost::mpi::communicator world;
   size_t array_size = 1001;
@@ -298,6 +308,7 @@ TEST(shlyakov_m_shell_sort_all, Test_Random_Array_With_1001) {
   }
 }
 
+// NOLINTNEXTLINE(readability-function-cognitive-complexity)
 TEST(shlyakov_m_shell_sort_all, Test_Random_Array_With_999) {
   boost::mpi::communicator world;
   size_t array_size = 999;
@@ -323,6 +334,7 @@ TEST(shlyakov_m_shell_sort_all, Test_Random_Array_With_999) {
   }
 }
 
+// NOLINTNEXTLINE(readability-function-cognitive-complexity)
 TEST(shlyakov_m_shell_sort_all, Test_Random_Array_With_10000) {
   boost::mpi::communicator world;
   size_t array_size = 10000;
@@ -347,6 +359,7 @@ TEST(shlyakov_m_shell_sort_all, Test_Random_Array_With_10000) {
   }
 }
 
+// NOLINTNEXTLINE(readability-function-cognitive-complexity)
 TEST(shlyakov_m_shell_sort_all, Test_Random_Array_With_10001) {
   boost::mpi::communicator world;
   size_t array_size = 10001;
@@ -372,6 +385,7 @@ TEST(shlyakov_m_shell_sort_all, Test_Random_Array_With_10001) {
   }
 }
 
+// NOLINTNEXTLINE(readability-function-cognitive-complexity)
 TEST(shlyakov_m_shell_sort_all, Test_Random_Array_With_9999) {
   boost::mpi::communicator world;
   size_t array_size = 9999;
@@ -397,6 +411,7 @@ TEST(shlyakov_m_shell_sort_all, Test_Random_Array_With_9999) {
   }
 }
 
+// NOLINTNEXTLINE(readability-function-cognitive-complexity)
 TEST(shlyakov_m_shell_sort_all, Test_Random_Array_With_15000) {
   boost::mpi::communicator world;
   size_t array_size = 15000;
@@ -422,6 +437,7 @@ TEST(shlyakov_m_shell_sort_all, Test_Random_Array_With_15000) {
   }
 }
 
+// NOLINTNEXTLINE(readability-function-cognitive-complexity)
 TEST(shlyakov_m_shell_sort_all, Test_Random_Array_With_15001) {
   boost::mpi::communicator world;
   size_t array_size = 15001;
@@ -447,6 +463,7 @@ TEST(shlyakov_m_shell_sort_all, Test_Random_Array_With_15001) {
   }
 }
 
+// NOLINTNEXTLINE(readability-function-cognitive-complexity)
 TEST(shlyakov_m_shell_sort_all, Test_Random_Array_With_14999) {
   boost::mpi::communicator world;
   size_t array_size = 14999;
@@ -472,6 +489,7 @@ TEST(shlyakov_m_shell_sort_all, Test_Random_Array_With_14999) {
   }
 }
 
+// NOLINTNEXTLINE(readability-function-cognitive-complexity)
 TEST(shlyakov_m_shell_sort_all, Test_With_Eq_Numbers) {
   boost::mpi::communicator world;
   size_t array_size = 100;
@@ -497,6 +515,7 @@ TEST(shlyakov_m_shell_sort_all, Test_With_Eq_Numbers) {
   }
 }
 
+// NOLINTNEXTLINE(readability-function-cognitive-complexity)
 TEST(shlyakov_m_shell_sort_all, Test_With_False_Validation) {
   boost::mpi::communicator world;
   size_t array_size = 100;
