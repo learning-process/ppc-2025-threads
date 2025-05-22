@@ -1,6 +1,6 @@
 #pragma once
 
-#include <oneapi/tbb.h>
+#include <oneapi/tbb/task_group.h>
 
 #include <boost/mpi/collectives.hpp>
 #include <boost/mpi/communicator.hpp>
