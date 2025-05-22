@@ -10,7 +10,8 @@
 #include <cstddef>
 #include <vector>
 
-void deryabin_m_hoare_sort_simple_merge_mpi::HoaraSort(std::vector<double>& a, size_t first, size_t last, size_t available_threads) {
+void deryabin_m_hoare_sort_simple_merge_mpi::HoaraSort(std::vector<double>& a, size_t first, size_t last,
+                                                       size_t available_threads) {
   if (first >= last) {
     return;
   }
@@ -42,7 +43,8 @@ void deryabin_m_hoare_sort_simple_merge_mpi::HoaraSort(std::vector<double>& a, s
   }
 }
 
-void deryabin_m_hoare_sort_simple_merge_mpi::MergeTwoParts(std::vector<double>& a, size_t first, size_t last, size_t available_threads) {
+void deryabin_m_hoare_sort_simple_merge_mpi::MergeTwoParts(std::vector<double>& a, size_t first, size_t last,
+                                                           size_t available_threads) {
   if (last - first <= 1) {
     return;
   }
@@ -134,7 +136,8 @@ bool deryabin_m_hoare_sort_simple_merge_mpi::HoareSortTaskMPI::RunImpl() {
     HoaraSort(input_array_A_, static_cast<size_t>(world.rank()) * num_chunk_per_proc * min_chunk_size_,
               ((static_cast<size_t>(world.rank()) + 1) * num_chunk_per_proc * min_chunk_size_) - 1, num_threads);
   } else {
-    HoaraSort(input_array_A_, static_cast<size_t>(world.rank()) * num_chunk_per_proc * min_chunk_size_, dimension_ - 1, num_threads);
+    HoaraSort(input_array_A_, static_cast<size_t>(world.rank()) * num_chunk_per_proc * min_chunk_size_, dimension_ - 1,
+              num_threads);
   }
   tg.wait();
   for (size_t i = 0; i < static_cast<size_t>(std::bit_width(chunk_count_) -
