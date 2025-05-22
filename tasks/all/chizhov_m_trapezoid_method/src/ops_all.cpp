@@ -14,9 +14,6 @@
 #include <functional>
 #include <vector>
 
-// div - кол-во интервалов
-// dim - кол-во переменных
-
 double chizhov_m_trapezoid_method_all::TrapezoidMethod(Function& f, size_t div, size_t dim,
                                                        std::vector<double>& lower_limits,
                                                        std::vector<double>& upper_limits,
