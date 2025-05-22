@@ -11,7 +11,7 @@
 
 #include "oneapi/tbb/task_group.h"
 
-void deryabin_m_hoare_sort_simple_merge_mpi::HoareSort(std::vector<double>& a, size_t first, size_t last,
+void deryabin_m_hoare_sort_simple_merge_mpi::HoaraSort(std::vector<double>& a, size_t first, size_t last,
                                                        tbb::task_group& tg, size_t available_threads) {
   if (first >= last) {
     return;
@@ -34,9 +34,9 @@ void deryabin_m_hoare_sort_simple_merge_mpi::HoareSort(std::vector<double>& a, s
   const size_t j = pj - a.data();
   const size_t i = pi - a.data();
   if (available_threads > 1) {
-    oneapi::tbb::tg.run(
+    tg.run(
         [&a, &first, &j, &tg, &available_threads]() { HoaraSort(a, first, j, tg, available_threads >> 1); });
-    oneapi::tbb::tg.run([&a, &i, &last, &tg, &available_threads]() {
+    tg.run([&a, &i, &last, &tg, &available_threads]() {
       HoaraSort(a, i + 1, last, tg, available_threads - (available_threads >> 1));
     });
   } else {
@@ -53,9 +53,9 @@ void deryabin_m_hoare_sort_simple_merge_mpi::MergeTwoParts(std::vector<double>& 
   const size_t size = last - first;
   const size_t mid = first + size / 2;
   if (available_threads > 1) {
-    oneapi::tbb::tg.run(
+    tg.run(
         [&, first, mid, available_threads]() { parallel_inplace_merge(a, first, mid, tg, available_threads / 2); });
-    oneapi::tbb::tg.run([&, last, mid, available_threads]() {
+    tg.run([&, last, mid, available_threads]() {
       parallel_inplace_merge(a, mid, last, tg, available_threads - available_threads / 2);
     });
     oneapi::tbb::tg.wait();
@@ -142,7 +142,7 @@ bool deryabin_m_hoare_sort_simple_merge_mpi::HoareSortTaskMPI::RunImpl() {
     HoaraSort(input_array_A_, static_cast<size_t>(world.rank()) * num_chunk_per_proc * min_chunk_size_, dimension_ - 1,
               tg, num_threads);
   }
-  oneapi::tbb::tg.wait();
+  tg.wait();
   for (size_t i = 0; i < static_cast<size_t>(std::bit_width(chunk_count_) -
                                              1);  // Вычисялем сколько уровней слияния потребуется как логарифм по
                                                   // основанию 2 от числа частей chunk_count_
