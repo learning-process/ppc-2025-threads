@@ -24,19 +24,19 @@ bool TestTaskALL::PreProcessingImpl() {
 
 bool TestTaskALL::ValidationImpl() {
   if (world_.rank() == 0) {
-    return task_data->inputs_count[0] == task_data->outputs_count[0];
+    return (task_data->inputs_count[0] == task_data->outputs_count[0])
   }
   return true;
 }
 
 bool TestTaskALL::RunImpl() {
-  const int size = static_cast<int>(input_.size());
+  int size = static_cast<int>(input_.size());
   boost::mpi::broadcast(world_, size, 0);
 
-  const int delta = size / world_.size();
-  const int extra = size % world_.size();
-  std::vector<int> local_sizes(world_.size(), delta);
-
+  int nprocs = world_.size();
+  int delta = size / nprocs;
+  int extra = size % nprocs;
+  std::vector<int> local_sizes(nprocs, delta);
   if (world_.rank() == 0) {
     for (int i = 0; i < extra; ++i) {
       local_sizes[i]++;
@@ -47,7 +47,7 @@ bool TestTaskALL::RunImpl() {
   if (world_.rank() == 0) {
     std::vector<std::vector<int>> chunks;
     int offset = 0;
-    for (int i = 0; i < world_.size(); ++i) {
+    for (int i = 0; i < nprocs; ++i) {
       chunks.emplace_back(input_.begin() + offset, input_.begin() + offset + local_sizes[i]);
       offset += local_sizes[i];
     }
@@ -56,97 +56,105 @@ bool TestTaskALL::RunImpl() {
     boost::mpi::scatter(world_, local_data, 0);
   }
 
-  const int n = static_cast<int>(local_data.size());
+  int n = static_cast<int>(local_data.size());
   if (n > 1) {
-    const int max_threads = ppc::util::GetPPCNumThreads();
-    const int threads = std::min(max_threads, n);
-    const int seg_size = (n + threads - 1) / threads;
+    int max_threads = ppc::util::GetPPCNumThreads();
+    int threads = std::min(max_threads, n);
+    int seg_size = (n + threads - 1) / threads;
+    std::vector<int> buffer;
 
     tbb::task_arena arena(threads);
-    arena.execute([&] {
+    arena.execute([&]() {
       tbb::task_group tg;
-      for (int i = 0; i < threads; ++i) {
-        int l = i * seg_size;
-        int r = std::min(n - 1, (i + 1) * seg_size - 1);
-        tg.run([&, l, r] { ShellSort(l, r, local_data); });
+      for (int t = 0; t < threads; ++t) {
+        int l = t * seg_size;
+        int r = std::min(n - 1, (t + 1) * seg_size - 1);
+        tg.run([l, r, &local_data]() { ShellSort(l, r, local_data); });
       }
       tg.wait();
-    });
 
-    std::vector<int> buf;
-    int end = seg_size - 1;
-    for (int i = 1; i < threads; ++i) {
-      int r = std::min(n - 1, (i + 1) * seg_size - 1);
-      Merge(0, end, r, local_data, buf);
-      end = r;
-    }
+      int end = seg_size - 1;
+      for (int t = 1; t < threads; ++t) {
+        int r = std::min(n - 1, (t + 1) * seg_size - 1);
+        Merge(0, end, r, local_data, buffer);
+        end = r;
+      }
+    });
   }
 
-  std::vector<std::vector<int>> gathered_data;
-  boost::mpi::gather(world_, local_data, gathered_data, 0);
+  std::vector<std::vector<int>> gathered;
+  boost::mpi::gather(world_, local_data, gathered, 0);
 
   if (world_.rank() == 0) {
     output_.clear();
-    for (const auto& chunk : gathered_data) {
-      Merge(0, static_cast<int>(output_.size()) - 1, static_cast<int>(chunk.size()) - 1, output_, chunk);
+    std::vector<int> buffer;
+    for (const auto& chunk : gathered) {
+      int mid = static_cast<int>(output_.size()) - 1;
+      output_.insert(output_.end(), chunk.begin(), chunk.end());
+      int right = static_cast<int>(output_.size()) - 1;
+      if (mid >= 0 && right > mid) {
+        Merge(0, mid, right, output_, buffer);
+      }
     }
   }
 
+  return true;
+}
+
+bool TestTaskALL::PostProcessingImpl() {
+  if (world_.rank() == 0) {
+    int sz = static_cast<int>(output_.size());
+    auto* out_ptr = reinterpret_cast<int*>(task_data->outputs[0]);
+    for (int i = 0; i < sz; ++i) {
+      out_ptr[i] = output_[i];
+    }
+  }
   return true;
 }
 
 void ShellSort(int left, int right, std::vector<int>& arr) {
   int gap = 1;
-  const int size = right - left + 1;
-  while (gap <= size / 3) {
+  int len = right - left + 1;
+  while (gap <= len / 3) {
     gap = gap * 3 + 1;
   }
-
   for (; gap > 0; gap /= 3) {
-    for (int k = left + gap; k <= right; ++k) {
-      const int val = arr[k];
-      int j = k;
-      while (j >= left + gap && arr[j - gap] > val) {
+    for (int i = left + gap; i <= right; ++i) {
+      int tmp = arr[i];
+      int j = i;
+      while (j >= left + gap && arr[j - gap] > tmp) {
         arr[j] = arr[j - gap];
         j -= gap;
       }
-      arr[j] = val;
+      arr[j] = tmp;
     }
   }
 }
 
 void Merge(int left, int mid, int right, std::vector<int>& arr, std::vector<int>& buffer) {
-  const int merge_size = right - left + 1;
-  if (static_cast<std::size_t>(merge_size) > buffer.size()) {
-    buffer.resize(static_cast<std::size_t>(merge_size));
-  }
+  int total = right - left + 1;
+  buffer.clear();
+  buffer.reserve(total);
 
   int i = left;
   int j = mid + 1;
-  int k = 0;
-
   while (i <= mid && j <= right) {
-    buffer[k++] = (arr[i] <= arr[j]) ? arr[i++] : arr[j++];
-  }
-  while (i <= mid) {
-    buffer[k++] = arr[i++];
-  }
-  while (j <= right) {
-    buffer[k++] = arr[j++];
-  }
-
-  for (int idx = 0; idx < merge_size; ++idx) {
-    arr[left + idx] = buffer[idx];
-  }
-}
-
-bool TestTaskALL::PostProcessingImpl() {
-  if (world_.rank() == 0) {
-    for (std::size_t idx = 0; idx < output_.size(); ++idx) {
-      reinterpret_cast<int*>(task_data->outputs[0])[idx] = output_[idx];
+    if (arr[i] <= arr[j]) {
+      buffer.push_back(arr[i++]);
+    } else {
+      buffer.push_back(arr[j++]);
     }
   }
-  return true;
+  while (i <= mid) {
+    buffer.push_back(arr[i++]);
+  }
+  while (j <= right) {
+    buffer.push_back(arr[j++]);
+  }
+
+  for (int k = 0; k < total; ++k) {
+    arr[left + k] = buffer[k];
+  }
 }
 
 }  // namespace shlyakov_m_shell_sort_all
