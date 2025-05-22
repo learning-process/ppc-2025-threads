@@ -10,8 +10,33 @@
 #include <cstddef>
 #include <vector>
 
+void deryabin_m_hoare_sort_simple_merge_mpi::HoaraSort(std::vector<double>& a, size_t first, size_t last) {
+  if (first >= last) {
+    return;
+  }
+  const size_t mid = (first + last) >> 1;
+  const double x = std::max(std::min(a[first], a[mid]), std::min(std::max(a[first], a[mid]), a[last]));
+  double* pi = &a[first];
+  double* pj = &a[last];
+  do {
+    while (*pi < x) {
+      pi++;
+    }
+    while (*pj > x) {
+      pj--;
+    }
+    const double tmp = *pi;
+    *pi = *pj;
+    *pj = tmp;
+  } while (pi < pj);
+  const size_t j = pj - a.data();
+  const size_t i = pi - a.data();
+  HoaraSort(a, first, j);
+  HoaraSort(a, i + 1, last);
+}
+
 void deryabin_m_hoare_sort_simple_merge_mpi::HoaraSort(std::vector<double>& a, size_t first, size_t last,
-                                                       size_t available_threads) {
+                                                       tbb::task_group& tg, size_t available_threads) {
   if (first >= last) {
     return;
   }
@@ -33,29 +58,27 @@ void deryabin_m_hoare_sort_simple_merge_mpi::HoaraSort(std::vector<double>& a, s
   const size_t j = pj - a.data();
   const size_t i = pi - a.data();
   if (available_threads > 1) {
-    oneapi::tbb::task_group tg;
-    tg.run([&a, &first, &j, &available_threads]() { HoaraSort(a, first, j, available_threads >> 1); });
-    tg.run([&a, &i, &last, &available_threads]() {
-      HoaraSort(a, i + 1, last, available_threads - (available_threads >> 1));
+    tg.run([&a, &first, &j, &tg, &available_threads]() { HoaraSort(a, first, j, tg, available_threads >> 1); });
+    tg.run([&a, &i, &last, &tg, &available_threads]() {
+      HoaraSort(a, i + 1, last, tg, available_threads - (available_threads >> 1));
     });
   } else {
-    HoaraSort(a, first, j, 1);
-    HoaraSort(a, i + 1, last, 1);
+    HoaraSort(a, first, j, tg, 1);
+    HoaraSort(a, i + 1, last, tg, 1);
   }
 }
 
 void deryabin_m_hoare_sort_simple_merge_mpi::MergeTwoParts(std::vector<double>& a, size_t first, size_t last,
-                                                           size_t available_threads) {
+                                                           tbb::task_group& tg, size_t available_threads) {
   if (last - first <= 1) {
     return;
   }
   const size_t size = last - first;
   const size_t mid = first + size / 2;
   if (available_threads > 1) {
-    oneapi::tbb::task_group tg;
-    tg.run([&, first, mid, available_threads]() { MergeTwoParts(a, first, mid, available_threads / 2); });
+    tg.run([&, first, mid, available_threads]() { MergeTwoParts(a, first, mid, tg, available_threads / 2); });
     tg.run([&, last, mid, available_threads]() {
-      MergeTwoParts(a, mid, last, available_threads - available_threads / 2);
+      MergeTwoParts(a, mid, last, tg, available_threads - available_threads / 2);
     });
     tg.wait();
     std::inplace_merge(a.begin() + first, a.begin() + mid, a.begin() + last);
@@ -81,7 +104,7 @@ bool deryabin_m_hoare_sort_simple_merge_mpi::HoareSortTaskSequential::Validation
 bool deryabin_m_hoare_sort_simple_merge_mpi::HoareSortTaskSequential::RunImpl() {
   size_t count = 0;
   while (count != chunk_count_) {
-    HoaraSort(input_array_A_, count * min_chunk_size_, ((count + 1) * min_chunk_size_) - 1, 1);
+    HoaraSort(input_array_A_, count * min_chunk_size_, ((count + 1) * min_chunk_size_) - 1);
     count++;
   }
   size_t chunk_count = chunk_count_;
@@ -136,10 +159,10 @@ bool deryabin_m_hoare_sort_simple_merge_mpi::HoareSortTaskMPI::RunImpl() {
   const size_t num_threads = ppc::util::GetPPCNumThreads();
   if (world.rank() != world.size() - 1) {
     HoaraSort(input_array_A_, static_cast<size_t>(world.rank()) * num_chunk_per_proc * min_chunk_size_,
-              ((static_cast<size_t>(world.rank()) + 1) * num_chunk_per_proc * min_chunk_size_) - 1, num_threads);
+              ((static_cast<size_t>(world.rank()) + 1) * num_chunk_per_proc * min_chunk_size_) - 1, tg, num_threads);
   } else {
     HoaraSort(input_array_A_, static_cast<size_t>(world.rank()) * num_chunk_per_proc * min_chunk_size_, dimension_ - 1,
-              num_threads);
+              tg, num_threads);
   }
   tg.wait();
   for (size_t i = 0; i < static_cast<size_t>(std::bit_width(chunk_count_) -
@@ -161,11 +184,11 @@ bool deryabin_m_hoare_sort_simple_merge_mpi::HoareSortTaskMPI::RunImpl() {
       if (world.rank() != world.size() - 1) {
         MergeTwoParts(input_array_A_,
                       static_cast<size_t>((world.rank() - 1) * num_chunk_per_proc * min_chunk_size_) << (i + 1),
-                      (((world.rank() + 1) * num_chunk_per_proc * min_chunk_size_) << (i + 1)) - 1, num_threads);
+                      (((world.rank() + 1) * num_chunk_per_proc * min_chunk_size_) << (i + 1)) - 1, tg, num_threads);
       } else {
         MergeTwoParts(input_array_A_,
                       static_cast<size_t>((world.rank() - 1) * num_chunk_per_proc * min_chunk_size_) << (i + 1),
-                      dimension_ - 1, num_threads);
+                      dimension_ - 1, tg, num_threads);
       }
     }
   }
