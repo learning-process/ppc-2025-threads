@@ -30,17 +30,14 @@ TEST(deryabin_m_hoare_sort_simple_merge_mpi, test_pipeline_run_MPI) {
   std::vector<std::vector<double>> out_array_seq(1, output_array_seq);
   std::vector<double> true_solution(input_array);
   std::ranges::sort(true_solution.begin(), true_solution.end());
-
   auto task_data_mpi = std::make_shared<ppc::core::TaskData>();
   task_data_mpi->inputs.emplace_back(reinterpret_cast<uint8_t*>(in_array.data()));
   task_data_mpi->inputs_count.emplace_back(input_array.size());
   task_data_mpi->inputs_count.emplace_back(chunk_count);
   task_data_mpi->outputs.emplace_back(reinterpret_cast<uint8_t*>(out_array_mpi.data()));
   task_data_mpi->outputs_count.emplace_back(output_array_mpi.size());
-
   auto hoare_sort_simple_merge_task_mpi =
       std::make_shared<deryabin_m_hoare_sort_simple_merge_mpi::HoareSortTaskMPI>(task_data_mpi);
-  
   if (world.rank() == 0) {
     auto task_data_seq = std::make_shared<ppc::core::TaskData>();
     task_data_seq->inputs.emplace_back(reinterpret_cast<uint8_t*>(in_array.data()));
@@ -48,11 +45,9 @@ TEST(deryabin_m_hoare_sort_simple_merge_mpi, test_pipeline_run_MPI) {
     task_data_seq->inputs_count.emplace_back(chunk_count);
     task_data_seq->outputs.emplace_back(reinterpret_cast<uint8_t*>(out_array_seq.data()));
     task_data_seq->outputs_count.emplace_back(output_array_seq.size()); 
-
     auto hoare_sort_simple_merge_task_seq =
         std::make_shared<deryabin_m_hoare_sort_simple_merge_mpi::HoareSortTaskSequential>(task_data_seq);
   }
-
   auto perf_attr = std::make_shared<ppc::core::PerfAttr>();
   perf_attr->num_running = 10;
   const auto t0 = std::chrono::high_resolution_clock::now();
@@ -61,11 +56,9 @@ TEST(deryabin_m_hoare_sort_simple_merge_mpi, test_pipeline_run_MPI) {
     auto duration = std::chrono::duration_cast<std::chrono::nanoseconds>(current_time_point - t0).count();
     return static_cast<double>(duration) * 1e-9;
   };
-
   auto perf_results = std::make_shared<ppc::core::PerfResults>();
   auto perf_analyzer_mpi = std::make_shared<ppc::core::Perf>(hoare_sort_simple_merge_task_mpi);
   perf_analyzer_mpi->PipelineRun(perf_attr, perf_results);
-  
   if (world.rank() == 0) {
     auto perf_analyzer_seq = std::make_shared<ppc::core::Perf>(hoare_sort_simple_merge_task_seq);
     perf_analyzer_seq->PipelineRun(perf_attr, perf_results);
@@ -91,17 +84,14 @@ TEST(deryabin_m_hoare_sort_simple_merge_mpi, test_task_run_MPI) {
   std::vector<std::vector<double>> out_array_seq(1, output_array_seq);
   std::vector<double> true_solution(input_array);
   std::ranges::sort(true_solution.begin(), true_solution.end());
-
   auto task_data_mpi = std::make_shared<ppc::core::TaskData>();
   task_data_mpi->inputs.emplace_back(reinterpret_cast<uint8_t*>(in_array.data()));
   task_data_mpi->inputs_count.emplace_back(input_array.size());
   task_data_mpi->inputs_count.emplace_back(chunk_count);
   task_data_mpi->outputs.emplace_back(reinterpret_cast<uint8_t*>(out_array_mpi.data()));
   task_data_mpi->outputs_count.emplace_back(output_array_mpi.size());
-
   auto hoare_sort_simple_merge_task_mpi =
       std::make_shared<deryabin_m_hoare_sort_simple_merge_mpi::HoareSortTaskMPI>(task_data_mpi);
-  
   if (world.rank() == 0) {
     auto task_data_seq = std::make_shared<ppc::core::TaskData>();
     task_data_seq->inputs.emplace_back(reinterpret_cast<uint8_t*>(in_array.data()));
@@ -109,11 +99,9 @@ TEST(deryabin_m_hoare_sort_simple_merge_mpi, test_task_run_MPI) {
     task_data_seq->inputs_count.emplace_back(chunk_count);
     task_data_seq->outputs.emplace_back(reinterpret_cast<uint8_t*>(out_array_seq.data()));
     task_data_seq->outputs_count.emplace_back(output_array_seq.size()); 
-
     auto hoare_sort_simple_merge_task_seq =
         std::make_shared<deryabin_m_hoare_sort_simple_merge_mpi::HoareSortTaskSequential>(task_data_seq);
   }
-
   auto perf_attr = std::make_shared<ppc::core::PerfAttr>();
   perf_attr->num_running = 10;
   const auto t0 = std::chrono::high_resolution_clock::now();
@@ -122,11 +110,9 @@ TEST(deryabin_m_hoare_sort_simple_merge_mpi, test_task_run_MPI) {
     auto duration = std::chrono::duration_cast<std::chrono::nanoseconds>(current_time_point - t0).count();
     return static_cast<double>(duration) * 1e-9;
   };
-
   auto perf_results = std::make_shared<ppc::core::PerfResults>();
   auto perf_analyzer_mpi = std::make_shared<ppc::core::Perf>(hoare_sort_simple_merge_task_mpi);
   perf_analyzer_mpi->TaskRun(perf_attr, perf_results);
-  
   if (world.rank() == 0) {
     auto perf_analyzer_seq = std::make_shared<ppc::core::Perf>(hoare_sort_simple_merge_task_seq);
     perf_analyzer_seq->TaskRun(perf_attr, perf_results);
