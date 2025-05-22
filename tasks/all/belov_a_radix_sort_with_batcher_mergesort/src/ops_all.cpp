@@ -1,8 +1,8 @@
 #include "all/belov_a_radix_sort_with_batcher_mergesort/include/ops_all.hpp"
 
 #include <algorithm>
-#include <boost/mpi.hpp>
-#include <boost/serialization/vector.hpp>
+#include <boost/mpi/collectives/broadcast.hpp>
+#include <boost/mpi/communicator.hpp>
 #include <cmath>
 #include <cstddef>
 #include <cstdint>

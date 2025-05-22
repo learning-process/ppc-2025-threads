@@ -3,8 +3,7 @@
 
 #include <omp.h>
 
-#include <boost/mpi.hpp>
-#include <boost/serialization/vector.hpp>
+#include <boost/mpi/communicator.hpp>
 #include <cmath>
 #include <cstddef>
 #include <memory>
