@@ -124,7 +124,7 @@ bool oturin_a_gift_wrapping_mpi::TestTaskMPI::RunImpl() {
 
     PointSearcher ps(this, search_index);
     if (world_.rank() == world_.size() - 1) {
-      tbb::parallel_reduce(tbb::blocked_range<int>(0, n_), ps);
+      tbb::parallel_reduce(tbb::blocked_range<int>(world_.rank() * thread_block, n_), ps);
     } else {
       tbb::parallel_reduce(tbb::blocked_range<int>(world_.rank() * thread_block, (world_.rank() + 1) * thread_block),
                            ps);
