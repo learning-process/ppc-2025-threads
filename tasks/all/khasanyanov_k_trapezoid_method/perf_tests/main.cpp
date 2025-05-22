@@ -5,12 +5,14 @@
 #include <vector>
 
 #include "../include/integrate_mpi.hpp"
+#include "boost/mpi/communicator.hpp"
 #include "core/perf/include/perf.hpp"
 #include "core/task/include/task.hpp"
 
 using namespace khasanyanov_k_trapezoid_method_all;
 
 TEST(khasanyanov_k_trapezoid_method_all, test_pipeline_run) {
+  boost::mpi::communicator world;
   constexpr double kPrecision = 0.01;
   double result{};
   auto f = [](const std::vector<double>& x) -> double {
@@ -24,6 +26,14 @@ TEST(khasanyanov_k_trapezoid_method_all, test_pipeline_run) {
   TrapezoidalMethodALL::CreateTaskData(task_data_seq, context, &result);
 
   auto task = std::make_shared<TrapezoidalMethodALL>(task_data_seq, f);
+
+  task->Validation();
+  task->PreProcessing();
+  task->Run();
+  task->PostProcessing();
+  if (world.rank() == 0) {
+    EXPECT_EQ(0, result);
+  }
 
   auto perf_attr = std::make_shared<ppc::core::PerfAttr>();
   perf_attr->num_running = 10;
@@ -42,6 +52,7 @@ TEST(khasanyanov_k_trapezoid_method_all, test_pipeline_run) {
 }
 
 TEST(khasanyanov_k_trapezoid_method_all, test_task_run) {
+  boost::mpi::communicator world;
   constexpr double kPrecision = 0.01;
   double result{};
   auto f = [](const std::vector<double>& x) -> double {
@@ -55,6 +66,14 @@ TEST(khasanyanov_k_trapezoid_method_all, test_task_run) {
   TrapezoidalMethodALL::CreateTaskData(task_data_seq, context, &result);
 
   auto task = std::make_shared<TrapezoidalMethodALL>(task_data_seq, f);
+
+  task->Validation();
+  task->PreProcessing();
+  task->Run();
+  task->PostProcessing();
+  if (world.rank() == 0) {
+    EXPECT_EQ(0, result);
+  }
 
   auto perf_attr = std::make_shared<ppc::core::PerfAttr>();
   perf_attr->num_running = 10;

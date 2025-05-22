@@ -8,7 +8,6 @@
 #include <cstdint>
 #include <functional>
 #include <memory>
-#include <stdexcept>
 #include <vector>
 
 #include "boost/mpi/collectives/broadcast.hpp"
@@ -72,9 +71,6 @@ double TrapezoidalMethodALL::TrapezoidalMethodOmp(const IntegrationBounds &bound
 
   for (size_t i = 0; i < dimension; ++i) {
     const auto &[a, b] = local_bounds[i];
-    if (b < a) {
-      throw std::runtime_error("Wrong bounds");
-    }
     h[i] = (b - a) / steps;
     cell_volume *= h[i];
     total_points *= (steps + 1);
