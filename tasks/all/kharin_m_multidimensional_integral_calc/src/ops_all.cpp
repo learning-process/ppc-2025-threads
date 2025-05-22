@@ -28,7 +28,6 @@ bool kharin_m_multidimensional_integral_calc_all::TaskALL::ValidationImpl() {
 }
 
 bool kharin_m_multidimensional_integral_calc_all::TaskALL::PreProcessingImpl() {
-  bool is_valid = true;
   if (world_.rank() == 0) {
     auto* input_ptr = reinterpret_cast<double*>(task_data->inputs[0]);
     size_t input_size = task_data->inputs_count[0];
@@ -38,62 +37,8 @@ bool kharin_m_multidimensional_integral_calc_all::TaskALL::PreProcessingImpl() {
     grid_sizes_ = std::vector<size_t>(sizes_ptr, sizes_ptr + d);
     auto* steps_ptr = reinterpret_cast<double*>(task_data->inputs[2]);
     step_sizes_ = std::vector<double>(steps_ptr, steps_ptr + d);
-    // Проверка размера входных данных
-    size_t total_size = 1;
-    for (auto n : grid_sizes_) {
-      total_size *= n;
-    }
-    if (total_size != input_size) {
-      is_valid = false;
-    }
   }
-  // Синхронизируем результат проверки между процессами
-  boost::mpi::broadcast(world_, is_valid, 0);
-
-  // Если данные невалидны, возвращаем false на всех процессах
-  if (!is_valid) {
-    return false;
-  }
-  // Теперь транслируем grid_sizes_ и step_sizes_ на все процессы
-  boost::mpi::broadcast(world_, grid_sizes_, 0);
-  boost::mpi::broadcast(world_, step_sizes_, 0);
-  // Распределение данных между процессами
-  size_t total_size = 1;
-  for (auto n : grid_sizes_) {
-    total_size *= n;
-  }
-
-  size_t p = world_.size();
-  size_t chunk_size = total_size / p;
-  size_t remainder = total_size % p;
-  size_t rank = world_.rank();
-  size_t local_size = (rank < remainder) ? chunk_size + 1 : chunk_size;
-
-  local_input_.resize(local_size);
-
-  // Распределение данных
-  if (world_.rank() == 0) {
-    std::vector<int> send_counts(p);
-    std::vector<int> displacements(p);
-    size_t offset = 0;
-    for (size_t i = 0; i < p; ++i) {
-      size_t size = (i < remainder) ? chunk_size + 1 : chunk_size;
-      send_counts[i] = static_cast<int>(size);
-      displacements[i] = static_cast<int>(offset);
-      offset += size;
-    }
-    boost::mpi::scatterv(world_, input_, send_counts, displacements, local_input_.data(),
-                         static_cast<int>(local_input_.size()), 0);
-  } else {
-    boost::mpi::scatterv(world_, local_input_.data(), static_cast<int>(local_input_.size()), 0);
-  }
-
-  // Проверка шагов - исправление проблемы с буферами
-  bool local_steps_valid = std::ranges::all_of(step_sizes_, [](double h) { return h > 0.0; });
-  bool all_steps_valid = false;  // Инициализация переменной
-  // Использование прозрачного функтора вместо std::logical_and<bool>()
-  boost::mpi::all_reduce(world_, local_steps_valid, all_steps_valid, std::logical_and<>());
-  return all_steps_valid;
+  return true;
 }
 
 double kharin_m_multidimensional_integral_calc_all::TaskALL::ComputeLocalSum() {
@@ -149,14 +94,52 @@ double kharin_m_multidimensional_integral_calc_all::TaskALL::ComputeLocalSum() {
 }
 
 bool kharin_m_multidimensional_integral_calc_all::TaskALL::RunImpl() {
-  double local_sum = ComputeLocalSum();
+  // Рассылка grid_sizes_ и step_sizes_ всем процессам
+  boost::mpi::broadcast(world_, grid_sizes_, 0);
+  boost::mpi::broadcast(world_, step_sizes_, 0);
+  // Проверка шагов
+  bool local_steps_valid = std::ranges::all_of(step_sizes_, [](double h) { return h > 0.0; });
+  bool all_steps_valid = false;
+  boost::mpi::all_reduce(world_, local_steps_valid, all_steps_valid, std::logical_and<>());
+  if (!all_steps_valid) {
+    if (world_.rank() == 0) {
+      output_result_ = 0.0;
+    }
+    return false;
+  }
 
-  // Сбор результатов от всех процессов
+  // Распределение данных
+  size_t total_size = 1;
+  for (auto n : grid_sizes_) {
+    total_size *= n;
+  }
+  size_t p = world_.size();
+  size_t chunk_size = total_size / p;
+  size_t remainder = total_size % p;
+  size_t rank = world_.rank();
+  size_t local_size = (rank < remainder) ? chunk_size + 1 : chunk_size;
+  local_input_.resize(local_size);
+
+  if (world_.rank() == 0) {
+    std::vector<int> send_counts(p);
+    std::vector<int> displacements(p);
+    size_t offset = 0;
+    for (size_t i = 0; i < p; ++i) {
+      size_t size = (i < remainder) ? chunk_size + 1 : chunk_size;
+      send_counts[i] = static_cast<int>(size);
+      displacements[i] = static_cast<int>(offset);
+      offset += size;
+    }
+    boost::mpi::scatterv(world_, input_, send_counts, displacements, local_input_.data(),
+                         static_cast<int>(local_input_.size()), 0);
+  } else {
+    boost::mpi::scatterv(world_, local_input_.data(), static_cast<int>(local_input_.size()), 0);
+  }
+
+  double local_sum = ComputeLocalSum();
   double total_sum = 0.0;
-  // Использование прозрачного функтора вместо std::plus<double>()
   boost::mpi::reduce(world_, local_sum, total_sum, std::plus<>(), 0);
 
-  // Синхронизация перед дальнейшей обработкой
   if (world_.rank() == 0) {
     double volume_element = 1.0;
     for (const auto& h : step_sizes_) {
