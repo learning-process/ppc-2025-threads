@@ -36,7 +36,7 @@ void deryabin_m_hoare_sort_simple_merge_mpi::HoaraSort(std::vector<double>& a, s
 }
 
 void deryabin_m_hoare_sort_simple_merge_mpi::HoaraSort(std::vector<double>& a, size_t first, size_t last,
-                                                       tbb::task_group& tg, size_t available_threads) {
+                                                       oneapi::tbb::task_group& tg, size_t available_threads) {
   if (first >= last) {
     return;
   }
@@ -69,7 +69,7 @@ void deryabin_m_hoare_sort_simple_merge_mpi::HoaraSort(std::vector<double>& a, s
 }
 
 void deryabin_m_hoare_sort_simple_merge_mpi::MergeTwoParts(std::vector<double>& a, size_t first, size_t last,
-                                                           tbb::task_group& tg, size_t available_threads) {
+                                                           oneapi::tbb::task_group& tg, size_t available_threads) {
   if (last - first <= 1) {
     return;
   }
