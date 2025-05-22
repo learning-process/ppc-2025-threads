@@ -16,7 +16,7 @@ void deryabin_m_hoare_sort_simple_merge_mpi::HoaraSort(std::vector<double>& a, s
   if (first >= last) {
     return;
   }
-  const size_t mid = first + (last - first) >> 1;
+  const size_t mid = first + last >> 1;
   const double x = std::max(std::min(a[first], a[mid]), std::min(std::max(a[first], a[mid]), a[last]));
   double* pi = &a[first];
   double* pj = &a[last];
@@ -54,11 +54,11 @@ void deryabin_m_hoare_sort_simple_merge_mpi::MergeTwoParts(std::vector<double>& 
   const size_t mid = first + size / 2;
   if (available_threads > 1) {
     tg.run(
-        [&, first, mid, available_threads]() { parallel_inplace_merge(a, first, mid, tg, available_threads / 2); });
+        [&, first, mid, available_threads]() { MergeTwoParts(a, first, mid, tg, available_threads / 2); });
     tg.run([&, last, mid, available_threads]() {
-      parallel_inplace_merge(a, mid, last, tg, available_threads - available_threads / 2);
+      MergeTwoParts(a, mid, last, tg, available_threads - available_threads / 2);
     });
-    oneapi::tbb::tg.wait();
+    tg.wait();
     std::inplace_merge(a.begin() + first, a.begin() + mid, a.begin() + last);
   } else {
     std::inplace_merge(a.begin() + first, a.begin() + mid, a.begin() + last);
@@ -103,7 +103,7 @@ bool deryabin_m_hoare_sort_simple_merge_mpi::HoareSortTaskSequential::PostProces
 }
 
 bool deryabin_m_hoare_sort_simple_merge_mpi::HoareSortTaskMPI::PreProcessingImpl() {
-  if (world_.rank() == 0) {
+  if (world.rank() == 0) {
     input_array_A_ = reinterpret_cast<std::vector<double>*>(task_data->inputs[0])[0];
     dimension_ = task_data->inputs_count[0];
     chunk_count_ = task_data->inputs_count[1];
@@ -113,7 +113,7 @@ bool deryabin_m_hoare_sort_simple_merge_mpi::HoareSortTaskMPI::PreProcessingImpl
 }
 
 bool deryabin_m_hoare_sort_simple_merge_mpi::HoareSortTaskMPI::ValidationImpl() {
-  if (world_.rank() == 0) {
+  if (world.rank() == 0) {
     return static_cast<unsigned short>(task_data->inputs_count[0]) > 2 &&
            static_cast<unsigned short>(task_data->inputs_count[1]) >= 2 &&
            task_data->inputs_count[0] == task_data->outputs_count[0];
@@ -122,12 +122,12 @@ bool deryabin_m_hoare_sort_simple_merge_mpi::HoareSortTaskMPI::ValidationImpl() 
 }
 
 bool deryabin_m_hoare_sort_simple_merge_mpi::HoareSortTaskMPI::RunImpl() {
-  const size_t num_chunk_per_proc;
+  const size_t num_chunk_per_proc = 0;
   if (world.rank() == 0) {
     if (chunk_count_ < static_cast<size_t>(world.size())) {
       // Увеличиваем число кусочков до ближайшей степени двойки >= world.size(),
       // чтобы эффективно загрузить все доступные процессы
-      chunk_count_ = 1ULL << std::bit_width(world.size() - 1);
+      chunk_count_ = 1ULL << std::bit_width(static_cast<size_t>(world.size()) - 1);
       min_chunk_size_ = dimension_ / chunk_count_;
     }
     num_chunk_per_proc = chunk_count_ / static_cast<size_t>(world.size());
@@ -148,10 +148,9 @@ bool deryabin_m_hoare_sort_simple_merge_mpi::HoareSortTaskMPI::RunImpl() {
                                                   // основанию 2 от числа частей chunk_count_
        ++i) {  // На каждом уровне сливаются пары соседних блоков размером min_chunk_size_ × 2^i
     size_t step = 1 << i;
-    size_t partner = static_cast<size_t>(world.rank()) ^ step;
     if ((static_cast<size_t>(world.rank()) & step) == 0) {
-        world.send(world.rank() + 1, world.rank(), input_array_A_.data() + static_cast<unsigned short>(world.rank() * num_chunk_per_proc * min_chunk_size_) << (i + 1),
-                   static_cast<unsigned short>(num_chunk_per_proc * min_chunk_size_) << i;
+        world.send(world.rank() + 1, world.rank(), input_array_A_.data() + static_cast<size_t>(world.rank() * num_chunk_per_proc * min_chunk_size_) << (i + 1),
+                   static_cast<size_t>(num_chunk_per_proc * min_chunk_size_) << i);
     } else {
       world.recv(
           world.rank() - 1, world.rank() - 1,
@@ -159,10 +158,10 @@ bool deryabin_m_hoare_sort_simple_merge_mpi::HoareSortTaskMPI::RunImpl() {
               << (i + 1),
           static_cast<unsigned short>(num_chunk_per_proc * min_chunk_size_) << i);
       if (world.rank() != world.size() - 1) {
-        MergeTwoParts(input_array_A_, size_t((world.rank() - 1) * num_chunk_per_proc * min_chunk_size_) << (i + 1),
+        MergeTwoParts(input_array_A_, static_cast<size_t>((world.rank() - 1) * num_chunk_per_proc * min_chunk_size_) << (i + 1),
                       ((world.rank() + 1) * num_chunk_per_proc * min_chunk_size_) << (i + 1) - 1, tg, num_threads);
       } else {
-        MergeTwoParts(input_array_A_, size_t((world.rank() - 1) * num_chunk_per_proc * min_chunk_size_) << (i + 1),
+        MergeTwoParts(input_array_A_, static_cast<size_t>((world.rank() - 1) * num_chunk_per_proc * min_chunk_size_) << (i + 1),
                       dimension_ - 1, tg, num_threads);
       }
     }
@@ -171,7 +170,7 @@ bool deryabin_m_hoare_sort_simple_merge_mpi::HoareSortTaskMPI::RunImpl() {
 }
 
 bool deryabin_m_hoare_sort_simple_merge_mpi::HoareSortTaskMPI::PostProcessingImpl() {
-  if (world_.rank() == 0) {
+  if (world.rank() == 0) {
     reinterpret_cast<std::vector<double>*>(task_data->outputs[0])[0] = input_array_A_;
   }
   return true;
