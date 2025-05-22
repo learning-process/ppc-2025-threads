@@ -1,6 +1,7 @@
 #include "all/deryabin_m_hoare_sort_simple_merge/include/ops_all.hpp"
 
 #include <oneapi/tbb/task_group.h>
+#include <tbb/tbb.h>
 
 #include <algorithm>
 #include <bit>
