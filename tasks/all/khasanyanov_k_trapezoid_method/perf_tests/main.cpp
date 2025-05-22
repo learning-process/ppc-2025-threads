@@ -32,7 +32,7 @@ TEST(khasanyanov_k_trapezoid_method_all, test_pipeline_run) {
   task->Run();
   task->PostProcessing();
   if (world.rank() == 0) {
-    EXPECT_EQ(0, result);
+    EXPECT_NEAR(-414.004, result, kPrecision);
   }
 
   auto perf_attr = std::make_shared<ppc::core::PerfAttr>();
@@ -72,7 +72,7 @@ TEST(khasanyanov_k_trapezoid_method_all, test_task_run) {
   task->Run();
   task->PostProcessing();
   if (world.rank() == 0) {
-    EXPECT_EQ(0, result);
+    EXPECT_NEAR(-414.004, result, kPrecision);
   }
 
   auto perf_attr = std::make_shared<ppc::core::PerfAttr>();
