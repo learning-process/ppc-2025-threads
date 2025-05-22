@@ -34,7 +34,6 @@ void deryabin_m_hoare_sort_simple_merge_mpi::HoaraSort(std::vector<double>& a, s
   const size_t i = pi - a.data();
   HoaraSort(a, first, j);
   HoaraSort(a, i + 1, last);
-  }
 }
 
 void deryabin_m_hoare_sort_simple_merge_mpi::HoaraSort(std::vector<double>& a, size_t first, size_t last,
