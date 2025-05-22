@@ -1,7 +1,7 @@
+// ops_tbb.hpp
 #pragma once
 
 #include <functional>
-#include <utility>
 #include <vector>
 
 #include "core/task/include/task.hpp"
@@ -10,13 +10,13 @@ namespace prokhorov_n_multidimensional_integrals_by_trapezoidal_method_tbb {
 
 class TestTaskTBB : public ppc::core::Task {
  public:
-  explicit TestTaskTBB(ppc::core::TaskDataPtr task_data) : Task(std::move(task_data)) {}
+  explicit TestTaskTBB(ppc::core::TaskDataPtr task_data);
   bool PreProcessingImpl() override;
   bool ValidationImpl() override;
   bool RunImpl() override;
   bool PostProcessingImpl() override;
 
-  void SetFunction(std::function<double(const std::vector<double>&)> func) { function_ = std::move(func); }
+  void SetFunction(const std::function<double(const std::vector<double>&)>& func) { function_ = func; }
 
  private:
   std::vector<double> lower_limits_;

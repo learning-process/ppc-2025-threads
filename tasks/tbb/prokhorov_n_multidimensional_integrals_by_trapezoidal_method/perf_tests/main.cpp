@@ -2,7 +2,6 @@
 
 #include <chrono>
 #include <cstdint>
-#include <functional>
 #include <memory>
 #include <vector>
 
@@ -13,7 +12,7 @@
 TEST(prokhorov_n_multidimensional_integrals_by_trapezoidal_method_tbb, test_pipeline_run) {
   std::vector<double> lower = {0.0, 0.0, 0.0};
   std::vector<double> upper = {1.0, 1.0, 1.0};
-  std::vector<int> steps = {200, 200, 200};
+  std::vector<int> steps = {500, 500, 500};
   double result = 0.0;
 
   auto task_data_tbb = std::make_shared<ppc::core::TaskData>();
@@ -45,12 +44,14 @@ TEST(prokhorov_n_multidimensional_integrals_by_trapezoidal_method_tbb, test_pipe
   auto perf_analyzer = std::make_shared<ppc::core::Perf>(test_task_tbb);
   perf_analyzer->PipelineRun(perf_attr, perf_results);
   ppc::core::Perf::PrintPerfStatistic(perf_results);
+
+  EXPECT_NEAR(result, 0.125, 1e-4);
 }
 
 TEST(prokhorov_n_multidimensional_integrals_by_trapezoidal_method_tbb, test_task_run) {
   std::vector<double> lower = {0.0, 0.0};
   std::vector<double> upper = {1.0, 1.0};
-  std::vector<int> steps = {400, 400};
+  std::vector<int> steps = {2000, 2000};
   double result = 0.0;
 
   auto task_data_tbb = std::make_shared<ppc::core::TaskData>();
@@ -82,4 +83,6 @@ TEST(prokhorov_n_multidimensional_integrals_by_trapezoidal_method_tbb, test_task
   auto perf_analyzer = std::make_shared<ppc::core::Perf>(test_task_tbb);
   perf_analyzer->TaskRun(perf_attr, perf_results);
   ppc::core::Perf::PrintPerfStatistic(perf_results);
+
+  EXPECT_NEAR(result, 1.0, 1e-4);
 }
