@@ -47,7 +47,7 @@ bool morozov_e_lineare_image_filtering_block_gaussian_all::TestTaskALL::RunImpl(
       {2.0 / 16, 4.0 / 16, 2.0 / 16},
       {1.0 / 16, 2.0 / 16, 1.0 / 16}};
   // clang-format on
-  // Алгоритм вычисления диапазона вычисления для каждого процесса
+  // РђР»РіРѕСЂРёС‚Рј РІС‹С‡РёСЃР»РµРЅРёСЏ РґРёР°РїР°Р·РѕРЅР° РІС‹С‡РёСЃР»РµРЅРёСЏ РґР»СЏ РєР°Р¶РґРѕРіРѕ РїСЂРѕС†РµСЃСЃР°
   int start = 0;
   int end = 0;
   int count = n_ / world_.size();
@@ -86,7 +86,7 @@ bool morozov_e_lineare_image_filtering_block_gaussian_all::TestTaskALL::RunImpl(
         res_[(i * m_) + j] = input_[(i * m_) + j];
       } else {
         double sum = 0.0;
-        // Применяем ядро к текущему пикселю и его соседям
+        // РџСЂРёРјРµРЅСЏРµРј СЏРґСЂРѕ Рє С‚РµРєСѓС‰РµРјСѓ РїРёРєСЃРµР»СЋ Рё РµРіРѕ СЃРѕСЃРµРґСЏРј
         for (int ki = -1; ki <= 1; ++ki) {
           for (int kj = -1; kj <= 1; ++kj) {
             sum += input_[((i + ki) * m_) + (j + kj)] * kernel[ki + 1][kj + 1];
@@ -97,16 +97,16 @@ bool morozov_e_lineare_image_filtering_block_gaussian_all::TestTaskALL::RunImpl(
     }
   }
   if (world_.rank() == 0) {
-    // Процесс 0 собирает данные
+    // РџСЂРѕС†РµСЃСЃ 0 СЃРѕР±РёСЂР°РµС‚ РґР°РЅРЅС‹Рµ
     for (int p = 1; p < world_.size(); ++p) {
       int start_p, end_p;
-      // Получаем диапазон от процесса p
+      // РџРѕР»СѓС‡Р°РµРј РґРёР°РїР°Р·РѕРЅ РѕС‚ РїСЂРѕС†РµСЃСЃР° p
       world_.recv(p, 0, &start_p, 1);
       world_.recv(p, 0, &end_p, 1);
-      // Получаем все данные разом
+      // РџРѕР»СѓС‡Р°РµРј РІСЃРµ РґР°РЅРЅС‹Рµ СЂР°Р·РѕРј
       std::vector<double> temp((end_p - start_p) * m_);
       world_.recv(p, 0, temp.data(), (end_p - start_p) * m_);
-      // Копируем в res_
+      // РљРѕРїРёСЂСѓРµРј РІ res_
       for (int i = start_p; i < end_p; ++i) {
         for (int j = 0; j < m_; ++j) {
           res_[i * m_ + j] = temp[(i - start_p) * m_ + j];
@@ -114,10 +114,10 @@ bool morozov_e_lineare_image_filtering_block_gaussian_all::TestTaskALL::RunImpl(
       }
     }
   } else {
-    // Отправляем диапазон и данные
+    // РћС‚РїСЂР°РІР»СЏРµРј РґРёР°РїР°Р·РѕРЅ Рё РґР°РЅРЅС‹Рµ
     world_.send(0, 0, &start, 1);
     world_.send(0, 0, &end, 1);
-    // Отправляем все данные разом
+    // РћС‚РїСЂР°РІР»СЏРµРј РІСЃРµ РґР°РЅРЅС‹Рµ СЂР°Р·РѕРј
     std::vector<double> temp((end - start) * m_);
     for (int i = start; i < end; ++i) {
       for (int j = 0; j < m_; ++j) {
