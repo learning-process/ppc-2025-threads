@@ -114,6 +114,10 @@ bool ParallelInterprocessScatter(std::span<double> arr, MPI_Comm *newcomm, std::
     const int bsz = sz / thr;
     const int bex = sz % thr;
 
+#ifndef _MSC_VER
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wfree-nonheap-object"
+#endif
     std::vector<std::pair<double *, int>> vb(thr);
     for (int i = 0; i < thr; i++) {
       vb[i] = std::make_pair(arr.data() + (i * bsz), bsz);  // NOLINT(*narrow*)
@@ -131,6 +135,9 @@ bool ParallelInterprocessScatter(std::span<double> arr, MPI_Comm *newcomm, std::
       MPI_Send(&ptrsz, 1, MPI_INT, r, 0, *newcomm);
       MPI_Send(ptr, ptrsz, MPI_DOUBLE, r, 0, *newcomm);
     }
+#ifndef _MSC_VER
+#pragma GCC diagnostic pop
+#endif
   } else {
     int recvsz{};
     MPI_Recv(&recvsz, 1, MPI_INT, 0, 0, *newcomm, MPI_STATUS_IGNORE);
