@@ -78,7 +78,7 @@ TEST(zaitsev_a_labeling_tbb, test_pipeline_run) {
   task_data_seq->outputs.emplace_back(reinterpret_cast<std::uint8_t*>(out.data()));
 
   // Create Task
-  auto test_task_sequential = std::make_shared<zaitsev_a_labeling_stl::Labeler>(task_data_seq);
+  auto test_task_sequential = std::make_shared<zaitsev_a_labeling_tbb::Labeler>(task_data_seq);
 
   // Create Perf attributes
   auto perf_attr = std::make_shared<ppc::core::PerfAttr>();
@@ -121,7 +121,7 @@ TEST(zaitsev_a_labeling_tbb, test_task_run) {
   task_data_seq->outputs.emplace_back(reinterpret_cast<std::uint8_t*>(out.data()));
 
   // Create Task
-  auto test_task_sequential = std::make_shared<zaitsev_a_labeling_stl::Labeler>(task_data_seq);
+  auto test_task_sequential = std::make_shared<zaitsev_a_labeling_tbb::Labeler>(task_data_seq);
 
   // Create Perf attributes
   auto perf_attr = std::make_shared<ppc::core::PerfAttr>();
