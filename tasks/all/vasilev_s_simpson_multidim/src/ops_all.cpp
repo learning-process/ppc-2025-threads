@@ -56,7 +56,7 @@ bool vasilev_s_simpson_multidim::SimpsonTaskAll::PreProcessingImpl() {
   return true;
 }
 
-bool vasilev_s_simpson_multidim::SimpsonTaskAll::RunImpl() {  // NOLINT(readability-function-cognitive-complexity)
+bool vasilev_s_simpson_multidim::SimpsonTaskAll::RunImpl() {
   boost::mpi::broadcast(world_, arity_, 0);
   boost::mpi::broadcast(world_, approxs_, 0);
   boost::mpi::broadcast(world_, bounds_, 0);
@@ -69,13 +69,12 @@ bool vasilev_s_simpson_multidim::SimpsonTaskAll::RunImpl() {  // NOLINT(readabil
   const auto per = gridcap_ / world_.size();
 
   const auto begin = per * world_.rank();
+  const auto iterlen = per + ((world_.rank() == (world_.size() - 1)) ? (gridcap_ % world_.size()) : 0);
 
   oneapi::tbb::task_arena arena(ppc::util::GetPPCNumThreads());
   double isum = arena.execute([&] {
     return oneapi::tbb::parallel_reduce(
-        oneapi::tbb::blocked_range<std::size_t>(
-            begin, begin + per + ((world_.rank() == (world_.size() - 1)) ? (gridcap_ % world_.size()) : 0)),
-        0.,
+        oneapi::tbb::blocked_range<std::size_t>(begin, begin + iterlen, iterlen / arena.max_concurrency()), 0.,
         [&](const tbb::blocked_range<std::size_t>& r, double threadsum) {
           std::vector<double> coordbuf(arity_);
           for (std::size_t ip = r.begin(); ip < r.end(); ip++) {
