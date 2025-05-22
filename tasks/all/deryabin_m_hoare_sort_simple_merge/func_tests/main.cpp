@@ -13,6 +13,7 @@
 #include "core/task/include/task.hpp"
 
 TEST(deryabin_m_hoare_sort_simple_merge_mpi, test_random_array) {
+  boost::mpi::communicator world;
   std::random_device rd;
   std::mt19937 gen(rd());
   std::uniform_real_distribution<> distribution(-100, 100);
@@ -45,6 +46,7 @@ TEST(deryabin_m_hoare_sort_simple_merge_mpi, test_random_array) {
 }
 
 TEST(deryabin_m_hoare_sort_simple_merge_mpi, test_double_reverse_array) {
+  boost::mpi::communicator world;
   std::vector<double> input_array(16000);
   const auto half = input_array.size() / 2U;
   std::ranges::generate(input_array.begin(), input_array.end() - (long)half,
@@ -78,6 +80,7 @@ TEST(deryabin_m_hoare_sort_simple_merge_mpi, test_double_reverse_array) {
 }
 
 TEST(deryabin_m_hoare_sort_simple_merge_mpi, test_large_array) {
+  boost::mpi::communicator world;
   std::random_device rd;
   std::mt19937 gen(rd());
   std::uniform_real_distribution<> distribution(-100, 100);
@@ -110,6 +113,7 @@ TEST(deryabin_m_hoare_sort_simple_merge_mpi, test_large_array) {
 }
 
 TEST(deryabin_m_hoare_sort_simple_merge_mpi, test_negative_elements_array) {
+  boost::mpi::communicator world;
   std::random_device rd;
   std::mt19937 gen(rd());
   std::uniform_real_distribution<> distribution(-100, -1);
@@ -142,6 +146,7 @@ TEST(deryabin_m_hoare_sort_simple_merge_mpi, test_negative_elements_array) {
 }
 
 TEST(deryabin_m_hoare_sort_simple_merge_mpi, test_shuffle_array) {
+  boost::mpi::communicator world;
   std::random_device rd;
   std::mt19937 gen(rd());
   std::vector<double> input_array(16000);
@@ -174,6 +179,7 @@ TEST(deryabin_m_hoare_sort_simple_merge_mpi, test_shuffle_array) {
 }
 
 TEST(deryabin_m_hoare_sort_simple_merge_mpi, test_random_array_small_pieces) {
+  boost::mpi::communicator world;
   std::random_device rd;
   std::mt19937 gen(rd());
   std::uniform_real_distribution<> distribution(-100, 100);
@@ -206,6 +212,7 @@ TEST(deryabin_m_hoare_sort_simple_merge_mpi, test_random_array_small_pieces) {
 }
 
 TEST(deryabin_m_hoare_sort_simple_merge_mpi, test_random_array_large_pieces) {
+  boost::mpi::communicator world;
   std::random_device rd;
   std::mt19937 gen(rd());
   std::uniform_real_distribution<> distribution(-100, 100);
@@ -238,6 +245,7 @@ TEST(deryabin_m_hoare_sort_simple_merge_mpi, test_random_array_large_pieces) {
 }
 
 TEST(deryabin_m_hoare_sort_simple_merge_mpi, test_array_large_pieces_reversed_order) {
+  boost::mpi::communicator world;
   std::vector<double> input_array(16000);
   std::ranges::generate(input_array.begin(), input_array.end(), [value = 64000]() mutable { return value--; });
   std::vector<std::vector<double>> in_array(1, input_array);
@@ -267,6 +275,7 @@ TEST(deryabin_m_hoare_sort_simple_merge_mpi, test_array_large_pieces_reversed_or
 }
 
 TEST(deryabin_m_hoare_sort_simple_merge_mpi, test_partially_sorted_array) {
+  boost::mpi::communicator world;
   std::random_device rd;
   std::mt19937 gen(rd());
   std::vector<double> input_array(16000);
@@ -300,6 +309,7 @@ TEST(deryabin_m_hoare_sort_simple_merge_mpi, test_partially_sorted_array) {
 }
 
 TEST(deryabin_m_hoare_sort_simple_merge_mpi, test_backward_sorted_array) {
+  boost::mpi::communicator world;
   std::vector<double> input_array(16000);
   std::ranges::generate(input_array.begin(), input_array.end(), [value = 800]() mutable { return value--; });
   std::vector<std::vector<double>> in_array(1, input_array);
@@ -329,6 +339,7 @@ TEST(deryabin_m_hoare_sort_simple_merge_mpi, test_backward_sorted_array) {
 }
 
 TEST(deryabin_m_hoare_sort_simple_merge_mpi, test_invalid_array) {
+  boost::mpi::communicator world;
   std::vector<double> input_array(2);
   std::vector<std::vector<double>> in_array(1, input_array);
   size_t chunk_count = 2;
@@ -351,6 +362,7 @@ TEST(deryabin_m_hoare_sort_simple_merge_mpi, test_invalid_array) {
 }
 
 TEST(deryabin_m_hoare_sort_simple_merge_mpi, test_invalid_chunk_count) {
+  boost::mpi::communicator world;
   std::vector<double> input_array{-1, -2, -3, -11, -22, -33};
   std::vector<std::vector<double>> in_array(1, input_array);
   size_t chunk_count = 0;
