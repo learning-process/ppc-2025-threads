@@ -1,6 +1,7 @@
 #include <gtest/gtest.h>
 
 #include <algorithm>
+#include <boost/mpi.hpp>
 #include <chrono>
 #include <cstddef>
 #include <cstdint>
@@ -9,8 +10,8 @@
 #include <random>
 #include <vector>
 
-#include "core/task/include/task.hpp"
 #include "all/shlyakov_m_shell_sort/include/ops_all.hpp"
+#include "core/task/include/task.hpp"
 
 namespace {
 std::vector<int> GenerateRandomArray(size_t size) {
@@ -48,10 +49,11 @@ bool IsSorted(const std::vector<int> &arr) {
 }  // namespace
 
 TEST(shlyakov_m_shell_sort_all, Test_Empty_Array) {
+  boost::mpi::communicator world;
   std::vector<int> in;
   std::vector<int> out;
 
-  if (world_.rank() == 0) {
+  if (world.rank() == 0) {
     auto task_data_tbb = std::make_shared<ppc::core::TaskData>();
     task_data_tbb->inputs.emplace_back(reinterpret_cast<uint8_t *>(in.data()));
     task_data_tbb->inputs_count.emplace_back(in.size());
@@ -65,16 +67,17 @@ TEST(shlyakov_m_shell_sort_all, Test_Empty_Array) {
   ASSERT_TRUE(test_task_tbb.Run());
   ASSERT_TRUE(test_task_tbb.PostProcessing());
 
-  if (world_.rank() == 0) {
+  if (world.rank() == 0) {
     EXPECT_TRUE(IsSorted(out));
   }
 }
 
 TEST(shlyakov_m_shell_sort_all, Test_Already_Sorted_Array) {
+  boost::mpi::communicator world;
   std::vector<int> in = {1, 2, 3, 4, 5};
   std::vector<int> out(in.size());
 
-  if (world_.rank() == 0) {
+  if (world.rank() == 0) {
     auto task_data_tbb = std::make_shared<ppc::core::TaskData>();
     task_data_tbb->inputs.emplace_back(reinterpret_cast<uint8_t *>(in.data()));
     task_data_tbb->inputs_count.emplace_back(in.size());
@@ -93,10 +96,11 @@ TEST(shlyakov_m_shell_sort_all, Test_Already_Sorted_Array) {
 }
 
 TEST(shlyakov_m_shell_sort_all, Test_Reverse_Sorted_Array) {
+  boost::mpi::communicator world;
   std::vector<int> in = {5, 4, 3, 2, 1};
   std::vector<int> out(in.size());
 
-  if (world_.rank() == 0) {
+  if (world.rank() == 0) {
     auto task_data_tbb = std::make_shared<ppc::core::TaskData>();
     task_data_tbb->inputs.emplace_back(reinterpret_cast<uint8_t *>(in.data()));
     task_data_tbb->inputs_count.emplace_back(in.size());
@@ -110,7 +114,7 @@ TEST(shlyakov_m_shell_sort_all, Test_Reverse_Sorted_Array) {
   ASSERT_TRUE(test_task_tbb.Run());
   ASSERT_TRUE(test_task_tbb.PostProcessing());
 
-  if (world_.rank() == 0) {
+  if (world.rank() == 0) {
     EXPECT_TRUE(IsSorted(out));
     std::vector<int> expected = {1, 2, 3, 4, 5};
     EXPECT_EQ(expected, out);
@@ -118,10 +122,11 @@ TEST(shlyakov_m_shell_sort_all, Test_Reverse_Sorted_Array) {
 }
 
 TEST(shlyakov_m_shell_sort_all, Test_Random_Array_Small) {
+  boost::mpi::communicator world;
   std::vector<int> in = GenerateRandomArray(10);
   std::vector<int> out(in.size());
 
-  if (world_.rank() == 0) {
+  if (world.rank() == 0) {
     auto task_data_tbb = std::make_shared<ppc::core::TaskData>();
     task_data_tbb->inputs.emplace_back(reinterpret_cast<uint8_t *>(in.data()));
     task_data_tbb->inputs_count.emplace_back(in.size());
@@ -135,7 +140,7 @@ TEST(shlyakov_m_shell_sort_all, Test_Random_Array_Small) {
   ASSERT_TRUE(test_task_tbb.Run());
   ASSERT_TRUE(test_task_tbb.PostProcessing());
 
-  if (world_.rank() == 0) {
+  if (world.rank() == 0) {
     EXPECT_TRUE(IsSorted(out));
     std::vector<int> expected = in;
     std::ranges::sort(expected);
@@ -144,11 +149,12 @@ TEST(shlyakov_m_shell_sort_all, Test_Random_Array_Small) {
 }
 
 TEST(shlyakov_m_shell_sort_all, Test_Random_Array_Large) {
+  boost::mpi::communicator world;
   size_t array_size = 200;
   std::vector<int> in = GenerateRandomArray(array_size);
   std::vector<int> out(in.size());
 
-  if (world_.rank() == 0) {
+  if (world.rank() == 0) {
     auto task_data_tbb = std::make_shared<ppc::core::TaskData>();
     task_data_tbb->inputs.emplace_back(reinterpret_cast<uint8_t *>(in.data()));
     task_data_tbb->inputs_count.emplace_back(in.size());
@@ -162,7 +168,7 @@ TEST(shlyakov_m_shell_sort_all, Test_Random_Array_Large) {
   ASSERT_TRUE(test_task_tbb.Run());
   ASSERT_TRUE(test_task_tbb.PostProcessing());
 
-  if (world_.rank() == 0) {
+  if (world.rank() == 0) {
     EXPECT_TRUE(IsSorted(out));
     std::vector<int> expected = in;
     std::ranges::sort(expected);
@@ -171,11 +177,12 @@ TEST(shlyakov_m_shell_sort_all, Test_Random_Array_Large) {
 }
 
 TEST(shlyakov_m_shell_sort_all, Test_Random_Array_With_Simple_Size) {
+  boost::mpi::communicator world;
   size_t array_size = 241;
   std::vector<int> in = GenerateRandomArray(array_size);
   std::vector<int> out(in.size());
 
-  if (world_.rank() == 0) {
+  if (world.rank() == 0) {
     auto task_data_tbb = std::make_shared<ppc::core::TaskData>();
     task_data_tbb->inputs.emplace_back(reinterpret_cast<uint8_t *>(in.data()));
     task_data_tbb->inputs_count.emplace_back(in.size());
@@ -189,7 +196,7 @@ TEST(shlyakov_m_shell_sort_all, Test_Random_Array_With_Simple_Size) {
   ASSERT_TRUE(test_task_tbb.Run());
   ASSERT_TRUE(test_task_tbb.PostProcessing());
 
-  if (world_.rank() == 0) {
+  if (world.rank() == 0) {
     EXPECT_TRUE(IsSorted(out));
     std::vector<int> expected = in;
     std::ranges::sort(expected);
@@ -198,11 +205,12 @@ TEST(shlyakov_m_shell_sort_all, Test_Random_Array_With_Simple_Size) {
 }
 
 TEST(shlyakov_m_shell_sort_all, Test_Random_Array_With_500) {
+  boost::mpi::communicator world;
   size_t array_size = 500;
   std::vector<int> in = GenerateRandomArray(array_size);
   std::vector<int> out(in.size());
 
-  if (world_.rank() == 0) {
+  if (world.rank() == 0) {
     auto task_data_tbb = std::make_shared<ppc::core::TaskData>();
     task_data_tbb->inputs.emplace_back(reinterpret_cast<uint8_t *>(in.data()));
     task_data_tbb->inputs_count.emplace_back(in.size());
@@ -216,7 +224,7 @@ TEST(shlyakov_m_shell_sort_all, Test_Random_Array_With_500) {
   ASSERT_TRUE(test_task_tbb.Run());
   ASSERT_TRUE(test_task_tbb.PostProcessing());
 
-  if (world_.rank() == 0) {
+  if (world.rank() == 0) {
     EXPECT_TRUE(IsSorted(out));
     std::vector<int> expected = in;
     std::ranges::sort(expected);
@@ -225,11 +233,12 @@ TEST(shlyakov_m_shell_sort_all, Test_Random_Array_With_500) {
 }
 
 TEST(shlyakov_m_shell_sort_all, Test_Random_Array_With_501) {
+  boost::mpi::communicator world;
   size_t array_size = 501;
   std::vector<int> in = GenerateRandomArray(array_size);
   std::vector<int> out(in.size());
 
-  if (world_.rank() == 0) {
+  if (world.rank() == 0) {
     auto task_data_tbb = std::make_shared<ppc::core::TaskData>();
     task_data_tbb->inputs.emplace_back(reinterpret_cast<uint8_t *>(in.data()));
     task_data_tbb->inputs_count.emplace_back(in.size());
@@ -243,7 +252,7 @@ TEST(shlyakov_m_shell_sort_all, Test_Random_Array_With_501) {
   ASSERT_TRUE(test_task_tbb.Run());
   ASSERT_TRUE(test_task_tbb.PostProcessing());
 
-  if (world_.rank() == 0) {
+  if (world.rank() == 0) {
     EXPECT_TRUE(IsSorted(out));
     std::vector<int> expected = in;
     std::ranges::sort(expected);
@@ -252,11 +261,12 @@ TEST(shlyakov_m_shell_sort_all, Test_Random_Array_With_501) {
 }
 
 TEST(shlyakov_m_shell_sort_all, Test_Random_Array_With_1000) {
+  boost::mpi::communicator world;
   size_t array_size = 1000;
   std::vector<int> in = GenerateRandomArray(array_size);
   std::vector<int> out(in.size());
 
-  if (world_.rank() == 0) {
+  if (world.rank() == 0) {
     auto task_data_tbb = std::make_shared<ppc::core::TaskData>();
     task_data_tbb->inputs.emplace_back(reinterpret_cast<uint8_t *>(in.data()));
     task_data_tbb->inputs_count.emplace_back(in.size());
@@ -270,7 +280,7 @@ TEST(shlyakov_m_shell_sort_all, Test_Random_Array_With_1000) {
   ASSERT_TRUE(test_task_tbb.Run());
   ASSERT_TRUE(test_task_tbb.PostProcessing());
 
-  if (world_.rank() == 0) {
+  if (world.rank() == 0) {
     EXPECT_TRUE(IsSorted(out));
     std::vector<int> expected = in;
     std::ranges::sort(expected);
@@ -279,11 +289,12 @@ TEST(shlyakov_m_shell_sort_all, Test_Random_Array_With_1000) {
 }
 
 TEST(shlyakov_m_shell_sort_all, Test_Random_Array_With_1001) {
+  boost::mpi::communicator world;
   size_t array_size = 1001;
   std::vector<int> in = GenerateRandomArray(array_size);
   std::vector<int> out(in.size());
 
-  if (world_.rank() == 0) {
+  if (world.rank() == 0) {
     auto task_data_tbb = std::make_shared<ppc::core::TaskData>();
     task_data_tbb->inputs.emplace_back(reinterpret_cast<uint8_t *>(in.data()));
     task_data_tbb->inputs_count.emplace_back(in.size());
@@ -297,7 +308,7 @@ TEST(shlyakov_m_shell_sort_all, Test_Random_Array_With_1001) {
   ASSERT_TRUE(test_task_tbb.Run());
   ASSERT_TRUE(test_task_tbb.PostProcessing());
 
-  if (world_.rank() == 0) {
+  if (world.rank() == 0) {
     EXPECT_TRUE(IsSorted(out));
     std::vector<int> expected = in;
     std::ranges::sort(expected);
@@ -306,11 +317,12 @@ TEST(shlyakov_m_shell_sort_all, Test_Random_Array_With_1001) {
 }
 
 TEST(shlyakov_m_shell_sort_all, Test_Random_Array_With_999) {
+  boost::mpi::communicator world;
   size_t array_size = 999;
   std::vector<int> in = GenerateRandomArray(array_size);
   std::vector<int> out(in.size());
 
-  if (world_.rank() == 0) {
+  if (world.rank() == 0) {
     auto task_data_tbb = std::make_shared<ppc::core::TaskData>();
     task_data_tbb->inputs.emplace_back(reinterpret_cast<uint8_t *>(in.data()));
     task_data_tbb->inputs_count.emplace_back(in.size());
@@ -324,7 +336,7 @@ TEST(shlyakov_m_shell_sort_all, Test_Random_Array_With_999) {
   ASSERT_TRUE(test_task_tbb.Run());
   ASSERT_TRUE(test_task_tbb.PostProcessing());
 
-  if (world_.rank() == 0) {
+  if (world.rank() == 0) {
     EXPECT_TRUE(IsSorted(out));
     std::vector<int> expected = in;
     std::ranges::sort(expected);
@@ -333,11 +345,12 @@ TEST(shlyakov_m_shell_sort_all, Test_Random_Array_With_999) {
 }
 
 TEST(shlyakov_m_shell_sort_all, Test_Random_Array_With_10000) {
+  boost::mpi::communicator world;
   size_t array_size = 10000;
   std::vector<int> in = GenerateRandomArray(array_size);
   std::vector<int> out(in.size());
 
-  if (world_.rank() == 0) {
+  if (world.rank() == 0) {
     auto task_data_tbb = std::make_shared<ppc::core::TaskData>();
     task_data_tbb->inputs.emplace_back(reinterpret_cast<uint8_t *>(in.data()));
     task_data_tbb->inputs_count.emplace_back(in.size());
@@ -351,7 +364,7 @@ TEST(shlyakov_m_shell_sort_all, Test_Random_Array_With_10000) {
   ASSERT_TRUE(test_task_tbb.Run());
   ASSERT_TRUE(test_task_tbb.PostProcessing());
 
-  if (world_.rank() == 0) {
+  if (world.rank() == 0) {
     EXPECT_TRUE(IsSorted(out));
     std::vector<int> expected = in;
     std::ranges::sort(expected);
@@ -360,11 +373,12 @@ TEST(shlyakov_m_shell_sort_all, Test_Random_Array_With_10000) {
 }
 
 TEST(shlyakov_m_shell_sort_all, Test_Random_Array_With_10001) {
+  boost::mpi::communicator world;
   size_t array_size = 10001;
   std::vector<int> in = GenerateRandomArray(array_size);
   std::vector<int> out(in.size());
 
-  if (world_.rank() == 0) {
+  if (world.rank() == 0) {
     auto task_data_tbb = std::make_shared<ppc::core::TaskData>();
     task_data_tbb->inputs.emplace_back(reinterpret_cast<uint8_t *>(in.data()));
     task_data_tbb->inputs_count.emplace_back(in.size());
@@ -378,7 +392,7 @@ TEST(shlyakov_m_shell_sort_all, Test_Random_Array_With_10001) {
   ASSERT_TRUE(test_task_tbb.Run());
   ASSERT_TRUE(test_task_tbb.PostProcessing());
 
-  if (world_.rank() == 0) {
+  if (world.rank() == 0) {
     EXPECT_TRUE(IsSorted(out));
     std::vector<int> expected = in;
     std::ranges::sort(expected);
@@ -387,11 +401,12 @@ TEST(shlyakov_m_shell_sort_all, Test_Random_Array_With_10001) {
 }
 
 TEST(shlyakov_m_shell_sort_all, Test_Random_Array_With_9999) {
+  boost::mpi::communicator world;
   size_t array_size = 9999;
   std::vector<int> in = GenerateRandomArray(array_size);
   std::vector<int> out(in.size());
 
-  if (world_.rank() == 0) {
+  if (world.rank() == 0) {
     auto task_data_tbb = std::make_shared<ppc::core::TaskData>();
     task_data_tbb->inputs.emplace_back(reinterpret_cast<uint8_t *>(in.data()));
     task_data_tbb->inputs_count.emplace_back(in.size());
@@ -405,7 +420,7 @@ TEST(shlyakov_m_shell_sort_all, Test_Random_Array_With_9999) {
   ASSERT_TRUE(test_task_tbb.Run());
   ASSERT_TRUE(test_task_tbb.PostProcessing());
 
-  if (world_.rank() == 0) {
+  if (world.rank() == 0) {
     EXPECT_TRUE(IsSorted(out));
     std::vector<int> expected = in;
     std::ranges::sort(expected);
@@ -414,11 +429,12 @@ TEST(shlyakov_m_shell_sort_all, Test_Random_Array_With_9999) {
 }
 
 TEST(shlyakov_m_shell_sort_all, Test_Random_Array_With_15000) {
+  boost::mpi::communicator world;
   size_t array_size = 15000;
   std::vector<int> in = GenerateRandomArray(array_size);
   std::vector<int> out(in.size());
 
-  if (world_.rank() == 0) {
+  if (world.rank() == 0) {
     auto task_data_tbb = std::make_shared<ppc::core::TaskData>();
     task_data_tbb->inputs.emplace_back(reinterpret_cast<uint8_t *>(in.data()));
     task_data_tbb->inputs_count.emplace_back(in.size());
@@ -432,7 +448,7 @@ TEST(shlyakov_m_shell_sort_all, Test_Random_Array_With_15000) {
   ASSERT_TRUE(test_task_tbb.Run());
   ASSERT_TRUE(test_task_tbb.PostProcessing());
 
-  if (world_.rank() == 0) {
+  if (world.rank() == 0) {
     EXPECT_TRUE(IsSorted(out));
     std::vector<int> expected = in;
     std::ranges::sort(expected);
@@ -441,11 +457,12 @@ TEST(shlyakov_m_shell_sort_all, Test_Random_Array_With_15000) {
 }
 
 TEST(shlyakov_m_shell_sort_all, Test_Random_Array_With_15001) {
+  boost::mpi::communicator world;
   size_t array_size = 15001;
   std::vector<int> in = GenerateRandomArray(array_size);
   std::vector<int> out(in.size());
 
-  if (world_.rank() == 0) {
+  if (world.rank() == 0) {
     auto task_data_tbb = std::make_shared<ppc::core::TaskData>();
     task_data_tbb->inputs.emplace_back(reinterpret_cast<uint8_t *>(in.data()));
     task_data_tbb->inputs_count.emplace_back(in.size());
@@ -459,7 +476,7 @@ TEST(shlyakov_m_shell_sort_all, Test_Random_Array_With_15001) {
   ASSERT_TRUE(test_task_tbb.Run());
   ASSERT_TRUE(test_task_tbb.PostProcessing());
 
-  if (world_.rank() == 0) {
+  if (world.rank() == 0) {
     EXPECT_TRUE(IsSorted(out));
     std::vector<int> expected = in;
     std::ranges::sort(expected);
@@ -468,11 +485,12 @@ TEST(shlyakov_m_shell_sort_all, Test_Random_Array_With_15001) {
 }
 
 TEST(shlyakov_m_shell_sort_all, Test_Random_Array_With_14999) {
+  boost::mpi::communicator world;
   size_t array_size = 14999;
   std::vector<int> in = GenerateRandomArray(array_size);
   std::vector<int> out(in.size());
 
-  if (world_.rank() == 0) {
+  if (world.rank() == 0) {
     auto task_data_tbb = std::make_shared<ppc::core::TaskData>();
     task_data_tbb->inputs.emplace_back(reinterpret_cast<uint8_t *>(in.data()));
     task_data_tbb->inputs_count.emplace_back(in.size());
@@ -486,7 +504,7 @@ TEST(shlyakov_m_shell_sort_all, Test_Random_Array_With_14999) {
   ASSERT_TRUE(test_task_tbb.Run());
   ASSERT_TRUE(test_task_tbb.PostProcessing());
 
-  if (world_.rank() == 0) {
+  if (world.rank() == 0) {
     EXPECT_TRUE(IsSorted(out));
     std::vector<int> expected = in;
     std::ranges::sort(expected);
@@ -495,11 +513,12 @@ TEST(shlyakov_m_shell_sort_all, Test_Random_Array_With_14999) {
 }
 
 TEST(shlyakov_m_shell_sort_all, Test_With_Eq_Numbers) {
+  boost::mpi::communicator world;
   size_t array_size = 100;
   std::vector<int> in(array_size, 3);
   std::vector<int> out(in.size());
 
-  if (world_.rank() == 0) {
+  if (world.rank() == 0) {
     auto task_data_tbb = std::make_shared<ppc::core::TaskData>();
     task_data_tbb->inputs.emplace_back(reinterpret_cast<uint8_t *>(in.data()));
     task_data_tbb->inputs_count.emplace_back(in.size());
@@ -513,7 +532,7 @@ TEST(shlyakov_m_shell_sort_all, Test_With_Eq_Numbers) {
   ASSERT_TRUE(test_task_tbb.Run());
   ASSERT_TRUE(test_task_tbb.PostProcessing());
 
-  if (world_.rank() == 0) {
+  if (world.rank() == 0) {
     EXPECT_TRUE(IsSorted(out));
     std::vector<int> expected = in;
     std::ranges::sort(expected);
@@ -522,11 +541,12 @@ TEST(shlyakov_m_shell_sort_all, Test_With_Eq_Numbers) {
 }
 
 TEST(shlyakov_m_shell_sort_all, Test_With_False_Validation) {
+  boost::mpi::communicator world;
   size_t array_size = 100;
   std::vector<int> in(array_size, 3);
   std::vector<int> out(in.size() - 1);
 
-  if (world_.rank() == 0) {
+  if (world.rank() == 0) {
     auto task_data_tbb = std::make_shared<ppc::core::TaskData>();
     task_data_tbb->inputs.emplace_back(reinterpret_cast<uint8_t *>(in.data()));
     task_data_tbb->inputs_count.emplace_back(in.size());

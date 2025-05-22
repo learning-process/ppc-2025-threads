@@ -1,6 +1,7 @@
 #include <gtest/gtest.h>
 
 #include <algorithm>
+#include <boost/mpi.hpp>
 #include <chrono>
 #include <cstddef>
 #include <cstdint>
@@ -9,9 +10,9 @@
 #include <random>
 #include <vector>
 
+#include "all/shlyakov_m_shell_sort/include/ops_all.hpp"
 #include "core/perf/include/perf.hpp"
 #include "core/task/include/task.hpp"
-#include "all/shlyakov_m_shell_sort/include/ops_all.hpp"
 
 namespace {
 std::vector<int> GenerateRandomArray(size_t size) {
@@ -49,6 +50,7 @@ bool IsSorted(const std::vector<int>& arr) {
 }  // namespace
 
 TEST(shlyakov_m_shell_sort_all, test_pipeline_run) {
+  boost::mpi::communicator world;
   constexpr size_t kCount = 100000;
 
   std::vector<int> in = GenerateRandomArray(kCount);
@@ -87,6 +89,7 @@ TEST(shlyakov_m_shell_sort_all, test_pipeline_run) {
 }
 
 TEST(shlyakov_m_shell_sort_all, test_task_run) {
+  boost::mpi::communicator world;
   constexpr size_t kCount = 100000;
 
   std::vector<int> in = GenerateRandomArray(kCount);
