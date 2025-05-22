@@ -204,7 +204,10 @@ int TestTaskALL::SortLocalAndGatherSortedPoints(int current_rank_in_active_comm)
     LocalParallelSort(local_points_, pivot_);
   }
 
-  std::vector<int> local_sizes_recv_on_root(active_procs_count_);
+  std::vector<int> local_sizes_recv_on_root;
+  if (current_rank_in_active_comm == 0) {
+    local_sizes_recv_on_root.resize(active_procs_count_);
+  }
   int my_local_size_after_sort = static_cast<int>(local_points_.size());
 
   MPI_Gather(&my_local_size_after_sort, 1, MPI_INT,
@@ -212,11 +215,11 @@ int TestTaskALL::SortLocalAndGatherSortedPoints(int current_rank_in_active_comm)
              active_comm_);
 
   int total_sorted_points_count = 0;
-  std::vector<int> displs_for_gatherv;  // Only needed on root
-
+  std::vector<int> displs_for_gatherv(current_rank_in_active_comm == 0 ? active_procs_count_ : 0);
   if (current_rank_in_active_comm == 0) {
-    displs_for_gatherv.resize(active_procs_count_);
     displs_for_gatherv[0] = 0;
+
+    globally_sorted_points_.clear();
     for (int i = 0; i < active_procs_count_; ++i) {
       total_sorted_points_count += local_sizes_recv_on_root[i];
       if (i > 0) {
@@ -232,7 +235,7 @@ int TestTaskALL::SortLocalAndGatherSortedPoints(int current_rank_in_active_comm)
               (current_rank_in_active_comm == 0) ? displs_for_gatherv.data() : nullptr, mpi_point_datatype_, 0,
               active_comm_);
 
-  return total_sorted_points_count;  // Meaningful only on root
+  return total_sorted_points_count;
 }
 
 void TestTaskALL::ConstructFinalHullOnRoot(int current_rank_in_active_comm, int total_sorted_points_count) {
