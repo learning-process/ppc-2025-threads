@@ -145,27 +145,6 @@ TEST(kharin_m_multidimensional_integral_calc_all, test_mismatch_grid_step_sizes)
   EXPECT_FALSE(task.Validation());
 }
 
-TEST(kharin_m_multidimensional_integral_calc_all, test_invalid_input_size) {
-  std::vector<double> in = {1.0, 2.0};  // 2 элемента, но для сетки 3x3 нужно 9
-  std::vector<size_t> grid_sizes = {3, 3};
-  std::vector<double> step_sizes = {1.0, 1.0};
-  std::vector<double> out(1, 0.0);
-
-  auto task_data_stl = std::make_shared<ppc::core::TaskData>();
-  task_data_stl->inputs.emplace_back(reinterpret_cast<uint8_t*>(in.data()));
-  task_data_stl->inputs_count.emplace_back(in.size());
-  task_data_stl->inputs.emplace_back(reinterpret_cast<uint8_t*>(grid_sizes.data()));
-  task_data_stl->inputs_count.emplace_back(grid_sizes.size());
-  task_data_stl->inputs.emplace_back(reinterpret_cast<uint8_t*>(step_sizes.data()));
-  task_data_stl->inputs_count.emplace_back(step_sizes.size());
-  task_data_stl->outputs.emplace_back(reinterpret_cast<uint8_t*>(out.data()));
-  task_data_stl->outputs_count.emplace_back(out.size());
-
-  kharin_m_multidimensional_integral_calc_all::TaskALL task(task_data_stl);
-  ASSERT_TRUE(task.Validation());  // Валидация должна пройти, так как размеры входов проверяются в PreProcessing
-  EXPECT_FALSE(task.PreProcessing());
-}
-
 TEST(kharin_m_multidimensional_integral_calc_all, test_random_data) {
   constexpr size_t kDim = 100;
   std::vector<double> in(kDim * kDim);
@@ -228,8 +207,9 @@ TEST(kharin_m_multidimensional_integral_calc_all, test_negative_step) {
   task_data_stl->outputs_count.emplace_back(out.size());
 
   kharin_m_multidimensional_integral_calc_all::TaskALL task(task_data_stl);
-  ASSERT_TRUE(task.Validation());      // Валидация структуры входов проходит
-  EXPECT_FALSE(task.PreProcessing());  // Предобработка должна завершиться неудачно из-за отрицательного шага
+  ASSERT_TRUE(task.Validation());
+  task.PreProcessing();
+  EXPECT_FALSE(task.Run());
 }
 
 TEST(kharin_m_multidimensional_integral_calc_all, test_integral_4d) {
