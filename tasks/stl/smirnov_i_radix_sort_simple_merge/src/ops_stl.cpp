@@ -113,7 +113,10 @@ bool smirnov_i_radix_sort_simple_merge_stl::TestTaskSTL::ValidationImpl() {
   return task_data->inputs_count[0] == task_data->outputs_count[0];
 }
 bool smirnov_i_radix_sort_simple_merge_stl::TestTaskSTL::RunImpl() {
-  const int max_th = ppc::util::GetPPCNumThreads();
+  int max_th = ppc::util::GetPPCNumThreads();
+  const int min_chunk_size = 20;
+  max_th = std::min(max_th, static_cast<int>(mas_.size() / min_chunk_size) + 1);
+  max_th = std::max(1, max_th);
   std::mutex mtxfirstdq;
   std::mutex mtx;
   std::vector<std::future<std::vector<int>>> ths(max_th);
