@@ -11,6 +11,7 @@
 
 namespace deryabin_m_hoare_sort_simple_merge_mpi {
 
+void HoaraSort(std::vector<double>& a, size_t first, size_t last);
 void HoaraSort(std::vector<double>& a, size_t first, size_t last, tbb::task_group& tg, size_t available_threads);
 void MergeTwoParts(std::vector<double>& a, size_t first, size_t last, tbb::task_group& tg, size_t available_threads);
 
