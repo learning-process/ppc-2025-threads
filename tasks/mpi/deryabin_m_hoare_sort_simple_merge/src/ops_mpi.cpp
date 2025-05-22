@@ -52,6 +52,7 @@ void deryabin_m_hoare_sort_simple_merge_mpi::MergeTwoParts(std::vector<double>& 
   const size_t size = last - first;
   const size_t mid = first + size / 2;
   if (available_threads > 1) {
+    oneapi::tbb::task_group tg;
     tg.run([&, first, mid, available_threads]() { MergeTwoParts(a, first, mid, tg, available_threads / 2); });
     tg.run([&, last, mid, available_threads]() {
       MergeTwoParts(a, mid, last, tg, available_threads - available_threads / 2);
