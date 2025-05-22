@@ -9,7 +9,6 @@
 #include <cstddef>
 #include <vector>
 
-#include "oneapi/tbb/parallel_for.h"
 #include "oneapi/tbb/task_group.h"
 
 void deryabin_m_hoare_sort_simple_merge_mpi::HoareSort(std::vector<double>& a, size_t first, size_t last,
