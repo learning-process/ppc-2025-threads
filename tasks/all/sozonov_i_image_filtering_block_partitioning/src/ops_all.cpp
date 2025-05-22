@@ -12,7 +12,7 @@
 
 namespace {
 
-const std::vector<double> kernel = {0.0625, 0.125, 0.0625, 0.125, 0.25, 0.125, 0.0625, 0.125, 0.0625};
+const std::vector<double> kErnel = {0.0625, 0.125, 0.0625, 0.125, 0.25, 0.125, 0.0625, 0.125, 0.0625};
 
 int ComputeBlockSizes(std::vector<int> &block_size, int width, int height, const boost::mpi::communicator &world) {
   int delta = width / world.size();
@@ -95,7 +95,7 @@ std::vector<double> FilterLocalImage(const std::vector<double> &local_image, int
       double sum = 0;
       for (int l = -1; l <= 1; ++l) {
         for (int k = -1; k <= 1; ++k) {
-          sum += local_image[((i - l) * delta) + j - k] * kernel[((l + 1) * 3) + k + 1];
+          sum += local_image[((i - l) * delta) + j - k] * kErnel[((l + 1) * 3) + k + 1];
         }
       }
       local_filtered_image[(i * delta) + j] = sum;
