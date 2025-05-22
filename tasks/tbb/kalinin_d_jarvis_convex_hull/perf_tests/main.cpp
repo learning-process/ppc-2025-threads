@@ -94,8 +94,9 @@ TEST(kalinin_d_jarvis_convex_hull_tbb, test_pipeline_run) {
   // Verify results
   std::vector<kalinin_d_jarvis_convex_hull_tbb::Point> res = CalculateConvexHull(points);
 
-  std::vector<kalinin_d_jarvis_convex_hull_tbb::Point> hull_from_task(res.size());
-  memcpy(hull_from_task.data(), res_hull.data(), res.size() * sizeof(kalinin_d_jarvis_convex_hull_tbb::Point));
+  size_t hull_size = task_data_seq->outputs_count[0];
+  std::vector<kalinin_d_jarvis_convex_hull_tbb::Point> hull_from_task(hull_size);
+  memcpy(hull_from_task.data(), res_hull.data(), hull_size * sizeof(kalinin_d_jarvis_convex_hull_tbb::Point));
 
   ASSERT_EQ(hull_from_task.size(), res.size());
   for (size_t i = 0; i < res.size(); ++i) {
@@ -143,8 +144,9 @@ TEST(kalinin_d_jarvis_convex_hull_tbb, test_task_run) {
   // Verify results
   std::vector<kalinin_d_jarvis_convex_hull_tbb::Point> res = CalculateConvexHull(points);
 
-  std::vector<kalinin_d_jarvis_convex_hull_tbb::Point> hull_from_task(res.size());
-  memcpy(hull_from_task.data(), res_hull.data(), res.size() * sizeof(kalinin_d_jarvis_convex_hull_tbb::Point));
+  size_t hull_size = task_data_seq->outputs_count[0];
+  std::vector<kalinin_d_jarvis_convex_hull_tbb::Point> hull_from_task(hull_size);
+  memcpy(hull_from_task.data(), res_hull.data(), hull_size * sizeof(kalinin_d_jarvis_convex_hull_tbb::Point));
 
   ASSERT_EQ(hull_from_task.size(), res.size());
   for (size_t i = 0; i < res.size(); ++i) {

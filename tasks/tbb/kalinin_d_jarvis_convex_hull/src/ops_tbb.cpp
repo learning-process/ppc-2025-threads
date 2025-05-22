@@ -106,11 +106,13 @@ bool kalinin_d_jarvis_convex_hull_tbb::TestTaskSequential::ValidationImpl() {
 
 bool kalinin_d_jarvis_convex_hull_tbb::TestTaskSequential::RunImpl() {
   convexHullPoints_ = kalinin_d_jarvis_convex_hull_tbb::Jarvis(points_);
+  hull_size_ = convexHullPoints_.size();
   return true;
 }
 
 bool kalinin_d_jarvis_convex_hull_tbb::TestTaskSequential::PostProcessingImpl() {
   auto* output_ptr = reinterpret_cast<kalinin_d_jarvis_convex_hull_tbb::Point*>(task_data->outputs[0]);
-  std::copy_n(convexHullPoints_.begin(), convexHullPoints_.size(), output_ptr);
+  std::copy_n(convexHullPoints_.begin(), hull_size_, output_ptr);
+  task_data->outputs_count[0] = hull_size_;
   return true;
 }

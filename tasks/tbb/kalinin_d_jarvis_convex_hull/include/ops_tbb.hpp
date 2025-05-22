@@ -31,6 +31,7 @@ class TestTaskSequential : public ppc::core::Task {
  private:
   std::vector<Point> points_;
   std::vector<Point> convexHullPoints_;
+  size_t hull_size_ = 0;
 };
 
 std::vector<Point> Jarvis(const std::vector<Point>& points);
