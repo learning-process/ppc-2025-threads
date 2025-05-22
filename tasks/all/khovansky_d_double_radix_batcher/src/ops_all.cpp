@@ -8,7 +8,7 @@
 #include <boost/mpi/communicator.hpp>
 #include <boost/mpi/request.hpp>
 #include <cmath>
-#include <cstddef> 
+#include <cstddef>
 #include <cstdint>
 #include <cstring>
 #include <iterator>
