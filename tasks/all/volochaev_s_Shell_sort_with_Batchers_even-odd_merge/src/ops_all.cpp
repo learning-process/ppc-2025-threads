@@ -1,12 +1,12 @@
 #include "all\volochaev_s_Shell_sort_with_Batchers_even-odd_merge\include\ops_all.hpp"
 
 #include <mpi.h>
+#include <stddef.h>
 
 #include <algorithm>
 #include <cmath>
-#include <future>
-#include <ranges>
 #include <thread>
+#include <utility>
 #include <vector>
 
 bool volochaev_s_shell_sort_with_batchers_even_odd_merge_all::ShellSortALL::PreProcessingImpl() {
@@ -47,14 +47,14 @@ void volochaev_s_shell_sort_with_batchers_even_odd_merge_all::ShellSortALL::Dist
   }
 
   local_data_.resize(counts[rank_]);
-  MPI_Scatterv(array_.data(), counts.data(), displacements.data(), MPI_INT, local_data_.data(), local_data_.size(),
-               MPI_INT, 0, MPI_COMM_WORLD);
+  MPI_Scatterv(array_.data(), counts.data(), displacements.data(), MPI_INT, local_data_.data(),
+               static_cast<int>(local_data_.size()), MPI_INT, 0, MPI_COMM_WORLD);
 }
 
 void volochaev_s_shell_sort_with_batchers_even_odd_merge_all::ShellSortALL::FindThreadVariables() {
   unsigned int max_threads = std::thread::hardware_concurrency();
   c_threads_ = static_cast<int>(std::pow(2, std::floor(std::log2(max_threads))));
-  n_local_ = local_data_.size();
+  n_local_ = static_cast<int>(local_data_.size());
   mini_batch_ = n_local_ / c_threads_;
 
   if (mini_batch_ == 0) {
@@ -90,7 +90,9 @@ void volochaev_s_shell_sort_with_batchers_even_odd_merge_all::ShellSortALL::Shel
 
 void volochaev_s_shell_sort_with_batchers_even_odd_merge_all::ShellSortALL::MergeBlocks(int id_l, int id_r, int len) {
   std::vector<int> temp(len * 2);
-  int i = 0, j = 0, k = 0;
+  int i = 0;
+  int j = 0;
+  int k = 0;
 
   while (i < len && j < len) {
     if (mass_[id_l + i] < mass_[id_r + j]) {
@@ -100,10 +102,15 @@ void volochaev_s_shell_sort_with_batchers_even_odd_merge_all::ShellSortALL::Merg
     }
   }
 
-  while (i < len) temp[k++] = mass_[id_l + i++];
-  while (j < len) temp[k++] = mass_[id_r + j++];
+  while (i < len) {
+    temp[k++] = mass_[id_l + i++];
+  }
 
-  std::copy(temp.begin(), temp.end(), mass_.begin() + id_l);
+  while (j < len) {
+    temp[k++] = mass_[id_r + j++];
+  }
+
+  std::ranges::copy(temp, mass_.begin() + id_l);
 }
 
 void volochaev_s_shell_sort_with_batchers_even_odd_merge_all::ShellSortALL::MergeLocal() {
@@ -150,7 +157,9 @@ void volochaev_s_shell_sort_with_batchers_even_odd_merge_all::ShellSortALL::Para
 
 void volochaev_s_shell_sort_with_batchers_even_odd_merge_all::ShellSortALL::LastMerge() {
   std::vector<int> temp(mass_.size());
-  size_t i = 0, j = 1, k = 0;
+  size_t i = 0;
+  size_t j = 1;
+  size_t k = 0;
   size_t n = mass_.size();
 
   while (i < n && j < n) {
@@ -177,7 +186,7 @@ void volochaev_s_shell_sort_with_batchers_even_odd_merge_all::ShellSortALL::Last
 
 void volochaev_s_shell_sort_with_batchers_even_odd_merge_all::ShellSortALL::GatherAndMerge() {
   std::vector<int> all_sizes(world_size_);
-  int local_size = local_data_.size();
+  int local_size = static_cast<int>(local_data_.size());
   MPI_Allgather(&local_size, 1, MPI_INT, all_sizes.data(), 1, MPI_INT, MPI_COMM_WORLD);
 
   std::vector<int> displacements(world_size_, 0);
