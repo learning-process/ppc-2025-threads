@@ -50,10 +50,12 @@ bool IsSorted(const std::vector<int>& arr) {
 
 std::shared_ptr<ppc::core::TaskData> CreateTaskData(const std::vector<int>& in, std::vector<int>& out) {
   auto task_data = std::make_shared<ppc::core::TaskData>();
-  task_data->inputs.emplace_back(reinterpret_cast<uint8_t*>(const_cast<int*>(in.data())));
-  task_data->inputs_count.emplace_back(in.size());
-  task_data->outputs.emplace_back(reinterpret_cast<uint8_t*>(out.data()));
-  task_data->outputs_count.emplace_back(out.size());
+  if (world.rank() == 0) {
+    task_data->inputs.emplace_back(reinterpret_cast<uint8_t*>(const_cast<int*>(in.data())));
+    task_data->inputs_count.emplace_back(in.size());
+    task_data->outputs.emplace_back(reinterpret_cast<uint8_t*>(out.data()));
+    task_data->outputs_count.emplace_back(out.size());
+  }
   return task_data;
 }
 }  // namespace
@@ -69,9 +71,7 @@ TEST(shlyakov_m_shell_sort_all, test_pipeline_run) {
   std::vector<int> out(in.size());
 
   std::shared_ptr<ppc::core::TaskData> task_data_tbb;
-  if (world.rank() == 0) {
-    task_data_tbb = CreateTaskData(in, out);
-  }
+  task_data_tbb = CreateTaskData(in, out);
 
   auto test_task_tbb = std::make_shared<shlyakov_m_shell_sort_all::TestTaskALL>(task_data_tbb);
 
@@ -106,9 +106,8 @@ TEST(shlyakov_m_shell_sort_all, test_task_run) {
   std::vector<int> out(in.size());
 
   std::shared_ptr<ppc::core::TaskData> task_data_tbb;
-  if (world.rank() == 0) {
-    task_data_tbb = CreateTaskData(in, out);
-  }
+
+  task_data_tbb = CreateTaskData(in, out);
 
   auto test_task_tbb = std::make_shared<shlyakov_m_shell_sort_all::TestTaskALL>(task_data_tbb);
 

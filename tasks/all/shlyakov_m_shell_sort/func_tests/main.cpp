@@ -49,10 +49,12 @@ bool IsSorted(const std::vector<int>& arr) {
 
 std::shared_ptr<ppc::core::TaskData> CreateTaskData(const std::vector<int>& in, std::vector<int>& out) {
   auto task_data = std::make_shared<ppc::core::TaskData>();
-  task_data->inputs.emplace_back(reinterpret_cast<uint8_t*>(const_cast<int*>(in.data())));
-  task_data->inputs_count.emplace_back(in.size());
-  task_data->outputs.emplace_back(reinterpret_cast<uint8_t*>(out.data()));
-  task_data->outputs_count.emplace_back(out.size());
+  if (world.rank() == 0) {
+    task_data->inputs.emplace_back(reinterpret_cast<uint8_t*>(const_cast<int*>(in.data())));
+    task_data->inputs_count.emplace_back(in.size());
+    task_data->outputs.emplace_back(reinterpret_cast<uint8_t*>(out.data()));
+    task_data->outputs_count.emplace_back(out.size());
+  }
   return task_data;
 }
 }  // namespace
@@ -64,9 +66,7 @@ TEST(shlyakov_m_shell_sort_all, Test_Empty_Array) {
   std::vector<int> out;
 
   auto task_data_tbb = std::make_shared<ppc::core::TaskData>();
-  if (world.rank() == 0) {
-    task_data_tbb = CreateTaskData(in, out);
-  }
+  task_data_tbb = CreateTaskData(in, out);
 
   shlyakov_m_shell_sort_all::TestTaskALL test_task_tbb(task_data_tbb);
   ASSERT_TRUE(test_task_tbb.Validation());
@@ -87,9 +87,7 @@ TEST(shlyakov_m_shell_sort_all, Test_Already_Sorted_Array) {
 
   auto task_data_tbb = std::make_shared<ppc::core::TaskData>();
 
-  if (world.rank() == 0) {
-    task_data_tbb = CreateTaskData(in, out);
-  }
+  task_data_tbb = CreateTaskData(in, out);
 
   shlyakov_m_shell_sort_all::TestTaskALL test_task_tbb(task_data_tbb);
   ASSERT_TRUE(test_task_tbb.Validation());
@@ -110,9 +108,7 @@ TEST(shlyakov_m_shell_sort_all, Test_Reverse_Sorted_Array) {
   std::vector<int> out(in.size());
 
   auto task_data_tbb = std::make_shared<ppc::core::TaskData>();
-  if (world.rank() == 0) {
-    task_data_tbb = CreateTaskData(in, out);
-  }
+  task_data_tbb = CreateTaskData(in, out);
 
   shlyakov_m_shell_sort_all::TestTaskALL test_task_tbb(task_data_tbb);
   ASSERT_TRUE(test_task_tbb.Validation());
@@ -134,9 +130,7 @@ TEST(shlyakov_m_shell_sort_all, Test_Random_Array_Small) {
   std::vector<int> out(in.size());
 
   auto task_data_tbb = std::make_shared<ppc::core::TaskData>();
-  if (world.rank() == 0) {
-    task_data_tbb = CreateTaskData(in, out);
-  }
+  task_data_tbb = CreateTaskData(in, out);
 
   shlyakov_m_shell_sort_all::TestTaskALL test_task_tbb(task_data_tbb);
   ASSERT_TRUE(test_task_tbb.Validation());
@@ -160,9 +154,7 @@ TEST(shlyakov_m_shell_sort_all, Test_Random_Array_Large) {
   std::vector<int> out(in.size());
 
   auto task_data_tbb = std::make_shared<ppc::core::TaskData>();
-  if (world.rank() == 0) {
-    task_data_tbb = CreateTaskData(in, out);
-  }
+  task_data_tbb = CreateTaskData(in, out);
 
   shlyakov_m_shell_sort_all::TestTaskALL test_task_tbb(task_data_tbb);
   ASSERT_TRUE(test_task_tbb.Validation());
@@ -186,9 +178,7 @@ TEST(shlyakov_m_shell_sort_all, Test_Random_Array_With_Simple_Size) {
   std::vector<int> out(in.size());
 
   auto task_data_tbb = std::make_shared<ppc::core::TaskData>();
-  if (world.rank() == 0) {
-    task_data_tbb = CreateTaskData(in, out);
-  }
+  task_data_tbb = CreateTaskData(in, out);
 
   shlyakov_m_shell_sort_all::TestTaskALL test_task_tbb(task_data_tbb);
   ASSERT_TRUE(test_task_tbb.Validation());
@@ -212,9 +202,7 @@ TEST(shlyakov_m_shell_sort_all, Test_Random_Array_With_500) {
   std::vector<int> out(in.size());
 
   auto task_data_tbb = std::make_shared<ppc::core::TaskData>();
-  if (world.rank() == 0) {
-    task_data_tbb = CreateTaskData(in, out);
-  }
+  task_data_tbb = CreateTaskData(in, out);
 
   shlyakov_m_shell_sort_all::TestTaskALL test_task_tbb(task_data_tbb);
   ASSERT_TRUE(test_task_tbb.Validation());
@@ -238,9 +226,7 @@ TEST(shlyakov_m_shell_sort_all, Test_Random_Array_With_501) {
   std::vector<int> out(in.size());
 
   auto task_data_tbb = std::make_shared<ppc::core::TaskData>();
-  if (world.rank() == 0) {
-    task_data_tbb = CreateTaskData(in, out);
-  }
+  task_data_tbb = CreateTaskData(in, out);
 
   shlyakov_m_shell_sort_all::TestTaskALL test_task_tbb(task_data_tbb);
   ASSERT_TRUE(test_task_tbb.Validation());
@@ -264,9 +250,7 @@ TEST(shlyakov_m_shell_sort_all, Test_Random_Array_With_1000) {
   std::vector<int> out(in.size());
 
   auto task_data_tbb = std::make_shared<ppc::core::TaskData>();
-  if (world.rank() == 0) {
-    task_data_tbb = CreateTaskData(in, out);
-  }
+  task_data_tbb = CreateTaskData(in, out);
 
   shlyakov_m_shell_sort_all::TestTaskALL test_task_tbb(task_data_tbb);
   ASSERT_TRUE(test_task_tbb.Validation());
@@ -290,9 +274,7 @@ TEST(shlyakov_m_shell_sort_all, Test_Random_Array_With_1001) {
   std::vector<int> out(in.size());
 
   auto task_data_tbb = std::make_shared<ppc::core::TaskData>();
-  if (world.rank() == 0) {
-    task_data_tbb = CreateTaskData(in, out);
-  }
+  task_data_tbb = CreateTaskData(in, out);
 
   shlyakov_m_shell_sort_all::TestTaskALL test_task_tbb(task_data_tbb);
   ASSERT_TRUE(test_task_tbb.Validation());
@@ -316,9 +298,7 @@ TEST(shlyakov_m_shell_sort_all, Test_Random_Array_With_999) {
   std::vector<int> out(in.size());
 
   auto task_data_tbb = std::make_shared<ppc::core::TaskData>();
-  if (world.rank() == 0) {
-    task_data_tbb = CreateTaskData(in, out);
-  }
+  task_data_tbb = CreateTaskData(in, out);
 
   shlyakov_m_shell_sort_all::TestTaskALL test_task_tbb(task_data_tbb);
   ASSERT_TRUE(test_task_tbb.Validation());
@@ -341,9 +321,8 @@ TEST(shlyakov_m_shell_sort_all, Test_Random_Array_With_10000) {
   std::vector<int> in = GenerateRandomArray(array_size);
   std::vector<int> out(in.size());
 
-  if (world.rank() == 0) {
-    task_data_tbb = CreateTaskData(in, out);
-  }
+  auto task_data_tbb = std::make_shared<ppc::core::TaskData>();
+  task_data_tbb = CreateTaskData(in, out);
 
   shlyakov_m_shell_sort_all::TestTaskALL test_task_tbb(task_data_tbb);
   ASSERT_TRUE(test_task_tbb.Validation());
@@ -367,9 +346,7 @@ TEST(shlyakov_m_shell_sort_all, Test_Random_Array_With_10001) {
   std::vector<int> out(in.size());
 
   auto task_data_tbb = std::make_shared<ppc::core::TaskData>();
-  if (world.rank() == 0) {
-    task_data_tbb = CreateTaskData(in, out);
-  }
+  task_data_tbb = CreateTaskData(in, out);
 
   shlyakov_m_shell_sort_all::TestTaskALL test_task_tbb(task_data_tbb);
   ASSERT_TRUE(test_task_tbb.Validation());
@@ -393,9 +370,7 @@ TEST(shlyakov_m_shell_sort_all, Test_Random_Array_With_9999) {
   std::vector<int> out(in.size());
 
   auto task_data_tbb = std::make_shared<ppc::core::TaskData>();
-  if (world.rank() == 0) {
-    task_data_tbb = CreateTaskData(in, out);
-  }
+  task_data_tbb = CreateTaskData(in, out);
 
   shlyakov_m_shell_sort_all::TestTaskALL test_task_tbb(task_data_tbb);
   ASSERT_TRUE(test_task_tbb.Validation());
@@ -419,9 +394,7 @@ TEST(shlyakov_m_shell_sort_all, Test_Random_Array_With_15000) {
   std::vector<int> out(in.size());
 
   auto task_data_tbb = std::make_shared<ppc::core::TaskData>();
-  if (world.rank() == 0) {
-    task_data_tbb = CreateTaskData(in, out);
-  }
+  task_data_tbb = CreateTaskData(in, out);
 
   shlyakov_m_shell_sort_all::TestTaskALL test_task_tbb(task_data_tbb);
   ASSERT_TRUE(test_task_tbb.Validation());
@@ -445,9 +418,7 @@ TEST(shlyakov_m_shell_sort_all, Test_Random_Array_With_15001) {
   std::vector<int> out(in.size());
 
   auto task_data_tbb = std::make_shared<ppc::core::TaskData>();
-  if (world.rank() == 0) {
-    task_data_tbb = CreateTaskData(in, out);
-  }
+  task_data_tbb = CreateTaskData(in, out);
 
   shlyakov_m_shell_sort_all::TestTaskALL test_task_tbb(task_data_tbb);
   ASSERT_TRUE(test_task_tbb.Validation());
@@ -471,9 +442,7 @@ TEST(shlyakov_m_shell_sort_all, Test_Random_Array_With_14999) {
   std::vector<int> out(in.size());
 
   auto task_data_tbb = std::make_shared<ppc::core::TaskData>();
-  if (world.rank() == 0) {
-    task_data_tbb = CreateTaskData(in, out);
-  }
+  task_data_tbb = CreateTaskData(in, out);
 
   shlyakov_m_shell_sort_all::TestTaskALL test_task_tbb(task_data_tbb);
   ASSERT_TRUE(test_task_tbb.Validation());
@@ -497,9 +466,7 @@ TEST(shlyakov_m_shell_sort_all, Test_With_Eq_Numbers) {
   std::vector<int> out(in.size());
 
   auto task_data_tbb = std::make_shared<ppc::core::TaskData>();
-  if (world.rank() == 0) {
-    task_data_tbb = CreateTaskData(in, out);
-  }
+  task_data_tbb = CreateTaskData(in, out);
 
   shlyakov_m_shell_sort_all::TestTaskALL test_task_tbb(task_data_tbb);
   ASSERT_TRUE(test_task_tbb.Validation());
@@ -523,9 +490,7 @@ TEST(shlyakov_m_shell_sort_all, Test_With_False_Validation) {
   std::vector<int> out(in.size() - 1);
 
   auto task_data_tbb = std::make_shared<ppc::core::TaskData>();
-  if (world.rank() == 0) {
-    task_data_tbb = CreateTaskData(in, out);
-  }
+  task_data_tbb = CreateTaskData(in, out);
 
   shlyakov_m_shell_sort_all::TestTaskALL test_task_tbb(task_data_tbb);
   ASSERT_FALSE(test_task_tbb.Validation());
