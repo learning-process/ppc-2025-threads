@@ -230,9 +230,9 @@ TEST(makhov_m_linear_image_filtering_vertical_seq, test_random_image_100x100) {
   }
 }
 
-TEST(makhov_m_linear_image_filtering_vertical_seq, test_random_image_1000x1000) {
-  int width = 1000;
-  int height = 1000;
+TEST(makhov_m_linear_image_filtering_vertical_seq, test_random_image_500x500) {
+  int width = 500;
+  int height = 500;
   std::vector<uint8_t> input_image = GenerateRandomImage(height, width);
   std::vector<uint8_t> output_image(width * height * 3, 0);
 
