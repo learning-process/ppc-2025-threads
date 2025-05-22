@@ -8,6 +8,8 @@
 
 #include "core/task/include/task.hpp"
 
+#include "oneapi/tbb/task_group.h"
+
 namespace deryabin_m_hoare_sort_simple_merge_mpi {
 
 void HoareSort(std::vector<double>& a, size_t first, size_t last, tbb::task_group& tg, size_t available_threads);
