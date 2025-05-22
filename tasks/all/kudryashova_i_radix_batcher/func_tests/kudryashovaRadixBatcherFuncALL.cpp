@@ -172,10 +172,12 @@ TEST(kudryashova_i_radix_batcher_all, all_radix_test_reverse_order) {
   std::ranges::sort(global_vector, std::greater<>());
   std::vector<double> result(global_vector_size);
   std::shared_ptr<ppc::core::TaskData> task_data = std::make_shared<ppc::core::TaskData>();
-  task_data->inputs.emplace_back(reinterpret_cast<uint8_t *>(global_vector.data()));
-  task_data->inputs_count.emplace_back(global_vector.size());
-  task_data->outputs.emplace_back(reinterpret_cast<uint8_t *>(result.data()));
-  task_data->outputs_count.emplace_back(result.size());
+  if (world.rank() == 0) {
+    task_data->inputs.emplace_back(reinterpret_cast<uint8_t *>(global_vector.data()));
+    task_data->inputs_count.emplace_back(global_vector.size());
+    task_data->outputs.emplace_back(reinterpret_cast<uint8_t *>(result.data()));
+    task_data->outputs_count.emplace_back(result.size());
+  }
   kudryashova_i_radix_batcher_all::TestTaskALL task_all(task_data);
   ASSERT_TRUE(task_all.ValidationImpl());
   task_all.PreProcessingImpl();

@@ -17,6 +17,7 @@
 #include <cstddef>
 #include <cstdint>
 #include <cstring>
+#include <ranges>
 #include <vector>
 
 namespace mpi = boost::mpi;
@@ -131,7 +132,8 @@ bool kudryashova_i_radix_batcher_all::TestTaskALL::PreProcessingImpl() {
       return false;
     }
     input_data_.resize(task_data->inputs_count[0]);
-    std::copy_n(reinterpret_cast<double*>(task_data->inputs[0]), task_data->inputs_count[0], input_data_.begin());
+    std::ranges::copy(std::views::counted(reinterpret_cast<double*>(task_data->inputs[0]), task_data->inputs_count[0]),
+                      input_data_.begin());
   }
   return true;
 }
