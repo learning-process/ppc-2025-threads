@@ -1,4 +1,5 @@
 #include <gtest/gtest.h>
+#include <boost/mpi/communicator.hpp>
 
 #include <cstddef>
 #include <cstdint>
@@ -168,14 +169,22 @@ TEST(kharin_m_multidimensional_integral_calc_all, test_invalid_input_size) {
 TEST(kharin_m_multidimensional_integral_calc_all, test_random_data) {
   constexpr size_t kDim = 100;
   std::vector<double> in(kDim * kDim);
-  std::random_device rd;
-  std::mt19937 gen(rd());
-  std::uniform_real_distribution<> dis(0.0, 1.0);
-  double expected_sum = 0.0;
-  for (auto& val : in) {
-    val = dis(gen);
-    expected_sum += val;
+  double expected_out = 0.0;
+  
+  // Only generate random data on rank 0
+  boost::mpi::communicator world;
+  if (world.rank() == 0) {
+    std::random_device rd;
+    std::mt19937 gen(rd());
+    std::uniform_real_distribution<> dis(0.0, 1.0);
+    double expected_sum = 0.0;
+    for (auto& val : in) {
+      val = dis(gen);
+      expected_sum += val;
+    }
+    expected_out = expected_sum * 0.1 * 0.1;
   }
+
   std::vector<size_t> grid_sizes = {kDim, kDim};
   std::vector<double> step_sizes = {0.1, 0.1};
   std::vector<double> out(1, 0.0);
@@ -197,7 +206,10 @@ TEST(kharin_m_multidimensional_integral_calc_all, test_random_data) {
   task.Run();
   task.PostProcessing();
 
-  EXPECT_NEAR(out[0], expected_out, 0.99);
+  // Only check result on rank 0
+  if (world.rank() == 0) {
+    EXPECT_NEAR(out[0], expected_out, 0.0001);
+  }
 }
 
 TEST(kharin_m_multidimensional_integral_calc_all, test_negative_step) {
