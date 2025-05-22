@@ -82,7 +82,7 @@ bool zolotareva_a_sle_gradient_method_all::TestTaskALL::RunImpl() {
   int local_rows_0 = base_rows + remainder;
 
   std::vector<int> recvcounts(world_size, base_rows);
-  if (recvcounts.size() < 1) {
+  if (recvcounts.empty()) {
     throw std::runtime_error("Invalid MPI world size");
   }
   recvcounts[0] = local_rows_0;
