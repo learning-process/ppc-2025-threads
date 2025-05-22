@@ -7,14 +7,21 @@
 #include <vector>
 
 std::vector<int> naumov_b_marc_on_bin_image_omp::GenerateRandomBinaryMatrix(int rows, int cols, double probability) {
-  std::random_device rd;
-  std::mt19937 gen(rd());
-  std::uniform_real_distribution<> distrib(0.0, 1.0);
+  const int total_elements = rows * cols;
+  const int target_ones = static_cast<int>(total_elements * probability);
 
-  std::vector<int> matrix(rows * cols);
-  for (int i = 0; i < rows * cols; ++i) {
-    matrix[i] = (distrib(gen) < probability) ? 1 : 0;
+  std::vector<int> matrix(total_elements, 1);
+
+  const int zeros_needed = total_elements - target_ones;
+
+  for (int i = 0; i < zeros_needed; ++i) {
+    matrix[i] = 0;
   }
+
+  std::random_device rd;
+  std::mt19937 g(rd());
+  std::shuffle(matrix.begin(), matrix.end(), g);
+
   return matrix;
 }
 
