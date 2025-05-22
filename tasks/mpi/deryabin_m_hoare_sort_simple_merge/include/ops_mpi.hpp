@@ -7,7 +7,6 @@
 #include <vector>
 
 #include "core/task/include/task.hpp"
-
 #include "oneapi/tbb/task_group.h"
 
 namespace deryabin_m_hoare_sort_simple_merge_mpi {
