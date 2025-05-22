@@ -24,11 +24,9 @@ TEST(muradov_m_rect_int_all, test_pipeline_run) {
   task_data_all->outputs.emplace_back(reinterpret_cast<uint8_t *>(&out));
   task_data_all->outputs_count.emplace_back(1);
 
-  // Create Task
   auto test_task_alluential = std::make_shared<muradov_m_rect_int_all::RectIntTaskMpiStlPar>(
       task_data_all, [](const auto &args) { return (args[0] * args[1]) + (args[1] * args[1]); });
 
-  // Create Perf attributes
   auto perf_attr = std::make_shared<ppc::core::PerfAttr>();
   perf_attr->num_running = 10;
   const auto t0 = std::chrono::high_resolution_clock::now();
@@ -38,10 +36,8 @@ TEST(muradov_m_rect_int_all, test_pipeline_run) {
     return static_cast<double>(duration) * 1e-9;
   };
 
-  // Create and init perf results
   auto perf_results = std::make_shared<ppc::core::PerfResults>();
 
-  // Create Perf analyzer
   auto perf_analyzer = std::make_shared<ppc::core::Perf>(test_task_alluential);
   perf_analyzer->PipelineRun(perf_attr, perf_results);
   ppc::core::Perf::PrintPerfStatistic(perf_results);
@@ -62,11 +58,9 @@ TEST(muradov_m_rect_int_all, test_task_run) {
   task_data_all->outputs.emplace_back(reinterpret_cast<uint8_t *>(&out));
   task_data_all->outputs_count.emplace_back(1);
 
-  // Create Task
   auto test_task_alluential = std::make_shared<muradov_m_rect_int_all::RectIntTaskMpiStlPar>(
       task_data_all, [](const auto &args) { return (args[0] * args[1]) + (args[1] * args[1]); });
 
-  // Create Perf attributes
   auto perf_attr = std::make_shared<ppc::core::PerfAttr>();
   perf_attr->num_running = 10;
   const auto t0 = std::chrono::high_resolution_clock::now();
@@ -76,10 +70,8 @@ TEST(muradov_m_rect_int_all, test_task_run) {
     return static_cast<double>(duration) * 1e-9;
   };
 
-  // Create and init perf results
   auto perf_results = std::make_shared<ppc::core::PerfResults>();
 
-  // Create Perf analyzer
   auto perf_analyzer = std::make_shared<ppc::core::Perf>(test_task_alluential);
   perf_analyzer->TaskRun(perf_attr, perf_results);
   ppc::core::Perf::PrintPerfStatistic(perf_results);

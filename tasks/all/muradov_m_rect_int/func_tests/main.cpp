@@ -31,7 +31,7 @@ void MuradovMRectIntTest(std::size_t iterations, std::vector<std::pair<double, d
     task_data->outputs_count.emplace_back(1);
   }
   muradov_m_rect_int_all::RectIntTaskMpiStlPar task(task_data, fun);
-  ASSERT_EQ(task.Validation(), true);
+  ASSERT_TRUE(task.Validation());
   task.PreProcessing();
   task.Run();
   task.PostProcessing();
@@ -106,5 +106,10 @@ TEST(muradov_m_rect_int_all, polynomial_sum_1) {
 
 TEST(muradov_m_rect_int_all, polynomial_sum_2) {
   MuradovMRectIntTest(100, {{0, 2}, {0, 3}}, 27,
+                      [](const auto &args) { return (args[0] * args[1]) + std::pow(args[1], 2); });
+}
+
+TEST(muradov_m_rect_int_all, neg_bounds) {
+  MuradovMRectIntTest(100, {{-2, 2}, {-3, 3}}, 72.028,
                       [](const auto &args) { return (args[0] * args[1]) + std::pow(args[1], 2); });
 }
