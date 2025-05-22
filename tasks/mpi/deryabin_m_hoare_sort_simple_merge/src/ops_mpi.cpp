@@ -105,7 +105,7 @@ bool deryabin_m_hoare_sort_simple_merge_mpi::HoareSortTaskSequential::Validation
 bool deryabin_m_hoare_sort_simple_merge_mpi::HoareSortTaskSequential::RunImpl() {
   size_t count = 0;
   while (count != chunk_count_) {
-    HoareSort(input_array_A_, count * min_chunk_size_, ((count + 1) * min_chunk_size_) - 1);
+    HoaraSort(input_array_A_, count * min_chunk_size_, ((count + 1) * min_chunk_size_) - 1);
     count++;
   }
   size_t chunk_count = chunk_count_;
