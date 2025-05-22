@@ -44,7 +44,7 @@ TEST(prokhorov_n_multidimensional_integrals_by_trapezoidal_method_tbb, test_inte
 TEST(prokhorov_n_multidimensional_integrals_by_trapezoidal_method_tbb, test_integral_1d_sin) {
   std::vector<double> lower = {0.0};
   std::vector<double> upper = {kPi / 2};
-  std::vector<int> steps = {10000};
+  std::vector<int> steps = {100000};
   double expected = 1.0;
   double result = 0.0;
 
@@ -73,7 +73,7 @@ TEST(prokhorov_n_multidimensional_integrals_by_trapezoidal_method_tbb, test_inte
 TEST(prokhorov_n_multidimensional_integrals_by_trapezoidal_method_tbb, test_integral_2d_circle_area) {
   std::vector<double> lower = {-1.0, -1.0};
   std::vector<double> upper = {1.0, 1.0};
-  std::vector<int> steps = {500, 500};
+  std::vector<int> steps = {1000, 1000};
   double expected = kPi;
   double result = 0.0;
 
@@ -103,7 +103,7 @@ TEST(prokhorov_n_multidimensional_integrals_by_trapezoidal_method_tbb, test_inte
 TEST(prokhorov_n_multidimensional_integrals_by_trapezoidal_method_tbb, test_integral_3d_sphere_volume) {
   std::vector<double> lower = {-1.0, -1.0, -1.0};
   std::vector<double> upper = {1.0, 1.0, 1.0};
-  std::vector<int> steps = {50, 50, 50};
+  std::vector<int> steps = {100, 100, 100};
   double expected = 4.0 * kPi / 3.0;
   double result = 0.0;
 
