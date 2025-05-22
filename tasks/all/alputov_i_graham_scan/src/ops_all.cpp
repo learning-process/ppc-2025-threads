@@ -217,7 +217,9 @@ int TestTaskALL::SortLocalAndGatherSortedPoints(int current_rank_in_active_comm)
   int total_sorted_points_count = 0;
   std::vector<int> displs_for_gatherv(current_rank_in_active_comm == 0 ? active_procs_count_ : 0);
   if (current_rank_in_active_comm == 0) {
-    displs_for_gatherv[0] = 0;
+    if (active_procs_count_ > 0) {
+      displs_for_gatherv[0] = 0;
+    }
 
     globally_sorted_points_.clear();
     for (int i = 0; i < active_procs_count_; ++i) {
