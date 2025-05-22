@@ -174,7 +174,7 @@ TEST(deryabin_m_hoare_sort_simple_merge_mpi, test_shuffle_array) {
   hoare_sort_task_mpi.Run();
   hoare_sort_task_mpi.PostProcessing();
   if (world.rank() == 0) {
-                           ASSERT_EQ(true_solution, out_array[0]); 
+    ASSERT_EQ(true_solution, out_array[0]);
   }
 }
 
