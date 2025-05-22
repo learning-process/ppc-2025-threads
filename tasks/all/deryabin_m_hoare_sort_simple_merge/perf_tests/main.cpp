@@ -98,7 +98,7 @@ TEST(deryabin_m_hoare_sort_simple_merge_mpi, test_task_run_MPI) {
     task_data_seq->inputs_count.emplace_back(input_array.size());
     task_data_seq->inputs_count.emplace_back(chunk_count);
     task_data_seq->outputs.emplace_back(reinterpret_cast<uint8_t*>(out_array_seq.data()));
-    task_data_seq->outputs_count.emplace_back(output_array_seq.size()); 
+    task_data_seq->outputs_count.emplace_back(output_array_seq.size());
     auto hoare_sort_simple_merge_task_seq =
         std::make_shared<deryabin_m_hoare_sort_simple_merge_mpi::HoareSortTaskSequential>(task_data_seq);
   }
