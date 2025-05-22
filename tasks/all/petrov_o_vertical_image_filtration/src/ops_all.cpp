@@ -5,6 +5,7 @@
 #include <oneapi/tbb/parallel_for.h>
 #include <oneapi/tbb/task_arena.h>
 
+#include <boost/mpi/collectives/broadcast.hpp>
 #include <cmath>
 #include <cstddef>
 #include <utility>
@@ -88,6 +89,10 @@ void TaskAll::ApplyGaussianFilterTbb(std::vector<int> &local_output_ref, size_t 
 bool TaskAll::RunImpl() {
   int rank = world_.rank();
   int comm_size = world_.size();
+
+  boost::mpi::broadcast(world_, width_, 0);
+  boost::mpi::broadcast(world_, height_, 0);
+  boost::mpi::broadcast(world_, input_, 0);
 
   if (height_ < 3 || width_ < 3) {
     if (rank == 0) {

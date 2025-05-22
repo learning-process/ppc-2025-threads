@@ -254,15 +254,13 @@ TEST(petrov_o_vertical_image_filtration_all, test_gaussian_filter_random) {
   std::vector<int> in;
   petrov_o_vertical_image_filtration_all::TaskAll test_task_all(task_data_all);
 
-  if (test_task_all.GetRank() == 0) {
-    in = GenerateRandomInput(kWidth, kHeight);
+  in = GenerateRandomInput(kWidth, kHeight);
 
-    task_data_all->inputs.emplace_back(reinterpret_cast<uint8_t *>(in.data()));
-    task_data_all->inputs_count.emplace_back(kWidth);
-    task_data_all->inputs_count.emplace_back(kHeight);
-    task_data_all->outputs.emplace_back(reinterpret_cast<uint8_t *>(out.data()));
-    task_data_all->outputs_count.emplace_back(out.size());
-  }
+  task_data_all->inputs.emplace_back(reinterpret_cast<uint8_t *>(in.data()));
+  task_data_all->inputs_count.emplace_back(kWidth);
+  task_data_all->inputs_count.emplace_back(kHeight);
+  task_data_all->outputs.emplace_back(reinterpret_cast<uint8_t *>(out.data()));
+  task_data_all->outputs_count.emplace_back(out.size());
 
   ASSERT_TRUE(test_task_all.Validation());
   test_task_all.PreProcessing();
