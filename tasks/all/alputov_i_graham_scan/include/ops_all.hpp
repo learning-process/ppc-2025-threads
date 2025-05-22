@@ -51,7 +51,6 @@ class TestTaskALL : public ppc::core::Task {
   std::vector<Point> local_points_;
   std::vector<Point> globally_sorted_points_;
 
-  // Helper methods for RunImpl
   bool InitializeRun(size_t& current_total_num_points_ref, int& current_rank_in_active_comm_out);
   size_t DistributePointsAndBroadcastPivot(int current_rank_in_active_comm);
   int SortLocalAndGatherSortedPoints(int current_rank_in_active_comm);

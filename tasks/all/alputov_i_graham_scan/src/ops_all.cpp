@@ -113,7 +113,7 @@ bool TestTaskALL::InitializeRun(size_t& current_total_num_points_ref, int& curre
         convex_hull_.clear();
       } else if (current_total_num_points_ref == 1) {
         convex_hull_ = {input_points_[0]};
-      } else {  // current_total_num_points_ref == 2
+      } else {
         if (input_points_[0] < input_points_[1]) {
           convex_hull_ = {input_points_[0], input_points_[1]};
         } else {
@@ -121,12 +121,11 @@ bool TestTaskALL::InitializeRun(size_t& current_total_num_points_ref, int& curre
         }
       }
     }
-    return false;  // Indicates RunImpl should terminate
+    return false;
   }
 
   active_procs_count_ = std::min(world_size_, static_cast<int>(current_total_num_points_ref));
   if (active_procs_count_ == 0 && current_total_num_points_ref > 0) {
-    // This case should ideally not be hit if current_total_num_points_ref >= 3
     active_procs_count_ = 1;
   }
 
@@ -139,11 +138,11 @@ bool TestTaskALL::InitializeRun(size_t& current_total_num_points_ref, int& curre
   MPI_Comm_split(MPI_COMM_WORLD, color, rank_, &active_comm_);
 
   if (color == 1) {
-    return false;  // Indicates RunImpl should terminate for inactive processes
+    return false;
   }
 
   MPI_Comm_rank(active_comm_, &current_rank_in_active_comm_out);
-  return true;  // Continue with RunImpl
+  return true;
 }
 
 size_t TestTaskALL::DistributePointsAndBroadcastPivot(int current_rank_in_active_comm) {
@@ -152,7 +151,7 @@ size_t TestTaskALL::DistributePointsAndBroadcastPivot(int current_rank_in_active
   }
   MPI_Bcast(&pivot_, 1, mpi_point_datatype_, 0, active_comm_);
 
-  std::vector<Point> points_to_sort_globally_on_root;  // Only used on root
+  std::vector<Point> points_to_sort_globally_on_root;
   if (current_rank_in_active_comm == 0) {
     for (const auto& p : input_points_) {
       if (p != pivot_) {
@@ -168,7 +167,7 @@ size_t TestTaskALL::DistributePointsAndBroadcastPivot(int current_rank_in_active
   MPI_Bcast(&num_points_to_scatter, 1, MPI_UNSIGNED_LONG, 0, active_comm_);
 
   if (num_points_to_scatter == 0) {
-    return 0;  // Signal that only pivot might form the hull
+    return 0;
   }
 
   std::vector<int> send_counts_for_scatterv(active_procs_count_);
@@ -243,7 +242,7 @@ int TestTaskALL::SortLocalAndGatherSortedPoints(int current_rank_in_active_comm)
 void TestTaskALL::ConstructFinalHullOnRoot(int current_rank_in_active_comm, int total_sorted_points_count) {
   if (current_rank_in_active_comm == 0) {
     if (total_sorted_points_count > 0) {
-      LocalParallelSort(globally_sorted_points_, pivot_);  // Merge sorted sub-arrays
+      LocalParallelSort(globally_sorted_points_, pivot_);
       RemoveDuplicates(globally_sorted_points_);
     }
 
@@ -257,10 +256,10 @@ void TestTaskALL::ConstructFinalHullOnRoot(int current_rank_in_active_comm, int 
 
 bool TestTaskALL::RunImpl() {
   size_t current_total_num_points = 0;
-  int current_rank_in_active_comm = 0;  // Initialized for safety
+  int current_rank_in_active_comm = 0;
 
   if (!InitializeRun(current_total_num_points, current_rank_in_active_comm)) {
-    return true;  // Small set handled or current process is inactive
+    return true;
   }
 
   size_t num_points_to_scatter = DistributePointsAndBroadcastPivot(current_rank_in_active_comm);
