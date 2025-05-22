@@ -49,7 +49,6 @@ bool IsSorted(const std::vector<int>& arr) {
 }  // namespace
 
 TEST(shlyakov_m_shell_sort_tbb, test_pipeline_run) {
-  
   constexpr size_t kCount = 100000;
   
   std::vector<int> in = GenerateRandomArray(kCount);
@@ -84,7 +83,6 @@ TEST(shlyakov_m_shell_sort_tbb, test_pipeline_run) {
 }
 
 TEST(shlyakov_m_shell_sort_tbb, test_task_run) {
-
   constexpr size_t kCount = 100000;
 
   std::vector<int> in = GenerateRandomArray(kCount);
