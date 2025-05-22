@@ -83,4 +83,3 @@ TEST(prokhorov_n_multidimensional_integrals_by_trapezoidal_method_tbb, test_task
   perf_analyzer->TaskRun(perf_attr, perf_results);
   ppc::core::Perf::PrintPerfStatistic(perf_results);
 }
-
