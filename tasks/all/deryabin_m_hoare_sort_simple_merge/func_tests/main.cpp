@@ -41,7 +41,7 @@ TEST(deryabin_m_hoare_sort_simple_merge_mpi, test_random_array) {
   hoare_sort_task_mpi.Run();
   hoare_sort_task_mpi.PostProcessing();
   if (world.rank() == 0) {
-    ASSERT_EQ(true_solution, out_array[0]); 
+    ASSERT_EQ(true_solution, out_array[0]);
   }
 }
 
@@ -75,7 +75,7 @@ TEST(deryabin_m_hoare_sort_simple_merge_mpi, test_double_reverse_array) {
   hoare_sort_task_mpi.Run();
   hoare_sort_task_mpi.PostProcessing();
   if (world.rank() == 0) {
-    ASSERT_EQ(true_solution, out_array[0]); 
+    ASSERT_EQ(true_solution, out_array[0]);
   }
 }
 
@@ -141,7 +141,7 @@ TEST(deryabin_m_hoare_sort_simple_merge_mpi, test_negative_elements_array) {
   hoare_sort_task_mpi.Run();
   hoare_sort_task_mpi.PostProcessing();
   if (world.rank() == 0) {
-    ASSERT_EQ(true_solution, out_array[0]); 
+    ASSERT_EQ(true_solution, out_array[0]);
   }
 }
 
@@ -207,7 +207,7 @@ TEST(deryabin_m_hoare_sort_simple_merge_mpi, test_random_array_small_pieces) {
   hoare_sort_task_mpi.Run();
   hoare_sort_task_mpi.PostProcessing();
   if (world.rank() == 0) {
-    ASSERT_EQ(true_solution, out_array[0]); 
+    ASSERT_EQ(true_solution, out_array[0]);
   }
 }
 
@@ -240,7 +240,7 @@ TEST(deryabin_m_hoare_sort_simple_merge_mpi, test_random_array_large_pieces) {
   hoare_sort_task_mpi.Run();
   hoare_sort_task_mpi.PostProcessing();
   if (world.rank() == 0) {
-    ASSERT_EQ(true_solution, out_array[0]); 
+    ASSERT_EQ(true_solution, out_array[0]);
   }
 }
 
@@ -270,7 +270,7 @@ TEST(deryabin_m_hoare_sort_simple_merge_mpi, test_array_large_pieces_reversed_or
   hoare_sort_task_mpi.Run();
   hoare_sort_task_mpi.PostProcessing();
   if (world.rank() == 0) {
-    ASSERT_EQ(true_solution, out_array[0]); 
+    ASSERT_EQ(true_solution, out_array[0]);
   }
 }
 
@@ -304,7 +304,7 @@ TEST(deryabin_m_hoare_sort_simple_merge_mpi, test_partially_sorted_array) {
   hoare_sort_task_mpi.Run();
   hoare_sort_task_mpi.PostProcessing();
   if (world.rank() == 0) {
-    ASSERT_EQ(true_solution, out_array[0]); 
+    ASSERT_EQ(true_solution, out_array[0]);
   }
 }
 
@@ -334,7 +334,7 @@ TEST(deryabin_m_hoare_sort_simple_merge_mpi, test_backward_sorted_array) {
   hoare_sort_task_mpi.Run();
   hoare_sort_task_mpi.PostProcessing();
   if (world.rank() == 0) {
-    ASSERT_EQ(true_solution, out_array[0]); 
+    ASSERT_EQ(true_solution, out_array[0]);
   }
 }
 
