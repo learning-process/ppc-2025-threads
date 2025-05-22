@@ -152,12 +152,12 @@ class HoareMPITBB : public ppc::core::Task {
         const auto k = 2 * proc;
         if ((subcomm.rank() % k) == 0) {
           if ((subcomm.rank() + proc) < int(procparallelism)) {
-            decltype(partial_input.size()) size = {};
-            subcomm.recv(subcomm.rank() + proc, 0, size);
-            partial_input.resize(partial_input.size() + size);
-            subcomm.recv(subcomm.rank() + proc, 0, partial_input.data() + (partial_input.size() - size), size);
+            decltype(partial_input.size()) psize = {};
+            subcomm.recv(subcomm.rank() + proc, 0, psize);
+            partial_input.resize(partial_input.size() + psize);
+            subcomm.recv(subcomm.rank() + proc, 0, partial_input.data() + (partial_input.size() - psize), psize);
             std::ranges::inplace_merge(partial_input,
-                                       partial_input.begin() + static_cast<std::int64_t>(partial_input.size() - size),
+                                       partial_input.begin() + static_cast<std::int64_t>(partial_input.size() - psize),
                                        reverse_ ? ReverseComp : StandardComp);
           }
         } else if ((subcomm.rank() % proc) == 0) {
