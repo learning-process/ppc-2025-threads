@@ -14,7 +14,6 @@
 #include "boost/mpi/collectives/broadcast.hpp"
 #include "boost/mpi/collectives/gatherv.hpp"
 #include "boost/mpi/collectives/scatterv.hpp"
-
 #include "core/task/include/task.hpp"
 
 namespace sidorina_p_gradient_method_all {
