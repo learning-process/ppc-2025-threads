@@ -4,7 +4,9 @@
 
 #include <algorithm>
 #include <boost/mpi/collectives.hpp>
-#include <boost/serialization/vector.hpp>
+#include <boost/mpi/collectives/broadcast.hpp>
+#include <boost/mpi/collectives/reduce.hpp>
+#include <boost/serialization/vector.hpp>  // NOLINT(*-include-cleaner)
 #include <cstdlib>
 #include <ctime>
 #include <functional>
@@ -51,7 +53,7 @@ bool sharamygina_i_multi_dim_monte_carlo_all::MultiDimMonteCarloTask::RunImpl() 
   int iterations_per_process = number_of_iterations_ / size;
   int remainder = number_of_iterations_ % size;
 
-  int start_iter = rank * iterations_per_process + std::min(rank, remainder);
+  int start_iter = (rank * iterations_per_process) + std::min(rank, remainder);
   int end_iter = start_iter + iterations_per_process + (rank < remainder ? 1 : 0);
 
   double accumulator = 0.0;
@@ -70,7 +72,7 @@ bool sharamygina_i_multi_dim_monte_carlo_all::MultiDimMonteCarloTask::RunImpl() 
   }
 
   double global_accumulator = 0.0;
-  boost::mpi::reduce(world_, accumulator, global_accumulator, std::plus<double>(), 0);
+  boost::mpi::reduce(world_, accumulator, global_accumulator, std::plus<>(), 0);
 
   if (rank == 0) {
     double volume = 1.0;
