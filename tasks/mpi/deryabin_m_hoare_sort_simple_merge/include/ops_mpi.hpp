@@ -1,6 +1,5 @@
 #pragma once
 
-#include "oneapi/tbb/task_group.h"
 #include <tbb/tbb.h>
 
 #include <boost/mpi/collectives.hpp>
@@ -10,6 +9,7 @@
 #include <vector>
 
 #include "core/task/include/task.hpp"
+#include "oneapi/tbb/task_group.h"
 
 namespace deryabin_m_hoare_sort_simple_merge_mpi {
 
