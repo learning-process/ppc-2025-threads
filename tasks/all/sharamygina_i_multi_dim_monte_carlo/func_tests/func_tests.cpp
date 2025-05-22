@@ -249,6 +249,38 @@ TEST(sharamygina_i_multi_dim_monte_carlo_all, 3DFunction) {
   }
 }
 
+TEST(sharamygina_i_multi_dim_monte_carlo_all, 3DFunctionPrime) {
+  boost::mpi::communicator world;
+
+  int iterations = 30011;
+  std::vector<double> boundaries = GetBoundaries(0.0, 3.0, 3);
+  auto test_function = [](const std::vector<double>& values) {
+    assert(values.size() == 3);
+    return 1.0;
+  };
+  double result = 0.0;
+
+  std::shared_ptr<ppc::core::TaskData> task_data = std::make_shared<ppc::core::TaskData>();
+  if (world.rank() == 0) {
+    task_data->inputs.emplace_back(reinterpret_cast<uint8_t*>(boundaries.data()));
+    task_data->inputs_count.emplace_back(boundaries.size());
+    task_data->inputs.emplace_back(reinterpret_cast<uint8_t*>(&iterations));
+    task_data->inputs_count.emplace_back(1);
+    task_data->outputs.emplace_back(reinterpret_cast<uint8_t*>(&result));
+    task_data->outputs_count.emplace_back(1);
+  }
+  sharamygina_i_multi_dim_monte_carlo_all::MultiDimMonteCarloTask test_task(task_data, test_function);
+  ASSERT_TRUE(test_task.ValidationImpl());
+  ASSERT_TRUE(test_task.PreProcessingImpl());
+  ASSERT_TRUE(test_task.RunImpl());
+  ASSERT_TRUE(test_task.PostProcessingImpl());
+  if (world.rank() == 0) {
+    double expected = 27;
+    double tol = 0.03 * expected;
+    EXPECT_NEAR(result, expected, tol);
+  }
+}
+
 TEST(sharamygina_i_multi_dim_monte_carlo_all, 4DFunction) {
   boost::mpi::communicator world;
 
@@ -313,6 +345,38 @@ TEST(sharamygina_i_multi_dim_monte_carlo_all, 2DExpFunction) {
   }
 }
 
+TEST(sharamygina_i_multi_dim_monte_carlo_all, 2DExpFunction12345) {
+  boost::mpi::communicator world;
+
+  int iterations = 12345;
+  std::vector<double> boundaries = GetBoundaries(1.0, 1.5, 2);
+  auto test_function = [](const std::vector<double>& values) {
+    assert(values.size() == 2);
+    return std::exp(values[0] + values[1]);
+  };
+  double result = 0.0;
+
+  std::shared_ptr<ppc::core::TaskData> task_data = std::make_shared<ppc::core::TaskData>();
+  if (world.rank() == 0) {
+    task_data->inputs.emplace_back(reinterpret_cast<uint8_t*>(boundaries.data()));
+    task_data->inputs_count.emplace_back(boundaries.size());
+    task_data->inputs.emplace_back(reinterpret_cast<uint8_t*>(&iterations));
+    task_data->inputs_count.emplace_back(1);
+    task_data->outputs.emplace_back(reinterpret_cast<uint8_t*>(&result));
+    task_data->outputs_count.emplace_back(1);
+  }
+  sharamygina_i_multi_dim_monte_carlo_all::MultiDimMonteCarloTask test_task(task_data, test_function);
+  ASSERT_TRUE(test_task.ValidationImpl());
+  ASSERT_TRUE(test_task.PreProcessingImpl());
+  ASSERT_TRUE(test_task.RunImpl());
+  ASSERT_TRUE(test_task.PostProcessingImpl());
+  if (world.rank() == 0) {
+    double expected = 3.109605100711371;
+    double tol = 0.07 * expected;
+    EXPECT_NEAR(result, expected, tol);
+  }
+}
+
 TEST(sharamygina_i_multi_dim_monte_carlo_all, 10DFunction) {
   boost::mpi::communicator world;
 
@@ -373,6 +437,38 @@ TEST(sharamygina_i_multi_dim_monte_carlo_all, 3DFunctionWithDifferentBoundaries)
   if (world.rank() == 0) {
     double expected = 1.488;
     double tol = 0.03 * expected;
+    EXPECT_NEAR(result, expected, tol);
+  }
+}
+
+TEST(sharamygina_i_multi_dim_monte_carlo_all, 2DFunctionWithDifferentBoundaries) {
+  boost::mpi::communicator world;
+
+  int iterations = 30000;
+  std::vector<double> boundaries = {3.0, 7.1, 1.3, 4.4};
+  auto test_function = [](const std::vector<double>& values) {
+    assert(values.size() == 3);
+    return -(values[0] * std::cos(values[1]));
+  };
+  double result = 0.0;
+
+  std::shared_ptr<ppc::core::TaskData> task_data = std::make_shared<ppc::core::TaskData>();
+  if (world.rank() == 0) {
+    task_data->inputs.emplace_back(reinterpret_cast<uint8_t*>(boundaries.data()));
+    task_data->inputs_count.emplace_back(boundaries.size());
+    task_data->inputs.emplace_back(reinterpret_cast<uint8_t*>(&iterations));
+    task_data->inputs_count.emplace_back(1);
+    task_data->outputs.emplace_back(reinterpret_cast<uint8_t*>(&result));
+    task_data->outputs_count.emplace_back(1);
+  }
+  sharamygina_i_multi_dim_monte_carlo_all::MultiDimMonteCarloTask test_task(task_data, test_function);
+  ASSERT_TRUE(test_task.ValidationImpl());
+  ASSERT_TRUE(test_task.PreProcessingImpl());
+  ASSERT_TRUE(test_task.RunImpl());
+  ASSERT_TRUE(test_task.PostProcessingImpl());
+  if (world.rank() == 0) {
+    double expected = 39, 65339;
+    double tol = 0.04 * expected;
     EXPECT_NEAR(result, expected, tol);
   }
 }
