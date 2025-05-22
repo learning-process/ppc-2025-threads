@@ -171,7 +171,7 @@ void odintsov_m_mulmatrix_cannon_tbb::MulMatrixCannonTBB::MultiplyBlock(int bi, 
   for (int i = 0; i < block_sz_; ++i) {
     for (int j = 0; j < block_sz_; ++j) {
       int idx = (((bi * block_sz_) + i) * root) + ((bj * block_sz_) + j);
-      matrixC_[idx] += localC[(i * block_sz_) + j];
+      matrixC_[idx] += local_c[(i * block_sz_) + j];
     }
   }
 }
