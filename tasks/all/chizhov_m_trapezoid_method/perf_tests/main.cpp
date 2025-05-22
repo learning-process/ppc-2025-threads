@@ -7,9 +7,9 @@
 #include <memory>
 #include <vector>
 
+#include "all/chizhov_m_trapezoid_method/include/ops_all.hpp"
 #include "core/perf/include/perf.hpp"
 #include "core/task/include/task.hpp"
-#include "all/chizhov_m_trapezoid_method/include/ops_all.hpp"
 
 TEST(chizhov_m_trapezoid_method_all, test_pipeline_run) {
   boost::mpi::communicator world;

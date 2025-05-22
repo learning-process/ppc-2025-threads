@@ -4,10 +4,10 @@
 #include <oneapi/tbb/task_arena.h>
 #include <tbb/tbb.h>
 
+#include <algorithm>
 #include <boost/mpi/collectives/broadcast.hpp>
 #include <boost/mpi/collectives/reduce.hpp>
 #include <boost/serialization/vector.hpp>
-#include <algorithm>
 #include <cmath>
 #include <core/util/include/util.hpp>
 #include <cstddef>
@@ -141,7 +141,7 @@ bool chizhov_m_trapezoid_method_all::TestTaskMPI::ValidationImpl() {
       }
     }
   }
-  
+
   boost::mpi::broadcast(world, valid, 0);
   return valid;
 }

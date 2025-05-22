@@ -1,7 +1,6 @@
 #pragma once
 
 #include <boost/mpi/communicator.hpp>
-
 #include <cstddef>
 #include <functional>
 #include <utility>
@@ -24,7 +23,6 @@ class TestTaskMPI : public ppc::core::Task {
   bool RunImpl() override;
   bool PostProcessingImpl() override;
   void SetFunc(const Function f);
-
 
  private:
   Function f_;

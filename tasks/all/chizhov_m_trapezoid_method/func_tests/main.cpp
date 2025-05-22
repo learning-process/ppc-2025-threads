@@ -7,8 +7,8 @@
 #include <utility>
 #include <vector>
 
-#include "core/task/include/task.hpp"
 #include "all/chizhov_m_trapezoid_method/include/ops_all.hpp"
+#include "core/task/include/task.hpp"
 
 namespace {
 void RunTests(int div, int dimm, std::vector<double> &limits, std::function<double(const std::vector<double> &)> f,
@@ -19,7 +19,6 @@ void RunTests(int div, int dimm, std::vector<double> &limits, std::function<doub
   std::shared_ptr<ppc::core::TaskData> task_data_mpi = std::make_shared<ppc::core::TaskData>();
 
   if (world.rank() == 0) {
-
     task_data_mpi->inputs.emplace_back(reinterpret_cast<uint8_t *>(&div));
     task_data_mpi->inputs_count.emplace_back(sizeof(div));
 
@@ -28,7 +27,6 @@ void RunTests(int div, int dimm, std::vector<double> &limits, std::function<doub
 
     task_data_mpi->inputs.emplace_back(reinterpret_cast<uint8_t *>(limits.data()));
     task_data_mpi->inputs_count.emplace_back(limits.size());
-
 
     task_data_mpi->outputs.emplace_back(reinterpret_cast<uint8_t *>(res.data()));
     task_data_mpi->outputs_count.emplace_back(res.size() * sizeof(double));
