@@ -1,6 +1,7 @@
 #include <omp.h>
 
-#include <boost/mpi/collectives.hpp>
+#include <boost/mpi/collectives/broadcast.hpp>
+#include <boost/mpi/collectives/scatter.hpp>
 #include <climits>
 #include <cmath>
 #include <core/util/include/util.hpp>
@@ -140,8 +141,9 @@ bool kovalev_k_radix_sort_batcher_merge_all::TestTaskAll::BatcherSortOMP() {
 
   unsigned int effective_num_threads =
       static_cast<int>(std::pow(2, std::floor(std::log2(ppc::util::GetPPCNumThreads()))));
-  unsigned int n_by_proc = loc_proc_lenght_ + (((2 * e_n_f) - (loc_proc_lenght_ % (2 * effective_num_threads))) %
-                                               (2 * effective_num_threads));
+  unsigned int n_by_proc =
+      loc_proc_lenght_ +
+      (((2 * effective_num_threads) - (loc_proc_lenght_ % (2 * effective_num_threads))) % (2 * effective_num_threads));
   unsigned int loc_lenght = n_by_proc / effective_num_threads;
 
   loc_.resize(n_by_proc);
