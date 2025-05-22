@@ -16,7 +16,7 @@ void deryabin_m_hoare_sort_simple_merge_mpi::HoaraSort(std::vector<double>& a, s
   if (first >= last) {
     return;
   }
-  const size_t mid = first + last >> 1;
+  const size_t mid = (first + last) >> 1;
   const double x = std::max(std::min(a[first], a[mid]), std::min(std::max(a[first], a[mid]), a[last]));
   double* pi = &a[first];
   double* pj = &a[last];
@@ -39,8 +39,8 @@ void deryabin_m_hoare_sort_simple_merge_mpi::HoaraSort(std::vector<double>& a, s
       HoaraSort(a, i + 1, last, tg, available_threads - (available_threads >> 1));
     });
   } else {
-    HoareSort(a, first, j, tg, 1);
-    HoareSort(a, i + 1, last, tg, 1);
+    HoaraSort(a, first, j, tg, 1);
+    HoaraSort(a, i + 1, last, tg, 1);
   }
 }
 
@@ -120,7 +120,7 @@ bool deryabin_m_hoare_sort_simple_merge_mpi::HoareSortTaskMPI::ValidationImpl() 
 }
 
 bool deryabin_m_hoare_sort_simple_merge_mpi::HoareSortTaskMPI::RunImpl() {
-  const size_t num_chunk_per_proc = 0;
+  size_t num_chunk_per_proc = 0;
   if (world.rank() == 0) {
     if (chunk_count_ < static_cast<size_t>(world.size())) {
       // Увеличиваем число кусочков до ближайшей степени двойки >= world.size(),
@@ -154,13 +154,13 @@ bool deryabin_m_hoare_sort_simple_merge_mpi::HoareSortTaskMPI::RunImpl() {
     } else {
       world.recv(
           world.rank() - 1, world.rank() - 1,
-          input_array_A_.data() + static_cast<unsigned short>((world.rank() - 1) * num_chunk_per_proc * min_chunk_size_)
-              << (i + 1),
+          input_array_A_.data() + (static_cast<unsigned short>((world.rank() - 1) * num_chunk_per_proc * min_chunk_size_)
+              << (i + 1)),
           static_cast<unsigned short>(num_chunk_per_proc * min_chunk_size_) << i);
       if (world.rank() != world.size() - 1) {
         MergeTwoParts(input_array_A_,
                       static_cast<size_t>((world.rank() - 1) * num_chunk_per_proc * min_chunk_size_) << (i + 1),
-                      ((world.rank() + 1) * num_chunk_per_proc * min_chunk_size_) << (i + 1) - 1, tg, num_threads);
+                      (((world.rank() + 1) * num_chunk_per_proc * min_chunk_size_) << (i + 1)) - 1, tg, num_threads);
       } else {
         MergeTwoParts(input_array_A_,
                       static_cast<size_t>((world.rank() - 1) * num_chunk_per_proc * min_chunk_size_) << (i + 1),
