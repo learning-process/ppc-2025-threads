@@ -63,7 +63,7 @@ bool deryabin_m_hoare_sort_simple_merge_mpi::HoareSortTaskSequential::Validation
 bool deryabin_m_hoare_sort_simple_merge_mpi::HoareSortTaskSequential::RunImpl() {
   size_t count = 0;
   while (count != chunk_count_) {
-    HoareSort(input_array_A_, count * min_chunk_size_, ((count + 1) * min_chunk_size_) - 1);
+    HoareSort(input_array_A_, count * min_chunk_size_, ((count + 1) * min_chunk_size_) - 1, nullptr, 1);
     count++;
   }
   size_t chunk_count = chunk_count_;
@@ -103,16 +103,65 @@ bool deryabin_m_hoare_sort_simple_merge_mpi::HoareSortTaskMPI::ValidationImpl() 
 }
 
 bool deryabin_m_hoare_sort_simple_merge_mpi::HoareSortTaskMPI::RunImpl() {
-  if (chunk_count_ < static_cast<size_t>(world.size())) {
-    // Увеличиваем число кусочков до ближайшей степени двойки >= world.size(),
-    // чтобы эффективно загрузить все доступные процессы
-    chunk_count_ = 1ULL << std::bit_width(world.size() - 1);
-    min_chunk_size_ = dimension_ / chunk_count_;
+  const size_t num_chunk_per_proc;
+  std::vector<int> displacements(world.size());
+  std::vector<int> sendcounts(world.size(), number_of_local_matrix_rows);
+  if (world.rank() == 0) {
+    if (chunk_count_ < static_cast<size_t>(world.size())) {
+      // Увеличиваем число кусочков до ближайшей степени двойки >= world.size(),
+      // чтобы эффективно загрузить все доступные процессы
+      chunk_count_ = 1ULL << std::bit_width(world.size() - 1);
+      min_chunk_size_ = dimension_ / chunk_count_;
+    }
+    num_chunk_per_proc = chunk_count_ / static_cast<size_t>(world.size());
+    for (int proc = 1; proc < world.size(); proc++) {
+      displacements[proc] = number_of_local_matrix_rows * (proc - 1);
+    }
+  }
+
+  std::vector<int> sendcounts(world.size(), number_of_local_matrix_rows);
+  std::vector<int> displacements(world.size());
+  if (world.rank() == 0) {
+    for (int proc = 1; proc < world.size(); proc++) {
+      world.send(proc, 0, input_matrix_.data() + (proc - 1) * number_of_local_matrix_rows * n,
+                 number_of_local_matrix_rows * n);
+      world.send(proc, 0, input_right_vector_.data() + (proc - 1) * number_of_local_matrix_rows,
+                 number_of_local_matrix_rows);
+    }
+  } else {
+    world.recv(0, 0, local_input_matrix_part_.data(), number_of_local_matrix_rows * n);
+    world.recv(0, 0, local_input_right_vector_part_.data(), number_of_local_matrix_rows);
   }
   oneapi::tbb::task_group tg;
   const size_t num_threads = ppc::util::GetPPCNumThreads();
   HoaraSort(input_array_A_, static_cast<size_t>(world.rank()) * min_chunk_size_, ((static_cast<size_t>(world.rank()) + 1) * min_chunk_size_) - 1, tg, num_threads); 
   tg.wait();
+
+
+  for (int step = 1; step < world.size(); step *= 2) {
+    int partner = world.rank() ^ step; 
+
+    if (partner >= world.size()) continue;
+
+    if (world.rank() < partner) {
+        std::vector<double> partner_data(local_data.size());
+        world.recv(partner, 0, partner_data);
+
+
+        // Слияние двух частей (параллельно через TBB)
+        std::vector<double> merged(local_data.size() * 2);
+        tbb::parallel_merge(local_data.begin(), local_data.end(),
+                           partner_data.begin(), partner_data.end(),
+                           merged.begin());
+
+        local_data = std::move(merged);
+    } else {
+        // Отправляем свои данные
+        MPI_Send(local_data.data(), local_data.size(), MPI_DOUBLE,
+                 partner, 0, MPI_COMM_WORLD);
+        break;  // Этот процесс завершает работу
+    }
+}
 
   for (size_t i = 0; i < static_cast<size_t>(std::bit_width(chunk_count_) -
                                              1);  // Вычисялем сколько уровней слияния потребуется как логарифм по
