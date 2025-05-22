@@ -17,11 +17,13 @@ struct Coord {
   bool operator==(const Coord o) const { return (x == o.x && y == o.y); }
   bool operator!=(const Coord o) const { return x != o.x || y != o.y; }
 
+  // NOLINTBEGIN(readability-identifier-naming): tbb using "serialize"
   template <typename Archive>
   void serialize(Archive &ar, const unsigned int version) {
     ar & x;
     ar & y;
   }
+  // NOLINTEND(readability-identifier-naming)
 };
 
 double Distance(Coord a, Coord b);
@@ -48,6 +50,7 @@ class TestTaskMPI : public ppc::core::Task {
 
   int FindMostLeft();
   void PointSearch(double t, double &line_angle, int &search_index, int i);
+  void SearchSecondPoint(int start_index, int &search_index);
 
   boost::mpi::communicator world_;
 };

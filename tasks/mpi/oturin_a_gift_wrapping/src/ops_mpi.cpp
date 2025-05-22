@@ -34,12 +34,12 @@ bool oturin_a_gift_wrapping_mpi::TestTaskMPI::PreProcessingImpl() {
     input_ = std::vector<Coord>(in_ptr, in_ptr + input_size);
 
     for (int i = 1; i < world_.size(); i++) {
-      world_.send(i, 1, input_.data(), input_size);
+      world_.send(i, 1, input_.data(), (int)input_size);
     }
 
   } else {
     input_ = std::vector<Coord>(task_data->inputs_count[0]);
-    world_.recv(0, 1, input_.data(), input_.size());
+    world_.recv(0, 1, input_.data(), (int)input_.size());
   }
 
   n_ = int(input_.size());
@@ -79,17 +79,17 @@ void oturin_a_gift_wrapping_mpi::TestTaskMPI::PointSearcher::join(const PointSea
 bool oturin_a_gift_wrapping_mpi::TestTaskMPI::RunImpl() {
   double line_angle = -5;
   int search_index = 0;
-  int start_index;
+  int start_index = 0;
 
   int world_size = world_.size();
 
-  if (world_size > input_.size()) {
-    if (world_.rank() + 1 > input_.size()) {
+  if (world_size > (int)input_.size()) {
+    if (world_.rank() + 1 > (int)input_.size()) {
       return true;
     }
-    world_size = input_.size();
+    world_size = (int)input_.size();
   }
-  int thread_block = input_.size() / (world_size);
+  int thread_block = (int)input_.size() / world_size;
 
   if (!output_.empty()) {
     output_.clear();
@@ -100,23 +100,7 @@ bool oturin_a_gift_wrapping_mpi::TestTaskMPI::RunImpl() {
   start_index = FindMostLeft();
   output_.push_back(input_[start_index]);
 
-  // find second point
-
-  for (int i = 0; i < n_; i++) {
-    if (i == start_index) {
-      continue;
-    }
-    double t = ABTP(input_[start_index], input_[i]);
-    if (t > line_angle) {
-      line_angle = t;
-      search_index = i;
-    } else if (t == line_angle) {
-      if (Distance(input_[start_index], input_[i]) < Distance(input_[start_index], input_[search_index])) {
-        search_index = i;
-        line_angle = t;
-      }
-    }
-  }
+  SearchSecondPoint(start_index, search_index);
 
   // main loop
   do {
@@ -135,7 +119,7 @@ bool oturin_a_gift_wrapping_mpi::TestTaskMPI::RunImpl() {
       line_angle = ABTP(output_[output_.size() - 2], output_.back(), input_[search_index]);
 
       for (int i = 1; i < world_size; i++) {
-        int temp_index;
+        int temp_index = 0;
         world_.recv(i, 111, &temp_index, 1);
 
         double t = ABTP(output_[output_.size() - 2], output_.back(), input_[temp_index]);
@@ -186,5 +170,24 @@ void oturin_a_gift_wrapping_mpi::TestTaskMPI::PointSearch(const double t, double
     }
     search_index = i;
     line_angle = t;
+  }
+}
+
+void oturin_a_gift_wrapping_mpi::TestTaskMPI::SearchSecondPoint(int start_index, int &search_index) {
+  double line_angle = -5;
+  for (int i = 0; i < n_; i++) {
+    if (i == start_index) {
+      continue;
+    }
+    double t = ABTP(input_[start_index], input_[i]);
+    if (t > line_angle) {
+      line_angle = t;
+      search_index = i;
+    } else if (t == line_angle) {
+      if (Distance(input_[start_index], input_[i]) < Distance(input_[start_index], input_[search_index])) {
+        search_index = i;
+        line_angle = t;
+      }
+    }
   }
 }
