@@ -1,6 +1,6 @@
 #include <gtest/gtest.h>
-#include <boost/mpi/communicator.hpp>
 
+#include <boost/mpi/communicator.hpp>
 #include <cstddef>
 #include <cstdint>
 #include <memory>
@@ -170,7 +170,7 @@ TEST(kharin_m_multidimensional_integral_calc_all, test_random_data) {
   constexpr size_t kDim = 100;
   std::vector<double> in(kDim * kDim);
   double expected_out = 0.0;
-  
+
   // Only generate random data on rank 0
   boost::mpi::communicator world;
   if (world.rank() == 0) {
