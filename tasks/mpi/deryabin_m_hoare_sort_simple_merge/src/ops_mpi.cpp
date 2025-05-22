@@ -4,7 +4,6 @@
 
 #include <algorithm>
 #include <bit>
-#include <boost/mpi/collectives/broadcast.hpp>
 #include <cmath>
 #include <core/util/include/util.hpp>
 #include <cstddef>
