@@ -102,10 +102,10 @@ TEST(deryabin_m_hoare_sort_simple_merge_mpi, test_task_run_MPI) {
       std::make_shared<deryabin_m_hoare_sort_simple_merge_mpi::HoareSortTaskMPI>(task_data_mpi);
   auto perf_attr = std::make_shared<ppc::core::PerfAttr>();
   perf_attr->num_running = 10;
-  const auto t1 = std::chrono::high_resolution_clock::now();
+  const auto t0 = std::chrono::high_resolution_clock::now();
   perf_attr->current_timer = [&] {
     auto current_time_point = std::chrono::high_resolution_clock::now();
-    auto duration = std::chrono::duration_cast<std::chrono::nanoseconds>(current_time_point - t1).count();
+    auto duration = std::chrono::duration_cast<std::chrono::nanoseconds>(current_time_point - t0).count();
     return static_cast<double>(duration) * 1e-9;
   };
   auto perf_results = std::make_shared<ppc::core::PerfResults>();
@@ -124,10 +124,10 @@ TEST(deryabin_m_hoare_sort_simple_merge_mpi, test_task_run_MPI) {
         std::make_shared<deryabin_m_hoare_sort_simple_merge_mpi::HoareSortTaskSequential>(task_data_seq);
     perf_attr = std::make_shared<ppc::core::PerfAttr>();
     perf_attr->num_running = 10;
-    t0 = std::chrono::high_resolution_clock::now();
+    const auto t1 = std::chrono::high_resolution_clock::now();
     perf_attr->current_timer = [&] {
       auto current_time_point = std::chrono::high_resolution_clock::now();
-      auto duration = std::chrono::duration_cast<std::chrono::nanoseconds>(current_time_point - t0).count();
+      auto duration = std::chrono::duration_cast<std::chrono::nanoseconds>(current_time_point - t1).count();
       return static_cast<double>(duration) * 1e-9;
     };
     perf_results = std::make_shared<ppc::core::PerfResults>();
