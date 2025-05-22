@@ -74,7 +74,7 @@ TEST(shlyakov_m_shell_sort_all, Test_Empty_Array) {
   ASSERT_TRUE(test_task_tbb.PostProcessing());
 
   if (world.rank() == 0) {
-    EXPECT_TRUE(IsSorted(out));
+    ASSERT_TRUE(IsSorted(out));
   }
 }
 
@@ -95,8 +95,10 @@ TEST(shlyakov_m_shell_sort_all, Test_Already_Sorted_Array) {
   ASSERT_TRUE(test_task_tbb.Run());
   ASSERT_TRUE(test_task_tbb.PostProcessing());
 
-  EXPECT_TRUE(IsSorted(out));
-  EXPECT_EQ(in, out);
+  if (world.rank() == 0) {
+    ASSERT_TRUE(IsSorted(out));
+    ASSERT_EQ(in, out);
+  }
 }
 
 TEST(shlyakov_m_shell_sort_all, Test_Reverse_Sorted_Array) {
@@ -116,9 +118,9 @@ TEST(shlyakov_m_shell_sort_all, Test_Reverse_Sorted_Array) {
   ASSERT_TRUE(test_task_tbb.PostProcessing());
 
   if (world.rank() == 0) {
-    EXPECT_TRUE(IsSorted(out));
+    ASSERT_TRUE(IsSorted(out));
     std::vector<int> expected = {1, 2, 3, 4, 5};
-    EXPECT_EQ(expected, out);
+    ASSERT_EQ(expected, out);
   }
 }
 
@@ -139,10 +141,10 @@ TEST(shlyakov_m_shell_sort_all, Test_Random_Array_Small) {
   ASSERT_TRUE(test_task_tbb.PostProcessing());
 
   if (world.rank() == 0) {
-    EXPECT_TRUE(IsSorted(out));
+    ASSERT_TRUE(IsSorted(out));
     std::vector<int> expected = in;
     std::ranges::sort(expected);
-    EXPECT_EQ(expected, out);
+    ASSERT_EQ(expected, out);
   }
 }
 
@@ -164,10 +166,10 @@ TEST(shlyakov_m_shell_sort_all, Test_Random_Array_Large) {
   ASSERT_TRUE(test_task_tbb.PostProcessing());
 
   if (world.rank() == 0) {
-    EXPECT_TRUE(IsSorted(out));
+    ASSERT_TRUE(IsSorted(out));
     std::vector<int> expected = in;
     std::ranges::sort(expected);
-    EXPECT_EQ(expected, out);
+    ASSERT_EQ(expected, out);
   }
 }
 
@@ -189,10 +191,10 @@ TEST(shlyakov_m_shell_sort_all, Test_Random_Array_With_Simple_Size) {
   ASSERT_TRUE(test_task_tbb.PostProcessing());
 
   if (world.rank() == 0) {
-    EXPECT_TRUE(IsSorted(out));
+    ASSERT_TRUE(IsSorted(out));
     std::vector<int> expected = in;
     std::ranges::sort(expected);
-    EXPECT_EQ(expected, out);
+    ASSERT_EQ(expected, out);
   }
 }
 
@@ -214,10 +216,10 @@ TEST(shlyakov_m_shell_sort_all, Test_Random_Array_With_500) {
   ASSERT_TRUE(test_task_tbb.PostProcessing());
 
   if (world.rank() == 0) {
-    EXPECT_TRUE(IsSorted(out));
+    ASSERT_TRUE(IsSorted(out));
     std::vector<int> expected = in;
     std::ranges::sort(expected);
-    EXPECT_EQ(expected, out);
+    ASSERT_EQ(expected, out);
   }
 }
 
@@ -239,10 +241,10 @@ TEST(shlyakov_m_shell_sort_all, Test_Random_Array_With_501) {
   ASSERT_TRUE(test_task_tbb.PostProcessing());
 
   if (world.rank() == 0) {
-    EXPECT_TRUE(IsSorted(out));
+    ASSERT_TRUE(IsSorted(out));
     std::vector<int> expected = in;
     std::ranges::sort(expected);
-    EXPECT_EQ(expected, out);
+    ASSERT_EQ(expected, out);
   }
 }
 
@@ -264,10 +266,10 @@ TEST(shlyakov_m_shell_sort_all, Test_Random_Array_With_1000) {
   ASSERT_TRUE(test_task_tbb.PostProcessing());
 
   if (world.rank() == 0) {
-    EXPECT_TRUE(IsSorted(out));
+    ASSERT_TRUE(IsSorted(out));
     std::vector<int> expected = in;
     std::ranges::sort(expected);
-    EXPECT_EQ(expected, out);
+    ASSERT_EQ(expected, out);
   }
 }
 
@@ -289,10 +291,10 @@ TEST(shlyakov_m_shell_sort_all, Test_Random_Array_With_1001) {
   ASSERT_TRUE(test_task_tbb.PostProcessing());
 
   if (world.rank() == 0) {
-    EXPECT_TRUE(IsSorted(out));
+    ASSERT_TRUE(IsSorted(out));
     std::vector<int> expected = in;
     std::ranges::sort(expected);
-    EXPECT_EQ(expected, out);
+    ASSERT_EQ(expected, out);
   }
 }
 
@@ -314,10 +316,10 @@ TEST(shlyakov_m_shell_sort_all, Test_Random_Array_With_999) {
   ASSERT_TRUE(test_task_tbb.PostProcessing());
 
   if (world.rank() == 0) {
-    EXPECT_TRUE(IsSorted(out));
+    ASSERT_TRUE(IsSorted(out));
     std::vector<int> expected = in;
     std::ranges::sort(expected);
-    EXPECT_EQ(expected, out);
+    ASSERT_EQ(expected, out);
   }
 }
 
@@ -338,10 +340,10 @@ TEST(shlyakov_m_shell_sort_all, Test_Random_Array_With_10000) {
   ASSERT_TRUE(test_task_tbb.PostProcessing());
 
   if (world.rank() == 0) {
-    EXPECT_TRUE(IsSorted(out));
+    ASSERT_TRUE(IsSorted(out));
     std::vector<int> expected = in;
     std::ranges::sort(expected);
-    EXPECT_EQ(expected, out);
+    ASSERT_EQ(expected, out);
   }
 }
 
@@ -363,10 +365,10 @@ TEST(shlyakov_m_shell_sort_all, Test_Random_Array_With_10001) {
   ASSERT_TRUE(test_task_tbb.PostProcessing());
 
   if (world.rank() == 0) {
-    EXPECT_TRUE(IsSorted(out));
+    ASSERT_TRUE(IsSorted(out));
     std::vector<int> expected = in;
     std::ranges::sort(expected);
-    EXPECT_EQ(expected, out);
+    ASSERT_EQ(expected, out);
   }
 }
 
@@ -388,10 +390,10 @@ TEST(shlyakov_m_shell_sort_all, Test_Random_Array_With_9999) {
   ASSERT_TRUE(test_task_tbb.PostProcessing());
 
   if (world.rank() == 0) {
-    EXPECT_TRUE(IsSorted(out));
+    ASSERT_TRUE(IsSorted(out));
     std::vector<int> expected = in;
     std::ranges::sort(expected);
-    EXPECT_EQ(expected, out);
+    ASSERT_EQ(expected, out);
   }
 }
 
@@ -413,10 +415,10 @@ TEST(shlyakov_m_shell_sort_all, Test_Random_Array_With_15000) {
   ASSERT_TRUE(test_task_tbb.PostProcessing());
 
   if (world.rank() == 0) {
-    EXPECT_TRUE(IsSorted(out));
+    ASSERT_TRUE(IsSorted(out));
     std::vector<int> expected = in;
     std::ranges::sort(expected);
-    EXPECT_EQ(expected, out);
+    ASSERT_EQ(expected, out);
   }
 }
 
@@ -438,10 +440,10 @@ TEST(shlyakov_m_shell_sort_all, Test_Random_Array_With_15001) {
   ASSERT_TRUE(test_task_tbb.PostProcessing());
 
   if (world.rank() == 0) {
-    EXPECT_TRUE(IsSorted(out));
+    ASSERT_TRUE(IsSorted(out));
     std::vector<int> expected = in;
     std::ranges::sort(expected);
-    EXPECT_EQ(expected, out);
+    ASSERT_EQ(expected, out);
   }
 }
 
@@ -463,10 +465,10 @@ TEST(shlyakov_m_shell_sort_all, Test_Random_Array_With_14999) {
   ASSERT_TRUE(test_task_tbb.PostProcessing());
 
   if (world.rank() == 0) {
-    EXPECT_TRUE(IsSorted(out));
+    ASSERT_TRUE(IsSorted(out));
     std::vector<int> expected = in;
     std::ranges::sort(expected);
-    EXPECT_EQ(expected, out);
+    ASSERT_EQ(expected, out);
   }
 }
 
@@ -488,10 +490,10 @@ TEST(shlyakov_m_shell_sort_all, Test_With_Eq_Numbers) {
   ASSERT_TRUE(test_task_tbb.PostProcessing());
 
   if (world.rank() == 0) {
-    EXPECT_TRUE(IsSorted(out));
+    ASSERT_TRUE(IsSorted(out));
     std::vector<int> expected = in;
     std::ranges::sort(expected);
-    EXPECT_EQ(expected, out);
+    ASSERT_EQ(expected, out);
   }
 }
 

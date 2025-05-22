@@ -24,7 +24,7 @@ bool TestTaskALL::PreProcessingImpl() {
 
 bool TestTaskALL::ValidationImpl() {
   if (world_.rank() == 0) {
-    return (task_data->inputs_count[0] == task_data->outputs_count[0])
+    return (task_data->inputs_count[0] == task_data->outputs_count[0]);
   }
   return true;
 }
@@ -68,14 +68,14 @@ bool TestTaskALL::RunImpl() {
       tbb::task_group tg;
       for (int t = 0; t < threads; ++t) {
         int l = t * seg_size;
-        int r = std::min(n - 1, (t + 1) * seg_size - 1);
+        int r = std::min(n - 1, ((t + 1) * seg_size) - 1);
         tg.run([l, r, &local_data]() { ShellSort(l, r, local_data); });
       }
       tg.wait();
 
       int end = seg_size - 1;
       for (int t = 1; t < threads; ++t) {
-        int r = std::min(n - 1, (t + 1) * seg_size - 1);
+        int r = std::min(n - 1, ((t + 1) * seg_size) - 1);
         Merge(0, end, r, local_data, buffer);
         end = r;
       }
