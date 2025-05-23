@@ -12,7 +12,7 @@ namespace petrov_a_radix_double_batcher_all {
 class TestTaskParallelOmpMpi : public ppc::core::Task {
  public:
   explicit TestTaskParallelOmpMpi(ppc::core::TaskDataPtr task_data) : Task(std::move(task_data)) {
-    PMPI_Comm_rank(MPI_COMM_WORLD, &global_rank_);
+    MPI_Comm_rank(MPI_COMM_WORLD, &global_rank_);
   }
 
   bool ValidationImpl() override;
