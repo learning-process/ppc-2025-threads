@@ -91,59 +91,10 @@ bool burykin_m_radix_all::RadixALL::RunImpl() {
   std::vector<int> a = std::move(input_);
   std::vector<int> b(a.size());
 
-  int size = world_.size();
   int rank = world_.rank();
+  int size = world_.size();
 
-  if (size > 1) {
-    int chunk_size = a.size() / size;
-    int remainder = a.size() % size;
-
-    std::vector<int> local_data;
-    std::vector<int> send_counts(size);
-    std::vector<int> displs(size);
-
-    for (int i = 0; i < size; ++i) {
-      send_counts[i] = chunk_size + (i < remainder ? 1 : 0);
-      displs[i] = (i == 0) ? 0 : displs[i - 1] + send_counts[i - 1];
-    }
-
-    local_data.resize(send_counts[rank]);
-
-    boost::mpi::scatterv(world_, a.data(), send_counts, displs, local_data.data(), send_counts[rank], 0);
-
-    std::vector<int> local_b(local_data.size());
-
-    if (rank == 0) {
-#pragma omp parallel
-      {
-#pragma omp single
-        {
-          for (int shift = 0; shift < 32; shift += 8) {
-            auto count = ComputeFrequency(local_data, shift);
-            const auto index = ComputeIndices(count);
-            DistributeElements(local_data, local_b, index, shift);
-            local_data.swap(local_b);
-          }
-        }
-      }
-    } else {
-#pragma omp parallel
-      {
-#pragma omp single
-        {
-          for (int shift = 0; shift < 32; shift += 8) {
-            auto count = ComputeFrequency(local_data, shift);
-            const auto index = ComputeIndices(count);
-            DistributeElements(local_data, local_b, index, shift);
-            local_data.swap(local_b);
-          }
-        }
-      }
-    }
-
-    boost::mpi::gatherv(world_, local_data.data(), local_data.size(), a.data(), send_counts, displs, 0);
-    boost::mpi::broadcast(world_, a, 0);
-  } else {
+  if (rank == 0) {
 #pragma omp parallel
     {
 #pragma omp single
@@ -156,6 +107,25 @@ bool burykin_m_radix_all::RadixALL::RunImpl() {
         }
       }
     }
+  } else {
+    std::vector<int> temp_data = a;
+#pragma omp parallel
+    {
+#pragma omp single
+      {
+        for (int shift = 0; shift < 32; shift += 8) {
+          auto count = ComputeFrequency(temp_data, shift);
+          const auto index = ComputeIndices(count);
+          DistributeElements(temp_data, b, index, shift);
+          temp_data.swap(b);
+        }
+      }
+    }
+    a = temp_data;
+  }
+
+  if (size > 1) {
+    boost::mpi::broadcast(world_, a, 0);
   }
 
   world_.barrier();
