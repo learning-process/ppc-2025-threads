@@ -32,7 +32,7 @@ TEST(pikarychev_i_hoare_sort_simple_merge_all, test_pipeline_run) {
   std::mt19937 gen(dev());
   std::uniform_int_distribution<> dist(-5000, 5000);
 
-  auto in = GenerateReverseSortedVector<int>(30303);
+  auto in = GenerateReverseSortedVector<int>(30000);
 
   std::vector<int> out(in.size());
   bool reverse = false;
@@ -71,7 +71,7 @@ TEST(pikarychev_i_hoare_sort_simple_merge_all, test_task_run) {
   std::mt19937 gen(dev());
   std::uniform_int_distribution<> dist(-5000, 5000);
 
-  auto in = GenerateReverseSortedVector<int>(30303);
+  auto in = GenerateReverseSortedVector<int>(30000);
 
   std::vector<int> out(in.size());
   bool reverse = false;
