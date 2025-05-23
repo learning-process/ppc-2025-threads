@@ -129,8 +129,18 @@ bool deryabin_m_hoare_sort_simple_merge_mpi::HoareSortTaskMPI::PreProcessingImpl
     input_array_A_ = reinterpret_cast<std::vector<double>*>(task_data->inputs[0])[0];
     dimension_ = task_data->inputs_count[0];
     chunk_count_ = task_data->inputs_count[1];
+    if (chunk_count_ < static_cast<size_t>(world.size())) {
+      // Увеличиваем число кусочков до ближайшей степени двойки >= world.size(),
+      // чтобы эффективно загрузить все доступные процессы
+      chunk_count_ = 1ULL << std::bit_width(static_cast<size_t>(world.size()) - 1);
+    }
     min_chunk_size_ = dimension_ / chunk_count_;
+    num_chunk_per_proc = chunk_count_ / static_cast<size_t>(world.size());
   }
+  boost::mpi::broadcast(world, dimension_, 0);
+  boost::mpi::broadcast(world, chunk_count_, 0);
+  boost::mpi::broadcast(world, min_chunk_size_, 0);
+  boost::mpi::broadcast(world, num_chunk_per_proc, 0);
   return true;
 }
 
@@ -144,17 +154,6 @@ bool deryabin_m_hoare_sort_simple_merge_mpi::HoareSortTaskMPI::ValidationImpl() 
 }
 
 bool deryabin_m_hoare_sort_simple_merge_mpi::HoareSortTaskMPI::RunImpl() {
-  size_t num_chunk_per_proc = 0;
-  if (world.rank() == 0) {
-    if (chunk_count_ < static_cast<size_t>(world.size())) {
-      // Увеличиваем число кусочков до ближайшей степени двойки >= world.size(),
-      // чтобы эффективно загрузить все доступные процессы
-      chunk_count_ = 1ULL << std::bit_width(static_cast<size_t>(world.size()) - 1);
-      min_chunk_size_ = dimension_ / chunk_count_;
-    }
-    num_chunk_per_proc = chunk_count_ / static_cast<size_t>(world.size());
-  }
-  boost::mpi::broadcast(world, num_chunk_per_proc, 0);
   oneapi::tbb::task_group tg;
   const size_t num_threads = ppc::util::GetPPCNumThreads();
   if (world.rank() != world.size() - 1) {
