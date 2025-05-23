@@ -8,9 +8,9 @@
 #include <memory>
 #include <vector>
 
-#include "all/zinoviev_a_convex_hull_components/include/ops_all.hpp"
 #include "core/perf/include/perf.hpp"
 #include "core/task/include/task.hpp"
+#include "all/zinoviev_a_convex_hull_components/include/ops_all.hpp"
 
 using namespace zinoviev_a_convex_hull_components_all;
 
@@ -19,7 +19,6 @@ namespace {
 void VerifyResult(const std::vector<Point>& actual, const std::vector<Point>& expected) {
   auto sorted_actual = actual;
   auto sorted_expected = expected;
-
   auto point_comparator = [](const Point& a, const Point& b) { return a.x < b.x || (a.x == b.x && a.y < b.y); };
 
   std::ranges::sort(sorted_actual, point_comparator);
@@ -40,6 +39,7 @@ TEST(zinoviev_a_convex_hull_components_all, test_pipeline_run) {
 
   const int size = 5000;
   std::vector<int> input(size * size, 0);
+
   for (int i = 0; i < size; ++i) {
     input[i] = 1;
     input[((size - 1) * size) + i] = 1;
@@ -48,8 +48,7 @@ TEST(zinoviev_a_convex_hull_components_all, test_pipeline_run) {
   }
 
   const std::vector<Point> expected = {
-      {.x = 0, .y = 0}, {.x = size - 1, .y = 0}, {.x = 0, .y = size - 1}, {.x = size - 2, .y = size - 1}};
-  std::vector<Point> actual_result;
+      {.x = 0, .y = 0}, {.x = size - 1, .y = 0}, {.x = 0, .y = size - 1}, {.x = size - 1, .y = size - 1}};
 
   auto task_data = std::make_shared<ppc::core::TaskData>();
   task_data->inputs.emplace_back(reinterpret_cast<uint8_t*>(input.data()));
@@ -61,7 +60,8 @@ TEST(zinoviev_a_convex_hull_components_all, test_pipeline_run) {
   auto task = std::make_shared<ConvexHullMPI>(task_data);
 
   auto perf_attr = std::make_shared<ppc::core::PerfAttr>();
-  perf_attr->num_running = 5;
+  perf_attr->num_running = 100;
+
   const auto t0 = std::chrono::high_resolution_clock::now();
   perf_attr->current_timer = [&] {
     auto current_time_point = std::chrono::high_resolution_clock::now();
@@ -70,7 +70,6 @@ TEST(zinoviev_a_convex_hull_components_all, test_pipeline_run) {
   };
 
   auto perf_results = std::make_shared<ppc::core::PerfResults>();
-
   auto perf_analyzer = std::make_shared<ppc::core::Perf>(task);
   perf_analyzer->PipelineRun(perf_attr, perf_results);
   ppc::core::Perf::PrintPerfStatistic(perf_results);
@@ -79,8 +78,9 @@ TEST(zinoviev_a_convex_hull_components_all, test_pipeline_run) {
     auto* output = reinterpret_cast<Point*>(task_data->outputs[0]);
     std::vector<Point> actual(output, output + 4);
     VerifyResult(actual, expected);
-    delete[] reinterpret_cast<Point*>(task_data->outputs[0]);
   }
+
+  delete[] reinterpret_cast<Point*>(task_data->outputs[0]);
 }
 
 TEST(zinoviev_a_convex_hull_components_all, test_task_run) {
@@ -89,6 +89,7 @@ TEST(zinoviev_a_convex_hull_components_all, test_task_run) {
 
   const int size = 5000;
   std::vector<int> input(size * size, 0);
+
   for (int i = 0; i < size; ++i) {
     input[i] = 1;
     input[((size - 1) * size) + i] = 1;
@@ -97,8 +98,7 @@ TEST(zinoviev_a_convex_hull_components_all, test_task_run) {
   }
 
   const std::vector<Point> expected = {
-      {.x = 0, .y = 0}, {.x = size - 1, .y = 0}, {.x = 0, .y = size - 1}, {.x = size - 2, .y = size - 1}};
-  std::vector<Point> actual_result;
+      {.x = 0, .y = 0}, {.x = size - 1, .y = 0}, {.x = 0, .y = size - 1}, {.x = size - 1, .y = size - 1}};
 
   auto task_data = std::make_shared<ppc::core::TaskData>();
   task_data->inputs.emplace_back(reinterpret_cast<uint8_t*>(input.data()));
@@ -110,7 +110,8 @@ TEST(zinoviev_a_convex_hull_components_all, test_task_run) {
   auto task = std::make_shared<ConvexHullMPI>(task_data);
 
   auto perf_attr = std::make_shared<ppc::core::PerfAttr>();
-  perf_attr->num_running = 5;
+  perf_attr->num_running = 100;
+
   const auto t0 = std::chrono::high_resolution_clock::now();
   perf_attr->current_timer = [&] {
     auto current_time_point = std::chrono::high_resolution_clock::now();
@@ -119,7 +120,6 @@ TEST(zinoviev_a_convex_hull_components_all, test_task_run) {
   };
 
   auto perf_results = std::make_shared<ppc::core::PerfResults>();
-
   auto perf_analyzer = std::make_shared<ppc::core::Perf>(task);
   perf_analyzer->TaskRun(perf_attr, perf_results);
   ppc::core::Perf::PrintPerfStatistic(perf_results);
@@ -128,6 +128,7 @@ TEST(zinoviev_a_convex_hull_components_all, test_task_run) {
     auto* output = reinterpret_cast<Point*>(task_data->outputs[0]);
     std::vector<Point> actual(output, output + 4);
     VerifyResult(actual, expected);
-    delete[] reinterpret_cast<Point*>(task_data->outputs[0]);
   }
+
+  delete[] reinterpret_cast<Point*>(task_data->outputs[0]);
 }

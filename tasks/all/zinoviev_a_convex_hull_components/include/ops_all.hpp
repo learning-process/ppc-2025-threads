@@ -8,7 +8,6 @@ namespace zinoviev_a_convex_hull_components_all {
 
 struct Point {
   int x, y;
-
   bool operator<(const Point& other) const { return x < other.x || (x == other.x && y < other.y); }
   bool operator==(const Point& other) const = default;
 };
@@ -26,8 +25,7 @@ class ConvexHullMPI : public ppc::core::Task {
   int comm_size_;
   std::vector<std::vector<Point>> local_components_;
   std::vector<std::vector<Point>> global_components_;
-  std::vector<std::vector<Point>> local_hulls_;
-  std::vector<std::vector<Point>> global_hulls_;
+  std::vector<Point> final_hull_;
 
   static std::vector<Point> FindConvexHull(const std::vector<Point>& points) noexcept;
   static int Cross(const Point& o, const Point& a, const Point& b) noexcept;
