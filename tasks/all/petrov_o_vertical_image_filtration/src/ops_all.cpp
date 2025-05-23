@@ -6,6 +6,7 @@
 #include <oneapi/tbb/task_arena.h>
 
 #include <boost/mpi/collectives/broadcast.hpp>
+#include <boost/serialization/vector.hpp>
 #include <cmath>
 #include <cstddef>
 #include <utility>
