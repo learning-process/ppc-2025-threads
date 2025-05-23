@@ -6,6 +6,7 @@
 #include <cmath>
 #include <cstdint>
 #include <functional>
+#include <iostream>
 #include <map>
 #include <numeric>
 #include <set>
@@ -78,7 +79,7 @@ void Labeler::LabelingRasterScan(Equivalencies& eqs, Ordinals& ordinals) {
 
   oneapi::tbb::task_group tg;
   for (int i = 0; i < ppc::util::GetPPCNumThreads(); i++) {
-    tg.run([&i, &lbls, &eqs, &ordinals, this] {
+    tg.run([i, &lbls, &eqs, &ordinals, this] {
       FirstScan(std::ref(lbls[i]), std::ref(eqs[i]), std::ref(ordinals[i]), width_);
     });
   }
