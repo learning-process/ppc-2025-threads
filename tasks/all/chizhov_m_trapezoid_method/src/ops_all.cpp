@@ -7,6 +7,7 @@
 #include <boost/mpi/collectives/broadcast.hpp>
 #include <boost/mpi/collectives/reduce.hpp>
 #include <boost/mpi/communicator.hpp>
+#include <boost/serialization/vector.hpp>  // IWYU pragma: keep
 #include <cmath>
 #include <core/util/include/util.hpp>
 #include <cstddef>
@@ -38,8 +39,8 @@ double chizhov_m_trapezoid_method_all::TrapezoidMethod(Function& f, size_t div, 
   long long base_count = total_nodes / size;
   long long remainder = total_nodes % size;
 
-  long start =
-      (rank < remainder) ? (rank * (base_count + 1)) : (remainder * (base_count + 1)) + ((rank - remainder) * base_count);
+  long start = (rank < remainder) ? (rank * (base_count + 1)) 
+                                  : (remainder * (base_count + 1)) + ((rank - remainder) * base_count);
 
   long end = start + base_count + (rank < remainder ? 1 : 0);
 

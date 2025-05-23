@@ -8,7 +8,7 @@
 #include <vector>
 
 #include "all/chizhov_m_trapezoid_method/include/ops_all.hpp"
-#include "boost::mpi::communicator"
+#include "boost/mpi/communicator.hpp"
 #include "core/perf/include/perf.hpp"
 #include "core/task/include/task.hpp"
 
