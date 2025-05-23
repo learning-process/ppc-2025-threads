@@ -191,6 +191,7 @@ bool deryabin_m_hoare_sort_simple_merge_mpi::HoareSortTaskMPI::RunImpl() {
                       dimension_ - 1, tg, num_threads);
       }
     }
+    world.barrier(); 
   }
   return true;
 }
