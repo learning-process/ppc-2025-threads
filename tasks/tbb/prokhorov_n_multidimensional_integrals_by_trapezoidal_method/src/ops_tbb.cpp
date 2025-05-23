@@ -1,7 +1,8 @@
 // ops_tbb.cpp
 #include "tbb/prokhorov_n_multidimensional_integrals_by_trapezoidal_method/include/ops_tbb.hpp"
 
-#include <tbb/tbb.h>
+#include <tbb/blocked_range.h>
+#include <tbb/parallel_reduce.h>
 
 #include <cmath>
 #include <cstddef>
@@ -46,7 +47,7 @@ double ParallelTrapezoidalIntegration(const std::function<double(const std::vect
         }
         return local_sum;
       },
-      std::plus<double>());
+      std::plus<>());
 
   return sum * h;
 }
