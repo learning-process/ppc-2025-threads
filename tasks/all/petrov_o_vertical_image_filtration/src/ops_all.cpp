@@ -73,7 +73,7 @@ void TaskAll::ApplyGaussianFilterTbb(std::vector<int> &local_output_ref, size_t 
             for (int kj = -1; kj <= 1; ++kj) {
               // NOLINTNEXTLINE(bugprone-misplaced-widening-cast) - cast is correct, ki + 1 >= 0
               auto kernel_row = static_cast<size_t>(ki + 1);
-              // NOLINTNEXTLINE(bugprone-misplaced-widening-cast) - cast is correct, kj + 1 >= 0
+              // NOLINTNEXTLINE(bugprone-misplaced-widening-cast) - cast is correct, kj + 1 >= 0 
               auto kernel_col = static_cast<size_t>(kj + 1);
               sum += static_cast<float>(input_[((i_in + ki) * width_) + (j_in + kj)]) *
                      gaussian_kernel_[(kernel_row * 3) + kernel_col];
