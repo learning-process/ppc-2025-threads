@@ -137,6 +137,7 @@ bool deryabin_m_hoare_sort_simple_merge_mpi::HoareSortTaskMPI::PreProcessingImpl
     min_chunk_size_ = dimension_ / chunk_count_;
     num_chunk_per_proc = chunk_count_ / static_cast<size_t>(world.size());
   }
+  boost::mpi::broadcast(world, input_array_A_, 0);
   boost::mpi::broadcast(world, dimension_, 0);
   boost::mpi::broadcast(world, chunk_count_, 0);
   boost::mpi::broadcast(world, min_chunk_size_, 0);
