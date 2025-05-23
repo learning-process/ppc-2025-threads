@@ -63,7 +63,6 @@ TEST(kalinin_d_jarvis_convex_hull_tbb, test_pipeline_run) {
     points.push_back({i % 100, i % 200});
   }
   std::vector<kalinin_d_jarvis_convex_hull_tbb::Point> res_hull(points.size());
-  
   // Create TaskData
   auto task_data_seq = std::make_shared<ppc::core::TaskData>();
   task_data_seq->inputs.emplace_back(reinterpret_cast<uint8_t *>(points.data()));

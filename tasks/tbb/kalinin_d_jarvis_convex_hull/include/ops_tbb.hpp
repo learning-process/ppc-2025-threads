@@ -1,6 +1,7 @@
 // Copyright 2025 Kalinin Dmitry
 #pragma once
 
+#include <cstddef>
 #include <utility>
 #include <vector>
 
