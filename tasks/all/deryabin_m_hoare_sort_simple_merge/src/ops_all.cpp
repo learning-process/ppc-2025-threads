@@ -59,8 +59,8 @@ void deryabin_m_hoare_sort_simple_merge_mpi::HoaraSort(std::vector<double>& a, s
   const size_t j = pj - a.data();
   const size_t i = pi - a.data();
   if (available_threads > 1) {
-    tg.run([&a, &first, &j, &available_threads]() { HoaraSort(a, first, j, tg, available_threads >> 1); });
-    tg.run([&a, &i, &last, &available_threads]() {
+    tg.run([&a, &first, &j, &tg, &available_threads]() { HoaraSort(a, first, j, tg, available_threads >> 1); });
+    tg.run([&a, &i, &last, &tg, &available_threads]() {
       HoaraSort(a, i + 1, last, tg, available_threads - (available_threads >> 1));
     });
   } else {
@@ -77,8 +77,8 @@ void deryabin_m_hoare_sort_simple_merge_mpi::MergeTwoParts(std::vector<double>& 
   const size_t size = last - first;
   const size_t mid = first + size / 2;
   if (available_threads > 1) {
-    tg.run([&, &first, &mid, &available_threads]() { MergeTwoParts(a, first, mid, tg, available_threads / 2); });
-    tg.run([&, &last, &mid, &available_threads]() {
+    tg.run([&, &first, &mid, &tg, &available_threads]() { MergeTwoParts(a, first, mid, tg, available_threads / 2); });
+    tg.run([&, &last, &mid, &tg, &available_threads]() {
       MergeTwoParts(a, mid, last, tg, available_threads - available_threads / 2);
     });
     tg.wait();
