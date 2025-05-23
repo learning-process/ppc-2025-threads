@@ -8,8 +8,6 @@
 #include <vector>
 
 #include "all/prokhorov_n_multidimensional_integrals_by_trapezoidal_method/include/ops_all.hpp"
-#include "core/task/include/task.hpp"
-#include "core/util/include/util.hpp"
 
 constexpr double kPi = std::numbers::pi;
 
@@ -38,7 +36,7 @@ TEST(prokhorov_n_multidimensional_integrals_by_trapezoidal_method_all, test_inte
   test_task.Run();
   test_task.PostProcessing();
 
-  if (test_task.getRank() == 0) {
+  if (test_task.GetRank() == 0) {
     EXPECT_NEAR(result, expected, 1e-4);
   }
 }
@@ -68,7 +66,7 @@ TEST(prokhorov_n_multidimensional_integrals_by_trapezoidal_method_all, test_inte
   test_task.Run();
   test_task.PostProcessing();
 
-  if (test_task.getRank() == 0) {
+  if (test_task.GetRank() == 0) {
     EXPECT_NEAR(result, expected, 1e-5);
   }
 }
@@ -99,7 +97,7 @@ TEST(prokhorov_n_multidimensional_integrals_by_trapezoidal_method_all, test_inte
   test_task.Run();
   test_task.PostProcessing();
 
-  if (test_task.getRank() == 0) {
+  if (test_task.GetRank() == 0) {
     EXPECT_NEAR(result, expected, 1e-2);
   }
 }
@@ -131,7 +129,7 @@ TEST(prokhorov_n_multidimensional_integrals_by_trapezoidal_method_all, test_inte
   test_task.Run();
   test_task.PostProcessing();
 
-  if (test_task.getRank() == 0) {
+  if (test_task.GetRank() == 0) {
     EXPECT_NEAR(result, expected, 1e-1);
   }
 }

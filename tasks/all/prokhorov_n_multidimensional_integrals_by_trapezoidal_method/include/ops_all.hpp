@@ -19,7 +19,7 @@ class TestTaskALL : public ppc::core::Task {
   bool PostProcessingImpl() override;
 
   void SetFunction(std::function<double(const std::vector<double>&)> func) { function_ = std::move(func); }
-  int getRank() const { return world_.rank(); }
+  [[nodiscard]] int GetRank() const { return world_.rank(); }
 
  private:
   std::vector<double> lower_limits_;

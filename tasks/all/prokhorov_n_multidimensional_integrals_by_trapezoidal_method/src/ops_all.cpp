@@ -2,6 +2,8 @@
 
 #include <omp.h>
 
+#include <boost/mpi/collectives.hpp>
+#include <boost/mpi/communicator.hpp>
 #include <cmath>
 #include <cstddef>
 #include <functional>
@@ -36,7 +38,8 @@ namespace {
 
 double SequentialTrapezoidalIntegration(const std::function<double(const std::vector<double>&)>& func,
                                         const std::vector<double>& lower, const std::vector<double>& upper,
-                                        const std::vector<int>& steps, size_t current_dim, std::vector<double> point) {
+                                        const std::vector<int>& steps, size_t current_dim,
+                                        const std::vector<double>& point) {
   size_t dim = lower.size();
 
   if (current_dim == dim) {
@@ -48,7 +51,7 @@ double SequentialTrapezoidalIntegration(const std::function<double(const std::ve
 
 #pragma omp parallel for reduction(+ : local_sum) schedule(static)
   for (int i = 0; i <= steps[current_dim]; ++i) {
-    double x = lower[current_dim] + i * h;
+    double x = lower[current_dim] + (i * h);
     auto new_point = point;
     new_point.push_back(x);
     double weight = (i == 0 || i == steps[current_dim]) ? 0.5 : 1.0;
@@ -74,14 +77,14 @@ double ParallelTrapezoidalIntegration(const std::function<double(const std::vect
   double local_sum = 0.0;
 
   for (int i = start; i < end; ++i) {
-    double x = lower[0] + i * h;
+    double x = lower[0] + (i * h);
     std::vector<double> point = {x};
     double weight = (i == 0 || i == steps[0]) ? 0.5 : 1.0;
     local_sum += weight * SequentialTrapezoidalIntegration(func, lower, upper, steps, 1, point);
   }
 
   double global_sum = 0.0;
-  boost::mpi::all_reduce(world, local_sum, global_sum, std::plus<double>());
+  boost::mpi::all_reduce(world, local_sum, global_sum, std::plus<>());
 
   return global_sum;
 }
@@ -89,7 +92,9 @@ double ParallelTrapezoidalIntegration(const std::function<double(const std::vect
 }  // namespace
 
 bool TestTaskALL::RunImpl() {
-  if (!function_) return false;
+  if (!function_) {
+    return false;
+  }
 
   double raw_sum = ParallelTrapezoidalIntegration(function_, lower_limits_, upper_limits_, steps_, world_);
 
