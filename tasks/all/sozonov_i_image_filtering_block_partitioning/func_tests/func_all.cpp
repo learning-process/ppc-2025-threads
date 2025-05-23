@@ -26,6 +26,33 @@ std::vector<double> ZeroEdges(std::vector<double> img, int wdth, int hght) {
 
 }  // namespace sozonov_i_image_filtering_block_partitioning_all
 
+TEST(sozonov_i_image_filtering_block_partitioning_all, test_empty_image) {
+  boost::mpi::communicator world;
+
+  const int width = 0;
+  const int height = 0;
+
+  // Create data
+  std::vector<double> in;
+  std::vector<double> out;
+
+  // Create task_data
+  auto task_data_all = std::make_shared<ppc::core::TaskData>();
+
+  if (world.rank() == 0) {
+    task_data_all->inputs.emplace_back(reinterpret_cast<uint8_t *>(in.data()));
+    task_data_all->inputs_count.emplace_back(in.size());
+    task_data_all->inputs_count.emplace_back(width);
+    task_data_all->inputs_count.emplace_back(height);
+    task_data_all->outputs.emplace_back(reinterpret_cast<uint8_t *>(out.data()));
+    task_data_all->outputs_count.emplace_back(out.size());
+
+    // Create Task
+    sozonov_i_image_filtering_block_partitioning_all::TestTaskALL test_task_all(task_data_all);
+    ASSERT_FALSE(test_task_all.Validation());
+  }
+}
+
 TEST(sozonov_i_image_filtering_block_partitioning_all, test_image_less_than_3x3) {
   boost::mpi::communicator world;
 

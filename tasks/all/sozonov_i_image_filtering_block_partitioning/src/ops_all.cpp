@@ -30,6 +30,7 @@ int ComputeBlockSizes(std::vector<int> &block_size, int width, int height, const
 
 std::vector<double> CopySingleProcessImage(const std::vector<double> &image, int width, int height) {
   std::vector<double> local_image((width + 2) * height, 0);
+#pragma omp parallel for schedule(static)
   for (int i = 0; i < height; ++i) {
     for (int j = 1; j < width + 1; ++j) {
       local_image[(i * (width + 2)) + j] = image[(i * width) + j - 1];
@@ -42,7 +43,7 @@ void SendBlocksToOtherProcesses(const std::vector<double> &image, int delta, con
                                 int width, int height, const boost::mpi::communicator &world,
                                 std::vector<double> &local_image) {
   std::vector<double> send_image(delta * height);
-#pragma omp parallel for
+#pragma omp parallel for schedule(static)
   for (int i = 0; i < height; ++i) {
     for (int j = 0; j < delta - 1; ++j) {
       local_image[(i * delta) + j + 1] = image[(i * width) + j];
@@ -54,7 +55,7 @@ void SendBlocksToOtherProcesses(const std::vector<double> &image, int delta, con
     send_image.assign(delta * height, 0);
     int block = block_size[proc];
 
-#pragma omp parallel for
+#pragma omp parallel for schedule(dynamic, 1)
     for (int i = 0; i < height; ++i) {
       for (int j = -1; j < block - (proc == world.size() - 1 ? 2 : 1); ++j) {
         send_image[(i * block) + j + 1] = image[(i * width) + j + idx];
@@ -89,7 +90,7 @@ std::vector<double> DistributeImage(const std::vector<double> &image, int delta,
 std::vector<double> FilterLocalImage(const std::vector<double> &local_image, int delta, int height) {
   std::vector<double> local_filtered_image(delta * height, 0);
 
-#pragma omp parallel for
+#pragma omp parallel for schedule(static)
   for (int i = 1; i < height - 1; ++i) {
     for (int j = 1; j < delta - 1; ++j) {
       double sum = 0;
@@ -108,7 +109,7 @@ std::vector<double> FilterLocalImage(const std::vector<double> &local_image, int
 std::vector<double> ExtractFilteredData(const std::vector<double> &filtered, int delta, int height) {
   std::vector<double> back_image((delta - 2) * height);
 
-#pragma omp parallel for
+#pragma omp parallel for schedule(static)
   for (int i = 0; i < height; ++i) {
     for (int j = 1; j < delta - 1; ++j) {
       back_image[(i * (delta - 2)) + j - 1] = filtered[(i * delta) + j];
@@ -124,7 +125,7 @@ std::vector<double> AssembleFinalImage(const std::vector<double> &gathered_image
 
   int idx = 0;
   for (int proc = 0; proc < world.size(); ++proc) {
-#pragma omp parallel for
+#pragma omp parallel for schedule(dynamic, 1)
     for (int i = 0; i < height; ++i) {
       for (int j = 0; j < block_size[proc] - 2; ++j) {
         filtered_image[(i * width) + j + idx] = gathered_image[(i * (block_size[proc] - 2)) + j + (idx * height)];
