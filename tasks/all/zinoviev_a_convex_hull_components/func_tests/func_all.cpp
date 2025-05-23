@@ -54,7 +54,8 @@ void RunAndValidate(const std::vector<int>& input,
   ASSERT_TRUE(task.PostProcessing());
 
   auto* output = reinterpret_cast<zinoviev_a_convex_hull_components_all::Point*>(task_data->outputs[0]);
-  std::vector<zinoviev_a_convex_hull_components_all::Point> actual(output, output + expected.size());
+  size_t actual_size = task_data->outputs_count[0];
+  std::vector<zinoviev_a_convex_hull_components_all::Point> actual(output, output + actual_size);
 
   VerifyResult(actual, expected);
   delete[] reinterpret_cast<zinoviev_a_convex_hull_components_all::Point*>(task_data->outputs[0]);
@@ -66,7 +67,7 @@ TEST(zinoviev_a_convex_hull_components_all, SquareShape) {
   constexpr int kHeight = 5;
   const std::vector<int> input = {1, 1, 1, 1, 1, 1, 0, 0, 0, 1, 1, 0, 0, 0, 1, 1, 0, 0, 0, 1, 1, 1, 1, 1, 1};
   const std::vector<zinoviev_a_convex_hull_components_all::Point> expected = {
-      {.x = 0, .y = 0}, {.x = 0, .y = 0}, {.x = 0, .y = 0}, {.x = 0, .y = 0}};
+      {.x = 0, .y = 0}, {.x = 4, .y = 0}, {.x = 4, .y = 4}, {.x = 0, .y = 4}};
   RunAndValidate(input, expected, kWidth, kHeight);
 }
 
@@ -75,6 +76,6 @@ TEST(zinoviev_a_convex_hull_components_all, TriangleShape) {
   constexpr int kHeight = 5;
   const std::vector<int> input = {1, 0, 0, 0, 0, 1, 1, 0, 0, 0, 1, 1, 1, 0, 0, 1, 1, 0, 0, 0, 1, 0, 0, 0, 0};
   const std::vector<zinoviev_a_convex_hull_components_all::Point> expected = {
-      {.x = 0, .y = 0}, {.x = 0, .y = 0}, {.x = 0, .y = 0}};
+      {.x = 0, .y = 0}, {.x = 2, .y = 2}, {.x = 0, .y = 4}};
   RunAndValidate(input, expected, kWidth, kHeight);
 }
