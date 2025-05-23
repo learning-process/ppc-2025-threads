@@ -175,7 +175,7 @@ bool deryabin_m_hoare_sort_simple_merge_mpi::HoareSortTaskMPI::RunImpl() {
       unsigned short partner = (static_cast<size_t>(world.rank()) / step % 2 == 1)
                                    ? static_cast<size_t>(world.rank()) - step
                                    : static_cast<size_t>(world.rank()) + step;
-      if (partner < 0 || partner >= world.size()) {
+      if (partner >= world.size()) {
         continue;  // Пропускаем несуществующие ранги
       }
       size_t block_size = num_chunk_per_proc * min_chunk_size_ * step;
