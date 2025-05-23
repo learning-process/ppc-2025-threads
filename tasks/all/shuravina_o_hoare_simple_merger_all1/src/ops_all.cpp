@@ -9,6 +9,8 @@
 #include <utility>
 #include <vector>
 
+#include "core/task/include/task.hpp"
+
 namespace shuravina_o_hoare_simple_merger {
 
 TestTaskALL::TestTaskALL(std::shared_ptr<ppc::core::TaskData> task_data) : Task(std::move(task_data)) {}
@@ -128,8 +130,7 @@ bool TestTaskALL::ValidationImpl() {
 
   if (rank == 0) {
     return task_data->inputs.size() == 1 && task_data->outputs.size() == 1 && task_data->inputs[0] != nullptr &&
-           task_data->outputs[0] != nullptr && !task_data->inputs_count.empty() && !task_data->outputs_count.empty() &&
-           task_data->inputs_count[0] == task_data->outputs_count[0];
+           task_data->outputs[0] != nullptr && task_data->inputs_count[0] == task_data->outputs_count[0];
   }
   return true;
 }
