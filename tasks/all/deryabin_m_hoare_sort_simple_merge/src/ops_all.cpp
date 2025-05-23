@@ -39,7 +39,6 @@ void deryabin_m_hoare_sort_simple_merge_mpi::HoaraSort(std::vector<double>& a, s
     tg.run([&a, &i, &last, &available_threads]() {
       HoaraSort(a, i + 1, last, available_threads - (available_threads >> 1));
     });
-    tg.wait();
   } else {
     HoaraSort(a, first, j, 1);
     HoaraSort(a, i + 1, last, 1);
