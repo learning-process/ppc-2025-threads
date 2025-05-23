@@ -1,7 +1,5 @@
 #include <gtest/gtest.h>
 
-#include "all/ermilova_d_shell_sort_batcher_even_odd_merger/include/ops_all.hpp"
-
 #include <algorithm>
 #include <boost/mpi/collectives.hpp>
 #include <chrono>
@@ -9,9 +7,9 @@
 #include <random>
 #include <vector>
 
+#include "all/ermilova_d_shell_sort_batcher_even_odd_merger/include/ops_all.hpp"
 #include "core/perf/include/perf.hpp"
 #include "core/task/include/task.hpp"
-
 
 namespace {
 std::vector<int> GenerateRandomVector(size_t size, int lower_bound = -1000, int upper_bound = 1000) {
