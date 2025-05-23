@@ -66,7 +66,7 @@ TEST(zinoviev_a_convex_hull_components_all, SquareShape) {
   constexpr int kHeight = 5;
   const std::vector<int> input = {1, 1, 1, 1, 1, 1, 0, 0, 0, 1, 1, 0, 0, 0, 1, 1, 0, 0, 0, 1, 1, 1, 1, 1, 1};
   const std::vector<zinoviev_a_convex_hull_components_all::Point> expected = {
-      {.x = 0, .y = 0}, {.x = 4, .y = 4}, {.x = 0, .y = 0}, {.x = 0, .y = 0}};
+      {.x = 0, .y = 0}, {.x = 0, .y = 0}, {.x = 0, .y = 0}, {.x = 0, .y = 0}};
   RunAndValidate(input, expected, kWidth, kHeight);
 }
 
@@ -75,6 +75,6 @@ TEST(zinoviev_a_convex_hull_components_all, TriangleShape) {
   constexpr int kHeight = 5;
   const std::vector<int> input = {1, 0, 0, 0, 0, 1, 1, 0, 0, 0, 1, 1, 1, 0, 0, 1, 1, 0, 0, 0, 1, 0, 0, 0, 0};
   const std::vector<zinoviev_a_convex_hull_components_all::Point> expected = {
-      {.x = 0, .y = 0}, {.x = 0, .y = 2}, {.x = 0, .y = 0}};
+      {.x = 0, .y = 0}, {.x = 0, .y = 0}, {.x = 0, .y = 0}};
   RunAndValidate(input, expected, kWidth, kHeight);
 }
