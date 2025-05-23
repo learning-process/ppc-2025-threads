@@ -47,18 +47,6 @@ bool IsSorted(const std::vector<int>& arr) {
   }
   return true;
 }
-
-std::shared_ptr<ppc::core::TaskData> CreateTaskData(const std::vector<int>& in, std::vector<int>& out,
-                                                    boost::mpi::communicator world) {
-  auto task_data = std::make_shared<ppc::core::TaskData>();
-  if (world.rank() == 0) {
-    task_data->inputs.emplace_back(reinterpret_cast<uint8_t*>(const_cast<int*>(in.data())));
-    task_data->inputs_count.emplace_back(in.size());
-    task_data->outputs.emplace_back(reinterpret_cast<uint8_t*>(out.data()));
-    task_data->outputs_count.emplace_back(out.size());
-  }
-  return task_data;
-}
 }  // namespace
 
 // NOLINTNEXTLINE(readability-function-cognitive-complexity)
@@ -72,7 +60,12 @@ TEST(shlyakov_m_shell_sort_all, test_pipeline_run) {
   std::vector<int> out(in.size());
 
   std::shared_ptr<ppc::core::TaskData> task_data_tbb;
-  task_data_tbb = CreateTaskData(in, out, world);
+  if (world.rank() == 0) {
+    task_data_tbb->inputs.emplace_back(reinterpret_cast<uint8_t*>(const_cast<int*>(in.data())));
+    task_data_tbb->inputs_count.emplace_back(in.size());
+    task_data_tbb->outputs.emplace_back(reinterpret_cast<uint8_t*>(out.data()));
+    task_data_tbb->outputs_count.emplace_back(out.size());
+  }
 
   auto test_task_tbb = std::make_shared<shlyakov_m_shell_sort_all::TestTaskALL>(task_data_tbb);
 
@@ -107,8 +100,12 @@ TEST(shlyakov_m_shell_sort_all, test_task_run) {
   std::vector<int> out(in.size());
 
   std::shared_ptr<ppc::core::TaskData> task_data_tbb;
-
-  task_data_tbb = CreateTaskData(in, out, world);
+  if (world.rank() == 0) {
+    task_data_tbb->inputs.emplace_back(reinterpret_cast<uint8_t*>(const_cast<int*>(in.data())));
+    task_data_tbb->inputs_count.emplace_back(in.size());
+    task_data_tbb->outputs.emplace_back(reinterpret_cast<uint8_t*>(out.data()));
+    task_data_tbb->outputs_count.emplace_back(out.size());
+  }
 
   auto test_task_tbb = std::make_shared<shlyakov_m_shell_sort_all::TestTaskALL>(task_data_tbb);
 
