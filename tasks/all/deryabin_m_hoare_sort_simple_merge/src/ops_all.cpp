@@ -161,13 +161,12 @@ bool deryabin_m_hoare_sort_simple_merge_mpi::HoareSortTaskMPI::RunImpl() {
     oneapi::tbb::task_group tg;
     HoaraSort(input_array_A_, static_cast<size_t>(world.rank()) * num_chunk_per_proc * min_chunk_size_,
               ((static_cast<size_t>(world.rank()) + 1) * num_chunk_per_proc * min_chunk_size_) - 1, tg, num_threads);
-    // tg.wait();
   } else {
     oneapi::tbb::task_group tg;
     HoaraSort(input_array_A_, static_cast<size_t>(world.rank()) * num_chunk_per_proc * min_chunk_size_, dimension_ - 1,
               tg, num_threads);
-    // tg.wait();
   }
+  tg.wait();
   return true;
 }
 
