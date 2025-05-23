@@ -583,6 +583,7 @@ TEST(shlyakov_m_shell_sort_all, Test_With_False_Validation) {
   }
 }
 
+// NOLINTNEXTLINE(readability-function-cognitive-complexity)
 TEST(shlyakov_m_shell_sort_all, Test_Random_Array_With_Mersen63) {
   boost::mpi::communicator world;
   size_t array_size = 63;
@@ -611,6 +612,7 @@ TEST(shlyakov_m_shell_sort_all, Test_Random_Array_With_Mersen63) {
   }
 }
 
+// NOLINTNEXTLINE(readability-function-cognitive-complexity)
 TEST(shlyakov_m_shell_sort_all, Test_Random_Array_With_Mersen127) {
   boost::mpi::communicator world;
   size_t array_size = 127;
@@ -639,6 +641,7 @@ TEST(shlyakov_m_shell_sort_all, Test_Random_Array_With_Mersen127) {
   }
 }
 
+// NOLINTNEXTLINE(readability-function-cognitive-complexity)
 TEST(shlyakov_m_shell_sort_all, Test_Random_Array_With_Mersen255) {
   boost::mpi::communicator world;
   size_t array_size = 14999;
@@ -667,6 +670,7 @@ TEST(shlyakov_m_shell_sort_all, Test_Random_Array_With_Mersen255) {
   }
 }
 
+// NOLINTNEXTLINE(readability-function-cognitive-complexity)
 TEST(shlyakov_m_shell_sort_all, Test_Random_Array_With_Mersen511) {
   boost::mpi::communicator world;
   size_t array_size = 511;
@@ -695,6 +699,7 @@ TEST(shlyakov_m_shell_sort_all, Test_Random_Array_With_Mersen511) {
   }
 }
 
+// NOLINTNEXTLINE(readability-function-cognitive-complexity)
 TEST(shlyakov_m_shell_sort_all, Test_Random_Array_With_Mersen1023) {
   boost::mpi::communicator world;
   size_t array_size = 1023;
