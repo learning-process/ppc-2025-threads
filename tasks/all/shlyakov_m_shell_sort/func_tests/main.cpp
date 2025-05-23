@@ -54,19 +54,19 @@ TEST(shlyakov_m_shell_sort_all, Test_Empty_Array) {
   std::vector<int> in;
   std::vector<int> out;
 
-  auto task_data_tbb = std::make_shared<ppc::core::TaskData>();
+  auto task_data_all = std::make_shared<ppc::core::TaskData>();
   if (world.rank() == 0) {
-    task_data_tbb->inputs.emplace_back(reinterpret_cast<uint8_t*>(const_cast<int*>(in.data())));
-    task_data_tbb->inputs_count.emplace_back(in.size());
-    task_data_tbb->outputs.emplace_back(reinterpret_cast<uint8_t*>(out.data()));
-    task_data_tbb->outputs_count.emplace_back(out.size());
+    task_data_all->inputs.emplace_back(reinterpret_cast<uint8_t*>(const_cast<int*>(in.data())));
+    task_data_all->inputs_count.emplace_back(in.size());
+    task_data_all->outputs.emplace_back(reinterpret_cast<uint8_t*>(out.data()));
+    task_data_all->outputs_count.emplace_back(out.size());
   }
 
-  shlyakov_m_shell_sort_all::TestTaskALL test_task_tbb(task_data_tbb);
-  ASSERT_TRUE(test_task_tbb.Validation());
-  ASSERT_TRUE(test_task_tbb.PreProcessing());
-  ASSERT_TRUE(test_task_tbb.Run());
-  ASSERT_TRUE(test_task_tbb.PostProcessing());
+  shlyakov_m_shell_sort_all::TestTaskALL test_task_all(task_data_all);
+  ASSERT_TRUE(test_task_all.Validation());
+  ASSERT_TRUE(test_task_all.PreProcessing());
+  ASSERT_TRUE(test_task_all.Run());
+  ASSERT_TRUE(test_task_all.PostProcessing());
 
   if (world.rank() == 0) {
     ASSERT_TRUE(IsSorted(out));
@@ -79,20 +79,20 @@ TEST(shlyakov_m_shell_sort_all, Test_Already_Sorted_Array) {
   std::vector<int> in = {1, 2, 3, 4, 5};
   std::vector<int> out(in.size());
 
-  auto task_data_tbb = std::make_shared<ppc::core::TaskData>();
+  auto task_data_all = std::make_shared<ppc::core::TaskData>();
 
   if (world.rank() == 0) {
-    task_data_tbb->inputs.emplace_back(reinterpret_cast<uint8_t*>(const_cast<int*>(in.data())));
-    task_data_tbb->inputs_count.emplace_back(in.size());
-    task_data_tbb->outputs.emplace_back(reinterpret_cast<uint8_t*>(out.data()));
-    task_data_tbb->outputs_count.emplace_back(out.size());
+    task_data_all->inputs.emplace_back(reinterpret_cast<uint8_t*>(const_cast<int*>(in.data())));
+    task_data_all->inputs_count.emplace_back(in.size());
+    task_data_all->outputs.emplace_back(reinterpret_cast<uint8_t*>(out.data()));
+    task_data_all->outputs_count.emplace_back(out.size());
   }
 
-  shlyakov_m_shell_sort_all::TestTaskALL test_task_tbb(task_data_tbb);
-  ASSERT_TRUE(test_task_tbb.Validation());
-  ASSERT_TRUE(test_task_tbb.PreProcessing());
-  ASSERT_TRUE(test_task_tbb.Run());
-  ASSERT_TRUE(test_task_tbb.PostProcessing());
+  shlyakov_m_shell_sort_all::TestTaskALL test_task_all(task_data_all);
+  ASSERT_TRUE(test_task_all.Validation());
+  ASSERT_TRUE(test_task_all.PreProcessing());
+  ASSERT_TRUE(test_task_all.Run());
+  ASSERT_TRUE(test_task_all.PostProcessing());
 
   if (world.rank() == 0) {
     ASSERT_TRUE(IsSorted(out));
@@ -106,19 +106,19 @@ TEST(shlyakov_m_shell_sort_all, Test_Reverse_Sorted_Array) {
   std::vector<int> in = {5, 4, 3, 2, 1};
   std::vector<int> out(in.size());
 
-  auto task_data_tbb = std::make_shared<ppc::core::TaskData>();
+  auto task_data_all = std::make_shared<ppc::core::TaskData>();
   if (world.rank() == 0) {
-    task_data_tbb->inputs.emplace_back(reinterpret_cast<uint8_t*>(const_cast<int*>(in.data())));
-    task_data_tbb->inputs_count.emplace_back(in.size());
-    task_data_tbb->outputs.emplace_back(reinterpret_cast<uint8_t*>(out.data()));
-    task_data_tbb->outputs_count.emplace_back(out.size());
+    task_data_all->inputs.emplace_back(reinterpret_cast<uint8_t*>(const_cast<int*>(in.data())));
+    task_data_all->inputs_count.emplace_back(in.size());
+    task_data_all->outputs.emplace_back(reinterpret_cast<uint8_t*>(out.data()));
+    task_data_all->outputs_count.emplace_back(out.size());
   }
 
-  shlyakov_m_shell_sort_all::TestTaskALL test_task_tbb(task_data_tbb);
-  ASSERT_TRUE(test_task_tbb.Validation());
-  ASSERT_TRUE(test_task_tbb.PreProcessing());
-  ASSERT_TRUE(test_task_tbb.Run());
-  ASSERT_TRUE(test_task_tbb.PostProcessing());
+  shlyakov_m_shell_sort_all::TestTaskALL test_task_all(task_data_all);
+  ASSERT_TRUE(test_task_all.Validation());
+  ASSERT_TRUE(test_task_all.PreProcessing());
+  ASSERT_TRUE(test_task_all.Run());
+  ASSERT_TRUE(test_task_all.PostProcessing());
 
   if (world.rank() == 0) {
     ASSERT_TRUE(IsSorted(out));
@@ -133,19 +133,19 @@ TEST(shlyakov_m_shell_sort_all, Test_Random_Array_Small) {
   std::vector<int> in = GenerateRandomArray(10);
   std::vector<int> out(in.size());
 
-  auto task_data_tbb = std::make_shared<ppc::core::TaskData>();
+  auto task_data_all = std::make_shared<ppc::core::TaskData>();
   if (world.rank() == 0) {
-    task_data_tbb->inputs.emplace_back(reinterpret_cast<uint8_t*>(const_cast<int*>(in.data())));
-    task_data_tbb->inputs_count.emplace_back(in.size());
-    task_data_tbb->outputs.emplace_back(reinterpret_cast<uint8_t*>(out.data()));
-    task_data_tbb->outputs_count.emplace_back(out.size());
+    task_data_all->inputs.emplace_back(reinterpret_cast<uint8_t*>(const_cast<int*>(in.data())));
+    task_data_all->inputs_count.emplace_back(in.size());
+    task_data_all->outputs.emplace_back(reinterpret_cast<uint8_t*>(out.data()));
+    task_data_all->outputs_count.emplace_back(out.size());
   }
 
-  shlyakov_m_shell_sort_all::TestTaskALL test_task_tbb(task_data_tbb);
-  ASSERT_TRUE(test_task_tbb.Validation());
-  ASSERT_TRUE(test_task_tbb.PreProcessing());
-  ASSERT_TRUE(test_task_tbb.Run());
-  ASSERT_TRUE(test_task_tbb.PostProcessing());
+  shlyakov_m_shell_sort_all::TestTaskALL test_task_all(task_data_all);
+  ASSERT_TRUE(test_task_all.Validation());
+  ASSERT_TRUE(test_task_all.PreProcessing());
+  ASSERT_TRUE(test_task_all.Run());
+  ASSERT_TRUE(test_task_all.PostProcessing());
 
   if (world.rank() == 0) {
     ASSERT_TRUE(IsSorted(out));
@@ -162,19 +162,19 @@ TEST(shlyakov_m_shell_sort_all, Test_Random_Array_Large) {
   std::vector<int> in = GenerateRandomArray(array_size);
   std::vector<int> out(in.size());
 
-  auto task_data_tbb = std::make_shared<ppc::core::TaskData>();
+  auto task_data_all = std::make_shared<ppc::core::TaskData>();
   if (world.rank() == 0) {
-    task_data_tbb->inputs.emplace_back(reinterpret_cast<uint8_t*>(const_cast<int*>(in.data())));
-    task_data_tbb->inputs_count.emplace_back(in.size());
-    task_data_tbb->outputs.emplace_back(reinterpret_cast<uint8_t*>(out.data()));
-    task_data_tbb->outputs_count.emplace_back(out.size());
+    task_data_all->inputs.emplace_back(reinterpret_cast<uint8_t*>(const_cast<int*>(in.data())));
+    task_data_all->inputs_count.emplace_back(in.size());
+    task_data_all->outputs.emplace_back(reinterpret_cast<uint8_t*>(out.data()));
+    task_data_all->outputs_count.emplace_back(out.size());
   }
 
-  shlyakov_m_shell_sort_all::TestTaskALL test_task_tbb(task_data_tbb);
-  ASSERT_TRUE(test_task_tbb.Validation());
-  ASSERT_TRUE(test_task_tbb.PreProcessing());
-  ASSERT_TRUE(test_task_tbb.Run());
-  ASSERT_TRUE(test_task_tbb.PostProcessing());
+  shlyakov_m_shell_sort_all::TestTaskALL test_task_all(task_data_all);
+  ASSERT_TRUE(test_task_all.Validation());
+  ASSERT_TRUE(test_task_all.PreProcessing());
+  ASSERT_TRUE(test_task_all.Run());
+  ASSERT_TRUE(test_task_all.PostProcessing());
 
   if (world.rank() == 0) {
     ASSERT_TRUE(IsSorted(out));
@@ -191,19 +191,19 @@ TEST(shlyakov_m_shell_sort_all, Test_Random_Array_With_Simple_Size) {
   std::vector<int> in = GenerateRandomArray(array_size);
   std::vector<int> out(in.size());
 
-  auto task_data_tbb = std::make_shared<ppc::core::TaskData>();
+  auto task_data_all = std::make_shared<ppc::core::TaskData>();
   if (world.rank() == 0) {
-    task_data_tbb->inputs.emplace_back(reinterpret_cast<uint8_t*>(const_cast<int*>(in.data())));
-    task_data_tbb->inputs_count.emplace_back(in.size());
-    task_data_tbb->outputs.emplace_back(reinterpret_cast<uint8_t*>(out.data()));
-    task_data_tbb->outputs_count.emplace_back(out.size());
+    task_data_all->inputs.emplace_back(reinterpret_cast<uint8_t*>(const_cast<int*>(in.data())));
+    task_data_all->inputs_count.emplace_back(in.size());
+    task_data_all->outputs.emplace_back(reinterpret_cast<uint8_t*>(out.data()));
+    task_data_all->outputs_count.emplace_back(out.size());
   }
 
-  shlyakov_m_shell_sort_all::TestTaskALL test_task_tbb(task_data_tbb);
-  ASSERT_TRUE(test_task_tbb.Validation());
-  ASSERT_TRUE(test_task_tbb.PreProcessing());
-  ASSERT_TRUE(test_task_tbb.Run());
-  ASSERT_TRUE(test_task_tbb.PostProcessing());
+  shlyakov_m_shell_sort_all::TestTaskALL test_task_all(task_data_all);
+  ASSERT_TRUE(test_task_all.Validation());
+  ASSERT_TRUE(test_task_all.PreProcessing());
+  ASSERT_TRUE(test_task_all.Run());
+  ASSERT_TRUE(test_task_all.PostProcessing());
 
   if (world.rank() == 0) {
     ASSERT_TRUE(IsSorted(out));
@@ -220,19 +220,19 @@ TEST(shlyakov_m_shell_sort_all, Test_Random_Array_With_500) {
   std::vector<int> in = GenerateRandomArray(array_size);
   std::vector<int> out(in.size());
 
-  auto task_data_tbb = std::make_shared<ppc::core::TaskData>();
+  auto task_data_all = std::make_shared<ppc::core::TaskData>();
   if (world.rank() == 0) {
-    task_data_tbb->inputs.emplace_back(reinterpret_cast<uint8_t*>(const_cast<int*>(in.data())));
-    task_data_tbb->inputs_count.emplace_back(in.size());
-    task_data_tbb->outputs.emplace_back(reinterpret_cast<uint8_t*>(out.data()));
-    task_data_tbb->outputs_count.emplace_back(out.size());
+    task_data_all->inputs.emplace_back(reinterpret_cast<uint8_t*>(const_cast<int*>(in.data())));
+    task_data_all->inputs_count.emplace_back(in.size());
+    task_data_all->outputs.emplace_back(reinterpret_cast<uint8_t*>(out.data()));
+    task_data_all->outputs_count.emplace_back(out.size());
   }
 
-  shlyakov_m_shell_sort_all::TestTaskALL test_task_tbb(task_data_tbb);
-  ASSERT_TRUE(test_task_tbb.Validation());
-  ASSERT_TRUE(test_task_tbb.PreProcessing());
-  ASSERT_TRUE(test_task_tbb.Run());
-  ASSERT_TRUE(test_task_tbb.PostProcessing());
+  shlyakov_m_shell_sort_all::TestTaskALL test_task_all(task_data_all);
+  ASSERT_TRUE(test_task_all.Validation());
+  ASSERT_TRUE(test_task_all.PreProcessing());
+  ASSERT_TRUE(test_task_all.Run());
+  ASSERT_TRUE(test_task_all.PostProcessing());
 
   if (world.rank() == 0) {
     ASSERT_TRUE(IsSorted(out));
@@ -249,19 +249,19 @@ TEST(shlyakov_m_shell_sort_all, Test_Random_Array_With_501) {
   std::vector<int> in = GenerateRandomArray(array_size);
   std::vector<int> out(in.size());
 
-  auto task_data_tbb = std::make_shared<ppc::core::TaskData>();
+  auto task_data_all = std::make_shared<ppc::core::TaskData>();
   if (world.rank() == 0) {
-    task_data_tbb->inputs.emplace_back(reinterpret_cast<uint8_t*>(const_cast<int*>(in.data())));
-    task_data_tbb->inputs_count.emplace_back(in.size());
-    task_data_tbb->outputs.emplace_back(reinterpret_cast<uint8_t*>(out.data()));
-    task_data_tbb->outputs_count.emplace_back(out.size());
+    task_data_all->inputs.emplace_back(reinterpret_cast<uint8_t*>(const_cast<int*>(in.data())));
+    task_data_all->inputs_count.emplace_back(in.size());
+    task_data_all->outputs.emplace_back(reinterpret_cast<uint8_t*>(out.data()));
+    task_data_all->outputs_count.emplace_back(out.size());
   }
 
-  shlyakov_m_shell_sort_all::TestTaskALL test_task_tbb(task_data_tbb);
-  ASSERT_TRUE(test_task_tbb.Validation());
-  ASSERT_TRUE(test_task_tbb.PreProcessing());
-  ASSERT_TRUE(test_task_tbb.Run());
-  ASSERT_TRUE(test_task_tbb.PostProcessing());
+  shlyakov_m_shell_sort_all::TestTaskALL test_task_all(task_data_all);
+  ASSERT_TRUE(test_task_all.Validation());
+  ASSERT_TRUE(test_task_all.PreProcessing());
+  ASSERT_TRUE(test_task_all.Run());
+  ASSERT_TRUE(test_task_all.PostProcessing());
 
   if (world.rank() == 0) {
     ASSERT_TRUE(IsSorted(out));
@@ -278,19 +278,19 @@ TEST(shlyakov_m_shell_sort_all, Test_Random_Array_With_1000) {
   std::vector<int> in = GenerateRandomArray(array_size);
   std::vector<int> out(in.size());
 
-  auto task_data_tbb = std::make_shared<ppc::core::TaskData>();
+  auto task_data_all = std::make_shared<ppc::core::TaskData>();
   if (world.rank() == 0) {
-    task_data_tbb->inputs.emplace_back(reinterpret_cast<uint8_t*>(const_cast<int*>(in.data())));
-    task_data_tbb->inputs_count.emplace_back(in.size());
-    task_data_tbb->outputs.emplace_back(reinterpret_cast<uint8_t*>(out.data()));
-    task_data_tbb->outputs_count.emplace_back(out.size());
+    task_data_all->inputs.emplace_back(reinterpret_cast<uint8_t*>(const_cast<int*>(in.data())));
+    task_data_all->inputs_count.emplace_back(in.size());
+    task_data_all->outputs.emplace_back(reinterpret_cast<uint8_t*>(out.data()));
+    task_data_all->outputs_count.emplace_back(out.size());
   }
 
-  shlyakov_m_shell_sort_all::TestTaskALL test_task_tbb(task_data_tbb);
-  ASSERT_TRUE(test_task_tbb.Validation());
-  ASSERT_TRUE(test_task_tbb.PreProcessing());
-  ASSERT_TRUE(test_task_tbb.Run());
-  ASSERT_TRUE(test_task_tbb.PostProcessing());
+  shlyakov_m_shell_sort_all::TestTaskALL test_task_all(task_data_all);
+  ASSERT_TRUE(test_task_all.Validation());
+  ASSERT_TRUE(test_task_all.PreProcessing());
+  ASSERT_TRUE(test_task_all.Run());
+  ASSERT_TRUE(test_task_all.PostProcessing());
 
   if (world.rank() == 0) {
     ASSERT_TRUE(IsSorted(out));
@@ -307,19 +307,19 @@ TEST(shlyakov_m_shell_sort_all, Test_Random_Array_With_1001) {
   std::vector<int> in = GenerateRandomArray(array_size);
   std::vector<int> out(in.size());
 
-  auto task_data_tbb = std::make_shared<ppc::core::TaskData>();
+  auto task_data_all = std::make_shared<ppc::core::TaskData>();
   if (world.rank() == 0) {
-    task_data_tbb->inputs.emplace_back(reinterpret_cast<uint8_t*>(const_cast<int*>(in.data())));
-    task_data_tbb->inputs_count.emplace_back(in.size());
-    task_data_tbb->outputs.emplace_back(reinterpret_cast<uint8_t*>(out.data()));
-    task_data_tbb->outputs_count.emplace_back(out.size());
+    task_data_all->inputs.emplace_back(reinterpret_cast<uint8_t*>(const_cast<int*>(in.data())));
+    task_data_all->inputs_count.emplace_back(in.size());
+    task_data_all->outputs.emplace_back(reinterpret_cast<uint8_t*>(out.data()));
+    task_data_all->outputs_count.emplace_back(out.size());
   }
 
-  shlyakov_m_shell_sort_all::TestTaskALL test_task_tbb(task_data_tbb);
-  ASSERT_TRUE(test_task_tbb.Validation());
-  ASSERT_TRUE(test_task_tbb.PreProcessing());
-  ASSERT_TRUE(test_task_tbb.Run());
-  ASSERT_TRUE(test_task_tbb.PostProcessing());
+  shlyakov_m_shell_sort_all::TestTaskALL test_task_all(task_data_all);
+  ASSERT_TRUE(test_task_all.Validation());
+  ASSERT_TRUE(test_task_all.PreProcessing());
+  ASSERT_TRUE(test_task_all.Run());
+  ASSERT_TRUE(test_task_all.PostProcessing());
 
   if (world.rank() == 0) {
     ASSERT_TRUE(IsSorted(out));
@@ -336,19 +336,19 @@ TEST(shlyakov_m_shell_sort_all, Test_Random_Array_With_999) {
   std::vector<int> in = GenerateRandomArray(array_size);
   std::vector<int> out(in.size());
 
-  auto task_data_tbb = std::make_shared<ppc::core::TaskData>();
+  auto task_data_all = std::make_shared<ppc::core::TaskData>();
   if (world.rank() == 0) {
-    task_data_tbb->inputs.emplace_back(reinterpret_cast<uint8_t*>(const_cast<int*>(in.data())));
-    task_data_tbb->inputs_count.emplace_back(in.size());
-    task_data_tbb->outputs.emplace_back(reinterpret_cast<uint8_t*>(out.data()));
-    task_data_tbb->outputs_count.emplace_back(out.size());
+    task_data_all->inputs.emplace_back(reinterpret_cast<uint8_t*>(const_cast<int*>(in.data())));
+    task_data_all->inputs_count.emplace_back(in.size());
+    task_data_all->outputs.emplace_back(reinterpret_cast<uint8_t*>(out.data()));
+    task_data_all->outputs_count.emplace_back(out.size());
   }
 
-  shlyakov_m_shell_sort_all::TestTaskALL test_task_tbb(task_data_tbb);
-  ASSERT_TRUE(test_task_tbb.Validation());
-  ASSERT_TRUE(test_task_tbb.PreProcessing());
-  ASSERT_TRUE(test_task_tbb.Run());
-  ASSERT_TRUE(test_task_tbb.PostProcessing());
+  shlyakov_m_shell_sort_all::TestTaskALL test_task_all(task_data_all);
+  ASSERT_TRUE(test_task_all.Validation());
+  ASSERT_TRUE(test_task_all.PreProcessing());
+  ASSERT_TRUE(test_task_all.Run());
+  ASSERT_TRUE(test_task_all.PostProcessing());
 
   if (world.rank() == 0) {
     ASSERT_TRUE(IsSorted(out));
@@ -365,19 +365,19 @@ TEST(shlyakov_m_shell_sort_all, Test_Random_Array_With_10000) {
   std::vector<int> in = GenerateRandomArray(array_size);
   std::vector<int> out(in.size());
 
-  auto task_data_tbb = std::make_shared<ppc::core::TaskData>();
+  auto task_data_all = std::make_shared<ppc::core::TaskData>();
   if (world.rank() == 0) {
-    task_data_tbb->inputs.emplace_back(reinterpret_cast<uint8_t*>(const_cast<int*>(in.data())));
-    task_data_tbb->inputs_count.emplace_back(in.size());
-    task_data_tbb->outputs.emplace_back(reinterpret_cast<uint8_t*>(out.data()));
-    task_data_tbb->outputs_count.emplace_back(out.size());
+    task_data_all->inputs.emplace_back(reinterpret_cast<uint8_t*>(const_cast<int*>(in.data())));
+    task_data_all->inputs_count.emplace_back(in.size());
+    task_data_all->outputs.emplace_back(reinterpret_cast<uint8_t*>(out.data()));
+    task_data_all->outputs_count.emplace_back(out.size());
   }
 
-  shlyakov_m_shell_sort_all::TestTaskALL test_task_tbb(task_data_tbb);
-  ASSERT_TRUE(test_task_tbb.Validation());
-  ASSERT_TRUE(test_task_tbb.PreProcessing());
-  ASSERT_TRUE(test_task_tbb.Run());
-  ASSERT_TRUE(test_task_tbb.PostProcessing());
+  shlyakov_m_shell_sort_all::TestTaskALL test_task_all(task_data_all);
+  ASSERT_TRUE(test_task_all.Validation());
+  ASSERT_TRUE(test_task_all.PreProcessing());
+  ASSERT_TRUE(test_task_all.Run());
+  ASSERT_TRUE(test_task_all.PostProcessing());
 
   if (world.rank() == 0) {
     ASSERT_TRUE(IsSorted(out));
@@ -394,19 +394,19 @@ TEST(shlyakov_m_shell_sort_all, Test_Random_Array_With_10001) {
   std::vector<int> in = GenerateRandomArray(array_size);
   std::vector<int> out(in.size());
 
-  auto task_data_tbb = std::make_shared<ppc::core::TaskData>();
+  auto task_data_all = std::make_shared<ppc::core::TaskData>();
   if (world.rank() == 0) {
-    task_data_tbb->inputs.emplace_back(reinterpret_cast<uint8_t*>(const_cast<int*>(in.data())));
-    task_data_tbb->inputs_count.emplace_back(in.size());
-    task_data_tbb->outputs.emplace_back(reinterpret_cast<uint8_t*>(out.data()));
-    task_data_tbb->outputs_count.emplace_back(out.size());
+    task_data_all->inputs.emplace_back(reinterpret_cast<uint8_t*>(const_cast<int*>(in.data())));
+    task_data_all->inputs_count.emplace_back(in.size());
+    task_data_all->outputs.emplace_back(reinterpret_cast<uint8_t*>(out.data()));
+    task_data_all->outputs_count.emplace_back(out.size());
   }
 
-  shlyakov_m_shell_sort_all::TestTaskALL test_task_tbb(task_data_tbb);
-  ASSERT_TRUE(test_task_tbb.Validation());
-  ASSERT_TRUE(test_task_tbb.PreProcessing());
-  ASSERT_TRUE(test_task_tbb.Run());
-  ASSERT_TRUE(test_task_tbb.PostProcessing());
+  shlyakov_m_shell_sort_all::TestTaskALL test_task_all(task_data_all);
+  ASSERT_TRUE(test_task_all.Validation());
+  ASSERT_TRUE(test_task_all.PreProcessing());
+  ASSERT_TRUE(test_task_all.Run());
+  ASSERT_TRUE(test_task_all.PostProcessing());
 
   if (world.rank() == 0) {
     ASSERT_TRUE(IsSorted(out));
@@ -423,19 +423,19 @@ TEST(shlyakov_m_shell_sort_all, Test_Random_Array_With_9999) {
   std::vector<int> in = GenerateRandomArray(array_size);
   std::vector<int> out(in.size());
 
-  auto task_data_tbb = std::make_shared<ppc::core::TaskData>();
+  auto task_data_all = std::make_shared<ppc::core::TaskData>();
   if (world.rank() == 0) {
-    task_data_tbb->inputs.emplace_back(reinterpret_cast<uint8_t*>(const_cast<int*>(in.data())));
-    task_data_tbb->inputs_count.emplace_back(in.size());
-    task_data_tbb->outputs.emplace_back(reinterpret_cast<uint8_t*>(out.data()));
-    task_data_tbb->outputs_count.emplace_back(out.size());
+    task_data_all->inputs.emplace_back(reinterpret_cast<uint8_t*>(const_cast<int*>(in.data())));
+    task_data_all->inputs_count.emplace_back(in.size());
+    task_data_all->outputs.emplace_back(reinterpret_cast<uint8_t*>(out.data()));
+    task_data_all->outputs_count.emplace_back(out.size());
   }
 
-  shlyakov_m_shell_sort_all::TestTaskALL test_task_tbb(task_data_tbb);
-  ASSERT_TRUE(test_task_tbb.Validation());
-  ASSERT_TRUE(test_task_tbb.PreProcessing());
-  ASSERT_TRUE(test_task_tbb.Run());
-  ASSERT_TRUE(test_task_tbb.PostProcessing());
+  shlyakov_m_shell_sort_all::TestTaskALL test_task_all(task_data_all);
+  ASSERT_TRUE(test_task_all.Validation());
+  ASSERT_TRUE(test_task_all.PreProcessing());
+  ASSERT_TRUE(test_task_all.Run());
+  ASSERT_TRUE(test_task_all.PostProcessing());
 
   if (world.rank() == 0) {
     ASSERT_TRUE(IsSorted(out));
@@ -452,19 +452,19 @@ TEST(shlyakov_m_shell_sort_all, Test_Random_Array_With_15000) {
   std::vector<int> in = GenerateRandomArray(array_size);
   std::vector<int> out(in.size());
 
-  auto task_data_tbb = std::make_shared<ppc::core::TaskData>();
+  auto task_data_all = std::make_shared<ppc::core::TaskData>();
   if (world.rank() == 0) {
-    task_data_tbb->inputs.emplace_back(reinterpret_cast<uint8_t*>(const_cast<int*>(in.data())));
-    task_data_tbb->inputs_count.emplace_back(in.size());
-    task_data_tbb->outputs.emplace_back(reinterpret_cast<uint8_t*>(out.data()));
-    task_data_tbb->outputs_count.emplace_back(out.size());
+    task_data_all->inputs.emplace_back(reinterpret_cast<uint8_t*>(const_cast<int*>(in.data())));
+    task_data_all->inputs_count.emplace_back(in.size());
+    task_data_all->outputs.emplace_back(reinterpret_cast<uint8_t*>(out.data()));
+    task_data_all->outputs_count.emplace_back(out.size());
   }
 
-  shlyakov_m_shell_sort_all::TestTaskALL test_task_tbb(task_data_tbb);
-  ASSERT_TRUE(test_task_tbb.Validation());
-  ASSERT_TRUE(test_task_tbb.PreProcessing());
-  ASSERT_TRUE(test_task_tbb.Run());
-  ASSERT_TRUE(test_task_tbb.PostProcessing());
+  shlyakov_m_shell_sort_all::TestTaskALL test_task_all(task_data_all);
+  ASSERT_TRUE(test_task_all.Validation());
+  ASSERT_TRUE(test_task_all.PreProcessing());
+  ASSERT_TRUE(test_task_all.Run());
+  ASSERT_TRUE(test_task_all.PostProcessing());
 
   if (world.rank() == 0) {
     ASSERT_TRUE(IsSorted(out));
@@ -481,19 +481,19 @@ TEST(shlyakov_m_shell_sort_all, Test_Random_Array_With_15001) {
   std::vector<int> in = GenerateRandomArray(array_size);
   std::vector<int> out(in.size());
 
-  auto task_data_tbb = std::make_shared<ppc::core::TaskData>();
+  auto task_data_all = std::make_shared<ppc::core::TaskData>();
   if (world.rank() == 0) {
-    task_data_tbb->inputs.emplace_back(reinterpret_cast<uint8_t*>(const_cast<int*>(in.data())));
-    task_data_tbb->inputs_count.emplace_back(in.size());
-    task_data_tbb->outputs.emplace_back(reinterpret_cast<uint8_t*>(out.data()));
-    task_data_tbb->outputs_count.emplace_back(out.size());
+    task_data_all->inputs.emplace_back(reinterpret_cast<uint8_t*>(const_cast<int*>(in.data())));
+    task_data_all->inputs_count.emplace_back(in.size());
+    task_data_all->outputs.emplace_back(reinterpret_cast<uint8_t*>(out.data()));
+    task_data_all->outputs_count.emplace_back(out.size());
   }
 
-  shlyakov_m_shell_sort_all::TestTaskALL test_task_tbb(task_data_tbb);
-  ASSERT_TRUE(test_task_tbb.Validation());
-  ASSERT_TRUE(test_task_tbb.PreProcessing());
-  ASSERT_TRUE(test_task_tbb.Run());
-  ASSERT_TRUE(test_task_tbb.PostProcessing());
+  shlyakov_m_shell_sort_all::TestTaskALL test_task_all(task_data_all);
+  ASSERT_TRUE(test_task_all.Validation());
+  ASSERT_TRUE(test_task_all.PreProcessing());
+  ASSERT_TRUE(test_task_all.Run());
+  ASSERT_TRUE(test_task_all.PostProcessing());
 
   if (world.rank() == 0) {
     ASSERT_TRUE(IsSorted(out));
@@ -510,19 +510,19 @@ TEST(shlyakov_m_shell_sort_all, Test_Random_Array_With_14999) {
   std::vector<int> in = GenerateRandomArray(array_size);
   std::vector<int> out(in.size());
 
-  auto task_data_tbb = std::make_shared<ppc::core::TaskData>();
+  auto task_data_all = std::make_shared<ppc::core::TaskData>();
   if (world.rank() == 0) {
-    task_data_tbb->inputs.emplace_back(reinterpret_cast<uint8_t*>(const_cast<int*>(in.data())));
-    task_data_tbb->inputs_count.emplace_back(in.size());
-    task_data_tbb->outputs.emplace_back(reinterpret_cast<uint8_t*>(out.data()));
-    task_data_tbb->outputs_count.emplace_back(out.size());
+    task_data_all->inputs.emplace_back(reinterpret_cast<uint8_t*>(const_cast<int*>(in.data())));
+    task_data_all->inputs_count.emplace_back(in.size());
+    task_data_all->outputs.emplace_back(reinterpret_cast<uint8_t*>(out.data()));
+    task_data_all->outputs_count.emplace_back(out.size());
   }
 
-  shlyakov_m_shell_sort_all::TestTaskALL test_task_tbb(task_data_tbb);
-  ASSERT_TRUE(test_task_tbb.Validation());
-  ASSERT_TRUE(test_task_tbb.PreProcessing());
-  ASSERT_TRUE(test_task_tbb.Run());
-  ASSERT_TRUE(test_task_tbb.PostProcessing());
+  shlyakov_m_shell_sort_all::TestTaskALL test_task_all(task_data_all);
+  ASSERT_TRUE(test_task_all.Validation());
+  ASSERT_TRUE(test_task_all.PreProcessing());
+  ASSERT_TRUE(test_task_all.Run());
+  ASSERT_TRUE(test_task_all.PostProcessing());
 
   if (world.rank() == 0) {
     ASSERT_TRUE(IsSorted(out));
@@ -539,19 +539,19 @@ TEST(shlyakov_m_shell_sort_all, Test_With_Eq_Numbers) {
   std::vector<int> in(array_size, 3);
   std::vector<int> out(in.size());
 
-  auto task_data_tbb = std::make_shared<ppc::core::TaskData>();
+  auto task_data_all = std::make_shared<ppc::core::TaskData>();
   if (world.rank() == 0) {
-    task_data_tbb->inputs.emplace_back(reinterpret_cast<uint8_t*>(const_cast<int*>(in.data())));
-    task_data_tbb->inputs_count.emplace_back(in.size());
-    task_data_tbb->outputs.emplace_back(reinterpret_cast<uint8_t*>(out.data()));
-    task_data_tbb->outputs_count.emplace_back(out.size());
+    task_data_all->inputs.emplace_back(reinterpret_cast<uint8_t*>(const_cast<int*>(in.data())));
+    task_data_all->inputs_count.emplace_back(in.size());
+    task_data_all->outputs.emplace_back(reinterpret_cast<uint8_t*>(out.data()));
+    task_data_all->outputs_count.emplace_back(out.size());
   }
 
-  shlyakov_m_shell_sort_all::TestTaskALL test_task_tbb(task_data_tbb);
-  ASSERT_TRUE(test_task_tbb.Validation());
-  ASSERT_TRUE(test_task_tbb.PreProcessing());
-  ASSERT_TRUE(test_task_tbb.Run());
-  ASSERT_TRUE(test_task_tbb.PostProcessing());
+  shlyakov_m_shell_sort_all::TestTaskALL test_task_all(task_data_all);
+  ASSERT_TRUE(test_task_all.Validation());
+  ASSERT_TRUE(test_task_all.PreProcessing());
+  ASSERT_TRUE(test_task_all.Run());
+  ASSERT_TRUE(test_task_all.PostProcessing());
 
   if (world.rank() == 0) {
     ASSERT_TRUE(IsSorted(out));
@@ -568,17 +568,157 @@ TEST(shlyakov_m_shell_sort_all, Test_With_False_Validation) {
   std::vector<int> in(array_size, 3);
   std::vector<int> out(in.size() - 1);
 
-  auto task_data_tbb = std::make_shared<ppc::core::TaskData>();
+  auto task_data_all = std::make_shared<ppc::core::TaskData>();
   if (world.rank() == 0) {
-    task_data_tbb->inputs.emplace_back(reinterpret_cast<uint8_t*>(const_cast<int*>(in.data())));
-    task_data_tbb->inputs_count.emplace_back(in.size());
-    task_data_tbb->outputs.emplace_back(reinterpret_cast<uint8_t*>(out.data()));
-    task_data_tbb->outputs_count.emplace_back(out.size());
+    task_data_all->inputs.emplace_back(reinterpret_cast<uint8_t*>(const_cast<int*>(in.data())));
+    task_data_all->inputs_count.emplace_back(in.size());
+    task_data_all->outputs.emplace_back(reinterpret_cast<uint8_t*>(out.data()));
+    task_data_all->outputs_count.emplace_back(out.size());
   }
 
-  shlyakov_m_shell_sort_all::TestTaskALL test_task_tbb(task_data_tbb);
+  shlyakov_m_shell_sort_all::TestTaskALL test_task_all(task_data_all);
 
   if (world.rank() == 0) {
-    ASSERT_FALSE(test_task_tbb.Validation());
+    ASSERT_FALSE(test_task_all.Validation());
+  }
+}
+
+TEST(shlyakov_m_shell_sort_all, Test_Random_Array_With_Mersen63) {
+  boost::mpi::communicator world;
+  size_t array_size = 63;
+  std::vector<int> in = GenerateRandomArray(array_size);
+  std::vector<int> out(in.size());
+
+  auto task_data_all = std::make_shared<ppc::core::TaskData>();
+  if (world.rank() == 0) {
+    task_data_all->inputs.emplace_back(reinterpret_cast<uint8_t*>(const_cast<int*>(in.data())));
+    task_data_all->inputs_count.emplace_back(in.size());
+    task_data_all->outputs.emplace_back(reinterpret_cast<uint8_t*>(out.data()));
+    task_data_all->outputs_count.emplace_back(out.size());
+  }
+
+  shlyakov_m_shell_sort_all::TestTaskALL test_task_all(task_data_all);
+  ASSERT_TRUE(test_task_all.Validation());
+  ASSERT_TRUE(test_task_all.PreProcessing());
+  ASSERT_TRUE(test_task_all.Run());
+  ASSERT_TRUE(test_task_all.PostProcessing());
+
+  if (world.rank() == 0) {
+    ASSERT_TRUE(IsSorted(out));
+    std::vector<int> expected = in;
+    std::ranges::sort(expected);
+    ASSERT_EQ(expected, out);
+  }
+}
+
+TEST(shlyakov_m_shell_sort_all, Test_Random_Array_With_Mersen127) {
+  boost::mpi::communicator world;
+  size_t array_size = 127;
+  std::vector<int> in = GenerateRandomArray(array_size);
+  std::vector<int> out(in.size());
+
+  auto task_data_all = std::make_shared<ppc::core::TaskData>();
+  if (world.rank() == 0) {
+    task_data_all->inputs.emplace_back(reinterpret_cast<uint8_t*>(const_cast<int*>(in.data())));
+    task_data_all->inputs_count.emplace_back(in.size());
+    task_data_all->outputs.emplace_back(reinterpret_cast<uint8_t*>(out.data()));
+    task_data_all->outputs_count.emplace_back(out.size());
+  }
+
+  shlyakov_m_shell_sort_all::TestTaskALL test_task_all(task_data_all);
+  ASSERT_TRUE(test_task_all.Validation());
+  ASSERT_TRUE(test_task_all.PreProcessing());
+  ASSERT_TRUE(test_task_all.Run());
+  ASSERT_TRUE(test_task_all.PostProcessing());
+
+  if (world.rank() == 0) {
+    ASSERT_TRUE(IsSorted(out));
+    std::vector<int> expected = in;
+    std::ranges::sort(expected);
+    ASSERT_EQ(expected, out);
+  }
+}
+
+TEST(shlyakov_m_shell_sort_all, Test_Random_Array_With_Mersen255) {
+  boost::mpi::communicator world;
+  size_t array_size = 14999;
+  std::vector<int> in = GenerateRandomArray(array_size);
+  std::vector<int> out(in.size());
+
+  auto task_data_all = std::make_shared<ppc::core::TaskData>();
+  if (world.rank() == 0) {
+    task_data_all->inputs.emplace_back(reinterpret_cast<uint8_t*>(const_cast<int*>(in.data())));
+    task_data_all->inputs_count.emplace_back(in.size());
+    task_data_all->outputs.emplace_back(reinterpret_cast<uint8_t*>(out.data()));
+    task_data_all->outputs_count.emplace_back(out.size());
+  }
+
+  shlyakov_m_shell_sort_all::TestTaskALL test_task_all(task_data_all);
+  ASSERT_TRUE(test_task_all.Validation());
+  ASSERT_TRUE(test_task_all.PreProcessing());
+  ASSERT_TRUE(test_task_all.Run());
+  ASSERT_TRUE(test_task_all.PostProcessing());
+
+  if (world.rank() == 0) {
+    ASSERT_TRUE(IsSorted(out));
+    std::vector<int> expected = in;
+    std::ranges::sort(expected);
+    ASSERT_EQ(expected, out);
+  }
+}
+
+TEST(shlyakov_m_shell_sort_all, Test_Random_Array_With_Mersen511) {
+  boost::mpi::communicator world;
+  size_t array_size = 511;
+  std::vector<int> in = GenerateRandomArray(array_size);
+  std::vector<int> out(in.size());
+
+  auto task_data_all = std::make_shared<ppc::core::TaskData>();
+  if (world.rank() == 0) {
+    task_data_all->inputs.emplace_back(reinterpret_cast<uint8_t*>(const_cast<int*>(in.data())));
+    task_data_all->inputs_count.emplace_back(in.size());
+    task_data_all->outputs.emplace_back(reinterpret_cast<uint8_t*>(out.data()));
+    task_data_all->outputs_count.emplace_back(out.size());
+  }
+
+  shlyakov_m_shell_sort_all::TestTaskALL test_task_all(task_data_all);
+  ASSERT_TRUE(test_task_all.Validation());
+  ASSERT_TRUE(test_task_all.PreProcessing());
+  ASSERT_TRUE(test_task_all.Run());
+  ASSERT_TRUE(test_task_all.PostProcessing());
+
+  if (world.rank() == 0) {
+    ASSERT_TRUE(IsSorted(out));
+    std::vector<int> expected = in;
+    std::ranges::sort(expected);
+    ASSERT_EQ(expected, out);
+  }
+}
+
+TEST(shlyakov_m_shell_sort_all, Test_Random_Array_With_Mersen1023) {
+  boost::mpi::communicator world;
+  size_t array_size = 1023;
+  std::vector<int> in = GenerateRandomArray(array_size);
+  std::vector<int> out(in.size());
+
+  auto task_data_all = std::make_shared<ppc::core::TaskData>();
+  if (world.rank() == 0) {
+    task_data_all->inputs.emplace_back(reinterpret_cast<uint8_t*>(const_cast<int*>(in.data())));
+    task_data_all->inputs_count.emplace_back(in.size());
+    task_data_all->outputs.emplace_back(reinterpret_cast<uint8_t*>(out.data()));
+    task_data_all->outputs_count.emplace_back(out.size());
+  }
+
+  shlyakov_m_shell_sort_all::TestTaskALL test_task_all(task_data_all);
+  ASSERT_TRUE(test_task_all.Validation());
+  ASSERT_TRUE(test_task_all.PreProcessing());
+  ASSERT_TRUE(test_task_all.Run());
+  ASSERT_TRUE(test_task_all.PostProcessing());
+
+  if (world.rank() == 0) {
+    ASSERT_TRUE(IsSorted(out));
+    std::vector<int> expected = in;
+    std::ranges::sort(expected);
+    ASSERT_EQ(expected, out);
   }
 }

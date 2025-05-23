@@ -59,15 +59,15 @@ TEST(shlyakov_m_shell_sort_all, test_pipeline_run) {
   std::ranges::sort(expected);
   std::vector<int> out(in.size());
 
-  std::shared_ptr<ppc::core::TaskData> task_data_tbb;
+  std::shared_ptr<ppc::core::TaskData> task_data_all;
   if (world.rank() == 0) {
-    task_data_tbb->inputs.emplace_back(reinterpret_cast<uint8_t*>(const_cast<int*>(in.data())));
-    task_data_tbb->inputs_count.emplace_back(in.size());
-    task_data_tbb->outputs.emplace_back(reinterpret_cast<uint8_t*>(out.data()));
-    task_data_tbb->outputs_count.emplace_back(out.size());
+    task_data_all->inputs.emplace_back(reinterpret_cast<uint8_t*>(const_cast<int*>(in.data())));
+    task_data_all->inputs_count.emplace_back(in.size());
+    task_data_all->outputs.emplace_back(reinterpret_cast<uint8_t*>(out.data()));
+    task_data_all->outputs_count.emplace_back(out.size());
   }
 
-  auto test_task_tbb = std::make_shared<shlyakov_m_shell_sort_all::TestTaskALL>(task_data_tbb);
+  auto test_task_all = std::make_shared<shlyakov_m_shell_sort_all::TestTaskALL>(task_data_all);
 
   auto perf_attr = std::make_shared<ppc::core::PerfAttr>();
   perf_attr->num_running = 99;
@@ -79,7 +79,7 @@ TEST(shlyakov_m_shell_sort_all, test_pipeline_run) {
   };
 
   auto perf_results = std::make_shared<ppc::core::PerfResults>();
-  auto perf_analyzer = std::make_shared<ppc::core::Perf>(test_task_tbb);
+  auto perf_analyzer = std::make_shared<ppc::core::Perf>(test_task_all);
 
   perf_analyzer->PipelineRun(perf_attr, perf_results);
   ppc::core::Perf::PrintPerfStatistic(perf_results);
@@ -99,15 +99,15 @@ TEST(shlyakov_m_shell_sort_all, test_task_run) {
   std::ranges::sort(expected);
   std::vector<int> out(in.size());
 
-  std::shared_ptr<ppc::core::TaskData> task_data_tbb;
+  std::shared_ptr<ppc::core::TaskData> task_data_all;
   if (world.rank() == 0) {
-    task_data_tbb->inputs.emplace_back(reinterpret_cast<uint8_t*>(const_cast<int*>(in.data())));
-    task_data_tbb->inputs_count.emplace_back(in.size());
-    task_data_tbb->outputs.emplace_back(reinterpret_cast<uint8_t*>(out.data()));
-    task_data_tbb->outputs_count.emplace_back(out.size());
+    task_data_all->inputs.emplace_back(reinterpret_cast<uint8_t*>(const_cast<int*>(in.data())));
+    task_data_all->inputs_count.emplace_back(in.size());
+    task_data_all->outputs.emplace_back(reinterpret_cast<uint8_t*>(out.data()));
+    task_data_all->outputs_count.emplace_back(out.size());
   }
 
-  auto test_task_tbb = std::make_shared<shlyakov_m_shell_sort_all::TestTaskALL>(task_data_tbb);
+  auto test_task_all = std::make_shared<shlyakov_m_shell_sort_all::TestTaskALL>(task_data_all);
 
   auto perf_attr = std::make_shared<ppc::core::PerfAttr>();
   perf_attr->num_running = 99;
@@ -119,7 +119,7 @@ TEST(shlyakov_m_shell_sort_all, test_task_run) {
   };
 
   auto perf_results = std::make_shared<ppc::core::PerfResults>();
-  auto perf_analyzer = std::make_shared<ppc::core::Perf>(test_task_tbb);
+  auto perf_analyzer = std::make_shared<ppc::core::Perf>(test_task_all);
 
   perf_analyzer->TaskRun(perf_attr, perf_results);
   ppc::core::Perf::PrintPerfStatistic(perf_results);
