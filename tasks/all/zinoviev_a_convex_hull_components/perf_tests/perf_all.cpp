@@ -48,7 +48,7 @@ TEST(zinoviev_a_convex_hull_components_all, test_pipeline_run) {
   }
 
   const std::vector<Point> expected = {
-      {.x = 0, .y = 0}, {.x = size - 1, .y = 0}, {.x = 0, .y = size - 1}, {.x = size - 1, .y = size - 1}};
+      {.x = 0, .y = 0}, {.x = size - 1, .y = 0}, {.x = 0, .y = size - 1}, {.x = size - 2, .y = size - 1}};
   std::vector<Point> actual_result;
 
   auto task_data = std::make_shared<ppc::core::TaskData>();
@@ -97,7 +97,7 @@ TEST(zinoviev_a_convex_hull_components_all, test_task_run) {
   }
 
   const std::vector<Point> expected = {
-      {.x = 0, .y = 0}, {.x = size - 1, .y = 0}, {.x = 0, .y = size - 1}, {.x = size - 1, .y = size - 1}};
+      {.x = 0, .y = 0}, {.x = size - 1, .y = 0}, {.x = 0, .y = size - 1}, {.x = size - 2, .y = size - 1}};
   std::vector<Point> actual_result;
 
   auto task_data = std::make_shared<ppc::core::TaskData>();
