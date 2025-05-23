@@ -156,7 +156,7 @@ bool kovalev_k_radix_sort_batcher_merge_all::TestTaskAll::BatcherSortOMP() {
   bool ret1 = true;
   bool ret2 = true;
 #pragma omp parallel num_threads(effective_num_threads)
-  { ret1 = ret1 && RadixSigned(omp_get_thread_num() * loc_lenght, loc_lenght);  }
+  { ret1 = ret1 && RadixSigned(omp_get_thread_num() * loc_lenght, loc_lenght); }
 
   for (unsigned int i = effective_num_threads; i > 1; i /= 2) {
 #pragma omp parallel num_threads(i)
