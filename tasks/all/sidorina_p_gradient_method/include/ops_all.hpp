@@ -3,9 +3,8 @@
 #include <oneapi/tbb/parallel_for.h>
 
 #include <boost/mpi/collectives.hpp>
-#include <boost/mpi/collectives/reduce.hpp>
+#include <boost/mpi/collectives/all_reduce.hpp>
 #include <boost/mpi/communicator.hpp>
-#include <boost/serialization/vector.hpp>
 #include <cmath>
 #include <functional>
 #include <utility>
@@ -70,7 +69,7 @@ inline double VectorNorm(const std::vector<double>& vec) {
 inline double Dot(boost::mpi::communicator& world, const std::vector<double>& vec1, const std::vector<double>& vec2) {
   int rank = world.rank();
   int size = world.size();
-  int global_size = vec1.size();
+  int global_size = int(vec1.size());
   std::vector<int> sizes(size, global_size / size);
   std::vector<int> displs(size, 0);
   for (int i = 0; i < global_size % size; ++i) {
@@ -84,7 +83,7 @@ inline double Dot(boost::mpi::communicator& world, const std::vector<double>& ve
   scatterv(world, vec1.data(), sizes, displs, local_v1.data(), sizes[rank], 0);
   scatterv(world, vec2.data(), sizes, displs, local_v2.data(), sizes[rank], 0);
   double local_sum = 0.0;
-  for (size_t i = 0; i < local_v1.size(); ++i) {
+  for (int i = 0; i < int(local_v1.size()); ++i) {
     local_sum += local_v1[i] * local_v2[i];
   }
   double global_sum = 0.0;
