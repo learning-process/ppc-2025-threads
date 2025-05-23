@@ -242,99 +242,37 @@ bool ConvexHullMPI::RunImpl() noexcept {
 }
 
 bool ConvexHullMPI::PostProcessingImpl() noexcept {
-  if (rank_ != 0) {
-    return true;
-  }
-
   if (task_data->outputs.empty()) {
     return false;
   }
 
-  size_t total_points = 0;
-  std::vector<int> hull_sizes(global_hulls_.size());
-  for (size_t i = 0; i < global_hulls_.size(); ++i) {
-    hull_sizes[i] = static_cast<int>(global_hulls_[i].size());
-    total_points += global_hulls_[i].size();
-  }
-
-  std::vector<int> all_hull_sizes(total_points);
-  std::vector<int> all_hull_counts(static_cast<size_t>(comm_size_));
-  std::vector<int> all_hull_displacements(static_cast<size_t>(comm_size_), 0);
-  int num_global_hulls = static_cast<int>(global_hulls_.size());
-  MPI_Gather(&num_global_hulls, 1, MPI_INT, all_hull_counts.data(), 1, MPI_INT, 0, MPI_COMM_WORLD);
-
   if (rank_ == 0) {
-    int current_displacement = 0;
-    for (int i = 0; i < comm_size_; ++i) {
-      all_hull_displacements[static_cast<size_t>(i)] = current_displacement;
-      current_displacement += all_hull_counts[static_cast<size_t>(i)];
+    if (task_data->outputs[0] == nullptr || task_data->outputs_count.empty()) {
+      return false;
     }
-  }
 
-  std::vector<int> gathered_hull_sizes(total_points);
-  std::vector<int> send_hull_sizes(global_hulls_.size());
-  for (size_t i = 0; i < global_hulls_.size(); ++i) {
-    send_hull_sizes[i] = static_cast<int>(global_hulls_[i].size());
-  }
-  std::vector<int> recv_counts_hulls(all_hull_counts.empty() ? 0 : *std::ranges::max_element(all_hull_counts), 0);
-  std::vector<int> recv_displs_hulls(all_hull_counts.size(), 0);
-  if (rank_ == 0) {
-    int current_size = 0;
-    for (size_t i = 0; i < all_hull_counts.size(); ++i) {
-      recv_counts_hulls[i] = all_hull_counts[i];
-      recv_displs_hulls[i] = current_size;
-      current_size += all_hull_counts[i];
-    }
-  }
+    auto* output_ptr = reinterpret_cast<Point*>(task_data->outputs[0]);
+    size_t allocated_output_size = task_data->outputs_count[0];
+    size_t points_written = 0;
 
-  std::vector<int> all_hulls_flat_sizes(total_points);
-  MPI_Gatherv(send_hull_sizes.data(), static_cast<int>(send_hull_sizes.size()), MPI_INT, all_hulls_flat_sizes.data(),
-              recv_counts_hulls.data(), recv_displs_hulls.data(), MPI_INT, 0, MPI_COMM_WORLD);
-
-  std::vector<Point> all_hulls_flat;
-  std::vector<int> send_hull_point_counts(global_hulls_.size());
-  std::vector<int> send_hull_point_displs(global_hulls_.size(), 0);
-  int current_point_offset = 0;
-  std::vector<Point> local_hull_points_flat;
-  for (const auto& hull : global_hulls_) {
-    send_hull_point_counts.push_back(static_cast<int>(hull.size()));
-    send_hull_point_displs.push_back(current_point_offset);
-    local_hull_points_flat.insert(local_hull_points_flat.end(), hull.begin(), hull.end());
-    current_point_offset += static_cast<int>(hull.size());
-  }
-
-  std::vector<int> recv_hull_point_counts(total_points, 0);
-  std::vector<int> recv_hull_point_displs(all_hull_counts.size() + 1, 0);
-  std::vector<Point> gathered_hull_points(total_points);
-  if (rank_ == 0) {
-    size_t hull_index = 0;
-    for (size_t i = 0; i < all_hull_counts.size(); ++i) {
-      for (int j = 0; j < all_hull_counts[i]; ++j) {
-        recv_hull_point_counts[hull_index] = all_hulls_flat_sizes[recv_displs_hulls[i] + j];
-        recv_hull_point_displs[i + 1] += recv_hull_point_counts[hull_index];
-        hull_index++;
+    for (const auto& hull : global_hulls_) {
+      for (const auto& point : hull) {
+        if (points_written < allocated_output_size) {
+          output_ptr[points_written++] = point;
+        } else {
+          break;
+        }
+      }
+      if (points_written >= allocated_output_size && !hull.empty()) {
+        break;
       }
     }
-    for (size_t i = 1; i < recv_hull_point_displs.size(); ++i) {
-      recv_hull_point_displs[i] += recv_hull_point_displs[i - 1];
+    task_data->outputs_count[0] = points_written;
+
+  } else {
+    if (!task_data->outputs.empty() && !task_data->outputs_count.empty()) {
+      task_data->outputs_count[0] = 0;
     }
-    gathered_hull_points.resize(static_cast<size_t>(recv_hull_point_displs.back()));
   }
-
-  MPI_Gatherv(local_hull_points_flat.data(), static_cast<int>(local_hull_points_flat.size() * sizeof(Point)), MPI_BYTE,
-              gathered_hull_points.data(), recv_hull_point_counts.data(), recv_hull_point_displs.data(), MPI_BYTE, 0,
-              MPI_COMM_WORLD);
-
-  if (rank_ == 0) {
-    auto* output = reinterpret_cast<Point*>(task_data->outputs[0]);
-    size_t offset = 0;
-    for (const auto& point : gathered_hull_points) {
-      output[offset++] = point;
-    }
-    task_data->outputs_count[0] = static_cast<int>(gathered_hull_points.size());
-  } else if (!task_data->outputs.empty()) {
-    task_data->outputs_count[0] = 0;
-  }
-
   return true;
 }
