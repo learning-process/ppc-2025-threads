@@ -66,13 +66,12 @@ bool kovalev_k_radix_sort_batcher_merge_all::TestTaskAll::Countbyte(unsigned lon
 }
 
 bool kovalev_k_radix_sort_batcher_merge_all::TestTaskAll::OddEvenMergeOMP(long long int* tmp, long long int* l,
-                                                                          const long long int* r, unsigned int len_l,
-                                                                          unsigned int len_r) {
+                                                                          const long long int* r, unsigned int len) {
   unsigned int iter_l = 0;
   unsigned int iter_r = 0;
   unsigned int iter_tmp = 0;
 
-  while (iter_l < len_l && iter_r < len_r) {
+  while (iter_l < len && iter_r < len) {
     if (l[iter_l] < r[iter_r]) {
       tmp[iter_tmp] = l[iter_l];
       iter_l += 2;
@@ -84,13 +83,13 @@ bool kovalev_k_radix_sort_batcher_merge_all::TestTaskAll::OddEvenMergeOMP(long l
     iter_tmp += 2;
   }
 
-  while (iter_l < len_l) {
+  while (iter_l < len) {
     tmp[iter_tmp] = l[iter_l];
     iter_l += 2;
     iter_tmp += 2;
   }
 
-  while (iter_r < len_r) {
+  while (iter_r < len) {
     tmp[iter_tmp] = r[iter_r];
     iter_r += 2;
     iter_tmp += 2;
@@ -167,10 +166,15 @@ bool kovalev_k_radix_sort_batcher_merge_all::TestTaskAll::BatcherSortOMP() {
 
       ret2 =
           ret2 && OddEvenMergeOMP(loc_tmp_.data() + (stride * 2 * len) + bias, loc_.data() + (stride * 2 * len) + bias,
-                                  loc_.data() + (stride * 2 * len) + len + bias, len - bias, len - bias);
+                                  loc_.data() + (stride * 2 * len) + len + bias, len - bias);
     }
   }
   FinalMergeOMP(n_by_proc);
+
+  void* ptr_tmp1 = loc_tmp_.data();
+  void* ptr_loc1 = loc_.data();
+  memcpy(ptr_loc1, ptr_tmp1, sizeof(long long int) * loc_proc_lenght_);
+
   return (ret1 && ret2);
 }
 
@@ -215,12 +219,7 @@ bool kovalev_k_radix_sort_batcher_merge_all::TestTaskAll::RunImpl() {
 
   BatcherSortOMP();
 
-  void* ptr_tmp1 = loc_tmp_.data();
-  void* ptr_loc1 = loc_.data();
-  memcpy(ptr_loc1, ptr_tmp1, sizeof(long long int) * loc_proc_lenght_);
-
   bool ret = true;
-
   for (unsigned int i = effective_num_procs_; i > 1; i /= 2) {
     if (world_.rank() < static_cast<int>(i)) {
       unsigned int len = loc_proc_lenght_ * (effective_num_procs_ / i);

@@ -25,7 +25,7 @@ class TestTaskAll : public ppc::core::Task {
   static bool RadixUnsigned(unsigned long long *, unsigned long long *, unsigned int);
   bool RadixSigned(unsigned int, unsigned int);
   static bool Countbyte(unsigned long long *, int *, unsigned int, unsigned int);
-  static bool OddEvenMergeOMP(long long int *, long long int *, const long long int *, unsigned int, unsigned int);
+  static bool OddEvenMergeOMP(long long int *, long long int *, const long long int *, unsigned int);
   bool OddEvenMergeMPI(unsigned int);
   bool FinalMergeOMP(unsigned int);
   bool BatcherSortOMP();
