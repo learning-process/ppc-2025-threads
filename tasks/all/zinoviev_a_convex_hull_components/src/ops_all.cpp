@@ -51,9 +51,9 @@ bool ConvexHullMPI::PreProcessingImpl() noexcept {
       if (!visited[idx] && local_input_data[idx] != 0) {
         std::vector<Point> component;
         BFS(local_input_data.data(), local_width, local_height, x, y, visited, component);
-        for (auto& p : component) {
+        // for (auto& p : component) {
           // p.y = (global_height - 1) - (p.y + local_start_row);
-        }
+        // }
         local_components_.push_back(component);
       }
     }
