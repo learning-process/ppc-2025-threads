@@ -37,7 +37,7 @@ void deryabin_m_hoare_sort_simple_merge_mpi::HoaraSort(std::vector<double>& a, s
 }
 
 void deryabin_m_hoare_sort_simple_merge_mpi::HoaraSort(std::vector<double>& a, size_t first, size_t last,
-                                                       oneapi::tbb::task_group tg, size_t available_threads) {
+                                                       oneapi::tbb::task_group& tg, size_t available_threads) {
   if (first >= last) {
     return;
   }
@@ -59,8 +59,8 @@ void deryabin_m_hoare_sort_simple_merge_mpi::HoaraSort(std::vector<double>& a, s
   const size_t j = pj - a.data();
   const size_t i = pi - a.data();
   if (available_threads > 1) {
-    tg.run([&a, &first, &j, tg, &available_threads]() { HoaraSort(a, first, j, tg, available_threads >> 1); });
-    tg.run([&a, &i, &last, tg, &available_threads]() {
+    tg.run([&a, &first, &j, &tg, &available_threads]() { HoaraSort(a, first, j, tg, available_threads >> 1); });
+    tg.run([&a, &i, &last, &tg, &available_threads]() {
       HoaraSort(a, i + 1, last, tg, available_threads - (available_threads >> 1));
     });
   } else {
@@ -70,15 +70,15 @@ void deryabin_m_hoare_sort_simple_merge_mpi::HoaraSort(std::vector<double>& a, s
 }
 
 void deryabin_m_hoare_sort_simple_merge_mpi::MergeTwoParts(std::vector<double>& a, size_t first, size_t last,
-                                                           oneapi::tbb::task_group tg, size_t available_threads) {
+                                                           oneapi::tbb::task_group& tg, size_t available_threads) {
   if (last - first <= 1) {
     return;
   }
   const size_t size = last - first;
   const size_t mid = first + size / 2;
   if (available_threads > 1) {
-    tg.run([&, &first, &mid, tg, &available_threads]() { MergeTwoParts(a, first, mid, tg, available_threads / 2); });
-    tg.run([&, &last, &mid, tg, &available_threads]() {
+    tg.run([&, &first, &mid, &tg, &available_threads]() { MergeTwoParts(a, first, mid, tg, available_threads / 2); });
+    tg.run([&, &last, &mid, &tg, &available_threads]() {
       MergeTwoParts(a, mid, last, tg, available_threads - available_threads / 2);
     });
     tg.wait();
@@ -156,40 +156,17 @@ bool deryabin_m_hoare_sort_simple_merge_mpi::HoareSortTaskMPI::ValidationImpl() 
 }
 
 bool deryabin_m_hoare_sort_simple_merge_mpi::HoareSortTaskMPI::RunImpl() {
-  oneapi::tbb::task_group tg;
   const size_t num_threads = ppc::util::GetPPCNumThreads();
   if (world.rank() != world.size() - 1) {
+    oneapi::tbb::task_group tg;
     HoaraSort(input_array_A_, static_cast<size_t>(world.rank()) * num_chunk_per_proc * min_chunk_size_,
               ((static_cast<size_t>(world.rank()) + 1) * num_chunk_per_proc * min_chunk_size_) - 1, tg, num_threads);
+    tg.wait();
   } else {
+    oneapi::tbb::task_group tg;
     HoaraSort(input_array_A_, static_cast<size_t>(world.rank()) * num_chunk_per_proc * min_chunk_size_, dimension_ - 1,
               tg, num_threads);
-  }
-  tg.wait();
-  for (size_t i = 0; i < static_cast<size_t>(std::bit_width(chunk_count_) -
-                                             1);  // Вычисялем сколько уровней слияния потребуется как логарифм по
-                                                  // основанию 2 от числа частей chunk_count_
-       ++i) {  // На каждом уровне сливаются пары соседних блоков размером min_chunk_size_ × 2^i
-    size_t step = 1ULL << i;
-    if (((world.rank() + 1) % (2 * step)) == 0) {
-      unsigned short partner = (static_cast<size_t>(world.rank()) / step % 2 == 1)
-                                   ? static_cast<size_t>(world.rank()) - step
-                                   : static_cast<size_t>(world.rank()) + step;
-      size_t block_size = num_chunk_per_proc * min_chunk_size_ * step;
-      if ((static_cast<size_t>(world.rank()) / step) % 2 == 0) {
-        size_t start_idx = (static_cast<size_t>(world.rank()) - step + 1) * num_chunk_per_proc * min_chunk_size_;
-        world.send(partner, 0, &input_array_A_[start_idx], block_size);
-      } else {
-        size_t start_idx = (static_cast<size_t>(world.rank()) - 2 * step + 1) * num_chunk_per_proc * min_chunk_size_;
-        world.recv(partner, 0, &input_array_A_[start_idx], block_size);
-        if (world.rank() != world.size() - 1) {
-          MergeTwoParts(input_array_A_, start_idx, start_idx + 2 * block_size - 1, tg, num_threads);
-        } else {
-          MergeTwoParts(input_array_A_, start_idx, dimension_ - 1, tg, num_threads);
-        }
-      }
-    }
-    world.barrier();
+    tg.wait();
   }
   return true;
 }
