@@ -2,9 +2,7 @@
 
 #include <omp.h>
 
-#include <boost/mpi/collectives.hpp>
-#include <boost/mpi/communicator.hpp>
-#include <boost/mpi/operations.hpp>
+#include <boost/mpi.hpp>
 #include <cmath>
 #include <cstddef>
 #include <functional>
@@ -13,7 +11,8 @@
 namespace prokhorov_n_multidimensional_integrals_by_trapezoidal_method_all {
 
 bool TestTaskALL::PreProcessingImpl() {
-  if (!task_data || !task_data->inputs[0] || !task_data->inputs[1] || !task_data->inputs[2]) {
+  if (task_data == nullptr || task_data->inputs[0] == nullptr || task_data->inputs[1] == nullptr ||
+      task_data->inputs[2] == nullptr) {
     return false;
   }
 
