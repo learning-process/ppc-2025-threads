@@ -113,7 +113,6 @@ bool ParallelInterprocessScatter(std::span<double> arr, MPI_Comm *newcomm, std::
   const int thr = std::min(sz, processes);
 
   if (rank >= thr) {
-    MPI_Comm_split(MPI_COMM_WORLD, 42, rank, newcomm);
     return false;
   }
   MPI_Comm_split(MPI_COMM_WORLD, 0, rank, newcomm);
