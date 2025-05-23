@@ -6,6 +6,8 @@
 #include <numeric>
 #include <vector>
 
+#include "core/util/include/util.hpp"
+
 bool vasilev_s_simpson_multidim::SimpsonTaskOmp::ValidationImpl() {
   const auto arity = task_data->inputs_count[0];
 
@@ -37,38 +39,33 @@ bool vasilev_s_simpson_multidim::SimpsonTaskOmp::PreProcessingImpl() {
 }
 
 bool vasilev_s_simpson_multidim::SimpsonTaskOmp::RunImpl() {
+#ifdef _WIN32
+  int igridcap = int(gridcap_);
+#else
+  auto igridcap{gridcap_};
+#endif
+
   double isum = 0.;
-#pragma omp parallel
-  {
-    std::vector<std::size_t> gridpos(arity_);
-    std::vector<double> coordbuf(arity_);
-#pragma omp for reduction(+ : isum)
-    for (int ip = 0; ip < int(gridcap_); ip++) {
-      {
-        auto p = ip;
-        for (size_t i = 0; i < arity_; i++) {
-          gridpos[i] = p % approxs_;
-          p /= static_cast<int>(approxs_);
-        }
+  std::vector<double> coordbuf(arity_);
+#pragma omp parallel for reduction(+ : isum) firstprivate(coordbuf) \
+    schedule(static, gridcap_ / ppc::util::GetPPCNumThreads())
+  for (auto ip = decltype(igridcap){0}; ip < igridcap; ip++) {
+    auto p = ip;
+    double coefficient = 1.;
+    for (size_t k = 0; k < coordbuf.size(); k++) {
+      const auto pos{p % approxs_};
+      coordbuf[k] = bounds_[k].lo + (double(pos) * (bounds_[k].hi - bounds_[k].lo) / double(approxs_));
+      p /= static_cast<decltype(p)>(approxs_);
+      if (pos == 0 || pos == (approxs_ - 1)) {
+        continue;
       }
-
-      for (size_t i = 0; i < arity_; i++) {
-        coordbuf[i] = bounds_[i].lo + (static_cast<double>(gridpos[i]) * steps_[i]);
+      if (pos % 2 != 0) {
+        coefficient *= 4.;
+      } else {
+        coefficient *= 2.;
       }
-
-      double coefficient = 1.;
-      for (auto pos : gridpos) {
-        if (pos == 0 || pos == (approxs_ - 1)) {
-          coefficient *= 1.;
-        } else if (pos % 2 != 0) {
-          coefficient *= 4.;
-        } else {
-          coefficient *= 2.;
-        }
-      }
-
-      isum += coefficient * func_(coordbuf);
     }
+    isum += coefficient * func_(coordbuf);
   }
 
   result_ = isum * scale_;
