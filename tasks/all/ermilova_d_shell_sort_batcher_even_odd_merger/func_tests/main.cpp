@@ -2,6 +2,7 @@
 
 #include <algorithm>
 #include <boost/mpi/collectives.hpp>
+#include <boost/mpi/communicator.hpp>
 #include <cstddef>
 #include <cstdint>
 #include <memory>
@@ -73,7 +74,9 @@ TEST(ermilova_d_shell_sort_batcher_even_odd_merger_all, test_create_input_and_ou
 
 TEST(ermilova_d_shell_sort_batcher_even_odd_merger_all, test_sort_single_element) {
   // Create data
-  std::vector<int> in, out, expected;
+  std::vector<int> in;
+  std::vector<int> out;
+  std::vector<int> expected;
 
   boost::mpi::communicator world;
 
@@ -103,7 +106,9 @@ TEST(ermilova_d_shell_sort_batcher_even_odd_merger_all, test_sort_single_element
 
 TEST(ermilova_d_shell_sort_batcher_even_odd_merger_all, test_sort_small_even_size) {
   // Create data
-  std::vector<int> in, out, expected;
+  std::vector<int> in;
+  std::vector<int> out;
+  std::vector<int> expected;
   boost::mpi::communicator world;
 
   // Create task_data
@@ -133,7 +138,9 @@ TEST(ermilova_d_shell_sort_batcher_even_odd_merger_all, test_sort_small_even_siz
 
 TEST(ermilova_d_shell_sort_batcher_even_odd_merger_all, test_sort_small_odd_size) {
   // Create data
-  std::vector<int> in, out, expected;
+  std::vector<int> in;
+  std::vector<int> out;
+  std::vector<int> expected;
   boost::mpi::communicator world;
 
   // Create task_data
@@ -163,7 +170,9 @@ TEST(ermilova_d_shell_sort_batcher_even_odd_merger_all, test_sort_small_odd_size
 
 TEST(ermilova_d_shell_sort_batcher_even_odd_merger_all, test_positive_values) {
   // Create data
-  std::vector<int> in, out, expected;
+  std::vector<int> in;
+  std::vector<int> out;
+  std::vector<int> expected;
   boost::mpi::communicator world;
 
   // Create task_data
@@ -193,7 +202,9 @@ TEST(ermilova_d_shell_sort_batcher_even_odd_merger_all, test_positive_values) {
 
 TEST(ermilova_d_shell_sort_batcher_even_odd_merger_all, test_negative_values) {
   // Create data
-  std::vector<int> in, out, expected;
+  std::vector<int> in;
+  std::vector<int> out;
+  std::vector<int> expected;
   boost::mpi::communicator world;
 
   // Create task_data
@@ -223,7 +234,9 @@ TEST(ermilova_d_shell_sort_batcher_even_odd_merger_all, test_negative_values) {
 
 TEST(ermilova_d_shell_sort_batcher_even_odd_merger_all, test_repeating_values) {
   // Create data
-  std::vector<int> in, out, expected;
+  std::vector<int> in;
+  std::vector<int> out;
+  std::vector<int> expected;
   boost::mpi::communicator world;
 
   // Create task_data
@@ -253,7 +266,9 @@ TEST(ermilova_d_shell_sort_batcher_even_odd_merger_all, test_repeating_values) {
 
 TEST(ermilova_d_shell_sort_batcher_even_odd_merger_all, test_sort_doubly_decreasing_values) {
   // Create data
-  std::vector<int> in, out, expected;
+  std::vector<int> in;
+  std::vector<int> out;
+  std::vector<int> expected;
   boost::mpi::communicator world;
 
   // Create task_data
@@ -283,7 +298,9 @@ TEST(ermilova_d_shell_sort_batcher_even_odd_merger_all, test_sort_doubly_decreas
 
 TEST(ermilova_d_shell_sort_batcher_even_odd_merger_all, test_sort_descending_sorted) {
   // Create data
-  std::vector<int> in, out, expected;
+  std::vector<int> in;
+  std::vector<int> out;
+  std::vector<int> expected;
   boost::mpi::communicator world;
 
   // Create task_data
@@ -313,7 +330,9 @@ TEST(ermilova_d_shell_sort_batcher_even_odd_merger_all, test_sort_descending_sor
 
 TEST(ermilova_d_shell_sort_batcher_even_odd_merger_all, test_sort_ascending_sorted) {
   // Create data
-  std::vector<int> in, out, expected;
+  std::vector<int> in;
+  std::vector<int> out;
+  std::vector<int> expected;
   boost::mpi::communicator world;
 
   // Create task_data
@@ -343,7 +362,9 @@ TEST(ermilova_d_shell_sort_batcher_even_odd_merger_all, test_sort_ascending_sort
 
 TEST(ermilova_d_shell_sort_batcher_even_odd_merger_all, test_sort_all_equal_elements) {
   // Create data
-  std::vector<int> in, out, expected;
+  std::vector<int> in;
+  std::vector<int> out;
+  std::vector<int> expected;
   boost::mpi::communicator world;
 
   // Create task_data
@@ -373,7 +394,9 @@ TEST(ermilova_d_shell_sort_batcher_even_odd_merger_all, test_sort_all_equal_elem
 
 TEST(ermilova_d_shell_sort_batcher_even_odd_merger_all, test_sort_duplicates_elements) {
   // Create data
-  std::vector<int> in, out, expected;
+  std::vector<int> in;
+  std::vector<int> out;
+  std::vector<int> expected;
   boost::mpi::communicator world;
 
   // Create task_data
@@ -403,7 +426,9 @@ TEST(ermilova_d_shell_sort_batcher_even_odd_merger_all, test_sort_duplicates_ele
 
 TEST(ermilova_d_shell_sort_batcher_even_odd_merger_all, test_sort_10_random_elements) {
   // Create data
-  std::vector<int> in, out, expected;
+  std::vector<int> in;
+  std::vector<int> out;
+  std::vector<int> expected;
   boost::mpi::communicator world;
 
   // Create task_data
@@ -433,7 +458,9 @@ TEST(ermilova_d_shell_sort_batcher_even_odd_merger_all, test_sort_10_random_elem
 
 TEST(ermilova_d_shell_sort_batcher_even_odd_merger_all, test_sort_100_random_elements) {
   // Create data
-  std::vector<int> in, out, expected;
+  std::vector<int> in;
+  std::vector<int> out;
+  std::vector<int> expected;
   boost::mpi::communicator world;
 
   // Create task_data
@@ -463,7 +490,9 @@ TEST(ermilova_d_shell_sort_batcher_even_odd_merger_all, test_sort_100_random_ele
 
 TEST(ermilova_d_shell_sort_batcher_even_odd_merger_all, test_sort_1000_random_elements) {
   // Create data
-  std::vector<int> in, out, expected;
+  std::vector<int> in;
+  std::vector<int> out;
+  std::vector<int> expected;
   boost::mpi::communicator world;
 
   // Create task_data
@@ -493,7 +522,9 @@ TEST(ermilova_d_shell_sort_batcher_even_odd_merger_all, test_sort_1000_random_el
 
 TEST(ermilova_d_shell_sort_batcher_even_odd_merger_all, test_sort_10000_random_elements) {
   // Create data
-  std::vector<int> in, out, expected;
+  std::vector<int> in;
+  std::vector<int> out;
+  std::vector<int> expected;
   boost::mpi::communicator world;
 
   // Create task_data
@@ -523,7 +554,9 @@ TEST(ermilova_d_shell_sort_batcher_even_odd_merger_all, test_sort_10000_random_e
 
 TEST(ermilova_d_shell_sort_batcher_even_odd_merger_all, test_sort_8_random_elements) {
   // Create data
-  std::vector<int> in, out, expected;
+  std::vector<int> in;
+  std::vector<int> out;
+  std::vector<int> expected;
   boost::mpi::communicator world;
 
   // Create task_data
@@ -553,7 +586,9 @@ TEST(ermilova_d_shell_sort_batcher_even_odd_merger_all, test_sort_8_random_eleme
 
 TEST(ermilova_d_shell_sort_batcher_even_odd_merger_all, test_sort_127_random_elements) {
   // Create data
-  std::vector<int> in, out, expected;
+  std::vector<int> in;
+  std::vector<int> out;
+  std::vector<int> expected;
   boost::mpi::communicator world;
 
   // Create task_data
@@ -583,7 +618,9 @@ TEST(ermilova_d_shell_sort_batcher_even_odd_merger_all, test_sort_127_random_ele
 
 TEST(ermilova_d_shell_sort_batcher_even_odd_merger_all, test_sort_347_random_elements) {
   // Create data
-  std::vector<int> in, out, expected;
+  std::vector<int> in;
+  std::vector<int> out;
+  std::vector<int> expected;
   boost::mpi::communicator world;
 
   // Create task_data
@@ -613,7 +650,9 @@ TEST(ermilova_d_shell_sort_batcher_even_odd_merger_all, test_sort_347_random_ele
 
 TEST(ermilova_d_shell_sort_batcher_even_odd_merger_all, test_sort_with_boundary_sedgwick_gap_109) {
   // Create data
-  std::vector<int> in, out, expected;
+  std::vector<int> in;
+  std::vector<int> out;
+  std::vector<int> expected;
   boost::mpi::communicator world;
 
   // Create task_data
@@ -643,7 +682,9 @@ TEST(ermilova_d_shell_sort_batcher_even_odd_merger_all, test_sort_with_boundary_
 
 TEST(ermilova_d_shell_sort_batcher_even_odd_merger_all, test_sort_128_random_elements) {
   // Create data
-  std::vector<int> in, out, expected;
+  std::vector<int> in;
+  std::vector<int> out;
+  std::vector<int> expected;
   boost::mpi::communicator world;
 
   // Create task_data
@@ -673,7 +714,9 @@ TEST(ermilova_d_shell_sort_batcher_even_odd_merger_all, test_sort_128_random_ele
 
 TEST(ermilova_d_shell_sort_batcher_even_odd_merger_all, test_sort_27_random_elements) {
   // Create data
-  std::vector<int> in, out, expected;
+  std::vector<int> in;
+  std::vector<int> out;
+  std::vector<int> expected;
   boost::mpi::communicator world;
 
   // Create task_data
@@ -703,7 +746,9 @@ TEST(ermilova_d_shell_sort_batcher_even_odd_merger_all, test_sort_27_random_elem
 
 TEST(ermilova_d_shell_sort_batcher_even_odd_merger_all, test_sort_809_random_elements) {
   // Create data
-  std::vector<int> in, out, expected;
+  std::vector<int> in;
+  std::vector<int> out;
+  std::vector<int> expected;
   boost::mpi::communicator world;
 
   // Create task_data
@@ -733,7 +778,9 @@ TEST(ermilova_d_shell_sort_batcher_even_odd_merger_all, test_sort_809_random_ele
 
 TEST(ermilova_d_shell_sort_batcher_even_odd_merger_all, test_sort_500_random_elements) {
   // Create data
-  std::vector<int> in, out, expected;
+  std::vector<int> in;
+  std::vector<int> out;
+  std::vector<int> expected;
   boost::mpi::communicator world;
 
   // Create task_data
@@ -763,7 +810,9 @@ TEST(ermilova_d_shell_sort_batcher_even_odd_merger_all, test_sort_500_random_ele
 
 TEST(ermilova_d_shell_sort_batcher_even_odd_merger_all, test_sort_with_boundary_sedgwick_gap_729) {
   // Create data
-  std::vector<int> in, out, expected;
+  std::vector<int> in;
+  std::vector<int> out;
+  std::vector<int> expected;
   boost::mpi::communicator world;
 
   // Create task_data
@@ -793,7 +842,9 @@ TEST(ermilova_d_shell_sort_batcher_even_odd_merger_all, test_sort_with_boundary_
 
 TEST(ermilova_d_shell_sort_batcher_even_odd_merger_all, test_sort_with_boundary_sedgwick_gap_457) {
   // Create data
-  std::vector<int> in, out, expected;
+  std::vector<int> in;
+  std::vector<int> out;
+  std::vector<int> expected;
   boost::mpi::communicator world;
 
   // Create task_data

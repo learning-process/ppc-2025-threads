@@ -4,8 +4,7 @@
 
 #include <algorithm>
 #include <boost/mpi/collectives.hpp>
-#include <boost/serialization/vector.hpp>
-#include <core/util/include/util.hpp>
+#include <boost/mpi/communicator.hpp>
 #include <cstddef>
 #include <vector>
 
@@ -180,12 +179,12 @@ bool ermilova_d_shell_sort_batcher_even_odd_merger_all::AllTask::RunImpl() {
 
   if (rank == 0) {
     result.resize(full_data.size());
-    std::copy(local_chunk.begin(), local_chunk.end(), result.begin());
+    std::ranges::copy(local_chunk, result.begin());
 
     for (int i = 1; i < size; ++i) {
       std::vector<int> tmp;
       world.recv(i, 1, tmp);
-      std::copy(tmp.begin(), tmp.end(), result.begin() + displs[i]);
+      std::ranges::copy(tmp, result.begin() + displs[i]);
     }
 
     data_ = result;
@@ -196,7 +195,7 @@ bool ermilova_d_shell_sort_batcher_even_odd_merger_all::AllTask::RunImpl() {
       for (int i = 0; i < loop_end; i += 2 * merge_step) {
         size_t left_start = displs[i];
         size_t mid = displs[i + merge_step];
-        size_t right_end = (i + 2 * merge_step < size) ? displs[i + 2 * merge_step] : data_.size();
+        size_t right_end = (i + 2 * merge_step < size) ? displs[i + (2 * merge_step)] : data_.size();
         BatcherMerge(data_, left_start, mid, right_end);
       }
     }
