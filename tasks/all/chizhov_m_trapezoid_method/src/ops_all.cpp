@@ -39,7 +39,7 @@ double chizhov_m_trapezoid_method_all::TrapezoidMethod(Function& f, size_t div, 
   long long base_count = total_nodes / size;
   long long remainder = total_nodes % size;
 
-  long start = (rank < remainder) ? (rank * (base_count + 1)) 
+  long start = (rank < remainder) ? (rank * (base_count + 1))
                                   : (remainder * (base_count + 1)) + ((rank - remainder) * base_count);
 
   long end = start + base_count + (rank < remainder ? 1 : 0);
