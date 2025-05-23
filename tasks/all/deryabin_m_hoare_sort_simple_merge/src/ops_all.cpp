@@ -166,7 +166,6 @@ bool deryabin_m_hoare_sort_simple_merge_mpi::HoareSortTaskMPI::RunImpl() {
               tg, num_threads);
   }
   tg.wait();
-  world.barrier();
   for (size_t i = 0; i < static_cast<size_t>(std::bit_width(chunk_count_) -
                                              1);  // Вычисялем сколько уровней слияния потребуется как логарифм по
                                                   // основанию 2 от числа частей chunk_count_
@@ -176,6 +175,9 @@ bool deryabin_m_hoare_sort_simple_merge_mpi::HoareSortTaskMPI::RunImpl() {
       unsigned short partner = (static_cast<size_t>(world.rank()) / step % 2 == 1)
                                    ? static_cast<size_t>(world.rank()) - step
                                    : static_cast<size_t>(world.rank()) + step;
+      if (partner < 0 || partner >= world.size()) {
+        continue;  // Пропускаем несуществующие ранги
+      }
       size_t block_size = num_chunk_per_proc * min_chunk_size_ * step;
       if ((static_cast<size_t>(world.rank()) / step) % 2 == 0) {
         size_t start_idx = (static_cast<size_t>(world.rank()) - step + 1) * num_chunk_per_proc * min_chunk_size_;
