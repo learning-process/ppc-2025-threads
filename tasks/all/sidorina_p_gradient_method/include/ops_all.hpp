@@ -50,7 +50,7 @@ inline std::vector<double> MultiplyMatrixByVector(boost::mpi::communicator& worl
   }
   std::vector<int> recv_sizes = rows_per_process;
   std::vector<int> recv_displs(wsize, 0);
-  for (int i = 1; i < wsize; ++i) {
+  for (int i = 1; i < wsize; i++) {
     recv_displs[i] = recv_displs[i - 1] + recv_sizes[i - 1];
   }
   gatherv(world, local_result.data(), int(local_result.size()), result.data(), recv_sizes, recv_displs, 0);
