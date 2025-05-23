@@ -1,7 +1,6 @@
 #include <gtest/gtest.h>
 
 #include <chrono>
-#include <cstddef>
 #include <cstdint>
 #include <memory>
 #include <random>
@@ -61,7 +60,9 @@ TEST(morozov_e_lineare_image_filtering_block_gaussian_all, test_pipeline_run) {
   if (world.rank() == 0) {
     ppc::core::Perf::PrintPerfStatistic(perf_results);
   }
-  if (world.rank() == 0) ASSERT_EQ(image_res, real_res);
+  if (world.rank() == 0) {
+    ASSERT_EQ(image_res, real_res);
+  }
 }
 
 TEST(morozov_e_lineare_image_filtering_block_gaussian_all, test_task_run) {

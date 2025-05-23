@@ -1,6 +1,8 @@
 #include <gtest/gtest.h>
 
 // #include <boost/mpi/collectives.hpp>
+#include <boost/mpi/communicator.hpp>
+#include <boost/serialization/vector.hpp>
 #include <cstddef>
 #include <cstdint>
 #include <memory>
@@ -8,10 +10,8 @@
 #include <random>
 #include <vector>
 
-#include "all/example/include/ops_all.hpp"
 #include "all/morozov_e_lineare_image_filtering_block_gaussian_all/include/ops_all.hpp"
 #include "core/task/include/task.hpp"
-#include "core/util/include/util.hpp"
 
 namespace {
 std::vector<double> GenerateRandomVector(int n, int m) {
@@ -28,6 +28,27 @@ std::vector<double> GenerateRandomVector(int n, int m) {
     }
   }
   return vector;
+}
+void ApplyGaussianFilter(const std::vector<double> &image, std::vector<double> &result, int n, int m) {
+  const std::vector<std::vector<double>> kernel = {
+      {1.0 / 16, 2.0 / 16, 1.0 / 16}, {2.0 / 16, 4.0 / 16, 2.0 / 16}, {1.0 / 16, 2.0 / 16, 1.0 / 16}};
+
+  for (int i = 0; i < n; ++i) {
+    for (int j = 0; j < m; ++j) {
+      if (i == 0 || j == 0 || i == n - 1 || j == m - 1) {
+        result[(i * m) + j] = image[(i * m) + j];
+        continue;
+      }
+
+      double sum = 0.0;
+      for (int ki = -1; ki <= 1; ++ki) {
+        for (int kj = -1; kj <= 1; ++kj) {
+          sum += image[((i + ki) * m) + (j + kj)] * kernel[ki + 1][kj + 1];
+        }
+      }
+      result[(i * m) + j] = sum;
+    }
+  }
 }
 }  // namespace
 TEST(morozov_e_lineare_image_filtering_block_gaussian_all, test_matmul_501) {
@@ -46,7 +67,6 @@ TEST(morozov_e_lineare_image_filtering_block_gaussian_all, test_matmul_501) {
      image = GenerateRandomVector(n, m);
    }
    boost::mpi::broadcast(world, image, 0);
-   std::cout<<"\n size="<<image.size()<<"\n";
     task_data_seq->inputs.emplace_back(reinterpret_cast<uint8_t *>(image.data()));
    task_data_seq->inputs_count.emplace_back(n);
    task_data_seq->inputs_count.emplace_back(m);
@@ -60,8 +80,9 @@ TEST(morozov_e_lineare_image_filtering_block_gaussian_all, test_matmul_501) {
   test_task_sequential.PostProcessing();
  /*  std::cout<< "\n end - " << world.rank() << " dsffsd"
              << "\n";*/
-  if(world.rank() == 0)
+  if(world.rank() == 0){
    ASSERT_EQ(image, image_res);
+   }
 }
 TEST(morozov_e_lineare_image_filtering_block_gaussian_all, empty_image_test) {
   boost::mpi::communicator world;
@@ -152,7 +173,9 @@ TEST(morozov_e_lineare_image_filtering_block_gaussian_all, main_test1) {
   test_task_sequential.PreProcessing();
   test_task_sequential.Run();
   test_task_sequential.PostProcessing();
-  if (world.rank() == 0) ASSERT_EQ(image, image_res);
+  if (world.rank() == 0) {
+    ASSERT_EQ(image, image_res);
+  }
 }
 TEST(morozov_e_lineare_image_filtering_block_gaussian_all, main_test2) {
   boost::mpi::communicator world;
@@ -191,7 +214,9 @@ TEST(morozov_e_lineare_image_filtering_block_gaussian_all, main_test2) {
    2, 2.25, 2.5, 2.25, 2,
    2, 2, 3, 2, 2};
   // clang-format on
-  if (world.rank() == 0) EXPECT_EQ(real_res, image_res);
+  if (world.rank() == 0) {
+    EXPECT_EQ(real_res, image_res);
+  }
 }
 TEST(morozov_e_lineare_image_filtering_block_gaussian_all, main_test3) {
   boost::mpi::communicator world;
@@ -230,7 +255,9 @@ TEST(morozov_e_lineare_image_filtering_block_gaussian_all, main_test3) {
    1, 2, 3, 4, 5,
    1, 2, 3, 4, 5};
   // clang-format on
-  if (world.rank() == 0) EXPECT_EQ(real_res, image_res);
+  if (world.rank() == 0) {
+    EXPECT_EQ(real_res, image_res);
+  }
 }
 TEST(morozov_e_lineare_image_filtering_block_gaussian_all, main_test4) {
   boost::mpi::communicator world;
@@ -261,7 +288,9 @@ TEST(morozov_e_lineare_image_filtering_block_gaussian_all, main_test4) {
   test_task_sequential.PreProcessing();
   test_task_sequential.Run();
   test_task_sequential.PostProcessing();
-  if (world.rank() == 0) EXPECT_EQ(image, image_res);
+  if (world.rank() == 0) {
+    EXPECT_EQ(image, image_res);
+  }
 }
 TEST(morozov_e_lineare_image_filtering_block_gaussian_all, main_test5) {
   boost::mpi::communicator world;
@@ -300,7 +329,9 @@ TEST(morozov_e_lineare_image_filtering_block_gaussian_all, main_test5) {
    5, 4.5, 3.75, 3, 1,
    1, 1, 1, 1, 1};
   // clang-format on
-  if (world.rank() == 0) EXPECT_EQ(real_res, image_res);
+  if (world.rank() == 0) {
+    EXPECT_EQ(real_res, image_res);
+  }
 }
 TEST(morozov_e_lineare_image_filtering_block_gaussian_all, main_test6) {
   boost::mpi::communicator world;
@@ -335,7 +366,9 @@ TEST(morozov_e_lineare_image_filtering_block_gaussian_all, main_test6) {
    8, 3.875, 1,
    8, 2, 4};
   // clang-format on
-  if (world.rank() == 0) EXPECT_EQ(real_res, image_res);
+  if (world.rank() == 0) {
+    EXPECT_EQ(real_res, image_res);
+  }
 }
 TEST(morozov_e_lineare_image_filtering_block_gaussian_all, main_test7_) {
   boost::mpi::communicator world;
@@ -363,7 +396,9 @@ TEST(morozov_e_lineare_image_filtering_block_gaussian_all, main_test7_) {
   test_task_sequential.PreProcessing();
   test_task_sequential.Run();
   test_task_sequential.PostProcessing();
-  if (world.rank() == 0) EXPECT_EQ(image, image_res);
+  if (world.rank() == 0) {
+    EXPECT_EQ(image, image_res);
+  }
 }
 TEST(morozov_e_lineare_image_filtering_block_gaussian_all, random_test1) {
   boost::mpi::communicator world;
@@ -371,7 +406,9 @@ TEST(morozov_e_lineare_image_filtering_block_gaussian_all, random_test1) {
   int m = 3;
   std::vector image_res(n * m, 0.0);
   std::vector<double> image;
-  if (world.rank() == 0) image = GenerateRandomVector(n, m);
+  if (world.rank() == 0) {
+    image = GenerateRandomVector(n, m);
+  }
   boost::mpi::broadcast(world, image, 0);
   // Create task_data
   auto task_data_seq = std::make_shared<ppc::core::TaskData>();
@@ -389,29 +426,7 @@ TEST(morozov_e_lineare_image_filtering_block_gaussian_all, random_test1) {
   test_task_sequential.Run();
   test_task_sequential.PostProcessing();
   std::vector<double> res(n * m);
-  // clang-format off
-  const std::vector<std::vector<double>> kernel = {
-      {1.0 / 16, 2.0 / 16, 1.0 / 16},
-      {2.0 / 16, 4.0 / 16, 2.0 / 16},
-      {1.0 / 16, 2.0 / 16, 1.0 / 16}};
-  // clang-format on
-  for (int i = 0; i < n; ++i) {
-    for (int j = 0; j < m; ++j) {
-      if (i == 0 || j == 0 || i == n - 1 || j == m - 1) {
-        res[(i * m) + j] = image[(i * m) + j];
-      } else {
-        double sum = 0.0;
-        // Применяем ядро к текущему пикселю и его соседям
-        for (int ki = -1; ki <= 1; ++ki) {
-          for (int kj = -1; kj <= 1; ++kj) {
-            sum += image[((i + ki) * m) + (j + kj)] * kernel[ki + 1][kj + 1];
-          }
-        }
-        res[(i * m) + j] = sum;
-      }
-    }
-  }
-  // clang-format on
+  ApplyGaussianFilter(image, res, n, m);
   if (world.rank() == 0) {
     ASSERT_EQ(image_res.size(), res.size());
     EXPECT_EQ(image_res, res);
@@ -426,7 +441,9 @@ TEST(morozov_e_lineare_image_filtering_block_gaussian_all, random_test2) {
   int m = 23;
   std::vector image_res(n * m, 0.0);
   std::vector<double> image;
-  if (world.rank() == 0) image = GenerateRandomVector(n, m);
+  if (world.rank() == 0) {
+    image = GenerateRandomVector(n, m);
+  }
   boost::mpi::broadcast(world, image, 0);
   // Create task_data
   auto task_data_seq = std::make_shared<ppc::core::TaskData>();
@@ -444,29 +461,7 @@ TEST(morozov_e_lineare_image_filtering_block_gaussian_all, random_test2) {
   test_task_sequential.Run();
   test_task_sequential.PostProcessing();
   std::vector<double> res(n * m);
-  // clang-format off
-  const std::vector<std::vector<double>> kernel = {
-      {1.0 / 16, 2.0 / 16, 1.0 / 16},
-      {2.0 / 16, 4.0 / 16, 2.0 / 16},
-      {1.0 / 16, 2.0 / 16, 1.0 / 16}};
-  // clang-format on
-  for (int i = 0; i < n; ++i) {
-    for (int j = 0; j < m; ++j) {
-      if (i == 0 || j == 0 || i == n - 1 || j == m - 1) {
-        res[(i * m) + j] = image[(i * m) + j];
-      } else {
-        double sum = 0.0;
-        // Применяем ядро к текущему пикселю и его соседям
-        for (int ki = -1; ki <= 1; ++ki) {
-          for (int kj = -1; kj <= 1; ++kj) {
-            sum += image[((i + ki) * m) + (j + kj)] * kernel[ki + 1][kj + 1];
-          }
-        }
-        res[(i * m) + j] = sum;
-      }
-    }
-  }
-  // clang-format on
+  ApplyGaussianFilter(image, res, n, m);
   if (world.rank() == 0) {
     ASSERT_EQ(image_res.size(), res.size());
     EXPECT_EQ(image_res, res);
