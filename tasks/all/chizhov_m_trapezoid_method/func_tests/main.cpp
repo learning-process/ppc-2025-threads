@@ -13,12 +13,12 @@
 namespace {
 void RunTests(int div, int dimm, std::vector<double> &limits, std::function<double(const std::vector<double> &)> f,
               double expected_result) {
-  boost::mpi::communicator world_;
+  boost::mpi::communicator world;
   std::vector<double> res(1, 0);
 
   std::shared_ptr<ppc::core::TaskData> task_data_mpi = std::make_shared<ppc::core::TaskData>();
 
-  if (world_.rank() == 0) {
+  if (world.rank() == 0) {
     task_data_mpi->inputs.emplace_back(reinterpret_cast<uint8_t *>(&div));
     task_data_mpi->inputs_count.emplace_back(sizeof(div));
 
@@ -33,13 +33,13 @@ void RunTests(int div, int dimm, std::vector<double> &limits, std::function<doub
   }
 
   chizhov_m_trapezoid_method_all::TestTaskMPI test_task_mpi(task_data_mpi);
-  test_task_mpi.SetFunc(f);
+  test_task_mpi.SetFunc(std::move(f));
 
   ASSERT_TRUE(test_task_mpi.ValidationImpl());
   test_task_mpi.PreProcessingImpl();
   test_task_mpi.RunImpl();
   test_task_mpi.PostProcessingImpl();
-  if (world_.rank() == 0) {
+  if (world.rank() == 0) {
     ASSERT_NEAR(res[0], expected_result, 0.1);
   }
 }

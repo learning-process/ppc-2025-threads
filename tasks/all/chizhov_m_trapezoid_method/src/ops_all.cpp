@@ -7,11 +7,11 @@
 #include <boost/mpi/collectives/broadcast.hpp>
 #include <boost/mpi/collectives/reduce.hpp>
 #include <boost/mpi/communicator.hpp>
-#include <boost/serialization/vector.hpp>
 #include <cmath>
 #include <core/util/include/util.hpp>
 #include <cstddef>
 #include <functional>
+#include <utility>
 #include <vector>
 
 double chizhov_m_trapezoid_method_all::TrapezoidMethod(Function& f, size_t div, size_t dim,
@@ -39,7 +39,7 @@ double chizhov_m_trapezoid_method_all::TrapezoidMethod(Function& f, size_t div, 
   long long remainder = total_nodes % size;
 
   long start =
-      (rank < remainder) ? rank * (base_count + 1) : remainder * (base_count + 1) + (rank - remainder) * base_count;
+      (rank < remainder) ? (rank * (base_count + 1)) : (remainder * (base_count + 1)) + ((rank - remainder) * base_count);
 
   long end = start + base_count + (rank < remainder ? 1 : 0);
 
@@ -137,15 +137,9 @@ bool chizhov_m_trapezoid_method_all::TestTaskMPI::ValidationImpl() {
   return valid;
 }
 
-void chizhov_m_trapezoid_method_all::TestTaskMPI::SetFunc(Function f) { f_ = f; };
+void chizhov_m_trapezoid_method_all::TestTaskMPI::SetFunc(Function f) { f_ = std::move(f); };
 
 bool chizhov_m_trapezoid_method_all::TestTaskMPI::RunImpl() {
-  if (!f_) {
-    if (world_.rank() == 0) {
-      std::cerr << "Function not set!" << std::endl;
-    }
-    return false;
-  }
   res_ = TrapezoidMethod(f_, div_, dim_, lower_limits_, upper_limits_, world_);
   return true;
 }

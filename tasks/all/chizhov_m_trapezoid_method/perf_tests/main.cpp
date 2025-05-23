@@ -8,11 +8,12 @@
 #include <vector>
 
 #include "all/chizhov_m_trapezoid_method/include/ops_all.hpp"
+#include "boost::mpi::communicator"
 #include "core/perf/include/perf.hpp"
 #include "core/task/include/task.hpp"
 
 TEST(chizhov_m_trapezoid_method_all, test_pipeline_run) {
-  boost::mpi::communicator world_;
+  boost::mpi::communicator world;
 
   std::vector<double> res(1, 0);
   auto f = [](const std::vector<double> &f_val) {
@@ -22,7 +23,7 @@ TEST(chizhov_m_trapezoid_method_all, test_pipeline_run) {
   std::shared_ptr<ppc::core::TaskData> task_data_mpi = std::make_shared<ppc::core::TaskData>();
 
   // Create task_data
-  if (world_.rank() == 0) {
+  if (world.rank() == 0) {
     int div = 200;
     int dim = 3;
     std::vector<double> limits = {0.0, 1000.0, 0.0, 1000.0, 0.0, 1000.0};
@@ -60,14 +61,14 @@ TEST(chizhov_m_trapezoid_method_all, test_pipeline_run) {
   // Create Perf analyzer
   auto perf_analyzer = std::make_shared<ppc::core::Perf>(test_task_mpi);
   perf_analyzer->PipelineRun(perf_attr, perf_results);
-  if (world_.rank() == 0) {
+  if (world.rank() == 0) {
     ppc::core::Perf::PrintPerfStatistic(perf_results);
     ASSERT_NEAR(-1405.6, res[0], 0.3);
   }
 }
 
 TEST(chizhov_m_trapezoid_method_all, test_task_run) {
-  boost::mpi::communicator world_;
+  boost::mpi::communicator world;
 
   std::vector<double> res(1, 0);
   auto f = [](const std::vector<double> &f_val) {
@@ -77,7 +78,7 @@ TEST(chizhov_m_trapezoid_method_all, test_task_run) {
   // Create task_data
   std::shared_ptr<ppc::core::TaskData> task_data_mpi = std::make_shared<ppc::core::TaskData>();
 
-  if (world_.rank() == 0) {
+  if (world.rank() == 0) {
     int div = 200;
     int dim = 3;
     std::vector<double> limits = {0.0, 1000.0, 0.0, 1000.0, 0.0, 1000.0};
@@ -115,7 +116,7 @@ TEST(chizhov_m_trapezoid_method_all, test_task_run) {
   // Create Perf analyzer
   auto perf_analyzer = std::make_shared<ppc::core::Perf>(test_task_mpi);
   perf_analyzer->TaskRun(perf_attr, perf_results);
-  if (world_.rank() == 0) {
+  if (world.rank() == 0) {
     ppc::core::Perf::PrintPerfStatistic(perf_results);
     ASSERT_NEAR(-1405.6, res[0], 0.3);
   }
