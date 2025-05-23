@@ -170,25 +170,20 @@ bool deryabin_m_hoare_sort_simple_merge_mpi::HoareSortTaskMPI::RunImpl() {
                                                   // основанию 2 от числа частей chunk_count_
        ++i) {  // На каждом уровне сливаются пары соседних блоков размером min_chunk_size_ × 2^i
     size_t step = 1ULL << i;
-    if ((static_cast<size_t>(world.rank()) & step) == 0) {
-      world.send(
-          world.rank() + 1, world.rank(),
-          input_array_A_.data() + (static_cast<size_t>(world.rank() * num_chunk_per_proc * min_chunk_size_) << (i + 1)),
-          static_cast<size_t>(num_chunk_per_proc * min_chunk_size_) << i);
-    } else {
-      world.recv(
-          world.rank() - 1, world.rank() - 1,
-          input_array_A_.data() +
-              (static_cast<unsigned short>((world.rank() - 1) * num_chunk_per_proc * min_chunk_size_) << (i + 1)),
-          static_cast<unsigned short>(num_chunk_per_proc * min_chunk_size_) << i);
-      if (world.rank() != world.size() - 1) {
-        MergeTwoParts(input_array_A_,
-                      static_cast<size_t>((world.rank() - 1) * num_chunk_per_proc * min_chunk_size_) << (i + 1),
-                      (((world.rank() + 1) * num_chunk_per_proc * min_chunk_size_) << (i + 1)) - 1, tg, num_threads);
+    if (((world.rank() + 1) % (2 * step)) == 0) {
+      unsigned short partner = (static_cast<size_t>(world.rank()) / step % 2 == 1) ? static_cast<size_t>(world.rank()) - step : static_cast<size_t>(world.rank()) + step;
+      size_t block_size = num_chunk_per_proc * min_chunk_size_ * step;
+      if ((static_cast<size_t>(world.rank()) / step) % 2 == 0) {
+        size_t start_idx = (static_cast<size_t>(world.rank()) - step + 1) * num_chunk_per_proc * min_chunk_size_;
+        world.send(partner, 0, &input_array_A_[start_idx], block_size);
       } else {
-        MergeTwoParts(input_array_A_,
-                      static_cast<size_t>((world.rank() - 1) * num_chunk_per_proc * min_chunk_size_) << (i + 1),
-                      dimension_ - 1, tg, num_threads);
+        size_t start_idx = (static_cast<size_t>(world.rank()) - 2 * step + 1) * num_chunk_per_proc * min_chunk_size_;
+        world.recv(partner, 0, &input_array_A_[start_idx], block_size);
+        if (world.rank() != world.size() - 1) {
+          MergeTwoParts(input_array_A_, start_idx, (static_cast<size_t>(world.rank()) + 1) * num_chunk_per_proc * min_chunk_size_ * step - 1, tg, num_threads);
+        } else {
+          MergeTwoParts(input_array_A_, start_idx, dimension_ - 1, tg, num_threads);
+        }
       }
     }
     world.barrier();
