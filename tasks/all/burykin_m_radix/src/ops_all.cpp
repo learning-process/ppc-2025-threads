@@ -1,6 +1,7 @@
 #include "all/burykin_m_radix/include/ops_all.hpp"
 
 #include <array>
+#include <boost/serialization/vector.hpp>
 #include <utility>
 #include <vector>
 
