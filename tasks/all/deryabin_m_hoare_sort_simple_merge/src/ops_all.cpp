@@ -33,31 +33,6 @@ void deryabin_m_hoare_sort_simple_merge_mpi::HoaraSort(std::vector<double>& a, s
   } while (pi < pj);
   const size_t j = pj - a.data();
   const size_t i = pi - a.data();
-  HoaraSort(a, first, j);
-  HoaraSort(a, i + 1, last);
-}
-
-void deryabin_m_hoare_sort_simple_merge_mpi::HoaraSort(std::vector<double>& a, size_t first, size_t last, size_t available_threads) {
-  if (first >= last) {
-    return;
-  }
-  const size_t mid = (first + last) >> 1;
-  const double x = std::max(std::min(a[first], a[mid]), std::min(std::max(a[first], a[mid]), a[last]));
-  double* pi = &a[first];
-  double* pj = &a[last];
-  do {
-    while (*pi < x) {
-      pi++;
-    }
-    while (*pj > x) {
-      pj--;
-    }
-    const double tmp = *pi;
-    *pi = *pj;
-    *pj = tmp;
-  } while (pi < pj);
-  const size_t j = pj - a.data();
-  const size_t i = pi - a.data();
   if (available_threads > 1) {
     HoaraSort(a, first, j, available_threads >> 1);
     oneapi::tbb::task_group tg;
