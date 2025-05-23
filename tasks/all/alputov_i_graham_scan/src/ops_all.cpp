@@ -113,7 +113,7 @@ bool TestTaskALL::InitializeRun(size_t& current_total_num_points_ref, int& curre
         convex_hull_.clear();
       } else if (current_total_num_points_ref == 1) {
         convex_hull_ = {input_points_[0]};
-      } else {  // current_total_num_points_ref == 2
+      } else {
         if (input_points_[0] < input_points_[1]) {
           convex_hull_ = {input_points_[0], input_points_[1]};
         } else {
@@ -121,12 +121,11 @@ bool TestTaskALL::InitializeRun(size_t& current_total_num_points_ref, int& curre
         }
       }
     }
-    return false;  // Indicates RunImpl should terminate
+    return false;
   }
 
   active_procs_count_ = std::min(static_cast<size_t>(world_size_), current_total_num_points_ref);
   if (active_procs_count_ == 0 && current_total_num_points_ref > 0) {
-    // This case should ideally not be hit if current_total_num_points_ref >= 3
     active_procs_count_ = 1;
   }
 
@@ -174,14 +173,18 @@ size_t TestTaskALL::DistributePointsAndBroadcastPivot(int current_rank_in_active
   int local_recv_count = 0;
 
   if (current_rank_in_active_comm == 0) {
-    std::vector<int> send_counts_for_scatterv(static_cast<int>(active_procs_count_));
-    std::vector<int> displs_for_scatterv(static_cast<int>(active_procs_count_));
+    std::vector<int> send_counts_for_scatterv((current_rank_in_active_comm == 0) ? static_cast<int>(active_procs_count_)
+                                                                                 : 0);
+    std::vector<int> displs_for_scatterv((current_rank_in_active_comm == 0) ? static_cast<int>(active_procs_count_)
+                                                                            : 0);
 
     int base_count = static_cast<int>(num_points_to_scatter / active_procs_count_);
     int remainder = static_cast<int>(num_points_to_scatter % active_procs_count_);
-    displs_for_scatterv[0] = 0;
+    if (active_procs_count_ > 0) {
+      displs_for_scatterv[0] = 0;
+    }
     for (size_t i = 0; i < active_procs_count_; ++i) {
-      send_counts_for_scatterv[i] = base_count + (i < remainder ? 1 : 0);
+      send_counts_for_scatterv[i] = base_count + (i < static_cast<size_t>(remainder) ? 1 : 0);
       if (i > 0) {
         displs_for_scatterv[i] = displs_for_scatterv[i - 1] + send_counts_for_scatterv[i - 1];
       }
@@ -217,10 +220,10 @@ int TestTaskALL::SortLocalAndGatherSortedPoints(int current_rank_in_active_comm)
   int total_sorted_points_count = 0;
 
   if (current_rank_in_active_comm == 0) {
-    std::vector<int> displs_for_gatherv(static_cast<int>(active_procs_count_));
-
-    displs_for_gatherv[0] = 0;
-
+    std::vector<int> displs_for_gatherv(current_rank_in_active_comm == 0 ? static_cast<int>(active_procs_count_) : 0);
+    if (active_procs_count_ > 0) {
+      displs_for_gatherv[0] = 0;
+    }
     globally_sorted_points_.clear();
     for (size_t i = 0; i < active_procs_count_; ++i) {
       total_sorted_points_count += local_sizes_recv_on_root[i];
