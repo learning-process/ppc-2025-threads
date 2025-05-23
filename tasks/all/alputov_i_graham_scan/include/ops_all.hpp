@@ -42,7 +42,7 @@ class TestTaskALL : public ppc::core::Task {
   int world_size_{};
   MPI_Datatype mpi_point_datatype_{MPI_DATATYPE_NULL};
   MPI_Comm active_comm_ = MPI_COMM_NULL;
-  size_t active_procs_count_ = 0;
+  int active_procs_count_ = 0;
   bool mpi_resources_active_ = false;
 
   std::vector<Point> input_points_;
