@@ -4,6 +4,7 @@
 
 #include <algorithm>
 #include <bit>
+#include <boost/serialization/serialization.hpp>
 #include <boost/mpi/collectives/broadcast.hpp>
 #include <cmath>
 #include <core/util/include/util.hpp>
