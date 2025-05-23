@@ -59,9 +59,9 @@ void deryabin_m_hoare_sort_simple_merge_mpi::MergeTwoParts(std::vector<double>& 
       MergeTwoParts(a, mid, last, tg, available_threads - available_threads / 2);
     });
     tg.wait();
-    std::inplace_merge(a.begin() + first, a.begin() + mid, a.begin() + last, 1);
+    std::inplace_merge(a.begin() + first, a.begin() + mid, a.begin() + last);
   } else {
-    std::inplace_merge(a.begin() + first, a.begin() + mid, a.begin() + last, 1);
+    std::inplace_merge(a.begin() + first, a.begin() + mid, a.begin() + last);
   }
 }
 
