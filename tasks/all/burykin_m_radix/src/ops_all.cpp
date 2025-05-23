@@ -8,6 +8,15 @@
 std::array<int, 256> burykin_m_radix_all::RadixALL::ComputeFrequency(const std::vector<int>& a, const int shift) {
   std::array<int, 256> count = {};
 
+#if defined(__APPLE__) || defined(_MSC_VER)
+  for (const int v : a) {
+    unsigned int key = ((static_cast<unsigned int>(v) >> shift) & 0xFFU);
+    if (shift == 24) {
+      key ^= 0x80;
+    }
+    ++count[key];
+  }
+#else
 #pragma omp parallel default(none) shared(a, count, shift)
   {
     std::array<int, 256> local_count = {};
@@ -29,6 +38,7 @@ std::array<int, 256> burykin_m_radix_all::RadixALL::ComputeFrequency(const std::
       }
     }
   }
+#endif
 
   return count;
 }
@@ -43,6 +53,16 @@ std::array<int, 256> burykin_m_radix_all::RadixALL::ComputeIndices(const std::ar
 
 void burykin_m_radix_all::RadixALL::DistributeElements(const std::vector<int>& a, std::vector<int>& b,
                                                        std::array<int, 256> index, const int shift) {
+#if defined(__APPLE__) || defined(_MSC_VER)
+  for (const int v : a) {
+    unsigned int key = ((static_cast<unsigned int>(v) >> shift) & 0xFFU);
+    if (shift == 24) {
+      key ^= 0x80;
+    }
+    b[index[key]] = v;
+    ++index[key];
+  }
+#else
   std::array<int, 256> local_index = index;
   std::vector<int> offsets(a.size());
 
@@ -68,6 +88,7 @@ void burykin_m_radix_all::RadixALL::DistributeElements(const std::vector<int>& a
   for (int i = 0; i < static_cast<int>(a.size()); ++i) {
     b[offsets[i]] = a[i];
   }
+#endif
 }
 
 bool burykin_m_radix_all::RadixALL::PreProcessingImpl() {
@@ -101,6 +122,14 @@ bool burykin_m_radix_all::RadixALL::RunImpl() {
   std::vector<int> b(a.size());
 
   if (world_.rank() == 0) {
+#if defined(__APPLE__) || defined(_MSC_VER)
+    for (int shift = 0; shift < 32; shift += 8) {
+      auto count = ComputeFrequency(a, shift);
+      const auto index = ComputeIndices(count);
+      DistributeElements(a, b, index, shift);
+      a.swap(b);
+    }
+#else
 #pragma omp parallel
     {
 #pragma omp single
@@ -113,6 +142,7 @@ bool burykin_m_radix_all::RadixALL::RunImpl() {
         }
       }
     }
+#endif
   }
 
   if (world_.size() > 1) {
