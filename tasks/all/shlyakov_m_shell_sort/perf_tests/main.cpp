@@ -48,7 +48,8 @@ bool IsSorted(const std::vector<int>& arr) {
   return true;
 }
 
-std::shared_ptr<ppc::core::TaskData> CreateTaskData(const std::vector<int>& in, std::vector<int>& out) {
+std::shared_ptr<ppc::core::TaskData> CreateTaskData(const std::vector<int>& in, std::vector<int>& out,
+                                                    boost::mpi::communicator world) {
   auto task_data = std::make_shared<ppc::core::TaskData>();
   if (world.rank() == 0) {
     task_data->inputs.emplace_back(reinterpret_cast<uint8_t*>(const_cast<int*>(in.data())));
@@ -71,7 +72,7 @@ TEST(shlyakov_m_shell_sort_all, test_pipeline_run) {
   std::vector<int> out(in.size());
 
   std::shared_ptr<ppc::core::TaskData> task_data_tbb;
-  task_data_tbb = CreateTaskData(in, out);
+  task_data_tbb = CreateTaskData(in, out, world);
 
   auto test_task_tbb = std::make_shared<shlyakov_m_shell_sort_all::TestTaskALL>(task_data_tbb);
 
@@ -107,7 +108,7 @@ TEST(shlyakov_m_shell_sort_all, test_task_run) {
 
   std::shared_ptr<ppc::core::TaskData> task_data_tbb;
 
-  task_data_tbb = CreateTaskData(in, out);
+  task_data_tbb = CreateTaskData(in, out, world);
 
   auto test_task_tbb = std::make_shared<shlyakov_m_shell_sort_all::TestTaskALL>(task_data_tbb);
 

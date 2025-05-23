@@ -7,7 +7,7 @@
 #include <boost/mpi/collectives/broadcast.hpp>
 #include <boost/mpi/collectives/gather.hpp>
 #include <boost/mpi/collectives/scatter.hpp>
-#include <boost/serialization/vector.hpp>Л
+#include <boost/serialization/vector.hpp>
 #include <core/util/include/util.hpp>
 #include <cstddef>
 #include <vector>
