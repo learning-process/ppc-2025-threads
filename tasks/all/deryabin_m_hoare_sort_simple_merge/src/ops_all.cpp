@@ -169,7 +169,7 @@ bool deryabin_m_hoare_sort_simple_merge_mpi::HoareSortTaskMPI::RunImpl() {
                                              1);  // Вычисялем сколько уровней слияния потребуется как логарифм по
                                                   // основанию 2 от числа частей chunk_count_
        ++i) {  // На каждом уровне сливаются пары соседних блоков размером min_chunk_size_ × 2^i
-    size_t step = 1 << i;
+    size_t step = 1ULL << i;
     if ((static_cast<size_t>(world.rank()) & step) == 0) {
       world.send(
           world.rank() + 1, world.rank(),
