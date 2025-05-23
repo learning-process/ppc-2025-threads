@@ -5,6 +5,7 @@
 #include <boost/mpi/collectives.hpp>
 #include <boost/mpi/collectives/all_reduce.hpp>
 #include <boost/mpi/communicator.hpp>
+// NOLINTNEXTLINE(misc-include-cleaner)
 #include <boost/serialization/vector.hpp>
 #include <cmath>
 #include <functional>
