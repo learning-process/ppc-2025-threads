@@ -8,6 +8,7 @@
 #include <vector>
 
 #include "all/prokhorov_n_multidimensional_integrals_by_trapezoidal_method/include/ops_all.hpp"
+#include "core/task/include/task.hpp"
 
 constexpr double kPi = std::numbers::pi;
 

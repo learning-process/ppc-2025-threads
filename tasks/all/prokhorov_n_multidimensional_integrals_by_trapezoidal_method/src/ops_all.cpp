@@ -4,6 +4,7 @@
 
 #include <boost/mpi/collectives.hpp>
 #include <boost/mpi/communicator.hpp>
+#include <boost/mpi/operations.hpp>
 #include <cmath>
 #include <cstddef>
 #include <functional>
@@ -12,12 +13,22 @@
 namespace prokhorov_n_multidimensional_integrals_by_trapezoidal_method_all {
 
 bool TestTaskALL::PreProcessingImpl() {
+  if (!task_data || !task_data->inputs[0] || !task_data->inputs[1] || !task_data->inputs[2]) {
+    return false;
+  }
+
   auto* lower_ptr = reinterpret_cast<double*>(task_data->inputs[0]);
   auto* upper_ptr = reinterpret_cast<double*>(task_data->inputs[1]);
   auto* steps_ptr = reinterpret_cast<int*>(task_data->inputs[2]);
 
   dimensions_ = static_cast<int>(task_data->inputs_count[0] / sizeof(double));
   if (dimensions_ == 0) {
+    return false;
+  }
+
+  if (task_data->inputs_count[0] < dimensions_ * sizeof(double) ||
+      task_data->inputs_count[1] < dimensions_ * sizeof(double) ||
+      task_data->inputs_count[2] < dimensions_ * sizeof(int)) {
     return false;
   }
 
@@ -30,6 +41,10 @@ bool TestTaskALL::PreProcessingImpl() {
 }
 
 bool TestTaskALL::ValidationImpl() {
+  if (task_data->inputs_count[0] <= 0 || task_data->inputs_count[1] <= 0 || task_data->inputs_count[2] <= 0) {
+    return false;
+  }
+
   return (task_data->inputs_count[0] == task_data->inputs_count[1]) &&
          (task_data->inputs_count[0] / sizeof(double) == task_data->inputs_count[2] / sizeof(int));
 }
