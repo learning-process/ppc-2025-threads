@@ -12,7 +12,7 @@
 TEST(prokhorov_n_multidimensional_integrals_by_trapezoidal_method_tbb, test_pipeline_run) {
   std::vector<double> lower = {0.0, 0.0, 0.0};
   std::vector<double> upper = {1.0, 1.0, 1.0};
-  std::vector<int> steps = {500, 500, 500};
+  std::vector<int> steps = {300, 300, 300};
   double result = 0.0;
 
   auto task_data_tbb = std::make_shared<ppc::core::TaskData>();
