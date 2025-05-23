@@ -63,6 +63,7 @@ void deryabin_m_hoare_sort_simple_merge_mpi::HoaraSort(std::vector<double>& a, s
     tg.run([&a, &i, &last, &tg, &available_threads]() {
       HoaraSort(a, i + 1, last, tg, available_threads - (available_threads >> 1));
     });
+    tg.wait();
   } else {
     HoaraSort(a, first, j, tg, 1);
     HoaraSort(a, i + 1, last, tg, 1);
@@ -165,8 +166,31 @@ bool deryabin_m_hoare_sort_simple_merge_mpi::HoareSortTaskMPI::RunImpl() {
     HoaraSort(input_array_A_, static_cast<size_t>(world.rank()) * num_chunk_per_proc * min_chunk_size_, dimension_ - 1,
               tg, num_threads);
   }
-  tg.wait();
-
+  for (size_t i = 0; i < static_cast<size_t>(std::bit_width(chunk_count_) -
+                                             1);  // Вычисялем сколько уровней слияния потребуется как логарифм по
+                                                  // основанию 2 от числа частей chunk_count_
+       ++i) {  // На каждом уровне сливаются пары соседних блоков размером min_chunk_size_ × 2^i
+    size_t step = 1ULL << i;
+    if (((world.rank() + 1) % (2 * step)) == 0) {
+      unsigned short partner = (static_cast<size_t>(world.rank()) / step % 2 == 1)
+                                   ? static_cast<size_t>(world.rank()) - step
+                                   : static_cast<size_t>(world.rank()) + step;
+      size_t block_size = num_chunk_per_proc * min_chunk_size_ * step;
+      if ((static_cast<size_t>(world.rank()) / step) % 2 == 0) {
+        size_t start_idx = (static_cast<size_t>(world.rank()) - step + 1) * num_chunk_per_proc * min_chunk_size_;
+        world.send(partner, 0, &input_array_A_[start_idx], block_size);
+      } else {
+        size_t start_idx = (static_cast<size_t>(world.rank()) - 2 * step + 1) * num_chunk_per_proc * min_chunk_size_;
+        world.recv(partner, 0, &input_array_A_[start_idx], block_size);
+        if (world.rank() != world.size() - 1) {
+          MergeTwoParts(input_array_A_, start_idx, start_idx + 2 * block_size - 1, tg, num_threads);
+        } else {
+          MergeTwoParts(input_array_A_, start_idx, dimension_ - 1, tg, num_threads);
+        }
+      }
+    }
+    world.barrier();
+  }
   return true;
 }
 
