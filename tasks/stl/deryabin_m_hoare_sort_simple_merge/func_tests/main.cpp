@@ -75,7 +75,7 @@ TEST(deryabin_m_hoare_sort_simple_merge_stl, test_large_array) {
   std::vector<double> input_array(8000);
   std::ranges::generate(input_array.begin(), input_array.end(), [&] { return distribution(gen); });
   std::vector<std::vector<double>> in_array(1, input_array);
-  size_t chunk_count = 80;
+  size_t chunk_count = 64;
   std::vector<double> output_array(8000);
   std::vector<std::vector<double>> out_array(1, output_array);
   std::vector<double> true_solution(input_array);
