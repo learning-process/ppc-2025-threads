@@ -72,8 +72,17 @@ void burykin_m_radix_all::RadixALL::DistributeElements(const std::vector<int>& a
 
 bool burykin_m_radix_all::RadixALL::PreProcessingImpl() {
   const unsigned int input_size = task_data->inputs_count[0];
-  auto* in_ptr = reinterpret_cast<int*>(task_data->inputs[0]);
-  input_ = std::vector<int>(in_ptr, in_ptr + input_size);
+
+  if (world_.rank() == 0) {
+    auto* in_ptr = reinterpret_cast<int*>(task_data->inputs[0]);
+    input_ = std::vector<int>(in_ptr, in_ptr + input_size);
+  } else {
+    input_.resize(input_size);
+  }
+
+  if (world_.size() > 1) {
+    boost::mpi::broadcast(world_, input_, 0);
+  }
 
   output_.resize(input_size);
   return true;
