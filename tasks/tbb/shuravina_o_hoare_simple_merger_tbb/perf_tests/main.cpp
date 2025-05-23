@@ -15,7 +15,7 @@
 
 namespace {
 constexpr std::size_t kLargeSize = 1000000;
-constexpr std::size_t kMediumSize = 500000;
+constexpr std::size_t kMediumSize = 1000000;
 }  // namespace
 
 TEST(shuravina_o_hoare_simple_merger_tbb, perf_pipeline_run) {
