@@ -32,9 +32,13 @@ double ParallelTrapezoidalIntegration(const std::function<double(const std::vect
       tbb::blocked_range<int>(0, steps[current_dim] + 1), 0.0,
       [&](const tbb::blocked_range<int>& r, double local_sum) {
         for (int i = r.begin(); i != r.end(); ++i) {
-          point[current_dim] = lower[current_dim] + i * h;
+          auto local_point = point;
+          if (local_point.size() <= current_dim) {
+            local_point.resize(current_dim + 1);
+          }
+          local_point[current_dim] = lower[current_dim] + i * h;
           double weight = (i == 0 || i == steps[current_dim]) ? 0.5 : 1.0;
-          local_sum += weight * ParallelTrapezoidalIntegration(func, lower, upper, steps, current_dim + 1, point);
+          local_sum += weight * ParallelTrapezoidalIntegration(func, lower, upper, steps, current_dim + 1, local_point);
         }
         return local_sum;
       },
