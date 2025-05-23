@@ -12,7 +12,7 @@ namespace chizhov_m_trapezoid_method_all {
 using Function = std::function<double(const std::vector<double>&)>;
 
 double TrapezoidMethod(Function& f, size_t div, size_t dim, std::vector<double>& lower_limits,
-                       std::vector<double>& upper_limits, boost::mpi::communicator world);
+                       std::vector<double>& upper_limits, const boost::mpi::communicator& world);
 
 class TestTaskMPI : public ppc::core::Task {
  public:
@@ -22,7 +22,7 @@ class TestTaskMPI : public ppc::core::Task {
   bool ValidationImpl() override;
   bool RunImpl() override;
   bool PostProcessingImpl() override;
-  void SetFunc(const Function f);
+  void SetFunc(Function f);
 
  private:
   Function f_;
@@ -32,6 +32,6 @@ class TestTaskMPI : public ppc::core::Task {
   size_t dim_;
   double res_;
 
-  boost::mpi::communicator world;
+  boost::mpi::communicator world_;
 };
 }  // namespace chizhov_m_trapezoid_method_all

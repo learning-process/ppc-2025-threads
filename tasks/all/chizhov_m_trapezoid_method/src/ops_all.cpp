@@ -4,9 +4,9 @@
 #include <oneapi/tbb/task_arena.h>
 #include <tbb/tbb.h>
 
-#include <algorithm>
 #include <boost/mpi/collectives/broadcast.hpp>
 #include <boost/mpi/collectives/reduce.hpp>
+#include <boost/mpi/communicator.hpp>
 #include <boost/serialization/vector.hpp>
 #include <cmath>
 #include <core/util/include/util.hpp>
@@ -17,7 +17,7 @@
 double chizhov_m_trapezoid_method_all::TrapezoidMethod(Function& f, size_t div, size_t dim,
                                                        std::vector<double>& lower_limits,
                                                        std::vector<double>& upper_limits,
-                                                       boost::mpi::communicator world) {
+                                                       const boost::mpi::communicator& world) {
   int int_dim = static_cast<int>(dim);
   std::vector<double> h(int_dim);
   std::vector<int> steps(int_dim);
@@ -38,19 +38,10 @@ double chizhov_m_trapezoid_method_all::TrapezoidMethod(Function& f, size_t div, 
   long long base_count = total_nodes / size;
   long long remainder = total_nodes % size;
 
-  long long start;
-  if (rank < remainder) {
-    start = rank * (base_count + 1);
-  } else {
-    start = remainder * (base_count + 1) + (rank - remainder) * base_count;
-  }
+  long start =
+      (rank < remainder) ? rank * (base_count + 1) : remainder * (base_count + 1) + (rank - remainder) * base_count;
 
-  long long end;
-  if (rank < remainder) {
-    end = start + base_count + 1;
-  } else {
-    end = start + base_count;
-  }
+  long end = start + base_count + (rank < remainder ? 1 : 0);
 
   double local_result = 0.0;
 
@@ -101,7 +92,7 @@ double chizhov_m_trapezoid_method_all::TrapezoidMethod(Function& f, size_t div, 
 }
 
 bool chizhov_m_trapezoid_method_all::TestTaskMPI::PreProcessingImpl() {
-  if (world.rank() == 0) {
+  if (world_.rank() == 0) {
     int* divisions_ptr = reinterpret_cast<int*>(task_data->inputs[0]);
     div_ = *divisions_ptr;
 
@@ -115,17 +106,17 @@ bool chizhov_m_trapezoid_method_all::TestTaskMPI::PreProcessingImpl() {
     }
   }
 
-  boost::mpi::broadcast(world, div_, 0);
-  boost::mpi::broadcast(world, dim_, 0);
-  boost::mpi::broadcast(world, lower_limits_, 0);
-  boost::mpi::broadcast(world, upper_limits_, 0);
+  boost::mpi::broadcast(world_, div_, 0);
+  boost::mpi::broadcast(world_, dim_, 0);
+  boost::mpi::broadcast(world_, lower_limits_, 0);
+  boost::mpi::broadcast(world_, upper_limits_, 0);
 
   return true;
 }
 
 bool chizhov_m_trapezoid_method_all::TestTaskMPI::ValidationImpl() {
   bool valid = true;
-  if (world.rank() == 0) {
+  if (world_.rank() == 0) {
     auto* divisions_ptr = reinterpret_cast<int*>(task_data->inputs[0]);
     auto* dimension_ptr = reinterpret_cast<int*>(task_data->inputs[1]);
     if (*divisions_ptr <= 0 || *dimension_ptr <= 0) {
@@ -142,25 +133,25 @@ bool chizhov_m_trapezoid_method_all::TestTaskMPI::ValidationImpl() {
     }
   }
 
-  boost::mpi::broadcast(world, valid, 0);
+  boost::mpi::broadcast(world_, valid, 0);
   return valid;
 }
 
-void chizhov_m_trapezoid_method_all::TestTaskMPI::SetFunc(const Function f) { f_ = f; };
+void chizhov_m_trapezoid_method_all::TestTaskMPI::SetFunc(Function f) { f_ = f; };
 
 bool chizhov_m_trapezoid_method_all::TestTaskMPI::RunImpl() {
   if (!f_) {
-    if (world.rank() == 0) {
+    if (world_.rank() == 0) {
       std::cerr << "Function not set!" << std::endl;
     }
     return false;
   }
-  res_ = TrapezoidMethod(f_, div_, dim_, lower_limits_, upper_limits_, world);
+  res_ = TrapezoidMethod(f_, div_, dim_, lower_limits_, upper_limits_, world_);
   return true;
 }
 
 bool chizhov_m_trapezoid_method_all::TestTaskMPI::PostProcessingImpl() {
-  if (world.rank() == 0) {
+  if (world_.rank() == 0) {
     reinterpret_cast<double*>(task_data->outputs[0])[0] = res_;
   }
   return true;

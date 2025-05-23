@@ -13,12 +13,12 @@
 namespace {
 void RunTests(int div, int dimm, std::vector<double> &limits, std::function<double(const std::vector<double> &)> f,
               double expected_result) {
-  boost::mpi::communicator world;
+  boost::mpi::communicator world_;
   std::vector<double> res(1, 0);
 
   std::shared_ptr<ppc::core::TaskData> task_data_mpi = std::make_shared<ppc::core::TaskData>();
 
-  if (world.rank() == 0) {
+  if (world_.rank() == 0) {
     task_data_mpi->inputs.emplace_back(reinterpret_cast<uint8_t *>(&div));
     task_data_mpi->inputs_count.emplace_back(sizeof(div));
 
@@ -39,7 +39,7 @@ void RunTests(int div, int dimm, std::vector<double> &limits, std::function<doub
   test_task_mpi.PreProcessingImpl();
   test_task_mpi.RunImpl();
   test_task_mpi.PostProcessingImpl();
-  if (world.rank() == 0) {
+  if (world_.rank() == 0) {
     ASSERT_NEAR(res[0], expected_result, 0.1);
   }
 }
