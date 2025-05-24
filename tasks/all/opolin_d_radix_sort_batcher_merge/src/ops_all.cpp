@@ -1,15 +1,15 @@
 #include "all/opolin_d_radix_sort_batcher_merge/include/ops_all.hpp"
 
 #include <tbb/tbb.h>
+
 #include <algorithm>
+#include <boost/mpi.hpp>
+#include <boost/mpi/collectives.hpp>
 #include <cmath>
 #include <cstddef>
 #include <cstdint>
-#include <vector>
 #include <limits>
-
-#include <boost/mpi.hpp>
-#include <boost/mpi/collectives.hpp>
+#include <vector>
 
 #include "oneapi/tbb/blocked_range.h"
 #include "oneapi/tbb/enumerable_thread_specific.h"
