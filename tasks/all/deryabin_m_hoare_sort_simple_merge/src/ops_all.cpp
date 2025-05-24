@@ -71,23 +71,39 @@ void deryabin_m_hoare_sort_simple_merge_mpi::HoaraSort(std::vector<double>& a, s
   }
 }
 
-void deryabin_m_hoare_sort_simple_merge_mpi::MergeTwoParts(std::vector<double>& a, size_t first, size_t last,
-                                                           oneapi::tbb::task_group& tg, size_t available_threads) {
-  if (last - first <= 1) {
-    return;
-  }
-  const size_t size = last - first;
-  const size_t mid = first + size / 2;
-  if (available_threads > 1) {
-    tg.run([&a, &first, &mid, &tg, &available_threads]() { MergeTwoParts(a, first, mid, tg, available_threads / 2); });
-    tg.run([&a, &last, &mid, &tg, &available_threads]() {
-      MergeTwoParts(a, mid, last, tg, available_threads - available_threads / 2);
+void deryabin_m_hoare_sort_simple_merge_mpi::MergeTwoParts(
+    std::vector<double>& a,
+    size_t first,
+    size_t last,
+    oneapi::tbb::task_group& tg,
+    size_t available_threads) 
+{
+    if (last - first <= 1) return;
+  
+    const size_t mid = first + (last - first) / 2;
+  
+    auto first_ge = std::lower_bound(a.begin() + first, a.begin() + mid, a[mid]);
+    size_t left_split = first_ge - a.begin();
+  
+    auto last_le = std::upper_bound(a.begin() + mid, a.begin() + last, a[mid-1]);
+    size_t right_split = last_le - a.begin();
+  
+    std::rotate(a.begin() + left_split, a.begin() + mid, a.begin() + right_split);
+
+    //Параллельно сливаем оставшиеся части
+    size_t new_mid = left_split + (right_split - mid);
+    size_t threads_left = available_threads / 2;
+    size_t threads_right = available_threads - threads_left;
+
+    tg.run([&, first, left_split, new_mid, threads_left] {
+        MergeTwoParts(a, first, new_mid, tg, threads_left);
     });
+
+    tg.run([&, new_mid, right_split, last, threads_right] {
+        MergeTwoParts(a, new_mid, last, tg, threads_right);
+    });
+
     tg.wait();
-    std::inplace_merge(a.begin() + first, a.begin() + mid, a.begin() + last);
-  } else {
-    std::inplace_merge(a.begin() + first, a.begin() + mid, a.begin() + last);
-  }
 }
 
 bool deryabin_m_hoare_sort_simple_merge_mpi::HoareSortTaskSequential::PreProcessingImpl() {
