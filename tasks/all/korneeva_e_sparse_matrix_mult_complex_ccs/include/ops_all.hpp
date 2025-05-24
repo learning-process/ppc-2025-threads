@@ -41,6 +41,16 @@ class SparseMatrixMultComplexCCS : public ppc::core::Task {
   void ComputeColumn(int col_idx, std::vector<std::pair<Complex, int>>& column_data);
   Complex ComputeElement(int row_idx, int col_start2, int col_end2);
   Complex ComputeContribution(int row_idx, int k, int col_start1, int col_end1, int col_start2, int col_end2);
+  void ProcessColumnRange(int start_col, int end_col, std::vector<std::vector<std::pair<Complex, int>>>& column_results,
+                          const std::vector<int>& col_indices);
+  static void CollectLocalResults(const std::vector<std::vector<std::pair<Complex, int>>>& column_results,
+                                  int start_col, int end_col, std::vector<Complex>& local_values,
+                                  std::vector<int>& local_row_indices, std::vector<int>& local_col_offsets,
+                                  int& local_nnz);
+  void GatherGlobalResults(int rank, int size, int total_cols, int local_nnz, const std::vector<Complex>& local_values,
+                           const std::vector<int>& local_row_indices,
+                           const std::vector<std::vector<std::pair<Complex, int>>>& column_results, int start_col,
+                           int end_col);
 };
 
 }  // namespace korneeva_e_sparse_matrix_mult_complex_ccs_all
