@@ -37,30 +37,34 @@ bool opolin_d_radix_batcher_sort_all::RadixBatcherSortTaskAll::ValidationImpl() 
     }
     return task_data->inputs_count[0] == task_data->outputs_count[0];
   }
+  boost::mpi::broadcast(world_, size_, 0);
   return true;
 }
 
 bool opolin_d_radix_batcher_sort_all::RadixBatcherSortTaskAll::RunImpl() {
   int rank = world_.rank();
-  int size = world_.size();
+  int world_size = world_.size();
   std::vector<int> local_data;
-  std::vector<int> counts(size), displs(size);
+  std::vector<int> counts(world_size);
+  std::vector<int> displs(world_size);
   int local_size = 0;
   if (rank == 0) {
-    int chunk = size_ / size;
-    int remainder = size_ % size;
+    int chunk = size_ / world_size;
+    int remainder = size_ % world_size;
     int offset = 0;
-    for (int i = 0; i < size; ++i) {
+    for (int i = 0; i < world_size; ++i) {
       counts[i] = chunk + (i < remainder ? 1 : 0);
       displs[i] = offset;
       offset += counts[i];
     }
   }
-
   boost::mpi::scatter(world_, counts, local_size, 0);
   local_data.resize(local_size);
-  boost::mpi::scatterv<int>(world_, input_.data(), counts, displs, local_data.data(), 0);
-
+  if (rank == 0) {
+    boost::mpi::scatterv(world_, input_, counts, displs, local_data.data(), 0);
+  } else {
+    boost::mpi::scatterv(world_, local_data.data(), local_size, 0);
+  }
   std::vector<uint32_t> keys(local_size);
   tbb::parallel_for(tbb::blocked_range<size_t>(0, local_size), [&](auto& r) {
     for (size_t i = r.begin(); i < r.end(); ++i) {
@@ -76,21 +80,18 @@ bool opolin_d_radix_batcher_sort_all::RadixBatcherSortTaskAll::RunImpl() {
     }
   });
 
-  BatcherOddEvenMerge(local_data, 0, local_size);
+  if (local_size > 0) {
+    BatcherOddEvenMerge(local_data, 0, local_size);
+  }
   std::vector<int> gathered_data;
   if (rank == 0) {
     gathered_data.resize(size_);
   }
-
   boost::mpi::gatherv(world_, local_data.data(), local_size, gathered_data.data(), counts, displs, 0);
-
   if (rank == 0) {
     output_.swap(gathered_data);
-    for (int step = 1; step < size; step *= 2) {
-      for (int left = 0; left < size; left += 2 * step) {
-        int right = std::min(left + 2 * step, size_);
-        BatcherOddEvenMerge(output_, left, right);
-      }
+    if (size_ > 0) {
+      BatcherOddEvenMerge(output_, 0, size_);
     }
   }
   return true;
@@ -149,10 +150,17 @@ void opolin_d_radix_batcher_sort_all::BatcherOddEvenMerge(std::vector<int>& vec,
   int mid = (low + high) / 2;
   tbb::parallel_invoke([&] { BatcherOddEvenMerge(vec, low, mid); }, [&] { BatcherOddEvenMerge(vec, mid, high); });
 
-  tbb::parallel_for(tbb::blocked_range<int>(low, mid), [&](const auto& r) {
-    for (int i = r.begin(); i < r.end(); ++i)
-      if (vec[i] > vec[i + mid - low]) {
-        std::swap(vec[i], vec[i + mid - low]);
+  int first_half_len = mid - low;
+  int second_half_len = high - mid;
+  int common_len = std::min(first_half_len, second_half_len);
+
+  if (common_len > 0) {
+    tbb::parallel_for(tbb::blocked_range<int>(0, common_len), [&](const auto& r) {
+      for (int i_offset = r.begin(); i_offset < r.end(); ++i_offset) {
+        if (vec[low + i_offset] > vec[mid + i_offset]) {
+          std::swap(vec[low + i_offset], vec[mid + i_offset]);
+        }
       }
-  });
+    });
+  }
 }
