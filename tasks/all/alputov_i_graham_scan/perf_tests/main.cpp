@@ -77,7 +77,7 @@ struct TaskALLDeleter {
 
 }  // namespace
 
-TEST(alputov_i_graham_scan_all_perf, test_pipeline_run) {
+TEST(alputov_i_graham_scan_all, test_pipeline_run) {
   int rank{};
   MPI_Comm_rank(MPI_COMM_WORLD, &rank);
 
@@ -126,7 +126,7 @@ TEST(alputov_i_graham_scan_all_perf, test_pipeline_run) {
   }
 }
 
-TEST(alputov_i_graham_scan_all_perf, test_task_run) {
+TEST(alputov_i_graham_scan_all, test_task_run) {
   int rank{};
   MPI_Comm_rank(MPI_COMM_WORLD, &rank);
 
