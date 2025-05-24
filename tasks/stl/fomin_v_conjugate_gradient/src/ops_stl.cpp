@@ -7,68 +7,33 @@
 #include <thread>
 #include <vector>
 
-template <typename Func>
-void ParallelFor(size_t start, size_t end, Func func, size_t num_threads) {
-  std::vector<std::thread> threads;
-  size_t chunk_size = (end - start) / num_threads;
-
-  for (size_t i = 0; i < num_threads; ++i) {
-    size_t chunk_start = start + i * chunk_size;
-    size_t chunk_end = (i == num_threads - 1) ? end : chunk_start + chunk_size;
-    threads.emplace_back([=, &func]() {
-      for (size_t j = chunk_start; j < chunk_end; ++j) {
-        func(j);
-      }
-    });
-  }
-
-  for (auto& thread : threads) {
-    thread.join();
-  }
-}
-
 double fomin_v_conjugate_gradient::FominVConjugateGradientStl::DotProduct(const std::vector<double>& a,
                                                                           const std::vector<double>& b) {
-  const size_t size = a.size();
-  const size_t num_threads = std::min(static_cast<size_t>(std::thread::hardware_concurrency()), size);
-  std::vector<double> partial_sums(num_threads, 0.0);
-  std::vector<std::thread> threads;
-  threads.reserve(num_threads);
-
-  const size_t chunk_size = size / num_threads;
-
-  for (size_t t = 0; t < num_threads; ++t) {
-    const size_t start = t * chunk_size;
-    const size_t end = (t == num_threads - 1) ? size : start + chunk_size;
-    threads.emplace_back([&, start, end, t]() {
-      double sum = 0.0;
-      for (size_t i = start; i < end; ++i) {
-        sum += a[i] * b[i];
-      }
-      partial_sums[t] = sum;
-    });
-  }
-
-  for (auto& thread : threads) {
-    thread.join();
-  }
-
-  return std::accumulate(partial_sums.begin(), partial_sums.end(), 0.0);
+  return std::inner_product(a.begin(), a.end(), b.begin(), 0.0);
 }
 
 std::vector<double> fomin_v_conjugate_gradient::FominVConjugateGradientStl::MatrixVectorMultiply(
     const std::vector<double>& a, const std::vector<double>& x) const {
   std::vector<double> result(n, 0.0);
-  const size_t num_threads = std::thread::hardware_concurrency();
+  const int num_threads = std::thread::hardware_concurrency();
+  std::vector<std::thread> threads(num_threads);
 
-  ParallelFor(
-      0, n,
-      [&](size_t i) {
-        for (int j = 0; j < n; ++j) {
-          result[i] += a[(i * n) + j] * x[j];
-        }
-      },
-      num_threads);
+  auto worker = [&](int start, int end) {
+    for (int i = start; i < end; ++i) {
+      result[i] = std::inner_product(a.begin() + i * n, a.begin() + (i + 1) * n, x.begin(), 0.0);
+    }
+  };
+
+  const int chunk = n / num_threads;
+  for (int t = 0; t < num_threads; ++t) {
+    int start = t * chunk;
+    int end = (t == num_threads - 1) ? n : (t + 1) * chunk;
+    threads[t] = std::thread(worker, start, end);
+  }
+
+  for (auto& thread : threads) {
+    if (thread.joinable()) thread.join();
+  }
 
   return result;
 }
@@ -76,30 +41,22 @@ std::vector<double> fomin_v_conjugate_gradient::FominVConjugateGradientStl::Matr
 std::vector<double> fomin_v_conjugate_gradient::FominVConjugateGradientStl::VectorAdd(const std::vector<double>& a,
                                                                                       const std::vector<double>& b) {
   std::vector<double> result(a.size());
-  const size_t num_threads = std::thread::hardware_concurrency();
-
-  ParallelFor(0, a.size(), [&](size_t i) { result[i] = a[i] + b[i]; }, num_threads);
-
+  std::transform(std::execution::par_unseq, a.begin(), a.end(), b.begin(), result.begin(), std::plus<>());
   return result;
 }
 
 std::vector<double> fomin_v_conjugate_gradient::FominVConjugateGradientStl::VectorSub(const std::vector<double>& a,
                                                                                       const std::vector<double>& b) {
   std::vector<double> result(a.size());
-  const size_t num_threads = std::thread::hardware_concurrency();
-
-  ParallelFor(0, a.size(), [&](size_t i) { result[i] = a[i] - b[i]; }, num_threads);
-
+  std::transform(std::execution::par_unseq, a.begin(), a.end(), b.begin(), result.begin(), std::minus<>());
   return result;
 }
 
 std::vector<double> fomin_v_conjugate_gradient::FominVConjugateGradientStl::VectorScalarMultiply(
     const std::vector<double>& v, double scalar) {
   std::vector<double> result(v.size());
-  const size_t num_threads = std::thread::hardware_concurrency();
-
-  ParallelFor(0, v.size(), [&](size_t i) { result[i] = v[i] * scalar; }, num_threads);
-
+  std::transform(std::execution::par_unseq, v.begin(), v.end(), result.begin(),
+                 [scalar](double val) { return val * scalar; });
   return result;
 }
 
