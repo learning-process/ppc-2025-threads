@@ -150,16 +150,22 @@ bool IntegralsSimpsonAll::PreProcessingImpl() {
 bool IntegralsSimpsonAll::ValidationImpl() {
   int rank = 0;
   MPI_Comm_rank(MPI_COMM_WORLD, &rank);
+  int validation_status_root = 1;
 
   if (rank == 0) {
-    if (task_data->outputs.empty() || task_data->outputs[0] == nullptr) {
-      return false;
-    }
-    if (task_data->outputs_count.empty() || task_data->outputs_count[0] < sizeof(double)) {
-      return false;
+    if (task_data == nullptr) {
+        validation_status_root = 0;
+    } else if (task_data->outputs.empty() || task_data->outputs[0] == nullptr) {
+      validation_status_root = 0;
+    } else if (task_data->outputs_count.empty() || task_data->outputs_count[0] < sizeof(double)) {
+      validation_status_root = 0;
     }
   }
-  return true;
+
+  MPI_Bcast(&validation_status_root, 1, MPI_INT, 0, MPI_COMM_WORLD);
+
+  return (validation_status_root == 1);
+}rn true;
 }
 
 bool IntegralsSimpsonAll::RunImpl() {
