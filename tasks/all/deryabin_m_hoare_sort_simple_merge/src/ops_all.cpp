@@ -84,8 +84,8 @@ void deryabin_m_hoare_sort_simple_merge_mpi::MergeTwoParts(std::vector<double>& 
   size_t new_mid = left_split + (right_split - mid);
   size_t threads_left = available_threads / 2;
   size_t threads_right = available_threads - threads_left;
-  tg.run([&, first, left_split, new_mid, threads_left] { MergeTwoParts(a, first, new_mid, tg, threads_left); });
-  tg.run([&, new_mid, right_split, last, threads_right] { MergeTwoParts(a, new_mid, last, tg, threads_right); });
+  tg.run([&, first, new_mid, threads_left] { MergeTwoParts(a, first, new_mid, tg, threads_left); });
+  tg.run([&, new_mid, last, threads_right] { MergeTwoParts(a, new_mid, last, tg, threads_right); });
   tg.wait();
 }
 
