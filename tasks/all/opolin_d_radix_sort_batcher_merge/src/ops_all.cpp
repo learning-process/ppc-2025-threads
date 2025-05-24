@@ -93,9 +93,12 @@ bool opolin_d_radix_batcher_sort_all::RadixBatcherSortTaskAll::RunImpl() {
     boost::mpi::gatherv(world_, local_data.data(), local_size, 0);
   }
   if (rank == 0) {
-    output_.swap(gathered_data);
-    if (size_ > 0) {
-      BatcherOddEvenMerge(output_, 0, size_);
+    output_.swap(gathered);
+    int offset = counts[0];
+    for (int i = 1; i < world_size; ++i) {
+      int next = offset + counts[i];
+      std::inplace_merge(output_.begin(), output_.begin() + offset, output_.begin() + next);
+      offset = next;
     }
   }
   return true;
