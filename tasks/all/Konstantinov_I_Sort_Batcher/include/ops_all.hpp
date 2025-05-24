@@ -1,5 +1,6 @@
 #pragma once
 
+#include <boost/mpi.hpp>
 #include <cmath>
 #include <utility>
 #include <vector>
@@ -18,6 +19,9 @@ class RadixSortBatcherall : public ppc::core::Task {
   bool PostProcessingImpl() override;
 
  private:
-  std::vector<double> mas_, output_;
+  boost::mpi::communicator world_;
+  std::vector<double> mas_;
+  std::vector<double> output_;
 };
+
 }  // namespace konstantinov_i_sort_batcher_all
