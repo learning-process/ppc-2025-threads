@@ -3,12 +3,14 @@
 #include <tbb/tbb.h>
 
 #include <algorithm>
-#include <boost/mpi.hpp>
+#include <boost/mpi/broadcast.hpp>
 #include <boost/mpi/collectives.hpp>
+#include <boost/mpi/gatherv.hpp>
+#include <boost/mpi/scatter.hpp>
+#include <boost/mpi/scatterv.hpp>
 #include <cmath>
 #include <cstddef>
 #include <cstdint>
-#include <limits>
 #include <vector>
 
 #include "oneapi/tbb/blocked_range.h"
@@ -153,7 +155,9 @@ void opolin_d_radix_batcher_sort_all::RadixSort(std::vector<uint32_t>& uns_vec) 
 }
 
 void opolin_d_radix_batcher_sort_all::BatcherOddEvenMerge(std::vector<int>& vec, int low, int high) {
-  if (high - low <= 1) return;
+  if (high - low <= 1) {
+    return;
+  }
   int mid = (low + high) / 2;
   tbb::parallel_invoke([&] { BatcherOddEvenMerge(vec, low, mid); }, [&] { BatcherOddEvenMerge(vec, mid, high); });
 

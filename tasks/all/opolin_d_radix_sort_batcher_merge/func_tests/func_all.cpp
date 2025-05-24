@@ -1,5 +1,7 @@
 #include <gtest/gtest.h>
 
+#include <boost/mpi/communicator.hpp>
+
 #include <algorithm>
 #include <cstddef>
 #include <cstdint>
