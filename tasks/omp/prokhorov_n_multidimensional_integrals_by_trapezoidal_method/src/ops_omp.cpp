@@ -3,41 +3,50 @@
 #include <omp.h>
 
 #include <cmath>
-#include <cstddef>
 #include <functional>
-#include <utility>
 #include <vector>
 
-#include "core/task/include/task.hpp"
-
 namespace prokhorov_n_multidimensional_integrals_by_trapezoidal_method_omp {
-namespace {
 
-double ParallelTrapezoidalIntegration(const std::function<double(const std::vector<double>&)>& func,
-                                      const std::vector<double>& lower, const std::vector<double>& upper,
-                                      const std::vector<int>& steps, size_t current_dim, std::vector<double>& point) {
-  if (current_dim == lower.size()) {
-    return func(point);
+double ParallelIntegration(const std::function<double(const std::vector<double>&)>& func,
+                           const std::vector<double>& lower, const std::vector<double>& upper,
+                           const std::vector<int>& steps) {
+  int total_points = 1;
+  std::vector<double> h(steps.size());
+  for (size_t i = 0; i < steps.size(); ++i) {
+    h[i] = (upper[i] - lower[i]) / steps[i];
+    total_points *= (steps[i] + 1);
   }
 
-  double h = (upper[current_dim] - lower[current_dim]) / steps[current_dim];
   double sum = 0.0;
 
-  if (point.size() <= current_dim) {
-    point.resize(current_dim + 1);
+#pragma omp parallel for reduction(+ : sum) schedule(static)
+  for (int idx = 0; idx < total_points; ++idx) {
+    std::vector<double> point(steps.size());
+    int temp = idx;
+    double weight = 1.0;
+
+    for (int dim = steps.size() - 1; dim >= 0; --dim) {
+      int i = temp % (steps[dim] + 1);
+      temp /= (steps[dim] + 1);
+
+      point[dim] = lower[dim] + i * h[dim];
+
+      if (i == 0 || i == steps[dim]) {
+        weight *= 0.5;
+      }
+    }
+
+    sum += weight * func(point);
   }
 
-#pragma omp parallel for reduction(+ : sum)
-  for (int i = 0; i <= steps[current_dim]; ++i) {
-    point[current_dim] = lower[current_dim] + i * h;
-    double weight = (i == 0 || i == steps[current_dim]) ? 0.5 : 1.0;
-    sum += weight * ParallelTrapezoidalIntegration(func, lower, upper, steps, current_dim + 1, point);
+  double volume = 1.0;
+  for (size_t i = 0; i < steps.size(); ++i) {
+    volume *= h[i];
   }
 
-  return sum * h;
+  return sum * volume;
 }
-
-}  // namespace
 
 TestTaskOpenMP::TestTaskOpenMP(ppc::core::TaskDataPtr task_data) : Task(std::move(task_data)) {}
 
@@ -62,25 +71,14 @@ bool TestTaskOpenMP::ValidationImpl() {
 }
 
 bool TestTaskOpenMP::RunImpl() {
-  std::vector<double> point;
-
-#pragma omp parallel
-  {
-#pragma omp single
-    result_ = ParallelTrapezoidalIntegration(function_, lower_limits_, upper_limits_, steps_, 0, point);
-  }
-
+  result_ = ParallelIntegration(function_, lower_limits_, upper_limits_, steps_);
   return true;
 }
 
 bool TestTaskOpenMP::PostProcessingImpl() {
-  if (task_data->outputs.empty()) {
-    return false;
-  }
+  if (task_data->outputs.empty()) return false;
   auto* output_ptr = reinterpret_cast<double*>(task_data->outputs[0]);
-  if (output_ptr == nullptr) {
-    return false;
-  }
+  if (output_ptr == nullptr) return false;
   *output_ptr = result_;
   return true;
 }
