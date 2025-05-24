@@ -6,10 +6,9 @@
 #include <memory>
 #include <vector>
 
+#include "all/anufriev_d_integrals_simpson/include/ops_all.hpp"
 #include "core/perf/include/perf.hpp"
 #include "core/task/include/task.hpp"
-
-#include "all/anufriev_d_integrals_simpson/include/ops_all.hpp"
 
 TEST(anufriev_d_integrals_simpson_all, test_pipeline_run) {
   int rank = 0;
@@ -26,7 +25,6 @@ TEST(anufriev_d_integrals_simpson_all, test_pipeline_run) {
     task_data_all->outputs.push_back(reinterpret_cast<uint8_t*>(out.data()));
     task_data_all->outputs_count.push_back(static_cast<std::uint32_t>(out.size() * sizeof(double)));
   }
-
 
   auto task_all = std::make_shared<anufriev_d_integrals_simpson_all::IntegralsSimpsonAll>(task_data_all);
 
@@ -60,7 +58,7 @@ TEST(anufriev_d_integrals_simpson_all, test_task_run) {
   std::vector<double> out(1, 0.0);
 
   auto task_data_all = std::make_shared<ppc::core::TaskData>();
-   if (rank == 0) {
+  if (rank == 0) {
     task_data_all->inputs.push_back(reinterpret_cast<uint8_t*>(in.data()));
     task_data_all->inputs_count.push_back(static_cast<std::uint32_t>(in.size() * sizeof(double)));
     task_data_all->outputs.push_back(reinterpret_cast<uint8_t*>(out.data()));

@@ -1,5 +1,5 @@
 #include <gtest/gtest.h>
-#include <mpi.h> // Добавляем MPI
+#include <mpi.h>
 
 #include <cstdint>
 #include <limits>
@@ -7,23 +7,23 @@
 #include <numbers>
 #include <vector>
 
-#include "core/task/include/task.hpp"
 #include "all/anufriev_d_integrals_simpson/include/ops_all.hpp"
+#include "core/task/include/task.hpp"
 
 namespace {
-  const double kPi = std::numbers::pi;
+const double kPi = std::numbers::pi;
 
-  std::shared_ptr<ppc::core::TaskData> MakeTaskData(const std::vector<double>& elements,
-                                                    std::vector<double>& out_buffer) {
-    auto task_data = std::make_shared<ppc::core::TaskData>();
-    auto* input_ptr = reinterpret_cast<uint8_t*>(const_cast<double*>(elements.data()));
-    auto* output_ptr = reinterpret_cast<uint8_t*>(out_buffer.data());
-    task_data->inputs.push_back(input_ptr);
-    task_data->inputs_count.push_back(static_cast<uint32_t>(elements.size() * sizeof(double)));
-    task_data->outputs.push_back(output_ptr);
-    task_data->outputs_count.push_back(static_cast<uint32_t>(out_buffer.size() * sizeof(double)));
-    return task_data;
-  }
+std::shared_ptr<ppc::core::TaskData> MakeTaskData(const std::vector<double>& elements,
+                                                  std::vector<double>& out_buffer) {
+  auto task_data = std::make_shared<ppc::core::TaskData>();
+  auto* input_ptr = reinterpret_cast<uint8_t*>(const_cast<double*>(elements.data()));
+  auto* output_ptr = reinterpret_cast<uint8_t*>(out_buffer.data());
+  task_data->inputs.push_back(input_ptr);
+  task_data->inputs_count.push_back(static_cast<uint32_t>(elements.size() * sizeof(double)));
+  task_data->outputs.push_back(output_ptr);
+  task_data->outputs_count.push_back(static_cast<uint32_t>(out_buffer.size() * sizeof(double)));
+  return task_data;
+}
 }  // namespace
 
 TEST(anufriev_d_integrals_simpson_all, test_1D_sin) {
