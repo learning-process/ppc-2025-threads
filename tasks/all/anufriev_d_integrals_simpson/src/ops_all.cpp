@@ -1,5 +1,6 @@
 #include "all/anufriev_d_integrals_simpson/include/ops_all.hpp"
 
+#define OMPI_SKIP_MPICXX
 #include <mpi.h>
 #include <oneapi/tbb/blocked_range.h>
 #include <oneapi/tbb/parallel_reduce.h>
