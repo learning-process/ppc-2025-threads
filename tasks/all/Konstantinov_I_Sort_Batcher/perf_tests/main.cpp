@@ -15,54 +15,41 @@
 #include "core/perf/include/perf.hpp"
 #include "core/task/include/task.hpp"
 
-
 TEST(Konstantinov_I_Sort_Batcher_all, test_pipeline_run) {
   boost::mpi::environment env;
   boost::mpi::communicator world;
 
-  constexpr int kCount = 10;
-  std::vector<double> in, exp_out, out;
+  unsigned int seed = world.rank() == 0 ? std::random_device{}() : 0;
+  boost::mpi::broadcast(world, seed, 0);
+  std::mt19937 gen(seed);
+  std::uniform_real_distribution<double> dist(-1000.0, 1000.0);
+
+  const int kCount = 100000;
+  std::vector<double> in, exp_out;
 
   if (world.rank() == 0) {
     in.resize(kCount);
     exp_out.resize(kCount);
-    out.resize(kCount);
-
-    std::random_device rd;
-    std::mt19937 gen(rd());
-    std::uniform_real_distribution<double> dist(-10.0, 10.0);
-
-    for (size_t i = 0; i < kCount; i++) {
+    for (int i = 0; i < kCount; i++) {
       in[i] = dist(gen);
       exp_out[i] = in[i];
     }
-    std::ranges::sort(exp_out);
+    std::sort(exp_out.begin(), exp_out.end());
   }
 
-  size_t local_size = 0;
-  if (world.rank() == 0) {
-    local_size = kCount / world.size();
-  }
-  boost::mpi::broadcast(world, local_size, 0);
-
-  std::vector<double> local_in(local_size);
-  if (world.rank() == 0) {
-    std::vector<std::vector<double>> chunks;
-    for (int i = 0; i < world.size(); ++i) {
-      size_t start = i * local_size;
-      size_t end = (i == world.size() - 1) ? kCount : start + local_size;
-      chunks.emplace_back(in.begin() + start, in.begin() + end);
-    }
-    boost::mpi::scatter(world, chunks, local_in, 0);
-  } else {
-    boost::mpi::scatter(world, local_in, 0);
-  }
-  out.resize(local_size);
   auto task_data = std::make_shared<ppc::core::TaskData>();
-  task_data->inputs.emplace_back(reinterpret_cast<uint8_t*>(local_in.data()));
-  task_data->inputs_count.emplace_back(local_in.size());
-  task_data->outputs.emplace_back(reinterpret_cast<uint8_t*>(out.data()));
-  task_data->outputs_count.emplace_back(out.size());
+
+  if (world.rank() == 0) {
+    task_data->inputs.emplace_back(reinterpret_cast<uint8_t*>(in.data()));
+    task_data->inputs_count.emplace_back(in.size());
+    task_data->outputs.emplace_back(reinterpret_cast<uint8_t*>(in.data()));
+    task_data->outputs_count.emplace_back(in.size());
+  } else {
+    task_data->inputs.emplace_back(nullptr);
+    task_data->inputs_count.emplace_back(0);
+    task_data->outputs.emplace_back(nullptr);
+    task_data->outputs_count.emplace_back(0);
+  }
 
   auto test_task = std::make_shared<konstantinov_i_sort_batcher_all::RadixSortBatcherall>(task_data);
 
@@ -76,81 +63,59 @@ TEST(Konstantinov_I_Sort_Batcher_all, test_pipeline_run) {
   };
 
   auto perf_results = std::make_shared<ppc::core::PerfResults>();
-
   auto perf_analyzer = std::make_shared<ppc::core::Perf>(test_task);
-  perf_analyzer->PipelineRun(perf_attr, perf_results);
-  ppc::core::Perf::PrintPerfStatistic(perf_results);
 
-  std::vector<double> gathered_out;
   if (world.rank() == 0) {
-    gathered_out.resize(kCount);
-    std::vector<std::vector<double>> chunks_to_gather(world.size());
-    boost::mpi::gather(world, out, chunks_to_gather, 0);
-
-    size_t current_pos = 0;
-    for (const auto& chunk : chunks_to_gather) {
-      std::copy(chunk.begin(), chunk.end(), gathered_out.begin() + current_pos);
-      current_pos += chunk.size();
-    }
+    perf_analyzer->PipelineRun(perf_attr, perf_results);
+    ppc::core::Perf::PrintPerfStatistic(perf_results);
   } else {
-    boost::mpi::gather(world, out, 0);
+    test_task->Run();
   }
-  for (size_t i = 0; i < gathered_out.size(); ++i) {
-    std::cout << "Expected: " << exp_out[i] << ", Got: " << gathered_out[i] << "\n";
-  }
+
   if (world.rank() == 0) {
-    ASSERT_TRUE(std::equal(exp_out.begin(), exp_out.end(), gathered_out.begin(),
-                           [](double a, double b) { return std::abs(a - b) < 1e-9; }));
+    for (size_t i = 1; i < in.size(); ++i) {
+      ASSERT_LE(in[i - 1], in[i]) << "Vector not sorted at position " << i;
+    }
   }
+
+  world.barrier();
 }
 
 TEST(Konstantinov_I_Sort_Batcher_all, test_task_run) {
   boost::mpi::environment env;
   boost::mpi::communicator world;
 
-  constexpr int kCount = 10;
-  std::vector<double> in, exp_out, out;
+  unsigned int seed = world.rank() == 0 ? std::random_device{}() : 0;
+  boost::mpi::broadcast(world, seed, 0);
+  std::mt19937 gen(seed);
+  std::uniform_real_distribution<double> dist(-1000.0, 1000.0);
+
+  const int kCount = 100000;
+  std::vector<double> in, exp_out;
 
   if (world.rank() == 0) {
     in.resize(kCount);
     exp_out.resize(kCount);
-    out.resize(kCount);
-
-    std::random_device rd;
-    std::mt19937 gen(rd());
-    std::uniform_real_distribution<double> dist(-10.0, 10.0);
-
-    for (size_t i = 0; i < kCount; i++) {
+    for (int i = 0; i < kCount; i++) {
       in[i] = dist(gen);
       exp_out[i] = in[i];
     }
-    std::ranges::sort(exp_out);
+    std::sort(exp_out.begin(), exp_out.end());
   }
 
-  size_t local_size = 0;
-  if (world.rank() == 0) {
-    local_size = kCount / world.size();
-  }
-  boost::mpi::broadcast(world, local_size, 0);
-
-  std::vector<double> local_in(local_size);
-  if (world.rank() == 0) {
-    std::vector<std::vector<double>> chunks;
-    for (int i = 0; i < world.size(); ++i) {
-      size_t start = i * local_size;
-      size_t end = (i == world.size() - 1) ? kCount : start + local_size;
-      chunks.emplace_back(in.begin() + start, in.begin() + end);
-    }
-    boost::mpi::scatter(world, chunks, local_in, 0);
-  } else {
-    boost::mpi::scatter(world, local_in, 0);
-  }
-  out.resize(local_size);
   auto task_data = std::make_shared<ppc::core::TaskData>();
-  task_data->inputs.emplace_back(reinterpret_cast<uint8_t*>(local_in.data()));
-  task_data->inputs_count.emplace_back(local_in.size());
-  task_data->outputs.emplace_back(reinterpret_cast<uint8_t*>(out.data()));
-  task_data->outputs_count.emplace_back(out.size());
+
+  if (world.rank() == 0) {
+    task_data->inputs.emplace_back(reinterpret_cast<uint8_t*>(in.data()));
+    task_data->inputs_count.emplace_back(in.size());
+    task_data->outputs.emplace_back(reinterpret_cast<uint8_t*>(in.data()));  // In-place sort
+    task_data->outputs_count.emplace_back(in.size());
+  } else {
+    task_data->inputs.emplace_back(nullptr);
+    task_data->inputs_count.emplace_back(0);
+    task_data->outputs.emplace_back(nullptr);
+    task_data->outputs_count.emplace_back(0);
+  }
 
   auto test_task = std::make_shared<konstantinov_i_sort_batcher_all::RadixSortBatcherall>(task_data);
 
@@ -165,28 +130,19 @@ TEST(Konstantinov_I_Sort_Batcher_all, test_task_run) {
 
   auto perf_results = std::make_shared<ppc::core::PerfResults>();
   auto perf_analyzer = std::make_shared<ppc::core::Perf>(test_task);
-  perf_analyzer->TaskRun(perf_attr, perf_results);
-  ppc::core::Perf::PrintPerfStatistic(perf_results);
 
-  std::vector<double> gathered_out;
   if (world.rank() == 0) {
-    gathered_out.resize(kCount);
-    std::vector<std::vector<double>> chunks_to_gather(world.size());
-    boost::mpi::gather(world, out, chunks_to_gather, 0);
-
-    size_t current_pos = 0;
-    for (const auto& chunk : chunks_to_gather) {
-      std::copy(chunk.begin(), chunk.end(), gathered_out.begin() + current_pos);
-      current_pos += chunk.size();
-    }
+    perf_analyzer->TaskRun(perf_attr, perf_results);
+    ppc::core::Perf::PrintPerfStatistic(perf_results);
   } else {
-    boost::mpi::gather(world, out, 0);
+    test_task->Run();
   }
-  for (size_t i = 0; i < gathered_out.size(); ++i) {
-    std::cout << "Expected: " << exp_out[i] << ", Got: " << gathered_out[i] << "\n";
-  }
+
   if (world.rank() == 0) {
-    ASSERT_TRUE(std::equal(exp_out.begin(), exp_out.end(), gathered_out.begin(),
-                           [](double a, double b) { return std::abs(a - b) < 1e-9; }));
+    for (size_t i = 1; i < in.size(); ++i) {
+      ASSERT_LE(in[i - 1], in[i]) << "Vector not sorted at position " << i;
+    }
   }
+
+  world.barrier();
 }

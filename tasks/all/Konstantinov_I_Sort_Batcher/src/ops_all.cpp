@@ -19,6 +19,7 @@
 
 namespace konstantinov_i_sort_batcher_all {
 namespace {
+
 uint64_t DoubleToKey(double d) {
   uint64_t u = 0;
   std::memcpy(&u, &d, sizeof(d));
@@ -39,7 +40,6 @@ double KeyToDouble(uint64_t key) {
   std::memcpy(&d, &key, sizeof(d));
   return d;
 }
-
 void ParallelConvertToKeys(std::vector<double>& arr, std::vector<uint64_t>& keys, int thread_count) {
   size_t n = arr.size();
   size_t block_size = (n + thread_count - 1) / thread_count;
@@ -151,97 +151,90 @@ void BatcherOddEvenMerge(std::vector<double>& arr, int low, int high) {
   }
 }
 
-void ParallelRadixSortBoostMPI(std::vector<double>& local_arr, boost::mpi::communicator& comm) {
-  int rank = comm.rank();
-  int size = comm.size();
-
-  RadixSorted(local_arr);
-
-  std::vector<std::vector<double>> all_data;
-  boost::mpi::all_gather(comm, local_arr, all_data);
-
-  std::vector<double> combined_data;
-  combined_data.reserve(size * local_arr.size());
-
-  for (const auto& vec : all_data) {
-    combined_data.insert(combined_data.end(), vec.begin(), vec.end());
-  }
-
-  BatcherOddEvenMerge(combined_data, 0, static_cast<int>(combined_data.size()));
-
-  size_t start = 0;
-  for (int i = 0; i < rank; ++i) {
-    start += all_data[i].size();
-  }
-  local_arr.assign(combined_data.begin() + start, combined_data.begin() + start + local_arr.size());
+void RadixSort(std::vector<double>& arr) {
+  RadixSorted(arr);
+  BatcherOddEvenMerge(arr, 0, static_cast<int>(arr.size()));
 }
 }  // namespace
 }  // namespace konstantinov_i_sort_batcher_all
 
-bool konstantinov_i_sort_batcher_all::RadixSortBatcherall::ValidationImpl() {
-  boost::mpi::communicator world;
-
-  if (world.rank() == 0) {
-    bool is_valid = (task_data->inputs_count[0] == task_data->outputs_count[0]);
-
-    boost::mpi::broadcast(world, is_valid, 0);
-    return is_valid;
-  } else {
-    bool is_valid;
-    boost::mpi::broadcast(world, is_valid, 0);
-    return is_valid;
-  }
-}
-
 bool konstantinov_i_sort_batcher_all::RadixSortBatcherall::PreProcessingImpl() {
-  boost::mpi::communicator world;
+  world_ = mpi::communicator();
+  if (world_.rank() == 0) {
+    unsigned int input_size = task_data->inputs_count[0];
+    auto* in_ptr = reinterpret_cast<double*>(task_data->inputs[0]);
+    mas_ = std::vector<double>(in_ptr, in_ptr + input_size);
 
-  if (!ValidationImpl()) {
-    return false;
+    unsigned int output_size = task_data->outputs_count[0];
+    output_ = std::vector<double>(output_size, 0);
   }
-
-  unsigned int input_size = task_data->inputs_count[0];
-  auto* in_ptr = reinterpret_cast<double*>(task_data->inputs[0]);
-
-  unsigned int local_size = input_size / world.size();
-  unsigned int start = world.rank() * local_size;
-  if (world.rank() == world.size() - 1) {
-    local_size = input_size - start;
-  }
-
-  mas_ = std::vector<double>(in_ptr + start, in_ptr + start + local_size);
-  output_ = std::vector<double>(task_data->outputs_count[0], 0);
-
   return true;
 }
 
-bool konstantinov_i_sort_batcher_all::RadixSortBatcherall::RunImpl() {
-  boost::mpi::communicator world;
-  if (!ValidationImpl()) return false;
+bool konstantinov_i_sort_batcher_all::RadixSortBatcherall::ValidationImpl() {
+  if (world_.rank() == 0) {
+    bool valid = task_data->inputs_count[0] == task_data->outputs_count[0];
+    broadcast(world_, valid, 0);
+    return valid;
+  } else {
+    bool valid;
+    broadcast(world_, valid, 0);
+    return valid;
+  }
+}
 
-  output_ = mas_;
-  ParallelRadixSortBoostMPI(output_, world);
+bool konstantinov_i_sort_batcher_all::RadixSortBatcherall::RunImpl() {
+  if (world_.size() == 1) {
+    if (world_.rank() == 0) {
+      output_ = mas_;
+      konstantinov_i_sort_batcher_all::RadixSort(output_);
+    }
+    return true;
+  }
+  std::vector<double> local_data;
+  if (world_.rank() == 0) {
+    size_t total_size = mas_.size();
+    size_t chunk_size = total_size / world_.size();
+    size_t remainder = total_size % world_.size();
+
+    for (int proc = 0; proc < world_.size(); ++proc) {
+      size_t start = proc * chunk_size + std::min(proc, (int)remainder);
+      size_t end = start + chunk_size + (proc < remainder ? 1 : 0);
+
+      std::vector<double> chunk(mas_.begin() + start, mas_.begin() + end);
+      if (proc == 0) {
+        local_data = chunk;
+      } else {
+        world_.send(proc, 0, chunk);
+      }
+    }
+  } else {
+    world_.recv(0, 0, local_data);
+  }
+  konstantinov_i_sort_batcher_all::RadixSort(local_data);
+  if (world_.rank() == 0) {
+    output_.clear();
+    output_.reserve(mas_.size());
+    output_.insert(output_.end(), local_data.begin(), local_data.end());
+
+    for (int proc = 1; proc < world_.size(); ++proc) {
+      std::vector<double> proc_data;
+      world_.recv(proc, 0, proc_data);
+      output_.insert(output_.end(), proc_data.begin(), proc_data.end());
+    }
+    konstantinov_i_sort_batcher_all::BatcherOddEvenMerge(output_, 0, static_cast<int>(output_.size()));
+  } else {
+    world_.send(0, 0, local_data);
+  }
+
   return true;
 }
 
 bool konstantinov_i_sort_batcher_all::RadixSortBatcherall::PostProcessingImpl() {
-  boost::mpi::communicator world;
-
-  if (world.rank() == 0) {
-    std::vector<std::vector<double>> gathered_data;
-    boost::mpi::gather(world, output_, gathered_data, 0);
-
-    std::vector<double> combined;
-    for (const auto& vec : gathered_data) {
-      combined.insert(combined.end(), vec.begin(), vec.end());
+  if (world_.rank() == 0) {
+    for (size_t i = 0; i < output_.size(); i++) {
+      reinterpret_cast<double*>(task_data->outputs[0])[i] = output_[i];
     }
-
-    std::copy(combined.begin(), combined.end(), reinterpret_cast<double*>(task_data->outputs[0]));
-  } else {
-    boost::mpi::gather(world, output_, 0);
   }
-
-  boost::mpi::broadcast(world, reinterpret_cast<double*>(task_data->outputs[0]), task_data->outputs_count[0], 0);
-
   return true;
 }
