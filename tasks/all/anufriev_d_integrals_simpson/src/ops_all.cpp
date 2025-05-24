@@ -98,9 +98,8 @@ struct RunParameters {
   bool success = true;
 };
 
-RunParameters CalculateRunParameters(int p_dimension, const std::vector<int>& p_n,
-                                     const std::vector<double>& p_a, const std::vector<double>& p_b,
-                                     std::vector<double>& p_steps) {
+RunParameters CalculateRunParameters(int p_dimension, const std::vector<int>& p_n, const std::vector<double>& p_a,
+                                     const std::vector<double>& p_b, std::vector<double>& p_steps) {
   RunParameters params;
   if (p_dimension == 0) {
     params.total_points = 0;
@@ -136,7 +135,7 @@ struct MpiWorkDistribution {
 MpiWorkDistribution DistributeWorkAmongMpiRanks(size_t p_total_points, int p_rank, int p_world_size) {
   MpiWorkDistribution dist;
   if (p_total_points == 0 || p_world_size == 0) {
-    return dist; 
+    return dist;
   }
 
   size_t points_per_rank_base = p_total_points / static_cast<size_t>(p_world_size);
@@ -148,7 +147,7 @@ MpiWorkDistribution DistributeWorkAmongMpiRanks(size_t p_total_points, int p_ran
   } else {
     dist.num_points_for_this_rank = points_per_rank_base;
     dist.local_start_k = remainder_points * (points_per_rank_base + 1) + 
-                            (static_cast<size_t>(p_rank) - remainder_points) * points_per_rank_base;
+                         (static_cast<size_t>(p_rank) - remainder_points) * points_per_rank_base;
   }
   dist.local_end_k = dist.local_start_k + dist.num_points_for_this_rank;
 
