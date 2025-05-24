@@ -1,4 +1,5 @@
 #include <gtest/gtest.h>
+#define OMPI_SKIP_MPICXX
 #include <mpi.h>
 
 #include <cstdint>
