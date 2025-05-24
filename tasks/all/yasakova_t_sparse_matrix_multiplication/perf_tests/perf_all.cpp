@@ -5,8 +5,8 @@
 #include <cstdlib>
 #include <ctime>
 #include <memory>
+#include <omp.h>
 #include <vector>
-#include <omp.h>  // Добавлен заголовочный файл OpenMP
 
 #include "all/yasakova_t_sparse_matrix_multiplication/include/ops_all.hpp"
 #include "boost/mpi/communicator.hpp"

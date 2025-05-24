@@ -3,9 +3,9 @@
 #include <boost/mpi/collectives.hpp>
 #include <boost/mpi/communicator.hpp>
 #include <complex>
+#include <omp.h>
 #include <utility>
 #include <vector>
-#include <omp.h>
 
 #include "core/task/include/task.hpp"
 
