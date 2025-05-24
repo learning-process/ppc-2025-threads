@@ -86,15 +86,16 @@ bool vedernikova_k_gauss_tbb::Gauss::RunImpl() {
     SetPixel(GetPixel(0, 0, channels_ - 1), 0, 0, channels_ - 1);
     return true;
   }
-
-  tbb::parallel_for(tbb::blocked_range2d<int>(0, int(width_), 0, int(height_)),
-                    [&](const tbb::blocked_range2d<int>& r) {
-                      for (int j = r.cols().begin(); j < r.cols().end(); ++j) {
-                        for (int i = r.rows().begin(); i < r.rows().end(); ++i) {
-                          ComputePixel(i, j);
-                        }
-                      }
-                    });
+  oneapi::tbb::task_arena arena(ppc::util::GetPPCNumThreads());
+  arena.execute([&] {
+    oneapi::tbb::parallel_for(tbb::blocked_range<int>(0, int(height_)), [&](const tbb::blocked_range<int>&) {
+      for (int j = 0; j < (int)height_; ++j) {
+        for (int i = 0; i < (int)width_; ++i) {
+          ComputePixel(i, j);
+        }
+      }
+    });
+  });
 
   return true;
 }
