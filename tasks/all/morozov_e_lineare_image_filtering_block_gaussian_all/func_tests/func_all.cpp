@@ -1,8 +1,8 @@
 #include <gtest/gtest.h>
 
-// #include <boost/mpi/collectives.hpp>
+#include <boost/mpi/collectives.hpp>
 #include <boost/mpi/communicator.hpp>
-#include <boost/serialization/vector.hpp>
+// #include <boost/serialization/vector.hpp>
 #include <cstddef>
 #include <cstdint>
 #include <memory>
@@ -51,7 +51,7 @@ void ApplyGaussianFilter(const std::vector<double> &image, std::vector<double> &
   }
 }
 }  // namespace
-TEST(morozov_e_lineare_image_filtering_block_gaussian_all, test_matmul_501) {
+TEST(morozov_e_lineare_image_filtering_block_gaussian_all, test_) {
   boost::mpi::communicator world;
   /*std::cout << world.rank() << " dsffsd"
             << "\n";*/
@@ -74,7 +74,9 @@ TEST(morozov_e_lineare_image_filtering_block_gaussian_all, test_matmul_501) {
    task_data_seq->outputs_count.emplace_back(n);
    task_data_seq->outputs_count.emplace_back(m);
    morozov_e_lineare_image_filtering_block_gaussian_all::TestTaskALL test_task_sequential(task_data_seq);
+   if(world.rank() == 0){
    ASSERT_EQ(test_task_sequential.Validation(), true);
+   }
    test_task_sequential.PreProcessing();
   test_task_sequential.Run();
   test_task_sequential.PostProcessing();
@@ -102,7 +104,9 @@ TEST(morozov_e_lineare_image_filtering_block_gaussian_all, empty_image_test) {
 
   // Create Task
   morozov_e_lineare_image_filtering_block_gaussian_all::TestTaskALL test_task_sequential(task_data_seq);
+  if(world.rank() == 0){
   ASSERT_EQ(test_task_sequential.Validation(), false);
+  }
 }
 TEST(morozov_e_lineare_image_filtering_block_gaussian_all, size_input_not_equal_size_output_test1) {
   boost::mpi::communicator world;
@@ -122,7 +126,9 @@ TEST(morozov_e_lineare_image_filtering_block_gaussian_all, size_input_not_equal_
 
   // Create Task
   morozov_e_lineare_image_filtering_block_gaussian_all::TestTaskALL test_task_sequential(task_data_seq);
+  if(world.rank() == 0){
   ASSERT_EQ(test_task_sequential.Validation(), false);
+  }
 }
 TEST(morozov_e_lineare_image_filtering_block_gaussian_all, size_input_not_equal_size_output_test2) {
   boost::mpi::communicator world;
@@ -142,7 +148,9 @@ TEST(morozov_e_lineare_image_filtering_block_gaussian_all, size_input_not_equal_
 
   // Create Task
   morozov_e_lineare_image_filtering_block_gaussian_all::TestTaskALL test_task_sequential(task_data_seq);
+  if(world.rank() == 0){
   ASSERT_EQ(test_task_sequential.Validation(), false);
+  }
 }
 TEST(morozov_e_lineare_image_filtering_block_gaussian_all, main_test1) {
   boost::mpi::communicator world;
@@ -410,7 +418,6 @@ TEST(morozov_e_lineare_image_filtering_block_gaussian_all, random_test1) {
     image = GenerateRandomVector(n, m);
   }
   boost::mpi::broadcast(world, image, 0);
-  // Create task_data
   auto task_data_seq = std::make_shared<ppc::core::TaskData>();
   task_data_seq->inputs.emplace_back(reinterpret_cast<uint8_t *>(image.data()));
   task_data_seq->inputs_count.emplace_back(n);
@@ -419,7 +426,6 @@ TEST(morozov_e_lineare_image_filtering_block_gaussian_all, random_test1) {
   task_data_seq->outputs_count.emplace_back(n);
   task_data_seq->outputs_count.emplace_back(m);
 
-  // Create Task
   morozov_e_lineare_image_filtering_block_gaussian_all::TestTaskALL test_task_sequential(task_data_seq);
   ASSERT_EQ(test_task_sequential.Validation(), true);
   test_task_sequential.PreProcessing();

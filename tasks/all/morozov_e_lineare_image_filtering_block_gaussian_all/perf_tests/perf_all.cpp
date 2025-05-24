@@ -116,5 +116,7 @@ TEST(morozov_e_lineare_image_filtering_block_gaussian_all, test_task_run) {
     ppc::core::Perf::PrintPerfStatistic(perf_results);
   }
 
-  if (world.rank() == 0) ASSERT_EQ(image_res, real_res);
+  if (world.rank() == 0) {
+    ASSERT_EQ(image_res, real_res);
+  }
 }

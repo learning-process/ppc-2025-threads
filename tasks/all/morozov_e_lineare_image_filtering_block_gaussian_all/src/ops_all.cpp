@@ -2,33 +2,36 @@
 
 #include <boost/mpi/communicator.hpp>
 #include <cmath>
+#include <utility>
 #include <vector>
 namespace morozov_e_lineare_image_filtering_block_gaussian_all {
-std::pair<int, int> GetStartEndIndices(int countProc, int currRunkProc, int arraySize) {
-  int start, end;
-  int count = arraySize / countProc;
-  int rem = arraySize % countProc;
-  if (countProc < arraySize) {
-    if (countProc % arraySize == 0) {
-      start = currRunkProc * count;
+std::pair<int, int> GetStartEndIndices(int count_proc, int curr_runk_proc, int array_size) {
+  int start = 0;
+  int end = 0;
+  int count = array_size / count_proc;
+  int rem = array_size % count_proc;
+  if (count_proc < array_size) {
+    if (count_proc % array_size == 0) {
+      start = curr_runk_proc * count;
       end = start + count;
     } else {
-      if (currRunkProc < rem) {
-        start = (currRunkProc) * (count + 1);
+      if (curr_runk_proc < rem) {
+        start = (curr_runk_proc) * (count + 1);
         end = start + count + 1;
       } else {
-        start = rem * (count + 1) + (currRunkProc - rem) * (count);
+        start = rem * (count + 1) + (curr_runk_proc - rem) * (count);
         end = start + count;
       }
     }
   } else {
-    if (currRunkProc < arraySize) {
-      start = currRunkProc;
+    if (curr_runk_proc < array_size) {
+      start = curr_runk_proc;
       end = start + 1;
     }
   }
   return {start, end};
 }
+
 }  // namespace morozov_e_lineare_image_filtering_block_gaussian_all
 bool morozov_e_lineare_image_filtering_block_gaussian_all::TestTaskALL::PreProcessingImpl() {
   n_ = static_cast<int>(task_data->inputs_count[0]);
@@ -46,41 +49,41 @@ bool morozov_e_lineare_image_filtering_block_gaussian_all::TestTaskALL::Validati
   }
   return true;
 }
-
+inline double morozov_e_lineare_image_filtering_block_gaussian_all::TestTaskALL::ApplyGaussianFilter(
+    int i, int j) {
+  const std::vector<std::vector<double>> kernel = {
+      {1.0 / 16, 2.0 / 16, 1.0 / 16}, {2.0 / 16, 4.0 / 16, 2.0 / 16}, {1.0 / 16, 2.0 / 16, 1.0 / 16}};
+  double sum = 0.0;
+  for (int ki = -1; ki <= 1; ++ki) {
+    for (int kj = -1; kj <= 1; ++kj) {
+      sum += input_[((i + ki) * m_) + (j + kj)] * kernel[ki + 1][kj + 1];
+    }
+  }
+  return sum;
+}
 bool morozov_e_lineare_image_filtering_block_gaussian_all::TestTaskALL::RunImpl() {
   // clang-format off
-  const std::vector<std::vector<double>> kernel = {
-      {1.0 / 16, 2.0 / 16, 1.0 / 16},
-      {2.0 / 16, 4.0 / 16, 2.0 / 16},
-      {1.0 / 16, 2.0 / 16, 1.0 / 16}};
+
   // clang-format on
   // Алгоритм вычисления диапазона вычисления для каждого процесса
-  auto [start, end] =
+  auto start_end_pair =
       morozov_e_lineare_image_filtering_block_gaussian_all::GetStartEndIndices(world_.size(), world_.rank(), n_);
-
+  int start = start_end_pair.first;
+  int end = start_end_pair.second;
 #pragma omp parallel for
   for (int i = start; i < end; ++i) {
     for (int j = 0; j < m_; ++j) {
       if (i == 0 || j == 0 || i == n_ - 1 || j == m_ - 1) {
         res_[(i * m_) + j] = input_[(i * m_) + j];
       } else {
-        double sum = 0.0;
-        // Применяем ядро к текущему пикселю и его соседям
-        for (int ki = -1; ki <= 1; ++ki) {
-          for (int kj = -1; kj <= 1; ++kj) {
-            sum += input_[((i + ki) * m_) + (j + kj)] * kernel[ki + 1][kj + 1];
-          }
-        }
-        res_[(i * m_) + j] = sum;
+        res_[(i * m_) + j] = ApplyGaussianFilter(i, j);
       }
     }
   }
   if (world_.rank() == 0) {
-    // Процесс 0 собирает данные
     for (int p = 1; p < world_.size(); ++p) {
       int start_p = 0;
       int end_p = 0;
-      // Получаем диапазон от процесса p
       world_.recv(p, 0, &start_p, 1);
       world_.recv(p, 0, &end_p, 1);
       // Получаем все данные разом
@@ -94,10 +97,8 @@ bool morozov_e_lineare_image_filtering_block_gaussian_all::TestTaskALL::RunImpl(
       }
     }
   } else {
-    // Отправляем диапазон и данные
     world_.send(0, 0, &start, 1);
     world_.send(0, 0, &end, 1);
-    // Отправляем все данные разом
     std::vector<double> temp((end - start) * m_);
     for (int i = start; i < end; ++i) {
       for (int j = 0; j < m_; ++j) {
