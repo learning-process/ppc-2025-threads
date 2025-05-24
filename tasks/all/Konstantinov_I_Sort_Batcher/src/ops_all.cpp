@@ -191,18 +191,21 @@ bool konstantinov_i_sort_batcher_all::RadixSortBatcherall::RunImpl() {
     }
     return true;
   }
+
   std::vector<double> local_data;
   if (world_.rank() == 0) {
-    size_t total_size = mas_.size();
-    size_t chunk_size = total_size / world_.size();
-    size_t remainder = mas_.size() % world_.size();
+    const size_t total_size = mas_.size();
+    const size_t base_chunk_size = total_size / world_.size();
+    const size_t remainder = total_size % world_.size();
+
     for (int proc = 0; proc < world_.size(); ++proc) {
-      size_t start = proc * (mas_.size() / world_.size()) + std::min(static_cast<size_t>(proc), remainder);
-      size_t end = start + (mas_.size() / world_.size()) + (static_cast<size_t>(proc) < remainder ? 1 : 0);
+      const size_t chunk_size = base_chunk_size + (static_cast<size_t>(proc) < remainder ? 1 : 0);
+      const size_t start = proc * base_chunk_size + std::min(static_cast<size_t>(proc), remainder);
+      const size_t end = start + chunk_size;
 
       std::vector<double> chunk(mas_.begin() + start, mas_.begin() + end);
       if (proc == 0) {
-        local_data = chunk;
+        local_data = std::move(chunk);
       } else {
         world_.send(proc, 0, chunk);
       }
@@ -210,7 +213,9 @@ bool konstantinov_i_sort_batcher_all::RadixSortBatcherall::RunImpl() {
   } else {
     world_.recv(0, 0, local_data);
   }
+
   konstantinov_i_sort_batcher_all::RadixSort(local_data);
+
   if (world_.rank() == 0) {
     output_.clear();
     output_.reserve(mas_.size());
@@ -228,7 +233,6 @@ bool konstantinov_i_sort_batcher_all::RadixSortBatcherall::RunImpl() {
 
   return true;
 }
-
 bool konstantinov_i_sort_batcher_all::RadixSortBatcherall::PostProcessingImpl() {
   if (world_.rank() == 0) {
     for (size_t i = 0; i < output_.size(); i++) {
