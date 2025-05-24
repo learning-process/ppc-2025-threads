@@ -49,8 +49,7 @@ bool morozov_e_lineare_image_filtering_block_gaussian_all::TestTaskALL::Validati
   }
   return true;
 }
-inline double morozov_e_lineare_image_filtering_block_gaussian_all::TestTaskALL::ApplyGaussianFilter(
-    int i, int j) {
+inline double morozov_e_lineare_image_filtering_block_gaussian_all::TestTaskALL::ApplyGaussianFilter(int i, int j) {
   const std::vector<std::vector<double>> kernel = {
       {1.0 / 16, 2.0 / 16, 1.0 / 16}, {2.0 / 16, 4.0 / 16, 2.0 / 16}, {1.0 / 16, 2.0 / 16, 1.0 / 16}};
   double sum = 0.0;
