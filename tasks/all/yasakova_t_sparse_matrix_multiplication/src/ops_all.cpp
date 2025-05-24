@@ -153,7 +153,7 @@ yasakova_t_sparse_matrix_mult_all::SparseMatrixCRS yasakova_t_sparse_matrix_mult
 }
 
 void yasakova_t_sparse_matrix_mult_all::TestTaskALL::ProcessRowsRange(int start_row, int end_row, 
-                                                                    std::vector<CoordVal>& local_results) {
+                                                                      std::vector<CoordVal>& local_results) {
   for (int i = start_row; i < end_row; ++i) {
     for (int j_idx = A_.rowPtr[i]; j_idx < A_.rowPtr[i + 1]; ++j_idx) {
       int col_a = A_.colIndices[j_idx];
@@ -163,7 +163,7 @@ void yasakova_t_sparse_matrix_mult_all::TestTaskALL::ProcessRowsRange(int start_
         int col_b = B_.colIndices[k_idx];
         Complex value_b = B_.values[k_idx];
 
-        #pragma omp critical
+#pragma omp critical
         AddResult(local_results, i, col_b, value_a * value_b);
       }
     }
@@ -205,7 +205,7 @@ bool yasakova_t_sparse_matrix_mult_all::TestTaskALL::RunImpl() {
   int size = 0;
   MPI_Comm_rank(MPI_COMM_WORLD, &rank);
   MPI_Comm_size(MPI_COMM_WORLD, &size);
-  
+
   int a_num_rows = A_.numRows;
   int a_num_cols = A_.numCols;
   int b_num_rows = B_.numRows;
@@ -229,13 +229,13 @@ bool yasakova_t_sparse_matrix_mult_all::TestTaskALL::RunImpl() {
   int num_threads = ppc::util::GetPPCNumThreads();
   omp_set_num_threads(num_threads);
 
-  // Параллельная обработка с использованием OpenMP
-  #pragma omp parallel
+
+#pragma omp parallel
   {
     std::vector<CoordVal> thread_local_results;
     thread_local_results.reserve((end_row - start_row) * b_num_cols / num_threads);
-    
-    #pragma omp for schedule(static)
+
+#pragma omp for schedule(static)
     for (int i = start_row; i < end_row; ++i) {
       for (int j_idx = A_.rowPtr[i]; j_idx < A_.rowPtr[i + 1]; ++j_idx) {
         int col_a = A_.colIndices[j_idx];
@@ -249,8 +249,8 @@ bool yasakova_t_sparse_matrix_mult_all::TestTaskALL::RunImpl() {
         }
       }
     }
-    
-    #pragma omp critical
+
+#pragma omp critical
     local_results.insert(local_results.end(), thread_local_results.begin(), thread_local_results.end());
   }
 
@@ -282,13 +282,13 @@ bool yasakova_t_sparse_matrix_mult_all::TestTaskALL::RunImpl() {
     for (size_t i = 0; i < count_coords; ++i) {
       all_results.push_back(ptr[i]);
     }
-    
+
     yasakova_t_sparse_matrix_mult_all::SparseMatrixCRS c(a_num_rows, b_num_cols);
     c = BuildResultMatrix(all_results, a_num_rows, b_num_cols);
     output_ = ParseMatrixIntoVec(c);
   } else {
-    MPI_Gatherv(local_results.data(), static_cast<int>(local_results.size() * sizeof(CoordVal)), MPI_BYTE, 
-                nullptr, nullptr, nullptr, MPI_BYTE, 0, MPI_COMM_WORLD);
+    MPI_Gatherv(local_results.data(), static_cast<int>(local_results.size() * sizeof(CoordVal)), MPI_BYTE, nullptr,
+                nullptr, nullptr, MPI_BYTE, 0, MPI_COMM_WORLD);
   }
 
   return true;

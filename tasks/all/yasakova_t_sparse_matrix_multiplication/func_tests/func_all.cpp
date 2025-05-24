@@ -12,7 +12,7 @@
 TEST(yasakova_t_sparse_matrix_mult_all, test_matmul_only_real) {
   // Инициализация MPI
   boost::mpi::communicator world;
-  
+
   // Создание данных
   yasakova_t_sparse_matrix_mult_all::SparseMatrixCRS a(3, 3);
   yasakova_t_sparse_matrix_mult_all::SparseMatrixCRS b(3, 3);
@@ -58,10 +58,10 @@ TEST(yasakova_t_sparse_matrix_mult_all, test_matmul_only_real) {
   yasakova_t_sparse_matrix_mult_all::TestTaskALL test_task_all(task_data_all);
   ASSERT_EQ(test_task_all.Validation(), true);
   test_task_all.PreProcessing();
-  
+
   // Установка числа потоков OpenMP
   omp_set_num_threads(omp_get_max_threads());
-  
+
   test_task_all.Run();
   test_task_all.PostProcessing();
 

@@ -1,11 +1,11 @@
 #include <gtest/gtest.h>
+#include <omp.h>
 
 #include <chrono>
 #include <cstdint>
 #include <cstdlib>
 #include <ctime>
 #include <memory>
-#include <omp.h>
 #include <vector>
 
 #include "all/yasakova_t_sparse_matrix_multiplication/include/ops_all.hpp"
@@ -34,7 +34,7 @@ yasakova_t_sparse_matrix_mult_all::SparseMatrixCRS GenMatrix(
 TEST(yasakova_t_sparse_matrix_mult_task_all, test_pipeline_run) {
   boost::mpi::communicator world;
   srand(time(nullptr));
-  
+
   // Инициализация матриц
   yasakova_t_sparse_matrix_mult_all::SparseMatrixCRS a(400, 400);
   yasakova_t_sparse_matrix_mult_all::SparseMatrixCRS b(400, 400);
@@ -75,12 +75,12 @@ TEST(yasakova_t_sparse_matrix_mult_task_all, test_pipeline_run) {
 
   // Настройка OpenMP
   omp_set_num_threads(omp_get_max_threads());
-  
+
   // Запуск теста производительности
   auto perf_results = std::make_shared<ppc::core::PerfResults>();
   auto perf_analyzer = std::make_shared<ppc::core::Perf>(test_task_all);
   perf_analyzer->PipelineRun(perf_attr, perf_results);
-  
+
   // Вывод результатов только на нулевом процессе
   if (world.rank() == 0) {
     ppc::core::Perf::PrintPerfStatistic(perf_results);
@@ -92,7 +92,7 @@ TEST(yasakova_t_sparse_matrix_mult_task_all, test_pipeline_run) {
 TEST(yasakova_t_sparse_matrix_mult_task_all, test_task_run) {
   boost::mpi::communicator world;
   srand(time(nullptr));
-  
+
   // Инициализация матриц
   yasakova_t_sparse_matrix_mult_all::SparseMatrixCRS a(400, 400);
   yasakova_t_sparse_matrix_mult_all::SparseMatrixCRS b(400, 400);
@@ -103,7 +103,7 @@ TEST(yasakova_t_sparse_matrix_mult_task_all, test_task_run) {
 
   a = ::GenMatrix(400, 400, 0, 150, 0, 150, -100, 100);
   b = ::GenMatrix(400, 400, 50, 140, 50, 150, -100, 100);
-  
+
   // Подготовка входных данных
   in_a = yasakova_t_sparse_matrix_mult_all::ParseMatrixIntoVec(a);
   in_b = yasakova_t_sparse_matrix_mult_all::ParseMatrixIntoVec(b);
@@ -133,12 +133,12 @@ TEST(yasakova_t_sparse_matrix_mult_task_all, test_task_run) {
 
   // Настройка OpenMP
   omp_set_num_threads(omp_get_max_threads());
-  
+
   // Запуск теста производительности
   auto perf_results = std::make_shared<ppc::core::PerfResults>();
   auto perf_analyzer = std::make_shared<ppc::core::Perf>(test_task_all);
   perf_analyzer->TaskRun(perf_attr, perf_results);
-  
+
   // Вывод результатов только на нулевом процессе
   if (world.rank() == 0) {
     ppc::core::Perf::PrintPerfStatistic(perf_results);

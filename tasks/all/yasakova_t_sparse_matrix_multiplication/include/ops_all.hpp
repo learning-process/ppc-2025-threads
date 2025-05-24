@@ -1,9 +1,10 @@
 #pragma once
 
+#include <omp.h>
+
 #include <boost/mpi/collectives.hpp>
 #include <boost/mpi/communicator.hpp>
 #include <complex>
-#include <omp.h>
 #include <utility>
 #include <vector>
 
@@ -38,7 +39,7 @@ struct SparseMatrixCRS {
 std::vector<Complex> ParseMatrixIntoVec(const SparseMatrixCRS& mat);
 SparseMatrixCRS ParseVectorIntoMatrix(std::vector<Complex>& vec);
 SparseMatrixCRS BuildResultMatrix(const std::vector<yasakova_t_sparse_matrix_mult_all::CoordVal>& all_results,
-                                 int a_num_rows, int b_num_cols);
+                                  int a_num_rows, int b_num_cols);
 bool CheckMatrixesEquality(const SparseMatrixCRS& a, const SparseMatrixCRS& b);
 bool AreEqualElems(const Complex& a, const Complex& b, double epsilon);
 
