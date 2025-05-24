@@ -129,14 +129,9 @@ bool deryabin_m_hoare_sort_simple_merge_mpi::HoareSortTaskMPI::PreProcessingImpl
   if (world.rank() == 0) {
     input_array_A_ = reinterpret_cast<std::vector<double>*>(task_data->inputs[0])[0];
     dimension_ = task_data->inputs_count[0];
-    chunk_count_ = task_data->inputs_count[1];
-    if (chunk_count_ < static_cast<size_t>(world.size())) {
-      // Увеличиваем число кусочков до ближайшей степени двойки >= world.size(),
-      // чтобы эффективно загрузить все доступные процессы
-      chunk_count_ = 1ULL << std::bit_width(static_cast<size_t>(world.size()) - 1);
-    }
+    chunk_count_ = static_cast<size_t>(world.size());
     min_chunk_size_ = dimension_ / chunk_count_;
-    num_chunk_per_proc = chunk_count_ / static_cast<size_t>(world.size());
+    rest_ = dimension_ % chunk_count_;
   }
   boost::mpi::broadcast(world, dimension_, 0);
   if (world.rank() != 0) {
@@ -146,14 +141,13 @@ bool deryabin_m_hoare_sort_simple_merge_mpi::HoareSortTaskMPI::PreProcessingImpl
   boost::mpi::broadcast(world, input_array_A_.data(), dimension_, 0);
   boost::mpi::broadcast(world, chunk_count_, 0);
   boost::mpi::broadcast(world, min_chunk_size_, 0);
-  boost::mpi::broadcast(world, num_chunk_per_proc, 0);
+  boost::mpi::broadcast(world, rest_, 0);
   return true;
 }
 
 bool deryabin_m_hoare_sort_simple_merge_mpi::HoareSortTaskMPI::ValidationImpl() {
   if (world.rank() == 0) {
     return static_cast<unsigned short>(task_data->inputs_count[0]) > 2 &&
-           static_cast<unsigned short>(task_data->inputs_count[1]) >= 2 &&
            task_data->inputs_count[0] == task_data->outputs_count[0];
   }
   return true;
@@ -162,38 +156,25 @@ bool deryabin_m_hoare_sort_simple_merge_mpi::HoareSortTaskMPI::ValidationImpl() 
 bool deryabin_m_hoare_sort_simple_merge_mpi::HoareSortTaskMPI::RunImpl() {
   const size_t num_threads = ppc::util::GetPPCNumThreads();
   oneapi::tbb::task_group tg;
-  if (world.rank() != world.size() - 1) {
-    HoaraSort(input_array_A_, static_cast<size_t>(world.rank()) * num_chunk_per_proc * min_chunk_size_,
-              ((static_cast<size_t>(world.rank()) + 1) * num_chunk_per_proc * min_chunk_size_) - 1, tg, num_threads);
-  } else {
-    HoaraSort(input_array_A_, static_cast<size_t>(world.rank()) * num_chunk_per_proc * min_chunk_size_, dimension_ - 1,
-              tg, num_threads);
-  }
-  for (size_t i = 0; i < static_cast<size_t>(std::bit_width(chunk_count_) -
-                                             1);  // Вычисялем сколько уровней слияния потребуется как логарифм по
-                                                  // основанию 2 от числа частей chunk_count_
-       ++i) {  // На каждом уровне сливаются пары соседних блоков размером min_chunk_size_ × 2^i
-    size_t step = 1ULL << i;
-    if (((world.rank() + 1) % (2 * step)) == 0) {
-      unsigned short partner = (static_cast<size_t>(world.rank()) / step % 2 == 1)
-                                   ? static_cast<size_t>(world.rank()) - step
-                                   : static_cast<size_t>(world.rank()) + step;
-      size_t block_size = num_chunk_per_proc * min_chunk_size_ * step;
-      if ((static_cast<size_t>(world.rank()) / step) % 2 == 0) {
-        size_t start_idx = (static_cast<size_t>(world.rank()) - step + 1) * num_chunk_per_proc * min_chunk_size_;
-        world.send(partner, 0, &input_array_A_[start_idx], block_size);
-      } else {
-        size_t start_idx = (static_cast<size_t>(world.rank()) - 2 * step + 1) * num_chunk_per_proc * min_chunk_size_;
-        world.recv(partner, 0, &input_array_A_[start_idx], block_size);
-        if (world.rank() != world.size() - 1) {
-          MergeTwoParts(input_array_A_, start_idx, start_idx + 2 * block_size - 1, tg, num_threads);
-        } else {
-          MergeTwoParts(input_array_A_, start_idx, dimension_ - 1, tg, num_threads);
-        }
+  HoaraSort(input_array_A_, static_cast<size_t>(world.rank()) * min_chunk_size_ + world.rank() == 0 ? rest_ : 0,
+            (static_cast<size_t>(world.rank()) + 1) * min_chunk_size_ + rest_ - 1, tg, num_threads);
+  for (size_t i = 0; i < static_cast<size_t>(std::bit_width(chunk_count_ - 1)); ++i) {
+    unsigned short step = 1ULL << i;
+    size_t block_size = min_chunk_size_ * static_cast<size_t>(step);
+    if ((world.rank() + 1) % step == 0) {
+      if ((world.rank() + 1) / step % 2 == 0)
+      {
+        size_t start_idx = (static_cast<size_t>(world.rank() - step) + 1) * min_chunk_size_ + world.rank() == 0 ? rest_ : 0;
+        world.send(static_cast<size_t>(world.rank() + step), 0, &input_array_A_[start_idx], block_size);
+      }
+     if ((world.rank() + 1) / step % 2 != 0 || world.rank() == world.size() - 1) {
+        size_t start_idx = (static_cast<size_t>(world.rank() - 2 * step) + 1) * min_chunk_size_ + world.rank() - step == 0 ? rest_ : 0;
+        world.recv(static_cast<size_t>(world.rank() - step), 0, &input_array_A_[start_idx], block_size);
+        MergeTwoParts(input_array_A_, start_idx, start_idx + 2 * block_size - 1, tg, num_threads);
       }
     }
-    tg.wait();
   }
+  tg.wait();
   return true;
 }
 
