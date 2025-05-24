@@ -3,9 +3,12 @@
 #include <tbb/tbb.h>
 
 #include <algorithm>
+#include <boost/mpi/collectives/reduce.hpp>
 #include <cmath>
+#include <functional>
 #include <vector>
 
+#include "boost/mpi/collectives/broadcast.hpp"
 #include "oneapi/tbb/blocked_range.h"
 #include "oneapi/tbb/parallel_for.h"
 
@@ -46,7 +49,7 @@ bool zaytsev_d_sobel_all::TestTaskALL::ValidationImpl() {
   bool v = false;
 
   if (rank == 0) {
-    if (task_data->inputs.size() >= 2 && task_data->inputs_count.size() >= 2 && task_data->outputs_count.size() >= 1) {
+    if (task_data->inputs.size() >= 2 && task_data->inputs_count.size() >= 2 && !task_data->outputs_count.empty()) {
       auto* size_ptr = reinterpret_cast<int*>(task_data->inputs[1]);
       width_ = size_ptr[0];
       height_ = size_ptr[1];
@@ -61,8 +64,8 @@ bool zaytsev_d_sobel_all::TestTaskALL::ValidationImpl() {
 }
 
 bool zaytsev_d_sobel_all::TestTaskALL::RunImpl() {
-  static constexpr int gxkernel[3][3] = {{-1, 0, 1}, {-2, 0, 2}, {-1, 0, 1}};
-  static constexpr int gykernel[3][3] = {{-1, -2, -1}, {0, 0, 0}, {1, 2, 1}};
+  static constexpr int kGxkernel[3][3] = {{-1, 0, 1}, {-2, 0, 2}, {-1, 0, 1}};
+  static constexpr int kGykernel[3][3] = {{-1, -2, -1}, {0, 0, 0}, {1, 2, 1}};
 
   int rows = height_ - 2;
   int cols = width_ - 2;
@@ -72,22 +75,23 @@ bool zaytsev_d_sobel_all::TestTaskALL::RunImpl() {
 
   int chunk = total_pixels / size;
   int rem = total_pixels % size;
-  int startIdx = (rank * chunk) + std::min(rank, rem);
-  int endIdx = startIdx + chunk + (rank < rem);
-  endIdx = std::min(endIdx, total_pixels);
+  int start_idx = (rank * chunk) + std::min(rank, rem);
+  int end_idx = start_idx + chunk + static_cast<int>(rank < rem);
+  end_idx = std::min(end_idx, total_pixels);
 
-  tbb::parallel_for(tbb::blocked_range<int>(startIdx, endIdx), [&](const tbb::blocked_range<int>& r) {
+  tbb::parallel_for(tbb::blocked_range<int>(start_idx, end_idx), [&](const tbb::blocked_range<int>& r) {
     for (int idx = r.begin(); idx < r.end(); ++idx) {
       int i = 1 + (idx / cols);
       int j = 1 + (idx % cols);
 
-      int sumgx = 0, sumgy = 0;
+      int sumgx = 0;
+      int sumgy = 0;
       for (int di = -1; di <= 1; ++di) {
         for (int dj = -1; dj <= 1; ++dj) {
           int ni = i + di;
           int nj = j + dj;
-          sumgx += input_[(ni * width_) + nj] * gxkernel[di + 1][dj + 1];
-          sumgy += input_[(ni * width_) + nj] * gykernel[di + 1][dj + 1];
+          sumgx += input_[(ni * width_) + nj] * kGxkernel[di + 1][dj + 1];
+          sumgy += input_[(ni * width_) + nj] * kGykernel[di + 1][dj + 1];
         }
       }
 
@@ -98,10 +102,10 @@ bool zaytsev_d_sobel_all::TestTaskALL::RunImpl() {
 
   if (rank == 0) {
     std::vector<int> combined(output_.size());
-    boost::mpi::reduce(world_, output_, combined, std::plus<int>(), 0);
+    boost::mpi::reduce(world_, output_, combined, std::plus<>(), 0);
     output_.swap(combined);
   } else {
-    boost::mpi::reduce(world_, output_, std::plus<int>(), 0);
+    boost::mpi::reduce(world_, output_, std::plus<>(), 0);
   }
 
   return true;
