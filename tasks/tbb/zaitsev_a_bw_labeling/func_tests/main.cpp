@@ -3,7 +3,6 @@
 #include <cstdint>
 #include <map>
 #include <memory>
-
 #ifndef _WIN32
 #include <opencv2/opencv.hpp>
 #endif
@@ -15,7 +14,6 @@
 
 #include "core/task/include/task.hpp"
 #include "core/util/include/util.hpp"
-
 #ifndef _WIN32
 #include "opencv2/core.hpp"
 #include "opencv2/core/hal/interface.h"
