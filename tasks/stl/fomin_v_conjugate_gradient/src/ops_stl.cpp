@@ -7,6 +7,8 @@
 #include <thread>
 #include <vector>
 
+#include "core/util/include/util.hpp"
+
 double fomin_v_conjugate_gradient::FominVConjugateGradientStl::DotProduct(const std::vector<double>& a,
                                                                           const std::vector<double>& b) {
   return std::inner_product(a.begin(), a.end(), b.begin(), 0.0);
