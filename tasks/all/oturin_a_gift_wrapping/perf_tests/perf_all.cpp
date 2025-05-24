@@ -14,9 +14,10 @@
 #include "core/task/include/task.hpp"
 
 namespace {
+std::random_device dev;
+std::mt19937 rng(dev());
+
 oturin_a_gift_wrapping_all::Coord RandCoord(int r) {
-  std::random_device dev;
-  std::mt19937 rng(dev());
   std::uniform_int_distribution<int> dist(-r, r);
   return {.x = dist(rng), .y = dist(rng)};
 }

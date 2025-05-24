@@ -23,7 +23,7 @@ double oturin_a_gift_wrapping_all::ABTP(Coord a, Coord c) {
 double oturin_a_gift_wrapping_all::Distance(Coord a, Coord b) {
   int t1 = a.x - b.x;
   int t2 = a.y - b.y;
-  return sqrt((t1 * t1) + (t2 * t2));
+  return double((t1 * t1) + (t2 * t2));
 }
 
 bool oturin_a_gift_wrapping_all::TestTaskALL::PreProcessingImpl() {

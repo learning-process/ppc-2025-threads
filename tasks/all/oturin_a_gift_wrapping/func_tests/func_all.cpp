@@ -16,9 +16,10 @@
 namespace {
 using namespace oturin_a_gift_wrapping_all;
 
+std::random_device dev;
+std::mt19937 rng(dev());
+
 Coord RandCoord(int r) {
-  std::random_device dev;
-  std::mt19937 rng(dev());
   std::uniform_int_distribution<int> dist(-r, r);
   return {.x = dist(rng), .y = dist(rng)};
 }
