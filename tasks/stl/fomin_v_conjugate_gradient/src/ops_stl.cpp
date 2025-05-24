@@ -4,39 +4,63 @@
 #include <cmath>
 #include <cstddef>
 #include <functional>
-#include <numeric>
-#include <ranges>
 #include <thread>
 #include <vector>
 
+#include "core/util/include/util.hpp"
+
 double fomin_v_conjugate_gradient::FominVConjugateGradientStl::DotProduct(const std::vector<double>& a,
                                                                           const std::vector<double>& b) {
-  return std::inner_product(a.begin(), a.end(), b.begin(), 0.0);
+  const int num_threads = ppc::util::GetPPCNumThreads();
+  std::vector<std::thread> threads(num_threads);
+  std::vector<double> partial_results(num_threads, 0.0);
+
+  const size_t chunk_size = a.size() / num_threads;
+
+  for (int i = 0; i < num_threads; ++i) {
+    const size_t start = i * chunk_size;
+    const size_t end = (i == num_threads - 1) ? a.size() : start + chunk_size;
+    threads[i] = std::thread([&, start, end, i]() {
+      for (size_t j = start; j < end; ++j) {
+        partial_results[i] += a[j] * b[j];
+      }
+    });
+  }
+
+  for (auto& thread : threads) {
+    thread.join();
+  }
+
+  double result = 0.0;
+  for (const auto& val : partial_results) {
+    result += val;
+  }
+
+  return result;
 }
 
 std::vector<double> fomin_v_conjugate_gradient::FominVConjugateGradientStl::MatrixVectorMultiply(
     const std::vector<double>& a, const std::vector<double>& x) const {
   std::vector<double> result(n, 0.0);
-  const auto num_threads = static_cast<size_t>(std::thread::hardware_concurrency());
+  const int num_threads = ppc::util::GetPPCNumThreads();
   std::vector<std::thread> threads(num_threads);
 
-  auto worker = [&](int start, int end) {
-    for (int i = start; i < end; ++i) {
-      result[i] = std::inner_product(a.begin() + i * n, a.begin() + (i + 1) * n, x.begin(), 0.0);
-    }
-  };
+  const int chunk_size = n / num_threads;
 
-  const size_t chunk = static_cast<size_t>(n) / num_threads;
-  for (size_t t = 0; t < num_threads; ++t) {
-    size_t start = t * chunk;
-    size_t end = (t == num_threads - 1) ? static_cast<size_t>(n) : (t + 1) * chunk;
-    threads[t] = std::thread(worker, start, end);
+  for (int t = 0; t < num_threads; ++t) {
+    const int start = t * chunk_size;
+    const int end = (t == num_threads - 1) ? n : start + chunk_size;
+    threads[t] = std::thread([&, start, end]() {
+      for (int i = start; i < end; ++i) {
+        for (int j = 0; j < n; ++j) {
+          result[i] += a[i * n + j] * x[j];
+        }
+      }
+    });
   }
 
   for (auto& thread : threads) {
-    if (thread.joinable()) {
-      thread.join();
-    }
+    thread.join();
   }
 
   return result;
@@ -45,21 +69,75 @@ std::vector<double> fomin_v_conjugate_gradient::FominVConjugateGradientStl::Matr
 std::vector<double> fomin_v_conjugate_gradient::FominVConjugateGradientStl::VectorAdd(const std::vector<double>& a,
                                                                                       const std::vector<double>& b) {
   std::vector<double> result(a.size());
-  std::ranges::transform(a, b, result.begin(), std::plus<>());
+  const int num_threads = ppc::util::GetPPCNumThreads();
+  std::vector<std::thread> threads(num_threads);
+
+  const size_t chunk_size = a.size() / num_threads;
+
+  for (int t = 0; t < num_threads; ++t) {
+    const size_t start = t * chunk_size;
+    const size_t end = (t == num_threads - 1) ? a.size() : start + chunk_size;
+    threads[t] = std::thread([&, start, end]() {
+      for (size_t i = start; i < end; ++i) {
+        result[i] = a[i] + b[i];
+      }
+    });
+  }
+
+  for (auto& thread : threads) {
+    thread.join();
+  }
+
   return result;
 }
 
 std::vector<double> fomin_v_conjugate_gradient::FominVConjugateGradientStl::VectorSub(const std::vector<double>& a,
                                                                                       const std::vector<double>& b) {
   std::vector<double> result(a.size());
-  std::ranges::transform(a, b, result.begin(), std::minus<>());
+  const int num_threads = ppc::util::GetPPCNumThreads();
+  std::vector<std::thread> threads(num_threads);
+
+  const size_t chunk_size = a.size() / num_threads;
+
+  for (int t = 0; t < num_threads; ++t) {
+    const size_t start = t * chunk_size;
+    const size_t end = (t == num_threads - 1) ? a.size() : start + chunk_size;
+    threads[t] = std::thread([&, start, end]() {
+      for (size_t i = start; i < end; ++i) {
+        result[i] = a[i] - b[i];
+      }
+    });
+  }
+
+  for (auto& thread : threads) {
+    thread.join();
+  }
+
   return result;
 }
 
 std::vector<double> fomin_v_conjugate_gradient::FominVConjugateGradientStl::VectorScalarMultiply(
     const std::vector<double>& v, double scalar) {
   std::vector<double> result(v.size());
-  std::ranges::transform(v, result.begin(), [scalar](double val) { return val * scalar; });
+  const int num_threads = ppc::util::GetPPCNumThreads();
+  std::vector<std::thread> threads(num_threads);
+
+  const size_t chunk_size = v.size() / num_threads;
+
+  for (int t = 0; t < num_threads; ++t) {
+    const size_t start = t * chunk_size;
+    const size_t end = (t == num_threads - 1) ? v.size() : start + chunk_size;
+    threads[t] = std::thread([&, start, end]() {
+      for (size_t i = start; i < end; ++i) {
+        result[i] = v[i] * scalar;
+      }
+    });
+  }
+
+  for (auto& thread : threads) {
+    thread.join();
+  }
+
   return result;
 }
 
