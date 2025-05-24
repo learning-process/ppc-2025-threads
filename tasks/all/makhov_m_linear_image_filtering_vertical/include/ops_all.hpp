@@ -29,8 +29,6 @@ class TestTaskALL : public ppc::core::Task {
   std::uint32_t input_size;
   std::uint32_t height;
   std::uint32_t width;
-  int rank_;
-  int size_;
 };
 
 }  // namespace makhov_m_linear_image_filtering_vertical_all
