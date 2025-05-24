@@ -14,6 +14,7 @@ namespace opolin_d_radix_batcher_sort_all {
 uint32_t ConvertIntToUint(int num);
 int ConvertUintToInt(uint32_t unum);
 void RadixSort(std::vector<uint32_t>& uns_vec);
+void BatcherOddEvenMerge(std::vector<int>& vec, int low, int high);
 
 class RadixBatcherSortTaskAll : public ppc::core::Task {
  public:
@@ -29,6 +30,5 @@ class RadixBatcherSortTaskAll : public ppc::core::Task {
   std::vector<uint32_t> unsigned_data_;
   int size_;
   boost::mpi::communicator world_;
-  size_t global_original_size_;
 };
 }  // namespace opolin_d_radix_batcher_sort_all
