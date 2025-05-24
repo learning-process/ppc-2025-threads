@@ -1,131 +1,129 @@
 #include "all/volochaev_s_Shell_sort_with_Batchers_even-odd_merge/include/ops_all.hpp"
 
-#include <mpi.h>
-#include <stddef.h>
-
 #include <algorithm>
+#include <boost/mpi.hpp>
+#include <boost/mpi/collectives.hpp>
+#include <boost/mpi/communicator.hpp>
+#include <boost/serialization/vector.hpp>
 #include <cmath>
+#include <future>
+#include <limits>
+#include <ranges>
 #include <thread>
 #include <utility>
 #include <vector>
 
-bool volochaev_s_shell_sort_with_batchers_even_odd_merge_all::ShellSortALL::PreProcessingImpl() {
-  MPI_Init(nullptr, nullptr);
-  MPI_Comm_rank(MPI_COMM_WORLD, &rank_);
-  MPI_Comm_size(MPI_COMM_WORLD, &world_size_);
-
-  if (rank_ == 0) {
-    size_ = static_cast<int>(task_data->inputs_count[0]);
-    auto* input_pointer = reinterpret_cast<int*>(task_data->inputs[0]);
-    array_ = std::vector<int>(input_pointer, input_pointer + size_);
-  }
-
-  MPI_Bcast(&size_, 1, MPI_INT, 0, MPI_COMM_WORLD);
-  return true;
-}
-
 bool volochaev_s_shell_sort_with_batchers_even_odd_merge_all::ShellSortALL::ValidationImpl() {
-  if (rank_ == 0) {
+  if (world_.rank() == 0) {
     return task_data->inputs_count[0] > 0 && task_data->inputs_count[0] == task_data->outputs_count[0];
   }
+
   return true;
 }
 
-void volochaev_s_shell_sort_with_batchers_even_odd_merge_all::ShellSortALL::DistributeData() {
-  int local_size = size_ / world_size_;
-  int remainder = size_ % world_size_;
+bool volochaev_s_shell_sort_with_batchers_even_odd_merge_all::ShellSortALL::PreProcessingImpl() {
+  rank_ = world_.rank();
 
-  std::vector<int> counts(world_size_, local_size);
-  std::vector<int> displacements(world_size_, 0);
-
-  for (int i = 0; i < remainder; ++i) {
-    counts[i]++;
+  if (rank_ == 0) {
+    sizes.resize(world_.size(), 0);
+    auto* input_pointer = reinterpret_cast<int*>(task_data->inputs[0]);
+    size_ = static_cast<int>(task_data->inputs_count[0]);
+    sizes[0] = size_;
+    array_mpi_ = std::vector<int>(input_pointer, input_pointer + size_);
   }
 
-  for (int i = 1; i < world_size_; ++i) {
-    displacements[i] = displacements[i - 1] + counts[i - 1];
-  }
-
-  local_data_.resize(counts[rank_]);
-  MPI_Scatterv(array_.data(), counts.data(), displacements.data(), MPI_INT, local_data_.data(),
-               static_cast<int>(local_data_.size()), MPI_INT, 0, MPI_COMM_WORLD);
-}
-
-void volochaev_s_shell_sort_with_batchers_even_odd_merge_all::ShellSortALL::FindThreadVariables() {
-  unsigned int max_threads = std::thread::hardware_concurrency();
-  c_threads_ = static_cast<int>(std::pow(2, std::floor(std::log2(max_threads))));
-  n_local_ = static_cast<int>(local_data_.size());
-  mini_batch_ = n_local_ / c_threads_;
-
-  if (mini_batch_ == 0) {
-    mini_batch_ = n_local_;
-    c_threads_ = 1;
-  }
-
-  mass_.resize(n_local_);
-  std::ranges::copy(local_data_, mass_.begin());
+  return true;
 }
 
 void volochaev_s_shell_sort_with_batchers_even_odd_merge_all::ShellSortALL::ShellSort(int start) {
-  int n = mini_batch_;
-  int gap = 1;
+  int n = mini_batch_stl_;
 
+  int gap = 1;
   while (gap < n / 3) {
     gap = 3 * gap + 1;
   }
 
   while (gap >= 1) {
-    for (int i = start + gap; i < start + mini_batch_; ++i) {
-      int temp = mass_[i];
+    for (int i = start + gap; i < start + mini_batch_stl_; ++i) {
+      int temp = mass_stl_[i];
       int j = i;
-      while (j >= start + gap && mass_[j - gap] > temp) {
-        mass_[j] = mass_[j - gap];
+      while (j >= start + gap && mass_stl_[j - gap] > temp) {
+        mass_stl_[j] = mass_stl_[j - gap];
         j -= gap;
       }
-      mass_[j] = temp;
+      mass_stl_[j] = temp;
     }
     gap /= 3;
   }
 }
 
-void volochaev_s_shell_sort_with_batchers_even_odd_merge_all::ShellSortALL::MergeBlocks(int id_l, int id_r, int len) {
-  std::vector<int> temp(len * 2);
-  int i = 0;
-  int j = 0;
-  int k = 0;
+void volochaev_s_shell_sort_with_batchers_even_odd_merge_all::ShellSortALL::MergeBlocksSTL(int id_l, int id_r,
+                                                                                           int len) {
+  int left_id = 0;
+  int right_id = 0;
+  int merged_id = 0;
 
-  while (i < len && j < len) {
-    if (mass_[id_l + i] < mass_[id_r + j]) {
-      temp[k++] = mass_[id_l + i++];
+  while (left_id < len || right_id < len) {
+    if (left_id < len && right_id < len) {
+      if (mass_stl_[id_l + left_id] < mass_stl_[id_r + right_id]) {
+        array_stl_[id_l + merged_id] = mass_stl_[id_l + left_id];
+        left_id += 2;
+      } else {
+        array_stl_[id_l + merged_id] = mass_stl_[id_r + right_id];
+        right_id += 2;
+      }
+    } else if (left_id < len) {
+      array_stl_[id_l + merged_id] = mass_stl_[id_l + left_id];
+      left_id += 2;
     } else {
-      temp[k++] = mass_[id_r + j++];
+      array_stl_[id_l + merged_id] = mass_stl_[id_r + right_id];
+      right_id += 2;
     }
+    merged_id += 2;
   }
 
-  while (i < len) {
-    temp[k++] = mass_[id_l + i++];
+  for (int i = 0; i < merged_id; i += 2) {
+    mass_stl_[id_l + i] = array_stl_[id_l + i];
   }
-
-  while (j < len) {
-    temp[k++] = mass_[id_r + j++];
-  }
-
-  std::ranges::copy(temp, mass_.begin() + id_l);
 }
 
-void volochaev_s_shell_sort_with_batchers_even_odd_merge_all::ShellSortALL::MergeLocal() {
-  int current_threads = c_threads_;
+void volochaev_s_shell_sort_with_batchers_even_odd_merge_all::ShellSortALL::LastMergeSTL() {
+  int even_index = 0;
+  int odd_index = 1;
+  int result_index = 0;
+
+  while (even_index < n_stl_ || odd_index < n_) {
+    if (even_index < n_ && odd_index < n_) {
+      if (mass_stl_[even_index] < mass_stl_[odd_index]) {
+        array_stl_[result_index++] = mass_stl_[even_index];
+        even_index += 2;
+      } else {
+        array_stl_[result_index++] = mass_stl_[odd_index];
+        odd_index += 2;
+      }
+    } else if (even_index < n_) {
+      array_stl_[result_index++] = mass_stl_[even_index];
+      even_index += 2;
+    } else {
+      array_stl_[result_index++] = mass_stl_[odd_index];
+      odd_index += 2;
+    }
+  }
+}
+
+void volochaev_s_shell_sort_with_batchers_even_odd_merge_all::ShellSortALL::MergeSTL() {
+  int current_threads = c_threads_stl_;
 
   while (current_threads > 1) {
     std::vector<std::future<void>> futures;
-    int l = mini_batch_ * (c_threads_ / current_threads);
+    int l = mini_batch_stl_ * (c_threads_stl_ / current_threads);
 
     for (int i = 0; i < current_threads / 2; ++i) {
       futures.emplace_back(
-          std::async(std::launch::async, [this, i, l]() { MergeBlocks((i * 2 * l), (i * 2 * l) + l, l); }));
+          std::async(std::launch::async, [this, i, l]() { MergeBlocksSTL((i * 2 * l), (i * 2 * l) + l, l); }));
 
-      futures.emplace_back(
-          std::async(std::launch::async, [this, i, l]() { MergeBlocks((i * 2 * l) + 1, (i * 2 * l) + l + 1, l - 1); }));
+      futures.emplace_back(std::async(std::launch::async,
+                                      [this, i, l]() { MergeBlocksSTL((i * 2 * l) + 1, (i * 2 * l) + l + 1, l - 1); }));
     }
 
     for (auto& future : futures) {
@@ -135,93 +133,105 @@ void volochaev_s_shell_sort_with_batchers_even_odd_merge_all::ShellSortALL::Merg
     current_threads /= 2;
   }
 
-  std::ranges::copy(mass_, local_data_.begin());
+  LastMergeSTL();
 }
 
-void volochaev_s_shell_sort_with_batchers_even_odd_merge_all::ShellSortALL::ParallelShellSortLocal() {
-  FindThreadVariables();
+void volochaev_s_shell_sort_with_batchers_even_odd_merge_all::ShellSortALL::ParallelShellSort() {
+  FindThreadVariablesSTL();
 
   std::vector<std::future<void>> futures;
-  futures.reserve(c_threads_);
+  futures.reserve(c_threads_stl_);
 
-  for (int i = 0; i < c_threads_; ++i) {
-    futures.emplace_back(std::async(std::launch::async, [this, i]() { ShellSort(i * mini_batch_); }));
+  for (int i = 0; i < c_threads_stl_; ++i) {
+    futures.emplace_back(std::async(std::launch::async, [this, i]() { ShellSort(i * mini_batch_stl_); }));
   }
 
   for (auto& future : futures) {
     future.get();
   }
 
-  MergeLocal();
+  MergeSTL();
 }
 
-void volochaev_s_shell_sort_with_batchers_even_odd_merge_all::ShellSortALL::LastMerge() {
-  std::vector<int> temp(mass_.size());
-  size_t i = 0;
-  size_t j = 1;
-  size_t k = 0;
-  size_t n = mass_.size();
-
-  while (i < n && j < n) {
-    if (mass_[i] < mass_[j]) {
-      temp[k++] = mass_[i];
-      i += 2;
+std::vector<int> volochaev_s_shell_sort_with_batchers_even_odd_merge_all::ShellSortALL::Merge(std::vector<int>& v1,
+                                                                                              std::vector<int>& v2) {
+  size_t id1 = 0;
+  size_t id2 = 0;
+  std::vector<int> ans;
+  while (id1 < v1.size() && id2 < v2.size()) {
+    if (v1[id1] < v2[id2]) {
+      ans.push_back(v1[id1]);
+      ++id1;
     } else {
-      temp[k++] = mass_[j];
-      j += 2;
+      ans.push_back(v2[id2]);
+      ++id2;
     }
   }
 
-  while (i < n) {
-    temp[k++] = mass_[i];
-    i += 2;
-  }
-  while (j < n) {
-    temp[k++] = mass_[j];
-    j += 2;
+  while (id1 < v1.size()) {
+    ans.push_back(v1[id1]);
+    ++id1;
   }
 
-  mass_ = std::move(temp);
+  while (id2 < v2.size()) {
+    ans.push_back(v2[id2]);
+    ++id2;
+  }
+
+  return ans;
+}
+
+void volochaev_s_shell_sort_with_batchers_even_odd_merge_all::ShellSortALL::FindThreadVariablesSTL() {
+  auto max_threads =
+      std::min(static_cast<unsigned int>(ppc::util::GetPPCNumThreads()), std::thread::hardware_concurrency());
+  c_threads_stl_ = static_cast<int>(std::pow(2, std::floor(std::log2(max_threads))));
+  n_stl_ = mini_batch_mpi_ + (((2 * c_threads_stl_) - mini_batch_mpi_ % (2 * c_threads_stl_))) % (2 * c_threads_stl_);
+  mass_stl_.resize(n_stl_, std::numeric_limits<int>::max());
+  mini_batch_stl_ = n_stl_ / c_threads_stl_;
+  std::ranges::copy(array_stl_ | std::views::take(mini_batch_stl_), mass_stl_.begin());
+  array_stl_.resize(n_stl_);
+}
+
+void volochaev_s_shell_sort_with_batchers_even_odd_merge_all::ShellSortALL::DistributeData() {
+  if (rank_ == 0) {
+    c_threads_mpi_ = static_cast<int>(std::pow(2, std::floor(std::log2(world_size_))));
+    n_mpi_ = size_ + (((2 * c_threads_mpi_) - size_ % (2 * c_threads_mpi_))) % (2 * c_threads_mpi_);
+    mass_mpi_.resize(n_mpi_, std::numeric_limits<int>::max());
+    mini_batch_mpi_ = n_mpi_ / c_threads_mpi_;
+    std::ranges::copy(array_mpi_ | std::views::take(mini_batch_mpi_), mass_mpi_.begin());
+    array_mpi_.resize(n_mpi_);
+  }
+
+  broadcast(world_, sizes, 0);
+
+  array_stl_.resize(sizes[world_.rank()]);
+  scatterv(world_, mass_mpi_.data(), sizes, array_stl_.data(), 0);
 }
 
 void volochaev_s_shell_sort_with_batchers_even_odd_merge_all::ShellSortALL::GatherAndMerge() {
-  std::vector<int> all_sizes(world_size_);
-  int local_size = static_cast<int>(local_data_.size());
-  MPI_Allgather(&local_size, 1, MPI_INT, all_sizes.data(), 1, MPI_INT, MPI_COMM_WORLD);
+  if (world_.rank() == 0) {
+    array_mpi_ = array_stl_;
+    std::vector<int> data;
 
-  std::vector<int> displacements(world_size_, 0);
-  for (int i = 1; i < world_size_; ++i) {
-    displacements[i] = displacements[i - 1] + all_sizes[i - 1];
-  }
-
-  if (rank_ == 0) {
-    array_.resize(size_);
-  }
-
-  MPI_Gatherv(local_data_.data(), local_size, MPI_INT, array_.data(), all_sizes.data(), displacements.data(), MPI_INT,
-              0, MPI_COMM_WORLD);
-
-  if (rank_ == 0) {
-    n_ = size_;
-    mass_ = array_;
-    LastMerge();
-    array_ = mass_;
+    for (int i = 1; i < world_size_; ++i) {
+      world_.recv(i, 0, data);
+      array_mpi_ = Merge(array_mpi_, data);
+    }
+  } else {
+    world_.send(0, 0, array_stl_);
   }
 }
 
 bool volochaev_s_shell_sort_with_batchers_even_odd_merge_all::ShellSortALL::RunImpl() {
   DistributeData();
-  ParallelShellSortLocal();
+  ParallelShellSort();
   GatherAndMerge();
   return true;
 }
 
 bool volochaev_s_shell_sort_with_batchers_even_odd_merge_all::ShellSortALL::PostProcessingImpl() {
-  if (rank_ == 0) {
-    int* ptr_ans = reinterpret_cast<int*>(task_data->outputs[0]);
-    std::ranges::copy(array_ | std::views::take(size_), ptr_ans);
-  }
+  int* ptr_ans = reinterpret_cast<int*>(task_data->outputs[0]);
 
-  MPI_Finalize();
+  std::ranges::copy(array_mpi_ | std::views::take(size_), ptr_ans);
   return true;
 }

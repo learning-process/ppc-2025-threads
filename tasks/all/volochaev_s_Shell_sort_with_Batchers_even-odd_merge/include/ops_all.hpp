@@ -1,5 +1,7 @@
 #pragma once
 
+#include <boost/mpi/collectives.hpp>
+#include <boost/mpi/communicator.hpp>
 #include <utility>
 #include <vector>
 
@@ -16,28 +18,37 @@ class ShellSortALL : public ppc::core::Task {
   bool PostProcessingImpl() override;
 
  private:
+  boost::mpi::communicator world_;
   int rank_{0};
   int world_size_{1};
-  std::vector<int> local_data_;
 
-  int c_threads_{1};
-  int mini_batch_{0};
+  std::vector<int> array_stl_;
+  std::vector<int> mass_stl_;
+  int n_stl_;
+  int n_mpi_;
+  int c_threads_stl_{1};
+  int c_threads_mpi_{1};
+
+  int mini_batch_stl_{0};
+  int mini_batch_mpi_{0};
+
   int size_{0};
-  int n_{0};
   int n_local_{0};
 
-  std::vector<int> array_;
-  std::vector<int> mass_;
+  std::vector<int> sizes;
+  std::vector<int> array_mpi_;
+  std::vector<int> mass_mpi_;
 
   void DistributeData();
   void GatherAndMerge();
 
-  void ParallelShellSortLocal();
+  std::vector<int> Merge(std::vector<int>& v1, std::vector<int>& v2);
+  void ParallelShellSort();
   void ShellSort(int start);
-  void MergeLocal();
-  void MergeBlocks(int id_l, int id_r, int len);
-  void LastMerge();
-  void FindThreadVariables();
+  void MergeBlocksSTL(int id_l, int id_r, int len);
+  void MergeSTL();
+  void LastMergeSTL();
+  void FindThreadVariablesSTL();
 };
 
 }  // namespace volochaev_s_shell_sort_with_batchers_even_odd_merge_all

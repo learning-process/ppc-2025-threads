@@ -1,6 +1,8 @@
 #include <gtest/gtest.h>
 
 #include <algorithm>
+#include <boost/mpi/communicator.hpp>
+#include <boost/mpi/environment.hpp>
 #include <cstddef>
 #include <cstdint>
 #include <memory>
@@ -29,19 +31,23 @@ void GetRandomVector(std::vector<int> &v, int a, int b) {
 }  // namespace
 
 TEST(volochaev_s_Shell_sort_with_Batchers_even_odd_merge_all, test_error_in_val) {
+  boost::mpi::communicator world;
+  std::vector<int> in;
+  std::vector<int> out;
+  std::vector<int> answer;
   constexpr size_t kSizeOfVector = 0;
-
-  // Create data
-  std::vector<int> in(kSizeOfVector, 0);
-  std::vector<int> out(kSizeOfVector, 0);
-
-  // Create task_data
   auto task_data_seq = std::make_shared<ppc::core::TaskData>();
-  task_data_seq->inputs.emplace_back(reinterpret_cast<uint8_t *>(in.data()));
-  task_data_seq->inputs_count.emplace_back(in.size());
-  task_data_seq->outputs.emplace_back(reinterpret_cast<uint8_t *>(out.data()));
-  task_data_seq->outputs_count.emplace_back(out.size());
+  // Create data
+  if (world.rank() == 0) {
+    in.resize(kSizeOfVector, 0);
+    out.resize(kSizeOfVector, 0);
 
+    // Create task_data
+    task_data_seq->inputs.emplace_back(reinterpret_cast<uint8_t *>(in.data()));
+    task_data_seq->inputs_count.emplace_back(in.size());
+    task_data_seq->outputs.emplace_back(reinterpret_cast<uint8_t *>(out.data()));
+    task_data_seq->outputs_count.emplace_back(out.size());
+  }
   // Create Task
   volochaev_s_shell_sort_with_batchers_even_odd_merge_all::ShellSortALL test_task_sequential(task_data_seq);
   ASSERT_EQ(test_task_sequential.Validation(), false);
@@ -49,27 +55,38 @@ TEST(volochaev_s_Shell_sort_with_Batchers_even_odd_merge_all, test_error_in_val)
 
 TEST(volochaev_s_shell_sort_with_batchers_even_odd_merge_all, test_error_in_generate) {
   constexpr size_t kSizeOfVector = 100;
+  boost::mpi::communicator world;
+  std::vector<int> in;
+  std::vector<int> out;
+  std::vector<int> answer;
 
   // Create data
-  std::vector<int> in(kSizeOfVector, 0);
-  ASSERT_ANY_THROW(GetRandomVector(in, 1000, -1000));
+  if (world.rank() == 0) {
+    in.resize(kSizeOfVector, 0);
+    ASSERT_ANY_THROW(GetRandomVector(in, 1000, -1000));
+  }
 }
 
 TEST(volochaev_s_Shell_sort_with_Batchers_even_odd_merge_all, test_with_small_vector) {
   constexpr size_t kSizeOfVector = 100;
-
-  // Create data
-  std::vector<int> in(kSizeOfVector, 0);
-  GetRandomVector(in, -100, 100);
-  std::vector<int> out(kSizeOfVector, 0);
-  std::vector<int> answer(in);
-  std::ranges::sort(answer);
-  // Create task_data
+  boost::mpi::communicator world;
+  std::vector<int> in;
+  std::vector<int> out;
+  std::vector<int> answer;
   auto task_data_seq = std::make_shared<ppc::core::TaskData>();
-  task_data_seq->inputs.emplace_back(reinterpret_cast<uint8_t *>(in.data()));
-  task_data_seq->inputs_count.emplace_back(in.size());
-  task_data_seq->outputs.emplace_back(reinterpret_cast<uint8_t *>(out.data()));
-  task_data_seq->outputs_count.emplace_back(out.size());
+  if (world.rank() == 0) {
+    // Create data
+    in.resize(kSizeOfVector, 0);
+    GetRandomVector(in, -100, 100);
+    out.resize(kSizeOfVector, 0);
+    std::vector<int> answer(in);
+    std::ranges::sort(answer);
+    // Create task_data
+    task_data_seq->inputs.emplace_back(reinterpret_cast<uint8_t *>(in.data()));
+    task_data_seq->inputs_count.emplace_back(in.size());
+    task_data_seq->outputs.emplace_back(reinterpret_cast<uint8_t *>(out.data()));
+    task_data_seq->outputs_count.emplace_back(out.size());
+  }
 
   // Create Task
   volochaev_s_shell_sort_with_batchers_even_odd_merge_all::ShellSortALL test_task_sequential(task_data_seq);
@@ -82,21 +99,26 @@ TEST(volochaev_s_Shell_sort_with_Batchers_even_odd_merge_all, test_with_small_ve
 
 TEST(volochaev_s_Shell_sort_with_Batchers_even_odd_merge_all, test_with_small_vector2) {
   constexpr size_t kSizeOfVector = 200;
-
-  // Create data
-  std::vector<int> in(kSizeOfVector, 0);
-  GetRandomVector(in, -100, 100);
-  std::vector<int> out(kSizeOfVector, 0);
-  std::vector<int> answer(in);
-  std::ranges::sort(answer);
-
-  // Create task_data
+  boost::mpi::communicator world;
+  std::vector<int> in;
+  std::vector<int> out;
+  std::vector<int> answer;
   auto task_data_seq = std::make_shared<ppc::core::TaskData>();
-  task_data_seq->inputs.emplace_back(reinterpret_cast<uint8_t *>(in.data()));
-  task_data_seq->inputs_count.emplace_back(in.size());
-  task_data_seq->outputs.emplace_back(reinterpret_cast<uint8_t *>(out.data()));
-  task_data_seq->outputs_count.emplace_back(out.size());
+  // Create data
+  if (world.rank() == 0) {
+    in.resize(kSizeOfVector, 0);
+    GetRandomVector(in, -100, 100);
+    out.resize(kSizeOfVector, 0);
+    std::vector<int> answer(in);
+    std::ranges::sort(answer);
 
+    // Create task_data
+
+    task_data_seq->inputs.emplace_back(reinterpret_cast<uint8_t *>(in.data()));
+    task_data_seq->inputs_count.emplace_back(in.size());
+    task_data_seq->outputs.emplace_back(reinterpret_cast<uint8_t *>(out.data()));
+    task_data_seq->outputs_count.emplace_back(out.size());
+  }
   // Create Task
   volochaev_s_shell_sort_with_batchers_even_odd_merge_all::ShellSortALL test_task_sequential(task_data_seq);
   ASSERT_EQ(test_task_sequential.Validation(), true);
@@ -108,21 +130,25 @@ TEST(volochaev_s_Shell_sort_with_Batchers_even_odd_merge_all, test_with_small_ve
 
 TEST(volochaev_s_Shell_sort_with_Batchers_even_odd_merge_all, test_with_small_vector3) {
   constexpr size_t kSizeOfVector = 300;
-
-  // Create data
-  std::vector<int> in(kSizeOfVector, 0);
-  GetRandomVector(in, -100, 100);
-  std::vector<int> out(kSizeOfVector, 0);
-  std::vector<int> answer(in);
-  std::ranges::sort(answer);
-
-  // Create task_data
+  boost::mpi::communicator world;
+  std::vector<int> in;
+  std::vector<int> out;
+  std::vector<int> answer;
   auto task_data_seq = std::make_shared<ppc::core::TaskData>();
-  task_data_seq->inputs.emplace_back(reinterpret_cast<uint8_t *>(in.data()));
-  task_data_seq->inputs_count.emplace_back(in.size());
-  task_data_seq->outputs.emplace_back(reinterpret_cast<uint8_t *>(out.data()));
-  task_data_seq->outputs_count.emplace_back(out.size());
+  if (world.rank() == 0) {
+    // Create data
+    in.resize(kSizeOfVector, 0);
+    GetRandomVector(in, -100, 100);
+    out.resize(kSizeOfVector, 0);
+    std::vector<int> answer(in);
+    std::ranges::sort(answer);
 
+    // Create task_data
+    task_data_seq->inputs.emplace_back(reinterpret_cast<uint8_t *>(in.data()));
+    task_data_seq->inputs_count.emplace_back(in.size());
+    task_data_seq->outputs.emplace_back(reinterpret_cast<uint8_t *>(out.data()));
+    task_data_seq->outputs_count.emplace_back(out.size());
+  }
   // Create Task
   volochaev_s_shell_sort_with_batchers_even_odd_merge_all::ShellSortALL test_task_sequential(task_data_seq);
   ASSERT_EQ(test_task_sequential.Validation(), true);
@@ -134,21 +160,25 @@ TEST(volochaev_s_Shell_sort_with_Batchers_even_odd_merge_all, test_with_small_ve
 
 TEST(volochaev_s_Shell_sort_with_Batchers_even_odd_merge_all, test_with_small_vector4) {
   constexpr size_t kSizeOfVector = 400;
-
-  // Create data
-  std::vector<int> in(kSizeOfVector, 0);
-  GetRandomVector(in, -100, 100);
-  std::vector<int> out(kSizeOfVector, 0);
-  std::vector<int> answer(in);
-  std::ranges::sort(answer);
-
-  // Create task_data
+  boost::mpi::communicator world;
+  std::vector<int> in;
+  std::vector<int> out;
+  std::vector<int> answer;
   auto task_data_seq = std::make_shared<ppc::core::TaskData>();
-  task_data_seq->inputs.emplace_back(reinterpret_cast<uint8_t *>(in.data()));
-  task_data_seq->inputs_count.emplace_back(in.size());
-  task_data_seq->outputs.emplace_back(reinterpret_cast<uint8_t *>(out.data()));
-  task_data_seq->outputs_count.emplace_back(out.size());
+  if (world.rank() == 0) {
+    // Create data
+    in.resize(kSizeOfVector, 0);
+    GetRandomVector(in, -100, 100);
+    out.resize(kSizeOfVector, 0);
+    std::vector<int> answer(in);
+    std::ranges::sort(answer);
 
+    // Create task_data
+    task_data_seq->inputs.emplace_back(reinterpret_cast<uint8_t *>(in.data()));
+    task_data_seq->inputs_count.emplace_back(in.size());
+    task_data_seq->outputs.emplace_back(reinterpret_cast<uint8_t *>(out.data()));
+    task_data_seq->outputs_count.emplace_back(out.size());
+  }
   // Create Task
   volochaev_s_shell_sort_with_batchers_even_odd_merge_all::ShellSortALL test_task_sequential(task_data_seq);
   ASSERT_EQ(test_task_sequential.Validation(), true);
@@ -160,21 +190,25 @@ TEST(volochaev_s_Shell_sort_with_Batchers_even_odd_merge_all, test_with_small_ve
 
 TEST(volochaev_s_Shell_sort_with_Batchers_even_odd_merge_all, test_with_medium_vector) {
   constexpr size_t kSizeOfVector = 500;
-
-  // Create data
-  std::vector<int> in(kSizeOfVector, 0);
-  GetRandomVector(in, -100, 100);
-  std::vector<int> out(kSizeOfVector, 0);
-  std::vector<int> answer(in);
-  std::ranges::sort(answer);
-
-  // Create task_data
+  boost::mpi::communicator world;
+  std::vector<int> in;
+  std::vector<int> out;
+  std::vector<int> answer;
   auto task_data_seq = std::make_shared<ppc::core::TaskData>();
-  task_data_seq->inputs.emplace_back(reinterpret_cast<uint8_t *>(in.data()));
-  task_data_seq->inputs_count.emplace_back(in.size());
-  task_data_seq->outputs.emplace_back(reinterpret_cast<uint8_t *>(out.data()));
-  task_data_seq->outputs_count.emplace_back(out.size());
+  if (world.rank() == 0) {
+    // Create data
+    in.resize(kSizeOfVector, 0);
+    GetRandomVector(in, -100, 100);
+    out.resize(kSizeOfVector, 0);
+    std::vector<int> answer(in);
+    std::ranges::sort(answer);
 
+    // Create task_data
+    task_data_seq->inputs.emplace_back(reinterpret_cast<uint8_t *>(in.data()));
+    task_data_seq->inputs_count.emplace_back(in.size());
+    task_data_seq->outputs.emplace_back(reinterpret_cast<uint8_t *>(out.data()));
+    task_data_seq->outputs_count.emplace_back(out.size());
+  }
   // Create Task
   volochaev_s_shell_sort_with_batchers_even_odd_merge_all::ShellSortALL test_task_sequential(task_data_seq);
   ASSERT_EQ(test_task_sequential.Validation(), true);
@@ -186,21 +220,25 @@ TEST(volochaev_s_Shell_sort_with_Batchers_even_odd_merge_all, test_with_medium_v
 
 TEST(volochaev_s_shell_sort_with_batchers_even_odd_merge_all, test_with_medium_vector2) {
   constexpr size_t kSizeOfVector = 600;
-
-  // Create data
-  std::vector<int> in(kSizeOfVector, 0);
-  GetRandomVector(in, -100, 100);
-  std::vector<int> out(kSizeOfVector, 0);
-  std::vector<int> answer(in);
-  std::ranges::sort(answer);
-
-  // Create task_data
+  boost::mpi::communicator world;
+  std::vector<int> in;
+  std::vector<int> out;
+  std::vector<int> answer;
   auto task_data_seq = std::make_shared<ppc::core::TaskData>();
-  task_data_seq->inputs.emplace_back(reinterpret_cast<uint8_t *>(in.data()));
-  task_data_seq->inputs_count.emplace_back(in.size());
-  task_data_seq->outputs.emplace_back(reinterpret_cast<uint8_t *>(out.data()));
-  task_data_seq->outputs_count.emplace_back(out.size());
+  if (world.rank() == 0) {
+    // Create data
+    in.resize(kSizeOfVector, 0);
+    GetRandomVector(in, -100, 100);
+    out.resize(kSizeOfVector, 0);
+    std::vector<int> answer(in);
+    std::ranges::sort(answer);
 
+    // Create task_data
+    task_data_seq->inputs.emplace_back(reinterpret_cast<uint8_t *>(in.data()));
+    task_data_seq->inputs_count.emplace_back(in.size());
+    task_data_seq->outputs.emplace_back(reinterpret_cast<uint8_t *>(out.data()));
+    task_data_seq->outputs_count.emplace_back(out.size());
+  }
   // Create Task
   volochaev_s_shell_sort_with_batchers_even_odd_merge_all::ShellSortALL test_task_sequential(task_data_seq);
   ASSERT_EQ(test_task_sequential.Validation(), true);
@@ -212,21 +250,25 @@ TEST(volochaev_s_shell_sort_with_batchers_even_odd_merge_all, test_with_medium_v
 
 TEST(volochaev_s_shell_sort_with_batchers_even_odd_merge_all, test_with_medium_vector3) {
   constexpr size_t kSizeOfVector = 700;
-
-  // Create data
-  std::vector<int> in(kSizeOfVector, 0);
-  GetRandomVector(in, -100, 100);
-  std::vector<int> out(kSizeOfVector, 0);
-  std::vector<int> answer(in);
-  std::ranges::sort(answer);
-
-  // Create task_data
+  boost::mpi::communicator world;
+  std::vector<int> in;
+  std::vector<int> out;
+  std::vector<int> answer;
   auto task_data_seq = std::make_shared<ppc::core::TaskData>();
-  task_data_seq->inputs.emplace_back(reinterpret_cast<uint8_t *>(in.data()));
-  task_data_seq->inputs_count.emplace_back(in.size());
-  task_data_seq->outputs.emplace_back(reinterpret_cast<uint8_t *>(out.data()));
-  task_data_seq->outputs_count.emplace_back(out.size());
+  if (world.rank() == 0) {
+    // Create data
+    in.resize(kSizeOfVector, 0);
+    GetRandomVector(in, -100, 100);
+    out.resize(kSizeOfVector, 0);
+    std::vector<int> answer(in);
+    std::ranges::sort(answer);
 
+    // Create task_data
+    task_data_seq->inputs.emplace_back(reinterpret_cast<uint8_t *>(in.data()));
+    task_data_seq->inputs_count.emplace_back(in.size());
+    task_data_seq->outputs.emplace_back(reinterpret_cast<uint8_t *>(out.data()));
+    task_data_seq->outputs_count.emplace_back(out.size());
+  }
   // Create Task
   volochaev_s_shell_sort_with_batchers_even_odd_merge_all::ShellSortALL test_task_sequential(task_data_seq);
   ASSERT_EQ(test_task_sequential.Validation(), true);
@@ -238,21 +280,25 @@ TEST(volochaev_s_shell_sort_with_batchers_even_odd_merge_all, test_with_medium_v
 
 TEST(volochaev_s_shell_sort_with_batchers_even_odd_merge_all, test_with_medium_vector4) {
   constexpr size_t kSizeOfVector = 800;
-
-  // Create data
-  std::vector<int> in(kSizeOfVector, 0);
-  GetRandomVector(in, -100, 100);
-  std::vector<int> out(kSizeOfVector, 0);
-  std::vector<int> answer(in);
-  std::ranges::sort(answer);
-
-  // Create task_data
+  boost::mpi::communicator world;
+  std::vector<int> in;
+  std::vector<int> out;
+  std::vector<int> answer;
   auto task_data_seq = std::make_shared<ppc::core::TaskData>();
-  task_data_seq->inputs.emplace_back(reinterpret_cast<uint8_t *>(in.data()));
-  task_data_seq->inputs_count.emplace_back(in.size());
-  task_data_seq->outputs.emplace_back(reinterpret_cast<uint8_t *>(out.data()));
-  task_data_seq->outputs_count.emplace_back(out.size());
+  if (world.rank() == 0) {
+    // Create data
+    in.resize(kSizeOfVector, 0);
+    GetRandomVector(in, -100, 100);
+    out.resize(kSizeOfVector, 0);
+    std::vector<int> answer(in);
+    std::ranges::sort(answer);
 
+    // Create task_data
+    task_data_seq->inputs.emplace_back(reinterpret_cast<uint8_t *>(in.data()));
+    task_data_seq->inputs_count.emplace_back(in.size());
+    task_data_seq->outputs.emplace_back(reinterpret_cast<uint8_t *>(out.data()));
+    task_data_seq->outputs_count.emplace_back(out.size());
+  }
   // Create Task
   volochaev_s_shell_sort_with_batchers_even_odd_merge_all::ShellSortALL test_task_sequential(task_data_seq);
   ASSERT_EQ(test_task_sequential.Validation(), true);
@@ -264,21 +310,25 @@ TEST(volochaev_s_shell_sort_with_batchers_even_odd_merge_all, test_with_medium_v
 
 TEST(volochaev_s_shell_sort_with_batchers_even_odd_merge_all, test_with_medium_vector5) {
   constexpr size_t kSizeOfVector = 900;
-
-  // Create data
-  std::vector<int> in(kSizeOfVector, 0);
-  GetRandomVector(in, -100, 100);
-  std::vector<int> out(kSizeOfVector, 0);
-  std::vector<int> answer(in);
-  std::ranges::sort(answer);
-
-  // Create task_data
+  boost::mpi::communicator world;
+  std::vector<int> in;
+  std::vector<int> out;
+  std::vector<int> answer;
   auto task_data_seq = std::make_shared<ppc::core::TaskData>();
-  task_data_seq->inputs.emplace_back(reinterpret_cast<uint8_t *>(in.data()));
-  task_data_seq->inputs_count.emplace_back(in.size());
-  task_data_seq->outputs.emplace_back(reinterpret_cast<uint8_t *>(out.data()));
-  task_data_seq->outputs_count.emplace_back(out.size());
+  if (world.rank() == 0) {
+    // Create data
+    in.resize(kSizeOfVector, 0);
+    GetRandomVector(in, -100, 100);
+    out.resize(kSizeOfVector, 0);
+    std::vector<int> answer(in);
+    std::ranges::sort(answer);
 
+    // Create task_data
+    task_data_seq->inputs.emplace_back(reinterpret_cast<uint8_t *>(in.data()));
+    task_data_seq->inputs_count.emplace_back(in.size());
+    task_data_seq->outputs.emplace_back(reinterpret_cast<uint8_t *>(out.data()));
+    task_data_seq->outputs_count.emplace_back(out.size());
+  }
   // Create Task
   volochaev_s_shell_sort_with_batchers_even_odd_merge_all::ShellSortALL test_task_sequential(task_data_seq);
   ASSERT_EQ(test_task_sequential.Validation(), true);
@@ -290,21 +340,25 @@ TEST(volochaev_s_shell_sort_with_batchers_even_odd_merge_all, test_with_medium_v
 
 TEST(volochaev_s_shell_sort_with_batchers_even_odd_merge_all, test_with_big_vector) {
   constexpr size_t kSizeOfVector = 1000;
-
-  // Create data
-  std::vector<int> in(kSizeOfVector, 0);
-  GetRandomVector(in, -100, 100);
-  std::vector<int> out(kSizeOfVector, 0);
-  std::vector<int> answer(in);
-  std::ranges::sort(answer);
-
-  // Create task_data
+  boost::mpi::communicator world;
+  std::vector<int> in;
+  std::vector<int> out;
+  std::vector<int> answer;
   auto task_data_seq = std::make_shared<ppc::core::TaskData>();
-  task_data_seq->inputs.emplace_back(reinterpret_cast<uint8_t *>(in.data()));
-  task_data_seq->inputs_count.emplace_back(in.size());
-  task_data_seq->outputs.emplace_back(reinterpret_cast<uint8_t *>(out.data()));
-  task_data_seq->outputs_count.emplace_back(out.size());
+  if (world.rank() == 0) {
+    // Create data
+    in.resize(kSizeOfVector, 0);
+    GetRandomVector(in, -100, 100);
+    out.resize(kSizeOfVector, 0);
+    std::vector<int> answer(in);
+    std::ranges::sort(answer);
 
+    // Create task_data
+    task_data_seq->inputs.emplace_back(reinterpret_cast<uint8_t *>(in.data()));
+    task_data_seq->inputs_count.emplace_back(in.size());
+    task_data_seq->outputs.emplace_back(reinterpret_cast<uint8_t *>(out.data()));
+    task_data_seq->outputs_count.emplace_back(out.size());
+  }
   // Create Task
   volochaev_s_shell_sort_with_batchers_even_odd_merge_all::ShellSortALL test_task_sequential(task_data_seq);
   ASSERT_EQ(test_task_sequential.Validation(), true);
@@ -316,21 +370,25 @@ TEST(volochaev_s_shell_sort_with_batchers_even_odd_merge_all, test_with_big_vect
 
 TEST(volochaev_s_shell_sort_with_batchers_even_odd_merge_all, test_with_big_vector2) {
   constexpr size_t kSizeOfVector = 2000;
-
-  // Create data
-  std::vector<int> in(kSizeOfVector, 0);
-  GetRandomVector(in, -100, 100);
-  std::vector<int> out(kSizeOfVector, 0);
-  std::vector<int> answer(in);
-  std::ranges::sort(answer);
-
-  // Create task_data
+  boost::mpi::communicator world;
+  std::vector<int> in;
+  std::vector<int> out;
+  std::vector<int> answer;
   auto task_data_seq = std::make_shared<ppc::core::TaskData>();
-  task_data_seq->inputs.emplace_back(reinterpret_cast<uint8_t *>(in.data()));
-  task_data_seq->inputs_count.emplace_back(in.size());
-  task_data_seq->outputs.emplace_back(reinterpret_cast<uint8_t *>(out.data()));
-  task_data_seq->outputs_count.emplace_back(out.size());
+  if (world.rank() == 0) {
+    // Create data
+    in.resize(kSizeOfVector, 0);
+    GetRandomVector(in, -100, 100);
+    out.resize(kSizeOfVector, 0);
+    std::vector<int> answer(in);
+    std::ranges::sort(answer);
 
+    // Create task_data
+    task_data_seq->inputs.emplace_back(reinterpret_cast<uint8_t *>(in.data()));
+    task_data_seq->inputs_count.emplace_back(in.size());
+    task_data_seq->outputs.emplace_back(reinterpret_cast<uint8_t *>(out.data()));
+    task_data_seq->outputs_count.emplace_back(out.size());
+  }
   // Create Task
   volochaev_s_shell_sort_with_batchers_even_odd_merge_all::ShellSortALL test_task_sequential(task_data_seq);
   ASSERT_EQ(test_task_sequential.Validation(), true);
@@ -342,21 +400,25 @@ TEST(volochaev_s_shell_sort_with_batchers_even_odd_merge_all, test_with_big_vect
 
 TEST(volochaev_s_shell_sort_with_batchers_even_odd_merge_all, test_with_big_vector3) {
   constexpr size_t kSizeOfVector = 3000;
-
-  // Create data
-  std::vector<int> in(kSizeOfVector, 0);
-  GetRandomVector(in, -100, 100);
-  std::vector<int> out(kSizeOfVector, 0);
-  std::vector<int> answer(in);
-  std::ranges::sort(answer);
-
-  // Create task_data
+  boost::mpi::communicator world;
+  std::vector<int> in;
+  std::vector<int> out;
+  std::vector<int> answer;
   auto task_data_seq = std::make_shared<ppc::core::TaskData>();
-  task_data_seq->inputs.emplace_back(reinterpret_cast<uint8_t *>(in.data()));
-  task_data_seq->inputs_count.emplace_back(in.size());
-  task_data_seq->outputs.emplace_back(reinterpret_cast<uint8_t *>(out.data()));
-  task_data_seq->outputs_count.emplace_back(out.size());
+  if (world.rank() == 0) {
+    // Create data
+    in.resize(kSizeOfVector, 0);
+    GetRandomVector(in, -100, 100);
+    out.resize(kSizeOfVector, 0);
+    std::vector<int> answer(in);
+    std::ranges::sort(answer);
 
+    // Create task_data
+    task_data_seq->inputs.emplace_back(reinterpret_cast<uint8_t *>(in.data()));
+    task_data_seq->inputs_count.emplace_back(in.size());
+    task_data_seq->outputs.emplace_back(reinterpret_cast<uint8_t *>(out.data()));
+    task_data_seq->outputs_count.emplace_back(out.size());
+  }
   // Create Task
   volochaev_s_shell_sort_with_batchers_even_odd_merge_all::ShellSortALL test_task_sequential(task_data_seq);
   ASSERT_EQ(test_task_sequential.Validation(), true);
@@ -368,21 +430,25 @@ TEST(volochaev_s_shell_sort_with_batchers_even_odd_merge_all, test_with_big_vect
 
 TEST(volochaev_s_shell_sort_with_batchers_even_odd_merge_all, test_with_big_vector4) {
   constexpr size_t kSizeOfVector = 4000;
-
-  // Create data
-  std::vector<int> in(kSizeOfVector, 0);
-  GetRandomVector(in, -100, 100);
-  std::vector<int> out(kSizeOfVector, 0);
-  std::vector<int> answer(in);
-  std::ranges::sort(answer);
-
-  // Create task_data
+  boost::mpi::communicator world;
+  std::vector<int> in;
+  std::vector<int> out;
+  std::vector<int> answer;
   auto task_data_seq = std::make_shared<ppc::core::TaskData>();
-  task_data_seq->inputs.emplace_back(reinterpret_cast<uint8_t *>(in.data()));
-  task_data_seq->inputs_count.emplace_back(in.size());
-  task_data_seq->outputs.emplace_back(reinterpret_cast<uint8_t *>(out.data()));
-  task_data_seq->outputs_count.emplace_back(out.size());
+  if (world.rank() == 0) {
+    // Create data
+    in.resize(kSizeOfVector, 0);
+    GetRandomVector(in, -100, 100);
+    out.resize(kSizeOfVector, 0);
+    std::vector<int> answer(in);
+    std::ranges::sort(answer);
 
+    // Create task_data
+    task_data_seq->inputs.emplace_back(reinterpret_cast<uint8_t *>(in.data()));
+    task_data_seq->inputs_count.emplace_back(in.size());
+    task_data_seq->outputs.emplace_back(reinterpret_cast<uint8_t *>(out.data()));
+    task_data_seq->outputs_count.emplace_back(out.size());
+  }
   // Create Task
   volochaev_s_shell_sort_with_batchers_even_odd_merge_all::ShellSortALL test_task_sequential(task_data_seq);
   ASSERT_EQ(test_task_sequential.Validation(), true);
@@ -394,21 +460,25 @@ TEST(volochaev_s_shell_sort_with_batchers_even_odd_merge_all, test_with_big_vect
 
 TEST(volochaev_s_shell_sort_with_batchers_even_odd_merge_all, test_with_extra_big_vector) {
   constexpr size_t kSizeOfVector = 10000;
-
-  // Create data
-  std::vector<int> in(kSizeOfVector, 0);
-  GetRandomVector(in, -100, 100);
-  std::vector<int> out(kSizeOfVector, 0);
-  std::vector<int> answer(in);
-  std::ranges::sort(answer);
-
-  // Create task_data
+  boost::mpi::communicator world;
+  std::vector<int> in;
+  std::vector<int> out;
+  std::vector<int> answer;
   auto task_data_seq = std::make_shared<ppc::core::TaskData>();
-  task_data_seq->inputs.emplace_back(reinterpret_cast<uint8_t *>(in.data()));
-  task_data_seq->inputs_count.emplace_back(in.size());
-  task_data_seq->outputs.emplace_back(reinterpret_cast<uint8_t *>(out.data()));
-  task_data_seq->outputs_count.emplace_back(out.size());
+  if (world.rank() == 0) {
+    // Create data
+    in.resize(kSizeOfVector, 0);
+    GetRandomVector(in, -100, 100);
+    out.resize(kSizeOfVector, 0);
+    std::vector<int> answer(in);
+    std::ranges::sort(answer);
 
+    // Create task_data
+    task_data_seq->inputs.emplace_back(reinterpret_cast<uint8_t *>(in.data()));
+    task_data_seq->inputs_count.emplace_back(in.size());
+    task_data_seq->outputs.emplace_back(reinterpret_cast<uint8_t *>(out.data()));
+    task_data_seq->outputs_count.emplace_back(out.size());
+  }
   // Create Task
   volochaev_s_shell_sort_with_batchers_even_odd_merge_all::ShellSortALL test_task_sequential(task_data_seq);
   ASSERT_EQ(test_task_sequential.Validation(), true);
@@ -420,21 +490,25 @@ TEST(volochaev_s_shell_sort_with_batchers_even_odd_merge_all, test_with_extra_bi
 
 TEST(volochaev_s_shell_sort_with_batchers_even_odd_merge_all, test_with_prime_size_vector) {
   constexpr size_t kSizeOfVector = 7;
-
-  // Create data
-  std::vector<int> in(kSizeOfVector, 0);
-  GetRandomVector(in, -100, 100);
-  std::vector<int> out(kSizeOfVector, 0);
-  std::vector<int> answer(in);
-  std::ranges::sort(answer);
-
-  // Create task_data
+  boost::mpi::communicator world;
+  std::vector<int> in;
+  std::vector<int> out;
+  std::vector<int> answer;
   auto task_data_seq = std::make_shared<ppc::core::TaskData>();
-  task_data_seq->inputs.emplace_back(reinterpret_cast<uint8_t *>(in.data()));
-  task_data_seq->inputs_count.emplace_back(in.size());
-  task_data_seq->outputs.emplace_back(reinterpret_cast<uint8_t *>(out.data()));
-  task_data_seq->outputs_count.emplace_back(out.size());
+  if (world.rank() == 0) {
+    // Create data
+    in.resize(kSizeOfVector, 0);
+    GetRandomVector(in, -100, 100);
+    out.resize(kSizeOfVector, 0);
+    std::vector<int> answer(in);
+    std::ranges::sort(answer);
 
+    // Create task_data
+    task_data_seq->inputs.emplace_back(reinterpret_cast<uint8_t *>(in.data()));
+    task_data_seq->inputs_count.emplace_back(in.size());
+    task_data_seq->outputs.emplace_back(reinterpret_cast<uint8_t *>(out.data()));
+    task_data_seq->outputs_count.emplace_back(out.size());
+  }
   // Create Task
   volochaev_s_shell_sort_with_batchers_even_odd_merge_all::ShellSortALL test_task_sequential(task_data_seq);
   ASSERT_EQ(test_task_sequential.Validation(), true);
@@ -446,21 +520,25 @@ TEST(volochaev_s_shell_sort_with_batchers_even_odd_merge_all, test_with_prime_si
 
 TEST(volochaev_s_shell_sort_with_batchers_even_odd_merge_all, test_with_prime_size_vector1) {
   constexpr size_t kSizeOfVector = 13;
-
-  // Create data
-  std::vector<int> in(kSizeOfVector, 0);
-  GetRandomVector(in, -100, 100);
-  std::vector<int> out(kSizeOfVector, 0);
-  std::vector<int> answer(in);
-  std::ranges::sort(answer);
-
-  // Create task_data
+  boost::mpi::communicator world;
+  std::vector<int> in;
+  std::vector<int> out;
+  std::vector<int> answer;
   auto task_data_seq = std::make_shared<ppc::core::TaskData>();
-  task_data_seq->inputs.emplace_back(reinterpret_cast<uint8_t *>(in.data()));
-  task_data_seq->inputs_count.emplace_back(in.size());
-  task_data_seq->outputs.emplace_back(reinterpret_cast<uint8_t *>(out.data()));
-  task_data_seq->outputs_count.emplace_back(out.size());
+  if (world.rank() == 0) {
+    // Create data
+    in.resize(kSizeOfVector, 0);
+    GetRandomVector(in, -100, 100);
+    out.resize(kSizeOfVector, 0);
+    std::vector<int> answer(in);
+    std::ranges::sort(answer);
 
+    // Create task_data
+    task_data_seq->inputs.emplace_back(reinterpret_cast<uint8_t *>(in.data()));
+    task_data_seq->inputs_count.emplace_back(in.size());
+    task_data_seq->outputs.emplace_back(reinterpret_cast<uint8_t *>(out.data()));
+    task_data_seq->outputs_count.emplace_back(out.size());
+  }
   // Create Task
   volochaev_s_shell_sort_with_batchers_even_odd_merge_all::ShellSortALL test_task_sequential(task_data_seq);
   ASSERT_EQ(test_task_sequential.Validation(), true);
@@ -472,21 +550,25 @@ TEST(volochaev_s_shell_sort_with_batchers_even_odd_merge_all, test_with_prime_si
 
 TEST(volochaev_s_shell_sort_with_batchers_even_odd_merge_all, test_with_prime_size_vector2) {
   constexpr size_t kSizeOfVector = 17;
-
-  // Create data
-  std::vector<int> in(kSizeOfVector, 0);
-  GetRandomVector(in, -100, 100);
-  std::vector<int> out(kSizeOfVector, 0);
-  std::vector<int> answer(in);
-  std::ranges::sort(answer);
-
-  // Create task_data
+  boost::mpi::communicator world;
+  std::vector<int> in;
+  std::vector<int> out;
+  std::vector<int> answer;
   auto task_data_seq = std::make_shared<ppc::core::TaskData>();
-  task_data_seq->inputs.emplace_back(reinterpret_cast<uint8_t *>(in.data()));
-  task_data_seq->inputs_count.emplace_back(in.size());
-  task_data_seq->outputs.emplace_back(reinterpret_cast<uint8_t *>(out.data()));
-  task_data_seq->outputs_count.emplace_back(out.size());
+  if (world.rank() == 0) {
+    // Create data
+    in.resize(kSizeOfVector, 0);
+    GetRandomVector(in, -100, 100);
+    out.resize(kSizeOfVector, 0);
+    std::vector<int> answer(in);
+    std::ranges::sort(answer);
 
+    // Create task_data
+    task_data_seq->inputs.emplace_back(reinterpret_cast<uint8_t *>(in.data()));
+    task_data_seq->inputs_count.emplace_back(in.size());
+    task_data_seq->outputs.emplace_back(reinterpret_cast<uint8_t *>(out.data()));
+    task_data_seq->outputs_count.emplace_back(out.size());
+  }
   // Create Task
   volochaev_s_shell_sort_with_batchers_even_odd_merge_all::ShellSortALL test_task_sequential(task_data_seq);
   ASSERT_EQ(test_task_sequential.Validation(), true);
@@ -498,21 +580,25 @@ TEST(volochaev_s_shell_sort_with_batchers_even_odd_merge_all, test_with_prime_si
 
 TEST(volochaev_s_shell_sort_with_batchers_even_odd_merge_all, test_with_prime_size_vector3) {
   constexpr size_t kSizeOfVector = 23;
-
-  // Create data
-  std::vector<int> in(kSizeOfVector, 0);
-  GetRandomVector(in, -100, 100);
-  std::vector<int> out(kSizeOfVector, 0);
-  std::vector<int> answer(in);
-  std::ranges::sort(answer);
-
-  // Create task_data
+  boost::mpi::communicator world;
+  std::vector<int> in;
+  std::vector<int> out;
+  std::vector<int> answer;
   auto task_data_seq = std::make_shared<ppc::core::TaskData>();
-  task_data_seq->inputs.emplace_back(reinterpret_cast<uint8_t *>(in.data()));
-  task_data_seq->inputs_count.emplace_back(in.size());
-  task_data_seq->outputs.emplace_back(reinterpret_cast<uint8_t *>(out.data()));
-  task_data_seq->outputs_count.emplace_back(out.size());
+  if (world.rank() == 0) {
+    // Create data
+    in.resize(kSizeOfVector, 0);
+    GetRandomVector(in, -100, 100);
+    out.resize(kSizeOfVector, 0);
+    std::vector<int> answer(in);
+    std::ranges::sort(answer);
 
+    // Create task_data
+    task_data_seq->inputs.emplace_back(reinterpret_cast<uint8_t *>(in.data()));
+    task_data_seq->inputs_count.emplace_back(in.size());
+    task_data_seq->outputs.emplace_back(reinterpret_cast<uint8_t *>(out.data()));
+    task_data_seq->outputs_count.emplace_back(out.size());
+  }
   // Create Task
   volochaev_s_shell_sort_with_batchers_even_odd_merge_all::ShellSortALL test_task_sequential(task_data_seq);
   ASSERT_EQ(test_task_sequential.Validation(), true);
@@ -524,21 +610,25 @@ TEST(volochaev_s_shell_sort_with_batchers_even_odd_merge_all, test_with_prime_si
 
 TEST(volochaev_s_shell_sort_with_batchers_even_odd_merge_all, test_with_prime_size_vector4) {
   constexpr size_t kSizeOfVector = 29;
-
-  // Create data
-  std::vector<int> in(kSizeOfVector, 0);
-  GetRandomVector(in, -100, 100);
-  std::vector<int> out(kSizeOfVector, 0);
-  std::vector<int> answer(in);
-  std::ranges::sort(answer);
-
-  // Create task_data
+  boost::mpi::communicator world;
+  std::vector<int> in;
+  std::vector<int> out;
+  std::vector<int> answer;
   auto task_data_seq = std::make_shared<ppc::core::TaskData>();
-  task_data_seq->inputs.emplace_back(reinterpret_cast<uint8_t *>(in.data()));
-  task_data_seq->inputs_count.emplace_back(in.size());
-  task_data_seq->outputs.emplace_back(reinterpret_cast<uint8_t *>(out.data()));
-  task_data_seq->outputs_count.emplace_back(out.size());
+  if (world.rank() == 0) {
+    // Create data
+    in.resize(kSizeOfVector, 0);
+    GetRandomVector(in, -100, 100);
+    out.resize(kSizeOfVector, 0);
+    std::vector<int> answer(in);
+    std::ranges::sort(answer);
 
+    // Create task_data
+    task_data_seq->inputs.emplace_back(reinterpret_cast<uint8_t *>(in.data()));
+    task_data_seq->inputs_count.emplace_back(in.size());
+    task_data_seq->outputs.emplace_back(reinterpret_cast<uint8_t *>(out.data()));
+    task_data_seq->outputs_count.emplace_back(out.size());
+  }
   // Create Task
   volochaev_s_shell_sort_with_batchers_even_odd_merge_all::ShellSortALL test_task_sequential(task_data_seq);
   ASSERT_EQ(test_task_sequential.Validation(), true);
@@ -550,21 +640,25 @@ TEST(volochaev_s_shell_sort_with_batchers_even_odd_merge_all, test_with_prime_si
 
 TEST(volochaev_s_shell_sort_with_batchers_even_odd_merge_all, test_with_odd_number_of_elements) {
   constexpr size_t kSizeOfVector = 101;
-
-  // Create data
-  std::vector<int> in(kSizeOfVector, 0);
-  GetRandomVector(in, -100, 100);
-  std::vector<int> out(kSizeOfVector, 0);
-  std::vector<int> answer(in);
-  std::ranges::sort(answer);
-
-  // Create task_data
+  boost::mpi::communicator world;
+  std::vector<int> in;
+  std::vector<int> out;
+  std::vector<int> answer;
   auto task_data_seq = std::make_shared<ppc::core::TaskData>();
-  task_data_seq->inputs.emplace_back(reinterpret_cast<uint8_t *>(in.data()));
-  task_data_seq->inputs_count.emplace_back(in.size());
-  task_data_seq->outputs.emplace_back(reinterpret_cast<uint8_t *>(out.data()));
-  task_data_seq->outputs_count.emplace_back(out.size());
+  if (world.rank() == 0) {
+    // Create data
+    in.resize(kSizeOfVector, 0);
+    GetRandomVector(in, -100, 100);
+    out.resize(kSizeOfVector, 0);
+    std::vector<int> answer(in);
+    std::ranges::sort(answer);
 
+    // Create task_data
+    task_data_seq->inputs.emplace_back(reinterpret_cast<uint8_t *>(in.data()));
+    task_data_seq->inputs_count.emplace_back(in.size());
+    task_data_seq->outputs.emplace_back(reinterpret_cast<uint8_t *>(out.data()));
+    task_data_seq->outputs_count.emplace_back(out.size());
+  }
   // Create Task
   volochaev_s_shell_sort_with_batchers_even_odd_merge_all::ShellSortALL test_task_sequential(task_data_seq);
   ASSERT_EQ(test_task_sequential.Validation(), true);
@@ -576,21 +670,25 @@ TEST(volochaev_s_shell_sort_with_batchers_even_odd_merge_all, test_with_odd_numb
 
 TEST(volochaev_s_shell_sort_with_batchers_even_odd_merge_all, test_with_odd_number_of_elements1) {
   constexpr size_t kSizeOfVector = 99;
-
-  // Create data
-  std::vector<int> in(kSizeOfVector, 0);
-  GetRandomVector(in, -100, 100);
-  std::vector<int> out(kSizeOfVector, 0);
-  std::vector<int> answer(in);
-  std::ranges::sort(answer);
-
-  // Create task_data
+  boost::mpi::communicator world;
+  std::vector<int> in;
+  std::vector<int> out;
+  std::vector<int> answer;
   auto task_data_seq = std::make_shared<ppc::core::TaskData>();
-  task_data_seq->inputs.emplace_back(reinterpret_cast<uint8_t *>(in.data()));
-  task_data_seq->inputs_count.emplace_back(in.size());
-  task_data_seq->outputs.emplace_back(reinterpret_cast<uint8_t *>(out.data()));
-  task_data_seq->outputs_count.emplace_back(out.size());
+  if (world.rank() == 0) {
+    // Create data
+    in.resize(kSizeOfVector, 0);
+    GetRandomVector(in, -100, 100);
+    out.resize(kSizeOfVector, 0);
+    std::vector<int> answer(in);
+    std::ranges::sort(answer);
 
+    // Create task_data
+    task_data_seq->inputs.emplace_back(reinterpret_cast<uint8_t *>(in.data()));
+    task_data_seq->inputs_count.emplace_back(in.size());
+    task_data_seq->outputs.emplace_back(reinterpret_cast<uint8_t *>(out.data()));
+    task_data_seq->outputs_count.emplace_back(out.size());
+  }
   // Create Task
   volochaev_s_shell_sort_with_batchers_even_odd_merge_all::ShellSortALL test_task_sequential(task_data_seq);
   ASSERT_EQ(test_task_sequential.Validation(), true);
@@ -602,21 +700,25 @@ TEST(volochaev_s_shell_sort_with_batchers_even_odd_merge_all, test_with_odd_numb
 
 TEST(volochaev_s_shell_sort_with_batchers_even_odd_merge_all, test_with_odd_number_of_elements2) {
   constexpr size_t kSizeOfVector = 201;
-
-  // Create data
-  std::vector<int> in(kSizeOfVector, 0);
-  GetRandomVector(in, -100, 100);
-  std::vector<int> out(kSizeOfVector, 0);
-  std::vector<int> answer(in);
-  std::ranges::sort(answer);
-
-  // Create task_data
+  boost::mpi::communicator world;
+  std::vector<int> in;
+  std::vector<int> out;
+  std::vector<int> answer;
   auto task_data_seq = std::make_shared<ppc::core::TaskData>();
-  task_data_seq->inputs.emplace_back(reinterpret_cast<uint8_t *>(in.data()));
-  task_data_seq->inputs_count.emplace_back(in.size());
-  task_data_seq->outputs.emplace_back(reinterpret_cast<uint8_t *>(out.data()));
-  task_data_seq->outputs_count.emplace_back(out.size());
+  if (world.rank() == 0) {
+    // Create data
+    in.resize(kSizeOfVector, 0);
+    GetRandomVector(in, -100, 100);
+    out.resize(kSizeOfVector, 0);
+    std::vector<int> answer(in);
+    std::ranges::sort(answer);
 
+    // Create task_data
+    task_data_seq->inputs.emplace_back(reinterpret_cast<uint8_t *>(in.data()));
+    task_data_seq->inputs_count.emplace_back(in.size());
+    task_data_seq->outputs.emplace_back(reinterpret_cast<uint8_t *>(out.data()));
+    task_data_seq->outputs_count.emplace_back(out.size());
+  }
   // Create Task
   volochaev_s_shell_sort_with_batchers_even_odd_merge_all::ShellSortALL test_task_sequential(task_data_seq);
   ASSERT_EQ(test_task_sequential.Validation(), true);
@@ -628,21 +730,25 @@ TEST(volochaev_s_shell_sort_with_batchers_even_odd_merge_all, test_with_odd_numb
 
 TEST(volochaev_s_shell_sort_with_batchers_even_odd_merge_all, test_with_odd_number_of_elements3) {
   constexpr size_t kSizeOfVector = 199;
-
-  // Create data
-  std::vector<int> in(kSizeOfVector, 0);
-  GetRandomVector(in, -100, 100);
-  std::vector<int> out(kSizeOfVector, 0);
-  std::vector<int> answer(in);
-  std::ranges::sort(answer);
-
-  // Create task_data
+  boost::mpi::communicator world;
+  std::vector<int> in;
+  std::vector<int> out;
+  std::vector<int> answer;
   auto task_data_seq = std::make_shared<ppc::core::TaskData>();
-  task_data_seq->inputs.emplace_back(reinterpret_cast<uint8_t *>(in.data()));
-  task_data_seq->inputs_count.emplace_back(in.size());
-  task_data_seq->outputs.emplace_back(reinterpret_cast<uint8_t *>(out.data()));
-  task_data_seq->outputs_count.emplace_back(out.size());
+  if (world.rank() == 0) {
+    // Create data
+    in.resize(kSizeOfVector, 0);
+    GetRandomVector(in, -100, 100);
+    out.resize(kSizeOfVector, 0);
+    std::vector<int> answer(in);
+    std::ranges::sort(answer);
 
+    // Create task_data
+    task_data_seq->inputs.emplace_back(reinterpret_cast<uint8_t *>(in.data()));
+    task_data_seq->inputs_count.emplace_back(in.size());
+    task_data_seq->outputs.emplace_back(reinterpret_cast<uint8_t *>(out.data()));
+    task_data_seq->outputs_count.emplace_back(out.size());
+  }
   // Create Task
   volochaev_s_shell_sort_with_batchers_even_odd_merge_all::ShellSortALL test_task_sequential(task_data_seq);
   ASSERT_EQ(test_task_sequential.Validation(), true);
@@ -654,21 +760,25 @@ TEST(volochaev_s_shell_sort_with_batchers_even_odd_merge_all, test_with_odd_numb
 
 TEST(volochaev_s_shell_sort_with_batchers_even_odd_merge_all, test_with_odd_number_of_elements4) {
   constexpr size_t kSizeOfVector = 301;
-
-  // Create data
-  std::vector<int> in(kSizeOfVector, 0);
-  GetRandomVector(in, -100, 100);
-  std::vector<int> out(kSizeOfVector, 0);
-  std::vector<int> answer(in);
-  std::ranges::sort(answer);
-
-  // Create task_data
+  boost::mpi::communicator world;
+  std::vector<int> in;
+  std::vector<int> out;
+  std::vector<int> answer;
   auto task_data_seq = std::make_shared<ppc::core::TaskData>();
-  task_data_seq->inputs.emplace_back(reinterpret_cast<uint8_t *>(in.data()));
-  task_data_seq->inputs_count.emplace_back(in.size());
-  task_data_seq->outputs.emplace_back(reinterpret_cast<uint8_t *>(out.data()));
-  task_data_seq->outputs_count.emplace_back(out.size());
+  if (world.rank() == 0) {
+    // Create data
+    in.resize(kSizeOfVector, 0);
+    GetRandomVector(in, -100, 100);
+    out.resize(kSizeOfVector, 0);
+    std::vector<int> answer(in);
+    std::ranges::sort(answer);
 
+    // Create task_data
+    task_data_seq->inputs.emplace_back(reinterpret_cast<uint8_t *>(in.data()));
+    task_data_seq->inputs_count.emplace_back(in.size());
+    task_data_seq->outputs.emplace_back(reinterpret_cast<uint8_t *>(out.data()));
+    task_data_seq->outputs_count.emplace_back(out.size());
+  }
   // Create Task
   volochaev_s_shell_sort_with_batchers_even_odd_merge_all::ShellSortALL test_task_sequential(task_data_seq);
   ASSERT_EQ(test_task_sequential.Validation(), true);
@@ -680,21 +790,25 @@ TEST(volochaev_s_shell_sort_with_batchers_even_odd_merge_all, test_with_odd_numb
 
 TEST(volochaev_s_shell_sort_with_batchers_even_odd_merge_all, test_with_odd_number_of_elements5) {
   constexpr size_t kSizeOfVector = 299;
-
-  // Create data
-  std::vector<int> in(kSizeOfVector, 0);
-  GetRandomVector(in, -100, 100);
-  std::vector<int> out(kSizeOfVector, 0);
-  std::vector<int> answer(in);
-  std::ranges::sort(answer);
-
-  // Create task_data
+  boost::mpi::communicator world;
+  std::vector<int> in;
+  std::vector<int> out;
+  std::vector<int> answer;
   auto task_data_seq = std::make_shared<ppc::core::TaskData>();
-  task_data_seq->inputs.emplace_back(reinterpret_cast<uint8_t *>(in.data()));
-  task_data_seq->inputs_count.emplace_back(in.size());
-  task_data_seq->outputs.emplace_back(reinterpret_cast<uint8_t *>(out.data()));
-  task_data_seq->outputs_count.emplace_back(out.size());
+  if (world.rank() == 0) {
+    // Create data
+    in.resize(kSizeOfVector, 0);
+    GetRandomVector(in, -100, 100);
+    out.resize(kSizeOfVector, 0);
+    std::vector<int> answer(in);
+    std::ranges::sort(answer);
 
+    // Create task_data
+    task_data_seq->inputs.emplace_back(reinterpret_cast<uint8_t *>(in.data()));
+    task_data_seq->inputs_count.emplace_back(in.size());
+    task_data_seq->outputs.emplace_back(reinterpret_cast<uint8_t *>(out.data()));
+    task_data_seq->outputs_count.emplace_back(out.size());
+  }
   // Create Task
   volochaev_s_shell_sort_with_batchers_even_odd_merge_all::ShellSortALL test_task_sequential(task_data_seq);
   ASSERT_EQ(test_task_sequential.Validation(), true);
@@ -706,21 +820,25 @@ TEST(volochaev_s_shell_sort_with_batchers_even_odd_merge_all, test_with_odd_numb
 
 TEST(volochaev_s_shell_sort_with_batchers_even_odd_merge_all, test_with_odd_number_of_elements6) {
   constexpr size_t kSizeOfVector = 401;
-
-  // Create data
-  std::vector<int> in(kSizeOfVector, 0);
-  GetRandomVector(in, -100, 100);
-  std::vector<int> out(kSizeOfVector, 0);
-  std::vector<int> answer(in);
-  std::ranges::sort(answer);
-
-  // Create task_data
+  boost::mpi::communicator world;
+  std::vector<int> in;
+  std::vector<int> out;
+  std::vector<int> answer;
   auto task_data_seq = std::make_shared<ppc::core::TaskData>();
-  task_data_seq->inputs.emplace_back(reinterpret_cast<uint8_t *>(in.data()));
-  task_data_seq->inputs_count.emplace_back(in.size());
-  task_data_seq->outputs.emplace_back(reinterpret_cast<uint8_t *>(out.data()));
-  task_data_seq->outputs_count.emplace_back(out.size());
+  if (world.rank() == 0) {
+    // Create data
+    in.resize(kSizeOfVector, 0);
+    GetRandomVector(in, -100, 100);
+    out.resize(kSizeOfVector, 0);
+    std::vector<int> answer(in);
+    std::ranges::sort(answer);
 
+    // Create task_data
+    task_data_seq->inputs.emplace_back(reinterpret_cast<uint8_t *>(in.data()));
+    task_data_seq->inputs_count.emplace_back(in.size());
+    task_data_seq->outputs.emplace_back(reinterpret_cast<uint8_t *>(out.data()));
+    task_data_seq->outputs_count.emplace_back(out.size());
+  }
   // Create Task
   volochaev_s_shell_sort_with_batchers_even_odd_merge_all::ShellSortALL test_task_sequential(task_data_seq);
   ASSERT_EQ(test_task_sequential.Validation(), true);
@@ -732,21 +850,25 @@ TEST(volochaev_s_shell_sort_with_batchers_even_odd_merge_all, test_with_odd_numb
 
 TEST(volochaev_s_shell_sort_with_batchers_even_odd_merge_all, test_with_odd_number_of_elements7) {
   constexpr size_t kSizeOfVector = 399;
-
-  // Create data
-  std::vector<int> in(kSizeOfVector, 0);
-  GetRandomVector(in, -100, 100);
-  std::vector<int> out(kSizeOfVector, 0);
-  std::vector<int> answer(in);
-  std::ranges::sort(answer);
-
-  // Create task_data
+  boost::mpi::communicator world;
+  std::vector<int> in;
+  std::vector<int> out;
+  std::vector<int> answer;
   auto task_data_seq = std::make_shared<ppc::core::TaskData>();
-  task_data_seq->inputs.emplace_back(reinterpret_cast<uint8_t *>(in.data()));
-  task_data_seq->inputs_count.emplace_back(in.size());
-  task_data_seq->outputs.emplace_back(reinterpret_cast<uint8_t *>(out.data()));
-  task_data_seq->outputs_count.emplace_back(out.size());
+  if (world.rank() == 0) {
+    // Create data
+    in.resize(kSizeOfVector, 0);
+    GetRandomVector(in, -100, 100);
+    out.resize(kSizeOfVector, 0);
+    std::vector<int> answer(in);
+    std::ranges::sort(answer);
 
+    // Create task_data
+    task_data_seq->inputs.emplace_back(reinterpret_cast<uint8_t *>(in.data()));
+    task_data_seq->inputs_count.emplace_back(in.size());
+    task_data_seq->outputs.emplace_back(reinterpret_cast<uint8_t *>(out.data()));
+    task_data_seq->outputs_count.emplace_back(out.size());
+  }
   // Create Task
   volochaev_s_shell_sort_with_batchers_even_odd_merge_all::ShellSortALL test_task_sequential(task_data_seq);
   ASSERT_EQ(test_task_sequential.Validation(), true);
@@ -758,23 +880,27 @@ TEST(volochaev_s_shell_sort_with_batchers_even_odd_merge_all, test_with_odd_numb
 
 TEST(volochaev_s_shell_sort_with_batchers_even_odd_merge_all, test_with_reverse) {
   constexpr size_t kSizeOfVector = 399;
-
-  // Create data
-  std::vector<int> in(kSizeOfVector, 0);
-  GetRandomVector(in, -100, 100);
-  std::vector<int> out(kSizeOfVector, 0);
-  std::vector<int> answer(in);
-  std::ranges::sort(answer);
-  std::ranges::sort(in);
-  std::ranges::reverse(in);
-
-  // Create task_data
+  boost::mpi::communicator world;
+  std::vector<int> in;
+  std::vector<int> out;
+  std::vector<int> answer;
   auto task_data_seq = std::make_shared<ppc::core::TaskData>();
-  task_data_seq->inputs.emplace_back(reinterpret_cast<uint8_t *>(in.data()));
-  task_data_seq->inputs_count.emplace_back(in.size());
-  task_data_seq->outputs.emplace_back(reinterpret_cast<uint8_t *>(out.data()));
-  task_data_seq->outputs_count.emplace_back(out.size());
+  if (world.rank() == 0) {
+    // Create data
+    in.resize(kSizeOfVector, 0);
+    GetRandomVector(in, -100, 100);
+    out.resize(kSizeOfVector, 0);
+    std::vector<int> answer(in);
+    std::ranges::sort(answer);
+    std::ranges::sort(in);
+    std::ranges::reverse(in);
 
+    // Create task_data
+    task_data_seq->inputs.emplace_back(reinterpret_cast<uint8_t *>(in.data()));
+    task_data_seq->inputs_count.emplace_back(in.size());
+    task_data_seq->outputs.emplace_back(reinterpret_cast<uint8_t *>(out.data()));
+    task_data_seq->outputs_count.emplace_back(out.size());
+  }
   // Create Task
   volochaev_s_shell_sort_with_batchers_even_odd_merge_all::ShellSortALL test_task_sequential(task_data_seq);
   ASSERT_EQ(test_task_sequential.Validation(), true);
@@ -786,20 +912,24 @@ TEST(volochaev_s_shell_sort_with_batchers_even_odd_merge_all, test_with_reverse)
 
 TEST(volochaev_s_Shell_sort_with_Batchers_even_odd_merge_all, test_with_len_Fermats_1) {
   constexpr size_t kSizeOfVector = 3;
-
-  // Create data
-  std::vector<int> in(kSizeOfVector, 0);
-  GetRandomVector(in, -100, 100);
-  std::vector<int> out(kSizeOfVector, 0);
-  std::vector<int> answer(in);
-  std::ranges::sort(answer);
-  // Create task_data
+  boost::mpi::communicator world;
+  std::vector<int> in;
+  std::vector<int> out;
+  std::vector<int> answer;
   auto task_data_seq = std::make_shared<ppc::core::TaskData>();
-  task_data_seq->inputs.emplace_back(reinterpret_cast<uint8_t *>(in.data()));
-  task_data_seq->inputs_count.emplace_back(in.size());
-  task_data_seq->outputs.emplace_back(reinterpret_cast<uint8_t *>(out.data()));
-  task_data_seq->outputs_count.emplace_back(out.size());
-
+  if (world.rank() == 0) {
+    // Create data
+    in.resize(kSizeOfVector, 0);
+    GetRandomVector(in, -100, 100);
+    out.resize(kSizeOfVector, 0);
+    std::vector<int> answer(in);
+    std::ranges::sort(answer);
+    // Create task_data
+    task_data_seq->inputs.emplace_back(reinterpret_cast<uint8_t *>(in.data()));
+    task_data_seq->inputs_count.emplace_back(in.size());
+    task_data_seq->outputs.emplace_back(reinterpret_cast<uint8_t *>(out.data()));
+    task_data_seq->outputs_count.emplace_back(out.size());
+  }
   // Create Task
   volochaev_s_shell_sort_with_batchers_even_odd_merge_all::ShellSortALL test_task_sequential(task_data_seq);
   ASSERT_EQ(test_task_sequential.Validation(), true);
@@ -811,20 +941,24 @@ TEST(volochaev_s_Shell_sort_with_Batchers_even_odd_merge_all, test_with_len_Ferm
 
 TEST(volochaev_s_Shell_sort_with_Batchers_even_odd_merge_all, test_with_len_Fermats_2) {
   constexpr size_t kSizeOfVector = 5;
-
-  // Create data
-  std::vector<int> in(kSizeOfVector, 0);
-  GetRandomVector(in, -100, 100);
-  std::vector<int> out(kSizeOfVector, 0);
-  std::vector<int> answer(in);
-  std::ranges::sort(answer);
-  // Create task_data
+  boost::mpi::communicator world;
+  std::vector<int> in;
+  std::vector<int> out;
+  std::vector<int> answer;
   auto task_data_seq = std::make_shared<ppc::core::TaskData>();
-  task_data_seq->inputs.emplace_back(reinterpret_cast<uint8_t *>(in.data()));
-  task_data_seq->inputs_count.emplace_back(in.size());
-  task_data_seq->outputs.emplace_back(reinterpret_cast<uint8_t *>(out.data()));
-  task_data_seq->outputs_count.emplace_back(out.size());
-
+  if (world.rank() == 0) {
+    // Create data
+    in.resize(kSizeOfVector, 0);
+    GetRandomVector(in, -100, 100);
+    out.resize(kSizeOfVector, 0);
+    std::vector<int> answer(in);
+    std::ranges::sort(answer);
+    // Create task_data
+    task_data_seq->inputs.emplace_back(reinterpret_cast<uint8_t *>(in.data()));
+    task_data_seq->inputs_count.emplace_back(in.size());
+    task_data_seq->outputs.emplace_back(reinterpret_cast<uint8_t *>(out.data()));
+    task_data_seq->outputs_count.emplace_back(out.size());
+  }
   // Create Task
   volochaev_s_shell_sort_with_batchers_even_odd_merge_all::ShellSortALL test_task_sequential(task_data_seq);
   ASSERT_EQ(test_task_sequential.Validation(), true);
@@ -836,20 +970,24 @@ TEST(volochaev_s_Shell_sort_with_Batchers_even_odd_merge_all, test_with_len_Ferm
 
 TEST(volochaev_s_Shell_sort_with_Batchers_even_odd_merge_all, test_with_len_Fermats_3) {
   constexpr size_t kSizeOfVector = 17;
-
-  // Create data
-  std::vector<int> in(kSizeOfVector, 0);
-  GetRandomVector(in, -100, 100);
-  std::vector<int> out(kSizeOfVector, 0);
-  std::vector<int> answer(in);
-  std::ranges::sort(answer);
-  // Create task_data
+  boost::mpi::communicator world;
+  std::vector<int> in;
+  std::vector<int> out;
+  std::vector<int> answer;
   auto task_data_seq = std::make_shared<ppc::core::TaskData>();
-  task_data_seq->inputs.emplace_back(reinterpret_cast<uint8_t *>(in.data()));
-  task_data_seq->inputs_count.emplace_back(in.size());
-  task_data_seq->outputs.emplace_back(reinterpret_cast<uint8_t *>(out.data()));
-  task_data_seq->outputs_count.emplace_back(out.size());
-
+  if (world.rank() == 0) {
+    // Create data
+    in.resize(kSizeOfVector, 0);
+    GetRandomVector(in, -100, 100);
+    out.resize(kSizeOfVector, 0);
+    std::vector<int> answer(in);
+    std::ranges::sort(answer);
+    // Create task_data
+    task_data_seq->inputs.emplace_back(reinterpret_cast<uint8_t *>(in.data()));
+    task_data_seq->inputs_count.emplace_back(in.size());
+    task_data_seq->outputs.emplace_back(reinterpret_cast<uint8_t *>(out.data()));
+    task_data_seq->outputs_count.emplace_back(out.size());
+  }
   // Create Task
   volochaev_s_shell_sort_with_batchers_even_odd_merge_all::ShellSortALL test_task_sequential(task_data_seq);
   ASSERT_EQ(test_task_sequential.Validation(), true);
@@ -861,20 +999,24 @@ TEST(volochaev_s_Shell_sort_with_Batchers_even_odd_merge_all, test_with_len_Ferm
 
 TEST(volochaev_s_Shell_sort_with_Batchers_even_odd_merge_all, test_with_len_Fermats_4) {
   constexpr size_t kSizeOfVector = 257;
-
-  // Create data
-  std::vector<int> in(kSizeOfVector, 0);
-  GetRandomVector(in, -100, 100);
-  std::vector<int> out(kSizeOfVector, 0);
-  std::vector<int> answer(in);
-  std::ranges::sort(answer);
-  // Create task_data
+  boost::mpi::communicator world;
+  std::vector<int> in;
+  std::vector<int> out;
+  std::vector<int> answer;
   auto task_data_seq = std::make_shared<ppc::core::TaskData>();
-  task_data_seq->inputs.emplace_back(reinterpret_cast<uint8_t *>(in.data()));
-  task_data_seq->inputs_count.emplace_back(in.size());
-  task_data_seq->outputs.emplace_back(reinterpret_cast<uint8_t *>(out.data()));
-  task_data_seq->outputs_count.emplace_back(out.size());
-
+  if (world.rank() == 0) {
+    // Create data
+    in.resize(kSizeOfVector, 0);
+    GetRandomVector(in, -100, 100);
+    out.resize(kSizeOfVector, 0);
+    std::vector<int> answer(in);
+    std::ranges::sort(answer);
+    // Create task_data
+    task_data_seq->inputs.emplace_back(reinterpret_cast<uint8_t *>(in.data()));
+    task_data_seq->inputs_count.emplace_back(in.size());
+    task_data_seq->outputs.emplace_back(reinterpret_cast<uint8_t *>(out.data()));
+    task_data_seq->outputs_count.emplace_back(out.size());
+  }
   // Create Task
   volochaev_s_shell_sort_with_batchers_even_odd_merge_all::ShellSortALL test_task_sequential(task_data_seq);
   ASSERT_EQ(test_task_sequential.Validation(), true);
@@ -886,20 +1028,24 @@ TEST(volochaev_s_Shell_sort_with_Batchers_even_odd_merge_all, test_with_len_Ferm
 
 TEST(volochaev_s_Shell_sort_with_Batchers_even_odd_merge_all, test_with_len_Fermats_5) {
   constexpr size_t kSizeOfVector = 65537;
-
-  // Create data
-  std::vector<int> in(kSizeOfVector, 0);
-  GetRandomVector(in, -100, 100);
-  std::vector<int> out(kSizeOfVector, 0);
-  std::vector<int> answer(in);
-  std::ranges::sort(answer);
-  // Create task_data
+  boost::mpi::communicator world;
+  std::vector<int> in;
+  std::vector<int> out;
+  std::vector<int> answer;
   auto task_data_seq = std::make_shared<ppc::core::TaskData>();
-  task_data_seq->inputs.emplace_back(reinterpret_cast<uint8_t *>(in.data()));
-  task_data_seq->inputs_count.emplace_back(in.size());
-  task_data_seq->outputs.emplace_back(reinterpret_cast<uint8_t *>(out.data()));
-  task_data_seq->outputs_count.emplace_back(out.size());
-
+  if (world.rank() == 0) {
+    // Create data
+    in.resize(kSizeOfVector, 0);
+    GetRandomVector(in, -100, 100);
+    out.resize(kSizeOfVector, 0);
+    std::vector<int> answer(in);
+    std::ranges::sort(answer);
+    // Create task_data
+    task_data_seq->inputs.emplace_back(reinterpret_cast<uint8_t *>(in.data()));
+    task_data_seq->inputs_count.emplace_back(in.size());
+    task_data_seq->outputs.emplace_back(reinterpret_cast<uint8_t *>(out.data()));
+    task_data_seq->outputs_count.emplace_back(out.size());
+  }
   // Create Task
   volochaev_s_shell_sort_with_batchers_even_odd_merge_all::ShellSortALL test_task_sequential(task_data_seq);
   ASSERT_EQ(test_task_sequential.Validation(), true);
@@ -911,20 +1057,24 @@ TEST(volochaev_s_Shell_sort_with_Batchers_even_odd_merge_all, test_with_len_Ferm
 
 TEST(volochaev_s_Shell_sort_with_Batchers_even_odd_merge_all, test_with_len_Euler_base_2_1) {
   constexpr size_t kSizeOfVector = 561;
-
-  // Create data
-  std::vector<int> in(kSizeOfVector, 0);
-  GetRandomVector(in, -100, 100);
-  std::vector<int> out(kSizeOfVector, 0);
-  std::vector<int> answer(in);
-  std::ranges::sort(answer);
-  // Create task_data
+  boost::mpi::communicator world;
+  std::vector<int> in;
+  std::vector<int> out;
+  std::vector<int> answer;
   auto task_data_seq = std::make_shared<ppc::core::TaskData>();
-  task_data_seq->inputs.emplace_back(reinterpret_cast<uint8_t *>(in.data()));
-  task_data_seq->inputs_count.emplace_back(in.size());
-  task_data_seq->outputs.emplace_back(reinterpret_cast<uint8_t *>(out.data()));
-  task_data_seq->outputs_count.emplace_back(out.size());
-
+  if (world.rank() == 0) {
+    // Create data
+    in.resize(kSizeOfVector, 0);
+    GetRandomVector(in, -100, 100);
+    out.resize(kSizeOfVector, 0);
+    std::vector<int> answer(in);
+    std::ranges::sort(answer);
+    // Create task_data
+    task_data_seq->inputs.emplace_back(reinterpret_cast<uint8_t *>(in.data()));
+    task_data_seq->inputs_count.emplace_back(in.size());
+    task_data_seq->outputs.emplace_back(reinterpret_cast<uint8_t *>(out.data()));
+    task_data_seq->outputs_count.emplace_back(out.size());
+  }
   // Create Task
   volochaev_s_shell_sort_with_batchers_even_odd_merge_all::ShellSortALL test_task_sequential(task_data_seq);
   ASSERT_EQ(test_task_sequential.Validation(), true);
@@ -936,20 +1086,24 @@ TEST(volochaev_s_Shell_sort_with_Batchers_even_odd_merge_all, test_with_len_Eule
 
 TEST(volochaev_s_Shell_sort_with_Batchers_even_odd_merge_all, test_with_len_Euler_base_2_2) {
   constexpr size_t kSizeOfVector = 1105;
-
-  // Create data
-  std::vector<int> in(kSizeOfVector, 0);
-  GetRandomVector(in, -100, 100);
-  std::vector<int> out(kSizeOfVector, 0);
-  std::vector<int> answer(in);
-  std::ranges::sort(answer);
-  // Create task_data
+  boost::mpi::communicator world;
+  std::vector<int> in;
+  std::vector<int> out;
+  std::vector<int> answer;
   auto task_data_seq = std::make_shared<ppc::core::TaskData>();
-  task_data_seq->inputs.emplace_back(reinterpret_cast<uint8_t *>(in.data()));
-  task_data_seq->inputs_count.emplace_back(in.size());
-  task_data_seq->outputs.emplace_back(reinterpret_cast<uint8_t *>(out.data()));
-  task_data_seq->outputs_count.emplace_back(out.size());
-
+  if (world.rank() == 0) {
+    // Create data
+    in.resize(kSizeOfVector, 0);
+    GetRandomVector(in, -100, 100);
+    out.resize(kSizeOfVector, 0);
+    std::vector<int> answer(in);
+    std::ranges::sort(answer);
+    // Create task_data
+    task_data_seq->inputs.emplace_back(reinterpret_cast<uint8_t *>(in.data()));
+    task_data_seq->inputs_count.emplace_back(in.size());
+    task_data_seq->outputs.emplace_back(reinterpret_cast<uint8_t *>(out.data()));
+    task_data_seq->outputs_count.emplace_back(out.size());
+  }
   // Create Task
   volochaev_s_shell_sort_with_batchers_even_odd_merge_all::ShellSortALL test_task_sequential(task_data_seq);
   ASSERT_EQ(test_task_sequential.Validation(), true);
@@ -961,20 +1115,24 @@ TEST(volochaev_s_Shell_sort_with_Batchers_even_odd_merge_all, test_with_len_Eule
 
 TEST(volochaev_s_Shell_sort_with_Batchers_even_odd_merge_all, test_with_len_Euler_base_2_3) {
   constexpr size_t kSizeOfVector = 1729;
-
-  // Create data
-  std::vector<int> in(kSizeOfVector, 0);
-  GetRandomVector(in, -100, 100);
-  std::vector<int> out(kSizeOfVector, 0);
-  std::vector<int> answer(in);
-  std::ranges::sort(answer);
-  // Create task_data
+  boost::mpi::communicator world;
+  std::vector<int> in;
+  std::vector<int> out;
+  std::vector<int> answer;
   auto task_data_seq = std::make_shared<ppc::core::TaskData>();
-  task_data_seq->inputs.emplace_back(reinterpret_cast<uint8_t *>(in.data()));
-  task_data_seq->inputs_count.emplace_back(in.size());
-  task_data_seq->outputs.emplace_back(reinterpret_cast<uint8_t *>(out.data()));
-  task_data_seq->outputs_count.emplace_back(out.size());
-
+  if (world.rank() == 0) {
+    // Create data
+    in.resize(kSizeOfVector, 0);
+    GetRandomVector(in, -100, 100);
+    out.resize(kSizeOfVector, 0);
+    std::vector<int> answer(in);
+    std::ranges::sort(answer);
+    // Create task_data
+    task_data_seq->inputs.emplace_back(reinterpret_cast<uint8_t *>(in.data()));
+    task_data_seq->inputs_count.emplace_back(in.size());
+    task_data_seq->outputs.emplace_back(reinterpret_cast<uint8_t *>(out.data()));
+    task_data_seq->outputs_count.emplace_back(out.size());
+  }
   // Create Task
   volochaev_s_shell_sort_with_batchers_even_odd_merge_all::ShellSortALL test_task_sequential(task_data_seq);
   ASSERT_EQ(test_task_sequential.Validation(), true);
@@ -986,20 +1144,24 @@ TEST(volochaev_s_Shell_sort_with_Batchers_even_odd_merge_all, test_with_len_Eule
 
 TEST(volochaev_s_Shell_sort_with_Batchers_even_odd_merge_all, test_with_len_Euler_base_2_4) {
   constexpr size_t kSizeOfVector = 1905;
-
-  // Create data
-  std::vector<int> in(kSizeOfVector, 0);
-  GetRandomVector(in, -100, 100);
-  std::vector<int> out(kSizeOfVector, 0);
-  std::vector<int> answer(in);
-  std::ranges::sort(answer);
-  // Create task_data
+  boost::mpi::communicator world;
+  std::vector<int> in;
+  std::vector<int> out;
+  std::vector<int> answer;
   auto task_data_seq = std::make_shared<ppc::core::TaskData>();
-  task_data_seq->inputs.emplace_back(reinterpret_cast<uint8_t *>(in.data()));
-  task_data_seq->inputs_count.emplace_back(in.size());
-  task_data_seq->outputs.emplace_back(reinterpret_cast<uint8_t *>(out.data()));
-  task_data_seq->outputs_count.emplace_back(out.size());
-
+  if (world.rank() == 0) {
+    // Create data
+    in.resize(kSizeOfVector, 0);
+    GetRandomVector(in, -100, 100);
+    out.resize(kSizeOfVector, 0);
+    std::vector<int> answer(in);
+    std::ranges::sort(answer);
+    // Create task_data
+    task_data_seq->inputs.emplace_back(reinterpret_cast<uint8_t *>(in.data()));
+    task_data_seq->inputs_count.emplace_back(in.size());
+    task_data_seq->outputs.emplace_back(reinterpret_cast<uint8_t *>(out.data()));
+    task_data_seq->outputs_count.emplace_back(out.size());
+  }
   // Create Task
   volochaev_s_shell_sort_with_batchers_even_odd_merge_all::ShellSortALL test_task_sequential(task_data_seq);
   ASSERT_EQ(test_task_sequential.Validation(), true);
@@ -1012,10 +1174,13 @@ TEST(volochaev_s_Shell_sort_with_Batchers_even_odd_merge_all, test_with_len_Eule
 TEST(volochaev_s_Shell_sort_with_Batchers_even_odd_merge_all, test_with_len_Euler_base_2_5) {
   constexpr size_t kSizeOfVector = 2047;
 
-  // Create data
-  std::vector<int> in(kSizeOfVector, 0);
+  boost::mpi::communicator world;
+  std::vector<int> in;
+  std::vector<int> out;
+  std::vector<int> answer;
+  in.resize(kSizeOfVector, 0);
   GetRandomVector(in, -100, 100);
-  std::vector<int> out(kSizeOfVector, 0);
+  out.resize(kSizeOfVector, 0);
   std::vector<int> answer(in);
   std::ranges::sort(answer);
   // Create task_data
@@ -1036,20 +1201,24 @@ TEST(volochaev_s_Shell_sort_with_Batchers_even_odd_merge_all, test_with_len_Eule
 
 TEST(volochaev_s_Shell_sort_with_Batchers_even_odd_merge_all, test_with_len_Euler_base_2_6) {
   constexpr size_t kSizeOfVector = 2465;
-
-  // Create data
-  std::vector<int> in(kSizeOfVector, 0);
-  GetRandomVector(in, -100, 100);
-  std::vector<int> out(kSizeOfVector, 0);
-  std::vector<int> answer(in);
-  std::ranges::sort(answer);
-  // Create task_data
+  boost::mpi::communicator world;
+  std::vector<int> in;
+  std::vector<int> out;
+  std::vector<int> answer;
   auto task_data_seq = std::make_shared<ppc::core::TaskData>();
-  task_data_seq->inputs.emplace_back(reinterpret_cast<uint8_t *>(in.data()));
-  task_data_seq->inputs_count.emplace_back(in.size());
-  task_data_seq->outputs.emplace_back(reinterpret_cast<uint8_t *>(out.data()));
-  task_data_seq->outputs_count.emplace_back(out.size());
-
+  if (world.rank() == 0) {
+    // Create data
+    in.resize(kSizeOfVector, 0);
+    GetRandomVector(in, -100, 100);
+    out.resize(kSizeOfVector, 0);
+    std::vector<int> answer(in);
+    std::ranges::sort(answer);
+    // Create task_data
+    task_data_seq->inputs.emplace_back(reinterpret_cast<uint8_t *>(in.data()));
+    task_data_seq->inputs_count.emplace_back(in.size());
+    task_data_seq->outputs.emplace_back(reinterpret_cast<uint8_t *>(out.data()));
+    task_data_seq->outputs_count.emplace_back(out.size());
+  }
   // Create Task
   volochaev_s_shell_sort_with_batchers_even_odd_merge_all::ShellSortALL test_task_sequential(task_data_seq);
   ASSERT_EQ(test_task_sequential.Validation(), true);
@@ -1061,20 +1230,24 @@ TEST(volochaev_s_Shell_sort_with_Batchers_even_odd_merge_all, test_with_len_Eule
 
 TEST(volochaev_s_Shell_sort_with_Batchers_even_odd_merge_all, test_with_len_Euler_base_2_7) {
   constexpr size_t kSizeOfVector = 3277;
-
-  // Create data
-  std::vector<int> in(kSizeOfVector, 0);
-  GetRandomVector(in, -100, 100);
-  std::vector<int> out(kSizeOfVector, 0);
-  std::vector<int> answer(in);
-  std::ranges::sort(answer);
-  // Create task_data
+  boost::mpi::communicator world;
+  std::vector<int> in;
+  std::vector<int> out;
+  std::vector<int> answer;
   auto task_data_seq = std::make_shared<ppc::core::TaskData>();
-  task_data_seq->inputs.emplace_back(reinterpret_cast<uint8_t *>(in.data()));
-  task_data_seq->inputs_count.emplace_back(in.size());
-  task_data_seq->outputs.emplace_back(reinterpret_cast<uint8_t *>(out.data()));
-  task_data_seq->outputs_count.emplace_back(out.size());
-
+  if (world.rank() == 0) {
+    // Create data
+    in.resize(kSizeOfVector, 0);
+    GetRandomVector(in, -100, 100);
+    out.resize(kSizeOfVector, 0);
+    std::vector<int> answer(in);
+    std::ranges::sort(answer);
+    // Create task_data
+    task_data_seq->inputs.emplace_back(reinterpret_cast<uint8_t *>(in.data()));
+    task_data_seq->inputs_count.emplace_back(in.size());
+    task_data_seq->outputs.emplace_back(reinterpret_cast<uint8_t *>(out.data()));
+    task_data_seq->outputs_count.emplace_back(out.size());
+  }
   // Create Task
   volochaev_s_shell_sort_with_batchers_even_odd_merge_all::ShellSortALL test_task_sequential(task_data_seq);
   ASSERT_EQ(test_task_sequential.Validation(), true);
@@ -1086,20 +1259,24 @@ TEST(volochaev_s_Shell_sort_with_Batchers_even_odd_merge_all, test_with_len_Eule
 
 TEST(volochaev_s_Shell_sort_with_Batchers_even_odd_merge_all, test_with_len_Euler_base_2_8) {
   constexpr size_t kSizeOfVector = 4033;
-
-  // Create data
-  std::vector<int> in(kSizeOfVector, 0);
-  GetRandomVector(in, -100, 100);
-  std::vector<int> out(kSizeOfVector, 0);
-  std::vector<int> answer(in);
-  std::ranges::sort(answer);
-  // Create task_data
+  boost::mpi::communicator world;
+  std::vector<int> in;
+  std::vector<int> out;
+  std::vector<int> answer;
   auto task_data_seq = std::make_shared<ppc::core::TaskData>();
-  task_data_seq->inputs.emplace_back(reinterpret_cast<uint8_t *>(in.data()));
-  task_data_seq->inputs_count.emplace_back(in.size());
-  task_data_seq->outputs.emplace_back(reinterpret_cast<uint8_t *>(out.data()));
-  task_data_seq->outputs_count.emplace_back(out.size());
-
+  if (world.rank() == 0) {
+    // Create data
+    in.resize(kSizeOfVector, 0);
+    GetRandomVector(in, -100, 100);
+    out.resize(kSizeOfVector, 0);
+    std::vector<int> answer(in);
+    std::ranges::sort(answer);
+    // Create task_data
+    task_data_seq->inputs.emplace_back(reinterpret_cast<uint8_t *>(in.data()));
+    task_data_seq->inputs_count.emplace_back(in.size());
+    task_data_seq->outputs.emplace_back(reinterpret_cast<uint8_t *>(out.data()));
+    task_data_seq->outputs_count.emplace_back(out.size());
+  }
   // Create Task
   volochaev_s_shell_sort_with_batchers_even_odd_merge_all::ShellSortALL test_task_sequential(task_data_seq);
   ASSERT_EQ(test_task_sequential.Validation(), true);
@@ -1111,20 +1288,24 @@ TEST(volochaev_s_Shell_sort_with_Batchers_even_odd_merge_all, test_with_len_Eule
 
 TEST(volochaev_s_Shell_sort_with_Batchers_even_odd_merge_all, test_with_len_Euler_base_2_9) {
   constexpr size_t kSizeOfVector = 4681;
-
-  // Create data
-  std::vector<int> in(kSizeOfVector, 0);
-  GetRandomVector(in, -100, 100);
-  std::vector<int> out(kSizeOfVector, 0);
-  std::vector<int> answer(in);
-  std::ranges::sort(answer);
-  // Create task_data
+  boost::mpi::communicator world;
+  std::vector<int> in;
+  std::vector<int> out;
+  std::vector<int> answer;
   auto task_data_seq = std::make_shared<ppc::core::TaskData>();
-  task_data_seq->inputs.emplace_back(reinterpret_cast<uint8_t *>(in.data()));
-  task_data_seq->inputs_count.emplace_back(in.size());
-  task_data_seq->outputs.emplace_back(reinterpret_cast<uint8_t *>(out.data()));
-  task_data_seq->outputs_count.emplace_back(out.size());
-
+  if (world.rank() == 0) {
+    // Create data
+    in.resize(kSizeOfVector, 0);
+    GetRandomVector(in, -100, 100);
+    out.resize(kSizeOfVector, 0);
+    std::vector<int> answer(in);
+    std::ranges::sort(answer);
+    // Create task_data
+    task_data_seq->inputs.emplace_back(reinterpret_cast<uint8_t *>(in.data()));
+    task_data_seq->inputs_count.emplace_back(in.size());
+    task_data_seq->outputs.emplace_back(reinterpret_cast<uint8_t *>(out.data()));
+    task_data_seq->outputs_count.emplace_back(out.size());
+  }
   // Create Task
   volochaev_s_shell_sort_with_batchers_even_odd_merge_all::ShellSortALL test_task_sequential(task_data_seq);
   ASSERT_EQ(test_task_sequential.Validation(), true);
@@ -1136,20 +1317,24 @@ TEST(volochaev_s_Shell_sort_with_Batchers_even_odd_merge_all, test_with_len_Eule
 
 TEST(volochaev_s_Shell_sort_with_Batchers_even_odd_merge_all, test_with_len_Euler_base_2_10) {
   constexpr size_t kSizeOfVector = 6601;
-
-  // Create data
-  std::vector<int> in(kSizeOfVector, 0);
-  GetRandomVector(in, -100, 100);
-  std::vector<int> out(kSizeOfVector, 0);
-  std::vector<int> answer(in);
-  std::ranges::sort(answer);
-  // Create task_data
+  boost::mpi::communicator world;
+  std::vector<int> in;
+  std::vector<int> out;
+  std::vector<int> answer;
   auto task_data_seq = std::make_shared<ppc::core::TaskData>();
-  task_data_seq->inputs.emplace_back(reinterpret_cast<uint8_t *>(in.data()));
-  task_data_seq->inputs_count.emplace_back(in.size());
-  task_data_seq->outputs.emplace_back(reinterpret_cast<uint8_t *>(out.data()));
-  task_data_seq->outputs_count.emplace_back(out.size());
-
+  if (world.rank() == 0) {
+    // Create data
+    in.resize(kSizeOfVector, 0);
+    GetRandomVector(in, -100, 100);
+    out.resize(kSizeOfVector, 0);
+    std::vector<int> answer(in);
+    std::ranges::sort(answer);
+    // Create task_data
+    task_data_seq->inputs.emplace_back(reinterpret_cast<uint8_t *>(in.data()));
+    task_data_seq->inputs_count.emplace_back(in.size());
+    task_data_seq->outputs.emplace_back(reinterpret_cast<uint8_t *>(out.data()));
+    task_data_seq->outputs_count.emplace_back(out.size());
+  }
   // Create Task
   volochaev_s_shell_sort_with_batchers_even_odd_merge_all::ShellSortALL test_task_sequential(task_data_seq);
   ASSERT_EQ(test_task_sequential.Validation(), true);
@@ -1161,20 +1346,24 @@ TEST(volochaev_s_Shell_sort_with_Batchers_even_odd_merge_all, test_with_len_Eule
 
 TEST(volochaev_s_Shell_sort_with_Batchers_even_odd_merge_all, test_with_len_Euler_base_3_1) {
   constexpr size_t kSizeOfVector = 121;
-
-  // Create data
-  std::vector<int> in(kSizeOfVector, 0);
-  GetRandomVector(in, -100, 100);
-  std::vector<int> out(kSizeOfVector, 0);
-  std::vector<int> answer(in);
-  std::ranges::sort(answer);
-  // Create task_data
+  boost::mpi::communicator world;
+  std::vector<int> in;
+  std::vector<int> out;
+  std::vector<int> answer;
   auto task_data_seq = std::make_shared<ppc::core::TaskData>();
-  task_data_seq->inputs.emplace_back(reinterpret_cast<uint8_t *>(in.data()));
-  task_data_seq->inputs_count.emplace_back(in.size());
-  task_data_seq->outputs.emplace_back(reinterpret_cast<uint8_t *>(out.data()));
-  task_data_seq->outputs_count.emplace_back(out.size());
-
+  if (world.rank() == 0) {
+    // Create data
+    in.resize(kSizeOfVector, 0);
+    GetRandomVector(in, -100, 100);
+    out.resize(kSizeOfVector, 0);
+    std::vector<int> answer(in);
+    std::ranges::sort(answer);
+    // Create task_data
+    task_data_seq->inputs.emplace_back(reinterpret_cast<uint8_t *>(in.data()));
+    task_data_seq->inputs_count.emplace_back(in.size());
+    task_data_seq->outputs.emplace_back(reinterpret_cast<uint8_t *>(out.data()));
+    task_data_seq->outputs_count.emplace_back(out.size());
+  }
   // Create Task
   volochaev_s_shell_sort_with_batchers_even_odd_merge_all::ShellSortALL test_task_sequential(task_data_seq);
   ASSERT_EQ(test_task_sequential.Validation(), true);
@@ -1186,20 +1375,24 @@ TEST(volochaev_s_Shell_sort_with_Batchers_even_odd_merge_all, test_with_len_Eule
 
 TEST(volochaev_s_Shell_sort_with_Batchers_even_odd_merge_all, test_with_len_Euler_base_3_2) {
   constexpr size_t kSizeOfVector = 703;
-
-  // Create data
-  std::vector<int> in(kSizeOfVector, 0);
-  GetRandomVector(in, -100, 100);
-  std::vector<int> out(kSizeOfVector, 0);
-  std::vector<int> answer(in);
-  std::ranges::sort(answer);
-  // Create task_data
+  boost::mpi::communicator world;
+  std::vector<int> in;
+  std::vector<int> out;
+  std::vector<int> answer;
   auto task_data_seq = std::make_shared<ppc::core::TaskData>();
-  task_data_seq->inputs.emplace_back(reinterpret_cast<uint8_t *>(in.data()));
-  task_data_seq->inputs_count.emplace_back(in.size());
-  task_data_seq->outputs.emplace_back(reinterpret_cast<uint8_t *>(out.data()));
-  task_data_seq->outputs_count.emplace_back(out.size());
-
+  if (world.rank() == 0) {
+    // Create data
+    in.resize(kSizeOfVector, 0);
+    GetRandomVector(in, -100, 100);
+    out.resize(kSizeOfVector, 0);
+    std::vector<int> answer(in);
+    std::ranges::sort(answer);
+    // Create task_data
+    task_data_seq->inputs.emplace_back(reinterpret_cast<uint8_t *>(in.data()));
+    task_data_seq->inputs_count.emplace_back(in.size());
+    task_data_seq->outputs.emplace_back(reinterpret_cast<uint8_t *>(out.data()));
+    task_data_seq->outputs_count.emplace_back(out.size());
+  }
   // Create Task
   volochaev_s_shell_sort_with_batchers_even_odd_merge_all::ShellSortALL test_task_sequential(task_data_seq);
   ASSERT_EQ(test_task_sequential.Validation(), true);
@@ -1211,20 +1404,24 @@ TEST(volochaev_s_Shell_sort_with_Batchers_even_odd_merge_all, test_with_len_Eule
 
 TEST(volochaev_s_Shell_sort_with_Batchers_even_odd_merge_all, test_with_len_Euler_base_3_3) {
   constexpr size_t kSizeOfVector = 1729;
-
-  // Create data
-  std::vector<int> in(kSizeOfVector, 0);
-  GetRandomVector(in, -100, 100);
-  std::vector<int> out(kSizeOfVector, 0);
-  std::vector<int> answer(in);
-  std::ranges::sort(answer);
-  // Create task_data
+  boost::mpi::communicator world;
+  std::vector<int> in;
+  std::vector<int> out;
+  std::vector<int> answer;
   auto task_data_seq = std::make_shared<ppc::core::TaskData>();
-  task_data_seq->inputs.emplace_back(reinterpret_cast<uint8_t *>(in.data()));
-  task_data_seq->inputs_count.emplace_back(in.size());
-  task_data_seq->outputs.emplace_back(reinterpret_cast<uint8_t *>(out.data()));
-  task_data_seq->outputs_count.emplace_back(out.size());
-
+  if (world.rank() == 0) {
+    // Create data
+    in.resize(kSizeOfVector, 0);
+    GetRandomVector(in, -100, 100);
+    out.resize(kSizeOfVector, 0);
+    std::vector<int> answer(in);
+    std::ranges::sort(answer);
+    // Create task_data
+    task_data_seq->inputs.emplace_back(reinterpret_cast<uint8_t *>(in.data()));
+    task_data_seq->inputs_count.emplace_back(in.size());
+    task_data_seq->outputs.emplace_back(reinterpret_cast<uint8_t *>(out.data()));
+    task_data_seq->outputs_count.emplace_back(out.size());
+  }
   // Create Task
   volochaev_s_shell_sort_with_batchers_even_odd_merge_all::ShellSortALL test_task_sequential(task_data_seq);
   ASSERT_EQ(test_task_sequential.Validation(), true);
@@ -1236,20 +1433,24 @@ TEST(volochaev_s_Shell_sort_with_Batchers_even_odd_merge_all, test_with_len_Eule
 
 TEST(volochaev_s_Shell_sort_with_Batchers_even_odd_merge_all, test_with_len_Euler_base_3_4) {
   constexpr size_t kSizeOfVector = 2821;
-
-  // Create data
-  std::vector<int> in(kSizeOfVector, 0);
-  GetRandomVector(in, -100, 100);
-  std::vector<int> out(kSizeOfVector, 0);
-  std::vector<int> answer(in);
-  std::ranges::sort(answer);
-  // Create task_data
+  boost::mpi::communicator world;
+  std::vector<int> in;
+  std::vector<int> out;
+  std::vector<int> answer;
   auto task_data_seq = std::make_shared<ppc::core::TaskData>();
-  task_data_seq->inputs.emplace_back(reinterpret_cast<uint8_t *>(in.data()));
-  task_data_seq->inputs_count.emplace_back(in.size());
-  task_data_seq->outputs.emplace_back(reinterpret_cast<uint8_t *>(out.data()));
-  task_data_seq->outputs_count.emplace_back(out.size());
-
+  if (world.rank() == 0) {
+    // Create data
+    in.resize(kSizeOfVector, 0);
+    GetRandomVector(in, -100, 100);
+    out.resize(kSizeOfVector, 0);
+    std::vector<int> answer(in);
+    std::ranges::sort(answer);
+    // Create task_data
+    task_data_seq->inputs.emplace_back(reinterpret_cast<uint8_t *>(in.data()));
+    task_data_seq->inputs_count.emplace_back(in.size());
+    task_data_seq->outputs.emplace_back(reinterpret_cast<uint8_t *>(out.data()));
+    task_data_seq->outputs_count.emplace_back(out.size());
+  }
   // Create Task
   volochaev_s_shell_sort_with_batchers_even_odd_merge_all::ShellSortALL test_task_sequential(task_data_seq);
   ASSERT_EQ(test_task_sequential.Validation(), true);
@@ -1261,20 +1462,24 @@ TEST(volochaev_s_Shell_sort_with_Batchers_even_odd_merge_all, test_with_len_Eule
 
 TEST(volochaev_s_Shell_sort_with_Batchers_even_odd_merge_all, test_with_len_Euler_base_3_5) {
   constexpr size_t kSizeOfVector = 3281;
-
-  // Create data
-  std::vector<int> in(kSizeOfVector, 0);
-  GetRandomVector(in, -100, 100);
-  std::vector<int> out(kSizeOfVector, 0);
-  std::vector<int> answer(in);
-  std::ranges::sort(answer);
-  // Create task_data
+  boost::mpi::communicator world;
+  std::vector<int> in;
+  std::vector<int> out;
+  std::vector<int> answer;
   auto task_data_seq = std::make_shared<ppc::core::TaskData>();
-  task_data_seq->inputs.emplace_back(reinterpret_cast<uint8_t *>(in.data()));
-  task_data_seq->inputs_count.emplace_back(in.size());
-  task_data_seq->outputs.emplace_back(reinterpret_cast<uint8_t *>(out.data()));
-  task_data_seq->outputs_count.emplace_back(out.size());
-
+  if (world.rank() == 0) {
+    // Create data
+    in.resize(kSizeOfVector, 0);
+    GetRandomVector(in, -100, 100);
+    out.resize(kSizeOfVector, 0);
+    std::vector<int> answer(in);
+    std::ranges::sort(answer);
+    // Create task_data
+    task_data_seq->inputs.emplace_back(reinterpret_cast<uint8_t *>(in.data()));
+    task_data_seq->inputs_count.emplace_back(in.size());
+    task_data_seq->outputs.emplace_back(reinterpret_cast<uint8_t *>(out.data()));
+    task_data_seq->outputs_count.emplace_back(out.size());
+  }
   // Create Task
   volochaev_s_shell_sort_with_batchers_even_odd_merge_all::ShellSortALL test_task_sequential(task_data_seq);
   ASSERT_EQ(test_task_sequential.Validation(), true);
@@ -1286,20 +1491,24 @@ TEST(volochaev_s_Shell_sort_with_Batchers_even_odd_merge_all, test_with_len_Eule
 
 TEST(volochaev_s_Shell_sort_with_Batchers_even_odd_merge_all, test_with_len_Euler_base_3_6) {
   constexpr size_t kSizeOfVector = 7381;
-
-  // Create data
-  std::vector<int> in(kSizeOfVector, 0);
-  GetRandomVector(in, -100, 100);
-  std::vector<int> out(kSizeOfVector, 0);
-  std::vector<int> answer(in);
-  std::ranges::sort(answer);
-  // Create task_data
+  boost::mpi::communicator world;
+  std::vector<int> in;
+  std::vector<int> out;
+  std::vector<int> answer;
   auto task_data_seq = std::make_shared<ppc::core::TaskData>();
-  task_data_seq->inputs.emplace_back(reinterpret_cast<uint8_t *>(in.data()));
-  task_data_seq->inputs_count.emplace_back(in.size());
-  task_data_seq->outputs.emplace_back(reinterpret_cast<uint8_t *>(out.data()));
-  task_data_seq->outputs_count.emplace_back(out.size());
-
+  if (world.rank() == 0) {
+    // Create data
+    in.resize(kSizeOfVector, 0);
+    GetRandomVector(in, -100, 100);
+    out.resize(kSizeOfVector, 0);
+    std::vector<int> answer(in);
+    std::ranges::sort(answer);
+    // Create task_data
+    task_data_seq->inputs.emplace_back(reinterpret_cast<uint8_t *>(in.data()));
+    task_data_seq->inputs_count.emplace_back(in.size());
+    task_data_seq->outputs.emplace_back(reinterpret_cast<uint8_t *>(out.data()));
+    task_data_seq->outputs_count.emplace_back(out.size());
+  }
   // Create Task
   volochaev_s_shell_sort_with_batchers_even_odd_merge_all::ShellSortALL test_task_sequential(task_data_seq);
   ASSERT_EQ(test_task_sequential.Validation(), true);
@@ -1311,20 +1520,24 @@ TEST(volochaev_s_Shell_sort_with_Batchers_even_odd_merge_all, test_with_len_Eule
 
 TEST(volochaev_s_Shell_sort_with_Batchers_even_odd_merge_all, test_with_len_Euler_base_3_7) {
   constexpr size_t kSizeOfVector = 8401;
-
-  // Create data
-  std::vector<int> in(kSizeOfVector, 0);
-  GetRandomVector(in, -100, 100);
-  std::vector<int> out(kSizeOfVector, 0);
-  std::vector<int> answer(in);
-  std::ranges::sort(answer);
-  // Create task_data
+  boost::mpi::communicator world;
+  std::vector<int> in;
+  std::vector<int> out;
+  std::vector<int> answer;
   auto task_data_seq = std::make_shared<ppc::core::TaskData>();
-  task_data_seq->inputs.emplace_back(reinterpret_cast<uint8_t *>(in.data()));
-  task_data_seq->inputs_count.emplace_back(in.size());
-  task_data_seq->outputs.emplace_back(reinterpret_cast<uint8_t *>(out.data()));
-  task_data_seq->outputs_count.emplace_back(out.size());
-
+  if (world.rank() == 0) {
+    // Create data
+    in.resize(kSizeOfVector, 0);
+    GetRandomVector(in, -100, 100);
+    out.resize(kSizeOfVector, 0);
+    std::vector<int> answer(in);
+    std::ranges::sort(answer);
+    // Create task_data
+    task_data_seq->inputs.emplace_back(reinterpret_cast<uint8_t *>(in.data()));
+    task_data_seq->inputs_count.emplace_back(in.size());
+    task_data_seq->outputs.emplace_back(reinterpret_cast<uint8_t *>(out.data()));
+    task_data_seq->outputs_count.emplace_back(out.size());
+  }
   // Create Task
   volochaev_s_shell_sort_with_batchers_even_odd_merge_all::ShellSortALL test_task_sequential(task_data_seq);
   ASSERT_EQ(test_task_sequential.Validation(), true);
@@ -1336,20 +1549,24 @@ TEST(volochaev_s_Shell_sort_with_Batchers_even_odd_merge_all, test_with_len_Eule
 
 TEST(volochaev_s_Shell_sort_with_Batchers_even_odd_merge_all, test_with_len_Euler_base_3_8) {
   constexpr size_t kSizeOfVector = 8911;
-
-  // Create data
-  std::vector<int> in(kSizeOfVector, 0);
-  GetRandomVector(in, -100, 100);
-  std::vector<int> out(kSizeOfVector, 0);
-  std::vector<int> answer(in);
-  std::ranges::sort(answer);
-  // Create task_data
+  boost::mpi::communicator world;
+  std::vector<int> in;
+  std::vector<int> out;
+  std::vector<int> answer;
   auto task_data_seq = std::make_shared<ppc::core::TaskData>();
-  task_data_seq->inputs.emplace_back(reinterpret_cast<uint8_t *>(in.data()));
-  task_data_seq->inputs_count.emplace_back(in.size());
-  task_data_seq->outputs.emplace_back(reinterpret_cast<uint8_t *>(out.data()));
-  task_data_seq->outputs_count.emplace_back(out.size());
-
+  if (world.rank() == 0) {
+    // Create data
+    in.resize(kSizeOfVector, 0);
+    GetRandomVector(in, -100, 100);
+    out.resize(kSizeOfVector, 0);
+    std::vector<int> answer(in);
+    std::ranges::sort(answer);
+    // Create task_data
+    task_data_seq->inputs.emplace_back(reinterpret_cast<uint8_t *>(in.data()));
+    task_data_seq->inputs_count.emplace_back(in.size());
+    task_data_seq->outputs.emplace_back(reinterpret_cast<uint8_t *>(out.data()));
+    task_data_seq->outputs_count.emplace_back(out.size());
+  }
   // Create Task
   volochaev_s_shell_sort_with_batchers_even_odd_merge_all::ShellSortALL test_task_sequential(task_data_seq);
   ASSERT_EQ(test_task_sequential.Validation(), true);
@@ -1361,20 +1578,24 @@ TEST(volochaev_s_Shell_sort_with_Batchers_even_odd_merge_all, test_with_len_Eule
 
 TEST(volochaev_s_Shell_sort_with_Batchers_even_odd_merge_all, test_with_len_Euler_base_3_9) {
   constexpr size_t kSizeOfVector = 10585;
-
-  // Create data
-  std::vector<int> in(kSizeOfVector, 0);
-  GetRandomVector(in, -100, 100);
-  std::vector<int> out(kSizeOfVector, 0);
-  std::vector<int> answer(in);
-  std::ranges::sort(answer);
-  // Create task_data
+  boost::mpi::communicator world;
+  std::vector<int> in;
+  std::vector<int> out;
+  std::vector<int> answer;
   auto task_data_seq = std::make_shared<ppc::core::TaskData>();
-  task_data_seq->inputs.emplace_back(reinterpret_cast<uint8_t *>(in.data()));
-  task_data_seq->inputs_count.emplace_back(in.size());
-  task_data_seq->outputs.emplace_back(reinterpret_cast<uint8_t *>(out.data()));
-  task_data_seq->outputs_count.emplace_back(out.size());
-
+  if (world.rank() == 0) {
+    // Create data
+    in.resize(kSizeOfVector, 0);
+    GetRandomVector(in, -100, 100);
+    out.resize(kSizeOfVector, 0);
+    std::vector<int> answer(in);
+    std::ranges::sort(answer);
+    // Create task_data
+    task_data_seq->inputs.emplace_back(reinterpret_cast<uint8_t *>(in.data()));
+    task_data_seq->inputs_count.emplace_back(in.size());
+    task_data_seq->outputs.emplace_back(reinterpret_cast<uint8_t *>(out.data()));
+    task_data_seq->outputs_count.emplace_back(out.size());
+  }
   // Create Task
   volochaev_s_shell_sort_with_batchers_even_odd_merge_all::ShellSortALL test_task_sequential(task_data_seq);
   ASSERT_EQ(test_task_sequential.Validation(), true);
@@ -1386,20 +1607,24 @@ TEST(volochaev_s_Shell_sort_with_Batchers_even_odd_merge_all, test_with_len_Eule
 
 TEST(volochaev_s_Shell_sort_with_Batchers_even_odd_merge_all, test_with_len_Euler_base_3_10) {
   constexpr size_t kSizeOfVector = 12403;
-
-  // Create data
-  std::vector<int> in(kSizeOfVector, 0);
-  GetRandomVector(in, -100, 100);
-  std::vector<int> out(kSizeOfVector, 0);
-  std::vector<int> answer(in);
-  std::ranges::sort(answer);
-  // Create task_data
+  boost::mpi::communicator world;
+  std::vector<int> in;
+  std::vector<int> out;
+  std::vector<int> answer;
   auto task_data_seq = std::make_shared<ppc::core::TaskData>();
-  task_data_seq->inputs.emplace_back(reinterpret_cast<uint8_t *>(in.data()));
-  task_data_seq->inputs_count.emplace_back(in.size());
-  task_data_seq->outputs.emplace_back(reinterpret_cast<uint8_t *>(out.data()));
-  task_data_seq->outputs_count.emplace_back(out.size());
-
+  if (world.rank() == 0) {
+    // Create data
+    in.resize(kSizeOfVector, 0);
+    GetRandomVector(in, -100, 100);
+    out.resize(kSizeOfVector, 0);
+    std::vector<int> answer(in);
+    std::ranges::sort(answer);
+    // Create task_data
+    task_data_seq->inputs.emplace_back(reinterpret_cast<uint8_t *>(in.data()));
+    task_data_seq->inputs_count.emplace_back(in.size());
+    task_data_seq->outputs.emplace_back(reinterpret_cast<uint8_t *>(out.data()));
+    task_data_seq->outputs_count.emplace_back(out.size());
+  }
   // Create Task
   volochaev_s_shell_sort_with_batchers_even_odd_merge_all::ShellSortALL test_task_sequential(task_data_seq);
   ASSERT_EQ(test_task_sequential.Validation(), true);
@@ -1411,20 +1636,24 @@ TEST(volochaev_s_Shell_sort_with_Batchers_even_odd_merge_all, test_with_len_Eule
 
 TEST(volochaev_s_Shell_sort_with_Batchers_even_odd_merge_all, test_with_len_Mersenne_1) {
   constexpr size_t kSizeOfVector = 16383;
-
-  // Create data
-  std::vector<int> in(kSizeOfVector, 0);
-  GetRandomVector(in, -100, 100);
-  std::vector<int> out(kSizeOfVector, 0);
-  std::vector<int> answer(in);
-  std::ranges::sort(answer);
-  // Create task_data
+  boost::mpi::communicator world;
+  std::vector<int> in;
+  std::vector<int> out;
+  std::vector<int> answer;
   auto task_data_seq = std::make_shared<ppc::core::TaskData>();
-  task_data_seq->inputs.emplace_back(reinterpret_cast<uint8_t *>(in.data()));
-  task_data_seq->inputs_count.emplace_back(in.size());
-  task_data_seq->outputs.emplace_back(reinterpret_cast<uint8_t *>(out.data()));
-  task_data_seq->outputs_count.emplace_back(out.size());
-
+  if (world.rank() == 0) {
+    // Create data
+    in.resize(kSizeOfVector, 0);
+    GetRandomVector(in, -100, 100);
+    out.resize(kSizeOfVector, 0);
+    std::vector<int> answer(in);
+    std::ranges::sort(answer);
+    // Create task_data
+    task_data_seq->inputs.emplace_back(reinterpret_cast<uint8_t *>(in.data()));
+    task_data_seq->inputs_count.emplace_back(in.size());
+    task_data_seq->outputs.emplace_back(reinterpret_cast<uint8_t *>(out.data()));
+    task_data_seq->outputs_count.emplace_back(out.size());
+  }
   // Create Task
   volochaev_s_shell_sort_with_batchers_even_odd_merge_all::ShellSortALL test_task_sequential(task_data_seq);
   ASSERT_EQ(test_task_sequential.Validation(), true);
@@ -1436,20 +1665,24 @@ TEST(volochaev_s_Shell_sort_with_Batchers_even_odd_merge_all, test_with_len_Mers
 
 TEST(volochaev_s_Shell_sort_with_Batchers_even_odd_merge_all, test_with_len_Mersenne_2) {
   constexpr size_t kSizeOfVector = 32767;
-
-  // Create data
-  std::vector<int> in(kSizeOfVector, 0);
-  GetRandomVector(in, -100, 100);
-  std::vector<int> out(kSizeOfVector, 0);
-  std::vector<int> answer(in);
-  std::ranges::sort(answer);
-  // Create task_data
+  boost::mpi::communicator world;
+  std::vector<int> in;
+  std::vector<int> out;
+  std::vector<int> answer;
   auto task_data_seq = std::make_shared<ppc::core::TaskData>();
-  task_data_seq->inputs.emplace_back(reinterpret_cast<uint8_t *>(in.data()));
-  task_data_seq->inputs_count.emplace_back(in.size());
-  task_data_seq->outputs.emplace_back(reinterpret_cast<uint8_t *>(out.data()));
-  task_data_seq->outputs_count.emplace_back(out.size());
-
+  if (world.rank() == 0) {
+    // Create data
+    in.resize(kSizeOfVector, 0);
+    GetRandomVector(in, -100, 100);
+    out.resize(kSizeOfVector, 0);
+    std::vector<int> answer(in);
+    std::ranges::sort(answer);
+    // Create task_data
+    task_data_seq->inputs.emplace_back(reinterpret_cast<uint8_t *>(in.data()));
+    task_data_seq->inputs_count.emplace_back(in.size());
+    task_data_seq->outputs.emplace_back(reinterpret_cast<uint8_t *>(out.data()));
+    task_data_seq->outputs_count.emplace_back(out.size());
+  }
   // Create Task
   volochaev_s_shell_sort_with_batchers_even_odd_merge_all::ShellSortALL test_task_sequential(task_data_seq);
   ASSERT_EQ(test_task_sequential.Validation(), true);
@@ -1461,20 +1694,24 @@ TEST(volochaev_s_Shell_sort_with_Batchers_even_odd_merge_all, test_with_len_Mers
 
 TEST(volochaev_s_Shell_sort_with_Batchers_even_odd_merge_all, test_with_len_Mersenne_3) {
   constexpr size_t kSizeOfVector = 65535;
-
-  // Create data
-  std::vector<int> in(kSizeOfVector, 0);
-  GetRandomVector(in, -100, 100);
-  std::vector<int> out(kSizeOfVector, 0);
-  std::vector<int> answer(in);
-  std::ranges::sort(answer);
-  // Create task_data
+  boost::mpi::communicator world;
+  std::vector<int> in;
+  std::vector<int> out;
+  std::vector<int> answer;
   auto task_data_seq = std::make_shared<ppc::core::TaskData>();
-  task_data_seq->inputs.emplace_back(reinterpret_cast<uint8_t *>(in.data()));
-  task_data_seq->inputs_count.emplace_back(in.size());
-  task_data_seq->outputs.emplace_back(reinterpret_cast<uint8_t *>(out.data()));
-  task_data_seq->outputs_count.emplace_back(out.size());
-
+  if (world.rank() == 0) {
+    // Create data
+    in.resize(kSizeOfVector, 0);
+    GetRandomVector(in, -100, 100);
+    out.resize(kSizeOfVector, 0);
+    std::vector<int> answer(in);
+    std::ranges::sort(answer);
+    // Create task_data
+    task_data_seq->inputs.emplace_back(reinterpret_cast<uint8_t *>(in.data()));
+    task_data_seq->inputs_count.emplace_back(in.size());
+    task_data_seq->outputs.emplace_back(reinterpret_cast<uint8_t *>(out.data()));
+    task_data_seq->outputs_count.emplace_back(out.size());
+  }
   // Create Task
   volochaev_s_shell_sort_with_batchers_even_odd_merge_all::ShellSortALL test_task_sequential(task_data_seq);
   ASSERT_EQ(test_task_sequential.Validation(), true);
@@ -1486,20 +1723,24 @@ TEST(volochaev_s_Shell_sort_with_Batchers_even_odd_merge_all, test_with_len_Mers
 
 TEST(volochaev_s_Shell_sort_with_Batchers_even_odd_merge_all, test_with_len_Mersenne_4) {
   constexpr size_t kSizeOfVector = 131071;
-
-  // Create data
-  std::vector<int> in(kSizeOfVector, 0);
-  GetRandomVector(in, -100, 100);
-  std::vector<int> out(kSizeOfVector, 0);
-  std::vector<int> answer(in);
-  std::ranges::sort(answer);
-  // Create task_data
+  boost::mpi::communicator world;
+  std::vector<int> in;
+  std::vector<int> out;
+  std::vector<int> answer;
   auto task_data_seq = std::make_shared<ppc::core::TaskData>();
-  task_data_seq->inputs.emplace_back(reinterpret_cast<uint8_t *>(in.data()));
-  task_data_seq->inputs_count.emplace_back(in.size());
-  task_data_seq->outputs.emplace_back(reinterpret_cast<uint8_t *>(out.data()));
-  task_data_seq->outputs_count.emplace_back(out.size());
-
+  if (world.rank() == 0) {
+    // Create data
+    in.resize(kSizeOfVector, 0);
+    GetRandomVector(in, -100, 100);
+    out.resize(kSizeOfVector, 0);
+    std::vector<int> answer(in);
+    std::ranges::sort(answer);
+    // Create task_data
+    task_data_seq->inputs.emplace_back(reinterpret_cast<uint8_t *>(in.data()));
+    task_data_seq->inputs_count.emplace_back(in.size());
+    task_data_seq->outputs.emplace_back(reinterpret_cast<uint8_t *>(out.data()));
+    task_data_seq->outputs_count.emplace_back(out.size());
+  }
   // Create Task
   volochaev_s_shell_sort_with_batchers_even_odd_merge_all::ShellSortALL test_task_sequential(task_data_seq);
   ASSERT_EQ(test_task_sequential.Validation(), true);
@@ -1511,20 +1752,24 @@ TEST(volochaev_s_Shell_sort_with_Batchers_even_odd_merge_all, test_with_len_Mers
 
 TEST(volochaev_s_Shell_sort_with_Batchers_even_odd_merge_all, test_with_len_Mersenne_5) {
   constexpr size_t kSizeOfVector = 524287;
-
-  // Create data
-  std::vector<int> in(kSizeOfVector, 0);
-  GetRandomVector(in, -100, 100);
-  std::vector<int> out(kSizeOfVector, 0);
-  std::vector<int> answer(in);
-  std::ranges::sort(answer);
-  // Create task_data
+  boost::mpi::communicator world;
+  std::vector<int> in;
+  std::vector<int> out;
+  std::vector<int> answer;
   auto task_data_seq = std::make_shared<ppc::core::TaskData>();
-  task_data_seq->inputs.emplace_back(reinterpret_cast<uint8_t *>(in.data()));
-  task_data_seq->inputs_count.emplace_back(in.size());
-  task_data_seq->outputs.emplace_back(reinterpret_cast<uint8_t *>(out.data()));
-  task_data_seq->outputs_count.emplace_back(out.size());
-
+  if (world.rank() == 0) {
+    // Create data
+    in.resize(kSizeOfVector, 0);
+    GetRandomVector(in, -100, 100);
+    out.resize(kSizeOfVector, 0);
+    std::vector<int> answer(in);
+    std::ranges::sort(answer);
+    // Create task_data
+    task_data_seq->inputs.emplace_back(reinterpret_cast<uint8_t *>(in.data()));
+    task_data_seq->inputs_count.emplace_back(in.size());
+    task_data_seq->outputs.emplace_back(reinterpret_cast<uint8_t *>(out.data()));
+    task_data_seq->outputs_count.emplace_back(out.size());
+  }
   // Create Task
   volochaev_s_shell_sort_with_batchers_even_odd_merge_all::ShellSortALL test_task_sequential(task_data_seq);
   ASSERT_EQ(test_task_sequential.Validation(), true);
@@ -1536,20 +1781,24 @@ TEST(volochaev_s_Shell_sort_with_Batchers_even_odd_merge_all, test_with_len_Mers
 
 TEST(volochaev_s_Shell_sort_with_Batchers_even_odd_merge_all, test_with_len_Lucas_1) {
   constexpr size_t kSizeOfVector = 1;
-
-  // Create data
-  std::vector<int> in(kSizeOfVector, 0);
-  GetRandomVector(in, -100, 100);
-  std::vector<int> out(kSizeOfVector, 0);
-  std::vector<int> answer(in);
-  std::ranges::sort(answer);
-  // Create task_data
+  boost::mpi::communicator world;
+  std::vector<int> in;
+  std::vector<int> out;
+  std::vector<int> answer;
   auto task_data_seq = std::make_shared<ppc::core::TaskData>();
-  task_data_seq->inputs.emplace_back(reinterpret_cast<uint8_t *>(in.data()));
-  task_data_seq->inputs_count.emplace_back(in.size());
-  task_data_seq->outputs.emplace_back(reinterpret_cast<uint8_t *>(out.data()));
-  task_data_seq->outputs_count.emplace_back(out.size());
-
+  if (world.rank() == 0) {
+    // Create data
+    in.resize(kSizeOfVector, 0);
+    GetRandomVector(in, -100, 100);
+    out.resize(kSizeOfVector, 0);
+    std::vector<int> answer(in);
+    std::ranges::sort(answer);
+    // Create task_data
+    task_data_seq->inputs.emplace_back(reinterpret_cast<uint8_t *>(in.data()));
+    task_data_seq->inputs_count.emplace_back(in.size());
+    task_data_seq->outputs.emplace_back(reinterpret_cast<uint8_t *>(out.data()));
+    task_data_seq->outputs_count.emplace_back(out.size());
+  }
   // Create Task
   volochaev_s_shell_sort_with_batchers_even_odd_merge_all::ShellSortALL test_task_sequential(task_data_seq);
   ASSERT_EQ(test_task_sequential.Validation(), true);
@@ -1561,20 +1810,24 @@ TEST(volochaev_s_Shell_sort_with_Batchers_even_odd_merge_all, test_with_len_Luca
 
 TEST(volochaev_s_Shell_sort_with_Batchers_even_odd_merge_all, test_with_len_Lucas_2) {
   constexpr size_t kSizeOfVector = 2;
-
-  // Create data
-  std::vector<int> in(kSizeOfVector, 0);
-  GetRandomVector(in, -100, 100);
-  std::vector<int> out(kSizeOfVector, 0);
-  std::vector<int> answer(in);
-  std::ranges::sort(answer);
-  // Create task_data
+  boost::mpi::communicator world;
+  std::vector<int> in;
+  std::vector<int> out;
+  std::vector<int> answer;
   auto task_data_seq = std::make_shared<ppc::core::TaskData>();
-  task_data_seq->inputs.emplace_back(reinterpret_cast<uint8_t *>(in.data()));
-  task_data_seq->inputs_count.emplace_back(in.size());
-  task_data_seq->outputs.emplace_back(reinterpret_cast<uint8_t *>(out.data()));
-  task_data_seq->outputs_count.emplace_back(out.size());
-
+  if (world.rank() == 0) {
+    // Create data
+    in.resize(kSizeOfVector, 0);
+    GetRandomVector(in, -100, 100);
+    out.resize(kSizeOfVector, 0);
+    std::vector<int> answer(in);
+    std::ranges::sort(answer);
+    // Create task_data
+    task_data_seq->inputs.emplace_back(reinterpret_cast<uint8_t *>(in.data()));
+    task_data_seq->inputs_count.emplace_back(in.size());
+    task_data_seq->outputs.emplace_back(reinterpret_cast<uint8_t *>(out.data()));
+    task_data_seq->outputs_count.emplace_back(out.size());
+  }
   // Create Task
   volochaev_s_shell_sort_with_batchers_even_odd_merge_all::ShellSortALL test_task_sequential(task_data_seq);
   ASSERT_EQ(test_task_sequential.Validation(), true);
@@ -1586,20 +1839,24 @@ TEST(volochaev_s_Shell_sort_with_Batchers_even_odd_merge_all, test_with_len_Luca
 
 TEST(volochaev_s_Shell_sort_with_Batchers_even_odd_merge_all, test_with_len_Lucas_3) {
   constexpr size_t kSizeOfVector = 3;
-
-  // Create data
-  std::vector<int> in(kSizeOfVector, 0);
-  GetRandomVector(in, -100, 100);
-  std::vector<int> out(kSizeOfVector, 0);
-  std::vector<int> answer(in);
-  std::ranges::sort(answer);
-  // Create task_data
+  boost::mpi::communicator world;
+  std::vector<int> in;
+  std::vector<int> out;
+  std::vector<int> answer;
   auto task_data_seq = std::make_shared<ppc::core::TaskData>();
-  task_data_seq->inputs.emplace_back(reinterpret_cast<uint8_t *>(in.data()));
-  task_data_seq->inputs_count.emplace_back(in.size());
-  task_data_seq->outputs.emplace_back(reinterpret_cast<uint8_t *>(out.data()));
-  task_data_seq->outputs_count.emplace_back(out.size());
-
+  if (world.rank() == 0) {
+    // Create data
+    in.resize(kSizeOfVector, 0);
+    GetRandomVector(in, -100, 100);
+    out.resize(kSizeOfVector, 0);
+    std::vector<int> answer(in);
+    std::ranges::sort(answer);
+    // Create task_data
+    task_data_seq->inputs.emplace_back(reinterpret_cast<uint8_t *>(in.data()));
+    task_data_seq->inputs_count.emplace_back(in.size());
+    task_data_seq->outputs.emplace_back(reinterpret_cast<uint8_t *>(out.data()));
+    task_data_seq->outputs_count.emplace_back(out.size());
+  }
   // Create Task
   volochaev_s_shell_sort_with_batchers_even_odd_merge_all::ShellSortALL test_task_sequential(task_data_seq);
   ASSERT_EQ(test_task_sequential.Validation(), true);
@@ -1611,20 +1868,24 @@ TEST(volochaev_s_Shell_sort_with_Batchers_even_odd_merge_all, test_with_len_Luca
 
 TEST(volochaev_s_Shell_sort_with_Batchers_even_odd_merge_all, test_with_len_Lucas_4) {
   constexpr size_t kSizeOfVector = 4;
-
-  // Create data
-  std::vector<int> in(kSizeOfVector, 0);
-  GetRandomVector(in, -100, 100);
-  std::vector<int> out(kSizeOfVector, 0);
-  std::vector<int> answer(in);
-  std::ranges::sort(answer);
-  // Create task_data
+  boost::mpi::communicator world;
+  std::vector<int> in;
+  std::vector<int> out;
+  std::vector<int> answer;
   auto task_data_seq = std::make_shared<ppc::core::TaskData>();
-  task_data_seq->inputs.emplace_back(reinterpret_cast<uint8_t *>(in.data()));
-  task_data_seq->inputs_count.emplace_back(in.size());
-  task_data_seq->outputs.emplace_back(reinterpret_cast<uint8_t *>(out.data()));
-  task_data_seq->outputs_count.emplace_back(out.size());
-
+  if (world.rank() == 0) {
+    // Create data
+    in.resize(kSizeOfVector, 0);
+    GetRandomVector(in, -100, 100);
+    out.resize(kSizeOfVector, 0);
+    std::vector<int> answer(in);
+    std::ranges::sort(answer);
+    // Create task_data
+    task_data_seq->inputs.emplace_back(reinterpret_cast<uint8_t *>(in.data()));
+    task_data_seq->inputs_count.emplace_back(in.size());
+    task_data_seq->outputs.emplace_back(reinterpret_cast<uint8_t *>(out.data()));
+    task_data_seq->outputs_count.emplace_back(out.size());
+  }
   // Create Task
   volochaev_s_shell_sort_with_batchers_even_odd_merge_all::ShellSortALL test_task_sequential(task_data_seq);
   ASSERT_EQ(test_task_sequential.Validation(), true);
@@ -1636,20 +1897,24 @@ TEST(volochaev_s_Shell_sort_with_Batchers_even_odd_merge_all, test_with_len_Luca
 
 TEST(volochaev_s_Shell_sort_with_Batchers_even_odd_merge_all, test_with_len_Lucas_5) {
   constexpr size_t kSizeOfVector = 7;
-
-  // Create data
-  std::vector<int> in(kSizeOfVector, 0);
-  GetRandomVector(in, -100, 100);
-  std::vector<int> out(kSizeOfVector, 0);
-  std::vector<int> answer(in);
-  std::ranges::sort(answer);
-  // Create task_data
+  boost::mpi::communicator world;
+  std::vector<int> in;
+  std::vector<int> out;
+  std::vector<int> answer;
   auto task_data_seq = std::make_shared<ppc::core::TaskData>();
-  task_data_seq->inputs.emplace_back(reinterpret_cast<uint8_t *>(in.data()));
-  task_data_seq->inputs_count.emplace_back(in.size());
-  task_data_seq->outputs.emplace_back(reinterpret_cast<uint8_t *>(out.data()));
-  task_data_seq->outputs_count.emplace_back(out.size());
-
+  if (world.rank() == 0) {
+    // Create data
+    in.resize(kSizeOfVector, 0);
+    GetRandomVector(in, -100, 100);
+    out.resize(kSizeOfVector, 0);
+    std::vector<int> answer(in);
+    std::ranges::sort(answer);
+    // Create task_data
+    task_data_seq->inputs.emplace_back(reinterpret_cast<uint8_t *>(in.data()));
+    task_data_seq->inputs_count.emplace_back(in.size());
+    task_data_seq->outputs.emplace_back(reinterpret_cast<uint8_t *>(out.data()));
+    task_data_seq->outputs_count.emplace_back(out.size());
+  }
   // Create Task
   volochaev_s_shell_sort_with_batchers_even_odd_merge_all::ShellSortALL test_task_sequential(task_data_seq);
   ASSERT_EQ(test_task_sequential.Validation(), true);
@@ -1661,20 +1926,24 @@ TEST(volochaev_s_Shell_sort_with_Batchers_even_odd_merge_all, test_with_len_Luca
 
 TEST(volochaev_s_Shell_sort_with_Batchers_even_odd_merge_all, test_with_len_Lucas_6) {
   constexpr size_t kSizeOfVector = 11;
-
-  // Create data
-  std::vector<int> in(kSizeOfVector, 0);
-  GetRandomVector(in, -100, 100);
-  std::vector<int> out(kSizeOfVector, 0);
-  std::vector<int> answer(in);
-  std::ranges::sort(answer);
-  // Create task_data
+  boost::mpi::communicator world;
+  std::vector<int> in;
+  std::vector<int> out;
+  std::vector<int> answer;
   auto task_data_seq = std::make_shared<ppc::core::TaskData>();
-  task_data_seq->inputs.emplace_back(reinterpret_cast<uint8_t *>(in.data()));
-  task_data_seq->inputs_count.emplace_back(in.size());
-  task_data_seq->outputs.emplace_back(reinterpret_cast<uint8_t *>(out.data()));
-  task_data_seq->outputs_count.emplace_back(out.size());
-
+  if (world.rank() == 0) {
+    // Create data
+    in.resize(kSizeOfVector, 0);
+    GetRandomVector(in, -100, 100);
+    out.resize(kSizeOfVector, 0);
+    std::vector<int> answer(in);
+    std::ranges::sort(answer);
+    // Create task_data
+    task_data_seq->inputs.emplace_back(reinterpret_cast<uint8_t *>(in.data()));
+    task_data_seq->inputs_count.emplace_back(in.size());
+    task_data_seq->outputs.emplace_back(reinterpret_cast<uint8_t *>(out.data()));
+    task_data_seq->outputs_count.emplace_back(out.size());
+  }
   // Create Task
   volochaev_s_shell_sort_with_batchers_even_odd_merge_all::ShellSortALL test_task_sequential(task_data_seq);
   ASSERT_EQ(test_task_sequential.Validation(), true);
@@ -1686,20 +1955,24 @@ TEST(volochaev_s_Shell_sort_with_Batchers_even_odd_merge_all, test_with_len_Luca
 
 TEST(volochaev_s_Shell_sort_with_Batchers_even_odd_merge_all, test_with_len_Lucas_7) {
   constexpr size_t kSizeOfVector = 18;
-
-  // Create data
-  std::vector<int> in(kSizeOfVector, 0);
-  GetRandomVector(in, -100, 100);
-  std::vector<int> out(kSizeOfVector, 0);
-  std::vector<int> answer(in);
-  std::ranges::sort(answer);
-  // Create task_data
+  boost::mpi::communicator world;
+  std::vector<int> in;
+  std::vector<int> out;
+  std::vector<int> answer;
   auto task_data_seq = std::make_shared<ppc::core::TaskData>();
-  task_data_seq->inputs.emplace_back(reinterpret_cast<uint8_t *>(in.data()));
-  task_data_seq->inputs_count.emplace_back(in.size());
-  task_data_seq->outputs.emplace_back(reinterpret_cast<uint8_t *>(out.data()));
-  task_data_seq->outputs_count.emplace_back(out.size());
-
+  if (world.rank() == 0) {
+    // Create data
+    in.resize(kSizeOfVector, 0);
+    GetRandomVector(in, -100, 100);
+    out.resize(kSizeOfVector, 0);
+    std::vector<int> answer(in);
+    std::ranges::sort(answer);
+    // Create task_data
+    task_data_seq->inputs.emplace_back(reinterpret_cast<uint8_t *>(in.data()));
+    task_data_seq->inputs_count.emplace_back(in.size());
+    task_data_seq->outputs.emplace_back(reinterpret_cast<uint8_t *>(out.data()));
+    task_data_seq->outputs_count.emplace_back(out.size());
+  }
   // Create Task
   volochaev_s_shell_sort_with_batchers_even_odd_merge_all::ShellSortALL test_task_sequential(task_data_seq);
   ASSERT_EQ(test_task_sequential.Validation(), true);
@@ -1711,20 +1984,24 @@ TEST(volochaev_s_Shell_sort_with_Batchers_even_odd_merge_all, test_with_len_Luca
 
 TEST(volochaev_s_Shell_sort_with_Batchers_even_odd_merge_all, test_with_len_Lucas_8) {
   constexpr size_t kSizeOfVector = 29;
-
-  // Create data
-  std::vector<int> in(kSizeOfVector, 0);
-  GetRandomVector(in, -100, 100);
-  std::vector<int> out(kSizeOfVector, 0);
-  std::vector<int> answer(in);
-  std::ranges::sort(answer);
-  // Create task_data
+  boost::mpi::communicator world;
+  std::vector<int> in;
+  std::vector<int> out;
+  std::vector<int> answer;
   auto task_data_seq = std::make_shared<ppc::core::TaskData>();
-  task_data_seq->inputs.emplace_back(reinterpret_cast<uint8_t *>(in.data()));
-  task_data_seq->inputs_count.emplace_back(in.size());
-  task_data_seq->outputs.emplace_back(reinterpret_cast<uint8_t *>(out.data()));
-  task_data_seq->outputs_count.emplace_back(out.size());
-
+  if (world.rank() == 0) {
+    // Create data
+    in.resize(kSizeOfVector, 0);
+    GetRandomVector(in, -100, 100);
+    out.resize(kSizeOfVector, 0);
+    std::vector<int> answer(in);
+    std::ranges::sort(answer);
+    // Create task_data
+    task_data_seq->inputs.emplace_back(reinterpret_cast<uint8_t *>(in.data()));
+    task_data_seq->inputs_count.emplace_back(in.size());
+    task_data_seq->outputs.emplace_back(reinterpret_cast<uint8_t *>(out.data()));
+    task_data_seq->outputs_count.emplace_back(out.size());
+  }
   // Create Task
   volochaev_s_shell_sort_with_batchers_even_odd_merge_all::ShellSortALL test_task_sequential(task_data_seq);
   ASSERT_EQ(test_task_sequential.Validation(), true);
@@ -1736,20 +2013,24 @@ TEST(volochaev_s_Shell_sort_with_Batchers_even_odd_merge_all, test_with_len_Luca
 
 TEST(volochaev_s_Shell_sort_with_Batchers_even_odd_merge_all, test_with_len_Lucas_9) {
   constexpr size_t kSizeOfVector = 47;
-
-  // Create data
-  std::vector<int> in(kSizeOfVector, 0);
-  GetRandomVector(in, -100, 100);
-  std::vector<int> out(kSizeOfVector, 0);
-  std::vector<int> answer(in);
-  std::ranges::sort(answer);
-  // Create task_data
+  boost::mpi::communicator world;
+  std::vector<int> in;
+  std::vector<int> out;
+  std::vector<int> answer;
   auto task_data_seq = std::make_shared<ppc::core::TaskData>();
-  task_data_seq->inputs.emplace_back(reinterpret_cast<uint8_t *>(in.data()));
-  task_data_seq->inputs_count.emplace_back(in.size());
-  task_data_seq->outputs.emplace_back(reinterpret_cast<uint8_t *>(out.data()));
-  task_data_seq->outputs_count.emplace_back(out.size());
-
+  if (world.rank() == 0) {
+    // Create data
+    in.resize(kSizeOfVector, 0);
+    GetRandomVector(in, -100, 100);
+    out.resize(kSizeOfVector, 0);
+    std::vector<int> answer(in);
+    std::ranges::sort(answer);
+    // Create task_data
+    task_data_seq->inputs.emplace_back(reinterpret_cast<uint8_t *>(in.data()));
+    task_data_seq->inputs_count.emplace_back(in.size());
+    task_data_seq->outputs.emplace_back(reinterpret_cast<uint8_t *>(out.data()));
+    task_data_seq->outputs_count.emplace_back(out.size());
+  }
   // Create Task
   volochaev_s_shell_sort_with_batchers_even_odd_merge_all::ShellSortALL test_task_sequential(task_data_seq);
   ASSERT_EQ(test_task_sequential.Validation(), true);
@@ -1761,20 +2042,24 @@ TEST(volochaev_s_Shell_sort_with_Batchers_even_odd_merge_all, test_with_len_Luca
 
 TEST(volochaev_s_Shell_sort_with_Batchers_even_odd_merge_all, test_with_len_Lucas_10) {
   constexpr size_t kSizeOfVector = 76;
-
-  // Create data
-  std::vector<int> in(kSizeOfVector, 0);
-  GetRandomVector(in, -100, 100);
-  std::vector<int> out(kSizeOfVector, 0);
-  std::vector<int> answer(in);
-  std::ranges::sort(answer);
-  // Create task_data
+  boost::mpi::communicator world;
+  std::vector<int> in;
+  std::vector<int> out;
+  std::vector<int> answer;
   auto task_data_seq = std::make_shared<ppc::core::TaskData>();
-  task_data_seq->inputs.emplace_back(reinterpret_cast<uint8_t *>(in.data()));
-  task_data_seq->inputs_count.emplace_back(in.size());
-  task_data_seq->outputs.emplace_back(reinterpret_cast<uint8_t *>(out.data()));
-  task_data_seq->outputs_count.emplace_back(out.size());
-
+  if (world.rank() == 0) {
+    // Create data
+    in.resize(kSizeOfVector, 0);
+    GetRandomVector(in, -100, 100);
+    out.resize(kSizeOfVector, 0);
+    std::vector<int> answer(in);
+    std::ranges::sort(answer);
+    // Create task_data
+    task_data_seq->inputs.emplace_back(reinterpret_cast<uint8_t *>(in.data()));
+    task_data_seq->inputs_count.emplace_back(in.size());
+    task_data_seq->outputs.emplace_back(reinterpret_cast<uint8_t *>(out.data()));
+    task_data_seq->outputs_count.emplace_back(out.size());
+  }
   // Create Task
   volochaev_s_shell_sort_with_batchers_even_odd_merge_all::ShellSortALL test_task_sequential(task_data_seq);
   ASSERT_EQ(test_task_sequential.Validation(), true);
@@ -1786,20 +2071,24 @@ TEST(volochaev_s_Shell_sort_with_Batchers_even_odd_merge_all, test_with_len_Luca
 
 TEST(volochaev_s_Shell_sort_with_Batchers_even_odd_merge_all, test_with_len_Lucas_11) {
   constexpr size_t kSizeOfVector = 123;
-
-  // Create data
-  std::vector<int> in(kSizeOfVector, 0);
-  GetRandomVector(in, -100, 100);
-  std::vector<int> out(kSizeOfVector, 0);
-  std::vector<int> answer(in);
-  std::ranges::sort(answer);
-  // Create task_data
+  boost::mpi::communicator world;
+  std::vector<int> in;
+  std::vector<int> out;
+  std::vector<int> answer;
   auto task_data_seq = std::make_shared<ppc::core::TaskData>();
-  task_data_seq->inputs.emplace_back(reinterpret_cast<uint8_t *>(in.data()));
-  task_data_seq->inputs_count.emplace_back(in.size());
-  task_data_seq->outputs.emplace_back(reinterpret_cast<uint8_t *>(out.data()));
-  task_data_seq->outputs_count.emplace_back(out.size());
-
+  if (world.rank() == 0) {
+    // Create data
+    in.resize(kSizeOfVector, 0);
+    GetRandomVector(in, -100, 100);
+    out.resize(kSizeOfVector, 0);
+    std::vector<int> answer(in);
+    std::ranges::sort(answer);
+    // Create task_data
+    task_data_seq->inputs.emplace_back(reinterpret_cast<uint8_t *>(in.data()));
+    task_data_seq->inputs_count.emplace_back(in.size());
+    task_data_seq->outputs.emplace_back(reinterpret_cast<uint8_t *>(out.data()));
+    task_data_seq->outputs_count.emplace_back(out.size());
+  }
   // Create Task
   volochaev_s_shell_sort_with_batchers_even_odd_merge_all::ShellSortALL test_task_sequential(task_data_seq);
   ASSERT_EQ(test_task_sequential.Validation(), true);
@@ -1811,20 +2100,24 @@ TEST(volochaev_s_Shell_sort_with_Batchers_even_odd_merge_all, test_with_len_Luca
 
 TEST(volochaev_s_Shell_sort_with_Batchers_even_odd_merge_all, test_with_len_Lucas_12) {
   constexpr size_t kSizeOfVector = 199;
-
-  // Create data
-  std::vector<int> in(kSizeOfVector, 0);
-  GetRandomVector(in, -100, 100);
-  std::vector<int> out(kSizeOfVector, 0);
-  std::vector<int> answer(in);
-  std::ranges::sort(answer);
-  // Create task_data
+  boost::mpi::communicator world;
+  std::vector<int> in;
+  std::vector<int> out;
+  std::vector<int> answer;
   auto task_data_seq = std::make_shared<ppc::core::TaskData>();
-  task_data_seq->inputs.emplace_back(reinterpret_cast<uint8_t *>(in.data()));
-  task_data_seq->inputs_count.emplace_back(in.size());
-  task_data_seq->outputs.emplace_back(reinterpret_cast<uint8_t *>(out.data()));
-  task_data_seq->outputs_count.emplace_back(out.size());
-
+  if (world.rank() == 0) {
+    // Create data
+    in.resize(kSizeOfVector, 0);
+    GetRandomVector(in, -100, 100);
+    out.resize(kSizeOfVector, 0);
+    std::vector<int> answer(in);
+    std::ranges::sort(answer);
+    // Create task_data
+    task_data_seq->inputs.emplace_back(reinterpret_cast<uint8_t *>(in.data()));
+    task_data_seq->inputs_count.emplace_back(in.size());
+    task_data_seq->outputs.emplace_back(reinterpret_cast<uint8_t *>(out.data()));
+    task_data_seq->outputs_count.emplace_back(out.size());
+  }
   // Create Task
   volochaev_s_shell_sort_with_batchers_even_odd_merge_all::ShellSortALL test_task_sequential(task_data_seq);
   ASSERT_EQ(test_task_sequential.Validation(), true);
@@ -1836,20 +2129,24 @@ TEST(volochaev_s_Shell_sort_with_Batchers_even_odd_merge_all, test_with_len_Luca
 
 TEST(volochaev_s_Shell_sort_with_Batchers_even_odd_merge_all, test_with_len_Lucas_13) {
   constexpr size_t kSizeOfVector = 322;
-
-  // Create data
-  std::vector<int> in(kSizeOfVector, 0);
-  GetRandomVector(in, -100, 100);
-  std::vector<int> out(kSizeOfVector, 0);
-  std::vector<int> answer(in);
-  std::ranges::sort(answer);
-  // Create task_data
+  boost::mpi::communicator world;
+  std::vector<int> in;
+  std::vector<int> out;
+  std::vector<int> answer;
   auto task_data_seq = std::make_shared<ppc::core::TaskData>();
-  task_data_seq->inputs.emplace_back(reinterpret_cast<uint8_t *>(in.data()));
-  task_data_seq->inputs_count.emplace_back(in.size());
-  task_data_seq->outputs.emplace_back(reinterpret_cast<uint8_t *>(out.data()));
-  task_data_seq->outputs_count.emplace_back(out.size());
-
+  if (world.rank() == 0) {
+    // Create data
+    in.resize(kSizeOfVector, 0);
+    GetRandomVector(in, -100, 100);
+    out.resize(kSizeOfVector, 0);
+    std::vector<int> answer(in);
+    std::ranges::sort(answer);
+    // Create task_data
+    task_data_seq->inputs.emplace_back(reinterpret_cast<uint8_t *>(in.data()));
+    task_data_seq->inputs_count.emplace_back(in.size());
+    task_data_seq->outputs.emplace_back(reinterpret_cast<uint8_t *>(out.data()));
+    task_data_seq->outputs_count.emplace_back(out.size());
+  }
   // Create Task
   volochaev_s_shell_sort_with_batchers_even_odd_merge_all::ShellSortALL test_task_sequential(task_data_seq);
   ASSERT_EQ(test_task_sequential.Validation(), true);
@@ -1861,20 +2158,24 @@ TEST(volochaev_s_Shell_sort_with_Batchers_even_odd_merge_all, test_with_len_Luca
 
 TEST(volochaev_s_Shell_sort_with_Batchers_even_odd_merge_all, test_with_len_Ramanujan_1) {
   constexpr size_t kSizeOfVector = 1729;
-
-  // Create data
-  std::vector<int> in(kSizeOfVector, 0);
-  GetRandomVector(in, -100, 100);
-  std::vector<int> out(kSizeOfVector, 0);
-  std::vector<int> answer(in);
-  std::ranges::sort(answer);
-  // Create task_data
+  boost::mpi::communicator world;
+  std::vector<int> in;
+  std::vector<int> out;
+  std::vector<int> answer;
   auto task_data_seq = std::make_shared<ppc::core::TaskData>();
-  task_data_seq->inputs.emplace_back(reinterpret_cast<uint8_t *>(in.data()));
-  task_data_seq->inputs_count.emplace_back(in.size());
-  task_data_seq->outputs.emplace_back(reinterpret_cast<uint8_t *>(out.data()));
-  task_data_seq->outputs_count.emplace_back(out.size());
-
+  if (world.rank() == 0) {
+    // Create data
+    in.resize(kSizeOfVector, 0);
+    GetRandomVector(in, -100, 100);
+    out.resize(kSizeOfVector, 0);
+    std::vector<int> answer(in);
+    std::ranges::sort(answer);
+    // Create task_data
+    task_data_seq->inputs.emplace_back(reinterpret_cast<uint8_t *>(in.data()));
+    task_data_seq->inputs_count.emplace_back(in.size());
+    task_data_seq->outputs.emplace_back(reinterpret_cast<uint8_t *>(out.data()));
+    task_data_seq->outputs_count.emplace_back(out.size());
+  }
   // Create Task
   volochaev_s_shell_sort_with_batchers_even_odd_merge_all::ShellSortALL test_task_sequential(task_data_seq);
   ASSERT_EQ(test_task_sequential.Validation(), true);
@@ -1886,20 +2187,24 @@ TEST(volochaev_s_Shell_sort_with_Batchers_even_odd_merge_all, test_with_len_Rama
 
 TEST(volochaev_s_Shell_sort_with_Batchers_even_odd_merge_all, test_with_len_Ramanujan_2) {
   constexpr size_t kSizeOfVector = 4104;
-
-  // Create data
-  std::vector<int> in(kSizeOfVector, 0);
-  GetRandomVector(in, -100, 100);
-  std::vector<int> out(kSizeOfVector, 0);
-  std::vector<int> answer(in);
-  std::ranges::sort(answer);
-  // Create task_data
+  boost::mpi::communicator world;
+  std::vector<int> in;
+  std::vector<int> out;
+  std::vector<int> answer;
   auto task_data_seq = std::make_shared<ppc::core::TaskData>();
-  task_data_seq->inputs.emplace_back(reinterpret_cast<uint8_t *>(in.data()));
-  task_data_seq->inputs_count.emplace_back(in.size());
-  task_data_seq->outputs.emplace_back(reinterpret_cast<uint8_t *>(out.data()));
-  task_data_seq->outputs_count.emplace_back(out.size());
-
+  if (world.rank() == 0) {
+    // Create data
+    in.resize(kSizeOfVector, 0);
+    GetRandomVector(in, -100, 100);
+    out.resize(kSizeOfVector, 0);
+    std::vector<int> answer(in);
+    std::ranges::sort(answer);
+    // Create task_data
+    task_data_seq->inputs.emplace_back(reinterpret_cast<uint8_t *>(in.data()));
+    task_data_seq->inputs_count.emplace_back(in.size());
+    task_data_seq->outputs.emplace_back(reinterpret_cast<uint8_t *>(out.data()));
+    task_data_seq->outputs_count.emplace_back(out.size());
+  }
   // Create Task
   volochaev_s_shell_sort_with_batchers_even_odd_merge_all::ShellSortALL test_task_sequential(task_data_seq);
   ASSERT_EQ(test_task_sequential.Validation(), true);
@@ -1911,20 +2216,24 @@ TEST(volochaev_s_Shell_sort_with_Batchers_even_odd_merge_all, test_with_len_Rama
 
 TEST(volochaev_s_Shell_sort_with_Batchers_even_odd_merge_all, test_with_len_Ramanujan_3) {
   constexpr size_t kSizeOfVector = 13832;
-
-  // Create data
-  std::vector<int> in(kSizeOfVector, 0);
-  GetRandomVector(in, -100, 100);
-  std::vector<int> out(kSizeOfVector, 0);
-  std::vector<int> answer(in);
-  std::ranges::sort(answer);
-  // Create task_data
+  boost::mpi::communicator world;
+  std::vector<int> in;
+  std::vector<int> out;
+  std::vector<int> answer;
   auto task_data_seq = std::make_shared<ppc::core::TaskData>();
-  task_data_seq->inputs.emplace_back(reinterpret_cast<uint8_t *>(in.data()));
-  task_data_seq->inputs_count.emplace_back(in.size());
-  task_data_seq->outputs.emplace_back(reinterpret_cast<uint8_t *>(out.data()));
-  task_data_seq->outputs_count.emplace_back(out.size());
-
+  if (world.rank() == 0) {
+    // Create data
+    in.resize(kSizeOfVector, 0);
+    GetRandomVector(in, -100, 100);
+    out.resize(kSizeOfVector, 0);
+    std::vector<int> answer(in);
+    std::ranges::sort(answer);
+    // Create task_data
+    task_data_seq->inputs.emplace_back(reinterpret_cast<uint8_t *>(in.data()));
+    task_data_seq->inputs_count.emplace_back(in.size());
+    task_data_seq->outputs.emplace_back(reinterpret_cast<uint8_t *>(out.data()));
+    task_data_seq->outputs_count.emplace_back(out.size());
+  }
   // Create Task
   volochaev_s_shell_sort_with_batchers_even_odd_merge_all::ShellSortALL test_task_sequential(task_data_seq);
   ASSERT_EQ(test_task_sequential.Validation(), true);
@@ -1936,20 +2245,24 @@ TEST(volochaev_s_Shell_sort_with_Batchers_even_odd_merge_all, test_with_len_Rama
 
 TEST(volochaev_s_Shell_sort_with_Batchers_even_odd_merge_all, test_with_len_Ramanujan_4) {
   constexpr size_t kSizeOfVector = 20683;
-
-  // Create data
-  std::vector<int> in(kSizeOfVector, 0);
-  GetRandomVector(in, -100, 100);
-  std::vector<int> out(kSizeOfVector, 0);
-  std::vector<int> answer(in);
-  std::ranges::sort(answer);
-  // Create task_data
+  boost::mpi::communicator world;
+  std::vector<int> in;
+  std::vector<int> out;
+  std::vector<int> answer;
   auto task_data_seq = std::make_shared<ppc::core::TaskData>();
-  task_data_seq->inputs.emplace_back(reinterpret_cast<uint8_t *>(in.data()));
-  task_data_seq->inputs_count.emplace_back(in.size());
-  task_data_seq->outputs.emplace_back(reinterpret_cast<uint8_t *>(out.data()));
-  task_data_seq->outputs_count.emplace_back(out.size());
-
+  if (world.rank() == 0) {
+    // Create data
+    in.resize(kSizeOfVector, 0);
+    GetRandomVector(in, -100, 100);
+    out.resize(kSizeOfVector, 0);
+    std::vector<int> answer(in);
+    std::ranges::sort(answer);
+    // Create task_data
+    task_data_seq->inputs.emplace_back(reinterpret_cast<uint8_t *>(in.data()));
+    task_data_seq->inputs_count.emplace_back(in.size());
+    task_data_seq->outputs.emplace_back(reinterpret_cast<uint8_t *>(out.data()));
+    task_data_seq->outputs_count.emplace_back(out.size());
+  }
   // Create Task
   volochaev_s_shell_sort_with_batchers_even_odd_merge_all::ShellSortALL test_task_sequential(task_data_seq);
   ASSERT_EQ(test_task_sequential.Validation(), true);
@@ -1961,20 +2274,24 @@ TEST(volochaev_s_Shell_sort_with_Batchers_even_odd_merge_all, test_with_len_Rama
 
 TEST(volochaev_s_Shell_sort_with_Batchers_even_odd_merge_all, test_with_len_Ramanujan_5) {
   constexpr size_t kSizeOfVector = 32832;
-
-  // Create data
-  std::vector<int> in(kSizeOfVector, 0);
-  GetRandomVector(in, -100, 100);
-  std::vector<int> out(kSizeOfVector, 0);
-  std::vector<int> answer(in);
-  std::ranges::sort(answer);
-  // Create task_data
+  boost::mpi::communicator world;
+  std::vector<int> in;
+  std::vector<int> out;
+  std::vector<int> answer;
   auto task_data_seq = std::make_shared<ppc::core::TaskData>();
-  task_data_seq->inputs.emplace_back(reinterpret_cast<uint8_t *>(in.data()));
-  task_data_seq->inputs_count.emplace_back(in.size());
-  task_data_seq->outputs.emplace_back(reinterpret_cast<uint8_t *>(out.data()));
-  task_data_seq->outputs_count.emplace_back(out.size());
-
+  if (world.rank() == 0) {
+    // Create data
+    in.resize(kSizeOfVector, 0);
+    GetRandomVector(in, -100, 100);
+    out.resize(kSizeOfVector, 0);
+    std::vector<int> answer(in);
+    std::ranges::sort(answer);
+    // Create task_data
+    task_data_seq->inputs.emplace_back(reinterpret_cast<uint8_t *>(in.data()));
+    task_data_seq->inputs_count.emplace_back(in.size());
+    task_data_seq->outputs.emplace_back(reinterpret_cast<uint8_t *>(out.data()));
+    task_data_seq->outputs_count.emplace_back(out.size());
+  }
   // Create Task
   volochaev_s_shell_sort_with_batchers_even_odd_merge_all::ShellSortALL test_task_sequential(task_data_seq);
   ASSERT_EQ(test_task_sequential.Validation(), true);
@@ -1986,20 +2303,24 @@ TEST(volochaev_s_Shell_sort_with_Batchers_even_odd_merge_all, test_with_len_Rama
 
 TEST(volochaev_s_Shell_sort_with_Batchers_even_odd_merge_all, test_with_len_Ramanujan_6) {
   constexpr size_t kSizeOfVector = 39312;
-
-  // Create data
-  std::vector<int> in(kSizeOfVector, 0);
-  GetRandomVector(in, -100, 100);
-  std::vector<int> out(kSizeOfVector, 0);
-  std::vector<int> answer(in);
-  std::ranges::sort(answer);
-  // Create task_data
+  boost::mpi::communicator world;
+  std::vector<int> in;
+  std::vector<int> out;
+  std::vector<int> answer;
   auto task_data_seq = std::make_shared<ppc::core::TaskData>();
-  task_data_seq->inputs.emplace_back(reinterpret_cast<uint8_t *>(in.data()));
-  task_data_seq->inputs_count.emplace_back(in.size());
-  task_data_seq->outputs.emplace_back(reinterpret_cast<uint8_t *>(out.data()));
-  task_data_seq->outputs_count.emplace_back(out.size());
-
+  if (world.rank() == 0) {
+    // Create data
+    in.resize(kSizeOfVector, 0);
+    GetRandomVector(in, -100, 100);
+    out.resize(kSizeOfVector, 0);
+    std::vector<int> answer(in);
+    std::ranges::sort(answer);
+    // Create task_data
+    task_data_seq->inputs.emplace_back(reinterpret_cast<uint8_t *>(in.data()));
+    task_data_seq->inputs_count.emplace_back(in.size());
+    task_data_seq->outputs.emplace_back(reinterpret_cast<uint8_t *>(out.data()));
+    task_data_seq->outputs_count.emplace_back(out.size());
+  }
   // Create Task
   volochaev_s_shell_sort_with_batchers_even_odd_merge_all::ShellSortALL test_task_sequential(task_data_seq);
   ASSERT_EQ(test_task_sequential.Validation(), true);
@@ -2011,20 +2332,24 @@ TEST(volochaev_s_Shell_sort_with_Batchers_even_odd_merge_all, test_with_len_Rama
 
 TEST(volochaev_s_Shell_sort_with_Batchers_even_odd_merge_all, test_with_len_Ramanujan_7) {
   constexpr size_t kSizeOfVector = 40033;
-
-  // Create data
-  std::vector<int> in(kSizeOfVector, 0);
-  GetRandomVector(in, -100, 100);
-  std::vector<int> out(kSizeOfVector, 0);
-  std::vector<int> answer(in);
-  std::ranges::sort(answer);
-  // Create task_data
+  boost::mpi::communicator world;
+  std::vector<int> in;
+  std::vector<int> out;
+  std::vector<int> answer;
   auto task_data_seq = std::make_shared<ppc::core::TaskData>();
-  task_data_seq->inputs.emplace_back(reinterpret_cast<uint8_t *>(in.data()));
-  task_data_seq->inputs_count.emplace_back(in.size());
-  task_data_seq->outputs.emplace_back(reinterpret_cast<uint8_t *>(out.data()));
-  task_data_seq->outputs_count.emplace_back(out.size());
-
+  if (world.rank() == 0) {
+    // Create data
+    in.resize(kSizeOfVector, 0);
+    GetRandomVector(in, -100, 100);
+    out.resize(kSizeOfVector, 0);
+    std::vector<int> answer(in);
+    std::ranges::sort(answer);
+    // Create task_data
+    task_data_seq->inputs.emplace_back(reinterpret_cast<uint8_t *>(in.data()));
+    task_data_seq->inputs_count.emplace_back(in.size());
+    task_data_seq->outputs.emplace_back(reinterpret_cast<uint8_t *>(out.data()));
+    task_data_seq->outputs_count.emplace_back(out.size());
+  }
   // Create Task
   volochaev_s_shell_sort_with_batchers_even_odd_merge_all::ShellSortALL test_task_sequential(task_data_seq);
   ASSERT_EQ(test_task_sequential.Validation(), true);
@@ -2036,20 +2361,24 @@ TEST(volochaev_s_Shell_sort_with_Batchers_even_odd_merge_all, test_with_len_Rama
 
 TEST(volochaev_s_Shell_sort_with_Batchers_even_odd_merge_all, test_with_len_Ramanujan_8) {
   constexpr size_t kSizeOfVector = 46683;
-
-  // Create data
-  std::vector<int> in(kSizeOfVector, 0);
-  GetRandomVector(in, -100, 100);
-  std::vector<int> out(kSizeOfVector, 0);
-  std::vector<int> answer(in);
-  std::ranges::sort(answer);
-  // Create task_data
+  boost::mpi::communicator world;
+  std::vector<int> in;
+  std::vector<int> out;
+  std::vector<int> answer;
   auto task_data_seq = std::make_shared<ppc::core::TaskData>();
-  task_data_seq->inputs.emplace_back(reinterpret_cast<uint8_t *>(in.data()));
-  task_data_seq->inputs_count.emplace_back(in.size());
-  task_data_seq->outputs.emplace_back(reinterpret_cast<uint8_t *>(out.data()));
-  task_data_seq->outputs_count.emplace_back(out.size());
-
+  if (world.rank() == 0) {
+    // Create data
+    in.resize(kSizeOfVector, 0);
+    GetRandomVector(in, -100, 100);
+    out.resize(kSizeOfVector, 0);
+    std::vector<int> answer(in);
+    std::ranges::sort(answer);
+    // Create task_data
+    task_data_seq->inputs.emplace_back(reinterpret_cast<uint8_t *>(in.data()));
+    task_data_seq->inputs_count.emplace_back(in.size());
+    task_data_seq->outputs.emplace_back(reinterpret_cast<uint8_t *>(out.data()));
+    task_data_seq->outputs_count.emplace_back(out.size());
+  }
   // Create Task
   volochaev_s_shell_sort_with_batchers_even_odd_merge_all::ShellSortALL test_task_sequential(task_data_seq);
   ASSERT_EQ(test_task_sequential.Validation(), true);
@@ -2061,20 +2390,24 @@ TEST(volochaev_s_Shell_sort_with_Batchers_even_odd_merge_all, test_with_len_Rama
 
 TEST(volochaev_s_Shell_sort_with_Batchers_even_odd_merge_all, test_with_len_Ramanujan_9) {
   constexpr size_t kSizeOfVector = 64232;
-
-  // Create data
-  std::vector<int> in(kSizeOfVector, 0);
-  GetRandomVector(in, -100, 100);
-  std::vector<int> out(kSizeOfVector, 0);
-  std::vector<int> answer(in);
-  std::ranges::sort(answer);
-  // Create task_data
+  boost::mpi::communicator world;
+  std::vector<int> in;
+  std::vector<int> out;
+  std::vector<int> answer;
   auto task_data_seq = std::make_shared<ppc::core::TaskData>();
-  task_data_seq->inputs.emplace_back(reinterpret_cast<uint8_t *>(in.data()));
-  task_data_seq->inputs_count.emplace_back(in.size());
-  task_data_seq->outputs.emplace_back(reinterpret_cast<uint8_t *>(out.data()));
-  task_data_seq->outputs_count.emplace_back(out.size());
-
+  if (world.rank() == 0) {
+    // Create data
+    in.resize(kSizeOfVector, 0);
+    GetRandomVector(in, -100, 100);
+    out.resize(kSizeOfVector, 0);
+    std::vector<int> answer(in);
+    std::ranges::sort(answer);
+    // Create task_data
+    task_data_seq->inputs.emplace_back(reinterpret_cast<uint8_t *>(in.data()));
+    task_data_seq->inputs_count.emplace_back(in.size());
+    task_data_seq->outputs.emplace_back(reinterpret_cast<uint8_t *>(out.data()));
+    task_data_seq->outputs_count.emplace_back(out.size());
+  }
   // Create Task
   volochaev_s_shell_sort_with_batchers_even_odd_merge_all::ShellSortALL test_task_sequential(task_data_seq);
   ASSERT_EQ(test_task_sequential.Validation(), true);
@@ -2086,20 +2419,24 @@ TEST(volochaev_s_Shell_sort_with_Batchers_even_odd_merge_all, test_with_len_Rama
 
 TEST(volochaev_s_Shell_sort_with_Batchers_even_odd_merge_all, test_with_len_Ramanujan_10) {
   constexpr size_t kSizeOfVector = 65728;
-
-  // Create data
-  std::vector<int> in(kSizeOfVector, 0);
-  GetRandomVector(in, -100, 100);
-  std::vector<int> out(kSizeOfVector, 0);
-  std::vector<int> answer(in);
-  std::ranges::sort(answer);
-  // Create task_data
+  boost::mpi::communicator world;
+  std::vector<int> in;
+  std::vector<int> out;
+  std::vector<int> answer;
   auto task_data_seq = std::make_shared<ppc::core::TaskData>();
-  task_data_seq->inputs.emplace_back(reinterpret_cast<uint8_t *>(in.data()));
-  task_data_seq->inputs_count.emplace_back(in.size());
-  task_data_seq->outputs.emplace_back(reinterpret_cast<uint8_t *>(out.data()));
-  task_data_seq->outputs_count.emplace_back(out.size());
-
+  if (world.rank() == 0) {
+    // Create data
+    in.resize(kSizeOfVector, 0);
+    GetRandomVector(in, -100, 100);
+    out.resize(kSizeOfVector, 0);
+    std::vector<int> answer(in);
+    std::ranges::sort(answer);
+    // Create task_data
+    task_data_seq->inputs.emplace_back(reinterpret_cast<uint8_t *>(in.data()));
+    task_data_seq->inputs_count.emplace_back(in.size());
+    task_data_seq->outputs.emplace_back(reinterpret_cast<uint8_t *>(out.data()));
+    task_data_seq->outputs_count.emplace_back(out.size());
+  }
   // Create Task
   volochaev_s_shell_sort_with_batchers_even_odd_merge_all::ShellSortALL test_task_sequential(task_data_seq);
   ASSERT_EQ(test_task_sequential.Validation(), true);
@@ -2111,20 +2448,24 @@ TEST(volochaev_s_Shell_sort_with_Batchers_even_odd_merge_all, test_with_len_Rama
 
 TEST(volochaev_s_Shell_sort_with_Batchers_even_odd_merge_all, test_with_len_Ramanujan_11) {
   constexpr size_t kSizeOfVector = 110656;
-
-  // Create data
-  std::vector<int> in(kSizeOfVector, 0);
-  GetRandomVector(in, -100, 100);
-  std::vector<int> out(kSizeOfVector, 0);
-  std::vector<int> answer(in);
-  std::ranges::sort(answer);
-  // Create task_data
+  boost::mpi::communicator world;
+  std::vector<int> in;
+  std::vector<int> out;
+  std::vector<int> answer;
   auto task_data_seq = std::make_shared<ppc::core::TaskData>();
-  task_data_seq->inputs.emplace_back(reinterpret_cast<uint8_t *>(in.data()));
-  task_data_seq->inputs_count.emplace_back(in.size());
-  task_data_seq->outputs.emplace_back(reinterpret_cast<uint8_t *>(out.data()));
-  task_data_seq->outputs_count.emplace_back(out.size());
-
+  if (world.rank() == 0) {
+    // Create data
+    in.resize(kSizeOfVector, 0);
+    GetRandomVector(in, -100, 100);
+    out.resize(kSizeOfVector, 0);
+    std::vector<int> answer(in);
+    std::ranges::sort(answer);
+    // Create task_data
+    task_data_seq->inputs.emplace_back(reinterpret_cast<uint8_t *>(in.data()));
+    task_data_seq->inputs_count.emplace_back(in.size());
+    task_data_seq->outputs.emplace_back(reinterpret_cast<uint8_t *>(out.data()));
+    task_data_seq->outputs_count.emplace_back(out.size());
+  }
   // Create Task
   volochaev_s_shell_sort_with_batchers_even_odd_merge_all::ShellSortALL test_task_sequential(task_data_seq);
   ASSERT_EQ(test_task_sequential.Validation(), true);
@@ -2136,20 +2477,24 @@ TEST(volochaev_s_Shell_sort_with_Batchers_even_odd_merge_all, test_with_len_Rama
 
 TEST(volochaev_s_Shell_sort_with_Batchers_even_odd_merge_all, test_with_len_Ramanujan_12) {
   constexpr size_t kSizeOfVector = 110808;
-
-  // Create data
-  std::vector<int> in(kSizeOfVector, 0);
-  GetRandomVector(in, -100, 100);
-  std::vector<int> out(kSizeOfVector, 0);
-  std::vector<int> answer(in);
-  std::ranges::sort(answer);
-  // Create task_data
+  boost::mpi::communicator world;
+  std::vector<int> in;
+  std::vector<int> out;
+  std::vector<int> answer;
   auto task_data_seq = std::make_shared<ppc::core::TaskData>();
-  task_data_seq->inputs.emplace_back(reinterpret_cast<uint8_t *>(in.data()));
-  task_data_seq->inputs_count.emplace_back(in.size());
-  task_data_seq->outputs.emplace_back(reinterpret_cast<uint8_t *>(out.data()));
-  task_data_seq->outputs_count.emplace_back(out.size());
-
+  if (world.rank() == 0) {
+    // Create data
+    in.resize(kSizeOfVector, 0);
+    GetRandomVector(in, -100, 100);
+    out.resize(kSizeOfVector, 0);
+    std::vector<int> answer(in);
+    std::ranges::sort(answer);
+    // Create task_data
+    task_data_seq->inputs.emplace_back(reinterpret_cast<uint8_t *>(in.data()));
+    task_data_seq->inputs_count.emplace_back(in.size());
+    task_data_seq->outputs.emplace_back(reinterpret_cast<uint8_t *>(out.data()));
+    task_data_seq->outputs_count.emplace_back(out.size());
+  }
   // Create Task
   volochaev_s_shell_sort_with_batchers_even_odd_merge_all::ShellSortALL test_task_sequential(task_data_seq);
   ASSERT_EQ(test_task_sequential.Validation(), true);
@@ -2161,20 +2506,24 @@ TEST(volochaev_s_Shell_sort_with_Batchers_even_odd_merge_all, test_with_len_Rama
 
 TEST(volochaev_s_Shell_sort_with_Batchers_even_odd_merge_all, test_with_len_Ramanujan_13) {
   constexpr size_t kSizeOfVector = 134379;
-
-  // Create data
-  std::vector<int> in(kSizeOfVector, 0);
-  GetRandomVector(in, -100, 100);
-  std::vector<int> out(kSizeOfVector, 0);
-  std::vector<int> answer(in);
-  std::ranges::sort(answer);
-  // Create task_data
+  boost::mpi::communicator world;
+  std::vector<int> in;
+  std::vector<int> out;
+  std::vector<int> answer;
   auto task_data_seq = std::make_shared<ppc::core::TaskData>();
-  task_data_seq->inputs.emplace_back(reinterpret_cast<uint8_t *>(in.data()));
-  task_data_seq->inputs_count.emplace_back(in.size());
-  task_data_seq->outputs.emplace_back(reinterpret_cast<uint8_t *>(out.data()));
-  task_data_seq->outputs_count.emplace_back(out.size());
-
+  if (world.rank() == 0) {
+    // Create data
+    in.resize(kSizeOfVector, 0);
+    GetRandomVector(in, -100, 100);
+    out.resize(kSizeOfVector, 0);
+    std::vector<int> answer(in);
+    std::ranges::sort(answer);
+    // Create task_data
+    task_data_seq->inputs.emplace_back(reinterpret_cast<uint8_t *>(in.data()));
+    task_data_seq->inputs_count.emplace_back(in.size());
+    task_data_seq->outputs.emplace_back(reinterpret_cast<uint8_t *>(out.data()));
+    task_data_seq->outputs_count.emplace_back(out.size());
+  }
   // Create Task
   volochaev_s_shell_sort_with_batchers_even_odd_merge_all::ShellSortALL test_task_sequential(task_data_seq);
   ASSERT_EQ(test_task_sequential.Validation(), true);
@@ -2186,20 +2535,24 @@ TEST(volochaev_s_Shell_sort_with_Batchers_even_odd_merge_all, test_with_len_Rama
 
 TEST(volochaev_s_Shell_sort_with_Batchers_even_odd_merge_all, test_with_len_Ramanujan_14) {
   constexpr size_t kSizeOfVector = 149389;
-
-  // Create data
-  std::vector<int> in(kSizeOfVector, 0);
-  GetRandomVector(in, -100, 100);
-  std::vector<int> out(kSizeOfVector, 0);
-  std::vector<int> answer(in);
-  std::ranges::sort(answer);
-  // Create task_data
+  boost::mpi::communicator world;
+  std::vector<int> in;
+  std::vector<int> out;
+  std::vector<int> answer;
   auto task_data_seq = std::make_shared<ppc::core::TaskData>();
-  task_data_seq->inputs.emplace_back(reinterpret_cast<uint8_t *>(in.data()));
-  task_data_seq->inputs_count.emplace_back(in.size());
-  task_data_seq->outputs.emplace_back(reinterpret_cast<uint8_t *>(out.data()));
-  task_data_seq->outputs_count.emplace_back(out.size());
-
+  if (world.rank() == 0) {
+    // Create data
+    in.resize(kSizeOfVector, 0);
+    GetRandomVector(in, -100, 100);
+    out.resize(kSizeOfVector, 0);
+    std::vector<int> answer(in);
+    std::ranges::sort(answer);
+    // Create task_data
+    task_data_seq->inputs.emplace_back(reinterpret_cast<uint8_t *>(in.data()));
+    task_data_seq->inputs_count.emplace_back(in.size());
+    task_data_seq->outputs.emplace_back(reinterpret_cast<uint8_t *>(out.data()));
+    task_data_seq->outputs_count.emplace_back(out.size());
+  }
   // Create Task
   volochaev_s_shell_sort_with_batchers_even_odd_merge_all::ShellSortALL test_task_sequential(task_data_seq);
   ASSERT_EQ(test_task_sequential.Validation(), true);
@@ -2211,20 +2564,24 @@ TEST(volochaev_s_Shell_sort_with_Batchers_even_odd_merge_all, test_with_len_Rama
 
 TEST(volochaev_s_Shell_sort_with_Batchers_even_odd_merge_all, test_with_len_Ramanujan_15) {
   constexpr size_t kSizeOfVector = 165464;
-
-  // Create data
-  std::vector<int> in(kSizeOfVector, 0);
-  GetRandomVector(in, -100, 100);
-  std::vector<int> out(kSizeOfVector, 0);
-  std::vector<int> answer(in);
-  std::ranges::sort(answer);
-  // Create task_data
+  boost::mpi::communicator world;
+  std::vector<int> in;
+  std::vector<int> out;
+  std::vector<int> answer;
   auto task_data_seq = std::make_shared<ppc::core::TaskData>();
-  task_data_seq->inputs.emplace_back(reinterpret_cast<uint8_t *>(in.data()));
-  task_data_seq->inputs_count.emplace_back(in.size());
-  task_data_seq->outputs.emplace_back(reinterpret_cast<uint8_t *>(out.data()));
-  task_data_seq->outputs_count.emplace_back(out.size());
-
+  if (world.rank() == 0) {
+    // Create data
+    in.resize(kSizeOfVector, 0);
+    GetRandomVector(in, -100, 100);
+    out.resize(kSizeOfVector, 0);
+    std::vector<int> answer(in);
+    std::ranges::sort(answer);
+    // Create task_data
+    task_data_seq->inputs.emplace_back(reinterpret_cast<uint8_t *>(in.data()));
+    task_data_seq->inputs_count.emplace_back(in.size());
+    task_data_seq->outputs.emplace_back(reinterpret_cast<uint8_t *>(out.data()));
+    task_data_seq->outputs_count.emplace_back(out.size());
+  }
   // Create Task
   volochaev_s_shell_sort_with_batchers_even_odd_merge_all::ShellSortALL test_task_sequential(task_data_seq);
   ASSERT_EQ(test_task_sequential.Validation(), true);
@@ -2236,20 +2593,24 @@ TEST(volochaev_s_Shell_sort_with_Batchers_even_odd_merge_all, test_with_len_Rama
 
 TEST(volochaev_s_Shell_sort_with_Batchers_even_odd_merge_all, test_with_len_Ramanujan_16) {
   constexpr size_t kSizeOfVector = 171288;
-
-  // Create data
-  std::vector<int> in(kSizeOfVector, 0);
-  GetRandomVector(in, -100, 100);
-  std::vector<int> out(kSizeOfVector, 0);
-  std::vector<int> answer(in);
-  std::ranges::sort(answer);
-  // Create task_data
+  boost::mpi::communicator world;
+  std::vector<int> in;
+  std::vector<int> out;
+  std::vector<int> answer;
   auto task_data_seq = std::make_shared<ppc::core::TaskData>();
-  task_data_seq->inputs.emplace_back(reinterpret_cast<uint8_t *>(in.data()));
-  task_data_seq->inputs_count.emplace_back(in.size());
-  task_data_seq->outputs.emplace_back(reinterpret_cast<uint8_t *>(out.data()));
-  task_data_seq->outputs_count.emplace_back(out.size());
-
+  if (world.rank() == 0) {
+    // Create data
+    in.resize(kSizeOfVector, 0);
+    GetRandomVector(in, -100, 100);
+    out.resize(kSizeOfVector, 0);
+    std::vector<int> answer(in);
+    std::ranges::sort(answer);
+    // Create task_data
+    task_data_seq->inputs.emplace_back(reinterpret_cast<uint8_t *>(in.data()));
+    task_data_seq->inputs_count.emplace_back(in.size());
+    task_data_seq->outputs.emplace_back(reinterpret_cast<uint8_t *>(out.data()));
+    task_data_seq->outputs_count.emplace_back(out.size());
+  }
   // Create Task
   volochaev_s_shell_sort_with_batchers_even_odd_merge_all::ShellSortALL test_task_sequential(task_data_seq);
   ASSERT_EQ(test_task_sequential.Validation(), true);
@@ -2261,20 +2622,24 @@ TEST(volochaev_s_Shell_sort_with_Batchers_even_odd_merge_all, test_with_len_Rama
 
 TEST(volochaev_s_Shell_sort_with_Batchers_even_odd_merge_all, test_with_len_Ramanujan_17) {
   constexpr size_t kSizeOfVector = 195841;
-
-  // Create data
-  std::vector<int> in(kSizeOfVector, 0);
-  GetRandomVector(in, -100, 100);
-  std::vector<int> out(kSizeOfVector, 0);
-  std::vector<int> answer(in);
-  std::ranges::sort(answer);
-  // Create task_data
+  boost::mpi::communicator world;
+  std::vector<int> in;
+  std::vector<int> out;
+  std::vector<int> answer;
   auto task_data_seq = std::make_shared<ppc::core::TaskData>();
-  task_data_seq->inputs.emplace_back(reinterpret_cast<uint8_t *>(in.data()));
-  task_data_seq->inputs_count.emplace_back(in.size());
-  task_data_seq->outputs.emplace_back(reinterpret_cast<uint8_t *>(out.data()));
-  task_data_seq->outputs_count.emplace_back(out.size());
-
+  if (world.rank() == 0) {
+    // Create data
+    in.resize(kSizeOfVector, 0);
+    GetRandomVector(in, -100, 100);
+    out.resize(kSizeOfVector, 0);
+    std::vector<int> answer(in);
+    std::ranges::sort(answer);
+    // Create task_data
+    task_data_seq->inputs.emplace_back(reinterpret_cast<uint8_t *>(in.data()));
+    task_data_seq->inputs_count.emplace_back(in.size());
+    task_data_seq->outputs.emplace_back(reinterpret_cast<uint8_t *>(out.data()));
+    task_data_seq->outputs_count.emplace_back(out.size());
+  }
   // Create Task
   volochaev_s_shell_sort_with_batchers_even_odd_merge_all::ShellSortALL test_task_sequential(task_data_seq);
   ASSERT_EQ(test_task_sequential.Validation(), true);
@@ -2286,20 +2651,24 @@ TEST(volochaev_s_Shell_sort_with_Batchers_even_odd_merge_all, test_with_len_Rama
 
 TEST(volochaev_s_Shell_sort_with_Batchers_even_odd_merge_all, test_with_len_Ramanujan_18) {
   constexpr size_t kSizeOfVector = 216027;
-
-  // Create data
-  std::vector<int> in(kSizeOfVector, 0);
-  GetRandomVector(in, -100, 100);
-  std::vector<int> out(kSizeOfVector, 0);
-  std::vector<int> answer(in);
-  std::ranges::sort(answer);
-  // Create task_data
+  boost::mpi::communicator world;
+  std::vector<int> in;
+  std::vector<int> out;
+  std::vector<int> answer;
   auto task_data_seq = std::make_shared<ppc::core::TaskData>();
-  task_data_seq->inputs.emplace_back(reinterpret_cast<uint8_t *>(in.data()));
-  task_data_seq->inputs_count.emplace_back(in.size());
-  task_data_seq->outputs.emplace_back(reinterpret_cast<uint8_t *>(out.data()));
-  task_data_seq->outputs_count.emplace_back(out.size());
-
+  if (world.rank() == 0) {
+    // Create data
+    in.resize(kSizeOfVector, 0);
+    GetRandomVector(in, -100, 100);
+    out.resize(kSizeOfVector, 0);
+    std::vector<int> answer(in);
+    std::ranges::sort(answer);
+    // Create task_data
+    task_data_seq->inputs.emplace_back(reinterpret_cast<uint8_t *>(in.data()));
+    task_data_seq->inputs_count.emplace_back(in.size());
+    task_data_seq->outputs.emplace_back(reinterpret_cast<uint8_t *>(out.data()));
+    task_data_seq->outputs_count.emplace_back(out.size());
+  }
   // Create Task
   volochaev_s_shell_sort_with_batchers_even_odd_merge_all::ShellSortALL test_task_sequential(task_data_seq);
   ASSERT_EQ(test_task_sequential.Validation(), true);
@@ -2311,20 +2680,24 @@ TEST(volochaev_s_Shell_sort_with_Batchers_even_odd_merge_all, test_with_len_Rama
 
 TEST(volochaev_s_Shell_sort_with_Batchers_even_odd_merge_all, test_with_len_Ramanujan_19) {
   constexpr size_t kSizeOfVector = 216125;
-
-  // Create data
-  std::vector<int> in(kSizeOfVector, 0);
-  GetRandomVector(in, -100, 100);
-  std::vector<int> out(kSizeOfVector, 0);
-  std::vector<int> answer(in);
-  std::ranges::sort(answer);
-  // Create task_data
+  boost::mpi::communicator world;
+  std::vector<int> in;
+  std::vector<int> out;
+  std::vector<int> answer;
   auto task_data_seq = std::make_shared<ppc::core::TaskData>();
-  task_data_seq->inputs.emplace_back(reinterpret_cast<uint8_t *>(in.data()));
-  task_data_seq->inputs_count.emplace_back(in.size());
-  task_data_seq->outputs.emplace_back(reinterpret_cast<uint8_t *>(out.data()));
-  task_data_seq->outputs_count.emplace_back(out.size());
-
+  if (world.rank() == 0) {
+    // Create data
+    in.resize(kSizeOfVector, 0);
+    GetRandomVector(in, -100, 100);
+    out.resize(kSizeOfVector, 0);
+    std::vector<int> answer(in);
+    std::ranges::sort(answer);
+    // Create task_data
+    task_data_seq->inputs.emplace_back(reinterpret_cast<uint8_t *>(in.data()));
+    task_data_seq->inputs_count.emplace_back(in.size());
+    task_data_seq->outputs.emplace_back(reinterpret_cast<uint8_t *>(out.data()));
+    task_data_seq->outputs_count.emplace_back(out.size());
+  }
   // Create Task
   volochaev_s_shell_sort_with_batchers_even_odd_merge_all::ShellSortALL test_task_sequential(task_data_seq);
   ASSERT_EQ(test_task_sequential.Validation(), true);
@@ -2336,20 +2709,24 @@ TEST(volochaev_s_Shell_sort_with_Batchers_even_odd_merge_all, test_with_len_Rama
 
 TEST(volochaev_s_Shell_sort_with_Batchers_even_odd_merge_all, test_with_len_Ramanujan_20) {
   constexpr size_t kSizeOfVector = 262656;
-
-  // Create data
-  std::vector<int> in(kSizeOfVector, 0);
-  GetRandomVector(in, -100, 100);
-  std::vector<int> out(kSizeOfVector, 0);
-  std::vector<int> answer(in);
-  std::ranges::sort(answer);
-  // Create task_data
+  boost::mpi::communicator world;
+  std::vector<int> in;
+  std::vector<int> out;
+  std::vector<int> answer;
   auto task_data_seq = std::make_shared<ppc::core::TaskData>();
-  task_data_seq->inputs.emplace_back(reinterpret_cast<uint8_t *>(in.data()));
-  task_data_seq->inputs_count.emplace_back(in.size());
-  task_data_seq->outputs.emplace_back(reinterpret_cast<uint8_t *>(out.data()));
-  task_data_seq->outputs_count.emplace_back(out.size());
-
+  if (world.rank() == 0) {
+    // Create data
+    in.resize(kSizeOfVector, 0);
+    GetRandomVector(in, -100, 100);
+    out.resize(kSizeOfVector, 0);
+    std::vector<int> answer(in);
+    std::ranges::sort(answer);
+    // Create task_data
+    task_data_seq->inputs.emplace_back(reinterpret_cast<uint8_t *>(in.data()));
+    task_data_seq->inputs_count.emplace_back(in.size());
+    task_data_seq->outputs.emplace_back(reinterpret_cast<uint8_t *>(out.data()));
+    task_data_seq->outputs_count.emplace_back(out.size());
+  }
   // Create Task
   volochaev_s_shell_sort_with_batchers_even_odd_merge_all::ShellSortALL test_task_sequential(task_data_seq);
   ASSERT_EQ(test_task_sequential.Validation(), true);
@@ -2361,20 +2738,24 @@ TEST(volochaev_s_Shell_sort_with_Batchers_even_odd_merge_all, test_with_len_Rama
 
 TEST(volochaev_s_Shell_sort_with_Batchers_even_odd_merge_all, test_with_len_Ramanujan_21) {
   constexpr size_t kSizeOfVector = 314496;
-
-  // Create data
-  std::vector<int> in(kSizeOfVector, 0);
-  GetRandomVector(in, -100, 100);
-  std::vector<int> out(kSizeOfVector, 0);
-  std::vector<int> answer(in);
-  std::ranges::sort(answer);
-  // Create task_data
+  boost::mpi::communicator world;
+  std::vector<int> in;
+  std::vector<int> out;
+  std::vector<int> answer;
   auto task_data_seq = std::make_shared<ppc::core::TaskData>();
-  task_data_seq->inputs.emplace_back(reinterpret_cast<uint8_t *>(in.data()));
-  task_data_seq->inputs_count.emplace_back(in.size());
-  task_data_seq->outputs.emplace_back(reinterpret_cast<uint8_t *>(out.data()));
-  task_data_seq->outputs_count.emplace_back(out.size());
-
+  if (world.rank() == 0) {
+    // Create data
+    in.resize(kSizeOfVector, 0);
+    GetRandomVector(in, -100, 100);
+    out.resize(kSizeOfVector, 0);
+    std::vector<int> answer(in);
+    std::ranges::sort(answer);
+    // Create task_data
+    task_data_seq->inputs.emplace_back(reinterpret_cast<uint8_t *>(in.data()));
+    task_data_seq->inputs_count.emplace_back(in.size());
+    task_data_seq->outputs.emplace_back(reinterpret_cast<uint8_t *>(out.data()));
+    task_data_seq->outputs_count.emplace_back(out.size());
+  }
   // Create Task
   volochaev_s_shell_sort_with_batchers_even_odd_merge_all::ShellSortALL test_task_sequential(task_data_seq);
   ASSERT_EQ(test_task_sequential.Validation(), true);
@@ -2386,20 +2767,24 @@ TEST(volochaev_s_Shell_sort_with_Batchers_even_odd_merge_all, test_with_len_Rama
 
 TEST(volochaev_s_Shell_sort_with_Batchers_even_odd_merge_all, test_with_len_Ramanujan_22) {
   constexpr size_t kSizeOfVector = 320264;
-
-  // Create data
-  std::vector<int> in(kSizeOfVector, 0);
-  GetRandomVector(in, -100, 100);
-  std::vector<int> out(kSizeOfVector, 0);
-  std::vector<int> answer(in);
-  std::ranges::sort(answer);
-  // Create task_data
+  boost::mpi::communicator world;
+  std::vector<int> in;
+  std::vector<int> out;
+  std::vector<int> answer;
   auto task_data_seq = std::make_shared<ppc::core::TaskData>();
-  task_data_seq->inputs.emplace_back(reinterpret_cast<uint8_t *>(in.data()));
-  task_data_seq->inputs_count.emplace_back(in.size());
-  task_data_seq->outputs.emplace_back(reinterpret_cast<uint8_t *>(out.data()));
-  task_data_seq->outputs_count.emplace_back(out.size());
-
+  if (world.rank() == 0) {
+    // Create data
+    in.resize(kSizeOfVector, 0);
+    GetRandomVector(in, -100, 100);
+    out.resize(kSizeOfVector, 0);
+    std::vector<int> answer(in);
+    std::ranges::sort(answer);
+    // Create task_data
+    task_data_seq->inputs.emplace_back(reinterpret_cast<uint8_t *>(in.data()));
+    task_data_seq->inputs_count.emplace_back(in.size());
+    task_data_seq->outputs.emplace_back(reinterpret_cast<uint8_t *>(out.data()));
+    task_data_seq->outputs_count.emplace_back(out.size());
+  }
   // Create Task
   volochaev_s_shell_sort_with_batchers_even_odd_merge_all::ShellSortALL test_task_sequential(task_data_seq);
   ASSERT_EQ(test_task_sequential.Validation(), true);
@@ -2411,20 +2796,24 @@ TEST(volochaev_s_Shell_sort_with_Batchers_even_odd_merge_all, test_with_len_Rama
 
 TEST(volochaev_s_Shell_sort_with_Batchers_even_odd_merge_all, test_with_len_Ramanujan_23) {
   constexpr size_t kSizeOfVector = 327763;
-
-  // Create data
-  std::vector<int> in(kSizeOfVector, 0);
-  GetRandomVector(in, -100, 100);
-  std::vector<int> out(kSizeOfVector, 0);
-  std::vector<int> answer(in);
-  std::ranges::sort(answer);
-  // Create task_data
+  boost::mpi::communicator world;
+  std::vector<int> in;
+  std::vector<int> out;
+  std::vector<int> answer;
   auto task_data_seq = std::make_shared<ppc::core::TaskData>();
-  task_data_seq->inputs.emplace_back(reinterpret_cast<uint8_t *>(in.data()));
-  task_data_seq->inputs_count.emplace_back(in.size());
-  task_data_seq->outputs.emplace_back(reinterpret_cast<uint8_t *>(out.data()));
-  task_data_seq->outputs_count.emplace_back(out.size());
-
+  if (world.rank() == 0) {
+    // Create data
+    in.resize(kSizeOfVector, 0);
+    GetRandomVector(in, -100, 100);
+    out.resize(kSizeOfVector, 0);
+    std::vector<int> answer(in);
+    std::ranges::sort(answer);
+    // Create task_data
+    task_data_seq->inputs.emplace_back(reinterpret_cast<uint8_t *>(in.data()));
+    task_data_seq->inputs_count.emplace_back(in.size());
+    task_data_seq->outputs.emplace_back(reinterpret_cast<uint8_t *>(out.data()));
+    task_data_seq->outputs_count.emplace_back(out.size());
+  }
   // Create Task
   volochaev_s_shell_sort_with_batchers_even_odd_merge_all::ShellSortALL test_task_sequential(task_data_seq);
   ASSERT_EQ(test_task_sequential.Validation(), true);
@@ -2436,20 +2825,24 @@ TEST(volochaev_s_Shell_sort_with_Batchers_even_odd_merge_all, test_with_len_Rama
 
 TEST(volochaev_s_Shell_sort_with_Batchers_even_odd_merge_all, test_with_len_Carmichael_1) {
   constexpr size_t kSizeOfVector = 561;
-
-  // Create data
-  std::vector<int> in(kSizeOfVector, 0);
-  GetRandomVector(in, -100, 100);
-  std::vector<int> out(kSizeOfVector, 0);
-  std::vector<int> answer(in);
-  std::ranges::sort(answer);
-  // Create task_data
+  boost::mpi::communicator world;
+  std::vector<int> in;
+  std::vector<int> out;
+  std::vector<int> answer;
   auto task_data_seq = std::make_shared<ppc::core::TaskData>();
-  task_data_seq->inputs.emplace_back(reinterpret_cast<uint8_t *>(in.data()));
-  task_data_seq->inputs_count.emplace_back(in.size());
-  task_data_seq->outputs.emplace_back(reinterpret_cast<uint8_t *>(out.data()));
-  task_data_seq->outputs_count.emplace_back(out.size());
-
+  if (world.rank() == 0) {
+    // Create data
+    in.resize(kSizeOfVector, 0);
+    GetRandomVector(in, -100, 100);
+    out.resize(kSizeOfVector, 0);
+    std::vector<int> answer(in);
+    std::ranges::sort(answer);
+    // Create task_data
+    task_data_seq->inputs.emplace_back(reinterpret_cast<uint8_t *>(in.data()));
+    task_data_seq->inputs_count.emplace_back(in.size());
+    task_data_seq->outputs.emplace_back(reinterpret_cast<uint8_t *>(out.data()));
+    task_data_seq->outputs_count.emplace_back(out.size());
+  }
   // Create Task
   volochaev_s_shell_sort_with_batchers_even_odd_merge_all::ShellSortALL test_task_sequential(task_data_seq);
   ASSERT_EQ(test_task_sequential.Validation(), true);
@@ -2461,20 +2854,24 @@ TEST(volochaev_s_Shell_sort_with_Batchers_even_odd_merge_all, test_with_len_Carm
 
 TEST(volochaev_s_Shell_sort_with_Batchers_even_odd_merge_all, test_with_len_Carmichael_2) {
   constexpr size_t kSizeOfVector = 41041;
-
-  // Create data
-  std::vector<int> in(kSizeOfVector, 0);
-  GetRandomVector(in, -100, 100);
-  std::vector<int> out(kSizeOfVector, 0);
-  std::vector<int> answer(in);
-  std::ranges::sort(answer);
-  // Create task_data
+  boost::mpi::communicator world;
+  std::vector<int> in;
+  std::vector<int> out;
+  std::vector<int> answer;
   auto task_data_seq = std::make_shared<ppc::core::TaskData>();
-  task_data_seq->inputs.emplace_back(reinterpret_cast<uint8_t *>(in.data()));
-  task_data_seq->inputs_count.emplace_back(in.size());
-  task_data_seq->outputs.emplace_back(reinterpret_cast<uint8_t *>(out.data()));
-  task_data_seq->outputs_count.emplace_back(out.size());
-
+  if (world.rank() == 0) {
+    // Create data
+    in.resize(kSizeOfVector, 0);
+    GetRandomVector(in, -100, 100);
+    out.resize(kSizeOfVector, 0);
+    std::vector<int> answer(in);
+    std::ranges::sort(answer);
+    // Create task_data
+    task_data_seq->inputs.emplace_back(reinterpret_cast<uint8_t *>(in.data()));
+    task_data_seq->inputs_count.emplace_back(in.size());
+    task_data_seq->outputs.emplace_back(reinterpret_cast<uint8_t *>(out.data()));
+    task_data_seq->outputs_count.emplace_back(out.size());
+  }
   // Create Task
   volochaev_s_shell_sort_with_batchers_even_odd_merge_all::ShellSortALL test_task_sequential(task_data_seq);
   ASSERT_EQ(test_task_sequential.Validation(), true);
@@ -2486,20 +2883,24 @@ TEST(volochaev_s_Shell_sort_with_Batchers_even_odd_merge_all, test_with_len_Carm
 
 TEST(volochaev_s_Shell_sort_with_Batchers_even_odd_merge_all, test_with_len_Carmichael_3) {
   constexpr size_t kSizeOfVector = 825265;
-
-  // Create data
-  std::vector<int> in(kSizeOfVector, 0);
-  GetRandomVector(in, -100, 100);
-  std::vector<int> out(kSizeOfVector, 0);
-  std::vector<int> answer(in);
-  std::ranges::sort(answer);
-  // Create task_data
+  boost::mpi::communicator world;
+  std::vector<int> in;
+  std::vector<int> out;
+  std::vector<int> answer;
   auto task_data_seq = std::make_shared<ppc::core::TaskData>();
-  task_data_seq->inputs.emplace_back(reinterpret_cast<uint8_t *>(in.data()));
-  task_data_seq->inputs_count.emplace_back(in.size());
-  task_data_seq->outputs.emplace_back(reinterpret_cast<uint8_t *>(out.data()));
-  task_data_seq->outputs_count.emplace_back(out.size());
-
+  if (world.rank() == 0) {
+    // Create data
+    in.resize(kSizeOfVector, 0);
+    GetRandomVector(in, -100, 100);
+    out.resize(kSizeOfVector, 0);
+    std::vector<int> answer(in);
+    std::ranges::sort(answer);
+    // Create task_data
+    task_data_seq->inputs.emplace_back(reinterpret_cast<uint8_t *>(in.data()));
+    task_data_seq->inputs_count.emplace_back(in.size());
+    task_data_seq->outputs.emplace_back(reinterpret_cast<uint8_t *>(out.data()));
+    task_data_seq->outputs_count.emplace_back(out.size());
+  }
   // Create Task
   volochaev_s_shell_sort_with_batchers_even_odd_merge_all::ShellSortALL test_task_sequential(task_data_seq);
   ASSERT_EQ(test_task_sequential.Validation(), true);
@@ -2511,21 +2912,25 @@ TEST(volochaev_s_Shell_sort_with_Batchers_even_odd_merge_all, test_with_len_Carm
 
 TEST(volochaev_s_shell_sort_with_batchers_even_odd_merge_all, test_with_Stirling_size_1) {
   constexpr size_t kSizeOfVector = 1;
-
-  // Create data
-  std::vector<int> in(kSizeOfVector, 0);
-  GetRandomVector(in, -100, 100);
-  std::vector<int> out(kSizeOfVector, 0);
-  std::vector<int> answer(in);
-  std::ranges::sort(answer);
-
-  // Create task_data
+  boost::mpi::communicator world;
+  std::vector<int> in;
+  std::vector<int> out;
+  std::vector<int> answer;
   auto task_data_seq = std::make_shared<ppc::core::TaskData>();
-  task_data_seq->inputs.emplace_back(reinterpret_cast<uint8_t *>(in.data()));
-  task_data_seq->inputs_count.emplace_back(in.size());
-  task_data_seq->outputs.emplace_back(reinterpret_cast<uint8_t *>(out.data()));
-  task_data_seq->outputs_count.emplace_back(out.size());
+  if (world.rank() == 0) {
+    // Create data
+    in.resize(kSizeOfVector, 0);
+    GetRandomVector(in, -100, 100);
+    out.resize(kSizeOfVector, 0);
+    std::vector<int> answer(in);
+    std::ranges::sort(answer);
 
+    // Create task_data
+    task_data_seq->inputs.emplace_back(reinterpret_cast<uint8_t *>(in.data()));
+    task_data_seq->inputs_count.emplace_back(in.size());
+    task_data_seq->outputs.emplace_back(reinterpret_cast<uint8_t *>(out.data()));
+    task_data_seq->outputs_count.emplace_back(out.size());
+  }
   // Create Task
   volochaev_s_shell_sort_with_batchers_even_odd_merge_all::ShellSortALL test_task_sequential(task_data_seq);
   ASSERT_EQ(test_task_sequential.Validation(), true);
@@ -2537,21 +2942,25 @@ TEST(volochaev_s_shell_sort_with_batchers_even_odd_merge_all, test_with_Stirling
 
 TEST(volochaev_s_shell_sort_with_batchers_even_odd_merge_all, test_with_Stirling_size_2) {
   constexpr size_t kSizeOfVector = 2;
-
-  // Create data
-  std::vector<int> in(kSizeOfVector, 0);
-  GetRandomVector(in, -100, 100);
-  std::vector<int> out(kSizeOfVector, 0);
-  std::vector<int> answer(in);
-  std::ranges::sort(answer);
-
-  // Create task_data
+  boost::mpi::communicator world;
+  std::vector<int> in;
+  std::vector<int> out;
+  std::vector<int> answer;
   auto task_data_seq = std::make_shared<ppc::core::TaskData>();
-  task_data_seq->inputs.emplace_back(reinterpret_cast<uint8_t *>(in.data()));
-  task_data_seq->inputs_count.emplace_back(in.size());
-  task_data_seq->outputs.emplace_back(reinterpret_cast<uint8_t *>(out.data()));
-  task_data_seq->outputs_count.emplace_back(out.size());
+  if (world.rank() == 0) {
+    // Create data
+    in.resize(kSizeOfVector, 0);
+    GetRandomVector(in, -100, 100);
+    out.resize(kSizeOfVector, 0);
+    std::vector<int> answer(in);
+    std::ranges::sort(answer);
 
+    // Create task_data
+    task_data_seq->inputs.emplace_back(reinterpret_cast<uint8_t *>(in.data()));
+    task_data_seq->inputs_count.emplace_back(in.size());
+    task_data_seq->outputs.emplace_back(reinterpret_cast<uint8_t *>(out.data()));
+    task_data_seq->outputs_count.emplace_back(out.size());
+  }
   // Create Task
   volochaev_s_shell_sort_with_batchers_even_odd_merge_all::ShellSortALL test_task_sequential(task_data_seq);
   ASSERT_EQ(test_task_sequential.Validation(), true);
@@ -2563,21 +2972,25 @@ TEST(volochaev_s_shell_sort_with_batchers_even_odd_merge_all, test_with_Stirling
 
 TEST(volochaev_s_shell_sort_with_batchers_even_odd_merge_all, test_with_Stirling_size_3) {
   constexpr size_t kSizeOfVector = 6;
-
-  // Create data
-  std::vector<int> in(kSizeOfVector, 0);
-  GetRandomVector(in, -100, 100);
-  std::vector<int> out(kSizeOfVector, 0);
-  std::vector<int> answer(in);
-  std::ranges::sort(answer);
-
-  // Create task_data
+  boost::mpi::communicator world;
+  std::vector<int> in;
+  std::vector<int> out;
+  std::vector<int> answer;
   auto task_data_seq = std::make_shared<ppc::core::TaskData>();
-  task_data_seq->inputs.emplace_back(reinterpret_cast<uint8_t *>(in.data()));
-  task_data_seq->inputs_count.emplace_back(in.size());
-  task_data_seq->outputs.emplace_back(reinterpret_cast<uint8_t *>(out.data()));
-  task_data_seq->outputs_count.emplace_back(out.size());
+  if (world.rank() == 0) {
+    // Create data
+    in.resize(kSizeOfVector, 0);
+    GetRandomVector(in, -100, 100);
+    out.resize(kSizeOfVector, 0);
+    std::vector<int> answer(in);
+    std::ranges::sort(answer);
 
+    // Create task_data
+    task_data_seq->inputs.emplace_back(reinterpret_cast<uint8_t *>(in.data()));
+    task_data_seq->inputs_count.emplace_back(in.size());
+    task_data_seq->outputs.emplace_back(reinterpret_cast<uint8_t *>(out.data()));
+    task_data_seq->outputs_count.emplace_back(out.size());
+  }
   // Create Task
   volochaev_s_shell_sort_with_batchers_even_odd_merge_all::ShellSortALL test_task_sequential(task_data_seq);
   ASSERT_EQ(test_task_sequential.Validation(), true);
@@ -2589,21 +3002,25 @@ TEST(volochaev_s_shell_sort_with_batchers_even_odd_merge_all, test_with_Stirling
 
 TEST(volochaev_s_shell_sort_with_batchers_even_odd_merge_all, test_with_Stirling_size_4) {
   constexpr size_t kSizeOfVector = 24;
-
-  // Create data
-  std::vector<int> in(kSizeOfVector, 0);
-  GetRandomVector(in, -100, 100);
-  std::vector<int> out(kSizeOfVector, 0);
-  std::vector<int> answer(in);
-  std::ranges::sort(answer);
-
-  // Create task_data
+  boost::mpi::communicator world;
+  std::vector<int> in;
+  std::vector<int> out;
+  std::vector<int> answer;
   auto task_data_seq = std::make_shared<ppc::core::TaskData>();
-  task_data_seq->inputs.emplace_back(reinterpret_cast<uint8_t *>(in.data()));
-  task_data_seq->inputs_count.emplace_back(in.size());
-  task_data_seq->outputs.emplace_back(reinterpret_cast<uint8_t *>(out.data()));
-  task_data_seq->outputs_count.emplace_back(out.size());
+  if (world.rank() == 0) {
+    // Create data
+    in.resize(kSizeOfVector, 0);
+    GetRandomVector(in, -100, 100);
+    out.resize(kSizeOfVector, 0);
+    std::vector<int> answer(in);
+    std::ranges::sort(answer);
 
+    // Create task_data
+    task_data_seq->inputs.emplace_back(reinterpret_cast<uint8_t *>(in.data()));
+    task_data_seq->inputs_count.emplace_back(in.size());
+    task_data_seq->outputs.emplace_back(reinterpret_cast<uint8_t *>(out.data()));
+    task_data_seq->outputs_count.emplace_back(out.size());
+  }
   // Create Task
   volochaev_s_shell_sort_with_batchers_even_odd_merge_all::ShellSortALL test_task_sequential(task_data_seq);
   ASSERT_EQ(test_task_sequential.Validation(), true);
@@ -2615,21 +3032,25 @@ TEST(volochaev_s_shell_sort_with_batchers_even_odd_merge_all, test_with_Stirling
 
 TEST(volochaev_s_shell_sort_with_batchers_even_odd_merge_all, test_with_Stirling_size_5) {
   constexpr size_t kSizeOfVector = 120;
-
-  // Create data
-  std::vector<int> in(kSizeOfVector, 0);
-  GetRandomVector(in, -100, 100);
-  std::vector<int> out(kSizeOfVector, 0);
-  std::vector<int> answer(in);
-  std::ranges::sort(answer);
-
-  // Create task_data
+  boost::mpi::communicator world;
+  std::vector<int> in;
+  std::vector<int> out;
+  std::vector<int> answer;
   auto task_data_seq = std::make_shared<ppc::core::TaskData>();
-  task_data_seq->inputs.emplace_back(reinterpret_cast<uint8_t *>(in.data()));
-  task_data_seq->inputs_count.emplace_back(in.size());
-  task_data_seq->outputs.emplace_back(reinterpret_cast<uint8_t *>(out.data()));
-  task_data_seq->outputs_count.emplace_back(out.size());
+  if (world.rank() == 0) {
+    // Create data
+    in.resize(kSizeOfVector, 0);
+    GetRandomVector(in, -100, 100);
+    out.resize(kSizeOfVector, 0);
+    std::vector<int> answer(in);
+    std::ranges::sort(answer);
 
+    // Create task_data
+    task_data_seq->inputs.emplace_back(reinterpret_cast<uint8_t *>(in.data()));
+    task_data_seq->inputs_count.emplace_back(in.size());
+    task_data_seq->outputs.emplace_back(reinterpret_cast<uint8_t *>(out.data()));
+    task_data_seq->outputs_count.emplace_back(out.size());
+  }
   // Create Task
   volochaev_s_shell_sort_with_batchers_even_odd_merge_all::ShellSortALL test_task_sequential(task_data_seq);
   ASSERT_EQ(test_task_sequential.Validation(), true);
@@ -2641,21 +3062,25 @@ TEST(volochaev_s_shell_sort_with_batchers_even_odd_merge_all, test_with_Stirling
 
 TEST(volochaev_s_shell_sort_with_batchers_even_odd_merge_all, test_with_Stirling_size_6) {
   constexpr size_t kSizeOfVector = 720;
-
-  // Create data
-  std::vector<int> in(kSizeOfVector, 0);
-  GetRandomVector(in, -100, 100);
-  std::vector<int> out(kSizeOfVector, 0);
-  std::vector<int> answer(in);
-  std::ranges::sort(answer);
-
-  // Create task_data
+  boost::mpi::communicator world;
+  std::vector<int> in;
+  std::vector<int> out;
+  std::vector<int> answer;
   auto task_data_seq = std::make_shared<ppc::core::TaskData>();
-  task_data_seq->inputs.emplace_back(reinterpret_cast<uint8_t *>(in.data()));
-  task_data_seq->inputs_count.emplace_back(in.size());
-  task_data_seq->outputs.emplace_back(reinterpret_cast<uint8_t *>(out.data()));
-  task_data_seq->outputs_count.emplace_back(out.size());
+  if (world.rank() == 0) {
+    // Create data
+    in.resize(kSizeOfVector, 0);
+    GetRandomVector(in, -100, 100);
+    out.resize(kSizeOfVector, 0);
+    std::vector<int> answer(in);
+    std::ranges::sort(answer);
 
+    // Create task_data
+    task_data_seq->inputs.emplace_back(reinterpret_cast<uint8_t *>(in.data()));
+    task_data_seq->inputs_count.emplace_back(in.size());
+    task_data_seq->outputs.emplace_back(reinterpret_cast<uint8_t *>(out.data()));
+    task_data_seq->outputs_count.emplace_back(out.size());
+  }
   // Create Task
   volochaev_s_shell_sort_with_batchers_even_odd_merge_all::ShellSortALL test_task_sequential(task_data_seq);
   ASSERT_EQ(test_task_sequential.Validation(), true);
@@ -2667,21 +3092,25 @@ TEST(volochaev_s_shell_sort_with_batchers_even_odd_merge_all, test_with_Stirling
 
 TEST(volochaev_s_shell_sort_with_batchers_even_odd_merge_all, test_with_Stirling_size_7) {
   constexpr size_t kSizeOfVector = 5040;
-
-  // Create data
-  std::vector<int> in(kSizeOfVector, 0);
-  GetRandomVector(in, -100, 100);
-  std::vector<int> out(kSizeOfVector, 0);
-  std::vector<int> answer(in);
-  std::ranges::sort(answer);
-
-  // Create task_data
+  boost::mpi::communicator world;
+  std::vector<int> in;
+  std::vector<int> out;
+  std::vector<int> answer;
   auto task_data_seq = std::make_shared<ppc::core::TaskData>();
-  task_data_seq->inputs.emplace_back(reinterpret_cast<uint8_t *>(in.data()));
-  task_data_seq->inputs_count.emplace_back(in.size());
-  task_data_seq->outputs.emplace_back(reinterpret_cast<uint8_t *>(out.data()));
-  task_data_seq->outputs_count.emplace_back(out.size());
+  if (world.rank() == 0) {
+    // Create data
+    in.resize(kSizeOfVector, 0);
+    GetRandomVector(in, -100, 100);
+    out.resize(kSizeOfVector, 0);
+    std::vector<int> answer(in);
+    std::ranges::sort(answer);
 
+    // Create task_data
+    task_data_seq->inputs.emplace_back(reinterpret_cast<uint8_t *>(in.data()));
+    task_data_seq->inputs_count.emplace_back(in.size());
+    task_data_seq->outputs.emplace_back(reinterpret_cast<uint8_t *>(out.data()));
+    task_data_seq->outputs_count.emplace_back(out.size());
+  }
   // Create Task
   volochaev_s_shell_sort_with_batchers_even_odd_merge_all::ShellSortALL test_task_sequential(task_data_seq);
   ASSERT_EQ(test_task_sequential.Validation(), true);
@@ -2693,21 +3122,25 @@ TEST(volochaev_s_shell_sort_with_batchers_even_odd_merge_all, test_with_Stirling
 
 TEST(volochaev_s_shell_sort_with_batchers_even_odd_merge_all, test_with_Stirling_size_8) {
   constexpr size_t kSizeOfVector = 40320;
-
-  // Create data
-  std::vector<int> in(kSizeOfVector, 0);
-  GetRandomVector(in, -100, 100);
-  std::vector<int> out(kSizeOfVector, 0);
-  std::vector<int> answer(in);
-  std::ranges::sort(answer);
-
-  // Create task_data
+  boost::mpi::communicator world;
+  std::vector<int> in;
+  std::vector<int> out;
+  std::vector<int> answer;
   auto task_data_seq = std::make_shared<ppc::core::TaskData>();
-  task_data_seq->inputs.emplace_back(reinterpret_cast<uint8_t *>(in.data()));
-  task_data_seq->inputs_count.emplace_back(in.size());
-  task_data_seq->outputs.emplace_back(reinterpret_cast<uint8_t *>(out.data()));
-  task_data_seq->outputs_count.emplace_back(out.size());
+  if (world.rank() == 0) {
+    // Create data
+    in.resize(kSizeOfVector, 0);
+    GetRandomVector(in, -100, 100);
+    out.resize(kSizeOfVector, 0);
+    std::vector<int> answer(in);
+    std::ranges::sort(answer);
 
+    // Create task_data
+    task_data_seq->inputs.emplace_back(reinterpret_cast<uint8_t *>(in.data()));
+    task_data_seq->inputs_count.emplace_back(in.size());
+    task_data_seq->outputs.emplace_back(reinterpret_cast<uint8_t *>(out.data()));
+    task_data_seq->outputs_count.emplace_back(out.size());
+  }
   // Create Task
   volochaev_s_shell_sort_with_batchers_even_odd_merge_all::ShellSortALL test_task_sequential(task_data_seq);
   ASSERT_EQ(test_task_sequential.Validation(), true);
@@ -2719,21 +3152,25 @@ TEST(volochaev_s_shell_sort_with_batchers_even_odd_merge_all, test_with_Stirling
 
 TEST(volochaev_s_shell_sort_with_batchers_even_odd_merge_all, test_with_Stirling_size_n_k_9_1) {
   constexpr size_t kSizeOfVector = 40320;
-
-  // Create data
-  std::vector<int> in(kSizeOfVector, 0);
-  GetRandomVector(in, -100, 100);
-  std::vector<int> out(kSizeOfVector, 0);
-  std::vector<int> answer(in);
-  std::ranges::sort(answer);
-
-  // Create task_data
+  boost::mpi::communicator world;
+  std::vector<int> in;
+  std::vector<int> out;
+  std::vector<int> answer;
   auto task_data_seq = std::make_shared<ppc::core::TaskData>();
-  task_data_seq->inputs.emplace_back(reinterpret_cast<uint8_t *>(in.data()));
-  task_data_seq->inputs_count.emplace_back(in.size());
-  task_data_seq->outputs.emplace_back(reinterpret_cast<uint8_t *>(out.data()));
-  task_data_seq->outputs_count.emplace_back(out.size());
+  if (world.rank() == 0) {
+    // Create data
+    in.resize(kSizeOfVector, 0);
+    GetRandomVector(in, -100, 100);
+    out.resize(kSizeOfVector, 0);
+    std::vector<int> answer(in);
+    std::ranges::sort(answer);
 
+    // Create task_data
+    task_data_seq->inputs.emplace_back(reinterpret_cast<uint8_t *>(in.data()));
+    task_data_seq->inputs_count.emplace_back(in.size());
+    task_data_seq->outputs.emplace_back(reinterpret_cast<uint8_t *>(out.data()));
+    task_data_seq->outputs_count.emplace_back(out.size());
+  }
   // Create Task
   volochaev_s_shell_sort_with_batchers_even_odd_merge_all::ShellSortALL test_task_sequential(task_data_seq);
   ASSERT_EQ(test_task_sequential.Validation(), true);
@@ -2745,21 +3182,25 @@ TEST(volochaev_s_shell_sort_with_batchers_even_odd_merge_all, test_with_Stirling
 
 TEST(volochaev_s_shell_sort_with_batchers_even_odd_merge_all, test_with_Stirling_size_n_k_9_2) {
   constexpr size_t kSizeOfVector = 109584;
-
-  // Create data
-  std::vector<int> in(kSizeOfVector, 0);
-  GetRandomVector(in, -100, 100);
-  std::vector<int> out(kSizeOfVector, 0);
-  std::vector<int> answer(in);
-  std::ranges::sort(answer);
-
-  // Create task_data
+  boost::mpi::communicator world;
+  std::vector<int> in;
+  std::vector<int> out;
+  std::vector<int> answer;
   auto task_data_seq = std::make_shared<ppc::core::TaskData>();
-  task_data_seq->inputs.emplace_back(reinterpret_cast<uint8_t *>(in.data()));
-  task_data_seq->inputs_count.emplace_back(in.size());
-  task_data_seq->outputs.emplace_back(reinterpret_cast<uint8_t *>(out.data()));
-  task_data_seq->outputs_count.emplace_back(out.size());
+  if (world.rank() == 0) {
+    // Create data
+    in.resize(kSizeOfVector, 0);
+    GetRandomVector(in, -100, 100);
+    out.resize(kSizeOfVector, 0);
+    std::vector<int> answer(in);
+    std::ranges::sort(answer);
 
+    // Create task_data
+    task_data_seq->inputs.emplace_back(reinterpret_cast<uint8_t *>(in.data()));
+    task_data_seq->inputs_count.emplace_back(in.size());
+    task_data_seq->outputs.emplace_back(reinterpret_cast<uint8_t *>(out.data()));
+    task_data_seq->outputs_count.emplace_back(out.size());
+  }
   // Create Task
   volochaev_s_shell_sort_with_batchers_even_odd_merge_all::ShellSortALL test_task_sequential(task_data_seq);
   ASSERT_EQ(test_task_sequential.Validation(), true);
@@ -2771,21 +3212,25 @@ TEST(volochaev_s_shell_sort_with_batchers_even_odd_merge_all, test_with_Stirling
 
 TEST(volochaev_s_shell_sort_with_batchers_even_odd_merge_all, test_with_Stirling_size_n_k_9_3) {
   constexpr size_t kSizeOfVector = 118124;
-
-  // Create data
-  std::vector<int> in(kSizeOfVector, 0);
-  GetRandomVector(in, -100, 100);
-  std::vector<int> out(kSizeOfVector, 0);
-  std::vector<int> answer(in);
-  std::ranges::sort(answer);
-
-  // Create task_data
+  boost::mpi::communicator world;
+  std::vector<int> in;
+  std::vector<int> out;
+  std::vector<int> answer;
   auto task_data_seq = std::make_shared<ppc::core::TaskData>();
-  task_data_seq->inputs.emplace_back(reinterpret_cast<uint8_t *>(in.data()));
-  task_data_seq->inputs_count.emplace_back(in.size());
-  task_data_seq->outputs.emplace_back(reinterpret_cast<uint8_t *>(out.data()));
-  task_data_seq->outputs_count.emplace_back(out.size());
+  if (world.rank() == 0) {
+    // Create data
+    in.resize(kSizeOfVector, 0);
+    GetRandomVector(in, -100, 100);
+    out.resize(kSizeOfVector, 0);
+    std::vector<int> answer(in);
+    std::ranges::sort(answer);
 
+    // Create task_data
+    task_data_seq->inputs.emplace_back(reinterpret_cast<uint8_t *>(in.data()));
+    task_data_seq->inputs_count.emplace_back(in.size());
+    task_data_seq->outputs.emplace_back(reinterpret_cast<uint8_t *>(out.data()));
+    task_data_seq->outputs_count.emplace_back(out.size());
+  }
   // Create Task
   volochaev_s_shell_sort_with_batchers_even_odd_merge_all::ShellSortALL test_task_sequential(task_data_seq);
   ASSERT_EQ(test_task_sequential.Validation(), true);
@@ -2797,21 +3242,25 @@ TEST(volochaev_s_shell_sort_with_batchers_even_odd_merge_all, test_with_Stirling
 
 TEST(volochaev_s_shell_sort_with_batchers_even_odd_merge_all, test_with_Stirling_size_n_k_9_4) {
   constexpr size_t kSizeOfVector = 67284;
-
-  // Create data
-  std::vector<int> in(kSizeOfVector, 0);
-  GetRandomVector(in, -100, 100);
-  std::vector<int> out(kSizeOfVector, 0);
-  std::vector<int> answer(in);
-  std::ranges::sort(answer);
-
-  // Create task_data
+  boost::mpi::communicator world;
+  std::vector<int> in;
+  std::vector<int> out;
+  std::vector<int> answer;
   auto task_data_seq = std::make_shared<ppc::core::TaskData>();
-  task_data_seq->inputs.emplace_back(reinterpret_cast<uint8_t *>(in.data()));
-  task_data_seq->inputs_count.emplace_back(in.size());
-  task_data_seq->outputs.emplace_back(reinterpret_cast<uint8_t *>(out.data()));
-  task_data_seq->outputs_count.emplace_back(out.size());
+  if (world.rank() == 0) {
+    // Create data
+    in.resize(kSizeOfVector, 0);
+    GetRandomVector(in, -100, 100);
+    out.resize(kSizeOfVector, 0);
+    std::vector<int> answer(in);
+    std::ranges::sort(answer);
 
+    // Create task_data
+    task_data_seq->inputs.emplace_back(reinterpret_cast<uint8_t *>(in.data()));
+    task_data_seq->inputs_count.emplace_back(in.size());
+    task_data_seq->outputs.emplace_back(reinterpret_cast<uint8_t *>(out.data()));
+    task_data_seq->outputs_count.emplace_back(out.size());
+  }
   // Create Task
   volochaev_s_shell_sort_with_batchers_even_odd_merge_all::ShellSortALL test_task_sequential(task_data_seq);
   ASSERT_EQ(test_task_sequential.Validation(), true);
@@ -2823,21 +3272,25 @@ TEST(volochaev_s_shell_sort_with_batchers_even_odd_merge_all, test_with_Stirling
 
 TEST(volochaev_s_shell_sort_with_batchers_even_odd_merge_all, test_with_Stirling_size_n_k_9_5) {
   constexpr size_t kSizeOfVector = 22449;
-
-  // Create data
-  std::vector<int> in(kSizeOfVector, 0);
-  GetRandomVector(in, -100, 100);
-  std::vector<int> out(kSizeOfVector, 0);
-  std::vector<int> answer(in);
-  std::ranges::sort(answer);
-
-  // Create task_data
+  boost::mpi::communicator world;
+  std::vector<int> in;
+  std::vector<int> out;
+  std::vector<int> answer;
   auto task_data_seq = std::make_shared<ppc::core::TaskData>();
-  task_data_seq->inputs.emplace_back(reinterpret_cast<uint8_t *>(in.data()));
-  task_data_seq->inputs_count.emplace_back(in.size());
-  task_data_seq->outputs.emplace_back(reinterpret_cast<uint8_t *>(out.data()));
-  task_data_seq->outputs_count.emplace_back(out.size());
+  if (world.rank() == 0) {
+    // Create data
+    in.resize(kSizeOfVector, 0);
+    GetRandomVector(in, -100, 100);
+    out.resize(kSizeOfVector, 0);
+    std::vector<int> answer(in);
+    std::ranges::sort(answer);
 
+    // Create task_data
+    task_data_seq->inputs.emplace_back(reinterpret_cast<uint8_t *>(in.data()));
+    task_data_seq->inputs_count.emplace_back(in.size());
+    task_data_seq->outputs.emplace_back(reinterpret_cast<uint8_t *>(out.data()));
+    task_data_seq->outputs_count.emplace_back(out.size());
+  }
   // Create Task
   volochaev_s_shell_sort_with_batchers_even_odd_merge_all::ShellSortALL test_task_sequential(task_data_seq);
   ASSERT_EQ(test_task_sequential.Validation(), true);
@@ -2849,21 +3302,25 @@ TEST(volochaev_s_shell_sort_with_batchers_even_odd_merge_all, test_with_Stirling
 
 TEST(volochaev_s_shell_sort_with_batchers_even_odd_merge_all, test_with_Stirling_size_n_k_9_6) {
   constexpr size_t kSizeOfVector = 4536;
-
-  // Create data
-  std::vector<int> in(kSizeOfVector, 0);
-  GetRandomVector(in, -100, 100);
-  std::vector<int> out(kSizeOfVector, 0);
-  std::vector<int> answer(in);
-  std::ranges::sort(answer);
-
-  // Create task_data
+  boost::mpi::communicator world;
+  std::vector<int> in;
+  std::vector<int> out;
+  std::vector<int> answer;
   auto task_data_seq = std::make_shared<ppc::core::TaskData>();
-  task_data_seq->inputs.emplace_back(reinterpret_cast<uint8_t *>(in.data()));
-  task_data_seq->inputs_count.emplace_back(in.size());
-  task_data_seq->outputs.emplace_back(reinterpret_cast<uint8_t *>(out.data()));
-  task_data_seq->outputs_count.emplace_back(out.size());
+  if (world.rank() == 0) {
+    // Create data
+    in.resize(kSizeOfVector, 0);
+    GetRandomVector(in, -100, 100);
+    out.resize(kSizeOfVector, 0);
+    std::vector<int> answer(in);
+    std::ranges::sort(answer);
 
+    // Create task_data
+    task_data_seq->inputs.emplace_back(reinterpret_cast<uint8_t *>(in.data()));
+    task_data_seq->inputs_count.emplace_back(in.size());
+    task_data_seq->outputs.emplace_back(reinterpret_cast<uint8_t *>(out.data()));
+    task_data_seq->outputs_count.emplace_back(out.size());
+  }
   // Create Task
   volochaev_s_shell_sort_with_batchers_even_odd_merge_all::ShellSortALL test_task_sequential(task_data_seq);
   ASSERT_EQ(test_task_sequential.Validation(), true);
@@ -2875,21 +3332,25 @@ TEST(volochaev_s_shell_sort_with_batchers_even_odd_merge_all, test_with_Stirling
 
 TEST(volochaev_s_shell_sort_with_batchers_even_odd_merge_all, test_with_Stirling_size_n_k_9_7) {
   constexpr size_t kSizeOfVector = 546;
-
-  // Create data
-  std::vector<int> in(kSizeOfVector, 0);
-  GetRandomVector(in, -100, 100);
-  std::vector<int> out(kSizeOfVector, 0);
-  std::vector<int> answer(in);
-  std::ranges::sort(answer);
-
-  // Create task_data
+  boost::mpi::communicator world;
+  std::vector<int> in;
+  std::vector<int> out;
+  std::vector<int> answer;
   auto task_data_seq = std::make_shared<ppc::core::TaskData>();
-  task_data_seq->inputs.emplace_back(reinterpret_cast<uint8_t *>(in.data()));
-  task_data_seq->inputs_count.emplace_back(in.size());
-  task_data_seq->outputs.emplace_back(reinterpret_cast<uint8_t *>(out.data()));
-  task_data_seq->outputs_count.emplace_back(out.size());
+  if (world.rank() == 0) {
+    // Create data
+    in.resize(kSizeOfVector, 0);
+    GetRandomVector(in, -100, 100);
+    out.resize(kSizeOfVector, 0);
+    std::vector<int> answer(in);
+    std::ranges::sort(answer);
 
+    // Create task_data
+    task_data_seq->inputs.emplace_back(reinterpret_cast<uint8_t *>(in.data()));
+    task_data_seq->inputs_count.emplace_back(in.size());
+    task_data_seq->outputs.emplace_back(reinterpret_cast<uint8_t *>(out.data()));
+    task_data_seq->outputs_count.emplace_back(out.size());
+  }
   // Create Task
   volochaev_s_shell_sort_with_batchers_even_odd_merge_all::ShellSortALL test_task_sequential(task_data_seq);
   ASSERT_EQ(test_task_sequential.Validation(), true);
@@ -2901,21 +3362,25 @@ TEST(volochaev_s_shell_sort_with_batchers_even_odd_merge_all, test_with_Stirling
 
 TEST(volochaev_s_shell_sort_with_batchers_even_odd_merge_all, test_with_Stirling_size_n_k_9_8) {
   constexpr size_t kSizeOfVector = 36;
-
-  // Create data
-  std::vector<int> in(kSizeOfVector, 0);
-  GetRandomVector(in, -100, 100);
-  std::vector<int> out(kSizeOfVector, 0);
-  std::vector<int> answer(in);
-  std::ranges::sort(answer);
-
-  // Create task_data
+  boost::mpi::communicator world;
+  std::vector<int> in;
+  std::vector<int> out;
+  std::vector<int> answer;
   auto task_data_seq = std::make_shared<ppc::core::TaskData>();
-  task_data_seq->inputs.emplace_back(reinterpret_cast<uint8_t *>(in.data()));
-  task_data_seq->inputs_count.emplace_back(in.size());
-  task_data_seq->outputs.emplace_back(reinterpret_cast<uint8_t *>(out.data()));
-  task_data_seq->outputs_count.emplace_back(out.size());
+  if (world.rank() == 0) {
+    // Create data
+    in.resize(kSizeOfVector, 0);
+    GetRandomVector(in, -100, 100);
+    out.resize(kSizeOfVector, 0);
+    std::vector<int> answer(in);
+    std::ranges::sort(answer);
 
+    // Create task_data
+    task_data_seq->inputs.emplace_back(reinterpret_cast<uint8_t *>(in.data()));
+    task_data_seq->inputs_count.emplace_back(in.size());
+    task_data_seq->outputs.emplace_back(reinterpret_cast<uint8_t *>(out.data()));
+    task_data_seq->outputs_count.emplace_back(out.size());
+  }
   // Create Task
   volochaev_s_shell_sort_with_batchers_even_odd_merge_all::ShellSortALL test_task_sequential(task_data_seq);
   ASSERT_EQ(test_task_sequential.Validation(), true);
@@ -2927,21 +3392,25 @@ TEST(volochaev_s_shell_sort_with_batchers_even_odd_merge_all, test_with_Stirling
 
 TEST(volochaev_s_shell_sort_with_batchers_even_odd_merge_all, test_with_Stirling_size_n_k_9_9) {
   constexpr size_t kSizeOfVector = 1;
-
-  // Create data
-  std::vector<int> in(kSizeOfVector, 0);
-  GetRandomVector(in, -100, 100);
-  std::vector<int> out(kSizeOfVector, 0);
-  std::vector<int> answer(in);
-  std::ranges::sort(answer);
-
-  // Create task_data
+  boost::mpi::communicator world;
+  std::vector<int> in;
+  std::vector<int> out;
+  std::vector<int> answer;
   auto task_data_seq = std::make_shared<ppc::core::TaskData>();
-  task_data_seq->inputs.emplace_back(reinterpret_cast<uint8_t *>(in.data()));
-  task_data_seq->inputs_count.emplace_back(in.size());
-  task_data_seq->outputs.emplace_back(reinterpret_cast<uint8_t *>(out.data()));
-  task_data_seq->outputs_count.emplace_back(out.size());
+  if (world.rank() == 0) {
+    // Create data
+    in.resize(kSizeOfVector, 0);
+    GetRandomVector(in, -100, 100);
+    out.resize(kSizeOfVector, 0);
+    std::vector<int> answer(in);
+    std::ranges::sort(answer);
 
+    // Create task_data
+    task_data_seq->inputs.emplace_back(reinterpret_cast<uint8_t *>(in.data()));
+    task_data_seq->inputs_count.emplace_back(in.size());
+    task_data_seq->outputs.emplace_back(reinterpret_cast<uint8_t *>(out.data()));
+    task_data_seq->outputs_count.emplace_back(out.size());
+  }
   // Create Task
   volochaev_s_shell_sort_with_batchers_even_odd_merge_all::ShellSortALL test_task_sequential(task_data_seq);
   ASSERT_EQ(test_task_sequential.Validation(), true);
@@ -2953,21 +3422,25 @@ TEST(volochaev_s_shell_sort_with_batchers_even_odd_merge_all, test_with_Stirling
 
 TEST(volochaev_s_shell_sort_with_batchers_even_odd_merge_all, test_with_Stirling_size_n_k_9_1) {
   constexpr size_t kSizeOfVector = 40320;
-
-  // Create data
-  std::vector<int> in(kSizeOfVector, 0);
-  GetRandomVector(in, -100, 100);
-  std::vector<int> out(kSizeOfVector, 0);
-  std::vector<int> answer(in);
-  std::ranges::sort(answer);
-
-  // Create task_data
+  boost::mpi::communicator world;
+  std::vector<int> in;
+  std::vector<int> out;
+  std::vector<int> answer;
   auto task_data_seq = std::make_shared<ppc::core::TaskData>();
-  task_data_seq->inputs.emplace_back(reinterpret_cast<uint8_t *>(in.data()));
-  task_data_seq->inputs_count.emplace_back(in.size());
-  task_data_seq->outputs.emplace_back(reinterpret_cast<uint8_t *>(out.data()));
-  task_data_seq->outputs_count.emplace_back(out.size());
+  if (world.rank() == 0) {
+    // Create data
+    in.resize(kSizeOfVector, 0);
+    GetRandomVector(in, -100, 100);
+    out.resize(kSizeOfVector, 0);
+    std::vector<int> answer(in);
+    std::ranges::sort(answer);
 
+    // Create task_data
+    task_data_seq->inputs.emplace_back(reinterpret_cast<uint8_t *>(in.data()));
+    task_data_seq->inputs_count.emplace_back(in.size());
+    task_data_seq->outputs.emplace_back(reinterpret_cast<uint8_t *>(out.data()));
+    task_data_seq->outputs_count.emplace_back(out.size());
+  }
   // Create Task
   volochaev_s_shell_sort_with_batchers_even_odd_merge_all::ShellSortALL test_task_sequential(task_data_seq);
   ASSERT_EQ(test_task_sequential.Validation(), true);
@@ -2979,21 +3452,25 @@ TEST(volochaev_s_shell_sort_with_batchers_even_odd_merge_all, test_with_Stirling
 
 TEST(volochaev_s_shell_sort_with_batchers_even_odd_merge_all, test_with_Stirling_size_n_k_9_2) {
   constexpr size_t kSizeOfVector = 109584;
-
-  // Create data
-  std::vector<int> in(kSizeOfVector, 0);
-  GetRandomVector(in, -100, 100);
-  std::vector<int> out(kSizeOfVector, 0);
-  std::vector<int> answer(in);
-  std::ranges::sort(answer);
-
-  // Create task_data
+  boost::mpi::communicator world;
+  std::vector<int> in;
+  std::vector<int> out;
+  std::vector<int> answer;
   auto task_data_seq = std::make_shared<ppc::core::TaskData>();
-  task_data_seq->inputs.emplace_back(reinterpret_cast<uint8_t *>(in.data()));
-  task_data_seq->inputs_count.emplace_back(in.size());
-  task_data_seq->outputs.emplace_back(reinterpret_cast<uint8_t *>(out.data()));
-  task_data_seq->outputs_count.emplace_back(out.size());
+  if (world.rank() == 0) {
+    // Create data
+    in.resize(kSizeOfVector, 0);
+    GetRandomVector(in, -100, 100);
+    out.resize(kSizeOfVector, 0);
+    std::vector<int> answer(in);
+    std::ranges::sort(answer);
 
+    // Create task_data
+    task_data_seq->inputs.emplace_back(reinterpret_cast<uint8_t *>(in.data()));
+    task_data_seq->inputs_count.emplace_back(in.size());
+    task_data_seq->outputs.emplace_back(reinterpret_cast<uint8_t *>(out.data()));
+    task_data_seq->outputs_count.emplace_back(out.size());
+  }
   // Create Task
   volochaev_s_shell_sort_with_batchers_even_odd_merge_all::ShellSortALL test_task_sequential(task_data_seq);
   ASSERT_EQ(test_task_sequential.Validation(), true);
@@ -3005,21 +3482,25 @@ TEST(volochaev_s_shell_sort_with_batchers_even_odd_merge_all, test_with_Stirling
 
 TEST(volochaev_s_shell_sort_with_batchers_even_odd_merge_all, test_with_Stirling_size_n_k_9_3) {
   constexpr size_t kSizeOfVector = 118124;
-
-  // Create data
-  std::vector<int> in(kSizeOfVector, 0);
-  GetRandomVector(in, -100, 100);
-  std::vector<int> out(kSizeOfVector, 0);
-  std::vector<int> answer(in);
-  std::ranges::sort(answer);
-
-  // Create task_data
+  boost::mpi::communicator world;
+  std::vector<int> in;
+  std::vector<int> out;
+  std::vector<int> answer;
   auto task_data_seq = std::make_shared<ppc::core::TaskData>();
-  task_data_seq->inputs.emplace_back(reinterpret_cast<uint8_t *>(in.data()));
-  task_data_seq->inputs_count.emplace_back(in.size());
-  task_data_seq->outputs.emplace_back(reinterpret_cast<uint8_t *>(out.data()));
-  task_data_seq->outputs_count.emplace_back(out.size());
+  if (world.rank() == 0) {
+    // Create data
+    in.resize(kSizeOfVector, 0);
+    GetRandomVector(in, -100, 100);
+    out.resize(kSizeOfVector, 0);
+    std::vector<int> answer(in);
+    std::ranges::sort(answer);
 
+    // Create task_data
+    task_data_seq->inputs.emplace_back(reinterpret_cast<uint8_t *>(in.data()));
+    task_data_seq->inputs_count.emplace_back(in.size());
+    task_data_seq->outputs.emplace_back(reinterpret_cast<uint8_t *>(out.data()));
+    task_data_seq->outputs_count.emplace_back(out.size());
+  }
   // Create Task
   volochaev_s_shell_sort_with_batchers_even_odd_merge_all::ShellSortALL test_task_sequential(task_data_seq);
   ASSERT_EQ(test_task_sequential.Validation(), true);
@@ -3031,21 +3512,25 @@ TEST(volochaev_s_shell_sort_with_batchers_even_odd_merge_all, test_with_Stirling
 
 TEST(volochaev_s_shell_sort_with_batchers_even_odd_merge_all, test_with_Stirling_size_n_k_9_4) {
   constexpr size_t kSizeOfVector = 67284;
-
-  // Create data
-  std::vector<int> in(kSizeOfVector, 0);
-  GetRandomVector(in, -100, 100);
-  std::vector<int> out(kSizeOfVector, 0);
-  std::vector<int> answer(in);
-  std::ranges::sort(answer);
-
-  // Create task_data
+  boost::mpi::communicator world;
+  std::vector<int> in;
+  std::vector<int> out;
+  std::vector<int> answer;
   auto task_data_seq = std::make_shared<ppc::core::TaskData>();
-  task_data_seq->inputs.emplace_back(reinterpret_cast<uint8_t *>(in.data()));
-  task_data_seq->inputs_count.emplace_back(in.size());
-  task_data_seq->outputs.emplace_back(reinterpret_cast<uint8_t *>(out.data()));
-  task_data_seq->outputs_count.emplace_back(out.size());
+  if (world.rank() == 0) {
+    // Create data
+    in.resize(kSizeOfVector, 0);
+    GetRandomVector(in, -100, 100);
+    out.resize(kSizeOfVector, 0);
+    std::vector<int> answer(in);
+    std::ranges::sort(answer);
 
+    // Create task_data
+    task_data_seq->inputs.emplace_back(reinterpret_cast<uint8_t *>(in.data()));
+    task_data_seq->inputs_count.emplace_back(in.size());
+    task_data_seq->outputs.emplace_back(reinterpret_cast<uint8_t *>(out.data()));
+    task_data_seq->outputs_count.emplace_back(out.size());
+  }
   // Create Task
   volochaev_s_shell_sort_with_batchers_even_odd_merge_all::ShellSortALL test_task_sequential(task_data_seq);
   ASSERT_EQ(test_task_sequential.Validation(), true);
@@ -3057,21 +3542,25 @@ TEST(volochaev_s_shell_sort_with_batchers_even_odd_merge_all, test_with_Stirling
 
 TEST(volochaev_s_shell_sort_with_batchers_even_odd_merge_all, test_with_Stirling_size_n_k_9_5) {
   constexpr size_t kSizeOfVector = 22449;
-
-  // Create data
-  std::vector<int> in(kSizeOfVector, 0);
-  GetRandomVector(in, -100, 100);
-  std::vector<int> out(kSizeOfVector, 0);
-  std::vector<int> answer(in);
-  std::ranges::sort(answer);
-
-  // Create task_data
+  boost::mpi::communicator world;
+  std::vector<int> in;
+  std::vector<int> out;
+  std::vector<int> answer;
   auto task_data_seq = std::make_shared<ppc::core::TaskData>();
-  task_data_seq->inputs.emplace_back(reinterpret_cast<uint8_t *>(in.data()));
-  task_data_seq->inputs_count.emplace_back(in.size());
-  task_data_seq->outputs.emplace_back(reinterpret_cast<uint8_t *>(out.data()));
-  task_data_seq->outputs_count.emplace_back(out.size());
+  if (world.rank() == 0) {
+    // Create data
+    in.resize(kSizeOfVector, 0);
+    GetRandomVector(in, -100, 100);
+    out.resize(kSizeOfVector, 0);
+    std::vector<int> answer(in);
+    std::ranges::sort(answer);
 
+    // Create task_data
+    task_data_seq->inputs.emplace_back(reinterpret_cast<uint8_t *>(in.data()));
+    task_data_seq->inputs_count.emplace_back(in.size());
+    task_data_seq->outputs.emplace_back(reinterpret_cast<uint8_t *>(out.data()));
+    task_data_seq->outputs_count.emplace_back(out.size());
+  }
   // Create Task
   volochaev_s_shell_sort_with_batchers_even_odd_merge_all::ShellSortALL test_task_sequential(task_data_seq);
   ASSERT_EQ(test_task_sequential.Validation(), true);
@@ -3083,21 +3572,25 @@ TEST(volochaev_s_shell_sort_with_batchers_even_odd_merge_all, test_with_Stirling
 
 TEST(volochaev_s_shell_sort_with_batchers_even_odd_merge_all, test_with_Stirling_size_n_k_9_6) {
   constexpr size_t kSizeOfVector = 4536;
-
-  // Create data
-  std::vector<int> in(kSizeOfVector, 0);
-  GetRandomVector(in, -100, 100);
-  std::vector<int> out(kSizeOfVector, 0);
-  std::vector<int> answer(in);
-  std::ranges::sort(answer);
-
-  // Create task_data
+  boost::mpi::communicator world;
+  std::vector<int> in;
+  std::vector<int> out;
+  std::vector<int> answer;
   auto task_data_seq = std::make_shared<ppc::core::TaskData>();
-  task_data_seq->inputs.emplace_back(reinterpret_cast<uint8_t *>(in.data()));
-  task_data_seq->inputs_count.emplace_back(in.size());
-  task_data_seq->outputs.emplace_back(reinterpret_cast<uint8_t *>(out.data()));
-  task_data_seq->outputs_count.emplace_back(out.size());
+  if (world.rank() == 0) {
+    // Create data
+    in.resize(kSizeOfVector, 0);
+    GetRandomVector(in, -100, 100);
+    out.resize(kSizeOfVector, 0);
+    std::vector<int> answer(in);
+    std::ranges::sort(answer);
 
+    // Create task_data
+    task_data_seq->inputs.emplace_back(reinterpret_cast<uint8_t *>(in.data()));
+    task_data_seq->inputs_count.emplace_back(in.size());
+    task_data_seq->outputs.emplace_back(reinterpret_cast<uint8_t *>(out.data()));
+    task_data_seq->outputs_count.emplace_back(out.size());
+  }
   // Create Task
   volochaev_s_shell_sort_with_batchers_even_odd_merge_all::ShellSortALL test_task_sequential(task_data_seq);
   ASSERT_EQ(test_task_sequential.Validation(), true);
@@ -3109,21 +3602,25 @@ TEST(volochaev_s_shell_sort_with_batchers_even_odd_merge_all, test_with_Stirling
 
 TEST(volochaev_s_shell_sort_with_batchers_even_odd_merge_all, test_with_Stirling_size_n_k_9_7) {
   constexpr size_t kSizeOfVector = 546;
-
-  // Create data
-  std::vector<int> in(kSizeOfVector, 0);
-  GetRandomVector(in, -100, 100);
-  std::vector<int> out(kSizeOfVector, 0);
-  std::vector<int> answer(in);
-  std::ranges::sort(answer);
-
-  // Create task_data
+  boost::mpi::communicator world;
+  std::vector<int> in;
+  std::vector<int> out;
+  std::vector<int> answer;
   auto task_data_seq = std::make_shared<ppc::core::TaskData>();
-  task_data_seq->inputs.emplace_back(reinterpret_cast<uint8_t *>(in.data()));
-  task_data_seq->inputs_count.emplace_back(in.size());
-  task_data_seq->outputs.emplace_back(reinterpret_cast<uint8_t *>(out.data()));
-  task_data_seq->outputs_count.emplace_back(out.size());
+  if (world.rank() == 0) {
+    // Create data
+    in.resize(kSizeOfVector, 0);
+    GetRandomVector(in, -100, 100);
+    out.resize(kSizeOfVector, 0);
+    std::vector<int> answer(in);
+    std::ranges::sort(answer);
 
+    // Create task_data
+    task_data_seq->inputs.emplace_back(reinterpret_cast<uint8_t *>(in.data()));
+    task_data_seq->inputs_count.emplace_back(in.size());
+    task_data_seq->outputs.emplace_back(reinterpret_cast<uint8_t *>(out.data()));
+    task_data_seq->outputs_count.emplace_back(out.size());
+  }
   // Create Task
   volochaev_s_shell_sort_with_batchers_even_odd_merge_all::ShellSortALL test_task_sequential(task_data_seq);
   ASSERT_EQ(test_task_sequential.Validation(), true);
@@ -3135,21 +3632,25 @@ TEST(volochaev_s_shell_sort_with_batchers_even_odd_merge_all, test_with_Stirling
 
 TEST(volochaev_s_shell_sort_with_batchers_even_odd_merge_all, test_with_Stirling_size_n_k_9_8) {
   constexpr size_t kSizeOfVector = 36;
-
-  // Create data
-  std::vector<int> in(kSizeOfVector, 0);
-  GetRandomVector(in, -100, 100);
-  std::vector<int> out(kSizeOfVector, 0);
-  std::vector<int> answer(in);
-  std::ranges::sort(answer);
-
-  // Create task_data
+  boost::mpi::communicator world;
+  std::vector<int> in;
+  std::vector<int> out;
+  std::vector<int> answer;
   auto task_data_seq = std::make_shared<ppc::core::TaskData>();
-  task_data_seq->inputs.emplace_back(reinterpret_cast<uint8_t *>(in.data()));
-  task_data_seq->inputs_count.emplace_back(in.size());
-  task_data_seq->outputs.emplace_back(reinterpret_cast<uint8_t *>(out.data()));
-  task_data_seq->outputs_count.emplace_back(out.size());
+  if (world.rank() == 0) {
+    // Create data
+    in.resize(kSizeOfVector, 0);
+    GetRandomVector(in, -100, 100);
+    out.resize(kSizeOfVector, 0);
+    std::vector<int> answer(in);
+    std::ranges::sort(answer);
 
+    // Create task_data
+    task_data_seq->inputs.emplace_back(reinterpret_cast<uint8_t *>(in.data()));
+    task_data_seq->inputs_count.emplace_back(in.size());
+    task_data_seq->outputs.emplace_back(reinterpret_cast<uint8_t *>(out.data()));
+    task_data_seq->outputs_count.emplace_back(out.size());
+  }
   // Create Task
   volochaev_s_shell_sort_with_batchers_even_odd_merge_all::ShellSortALL test_task_sequential(task_data_seq);
   ASSERT_EQ(test_task_sequential.Validation(), true);
@@ -3161,21 +3662,25 @@ TEST(volochaev_s_shell_sort_with_batchers_even_odd_merge_all, test_with_Stirling
 
 TEST(volochaev_s_shell_sort_with_batchers_even_odd_merge_all, test_with_Stirling_size_n_k_9_9) {
   constexpr size_t kSizeOfVector = 1;
-
-  // Create data
-  std::vector<int> in(kSizeOfVector, 0);
-  GetRandomVector(in, -100, 100);
-  std::vector<int> out(kSizeOfVector, 0);
-  std::vector<int> answer(in);
-  std::ranges::sort(answer);
-
-  // Create task_data
+  boost::mpi::communicator world;
+  std::vector<int> in;
+  std::vector<int> out;
+  std::vector<int> answer;
   auto task_data_seq = std::make_shared<ppc::core::TaskData>();
-  task_data_seq->inputs.emplace_back(reinterpret_cast<uint8_t *>(in.data()));
-  task_data_seq->inputs_count.emplace_back(in.size());
-  task_data_seq->outputs.emplace_back(reinterpret_cast<uint8_t *>(out.data()));
-  task_data_seq->outputs_count.emplace_back(out.size());
+  if (world.rank() == 0) {
+    // Create data
+    in.resize(kSizeOfVector, 0);
+    GetRandomVector(in, -100, 100);
+    out.resize(kSizeOfVector, 0);
+    std::vector<int> answer(in);
+    std::ranges::sort(answer);
 
+    // Create task_data
+    task_data_seq->inputs.emplace_back(reinterpret_cast<uint8_t *>(in.data()));
+    task_data_seq->inputs_count.emplace_back(in.size());
+    task_data_seq->outputs.emplace_back(reinterpret_cast<uint8_t *>(out.data()));
+    task_data_seq->outputs_count.emplace_back(out.size());
+  }
   // Create Task
   volochaev_s_shell_sort_with_batchers_even_odd_merge_all::ShellSortALL test_task_sequential(task_data_seq);
   ASSERT_EQ(test_task_sequential.Validation(), true);
@@ -3187,21 +3692,25 @@ TEST(volochaev_s_shell_sort_with_batchers_even_odd_merge_all, test_with_Stirling
 
 TEST(volochaev_s_shell_sort_with_batchers_even_odd_merge_all, test_with_Katalan_size_1) {
   constexpr size_t kSizeOfVector = 1;
-
-  // Create data
-  std::vector<int> in(kSizeOfVector, 0);
-  GetRandomVector(in, -100, 100);
-  std::vector<int> out(kSizeOfVector, 0);
-  std::vector<int> answer(in);
-  std::ranges::sort(answer);
-
-  // Create task_data
+  boost::mpi::communicator world;
+  std::vector<int> in;
+  std::vector<int> out;
+  std::vector<int> answer;
   auto task_data_seq = std::make_shared<ppc::core::TaskData>();
-  task_data_seq->inputs.emplace_back(reinterpret_cast<uint8_t *>(in.data()));
-  task_data_seq->inputs_count.emplace_back(in.size());
-  task_data_seq->outputs.emplace_back(reinterpret_cast<uint8_t *>(out.data()));
-  task_data_seq->outputs_count.emplace_back(out.size());
+  if (world.rank() == 0) {
+    // Create data
+    in.resize(kSizeOfVector, 0);
+    GetRandomVector(in, -100, 100);
+    out.resize(kSizeOfVector, 0);
+    std::vector<int> answer(in);
+    std::ranges::sort(answer);
 
+    // Create task_data
+    task_data_seq->inputs.emplace_back(reinterpret_cast<uint8_t *>(in.data()));
+    task_data_seq->inputs_count.emplace_back(in.size());
+    task_data_seq->outputs.emplace_back(reinterpret_cast<uint8_t *>(out.data()));
+    task_data_seq->outputs_count.emplace_back(out.size());
+  }
   // Create Task
   volochaev_s_shell_sort_with_batchers_even_odd_merge_all::ShellSortALL test_task_sequential(task_data_seq);
   ASSERT_EQ(test_task_sequential.Validation(), true);
@@ -3213,21 +3722,25 @@ TEST(volochaev_s_shell_sort_with_batchers_even_odd_merge_all, test_with_Katalan_
 
 TEST(volochaev_s_shell_sort_with_batchers_even_odd_merge_all, test_with_Katalan_size_2) {
   constexpr size_t kSizeOfVector = 2;
-
-  // Create data
-  std::vector<int> in(kSizeOfVector, 0);
-  GetRandomVector(in, -100, 100);
-  std::vector<int> out(kSizeOfVector, 0);
-  std::vector<int> answer(in);
-  std::ranges::sort(answer);
-
-  // Create task_data
+  boost::mpi::communicator world;
+  std::vector<int> in;
+  std::vector<int> out;
+  std::vector<int> answer;
   auto task_data_seq = std::make_shared<ppc::core::TaskData>();
-  task_data_seq->inputs.emplace_back(reinterpret_cast<uint8_t *>(in.data()));
-  task_data_seq->inputs_count.emplace_back(in.size());
-  task_data_seq->outputs.emplace_back(reinterpret_cast<uint8_t *>(out.data()));
-  task_data_seq->outputs_count.emplace_back(out.size());
+  if (world.rank() == 0) {
+    // Create data
+    in.resize(kSizeOfVector, 0);
+    GetRandomVector(in, -100, 100);
+    out.resize(kSizeOfVector, 0);
+    std::vector<int> answer(in);
+    std::ranges::sort(answer);
 
+    // Create task_data
+    task_data_seq->inputs.emplace_back(reinterpret_cast<uint8_t *>(in.data()));
+    task_data_seq->inputs_count.emplace_back(in.size());
+    task_data_seq->outputs.emplace_back(reinterpret_cast<uint8_t *>(out.data()));
+    task_data_seq->outputs_count.emplace_back(out.size());
+  }
   // Create Task
   volochaev_s_shell_sort_with_batchers_even_odd_merge_all::ShellSortALL test_task_sequential(task_data_seq);
   ASSERT_EQ(test_task_sequential.Validation(), true);
@@ -3239,21 +3752,25 @@ TEST(volochaev_s_shell_sort_with_batchers_even_odd_merge_all, test_with_Katalan_
 
 TEST(volochaev_s_shell_sort_with_batchers_even_odd_merge_all, test_with_Katalan_size_3) {
   constexpr size_t kSizeOfVector = 5;
-
-  // Create data
-  std::vector<int> in(kSizeOfVector, 0);
-  GetRandomVector(in, -100, 100);
-  std::vector<int> out(kSizeOfVector, 0);
-  std::vector<int> answer(in);
-  std::ranges::sort(answer);
-
-  // Create task_data
+  boost::mpi::communicator world;
+  std::vector<int> in;
+  std::vector<int> out;
+  std::vector<int> answer;
   auto task_data_seq = std::make_shared<ppc::core::TaskData>();
-  task_data_seq->inputs.emplace_back(reinterpret_cast<uint8_t *>(in.data()));
-  task_data_seq->inputs_count.emplace_back(in.size());
-  task_data_seq->outputs.emplace_back(reinterpret_cast<uint8_t *>(out.data()));
-  task_data_seq->outputs_count.emplace_back(out.size());
+  if (world.rank() == 0) {
+    // Create data
+    in.resize(kSizeOfVector, 0);
+    GetRandomVector(in, -100, 100);
+    out.resize(kSizeOfVector, 0);
+    std::vector<int> answer(in);
+    std::ranges::sort(answer);
 
+    // Create task_data
+    task_data_seq->inputs.emplace_back(reinterpret_cast<uint8_t *>(in.data()));
+    task_data_seq->inputs_count.emplace_back(in.size());
+    task_data_seq->outputs.emplace_back(reinterpret_cast<uint8_t *>(out.data()));
+    task_data_seq->outputs_count.emplace_back(out.size());
+  }
   // Create Task
   volochaev_s_shell_sort_with_batchers_even_odd_merge_all::ShellSortALL test_task_sequential(task_data_seq);
   ASSERT_EQ(test_task_sequential.Validation(), true);
@@ -3265,21 +3782,25 @@ TEST(volochaev_s_shell_sort_with_batchers_even_odd_merge_all, test_with_Katalan_
 
 TEST(volochaev_s_shell_sort_with_batchers_even_odd_merge_all, test_with_Katalan_size_4) {
   constexpr size_t kSizeOfVector = 14;
-
-  // Create data
-  std::vector<int> in(kSizeOfVector, 0);
-  GetRandomVector(in, -100, 100);
-  std::vector<int> out(kSizeOfVector, 0);
-  std::vector<int> answer(in);
-  std::ranges::sort(answer);
-
-  // Create task_data
+  boost::mpi::communicator world;
+  std::vector<int> in;
+  std::vector<int> out;
+  std::vector<int> answer;
   auto task_data_seq = std::make_shared<ppc::core::TaskData>();
-  task_data_seq->inputs.emplace_back(reinterpret_cast<uint8_t *>(in.data()));
-  task_data_seq->inputs_count.emplace_back(in.size());
-  task_data_seq->outputs.emplace_back(reinterpret_cast<uint8_t *>(out.data()));
-  task_data_seq->outputs_count.emplace_back(out.size());
+  if (world.rank() == 0) {
+    // Create data
+    in.resize(kSizeOfVector, 0);
+    GetRandomVector(in, -100, 100);
+    out.resize(kSizeOfVector, 0);
+    std::vector<int> answer(in);
+    std::ranges::sort(answer);
 
+    // Create task_data
+    task_data_seq->inputs.emplace_back(reinterpret_cast<uint8_t *>(in.data()));
+    task_data_seq->inputs_count.emplace_back(in.size());
+    task_data_seq->outputs.emplace_back(reinterpret_cast<uint8_t *>(out.data()));
+    task_data_seq->outputs_count.emplace_back(out.size());
+  }
   // Create Task
   volochaev_s_shell_sort_with_batchers_even_odd_merge_all::ShellSortALL test_task_sequential(task_data_seq);
   ASSERT_EQ(test_task_sequential.Validation(), true);
@@ -3291,21 +3812,25 @@ TEST(volochaev_s_shell_sort_with_batchers_even_odd_merge_all, test_with_Katalan_
 
 TEST(volochaev_s_shell_sort_with_batchers_even_odd_merge_all, test_with_Katalan_size_5) {
   constexpr size_t kSizeOfVector = 42;
-
-  // Create data
-  std::vector<int> in(kSizeOfVector, 0);
-  GetRandomVector(in, -100, 100);
-  std::vector<int> out(kSizeOfVector, 0);
-  std::vector<int> answer(in);
-  std::ranges::sort(answer);
-
-  // Create task_data
+  boost::mpi::communicator world;
+  std::vector<int> in;
+  std::vector<int> out;
+  std::vector<int> answer;
   auto task_data_seq = std::make_shared<ppc::core::TaskData>();
-  task_data_seq->inputs.emplace_back(reinterpret_cast<uint8_t *>(in.data()));
-  task_data_seq->inputs_count.emplace_back(in.size());
-  task_data_seq->outputs.emplace_back(reinterpret_cast<uint8_t *>(out.data()));
-  task_data_seq->outputs_count.emplace_back(out.size());
+  if (world.rank() == 0) {
+    // Create data
+    in.resize(kSizeOfVector, 0);
+    GetRandomVector(in, -100, 100);
+    out.resize(kSizeOfVector, 0);
+    std::vector<int> answer(in);
+    std::ranges::sort(answer);
 
+    // Create task_data
+    task_data_seq->inputs.emplace_back(reinterpret_cast<uint8_t *>(in.data()));
+    task_data_seq->inputs_count.emplace_back(in.size());
+    task_data_seq->outputs.emplace_back(reinterpret_cast<uint8_t *>(out.data()));
+    task_data_seq->outputs_count.emplace_back(out.size());
+  }
   // Create Task
   volochaev_s_shell_sort_with_batchers_even_odd_merge_all::ShellSortALL test_task_sequential(task_data_seq);
   ASSERT_EQ(test_task_sequential.Validation(), true);
@@ -3317,21 +3842,25 @@ TEST(volochaev_s_shell_sort_with_batchers_even_odd_merge_all, test_with_Katalan_
 
 TEST(volochaev_s_shell_sort_with_batchers_even_odd_merge_all, test_with_Katalan_size_6) {
   constexpr size_t kSizeOfVector = 132;
-
-  // Create data
-  std::vector<int> in(kSizeOfVector, 0);
-  GetRandomVector(in, -100, 100);
-  std::vector<int> out(kSizeOfVector, 0);
-  std::vector<int> answer(in);
-  std::ranges::sort(answer);
-
-  // Create task_data
+  boost::mpi::communicator world;
+  std::vector<int> in;
+  std::vector<int> out;
+  std::vector<int> answer;
   auto task_data_seq = std::make_shared<ppc::core::TaskData>();
-  task_data_seq->inputs.emplace_back(reinterpret_cast<uint8_t *>(in.data()));
-  task_data_seq->inputs_count.emplace_back(in.size());
-  task_data_seq->outputs.emplace_back(reinterpret_cast<uint8_t *>(out.data()));
-  task_data_seq->outputs_count.emplace_back(out.size());
+  if (world.rank() == 0) {
+    // Create data
+    in.resize(kSizeOfVector, 0);
+    GetRandomVector(in, -100, 100);
+    out.resize(kSizeOfVector, 0);
+    std::vector<int> answer(in);
+    std::ranges::sort(answer);
 
+    // Create task_data
+    task_data_seq->inputs.emplace_back(reinterpret_cast<uint8_t *>(in.data()));
+    task_data_seq->inputs_count.emplace_back(in.size());
+    task_data_seq->outputs.emplace_back(reinterpret_cast<uint8_t *>(out.data()));
+    task_data_seq->outputs_count.emplace_back(out.size());
+  }
   // Create Task
   volochaev_s_shell_sort_with_batchers_even_odd_merge_all::ShellSortALL test_task_sequential(task_data_seq);
   ASSERT_EQ(test_task_sequential.Validation(), true);
@@ -3343,21 +3872,25 @@ TEST(volochaev_s_shell_sort_with_batchers_even_odd_merge_all, test_with_Katalan_
 
 TEST(volochaev_s_shell_sort_with_batchers_even_odd_merge_all, test_with_Katalan_size_7) {
   constexpr size_t kSizeOfVector = 429;
-
-  // Create data
-  std::vector<int> in(kSizeOfVector, 0);
-  GetRandomVector(in, -100, 100);
-  std::vector<int> out(kSizeOfVector, 0);
-  std::vector<int> answer(in);
-  std::ranges::sort(answer);
-
-  // Create task_data
+  boost::mpi::communicator world;
+  std::vector<int> in;
+  std::vector<int> out;
+  std::vector<int> answer;
   auto task_data_seq = std::make_shared<ppc::core::TaskData>();
-  task_data_seq->inputs.emplace_back(reinterpret_cast<uint8_t *>(in.data()));
-  task_data_seq->inputs_count.emplace_back(in.size());
-  task_data_seq->outputs.emplace_back(reinterpret_cast<uint8_t *>(out.data()));
-  task_data_seq->outputs_count.emplace_back(out.size());
+  if (world.rank() == 0) {
+    // Create data
+    in.resize(kSizeOfVector, 0);
+    GetRandomVector(in, -100, 100);
+    out.resize(kSizeOfVector, 0);
+    std::vector<int> answer(in);
+    std::ranges::sort(answer);
 
+    // Create task_data
+    task_data_seq->inputs.emplace_back(reinterpret_cast<uint8_t *>(in.data()));
+    task_data_seq->inputs_count.emplace_back(in.size());
+    task_data_seq->outputs.emplace_back(reinterpret_cast<uint8_t *>(out.data()));
+    task_data_seq->outputs_count.emplace_back(out.size());
+  }
   // Create Task
   volochaev_s_shell_sort_with_batchers_even_odd_merge_all::ShellSortALL test_task_sequential(task_data_seq);
   ASSERT_EQ(test_task_sequential.Validation(), true);
@@ -3369,21 +3902,25 @@ TEST(volochaev_s_shell_sort_with_batchers_even_odd_merge_all, test_with_Katalan_
 
 TEST(volochaev_s_shell_sort_with_batchers_even_odd_merge_all, test_with_Katalan_size_8) {
   constexpr size_t kSizeOfVector = 1430;
-
-  // Create data
-  std::vector<int> in(kSizeOfVector, 0);
-  GetRandomVector(in, -100, 100);
-  std::vector<int> out(kSizeOfVector, 0);
-  std::vector<int> answer(in);
-  std::ranges::sort(answer);
-
-  // Create task_data
+  boost::mpi::communicator world;
+  std::vector<int> in;
+  std::vector<int> out;
+  std::vector<int> answer;
   auto task_data_seq = std::make_shared<ppc::core::TaskData>();
-  task_data_seq->inputs.emplace_back(reinterpret_cast<uint8_t *>(in.data()));
-  task_data_seq->inputs_count.emplace_back(in.size());
-  task_data_seq->outputs.emplace_back(reinterpret_cast<uint8_t *>(out.data()));
-  task_data_seq->outputs_count.emplace_back(out.size());
+  if (world.rank() == 0) {
+    // Create data
+    in.resize(kSizeOfVector, 0);
+    GetRandomVector(in, -100, 100);
+    out.resize(kSizeOfVector, 0);
+    std::vector<int> answer(in);
+    std::ranges::sort(answer);
 
+    // Create task_data
+    task_data_seq->inputs.emplace_back(reinterpret_cast<uint8_t *>(in.data()));
+    task_data_seq->inputs_count.emplace_back(in.size());
+    task_data_seq->outputs.emplace_back(reinterpret_cast<uint8_t *>(out.data()));
+    task_data_seq->outputs_count.emplace_back(out.size());
+  }
   // Create Task
   volochaev_s_shell_sort_with_batchers_even_odd_merge_all::ShellSortALL test_task_sequential(task_data_seq);
   ASSERT_EQ(test_task_sequential.Validation(), true);
@@ -3395,21 +3932,25 @@ TEST(volochaev_s_shell_sort_with_batchers_even_odd_merge_all, test_with_Katalan_
 
 TEST(volochaev_s_shell_sort_with_batchers_even_odd_merge_all, test_with_Katalan_size_9) {
   constexpr size_t kSizeOfVector = 4862;
-
-  // Create data
-  std::vector<int> in(kSizeOfVector, 0);
-  GetRandomVector(in, -100, 100);
-  std::vector<int> out(kSizeOfVector, 0);
-  std::vector<int> answer(in);
-  std::ranges::sort(answer);
-
-  // Create task_data
+  boost::mpi::communicator world;
+  std::vector<int> in;
+  std::vector<int> out;
+  std::vector<int> answer;
   auto task_data_seq = std::make_shared<ppc::core::TaskData>();
-  task_data_seq->inputs.emplace_back(reinterpret_cast<uint8_t *>(in.data()));
-  task_data_seq->inputs_count.emplace_back(in.size());
-  task_data_seq->outputs.emplace_back(reinterpret_cast<uint8_t *>(out.data()));
-  task_data_seq->outputs_count.emplace_back(out.size());
+  if (world.rank() == 0) {
+    // Create data
+    in.resize(kSizeOfVector, 0);
+    GetRandomVector(in, -100, 100);
+    out.resize(kSizeOfVector, 0);
+    std::vector<int> answer(in);
+    std::ranges::sort(answer);
 
+    // Create task_data
+    task_data_seq->inputs.emplace_back(reinterpret_cast<uint8_t *>(in.data()));
+    task_data_seq->inputs_count.emplace_back(in.size());
+    task_data_seq->outputs.emplace_back(reinterpret_cast<uint8_t *>(out.data()));
+    task_data_seq->outputs_count.emplace_back(out.size());
+  }
   // Create Task
   volochaev_s_shell_sort_with_batchers_even_odd_merge_all::ShellSortALL test_task_sequential(task_data_seq);
   ASSERT_EQ(test_task_sequential.Validation(), true);
@@ -3421,21 +3962,25 @@ TEST(volochaev_s_shell_sort_with_batchers_even_odd_merge_all, test_with_Katalan_
 
 TEST(volochaev_s_shell_sort_with_batchers_even_odd_merge_all, test_with_Katalan_size_10) {
   constexpr size_t kSizeOfVector = 16796;
-
-  // Create data
-  std::vector<int> in(kSizeOfVector, 0);
-  GetRandomVector(in, -100, 100);
-  std::vector<int> out(kSizeOfVector, 0);
-  std::vector<int> answer(in);
-  std::ranges::sort(answer);
-
-  // Create task_data
+  boost::mpi::communicator world;
+  std::vector<int> in;
+  std::vector<int> out;
+  std::vector<int> answer;
   auto task_data_seq = std::make_shared<ppc::core::TaskData>();
-  task_data_seq->inputs.emplace_back(reinterpret_cast<uint8_t *>(in.data()));
-  task_data_seq->inputs_count.emplace_back(in.size());
-  task_data_seq->outputs.emplace_back(reinterpret_cast<uint8_t *>(out.data()));
-  task_data_seq->outputs_count.emplace_back(out.size());
+  if (world.rank() == 0) {
+    // Create data
+    in.resize(kSizeOfVector, 0);
+    GetRandomVector(in, -100, 100);
+    out.resize(kSizeOfVector, 0);
+    std::vector<int> answer(in);
+    std::ranges::sort(answer);
 
+    // Create task_data
+    task_data_seq->inputs.emplace_back(reinterpret_cast<uint8_t *>(in.data()));
+    task_data_seq->inputs_count.emplace_back(in.size());
+    task_data_seq->outputs.emplace_back(reinterpret_cast<uint8_t *>(out.data()));
+    task_data_seq->outputs_count.emplace_back(out.size());
+  }
   // Create Task
   volochaev_s_shell_sort_with_batchers_even_odd_merge_all::ShellSortALL test_task_sequential(task_data_seq);
   ASSERT_EQ(test_task_sequential.Validation(), true);
@@ -3447,21 +3992,25 @@ TEST(volochaev_s_shell_sort_with_batchers_even_odd_merge_all, test_with_Katalan_
 
 TEST(volochaev_s_shell_sort_with_batchers_even_odd_merge_all, test_with_Fibonacci_size_1) {
   constexpr size_t kSizeOfVector = 6765;
-
-  // Create data
-  std::vector<int> in(kSizeOfVector, 0);
-  GetRandomVector(in, -100, 100);
-  std::vector<int> out(kSizeOfVector, 0);
-  std::vector<int> answer(in);
-  std::ranges::sort(answer);
-
-  // Create task_data
+  boost::mpi::communicator world;
+  std::vector<int> in;
+  std::vector<int> out;
+  std::vector<int> answer;
   auto task_data_seq = std::make_shared<ppc::core::TaskData>();
-  task_data_seq->inputs.emplace_back(reinterpret_cast<uint8_t *>(in.data()));
-  task_data_seq->inputs_count.emplace_back(in.size());
-  task_data_seq->outputs.emplace_back(reinterpret_cast<uint8_t *>(out.data()));
-  task_data_seq->outputs_count.emplace_back(out.size());
+  if (world.rank() == 0) {
+    // Create data
+    in.resize(kSizeOfVector, 0);
+    GetRandomVector(in, -100, 100);
+    out.resize(kSizeOfVector, 0);
+    std::vector<int> answer(in);
+    std::ranges::sort(answer);
 
+    // Create task_data
+    task_data_seq->inputs.emplace_back(reinterpret_cast<uint8_t *>(in.data()));
+    task_data_seq->inputs_count.emplace_back(in.size());
+    task_data_seq->outputs.emplace_back(reinterpret_cast<uint8_t *>(out.data()));
+    task_data_seq->outputs_count.emplace_back(out.size());
+  }
   // Create Task
   volochaev_s_shell_sort_with_batchers_even_odd_merge_all::ShellSortALL test_task_sequential(task_data_seq);
   ASSERT_EQ(test_task_sequential.Validation(), true);
@@ -3473,21 +4022,25 @@ TEST(volochaev_s_shell_sort_with_batchers_even_odd_merge_all, test_with_Fibonacc
 
 TEST(volochaev_s_shell_sort_with_batchers_even_odd_merge_all, test_with_Fibonacci_size_2) {
   constexpr size_t kSizeOfVector = 10946;
-
-  // Create data
-  std::vector<int> in(kSizeOfVector, 0);
-  GetRandomVector(in, -100, 100);
-  std::vector<int> out(kSizeOfVector, 0);
-  std::vector<int> answer(in);
-  std::ranges::sort(answer);
-
-  // Create task_data
+  boost::mpi::communicator world;
+  std::vector<int> in;
+  std::vector<int> out;
+  std::vector<int> answer;
   auto task_data_seq = std::make_shared<ppc::core::TaskData>();
-  task_data_seq->inputs.emplace_back(reinterpret_cast<uint8_t *>(in.data()));
-  task_data_seq->inputs_count.emplace_back(in.size());
-  task_data_seq->outputs.emplace_back(reinterpret_cast<uint8_t *>(out.data()));
-  task_data_seq->outputs_count.emplace_back(out.size());
+  if (world.rank() == 0) {
+    // Create data
+    in.resize(kSizeOfVector, 0);
+    GetRandomVector(in, -100, 100);
+    out.resize(kSizeOfVector, 0);
+    std::vector<int> answer(in);
+    std::ranges::sort(answer);
 
+    // Create task_data
+    task_data_seq->inputs.emplace_back(reinterpret_cast<uint8_t *>(in.data()));
+    task_data_seq->inputs_count.emplace_back(in.size());
+    task_data_seq->outputs.emplace_back(reinterpret_cast<uint8_t *>(out.data()));
+    task_data_seq->outputs_count.emplace_back(out.size());
+  }
   // Create Task
   volochaev_s_shell_sort_with_batchers_even_odd_merge_all::ShellSortALL test_task_sequential(task_data_seq);
   ASSERT_EQ(test_task_sequential.Validation(), true);
@@ -3499,21 +4052,25 @@ TEST(volochaev_s_shell_sort_with_batchers_even_odd_merge_all, test_with_Fibonacc
 
 TEST(volochaev_s_shell_sort_with_batchers_even_odd_merge_all, test_with_Fibonacci_size_3) {
   constexpr size_t kSizeOfVector = 17711;
-
-  // Create data
-  std::vector<int> in(kSizeOfVector, 0);
-  GetRandomVector(in, -100, 100);
-  std::vector<int> out(kSizeOfVector, 0);
-  std::vector<int> answer(in);
-  std::ranges::sort(answer);
-
-  // Create task_data
+  boost::mpi::communicator world;
+  std::vector<int> in;
+  std::vector<int> out;
+  std::vector<int> answer;
   auto task_data_seq = std::make_shared<ppc::core::TaskData>();
-  task_data_seq->inputs.emplace_back(reinterpret_cast<uint8_t *>(in.data()));
-  task_data_seq->inputs_count.emplace_back(in.size());
-  task_data_seq->outputs.emplace_back(reinterpret_cast<uint8_t *>(out.data()));
-  task_data_seq->outputs_count.emplace_back(out.size());
+  if (world.rank() == 0) {
+    // Create data
+    in.resize(kSizeOfVector, 0);
+    GetRandomVector(in, -100, 100);
+    out.resize(kSizeOfVector, 0);
+    std::vector<int> answer(in);
+    std::ranges::sort(answer);
 
+    // Create task_data
+    task_data_seq->inputs.emplace_back(reinterpret_cast<uint8_t *>(in.data()));
+    task_data_seq->inputs_count.emplace_back(in.size());
+    task_data_seq->outputs.emplace_back(reinterpret_cast<uint8_t *>(out.data()));
+    task_data_seq->outputs_count.emplace_back(out.size());
+  }
   // Create Task
   volochaev_s_shell_sort_with_batchers_even_odd_merge_all::ShellSortALL test_task_sequential(task_data_seq);
   ASSERT_EQ(test_task_sequential.Validation(), true);
