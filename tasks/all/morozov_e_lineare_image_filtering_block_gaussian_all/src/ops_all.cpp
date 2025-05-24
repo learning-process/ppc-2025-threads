@@ -4,7 +4,7 @@
 #include <cmath>
 #include <utility>
 #include <vector>
-namespace morozov_e_lineare_image_filtering_block_gaussian_all {
+namespace {
 std::pair<int, int> GetStartEndIndices(int count_proc, int curr_runk_proc, int array_size) {
   int start = 0;
   int end = 0;
@@ -32,7 +32,7 @@ std::pair<int, int> GetStartEndIndices(int count_proc, int curr_runk_proc, int a
   return {start, end};
 }
 
-}  // namespace morozov_e_lineare_image_filtering_block_gaussian_all
+}  // namespace
 bool morozov_e_lineare_image_filtering_block_gaussian_all::TestTaskALL::PreProcessingImpl() {
   n_ = static_cast<int>(task_data->inputs_count[0]);
   m_ = static_cast<int>(task_data->inputs_count[1]);
@@ -65,8 +65,7 @@ bool morozov_e_lineare_image_filtering_block_gaussian_all::TestTaskALL::RunImpl(
 
   // clang-format on
   // Алгоритм вычисления диапазона вычисления для каждого процесса
-  auto start_end_pair =
-      morozov_e_lineare_image_filtering_block_gaussian_all::GetStartEndIndices(world_.size(), world_.rank(), n_);
+  auto start_end_pair = GetStartEndIndices(world_.size(), world_.rank(), n_);
   int start = start_end_pair.first;
   int end = start_end_pair.second;
 #pragma omp parallel for

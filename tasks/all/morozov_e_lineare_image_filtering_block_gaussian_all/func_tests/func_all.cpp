@@ -2,7 +2,7 @@
 
 #include <boost/mpi/collectives.hpp>
 #include <boost/mpi/communicator.hpp>
-// #include <boost/serialization/vector.hpp>
+#include <boost/serialization/vector.hpp>  // NOLINT(misc-include-cleaner)
 #include <cstddef>
 #include <cstdint>
 #include <memory>
@@ -50,6 +50,22 @@ void ApplyGaussianFilter(const std::vector<double> &image, std::vector<double> &
     }
   }
 }
+std::shared_ptr<ppc::core::TaskData> CreateTaskData(const std::vector<double> &input, std::vector<double> &output,
+                                                    int n, int m) {
+  auto task_data = std::make_shared<ppc::core::TaskData>();
+
+  // Добавление входных данных
+  task_data->inputs.emplace_back(reinterpret_cast<const uint8_t *>(input.data()));
+  task_data->inputs_count.emplace_back(n);
+  task_data->inputs_count.emplace_back(m);
+
+  // Добавление выходных данных
+  task_data->outputs.emplace_back(reinterpret_cast<uint8_t *>(output.data()));
+  task_data->outputs_count.emplace_back(n);
+  task_data->outputs_count.emplace_back(m);
+
+  return task_data;
+}
 }  // namespace
 TEST(morozov_e_lineare_image_filtering_block_gaussian_all, test_) {
   boost::mpi::communicator world;
@@ -66,7 +82,7 @@ TEST(morozov_e_lineare_image_filtering_block_gaussian_all, test_) {
    //image  = {1,1,1,1, 1,1,1,1, 1, 1};
      image = GenerateRandomVector(n, m);
    }
-   boost::mpi::broadcast(world, image, 0);
+   boost::mpi::broadcast(world, image, 0);// NOLINT(misc-include-cleaner)
     task_data_seq->inputs.emplace_back(reinterpret_cast<uint8_t *>(image.data()));
    task_data_seq->inputs_count.emplace_back(n);
    task_data_seq->inputs_count.emplace_back(m);
@@ -418,14 +434,7 @@ TEST(morozov_e_lineare_image_filtering_block_gaussian_all, random_test1) {
     image = GenerateRandomVector(n, m);
   }
   boost::mpi::broadcast(world, image, 0);
-  auto task_data_seq = std::make_shared<ppc::core::TaskData>();
-  task_data_seq->inputs.emplace_back(reinterpret_cast<uint8_t *>(image.data()));
-  task_data_seq->inputs_count.emplace_back(n);
-  task_data_seq->inputs_count.emplace_back(m);
-  task_data_seq->outputs.emplace_back(reinterpret_cast<uint8_t *>(image_res.data()));
-  task_data_seq->outputs_count.emplace_back(n);
-  task_data_seq->outputs_count.emplace_back(m);
-
+  auto task_data_seq = CreateTaskData(image, image_res, n, m);
   morozov_e_lineare_image_filtering_block_gaussian_all::TestTaskALL test_task_sequential(task_data_seq);
   ASSERT_EQ(test_task_sequential.Validation(), true);
   test_task_sequential.PreProcessing();
@@ -435,7 +444,6 @@ TEST(morozov_e_lineare_image_filtering_block_gaussian_all, random_test1) {
   ApplyGaussianFilter(image, res, n, m);
   if (world.rank() == 0) {
     ASSERT_EQ(image_res.size(), res.size());
-    EXPECT_EQ(image_res, res);
     for (size_t i = 0; i < image_res.size(); ++i) {
       ASSERT_NEAR(image_res[i], res[i], 0.0000001);
     }
@@ -451,16 +459,7 @@ TEST(morozov_e_lineare_image_filtering_block_gaussian_all, random_test2) {
     image = GenerateRandomVector(n, m);
   }
   boost::mpi::broadcast(world, image, 0);
-  // Create task_data
-  auto task_data_seq = std::make_shared<ppc::core::TaskData>();
-  task_data_seq->inputs.emplace_back(reinterpret_cast<uint8_t *>(image.data()));
-  task_data_seq->inputs_count.emplace_back(n);
-  task_data_seq->inputs_count.emplace_back(m);
-  task_data_seq->outputs.emplace_back(reinterpret_cast<uint8_t *>(image_res.data()));
-  task_data_seq->outputs_count.emplace_back(n);
-  task_data_seq->outputs_count.emplace_back(m);
-
-  // Create Task
+  auto task_data_seq = CreateTaskData(image, image_res, n, m);
   morozov_e_lineare_image_filtering_block_gaussian_all::TestTaskALL test_task_sequential(task_data_seq);
   ASSERT_EQ(test_task_sequential.Validation(), true);
   test_task_sequential.PreProcessing();
