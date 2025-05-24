@@ -1,4 +1,5 @@
 #include "all/Konstantinov_I_Sort_Batcher/include/ops_all.hpp"
+
 #include <algorithm>
 #include <boost/mpi/collectives.hpp>
 #include <boost/mpi/communicator.hpp>
@@ -196,4 +197,3 @@ bool konstantinov_i_sort_batcher_all::RadixSortBatcherall::PostProcessingImpl() 
 
   return true;
 }
-
