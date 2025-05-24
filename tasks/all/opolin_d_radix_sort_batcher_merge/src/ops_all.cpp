@@ -60,8 +60,8 @@ bool opolin_d_radix_batcher_sort_all::RadixBatcherSortTaskAll::PreProcessingImpl
 
 bool opolin_d_radix_batcher_sort_all::RadixBatcherSortTaskAll::ValidationImpl() {
   if (world_.rank() == 0) {
-    global_size_ = static_cast<int>(task_data->inputs_count[0]);
-    if (global_size_ <= 0 || task_data->inputs.empty() || task_data->outputs.empty()) {
+    global_original_size_ = static_cast<int>(task_data->inputs_count[0]);
+    if (global_original_size_ <= 0 || task_data->inputs.empty() || task_data->outputs.empty()) {
       return false;
     }
     if (task_data->inputs[0] == nullptr || task_data->outputs[0] == nullptr) {
@@ -184,7 +184,7 @@ uint32_t opolin_d_radix_batcher_sort_all::ConvertIntToUint(int num) { return sta
 
 int opolin_d_radix_batcher_sort_all::ConvertUintToInt(uint32_t unum) { return static_cast<int>(unum ^ 0x80000000U); }
 
-void opolin_d_radix_batcher_sort_tbb::RadixSort(std::vector<uint32_t>& uns_vec) {
+void opolin_d_radix_batcher_sort_all::RadixSort(std::vector<uint32_t>& uns_vec) {
   size_t sz = uns_vec.size();
   if (sz <= 1) {
     return;
