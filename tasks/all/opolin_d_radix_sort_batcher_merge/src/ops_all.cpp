@@ -23,6 +23,7 @@ bool opolin_d_radix_batcher_sort_all::RadixBatcherSortTaskAll::PreProcessingImpl
     unsigned int output_size = task_data->outputs_count[0];
     output_ = std::vector<int>(output_size, 0);
   }
+  boost::mpi::broadcast(world_, size_, 0);
   return true;
 }
 
@@ -37,7 +38,6 @@ bool opolin_d_radix_batcher_sort_all::RadixBatcherSortTaskAll::ValidationImpl() 
     }
     return task_data->inputs_count[0] == task_data->outputs_count[0];
   }
-  boost::mpi::broadcast(world_, size_, 0);
   return true;
 }
 
@@ -58,14 +58,12 @@ bool opolin_d_radix_batcher_sort_all::RadixBatcherSortTaskAll::RunImpl() {
       offset += counts[i];
     }
   }
-  boost::mpi::broadcast(world_, counts, 0);
-  boost::mpi::broadcast(world_, displs, 0);
   boost::mpi::scatter(world_, counts, local_size, 0);
   local_data.resize(local_size);
   if (rank == 0) {
     boost::mpi::scatterv(world_, input_, counts, displs, local_data.data(), local_size, 0);
   } else {
-    boost::mpi::scatterv(world_, static_cast<int*>(nullptr), 0, local_data.data(), local_size, 0);
+    boost::mpi::scatterv(world_, local_data.data(), local_size, 0);
   }
   std::vector<uint32_t> keys(local_size);
   tbb::parallel_for(tbb::blocked_range<size_t>(0, local_size), [&](auto& r) {
@@ -89,7 +87,11 @@ bool opolin_d_radix_batcher_sort_all::RadixBatcherSortTaskAll::RunImpl() {
   if (rank == 0) {
     gathered_data.resize(size_);
   }
-  boost::mpi::gatherv(world_, local_data.data(), local_size, gathered_data.data(), counts, displs, 0);
+  if (rank == 0) {
+    boost::mpi::gatherv(world_, local_data.data(), local_size, gathered_data.data(), counts, displs, 0);
+  } else {
+    boost::mpi::gatherv(world_, local_data.data(), local_size, 0);
+  }
   if (rank == 0) {
     output_.swap(gathered_data);
     if (size_ > 0) {
