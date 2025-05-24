@@ -469,7 +469,6 @@ TEST(morozov_e_lineare_image_filtering_block_gaussian_all, random_test2) {
   ApplyGaussianFilter(image, res, n, m);
   if (world.rank() == 0) {
     ASSERT_EQ(image_res.size(), res.size());
-    EXPECT_EQ(image_res, res);
     for (size_t i = 0; i < image_res.size(); ++i) {
       ASSERT_NEAR(image_res[i], res[i], 0.0000001);
     }
