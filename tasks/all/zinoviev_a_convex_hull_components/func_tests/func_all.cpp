@@ -90,3 +90,52 @@ TEST(zinoviev_a_convex_hull_components_all, TriangleShape) {
 
   RunAndValidate(input, expected, kWidth, kHeight);
 }
+
+TEST(zinoviev_a_convex_hull_components_all, SinglePixel) {
+  constexpr int kWidth = 3;
+  constexpr int kHeight = 3;
+  const std::vector<int> input = {0, 0, 0, 0, 1, 0, 0, 0, 0};
+  const std::vector<zinoviev_a_convex_hull_components_all::Point> expected = {{.x = 1, .y = 1}};
+  RunAndValidate(input, expected, kWidth, kHeight);
+}
+
+TEST(zinoviev_a_convex_hull_components_all, LineHorizontal) {
+  constexpr int kWidth = 6;
+  constexpr int kHeight = 3;
+  const std::vector<int> input = {0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0};
+  const std::vector<zinoviev_a_convex_hull_components_all::Point> expected = {{.x = 0, .y = 1}, {.x = 4, .y = 1}};
+  RunAndValidate(input, expected, kWidth, kHeight);
+}
+
+TEST(zinoviev_a_convex_hull_components_all, LineVertical) {
+  constexpr int kWidth = 3;
+  constexpr int kHeight = 5;
+  const std::vector<int> input = {0, 1, 0, 0, 1, 0, 0, 1, 0, 0, 1, 0, 0, 1, 0};
+  const std::vector<zinoviev_a_convex_hull_components_all::Point> expected = {{.x = 1, .y = 0}, {.x = 1, .y = 4}};
+  RunAndValidate(input, expected, kWidth, kHeight);
+}
+
+TEST(zinoviev_a_convex_hull_components_all, LShapePattern) {
+  constexpr int kWidth = 4;
+  constexpr int kHeight = 4;
+  const std::vector<int> input = {1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 0, 1, 1, 1, 1};
+  const std::vector<zinoviev_a_convex_hull_components_all::Point> expected = {
+      {.x = 0, .y = 0}, {.x = 0, .y = 3}, {.x = 3, .y = 3}};
+  RunAndValidate(input, expected, kWidth, kHeight);
+}
+
+TEST(zinoviev_a_convex_hull_components_all, DiagonalPattern) {
+  constexpr int kWidth = 4;
+  constexpr int kHeight = 4;
+  const std::vector<int> input = {1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1};
+  const std::vector<zinoviev_a_convex_hull_components_all::Point> expected = {{.x = 0, .y = 0}, {.x = 3, .y = 3}};
+  RunAndValidate(input, expected, kWidth, kHeight);
+}
+
+TEST(zinoviev_a_convex_hull_components_all, EmptyGrid) {
+  constexpr int kWidth = 3;
+  constexpr int kHeight = 3;
+  const std::vector<int> input = {0, 0, 0, 0, 0, 0, 0, 0, 0};
+  const std::vector<zinoviev_a_convex_hull_components_all::Point> expected = {};
+  RunAndValidate(input, expected, kWidth, kHeight);
+}
