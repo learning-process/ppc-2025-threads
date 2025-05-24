@@ -36,13 +36,20 @@ std::vector<int> GenerateRandomVector(size_t size) {
   return vec;
 }
 
-void RunTestWithMPI(const std::vector<int>& input, std::vector<int>& output) {
-  int initialized = 0;
-  MPI_Initialized(&initialized);
-  if (initialized == 0) {
-    MPI_Init(nullptr, nullptr);
-  }
+class MPITestEnvironment : public ::testing::Environment {
+ public:
+  void SetUp() override { MPI_Init(nullptr, nullptr); }
 
+  void TearDown() override {
+    int finalized = 0;
+    MPI_Finalized(&finalized);
+    if (!finalized) {
+      MPI_Finalize();
+    }
+  }
+};
+
+void RunTestWithMPI(const std::vector<int>& input, std::vector<int>& output) {
   auto task_data = std::make_shared<ppc::core::TaskData>();
   task_data->inputs.emplace_back(reinterpret_cast<uint8_t*>(const_cast<int*>(input.data())));
   task_data->inputs_count.emplace_back(input.size());
@@ -55,15 +62,15 @@ void RunTestWithMPI(const std::vector<int>& input, std::vector<int>& output) {
   ASSERT_TRUE(task.PreProcessing());
   ASSERT_TRUE(task.Run());
   ASSERT_TRUE(task.PostProcessing());
-
-  int finalized = 0;
-  MPI_Finalized(&finalized);
-  if (finalized == 0) {
-    MPI_Finalize();
-  }
 }
 
 }  // namespace
+
+int main(int argc, char** argv) {
+  ::testing::InitGoogleTest(&argc, argv);
+  ::testing::AddGlobalTestEnvironment(new MPITestEnvironment);
+  return RUN_ALL_TESTS();
+}
 
 TEST(shuravina_o_hoare_simple_merger_all, test_random_array) {
   const size_t size = 1000;
@@ -119,6 +126,7 @@ TEST(shuravina_o_hoare_simple_merger_all, test_single_element_array) {
     EXPECT_EQ(input, output);
   }
 }
+
 TEST(shuravina_o_hoare_simple_merger_all, test_empty_array_validation) {
   std::vector<int> input;
   std::vector<int> output;
