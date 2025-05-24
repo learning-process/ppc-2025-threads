@@ -102,7 +102,7 @@ bool opolin_d_radix_batcher_sort_all::RadixBatcherSortTaskAll::PostProcessingImp
     for (size_t i = 0; i < output_.size(); ++i) {
       reinterpret_cast<int*>(task_data->outputs[0])[i] = output_[i];
     }
-  } 
+  }
   return true;
 }
 
