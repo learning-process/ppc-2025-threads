@@ -7,7 +7,7 @@
 #include <random>
 #include <vector>
 
-#include "all/opolin_d_radix_sort_batcher_merge/include/ops_all.hpp"
+#include "all/opolin_d_radix_sort_batcher_merge/include/ops_all.hpp"  
 #include "core/task/include/task.hpp"
 
 namespace opolin_d_radix_batcher_sort_all {
@@ -81,7 +81,6 @@ TEST(opolin_d_radix_batcher_sort_all, test_size_6) {
 
 TEST(opolin_d_radix_batcher_sort_all, test_empty) {
   boost::mpi::communicator world;
-  int size = 0;
   std::vector<int> expected;
   std::vector<int> input;
   std::vector<int> out;
@@ -251,7 +250,6 @@ TEST(opolin_d_radix_batcher_sort_all, test_varying_digit_counts) {
 
 TEST(opolin_d_radix_batcher_sort_all, test_negative_size) {
   boost::mpi::communicator world;
-  int size = -1;
   std::vector<int> expected;
   std::vector<int> input;
   std::vector<int> out;

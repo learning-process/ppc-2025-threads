@@ -7,6 +7,7 @@
 #include <cstdlib>
 #include <ctime>
 #include <memory>
+#include <random>
 #include <vector>
 
 #include "all/opolin_d_radix_sort_batcher_merge/include/ops_all.hpp"
@@ -74,6 +75,7 @@ TEST(opolin_d_radix_batcher_sort_all, test_pipeline_run) {
 }
 
 TEST(opolin_d_radix_batcher_sort_all, test_task_run) {
+  boost::mpi::communicator world;
   int size = 1100000;
   std::vector<int> input;
   std::vector<int> expected;

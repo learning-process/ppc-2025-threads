@@ -11,8 +11,8 @@
 #include "core/task/include/task.hpp"
 
 namespace opolin_d_radix_batcher_sort_all {
-static uint32_t ConvertIntToUint(int num);
-static int ConvertUintToInt(uint32_t unum);
+uint32_t ConvertIntToUint(int num);
+int ConvertUintToInt(uint32_t unum);
 void RadixSort(std::vector<uint32_t>& uns_vec);
 
 class RadixBatcherSortTaskAll : public ppc::core::Task {
