@@ -1,10 +1,13 @@
 #include <gtest/gtest.h>
 
+#include <algorithm>
 #include <chrono>
 #include <cstddef>
 #include <cstdint>
+#include <function>
 #include <memory>
 #include <random>
+#include <vector>
 
 #include "all/vershinina_a_hoare_sort/include/ops_all.hpp"
 #include "boost/mpi/communicator.hpp"
@@ -14,7 +17,7 @@
 struct TestConf {
   int size;
   std::function<bool(const std::vector<int> &out)> chk;
-} conf = {.size = 300000, .chk = [](const auto &out) { return std::ranges::is_sorted(out); }};
+} static conf = {.size = 300000, .chk = [](const auto &out) { return std::ranges::is_sorted(out); }};
 
 namespace {
 std::vector<int> GetRandomVector(int len) {
