@@ -168,9 +168,9 @@ TEST(zaytsev_d_sobel_stl, SobelEdgeDetection_UniformImage) {
 #ifndef _WIN32
 TEST(zaytsev_d_sobel_stl, SobelEdgeDetection_OpenCVImage) {
   cv::Mat input_img =
-      cv::imread(ppc::util::GetAbsolutePath("seq/zaytsev_d_sobel/data/inwhite.png"), cv::IMREAD_GRAYSCALE);
+      cv::imread(ppc::util::GetAbsolutePath("stl/zaytsev_d_sobel/data/inwhite.png"), cv::IMREAD_GRAYSCALE);
   cv::Mat expected_img =
-      cv::imread(ppc::util::GetAbsolutePath("seq/zaytsev_d_sobel/data/outputwhite.png"), cv::IMREAD_GRAYSCALE);
+      cv::imread(ppc::util::GetAbsolutePath("stl/zaytsev_d_sobel/data/outputwhite.png"), cv::IMREAD_GRAYSCALE);
 
   std::vector<int> input = MatToVector(input_img);
   std::vector<int> expected = MatToVector(expected_img);

@@ -62,15 +62,15 @@ TEST(zaytsev_d_sobel_stl, test_pipeline_run) {
   std::vector<int> out(kSize * kSize, 0);
   std::vector<int> size = {kSize, kSize};
 
-  auto task_data_omp = std::make_shared<ppc::core::TaskData>();
-  task_data_omp->inputs.emplace_back(reinterpret_cast<uint8_t *>(in.data()));
-  task_data_omp->inputs.emplace_back(reinterpret_cast<uint8_t *>(size.data()));
-  task_data_omp->inputs_count.emplace_back(in.size());
-  task_data_omp->inputs_count.push_back(size.size());
-  task_data_omp->outputs.emplace_back(reinterpret_cast<uint8_t *>(out.data()));
-  task_data_omp->outputs_count.emplace_back(out.size());
+  auto task_data_stl = std::make_shared<ppc::core::TaskData>();
+  task_data_stl->inputs.emplace_back(reinterpret_cast<uint8_t *>(in.data()));
+  task_data_stl->inputs.emplace_back(reinterpret_cast<uint8_t *>(size.data()));
+  task_data_stl->inputs_count.emplace_back(in.size());
+  task_data_stl->inputs_count.push_back(size.size());
+  task_data_stl->outputs.emplace_back(reinterpret_cast<uint8_t *>(out.data()));
+  task_data_stl->outputs_count.emplace_back(out.size());
 
-  auto test_task_omp = std::make_shared<zaytsev_d_sobel_stl::TestTaskSTL>(task_data_omp);
+  auto test_task_omp = std::make_shared<zaytsev_d_sobel_stl::TestTaskSTL>(task_data_stl);
 
   auto perf_attr = std::make_shared<ppc::core::PerfAttr>();
   perf_attr->num_running = 10;
@@ -100,15 +100,15 @@ TEST(zaytsev_d_sobel_stl, test_task_run) {
   std::vector<int> out(kSize * kSize, 0);
   std::vector<int> size = {kSize, kSize};
 
-  auto task_data_omp = std::make_shared<ppc::core::TaskData>();
-  task_data_omp->inputs.emplace_back(reinterpret_cast<uint8_t *>(in.data()));
-  task_data_omp->inputs.emplace_back(reinterpret_cast<uint8_t *>(size.data()));
-  task_data_omp->inputs_count.emplace_back(in.size());
-  task_data_omp->inputs_count.emplace_back(size.size());
-  task_data_omp->outputs.emplace_back(reinterpret_cast<uint8_t *>(out.data()));
-  task_data_omp->outputs_count.emplace_back(out.size());
+  auto task_data_stl = std::make_shared<ppc::core::TaskData>();
+  task_data_stl->inputs.emplace_back(reinterpret_cast<uint8_t *>(in.data()));
+  task_data_stl->inputs.emplace_back(reinterpret_cast<uint8_t *>(size.data()));
+  task_data_stl->inputs_count.emplace_back(in.size());
+  task_data_stl->inputs_count.emplace_back(size.size());
+  task_data_stl->outputs.emplace_back(reinterpret_cast<uint8_t *>(out.data()));
+  task_data_stl->outputs_count.emplace_back(out.size());
 
-  auto test_task_omp = std::make_shared<zaytsev_d_sobel_stl::TestTaskSTL>(task_data_omp);
+  auto test_task_omp = std::make_shared<zaytsev_d_sobel_stl::TestTaskSTL>(task_data_stl);
 
   auto perf_attr = std::make_shared<ppc::core::PerfAttr>();
   perf_attr->num_running = 10;
