@@ -5,10 +5,9 @@
 #include <algorithm>
 #include <boost/mpi/collectives.hpp>
 #include <boost/mpi/collectives/broadcast.hpp>
-#include <boost/mpi/collectives/gather.hpp>
 #include <boost/mpi/collectives/gatherv.hpp>
 #include <boost/mpi/collectives/scatter.hpp>
-#include <boost/mpi/collectives/scattev.hpp>
+#include <boost/mpi/collectives/scatterv.hpp>
 #include <cmath>
 #include <cstddef>
 #include <cstdint>
