@@ -140,6 +140,7 @@ bool deryabin_m_hoare_sort_simple_merge_mpi::HoareSortTaskMPI::PreProcessingImpl
   }
   boost::mpi::broadcast(world, dimension_, 0);
   if (world.rank() != 0) {
+    input_array_A_.reserve(dimension_);
     input_array_A_.resize(dimension_);
   }
   boost::mpi::broadcast(world, input_array_A_.data(), dimension_, 0);
