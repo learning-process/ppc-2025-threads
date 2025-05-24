@@ -132,7 +132,7 @@ TEST(opolin_d_radix_batcher_sort_all, test_negative_values) {
   expected = {-34, -12, -7, -4, -2};
   std::vector<int> out(size, 0);
   auto task_data_all = std::make_shared<ppc::core::TaskData>();
- if (world.rank() == 0) {
+  if (world.rank() == 0) {
     task_data_all->inputs.emplace_back(reinterpret_cast<uint8_t *>(input.data()));
     task_data_all->inputs_count.emplace_back(out.size());
     task_data_all->outputs.emplace_back(reinterpret_cast<uint8_t *>(out.data()));

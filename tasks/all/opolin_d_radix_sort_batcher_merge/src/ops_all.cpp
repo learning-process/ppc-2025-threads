@@ -1,13 +1,21 @@
 #include "all/opolin_d_radix_sort_batcher_merge/include/ops_all.hpp"
 
+#include <tbb/tbb.h>
+#include <algorithm>
 #include <cmath>
 #include <cstddef>
-#include <functional>
+#include <cstdint>
 #include <vector>
+#include <limits>
 
-#include "core/util/include/util.hpp"
-#include "oneapi/tbb/task_arena.h"
-#include "oneapi/tbb/task_group.h"
+#include <boost/mpi.hpp>
+#include <boost/mpi/collectives.hpp>
+
+#include "oneapi/tbb/blocked_range.h"
+#include "oneapi/tbb/enumerable_thread_specific.h"
+#include "oneapi/tbb/parallel_for.h"
+#include "oneapi/tbb/parallel_invoke.h"
+
 
 bool opolin_d_radix_batcher_sort_all::RadixBatcherSortTaskAll::PreProcessingImpl() {
   int rank = world_.rank();
@@ -78,18 +86,18 @@ bool opolin_d_radix_batcher_sort_all::RadixBatcherSortTaskAll::RunImpl() {
   if (size_ > 0) {
     std::vector<uint32_t> keys(size_);
     tbb::parallel_for(tbb::blocked_range<size_t>(0, static_cast<size_t>(size_)),
-      [&](const tbb::blocked_range<size_t>& r) {
-      for (size_t i = r.begin(); i < r.end(); ++i) {
-        keys[i] = ConvertIntToUint(input_[i]);
-      }
-    });
+                      [&](const tbb::blocked_range<size_t>& r) {
+                        for (size_t i = r.begin(); i < r.end(); ++i) {
+                          keys[i] = ConvertIntToUint(input_[i]);
+                        }
+                      });
     RadixSort(keys);
     tbb::parallel_for(tbb::blocked_range<size_t>(0, static_cast<size_t>(size_)),
-      [&](const tbb::blocked_range<size_t>& r) {
-      for (size_t i = r.begin(); i < r.end(); ++i) {
-        output_[i] = ConvertUintToInt(keys[i]);
-      }
-    });
+                      [&](const tbb::blocked_range<size_t>& r) {
+                        for (size_t i = r.begin(); i < r.end(); ++i) {
+                          output_[i] = ConvertUintToInt(keys[i]);
+                        }
+                      });
   }
   int rank = world_.rank();
   int num_procs = world_.size();
@@ -113,21 +121,21 @@ bool opolin_d_radix_batcher_sort_all::RadixBatcherSortTaskAll::RunImpl() {
 
         boost::mpi::request reqs[2];
         if (rank < partner) {
-        reqs[0] = world_.isend(partner, 0, output_.data(), size_);
-        reqs[1] = world_.irecv(partner, 0, received_data.data(), size_);
-        boost::mpi::wait_all(reqs, reqs + 2);
+          reqs[0] = world_.isend(partner, 0, output_.data(), size_);
+          reqs[1] = world_.irecv(partner, 0, received_data.data(), size_);
+          boost::mpi::wait_all(reqs, reqs + 2);
 
-        std::merge(output_.begin(), output_.end(),
-        received_data.begin(), received_data.end(), std::back_inserter(merged_data));
-        std::copy(merged_data.begin(), merged_data.begin() + size_, output_.begin());
-      } else {
-        reqs[0] = world_.irecv(partner, 0, received_data.data(), size_);
-        reqs[1] = world_.isend(partner, 0, output_.data(), size_);
-        boost::mpi::wait_all(reqs, reqs + 2);
+          std::merge(output_.begin(), output_.end(), received_data.begin(), received_data.end(),
+                     std::back_inserter(merged_data));
+          std::copy(merged_data.begin(), merged_data.begin() + size_, output_.begin());
+        } else {
+          reqs[0] = world_.irecv(partner, 0, received_data.data(), size_);
+          reqs[1] = world_.isend(partner, 0, output_.data(), size_);
+          boost::mpi::wait_all(reqs, reqs + 2);
 
-        std::merge(received_data.begin(), received_data.end(), output_.begin(), output_.end(),
-                   std::back_inserter(merged_data));
-        std::copy(merged_data.begin() + size_, merged_data.end(), output_.begin());
+          std::merge(received_data.begin(), received_data.end(), output_.begin(), output_.end(),
+                     std::back_inserter(merged_data));
+          std::copy(merged_data.begin() + size_, merged_data.end(), output_.begin());
         }
       }
       world_.barrier();
@@ -173,13 +181,9 @@ bool opolin_d_radix_batcher_sort_all::RadixBatcherSortTaskAll::PostProcessingImp
   return true;
 }
 
-uint32_t opolin_d_radix_batcher_sort_all::ConvertIntToUint(int num) {
-  return static_cast<uint32_t>(num) ^ 0x80000000U;
-}
+uint32_t opolin_d_radix_batcher_sort_all::ConvertIntToUint(int num) { return static_cast<uint32_t>(num) ^ 0x80000000U; }
 
-int opolin_d_radix_batcher_sort_all::ConvertUintToInt(uint32_t unum) {
-  return static_cast<int>(unum ^ 0x80000000U);
-}
+int opolin_d_radix_batcher_sort_all::ConvertUintToInt(uint32_t unum) { return static_cast<int>(unum ^ 0x80000000U); }
 
 void opolin_d_radix_batcher_sort_tbb::RadixSort(std::vector<uint32_t>& uns_vec) {
   size_t sz = uns_vec.size();
@@ -189,13 +193,10 @@ void opolin_d_radix_batcher_sort_tbb::RadixSort(std::vector<uint32_t>& uns_vec) 
   const int rad = 256;
   std::vector<uint32_t> res(sz);
   for (int stage = 0; stage < 4; stage++) {
-    tbb::enumerable_thread_specific<std::vector<size_t>> local_counts(
-      [&] { return std::vector<size_t>(rad, 0); }
-    );
+    tbb::enumerable_thread_specific<std::vector<size_t>> local_counts([&] { return std::vector<size_t>(rad, 0); });
     int shift = stage * 8;
 
-    tbb::parallel_for(tbb::blocked_range<size_t>(0, sz), 
-      [&](const tbb::blocked_range<size_t>& r) {
+    tbb::parallel_for(tbb::blocked_range<size_t>(0, sz), [&](const tbb::blocked_range<size_t>& r) {
       auto& lc = local_counts.local();
       for (size_t i = r.begin(); i < r.end(); ++i) {
         const uint8_t byte = (uns_vec[i] >> shift) & (rad - 1);
