@@ -9,7 +9,6 @@
 #include <algorithm>
 #include <cmath>
 #include <cstddef>
-#include <exception>
 #include <limits>
 #include <memory>
 #include <vector>
@@ -346,16 +345,12 @@ bool IntegralsSimpsonAll::PostProcessingImpl() {
   MPI_Comm_rank(MPI_COMM_WORLD, &rank);
 
   if (rank == 0) {
-    try {
-      if (task_data == nullptr || task_data->outputs.empty() || task_data->outputs[0] == nullptr ||
-          task_data->outputs_count.empty() || task_data->outputs_count[0] < sizeof(double)) {
-        return false;
-      }
-      auto* out_ptr = reinterpret_cast<double*>(task_data->outputs[0]);
-      out_ptr[0] = result_;
-    } catch (const std::exception& e) {
+    if (task_data == nullptr || task_data->outputs.empty() || task_data->outputs[0] == nullptr ||
+        task_data->outputs_count.empty() || task_data->outputs_count[0] < sizeof(double)) {
       return false;
     }
+    auto* out_ptr = reinterpret_cast<double*>(task_data->outputs[0]);
+    out_ptr[0] = result_;
   }
   return true;
 }
