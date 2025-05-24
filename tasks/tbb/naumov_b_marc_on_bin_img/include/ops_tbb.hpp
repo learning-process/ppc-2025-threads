@@ -6,7 +6,7 @@
 #include <vector>
 
 #include "core/task/include/task.hpp"
-#include "tbb/blocked_range2d.h"
+#include "tbb/blocked_range.h"
 #include "tbb/parallel_for.h"
 
 namespace naumov_b_marc_on_bin_img_tbb {
@@ -26,7 +26,7 @@ class TestTaskTBB : public ppc::core::Task {
  private:
   void ProcessPixel(int row, int col);
   void AssignNewLabel(int row, int col);
-  void AssignMinLabel(int row, int col, const std::vector<int> &neighbors);
+  void AssignMinLabel(int row, int col, const std::vector<int>& neighbors);
   std::vector<int> FindAdjacentLabels(int row, int col);
   int FindRoot(int label);
   void UnionLabels(int label1, int label2);

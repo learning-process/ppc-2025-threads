@@ -156,9 +156,9 @@ bool naumov_b_marc_on_bin_img_tbb::TestTaskTBB::ValidationImpl() {
 }
 
 bool naumov_b_marc_on_bin_img_tbb::TestTaskTBB::RunImpl() {
-  tbb::parallel_for(tbb::blocked_range2d<int>(0, rows_, 0, cols_), [this](const tbb::blocked_range2d<int>& r) {
-    for (int i = r.rows().begin(); i != r.rows().end(); ++i) {
-      for (int j = r.cols().begin(); j != r.cols().end(); ++j) {
+  tbb::parallel_for(tbb::blocked_range<int>(0, rows_), [this](const tbb::blocked_range<int>& rows_range) {
+    for (int i = rows_range.begin(); i < rows_range.end(); ++i) {
+      for (int j = 0; j < cols_; ++j) {
         if (input_image_[(i * cols_) + j] == 1) {
           ProcessPixel(i, j);
         }
