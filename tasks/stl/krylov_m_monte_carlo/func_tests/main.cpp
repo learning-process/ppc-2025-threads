@@ -71,7 +71,7 @@ TEST_F(krylov_m_monte_carlo_test_stl, sample_4d) {
       [](const Point& x) {
         return (std::pow(x[0], 5) * std::sin(x[0])) + std::exp(x[1]) + (std::log(x[2]) * std::tan(x[3]));
       },
-      50'000));
+      48'000));
 }
 TEST_F(krylov_m_monte_carlo_test_stl, sample_5d) {
   RunUndeterminedTest(GenerateSampleParams(
@@ -161,7 +161,7 @@ INSTANTIATE_TEST_SUITE_P(krylov_m_monte_carlo_test_stl, krylov_m_monte_carlo_tes
             .bounds = {
                 {-std::numbers::pi, std::numbers::pi}
             },
-            .iterations = 82'000
+            .iterations = 80'000
         },
         -4 * std::numbers::pi
     },

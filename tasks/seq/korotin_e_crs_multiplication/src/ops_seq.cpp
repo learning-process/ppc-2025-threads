@@ -30,8 +30,6 @@ bool korotin_e_crs_multiplication_seq::CrsMultiplicationSequential::PreProcessin
 
   unsigned int output_size = task_data->outputs_count[0];
   output_rI_ = std::vector<unsigned int>(output_size, 0);
-  output_col_.clear();
-  output_val_.clear();
 
   return true;
 }
@@ -73,6 +71,9 @@ bool korotin_e_crs_multiplication_seq::CrsMultiplicationSequential::RunImpl() {
   unsigned int ai = 0;
   unsigned int bt = 0;
   double sum = 0;
+  std::fill(output_rI_.begin(), output_rI_.end(), 0);
+  output_col_.clear();
+  output_val_.clear();
   for (i = 0; i < A_N_ - 1; i++) {
     for (j = 0; j < tr_i.size() - 1; j++) {
       sum = 0;
