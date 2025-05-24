@@ -3,7 +3,6 @@
 #include <algorithm>
 #include <cmath>
 #include <cstddef>
-#include <execution>
 #include <functional>
 #include <numeric>
 #include <thread>
