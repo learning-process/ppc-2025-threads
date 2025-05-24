@@ -31,7 +31,7 @@ ParsedRootInput ParseAndValidateOnRoot(const std::shared_ptr<ppc::core::TaskData
   ParsedRootInput data;
 
   if (!task_data_ptr || task_data_ptr->inputs.empty() || task_data_ptr->inputs[0] == nullptr) {
-    return data; 
+    return data;
   }
 
   auto* in_ptr = reinterpret_cast<double*>(task_data_ptr->inputs[0]);
@@ -65,7 +65,7 @@ ParsedRootInput ParseAndValidateOnRoot(const std::shared_ptr<ppc::core::TaskData
 
     if (std::floor(n_double) != n_double || n_double > static_cast<double>(std::numeric_limits<int>::max()) ||
         n_double <= 0.0 || (static_cast<int>(n_double) % 2 != 0)) {
-      return data; 
+      return data;
     }
     data.n_vec[i] = static_cast<int>(n_double);
   }
@@ -92,7 +92,7 @@ int SimpsonCoeff(int i, int n) {
   return 2;
 }
 
-}  // анонимный namespace
+}  // namespace
 
 namespace anufriev_d_integrals_simpson_all {
 
@@ -126,8 +126,8 @@ bool IntegralsSimpsonAll::PreProcessingImpl() {
   int rank = 0;
   MPI_Comm_rank(MPI_COMM_WORLD, &rank);
 
-  ParsedRootInput parsed_input_data; 
-  int root_preprocessing_status = 0; 
+  ParsedRootInput parsed_input_data;
+  int root_preprocessing_status = 0;
 
   if (rank == 0) {
     parsed_input_data = ParseAndValidateOnRoot(task_data);
@@ -136,7 +136,7 @@ bool IntegralsSimpsonAll::PreProcessingImpl() {
 
   MPI_Bcast(&root_preprocessing_status, 1, MPI_INT, 0, MPI_COMM_WORLD);
   if (root_preprocessing_status == 0) {
-    return false; 
+    return false;
   }
 
   if (rank == 0) {
@@ -144,17 +144,17 @@ bool IntegralsSimpsonAll::PreProcessingImpl() {
   }
   MPI_Bcast(&dimension_, 1, MPI_INT, 0, MPI_COMM_WORLD);
 
-  if (dimension_ <= 0) { 
+  if (dimension_ <= 0) {
     if (rank != 0) {
-        return false; 
+      return false;
     }
     if (rank == 0) {
-        func_code_ = parsed_input_data.func_code_val;
+      func_code_ = parsed_input_data.func_code_val;
     }
     MPI_Bcast(&func_code_, 1, MPI_INT, 0, MPI_COMM_WORLD);
     result_ = 0.0;
     return parsed_input_data.parse_successful;
-}
+  }
 
   a_.resize(dimension_);
   b_.resize(dimension_);
@@ -175,7 +175,7 @@ bool IntegralsSimpsonAll::PreProcessingImpl() {
   if (rank != 0) {
     for (int val_n : n_) {
       if (val_n <= 0 || (val_n % 2) != 0) {
-        return false; 
+        return false;
       }
     }
   }
@@ -187,11 +187,10 @@ bool IntegralsSimpsonAll::PreProcessingImpl() {
 bool IntegralsSimpsonAll::ValidationImpl() {
   int rank = 0;
   MPI_Comm_rank(MPI_COMM_WORLD, &rank);
-  int validation_status_root = 1; 
+  int validation_status_root = 1;
 
   if (rank == 0) {
-    if (task_data == nullptr ||
-        task_data->outputs.empty() || task_data->outputs[0] == nullptr ||
+    if (task_data == nullptr || task_data->outputs.empty() || task_data->outputs[0] == nullptr ||
         task_data->outputs_count.empty() || task_data->outputs_count[0] < sizeof(double)) {
       validation_status_root = 0;
     }
@@ -217,7 +216,7 @@ bool IntegralsSimpsonAll::RunImpl() {
   }
 
   for (int i = 0; i < dimension_; i++) {
-    if (n_[i] == 0) { 
+    if (n_[i] == 0) {
       return false;
     }
     steps[i] = (b_[i] - a_[i]) / n_[i];
@@ -225,7 +224,7 @@ bool IntegralsSimpsonAll::RunImpl() {
     size_t points_in_dim = static_cast<size_t>(n_[i]) + 1;
 
     if (total_points > std::numeric_limits<size_t>::max() / points_in_dim) {
-      return false; 
+      return false;
     }
     total_points *= points_in_dim;
   }
@@ -240,38 +239,37 @@ bool IntegralsSimpsonAll::RunImpl() {
   size_t local_end_k = 0;
 
   if (total_points > 0) {
-      size_t points_per_rank_base = total_points / static_cast<size_t>(world_size);
-      size_t remainder_points = total_points % static_cast<size_t>(world_size);
-      
-      if (static_cast<size_t>(rank) < remainder_points) {
-          num_points_for_this_rank = points_per_rank_base + 1;
-          local_start_k = static_cast<size_t>(rank) * num_points_for_this_rank;
-      } else {
-          num_points_for_this_rank = points_per_rank_base;
-          local_start_k = static_cast<size_t>(rank) * points_per_rank_base + remainder_points;
-      }
-      local_end_k = local_start_k + num_points_for_this_rank;
-      
-      if (local_end_k > total_points) {
-          local_end_k = total_points;
-      }
-      if (local_start_k >= total_points) {
-          local_start_k = total_points;
-          local_end_k = total_points;
-          num_points_for_this_rank = 0;
-      }
+    size_t points_per_rank_base = total_points / static_cast<size_t>(world_size);
+    size_t remainder_points = total_points % static_cast<size_t>(world_size);
+    
+    if (static_cast<size_t>(rank) < remainder_points) {
+      num_points_for_this_rank = points_per_rank_base + 1;
+      local_start_k = static_cast<size_t>(rank) * num_points_for_this_rank;
+    } else {
+      num_points_for_this_rank = points_per_rank_base;
+      local_start_k = static_cast<size_t>(rank) * points_per_rank_base + remainder_points;
+    }
+    local_end_k = local_start_k + num_points_for_this_rank;
+    
+    if (local_end_k > total_points) {
+      local_end_k = total_points;
+    }
+    if (local_start_k >= total_points) {
+      local_start_k = total_points;
+      local_end_k = total_points;
+      num_points_for_this_rank = 0;
+    }
   }
 
-
   double local_sum = 0.0;
-  if (num_points_for_this_rank > 0 && local_start_k < local_end_k) { 
+  if (num_points_for_this_rank > 0 && local_start_k < local_end_k) {
     local_sum = tbb::parallel_reduce(
         tbb::blocked_range<size_t>(local_start_k, local_end_k), 0.0,
         [&](const tbb::blocked_range<size_t>& r, double running_sum) {
           std::vector<double> coords(dimension_);
-          std::vector<int> current_idx(dimension_); 
+          std::vector<int> current_idx(dimension_);
 
-          for (size_t k_iter = r.begin(); k_iter != r.end(); ++k_iter) { // Изменено k на k_iter
+          for (size_t k_iter = r.begin(); k_iter != r.end(); ++k_iter) {
             double current_coeff_prod = 1.0;
             size_t current_k_val = k_iter;
 
@@ -290,7 +288,7 @@ bool IntegralsSimpsonAll::RunImpl() {
         },
         [](double x, double y) { return x + y; });
   }
-  
+
   double global_sum = 0.0;
   MPI_Reduce(&local_sum, &global_sum, 1, MPI_DOUBLE, MPI_SUM, 0, MPI_COMM_WORLD);
 
@@ -306,15 +304,14 @@ bool IntegralsSimpsonAll::PostProcessingImpl() {
   int rank = 0;
   MPI_Comm_rank(MPI_COMM_WORLD, &rank);
 
-  if (rank == 0) { 
+  if (rank == 0) {
     try {
-      if (task_data == nullptr ||
-          task_data->outputs.empty() || task_data->outputs[0] == nullptr ||
+      if (task_data == nullptr || task_data->outputs.empty() || task_data->outputs[0] == nullptr ||
           task_data->outputs_count.empty() || task_data->outputs_count[0] < sizeof(double)) {
-          return false;
+        return false;
       }
       auto* out_ptr = reinterpret_cast<double*>(task_data->outputs[0]);
-      out_ptr[0] = result_; 
+      out_ptr[0] = result_;
     } catch (const std::exception& e) {
       return false;
     }
