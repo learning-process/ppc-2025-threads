@@ -156,7 +156,7 @@ bool deryabin_m_hoare_sort_simple_merge_mpi::HoareSortTaskMPI::ValidationImpl() 
 bool deryabin_m_hoare_sort_simple_merge_mpi::HoareSortTaskMPI::RunImpl() {
   const size_t num_threads = ppc::util::GetPPCNumThreads();
   oneapi::tbb::task_group tg;
-  HoaraSort(input_array_A_, static_cast<size_t>(world.rank()) * min_chunk_size_ + world.rank() == 0 ? rest_ : 0,
+  HoaraSort(input_array_A_, static_cast<size_t>(world.rank()) * min_chunk_size_ + world.rank() != 0 ? rest_ : 0,
             (static_cast<size_t>(world.rank()) + 1) * min_chunk_size_ + rest_ - 1, tg, num_threads);
   for (size_t i = 0; i < static_cast<size_t>(std::bit_width(chunk_count_ - 1)); ++i) {
     unsigned short step = 1ULL << i;
@@ -169,7 +169,7 @@ bool deryabin_m_hoare_sort_simple_merge_mpi::HoareSortTaskMPI::RunImpl() {
       }
       if ((world.rank() + 1) / step % 2 != 0 || world.rank() == world.size() - 1) {
         size_t start_idx =
-            (static_cast<size_t>(world.rank() - 2 * step) + 1) * min_chunk_size_ + world.rank() - step == 0 ? rest_ : 0;
+            (static_cast<size_t>(world.rank() - 2 * step) + 1) * min_chunk_size_ + world.rank() - step != 0 ? rest_ : 0;
         world.recv(static_cast<size_t>(world.rank() - step), 0, &input_array_A_[start_idx], block_size);
         MergeTwoParts(input_array_A_, start_idx, start_idx + 2 * block_size - 1, tg, num_threads);
       }
