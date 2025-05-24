@@ -121,7 +121,6 @@ double IntegralsSimpsonAll::FunctionN(const std::vector<double>& coords) const {
   }
 }
 
-
 bool IntegralsSimpsonAll::PreProcessingImpl() {
   int rank = 0;
   MPI_Comm_rank(MPI_COMM_WORLD, &rank);
@@ -241,7 +240,7 @@ bool IntegralsSimpsonAll::RunImpl() {
   if (total_points > 0) {
     size_t points_per_rank_base = total_points / static_cast<size_t>(world_size);
     size_t remainder_points = total_points % static_cast<size_t>(world_size);
-    
+
     if (static_cast<size_t>(rank) < remainder_points) {
       num_points_for_this_rank = points_per_rank_base + 1;
       local_start_k = static_cast<size_t>(rank) * num_points_for_this_rank;
@@ -250,7 +249,7 @@ bool IntegralsSimpsonAll::RunImpl() {
       local_start_k = static_cast<size_t>(rank) * points_per_rank_base + remainder_points;
     }
     local_end_k = local_start_k + num_points_for_this_rank;
-    
+
     if (local_end_k > total_points) {
       local_end_k = total_points;
     }
