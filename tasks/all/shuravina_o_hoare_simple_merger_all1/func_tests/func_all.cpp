@@ -119,7 +119,6 @@ TEST(shuravina_o_hoare_simple_merger_all, test_single_element_array) {
     EXPECT_EQ(input, output);
   }
 }
-
 TEST(shuravina_o_hoare_simple_merger_all, test_empty_array_validation) {
   std::vector<int> input;
   std::vector<int> output;
