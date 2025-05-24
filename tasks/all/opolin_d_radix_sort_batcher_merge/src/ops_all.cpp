@@ -16,7 +16,6 @@
 #include "oneapi/tbb/parallel_for.h"
 #include "oneapi/tbb/parallel_invoke.h"
 
-
 bool opolin_d_radix_batcher_sort_all::RadixBatcherSortTaskAll::PreProcessingImpl() {
   int rank = world_.rank();
   int num_procs = world_.size();
