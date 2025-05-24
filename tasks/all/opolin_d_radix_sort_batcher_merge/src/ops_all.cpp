@@ -4,16 +4,17 @@
 
 #include <algorithm>
 #include <boost/mpi/collectives.hpp>
-#include <boost/mpi/gatherv.hpp>
-#include <boost/mpi/scatter.hpp>
-#include <boost/mpi/scatterv.hpp>
+#include <boost/mpi/collectives/broadcast.hpp>
+#include <boost/mpi/collectives/gather.hpp>
+#include <boost/mpi/collectives/gatherv.hpp>
+#include <boost/mpi/collectives/scatter.hpp>
+#include <boost/mpi/collectives/scattev.hpp>
 #include <cmath>
 #include <cstddef>
 #include <cstdint>
 #include <vector>
 
 #include "oneapi/tbb/blocked_range.h"
-#include "oneapi/tbb/enumerable_thread_specific.h"
 #include "oneapi/tbb/parallel_for.h"
 #include "oneapi/tbb/parallel_invoke.h"
 
