@@ -77,7 +77,6 @@ void TaskAll::ApplyGaussianFilterTbb(std::vector<int> &local_output_ref, size_t 
               auto kernel_col = static_cast<size_t>(kj + 1);
               sum += static_cast<float>(input_[((i_in + ki) * width_) + (j_in + kj)]) *
                      gaussian_kernel_[(kernel_row * 3) + kernel_col];
-              // gaussian_kernel_[static_cast<size_t>(((ki + 1) * 3) + (kj + 1))];
             }
           }
           local_output_ref[(local_i_out * output_cols_val) + j_out] = static_cast<int>(sum);
