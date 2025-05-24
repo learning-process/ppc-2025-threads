@@ -1,8 +1,8 @@
 // ops_tbb.cpp
 #include "tbb/prokhorov_n_multidimensional_integrals_by_trapezoidal_method/include/ops_tbb.hpp"
 
-#include <tbb/blocked_range.h>
-#include <tbb/parallel_reduce.h>
+#include <oneapi/tbb/blocked_range.h>
+#include <oneapi/tbb/parallel_reduce.h>
 
 #include <cmath>
 #include <cstddef>
@@ -33,9 +33,9 @@ double ParallelTrapezoidalIntegration(const std::function<double(const std::vect
     point.resize(current_dim + 1);
   }
 
-  sum = tbb::parallel_reduce(
-      tbb::blocked_range<int>(0, steps[current_dim] + 1), 0.0,
-      [&](const tbb::blocked_range<int>& r, double local_sum) {
+  sum = oneapi::tbb::parallel_reduce(
+      oneapi::tbb::blocked_range<int>(0, steps[current_dim] + 1), 0.0,
+      [&](const oneapi::tbb::blocked_range<int>& r, double local_sum) {
         for (int i = r.begin(); i != r.end(); ++i) {
           auto local_point = point;
           if (local_point.size() <= current_dim) {
