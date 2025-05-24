@@ -51,9 +51,10 @@ double chizhov_m_trapezoid_method_stl::TrapezoidMethod(Function& f, size_t div, 
         end = total_nodes;
       }
 
+      std::vector<double> point(int_dim);
+
       for (long long i = start; i < end; ++i) {
         int temp = static_cast<int>(i);
-        std::vector<double> point(int_dim);
 
         for (int j = 0; j < int_dim; j++) {
           int node_index = temp % (steps[j] + 1);
