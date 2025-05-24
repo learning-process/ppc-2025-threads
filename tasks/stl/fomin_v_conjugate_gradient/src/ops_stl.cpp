@@ -45,22 +45,21 @@ std::vector<double> fomin_v_conjugate_gradient::FominVConjugateGradientStl::Matr
 std::vector<double> fomin_v_conjugate_gradient::FominVConjugateGradientStl::VectorAdd(const std::vector<double>& a,
                                                                                       const std::vector<double>& b) {
   std::vector<double> result(a.size());
-  std::transform(std::execution::par_unseq, a.begin(), a.end(), b.begin(), result.begin(), std::plus<>());
+  std::transform(a.begin(), a.end(), b.begin(), result.begin(), std::plus<>());
   return result;
 }
 
 std::vector<double> fomin_v_conjugate_gradient::FominVConjugateGradientStl::VectorSub(const std::vector<double>& a,
                                                                                       const std::vector<double>& b) {
   std::vector<double> result(a.size());
-  std::transform(std::execution::par_unseq, a.begin(), a.end(), b.begin(), result.begin(), std::minus<>());
+  std::transform(a.begin(), a.end(), b.begin(), result.begin(), std::minus<>());
   return result;
 }
 
 std::vector<double> fomin_v_conjugate_gradient::FominVConjugateGradientStl::VectorScalarMultiply(
     const std::vector<double>& v, double scalar) {
   std::vector<double> result(v.size());
-  std::transform(std::execution::par_unseq, v.begin(), v.end(), result.begin(),
-                 [scalar](double val) { return val * scalar; });
+  std::transform(v.begin(), v.end(), result.begin(), [scalar](double val) { return val * scalar; });
   return result;
 }
 
