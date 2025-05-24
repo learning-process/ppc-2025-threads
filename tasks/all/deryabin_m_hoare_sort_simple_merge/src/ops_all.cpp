@@ -59,8 +59,10 @@ void deryabin_m_hoare_sort_simple_merge_mpi::HoaraSort(std::vector<double>& a, s
   const size_t j = pj - a.data();
   const size_t i = pi - a.data();
   if (available_threads > 1) {
-    HoaraSort(a, first, j, tg, available_threads >> 1);
-    tg.run([&]() { HoaraSort(a, i + 1, last, tg, available_threads - (available_threads >> 1)); });
+    tg.run([&a, &first, &j, &tg, &available_threads]() { HoaraSort(a, first, j, tg, available_threads >> 1); });
+    tg.run([&a, &i, &last, &tg, &available_threads]() {
+      HoaraSort(a, i + 1, last, tg, available_threads - (available_threads >> 1));
+    });
   } else {
     HoaraSort(a, first, j, tg, 1);
     HoaraSort(a, i + 1, last, tg, 1);
@@ -136,11 +138,11 @@ bool deryabin_m_hoare_sort_simple_merge_mpi::HoareSortTaskMPI::PreProcessingImpl
     min_chunk_size_ = dimension_ / chunk_count_;
     num_chunk_per_proc = chunk_count_ / static_cast<size_t>(world.size());
   }
-  boost::mpi::broadcast(world, input_array_A_, 0);
-  boost::mpi::broadcast(world, dimension_, 0);
-  boost::mpi::broadcast(world, chunk_count_, 0);
-  boost::mpi::broadcast(world, min_chunk_size_, 0);
-  boost::mpi::broadcast(world, num_chunk_per_proc, 0);
+  // boost::mpi::broadcast(world, input_array_A_, 0);
+  // boost::mpi::broadcast(world, dimension_, 0);
+  // boost::mpi::broadcast(world, chunk_count_, 0);
+  // boost::mpi::broadcast(world, min_chunk_size_, 0);
+  // boost::mpi::broadcast(world, num_chunk_per_proc, 0);
   return true;
 }
 
