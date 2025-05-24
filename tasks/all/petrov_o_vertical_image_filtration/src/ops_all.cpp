@@ -6,7 +6,7 @@
 #include <oneapi/tbb/task_arena.h>
 
 #include <boost/mpi/collectives/broadcast.hpp>
-#include <boost/serialization/vector.hpp>
+#include <boost/serialization/vector.hpp>  // NOLINT(misc-include-cleaner) - needed for std::vector serialization in boost::mpi::broadcast
 #include <cmath>
 #include <cstddef>
 #include <utility>
