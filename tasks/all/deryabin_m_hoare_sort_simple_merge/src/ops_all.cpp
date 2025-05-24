@@ -162,13 +162,14 @@ bool deryabin_m_hoare_sort_simple_merge_mpi::HoareSortTaskMPI::RunImpl() {
     unsigned short step = 1ULL << i;
     size_t block_size = min_chunk_size_ * static_cast<size_t>(step);
     if ((world.rank() + 1) % step == 0) {
-      if ((world.rank() + 1) / step % 2 == 0)
-      {
-        size_t start_idx = (static_cast<size_t>(world.rank() - step) + 1) * min_chunk_size_ + world.rank() == 0 ? rest_ : 0;
-        world.send(static_cast<size_t>(world.rank() + step), 0, &input_array_A_[start_idx], block_size);
-      }
-     if ((world.rank() + 1) / step % 2 != 0 || world.rank() == world.size() - 1) {
-        size_t start_idx = (static_cast<size_t>(world.rank() - 2 * step) + 1) * min_chunk_size_ + world.rank() - step == 0 ? rest_ : 0;
+      if ((world.rank() + 1) / step % 2 == 0) {
+        size_t start_idx =
+            (static_cast<size_t>(world.rank() - step) + 1) * min_chunk_size_ + world.rank() == 0 ? rest_ : 0;
+         world.send(static_cast<size_t>(world.rank() + step), 0, &input_array_A_[start_idx], block_size);
+       }
+      if ((world.rank() + 1) / step % 2 != 0 || world.rank() == world.size() - 1) {
+        size_t start_idx =
+            (static_cast<size_t>(world.rank() - 2 * step) + 1) * min_chunk_size_ + world.rank() - step == 0 ? rest_ : 0;
         world.recv(static_cast<size_t>(world.rank() - step), 0, &input_array_A_[start_idx], block_size);
         MergeTwoParts(input_array_A_, start_idx, start_idx + 2 * block_size - 1, tg, num_threads);
       }
