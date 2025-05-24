@@ -1,8 +1,8 @@
-#include "stl/vershinina_a_hoare_sort_stl/include/ops_stl.hpp"
+#include "omp/vershinina_a_hoare_sort/include/ops_omp.hpp"
 
 #include <algorithm>
 #include <cmath>
-#include <thread>
+#include <utility>
 #include <vector>
 
 #include "core/util/include/util.hpp"
@@ -36,28 +36,11 @@ void BatcherMergeBlocksStep(double *left_pointer, int &left_size, double *right_
 }
 
 void BatcherMerge(int thread_input_size, std::vector<double *> &pointers, std::vector<int> &sizes, int par_if_greater) {
-  const int batcherthreads = ppc::util::GetPPCNumThreads();
-
-  std::vector<std::thread> threads(batcherthreads);
-
   for (int step = 1, pack = int(pointers.size()); pack > 1; step *= 2, pack /= 2) {
-    if ((thread_input_size / step) > par_if_greater) {
-      for (int k = 0; k < pack / 2; ++k) {
-        threads[k] = std::thread(
-            [&](int off) {
-              BatcherMergeBlocksStep(pointers[2 * step * off], sizes[2 * step * off], pointers[(2 * step * off) + step],
-                                     sizes[(2 * step * off) + step]);
-            },
-            k);
-      }
-      for (int k = 0; k < pack / 2; ++k) {
-        threads[k].join();
-      }
-    } else {
-      for (int off = 0; off < pack / 2; ++off) {
-        BatcherMergeBlocksStep(pointers[2 * step * off], sizes[2 * step * off], pointers[(2 * step * off) + step],
-                               sizes[(2 * step * off) + step]);
-      }
+#pragma omp parallel for if ((thread_input_size / step) > par_if_greater)
+    for (int off = 0; off < pack / 2; ++off) {
+      BatcherMergeBlocksStep(pointers[2 * step * off], sizes[2 * step * off], pointers[(2 * step * off) + step],
+                             sizes[(2 * step * off) + step]);
     }
     if ((pack / 2) - 1 == 0) {
       BatcherMergeBlocksStep(pointers[0], sizes[sizes.size() - 1], pointers[pointers.size() - 1],
@@ -69,19 +52,18 @@ void BatcherMerge(int thread_input_size, std::vector<double *> &pointers, std::v
   }
 }
 }  // namespace
-
-bool vershinina_a_hoare_sort_stl::TestTaskSTL::PreProcessingImpl() {
+bool vershinina_a_hoare_sort_omp::TestTaskOpenMP::PreProcessingImpl() {
   input_.assign(reinterpret_cast<double *>(task_data->inputs[0]),
                 reinterpret_cast<double *>(task_data->inputs[0]) + task_data->inputs_count[0]);
   return true;
 }
 
-bool vershinina_a_hoare_sort_stl::TestTaskSTL::ValidationImpl() {
+bool vershinina_a_hoare_sort_omp::TestTaskOpenMP::ValidationImpl() {
   return (task_data->inputs_count[0] == task_data->outputs_count[0]) && task_data->inputs.size() == 1 &&
          task_data->inputs_count.size() == 1 && task_data->outputs.size() == 1;
 }
 
-bool vershinina_a_hoare_sort_stl::TestTaskSTL::RunImpl() {
+bool vershinina_a_hoare_sort_omp::TestTaskOpenMP::RunImpl() {
   int n = int(input_.size());
   if (n <= 1) {
     return true;
@@ -101,18 +83,15 @@ bool vershinina_a_hoare_sort_stl::TestTaskSTL::RunImpl() {
   }
   sizes[sizes.size() - 1] += thread_input_remainder_size;
 
-  std::vector<std::thread> threads(numthreads);
+#pragma omp parallel for
   for (int i = 0; i < numthreads; i++) {
-    threads[i] = std::thread(HoareSort, pointers[i], 0, sizes[i] - 1);
-  }
-  for (int i = 0; i < numthreads; i++) {
-    threads[i].join();
+    HoareSort(pointers[i], 0, sizes[i] - 1);
   }
   BatcherMerge(thread_input_size, pointers, sizes, 32);
   return true;
 }
 
-bool vershinina_a_hoare_sort_stl::TestTaskSTL::PostProcessingImpl() {
+bool vershinina_a_hoare_sort_omp::TestTaskOpenMP::PostProcessingImpl() {
   std::ranges::copy(res_, reinterpret_cast<double *>(task_data->outputs[0]));
   return true;
 }

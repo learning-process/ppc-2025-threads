@@ -8,7 +8,7 @@
 #include <vector>
 
 #include "core/task/include/task.hpp"
-#include "stl/vershinina_a_hoare_sort_stl/include/ops_stl.hpp"
+#include "stl/vershinina_a_hoare_sort/include/ops_stl.hpp"
 
 namespace {
 std::vector<double> GetRandomVector(int len) {
