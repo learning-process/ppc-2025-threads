@@ -10,10 +10,72 @@
 #include <exception>
 #include <iostream>
 #include <limits>
-#include <numeric>
 #include <vector>
 
 namespace {
+struct ParsedRootInput {
+  int dimension = 0;
+  std::vector<double> a_vec;
+  std::vector<double> b_vec;
+  std::vector<int> n_vec;
+  int func_code_val = 0;
+  bool parse_successful = false;
+};
+
+ParsedRootInput parse_and_validate_on_root(const std::shared_ptr<ppc::core::TaskData>& task_data_ptr) {
+  ParsedRootInput data;
+
+  if (!task_data_ptr || task_data_ptr->inputs.empty() || task_data_ptr->inputs[0] == nullptr) {
+    return data;
+  }
+
+  auto* in_ptr = reinterpret_cast<double*>(task_data_ptr->inputs[0]);
+  size_t in_size_bytes = task_data_ptr->inputs_count[0];
+  size_t num_doubles = in_size_bytes / sizeof(double);
+
+  if (num_doubles < 1) {
+    return data;
+  }
+
+  int d_parsed = static_cast<int>(in_ptr[0]);
+  if (d_parsed <= 0) {
+    return data;
+  }
+  data.dimension = d_parsed;
+
+  size_t required_elements = 1 + static_cast<size_t>(3 * data.dimension) + 1;
+  if (num_doubles < required_elements) {
+    return data;
+  }
+
+  data.a_vec.resize(data.dimension);
+  data.b_vec.resize(data.dimension);
+  data.n_vec.resize(data.dimension);
+
+  int idx_ptr = 1;
+  for (int i = 0; i < data.dimension; ++i) {
+    data.a_vec[i] = in_ptr[idx_ptr++];
+    data.b_vec[i] = in_ptr[idx_ptr++];
+    double n_double = in_ptr[idx_ptr++];
+
+    if (std::floor(n_double) != n_double || n_double > static_cast<double>(std::numeric_limits<int>::max()) ||
+        n_double <= 0.0 || (static_cast<int>(n_double) % 2 != 0)) {
+      return data;
+    }
+    data.n_vec[i] = static_cast<int>(n_double);
+  }
+
+  double func_code_double = in_ptr[idx_ptr];
+  if (std::floor(func_code_double) != func_code_double ||
+      func_code_double > static_cast<double>(std::numeric_limits<int>::max()) ||
+      func_code_double < static_cast<double>(std::numeric_limits<int>::min())) {
+    return data;
+  }
+  data.func_code_val = static_cast<int>(func_code_double);
+
+  data.parse_successful = true;
+  return data;
+}
 
 int SimpsonCoeff(int i, int n) {
   if (i == 0 || i == n) {
@@ -57,93 +119,56 @@ bool IntegralsSimpsonAll::PreProcessingImpl() {
   int rank = 0;
   MPI_Comm_rank(MPI_COMM_WORLD, &rank);
 
-  int root_status = 1;
+  ParsedRootInput parsed_input_data;
+  int root_preprocessing_status = 0;
 
   if (rank == 0) {
-    if (task_data->inputs.empty() || task_data->inputs[0] == nullptr) {
-      root_status = 0;
-    }
-
-    if (root_status == 1) {
-      auto* in_ptr = reinterpret_cast<double*>(task_data->inputs[0]);
-      size_t in_size_bytes = task_data->inputs_count[0];
-      size_t num_doubles = in_size_bytes / sizeof(double);
-
-      if (num_doubles < 1) {
-        root_status = 0;
-      }
-
-      if (root_status == 1) {
-        int d_parsed = static_cast<int>(in_ptr[0]);
-        if (d_parsed <= 0) {
-          root_status = 0;
-        } else {
-          dimension_ = d_parsed;
-          size_t required_elements = 1 + static_cast<size_t>(3 * dimension_) + 1;
-          if (num_doubles < required_elements) {
-            root_status = 0;
-          }
-        }
-      }
-
-      if (root_status == 1) {
-        a_.resize(dimension_);
-        b_.resize(dimension_);
-        n_.resize(dimension_);
-
-        int idx_ptr = 1;
-        for (int i = 0; i < dimension_; i++) {
-          a_[i] = in_ptr[idx_ptr++];
-          b_[i] = in_ptr[idx_ptr++];
-          double n_double = in_ptr[idx_ptr++];
-          if (std::floor(n_double) != n_double || n_double > static_cast<double>(std::numeric_limits<int>::max()) ||
-              n_double <= 0.0 || (static_cast<int>(n_double) % 2 != 0)) {
-            root_status = 0;
-            break;
-          }
-          n_[i] = static_cast<int>(n_double);
-        }
-        if (root_status == 1) {
-          double func_code_double = in_ptr[idx_ptr];
-          if (std::floor(func_code_double) != func_code_double ||
-              func_code_double > static_cast<double>(std::numeric_limits<int>::max()) ||
-              func_code_double < static_cast<double>(std::numeric_limits<int>::min())) {
-            root_status = 0;
-          } else {
-            func_code_ = static_cast<int>(func_code_double);
-          }
-        }
-      }
-    }
+    parsed_input_data = parse_and_validate_on_root(task_data);
+    root_preprocessing_status = parsed_input_data.parse_successful ? 1 : 0;
   }
 
-  MPI_Bcast(&root_status, 1, MPI_INT, 0, MPI_COMM_WORLD);
-  if (root_status == 0) {
+  MPI_Bcast(&root_preprocessing_status, 1, MPI_INT, 0, MPI_COMM_WORLD);
+  if (root_preprocessing_status == 0) {
     return false;
   }
 
+  if (rank == 0) {
+    dimension_ = parsed_input_data.dimension;
+  }
   MPI_Bcast(&dimension_, 1, MPI_INT, 0, MPI_COMM_WORLD);
 
-  if (rank != 0) {
-    if (dimension_ <= 0) return false;
+  if (dimension_ <= 0) {
+    if (rank != 0) return false; 
+  }
+
+  if (dimension_ > 0) {
     a_.resize(dimension_);
     b_.resize(dimension_);
     n_.resize(dimension_);
-  }
 
-  MPI_Bcast(a_.data(), dimension_, MPI_DOUBLE, 0, MPI_COMM_WORLD);
-  MPI_Bcast(b_.data(), dimension_, MPI_DOUBLE, 0, MPI_COMM_WORLD);
-  MPI_Bcast(n_.data(), dimension_, MPI_INT, 0, MPI_COMM_WORLD);
-  MPI_Bcast(&func_code_, 1, MPI_INT, 0, MPI_COMM_WORLD);
+    if (rank == 0) {
+      a_ = parsed_input_data.a_vec;
+      b_ = parsed_input_data.b_vec;
+      n_ = parsed_input_data.n_vec;
+      func_code_ = parsed_input_data.func_code_val;
+    }
 
-  if (rank != 0) {
-    for (int val_n : n_) {
-      if (val_n <= 0 || (val_n % 2) != 0) {
-        return false;
+    MPI_Bcast(a_.data(), dimension_, MPI_DOUBLE, 0, MPI_COMM_WORLD);
+    MPI_Bcast(b_.data(), dimension_, MPI_DOUBLE, 0, MPI_COMM_WORLD);
+    MPI_Bcast(n_.data(), dimension_, MPI_INT, 0, MPI_COMM_WORLD);
+    MPI_Bcast(&func_code_, 1, MPI_INT, 0, MPI_COMM_WORLD);
+
+    if (rank != 0) {
+      for (int val_n : n_) {
+        if (val_n <= 0 || (val_n % 2) != 0) {
+          return false; 
+        }
       }
     }
+  } else if (rank == 0 && parsed_input_data.parse_successful) {
+    func_code_ = parsed_input_data.func_code_val;
+    MPI_Bcast(&func_code_, 1, MPI_INT, 0, MPI_COMM_WORLD);
   }
-
   result_ = 0.0;
   return true;
 }
@@ -156,9 +181,8 @@ bool IntegralsSimpsonAll::ValidationImpl() {
   if (rank == 0) {
     if (task_data == nullptr) {
       validation_status_root = 0;
-    } else if (task_data->outputs.empty() || task_data->outputs[0] == nullptr) {
-      validation_status_root = 0;
-    } else if (task_data->outputs_count.empty() || task_data->outputs_count[0] < sizeof(double)) {
+    } else if (task_data->outputs.empty() || task_data->outputs[0] == nullptr ||
+               task_data->outputs_count.empty() || task_data->outputs_count[0] < sizeof(double)) {
       validation_status_root = 0;
     }
   }
@@ -199,8 +223,8 @@ bool IntegralsSimpsonAll::RunImpl() {
   size_t points_per_rank_base = total_points / static_cast<size_t>(world_size);
   size_t remainder_points = total_points % static_cast<size_t>(world_size);
 
-  size_t local_start_k;
-  size_t num_points_for_this_rank;
+  size_t local_start_k = 0;
+  size_t num_points_for_this_rank = 0;
 
   if (static_cast<size_t>(rank) < remainder_points) {
     num_points_for_this_rank = points_per_rank_base + 1;
