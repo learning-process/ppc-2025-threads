@@ -1,13 +1,13 @@
 #include "stl/fomin_v_conjugate_gradient/include/ops_stl.hpp"
 
+#include <algorithm>
 #include <cmath>
 #include <cstddef>
 #include <execution>
+#include <functional>
 #include <numeric>
 #include <thread>
 #include <vector>
-
-#include "core/util/include/util.hpp"
 
 double fomin_v_conjugate_gradient::FominVConjugateGradientStl::DotProduct(const std::vector<double>& a,
                                                                           const std::vector<double>& b) {
@@ -17,7 +17,7 @@ double fomin_v_conjugate_gradient::FominVConjugateGradientStl::DotProduct(const 
 std::vector<double> fomin_v_conjugate_gradient::FominVConjugateGradientStl::MatrixVectorMultiply(
     const std::vector<double>& a, const std::vector<double>& x) const {
   std::vector<double> result(n, 0.0);
-  const int num_threads = std::thread::hardware_concurrency();
+  const auto num_threads = std::thread::hardware_concurrency();
   std::vector<std::thread> threads(num_threads);
 
   auto worker = [&](int start, int end) {
@@ -34,7 +34,9 @@ std::vector<double> fomin_v_conjugate_gradient::FominVConjugateGradientStl::Matr
   }
 
   for (auto& thread : threads) {
-    if (thread.joinable()) thread.join();
+    if (thread.joinable()) {
+      thread.join();
+    }
   }
 
   return result;
@@ -94,14 +96,18 @@ bool fomin_v_conjugate_gradient::FominVConjugateGradientStl::RunImpl() {
     std::vector<double> ap = MatrixVectorMultiply(a_, p);
     double p_ap = DotProduct(p, ap);
 
-    if (std::abs(p_ap) < 1e-12) break;
+    if (std::abs(p_ap) < 1e-12) {
+      break;
+    }
 
     double alpha = rs_old / p_ap;
     x = VectorAdd(x, VectorScalarMultiply(p, alpha));
     std::vector<double> r_new = VectorSub(r, VectorScalarMultiply(ap, alpha));
 
     double rs_new = DotProduct(r_new, r_new);
-    if (std::sqrt(rs_new) < epsilon) break;
+    if (std::sqrt(rs_new) < epsilon) {
+      break;
+    }
 
     double beta = rs_new / rs_old;
     p = VectorAdd(r_new, VectorScalarMultiply(p, beta));
