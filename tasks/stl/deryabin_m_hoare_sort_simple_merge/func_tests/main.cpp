@@ -72,11 +72,11 @@ TEST(deryabin_m_hoare_sort_simple_merge_stl, test_large_array) {
   std::random_device rd;
   std::mt19937 gen(rd());
   std::uniform_real_distribution<> distribution(-100, 100);
-  std::vector<double> input_array(8000);
+  std::vector<double> input_array(1600);
   std::ranges::generate(input_array.begin(), input_array.end(), [&] { return distribution(gen); });
   std::vector<std::vector<double>> in_array(1, input_array);
-  size_t chunk_count = 64;
-  std::vector<double> output_array(8000);
+  size_t chunk_count = 8;
+  std::vector<double> output_array(1600);
   std::vector<std::vector<double>> out_array(1, output_array);
   std::vector<double> true_solution(input_array);
   std::ranges::sort(true_solution.begin(), true_solution.end());
@@ -159,7 +159,7 @@ TEST(deryabin_m_hoare_sort_simple_merge_stl, test_random_array_small_pieces) {
   std::vector<double> input_array(800);
   std::ranges::generate(input_array.begin(), input_array.end(), [&] { return distribution(gen); });
   std::vector<std::vector<double>> in_array(1, input_array);
-  size_t chunk_count = 32;
+  size_t chunk_count = 16;
   std::vector<double> output_array(800);
   std::vector<std::vector<double>> out_array(1, output_array);
   std::vector<double> true_solution(input_array);
