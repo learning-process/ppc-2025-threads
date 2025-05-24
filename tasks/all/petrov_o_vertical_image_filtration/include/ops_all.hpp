@@ -4,7 +4,6 @@
 #include <boost/mpi/environment.hpp>
 #include <cstddef>
 #include <vector>
-// #include <iostream>
 
 #include "core/task/include/task.hpp"
 
