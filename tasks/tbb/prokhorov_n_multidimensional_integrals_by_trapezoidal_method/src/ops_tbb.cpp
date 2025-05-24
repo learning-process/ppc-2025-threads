@@ -3,6 +3,7 @@
 
 #include <tbb/blocked_range.h>
 #include <tbb/parallel_reduce.h>
+#include <tbb/tbb.h>
 
 #include <cmath>
 #include <cstddef>
