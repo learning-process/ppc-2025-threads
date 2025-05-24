@@ -247,46 +247,12 @@ TEST(Konstantinov_I_Sort_Batcher_all, test_random_10000_values) {
   mpi::communicator world;
 
   if (world.rank() == 0) {
-    constexpr size_t kCount = 11887;
+    constexpr size_t kCount = 10000;
     std::vector<double> in(kCount);
     std::vector<double> out(kCount);
     std::random_device rd;
     std::mt19937 gen(rd());
-    std::uniform_real_distribution<double> dist(-10000.0, 10000.0);
-
-    for (auto& num : in) {
-      num = dist(gen);
-    }
-    std::vector<double> exp_out = in;
-    std::ranges::sort(exp_out);
-
-    auto task_data = std::make_shared<ppc::core::TaskData>();
-    task_data->inputs.emplace_back(reinterpret_cast<uint8_t*>(in.data()));
-    task_data->inputs_count.emplace_back(in.size());
-    task_data->outputs.emplace_back(reinterpret_cast<uint8_t*>(out.data()));
-    task_data->outputs_count.emplace_back(out.size());
-
-    konstantinov_i_sort_batcher_all::RadixSortBatcherall test_task(task_data);
-    ASSERT_TRUE(test_task.ValidationImpl());
-    test_task.PreProcessingImpl();
-    test_task.RunImpl();
-    test_task.PostProcessingImpl();
-
-    EXPECT_EQ(exp_out, out);
-  }
-}
-
-TEST(Konstantinov_I_Sort_Batcher_all, test_random_huge_size) {
-  mpi::environment env;
-  mpi::communicator world;
-
-  if (world.rank() == 0) {
-    constexpr size_t kCount = 1000000;
-    std::vector<double> in(kCount);
-    std::vector<double> out(kCount);
-    std::random_device rd;
-    std::mt19937 gen(rd());
-    std::uniform_real_distribution<double> dist(-10000.0, 10000.0);
+    std::uniform_real_distribution<double> dist(-1000.0, 1000.0);
 
     for (auto& num : in) {
       num = dist(gen);

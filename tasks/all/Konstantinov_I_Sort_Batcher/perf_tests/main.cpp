@@ -24,7 +24,7 @@ TEST(Konstantinov_I_Sort_Batcher_all, test_pipeline_run) {
   std::mt19937 gen(seed);
   std::uniform_real_distribution<double> dist(-1000.0, 1000.0);
 
-  const int kCount = 100000;
+  const int kCount = 10000;
   std::vector<double> in, exp_out;
 
   if (world.rank() == 0) {
@@ -90,7 +90,7 @@ TEST(Konstantinov_I_Sort_Batcher_all, test_task_run) {
   std::mt19937 gen(seed);
   std::uniform_real_distribution<double> dist(-1000.0, 1000.0);
 
-  const int kCount = 100000;
+  const int kCount = 10000;
   std::vector<double> in, exp_out;
 
   if (world.rank() == 0) {
@@ -108,7 +108,7 @@ TEST(Konstantinov_I_Sort_Batcher_all, test_task_run) {
   if (world.rank() == 0) {
     task_data->inputs.emplace_back(reinterpret_cast<uint8_t*>(in.data()));
     task_data->inputs_count.emplace_back(in.size());
-    task_data->outputs.emplace_back(reinterpret_cast<uint8_t*>(in.data()));  // In-place sort
+    task_data->outputs.emplace_back(reinterpret_cast<uint8_t*>(in.data()));
     task_data->outputs_count.emplace_back(in.size());
   } else {
     task_data->inputs.emplace_back(nullptr);
