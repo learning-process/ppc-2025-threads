@@ -5,9 +5,8 @@
 #include <cstdint>
 #include <memory>
 #include <random>
-#include <vector>
 
-#include "all/vershinina_a_hoare_sort_mpi/include/ops_all.hpp"
+#include "all/vershinina_a_hoare_sort/include/ops_all.hpp"
 #include "boost/mpi/communicator.hpp"
 #include "core/perf/include/perf.hpp"
 #include "core/task/include/task.hpp"

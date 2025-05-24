@@ -1,12 +1,9 @@
-#include "all/vershinina_a_hoare_sort_mpi/include/ops_all.hpp"
+#include "all/vershinina_a_hoare_sort/include/ops_all.hpp"
 
 #include <tbb/tbb.h>
 
 #include <algorithm>
 #include <cmath>
-#include <cstddef>
-#include <cstdint>
-#include <span>
 #include <utility>
 #include <vector>
 
@@ -123,7 +120,7 @@ bool vershinina_a_hoare_sort_mpi::TestTaskALL::RunImpl() {
 
     for (int receiver_proc_rank = 1; receiver_proc_rank < active_procs_num; receiver_proc_rank++) {
       MPI_Send(sizes.data() + receiver_proc_rank, 1, MPI_INT, receiver_proc_rank, 0, active_procs_comm);
-      MPI_Send(pointers.data() + receiver_proc_rank, 1, MPI_INT, receiver_proc_rank, 0, active_procs_comm);
+      MPI_Send(pointers[receiver_proc_rank], 1, MPI_INT, receiver_proc_rank, 0, active_procs_comm);
     }
   }
 
@@ -157,7 +154,7 @@ bool vershinina_a_hoare_sort_mpi::TestTaskALL::RunImpl() {
         int arrs = -1;
         MPI_Recv(&arrs, 1, MPI_INT, transmitter_rank, 0, active_procs_comm, MPI_STATUS_IGNORE);
         res_.resize(res_.size() + arrs);
-        MPI_Recv(res_.begin().base() + res_.size() - arrs, int(arrs), MPI_INT, transmitter_rank, 0, active_procs_comm,
+        MPI_Recv(res_.begin().base() + res_.size() - arrs, arrs, MPI_INT, transmitter_rank, 0, active_procs_comm,
                  MPI_STATUS_IGNORE);
         std::ranges::inplace_merge(res_, res_.begin() + int(res_.size()) - arrs);
       }
