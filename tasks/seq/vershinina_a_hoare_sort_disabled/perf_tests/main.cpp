@@ -10,14 +10,13 @@
 
 #include "core/perf/include/perf.hpp"
 #include "core/task/include/task.hpp"
-#include "omp/vershinina_a_hoare_sort_omp/include/ops_omp.hpp"
-
+#include "seq/vershinina_a_hoare_sort/include/ops_seq.hpp"
 namespace {
-std::vector<double> GetRandomVector(int len) {
+std::vector<int> GetRandomVector(int len) {
   std::random_device dev;
   std::mt19937 gen(dev());
   std::uniform_int_distribution<> distr(-100, 100);
-  std::vector<double> vec(len);
+  std::vector<int> vec(len);
   size_t vec_size = vec.size();
   for (size_t i = 0; i < vec_size; i++) {
     vec[i] = distr(gen);
@@ -26,18 +25,18 @@ std::vector<double> GetRandomVector(int len) {
 }
 }  // namespace
 
-TEST(vershinina_a_hoare_sort_omp, test_pipeline_run) {
-  std::vector<double> in;
-  std::vector<double> out(300000);
-  in = GetRandomVector(300000);
+TEST(vershinina_a_hoare_sort_seq, test_pipeline_run) {
+  std::vector<int> in;
+  std::vector<int> out(16000);
+  in = GetRandomVector(16000);
 
-  auto task_data_omp = std::make_shared<ppc::core::TaskData>();
-  task_data_omp->inputs.emplace_back(reinterpret_cast<uint8_t *>(in.data()));
-  task_data_omp->inputs_count.emplace_back(in.size());
-  task_data_omp->outputs.emplace_back(reinterpret_cast<uint8_t *>(out.data()));
-  task_data_omp->outputs_count.emplace_back(out.size());
+  auto task_data_seq = std::make_shared<ppc::core::TaskData>();
+  task_data_seq->inputs.emplace_back(reinterpret_cast<uint8_t *>(in.data()));
+  task_data_seq->inputs_count.emplace_back(in.size());
+  task_data_seq->outputs.emplace_back(reinterpret_cast<uint8_t *>(out.data()));
+  task_data_seq->outputs_count.emplace_back(out.size());
 
-  auto test_task_omp = std::make_shared<vershinina_a_hoare_sort_omp::TestTaskOpenMP>(task_data_omp);
+  auto test_task_sequential = std::make_shared<vershinina_a_hoare_sort_seq::TestTaskSequential>(task_data_seq);
 
   auto perf_attr = std::make_shared<ppc::core::PerfAttr>();
   perf_attr->num_running = 10;
@@ -50,24 +49,24 @@ TEST(vershinina_a_hoare_sort_omp, test_pipeline_run) {
 
   auto perf_results = std::make_shared<ppc::core::PerfResults>();
 
-  auto perf_analyzer = std::make_shared<ppc::core::Perf>(test_task_omp);
+  auto perf_analyzer = std::make_shared<ppc::core::Perf>(test_task_sequential);
   perf_analyzer->PipelineRun(perf_attr, perf_results);
   ppc::core::Perf::PrintPerfStatistic(perf_results);
   ASSERT_TRUE(std::ranges::is_sorted(out));
 }
 
-TEST(vershinina_a_hoare_sort_omp, test_task_run) {
-  std::vector<double> in;
-  std::vector<double> out(300000);
-  in = GetRandomVector(300000);
+TEST(vershinina_a_hoare_sort_seq, test_task_run) {
+  std::vector<int> in;
+  std::vector<int> out(16000);
+  in = GetRandomVector(16000);
 
-  auto task_data_omp = std::make_shared<ppc::core::TaskData>();
-  task_data_omp->inputs.emplace_back(reinterpret_cast<uint8_t *>(in.data()));
-  task_data_omp->inputs_count.emplace_back(in.size());
-  task_data_omp->outputs.emplace_back(reinterpret_cast<uint8_t *>(out.data()));
-  task_data_omp->outputs_count.emplace_back(out.size());
+  auto task_data_seq = std::make_shared<ppc::core::TaskData>();
+  task_data_seq->inputs.emplace_back(reinterpret_cast<uint8_t *>(in.data()));
+  task_data_seq->inputs_count.emplace_back(in.size());
+  task_data_seq->outputs.emplace_back(reinterpret_cast<uint8_t *>(out.data()));
+  task_data_seq->outputs_count.emplace_back(out.size());
 
-  auto test_task_omp = std::make_shared<vershinina_a_hoare_sort_omp::TestTaskOpenMP>(task_data_omp);
+  auto test_task_sequential = std::make_shared<vershinina_a_hoare_sort_seq::TestTaskSequential>(task_data_seq);
 
   auto perf_attr = std::make_shared<ppc::core::PerfAttr>();
   perf_attr->num_running = 10;
@@ -80,7 +79,7 @@ TEST(vershinina_a_hoare_sort_omp, test_task_run) {
 
   auto perf_results = std::make_shared<ppc::core::PerfResults>();
 
-  auto perf_analyzer = std::make_shared<ppc::core::Perf>(test_task_omp);
+  auto perf_analyzer = std::make_shared<ppc::core::Perf>(test_task_sequential);
   perf_analyzer->TaskRun(perf_attr, perf_results);
   ppc::core::Perf::PrintPerfStatistic(perf_results);
   ASSERT_TRUE(std::ranges::is_sorted(out));
