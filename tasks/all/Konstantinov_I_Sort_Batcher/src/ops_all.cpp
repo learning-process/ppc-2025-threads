@@ -159,7 +159,7 @@ void RadixSort(std::vector<double>& arr) {
 }  // namespace konstantinov_i_sort_batcher_all
 
 bool konstantinov_i_sort_batcher_all::RadixSortBatcherall::PreProcessingImpl() {
-  world_ = mpi::communicator();
+  world_ = boost::mpi::communicator();
   if (world_.rank() == 0) {
     unsigned int input_size = task_data->inputs_count[0];
     auto* in_ptr = reinterpret_cast<double*>(task_data->inputs[0]);
@@ -195,11 +195,10 @@ bool konstantinov_i_sort_batcher_all::RadixSortBatcherall::RunImpl() {
   if (world_.rank() == 0) {
     size_t total_size = mas_.size();
     size_t chunk_size = total_size / world_.size();
-    size_t remainder = total_size % world_.size();
-
+    size_t remainder = mas_.size() % world_.size();
     for (int proc = 0; proc < world_.size(); ++proc) {
-      size_t start = proc * chunk_size + std::min(proc, (int)remainder);
-      size_t end = start + chunk_size + (proc < remainder ? 1 : 0);
+      size_t start = proc * (mas_.size() / world_.size()) + std::min(static_cast<size_t>(proc), remainder);
+      size_t end = start + (mas_.size() / world_.size()) + (static_cast<size_t>(proc) < remainder ? 1 : 0);
 
       std::vector<double> chunk(mas_.begin() + start, mas_.begin() + end);
       if (proc == 0) {
