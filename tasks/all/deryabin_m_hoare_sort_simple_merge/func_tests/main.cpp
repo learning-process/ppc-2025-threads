@@ -20,7 +20,6 @@ TEST(deryabin_m_hoare_sort_simple_merge_mpi, test_random_array) {
   std::vector<double> input_array(160);
   std::ranges::generate(input_array.begin(), input_array.end(), [&] { return distribution(gen); });
   std::vector<std::vector<double>> in_array(1, input_array);
-  size_t chunk_count = 4;
   std::vector<double> output_array(160);
   std::vector<std::vector<double>> out_array(1, output_array);
   std::vector<double> true_solution(input_array);
@@ -30,7 +29,6 @@ TEST(deryabin_m_hoare_sort_simple_merge_mpi, test_random_array) {
   if (world.rank() == 0) {
     task_data_mpi->inputs.emplace_back(reinterpret_cast<uint8_t*>(in_array.data()));
     task_data_mpi->inputs_count.emplace_back(input_array.size());
-    task_data_mpi->inputs_count.emplace_back(chunk_count);
     task_data_mpi->outputs.emplace_back(reinterpret_cast<uint8_t*>(out_array.data()));
     task_data_mpi->outputs_count.emplace_back(output_array.size());
   }
