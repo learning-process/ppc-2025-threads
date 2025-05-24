@@ -6,10 +6,10 @@
 #define OMPI_SKIP_MPICXX
 #include <mpi.h>
 
+#include <algorithm>
 #include <cmath>
 #include <cstddef>
 #include <exception>
-#include <iostream>
 #include <limits>
 #include <memory>
 #include <vector>
@@ -92,6 +92,80 @@ int SimpsonCoeff(int i, int n) {
   return 2;
 }
 
+struct RunParameters {
+  size_t total_points = 1;
+  double coeff_mult = 1.0;
+  bool success = true;
+};
+
+RunParameters CalculateRunParameters(int p_dimension, const std::vector<int>& p_n,
+                                     const std::vector<double>& p_a, const std::vector<double>& p_b,
+                                     std::vector<double>& p_steps) {
+  RunParameters params;
+  if (p_dimension == 0) {
+    params.total_points = 0;
+    params.coeff_mult = 1.0;
+    return params;
+  }
+
+  p_steps.resize(p_dimension);
+  for (int i = 0; i < p_dimension; i++) {
+    if (p_n[i] == 0) {
+      params.success = false;
+      return params;
+    }
+    p_steps[i] = (p_b[i] - p_a[i]) / p_n[i];
+    params.coeff_mult *= p_steps[i] / 3.0;
+    size_t points_in_dim = static_cast<size_t>(p_n[i]) + 1;
+
+    if (params.total_points > std::numeric_limits<size_t>::max() / points_in_dim) {
+      params.success = false;
+      return params;
+    }
+    params.total_points *= points_in_dim;
+  }
+  return params;
+}
+
+struct MpiWorkDistribution {
+  size_t local_start_k = 0;
+  size_t local_end_k = 0;
+  size_t num_points_for_this_rank = 0;
+};
+
+MpiWorkDistribution DistributeWorkAmongMpiRanks(size_t p_total_points, int p_rank, int p_world_size) {
+  MpiWorkDistribution dist;
+  if (p_total_points == 0 || p_world_size == 0) {
+    return dist; 
+  }
+
+  size_t points_per_rank_base = p_total_points / static_cast<size_t>(p_world_size);
+  size_t remainder_points = p_total_points % static_cast<size_t>(p_world_size);
+
+  if (static_cast<size_t>(p_rank) < remainder_points) {
+    dist.num_points_for_this_rank = points_per_rank_base + 1;
+    dist.local_start_k = static_cast<size_t>(p_rank) * (points_per_rank_base + 1);
+  } else {
+    dist.num_points_for_this_rank = points_per_rank_base;
+    dist.local_start_k = remainder_points * (points_per_rank_base + 1) + 
+                            (static_cast<size_t>(p_rank) - remainder_points) * points_per_rank_base;
+  }
+  dist.local_end_k = dist.local_start_k + dist.num_points_for_this_rank;
+
+  if (dist.local_start_k >= p_total_points) {
+    dist.local_start_k = p_total_points;
+    dist.local_end_k = p_total_points;
+    dist.num_points_for_this_rank = 0;
+  } else {
+    dist.local_end_k = std::min(dist.local_end_k, p_total_points);
+    if (dist.local_start_k < dist.local_end_k) {
+      dist.num_points_for_this_rank = dist.local_end_k - dist.local_start_k;
+    } else {
+      dist.num_points_for_this_rank = 0;
+    }
+  }
+  return dist;
+}
 }  // namespace
 
 namespace anufriev_d_integrals_simpson_all {
@@ -205,65 +279,33 @@ bool IntegralsSimpsonAll::RunImpl() {
   MPI_Comm_rank(MPI_COMM_WORLD, &rank);
   MPI_Comm_size(MPI_COMM_WORLD, &world_size);
 
-  std::vector<double> steps(dimension_);
-  size_t total_points = 1;
-  double coeff_mult = 1.0;
-
   if (dimension_ == 0) {
-    if (rank == 0) result_ = 0.0;
+    if (rank == 0) {
+      result_ = 0.0;
+    }
     return true;
   }
 
-  for (int i = 0; i < dimension_; i++) {
-    if (n_[i] == 0) {
-      return false;
-    }
-    steps[i] = (b_[i] - a_[i]) / n_[i];
-    coeff_mult *= steps[i] / 3.0;
-    size_t points_in_dim = static_cast<size_t>(n_[i]) + 1;
+  std::vector<double> steps;
+  RunParameters params = CalculateRunParameters(dimension_, n_, a_, b_, steps);
 
-    if (total_points > std::numeric_limits<size_t>::max() / points_in_dim) {
-      return false;
-    }
-    total_points *= points_in_dim;
+  if (!params.success) {
+    return false;
   }
 
-  if (total_points == 0 && dimension_ > 0) {
-    if (rank == 0) result_ = 0.0;
+  if (params.total_points == 0) {
+    if (rank == 0) {
+      result_ = 0.0;
+    }
     return true;
   }
 
-  size_t local_start_k = 0;
-  size_t num_points_for_this_rank = 0;
-  size_t local_end_k = 0;
-
-  if (total_points > 0) {
-    size_t points_per_rank_base = total_points / static_cast<size_t>(world_size);
-    size_t remainder_points = total_points % static_cast<size_t>(world_size);
-
-    if (static_cast<size_t>(rank) < remainder_points) {
-      num_points_for_this_rank = points_per_rank_base + 1;
-      local_start_k = static_cast<size_t>(rank) * num_points_for_this_rank;
-    } else {
-      num_points_for_this_rank = points_per_rank_base;
-      local_start_k = static_cast<size_t>(rank) * points_per_rank_base + remainder_points;
-    }
-    local_end_k = local_start_k + num_points_for_this_rank;
-
-    if (local_end_k > total_points) {
-      local_end_k = total_points;
-    }
-    if (local_start_k >= total_points) {
-      local_start_k = total_points;
-      local_end_k = total_points;
-      num_points_for_this_rank = 0;
-    }
-  }
+  MpiWorkDistribution dist = DistributeWorkAmongMpiRanks(params.total_points, rank, world_size);
 
   double local_sum = 0.0;
-  if (num_points_for_this_rank > 0 && local_start_k < local_end_k) {
+  if (dist.num_points_for_this_rank > 0) {
     local_sum = tbb::parallel_reduce(
-        tbb::blocked_range<size_t>(local_start_k, local_end_k), 0.0,
+        tbb::blocked_range<size_t>(dist.local_start_k, dist.local_end_k), 0.0,
         [&](const tbb::blocked_range<size_t>& r, double running_sum) {
           std::vector<double> coords(dimension_);
           std::vector<int> current_idx(dimension_);
@@ -292,10 +334,11 @@ bool IntegralsSimpsonAll::RunImpl() {
   MPI_Reduce(&local_sum, &global_sum, 1, MPI_DOUBLE, MPI_SUM, 0, MPI_COMM_WORLD);
 
   if (rank == 0) {
-    result_ = coeff_mult * global_sum;
+    result_ = params.coeff_mult * global_sum;
   } else {
     result_ = 0.0;
   }
+
   return true;
 }
 
