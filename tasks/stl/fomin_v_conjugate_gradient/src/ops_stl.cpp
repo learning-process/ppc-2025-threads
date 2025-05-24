@@ -29,16 +29,31 @@ void ParallelFor(size_t start, size_t end, Func func, size_t num_threads) {
 
 double fomin_v_conjugate_gradient::FominVConjugateGradientStl::DotProduct(const std::vector<double>& a,
                                                                           const std::vector<double>& b) {
-  const size_t num_threads = std::thread::hardware_concurrency();
+  const size_t size = a.size();
+  const size_t num_threads = std::min(static_cast<size_t>(std::thread::hardware_concurrency()), size);
   std::vector<double> partial_sums(num_threads, 0.0);
+  std::vector<std::thread> threads;
+  threads.reserve(num_threads);
 
-  ParallelFor(0, a.size(), [&](size_t i) { partial_sums[i % num_threads] += (a[i] * b[i]); }, num_threads);
+  const size_t chunk_size = size / num_threads;
 
-  double result = 0.0;
-  for (const auto& sum : partial_sums) {
-    result += sum;
+  for (size_t t = 0; t < num_threads; ++t) {
+    const size_t start = t * chunk_size;
+    const size_t end = (t == num_threads - 1) ? size : start + chunk_size;
+    threads.emplace_back([&, start, end, t]() {
+      double sum = 0.0;
+      for (size_t i = start; i < end; ++i) {
+        sum += a[i] * b[i];
+      }
+      partial_sums[t] = sum;
+    });
   }
-  return result;
+
+  for (auto& thread : threads) {
+    thread.join();
+  }
+
+  return std::accumulate(partial_sums.begin(), partial_sums.end(), 0.0);
 }
 
 std::vector<double> fomin_v_conjugate_gradient::FominVConjugateGradientStl::MatrixVectorMultiply(
