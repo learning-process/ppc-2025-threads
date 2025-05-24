@@ -96,7 +96,7 @@ bool IntegralsSimpsonAll::PreProcessingImpl() {
           b_[i] = in_ptr[idx_ptr++];
           double n_double = in_ptr[idx_ptr++];
           if (std::floor(n_double) != n_double || n_double > static_cast<double>(std::numeric_limits<int>::max()) ||
-              n_double <= 0.0 || (static_cast<int>(n_double) % 2 != 0) ) {
+              n_double <= 0.0 || (static_cast<int>(n_double) % 2 != 0)) {
             root_status = 0;
             break;
           }
@@ -229,7 +229,7 @@ bool IntegralsSimpsonAll::RunImpl() {
 
               coords[dim_idx] = a_[dim_idx] + current_idx[dim_idx] * steps[dim_idx];
               current_coeff_prod *= SimpsonCoeff(current_idx[dim_idx], n_[dim_idx]);
-             }
+            }
             running_sum += current_coeff_prod * FunctionN(coords);
           }
           return running_sum;
@@ -248,7 +248,6 @@ bool IntegralsSimpsonAll::RunImpl() {
 
   return true;
 }
-
 
 bool IntegralsSimpsonAll::PostProcessingImpl() {
   int rank = 0;
