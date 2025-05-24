@@ -146,7 +146,7 @@ MpiWorkDistribution DistributeWorkAmongMpiRanks(size_t p_total_points, int p_ran
     dist.local_start_k = static_cast<size_t>(p_rank) * (points_per_rank_base + 1);
   } else {
     dist.num_points_for_this_rank = points_per_rank_base;
-    dist.local_start_k = remainder_points * (points_per_rank_base + 1) + 
+    dist.local_start_k = remainder_points * (points_per_rank_base + 1) +
                          (static_cast<size_t>(p_rank) - remainder_points) * points_per_rank_base;
   }
   dist.local_end_k = dist.local_start_k + dist.num_points_for_this_rank;
