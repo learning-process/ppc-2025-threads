@@ -154,7 +154,7 @@ bool IntegralsSimpsonAll::ValidationImpl() {
 
   if (rank == 0) {
     if (task_data == nullptr) {
-        validation_status_root = 0;
+      validation_status_root = 0;
     } else if (task_data->outputs.empty() || task_data->outputs[0] == nullptr) {
       validation_status_root = 0;
     } else if (task_data->outputs_count.empty() || task_data->outputs_count[0] < sizeof(double)) {
@@ -165,7 +165,6 @@ bool IntegralsSimpsonAll::ValidationImpl() {
   MPI_Bcast(&validation_status_root, 1, MPI_INT, 0, MPI_COMM_WORLD);
 
   return (validation_status_root == 1);
-}rn true;
 }
 
 bool IntegralsSimpsonAll::RunImpl() {
