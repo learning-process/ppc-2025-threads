@@ -61,7 +61,7 @@ bool opolin_d_radix_batcher_sort_all::RadixBatcherSortTaskAll::RunImpl() {
   boost::mpi::scatter(world_, counts, local_size, 0);
   local_data.resize(local_size);
   if (rank == 0) {
-    boost::mpi::scatterv(world_, input_, counts, displs, local_data.data(), 0);
+    boost::mpi::scatterv(world_, input_, counts, displs, local_data.data(), local_size, 0);
   } else {
     boost::mpi::scatterv(world_, local_data.data(), local_size, 0);
   }
