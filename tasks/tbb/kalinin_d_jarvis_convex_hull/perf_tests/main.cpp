@@ -1,6 +1,7 @@
 // Copyright 2025 Kalinin Dmitry
 #include <gtest/gtest.h>
 
+#include <algorithm>
 #include <chrono>
 #include <cstdint>
 #include <cstdlib>
@@ -92,7 +93,10 @@ TEST(kalinin_d_jarvis_convex_hull_tbb, test_pipeline_run) {
   ppc::core::Perf::PrintPerfStatistic(perf_results);
 
   // Verify results
-  std::vector<kalinin_d_jarvis_convex_hull_tbb::Point> res = CalculateConvexHull(points);
+  std::vector<kalinin_d_jarvis_convex_hull_tbb::Point> unique_points = points;
+  std::sort(unique_points.begin(), unique_points.end());
+  unique_points.erase(std::unique(unique_points.begin(), unique_points.end()), unique_points.end());
+  std::vector<kalinin_d_jarvis_convex_hull_tbb::Point> res = CalculateConvexHull(unique_points);
 
   size_t hull_size = task_data_seq->outputs_count[0];
   std::vector<kalinin_d_jarvis_convex_hull_tbb::Point> hull_from_task(hull_size);
@@ -142,7 +146,10 @@ TEST(kalinin_d_jarvis_convex_hull_tbb, test_task_run) {
   ppc::core::Perf::PrintPerfStatistic(perf_results);
 
   // Verify results
-  std::vector<kalinin_d_jarvis_convex_hull_tbb::Point> res = CalculateConvexHull(points);
+  std::vector<kalinin_d_jarvis_convex_hull_tbb::Point> unique_points = points;
+  std::sort(unique_points.begin(), unique_points.end());
+  unique_points.erase(std::unique(unique_points.begin(), unique_points.end()), unique_points.end());
+  std::vector<kalinin_d_jarvis_convex_hull_tbb::Point> res = CalculateConvexHull(unique_points);
 
   size_t hull_size = task_data_seq->outputs_count[0];
   std::vector<kalinin_d_jarvis_convex_hull_tbb::Point> hull_from_task(hull_size);
