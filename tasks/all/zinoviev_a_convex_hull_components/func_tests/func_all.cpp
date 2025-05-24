@@ -45,7 +45,7 @@ void VerifyResult(const std::vector<zinoviev_a_convex_hull_components_all::Point
 
 void RunAndValidate(const std::vector<int>& input,
                     const std::vector<zinoviev_a_convex_hull_components_all::Point>& expected, int width, int height) {
-  int rank;
+  int rank = 0;
   MPI_Comm_rank(MPI_COMM_WORLD, &rank);
 
   std::shared_ptr<ppc::core::TaskData> task_data;

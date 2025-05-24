@@ -4,7 +4,6 @@
 
 #include <algorithm>
 #include <cstddef>
-#include <numeric>
 #include <queue>
 #include <utility>
 #include <vector>
