@@ -50,12 +50,12 @@ void ApplyGaussianFilter(const std::vector<double> &image, std::vector<double> &
     }
   }
 }
-std::shared_ptr<ppc::core::TaskData> CreateTaskData(const std::vector<double> &input, std::vector<double> &output,
-                                                    int n, int m) {
+std::shared_ptr<ppc::core::TaskData> CreateTaskData(std::vector<double> &input, std::vector<double> &output, int n,
+                                                    int m) {
   auto task_data = std::make_shared<ppc::core::TaskData>();
 
   // Добавление входных данных
-  task_data->inputs.emplace_back(reinterpret_cast<const uint8_t *>(input.data()));
+  task_data->inputs.emplace_back(reinterpret_cast<uint8_t *>(input.data()));
   task_data->inputs_count.emplace_back(n);
   task_data->inputs_count.emplace_back(m);
 
