@@ -17,7 +17,7 @@ double fomin_v_conjugate_gradient::FominVConjugateGradientStl::DotProduct(const 
 std::vector<double> fomin_v_conjugate_gradient::FominVConjugateGradientStl::MatrixVectorMultiply(
     const std::vector<double>& a, const std::vector<double>& x) const {
   std::vector<double> result(n, 0.0);
-  const auto num_threads = std::thread::hardware_concurrency();
+  const auto num_threads = static_cast<size_t>(std::thread::hardware_concurrency());
   std::vector<std::thread> threads(num_threads);
 
   auto worker = [&](int start, int end) {
@@ -26,10 +26,10 @@ std::vector<double> fomin_v_conjugate_gradient::FominVConjugateGradientStl::Matr
     }
   };
 
-  const int chunk = n / num_threads;
-  for (int t = 0; t < num_threads; ++t) {
-    int start = t * chunk;
-    int end = (t == num_threads - 1) ? n : (t + 1) * chunk;
+  const size_t chunk = static_cast<size_t>(n) / num_threads;
+  for (size_t t = 0; t < num_threads; ++t) {
+    size_t start = t * chunk;
+    size_t end = (t == num_threads - 1) ? static_cast<size_t>(n) : (t + 1) * chunk;
     threads[t] = std::thread(worker, start, end);
   }
 
