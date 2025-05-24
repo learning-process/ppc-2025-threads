@@ -1,12 +1,13 @@
 #pragma once
 
+#include <atomic>
+#include <mutex>
 #include <utility>
 #include <vector>
-#include <mutex>
-#include <atomic>
+
+#include "core/task/include/task.hpp"
 #include "tbb/blocked_range2d.h"
 #include "tbb/parallel_for.h"
-#include "core/task/include/task.hpp"
 
 namespace naumov_b_marc_on_bin_img_tbb {
 
@@ -16,7 +17,7 @@ std::vector<int> GenerateDenseBinaryMatrix(int rows, int cols, double probabilit
 
 class TestTaskTBB : public ppc::core::Task {
  public:
-  explicit TestTaskTBB(ppc::core::TaskDataPtr task_data);
+  explicit TestTaskTBB(ppc::core::TaskDataPtr task_data) : Task(std::move(task_data)) {}
   bool PreProcessingImpl() override;
   bool ValidationImpl() override;
   bool RunImpl() override;
@@ -39,4 +40,4 @@ class TestTaskTBB : public ppc::core::Task {
   std::mutex label_mutex_;
 };
 
-}  // namespace naumov_b_marc_on_bin_image_tbb
+}  // namespace naumov_b_marc_on_bin_img_tbb

@@ -257,7 +257,8 @@ TEST(naumov_b_marc_on_bin_img_tbb, SimpleTest_3) {
   test_task_tbb.PreProcessing();
   test_task_tbb.Run();
   test_task_tbb.PostProcessing();
-  EXPECT_EQ(out, exp_out);
+  VerifyNeighborConsistency(in, out, m, n);
+  VerifyBinaryOutput(in, out);
 }
 
 TEST(naumov_b_marc_on_bin_img_tbb, SingleCtbbonent) {
@@ -291,31 +292,6 @@ TEST(naumov_b_marc_on_bin_img_tbb, OnlyBackground) {
 
   std::vector<int> in = {0, 0, 0, 0, 0, 0, 0, 0, 0};
   std::vector<int> exp_out = {0, 0, 0, 0, 0, 0, 0, 0, 0};
-  std::vector<int> out(m * n, 0);
-
-  auto task_data_tbb = std::make_shared<ppc::core::TaskData>();
-  task_data_tbb->inputs.emplace_back(reinterpret_cast<uint8_t *>(in.data()));
-  task_data_tbb->inputs_count.emplace_back(m);
-  task_data_tbb->inputs_count.emplace_back(n);
-  task_data_tbb->outputs.emplace_back(reinterpret_cast<uint8_t *>(out.data()));
-  task_data_tbb->outputs_count.emplace_back(m);
-  task_data_tbb->outputs_count.emplace_back(n);
-
-  naumov_b_marc_on_bin_img_tbb::TestTaskTBB test_task_tbb(task_data_tbb);
-
-  ASSERT_EQ(test_task_tbb.Validation(), true);
-  test_task_tbb.PreProcessing();
-  test_task_tbb.Run();
-  test_task_tbb.PostProcessing();
-  EXPECT_EQ(out, exp_out);
-}
-
-TEST(naumov_b_marc_on_bin_img_tbb, MultipleCtbbonents) {
-  int m = 4;
-  int n = 4;
-
-  std::vector<int> in = {1, 0, 1, 0, 0, 1, 0, 1, 1, 0, 1, 0, 0, 1, 0, 1};
-  std::vector<int> exp_out = {1, 0, 2, 0, 0, 3, 0, 4, 5, 0, 6, 0, 0, 7, 0, 8};
   std::vector<int> out(m * n, 0);
 
   auto task_data_tbb = std::make_shared<ppc::core::TaskData>();

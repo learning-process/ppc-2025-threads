@@ -10,7 +10,6 @@
 #include "core/task/include/task.hpp"
 #include "tbb/naumov_b_marc_on_bin_img/include/ops_tbb.hpp"
 
-
 TEST(naumov_b_marc_on_bin_img_tbb, test_pipeline_run) {
   constexpr int kCo = 5000;
 

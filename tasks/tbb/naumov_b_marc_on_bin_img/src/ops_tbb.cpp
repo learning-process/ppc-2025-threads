@@ -2,20 +2,16 @@
 
 #include <tbb/tbb.h>
 
+#include <algorithm>
 #include <cmath>
 #include <core/util/include/util.hpp>
-#include <cstddef>
-#include <vector>
-#include <algorithm>
 #include <cstddef>
 #include <random>
 #include <utility>
 #include <vector>
 
-
 #include "oneapi/tbb/task_arena.h"
 #include "oneapi/tbb/task_group.h"
-
 
 std::vector<int> naumov_b_marc_on_bin_img_tbb::GenerateRandomBinaryMatrix(int rows, int cols, double probability) {
   const int total_elements = rows * cols;
@@ -55,22 +51,21 @@ void naumov_b_marc_on_bin_img_tbb::TestTaskTBB::ProcessPixel(int row, int col) {
 }
 
 void naumov_b_marc_on_bin_img_tbb::TestTaskTBB::AssignNewLabel(int row, int col) {
-  output_img_[(row * cols_) + col] = ++current_label_;
+  output_image_[(row * cols_) + col] = ++current_label_;
   if (static_cast<size_t>(current_label_) >= label_parent_.size()) {
     label_parent_.resize(current_label_ + 1, 0);
   }
   label_parent_[current_label_] = current_label_;
 }
 
-void naumov_b_marc_on_bin_img_tbb::TestTaskTBB::AssignMinLabel(int row, int col,
-                                                                    const std::vector<int>& neighbors) {
+void naumov_b_marc_on_bin_img_tbb::TestTaskTBB::AssignMinLabel(int row, int col, const std::vector<int>& neighbors) {
   if (neighbors.empty()) {
     AssignNewLabel(row, col);
     return;
   }
 
   int min_label = *std::ranges::min_element(neighbors);
-  output_img_[(row * cols_) + col] = min_label;
+  output_image_[(row * cols_) + col] = min_label;
 
   for (int neighbor_label : neighbors) {
     if (neighbor_label != min_label) {
@@ -86,12 +81,12 @@ std::vector<int> naumov_b_marc_on_bin_img_tbb::TestTaskTBB::FindAdjacentLabels(i
     return neighbors;
   }
 
-  if (col > 0 && output_img_[(row * cols_) + (col - 1)] != 0) {
-    neighbors.push_back(output_img_[(row * cols_) + (col - 1)]);
+  if (col > 0 && output_image_[(row * cols_) + (col - 1)] != 0) {
+    neighbors.push_back(output_image_[(row * cols_) + (col - 1)]);
   }
 
-  if (row > 0 && output_img_[((row - 1) * cols_) + col] != 0) {
-    neighbors.push_back(output_img_[((row - 1) * cols_) + col]);
+  if (row > 0 && output_image_[((row - 1) * cols_) + col] != 0) {
+    neighbors.push_back(output_image_[((row - 1) * cols_) + col]);
   }
 
   return neighbors;
@@ -161,25 +156,23 @@ bool naumov_b_marc_on_bin_img_tbb::TestTaskTBB::ValidationImpl() {
 }
 
 bool naumov_b_marc_on_bin_img_tbb::TestTaskTBB::RunImpl() {
-  tbb::parallel_for(tbb::blocked_range2d<int>(0, rows_, 0, cols_),
-    [this](const tbb::blocked_range2d<int>& r) {
-      for (int i = r.rows().begin(); i != r.rows().end(); ++i) {
-        for (int j = r.cols().begin(); j != r.cols().end(); ++j) {
-          if (input_image_[(i * cols_) + j] == 1) {
-            ProcessPixel(i, j);
-          }
+  tbb::parallel_for(tbb::blocked_range2d<int>(0, rows_, 0, cols_), [this](const tbb::blocked_range2d<int>& r) {
+    for (int i = r.rows().begin(); i != r.rows().end(); ++i) {
+      for (int j = r.cols().begin(); j != r.cols().end(); ++j) {
+        if (input_image_[(i * cols_) + j] == 1) {
+          ProcessPixel(i, j);
         }
       }
-    });
+    }
+  });
 
-  // Второй проход - обновление меток
   tbb::parallel_for(0, rows_ * cols_, [this](int idx) {
     if (input_image_[idx] == 1) {
       int root = FindRoot(output_image_[idx]);
       output_image_[idx] = root;
     }
   });
-  
+
   return true;
 }
 
