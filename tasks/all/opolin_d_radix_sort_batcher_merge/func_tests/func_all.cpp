@@ -7,7 +7,7 @@
 #include <random>
 #include <vector>
 
-#include "all/opolin_d_radix_sort_batcher_merge/include/ops_all.hpp"  
+#include "all/opolin_d_radix_sort_batcher_merge/include/ops_all.hpp"
 #include "core/task/include/task.hpp"
 
 namespace opolin_d_radix_batcher_sort_all {
