@@ -2,7 +2,6 @@
 
 #include <algorithm>
 #include <boost/mpi/communicator.hpp>
-#include <boost/mpi/environment.hpp>
 #include <cstddef>
 #include <cstdint>
 #include <memory>
@@ -58,7 +57,6 @@ TEST(volochaev_s_shell_sort_with_batchers_even_odd_merge_all, test_error_in_gene
   boost::mpi::communicator world;
   std::vector<int> in;
   std::vector<int> out;
-  std::vector<int> answer;
 
   // Create data
   if (world.rank() == 0) {
@@ -79,7 +77,7 @@ TEST(volochaev_s_Shell_sort_with_Batchers_even_odd_merge_all, test_with_small_ve
     in.resize(kSizeOfVector, 0);
     GetRandomVector(in, -100, 100);
     out.resize(kSizeOfVector, 0);
-    std::vector<int> answer(in);
+    answer = in;
     std::ranges::sort(answer);
     // Create task_data
     task_data_seq->inputs.emplace_back(reinterpret_cast<uint8_t *>(in.data()));
@@ -109,7 +107,7 @@ TEST(volochaev_s_Shell_sort_with_Batchers_even_odd_merge_all, test_with_small_ve
     in.resize(kSizeOfVector, 0);
     GetRandomVector(in, -100, 100);
     out.resize(kSizeOfVector, 0);
-    std::vector<int> answer(in);
+    answer = in;
     std::ranges::sort(answer);
 
     // Create task_data
@@ -140,7 +138,7 @@ TEST(volochaev_s_Shell_sort_with_Batchers_even_odd_merge_all, test_with_small_ve
     in.resize(kSizeOfVector, 0);
     GetRandomVector(in, -100, 100);
     out.resize(kSizeOfVector, 0);
-    std::vector<int> answer(in);
+    answer = in;
     std::ranges::sort(answer);
 
     // Create task_data
@@ -170,7 +168,7 @@ TEST(volochaev_s_Shell_sort_with_Batchers_even_odd_merge_all, test_with_small_ve
     in.resize(kSizeOfVector, 0);
     GetRandomVector(in, -100, 100);
     out.resize(kSizeOfVector, 0);
-    std::vector<int> answer(in);
+    answer = in;
     std::ranges::sort(answer);
 
     // Create task_data
@@ -200,7 +198,7 @@ TEST(volochaev_s_Shell_sort_with_Batchers_even_odd_merge_all, test_with_medium_v
     in.resize(kSizeOfVector, 0);
     GetRandomVector(in, -100, 100);
     out.resize(kSizeOfVector, 0);
-    std::vector<int> answer(in);
+    answer = in;
     std::ranges::sort(answer);
 
     // Create task_data
@@ -230,7 +228,7 @@ TEST(volochaev_s_shell_sort_with_batchers_even_odd_merge_all, test_with_medium_v
     in.resize(kSizeOfVector, 0);
     GetRandomVector(in, -100, 100);
     out.resize(kSizeOfVector, 0);
-    std::vector<int> answer(in);
+    answer = in;
     std::ranges::sort(answer);
 
     // Create task_data
@@ -260,7 +258,7 @@ TEST(volochaev_s_shell_sort_with_batchers_even_odd_merge_all, test_with_medium_v
     in.resize(kSizeOfVector, 0);
     GetRandomVector(in, -100, 100);
     out.resize(kSizeOfVector, 0);
-    std::vector<int> answer(in);
+    answer = in;
     std::ranges::sort(answer);
 
     // Create task_data
@@ -290,7 +288,7 @@ TEST(volochaev_s_shell_sort_with_batchers_even_odd_merge_all, test_with_medium_v
     in.resize(kSizeOfVector, 0);
     GetRandomVector(in, -100, 100);
     out.resize(kSizeOfVector, 0);
-    std::vector<int> answer(in);
+    answer = in;
     std::ranges::sort(answer);
 
     // Create task_data
@@ -320,7 +318,7 @@ TEST(volochaev_s_shell_sort_with_batchers_even_odd_merge_all, test_with_medium_v
     in.resize(kSizeOfVector, 0);
     GetRandomVector(in, -100, 100);
     out.resize(kSizeOfVector, 0);
-    std::vector<int> answer(in);
+    answer = in;
     std::ranges::sort(answer);
 
     // Create task_data
@@ -350,7 +348,7 @@ TEST(volochaev_s_shell_sort_with_batchers_even_odd_merge_all, test_with_big_vect
     in.resize(kSizeOfVector, 0);
     GetRandomVector(in, -100, 100);
     out.resize(kSizeOfVector, 0);
-    std::vector<int> answer(in);
+    answer = in;
     std::ranges::sort(answer);
 
     // Create task_data
@@ -380,7 +378,7 @@ TEST(volochaev_s_shell_sort_with_batchers_even_odd_merge_all, test_with_big_vect
     in.resize(kSizeOfVector, 0);
     GetRandomVector(in, -100, 100);
     out.resize(kSizeOfVector, 0);
-    std::vector<int> answer(in);
+    answer = in;
     std::ranges::sort(answer);
 
     // Create task_data
@@ -410,7 +408,7 @@ TEST(volochaev_s_shell_sort_with_batchers_even_odd_merge_all, test_with_big_vect
     in.resize(kSizeOfVector, 0);
     GetRandomVector(in, -100, 100);
     out.resize(kSizeOfVector, 0);
-    std::vector<int> answer(in);
+    answer = in;
     std::ranges::sort(answer);
 
     // Create task_data
@@ -440,7 +438,7 @@ TEST(volochaev_s_shell_sort_with_batchers_even_odd_merge_all, test_with_big_vect
     in.resize(kSizeOfVector, 0);
     GetRandomVector(in, -100, 100);
     out.resize(kSizeOfVector, 0);
-    std::vector<int> answer(in);
+    answer = in;
     std::ranges::sort(answer);
 
     // Create task_data
@@ -470,7 +468,7 @@ TEST(volochaev_s_shell_sort_with_batchers_even_odd_merge_all, test_with_extra_bi
     in.resize(kSizeOfVector, 0);
     GetRandomVector(in, -100, 100);
     out.resize(kSizeOfVector, 0);
-    std::vector<int> answer(in);
+    answer = in;
     std::ranges::sort(answer);
 
     // Create task_data
@@ -500,7 +498,7 @@ TEST(volochaev_s_shell_sort_with_batchers_even_odd_merge_all, test_with_prime_si
     in.resize(kSizeOfVector, 0);
     GetRandomVector(in, -100, 100);
     out.resize(kSizeOfVector, 0);
-    std::vector<int> answer(in);
+    answer = in;
     std::ranges::sort(answer);
 
     // Create task_data
@@ -530,7 +528,7 @@ TEST(volochaev_s_shell_sort_with_batchers_even_odd_merge_all, test_with_prime_si
     in.resize(kSizeOfVector, 0);
     GetRandomVector(in, -100, 100);
     out.resize(kSizeOfVector, 0);
-    std::vector<int> answer(in);
+    answer = in;
     std::ranges::sort(answer);
 
     // Create task_data
@@ -560,7 +558,7 @@ TEST(volochaev_s_shell_sort_with_batchers_even_odd_merge_all, test_with_prime_si
     in.resize(kSizeOfVector, 0);
     GetRandomVector(in, -100, 100);
     out.resize(kSizeOfVector, 0);
-    std::vector<int> answer(in);
+    answer = in;
     std::ranges::sort(answer);
 
     // Create task_data
@@ -590,7 +588,7 @@ TEST(volochaev_s_shell_sort_with_batchers_even_odd_merge_all, test_with_prime_si
     in.resize(kSizeOfVector, 0);
     GetRandomVector(in, -100, 100);
     out.resize(kSizeOfVector, 0);
-    std::vector<int> answer(in);
+    answer = in;
     std::ranges::sort(answer);
 
     // Create task_data
@@ -620,7 +618,7 @@ TEST(volochaev_s_shell_sort_with_batchers_even_odd_merge_all, test_with_prime_si
     in.resize(kSizeOfVector, 0);
     GetRandomVector(in, -100, 100);
     out.resize(kSizeOfVector, 0);
-    std::vector<int> answer(in);
+    answer = in;
     std::ranges::sort(answer);
 
     // Create task_data
@@ -650,7 +648,7 @@ TEST(volochaev_s_shell_sort_with_batchers_even_odd_merge_all, test_with_odd_numb
     in.resize(kSizeOfVector, 0);
     GetRandomVector(in, -100, 100);
     out.resize(kSizeOfVector, 0);
-    std::vector<int> answer(in);
+    answer = in;
     std::ranges::sort(answer);
 
     // Create task_data
@@ -680,7 +678,7 @@ TEST(volochaev_s_shell_sort_with_batchers_even_odd_merge_all, test_with_odd_numb
     in.resize(kSizeOfVector, 0);
     GetRandomVector(in, -100, 100);
     out.resize(kSizeOfVector, 0);
-    std::vector<int> answer(in);
+    answer = in;
     std::ranges::sort(answer);
 
     // Create task_data
@@ -710,7 +708,7 @@ TEST(volochaev_s_shell_sort_with_batchers_even_odd_merge_all, test_with_odd_numb
     in.resize(kSizeOfVector, 0);
     GetRandomVector(in, -100, 100);
     out.resize(kSizeOfVector, 0);
-    std::vector<int> answer(in);
+    answer = in;
     std::ranges::sort(answer);
 
     // Create task_data
@@ -740,7 +738,7 @@ TEST(volochaev_s_shell_sort_with_batchers_even_odd_merge_all, test_with_odd_numb
     in.resize(kSizeOfVector, 0);
     GetRandomVector(in, -100, 100);
     out.resize(kSizeOfVector, 0);
-    std::vector<int> answer(in);
+    answer = in;
     std::ranges::sort(answer);
 
     // Create task_data
@@ -770,7 +768,7 @@ TEST(volochaev_s_shell_sort_with_batchers_even_odd_merge_all, test_with_odd_numb
     in.resize(kSizeOfVector, 0);
     GetRandomVector(in, -100, 100);
     out.resize(kSizeOfVector, 0);
-    std::vector<int> answer(in);
+    answer = in;
     std::ranges::sort(answer);
 
     // Create task_data
@@ -800,7 +798,7 @@ TEST(volochaev_s_shell_sort_with_batchers_even_odd_merge_all, test_with_odd_numb
     in.resize(kSizeOfVector, 0);
     GetRandomVector(in, -100, 100);
     out.resize(kSizeOfVector, 0);
-    std::vector<int> answer(in);
+    answer = in;
     std::ranges::sort(answer);
 
     // Create task_data
@@ -830,7 +828,7 @@ TEST(volochaev_s_shell_sort_with_batchers_even_odd_merge_all, test_with_odd_numb
     in.resize(kSizeOfVector, 0);
     GetRandomVector(in, -100, 100);
     out.resize(kSizeOfVector, 0);
-    std::vector<int> answer(in);
+    answer = in;
     std::ranges::sort(answer);
 
     // Create task_data
@@ -860,7 +858,7 @@ TEST(volochaev_s_shell_sort_with_batchers_even_odd_merge_all, test_with_odd_numb
     in.resize(kSizeOfVector, 0);
     GetRandomVector(in, -100, 100);
     out.resize(kSizeOfVector, 0);
-    std::vector<int> answer(in);
+    answer = in;
     std::ranges::sort(answer);
 
     // Create task_data
@@ -890,7 +888,7 @@ TEST(volochaev_s_shell_sort_with_batchers_even_odd_merge_all, test_with_reverse)
     in.resize(kSizeOfVector, 0);
     GetRandomVector(in, -100, 100);
     out.resize(kSizeOfVector, 0);
-    std::vector<int> answer(in);
+    answer = in;
     std::ranges::sort(answer);
     std::ranges::sort(in);
     std::ranges::reverse(in);
@@ -922,7 +920,7 @@ TEST(volochaev_s_Shell_sort_with_Batchers_even_odd_merge_all, test_with_len_Ferm
     in.resize(kSizeOfVector, 0);
     GetRandomVector(in, -100, 100);
     out.resize(kSizeOfVector, 0);
-    std::vector<int> answer(in);
+    answer = in;
     std::ranges::sort(answer);
     // Create task_data
     task_data_seq->inputs.emplace_back(reinterpret_cast<uint8_t *>(in.data()));
@@ -951,7 +949,7 @@ TEST(volochaev_s_Shell_sort_with_Batchers_even_odd_merge_all, test_with_len_Ferm
     in.resize(kSizeOfVector, 0);
     GetRandomVector(in, -100, 100);
     out.resize(kSizeOfVector, 0);
-    std::vector<int> answer(in);
+    answer = in;
     std::ranges::sort(answer);
     // Create task_data
     task_data_seq->inputs.emplace_back(reinterpret_cast<uint8_t *>(in.data()));
@@ -980,7 +978,7 @@ TEST(volochaev_s_Shell_sort_with_Batchers_even_odd_merge_all, test_with_len_Ferm
     in.resize(kSizeOfVector, 0);
     GetRandomVector(in, -100, 100);
     out.resize(kSizeOfVector, 0);
-    std::vector<int> answer(in);
+    answer = in;
     std::ranges::sort(answer);
     // Create task_data
     task_data_seq->inputs.emplace_back(reinterpret_cast<uint8_t *>(in.data()));
@@ -1009,7 +1007,7 @@ TEST(volochaev_s_Shell_sort_with_Batchers_even_odd_merge_all, test_with_len_Ferm
     in.resize(kSizeOfVector, 0);
     GetRandomVector(in, -100, 100);
     out.resize(kSizeOfVector, 0);
-    std::vector<int> answer(in);
+    answer = in;
     std::ranges::sort(answer);
     // Create task_data
     task_data_seq->inputs.emplace_back(reinterpret_cast<uint8_t *>(in.data()));
@@ -1038,7 +1036,7 @@ TEST(volochaev_s_Shell_sort_with_Batchers_even_odd_merge_all, test_with_len_Ferm
     in.resize(kSizeOfVector, 0);
     GetRandomVector(in, -100, 100);
     out.resize(kSizeOfVector, 0);
-    std::vector<int> answer(in);
+    answer = in;
     std::ranges::sort(answer);
     // Create task_data
     task_data_seq->inputs.emplace_back(reinterpret_cast<uint8_t *>(in.data()));
@@ -1067,7 +1065,7 @@ TEST(volochaev_s_Shell_sort_with_Batchers_even_odd_merge_all, test_with_len_Eule
     in.resize(kSizeOfVector, 0);
     GetRandomVector(in, -100, 100);
     out.resize(kSizeOfVector, 0);
-    std::vector<int> answer(in);
+    answer = in;
     std::ranges::sort(answer);
     // Create task_data
     task_data_seq->inputs.emplace_back(reinterpret_cast<uint8_t *>(in.data()));
@@ -1096,7 +1094,7 @@ TEST(volochaev_s_Shell_sort_with_Batchers_even_odd_merge_all, test_with_len_Eule
     in.resize(kSizeOfVector, 0);
     GetRandomVector(in, -100, 100);
     out.resize(kSizeOfVector, 0);
-    std::vector<int> answer(in);
+    answer = in;
     std::ranges::sort(answer);
     // Create task_data
     task_data_seq->inputs.emplace_back(reinterpret_cast<uint8_t *>(in.data()));
@@ -1125,7 +1123,7 @@ TEST(volochaev_s_Shell_sort_with_Batchers_even_odd_merge_all, test_with_len_Eule
     in.resize(kSizeOfVector, 0);
     GetRandomVector(in, -100, 100);
     out.resize(kSizeOfVector, 0);
-    std::vector<int> answer(in);
+    answer = in;
     std::ranges::sort(answer);
     // Create task_data
     task_data_seq->inputs.emplace_back(reinterpret_cast<uint8_t *>(in.data()));
@@ -1154,7 +1152,7 @@ TEST(volochaev_s_Shell_sort_with_Batchers_even_odd_merge_all, test_with_len_Eule
     in.resize(kSizeOfVector, 0);
     GetRandomVector(in, -100, 100);
     out.resize(kSizeOfVector, 0);
-    std::vector<int> answer(in);
+    answer = in;
     std::ranges::sort(answer);
     // Create task_data
     task_data_seq->inputs.emplace_back(reinterpret_cast<uint8_t *>(in.data()));
@@ -1181,7 +1179,7 @@ TEST(volochaev_s_Shell_sort_with_Batchers_even_odd_merge_all, test_with_len_Eule
   in.resize(kSizeOfVector, 0);
   GetRandomVector(in, -100, 100);
   out.resize(kSizeOfVector, 0);
-  std::vector<int> answer(in);
+  answer = in;
   std::ranges::sort(answer);
   // Create task_data
   auto task_data_seq = std::make_shared<ppc::core::TaskData>();
@@ -1211,7 +1209,7 @@ TEST(volochaev_s_Shell_sort_with_Batchers_even_odd_merge_all, test_with_len_Eule
     in.resize(kSizeOfVector, 0);
     GetRandomVector(in, -100, 100);
     out.resize(kSizeOfVector, 0);
-    std::vector<int> answer(in);
+    answer = in;
     std::ranges::sort(answer);
     // Create task_data
     task_data_seq->inputs.emplace_back(reinterpret_cast<uint8_t *>(in.data()));
@@ -1240,7 +1238,7 @@ TEST(volochaev_s_Shell_sort_with_Batchers_even_odd_merge_all, test_with_len_Eule
     in.resize(kSizeOfVector, 0);
     GetRandomVector(in, -100, 100);
     out.resize(kSizeOfVector, 0);
-    std::vector<int> answer(in);
+    answer = in;
     std::ranges::sort(answer);
     // Create task_data
     task_data_seq->inputs.emplace_back(reinterpret_cast<uint8_t *>(in.data()));
@@ -1269,7 +1267,7 @@ TEST(volochaev_s_Shell_sort_with_Batchers_even_odd_merge_all, test_with_len_Eule
     in.resize(kSizeOfVector, 0);
     GetRandomVector(in, -100, 100);
     out.resize(kSizeOfVector, 0);
-    std::vector<int> answer(in);
+    answer = in;
     std::ranges::sort(answer);
     // Create task_data
     task_data_seq->inputs.emplace_back(reinterpret_cast<uint8_t *>(in.data()));
@@ -1298,7 +1296,7 @@ TEST(volochaev_s_Shell_sort_with_Batchers_even_odd_merge_all, test_with_len_Eule
     in.resize(kSizeOfVector, 0);
     GetRandomVector(in, -100, 100);
     out.resize(kSizeOfVector, 0);
-    std::vector<int> answer(in);
+    answer = in;
     std::ranges::sort(answer);
     // Create task_data
     task_data_seq->inputs.emplace_back(reinterpret_cast<uint8_t *>(in.data()));
@@ -1327,7 +1325,7 @@ TEST(volochaev_s_Shell_sort_with_Batchers_even_odd_merge_all, test_with_len_Eule
     in.resize(kSizeOfVector, 0);
     GetRandomVector(in, -100, 100);
     out.resize(kSizeOfVector, 0);
-    std::vector<int> answer(in);
+    answer = in;
     std::ranges::sort(answer);
     // Create task_data
     task_data_seq->inputs.emplace_back(reinterpret_cast<uint8_t *>(in.data()));
@@ -1356,7 +1354,7 @@ TEST(volochaev_s_Shell_sort_with_Batchers_even_odd_merge_all, test_with_len_Eule
     in.resize(kSizeOfVector, 0);
     GetRandomVector(in, -100, 100);
     out.resize(kSizeOfVector, 0);
-    std::vector<int> answer(in);
+    answer = in;
     std::ranges::sort(answer);
     // Create task_data
     task_data_seq->inputs.emplace_back(reinterpret_cast<uint8_t *>(in.data()));
@@ -1385,7 +1383,7 @@ TEST(volochaev_s_Shell_sort_with_Batchers_even_odd_merge_all, test_with_len_Eule
     in.resize(kSizeOfVector, 0);
     GetRandomVector(in, -100, 100);
     out.resize(kSizeOfVector, 0);
-    std::vector<int> answer(in);
+    answer = in;
     std::ranges::sort(answer);
     // Create task_data
     task_data_seq->inputs.emplace_back(reinterpret_cast<uint8_t *>(in.data()));
@@ -1414,7 +1412,7 @@ TEST(volochaev_s_Shell_sort_with_Batchers_even_odd_merge_all, test_with_len_Eule
     in.resize(kSizeOfVector, 0);
     GetRandomVector(in, -100, 100);
     out.resize(kSizeOfVector, 0);
-    std::vector<int> answer(in);
+    answer = in;
     std::ranges::sort(answer);
     // Create task_data
     task_data_seq->inputs.emplace_back(reinterpret_cast<uint8_t *>(in.data()));
@@ -1443,7 +1441,7 @@ TEST(volochaev_s_Shell_sort_with_Batchers_even_odd_merge_all, test_with_len_Eule
     in.resize(kSizeOfVector, 0);
     GetRandomVector(in, -100, 100);
     out.resize(kSizeOfVector, 0);
-    std::vector<int> answer(in);
+    answer = in;
     std::ranges::sort(answer);
     // Create task_data
     task_data_seq->inputs.emplace_back(reinterpret_cast<uint8_t *>(in.data()));
@@ -1472,7 +1470,7 @@ TEST(volochaev_s_Shell_sort_with_Batchers_even_odd_merge_all, test_with_len_Eule
     in.resize(kSizeOfVector, 0);
     GetRandomVector(in, -100, 100);
     out.resize(kSizeOfVector, 0);
-    std::vector<int> answer(in);
+    answer = in;
     std::ranges::sort(answer);
     // Create task_data
     task_data_seq->inputs.emplace_back(reinterpret_cast<uint8_t *>(in.data()));
@@ -1501,7 +1499,7 @@ TEST(volochaev_s_Shell_sort_with_Batchers_even_odd_merge_all, test_with_len_Eule
     in.resize(kSizeOfVector, 0);
     GetRandomVector(in, -100, 100);
     out.resize(kSizeOfVector, 0);
-    std::vector<int> answer(in);
+    answer = in;
     std::ranges::sort(answer);
     // Create task_data
     task_data_seq->inputs.emplace_back(reinterpret_cast<uint8_t *>(in.data()));
@@ -1530,7 +1528,7 @@ TEST(volochaev_s_Shell_sort_with_Batchers_even_odd_merge_all, test_with_len_Eule
     in.resize(kSizeOfVector, 0);
     GetRandomVector(in, -100, 100);
     out.resize(kSizeOfVector, 0);
-    std::vector<int> answer(in);
+    answer = in;
     std::ranges::sort(answer);
     // Create task_data
     task_data_seq->inputs.emplace_back(reinterpret_cast<uint8_t *>(in.data()));
@@ -1559,7 +1557,7 @@ TEST(volochaev_s_Shell_sort_with_Batchers_even_odd_merge_all, test_with_len_Eule
     in.resize(kSizeOfVector, 0);
     GetRandomVector(in, -100, 100);
     out.resize(kSizeOfVector, 0);
-    std::vector<int> answer(in);
+    answer = in;
     std::ranges::sort(answer);
     // Create task_data
     task_data_seq->inputs.emplace_back(reinterpret_cast<uint8_t *>(in.data()));
@@ -1588,7 +1586,7 @@ TEST(volochaev_s_Shell_sort_with_Batchers_even_odd_merge_all, test_with_len_Eule
     in.resize(kSizeOfVector, 0);
     GetRandomVector(in, -100, 100);
     out.resize(kSizeOfVector, 0);
-    std::vector<int> answer(in);
+    answer = in;
     std::ranges::sort(answer);
     // Create task_data
     task_data_seq->inputs.emplace_back(reinterpret_cast<uint8_t *>(in.data()));
@@ -1617,7 +1615,7 @@ TEST(volochaev_s_Shell_sort_with_Batchers_even_odd_merge_all, test_with_len_Eule
     in.resize(kSizeOfVector, 0);
     GetRandomVector(in, -100, 100);
     out.resize(kSizeOfVector, 0);
-    std::vector<int> answer(in);
+    answer = in;
     std::ranges::sort(answer);
     // Create task_data
     task_data_seq->inputs.emplace_back(reinterpret_cast<uint8_t *>(in.data()));
@@ -1646,7 +1644,7 @@ TEST(volochaev_s_Shell_sort_with_Batchers_even_odd_merge_all, test_with_len_Mers
     in.resize(kSizeOfVector, 0);
     GetRandomVector(in, -100, 100);
     out.resize(kSizeOfVector, 0);
-    std::vector<int> answer(in);
+    answer = in;
     std::ranges::sort(answer);
     // Create task_data
     task_data_seq->inputs.emplace_back(reinterpret_cast<uint8_t *>(in.data()));
@@ -1675,7 +1673,7 @@ TEST(volochaev_s_Shell_sort_with_Batchers_even_odd_merge_all, test_with_len_Mers
     in.resize(kSizeOfVector, 0);
     GetRandomVector(in, -100, 100);
     out.resize(kSizeOfVector, 0);
-    std::vector<int> answer(in);
+    answer = in;
     std::ranges::sort(answer);
     // Create task_data
     task_data_seq->inputs.emplace_back(reinterpret_cast<uint8_t *>(in.data()));
@@ -1704,7 +1702,7 @@ TEST(volochaev_s_Shell_sort_with_Batchers_even_odd_merge_all, test_with_len_Mers
     in.resize(kSizeOfVector, 0);
     GetRandomVector(in, -100, 100);
     out.resize(kSizeOfVector, 0);
-    std::vector<int> answer(in);
+    answer = in;
     std::ranges::sort(answer);
     // Create task_data
     task_data_seq->inputs.emplace_back(reinterpret_cast<uint8_t *>(in.data()));
@@ -1733,7 +1731,7 @@ TEST(volochaev_s_Shell_sort_with_Batchers_even_odd_merge_all, test_with_len_Mers
     in.resize(kSizeOfVector, 0);
     GetRandomVector(in, -100, 100);
     out.resize(kSizeOfVector, 0);
-    std::vector<int> answer(in);
+    answer = in;
     std::ranges::sort(answer);
     // Create task_data
     task_data_seq->inputs.emplace_back(reinterpret_cast<uint8_t *>(in.data()));
@@ -1762,7 +1760,7 @@ TEST(volochaev_s_Shell_sort_with_Batchers_even_odd_merge_all, test_with_len_Mers
     in.resize(kSizeOfVector, 0);
     GetRandomVector(in, -100, 100);
     out.resize(kSizeOfVector, 0);
-    std::vector<int> answer(in);
+    answer = in;
     std::ranges::sort(answer);
     // Create task_data
     task_data_seq->inputs.emplace_back(reinterpret_cast<uint8_t *>(in.data()));
@@ -1791,7 +1789,7 @@ TEST(volochaev_s_Shell_sort_with_Batchers_even_odd_merge_all, test_with_len_Luca
     in.resize(kSizeOfVector, 0);
     GetRandomVector(in, -100, 100);
     out.resize(kSizeOfVector, 0);
-    std::vector<int> answer(in);
+    answer = in;
     std::ranges::sort(answer);
     // Create task_data
     task_data_seq->inputs.emplace_back(reinterpret_cast<uint8_t *>(in.data()));
@@ -1820,7 +1818,7 @@ TEST(volochaev_s_Shell_sort_with_Batchers_even_odd_merge_all, test_with_len_Luca
     in.resize(kSizeOfVector, 0);
     GetRandomVector(in, -100, 100);
     out.resize(kSizeOfVector, 0);
-    std::vector<int> answer(in);
+    answer = in;
     std::ranges::sort(answer);
     // Create task_data
     task_data_seq->inputs.emplace_back(reinterpret_cast<uint8_t *>(in.data()));
@@ -1849,7 +1847,7 @@ TEST(volochaev_s_Shell_sort_with_Batchers_even_odd_merge_all, test_with_len_Luca
     in.resize(kSizeOfVector, 0);
     GetRandomVector(in, -100, 100);
     out.resize(kSizeOfVector, 0);
-    std::vector<int> answer(in);
+    answer = in;
     std::ranges::sort(answer);
     // Create task_data
     task_data_seq->inputs.emplace_back(reinterpret_cast<uint8_t *>(in.data()));
@@ -1878,7 +1876,7 @@ TEST(volochaev_s_Shell_sort_with_Batchers_even_odd_merge_all, test_with_len_Luca
     in.resize(kSizeOfVector, 0);
     GetRandomVector(in, -100, 100);
     out.resize(kSizeOfVector, 0);
-    std::vector<int> answer(in);
+    answer = in;
     std::ranges::sort(answer);
     // Create task_data
     task_data_seq->inputs.emplace_back(reinterpret_cast<uint8_t *>(in.data()));
@@ -1907,7 +1905,7 @@ TEST(volochaev_s_Shell_sort_with_Batchers_even_odd_merge_all, test_with_len_Luca
     in.resize(kSizeOfVector, 0);
     GetRandomVector(in, -100, 100);
     out.resize(kSizeOfVector, 0);
-    std::vector<int> answer(in);
+    answer = in;
     std::ranges::sort(answer);
     // Create task_data
     task_data_seq->inputs.emplace_back(reinterpret_cast<uint8_t *>(in.data()));
@@ -1936,7 +1934,7 @@ TEST(volochaev_s_Shell_sort_with_Batchers_even_odd_merge_all, test_with_len_Luca
     in.resize(kSizeOfVector, 0);
     GetRandomVector(in, -100, 100);
     out.resize(kSizeOfVector, 0);
-    std::vector<int> answer(in);
+    answer = in;
     std::ranges::sort(answer);
     // Create task_data
     task_data_seq->inputs.emplace_back(reinterpret_cast<uint8_t *>(in.data()));
@@ -1965,7 +1963,7 @@ TEST(volochaev_s_Shell_sort_with_Batchers_even_odd_merge_all, test_with_len_Luca
     in.resize(kSizeOfVector, 0);
     GetRandomVector(in, -100, 100);
     out.resize(kSizeOfVector, 0);
-    std::vector<int> answer(in);
+    answer = in;
     std::ranges::sort(answer);
     // Create task_data
     task_data_seq->inputs.emplace_back(reinterpret_cast<uint8_t *>(in.data()));
@@ -1994,7 +1992,7 @@ TEST(volochaev_s_Shell_sort_with_Batchers_even_odd_merge_all, test_with_len_Luca
     in.resize(kSizeOfVector, 0);
     GetRandomVector(in, -100, 100);
     out.resize(kSizeOfVector, 0);
-    std::vector<int> answer(in);
+    answer = in;
     std::ranges::sort(answer);
     // Create task_data
     task_data_seq->inputs.emplace_back(reinterpret_cast<uint8_t *>(in.data()));
@@ -2023,7 +2021,7 @@ TEST(volochaev_s_Shell_sort_with_Batchers_even_odd_merge_all, test_with_len_Luca
     in.resize(kSizeOfVector, 0);
     GetRandomVector(in, -100, 100);
     out.resize(kSizeOfVector, 0);
-    std::vector<int> answer(in);
+    answer = in;
     std::ranges::sort(answer);
     // Create task_data
     task_data_seq->inputs.emplace_back(reinterpret_cast<uint8_t *>(in.data()));
@@ -2052,7 +2050,7 @@ TEST(volochaev_s_Shell_sort_with_Batchers_even_odd_merge_all, test_with_len_Luca
     in.resize(kSizeOfVector, 0);
     GetRandomVector(in, -100, 100);
     out.resize(kSizeOfVector, 0);
-    std::vector<int> answer(in);
+    answer = in;
     std::ranges::sort(answer);
     // Create task_data
     task_data_seq->inputs.emplace_back(reinterpret_cast<uint8_t *>(in.data()));
@@ -2081,7 +2079,7 @@ TEST(volochaev_s_Shell_sort_with_Batchers_even_odd_merge_all, test_with_len_Luca
     in.resize(kSizeOfVector, 0);
     GetRandomVector(in, -100, 100);
     out.resize(kSizeOfVector, 0);
-    std::vector<int> answer(in);
+    answer = in;
     std::ranges::sort(answer);
     // Create task_data
     task_data_seq->inputs.emplace_back(reinterpret_cast<uint8_t *>(in.data()));
@@ -2110,7 +2108,7 @@ TEST(volochaev_s_Shell_sort_with_Batchers_even_odd_merge_all, test_with_len_Luca
     in.resize(kSizeOfVector, 0);
     GetRandomVector(in, -100, 100);
     out.resize(kSizeOfVector, 0);
-    std::vector<int> answer(in);
+    answer = in;
     std::ranges::sort(answer);
     // Create task_data
     task_data_seq->inputs.emplace_back(reinterpret_cast<uint8_t *>(in.data()));
@@ -2139,7 +2137,7 @@ TEST(volochaev_s_Shell_sort_with_Batchers_even_odd_merge_all, test_with_len_Luca
     in.resize(kSizeOfVector, 0);
     GetRandomVector(in, -100, 100);
     out.resize(kSizeOfVector, 0);
-    std::vector<int> answer(in);
+    answer = in;
     std::ranges::sort(answer);
     // Create task_data
     task_data_seq->inputs.emplace_back(reinterpret_cast<uint8_t *>(in.data()));
@@ -2168,7 +2166,7 @@ TEST(volochaev_s_Shell_sort_with_Batchers_even_odd_merge_all, test_with_len_Rama
     in.resize(kSizeOfVector, 0);
     GetRandomVector(in, -100, 100);
     out.resize(kSizeOfVector, 0);
-    std::vector<int> answer(in);
+    answer = in;
     std::ranges::sort(answer);
     // Create task_data
     task_data_seq->inputs.emplace_back(reinterpret_cast<uint8_t *>(in.data()));
@@ -2197,7 +2195,7 @@ TEST(volochaev_s_Shell_sort_with_Batchers_even_odd_merge_all, test_with_len_Rama
     in.resize(kSizeOfVector, 0);
     GetRandomVector(in, -100, 100);
     out.resize(kSizeOfVector, 0);
-    std::vector<int> answer(in);
+    answer = in;
     std::ranges::sort(answer);
     // Create task_data
     task_data_seq->inputs.emplace_back(reinterpret_cast<uint8_t *>(in.data()));
@@ -2226,7 +2224,7 @@ TEST(volochaev_s_Shell_sort_with_Batchers_even_odd_merge_all, test_with_len_Rama
     in.resize(kSizeOfVector, 0);
     GetRandomVector(in, -100, 100);
     out.resize(kSizeOfVector, 0);
-    std::vector<int> answer(in);
+    answer = in;
     std::ranges::sort(answer);
     // Create task_data
     task_data_seq->inputs.emplace_back(reinterpret_cast<uint8_t *>(in.data()));
@@ -2255,7 +2253,7 @@ TEST(volochaev_s_Shell_sort_with_Batchers_even_odd_merge_all, test_with_len_Rama
     in.resize(kSizeOfVector, 0);
     GetRandomVector(in, -100, 100);
     out.resize(kSizeOfVector, 0);
-    std::vector<int> answer(in);
+    answer = in;
     std::ranges::sort(answer);
     // Create task_data
     task_data_seq->inputs.emplace_back(reinterpret_cast<uint8_t *>(in.data()));
@@ -2284,7 +2282,7 @@ TEST(volochaev_s_Shell_sort_with_Batchers_even_odd_merge_all, test_with_len_Rama
     in.resize(kSizeOfVector, 0);
     GetRandomVector(in, -100, 100);
     out.resize(kSizeOfVector, 0);
-    std::vector<int> answer(in);
+    answer = in;
     std::ranges::sort(answer);
     // Create task_data
     task_data_seq->inputs.emplace_back(reinterpret_cast<uint8_t *>(in.data()));
@@ -2313,7 +2311,7 @@ TEST(volochaev_s_Shell_sort_with_Batchers_even_odd_merge_all, test_with_len_Rama
     in.resize(kSizeOfVector, 0);
     GetRandomVector(in, -100, 100);
     out.resize(kSizeOfVector, 0);
-    std::vector<int> answer(in);
+    answer = in;
     std::ranges::sort(answer);
     // Create task_data
     task_data_seq->inputs.emplace_back(reinterpret_cast<uint8_t *>(in.data()));
@@ -2342,7 +2340,7 @@ TEST(volochaev_s_Shell_sort_with_Batchers_even_odd_merge_all, test_with_len_Rama
     in.resize(kSizeOfVector, 0);
     GetRandomVector(in, -100, 100);
     out.resize(kSizeOfVector, 0);
-    std::vector<int> answer(in);
+    answer = in;
     std::ranges::sort(answer);
     // Create task_data
     task_data_seq->inputs.emplace_back(reinterpret_cast<uint8_t *>(in.data()));
@@ -2371,7 +2369,7 @@ TEST(volochaev_s_Shell_sort_with_Batchers_even_odd_merge_all, test_with_len_Rama
     in.resize(kSizeOfVector, 0);
     GetRandomVector(in, -100, 100);
     out.resize(kSizeOfVector, 0);
-    std::vector<int> answer(in);
+    answer = in;
     std::ranges::sort(answer);
     // Create task_data
     task_data_seq->inputs.emplace_back(reinterpret_cast<uint8_t *>(in.data()));
@@ -2400,7 +2398,7 @@ TEST(volochaev_s_Shell_sort_with_Batchers_even_odd_merge_all, test_with_len_Rama
     in.resize(kSizeOfVector, 0);
     GetRandomVector(in, -100, 100);
     out.resize(kSizeOfVector, 0);
-    std::vector<int> answer(in);
+    answer = in;
     std::ranges::sort(answer);
     // Create task_data
     task_data_seq->inputs.emplace_back(reinterpret_cast<uint8_t *>(in.data()));
@@ -2429,7 +2427,7 @@ TEST(volochaev_s_Shell_sort_with_Batchers_even_odd_merge_all, test_with_len_Rama
     in.resize(kSizeOfVector, 0);
     GetRandomVector(in, -100, 100);
     out.resize(kSizeOfVector, 0);
-    std::vector<int> answer(in);
+    answer = in;
     std::ranges::sort(answer);
     // Create task_data
     task_data_seq->inputs.emplace_back(reinterpret_cast<uint8_t *>(in.data()));
@@ -2458,7 +2456,7 @@ TEST(volochaev_s_Shell_sort_with_Batchers_even_odd_merge_all, test_with_len_Rama
     in.resize(kSizeOfVector, 0);
     GetRandomVector(in, -100, 100);
     out.resize(kSizeOfVector, 0);
-    std::vector<int> answer(in);
+    answer = in;
     std::ranges::sort(answer);
     // Create task_data
     task_data_seq->inputs.emplace_back(reinterpret_cast<uint8_t *>(in.data()));
@@ -2487,7 +2485,7 @@ TEST(volochaev_s_Shell_sort_with_Batchers_even_odd_merge_all, test_with_len_Rama
     in.resize(kSizeOfVector, 0);
     GetRandomVector(in, -100, 100);
     out.resize(kSizeOfVector, 0);
-    std::vector<int> answer(in);
+    answer = in;
     std::ranges::sort(answer);
     // Create task_data
     task_data_seq->inputs.emplace_back(reinterpret_cast<uint8_t *>(in.data()));
@@ -2516,7 +2514,7 @@ TEST(volochaev_s_Shell_sort_with_Batchers_even_odd_merge_all, test_with_len_Rama
     in.resize(kSizeOfVector, 0);
     GetRandomVector(in, -100, 100);
     out.resize(kSizeOfVector, 0);
-    std::vector<int> answer(in);
+    answer = in;
     std::ranges::sort(answer);
     // Create task_data
     task_data_seq->inputs.emplace_back(reinterpret_cast<uint8_t *>(in.data()));
@@ -2545,7 +2543,7 @@ TEST(volochaev_s_Shell_sort_with_Batchers_even_odd_merge_all, test_with_len_Rama
     in.resize(kSizeOfVector, 0);
     GetRandomVector(in, -100, 100);
     out.resize(kSizeOfVector, 0);
-    std::vector<int> answer(in);
+    answer = in;
     std::ranges::sort(answer);
     // Create task_data
     task_data_seq->inputs.emplace_back(reinterpret_cast<uint8_t *>(in.data()));
@@ -2574,7 +2572,7 @@ TEST(volochaev_s_Shell_sort_with_Batchers_even_odd_merge_all, test_with_len_Rama
     in.resize(kSizeOfVector, 0);
     GetRandomVector(in, -100, 100);
     out.resize(kSizeOfVector, 0);
-    std::vector<int> answer(in);
+    answer = in;
     std::ranges::sort(answer);
     // Create task_data
     task_data_seq->inputs.emplace_back(reinterpret_cast<uint8_t *>(in.data()));
@@ -2603,7 +2601,7 @@ TEST(volochaev_s_Shell_sort_with_Batchers_even_odd_merge_all, test_with_len_Rama
     in.resize(kSizeOfVector, 0);
     GetRandomVector(in, -100, 100);
     out.resize(kSizeOfVector, 0);
-    std::vector<int> answer(in);
+    answer = in;
     std::ranges::sort(answer);
     // Create task_data
     task_data_seq->inputs.emplace_back(reinterpret_cast<uint8_t *>(in.data()));
@@ -2632,7 +2630,7 @@ TEST(volochaev_s_Shell_sort_with_Batchers_even_odd_merge_all, test_with_len_Rama
     in.resize(kSizeOfVector, 0);
     GetRandomVector(in, -100, 100);
     out.resize(kSizeOfVector, 0);
-    std::vector<int> answer(in);
+    answer = in;
     std::ranges::sort(answer);
     // Create task_data
     task_data_seq->inputs.emplace_back(reinterpret_cast<uint8_t *>(in.data()));
@@ -2661,7 +2659,7 @@ TEST(volochaev_s_Shell_sort_with_Batchers_even_odd_merge_all, test_with_len_Rama
     in.resize(kSizeOfVector, 0);
     GetRandomVector(in, -100, 100);
     out.resize(kSizeOfVector, 0);
-    std::vector<int> answer(in);
+    answer = in;
     std::ranges::sort(answer);
     // Create task_data
     task_data_seq->inputs.emplace_back(reinterpret_cast<uint8_t *>(in.data()));
@@ -2690,7 +2688,7 @@ TEST(volochaev_s_Shell_sort_with_Batchers_even_odd_merge_all, test_with_len_Rama
     in.resize(kSizeOfVector, 0);
     GetRandomVector(in, -100, 100);
     out.resize(kSizeOfVector, 0);
-    std::vector<int> answer(in);
+    answer = in;
     std::ranges::sort(answer);
     // Create task_data
     task_data_seq->inputs.emplace_back(reinterpret_cast<uint8_t *>(in.data()));
@@ -2719,7 +2717,7 @@ TEST(volochaev_s_Shell_sort_with_Batchers_even_odd_merge_all, test_with_len_Rama
     in.resize(kSizeOfVector, 0);
     GetRandomVector(in, -100, 100);
     out.resize(kSizeOfVector, 0);
-    std::vector<int> answer(in);
+    answer = in;
     std::ranges::sort(answer);
     // Create task_data
     task_data_seq->inputs.emplace_back(reinterpret_cast<uint8_t *>(in.data()));
@@ -2748,7 +2746,7 @@ TEST(volochaev_s_Shell_sort_with_Batchers_even_odd_merge_all, test_with_len_Rama
     in.resize(kSizeOfVector, 0);
     GetRandomVector(in, -100, 100);
     out.resize(kSizeOfVector, 0);
-    std::vector<int> answer(in);
+    answer = in;
     std::ranges::sort(answer);
     // Create task_data
     task_data_seq->inputs.emplace_back(reinterpret_cast<uint8_t *>(in.data()));
@@ -2777,7 +2775,7 @@ TEST(volochaev_s_Shell_sort_with_Batchers_even_odd_merge_all, test_with_len_Rama
     in.resize(kSizeOfVector, 0);
     GetRandomVector(in, -100, 100);
     out.resize(kSizeOfVector, 0);
-    std::vector<int> answer(in);
+    answer = in;
     std::ranges::sort(answer);
     // Create task_data
     task_data_seq->inputs.emplace_back(reinterpret_cast<uint8_t *>(in.data()));
@@ -2806,7 +2804,7 @@ TEST(volochaev_s_Shell_sort_with_Batchers_even_odd_merge_all, test_with_len_Rama
     in.resize(kSizeOfVector, 0);
     GetRandomVector(in, -100, 100);
     out.resize(kSizeOfVector, 0);
-    std::vector<int> answer(in);
+    answer = in;
     std::ranges::sort(answer);
     // Create task_data
     task_data_seq->inputs.emplace_back(reinterpret_cast<uint8_t *>(in.data()));
@@ -2835,7 +2833,7 @@ TEST(volochaev_s_Shell_sort_with_Batchers_even_odd_merge_all, test_with_len_Carm
     in.resize(kSizeOfVector, 0);
     GetRandomVector(in, -100, 100);
     out.resize(kSizeOfVector, 0);
-    std::vector<int> answer(in);
+    answer = in;
     std::ranges::sort(answer);
     // Create task_data
     task_data_seq->inputs.emplace_back(reinterpret_cast<uint8_t *>(in.data()));
@@ -2864,7 +2862,7 @@ TEST(volochaev_s_Shell_sort_with_Batchers_even_odd_merge_all, test_with_len_Carm
     in.resize(kSizeOfVector, 0);
     GetRandomVector(in, -100, 100);
     out.resize(kSizeOfVector, 0);
-    std::vector<int> answer(in);
+    answer = in;
     std::ranges::sort(answer);
     // Create task_data
     task_data_seq->inputs.emplace_back(reinterpret_cast<uint8_t *>(in.data()));
@@ -2893,7 +2891,7 @@ TEST(volochaev_s_Shell_sort_with_Batchers_even_odd_merge_all, test_with_len_Carm
     in.resize(kSizeOfVector, 0);
     GetRandomVector(in, -100, 100);
     out.resize(kSizeOfVector, 0);
-    std::vector<int> answer(in);
+    answer = in;
     std::ranges::sort(answer);
     // Create task_data
     task_data_seq->inputs.emplace_back(reinterpret_cast<uint8_t *>(in.data()));
@@ -2922,7 +2920,7 @@ TEST(volochaev_s_shell_sort_with_batchers_even_odd_merge_all, test_with_Stirling
     in.resize(kSizeOfVector, 0);
     GetRandomVector(in, -100, 100);
     out.resize(kSizeOfVector, 0);
-    std::vector<int> answer(in);
+    answer = in;
     std::ranges::sort(answer);
 
     // Create task_data
@@ -2952,7 +2950,7 @@ TEST(volochaev_s_shell_sort_with_batchers_even_odd_merge_all, test_with_Stirling
     in.resize(kSizeOfVector, 0);
     GetRandomVector(in, -100, 100);
     out.resize(kSizeOfVector, 0);
-    std::vector<int> answer(in);
+    answer = in;
     std::ranges::sort(answer);
 
     // Create task_data
@@ -2982,7 +2980,7 @@ TEST(volochaev_s_shell_sort_with_batchers_even_odd_merge_all, test_with_Stirling
     in.resize(kSizeOfVector, 0);
     GetRandomVector(in, -100, 100);
     out.resize(kSizeOfVector, 0);
-    std::vector<int> answer(in);
+    answer = in;
     std::ranges::sort(answer);
 
     // Create task_data
@@ -3012,7 +3010,7 @@ TEST(volochaev_s_shell_sort_with_batchers_even_odd_merge_all, test_with_Stirling
     in.resize(kSizeOfVector, 0);
     GetRandomVector(in, -100, 100);
     out.resize(kSizeOfVector, 0);
-    std::vector<int> answer(in);
+    answer = in;
     std::ranges::sort(answer);
 
     // Create task_data
@@ -3042,7 +3040,7 @@ TEST(volochaev_s_shell_sort_with_batchers_even_odd_merge_all, test_with_Stirling
     in.resize(kSizeOfVector, 0);
     GetRandomVector(in, -100, 100);
     out.resize(kSizeOfVector, 0);
-    std::vector<int> answer(in);
+    answer = in;
     std::ranges::sort(answer);
 
     // Create task_data
@@ -3072,7 +3070,7 @@ TEST(volochaev_s_shell_sort_with_batchers_even_odd_merge_all, test_with_Stirling
     in.resize(kSizeOfVector, 0);
     GetRandomVector(in, -100, 100);
     out.resize(kSizeOfVector, 0);
-    std::vector<int> answer(in);
+    answer = in;
     std::ranges::sort(answer);
 
     // Create task_data
@@ -3102,7 +3100,7 @@ TEST(volochaev_s_shell_sort_with_batchers_even_odd_merge_all, test_with_Stirling
     in.resize(kSizeOfVector, 0);
     GetRandomVector(in, -100, 100);
     out.resize(kSizeOfVector, 0);
-    std::vector<int> answer(in);
+    answer = in;
     std::ranges::sort(answer);
 
     // Create task_data
@@ -3132,7 +3130,7 @@ TEST(volochaev_s_shell_sort_with_batchers_even_odd_merge_all, test_with_Stirling
     in.resize(kSizeOfVector, 0);
     GetRandomVector(in, -100, 100);
     out.resize(kSizeOfVector, 0);
-    std::vector<int> answer(in);
+    answer = in;
     std::ranges::sort(answer);
 
     // Create task_data
@@ -3162,7 +3160,7 @@ TEST(volochaev_s_shell_sort_with_batchers_even_odd_merge_all, test_with_Stirling
     in.resize(kSizeOfVector, 0);
     GetRandomVector(in, -100, 100);
     out.resize(kSizeOfVector, 0);
-    std::vector<int> answer(in);
+    answer = in;
     std::ranges::sort(answer);
 
     // Create task_data
@@ -3192,7 +3190,7 @@ TEST(volochaev_s_shell_sort_with_batchers_even_odd_merge_all, test_with_Stirling
     in.resize(kSizeOfVector, 0);
     GetRandomVector(in, -100, 100);
     out.resize(kSizeOfVector, 0);
-    std::vector<int> answer(in);
+    answer = in;
     std::ranges::sort(answer);
 
     // Create task_data
@@ -3222,7 +3220,7 @@ TEST(volochaev_s_shell_sort_with_batchers_even_odd_merge_all, test_with_Stirling
     in.resize(kSizeOfVector, 0);
     GetRandomVector(in, -100, 100);
     out.resize(kSizeOfVector, 0);
-    std::vector<int> answer(in);
+    answer = in;
     std::ranges::sort(answer);
 
     // Create task_data
@@ -3252,7 +3250,7 @@ TEST(volochaev_s_shell_sort_with_batchers_even_odd_merge_all, test_with_Stirling
     in.resize(kSizeOfVector, 0);
     GetRandomVector(in, -100, 100);
     out.resize(kSizeOfVector, 0);
-    std::vector<int> answer(in);
+    answer = in;
     std::ranges::sort(answer);
 
     // Create task_data
@@ -3282,7 +3280,7 @@ TEST(volochaev_s_shell_sort_with_batchers_even_odd_merge_all, test_with_Stirling
     in.resize(kSizeOfVector, 0);
     GetRandomVector(in, -100, 100);
     out.resize(kSizeOfVector, 0);
-    std::vector<int> answer(in);
+    answer = in;
     std::ranges::sort(answer);
 
     // Create task_data
@@ -3312,7 +3310,7 @@ TEST(volochaev_s_shell_sort_with_batchers_even_odd_merge_all, test_with_Stirling
     in.resize(kSizeOfVector, 0);
     GetRandomVector(in, -100, 100);
     out.resize(kSizeOfVector, 0);
-    std::vector<int> answer(in);
+    answer = in;
     std::ranges::sort(answer);
 
     // Create task_data
@@ -3342,7 +3340,7 @@ TEST(volochaev_s_shell_sort_with_batchers_even_odd_merge_all, test_with_Stirling
     in.resize(kSizeOfVector, 0);
     GetRandomVector(in, -100, 100);
     out.resize(kSizeOfVector, 0);
-    std::vector<int> answer(in);
+    answer = in;
     std::ranges::sort(answer);
 
     // Create task_data
@@ -3372,7 +3370,7 @@ TEST(volochaev_s_shell_sort_with_batchers_even_odd_merge_all, test_with_Stirling
     in.resize(kSizeOfVector, 0);
     GetRandomVector(in, -100, 100);
     out.resize(kSizeOfVector, 0);
-    std::vector<int> answer(in);
+    answer = in;
     std::ranges::sort(answer);
 
     // Create task_data
@@ -3402,187 +3400,7 @@ TEST(volochaev_s_shell_sort_with_batchers_even_odd_merge_all, test_with_Stirling
     in.resize(kSizeOfVector, 0);
     GetRandomVector(in, -100, 100);
     out.resize(kSizeOfVector, 0);
-    std::vector<int> answer(in);
-    std::ranges::sort(answer);
-
-    // Create task_data
-    task_data_seq->inputs.emplace_back(reinterpret_cast<uint8_t *>(in.data()));
-    task_data_seq->inputs_count.emplace_back(in.size());
-    task_data_seq->outputs.emplace_back(reinterpret_cast<uint8_t *>(out.data()));
-    task_data_seq->outputs_count.emplace_back(out.size());
-  }
-  // Create Task
-  volochaev_s_shell_sort_with_batchers_even_odd_merge_all::ShellSortALL test_task_sequential(task_data_seq);
-  ASSERT_EQ(test_task_sequential.Validation(), true);
-  test_task_sequential.PreProcessing();
-  test_task_sequential.Run();
-  test_task_sequential.PostProcessing();
-  EXPECT_EQ(answer, out);
-}
-
-TEST(volochaev_s_shell_sort_with_batchers_even_odd_merge_all, test_with_Stirling_size_n_k_9_1) {
-  constexpr size_t kSizeOfVector = 40320;
-  boost::mpi::communicator world;
-  std::vector<int> in;
-  std::vector<int> out;
-  std::vector<int> answer;
-  auto task_data_seq = std::make_shared<ppc::core::TaskData>();
-  if (world.rank() == 0) {
-    // Create data
-    in.resize(kSizeOfVector, 0);
-    GetRandomVector(in, -100, 100);
-    out.resize(kSizeOfVector, 0);
-    std::vector<int> answer(in);
-    std::ranges::sort(answer);
-
-    // Create task_data
-    task_data_seq->inputs.emplace_back(reinterpret_cast<uint8_t *>(in.data()));
-    task_data_seq->inputs_count.emplace_back(in.size());
-    task_data_seq->outputs.emplace_back(reinterpret_cast<uint8_t *>(out.data()));
-    task_data_seq->outputs_count.emplace_back(out.size());
-  }
-  // Create Task
-  volochaev_s_shell_sort_with_batchers_even_odd_merge_all::ShellSortALL test_task_sequential(task_data_seq);
-  ASSERT_EQ(test_task_sequential.Validation(), true);
-  test_task_sequential.PreProcessing();
-  test_task_sequential.Run();
-  test_task_sequential.PostProcessing();
-  EXPECT_EQ(answer, out);
-}
-
-TEST(volochaev_s_shell_sort_with_batchers_even_odd_merge_all, test_with_Stirling_size_n_k_9_2) {
-  constexpr size_t kSizeOfVector = 109584;
-  boost::mpi::communicator world;
-  std::vector<int> in;
-  std::vector<int> out;
-  std::vector<int> answer;
-  auto task_data_seq = std::make_shared<ppc::core::TaskData>();
-  if (world.rank() == 0) {
-    // Create data
-    in.resize(kSizeOfVector, 0);
-    GetRandomVector(in, -100, 100);
-    out.resize(kSizeOfVector, 0);
-    std::vector<int> answer(in);
-    std::ranges::sort(answer);
-
-    // Create task_data
-    task_data_seq->inputs.emplace_back(reinterpret_cast<uint8_t *>(in.data()));
-    task_data_seq->inputs_count.emplace_back(in.size());
-    task_data_seq->outputs.emplace_back(reinterpret_cast<uint8_t *>(out.data()));
-    task_data_seq->outputs_count.emplace_back(out.size());
-  }
-  // Create Task
-  volochaev_s_shell_sort_with_batchers_even_odd_merge_all::ShellSortALL test_task_sequential(task_data_seq);
-  ASSERT_EQ(test_task_sequential.Validation(), true);
-  test_task_sequential.PreProcessing();
-  test_task_sequential.Run();
-  test_task_sequential.PostProcessing();
-  EXPECT_EQ(answer, out);
-}
-
-TEST(volochaev_s_shell_sort_with_batchers_even_odd_merge_all, test_with_Stirling_size_n_k_9_3) {
-  constexpr size_t kSizeOfVector = 118124;
-  boost::mpi::communicator world;
-  std::vector<int> in;
-  std::vector<int> out;
-  std::vector<int> answer;
-  auto task_data_seq = std::make_shared<ppc::core::TaskData>();
-  if (world.rank() == 0) {
-    // Create data
-    in.resize(kSizeOfVector, 0);
-    GetRandomVector(in, -100, 100);
-    out.resize(kSizeOfVector, 0);
-    std::vector<int> answer(in);
-    std::ranges::sort(answer);
-
-    // Create task_data
-    task_data_seq->inputs.emplace_back(reinterpret_cast<uint8_t *>(in.data()));
-    task_data_seq->inputs_count.emplace_back(in.size());
-    task_data_seq->outputs.emplace_back(reinterpret_cast<uint8_t *>(out.data()));
-    task_data_seq->outputs_count.emplace_back(out.size());
-  }
-  // Create Task
-  volochaev_s_shell_sort_with_batchers_even_odd_merge_all::ShellSortALL test_task_sequential(task_data_seq);
-  ASSERT_EQ(test_task_sequential.Validation(), true);
-  test_task_sequential.PreProcessing();
-  test_task_sequential.Run();
-  test_task_sequential.PostProcessing();
-  EXPECT_EQ(answer, out);
-}
-
-TEST(volochaev_s_shell_sort_with_batchers_even_odd_merge_all, test_with_Stirling_size_n_k_9_4) {
-  constexpr size_t kSizeOfVector = 67284;
-  boost::mpi::communicator world;
-  std::vector<int> in;
-  std::vector<int> out;
-  std::vector<int> answer;
-  auto task_data_seq = std::make_shared<ppc::core::TaskData>();
-  if (world.rank() == 0) {
-    // Create data
-    in.resize(kSizeOfVector, 0);
-    GetRandomVector(in, -100, 100);
-    out.resize(kSizeOfVector, 0);
-    std::vector<int> answer(in);
-    std::ranges::sort(answer);
-
-    // Create task_data
-    task_data_seq->inputs.emplace_back(reinterpret_cast<uint8_t *>(in.data()));
-    task_data_seq->inputs_count.emplace_back(in.size());
-    task_data_seq->outputs.emplace_back(reinterpret_cast<uint8_t *>(out.data()));
-    task_data_seq->outputs_count.emplace_back(out.size());
-  }
-  // Create Task
-  volochaev_s_shell_sort_with_batchers_even_odd_merge_all::ShellSortALL test_task_sequential(task_data_seq);
-  ASSERT_EQ(test_task_sequential.Validation(), true);
-  test_task_sequential.PreProcessing();
-  test_task_sequential.Run();
-  test_task_sequential.PostProcessing();
-  EXPECT_EQ(answer, out);
-}
-
-TEST(volochaev_s_shell_sort_with_batchers_even_odd_merge_all, test_with_Stirling_size_n_k_9_5) {
-  constexpr size_t kSizeOfVector = 22449;
-  boost::mpi::communicator world;
-  std::vector<int> in;
-  std::vector<int> out;
-  std::vector<int> answer;
-  auto task_data_seq = std::make_shared<ppc::core::TaskData>();
-  if (world.rank() == 0) {
-    // Create data
-    in.resize(kSizeOfVector, 0);
-    GetRandomVector(in, -100, 100);
-    out.resize(kSizeOfVector, 0);
-    std::vector<int> answer(in);
-    std::ranges::sort(answer);
-
-    // Create task_data
-    task_data_seq->inputs.emplace_back(reinterpret_cast<uint8_t *>(in.data()));
-    task_data_seq->inputs_count.emplace_back(in.size());
-    task_data_seq->outputs.emplace_back(reinterpret_cast<uint8_t *>(out.data()));
-    task_data_seq->outputs_count.emplace_back(out.size());
-  }
-  // Create Task
-  volochaev_s_shell_sort_with_batchers_even_odd_merge_all::ShellSortALL test_task_sequential(task_data_seq);
-  ASSERT_EQ(test_task_sequential.Validation(), true);
-  test_task_sequential.PreProcessing();
-  test_task_sequential.Run();
-  test_task_sequential.PostProcessing();
-  EXPECT_EQ(answer, out);
-}
-
-TEST(volochaev_s_shell_sort_with_batchers_even_odd_merge_all, test_with_Stirling_size_n_k_9_6) {
-  constexpr size_t kSizeOfVector = 4536;
-  boost::mpi::communicator world;
-  std::vector<int> in;
-  std::vector<int> out;
-  std::vector<int> answer;
-  auto task_data_seq = std::make_shared<ppc::core::TaskData>();
-  if (world.rank() == 0) {
-    // Create data
-    in.resize(kSizeOfVector, 0);
-    GetRandomVector(in, -100, 100);
-    out.resize(kSizeOfVector, 0);
-    std::vector<int> answer(in);
+    answer = in;
     std::ranges::sort(answer);
 
     // Create task_data
@@ -3612,7 +3430,7 @@ TEST(volochaev_s_shell_sort_with_batchers_even_odd_merge_all, test_with_Stirling
     in.resize(kSizeOfVector, 0);
     GetRandomVector(in, -100, 100);
     out.resize(kSizeOfVector, 0);
-    std::vector<int> answer(in);
+    answer = in;
     std::ranges::sort(answer);
 
     // Create task_data
@@ -3642,7 +3460,7 @@ TEST(volochaev_s_shell_sort_with_batchers_even_odd_merge_all, test_with_Stirling
     in.resize(kSizeOfVector, 0);
     GetRandomVector(in, -100, 100);
     out.resize(kSizeOfVector, 0);
-    std::vector<int> answer(in);
+    answer = in;
     std::ranges::sort(answer);
 
     // Create task_data
@@ -3672,7 +3490,7 @@ TEST(volochaev_s_shell_sort_with_batchers_even_odd_merge_all, test_with_Stirling
     in.resize(kSizeOfVector, 0);
     GetRandomVector(in, -100, 100);
     out.resize(kSizeOfVector, 0);
-    std::vector<int> answer(in);
+    answer = in;
     std::ranges::sort(answer);
 
     // Create task_data
@@ -3702,7 +3520,7 @@ TEST(volochaev_s_shell_sort_with_batchers_even_odd_merge_all, test_with_Katalan_
     in.resize(kSizeOfVector, 0);
     GetRandomVector(in, -100, 100);
     out.resize(kSizeOfVector, 0);
-    std::vector<int> answer(in);
+    answer = in;
     std::ranges::sort(answer);
 
     // Create task_data
@@ -3732,7 +3550,7 @@ TEST(volochaev_s_shell_sort_with_batchers_even_odd_merge_all, test_with_Katalan_
     in.resize(kSizeOfVector, 0);
     GetRandomVector(in, -100, 100);
     out.resize(kSizeOfVector, 0);
-    std::vector<int> answer(in);
+    answer = in;
     std::ranges::sort(answer);
 
     // Create task_data
@@ -3762,7 +3580,7 @@ TEST(volochaev_s_shell_sort_with_batchers_even_odd_merge_all, test_with_Katalan_
     in.resize(kSizeOfVector, 0);
     GetRandomVector(in, -100, 100);
     out.resize(kSizeOfVector, 0);
-    std::vector<int> answer(in);
+    answer = in;
     std::ranges::sort(answer);
 
     // Create task_data
@@ -3792,7 +3610,7 @@ TEST(volochaev_s_shell_sort_with_batchers_even_odd_merge_all, test_with_Katalan_
     in.resize(kSizeOfVector, 0);
     GetRandomVector(in, -100, 100);
     out.resize(kSizeOfVector, 0);
-    std::vector<int> answer(in);
+    answer = in;
     std::ranges::sort(answer);
 
     // Create task_data
@@ -3822,7 +3640,7 @@ TEST(volochaev_s_shell_sort_with_batchers_even_odd_merge_all, test_with_Katalan_
     in.resize(kSizeOfVector, 0);
     GetRandomVector(in, -100, 100);
     out.resize(kSizeOfVector, 0);
-    std::vector<int> answer(in);
+    answer = in;
     std::ranges::sort(answer);
 
     // Create task_data
@@ -3852,7 +3670,7 @@ TEST(volochaev_s_shell_sort_with_batchers_even_odd_merge_all, test_with_Katalan_
     in.resize(kSizeOfVector, 0);
     GetRandomVector(in, -100, 100);
     out.resize(kSizeOfVector, 0);
-    std::vector<int> answer(in);
+    answer = in;
     std::ranges::sort(answer);
 
     // Create task_data
@@ -3882,7 +3700,7 @@ TEST(volochaev_s_shell_sort_with_batchers_even_odd_merge_all, test_with_Katalan_
     in.resize(kSizeOfVector, 0);
     GetRandomVector(in, -100, 100);
     out.resize(kSizeOfVector, 0);
-    std::vector<int> answer(in);
+    answer = in;
     std::ranges::sort(answer);
 
     // Create task_data
@@ -3912,7 +3730,7 @@ TEST(volochaev_s_shell_sort_with_batchers_even_odd_merge_all, test_with_Katalan_
     in.resize(kSizeOfVector, 0);
     GetRandomVector(in, -100, 100);
     out.resize(kSizeOfVector, 0);
-    std::vector<int> answer(in);
+    answer = in;
     std::ranges::sort(answer);
 
     // Create task_data
@@ -3942,7 +3760,7 @@ TEST(volochaev_s_shell_sort_with_batchers_even_odd_merge_all, test_with_Katalan_
     in.resize(kSizeOfVector, 0);
     GetRandomVector(in, -100, 100);
     out.resize(kSizeOfVector, 0);
-    std::vector<int> answer(in);
+    answer = in;
     std::ranges::sort(answer);
 
     // Create task_data
@@ -3972,7 +3790,7 @@ TEST(volochaev_s_shell_sort_with_batchers_even_odd_merge_all, test_with_Katalan_
     in.resize(kSizeOfVector, 0);
     GetRandomVector(in, -100, 100);
     out.resize(kSizeOfVector, 0);
-    std::vector<int> answer(in);
+    answer = in;
     std::ranges::sort(answer);
 
     // Create task_data
@@ -4002,7 +3820,7 @@ TEST(volochaev_s_shell_sort_with_batchers_even_odd_merge_all, test_with_Fibonacc
     in.resize(kSizeOfVector, 0);
     GetRandomVector(in, -100, 100);
     out.resize(kSizeOfVector, 0);
-    std::vector<int> answer(in);
+    answer = in;
     std::ranges::sort(answer);
 
     // Create task_data
@@ -4032,7 +3850,7 @@ TEST(volochaev_s_shell_sort_with_batchers_even_odd_merge_all, test_with_Fibonacc
     in.resize(kSizeOfVector, 0);
     GetRandomVector(in, -100, 100);
     out.resize(kSizeOfVector, 0);
-    std::vector<int> answer(in);
+    answer = in;
     std::ranges::sort(answer);
 
     // Create task_data
@@ -4062,7 +3880,7 @@ TEST(volochaev_s_shell_sort_with_batchers_even_odd_merge_all, test_with_Fibonacc
     in.resize(kSizeOfVector, 0);
     GetRandomVector(in, -100, 100);
     out.resize(kSizeOfVector, 0);
-    std::vector<int> answer(in);
+    answer = in;
     std::ranges::sort(answer);
 
     // Create task_data

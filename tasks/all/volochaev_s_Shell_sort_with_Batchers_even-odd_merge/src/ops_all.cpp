@@ -1,17 +1,24 @@
 #include "all/volochaev_s_Shell_sort_with_Batchers_even-odd_merge/include/ops_all.hpp"
 
+#include <stddef.h>
+
 #include <algorithm>
-#include <boost/mpi.hpp>
+#include <boost/mpi.hpp>  // NOLINT(misc-include-cleaner)
 #include <boost/mpi/collectives.hpp>
 #include <boost/mpi/communicator.hpp>
-#include <boost/serialization/vector.hpp>
+#include <boost/serialization/vector.hpp>  // NOLINT(misc-include-cleaner)
 #include <cmath>
 #include <future>
 #include <limits>
 #include <ranges>
-#include <thread>
-#include <utility>
+#include <thread>   // NOLINT(misc-include-cleaner)
+#include <utility>  // NOLINT(misc-include-cleaner)
 #include <vector>
+
+#include "boost/mpi/collectives/broadcast.hpp"  // NOLINT(misc-include-cleaner)
+#include "boost/mpi/collectives/reduce.hpp"     // NOLINT(misc-include-cleaner)
+#include "core/perf/include/perf.hpp"           // NOLINT(misc-include-cleaner)
+#include "core/task/include/task.hpp"           // NOLINT(misc-include-cleaner)
 
 bool volochaev_s_shell_sort_with_batchers_even_odd_merge_all::ShellSortALL::ValidationImpl() {
   if (world_.rank() == 0) {
@@ -25,10 +32,10 @@ bool volochaev_s_shell_sort_with_batchers_even_odd_merge_all::ShellSortALL::PreP
   rank_ = world_.rank();
 
   if (rank_ == 0) {
-    sizes.resize(world_.size(), 0);
+    sizes_.resize(world_.size(), 0);
     auto* input_pointer = reinterpret_cast<int*>(task_data->inputs[0]);
     size_ = static_cast<int>(task_data->inputs_count[0]);
-    sizes[0] = size_;
+    sizes_[0] = size_;
     array_mpi_ = std::vector<int>(input_pointer, input_pointer + size_);
   }
 
@@ -92,8 +99,8 @@ void volochaev_s_shell_sort_with_batchers_even_odd_merge_all::ShellSortALL::Last
   int odd_index = 1;
   int result_index = 0;
 
-  while (even_index < n_stl_ || odd_index < n_) {
-    if (even_index < n_ && odd_index < n_) {
+  while (even_index < n_stl_ || odd_index < n_stl_) {
+    if (even_index < n_stl_ && odd_index < n_stl_) {
       if (mass_stl_[even_index] < mass_stl_[odd_index]) {
         array_stl_[result_index++] = mass_stl_[even_index];
         even_index += 2;
@@ -101,7 +108,7 @@ void volochaev_s_shell_sort_with_batchers_even_odd_merge_all::ShellSortALL::Last
         array_stl_[result_index++] = mass_stl_[odd_index];
         odd_index += 2;
       }
-    } else if (even_index < n_) {
+    } else if (even_index < n_stl_) {
       array_stl_[result_index++] = mass_stl_[even_index];
       even_index += 2;
     } else {
@@ -153,8 +160,8 @@ void volochaev_s_shell_sort_with_batchers_even_odd_merge_all::ShellSortALL::Para
   MergeSTL();
 }
 
-std::vector<int> volochaev_s_shell_sort_with_batchers_even_odd_merge_all::ShellSortALL::Merge(std::vector<int>& v1,
-                                                                                              std::vector<int>& v2) {
+static std::vector<int> volochaev_s_shell_sort_with_batchers_even_odd_merge_all::ShellSortALL::Merge(
+    std::vector<int>& v1, std::vector<int>& v2) {
   size_t id1 = 0;
   size_t id2 = 0;
   std::vector<int> ans;
@@ -202,10 +209,10 @@ void volochaev_s_shell_sort_with_batchers_even_odd_merge_all::ShellSortALL::Dist
     array_mpi_.resize(n_mpi_);
   }
 
-  broadcast(world_, sizes, 0);
+  broadcast(world_, sizes_, 0);
 
-  array_stl_.resize(sizes[world_.rank()]);
-  scatterv(world_, mass_mpi_.data(), sizes, array_stl_.data(), 0);
+  array_stl_.resize(sizes_[world_.rank()]);
+  scatterv(world_, mass_mpi_.data(), sizes_, array_stl_.data(), 0);
 }
 
 void volochaev_s_shell_sort_with_batchers_even_odd_merge_all::ShellSortALL::GatherAndMerge() {

@@ -2,7 +2,6 @@
 
 #include <algorithm>
 #include <boost/mpi/communicator.hpp>
-#include <boost/mpi/environment.hpp>
 #include <chrono>
 #include <cstddef>
 #include <cstdint>

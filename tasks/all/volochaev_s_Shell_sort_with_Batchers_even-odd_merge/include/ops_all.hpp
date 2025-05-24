@@ -35,14 +35,14 @@ class ShellSortALL : public ppc::core::Task {
   int size_{0};
   int n_local_{0};
 
-  std::vector<int> sizes;
+  std::vector<int> sizes_;
   std::vector<int> array_mpi_;
   std::vector<int> mass_mpi_;
 
   void DistributeData();
   void GatherAndMerge();
 
-  std::vector<int> Merge(std::vector<int>& v1, std::vector<int>& v2);
+  static std::vector<int> Merge(std::vector<int>& v1, std::vector<int>& v2);
   void ParallelShellSort();
   void ShellSort(int start);
   void MergeBlocksSTL(int id_l, int id_r, int len);
