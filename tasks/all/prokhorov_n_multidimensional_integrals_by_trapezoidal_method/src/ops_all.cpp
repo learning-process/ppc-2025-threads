@@ -2,8 +2,8 @@
 
 #include <omp.h>
 
+#include <boost/mpi/collectives/all_reduce.hpp>
 #include <boost/mpi/communicator.hpp>
-#include <boost/mpi/operations.hpp>
 #include <cmath>
 #include <cstddef>
 #include <functional>
