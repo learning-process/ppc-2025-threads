@@ -11,7 +11,6 @@
 #include "core/perf/include/perf.hpp"
 #include "core/task/include/task.hpp"
 
-
 namespace {
 std::vector<uint8_t> GenerateRandomImage(int height, int width) {
   std::random_device rd;

@@ -20,7 +20,6 @@
 #include "core/task/include/task.hpp"
 #include "core/util/include/util.hpp"
 
-
 namespace {
 std::vector<uint8_t> GenerateImageWithPattern(int height, int width) {
   std::vector<uint8_t> image(height * width * 3);
