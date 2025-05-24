@@ -9,6 +9,8 @@
 #include <utility>
 #include <vector>
 
+#include "core/task/include/task.hpp"
+
 namespace shuravina_o_hoare_simple_merger {
 
 TestTaskALL::TestTaskALL(std::shared_ptr<ppc::core::TaskData> task_data) : Task(std::move(task_data)) {}
@@ -112,7 +114,7 @@ void TestTaskALL::GatherAndMergeResults() {
       MPI_Recv(temp.data(), static_cast<int>(count), MPI_INT, i, 0, MPI_COMM_WORLD, MPI_STATUS_IGNORE);
 
       std::vector<int> merged(output_.size() + temp.size());
-      std::merge(output_.begin(), output_.end(), temp.begin(), temp.end(), merged.begin());
+      std::ranges::merge(output_, temp, merged.begin());
       output_ = std::move(merged);
     }
   } else {
@@ -128,8 +130,7 @@ bool TestTaskALL::ValidationImpl() {
 
   if (rank == 0) {
     return task_data->inputs.size() == 1 && task_data->outputs.size() == 1 && task_data->inputs[0] != nullptr &&
-           task_data->outputs[0] != nullptr && !task_data->inputs_count.empty() && !task_data->outputs_count.empty() &&
-           task_data->inputs_count[0] == task_data->outputs_count[0];
+           task_data->outputs[0] != nullptr && task_data->inputs_count[0] == task_data->outputs_count[0];
   }
   return true;
 }
@@ -148,7 +149,7 @@ bool TestTaskALL::PreProcessingImpl() {
 bool TestTaskALL::RunImpl() {
   int initialized = 0;
   MPI_Initialized(&initialized);
-  if (!initialized) {
+  if (initialized == 0) {
     MPI_Init(nullptr, nullptr);
   }
 
@@ -165,7 +166,7 @@ bool TestTaskALL::PostProcessingImpl() {
   MPI_Comm_rank(MPI_COMM_WORLD, &rank);
 
   if (rank == 0 && task_data->outputs[0] != nullptr && !output_.empty()) {
-    std::copy(output_.begin(), output_.end(), reinterpret_cast<int*>(task_data->outputs[0]));
+    std::ranges::copy(output_, reinterpret_cast<int*>(task_data->outputs[0]));
     return true;
   }
   return rank != 0;

@@ -1,11 +1,12 @@
 #include <gtest/gtest.h>
+#include <mpi.h>
 
+#include <algorithm>
 #include <cstddef>
 #include <cstdint>
 #include <memory>
 #include <random>
 #include <vector>
-#include <mpi.h>
 
 #include "all/shuravina_o_hoare_simple_merger_all1/include/ops_all.hpp"
 #include "core/task/include/task.hpp"
@@ -37,7 +38,11 @@ std::vector<int> GenerateRandomVector(size_t size) {
 }
 
 void RunTestWithMPI(const std::vector<int>& input, std::vector<int>& output) {
-  MPI_Init(nullptr, nullptr);
+  int initialized = 0;
+  MPI_Initialized(&initialized);
+  if (initialized == 0) {
+    MPI_Init(nullptr, nullptr);
+  }
 
   auto task_data = std::make_shared<ppc::core::TaskData>();
   task_data->inputs.emplace_back(reinterpret_cast<uint8_t*>(const_cast<int*>(input.data())));
@@ -52,7 +57,11 @@ void RunTestWithMPI(const std::vector<int>& input, std::vector<int>& output) {
   ASSERT_TRUE(task.Run());
   ASSERT_TRUE(task.PostProcessing());
 
-  MPI_Finalize();
+  int finalized = 0;
+  MPI_Finalized(&finalized);
+  if (finalized == 0) {
+    MPI_Finalize();
+  }
 }
 
 }  // namespace
@@ -64,7 +73,7 @@ TEST(shuravina_o_hoare_simple_merger_all, test_random_array) {
 
   RunTestWithMPI(input, output);
 
-  int rank;
+  int rank = 0;
   MPI_Comm_rank(MPI_COMM_WORLD, &rank);
   if (rank == 0) {
     EXPECT_TRUE(IsSorted(output));
@@ -77,9 +86,10 @@ TEST(shuravina_o_hoare_simple_merger_all, test_sorted_array) {
 
   RunTestWithMPI(input, output);
 
-  int rank;
+  int rank = 0;
   MPI_Comm_rank(MPI_COMM_WORLD, &rank);
   if (rank == 0) {
+    EXPECT_TRUE(IsSorted(output));
     EXPECT_EQ(input, output);
   }
 }
@@ -90,7 +100,7 @@ TEST(shuravina_o_hoare_simple_merger_all, test_reverse_sorted_array) {
 
   RunTestWithMPI(input, output);
 
-  int rank;
+  int rank = 0;
   MPI_Comm_rank(MPI_COMM_WORLD, &rank);
   if (rank == 0) {
     EXPECT_TRUE(IsSorted(output));
@@ -103,9 +113,10 @@ TEST(shuravina_o_hoare_simple_merger_all, test_single_element_array) {
 
   RunTestWithMPI(input, output);
 
-  int rank;
+  int rank = 0;
   MPI_Comm_rank(MPI_COMM_WORLD, &rank);
   if (rank == 0) {
+    EXPECT_TRUE(IsSorted(output));
     EXPECT_EQ(input, output);
   }
 }
