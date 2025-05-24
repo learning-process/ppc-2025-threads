@@ -58,12 +58,14 @@ bool opolin_d_radix_batcher_sort_all::RadixBatcherSortTaskAll::RunImpl() {
       offset += counts[i];
     }
   }
+  boost::mpi::broadcast(world_, counts, 0);
+  boost::mpi::broadcast(world_, displs, 0);
   boost::mpi::scatter(world_, counts, local_size, 0);
   local_data.resize(local_size);
   if (rank == 0) {
     boost::mpi::scatterv(world_, input_, counts, displs, local_data.data(), local_size, 0);
   } else {
-    boost::mpi::scatterv(world_, local_data.data(), local_size, 0);
+    boost::mpi::scatterv(world_, static_cast<int*>(nullptr), 0, local_data.data(), local_size, 0);
   }
   std::vector<uint32_t> keys(local_size);
   tbb::parallel_for(tbb::blocked_range<size_t>(0, local_size), [&](auto& r) {
