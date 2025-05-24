@@ -5,6 +5,7 @@
 #include <tbb/tbb.h>
 
 #include <algorithm>
+#include <cstdint>
 #include <cstdio>
 #include <utility>
 #include <vector>
