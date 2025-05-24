@@ -28,8 +28,8 @@ bool opolin_d_radix_batcher_sort_all::RadixBatcherSortTaskAll::PreProcessingImpl
 
 bool opolin_d_radix_batcher_sort_all::RadixBatcherSortTaskAll::ValidationImpl() {
   if (world_.rank() == 0) {
-    global_original_size_ = static_cast<int>(task_data->inputs_count[0]);
-    if (global_original_size_ <= 0 || task_data->inputs.empty() || task_data->outputs.empty()) {
+    size_ = static_cast<int>(task_data->inputs_count[0]);
+    if (size_ <= 0 || task_data->inputs.empty() || task_data->outputs.empty()) {
       return false;
     }
     if (task_data->inputs[0] == nullptr || task_data->outputs[0] == nullptr) {
@@ -59,7 +59,7 @@ bool opolin_d_radix_batcher_sort_all::RadixBatcherSortTaskAll::RunImpl() {
 
   boost::mpi::scatter(world_, counts, local_size, 0);
   local_data.resize(local_size);
-  boost::mpi::scatterv(world_, input_.data(), counts, displs, local_data.data(), 0);
+  boost::mpi::scatterv<int>(world_, input_.data(), counts, displs, local_data.data(), 0);
 
   std::vector<uint32_t> keys(local_size);
   tbb::parallel_for(tbb::blocked_range<size_t>(0, local_size), [&](auto& r) {
@@ -88,7 +88,6 @@ bool opolin_d_radix_batcher_sort_all::RadixBatcherSortTaskAll::RunImpl() {
     output_.swap(gathered_data);
     for (int step = 1; step < size; step *= 2) {
       for (int left = 0; left < size; left += 2 * step) {
-        int mid = std::min(left + step, size_);
         int right = std::min(left + 2 * step, size_);
         BatcherOddEvenMerge(output_, left, right);
       }
