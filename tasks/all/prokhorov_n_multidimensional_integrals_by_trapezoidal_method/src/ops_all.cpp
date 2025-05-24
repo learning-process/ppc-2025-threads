@@ -2,7 +2,8 @@
 
 #include <omp.h>
 
-#include <boost/mpi.hpp>
+#include <boost/mpi/communicator.hpp>
+#include <boost/mpi/operations.hpp>
 #include <cmath>
 #include <cstddef>
 #include <functional>
