@@ -79,7 +79,7 @@ bool makhov_m_linear_image_filtering_vertical_all::TestTaskALL::PreProcessingImp
     width = static_cast<std::uint32_t>(task_data->inputs_count[0]);
     height = static_cast<std::uint32_t>(task_data->inputs_count[1]);
     input_size = width * height * 3;
-    
+
     // std::cout << "\n" << "width from pre processing = " << width;
     // std::cout << "\n" << "height from pre processing = " << height;
     // std::cout << "\n" << "input_size from pre processing = " << input_size;

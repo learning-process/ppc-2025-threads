@@ -7,9 +7,10 @@
 #include <random>
 #include <vector>
 
+#include "all/makhov_m_linear_image_filtering_vertical/include/ops_all.hpp"
 #include "core/perf/include/perf.hpp"
 #include "core/task/include/task.hpp"
-#include "all/makhov_m_linear_image_filtering_vertical/include/ops_all.hpp"
+
 
 namespace {
 std::vector<uint8_t> GenerateRandomImage(int height, int width) {

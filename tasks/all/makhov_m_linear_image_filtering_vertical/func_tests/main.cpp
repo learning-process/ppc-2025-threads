@@ -16,9 +16,10 @@
 #include <random>
 #include <vector>
 
+#include "all/makhov_m_linear_image_filtering_vertical/include/ops_all.hpp"
 #include "core/task/include/task.hpp"
 #include "core/util/include/util.hpp"
-#include "all/makhov_m_linear_image_filtering_vertical/include/ops_all.hpp"
+
 
 namespace {
 std::vector<uint8_t> GenerateImageWithPattern(int height, int width) {
