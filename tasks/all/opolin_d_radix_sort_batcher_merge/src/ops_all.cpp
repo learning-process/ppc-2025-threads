@@ -14,7 +14,7 @@
 #include <vector>
 
 #include "oneapi/tbb/blocked_range.h"
-#include "oneapi/tbb/enumerable_thread_specific.h" // NOLINT(misc-include-cleaner)
+#include "oneapi/tbb/enumerable_thread_specific.h"  // NOLINT(misc-include-cleaner)
 #include "oneapi/tbb/parallel_for.h"
 #include "oneapi/tbb/parallel_invoke.h"
 
