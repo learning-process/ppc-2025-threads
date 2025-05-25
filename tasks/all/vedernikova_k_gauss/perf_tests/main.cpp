@@ -23,12 +23,14 @@ TEST(vedernikova_k_gauss_test_all, test_pipeline_run) {
   std::vector<uint8_t> out(size);
 
   auto task_data_all = std::make_shared<ppc::core::TaskData>();
-  task_data_all->inputs.emplace_back(const_cast<uint8_t *>(reinterpret_cast<const uint8_t *>(in.data())));
-  task_data_all->inputs_count.emplace_back(width);
-  task_data_all->inputs_count.emplace_back(height);
-  task_data_all->inputs_count.emplace_back(channels);
-  task_data_all->outputs.emplace_back(reinterpret_cast<uint8_t *>(out.data()));
-  task_data_all->outputs_count.emplace_back(out.size());
+  if (world.rank() == 0) {
+    task_data_all->inputs.emplace_back(const_cast<uint8_t *>(reinterpret_cast<const uint8_t *>(in.data())));
+    task_data_all->inputs_count.emplace_back(width);
+    task_data_all->inputs_count.emplace_back(height);
+    task_data_all->inputs_count.emplace_back(channels);
+    task_data_all->outputs.emplace_back(reinterpret_cast<uint8_t *>(out.data()));
+    task_data_all->outputs_count.emplace_back(out.size());
+  }
 
   // Create Task
   auto test_task_all = std::make_shared<vedernikova_k_gauss_all::Gauss>(task_data_all);
@@ -63,12 +65,14 @@ TEST(vedernikova_k_gauss_test_all, test_task_run) {
   std::vector<uint8_t> out(size);
 
   auto task_data_all = std::make_shared<ppc::core::TaskData>();
-  task_data_all->inputs.emplace_back(const_cast<uint8_t *>(reinterpret_cast<const uint8_t *>(in.data())));
-  task_data_all->inputs_count.emplace_back(width);
-  task_data_all->inputs_count.emplace_back(height);
-  task_data_all->inputs_count.emplace_back(channels);
-  task_data_all->outputs.emplace_back(reinterpret_cast<uint8_t *>(out.data()));
-  task_data_all->outputs_count.emplace_back(out.size());
+  if (world.rank() == 0) {
+    task_data_all->inputs.emplace_back(const_cast<uint8_t *>(reinterpret_cast<const uint8_t *>(in.data())));
+    task_data_all->inputs_count.emplace_back(width);
+    task_data_all->inputs_count.emplace_back(height);
+    task_data_all->inputs_count.emplace_back(channels);
+    task_data_all->outputs.emplace_back(reinterpret_cast<uint8_t *>(out.data()));
+    task_data_all->outputs_count.emplace_back(out.size());
+  }
 
   // Create Task
   auto test_task_all = std::make_shared<vedernikova_k_gauss_all::Gauss>(task_data_all);

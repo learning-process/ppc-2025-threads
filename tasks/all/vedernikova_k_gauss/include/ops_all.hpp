@@ -25,10 +25,14 @@ class Gauss : public ppc::core::Task {
   Image input_;
   Image output_;
 
+  Image local_input_;   // reuse allocated memory on subsequent runs
+  Image local_output_;  // reuse allocated memory on subsequent runs
+
   Kernel kernel_;
 
   uint32_t width_;
-  uint32_t height_;
+  uint32_t g_height_;
+  uint32_t l_height_;
   uint32_t channels_;
   uint32_t size_;
   boost::mpi::communicator world_;

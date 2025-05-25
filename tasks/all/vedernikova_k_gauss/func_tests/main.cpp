@@ -17,6 +17,10 @@ class vedernikova_k_gauss_test_all  // NOLINT(readability-identifier-naming)
 };
 
 TEST_F(vedernikova_k_gauss_test_all, validation_fails_not_enough_params) {
+  if (boost::mpi::communicator{}.rank() != 0) {
+    return;
+  }
+
   Image in(15, 128);
   Image out(in.size());
   auto task_data = std::make_shared<ppc::core::TaskData>();
@@ -32,6 +36,10 @@ TEST_F(vedernikova_k_gauss_test_all, validation_fails_not_enough_params) {
 }
 
 TEST_F(vedernikova_k_gauss_test_all, validation_fails_no_input_image) {
+  if (boost::mpi::communicator{}.rank() != 0) {
+    return;
+  }
+
   Image in(13, 100);
   Image out(in.size());
   auto task_data = std::make_shared<ppc::core::TaskData>();
@@ -47,6 +55,10 @@ TEST_F(vedernikova_k_gauss_test_all, validation_fails_no_input_image) {
 }
 
 TEST_F(vedernikova_k_gauss_test_all, validation_fails_no_output_buffer) {
+  if (boost::mpi::communicator{}.rank() != 0) {
+    return;
+  }
+
   Image in(17, 137);
   Image out(in.size());
   auto task_data = std::make_shared<ppc::core::TaskData>();
@@ -62,6 +74,10 @@ TEST_F(vedernikova_k_gauss_test_all, validation_fails_no_output_buffer) {
 }
 
 TEST_F(vedernikova_k_gauss_test_all, validation_fails_in_and_out_sizes_are_different) {
+  if (boost::mpi::communicator{}.rank() != 0) {
+    return;
+  }
+
   Image in(37, 128);
   Image out(in.size());
   auto task_data = std::make_shared<ppc::core::TaskData>();
@@ -82,12 +98,14 @@ TEST_P(vedernikova_k_gauss_test_all, returns_correct_blurred_image) {
   const auto &[width, height, channels, in, exp] = GetParam();
   Image out(in.size(), 0);
   auto task_data = std::make_shared<ppc::core::TaskData>();
-  task_data->inputs.emplace_back(const_cast<uint8_t *>(reinterpret_cast<const uint8_t *>(in.data())));
-  task_data->inputs_count.emplace_back(width);
-  task_data->inputs_count.emplace_back(height);
-  task_data->inputs_count.emplace_back(channels);
-  task_data->outputs.emplace_back(reinterpret_cast<uint8_t *>(out.data()));
-  task_data->outputs_count.emplace_back(out.size());
+  if (world.rank() == 0) {
+    task_data->inputs.emplace_back(const_cast<uint8_t *>(reinterpret_cast<const uint8_t *>(in.data())));
+    task_data->inputs_count.emplace_back(width);
+    task_data->inputs_count.emplace_back(height);
+    task_data->inputs_count.emplace_back(channels);
+    task_data->outputs.emplace_back(reinterpret_cast<uint8_t *>(out.data()));
+    task_data->outputs_count.emplace_back(out.size());
+  }
 
   // Create Task
   vedernikova_k_gauss_all::Gauss task(task_data);
@@ -95,22 +113,8 @@ TEST_P(vedernikova_k_gauss_test_all, returns_correct_blurred_image) {
   task.PreProcessing();
   task.Run();
   task.PostProcessing();
+
   if (world.rank() == 0) {
-    auto task_data = std::make_shared<ppc::core::TaskData>();
-    task_data->inputs.emplace_back(const_cast<uint8_t *>(reinterpret_cast<const uint8_t *>(in.data())));
-    task_data->inputs_count.emplace_back(width);
-    task_data->inputs_count.emplace_back(height);
-    task_data->inputs_count.emplace_back(channels);
-    task_data->outputs.emplace_back(reinterpret_cast<uint8_t *>(out.data()));
-    task_data->outputs_count.emplace_back(out.size());
-
-    // Create Task
-    vedernikova_k_gauss_all::Gauss task(task_data);
-    ASSERT_TRUE(task.Validation());
-    task.PreProcessing();
-    task.Run();
-    task.PostProcessing();
-
     EXPECT_EQ(out, exp);
   }
 }
