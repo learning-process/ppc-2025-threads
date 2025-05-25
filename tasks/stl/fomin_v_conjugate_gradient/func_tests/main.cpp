@@ -10,11 +10,14 @@
 #include "stl/fomin_v_conjugate_gradient/include/ops_stl.hpp"
 
 TEST(FominVConjugateGradientStl, test_small_system) {
-  constexpr size_t kCount = 3;
-  std::vector<double> a = {4, 1, 1, 1, 3, 0, 1, 0, 2};
-  std::vector<double> b = {6, 5, 3};
-  // Correct solution computed as [17/19, 26/19, 20/19]
-  std::vector<double> expected_x = {17.0 / 19.0, 26.0 / 19.0, 20.0 / 19.0};
+  constexpr size_t kCount = 100;
+  std::vector<double> a(kCount * kCount, 0.0);
+  std::vector<double> b(kCount, 0.0);
+  std::vector<double> expected_x(kCount, 1.0);
+  for (size_t i = 0; i < kCount; ++i) {
+    a[i * kCount + i] = kCount + 1;
+    b[i] = (kCount + 1) * 1.0;
+  }
 
   std::vector<double> input;
   input.insert(input.end(), a.begin(), a.end());
@@ -40,13 +43,19 @@ TEST(FominVConjugateGradientStl, test_small_system) {
 }
 
 TEST(FominVConjugateGradientStl, test_large_system) {
-  constexpr size_t kCount = 5;
-  std::vector<double> a = {5, 1, 0, 0, 0, 1, 5, 1, 0, 0, 0, 1, 5, 1, 0, 0, 0, 1, 5, 1, 0, 0, 0, 1, 5};
-  std::vector<double> b = {6, 7, 7, 7, 6};
-  std::vector<double> expected_x = {1.0, 1.0, 1.0, 1.0, 1.0};
+  constexpr size_t kCount = 500;
+  std::vector<double> a(kCount * kCount, 0.0);
+  std::vector<double> b(kCount, 0.0);
+  std::vector<double> expected_x(kCount, 0.5);
   std::vector<double> out(kCount, 0.0);
 
-  // Correct input setup
+  for (size_t i = 0; i < kCount; ++i) {
+    a[i * kCount + i] = 2.0 * (i + 1);
+    if (i > 0) a[i * kCount + (i - 1)] = -1.0;
+    if (i < kCount - 1) a[i * kCount + (i + 1)] = -1.0;
+    b[i] = (i == 0 || i == kCount - 1) ? 1.0 : 0.0;
+  }
+
   std::vector<double> input;
   input.insert(input.end(), a.begin(), a.end());
   input.insert(input.end(), b.begin(), b.end());
