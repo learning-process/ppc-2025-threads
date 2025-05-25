@@ -61,7 +61,6 @@ TEST(shuravina_o_hoare_simple_merger_tbb, test_random_array) {
 
   ASSERT_TRUE(IsSorted(out));
 }
-
 TEST(shuravina_o_hoare_simple_merger_tbb, test_sorted_array) {
   std::vector<int> in = {1, 2, 3, 4, 5, 6};
   std::vector<int> out(in.size(), 0);
