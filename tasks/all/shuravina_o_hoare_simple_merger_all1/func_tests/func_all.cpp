@@ -1,6 +1,7 @@
 #include <gtest/gtest.h>
 #include <mpi.h>
 
+#include <algorithm>
 #include <cstddef>
 #include <cstdint>
 #include <memory>
@@ -43,7 +44,7 @@ class MPITestEnvironment : public ::testing::Environment {
   void TearDown() override {
     int finalized = 0;
     MPI_Finalized(&finalized);
-    if (!finalized) {
+    if (finalized == 0) {
       MPI_Finalize();
     }
   }
