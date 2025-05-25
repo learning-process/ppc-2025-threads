@@ -10,7 +10,7 @@
 #include "stl/fomin_v_conjugate_gradient/include/ops_stl.hpp"
 
 TEST(FominVConjugateGradientStl, test_small_system) {
-  constexpr size_t kCount = 500;
+  constexpr size_t kCount = 30;
   std::vector<double> a(kCount * kCount, 0.0);
   std::vector<double> b(kCount, 0.0);
   std::vector<double> expected_x(kCount, 1.0);
@@ -43,7 +43,7 @@ TEST(FominVConjugateGradientStl, test_small_system) {
 }
 
 TEST(FominVConjugateGradientStl, test_large_system) {
-  constexpr size_t kCount = 1000;
+  constexpr size_t kCount = 3000;
   std::vector<double> a(kCount * kCount, 0.0);
   std::vector<double> b(kCount, 0.0);
   std::vector<double> expected_x(kCount, 1.0);
