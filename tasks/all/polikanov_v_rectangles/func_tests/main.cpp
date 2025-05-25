@@ -172,3 +172,8 @@ TEST(polikanov_v_rectangles_all, linear_func) {
   RunFuncTest(std::vector<polikanov_v_rectangles::IntegrationBound>(2, {0, 1}), 80, 1,
               [](const auto &p) { return p[0] + p[1]; });
 }
+
+TEST(polikanov_v_rectangles_all, log) {
+  RunFuncTest(std::vector<polikanov_v_rectangles::IntegrationBound>(2, {3, 4}), 80, 2.495,
+              [](const auto &p) { return std::log(p[0]) + std::log(p[1]); });
+}

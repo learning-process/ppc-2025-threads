@@ -6,8 +6,9 @@
 #include <boost/serialization/vector.hpp>   // NOLINT
 #include <cmath>
 #include <cstddef>
-#include <vector>
+#include <functional>
 #include <utility>
+#include <vector>
 
 namespace {
 double AbsBound(const polikanov_v_rectangles::IntegrationBound& bound) { return bound.second - bound.first; }
