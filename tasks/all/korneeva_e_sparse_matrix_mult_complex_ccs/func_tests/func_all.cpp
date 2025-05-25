@@ -1,5 +1,6 @@
 #include <gtest/gtest.h>
 
+#include <boost/mpi/communicator.hpp>
 #include <cmath>
 #include <cstddef>
 #include <cstdint>
@@ -14,11 +15,15 @@ namespace korneeva_e_all = korneeva_e_sparse_matrix_mult_complex_ccs_all;
 
 namespace {
 void RunTask(korneeva_e_all::SparseMatrixCCS& m1, korneeva_e_all::SparseMatrixCCS& m2,
-             korneeva_e_all::SparseMatrixCCS& result) {
+             korneeva_e_all::SparseMatrixCCS& result, boost::mpi::communicator& world) {
   std::shared_ptr<ppc::core::TaskData> task_data = std::make_shared<ppc::core::TaskData>();
-  task_data->inputs.push_back(reinterpret_cast<uint8_t*>(&m1));
-  task_data->inputs.push_back(reinterpret_cast<uint8_t*>(&m2));
-  task_data->outputs.push_back(reinterpret_cast<uint8_t*>(&result));
+  if (world.rank() == 0) {
+    task_data->inputs.push_back(reinterpret_cast<uint8_t*>(&m1));
+    task_data->inputs.push_back(reinterpret_cast<uint8_t*>(&m2));
+    task_data->outputs.push_back(reinterpret_cast<uint8_t*>(&result));
+    task_data->inputs_count.emplace_back(2);
+    task_data->outputs_count.emplace_back(1);
+  }
 
   korneeva_e_all::SparseMatrixMultComplexCCS task(task_data);
   ASSERT_TRUE(task.Validation());
@@ -101,293 +106,462 @@ korneeva_e_all::SparseMatrixCCS CreateCcsFromDense(const std::vector<std::vector
 }  // namespace
 
 TEST(korneeva_e_sparse_matrix_mult_complex_ccs_all, test_incompatible_sizes) {
+  static boost::mpi::communicator world;
   korneeva_e_all::SparseMatrixCCS m1(2, 3, 0);
-  m1.col_offsets = {0, 0, 0, 0};
   korneeva_e_all::SparseMatrixCCS m2(2, 2, 0);
-  m2.col_offsets = {0, 0, 0};
   korneeva_e_all::SparseMatrixCCS result;
 
+  if (world.rank() == 0) {
+    m1.col_offsets = {0, 0, 0, 0};
+    m2.col_offsets = {0, 0, 0};
+  }
+
   std::shared_ptr<ppc::core::TaskData> task_data = std::make_shared<ppc::core::TaskData>();
-  task_data->inputs.push_back(reinterpret_cast<uint8_t*>(&m1));
-  task_data->inputs.push_back(reinterpret_cast<uint8_t*>(&m2));
-  task_data->outputs.push_back(reinterpret_cast<uint8_t*>(&result));
+  if (world.rank() == 0) {
+    task_data->inputs.push_back(reinterpret_cast<uint8_t*>(&m1));
+    task_data->inputs.push_back(reinterpret_cast<uint8_t*>(&m2));
+    task_data->outputs.push_back(reinterpret_cast<uint8_t*>(&result));
+    task_data->inputs_count.emplace_back(2);
+    task_data->outputs_count.emplace_back(1);
+  }
 
   korneeva_e_all::SparseMatrixMultComplexCCS task(task_data);
-  ASSERT_FALSE(task.Validation());
+  if (world.rank() == 0) {
+    ASSERT_FALSE(task.Validation());
+  }
 }
 
 TEST(korneeva_e_sparse_matrix_mult_complex_ccs_all, test_negative_dimensions) {
+  static boost::mpi::communicator world;
   korneeva_e_all::SparseMatrixCCS m1(-1, 2, 0);
-  m1.col_offsets = {0, 0, 0};
   korneeva_e_all::SparseMatrixCCS m2(2, 2, 0);
-  m2.col_offsets = {0, 0, 0};
   korneeva_e_all::SparseMatrixCCS result;
 
+  if (world.rank() == 0) {
+    m1.col_offsets = {0, 0, 0};
+    m2.col_offsets = {0, 0, 0};
+  }
+
   std::shared_ptr<ppc::core::TaskData> task_data = std::make_shared<ppc::core::TaskData>();
-  task_data->inputs.push_back(reinterpret_cast<uint8_t*>(&m1));
-  task_data->inputs.push_back(reinterpret_cast<uint8_t*>(&m2));
-  task_data->outputs.push_back(reinterpret_cast<uint8_t*>(&result));
+  if (world.rank() == 0) {
+    task_data->inputs.push_back(reinterpret_cast<uint8_t*>(&m1));
+    task_data->inputs.push_back(reinterpret_cast<uint8_t*>(&m2));
+    task_data->inputs_count.emplace_back(2);
+    task_data->outputs.push_back(reinterpret_cast<uint8_t*>(&result));
+    task_data->outputs_count.emplace_back(1);
+  }
 
   korneeva_e_all::SparseMatrixMultComplexCCS task(task_data);
-  ASSERT_FALSE(task.Validation());
+  if (world.rank() == 0) {
+    ASSERT_FALSE(task.Validation());
+  }
 }
 
 TEST(korneeva_e_sparse_matrix_mult_complex_ccs_all, test_empty_input) {
+  static boost::mpi::communicator world;
   std::shared_ptr<ppc::core::TaskData> task_data = std::make_shared<ppc::core::TaskData>();
   korneeva_e_all::SparseMatrixCCS result;
-  task_data->outputs.push_back(reinterpret_cast<uint8_t*>(&result));
+
+  if (world.rank() == 0) {
+    task_data->outputs.push_back(reinterpret_cast<uint8_t*>(&result));
+    task_data->outputs_count.emplace_back(1);
+  }
 
   korneeva_e_all::SparseMatrixMultComplexCCS task(task_data);
-  ASSERT_FALSE(task.Validation());
+  if (world.rank() == 0) {
+    ASSERT_FALSE(task.Validation());
+  }
 }
 
 TEST(korneeva_e_sparse_matrix_mult_complex_ccs_all, test_no_output) {
+  static boost::mpi::communicator world;
   korneeva_e_all::SparseMatrixCCS m1(2, 2, 0);
-  m1.col_offsets = {0, 0, 0};
   korneeva_e_all::SparseMatrixCCS m2(2, 2, 0);
-  m2.col_offsets = {0, 0, 0};
+
+  if (world.rank() == 0) {
+    m1.col_offsets = {0, 0, 0};
+    m2.col_offsets = {0, 0, 0};
+  }
 
   std::shared_ptr<ppc::core::TaskData> task_data = std::make_shared<ppc::core::TaskData>();
-  task_data->inputs.push_back(reinterpret_cast<uint8_t*>(&m1));
-  task_data->inputs.push_back(reinterpret_cast<uint8_t*>(&m2));
+  if (world.rank() == 0) {
+    task_data->inputs.push_back(reinterpret_cast<uint8_t*>(&m1));
+    task_data->inputs.push_back(reinterpret_cast<uint8_t*>(&m2));
+    task_data->inputs_count.emplace_back(2);
+  }
 
   korneeva_e_all::SparseMatrixMultComplexCCS task(task_data);
-  ASSERT_FALSE(task.Validation());
+  if (world.rank() == 0) {
+    ASSERT_FALSE(task.Validation());
+  }
 }
 
 TEST(korneeva_e_sparse_matrix_mult_complex_ccs_all, test_identity_mult) {
-  auto m1 = CreateCcsFromDense({{korneeva_e_all::Complex(1.0, 0.0), korneeva_e_all::Complex(0.0, 0.0)},
-                                {korneeva_e_all::Complex(0.0, 0.0), korneeva_e_all::Complex(1.0, 0.0)}});
-  auto m2 = CreateCcsFromDense({{korneeva_e_all::Complex(1.0, 0.0), korneeva_e_all::Complex(0.0, 0.0)},
-                                {korneeva_e_all::Complex(0.0, 0.0), korneeva_e_all::Complex(1.0, 0.0)}});
-  korneeva_e_all::SparseMatrixCCS result;
+  static boost::mpi::communicator world;
+  korneeva_e_all::SparseMatrixCCS m1(2, 2);
+  korneeva_e_all::SparseMatrixCCS m2(2, 2);
+  korneeva_e_all::SparseMatrixCCS result(2, 2);
 
-  RunTask(m1, m2, result);
+  if (world.rank() == 0) {
+    m1 = CreateCcsFromDense({{korneeva_e_all::Complex(1.0, 0.0), korneeva_e_all::Complex(0.0, 0.0)},
+                             {korneeva_e_all::Complex(0.0, 0.0), korneeva_e_all::Complex(1.0, 0.0)}});
+    m2 = CreateCcsFromDense({{korneeva_e_all::Complex(1.0, 0.0), korneeva_e_all::Complex(0.0, 0.0)},
+                             {korneeva_e_all::Complex(0.0, 0.0), korneeva_e_all::Complex(1.0, 0.0)}});
+  }
 
-  auto expected = CreateCcsFromDense({{korneeva_e_all::Complex(1.0, 0.0), korneeva_e_all::Complex(0.0, 0.0)},
-                                      {korneeva_e_all::Complex(0.0, 0.0), korneeva_e_all::Complex(1.0, 0.0)}});
-  ExpectMatrixEq(result, expected);
+  RunTask(m1, m2, result, world);
+
+  if (world.rank() == 0) {
+    auto expected = CreateCcsFromDense({{korneeva_e_all::Complex(1.0, 0.0), korneeva_e_all::Complex(0.0, 0.0)},
+                                        {korneeva_e_all::Complex(0.0, 0.0), korneeva_e_all::Complex(1.0, 0.0)}});
+    ExpectMatrixEq(result, expected);
+  }
 }
 
 TEST(korneeva_e_sparse_matrix_mult_complex_ccs_all, test_left_identity_mult) {
-  auto i = CreateCcsFromDense(
-      {{korneeva_e_all::Complex(1.0, 0.0), korneeva_e_all::Complex(0.0, 0.0), korneeva_e_all::Complex(0.0, 0.0)},
-       {korneeva_e_all::Complex(0.0, 0.0), korneeva_e_all::Complex(1.0, 0.0), korneeva_e_all::Complex(0.0, 0.0)},
-       {korneeva_e_all::Complex(0.0, 0.0), korneeva_e_all::Complex(0.0, 0.0), korneeva_e_all::Complex(1.0, 0.0)}});
+  static boost::mpi::communicator world;
+  korneeva_e_all::SparseMatrixCCS i(3, 3);
+  korneeva_e_all::SparseMatrixCCS a(3, 2);
+  korneeva_e_all::SparseMatrixCCS result(3, 2);
 
-  auto a = CreateCcsFromDense({{korneeva_e_all::Complex(1.0, 2.0), korneeva_e_all::Complex(3.0, 4.0)},
-                               {korneeva_e_all::Complex(5.0, 0.0), korneeva_e_all::Complex(7.0, 8.0)},
-                               {korneeva_e_all::Complex(9.0, 10.0), korneeva_e_all::Complex(11.0, 12.0)}});
+  if (world.rank() == 0) {
+    i = CreateCcsFromDense(
+        {{korneeva_e_all::Complex(1.0, 0.0), korneeva_e_all::Complex(0.0, 0.0), korneeva_e_all::Complex(0.0, 0.0)},
+         {korneeva_e_all::Complex(0.0, 0.0), korneeva_e_all::Complex(1.0, 0.0), korneeva_e_all::Complex(0.0, 0.0)},
+         {korneeva_e_all::Complex(0.0, 0.0), korneeva_e_all::Complex(0.0, 0.0), korneeva_e_all::Complex(1.0, 0.0)}});
+    a = CreateCcsFromDense({{korneeva_e_all::Complex(1.0, 2.0), korneeva_e_all::Complex(3.0, 4.0)},
+                            {korneeva_e_all::Complex(5.0, 0.0), korneeva_e_all::Complex(7.0, 8.0)},
+                            {korneeva_e_all::Complex(9.0, 10.0), korneeva_e_all::Complex(11.0, 12.0)}});
+  }
 
-  korneeva_e_all::SparseMatrixCCS result;
+  RunTask(i, a, result, world);
 
-  RunTask(i, a, result);
-
-  ExpectMatrixEq(result, a);
+  if (world.rank() == 0) {
+    ExpectMatrixEq(result, a);
+  }
 }
 
 TEST(korneeva_e_sparse_matrix_mult_complex_ccs_all, test_zero_matrix) {
-  auto m1 = CreateCcsFromDense({{korneeva_e_all::Complex(0.0, 0.0), korneeva_e_all::Complex(0.0, 0.0)},
-                                {korneeva_e_all::Complex(0.0, 0.0), korneeva_e_all::Complex(0.0, 0.0)}});
-  auto m2 = CreateCcsFromDense({{korneeva_e_all::Complex(1.0, 0.0), korneeva_e_all::Complex(0.0, 0.0)},
-                                {korneeva_e_all::Complex(0.0, 0.0), korneeva_e_all::Complex(1.0, 0.0)}});
-  korneeva_e_all::SparseMatrixCCS result;
+  static boost::mpi::communicator world;
+  korneeva_e_all::SparseMatrixCCS m1(2, 2);
+  korneeva_e_all::SparseMatrixCCS m2(2, 2);
+  korneeva_e_all::SparseMatrixCCS result(2, 2);
 
-  RunTask(m1, m2, result);
+  if (world.rank() == 0) {
+    m1 = CreateCcsFromDense({{korneeva_e_all::Complex(0.0, 0.0), korneeva_e_all::Complex(0.0, 0.0)},
+                             {korneeva_e_all::Complex(0.0, 0.0), korneeva_e_all::Complex(0.0, 0.0)}});
+    m2 = CreateCcsFromDense({{korneeva_e_all::Complex(1.0, 0.0), korneeva_e_all::Complex(0.0, 0.0)},
+                             {korneeva_e_all::Complex(0.0, 0.0), korneeva_e_all::Complex(1.0, 0.0)}});
+  }
 
-  auto expected = CreateCcsFromDense({{korneeva_e_all::Complex(0.0, 0.0), korneeva_e_all::Complex(0.0, 0.0)},
-                                      {korneeva_e_all::Complex(0.0, 0.0), korneeva_e_all::Complex(0.0, 0.0)}});
-  ExpectMatrixEq(result, expected);
+  RunTask(m1, m2, result, world);
+
+  if (world.rank() == 0) {
+    auto expected = CreateCcsFromDense({{korneeva_e_all::Complex(0.0, 0.0), korneeva_e_all::Complex(0.0, 0.0)},
+                                        {korneeva_e_all::Complex(0.0, 0.0), korneeva_e_all::Complex(0.0, 0.0)}});
+    ExpectMatrixEq(result, expected);
+  }
 }
 
 TEST(korneeva_e_sparse_matrix_mult_complex_ccs_all, test_full_zero_matrix) {
-  auto m1 = CreateCcsFromDense({{korneeva_e_all::Complex(0.0, 0.0), korneeva_e_all::Complex(0.0, 0.0)},
-                                {korneeva_e_all::Complex(0.0, 0.0), korneeva_e_all::Complex(0.0, 0.0)}});
-  auto m2 = CreateCcsFromDense({{korneeva_e_all::Complex(0.0, 0.0), korneeva_e_all::Complex(0.0, 0.0)},
-                                {korneeva_e_all::Complex(0.0, 0.0), korneeva_e_all::Complex(0.0, 0.0)}});
-  korneeva_e_all::SparseMatrixCCS result;
+  static boost::mpi::communicator world;
+  korneeva_e_all::SparseMatrixCCS m1(2, 2);
+  korneeva_e_all::SparseMatrixCCS m2(2, 2);
+  korneeva_e_all::SparseMatrixCCS result(2, 2);
 
-  RunTask(m1, m2, result);
+  if (world.rank() == 0) {
+    m1 = CreateCcsFromDense({{korneeva_e_all::Complex(0.0, 0.0), korneeva_e_all::Complex(0.0, 0.0)},
+                             {korneeva_e_all::Complex(0.0, 0.0), korneeva_e_all::Complex(0.0, 0.0)}});
+    m2 = CreateCcsFromDense({{korneeva_e_all::Complex(0.0, 0.0), korneeva_e_all::Complex(0.0, 0.0)},
+                             {korneeva_e_all::Complex(0.0, 0.0), korneeva_e_all::Complex(0.0, 0.0)}});
+  }
 
-  auto expected = CreateCcsFromDense({{korneeva_e_all::Complex(0.0, 0.0), korneeva_e_all::Complex(0.0, 0.0)},
-                                      {korneeva_e_all::Complex(0.0, 0.0), korneeva_e_all::Complex(0.0, 0.0)}});
-  ExpectMatrixEq(result, expected);
+  RunTask(m1, m2, result, world);
+
+  if (world.rank() == 0) {
+    auto expected = CreateCcsFromDense({{korneeva_e_all::Complex(0.0, 0.0), korneeva_e_all::Complex(0.0, 0.0)},
+                                        {korneeva_e_all::Complex(0.0, 0.0), korneeva_e_all::Complex(0.0, 0.0)}});
+    ExpectMatrixEq(result, expected);
+  }
 }
 
 TEST(korneeva_e_sparse_matrix_mult_complex_ccs_all, test_diagonal_matrices) {
-  auto m1 = CreateCcsFromDense({{korneeva_e_all::Complex(2.0, 0.0), korneeva_e_all::Complex(0.0, 0.0)},
-                                {korneeva_e_all::Complex(0.0, 0.0), korneeva_e_all::Complex(3.0, 0.0)}});
-  auto m2 = CreateCcsFromDense({{korneeva_e_all::Complex(4.0, 0.0), korneeva_e_all::Complex(0.0, 0.0)},
-                                {korneeva_e_all::Complex(0.0, 0.0), korneeva_e_all::Complex(5.0, 0.0)}});
-  korneeva_e_all::SparseMatrixCCS result;
+  static boost::mpi::communicator world;
+  korneeva_e_all::SparseMatrixCCS m1(2, 2);
+  korneeva_e_all::SparseMatrixCCS m2(2, 2);
+  korneeva_e_all::SparseMatrixCCS result(2, 2);
 
-  RunTask(m1, m2, result);
+  if (world.rank() == 0) {
+    m1 = CreateCcsFromDense({{korneeva_e_all::Complex(2.0, 0.0), korneeva_e_all::Complex(0.0, 0.0)},
+                             {korneeva_e_all::Complex(0.0, 0.0), korneeva_e_all::Complex(3.0, 0.0)}});
+    m2 = CreateCcsFromDense({{korneeva_e_all::Complex(4.0, 0.0), korneeva_e_all::Complex(0.0, 0.0)},
+                             {korneeva_e_all::Complex(0.0, 0.0), korneeva_e_all::Complex(5.0, 0.0)}});
+  }
 
-  auto expected = CreateCcsFromDense({{korneeva_e_all::Complex(8.0, 0.0), korneeva_e_all::Complex(0.0, 0.0)},
-                                      {korneeva_e_all::Complex(0.0, 0.0), korneeva_e_all::Complex(15.0, 0.0)}});
-  ExpectMatrixEq(result, expected);
+  RunTask(m1, m2, result, world);
+
+  if (world.rank() == 0) {
+    auto expected = CreateCcsFromDense({{korneeva_e_all::Complex(8.0, 0.0), korneeva_e_all::Complex(0.0, 0.0)},
+                                        {korneeva_e_all::Complex(0.0, 0.0), korneeva_e_all::Complex(15.0, 0.0)}});
+    ExpectMatrixEq(result, expected);
+  }
 }
 
 TEST(korneeva_e_sparse_matrix_mult_complex_ccs_all, test_complex_numbers) {
-  auto m1 = CreateCcsFromDense({{korneeva_e_all::Complex(0.0, 1.0)}});
-  auto m2 = CreateCcsFromDense({{korneeva_e_all::Complex(0.0, -1.0)}});
-  korneeva_e_all::SparseMatrixCCS result;
+  static boost::mpi::communicator world;
+  korneeva_e_all::SparseMatrixCCS m1(1, 1);
+  korneeva_e_all::SparseMatrixCCS m2(1, 1);
+  korneeva_e_all::SparseMatrixCCS result(1, 1);
 
-  RunTask(m1, m2, result);
+  if (world.rank() == 0) {
+    m1 = CreateCcsFromDense({{korneeva_e_all::Complex(0.0, 1.0)}});
+    m2 = CreateCcsFromDense({{korneeva_e_all::Complex(0.0, -1.0)}});
+  }
 
-  auto expected = CreateCcsFromDense({{korneeva_e_all::Complex(1.0, 0.0)}});
-  ExpectMatrixEq(result, expected);
+  RunTask(m1, m2, result, world);
+
+  if (world.rank() == 0) {
+    auto expected = CreateCcsFromDense({{korneeva_e_all::Complex(1.0, 0.0)}});
+    ExpectMatrixEq(result, expected);
+  }
 }
 
 TEST(korneeva_e_sparse_matrix_mult_complex_ccs_all, test_large_complex_values) {
-  auto m1 = CreateCcsFromDense({{korneeva_e_all::Complex(1e10, 1e10)}});
-  auto m2 = CreateCcsFromDense({{korneeva_e_all::Complex(1e10, -1e10)}});
-  korneeva_e_all::SparseMatrixCCS result;
+  static boost::mpi::communicator world;
+  korneeva_e_all::SparseMatrixCCS m1(1, 1);
+  korneeva_e_all::SparseMatrixCCS m2(1, 1);
+  korneeva_e_all::SparseMatrixCCS result(1, 1);
 
-  RunTask(m1, m2, result);
+  if (world.rank() == 0) {
+    m1 = CreateCcsFromDense({{korneeva_e_all::Complex(1e10, 1e10)}});
+    m2 = CreateCcsFromDense({{korneeva_e_all::Complex(1e10, -1e10)}});
+  }
 
-  auto expected = CreateCcsFromDense({{korneeva_e_all::Complex(2e20, 0.0)}});
-  ExpectMatrixEq(result, expected);
+  RunTask(m1, m2, result, world);
+
+  if (world.rank() == 0) {
+    auto expected = CreateCcsFromDense({{korneeva_e_all::Complex(2e20, 0.0)}});
+    ExpectMatrixEq(result, expected);
+  }
 }
 
 TEST(korneeva_e_sparse_matrix_mult_complex_ccs_all, test_rectangular_matrices) {
-  auto m1 = CreateCcsFromDense(
-      {{korneeva_e_all::Complex(1.0, 0.0), korneeva_e_all::Complex(2.0, 0.0), korneeva_e_all::Complex(3.0, 0.0)},
-       {korneeva_e_all::Complex(4.0, 0.0), korneeva_e_all::Complex(5.0, 0.0), korneeva_e_all::Complex(6.0, 0.0)}});
-  auto m2 = CreateCcsFromDense({{korneeva_e_all::Complex(7.0, 0.0), korneeva_e_all::Complex(8.0, 0.0)},
-                                {korneeva_e_all::Complex(9.0, 0.0), korneeva_e_all::Complex(10.0, 0.0)},
-                                {korneeva_e_all::Complex(11.0, 0.0), korneeva_e_all::Complex(12.0, 0.0)}});
-  korneeva_e_all::SparseMatrixCCS result;
+  static boost::mpi::communicator world;
+  korneeva_e_all::SparseMatrixCCS m1(2, 3);
+  korneeva_e_all::SparseMatrixCCS m2(3, 2);
+  korneeva_e_all::SparseMatrixCCS result(2, 2);
 
-  RunTask(m1, m2, result);
+  if (world.rank() == 0) {
+    m1 = CreateCcsFromDense(
+        {{korneeva_e_all::Complex(1.0, 0.0), korneeva_e_all::Complex(2.0, 0.0), korneeva_e_all::Complex(3.0, 0.0)},
+         {korneeva_e_all::Complex(4.0, 0.0), korneeva_e_all::Complex(5.0, 0.0), korneeva_e_all::Complex(6.0, 0.0)}});
+    m2 = CreateCcsFromDense({{korneeva_e_all::Complex(7.0, 0.0), korneeva_e_all::Complex(8.0, 0.0)},
+                             {korneeva_e_all::Complex(9.0, 0.0), korneeva_e_all::Complex(10.0, 0.0)},
+                             {korneeva_e_all::Complex(11.0, 0.0), korneeva_e_all::Complex(12.0, 0.0)}});
+  }
 
-  auto expected = CreateCcsFromDense({{korneeva_e_all::Complex(58.0, 0.0), korneeva_e_all::Complex(64.0, 0.0)},
-                                      {korneeva_e_all::Complex(139.0, 0.0), korneeva_e_all::Complex(154.0, 0.0)}});
-  ExpectMatrixEq(result, expected);
+  RunTask(m1, m2, result, world);
+
+  if (world.rank() == 0) {
+    auto expected = CreateCcsFromDense({{korneeva_e_all::Complex(58.0, 0.0), korneeva_e_all::Complex(64.0, 0.0)},
+                                        {korneeva_e_all::Complex(139.0, 0.0), korneeva_e_all::Complex(154.0, 0.0)}});
+    ExpectMatrixEq(result, expected);
+  }
 }
 
 TEST(korneeva_e_sparse_matrix_mult_complex_ccs_all, test_matrix_vector_mult) {
-  auto m1 = CreateCcsFromDense({{korneeva_e_all::Complex(1.0, 2.0), korneeva_e_all::Complex(3.0, 4.0)},
-                                {korneeva_e_all::Complex(5.0, 6.0), korneeva_e_all::Complex(7.0, 8.0)}});
-  auto vec = CreateCcsFromDense({{korneeva_e_all::Complex(1.0, 0.0)}, {korneeva_e_all::Complex(2.0, 0.0)}});
-  korneeva_e_all::SparseMatrixCCS result;
+  static boost::mpi::communicator world;
+  korneeva_e_all::SparseMatrixCCS m1(2, 2);
+  korneeva_e_all::SparseMatrixCCS vec(2, 1);
+  korneeva_e_all::SparseMatrixCCS result(2, 1);
 
-  RunTask(m1, vec, result);
+  if (world.rank() == 0) {
+    m1 = CreateCcsFromDense({{korneeva_e_all::Complex(1.0, 2.0), korneeva_e_all::Complex(3.0, 4.0)},
+                             {korneeva_e_all::Complex(5.0, 6.0), korneeva_e_all::Complex(7.0, 8.0)}});
+    vec = CreateCcsFromDense({{korneeva_e_all::Complex(1.0, 0.0)}, {korneeva_e_all::Complex(2.0, 0.0)}});
+  }
 
-  auto expected = CreateCcsFromDense({{korneeva_e_all::Complex(7.0, 10.0)}, {korneeva_e_all::Complex(19.0, 22.0)}});
-  ExpectMatrixEq(result, expected);
+  RunTask(m1, vec, result, world);
+
+  if (world.rank() == 0) {
+    auto expected = CreateCcsFromDense({{korneeva_e_all::Complex(7.0, 10.0)}, {korneeva_e_all::Complex(19.0, 22.0)}});
+    ExpectMatrixEq(result, expected);
+  }
 }
 
 TEST(korneeva_e_sparse_matrix_mult_complex_ccs_all, test_vector_matrix_mult) {
-  auto vec = CreateCcsFromDense({{korneeva_e_all::Complex(1.0, 0.0), korneeva_e_all::Complex(2.0, 0.0)}});
-  auto m2 = CreateCcsFromDense({{korneeva_e_all::Complex(3.0, 0.0), korneeva_e_all::Complex(4.0, 0.0)},
-                                {korneeva_e_all::Complex(5.0, 0.0), korneeva_e_all::Complex(6.0, 0.0)}});
-  korneeva_e_all::SparseMatrixCCS result;
+  static boost::mpi::communicator world;
+  korneeva_e_all::SparseMatrixCCS vec(1, 2);
+  korneeva_e_all::SparseMatrixCCS m2(2, 2);
+  korneeva_e_all::SparseMatrixCCS result(1, 2);
 
-  RunTask(vec, m2, result);
+  if (world.rank() == 0) {
+    vec = CreateCcsFromDense({{korneeva_e_all::Complex(1.0, 0.0), korneeva_e_all::Complex(2.0, 0.0)}});
+    m2 = CreateCcsFromDense({{korneeva_e_all::Complex(3.0, 0.0), korneeva_e_all::Complex(4.0, 0.0)},
+                             {korneeva_e_all::Complex(5.0, 0.0), korneeva_e_all::Complex(6.0, 0.0)}});
+  }
 
-  auto expected = CreateCcsFromDense({{korneeva_e_all::Complex(13.0, 0.0), korneeva_e_all::Complex(16.0, 0.0)}});
-  ExpectMatrixEq(result, expected);
+  RunTask(vec, m2, result, world);
+
+  if (world.rank() == 0) {
+    auto expected = CreateCcsFromDense({{korneeva_e_all::Complex(13.0, 0.0), korneeva_e_all::Complex(16.0, 0.0)}});
+    ExpectMatrixEq(result, expected);
+  }
 }
 
 TEST(korneeva_e_sparse_matrix_mult_complex_ccs_all, test_matrix_unit_vector) {
-  auto m1 = CreateCcsFromDense({{korneeva_e_all::Complex(1.0, 1.0), korneeva_e_all::Complex(2.0, 2.0)},
-                                {korneeva_e_all::Complex(3.0, 3.0), korneeva_e_all::Complex(4.0, 4.0)}});
-  auto vec = CreateCcsFromDense({{korneeva_e_all::Complex(1.0, 0.0)}, {korneeva_e_all::Complex(0.0, 0.0)}});
-  korneeva_e_all::SparseMatrixCCS result;
+  static boost::mpi::communicator world;
+  korneeva_e_all::SparseMatrixCCS m1(2, 2);
+  korneeva_e_all::SparseMatrixCCS vec(2, 1);
+  korneeva_e_all::SparseMatrixCCS result(2, 1);
 
-  RunTask(m1, vec, result);
+  if (world.rank() == 0) {
+    m1 = CreateCcsFromDense({{korneeva_e_all::Complex(1.0, 1.0), korneeva_e_all::Complex(2.0, 2.0)},
+                             {korneeva_e_all::Complex(3.0, 3.0), korneeva_e_all::Complex(4.0, 4.0)}});
+    vec = CreateCcsFromDense({{korneeva_e_all::Complex(1.0, 0.0)}, {korneeva_e_all::Complex(0.0, 0.0)}});
+  }
 
-  auto expected = CreateCcsFromDense({{korneeva_e_all::Complex(1.0, 1.0)}, {korneeva_e_all::Complex(3.0, 3.0)}});
-  ExpectMatrixEq(result, expected);
+  RunTask(m1, vec, result, world);
+
+  if (world.rank() == 0) {
+    auto expected = CreateCcsFromDense({{korneeva_e_all::Complex(1.0, 1.0)}, {korneeva_e_all::Complex(3.0, 3.0)}});
+    ExpectMatrixEq(result, expected);
+  }
 }
 
 TEST(korneeva_e_sparse_matrix_mult_complex_ccs_all, test_sparse_matrices) {
-  auto m1 = CreateCcsFromDense(
-      {{korneeva_e_all::Complex(0.0, 0.0), korneeva_e_all::Complex(1.0, 0.0), korneeva_e_all::Complex(0.0, 0.0)},
-       {korneeva_e_all::Complex(0.0, 0.0), korneeva_e_all::Complex(0.0, 0.0), korneeva_e_all::Complex(2.0, 0.0)}});
-  auto m2 = CreateCcsFromDense({{korneeva_e_all::Complex(3.0, 0.0), korneeva_e_all::Complex(0.0, 0.0)},
-                                {korneeva_e_all::Complex(0.0, 0.0), korneeva_e_all::Complex(4.0, 0.0)},
-                                {korneeva_e_all::Complex(0.0, 0.0), korneeva_e_all::Complex(0.0, 0.0)}});
-  korneeva_e_all::SparseMatrixCCS result;
+  static boost::mpi::communicator world;
+  korneeva_e_all::SparseMatrixCCS m1(2, 3);
+  korneeva_e_all::SparseMatrixCCS m2(3, 2);
+  korneeva_e_all::SparseMatrixCCS result(2, 2);
 
-  RunTask(m1, m2, result);
+  if (world.rank() == 0) {
+    m1 = CreateCcsFromDense(
+        {{korneeva_e_all::Complex(0.0, 0.0), korneeva_e_all::Complex(1.0, 0.0), korneeva_e_all::Complex(0.0, 0.0)},
+         {korneeva_e_all::Complex(0.0, 0.0), korneeva_e_all::Complex(0.0, 0.0), korneeva_e_all::Complex(2.0, 0.0)}});
+    m2 = CreateCcsFromDense({{korneeva_e_all::Complex(3.0, 0.0), korneeva_e_all::Complex(0.0, 0.0)},
+                             {korneeva_e_all::Complex(0.0, 0.0), korneeva_e_all::Complex(4.0, 0.0)},
+                             {korneeva_e_all::Complex(0.0, 0.0), korneeva_e_all::Complex(0.0, 0.0)}});
+  }
 
-  auto expected = CreateCcsFromDense({{korneeva_e_all::Complex(0.0, 0.0), korneeva_e_all::Complex(4.0, 0.0)},
-                                      {korneeva_e_all::Complex(0.0, 0.0), korneeva_e_all::Complex(0.0, 0.0)}});
-  ExpectMatrixEq(result, expected);
+  RunTask(m1, m2, result, world);
+
+  if (world.rank() == 0) {
+    auto expected = CreateCcsFromDense({{korneeva_e_all::Complex(0.0, 0.0), korneeva_e_all::Complex(4.0, 0.0)},
+                                        {korneeva_e_all::Complex(0.0, 0.0), korneeva_e_all::Complex(0.0, 0.0)}});
+    ExpectMatrixEq(result, expected);
+  }
 }
 
 TEST(korneeva_e_sparse_matrix_mult_complex_ccs_all, test_mixed_values) {
-  auto m1 = CreateCcsFromDense({{korneeva_e_all::Complex(1.0, 0.0), korneeva_e_all::Complex(0.0, 0.0)},
-                                {korneeva_e_all::Complex(0.0, 0.0), korneeva_e_all::Complex(2.0, 0.0)}});
-  auto m2 = CreateCcsFromDense({{korneeva_e_all::Complex(0.0, 0.0), korneeva_e_all::Complex(3.0, 0.0)},
-                                {korneeva_e_all::Complex(4.0, 0.0), korneeva_e_all::Complex(0.0, 0.0)}});
-  korneeva_e_all::SparseMatrixCCS result;
+  static boost::mpi::communicator world;
+  korneeva_e_all::SparseMatrixCCS m1(2, 2);
+  korneeva_e_all::SparseMatrixCCS m2(2, 2);
+  korneeva_e_all::SparseMatrixCCS result(2, 2);
 
-  RunTask(m1, m2, result);
+  if (world.rank() == 0) {
+    m1 = CreateCcsFromDense({{korneeva_e_all::Complex(1.0, 0.0), korneeva_e_all::Complex(0.0, 0.0)},
+                             {korneeva_e_all::Complex(0.0, 0.0), korneeva_e_all::Complex(2.0, 0.0)}});
+    m2 = CreateCcsFromDense({{korneeva_e_all::Complex(0.0, 0.0), korneeva_e_all::Complex(3.0, 0.0)},
+                             {korneeva_e_all::Complex(4.0, 0.0), korneeva_e_all::Complex(0.0, 0.0)}});
+  }
 
-  auto expected = CreateCcsFromDense({{korneeva_e_all::Complex(0.0, 0.0), korneeva_e_all::Complex(3.0, 0.0)},
-                                      {korneeva_e_all::Complex(8.0, 0.0), korneeva_e_all::Complex(0.0, 0.0)}});
-  ExpectMatrixEq(result, expected);
+  RunTask(m1, m2, result, world);
+
+  if (world.rank() == 0) {
+    auto expected = CreateCcsFromDense({{korneeva_e_all::Complex(0.0, 0.0), korneeva_e_all::Complex(3.0, 0.0)},
+                                        {korneeva_e_all::Complex(8.0, 0.0), korneeva_e_all::Complex(0.0, 0.0)}});
+    ExpectMatrixEq(result, expected);
+  }
 }
 
 TEST(korneeva_e_sparse_matrix_mult_complex_ccs_all, test_dense_sparse_mult) {
-  auto m1 = CreateCcsFromDense({{korneeva_e_all::Complex(1.0, 0.0), korneeva_e_all::Complex(2.0, 0.0)},
-                                {korneeva_e_all::Complex(3.0, 0.0), korneeva_e_all::Complex(4.0, 0.0)}});
-  auto m2 = CreateCcsFromDense({{korneeva_e_all::Complex(1.0, 0.0), korneeva_e_all::Complex(0.0, 0.0)},
-                                {korneeva_e_all::Complex(0.0, 0.0), korneeva_e_all::Complex(0.0, 0.0)}});
-  korneeva_e_all::SparseMatrixCCS result;
+  static boost::mpi::communicator world;
+  korneeva_e_all::SparseMatrixCCS m1(2, 2);
+  korneeva_e_all::SparseMatrixCCS m2(2, 2);
+  korneeva_e_all::SparseMatrixCCS result(2, 2);
 
-  RunTask(m1, m2, result);
+  if (world.rank() == 0) {
+    m1 = CreateCcsFromDense({{korneeva_e_all::Complex(1.0, 0.0), korneeva_e_all::Complex(2.0, 0.0)},
+                             {korneeva_e_all::Complex(3.0, 0.0), korneeva_e_all::Complex(4.0, 0.0)}});
+    m2 = CreateCcsFromDense({{korneeva_e_all::Complex(1.0, 0.0), korneeva_e_all::Complex(0.0, 0.0)},
+                             {korneeva_e_all::Complex(0.0, 0.0), korneeva_e_all::Complex(0.0, 0.0)}});
+  }
 
-  auto expected = CreateCcsFromDense({{korneeva_e_all::Complex(1.0, 0.0), korneeva_e_all::Complex(0.0, 0.0)},
-                                      {korneeva_e_all::Complex(3.0, 0.0), korneeva_e_all::Complex(0.0, 0.0)}});
-  ExpectMatrixEq(result, expected);
+  RunTask(m1, m2, result, world);
+
+  if (world.rank() == 0) {
+    auto expected = CreateCcsFromDense({{korneeva_e_all::Complex(1.0, 0.0), korneeva_e_all::Complex(0.0, 0.0)},
+                                        {korneeva_e_all::Complex(3.0, 0.0), korneeva_e_all::Complex(0.0, 0.0)}});
+    ExpectMatrixEq(result, expected);
+  }
 }
 
 TEST(korneeva_e_sparse_matrix_mult_complex_ccs_all, test_random_matrices1) {
-  auto m1 = CreateRandomMatrix(2, 2, 2);
-  auto m2 = CreateRandomMatrix(2, 2, 2);
-  korneeva_e_all::SparseMatrixCCS result;
+  static boost::mpi::communicator world;
+  korneeva_e_all::SparseMatrixCCS m1(2, 2);
+  korneeva_e_all::SparseMatrixCCS m2(2, 2);
+  korneeva_e_all::SparseMatrixCCS result(2, 2);
 
-  RunTask(m1, m2, result);
+  if (world.rank() == 0) {
+    m1 = CreateRandomMatrix(2, 2, 2);
+    m2 = CreateRandomMatrix(2, 2, 2);
+  }
 
-  ASSERT_EQ(result.rows, 2);
-  ASSERT_EQ(result.cols, 2);
-  EXPECT_LE(result.nnz, 4);
+  RunTask(m1, m2, result, world);
+
+  if (world.rank() == 0) {
+    ASSERT_EQ(result.rows, 2);
+    ASSERT_EQ(result.cols, 2);
+    EXPECT_LE(result.nnz, 4);
+  }
 }
 
 TEST(korneeva_e_sparse_matrix_mult_complex_ccs_all, test_random_matrices2) {
-  auto m1 = CreateRandomMatrix(100, 100, 500);
-  auto m2 = CreateRandomMatrix(100, 100, 500);
-  korneeva_e_all::SparseMatrixCCS result;
+  static boost::mpi::communicator world;
+  korneeva_e_all::SparseMatrixCCS m1(100, 100);
+  korneeva_e_all::SparseMatrixCCS m2(100, 100);
+  korneeva_e_all::SparseMatrixCCS result(100, 100);
 
-  RunTask(m1, m2, result);
+  if (world.rank() == 0) {
+    m1 = CreateRandomMatrix(100, 100, 500);
+    m2 = CreateRandomMatrix(100, 100, 500);
+  }
 
-  ASSERT_EQ(result.rows, 100);
-  ASSERT_EQ(result.cols, 100);
-  EXPECT_LE(result.nnz, 10000);
+  RunTask(m1, m2, result, world);
+
+  if (world.rank() == 0) {
+    ASSERT_EQ(result.rows, 100);
+    ASSERT_EQ(result.cols, 100);
+    EXPECT_LE(result.nnz, 10000);
+  }
 }
 
 TEST(korneeva_e_sparse_matrix_mult_complex_ccs_all, test_associativity) {
-  auto a = CreateCcsFromDense({{korneeva_e_all::Complex(1.0, 0.0), korneeva_e_all::Complex(2.0, 0.0)},
-                               {korneeva_e_all::Complex(0.0, 0.0), korneeva_e_all::Complex(3.0, 0.0)}});
-  auto b = CreateCcsFromDense({{korneeva_e_all::Complex(4.0, 0.0), korneeva_e_all::Complex(0.0, 0.0)},
-                               {korneeva_e_all::Complex(5.0, 0.0), korneeva_e_all::Complex(6.0, 0.0)}});
-  auto c = CreateCcsFromDense({{korneeva_e_all::Complex(1.0, 0.0), korneeva_e_all::Complex(2.0, 0.0)},
-                               {korneeva_e_all::Complex(0.0, 0.0), korneeva_e_all::Complex(1.0, 0.0)}});
+  static boost::mpi::communicator world;
+  korneeva_e_all::SparseMatrixCCS a(2, 2);
+  korneeva_e_all::SparseMatrixCCS b(2, 2);
+  korneeva_e_all::SparseMatrixCCS c(2, 2);
+  korneeva_e_all::SparseMatrixCCS ab(2, 2);
+  korneeva_e_all::SparseMatrixCCS ab_c(2, 2);
+  korneeva_e_all::SparseMatrixCCS bc(2, 2);
+  korneeva_e_all::SparseMatrixCCS a_bc(2, 2);
 
-  korneeva_e_all::SparseMatrixCCS ab;
-  korneeva_e_all::SparseMatrixCCS ab_c;
-  korneeva_e_all::SparseMatrixCCS bc;
-  korneeva_e_all::SparseMatrixCCS a_bc;
+  if (world.rank() == 0) {
+    a = CreateCcsFromDense({{korneeva_e_all::Complex(1.0, 0.0), korneeva_e_all::Complex(2.0, 0.0)},
+                            {korneeva_e_all::Complex(0.0, 0.0), korneeva_e_all::Complex(3.0, 0.0)}});
+    b = CreateCcsFromDense({{korneeva_e_all::Complex(4.0, 0.0), korneeva_e_all::Complex(0.0, 0.0)},
+                            {korneeva_e_all::Complex(5.0, 0.0), korneeva_e_all::Complex(6.0, 0.0)}});
+    c = CreateCcsFromDense({{korneeva_e_all::Complex(1.0, 0.0), korneeva_e_all::Complex(2.0, 0.0)},
+                            {korneeva_e_all::Complex(0.0, 0.0), korneeva_e_all::Complex(1.0, 0.0)}});
+  }
 
-  RunTask(a, b, ab);
-  RunTask(ab, c, ab_c);
+  RunTask(a, b, ab, world);
+  RunTask(ab, c, ab_c, world);
+  RunTask(b, c, bc, world);
+  RunTask(a, bc, a_bc, world);
 
-  RunTask(b, c, bc);
-  RunTask(a, bc, a_bc);
-
-  ExpectMatrixEq(ab_c, a_bc);
+  if (world.rank() == 0) {
+    ExpectMatrixEq(ab_c, a_bc);
+  }
 }

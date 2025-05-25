@@ -1,5 +1,8 @@
 #pragma once
 
+#include <boost/mpi/communicator.hpp>
+#include <boost/serialization/complex.hpp>
+#include <boost/serialization/vector.hpp>
 #include <complex>
 #include <utility>
 #include <vector>
@@ -23,6 +26,22 @@ struct SparseMatrixCCS {
     row_indices.resize(nnz);
     col_offsets.resize(cols + 1, 0);
   }
+
+  friend class boost::serialization::access;
+
+  // clang-format off
+  // NOLINTBEGIN(*)
+  template <class Archive>
+  void serialize(Archive& ar, const unsigned int /*version*/) {
+    ar & rows;
+    ar & cols;
+    ar & nnz;
+    ar & values;
+    ar & row_indices;
+    ar & col_offsets;
+  }
+  // NOLINTEND(*)
+  // clang-format on
 };
 
 class SparseMatrixMultComplexCCS : public ppc::core::Task {
@@ -37,6 +56,7 @@ class SparseMatrixMultComplexCCS : public ppc::core::Task {
   SparseMatrixCCS* matrix1_;
   SparseMatrixCCS* matrix2_;
   SparseMatrixCCS result_;
+  boost::mpi::communicator world_;
 
   void ComputeColumn(int col_idx, std::vector<std::pair<Complex, int>>& column_data);
   Complex ComputeElement(int row_idx, int col_start2, int col_end2);

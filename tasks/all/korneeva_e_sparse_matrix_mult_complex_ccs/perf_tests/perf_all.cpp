@@ -9,6 +9,7 @@
 #include <vector>
 
 #include "all/korneeva_e_sparse_matrix_mult_complex_ccs/include/ops_all.hpp"
+#include "boost/mpi/communicator.hpp"
 #include "core/perf/include/perf.hpp"
 #include "core/task/include/task.hpp"
 
@@ -115,17 +116,25 @@ void AssertMatricesEqual(const korneeva_e_all::SparseMatrixCCS& result,
 }  // namespace
 
 TEST(korneeva_e_sparse_matrix_mult_complex_ccs_all, test_pipeline_run) {
+  static boost::mpi::communicator world;
   constexpr int kRowsCols = 500;
   constexpr int kMaxNnzMatrix = 500;
   constexpr int kMaxNnzMatrix2 = 500;
 
-  korneeva_e_all::SparseMatrixCCS matrix1 = CreateRandomMatrix(kRowsCols, kRowsCols, kMaxNnzMatrix);
-  korneeva_e_all::SparseMatrixCCS matrix2 = CreateRandomMatrix(kRowsCols, kRowsCols, kMaxNnzMatrix2);
-  korneeva_e_all::SparseMatrixCCS result;
+  korneeva_e_all::SparseMatrixCCS matrix1({kRowsCols, kRowsCols});
+  korneeva_e_all::SparseMatrixCCS matrix2({kRowsCols, kRowsCols});
+  korneeva_e_all::SparseMatrixCCS result({kRowsCols, kRowsCols});
+
   auto task_data_all = std::make_shared<ppc::core::TaskData>();
-  task_data_all->inputs.emplace_back(reinterpret_cast<uint8_t*>(&matrix1));
-  task_data_all->inputs.emplace_back(reinterpret_cast<uint8_t*>(&matrix2));
-  task_data_all->outputs.emplace_back(reinterpret_cast<uint8_t*>(&result));
+  if (world.rank() == 0) {
+    matrix1 = CreateRandomMatrix(kRowsCols, kRowsCols, kMaxNnzMatrix);
+    matrix2 = CreateRandomMatrix(kRowsCols, kRowsCols, kMaxNnzMatrix2);
+    task_data_all->inputs.emplace_back(reinterpret_cast<uint8_t*>(&matrix1));
+    task_data_all->inputs.emplace_back(reinterpret_cast<uint8_t*>(&matrix2));
+    task_data_all->inputs_count.emplace_back(2);
+    task_data_all->outputs.emplace_back(reinterpret_cast<uint8_t*>(&result));
+    task_data_all->outputs_count.emplace_back(1);
+  }
 
   auto test_task_all = std::make_shared<korneeva_e_all::SparseMatrixMultComplexCCS>(task_data_all);
 
@@ -141,23 +150,34 @@ TEST(korneeva_e_sparse_matrix_mult_complex_ccs_all, test_pipeline_run) {
   auto perf_results = std::make_shared<ppc::core::PerfResults>();
   auto perf_analyzer = std::make_shared<ppc::core::Perf>(test_task_all);
   perf_analyzer->PipelineRun(perf_attr, perf_results);
-  ppc::core::Perf::PrintPerfStatistic(perf_results);
 
-  korneeva_e_all::SparseMatrixCCS expected = SequentialMatrixMultiply(matrix1, matrix2);
-  AssertMatricesEqual(result, expected);
+  if (world.rank() == 0) {
+    ppc::core::Perf::PrintPerfStatistic(perf_results);
+    korneeva_e_all::SparseMatrixCCS expected = SequentialMatrixMultiply(matrix1, matrix2);
+    AssertMatricesEqual(result, expected);
+  }
 }
 
 TEST(korneeva_e_sparse_matrix_mult_complex_ccs_all, test_task_run) {
+  static boost::mpi::communicator world;
   constexpr int kRowsCols = 500;
   constexpr int kMaxNnzMatrix = 500;
   constexpr int kMaxNnzMatrix2 = 500;
-  korneeva_e_all::SparseMatrixCCS matrix1 = CreateRandomMatrix(kRowsCols, kRowsCols, kMaxNnzMatrix);
-  korneeva_e_all::SparseMatrixCCS matrix2 = CreateRandomMatrix(kRowsCols, kRowsCols, kMaxNnzMatrix2);
-  korneeva_e_all::SparseMatrixCCS result;
+
+  korneeva_e_all::SparseMatrixCCS matrix1({kRowsCols, kRowsCols});
+  korneeva_e_all::SparseMatrixCCS matrix2({kRowsCols, kRowsCols});
+  korneeva_e_all::SparseMatrixCCS result({kRowsCols, kRowsCols});
+
   auto task_data_all = std::make_shared<ppc::core::TaskData>();
-  task_data_all->inputs.emplace_back(reinterpret_cast<uint8_t*>(&matrix1));
-  task_data_all->inputs.emplace_back(reinterpret_cast<uint8_t*>(&matrix2));
-  task_data_all->outputs.emplace_back(reinterpret_cast<uint8_t*>(&result));
+  if (world.rank() == 0) {
+    matrix1 = CreateRandomMatrix(kRowsCols, kRowsCols, kMaxNnzMatrix);
+    matrix2 = CreateRandomMatrix(kRowsCols, kRowsCols, kMaxNnzMatrix2);
+    task_data_all->inputs.emplace_back(reinterpret_cast<uint8_t*>(&matrix1));
+    task_data_all->inputs.emplace_back(reinterpret_cast<uint8_t*>(&matrix2));
+    task_data_all->inputs_count.emplace_back(2);
+    task_data_all->outputs.emplace_back(reinterpret_cast<uint8_t*>(&result));
+    task_data_all->outputs_count.emplace_back(1);
+  }
 
   auto test_task_all = std::make_shared<korneeva_e_all::SparseMatrixMultComplexCCS>(task_data_all);
 
@@ -173,8 +193,10 @@ TEST(korneeva_e_sparse_matrix_mult_complex_ccs_all, test_task_run) {
   auto perf_results = std::make_shared<ppc::core::PerfResults>();
   auto perf_analyzer = std::make_shared<ppc::core::Perf>(test_task_all);
   perf_analyzer->TaskRun(perf_attr, perf_results);
-  ppc::core::Perf::PrintPerfStatistic(perf_results);
 
-  korneeva_e_all::SparseMatrixCCS expected = SequentialMatrixMultiply(matrix1, matrix2);
-  AssertMatricesEqual(result, expected);
+  if (world.rank() == 0) {
+    ppc::core::Perf::PrintPerfStatistic(perf_results);
+    korneeva_e_all::SparseMatrixCCS expected = SequentialMatrixMultiply(matrix1, matrix2);
+    AssertMatricesEqual(result, expected);
+  }
 }

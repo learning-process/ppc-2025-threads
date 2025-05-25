@@ -1,11 +1,13 @@
 #include "all/korneeva_e_sparse_matrix_mult_complex_ccs/include/ops_all.hpp"
 
-#include <mpi.h>
-
 #include <algorithm>
+#include <boost/mpi/collectives/all_gather.hpp>
+#include <boost/mpi/collectives/all_gatherv.hpp>
+#include <boost/mpi/collectives/broadcast.hpp>
+#include <boost/mpi/collectives/reduce.hpp>
 #include <cmath>
-#include <complex>
-#include <cstdlib>
+#include <cstddef>
+#include <functional>
 #include <numeric>
 #include <thread>
 #include <utility>
@@ -35,29 +37,38 @@ void DistributeColumns(int rank, int size, int total_cols, int& start_col, int& 
 }  // namespace
 
 bool SparseMatrixMultComplexCCS::PreProcessingImpl() {
-  matrix1_ = reinterpret_cast<SparseMatrixCCS*>(task_data->inputs[0]);
-  matrix2_ = reinterpret_cast<SparseMatrixCCS*>(task_data->inputs[1]);
-  result_ = SparseMatrixCCS(matrix1_->rows, matrix2_->cols, 0);
+  if (world_.rank() == 0) {
+    matrix1_ = reinterpret_cast<SparseMatrixCCS*>(task_data->inputs[0]);
+    matrix2_ = reinterpret_cast<SparseMatrixCCS*>(task_data->inputs[1]);
+    result_ = SparseMatrixCCS(matrix1_->rows, matrix2_->cols, 0);
+  } else {
+    matrix1_ = new SparseMatrixCCS();
+    matrix2_ = new SparseMatrixCCS();
+    result_ = SparseMatrixCCS(0, 0, 0);
+  }
   return true;
 }
 
 bool SparseMatrixMultComplexCCS::ValidationImpl() {
-  if (task_data->inputs.size() != 2 || task_data->outputs.size() != 1) {
-    return false;
+  if (world_.rank() == 0) {
+    if (task_data->inputs.size() != 2 || task_data->outputs.size() != 1) {
+      return false;
+    }
+
+    auto* m1 = reinterpret_cast<SparseMatrixCCS*>(task_data->inputs[0]);
+    auto* m2 = reinterpret_cast<SparseMatrixCCS*>(task_data->inputs[1]);
+
+    return m1 != nullptr && m2 != nullptr && m1->cols == m2->rows && m1->rows > 0 && m1->cols > 0 && m2->rows > 0 &&
+           m2->cols > 0;
   }
-
-  auto* m1 = reinterpret_cast<SparseMatrixCCS*>(task_data->inputs[0]);
-  auto* m2 = reinterpret_cast<SparseMatrixCCS*>(task_data->inputs[1]);
-
-  return m1 != nullptr && m2 != nullptr && m1->cols == m2->rows && m1->rows > 0 && m1->cols > 0 && m2->rows > 0 &&
-         m2->cols > 0;
+  return true;
 }
 
 void SparseMatrixMultComplexCCS::ProcessColumnRange(int start_col, int end_col,
                                                     std::vector<std::vector<std::pair<Complex, int>>>& column_results,
                                                     const std::vector<int>& col_indices) {
   int num_threads = std::max(1, std::min(ppc::util::GetPPCNumThreads(), end_col - start_col));
-  if (num_threads == 1 || end_col - start_col < 16) {
+  if ((end_col - start_col) < num_threads * 2) {
     for (int j = start_col; j < end_col; ++j) {
       ComputeColumn(col_indices[j - start_col], column_results[j - start_col]);
     }
@@ -109,9 +120,10 @@ void SparseMatrixMultComplexCCS::GatherGlobalResults(
     int rank, int size, int total_cols, int local_nnz, const std::vector<Complex>& local_values,
     const std::vector<int>& local_row_indices, const std::vector<std::vector<std::pair<Complex, int>>>& column_results,
     int start_col, int end_col) {
-  std::vector<int> all_nnz(size);
-  MPI_Allgather(&local_nnz, 1, MPI_INT, all_nnz.data(), 1, MPI_INT, MPI_COMM_WORLD);
+  std::vector<int> all_nnz;
+  boost::mpi::all_gather(world_, local_nnz, all_nnz);
   int total_nnz = std::accumulate(all_nnz.begin(), all_nnz.end(), 0);
+
   std::vector<int> displacements(size);
   if (!displacements.empty()) {
     displacements[0] = 0;
@@ -126,18 +138,17 @@ void SparseMatrixMultComplexCCS::GatherGlobalResults(
   result_.nnz = total_nnz;
 
   if (total_nnz > 0) {
-    MPI_Allgatherv(local_values.data(), local_nnz, MPI_CXX_DOUBLE_COMPLEX, result_.values.data(), all_nnz.data(),
-                   displacements.data(), MPI_CXX_DOUBLE_COMPLEX, MPI_COMM_WORLD);
-    MPI_Allgatherv(local_row_indices.data(), local_nnz, MPI_INT, result_.row_indices.data(), all_nnz.data(),
-                   displacements.data(), MPI_INT, MPI_COMM_WORLD);
+    boost::mpi::all_gatherv(world_, local_values, result_.values, all_nnz, displacements);
+    boost::mpi::all_gatherv(world_, local_row_indices, result_.row_indices, all_nnz, displacements);
   }
 
   std::vector<int> local_col_counts(total_cols, 0);
   for (int j = 0; j < end_col - start_col; ++j) {
     local_col_counts[start_col + j] = static_cast<int>(column_results[j].size());
   }
+
   std::vector<int> global_col_counts(total_cols);
-  MPI_Reduce(local_col_counts.data(), global_col_counts.data(), total_cols, MPI_INT, MPI_SUM, 0, MPI_COMM_WORLD);
+  boost::mpi::reduce(world_, local_col_counts, global_col_counts, std::plus<>{}, 0);
 
   if (rank == 0) {
     result_.col_offsets[0] = 0;
@@ -145,14 +156,17 @@ void SparseMatrixMultComplexCCS::GatherGlobalResults(
       result_.col_offsets[j + 1] = result_.col_offsets[j] + global_col_counts[j];
     }
   }
-  MPI_Bcast(result_.col_offsets.data(), total_cols + 1, MPI_INT, 0, MPI_COMM_WORLD);
+  boost::mpi::broadcast(world_, result_.col_offsets, 0);
 }
 
 bool SparseMatrixMultComplexCCS::RunImpl() {
-  int rank = 0;
-  int size = 0;
-  MPI_Comm_rank(MPI_COMM_WORLD, &rank);
-  MPI_Comm_size(MPI_COMM_WORLD, &size);
+  int rank = world_.rank();
+  int size = world_.size();
+
+  boost::mpi::broadcast(world_, *matrix1_, 0);
+  boost::mpi::broadcast(world_, *matrix2_, 0);
+
+  result_ = SparseMatrixCCS(matrix1_->rows, matrix2_->cols, 0);
 
   int total_cols = matrix2_->cols;
   int start_col = 0;
@@ -176,6 +190,8 @@ bool SparseMatrixMultComplexCCS::RunImpl() {
 
   GatherGlobalResults(rank, size, total_cols, local_nnz, local_values, local_row_indices, column_results, start_col,
                       end_col);
+
+  boost::mpi::broadcast(world_, result_, 0);
 
   return true;
 }
@@ -228,7 +244,9 @@ void SparseMatrixMultComplexCCS::ComputeColumn(int col_idx, std::vector<std::pai
 }
 
 bool SparseMatrixMultComplexCCS::PostProcessingImpl() {
-  *reinterpret_cast<SparseMatrixCCS*>(task_data->outputs[0]) = result_;
+  if (world_.rank() == 0) {
+    *reinterpret_cast<SparseMatrixCCS*>(task_data->outputs[0]) = result_;
+  }
   return true;
 }
 
