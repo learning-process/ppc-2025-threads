@@ -51,7 +51,7 @@ void naumov_b_marc_on_bin_img_tbb::TestTaskTBB::ProcessPixel(int row, int col) {
 }
 
 void naumov_b_marc_on_bin_img_tbb::TestTaskTBB::AssignNewLabel(int row, int col) {
-  std::lock_guard<std::mutex> lock(union_mutex_); 
+  std::lock_guard<std::mutex> lock(union_mutex_);
   int new_label = ++current_label_;
   output_image_[(row * cols_) + col] = new_label;
   if (static_cast<size_t>(new_label) >= label_parent_.size()) {
@@ -96,8 +96,7 @@ std::vector<int> naumov_b_marc_on_bin_img_tbb::TestTaskTBB::FindAdjacentLabels(i
 
 void naumov_b_marc_on_bin_img_tbb::TestTaskTBB::UnionLabels(int label1, int label2) {
   std::lock_guard<std::mutex> lock(union_mutex_);
-  if (label1 <= 0 || label2 <= 0 || 
-      static_cast<size_t>(label1) >= label_parent_.size() || 
+  if (label1 <= 0 || label2 <= 0 || static_cast<size_t>(label1) >= label_parent_.size() ||
       static_cast<size_t>(label2) >= label_parent_.size()) {
     return;
   }
