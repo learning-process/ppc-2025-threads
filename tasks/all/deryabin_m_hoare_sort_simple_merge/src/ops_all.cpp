@@ -17,7 +17,8 @@ void deryabin_m_hoare_sort_simple_merge_mpi::HoaraSort(std::vector<double>::iter
     return;
   }
   const auto mid = first + ((last - first) >> 1);
-  const double x = *mid;
+  const double x = (*first < *mid) ? (*mid < *last ? *mid : std::max(*first, *last))
+                                   : (*first < *last ? *first : std::max(*mid, *last));
   auto left = first;
   auto right = last;
   do {
@@ -30,8 +31,8 @@ void deryabin_m_hoare_sort_simple_merge_mpi::HoaraSort(std::vector<double>::iter
     std::iter_swap(left, right);
   } while (left < right);
   if (last - first >= 199) {
-    oneapi::tbb::parallel_invoke([&first, &left]() { HoaraSort(first, left); },
-                                 [&right, &last]() { HoaraSort(right + 1, last); });
+    oneapi::tbb::parallel_invoke([&first, &right]() { HoaraSort(first, right); },
+                                 [&left, &last]() { HoaraSort(left + 1, last); });
   } else {
     HoaraSort(first, right);
     HoaraSort(left + 1, last);
@@ -98,15 +99,6 @@ bool deryabin_m_hoare_sort_simple_merge_mpi::HoareSortTaskMPI::PreProcessingImpl
     min_chunk_size_ = dimension_ / chunk_count_;
     rest_ = dimension_ % chunk_count_;
   }
-  boost::mpi::broadcast(world, dimension_, 0);
-  if (world.rank() != 0) {
-    input_array_A_.reserve(dimension_);
-    input_array_A_.resize(dimension_);
-  }
-  boost::mpi::broadcast(world, input_array_A_.data(), dimension_, 0);
-  boost::mpi::broadcast(world, chunk_count_, 0);
-  boost::mpi::broadcast(world, min_chunk_size_, 0);
-  boost::mpi::broadcast(world, rest_, 0);
   return true;
 }
 
