@@ -110,6 +110,7 @@ bool burykin_m_radix_all::RadixALL::RunImpl() {
       {
         volatile int size = 0;
         for (int shift = 0; shift < 32; shift += 8) {
+          int local_shift = size + shift;
           auto count = ComputeFrequency(a, shift);
           const auto index = ComputeIndices(count);
           DistributeElements(a, b, index, shift);
@@ -125,12 +126,12 @@ bool burykin_m_radix_all::RadixALL::RunImpl() {
 }
 
 bool burykin_m_radix_all::RadixALL::PostProcessingImpl() {
-  std::vector<int>& output_ref = output_;
-  int* output_ptr = reinterpret_cast<int*>(task_data->outputs[0]);
+  auto* output_ptr = reinterpret_cast<int*>(task_data->outputs[0]);
+  const auto output_size = static_cast<int>(output_.size());
 
-#pragma omp parallel for default(none) shared(output_ref, output_ptr) schedule(static, 1)
-  for (int i = 0; i < static_cast<int>(output_ref.size()); ++i) {
-    output_ptr[i] = output_ref[i];
+#pragma omp parallel for
+  for (int i = 0; i < output_size; ++i) {
+    output_ptr[i] = output_[i];
   }
   return true;
 }
