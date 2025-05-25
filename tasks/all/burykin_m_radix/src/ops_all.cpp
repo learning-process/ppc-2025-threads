@@ -91,7 +91,7 @@ void burykin_m_radix_all::RadixALL::Merge(boost::mpi::communicator& group) {
         procchunk_.resize(threshold + size);
         group.recv(int(slave), 0, procchunk_.data() + threshold, size);
 
-        std::ranges::inplace_merge(procchunk_, procchunk_.begin() + std::int64_t(threshold));
+        std::inplace_merge(procchunk_.begin(), procchunk_.begin() + std::int64_t(threshold), procchunk_.end());
       }
     } else if ((group.rank() % i) == 0) {
       const int size = static_cast<int>(procchunk_.size());
