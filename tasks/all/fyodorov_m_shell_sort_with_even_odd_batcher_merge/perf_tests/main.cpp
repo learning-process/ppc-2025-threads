@@ -13,7 +13,6 @@
 
 TEST(fyodorov_m_shell_sort_with_even_odd_batcher_merge_mpi, test_pipeline_run) {
   constexpr int kCount = 520000;
-
   auto get_random_vector = [](int sz, int a, int b) -> std::vector<int> {
     std::random_device dev;
     std::mt19937 gen(dev());
