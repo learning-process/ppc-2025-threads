@@ -46,7 +46,7 @@ bool zaytsev_d_sobel_all::TestTaskALL::PreProcessingImpl() {
 
 bool zaytsev_d_sobel_all::TestTaskALL::ValidationImpl() {
   int rank = world_.rank();
-  bool v = false;
+  bool validation = false;
 
   if (rank == 0) {
     if (task_data->inputs.size() >= 2 && task_data->inputs_count.size() >= 2 && !task_data->outputs_count.empty()) {
@@ -54,13 +54,13 @@ bool zaytsev_d_sobel_all::TestTaskALL::ValidationImpl() {
       width_ = size_ptr[0];
       height_ = size_ptr[1];
 
-      v = (task_data->inputs_count[0] == task_data->outputs_count[0]) && (width_ >= 3 && height_ >= 3) &&
-          (width_ * height_ == static_cast<int>(task_data->inputs_count[0]));
+      validation = (task_data->inputs_count[0] == task_data->outputs_count[0]) && (width_ >= 3 && height_ >= 3) &&
+                  (width_ * height_ == static_cast<int>(task_data->inputs_count[0]));
     }
   }
 
-  boost::mpi::broadcast(world_, v, 0);
-  return v;
+  boost::mpi::broadcast(world_, validation, 0);
+  return validation;
 }
 
 bool zaytsev_d_sobel_all::TestTaskALL::RunImpl() {
@@ -77,7 +77,6 @@ bool zaytsev_d_sobel_all::TestTaskALL::RunImpl() {
   int rem = total_pixels % size;
   int start_idx = (rank * chunk) + std::min(rank, rem);
   int end_idx = start_idx + chunk + static_cast<int>(rank < rem);
-  end_idx = std::min(end_idx, total_pixels);
 
   tbb::parallel_for(tbb::blocked_range<int>(start_idx, end_idx), [&](const tbb::blocked_range<int>& r) {
     for (int idx = r.begin(); idx < r.end(); ++idx) {
