@@ -1,22 +1,12 @@
 #include "all/burykin_m_radix/include/ops_all.hpp"
 
 #include <array>
-#include <boost/serialization/vector.hpp>
 #include <utility>
 #include <vector>
 
 std::array<int, 256> burykin_m_radix_all::RadixALL::ComputeFrequency(const std::vector<int>& a, const int shift) {
   std::array<int, 256> count = {};
 
-#if defined(__APPLE__) || defined(_MSC_VER)
-  for (const int v : a) {
-    unsigned int key = ((static_cast<unsigned int>(v) >> shift) & 0xFFU);
-    if (shift == 24) {
-      key ^= 0x80;
-    }
-    ++count[key];
-  }
-#else
 #pragma omp parallel default(none) shared(a, count, shift)
   {
     std::array<int, 256> local_count = {};
@@ -38,7 +28,6 @@ std::array<int, 256> burykin_m_radix_all::RadixALL::ComputeFrequency(const std::
       }
     }
   }
-#endif
 
   return count;
 }
@@ -53,16 +42,6 @@ std::array<int, 256> burykin_m_radix_all::RadixALL::ComputeIndices(const std::ar
 
 void burykin_m_radix_all::RadixALL::DistributeElements(const std::vector<int>& a, std::vector<int>& b,
                                                        std::array<int, 256> index, const int shift) {
-#if defined(__APPLE__) || defined(_MSC_VER)
-  for (const int v : a) {
-    unsigned int key = ((static_cast<unsigned int>(v) >> shift) & 0xFFU);
-    if (shift == 24) {
-      key ^= 0x80;
-    }
-    b[index[key]] = v;
-    ++index[key];
-  }
-#else
   std::array<int, 256> local_index = index;
   std::vector<int> offsets(a.size());
 
@@ -88,22 +67,12 @@ void burykin_m_radix_all::RadixALL::DistributeElements(const std::vector<int>& a
   for (int i = 0; i < static_cast<int>(a.size()); ++i) {
     b[offsets[i]] = a[i];
   }
-#endif
 }
 
 bool burykin_m_radix_all::RadixALL::PreProcessingImpl() {
   const unsigned int input_size = task_data->inputs_count[0];
-
-  if (world_.rank() == 0) {
-    auto* in_ptr = reinterpret_cast<int*>(task_data->inputs[0]);
-    input_ = std::vector<int>(in_ptr, in_ptr + input_size);
-  } else {
-    input_.resize(input_size);
-  }
-
-  if (world_.size() > 1) {
-    boost::mpi::broadcast(world_, input_, 0);
-  }
+  auto* in_ptr = reinterpret_cast<int*>(task_data->inputs[0]);
+  input_ = std::vector<int>(in_ptr, in_ptr + input_size);
 
   output_.resize(input_size);
   return true;
@@ -118,18 +87,10 @@ bool burykin_m_radix_all::RadixALL::RunImpl() {
     return true;
   }
 
-  std::vector<int> a = std::move(input_);
+  std::vector<int> a = input_;
   std::vector<int> b(a.size());
 
   if (world_.rank() == 0) {
-#if defined(__APPLE__) || defined(_MSC_VER)
-    for (int shift = 0; shift < 32; shift += 8) {
-      auto count = ComputeFrequency(a, shift);
-      const auto index = ComputeIndices(count);
-      DistributeElements(a, b, index, shift);
-      a.swap(b);
-    }
-#else
 #pragma omp parallel
     {
 #pragma omp single
@@ -142,11 +103,19 @@ bool burykin_m_radix_all::RadixALL::RunImpl() {
         }
       }
     }
-#endif
-  }
-
-  if (world_.size() > 1) {
-    boost::mpi::broadcast(world_, a, 0);
+  } else {
+#pragma omp parallel
+    {
+#pragma omp single
+      {
+        for (int shift = 0; shift < 32; shift += 8) {
+          auto count = ComputeFrequency(a, shift);
+          const auto index = ComputeIndices(count);
+          DistributeElements(a, b, index, shift);
+          a.swap(b);
+        }
+      }
+    }
   }
 
   world_.barrier();
@@ -155,12 +124,12 @@ bool burykin_m_radix_all::RadixALL::RunImpl() {
 }
 
 bool burykin_m_radix_all::RadixALL::PostProcessingImpl() {
-  auto* output_ptr = reinterpret_cast<int*>(task_data->outputs[0]);
-  const auto output_size = static_cast<int>(output_.size());
+  std::vector<int>& output_ref = output_;
+  int* output_ptr = reinterpret_cast<int*>(task_data->outputs[0]);
 
-#pragma omp parallel for
-  for (int i = 0; i < output_size; ++i) {
-    output_ptr[i] = output_[i];
+#pragma omp parallel for default(none) shared(output_ref, output_ptr) schedule(static, 1)
+  for (int i = 0; i < static_cast<int>(output_ref.size()); ++i) {
+    output_ptr[i] = output_ref[i];
   }
   return true;
 }
