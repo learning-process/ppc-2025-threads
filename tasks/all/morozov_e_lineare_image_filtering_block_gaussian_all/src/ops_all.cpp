@@ -5,6 +5,7 @@
 #include <utility>
 #include <vector>
 namespace {
+// Алгоритм вычисления диапазона вычисления для каждого процесса
 std::pair<int, int> GetStartEndIndices(int count_proc, int curr_runk_proc, int array_size) {
   int start = 0;
   int end = 0;
@@ -61,10 +62,6 @@ inline double morozov_e_lineare_image_filtering_block_gaussian_all::TestTaskALL:
   return sum;
 }
 bool morozov_e_lineare_image_filtering_block_gaussian_all::TestTaskALL::RunImpl() {
-  // clang-format off
-
-  // clang-format on
-  // Алгоритм вычисления диапазона вычисления для каждого процесса
   auto start_end_pair = GetStartEndIndices(world_.size(), world_.rank(), n_);
   int start = start_end_pair.first;
   int end = start_end_pair.second;
@@ -84,10 +81,8 @@ bool morozov_e_lineare_image_filtering_block_gaussian_all::TestTaskALL::RunImpl(
       int end_p = 0;
       world_.recv(p, 0, &start_p, 1);
       world_.recv(p, 0, &end_p, 1);
-      // Получаем все данные разом
       std::vector<double> temp((end_p - start_p) * m_);
       world_.recv(p, 0, temp.data(), (end_p - start_p) * m_);
-      // Копируем в res_
       for (int i = start_p; i < end_p; ++i) {
         for (int j = 0; j < m_; ++j) {
           res_[(i * m_) + j] = temp[((i - start_p) * m_) + j];

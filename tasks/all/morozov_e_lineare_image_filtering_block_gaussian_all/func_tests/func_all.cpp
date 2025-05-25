@@ -69,103 +69,73 @@ std::shared_ptr<ppc::core::TaskData> CreateTaskData(std::vector<double> &input, 
 }  // namespace
 TEST(morozov_e_lineare_image_filtering_block_gaussian_all, test_) {
   boost::mpi::communicator world;
-  /*std::cout << world.rank() << " dsffsd"
-            << "\n";*/
   int n = 5;
   int m = 2;
-  // clang-format off
-  
-   auto task_data_seq = std::make_shared<ppc::core::TaskData>();
-   std::vector<double> image_res(n * m, 1.0);
-   std::vector<double> image;
-   if(world.rank() == 0){
-   //image  = {1,1,1,1, 1,1,1,1, 1, 1};
-     image = GenerateRandomVector(n, m);
-   }
-   boost::mpi::broadcast(world, image, 0);// NOLINT(misc-include-cleaner)
-    task_data_seq->inputs.emplace_back(reinterpret_cast<uint8_t *>(image.data()));
-   task_data_seq->inputs_count.emplace_back(n);
-   task_data_seq->inputs_count.emplace_back(m);
-   task_data_seq->outputs.emplace_back(reinterpret_cast<uint8_t *>(image_res.data()));
-   task_data_seq->outputs_count.emplace_back(n);
-   task_data_seq->outputs_count.emplace_back(m);
-   morozov_e_lineare_image_filtering_block_gaussian_all::TestTaskALL test_task_sequential(task_data_seq);
-   if(world.rank() == 0){
-   ASSERT_EQ(test_task_sequential.Validation(), true);
-   }
-   test_task_sequential.PreProcessing();
+
+  std::vector<double> image_res(n * m, 1.0);
+  std::vector<double> image;
+  if (world.rank() == 0) {
+    image = GenerateRandomVector(n, m);
+  }
+  boost::mpi::broadcast(world, image, 0);  // NOLINT(misc-include-cleaner)
+  auto task_data_seq = std::make_shared<ppc::core::TaskData>();
+  morozov_e_lineare_image_filtering_block_gaussian_all::TestTaskALL test_task_sequential(task_data_seq);
+  if (world.rank() == 0) {
+    ASSERT_EQ(test_task_sequential.Validation(), true);
+  }
+  test_task_sequential.PreProcessing();
   test_task_sequential.Run();
   test_task_sequential.PostProcessing();
- /*  std::cout<< "\n end - " << world.rank() << " dsffsd"
-             << "\n";*/
-  if(world.rank() == 0){
-   ASSERT_EQ(image, image_res);
-   }
+  if (world.rank() == 0) {
+    ASSERT_EQ(image, image_res);
+  }
 }
 TEST(morozov_e_lineare_image_filtering_block_gaussian_all, empty_image_test) {
   boost::mpi::communicator world;
   int n = 0;
   int m = 0;
-  std::vector<int> image(n * m, 1);
-  std::vector<int> image_res(n * m, 1);
+  std::vector<double> image(n * m, 1);
+  std::vector<double> image_res(n * m, 1);
 
   // Create task_data
-  auto task_data_seq = std::make_shared<ppc::core::TaskData>();
-  task_data_seq->inputs.emplace_back(reinterpret_cast<uint8_t *>(image.data()));
-  task_data_seq->inputs_count.emplace_back(n);
-  task_data_seq->inputs_count.emplace_back(m);
-  task_data_seq->outputs.emplace_back(reinterpret_cast<uint8_t *>(image_res.data()));
-  task_data_seq->outputs_count.emplace_back(n);
-  task_data_seq->outputs_count.emplace_back(m);
+  auto task_data_seq = CreateTaskData(image, image_res, n, m);
 
   // Create Task
   morozov_e_lineare_image_filtering_block_gaussian_all::TestTaskALL test_task_sequential(task_data_seq);
-  if(world.rank() == 0){
-  ASSERT_EQ(test_task_sequential.Validation(), false);
+  if (world.rank() == 0) {
+    ASSERT_EQ(test_task_sequential.Validation(), false);
   }
 }
 TEST(morozov_e_lineare_image_filtering_block_gaussian_all, size_input_not_equal_size_output_test1) {
   boost::mpi::communicator world;
   int n = 0;
   int m = 0;
-  std::vector<int> image(n * m, 1);
-  std::vector<int> image_res((n + 1) * m, 1);
+  std::vector<double> image(n * m, 1);
+  std::vector<double> image_res((n + 1) * m, 1);
 
   // Create task_data
-  auto task_data_seq = std::make_shared<ppc::core::TaskData>();
-  task_data_seq->inputs.emplace_back(reinterpret_cast<uint8_t *>(image.data()));
-  task_data_seq->inputs_count.emplace_back(n);
-  task_data_seq->inputs_count.emplace_back(m);
-  task_data_seq->outputs.emplace_back(reinterpret_cast<uint8_t *>(image_res.data()));
-  task_data_seq->outputs_count.emplace_back(n);
-  task_data_seq->outputs_count.emplace_back(m);
+  auto task_data_seq = CreateTaskData(image, image_res, n, m);
 
   // Create Task
   morozov_e_lineare_image_filtering_block_gaussian_all::TestTaskALL test_task_sequential(task_data_seq);
-  if(world.rank() == 0){
-  ASSERT_EQ(test_task_sequential.Validation(), false);
+  if (world.rank() == 0) {
+    ASSERT_EQ(test_task_sequential.Validation(), false);
   }
 }
 TEST(morozov_e_lineare_image_filtering_block_gaussian_all, size_input_not_equal_size_output_test2) {
   boost::mpi::communicator world;
   int n = 0;
   int m = 0;
-  std::vector<int> image(n * m, 0);
-  std::vector<int> image_res(n * m, 0);
+  std::vector<double> image(n * m, 0);
+  std::vector<double> image_res(n * m, 0);
 
   // Create task_data
-  auto task_data_seq = std::make_shared<ppc::core::TaskData>();
-  task_data_seq->inputs.emplace_back(reinterpret_cast<uint8_t *>(image.data()));
-  task_data_seq->inputs_count.emplace_back(n);
-  task_data_seq->inputs_count.emplace_back(m);
-  task_data_seq->outputs.emplace_back(reinterpret_cast<uint8_t *>(image_res.data()));
-  task_data_seq->outputs_count.emplace_back(n);
-  task_data_seq->outputs_count.emplace_back(m);
+  auto task_data_seq = CreateTaskData(image, image_res, n, m);
 
   // Create Task
   morozov_e_lineare_image_filtering_block_gaussian_all::TestTaskALL test_task_sequential(task_data_seq);
-  if(world.rank() == 0){
-  ASSERT_EQ(test_task_sequential.Validation(), false);
+  if (world.rank() == 0) {
+    ASSERT_EQ(test_task_sequential.Validation(), false);
   }
 }
 TEST(morozov_e_lineare_image_filtering_block_gaussian_all, main_test1) {
@@ -183,13 +153,7 @@ TEST(morozov_e_lineare_image_filtering_block_gaussian_all, main_test1) {
   std::vector image_res(n * m, 0.0);
 
   // Create task_data
-  auto task_data_seq = std::make_shared<ppc::core::TaskData>();
-  task_data_seq->inputs.emplace_back(reinterpret_cast<uint8_t *>(image.data()));
-  task_data_seq->inputs_count.emplace_back(n);
-  task_data_seq->inputs_count.emplace_back(m);
-  task_data_seq->outputs.emplace_back(reinterpret_cast<uint8_t *>(image_res.data()));
-  task_data_seq->outputs_count.emplace_back(n);
-  task_data_seq->outputs_count.emplace_back(m);
+  auto task_data_seq = CreateTaskData(image, image_res, n, m);
 
   // Create Task
   morozov_e_lineare_image_filtering_block_gaussian_all::TestTaskALL test_task_sequential(task_data_seq);
@@ -216,13 +180,7 @@ TEST(morozov_e_lineare_image_filtering_block_gaussian_all, main_test2) {
   std::vector image_res(n * m, 0.0);
 
   // Create task_data
-  auto task_data_seq = std::make_shared<ppc::core::TaskData>();
-  task_data_seq->inputs.emplace_back(reinterpret_cast<uint8_t *>(image.data()));
-  task_data_seq->inputs_count.emplace_back(n);
-  task_data_seq->inputs_count.emplace_back(m);
-  task_data_seq->outputs.emplace_back(reinterpret_cast<uint8_t *>(image_res.data()));
-  task_data_seq->outputs_count.emplace_back(n);
-  task_data_seq->outputs_count.emplace_back(m);
+  auto task_data_seq = CreateTaskData(image, image_res, n, m);
 
   // Create Task
   morozov_e_lineare_image_filtering_block_gaussian_all::TestTaskALL test_task_sequential(task_data_seq);
@@ -257,13 +215,7 @@ TEST(morozov_e_lineare_image_filtering_block_gaussian_all, main_test3) {
   std::vector image_res(n * m, 0.0);
 
   // Create task_data
-  auto task_data_seq = std::make_shared<ppc::core::TaskData>();
-  task_data_seq->inputs.emplace_back(reinterpret_cast<uint8_t *>(image.data()));
-  task_data_seq->inputs_count.emplace_back(n);
-  task_data_seq->inputs_count.emplace_back(m);
-  task_data_seq->outputs.emplace_back(reinterpret_cast<uint8_t *>(image_res.data()));
-  task_data_seq->outputs_count.emplace_back(n);
-  task_data_seq->outputs_count.emplace_back(m);
+  auto task_data_seq = CreateTaskData(image, image_res, n, m);
 
   // Create Task
   morozov_e_lineare_image_filtering_block_gaussian_all::TestTaskALL test_task_sequential(task_data_seq);
@@ -298,13 +250,7 @@ TEST(morozov_e_lineare_image_filtering_block_gaussian_all, main_test4) {
   std::vector image_res(n * m, 0.0);
 
   // Create task_data
-  auto task_data_seq = std::make_shared<ppc::core::TaskData>();
-  task_data_seq->inputs.emplace_back(reinterpret_cast<uint8_t *>(image.data()));
-  task_data_seq->inputs_count.emplace_back(n);
-  task_data_seq->inputs_count.emplace_back(m);
-  task_data_seq->outputs.emplace_back(reinterpret_cast<uint8_t *>(image_res.data()));
-  task_data_seq->outputs_count.emplace_back(n);
-  task_data_seq->outputs_count.emplace_back(m);
+  auto task_data_seq = CreateTaskData(image, image_res, n, m);
 
   // Create Task
   morozov_e_lineare_image_filtering_block_gaussian_all::TestTaskALL test_task_sequential(task_data_seq);
@@ -331,13 +277,7 @@ TEST(morozov_e_lineare_image_filtering_block_gaussian_all, main_test5) {
   std::vector image_res(n * m, 0.0);
 
   // Create task_data
-  auto task_data_seq = std::make_shared<ppc::core::TaskData>();
-  task_data_seq->inputs.emplace_back(reinterpret_cast<uint8_t *>(image.data()));
-  task_data_seq->inputs_count.emplace_back(n);
-  task_data_seq->inputs_count.emplace_back(m);
-  task_data_seq->outputs.emplace_back(reinterpret_cast<uint8_t *>(image_res.data()));
-  task_data_seq->outputs_count.emplace_back(n);
-  task_data_seq->outputs_count.emplace_back(m);
+  auto task_data_seq = CreateTaskData(image, image_res, n, m);
 
   // Create Task
   morozov_e_lineare_image_filtering_block_gaussian_all::TestTaskALL test_task_sequential(task_data_seq);
@@ -370,13 +310,7 @@ TEST(morozov_e_lineare_image_filtering_block_gaussian_all, main_test6) {
   std::vector image_res(n * m, 0.0);
 
   // Create task_data
-  auto task_data_seq = std::make_shared<ppc::core::TaskData>();
-  task_data_seq->inputs.emplace_back(reinterpret_cast<uint8_t *>(image.data()));
-  task_data_seq->inputs_count.emplace_back(n);
-  task_data_seq->inputs_count.emplace_back(m);
-  task_data_seq->outputs.emplace_back(reinterpret_cast<uint8_t *>(image_res.data()));
-  task_data_seq->outputs_count.emplace_back(n);
-  task_data_seq->outputs_count.emplace_back(m);
+  auto task_data_seq = CreateTaskData(image, image_res, n, m);
 
   // Create Task
   morozov_e_lineare_image_filtering_block_gaussian_all::TestTaskALL test_task_sequential(task_data_seq);
@@ -406,13 +340,7 @@ TEST(morozov_e_lineare_image_filtering_block_gaussian_all, main_test7_) {
   std::vector image_res(n * m, 0.0);
 
   // Create task_data
-  auto task_data_seq = std::make_shared<ppc::core::TaskData>();
-  task_data_seq->inputs.emplace_back(reinterpret_cast<uint8_t *>(image.data()));
-  task_data_seq->inputs_count.emplace_back(n);
-  task_data_seq->inputs_count.emplace_back(m);
-  task_data_seq->outputs.emplace_back(reinterpret_cast<uint8_t *>(image_res.data()));
-  task_data_seq->outputs_count.emplace_back(n);
-  task_data_seq->outputs_count.emplace_back(m);
+  auto task_data_seq = CreateTaskData(image, image_res, n, m);
 
   // Create Task
   morozov_e_lineare_image_filtering_block_gaussian_all::TestTaskALL test_task_sequential(task_data_seq);
