@@ -8,8 +8,6 @@
 #include <cstddef>
 #include <cstdint>
 #include <memory>
-#include <ranges>
-
 
 #ifndef _WIN32
 #include <opencv2/opencv.hpp>
@@ -47,14 +45,18 @@ std::vector<uint8_t> GenerateVerticalGradient(int height, int width) {
   return image;
 }
 
+void ValidatePixel(const std::vector<uint8_t>& output_image, std::uint32_t width, std::uint32_t x, std::uint32_t y) {
+  std::uint32_t idx = (y * width + x) * 3;
+  float expected = static_cast<float>(y - 1 + y + y + 1) / 3.0F;
+  EXPECT_NEAR(output_image[idx], expected, 10);
+  EXPECT_NEAR(output_image[idx + 1], expected, 10);
+  EXPECT_NEAR(output_image[idx + 2], expected, 10);
+}
+
 void ValidateOutput(const std::vector<uint8_t>& output_image, std::uint32_t width, std::uint32_t height) {
   for (std::uint32_t y = 1; y < height - 1; ++y) {
     for (std::uint32_t x = 0; x < width; ++x) {
-      int idx = (y * width + x) * 3;
-      float expected = (y - 1 + y + y + 1) / 3.0F;
-      EXPECT_NEAR(output_image[idx], expected, 10);
-      EXPECT_NEAR(output_image[idx + 1], expected, 10);
-      EXPECT_NEAR(output_image[idx + 2], expected, 10);
+      ValidatePixel(output_image, width, x, y);
     }
   }
 }

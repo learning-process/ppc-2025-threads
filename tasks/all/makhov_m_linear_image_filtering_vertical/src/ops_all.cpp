@@ -81,7 +81,7 @@ bool makhov_m_linear_image_filtering_vertical_all::TestTaskALL::PreProcessingImp
 
     input_image_.assign(task_data->inputs[0], task_data->inputs[0] + input_size_);
 
-    output_image.resize(input_size_);  // Важно: выделение памяти заранее
+    output_image_.resize(input_size_);  // Важно: выделение памяти заранее
   }
   return true;
 }
@@ -100,7 +100,7 @@ bool makhov_m_linear_image_filtering_vertical_all::TestTaskALL::RunImpl() {
 
   // 2) Разбиваем столбцы поровну
   int width_i = static_cast<int>(width_);
-  int size_i = static_cast<int>(size);
+  int size_i = size;
 
   std::vector<int> counts(size_i, width_i / size_i);
   for (int i = 0, rem = width_i % size_i; i < rem; ++i) {
@@ -144,15 +144,15 @@ bool makhov_m_linear_image_filtering_vertical_all::TestTaskALL::RunImpl() {
 
   // 5) На root-е склеиваем их в output_image
   if (rank == 0) {
-    output_image.resize(width_ * height_ * 3);
+    output_image_.resize(width_ * height_ * 3);
     std::vector<int> counts_bytes(size);
     std::vector<int> displs_bytes(size);
     for (int i = 0; i < size; ++i) {
-      counts_bytes[i] = static_cast<int>(counts[i] * static_cast<int>(height_) * 3);
-      displs_bytes[i] = static_cast<int>(displs[i] * static_cast<int>(height_) * 3);
+      counts_bytes[i] = counts[i] * static_cast<int>(height_) * 3;
+      displs_bytes[i] = displs[i] * static_cast<int>(height_) * 3;
     }
     for (int i = 0; i < size; ++i) {
-      std::memcpy(output_image.data() + displs_bytes[i], gathered[i].data(), counts_bytes[i]);
+      std::memcpy(output_image_.data() + displs_bytes[i], gathered[i].data(), counts_bytes[i]);
     }
   }
 
@@ -161,7 +161,7 @@ bool makhov_m_linear_image_filtering_vertical_all::TestTaskALL::RunImpl() {
 
 bool makhov_m_linear_image_filtering_vertical_all::TestTaskALL::PostProcessingImpl() {
   if (world_.rank() == 0) {
-    std::memcpy(task_data->outputs[0], output_image.data(), output_image.size());
+    std::memcpy(task_data->outputs[0], output_image_.data(), output_image_.size());
   }
   return true;
 }

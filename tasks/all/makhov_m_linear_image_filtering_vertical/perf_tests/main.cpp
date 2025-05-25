@@ -31,7 +31,9 @@ void ApplyNaiveGaussianBlur(std::vector<uint8_t>& image, int width, int height) 
   std::vector<uint8_t> original = image;
   for (int y = 1; y < height - 1; ++y) {
     for (int x = 1; x < width - 1; ++x) {
-      int sum_r = 0, sum_g = 0, sum_b = 0;
+      int sum_r = 0;
+      int sum_g = 0;
+      int sum_b = 0;
 
       for (int ky = -1; ky <= 1; ++ky) {
         for (int kx = -1; kx <= 1; ++kx) {

@@ -25,7 +25,7 @@ class TestTaskALL : public ppc::core::Task {
  private:
   boost::mpi::communicator world_;
   std::vector<uint8_t> input_image_;
-  std::vector<uint8_t> output_image;
+  std::vector<uint8_t> output_image_;
   std::uint32_t input_size_;
   std::uint32_t height_;
   std::uint32_t width_;
