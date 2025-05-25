@@ -4,6 +4,7 @@
 #include <cstdint>
 #include <fstream>
 #include <memory>
+#include <numeric>
 #include <random>
 #include <string>
 #include <vector>
@@ -114,5 +115,154 @@ TEST(karaseva_e_congrad_mpi, test_small_random_spd) {
   // Verification
   for (size_t i = 0; i < kN; ++i) {
     EXPECT_NEAR(x[i], x_expected[i], kTolerance);
+  }
+}
+
+TEST(karaseva_e_congrad_mpi, validation_fails_on_non_square_matrix) {
+  auto task_data = std::make_shared<ppc::core::TaskData>();
+  // Intentionally wrong matrix size (3 elements for 2x2 matrix)
+  std::vector<double> a_matrix = {1.0, 2.0, 3.0};
+  std::vector<double> b_vector = {1.0, 2.0};
+  std::vector<double> solution(2, 0.0);
+
+  task_data->inputs = {reinterpret_cast<uint8_t*>(a_matrix.data()), reinterpret_cast<uint8_t*>(b_vector.data())};
+  task_data->inputs_count = {3, 2};
+  task_data->outputs = {reinterpret_cast<uint8_t*>(solution.data())};
+  task_data->outputs_count = {2};
+
+  karaseva_e_congrad_mpi::TestTaskMPI test_task(task_data);
+  EXPECT_FALSE(test_task.Validation());
+}
+
+TEST(karaseva_e_congrad_mpi, validation_fails_on_vector_size_mismatch) {
+  auto task_data = std::make_shared<ppc::core::TaskData>();
+  std::vector<double> a_matrix(4, 1.0);  // 2x2 matrix
+  std::vector<double> b_vector = {1.0};  // Wrong size (1 instead of 2)
+  std::vector<double> solution(2, 0.0);
+
+  task_data->inputs = {reinterpret_cast<uint8_t*>(a_matrix.data()), reinterpret_cast<uint8_t*>(b_vector.data())};
+  task_data->inputs_count = {4, 1};
+  task_data->outputs = {reinterpret_cast<uint8_t*>(solution.data())};
+  task_data->outputs_count = {2};
+
+  karaseva_e_congrad_mpi::TestTaskMPI test_task(task_data);
+  EXPECT_FALSE(test_task.Validation());
+}
+
+TEST(karaseva_e_congrad_mpi, identity_matrix_solution) {
+  constexpr size_t kSize = 3;
+  constexpr double kTolerance = 1e-10;
+
+  // Identity matrix
+  std::vector<double> a_matrix(kSize * kSize, 0.0);
+  for (size_t i = 0; i < kSize; ++i) {
+    a_matrix[i * kSize + i] = 1.0;
+  }
+
+  std::vector<double> x_expected = {5.0, -3.0, 2.0};
+  auto b_vector = x_expected;  // For identity matrix b = x
+  std::vector<double> solution(kSize, 0.0);
+
+  auto task_data = std::make_shared<ppc::core::TaskData>();
+  task_data->inputs = {reinterpret_cast<uint8_t*>(a_matrix.data()), reinterpret_cast<uint8_t*>(b_vector.data())};
+  task_data->inputs_count = {kSize * kSize, kSize};
+  task_data->outputs = {reinterpret_cast<uint8_t*>(solution.data())};
+  task_data->outputs_count = {kSize};
+
+  karaseva_e_congrad_mpi::TestTaskMPI test_task(task_data);
+  ASSERT_TRUE(test_task.Validation());
+  test_task.PreProcessing();
+  test_task.Run();
+  test_task.PostProcessing();
+
+  for (size_t i = 0; i < kSize; ++i) {
+    EXPECT_NEAR(solution[i], x_expected[i], kTolerance);
+  }
+}
+
+TEST(karaseva_e_congrad_mpi, large_spd_matrix_100x100) {
+  constexpr size_t kN = 100;
+  constexpr double kTolerance = 1e-6;
+
+  auto a_matrix = GenerateRandomSPDMatrix(kN);
+  std::vector<double> x_expected(kN);
+  std::iota(x_expected.begin(), x_expected.end(), 1.0);
+
+  auto b = MultiplyMatrixVector(a_matrix, x_expected, kN);
+  std::vector<double> x(kN, 0.0);
+
+  auto task_data = std::make_shared<ppc::core::TaskData>();
+  task_data->inputs = {reinterpret_cast<uint8_t*>(a_matrix.data()), reinterpret_cast<uint8_t*>(b.data())};
+  task_data->inputs_count = {kN * kN, kN};
+  task_data->outputs = {reinterpret_cast<uint8_t*>(x.data())};
+  task_data->outputs_count = {kN};
+
+  karaseva_e_congrad_mpi::TestTaskMPI task(task_data);
+  ASSERT_TRUE(task.Validation());
+  task.PreProcessing();
+  task.Run();
+  task.PostProcessing();
+
+  for (size_t i = 0; i < kN; ++i) {
+    EXPECT_NEAR(x[i], x_expected[i], kTolerance);
+  }
+}
+
+TEST(karaseva_e_congrad_mpi, already_solved_system) {
+  constexpr size_t kSize = 4;
+  constexpr double kTolerance = 1e-10;
+
+  std::vector<double> a_matrix = GenerateRandomSPDMatrix(kSize);
+  std::vector<double> x_expected(kSize, 0.0);  // Zero vector
+  auto b_vector = MultiplyMatrixVector(a_matrix, x_expected, kSize);
+
+  // Initial guess is already solution
+  std::vector<double> solution = x_expected;
+
+  auto task_data = std::make_shared<ppc::core::TaskData>();
+  task_data->inputs = {reinterpret_cast<uint8_t*>(a_matrix.data()), reinterpret_cast<uint8_t*>(b_vector.data())};
+  task_data->inputs_count = {kSize * kSize, kSize};
+  task_data->outputs = {reinterpret_cast<uint8_t*>(solution.data())};
+  task_data->outputs_count = {kSize};
+
+  karaseva_e_congrad_mpi::TestTaskMPI test_task(task_data);
+  ASSERT_TRUE(test_task.Validation());
+  test_task.PreProcessing();
+  test_task.Run();
+  test_task.PostProcessing();
+
+  for (size_t i = 0; i < kSize; ++i) {
+    EXPECT_NEAR(solution[i], x_expected[i], kTolerance);
+  }
+}
+
+TEST(karaseva_e_congrad_mpi, single_iteration_convergence) {
+  constexpr size_t kSize = 3;
+  constexpr double kTolerance = 1e-10;
+
+  // Diagonal matrix with large values for instant convergence
+  std::vector<double> a_matrix(kSize * kSize, 0.0);
+  for (size_t i = 0; i < kSize; ++i) {
+    a_matrix[i * kSize + i] = 1e12;
+  }
+
+  std::vector<double> x_expected = {2.0, 3.0, 4.0};
+  auto b_vector = MultiplyMatrixVector(a_matrix, x_expected, kSize);
+  std::vector<double> solution(kSize, 0.0);
+
+  auto task_data = std::make_shared<ppc::core::TaskData>();
+  task_data->inputs = {reinterpret_cast<uint8_t*>(a_matrix.data()), reinterpret_cast<uint8_t*>(b_vector.data())};
+  task_data->inputs_count = {kSize * kSize, kSize};
+  task_data->outputs = {reinterpret_cast<uint8_t*>(solution.data())};
+  task_data->outputs_count = {kSize};
+
+  karaseva_e_congrad_mpi::TestTaskMPI test_task(task_data);
+  ASSERT_TRUE(test_task.Validation());
+  test_task.PreProcessing();
+  test_task.Run();
+  test_task.PostProcessing();
+
+  for (size_t i = 0; i < kSize; ++i) {
+    EXPECT_NEAR(solution[i], x_expected[i], kTolerance);
   }
 }
