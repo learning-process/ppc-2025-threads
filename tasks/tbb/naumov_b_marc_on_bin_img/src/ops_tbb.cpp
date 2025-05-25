@@ -51,11 +51,13 @@ void naumov_b_marc_on_bin_img_tbb::TestTaskTBB::ProcessPixel(int row, int col) {
 }
 
 void naumov_b_marc_on_bin_img_tbb::TestTaskTBB::AssignNewLabel(int row, int col) {
-  output_image_[(row * cols_) + col] = ++current_label_;
-  if (static_cast<size_t>(current_label_) >= label_parent_.size()) {
-    label_parent_.resize(current_label_ + 1, 0);
+  std::lock_guard<std::mutex> lock(union_mutex_); 
+  int new_label = ++current_label_;
+  output_image_[(row * cols_) + col] = new_label;
+  if (static_cast<size_t>(new_label) >= label_parent_.size()) {
+    label_parent_.resize(new_label + 1);
   }
-  label_parent_[current_label_] = current_label_;
+  label_parent_[new_label] = new_label;
 }
 
 void naumov_b_marc_on_bin_img_tbb::TestTaskTBB::AssignMinLabel(int row, int col, const std::vector<int>& neighbors) {
@@ -93,7 +95,10 @@ std::vector<int> naumov_b_marc_on_bin_img_tbb::TestTaskTBB::FindAdjacentLabels(i
 }
 
 void naumov_b_marc_on_bin_img_tbb::TestTaskTBB::UnionLabels(int label1, int label2) {
-  if (static_cast<size_t>(label1) >= label_parent_.size() || static_cast<size_t>(label2) >= label_parent_.size()) {
+  std::lock_guard<std::mutex> lock(union_mutex_);
+  if (label1 <= 0 || label2 <= 0 || 
+      static_cast<size_t>(label1) >= label_parent_.size() || 
+      static_cast<size_t>(label2) >= label_parent_.size()) {
     return;
   }
   int root1 = FindRoot(label1);

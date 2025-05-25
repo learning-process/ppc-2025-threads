@@ -2,6 +2,7 @@
 
 #include <atomic>
 #include <mutex>
+#include <mutex>
 #include <utility>
 #include <vector>
 
@@ -37,7 +38,7 @@ class TestTaskTBB : public ppc::core::Task {
   std::vector<int> output_image_;
   std::vector<int> label_parent_;
   std::atomic_int current_label_;
-  std::mutex label_mutex_;
+  std::mutex union_mutex_;
 };
 
 }  // namespace naumov_b_marc_on_bin_img_tbb
