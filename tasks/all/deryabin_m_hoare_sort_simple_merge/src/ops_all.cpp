@@ -59,10 +59,11 @@ void deryabin_m_hoare_sort_simple_merge_mpi::HoaraSort(std::vector<double>& a, s
   const size_t j = pj - a.data();
   const size_t i = pi - a.data();
   if (available_threads > 1) {
-    // HoaraSort(a, first, j, tg, available_threads >> 1);
-    tg.run([&a, &first, &j, &tg, &available_threads]() { HoaraSort(a, first, j, tg, available_threads >> 1); });
+    HoaraSort(a, first, j, tg, available_threads >> 1);
+    // tg.run([&a, &first, &j, &tg, &available_threads]() { HoaraSort(a, first, j, tg, available_threads >> 1); });
     tg.run([&a, &i, &last, &tg, &available_threads]() {
       HoaraSort(a, i + 1, last, tg, available_threads - (available_threads >> 1));
+    tg.wait();
     });
   } else {
     HoaraSort(a, first, j, tg, 1);
@@ -158,7 +159,7 @@ bool deryabin_m_hoare_sort_simple_merge_mpi::HoareSortTaskMPI::RunImpl() {
   oneapi::tbb::task_group tg;
   HoaraSort(input_array_A_, static_cast<size_t>(world.rank()) * min_chunk_size_ + world.rank() != 0 ? rest_ : 0,
             (static_cast<size_t>(world.rank()) + 1) * min_chunk_size_ + rest_ - 1, tg, num_threads);
-  tg.wait();
+  // tg.wait();
   if (world.size() != 1) {
     for (size_t i = 0; i < static_cast<size_t>(std::bit_width(chunk_count_ - 1)); ++i) {
       unsigned short step = 1ULL << i;
