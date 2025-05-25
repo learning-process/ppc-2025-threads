@@ -11,7 +11,8 @@
 #include <cstddef>
 #include <vector>
 
-void deryabin_m_hoare_sort_simple_merge_mpi::HoaraSort(std::vector<double>::iterator first, std::vector<double>::iterator last) {
+void deryabin_m_hoare_sort_simple_merge_mpi::HoaraSort(std::vector<double>::iterator first,
+                                                       std::vector<double>::iterator last) {
   if (first >= last) {
     return;
   }
@@ -31,8 +32,10 @@ void deryabin_m_hoare_sort_simple_merge_mpi::HoaraSort(std::vector<double>::iter
     right = tmp;
   } while ((left < right);
   oneapi::tbb::parallel_invoke(
-            [first, right]() { HoaraSort(first, right); },
-            [left, last]()  { HoaraSort(left, last); });
+            [first, right]() {
+    HoaraSort(first, right); },
+            [left, last]()  {
+    HoaraSort(left, last); });
 }
 
 void deryabin_m_hoare_sort_simple_merge_mpi::MergeTwoParts(std::vector<double>& a, size_t first, size_t last) {
@@ -66,7 +69,7 @@ bool deryabin_m_hoare_sort_simple_merge_mpi::HoareSortTaskSequential::Validation
 bool deryabin_m_hoare_sort_simple_merge_mpi::HoareSortTaskSequential::RunImpl() {
   size_t count = 0;
   while (count != chunk_count_) {
-    HoaraSort(input_array_A_, count * min_chunk_size_, ((count + 1) * min_chunk_size_) - 1);
+    HoaraSort(input_array_A_.begin() + count * min_chunk_size_,input_array_A_.begin() + ((count + 1) * min_chunk_size_) - 1);
     count++;
   }
   size_t chunk_count = chunk_count_;
@@ -115,8 +118,9 @@ bool deryabin_m_hoare_sort_simple_merge_mpi::HoareSortTaskMPI::ValidationImpl() 
 }
 
 bool deryabin_m_hoare_sort_simple_merge_mpi::HoareSortTaskMPI::RunImpl() {
-  HoaraSort(input_array_A_.begin() + static_cast<size_t>(world.rank()) * min_chunk_size_ + world.rank() != 0 ? rest_ : 0,
-            input_array_A_.begin() + (static_cast<size_t>(world.rank()) + 1) * min_chunk_size_ + rest_ - 1);
+  HoaraSort(
+      input_array_A_.begin() + static_cast<size_t>(world.rank()) * min_chunk_size_ + world.rank() != 0 ? rest_ : 0,
+      input_array_A_.begin() + (static_cast<size_t>(world.rank()) + 1) * min_chunk_size_ + rest_ - 1);
   if (world.size() != 1) {
     for (size_t i = 0; i < static_cast<size_t>(std::bit_width(chunk_count_ - 1)); ++i) {
       unsigned short step = 1ULL << i;
