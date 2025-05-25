@@ -51,9 +51,11 @@ bool TestTaskMPI::PreProcessingImpl() {
   if (rank_ == 0) {
     a_ptr = reinterpret_cast<double*>(task_data->inputs[0]);
   }
+  // distribute rows of A to all processes
   MPI_Scatterv(a_ptr, counts.data(), displs.data(), MPI_DOUBLE, a_local_.data(), local_chunk_size, MPI_DOUBLE, 0,
                MPI_COMM_WORLD);
 
+// broadcast b to all ranks
   MPI_Bcast(b_.data(), static_cast<int>(global_size_), MPI_DOUBLE, 0, MPI_COMM_WORLD);
   return true;
 }
