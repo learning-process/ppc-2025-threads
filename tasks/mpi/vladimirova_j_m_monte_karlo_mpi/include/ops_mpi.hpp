@@ -29,7 +29,7 @@ class TestTaskMPI : public ppc::core::Task {
   std::vector<BoundariesIntegral> var_integr_;
   size_t var_size_{};
   size_t accuracy_;
-  boost::mpi::communicator world;
+  boost::mpi::communicator world_;
 };
 
 }  // namespace vladimirova_j_m_monte_karlo_mpi

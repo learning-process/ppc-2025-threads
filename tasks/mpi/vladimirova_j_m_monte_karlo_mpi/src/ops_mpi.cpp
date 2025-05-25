@@ -2,12 +2,15 @@
 #include "mpi/vladimirova_j_m_monte_karlo_mpi/include/ops_mpi.hpp"
 
 #include <boost/mpi.hpp>
+#include <boost/mpi/communicator.hpp>
 #include <cmath>
 #include <cstddef>
 #include <random>
 #include <thread>
 #include <vector>
 
+#include "boost/mpi/collectives/broadcast.hpp"
+#include "boost/mpi/collectives/reduce.hpp"
 #include "core/util/include/util.hpp"
 
 namespace {
@@ -57,14 +60,16 @@ bool vladimirova_j_m_monte_karlo_mpi::TestTaskMPI::ValidationImpl() {
 bool vladimirova_j_m_monte_karlo_mpi::TestTaskMPI::RunImpl() {
   // Multiply matrices
   size_t count_t = ppc::util::GetPPCNumThreads();
-  if (count_t == 0 || world.size() == 0) {
+  if (count_t == 0 || world_.size() == 0) {
     return false;
   }
 
   size_t successful_point = 0;
-  size_t local_accuracy = accuracy_ / world.size();
-  if (world.rank() == 0) local_accuracy += accuracy_ % world.size();
-  size_t chank = var_size_ / world.size();
+  size_t local_accuracy = accuracy_ / world_.size();
+  if (world_.rank() == 0) {
+    local_accuracy += accuracy_ % world_.size();
+  }
+  size_t chank = var_size_ / world_.size();
   size_t global_successful_point = 0;
   double global_s = 1;
 
@@ -102,16 +107,16 @@ bool vladimirova_j_m_monte_karlo_mpi::TestTaskMPI::RunImpl() {
   }
 
   double s = 1;
-  size_t begin = world.rank() * chank;
-  size_t end = (world.rank() == world.size() - 1) ? var_size_ : (world.rank() + 1) * chank;
+  size_t begin = world_.rank() * chank;
+  size_t end = (world_.rank() == world_.size() - 1) ? var_size_ : (world_.rank() + 1) * chank;
   for (size_t i = begin; i < end; i++) {
     s *= (var_integr_[i].max - var_integr_[i].min);
   }
 
-  boost::mpi::all_reduce(world, s, global_s, std::multiplies<double>());
-  boost::mpi::all_reduce(world, successful_point, global_successful_point, std::plus<size_t>());
+  boost::mpi::all_reduce(world_, s, global_s, std::multiplies<>());
+  boost::mpi::all_reduce(world_, successful_point, global_successful_point, std::plus<>());
 
-  if (world.rank() == 0) {
+  if (world_.rank() == 0) {
     global_s *= ((double)(global_successful_point) / (double)accuracy_);
     output_.push_back(global_s);
   }
@@ -119,7 +124,7 @@ bool vladimirova_j_m_monte_karlo_mpi::TestTaskMPI::RunImpl() {
 }
 
 bool vladimirova_j_m_monte_karlo_mpi::TestTaskMPI::PostProcessingImpl() {
-  if (world.rank() != 0) {
+  if (world_.rank() != 0) {
     return true;
   }
   reinterpret_cast<double*>(task_data->outputs[0])[0] = output_[0];

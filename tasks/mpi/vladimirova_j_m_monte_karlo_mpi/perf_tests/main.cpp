@@ -1,6 +1,7 @@
 
 #include <gtest/gtest.h>
 
+#include <boost/mpi/communicator.hpp>
 #include <chrono>
 #include <cmath>
 #include <cstddef>
@@ -98,7 +99,7 @@ bool RandomFunc(std::vector<double> arr, size_t size = 0) {
 
 TEST(vladimirova_j_m_monte_karlo_mpi, test_pipeline_run) {
   // Create data
-  boost::mpi::communicator world;
+  boost::mpi::communicator world_;
   double ans = 1;
   std::vector<double> val_b = GenRandomVectorArea(2, -10, 30, ans);
   std::vector<double> out(1, 0);
@@ -132,13 +133,13 @@ TEST(vladimirova_j_m_monte_karlo_mpi, test_pipeline_run) {
   auto perf_analyzer = std::make_shared<ppc::core::Perf>(test_task_mpi);
   perf_analyzer->PipelineRun(perf_attr, perf_results);
   ppc::core::Perf::PrintPerfStatistic(perf_results);
-  if (world.rank() == 0) {
+  if (world_.rank() == 0) {
     ASSERT_TRUE(out[0] <= ans);
   }
 }
 
 TEST(vladimirova_j_m_monte_karlo_mpi, test_task_run) {
-  boost::mpi::communicator world;
+  boost::mpi::communicator world_;
   // Create data
   double ans = 1;
   std::vector<double> val_b = GenRandomVectorArea(2, -10, 30, ans);
@@ -175,7 +176,7 @@ TEST(vladimirova_j_m_monte_karlo_mpi, test_task_run) {
   auto perf_analyzer = std::make_shared<ppc::core::Perf>(test_task_mpi);
   perf_analyzer->TaskRun(perf_attr, perf_results);
   ppc::core::Perf::PrintPerfStatistic(perf_results);
-  if (world.rank() == 0) {
+  if (world_.rank() == 0) {
     ASSERT_TRUE(out[0] <= ans);
   };
 }
