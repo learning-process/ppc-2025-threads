@@ -4,10 +4,7 @@
 
 #include <algorithm>
 #include <cmath>
-#include <cstddef>
 #include <vector>
-
-#include "core/util/include/util.hpp"
 
 using namespace karaseva_e_congrad_mpi;
 
@@ -31,14 +28,14 @@ bool TestTaskMPI::PreProcessingImpl() {
     auto* b_ptr = reinterpret_cast<double*>(task_data->inputs[1]);
     std::copy(b_ptr, b_ptr + global_size_, b_.begin());
 
-    // determine how many rows of A each process gets.
+    // determine how many rows of A each process gets
     const int rows_per_proc = static_cast<int>(global_size_) / world_size_;
     const int remainder = static_cast<int>(global_size_) % world_size_;
     int offset = 0;
 
     for (int i = 0; i < world_size_; ++i) {
       const int local_rows = rows_per_proc + (i < remainder ? 1 : 0);
-      counts[i] = local_rows * static_cast<int>(global_size_);  // number of elements
+      counts[i] = local_rows * static_cast<int>(global_size_);
       displs[i] = offset * static_cast<int>(global_size_);
       offset += local_rows;
     }
@@ -48,43 +45,36 @@ bool TestTaskMPI::PreProcessingImpl() {
   int local_chunk_size = 0;
   MPI_Scatter(counts.data(), 1, MPI_INT, &local_chunk_size, 1, MPI_INT, 0, MPI_COMM_WORLD);
 
-  A_local_.resize(local_chunk_size);
+  a_local_.resize(local_chunk_size);
 
   double* a_ptr = nullptr;
   if (rank_ == 0) {
     a_ptr = reinterpret_cast<double*>(task_data->inputs[0]);
   }
-  // distribute rows of A to all processes
-  MPI_Scatterv(a_ptr, counts.data(), displs.data(), MPI_DOUBLE, A_local_.data(), local_chunk_size, MPI_DOUBLE, 0,
+  MPI_Scatterv(a_ptr, counts.data(), displs.data(), MPI_DOUBLE, a_local_.data(), local_chunk_size, MPI_DOUBLE, 0,
                MPI_COMM_WORLD);
 
-  // broadcast b to all ranks
   MPI_Bcast(b_.data(), static_cast<int>(global_size_), MPI_DOUBLE, 0, MPI_COMM_WORLD);
   return true;
 }
 
 bool TestTaskMPI::ValidationImpl() {
-  // ensure rank_ and world_size_ are initialized
   MPI_Comm_rank(MPI_COMM_WORLD, &rank_);
   MPI_Comm_size(MPI_COMM_WORLD, &world_size_);
 
   bool validation_result = true;
   if (rank_ == 0) {
-    // determine expected global_size from inputs
     global_size_ = static_cast<uint64_t>(task_data->inputs_count[1]);
-    // check that A has size n*n and output x has size n
     validation_result =
         (task_data->inputs_count[0] == global_size_ * global_size_) && (task_data->outputs_count[0] == global_size_);
   }
   int validation_int = validation_result ? 1 : 0;
-  // broadcast validation result to all ranks
   MPI_Bcast(&validation_int, 1, MPI_INT, 0, MPI_COMM_WORLD);
   return validation_int != 0;
 }
 
 namespace {
 
-// initialize residual r and direction p in parallel
 void ParallelInit(std::vector<double>& r, std::vector<double>& p, const std::vector<double>& b) {
   const int n = static_cast<int>(b.size());
 #pragma omp parallel for
@@ -94,7 +84,6 @@ void ParallelInit(std::vector<double>& r, std::vector<double>& p, const std::vec
   }
 }
 
-// compute dot product of two vectors (distributed + reduced)
 double ParallelDotProduct(const std::vector<double>& a, const std::vector<double>& b) {
   double local_sum = 0.0;
   const int n = static_cast<int>(a.size());
@@ -107,27 +96,24 @@ double ParallelDotProduct(const std::vector<double>& a, const std::vector<double
   return global_sum;
 }
 
-// multiply local block of A by global vector p, gather result into ap
-void MatrixVectorMultiply(const std::vector<double>& A_local, std::vector<double>& ap, const std::vector<double>& p,
+void MatrixVectorMultiply(const std::vector<double>& a_local, std::vector<double>& ap, const std::vector<double>& p,
                           int local_rows, int n) {
-  // compute local part of A*p
   std::vector<double> local_ap(local_rows, 0.0);
-  int rank;
+  int rank = 0;
   MPI_Comm_rank(MPI_COMM_WORLD, &rank);
 
 #pragma omp parallel for
   for (int i = 0; i < local_rows; ++i) {
     double sum = 0.0;
     for (int j = 0; j < n; ++j) {
-      sum += A_local[i * n + j] * p[j];
+      sum += a_local[(i * n) + j] * p[j];
     }
     local_ap[i] = sum;
   }
 
-  // gather sizes of each local_ap
   std::vector<int> recv_counts;
   std::vector<int> displs;
-  int world_size;
+  int world_size = 0;
   MPI_Comm_size(MPI_COMM_WORLD, &world_size);
 
   if (rank == 0) {
@@ -138,16 +124,13 @@ void MatrixVectorMultiply(const std::vector<double>& A_local, std::vector<double
   MPI_Gather(&local_rows, 1, MPI_INT, recv_counts.data(), 1, MPI_INT, 0, MPI_COMM_WORLD);
 
   if (rank == 0) {
-    // compute displacements from recv_counts
     for (int i = 1; i < world_size; ++i) {
       displs[i] = displs[i - 1] + recv_counts[i - 1];
     }
   }
 
-  // gather all local_ap into ap on root
   MPI_Gatherv(local_ap.data(), local_rows, MPI_DOUBLE, ap.data(), recv_counts.data(), displs.data(), MPI_DOUBLE, 0,
               MPI_COMM_WORLD);
-  // broadcast full ap to all ranks
   MPI_Bcast(ap.data(), static_cast<int>(ap.size()), MPI_DOUBLE, 0, MPI_COMM_WORLD);
 }
 
@@ -164,8 +147,8 @@ bool TestTaskMPI::RunImpl() {
   const int max_iter = static_cast<int>(global_size_);
 
   for (int it = 0; it < max_iter; ++it) {
-    const int local_rows = static_cast<int>(A_local_.size()) / static_cast<int>(global_size_);
-    MatrixVectorMultiply(A_local_, ap, p, local_rows, static_cast<int>(global_size_));
+    const int local_rows = static_cast<int>(a_local_.size()) / static_cast<int>(global_size_);
+    MatrixVectorMultiply(a_local_, ap, p, local_rows, static_cast<int>(global_size_));
 
     const double p_ap = ParallelDotProduct(p, ap);
     if (std::abs(p_ap) < 1e-15) {
@@ -195,13 +178,13 @@ bool TestTaskMPI::RunImpl() {
 }
 
 bool TestTaskMPI::PostProcessingImpl() {
-  // broadcast the computed solution vector x_ to all ranks
   MPI_Bcast(x_.data(), static_cast<int>(global_size_), MPI_DOUBLE, 0, MPI_COMM_WORLD);
 
-  // copy into user buffer on every rank
   if (task_data->outputs[0] != nullptr) {
     auto* x_ptr = reinterpret_cast<double*>(task_data->outputs[0]);
-    std::copy(x_.begin(), x_.end(), x_ptr);
+    for (size_t i = 0; i < x_.size(); ++i) {
+      x_ptr[i] = x_[i];
+    }
   }
   return true;
 }

@@ -1,8 +1,9 @@
 #pragma once
 
-#include <mpi.h>
 #include <omp.h>
 
+#include <cstdint>
+#include <utility>
 #include <vector>
 
 #include "core/task/include/task.hpp"
@@ -18,7 +19,7 @@ class TestTaskMPI : public ppc::core::Task {
   bool PostProcessingImpl() override;
 
  private:
-  std::vector<double> A_local_;  // Local part of matrix.
+  std::vector<double> a_local_;  // Local part of matrix
   std::vector<double> b_;        // Full RHS vector
   std::vector<double> x_;        // Solution vector
   uint64_t global_size_{};       // Global system size

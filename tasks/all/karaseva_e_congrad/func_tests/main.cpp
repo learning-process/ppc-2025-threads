@@ -2,16 +2,13 @@
 
 #include <cstddef>
 #include <cstdint>
-#include <fstream>
 #include <memory>
 #include <numeric>
 #include <random>
-#include <string>
 #include <vector>
 
 #include "all/karaseva_e_congrad/include/ops_mpi.hpp"
 #include "core/task/include/task.hpp"
-#include "core/util/include/util.hpp"
 
 namespace {
 
@@ -156,7 +153,7 @@ TEST(karaseva_e_congrad_mpi, identity_matrix_solution) {
   // Identity matrix
   std::vector<double> a_matrix(kSize * kSize, 0.0);
   for (size_t i = 0; i < kSize; ++i) {
-    a_matrix[i * kSize + i] = 1.0;
+    a_matrix[(i * kSize) + i] = 1.0;
   }
 
   std::vector<double> x_expected = {5.0, -3.0, 2.0};
@@ -243,7 +240,7 @@ TEST(karaseva_e_congrad_mpi, single_iteration_convergence) {
   // Diagonal matrix with large values for instant convergence
   std::vector<double> a_matrix(kSize * kSize, 0.0);
   for (size_t i = 0; i < kSize; ++i) {
-    a_matrix[i * kSize + i] = 1e12;
+    a_matrix[(i * kSize) + i] = 1e12;
   }
 
   std::vector<double> x_expected = {2.0, 3.0, 4.0};
