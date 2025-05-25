@@ -152,7 +152,7 @@ yasakova_t_sparse_matrix_mult_all::SparseMatrixCRS yasakova_t_sparse_matrix_mult
   return c;
 }
 
-void yasakova_t_sparse_matrix_mult_all::TestTaskALL::ProcessRowsRange(int start_row, int end_row, 
+void yasakova_t_sparse_matrix_mult_all::TestTaskALL::ProcessRowsRange(int start_row, int end_row,
                                                                       std::vector<CoordVal>& local_results) {
   for (int i = start_row; i < end_row; ++i) {
     for (int j_idx = A_.rowPtr[i]; j_idx < A_.rowPtr[i + 1]; ++j_idx) {
@@ -228,7 +228,6 @@ bool yasakova_t_sparse_matrix_mult_all::TestTaskALL::RunImpl() {
   // Установка числа потоков OpenMP
   int num_threads = ppc::util::GetPPCNumThreads();
   omp_set_num_threads(num_threads);
-
 
 #pragma omp parallel
   {

@@ -45,7 +45,7 @@ TEST(yasakova_t_sparse_matrix_mult_task_all, test_pipeline_run) {
 
   a = ::GenMatrix(400, 400, 0, 150, 0, 150, -100, 100);
   b = ::GenMatrix(400, 400, 50, 140, 50, 150, -100, 100);
-  
+
   // Подготовка входных данных
   in_a = yasakova_t_sparse_matrix_mult_all::ParseMatrixIntoVec(a);
   in_b = yasakova_t_sparse_matrix_mult_all::ParseMatrixIntoVec(b);
