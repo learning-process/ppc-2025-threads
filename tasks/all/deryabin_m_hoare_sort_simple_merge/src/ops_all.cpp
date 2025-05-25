@@ -11,8 +11,8 @@
 #include <cstddef>
 #include <vector>
 
-void deryabin_m_hoare_sort_simple_merge_mpi::HoaraSort(std::vector<double>::iterator& first,
-                                                       std::vector<double>::iterator& last) {
+void deryabin_m_hoare_sort_simple_merge_mpi::HoaraSort(std::vector<double>::iterator first,
+                                                       std::vector<double>::iterator last) {
   if (first >= last) {
     return;
   }
