@@ -59,7 +59,7 @@ TEST(shlyakov_m_shell_sort_all, test_pipeline_run) {
   std::ranges::sort(expected);
   std::vector<int> out(in.size());
 
-  std::shared_ptr<ppc::core::TaskData> task_data_all;
+  auto task_data_all = std::make_shared<ppc::core::TaskData>();
   if (world.rank() == 0) {
     task_data_all->inputs.emplace_back(reinterpret_cast<uint8_t*>(const_cast<int*>(in.data())));
     task_data_all->inputs_count.emplace_back(in.size());
@@ -99,7 +99,7 @@ TEST(shlyakov_m_shell_sort_all, test_task_run) {
   std::ranges::sort(expected);
   std::vector<int> out(in.size());
 
-  std::shared_ptr<ppc::core::TaskData> task_data_all;
+  auto task_data_all = std::make_shared<ppc::core::TaskData>();
   if (world.rank() == 0) {
     task_data_all->inputs.emplace_back(reinterpret_cast<uint8_t*>(const_cast<int*>(in.data())));
     task_data_all->inputs_count.emplace_back(in.size());
