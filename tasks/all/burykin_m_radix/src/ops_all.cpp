@@ -87,10 +87,11 @@ bool burykin_m_radix_all::RadixALL::RunImpl() {
     return true;
   }
 
-  std::vector<int> a = input_;
+  std::vector<int> a = std::move(input_);
   std::vector<int> b(a.size());
 
-  if (world_.rank() == 0) {
+  int rank = world_.rank();
+  if (rank == 0) {
 #pragma omp parallel
     {
 #pragma omp single
@@ -100,6 +101,7 @@ bool burykin_m_radix_all::RadixALL::RunImpl() {
           const auto index = ComputeIndices(count);
           DistributeElements(a, b, index, shift);
           a.swap(b);
+          (void)rank;
         }
       }
     }
@@ -108,9 +110,7 @@ bool burykin_m_radix_all::RadixALL::RunImpl() {
     {
 #pragma omp single
       {
-        volatile int size = 0;
         for (int shift = 0; shift < 32; shift += 8) {
-          int local_shift = size + shift;
           auto count = ComputeFrequency(a, shift);
           const auto index = ComputeIndices(count);
           DistributeElements(a, b, index, shift);
