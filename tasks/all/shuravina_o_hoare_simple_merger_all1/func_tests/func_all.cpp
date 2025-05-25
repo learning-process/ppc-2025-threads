@@ -36,19 +36,6 @@ std::vector<int> GenerateRandomVector(size_t size) {
   return vec;
 }
 
-class MPITestEnvironment : public ::testing::Environment {
- public:
-  void SetUp() override { MPI_Init(nullptr, nullptr); }
-
-  void TearDown() override {
-    int finalized = 0;
-    MPI_Finalized(&finalized);
-    if (finalized == 0) {
-      MPI_Finalize();
-    }
-  }
-};
-
 void RunTestWithMPI(const std::vector<int>& input, std::vector<int>& output) {
   auto task_data = std::make_shared<ppc::core::TaskData>();
   task_data->inputs.emplace_back(reinterpret_cast<uint8_t*>(const_cast<int*>(input.data())));
@@ -65,12 +52,6 @@ void RunTestWithMPI(const std::vector<int>& input, std::vector<int>& output) {
 }
 
 }  // namespace
-
-int main(int argc, char** argv) {
-  ::testing::InitGoogleTest(&argc, argv);
-  ::testing::AddGlobalTestEnvironment(new MPITestEnvironment);
-  return RUN_ALL_TESTS();
-}
 
 TEST(shuravina_o_hoare_simple_merger_all, test_random_array) {
   const size_t size = 1000;
