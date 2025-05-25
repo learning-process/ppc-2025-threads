@@ -63,13 +63,11 @@ void deryabin_m_hoare_sort_simple_merge_mpi::HoaraSort(std::vector<double>& a, s
     // HoaraSort(a, first, j, tg, available_threads >> 1);
     // tg.run([&a, &first, &j, &tg, &available_threads]() { HoaraSort(a, first, j, tg, available_threads >> 1); });
     // tg.run([&a, &i, &last, &tg, &available_threads]() {
-      // HoaraSort(a, i + 1, last, tg, available_threads - (available_threads >> 1));
+    // HoaraSort(a, i + 1, last, tg, available_threads - (available_threads >> 1));
     // });
     // tg.wait();
-    oneapi::tbb::parallel_invoke(
-      [&]() { HoaraSort(a, first, j, tg, available_threads / 2); },
-      [&]() { HoaraSort(a, i + 1, last, tg, available_threads / 2); }
-    );
+    oneapi::tbb::parallel_invoke([&]() { HoaraSort(a, first, j, tg, available_threads / 2); },
+                                 [&]() { HoaraSort(a, i + 1, last, tg, available_threads / 2); });
   } else {
     HoaraSort(a, first, j, tg, 1);
     HoaraSort(a, i + 1, last, tg, 1);
