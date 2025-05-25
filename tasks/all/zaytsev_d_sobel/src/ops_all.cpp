@@ -55,7 +55,7 @@ bool zaytsev_d_sobel_all::TestTaskALL::ValidationImpl() {
       height_ = size_ptr[1];
 
       validation = (task_data->inputs_count[0] == task_data->outputs_count[0]) && (width_ >= 3 && height_ >= 3) &&
-                  (width_ * height_ == static_cast<int>(task_data->inputs_count[0]));
+                   (width_ * height_ == static_cast<int>(task_data->inputs_count[0]));
     }
   }
 
