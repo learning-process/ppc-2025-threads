@@ -4,7 +4,6 @@
 #include <utility>
 #include <vector>
 
-#include "boost/mpi/communicator.hpp"
 #include "core/task/include/task.hpp"
 
 namespace koshkin_m_radix_int_simple_merge {
