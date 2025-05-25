@@ -1,4 +1,4 @@
-#include "all/vershinina_a_hoare_sort/include/ops_all.hpp"
+#include "all/vershinina_a_hoare_sort_mpi/include/ops_all.hpp"
 
 #include <tbb/tbb.h>
 

@@ -7,20 +7,19 @@
 #include <functional>
 #include <memory>
 #include <random>
+#include <vector>
 
-#include "all/vershinina_a_hoare_sort/include/ops_all.hpp"
+#include "all/vershinina_a_hoare_sort_mpi/include/ops_all.hpp"
 #include "boost/mpi/communicator.hpp"
 #include "core/perf/include/perf.hpp"
 #include "core/task/include/task.hpp"
 
+namespace {
 struct TestConf {
   int size;
   std::function<bool(const std::vector<int> &out)> chk;
-};
-
-namespace {
-conf = {.size = 300000, .chk = [](const auto &out) { return std::ranges::is_sorted(out); }};
-}
+} conf = {.size = 300000, .chk = [](const auto &out) { return std::ranges::is_sorted(out); }};
+}  // namespace
 
 namespace {
 std::vector<int> GetRandomVector(int len) {
