@@ -1,8 +1,9 @@
 #pragma once
 
 #include <boost/mpi/communicator.hpp>
-#include <boost/serialization/complex.hpp>
-#include <boost/serialization/vector.hpp>
+#include <boost/serialization/access.hpp>
+#include <boost/serialization/complex.hpp>  // NOLINT(misc-include-cleaner)
+#include <boost/serialization/vector.hpp>   // NOLINT(misc-include-cleaner)
 #include <complex>
 #include <utility>
 #include <vector>
