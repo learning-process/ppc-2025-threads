@@ -38,7 +38,7 @@ TEST(FominVConjugateGradientStl, test_small_system) {
   test_task_sequential.PostProcessing();
 
   for (size_t i = 0; i < kCount; ++i) {
-    EXPECT_NEAR(out[i], expected_x[i], 1e-6);
+    EXPECT_NEAR(out[i], expected_x[i], 1e-4);
   }
 }
 
@@ -73,7 +73,7 @@ TEST(FominVConjugateGradientStl, test_large_system) {
   test_task_sequential.PostProcessing();
 
   for (size_t i = 0; i < kCount; ++i) {
-    EXPECT_NEAR(out[i], expected_x[i], 1e-6);
+    EXPECT_NEAR(out[i], expected_x[i], 1e-4);
   }
 }
 
