@@ -1,9 +1,7 @@
 #include "stl/fomin_v_conjugate_gradient/include/ops_stl.hpp"
 
-#include <algorithm>
 #include <cmath>
 #include <cstddef>
-#include <functional>
 #include <thread>
 #include <vector>
 
@@ -53,7 +51,7 @@ std::vector<double> fomin_v_conjugate_gradient::FominVConjugateGradientStl::Matr
     threads[t] = std::thread([&, start, end]() {
       for (int i = start; i < end; ++i) {
         for (int j = 0; j < n; ++j) {
-          result[i] += a[i * n + j] * x[j];
+          result[i] += a[(i * n) + j] * x[j];
         }
       }
     });
