@@ -11,8 +11,8 @@
 #include <cstddef>
 #include <vector>
 
-void deryabin_m_hoare_sort_simple_merge_mpi::HoaraSort(std::vector<double>::iterator first,
-                                                       std::vector<double>::iterator last) {
+void deryabin_m_hoare_sort_simple_merge_mpi::HoaraSort(std::vector<double>::iterator& first,
+                                                       std::vector<double>::iterator& last) {
   if (first >= last) {
     return;
   }
@@ -21,20 +21,20 @@ void deryabin_m_hoare_sort_simple_merge_mpi::HoaraSort(std::vector<double>::iter
   auto left = first;
   auto right = last;
   do {
-    while (left < x) {
+    while (*left < x) {
       left++;
     }
-    while (right > x) {
+    while (*right > x) {
       right--;
     }
-    const std::vector<double>::iterator tmp = left;
-    left = right;
-    right = tmp;
-  } while ((left < right);
+    const double tmp = *left;
+    *left = *right;
+    *right = tmp;
+  } while (left < right);
   oneapi::tbb::parallel_invoke(
-            [first, right]() {
+            [&first, &right]() {
     HoaraSort(first, right); },
-            [left, last]()  {
+            [&left, &last]()  {
     HoaraSort(left, last); });
 }
 
