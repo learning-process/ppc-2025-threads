@@ -15,7 +15,7 @@ TEST(FominVConjugateGradientStl, test_small_system) {
   std::vector<double> b(kCount, 0.0);
   std::vector<double> expected_x(kCount, 1.0);
   for (size_t i = 0; i < kCount; ++i) {
-    a[i * kCount + i] = kCount + 1;
+    a[(i * kCount) + i] = kCount + 1;
     b[i] = (kCount + 1) * 1.0;
   }
 
@@ -50,10 +50,10 @@ TEST(FominVConjugateGradientStl, test_large_system) {
   std::vector<double> out(kCount, 0.0);
 
   for (size_t i = 0; i < kCount; ++i) {
-    a[i * kCount + i] = kCount + 1.0;
+    a[(i * kCount) + i] = kCount + 1.0;
     for (size_t j = 0; j < kCount; ++j) {
       if (i != j) {
-        a[i * kCount + j] = 1.0;
+        a[(i * kCount) + j] = 1.0;
       }
     }
     b[i] = (kCount + 1.0) * 1.0 + (kCount - 1.0) * 1.0;

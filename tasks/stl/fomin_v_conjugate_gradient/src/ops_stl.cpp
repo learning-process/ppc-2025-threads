@@ -160,8 +160,8 @@ bool fomin_v_conjugate_gradient::FominVConjugateGradientStl::ValidationImpl() {
 }
 
 bool fomin_v_conjugate_gradient::FominVConjugateGradientStl::RunImpl() {
-  const double epsilon = 1e-6;
-  const int max_iter = 1000;
+  const double epsilon = (n < 100) ? 1e-4 : 1e-6;
+  const int max_iter = (n < 100) ? 200 : 1000;
   std::vector<double> x(n, 0.0);
   std::vector<double> r = b_;
   std::vector<double> p = r;
