@@ -7,6 +7,10 @@
 
 namespace prokhorov_n_multidimensional_integrals_by_trapezoidal_method_omp {
 
+double ParallelIntegration(const std::function<double(const std::vector<double>&)>& func,
+                           const std::vector<double>& lower, const std::vector<double>& upper,
+                           const std::vector<int>& steps);
+
 class TestTaskOpenMP : public ppc::core::Task {
  public:
   explicit TestTaskOpenMP(ppc::core::TaskDataPtr task_data);
