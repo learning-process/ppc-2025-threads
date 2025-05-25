@@ -2,6 +2,7 @@
 
 #include <omp.h>
 
+#include <algorithm>
 #include <boost/mpi/collectives/all_reduce.hpp>
 #include <boost/mpi/communicator.hpp>
 #include <cmath>
@@ -12,7 +13,8 @@
 namespace prokhorov_n_multidimensional_integrals_by_trapezoidal_method_all {
 
 bool TestTaskALL::PreProcessingImpl() {
-  if (!task_data || !task_data->inputs[0] || !task_data->inputs[1] || !task_data->inputs[2]) {
+  if (!task_data || task_data->inputs[0] == nullptr || task_data->inputs[1] == nullptr ||
+      task_data->inputs[2] == nullptr) {
     return false;
   }
 
@@ -52,7 +54,7 @@ namespace {
 
 double SequentialTrapezoidalIntegration(const std::function<double(const std::vector<double>&)>& func,
                                         const std::vector<double>& lower, const std::vector<double>& upper,
-                                        const std::vector<int>& steps, std::vector<double> point) {
+                                        const std::vector<int>& steps, const std::vector<double>& point) {
   size_t current_dim = point.size();
   if (current_dim == lower.size()) {
     return func(point);
@@ -62,7 +64,7 @@ double SequentialTrapezoidalIntegration(const std::function<double(const std::ve
   double local_sum = 0.0;
 
   for (int i = 0; i <= steps[current_dim]; ++i) {
-    double x = lower[current_dim] + i * h;
+    double x = lower[current_dim] + (i * h);
     auto new_point = point;
     new_point.push_back(x);
     double weight = (i == 0 || i == steps[current_dim]) ? 0.5 : 1.0;
@@ -83,7 +85,7 @@ double ParallelTrapezoidalIntegration(const std::function<double(const std::vect
   int points_per_process = total_points / size;
   int remainder = total_points % size;
 
-  int start = rank * points_per_process + std::min(rank, remainder);
+  int start = (rank * points_per_process) + std::min(rank, remainder);
   int end = start + points_per_process + (rank < remainder ? 1 : 0);
 
   double h = (upper[0] - lower[0]) / steps[0];
@@ -91,14 +93,14 @@ double ParallelTrapezoidalIntegration(const std::function<double(const std::vect
 
 #pragma omp parallel for reduction(+ : local_sum)
   for (int i = start; i < end; ++i) {
-    double x = lower[0] + i * h;
+    double x = lower[0] + (i * h);
     std::vector<double> point = {x};
     double weight = (i == 0 || i == steps[0]) ? 0.5 : 1.0;
     local_sum += weight * SequentialTrapezoidalIntegration(func, lower, upper, steps, point);
   }
 
   double global_sum = 0.0;
-  boost::mpi::all_reduce(world, local_sum, global_sum, std::plus<double>());
+  boost::mpi::all_reduce(world, local_sum, global_sum, std::plus<>());
 
   return global_sum;
 }
@@ -106,7 +108,9 @@ double ParallelTrapezoidalIntegration(const std::function<double(const std::vect
 }  // namespace
 
 bool TestTaskALL::RunImpl() {
-  if (!function_) return false;
+  if (!function_) {
+    return false;
+  }
 
   double raw_sum = ParallelTrapezoidalIntegration(function_, lower_limits_, upper_limits_, steps_, world_);
 
