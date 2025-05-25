@@ -3,6 +3,7 @@
 #include <cmath>
 #include <cstddef>
 #include <vector>
+#include <boost/mpi/collectives/broadcast.hpp>
 #ifdef _OPENMP
 #include <omp.h>
 #endif
@@ -44,33 +45,33 @@ bool TestTaskMPI::PostProcessingImpl() {
 
 void TestTaskMPI::ShellSort() {
   bool is_empty = false;
-  if (world.rank() == 0) {
+  if (world_.rank() == 0) {
     is_empty = input_.empty();
   }
-  broadcast(world, is_empty, 0);
+  broadcast(world_, is_empty, 0);
   if (is_empty) {
     return;
   }
 
   unsigned int delta = 0;
   unsigned int res = 0;
-  if (world.rank() == 0) {
-    delta = input_.size() / world.size();
-    res = input_.size() % world.size();
+  if (world_.rank() == 0) {
+    delta = input_.size() / world_.size();
+    res = input_.size() % world_.size();
   }
-  broadcast(world, delta, 0);
-  broadcast(world, res, 0);
+  broadcast(world_, delta, 0);
+  broadcast(world_, res, 0);
 
-  if (world.rank() == 0) {
+  if (world_.rank() == 0) {
     size_t start_idx = delta + res;
-    for (int proc = 1; proc < world.size(); proc++) {
-      world.send(proc, 0, input_.data() + start_idx, delta);
+    for (int proc = 1; proc < world_.size(); proc++) {
+      world_.send(proc, 0, input_.data() + start_idx, static_cast<int>(delta));
       start_idx += delta;
     }
     local_input_ = std::vector<int>(input_.begin(), input_.begin() + delta + res);
   } else {
     local_input_ = std::vector<int>(delta);
-    world.recv(0, 0, local_input_.data(), delta);
+    world_.recv(0, 0, local_input_.data(), static_cast<int>(delta));
   }
   int n = static_cast<int>(input_.size());
   std::vector<int> gaps;

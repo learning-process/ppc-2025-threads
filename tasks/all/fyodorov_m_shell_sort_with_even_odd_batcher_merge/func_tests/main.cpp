@@ -3,15 +3,10 @@
 #include <algorithm>
 #include <cstddef>
 #include <cstdint>
-#include <fstream>
-#include <memory>
 #include <random>
-#include <string>
-#include <vector>
 
 #include "all/fyodorov_m_shell_sort_with_even_odd_batcher_merge/include/ops_mpi.hpp"
 #include "core/task/include/task.hpp"
-#include "core/util/include/util.hpp"
 
 TEST(fyodorov_m_shell_sort_with_even_odd_batcher_merge_mpi, test_small_array) {
   std::vector<int> input = {35, 33, 42, 10, 14, 19, 27, 44};
