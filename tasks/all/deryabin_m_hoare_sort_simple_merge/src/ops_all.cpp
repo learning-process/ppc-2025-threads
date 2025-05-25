@@ -22,14 +22,14 @@ void deryabin_m_hoare_sort_simple_merge_mpi::HoaraSort(std::vector<double>::iter
   auto left = first;
   auto right = last;
   do {
-    while (*left < x) {
+    while (left <= right && *left < x) {
       left++;
     }
-    while (*right > x) {
+    while (left <= right && *right > x) {
       right--;
     }
     std::iter_swap(left, right);
-  } while (left < right);
+  } while (left <= right);
   if (last - first >= 199) {
     oneapi::tbb::parallel_invoke([&first, &right]() { HoaraSort(first, right); },
                                  [&left, &last]() { HoaraSort(left, last); });
