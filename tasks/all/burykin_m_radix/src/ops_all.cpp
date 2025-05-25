@@ -3,45 +3,17 @@
 #include <algorithm>
 #include <array>
 #include <boost/mpi/communicator.hpp>
+#include <climits>
+#include <cmath>
 #include <cstddef>
+#include <cstdint>
 #include <numeric>
+#include <ranges>
 #include <span>
-#include <utility>
 #include <vector>
 
 #include "boost/mpi/collectives/broadcast.hpp"
 #include "core/util/include/util.hpp"
-
-std::array<int, 256> burykin_m_radix_all::RadixALL::ComputeFrequency(const std::vector<int>& a, const int shift) {
-  std::array<int, 256> count = {};
-  for (const int v : a) {
-    unsigned int key = ((static_cast<unsigned int>(v) >> shift) & 0xFFU);
-    if (shift == 24) {
-      key ^= 0x80;
-    }
-    ++count[key];
-  }
-  return count;
-}
-
-std::array<int, 256> burykin_m_radix_all::RadixALL::ComputeIndices(const std::array<int, 256>& count) {
-  std::array<int, 256> index = {0};
-  for (int i = 1; i < 256; ++i) {
-    index[i] = index[i - 1] + count[i - 1];
-  }
-  return index;
-}
-
-void burykin_m_radix_all::RadixALL::DistributeElements(const std::vector<int>& a, std::vector<int>& b,
-                                                       std::array<int, 256> index, const int shift) {
-  for (const int v : a) {
-    unsigned int key = ((static_cast<unsigned int>(v) >> shift) & 0xFFU);
-    if (shift == 24) {
-      key ^= 0x80;
-    }
-    b[index[key]++] = v;
-  }
-}
 
 namespace {
 std::vector<std::span<int>> Distribute(std::span<int> arr, std::size_t n) {
@@ -58,25 +30,86 @@ std::vector<std::span<int>> Distribute(std::span<int> arr, std::size_t n) {
 
   return chunks;
 }
-
-void RadixSortLocal(std::span<int> data) {
-  if (data.empty()) {
-    return;
-  }
-
-  std::vector<int> a(data.begin(), data.end());
-  std::vector<int> b(a.size());
-
-  for (int shift = 0; shift < 32; shift += 8) {
-    auto count = burykin_m_radix_all::RadixALL::ComputeFrequency(a, shift);
-    const auto index = burykin_m_radix_all::RadixALL::ComputeIndices(count);
-    burykin_m_radix_all::RadixALL::DistributeElements(a, b, index, shift);
-    a.swap(b);
-  }
-
-  std::copy(a.begin(), a.end(), data.begin());
-}
 }  // namespace
+
+std::array<int, 256> burykin_m_radix_all::RadixALL::ComputeFrequency(const std::vector<int>& a, const int shift) {
+  std::array<int, 256> count = {};
+
+#pragma omp parallel default(none) shared(a, count, shift)
+  {
+    std::array<int, 256> local_count = {};
+
+#pragma omp for nowait
+    for (int i = 0; i < static_cast<int>(a.size()); ++i) {
+      const int v = a[i];
+      unsigned int key = ((static_cast<unsigned int>(v) >> shift) & 0xFFU);
+      if (shift == 24) {
+        key ^= 0x80;
+      }
+      ++local_count[key];
+    }
+
+#pragma omp critical
+    {
+      for (int i = 0; i < 256; ++i) {
+        count[i] += local_count[i];
+      }
+    }
+  }
+
+  return count;
+}
+
+std::array<int, 256> burykin_m_radix_all::RadixALL::ComputeIndices(const std::array<int, 256>& count) {
+  std::array<int, 256> index = {0};
+  for (int i = 1; i < 256; ++i) {
+    index[i] = index[i - 1] + count[i - 1];
+  }
+  return index;
+}
+
+void burykin_m_radix_all::RadixALL::DistributeElements(const std::vector<int>& a, std::vector<int>& b,
+                                                       std::array<int, 256> index, const int shift) {
+  std::array<int, 256> local_index = index;
+  std::vector<int> offsets(a.size());
+
+#pragma omp parallel for default(none) shared(a, offsets, local_index, shift)
+  for (int i = 0; i < static_cast<int>(a.size()); ++i) {
+    const int v = a[i];
+    unsigned int key = ((static_cast<unsigned int>(v) >> shift) & 0xFFU);
+    if (shift == 24) {
+      key ^= 0x80;
+    }
+
+    int pos = 0;
+#pragma omp critical
+    {
+      pos = local_index[key];
+      local_index[key]++;
+    }
+
+    offsets[i] = pos;
+  }
+
+#pragma omp parallel for default(none) shared(a, b, offsets)
+  for (int i = 0; i < static_cast<int>(a.size()); ++i) {
+    b[offsets[i]] = a[i];
+  }
+}
+
+bool burykin_m_radix_all::RadixALL::ValidationImpl() {
+  return world_.rank() != 0 || (task_data->inputs_count[0] == task_data->outputs_count[0]);
+}
+
+bool burykin_m_radix_all::RadixALL::PreProcessingImpl() {
+  if (world_.rank() == 0) {
+    const unsigned int input_size = task_data->inputs_count[0];
+    auto* in_ptr = reinterpret_cast<int*>(task_data->inputs[0]);
+    input_ = std::vector<int>(in_ptr, in_ptr + input_size);
+    output_.reserve(input_.size());
+  }
+  return true;
+}
 
 void burykin_m_radix_all::RadixALL::Merge(boost::mpi::communicator& group) {
   const auto numprocs = static_cast<std::size_t>(group.size());
@@ -91,7 +124,7 @@ void burykin_m_radix_all::RadixALL::Merge(boost::mpi::communicator& group) {
         procchunk_.resize(threshold + size);
         group.recv(int(slave), 0, procchunk_.data() + threshold, size);
 
-        std::inplace_merge(procchunk_.begin(), procchunk_.begin() + std::int64_t(threshold), procchunk_.end());
+        std::ranges::inplace_merge(procchunk_, procchunk_.begin() + std::int64_t(threshold));
       }
     } else if ((group.rank() % i) == 0) {
       const int size = static_cast<int>(procchunk_.size());
@@ -101,20 +134,6 @@ void burykin_m_radix_all::RadixALL::Merge(boost::mpi::communicator& group) {
       break;
     }
   }
-}
-
-bool burykin_m_radix_all::RadixALL::PreProcessingImpl() {
-  if (world_.rank() == 0) {
-    const unsigned int input_size = task_data->inputs_count[0];
-    auto* in_ptr = reinterpret_cast<int*>(task_data->inputs[0]);
-    input_ = std::vector<int>(in_ptr, in_ptr + input_size);
-    output_.reserve(input_.size());
-  }
-  return true;
-}
-
-bool burykin_m_radix_all::RadixALL::ValidationImpl() {
-  return world_.rank() != 0 || (task_data->inputs_count[0] == task_data->outputs_count[0]);
 }
 
 bool burykin_m_radix_all::RadixALL::RunImpl() {
@@ -129,6 +148,7 @@ bool burykin_m_radix_all::RadixALL::RunImpl() {
   }
 
   const auto numprocs = std::min<std::size_t>(totalsize, world_.size());
+  procchunk_.resize(totalsize);
 
   if (world_.rank() >= int(numprocs)) {
     world_.split(1);
@@ -148,7 +168,6 @@ bool burykin_m_radix_all::RadixALL::RunImpl() {
   } else {
     int chunksize{};
     group.recv(0, 0, chunksize);
-    procchunk_.clear();
     procchunk_.resize(chunksize);
     group.recv(0, 0, procchunk_.data(), chunksize);
   }
@@ -158,7 +177,17 @@ bool burykin_m_radix_all::RadixALL::RunImpl() {
 
 #pragma omp parallel for
   for (int i = 0; i < static_cast<int>(numthreads); i++) {
-    RadixSortLocal(chunks[i]);
+    std::vector<int> chunk_vec(chunks[i].begin(), chunks[i].end());
+    std::vector<int> temp_vec(chunk_vec.size());
+
+    for (int shift = 0; shift < 32; shift += 8) {
+      auto count = ComputeFrequency(chunk_vec, shift);
+      const auto index = ComputeIndices(count);
+      DistributeElements(chunk_vec, temp_vec, index, shift);
+      chunk_vec.swap(temp_vec);
+    }
+
+    std::copy(chunk_vec.begin(), chunk_vec.end(), chunks[i].begin());
   }
 
   for (std::size_t i = 1; i < numthreads; i *= 2) {
@@ -182,9 +211,12 @@ bool burykin_m_radix_all::RadixALL::RunImpl() {
 
 bool burykin_m_radix_all::RadixALL::PostProcessingImpl() {
   if (world_.rank() == 0) {
-    output_ = procchunk_;
-    for (size_t i = 0; i < output_.size(); ++i) {
-      reinterpret_cast<int*>(task_data->outputs[0])[i] = output_[i];
+    auto* output_ptr = reinterpret_cast<int*>(task_data->outputs[0]);
+    const auto output_size = static_cast<int>(procchunk_.size());
+
+#pragma omp parallel for
+    for (int i = 0; i < output_size; ++i) {
+      output_ptr[i] = procchunk_[i];
     }
   }
   return true;
