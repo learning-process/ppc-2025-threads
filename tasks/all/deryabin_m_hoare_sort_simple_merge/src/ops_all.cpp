@@ -29,7 +29,7 @@ void deryabin_m_hoare_sort_simple_merge_mpi::HoaraSort(std::vector<double>::iter
       right--;
     }
     std::iter_swap(left, right);
-  } while (left < right);
+  } while (left <= right);
   if (last - first >= 199) {
     oneapi::tbb::parallel_invoke([&first, &right]() { HoaraSort(first, right); },
                                  [&left, &last]() { HoaraSort(left + 1, last); });
@@ -99,6 +99,15 @@ bool deryabin_m_hoare_sort_simple_merge_mpi::HoareSortTaskMPI::PreProcessingImpl
     min_chunk_size_ = dimension_ / chunk_count_;
     rest_ = dimension_ % chunk_count_;
   }
+  boost::mpi::broadcast(world, dimension_, 0);
+  if (world.rank() != 0) {
+    input_array_A_.reserve(dimension_);
+    input_array_A_.resize(dimension_);
+  }
+  boost::mpi::broadcast(world, input_array_A_.data(), dimension_, 0);
+  boost::mpi::broadcast(world, chunk_count_, 0);
+  boost::mpi::broadcast(world, min_chunk_size_, 0);
+  boost::mpi::broadcast(world, rest_, 0);
   return true;
 }
 
