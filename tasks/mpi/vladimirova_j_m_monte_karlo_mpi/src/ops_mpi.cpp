@@ -1,7 +1,8 @@
 
 #include "mpi/vladimirova_j_m_monte_karlo_mpi/include/ops_mpi.hpp"
 
-#include <boost/mpi.hpp>
+#include <boost/mpi/collectives/all_reduce.hpp>
+#include <boost/mpi/collectives/broadcast.hpp>
 #include <boost/mpi/communicator.hpp>
 #include <cmath>
 #include <cstddef>
@@ -9,8 +10,6 @@
 #include <thread>
 #include <vector>
 
-#include "boost/mpi/collectives/broadcast.hpp"
-#include "boost/mpi/collectives/reduce.hpp"
 #include "core/util/include/util.hpp"
 
 namespace {

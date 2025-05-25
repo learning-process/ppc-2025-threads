@@ -76,7 +76,7 @@ bool SomeRandomFunc(std::vector<double> arr, size_t size = 2) {
 }  // namespace
 
 TEST(vladimirova_j_m_monte_karlo_mpi, test_zero_var) {
-  boost::mpi::communicator world_;
+  boost::mpi::communicator world;
   // Create data
 
   std::vector<double> val_b = {};
@@ -93,13 +93,13 @@ TEST(vladimirova_j_m_monte_karlo_mpi, test_zero_var) {
   task_data_mpi->outputs_count.emplace_back(out.size());
   // Create Task
   vladimirova_j_m_monte_karlo_mpi::TestTaskMPI test_task_mpi(task_data_mpi);
-  if (world_.rank() == 0) {
+  if (world.rank() == 0) {
     ASSERT_EQ(test_task_mpi.Validation(), false);
   }
 }
 
 TEST(vladimirova_j_m_monte_karlo_mpi, test_one_var) {
-  boost::mpi::communicator world_;
+  boost::mpi::communicator world;
   // Create data
   std::vector<double> val_b = {-1, 1};
   std::vector<double> out(1, 0);
@@ -115,13 +115,13 @@ TEST(vladimirova_j_m_monte_karlo_mpi, test_one_var) {
   task_data_mpi->outputs_count.emplace_back(out.size());
   // Create Task
   vladimirova_j_m_monte_karlo_mpi::TestTaskMPI test_task_mpi(task_data_mpi);
-  if (world_.rank() == 0) {
+  if (world.rank() == 0) {
     ASSERT_EQ(test_task_mpi.Validation(), false);
   }
 }
 
 TEST(vladimirova_j_m_monte_karlo_mpi, test_no_limit_var) {
-  boost::mpi::communicator world_;
+  boost::mpi::communicator world;
   // Create data
   std::vector<double> val_b = {-1, 1, 0};
   std::vector<double> out(1, 0);
@@ -136,13 +136,13 @@ TEST(vladimirova_j_m_monte_karlo_mpi, test_no_limit_var) {
   task_data_mpi->outputs_count.emplace_back(out.size());
   // Create Task
   vladimirova_j_m_monte_karlo_mpi::TestTaskMPI test_task_mpi(task_data_mpi);
-  if (world_.rank() == 0) {
+  if (world.rank() == 0) {
     ASSERT_EQ(test_task_mpi.Validation(), false);
   }
 }
 
 TEST(vladimirova_j_m_monte_karlo_mpi, test_zero_size_limit_var) {
-  boost::mpi::communicator world_;
+  boost::mpi::communicator world;
   // Create data
   std::vector<double> val_b = {-1, 1, 0, 0};
   std::vector<double> out(1, 0);
@@ -158,13 +158,13 @@ TEST(vladimirova_j_m_monte_karlo_mpi, test_zero_size_limit_var) {
   task_data_mpi->outputs_count.emplace_back(out.size());
   // Create Task
   vladimirova_j_m_monte_karlo_mpi::TestTaskMPI test_task_mpi(task_data_mpi);
-  if (world_.rank() == 0) {
+  if (world.rank() == 0) {
     ASSERT_EQ(test_task_mpi.Validation(), false);
   }
 }
 
 TEST(vladimirova_j_m_monte_karlo_mpi, test_one_point) {
-  boost::mpi::communicator world_;
+  boost::mpi::communicator world;
   // Create data
   std::vector<double> val_b = {-1, 1, 0, 1};
   std::vector<double> out(1, 0);
@@ -184,14 +184,14 @@ TEST(vladimirova_j_m_monte_karlo_mpi, test_one_point) {
   test_task_mpi.PreProcessing();
   test_task_mpi.Run();
   test_task_mpi.PostProcessing();
-  if (world_.rank() == 0) {
+  if (world.rank() == 0) {
     ASSERT_TRUE((2 == (int)out[0]) || ((int)out[0] == 0));
   }
 }
 
 TEST(vladimirova_j_m_monte_karlo_mpi, test_PiVal_314) {
-  boost::mpi::communicator world_;
-  // std::cout << "SIZE IS " << world_.size() << std::endl;
+  boost::mpi::communicator world;
+  // std::cout << "SIZE IS " << world.size() << std::endl;
   //  Create data
   std::vector<double> val_b = {-1, 1, -1, 1};
   std::vector<double> out(1, 0);
@@ -210,13 +210,13 @@ TEST(vladimirova_j_m_monte_karlo_mpi, test_PiVal_314) {
   test_task_mpi.PreProcessing();
   test_task_mpi.Run();
   test_task_mpi.PostProcessing();
-  if (world_.rank() == 0) {
+  if (world.rank() == 0) {
     ASSERT_EQ(3, (int)out[0]);
   }
 }
 
 TEST(vladimirova_j_m_monte_karlo_mpi, test_PiVal_314_2) {
-  boost::mpi::communicator world_;
+  boost::mpi::communicator world;
   // Create data
   std::vector<double> val_b = {-1, 1, -1, 1};
   std::vector<double> out(1, 0);
@@ -235,13 +235,13 @@ TEST(vladimirova_j_m_monte_karlo_mpi, test_PiVal_314_2) {
   test_task_mpi.PreProcessing();
   test_task_mpi.Run();
   test_task_mpi.PostProcessing();
-  if (world_.rank() == 0) {
+  if (world.rank() == 0) {
     ASSERT_EQ(3, (int)out[0]);
   }
 }
 
 TEST(vladimirova_j_m_monte_karlo_mpi, test_PiVal_314_1_2) {
-  boost::mpi::communicator world_;
+  boost::mpi::communicator world;
   // Create data
   std::vector<double> val_b = {0, 1, -1, 1};
   std::vector<double> out(1, 0);
@@ -260,13 +260,13 @@ TEST(vladimirova_j_m_monte_karlo_mpi, test_PiVal_314_1_2) {
   test_task_mpi.PreProcessing();
   test_task_mpi.Run();
   test_task_mpi.PostProcessing();
-  if (world_.rank() == 0) {
+  if (world.rank() == 0) {
     ASSERT_TRUE(((3.14 / 2) - out[0]) < 0.5);
   }
 }
 
 TEST(vladimirova_j_m_monte_karlo_mpi, test_SphereR3_1) {
-  boost::mpi::communicator world_;
+  boost::mpi::communicator world;
   // Create data
   std::vector<double> val_b = {-3, 3, -3, 3, -3, 3};
   std::vector<double> out(1, 0);
@@ -286,13 +286,13 @@ TEST(vladimirova_j_m_monte_karlo_mpi, test_SphereR3_1) {
   test_task_mpi.PreProcessing();
   test_task_mpi.Run();
   test_task_mpi.PostProcessing();
-  if (world_.rank() == 0) {
+  if (world.rank() == 0) {
     ASSERT_TRUE((113 - out[0]) < 3);
   }
 }
 
 TEST(vladimirova_j_m_monte_karlo_mpi, test_SphereR3_1_2) {
-  boost::mpi::communicator world_;
+  boost::mpi::communicator world;
   // Create data
   std::vector<double> val_b = {0, 3, -3, 3, -3, 3};
   std::vector<double> out(1, 0);
@@ -312,13 +312,13 @@ TEST(vladimirova_j_m_monte_karlo_mpi, test_SphereR3_1_2) {
   test_task_mpi.PreProcessing();
   test_task_mpi.Run();
   test_task_mpi.PostProcessing();
-  if (world_.rank() == 0) {
+  if (world.rank() == 0) {
     ASSERT_TRUE(((113 / 2) - (int)out[0]) < 5);
   }
 }
 
 TEST(vladimirova_j_m_monte_karlo_mpi, test_SphereR3_1_9) {
-  boost::mpi::communicator world_;
+  boost::mpi::communicator world;
   // Create data
   std::vector<double> val_b = {0, 3, 0, 3, 0, 3};
   std::vector<double> out(1, 0);
@@ -338,13 +338,13 @@ TEST(vladimirova_j_m_monte_karlo_mpi, test_SphereR3_1_9) {
   test_task_mpi.PreProcessing();
   test_task_mpi.Run();
   test_task_mpi.PostProcessing();
-  if (world_.rank() == 0) {
+  if (world.rank() == 0) {
     ASSERT_TRUE(((113 / 9) - (int)out[0]) < 3);
   }
 }
 
 TEST(vladimirova_j_m_monte_karlo_mpi, test_Rectangle34) {
-  boost::mpi::communicator world_;
+  boost::mpi::communicator world;
   // Create data
   std::vector<double> val_b = {0, 3, 0, 4};
   std::vector<double> out(1, 0);
@@ -364,13 +364,13 @@ TEST(vladimirova_j_m_monte_karlo_mpi, test_Rectangle34) {
   test_task_mpi.PreProcessing();
   test_task_mpi.Run();
   test_task_mpi.PostProcessing();
-  if (world_.rank() == 0) {
+  if (world.rank() == 0) {
     ASSERT_TRUE(((3 * 4) - out[0]) == 0);
   }
 }
 
 TEST(vladimirova_j_m_monte_karlo_mpi, test_Rectangle34_2) {
-  boost::mpi::communicator world_;
+  boost::mpi::communicator world;
   // Create data
   std::vector<double> val_b = {0, 4, 0, 4};
   std::vector<double> out(1, 0);
@@ -390,13 +390,13 @@ TEST(vladimirova_j_m_monte_karlo_mpi, test_Rectangle34_2) {
   test_task_mpi.PreProcessing();
   test_task_mpi.Run();
   test_task_mpi.PostProcessing();
-  if (world_.rank() == 0) {
+  if (world.rank() == 0) {
     ASSERT_TRUE(((3 * 4) - out[0]) < 0.5);
   }
 }
 
 TEST(vladimirova_j_m_monte_karlo_mpi, test_Parallelogram333) {
-  boost::mpi::communicator world_;
+  boost::mpi::communicator world;
   // Create data
   std::vector<double> val_b = {0, 3, 0, 3, 0, 3};
   std::vector<double> out(1, 0);
@@ -416,13 +416,13 @@ TEST(vladimirova_j_m_monte_karlo_mpi, test_Parallelogram333) {
   test_task_mpi.PreProcessing();
   test_task_mpi.Run();
   test_task_mpi.PostProcessing();
-  if (world_.rank() == 0) {
+  if (world.rank() == 0) {
     ASSERT_TRUE(((3 * 3 * 3) - out[0]) == 0);
   }
 }
 
 TEST(vladimirova_j_m_monte_karlo_mpi, test_BigParallelogram100100100) {
-  boost::mpi::communicator world_;
+  boost::mpi::communicator world;
   // Create data
   std::vector<double> val_b = {0, 100, 0, 100, 0, 100};
   std::vector<double> out(1, 0);
@@ -442,13 +442,13 @@ TEST(vladimirova_j_m_monte_karlo_mpi, test_BigParallelogram100100100) {
   test_task_mpi.PreProcessing();
   test_task_mpi.Run();
   test_task_mpi.PostProcessing();
-  if (world_.rank() == 0) {
+  if (world.rank() == 0) {
     ASSERT_TRUE(((100 * 100 * 100) - out[0]) == 0);
   }
 }
 
 TEST(vladimirova_j_m_monte_karlo_mpi, test_Parabola_1_5_2_9) {
-  boost::mpi::communicator world_;
+  boost::mpi::communicator world;
   // Create data
   std::vector<double> val_b = {-4, 0, -24, 0};
   std::vector<double> out(1, 0);
@@ -468,13 +468,13 @@ TEST(vladimirova_j_m_monte_karlo_mpi, test_Parabola_1_5_2_9) {
   test_task_mpi.PreProcessing();
   test_task_mpi.Run();
   test_task_mpi.PostProcessing();
-  if (world_.rank() == 0) {
+  if (world.rank() == 0) {
     ASSERT_TRUE((72 - out[0]) < 1);
   }
 }
 
 TEST(vladimirova_j_m_monte_karlo_mpi, test_HypercubeX4Pr4433) {
-  boost::mpi::communicator world_;
+  boost::mpi::communicator world;
   // Create data
   std::vector<double> val_b = {0, 4, 0, 4, 0, 4, 0, 4};
   std::vector<double> out(1, 0);
@@ -494,13 +494,13 @@ TEST(vladimirova_j_m_monte_karlo_mpi, test_HypercubeX4Pr4433) {
   test_task_mpi.PreProcessing();
   test_task_mpi.Run();
   test_task_mpi.PostProcessing();
-  if (world_.rank() == 0) {
+  if (world.rank() == 0) {
     ASSERT_TRUE((3 * 3 * 4 * 4 - out[0]) < 5);
   }
 }
 
 TEST(vladimirova_j_m_monte_karlo_mpi, test_TriangleModuleMinus5) {
-  boost::mpi::communicator world_;
+  boost::mpi::communicator world;
   // Create data
   std::vector<double> val_b = {-5, 5, 0, 5};
   std::vector<double> out(1, 0);
@@ -520,13 +520,13 @@ TEST(vladimirova_j_m_monte_karlo_mpi, test_TriangleModuleMinus5) {
   test_task_mpi.PreProcessing();
   test_task_mpi.Run();
   test_task_mpi.PostProcessing();
-  if (world_.rank() == 0) {
+  if (world.rank() == 0) {
     ASSERT_TRUE((25 - out[0]) < 1);
   }
 }
 
 TEST(vladimirova_j_m_monte_karlo_mpi, test_SomeRandomFunc) {
-  boost::mpi::communicator world_;
+  boost::mpi::communicator world;
   // Create data
   std::vector<double> val_b = {-2, 0, -5.5, -2};
   std::vector<double> out(1, 0);
@@ -546,7 +546,7 @@ TEST(vladimirova_j_m_monte_karlo_mpi, test_SomeRandomFunc) {
   test_task_mpi.PreProcessing();
   test_task_mpi.Run();
   test_task_mpi.PostProcessing();
-  if (world_.rank() == 0) {
+  if (world.rank() == 0) {
     ASSERT_TRUE((2.533 - out[0]) < 0.5);
   }
 }
