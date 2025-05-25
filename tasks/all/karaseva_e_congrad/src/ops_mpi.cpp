@@ -2,6 +2,8 @@
 
 #include <mpi.h>
 
+#include <cstdint>
+#include <cstddef>
 #include <algorithm>
 #include <cmath>
 #include <vector>
