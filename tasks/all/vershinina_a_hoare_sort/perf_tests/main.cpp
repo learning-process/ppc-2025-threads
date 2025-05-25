@@ -16,8 +16,9 @@
 struct TestConf {
   int size;
   std::function<bool(const std::vector<int> &out)> chk;
-} namespace {
-  conf = {.size = 300000, .chk = [](const auto &out) { return std::ranges::is_sorted(out); }};
+};
+namespace {
+conf = {.size = 300000, .chk = [](const auto &out) { return std::ranges::is_sorted(out); }};
 }
 
 namespace {
