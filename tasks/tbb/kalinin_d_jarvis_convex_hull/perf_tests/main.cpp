@@ -94,8 +94,9 @@ TEST(kalinin_d_jarvis_convex_hull_tbb, test_pipeline_run) {
 
   // Verify results
   std::vector<kalinin_d_jarvis_convex_hull_tbb::Point> unique_points = points;
-  std::sort(unique_points.begin(), unique_points.end());
-  unique_points.erase(std::unique(unique_points.begin(), unique_points.end()), unique_points.end());
+  std::ranges::sort(unique_points);
+  auto last = std::ranges::unique(unique_points).begin();
+  unique_points.erase(last, unique_points.end());
   std::vector<kalinin_d_jarvis_convex_hull_tbb::Point> res = CalculateConvexHull(unique_points);
 
   size_t hull_size = task_data_seq->outputs_count[0];
@@ -147,8 +148,9 @@ TEST(kalinin_d_jarvis_convex_hull_tbb, test_task_run) {
 
   // Verify results
   std::vector<kalinin_d_jarvis_convex_hull_tbb::Point> unique_points = points;
-  std::sort(unique_points.begin(), unique_points.end());
-  unique_points.erase(std::unique(unique_points.begin(), unique_points.end()), unique_points.end());
+  std::ranges::sort(unique_points);
+  auto last = std::ranges::unique(unique_points).begin();
+  unique_points.erase(last, unique_points.end());
   std::vector<kalinin_d_jarvis_convex_hull_tbb::Point> res = CalculateConvexHull(unique_points);
 
   size_t hull_size = task_data_seq->outputs_count[0];
