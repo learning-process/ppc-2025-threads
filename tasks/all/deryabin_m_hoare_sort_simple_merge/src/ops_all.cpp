@@ -31,8 +31,13 @@ void deryabin_m_hoare_sort_simple_merge_mpi::HoaraSort(std::vector<double>::iter
     *left = *right;
     *right = tmp;
   } while (left < right);
-  oneapi::tbb::parallel_invoke([&first, &right]() { HoaraSort(first, right); },
-                               [&left, &last]() { HoaraSort(left, last); });
+  if (last - first >= 100) {
+    oneapi::tbb::parallel_invoke([&first, &right]() { HoaraSort(first, right); },
+                             [&left, &last]() { HoaraSort(left, last); });
+  } else {
+    HoaraSort(first, right);
+    HoaraSort(left, last);
+  }
 }
 
 void deryabin_m_hoare_sort_simple_merge_mpi::MergeTwoParts(std::vector<double>& a, size_t first, size_t last) {
