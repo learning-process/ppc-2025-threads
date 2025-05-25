@@ -129,7 +129,6 @@ bool burykin_m_radix_all::RadixALL::RunImpl() {
   }
 
   const auto numprocs = std::min<std::size_t>(totalsize, world_.size());
-  procchunk_.resize(totalsize);
 
   if (world_.rank() >= int(numprocs)) {
     world_.split(1);
@@ -149,6 +148,7 @@ bool burykin_m_radix_all::RadixALL::RunImpl() {
   } else {
     int chunksize{};
     group.recv(0, 0, chunksize);
+    procchunk_.clear();
     procchunk_.resize(chunksize);
     group.recv(0, 0, procchunk_.data(), chunksize);
   }
@@ -182,8 +182,9 @@ bool burykin_m_radix_all::RadixALL::RunImpl() {
 
 bool burykin_m_radix_all::RadixALL::PostProcessingImpl() {
   if (world_.rank() == 0) {
-    for (size_t i = 0; i < procchunk_.size(); ++i) {
-      reinterpret_cast<int*>(task_data->outputs[0])[i] = procchunk_[i];
+    output_ = procchunk_;
+    for (size_t i = 0; i < output_.size(); ++i) {
+      reinterpret_cast<int*>(task_data->outputs[0])[i] = output_[i];
     }
   }
   return true;
