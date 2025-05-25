@@ -2,10 +2,10 @@
 
 #include <mpi.h>
 
-#include <cstdint>
-#include <cstddef>
 #include <algorithm>
 #include <cmath>
+#include <cstdint>
+#include <cstddef>
 #include <vector>
 
 using namespace karaseva_e_congrad_mpi;
