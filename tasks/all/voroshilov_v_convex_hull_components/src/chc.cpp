@@ -3,7 +3,6 @@
 #include <omp.h>
 
 #include <algorithm>
-#include <atomic>
 #include <boost/mpi/collectives.hpp>
 #include <boost/mpi/communicator.hpp>
 #include <boost/serialization/vector.hpp>  // NOLINT(misc-include-cleaner)
@@ -173,13 +172,11 @@ std::vector<Component> voroshilov_v_convex_hull_components_all::FindComponentsIn
 }
 
 std::vector<Component> voroshilov_v_convex_hull_components_all::FindComponentsOMP(Image& image) {
-  Image tmp_image(image);
-
   int num_threads = omp_get_max_threads();
 
   std::vector<std::vector<Component>> thread_components(num_threads);
 
-  int height = tmp_image.height;
+  int height = image.height;
 
   int area_height = height / num_threads;
   int remainder = height % num_threads;
@@ -215,7 +212,7 @@ std::vector<Component> voroshilov_v_convex_hull_components_all::FindComponentsOM
     int thread_id = omp_get_thread_num();
 
     thread_components[thread_id] =
-        FindComponentsInArea(tmp_image, start_y[thread_id], end_y[thread_id], index_offset[thread_id]);
+        FindComponentsInArea(image, start_y[thread_id], end_y[thread_id], index_offset[thread_id]);
   }
 
   std::vector<Component> components;
@@ -223,7 +220,7 @@ std::vector<Component> voroshilov_v_convex_hull_components_all::FindComponentsOM
     components.insert(components.end(), vec.begin(), vec.end());
   }
 
-  MergeComponentsAcrossAreas(components, tmp_image, area_height, end_y);
+  MergeComponentsAcrossAreas(components, image, area_height, end_y);
 
   int size = static_cast<int>(components.size());
 #pragma omp parallel for schedule(dynamic)
@@ -313,22 +310,14 @@ std::vector<Pixel> voroshilov_v_convex_hull_components_all::QuickHull(Component&
   return res_hull;
 }
 
-std::vector<Hull> voroshilov_v_convex_hull_components_all::QuickHullAllMPIOMP(std::vector<Component>& components) {
-  if (components.empty()) {
-    return {};
-  }
-
-  boost::mpi::communicator world;
-
-  int part = 0;
-  int remainder = 0;
-  part = static_cast<int>(components.size()) / world.size();
-  remainder = static_cast<int>(components.size()) % world.size();
-
-  std::vector<int> parts(world.size(), part);
-  std::vector<int> offsets(world.size());
-
-  for (int i = 0; i < world.size(); i++) {
+void voroshilov_v_convex_hull_components_all::ComputePartition(int vec_size, int world_size, std::vector<int>& parts,
+                                                               std::vector<int>& offsets) {
+  int base = vec_size / world_size;
+  int remainder = vec_size % world_size;
+  parts.resize(world_size);
+  offsets.resize(world_size);
+  for (int i = 0; i < world_size; i++) {
+    parts[i] = base;
     if (remainder > 0) {
       parts[i]++;
       remainder--;
@@ -339,10 +328,98 @@ std::vector<Hull> voroshilov_v_convex_hull_components_all::QuickHullAllMPIOMP(st
       offsets[i] = offsets[i - 1] + parts[i - 1];
     }
   }
+}
+
+std::vector<std::vector<int>> voroshilov_v_convex_hull_components_all::PackIdxs(std::vector<Component>& components,
+                                                                                int image_width,
+                                                                                std::vector<int>& parts,
+                                                                                std::vector<int>& offsets,
+                                                                                std::vector<int>& comp_sizes) {
+  int world_size = static_cast<int>(parts.size());
+  std::vector<std::vector<int>> split_idxs(world_size);
+  for (int i = 0; i < world_size; i++) {
+    int part = parts[i];
+    int offset = offsets[i];
+    int total_pixels = 0;
+    for (int j = 0; j < part; j++) {
+      total_pixels += comp_sizes[offset + j];
+    }
+    split_idxs[i].reserve(total_pixels);
+    for (int j = 0; j < part; j++) {
+      Component comp = components[offset + j];
+      for (Pixel& p : comp) {
+        split_idxs[i].push_back((p.y * image_width) + p.x);
+      }
+    }
+  }
+  return split_idxs;
+}
+
+std::vector<Hull> voroshilov_v_convex_hull_components_all::QuickHullAllOMP(std::vector<Component>& components) {
+  if (components.empty()) {
+    return {};
+  }
+
+  int components_size = static_cast<int>(components.size());
+  std::vector<Hull> hulls(components.size());
+
+#pragma omp parallel for schedule(dynamic)
+  for (int i = 0; i < components_size; i++) {
+    hulls[i] = QuickHull(components[i]);
+  }
+
+  return hulls;
+}
+
+std::vector<Hull> voroshilov_v_convex_hull_components_all::QuickHullAllMPIOMP(std::vector<Component>& components,
+                                                                              int image_width) {
+  boost::mpi::communicator world;
+  // NOLINTNEXTLINE(misc-include-cleaner)
+  boost::mpi::broadcast(world, image_width, 0);
+
+  std::vector<int> comp_sizes;
+  if (world.rank() == 0) {
+    comp_sizes.reserve(components.size());
+    for (Component& comp : components) {
+      comp_sizes.push_back(static_cast<int>(comp.size()));
+    }
+  }
+  // NOLINTNEXTLINE(misc-include-cleaner)
+  boost::mpi::broadcast(world, comp_sizes, 0);
+
+  std::vector<int> parts;
+  std::vector<int> offsets;
+  if (world.rank() == 0) {
+    ComputePartition(static_cast<int>(components.size()), world.size(), parts, offsets);
+  }
+  // NOLINTNEXTLINE(misc-include-cleaner)
+  boost::mpi::broadcast(world, parts, 0);
+  // NOLINTNEXTLINE(misc-include-cleaner)
+  boost::mpi::broadcast(world, offsets, 0);
+
+  std::vector<std::vector<int>> split_idxs;
+  if (world.rank() == 0) {
+    split_idxs = PackIdxs(components, image_width, parts, offsets, comp_sizes);
+  }
+
+  std::vector<int> local_idxs;
+  // NOLINTNEXTLINE(misc-include-cleaner)
+  boost::mpi::scatter(world, split_idxs, local_idxs, 0);
 
   std::vector<Component> local_components(parts[world.rank()]);
-  // NOLINTNEXTLINE(misc-include-cleaner)
-  boost::mpi::scatterv(world, components.data(), parts, offsets, local_components.data(), parts[world.rank()], 0);
+  int pos = 0;
+  for (int i = 0; i < parts[world.rank()]; i++) {
+    int comp_size = comp_sizes[offsets[world.rank()] + i];
+    Component comp;
+    comp.reserve(comp_size);
+    for (int j = 0; j < comp_size; j++, pos++) {
+      int idx = local_idxs[pos];
+      int y = idx / image_width;
+      int x = idx % image_width;
+      comp.emplace_back(y, x, 1);
+    }
+    local_components[i] = std::move(comp);
+  }
 
   int local_components_size = static_cast<int>(local_components.size());
   std::vector<Hull> local_hulls(local_components.size());
@@ -355,7 +432,6 @@ std::vector<Hull> voroshilov_v_convex_hull_components_all::QuickHullAllMPIOMP(st
   std::vector<std::vector<Hull>> gathered_hulls;
   // NOLINTNEXTLINE(misc-include-cleaner)
   boost::mpi::gather(world, local_hulls, gathered_hulls, 0);
-
   if (world.rank() == 0) {
     std::vector<Hull> hulls;
     for (auto& vector_hulls : gathered_hulls) {
@@ -369,32 +445,22 @@ std::vector<Hull> voroshilov_v_convex_hull_components_all::QuickHullAllMPIOMP(st
   return {};
 }
 
-std::pair<std::vector<int>, std::vector<int>> voroshilov_v_convex_hull_components_all::PackHulls(
-    std::vector<Hull>& hulls, Image& image) {
-  int height = image.height;
-  int width = image.width;
+void voroshilov_v_convex_hull_components_all::PackHulls(std::vector<Hull>& hulls, int width, int height,
+                                                        int* hulls_indxs, int* pixels_indxs) {
+  std::fill(hulls_indxs, hulls_indxs + (height * width), 0);
+  std::fill(pixels_indxs, pixels_indxs + (height * width), 0);
 
-  std::vector<int> hulls_indexes(height * width, 0);
-  std::vector<int> pixels_indexes(height * width, 0);
-
-  int hulls_size = static_cast<int>(hulls.size());
-  std::atomic<int> uniq_hull_index(1);
-
-#pragma omp parallel for
-  for (int i = 0; i < hulls_size; i++) {
+  int hull_index = 1;
+  for (Hull& hull : hulls) {
     int pixel_index = 1;
-    int pixels_size = static_cast<int>(hulls[i].size());
-    int hull_index = uniq_hull_index.fetch_add(1);
-
-    for (int j = 0; j < pixels_size; j++) {
-      hulls_indexes[(hulls[i][j].y * width) + hulls[i][j].x] = hull_index;
-      pixels_indexes[(hulls[i][j].y * width) + hulls[i][j].x] = pixel_index;
+    for (Pixel& p : hull) {
+      int pos = (p.y * width) + p.x;
+      hulls_indxs[pos] = hull_index;
+      pixels_indxs[pos] = pixel_index;
       pixel_index++;
     }
+    hull_index++;
   }
-
-  std::pair<std::vector<int>, std::vector<int>> packed_vectors(hulls_indexes, pixels_indexes);
-  return packed_vectors;
 }
 
 std::vector<Hull> voroshilov_v_convex_hull_components_all::UnpackHulls(std::vector<int>& hulls_indexes,

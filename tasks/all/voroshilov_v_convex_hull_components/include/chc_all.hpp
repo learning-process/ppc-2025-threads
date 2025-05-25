@@ -1,5 +1,6 @@
 #pragma once
 
+#include <boost/mpi/communicator.hpp>
 #include <utility>
 #include <vector>
 
@@ -19,6 +20,8 @@ class ChcTaskALL : public ppc::core::Task {
  private:
   Image imageIn_;
   std::vector<Hull> hullsOut_;
+
+  boost::mpi::communicator world_;
 };
 
 }  // namespace voroshilov_v_convex_hull_components_all

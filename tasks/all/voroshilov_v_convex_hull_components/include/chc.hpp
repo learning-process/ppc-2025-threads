@@ -3,7 +3,6 @@
 #include <boost/serialization/access.hpp>
 #include <cstddef>
 #include <unordered_map>
-#include <utility>
 #include <vector>
 
 namespace voroshilov_v_convex_hull_components_all {
@@ -34,6 +33,10 @@ struct Pixel {
   }
 };
 
+using Component = std::vector<Pixel>;
+
+using Hull = std::vector<Pixel>;
+
 struct Image {
   int height;
   int width;
@@ -52,10 +55,6 @@ struct LineSegment {
 
   LineSegment(Pixel& a_param, Pixel& b_param);
 };
-
-using Component = std::vector<Pixel>;
-
-using Hull = std::vector<Pixel>;
 
 class UnionFind {
  public:
@@ -84,9 +83,16 @@ Pixel FindFarthestPixel(std::vector<Pixel>& pixels, LineSegment& line_segment);
 
 std::vector<Pixel> QuickHull(Component& component);
 
-std::vector<Hull> QuickHullAllMPIOMP(std::vector<Component>& components);
+void ComputePartition(int vec_size, int world_size, std::vector<int>& parts, std::vector<int>& offsets);
 
-std::pair<std::vector<int>, std::vector<int>> PackHulls(std::vector<Hull>& hulls, Image& image);
+std::vector<std::vector<int>> PackIdxs(std::vector<Component>& components, int image_width, std::vector<int>& parts,
+                                       std::vector<int>& offsets, std::vector<int>& comp_sizes);
+
+std::vector<Hull> QuickHullAllOMP(std::vector<Component>& components);
+
+std::vector<Hull> QuickHullAllMPIOMP(std::vector<Component>& components, int image_width);
+
+void PackHulls(std::vector<Hull>& hulls, int width, int height, int* hulls_indxs, int* pixels_indxs);
 
 std::vector<Hull> UnpackHulls(std::vector<int>& hulls_indexes, std::vector<int>& pixels_indexes, int height, int width,
                               size_t hulls_size);
