@@ -46,10 +46,8 @@ void deryabin_m_hoare_sort_simple_merge_mpi::MergeTwoParts(std::vector<double>& 
   std::rotate(a.begin() + left_split, a.begin() + mid, a.begin() + right_split);
   // Параллельно сливаем оставшиеся части
   const size_t new_mid = left_split + (right_split - mid);
-  oneapi::tbb::parallel_invoke(
-      [&a, &first, &new_mid]() { MergeTwoParts(a, first, new_mid); },
-      [&a, &new_mid, &last]() { MergeTwoParts(a, new_mid, last); }
-  );
+  oneapi::tbb::parallel_invoke([&a, &first, &new_mid]() { MergeTwoParts(a, first, new_mid); },
+                               [&a, &new_mid, &last]() { MergeTwoParts(a, new_mid, last); });
 }
 
 bool deryabin_m_hoare_sort_simple_merge_mpi::HoareSortTaskSequential::PreProcessingImpl() {
