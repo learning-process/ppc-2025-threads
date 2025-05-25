@@ -101,16 +101,12 @@ bool chizhov_m_trapezoid_method_all::TestTaskMPI::PreProcessingImpl() {
     dim_ = *dimension_ptr;
 
     auto* limit_ptr = reinterpret_cast<double*>(task_data->inputs[2]);
-    for (int i = 0; i < static_cast<int>(task_data->inputs_count[2]); i += 2) {
+    int lim_int = static_cast<int>(task_data->inputs_count[2]);
+    for (int i = 0; i < lim_int; i += 2) {
       lower_limits_.push_back(limit_ptr[i]);
       upper_limits_.push_back(limit_ptr[i + 1]);
     }
   }
-
-  boost::mpi::broadcast(world_, div_, 0);
-  boost::mpi::broadcast(world_, dim_, 0);
-  boost::mpi::broadcast(world_, lower_limits_, 0);
-  boost::mpi::broadcast(world_, upper_limits_, 0);
 
   return true;
 }
@@ -127,7 +123,8 @@ bool chizhov_m_trapezoid_method_all::TestTaskMPI::ValidationImpl() {
       valid = false;
     }
     auto* limit_ptr = reinterpret_cast<double*>(task_data->inputs[2]);
-    for (int i = 0; i < static_cast<int>(task_data->inputs_count[2]); i += 2) {
+    int lim_int = static_cast<int>(task_data->inputs_count[2]);
+    for (int i = 0; i < lim_int; i += 2) {
       if (limit_ptr[i] >= limit_ptr[i + 1]) {
         valid = false;
       }
@@ -141,6 +138,10 @@ bool chizhov_m_trapezoid_method_all::TestTaskMPI::ValidationImpl() {
 void chizhov_m_trapezoid_method_all::TestTaskMPI::SetFunc(Function f) { f_ = std::move(f); };
 
 bool chizhov_m_trapezoid_method_all::TestTaskMPI::RunImpl() {
+  boost::mpi::broadcast(world_, div_, 0);
+  boost::mpi::broadcast(world_, dim_, 0);
+  boost::mpi::broadcast(world_, lower_limits_, 0);
+  boost::mpi::broadcast(world_, upper_limits_, 0);
   res_ = TrapezoidMethod(f_, div_, dim_, lower_limits_, upper_limits_, world_);
   return true;
 }
