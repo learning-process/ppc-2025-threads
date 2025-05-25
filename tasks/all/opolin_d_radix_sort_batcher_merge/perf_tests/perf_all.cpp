@@ -41,17 +41,17 @@ TEST(opolin_d_radix_batcher_sort_all, test_pipeline_run) {
   std::vector<int> expected;
   std::vector<int> out(size, 0);
   // Create task_data
-  auto task_data_tbb = std::make_shared<ppc::core::TaskData>();
+  auto task_data_all = std::make_shared<ppc::core::TaskData>();
   if (world.rank() == 0) {
     opolin_d_radix_batcher_sort_all::GenDataRadixSort(size, input, expected);
-    task_data_tbb->inputs.emplace_back(reinterpret_cast<uint8_t *>(input.data()));
-    task_data_tbb->inputs_count.emplace_back(out.size());
-    task_data_tbb->outputs.emplace_back(reinterpret_cast<uint8_t *>(out.data()));
-    task_data_tbb->outputs_count.emplace_back(out.size());
+    task_data_all->inputs.emplace_back(reinterpret_cast<uint8_t *>(input.data()));
+    task_data_all->inputs_count.emplace_back(out.size());
+    task_data_all->outputs.emplace_back(reinterpret_cast<uint8_t *>(out.data()));
+    task_data_all->outputs_count.emplace_back(out.size());
   }
 
   // Create Task
-  auto test_task_all = std::make_shared<opolin_d_radix_batcher_sort_all::RadixBatcherSortTaskAll>(task_data_tbb);
+  auto test_task_all = std::make_shared<opolin_d_radix_batcher_sort_all::RadixBatcherSortTaskAll>(task_data_all);
   // Create Perf attributes
   auto perf_attr = std::make_shared<ppc::core::PerfAttr>();
   perf_attr->num_running = 10;
@@ -81,15 +81,15 @@ TEST(opolin_d_radix_batcher_sort_all, test_task_run) {
   std::vector<int> expected;
   std::vector<int> out(size, 0);
   // Create task_data
-  auto task_data_tbb = std::make_shared<ppc::core::TaskData>();
+  auto task_data_all = std::make_shared<ppc::core::TaskData>();
   if (world.rank() == 0) {
     opolin_d_radix_batcher_sort_all::GenDataRadixSort(size, input, expected);
-    task_data_tbb->inputs.emplace_back(reinterpret_cast<uint8_t *>(input.data()));
-    task_data_tbb->inputs_count.emplace_back(out.size());
-    task_data_tbb->outputs.emplace_back(reinterpret_cast<uint8_t *>(out.data()));
-    task_data_tbb->outputs_count.emplace_back(out.size());
+    task_data_all->inputs.emplace_back(reinterpret_cast<uint8_t *>(input.data()));
+    task_data_all->inputs_count.emplace_back(out.size());
+    task_data_all->outputs.emplace_back(reinterpret_cast<uint8_t *>(out.data()));
+    task_data_all->outputs_count.emplace_back(out.size());
   }
-  auto test_task_all = std::make_shared<opolin_d_radix_batcher_sort_all::RadixBatcherSortTaskAll>(task_data_tbb);
+  auto test_task_all = std::make_shared<opolin_d_radix_batcher_sort_all::RadixBatcherSortTaskAll>(task_data_all);
   // Create Perf attributes
   auto perf_attr = std::make_shared<ppc::core::PerfAttr>();
   perf_attr->num_running = 10;

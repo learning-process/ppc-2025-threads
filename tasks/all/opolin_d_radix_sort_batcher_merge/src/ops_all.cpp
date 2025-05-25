@@ -11,6 +11,7 @@
 #include <cmath>
 #include <cstddef>
 #include <cstdint>
+#include <utility>
 #include <vector>
 
 #include "oneapi/tbb/blocked_range.h"
@@ -95,7 +96,7 @@ bool opolin_d_radix_batcher_sort_all::RadixBatcherSortTaskAll::RunImpl() {
     boost::mpi::gatherv(world_, local_data.data(), local_size, 0);
   }
   if (rank == 0) {
-    output_.swap(gathered_data);
+    output_ = std::move(gathered_data);
     int offset = counts[0];
     for (int i = 1; i < world_size; ++i) {
       int next = offset + counts[i];
