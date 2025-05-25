@@ -108,6 +108,7 @@ bool burykin_m_radix_all::RadixALL::RunImpl() {
     {
 #pragma omp single
       {
+        volatile int size = 0;
         for (int shift = 0; shift < 32; shift += 8) {
           auto count = ComputeFrequency(a, shift);
           const auto index = ComputeIndices(count);
