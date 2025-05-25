@@ -6,10 +6,10 @@
 #include <memory>
 #include <vector>
 
+#include "all/karaseva_e_congrad/include/ops_mpi.hpp"
 #include "boost/mpi/communicator.hpp"
 #include "core/perf/include/perf.hpp"
 #include "core/task/include/task.hpp"
-#include "all/karaseva_e_congrad/include/ops_mpi.hpp"
 
 TEST(karaseva_e_congrad_mpi, test_pipeline_run) {
   constexpr int kSize = 10000;
