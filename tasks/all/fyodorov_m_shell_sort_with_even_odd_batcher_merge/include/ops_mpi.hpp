@@ -19,7 +19,7 @@ class TestTaskMPI : public ppc::core::Task {
 
  private:
   void ShellSort();
-  void BatcherMerge(std::vector<int>& left, std::vector<int>& right, std::vector<int>& result);
+  static void BatcherMerge(std::vector<int>& left, std::vector<int>& right, std::vector<int>& result);
   std::vector<int> input_;
   std::vector<int> output_;
   std::vector<int> local_input_;

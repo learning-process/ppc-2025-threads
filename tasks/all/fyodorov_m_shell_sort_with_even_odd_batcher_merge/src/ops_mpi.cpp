@@ -1,9 +1,9 @@
 #include "all/fyodorov_m_shell_sort_with_even_odd_batcher_merge/include/ops_mpi.hpp"
 
+#include <boost/mpi/collectives/broadcast.hpp>
 #include <cmath>
 #include <cstddef>
 #include <vector>
-#include <boost/mpi/collectives/broadcast.hpp>
 #ifdef _OPENMP
 #include <omp.h>
 #endif
@@ -95,7 +95,7 @@ void TestTaskMPI::ShellSort() {
   }
 }
 
-void TestTaskMPI::BatcherMerge(std::vector<int>& left, std::vector<int>& right, std::vector<int>& result) {
+static void TestTaskMPI::BatcherMerge(std::vector<int>& left, std::vector<int>& right, std::vector<int>& result) {
   size_t i = 0;
   size_t j = 0;
   size_t k = 0;
