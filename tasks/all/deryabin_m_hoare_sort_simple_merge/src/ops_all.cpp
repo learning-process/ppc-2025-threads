@@ -1,6 +1,7 @@
 #include "all/deryabin_m_hoare_sort_simple_merge/include/ops_all.hpp"
 
-#include <oneapi/tbb/task_group.h>
+// #include <oneapi/tbb/task_group.h>
+#include <oneapi/tbb/parallel_invoke.h>
 
 #include <algorithm>
 #include <bit>
@@ -60,11 +61,15 @@ void deryabin_m_hoare_sort_simple_merge_mpi::HoaraSort(std::vector<double>& a, s
   const size_t i = pi - a.data();
   if (available_threads > 1) {
     // HoaraSort(a, first, j, tg, available_threads >> 1);
-    tg.run([&a, &first, &j, &tg, &available_threads]() { HoaraSort(a, first, j, tg, available_threads >> 1); });
-    tg.run([&a, &i, &last, &tg, &available_threads]() {
-      HoaraSort(a, i + 1, last, tg, available_threads - (available_threads >> 1));
-    });
-    tg.wait();
+    // tg.run([&a, &first, &j, &tg, &available_threads]() { HoaraSort(a, first, j, tg, available_threads >> 1); });
+    // tg.run([&a, &i, &last, &tg, &available_threads]() {
+      // HoaraSort(a, i + 1, last, tg, available_threads - (available_threads >> 1));
+    // });
+    // tg.wait();
+    oneapi::tbb::parallel_invoke(
+      [&]() { HoaraSort(a, first, j, tg, available_threads / 2); },
+      [&]() { HoaraSort(a, i + 1, last, tg, available_threads / 2); }
+    );
   } else {
     HoaraSort(a, first, j, tg, 1);
     HoaraSort(a, i + 1, last, tg, 1);
