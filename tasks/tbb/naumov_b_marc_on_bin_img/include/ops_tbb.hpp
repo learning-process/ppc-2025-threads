@@ -36,7 +36,7 @@ class TestTaskTBB : public ppc::core::Task {
   std::vector<int> input_image_;
   std::vector<int> output_image_;
   std::vector<int> label_parent_;
-  std::atomic_int current_label_;
+  std::atomic<int> current_label_;
   std::mutex union_mutex_;
 };
 
