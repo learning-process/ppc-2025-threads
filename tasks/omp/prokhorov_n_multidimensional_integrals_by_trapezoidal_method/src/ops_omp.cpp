@@ -28,7 +28,7 @@ double ParallelIntegration(const std::function<double(const std::vector<double>&
     int temp = idx;
     double weight = 1.0;
 
-    for (size_t dim = steps.size() - 1; dim >= 0; --dim) {
+    for (int dim = static_cast<int>(steps.size()) - 1; dim >= 0; --dim) {
       int i = temp % (steps[dim] + 1);
       temp /= (steps[dim] + 1);
 
