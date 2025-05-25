@@ -3,7 +3,9 @@
 #include <omp.h>
 
 #include <cmath>
+#include <cstddef>
 #include <functional>
+#include <utility>
 #include <vector>
 
 namespace prokhorov_n_multidimensional_integrals_by_trapezoidal_method_omp {
@@ -26,7 +28,7 @@ double ParallelIntegration(const std::function<double(const std::vector<double>&
     int temp = idx;
     double weight = 1.0;
 
-    for (int dim = steps.size() - 1; dim >= 0; --dim) {
+    for (size_t dim = steps.size() - 1; dim >= 0; --dim) {
       int i = temp % (steps[dim] + 1);
       temp /= (steps[dim] + 1);
 
@@ -76,9 +78,13 @@ bool TestTaskOpenMP::RunImpl() {
 }
 
 bool TestTaskOpenMP::PostProcessingImpl() {
-  if (task_data->outputs.empty()) return false;
+  if (task_data->outputs.empty()) {
+    return false;
+  }
   auto* output_ptr = reinterpret_cast<double*>(task_data->outputs[0]);
-  if (output_ptr == nullptr) return false;
+  if (output_ptr == nullptr) {
+    return false;
+  }
   *output_ptr = result_;
   return true;
 }
