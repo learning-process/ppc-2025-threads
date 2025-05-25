@@ -73,6 +73,7 @@ bool deryabin_m_hoare_sort_simple_merge_mpi::HoareSortTaskSequential::RunImpl() 
   while (count != chunk_count_) {
     HoaraSort(input_array_A_.begin() + count * min_chunk_size_,
               input_array_A_.begin() + ((count + 1) * min_chunk_size_) - 1);
+    count++;
   }
   size_t chunk_count = chunk_count_;
   for (size_t i = 0; i < static_cast<size_t>(std::bit_width(chunk_count_) - 1); i++) {
