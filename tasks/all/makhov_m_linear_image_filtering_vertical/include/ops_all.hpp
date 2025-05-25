@@ -24,11 +24,11 @@ class TestTaskALL : public ppc::core::Task {
 
  private:
   boost::mpi::communicator world_;
-  std::vector<uint8_t> input_image;
+  std::vector<uint8_t> input_image_;
   std::vector<uint8_t> output_image;
-  std::uint32_t input_size;
-  std::uint32_t height;
-  std::uint32_t width;
+  std::uint32_t input_size_;
+  std::uint32_t height_;
+  std::uint32_t width_;
 };
 
 }  // namespace makhov_m_linear_image_filtering_vertical_all

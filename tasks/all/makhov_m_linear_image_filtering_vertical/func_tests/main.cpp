@@ -1,38 +1,38 @@
 #include <gtest/gtest.h>
 
+#include <algorithm>
 #include <boost/mpi/collectives/broadcast.hpp>
-#include <boost/mpi/collectives/gatherv.hpp>
-#include <boost/mpi/collectives/scatterv.hpp>
-#include <boost/serialization/vector.hpp>
+#include <boost/mpi/communicator.hpp>
+#include <boost/serialization/vector.hpp>  // NOLINT(misc-include-cleaner)
 #include <cmath>
 #include <cstddef>
 #include <cstdint>
-#include <iostream>
 #include <memory>
+#include <ranges>
+
 
 #ifndef _WIN32
 #include <opencv2/opencv.hpp>
 #endif
-#include <random>
+
 #include <vector>
 
 #include "all/makhov_m_linear_image_filtering_vertical/include/ops_all.hpp"
 #include "core/task/include/task.hpp"
-#include "core/util/include/util.hpp"
 
 namespace {
-std::vector<uint8_t> GenerateImageWithPattern(int height, int width) {
-  std::vector<uint8_t> image(height * width * 3);
-  for (int y = 0; y < height; ++y) {
-    for (int x = 0; x < width; ++x) {
-      int idx = (y * width + x) * 3;
-      image[idx] = (x + y) % 256;      // R
-      image[idx + 1] = (x * y) % 256;  // G
-      image[idx + 2] = (x - y) % 256;  // B
-    }
-  }
-  return image;
-}
+// std::vector<uint8_t> GenerateImageWithPattern(int height, int width) {
+//   std::vector<uint8_t> image(height * width * 3);
+//   for (int y = 0; y < height; ++y) {
+//     for (int x = 0; x < width; ++x) {
+//       int idx = (y * width + x) * 3;
+//       image[idx] = (x + y) % 256;      // R
+//       image[idx + 1] = (x * y) % 256;  // G
+//       image[idx + 2] = (x - y) % 256;  // B
+//     }
+//   }
+//   return image;
+// }
 
 std::vector<uint8_t> GenerateVerticalGradient(int height, int width) {
   std::vector<uint8_t> image(height * width * 3);
@@ -46,6 +46,18 @@ std::vector<uint8_t> GenerateVerticalGradient(int height, int width) {
   }
   return image;
 }
+
+void ValidateOutput(const std::vector<uint8_t>& output_image, std::uint32_t width, std::uint32_t height) {
+  for (std::uint32_t y = 1; y < height - 1; ++y) {
+    for (std::uint32_t x = 0; x < width; ++x) {
+      int idx = (y * width + x) * 3;
+      float expected = (y - 1 + y + y + 1) / 3.0F;
+      EXPECT_NEAR(output_image[idx], expected, 10);
+      EXPECT_NEAR(output_image[idx + 1], expected, 10);
+      EXPECT_NEAR(output_image[idx + 2], expected, 10);
+    }
+  }
+}
 }  // namespace
 
 TEST(makhov_m_linear_image_filtering_vertical_all, validation_test) {
@@ -54,9 +66,6 @@ TEST(makhov_m_linear_image_filtering_vertical_all, validation_test) {
   const std::uint32_t width = 8;
   const std::uint32_t height = 8;
   auto input_image = GenerateVerticalGradient(height, width);
-
-  // std::cout << "\n" << "input_image size from test = " << input_image.size();
-
   std::vector<uint8_t> output_image(width * height * 3, 0);
 
   auto task_data_mpi = std::make_shared<ppc::core::TaskData>();
@@ -66,8 +75,6 @@ TEST(makhov_m_linear_image_filtering_vertical_all, validation_test) {
     task_data_mpi->inputs_count.push_back(height);
     task_data_mpi->outputs.emplace_back(output_image.data());
     task_data_mpi->outputs_count.push_back(output_image.size());
-
-    // std::cout << "\n" << "output_image.size() from taskdata in test = " << task_data_mpi->outputs_count[0];
   }
 
   makhov_m_linear_image_filtering_vertical_all::TestTaskALL test_task_mpi(task_data_mpi);
@@ -78,14 +85,7 @@ TEST(makhov_m_linear_image_filtering_vertical_all, validation_test) {
   test_task_mpi.PostProcessingImpl();
 
   if (world.rank() == 0) {
-    for (int y = 1; y < height - 1; ++y) {
-      for (int x = 0; x < width; ++x) {
-        int idx = (y * width + x) * 3;
-        EXPECT_NEAR(output_image[idx], (y - 1 + y + y + 1) / 3.0f, 10);
-        EXPECT_NEAR(output_image[idx + 1], (y - 1 + y + y + 1) / 3.0f, 10);
-        EXPECT_NEAR(output_image[idx + 2], (y - 1 + y + y + 1) / 3.0f, 10);
-      }
-    }
+    ValidateOutput(output_image, width, height);
   }
 }
 
@@ -98,7 +98,7 @@ TEST(makhov_m_linear_image_filtering_vertical_all, BoundaryCheck) {
   }
 
   // Передача размера данных
-  int data_size = 0;
+  std::size_t data_size = 0;
   if (world.rank() == 0) {
     data_size = local_data.size();
   }
@@ -109,7 +109,7 @@ TEST(makhov_m_linear_image_filtering_vertical_all, BoundaryCheck) {
 
   // Заполнение данных на корневом процессе
   if (world.rank() == 0) {
-    std::fill(local_data.begin(), local_data.end(), 42);
+    std::ranges::fill(local_data, 42);
   }
 
   // Передача данных
