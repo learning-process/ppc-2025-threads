@@ -29,11 +29,12 @@ void deryabin_m_hoare_sort_simple_merge_mpi::HoaraSort(std::vector<double>::iter
     }
     std::iter_swap(left, right);
   } while (left < right);
+  std::iter_swap(left, mid);
   if (last - first >= 199) {
-    oneapi::tbb::parallel_invoke([&first, &left]() { HoaraSort(first, left); },
+    oneapi::tbb::parallel_invoke([&first, &right]() { HoaraSort(first, right); },
                                  [&right, &last]() { HoaraSort(right + 1, last); });
   } else {
-    HoaraSort(first, left);
+    HoaraSort(first, right);
     HoaraSort(right + 1, last);
   }
 }
