@@ -191,7 +191,6 @@ TEST(vladimirova_j_m_monte_karlo_mpi, test_one_point) {
 
 TEST(vladimirova_j_m_monte_karlo_mpi, test_PiVal_314) {
   boost::mpi::communicator world;
-  // std::cout << "SIZE IS " << world.size() << std::endl;
   //  Create data
   std::vector<double> val_b = {-1, 1, -1, 1};
   std::vector<double> out(1, 0);
