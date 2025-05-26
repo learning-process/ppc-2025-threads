@@ -50,7 +50,7 @@ double ParallelIntegration(const std::function<double(const std::vector<double>&
   return sum * volume;
 }
 
-TestTaskOpenMP::TestTaskOpenMP(ppc::core::TaskDataPtr task_data) : Task(std::move(task_data)) {}
+TestTaskOpenMP::TestTaskOpenMP(::ppc::core::TaskDataPtr task_data) : ::ppc::core::Task(std::move(task_data)) {}
 
 bool TestTaskOpenMP::PreProcessingImpl() {
   auto* lower_ptr = reinterpret_cast<double*>(task_data->inputs[0]);
