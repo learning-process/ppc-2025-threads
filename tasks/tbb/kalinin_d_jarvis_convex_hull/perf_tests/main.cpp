@@ -94,7 +94,8 @@ TEST(kalinin_d_jarvis_convex_hull_tbb, test_pipeline_run) {
 
   // Verify results
   std::vector<kalinin_d_jarvis_convex_hull_tbb::Point> unique_points = points;
-  std::ranges::sort(unique_points);
+  std::ranges::sort(unique_points,
+                    [](const auto &a, const auto &b) { return std::tie(a.x, a.y) < std::tie(b.x, b.y); });
   auto last = std::ranges::unique(unique_points).begin();
   unique_points.erase(last, unique_points.end());
   std::vector<kalinin_d_jarvis_convex_hull_tbb::Point> res = CalculateConvexHull(unique_points);
@@ -148,7 +149,8 @@ TEST(kalinin_d_jarvis_convex_hull_tbb, test_task_run) {
 
   // Verify results
   std::vector<kalinin_d_jarvis_convex_hull_tbb::Point> unique_points = points;
-  std::ranges::sort(unique_points);
+  std::ranges::sort(unique_points,
+                    [](const auto &a, const auto &b) { return std::tie(a.x, a.y) < std::tie(b.x, b.y); });
   auto last = std::ranges::unique(unique_points).begin();
   unique_points.erase(last, unique_points.end());
   std::vector<kalinin_d_jarvis_convex_hull_tbb::Point> res = CalculateConvexHull(unique_points);
