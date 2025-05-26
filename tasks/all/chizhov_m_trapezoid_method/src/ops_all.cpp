@@ -140,6 +140,10 @@ void chizhov_m_trapezoid_method_all::TestTaskMPI::SetFunc(Function f) { f_ = std
 bool chizhov_m_trapezoid_method_all::TestTaskMPI::RunImpl() {
   boost::mpi::broadcast(world_, div_, 0);
   boost::mpi::broadcast(world_, dim_, 0);
+  if (world_.rank() != 0) {
+    lower_limits_.resize(dim_);
+    upper_limits_.resize(dim_);
+  }
   boost::mpi::broadcast(world_, lower_limits_, 0);
   boost::mpi::broadcast(world_, upper_limits_, 0);
   res_ = TrapezoidMethod(f_, div_, dim_, lower_limits_, upper_limits_, world_);
