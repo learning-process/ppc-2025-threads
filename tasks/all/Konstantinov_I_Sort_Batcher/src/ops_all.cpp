@@ -102,20 +102,20 @@ bool konstantinov_i_sort_batcher_all::RadixSortBatcherall::PreProcessingImpl() {
   if (rank == 0) {
     size_t total = task_data->inputs_count[0];
     size_t per_proc = (total + size - 1) / size;
-    input_.resize(per_proc * size, std::numeric_limits<double>::max());
+    mas_.resize(per_proc * size, std::numeric_limits<double>::max());
     auto* src = reinterpret_cast<double*>(task_data->inputs[0]);
-    std::copy(src, src + total, input_.begin());
+    std::copy(src, src + total, mas_.begin());
   }
 
   size_t per_proc = 0;
   if (rank == 0) {
-    per_proc = input_.size() / size;
+    per_proc = mas_.size() / size;
   }
   boost::mpi::broadcast(world_, per_proc, 0);
 
   std::vector<double> local(per_proc);
-  boost::mpi::scatter(world_, input_, local.data(), static_cast<int>(per_proc), 0);
-  input_.swap(local);
+  boost::mpi::scatter(world_, mas_, local.data(), static_cast<int>(per_proc), 0);
+  mas_.swap(local);
 
   return true;
 }
@@ -149,8 +149,8 @@ bool konstantinov_i_sort_batcher_all::RadixSortBatcherall::RunImpl() {
   int size = world_.size();
 
   std::vector<uint64_t> local;
-  local.reserve(input_.size());
-  for (auto d : input_) {
+  local.reserve(mas_.size());
+  for (auto d : mas_) {
     local.push_back(KeyToDouble(d));
   }
   size_t n = local.size();
