@@ -151,7 +151,7 @@ bool konstantinov_i_sort_batcher_all::RadixSortBatcherall::RunImpl() {
   std::vector<uint64_t> local;
   local.reserve(mas_.size());
   for (auto d : mas_) {
-    local.push_back(KeyToDouble(d));
+    local.push_back(DoubleToKey(d));
   }
   size_t n = local.size();
   const int thread_count = std::max(1, std::min(static_cast<int>(n), ppc::util::GetPPCNumThreads()));
