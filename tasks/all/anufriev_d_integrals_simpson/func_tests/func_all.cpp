@@ -346,31 +346,31 @@ TEST(anufriev_d_integrals_simpson_all, test_distribute_few_points_many_procs) {
   }
 }
 
-TEST(anufriev_d_integrals_simpson_all,
-     test_distribute_one_point_one_proc) {  // NOLINT(readability-function-cognitive-complexity)
-  int rank = 0;
-  int world_size = 0;
+TEST(anufriev_d_integrals_simpson_all, test_distribute_one_point_one_proc) {
+  int rank = 0, world_size = 0;
   MPI_Comm_rank(MPI_COMM_WORLD, &rank);
   MPI_Comm_size(MPI_COMM_WORLD, &world_size);
 
-  if (world_size == 1) {
-    std::vector<double> in = {1, 0.0, 0.1, 2, 1};
-    std::vector<double> out_buffer(1, 0.0);
-    auto td = MakeTaskData(in, out_buffer);
-    anufriev_d_integrals_simpson_all::IntegralsSimpsonAll task(td);
-
-    ASSERT_TRUE(task.Validation());
-    ASSERT_TRUE(task.PreProcessing());
-    ASSERT_TRUE(task.Run());
-    ASSERT_TRUE(task.PostProcessing());
-
-    if (rank == 0) {
-      EXPECT_NEAR(out_buffer[0], 1.0 - std::cos(0.1), 1e-5);
-    }
-  } else {
+  if (world_size != 1) {
     GTEST_SKIP() << "Skipping single point test for world_size > 1";
+    return;
+  }
+
+  std::vector<double> in = {1, 0.0, 0.1, 2, 1};
+  std::vector<double> out_buffer(1, 0.0);
+  auto td = MakeTaskData(in, out_buffer);
+  anufriev_d_integrals_simpson_all::IntegralsSimpsonAll task(td);
+
+  ASSERT_TRUE(task.Validation());
+  ASSERT_TRUE(task.PreProcessing());
+  ASSERT_TRUE(task.Run());
+  ASSERT_TRUE(task.PostProcessing());
+
+  if (rank == 0) {
+    EXPECT_NEAR(out_buffer[0], 1.0 - std::cos(0.1), 1e-5);
   }
 }
+
 
 TEST(anufriev_d_integrals_simpson_all, test_preprocessing_invalid_n_on_non_root) {
   int rank = 0;
