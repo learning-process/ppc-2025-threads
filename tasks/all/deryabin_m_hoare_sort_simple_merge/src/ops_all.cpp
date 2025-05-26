@@ -17,15 +17,13 @@ void deryabin_m_hoare_sort_simple_merge_mpi::HoaraSort(std::vector<double>::iter
     return;
   }
   const auto mid = first + ((last - first) >> 1);
-  const double x = (*first < *mid) ? (*mid < *last ? *mid : std::max(*first, *last))
-                                   : (*first < *last ? *first : std::max(*mid, *last));
   auto left = first;
   auto right = last;
   do {
-    while (*left <= x) {
+    while (*left <= *mid) {
       left++;
     }
-    while (*right >= x) {
+    while (*right >= *mid) {
       right--;
     }
     std::iter_swap(left, right);
