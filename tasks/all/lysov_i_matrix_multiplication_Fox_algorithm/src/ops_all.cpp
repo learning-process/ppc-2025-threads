@@ -12,7 +12,6 @@
 #include <cmath>
 #include <cstddef>
 #include <cstring>
-#include <ranges>
 #include <vector>
 
 int lysov_i_matrix_multiplication_fox_algorithm_mpi_tbb::ComputeProcessGrid(int world_size, std::size_t n) {
@@ -104,12 +103,12 @@ void lysov_i_matrix_multiplication_fox_algorithm_mpi_tbb::PerformFoxAlgorithmSte
         if (tc == col) {
           continue;
         }
-        int target = row * cnt_work_process + tc;
+        int target = (row * cnt_work_process) + tc;
         world.send(target, 0, local_a.data(), k * k);
       }
       temp_a = local_a;
     } else {
-      int sender = row * cnt_work_process + ((row + l) % cnt_work_process);
+      int sender = (row * cnt_work_process) + ((row + l) % cnt_work_process);
       world.recv(sender, 0, temp_a.data(), k * k);
     }
     world.barrier();
