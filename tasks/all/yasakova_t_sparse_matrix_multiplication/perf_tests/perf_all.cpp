@@ -50,9 +50,9 @@ TEST(yasakova_t_sparse_matrix_mult_task_all, test_pipeline_run) {
 
   // Создаем данные задачи
   auto task_data_all = std::make_shared<ppc::core::TaskData>();
-  task_data_all->inputs.emplace_back(reinterpret_cast<uint8_t*>(input_data.data()));
+  task_data_all->inputs.emplace_back(reinterpret_cast<uint8_t *>(input_data.data()));
   task_data_all->inputs_count.emplace_back(input_data.size());
-  task_data_all->outputs.emplace_back(reinterpret_cast<uint8_t*>(output_data.data()));
+  task_data_all->outputs.emplace_back(reinterpret_cast<uint8_t *>(output_data.data()));
   task_data_all->outputs_count.emplace_back(output_data.size());
 
   // Создаем задачу
@@ -79,8 +79,8 @@ TEST(yasakova_t_sparse_matrix_mult_task_all, test_pipeline_run) {
       yasakova_t_sparse_matrix_mult_all::ConvertToSparse(output_data);
 
   // Проверяем размеры результата
-  ASSERT_EQ(actual_result.rowCount, matrix_size);
-  ASSERT_EQ(actual_result.columnCount, matrix_size);
+  ASSERT_EQ(actual_result.total_rows, matrix_size);
+  ASSERT_EQ(actual_result.total_cols, matrix_size);
 
   // Проверяем, что результат не нулевой
   bool is_result_non_zero = false;
@@ -126,9 +126,9 @@ TEST(yasakova_t_sparse_matrix_mult_task_all, test_task_run) {
   std::vector<ComplexNum> output_data(matrix_size * matrix_size, ComplexNum(0, 0));
 
   auto task_data_all = std::make_shared<ppc::core::TaskData>();
-  task_data_all->inputs.emplace_back(reinterpret_cast<uint8_t*>(input_data.data()));
+  task_data_all->inputs.emplace_back(reinterpret_cast<uint8_t *>(input_data.data()));
   task_data_all->inputs_count.emplace_back(input_data.size());
-  task_data_all->outputs.emplace_back(reinterpret_cast<uint8_t*>(output_data.data()));
+  task_data_all->outputs.emplace_back(reinterpret_cast<uint8_t *>(output_data.data()));
   task_data_all->outputs_count.emplace_back(output_data.size());
 
   auto test_task_all = std::make_shared<yasakova_t_sparse_matrix_mult_all::TestTaskALL>(task_data_all);
@@ -150,8 +150,8 @@ TEST(yasakova_t_sparse_matrix_mult_task_all, test_task_run) {
   yasakova_t_sparse_matrix_mult_all::SparseMatrixCRS actual_result =
       yasakova_t_sparse_matrix_mult_all::ConvertToSparse(output_data);
 
-  ASSERT_EQ(actual_result.rowCount, matrix_size);
-  ASSERT_EQ(actual_result.columnCount, matrix_size);
+  ASSERT_EQ(actual_result.total_rows, matrix_size);
+  ASSERT_EQ(actual_result.total_cols, matrix_size);
 
   bool is_result_non_zero = false;
   for (const auto &elem : output_data) {

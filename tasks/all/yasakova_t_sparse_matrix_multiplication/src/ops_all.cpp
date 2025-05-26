@@ -40,7 +40,8 @@ bool yasakova_t_sparse_matrix_mult_all::AreClose(const ComplexNum& a, const Comp
   return std::abs(a.real() - b.real()) < epsilon && std::abs(a.imag() - b.imag()) < epsilon;
 }
 
-void yasakova_t_sparse_matrix_mult_all::AppendElement(std::vector<ElementPosition>& data, int row_idx, int col_idx, ComplexNum val) {
+void yasakova_t_sparse_matrix_mult_all::AppendElement(std::vector<ElementPosition>& data, int row_idx, int col_idx,
+                                                      const ComplexNum& val) {
   data.push_back({row_idx, col_idx, val});
 }
 
@@ -64,9 +65,8 @@ std::vector<ComplexNum> yasakova_t_sparse_matrix_mult_all::ConvertToDense(const 
   return res;
 }
 
-bool yasakova_t_sparse_matrix_mult_all::CompareMatrices(
-    const yasakova_t_sparse_matrix_mult_all::SparseMatrixCRS& a,
-    const yasakova_t_sparse_matrix_mult_all::SparseMatrixCRS& b) {
+bool yasakova_t_sparse_matrix_mult_all::CompareMatrices(const yasakova_t_sparse_matrix_mult_all::SparseMatrixCRS& a,
+                                                        const yasakova_t_sparse_matrix_mult_all::SparseMatrixCRS& b) {
   if (a.total_cols != b.total_cols || a.total_rows != b.total_rows) {
     return false;
   }
@@ -118,7 +118,8 @@ yasakova_t_sparse_matrix_mult_all::SparseMatrixCRS yasakova_t_sparse_matrix_mult
 }
 
 yasakova_t_sparse_matrix_mult_all::SparseMatrixCRS yasakova_t_sparse_matrix_mult_all::ConstructResultMatrix(
-    const std::vector<yasakova_t_sparse_matrix_mult_all::ElementPosition>& all_results, int a_num_rows, int b_num_cols) {
+    const std::vector<yasakova_t_sparse_matrix_mult_all::ElementPosition>& all_results, int a_num_rows,
+    int b_num_cols) {
   yasakova_t_sparse_matrix_mult_all::SparseMatrixCRS c(a_num_rows, b_num_cols);
   std::map<std::pair<int, int>, ComplexNum> result_map;
 
@@ -177,8 +178,10 @@ bool yasakova_t_sparse_matrix_mult_all::TestTaskALL::PreProcessingImpl() {
   std::vector<ComplexNum> matrix_a = {};
   std::vector<ComplexNum> matrix_b = {};
   matrix_a.reserve(5 + (unsigned int)(input_data_[2].real() + input_data_[3].real() + input_data_[4].real()));
-  matrix_b.reserve(input_data_.size() - (unsigned int)(5 + input_data_[2].real() + input_data_[3].real() + input_data_[4].real()));
-  for (unsigned int i = 0; i < (unsigned int)(5 + input_data_[2].real() + input_data_[3].real() + input_data_[4].real()); i++) {
+  matrix_b.reserve(input_data_.size() -
+                   (unsigned int)(5 + input_data_[2].real() + input_data_[3].real() + input_data_[4].real()));
+  for (unsigned int i = 0;
+       i < (unsigned int)(5 + input_data_[2].real() + input_data_[3].real() + input_data_[4].real()); i++) {
     matrix_a.emplace_back(input_data_[i]);
   }
   for (auto i = (unsigned int)(5 + input_data_[2].real() + input_data_[3].real() + input_data_[4].real());
@@ -286,8 +289,8 @@ bool yasakova_t_sparse_matrix_mult_all::TestTaskALL::RunImpl() {
     c = ConstructResultMatrix(all_results, a_num_rows, b_num_cols);
     output_data_ = ConvertToDense(c);
   } else {
-    MPI_Gatherv(local_results.data(), static_cast<int>(local_results.size() * sizeof(ElementPosition)), MPI_BYTE, nullptr,
-                nullptr, nullptr, MPI_BYTE, 0, MPI_COMM_WORLD);
+    MPI_Gatherv(local_results.data(), static_cast<int>(local_results.size() * sizeof(ElementPosition)), MPI_BYTE,
+                                                       nullptr, nullptr, nullptr, MPI_BYTE, 0, MPI_COMM_WORLD);
   }
 
   return true;

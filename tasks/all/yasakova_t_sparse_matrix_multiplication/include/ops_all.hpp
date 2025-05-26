@@ -38,8 +38,8 @@ struct SparseMatrixCRS {
 
 std::vector<ComplexNum> ConvertToDense(const SparseMatrixCRS& sparse_mat);
 SparseMatrixCRS ConvertToSparse(std::vector<ComplexNum>& vec);
-SparseMatrixCRS ConstructResultMatrix(const std::vector<yasakova_t_sparse_matrix_mult_all::ElementPosition>& all_results,
-                                  int a_num_rows, int b_num_cols);
+SparseMatrixCRS ConstructResultMatrix(
+    const std::vector<yasakova_t_sparse_matrix_mult_all::ElementPosition>& all_results, int a_num_rows, int b_num_cols);
 bool CompareMatrices(const SparseMatrixCRS& a, const SparseMatrixCRS& b);
 bool AreClose(const ComplexNum& a, const ComplexNum& b, double epsilon);
 
