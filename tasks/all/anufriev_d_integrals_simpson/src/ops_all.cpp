@@ -42,12 +42,18 @@ ParsedRootInput ParseAndValidateOnRoot(const std::shared_ptr<ppc::core::TaskData
   }
 
   int d_parsed = static_cast<int>(in_ptr[0]);
-  if (d_parsed <= 0) {
+  if (d_parsed < 0) {
     return data;
   }
   data.dimension = d_parsed;
 
-  size_t required_elements = 1 + static_cast<size_t>(3 * data.dimension) + 1;
+  size_t required_elements = 0;
+  if(d_parsed == 0){
+    required_elements = 2;
+  } else {
+    required_elements = 1 + static_cast<size_t>(3 * data.dimension) + 1;
+  }
+
   if (num_doubles < required_elements) {
     return data;
   }
@@ -57,16 +63,22 @@ ParsedRootInput ParseAndValidateOnRoot(const std::shared_ptr<ppc::core::TaskData
   data.n_vec.resize(data.dimension);
 
   int idx_ptr = 1;
-  for (int i = 0; i < data.dimension; ++i) {
-    data.a_vec[i] = in_ptr[idx_ptr++];
-    data.b_vec[i] = in_ptr[idx_ptr++];
-    double n_double = in_ptr[idx_ptr++];
+  if (d_parsed > 0) {
+    data.a_vec.resize(data.dimension);
+    data.b_vec.resize(data.dimension);
+    data.n_vec.resize(data.dimension);
 
-    if (std::floor(n_double) != n_double || n_double > static_cast<double>(std::numeric_limits<int>::max()) ||
-        n_double <= 0.0 || (static_cast<int>(n_double) % 2 != 0)) {
-      return data;
+    for (int i = 0; i < data.dimension; ++i) {
+      data.a_vec[i] = in_ptr[idx_ptr++];
+      data.b_vec[i] = in_ptr[idx_ptr++];
+      double n_double = in_ptr[idx_ptr++];
+
+      if (std::floor(n_double) != n_double || n_double > static_cast<double>(std::numeric_limits<int>::max()) ||
+          n_double <= 0.0 || (static_cast<int>(n_double) % 2 != 0)) {
+        return data;
+      }
+      data.n_vec[i] = static_cast<int>(n_double);
     }
-    data.n_vec[i] = static_cast<int>(n_double);
   }
 
   double func_code_double = in_ptr[idx_ptr];
@@ -212,14 +224,15 @@ bool IntegralsSimpsonAll::PreProcessingImpl() {
 
   if (rank == 0) {
     dimension_ = parsed_input_data.dimension;
-  }
-  MPI_Bcast(&dimension_, 1, MPI_INT, 0, MPI_COMM_WORLD);
-
-  if (dimension_ <= 0) {
     func_code_ = parsed_input_data.func_code_val;
-    MPI_Bcast(&func_code_, 1, MPI_INT, 0, MPI_COMM_WORLD);
+  }
+
+  MPI_Bcast(&dimension_, 1, MPI_INT, 0, MPI_COMM_WORLD);
+  MPI_Bcast(&func_code_, 1, MPI_INT, 0, MPI_COMM_WORLD);
+
+  if (dimension_ == 0) {
     result_ = 0.0;
-    return parsed_input_data.parse_successful;
+    return true;
   }
 
   a_.resize(dimension_);
@@ -236,7 +249,6 @@ bool IntegralsSimpsonAll::PreProcessingImpl() {
   MPI_Bcast(a_.data(), dimension_, MPI_DOUBLE, 0, MPI_COMM_WORLD);
   MPI_Bcast(b_.data(), dimension_, MPI_DOUBLE, 0, MPI_COMM_WORLD);
   MPI_Bcast(n_.data(), dimension_, MPI_INT, 0, MPI_COMM_WORLD);
-  MPI_Bcast(&func_code_, 1, MPI_INT, 0, MPI_COMM_WORLD);
 
   if (rank != 0) {
     for (int val_n : n_) {
