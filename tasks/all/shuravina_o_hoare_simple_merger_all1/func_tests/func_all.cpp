@@ -108,6 +108,25 @@ TEST(shuravina_o_hoare_simple_merger_all, test_single_element_array) {
   }
 }
 
+TEST(shuravina_o_hoare_simple_merger_all, test_empty_array_validation) {
+  std::vector<int> input;
+  std::vector<int> output;
+
+  auto task_data = std::make_shared<ppc::core::TaskData>();
+  task_data->inputs.emplace_back(nullptr);
+  task_data->inputs_count.emplace_back(0);
+  task_data->outputs.emplace_back(nullptr);
+  task_data->outputs_count.emplace_back(0);
+
+  shuravina_o_hoare_simple_merger::TestTaskALL task(task_data);
+
+  int rank;
+  MPI_Comm_rank(MPI_COMM_WORLD, &rank);
+  if (rank == 0) {
+    EXPECT_FALSE(task.Validation());
+  }
+}
+
 TEST(shuravina_o_hoare_simple_merger_all, test_different_sizes_validation) {
   std::vector<int> input = {1, 2, 3};
   std::vector<int> output(2, 0);
