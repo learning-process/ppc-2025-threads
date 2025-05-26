@@ -371,7 +371,6 @@ TEST(anufriev_d_integrals_simpson_all, test_distribute_one_point_one_proc) {
   }
 }
 
-
 TEST(anufriev_d_integrals_simpson_all, test_preprocessing_invalid_n_on_non_root) {
   int rank = 0;
   int world_size = 0;
