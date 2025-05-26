@@ -40,20 +40,18 @@ bool vladimirova_j_m_monte_karlo_mpi::TestTaskMPI::PreProcessingImpl() {
 
 bool vladimirova_j_m_monte_karlo_mpi::TestTaskMPI::ValidationImpl() {
   // Check equality of counts elements
-  // std::cout << " I AM " << world.rank() << std::endl;
   var_size_ = task_data->inputs_count[0];
   if ((var_size_ % 2 != 0) || (var_size_ < 3)) {
     return false;
-  }  // has variables
+  }
   auto* in_ptr = reinterpret_cast<double*>(task_data->inputs[0]);
   std::vector<double> var_vect = std::vector<double>(in_ptr, in_ptr + var_size_);
   for (size_t i = 0; i < var_size_; i += 2) {
     if (var_vect[i] >= var_vect[i + 1]) {
       return false;
-    }  // x_min<x_max
+    }
   }
-  return (task_data->inputs[1] != nullptr) && (reinterpret_cast<size_t>(task_data->inputs[2]) > 0);  // has funtion
-  return true;
+  return (task_data->inputs[1] != nullptr) && (reinterpret_cast<size_t>(task_data->inputs[2]) > 0);
 }
 
 bool vladimirova_j_m_monte_karlo_mpi::TestTaskMPI::RunImpl() {
@@ -71,8 +69,6 @@ bool vladimirova_j_m_monte_karlo_mpi::TestTaskMPI::RunImpl() {
   size_t chank = var_size_ / world_.size();
   size_t global_successful_point = 0;
   double global_s = 1;
-
-  // std::cout <<"POTOK SIZE" << count_t << std::endl;
 
   std::vector<double> random_val = std::vector<double>(var_size_);
 
