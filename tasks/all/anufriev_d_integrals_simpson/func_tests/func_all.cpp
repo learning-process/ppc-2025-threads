@@ -347,7 +347,8 @@ TEST(anufriev_d_integrals_simpson_all, test_distribute_few_points_many_procs) {
 }
 
 TEST(anufriev_d_integrals_simpson_all, test_distribute_one_point_one_proc) {
-  int rank = 0, world_size = 0;
+  int rank = 0;
+  int world_size = 0;
   MPI_Comm_rank(MPI_COMM_WORLD, &rank);
   MPI_Comm_size(MPI_COMM_WORLD, &world_size);
 
