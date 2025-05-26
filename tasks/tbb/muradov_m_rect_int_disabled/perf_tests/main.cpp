@@ -1,7 +1,6 @@
 #include <gtest/gtest.h>
 
 #include <chrono>
-#include <cmath>
 #include <cstddef>
 #include <cstdint>
 #include <memory>
@@ -13,8 +12,8 @@
 #include "tbb/muradov_m_rect_int/include/ops_tbb.hpp"
 
 TEST(muradov_m_rect_int_tbb, test_pipeline_run) {
-  std::size_t iterations = 480;
-  std::vector<std::pair<double, double>> bounds(3, {-1.0, 1.0});
+  std::size_t iterations = 475;
+  std::vector<std::pair<double, double>> bounds(3, {-3.0, 3.0});
   double out = 0.0;
 
   auto task_data_tbb = std::make_shared<ppc::core::TaskData>();
@@ -27,7 +26,7 @@ TEST(muradov_m_rect_int_tbb, test_pipeline_run) {
 
   // Create Task
   auto test_task_tbbuential = std::make_shared<muradov_m_rect_int_tbb::RectIntTaskTBBPar>(
-      task_data_tbb, [](const auto &args) { return (args[0] * args[1]) + std::pow(args[1], 2); });
+      task_data_tbb, [](const auto &args) { return (args[0] * args[1]) + (args[1] * args[1]); });
 
   // Create Perf attributes
   auto perf_attr = std::make_shared<ppc::core::PerfAttr>();
@@ -47,12 +46,12 @@ TEST(muradov_m_rect_int_tbb, test_pipeline_run) {
   perf_analyzer->PipelineRun(perf_attr, perf_results);
   ppc::core::Perf::PrintPerfStatistic(perf_results);
 
-  EXPECT_NEAR(out, 2.6, 0.3);
+  EXPECT_NEAR(out, 648, 0.3);
 }
 
 TEST(muradov_m_rect_int_tbb, test_task_run) {
-  std::size_t iterations = 480;
-  std::vector<std::pair<double, double>> bounds(3, {-1.0, 1.0});
+  std::size_t iterations = 475;
+  std::vector<std::pair<double, double>> bounds(3, {-3.0, 3.0});
   double out = 0.0;
 
   auto task_data_tbb = std::make_shared<ppc::core::TaskData>();
@@ -65,7 +64,7 @@ TEST(muradov_m_rect_int_tbb, test_task_run) {
 
   // Create Task
   auto test_task_tbbuential = std::make_shared<muradov_m_rect_int_tbb::RectIntTaskTBBPar>(
-      task_data_tbb, [](const auto &args) { return (args[0] * args[1]) + std::pow(args[1], 2); });
+      task_data_tbb, [](const auto &args) { return (args[0] * args[1]) + (args[1] * args[1]); });
 
   // Create Perf attributes
   auto perf_attr = std::make_shared<ppc::core::PerfAttr>();
@@ -85,5 +84,5 @@ TEST(muradov_m_rect_int_tbb, test_task_run) {
   perf_analyzer->TaskRun(perf_attr, perf_results);
   ppc::core::Perf::PrintPerfStatistic(perf_results);
 
-  EXPECT_NEAR(out, 2.6, 0.3);
+  EXPECT_NEAR(out, 648, 0.3);
 }
