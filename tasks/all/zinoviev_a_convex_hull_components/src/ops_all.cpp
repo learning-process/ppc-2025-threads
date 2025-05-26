@@ -209,9 +209,7 @@ bool ConvexHullMPI::RunImpl() noexcept {
     }
 
 #pragma omp critical
-    {
-      all_points.insert(all_points.end(), thread_points.begin(), thread_points.end());
-    }
+    { all_points.insert(all_points.end(), thread_points.begin(), thread_points.end()); }
   }
 
   int local_count = static_cast<int>(all_points.size());
