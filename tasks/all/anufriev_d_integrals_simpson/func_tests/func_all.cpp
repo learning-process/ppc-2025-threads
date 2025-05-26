@@ -301,7 +301,7 @@ TEST(anufriev_d_integrals_simpson_all, test_calculate_run_params_overflow_total_
   auto td_overflow = MakeTaskData(in_overflow, out_buffer_overflow);
   anufriev_d_integrals_simpson_all::IntegralsSimpsonAll task_overflow(td_overflow);
 
-  ASSERT_TRUE(task.Validation());
+  ASSERT_TRUE(task_overflow.Validation());
   ASSERT_TRUE(task_overflow.PreProcessing());
   ASSERT_FALSE(task_overflow.Run());
 }
@@ -346,7 +346,7 @@ TEST(anufriev_d_integrals_simpson_all, test_distribute_few_points_many_procs) {
   }
 }
 
-TEST(anufriev_d_integrals_simpson_all, test_distribute_one_point_one_proc) {
+TEST(anufriev_d_integrals_simpson_all, test_distribute_one_point_one_proc) {  // NOLINT(readability-function-cognitive-complexity)
   int rank = 0;
   int world_size = 0;
   MPI_Comm_rank(MPI_COMM_WORLD, &rank);
