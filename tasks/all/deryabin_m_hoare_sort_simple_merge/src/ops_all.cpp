@@ -30,10 +30,10 @@ void deryabin_m_hoare_sort_simple_merge_mpi::HoaraSort(std::vector<double>::iter
   } while (left < right);
   if (last - first >= 199) {
     oneapi::tbb::parallel_invoke([&first, &right]() { HoaraSort(first, right); },
-                                 [&right, &last]() { HoaraSort(right + 1, last); });
+                                 [&left, &last]() { HoaraSort(left + 1, last); });
   } else {
     HoaraSort(first, right);
-    HoaraSort(right + 1, last);
+    HoaraSort(left + 1, last);
   }
 }
 
