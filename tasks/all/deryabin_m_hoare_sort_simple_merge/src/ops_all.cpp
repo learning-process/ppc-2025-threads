@@ -28,13 +28,13 @@ void deryabin_m_hoare_sort_simple_merge_mpi::HoaraSort(std::vector<double>::iter
       right--;
     }
     std::iter_swap(left, right);
-  } while (left < mid || right > mid);
+  } while (left < mid && right > mid);
   if (last - first >= 199) {
     oneapi::tbb::parallel_invoke([&first, &left]() { HoaraSort(first, left); },
-                                 [&right, &last]() { HoaraSort(right + 1, last); });
+                                 [&right, &last]() { HoaraSort(right, last); });
   } else {
     HoaraSort(first, left);
-    HoaraSort(right + 1, last);
+    HoaraSort(right, last);
   }
 }
 
