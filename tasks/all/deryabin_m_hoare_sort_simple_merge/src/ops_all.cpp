@@ -21,24 +21,22 @@ void deryabin_m_hoare_sort_simple_merge_mpi::HoaraSort(std::vector<double>::iter
   auto left = first;
   auto right = last;
   do {
-    while (left <= right && *left <= pivot_value) {
+    while (left < right && *left <= pivot_value) {
       left++;
     }
-    while (left <= right && *right >= pivot_value) {
+    while (left < right && *right > pivot_value) {
       right--;
     }
     std::iter_swap(left, right);
-    ++left;
-    --right;
-  } while (left <= right);
+  } while (left < right);
   if (last - first >= 199) {
-    oneapi::tbb::parallel_invoke([&first, &right]() { HoaraSort(first, right); },
-                                 [&left, &last]() { HoaraSort(left, last); });
+    oneapi::tbb::parallel_invoke([&first, &left]() { HoaraSort(first, left); },
+                                 [&right, &last]() { HoaraSort(right + 1, last); });
   } else {
-    HoaraSort(first, right);
-    HoaraSort(left, last);
+    HoaraSort(first, left);
+    HoaraSort(right + 1, last);
   }
-}
+} 
 
 void deryabin_m_hoare_sort_simple_merge_mpi::MergeTwoParts(std::vector<double>& a, size_t first, size_t last) {
   if (last - first <= 1) return;
