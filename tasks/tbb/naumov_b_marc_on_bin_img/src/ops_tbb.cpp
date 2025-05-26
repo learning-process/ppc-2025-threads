@@ -112,7 +112,7 @@ bool naumov_b_marc_on_bin_img_tbb::TestTaskTBB::ValidationImpl() {
 
 bool naumov_b_marc_on_bin_img_tbb::TestTaskTBB::RunImpl() {
   const int rows = rows_, cols = cols_;
-  const size_t total = size_t(rows_) * size_t(cols_);
+  const size_t total = size_t(rows) * size_t(cols);
 
   int next_label = 1;
 
@@ -121,15 +121,15 @@ bool naumov_b_marc_on_bin_img_tbb::TestTaskTBB::RunImpl() {
   }
 
   for (int i = 0; i < rows_; ++i) {
-    for (int j = 0; j < cols_; ++j) {
-      size_t idx = size_t(i) * cols_ + j;
+    for (int j = 0; j < cols; ++j) {
+      size_t idx = size_t(i) * cols + j;
       if (input_image_[idx] == 0) {
         output_image_[idx] = 0;
         continue;
       }
 
       int left_label = (j > 0 ? output_image_[idx - 1] : 0);
-      int top_label = (i > 0 ? output_image_[idx - C] : 0);
+      int top_label = (i > 0 ? output_image_[idx - cols] : 0);
 
       if (left_label == 0 && top_label == 0) {
         output_image_[idx] = next_label;
