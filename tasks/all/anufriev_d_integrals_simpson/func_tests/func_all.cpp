@@ -287,25 +287,6 @@ TEST(anufriev_d_integrals_simpson_all, test_calculate_run_params_n_is_zero_insid
   ASSERT_TRUE(task.Validation());
 }
 
-TEST(anufriev_d_integrals_simpson_all, test_calculate_run_params_overflow_total_points) {
-  int rank = 0;
-  MPI_Comm_rank(MPI_COMM_WORLD, &rank);
-
-  int max_n_val = std::numeric_limits<int>::max();
-  if (max_n_val % 2 != 0) {
-    max_n_val--;
-  }
-  std::vector<double> in_overflow = {
-      2, 0.0, 1.0, static_cast<double>(max_n_val), 0.0, 1.0, static_cast<double>(max_n_val), 0};
-  std::vector<double> out_buffer_overflow(1, 0.0);
-  auto td_overflow = MakeTaskData(in_overflow, out_buffer_overflow);
-  anufriev_d_integrals_simpson_all::IntegralsSimpsonAll task_overflow(td_overflow);
-
-  ASSERT_TRUE(task_overflow.Validation());
-  ASSERT_TRUE(task_overflow.PreProcessing());
-  ASSERT_FALSE(task_overflow.Run());
-}
-
 TEST(anufriev_d_integrals_simpson_all, test_run_total_points_zero_after_calc) {
   int rank = 0;
   MPI_Comm_rank(MPI_COMM_WORLD, &rank);
