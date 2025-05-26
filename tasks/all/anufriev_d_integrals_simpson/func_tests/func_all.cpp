@@ -285,15 +285,14 @@ TEST(anufriev_d_integrals_simpson_all, test_calculate_run_params_n_is_zero_insid
   ASSERT_FALSE(task.PreProcessing());
 }
 
-
 TEST(anufriev_d_integrals_simpson_all, test_calculate_run_params_overflow_total_points) {
   int rank = 0;
   MPI_Comm_rank(MPI_COMM_WORLD, &rank);
 
   int max_n_val = std::numeric_limits<int>::max();
   if (max_n_val % 2 != 0) max_n_val--;
-  std::vector<double> in_overflow = {2, 0.0, 1.0, static_cast<double>(max_n_val),
-                                     0.0, 1.0, static_cast<double>(max_n_val), 0};
+  std::vector<double> in_overflow = {
+      2, 0.0, 1.0, static_cast<double>(max_n_val), 0.0, 1.0, static_cast<double>(max_n_val), 0};
   std::vector<double> out_buffer_overflow(1, 0.0);
   auto td_overflow = MakeTaskData(in_overflow, out_buffer_overflow);
   anufriev_d_integrals_simpson_all::IntegralsSimpsonAll task_overflow(td_overflow);
@@ -336,7 +335,7 @@ TEST(anufriev_d_integrals_simpson_all, test_distribute_few_points_many_procs) {
   ASSERT_TRUE(task.PostProcessing());
 
   if (rank == 0) {
-    EXPECT_NEAR(out_buffer[0], 1.0/3.0, 1e-3);
+    EXPECT_NEAR(out_buffer[0], 1.0 / 3.0, 1e-3);
   }
 }
 
@@ -370,7 +369,7 @@ TEST(anufriev_d_integrals_simpson_all, test_preprocessing_invalid_n_on_non_root)
   MPI_Comm_rank(MPI_COMM_WORLD, &rank);
   MPI_Comm_size(MPI_COMM_WORLD, &world_size);
 
-  if (world_size < 2 && rank !=0) {
+  if (world_size < 2 && rank != 0) {
     GTEST_SKIP() << "Skipping non-root n validation test for world_size < 2 or if this is root";
   }
 
@@ -378,7 +377,7 @@ TEST(anufriev_d_integrals_simpson_all, test_preprocessing_invalid_n_on_non_root)
   std::vector<double> out_buffer(1, 0.0);
   auto td = MakeTaskData(in, out_buffer);
   anufriev_d_integrals_simpson_all::IntegralsSimpsonAll task(td);
-  
+
   ASSERT_FALSE(task.PreProcessing());
 }
 
@@ -399,6 +398,6 @@ TEST(anufriev_d_integrals_simpson_all, test_run_result_zero_on_non_root) {
 
   if (rank != 0) {
   } else {
-    EXPECT_NEAR(out_buffer[0], 1.0/3.0, 1e-3);
+    EXPECT_NEAR(out_buffer[0], 1.0 / 3.0, 1e-3);
   }
 }
