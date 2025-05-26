@@ -92,10 +92,14 @@ bool naumov_b_marc_on_bin_img_tbb::TestTaskTBB::PreProcessingImpl() {
 }
 
 bool naumov_b_marc_on_bin_img_tbb::TestTaskTBB::ValidationImpl() {
-  if (task_data->inputs.empty() || task_data->outputs.empty()) return false;
+  if (task_data->inputs.empty() || task_data->outputs.empty()) {
+    return false;
+  }
   int m = static_cast<int>(task_data->inputs_count[0]);
   int n = static_cast<int>(task_data->inputs_count[1]);
-  if (m <= 0 || n <= 0) return false;
+  if (m <= 0 || n <= 0) {
+    return false;
+  }
 
   size_t total = size_t(m) * size_t(n);
   if (!task_data->inputs[0]) return false;
@@ -107,8 +111,8 @@ bool naumov_b_marc_on_bin_img_tbb::TestTaskTBB::ValidationImpl() {
 }
 
 bool naumov_b_marc_on_bin_img_tbb::TestTaskTBB::RunImpl() {
-  const int R = rows_, C = cols_;
-  const size_t total = size_t(R) * size_t(C);
+  const int rows = rows_, cols = cols_;
+  const size_t total = size_t(rows_) * size_t(cols_);
 
   int next_label = 1;
 
@@ -116,9 +120,9 @@ bool naumov_b_marc_on_bin_img_tbb::TestTaskTBB::RunImpl() {
     label_parent_[i] = int(i);
   }
 
-  for (int i = 0; i < R; ++i) {
-    for (int j = 0; j < C; ++j) {
-      size_t idx = size_t(i) * C + j;
+  for (int i = 0; i < rows_; ++i) {
+    for (int j = 0; j < cols_; ++j) {
+      size_t idx = size_t(i) * cols_ + j;
       if (input_image_[idx] == 0) {
         output_image_[idx] = 0;
         continue;

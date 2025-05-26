@@ -45,7 +45,7 @@ TEST(naumov_b_marc_on_bin_img_tbb, test_pipeline_run) {
   auto perf_analyzer = std::make_shared<ppc::core::Perf>(test_task_tbb);
   perf_analyzer->PipelineRun(perf_attr, perf_results);
   ppc::core::Perf::PrintPerfStatistic(perf_results);
-  ASSERT_GT(*std::max_element(out.begin(), out.end()), 0);
+  ASSERT_GT(*std::ranges::max_element(out), 0);
 }
 
 TEST(naumov_b_marc_on_bin_img_tbb, test_task_run) {
@@ -81,5 +81,5 @@ TEST(naumov_b_marc_on_bin_img_tbb, test_task_run) {
   auto perf_analyzer = std::make_shared<ppc::core::Perf>(test_task_tbb);
   perf_analyzer->TaskRun(perf_attr, perf_results);
   ppc::core::Perf::PrintPerfStatistic(perf_results);
-  ASSERT_GT(*std::max_element(out.begin(), out.end()), 0);
+  ASSERT_GT(*std::ranges::max_element(out), 0);
 }
