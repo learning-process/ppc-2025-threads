@@ -16,8 +16,7 @@ void deryabin_m_hoare_sort_simple_merge_mpi::HoaraSort(std::vector<double>::iter
   if (first >= last) {
     return;
   }
-  auto mid = first + ((last - first) >> 1);
-  const double pivot_value = *mid;
+  const double pivot_value = (first + ((last - first) >> 1));
   auto left = first;
   auto right = last;
   do {
@@ -31,10 +30,10 @@ void deryabin_m_hoare_sort_simple_merge_mpi::HoaraSort(std::vector<double>::iter
   } while (left < right);
   if (last - first >= 199) {
     oneapi::tbb::parallel_invoke([&first, &right]() { HoaraSort(first, right); },
-                                 [&left, &last]() { HoaraSort(left + 1, last); });
+                                 [&right, &last]() { HoaraSort(right + 1, last); });
   } else {
     HoaraSort(first, right);
-    HoaraSort(left + 1, last);
+    HoaraSort(right + 1, last);
   }
 }
 
