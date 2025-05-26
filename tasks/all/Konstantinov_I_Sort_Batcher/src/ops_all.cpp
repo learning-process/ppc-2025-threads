@@ -22,97 +22,100 @@
 namespace konstantinov_i_sort_batcher_all {
 namespace {
 
-uint64_t ConvertDoubleForSorting(double value) {
-  uint64_t bits;
-  std::memcpy(&bits, &value, sizeof(value));
+uint64_t DoubleToKey(double value) {
+  uint64_t bit_representation = 0;
+  std::memcpy(&bit_representation, &value, sizeof(value));
 
-  if ((bits >> 63) != 0) {
-    return ~bits;
+  if ((bit_representation >> 63) != 0) {
+    return ~bit_representation;
   }
-  return bits ^ (1ULL << 63);
+  return bit_representation ^ (1ULL << 63);
 }
 
-double RestoreDoubleFromSorted(uint64_t encoded_value) {
-  if ((encoded_value >> 63) != 0) {
-    encoded_value ^= (1ULL << 63);
+double KeyToDouble(uint64_t transformed_data) {
+  if ((transformed_data >> 63) != 0) {
+    transformed_data ^= (1ULL << 63);
   } else {
-    encoded_value = ~encoded_value;
+    transformed_data = ~transformed_data;
   }
 
   double result = 0.0;
-  std::memcpy(&result, &encoded_value, sizeof(result));
+  std::memcpy(&result, &transformed_data, sizeof(result));
   return result;
 }
 
-void ParallelRadixSort(std::vector<uint64_t>& data, int num_threads) {
-  constexpr int kBitsPerPass = 8;
-  constexpr int kTotalBits = 64;
-  constexpr int kNumBucket = 256;
+void RadixSort(std::vector<uint64_t>& array, int thread_count) {
+  const int bits_in_byte = 8;
+  const int total_bits = 64;
+  const int bucket_count = 256;
 
-  std::vector<uint64_t> buffer(data.size());
-  std::vector<std::vector<int>> thread_bucket_counts(num_threads, std::vector<int>(kNumBucket));
+  std::vector<uint64_t> buffer(array.size(), 0);
+  std::vector<std::vector<int>> local_frequencies(thread_count, std::vector<int>(bucket_count, 0));
 
-  for (int bit_shift = 0; bit_shift < kTotalBits; bit_shift += kBitsPerPass) {
-    std::vector<std::thread> workers;
-    const size_t elements_per_thread = (data.size() + num_threads - 1) / num_threads;
+  for (int shift = 0; shift < total_bits; shift += bits_in_byte) {
+    std::vector<std::thread> threads;
+    size_t n = array.size();
+    size_t block_size = (n + thread_count - 1) / thread_count;
 
-    for (int thread_id = 0; thread_id < num_threads; ++thread_id) {
-      const size_t start = thread_id * elements_per_thread;
-      const size_t end = std::min(start + elements_per_thread, data.size());
+    for (int t = 0; t < thread_count; ++t) {
+      size_t begin = t * block_size;
+      size_t end = std::min(begin + block_size, n);
 
-      workers.emplace_back([&, start, end, thread_id]() {
-        for (size_t i = start; i < end; ++i) {
-          const auto bucket = static_cast<uint8_t>((data[i] >> bit_shift) & 0xFF);
-          thread_bucket_counts[thread_id][bucket]++;
+      threads.emplace_back([&, begin, end, t]() {
+        for (size_t i = begin; i < end; ++i) {
+          auto bucket = static_cast<uint8_t>((array[i] >> shift) & 0xFF);
+          local_frequencies[t][bucket]++;
         }
       });
     }
-    for (auto& worker : workers) {
-      worker.join();
+    for (auto& th : threads) {
+      th.join();
     }
-    std::vector<int> global_counts(kNumBucket);
-    for (int bucket = 0; bucket < kNumBucket; ++bucket) {
-      for (int t = 0; t < num_threads; ++t) {
-        global_counts[bucket] += thread_bucket_counts[t][bucket];
-        thread_bucket_counts[t][bucket] = 0;
+
+    std::vector<int> frequency(bucket_count, 0);
+    for (int b = 0; b < bucket_count; ++b) {
+      for (int t = 0; t < thread_count; ++t) {
+        frequency[b] += local_frequencies[t][b];
+        local_frequencies[t][b] = 0;
       }
     }
 
-    for (int i = 1; i < kNumBucket; i++) {
-      global_counts[i] += global_counts[i - 1];
+    for (int i = 1; i < bucket_count; i++) {
+      frequency[i] += frequency[i - 1];
     }
 
-    for (int i = static_cast<int>(data.size()) - 1; i >= 0; i--) {
-      const auto bucket = static_cast<uint8_t>((data[i] >> bit_shift) & 0xFF);
-      buffer[--global_counts[bucket]] = data[i];
+    for (int i = static_cast<int>(array.size()) - 1; i >= 0; i--) {
+      auto bucket = static_cast<uint8_t>((array[i] >> shift) & 0xFF);
+      buffer[--frequency[bucket]] = array[i];
     }
 
-    data.swap(buffer);
+    array.swap(buffer);
   }
 }
 }  // namespace
 }  // namespace konstantinov_i_sort_batcher_all
 
 bool konstantinov_i_sort_batcher_all::RadixSortBatcherall::PreProcessingImpl() {
-  const int rank = world_.rank();
-  const int cluster_size = world_.size();
+  int rank = world_.rank();
+  int size = world_.size();
 
   if (rank == 0) {
-    const size_t total_elements = task_data->inputs_count[0];
-    const size_t per_node = (total_elements + cluster_size - 1) / cluster_size;
-    mas_.resize(per_node * cluster_size, std::numeric_limits<double>::max());
-    std::ranges::copy_n(reinterpret_cast<double*>(task_data->inputs[0]), total_elements, mas_.begin());
+    size_t total = task_data->inputs_count[0];
+    size_t per_proc = (total + size - 1) / size;
+    input_.resize(per_proc * size, std::numeric_limits<double>::max());
+    auto* src = reinterpret_cast<double*>(task_data->inputs[0]);
+    std::copy(src, src + total, input_.begin());
   }
 
-  size_t elements_per_node = 0;
+  size_t per_proc = 0;
   if (rank == 0) {
-    elements_per_node = mas_.size() / cluster_size;
+    per_proc = input_.size() / size;
   }
-  boost::mpi::broadcast(world_, elements_per_node, 0);
+  boost::mpi::broadcast(world_, per_proc, 0);
 
-  std::vector<double> local_data(elements_per_node);
-  boost::mpi::scatter(world_, mas_, local_data.data(), elements_per_node, 0);
-  mas_.swap(local_data);
+  std::vector<double> local(per_proc);
+  boost::mpi::scatter(world_, input_, local.data(), static_cast<int>(per_proc), 0);
+  input_.swap(local);
 
   return true;
 }
@@ -121,74 +124,82 @@ bool konstantinov_i_sort_batcher_all::RadixSortBatcherall::ValidationImpl() {
   if (world_.rank() != 0) {
     return true;
   }
+
   if (!task_data) {
     return false;
   }
-  if (!task_data->inputs.data() || !task_data->inputs[0]) {
+
+  if (task_data->inputs[0] == nullptr && task_data->inputs_count[0] == 0) {
     return false;
   }
-  if (!task_data->outputs.data() || !task_data->outputs[0]) {
+
+  if (task_data->outputs[0] == nullptr) {
     return false;
   }
+
   if (task_data->inputs_count[0] < 2) {
     return false;
   }
+
   return task_data->inputs_count[0] == task_data->outputs_count[0];
 }
 
 bool konstantinov_i_sort_batcher_all::RadixSortBatcherall::RunImpl() {
-  const int rank = world_.rank();
-  const int cluster_size = world_.size();
+  int rank = world_.rank();
+  int size = world_.size();
 
-  std::vector<uint64_t> encoded_numbers;
-  encoded_numbers.reserve(mas_.size());
-  for (double value : mas_) {
-    encoded_numbers.push_back(konstantinov_i_sort_batcher_all::ConvertDoubleForSorting(value));
+  std::vector<uint64_t> local;
+  local.reserve(input_.size());
+  for (auto d : input_) {
+    local.push_back(KeyToDouble(d));
   }
+  size_t n = local.size();
+  const int thread_count = std::max(1, std::min(static_cast<int>(n), ppc::util::GetPPCNumThreads()));
+  RadixSort(local, thread_count);
 
-  const int optimal_threads =
-      std::max(1, std::min(static_cast<int>(encoded_numbers.size()), ppc::util::GetPPCNumThreads()));
-  konstantinov_i_sort_batcher_all::ParallelRadixSort(encoded_numbers, optimal_threads);
+  int stages = static_cast<int>(std::ceil(std::log2(size)));
+  for (int stage = 0; stage < stages; ++stage) {
+    int offset = 1 << (stages - stage - 1);
 
-  const int merge_stages = static_cast<int>(std::ceil(std::log2(cluster_size)));
-  for (int stage = 0; stage < merge_stages; ++stage) {
-    int node_offset = 1 << (merge_stages - stage - 1);
-
-    for (int merge_step = node_offset; merge_step > 0; merge_step >>= 1) {
-      const int partner_node = rank ^ merge_step;
-      if (partner_node >= cluster_size) {
+    for (int step = offset; step > 0; step >>= 1) {
+      int partner = rank ^ step;
+      if (partner >= size) {
         continue;
       }
-      std::vector<uint64_t> partner_data(encoded_numbers.size());
-      boost::mpi::request requests[2];
 
-      if (rank < partner_node) {
-        requests[0] = world_.isend(partner_node, 0, encoded_numbers.data(), static_cast<int>(encoded_numbers.size()));
-        requests[1] = world_.irecv(partner_node, 0, partner_data.data(), static_cast<int>(partner_data.size()));
+      const int data_size = static_cast<int>(local.size());
+
+      boost::mpi::request reqs[2];
+      std::vector<uint64_t> recv_data(local.size());
+
+      if (rank < partner) {
+        reqs[0] = world_.isend(partner, 0, local.data(), data_size);
+        reqs[1] = world_.irecv(partner, 0, recv_data.data(), data_size);
       } else {
-        requests[0] = world_.irecv(partner_node, 0, partner_data.data(), static_cast<int>(partner_data.size()));
-        requests[1] = world_.isend(partner_node, 0, encoded_numbers.data(), static_cast<int>(encoded_numbers.size()));
-        boost::mpi::wait_all(requests, requests + 2);
-
-        std::vector<uint64_t> merged_result;
-        merged_result.reserve(encoded_numbers.size() * 2);
-        std::ranges::merge(encoded_numbers, partner_data, std::back_inserter(merged_result));
-
-        const auto keep_count = static_cast<std::ptrdiff_t>(encoded_numbers.size());
-
-        if (rank < partner_node) {
-          encoded_numbers.assign(merged_result.begin(), merged_result.begin() + keep_count);
-        } else {
-          encoded_numbers.assign(merged_result.end() - keep_count, merged_result.end());
-        }
+        reqs[0] = world_.irecv(partner, 0, recv_data.data(), data_size);
+        reqs[1] = world_.isend(partner, 0, local.data(), data_size);
       }
-      world_.barrier();
-    }
+      reqs[0].wait();
+      reqs[1].wait();
 
-    output_.resize(encoded_numbers.size());
-    std::ranges::transform(encoded_numbers, output_.begin(), konstantinov_i_sort_batcher_all::RestoreDoubleFromSorted);
-    return true;
+      std::vector<uint64_t> merged;
+      std::ranges::merge(local, recv_data, std::back_inserter(merged));
+
+      if (rank < partner) {
+        local.assign(merged.begin(), merged.begin() + static_cast<std::ptrdiff_t>(local.size()));
+      } else {
+        local.assign(merged.end() - static_cast<std::ptrdiff_t>(local.size()), merged.end());
+      }
+    }
+    world_.barrier();
   }
+
+  output_.resize(local.size());
+  for (size_t i = 0; i < local.size(); ++i) {
+    output_[i] = KeyToDouble(local[i]);
+  }
+
+  return true;
 }
 
 bool konstantinov_i_sort_batcher_all::RadixSortBatcherall::PostProcessingImpl() {
