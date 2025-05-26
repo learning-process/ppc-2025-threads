@@ -27,7 +27,7 @@ void deryabin_m_hoare_sort_simple_merge_mpi::HoaraSort(std::vector<double>::iter
       right--;
     }
     std::iter_swap(left, right);
-    if (*left == *right == pivot_value) {
+    if (*left == pivot_value && *right == pivot_value) {
       left++;
       right--;
     }
