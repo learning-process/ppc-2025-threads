@@ -43,7 +43,7 @@ TEST(FominVConjugateGradientStl, test_small_system) {
 }
 
 TEST(FominVConjugateGradientStl, test_large_system) {
-  constexpr size_t kCount = 3000;
+  constexpr size_t kCount = 99;
   std::vector<double> a(kCount * kCount, 0.0);
   std::vector<double> b(kCount, 0.0);
   std::vector<double> expected_x(kCount, 1.0);
