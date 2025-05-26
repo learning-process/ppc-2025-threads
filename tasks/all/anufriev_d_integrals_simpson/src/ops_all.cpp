@@ -219,9 +219,7 @@ bool IntegralsSimpsonAll::PreProcessingImpl() {
     if (rank != 0) {
       return false;
     }
-    if (rank == 0) {
-      func_code_ = parsed_input_data.func_code_val;
-    }
+    func_code_ = parsed_input_data.func_code_val;
     MPI_Bcast(&func_code_, 1, MPI_INT, 0, MPI_COMM_WORLD);
     result_ = 0.0;
     return parsed_input_data.parse_successful;

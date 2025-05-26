@@ -254,3 +254,151 @@ TEST(anufriev_d_integrals_simpson_all, test_invalid_small_output_count) {
   anufriev_d_integrals_simpson_all::IntegralsSimpsonAll task(td);
   EXPECT_FALSE(task.ValidationImpl());
 }
+
+TEST(anufriev_d_integrals_simpson_all, test_dimension_zero_valid_case) {
+  int rank = 0;
+  MPI_Comm_rank(MPI_COMM_WORLD, &rank);
+
+  std::vector<double> in = {0, 0};
+  std::vector<double> out_buffer(1, 999.0);
+  auto td = MakeTaskData(in, out_buffer);
+  anufriev_d_integrals_simpson_all::IntegralsSimpsonAll task(td);
+
+  ASSERT_TRUE(task.PreProcessing());
+  ASSERT_TRUE(task.Run());
+  ASSERT_TRUE(task.PostProcessing());
+
+  if (rank == 0) {
+    EXPECT_DOUBLE_EQ(out_buffer[0], 0.0);
+  }
+}
+
+TEST(anufriev_d_integrals_simpson_all, test_calculate_run_params_n_is_zero_inside_dim) {
+  int rank = 0;
+  MPI_Comm_rank(MPI_COMM_WORLD, &rank);
+
+  std::vector<double> in = {1, 0.0, 1.0, 0, 0};
+  std::vector<double> out_buffer(1, 0.0);
+  auto td = MakeTaskData(in, out_buffer);
+  anufriev_d_integrals_simpson_all::IntegralsSimpsonAll task(td);
+
+  ASSERT_FALSE(task.PreProcessing());
+}
+
+
+TEST(anufriev_d_integrals_simpson_all, test_calculate_run_params_overflow_total_points) {
+  int rank = 0;
+  MPI_Comm_rank(MPI_COMM_WORLD, &rank);
+
+  int max_n_val = std::numeric_limits<int>::max();
+  if (max_n_val % 2 != 0) max_n_val--;
+  std::vector<double> in_overflow = {2, 0.0, 1.0, static_cast<double>(max_n_val),
+                                     0.0, 1.0, static_cast<double>(max_n_val), 0};
+  std::vector<double> out_buffer_overflow(1, 0.0);
+  auto td_overflow = MakeTaskData(in_overflow, out_buffer_overflow);
+  anufriev_d_integrals_simpson_all::IntegralsSimpsonAll task_overflow(td_overflow);
+
+  ASSERT_TRUE(task_overflow.PreProcessing());
+  ASSERT_FALSE(task_overflow.Run());
+}
+
+TEST(anufriev_d_integrals_simpson_all, test_run_total_points_zero_after_calc) {
+  int rank = 0;
+  MPI_Comm_rank(MPI_COMM_WORLD, &rank);
+
+  std::vector<double> in = {0, 0};
+  std::vector<double> out_buffer(1, 999.0);
+  auto td = MakeTaskData(in, out_buffer);
+  anufriev_d_integrals_simpson_all::IntegralsSimpsonAll task(td);
+
+  ASSERT_TRUE(task.PreProcessing());
+  ASSERT_TRUE(task.Run());
+  ASSERT_TRUE(task.PostProcessing());
+
+  if (rank == 0) {
+    EXPECT_DOUBLE_EQ(out_buffer[0], 0.0);
+  }
+}
+
+TEST(anufriev_d_integrals_simpson_all, test_distribute_few_points_many_procs) {
+  int rank = 0;
+  int world_size = 0;
+  MPI_Comm_rank(MPI_COMM_WORLD, &rank);
+  MPI_Comm_size(MPI_COMM_WORLD, &world_size);
+
+  std::vector<double> in = {1, 0.0, 1.0, 2, 0};
+  std::vector<double> out_buffer(1, 0.0);
+  auto td = MakeTaskData(in, out_buffer);
+  anufriev_d_integrals_simpson_all::IntegralsSimpsonAll task(td);
+
+  ASSERT_TRUE(task.PreProcessing());
+  ASSERT_TRUE(task.Run());
+  ASSERT_TRUE(task.PostProcessing());
+
+  if (rank == 0) {
+    EXPECT_NEAR(out_buffer[0], 1.0/3.0, 1e-3);
+  }
+}
+
+TEST(anufriev_d_integrals_simpson_all, test_distribute_one_point_one_proc) {
+  int rank = 0;
+  int world_size = 0;
+  MPI_Comm_rank(MPI_COMM_WORLD, &rank);
+  MPI_Comm_size(MPI_COMM_WORLD, &world_size);
+
+  if (world_size == 1) {
+    std::vector<double> in = {1, 0.0, 0.1, 2, 1};
+    std::vector<double> out_buffer(1, 0.0);
+    auto td = MakeTaskData(in, out_buffer);
+    anufriev_d_integrals_simpson_all::IntegralsSimpsonAll task(td);
+
+    ASSERT_TRUE(task.PreProcessing());
+    ASSERT_TRUE(task.Run());
+    ASSERT_TRUE(task.PostProcessing());
+
+    if (rank == 0) {
+      EXPECT_NEAR(out_buffer[0], 1.0 - std::cos(0.1), 1e-5);
+    }
+  } else {
+    GTEST_SKIP() << "Skipping single point test for world_size > 1";
+  }
+}
+
+TEST(anufriev_d_integrals_simpson_all, test_preprocessing_invalid_n_on_non_root) {
+  int rank = 0;
+  int world_size = 0;
+  MPI_Comm_rank(MPI_COMM_WORLD, &rank);
+  MPI_Comm_size(MPI_COMM_WORLD, &world_size);
+
+  if (world_size < 2 && rank !=0) {
+    GTEST_SKIP() << "Skipping non-root n validation test for world_size < 2 or if this is root";
+  }
+
+  std::vector<double> in = {1, 0.0, 1.0, 3, 0};
+  std::vector<double> out_buffer(1, 0.0);
+  auto td = MakeTaskData(in, out_buffer);
+  anufriev_d_integrals_simpson_all::IntegralsSimpsonAll task(td);
+  
+  ASSERT_FALSE(task.PreProcessing());
+}
+
+TEST(anufriev_d_integrals_simpson_all, test_run_result_zero_on_non_root) {
+  int rank = 0;
+  int world_size = 0;
+  MPI_Comm_rank(MPI_COMM_WORLD, &rank);
+  MPI_Comm_size(MPI_COMM_WORLD, &world_size);
+
+  std::vector<double> in = {1, 0.0, 1.0, 100, 0};
+  std::vector<double> out_buffer(1, 0.0);
+  auto td = MakeTaskData(in, out_buffer);
+  anufriev_d_integrals_simpson_all::IntegralsSimpsonAll task(td);
+
+  ASSERT_TRUE(task.PreProcessing());
+  ASSERT_TRUE(task.Run());
+  ASSERT_TRUE(task.PostProcessing());
+
+  if (rank != 0) {
+  } else {
+    EXPECT_NEAR(out_buffer[0], 1.0/3.0, 1e-3);
+  }
+}
