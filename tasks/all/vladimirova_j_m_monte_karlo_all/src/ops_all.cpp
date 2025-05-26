@@ -1,5 +1,5 @@
 
-#include "mpi/vladimirova_j_m_monte_karlo_mpi/include/ops_mpi.hpp"
+#include "all/vladimirova_j_m_monte_karlo_all/include/ops_all.hpp"
 
 #include <boost/mpi/collectives/all_reduce.hpp>
 #include <boost/mpi/communicator.hpp>
@@ -23,13 +23,13 @@ double CreateRandomVal(double min_v, double max_v) {
 
 }  // namespace
 
-bool vladimirova_j_m_monte_karlo_mpi::TestTaskMPI::PreProcessingImpl() {
+bool vladimirova_j_m_monte_karlo_all::TestTaskALL::PreProcessingImpl() {
   // Init value for input and output
   func_ = reinterpret_cast<bool (*)(std::vector<double>, size_t)>(task_data->inputs[1]);
   auto* in_ptr = reinterpret_cast<double*>(task_data->inputs[0]);
   std::vector<double> var_vect = std::vector<double>(in_ptr, in_ptr + var_size_);
   var_size_ /= 2;
-  var_integr_ = std::vector<vladimirova_j_m_monte_karlo_mpi::BoundariesIntegral>(var_size_);
+  var_integr_ = std::vector<vladimirova_j_m_monte_karlo_all::BoundariesIntegral>(var_size_);
   for (size_t i = 0; i < var_size_; i++) {
     var_integr_[i].min = var_vect[i * 2];
     var_integr_[i].max = var_vect[(i * 2) + 1];
@@ -38,7 +38,7 @@ bool vladimirova_j_m_monte_karlo_mpi::TestTaskMPI::PreProcessingImpl() {
   return true;
 }
 
-bool vladimirova_j_m_monte_karlo_mpi::TestTaskMPI::ValidationImpl() {
+bool vladimirova_j_m_monte_karlo_all::TestTaskALL::ValidationImpl() {
   // Check equality of counts elements
   var_size_ = task_data->inputs_count[0];
   if ((var_size_ % 2 != 0) || (var_size_ < 3)) {
@@ -54,7 +54,7 @@ bool vladimirova_j_m_monte_karlo_mpi::TestTaskMPI::ValidationImpl() {
   return (task_data->inputs[1] != nullptr) && (reinterpret_cast<size_t>(task_data->inputs[2]) > 0);
 }
 
-bool vladimirova_j_m_monte_karlo_mpi::TestTaskMPI::RunImpl() {
+bool vladimirova_j_m_monte_karlo_all::TestTaskALL::RunImpl() {
   // Multiply matrices
   size_t count_t = ppc::util::GetPPCNumThreads();
   if (count_t == 0 || world_.size() == 0) {
@@ -118,7 +118,7 @@ bool vladimirova_j_m_monte_karlo_mpi::TestTaskMPI::RunImpl() {
   return true;
 }
 
-bool vladimirova_j_m_monte_karlo_mpi::TestTaskMPI::PostProcessingImpl() {
+bool vladimirova_j_m_monte_karlo_all::TestTaskALL::PostProcessingImpl() {
   if (world_.rank() != 0) {
     return true;
   }

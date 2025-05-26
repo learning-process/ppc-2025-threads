@@ -8,16 +8,16 @@
 
 #include "core/task/include/task.hpp"
 
-namespace vladimirova_j_m_monte_karlo_mpi {
+namespace vladimirova_j_m_monte_karlo_all {
 
 struct BoundariesIntegral {
   double min;
   double max;
 };
 
-class TestTaskMPI : public ppc::core::Task {
+class TestTaskALL : public ppc::core::Task {
  public:
-  explicit TestTaskMPI(ppc::core::TaskDataPtr task_data) : Task(std::move(task_data)) {}
+  explicit TestTaskALL(ppc::core::TaskDataPtr task_data) : Task(std::move(task_data)) {}
   bool PreProcessingImpl() override;
   bool ValidationImpl() override;
   bool RunImpl() override;
@@ -32,4 +32,4 @@ class TestTaskMPI : public ppc::core::Task {
   boost::mpi::communicator world_;
 };
 
-}  // namespace vladimirova_j_m_monte_karlo_mpi
+}  // namespace vladimirova_j_m_monte_karlo_all
