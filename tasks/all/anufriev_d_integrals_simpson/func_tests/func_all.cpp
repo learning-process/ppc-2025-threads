@@ -2,6 +2,7 @@
 #define OMPI_SKIP_MPICXX
 #include <mpi.h>
 
+#include <cmath>
 #include <cstdint>
 #include <limits>
 #include <memory>
