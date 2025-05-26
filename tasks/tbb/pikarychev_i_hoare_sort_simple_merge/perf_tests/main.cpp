@@ -55,6 +55,9 @@ TEST(pikarychev_i_hoare_sort_simple_merge_tbb, test_pipeline_run) {
   ppc::core::Perf::PrintPerfStatistic(perf_results);
 }
 
+EXPECT_TRUE(std::ranges::is_sorted(out, std::greater<>{}));
+
+
 TEST(pikarychev_i_hoare_sort_simple_merge_tbb, test_task_run) {
   std::random_device dev;
   std::mt19937 gen(dev());
@@ -86,3 +89,5 @@ TEST(pikarychev_i_hoare_sort_simple_merge_tbb, test_task_run) {
   perf_analyzer->TaskRun(perf_attr, perf_results);
   ppc::core::Perf::PrintPerfStatistic(perf_results);
 }
+
+EXPECT_TRUE(std::ranges::is_sorted(out, std::greater<>{}));
