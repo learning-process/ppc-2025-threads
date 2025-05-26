@@ -4,14 +4,10 @@
 
 #include <algorithm>
 #include <cmath>
-#include <core/util/include/util.hpp>
 #include <cstddef>
 #include <random>
 #include <utility>
 #include <vector>
-
-#include "oneapi/tbb/task_arena.h"
-#include "oneapi/tbb/task_group.h"
 
 std::vector<int> naumov_b_marc_on_bin_img_tbb::GenerateRandomBinaryMatrix(int rows, int cols, double probability) {
   const int total_elements = rows * cols;
@@ -61,10 +57,11 @@ void naumov_b_marc_on_bin_img_tbb::TestTaskTBB::UnionLabels(int a, int b) {
   int ra = FindRoot(a);
   int rb = FindRoot(b);
   if (ra != rb) {
-    if (ra < rb)
+    if (ra < rb) {
       label_parent_[rb] = ra;
-    else
+    } else {
       label_parent_[ra] = rb;
+    }
   }
 }
 

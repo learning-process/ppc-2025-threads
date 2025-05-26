@@ -2,7 +2,6 @@
 
 #include <atomic>
 #include <mutex>
-#include <utility>
 #include <vector>
 
 #include "core/task/include/task.hpp"
@@ -28,15 +27,15 @@ class TestTaskTBB : public ppc::core::Task {
   void AssignNewLabel(int row, int col);
   void AssignMinLabel(int row, int col, const std::vector<int>& neighbors);
   std::vector<int> FindAdjacentLabels(int row, int col);
-  int FindRoot(int label);
-  void UnionLabels(int label1, int label2);
+  int FindRoot(int x);
+  void UnionLabels(int a, int b);
 
   int rows_{};
   int cols_{};
   std::vector<int> input_image_;
   std::vector<int> output_image_;
   std::vector<int> label_parent_;
-  std::atomic<int> current_label_;
+  std::atomic<int> current_label_{1};
   std::mutex union_mutex_;
 };
 
