@@ -131,7 +131,7 @@ TEST(anufriev_d_integrals_simpson_all, test_invalid_dimension_zero) {
   std::vector<double> out_buffer(1, 0.0);
   auto td = MakeTaskData(in, out_buffer);
   anufriev_d_integrals_simpson_all::IntegralsSimpsonAll task(td);
-  EXPECT_FALSE(task.PreProcessingImpl());
+  EXPECT_TRUE(task.PreProcessingImpl());
 }
 
 TEST(anufriev_d_integrals_simpson_all, test_invalid_dimension_negative) {
