@@ -154,7 +154,7 @@ bool vershinina_a_hoare_sort_mpi::TestTaskALL::RunImpl() {
         int arrs = -1;
         MPI_Recv(&arrs, 1, MPI_INT, transmitter_rank, 0, active_procs_comm, MPI_STATUS_IGNORE);
         res_.resize(res_.size() + arrs);
-        MPI_Recv(res_.begin().base() + res_.size() - arrs, arrs, MPI_INT, transmitter_rank, 0, active_procs_comm,
+        MPI_Recv(res_.data() + res_.size() - arrs, arrs, MPI_INT, transmitter_rank, 0, active_procs_comm,
                  MPI_STATUS_IGNORE);
         std::ranges::inplace_merge(res_, res_.begin() + int(res_.size()) - arrs);
       }
