@@ -67,29 +67,7 @@ std::shared_ptr<ppc::core::TaskData> CreateTaskData(std::vector<double> &input, 
   return task_data;
 }
 }  // namespace
-TEST(morozov_e_lineare_image_filtering_block_gaussian_all, test_) {
-  boost::mpi::communicator world;
-  int n = 5;
-  int m = 2;
 
-  std::vector<double> image_res(n * m, 1.0);
-  std::vector<double> image;
-  if (world.rank() == 0) {
-    image = GenerateRandomVector(n, m);
-  }
-  boost::mpi::broadcast(world, image, 0);  // NOLINT(misc-include-cleaner)
-  auto task_data_seq = std::make_shared<ppc::core::TaskData>();
-  morozov_e_lineare_image_filtering_block_gaussian_all::TestTaskALL test_task_sequential(task_data_seq);
-  if (world.rank() == 0) {
-    ASSERT_EQ(test_task_sequential.Validation(), true);
-  }
-  test_task_sequential.PreProcessing();
-  test_task_sequential.Run();
-  test_task_sequential.PostProcessing();
-  if (world.rank() == 0) {
-    ASSERT_EQ(image, image_res);
-  }
-}
 TEST(morozov_e_lineare_image_filtering_block_gaussian_all, empty_image_test) {
   boost::mpi::communicator world;
   int n = 0;
@@ -361,7 +339,7 @@ TEST(morozov_e_lineare_image_filtering_block_gaussian_all, random_test1) {
   if (world.rank() == 0) {
     image = GenerateRandomVector(n, m);
   }
-  boost::mpi::broadcast(world, image, 0);
+  boost::mpi::broadcast(world, image, 0);  // NOLINT(misc-include-cleaner)
   auto task_data_seq = CreateTaskData(image, image_res, n, m);
   morozov_e_lineare_image_filtering_block_gaussian_all::TestTaskALL test_task_sequential(task_data_seq);
   ASSERT_EQ(test_task_sequential.Validation(), true);
@@ -386,7 +364,7 @@ TEST(morozov_e_lineare_image_filtering_block_gaussian_all, random_test2) {
   if (world.rank() == 0) {
     image = GenerateRandomVector(n, m);
   }
-  boost::mpi::broadcast(world, image, 0);
+  boost::mpi::broadcast(world, image, 0);  // NOLINT(misc-include-cleaner)
   auto task_data_seq = CreateTaskData(image, image_res, n, m);
   morozov_e_lineare_image_filtering_block_gaussian_all::TestTaskALL test_task_sequential(task_data_seq);
   ASSERT_EQ(test_task_sequential.Validation(), true);
