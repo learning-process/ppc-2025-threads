@@ -16,7 +16,7 @@ class TestTaskMPI : public ppc::core::Task {
   bool PostProcessingImpl() override;
 
  private:
-  void ShellSort();
+  void ShellSort(std::vector<int>& arr);
   static void BatcherMerge(std::vector<int>& left, std::vector<int>& right, std::vector<int>& result);
   std::vector<int> input_;
   std::vector<int> output_;

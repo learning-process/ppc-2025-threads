@@ -28,13 +28,19 @@ bool TestTaskMPI::ValidationImpl() {
 }
 
 bool TestTaskMPI::RunImpl() {
-  ShellSort();
   size_t mid = input_.size() / 2;
   std::vector<int> left(input_.begin(), input_.begin() + static_cast<std::ptrdiff_t>(mid));
   std::vector<int> right(input_.begin() + static_cast<std::ptrdiff_t>(mid), input_.end());
 
-  BatcherMerge(left, right, output_);
+#pragma omp parallel sections
+  {
+#pragma omp section
+    { ShellSort(left); }
+#pragma omp section
+    { ShellSort(right); }
+  }
 
+  BatcherMerge(left, right, output_);
   return true;
 }
 
@@ -45,38 +51,8 @@ bool TestTaskMPI::PostProcessingImpl() {
   return true;
 }
 
-void TestTaskMPI::ShellSort() {
-  bool is_empty = false;
-  if (world_.rank() == 0) {
-    is_empty = input_.empty();
-  }
-  boost::mpi::broadcast(world_, is_empty, 0);
-  if (is_empty) {
-    return;
-  }
-
-  unsigned int delta = 0;
-  unsigned int res = 0;
-  if (world_.rank() == 0) {
-    delta = input_.size() / world_.size();
-    res = input_.size() % world_.size();
-  }
-  boost::mpi::broadcast(world_, delta, 0);
-  boost::mpi::broadcast(world_, res, 0);
-
-  if (world_.rank() == 0) {
-    size_t start_idx = delta + res;
-    for (int proc = 1; proc < world_.size(); proc++) {
-      world_.send(proc, 0, input_.data() + start_idx, static_cast<int>(delta));
-      start_idx += delta;
-    }
-    local_input_ = std::vector<int>(input_.begin(), input_.begin() + delta + res);
-  } else {
-    local_input_ = std::vector<int>(delta);
-    world_.recv(0, 0, local_input_.data(), static_cast<int>(delta));
-  }
-
-  int n = static_cast<int>(input_.size());
+void TestTaskMPI::ShellSort(std::vector<int>& arr) {
+  int n = static_cast<int>(arr.size());
   std::vector<int> gaps;
   for (int k = 1; (1 << k) - 1 < n; ++k) {
     gaps.push_back((1 << k) - 1);
@@ -85,13 +61,13 @@ void TestTaskMPI::ShellSort() {
     int gap = *it;
 #pragma omp parallel for
     for (int i = gap; i < n; ++i) {
-      int temp = input_[i];
+      int temp = arr[i];
       int j = i;
-      while (j >= gap && input_[j - gap] > temp) {
-        input_[j] = input_[j - gap];
+      while (j >= gap && arr[j - gap] > temp) {
+        arr[j] = arr[j - gap];
         j -= gap;
       }
-      input_[j] = temp;
+      arr[j] = temp;
     }
   }
 }
