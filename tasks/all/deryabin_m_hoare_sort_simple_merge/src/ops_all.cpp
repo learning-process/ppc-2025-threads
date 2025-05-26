@@ -36,7 +36,7 @@ void deryabin_m_hoare_sort_simple_merge_mpi::HoaraSort(std::vector<double>::iter
     HoaraSort(first, left);
     HoaraSort(right + 1, last);
   }
-} 
+                              } 
 
 void deryabin_m_hoare_sort_simple_merge_mpi::MergeTwoParts(std::vector<double>& a, size_t first, size_t last) {
   if (last - first <= 1) return;
