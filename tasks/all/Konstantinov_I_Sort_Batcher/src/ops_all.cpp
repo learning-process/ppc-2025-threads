@@ -121,19 +121,19 @@ bool konstantinov_i_sort_batcher_all::RadixSortBatcherall::ValidationImpl() {
   if (world_.rank() != 0) {
     return true;
   }
-  if (taskData == nullptr) {
+  if (task_data == nullptr) {
     return false;
   }
-  if (taskData->inputs == nullptr || taskData->inputs[0] == nullptr) {
+  if (task_data->inputs == nullptr || task_data->inputs[0] == nullptr) {
     return false;
   }
-  if (taskData->outputs == nullptr || taskData->outputs[0] == nullptr) {
+  if (task_data->outputs == nullptr || task_data->outputs[0] == nullptr) {
     return false;
   }
-  if (taskData->inputs_count[0] < 2) {
+  if (task_data->inputs_count[0] < 2) {
     return false;
   }
-  return taskData->inputs_count[0] == taskData->outputs_count[0];
+  return task_data->inputs_count[0] == task_data->outputs_count[0];
 }
 
 bool konstantinov_i_sort_batcher_all::RadixSortBatcherall::RunImpl() {
