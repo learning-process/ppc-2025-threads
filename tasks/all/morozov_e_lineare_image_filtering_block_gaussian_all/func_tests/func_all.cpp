@@ -332,8 +332,8 @@ TEST(morozov_e_lineare_image_filtering_block_gaussian_all, main_test7_) {
 }
 TEST(morozov_e_lineare_image_filtering_block_gaussian_all, random_test1) {
   boost::mpi::communicator world;
-  int n = 3;
-  int m = 3;
+  int n = 1000;
+  int m = 1000;
   std::vector image_res(n * m, 0.0);
   std::vector<double> image;
   if (world.rank() == 0) {
