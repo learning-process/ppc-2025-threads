@@ -20,7 +20,7 @@ struct ElementPosition {
   ComplexNum val;
 };
 
-void AppendElement(std::vector<ElementPosition>& data, int row_idx, int col_idx, ComplexNum val);
+void AppendElement(std::vector<ElementPosition>& data, int row_idx, int col_idx, const ComplexNum& val);
 
 struct SparseMatrixCRS {
   std::vector<ComplexNum> non_zero_elems;

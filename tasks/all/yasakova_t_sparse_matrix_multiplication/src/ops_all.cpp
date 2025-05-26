@@ -290,7 +290,7 @@ bool yasakova_t_sparse_matrix_mult_all::TestTaskALL::RunImpl() {
     output_data_ = ConvertToDense(c);
   } else {
     MPI_Gatherv(local_results.data(), static_cast<int>(local_results.size() * sizeof(ElementPosition)), MPI_BYTE,
-                                                       nullptr, nullptr, nullptr, MPI_BYTE, 0, MPI_COMM_WORLD);
+                nullptr, nullptr, nullptr, MPI_BYTE, 0, MPI_COMM_WORLD);
   }
 
   return true;
