@@ -1,7 +1,5 @@
 #include "omp/makhov_m_linear_image_filtering_vertical/include/ops_omp.hpp"
 
-#include <omp.h>
-
 #include <algorithm>
 #include <cmath>
 #include <cstddef>
@@ -42,66 +40,61 @@ bool makhov_m_linear_image_filtering_vertical_omp::TaskSequential::PostProcessin
   return true;
 }
 
+template <typename AccessPixelFunc>
+static void makhov_m_linear_image_filtering_vertical_omp::TaskSequential::ApplyGaussianImpl(
+    const std::vector<uint8_t> &src, std::vector<uint8_t> &dst, int width, int height, const std::vector<float> &kernel,
+    AccessPixelFunc get_pixel_index) {
+  const int kernel_radius = static_cast<int>(kernel.size() / 2);
+  const int channels = 3;
+
+#pragma omp parallel for schedule(static)
+  for (int outer = 0; outer < (get_pixel_index.is_horizontal ? height : width); ++outer) {
+    for (int inner = 0; inner < (get_pixel_index.is_horizontal ? width : height); ++inner) {
+      float sum_r = 0.0F, sum_g = 0.0F, sum_b = 0.0F;
+
+      for (int k = -kernel_radius; k <= kernel_radius; ++k) {
+        int idx = get_pixel_index(inner, outer, k, width, height);
+        float weight = kernel[k + kernel_radius];
+
+        sum_r += static_cast<float>(src[idx]) * weight;
+        sum_g += static_cast<float>(src[idx + 1]) * weight;
+        sum_b += static_cast<float>(src[idx + 2]) * weight;
+      }
+
+      int dst_idx = ((get_pixel_index.is_horizontal ? outer * width + inner : inner * width + outer) * channels);
+      dst[dst_idx] = static_cast<uint8_t>(std::clamp(sum_r, 0.0F, 255.0F));
+      dst[dst_idx + 1] = static_cast<uint8_t>(std::clamp(sum_g, 0.0F, 255.0F));
+      dst[dst_idx + 2] = static_cast<uint8_t>(std::clamp(sum_b, 0.0F, 255.0F));
+    }
+  }
+}
+
 // Applying 1D Gaussian Kernel to a row (RGB version)
 void makhov_m_linear_image_filtering_vertical_omp::TaskSequential::ApplyHorizontalGaussian(
     const std::vector<uint8_t> &src, std::vector<uint8_t> &dst, int width, int height,
     const std::vector<float> &kernel) {
-  const int kernel_radius = (int)(kernel.size() / 2);
-  const int channels = 3;  // RGB = 3 канала
-
-#pragma omp parallel for schedule(static)
-  for (int y = 0; y < height; ++y) {
-    for (int x = 0; x < width; ++x) {
-      float sum_r = 0.0F;
-      float sum_g = 0.0F;
-      float sum_b = 0.0F;
-
-      for (int k = -kernel_radius; k <= kernel_radius; ++k) {
-        int pixel_x = std::clamp(x + k, 0, width - 1);
-        int src_pos = (y * width + pixel_x) * channels;
-
-        float weight = kernel[k + kernel_radius];
-        sum_r += (float)src[src_pos] * weight;      // R
-        sum_g += (float)src[src_pos + 1] * weight;  // G
-        sum_b += (float)src[src_pos + 2] * weight;  // B
-      }
-
-      int dst_pos = (y * width + x) * channels;
-      dst[dst_pos] = static_cast<uint8_t>(std::clamp(sum_r, 0.0F, 255.0F));
-      dst[dst_pos + 1] = static_cast<uint8_t>(std::clamp(sum_g, 0.0F, 255.0F));
-      dst[dst_pos + 2] = static_cast<uint8_t>(std::clamp(sum_b, 0.0F, 255.0F));
+  struct {
+    bool is_horizontal = true;
+    int operator()(int x, int y, int k, int width, int) const {
+      int pixel_x = std::clamp(x + k, 0, width - 1);
+      return (y * width + pixel_x) * 3;
     }
-  }
+  } horizontal_accessor;
+
+  ApplyGaussianImpl(src, dst, width, height, kernel, horizontal_accessor);
 }
 
 // Applying 1D Gaussian Kernel to a column (RGB version)
 void makhov_m_linear_image_filtering_vertical_omp::TaskSequential::ApplyVerticalGaussian(
     const std::vector<uint8_t> &src, std::vector<uint8_t> &dst, int width, int height,
     const std::vector<float> &kernel) {
-  const int kernel_radius = (int)(kernel.size() / 2);
-  const int channels = 3;  // RGB = 3 канала
-
-#pragma omp parallel for schedule(static)
-  for (int x = 0; x < width; ++x) {
-    for (int y = 0; y < height; ++y) {
-      float sum_r = 0.0F;
-      float sum_g = 0.0F;
-      float sum_b = 0.0F;
-
-      for (int k = -kernel_radius; k <= kernel_radius; ++k) {
-        int pixel_y = std::clamp(y + k, 0, height - 1);
-        int src_pos = (pixel_y * width + x) * channels;
-
-        float weight = kernel[k + kernel_radius];
-        sum_r += (float)src[src_pos] * weight;      // R
-        sum_g += (float)src[src_pos + 1] * weight;  // G
-        sum_b += (float)src[src_pos + 2] * weight;  // B
-      }
-
-      int dst_pos = (y * width + x) * channels;
-      dst[dst_pos] = static_cast<uint8_t>(std::clamp(sum_r, 0.0F, 255.0F));
-      dst[dst_pos + 1] = static_cast<uint8_t>(std::clamp(sum_g, 0.0F, 255.0F));
-      dst[dst_pos + 2] = static_cast<uint8_t>(std::clamp(sum_b, 0.0F, 255.0F));
+  struct {
+    bool is_horizontal = false;
+    int operator()(int y, int x, int k, int width, int height) const {
+      int pixel_y = std::clamp(y + k, 0, height - 1);
+      return (pixel_y * width + x) * 3;
     }
-  }
+  } vertical_accessor;
+
+  ApplyGaussianImpl(src, dst, width, height, kernel, vertical_accessor);
 }

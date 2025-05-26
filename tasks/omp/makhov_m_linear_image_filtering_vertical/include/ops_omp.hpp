@@ -15,6 +15,11 @@ class TaskSequential : public ppc::core::Task {
   bool ValidationImpl() override;
   bool RunImpl() override;
   bool PostProcessingImpl() override;
+
+  template <typename AccessPixelFunc>
+  static void ApplyGaussianImpl(const std::vector<uint8_t> &src, std::vector<uint8_t> &dst, int width, int height,
+                         const std::vector<float> &kernel, AccessPixelFunc get_pixel_index);
+
   static void ApplyHorizontalGaussian(const std::vector<uint8_t> &src, std::vector<uint8_t> &dst, int width, int height,
                                       const std::vector<float> &kernel);
   static void ApplyVerticalGaussian(const std::vector<uint8_t> &src, std::vector<uint8_t> &dst, int width, int height,
