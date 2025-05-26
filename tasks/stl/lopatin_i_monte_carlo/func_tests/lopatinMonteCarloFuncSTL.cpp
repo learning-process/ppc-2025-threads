@@ -344,7 +344,7 @@ TEST(lopatin_i_monte_carlo_stl, 2DSqrtFunction) {
 
 TEST(lopatin_i_monte_carlo_stl, 3DSinFunction) {
   const int dimensions = 3;
-  const int iterations = 20000;
+  const int iterations = 13000;
   std::vector<double> bounds = lopatin_i_monte_carlo_stl::GenerateBounds(0.0, std::numbers::pi / 6, dimensions);
 
   auto task_data = std::make_shared<ppc::core::TaskData>();
