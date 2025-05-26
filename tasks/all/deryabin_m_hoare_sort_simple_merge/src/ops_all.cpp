@@ -20,10 +20,10 @@ void deryabin_m_hoare_sort_simple_merge_mpi::HoaraSort(std::vector<double>::iter
   auto left = first;
   auto right = last;
   do {
-    while (*left < *mid) {
+    while (left != right && *left <= *mid) {
       left++;
     }
-    while (*right > *mid) {
+    while (left != right && *right >= *mid) {
       right--;
     }
     std::iter_swap(left, right);
