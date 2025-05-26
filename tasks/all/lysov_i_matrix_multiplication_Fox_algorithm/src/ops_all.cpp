@@ -1,19 +1,24 @@
-#include "all/lysov_i_matrix_multiplication_Fox_algorithm/include/ops_all.hpp"
+#include <cstddef>
+#include <cmath>
+#include <cstring>
 
-#include <tbb/global_control.h>
-#include <tbb/task_arena.h>
-#include <tbb/tbb.h>
-#include <boost/mpi/request.hpp> 
+#include <vector>
 #include <algorithm>
+#include <ranges>
+
+#include <mpi.h>
+
 #include <boost/mpi/collectives.hpp>
 #include <boost/mpi/communicator.hpp>
-#include <cmath>
-#include <algorithm>
-#include <vector>
-#include <cstring>
-#include <cstddef>
 
-int lysov_i_matrix_multiplication_fox_algorithm_mpi_tbb::compute_process_grid(int world_size, std::size_t n) {
+#include <tbb/blocked_range.h>
+#include <tbb/global_control.h>
+#include <tbb/parallel_for.h>
+#include <tbb/task_arena.h>
+
+#include "all/lysov_i_matrix_multiplication_Fox_algorithm/include/ops_all.hpp"
+
+int lysov_i_matrix_multiplication_fox_algorithm_mpi_tbb::ComputeProcessGrid(int world_size, std::size_t n) {
   int q = static_cast<int>(std::floor(std::sqrt(world_size)));
   while (q > 1 && (world_size % q != 0 || (n % q) != 0)) {
     --q;
@@ -24,7 +29,8 @@ void lysov_i_matrix_multiplication_fox_algorithm_mpi_tbb::ExtractSubmatrixBlock(
                                                                                 double* block, int total_columns,
                                                                                 int block_size, int block_row_index,
                                                                                 int block_col_index) {
-  const double* src0 = matrix.data() + ((block_row_index * block_size) * total_columns) + (block_col_index * block_size);
+  const double* src0 =
+      matrix.data() + ((block_row_index * block_size) * total_columns) + (block_col_index * block_size);
   for (int i = 0; i < block_size; ++i) {
     std::memcpy(block + (i * block_size), src0 + (i * total_columns), block_size * sizeof(double));
   }
@@ -49,27 +55,28 @@ void lysov_i_matrix_multiplication_fox_algorithm_mpi_tbb::MultiplyMatrixBlocks(c
       },
       tbb::auto_partitioner());
 }
-std::vector<double> lysov_i_matrix_multiplication_fox_algorithm_mpi_tbb::scatter_matrix(const std::vector<double>& m,
-                                                                                      std::size_t n, int q, int k) {
+std::vector<double> lysov_i_matrix_multiplication_fox_algorithm_mpi_tbb::ScatterMatrix(const std::vector<double>& m,
+                                                                                       std::size_t n, int q, int k) {
   std::vector<double> buf(n * n);
   int idx = 0;
-  for (int br = 0; br < q; ++br)
+  for (int br = 0; br < q; ++br) {
     for (int bc = 0; bc < q; ++bc) {
-      ExtractSubmatrixBlock(m, buf.data() + idx, n, k, br, bc);
+      ExtractSubmatrixBlock(m, buf.data() + idx, static_cast<int>(n), k, br, bc);
       idx += k * k;
     }
+  }
   return buf;
 }
 
-std::vector<double> lysov_i_matrix_multiplication_fox_algorithm_mpi_tbb::gather_matrix(const std::vector<double>& buf,
-                                                                                       std::size_t n, int q, int k) {
+std::vector<double> lysov_i_matrix_multiplication_fox_algorithm_mpi_tbb::GatherMatrix(const std::vector<double>& buf,
+                                                                                      std::size_t n, int q, int k) {
   std::vector<double> c(n * n, 0.0);
   int idx = 0;
   for (int br = 0; br < q; ++br) {
     for (int bc = 0; bc < q; ++bc) {
       for (int i = 0; i < k; ++i) {
         double* dest = c.data() + (((br * k) + i) * n) + (bc * k);
-        const double* src = buf.data() + idx + i * k;
+        const double* src = buf.data() + idx + (i * k);
         std::memcpy(dest, src, k * sizeof(double));
       }
       idx += k * k;
@@ -78,49 +85,47 @@ std::vector<double> lysov_i_matrix_multiplication_fox_algorithm_mpi_tbb::gather_
   return c;
 }
 
-void lysov_i_matrix_multiplication_fox_algorithm_mpi_tbb::PerformFoxAlgorithmStep(boost::mpi::communicator& my_world,
+void lysov_i_matrix_multiplication_fox_algorithm_mpi_tbb::PerformFoxAlgorithmStep(boost::mpi::communicator& world,
                                                                                   int rank, int cnt_work_process, int k,
                                                                                   std::vector<double>& local_a,
                                                                                   std::vector<double>& local_b,
                                                                                   std::vector<double>& local_c) {
+  if (cnt_work_process == 1) {
+    MultiplyMatrixBlocks(local_a.data(), local_b.data(), local_c.data(), k);
+    return;
+  }
+
   std::vector<double> temp_a(k * k);
   std::vector<double> temp_b(k * k);
 
+  int row = rank / cnt_work_process;
+  int col = rank % cnt_work_process;
+
   for (int l = 0; l < cnt_work_process; ++l) {
-    boost::mpi::request send_request2;
-    boost::mpi::request recv_request2;
-
-    int row = rank / cnt_work_process;
-    int col = rank % cnt_work_process;
-
     if (col == (row + l) % cnt_work_process) {
-      for (int target_col = 0; target_col < cnt_work_process; ++target_col) {
-        if (target_col == col) continue;
-        int target_rank = (row * cnt_work_process) + target_col;
-        boost::mpi::request req = my_world.isend(target_rank, 0, local_a.data(), k * k);
-        req.wait();
+      for (int tc = 0; tc < cnt_work_process; ++tc) {
+        if (tc == col) {
+          continue;
+        }
+        int target = row * cnt_work_process + tc;
+        world.send(target, 0, local_a.data(), k * k);
       }
       temp_a = local_a;
     } else {
-      int sender_rank = (row * cnt_work_process) + ((row + l) % cnt_work_process);
-      boost::mpi::request req = my_world.irecv(sender_rank, 0, temp_a.data(), k * k);
-      req.wait();
+      int sender = row * cnt_work_process + ((row + l) % cnt_work_process);
+      world.recv(sender, 0, temp_a.data(), k * k);
     }
-    my_world.barrier();
-
-    lysov_i_matrix_multiplication_fox_algorithm_mpi_tbb ::MultiplyMatrixBlocks(temp_a.data(), local_b.data(),
-                                                                               local_c.data(), k);
-
+    world.barrier();
+    MultiplyMatrixBlocks(temp_a.data(), local_b.data(), local_c.data(), k);
     int send_to = (((row - 1 + cnt_work_process) % cnt_work_process) * cnt_work_process) + col;
     int recv_from = (((row + 1) % cnt_work_process) * cnt_work_process) + col;
 
-    send_request2 = my_world.isend(send_to, 0, local_b.data(), k * k);
-    recv_request2 = my_world.irecv(recv_from, 0, temp_b.data(), k * k);
-    my_world.barrier();
-    send_request2.wait();
-    recv_request2.wait();
+    world.send(send_to, 0, local_b.data(), k * k);
+    world.recv(recv_from, 0, temp_b.data(), k * k);
 
-    local_b = temp_b;
+    world.barrier();
+
+    local_b.swap(temp_b);
   }
 }
 
@@ -128,16 +133,16 @@ bool lysov_i_matrix_multiplication_fox_algorithm_mpi_tbb ::TestTaskMPITBB::PrePr
   if (world_.rank() == 0) {
     n_ = reinterpret_cast<std::size_t*>(task_data->inputs[0])[0];
     block_size_ = reinterpret_cast<std::size_t*>(task_data->inputs[3])[0];
-    elements = n_ * n_;
-    a_.resize(elements);
-    b_.resize(elements);
+    elements_ = n_ * n_;
+    a_.resize(elements_);
+    b_.resize(elements_);
     resultC_.clear();
-    b_.resize(elements, 0.0);
+    b_.resize(elements_, 0.0);
     std::copy(reinterpret_cast<double*>(task_data->inputs[1]),
               reinterpret_cast<double*>(task_data->inputs[1]) + (n_ * n_), a_.begin());
     std::copy(reinterpret_cast<double*>(task_data->inputs[2]),
               reinterpret_cast<double*>(task_data->inputs[2]) + (n_ * n_), b_.begin());
-    resultC_.assign(elements, 0.0);
+    resultC_.assign(elements_, 0.0);
   }
   return true;
 }
@@ -172,35 +177,37 @@ bool lysov_i_matrix_multiplication_fox_algorithm_mpi_tbb::TestTaskMPITBB::RunImp
   int rank = world_.rank();
   int size = world_.size();
   boost::mpi::broadcast(world_, n_, 0);
-  elements = static_cast<int>(n_ * n_);
-  boost::mpi::broadcast(world_, elements, 0);
-  int q = compute_process_grid(size, n_);
+  elements_ = static_cast<int>(n_ * n_);
+  boost::mpi::broadcast(world_, elements_, 0);
+  int q = ComputeProcessGrid(size, n_);
   int k = static_cast<int>(n_ / q);
   int process_group = (rank < q * q) ? 1 : MPI_UNDEFINED;
-  MPI_Comm computation_comm;
+  MPI_Comm computation_comm = MPI_COMM_NULL;
   MPI_Comm_split(world_, process_group, rank, &computation_comm);
   if (process_group == MPI_UNDEFINED) {
     return true;
   }
   boost::mpi::communicator my_comm(computation_comm, boost::mpi::comm_take_ownership);
   rank = my_comm.rank();
-  std::vector<double> scatter_a(elements);
-  std::vector<double> scatter_b(elements);
+  std::vector<double> scatter_a(elements_);
+  std::vector<double> scatter_b(elements_);
   if (rank == 0) {
-    scatter_a = scatter_matrix(a_, n_, q, k);
-    scatter_b = scatter_matrix(b_, n_, q, k);
+    scatter_a = ScatterMatrix(a_, n_, q, k);
+    scatter_b = ScatterMatrix(b_, n_, q, k);
   }
-  std::vector<double> localA(k * k), localB(k * k), localC(k * k, 0.0);
-  boost::mpi::scatter(my_comm, scatter_a, localA.data(), k * k, 0);
-  boost::mpi::scatter(my_comm, scatter_b, localB.data(), k * k, 0);
+  std::vector<double> local_a(k * k);
+  std::vector<double> local_b(k * k);
+  std::vector<double> local_c(k * k, 0.0);
+  boost::mpi::scatter(my_comm, scatter_a, local_a.data(), static_cast<int>(local_a.size()), 0);
+  boost::mpi::scatter(my_comm, scatter_b, local_b.data(), static_cast<int>(local_b.size()), 0);
   tbb::global_control fix_ctrl{tbb::global_control::max_allowed_parallelism, 1};
   tbb::task_arena arena;
-  arena.execute([&] { PerformFoxAlgorithmStep(my_comm, rank, q, k, localA, localB, localC); });
-  std::vector<double> gathered(elements);
-  boost::mpi::gather(my_comm, localC.data(), localC.size(), gathered, 0);
+  arena.execute([&] { PerformFoxAlgorithmStep(my_comm, rank, q, k, local_a, local_b, local_c); });
+  std::vector<double> gathered(elements_);
+  boost::mpi::gather(my_comm, local_c.data(), static_cast<int>(local_c.size()), gathered, 0);
 
   if (rank == 0) {
-    resultC_ = gather_matrix(gathered, n_, q, k);
+    resultC_ = GatherMatrix(gathered, n_, q, k);
   }
   return true;
 }

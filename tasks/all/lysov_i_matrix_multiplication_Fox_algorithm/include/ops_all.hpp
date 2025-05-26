@@ -18,10 +18,10 @@ void PerformFoxAlgorithmStep(boost::mpi::communicator& my_world, int rank, int c
                                 std::vector<double>& local_c);
 void TrivialMatrixMultiplication(const std::vector<double>& matrix_a, const std::vector<double>& matrix_b,
                                  std::vector<double>& result_matrix, size_t matrix_size);
-std::vector<double> scatter_matrix(const std::vector<double>& m, std::size_t n, int q, int k);
-std::vector<double> gather_matrix(const std::vector<double>& buf, std::size_t n, int q, int k);
+std::vector<double> ScatterMatrix(const std::vector<double>& m, std::size_t n, int q, int k);
+std::vector<double> GatherMatrix(const std::vector<double>& buf, std::size_t n, int q, int k);
 std::vector<double> GetRandomMatrix(size_t size, int min_gen_value, int max_gen_value);
-int compute_process_grid(int world_size, std::size_t n);
+int ComputeProcessGrid(int world_size, std::size_t n);
   class TestTaskMPITBB : public ppc::core::Task {
  public:
   explicit TestTaskMPITBB(ppc::core::TaskDataPtr task_data) : Task(std::move(task_data)) {}
@@ -37,7 +37,7 @@ int compute_process_grid(int world_size, std::size_t n);
 
   std::size_t n_ = 0;
   std::size_t block_size_ = 0;
-  std::size_t elements{};
+  std::size_t elements_{};
   boost::mpi::communicator world_;
 };
 
