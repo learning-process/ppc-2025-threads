@@ -24,17 +24,17 @@ void deryabin_m_hoare_sort_simple_merge_mpi::HoaraSort(std::vector<double>::iter
     while (left < mid && *left <= pivot_value) {
       left++;
     }
-    while (right > mid && *right >= pivot_value) {
+    while (right >= mid && *right >= pivot_value) {
       right--;
     }
     std::iter_swap(left, right);
   } while (left < mid && right > mid);
   if (last - first >= 199) {
     oneapi::tbb::parallel_invoke([&first, &left]() { HoaraSort(first, left); },
-                                 [&right, &last]() { HoaraSort(right + 1, last); });
+                                 [&left, &last]() { HoaraSort(left + 1, last); });
   } else {
     HoaraSort(first, left);
-    HoaraSort(right + 1, last);
+    HoaraSort(left + 1, last);
   }
 }
 
