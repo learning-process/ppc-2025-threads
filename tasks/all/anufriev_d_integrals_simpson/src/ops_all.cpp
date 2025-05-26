@@ -48,7 +48,7 @@ ParsedRootInput ParseAndValidateOnRoot(const std::shared_ptr<ppc::core::TaskData
   data.dimension = d_parsed;
 
   size_t required_elements = 0;
-  if(d_parsed == 0){
+  if (d_parsed == 0) {
     required_elements = 2;
   } else {
     required_elements = 1 + static_cast<size_t>(3 * data.dimension) + 1;
