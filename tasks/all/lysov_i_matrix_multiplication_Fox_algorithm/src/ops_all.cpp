@@ -1,22 +1,19 @@
-#include <cstddef>
-#include <cmath>
-#include <cstring>
-
-#include <vector>
-#include <algorithm>
-#include <ranges>
+#include "all/lysov_i_matrix_multiplication_Fox_algorithm/include/ops_all.hpp"
 
 #include <mpi.h>
-
-#include <boost/mpi/collectives.hpp>
-#include <boost/mpi/communicator.hpp>
-
 #include <tbb/blocked_range.h>
 #include <tbb/global_control.h>
 #include <tbb/parallel_for.h>
 #include <tbb/task_arena.h>
 
-#include "all/lysov_i_matrix_multiplication_Fox_algorithm/include/ops_all.hpp"
+#include <algorithm>
+#include <boost/mpi/collectives.hpp>
+#include <boost/mpi/communicator.hpp>
+#include <cmath>
+#include <cstddef>
+#include <cstring>
+#include <ranges>
+#include <vector>
 
 int lysov_i_matrix_multiplication_fox_algorithm_mpi_tbb::ComputeProcessGrid(int world_size, std::size_t n) {
   int q = static_cast<int>(std::floor(std::sqrt(world_size)));
