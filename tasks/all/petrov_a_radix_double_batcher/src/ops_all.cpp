@@ -113,6 +113,7 @@ bool ParallelInterprocessScatter(std::span<double> arr, MPI_Comm *newcomm, std::
   const int thr = std::min(sz, processes);
 
   if (rank >= thr) {
+    MPI_Comm_split(MPI_COMM_WORLD, 1, rank, newcomm);
     return false;
   }
   MPI_Comm_split(MPI_COMM_WORLD, 0, rank, newcomm);
@@ -191,6 +192,7 @@ bool petrov_a_radix_double_batcher_all::TestTaskParallelOmpMpi::RunImpl() {
   std::vector<double> part;
 
   if (!ParallelInterprocessScatter(in_, &comm, &part)) {
+    MPI_Comm_free(&comm);
     return true;
   }
   ParallelIntraprocessSort(part);
