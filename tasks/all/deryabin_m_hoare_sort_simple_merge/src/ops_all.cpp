@@ -16,7 +16,7 @@ void deryabin_m_hoare_sort_simple_merge_mpi::HoaraSort(std::vector<double>::iter
   if (first >= last) {
     return;
   }
-  const double pivot_value = (first + ((last - first) >> 1));
+  const double pivot_value = *(first + ((last - first) >> 1));
   auto left = first;
   auto right = last;
   do {
