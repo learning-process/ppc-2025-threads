@@ -16,25 +16,6 @@ void deryabin_m_hoare_sort_simple_merge_mpi::HoaraSort(std::vector<double>::iter
   if (first >= last) {
     return;
   }
-  const auto mid = first + ((last - first) >> 1);
-  auto left = first;
-  auto right = last;
-  do {
-    while (*left <= *mid) {
-      left++;
-    }
-    while (*right >= *mid) {
-      right--;
-    }
-    std::iter_swap(left, right);
-  } while (left != right);
-  if (last - first >= 199) {
-    oneapi::tbb::parallel_invoke([&first, &right]() { HoaraSort(first, right); },
-                                 [&right, &last]() { HoaraSort(right + 1, last); });
-  } else {
-    HoaraSort(first, right);
-    HoaraSort(right + 1, last);
-  }
 }
 
 void deryabin_m_hoare_sort_simple_merge_mpi::MergeTwoParts(std::vector<double>& a, size_t first, size_t last) {
