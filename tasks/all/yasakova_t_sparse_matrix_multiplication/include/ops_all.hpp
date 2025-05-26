@@ -10,38 +10,38 @@
 
 #include "core/task/include/task.hpp"
 
-using Complex = std::complex<double>;
+using ComplexNum = std::complex<double>;
 
 namespace yasakova_t_sparse_matrix_mult_all {
 
-struct CoordVal {
-  int row;
-  int col;
-  Complex value;
+struct ElementPosition {
+  int row_idx;
+  int col_idx;
+  ComplexNum val;
 };
 
-void AddResult(std::vector<CoordVal>& results, int row, int col, Complex val);
+void AppendElement(std::vector<ElementPosition>& data, int row_idx, int col_idx, ComplexNum val);
 
 struct SparseMatrixCRS {
-  std::vector<Complex> values;
-  std::vector<int> colIndices;
-  std::vector<int> rowPtr;
-  int numRows;
-  int numCols;
-  SparseMatrixCRS() : values({}), colIndices({}), rowPtr({}), numRows(0), numCols(0) {};
-  SparseMatrixCRS(int rows, int cols) : numRows(rows), numCols(cols) { rowPtr.resize(rows + 1, 0); }
-  void AddValue(int row, Complex value, int col);
+  std::vector<ComplexNum> non_zero_elems;
+  std::vector<int> column_idxs;
+  std::vector<int> row_ptrs;
+  int total_rows;
+  int total_cols;
+  SparseMatrixCRS() : non_zero_elems({}), column_idxs({}), row_ptrs({}), total_rows(0), total_cols(0) {};
+  SparseMatrixCRS(int rows, int cols) : total_rows(rows), total_cols(cols) { row_ptrs.resize(rows + 1, 0); }
+  void InsertElement(int row_idx, ComplexNum val, int col_idx);
   SparseMatrixCRS(const SparseMatrixCRS& other) = default;
   SparseMatrixCRS& operator=(const SparseMatrixCRS& other) = default;
-  static void PrintSparseMatrix(const SparseMatrixCRS& matrix);
+  static void DisplayMatrix(const SparseMatrixCRS& matrix);
 };
 
-std::vector<Complex> ParseMatrixIntoVec(const SparseMatrixCRS& mat);
-SparseMatrixCRS ParseVectorIntoMatrix(std::vector<Complex>& vec);
-SparseMatrixCRS BuildResultMatrix(const std::vector<yasakova_t_sparse_matrix_mult_all::CoordVal>& all_results,
+std::vector<ComplexNum> ConvertToDense(const SparseMatrixCRS& sparse_mat);
+SparseMatrixCRS ConvertToSparse(std::vector<ComplexNum>& vec);
+SparseMatrixCRS ConstructResultMatrix(const std::vector<yasakova_t_sparse_matrix_mult_all::ElementPosition>& all_results,
                                   int a_num_rows, int b_num_cols);
-bool CheckMatrixesEquality(const SparseMatrixCRS& a, const SparseMatrixCRS& b);
-bool AreEqualElems(const Complex& a, const Complex& b, double epsilon);
+bool CompareMatrices(const SparseMatrixCRS& a, const SparseMatrixCRS& b);
+bool AreClose(const ComplexNum& a, const ComplexNum& b, double epsilon);
 
 class TestTaskALL : public ppc::core::Task {
  public:
@@ -52,10 +52,10 @@ class TestTaskALL : public ppc::core::Task {
   bool PostProcessingImpl() override;
 
  private:
-  std::vector<Complex> input_, output_;
-  SparseMatrixCRS A_, B_;
+  std::vector<ComplexNum> input_data_, output_data_;
+  SparseMatrixCRS matrix_a_, matrix_b_;
   boost::mpi::communicator world_;
-  void ProcessRowsRange(int start_row, int end_row, std::vector<CoordVal>& local_results);
+  void ProcessRowsRange(int start_row, int end_row, std::vector<ElementPosition>& local_results);
 };
 
 }  // namespace yasakova_t_sparse_matrix_mult_all
