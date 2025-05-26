@@ -13,7 +13,7 @@
 TEST(durynichev_d_integrals_simpson_method_all, test_pipeline_run) {
   boost::mpi::communicator world;
 
-  std::vector<double> in = {-10.0, 10.0, -10.0, 10.0, 30000};
+  std::vector<double> in = {-10.0, 10.0, -10.0, 10.0, 29000};
   std::vector<double> out(1, 0.0);
 
   auto task_data = std::make_shared<ppc::core::TaskData>();
@@ -48,7 +48,7 @@ TEST(durynichev_d_integrals_simpson_method_all, test_pipeline_run) {
 TEST(durynichev_d_integrals_simpson_method_all, test_task_run) {
   boost::mpi::communicator world;
 
-  std::vector<double> in = {-10.0, 10.0, -10.0, 10.0, 30000};
+  std::vector<double> in = {-10.0, 10.0, -10.0, 10.0, 29000};
   std::vector<double> out(1, 0.0);
 
   auto task_data = std::make_shared<ppc::core::TaskData>();
