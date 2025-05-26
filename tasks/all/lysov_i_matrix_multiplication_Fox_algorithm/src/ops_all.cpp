@@ -12,6 +12,7 @@
 #include <cmath>
 #include <cstddef>
 #include <cstring>
+#include <ranges>
 #include <vector>
 
 int lysov_i_matrix_multiplication_fox_algorithm_mpi_tbb::ComputeProcessGrid(int world_size, std::size_t n) {
