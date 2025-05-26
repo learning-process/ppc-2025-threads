@@ -183,7 +183,7 @@ std::vector<int> InterprocessMerge(boost::mpi::communicator &comm, std::vector<i
         const auto swtch = partial.size();
         partial.resize(swtch + sz);
         // NOLINTNEXTLINE(bugprone-narrowing-conversions) :: std::size_t -> std::vector<T>::difference_type
-        comm.recv(transmitter_rank, 0, (partial.begin() + swtch).base(), sz);
+        comm.recv(transmitter_rank, 0, partial.data() + swtch, sz);
 
         std::ranges::inplace_merge(
             partial,
