@@ -1,7 +1,5 @@
 #pragma once
 
-#include <mpi.h>
-
 #include <boost/mpi/collectives.hpp>
 #include <boost/mpi/communicator.hpp>
 #include <cstddef>
@@ -11,17 +9,20 @@
 #include "core/task/include/task.hpp"
 
 namespace lysov_i_matrix_multiplication_fox_algorithm_mpi_tbb {
-void extract_submatrix_block(const std::vector<double>& matrix, double* block, int total_columns, int block_size,
+void ExtractSubmatrixBlock(const std::vector<double>& matrix, double* block, int total_columns, int block_size,
                              int block_row_index, int block_col_index);
 
-void multiply_matrix_blocks(const double* A, const double* B, double* C, int block_size);
-void perform_fox_algorithm_step(boost::mpi::communicator& my_world, int rank, int cnt_work_process, int K,
-                                std::vector<double>& local_A, std::vector<double>& local_B,
-                                std::vector<double>& local_C);
+void MultiplyMatrixBlocks(const double* a, const double* b, double* c, int block_size);
+void PerformFoxAlgorithmStep(boost::mpi::communicator& my_world, int rank, int cnt_work_process, int k,
+                                std::vector<double>& local_a, std::vector<double>& local_b,
+                                std::vector<double>& local_c);
 void TrivialMatrixMultiplication(const std::vector<double>& matrix_a, const std::vector<double>& matrix_b,
                                  std::vector<double>& result_matrix, size_t matrix_size);
+std::vector<double> scatter_matrix(const std::vector<double>& m, std::size_t n, int q, int k);
+std::vector<double> gather_matrix(const std::vector<double>& buf, std::size_t n, int q, int k);
 std::vector<double> GetRandomMatrix(size_t size, int min_gen_value, int max_gen_value);
-class TestTaskMPITBB : public ppc::core::Task {
+int compute_process_grid(int world_size, std::size_t n);
+  class TestTaskMPITBB : public ppc::core::Task {
  public:
   explicit TestTaskMPITBB(ppc::core::TaskDataPtr task_data) : Task(std::move(task_data)) {}
 
@@ -36,9 +37,7 @@ class TestTaskMPITBB : public ppc::core::Task {
 
   std::size_t n_ = 0;
   std::size_t block_size_ = 0;
-  int elements{};
-
-  std::vector<double> resultC;
+  std::size_t elements{};
   boost::mpi::communicator world_;
 };
 
