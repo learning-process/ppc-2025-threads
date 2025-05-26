@@ -1,4 +1,4 @@
-#include "omp/yasakova_t_sparse_matrix_multiplication_omp/include/ops_omp.hpp"
+#include "omp/yasakova_t_sparse_matrix_multiplication/include/ops_omp.hpp"
 
 #include <cmath>
 #include <complex>

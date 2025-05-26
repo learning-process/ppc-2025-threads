@@ -9,7 +9,7 @@
 
 #include "core/perf/include/perf.hpp"
 #include "core/task/include/task.hpp"
-#include "omp/yasakova_t_sparse_matrix_multiplication_omp/include/ops_omp.hpp"
+#include "omp/yasakova_t_sparse_matrix_multiplication/include/ops_omp.hpp"
 
 TEST(yasakova_t_sparse_matrix_multiplication_omp, test_pipeline_run) {
   const uint32_t matrix_size = 400;
