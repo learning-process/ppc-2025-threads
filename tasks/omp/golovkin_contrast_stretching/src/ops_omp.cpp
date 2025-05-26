@@ -1,11 +1,10 @@
-// Golovkin Maksim
+// Golovkin Maksims
 #include "omp/golovkin_contrast_stretching/include/ops_omp.hpp"
 
 #include <algorithm>
 #include <cstdint>
 #include <cstring>
 #include <vector>
-
 
 template <typename PixelType>
 bool golovkin_contrast_stretching::ContrastStretchingOMP<PixelType>::ValidationImpl() {
