@@ -41,4 +41,4 @@ class TestTaskSTL : public ppc::core::Task {
   int current_label_ = 0;
 };
 
-}  // namespace nesterov_a_test_task_stl
+}  // namespace naumov_b_marc_on_bin_image_stl
