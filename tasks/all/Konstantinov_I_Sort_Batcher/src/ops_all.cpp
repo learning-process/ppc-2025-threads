@@ -2,7 +2,11 @@
 
 #include <algorithm>
 #include <boost/mpi/collectives.hpp>
+#include <boost/mpi/collectives/broadcast.hpp>
+#include <boost/mpi/collectives/gather.hpp>
+#include <boost/mpi/collectives/scatter.hpp>
 #include <boost/mpi/communicator.hpp>
+#include <boost/mpi/request.hpp>
 #include <cmath>
 #include <cstddef>
 #include <cstdint>
@@ -41,14 +45,14 @@ double RestoreDoubleFromSorted(uint64_t encoded_value) {
 }
 
 void ParallelRadixSort(std::vector<uint64_t>& data, int num_threads) {
-  constexpr int bits_per_pass = 8;
-  constexpr int total_bits = 64;
-  constexpr int num_buckets = 256;
+  constexpr int kBitsPerPass = 8;
+  constexpr int kTotalBits = 64;
+  constexpr int kNumBucket = 256;
 
   std::vector<uint64_t> buffer(data.size());
-  std::vector<std::vector<int>> thread_bucket_counts(num_threads, std::vector<int>(num_buckets));
+  std::vector<std::vector<int>> thread_bucket_counts(num_threads, std::vector<int>(kNumBucket));
 
-  for (int bit_shift = 0; bit_shift < total_bits; bit_shift += bits_per_pass) {
+  for (int bit_shift = 0; bit_shift < kTotalBits; bit_shift += kBitsPerPass) {
     std::vector<std::thread> workers;
     const size_t elements_per_thread = (data.size() + num_threads - 1) / num_threads;
 
@@ -63,17 +67,18 @@ void ParallelRadixSort(std::vector<uint64_t>& data, int num_threads) {
         }
       });
     }
-    for (auto& worker : workers) worker.join();
-
-    std::vector<int> global_counts(num_buckets);
-    for (int bucket = 0; bucket < num_buckets; ++bucket) {
+    for (auto& worker : workers) {
+      worker.join();
+    }
+    std::vector<int> global_counts(kNumBucket);
+    for (int bucket = 0; bucket < kNumBucket; ++bucket) {
       for (int t = 0; t < num_threads; ++t) {
         global_counts[bucket] += thread_bucket_counts[t][bucket];
         thread_bucket_counts[t][bucket] = 0;
       }
     }
 
-    for (int i = 1; i < num_buckets; i++) {
+    for (int i = 1; i < kNumBucket; i++) {
       global_counts[i] += global_counts[i - 1];
     }
 
@@ -100,7 +105,9 @@ bool konstantinov_i_sort_batcher_all::RadixSortBatcherall::PreProcessingImpl() {
   }
 
   size_t elements_per_node = 0;
-  if (rank == 0) elements_per_node = mas_.size() / cluster_size;
+  if (rank == 0) {
+    elements_per_node = mas_.size() / cluster_size;
+  }
   boost::mpi::broadcast(world_, elements_per_node, 0);
 
   std::vector<double> local_data(elements_per_node);
@@ -111,10 +118,22 @@ bool konstantinov_i_sort_batcher_all::RadixSortBatcherall::PreProcessingImpl() {
 }
 
 bool konstantinov_i_sort_batcher_all::RadixSortBatcherall::ValidationImpl() {
-  if (world_.rank() != 0) return true;
-
-  return task_data && task_data->inputs[0] && task_data->outputs[0] && task_data->inputs_count[0] >= 2 &&
-         task_data->inputs_count[0] == task_data->outputs_count[0];
+  if (world_.rank() != 0) {
+    return true;
+  }
+  if (taskData == nullptr) {
+    return false;
+  }
+  if (taskData->inputs == nullptr || taskData->inputs[0] == nullptr) {
+    return false;
+  }
+  if (taskData->outputs == nullptr || taskData->outputs[0] == nullptr) {
+    return false;
+  }
+  if (taskData->inputs_count[0] < 2) {
+    return false;
+  }
+  return taskData->inputs_count[0] == taskData->outputs_count[0];
 }
 
 bool konstantinov_i_sort_batcher_all::RadixSortBatcherall::RunImpl() {
@@ -137,26 +156,34 @@ bool konstantinov_i_sort_batcher_all::RadixSortBatcherall::RunImpl() {
 
     for (int merge_step = node_offset; merge_step > 0; merge_step >>= 1) {
       const int partner_node = rank ^ merge_step;
-      if (partner_node >= cluster_size) continue;
-
+      if (partner_node >= cluster_size) {
+        continue;
+      }
       std::vector<uint64_t> partner_data(encoded_numbers.size());
       boost::mpi::request requests[2];
 
       if (rank < partner_node) {
-        requests[0] = world_.isend(partner_node, 0, encoded_numbers.data(), encoded_numbers.size());
-        requests[1] = world_.irecv(partner_node, 0, partner_data.data(), partner_data.size());
+        requests[0] = world_.isend(partner_node, 0, encoded_numbers.data(),
+                                   static_cast<int>(encoded_numbers.size())
+        );
+        requests[1] = world_.irecv(partner_node, 0, partner_data.data(),
+                                   static_cast<int>(partner_data.size())
+        );
       } else {
-        requests[0] = world_.irecv(partner_node, 0, partner_data.data(), partner_data.size());
-        requests[1] = world_.isend(partner_node, 0, encoded_numbers.data(), encoded_numbers.size());
-      }
+        requests[0] = world_.irecv(partner_node, 0, partner_data.data(),
+                                   static_cast<int>(partner_data.size())
+        );
+        requests[1] = world_.isend(partner_node, 0, encoded_numbers.data(),
+                                   static_cast<int>(encoded_numbers.size())
+        );
       boost::mpi::wait_all(requests, requests + 2);
 
       std::vector<uint64_t> merged_result;
       merged_result.reserve(encoded_numbers.size() * 2);
-      std::merge(encoded_numbers.begin(), encoded_numbers.end(), partner_data.begin(), partner_data.end(),
-                 std::back_inserter(merged_result));
+      std::ranges::merge(encoded_numbers, partner_data, std::back_inserter(merged_result));
 
-      const auto keep_count = encoded_numbers.size();
+      const auto keep_count = static_cast<std::ptrdiff_t>(encoded_numbers.size());
+
       if (rank < partner_node) {
         encoded_numbers.assign(merged_result.begin(), merged_result.begin() + keep_count);
       } else {
@@ -167,8 +194,7 @@ bool konstantinov_i_sort_batcher_all::RadixSortBatcherall::RunImpl() {
   }
 
   output_.resize(encoded_numbers.size());
-  std::transform(encoded_numbers.begin(), encoded_numbers.end(), output_.begin(),
-                 konstantinov_i_sort_batcher_all::RestoreDoubleFromSorted);
+  std::ranges::transform(encoded_numbers, output_.begin(), konstantinov_i_sort_batcher_all::RestoreDoubleFromSorted);
   return true;
 }
 

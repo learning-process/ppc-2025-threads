@@ -1,11 +1,9 @@
 #include <gtest/gtest.h>
 
-#include <algorithm>
-#include <boost/mpi.hpp>
+#include <boost/mpi/communicator.hpp>
 #include <cstddef>
 #include <cstdint>
 #include <memory>
-#include <random>
 #include <vector>
 
 #include "all/Konstantinov_I_Sort_Batcher/include/ops_all.hpp"
