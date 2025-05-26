@@ -1,5 +1,7 @@
 #pragma once
 
+#include <stddef.h>
+
 #include <boost/mpi/collectives.hpp>
 #include <boost/mpi/communicator.hpp>
 #include <memory>
@@ -25,12 +27,12 @@ class ShellSortALL : public ppc::core::Task {
     };
   }
 
-  std::vector<size_t> generate_gaps(size_t size);
+  static std::vector<size_t> GenerateGaps(size_t size);
   void ShellSort(std::vector<long long>& arr, size_t start, size_t size);
   bool BatcherSort();
-  bool OddEvenMergeSTL(std::vector<long long>& tmp, const std::vector<long long>& left,
-                       const std::vector<long long>& right);
-  bool FinalMergeSTL(std::vector<long long>& loc, std::vector<long long>& loc_tmp);
+  static bool OddEvenMergeSTL(std::vector<long long>& tmp, const std::vector<long long>& left,
+                              const std::vector<long long>& right);
+  static bool FinalMergeSTL(std::vector<long long>& loc, std::vector<long long>& loc_tmp);
   bool OddEvenMergeMPI(unsigned int len);
 
   bool PreProcessingImpl() override;

@@ -15,7 +15,10 @@ namespace volochaev_s_shell_sort_with_batchers_even_odd_merge_all {
 
 bool ShellSortALL::ValidationImpl() {
   if (world_.rank() == 0) {
-    return task_data->inputs_count[0] > 0 && task_data->inputs_count[0] == task_data->outputs_count[0];
+    if (task_data->inputs.empty() || task_data->outputs.empty() || task_data->inputs_count[0] <= 0 ||
+        task_data->outputs_count[0] != n_input_ || task_data->inputs_count[0] != task_data->outputs_count[0]) {
+      return false;
+    }
   }
   return true;
 }
