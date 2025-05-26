@@ -163,39 +163,32 @@ bool konstantinov_i_sort_batcher_all::RadixSortBatcherall::RunImpl() {
       boost::mpi::request requests[2];
 
       if (rank < partner_node) {
-        requests[0] = world_.isend(partner_node, 0, encoded_numbers.data(),
-                                   static_cast<int>(encoded_numbers.size())
-        );
-        requests[1] = world_.irecv(partner_node, 0, partner_data.data(),
-                                   static_cast<int>(partner_data.size())
-        );
+        requests[0] = world_.isend(partner_node, 0, encoded_numbers.data(), static_cast<int>(encoded_numbers.size()));
+        requests[1] = world_.irecv(partner_node, 0, partner_data.data(), static_cast<int>(partner_data.size()));
       } else {
-        requests[0] = world_.irecv(partner_node, 0, partner_data.data(),
-                                   static_cast<int>(partner_data.size())
-        );
-        requests[1] = world_.isend(partner_node, 0, encoded_numbers.data(),
-                                   static_cast<int>(encoded_numbers.size())
-        );
-      boost::mpi::wait_all(requests, requests + 2);
+        requests[0] = world_.irecv(partner_node, 0, partner_data.data(), static_cast<int>(partner_data.size()));
+        requests[1] = world_.isend(partner_node, 0, encoded_numbers.data(), static_cast<int>(encoded_numbers.size()));
+        boost::mpi::wait_all(requests, requests + 2);
 
-      std::vector<uint64_t> merged_result;
-      merged_result.reserve(encoded_numbers.size() * 2);
-      std::ranges::merge(encoded_numbers, partner_data, std::back_inserter(merged_result));
+        std::vector<uint64_t> merged_result;
+        merged_result.reserve(encoded_numbers.size() * 2);
+        std::ranges::merge(encoded_numbers, partner_data, std::back_inserter(merged_result));
 
-      const auto keep_count = static_cast<std::ptrdiff_t>(encoded_numbers.size());
+        const auto keep_count = static_cast<std::ptrdiff_t>(encoded_numbers.size());
 
-      if (rank < partner_node) {
-        encoded_numbers.assign(merged_result.begin(), merged_result.begin() + keep_count);
-      } else {
-        encoded_numbers.assign(merged_result.end() - keep_count, merged_result.end());
+        if (rank < partner_node) {
+          encoded_numbers.assign(merged_result.begin(), merged_result.begin() + keep_count);
+        } else {
+          encoded_numbers.assign(merged_result.end() - keep_count, merged_result.end());
+        }
       }
+      world_.barrier();
     }
-    world_.barrier();
-  }
 
-  output_.resize(encoded_numbers.size());
-  std::ranges::transform(encoded_numbers, output_.begin(), konstantinov_i_sort_batcher_all::RestoreDoubleFromSorted);
-  return true;
+    output_.resize(encoded_numbers.size());
+    std::ranges::transform(encoded_numbers, output_.begin(), konstantinov_i_sort_batcher_all::RestoreDoubleFromSorted);
+    return true;
+  }
 }
 
 bool konstantinov_i_sort_batcher_all::RadixSortBatcherall::PostProcessingImpl() {
