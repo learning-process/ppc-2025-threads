@@ -1,23 +1,26 @@
 #pragma once
 
-#include <boost/mpi.hpp>
-#include <cstddef>
+#include <boost/mpi/collectives/broadcast.hpp>
+#include <boost/mpi/communicator.hpp>
 #include <vector>
 
+#include "core/task/include/task.hpp"
+
 namespace fyodorov_m_shell_sort_with_even_odd_batcher_merge_mpi {
-class TestTaskMPI {
+class TestTaskMPI : public ppc::core::Task {
  public:
-    bool PreProcessingImpl();
-    bool ValidationImpl();
-    bool RunImpl();
-    bool PostProcessingImpl();
+  explicit TestTaskMPI(ppc::core::TaskDataPtr task_data) : Task(std::move(task_data)) {}
+  bool PreProcessingImpl() override;
+  bool ValidationImpl() override;
+  bool RunImpl() override;
+  bool PostProcessingImpl() override;
 
  private:
-    void ShellSort();
-    static void BatcherMerge(std::vector<int>& left, std::vector<int>& right, std::vector<int>& result);
-    std::vector<int> input_;
-    std::vector<int> output_;
-    std::vector<int> local_input_;
-    boost::mpi::communicator world_;
+  void ShellSort();
+  static void BatcherMerge(std::vector<int>& left, std::vector<int>& right, std::vector<int>& result);
+  std::vector<int> input_;
+  std::vector<int> output_;
+  std::vector<int> local_input_;
+  boost::mpi::communicator world_;
 };
 }  // namespace fyodorov_m_shell_sort_with_even_odd_batcher_merge_mpi
