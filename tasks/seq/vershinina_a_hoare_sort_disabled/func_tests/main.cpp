@@ -133,7 +133,6 @@ TEST(vershinina_a_hoare_sort_seq, Test_len_100) {
   test_task_sequential.PostProcessing();
   ASSERT_TRUE(std::ranges::is_sorted(out));
 }
-
 TEST(vershinina_a_hoare_sort_seq, Test_len_200) {
   std::vector<int> in;
   std::vector<int> out(200);
