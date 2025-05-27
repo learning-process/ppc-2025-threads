@@ -8,6 +8,7 @@
 #include <numbers>
 #include <random>
 #include <set>
+#include <stdexcept>
 #include <vector>
 
 #include "all/alputov_i_graham_scan/include/ops_all.hpp"
@@ -36,8 +37,8 @@ std::vector<alputov_i_graham_scan_all::Point> DoublesToPoints(const std::vector<
   return points;
 }
 
-void GenerateRandomData(std::vector<alputov_i_graham_scan_all::Point>& data, size_t count) {
-  std::mt19937 gen(42);
+void GenerateRandomData(std::vector<alputov_i_graham_scan_all::Point>& data, size_t count, unsigned int seed = 42) {
+  std::mt19937 gen(seed);
   std::uniform_real_distribution<double> dist(-1000.0, 1000.0);
 
   data.clear();
@@ -312,6 +313,34 @@ TEST(alputov_i_graham_scan_all, star_figure) {
   }
 }
 
+TEST(alputov_i_graham_scan_all, zero_points_invalid) {
+  int rank{};
+  MPI_Comm_rank(MPI_COMM_WORLD, &rank);
+
+  std::vector<alputov_i_graham_scan_all::Point> input_points = {};
+  std::vector<double> input_doubles = PointsToDoubles(input_points);
+
+  int hull_size_actual = 0;
+  std::vector<double> output_hull_doubles(6);
+
+  auto task_data = std::make_shared<ppc::core::TaskData>();
+  if (rank == 0) {
+    task_data->inputs.emplace_back(nullptr);
+    task_data->inputs_count.emplace_back(0);
+    task_data->outputs.emplace_back(reinterpret_cast<uint8_t*>(&hull_size_actual));
+    task_data->outputs_count.emplace_back(1);
+    task_data->outputs.emplace_back(reinterpret_cast<uint8_t*>(output_hull_doubles.data()));
+    task_data->outputs_count.emplace_back(output_hull_doubles.size());
+  }
+  std::shared_ptr<alputov_i_graham_scan_all::TestTaskALL> task(new alputov_i_graham_scan_all::TestTaskALL(task_data),
+                                                               TaskALLDeleter());
+  if (rank == 0) {
+    ASSERT_FALSE(task->ValidationImpl());
+  } else {
+    ASSERT_TRUE(task->ValidationImpl());
+  }
+}
+
 TEST(alputov_i_graham_scan_all, single_point_invalid) {
   int rank{};
   MPI_Comm_rank(MPI_COMM_WORLD, &rank);
@@ -320,7 +349,7 @@ TEST(alputov_i_graham_scan_all, single_point_invalid) {
   std::vector<double> input_doubles = PointsToDoubles(input_points);
 
   int hull_size_actual = 0;
-  std::vector<double> output_hull_doubles(1 * 2);
+  std::vector<double> output_hull_doubles(input_points.size() * 2);
 
   auto task_data = std::make_shared<ppc::core::TaskData>();
   if (rank == 0) {
@@ -331,6 +360,168 @@ TEST(alputov_i_graham_scan_all, single_point_invalid) {
     task_data->outputs.emplace_back(reinterpret_cast<uint8_t*>(output_hull_doubles.data()));
     task_data->outputs_count.emplace_back(output_hull_doubles.size());
   }
+  std::shared_ptr<alputov_i_graham_scan_all::TestTaskALL> task(new alputov_i_graham_scan_all::TestTaskALL(task_data),
+                                                               TaskALLDeleter());
+  if (rank == 0) {
+    ASSERT_FALSE(task->ValidationImpl());
+  } else {
+    ASSERT_TRUE(task->ValidationImpl());
+  }
+}
+
+TEST(alputov_i_graham_scan_all, two_points_invalid) {
+  int rank{};
+  MPI_Comm_rank(MPI_COMM_WORLD, &rank);
+
+  std::vector<alputov_i_graham_scan_all::Point> input_points = {{0, 0}, {1, 1}};
+  std::vector<double> input_doubles = PointsToDoubles(input_points);
+
+  int hull_size_actual = 0;
+  std::vector<double> output_hull_doubles(input_points.size() * 2);
+
+  auto task_data = std::make_shared<ppc::core::TaskData>();
+  if (rank == 0) {
+    task_data->inputs.emplace_back(reinterpret_cast<uint8_t*>(input_doubles.data()));
+    task_data->inputs_count.emplace_back(input_doubles.size());
+    task_data->outputs.emplace_back(reinterpret_cast<uint8_t*>(&hull_size_actual));
+    task_data->outputs_count.emplace_back(1);
+    task_data->outputs.emplace_back(reinterpret_cast<uint8_t*>(output_hull_doubles.data()));
+    task_data->outputs_count.emplace_back(output_hull_doubles.size());
+  }
+  std::shared_ptr<alputov_i_graham_scan_all::TestTaskALL> task(new alputov_i_graham_scan_all::TestTaskALL(task_data),
+                                                               TaskALLDeleter());
+  if (rank == 0) {
+    ASSERT_FALSE(task->ValidationImpl());
+  } else {
+    ASSERT_TRUE(task->ValidationImpl());
+  }
+}
+
+TEST(alputov_i_graham_scan_all, random_2500_points) {
+  int rank{};
+  MPI_Comm_rank(MPI_COMM_WORLD, &rank);
+
+  std::vector<alputov_i_graham_scan_all::Point> input_points;
+  GenerateRandomData(input_points, 2500, 123);
+  input_points.insert(input_points.end(), {{-2000, -2000}, {2000, -2000}, {2000, 2000}, {-2000, 2000}});
+
+  std::vector<double> input_doubles = PointsToDoubles(input_points);
+  int hull_size_actual = 0;
+  std::vector<double> output_hull_doubles(input_points.size() * 2);
+
+  auto task_data = std::make_shared<ppc::core::TaskData>();
+  if (rank == 0) {
+    task_data->inputs.emplace_back(reinterpret_cast<uint8_t*>(input_doubles.data()));
+    task_data->inputs_count.emplace_back(input_doubles.size());
+    task_data->outputs.emplace_back(reinterpret_cast<uint8_t*>(&hull_size_actual));
+    task_data->outputs_count.emplace_back(1);
+    task_data->outputs.emplace_back(reinterpret_cast<uint8_t*>(output_hull_doubles.data()));
+    task_data->outputs_count.emplace_back(output_hull_doubles.size());
+  }
+
+  std::shared_ptr<alputov_i_graham_scan_all::TestTaskALL> task(new alputov_i_graham_scan_all::TestTaskALL(task_data),
+                                                               TaskALLDeleter());
+  ExecuteAndValidateTask(*task);
+
+  if (rank == 0) {
+    ASSERT_GE(hull_size_actual, 4);
+    std::vector<alputov_i_graham_scan_all::Point> actual_hull = DoublesToPoints(output_hull_doubles, hull_size_actual);
+    std::set<alputov_i_graham_scan_all::Point> actual_set(actual_hull.begin(), actual_hull.end());
+    ASSERT_TRUE(actual_set.count({-2000, -2000}));
+    ASSERT_TRUE(actual_set.count({2000, -2000}));
+    ASSERT_TRUE(actual_set.count({2000, 2000}));
+    ASSERT_TRUE(actual_set.count({-2000, 2000}));
+  }
+}
+
+TEST(alputov_i_graham_scan_all, all_points_identical_covers_scatter_zero) {
+  int rank{};
+  MPI_Comm_rank(MPI_COMM_WORLD, &rank);
+
+  std::vector<alputov_i_graham_scan_all::Point> input_points = {{1, 1}, {1, 1}, {1, 1}, {1, 1}, {1, 1}};
+  alputov_i_graham_scan_all::Point expected_pivot = {1, 1};
+  std::vector<double> input_doubles = PointsToDoubles(input_points);
+
+  int hull_size_actual = 0;
+  std::vector<double> output_hull_doubles(input_points.size() * 2);
+
+  auto task_data = std::make_shared<ppc::core::TaskData>();
+  if (rank == 0) {
+    task_data->inputs.emplace_back(reinterpret_cast<uint8_t*>(input_doubles.data()));
+    task_data->inputs_count.emplace_back(input_doubles.size());
+    task_data->outputs.emplace_back(reinterpret_cast<uint8_t*>(&hull_size_actual));
+    task_data->outputs_count.emplace_back(1);
+    task_data->outputs.emplace_back(reinterpret_cast<uint8_t*>(output_hull_doubles.data()));
+    task_data->outputs_count.emplace_back(output_hull_doubles.size());
+  }
+
+  std::shared_ptr<alputov_i_graham_scan_all::TestTaskALL> task(new alputov_i_graham_scan_all::TestTaskALL(task_data),
+                                                               TaskALLDeleter());
+  ASSERT_TRUE(task->Validation());
+  ASSERT_TRUE(task->PreProcessing());
+  ASSERT_TRUE(task->Run());
+  ASSERT_TRUE(task->PostProcessing());
+
+  if (rank == 0) {
+    ASSERT_EQ(hull_size_actual, 1);
+    std::vector<alputov_i_graham_scan_all::Point> actual_hull = DoublesToPoints(output_hull_doubles, hull_size_actual);
+    std::vector<alputov_i_graham_scan_all::Point> expected_hull = {expected_pivot};
+    AssertPointsEqual(actual_hull, expected_hull);
+  }
+}
+
+TEST(alputov_i_graham_scan_all, two_distinct_points_one_duplicate_of_pivot) {
+  int rank{};
+  MPI_Comm_rank(MPI_COMM_WORLD, &rank);
+
+  std::vector<alputov_i_graham_scan_all::Point> input_points = {{0, 0}, {1, 1}, {0, 0}};
+  std::vector<double> input_doubles = PointsToDoubles(input_points);
+
+  int hull_size_actual = 0;
+  std::vector<double> output_hull_doubles(input_points.size() * 2);
+
+  auto task_data = std::make_shared<ppc::core::TaskData>();
+  if (rank == 0) {
+    task_data->inputs.emplace_back(reinterpret_cast<uint8_t*>(input_doubles.data()));
+    task_data->inputs_count.emplace_back(input_doubles.size());
+    task_data->outputs.emplace_back(reinterpret_cast<uint8_t*>(&hull_size_actual));
+    task_data->outputs_count.emplace_back(1);
+    task_data->outputs.emplace_back(reinterpret_cast<uint8_t*>(output_hull_doubles.data()));
+    task_data->outputs_count.emplace_back(output_hull_doubles.size());
+  }
+
+  std::shared_ptr<alputov_i_graham_scan_all::TestTaskALL> task(new alputov_i_graham_scan_all::TestTaskALL(task_data),
+                                                               TaskALLDeleter());
+  ExecuteAndValidateTask(*task);
+
+  if (rank == 0) {
+    ASSERT_EQ(hull_size_actual, 2);
+    std::vector<alputov_i_graham_scan_all::Point> actual_hull = DoublesToPoints(output_hull_doubles, hull_size_actual);
+    std::vector<alputov_i_graham_scan_all::Point> expected_hull = {{0, 0}, {1, 1}};
+    AssertPointsEqual(actual_hull, expected_hull);
+  }
+}
+
+TEST(alputov_i_graham_scan_all, invalid_output_buffer_size) {
+  int rank{};
+  MPI_Comm_rank(MPI_COMM_WORLD, &rank);
+
+  std::vector<alputov_i_graham_scan_all::Point> input_points = {{0, 0}, {1, 0}, {0, 1}};
+  std::vector<double> input_doubles = PointsToDoubles(input_points);
+
+  int hull_size_actual = 0;
+  std::vector<double> output_hull_doubles((input_points.size() * 2) - 1);
+
+  auto task_data = std::make_shared<ppc::core::TaskData>();
+  if (rank == 0) {
+    task_data->inputs.emplace_back(reinterpret_cast<uint8_t*>(input_doubles.data()));
+    task_data->inputs_count.emplace_back(input_doubles.size());
+    task_data->outputs.emplace_back(reinterpret_cast<uint8_t*>(&hull_size_actual));
+    task_data->outputs_count.emplace_back(1);
+    task_data->outputs.emplace_back(reinterpret_cast<uint8_t*>(output_hull_doubles.data()));
+    task_data->outputs_count.emplace_back(output_hull_doubles.size());
+  }
+
   std::shared_ptr<alputov_i_graham_scan_all::TestTaskALL> task(new alputov_i_graham_scan_all::TestTaskALL(task_data),
                                                                TaskALLDeleter());
   if (rank == 0) {
