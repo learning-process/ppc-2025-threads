@@ -55,8 +55,8 @@ void deryabin_m_hoare_sort_simple_merge_mpi::MergeTwoParts(std::vector<double>::
   const size_t overlap_len = std::distance(left_end, mid) + std::distance(mid, right_start);
   tbb::parallel_for(tbb::blocked_range<size_t>(0, overlap_len), [&](const tbb::blocked_range<size_t>& r) {
     for (size_t i = r.begin(); i < r.end(); ++i) {
-      Iterator left = left_end + i;
-      Iterator right = mid + i;
+      std::vector<double>::iterator left = left_end + i;
+      std::vector<double>::iterator right = mid + i;
       if (*left > *right) {
         std::iter_swap(left, right);
       }
