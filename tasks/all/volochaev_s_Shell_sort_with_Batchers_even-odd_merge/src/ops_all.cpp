@@ -169,7 +169,7 @@ bool volochaev_s_shell_sort_with_batchers_even_odd_merge_all::ShellSortAll::PreP
 
   if (world_.rank() == 0) {
     mas_.resize(n_);
-    mas_tmp = mas_;
+    mas_tmp_ = mas_;
     flag_ = true;
     void* ptr_input = task_data->inputs[0];
     void* ptr_vec = mas_.data();
