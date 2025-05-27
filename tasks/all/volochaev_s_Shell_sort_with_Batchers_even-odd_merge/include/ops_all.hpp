@@ -11,8 +11,9 @@ namespace volochaev_s_shell_sort_with_batchers_even_odd_merge_all {
 
 class ShellSortAll : public ppc::core::Task {
  private:
-  std::vector<long long int> mas_, tmp_, loc_, loc_tmp_;
+  std::vector<long long int> mas_, tmp_, loc_, loc_tmp_, mas_tmp_;
   unsigned int n_, n_input_, loc_proc_lenght_;
+  bool flag_;
   int effective_num_procs_;
   boost::mpi::communicator world_;
 
