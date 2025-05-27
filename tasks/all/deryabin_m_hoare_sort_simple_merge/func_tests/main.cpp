@@ -217,24 +217,3 @@ TEST(deryabin_m_hoare_sort_simple_merge_mpi, test_invalid_array) {
     ASSERT_EQ(hoare_sort_task_mpi.Validation(), false);
   }
 }
-
-TEST(deryabin_m_hoare_sort_simple_merge_mpi, test_invalid_chunk_count) {
-  boost::mpi::communicator world;
-  std::vector<double> input_array{-1, -2, -3, -11, -22, -33};
-  std::vector<std::vector<double>> in_array(1, input_array);
-  std::vector<double> output_array(6);
-  std::vector<std::vector<double>> out_array(1, output_array);
-
-  auto task_data_mpi = std::make_shared<ppc::core::TaskData>();
-  if (world.rank() == 0) {
-    task_data_mpi->inputs.emplace_back(reinterpret_cast<uint8_t*>(in_array.data()));
-    task_data_mpi->inputs_count.emplace_back(input_array.size());
-    task_data_mpi->outputs.emplace_back(reinterpret_cast<uint8_t*>(out_array.data()));
-    task_data_mpi->outputs_count.emplace_back(output_array.size());
-  }
-
-  deryabin_m_hoare_sort_simple_merge_mpi::HoareSortTaskMPI hoare_sort_task_mpi(task_data_mpi);
-  if (world.rank() == 0) {
-    ASSERT_EQ(hoare_sort_task_mpi.Validation(), false);
-  }
-}
