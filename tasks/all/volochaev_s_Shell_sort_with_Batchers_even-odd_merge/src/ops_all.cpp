@@ -2,7 +2,6 @@
 
 #include <omp.h>
 
-#include <algorithm>
 #include <boost/mpi/collectives/broadcast.hpp>
 #include <boost/mpi/collectives/scatter.hpp>
 #include <climits>
