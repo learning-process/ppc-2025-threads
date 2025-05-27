@@ -208,7 +208,7 @@ bool lavrentiev_a_ccs_all::CCSALL::RunImpl() {
   CollectSizes();
   sending_data = std::move(Process_data_.elements);
   sending_data.resize(Process_data_.columnsSum.size() + (2 * resize_data));
-  for (size_t i = 0; i < resize_data; i++) {
+  for (int i = 0; i < resize_data; i++) {
     sending_data[i + resize_data] = static_cast<double>(Process_data_.rows[i]);
     if (i < Process_data_.columnsSum.size()) {
       sending_data[i + (2 * resize_data)] = static_cast<double>(Process_data_.columnsSum[i]);
