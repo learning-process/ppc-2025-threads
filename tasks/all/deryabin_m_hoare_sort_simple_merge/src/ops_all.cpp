@@ -1,7 +1,6 @@
 #include "all/deryabin_m_hoare_sort_simple_merge/include/ops_all.hpp"
 
 #include <mpi.h>
-
 #include <oneapi/tbb/parallel_for.h>
 #include <oneapi/tbb/parallel_invoke.h>
 
