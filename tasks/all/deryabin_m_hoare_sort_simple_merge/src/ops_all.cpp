@@ -8,7 +8,6 @@
 #include <algorithm>
 #include <bit>
 #include <boost/mpi/collectives/broadcast.hpp>
-#include <boost/serialization/vector.hpp>
 #include <cmath>
 #include <core/util/include/util.hpp>
 #include <cstddef>
