@@ -9,7 +9,7 @@
 
 namespace volochaev_s_shell_sort_with_batchers_even_odd_merge_all {
 
-class TestTaskAll : public ppc::core::Task {
+class ShellSortAll : public ppc::core::Task {
  private:
   std::vector<long long int> mas_, tmp_, loc_, loc_tmp_;
   unsigned int n_, n_input_, loc_proc_lenght_;

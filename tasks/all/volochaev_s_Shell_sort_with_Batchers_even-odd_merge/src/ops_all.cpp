@@ -11,7 +11,7 @@
 #include <cstring>
 #include <vector>
 
-bool volochaev_s_shell_sort_with_batchers_even_odd_merge_all::TestTaskAll::ShellSort(unsigned int start,
+bool volochaev_s_shell_sort_with_batchers_even_odd_merge_all::ShellSortAll::ShellSort(unsigned int start,
                                                                                      unsigned int size) {
   unsigned int n = size;
 
@@ -36,7 +36,7 @@ bool volochaev_s_shell_sort_with_batchers_even_odd_merge_all::TestTaskAll::Shell
   return true;
 }
 
-bool volochaev_s_shell_sort_with_batchers_even_odd_merge_all::TestTaskAll::OddEvenMergeOMP(long long int* tmp,
+bool volochaev_s_shell_sort_with_batchers_even_odd_merge_all::ShellSortAll::OddEvenMergeOMP(long long int* tmp,
                                                                                            long long int* l,
                                                                                            const long long int* r,
                                                                                            unsigned int len) {
@@ -74,7 +74,7 @@ bool volochaev_s_shell_sort_with_batchers_even_odd_merge_all::TestTaskAll::OddEv
   return true;
 }
 
-bool volochaev_s_shell_sort_with_batchers_even_odd_merge_all::TestTaskAll::FinalMergeOMP(unsigned int n) {
+bool volochaev_s_shell_sort_with_batchers_even_odd_merge_all::ShellSortAll::FinalMergeOMP(unsigned int n) {
   unsigned int iter_even = 0;
   unsigned int iter_odd = 1;
   unsigned int iter_tmp = 0;
@@ -104,7 +104,7 @@ bool volochaev_s_shell_sort_with_batchers_even_odd_merge_all::TestTaskAll::Final
   return true;
 }
 
-bool volochaev_s_shell_sort_with_batchers_even_odd_merge_all::TestTaskAll::BatcherSortOMP() {
+bool volochaev_s_shell_sort_with_batchers_even_odd_merge_all::ShellSortAll::BatcherSortOMP() {
   if (static_cast<unsigned int>(ppc::util::GetPPCNumThreads()) > 2 * loc_proc_lenght_) {
     bool ret = ShellSort(0, loc_proc_lenght_);
     memcpy(loc_tmp_.data(), loc_.data(), sizeof(long long int) * loc_proc_lenght_);
@@ -128,9 +128,7 @@ bool volochaev_s_shell_sort_with_batchers_even_odd_merge_all::TestTaskAll::Batch
   bool ret1 = true;
   bool ret2 = true;
 #pragma omp parallel num_threads(effective_num_threads)
-  {
-    ret1 = ret1 && ShellSort(omp_get_thread_num() * loc_lenght, loc_lenght);
-  }
+  { ret1 = ret1 && ShellSort(omp_get_thread_num() * loc_lenght, loc_lenght); }
 
   for (unsigned int i = effective_num_threads; i > 1; i /= 2) {
 #pragma omp parallel num_threads(i)
@@ -153,15 +151,14 @@ bool volochaev_s_shell_sort_with_batchers_even_odd_merge_all::TestTaskAll::Batch
   return (ret1 && ret2);
 }
 
-bool volochaev_s_shell_sort_with_batchers_even_odd_merge_all::TestTaskAll::ValidationImpl() {
+bool volochaev_s_shell_sort_with_batchers_even_odd_merge_all::ShellSortAll::ValidationImpl() {
   if (world_.rank() == 0) {
     return task_data->inputs_count[0] > 0 && task_data->inputs_count[0] == task_data->outputs_count[0];
   }
-}
-return true;
+  return true;
 }
 
-bool volochaev_s_shell_sort_with_batchers_even_odd_merge_all::TestTaskAll::PreProcessingImpl() {
+bool volochaev_s_shell_sort_with_batchers_even_odd_merge_all::ShellSortAll::PreProcessingImpl() {
   boost::mpi::broadcast(world_, n_input_, 0);
 
   effective_num_procs_ = static_cast<int>(std::pow(2, std::floor(std::log2(world_.size()))));
@@ -187,7 +184,7 @@ bool volochaev_s_shell_sort_with_batchers_even_odd_merge_all::TestTaskAll::PrePr
   return true;
 }
 
-bool volochaev_s_shell_sort_with_batchers_even_odd_merge_all::TestTaskAll::RunImpl() {
+bool volochaev_s_shell_sort_with_batchers_even_odd_merge_all::ShellSortAll::RunImpl() {
   boost::mpi::scatter(world_, mas_.data(), loc_.data(), static_cast<int>(loc_proc_lenght_), 0);
 
   BatcherSortOMP();
@@ -216,7 +213,7 @@ bool volochaev_s_shell_sort_with_batchers_even_odd_merge_all::TestTaskAll::RunIm
   return ret;
 }
 
-bool volochaev_s_shell_sort_with_batchers_even_odd_merge_all::TestTaskAll::OddEvenMergeMPI(unsigned int len) {
+bool volochaev_s_shell_sort_with_batchers_even_odd_merge_all::ShellSortAll::OddEvenMergeMPI(unsigned int len) {
   if (world_.rank() % 2 == 0) {
     loc_.resize(2 * len);
     loc_tmp_.resize(2 * len);
@@ -255,7 +252,7 @@ bool volochaev_s_shell_sort_with_batchers_even_odd_merge_all::TestTaskAll::OddEv
   return true;
 }
 
-bool volochaev_s_shell_sort_with_batchers_even_odd_merge_all::TestTaskAll::PostProcessingImpl() {
+bool volochaev_s_shell_sort_with_batchers_even_odd_merge_all::ShellSortAll::PostProcessingImpl() {
   if (world_.rank() == 0) {
     void* ptr_output = task_data->outputs[0];
     void* ptr_loc = loc_tmp_.data();
