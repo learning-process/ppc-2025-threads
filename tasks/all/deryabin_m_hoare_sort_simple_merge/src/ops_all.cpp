@@ -144,15 +144,18 @@ bool deryabin_m_hoare_sort_simple_merge_mpi::HoareSortTaskMPI::RunImpl() {
       if ((world.rank() + 1) % step == 0) {
         if (world.rank() / step % 2 == 0) {
           size_t start_idx =
-              (static_cast<size_t>(world.rank() - step) + 1) * min_chunk_size_ + world.rank() != 0 ? rest_ : 0;
+              (static_cast<size_t>(world.rank() - step) + 1) * min_chunk_size_;
+          if (world.rank() != 0) {
+            start_iter += rest_;
+          }
           world.send(static_cast<size_t>(world.rank() + step), 0, input_array_A_.data() + start_idx, block_size);
-          world.barrier();
         }
         if (world.rank() / step % 2 != 0 || world.rank() == world.size() - 1) {
           size_t start_idx =
-              (static_cast<size_t>(world.rank() - 2 * step) + 1) * min_chunk_size_ + world.rank() - step != 0 ? rest_
-                                                                                                              : 0;
-          world.barrier();
+              (static_cast<size_t>(world.rank() - 2 * step) + 1) * min_chunk_size_;
+          if (world.rank() - step != 0) {
+            start_iter += rest_;
+          }
           world.recv(static_cast<size_t>(world.rank() - step), 0, input_array_A_.data() + start_idx, block_size);
           MergeTwoParts(input_array_A_.begin() + start_idx, input_array_A_.begin() + start_idx + 2 * block_size);
         }
