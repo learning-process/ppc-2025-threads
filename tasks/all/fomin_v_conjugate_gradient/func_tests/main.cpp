@@ -84,10 +84,16 @@ TEST(FominVConjugateGradientAll, MatrixVectorMultiply) {
   std::vector<double> x = {5.0, 6.0};
   std::vector<double> expected = {17.0, 39.0};
 
+  std::vector<double> input;
+  input.insert(input.end(), a.begin(), a.end());
+  input.insert(input.end(), x.begin(), x.end());
+
   auto task_data = std::make_shared<ppc::core::TaskData>();
+  task_data->inputs.emplace_back(reinterpret_cast<uint8_t*>(input.data()));
+  task_data->inputs_count.emplace_back(input.size());
+
   fomin_v_conjugate_gradient::FominVConjugateGradientAll task(task_data);
-  task.n = 2;
-  task.rows_per_proc = 2 / world.size();
+  task.PreProcessing();
 
   auto result = task.MatrixVectorMultiply(a, x);
   if (world.rank() == 0) {
