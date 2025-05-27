@@ -33,7 +33,6 @@ TEST(deryabin_m_hoare_sort_simple_merge_mpi, test_pipeline_run_MPI) {
   auto task_data_mpi = std::make_shared<ppc::core::TaskData>();
   task_data_mpi->inputs.emplace_back(reinterpret_cast<uint8_t*>(in_array.data()));
   task_data_mpi->inputs_count.emplace_back(input_array.size());
-  task_data_mpi->inputs_count.emplace_back(chunk_count);
   task_data_mpi->outputs.emplace_back(reinterpret_cast<uint8_t*>(out_array_mpi.data()));
   task_data_mpi->outputs_count.emplace_back(output_array_mpi.size());
   auto hoare_sort_simple_merge_task_mpi =
@@ -95,7 +94,6 @@ TEST(deryabin_m_hoare_sort_simple_merge_mpi, test_task_run_MPI) {
   auto task_data_mpi = std::make_shared<ppc::core::TaskData>();
   task_data_mpi->inputs.emplace_back(reinterpret_cast<uint8_t*>(in_array.data()));
   task_data_mpi->inputs_count.emplace_back(input_array.size());
-  task_data_mpi->inputs_count.emplace_back(chunk_count);
   task_data_mpi->outputs.emplace_back(reinterpret_cast<uint8_t*>(out_array_mpi.data()));
   task_data_mpi->outputs_count.emplace_back(output_array_mpi.size());
   auto hoare_sort_simple_merge_task_mpi =
