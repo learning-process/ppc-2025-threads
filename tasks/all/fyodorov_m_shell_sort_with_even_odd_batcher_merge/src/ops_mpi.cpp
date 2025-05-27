@@ -1,5 +1,7 @@
 #include "all/fyodorov_m_shell_sort_with_even_odd_batcher_merge/include/ops_mpi.hpp"
 
+#include <boost/mpi/collectives.hpp>
+#include <boost/mpi/communicator.hpp>
 #include <cstddef>
 #include <vector>
 
@@ -25,19 +27,42 @@ bool TestTaskMPI::ValidationImpl() {
 }
 
 bool TestTaskMPI::RunImpl() {
-  size_t mid = input_.size() / 2;
-  std::vector<int> left(input_.begin(), input_.begin() + static_cast<std::ptrdiff_t>(mid));
-  std::vector<int> right(input_.begin() + static_cast<std::ptrdiff_t>(mid), input_.end());
+  boost::mpi::communicator world;
+  int rank = world.rank();
+  int size = world.size();
 
-#pragma omp parallel sections
-  {
-#pragma omp section
-    { ShellSort(left); }
-#pragma omp section
-    { ShellSort(right); }
+  int n = static_cast<int>(input_.size());
+  std::vector<int> local_data;
+  int local_n = n / size;
+  int remainder = n % size;
+  std::vector<int> sendcounts(size, local_n);
+  std::vector<int> displs(size, 0);
+  for (int i = 0; i < remainder; ++i) sendcounts[i]++;
+  for (int i = 1; i < size; ++i) displs[i] = displs[i - 1] + sendcounts[i - 1];
+  local_data.resize(sendcounts[rank]);
+  boost::mpi::scatterv(world, input_, sendcounts, displs, local_data, 0);
+
+  ShellSort(local_data);
+
+  std::vector<int> gathered;
+  if (rank == 0) gathered.resize(n);
+  boost::mpi::gatherv(world, local_data, gathered, 0);
+
+  if (rank == 0) {
+    std::vector<std::vector<int>> blocks(size);
+    for (int i = 0, pos = 0; i < size; ++i) {
+      blocks[i] = std::vector<int>(gathered.begin() + pos, gathered.begin() + pos + sendcounts[i]);
+      pos += sendcounts[i];
+    }
+    // Итоговый массив
+    std::vector<int> merged = blocks[0];
+    for (int i = 1; i < size; ++i) {
+      std::vector<int> temp(merged.size() + blocks[i].size());
+      BatcherMerge(merged, blocks[i], temp);
+      merged = temp;
+    }
+    output_ = merged;
   }
-
-  BatcherMerge(left, right, output_);
   return true;
 }
 
