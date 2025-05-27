@@ -13,7 +13,6 @@ class ShellSortAll : public ppc::core::Task {
  private:
   std::vector<long long int> mas_, tmp_, loc_, loc_tmp_;
   unsigned int n_, n_input_, loc_proc_lenght_;
-  unsigned int loc_lenght;
   int effective_num_procs_;
   boost::mpi::communicator world_;
 
@@ -24,7 +23,7 @@ class ShellSortAll : public ppc::core::Task {
     };
   }
 
-  bool ShellSort(unsigned int start, unsigned int finish);
+  bool ShellSort(unsigned int, unsigned int);
   static bool OddEvenMergeOMP(long long int *, long long int *, const long long int *, unsigned int);
   bool OddEvenMergeMPI(unsigned int);
   bool FinalMergeOMP(unsigned int);
