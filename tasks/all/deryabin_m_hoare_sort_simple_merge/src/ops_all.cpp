@@ -146,6 +146,7 @@ bool deryabin_m_hoare_sort_simple_merge_mpi::HoareSortTaskMPI::RunImpl() {
           size_t start_idx =
               (static_cast<size_t>(world.rank() - step) + 1) * min_chunk_size_ + world.rank() != 0 ? rest_ : 0;
           world.send(static_cast<size_t>(world.rank() + step), 0, input_array_A_.data() + start_idx, block_size);
+          world.barrier();
         }
         if (world.rank() / step % 2 != 0 || world.rank() == world.size() - 1) {
           size_t start_idx =
