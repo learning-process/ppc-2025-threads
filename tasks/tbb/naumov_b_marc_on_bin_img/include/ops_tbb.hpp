@@ -1,12 +1,9 @@
 #pragma once
 
-#include <atomic>
-#include <mutex>
-#include <utility>
+#include <memory>
 #include <vector>
 
 #include "core/task/include/task.hpp"
-#include "tbb/blocked_range.h"
 #include "tbb/parallel_for.h"
 
 namespace naumov_b_marc_on_bin_img_tbb {
@@ -24,10 +21,17 @@ class TestTaskTBB : public ppc::core::Task {
   bool PostProcessingImpl() override;
 
  private:
-  void ProcessPixel(int row, int col);
-  void AssignNewLabel(int row, int col);
-  void AssignMinLabel(int row, int col, const std::vector<int>& neighbors);
-  std::vector<int> FindAdjacentLabels(int row, int col);
+  void FirstPass();
+  void ResolveLabels();
+  void SecondPass();
+
+  void ProcessPixel(int i, int j, int& next_label);
+  int GetLeftLabel(int i, int j) const;
+  int GetTopLabel(int i, int j) const;
+  void AssignNewLabel(int idx, int& next_label);
+  void HandleLabelCollision(int idx, int left_label, int top_label);
+  void HandleBothLabels(int a, int b);
+
   int FindRoot(int x);
   void UnionLabels(int a, int b);
 
@@ -36,8 +40,6 @@ class TestTaskTBB : public ppc::core::Task {
   std::vector<int> input_image_;
   std::vector<int> output_image_;
   std::vector<int> label_parent_;
-  std::atomic<int> current_label_{1};
-  std::mutex union_mutex_;
 };
 
 }  // namespace naumov_b_marc_on_bin_img_tbb

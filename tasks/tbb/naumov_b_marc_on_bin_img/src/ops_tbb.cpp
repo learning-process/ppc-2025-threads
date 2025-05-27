@@ -36,23 +36,6 @@ std::vector<int> naumov_b_marc_on_bin_img_tbb::GenerateDenseBinaryMatrix(int row
   return GenerateRandomBinaryMatrix(rows, cols, probability);
 }
 
-std::vector<int> naumov_b_marc_on_bin_img_tbb::TestTaskTBB::FindAdjacentLabels(int row, int col) {
-  std::vector<int> neighbors;
-
-  if (row < 0 || row >= rows_ || col < 0 || col >= cols_) {
-    return neighbors;
-  }
-
-  if (col > 0 && output_image_[(row * cols_) + (col - 1)] != 0) {
-    neighbors.push_back(output_image_[(row * cols_) + (col - 1)]);
-  }
-  if (row > 0 && output_image_[((row - 1) * cols_) + col] != 0) {
-    neighbors.push_back(output_image_[((row - 1) * cols_) + col]);
-  }
-
-  return neighbors;
-}
-
 void naumov_b_marc_on_bin_img_tbb::TestTaskTBB::UnionLabels(int a, int b) {
   int ra = FindRoot(a);
   int rb = FindRoot(b);
@@ -105,57 +88,85 @@ bool naumov_b_marc_on_bin_img_tbb::TestTaskTBB::ValidationImpl() {
   if (!task_data->inputs[0]) return false;
   int* in = reinterpret_cast<int*>(task_data->inputs[0]);
   for (size_t i = 0; i < total; ++i) {
-    if (in[i] != 0 && in[i] != 1) return false;
+    if (in[i] != 0 && in[i] != 1) {
+      return false;
+    }
   }
   return true;
 }
 
-bool naumov_b_marc_on_bin_img_tbb::TestTaskTBB::RunImpl() {
-  const int rows = rows_, cols = cols_;
-  const size_t total = size_t(rows) * size_t(cols);
-
+void naumov_b_marc_on_bin_img_tbb::TestTaskTBB::FirstPass() {
   int next_label = 1;
-
-  for (size_t i = 0; i < total + 1; ++i) {
-    label_parent_[i] = int(i);
-  }
-
   for (int i = 0; i < rows_; ++i) {
-    for (int j = 0; j < cols; ++j) {
-      size_t idx = size_t(i) * cols + j;
-      if (input_image_[idx] == 0) {
-        output_image_[idx] = 0;
-        continue;
-      }
-
-      int left_label = (j > 0 ? output_image_[idx - 1] : 0);
-      int top_label = (i > 0 ? output_image_[idx - cols] : 0);
-
-      if (left_label == 0 && top_label == 0) {
-        output_image_[idx] = next_label;
-        label_parent_[next_label] = next_label;
-        ++next_label;
-      } else if (left_label > 0 && top_label > 0) {
-        int min_l = std::min(left_label, top_label);
-        int max_l = std::max(left_label, top_label);
-        output_image_[idx] = min_l;
-        UnionLabels(min_l, max_l);
-      } else {
-        output_image_[idx] = (left_label > 0 ? left_label : top_label);
-      }
+    for (int j = 0; j < cols_; ++j) {
+      ProcessPixel(i, j, next_label);
     }
   }
+}
 
-  for (int lbl = 1; lbl < next_label; ++lbl) {
-    label_parent_[lbl] = FindRoot(lbl);
+void naumov_b_marc_on_bin_img_tbb::TestTaskTBB::ProcessPixel(int i, int j, int& next_label) {
+  const size_t idx = static_cast<size_t>(i) * cols_ + j;
+  if (input_image_[idx] == 0) return;
+
+  const int left_label = GetLeftLabel(i, j);
+  const int top_label = GetTopLabel(i, j);
+
+  if (left_label == 0 && top_label == 0) {
+    AssignNewLabel(idx, next_label);
+  } else {
+    HandleLabelCollision(idx, left_label, top_label);
   }
+}
 
+int naumov_b_marc_on_bin_img_tbb::TestTaskTBB::GetLeftLabel(int i, int j) const {
+  return (j > 0) ? output_image_[static_cast<size_t>(i) * cols_ + (j - 1)] : 0;
+}
+
+int naumov_b_marc_on_bin_img_tbb::TestTaskTBB::GetTopLabel(int i, int j) const {
+  return (i > 0) ? output_image_[static_cast<size_t>(i - 1) * cols_ + j] : 0;
+}
+
+void naumov_b_marc_on_bin_img_tbb::TestTaskTBB::AssignNewLabel(int idx, int& next_label) {
+  output_image_[idx] = next_label;
+  label_parent_[next_label] = next_label;
+  ++next_label;
+}
+
+void naumov_b_marc_on_bin_img_tbb::TestTaskTBB::HandleLabelCollision(int idx, int left, int top) {
+  if (left != 0 && top != 0) {
+    HandleBothLabels(left, top);
+    output_image_[idx] = std::min(left, top);
+  } else {
+    output_image_[idx] = std::max(left, top);
+  }
+}
+
+void naumov_b_marc_on_bin_img_tbb::TestTaskTBB::HandleBothLabels(int a, int b) {
+  const int min_label = std::min(a, b);
+  const int max_label = std::max(a, b);
+  UnionLabels(min_label, max_label);
+}
+
+void naumov_b_marc_on_bin_img_tbb::TestTaskTBB::ResolveLabels() {
+  for (size_t i = 1; i < label_parent_.size(); ++i) {
+    label_parent_[i] = FindRoot(static_cast<int>(i));
+  }
+}
+
+void naumov_b_marc_on_bin_img_tbb::TestTaskTBB::SecondPass() {
+  const size_t total = static_cast<size_t>(rows_) * cols_;
   tbb::parallel_for(size_t(0), total, [this](size_t idx) {
     if (output_image_[idx] > 0) {
       output_image_[idx] = label_parent_[output_image_[idx]];
     }
   });
+}
 
+bool naumov_b_marc_on_bin_img_tbb::TestTaskTBB::RunImpl() {
+  std::iota(label_parent_.begin(), label_parent_.end(), 0);
+  FirstPass();
+  ResolveLabels();
+  SecondPass();
   return true;
 }
 
