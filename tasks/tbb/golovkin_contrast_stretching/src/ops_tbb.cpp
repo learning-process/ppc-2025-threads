@@ -1,11 +1,10 @@
-// Golovkin Maksim
+// Golovkin Maksims
 #include "tbb/golovkin_contrast_stretching/include/ops_tbb.hpp"
 
 #include <algorithm>
 #include <cstdint>
 #include <cstring>
 #include <vector>
-
 
 template <typename PixelType>
 bool golovkin_contrast_stretching::ContrastStretchingTBB<PixelType>::ValidationImpl() {
@@ -46,16 +45,16 @@ bool golovkin_contrast_stretching::ContrastStretchingTBB<PixelType>::RunImpl() {
   const double scale = 255.0 / (max_val_ - min_val_);
 
   auto task = [this, scale](size_t i) {
-  double stretched = (input_image_[i] - min_val_) * scale;
+    double stretched = (input_image_[i] - min_val_) * scale;
 
-  if constexpr (std::is_same_v<PixelType, uint8_t>) {
-    output_image_[i] = static_cast<uint8_t>(std::clamp(static_cast<int>(stretched + 1e-9), 0, 255));
-  } else if constexpr (std::is_same_v<PixelType, uint16_t>) {
-    output_image_[i] = static_cast<uint16_t>(std::clamp(static_cast<int>(stretched + 1e-9), 0, 255));
-  } else {
-    output_image_[i] = static_cast<PixelType>(stretched);
-  }
- };
+    if constexpr (std::is_same_v<PixelType, uint8_t>) {
+      output_image_[i] = static_cast<uint8_t>(std::clamp(static_cast<int>(stretched + 1e-9), 0, 255));
+    } else if constexpr (std::is_same_v<PixelType, uint16_t>) {
+      output_image_[i] = static_cast<uint16_t>(std::clamp(static_cast<int>(stretched + 1e-9), 0, 255));
+    } else {
+      output_image_[i] = static_cast<PixelType>(stretched);
+    }
+  };
   
   ppc::core::TaskParallelFor(task, image_size_);
   return true;
