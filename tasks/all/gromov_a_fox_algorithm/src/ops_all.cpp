@@ -25,12 +25,12 @@ namespace gromov_a_fox_algorithm_all {
 
 bool TestTaskAll::PreProcessingImpl() {
   if (mpiCommunicator_.rank() == 0) {
-    auto* inputDataPtr_ = reinterpret_cast<double*>(task_data->inputs[0]);
-    std::size_t inputDataSize_ = task_data->inputs_count[0];
-    matrixSize_ = static_cast<std::size_t>(std::sqrt(inputDataSize_ / 2));
+    auto* input_data_ptr = reinterpret_cast<double*>(task_data->inputs[0]);
+    std::size_t input_data_size_ = task_data->inputs_count[0];
+    matrixSize_ = static_cast<std::size_t>(std::sqrt(input_data_size_ / 2));
     matrixElements_ = matrixSize_ * matrixSize_;
 
-    if (inputDataSize_ != 2 * matrixElements_) {
+    if (input_data_size_ != 2 * matrixElements_) {
       return false;
     }
 
@@ -38,8 +38,8 @@ bool TestTaskAll::PreProcessingImpl() {
     inputMatrixB_.resize(matrixElements_);
     resultMatrix_.resize(matrixElements_, 0.0);
 
-    std::copy(inputDataPtr_, inputDataPtr_ + matrixElements_, inputMatrixA_.begin());
-    std::copy(inputDataPtr_ + matrixElements_, inputDataPtr_ + 2 * matrixElements_, inputMatrixB_.begin());
+    std::copy(input_data_ptr, input_data_ptr + matrixElements_, inputMatrixA_.begin());
+    std::copy(input_data_ptr + matrixElements_, input_data_ptr + (2 * matrixElements_), inputMatrixB_.begin());
   }
   return true;
 }
@@ -48,62 +48,62 @@ bool TestTaskAll::ValidationImpl() {
   if (mpiCommunicator_.rank() != 0) {
     return true;
   }
-  auto& inputCounts_ = task_data->inputs_count;
-  auto& outputCounts_ = task_data->outputs_count;
+  auto& input_counts = task_data->inputs_count;
+  auto& output_counts = task_data->outputs_count;
 
-  if (inputCounts_.size() != 1 || outputCounts_.size() != 1) {
+  if (input_counts.size() != 1 || output_counts.size() != 1) {
     return false;
   }
 
-  std::size_t inputDataSize_ = inputCounts_[0];
-  matrixSize_ = static_cast<std::size_t>(std::sqrt(inputDataSize_ / 2));
+  std::size_t input_data_size = input_counts[0];
+  matrixSize_ = static_cast<std::size_t>(std::sqrt(input_data_size / 2));
   matrixElements_ = matrixSize_ * matrixSize_;
-  if (inputDataSize_ != 2 * matrixElements_ || outputCounts_[0] != matrixElements_) {
+  if (input_data_size != 2 * matrixElements_ || output_counts[0] != matrixElements_) {
     return false;
   }
 
-  auto* inputDataPtr_ = reinterpret_cast<double*>(task_data->inputs[0]);
-  return inputDataPtr_ != nullptr;
+  auto* input_data_ptr = reinterpret_cast<double*>(task_data->inputs[0]);
+  return input_data_ptr != nullptr;
 }
 
 bool TestTaskAll::RunImpl() {
-  int processRank_ = mpiCommunicator_.rank();
-  int processCount_ = mpiCommunicator_.size();
+  int process_rank = mpiCommunicator_.rank();
+  int process_count = mpiCommunicator_.size();
   boost::mpi::broadcast(mpiCommunicator_, matrixSize_, 0);
   matrixElements_ = matrixSize_ * matrixSize_;
   boost::mpi::broadcast(mpiCommunicator_, matrixElements_, 0);
-  int gridSize_ = ProcessGrid(processCount_, matrixSize_);
-  blockDimension_ = matrixSize_ / gridSize_;
-  int blockSize_ = static_cast<int>(blockDimension_);
-  int processGroup_ = (processRank_ < gridSize_ * gridSize_) ? 1 : MPI_UNDEFINED;
-  MPI_Comm computeComm_ = MPI_COMM_NULL;
-  MPI_Comm_split(mpiCommunicator_, processGroup_, processRank_, &computeComm_);
-  if (processGroup_ == MPI_UNDEFINED) {
+  int grid_size = ProcessGrid(process_count, matrixSize_);
+  blockDimension_ = matrixSize_ / grid_size;
+  int block_size = static_cast<int>(blockDimension_);
+  int process_group = (process_rank < grid_size * grid_size) ? 1 : MPI_UNDEFINED;
+  MPI_Comm compute_comm = MPI_COMM_NULL;
+  MPI_Comm_split(mpiCommunicator_, process_group, process_rank, &compute_comm);
+  if (process_group == MPI_UNDEFINED) {
     return true;
   }
-  boost::mpi::communicator localMpiComm_(computeComm_, boost::mpi::comm_take_ownership);
-  processRank_ = localMpiComm_.rank();
-  std::vector<double> scatterMatrixA_(matrixElements_);
-  std::vector<double> scatterMatrixB_(matrixElements_);
-  if (processRank_ == 0) {
-    scatterMatrixA_ = Scatter(inputMatrixA_, matrixSize_, gridSize_, blockSize_);
-    scatterMatrixB_ = Scatter(inputMatrixB_, matrixSize_, gridSize_, blockSize_);
+  boost::mpi::communicator local_mpi_comm(compute_comm, boost::mpi::comm_take_ownership);
+  process_rank = local_mpi_comm.rank();
+  std::vector<double> scatter_matrix_a(matrixElements_);
+  std::vector<double> scatter_matrix_b(matrixElements_);
+  if (process_rank == 0) {
+    scatter_matrix_a = Scatter(inputMatrixA_, matrixSize_, grid_size, block_size);
+    scatter_matrix_b = Scatter(inputMatrixB_, matrixSize_, grid_size, block_size);
   }
-  std::vector<double> localMatrixA_(blockSize_ * blockSize_);
-  std::vector<double> localMatrixB_(blockSize_ * blockSize_);
-  std::vector<double> localMatrixC_(blockSize_ * blockSize_, 0.0);
-  boost::mpi::scatter(localMpiComm_, scatterMatrixA_, localMatrixA_.data(), static_cast<int>(localMatrixA_.size()), 0);
-  boost::mpi::scatter(localMpiComm_, scatterMatrixB_, localMatrixB_.data(), static_cast<int>(localMatrixB_.size()), 0);
-  tbb::global_control tbbControl_{tbb::global_control::max_allowed_parallelism, 1};
-  tbb::task_arena tbbTaskArena_;
-  tbbTaskArena_.execute([&] {
-    FoxStep(localMpiComm_, processRank_, gridSize_, blockSize_, localMatrixA_, localMatrixB_, localMatrixC_);
+  std::vector<double> local_matrix_a(block_size * block_size);
+  std::vector<double> local_matrix_b(block_size * block_size);
+  std::vector<double> local_matrix_c(block_size * block_size, 0.0);
+  boost::mpi::scatter(local_mpi_comm, scatter_matrix_a, local_matrix_a.data(), static_cast<int>(local_matrix_a.size()), 0);
+  boost::mpi::scatter(local_mpi_comm, scatter_matrix_b, local_matrix_b.data(), static_cast<int>(local_matrix_b.size()), 0);
+  tbb::global_control tbb_control{tbb::global_control::max_allowed_parallelism, 1};
+  tbb::task_arena tbb_task_arena;
+  tbb_task_arena.execute([&] {
+    FoxStep(local_mpi_comm, process_rank, grid_size, block_size, local_matrix_a, local_matrix_b, local_matrix_c);
   });
-  std::vector<double> gatheredMatrix_(matrixElements_);
-  boost::mpi::gather(localMpiComm_, localMatrixC_.data(), static_cast<int>(localMatrixC_.size()), gatheredMatrix_, 0);
+  std::vector<double> gathered_matrix(matrixElements_);
+  boost::mpi::gather(local_mpi_comm, local_matrix_c.data(), static_cast<int>(local_matrix_c.size()), gathered_matrix, 0);
 
-  if (processRank_ == 0) {
-    resultMatrix_ = Gather(gatheredMatrix_, matrixSize_, gridSize_, blockSize_);
+  if (process_rank == 0) {
+    resultMatrix_ = Gather(gathered_matrix, matrixSize_, grid_size, block_size);
   }
   return true;
 }
@@ -115,36 +115,36 @@ bool TestTaskAll::PostProcessingImpl() {
   return true;
 }
 
-int ProcessGrid(int totalProcessCount_, std::size_t matrixSize_) {
-  int gridSize_ = static_cast<int>(std::floor(std::sqrt(totalProcessCount_)));
-  while (gridSize_ > 1 && (totalProcessCount_ % gridSize_ != 0 || (matrixSize_ % gridSize_) != 0)) {
-    --gridSize_;
+int ProcessGrid(int total_process_count, std::size_t matrix_size) {
+  int grid_size = static_cast<int>(std::floor(std::sqrt(total_process_count)));
+  while (grid_size > 1 && (total_process_count % grid_size != 0 || (matrix_size % grid_size) != 0)) {
+    --grid_size;
   }
-  return std::max(gridSize_, 1);
+  return std::max(grid_size, 1);
 }
 
-void ExtractBlock(const std::vector<double>& sourceMatrix_, double* blockBuffer_, int matrixWidth_, int blockSize_,
-                  int blockRowIdx_, int blockColIdx_) {
-  const double* blockStartPtr_ =
-      sourceMatrix_.data() + ((blockRowIdx_ * blockSize_) * matrixWidth_) + (blockColIdx_ * blockSize_);
-  for (int rowIdx_ = 0; rowIdx_ < blockSize_; ++rowIdx_) {
-    std::memcpy(blockBuffer_ + (rowIdx_ * blockSize_), blockStartPtr_ + (rowIdx_ * matrixWidth_),
-                blockSize_ * sizeof(double));
+void ExtractBlock(const std::vector<double>& source_matrix, double* block_buffer, int matrix_width, int block_size,
+                  int block_row_idx, int block_col_idx) {
+  const double* block_start_ptr =
+      source_matrix.data() + ((block_row_idx * block_size) * matrix_width) + (block_col_idx * block_size);
+  for (int row_idx = 0; row_idx < block_size; ++row_idx) {
+    std::memcpy(block_buffer + (row_idx * block_size), block_start_ptr + (row_idx * matrix_width),
+                block_size * sizeof(double));
   }
 }
 
-void MultBlocks(const double* matrixA_, const double* matrixB_, double* matrixC_, int blockSize_) {
+void MultBlocks(const double* matrix_a, const double* matrix_b, double* matrix_c, int block_size) {
   tbb::parallel_for(
-      tbb::blocked_range<int>(0, blockSize_),
-      [&](const tbb::blocked_range<int>& blockRange_) {
-        for (int rowIdx_ = blockRange_.begin(); rowIdx_ < blockRange_.end(); ++rowIdx_) {
-          const double* rowA_ = matrixA_ + (rowIdx_ * blockSize_);
-          double* rowC_ = matrixC_ + (rowIdx_ * blockSize_);
-          for (int innerIdx_ = 0; innerIdx_ < blockSize_; ++innerIdx_) {
-            double elementA_ = rowA_[innerIdx_];
-            const double* rowB_ = matrixB_ + (innerIdx_ * blockSize_);
-            for (int colIdx_ = 0; colIdx_ < blockSize_; ++colIdx_) {
-              rowC_[colIdx_] += elementA_ * rowB_[colIdx_];
+      tbb::blocked_range<int>(0, block_size),
+      [&](const tbb::blocked_range<int>& block_range) {
+        for (int row_idx = block_range.begin(); row_idx < block_range.end(); ++row_idx) {
+          const double* row_a = matrix_a + (row_idx * block_size);
+          double* row_c = matrix_c + (row_idx * block_size);
+          for (int inner_idx = 0; inner_idx < block_size; ++inner_idx) {
+            double element_a = row_a[inner_idx];
+            const double* row_b = matrix_b + (inner_idx * block_size);
+            for (int col_idx = 0; col_idx < block_size; ++col_idx) {
+              row_c[col_idx] += element_a * row_b[col_idx];
             }
           }
         }
@@ -152,78 +152,78 @@ void MultBlocks(const double* matrixA_, const double* matrixB_, double* matrixC_
       tbb::auto_partitioner());
 }
 
-std::vector<double> Scatter(const std::vector<double>& sourceMatrix_, std::size_t matrixSize_, int gridSize_,
-                            int blockSize_) {
-  std::vector<double> scatterBuffer_(matrixSize_ * matrixSize_);
-  int bufferIndex_ = 0;
-  for (int blockRowIdx_ = 0; blockRowIdx_ < gridSize_; ++blockRowIdx_) {
-    for (int blockColIdx_ = 0; blockColIdx_ < gridSize_; ++blockColIdx_) {
-      ExtractBlock(sourceMatrix_, scatterBuffer_.data() + bufferIndex_, static_cast<int>(matrixSize_), blockSize_,
-                   blockRowIdx_, blockColIdx_);
-      bufferIndex_ += blockSize_ * blockSize_;
+std::vector<double> Scatter(const std::vector<double>& source_matrix, std::size_t matrix_size, int grid_size,
+                            int block_size) {
+  std::vector<double> scatter_buffer(matrix_size * matrix_size);
+  int buffer_index = 0;
+  for (int block_row_idx = 0; block_row_idx < grid_size; ++block_row_idx) {
+    for (int block_col_idx = 0; block_col_idx < grid_size; ++block_col_idx) {
+      ExtractBlock(source_matrix, scatter_buffer.data() + buffer_index, static_cast<int>(matrix_size), block_size,
+                   block_row_idx, block_col_idx);
+      buffer_index += block_size * block_size;
     }
   }
-  return scatterBuffer_;
+  return scatter_buffer;
 }
 
-std::vector<double> Gather(const std::vector<double>& gatheredBuffer_, std::size_t matrixSize_, int gridSize_,
-                           int blockSize_) {
-  std::vector<double> resultMatrix_(matrixSize_ * matrixSize_, 0.0);
-  int bufferIndex_ = 0;
-  for (int blockRowIdx_ = 0; blockRowIdx_ < gridSize_; ++blockRowIdx_) {
-    for (int blockColIdx_ = 0; blockColIdx_ < gridSize_; ++blockColIdx_) {
-      for (int rowIdx_ = 0; rowIdx_ < blockSize_; ++rowIdx_) {
-        double* destPtr_ = resultMatrix_.data() + (((blockRowIdx_ * blockSize_) + rowIdx_) * matrixSize_) +
-                           (blockColIdx_ * blockSize_);
-        const double* sourcePtr_ = gatheredBuffer_.data() + bufferIndex_ + (rowIdx_ * blockSize_);
-        std::memcpy(destPtr_, sourcePtr_, blockSize_ * sizeof(double));
+std::vector<double> Gather(const std::vector<double>& gathered_buffer, std::size_t matrix_size, int grid_size,
+                           int block_size) {
+  std::vector<double> result_matrix(matrix_size * matrix_size, 0.0);
+  int buffer_index = 0;
+  for (int block_row_idx = 0; block_row_idx < grid_size; ++block_row_idx) {
+    for (int block_col_idx = 0; block_col_idx < grid_size; ++block_col_idx) {
+      for (int row_idx = 0; row_idx < block_size; ++row_idx) {
+        double* dest_ptr = result_matrix.data() + (((block_row_idx * block_size) + row_idx) * matrix_size) +
+                           (block_col_idx * block_size);
+        const double* source_ptr = gathered_buffer.data() + buffer_index + (row_idx * block_size);
+        std::memcpy(dest_ptr, source_ptr, block_size * sizeof(double));
       }
-      bufferIndex_ += blockSize_ * blockSize_;
+      buffer_index += block_size * block_size;
     }
   }
-  return resultMatrix_;
+  return result_matrix;
 }
 
-void FoxStep(boost::mpi::communicator& mpiComm_, int processRank_, int activeProcessCount_, int blockSize_,
-             std::vector<double>& localMatrixA_, std::vector<double>& localMatrixB_,
-             std::vector<double>& localMatrixC_) {
-  if (activeProcessCount_ == 1) {
-    MultBlocks(localMatrixA_.data(), localMatrixB_.data(), localMatrixC_.data(), blockSize_);
+void FoxStep(boost::mpi::communicator& mpi_comm, int process_rank, int active_process_count, int block_size,
+             std::vector<double>& local_matrix_a, std::vector<double>& local_matrix_b,
+             std::vector<double>& local_matrix_c) {
+  if (active_process_count == 1) {
+    MultBlocks(local_matrix_a.data(), local_matrix_b.data(), local_matrix_c.data(), block_size);
     return;
   }
 
-  std::vector<double> tempMatrixA_(blockSize_ * blockSize_);
-  std::vector<double> tempMatrixB_(blockSize_ * blockSize_);
+  std::vector<double> temp_matrix_a(block_size * block_size);
+  std::vector<double> temp_matrix_b(block_size * block_size);
 
-  int processRow_ = processRank_ / activeProcessCount_;
-  int processCol_ = processRank_ % activeProcessCount_;
+  int process_row = process_rank / active_process_count;
+  int process_col = process_rank % active_process_count;
 
-  for (int stepIdx_ = 0; stepIdx_ < activeProcessCount_; ++stepIdx_) {
-    if (processCol_ == (processRow_ + stepIdx_) % activeProcessCount_) {
-      for (int targetColIdx_ = 0; targetColIdx_ < activeProcessCount_; ++targetColIdx_) {
-        if (targetColIdx_ == processCol_) {
+  for (int step_idx = 0; step_idx < active_process_count; ++step_idx) {
+    if (process_col == (process_row + step_idx) % active_process_count) {
+      for (int target_col_idx = 0; target_col_idx < active_process_count; ++target_col_idx) {
+        if (target_col_idx == process_col) {
           continue;
         }
-        int targetProcess_ = (processRow_ * activeProcessCount_) + targetColIdx_;
-        mpiComm_.send(targetProcess_, 0, localMatrixA_.data(), blockSize_ * blockSize_);
+        int target_process = (process_row * active_process_count) + target_col_idx;
+        mpi_comm.send(target_process, 0, local_matrix_a.data(), block_size * block_size);
       }
-      tempMatrixA_ = localMatrixA_;
+      temp_matrix_a = local_matrix_a;
     } else {
-      int senderProcess_ = (processRow_ * activeProcessCount_) + ((processRow_ + stepIdx_) % activeProcessCount_);
-      mpiComm_.recv(senderProcess_, 0, tempMatrixA_.data(), blockSize_ * blockSize_);
+      int sender_process = (process_row * active_process_count) + ((process_row + step_idx) % active_process_count);
+      mpi_comm.recv(sender_process, 0, temp_matrix_a.data(), block_size * block_size);
     }
-    mpiComm_.barrier();
-    MultBlocks(tempMatrixA_.data(), localMatrixB_.data(), localMatrixC_.data(), blockSize_);
-    int sendToProcess_ =
-        (((processRow_ - 1 + activeProcessCount_) % activeProcessCount_) * activeProcessCount_) + processCol_;
-    int recvFromProcess_ = (((processRow_ + 1) % activeProcessCount_) * activeProcessCount_) + processCol_;
+    mpi_comm.barrier();
+    MultBlocks(temp_matrix_a.data(), local_matrix_b.data(), local_matrix_c.data(), block_size);
+    int send_to_process =
+        (((process_row - 1 + active_process_count) % active_process_count) * active_process_count) + process_col;
+    int recv_from_process = (((process_row + 1) % active_process_count) * active_process_count) + process_col;
 
-    mpiComm_.send(sendToProcess_, 0, localMatrixB_.data(), blockSize_ * blockSize_);
-    mpiComm_.recv(recvFromProcess_, 0, tempMatrixB_.data(), blockSize_ * blockSize_);
+    mpi_comm.send(send_to_process, 0, local_matrix_b.data(), block_size * block_size);
+    mpi_comm.recv(recv_from_process, 0, temp_matrix_b.data(), block_size * block_size);
 
-    mpiComm_.barrier();
+    mpi_comm.barrier();
 
-    localMatrixB_.swap(tempMatrixB_);
+    local_matrix_b.swap(temp_matrix_b);
   }
 }
 

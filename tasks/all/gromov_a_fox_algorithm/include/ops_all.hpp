@@ -9,17 +9,17 @@
 #include "core/task/include/task.hpp"
 
 namespace gromov_a_fox_algorithm_all {
-void ExtractBlock(const std::vector<double>& sourceMatrix_, double* blockBuffer_, int matrixWidth_, int blockSize_,
-                  int blockRowIdx_, int blockColIdx_);
-void MultBlocks(const double* matrixA_, const double* matrixB_, double* matrixC_, int blockSize_);
-void FoxStep(boost::mpi::communicator& mpiComm_, int processRank_, int activeProcessCount_, int blockSize_,
-             std::vector<double>& localMatrixA_, std::vector<double>& localMatrixB_,
-             std::vector<double>& localMatrixC_);
-std::vector<double> Scatter(const std::vector<double>& sourceMatrix_, std::size_t matrixSize_, int gridSize_,
-                            int blockSize_);
-std::vector<double> Gather(const std::vector<double>& gatheredBuffer_, std::size_t matrixSize_, int gridSize_,
-                           int blockSize_);
-int ProcessGrid(int totalProcessCount_, std::size_t matrixSize_);
+void ExtractBlock(const std::vector<double>& source_matrix, double* block_buffer, int matrix_width, int block_size,
+                  int block_row_idx, int block_col_idx);
+void MultBlocks(const double* matrix_a, const double* matrix_b, double* matrix_c, int block_size);
+void FoxStep(boost::mpi::communicator& mpi_comm, int process_rank, int active_process_count, int block_size,
+             std::vector<double>& local_matrix_a, std::vector<double>& local_matrix_b,
+             std::vector<double>& local_matrix_c);
+std::vector<double> Scatter(const std::vector<double>& source_matrix, std::size_t matrix_size, int grid_size,
+                            int block_size);
+std::vector<double> Gather(const std::vector<double>& gathered_buffer, std::size_t matrix_size, int grid_size,
+                           int block_size);
+int ProcessGrid(int total_process_count, std::size_t matrix_size);
 class TestTaskAll : public ppc::core::Task {
  public:
   explicit TestTaskAll(ppc::core::TaskDataPtr task_data) : Task(std::move(task_data)) {}
