@@ -3,6 +3,8 @@
 #include <boost/mpi/communicator.hpp>
 #include <cstddef>
 #include <cstdint>
+#include <limits>
+#include <cmath>
 #include <memory>
 #include <vector>
 
@@ -10,6 +12,30 @@
 #include "core/task/include/task.hpp"
 
 namespace mpi = boost::mpi;
+namespace konstantinov_i_sort_batcher_all {
+namespace {
+void VerifySpecialValuesHandling(const std::vector<double> &out) {
+  VerifyNanPresence(out);
+  VerifySortingOrder(out);
+}
+
+void VerifyNanPresence(const std::vector<double> &out) {
+  bool has_nan = std::any_of(out.begin(), out.end(), [](double val) { return std::isnan(val); });
+  EXPECT_TRUE(has_nan);
+}
+
+void VerifySortingOrder(const std::vector<double> &out) {
+  bool ordered = true;
+  for (size_t i = 1; i < out.size(); ++i) {
+    if (!std::isnan(out[i]) && !std::isnan(out[i - 1]) && out[i] < out[i - 1]) {
+      ordered = false;
+      break;
+    }
+  }
+  EXPECT_TRUE(ordered);
+}
+}  // namespace
+}  // namespace konstantinov_i_sort_batcher_all
 
 TEST(Konstantinov_I_Sort_Batcher_all, invalid_input) {
   mpi::communicator world;
@@ -78,25 +104,8 @@ TEST(Konstantinov_I_Sort_Batcher_all, special_floating_values) {
   test_task.PreProcessingImpl();
   test_task.RunImpl();
   test_task.PostProcessingImpl();
-
   if (world.rank() == 0) {
-    bool has_nan = false;
-    for (double val : out) {
-      if (std::isnan(val)) {
-        has_nan = true;
-        break;
-      }
-    }
-    EXPECT_TRUE(has_nan);
-
-    bool ordered = true;
-    for (size_t i = 1; i < out.size(); ++i) {
-      if (!std::isnan(out[i]) && !std::isnan(out[i - 1]) && out[i] < out[i - 1]) {
-        ordered = false;
-        break;
-      }
-    }
-    EXPECT_TRUE(ordered);
+    konstantinov_i_sort_batcher_all::VerifySpecialValuesHandling(out);
   }
 }
 
