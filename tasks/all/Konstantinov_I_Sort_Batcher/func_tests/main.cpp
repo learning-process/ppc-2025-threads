@@ -55,6 +55,79 @@ TEST(Konstantinov_I_Sort_Batcher_all, negative_values) {
   }
 }
 
+TEST(Konstantinov_I_Sort_Batcher_all, special_floating_values) {
+  mpi::communicator world;
+  std::vector<double> in{std::numeric_limits<double>::quiet_NaN(),
+                         std::numeric_limits<double>::infinity(),
+                         -std::numeric_limits<double>::infinity(),
+                         3.14,
+                         -2.5,
+                         0.0};
+  std::vector<double> out(in.size());
+
+  auto task_data = std::make_shared<ppc::core::TaskData>();
+  if (world.rank() == 0) {
+    task_data->inputs.emplace_back(reinterpret_cast<uint8_t *>(in.data()));
+    task_data->inputs_count.emplace_back(in.size());
+    task_data->outputs.emplace_back(reinterpret_cast<uint8_t *>(out.data()));
+    task_data->outputs_count.emplace_back(out.size());
+  }
+
+  konstantinov_i_sort_batcher_all::RadixSortBatcherall test_task(task_data);
+  ASSERT_EQ(test_task.ValidationImpl(), true);
+  test_task.PreProcessingImpl();
+  test_task.RunImpl();
+  test_task.PostProcessingImpl();
+
+  if (world.rank() == 0) {
+    bool has_nan = false;
+    for (double val : out) {
+      if (std::isnan(val)) {
+        has_nan = true;
+        break;
+      }
+    }
+    EXPECT_TRUE(has_nan);
+
+    bool ordered = true;
+    for (size_t i = 1; i < out.size(); ++i) {
+      if (!std::isnan(out[i]) && !std::isnan(out[i - 1]) && out[i] < out[i - 1]) {
+        ordered = false;
+        break;
+      }
+    }
+    EXPECT_TRUE(ordered);
+  }
+}
+
+TEST(Konstantinov_I_Sort_Batcher_all, nearly_sorted_input) {
+  mpi::communicator world;
+  std::vector<double> in{
+      1.0, 2.0, 3.0, 5.0, 4.0,
+      6.0, 7.0, 9.0, 8.0, 10.0
+  };
+  std::vector<double> exp_out{1.0, 2.0, 3.0, 4.0, 5.0, 6.0, 7.0, 8.0, 9.0, 10.0};
+  std::vector<double> out(in.size());
+
+  auto task_data = std::make_shared<ppc::core::TaskData>();
+  if (world.rank() == 0) {
+    task_data->inputs.emplace_back(reinterpret_cast<uint8_t *>(in.data()));
+    task_data->inputs_count.emplace_back(in.size());
+    task_data->outputs.emplace_back(reinterpret_cast<uint8_t *>(out.data()));
+    task_data->outputs_count.emplace_back(out.size());
+  }
+
+  konstantinov_i_sort_batcher_all::RadixSortBatcherall test_task(task_data);
+  ASSERT_EQ(test_task.ValidationImpl(), true);
+  test_task.PreProcessingImpl();
+  test_task.RunImpl();
+  test_task.PostProcessingImpl();
+
+  if (world.rank() == 0) {
+    EXPECT_EQ(exp_out, out);
+  }
+}
+
 TEST(Konstantinov_I_Sort_Batcher_all, positive_values) {
   std::vector<double> in{3.14, 1.0, 104.5, 0.1, 990.90};
   std::vector<double> exp_out{0.1, 1.0, 3.14, 104.5, 990.90};
