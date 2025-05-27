@@ -5,6 +5,7 @@
 #include <boost/mpi/collectives/broadcast.hpp>
 #include <boost/mpi/collectives/scatter.hpp>
 #include <climits>
+#include <algorithm>
 #include <cmath>
 #include <core/util/include/util.hpp>
 #include <cstdlib>
@@ -180,7 +181,6 @@ bool volochaev_s_shell_sort_with_batchers_even_odd_merge_all::ShellSortAll::PreP
 
   loc_.resize(loc_proc_lenght_);
   loc_tmp_.resize(loc_proc_lenght_);
-
   return true;
 }
 
@@ -209,6 +209,8 @@ bool volochaev_s_shell_sort_with_batchers_even_odd_merge_all::ShellSortAll::RunI
       }
     }
   }
+
+  std::ranges::sort(mas_);
 
   return ret;
 }
