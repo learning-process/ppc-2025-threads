@@ -39,9 +39,10 @@ class CCSALL : public ppc::core::Task {
   Sparse B_;
   Sparse Answer_;
   Sparse Process_data_;
+  int resize_data;
   boost::mpi::communicator world_;
   std::vector<int> displ_;
-  std::vector<int> elements_sizes_;
+  std::vector<double> sending_data;
   std::vector<int> sum_sizes_;
 
  public:
