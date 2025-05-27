@@ -16,7 +16,6 @@ TEST(yasakova_t_sparse_matrix_multiplication_omp, test_pipeline_run) {
   const uint32_t non_zero_elements = 5000;
   const uint32_t num_runs = 10;
 
-  // Create random sparse matrices
   auto sparse_matrix_a = CreateRandomSparseMatrix(matrix_size, non_zero_elements);
   auto sparse_matrix_b = CreateRandomSparseMatrix(matrix_size, non_zero_elements);
 
