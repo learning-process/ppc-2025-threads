@@ -10,14 +10,15 @@ namespace fomin_v_conjugate_gradient {
 
 class FominVConjugateGradientAll : public ppc::core::Task {
  public:
-  explicit FominVConjugateGradientAll(ppc::core::TaskDataPtr task_data) : Task(std::move(task_data)) {}
+  explicit FominVConjugateGradientAll(ppc::core::TaskDataPtr task_data)
+      : Task(std::move(task_data)), world_(MPI_COMM_WORLD, boost::mpi::comm_duplicate) {}
   bool PreProcessingImpl() override;
   bool ValidationImpl() override;
   bool RunImpl() override;
   bool PostProcessingImpl() override;
-  FominVConjugateGradientAll() : world_(MPI_COMM_WORLD) {}
 
-  static double DotProduct(const std::vector<double>& a, const std::vector<double>& b);
+  static double DotProduct(const boost::mpi::communicator& world, const std::vector<double>& a,
+                           const std::vector<double>& b);
   [[nodiscard]] std::vector<double> MatrixVectorMultiply(const std::vector<double>& a,
                                                          const std::vector<double>& x) const;
   static std::vector<double> VectorAdd(const std::vector<double>& a, const std::vector<double>& b);
@@ -25,6 +26,9 @@ class FominVConjugateGradientAll : public ppc::core::Task {
   static std::vector<double> VectorScalarMultiply(const std::vector<double>& v, double scalar);
 
   int n;
+  int rows_per_proc;
+  int max_iter = 1000;
+  double epsilon = 1e-6;
 
  private:
   std::vector<double> a_;
