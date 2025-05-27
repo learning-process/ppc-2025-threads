@@ -210,7 +210,7 @@ bool lavrentiev_a_ccs_all::CCSALL::RunImpl() {
   sending_data.resize(Process_data_.columnsSum.size() + (2 * resize_data));
   for (int i = 0; i < resize_data; i++) {
     sending_data[i + resize_data] = static_cast<double>(Process_data_.rows[i]);
-    if (i < Process_data_.columnsSum.size()) {
+    if (i < static_cast<int>(Process_data_.columnsSum.size())) {
       sending_data[i + (2 * resize_data)] = static_cast<double>(Process_data_.columnsSum[i]);
     }
   }
