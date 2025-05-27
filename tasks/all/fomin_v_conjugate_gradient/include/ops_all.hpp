@@ -36,7 +36,7 @@ class FominVConjugateGradientAll : public ppc::core::Task {
   boost::mpi::communicator world_;
   std::vector<double> local_a_;
   std::vector<double> local_b_;
-  int rows_per_proc
+  int rows_per_proc;
 };
 
 }  // namespace fomin_v_conjugate_gradient

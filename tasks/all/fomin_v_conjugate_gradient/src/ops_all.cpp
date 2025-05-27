@@ -92,10 +92,10 @@ bool fomin_v_conjugate_gradient::FominVConjugateGradientAll::PreProcessingImpl()
   rows_per_proc = n / world_.size();
 
   local_a_.resize(rows_per_proc * n);
-  boost::mpi::scatter(world_, a_.data(), rows_per_proc * n, local_a_.data(), 0);
+  boost::mpi::scatter(world_, a_.data(), local_a_.data(), rows_per_proc * n, 0);
 
   local_b_.resize(rows_per_proc);
-  boost::mpi::scatter(world_, b_.data(), rows_per_proc, local_b_.data(), 0);
+  boost::mpi::scatter(world_, b_.data(), local_b_.data(), rows_per_proc, 0);
 
   return true;
 }
