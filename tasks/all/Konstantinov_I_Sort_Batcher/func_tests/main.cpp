@@ -14,10 +14,7 @@
 namespace mpi = boost::mpi;
 namespace konstantinov_i_sort_batcher_all {
 namespace {
-void VerifySpecialValuesHandling(const std::vector<double> &out) {
-  VerifyNanPresence(out);
-  VerifySortingOrder(out);
-}
+
 
 void VerifyNanPresence(const std::vector<double> &out) {
   bool has_nan = std::any_of(out.begin(), out.end(), [](double val) { return std::isnan(val); });
@@ -33,6 +30,11 @@ void VerifySortingOrder(const std::vector<double> &out) {
     }
   }
   EXPECT_TRUE(ordered);
+}
+
+void VerifySpecialValuesHandling(const std::vector<double> &out) {
+  konstantinov_i_sort_batcher_all::VerifyNanPresence(out);
+  konstantinov_i_sort_batcher_all::VerifySortingOrder(out);
 }
 }  // namespace
 }  // namespace konstantinov_i_sort_batcher_all
