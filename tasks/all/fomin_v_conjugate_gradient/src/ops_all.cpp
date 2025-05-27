@@ -11,7 +11,7 @@
 #include <cstddef>
 #include <vector>
 
-double fomin_v_conjugate_gradient::FominVConjugateGradientAll::DotProduct(const communicator& world,
+double fomin_v_conjugate_gradient::FominVConjugateGradientAll::DotProduct(const boost::mpi::communicator& world,
                                                                           const std::vector<double>& a,
                                                                           const std::vector<double>& b) {
   double local_sum = tbb::parallel_reduce(
@@ -92,10 +92,10 @@ bool fomin_v_conjugate_gradient::FominVConjugateGradientAll::PreProcessingImpl()
   rows_per_proc = n / world_.size();
 
   local_a_.resize(rows_per_proc * n);
-  scatter(world_, a_.data(), rows_per_proc * n, local_a_.data(), 0);
+  boost::mpi::scatter(world_, a_.data(), rows_per_proc * n, local_a_.data(), 0);
 
   local_b_.resize(rows_per_proc);
-  scatter(world_, b_.data(), rows_per_proc, local_b_.data(), 0);
+  boost::mpi::scatter(world_, b_.data(), rows_per_proc, local_b_.data(), 0);
 
   return true;
 }
