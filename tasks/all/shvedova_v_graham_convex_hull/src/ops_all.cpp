@@ -134,7 +134,8 @@ bool GrahamConvexHullALL::RunImpl() {
 
   MPI_Comm group{};
   if (rank_ >= processes) {
-    MPI_Comm_split(MPI_COMM_WORLD, 1, rank_, &group);
+    MPI_Comm_split(MPI_COMM_WORLD, 0, rank_, &group);
+    MPI_Comm_free(&group);
     return true;
   }
   MPI_Comm_split(MPI_COMM_WORLD, 0, rank_, &group);
@@ -186,6 +187,8 @@ bool GrahamConvexHullALL::RunImpl() {
       break;
     }
   }
+
+  MPI_Comm_free(&group);
 
   if (rank_ == 0) {
     res_.push_back(procinput_[0]);
