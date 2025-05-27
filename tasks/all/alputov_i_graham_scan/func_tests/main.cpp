@@ -122,14 +122,6 @@ void ValidateHullWithSpecificCorners(int hull_size_actual, const std::vector<alp
     ASSERT_TRUE(actual_set.count(corner)) << "Corner (" << corner.x << "," << corner.y << ") not found in actual hull.";
   }
 }
-
-void ValidateRandom100PointsResult(int hull_size_actual,
-                                   const std::vector<alputov_i_graham_scan_all::Point>& input_points_with_corners,
-                                   const std::vector<alputov_i_graham_scan_all::Point>& actual_hull) {
-  std::vector<alputov_i_graham_scan_all::Point> corners = {{-1500, -1500}, {1500, -1500}, {1500, 1500}, {-1500, 1500}};
-  ValidateHullWithSpecificCorners(hull_size_actual, input_points_with_corners, actual_hull, corners);
-}
-
 }  // namespace
 
 TEST(alputov_i_graham_scan_all, minimal_triangle_case) {
@@ -239,9 +231,11 @@ TEST(alputov_i_graham_scan_all, random_100_points) {
   int rank{};
   MPI_Comm_rank(MPI_COMM_WORLD, &rank);
 
-  std::vector<alputov_i_graham_scan_all::Point> input_points;
-  GenerateRandomData(input_points, 100);
+  std::vector<alputov_i_graham_scan_all::Point> input_points_random_part;
+  GenerateRandomData(input_points_random_part, 100);
   std::vector<alputov_i_graham_scan_all::Point> corners = {{-1500, -1500}, {1500, -1500}, {1500, 1500}, {-1500, 1500}};
+
+  std::vector<alputov_i_graham_scan_all::Point> input_points = input_points_random_part;
   input_points.insert(input_points.end(), corners.begin(), corners.end());
 
   std::vector<double> input_doubles = PointsToDoubles(input_points);
@@ -272,8 +266,10 @@ TEST(alputov_i_graham_scan_all, duplicate_points) {
   int rank{};
   MPI_Comm_rank(MPI_COMM_WORLD, &rank);
 
-  std::vector<alputov_i_graham_scan_all::Point> input_points(10, {2.5, 3.5});
+  std::vector<alputov_i_graham_scan_all::Point> input_points_duplicates(10, {2.5, 3.5});
   std::vector<alputov_i_graham_scan_all::Point> expected_square = {{0, 0}, {5, 0}, {0, 5}, {5, 5}};
+
+  std::vector<alputov_i_graham_scan_all::Point> input_points = input_points_duplicates;
   input_points.insert(input_points.end(), expected_square.begin(), expected_square.end());
 
   std::vector<double> input_doubles = PointsToDoubles(input_points);
@@ -330,6 +326,7 @@ TEST(alputov_i_graham_scan_all, star_figure) {
     std::vector<alputov_i_graham_scan_all::Point> actual_hull = DoublesToPoints(output_hull_doubles, hull_size_actual);
 
     std::vector<alputov_i_graham_scan_all::Point> expected_outer_points;
+    expected_outer_points.reserve(num_points_star);
     for (size_t i = 0; i < num_points_star; ++i) {
       double angle = 2.0 * std::numbers::pi * static_cast<double>(i) / static_cast<double>(num_points_star);
       expected_outer_points.emplace_back(20.0 * std::cos(angle), 20.0 * std::sin(angle));
@@ -341,10 +338,6 @@ TEST(alputov_i_graham_scan_all, star_figure) {
 TEST(alputov_i_graham_scan_all, zero_points_invalid) {
   int rank{};
   MPI_Comm_rank(MPI_COMM_WORLD, &rank);
-
-  std::vector<alputov_i_graham_scan_all::Point> input_points = {};
-  std::vector<double> input_doubles = PointsToDoubles(input_points);
-
   int hull_size_actual = 0;
   std::vector<double> output_hull_doubles(6);
 
@@ -426,9 +419,11 @@ TEST(alputov_i_graham_scan_all, random_2500_points) {
   int rank{};
   MPI_Comm_rank(MPI_COMM_WORLD, &rank);
 
-  std::vector<alputov_i_graham_scan_all::Point> input_points;
-  GenerateRandomData(input_points, 2500, 123);
+  std::vector<alputov_i_graham_scan_all::Point> input_points_random_part;
+  GenerateRandomData(input_points_random_part, 2500, 123);
   std::vector<alputov_i_graham_scan_all::Point> corners = {{-2000, -2000}, {2000, -2000}, {2000, 2000}, {-2000, 2000}};
+
+  std::vector<alputov_i_graham_scan_all::Point> input_points = input_points_random_part;
   input_points.insert(input_points.end(), corners.begin(), corners.end());
 
   std::vector<double> input_doubles = PointsToDoubles(input_points);
@@ -645,9 +640,11 @@ TEST(alputov_i_graham_scan_all, random_50_points_with_corners) {
   int rank{};
   MPI_Comm_rank(MPI_COMM_WORLD, &rank);
 
-  std::vector<alputov_i_graham_scan_all::Point> input_points;
-  GenerateRandomData(input_points, 50, 5050);
+  std::vector<alputov_i_graham_scan_all::Point> input_points_random_part;
+  GenerateRandomData(input_points_random_part, 50, 5050);
   std::vector<alputov_i_graham_scan_all::Point> corners = {{-1500, -1500}, {1500, -1500}, {1500, 1500}, {-1500, 1500}};
+
+  std::vector<alputov_i_graham_scan_all::Point> input_points = input_points_random_part;
   input_points.insert(input_points.end(), corners.begin(), corners.end());
 
   std::vector<double> input_doubles = PointsToDoubles(input_points);
@@ -677,9 +674,11 @@ TEST(alputov_i_graham_scan_all, random_200_points_with_corners) {
   int rank{};
   MPI_Comm_rank(MPI_COMM_WORLD, &rank);
 
-  std::vector<alputov_i_graham_scan_all::Point> input_points;
-  GenerateRandomData(input_points, 200, 200200);
+  std::vector<alputov_i_graham_scan_all::Point> input_points_random_part;
+  GenerateRandomData(input_points_random_part, 200, 200200);
   std::vector<alputov_i_graham_scan_all::Point> corners = {{-1500, -1500}, {1500, -1500}, {1500, 1500}, {-1500, 1500}};
+
+  std::vector<alputov_i_graham_scan_all::Point> input_points = input_points_random_part;
   input_points.insert(input_points.end(), corners.begin(), corners.end());
 
   std::vector<double> input_doubles = PointsToDoubles(input_points);
@@ -709,9 +708,11 @@ TEST(alputov_i_graham_scan_all, large_random_1000_points_with_corners) {
   int rank{};
   MPI_Comm_rank(MPI_COMM_WORLD, &rank);
 
-  std::vector<alputov_i_graham_scan_all::Point> input_points;
-  GenerateRandomData(input_points, 1000, 10001000, -5000, 5000);
+  std::vector<alputov_i_graham_scan_all::Point> input_points_random_part;
+  GenerateRandomData(input_points_random_part, 1000, 10001000, -5000, 5000);
   std::vector<alputov_i_graham_scan_all::Point> corners = {{-6000, -6000}, {6000, -6000}, {6000, 6000}, {-6000, 6000}};
+
+  std::vector<alputov_i_graham_scan_all::Point> input_points = input_points_random_part;
   input_points.insert(input_points.end(), corners.begin(), corners.end());
 
   std::vector<double> input_doubles = PointsToDoubles(input_points);
@@ -741,10 +742,12 @@ TEST(alputov_i_graham_scan_all, very_large_random_5000_points_with_corners) {
   int rank{};
   MPI_Comm_rank(MPI_COMM_WORLD, &rank);
 
-  std::vector<alputov_i_graham_scan_all::Point> input_points;
-  GenerateRandomData(input_points, 5000, 50005000, -10000, 10000);
+  std::vector<alputov_i_graham_scan_all::Point> input_points_random_part;
+  GenerateRandomData(input_points_random_part, 5000, 50005000, -10000, 10000);
   std::vector<alputov_i_graham_scan_all::Point> corners = {
       {-12000, -12000}, {12000, -12000}, {12000, 12000}, {-12000, 12000}};
+
+  std::vector<alputov_i_graham_scan_all::Point> input_points = input_points_random_part;
   input_points.insert(input_points.end(), corners.begin(), corners.end());
 
   std::vector<double> input_doubles = PointsToDoubles(input_points);
@@ -775,7 +778,7 @@ TEST(alputov_i_graham_scan_all, points_match_active_procs_convex_polygon) {
   MPI_Comm_rank(MPI_COMM_WORLD, &rank);
   MPI_Comm_size(MPI_COMM_WORLD, &world_size_val);
 
-  size_t num_polygon_vertices = std::max(3, world_size_val);
+  size_t num_polygon_vertices = static_cast<size_t>(std::max(3, world_size_val));
   std::vector<alputov_i_graham_scan_all::Point> input_points = GenerateConvexPolygon(num_polygon_vertices);
   std::vector<double> input_doubles = PointsToDoubles(input_points);
 
@@ -807,7 +810,7 @@ TEST(alputov_i_graham_scan_all, points_one_more_than_active_procs_convex_polygon
   MPI_Comm_rank(MPI_COMM_WORLD, &rank);
   MPI_Comm_size(MPI_COMM_WORLD, &world_size_val);
 
-  size_t num_polygon_vertices = std::max(3, world_size_val + 1);
+  size_t num_polygon_vertices = static_cast<size_t>(std::max(3, world_size_val + 1));
   std::vector<alputov_i_graham_scan_all::Point> input_points = GenerateConvexPolygon(num_polygon_vertices, 50.0);
   std::vector<double> input_doubles = PointsToDoubles(input_points);
 
@@ -930,6 +933,7 @@ TEST(alputov_i_graham_scan_all, triangle_with_many_duplicates) {
   MPI_Comm_rank(MPI_COMM_WORLD, &rank);
 
   std::vector<alputov_i_graham_scan_all::Point> input_points;
+  input_points.reserve(15);
   std::vector<alputov_i_graham_scan_all::Point> expected_hull = {{0, 0}, {2, 0}, {1, 2}};
   for (int i = 0; i < 5; ++i) input_points.push_back({0, 0});
   for (int i = 0; i < 5; ++i) input_points.push_back({2, 0});
@@ -996,6 +1000,7 @@ TEST(alputov_i_graham_scan_all, many_points_on_line_segment_plus_one_peak) {
   MPI_Comm_rank(MPI_COMM_WORLD, &rank);
 
   std::vector<alputov_i_graham_scan_all::Point> input_points;
+  input_points.reserve(12);
   for (int i = 0; i <= 10; ++i) input_points.emplace_back(static_cast<double>(i) * 0.1, 0.0);
   input_points.emplace_back(0.5, 1.0);
   std::vector<alputov_i_graham_scan_all::Point> expected_hull = {{0, 0}, {1, 0}, {0.5, 1.0}};
