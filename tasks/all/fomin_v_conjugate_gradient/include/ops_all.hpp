@@ -1,8 +1,8 @@
 #pragma once
 
+#include <boost/mpi/communicator.hpp>
 #include <utility>
 #include <vector>
-#include <boost/mpi/communicator.hpp>
 
 #include "core/task/include/task.hpp"
 
@@ -31,7 +31,7 @@ class FominVConjugateGradientAll : public ppc::core::Task {
   std::vector<double> b_;
   std::vector<double> output_;
   boost::mpi::communicator world_;
-  std::vector<double> local_a_;  
+  std::vector<double> local_a_;
   std::vector<double> local_b_;
 };
 

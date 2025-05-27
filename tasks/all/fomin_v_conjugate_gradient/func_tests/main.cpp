@@ -6,8 +6,8 @@
 #include <memory>
 #include <vector>
 
-#include "core/task/include/task.hpp"
 #include "all/fomin_v_conjugate_gradient/include/ops_all.hpp"
+#include "core/task/include/task.hpp"
 
 TEST(FominVConjugateGradientAll, test_small_system) {
   constexpr size_t kCount = 3;
