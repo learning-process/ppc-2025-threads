@@ -362,9 +362,9 @@ void TestTaskALL::LocalParallelSort(std::vector<Point>& points, const Point& piv
   const auto num_threads_hint = static_cast<size_t>(ppc::util::GetPPCNumThreads());
   const size_t num_threads =
       std::max(static_cast<size_t>(1),
-               std::min({n / 1000, num_threads_hint, static_cast<size_t>(std::thread::hardware_concurrency())}));
+               std::min({n / 500, num_threads_hint, static_cast<size_t>(std::thread::hardware_concurrency())}));
 
-  if (num_threads <= 1 || n < 1000) {
+  if (num_threads <= 1 || n < 500) {
     std::ranges::sort(points, comparator);
     return;
   }
