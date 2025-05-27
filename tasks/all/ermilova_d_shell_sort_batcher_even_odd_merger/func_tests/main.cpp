@@ -5,6 +5,7 @@
 #include <boost/mpi/communicator.hpp>
 #include <cstddef>
 #include <cstdint>
+#include <limits>
 #include <memory>
 #include <random>
 #include <vector>
@@ -851,6 +852,70 @@ TEST(ermilova_d_shell_sort_batcher_even_odd_merger_all, test_sort_with_boundary_
   auto task_data = std::make_shared<ppc::core::TaskData>();
   if (world.rank() == 0) {
     in = GenerateRandomVector(457);
+    out.resize(in.size());
+    expected = in;
+    std::ranges::sort(expected);
+
+    task_data->inputs.emplace_back(reinterpret_cast<uint8_t *>(in.data()));
+    task_data->inputs_count.emplace_back(in.size());
+    task_data->outputs.emplace_back(reinterpret_cast<uint8_t *>(out.data()));
+    task_data->outputs_count.emplace_back(out.size());
+  }
+  // Create Task
+  ermilova_d_shell_sort_batcher_even_odd_merger_all::AllTask sut(task_data);
+  sut.Validation();
+  sut.PreProcessing();
+  sut.Run();
+  sut.PostProcessing();
+
+  if (world.rank() == 0) {
+    ASSERT_EQ(expected, out);
+  }
+}
+
+TEST(ermilova_d_shell_sort_batcher_even_odd_merger_all, test_sort_with_alternating_positive_negative) {
+  // Create data
+  std::vector<int> in;
+  std::vector<int> out;
+  std::vector<int> expected;
+  boost::mpi::communicator world;
+
+  // Create task_data
+  auto task_data = std::make_shared<ppc::core::TaskData>();
+  if (world.rank() == 0) {
+    in = {-1, 1, -2, 2, -3, 3, -4, 4, -5, 5, -6, 6, -7, 7, -8, 8, -9, 9};
+    out.resize(in.size());
+    expected = in;
+    std::ranges::sort(expected);
+
+    task_data->inputs.emplace_back(reinterpret_cast<uint8_t *>(in.data()));
+    task_data->inputs_count.emplace_back(in.size());
+    task_data->outputs.emplace_back(reinterpret_cast<uint8_t *>(out.data()));
+    task_data->outputs_count.emplace_back(out.size());
+  }
+  // Create Task
+  ermilova_d_shell_sort_batcher_even_odd_merger_all::AllTask sut(task_data);
+  sut.Validation();
+  sut.PreProcessing();
+  sut.Run();
+  sut.PostProcessing();
+
+  if (world.rank() == 0) {
+    ASSERT_EQ(expected, out);
+  }
+}
+
+TEST(ermilova_d_shell_sort_batcher_even_odd_merger_all, test_sort_with_max_min) {
+  // Create data
+  std::vector<int> in;
+  std::vector<int> out;
+  std::vector<int> expected;
+  boost::mpi::communicator world;
+
+  // Create task_data
+  auto task_data = std::make_shared<ppc::core::TaskData>();
+  if (world.rank() == 0) {
+    in = {std::numeric_limits<int>::max(), 3456, 12, -234, std::numeric_limits<int>::min(), 1244, 0, 781, 237};
     out.resize(in.size());
     expected = in;
     std::ranges::sort(expected);

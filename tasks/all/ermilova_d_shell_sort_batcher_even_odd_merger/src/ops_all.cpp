@@ -148,11 +148,12 @@ bool ermilova_d_shell_sort_batcher_even_odd_merger_all::AllTask::RunImpl() {
     size_t total_size = full_data.size();
     size_t offset = 0;
 
-    for (int i = 0; i < size; ++i) {
-      size_t count = (total_size + i) / size;
-      send_counts[i] = static_cast<int>(count);
+    size_t base = total_size / size;
+    size_t rem = total_size % size;
+    for (size_t i = 0; i < static_cast<size_t>(size); ++i) {
+      send_counts[i] = static_cast<int>(base + (i < rem ? 1 : 0));
       displs[i] = static_cast<int>(offset);
-      offset += count;
+      offset += send_counts[i];
     }
 
     for (int i = 1; i < size; ++i) {
@@ -175,10 +176,8 @@ bool ermilova_d_shell_sort_batcher_even_odd_merger_all::AllTask::RunImpl() {
     world.send(0, 1, local_chunk);
   }
 
-  std::vector<int> result;
-
   if (rank == 0) {
-    result.resize(full_data.size());
+    std::vector<int> result(full_data.size());
     std::ranges::copy(local_chunk, result.begin());
 
     for (int i = 1; i < size; ++i) {
