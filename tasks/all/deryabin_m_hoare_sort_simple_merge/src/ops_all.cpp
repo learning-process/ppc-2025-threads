@@ -47,22 +47,26 @@ void deryabin_m_hoare_sort_simple_merge_mpi::HoaraSort(std::vector<double>::iter
 
 void deryabin_m_hoare_sort_simple_merge_mpi::MergeTwoParts(std::vector<double>::iterator first,
                                                            std::vector<double>::iterator last) {
-  const size_t len = std::distance(first, last);
-  if (len <= 1) return;
-  std::vector<double>::iterator mid = first + len / 2;
-  std::vector<double>::iterator left_end = std::upper_bound(first, mid, *mid);
-  std::vector<double>::iterator right_start = std::lower_bound(mid, last, *(mid - 1));
-  const size_t overlap_len = std::distance(left_end, mid) + std::distance(mid, right_start);
-  tbb::parallel_for(tbb::blocked_range<size_t>(0, overlap_len), [&](const tbb::blocked_range<size_t>& r) {
-    for (size_t i = r.begin(); i < r.end(); ++i) {
-      std::vector<double>::iterator left = left_end + i;
-      std::vector<double>::iterator right = mid + i;
-      if (*left > *right) {
-        std::iter_swap(left, right);
+  if (last - first >= 200) {
+    const size_t len = std::distance(first, last);
+    if (len <= 1) return;
+    std::vector<double>::iterator mid = first + len / 2;
+    std::vector<double>::iterator left_end = std::upper_bound(first, mid, *mid);
+    std::vector<double>::iterator right_start = std::lower_bound(mid, last, *(mid - 1));
+    const size_t overlap_len = std::distance(left_end, mid) + std::distance(mid, right_start);
+    tbb::parallel_for(tbb::blocked_range<size_t>(0, overlap_len), [&](const tbb::blocked_range<size_t>& r) {
+      for (size_t i = r.begin(); i < r.end(); ++i) {
+        std::vector<double>::iterator left = left_end + i;
+        std::vector<double>::iterator right = mid + i;
+        if (*left > *right) {
+          std::iter_swap(left, right);
+        }
       }
-    }
-  });
-  std::inplace_merge(left_end, mid, right_start);
+    });
+    std::inplace_merge(left_end, mid, right_start);
+  } else {
+    std::inplace_merge(first, first + ((last - first) >> 1), last);
+  }
 }
 
 bool deryabin_m_hoare_sort_simple_merge_mpi::HoareSortTaskSequential::PreProcessingImpl() {
@@ -142,12 +146,11 @@ bool deryabin_m_hoare_sort_simple_merge_mpi::HoareSortTaskMPI::RunImpl() {
       unsigned short step = 1ULL << i;
       size_t block_size = min_chunk_size_ * static_cast<size_t>(step);
       if ((world.rank() + 1) % step == 0) {
-        if (world.rank() / step % 2 == 0) {
+        if (world.rank() / step % 2 == 0 && world.rank() + step < world.size()) {
           size_t start_idx = (static_cast<size_t>(world.rank() - step) + 1) * min_chunk_size_;
           if (world.rank() != 0) {
             start_iter += rest_;
           }
-          world.barrier();
           world.send(static_cast<size_t>(world.rank() + step), 0, input_array_A_.data() + start_idx, block_size);
         }
         if (world.rank() / step % 2 != 0 || world.rank() == world.size() - 1) {
@@ -155,7 +158,6 @@ bool deryabin_m_hoare_sort_simple_merge_mpi::HoareSortTaskMPI::RunImpl() {
           if (world.rank() - step != 0) {
             start_iter += rest_;
           }
-          world.barrier();
           world.recv(static_cast<size_t>(world.rank() - step), 0, input_array_A_.data() + start_idx, block_size);
           MergeTwoParts(input_array_A_.begin() + start_idx, input_array_A_.begin() + start_idx + 2 * block_size);
         }
