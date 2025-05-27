@@ -24,7 +24,7 @@ class TestTaskAll : public ppc::core::Task {
     };
   }
 
-  bool ShellSort(unsigned int start, unsigned int finish);
+  bool ShellSort(unsigned int, unsigned int);
   static bool OddEvenMergeOMP(long long int *, long long int *, const long long int *, unsigned int);
   bool OddEvenMergeMPI(unsigned int);
   bool FinalMergeOMP(unsigned int);
