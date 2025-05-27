@@ -13,8 +13,7 @@
 namespace deryabin_m_hoare_sort_simple_merge_mpi {
 
 void HoaraSort(std::vector<double>::iterator first, std::vector<double>::iterator last);
-void deryabin_m_hoare_sort_simple_merge_mpi::MergeTwoParts(std::vector<double>::iterator first,
-                                                           std::vector<double>::iterator last);
+void MergeTwoParts(std::vector<double>::iterator first, std::vector<double>::iterator last);
 
 class HoareSortTaskSequential : public ppc::core::Task {
  public:
