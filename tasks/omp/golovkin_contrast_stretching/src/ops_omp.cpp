@@ -34,7 +34,9 @@ bool golovkin_contrast_stretching::ContrastStretchingOMP<PixelType>::PreProcessi
 
 template <typename PixelType>
 bool golovkin_contrast_stretching::ContrastStretchingOMP<PixelType>::RunImpl() {
-  if (image_size_ == 0) return true;
+  if (image_size_ == 0) {
+    return true;
+  }
   if (min_val_ == max_val_) {
     std::fill(output_image_.begin(), output_image_.end(), 0);
     return true;
