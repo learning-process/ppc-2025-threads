@@ -60,7 +60,7 @@ TEST(zinoviev_a_convex_hull_components_all, test_pipeline_run) {
   auto task = std::make_shared<ConvexHullMPI>(task_data);
 
   auto perf_attr = std::make_shared<ppc::core::PerfAttr>();
-  perf_attr->num_running = 3;
+  perf_attr->num_running = 8;
 
   const auto t0 = std::chrono::high_resolution_clock::now();
   perf_attr->current_timer = [&] {
@@ -110,7 +110,7 @@ TEST(zinoviev_a_convex_hull_components_all, test_task_run) {
   auto task = std::make_shared<ConvexHullMPI>(task_data);
 
   auto perf_attr = std::make_shared<ppc::core::PerfAttr>();
-  perf_attr->num_running = 3;
+  perf_attr->num_running = 8;
 
   const auto t0 = std::chrono::high_resolution_clock::now();
   perf_attr->current_timer = [&] {
