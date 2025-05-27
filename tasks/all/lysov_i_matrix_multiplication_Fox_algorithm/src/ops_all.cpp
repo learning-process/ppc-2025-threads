@@ -13,8 +13,14 @@
 #include <cmath>
 #include <cstddef>
 #include <cstring>
-#include <ranges>
 #include <vector>
+
+#include "boost/mpi/collectives/broadcast.hpp"
+#include "boost/mpi/collectives/gather.hpp"
+#include "boost/mpi/collectives/scatter.hpp"
+#include "oneapi/tbb/global_control.h"
+#include "oneapi/tbb/parallel_for.h"
+#include "oneapi/tbb/task_arena.h"
 int lysov_i_matrix_multiplication_fox_algorithm_mpi_tbb::ComputeProcessGrid(int world_size, std::size_t n) {
   int q = static_cast<int>(std::floor(std::sqrt(world_size)));
   while (q > 1 && (world_size % q != 0 || (n % q) != 0)) {
