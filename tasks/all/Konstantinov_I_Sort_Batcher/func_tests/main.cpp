@@ -14,8 +14,6 @@
 namespace mpi = boost::mpi;
 namespace konstantinov_i_sort_batcher_all {
 namespace {
-
-
 void VerifyNanPresence(const std::vector<double> &out) {
   bool has_nan = std::any_of(out.begin(), out.end(), [](double val) { return std::isnan(val); });
   EXPECT_TRUE(has_nan);
