@@ -78,19 +78,26 @@ void deryabin_m_hoare_sort_simple_merge_mpi::HoaraSort(std::vector<double>::iter
 void deryabin_m_hoare_sort_simple_merge_mpi::MergeTwoParts(std::vector<double>::iterator first,
                                                            std::vector<double>::iterator last) {
   if (last - first >= 200) {
-    const size_t len = std::distance(first, last);
+    const size_t len = last - first;
     if (len <= 1) return;
-    const std::vector<double>::iterator mid = first + (len >> 2);
-    const std::vector<double>::iterator left_end = std::upper_bound(first, mid, *mid);
-    const std::vector<double>::iterator right_start = std::lower_bound(mid, last, *(mid - 1));
-    const size_t overlap_len = std::distance(left_end, mid) + std::distance(mid, right_start);
-    tbb::parallel_for(tbb::blocked_range<size_t>(0, overlap_len), [&](const tbb::blocked_range<size_t>& r) {
-      for (size_t i = r.begin(); i < r.end(); ++i) {
-        std::vector<double>::iterator left = left_end + i;
-        std::vector<double>::iterator right = mid + i;
+    const auto mid = first + (len >> 1);
+    const auto pivot = *mid;
+    const auto left_end = std::upper_bound(first, mid, pivot);
+    const auto right_pivot = *(mid - 1);
+    const auto right_start = std::lower_bound(mid, last, right_pivot);
+    const size_t left_len = mid - left_end;
+    const size_t right_len = right_start - mid;
+    const size_t overlap_len = left_len + right_len;
+    tbb::parallel_for(tbb::blocked_range<size_t>(0, overlap_len), [&left_end, &mid](const tbb::blocked_range<size_t>& r) {
+      auto left = left_end + r.begin();
+      auto right = mid + r.begin();
+      const auto end = left + (r.end() - r.begin());
+      while (left != end) {
         if (*left > *right) {
           std::iter_swap(left, right);
         }
+        ++left;
+        ++right;
       }
     });
     std::inplace_merge(left_end, mid, right_start);
