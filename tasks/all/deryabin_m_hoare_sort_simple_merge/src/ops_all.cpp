@@ -87,18 +87,19 @@ void deryabin_m_hoare_sort_simple_merge_mpi::MergeTwoParts(std::vector<double>::
     const size_t left_len = mid - left_end;
     const size_t right_len = right_start - mid;
     const size_t overlap_len = left_len + right_len;
-    tbb::parallel_for(tbb::blocked_range<size_t>(0, overlap_len), [&left_end, &mid](const tbb::blocked_range<size_t>& r) {
-      auto left = left_end + r.begin();
-      auto right = mid + r.begin();
-      const auto end = left + (r.end() - r.begin());
-      while (left != end) {
-        if (*left > *right) {
-          std::iter_swap(left, right);
-        }
-        ++left;
-        ++right;
-      }
-    });
+    tbb::parallel_for(tbb::blocked_range<size_t>(0, overlap_len),
+                      [&left_end, &mid](const tbb::blocked_range<size_t>& r) {
+                        auto left = left_end + r.begin();
+                        auto right = mid + r.begin();
+                        const auto end = left + (r.end() - r.begin());
+                        while (left != end) {
+                          if (*left > *right) {
+                            std::iter_swap(left, right);
+                          }
+                          ++left;
+                          ++right;
+                        }
+                      });
     std::inplace_merge(left_end, mid, right_start);
   } else {
     std::inplace_merge(first, first + ((last - first) >> 1), last);
@@ -193,18 +194,16 @@ bool deryabin_m_hoare_sort_simple_merge_mpi::HoareSortTaskMPI::RunImpl() {
           if (world.rank() != 0) {
             start_idx += rest_;
           }
-          MPI_Ssend(input_array_A_.data() + start_idx, block_size, MPI_DOUBLE, 
-                   world.rank() + step, 0, world);
+          MPI_Ssend(input_array_A_.data() + start_idx, block_size, MPI_DOUBLE, world.rank() + step, 0, world);
         }
         if (!is_even || world.rank() == world_size - 1) {
           size_t start_idx = (static_cast<size_t>(world.rank() - 2 * step) + 1) * chunk_size;
           if (world.rank() - step != 0) {
             start_idx += rest_;
           }
-          MPI_Recv(input_array_A_.data() + start_idx, block_size, MPI_DOUBLE,
-                   world.rank() - step, 0, world, MPI_STATUS_IGNORE);
-          MergeTwoParts(input_array_A_.begin() + start_idx, 
-                       input_array_A_.begin() + start_idx + 2 * block_size);
+          MPI_Recv(input_array_A_.data() + start_idx, block_size, MPI_DOUBLE, world.rank() - step, 0, world,
+                   MPI_STATUS_IGNORE);
+          MergeTwoParts(input_array_A_.begin() + start_idx, input_array_A_.begin() + start_idx + 2 * block_size);
         }
       }
     }
