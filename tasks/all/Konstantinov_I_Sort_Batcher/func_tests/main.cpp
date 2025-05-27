@@ -102,10 +102,7 @@ TEST(Konstantinov_I_Sort_Batcher_all, special_floating_values) {
 
 TEST(Konstantinov_I_Sort_Batcher_all, nearly_sorted_input) {
   mpi::communicator world;
-  std::vector<double> in{
-      1.0, 2.0, 3.0, 5.0, 4.0,
-      6.0, 7.0, 9.0, 8.0, 10.0
-  };
+  std::vector<double> in{1.0, 2.0, 3.0, 5.0, 4.0, 6.0, 7.0, 9.0, 8.0, 10.0};
   std::vector<double> exp_out{1.0, 2.0, 3.0, 4.0, 5.0, 6.0, 7.0, 8.0, 9.0, 10.0};
   std::vector<double> out(in.size());
 
