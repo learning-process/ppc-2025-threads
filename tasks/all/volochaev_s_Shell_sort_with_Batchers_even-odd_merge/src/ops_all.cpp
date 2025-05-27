@@ -12,7 +12,7 @@
 #include <vector>
 
 bool volochaev_s_shell_sort_with_batchers_even_odd_merge_all::ShellSortAll::ShellSort(unsigned int start,
-                                                                                     unsigned int size) {
+                                                                                      unsigned int size) {
   unsigned int n = size;
 
   int gap = 1;
@@ -37,9 +37,9 @@ bool volochaev_s_shell_sort_with_batchers_even_odd_merge_all::ShellSortAll::Shel
 }
 
 bool volochaev_s_shell_sort_with_batchers_even_odd_merge_all::ShellSortAll::OddEvenMergeOMP(long long int* tmp,
-                                                                                           long long int* l,
-                                                                                           const long long int* r,
-                                                                                           unsigned int len) {
+                                                                                            long long int* l,
+                                                                                            const long long int* r,
+                                                                                            unsigned int len) {
   unsigned int iter_l = 0;
   unsigned int iter_r = 0;
   unsigned int iter_tmp = 0;
