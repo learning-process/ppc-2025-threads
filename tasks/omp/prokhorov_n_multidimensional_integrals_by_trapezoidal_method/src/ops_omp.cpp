@@ -8,6 +8,8 @@
 #include <utility>
 #include <vector>
 
+#include "core/task/include/task.hpp"
+
 namespace prokhorov_n_multidimensional_integrals_by_trapezoidal_method_omp {
 
 double ParallelIntegration(const std::function<double(const std::vector<double>&)>& func,
