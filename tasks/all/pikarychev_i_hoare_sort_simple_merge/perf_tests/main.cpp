@@ -62,6 +62,8 @@ TEST(pikarychev_i_hoare_sort_simple_merge_all, test_pipeline_run) {
     ppc::core::Perf::PrintPerfStatistic(perf_results);
     EXPECT_TRUE(std::ranges::is_sorted(out));
   }
+
+  EXPECT_TRUE(std::ranges::is_sorted(out, std::greater<>{}));
 }
 
 TEST(pikarychev_i_hoare_sort_simple_merge_all, test_task_run) {
@@ -101,4 +103,6 @@ TEST(pikarychev_i_hoare_sort_simple_merge_all, test_task_run) {
     ppc::core::Perf::PrintPerfStatistic(perf_results);
     EXPECT_TRUE(std::ranges::is_sorted(out));
   }
+
+  EXPECT_TRUE(std::ranges::is_sorted(out, std::greater<>{}));
 }
