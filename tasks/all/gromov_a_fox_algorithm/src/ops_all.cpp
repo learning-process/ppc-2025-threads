@@ -92,15 +92,18 @@ bool TestTaskAll::RunImpl() {
   std::vector<double> local_matrix_a(block_size * block_size);
   std::vector<double> local_matrix_b(block_size * block_size);
   std::vector<double> local_matrix_c(block_size * block_size, 0.0);
-  boost::mpi::scatter(local_mpi_comm, scatter_matrix_a, local_matrix_a.data(), static_cast<int>(local_matrix_a.size()), 0);
-  boost::mpi::scatter(local_mpi_comm, scatter_matrix_b, local_matrix_b.data(), static_cast<int>(local_matrix_b.size()), 0);
+  boost::mpi::scatter(local_mpi_comm, scatter_matrix_a, local_matrix_a.data(), static_cast<int>(local_matrix_a.size()), 
+                      0);
+  boost::mpi::scatter(local_mpi_comm, scatter_matrix_b, local_matrix_b.data(), static_cast<int>(local_matrix_b.size()),
+                      0);
   tbb::global_control tbb_control{tbb::global_control::max_allowed_parallelism, 1};
   tbb::task_arena tbb_task_arena;
   tbb_task_arena.execute([&] {
     FoxStep(local_mpi_comm, process_rank, grid_size, block_size, local_matrix_a, local_matrix_b, local_matrix_c);
   });
   std::vector<double> gathered_matrix(matrixElements_);
-  boost::mpi::gather(local_mpi_comm, local_matrix_c.data(), static_cast<int>(local_matrix_c.size()), gathered_matrix, 0);
+  boost::mpi::gather(local_mpi_comm, local_matrix_c.data(), static_cast<int>(local_matrix_c.size()), gathered_matrix,
+                     0);
 
   if (process_rank == 0) {
     resultMatrix_ = Gather(gathered_matrix, matrixSize_, grid_size, block_size);
