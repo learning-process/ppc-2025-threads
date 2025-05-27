@@ -9,7 +9,6 @@
 #include <numbers>
 #include <random>
 #include <set>
-#include <stdexcept>
 #include <vector>
 
 #include "all/alputov_i_graham_scan/include/ops_all.hpp"
@@ -64,12 +63,14 @@ std::vector<alputov_i_graham_scan_all::Point> GenerateStarPoints(size_t num_poin
 
 std::vector<alputov_i_graham_scan_all::Point> GenerateConvexPolygon(size_t num_vertices, double radius = 100.0,
                                                                     double cx = 0.0, double cy = 0.0) {
-  if (num_vertices < 3) return {};
+  if (num_vertices < 3) {
+    return {};
+  }
   std::vector<alputov_i_graham_scan_all::Point> polygon;
   polygon.reserve(num_vertices);
   for (size_t i = 0; i < num_vertices; ++i) {
     double angle = 2.0 * std::numbers::pi * static_cast<double>(i) / static_cast<double>(num_vertices);
-    polygon.emplace_back(cx + radius * std::cos(angle), cy + radius * std::sin(angle));
+    polygon.emplace_back(cx + (radius * std::cos(angle)), cy + (radius * std::sin(angle)));
   }
   return polygon;
 }
@@ -774,7 +775,8 @@ TEST(alputov_i_graham_scan_all, very_large_random_5000_points_with_corners) {
 }
 
 TEST(alputov_i_graham_scan_all, points_match_active_procs_convex_polygon) {
-  int rank{}, world_size_val{};
+  int rank{};
+  int world_size_val{};
   MPI_Comm_rank(MPI_COMM_WORLD, &rank);
   MPI_Comm_size(MPI_COMM_WORLD, &world_size_val);
 
@@ -806,7 +808,8 @@ TEST(alputov_i_graham_scan_all, points_match_active_procs_convex_polygon) {
 }
 
 TEST(alputov_i_graham_scan_all, points_one_more_than_active_procs_convex_polygon) {
-  int rank{}, world_size_val{};
+  int rank{};
+  int world_size_val{};
   MPI_Comm_rank(MPI_COMM_WORLD, &rank);
   MPI_Comm_size(MPI_COMM_WORLD, &world_size_val);
 
@@ -935,9 +938,15 @@ TEST(alputov_i_graham_scan_all, triangle_with_many_duplicates) {
   std::vector<alputov_i_graham_scan_all::Point> input_points;
   input_points.reserve(15);
   std::vector<alputov_i_graham_scan_all::Point> expected_hull = {{0, 0}, {2, 0}, {1, 2}};
-  for (int i = 0; i < 5; ++i) input_points.push_back({0, 0});
-  for (int i = 0; i < 5; ++i) input_points.push_back({2, 0});
-  for (int i = 0; i < 5; ++i) input_points.push_back({1, 2});
+  for (int i = 0; i < 5; ++i) {
+    input_points.emplace_back(0, 0);
+  }
+  for (int i = 0; i < 5; ++i) {
+    input_points.emplace_back(2, 0);
+  }
+  for (int i = 0; i < 5; ++i) {
+    input_points.emplace_back(1, 2);
+  }
 
   std::vector<double> input_doubles = PointsToDoubles(input_points);
   int hull_size_actual = 0;
@@ -1001,7 +1010,9 @@ TEST(alputov_i_graham_scan_all, many_points_on_line_segment_plus_one_peak) {
 
   std::vector<alputov_i_graham_scan_all::Point> input_points;
   input_points.reserve(12);
-  for (int i = 0; i <= 10; ++i) input_points.emplace_back(static_cast<double>(i) * 0.1, 0.0);
+  for (int i = 0; i <= 10; ++i) {
+    input_points.emplace_back(static_cast<double>(i) * 0.1, 0.0);
+  }
   input_points.emplace_back(0.5, 1.0);
   std::vector<alputov_i_graham_scan_all::Point> expected_hull = {{0, 0}, {1, 0}, {0.5, 1.0}};
 
