@@ -16,9 +16,9 @@ void FoxStep(boost::mpi::communicator& mpiComm_, int processRank_, int activePro
              std::vector<double>& localMatrixA_, std::vector<double>& localMatrixB_,
              std::vector<double>& localMatrixC_);
 std::vector<double> Scatter(const std::vector<double>& sourceMatrix_, std::size_t matrixSize_, int gridSize_,
-                                  int blockSize_);
+                            int blockSize_);
 std::vector<double> Gather(const std::vector<double>& gatheredBuffer_, std::size_t matrixSize_, int gridSize_,
-                                 int blockSize_);
+                           int blockSize_);
 int ProcessGrid(int totalProcessCount_, std::size_t matrixSize_);
 class TestTaskAll : public ppc::core::Task {
  public:
