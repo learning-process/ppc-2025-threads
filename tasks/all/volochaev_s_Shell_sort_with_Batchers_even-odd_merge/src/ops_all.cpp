@@ -16,7 +16,7 @@ bool volochaev_s_shell_sort_with_batchers_even_odd_merge_all::TestTaskAll::Shell
   unsigned int n = size;
 
   int gap = 1;
-  while (gap < n / 3) {
+  while (gap < static_cast<int>(n / 3)) {
     gap = 3 * gap + 1;
   }
 
@@ -116,7 +116,7 @@ bool volochaev_s_shell_sort_with_batchers_even_odd_merge_all::TestTaskAll::Batch
   unsigned int n_by_proc =
       loc_proc_lenght_ +
       (((2 * effective_num_threads) - (loc_proc_lenght_ % (2 * effective_num_threads))) % (2 * effective_num_threads));
-  loc_lenght = n_by_proc / effective_num_threads;
+  unsigned int loc_lenght = n_by_proc / effective_num_threads;
 
   loc_.resize(n_by_proc);
   loc_tmp_.resize(n_by_proc);
