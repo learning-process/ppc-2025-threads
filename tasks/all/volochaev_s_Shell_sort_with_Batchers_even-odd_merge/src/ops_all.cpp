@@ -23,13 +23,13 @@ bool volochaev_s_shell_sort_with_batchers_even_odd_merge_all::ShellSortAll::Shel
 
   while (gap >= 1) {
     for (unsigned int i = start + gap; i < start + size; ++i) {
-      long long temp = loc_tmp_[i];
+      long long temp = loc_[i];
       long long j = i;
-      while (j >= start + gap && loc_tmp_[j - gap] > temp) {
-        loc_tmp_[j] = loc_tmp_[j - gap];
+      while (j >= start + gap && loc_[j - gap] > temp) {
+        loc_[j] = loc_[j - gap];
         j -= gap;
       }
-      loc_tmp_[j] = temp;
+      loc_[j] = temp;
     }
     gap /= 3;
   }
