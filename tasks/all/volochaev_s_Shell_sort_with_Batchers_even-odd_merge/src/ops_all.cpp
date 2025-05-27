@@ -176,8 +176,6 @@ bool volochaev_s_shell_sort_with_batchers_even_odd_merge_all::ShellSortAll::PreP
     for (unsigned int i = n_input_; i < n_; i++) {
       mas_[i] = LLONG_MAX;
     }
-
-    mas_tmp_ = mas_;
   }
 
   loc_.resize(loc_proc_lenght_);
@@ -220,11 +218,6 @@ bool volochaev_s_shell_sort_with_batchers_even_odd_merge_all::ShellSortAll::OddE
 
     world_.recv(world_.rank() + 1, 0, loc_.data() + len, static_cast<int>(len));
 
-    if (world_.rank() == 0 && flag_) {
-      std::ranges::sort(mas_tmp_);
-      flag_ = false;
-    }
-
     unsigned int iter_l = 0;
     unsigned int iter_r = 0;
     unsigned int iter_tmp = 0;
@@ -260,7 +253,7 @@ bool volochaev_s_shell_sort_with_batchers_even_odd_merge_all::ShellSortAll::OddE
 bool volochaev_s_shell_sort_with_batchers_even_odd_merge_all::ShellSortAll::PostProcessingImpl() {
   if (world_.rank() == 0) {
     void* ptr_output = task_data->outputs[0];
-    void* ptr_loc = mas_tmp_.data();
+    void* ptr_loc = loc_tmp_.data();
     memcpy(ptr_output, ptr_loc, sizeof(long long int) * n_input_);
   }
   return true;
