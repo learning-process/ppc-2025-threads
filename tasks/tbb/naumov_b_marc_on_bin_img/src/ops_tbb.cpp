@@ -1,6 +1,6 @@
 #include "tbb/naumov_b_marc_on_bin_img/include/ops_tbb.hpp"
 
-#include <tbb/parallel_for.h>
+#include <oneapi/tbb/parallel_for.h>
 
 #include <algorithm>
 #include <cstddef>
