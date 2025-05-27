@@ -1,6 +1,6 @@
 #pragma once
 
-#include <memory>
+#include <utility>
 #include <vector>
 
 #include "core/task/include/task.hpp"
@@ -26,10 +26,10 @@ class TestTaskTBB : public ppc::core::Task {
   void SecondPass();
 
   void ProcessPixel(int i, int j, int& next_label);
-  int GetLeftLabel(int i, int j) const;
-  int GetTopLabel(int i, int j) const;
-  void AssignNewLabel(int idx, int& next_label);
-  void HandleLabelCollision(int idx, int left_label, int top_label);
+  [[nodiscard]] int GetLeftLabel(int i, int j) const;
+  [[nodiscard]] int GetTopLabel(int i, int j) const;
+  void AssignNewLabel(size_t idx, int& next_label);
+  void HandleLabelCollision(size_t idx, int left_label, int top_label);
   void HandleBothLabels(int a, int b);
 
   int FindRoot(int x);

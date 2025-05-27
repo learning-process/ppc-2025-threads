@@ -1,12 +1,10 @@
 #include "tbb/naumov_b_marc_on_bin_img/include/ops_tbb.hpp"
 
-#include <tbb/tbb.h>
+#include <tbb/parallel_for.h>
 
 #include <algorithm>
-#include <cmath>
-#include <cstddef>
+#include <numeric>
 #include <random>
-#include <utility>
 #include <vector>
 
 std::vector<int> naumov_b_marc_on_bin_img_tbb::GenerateRandomBinaryMatrix(int rows, int cols, double probability) {
@@ -78,21 +76,19 @@ bool naumov_b_marc_on_bin_img_tbb::TestTaskTBB::ValidationImpl() {
   if (task_data->inputs.empty() || task_data->outputs.empty()) {
     return false;
   }
-  int m = static_cast<int>(task_data->inputs_count[0]);
-  int n = static_cast<int>(task_data->inputs_count[1]);
+  if (task_data->inputs[0] == nullptr) {
+    return false;
+  }
+
+  const int m = static_cast<int>(task_data->inputs_count[0]);
+  const int n = static_cast<int>(task_data->inputs_count[1]);
   if (m <= 0 || n <= 0) {
     return false;
   }
 
-  size_t total = size_t(m) * size_t(n);
-  if (!task_data->inputs[0]) return false;
-  int* in = reinterpret_cast<int*>(task_data->inputs[0]);
-  for (size_t i = 0; i < total; ++i) {
-    if (in[i] != 0 && in[i] != 1) {
-      return false;
-    }
-  }
-  return true;
+  const int* in = reinterpret_cast<int*>(task_data->inputs[0]);
+  const size_t total = static_cast<size_t>(m) * n;
+  return std::all_of(in, in + total, [](int val) { return val == 0 || val == 1; });
 }
 
 void naumov_b_marc_on_bin_img_tbb::TestTaskTBB::FirstPass() {
@@ -105,8 +101,10 @@ void naumov_b_marc_on_bin_img_tbb::TestTaskTBB::FirstPass() {
 }
 
 void naumov_b_marc_on_bin_img_tbb::TestTaskTBB::ProcessPixel(int i, int j, int& next_label) {
-  const size_t idx = static_cast<size_t>(i) * cols_ + j;
-  if (input_image_[idx] == 0) return;
+  const size_t idx = (static_cast<size_t>(i) * cols_) + j;
+  if (input_image_[idx] == 0) {
+    return;
+  }
 
   const int left_label = GetLeftLabel(i, j);
   const int top_label = GetTopLabel(i, j);
@@ -119,11 +117,11 @@ void naumov_b_marc_on_bin_img_tbb::TestTaskTBB::ProcessPixel(int i, int j, int& 
 }
 
 int naumov_b_marc_on_bin_img_tbb::TestTaskTBB::GetLeftLabel(int i, int j) const {
-  return (j > 0) ? output_image_[static_cast<size_t>(i) * cols_ + (j - 1)] : 0;
+  return (j > 0) ? output_image_[(static_cast<size_t>(i) * cols_) + (j - 1)] : 0;
 }
 
 int naumov_b_marc_on_bin_img_tbb::TestTaskTBB::GetTopLabel(int i, int j) const {
-  return (i > 0) ? output_image_[static_cast<size_t>(i - 1) * cols_ + j] : 0;
+  return (i > 0) ? output_image_[(static_cast<size_t>(i - 1) * cols_) + j] : 0;
 }
 
 void naumov_b_marc_on_bin_img_tbb::TestTaskTBB::AssignNewLabel(int idx, int& next_label) {
@@ -171,7 +169,9 @@ bool naumov_b_marc_on_bin_img_tbb::TestTaskTBB::RunImpl() {
 }
 
 bool naumov_b_marc_on_bin_img_tbb::TestTaskTBB::PostProcessingImpl() {
-  if (task_data->outputs.empty()) return false;
+  if (task_data->outputs.empty()) {
+    return false;
+  }
   int* out = reinterpret_cast<int*>(task_data->outputs[0]);
   size_t total = output_image_.size();
   for (size_t i = 0; i < total; ++i) {
