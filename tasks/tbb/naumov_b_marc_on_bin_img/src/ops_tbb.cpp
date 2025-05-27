@@ -3,6 +3,7 @@
 #include <tbb/parallel_for.h>
 
 #include <algorithm>
+#include <cstddef>
 #include <numeric>
 #include <random>
 #include <vector>
@@ -124,13 +125,13 @@ int naumov_b_marc_on_bin_img_tbb::TestTaskTBB::GetTopLabel(int i, int j) const {
   return (i > 0) ? output_image_[(static_cast<size_t>(i - 1) * cols_) + j] : 0;
 }
 
-void naumov_b_marc_on_bin_img_tbb::TestTaskTBB::AssignNewLabel(int idx, int& next_label) {
+void naumov_b_marc_on_bin_img_tbb::TestTaskTBB::AssignNewLabel(size_t idx, int& next_label) {
   output_image_[idx] = next_label;
   label_parent_[next_label] = next_label;
   ++next_label;
 }
 
-void naumov_b_marc_on_bin_img_tbb::TestTaskTBB::HandleLabelCollision(int idx, int left, int top) {
+void naumov_b_marc_on_bin_img_tbb::TestTaskTBB::HandleLabelCollision(size_t idx, int left, int top) {
   if (left != 0 && top != 0) {
     HandleBothLabels(left, top);
     output_image_[idx] = std::min(left, top);
