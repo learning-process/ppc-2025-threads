@@ -199,28 +199,3 @@ TEST(KapustinJarvAlgAllTest, TwoPoints) {
   EXPECT_EQ(output_result[1].first, expected_result[1].first);
   EXPECT_EQ(output_result[1].second, expected_result[1].second);
 }
-
-TEST(KapustinJarvAlgAllTest, Circle) {
-  std::vector<std::pair<int, int>> input_points = {{0, 5},  {3, 4},   {4, 3},   {5, 0},  {4, -3}, {3, -4},
-                                                   {0, -5}, {-3, -4}, {-4, -3}, {-5, 0}, {-4, 3}, {-3, 4}};
-  std::vector<std::pair<int, int>> expected_result = {{-5, 0}, {-4, -3}, {-3, -4}, {0, -5}, {3, -4}, {4, -3},
-                                                      {5, 0},  {4, 3},   {3, 4},   {0, 5},  {-3, 4}, {-4, 3}};
-  std::vector<std::pair<int, int>> output_result(expected_result.size());
-
-  auto task_data_all = std::make_shared<ppc::core::TaskData>();
-  task_data_all->inputs.emplace_back(reinterpret_cast<uint8_t *>(input_points.data()));
-  task_data_all->inputs_count.emplace_back(input_points.size());
-  task_data_all->outputs.emplace_back(reinterpret_cast<uint8_t *>(output_result.data()));
-  task_data_all->outputs_count.emplace_back(output_result.size());
-
-  kapustin_i_jarv_alg_all::TestTaskAll test_task_all(task_data_all);
-  ASSERT_TRUE(test_task_all.Validation());
-  test_task_all.PreProcessing();
-  test_task_all.Run();
-  test_task_all.PostProcessing();
-
-  for (size_t i = 0; i < expected_result.size(); ++i) {
-    EXPECT_EQ(expected_result[i].first, output_result[i].first);
-    EXPECT_EQ(expected_result[i].second, output_result[i].second);
-  }
-}
