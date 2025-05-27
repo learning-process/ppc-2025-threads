@@ -14,6 +14,34 @@
 #include <cstddef>
 #include <vector>
 
+void deryabin_m_hoare_sort_simple_merge_mpi::SeqHoaraSort(std::vector<double>::iterator first,
+                                                          std::vector<double>::iterator last) {
+  if (first >= last) {
+    return;
+  }
+  const double pivot_value = *(first + ((last - first) >> 1));
+  auto left = first;
+  auto right = last;
+  do {
+    while (left < last && *left < pivot_value) {
+      left++;
+    }
+    while (right > first && *right > pivot_value) {
+      right--;
+    }
+    if (*left == *right && left != right) {
+      if (*left < *(left + 1)) {
+        left++;
+      } else {
+        right--;
+      }
+    }
+    std::iter_swap(left, right);
+  } while (left != right);
+  HoaraSort(first, right);
+  HoaraSort(left + 1, last);
+}
+
 void deryabin_m_hoare_sort_simple_merge_mpi::HoaraSort(std::vector<double>::iterator first,
                                                        std::vector<double>::iterator last) {
   if (first >= last) {
