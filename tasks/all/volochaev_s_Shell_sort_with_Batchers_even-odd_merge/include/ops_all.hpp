@@ -17,7 +17,7 @@ class ShellSortAll : public ppc::core::Task {
   boost::mpi::communicator world_;
 
  public:
-  explicit TestTaskAll(const std::shared_ptr<ppc::core::TaskData> &task_data) : Task(task_data) {
+  explicit ShellSortAll(const std::shared_ptr<ppc::core::TaskData> &task_data) : Task(task_data) {
     if (world_.rank() == 0) {
       n_input_ = task_data->inputs_count[0];
     };
