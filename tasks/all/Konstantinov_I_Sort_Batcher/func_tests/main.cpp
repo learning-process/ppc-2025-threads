@@ -1,10 +1,10 @@
 #include <gtest/gtest.h>
 
 #include <boost/mpi/communicator.hpp>
+#include <cmath>
 #include <cstddef>
 #include <cstdint>
 #include <limits>
-#include <cmath>
 #include <memory>
 #include <vector>
 
