@@ -173,14 +173,14 @@ bool deryabin_m_hoare_sort_simple_merge_mpi::HoareSortTaskMPI::ValidationImpl() 
 }
 
 bool deryabin_m_hoare_sort_simple_merge_mpi::HoareSortTaskMPI::RunImpl() {
-  const auto chunk_size = min_chunk_size_; 
+        const auto chunk_size = min_chunk_size_; 
   auto start_iter = input_array_A_.begin() + (chunk_count_ - 1) * chunk_size;
   if (world.rank() != 0) {
     start_iter += rest_;
   }
   const auto end_iter = input_array_A_.begin() + chunk_count_ * chunk_size + rest_ - 1;
   HoaraSort(start_iter, end_iter);
-  const auto world_size = world.size(); 
+           const auto world_size = world.size(); 
   if (world_size != 1) {
     const size_t iterations = static_cast<size_t>(std::bit_width(chunk_count_ - 1));
     for (size_t i = 0; i < iterations; ++i) {
