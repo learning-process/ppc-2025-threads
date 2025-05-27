@@ -52,7 +52,7 @@ TEST(volochaev_s_Shell_sort_with_Batchers_even_odd_merge_all, test_pipeline_run)
   }
   // Create Task
   auto test_task_sequential =
-      std::make_shared<volochaev_s_shell_sort_with_batchers_even_odd_merge_all::ShellSortALL>(task_data_seq);
+      std::make_shared<volochaev_s_shell_sort_with_batchers_even_odd_merge_all::ShellSortAll>(task_data_seq);
 
   // Create Perf attributes
   auto perf_attr = std::make_shared<ppc::core::PerfAttr>();
@@ -98,7 +98,7 @@ TEST(volochaev_s_Shell_sort_with_Batchers_even_odd_merge_all, test_task_run) {
   }
   // Create Task
   auto test_task_sequential =
-      std::make_shared<volochaev_s_shell_sort_with_batchers_even_odd_merge_all::ShellSortALL>(task_data_seq);
+      std::make_shared<volochaev_s_shell_sort_with_batchers_even_odd_merge_all::ShellSortAll>(task_data_seq);
 
   // Create Perf attributes
   auto perf_attr = std::make_shared<ppc::core::PerfAttr>();

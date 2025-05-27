@@ -48,7 +48,7 @@ TEST(volochaev_s_Shell_sort_with_Batchers_even_odd_merge_all, test_error_in_val)
     task_data_seq->outputs_count.emplace_back(out.size());
   }
   // Create Task
-  volochaev_s_shell_sort_with_batchers_even_odd_merge_all::ShellSortALL test_task_sequential(task_data_seq);
+  volochaev_s_shell_sort_with_batchers_even_odd_merge_all::ShellSortAll test_task_sequential(task_data_seq);
   if (world.rank() == 0) {
     ASSERT_EQ(test_task_sequential.Validation(), false);
   }
@@ -89,7 +89,7 @@ TEST(volochaev_s_Shell_sort_with_Batchers_even_odd_merge_all, test_with_small_ve
   }
 
   // Create Task
-  volochaev_s_shell_sort_with_batchers_even_odd_merge_all::ShellSortALL test_task_sequential(task_data_seq);
+  volochaev_s_shell_sort_with_batchers_even_odd_merge_all::ShellSortAll test_task_sequential(task_data_seq);
   ASSERT_EQ(test_task_sequential.Validation(), true);
   test_task_sequential.PreProcessing();
   test_task_sequential.Run();
@@ -122,7 +122,7 @@ TEST(volochaev_s_Shell_sort_with_Batchers_even_odd_merge_all, test_with_small_ve
     task_data_seq->outputs_count.emplace_back(out.size());
   }
   // Create Task
-  volochaev_s_shell_sort_with_batchers_even_odd_merge_all::ShellSortALL test_task_sequential(task_data_seq);
+  volochaev_s_shell_sort_with_batchers_even_odd_merge_all::ShellSortAll test_task_sequential(task_data_seq);
   ASSERT_EQ(test_task_sequential.Validation(), true);
   test_task_sequential.PreProcessing();
   test_task_sequential.Run();
@@ -154,7 +154,7 @@ TEST(volochaev_s_Shell_sort_with_Batchers_even_odd_merge_all, test_with_small_ve
     task_data_seq->outputs_count.emplace_back(out.size());
   }
   // Create Task
-  volochaev_s_shell_sort_with_batchers_even_odd_merge_all::ShellSortALL test_task_sequential(task_data_seq);
+  volochaev_s_shell_sort_with_batchers_even_odd_merge_all::ShellSortAll test_task_sequential(task_data_seq);
   ASSERT_EQ(test_task_sequential.Validation(), true);
   test_task_sequential.PreProcessing();
   test_task_sequential.Run();
@@ -186,7 +186,7 @@ TEST(volochaev_s_Shell_sort_with_Batchers_even_odd_merge_all, test_with_small_ve
     task_data_seq->outputs_count.emplace_back(out.size());
   }
   // Create Task
-  volochaev_s_shell_sort_with_batchers_even_odd_merge_all::ShellSortALL test_task_sequential(task_data_seq);
+  volochaev_s_shell_sort_with_batchers_even_odd_merge_all::ShellSortAll test_task_sequential(task_data_seq);
   ASSERT_EQ(test_task_sequential.Validation(), true);
   test_task_sequential.PreProcessing();
   test_task_sequential.Run();
@@ -218,7 +218,7 @@ TEST(volochaev_s_Shell_sort_with_Batchers_even_odd_merge_all, test_with_medium_v
     task_data_seq->outputs_count.emplace_back(out.size());
   }
   // Create Task
-  volochaev_s_shell_sort_with_batchers_even_odd_merge_all::ShellSortALL test_task_sequential(task_data_seq);
+  volochaev_s_shell_sort_with_batchers_even_odd_merge_all::ShellSortAll test_task_sequential(task_data_seq);
   ASSERT_EQ(test_task_sequential.Validation(), true);
   test_task_sequential.PreProcessing();
   test_task_sequential.Run();
@@ -250,7 +250,7 @@ TEST(volochaev_s_shell_sort_with_batchers_even_odd_merge_all, test_with_medium_v
     task_data_seq->outputs_count.emplace_back(out.size());
   }
   // Create Task
-  volochaev_s_shell_sort_with_batchers_even_odd_merge_all::ShellSortALL test_task_sequential(task_data_seq);
+  volochaev_s_shell_sort_with_batchers_even_odd_merge_all::ShellSortAll test_task_sequential(task_data_seq);
   ASSERT_EQ(test_task_sequential.Validation(), true);
   test_task_sequential.PreProcessing();
   test_task_sequential.Run();
@@ -282,7 +282,7 @@ TEST(volochaev_s_shell_sort_with_batchers_even_odd_merge_all, test_with_medium_v
     task_data_seq->outputs_count.emplace_back(out.size());
   }
   // Create Task
-  volochaev_s_shell_sort_with_batchers_even_odd_merge_all::ShellSortALL test_task_sequential(task_data_seq);
+  volochaev_s_shell_sort_with_batchers_even_odd_merge_all::ShellSortAll test_task_sequential(task_data_seq);
   ASSERT_EQ(test_task_sequential.Validation(), true);
   test_task_sequential.PreProcessing();
   test_task_sequential.Run();
@@ -314,7 +314,7 @@ TEST(volochaev_s_shell_sort_with_batchers_even_odd_merge_all, test_with_medium_v
     task_data_seq->outputs_count.emplace_back(out.size());
   }
   // Create Task
-  volochaev_s_shell_sort_with_batchers_even_odd_merge_all::ShellSortALL test_task_sequential(task_data_seq);
+  volochaev_s_shell_sort_with_batchers_even_odd_merge_all::ShellSortAll test_task_sequential(task_data_seq);
   ASSERT_EQ(test_task_sequential.Validation(), true);
   test_task_sequential.PreProcessing();
   test_task_sequential.Run();
@@ -346,7 +346,7 @@ TEST(volochaev_s_shell_sort_with_batchers_even_odd_merge_all, test_with_medium_v
     task_data_seq->outputs_count.emplace_back(out.size());
   }
   // Create Task
-  volochaev_s_shell_sort_with_batchers_even_odd_merge_all::ShellSortALL test_task_sequential(task_data_seq);
+  volochaev_s_shell_sort_with_batchers_even_odd_merge_all::ShellSortAll test_task_sequential(task_data_seq);
   ASSERT_EQ(test_task_sequential.Validation(), true);
   test_task_sequential.PreProcessing();
   test_task_sequential.Run();
@@ -378,7 +378,7 @@ TEST(volochaev_s_shell_sort_with_batchers_even_odd_merge_all, test_with_big_vect
     task_data_seq->outputs_count.emplace_back(out.size());
   }
   // Create Task
-  volochaev_s_shell_sort_with_batchers_even_odd_merge_all::ShellSortALL test_task_sequential(task_data_seq);
+  volochaev_s_shell_sort_with_batchers_even_odd_merge_all::ShellSortAll test_task_sequential(task_data_seq);
   ASSERT_EQ(test_task_sequential.Validation(), true);
   test_task_sequential.PreProcessing();
   test_task_sequential.Run();
@@ -410,7 +410,7 @@ TEST(volochaev_s_shell_sort_with_batchers_even_odd_merge_all, test_with_big_vect
     task_data_seq->outputs_count.emplace_back(out.size());
   }
   // Create Task
-  volochaev_s_shell_sort_with_batchers_even_odd_merge_all::ShellSortALL test_task_sequential(task_data_seq);
+  volochaev_s_shell_sort_with_batchers_even_odd_merge_all::ShellSortAll test_task_sequential(task_data_seq);
   ASSERT_EQ(test_task_sequential.Validation(), true);
   test_task_sequential.PreProcessing();
   test_task_sequential.Run();
@@ -442,7 +442,7 @@ TEST(volochaev_s_shell_sort_with_batchers_even_odd_merge_all, test_with_big_vect
     task_data_seq->outputs_count.emplace_back(out.size());
   }
   // Create Task
-  volochaev_s_shell_sort_with_batchers_even_odd_merge_all::ShellSortALL test_task_sequential(task_data_seq);
+  volochaev_s_shell_sort_with_batchers_even_odd_merge_all::ShellSortAll test_task_sequential(task_data_seq);
   ASSERT_EQ(test_task_sequential.Validation(), true);
   test_task_sequential.PreProcessing();
   test_task_sequential.Run();
@@ -474,7 +474,7 @@ TEST(volochaev_s_shell_sort_with_batchers_even_odd_merge_all, test_with_big_vect
     task_data_seq->outputs_count.emplace_back(out.size());
   }
   // Create Task
-  volochaev_s_shell_sort_with_batchers_even_odd_merge_all::ShellSortALL test_task_sequential(task_data_seq);
+  volochaev_s_shell_sort_with_batchers_even_odd_merge_all::ShellSortAll test_task_sequential(task_data_seq);
   ASSERT_EQ(test_task_sequential.Validation(), true);
   test_task_sequential.PreProcessing();
   test_task_sequential.Run();
@@ -506,7 +506,7 @@ TEST(volochaev_s_shell_sort_with_batchers_even_odd_merge_all, test_with_extra_bi
     task_data_seq->outputs_count.emplace_back(out.size());
   }
   // Create Task
-  volochaev_s_shell_sort_with_batchers_even_odd_merge_all::ShellSortALL test_task_sequential(task_data_seq);
+  volochaev_s_shell_sort_with_batchers_even_odd_merge_all::ShellSortAll test_task_sequential(task_data_seq);
   ASSERT_EQ(test_task_sequential.Validation(), true);
   test_task_sequential.PreProcessing();
   test_task_sequential.Run();
@@ -538,7 +538,7 @@ TEST(volochaev_s_shell_sort_with_batchers_even_odd_merge_all, test_with_prime_si
     task_data_seq->outputs_count.emplace_back(out.size());
   }
   // Create Task
-  volochaev_s_shell_sort_with_batchers_even_odd_merge_all::ShellSortALL test_task_sequential(task_data_seq);
+  volochaev_s_shell_sort_with_batchers_even_odd_merge_all::ShellSortAll test_task_sequential(task_data_seq);
   ASSERT_EQ(test_task_sequential.Validation(), true);
   test_task_sequential.PreProcessing();
   test_task_sequential.Run();
@@ -570,7 +570,7 @@ TEST(volochaev_s_shell_sort_with_batchers_even_odd_merge_all, test_with_prime_si
     task_data_seq->outputs_count.emplace_back(out.size());
   }
   // Create Task
-  volochaev_s_shell_sort_with_batchers_even_odd_merge_all::ShellSortALL test_task_sequential(task_data_seq);
+  volochaev_s_shell_sort_with_batchers_even_odd_merge_all::ShellSortAll test_task_sequential(task_data_seq);
   ASSERT_EQ(test_task_sequential.Validation(), true);
   test_task_sequential.PreProcessing();
   test_task_sequential.Run();
@@ -602,7 +602,7 @@ TEST(volochaev_s_shell_sort_with_batchers_even_odd_merge_all, test_with_prime_si
     task_data_seq->outputs_count.emplace_back(out.size());
   }
   // Create Task
-  volochaev_s_shell_sort_with_batchers_even_odd_merge_all::ShellSortALL test_task_sequential(task_data_seq);
+  volochaev_s_shell_sort_with_batchers_even_odd_merge_all::ShellSortAll test_task_sequential(task_data_seq);
   ASSERT_EQ(test_task_sequential.Validation(), true);
   test_task_sequential.PreProcessing();
   test_task_sequential.Run();
@@ -634,7 +634,7 @@ TEST(volochaev_s_shell_sort_with_batchers_even_odd_merge_all, test_with_prime_si
     task_data_seq->outputs_count.emplace_back(out.size());
   }
   // Create Task
-  volochaev_s_shell_sort_with_batchers_even_odd_merge_all::ShellSortALL test_task_sequential(task_data_seq);
+  volochaev_s_shell_sort_with_batchers_even_odd_merge_all::ShellSortAll test_task_sequential(task_data_seq);
   ASSERT_EQ(test_task_sequential.Validation(), true);
   test_task_sequential.PreProcessing();
   test_task_sequential.Run();
@@ -666,7 +666,7 @@ TEST(volochaev_s_shell_sort_with_batchers_even_odd_merge_all, test_with_prime_si
     task_data_seq->outputs_count.emplace_back(out.size());
   }
   // Create Task
-  volochaev_s_shell_sort_with_batchers_even_odd_merge_all::ShellSortALL test_task_sequential(task_data_seq);
+  volochaev_s_shell_sort_with_batchers_even_odd_merge_all::ShellSortAll test_task_sequential(task_data_seq);
   ASSERT_EQ(test_task_sequential.Validation(), true);
   test_task_sequential.PreProcessing();
   test_task_sequential.Run();
@@ -698,7 +698,7 @@ TEST(volochaev_s_shell_sort_with_batchers_even_odd_merge_all, test_with_odd_numb
     task_data_seq->outputs_count.emplace_back(out.size());
   }
   // Create Task
-  volochaev_s_shell_sort_with_batchers_even_odd_merge_all::ShellSortALL test_task_sequential(task_data_seq);
+  volochaev_s_shell_sort_with_batchers_even_odd_merge_all::ShellSortAll test_task_sequential(task_data_seq);
   ASSERT_EQ(test_task_sequential.Validation(), true);
   test_task_sequential.PreProcessing();
   test_task_sequential.Run();
@@ -730,7 +730,7 @@ TEST(volochaev_s_shell_sort_with_batchers_even_odd_merge_all, test_with_odd_numb
     task_data_seq->outputs_count.emplace_back(out.size());
   }
   // Create Task
-  volochaev_s_shell_sort_with_batchers_even_odd_merge_all::ShellSortALL test_task_sequential(task_data_seq);
+  volochaev_s_shell_sort_with_batchers_even_odd_merge_all::ShellSortAll test_task_sequential(task_data_seq);
   ASSERT_EQ(test_task_sequential.Validation(), true);
   test_task_sequential.PreProcessing();
   test_task_sequential.Run();
@@ -762,7 +762,7 @@ TEST(volochaev_s_shell_sort_with_batchers_even_odd_merge_all, test_with_odd_numb
     task_data_seq->outputs_count.emplace_back(out.size());
   }
   // Create Task
-  volochaev_s_shell_sort_with_batchers_even_odd_merge_all::ShellSortALL test_task_sequential(task_data_seq);
+  volochaev_s_shell_sort_with_batchers_even_odd_merge_all::ShellSortAll test_task_sequential(task_data_seq);
   ASSERT_EQ(test_task_sequential.Validation(), true);
   test_task_sequential.PreProcessing();
   test_task_sequential.Run();
@@ -794,7 +794,7 @@ TEST(volochaev_s_shell_sort_with_batchers_even_odd_merge_all, test_with_odd_numb
     task_data_seq->outputs_count.emplace_back(out.size());
   }
   // Create Task
-  volochaev_s_shell_sort_with_batchers_even_odd_merge_all::ShellSortALL test_task_sequential(task_data_seq);
+  volochaev_s_shell_sort_with_batchers_even_odd_merge_all::ShellSortAll test_task_sequential(task_data_seq);
   ASSERT_EQ(test_task_sequential.Validation(), true);
   test_task_sequential.PreProcessing();
   test_task_sequential.Run();
@@ -826,7 +826,7 @@ TEST(volochaev_s_shell_sort_with_batchers_even_odd_merge_all, test_with_odd_numb
     task_data_seq->outputs_count.emplace_back(out.size());
   }
   // Create Task
-  volochaev_s_shell_sort_with_batchers_even_odd_merge_all::ShellSortALL test_task_sequential(task_data_seq);
+  volochaev_s_shell_sort_with_batchers_even_odd_merge_all::ShellSortAll test_task_sequential(task_data_seq);
   ASSERT_EQ(test_task_sequential.Validation(), true);
   test_task_sequential.PreProcessing();
   test_task_sequential.Run();
@@ -858,7 +858,7 @@ TEST(volochaev_s_shell_sort_with_batchers_even_odd_merge_all, test_with_odd_numb
     task_data_seq->outputs_count.emplace_back(out.size());
   }
   // Create Task
-  volochaev_s_shell_sort_with_batchers_even_odd_merge_all::ShellSortALL test_task_sequential(task_data_seq);
+  volochaev_s_shell_sort_with_batchers_even_odd_merge_all::ShellSortAll test_task_sequential(task_data_seq);
   ASSERT_EQ(test_task_sequential.Validation(), true);
   test_task_sequential.PreProcessing();
   test_task_sequential.Run();
@@ -890,7 +890,7 @@ TEST(volochaev_s_shell_sort_with_batchers_even_odd_merge_all, test_with_odd_numb
     task_data_seq->outputs_count.emplace_back(out.size());
   }
   // Create Task
-  volochaev_s_shell_sort_with_batchers_even_odd_merge_all::ShellSortALL test_task_sequential(task_data_seq);
+  volochaev_s_shell_sort_with_batchers_even_odd_merge_all::ShellSortAll test_task_sequential(task_data_seq);
   ASSERT_EQ(test_task_sequential.Validation(), true);
   test_task_sequential.PreProcessing();
   test_task_sequential.Run();
@@ -922,7 +922,7 @@ TEST(volochaev_s_shell_sort_with_batchers_even_odd_merge_all, test_with_odd_numb
     task_data_seq->outputs_count.emplace_back(out.size());
   }
   // Create Task
-  volochaev_s_shell_sort_with_batchers_even_odd_merge_all::ShellSortALL test_task_sequential(task_data_seq);
+  volochaev_s_shell_sort_with_batchers_even_odd_merge_all::ShellSortAll test_task_sequential(task_data_seq);
   ASSERT_EQ(test_task_sequential.Validation(), true);
   test_task_sequential.PreProcessing();
   test_task_sequential.Run();
@@ -956,7 +956,7 @@ TEST(volochaev_s_shell_sort_with_batchers_even_odd_merge_all, test_with_reverse)
     task_data_seq->outputs_count.emplace_back(out.size());
   }
   // Create Task
-  volochaev_s_shell_sort_with_batchers_even_odd_merge_all::ShellSortALL test_task_sequential(task_data_seq);
+  volochaev_s_shell_sort_with_batchers_even_odd_merge_all::ShellSortAll test_task_sequential(task_data_seq);
   ASSERT_EQ(test_task_sequential.Validation(), true);
   test_task_sequential.PreProcessing();
   test_task_sequential.Run();
@@ -987,7 +987,7 @@ TEST(volochaev_s_Shell_sort_with_Batchers_even_odd_merge_all, test_with_len_Ferm
     task_data_seq->outputs_count.emplace_back(out.size());
   }
   // Create Task
-  volochaev_s_shell_sort_with_batchers_even_odd_merge_all::ShellSortALL test_task_sequential(task_data_seq);
+  volochaev_s_shell_sort_with_batchers_even_odd_merge_all::ShellSortAll test_task_sequential(task_data_seq);
   ASSERT_EQ(test_task_sequential.Validation(), true);
   test_task_sequential.PreProcessing();
   test_task_sequential.Run();
@@ -1018,7 +1018,7 @@ TEST(volochaev_s_Shell_sort_with_Batchers_even_odd_merge_all, test_with_len_Ferm
     task_data_seq->outputs_count.emplace_back(out.size());
   }
   // Create Task
-  volochaev_s_shell_sort_with_batchers_even_odd_merge_all::ShellSortALL test_task_sequential(task_data_seq);
+  volochaev_s_shell_sort_with_batchers_even_odd_merge_all::ShellSortAll test_task_sequential(task_data_seq);
   ASSERT_EQ(test_task_sequential.Validation(), true);
   test_task_sequential.PreProcessing();
   test_task_sequential.Run();
@@ -1049,7 +1049,7 @@ TEST(volochaev_s_Shell_sort_with_Batchers_even_odd_merge_all, test_with_len_Ferm
     task_data_seq->outputs_count.emplace_back(out.size());
   }
   // Create Task
-  volochaev_s_shell_sort_with_batchers_even_odd_merge_all::ShellSortALL test_task_sequential(task_data_seq);
+  volochaev_s_shell_sort_with_batchers_even_odd_merge_all::ShellSortAll test_task_sequential(task_data_seq);
   ASSERT_EQ(test_task_sequential.Validation(), true);
   test_task_sequential.PreProcessing();
   test_task_sequential.Run();
@@ -1080,7 +1080,7 @@ TEST(volochaev_s_Shell_sort_with_Batchers_even_odd_merge_all, test_with_len_Ferm
     task_data_seq->outputs_count.emplace_back(out.size());
   }
   // Create Task
-  volochaev_s_shell_sort_with_batchers_even_odd_merge_all::ShellSortALL test_task_sequential(task_data_seq);
+  volochaev_s_shell_sort_with_batchers_even_odd_merge_all::ShellSortAll test_task_sequential(task_data_seq);
   ASSERT_EQ(test_task_sequential.Validation(), true);
   test_task_sequential.PreProcessing();
   test_task_sequential.Run();
@@ -1111,7 +1111,7 @@ TEST(volochaev_s_Shell_sort_with_Batchers_even_odd_merge_all, test_with_len_Ferm
     task_data_seq->outputs_count.emplace_back(out.size());
   }
   // Create Task
-  volochaev_s_shell_sort_with_batchers_even_odd_merge_all::ShellSortALL test_task_sequential(task_data_seq);
+  volochaev_s_shell_sort_with_batchers_even_odd_merge_all::ShellSortAll test_task_sequential(task_data_seq);
   ASSERT_EQ(test_task_sequential.Validation(), true);
   test_task_sequential.PreProcessing();
   test_task_sequential.Run();
@@ -1142,7 +1142,7 @@ TEST(volochaev_s_Shell_sort_with_Batchers_even_odd_merge_all, test_with_len_Eule
     task_data_seq->outputs_count.emplace_back(out.size());
   }
   // Create Task
-  volochaev_s_shell_sort_with_batchers_even_odd_merge_all::ShellSortALL test_task_sequential(task_data_seq);
+  volochaev_s_shell_sort_with_batchers_even_odd_merge_all::ShellSortAll test_task_sequential(task_data_seq);
   ASSERT_EQ(test_task_sequential.Validation(), true);
   test_task_sequential.PreProcessing();
   test_task_sequential.Run();
@@ -1173,7 +1173,7 @@ TEST(volochaev_s_Shell_sort_with_Batchers_even_odd_merge_all, test_with_len_Eule
     task_data_seq->outputs_count.emplace_back(out.size());
   }
   // Create Task
-  volochaev_s_shell_sort_with_batchers_even_odd_merge_all::ShellSortALL test_task_sequential(task_data_seq);
+  volochaev_s_shell_sort_with_batchers_even_odd_merge_all::ShellSortAll test_task_sequential(task_data_seq);
   ASSERT_EQ(test_task_sequential.Validation(), true);
   test_task_sequential.PreProcessing();
   test_task_sequential.Run();
@@ -1204,7 +1204,7 @@ TEST(volochaev_s_Shell_sort_with_Batchers_even_odd_merge_all, test_with_len_Eule
     task_data_seq->outputs_count.emplace_back(out.size());
   }
   // Create Task
-  volochaev_s_shell_sort_with_batchers_even_odd_merge_all::ShellSortALL test_task_sequential(task_data_seq);
+  volochaev_s_shell_sort_with_batchers_even_odd_merge_all::ShellSortAll test_task_sequential(task_data_seq);
   ASSERT_EQ(test_task_sequential.Validation(), true);
   test_task_sequential.PreProcessing();
   test_task_sequential.Run();
@@ -1235,7 +1235,7 @@ TEST(volochaev_s_Shell_sort_with_Batchers_even_odd_merge_all, test_with_len_Eule
     task_data_seq->outputs_count.emplace_back(out.size());
   }
   // Create Task
-  volochaev_s_shell_sort_with_batchers_even_odd_merge_all::ShellSortALL test_task_sequential(task_data_seq);
+  volochaev_s_shell_sort_with_batchers_even_odd_merge_all::ShellSortAll test_task_sequential(task_data_seq);
   ASSERT_EQ(test_task_sequential.Validation(), true);
   test_task_sequential.PreProcessing();
   test_task_sequential.Run();
@@ -1265,7 +1265,7 @@ TEST(volochaev_s_Shell_sort_with_Batchers_even_odd_merge_all, test_with_len_Eule
   task_data_seq->outputs_count.emplace_back(out.size());
 
   // Create Task
-  volochaev_s_shell_sort_with_batchers_even_odd_merge_all::ShellSortALL test_task_sequential(task_data_seq);
+  volochaev_s_shell_sort_with_batchers_even_odd_merge_all::ShellSortAll test_task_sequential(task_data_seq);
   ASSERT_EQ(test_task_sequential.Validation(), true);
   test_task_sequential.PreProcessing();
   test_task_sequential.Run();
@@ -1296,7 +1296,7 @@ TEST(volochaev_s_Shell_sort_with_Batchers_even_odd_merge_all, test_with_len_Eule
     task_data_seq->outputs_count.emplace_back(out.size());
   }
   // Create Task
-  volochaev_s_shell_sort_with_batchers_even_odd_merge_all::ShellSortALL test_task_sequential(task_data_seq);
+  volochaev_s_shell_sort_with_batchers_even_odd_merge_all::ShellSortAll test_task_sequential(task_data_seq);
   ASSERT_EQ(test_task_sequential.Validation(), true);
   test_task_sequential.PreProcessing();
   test_task_sequential.Run();
@@ -1327,7 +1327,7 @@ TEST(volochaev_s_Shell_sort_with_Batchers_even_odd_merge_all, test_with_len_Eule
     task_data_seq->outputs_count.emplace_back(out.size());
   }
   // Create Task
-  volochaev_s_shell_sort_with_batchers_even_odd_merge_all::ShellSortALL test_task_sequential(task_data_seq);
+  volochaev_s_shell_sort_with_batchers_even_odd_merge_all::ShellSortAll test_task_sequential(task_data_seq);
   ASSERT_EQ(test_task_sequential.Validation(), true);
   test_task_sequential.PreProcessing();
   test_task_sequential.Run();
@@ -1358,7 +1358,7 @@ TEST(volochaev_s_Shell_sort_with_Batchers_even_odd_merge_all, test_with_len_Eule
     task_data_seq->outputs_count.emplace_back(out.size());
   }
   // Create Task
-  volochaev_s_shell_sort_with_batchers_even_odd_merge_all::ShellSortALL test_task_sequential(task_data_seq);
+  volochaev_s_shell_sort_with_batchers_even_odd_merge_all::ShellSortAll test_task_sequential(task_data_seq);
   ASSERT_EQ(test_task_sequential.Validation(), true);
   test_task_sequential.PreProcessing();
   test_task_sequential.Run();
@@ -1389,7 +1389,7 @@ TEST(volochaev_s_Shell_sort_with_Batchers_even_odd_merge_all, test_with_len_Eule
     task_data_seq->outputs_count.emplace_back(out.size());
   }
   // Create Task
-  volochaev_s_shell_sort_with_batchers_even_odd_merge_all::ShellSortALL test_task_sequential(task_data_seq);
+  volochaev_s_shell_sort_with_batchers_even_odd_merge_all::ShellSortAll test_task_sequential(task_data_seq);
   ASSERT_EQ(test_task_sequential.Validation(), true);
   test_task_sequential.PreProcessing();
   test_task_sequential.Run();
@@ -1420,7 +1420,7 @@ TEST(volochaev_s_Shell_sort_with_Batchers_even_odd_merge_all, test_with_len_Eule
     task_data_seq->outputs_count.emplace_back(out.size());
   }
   // Create Task
-  volochaev_s_shell_sort_with_batchers_even_odd_merge_all::ShellSortALL test_task_sequential(task_data_seq);
+  volochaev_s_shell_sort_with_batchers_even_odd_merge_all::ShellSortAll test_task_sequential(task_data_seq);
   ASSERT_EQ(test_task_sequential.Validation(), true);
   test_task_sequential.PreProcessing();
   test_task_sequential.Run();
@@ -1451,7 +1451,7 @@ TEST(volochaev_s_Shell_sort_with_Batchers_even_odd_merge_all, test_with_len_Eule
     task_data_seq->outputs_count.emplace_back(out.size());
   }
   // Create Task
-  volochaev_s_shell_sort_with_batchers_even_odd_merge_all::ShellSortALL test_task_sequential(task_data_seq);
+  volochaev_s_shell_sort_with_batchers_even_odd_merge_all::ShellSortAll test_task_sequential(task_data_seq);
   ASSERT_EQ(test_task_sequential.Validation(), true);
   test_task_sequential.PreProcessing();
   test_task_sequential.Run();
@@ -1482,7 +1482,7 @@ TEST(volochaev_s_Shell_sort_with_Batchers_even_odd_merge_all, test_with_len_Eule
     task_data_seq->outputs_count.emplace_back(out.size());
   }
   // Create Task
-  volochaev_s_shell_sort_with_batchers_even_odd_merge_all::ShellSortALL test_task_sequential(task_data_seq);
+  volochaev_s_shell_sort_with_batchers_even_odd_merge_all::ShellSortAll test_task_sequential(task_data_seq);
   ASSERT_EQ(test_task_sequential.Validation(), true);
   test_task_sequential.PreProcessing();
   test_task_sequential.Run();
@@ -1513,7 +1513,7 @@ TEST(volochaev_s_Shell_sort_with_Batchers_even_odd_merge_all, test_with_len_Eule
     task_data_seq->outputs_count.emplace_back(out.size());
   }
   // Create Task
-  volochaev_s_shell_sort_with_batchers_even_odd_merge_all::ShellSortALL test_task_sequential(task_data_seq);
+  volochaev_s_shell_sort_with_batchers_even_odd_merge_all::ShellSortAll test_task_sequential(task_data_seq);
   ASSERT_EQ(test_task_sequential.Validation(), true);
   test_task_sequential.PreProcessing();
   test_task_sequential.Run();
@@ -1544,7 +1544,7 @@ TEST(volochaev_s_Shell_sort_with_Batchers_even_odd_merge_all, test_with_len_Eule
     task_data_seq->outputs_count.emplace_back(out.size());
   }
   // Create Task
-  volochaev_s_shell_sort_with_batchers_even_odd_merge_all::ShellSortALL test_task_sequential(task_data_seq);
+  volochaev_s_shell_sort_with_batchers_even_odd_merge_all::ShellSortAll test_task_sequential(task_data_seq);
   ASSERT_EQ(test_task_sequential.Validation(), true);
   test_task_sequential.PreProcessing();
   test_task_sequential.Run();
@@ -1575,7 +1575,7 @@ TEST(volochaev_s_Shell_sort_with_Batchers_even_odd_merge_all, test_with_len_Eule
     task_data_seq->outputs_count.emplace_back(out.size());
   }
   // Create Task
-  volochaev_s_shell_sort_with_batchers_even_odd_merge_all::ShellSortALL test_task_sequential(task_data_seq);
+  volochaev_s_shell_sort_with_batchers_even_odd_merge_all::ShellSortAll test_task_sequential(task_data_seq);
   ASSERT_EQ(test_task_sequential.Validation(), true);
   test_task_sequential.PreProcessing();
   test_task_sequential.Run();
@@ -1606,7 +1606,7 @@ TEST(volochaev_s_Shell_sort_with_Batchers_even_odd_merge_all, test_with_len_Eule
     task_data_seq->outputs_count.emplace_back(out.size());
   }
   // Create Task
-  volochaev_s_shell_sort_with_batchers_even_odd_merge_all::ShellSortALL test_task_sequential(task_data_seq);
+  volochaev_s_shell_sort_with_batchers_even_odd_merge_all::ShellSortAll test_task_sequential(task_data_seq);
   ASSERT_EQ(test_task_sequential.Validation(), true);
   test_task_sequential.PreProcessing();
   test_task_sequential.Run();
@@ -1637,7 +1637,7 @@ TEST(volochaev_s_Shell_sort_with_Batchers_even_odd_merge_all, test_with_len_Eule
     task_data_seq->outputs_count.emplace_back(out.size());
   }
   // Create Task
-  volochaev_s_shell_sort_with_batchers_even_odd_merge_all::ShellSortALL test_task_sequential(task_data_seq);
+  volochaev_s_shell_sort_with_batchers_even_odd_merge_all::ShellSortAll test_task_sequential(task_data_seq);
   ASSERT_EQ(test_task_sequential.Validation(), true);
   test_task_sequential.PreProcessing();
   test_task_sequential.Run();
@@ -1668,7 +1668,7 @@ TEST(volochaev_s_Shell_sort_with_Batchers_even_odd_merge_all, test_with_len_Eule
     task_data_seq->outputs_count.emplace_back(out.size());
   }
   // Create Task
-  volochaev_s_shell_sort_with_batchers_even_odd_merge_all::ShellSortALL test_task_sequential(task_data_seq);
+  volochaev_s_shell_sort_with_batchers_even_odd_merge_all::ShellSortAll test_task_sequential(task_data_seq);
   ASSERT_EQ(test_task_sequential.Validation(), true);
   test_task_sequential.PreProcessing();
   test_task_sequential.Run();
@@ -1699,7 +1699,7 @@ TEST(volochaev_s_Shell_sort_with_Batchers_even_odd_merge_all, test_with_len_Eule
     task_data_seq->outputs_count.emplace_back(out.size());
   }
   // Create Task
-  volochaev_s_shell_sort_with_batchers_even_odd_merge_all::ShellSortALL test_task_sequential(task_data_seq);
+  volochaev_s_shell_sort_with_batchers_even_odd_merge_all::ShellSortAll test_task_sequential(task_data_seq);
   ASSERT_EQ(test_task_sequential.Validation(), true);
   test_task_sequential.PreProcessing();
   test_task_sequential.Run();
@@ -1730,7 +1730,7 @@ TEST(volochaev_s_Shell_sort_with_Batchers_even_odd_merge_all, test_with_len_Eule
     task_data_seq->outputs_count.emplace_back(out.size());
   }
   // Create Task
-  volochaev_s_shell_sort_with_batchers_even_odd_merge_all::ShellSortALL test_task_sequential(task_data_seq);
+  volochaev_s_shell_sort_with_batchers_even_odd_merge_all::ShellSortAll test_task_sequential(task_data_seq);
   ASSERT_EQ(test_task_sequential.Validation(), true);
   test_task_sequential.PreProcessing();
   test_task_sequential.Run();
@@ -1761,7 +1761,7 @@ TEST(volochaev_s_Shell_sort_with_Batchers_even_odd_merge_all, test_with_len_Mers
     task_data_seq->outputs_count.emplace_back(out.size());
   }
   // Create Task
-  volochaev_s_shell_sort_with_batchers_even_odd_merge_all::ShellSortALL test_task_sequential(task_data_seq);
+  volochaev_s_shell_sort_with_batchers_even_odd_merge_all::ShellSortAll test_task_sequential(task_data_seq);
   ASSERT_EQ(test_task_sequential.Validation(), true);
   test_task_sequential.PreProcessing();
   test_task_sequential.Run();
@@ -1792,7 +1792,7 @@ TEST(volochaev_s_Shell_sort_with_Batchers_even_odd_merge_all, test_with_len_Mers
     task_data_seq->outputs_count.emplace_back(out.size());
   }
   // Create Task
-  volochaev_s_shell_sort_with_batchers_even_odd_merge_all::ShellSortALL test_task_sequential(task_data_seq);
+  volochaev_s_shell_sort_with_batchers_even_odd_merge_all::ShellSortAll test_task_sequential(task_data_seq);
   ASSERT_EQ(test_task_sequential.Validation(), true);
   test_task_sequential.PreProcessing();
   test_task_sequential.Run();
@@ -1823,7 +1823,7 @@ TEST(volochaev_s_Shell_sort_with_Batchers_even_odd_merge_all, test_with_len_Mers
     task_data_seq->outputs_count.emplace_back(out.size());
   }
   // Create Task
-  volochaev_s_shell_sort_with_batchers_even_odd_merge_all::ShellSortALL test_task_sequential(task_data_seq);
+  volochaev_s_shell_sort_with_batchers_even_odd_merge_all::ShellSortAll test_task_sequential(task_data_seq);
   ASSERT_EQ(test_task_sequential.Validation(), true);
   test_task_sequential.PreProcessing();
   test_task_sequential.Run();
@@ -1854,7 +1854,7 @@ TEST(volochaev_s_Shell_sort_with_Batchers_even_odd_merge_all, test_with_len_Mers
     task_data_seq->outputs_count.emplace_back(out.size());
   }
   // Create Task
-  volochaev_s_shell_sort_with_batchers_even_odd_merge_all::ShellSortALL test_task_sequential(task_data_seq);
+  volochaev_s_shell_sort_with_batchers_even_odd_merge_all::ShellSortAll test_task_sequential(task_data_seq);
   ASSERT_EQ(test_task_sequential.Validation(), true);
   test_task_sequential.PreProcessing();
   test_task_sequential.Run();
@@ -1885,7 +1885,7 @@ TEST(volochaev_s_Shell_sort_with_Batchers_even_odd_merge_all, test_with_len_Mers
     task_data_seq->outputs_count.emplace_back(out.size());
   }
   // Create Task
-  volochaev_s_shell_sort_with_batchers_even_odd_merge_all::ShellSortALL test_task_sequential(task_data_seq);
+  volochaev_s_shell_sort_with_batchers_even_odd_merge_all::ShellSortAll test_task_sequential(task_data_seq);
   ASSERT_EQ(test_task_sequential.Validation(), true);
   test_task_sequential.PreProcessing();
   test_task_sequential.Run();
@@ -1916,7 +1916,7 @@ TEST(volochaev_s_Shell_sort_with_Batchers_even_odd_merge_all, test_with_len_Luca
     task_data_seq->outputs_count.emplace_back(out.size());
   }
   // Create Task
-  volochaev_s_shell_sort_with_batchers_even_odd_merge_all::ShellSortALL test_task_sequential(task_data_seq);
+  volochaev_s_shell_sort_with_batchers_even_odd_merge_all::ShellSortAll test_task_sequential(task_data_seq);
   ASSERT_EQ(test_task_sequential.Validation(), true);
   test_task_sequential.PreProcessing();
   test_task_sequential.Run();
@@ -1947,7 +1947,7 @@ TEST(volochaev_s_Shell_sort_with_Batchers_even_odd_merge_all, test_with_len_Luca
     task_data_seq->outputs_count.emplace_back(out.size());
   }
   // Create Task
-  volochaev_s_shell_sort_with_batchers_even_odd_merge_all::ShellSortALL test_task_sequential(task_data_seq);
+  volochaev_s_shell_sort_with_batchers_even_odd_merge_all::ShellSortAll test_task_sequential(task_data_seq);
   ASSERT_EQ(test_task_sequential.Validation(), true);
   test_task_sequential.PreProcessing();
   test_task_sequential.Run();
@@ -1978,7 +1978,7 @@ TEST(volochaev_s_Shell_sort_with_Batchers_even_odd_merge_all, test_with_len_Luca
     task_data_seq->outputs_count.emplace_back(out.size());
   }
   // Create Task
-  volochaev_s_shell_sort_with_batchers_even_odd_merge_all::ShellSortALL test_task_sequential(task_data_seq);
+  volochaev_s_shell_sort_with_batchers_even_odd_merge_all::ShellSortAll test_task_sequential(task_data_seq);
   ASSERT_EQ(test_task_sequential.Validation(), true);
   test_task_sequential.PreProcessing();
   test_task_sequential.Run();
@@ -2009,7 +2009,7 @@ TEST(volochaev_s_Shell_sort_with_Batchers_even_odd_merge_all, test_with_len_Luca
     task_data_seq->outputs_count.emplace_back(out.size());
   }
   // Create Task
-  volochaev_s_shell_sort_with_batchers_even_odd_merge_all::ShellSortALL test_task_sequential(task_data_seq);
+  volochaev_s_shell_sort_with_batchers_even_odd_merge_all::ShellSortAll test_task_sequential(task_data_seq);
   ASSERT_EQ(test_task_sequential.Validation(), true);
   test_task_sequential.PreProcessing();
   test_task_sequential.Run();
@@ -2040,7 +2040,7 @@ TEST(volochaev_s_Shell_sort_with_Batchers_even_odd_merge_all, test_with_len_Luca
     task_data_seq->outputs_count.emplace_back(out.size());
   }
   // Create Task
-  volochaev_s_shell_sort_with_batchers_even_odd_merge_all::ShellSortALL test_task_sequential(task_data_seq);
+  volochaev_s_shell_sort_with_batchers_even_odd_merge_all::ShellSortAll test_task_sequential(task_data_seq);
   ASSERT_EQ(test_task_sequential.Validation(), true);
   test_task_sequential.PreProcessing();
   test_task_sequential.Run();
@@ -2071,7 +2071,7 @@ TEST(volochaev_s_Shell_sort_with_Batchers_even_odd_merge_all, test_with_len_Luca
     task_data_seq->outputs_count.emplace_back(out.size());
   }
   // Create Task
-  volochaev_s_shell_sort_with_batchers_even_odd_merge_all::ShellSortALL test_task_sequential(task_data_seq);
+  volochaev_s_shell_sort_with_batchers_even_odd_merge_all::ShellSortAll test_task_sequential(task_data_seq);
   ASSERT_EQ(test_task_sequential.Validation(), true);
   test_task_sequential.PreProcessing();
   test_task_sequential.Run();
@@ -2102,7 +2102,7 @@ TEST(volochaev_s_Shell_sort_with_Batchers_even_odd_merge_all, test_with_len_Luca
     task_data_seq->outputs_count.emplace_back(out.size());
   }
   // Create Task
-  volochaev_s_shell_sort_with_batchers_even_odd_merge_all::ShellSortALL test_task_sequential(task_data_seq);
+  volochaev_s_shell_sort_with_batchers_even_odd_merge_all::ShellSortAll test_task_sequential(task_data_seq);
   ASSERT_EQ(test_task_sequential.Validation(), true);
   test_task_sequential.PreProcessing();
   test_task_sequential.Run();
@@ -2133,7 +2133,7 @@ TEST(volochaev_s_Shell_sort_with_Batchers_even_odd_merge_all, test_with_len_Luca
     task_data_seq->outputs_count.emplace_back(out.size());
   }
   // Create Task
-  volochaev_s_shell_sort_with_batchers_even_odd_merge_all::ShellSortALL test_task_sequential(task_data_seq);
+  volochaev_s_shell_sort_with_batchers_even_odd_merge_all::ShellSortAll test_task_sequential(task_data_seq);
   ASSERT_EQ(test_task_sequential.Validation(), true);
   test_task_sequential.PreProcessing();
   test_task_sequential.Run();
@@ -2164,7 +2164,7 @@ TEST(volochaev_s_Shell_sort_with_Batchers_even_odd_merge_all, test_with_len_Luca
     task_data_seq->outputs_count.emplace_back(out.size());
   }
   // Create Task
-  volochaev_s_shell_sort_with_batchers_even_odd_merge_all::ShellSortALL test_task_sequential(task_data_seq);
+  volochaev_s_shell_sort_with_batchers_even_odd_merge_all::ShellSortAll test_task_sequential(task_data_seq);
   ASSERT_EQ(test_task_sequential.Validation(), true);
   test_task_sequential.PreProcessing();
   test_task_sequential.Run();
@@ -2195,7 +2195,7 @@ TEST(volochaev_s_Shell_sort_with_Batchers_even_odd_merge_all, test_with_len_Luca
     task_data_seq->outputs_count.emplace_back(out.size());
   }
   // Create Task
-  volochaev_s_shell_sort_with_batchers_even_odd_merge_all::ShellSortALL test_task_sequential(task_data_seq);
+  volochaev_s_shell_sort_with_batchers_even_odd_merge_all::ShellSortAll test_task_sequential(task_data_seq);
   ASSERT_EQ(test_task_sequential.Validation(), true);
   test_task_sequential.PreProcessing();
   test_task_sequential.Run();
@@ -2226,7 +2226,7 @@ TEST(volochaev_s_Shell_sort_with_Batchers_even_odd_merge_all, test_with_len_Luca
     task_data_seq->outputs_count.emplace_back(out.size());
   }
   // Create Task
-  volochaev_s_shell_sort_with_batchers_even_odd_merge_all::ShellSortALL test_task_sequential(task_data_seq);
+  volochaev_s_shell_sort_with_batchers_even_odd_merge_all::ShellSortAll test_task_sequential(task_data_seq);
   ASSERT_EQ(test_task_sequential.Validation(), true);
   test_task_sequential.PreProcessing();
   test_task_sequential.Run();
@@ -2257,7 +2257,7 @@ TEST(volochaev_s_Shell_sort_with_Batchers_even_odd_merge_all, test_with_len_Luca
     task_data_seq->outputs_count.emplace_back(out.size());
   }
   // Create Task
-  volochaev_s_shell_sort_with_batchers_even_odd_merge_all::ShellSortALL test_task_sequential(task_data_seq);
+  volochaev_s_shell_sort_with_batchers_even_odd_merge_all::ShellSortAll test_task_sequential(task_data_seq);
   ASSERT_EQ(test_task_sequential.Validation(), true);
   test_task_sequential.PreProcessing();
   test_task_sequential.Run();
@@ -2288,7 +2288,7 @@ TEST(volochaev_s_Shell_sort_with_Batchers_even_odd_merge_all, test_with_len_Luca
     task_data_seq->outputs_count.emplace_back(out.size());
   }
   // Create Task
-  volochaev_s_shell_sort_with_batchers_even_odd_merge_all::ShellSortALL test_task_sequential(task_data_seq);
+  volochaev_s_shell_sort_with_batchers_even_odd_merge_all::ShellSortAll test_task_sequential(task_data_seq);
   ASSERT_EQ(test_task_sequential.Validation(), true);
   test_task_sequential.PreProcessing();
   test_task_sequential.Run();
@@ -2319,7 +2319,7 @@ TEST(volochaev_s_Shell_sort_with_Batchers_even_odd_merge_all, test_with_len_Rama
     task_data_seq->outputs_count.emplace_back(out.size());
   }
   // Create Task
-  volochaev_s_shell_sort_with_batchers_even_odd_merge_all::ShellSortALL test_task_sequential(task_data_seq);
+  volochaev_s_shell_sort_with_batchers_even_odd_merge_all::ShellSortAll test_task_sequential(task_data_seq);
   ASSERT_EQ(test_task_sequential.Validation(), true);
   test_task_sequential.PreProcessing();
   test_task_sequential.Run();
@@ -2350,7 +2350,7 @@ TEST(volochaev_s_Shell_sort_with_Batchers_even_odd_merge_all, test_with_len_Rama
     task_data_seq->outputs_count.emplace_back(out.size());
   }
   // Create Task
-  volochaev_s_shell_sort_with_batchers_even_odd_merge_all::ShellSortALL test_task_sequential(task_data_seq);
+  volochaev_s_shell_sort_with_batchers_even_odd_merge_all::ShellSortAll test_task_sequential(task_data_seq);
   ASSERT_EQ(test_task_sequential.Validation(), true);
   test_task_sequential.PreProcessing();
   test_task_sequential.Run();
@@ -2381,7 +2381,7 @@ TEST(volochaev_s_Shell_sort_with_Batchers_even_odd_merge_all, test_with_len_Rama
     task_data_seq->outputs_count.emplace_back(out.size());
   }
   // Create Task
-  volochaev_s_shell_sort_with_batchers_even_odd_merge_all::ShellSortALL test_task_sequential(task_data_seq);
+  volochaev_s_shell_sort_with_batchers_even_odd_merge_all::ShellSortAll test_task_sequential(task_data_seq);
   ASSERT_EQ(test_task_sequential.Validation(), true);
   test_task_sequential.PreProcessing();
   test_task_sequential.Run();
@@ -2412,7 +2412,7 @@ TEST(volochaev_s_Shell_sort_with_Batchers_even_odd_merge_all, test_with_len_Rama
     task_data_seq->outputs_count.emplace_back(out.size());
   }
   // Create Task
-  volochaev_s_shell_sort_with_batchers_even_odd_merge_all::ShellSortALL test_task_sequential(task_data_seq);
+  volochaev_s_shell_sort_with_batchers_even_odd_merge_all::ShellSortAll test_task_sequential(task_data_seq);
   ASSERT_EQ(test_task_sequential.Validation(), true);
   test_task_sequential.PreProcessing();
   test_task_sequential.Run();
@@ -2443,7 +2443,7 @@ TEST(volochaev_s_Shell_sort_with_Batchers_even_odd_merge_all, test_with_len_Rama
     task_data_seq->outputs_count.emplace_back(out.size());
   }
   // Create Task
-  volochaev_s_shell_sort_with_batchers_even_odd_merge_all::ShellSortALL test_task_sequential(task_data_seq);
+  volochaev_s_shell_sort_with_batchers_even_odd_merge_all::ShellSortAll test_task_sequential(task_data_seq);
   ASSERT_EQ(test_task_sequential.Validation(), true);
   test_task_sequential.PreProcessing();
   test_task_sequential.Run();
@@ -2474,7 +2474,7 @@ TEST(volochaev_s_Shell_sort_with_Batchers_even_odd_merge_all, test_with_len_Rama
     task_data_seq->outputs_count.emplace_back(out.size());
   }
   // Create Task
-  volochaev_s_shell_sort_with_batchers_even_odd_merge_all::ShellSortALL test_task_sequential(task_data_seq);
+  volochaev_s_shell_sort_with_batchers_even_odd_merge_all::ShellSortAll test_task_sequential(task_data_seq);
   ASSERT_EQ(test_task_sequential.Validation(), true);
   test_task_sequential.PreProcessing();
   test_task_sequential.Run();
@@ -2505,7 +2505,7 @@ TEST(volochaev_s_Shell_sort_with_Batchers_even_odd_merge_all, test_with_len_Rama
     task_data_seq->outputs_count.emplace_back(out.size());
   }
   // Create Task
-  volochaev_s_shell_sort_with_batchers_even_odd_merge_all::ShellSortALL test_task_sequential(task_data_seq);
+  volochaev_s_shell_sort_with_batchers_even_odd_merge_all::ShellSortAll test_task_sequential(task_data_seq);
   ASSERT_EQ(test_task_sequential.Validation(), true);
   test_task_sequential.PreProcessing();
   test_task_sequential.Run();
@@ -2536,7 +2536,7 @@ TEST(volochaev_s_Shell_sort_with_Batchers_even_odd_merge_all, test_with_len_Rama
     task_data_seq->outputs_count.emplace_back(out.size());
   }
   // Create Task
-  volochaev_s_shell_sort_with_batchers_even_odd_merge_all::ShellSortALL test_task_sequential(task_data_seq);
+  volochaev_s_shell_sort_with_batchers_even_odd_merge_all::ShellSortAll test_task_sequential(task_data_seq);
   ASSERT_EQ(test_task_sequential.Validation(), true);
   test_task_sequential.PreProcessing();
   test_task_sequential.Run();
@@ -2567,7 +2567,7 @@ TEST(volochaev_s_Shell_sort_with_Batchers_even_odd_merge_all, test_with_len_Rama
     task_data_seq->outputs_count.emplace_back(out.size());
   }
   // Create Task
-  volochaev_s_shell_sort_with_batchers_even_odd_merge_all::ShellSortALL test_task_sequential(task_data_seq);
+  volochaev_s_shell_sort_with_batchers_even_odd_merge_all::ShellSortAll test_task_sequential(task_data_seq);
   ASSERT_EQ(test_task_sequential.Validation(), true);
   test_task_sequential.PreProcessing();
   test_task_sequential.Run();
@@ -2598,7 +2598,7 @@ TEST(volochaev_s_Shell_sort_with_Batchers_even_odd_merge_all, test_with_len_Rama
     task_data_seq->outputs_count.emplace_back(out.size());
   }
   // Create Task
-  volochaev_s_shell_sort_with_batchers_even_odd_merge_all::ShellSortALL test_task_sequential(task_data_seq);
+  volochaev_s_shell_sort_with_batchers_even_odd_merge_all::ShellSortAll test_task_sequential(task_data_seq);
   ASSERT_EQ(test_task_sequential.Validation(), true);
   test_task_sequential.PreProcessing();
   test_task_sequential.Run();
@@ -2629,7 +2629,7 @@ TEST(volochaev_s_Shell_sort_with_Batchers_even_odd_merge_all, test_with_len_Rama
     task_data_seq->outputs_count.emplace_back(out.size());
   }
   // Create Task
-  volochaev_s_shell_sort_with_batchers_even_odd_merge_all::ShellSortALL test_task_sequential(task_data_seq);
+  volochaev_s_shell_sort_with_batchers_even_odd_merge_all::ShellSortAll test_task_sequential(task_data_seq);
   ASSERT_EQ(test_task_sequential.Validation(), true);
   test_task_sequential.PreProcessing();
   test_task_sequential.Run();
@@ -2660,7 +2660,7 @@ TEST(volochaev_s_Shell_sort_with_Batchers_even_odd_merge_all, test_with_len_Rama
     task_data_seq->outputs_count.emplace_back(out.size());
   }
   // Create Task
-  volochaev_s_shell_sort_with_batchers_even_odd_merge_all::ShellSortALL test_task_sequential(task_data_seq);
+  volochaev_s_shell_sort_with_batchers_even_odd_merge_all::ShellSortAll test_task_sequential(task_data_seq);
   ASSERT_EQ(test_task_sequential.Validation(), true);
   test_task_sequential.PreProcessing();
   test_task_sequential.Run();
@@ -2691,7 +2691,7 @@ TEST(volochaev_s_Shell_sort_with_Batchers_even_odd_merge_all, test_with_len_Rama
     task_data_seq->outputs_count.emplace_back(out.size());
   }
   // Create Task
-  volochaev_s_shell_sort_with_batchers_even_odd_merge_all::ShellSortALL test_task_sequential(task_data_seq);
+  volochaev_s_shell_sort_with_batchers_even_odd_merge_all::ShellSortAll test_task_sequential(task_data_seq);
   ASSERT_EQ(test_task_sequential.Validation(), true);
   test_task_sequential.PreProcessing();
   test_task_sequential.Run();
@@ -2722,7 +2722,7 @@ TEST(volochaev_s_Shell_sort_with_Batchers_even_odd_merge_all, test_with_len_Rama
     task_data_seq->outputs_count.emplace_back(out.size());
   }
   // Create Task
-  volochaev_s_shell_sort_with_batchers_even_odd_merge_all::ShellSortALL test_task_sequential(task_data_seq);
+  volochaev_s_shell_sort_with_batchers_even_odd_merge_all::ShellSortAll test_task_sequential(task_data_seq);
   ASSERT_EQ(test_task_sequential.Validation(), true);
   test_task_sequential.PreProcessing();
   test_task_sequential.Run();
@@ -2753,7 +2753,7 @@ TEST(volochaev_s_Shell_sort_with_Batchers_even_odd_merge_all, test_with_len_Rama
     task_data_seq->outputs_count.emplace_back(out.size());
   }
   // Create Task
-  volochaev_s_shell_sort_with_batchers_even_odd_merge_all::ShellSortALL test_task_sequential(task_data_seq);
+  volochaev_s_shell_sort_with_batchers_even_odd_merge_all::ShellSortAll test_task_sequential(task_data_seq);
   ASSERT_EQ(test_task_sequential.Validation(), true);
   test_task_sequential.PreProcessing();
   test_task_sequential.Run();
@@ -2784,7 +2784,7 @@ TEST(volochaev_s_Shell_sort_with_Batchers_even_odd_merge_all, test_with_len_Rama
     task_data_seq->outputs_count.emplace_back(out.size());
   }
   // Create Task
-  volochaev_s_shell_sort_with_batchers_even_odd_merge_all::ShellSortALL test_task_sequential(task_data_seq);
+  volochaev_s_shell_sort_with_batchers_even_odd_merge_all::ShellSortAll test_task_sequential(task_data_seq);
   ASSERT_EQ(test_task_sequential.Validation(), true);
   test_task_sequential.PreProcessing();
   test_task_sequential.Run();
@@ -2815,7 +2815,7 @@ TEST(volochaev_s_Shell_sort_with_Batchers_even_odd_merge_all, test_with_len_Rama
     task_data_seq->outputs_count.emplace_back(out.size());
   }
   // Create Task
-  volochaev_s_shell_sort_with_batchers_even_odd_merge_all::ShellSortALL test_task_sequential(task_data_seq);
+  volochaev_s_shell_sort_with_batchers_even_odd_merge_all::ShellSortAll test_task_sequential(task_data_seq);
   ASSERT_EQ(test_task_sequential.Validation(), true);
   test_task_sequential.PreProcessing();
   test_task_sequential.Run();
@@ -2846,7 +2846,7 @@ TEST(volochaev_s_Shell_sort_with_Batchers_even_odd_merge_all, test_with_len_Rama
     task_data_seq->outputs_count.emplace_back(out.size());
   }
   // Create Task
-  volochaev_s_shell_sort_with_batchers_even_odd_merge_all::ShellSortALL test_task_sequential(task_data_seq);
+  volochaev_s_shell_sort_with_batchers_even_odd_merge_all::ShellSortAll test_task_sequential(task_data_seq);
   ASSERT_EQ(test_task_sequential.Validation(), true);
   test_task_sequential.PreProcessing();
   test_task_sequential.Run();
@@ -2877,7 +2877,7 @@ TEST(volochaev_s_Shell_sort_with_Batchers_even_odd_merge_all, test_with_len_Rama
     task_data_seq->outputs_count.emplace_back(out.size());
   }
   // Create Task
-  volochaev_s_shell_sort_with_batchers_even_odd_merge_all::ShellSortALL test_task_sequential(task_data_seq);
+  volochaev_s_shell_sort_with_batchers_even_odd_merge_all::ShellSortAll test_task_sequential(task_data_seq);
   ASSERT_EQ(test_task_sequential.Validation(), true);
   test_task_sequential.PreProcessing();
   test_task_sequential.Run();
@@ -2908,7 +2908,7 @@ TEST(volochaev_s_Shell_sort_with_Batchers_even_odd_merge_all, test_with_len_Rama
     task_data_seq->outputs_count.emplace_back(out.size());
   }
   // Create Task
-  volochaev_s_shell_sort_with_batchers_even_odd_merge_all::ShellSortALL test_task_sequential(task_data_seq);
+  volochaev_s_shell_sort_with_batchers_even_odd_merge_all::ShellSortAll test_task_sequential(task_data_seq);
   ASSERT_EQ(test_task_sequential.Validation(), true);
   test_task_sequential.PreProcessing();
   test_task_sequential.Run();
@@ -2939,7 +2939,7 @@ TEST(volochaev_s_Shell_sort_with_Batchers_even_odd_merge_all, test_with_len_Rama
     task_data_seq->outputs_count.emplace_back(out.size());
   }
   // Create Task
-  volochaev_s_shell_sort_with_batchers_even_odd_merge_all::ShellSortALL test_task_sequential(task_data_seq);
+  volochaev_s_shell_sort_with_batchers_even_odd_merge_all::ShellSortAll test_task_sequential(task_data_seq);
   ASSERT_EQ(test_task_sequential.Validation(), true);
   test_task_sequential.PreProcessing();
   test_task_sequential.Run();
@@ -2970,7 +2970,7 @@ TEST(volochaev_s_Shell_sort_with_Batchers_even_odd_merge_all, test_with_len_Rama
     task_data_seq->outputs_count.emplace_back(out.size());
   }
   // Create Task
-  volochaev_s_shell_sort_with_batchers_even_odd_merge_all::ShellSortALL test_task_sequential(task_data_seq);
+  volochaev_s_shell_sort_with_batchers_even_odd_merge_all::ShellSortAll test_task_sequential(task_data_seq);
   ASSERT_EQ(test_task_sequential.Validation(), true);
   test_task_sequential.PreProcessing();
   test_task_sequential.Run();
@@ -3001,7 +3001,7 @@ TEST(volochaev_s_Shell_sort_with_Batchers_even_odd_merge_all, test_with_len_Rama
     task_data_seq->outputs_count.emplace_back(out.size());
   }
   // Create Task
-  volochaev_s_shell_sort_with_batchers_even_odd_merge_all::ShellSortALL test_task_sequential(task_data_seq);
+  volochaev_s_shell_sort_with_batchers_even_odd_merge_all::ShellSortAll test_task_sequential(task_data_seq);
   ASSERT_EQ(test_task_sequential.Validation(), true);
   test_task_sequential.PreProcessing();
   test_task_sequential.Run();
@@ -3032,7 +3032,7 @@ TEST(volochaev_s_Shell_sort_with_Batchers_even_odd_merge_all, test_with_len_Carm
     task_data_seq->outputs_count.emplace_back(out.size());
   }
   // Create Task
-  volochaev_s_shell_sort_with_batchers_even_odd_merge_all::ShellSortALL test_task_sequential(task_data_seq);
+  volochaev_s_shell_sort_with_batchers_even_odd_merge_all::ShellSortAll test_task_sequential(task_data_seq);
   ASSERT_EQ(test_task_sequential.Validation(), true);
   test_task_sequential.PreProcessing();
   test_task_sequential.Run();
@@ -3063,7 +3063,7 @@ TEST(volochaev_s_Shell_sort_with_Batchers_even_odd_merge_all, test_with_len_Carm
     task_data_seq->outputs_count.emplace_back(out.size());
   }
   // Create Task
-  volochaev_s_shell_sort_with_batchers_even_odd_merge_all::ShellSortALL test_task_sequential(task_data_seq);
+  volochaev_s_shell_sort_with_batchers_even_odd_merge_all::ShellSortAll test_task_sequential(task_data_seq);
   ASSERT_EQ(test_task_sequential.Validation(), true);
   test_task_sequential.PreProcessing();
   test_task_sequential.Run();
@@ -3094,7 +3094,7 @@ TEST(volochaev_s_Shell_sort_with_Batchers_even_odd_merge_all, test_with_len_Carm
     task_data_seq->outputs_count.emplace_back(out.size());
   }
   // Create Task
-  volochaev_s_shell_sort_with_batchers_even_odd_merge_all::ShellSortALL test_task_sequential(task_data_seq);
+  volochaev_s_shell_sort_with_batchers_even_odd_merge_all::ShellSortAll test_task_sequential(task_data_seq);
   ASSERT_EQ(test_task_sequential.Validation(), true);
   test_task_sequential.PreProcessing();
   test_task_sequential.Run();
@@ -3126,7 +3126,7 @@ TEST(volochaev_s_shell_sort_with_batchers_even_odd_merge_all, test_with_Stirling
     task_data_seq->outputs_count.emplace_back(out.size());
   }
   // Create Task
-  volochaev_s_shell_sort_with_batchers_even_odd_merge_all::ShellSortALL test_task_sequential(task_data_seq);
+  volochaev_s_shell_sort_with_batchers_even_odd_merge_all::ShellSortAll test_task_sequential(task_data_seq);
   ASSERT_EQ(test_task_sequential.Validation(), true);
   test_task_sequential.PreProcessing();
   test_task_sequential.Run();
@@ -3158,7 +3158,7 @@ TEST(volochaev_s_shell_sort_with_batchers_even_odd_merge_all, test_with_Stirling
     task_data_seq->outputs_count.emplace_back(out.size());
   }
   // Create Task
-  volochaev_s_shell_sort_with_batchers_even_odd_merge_all::ShellSortALL test_task_sequential(task_data_seq);
+  volochaev_s_shell_sort_with_batchers_even_odd_merge_all::ShellSortAll test_task_sequential(task_data_seq);
   ASSERT_EQ(test_task_sequential.Validation(), true);
   test_task_sequential.PreProcessing();
   test_task_sequential.Run();
@@ -3190,7 +3190,7 @@ TEST(volochaev_s_shell_sort_with_batchers_even_odd_merge_all, test_with_Stirling
     task_data_seq->outputs_count.emplace_back(out.size());
   }
   // Create Task
-  volochaev_s_shell_sort_with_batchers_even_odd_merge_all::ShellSortALL test_task_sequential(task_data_seq);
+  volochaev_s_shell_sort_with_batchers_even_odd_merge_all::ShellSortAll test_task_sequential(task_data_seq);
   ASSERT_EQ(test_task_sequential.Validation(), true);
   test_task_sequential.PreProcessing();
   test_task_sequential.Run();
@@ -3222,7 +3222,7 @@ TEST(volochaev_s_shell_sort_with_batchers_even_odd_merge_all, test_with_Stirling
     task_data_seq->outputs_count.emplace_back(out.size());
   }
   // Create Task
-  volochaev_s_shell_sort_with_batchers_even_odd_merge_all::ShellSortALL test_task_sequential(task_data_seq);
+  volochaev_s_shell_sort_with_batchers_even_odd_merge_all::ShellSortAll test_task_sequential(task_data_seq);
   ASSERT_EQ(test_task_sequential.Validation(), true);
   test_task_sequential.PreProcessing();
   test_task_sequential.Run();
@@ -3254,7 +3254,7 @@ TEST(volochaev_s_shell_sort_with_batchers_even_odd_merge_all, test_with_Stirling
     task_data_seq->outputs_count.emplace_back(out.size());
   }
   // Create Task
-  volochaev_s_shell_sort_with_batchers_even_odd_merge_all::ShellSortALL test_task_sequential(task_data_seq);
+  volochaev_s_shell_sort_with_batchers_even_odd_merge_all::ShellSortAll test_task_sequential(task_data_seq);
   ASSERT_EQ(test_task_sequential.Validation(), true);
   test_task_sequential.PreProcessing();
   test_task_sequential.Run();
@@ -3286,7 +3286,7 @@ TEST(volochaev_s_shell_sort_with_batchers_even_odd_merge_all, test_with_Stirling
     task_data_seq->outputs_count.emplace_back(out.size());
   }
   // Create Task
-  volochaev_s_shell_sort_with_batchers_even_odd_merge_all::ShellSortALL test_task_sequential(task_data_seq);
+  volochaev_s_shell_sort_with_batchers_even_odd_merge_all::ShellSortAll test_task_sequential(task_data_seq);
   ASSERT_EQ(test_task_sequential.Validation(), true);
   test_task_sequential.PreProcessing();
   test_task_sequential.Run();
@@ -3318,7 +3318,7 @@ TEST(volochaev_s_shell_sort_with_batchers_even_odd_merge_all, test_with_Stirling
     task_data_seq->outputs_count.emplace_back(out.size());
   }
   // Create Task
-  volochaev_s_shell_sort_with_batchers_even_odd_merge_all::ShellSortALL test_task_sequential(task_data_seq);
+  volochaev_s_shell_sort_with_batchers_even_odd_merge_all::ShellSortAll test_task_sequential(task_data_seq);
   ASSERT_EQ(test_task_sequential.Validation(), true);
   test_task_sequential.PreProcessing();
   test_task_sequential.Run();
@@ -3350,7 +3350,7 @@ TEST(volochaev_s_shell_sort_with_batchers_even_odd_merge_all, test_with_Stirling
     task_data_seq->outputs_count.emplace_back(out.size());
   }
   // Create Task
-  volochaev_s_shell_sort_with_batchers_even_odd_merge_all::ShellSortALL test_task_sequential(task_data_seq);
+  volochaev_s_shell_sort_with_batchers_even_odd_merge_all::ShellSortAll test_task_sequential(task_data_seq);
   ASSERT_EQ(test_task_sequential.Validation(), true);
   test_task_sequential.PreProcessing();
   test_task_sequential.Run();
@@ -3382,7 +3382,7 @@ TEST(volochaev_s_shell_sort_with_batchers_even_odd_merge_all, test_with_Stirling
     task_data_seq->outputs_count.emplace_back(out.size());
   }
   // Create Task
-  volochaev_s_shell_sort_with_batchers_even_odd_merge_all::ShellSortALL test_task_sequential(task_data_seq);
+  volochaev_s_shell_sort_with_batchers_even_odd_merge_all::ShellSortAll test_task_sequential(task_data_seq);
   ASSERT_EQ(test_task_sequential.Validation(), true);
   test_task_sequential.PreProcessing();
   test_task_sequential.Run();
@@ -3414,7 +3414,7 @@ TEST(volochaev_s_shell_sort_with_batchers_even_odd_merge_all, test_with_Stirling
     task_data_seq->outputs_count.emplace_back(out.size());
   }
   // Create Task
-  volochaev_s_shell_sort_with_batchers_even_odd_merge_all::ShellSortALL test_task_sequential(task_data_seq);
+  volochaev_s_shell_sort_with_batchers_even_odd_merge_all::ShellSortAll test_task_sequential(task_data_seq);
   ASSERT_EQ(test_task_sequential.Validation(), true);
   test_task_sequential.PreProcessing();
   test_task_sequential.Run();
@@ -3446,7 +3446,7 @@ TEST(volochaev_s_shell_sort_with_batchers_even_odd_merge_all, test_with_Stirling
     task_data_seq->outputs_count.emplace_back(out.size());
   }
   // Create Task
-  volochaev_s_shell_sort_with_batchers_even_odd_merge_all::ShellSortALL test_task_sequential(task_data_seq);
+  volochaev_s_shell_sort_with_batchers_even_odd_merge_all::ShellSortAll test_task_sequential(task_data_seq);
   ASSERT_EQ(test_task_sequential.Validation(), true);
   test_task_sequential.PreProcessing();
   test_task_sequential.Run();
@@ -3478,7 +3478,7 @@ TEST(volochaev_s_shell_sort_with_batchers_even_odd_merge_all, test_with_Stirling
     task_data_seq->outputs_count.emplace_back(out.size());
   }
   // Create Task
-  volochaev_s_shell_sort_with_batchers_even_odd_merge_all::ShellSortALL test_task_sequential(task_data_seq);
+  volochaev_s_shell_sort_with_batchers_even_odd_merge_all::ShellSortAll test_task_sequential(task_data_seq);
   ASSERT_EQ(test_task_sequential.Validation(), true);
   test_task_sequential.PreProcessing();
   test_task_sequential.Run();
@@ -3510,7 +3510,7 @@ TEST(volochaev_s_shell_sort_with_batchers_even_odd_merge_all, test_with_Stirling
     task_data_seq->outputs_count.emplace_back(out.size());
   }
   // Create Task
-  volochaev_s_shell_sort_with_batchers_even_odd_merge_all::ShellSortALL test_task_sequential(task_data_seq);
+  volochaev_s_shell_sort_with_batchers_even_odd_merge_all::ShellSortAll test_task_sequential(task_data_seq);
   ASSERT_EQ(test_task_sequential.Validation(), true);
   test_task_sequential.PreProcessing();
   test_task_sequential.Run();
@@ -3542,7 +3542,7 @@ TEST(volochaev_s_shell_sort_with_batchers_even_odd_merge_all, test_with_Stirling
     task_data_seq->outputs_count.emplace_back(out.size());
   }
   // Create Task
-  volochaev_s_shell_sort_with_batchers_even_odd_merge_all::ShellSortALL test_task_sequential(task_data_seq);
+  volochaev_s_shell_sort_with_batchers_even_odd_merge_all::ShellSortAll test_task_sequential(task_data_seq);
   ASSERT_EQ(test_task_sequential.Validation(), true);
   test_task_sequential.PreProcessing();
   test_task_sequential.Run();
@@ -3574,7 +3574,7 @@ TEST(volochaev_s_shell_sort_with_batchers_even_odd_merge_all, test_with_Stirling
     task_data_seq->outputs_count.emplace_back(out.size());
   }
   // Create Task
-  volochaev_s_shell_sort_with_batchers_even_odd_merge_all::ShellSortALL test_task_sequential(task_data_seq);
+  volochaev_s_shell_sort_with_batchers_even_odd_merge_all::ShellSortAll test_task_sequential(task_data_seq);
   ASSERT_EQ(test_task_sequential.Validation(), true);
   test_task_sequential.PreProcessing();
   test_task_sequential.Run();
@@ -3606,7 +3606,7 @@ TEST(volochaev_s_shell_sort_with_batchers_even_odd_merge_all, test_with_Stirling
     task_data_seq->outputs_count.emplace_back(out.size());
   }
   // Create Task
-  volochaev_s_shell_sort_with_batchers_even_odd_merge_all::ShellSortALL test_task_sequential(task_data_seq);
+  volochaev_s_shell_sort_with_batchers_even_odd_merge_all::ShellSortAll test_task_sequential(task_data_seq);
   ASSERT_EQ(test_task_sequential.Validation(), true);
   test_task_sequential.PreProcessing();
   test_task_sequential.Run();
@@ -3638,7 +3638,7 @@ TEST(volochaev_s_shell_sort_with_batchers_even_odd_merge_all, test_with_Stirling
     task_data_seq->outputs_count.emplace_back(out.size());
   }
   // Create Task
-  volochaev_s_shell_sort_with_batchers_even_odd_merge_all::ShellSortALL test_task_sequential(task_data_seq);
+  volochaev_s_shell_sort_with_batchers_even_odd_merge_all::ShellSortAll test_task_sequential(task_data_seq);
   ASSERT_EQ(test_task_sequential.Validation(), true);
   test_task_sequential.PreProcessing();
   test_task_sequential.Run();
@@ -3670,7 +3670,7 @@ TEST(volochaev_s_shell_sort_with_batchers_even_odd_merge_all, test_with_Stirling
     task_data_seq->outputs_count.emplace_back(out.size());
   }
   // Create Task
-  volochaev_s_shell_sort_with_batchers_even_odd_merge_all::ShellSortALL test_task_sequential(task_data_seq);
+  volochaev_s_shell_sort_with_batchers_even_odd_merge_all::ShellSortAll test_task_sequential(task_data_seq);
   ASSERT_EQ(test_task_sequential.Validation(), true);
   test_task_sequential.PreProcessing();
   test_task_sequential.Run();
@@ -3702,7 +3702,7 @@ TEST(volochaev_s_shell_sort_with_batchers_even_odd_merge_all, test_with_Stirling
     task_data_seq->outputs_count.emplace_back(out.size());
   }
   // Create Task
-  volochaev_s_shell_sort_with_batchers_even_odd_merge_all::ShellSortALL test_task_sequential(task_data_seq);
+  volochaev_s_shell_sort_with_batchers_even_odd_merge_all::ShellSortAll test_task_sequential(task_data_seq);
   ASSERT_EQ(test_task_sequential.Validation(), true);
   test_task_sequential.PreProcessing();
   test_task_sequential.Run();
@@ -3734,7 +3734,7 @@ TEST(volochaev_s_shell_sort_with_batchers_even_odd_merge_all, test_with_Stirling
     task_data_seq->outputs_count.emplace_back(out.size());
   }
   // Create Task
-  volochaev_s_shell_sort_with_batchers_even_odd_merge_all::ShellSortALL test_task_sequential(task_data_seq);
+  volochaev_s_shell_sort_with_batchers_even_odd_merge_all::ShellSortAll test_task_sequential(task_data_seq);
   ASSERT_EQ(test_task_sequential.Validation(), true);
   test_task_sequential.PreProcessing();
   test_task_sequential.Run();
@@ -3766,7 +3766,7 @@ TEST(volochaev_s_shell_sort_with_batchers_even_odd_merge_all, test_with_Katalan_
     task_data_seq->outputs_count.emplace_back(out.size());
   }
   // Create Task
-  volochaev_s_shell_sort_with_batchers_even_odd_merge_all::ShellSortALL test_task_sequential(task_data_seq);
+  volochaev_s_shell_sort_with_batchers_even_odd_merge_all::ShellSortAll test_task_sequential(task_data_seq);
   ASSERT_EQ(test_task_sequential.Validation(), true);
   test_task_sequential.PreProcessing();
   test_task_sequential.Run();
@@ -3798,7 +3798,7 @@ TEST(volochaev_s_shell_sort_with_batchers_even_odd_merge_all, test_with_Katalan_
     task_data_seq->outputs_count.emplace_back(out.size());
   }
   // Create Task
-  volochaev_s_shell_sort_with_batchers_even_odd_merge_all::ShellSortALL test_task_sequential(task_data_seq);
+  volochaev_s_shell_sort_with_batchers_even_odd_merge_all::ShellSortAll test_task_sequential(task_data_seq);
   ASSERT_EQ(test_task_sequential.Validation(), true);
   test_task_sequential.PreProcessing();
   test_task_sequential.Run();
@@ -3830,7 +3830,7 @@ TEST(volochaev_s_shell_sort_with_batchers_even_odd_merge_all, test_with_Katalan_
     task_data_seq->outputs_count.emplace_back(out.size());
   }
   // Create Task
-  volochaev_s_shell_sort_with_batchers_even_odd_merge_all::ShellSortALL test_task_sequential(task_data_seq);
+  volochaev_s_shell_sort_with_batchers_even_odd_merge_all::ShellSortAll test_task_sequential(task_data_seq);
   ASSERT_EQ(test_task_sequential.Validation(), true);
   test_task_sequential.PreProcessing();
   test_task_sequential.Run();
@@ -3862,7 +3862,7 @@ TEST(volochaev_s_shell_sort_with_batchers_even_odd_merge_all, test_with_Katalan_
     task_data_seq->outputs_count.emplace_back(out.size());
   }
   // Create Task
-  volochaev_s_shell_sort_with_batchers_even_odd_merge_all::ShellSortALL test_task_sequential(task_data_seq);
+  volochaev_s_shell_sort_with_batchers_even_odd_merge_all::ShellSortAll test_task_sequential(task_data_seq);
   ASSERT_EQ(test_task_sequential.Validation(), true);
   test_task_sequential.PreProcessing();
   test_task_sequential.Run();
@@ -3894,7 +3894,7 @@ TEST(volochaev_s_shell_sort_with_batchers_even_odd_merge_all, test_with_Katalan_
     task_data_seq->outputs_count.emplace_back(out.size());
   }
   // Create Task
-  volochaev_s_shell_sort_with_batchers_even_odd_merge_all::ShellSortALL test_task_sequential(task_data_seq);
+  volochaev_s_shell_sort_with_batchers_even_odd_merge_all::ShellSortAll test_task_sequential(task_data_seq);
   ASSERT_EQ(test_task_sequential.Validation(), true);
   test_task_sequential.PreProcessing();
   test_task_sequential.Run();
@@ -3926,7 +3926,7 @@ TEST(volochaev_s_shell_sort_with_batchers_even_odd_merge_all, test_with_Katalan_
     task_data_seq->outputs_count.emplace_back(out.size());
   }
   // Create Task
-  volochaev_s_shell_sort_with_batchers_even_odd_merge_all::ShellSortALL test_task_sequential(task_data_seq);
+  volochaev_s_shell_sort_with_batchers_even_odd_merge_all::ShellSortAll test_task_sequential(task_data_seq);
   ASSERT_EQ(test_task_sequential.Validation(), true);
   test_task_sequential.PreProcessing();
   test_task_sequential.Run();
@@ -3958,7 +3958,7 @@ TEST(volochaev_s_shell_sort_with_batchers_even_odd_merge_all, test_with_Katalan_
     task_data_seq->outputs_count.emplace_back(out.size());
   }
   // Create Task
-  volochaev_s_shell_sort_with_batchers_even_odd_merge_all::ShellSortALL test_task_sequential(task_data_seq);
+  volochaev_s_shell_sort_with_batchers_even_odd_merge_all::ShellSortAll test_task_sequential(task_data_seq);
   ASSERT_EQ(test_task_sequential.Validation(), true);
   test_task_sequential.PreProcessing();
   test_task_sequential.Run();
@@ -3990,7 +3990,7 @@ TEST(volochaev_s_shell_sort_with_batchers_even_odd_merge_all, test_with_Katalan_
     task_data_seq->outputs_count.emplace_back(out.size());
   }
   // Create Task
-  volochaev_s_shell_sort_with_batchers_even_odd_merge_all::ShellSortALL test_task_sequential(task_data_seq);
+  volochaev_s_shell_sort_with_batchers_even_odd_merge_all::ShellSortAll test_task_sequential(task_data_seq);
   ASSERT_EQ(test_task_sequential.Validation(), true);
   test_task_sequential.PreProcessing();
   test_task_sequential.Run();
@@ -4022,7 +4022,7 @@ TEST(volochaev_s_shell_sort_with_batchers_even_odd_merge_all, test_with_Katalan_
     task_data_seq->outputs_count.emplace_back(out.size());
   }
   // Create Task
-  volochaev_s_shell_sort_with_batchers_even_odd_merge_all::ShellSortALL test_task_sequential(task_data_seq);
+  volochaev_s_shell_sort_with_batchers_even_odd_merge_all::ShellSortAll test_task_sequential(task_data_seq);
   ASSERT_EQ(test_task_sequential.Validation(), true);
   test_task_sequential.PreProcessing();
   test_task_sequential.Run();
@@ -4054,7 +4054,7 @@ TEST(volochaev_s_shell_sort_with_batchers_even_odd_merge_all, test_with_Katalan_
     task_data_seq->outputs_count.emplace_back(out.size());
   }
   // Create Task
-  volochaev_s_shell_sort_with_batchers_even_odd_merge_all::ShellSortALL test_task_sequential(task_data_seq);
+  volochaev_s_shell_sort_with_batchers_even_odd_merge_all::ShellSortAll test_task_sequential(task_data_seq);
   ASSERT_EQ(test_task_sequential.Validation(), true);
   test_task_sequential.PreProcessing();
   test_task_sequential.Run();
@@ -4086,7 +4086,7 @@ TEST(volochaev_s_shell_sort_with_batchers_even_odd_merge_all, test_with_Fibonacc
     task_data_seq->outputs_count.emplace_back(out.size());
   }
   // Create Task
-  volochaev_s_shell_sort_with_batchers_even_odd_merge_all::ShellSortALL test_task_sequential(task_data_seq);
+  volochaev_s_shell_sort_with_batchers_even_odd_merge_all::ShellSortAll test_task_sequential(task_data_seq);
   ASSERT_EQ(test_task_sequential.Validation(), true);
   test_task_sequential.PreProcessing();
   test_task_sequential.Run();
@@ -4118,7 +4118,7 @@ TEST(volochaev_s_shell_sort_with_batchers_even_odd_merge_all, test_with_Fibonacc
     task_data_seq->outputs_count.emplace_back(out.size());
   }
   // Create Task
-  volochaev_s_shell_sort_with_batchers_even_odd_merge_all::ShellSortALL test_task_sequential(task_data_seq);
+  volochaev_s_shell_sort_with_batchers_even_odd_merge_all::ShellSortAll test_task_sequential(task_data_seq);
   ASSERT_EQ(test_task_sequential.Validation(), true);
   test_task_sequential.PreProcessing();
   test_task_sequential.Run();
@@ -4150,7 +4150,7 @@ TEST(volochaev_s_shell_sort_with_batchers_even_odd_merge_all, test_with_Fibonacc
     task_data_seq->outputs_count.emplace_back(out.size());
   }
   // Create Task
-  volochaev_s_shell_sort_with_batchers_even_odd_merge_all::ShellSortALL test_task_sequential(task_data_seq);
+  volochaev_s_shell_sort_with_batchers_even_odd_merge_all::ShellSortAll test_task_sequential(task_data_seq);
   ASSERT_EQ(test_task_sequential.Validation(), true);
   test_task_sequential.PreProcessing();
   test_task_sequential.Run();
