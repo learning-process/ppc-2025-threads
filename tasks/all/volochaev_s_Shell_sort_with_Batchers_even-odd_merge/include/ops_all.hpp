@@ -13,7 +13,6 @@ class TestTaskAll : public ppc::core::Task {
  private:
   std::vector<long long int> mas_, tmp_, loc_, loc_tmp_;
   unsigned int n_, n_input_, loc_proc_lenght_;
-  unsigned int loc_lenght;
   int effective_num_procs_;
   boost::mpi::communicator world_;
 
