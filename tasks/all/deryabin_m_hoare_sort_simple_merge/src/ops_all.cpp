@@ -1,5 +1,6 @@
 #include "all/deryabin_m_hoare_sort_simple_merge/include/ops_all.hpp"
 
+#include <oneapi/tbb/parallel_for.h>
 #include <oneapi/tbb/parallel_invoke.h>
 
 #include <algorithm>
@@ -44,18 +45,28 @@ void deryabin_m_hoare_sort_simple_merge_mpi::HoaraSort(std::vector<double>::iter
   }
 }
 
-void deryabin_m_hoare_sort_simple_merge_mpi::MergeTwoParts(std::vector<double>& a, size_t first, size_t last) {
-  if (last - first <= 1) return;
-  const size_t mid = first + (last - first) / 2;
-  auto first_ge = std::lower_bound(a.begin() + first, a.begin() + mid, a[mid]);
-  size_t left_split = first_ge - a.begin();
-  auto last_le = std::upper_bound(a.begin() + mid, a.begin() + last, a[mid - 1]);
-  size_t right_split = last_le - a.begin();
-  std::rotate(a.begin() + left_split, a.begin() + mid, a.begin() + right_split);
-  // Параллельно сливаем оставшиеся части
-  const size_t new_mid = left_split + (right_split - mid);
-  oneapi::tbb::parallel_invoke([&a, &first, &new_mid]() { MergeTwoParts(a, first, new_mid); },
-                               [&a, &new_mid, &last]() { MergeTwoParts(a, new_mid, last); });
+void deryabin_m_hoare_sort_simple_merge_mpi::MergeTwoParts(std::vector<double>::iterator first,
+                                                       std::vector<double>::iterator last) {
+    const size_t len = std::distance(first, last);
+    if (len <= 1) return;
+    Iterator mid = first + len / 2;
+    Iterator left_end = std::upper_bound(first, mid, *mid);
+    Iterator right_start = std::lower_bound(mid, last, *(mid-1));
+    const size_t overlap_len = std::distance(left_end, mid) 
+                            + std::distance(mid, right_start);
+    tbb::parallel_for(
+        tbb::blocked_range<size_t>(0, overlap_len),
+        [&](const tbb::blocked_range<size_t>& r) {
+            for (size_t i = r.begin(); i < r.end(); ++i) {
+                Iterator left = left_end + i;
+                Iterator right = mid + i;
+                if (*left > *right) {
+                    std::iter_swap(left, right);
+                }
+            }
+        }
+    );
+    std::inplace_merge(left_end, mid, right_start);
 }
 
 bool deryabin_m_hoare_sort_simple_merge_mpi::HoareSortTaskSequential::PreProcessingImpl() {
