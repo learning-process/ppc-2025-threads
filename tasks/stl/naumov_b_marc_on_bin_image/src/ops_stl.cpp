@@ -164,18 +164,43 @@ bool naumov_b_marc_on_bin_image_stl::TestTaskSTL::RunImpl() {
     }
   }
 
-  // Замена OpenMP цикла на STL с параллельным выполнением
-  std::vector<int> indices(rows_ * cols_);
-  std::iota(indices.begin(), indices.end(), 0);
-
-  std::for_each(std::execution::par, indices.begin(), indices.end(), [&](int idx) {
-    if (input_image_[idx] == 1) {
-      int root = FindRoot(output_image_[idx]);
-      output_image_[idx] = root;
-    }
-  });
+  CreateAndJoinThreads();
 
   return true;
+}
+
+void naumov_b_marc_on_bin_image_stl::TestTaskSTL::CreateAndJoinThreads() {
+  const size_t total_elements = static_cast<size_t>(rows_ * cols_);
+  const size_t num_threads = static_cast<size_t>(std::thread::hardware_concurrency());
+  std::vector<std::thread> threads;
+  threads.reserve(num_threads);
+
+  const size_t base_chunk = total_elements / num_threads;
+  const size_t remainder = total_elements % num_threads;
+  size_t start_idx = 0;
+
+  for (size_t i = 0; i < num_threads; ++i) {
+    const size_t chunk = base_chunk + (i < remainder ? 1 : 0);
+    const size_t end_idx = start_idx + chunk;
+
+    threads.emplace_back(&TestTaskSTL::ProcessRange, this, start_idx, end_idx);
+    start_idx = end_idx;
+  }
+
+  for (std::thread& thread : threads) {
+    if (thread.joinable()) {
+      thread.join();
+    }
+  }
+}
+
+void naumov_b_marc_on_bin_image_stl::TestTaskSTL::ProcessRange(size_t start_idx, size_t end_idx) {
+  for (size_t idx = start_idx; idx < end_idx; ++idx) {
+    if (input_image_[idx] == 1) {
+      const int root_label = FindRoot(output_image_[idx]);
+      output_image_[idx] = root_label;
+    }
+  }
 }
 
 bool naumov_b_marc_on_bin_image_stl::TestTaskSTL::PostProcessingImpl() {

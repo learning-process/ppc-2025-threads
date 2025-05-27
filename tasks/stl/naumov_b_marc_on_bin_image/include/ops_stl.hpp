@@ -20,6 +20,9 @@ class TestTaskSTL : public ppc::core::Task {
   bool PostProcessingImpl() override;
 
  private:
+  void ProcessRange(size_t start_idx, size_t end_idx);
+  void CreateAndJoinThreads();
+
   void ProcessBlock(int start_row, int start_col, int block_rows, int block_cols);
   void ProcessPixel(int row, int col);
   void AssignNewLabel(int row, int col);
