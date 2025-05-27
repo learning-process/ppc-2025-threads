@@ -15,8 +15,7 @@
 #include "core/task/include/task.hpp"
 
 namespace {
-void GetRandomVector(std::vector<int> &v, int a, int b) {
-  std::random_device dev;
+void GetRandomVector(std::vector<long long> &v, int a, int b) {
   std::mt19937 gen(1000);
 
   if (a >= b) {
@@ -35,11 +34,11 @@ TEST(volochaev_s_Shell_sort_with_Batchers_even_odd_merge_all, test_pipeline_run)
   constexpr int kSizeOfVector = 50000;
   boost::mpi::communicator world;
   // Create data
-  std::vector<int> in(kSizeOfVector);
+  std::vector<long long int> in(kSizeOfVector);
   if (world.rank() == 0) {
     GetRandomVector(in, -1000, 1000);
   }
-  std::vector<int> out(in);
+  std::vector<long long int> out(in);
   std::ranges::sort(out);
 
   // Create task_data
@@ -81,11 +80,11 @@ TEST(volochaev_s_Shell_sort_with_Batchers_even_odd_merge_all, test_task_run) {
   boost::mpi::communicator world;
 
   // Create data
-  std::vector<int> in(kSizeOfVector);
+  std::vector<long long int> in(kSizeOfVector);
   if (world.rank() == 0) {
     GetRandomVector(in, -1000, 1000);
   }
-  std::vector<int> out(in);
+  std::vector<long long int> out(in);
   std::ranges::sort(out);
 
   // Create task_data
