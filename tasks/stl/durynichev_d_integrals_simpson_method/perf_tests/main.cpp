@@ -7,9 +7,9 @@
 
 #include "core/perf/include/perf.hpp"
 #include "core/task/include/task.hpp"
-#include "tbb/durynichev_d_integrals_simpson_method/include/ops_tbb.hpp"
+#include "stl/durynichev_d_integrals_simpson_method/include/ops_stl.hpp"
 
-TEST(durynichev_d_integrals_simpson_method_tbb, test_pipeline_run) {
+TEST(durynichev_d_integrals_simpson_method_stl, test_pipeline_run) {
   std::vector<double> in = {-10.0, 10.0, -10.0, 10.0, 29000};
   std::vector<double> out(1, 0.0);
 
@@ -19,10 +19,10 @@ TEST(durynichev_d_integrals_simpson_method_tbb, test_pipeline_run) {
   task_data->outputs.emplace_back(reinterpret_cast<uint8_t*>(out.data()));
   task_data->outputs_count.emplace_back(out.size());
 
-  auto task = std::make_shared<durynichev_d_integrals_simpson_method_tbb::SimpsonIntegralTBB>(task_data);
+  auto task = std::make_shared<durynichev_d_integrals_simpson_method_stl::SimpsonIntegralSTL>(task_data);
 
   auto perf_attr = std::make_shared<ppc::core::PerfAttr>();
-  perf_attr->num_running = 1;
+  perf_attr->num_running = 10;
   const auto t0 = std::chrono::high_resolution_clock::now();
   perf_attr->current_timer = [&] {
     auto current_time_point = std::chrono::high_resolution_clock::now();
@@ -38,7 +38,7 @@ TEST(durynichev_d_integrals_simpson_method_tbb, test_pipeline_run) {
   EXPECT_NEAR(out[0], 80000.0 / 3.0, 1e-2);
 }
 
-TEST(durynichev_d_integrals_simpson_method_tbb, test_task_run) {
+TEST(durynichev_d_integrals_simpson_method_stl, test_task_run) {
   std::vector<double> in = {-10.0, 10.0, -10.0, 10.0, 29000};
   std::vector<double> out(1, 0.0);
 
@@ -48,10 +48,10 @@ TEST(durynichev_d_integrals_simpson_method_tbb, test_task_run) {
   task_data->outputs.emplace_back(reinterpret_cast<uint8_t*>(out.data()));
   task_data->outputs_count.emplace_back(out.size());
 
-  auto task = std::make_shared<durynichev_d_integrals_simpson_method_tbb::SimpsonIntegralTBB>(task_data);
+  auto task = std::make_shared<durynichev_d_integrals_simpson_method_stl::SimpsonIntegralSTL>(task_data);
 
   auto perf_attr = std::make_shared<ppc::core::PerfAttr>();
-  perf_attr->num_running = 1;
+  perf_attr->num_running = 10;
   const auto t0 = std::chrono::high_resolution_clock::now();
   perf_attr->current_timer = [&] {
     auto current_time_point = std::chrono::high_resolution_clock::now();
