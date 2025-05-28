@@ -4,6 +4,8 @@
 #include <oneapi/tbb/blocked_range2d.h>
 #include <oneapi/tbb/parallel_for.h>
 
+#include <atomic>
+#include <memory>
 #include <unordered_map>
 #include <unordered_set>
 #include <utility>
@@ -29,18 +31,45 @@ class TestTaskTBB : public ppc::core::Task {
   int cols_;
   std::vector<int> data_;
 
-  struct UnionFind {
-    std::vector<int> parent;
+  class UnionFind {
+    std::unique_ptr<std::atomic<int>[]> parent;
 
-    UnionFind(int size, std::vector<int>& data) : parent(size) {
-      tbb::parallel_for(0, size, [&](int i) { parent[i] = data[i] ? i : -1; });
+   public:
+    UnionFind(int size, const std::vector<int>& data) {
+      parent = std::make_unique<std::atomic<int>[]>(size);
+      for (int i = 0; i < size; ++i) {
+        parent[i].store(data[i] ? i : -1);
+      }
     }
 
-    int Find(int x);
-    void Unite(int x, int y);
+    int Find(int x) {
+      while (true) {
+        int p = parent[x].load();
+        if (p == x || p == -1) return p;
+        int gp = parent[p].load();
+        if (gp != p) {
+          parent[x].compare_exchange_weak(p, gp);
+        }
+        x = parent[x].load();
+      }
+    }
+
+    void Unite(int x, int y) {
+      while (true) {
+        int rx = Find(x);
+        int ry = Find(y);
+        if (rx == ry || rx == -1 || ry == -1) return;
+        if (rx > ry) std::swap(rx, ry);
+        int expected = ry;
+        if (parent[ry].compare_exchange_strong(expected, rx)) {
+          return;
+        }
+      }
+    }
   };
+
   void ProcessComponents(UnionFind& uf);
-  void AssignFinalLabels(int size, UnionFind uf);
+  void AssignFinalLabels(int size, UnionFind& uf);
   void ProcessRange(const tbb::blocked_range2d<int>& range, UnionFind& uf);
   void ProcessRow(int row, const tbb::blocked_range<int>& col_range, UnionFind& uf);
   void CheckAllNeighbors(int row, int col, int idx, UnionFind& uf);

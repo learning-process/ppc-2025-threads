@@ -80,19 +80,20 @@ lavrentiev_a_ccs_tbb::Sparse lavrentiev_a_ccs_tbb::CCSTBB::MatMul(const Sparse &
     return s;
   };
   worker.execute([&] {
-    oneapi::tbb::parallel_for(oneapi::tbb::blocked_range<int>(0, static_cast<int>(matrix2.columnsSum.size())),
-                              [&](const oneapi::tbb::blocked_range<int> &blocked_range) {
-                                for (int i = blocked_range.begin(); i != blocked_range.end(); ++i) {
-                                  for (int j = 0; j < static_cast<int>(new_matrix1.columnsSum.size()); ++j) {
-                                    double s = sum(i, j);
-                                    if (s != 0) {
-                                      imatrix.elements_and_rows[(i * matrix2.size.second) + j] = {s, j};
-                                      imatrix.columnsSum[i]++;
-                                    }
-                                  }
-                                }
-                              }),
-        tbb::auto_partitioner();
+    oneapi::tbb::parallel_for(
+        oneapi::tbb::blocked_range<int>(0, static_cast<int>(matrix2.columnsSum.size()),
+                                        matrix2.columnsSum.size() / ppc::util::GetPPCNumThreads()),
+        [&](const oneapi::tbb::blocked_range<int> &blocked_range) {
+          for (int i = blocked_range.begin(); i != blocked_range.end(); ++i) {
+            for (int j = 0; j < static_cast<int>(new_matrix1.columnsSum.size()); ++j) {
+              double s = sum(i, j);
+              if (s != 0) {
+                imatrix.elements_and_rows[(i * matrix2.size.second) + j] = {s, j};
+                imatrix.columnsSum[i]++;
+              }
+            }
+          }
+        });
   });
   for (size_t i = 1; i < imatrix.columnsSum.size(); ++i) {
     imatrix.columnsSum[i] = imatrix.columnsSum[i] + imatrix.columnsSum[i - 1];

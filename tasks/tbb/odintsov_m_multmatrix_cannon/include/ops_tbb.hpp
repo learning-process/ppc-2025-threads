@@ -18,6 +18,7 @@ class MulMatrixCannonTBB : public ppc::core::Task {
   bool PostProcessingImpl() override;
 
  private:
+  void MultiplyBlock(int bi, int bj, int root);
   static void ShiftRow(std::vector<double>& matrix, int root, int row, int shift);
   static void ShiftColumn(std::vector<double>& matrix, int root, int col, int shift);
   void ShiftBlocksUp(std::vector<double>& matrix, int root, int block_sz) const;

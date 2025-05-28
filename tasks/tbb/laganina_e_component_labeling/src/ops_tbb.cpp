@@ -41,27 +41,7 @@ bool laganina_e_component_labeling_tbb::TestTaskTBB::RunImpl() {
   return true;
 }
 
-int laganina_e_component_labeling_tbb::TestTaskTBB::UnionFind::Find(int x) {
-  while (parent[x] != x) {
-    parent[x] = parent[parent[x]];
-    x = parent[x];
-  }
-  return x;
-}
-
-void laganina_e_component_labeling_tbb::TestTaskTBB::UnionFind::Unite(int x, int y) {
-  int rx = Find(x);
-  int ry = Find(y);
-  if ((rx != ry) && (rx != -1) && (ry != -1)) {
-    if (rx < ry) {
-      parent[ry] = rx;
-    } else {
-      parent[rx] = ry;
-    }
-  }
-}
-
-void laganina_e_component_labeling_tbb::TestTaskTBB::AssignFinalLabels(int size, UnionFind uf) {
+void laganina_e_component_labeling_tbb::TestTaskTBB::AssignFinalLabels(int size, UnionFind& uf) {
   tbb::concurrent_unordered_map<int, int> label_map;
 
   tbb::parallel_for(0, size, [&](int i) {
