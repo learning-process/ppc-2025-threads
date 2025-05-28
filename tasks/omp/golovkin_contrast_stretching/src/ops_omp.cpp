@@ -45,7 +45,7 @@ bool golovkin_contrast_stretching::ContrastStretchingOMP<PixelType>::RunImpl() {
   const double scale = 255.0 / (max_val_ - min_val_);
 
 #pragma omp parallel for
-  for (size_t i = 0; i < image_size_; ++i) {
+  for (int i = 0; i < static_cast<int>(image_size_); ++i) {
     double stretched = (input_image_[i] - min_val_) * scale;
 
     if constexpr (std::is_same_v<PixelType, uint8_t>) {
