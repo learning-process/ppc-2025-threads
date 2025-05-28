@@ -6,7 +6,7 @@
 #include <memory>
 #include <vector>
 
-#include "all/konkov_i_sparse_matmul_ccs_all/include/ops_all.hpp"
+#include "all/konkov_i_sparse_matmul_ccs/include/ops_all.hpp"
 #include "core/perf/include/perf.hpp"
 #include "core/task/include/task.hpp"
 
