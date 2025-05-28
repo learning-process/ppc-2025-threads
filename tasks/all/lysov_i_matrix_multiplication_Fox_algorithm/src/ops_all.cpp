@@ -200,7 +200,7 @@ bool lysov_i_matrix_multiplication_fox_algorithm_mpi_tbb::TestTaskMPITBB::RunImp
   std::vector<double> local_c(k * k, 0.0);
   boost::mpi::scatter(my_comm, scatter_a, local_a.data(), static_cast<int>(local_a.size()), 0);
   boost::mpi::scatter(my_comm, scatter_b, local_b.data(), static_cast<int>(local_b.size()), 0);
-  tbb::task_arena arena{1};
+  tbb::task_arena arena;
   arena.execute([&] { PerformFoxAlgorithmStep(my_comm, rank, q, k, local_a, local_b, local_c); });
   std::vector<double> gathered(elements_);
   boost::mpi::gather(my_comm, local_c.data(), static_cast<int>(local_c.size()), gathered, 0);
