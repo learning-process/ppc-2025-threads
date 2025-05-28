@@ -14,20 +14,19 @@
 
 TEST(chizhov_m_trapezoid_method_all, test_pipeline_run) {
   boost::mpi::communicator world;
-
   std::vector<double> res(1, 0);
+
+  int div = 200;
+  int dim = 3;
+  std::vector<double> limits = {0.0, 1000.0, 0.0, 1000.0, 0.0, 1000.0};
+
   auto f = [](const std::vector<double> &f_val) {
     return std::sin((f_val[0] * f_val[0]) + (f_val[1] * f_val[1]) + (f_val[2] * f_val[2]));
   };
 
   std::shared_ptr<ppc::core::TaskData> task_data_mpi = std::make_shared<ppc::core::TaskData>();
 
-  // Create task_data
   if (world.rank() == 0) {
-    int div = 200;
-    int dim = 3;
-    std::vector<double> limits = {0.0, 1000.0, 0.0, 1000.0, 0.0, 1000.0};
-
     task_data_mpi->inputs.emplace_back(reinterpret_cast<uint8_t *>(&div));
     task_data_mpi->inputs_count.emplace_back(sizeof(div));
 
@@ -41,7 +40,6 @@ TEST(chizhov_m_trapezoid_method_all, test_pipeline_run) {
     task_data_mpi->outputs_count.emplace_back(res.size() * sizeof(double));
   }
 
-  // Create Task
   auto test_task_mpi = std::make_shared<chizhov_m_trapezoid_method_all::TestTaskMPI>(task_data_mpi);
   test_task_mpi->SetFunc(f);
 
@@ -69,20 +67,19 @@ TEST(chizhov_m_trapezoid_method_all, test_pipeline_run) {
 
 TEST(chizhov_m_trapezoid_method_all, test_task_run) {
   boost::mpi::communicator world;
-
   std::vector<double> res(1, 0);
+
+  int div = 200;
+  int dim = 3;
+  std::vector<double> limits = {0.0, 1000.0, 0.0, 1000.0, 0.0, 1000.0};
+
   auto f = [](const std::vector<double> &f_val) {
     return std::sin((f_val[0] * f_val[0]) + (f_val[1] * f_val[1]) + (f_val[2] * f_val[2]));
   };
 
-  // Create task_data
   std::shared_ptr<ppc::core::TaskData> task_data_mpi = std::make_shared<ppc::core::TaskData>();
 
   if (world.rank() == 0) {
-    int div = 200;
-    int dim = 3;
-    std::vector<double> limits = {0.0, 1000.0, 0.0, 1000.0, 0.0, 1000.0};
-
     task_data_mpi->inputs.emplace_back(reinterpret_cast<uint8_t *>(&div));
     task_data_mpi->inputs_count.emplace_back(sizeof(div));
 
@@ -96,7 +93,6 @@ TEST(chizhov_m_trapezoid_method_all, test_task_run) {
     task_data_mpi->outputs_count.emplace_back(res.size() * sizeof(double));
   }
 
-  // Create Task
   auto test_task_mpi = std::make_shared<chizhov_m_trapezoid_method_all::TestTaskMPI>(task_data_mpi);
   test_task_mpi->SetFunc(f);
 
