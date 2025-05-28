@@ -19,7 +19,7 @@ class TestTaskALL : public ppc::core::Task {
   bool PostProcessingImpl() override;
 
  private:
-  std::vector<double> image_, filtered_image_;
+  std::vector<double> filtered_image_, image_;
   int width_{}, height_{};
   boost::mpi::communicator world_;
 };
