@@ -8,7 +8,7 @@
 #include <memory>
 #include <random>
 #include <stdexcept>
-#include <vector>  // NOLINT(misc-include-cleaner)
+#include <vector>  
 
 #include "all/volochaev_s_Shell_sort_with_Batchers_even-odd_merge/include/ops_all.hpp"
 #include "core/perf/include/perf.hpp"
@@ -16,7 +16,8 @@
 
 namespace {
 void GetRandomVector(std::vector<long long> &v, int a, int b) {
-  std::mt19937 gen(1000);
+  std::random_device dev;
+  std::mt19937 gen(dev());
 
   if (a >= b) {
     throw std::invalid_argument("error.");
