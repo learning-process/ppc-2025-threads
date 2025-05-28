@@ -35,7 +35,7 @@ class CCSALL : public ppc::core::Task {
   void GetDisplacements();
   void CollectSizes();
   void CollectData();
-  void AddData(const std::vector<double> & data, int past_data, int index);
+  void AddData(const std::vector<double>& data, int past_data, int index);
 
   Sparse A_;
   Sparse B_;
