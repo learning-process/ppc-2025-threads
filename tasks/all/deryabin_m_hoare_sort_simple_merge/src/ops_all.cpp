@@ -193,14 +193,14 @@ bool deryabin_m_hoare_sort_simple_merge_mpi::HoareSortTaskMPI::RunImpl() {
           if (world.rank() != 0) {
             start_idx += rest_;
           }
-          world.send(world.rank() + step, 0, &input_array_A_[start_idx], block_size);
+          world.send(world.rank() + step, 0, input_array_A_.data() + start_idx, block_size);
         }
         if (!is_even || world.rank() == world_size - 1) {
           size_t start_idx = (static_cast<size_t>(world.rank() - 2 * step) + 1) * chunk_size;
           if (world.rank() - step != 0) {
             start_idx += rest_;
           }
-          world.recv(world.rank() - step, 0, &input_array_A_[start_idx], block_size);
+          world.recv(world.rank() - step, 0, input_array_A_.data() + start_idx, block_size);
           MergeTwoParts(input_array_A_.begin() + start_idx, input_array_A_.begin() + start_idx + 2 * block_size);
         }
       }
@@ -210,7 +210,6 @@ bool deryabin_m_hoare_sort_simple_merge_mpi::HoareSortTaskMPI::RunImpl() {
 }
 
 bool deryabin_m_hoare_sort_simple_merge_mpi::HoareSortTaskMPI::PostProcessingImpl() {
-  world.barrier();
   if (world.rank() == world.size() - 1) {
     reinterpret_cast<std::vector<double>*>(task_data->outputs[0])[0] = input_array_A_;
   }
