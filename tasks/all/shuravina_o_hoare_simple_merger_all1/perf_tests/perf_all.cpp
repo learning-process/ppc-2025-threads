@@ -12,7 +12,7 @@
 #include "core/task/include/task.hpp"
 
 TEST(shuravina_o_hoare_simple_merger_all, test_pipeline_run) {
-  const std::size_t size = 50000;
+  const std::size_t size = 1000000;
   std::vector<int> input(size, 0);
   std::vector<int> output(size, 0);
 
@@ -48,7 +48,7 @@ TEST(shuravina_o_hoare_simple_merger_all, test_pipeline_run) {
 }
 
 TEST(shuravina_o_hoare_simple_merger_all, test_task_run) {
-  const std::size_t size = 50000;
+  const std::size_t size = 10000000;
   std::vector<int> input(size, 0);
   std::vector<int> output(size, 0);
 
