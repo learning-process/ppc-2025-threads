@@ -11,7 +11,6 @@
 #include <functional>
 #include <vector>
 
-
 double fomin_v_conjugate_gradient::FominVConjugateGradientAll::DotProduct(const boost::mpi::communicator& world,
                                                                           const std::vector<double>& a,
                                                                           const std::vector<double>& b) {
