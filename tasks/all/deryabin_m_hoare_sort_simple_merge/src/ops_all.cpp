@@ -178,7 +178,7 @@ bool deryabin_m_hoare_sort_simple_merge_mpi::HoareSortTaskMPI::RunImpl() {
   boost::mpi::broadcast(world, min_chunk_size_, 0);
   boost::mpi::broadcast(world, rest_, 0);
   const auto chunk_size = min_chunk_size_;
-  auto start_iter = input_array_A_.begin() + static_cast<size_t>(world.size() - world.rank() - 1)) * chunk_size;
+  auto start_iter = input_array_A_.begin() + static_cast<size_t>(world.size() - world.rank() - 1) * chunk_size;
   if (world.rank() != world.size() - 1) {
     start_iter += rest_;
   }
@@ -199,7 +199,7 @@ bool deryabin_m_hoare_sort_simple_merge_mpi::HoareSortTaskMPI::RunImpl() {
         if (is_last_level && (world_size % 2 != 0)) {
           start_idx = 0;
         } else {
-          start_idx = (static_cast<size_t>(world_size - (world.rank() + step)) * chunk_size;
+          start_idx = static_cast<size_t>(world_size - (world.rank() + step)) * chunk_size;
           if (world.rank() != world.size() - 1) {
             start_idx += rest_;
           }
@@ -211,7 +211,7 @@ bool deryabin_m_hoare_sort_simple_merge_mpi::HoareSortTaskMPI::RunImpl() {
         if (is_last_level && (world_size % 2 != 0)) {
           start_idx = 0;
         } else {
-          start_idx = (static_cast<size_t>(world_size - (world.rank() + 2 * step)) * chunk_size;
+          start_idx = static_cast<size_t>(world_size - (world.rank() + 2 * step)) * chunk_size;
           if (world.rank() + step != world.size() - 1) {
             start_idx += rest_;
           }
