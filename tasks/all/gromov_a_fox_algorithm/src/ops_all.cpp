@@ -92,7 +92,7 @@ bool TestTaskAll::RunImpl() {
   std::vector<double> local_matrix_a(block_size * block_size);
   std::vector<double> local_matrix_b(block_size * block_size);
   std::vector<double> local_matrix_c(block_size * block_size, 0.0);
-  boost::mpi::scatter(local_mpi_comm, scatter_matrix_a, local_matrix_a.data(), static_cast<int>(local_matrix_a.size()), 
+  boost::mpi::scatter(local_mpi_comm, scatter_matrix_a, local_matrix_a.data(), static_cast<int>(local_matrix_a.size()),
                       0);
   boost::mpi::scatter(local_mpi_comm, scatter_matrix_b, local_matrix_b.data(), static_cast<int>(local_matrix_b.size()),
                       0);
