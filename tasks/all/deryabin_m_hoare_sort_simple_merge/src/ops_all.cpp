@@ -210,7 +210,7 @@ bool deryabin_m_hoare_sort_simple_merge_mpi::HoareSortTaskMPI::RunImpl() {
 }
 
 bool deryabin_m_hoare_sort_simple_merge_mpi::HoareSortTaskMPI::PostProcessingImpl() {
-  if (world.rank() == world_size() - 1) {
+  if (world.rank() == world.size() - 1) {
     reinterpret_cast<std::vector<double>*>(task_data->outputs[0])[0] = input_array_A_;
   }
   return true;
