@@ -1,21 +1,21 @@
 #pragma once
 
+#include <algorithm>
 #include <boost/mpi/collectives.hpp>
 #include <boost/mpi/communicator.hpp>
-#include <utility>
-#include <vector>
-#include <algorithm>
 #include <chrono>
 #include <cstddef>
 #include <cstdint>
 #include <memory>
 #include <ranges>
+#include <utility>
+#include <vector>
 
 #include "core/task/include/task.hpp"
 
 namespace naumov_b_marc_on_bin_image_all {
 
-  std::vector<int> GenerateRandomBinaryMatrix(int rows, int cols, double probability = 0.5);
+std::vector<int> GenerateRandomBinaryMatrix(int rows, int cols, double probability = 0.5);
 std::vector<int> GenerateSparseBinaryMatrix(int rows, int cols, double probability = 0.1);
 std::vector<int> GenerateDenseBinaryMatrix(int rows, int cols, double probability = 0.9);
 
