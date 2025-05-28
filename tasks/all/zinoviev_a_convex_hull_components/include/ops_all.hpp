@@ -30,8 +30,8 @@ class ConvexHullMPI : public ppc::core::Task {
   static std::vector<Point> FindConvexHull(const std::vector<Point>& points) noexcept;
   static int Cross(const Point& o, const Point& a, const Point& b) noexcept;
 
-  void BFS(const int* local_input_data, int local_width, int local_height, int start_x, int start_y,
-           std::vector<bool>& visited, std::vector<Point>& component) noexcept;
+  static void BFS(const int* local_input_data, int local_width, int local_height, int start_x, int start_y,
+                  std::vector<bool>& visited, std::vector<Point>& component) noexcept;
 
   [[nodiscard]] std::vector<int> CalculateLocalRanges(int global_size) const noexcept;
 
