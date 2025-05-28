@@ -183,7 +183,7 @@ bool deryabin_m_hoare_sort_simple_merge_mpi::HoareSortTaskMPI::RunImpl() {
   if (world_size != 1) {
     const size_t iterations = static_cast<size_t>(std::bit_width(chunk_count_ - 1));
     std::vector<double> send_recv_buffer;
-    send_recv_buffer.reserve(2 * chunk_size * (1 << (iterations - 1)));
+    send_recv_buffer.reserve(2 * chunk_size * (1ULL << (iterations - 1)));
     for (size_t i = 0; i < iterations; ++i) {
       const unsigned short step = 1ULL << i;
       const size_t block_size = chunk_size * step;
