@@ -89,18 +89,18 @@ void deryabin_m_hoare_sort_simple_merge_mpi::MergeTwoParts(std::vector<double>::
     const size_t right_len = right_start - mid;
     const size_t overlap_len = left_len + right_len;
     oneapi::tbb::parallel_for(oneapi::tbb::blocked_range<size_t>(0, overlap_len),
-                      [&left_end, &mid](const tbb::blocked_range<size_t>& r) {
-                        auto left = left_end + r.begin();
-                        auto right = mid + r.begin();
-                        const auto end = left + (r.end() - r.begin());
-                        while (left != end) {
-                          if (*left > *right) {
-                            std::iter_swap(left, right);
-                          }
-                          ++left;
-                          ++right;
-                        }
-                      });
+                              [&left_end, &mid](const tbb::blocked_range<size_t>& r) {
+                                auto left = left_end + r.begin();
+                                auto right = mid + r.begin();
+                                const auto end = left + (r.end() - r.begin());
+                                while (left != end) {
+                                  if (*left > *right) {
+                                    std::iter_swap(left, right);
+                                  }
+                                  ++left;
+                                  ++right;
+                                }
+                              });
     std::inplace_merge(left_end, mid, right_start);
   } else {
     std::inplace_merge(first, first + ((last - first) >> 1), last);
