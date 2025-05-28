@@ -13,9 +13,8 @@ class ShellSortAll : public ppc::core::Task {
   bool PostProcessingImpl() override;
 
  private:
-  std::vector<int> input_;
-  boost::mpi::communicator world_;
-  void ShellSort();
+  std::vector<int> input_, counts_, result_;
+  boost::mpi::communicator world_, group_;
 };
 
 }  // namespace kovalchuk_a_shell_sort_all

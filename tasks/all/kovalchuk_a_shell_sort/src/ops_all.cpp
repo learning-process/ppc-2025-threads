@@ -3,9 +3,16 @@
 #include <tbb/parallel_for.h>
 
 #include <algorithm>
-#include <boost/mpi.hpp>
-#include <boost/serialization/vector.hpp>
+#include <queue>
+#include <tuple>
+#include <utility>
 #include <vector>
+
+#include "boost/mpi/collectives/broadcast.hpp"
+#include "boost/mpi/collectives/gatherv.hpp"
+#include "boost/mpi/collectives/scatterv.hpp"
+#include "core/task/include/task.hpp"
+#include "oneapi/tbb/parallel_for.h"
 
 namespace kovalchuk_a_shell_sort_all {
 
@@ -16,43 +23,45 @@ bool ShellSortAll::PreProcessingImpl() {
     auto* input_ptr = reinterpret_cast<int*>(task_data->inputs[0]);
     input_.assign(input_ptr, input_ptr + task_data->inputs_count[0]);
   }
-
-  int total_size{};
-  boost::mpi::broadcast(world_, total_size, 0);
-
-  int num_procs = world_.size();
-  std::vector<int> counts(num_procs, total_size / num_procs);
-  std::vector<int> displs(num_procs, 0);
-  for (int i = 0; i < total_size % num_procs; ++i) {
-    counts[i]++;
-  }
-  for (int i = 1; i < num_procs; ++i) {
-    displs[i] = displs[i - 1] + counts[i - 1];
-  }
-
-
-  std::vector<int> buffer;
-  if (world_.rank() == 0) {
-    buffer = input_;
-  }
-
-  input_.resize(counts[world_.rank()]);
-  boost::mpi::scatterv(world_, input_.data(), counts, displs, buffer.data(), counts[world_.rank()], 0);
-
   return true;
 }
 
 bool ShellSortAll::ValidationImpl() {
-  return !task_data->inputs_count.empty() && task_data->inputs_count[0] == task_data->outputs_count[0];
+  return world_.rank() != 0 ||
+         (!task_data->inputs_count.empty() && task_data->inputs_count[0] != 0 && !task_data->inputs.empty());
 }
 
-bool ShellSortAll::RunImpl() {
-  ShellSort();
-  return true;
-}
+bool ShellSortAll::RunImpl() {  // NOLINT(readability-function-cognitive-complexity)
+  const int rank = world_.rank();
+  int total_size = rank == 0 ? static_cast<int>(input_.size()) : 0;
 
-void ShellSortAll::ShellSort() {
-  int n = static_cast<int>(input_.size());
+  boost::mpi::broadcast(world_, total_size, 0);
+
+  if (rank >= total_size) {
+    world_.split(1);
+    return true;
+  }
+
+  group_ = world_.split(0);
+
+  int num_procs = group_.size();
+  counts_ = std::vector<int>(num_procs, total_size / num_procs);
+  std::vector<int> displs(num_procs, 0);
+  for (int i = 0; i < total_size % num_procs; ++i) {
+    counts_[i]++;
+  }
+  for (int i = 1; i < num_procs; ++i) {
+    displs[i] = displs[i - 1] + counts_[i - 1];
+  }
+
+  const int n = counts_[rank];
+
+  if (rank != 0) {
+    input_.resize(n);
+  }
+  boost::mpi::scatterv(group_, input_.data(), counts_, displs, input_.data(), n, 0);
+  input_.resize(n);
+
   for (int gap = n / 2; gap > 0; gap /= 2) {
     tbb::parallel_for(0, gap, [&](int k) {
       for (int i = k + gap; i < n; i += gap) {
@@ -66,18 +75,53 @@ void ShellSortAll::ShellSort() {
       }
     });
   }
+
+  if (group_.rank() >= static_cast<int>(counts_.size())) {
+    return true;
+  }
+
+  std::vector<int> gathered;
+  if (group_.rank() == 0) {
+    gathered.resize(task_data->inputs_count[0]);
+  }
+
+  boost::mpi::gatherv(group_, input_, gathered.data(), counts_, 0);
+
+  if (group_.rank() == 0) {
+    using Element = std::tuple<int, int, int>;
+    auto comp = [](const Element& a, const Element& b) { return std::get<0>(a) > std::get<0>(b); };
+    std::priority_queue<Element, std::vector<Element>, decltype(comp)> min_heap(comp);
+
+    for (int i = 0; i < num_procs; ++i) {
+      if (counts_[i] > 0) {
+        min_heap.emplace(gathered[displs[i]], i, 0);
+      }
+    }
+
+    result_.clear();
+    result_.reserve(total_size);
+
+    while (!min_heap.empty()) {
+      auto [val, proc_idx, idx_in_block] = min_heap.top();
+      min_heap.pop();
+      result_.push_back(val);
+
+      if (idx_in_block + 1 < counts_[proc_idx]) {
+        int next_idx = idx_in_block + 1;
+        int next_val = gathered[displs[proc_idx] + next_idx];
+        min_heap.emplace(next_val, proc_idx, next_idx);
+      }
+    }
+  }
+
+  return true;
 }
 
 bool ShellSortAll::PostProcessingImpl() {
-  std::vector<int> gathered;
-  boost::mpi::gather(world_, input_.data(), static_cast<int>(input_.size()), gathered, 0);
-
-  if (world_.rank() == 0) {
-    std::ranges::sort(gathered.begin(), gathered.end());
+  if (group_.rank() == 0) {
     auto* output_ptr = reinterpret_cast<int*>(task_data->outputs[0]);
-    std::ranges::copy(gathered.begin(), gathered.end(), output_ptr);
+    std::ranges::copy(result_.begin(), result_.end(), output_ptr);
   }
-
   return true;
 }
 

@@ -4,15 +4,17 @@
 #include <chrono>
 #include <cstdint>
 #include <memory>
+#include <numeric>
 #include <vector>
 
+#include "../include/ops_all.hpp"
+#include "boost/mpi/communicator.hpp"
 #include "core/perf/include/perf.hpp"
 #include "core/task/include/task.hpp"
-#include "all/kovalchuk_a_shell_sort/include/ops_all.hpp"
 
 TEST(kovalchuk_a_shell_sort_all, test_pipeline_run) {
   constexpr int kCount = 1000000;
-
+  boost::mpi::communicator world;
   std::vector<int> in(kCount);
   std::iota(in.rbegin(), in.rend(), 1);
 
@@ -39,13 +41,14 @@ TEST(kovalchuk_a_shell_sort_all, test_pipeline_run) {
   auto perf_analyzer = std::make_shared<ppc::core::Perf>(test_task);
   perf_analyzer->PipelineRun(perf_attr, perf_results);
   ppc::core::Perf::PrintPerfStatistic(perf_results);
-
-  ASSERT_TRUE(std::ranges::is_sorted(out));
+  if (world.rank() == 0) {
+    ASSERT_TRUE(std::ranges::is_sorted(out));
+  }
 }
 
 TEST(kovalchuk_a_shell_sort_all, test_task_run) {
   constexpr int kCount = 1000000;
-
+  boost::mpi::communicator world;
   std::vector<int> in(kCount);
   std::iota(in.rbegin(), in.rend(), 1);
 
@@ -73,5 +76,7 @@ TEST(kovalchuk_a_shell_sort_all, test_task_run) {
   perf_analyzer->TaskRun(perf_attr, perf_results);
   ppc::core::Perf::PrintPerfStatistic(perf_results);
 
-  ASSERT_TRUE(std::ranges::is_sorted(out));
+  if (world.rank() == 0) {
+    ASSERT_TRUE(std::ranges::is_sorted(out));
+  }
 }
