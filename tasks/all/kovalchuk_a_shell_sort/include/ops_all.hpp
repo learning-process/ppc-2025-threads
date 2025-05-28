@@ -13,6 +13,7 @@ class ShellSortAll : public ppc::core::Task {
   bool PostProcessingImpl() override;
 
  private:
+  void SimpleMerge(int num_procs, const std::vector<int>& gathered, const std::vector<int>& displs, int total_size);
   std::vector<int> input_, counts_, result_;
   boost::mpi::communicator world_, group_;
 };
