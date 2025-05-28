@@ -162,28 +162,13 @@ bool deryabin_m_hoare_sort_simple_merge_mpi::HoareSortTaskMPI::ValidationImpl() 
 }
 
 bool deryabin_m_hoare_sort_simple_merge_mpi::HoareSortTaskMPI::RunImpl() {
-  boost::mpi::broadcast(world, dimension_, 0);
-  input_array_A_ = std::vector<double>(dimension_);
-  if (world.rank() == 0) {
-    unsigned short k = 1;
-    while (k != world.size()) {
-      world.send(k, 0, input_array_A_.data(), dimension_);
-      k++;
-    }
-  } else {
-    // input_array_A_.resize(dimension_);
-    world.recv(0, 0, input_array_A_.data(), dimension_);
-  }
-  boost::mpi::broadcast(world, chunk_count_, 0);
-  boost::mpi::broadcast(world, min_chunk_size_, 0);
-  boost::mpi::broadcast(world, rest_, 0);
   const auto chunk_size = min_chunk_size_;
   auto start_iter = input_array_A_.begin() + static_cast<size_t>(world.size() - world.rank() - 1) * chunk_size;
   if (world.rank() != world.size() - 1) {
     start_iter += rest_;
   }
   const auto end_iter =
-      input_array_A_.begin() + (static_cast<size_t>(world.size() - world.rank())) * chunk_size + rest_ - 1;
+      input_array_A_.begin() + static_cast<size_t>(world.size() - world.rank()) * chunk_size + rest_ - 1;
   HoaraSort(start_iter, end_iter);
   const auto world_size = world.size();
   const size_t iterations = static_cast<size_t>(std::bit_width(chunk_count_ - 1));
