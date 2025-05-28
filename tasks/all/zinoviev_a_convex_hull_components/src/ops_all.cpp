@@ -61,6 +61,8 @@ bool ConvexHullMPI::PreProcessingImpl() noexcept {
   const int rows_per_thread = local_height / static_cast<int>(actual_threads);
   const int remaining_rows = local_height % static_cast<int>(actual_threads);
 
+  int global_row_offset = local_start_row;
+
   for (unsigned int t = 0; t < actual_threads; ++t) {
     int thread_start = static_cast<int>(t) * rows_per_thread;
     int thread_end = thread_start + rows_per_thread;
@@ -70,8 +72,8 @@ bool ConvexHullMPI::PreProcessingImpl() noexcept {
 
     if (thread_start < local_height && thread_end > thread_start) {
       threads.emplace_back([this, &local_input_data, local_width, local_height, thread_start, thread_end,
-                            local_start_row, &visited, &thread_results, t]() {
-        ProcessRowRange(local_input_data.data(), local_width, local_height, thread_start, thread_end, local_start_row,
+                            global_row_offset, &visited, &thread_results, t]() {
+        ProcessRowRange(local_input_data.data(), local_width, local_height, thread_start, thread_end, global_row_offset,
                         visited, thread_results[t]);
       });
     }
