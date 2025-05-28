@@ -179,6 +179,7 @@ bool deryabin_m_hoare_sort_simple_merge_mpi::HoareSortTaskMPI::RunImpl() {
   }
   const auto end_iter = input_array_A_.begin() + chunk_count_ * chunk_size + rest_ - 1;
   HoaraSort(start_iter, end_iter);
+  world.barrier();
   return true;
 }
 
