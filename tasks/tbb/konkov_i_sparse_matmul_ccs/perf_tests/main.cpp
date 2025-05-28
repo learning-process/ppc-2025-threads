@@ -7,7 +7,7 @@
 
 #include "core/perf/include/perf.hpp"
 #include "core/task/include/task.hpp"
-#include "tbb/konkov_i_sparse_matmul_ccs_tbb/include/ops_tbb.hpp"
+#include "tbb/konkov_i_sparse_matmul_ccs/include/ops_tbb.hpp"
 
 TEST(konkov_i_SparseMatmulPerfTest_tbb, test_pipeline_run) {
   constexpr int kSize = 5000;
