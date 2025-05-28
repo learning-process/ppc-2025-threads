@@ -158,7 +158,6 @@ bool deryabin_m_hoare_sort_simple_merge_mpi::HoareSortTaskMPI::PreProcessingImpl
       k++;
     }
   } else {
-    input_array_A_.reserve(dimension_);
     input_array_A_.resize(dimension_);
     world.recv(0, 0, input_array_A_.data(), dimension_);
   }
