@@ -203,9 +203,9 @@ bool deryabin_m_hoare_sort_simple_merge_mpi::HoareSortTaskMPI::RunImpl() {
             start_idx += rest_;
           }
           MPI_Request request;
-          MPI_Status status = MPI_Irecv(input_array_A_.data() + start_idx, int(block_size), MPI_DOUBLE,
-                                        world.rank() - step, 0, world, &request);
-          MPI_Wait(&request, status);
+          MPI_Irecv(input_array_A_.data() + start_idx, int(block_size), MPI_DOUBLE, world.rank() - step, 0, world,
+                    &request);
+          MPI_Wait(&request, MPI_STATUS_IGNORE);
           MergeTwoParts(input_array_A_.begin() + start_idx, input_array_A_.begin() + start_idx + 2 * block_size);
         }
       }
