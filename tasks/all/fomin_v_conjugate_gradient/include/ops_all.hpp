@@ -1,5 +1,6 @@
 #pragma once
 
+#include <boost/mpi.hpp>
 #include <boost/mpi/communicator.hpp>
 #include <utility>
 #include <vector>
@@ -10,8 +11,7 @@ namespace fomin_v_conjugate_gradient {
 
 class FominVConjugateGradientAll : public ppc::core::Task {
  public:
-  explicit FominVConjugateGradientAll(ppc::core::TaskDataPtr task_data)
-      : Task(std::move(task_data)), world_(MPI_COMM_WORLD, boost::mpi::comm_duplicate) {}
+  explicit FominVConjugateGradientAll(ppc::core::TaskDataPtr task_data) : Task(std::move(task_data)), world_() {}
   bool PreProcessingImpl() override;
   bool ValidationImpl() override;
   bool RunImpl() override;
@@ -23,7 +23,7 @@ class FominVConjugateGradientAll : public ppc::core::Task {
   static std::vector<double> VectorAdd(const std::vector<double>& a, const std::vector<double>& b);
   static std::vector<double> VectorSub(const std::vector<double>& a, const std::vector<double>& b);
   static std::vector<double> VectorScalarMultiply(const std::vector<double>& v, double scalar);
-  std::vector<double> get_local_a() const { return local_a_; }
+  [[nodiscard]] std::vector<double> GetLocalA() const { return local_a_; }
 
   int n;
   int max_iter = 1000;
@@ -36,7 +36,7 @@ class FominVConjugateGradientAll : public ppc::core::Task {
   boost::mpi::communicator world_;
   std::vector<double> local_a_;
   std::vector<double> local_b_;
-  int rows_per_proc;
+  int rows_per_proc_;
 };
 
 }  // namespace fomin_v_conjugate_gradient

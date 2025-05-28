@@ -1,5 +1,6 @@
 #include <gtest/gtest.h>
 
+#include <boost/mpi.hpp>
 #include <cmath>
 #include <cstddef>
 #include <cstdint>
@@ -75,7 +76,7 @@ TEST(FominVConjugateGradientAll, DotProduct) {
   auto task_data = std::make_shared<ppc::core::TaskData>();
   fomin_v_conjugate_gradient::FominVConjugateGradientAll task(task_data);
 
-  EXPECT_DOUBLE_EQ(task.DotProduct(world, a, b), expected);
+  EXPECT_DOUBLE_EQ(fomin_v_conjugate_gradient::FominVConjugateGradientAll::DotProduct(world, a, b), expected);
 }
 
 TEST(FominVConjugateGradientAll, MatrixVectorMultiply) {
@@ -117,7 +118,7 @@ TEST(FominVConjugateGradientAll, VectorAdd) {
 
   auto task_data = std::make_shared<ppc::core::TaskData>();
   fomin_v_conjugate_gradient::FominVConjugateGradientAll task(task_data);
-  auto result = task.VectorAdd(a, b);
+  auto result = fomin_v_conjugate_gradient::FominVConjugateGradientAll::VectorAdd(a, b);
 
   EXPECT_EQ(result, expected);
 }
@@ -129,7 +130,7 @@ TEST(FominVConjugateGradientAll, VectorSub) {
 
   auto task_data = std::make_shared<ppc::core::TaskData>();
   fomin_v_conjugate_gradient::FominVConjugateGradientAll task(task_data);
-  auto result = task.VectorSub(a, b);
+  auto result = fomin_v_conjugate_gradient::FominVConjugateGradientAll::VectorSub(a, b);
 
   EXPECT_EQ(result, expected);
 }
@@ -141,7 +142,7 @@ TEST(FominVConjugateGradientAll, VectorScalarMultiply) {
 
   auto task_data = std::make_shared<ppc::core::TaskData>();
   fomin_v_conjugate_gradient::FominVConjugateGradientAll task(task_data);
-  auto result = task.VectorScalarMultiply(v, scalar);
+  auto result = fomin_v_conjugate_gradient::FominVConjugateGradientAll::VectorScalarMultiply(v, scalar);
 
   EXPECT_EQ(result, expected);
 }

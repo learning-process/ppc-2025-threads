@@ -6,10 +6,11 @@
 
 #include <boost/mpi/collectives.hpp>
 #include <boost/mpi/communicator.hpp>
-#include <boost/serialization/vector.hpp>
 #include <cmath>
 #include <cstddef>
+#include <functional>
 #include <vector>
+
 
 double fomin_v_conjugate_gradient::FominVConjugateGradientAll::DotProduct(const boost::mpi::communicator& world,
                                                                           const std::vector<double>& a,
@@ -24,16 +25,16 @@ double fomin_v_conjugate_gradient::FominVConjugateGradientAll::DotProduct(const 
       },
       std::plus<>());
 
-  double global_sum;
+  double global_sum = 0.0;
   all_reduce(world, local_sum, global_sum, std::plus<>());
   return global_sum;
 }
 
 std::vector<double> fomin_v_conjugate_gradient::FominVConjugateGradientAll::MatrixVectorMultiply(
     const std::vector<double>& x) const {
-  std::vector<double> local_result(rows_per_proc, 0.0);
+  std::vector<double> local_result(rows_per_proc_, 0.0);
 
-  tbb::parallel_for(tbb::blocked_range<int>(0, rows_per_proc), [&](const tbb::blocked_range<int>& r) {
+  tbb::parallel_for(tbb::blocked_range<int>(0, rows_per_proc_), [&](const tbb::blocked_range<int>& r) {
     for (int i = r.begin(); i < r.end(); ++i) {
       double sum = 0.0;
       for (int j = 0; j < n; ++j) {
@@ -47,7 +48,7 @@ std::vector<double> fomin_v_conjugate_gradient::FominVConjugateGradientAll::Matr
   if (world_.rank() == 0) {
     global_result.resize(n);
   }
-  gather(world_, local_result.data(), rows_per_proc, global_result.data(), 0);
+  gather(world_, local_result.data(), rows_per_proc_, global_result.data(), 0);
   broadcast(world_, global_result, 0);
 
   return global_result;
@@ -86,7 +87,7 @@ bool fomin_v_conjugate_gradient::FominVConjugateGradientAll::PreProcessingImpl()
     auto* in_ptr = reinterpret_cast<double*>(task_data->inputs[0]);
     std::vector<double> input(in_ptr, in_ptr + input_size);
 
-    n = static_cast<int>((-1.0 + std::sqrt(1 + 4 * input_size)) / 2);
+    n = static_cast<int>((-1.0 + std::sqrt(1 + (4 * input_size))) / 2);
     a_ = std::vector<double>(input.begin(), input.begin() + (n * n));
     b_ = std::vector<double>(input.begin() + (n * n), input.end());
   }
@@ -95,9 +96,9 @@ bool fomin_v_conjugate_gradient::FominVConjugateGradientAll::PreProcessingImpl()
   broadcast(world_, b_, 0);
 
   int remainder = n % world_.size();
-  rows_per_proc = n / world_.size();
+  rows_per_proc_ = n / world_.size();
   if (world_.rank() < remainder) {
-    rows_per_proc++;
+    rows_per_proc_++;
   }
 
   std::vector<int> counts_a(world_.size());
@@ -106,7 +107,7 @@ bool fomin_v_conjugate_gradient::FominVConjugateGradientAll::PreProcessingImpl()
   std::vector<int> displs_b(world_.size(), 0);
 
   for (int i = 0; i < world_.size(); ++i) {
-    int rows_i = n / world_.size() + (i < remainder ? 1 : 0);
+    int rows_i = (n / world_.size()) + (i < remainder ? 1 : 0);
     counts_a[i] = rows_i * n;
     counts_b[i] = rows_i;
 
@@ -116,15 +117,15 @@ bool fomin_v_conjugate_gradient::FominVConjugateGradientAll::PreProcessingImpl()
     }
   }
 
-  local_a_.resize(rows_per_proc * n);
-  local_b_.resize(rows_per_proc);
+  local_a_.resize(rows_per_proc_ * n);
+  local_b_.resize(rows_per_proc_);
 
   if (world_.rank() == 0) {
-    boost::mpi::scatterv(world_, a_, counts_a, displs_a, local_a_.data(), rows_per_proc * n, 0);
-    boost::mpi::scatterv(world_, b_, counts_b, displs_b, local_b_.data(), rows_per_proc, 0);
+    boost::mpi::scatterv(world_, a_, counts_a, displs_a, local_a_.data(), (rows_per_proc_ * n), 0);
+    boost::mpi::scatterv(world_, b_, counts_b, displs_b, local_b_.data(), rows_per_proc_, 0);
   } else {
-    boost::mpi::scatterv(world_, local_a_.data(), rows_per_proc * n, 0);
-    boost::mpi::scatterv(world_, local_b_.data(), rows_per_proc, 0);
+    boost::mpi::scatterv(world_, local_a_.data(), (rows_per_proc_ * n), 0);
+    boost::mpi::scatterv(world_, local_b_.data(), rows_per_proc_, 0);
   }
 
   return true;
@@ -148,7 +149,9 @@ bool fomin_v_conjugate_gradient::FominVConjugateGradientAll::RunImpl() {
     std::vector<double> ap = MatrixVectorMultiply(p);
     double p_ap = DotProduct(world_, p, ap);
 
-    if (world_.rank() == 0 && std::abs(p_ap) < 1e-12) break;
+    if (world_.rank() == 0 && std::abs(p_ap) < 1e-12) {
+      break;
+    }
     broadcast(world_, p_ap, 0);
 
     double alpha = rs_old / p_ap;
@@ -156,7 +159,9 @@ bool fomin_v_conjugate_gradient::FominVConjugateGradientAll::RunImpl() {
     r = VectorSub(r, VectorScalarMultiply(ap, alpha));
 
     double rs_new = DotProduct(world_, r, r);
-    if (world_.rank() == 0 && std::sqrt(rs_new) < epsilon) break;
+    if (world_.rank() == 0 && std::sqrt(rs_new) < epsilon) {
+      break;
+    }
     broadcast(world_, rs_new, 0);
 
     double beta = rs_new / rs_old;
