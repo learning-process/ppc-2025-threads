@@ -103,7 +103,7 @@ TEST(FominVConjugateGradientAll, MatrixVectorMultiply) {
   ASSERT_TRUE(task.Validation());
   task.PreProcessing();
 
-  auto result = task.MatrixVectorMultiply(task.get_local_a(), b);
+  auto result = task.MatrixVectorMultiply(b);
 
   if (world.rank() == 0) {
     EXPECT_EQ(result, expected);

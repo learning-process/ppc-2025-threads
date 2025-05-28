@@ -30,14 +30,14 @@ double fomin_v_conjugate_gradient::FominVConjugateGradientAll::DotProduct(const 
 }
 
 std::vector<double> fomin_v_conjugate_gradient::FominVConjugateGradientAll::MatrixVectorMultiply(
-    const std::vector<double>& a, const std::vector<double>& x) const {
+    const std::vector<double>& x) const {
   std::vector<double> local_result(rows_per_proc, 0.0);
 
   tbb::parallel_for(tbb::blocked_range<int>(0, rows_per_proc), [&](const tbb::blocked_range<int>& r) {
     for (int i = r.begin(); i < r.end(); ++i) {
       double sum = 0.0;
       for (int j = 0; j < n; ++j) {
-        sum += a[i * n + j] * x[j];
+        +sum += local_a_[(i * n) + j] * x[j];
       }
       local_result[i] = sum;
     }
@@ -145,7 +145,7 @@ bool fomin_v_conjugate_gradient::FominVConjugateGradientAll::RunImpl() {
   double rs_old = DotProduct(world_, r, r);
 
   for (int iter = 0; iter < max_iter; ++iter) {
-    std::vector<double> ap = MatrixVectorMultiply(a_, p);
+    std::vector<double> ap = MatrixVectorMultiply(p);
     double p_ap = DotProduct(world_, p, ap);
 
     if (world_.rank() == 0 && std::abs(p_ap) < 1e-12) break;
@@ -164,14 +164,7 @@ bool fomin_v_conjugate_gradient::FominVConjugateGradientAll::RunImpl() {
     rs_old = rs_new;
   }
 
-  std::vector<double> gathered_x(n);
-  gather(world_, x.data(), rows_per_proc, gathered_x.data(), 0);
-  if (world_.rank() == 0) {
-    output_ = gathered_x;
-  } else {
-    output_.resize(n);
-  }
-  broadcast(world_, output_, 0);
+  output_ = x;
 
   return true;
 }

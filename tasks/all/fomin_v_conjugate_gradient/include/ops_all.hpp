@@ -19,8 +19,7 @@ class FominVConjugateGradientAll : public ppc::core::Task {
 
   static double DotProduct(const boost::mpi::communicator& world, const std::vector<double>& a,
                            const std::vector<double>& b);
-  [[nodiscard]] std::vector<double> MatrixVectorMultiply(const std::vector<double>& a,
-                                                         const std::vector<double>& x) const;
+  [[nodiscard]] std::vector<double> MatrixVectorMultiply(const std::vector<double>& x) const;
   static std::vector<double> VectorAdd(const std::vector<double>& a, const std::vector<double>& b);
   static std::vector<double> VectorSub(const std::vector<double>& a, const std::vector<double>& b);
   static std::vector<double> VectorScalarMultiply(const std::vector<double>& v, double scalar);
