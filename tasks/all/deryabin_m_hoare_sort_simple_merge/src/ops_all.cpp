@@ -6,7 +6,6 @@
 #include <algorithm>
 #include <bit>
 #include <boost/mpi/collectives/broadcast.hpp>
-#include <boost/serialization/vector.hpp>
 #include <cmath>
 #include <core/util/include/util.hpp>
 #include <cstddef>
@@ -145,16 +144,28 @@ bool deryabin_m_hoare_sort_simple_merge_mpi::HoareSortTaskSequential::PostProces
 
 bool deryabin_m_hoare_sort_simple_merge_mpi::HoareSortTaskMPI::PreProcessingImpl() {
   if (world.rank() == 0) {
+    input_array_A_ = reinterpret_cast<std::vector<double>*>(task_data->inputs[0])[0];
     dimension_ = task_data->inputs_count[0];
     chunk_count_ = static_cast<size_t>(world.size());
     min_chunk_size_ = dimension_ / chunk_count_;
     rest_ = dimension_ % chunk_count_;
   }
   boost::mpi::broadcast(world, dimension_, 0);
+  if (world.rank() == 0) {
+    unsigned short k = 1;
+    while (k != world.size()) {
+      world.send(k, 0, input_array_A_.data(), dimension_);
+      k++;
+    }
+  } else {
+    input_array_A_.reserve(dimension_);
+    input_array_A_.resize(dimension_);
+    world.recv(0, 0, input_array_A_.data(), dimension_);
+  }
+  boost::mpi::broadcast(world, input_array_A_.data(), dimension_, 0);
   boost::mpi::broadcast(world, chunk_count_, 0);
   boost::mpi::broadcast(world, min_chunk_size_, 0);
   boost::mpi::broadcast(world, rest_, 0);
-  input_array_A_ = reinterpret_cast<std::vector<double>*>(task_data->inputs[0])[0];
   return true;
 }
 
