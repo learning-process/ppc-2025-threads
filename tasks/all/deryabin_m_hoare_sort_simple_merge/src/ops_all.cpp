@@ -178,7 +178,7 @@ bool deryabin_m_hoare_sort_simple_merge_mpi::HoareSortTaskMPI::RunImpl() {
   boost::mpi::broadcast(world, min_chunk_size_, 0);
   boost::mpi::broadcast(world, rest_, 0);
   const auto chunk_size = min_chunk_size_;
-  auto start_iter = input_array_A_.begin() + (static_cast<size_t>(world.size() - world.rank() - 1)) * chunk_size;
+  auto start_iter = input_array_A_.begin() + static_cast<size_t>(world.size() - world.rank() - 1)) * chunk_size;
   if (world.rank() != world.size() - 1) {
     start_iter += rest_;
   }
