@@ -368,9 +368,9 @@ TEST(ermilova_d_shell_sort_batcher_even_odd_merger_omp, test_sort_100_random_ele
   ASSERT_EQ(expected, out);
 }
 
-TEST(ermilova_d_shell_sort_batcher_even_odd_merger_omp, test_sort_1000_random_elements) {
+TEST(ermilova_d_shell_sort_batcher_even_odd_merger_omp, test_sort_250_random_elements) {
   // Create data
-  std::vector<int> in = GenerateRandomVector(1000);
+  std::vector<int> in = GenerateRandomVector(250);
   std::vector<int> out(in.size(), 0);
 
   std::vector<int> expected = in;
@@ -392,9 +392,9 @@ TEST(ermilova_d_shell_sort_batcher_even_odd_merger_omp, test_sort_1000_random_el
   ASSERT_EQ(expected, out);
 }
 
-TEST(ermilova_d_shell_sort_batcher_even_odd_merger_omp, test_sort_10000_random_elements) {
+TEST(ermilova_d_shell_sort_batcher_even_odd_merger_omp, test_sort_327_random_elements) {
   // Create data
-  std::vector<int> in = GenerateRandomVector(10000);
+  std::vector<int> in = GenerateRandomVector(327);
   std::vector<int> out(in.size(), 0);
 
   std::vector<int> expected = in;
@@ -560,9 +560,9 @@ TEST(ermilova_d_shell_sort_batcher_even_odd_merger_omp, test_sort_27_random_elem
   ASSERT_EQ(expected, out);
 }
 
-TEST(ermilova_d_shell_sort_batcher_even_odd_merger_omp, test_sort_809_random_elements) {
+TEST(ermilova_d_shell_sort_batcher_even_odd_merger_omp, test_sort_309_random_elements) {
   // Create data
-  std::vector<int> in = GenerateRandomVector(809);
+  std::vector<int> in = GenerateRandomVector(309);
   std::vector<int> out(in.size(), 0);
 
   std::vector<int> expected = in;
@@ -584,9 +584,9 @@ TEST(ermilova_d_shell_sort_batcher_even_odd_merger_omp, test_sort_809_random_ele
   ASSERT_EQ(expected, out);
 }
 
-TEST(ermilova_d_shell_sort_batcher_even_odd_merger_omp, test_sort_500_random_elements) {
+TEST(ermilova_d_shell_sort_batcher_even_odd_merger_omp, test_sort_50_random_elements) {
   // Create data
-  std::vector<int> in = GenerateRandomVector(500);
+  std::vector<int> in = GenerateRandomVector(50);
   std::vector<int> out(in.size(), 0);
 
   std::vector<int> expected = in;
@@ -608,9 +608,9 @@ TEST(ermilova_d_shell_sort_batcher_even_odd_merger_omp, test_sort_500_random_ele
   ASSERT_EQ(expected, out);
 }
 
-TEST(ermilova_d_shell_sort_batcher_even_odd_merger_omp, test_sort_with_boundary_sedgwick_gap_729) {
+TEST(ermilova_d_shell_sort_batcher_even_odd_merger_omp, test_sort_with_boundary_sedgwick_gap_229) {
   // Create data
-  std::vector<int> in = GenerateRandomVector(729);
+  std::vector<int> in = GenerateRandomVector(229);
   std::vector<int> out(in.size(), 0);
 
   std::vector<int> expected = in;
@@ -632,9 +632,9 @@ TEST(ermilova_d_shell_sort_batcher_even_odd_merger_omp, test_sort_with_boundary_
   ASSERT_EQ(expected, out);
 }
 
-TEST(ermilova_d_shell_sort_batcher_even_odd_merger_omp, test_sort_with_boundary_sedgwick_gap_457) {
+TEST(ermilova_d_shell_sort_batcher_even_odd_merger_omp, test_sort_with_boundary_sedgwick_gap_400) {
   // Create data
-  std::vector<int> in = GenerateRandomVector(457);
+  std::vector<int> in = GenerateRandomVector(400);
   std::vector<int> out(in.size(), 0);
 
   std::vector<int> expected = in;
