@@ -1,4 +1,4 @@
-// Golovkin Maksims
+// Golovkin Maksim
 #include "tbb/golovkin_contrast_stretching/include/ops_tbb.hpp"
 
 #include <algorithm>
@@ -55,7 +55,7 @@ bool golovkin_contrast_stretching::ContrastStretchingTBB<PixelType>::RunImpl() {
       output_image_[i] = static_cast<PixelType>(stretched);
     }
   };
-  
+
   ppc::core::TaskParallelFor(task, image_size_);
   return true;
 }
