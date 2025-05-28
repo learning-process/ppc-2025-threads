@@ -1,4 +1,4 @@
-#include "omp/konkov_i_sparse_matmul_ccs_omp/include/ops_omp.hpp"
+#include "omp/konkov_i_sparse_matmul_ccs/include/ops_omp.hpp"
 
 #include <omp.h>
 
