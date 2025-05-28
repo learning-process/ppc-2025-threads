@@ -8,7 +8,7 @@
 #include <memory>
 #include <random>
 #include <stdexcept>
-#include <vector>  
+#include <vector>
 
 #include "all/volochaev_s_Shell_sort_with_Batchers_even-odd_merge/include/ops_all.hpp"
 #include "core/perf/include/perf.hpp"
