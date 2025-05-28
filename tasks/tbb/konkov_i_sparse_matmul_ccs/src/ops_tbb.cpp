@@ -1,4 +1,4 @@
-#include "tbb/konkov_i_sparse_matmul_ccs_tbb/include/ops_tbb.hpp"
+#include "tbb/konkov_i_sparse_matmul_ccs/include/ops_tbb.hpp"
 
 #include <tbb/global_control.h>
 
