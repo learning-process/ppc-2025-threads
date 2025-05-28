@@ -80,15 +80,17 @@ TEST(FominVConjugateGradientAll, DotProduct) {
 
 TEST(FominVConjugateGradientAll, MatrixVectorMultiply) {
   boost::mpi::communicator world;
+  
+  constexpr size_t kCount = 2;
   std::vector<double> a = {1.0, 2.0, 3.0, 4.0};
-  std::vector<double> x = {5.0, 6.0};
+  std::vector<double> b = {5.0, 6.0};
   std::vector<double> expected = {17.0, 39.0};
 
   std::vector<double> input;
   input.insert(input.end(), a.begin(), a.end());
-  input.insert(input.end(), x.begin(), x.end());
+  input.insert(input.end(), b.begin(), b.end());
 
-  std::vector<double> out(2, 0.0);
+  std::vector<double> out(kCount, 0.0);
 
   auto task_data = std::make_shared<ppc::core::TaskData>();
   task_data->inputs.emplace_back(reinterpret_cast<uint8_t*>(input.data()));
@@ -101,7 +103,8 @@ TEST(FominVConjugateGradientAll, MatrixVectorMultiply) {
   ASSERT_TRUE(task.Validation());
   task.PreProcessing();
 
-  auto result = task.MatrixVectorMultiply(a, x);
+  auto result = task.MatrixVectorMultiply(task.get_local_a(), b);
+  
   if (world.rank() == 0) {
     EXPECT_EQ(result, expected);
   }

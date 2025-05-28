@@ -92,13 +92,42 @@ bool fomin_v_conjugate_gradient::FominVConjugateGradientAll::PreProcessingImpl()
   }
 
   broadcast(world_, n, 0);
+  broadcast(world_, b_, 0);
+
+  int remainder = n % world_.size();
   rows_per_proc = n / world_.size();
+  if (world_.rank() < remainder) {
+    rows_per_proc++;
+  }
+
+  std::vector<int> counts_a(world_.size());
+  std::vector<int> counts_b(world_.size());
+  std::vector<int> displs_a(world_.size(), 0);
+  std::vector<int> displs_b(world_.size(), 0);
+
+  int offset_a = 0;
+  int offset_b = 0;
+  for (int i = 0; i < world_.size(); ++i) {
+    int rows_i = n / world_.size() + (i < remainder ? 1 : 0);
+    counts_a[i] = rows_i * n;
+    counts_b[i] = rows_i;
+
+    if (i > 0) {
+      displs_a[i] = displs_a[i - 1] + counts_a[i - 1];
+      displs_b[i] = displs_b[i - 1] + counts_b[i - 1];
+    }
+  }
 
   local_a_.resize(rows_per_proc * n);
-  boost::mpi::scatter(world_, a_.data(), local_a_.data(), rows_per_proc * n, 0);
-
   local_b_.resize(rows_per_proc);
-  boost::mpi::scatter(world_, b_.data(), local_b_.data(), rows_per_proc, 0);
+
+  if (world_.rank() == 0) {
+    boost::mpi::scatterv(world_, a_, counts_a, displs_a, local_a_.data(), rows_per_proc * n, 0);
+    boost::mpi::scatterv(world_, b_, counts_b, displs_b, local_b_.data(), rows_per_proc, 0);
+  } else {
+    boost::mpi::scatterv(world_, local_a_.data(), rows_per_proc * n, 0);
+    boost::mpi::scatterv(world_, local_b_.data(), rows_per_proc, 0);
+  }
 
   return true;
 }

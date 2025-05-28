@@ -24,6 +24,7 @@ class FominVConjugateGradientAll : public ppc::core::Task {
   static std::vector<double> VectorAdd(const std::vector<double>& a, const std::vector<double>& b);
   static std::vector<double> VectorSub(const std::vector<double>& a, const std::vector<double>& b);
   static std::vector<double> VectorScalarMultiply(const std::vector<double>& v, double scalar);
+  std::vector<double> get_local_a() const { return local_a_; }
 
   int n;
   int max_iter = 1000;
