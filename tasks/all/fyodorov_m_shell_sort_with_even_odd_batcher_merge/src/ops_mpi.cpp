@@ -37,16 +37,22 @@ bool TestTaskMPI::RunImpl() {
   int remainder = n % size;
   std::vector<int> sendcounts(size, local_n);
   std::vector<int> displs(size, 0);
-  for (int i = 0; i < remainder; ++i) sendcounts[i]++;
-  for (int i = 1; i < size; ++i) displs[i] = displs[i - 1] + sendcounts[i - 1];
+  for (int i = 0; i < remainder; ++i) {
+    sendcounts[i]++;
+  }
+  for (int i = 1; i < size; ++i) {
+    displs[i] = displs[i - 1] + sendcounts[i - 1];
+  }
   local_data.resize(sendcounts[rank]);
-  boost::mpi::scatterv(world, input_, sendcounts, displs, local_data, 0);
+  boost::mpi::scatterv(world, input_, sendcounts, displs, local_data.data(), sendcounts[rank], 0);
 
   ShellSort(local_data);
 
   std::vector<int> gathered;
-  if (rank == 0) gathered.resize(n);
-  boost::mpi::gatherv(world, local_data, gathered, 0);
+  if (rank == 0) {
+    gathered.resize(n);
+  }
+  boost::mpi::gatherv(world, local_data.data(), sendcounts[rank], gathered.data(), sendcounts, displs, 0);
 
   if (rank == 0) {
     std::vector<std::vector<int>> blocks(size);
