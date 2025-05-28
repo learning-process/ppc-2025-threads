@@ -60,10 +60,8 @@ TEST(pikarychev_i_hoare_sort_simple_merge_all, test_pipeline_run) {
   perf_analyzer->PipelineRun(perf_attr, perf_results);
   if (world.rank() == 0) {
     ppc::core::Perf::PrintPerfStatistic(perf_results);
-    EXPECT_TRUE(std::ranges::is_sorted(out));
+    EXPECT_TRUE(std::ranges::is_sorted(out, std::greater<>{}));
   }
-
-  EXPECT_TRUE(std::ranges::is_sorted(out, std::greater<>{}));
 }
 
 TEST(pikarychev_i_hoare_sort_simple_merge_all, test_task_run) {
@@ -101,8 +99,6 @@ TEST(pikarychev_i_hoare_sort_simple_merge_all, test_task_run) {
   perf_analyzer->TaskRun(perf_attr, perf_results);
   if (world.rank() == 0) {
     ppc::core::Perf::PrintPerfStatistic(perf_results);
-    EXPECT_TRUE(std::ranges::is_sorted(out));
+    EXPECT_TRUE(std::ranges::is_sorted(out, std::greater<>{}));
   }
-
-  EXPECT_TRUE(std::ranges::is_sorted(out, std::greater<>{}));
 }
