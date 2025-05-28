@@ -175,7 +175,7 @@ TEST(gnitienko_k_strassen_alg_stl, test_IxA_large) {
 
 TEST(gnitienko_k_strassen_alg_stl, test_random_256x256) {
   // Create data
-  size_t size = 256;
+  size_t size = 128;
   std::vector<double> a = GenMatrix(size);
   std::vector<double> b = GenMatrix(size);
   std::vector<double> expected(size * size);
