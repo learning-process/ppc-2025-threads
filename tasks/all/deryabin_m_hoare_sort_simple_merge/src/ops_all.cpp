@@ -194,7 +194,8 @@ bool deryabin_m_hoare_sort_simple_merge_mpi::HoareSortTaskMPI::RunImpl() {
             start_idx += rest_;
           }
           MPI_Request request;
-          MPI_Isend(input_array_A_.data() + start_idx, int(block_size), MPI_DOUBLE, world.rank() + step, 0, world, &request);
+          MPI_Isend(input_array_A_.data() + start_idx, int(block_size), MPI_DOUBLE, world.rank() + step, 0, world,
+                    &request);
         }
         if (!is_even || world.rank() == world_size - 1) {
           size_t start_idx = (static_cast<size_t>(world.rank() - 2 * step) + 1) * chunk_size;
@@ -203,7 +204,7 @@ bool deryabin_m_hoare_sort_simple_merge_mpi::HoareSortTaskMPI::RunImpl() {
           }
           MPI_Request request;
           MPI_Irecv(input_array_A_.data() + start_idx, int(block_size), MPI_DOUBLE, world.rank() - step, 0, world,
-                   &request);
+                    &request);
           MPI_Wait(&request);
           MergeTwoParts(input_array_A_.begin() + start_idx, input_array_A_.begin() + start_idx + 2 * block_size);
         }
