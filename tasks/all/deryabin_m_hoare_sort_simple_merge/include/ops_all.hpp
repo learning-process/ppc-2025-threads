@@ -40,6 +40,7 @@ class HoareSortTaskMPI : public ppc::core::Task {
 
  private:
   std::vector<double> input_array_A_;
+  std::vector<double> local_input_array_A_;
   size_t dimension_;
   size_t min_chunk_size_;
   size_t rest_;
