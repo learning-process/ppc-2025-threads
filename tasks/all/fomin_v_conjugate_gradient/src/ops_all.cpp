@@ -105,8 +105,6 @@ bool fomin_v_conjugate_gradient::FominVConjugateGradientAll::PreProcessingImpl()
   std::vector<int> displs_a(world_.size(), 0);
   std::vector<int> displs_b(world_.size(), 0);
 
-  int offset_a = 0;
-  int offset_b = 0;
   for (int i = 0; i < world_.size(); ++i) {
     int rows_i = n / world_.size() + (i < remainder ? 1 : 0);
     counts_a[i] = rows_i * n;
