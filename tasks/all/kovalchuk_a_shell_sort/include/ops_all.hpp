@@ -1,5 +1,6 @@
-#include <boost/mpi.hpp>
+#include <vector>
 
+#include "boost/mpi/communicator.hpp"
 #include "core/task/include/task.hpp"
 
 namespace kovalchuk_a_shell_sort_all {
