@@ -11,6 +11,7 @@
 #include <vector>
 
 #include "core/task/include/task.hpp"
+#include "core/util/include/util.hpp"
 
 using namespace zinoviev_a_convex_hull_components_all;
 
@@ -51,7 +52,7 @@ bool ConvexHullMPI::PreProcessingImpl() noexcept {
 
   std::vector<bool> visited(static_cast<size_t>(local_width) * static_cast<size_t>(local_height), false);
 
-  const unsigned int num_threads = std::thread::hardware_concurrency();
+  const unsigned int num_threads = ppc::util::GetPPCNumThreads();
   const unsigned int actual_threads = (num_threads > 0) ? num_threads : 4;
 
   std::vector<std::thread> threads;
