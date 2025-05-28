@@ -37,7 +37,7 @@ std::vector<double> fomin_v_conjugate_gradient::FominVConjugateGradientAll::Matr
     for (int i = r.begin(); i < r.end(); ++i) {
       double sum = 0.0;
       for (int j = 0; j < n; ++j) {
-        +sum += local_a_[(i * n) + j] * x[j];
+        sum += local_a_[(i * n) + j] * x[j];
       }
       local_result[i] = sum;
     }
