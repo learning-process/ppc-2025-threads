@@ -35,11 +35,13 @@ TEST(volochaev_s_Shell_sort_with_Batchers_even_odd_merge_all, test_pipeline_run)
   boost::mpi::communicator world;
   // Create data
   std::vector<long long int> in(kSizeOfVector);
+  std::vector<long long int> answer(kSizeOfVector);
   if (world.rank() == 0) {
     GetRandomVector(in, -1000, 1000);
+    answer = in;
+    std::ranges::sort(answer);
   }
   std::vector<long long int> out(in);
-  std::ranges::sort(out);
 
   // Create task_data
   auto task_data_seq = std::make_shared<ppc::core::TaskData>();
@@ -71,7 +73,7 @@ TEST(volochaev_s_Shell_sort_with_Batchers_even_odd_merge_all, test_pipeline_run)
   perf_analyzer->PipelineRun(perf_attr, perf_results);
   ppc::core::Perf::PrintPerfStatistic(perf_results);
   if (world.rank() == 0) {
-    ASSERT_EQ(in, out);
+    ASSERT_EQ(answer, out);
   }
 }
 
@@ -81,11 +83,13 @@ TEST(volochaev_s_Shell_sort_with_Batchers_even_odd_merge_all, test_task_run) {
 
   // Create data
   std::vector<long long int> in(kSizeOfVector);
+  std::vector<long long int> answer(kSizeOfVector);
   if (world.rank() == 0) {
     GetRandomVector(in, -1000, 1000);
+    answer = in;
+    std::ranges::sort(answer);
   }
   std::vector<long long int> out(in);
-  std::ranges::sort(out);
 
   // Create task_data
   auto task_data_seq = std::make_shared<ppc::core::TaskData>();
@@ -117,6 +121,6 @@ TEST(volochaev_s_Shell_sort_with_Batchers_even_odd_merge_all, test_task_run) {
   perf_analyzer->TaskRun(perf_attr, perf_results);
   ppc::core::Perf::PrintPerfStatistic(perf_results);
   if (world.rank() == 0) {
-    ASSERT_EQ(in, out);
+    ASSERT_EQ(answer, out);
   }
 }
