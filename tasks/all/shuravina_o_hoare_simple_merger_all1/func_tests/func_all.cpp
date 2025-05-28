@@ -126,6 +126,7 @@ TEST(shuravina_o_hoare_simple_merger_all, test_empty_array_validation) {
     EXPECT_FALSE(task.Validation());
   }
 }
+
 TEST(shuravina_o_hoare_simple_merger_all, test_different_sizes_validation) {
   std::vector<int> input = {1, 2, 3};
   std::vector<int> output(2, 0);
