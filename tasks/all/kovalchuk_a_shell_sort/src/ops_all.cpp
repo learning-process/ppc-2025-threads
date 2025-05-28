@@ -56,29 +56,23 @@ bool ShellSortAll::RunImpl() {
 
   const int n = counts_[rank];
 
-  if (rank != 0) {
-    input_.resize(n);
-  }
-  boost::mpi::scatterv(group_, input_.data(), counts_, displs, input_.data(), n, 0);
-  input_.resize(n);
+  std::vector<int> buffer(n);
+  boost::mpi::scatterv(group_, input_.data(), counts_, displs, buffer.data(), n, 0);
 
   for (int gap = n / 2; gap > 0; gap /= 2) {
     tbb::parallel_for(0, gap, [&](int k) {
       for (int i = k + gap; i < n; i += gap) {
-        int temp = input_[i];
+        int temp = buffer[i];
         int j = i;
-        while (j >= gap && input_[j - gap] > temp) {
-          input_[j] = input_[j - gap];
+        while (j >= gap && buffer[j - gap] > temp) {
+          buffer[j] = buffer[j - gap];
           j -= gap;
         }
-        input_[j] = temp;
+        buffer[j] = temp;
       }
     });
   }
-
-  if (group_.rank() >= static_cast<int>(counts_.size())) {
-    return true;
-  }
+  input_ = buffer;
 
   std::vector<int> gathered;
   if (group_.rank() == 0) {
