@@ -1,11 +1,12 @@
 #include "all/zinoviev_a_convex_hull_components/include/ops_all.hpp"
 
 #include <mpi.h>
-#include <omp.h>
 
 #include <algorithm>
 #include <cstddef>
+#include <mutex>
 #include <queue>
+#include <thread>
 #include <utility>
 #include <vector>
 
@@ -41,7 +42,6 @@ bool ConvexHullMPI::PreProcessingImpl() noexcept {
 
   std::vector<int> local_input_data(static_cast<size_t>(local_width) * static_cast<size_t>(local_height));
 
-#pragma omp parallel for
   for (int y = 0; y < local_height; ++y) {
     for (int x = 0; x < local_width; ++x) {
       local_input_data[(static_cast<size_t>(y) * static_cast<size_t>(local_width)) + static_cast<size_t>(x)] =
@@ -50,46 +50,84 @@ bool ConvexHullMPI::PreProcessingImpl() noexcept {
   }
 
   std::vector<bool> visited(static_cast<size_t>(local_width) * static_cast<size_t>(local_height), false);
-  std::vector<std::vector<Point>> thread_components;
 
-#pragma omp parallel
-  {
-    std::vector<std::vector<Point>> local_thread_components;
+  const unsigned int num_threads = std::thread::hardware_concurrency();
+  const unsigned int actual_threads = (num_threads > 0) ? num_threads : 4;
 
-#pragma omp for schedule(dynamic)
-    for (int y = 0; y < local_height; ++y) {
-      for (int x = 0; x < local_width; ++x) {
-        size_t idx = (static_cast<size_t>(y) * static_cast<size_t>(local_width)) + static_cast<size_t>(x);
+  std::vector<std::thread> threads;
+  std::vector<std::vector<std::vector<Point>>> thread_results(actual_threads);
 
-        bool should_process = false;
-#pragma omp critical
-        {
-          if (!visited[idx] && local_input_data[idx] != 0) {
-            visited[idx] = true;
-            should_process = true;
-          }
-        }
+  const int rows_per_thread = local_height / static_cast<int>(actual_threads);
+  const int remaining_rows = local_height % static_cast<int>(actual_threads);
 
-        if (should_process) {
-          std::vector<Point> component;
-          BFS(local_input_data.data(), local_width, local_height, x, y, visited, component);
-
-          for (auto& p : component) {
-            p.y = p.y + local_start_row;
-          }
-          local_thread_components.push_back(component);
-        }
-      }
+  for (unsigned int t = 0; t < actual_threads; ++t) {
+    int thread_start = static_cast<int>(t) * rows_per_thread;
+    int thread_end = thread_start + rows_per_thread;
+    if (t == actual_threads - 1) {
+      thread_end += remaining_rows;
     }
 
-#pragma omp critical
-    {
-      thread_components.insert(thread_components.end(), local_thread_components.begin(), local_thread_components.end());
+    if (thread_start < local_height && thread_end > thread_start) {
+      threads.emplace_back([this, &local_input_data, local_width, local_height, thread_start, thread_end,
+                            local_start_row, &visited, &thread_results, t]() {
+        ProcessRowRange(local_input_data.data(), local_width, local_height, thread_start, thread_end, local_start_row,
+                        visited, thread_results[t]);
+      });
     }
   }
 
-  local_components_ = std::move(thread_components);
+  for (auto& thread : threads) {
+    if (thread.joinable()) {
+      thread.join();
+    }
+  }
+
+  for (const auto& thread_components : thread_results) {
+    for (const auto& component : thread_components) {
+      local_components_.push_back(component);
+    }
+  }
+
   return true;
+}
+
+void ConvexHullMPI::ProcessRowRange(const int* local_input_data, int local_width, int local_height, int start_row,
+                                    int end_row, int local_start_offset, std::vector<bool>& visited,
+                                    std::vector<std::vector<Point>>& thread_components) noexcept {
+  for (int y = start_row; y < end_row && y < local_height; ++y) {
+    for (int x = 0; x < local_width; ++x) {
+      size_t idx = (static_cast<size_t>(y) * static_cast<size_t>(local_width)) + static_cast<size_t>(x);
+
+      {
+        std::lock_guard<std::mutex> lock(visited_mutex_);
+        if (visited[idx] || local_input_data[idx] == 0) {
+          continue;
+        }
+        visited[idx] = true;
+      }
+
+      std::vector<Point> component;
+      std::vector<bool> local_visited = visited;
+      BFS(local_input_data, local_width, local_height, x, y, local_visited, component);
+
+      for (auto& p : component) {
+        p.y = p.y + local_start_offset;
+      }
+
+      if (!component.empty()) {
+        thread_components.push_back(component);
+      }
+
+      {
+        std::lock_guard<std::mutex> lock(visited_mutex_);
+        for (size_t i = 0; i < local_visited.size(); ++i) {
+          if (local_visited[i]) {
+            visited[i] = true;
+          }
+        }
+      }
+    }
+  }
 }
 
 std::vector<int> ConvexHullMPI::CalculateLocalRanges(int global_size) const noexcept {
@@ -128,16 +166,8 @@ void ConvexHullMPI::BFS(const int* local_input_data, int local_width, int local_
       if (nx >= 0 && nx < local_width && ny >= 0 && ny < local_height) {
         size_t nidx = (static_cast<size_t>(ny) * static_cast<size_t>(local_width)) + static_cast<size_t>(nx);
 
-        bool should_add = false;
-#pragma omp critical
-        {
-          if (!visited[nidx] && local_input_data[nidx] != 0) {
-            visited[nidx] = true;
-            should_add = true;
-          }
-        }
-
-        if (should_add) {
+        if (!visited[nidx] && local_input_data[nidx] != 0) {
+          visited[nidx] = true;
           queue.push({nx, ny});
         }
       }
@@ -160,15 +190,8 @@ std::vector<Point> ConvexHullMPI::FindConvexHull(const std::vector<Point>& point
   }
 
   std::vector<Point> sorted_points(points);
-
-#pragma omp parallel
-  {
-#pragma omp single
-    {
-      std::ranges::sort(sorted_points,
-                        [](const Point& a, const Point& b) { return a.x < b.x || (a.x == b.x && a.y < b.y); });
-    }
-  }
+  std::ranges::sort(sorted_points,
+                    [](const Point& a, const Point& b) { return a.x < b.x || (a.x == b.x && a.y < b.y); });
 
   std::vector<Point> hull;
   hull.reserve(sorted_points.size() * 2);
@@ -198,18 +221,8 @@ std::vector<Point> ConvexHullMPI::FindConvexHull(const std::vector<Point>& point
 bool ConvexHullMPI::RunImpl() noexcept {
   std::vector<Point> all_points;
 
-#pragma omp parallel
-  {
-    std::vector<Point> thread_points;
-
-#pragma omp for
-    for (int i = 0; i < static_cast<int>(local_components_.size()); ++i) {
-      const auto& component = local_components_[static_cast<size_t>(i)];
-      thread_points.insert(thread_points.end(), component.begin(), component.end());
-    }
-
-#pragma omp critical
-    { all_points.insert(all_points.end(), thread_points.begin(), thread_points.end()); }
+  for (const auto& component : local_components_) {
+    all_points.insert(all_points.end(), component.begin(), component.end());
   }
 
   int local_count = static_cast<int>(all_points.size());
@@ -257,9 +270,8 @@ bool ConvexHullMPI::PostProcessingImpl() noexcept {
     size_t allocated_output_size = task_data->outputs_count[0];
     size_t points_to_copy = std::min(final_hull_.size(), allocated_output_size);
 
-#pragma omp parallel for
-    for (int i = 0; i < static_cast<int>(points_to_copy); ++i) {
-      output_ptr[static_cast<size_t>(i)] = final_hull_[static_cast<size_t>(i)];
+    for (size_t i = 0; i < points_to_copy; ++i) {
+      output_ptr[i] = final_hull_[i];
     }
 
     task_data->outputs_count[0] = points_to_copy;
