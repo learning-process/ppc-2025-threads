@@ -7,8 +7,8 @@
 #include <memory>
 #include <vector>
 
-#include "core/task/include/task.hpp"
 #include "all/zinoviev_a_convex_hull_components/include/ops_all.hpp"
+#include "core/task/include/task.hpp"
 
 namespace {
 
