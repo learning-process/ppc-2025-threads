@@ -10,7 +10,7 @@
 #include <boost/mpi/collectives/gather.hpp>
 #include <boost/mpi/collectives/scatterv.hpp>
 #include <boost/mpi/communicator.hpp>
-#include <boost/serialization/vector.hpp> // NOLINT
+#include <boost/serialization/vector.hpp>  // NOLINT
 #include <cmath>
 #include <cstddef>
 #include <functional>
