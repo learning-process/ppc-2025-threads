@@ -11,27 +11,29 @@
 #include "core/perf/include/perf.hpp"
 #include "core/task/include/task.hpp"
 
-static void InitializeMatrices(size_t k_n, std::vector<double>& a, std::vector<double>& b, int rank) {
+namespace {
+void InitializeMatrices(size_t kN, std::vector<double>& a, std::vector<double>& b, int rank) {
   if (rank == 0) {
-    for (size_t i = 0; i < k_n; ++i) {
-      for (size_t j = 0; j < k_n; ++j) {
-        a[(i * k_n) + j] = static_cast<double>(i + j + 1);
-        b[(i * k_n) + j] = static_cast<double>(k_n - i + j + 1);
+    for (size_t i = 0; i < kN; ++i) {
+      for (size_t j = 0; j < kN; ++j) {
+        a[i * kN + j] = static_cast<double>(i + j + 1);
+        b[i * kN + j] = static_cast<double>(kN - i + j + 1);
       }
     }
   }
 }
 
-static void ComputeExpectedResult(size_t k_n, const std::vector<double>& a, const std::vector<double>& b,
-                                  std::vector<double>& expected) {
-  for (size_t i = 0; i < k_n; ++i) {
-    for (size_t j = 0; j < k_n; ++j) {
-      for (size_t k = 0; k < k_n; ++k) {
-        expected[(i * k_n) + j] += a[(i * k_n) + k] * b[(k * k_n) + j];
+void ComputeExpectedResult(size_t kN, const std::vector<double>& a, const std::vector<double>& b,
+                           std::vector<double>& expected) {
+  for (size_t i = 0; i < kN; ++i) {
+    for (size_t j = 0; j < kN; ++j) {
+      for (size_t k = 0; k < kN; ++k) {
+        expected[i * kN + j] += a[i * kN + k] * b[k * kN + j];
       }
     }
   }
 }
+}  // namespace
 
 TEST(gromov_a_fox_algorithm_all, test_pipeline_run) {
   boost::mpi::communicator world;

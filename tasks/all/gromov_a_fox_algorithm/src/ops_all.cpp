@@ -26,11 +26,11 @@ namespace gromov_a_fox_algorithm_all {
 bool TestTaskAll::PreProcessingImpl() {
   if (mpiCommunicator_.rank() == 0) {
     auto* input_data_ptr = reinterpret_cast<double*>(task_data->inputs[0]);
-    std::size_t input_data_size_ = task_data->inputs_count[0];
-    matrixSize_ = static_cast<std::size_t>(std::sqrt(input_data_size_ / 2));
+    std::size_t input_data_size = task_data->inputs_count[0];
+    matrixSize_ = static_cast<std::size_t>(std::sqrt(input_data_size / 2));
     matrixElements_ = matrixSize_ * matrixSize_;
 
-    if (input_data_size_ != 2 * matrixElements_) {
+    if (input_data_size != 2 * matrixElements_) {
       return false;
     }
 
