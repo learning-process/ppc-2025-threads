@@ -151,6 +151,7 @@ bool deryabin_m_hoare_sort_simple_merge_mpi::HoareSortTaskMPI::PreProcessingImpl
     rest_ = dimension_ % chunk_count_;
   }
   boost::mpi::broadcast(world, dimension_, 0);
+  input_array_A_ = std::vector<double>(dimension_);
   if (world.rank() == 0) {
     unsigned short k = 1;
     while (k != world.size()) {
@@ -158,8 +159,8 @@ bool deryabin_m_hoare_sort_simple_merge_mpi::HoareSortTaskMPI::PreProcessingImpl
       k++;
     }
   } else {
-    input_array_A_.reserve(dimension_);
-    input_array_A_.resize(dimension_);
+    // input_array_A_.reserve(dimension_);
+    // input_array_A_.resize(dimension_);
     world.recv(0, 0, input_array_A_.data(), dimension_);
   }
   boost::mpi::broadcast(world, chunk_count_, 0);
