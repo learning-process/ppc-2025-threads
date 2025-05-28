@@ -4,7 +4,7 @@
 #include <vector>
 
 #include "core/task/include/task.hpp"
-#include "tbb/konkov_i_sparse_matmul_ccs_tbb/include/ops_tbb.hpp"
+#include "tbb/konkov_i_sparse_matmul_ccs/include/ops_tbb.hpp"
 
 TEST(konkov_i_SparseMatmulTest_tbb, SimpleTest) {
   ppc::core::TaskDataPtr task_data = std::make_shared<ppc::core::TaskData>();
