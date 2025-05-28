@@ -31,7 +31,7 @@ bool ShellSortAll::ValidationImpl() {
          (!task_data->inputs_count.empty() && task_data->inputs_count[0] != 0 && !task_data->inputs.empty());
 }
 
-bool ShellSortAll::RunImpl() {  // NOLINT(readability-function-cognitive-complexity)
+bool ShellSortAll::RunImpl() {
   const int rank = world_.rank();
   int total_size = rank == 0 ? static_cast<int>(input_.size()) : 0;
 
@@ -88,33 +88,38 @@ bool ShellSortAll::RunImpl() {  // NOLINT(readability-function-cognitive-complex
   boost::mpi::gatherv(group_, input_, gathered.data(), counts_, 0);
 
   if (group_.rank() == 0) {
-    using Element = std::tuple<int, int, int>;
-    auto comp = [](const Element& a, const Element& b) { return std::get<0>(a) > std::get<0>(b); };
-    std::priority_queue<Element, std::vector<Element>, decltype(comp)> min_heap(comp);
-
-    for (int i = 0; i < num_procs; ++i) {
-      if (counts_[i] > 0) {
-        min_heap.emplace(gathered[displs[i]], i, 0);
-      }
-    }
-
-    result_.clear();
-    result_.reserve(total_size);
-
-    while (!min_heap.empty()) {
-      auto [val, proc_idx, idx_in_block] = min_heap.top();
-      min_heap.pop();
-      result_.push_back(val);
-
-      if (idx_in_block + 1 < counts_[proc_idx]) {
-        int next_idx = idx_in_block + 1;
-        int next_val = gathered[displs[proc_idx] + next_idx];
-        min_heap.emplace(next_val, proc_idx, next_idx);
-      }
-    }
+    SimpleMerge(num_procs, gathered, displs, total_size);
   }
 
   return true;
+}
+
+void ShellSortAll::SimpleMerge(int num_procs, const std::vector<int>& gathered, const std::vector<int>& displs,
+                               int total_size) {
+  using Element = std::tuple<int, int, int>;
+  auto comp = [](const Element& a, const Element& b) { return std::get<0>(a) > std::get<0>(b); };
+  std::priority_queue<Element, std::vector<Element>, decltype(comp)> min_heap(comp);
+
+  for (int i = 0; i < num_procs; ++i) {
+    if (counts_[i] > 0) {
+      min_heap.emplace(gathered[displs[i]], i, 0);
+    }
+  }
+
+  result_.clear();
+  result_.reserve(total_size);
+
+  while (!min_heap.empty()) {
+    auto [val, proc_idx, idx_in_block] = min_heap.top();
+    min_heap.pop();
+    result_.push_back(val);
+
+    if (idx_in_block + 1 < counts_[proc_idx]) {
+      int next_idx = idx_in_block + 1;
+      int next_val = gathered[displs[proc_idx] + next_idx];
+      min_heap.emplace(next_val, proc_idx, next_idx);
+    }
+  }
 }
 
 bool ShellSortAll::PostProcessingImpl() {
