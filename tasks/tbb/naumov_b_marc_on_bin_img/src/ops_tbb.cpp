@@ -59,17 +59,14 @@ bool naumov_b_marc_on_bin_img_tbb::TestTaskTBB::PreProcessingImpl() {
   cols_ = static_cast<int>(task_data->inputs_count[1]);
   size_t total = size_t(rows_) * size_t(cols_);
 
-  input_image_.resize(total);
-  output_image_.resize(total);
+  input_image_.assign(reinterpret_cast<int*>(task_data->inputs[0]),
+                      reinterpret_cast<int*>(task_data->inputs[0]) + total);
+
+  output_image_.assign(total, 0);
 
   label_parent_.clear();
-  label_parent_.resize(total + 1);
+  label_parent_.resize(total + 1, 0);
 
-  int* in = reinterpret_cast<int*>(task_data->inputs[0]);
-  for (size_t i = 0; i < total; ++i) {
-    input_image_[i] = in[i];
-    output_image_[i] = 0;
-  }
   return true;
 }
 
