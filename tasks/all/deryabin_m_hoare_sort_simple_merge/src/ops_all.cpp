@@ -1,6 +1,5 @@
 #include "all/deryabin_m_hoare_sort_simple_merge/include/ops_all.hpp"
 
-#include "oneapi/tbb/blocked_range.h"
 #include <oneapi/tbb/parallel_for.h>
 #include <oneapi/tbb/parallel_invoke.h>
 
@@ -13,6 +12,8 @@
 #include <core/util/include/util.hpp>
 #include <cstddef>
 #include <vector>
+
+#include "oneapi/tbb/blocked_range.h"
 
 void deryabin_m_hoare_sort_simple_merge_mpi::SeqHoaraSort(std::vector<double>::iterator first,
                                                           std::vector<double>::iterator last) {
