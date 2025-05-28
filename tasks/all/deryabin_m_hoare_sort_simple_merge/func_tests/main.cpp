@@ -29,11 +29,8 @@ TEST(deryabin_m_hoare_sort_simple_merge_mpi, test_random_array) {
   if (world.rank() == 0) {
     task_data_mpi->inputs.emplace_back(reinterpret_cast<uint8_t*>(in_array.data()));
     task_data_mpi->inputs_count.emplace_back(input_array.size());
-    // task_data_mpi->outputs.emplace_back(reinterpret_cast<uint8_t*>(out_array.data()));
-    task_data_mpi->outputs_count.emplace_back(output_array.size());
-  }
-  if (world.rank() == world.size() - 1) {
     task_data_mpi->outputs.emplace_back(reinterpret_cast<uint8_t*>(out_array.data()));
+    task_data_mpi->outputs_count.emplace_back(output_array.size());
   }
 
   deryabin_m_hoare_sort_simple_merge_mpi::HoareSortTaskMPI hoare_sort_task_mpi(task_data_mpi);
@@ -64,11 +61,8 @@ TEST(deryabin_m_hoare_sort_simple_merge_mpi, test_double_reverse_array) {
   if (world.rank() == 0) {
     task_data_mpi->inputs.emplace_back(reinterpret_cast<uint8_t*>(in_array.data()));
     task_data_mpi->inputs_count.emplace_back(input_array.size());
-    // task_data_mpi->outputs.emplace_back(reinterpret_cast<uint8_t*>(out_array.data()));
-    task_data_mpi->outputs_count.emplace_back(output_array.size());
-  }
-  if (world.rank() == world.size() - 1) {
     task_data_mpi->outputs.emplace_back(reinterpret_cast<uint8_t*>(out_array.data()));
+    task_data_mpi->outputs_count.emplace_back(output_array.size());
   }
 
   deryabin_m_hoare_sort_simple_merge_mpi::HoareSortTaskMPI hoare_sort_task_mpi(task_data_mpi);
@@ -98,11 +92,8 @@ TEST(deryabin_m_hoare_sort_simple_merge_mpi, test_negative_elements_array) {
   if (world.rank() == 0) {
     task_data_mpi->inputs.emplace_back(reinterpret_cast<uint8_t*>(in_array.data()));
     task_data_mpi->inputs_count.emplace_back(input_array.size());
-    // task_data_mpi->outputs.emplace_back(reinterpret_cast<uint8_t*>(out_array.data()));
-    task_data_mpi->outputs_count.emplace_back(output_array.size());
-  }
-  if (world.rank() == world.size() - 1) {
     task_data_mpi->outputs.emplace_back(reinterpret_cast<uint8_t*>(out_array.data()));
+    task_data_mpi->outputs_count.emplace_back(output_array.size());
   }
 
   deryabin_m_hoare_sort_simple_merge_mpi::HoareSortTaskMPI hoare_sort_task_mpi(task_data_mpi);
@@ -132,11 +123,8 @@ TEST(deryabin_m_hoare_sort_simple_merge_mpi, test_shuffle_array) {
   if (world.rank() == 0) {
     task_data_mpi->inputs.emplace_back(reinterpret_cast<uint8_t*>(in_array.data()));
     task_data_mpi->inputs_count.emplace_back(input_array.size());
-    // task_data_mpi->outputs.emplace_back(reinterpret_cast<uint8_t*>(out_array.data()));
-    task_data_mpi->outputs_count.emplace_back(output_array.size());
-  }
-  if (world.rank() == world.size() - 1) {
     task_data_mpi->outputs.emplace_back(reinterpret_cast<uint8_t*>(out_array.data()));
+    task_data_mpi->outputs_count.emplace_back(output_array.size());
   }
 
   deryabin_m_hoare_sort_simple_merge_mpi::HoareSortTaskMPI hoare_sort_task_mpi(task_data_mpi);
@@ -167,11 +155,8 @@ TEST(deryabin_m_hoare_sort_simple_merge_mpi, test_partially_sorted_array) {
   if (world.rank() == 0) {
     task_data_mpi->inputs.emplace_back(reinterpret_cast<uint8_t*>(in_array.data()));
     task_data_mpi->inputs_count.emplace_back(input_array.size());
-    // task_data_mpi->outputs.emplace_back(reinterpret_cast<uint8_t*>(out_array.data()));
-    task_data_mpi->outputs_count.emplace_back(output_array.size());
-  }
-  if (world.rank() == world.size() - 1) {
     task_data_mpi->outputs.emplace_back(reinterpret_cast<uint8_t*>(out_array.data()));
+    task_data_mpi->outputs_count.emplace_back(output_array.size());
   }
 
   deryabin_m_hoare_sort_simple_merge_mpi::HoareSortTaskMPI hoare_sort_task_mpi(task_data_mpi);
@@ -198,11 +183,8 @@ TEST(deryabin_m_hoare_sort_simple_merge_mpi, test_backward_sorted_array) {
   if (world.rank() == 0) {
     task_data_mpi->inputs.emplace_back(reinterpret_cast<uint8_t*>(in_array.data()));
     task_data_mpi->inputs_count.emplace_back(input_array.size());
-    // task_data_mpi->outputs.emplace_back(reinterpret_cast<uint8_t*>(out_array.data()));
-    task_data_mpi->outputs_count.emplace_back(output_array.size());
-  }
-  if (world.rank() == world.size() - 1) {
     task_data_mpi->outputs.emplace_back(reinterpret_cast<uint8_t*>(out_array.data()));
+    task_data_mpi->outputs_count.emplace_back(output_array.size());
   }
 
   deryabin_m_hoare_sort_simple_merge_mpi::HoareSortTaskMPI hoare_sort_task_mpi(task_data_mpi);
@@ -226,11 +208,8 @@ TEST(deryabin_m_hoare_sort_simple_merge_mpi, test_invalid_array) {
   if (world.rank() == 0) {
     task_data_mpi->inputs.emplace_back(reinterpret_cast<uint8_t*>(in_array.data()));
     task_data_mpi->inputs_count.emplace_back(input_array.size());
-    // task_data_mpi->outputs.emplace_back(reinterpret_cast<uint8_t*>(out_array.data()));
-    task_data_mpi->outputs_count.emplace_back(output_array.size());
-  }
-  if (world.rank() == world.size() - 1) {
     task_data_mpi->outputs.emplace_back(reinterpret_cast<uint8_t*>(out_array.data()));
+    task_data_mpi->outputs_count.emplace_back(output_array.size());
   }
 
   deryabin_m_hoare_sort_simple_merge_mpi::HoareSortTaskMPI hoare_sort_task_mpi(task_data_mpi);
