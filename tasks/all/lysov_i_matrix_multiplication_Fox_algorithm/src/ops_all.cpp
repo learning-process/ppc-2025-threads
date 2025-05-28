@@ -87,7 +87,6 @@ std::vector<double> lysov_i_matrix_multiplication_fox_algorithm_mpi_tbb::GatherM
   }
   return c;
 }
-
 void lysov_i_matrix_multiplication_fox_algorithm_mpi_tbb::PerformFoxAlgorithmStep(boost::mpi::communicator& world,
                                                                                   int rank, int cnt_work_process, int k,
                                                                                   std::vector<double>& local_a,
@@ -98,9 +97,7 @@ void lysov_i_matrix_multiplication_fox_algorithm_mpi_tbb::PerformFoxAlgorithmSte
     return;
   }
 
-  std::vector<double> temp_a(k * k);
-  std::vector<double> temp_b(k * k);
-
+  std::vector<double> temp_a(k * k), temp_b(k * k);
   int row = rank / cnt_work_process;
   int col = rank % cnt_work_process;
 
@@ -115,18 +112,17 @@ void lysov_i_matrix_multiplication_fox_algorithm_mpi_tbb::PerformFoxAlgorithmSte
       }
       temp_a = local_a;
     } else {
-      int sender = (row * cnt_work_process) + ((row + l) % cnt_work_process);
+      int sender = row * cnt_work_process + ((row + l) % cnt_work_process);
       world.recv(sender, 0, temp_a.data(), k * k);
     }
+
     world.barrier();
     MultiplyMatrixBlocks(temp_a.data(), local_b.data(), local_c.data(), k);
     int send_to = (((row - 1 + cnt_work_process) % cnt_work_process) * cnt_work_process) + col;
     int recv_from = (((row + 1) % cnt_work_process) * cnt_work_process) + col;
 
-    world.send(send_to, 0, local_b.data(), k * k);
-    world.recv(recv_from, 0, temp_b.data(), k * k);
-
-    world.barrier();
+    MPI_Sendrecv(local_b.data(), k * k, MPI_DOUBLE, send_to, 0, temp_b.data(), k * k, MPI_DOUBLE, recv_from, 0, world,
+                 MPI_STATUS_IGNORE);
 
     local_b.swap(temp_b);
   }
@@ -203,8 +199,7 @@ bool lysov_i_matrix_multiplication_fox_algorithm_mpi_tbb::TestTaskMPITBB::RunImp
   std::vector<double> local_c(k * k, 0.0);
   boost::mpi::scatter(my_comm, scatter_a, local_a.data(), static_cast<int>(local_a.size()), 0);
   boost::mpi::scatter(my_comm, scatter_b, local_b.data(), static_cast<int>(local_b.size()), 0);
-  tbb::global_control fix_ctrl{tbb::global_control::max_allowed_parallelism, 1};
-  tbb::task_arena arena;
+  tbb::task_arena arena{1};
   arena.execute([&] { PerformFoxAlgorithmStep(my_comm, rank, q, k, local_a, local_b, local_c); });
   std::vector<double> gathered(elements_);
   boost::mpi::gather(my_comm, local_c.data(), static_cast<int>(local_c.size()), gathered, 0);
