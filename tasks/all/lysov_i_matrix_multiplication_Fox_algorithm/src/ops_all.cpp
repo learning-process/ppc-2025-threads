@@ -97,7 +97,8 @@ void lysov_i_matrix_multiplication_fox_algorithm_mpi_tbb::PerformFoxAlgorithmSte
     return;
   }
 
-  std::vector<double> temp_a(k * k), temp_b(k * k);
+  std::vector<double> temp_a(k * k);
+  std::vector<double> temp_b(k * k);
   int row = rank / cnt_work_process;
   int col = rank % cnt_work_process;
 
@@ -112,7 +113,7 @@ void lysov_i_matrix_multiplication_fox_algorithm_mpi_tbb::PerformFoxAlgorithmSte
       }
       temp_a = local_a;
     } else {
-      int sender = row * cnt_work_process + ((row + l) % cnt_work_process);
+      int sender = (row * cnt_work_process) + ((row + l) % cnt_work_process);
       world.recv(sender, 0, temp_a.data(), k * k);
     }
 
