@@ -150,6 +150,18 @@ bool deryabin_m_hoare_sort_simple_merge_mpi::HoareSortTaskMPI::PreProcessingImpl
     min_chunk_size_ = dimension_ / chunk_count_;
     rest_ = dimension_ % chunk_count_;
   }
+  return true;
+}
+
+bool deryabin_m_hoare_sort_simple_merge_mpi::HoareSortTaskMPI::ValidationImpl() {
+  if (world.rank() == 0) {
+    return static_cast<unsigned short>(task_data->inputs_count[0]) > 2 &&
+           task_data->inputs_count[0] == task_data->outputs_count[0];
+  }
+  return true;
+}
+
+bool deryabin_m_hoare_sort_simple_merge_mpi::HoareSortTaskMPI::RunImpl() {
   boost::mpi::broadcast(world, dimension_, 0);
   if (world.rank() == 0) {
     unsigned short k = 1;
@@ -164,18 +176,6 @@ bool deryabin_m_hoare_sort_simple_merge_mpi::HoareSortTaskMPI::PreProcessingImpl
   boost::mpi::broadcast(world, chunk_count_, 0);
   boost::mpi::broadcast(world, min_chunk_size_, 0);
   boost::mpi::broadcast(world, rest_, 0);
-  return true;
-}
-
-bool deryabin_m_hoare_sort_simple_merge_mpi::HoareSortTaskMPI::ValidationImpl() {
-  if (world.rank() == 0) {
-    return static_cast<unsigned short>(task_data->inputs_count[0]) > 2 &&
-           task_data->inputs_count[0] == task_data->outputs_count[0];
-  }
-  return true;
-}
-
-bool deryabin_m_hoare_sort_simple_merge_mpi::HoareSortTaskMPI::RunImpl() {
   const auto chunk_size = min_chunk_size_;
   auto start_iter = input_array_A_.begin() + static_cast<size_t>(world.rank()) * chunk_size;
   if (world.rank() != 0) {
@@ -210,17 +210,11 @@ bool deryabin_m_hoare_sort_simple_merge_mpi::HoareSortTaskMPI::RunImpl() {
       }
     }
   }
-  if (world.rank() == world.size() - 1) {
-    world.send(0, 0, input_array_A_.data(), dimension_);
-  }
-  if (world.rank() == 0) {
-    world.recv(world.size() - 1, 0, input_array_A_.data(), dimension_);
-  }
   return true;
 }
 
 bool deryabin_m_hoare_sort_simple_merge_mpi::HoareSortTaskMPI::PostProcessingImpl() {
-  if (world.rank() == 0) {
+  if (world.rank() == world.size() - 1) {
     reinterpret_cast<std::vector<double>*>(task_data->outputs[0])[0] = input_array_A_;
   }
   return true;
