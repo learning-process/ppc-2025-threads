@@ -1,12 +1,12 @@
 #include "all/deryabin_m_hoare_sort_simple_merge/include/ops_all.hpp"
 
-#include <mpi.h>
 #include <oneapi/tbb/parallel_for.h>
 #include <oneapi/tbb/parallel_invoke.h>
 
 #include <algorithm>
 #include <bit>
 #include <boost/mpi/collectives/broadcast.hpp>
+#include <boost/serialization/vector.hpp>
 #include <cmath>
 #include <core/util/include/util.hpp>
 #include <cstddef>
@@ -179,7 +179,6 @@ bool deryabin_m_hoare_sort_simple_merge_mpi::HoareSortTaskMPI::RunImpl() {
   }
   const auto end_iter = input_array_A_.begin() + chunk_count_ * chunk_size + rest_ - 1;
   HoaraSort(start_iter, end_iter);
-  MPI_Barrier(world);
   const auto world_size = world.size();
   if (world_size != 1) {
     const size_t iterations = static_cast<size_t>(std::bit_width(chunk_count_ - 1));
@@ -194,20 +193,14 @@ bool deryabin_m_hoare_sort_simple_merge_mpi::HoareSortTaskMPI::RunImpl() {
           if (world.rank() != 0) {
             start_idx += rest_;
           }
-          MPI_Request request;
-          MPI_Isend(input_array_A_.data() + start_idx, int(block_size), MPI_DOUBLE, world.rank() + step, 0, world,
-                    &request);
-          MPI_Wait(&request, MPI_STATUS_IGNORE);
+          world.send(world.rank() + step, 0, &input_array_A_[start_idx], block_size);
         }
         if (!is_even || world.rank() == world_size - 1) {
           size_t start_idx = (static_cast<size_t>(world.rank() - 2 * step) + 1) * chunk_size;
           if (world.rank() - step != 0) {
             start_idx += rest_;
           }
-          MPI_Request request;
-          MPI_Irecv(input_array_A_.data() + start_idx, int(block_size), MPI_DOUBLE, world.rank() - step, 0, world,
-                    &request);
-          MPI_Wait(&request, MPI_STATUS_IGNORE);
+          world.recv(world.rank() - step, 0, &input_array_A_[start_idx], block_size);
           MergeTwoParts(input_array_A_.begin() + start_idx, input_array_A_.begin() + start_idx + 2 * block_size);
         }
       }
