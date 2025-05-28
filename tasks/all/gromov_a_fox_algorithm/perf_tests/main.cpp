@@ -23,7 +23,7 @@ static void InitializeMatrices(size_t k_n, std::vector<double>& a, std::vector<d
 }
 
 static void ComputeExpectedResult(size_t k_n, const std::vector<double>& a, const std::vector<double>& b,
-                           std::vector<double>& expected) {
+                                  std::vector<double>& expected) {
   for (size_t i = 0; i < k_n; ++i) {
     for (size_t j = 0; j < k_n; ++j) {
       for (size_t k = 0; k < k_n; ++k) {
