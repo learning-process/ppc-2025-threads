@@ -1,6 +1,5 @@
 #pragma once
 
-#include <boost/mpi.hpp>
 #include <boost/mpi/communicator.hpp>
 #include <utility>
 #include <vector>
@@ -11,7 +10,7 @@ namespace fomin_v_conjugate_gradient {
 
 class FominVConjugateGradientAll : public ppc::core::Task {
  public:
-  explicit FominVConjugateGradientAll(ppc::core::TaskDataPtr task_data) : Task(std::move(task_data)), world_() {}
+  explicit FominVConjugateGradientAll(ppc::core::TaskDataPtr task_data) : Task(std::move(task_data)) {}
   bool PreProcessingImpl() override;
   bool ValidationImpl() override;
   bool RunImpl() override;
