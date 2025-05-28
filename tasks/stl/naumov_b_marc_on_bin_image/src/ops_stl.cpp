@@ -8,8 +8,6 @@
 #include <utility>
 #include <vector>
 
-#include "core/util/include/util.hpp"
-
 std::vector<int> naumov_b_marc_on_bin_image_stl::GenerateRandomBinaryMatrix(int rows, int cols, double probability) {
   const int total_elements = rows * cols;
   const int target_ones = static_cast<int>(total_elements * probability);
