@@ -3,8 +3,6 @@
 #include <algorithm>
 #include <cmath>
 #include <cstddef>
-#include <execution>
-#include <numeric>
 #include <random>
 #include <thread>
 #include <utility>
@@ -170,8 +168,8 @@ bool naumov_b_marc_on_bin_image_stl::TestTaskSTL::RunImpl() {
 }
 
 void naumov_b_marc_on_bin_image_stl::TestTaskSTL::CreateAndJoinThreads() {
-  const size_t total_elements = static_cast<size_t>(rows_ * cols_);
-  const size_t num_threads = static_cast<size_t>(std::thread::hardware_concurrency());
+  const auto total_elements = static_cast<size_t>(rows_) * static_cast<size_t>(cols_);
+  const auto num_threads = static_cast<size_t>(std::thread::hardware_concurrency());
   std::vector<std::thread> threads;
   threads.reserve(num_threads);
 
