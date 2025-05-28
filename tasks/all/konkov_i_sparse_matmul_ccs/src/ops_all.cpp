@@ -1,4 +1,4 @@
-﻿#include "all/konkov_i_sparse_matmul_ccs_all/include/ops_all.hpp"
+﻿#include "all/konkov_i_sparse_matmul_ccs/include/ops_all.hpp"
 
 #include <algorithm>
 #include <boost/mpi/collectives/broadcast.hpp>
