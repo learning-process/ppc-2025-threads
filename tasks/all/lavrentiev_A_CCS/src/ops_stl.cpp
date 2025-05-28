@@ -65,7 +65,7 @@ int lavrentiev_a_ccs_all::CCSALL::CalculateStartIndex(int index, const std::vect
 lavrentiev_a_ccs_all::Sparse lavrentiev_a_ccs_all::CCSALL::MatMul(const Sparse &matrix1, const Sparse &matrix2,
                                                                   int interval_begin, int interval_end) {
   Sparse temporary_matrix;
-  int resize_data = (matrix2.columnsSum.size() * matrix1.columnsSum.size());
+  int resize_data = static_cast<int>(matrix2.columnsSum.size() * matrix1.columnsSum.size());
   std::vector<std::thread> threads(ppc::util::GetPPCNumThreads());
   temporary_matrix.columnsSum.resize(matrix2.size.second);
   temporary_matrix.elements.resize(resize_data);
@@ -196,61 +196,52 @@ bool lavrentiev_a_ccs_all::CCSALL::ValidationImpl() {
   return true;
 }
 
+void lavrentiev_a_ccs_all::CCSALL::CollectData() {
+  sending_data_ = std::move(Process_data_.elements);
+  sending_data_.resize(Process_data_.columnsSum.size() + (2 * resize_data_));
+  for (int i = 0; i < resize_data_; i++) {
+    sending_data_[i + resize_data_] = static_cast<double>(Process_data_.rows[i]);
+    if (i < static_cast<int>(Process_data_.columnsSum.size())) {
+      sending_data_[i + (2 * resize_data_)] = static_cast<double>(Process_data_.columnsSum[i]);
+    }
+  }
+}
+
 bool lavrentiev_a_ccs_all::CCSALL::RunImpl() {
   boost::mpi::broadcast(world_, displ_, 0);
   boost::mpi::broadcast(world_, A_, 0);
   boost::mpi::broadcast(world_, B_, 0);
-  if (displ_.empty() || IsEmpty()) {
+  if (displ_.empty()) {
     return true;
   }
-  resize_data = (B_.columnsSum.size() * A_.columnsSum.size());
+  resize_data_ = static_cast<int>(B_.columnsSum.size() * A_.columnsSum.size());
   Process_data_ = MatMul(A_, B_, displ_[world_.rank()], displ_[world_.rank() + 1]);
   CollectSizes();
-  sending_data = std::move(Process_data_.elements);
-  sending_data.resize(Process_data_.columnsSum.size() + (2 * resize_data));
-  for (int i = 0; i < resize_data; i++) {
-    sending_data[i + resize_data] = static_cast<double>(Process_data_.rows[i]);
-    if (i < static_cast<int>(Process_data_.columnsSum.size())) {
-      sending_data[i + (2 * resize_data)] = static_cast<double>(Process_data_.columnsSum[i]);
-    }
-  }
-
+  CollectData();
   if (world_.rank() == 0) {
     Answer_.columnsSum.clear();
     Answer_.rows.clear();
     Answer_.elements.clear();
-    Answer_.elements.reserve(resize_data);
-    Answer_.rows.reserve(resize_data);
-    Answer_.columnsSum.reserve(resize_data);
-    std::vector<double> data_reader((resize_data * world_.size() * 2) +
+    Answer_.elements.reserve(resize_data_);
+    Answer_.rows.reserve(resize_data_);
+    Answer_.columnsSum.reserve(resize_data_);
+    std::vector<double> data_reader((resize_data_ * world_.size() * 2) +
                                     std::accumulate(sum_sizes_.begin(), sum_sizes_.end(), 0));
-    std::vector<int> size(world_.size(), resize_data * 2);
+    std::vector<int> size(world_.size(), resize_data_ * 2);
     for (int i = 0; i < world_.size(); ++i) {
       size[i] += sum_sizes_[i];
     }
-    boost::mpi::gatherv(world_, sending_data, data_reader.data(), size, 0);
+    boost::mpi::gatherv(world_, sending_data_, data_reader.data(), size, 0);
     int process_data_num = 0;
     int sum_by_elements_count = sum_sizes_.front();
     int past_data = 0;
     for (int i = 0; i < static_cast<int>(data_reader.size()); ++i) {
-      if (i == (resize_data * 2 * (process_data_num + 1)) + sum_by_elements_count) {
-        past_data += (resize_data * 2) + sum_sizes_[process_data_num];
+      if (i == (resize_data_ * 2 * (process_data_num + 1)) + sum_by_elements_count) {
+        past_data += (resize_data_ * 2) + sum_sizes_[process_data_num];
         process_data_num++;
         sum_by_elements_count += sum_sizes_[process_data_num];
       }
-      if (i - ((resize_data * 2) + past_data) < 0) {
-        if (i - (resize_data + past_data) < 0 && data_reader[i] != 0.0) {
-          Answer_.elements.emplace_back(data_reader[i]);
-        } else {
-          if (data_reader[i] != 0.0) {
-            Answer_.rows.emplace_back(--data_reader[i]);
-          }
-        }
-      } else {
-        if (data_reader[i] != 0.0) {
-          Answer_.columnsSum.emplace_back(--data_reader[i]);
-        }
-      }
+      AddData(data_reader, past_data, i);
     }
     for (size_t i = 1; i < Answer_.columnsSum.size(); ++i) {
       Answer_.columnsSum[i] = Answer_.columnsSum[i] + Answer_.columnsSum[i - 1];
@@ -258,9 +249,25 @@ bool lavrentiev_a_ccs_all::CCSALL::RunImpl() {
     Answer_.size.first = B_.size.second;
     Answer_.size.second = B_.size.second;
   } else {
-    boost::mpi::gatherv(world_, sending_data, 0);
+    boost::mpi::gatherv(world_, sending_data_, 0);
   }
   return true;
+}
+
+void lavrentiev_a_ccs_all::CCSALL::AddData(const std::vector<double> &data, int past_data, int index) {
+  if (index - ((resize_data_ * 2) + past_data) < 0) {
+    if (index - (resize_data_ + past_data) < 0 && data[index] != 0.0) {
+      Answer_.elements.emplace_back(data[index]);
+    } else {
+      if (data[index] != 0.0) {
+        Answer_.rows.emplace_back(data[index] - 1);
+      }
+    }
+  } else {
+    if (data[index] != 0.0) {
+      Answer_.columnsSum.emplace_back(data[index] - 1);
+    }
+  }
 }
 
 bool lavrentiev_a_ccs_all::CCSALL::PostProcessingImpl() {
