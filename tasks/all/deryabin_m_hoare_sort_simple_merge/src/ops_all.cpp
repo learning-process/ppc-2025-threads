@@ -1,10 +1,12 @@
 #include "all/deryabin_m_hoare_sort_simple_merge/include/ops_all.hpp"
 
+#include "oneapi/tbb/blocked_range.h"
 #include <oneapi/tbb/parallel_for.h>
 #include <oneapi/tbb/parallel_invoke.h>
 
 #include <algorithm>
 #include <bit>
+#include <boost/mpi/collectives.hpp>
 #include <boost/mpi/collectives/broadcast.hpp>
 #include <boost/serialization/vector.hpp>
 #include <cmath>
@@ -86,7 +88,7 @@ void deryabin_m_hoare_sort_simple_merge_mpi::MergeTwoParts(std::vector<double>::
     const size_t left_len = mid - left_end;
     const size_t right_len = right_start - mid;
     const size_t overlap_len = left_len + right_len;
-    tbb::parallel_for(tbb::blocked_range<size_t>(0, overlap_len),
+    oneapi::tbb::parallel_for(oneapi::tbb::blocked_range<size_t>(0, overlap_len),
                       [&left_end, &mid](const tbb::blocked_range<size_t>& r) {
                         auto left = left_end + r.begin();
                         auto right = mid + r.begin();
