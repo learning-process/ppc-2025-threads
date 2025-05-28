@@ -44,7 +44,10 @@ std::vector<double> fomin_v_conjugate_gradient::FominVConjugateGradientAll::Matr
   });
 
   std::vector<double> global_result;
-  gather(world_, local_result.data(), rows_per_proc, global_result, 0);
+  if (world_.rank() == 0) {
+    global_result.resize(n);
+  }
+  gather(world_, local_result.data(), rows_per_proc, global_result.data(), 0);
   broadcast(world_, global_result, 0);
 
   return global_result;
@@ -134,9 +137,15 @@ bool fomin_v_conjugate_gradient::FominVConjugateGradientAll::RunImpl() {
     rs_old = rs_new;
   }
 
-  if (world_.rank() != 0) x.resize(n);
-  gather(world_, x.data(), rows_per_proc, x.data(), 0);
-  output_ = x;
+  std::vector<double> gathered_x(n);
+  gather(world_, x.data(), rows_per_proc, gathered_x.data(), 0);
+  if (world_.rank() == 0) {
+    output_ = gathered_x;
+  } else {
+    output_.resize(n);
+  }
+  broadcast(world_, output_, 0);
+
   return true;
 }
 
