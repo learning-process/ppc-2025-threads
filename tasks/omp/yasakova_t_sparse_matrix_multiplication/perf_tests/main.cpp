@@ -12,7 +12,7 @@
 #include "omp/yasakova_t_sparse_matrix_multiplication/include/ops_omp.hpp"
 
 TEST(yasakova_t_sparse_matrix_multiplication_omp, test_pipeline_run) {
-  const uint32_t matrix_size = 400;
+  const uint32_t matrix_size = 500;
   const uint32_t non_zero_elements = 5000;
   const uint32_t num_runs = 10;
 
@@ -57,7 +57,7 @@ TEST(yasakova_t_sparse_matrix_multiplication_omp, test_pipeline_run) {
 }
 
 TEST(yasakova_t_sparse_matrix_multiplication_omp, test_task_run) {
-  const uint32_t matrix_size = 400;
+  const uint32_t matrix_size = 500;
   const uint32_t non_zero_elements = 5000;
   const uint32_t num_runs = 10;
 
