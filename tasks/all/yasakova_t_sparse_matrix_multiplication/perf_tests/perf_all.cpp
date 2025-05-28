@@ -13,7 +13,7 @@
 
 TEST(yasakova_t_sparse_matrix_mult_task_all, test_pipeline_run) {
   srand(time(nullptr));
-  const int matrix_size = 100;
+  const int matrix_size = 500;
   const int non_zero_elements = 1000;
   const int num_runs = 100;
 
@@ -95,7 +95,7 @@ TEST(yasakova_t_sparse_matrix_mult_task_all, test_pipeline_run) {
 
 TEST(yasakova_t_sparse_matrix_mult_task_all, test_task_run) {
   srand(time(nullptr));
-  const int matrix_size = 100;
+  const int matrix_size = 500;
   const int non_zero_elements = 1000;
   const int num_runs = 100;
 
