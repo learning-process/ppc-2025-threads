@@ -171,7 +171,7 @@ bool deryabin_m_hoare_sort_simple_merge_mpi::HoareSortTaskMPI::ValidationImpl() 
   return true;
 }
 
-bool deryabin_m_hoare_sort_simple_merge_mpi::HoareSortTaskMPI::RunImpl() {
+bool HoareSortTaskMPI::RunImpl() {
   const auto chunk_size = min_chunk_size_;
   auto start_iter = input_array_A_.begin() + (chunk_count_ - 1) * chunk_size;
   if (world.rank() != 0) {
@@ -182,6 +182,8 @@ bool deryabin_m_hoare_sort_simple_merge_mpi::HoareSortTaskMPI::RunImpl() {
   const auto world_size = world.size();
   if (world_size != 1) {
     const size_t iterations = static_cast<size_t>(std::bit_width(chunk_count_ - 1));
+    std::vector<double> send_recv_buffer;
+    send_recv_buffer.reserve(2 * chunk_size * (1 << (iterations - 1)));
     for (size_t i = 0; i < iterations; ++i) {
       const unsigned short step = 1ULL << i;
       const size_t block_size = chunk_size * step;
@@ -193,16 +195,24 @@ bool deryabin_m_hoare_sort_simple_merge_mpi::HoareSortTaskMPI::RunImpl() {
           if (world.rank() != 0) {
             start_idx += rest_;
           }
-          MPI_Ssend(input_array_A_.data() + start_idx, int(block_size), MPI_DOUBLE, world.rank() + step, 0, world);
+          std::copy(input_array_A_.begin() + start_idx,
+                   input_array_A_.begin() + start_idx + block_size,
+                   send_recv_buffer.begin());
+          MPI_Ssend(send_recv_buffer.data(), block_size, MPI_DOUBLE, 
+                   world.rank() + step, 0, world);
         }
         if (!is_even || world.rank() == world_size - 1) {
           size_t start_idx = (static_cast<size_t>(world.rank() - 2 * step) + 1) * chunk_size;
           if (world.rank() - step != 0) {
             start_idx += rest_;
           }
-          MPI_Recv(input_array_A_.data() + start_idx, int(block_size), MPI_DOUBLE, world.rank() - step, 0, world,
-                   MPI_STATUS_IGNORE);
-          MergeTwoParts(input_array_A_.begin() + start_idx, input_array_A_.begin() + start_idx + 2 * block_size);
+          MPI_Recv(send_recv_buffer.data(), block_size, MPI_DOUBLE,
+                  world.rank() - step, 0, world, MPI_STATUS_IGNORE);
+          std::copy(send_recv_buffer.begin(),
+                   send_recv_buffer.begin() + block_size,
+                   input_array_A_.begin() + start_idx);
+          MergeTwoParts(input_array_A_.begin() + start_idx,
+                      input_array_A_.begin() + start_idx + 2 * block_size);
         }
       }
     }
