@@ -162,7 +162,6 @@ bool deryabin_m_hoare_sort_simple_merge_mpi::HoareSortTaskMPI::PreProcessingImpl
     input_array_A_.resize(dimension_);
     world.recv(0, 0, input_array_A_.data(), dimension_);
   }
-  boost::mpi::broadcast(world, input_array_A_.data(), dimension_, 0);
   boost::mpi::broadcast(world, chunk_count_, 0);
   boost::mpi::broadcast(world, min_chunk_size_, 0);
   boost::mpi::broadcast(world, rest_, 0);
