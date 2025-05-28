@@ -5,6 +5,9 @@
 #include <cstddef>
 #include <vector>
 
+#include "boost/mpi/collectives/gatherv.hpp"
+#include "boost/mpi/collectives/scatterv.hpp"
+
 #ifdef _OPENMP
 #include <omp.h>
 #endif
