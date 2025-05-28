@@ -11,7 +11,6 @@
 #include "core/task/include/task.hpp"
 #include "core/util/include/util.hpp"
 
-
 namespace {
 void VerifyBinaryOutput(const std::vector<int> &in, const std::vector<int> &out) {
   for (size_t i = 0; i < in.size(); ++i) {
