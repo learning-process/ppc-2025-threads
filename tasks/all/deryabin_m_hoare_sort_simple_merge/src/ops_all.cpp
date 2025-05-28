@@ -195,24 +195,19 @@ bool HoareSortTaskMPI::RunImpl() {
           if (world.rank() != 0) {
             start_idx += rest_;
           }
-          std::copy(input_array_A_.begin() + start_idx,
-                   input_array_A_.begin() + start_idx + block_size,
-                   send_recv_buffer.begin());
-          MPI_Ssend(send_recv_buffer.data(), block_size, MPI_DOUBLE, 
-                   world.rank() + step, 0, world);
+          std::copy(input_array_A_.begin() + start_idx, input_array_A_.begin() + start_idx + block_size,
+                    send_recv_buffer.begin());
+          MPI_Ssend(send_recv_buffer.data(), block_size, MPI_DOUBLE, world.rank() + step, 0, world);
         }
         if (!is_even || world.rank() == world_size - 1) {
           size_t start_idx = (static_cast<size_t>(world.rank() - 2 * step) + 1) * chunk_size;
           if (world.rank() - step != 0) {
             start_idx += rest_;
           }
-          MPI_Recv(send_recv_buffer.data(), block_size, MPI_DOUBLE,
-                  world.rank() - step, 0, world, MPI_STATUS_IGNORE);
-          std::copy(send_recv_buffer.begin(),
-                   send_recv_buffer.begin() + block_size,
-                   input_array_A_.begin() + start_idx);
-          MergeTwoParts(input_array_A_.begin() + start_idx,
-                      input_array_A_.begin() + start_idx + 2 * block_size);
+          MPI_Recv(send_recv_buffer.data(), block_size, MPI_DOUBLE, world.rank() - step, 0, world, MPI_STATUS_IGNORE);
+          std::copy(send_recv_buffer.begin(), send_recv_buffer.begin() + block_size,
+                    input_array_A_.begin() + start_idx);
+          MergeTwoParts(input_array_A_.begin() + start_idx, input_array_A_.begin() + start_idx + 2 * block_size);
         }
       }
     }
