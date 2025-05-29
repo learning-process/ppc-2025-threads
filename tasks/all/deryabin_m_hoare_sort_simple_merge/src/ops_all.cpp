@@ -195,7 +195,9 @@ bool deryabin_m_hoare_sort_simple_merge_mpi::HoareSortTaskMPI::RunImpl() {
     const size_t block_size = chunk_size * step;
     if ((world_size - world.rank() - 1) % step == 0) {
       const bool is_last_level = (step * 2 >= world_size);
-      const bool is_sender = ((world_size - world.rank() - 1) / step % 2 == 0);
+      const bool is_sender = (is_last_level && world_size % 2 != 0) ? 
+                           (world.rank() == world_size - 2) :
+                           ((world_size - world.rank() - 1) / step % 2 == 0);
       if (is_sender && (world.rank() - step >= 0)) {
         size_t start_idx = static_cast<size_t>(world_size - (world.rank() + step)) * chunk_size;
         if (world.rank() != world.size() - 1) {
