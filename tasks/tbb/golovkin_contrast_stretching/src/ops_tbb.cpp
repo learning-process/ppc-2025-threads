@@ -1,4 +1,4 @@
-// Golovkin Maksim
+// Golovkin Maksims
 #include "tbb/golovkin_contrast_stretching/include/ops_tbb.hpp"
 
 #include <algorithm>
