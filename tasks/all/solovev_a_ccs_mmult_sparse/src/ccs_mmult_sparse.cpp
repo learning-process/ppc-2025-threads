@@ -1,9 +1,9 @@
 ﻿#include "all/solovev_a_ccs_mmult_sparse/include/ccs_mmult_sparse.hpp"
 
 #include <algorithm>
-#include <boost/mpi/broadcast.hpp>
 #include <boost/mpi/collectives.hpp>
 #include <boost/mpi/communicator.hpp>
+#include <cmath>
 #include <complex>
 #include <numeric>
 #include <thread>
@@ -11,6 +11,9 @@
 #include <utility>
 
 #include "core/util/include/util.hpp"
+#include <boost/mpi/collectives/all_gather.hpp>
+#include <boost/mpi/collectives/broadcast.hpp>
+#include <boost/mpi/collectives/reduce.hpp>
 
 bool solovev_a_matrix_all::SeqMatMultCcs::PreProcessingImpl() {
   if (world_.rank() == 0) {
