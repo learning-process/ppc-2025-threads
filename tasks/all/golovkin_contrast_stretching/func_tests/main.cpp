@@ -1,6 +1,5 @@
-// Golovkin Maksim
+// Golovkin Maksims
 #include <gtest/gtest.h>
-
 #include <mpi.h>
 
 #include <cstddef>
