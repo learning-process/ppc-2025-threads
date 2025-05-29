@@ -72,9 +72,7 @@ void ProcessLocalChunk(const std::vector<std::vector<std::pair<int, int>>>& adj_
     }
 
 #pragma omp critical
-    {
-      local_updated |= thread_updated;
-    }
+    { local_updated |= thread_updated; }
   }
 
   updated |= local_updated;
@@ -118,9 +116,7 @@ void ProcessAllVertices(const std::vector<std::vector<std::pair<int, int>>>& adj
     }
 
 #pragma omp critical
-    {
-      local_updated |= thread_updated;
-    }
+    { local_updated |= thread_updated; }
   }
 
   updated |= local_updated;
