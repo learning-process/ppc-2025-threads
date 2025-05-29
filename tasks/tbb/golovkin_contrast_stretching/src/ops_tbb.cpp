@@ -46,11 +46,11 @@ bool golovkin_contrast_stretching::ContrastStretchingTBB<PixelType>::RunImpl() {
     for (size_t i = range.begin(); i != range.end(); ++i) {
       double stretched = (input_image_[i] - min_val_) * scale;
       if constexpr (std::is_same_v<PixelType, uint8_t>) {
-                    output_image_[i] = static_cast<uint8_t>(std::clamp(static_cast<int>(stretched + 1e-9), 0, 255);
+        output_image_[i] = static_cast<uint8_t>(std::clamp(static_cast<int>(stretched + 1e-9), 0, 255);
       } else if constexpr (std::is_same_v<PixelType, uint16_t>) {
-                    output_image_[i] = static_cast<uint16_t>(std::clamp(static_cast<int>(stretched + 1e-9), 0, 255));
+        output_image_[i] = static_cast<uint16_t>(std::clamp(static_cast<int>(stretched + 1e-9), 0, 255));
       } else {
-                    output_image_[i] = static_cast<PixelType>(stretched);
+        output_image_[i] = static_cast<PixelType>(stretched);
       }
     }
   });
