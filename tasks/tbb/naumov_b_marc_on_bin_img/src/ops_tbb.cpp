@@ -48,10 +48,17 @@ void naumov_b_marc_on_bin_img_tbb::TestTaskTBB::UnionLabels(int a, int b) {
 }
 
 int naumov_b_marc_on_bin_img_tbb::TestTaskTBB::FindRoot(int x) {
-  while (label_parent_[x] != x) {
-    x = label_parent_[x];
+  int root = x;
+  while (root != label_parent_[root]) {
+    root = label_parent_[root];
   }
-  return x;
+
+  while (x != root) {
+    int next = label_parent_[x];
+    label_parent_[x] = root;
+    x = next;
+  }
+  return root;
 }
 
 bool naumov_b_marc_on_bin_img_tbb::TestTaskTBB::PreProcessingImpl() {
