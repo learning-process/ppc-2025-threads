@@ -185,7 +185,7 @@ bool deryabin_m_hoare_sort_simple_merge_mpi::HoareSortTaskMPI::RunImpl() {
   if (world.rank() == 0) {
     start_iter += rest_;
   }
- const auto end_iter =
+  const auto end_iter =
       (world.rank() == world.size() - 1)
           ? input_array_A_.begin() + static_cast<size_t>(world.size() - world.rank()) * chunk_size + rest_
           : input_array_A_.begin() + static_cast<size_t>(world.size() - world.rank()) * chunk_size;
@@ -214,7 +214,7 @@ bool deryabin_m_hoare_sort_simple_merge_mpi::HoareSortTaskMPI::RunImpl() {
         }
       } else {
         size_t start_idx = static_cast<size_t>(world_size - (world.rank() + 2 * step)) * chunk_size;
-        if (world.rank() + step == world.size() - 1) {  
+                     if (world.rank() + step == world.size() - 1) {  
           start_idx += rest_;
         }
         if (world_size % 2 != 0 && world.rank() == 0) {
