@@ -83,7 +83,7 @@ TEST(lysov_i_matrix_multiplication_Fox_algorithm_mpi_tbb, test_pipeline_run) {
     return static_cast<double>(duration) * 1e-9;
   };
 
-  // Create and init perf results
+  // Create, init perf results
   auto perf_results = std::make_shared<ppc::core::PerfResults>();
 
   // Create Perf analyzer
