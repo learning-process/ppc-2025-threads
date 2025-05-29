@@ -72,39 +72,40 @@ void deryabin_m_hoare_sort_simple_merge_mpi::HoaraSort(std::vector<double>::iter
   }
 }
 
-void deryabin_m_hoare_sort_simple_merge_mpi::MergeTwoParts(std::vector<double>::iterator first,
-                                                           std::vector<double>::iterator last) {
-  if (last - first >= 2) {
-    const size_t len = last - first;
-    if (len <= 1) return;
-    const auto mid = first + (len >> 1);
-    const auto pivot = *mid;
-    const auto left_end = std::upper_bound(first, mid, pivot);
-    const auto right_pivot = (mid > first) ? *(mid - 1) : *mid;
-    const auto right_start = std::lower_bound(mid, last, right_pivot);
-    const size_t left_len = mid - left_end;
-    const size_t right_len = right_start - mid;
-    const size_t overlap_len = left_len + right_len;
+void MergeTwoParts(std::vector<double>::iterator first,
+                   std::vector<double>::iterator last) {
+    if (last - first >= 2) {
+        const size_t len = last - first;
+        const auto mid = first + (len >> 1);
+        
+        // Границы зоны конфликта
+        const auto left_end = std::upper_bound(first, mid, *mid);
+        const auto right_start = std::lower_bound(mid, last, *(mid - 1));
+        
+        // Размеры зон для обмена
+        const size_t left_len = std::distance(left_end, mid);
+        const size_t right_len = std::distance(mid, right_start);
+        const size_t overlap_len = std::min(left_len, right_len);
 
-    // Используем блокировку для синхронизации потоков
-    oneapi::tbb::parallel_for(oneapi::tbb::blocked_range<size_t>(0, overlap_len),
-                              [&left_end, &mid](const oneapi::tbb::blocked_range<size_t>& r) {
-                                auto left = left_end + r.begin();
-                                auto right = mid + r.begin();
-                                const auto end = left + (r.end() - r.begin());
-                                while (left != end && right != mid + right_len) {
-                                  if (*left > *right) {
-                                    std::iter_swap(left, right);
-                                  }
-                                  ++left;
-                                  ++right;
-                                }
-                              });
+        // Параллельный обмен
+        oneapi::tbb::parallel_for(
+            oneapi::tbb::blocked_range<size_t>(0, overlap_len),
+            [&](const oneapi::tbb::blocked_range<size_t>& r) {
+                for (size_t i = r.begin(); i < r.end(); ++i) {
+                    auto left = left_end + i;
+                    auto right = mid + i;
+                    if (*left > *right) {
+                        std::iter_swap(left, right);
+                    }
+                }
+            }
+        );
 
-    std::inplace_merge(left_end, mid, right_start);
-  } else {
-    std::inplace_merge(first, first + ((last - first) >> 1), last);
-  }
+        // Финальное слияние ТОЛЬКО зоны конфликта
+        std::inplace_merge(left_end, mid, right_start);
+    } else {
+        std::inplace_merge(first, first + ((last - first) >> 1), last);
+    }
 }
 
 bool deryabin_m_hoare_sort_simple_merge_mpi::HoareSortTaskSequential::PreProcessingImpl() {
