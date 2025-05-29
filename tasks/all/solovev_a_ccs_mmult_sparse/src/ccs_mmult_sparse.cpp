@@ -1,15 +1,14 @@
 ﻿#include "all/solovev_a_ccs_mmult_sparse/include/ccs_mmult_sparse.hpp"
 
+#include <algorithm>
+#include <boost/mpi/broadcast.hpp>
 #include <boost/mpi/collectives.hpp>
 #include <boost/mpi/communicator.hpp>
-#include <boost/serialization/complex.hpp>
-#include <boost/serialization/vector.hpp>
 #include <complex>
-#include <iostream>
-#include <mutex>
 #include <numeric>
 #include <thread>
 #include <vector>
+#include <utility>
 
 #include "core/util/include/util.hpp"
 
@@ -78,7 +77,7 @@ bool solovev_a_matrix_all::SeqMatMultCcs::RunImpl() {
   std::vector<int> col_indices(end_col - start_col);
   std::iota(col_indices.begin(), col_indices.end(), start_col);
 
-  auto computeColumnLambda = [&](int col_idx, std::vector<std::pair<std::complex<double>, int>>& column_data) {
+  auto compute_column_lambda = [&](int col_idx, std::vector<std::pair<std::complex<double>, int>>& column_data) {
     if (col_idx >= M2_->c_n) {
       return;
     }
@@ -124,7 +123,7 @@ bool solovev_a_matrix_all::SeqMatMultCcs::RunImpl() {
 
     if (num_cols < num_threads * 2) {
       for (int j = start_col; j < end_col; ++j) {
-        computeColumnLambda(col_indices[j - start_col], column_results[j - start_col]);
+        compute_column_lambda(col_indices[j - start_col], column_results[j - start_col]);
       }
     } else {
       std::vector<std::thread> threads;
@@ -140,7 +139,7 @@ bool solovev_a_matrix_all::SeqMatMultCcs::RunImpl() {
 
         threads.emplace_back([=, &column_results, &col_indices]() {
           for (int j = thread_start; j < thread_end; ++j) {
-            computeColumnLambda(col_indices[j - start_col], column_results[j - start_col]);
+            compute_column_lambda(col_indices[j - start_col], column_results[j - start_col]);
           }
         });
         thread_start = thread_end;
