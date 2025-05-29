@@ -15,6 +15,8 @@ namespace deryabin_m_hoare_sort_simple_merge_mpi {
 void SeqHoaraSort(std::vector<double>::iterator first, std::vector<double>::iterator last);
 void HoaraSort(std::vector<double>::iterator first, std::vector<double>::iterator last);
 void MergeTwoParts(std::vector<double>::iterator first, std::vector<double>::iterator last);
+void MergeUnequalTwoParts(std::vector<double>::iterator first, std::vector<double>::iterator mid,
+                                                               std::vector<double>::iterator last);
 
 class HoareSortTaskSequential : public ppc::core::Task {
  public:
