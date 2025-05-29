@@ -7,7 +7,7 @@
 #include <memory>
 #include <vector>
 
-#include "all/vladimirova_j_m_monte_karlo_all/include/ops_all.hpp"
+#include "all/vladimirova_j_m_monte_karlo/include/ops_all.hpp"
 #include "core/task/include/task.hpp"
 namespace {
 bool PiVal314(std::vector<double> arr, size_t size = 2) {
