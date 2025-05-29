@@ -68,8 +68,11 @@ bool golovkin_contrast_stretching::ContrastStretchingMPI_OMP<PixelType>::RunImpl
   size_t start = static_cast<size_t>(rank_) * chunk_size + std::min(static_cast<size_t>(rank_), remainder);
   size_t end = start + chunk_size + (static_cast<size_t>(rank_) < remainder ? 1 : 0);
 
+  const int signed_start = static_cast<int>(start);
+  const int signed_end = static_cast<int>(end);
+
 #pragma omp parallel for
-  for (size_t i = start; i < end; ++i) {
+  for (int i = signed_start; i < signed_end; ++i) {
     double stretched = (input_image_[i] - min_val_) * scale;
 
     if constexpr (std::is_same_v<PixelType, uint8_t>) {
