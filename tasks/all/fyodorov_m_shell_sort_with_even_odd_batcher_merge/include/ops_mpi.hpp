@@ -14,6 +14,7 @@ class TestTaskMPI : public ppc::core::Task {
   bool ValidationImpl() override;
   bool RunImpl() override;
   bool PostProcessingImpl() override;
+  const std::vector<int>& get_internal_output() const { return output_; }
 
  private:
   static void ShellSort(std::vector<int>& arr);

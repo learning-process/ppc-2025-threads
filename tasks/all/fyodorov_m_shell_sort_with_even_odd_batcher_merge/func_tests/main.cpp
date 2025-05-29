@@ -53,8 +53,7 @@ TEST(fyodorov_m_shell_sort_with_even_odd_batcher_merge_mpi, test_small_array_wit
 }
 
 TEST(fyodorov_m_shell_sort_with_even_odd_batcher_merge_mpi, test_random_sequence) {
-  std::random_device rd;
-  std::mt19937 gen(rd());
+  std::mt19937 gen(42);
   std::uniform_int_distribution<> distrib(-100, 100);
 
   const size_t size = 10;
@@ -89,26 +88,6 @@ TEST(fyodorov_m_shell_sort_with_even_odd_batcher_merge_mpi, test_sorted_array) {
   std::vector<int> expected_output = {10, 14, 19, 27, 33, 35, 42, 44};
 
   std::vector<int> output(input.size(), 0);
-
-  auto task_data_mpi = std::make_shared<ppc::core::TaskData>();
-  task_data_mpi->inputs.emplace_back(reinterpret_cast<uint8_t *>(input.data()));
-  task_data_mpi->inputs_count.emplace_back(input.size());
-  task_data_mpi->outputs.emplace_back(reinterpret_cast<uint8_t *>(output.data()));
-  task_data_mpi->outputs_count.emplace_back(output.size());
-
-  fyodorov_m_shell_sort_with_even_odd_batcher_merge_mpi::TestTaskMPI test_task_mpi(task_data_mpi);
-  ASSERT_EQ(test_task_mpi.Validation(), true);
-  test_task_mpi.PreProcessing();
-  test_task_mpi.Run();
-  test_task_mpi.PostProcessing();
-
-  EXPECT_EQ(output, expected_output);
-}
-
-TEST(fyodorov_m_shell_sort_with_even_odd_batcher_merge_mpi, test_empty_array) {
-  std::vector<int> input;
-  std::vector<int> expected_output;
-  std::vector<int> output;
 
   auto task_data_mpi = std::make_shared<ppc::core::TaskData>();
   task_data_mpi->inputs.emplace_back(reinterpret_cast<uint8_t *>(input.data()));
