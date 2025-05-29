@@ -189,7 +189,7 @@ bool deryabin_m_hoare_sort_simple_merge_mpi::HoareSortTaskMPI::RunImpl() {
       input_array_A_.begin() + static_cast<size_t>(world.size() - world.rank()) * chunk_size + rest_ - 1;
   HoaraSort(start_iter, end_iter);
   const auto world_size = world.size();
-  const size_t iterations = static_cast<size_t>(std::bit_width(world_size - 1));
+  const size_t iterations = static_cast<size_t>(std::bit_width(static_cast<unsigned>(world_size - 1)));
   for (size_t i = 0; i < iterations; ++i) {
     const unsigned short step = 1ULL << i;
     const size_t block_size = chunk_size * step;
