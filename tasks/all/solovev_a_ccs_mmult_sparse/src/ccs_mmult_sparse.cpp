@@ -9,6 +9,7 @@
 #include <cmath>
 #include <complex>
 #include <numeric>
+#include <functional>
 #include <thread>
 #include <utility>
 #include <vector>
@@ -193,7 +194,7 @@ bool solovev_a_matrix_all::SeqMatMultCcs::RunImpl() {
   }
 
   std::vector<int> global_col_counts(total_cols);
-  boost::mpi::reduce(world_, local_col_counts, global_col_counts, std::plus<int>(), 0);
+  boost::mpi::reduce(world_, local_col_counts, global_col_counts, std::plus<>(), 0);
 
   if (rank == 0) {
     M3_.col_p[0] = 0;
