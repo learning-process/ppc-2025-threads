@@ -197,6 +197,10 @@ bool deryabin_m_hoare_sort_simple_merge_mpi::HoareSortTaskMPI::RunImpl() {
       bool is_even = ((world_size - world.rank() - 1) / step % 2 == 0);
       if (world_size % 2 != 0) {
         is_even = ((world_size - world.rank() + step - 1) / step % 2 != 0);
+        if (world.rank() == world.size() - 1 && step != 1)
+        {
+          is_even = false;
+        }
       }
       if (is_even) {
         if (world.rank() != 0) {
