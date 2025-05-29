@@ -85,23 +85,22 @@ void deryabin_m_hoare_sort_simple_merge_mpi::MergeTwoParts(std::vector<double>::
     const size_t left_len = mid - left_end;
     const size_t right_len = right_start - mid;
     const size_t overlap_len = left_len + right_len;
+
+    // Используем блокировку для синхронизации потоков
     oneapi::tbb::parallel_for(oneapi::tbb::blocked_range<size_t>(0, overlap_len),
                               [&left_end, &mid](const oneapi::tbb::blocked_range<size_t>& r) {
                                 auto left = left_end + r.begin();
                                 auto right = mid + r.begin();
                                 const auto end = left + (r.end() - r.begin());
-                                while (left != end) {
+                                while (left != end && right != mid + right_len) {
                                   if (*left > *right) {
                                     std::iter_swap(left, right);
-                                  } else if (*left == *right) {
-                                    ++left;
-                                    ++right;
-                                    continue;
                                   }
                                   ++left;
                                   ++right;
                                 }
                               });
+
     std::inplace_merge(left_end, mid, right_start);
   } else {
     std::inplace_merge(first, first + ((last - first) >> 1), last);
