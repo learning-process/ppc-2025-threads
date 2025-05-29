@@ -4,7 +4,6 @@
 #include <complex>
 #include <cstddef>
 #include <cstdint>
-#include <iostream>
 #include <memory>
 #include <random>
 #include <vector>
@@ -57,7 +56,6 @@ TEST(solovev_a_ccs_mmult_sparse, test_I) {
 
   if (world.rank() == 0) {
     std::complex<double> correct_reply(1.0, 0.0);
-    std::cerr << "m3 val = " << m3.val[0] << std::endl;
     ASSERT_NEAR(std::abs(m3.val[0] - correct_reply), 0.0, 1e-6);
   }
 }
