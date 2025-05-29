@@ -52,9 +52,18 @@ std::vector<double> fomin_v_conjugate_gradient::FominVConjugateGradientAll::Matr
   if (world_.rank() == 0) {
     global_result.resize(n);
   }
-  gather(world_, local_result.data(), rows_per_proc_, global_result.data(), 0);
-  broadcast(world_, global_result, 0);
 
+  std::vector<int> sizes(world_.size());
+  std::vector<int> displs(world_.size(), 0);
+  int remainder = n % world_.size();
+  for (int i = 0; i < world_.size(); ++i) {
+    sizes[i] = (n / world_.size()) + (i < remainder ? 1 : 0);
+    if (i > 0) {
+      displs[i] = displs[i - 1] + sizes[i - 1];
+    }
+  }
+  gatherv(world_, local_result.data(), rows_per_proc_, global_result.data(), sizes, displs, 0);
+  broadcast(world_, global_result, 0);
   return global_result;
 }
 
@@ -153,21 +162,19 @@ bool fomin_v_conjugate_gradient::FominVConjugateGradientAll::RunImpl() {
     std::vector<double> ap = MatrixVectorMultiply(p);
     double p_ap = DotProduct(world_, p, ap);
 
-    if (world_.rank() == 0 && std::abs(p_ap) < 1e-12) {
+    broadcast(world_, p_ap, 0);
+    if (std::abs(p_ap) < 1e-12) {
       break;
     }
-    broadcast(world_, p_ap, 0);
-
     double alpha = rs_old / p_ap;
     x = VectorAdd(x, VectorScalarMultiply(p, alpha));
     r = VectorSub(r, VectorScalarMultiply(ap, alpha));
 
     double rs_new = DotProduct(world_, r, r);
-    if (world_.rank() == 0 && std::sqrt(rs_new) < epsilon) {
+    broadcast(world_, rs_new, 0);
+    if (std::sqrt(rs_new) < epsilon) {
       break;
     }
-    broadcast(world_, rs_new, 0);
-
     double beta = rs_new / rs_old;
     p = VectorAdd(r, VectorScalarMultiply(p, beta));
     rs_old = rs_new;
