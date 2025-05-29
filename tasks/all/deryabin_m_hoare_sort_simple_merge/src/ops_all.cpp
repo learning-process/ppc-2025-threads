@@ -74,12 +74,12 @@ void deryabin_m_hoare_sort_simple_merge_mpi::HoaraSort(std::vector<double>::iter
 
 void deryabin_m_hoare_sort_simple_merge_mpi::MergeTwoParts(std::vector<double>::iterator first,
                                                            std::vector<double>::iterator last) {
-  if (last - first >= 200) {
+  if (last - first >= 2) {
     const size_t len = last - first;
     if (len <= 1) return;
     const auto mid = first + (len >> 1);
     const auto pivot = *mid;
-    const auto left_end = std::upper_bound(first, mid, pivot);
+    const auto left_end = std::upper_bound(first, mid, pivot); 
     const auto right_pivot = (mid > first) ? *(mid - 1) : *mid;
     const auto right_start = std::lower_bound(mid, last, right_pivot);
     const size_t left_len = mid - left_end;
