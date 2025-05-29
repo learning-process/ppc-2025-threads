@@ -1,7 +1,6 @@
 #include <gtest/gtest.h>
 
 #include <chrono>
-#include <cmath>
 #include <cstddef>
 #include <cstdint>
 #include <memory>
@@ -13,7 +12,7 @@
 #include "stl/muradov_m_rect_int/include/ops_stl.hpp"
 
 TEST(muradov_m_rect_int_stl, test_pipeline_run) {
-  std::size_t iterations = 475;
+  int iterations = 475;
   std::vector<std::pair<double, double>> bounds(3, {-3.0, 3.0});
   double out = 0.0;
 
@@ -26,7 +25,7 @@ TEST(muradov_m_rect_int_stl, test_pipeline_run) {
   task_data_stl->outputs_count.emplace_back(1);
 
   auto test_task_stluential = std::make_shared<muradov_m_rect_int_stl::RectIntTaskSTLPar>(
-      task_data_stl, [](const auto &args) { return (args[0] * args[1]) + std::pow(args[1], 2); });
+      task_data_stl, [](const auto &args) { return (args[0] * args[1]) + (args[1] * args[1]); });
 
   auto perf_attr = std::make_shared<ppc::core::PerfAttr>();
   perf_attr->num_running = 10;
@@ -47,7 +46,7 @@ TEST(muradov_m_rect_int_stl, test_pipeline_run) {
 }
 
 TEST(muradov_m_rect_int_stl, test_task_run) {
-  std::size_t iterations = 475;
+  int iterations = 475;
   std::vector<std::pair<double, double>> bounds(3, {-3.0, 3.0});
   double out = 0.0;
 
@@ -61,7 +60,7 @@ TEST(muradov_m_rect_int_stl, test_task_run) {
 
   // Create Task
   auto test_task_stluential = std::make_shared<muradov_m_rect_int_stl::RectIntTaskSTLPar>(
-      task_data_stl, [](const auto &args) { return (args[0] * args[1]) + std::pow(args[1], 2); });
+      task_data_stl, [](const auto &args) { return (args[0] * args[1]) + (args[1] * args[1]); });
 
   // Create Perf attributes
   auto perf_attr = std::make_shared<ppc::core::PerfAttr>();
