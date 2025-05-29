@@ -74,7 +74,7 @@ bool SortSTL::ValidationImpl() { return task_data->inputs_count[0] == task_data-
 
 bool SortSTL::RunImpl() {
   if (input_.empty()) {
-    output_ = input_;
+    output_.clear();  // явна€ очистка дл€ €сности
     return true;
   }
 
