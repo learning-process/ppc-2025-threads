@@ -88,40 +88,6 @@ void UpdateLocalDistances(const std::vector<int>& global_dist, std::vector<int>&
   }
 }
 
-void ProcessAllVertices(const std::vector<std::vector<std::pair<int, int>>>& adj_list, std::vector<int>& local_dist,
-                        bool& updated) {
-  const int inf = INT_MAX;
-  bool local_updated = false;
-
-#pragma omp parallel
-  {
-    bool thread_updated = false;
-
-#pragma omp for schedule(dynamic)
-    for (int u = 0; u < static_cast<int>(local_dist.size()); ++u) {
-      if (local_dist[u] == inf) continue;
-
-      for (const auto& [neighbor, weight] : adj_list[u]) {
-        int new_dist = local_dist[u] + weight;
-        if (new_dist < local_dist[neighbor]) {
-#pragma omp critical
-          {
-            if (new_dist < local_dist[neighbor]) {
-              local_dist[neighbor] = new_dist;
-              thread_updated = true;
-            }
-          }
-        }
-      }
-    }
-
-#pragma omp critical
-    { local_updated |= thread_updated; }
-  }
-
-  updated |= local_updated;
-}
-
 bool CheckGlobalUpdate(const boost::mpi::communicator& world, bool local_updated) {
   int local_updated_int = local_updated ? 1 : 0;
   int global_updated = 0;
