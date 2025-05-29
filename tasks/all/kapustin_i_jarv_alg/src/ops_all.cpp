@@ -19,8 +19,8 @@ std::pair<int, int> kapustin_i_jarv_alg_all::TestTaskAll::FindLocalBestOMP(size_
     std::pair<int, int> thread_best = global_best;
 
 #pragma omp for
-    for (size_t i = start; i < end; ++i) {
-      if (i == current_index) {
+    for (int i = static_cast<int>(start); i < static_cast<int>(end); ++i) {
+      if (static_cast<size_t>(i) == current_index) {
         continue;
       }
 
