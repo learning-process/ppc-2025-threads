@@ -65,8 +65,8 @@ bool golovkin_contrast_stretching::ContrastStretchingMPI_OMP<PixelType>::RunImpl
   size_t chunk_size = image_size_ / num_procs_;
   size_t remainder = image_size_ % num_procs_;
 
-  size_t start = rank_ * chunk_size + std::min(rank_, static_cast<int>(remainder));
-  size_t end = start + chunk_size + (rank_ < remainder ? 1 : 0);
+  size_t start = static_cast<size_t>(rank_) * chunk_size + std::min(static_cast<size_t>(rank_), remainder);
+  size_t end = start + chunk_size + (static_cast<size_t>(rank_) < remainder ? 1 : 0);
 
 #pragma omp parallel for
   for (size_t i = start; i < end; ++i) {
@@ -83,8 +83,8 @@ bool golovkin_contrast_stretching::ContrastStretchingMPI_OMP<PixelType>::RunImpl
 
   if (rank_ == 0) {
     for (int proc = 1; proc < num_procs_; ++proc) {
-      size_t proc_start = proc * chunk_size + std::min(proc, static_cast<int>(remainder));
-      size_t proc_end = proc_start + chunk_size + (proc < remainder ? 1 : 0);
+      size_t proc_start = static_cast<size_t>(proc) * chunk_size + std::min(static_cast<size_t>(proc), remainder);
+      size_t proc_end = proc_start + chunk_size + (static_cast<size_t>(proc) < remainder ? 1 : 0);
       MPI_Recv(output_image_.data() + proc_start, proc_end - proc_start, MPI_BYTE, proc, 0, MPI_COMM_WORLD,
                MPI_STATUS_IGNORE);
     }
