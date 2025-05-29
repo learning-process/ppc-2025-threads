@@ -160,3 +160,20 @@ TEST(malyshev_v_radix_sort_all, reverse_order_test) {
     ASSERT_EQ(result, sorted);
   }
 }
+
+TEST(malyshev_v_radix_sort_all, validation_test) {
+  boost::mpi::communicator world;
+  std::vector<double> global_vector = {1.0};
+  std::vector<double> result(2);
+  std::shared_ptr<ppc::core::TaskData> task_data = std::make_shared<ppc::core::TaskData>();
+  if (world.rank() == 0) {
+    task_data->inputs.emplace_back(reinterpret_cast<uint8_t*>(global_vector.data()));
+    task_data->inputs_count.emplace_back(global_vector.size());
+    task_data->outputs.emplace_back(reinterpret_cast<uint8_t*>(result.data()));
+    task_data->outputs_count.emplace_back(result.size());
+  }
+  malyshev_v_radix_sort_all::TestTaskALL task_all(task_data);
+  if (world.rank() == 0) {
+    ASSERT_FALSE(task_all.ValidationImpl());
+  }
+}
