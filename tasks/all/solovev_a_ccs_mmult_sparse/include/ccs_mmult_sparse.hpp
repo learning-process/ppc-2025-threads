@@ -1,12 +1,12 @@
 #pragma once
 
+#include <boost/serialization/access.hpp>
 #include <complex>
 #include <memory>
 #include <utility>
 #include <vector>
 
 #include "boost/mpi/communicator.hpp"
-#include <boost/serialization/access.hpp>
 #include "core/task/include/task.hpp"
 
 namespace solovev_a_matrix_all {
