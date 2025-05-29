@@ -84,7 +84,7 @@ void deryabin_m_hoare_sort_simple_merge_mpi::MergeTwoParts(std::vector<double>::
     const size_t right_len = std::distance(mid, right_start);
     const size_t overlap_len = std::min(left_len, right_len);
     oneapi::tbb::parallel_for(oneapi::tbb::blocked_range<size_t>(0, overlap_len),
-                              [&](const oneapi::tbb::blocked_range<size_t>& r) {
+                              [&left_end, &mid](const oneapi::tbb::blocked_range<size_t>& r) {
                                 for (size_t i = r.begin(); i < r.end(); ++i) {
                                   auto left = left_end + i;
                                   auto right = mid + i;
@@ -103,14 +103,13 @@ void deryabin_m_hoare_sort_simple_merge_mpi::MergeUnequalTwoParts(std::vector<do
                                                                   std::vector<double>::iterator mid,
                                                                   std::vector<double>::iterator last) {
   if (last - first >= 200) {
-    const size_t len = last - first;
     const auto left_end = std::upper_bound(first, mid, *mid);
     const auto right_start = std::lower_bound(mid, last, *(mid - 1));
     const size_t left_len = std::distance(left_end, mid);
     const size_t right_len = std::distance(mid, right_start);
     const size_t overlap_len = std::min(left_len, right_len);
     oneapi::tbb::parallel_for(oneapi::tbb::blocked_range<size_t>(0, overlap_len),
-                              [&](const oneapi::tbb::blocked_range<size_t>& r) {
+                              [&left_end, &mid](const oneapi::tbb::blocked_range<size_t>& r) {
                                 for (size_t i = r.begin(); i < r.end(); ++i) {
                                   auto left = left_end + i;
                                   auto right = mid + i;
@@ -121,7 +120,7 @@ void deryabin_m_hoare_sort_simple_merge_mpi::MergeUnequalTwoParts(std::vector<do
                               });
     std::inplace_merge(left_end, mid, right_start);
   } else {
-    std::inplace_merge(first, first + ((last - first) >> 1), last);
+    std::inplace_merge(first, mid, last);
   }
 }
 
@@ -192,52 +191,54 @@ bool deryabin_m_hoare_sort_simple_merge_mpi::HoareSortTaskMPI::ValidationImpl() 
 
 bool deryabin_m_hoare_sort_simple_merge_mpi::HoareSortTaskMPI::RunImpl() {
   const auto chunk_size = min_chunk_size_;
-  auto start_iter = input_array_A_.begin() + static_cast<size_t>(world.size() - world.rank() - 1) * chunk_size;
-  if (world.rank() != world.size() - 1) {
+  const auto world_size = world.size();
+  const auto world_rank = world.rank();
+  const bool is_last_rank = (world_rank == world_size - 1);
+  const size_t rank_from_end = world_size - world_rank;
+  auto start_iter = input_array_A_.begin() + (rank_from_end - 1) * chunk_size;
+  if (!is_last_rank) {
     start_iter += rest_;
   }
-  const auto end_iter =
-      input_array_A_.begin() + static_cast<size_t>(world.size() - world.rank()) * chunk_size + rest_ - 1;
+  const auto end_iter = input_array_A_.begin() + rank_from_end * chunk_size + rest_ - 1;
   HoaraSort(start_iter, end_iter);
-  const auto world_size = world.size();
   const size_t iterations = static_cast<size_t>(std::bit_width(chunk_count_ - 1));
   for (size_t i = 0; i < iterations; ++i) {
-    const unsigned short step = 1ULL << i;
+    const unsigned short step = 1U << i;
     size_t block_size = chunk_size * step;
-    if ((world_size - world.rank()) % step == 0 || world.rank() == 0) {
-      bool is_even = ((world_size - world.rank() - 1) / step % 2 == 0);
-      if (world_size % 2 != 0) {
-        is_even = ((world_size - world.rank() + step - 1) / step % 2 != 0);
+    if ((world_size - world_rank) % step == 0 || world_rank == 0) {
+      bool is_even = ((world_size - world_rank - 1) / step & 1) == 0;
+      if (world_size & 1) {
+        is_even = ((world_size - world_rank + step - 1) / step & 1) != 0;
       }
       if (is_even) {
-        if (world.rank() == 0) {
-          continue;
-        }
-        size_t start_idx = static_cast<size_t>(world_size - (world.rank() + step)) * chunk_size;
-        if (world.rank() != world.size() - 1) {
+        if (world_rank == 0) continue;
+        size_t start_idx = (world_size - (world_rank + step)) * chunk_size;
+        if (!is_last_rank) {
           start_idx += rest_;
         } else {
           block_size += rest_;
         }
-        if (world.rank() - step > 0) {
-          world.send(world.rank() - step, 0, input_array_A_.data() + start_idx, block_size);
-        } else {
-          world.send(0, 0, input_array_A_.data(), block_size);
-        }
+        auto* send_ptr = (world_rank > step) 
+                       ? input_array_A_.data() + start_idx
+                       : input_array_A_.data();
+        world.send(world_rank - step, 0, send_ptr, block_size);
       } else {
-        size_t start_idx = static_cast<size_t>(world_size - (world.rank() + 2 * step)) * chunk_size;
-        if (world.rank() + step != world.size() - 1) {
+        size_t start_idx = (world_size - (world_rank + 2 * step)) * chunk_size;
+        if (world_rank + step != world_size - 1) {
           start_idx += rest_;
         } else {
           block_size += rest_;
         }
-        if (world_size % 2 != 0 && world.rank() == 0) {
-          world.recv(world.rank() + step - 1, 0, input_array_A_.data(), block_size);
-          MergeUnequalTwoParts(input_array_A_.begin(), input_array_A_.end() - block_size;
-                               input_array_A_.begin() + static_cast<size_t>((2.0 - 1.0 / step) * block_size));
+        if ((world_size & 1) && world_rank == 0) {
+          world.recv(world_rank + step - 1, 0, input_array_A_.data(), block_size);
+          const size_t merge_point = static_cast<size_t>((2.0 - 1.0 / step) * block_size);
+          MergeUnequalTwoParts(input_array_A_.begin(), 
+                              input_array_A_.end() - block_size,
+                              input_array_A_.begin() + merge_point);
         } else {
-          world.recv(world.rank() + step, 0, input_array_A_.data() + start_idx, block_size);
-          MergeTwoParts(input_array_A_.begin() + start_idx, input_array_A_.begin() + start_idx + 2 * block_size);
+          world.recv(world_rank + step, 0, input_array_A_.data() + start_idx, block_size);
+          MergeTwoParts(input_array_A_.begin() + start_idx, 
+                       input_array_A_.begin() + start_idx + block_size * 2);
         }
       }
     }
