@@ -7,7 +7,7 @@
 #include <vector>
 
 #include "core/task/include/task.hpp"
-#include "omp/karaseva_e_congrad_omp/include/ops_omp.hpp"
+#include "omp/karaseva_e_congrad/include/ops_omp.hpp"
 
 namespace {
 

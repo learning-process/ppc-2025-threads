@@ -9,7 +9,7 @@
 
 #include "core/perf/include/perf.hpp"
 #include "core/task/include/task.hpp"
-#include "omp/karaseva_e_congrad_omp/include/ops_omp.hpp"
+#include "omp/karaseva_e_congrad/include/ops_omp.hpp"
 
 TEST(karaseva_e_congrad_omp, test_pipeline_run) {
   constexpr int kCount = 10000;
