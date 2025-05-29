@@ -1,5 +1,6 @@
 // Golovkin Maksim
 #include <gtest/gtest.h>
+
 #include <mpi.h>
 
 #include <cstddef>

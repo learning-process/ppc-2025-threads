@@ -1,11 +1,12 @@
 // Golovkin Maksim
 #include "all/golovkin_contrast_stretching/include/ops_all.hpp"
 
+#include <mpi.h>
+
 #include <algorithm>
 #include <cstdint>
 #include <cstring>
 #include <vector>
-#include <mpi.h>
 
 template <typename PixelType>
 bool golovkin_contrast_stretching::ContrastStretchingMPI_OMP<PixelType>::ValidationImpl() {
