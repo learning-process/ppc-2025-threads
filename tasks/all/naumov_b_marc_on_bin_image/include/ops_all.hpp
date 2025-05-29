@@ -34,22 +34,25 @@ class TestTaskALL : public ppc::core::Task {
   std::vector<int> FindAdjacentLabels(int row, int col);
   int FindRoot(int label);
   void UnionLabels(int label1, int label2);
-  void ExchangeBoundaries();
-  void ResolveGlobalLabels();
-  void CreateAndJoinThreads();
-  void ProcessRange(size_t start_idx, size_t end_idx);
+  void LocalLabeling();
+  void MergeLabelsBetweenProcesses();
+  void UpdateGlobalLabels();
 
-  int global_rows_{}, global_cols_{};
-  int local_rows_{}, local_cols_{};
-  int halo_{1};
+  int rows_{}, cols_{};
+  int rank_{}, num_procs_{};
+  int base_rows_{}, remainder_{};
+  int local_start_row_{}, local_rows_{};
+  int base_label_{};
 
-  boost::mpi::communicator world_;
-  int rank_ = world_.rank();
-  int num_processes_ = world_.size();
   std::vector<int> input_image_;
-  std::vector<int> output_image_;
-  std::vector<int> label_parent_;
-  int current_label_{0};
+  std::vector<int> local_image_;
+  std::vector<int> local_output_;
+  std::vector<int> local_label_parent_;
+  std::vector<int> global_output_;
+  std::vector<int> global_label_parent_;
+  std::vector<int> all_equivalences_;
+
+  int current_label_ = 0;
 };
 
 }  // namespace naumov_b_marc_on_bin_image_all
