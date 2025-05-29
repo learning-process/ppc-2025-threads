@@ -185,42 +185,30 @@ bool deryabin_m_hoare_sort_simple_merge_mpi::HoareSortTaskMPI::RunImpl() {
   if (world.rank() != world.size() - 1) {
     start_iter += rest_;
   }
-  const auto end_iter =
-      input_array_A_.begin() + static_cast<size_t>(world.size() - world.rank()) * chunk_size + rest_ - 1;
+  const auto end_iter = input_array_A_.begin() + static_cast<size_t>(world.size() - world.rank()) * chunk_size + rest_ - 1;
   HoaraSort(start_iter, end_iter);
   const auto world_size = world.size();
-  const size_t iterations = static_cast<size_t>(std::bit_width(chunk_count_ - 1));
+  const size_t iterations = static_cast<size_t>(std::bit_width(world_size - 1));
   for (size_t i = 0; i < iterations; ++i) {
     const unsigned short step = 1ULL << i;
     const size_t block_size = chunk_size * step;
-    if ((world_size - world.rank()) % step == 0) {
-      const bool is_even = ((world_size - world.rank() - 1) / step % 2 == 0);
+    if ((world_size - world.rank() - 1) % step == 0) {
       const bool is_last_level = (step * 2 >= world_size);
-      const bool can_send = is_even && (world.rank() - step >= 0);
-      if (can_send) {
-        size_t start_idx;
-        if (is_last_level && (world_size % 2 != 0)) {
-          start_idx = 0;
-        } else {
-          start_idx = static_cast<size_t>(world_size - (world.rank() + step)) * chunk_size;
-          if (world.rank() != world.size() - 1) {
-            start_idx += rest_;
-          }
+      const bool is_sender = ((world_size - world.rank() - 1) / step % 2 == 0);
+      if (is_sender && (world.rank() - step >= 0)) {
+        size_t start_idx = static_cast<size_t>(world_size - (world.rank() + step)) * chunk_size;
+        if (world.rank() != world.size() - 1) {
+          start_idx += rest_;
         }
         world.send(world.rank() - step, 0, &input_array_A_[start_idx], block_size);
       }
-      if ((!is_even && !is_last_level) || (is_last_level && world_size % 2 != 0 && world.rank() == 0)) {
-        size_t start_idx;
-        if (is_last_level && (world_size % 2 != 0)) {
-          start_idx = 0;
-        } else {
-          start_idx = static_cast<size_t>(world_size - (world.rank() + 2 * step)) * chunk_size;
-          if (world.rank() + step != world.size() - 1) {
-            start_idx += rest_;
-          }
+      if (!is_sender || (is_last_level && world.rank() == 0)) {
+        size_t start_idx = static_cast<size_t>(world_size - (world.rank() + step + 1)) * chunk_size;
+        if (world.rank() + 1 != world.size() - 1) {
+          start_idx += rest_;
         }
         world.recv(world.rank() + step, 0, &input_array_A_[start_idx], block_size);
-        MergeTwoParts(input_array_A_.begin() + start_idx, input_array_A_.begin() + start_idx + 2 * block_size);
+        MergeTwoParts(input_array_A_.begin() + start_idx, input_array_A_.begin() + start_idx + block_size * 2);
       }
     }
   }
