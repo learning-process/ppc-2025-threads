@@ -1,4 +1,4 @@
-#include "stl/morozov_e_lineare_image_filtering_block_gaussian_stl/include/ops_stl.hpp"
+#include "stl/morozov_e_lineare_image_filtering_block_gaussian/include/ops_stl.hpp"
 
 #include <array>
 #include <cmath>

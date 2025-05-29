@@ -6,7 +6,7 @@
 #include <vector>
 
 #include "core/task/include/task.hpp"
-#include "omp/morozov_e_lineare_image_filtering_block_gaussian_omp/include/ops_omp.hpp"
+#include "omp/morozov_e_lineare_image_filtering_block_gaussian/include/ops_omp.hpp"
 
 namespace {
 std::vector<double> GenerateRandomVector(int n, int m) {

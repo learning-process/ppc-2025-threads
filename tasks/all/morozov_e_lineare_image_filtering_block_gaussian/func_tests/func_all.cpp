@@ -10,7 +10,7 @@
 #include <random>
 #include <vector>
 
-#include "all/morozov_e_lineare_image_filtering_block_gaussian_all/include/ops_all.hpp"
+#include "all/morozov_e_lineare_image_filtering_block_gaussian/include/ops_all.hpp"
 #include "core/task/include/task.hpp"
 
 namespace {

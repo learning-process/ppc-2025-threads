@@ -6,7 +6,7 @@
 #include <memory>
 #include <vector>
 
-#include "all/morozov_e_lineare_image_filtering_block_gaussian_all/include/ops_all.hpp"
+#include "all/morozov_e_lineare_image_filtering_block_gaussian/include/ops_all.hpp"
 #include "boost/mpi/communicator.hpp"
 #include "core/perf/include/perf.hpp"
 #include "core/task/include/task.hpp"

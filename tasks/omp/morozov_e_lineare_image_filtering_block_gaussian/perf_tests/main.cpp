@@ -8,7 +8,7 @@
 
 #include "core/perf/include/perf.hpp"
 #include "core/task/include/task.hpp"
-#include "omp/morozov_e_lineare_image_filtering_block_gaussian_omp/include/ops_omp.hpp"
+#include "omp/morozov_e_lineare_image_filtering_block_gaussian/include/ops_omp.hpp"
 
 TEST(morozov_e_lineare_image_filtering_block_gaussian_omp, test_pipeline_run12) {
   int n = 4000;

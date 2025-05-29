@@ -3,7 +3,7 @@
 
 #include "oneapi/tbb/blocked_range2d.h"
 #include "oneapi/tbb/parallel_for.h"
-#include "tbb/morozov_e_lineare_image_filtering_block_gaussian_tbb/include/ops_tbb.hpp"
+#include "tbb/morozov_e_lineare_image_filtering_block_gaussian/include/ops_tbb.hpp"
 
 bool morozov_e_lineare_image_filtering_block_gaussian_tbb::TestTaskTBB::PreProcessingImpl() {
   // Init value for input and output

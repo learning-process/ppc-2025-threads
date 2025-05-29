@@ -6,7 +6,7 @@
 #include <vector>
 
 #include "core/task/include/task.hpp"
-#include "stl/morozov_e_lineare_image_filtering_block_gaussian_stl/include/ops_stl.hpp"
+#include "stl/morozov_e_lineare_image_filtering_block_gaussian/include/ops_stl.hpp"
 namespace {
 std::vector<double> GenerateRandomVector(int n, int m) {
   std::random_device rd;
