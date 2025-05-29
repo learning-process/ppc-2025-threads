@@ -190,7 +190,6 @@ void lavrentiev_a_ccs_all::CCSALL::CollectSizes() {
     world_.send(0, 0, static_cast<int>(Process_data_.elements.size()));
   } else {
     sum_sizes_.resize(world_.size(), static_cast<int>(Process_data_.columnsSum.size()));
-    elements_sizes_.resize(world_.size(), static_cast<int>(Process_data_.elements.size()));
     for (int i = 1; i < world_.size(); ++i) {
       world_.recv(i, 1, sum_sizes_[i]);
       world_.recv(i, 0, elements_sizes_[i]);
@@ -206,8 +205,6 @@ bool lavrentiev_a_ccs_all::CCSALL::ValidationImpl() {
   return true;
 }
 
-void lavrentiev_a_ccs_all::CCSALL::CollectData() {}
-
 bool lavrentiev_a_ccs_all::CCSALL::RunImpl() {
   boost::mpi::broadcast(world_, displ_, 0);
   boost::mpi::broadcast(world_, A_, 0);
@@ -215,8 +212,10 @@ bool lavrentiev_a_ccs_all::CCSALL::RunImpl() {
   if (displ_.empty()) {
     return true;
   }
+  resize_data_ = static_cast<int>(B_.columnsSum.size() * A_.columnsSum.size());
   Process_data_ = MatMul(A_, B_, displ_[world_.rank()], displ_[world_.rank() + 1]);
   CollectSizes();
+  CollectData();
   if (world_.rank() == 0) {
     Answer_.columnsSum.clear();
     Answer_.elements.clear();
@@ -233,6 +232,7 @@ bool lavrentiev_a_ccs_all::CCSALL::RunImpl() {
       if (columnSum != 0) {
         Answer_.columnsSum.emplace_back(columnSum - 1);
       }
+      AddData(data_reader, past_data, i);
     }
     for (size_t i = 1; i < Answer_.columnsSum.size(); ++i) {
       Answer_.columnsSum[i] = Answer_.columnsSum[i] + Answer_.columnsSum[i - 1];
@@ -240,11 +240,25 @@ bool lavrentiev_a_ccs_all::CCSALL::RunImpl() {
     Answer_.size.first = B_.size.second;
     Answer_.size.second = B_.size.second;
   } else {
-    boost::mpi::gatherv(world_, Process_data_.elements, 0);
-    boost::mpi::gatherv(world_, Process_data_.rows, 0);
-    boost::mpi::gatherv(world_, Process_data_.columnsSum, 0);
+    boost::mpi::gatherv(world_, sending_data_, 0);
   }
   return true;
+}
+
+void lavrentiev_a_ccs_all::CCSALL::AddData(const std::vector<double> &data, int past_data, int index) {
+  if (index - ((resize_data_ * 2) + past_data) < 0) {
+    if (index - (resize_data_ + past_data) < 0 && data[index] != 0.0) {
+      Answer_.elements.emplace_back(data[index]);
+    } else {
+      if (data[index] != 0.0) {
+        Answer_.rows.emplace_back(data[index] - 1);
+      }
+    }
+  } else {
+    if (data[index] != 0.0) {
+      Answer_.columnsSum.emplace_back(data[index] - 1);
+    }
+  }
 }
 
 bool lavrentiev_a_ccs_all::CCSALL::PostProcessingImpl() {

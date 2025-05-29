@@ -35,7 +35,6 @@ class CCSALL : public ppc::core::Task {
   void GetDisplacements();
   void CollectSizes();
   void CollectData();
-
   Sparse A_;
   Sparse B_;
   Sparse Answer_;
