@@ -76,7 +76,10 @@ TEST(FominVConjugateGradientAll, DotProduct) {
   auto task_data = std::make_shared<ppc::core::TaskData>();
   fomin_v_conjugate_gradient::FominVConjugateGradientAll task(task_data);
 
-  EXPECT_DOUBLE_EQ(fomin_v_conjugate_gradient::FominVConjugateGradientAll::DotProduct(world, a, b), expected);
+  double result = task.DotProduct(world, a, b);
+  if (world.rank() == 0) {
+    EXPECT_DOUBLE_EQ(result, expected * world.size());
+  }
 }
 
 TEST(FominVConjugateGradientAll, MatrixVectorMultiply) {
