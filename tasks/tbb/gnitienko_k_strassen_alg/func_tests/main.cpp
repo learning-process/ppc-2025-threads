@@ -7,7 +7,7 @@
 #include <vector>
 
 #include "core/task/include/task.hpp"
-#include "tbb/gnitienko_k_strassen_algorithm/include/ops_tbb.hpp"
+#include "tbb/gnitienko_k_strassen_alg/include/ops_tbb.hpp"
 
 namespace {
 double min_val = -100.0;

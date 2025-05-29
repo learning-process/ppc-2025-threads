@@ -1,4 +1,4 @@
-#include "tbb/gnitienko_k_strassen_algorithm/include/ops_tbb.hpp"
+#include "tbb/gnitienko_k_strassen_alg/include/ops_tbb.hpp"
 
 #include <tbb/tbb.h>
 
