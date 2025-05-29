@@ -72,7 +72,8 @@ void deryabin_m_hoare_sort_simple_merge_mpi::HoaraSort(std::vector<double>::iter
   }
 }
 
-void deryabin_m_hoare_sort_simple_merge_mpi::MergeTwoParts(std::vector<double>::iterator first, std::vector<double>::iterator last) {
+void deryabin_m_hoare_sort_simple_merge_mpi::MergeTwoParts(std::vector<double>::iterator first,
+                                                           std::vector<double>::iterator last) {
   if (last - first >= 2) {
     const size_t len = last - first;
     const auto mid = first + (len >> 1);
