@@ -1,6 +1,5 @@
-// Golovkin Maksim
+// Golovkin Maksims
 #include "all/golovkin_contrast_stretching/include/ops_all.hpp"
-
 #include <mpi.h>
 
 #include <algorithm>
