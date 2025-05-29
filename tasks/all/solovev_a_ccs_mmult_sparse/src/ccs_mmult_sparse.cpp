@@ -8,8 +8,8 @@
 #include <boost/mpi/communicator.hpp>
 #include <cmath>
 #include <complex>
-#include <numeric>
 #include <functional>
+#include <numeric>
 #include <thread>
 #include <utility>
 #include <vector>
