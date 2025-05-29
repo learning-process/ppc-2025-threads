@@ -93,6 +93,10 @@ void deryabin_m_hoare_sort_simple_merge_mpi::MergeTwoParts(std::vector<double>::
                                 while (left != end) {
                                   if (*left > *right) {
                                     std::iter_swap(left, right);
+                                  } else if (*left == *right) {
+                                    ++left;
+                                    ++right;
+                                    continue;
                                   }
                                   ++left;
                                   ++right;
