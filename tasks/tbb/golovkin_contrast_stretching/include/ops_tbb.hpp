@@ -3,8 +3,8 @@
 
 #include <cstddef>
 #include <cstdint>
-#include <vector>
 #include <utility>
+#include <vector>
 
 #include "core/task/include/task.hpp"
 #include "tbb/parallel_for.h"
