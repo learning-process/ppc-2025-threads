@@ -214,7 +214,7 @@ bool deryabin_m_hoare_sort_simple_merge_mpi::HoareSortTaskMPI::RunImpl() {
         }
       } else {
         size_t start_idx = static_cast<size_t>(world_size - (world.rank() + 2 * step)) * chunk_size;
-        if (world.rank() + step == world.size() - 1) { 
+                                                                                                                         if (world.rank() + step == world.size() - 1) { 
           start_idx += rest_;
         }
         if (world_size % 2 != 0 && world.rank() == 0) {
