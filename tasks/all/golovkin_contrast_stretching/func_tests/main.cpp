@@ -8,7 +8,7 @@
 #include <vector>
 
 #include "core/task/include/task.hpp"
-#include "mpi_omp/golovkin_contrast_stretching/include/ops_mpi_omp.hpp"
+#include "all/golovkin_contrast_stretching/include/ops_all.hpp"
 
 class ContrastStretchingMPIOMPTest : public ::testing::Test {
  protected:
