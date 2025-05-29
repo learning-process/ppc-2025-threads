@@ -218,7 +218,8 @@ bool deryabin_m_hoare_sort_simple_merge_mpi::HoareSortTaskMPI::RunImpl() {
         }
         if (world_size % 2 != 0 && world.rank() == 0) {
           world.recv(world.rank() + step - 1, 0, input_array_A_.data(), block_size);
-          MergeTwoParts(input_array_A_.begin(), input_array_A_.begin() + static_cast<size_t>((2.0 - 1.0 / step) * block_size));
+          MergeTwoParts(input_array_A_.begin(),
+                        input_array_A_.begin() + static_cast<size_t>((2.0 - 1.0 / step) * block_size));
         } else {
           world.recv(world.rank() + step, 0, input_array_A_.data() + start_idx, block_size);
           MergeTwoParts(input_array_A_.begin() + start_idx, input_array_A_.begin() + start_idx + 2 * block_size);
