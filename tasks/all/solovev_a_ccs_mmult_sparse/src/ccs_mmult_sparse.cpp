@@ -2,18 +2,18 @@
 
 #include <algorithm>
 #include <boost/mpi/collectives.hpp>
+#include <boost/mpi/collectives/all_gather.hpp>
+#include <boost/mpi/collectives/broadcast.hpp>
+#include <boost/mpi/collectives/reduce.hpp>
 #include <boost/mpi/communicator.hpp>
 #include <cmath>
 #include <complex>
 #include <numeric>
 #include <thread>
-#include <vector>
 #include <utility>
+#include <vector>
 
 #include "core/util/include/util.hpp"
-#include <boost/mpi/collectives/all_gather.hpp>
-#include <boost/mpi/collectives/broadcast.hpp>
-#include <boost/mpi/collectives/reduce.hpp>
 
 bool solovev_a_matrix_all::SeqMatMultCcs::PreProcessingImpl() {
   if (world_.rank() == 0) {
