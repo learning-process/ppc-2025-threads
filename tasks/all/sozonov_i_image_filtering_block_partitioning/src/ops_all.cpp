@@ -91,11 +91,11 @@ bool sozonov_i_image_filtering_block_partitioning_all::TestTaskALL::RunImpl() {
 
   scatterv(world_, image_.data(), block_sizes, displs, &local_image[halo_top * width_], local_rows * width_, 0);
 
-  if (halo_top) {
+  if (halo_top != 0) {
     world_.send(rank - 1, 0, &local_image[halo_top * width_], width_);
-    world_.recv(rank - 1, 1, &local_image[0], width_);
+    world_.recv(rank - 1, 1, local_image.data(), width_);
   }
-  if (halo_bottom) {
+  if (halo_bottom != 0) {
     world_.send(rank + 1, 1, &local_image[(halo_top + local_rows - 1) * width_], width_);
     world_.recv(rank + 1, 0, &local_image[(halo_top + local_rows) * width_], width_);
   }
