@@ -193,24 +193,34 @@ bool deryabin_m_hoare_sort_simple_merge_mpi::HoareSortTaskMPI::RunImpl() {
   for (size_t i = 0; i < iterations; ++i) {
     const unsigned short step = 1ULL << i;
     const size_t block_size = chunk_size * step;
-    if ((world_size - world.rank() - 1) % step == 0) {
-      const bool is_last_level = (step * 2 >= world_size);
-      const bool is_sender = (is_last_level && world_size % 2 != 0) ? (world.rank() == world_size - 2)
-                                                                    : ((world_size - world.rank() - 1) / step % 2 == 0);
-      if (is_sender && (world.rank() - step >= 0)) {
+    if ((world_size - world.rank()) % step == 0 || world.rank() == 0) {
+      const bool is_even = ((world_size - world.rank() - 1) / step % 2 == 0);
+      if (world_size % 2 != 0) {
+        is_even = ((world_size - world.rank() + step - 1) / step % 2 != 0);
+      }
+      if (is_even) {
         size_t start_idx = static_cast<size_t>(world_size - (world.rank() + step)) * chunk_size;
         if (world.rank() != world.size() - 1) {
           start_idx += rest_;
         }
-        world.send(world.rank() - step, 0, &input_array_A_[start_idx], block_size);
+        if (world.rank() - step >= 0) {
+          world.send(world.rank() - step, 0, &input_array_A_[start_idx], block_size);
+        } else {
+          world.send(0, 0, &input_array_A_[start_idx], block_size);
+        }
       }
-      if (!is_sender || (is_last_level && world.rank() == 0)) {
-        size_t start_idx = static_cast<size_t>(world_size - (world.rank() + step + 1)) * chunk_size;
-        if (world.rank() + 1 != world.size() - 1) {
+      if (!is_even || world.rank() == 0) {
+        size_tstart_idx = static_cast<size_t>(world_size - (world.rank() + 2 * step)) * chunk_size;
+        if (world.rank() + step != world.size() - 1) {
           start_idx += rest_;
         }
-        world.recv(world.rank() + step, 0, &input_array_A_[start_idx], block_size);
-        MergeTwoParts(input_array_A_.begin() + start_idx, input_array_A_.begin() + start_idx + block_size * 2);
+        if (world_size % 2 != 0 && world.rank() == 0) {
+          world.recv(world.rank() + step - 1, 0, &input_array_A_[start_idx], block_size);
+          MergeTwoParts(input_array_A_.begin() + start_idx, input_array_A_.begin() + start_idx + (1 + world.rank() / step) * block_size);
+        } else {
+          world.recv(world.rank() + step, 0, &input_array_A_[start_idx], block_size);
+          MergeTwoParts(input_array_A_.begin() + start_idx, input_array_A_.begin() + start_idx + 2 * block_size);
+        }
       }
     }
   }
