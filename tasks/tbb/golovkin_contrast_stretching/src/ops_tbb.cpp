@@ -34,9 +34,7 @@ bool golovkin_contrast_stretching::ContrastStretchingTBB<PixelType>::PreProcessi
 
 template <typename PixelType>
 bool golovkin_contrast_stretching::ContrastStretchingTBB<PixelType>::RunImpl() {
-  if (image_size_ == 0) {
-    return true;
-  }
+  if (image_size_ == 0) return true;
   if (min_val_ == max_val_) {
     std::fill(output_image_.begin(), output_image_.end(), 0);
     return true;
@@ -44,19 +42,19 @@ bool golovkin_contrast_stretching::ContrastStretchingTBB<PixelType>::RunImpl() {
 
   const double scale = 255.0 / (max_val_ - min_val_);
 
-  auto task = [this, scale](size_t i) {
-    double stretched = (input_image_[i] - min_val_) * scale;
-
-    if constexpr (std::is_same_v<PixelType, uint8_t>) {
-      output_image_[i] = static_cast<uint8_t>(std::clamp(static_cast<int>(stretched + 1e-9), 0, 255));
-    } else if constexpr (std::is_same_v<PixelType, uint16_t>) {
-      output_image_[i] = static_cast<uint16_t>(std::clamp(static_cast<int>(stretched + 1e-9), 0, 255));
-    } else {
-      output_image_[i] = static_cast<PixelType>(stretched);
+  tbb::parallel_for(tbb::blocked_range<size_t>(0, image_size_), [this, scale](const tbb::blocked_range<size_t>& range) {
+    for (size_t i = range.begin(); i != range.end(); ++i) {
+      double stretched = (input_image_[i] - min_val_) * scale;
+      if constexpr (std::is_same_v<PixelType, uint8_t>) {
+                    output_image_[i] = static_cast<uint8_t>(std::clamp(static_cast<int>(stretched + 1e-9), 0, 255);
+      } else if constexpr (std::is_same_v<PixelType, uint16_t>) {
+                    output_image_[i] = static_cast<uint16_t>(std::clamp(static_cast<int>(stretched + 1e-9), 0, 255));
+      } else {
+                    output_image_[i] = static_cast<PixelType>(stretched);
+      }
     }
-  };
+  });
 
-  ppc::core::TaskParallelFor(task, image_size_);
   return true;
 }
 

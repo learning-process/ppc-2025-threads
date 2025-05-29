@@ -6,6 +6,7 @@
 #include <vector>
 
 #include "core/task/include/task.hpp"
+#include "tbb/parallel_for.h"
 
 namespace golovkin_contrast_stretching {
 
