@@ -5,7 +5,7 @@
 #include <vector>
 
 #include "core/task/include/task.hpp"
-#include "omp/kovalchuk_a_shell_sort_omp/include/ops_omp.hpp"
+#include "omp/kovalchuk_a_shell_sort/include/ops_omp.hpp"
 
 TEST(kovalchuk_a_shell_sort_omp, Test_EmptyArray) {
   std::vector<int> input = {};

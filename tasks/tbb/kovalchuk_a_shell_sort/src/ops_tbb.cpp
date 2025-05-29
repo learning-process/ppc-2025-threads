@@ -1,4 +1,4 @@
-#include "tbb/kovalchuk_a_shell_sort_tbb/include/ops_tbb.hpp"
+#include "tbb/kovalchuk_a_shell_sort/include/ops_tbb.hpp"
 
 #include <tbb/parallel_for.h>
 

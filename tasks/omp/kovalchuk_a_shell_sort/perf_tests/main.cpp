@@ -8,7 +8,7 @@
 
 #include "core/perf/include/perf.hpp"
 #include "core/task/include/task.hpp"
-#include "omp/kovalchuk_a_shell_sort_omp/include/ops_omp.hpp"
+#include "omp/kovalchuk_a_shell_sort/include/ops_omp.hpp"
 
 TEST(kovalchuk_a_shell_sort_omp, test_pipeline_run) {
   constexpr int kCount = 1000000;

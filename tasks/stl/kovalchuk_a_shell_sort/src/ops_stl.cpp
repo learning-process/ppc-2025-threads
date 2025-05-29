@@ -1,4 +1,4 @@
-#include "stl/kovalchuk_a_shell_sort_stl/include/ops_stl.hpp"
+#include "stl/kovalchuk_a_shell_sort/include/ops_stl.hpp"
 
 #include <algorithm>
 #include <thread>
