@@ -199,7 +199,7 @@ bool deryabin_m_hoare_sort_simple_merge_mpi::HoareSortTaskMPI::RunImpl() {
     size_t block_size = min_chunk_size_ * step;
     if ((chunk_count_ - world_rank) % step == 0 || world_rank == 0) {
       const bool is_even = chunk_count_ & 1 ? ((chunk_count_ - world_rank + step - 1) / step & 1) != 0
-                                          : ((chunk_count_ - world_rank - 1) / step & 1) == 0;
+                                            : ((chunk_count_ - world_rank - 1) / step & 1) == 0;
       if (is_even) {
         if (world_rank == 0) continue;
         size_t start_idx = (chunk_count_ - (world_rank + step)) * min_chunk_size_;
@@ -214,8 +214,9 @@ bool deryabin_m_hoare_sort_simple_merge_mpi::HoareSortTaskMPI::RunImpl() {
           world.send(0, 0, input_array_A_.data() + start_idx, block_size);
         }
       } else {
-        size_t start_idx = (chunk_count_ & 1) && world_rank == 0 ? (chunk_count_ - (2 * step - 1)) * min_chunk_size_
-                                                               : (chunk_count_ - (world_rank + 2 * step)) * min_chunk_size_;
+        size_t start_idx = (chunk_count_ & 1) && world_rank == 0
+                               ? (chunk_count_ - (2 * step - 1)) * min_chunk_size_
+                               : (chunk_count_ - (world_rank + 2 * step)) * min_chunk_size_;
         const auto recv_rank = (chunk_count_ & 1) && world_rank == 0 ? step - 1 : world_rank + step;
         if (recv_rank != chunk_count_ - 1) {
           start_idx += rest_;
