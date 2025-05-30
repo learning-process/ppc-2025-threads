@@ -12,7 +12,6 @@
 
 TEST(golovkin_contrast_stretching_mpi, test_contrast_basic) {
   constexpr size_t kSize = 8;
-  int rank;
   int num_procs;
   std::vector<uint8_t> in = {30, 60, 90, 120, 150, 180, 210, 240};
   std::vector<uint8_t> out(kSize, 0);
@@ -29,7 +28,7 @@ TEST(golovkin_contrast_stretching_mpi, test_contrast_basic) {
   ASSERT_TRUE(task.PreProcessing());
   ASSERT_TRUE(task.Run());
   ASSERT_TRUE(task.PostProcessing());
-
+  MPI_Comm_rank(MPI_COMM_WORLD, &rank);
   if (rank == 0) {
     EXPECT_EQ(out, expected);
   }
@@ -52,7 +51,7 @@ TEST(golovkin_contrast_stretching_mpi, test_contrast_flat_image) {
   ASSERT_TRUE(task.PreProcessing());
   ASSERT_TRUE(task.Run());
   ASSERT_TRUE(task.PostProcessing());
-
+  MPI_Comm_rank(MPI_COMM_WORLD, &rank);
   if (rank == 0) {
     EXPECT_EQ(out, expected);
   }
@@ -75,7 +74,7 @@ TEST(golovkin_contrast_stretching_mpi, test_all_maximum) {
   ASSERT_TRUE(task.PreProcessing());
   ASSERT_TRUE(task.Run());
   ASSERT_TRUE(task.PostProcessing());
-
+  MPI_Comm_rank(MPI_COMM_WORLD, &rank);
   if (rank == 0) {
     EXPECT_EQ(out, expected);
   }
@@ -85,7 +84,7 @@ TEST(golovkin_contrast_stretching_mpi, test_gradient_image) {
   constexpr size_t kSize = 256;
   std::vector<uint8_t> in(kSize);
   std::vector<uint8_t> out(kSize, 0);
-
+  MPI_Comm_rank(MPI_COMM_WORLD, &rank);
   if (rank == 0) {
     for (size_t i = 0; i < kSize; ++i) {
       in[i] = static_cast<uint8_t>(i);
@@ -125,7 +124,7 @@ TEST(golovkin_contrast_stretching_mpi, test_small_range) {
   ASSERT_TRUE(task.PreProcessing());
   ASSERT_TRUE(task.Run());
   ASSERT_TRUE(task.PostProcessing());
-
+  MPI_Comm_rank(MPI_COMM_WORLD, &rank);
   if (rank == 0) {
     EXPECT_EQ(out, expected);
   }
@@ -147,7 +146,7 @@ TEST(golovkin_contrast_stretching_mpi, test_extreme_values_only) {
   ASSERT_TRUE(task.PreProcessing());
   ASSERT_TRUE(task.Run());
   ASSERT_TRUE(task.PostProcessing());
-
+  MPI_Comm_rank(MPI_COMM_WORLD, &rank);
   if (rank == 0) {
     EXPECT_EQ(out, expected);
   }
@@ -169,7 +168,7 @@ TEST(golovkin_contrast_stretching_mpi, test_min_max_near_extremes) {
   ASSERT_TRUE(task.PreProcessing());
   ASSERT_TRUE(task.Run());
   ASSERT_TRUE(task.PostProcessing());
-
+  MPI_Comm_rank(MPI_COMM_WORLD, &rank);
   if (rank == 0) {
     EXPECT_EQ(out, expected);
   }
@@ -191,7 +190,7 @@ TEST(golovkin_contrast_stretching_mpi, test_alternating_values) {
   ASSERT_TRUE(task.PreProcessing());
   ASSERT_TRUE(task.Run());
   ASSERT_TRUE(task.PostProcessing());
-
+  MPI_Comm_rank(MPI_COMM_WORLD, &rank);
   if (rank == 0) {
     EXPECT_EQ(out, expected);
   }
@@ -214,7 +213,7 @@ TEST(golovkin_contrast_stretching_mpi, test_all_zeros) {
   ASSERT_TRUE(task.PreProcessing());
   ASSERT_TRUE(task.Run());
   ASSERT_TRUE(task.PostProcessing());
-
+  MPI_Comm_rank(MPI_COMM_WORLD, &rank);
   if (rank == 0) {
     EXPECT_EQ(out, expected);
   }
@@ -241,7 +240,7 @@ TEST(golovkin_contrast_stretching_mpi, test_random_mid_range_values) {
   ASSERT_TRUE(task.PreProcessing());
   ASSERT_TRUE(task.Run());
   ASSERT_TRUE(task.PostProcessing());
-
+  MPI_Comm_rank(MPI_COMM_WORLD, &rank);
   if (rank == 0) {
     EXPECT_EQ(out, expected);
   }
@@ -262,7 +261,7 @@ TEST(golovkin_contrast_stretching_mpi, test_empty_input) {
   ASSERT_TRUE(task.PreProcessing());
   ASSERT_TRUE(task.Run());
   ASSERT_TRUE(task.PostProcessing());
-
+  MPI_Comm_rank(MPI_COMM_WORLD, &rank);
   if (rank == 0) {
     EXPECT_TRUE(out.empty());
   }
@@ -284,7 +283,7 @@ TEST(golovkin_contrast_stretching_mpi, test_uint16_pixels) {
   ASSERT_TRUE(task.PreProcessing());
   ASSERT_TRUE(task.Run());
   ASSERT_TRUE(task.PostProcessing());
-
+  MPI_Comm_rank(MPI_COMM_WORLD, &rank);
   if (rank == 0) {
     EXPECT_EQ(out, expected);
   }

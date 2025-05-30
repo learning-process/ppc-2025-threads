@@ -15,7 +15,7 @@ TEST(golovkin_contrast_stretching_mpi, test_pipeline_run_mpi_omp) {
   constexpr size_t kCount = 1'000'000;
   std::vector<uint8_t> in(kCount);
   std::vector<uint8_t> out(kCount, 0);
-
+  MPI_Comm_rank(MPI_COMM_WORLD, &rank);
   if (rank == 0) {
     for (size_t i = 0; i < kCount; ++i) {
       in[i] = static_cast<uint8_t>(i % 256);
@@ -55,7 +55,7 @@ TEST(golovkin_contrast_stretching_mpi, test_task_run_mpi_omp) {
   constexpr size_t kCount = 1'000'000;
   std::vector<uint8_t> in(kCount);
   std::vector<uint8_t> out(kCount, 0);
-
+  MPI_Comm_rank(MPI_COMM_WORLD, &rank);
   if (rank == 0) {
     for (size_t i = 0; i < kCount; ++i) {
       in[i] = static_cast<uint8_t>(i % 256);
