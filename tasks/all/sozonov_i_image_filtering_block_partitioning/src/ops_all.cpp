@@ -43,7 +43,7 @@ bool sozonov_i_image_filtering_block_partitioning_all::TestTaskALL::ValidationIm
     }
 
     // Check size of image
-    return task_data->inputs_count[0] > 0 && task_data->inputs_count[0] == img_size &&
+    return world_.size() > 0 && task_data->inputs_count[0] > 0 && task_data->inputs_count[0] == img_size &&
            task_data->outputs_count[0] == img_size && task_data->inputs_count[1] >= 3 &&
            task_data->inputs_count[2] >= 3;
   }
