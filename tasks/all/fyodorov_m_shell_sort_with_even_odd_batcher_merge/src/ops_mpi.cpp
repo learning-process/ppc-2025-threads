@@ -19,7 +19,9 @@
 
 namespace fyodorov_m_shell_sort_with_even_odd_batcher_merge_mpi {
 
-static boost::mpi::communicator world;
+namespace {
+boost::mpi::communicator world;
+}
 
 bool TestTaskMPI::PreProcessingImpl() {
   unsigned int input_size = 0;
@@ -244,7 +246,5 @@ void TestTaskMPI::BatcherMerge(std::vector<int>& left, std::vector<int>& right, 
     result[k++] = right[j++];
   }
 }
-
-[[nodiscard]] const std::vector<int>& GetInternalOutput() const { return output_; }
 
 }  // namespace fyodorov_m_shell_sort_with_even_odd_batcher_merge_mpi
