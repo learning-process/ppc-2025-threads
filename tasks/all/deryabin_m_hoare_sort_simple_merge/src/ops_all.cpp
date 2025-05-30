@@ -144,7 +144,7 @@ bool deryabin_m_hoare_sort_simple_merge_mpi::HoareSortTaskSequential::RunImpl() 
     count++;
   }
   size_t chunk_count = chunk_count_;
-  for (size_t i = 0; i < static_cast<size_t>(std::bit_width(chunk_count_) - 1); i++) {
+  for (size_t i = 0; i < static_cast<size_t>(std::bit_width(chunk_count_)) - 1; i++) {
     for (size_t j = 0; j < chunk_count; j++) {
       std::inplace_merge(input_array_A_.begin() + (j * min_chunk_size_ << (i + 1)),
                          input_array_A_.begin() + ((j << 1 | 1) * (min_chunk_size_ << i)),
