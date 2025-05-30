@@ -11,6 +11,7 @@
 #include <boost/serialization/vector.hpp>   // NOLINT
 #include <cmath>
 #include <complex>
+#include <cstddef>
 #include <functional>
 #include <numeric>
 #include <thread>
@@ -19,7 +20,7 @@
 
 #include "core/util/include/util.hpp"
 
-void solovev_a_matrix_all::SeqMatMultCcs::ComputeColumnRange(int rank, int size, int total_cols, int& start_col,
+static void solovev_a_matrix_all::SeqMatMultCcs::ComputeColumnRange(int rank, int size, int total_cols, int& start_col,
                                                              int& end_col) {
   if (size <= 0) {
     start_col = total_cols;
@@ -40,7 +41,7 @@ void solovev_a_matrix_all::SeqMatMultCcs::ComputeColumnRange(int rank, int size,
   }
 }
 
-void solovev_a_matrix_all::SeqMatMultCcs::ComputeSequential(
+static void solovev_a_matrix_all::SeqMatMultCcs::ComputeSequential(
     const std::vector<int>& col_indices, std::vector<std::vector<std::pair<std::complex<double>, int>>>& column_results,
     int start_col, int end_col,
     const std::function<void(int, std::vector<std::pair<std::complex<double>, int>>&)>& func) {
@@ -49,7 +50,7 @@ void solovev_a_matrix_all::SeqMatMultCcs::ComputeSequential(
   }
 }
 
-void solovev_a_matrix_all::SeqMatMultCcs::ComputeParallel(
+static void solovev_a_matrix_all::SeqMatMultCcs::ComputeParallel(
     const std::vector<int>& col_indices, std::vector<std::vector<std::pair<std::complex<double>, int>>>& column_results,
     int start_col, int end_col, int num_threads,
     const std::function<void(int, std::vector<std::pair<std::complex<double>, int>>&)>& func) {
@@ -81,11 +82,15 @@ void solovev_a_matrix_all::SeqMatMultCcs::ComputeParallel(
 
 void solovev_a_matrix_all::SeqMatMultCcs::ComputeColumn(
     int col_idx, std::vector<std::pair<std::complex<double>, int>>& column_data) {
-  if (col_idx >= M2_->c_n) return;
+  if (col_idx >= M2_->c_n) {
+    return
+  };
 
   int cs2 = M2_->col_p[col_idx];
   int ce2 = M2_->col_p[col_idx + 1];
-  if (cs2 < 0 || ce2 > M2_->n_z || cs2 > ce2) return;
+  if (cs2 < 0 || ce2 > M2_->n_z || cs2 > ce2) {
+    return;
+  }
 
   column_data.clear();
   column_data.reserve(std::min(M1_->r_n, M2_->n_z));
@@ -98,9 +103,13 @@ void solovev_a_matrix_all::SeqMatMultCcs::ComputeColumn(
       int ce1 = M1_->col_p[k + 1];
 
       for (int p = cs1; p < ce1; ++p) {
-        if (M1_->row[p] != i) continue;
+        if (M1_->row[p] != i) {
+          continue;
+        }
         for (int q = cs2; q < ce2; ++q) {
-          if (M2_->row[q] != k) continue;
+          if (M2_->row[q] != k) {
+            continue;
+          }
           sum += M1_->val[p] * M2_->val[q];
         }
       }
@@ -112,7 +121,7 @@ void solovev_a_matrix_all::SeqMatMultCcs::ComputeColumn(
   }
 }
 
-void solovev_a_matrix_all::SeqMatMultCcs::FillLocalData(
+static void solovev_a_matrix_all::SeqMatMultCcs::FillLocalData(
     const std::vector<std::vector<std::pair<std::complex<double>, int>>>& column_results,
     std::vector<std::complex<double>>& local_val, std::vector<int>& local_row, std::vector<int>& local_col_p,
     int& local_n_z) {
@@ -132,7 +141,7 @@ void solovev_a_matrix_all::SeqMatMultCcs::FillLocalData(
   }
 }
 
-void solovev_a_matrix_all::SeqMatMultCcs::CountColumns(
+static void solovev_a_matrix_all::SeqMatMultCcs::CountColumns(
     const std::vector<std::vector<std::pair<std::complex<double>, int>>>& column_results,
     std::vector<int>& local_col_counts, int start_col) {
   for (size_t j = 0; j < column_results.size(); ++j) {
