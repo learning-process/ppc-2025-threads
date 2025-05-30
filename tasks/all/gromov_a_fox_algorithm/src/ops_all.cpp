@@ -96,7 +96,6 @@ bool TestTaskAll::RunImpl() {
                       0);
   boost::mpi::scatter(local_mpi_comm, scatter_matrix_b, local_matrix_b.data(), static_cast<int>(local_matrix_b.size()),
                       0);
-  tbb::global_control tbb_control{tbb::global_control::max_allowed_parallelism, 1};
   tbb::task_arena tbb_task_arena;
   tbb_task_arena.execute([&] {
     FoxStep(local_mpi_comm, process_rank, grid_size, block_size, local_matrix_a, local_matrix_b, local_matrix_c);
