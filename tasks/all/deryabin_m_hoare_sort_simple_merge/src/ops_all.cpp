@@ -62,7 +62,7 @@ void deryabin_m_hoare_sort_simple_merge_mpi::SeqHoaraSort(std::vector<double>::i
       std::iter_swap(left, right);
     } while (left != right);
     HoaraSort(first, right);
-    HoaraSort(left + 1, last);   
+                                        HoaraSort(left + 1, last);   
   }
 }
 
