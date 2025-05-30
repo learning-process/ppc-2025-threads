@@ -13,40 +13,49 @@
 #ifdef _OPENMP
 #include <omp.h>
 #endif
+
+#include <algorithm>  // для std::copy, std::min
+#include <iostream>   // для std::cout, std::endl
+
 namespace fyodorov_m_shell_sort_with_even_odd_batcher_merge_mpi {
 
-boost::mpi::communicator world_;
+static boost::mpi::communicator world;
 
 bool TestTaskMPI::PreProcessingImpl() {
   unsigned int input_size = 0;
-  if (world_.rank() == 0) {
+  if (world.rank() == 0) {
     input_size = task_data->inputs_count[0];
   }
-  boost::mpi::broadcast(world_, input_size, 0);
+  boost::mpi::broadcast(world, input_size, 0);
 
   input_.resize(input_size);
-  if (world_.rank() == 0) {
+  if (world.rank() == 0) {
     auto* in_ptr = reinterpret_cast<int*>(task_data->inputs[0]);
     std::copy(in_ptr, in_ptr + input_size, input_.begin());
   }
-  boost::mpi::broadcast(world_, input_, 0);
+  boost::mpi::broadcast(world, input_, 0);
 
   unsigned int output_size = task_data->outputs_count[0];
   output_ = std::vector<int>(output_size, 0);
 
-  std::cout << "rank " << world_.rank() << " input_ (first 10): ";
-  for (size_t i = 0; i < std::min<size_t>(10, input_size); ++i) std::cout << input_[i] << " ";
-  std::cout << std::endl;
+  std::cout << "rank " << world.rank() << " input_ (first 10): ";
+  for (size_t i = 0; i < std::min<size_t>(10, input_size); ++i) {
+    std::cout << input_[i] << " ";
+  }
+  std::cout << '\n';
 
   return true;
 }
 
 bool TestTaskMPI::ValidationImpl() {
-  if (task_data->inputs_count.empty() || task_data->outputs_count.empty()) return false;
+  if (task_data->inputs_count.empty() || task_data->outputs_count.empty()) {
+    return false;
+  }
 
   if ((task_data->inputs_count[0] > 0 && task_data->inputs[0] == nullptr) ||
-      (task_data->outputs_count[0] > 0 && task_data->outputs[0] == nullptr))
+      (task_data->outputs_count[0] > 0 && task_data->outputs[0] == nullptr)) {
     return false;
+  }
 
   return true;
 }
@@ -70,7 +79,7 @@ bool TestTaskMPI::RunImpl() {
     for (int i = 0; i < std::min(10, n); ++i) {
       std::cout << input_[i] << " ";
     }
-    std::cout << std::endl;
+    std::cout << '\n';
   }
 
   std::vector<int> local_data;
@@ -107,7 +116,7 @@ bool TestTaskMPI::RunImpl() {
       for (int i = 0; i < std::min(10, local_size); ++i) {
         std::cout << local_data[i] << " ";
       }
-      std::cout << std::endl;
+      std::cout << '\n';
     }
 
     std::vector<int> gathered;
@@ -125,7 +134,7 @@ bool TestTaskMPI::RunImpl() {
       for (int i = 0; i < std::min(10, static_cast<int>(gathered.size())); ++i) {
         std::cout << gathered[i] << " ";
       }
-      std::cout << std::endl;
+      std::cout << '\n';
 
       std::vector<std::vector<int>> blocks(size);
       int pos = 0;
@@ -171,7 +180,7 @@ bool TestTaskMPI::RunImpl() {
     for (int i = 0; i < std::min(10, static_cast<int>(output_.size())); ++i) {
       std::cout << output_[i] << " ";
     }
-    std::cout << std::endl;
+    std::cout << '\n';
   }
 
   return true;
@@ -192,7 +201,9 @@ bool TestTaskMPI::PostProcessingImpl() {
 }
 
 void TestTaskMPI::ShellSort(std::vector<int>& arr) {
-  if (arr.empty()) return;
+  if (arr.empty()) {
+    return;
+  }
   int n = static_cast<int>(arr.size());
   std::vector<int> gaps;
   for (int k = 1; (1 << k) - 1 < n; ++k) {
@@ -233,5 +244,7 @@ void TestTaskMPI::BatcherMerge(std::vector<int>& left, std::vector<int>& right, 
     result[k++] = right[j++];
   }
 }
+
+[[nodiscard]] const std::vector<int>& GetInternalOutput() const { return output_; }
 
 }  // namespace fyodorov_m_shell_sort_with_even_odd_batcher_merge_mpi

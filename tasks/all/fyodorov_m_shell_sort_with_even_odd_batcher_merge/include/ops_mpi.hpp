@@ -14,7 +14,7 @@ class TestTaskMPI : public ppc::core::Task {
   bool ValidationImpl() override;
   bool RunImpl() override;
   bool PostProcessingImpl() override;
-  const std::vector<int>& get_internal_output() const { return output_; }
+  [[nodiscard]] const std::vector<int>& GetInternalOutput() const { return output_; }
 
  private:
   static void ShellSort(std::vector<int>& arr);
@@ -22,6 +22,5 @@ class TestTaskMPI : public ppc::core::Task {
   std::vector<int> input_;
   std::vector<int> output_;
   std::vector<int> local_input_;
-  boost::mpi::communicator world_;
 };
 }  // namespace fyodorov_m_shell_sort_with_even_odd_batcher_merge_mpi

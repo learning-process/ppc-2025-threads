@@ -3,7 +3,6 @@
 #include <algorithm>
 #include <boost/mpi/collectives/broadcast.hpp>
 #include <boost/mpi/communicator.hpp>
-#include <boost/serialization/vector.hpp>
 #include <chrono>
 #include <cstdint>
 #include <iostream>
@@ -35,7 +34,9 @@ TEST(fyodorov_m_shell_sort_with_even_odd_batcher_merge_mpi, test_pipeline_run) {
     input = get_random_vector(kCount, 0, 999);
   }
   boost::mpi::broadcast(world, input, 0);
-  if (input.size() != kCount) input.resize(kCount);
+  if (input.size() != kCount) {
+    input.resize(kCount);
+  }
   std::vector<int> output(kCount, 0);
 
   auto task_data = std::make_shared<ppc::core::TaskData>();
@@ -60,7 +61,7 @@ TEST(fyodorov_m_shell_sort_with_even_odd_batcher_merge_mpi, test_pipeline_run) {
   auto perf_analyzer = std::make_shared<ppc::core::Perf>(mpi_task);
   perf_analyzer->PipelineRun(perf_attr, perf_results);
   if (world.rank() == 0) {
-    std::copy(mpi_task->get_internal_output().begin(), mpi_task->get_internal_output().end(), output.begin());
+    std::copy(mpi_task->GetInternalOutput().begin(), mpi_task->GetInternalOutput().end(), output.begin());
   }
 
   if (world.rank() == 0) {
@@ -74,9 +75,9 @@ TEST(fyodorov_m_shell_sort_with_even_odd_batcher_merge_mpi, test_pipeline_run) {
   for (int r = 0; r < world.size(); ++r) {
     if (world.rank() == r) {
       std::cout << "rank " << r << " input ptr: " << static_cast<void*>(input.data()) << ", size: " << input.size()
-                << std::endl;
+                << '\n';
       std::cout << "rank " << r << " output ptr: " << static_cast<void*>(output.data()) << ", size: " << output.size()
-                << std::endl;
+                << '\n';
     }
     world.barrier();
   }
@@ -102,7 +103,9 @@ TEST(fyodorov_m_shell_sort_with_even_odd_batcher_merge_mpi, test_task_run) {
     input = get_random_vector(kCount, 0, 999);
   }
   boost::mpi::broadcast(world, input, 0);
-  if (input.size() != kCount) input.resize(kCount);
+  if (input.size() != kCount) {
+    input.resize(kCount);
+  }
   std::vector<int> output(kCount, 0);
 
   auto task_data = std::make_shared<ppc::core::TaskData>();
@@ -127,7 +130,7 @@ TEST(fyodorov_m_shell_sort_with_even_odd_batcher_merge_mpi, test_task_run) {
   auto perf_analyzer = std::make_shared<ppc::core::Perf>(mpi_task);
   perf_analyzer->TaskRun(perf_attr, perf_results);
   if (world.rank() == 0) {
-    std::copy(mpi_task->get_internal_output().begin(), mpi_task->get_internal_output().end(), output.begin());
+    std::copy(mpi_task->GetInternalOutput().begin(), mpi_task->GetInternalOutput().end(), output.begin());
   }
 
   if (world.rank() == 0) {
@@ -141,9 +144,9 @@ TEST(fyodorov_m_shell_sort_with_even_odd_batcher_merge_mpi, test_task_run) {
   for (int r = 0; r < world.size(); ++r) {
     if (world.rank() == r) {
       std::cout << "rank " << r << " input ptr: " << static_cast<void*>(input.data()) << ", size: " << input.size()
-                << std::endl;
+                << '\n';
       std::cout << "rank " << r << " output ptr: " << static_cast<void*>(output.data()) << ", size: " << output.size()
-                << std::endl;
+                << '\n';
     }
     world.barrier();
   }
