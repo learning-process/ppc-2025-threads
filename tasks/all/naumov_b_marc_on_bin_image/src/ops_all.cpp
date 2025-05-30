@@ -1,9 +1,10 @@
 #include "all/naumov_b_marc_on_bin_image/include/ops_all.hpp"
 
+#include <mpi.h>
+
 #include <algorithm>
 #include <cmath>
 #include <cstddef>
-#include <functional>
 #include <map>
 #include <random>
 #include <thread>
@@ -109,7 +110,7 @@ void naumov_b_marc_on_bin_image_all::TestTaskALL::ProcessPixel(int row, int col)
 
 void naumov_b_marc_on_bin_image_all::TestTaskALL::AssignNewLabel(int row, int col) {
   int new_label = base_label_ + (++current_label_);
-  local_output_[row * cols_ + col] = new_label;
+  local_output_[(row * cols_) + col] = new_label;
   if (static_cast<size_t>(current_label_) >= local_label_parent_.size()) {
     local_label_parent_.resize(current_label_ + 1, 0);
   }
@@ -179,7 +180,7 @@ void naumov_b_marc_on_bin_image_all::TestTaskALL::LocalLabeling() {
     }
   }
 
-  const int num_threads = std::thread::hardware_concurrency();
+  const int num_threads = std::max(1, static_cast<int>(std::thread::hardware_concurrency()));
   std::vector<std::thread> threads;
   int rows_per_thread = (local_rows_ + num_threads - 1) / num_threads;
 
@@ -258,20 +259,19 @@ void naumov_b_marc_on_bin_image_all::TestTaskALL::MergeLabelsBetweenProcesses() 
     local_flat.push_back(p.second);
   }
 
-  MPI_Gatherv(local_flat.data(), local_flat.size(), MPI_INT, all_equivalences_.data(), counts.data(), displs.data(),
-              MPI_INT, 0, MPI_COMM_WORLD);
+  int send_count = static_cast<int>(local_flat.size());
+  MPI_Gatherv(local_flat.data(), send_count, MPI_INT, all_equivalences_.data(), counts.data(), displs.data(), MPI_INT,
+              0, MPI_COMM_WORLD);
 }
 
 std::map<int, int> naumov_b_marc_on_bin_image_all::TestTaskALL::BuildParentMap(
     const std::vector<int>& global_output, const std::vector<int>& all_equivalences) {
   std::map<int, int> parent;
-  // Добавляем метки из глобального вывода
   for (int label : global_output) {
     if (label != 0 && parent.find(label) == parent.end()) {
       parent[label] = label;
     }
   }
-  // Добавляем метки из эквивалентностей
   for (size_t i = 0; i < all_equivalences.size(); i += 2) {
     int l1 = all_equivalences[i];
     int l2 = all_equivalences[i + 1];
@@ -286,7 +286,6 @@ std::map<int, int> naumov_b_marc_on_bin_image_all::TestTaskALL::BuildParentMap(
 }
 
 int naumov_b_marc_on_bin_image_all::TestTaskALL::FindRoot(std::map<int, int>& parent, int x) {
-  // Итеративная реализация со сжатием пути
   int root = x;
   while (parent[root] != root) {
     root = parent[root];
@@ -342,7 +341,6 @@ void naumov_b_marc_on_bin_image_all::TestTaskALL::UpdateGlobalLabels() {
   std::map<int, int> parent = BuildParentMap(global_output_, all_equivalences_);
   ProcessEquivalences(parent, all_equivalences_);
 
-  // Обновляем метки на их корни
   for (int& label : global_output_) {
     if (label != 0) {
       label = FindRoot(parent, label);

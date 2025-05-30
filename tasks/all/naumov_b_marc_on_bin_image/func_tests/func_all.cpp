@@ -4,6 +4,7 @@
 #include <cstddef>
 #include <cstdint>
 #include <memory>
+#include <set>
 #include <vector>
 
 #include "all/naumov_b_marc_on_bin_image/include/ops_all.hpp"
