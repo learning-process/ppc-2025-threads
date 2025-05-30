@@ -17,7 +17,6 @@
 #include "boost/mpi/collectives/broadcast.hpp"
 #include "boost/mpi/collectives/gather.hpp"
 #include "boost/mpi/collectives/scatter.hpp"
-#include "oneapi/tbb/global_control.h"
 #include "oneapi/tbb/parallel_for.h"
 #include "oneapi/tbb/task_arena.h"
 
