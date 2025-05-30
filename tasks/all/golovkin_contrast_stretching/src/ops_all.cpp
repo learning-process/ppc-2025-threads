@@ -89,7 +89,7 @@ bool golovkin_contrast_stretching::ContrastStretchingMPI_OMP<PixelType>::RunImpl
   size_t start = static_cast<size_t>(rank_) * chunk_size + std::min(static_cast<size_t>(rank_), remainder);
   size_t end = start + chunk_size + (static_cast<size_t>(rank_) < remainder ? 1 : 0);
 
-  // Èñïðàâëåíèå äëÿ OpenMP - èñïîëüçóåì çíàêîâûé òèï äëÿ èíäåêñà
+  // Ð˜ÑÐ¿Ñ€Ð°Ð²Ð»ÐµÐ½Ð¸Ðµ Ð´Ð»Ñ OpenMP - Ð¸ÑÐ¿Ð¾Ð»ÑŒÐ·ÑƒÐµÐ¼ Ð·Ð½Ð°ÐºÐ¾Ð²Ñ‹Ð¹ Ñ‚Ð¸Ð¿ Ð´Ð»Ñ Ð¸Ð½Ð´ÐµÐºÑÐ°
   const int signed_start = static_cast<int>(start);
   const int signed_end = static_cast<int>(end);
 
