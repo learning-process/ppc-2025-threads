@@ -18,7 +18,9 @@ void deryabin_m_hoare_sort_simple_merge_mpi::SeqHoaraSort(std::vector<double>::i
     return;
   } else if (last - first >= 199) {
     const auto mid = first + ((last - first) >> 1);
-    const double pivot_value = *first < *mid ? *mid < *last ? *mid : std::max(*first, *last) : *first < *last ? *first : std::max(*mid, *last);
+    const double pivot_value = *first < *mid    ? *mid < *last ? *mid : std::max(*first, *last)
+                                  : *first < *last ? *first
+                                                : std::max(*mid, *last);
     auto left = first;
     auto right = last;
     do {
@@ -60,7 +62,7 @@ void deryabin_m_hoare_sort_simple_merge_mpi::SeqHoaraSort(std::vector<double>::i
       std::iter_swap(left, right);
     } while (left != right);
     HoaraSort(first, right);
-    HoaraSort(left + 1, last);    
+    HoaraSort(left + 1, last);   
   }
 }
 
@@ -70,7 +72,9 @@ void deryabin_m_hoare_sort_simple_merge_mpi::HoaraSort(std::vector<double>::iter
     return;
   } else if (last - first >= 199) {
     const auto mid = first + ((last - first) >> 1);
-    const double pivot_value = *first < *mid ? *mid < *last ? *mid : std::max(*first, *last) : *first < *last ? *first : std::max(*mid, *last);
+    const double pivot_value = *first < *mid    ? *mid < *last ? *mid : std::max(*first, *last)
+                                  : *first < *last ? *first
+                                                : std::max(*mid, *last);
     auto left = first;
     auto right = last;
     do {
@@ -89,8 +93,8 @@ void deryabin_m_hoare_sort_simple_merge_mpi::HoaraSort(std::vector<double>::iter
       }
       std::iter_swap(left, right);
     } while (left != right);
-      oneapi::tbb::parallel_invoke([&first, &right]() { HoaraSort(first, right); },
-                                   [&left, &last]() { HoaraSort(left + 1, last); });
+    oneapi::tbb::parallel_invoke([&first, &right]() { HoaraSort(first, right); },
+                                 [&left, &last]() { HoaraSort(left + 1, last); });
   } else {
     const double pivot_value = *(first + ((last - first) >> 1));
     auto left = first;
