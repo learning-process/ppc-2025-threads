@@ -3,7 +3,6 @@
 #include <boost/mpi/collectives.hpp>
 #include <boost/mpi/collectives/broadcast.hpp>
 #include <boost/mpi/communicator.hpp>
-#include <boost/serialization/vector.hpp>
 #include <cstddef>
 #include <vector>
 
@@ -21,7 +20,81 @@ namespace fyodorov_m_shell_sort_with_even_odd_batcher_merge_mpi {
 
 namespace {
 boost::mpi::communicator world;
+
+void PrepareScatterGather(int n, int size, std::vector<int>& sendcounts, std::vector<int>& displs) {
+  int local_n = n / size;
+  int remainder = n % size;
+  sendcounts.assign(size, local_n);
+  for (int i = 0; i < remainder; ++i) {
+    sendcounts[i]++;
+  }
+  displs[0] = 0;
+  for (int i = 1; i < size; ++i) {
+    displs[i] = displs[i - 1] + sendcounts[i - 1];
+  }
 }
+
+std::vector<int> MergeBlocks(const std::vector<std::vector<int>>& blocks) {
+  std::vector<int> merged;
+  for (const auto& block : blocks) {
+    if (!block.empty()) {
+      if (merged.empty()) {
+        merged = block;
+      } else {
+        std::vector<int> temp(merged.size() + block.size());
+        TestTaskMPI::BatcherMerge(merged, const_cast<std::vector<int>&>(block), temp);
+        merged.assign(temp.begin(), temp.end());
+      }
+    }
+  }
+  return merged;
+}
+
+std::vector<std::vector<int>> SplitGatheredToBlocks(const std::vector<int>& gathered,
+                                                    const std::vector<int>& sendcounts) {
+  std::vector<std::vector<int>> blocks(sendcounts.size());
+  int pos = 0;
+  for (size_t i = 0; i < sendcounts.size(); ++i) {
+    if (sendcounts[i] > 0 && pos + sendcounts[i] <= static_cast<int>(gathered.size())) {
+      auto first = gathered.begin() + pos;
+      auto last = first + sendcounts[i];
+      blocks[i].assign(first, last);
+    } else {
+      blocks[i].clear();
+    }
+    pos += sendcounts[i];
+  }
+  return blocks;
+}
+
+void BroadcastOutput(boost::mpi::communicator& world, int rank, int size, std::vector<int>& output_) {
+  if (rank == 0) {
+    for (int dest = 1; dest < size; ++dest) {
+      world.send(dest, 0, output_);
+    }
+  } else {
+    world.recv(0, 0, output_);
+  }
+}
+
+void LocalSort(std::vector<int>& local_data, int rank) {
+  if (local_data.empty()) return;
+  TestTaskMPI::ShellSort(local_data);
+  std::cout << "rank " << rank << " local_data (first 10): ";
+  for (int i = 0; i < std::min(10, static_cast<int>(local_data.size())); ++i) {
+    std::cout << local_data[i] << " ";
+  }
+  std::cout << '\n';
+}
+
+void PrintFirstN(const std::string& label, const std::vector<int>& data, int n = 10) {
+  std::cout << label;
+  for (int i = 0; i < std::min(n, static_cast<int>(data.size())); ++i) {
+    std::cout << data[i] << " ";
+  }
+  std::cout << '\n';
+}
+}  // namespace
 
 bool TestTaskMPI::PreProcessingImpl() {
   unsigned int input_size = 0;
@@ -40,11 +113,7 @@ bool TestTaskMPI::PreProcessingImpl() {
   unsigned int output_size = task_data->outputs_count[0];
   output_ = std::vector<int>(output_size, 0);
 
-  std::cout << "rank " << world.rank() << " input_ (first 10): ";
-  for (size_t i = 0; i < std::min<size_t>(10, input_size); ++i) {
-    std::cout << input_[i] << " ";
-  }
-  std::cout << '\n';
+  PrintFirstN("rank " + std::to_string(world.rank()) + " input_ (first 10): ", input_);
 
   return true;
 }
@@ -77,31 +146,16 @@ bool TestTaskMPI::RunImpl() {
 
   int n = static_cast<int>(input_.size());
   if (rank == 0) {
-    std::cout << "input_ (first 10): ";
-    for (int i = 0; i < std::min(10, n); ++i) {
-      std::cout << input_[i] << " ";
-    }
-    std::cout << '\n';
+    PrintFirstN("input_ (first 10): ", input_);
   }
 
   std::vector<int> local_data;
   int local_size = 0;
 
   if (n > 0) {
-    int local_n = n / size;
-    int remainder = n % size;
-
-    std::vector<int> sendcounts(size, local_n);
-    std::vector<int> displs(size, 0);
-
-    for (int i = 0; i < remainder; ++i) {
-      sendcounts[i]++;
-    }
-
-    displs[0] = 0;
-    for (int i = 1; i < size; ++i) {
-      displs[i] = displs[i - 1] + sendcounts[i - 1];
-    }
+    std::vector<int> sendcounts;
+    std::vector<int> displs;
+    PrepareScatterGather(n, size, sendcounts, displs);
 
     local_size = sendcounts[rank];
     local_data.resize(local_size);
@@ -112,65 +166,27 @@ bool TestTaskMPI::RunImpl() {
     boost::mpi::scatterv(world, send_ptr, sendcounts, displs, recv_ptr, local_size, 0);
 
     if (local_size > 0) {
-      ShellSort(local_data);
+      LocalSort(local_data, rank);
 
-      std::cout << "rank " << rank << " local_data (first 10): ";
-      for (int i = 0; i < std::min(10, local_size); ++i) {
-        std::cout << local_data[i] << " ";
-      }
-      std::cout << '\n';
-    }
-
-    std::vector<int> gathered;
-    if (rank == 0) {
-      gathered.resize(n);
-    }
-
-    int* send_ptr_g = (local_size > 0) ? local_data.data() : nullptr;
-    int* recv_ptr_g = (rank == 0 && n > 0) ? gathered.data() : nullptr;
-
-    boost::mpi::gatherv(world, send_ptr_g, local_size, recv_ptr_g, sendcounts, displs, 0);
-
-    if (rank == 0) {
-      std::cout << "gathered (first 10): ";
-      for (int i = 0; i < std::min(10, static_cast<int>(gathered.size())); ++i) {
-        std::cout << gathered[i] << " ";
-      }
-      std::cout << '\n';
-
-      std::vector<std::vector<int>> blocks(size);
-      int pos = 0;
-      for (int i = 0; i < size; ++i) {
-        if (sendcounts[i] > 0 && pos + sendcounts[i] <= static_cast<int>(gathered.size())) {
-          auto first = gathered.begin() + pos;
-          auto last = first + sendcounts[i];
-          blocks[i].assign(first, last);  // <-- безопасное копирование
-        } else {
-          blocks[i].clear();
-        }
-        pos += sendcounts[i];
+      std::vector<int> gathered;
+      if (rank == 0) {
+        gathered.resize(n);
       }
 
-      std::vector<int> merged;
-      for (int i = 0; i < size; ++i) {
-        if (!blocks[i].empty()) {
-          if (merged.empty()) {
-            merged = blocks[i];
-          } else {
-            std::vector<int> temp(merged.size() + blocks[i].size());
-            BatcherMerge(merged, blocks[i], temp);
-            merged.assign(temp.begin(), temp.end());
-          }
-        }
-      }
+      int* send_ptr_g = (local_size > 0) ? local_data.data() : nullptr;
+      int* recv_ptr_g = (rank == 0 && n > 0) ? gathered.data() : nullptr;
 
-      output_.assign(merged.begin(), merged.end());
+      boost::mpi::gatherv(world, send_ptr_g, local_size, recv_ptr_g, sendcounts, displs, 0);
 
-      for (int dest = 1; dest < size; ++dest) {
-        world.send(dest, 0, output_);
+      if (rank == 0) {
+        PrintFirstN("gathered (first 10): ", gathered);
+
+        std::vector<std::vector<int>> blocks = SplitGatheredToBlocks(gathered, sendcounts);
+        std::vector<int> merged = MergeBlocks(blocks);
+        output_.assign(merged.begin(), merged.end());
+
+        BroadcastOutput(world, rank, size, output_);
       }
-    } else {
-      world.recv(0, 0, output_);
     }
   }
 
@@ -178,11 +194,7 @@ bool TestTaskMPI::RunImpl() {
   output_.resize(output_size, 0);
 
   if (rank == 0 && !output_.empty()) {
-    std::cout << "output_ (first 10): ";
-    for (int i = 0; i < std::min(10, static_cast<int>(output_.size())); ++i) {
-      std::cout << output_[i] << " ";
-    }
-    std::cout << '\n';
+    PrintFirstN("output_ (first 10): ", output_);
   }
 
   return true;
