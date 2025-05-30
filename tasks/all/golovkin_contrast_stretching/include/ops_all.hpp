@@ -22,6 +22,10 @@ class ContrastStretchingMPI_OMP : public ppc::core::Task {
   bool RunImpl() override;
   bool PostProcessingImpl() override;
 
+  void SetUp() override {
+    MPI_Comm_rank(MPI_COMM_WORLD, &rank);
+    MPI_Comm_size(MPI_COMM_WORLD, &num_procs);
+
  private:
   std::vector<PixelType> input_image_;
   std::vector<PixelType> output_image_;

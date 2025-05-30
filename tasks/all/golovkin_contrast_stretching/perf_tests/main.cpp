@@ -11,18 +11,7 @@
 #include "all/golovkin_contrast_stretching/include/ops_all.hpp"
 #include "core/task/include/task.hpp"
 
-class ContrastStretchingMPIOMPTest : public ::testing::Test {
- protected:
-  void SetUp() override {
-    MPI_Comm_rank(MPI_COMM_WORLD, &rank);
-    MPI_Comm_size(MPI_COMM_WORLD, &num_procs);
-  }
-
-  int rank;
-  int num_procs;
-};
-
-TEST_F(golovkin_contrast_stretching_mpi, test_pipeline_run_mpi_omp) {
+TEST(golovkin_contrast_stretching_mpi, test_pipeline_run_mpi_omp) {
   constexpr size_t kCount = 1'000'000;
   std::vector<uint8_t> in(kCount);
   std::vector<uint8_t> out(kCount, 0);
@@ -62,7 +51,7 @@ TEST_F(golovkin_contrast_stretching_mpi, test_pipeline_run_mpi_omp) {
   }
 }
 
-TEST_F(golovkin_contrast_stretching_mpi, test_task_run_mpi_omp) {
+TEST(golovkin_contrast_stretching_mpi, test_task_run_mpi_omp) {
   constexpr size_t kCount = 1'000'000;
   std::vector<uint8_t> in(kCount);
   std::vector<uint8_t> out(kCount, 0);
