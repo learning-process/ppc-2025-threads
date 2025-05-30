@@ -1,6 +1,7 @@
 #pragma once
 
 #include <boost/mpi/collectives.hpp>
+#include <map>
 #include <utility>
 #include <vector>
 
@@ -21,9 +22,13 @@ class TestTaskALL : public ppc::core::Task {
   bool PostProcessingImpl() override;
 
  private:
+  std::map<int, int> BuildParentMap(const std::vector<int>& global_output, const std::vector<int>& all_equivalences);
+  int FindRoot(std::map<int, int>& parent, int x);
+  void ProcessEquivalences(std::map<int, int>& parent, const std::vector<int>& all_equivalences);
+  void RenumberLabels(std::vector<int>& global_output);
   void ProcessPixel(int row, int col);
   void AssignNewLabel(int row, int col);
-  void AssignMinLabel(int row, int col, const std::vector<int> &neighbors);
+  void AssignMinLabel(int row, int col, const std::vector<int>& neighbors);
   std::vector<int> FindAdjacentLabels(int row, int col);
   int FindRoot(int label);
   void UnionLabels(int label1, int label2);
