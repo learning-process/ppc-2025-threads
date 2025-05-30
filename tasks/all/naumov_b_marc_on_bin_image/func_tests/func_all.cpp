@@ -12,16 +12,6 @@
 #include "core/util/include/util.hpp"
 
 namespace {
-void VerifyBinaryOutput(const std::vector<int> &in, const std::vector<int> &out) {
-  for (size_t i = 0; i < in.size(); ++i) {
-    if (in[i] == 1) {
-      EXPECT_GT(out[i], 0);
-    } else {
-      EXPECT_EQ(out[i], 0);
-    }
-  }
-}
-
 void CheckTopNeighbor(const std::vector<int> &in, const std::vector<int> &out, int i, int j, int n) {
   if (i > 0 && in[((i - 1) * n) + j] == 1) {
     EXPECT_EQ(out[(i * n) + j], out[((i - 1) * n) + j]);
@@ -31,20 +21,6 @@ void CheckTopNeighbor(const std::vector<int> &in, const std::vector<int> &out, i
 void CheckLeftNeighbor(const std::vector<int> &in, const std::vector<int> &out, int i, int j, int n) {
   if (j > 0 && in[(i * n) + (j - 1)] == 1) {
     EXPECT_EQ(out[(i * n) + j], out[(i * n) + (j - 1)]);
-  }
-}
-
-void VerifyNeighborConsistency(const std::vector<int> &in, const std::vector<int> &out, int m, int n) {
-  for (int i = 0; i < m; ++i) {
-    for (int j = 0; j < n; ++j) {
-      const int idx = (i * n) + j;
-      if (in[idx] != 1) {
-        continue;
-      }
-
-      CheckTopNeighbor(in, out, i, j, n);
-      CheckLeftNeighbor(in, out, i, j, n);
-    }
   }
 }
 }  // namespace
