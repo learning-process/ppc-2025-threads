@@ -192,7 +192,7 @@ void naumov_b_marc_on_bin_image_all::TestTaskALL::LocalLabeling() {
   for (int t = 0; t < num_threads; ++t) {
     int start_row = t * rows_per_thread;
     int end_row = std::min(start_row + rows_per_thread, local_rows_);
-    
+
     if (start_row < local_rows_) {
       threads.emplace_back([&, start_row, end_row]() {
         for (int i = start_row; i < end_row; ++i) {
