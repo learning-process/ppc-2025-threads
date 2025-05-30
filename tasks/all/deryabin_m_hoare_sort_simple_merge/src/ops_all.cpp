@@ -218,8 +218,11 @@ bool deryabin_m_hoare_sort_simple_merge_mpi::HoareSortTaskMPI::RunImpl() {
         } else {
           block_size += rest_;
         }
-        auto send_rank = (world_rank >= step) ? world_rank - step : 0;
-        world.send(send_rank, 0, input_array_A_.data() + start_idx, block_size);
+        if (world_rank >= step) {
+          world.send(world_rank - step, 0, input_array_A_.data() + start_idx, block_size);
+        } else {
+          world.send(0, 0, input_array_A_.data(), block_size);
+        }
       } else {
         size_t start_idx = (world_size - (world_rank + 2 * step)) * chunk_size;
         if (world_rank + step != world_size - 1) {
