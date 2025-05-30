@@ -236,7 +236,7 @@ TEST_F(golovkin_contrast_stretching_mpi, test_random_mid_range_values) {
   std::vector<uint8_t> expected;
   expected.reserve(in.size());
   for (auto val : in) {
-    expected.push_back(static_cast<uint8_t>((val - 50) * 255 / (150 - 50)));
+    expected.push_back(static_cast<uint8_t>(((val - 50) * 255 + 50) / 100));
   }
 
   auto task_data = std::make_shared<ppc::core::TaskData>();
