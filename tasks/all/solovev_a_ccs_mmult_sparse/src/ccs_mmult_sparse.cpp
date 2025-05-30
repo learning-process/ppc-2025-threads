@@ -21,7 +21,7 @@
 #include "core/util/include/util.hpp"
 
 void solovev_a_matrix_all::SeqMatMultCcs::ComputeColumnRange(int rank, int size, int total_cols, int& start_col,
-                                                                    int& end_col) {
+                                                             int& end_col) {
   if (size <= 0) {
     start_col = total_cols;
     end_col = total_cols;
