@@ -103,7 +103,7 @@ std::vector<Point> TestTaskOMP::BuildHull(const std::vector<Point>& sorted_point
   hull.push_back(sorted_points[0]);
   const double EPS = 1e-9;
   for (size_t i = 1; i < sorted_points.size(); ++i) {
-    while (hull.size() >= 2 && Cross(hull[hull.size() - 2], hull.back(), sorted_points[i]) < EPS) {
+    while (hull.size() >= 2 && Cross(hull[hull.size() - 2], hull.back(), sorted_points[i]) <= EPS) {
       hull.pop_back();
     }
     hull.push_back(sorted_points[i]);
