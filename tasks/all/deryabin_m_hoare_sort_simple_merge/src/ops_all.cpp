@@ -75,7 +75,7 @@ void deryabin_m_hoare_sort_simple_merge_mpi::HoaraSort(std::vector<double>::iter
 
 void deryabin_m_hoare_sort_simple_merge_mpi::MergeTwoParts(std::vector<double>::iterator first,
                                                            std::vector<double>::iterator last) {
-  if (last - first >= 200) {
+  if (last - first >= 2000) {
     const auto mid = first + ((last - first) >> 1);
     const auto left_end = std::upper_bound(first, mid, *mid);
     const auto right_start = std::lower_bound(mid, last, *(mid - 1));
@@ -101,7 +101,7 @@ void deryabin_m_hoare_sort_simple_merge_mpi::MergeTwoParts(std::vector<double>::
 void deryabin_m_hoare_sort_simple_merge_mpi::MergeUnequalTwoParts(std::vector<double>::iterator first,
                                                                   std::vector<double>::iterator mid,
                                                                   std::vector<double>::iterator last) {
-  if (last - first >= 200) {
+  if (last - first >= 2000) {
     const auto left_end = std::upper_bound(first, mid, *mid);
     const auto right_start = std::lower_bound(mid, last, *(mid - 1));
     const size_t left_len = std::distance(left_end, mid);
