@@ -140,15 +140,15 @@ bool deryabin_m_hoare_sort_simple_merge_mpi::HoareSortTaskSequential::RunImpl() 
   size_t count = 0;
   while (count != chunk_count_) {
     HoaraSort(input_array_A_.begin() + count * min_chunk_size_,
-              input_array_A_.begin() + ((count + 1) * min_chunk_size_) - 1);
+              input_array_A_.begin() + (count + 1) * min_chunk_size_ - 1);
     count++;
   }
   size_t chunk_count = chunk_count_;
   for (size_t i = 0; i < static_cast<size_t>(std::bit_width(chunk_count_)) - 1; i++) {
     for (size_t j = 0; j < chunk_count; j++) {
-      std::inplace_merge(input_array_A_.begin() + static_cast<long>(j * min_chunk_size_ << (i + 1)),
-                         input_array_A_.begin() + static_cast<long>(((j << 1 | 1) * (min_chunk_size_ << i))),
-                         input_array_A_.begin() + static_cast<long>((j + 1) * min_chunk_size_ << (i + 1)));
+      std::inplace_merge(input_array_A_.begin() + (j * min_chunk_size_ << (i + 1)),
+                         input_array_A_.begin() + ((j << 1 | 1) * (min_chunk_size_ << i)),
+                         input_array_A_.begin() + ((j + 1) * min_chunk_size_ << (i + 1)));
       chunk_count--;
     }
   }
@@ -190,7 +190,7 @@ bool deryabin_m_hoare_sort_simple_merge_mpi::HoareSortTaskMPI::RunImpl() {
   const auto world_rank = world.rank();
   const bool is_last_rank = (world_rank == chunk_count_ - 1);
   const size_t rank_from_end = chunk_count_ - world_rank;
-  const auto start_iter = input_array_A_.begin() + ((rank_from_end - 1) * min_chunk_size_) + (!is_last_rank ? rest_ : 0);
+  const auto start_iter = input_array_A_.begin() + (rank_from_end - 1) * min_chunk_size_ + (!is_last_rank ? rest_ : 0);
   const auto end_iter = input_array_A_.begin() + rank_from_end * min_chunk_size_ + rest_ - 1;
   HoaraSort(start_iter, end_iter);
   const size_t iterations = static_cast<size_t>(std::bit_width(chunk_count_ - 1));
@@ -234,7 +234,7 @@ bool deryabin_m_hoare_sort_simple_merge_mpi::HoareSortTaskMPI::RunImpl() {
     }
   }
   return true;
-} 
+}
 
 bool deryabin_m_hoare_sort_simple_merge_mpi::HoareSortTaskMPI::PostProcessingImpl() {
   if (world.rank() == 0) {
