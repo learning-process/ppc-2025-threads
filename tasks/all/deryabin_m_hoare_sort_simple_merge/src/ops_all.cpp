@@ -94,7 +94,7 @@ void deryabin_m_hoare_sort_simple_merge_mpi::MergeTwoParts(std::vector<double>::
                               });
     std::inplace_merge(left_end, mid, right_start);
   } else {
-    std::inplace_merge(first, mid, last);
+    std::inplace_merge(first, first + ((last - first) >> 1), last);
   }
 }
 
