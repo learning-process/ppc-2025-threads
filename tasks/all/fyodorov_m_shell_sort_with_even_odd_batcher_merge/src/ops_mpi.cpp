@@ -4,8 +4,6 @@
 #include <boost/mpi/collectives/broadcast.hpp>
 #include <boost/mpi/communicator.hpp>
 #include <boost/serialization/vector.hpp>
-#include <cstddef>
-#include <vector>
 
 #include "boost/mpi/collectives/gatherv.hpp"
 #include "boost/mpi/collectives/scatterv.hpp"
@@ -14,26 +12,26 @@
 #endif
 namespace fyodorov_m_shell_sort_with_even_odd_batcher_merge_mpi {
 
-boost::mpi::communicator world_;
+boost::mpi::communicator world;
 
 bool TestTaskMPI::PreProcessingImpl() {
   unsigned int input_size = 0;
-  if (world_.rank() == 0) {
+  if (world.rank() == 0) {
     input_size = task_data->inputs_count[0];
   }
-  boost::mpi::broadcast(world_, input_size, 0);
+  boost::mpi::broadcast(world, input_size, 0);
 
   input_.resize(input_size);
-  if (world_.rank() == 0) {
+  if (world.rank() == 0) {
     auto* in_ptr = reinterpret_cast<int*>(task_data->inputs[0]);
     std::copy(in_ptr, in_ptr + input_size, input_.begin());
   }
-  boost::mpi::broadcast(world_, input_, 0);
+  boost::mpi::broadcast(world, input_, 0);
 
   unsigned int output_size = task_data->outputs_count[0];
   output_ = std::vector<int>(output_size, 0);
 
-  std::cout << "rank " << world_.rank() << " input_ (first 10): ";
+  std::cout << "rank " << world.rank() << " input_ (first 10): ";
   for (size_t i = 0; i < std::min<size_t>(10, input_size); ++i) std::cout << input_[i] << " ";
   std::cout << std::endl;
 
@@ -54,9 +52,9 @@ bool TestTaskMPI::ValidationImpl() {
 }
 
 bool TestTaskMPI::RunImpl() {
-  boost::mpi::communicator world;
-  int rank = world.rank();
-  int size = world.size();
+  boost::mpi::communicator world_local;
+  int rank = world_local.rank();
+  int size = world_local.size();
   // Явное обнуление output_, чтобы избежать null-dereference при последующих вызовах
   output_.clear();
   output_.shrink_to_fit();
@@ -65,7 +63,7 @@ bool TestTaskMPI::RunImpl() {
   if (rank != 0) {
     input_.clear();
   }
-  boost::mpi::broadcast(world, input_, 0);
+  boost::mpi::broadcast(world_local, input_, 0);
 
   int n = static_cast<int>(input_.size());
   if (rank == 0) {
@@ -101,7 +99,7 @@ bool TestTaskMPI::RunImpl() {
     int* send_ptr = (rank == 0 && n > 0) ? input_.data() : nullptr;
     int* recv_ptr = (local_size > 0) ? local_data.data() : nullptr;
 
-    boost::mpi::scatterv(world, send_ptr, sendcounts, displs, recv_ptr, local_size, 0);
+    boost::mpi::scatterv(world_local, send_ptr, sendcounts, displs, recv_ptr, local_size, 0);
 
     if (local_size > 0) {
       ShellSort(local_data);
@@ -121,7 +119,7 @@ bool TestTaskMPI::RunImpl() {
     int* send_ptr_g = (local_size > 0) ? local_data.data() : nullptr;
     int* recv_ptr_g = (rank == 0 && n > 0) ? gathered.data() : nullptr;
 
-    boost::mpi::gatherv(world, send_ptr_g, local_size, recv_ptr_g, sendcounts, displs, 0);
+    boost::mpi::gatherv(world_local, send_ptr_g, local_size, recv_ptr_g, sendcounts, displs, 0);
 
     if (rank == 0) {
       std::cout << "gathered (first 10): ";
@@ -161,10 +159,10 @@ bool TestTaskMPI::RunImpl() {
 
       // Рассылаем результат другим процессам
       for (int dest = 1; dest < size; ++dest) {
-        world.send(dest, 0, output_);
+        world_local.send(dest, 0, output_);
       }
     } else {
-      world.recv(0, 0, output_);
+      world_local.recv(0, 0, output_);
     }
   }
 
