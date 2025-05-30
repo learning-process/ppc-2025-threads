@@ -188,10 +188,9 @@ bool deryabin_m_hoare_sort_simple_merge_mpi::HoareSortTaskMPI::ValidationImpl() 
 
 bool deryabin_m_hoare_sort_simple_merge_mpi::HoareSortTaskMPI::RunImpl() {
   const auto chunk_size = min_chunk_size_;
-  const auto world_size = world.size();
   const auto world_rank = world.rank();
-  const bool is_last_rank = (world_rank == world_size - 1);
-  const size_t rank_from_end = world_size - world_rank;
+  const bool is_last_rank = (world_rank == chunk_count_ - 1);
+  const size_t rank_from_end = chunk_count_ - world_rank;
   const auto start_iter = input_array_A_.begin() + ((rank_from_end - 1) * chunk_size) + (!is_last_rank ? rest_ : 0);
   const auto end_iter = input_array_A_.begin() + rank_from_end * chunk_size + rest_ - 1;
   HoaraSort(start_iter, end_iter);
@@ -199,12 +198,12 @@ bool deryabin_m_hoare_sort_simple_merge_mpi::HoareSortTaskMPI::RunImpl() {
   for (size_t i = 0; i < iterations; ++i) {
     const unsigned short step = 1U << i;
     size_t block_size = chunk_size * step;
-    if ((world_size - world_rank) % step == 0 || world_rank == 0) {
-      const bool is_even = world_size & 1 ? ((world_size - world_rank + step - 1) / step & 1) != 0
-                                          : ((world_size - world_rank - 1) / step & 1) == 0;
+    if ((chunk_count_ - world_rank) % step == 0 || world_rank == 0) {
+      const bool is_even = chunk_count_ & 1 ? ((chunk_count_ - world_rank + step - 1) / step & 1) != 0
+                                          : ((chunk_count_ - world_rank - 1) / step & 1) == 0;
       if (is_even) {
         if (world_rank == 0) continue;
-        size_t start_idx = (world_size - (world_rank + step)) * chunk_size;
+        size_t start_idx = (chunk_count_ - (world_rank + step)) * chunk_size;
         if (!is_last_rank) {
           start_idx += rest_;
         } else {
@@ -216,16 +215,16 @@ bool deryabin_m_hoare_sort_simple_merge_mpi::HoareSortTaskMPI::RunImpl() {
           world.send(0, 0, input_array_A_.data() + start_idx, block_size);
         }
       } else {
-        size_t start_idx = (world_size & 1) && world_rank == 0 ? (world_size - (2 * step - 1)) * chunk_size
-                                                               : (world_size - (world_rank + 2 * step)) * chunk_size;
-        const auto recv_rank = (world_size & 1) && world_rank == 0 ? step - 1 : world_rank + step;
-        if (recv_rank != world_size - 1) {
+        size_t start_idx = (chunk_count_ & 1) && world_rank == 0 ? (chunk_count_ - (2 * step - 1)) * chunk_size
+                                                               : (chunk_count_ - (world_rank + 2 * step)) * chunk_size;
+        const auto recv_rank = (chunk_count_ & 1) && world_rank == 0 ? step - 1 : world_rank + step;
+        if (recv_rank != chunk_count_ - 1) {
           start_idx += rest_;
         } else {
           block_size += rest_;
         }
         world.recv(recv_rank, 0, input_array_A_.data() + start_idx, block_size);
-        if ((world_size & 1) && world_rank == 0) {
+        if ((chunk_count_ & 1) && world_rank == 0) {
           const size_t merge_point = static_cast<size_t>((2.0 - 1.0 / step) * block_size);
           MergeUnequalTwoParts(input_array_A_.begin() + start_idx, input_array_A_.begin() + start_idx + block_size,
                                input_array_A_.begin() + start_idx + merge_point);
