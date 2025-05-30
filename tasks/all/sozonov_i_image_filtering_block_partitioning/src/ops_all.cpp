@@ -43,7 +43,7 @@ bool sozonov_i_image_filtering_block_partitioning_all::TestTaskALL::ValidationIm
     }
 
     // Check size of image
-    return world_.size() > 0 && task_data->inputs_count[0] > 0 && task_data->inputs_count[0] == img_size &&
+    return task_data->inputs_count[0] > 0 && task_data->inputs_count[0] == img_size &&
            task_data->outputs_count[0] == img_size && task_data->inputs_count[1] >= 3 &&
            task_data->inputs_count[2] >= 3;
   }
@@ -56,6 +56,10 @@ bool sozonov_i_image_filtering_block_partitioning_all::TestTaskALL::RunImpl() {
 
   int rank = world_.rank();
   int num_procs = world_.size();
+
+  if (num_procs == 0) {
+    return false;
+  }
 
   std::vector<int> block_sizes(num_procs);
   std::vector<int> displs(num_procs);
@@ -89,15 +93,15 @@ bool sozonov_i_image_filtering_block_partitioning_all::TestTaskALL::RunImpl() {
 
   std::vector<double> local_image(extended_rows * width_);
 
-  scatterv(world_, image_.data(), block_sizes, displs, &local_image[halo_top * width_], local_rows * width_, 0);
+  scatterv(world_, image_.data(), block_sizes, displs, local_image.data() + halo_top * width_, local_rows * width_, 0);
 
   if (halo_top != 0) {
-    world_.send(rank - 1, 0, &local_image[halo_top * width_], width_);
+    world_.send(rank - 1, 0, local_image.data() + halo_top * width_, width_);
     world_.recv(rank - 1, 1, local_image.data(), width_);
   }
   if (halo_bottom != 0) {
-    world_.send(rank + 1, 1, &local_image[(halo_top + local_rows - 1) * width_], width_);
-    world_.recv(rank + 1, 0, &local_image[(halo_top + local_rows) * width_], width_);
+    world_.send(rank + 1, 1, local_image.data() + (halo_top + local_rows - 1) * width_, width_);
+    world_.recv(rank + 1, 0, local_image.data() + (halo_top + local_rows) * width_, width_);
   }
 
   std::vector<double> kernel = {0.0625, 0.125, 0.0625, 0.125, 0.25, 0.125, 0.0625, 0.125, 0.0625};
