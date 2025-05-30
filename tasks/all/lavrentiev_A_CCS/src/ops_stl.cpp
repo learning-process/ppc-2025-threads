@@ -70,26 +70,13 @@ lavrentiev_a_ccs_all::Sparse lavrentiev_a_ccs_all::CCSALL::MatMul(const Sparse &
   temporary_matrix.columnsSum.resize(matrix2.size.second);
   temporary_matrix.elements.resize(resize_data);
   temporary_matrix.rows.resize(resize_data);
-  auto accumulate = [&](int i_index, int j_index) {
-    double sum = 0.0;
-    for (int x = 0; x < GetElementsCount(j_index, matrix1.columnsSum); x++) {
-      for (int y = 0; y < GetElementsCount(i_index, matrix2.columnsSum); y++) {
-        int m1_start_index = CalculateStartIndex(j_index, matrix1.columnsSum);
-        int m2_start_index = CalculateStartIndex(i_index, matrix2.columnsSum);
-        if (matrix1.rows[m1_start_index + x] == matrix2.rows[m2_start_index + y]) {
-          sum += matrix1.elements[x + m1_start_index] * matrix2.elements[y + m2_start_index];
-        }
-      }
-    }
-    return sum;
-  };
   auto matrix_multiplicator = [&](int begin, int end) {
     for (int i = begin; i != end; ++i) {
       if (temporary_matrix.columnsSum[i] == 0) {
         temporary_matrix.columnsSum[i]++;
       }
       for (int j = 0; j < static_cast<int>(matrix1.columnsSum.size()); ++j) {
-        double s = accumulate(i, j);
+        double s = Accumulate(i, j, matrix1, matrix2);
         if (s != 0) {
           temporary_matrix.elements[(i * matrix2.size.second) + j] = s;
           temporary_matrix.rows[(i * matrix2.size.second) + j] = j;
@@ -160,6 +147,20 @@ void lavrentiev_a_ccs_all::CCSALL::GetDisplacements() {
   }
   displ_.emplace_back(static_cast<int>(B_.columnsSum.size()));
 }
+double lavrentiev_a_ccs_all::CCSALL::Accumulate(int i_index, int j_index, const Sparse &matrix1,
+                                                const Sparse &matrix2) {
+  double sum = 0.0;
+  for (int x = 0; x < GetElementsCount(j_index, matrix1.columnsSum); x++) {
+    for (int y = 0; y < GetElementsCount(i_index, matrix2.columnsSum); y++) {
+      int m1_start_index = CalculateStartIndex(j_index, matrix1.columnsSum);
+      int m2_start_index = CalculateStartIndex(i_index, matrix2.columnsSum);
+      if (matrix1.rows[m1_start_index + x] == matrix2.rows[m2_start_index + y]) {
+        sum += matrix1.elements[x + m1_start_index] * matrix2.elements[y + m2_start_index];
+      }
+    }
+  }
+  return sum;
+}
 
 bool lavrentiev_a_ccs_all::CCSALL::PreProcessingImpl() {
   if (world_.rank() == 0) {
@@ -206,8 +207,6 @@ bool lavrentiev_a_ccs_all::CCSALL::ValidationImpl() {
   return true;
 }
 
-void lavrentiev_a_ccs_all::CCSALL::CollectData() {}
-
 bool lavrentiev_a_ccs_all::CCSALL::RunImpl() {
   boost::mpi::broadcast(world_, displ_, 0);
   boost::mpi::broadcast(world_, A_, 0);
@@ -229,9 +228,9 @@ bool lavrentiev_a_ccs_all::CCSALL::RunImpl() {
     boost::mpi::gatherv(world_, Process_data_.elements, Answer_.elements.data(), elements_sizes_, 0);
     boost::mpi::gatherv(world_, Process_data_.rows, Answer_.rows.data(), elements_sizes_, 0);
     boost::mpi::gatherv(world_, Process_data_.columnsSum, columns_nums_collector.data(), sum_sizes_, 0);
-    for (auto &columnSum : columns_nums_collector) {
-      if (columnSum != 0) {
-        Answer_.columnsSum.emplace_back(columnSum - 1);
+    for (auto &column_sum : columns_nums_collector) {
+      if (column_sum != 0) {
+        Answer_.columnsSum.emplace_back(column_sum - 1);
       }
     }
     for (size_t i = 1; i < Answer_.columnsSum.size(); ++i) {
