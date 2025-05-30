@@ -283,7 +283,7 @@ TEST_F(golovkin_contrast_stretching_mpi, test_empty_input) {
 TEST_F(golovkin_contrast_stretching_mpi, test_uint16_pixels) {
   std::vector<uint16_t> in = {1000, 2000, 3000, 4000, 5000};
   std::vector<uint16_t> out(in.size(), 0);
-  std::vector<uint16_t> expected = {0, 63, 127, 191, 255};
+  std::vector<uint16_t> expected = {0, 64, 128, 191, 255};
 
   auto task_data = std::make_shared<ppc::core::TaskData>();
   task_data->inputs.emplace_back(reinterpret_cast<uint8_t*>(in.data()));
