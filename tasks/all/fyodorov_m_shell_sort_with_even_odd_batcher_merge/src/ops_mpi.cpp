@@ -42,14 +42,11 @@ bool TestTaskMPI::PreProcessingImpl() {
 }
 
 bool TestTaskMPI::ValidationImpl() {
-  // Проверяем, что есть хотя бы один вход и один выход
   if (task_data->inputs_count.empty() || task_data->outputs_count.empty()) return false;
-  // Если размер входа/выхода больше 0, указатель не должен быть nullptr
+
   if ((task_data->inputs_count[0] > 0 && task_data->inputs[0] == nullptr) ||
       (task_data->outputs_count[0] > 0 && task_data->outputs[0] == nullptr))
     return false;
-  // Не проверяем размер входа/выхода на 0 — это валидный случай для пустого массива
-  // Можно добавить дополнительные проверки на типы данных, если требуется
 
   return true;
 }
@@ -59,11 +56,9 @@ bool TestTaskMPI::RunImpl() {
   int rank = world.rank();
   int size = world.size();
 
-  // Явное обнуление output_, чтобы избежать null-dereference при последующих вызовах
   output_.clear();
   output_.shrink_to_fit();
 
-  // Синхронизация входных данных
   if (rank != 0) {
     input_.clear();
   }
@@ -158,10 +153,8 @@ bool TestTaskMPI::RunImpl() {
         }
       }
 
-      // Присвоение без копирующего оператора
       output_.assign(merged.begin(), merged.end());
 
-      // Рассылаем результат другим процессам
       for (int dest = 1; dest < size; ++dest) {
         world.send(dest, 0, output_);
       }
@@ -170,11 +163,9 @@ bool TestTaskMPI::RunImpl() {
     }
   }
 
-  // Гарантированно задаём нужный размер output_
   unsigned int output_size = task_data->outputs_count[0];
   output_.resize(output_size, 0);
 
-  // Вывод только если есть данные и это главный процесс
   if (rank == 0 && !output_.empty()) {
     std::cout << "output_ (first 10): ";
     for (int i = 0; i < std::min(10, static_cast<int>(output_.size())); ++i) {
