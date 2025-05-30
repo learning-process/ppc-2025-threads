@@ -62,24 +62,24 @@ class SeqMatMultCcs : public ppc::core::Task {
 
   static void ComputeColumnRange(int rank, int size, int total_cols, int& start_col, int& end_col);
 
-  static void ComputeSequential(const std::vector<int>& col_indices,
-                         std::vector<std::vector<std::pair<std::complex<double>, int>>>& column_results, int start_col,
-                         int end_col,
-                         const std::function<void(int, std::vector<std::pair<std::complex<double>, int>>&)>& func);
+  static void ComputeSequential(
+      const std::vector<int>& col_indices,
+      std::vector<std::vector<std::pair<std::complex<double>, int>>>& column_results, int start_col, int end_col,
+      const std::function<void(int, std::vector<std::pair<std::complex<double>, int>>&)>& func);
 
   static void ComputeParallel(const std::vector<int>& col_indices,
-                       std::vector<std::vector<std::pair<std::complex<double>, int>>>& column_results, int start_col,
-                       int end_col, int num_threads,
-                       const std::function<void(int, std::vector<std::pair<std::complex<double>, int>>&)>& func);
+                              std::vector<std::vector<std::pair<std::complex<double>, int>>>& column_results,
+                              int start_col, int end_col, int num_threads,
+                              const std::function<void(int, std::vector<std::pair<std::complex<double>, int>>&)>& func);
 
   void ComputeColumn(int col_idx, std::vector<std::pair<std::complex<double>, int>>& column_data);
 
   static void FillLocalData(const std::vector<std::vector<std::pair<std::complex<double>, int>>>& column_results,
-                     std::vector<std::complex<double>>& local_val, std::vector<int>& local_row,
-                     std::vector<int>& local_col_p, int& local_n_z);
+                            std::vector<std::complex<double>>& local_val, std::vector<int>& local_row,
+                            std::vector<int>& local_col_p, int& local_n_z);
 
   static void CountColumns(const std::vector<std::vector<std::pair<std::complex<double>, int>>>& column_results,
-                    std::vector<int>& local_col_counts, int start_col);
+                           std::vector<int>& local_col_counts, int start_col);
 };
 
 }  // namespace solovev_a_matrix_all
