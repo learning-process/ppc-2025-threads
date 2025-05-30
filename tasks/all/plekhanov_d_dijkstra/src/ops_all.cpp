@@ -48,6 +48,7 @@ void ProcessLocalChunk(const std::vector<std::vector<std::pair<int, int>>>& adj_
                        size_t start, size_t end, bool& updated) {
   const int inf = INT_MAX;
   bool local_updated = false;
+  std::vector<int> new_distances = local_dist;
 
 #pragma omp parallel
   {
@@ -59,11 +60,11 @@ void ProcessLocalChunk(const std::vector<std::vector<std::pair<int, int>>>& adj_
 
       for (const auto& [neighbor, weight] : adj_list[u]) {
         int new_dist = local_dist[u] + weight;
-        if (new_dist < local_dist[neighbor]) {
+        if (new_dist < new_distances[neighbor]) {
 #pragma omp critical
           {
-            if (new_dist < local_dist[neighbor]) {
-              local_dist[neighbor] = new_dist;
+            if (new_dist < new_distances[neighbor]) {
+              new_distances [neighbor] = new_dist;
               thread_updated = true;
             }
           }
@@ -75,17 +76,27 @@ void ProcessLocalChunk(const std::vector<std::vector<std::pair<int, int>>>& adj_
     { local_updated |= thread_updated; }
   }
 
+  if (local_updated) {
+    for (size_t i = 0; i < local_dist.size(); ++i) {
+      if (new_distances[i] < local_dist[i]) {
+        local_dist[i] = new_distances[i];
+      }
+    }
+  }
+
   updated |= local_updated;
 }
 
 void UpdateLocalDistances(const std::vector<int>& global_dist, std::vector<int>& local_dist, bool& updated) {
+  bool local_updated = false;
 #pragma omp parallel for
   for (int i = 0; i < static_cast<int>(local_dist.size()); ++i) {
     if (global_dist[i] < local_dist[i]) {
       local_dist[i] = global_dist[i];
-      updated = true;
+      local_updated = true;
     }
   }
+  updated |= local_updated;
 }
 
 bool CheckGlobalUpdate(const boost::mpi::communicator& world, bool local_updated) {
@@ -168,7 +179,7 @@ bool plekhanov_d_dijkstra_all::TestTaskALL::RunImpl() {
     updated = CheckGlobalUpdate(world_, updated);
   }
 
-  ::UpdateFinalDistances(world_, local_dist, distances_);
+  UpdateFinalDistances(world_, local_dist, distances_);
   return true;
 }
 
