@@ -2,14 +2,11 @@
 
 #include <cstddef>
 #include <cstdint>
-#include <fstream>
 #include <memory>
-#include <string>
 #include <vector>
 
 #include "all/naumov_b_marc_on_bin_image/include/ops_all.hpp"
 #include "core/task/include/task.hpp"
-#include "core/util/include/util.hpp"
 
 TEST(naumov_b_marc_on_bin_image_all, Validation_1) {
   int m = 3;

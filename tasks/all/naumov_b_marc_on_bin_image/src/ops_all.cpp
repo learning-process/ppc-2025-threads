@@ -1,20 +1,15 @@
 #include "all/naumov_b_marc_on_bin_image/include/ops_all.hpp"
 
 #include <algorithm>
-#include <boost/serialization/vector.hpp>
 #include <cmath>
 #include <cstddef>
-#include <execution>
 #include <functional>
 #include <map>
-#include <numeric>
 #include <random>
 #include <thread>
 #include <utility>
 #include <vector>
 
-#include "boost/mpi/collectives/broadcast.hpp"
-#include "core/util/include/util.hpp"
 
 std::vector<int> naumov_b_marc_on_bin_image_all::GenerateRandomBinaryMatrix(int rows, int cols, double probability) {
   const int total_elements = rows * cols;
@@ -52,7 +47,7 @@ bool naumov_b_marc_on_bin_image_all::TestTaskALL::PreProcessingImpl() {
     cols_ = static_cast<int>(task_data->inputs_count[1]);
     input_image_.resize(rows_ * cols_);
     int* input_data = reinterpret_cast<int*>(task_data->inputs[0]);
-    std::copy(input_data, input_data + rows_ * cols_, input_image_.begin());
+    std::copy(input_data, input_data +(rows_ * cols_), input_image_.begin());
   }
 
   MPI_Bcast(&rows_, 1, MPI_INT, 0, MPI_COMM_WORLD);
@@ -123,8 +118,8 @@ void naumov_b_marc_on_bin_image_all::TestTaskALL::AssignNewLabel(int row, int co
 }
 
 void naumov_b_marc_on_bin_image_all::TestTaskALL::AssignMinLabel(int row, int col, const std::vector<int>& neighbors) {
-  int min_label = *std::min_element(neighbors.begin(), neighbors.end());
-  local_output_[row * cols_ + col] = min_label;
+  int min_label = *std::ranges::min_element(neighbors.begin(), neighbors.end());
+  local_output_[(row * cols_) + col] = min_label;
 
   for (int neighbor_label : neighbors) {
     if (neighbor_label != min_label) {
@@ -156,11 +151,11 @@ void naumov_b_marc_on_bin_image_all::TestTaskALL::UnionLabels(int label1, int la
 
 std::vector<int> naumov_b_marc_on_bin_image_all::TestTaskALL::FindAdjacentLabels(int row, int col) {
   std::vector<int> neighbors;
-  if (col > 0 && local_output_[row * cols_ + col - 1] != 0) {
-    neighbors.push_back(local_output_[row * cols_ + col - 1]);
+  if (col > 0 && local_output_[(row * cols_) + col - 1] != 0) {
+    neighbors.push_back(local_output_[(row * cols_) + col - 1]);
   }
-  if (row > 0 && local_output_[(row - 1) * cols_ + col] != 0) {
-    neighbors.push_back(local_output_[(row - 1) * cols_ + col]);
+  if (row > 0 && local_output_[((row - 1) * cols_) + col] != 0) {
+    neighbors.push_back(local_output_[((row - 1) * cols_) + col]);
   }
   return neighbors;
 }
@@ -179,7 +174,7 @@ void naumov_b_marc_on_bin_image_all::TestTaskALL::LocalLabeling() {
 
   for (int i = 0; i < local_rows_; ++i) {
     for (int j = 0; j < cols_; ++j) {
-      if (local_image_[i * cols_ + j] == 1) {
+      if (local_image_[(i * cols_) + j] == 1) {
         ProcessPixel(i, j);
       }
     }
@@ -197,10 +192,10 @@ void naumov_b_marc_on_bin_image_all::TestTaskALL::LocalLabeling() {
       threads.emplace_back([&, start_row, end_row]() {
         for (int i = start_row; i < end_row; ++i) {
           for (int j = 0; j < cols_; ++j) {
-            if (local_output_[i * cols_ + j] != 0) {
-              int label = local_output_[i * cols_ + j];
+            if (local_output_[(i * cols_) + j] != 0) {
+              int label = local_output_[(i * cols_) + j];
               int root = FindRoot(label - base_label_);
-              local_output_[i * cols_ + j] = root + base_label_;
+              local_output_[(i * cols_) + j] = root + base_label_;
             }
           }
         }
@@ -214,7 +209,7 @@ void naumov_b_marc_on_bin_image_all::TestTaskALL::LocalLabeling() {
 }
 
 void naumov_b_marc_on_bin_image_all::TestTaskALL::MergeLabelsBetweenProcesses() {
-  if (num_procs_ == 1) return;
+  if (num_procs_ == 1) {return;}
 
   std::vector<int> last_row(cols_, 0);
   std::vector<int> next_first_row(cols_, 0);
@@ -294,15 +289,16 @@ void naumov_b_marc_on_bin_image_all::TestTaskALL::UpdateGlobalLabels() {
     int root1 = find(all_equivalences_[i]);
     int root2 = find(all_equivalences_[i + 1]);
     if (root1 != root2) {
-      if (root1 < root2)
+      if (root1 < root2){
         parent[root2] = root1;
-      else
+      }else{
         parent[root1] = root2;
+      }
     }
   }
 
   for (int& label : global_output_) {
-    if (label != 0) label = find(label);
+    if (label != 0) {label = find(label);}
   }
 
   std::map<int, int> renumber;
@@ -350,7 +346,7 @@ bool naumov_b_marc_on_bin_image_all::TestTaskALL::PostProcessingImpl() {
   const int data_size = rows_ * cols_;
 
   if (rank_ == 0) {
-    std::copy(global_output_.begin(), global_output_.end(), output_data);
+    std::ranges::copy(global_output_.begin(), global_output_.end(), output_data);
   }
 
   MPI_Bcast(output_data, data_size, MPI_INT, 0, MPI_COMM_WORLD);
