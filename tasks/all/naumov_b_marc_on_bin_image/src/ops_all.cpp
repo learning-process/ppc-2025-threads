@@ -62,7 +62,7 @@ bool naumov_b_marc_on_bin_image_all::TestTaskALL::PreProcessingImpl() {
   remainder_ = rows_ % num_procs_;
   local_start_row_ = rank_ * base_rows_ + std::min(rank_, remainder_);
   local_rows_ = base_rows_ + (rank_ < remainder_ ? 1 : 0);
-  base_label_ = rank_ * rows_ * cols_;
+  base_label_ = (rank_ + 1) * (rows_ * cols_) + 1;
 
   local_image_.resize(local_rows_ * cols_);
   std::vector<int> counts(num_procs_);
@@ -256,7 +256,6 @@ void naumov_b_marc_on_bin_image_all::TestTaskALL::UpdateGlobalLabels() {
   
   std::map<int, int> parent;
   
-  // Инициализация родительских указателей
   for (int label : global_output_) {
     if (label != 0 && parent.find(label) == parent.end()) {
       parent[label] = label;
@@ -269,7 +268,6 @@ void naumov_b_marc_on_bin_image_all::TestTaskALL::UpdateGlobalLabels() {
     if (parent.find(l2) == parent.end()) parent[l2] = l2;
   }
 
-  // Сжатие путей
   std::function<int(int)> find = [&](int x) {
     if (parent[x] != x) {
       parent[x] = find(parent[x]);
@@ -277,7 +275,6 @@ void naumov_b_marc_on_bin_image_all::TestTaskALL::UpdateGlobalLabels() {
     return parent[x];
   };
 
-  // Объединение меток
   for (size_t i = 0; i < all_equivalences_.size(); i += 2) {
     int root1 = find(all_equivalences_[i]);
     int root2 = find(all_equivalences_[i + 1]);
@@ -287,12 +284,10 @@ void naumov_b_marc_on_bin_image_all::TestTaskALL::UpdateGlobalLabels() {
     }
   }
 
-  // Обновление меток в выходном изображении
   for (int& label : global_output_) {
     if (label != 0) label = find(label);
   }
 
-  // Перенумерация меток
   std::map<int, int> renumber;
   int new_label = 1;
   for (int& label : global_output_) {
@@ -309,7 +304,6 @@ bool naumov_b_marc_on_bin_image_all::TestTaskALL::RunImpl() {
   LocalLabeling();
   MergeLabelsBetweenProcesses();
 
-  // Сбор локальных результатов
   std::vector<int> counts(num_procs_);
   std::vector<int> displs(num_procs_);
   for (int i = 0; i < num_procs_; ++i) {
@@ -318,11 +312,10 @@ bool naumov_b_marc_on_bin_image_all::TestTaskALL::RunImpl() {
     displs[i] = (i * base_rows_ + std::min(i, remainder_)) * cols_;
   }
 
-  // Инициализация global_output_ на всех процессах
   if (rank_ == 0) {
     global_output_.resize(rows_ * cols_);
   } else {
-    global_output_.resize(0); // Не корневой процесс не должен иметь данных
+    global_output_.resize(0);
   }
 
   MPI_Gatherv(local_output_.data(), counts[rank_], MPI_INT,
@@ -344,7 +337,6 @@ bool naumov_b_marc_on_bin_image_all::TestTaskALL::PostProcessingImpl() {
     std::copy(global_output_.begin(), global_output_.end(), output_data);
   }
 
-  // Рассылаем результаты всем процессам
   MPI_Bcast(output_data, data_size, MPI_INT, 0, MPI_COMM_WORLD);
 
   return true;
