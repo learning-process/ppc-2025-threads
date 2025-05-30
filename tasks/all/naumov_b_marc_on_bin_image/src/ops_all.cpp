@@ -10,7 +10,6 @@
 #include <utility>
 #include <vector>
 
-
 std::vector<int> naumov_b_marc_on_bin_image_all::GenerateRandomBinaryMatrix(int rows, int cols, double probability) {
   const int total_elements = rows * cols;
   const int target_ones = static_cast<int>(total_elements * probability);
@@ -47,7 +46,7 @@ bool naumov_b_marc_on_bin_image_all::TestTaskALL::PreProcessingImpl() {
     cols_ = static_cast<int>(task_data->inputs_count[1]);
     input_image_.resize(rows_ * cols_);
     int* input_data = reinterpret_cast<int*>(task_data->inputs[0]);
-    std::copy(input_data, input_data +(rows_ * cols_), input_image_.begin());
+    std::copy(input_data, input_data + (rows_ * cols_), input_image_.begin());
   }
 
   MPI_Bcast(&rows_, 1, MPI_INT, 0, MPI_COMM_WORLD);
@@ -209,7 +208,9 @@ void naumov_b_marc_on_bin_image_all::TestTaskALL::LocalLabeling() {
 }
 
 void naumov_b_marc_on_bin_image_all::TestTaskALL::MergeLabelsBetweenProcesses() {
-  if (num_procs_ == 1) {return;}
+  if (num_procs_ == 1) {
+    return;
+  }
 
   std::vector<int> last_row(cols_, 0);
   std::vector<int> next_first_row(cols_, 0);
@@ -289,16 +290,18 @@ void naumov_b_marc_on_bin_image_all::TestTaskALL::UpdateGlobalLabels() {
     int root1 = find(all_equivalences_[i]);
     int root2 = find(all_equivalences_[i + 1]);
     if (root1 != root2) {
-      if (root1 < root2){
+      if (root1 < root2) {
         parent[root2] = root1;
-      }else{
+      } else {
         parent[root1] = root2;
       }
     }
   }
 
   for (int& label : global_output_) {
-    if (label != 0) {label = find(label);}
+    if (label != 0) {
+      label = find(label);
+    }
   }
 
   std::map<int, int> renumber;
