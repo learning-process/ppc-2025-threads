@@ -1,8 +1,10 @@
 #pragma once
 
-#include <boost/serialization/access.hpp>
 #include <complex>
+#include <functional>
 #include <memory>
+#include <numeric>
+#include <thread>
 #include <utility>
 #include <vector>
 
@@ -57,8 +59,28 @@ class SeqMatMultCcs : public ppc::core::Task {
  private:
   MatrixInCcsSparse *M1_, *M2_;
   MatrixInCcsSparse M3_;
-
   boost::mpi::communicator world_;
+
+  void ComputeColumnRange(int rank, int size, int total_cols, int& start_col, int& end_col);
+
+  void ComputeSequential(const std::vector<int>& col_indices,
+                         std::vector<std::vector<std::pair<std::complex<double>, int>>>& column_results, int start_col,
+                         int end_col,
+                         const std::function<void(int, std::vector<std::pair<std::complex<double>, int>>&)>& func);
+
+  void ComputeParallel(const std::vector<int>& col_indices,
+                       std::vector<std::vector<std::pair<std::complex<double>, int>>>& column_results, int start_col,
+                       int end_col, int num_threads,
+                       const std::function<void(int, std::vector<std::pair<std::complex<double>, int>>&)>& func);
+
+  void ComputeColumn(int col_idx, std::vector<std::pair<std::complex<double>, int>>& column_data);
+
+  void FillLocalData(const std::vector<std::vector<std::pair<std::complex<double>, int>>>& column_results,
+                     std::vector<std::complex<double>>& local_val, std::vector<int>& local_row,
+                     std::vector<int>& local_col_p, int& local_n_z);
+
+  void CountColumns(const std::vector<std::vector<std::pair<std::complex<double>, int>>>& column_results,
+                    std::vector<int>& local_col_counts, int start_col);
 };
 
 }  // namespace solovev_a_matrix_all
