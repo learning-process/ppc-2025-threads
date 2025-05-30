@@ -22,7 +22,7 @@ class ContrastStretchingMPIOMPTest : public ::testing::Test {
   int num_procs;
 };
 
-TEST_F(ContrastStretchingMPIOMPTest, test_pipeline_run_mpi_omp) {
+TEST_F(golovkin_contrast_stretching_mpi, test_pipeline_run_mpi_omp) {
   constexpr size_t kCount = 1'000'000;
   std::vector<uint8_t> in(kCount);
   std::vector<uint8_t> out(kCount, 0);
@@ -62,7 +62,7 @@ TEST_F(ContrastStretchingMPIOMPTest, test_pipeline_run_mpi_omp) {
   }
 }
 
-TEST_F(ContrastStretchingMPIOMPTest, test_task_run_mpi_omp) {
+TEST_F(golovkin_contrast_stretching_mpi, test_task_run_mpi_omp) {
   constexpr size_t kCount = 1'000'000;
   std::vector<uint8_t> in(kCount);
   std::vector<uint8_t> out(kCount, 0);
