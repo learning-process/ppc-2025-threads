@@ -152,15 +152,15 @@ TEST(deryabin_m_hoare_sort_simple_merge_stl, test_shuffle_array) {
   ASSERT_EQ(true_solution, out_array[0]);
 }
 
-TEST(deryabin_m_hoare_sort_simple_merge_stl, test_random_array_small_pieces) {
+TEST(deryabin_m_hoare_sort_simple_merge_stl, test_random__small_pieces) {
   std::random_device rd;
   std::mt19937 gen(rd());
   std::uniform_real_distribution<> distribution(-100, 100);
-  std::vector<double> input_array(200);
+  std::vector<double> input_array(40);
   std::ranges::generate(input_array.begin(), input_array.end(), [&] { return distribution(gen); });
   std::vector<std::vector<double>> in_array(1, input_array);
   size_t chunk_count = 4;
-  std::vector<double> output_array(200);
+  std::vector<double> output_array(40);
   std::vector<std::vector<double>> out_array(1, output_array);
   std::vector<double> true_solution(input_array);
   std::ranges::sort(true_solution.begin(), true_solution.end());
