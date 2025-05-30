@@ -218,9 +218,7 @@ bool deryabin_m_hoare_sort_simple_merge_mpi::HoareSortTaskMPI::RunImpl() {
         } else {
           block_size += rest_;
         }
-        auto send_rank = (world_rank >= step) 
-                       ? world_rank - step
-                       : 0;
+        auto send_rank = (world_rank >= step) ? world_rank - step : 0;
         world.send(send_rank, 0, input_array_A_.data() + start_idx, block_size);
       } else {
         size_t start_idx = (world_size - (world_rank + 2 * step)) * chunk_size;
@@ -232,13 +230,11 @@ bool deryabin_m_hoare_sort_simple_merge_mpi::HoareSortTaskMPI::RunImpl() {
         if ((world_size & 1) && world_rank == 0) {
           world.recv(world_rank + step - 1, 0, input_array_A_.data(), block_size);
           const size_t merge_point = static_cast<size_t>((2.0 - 1.0 / step) * block_size);
-          MergeUnequalTwoParts(input_array_A_.begin(), 
-                              input_array_A_.end() - block_size,
-                              input_array_A_.begin() + merge_point);
+          MergeUnequalTwoParts(input_array_A_.begin(), input_array_A_.end() - block_size,
+                               input_array_A_.begin() + merge_point);
         } else {
           world.recv(world_rank + step, 0, input_array_A_.data() + start_idx, block_size);
-          MergeTwoParts(input_array_A_.begin() + start_idx, 
-                       input_array_A_.begin() + start_idx + block_size * 2);
+          MergeTwoParts(input_array_A_.begin() + start_idx, input_array_A_.begin() + start_idx + block_size * 2);
         }
       }
     }
