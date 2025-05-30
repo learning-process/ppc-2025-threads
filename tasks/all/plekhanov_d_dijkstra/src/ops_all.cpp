@@ -64,7 +64,7 @@ void ProcessLocalChunk(const std::vector<std::vector<std::pair<int, int>>>& adj_
 #pragma omp critical
           {
             if (new_dist < new_distances[neighbor]) {
-              new_distances [neighbor] = new_dist;
+              new_distances[neighbor] = new_dist;
               thread_updated = true;
             }
           }
