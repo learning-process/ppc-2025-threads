@@ -14,14 +14,17 @@
 #endif
 
 #include <algorithm>  // для std::copy, std::min
-#include <iostream>   // для std::cout, std::endl
+#include <boost/serialization/vector.hpp>
+#include <iostream>  // для std::cout, std::endl
+#include <string>
 
 namespace fyodorov_m_shell_sort_with_even_odd_batcher_merge_mpi {
 
 namespace {
 boost::mpi::communicator world;
+}  // namespace
 
-void PrepareScatterGather(int n, int size, std::vector<int>& sendcounts, std::vector<int>& displs) {
+void TestTaskMPI::PrepareScatterGather(int n, int size, std::vector<int>& sendcounts, std::vector<int>& displs) {
   int local_n = n / size;
   int remainder = n % size;
   sendcounts.assign(size, local_n);
@@ -34,7 +37,7 @@ void PrepareScatterGather(int n, int size, std::vector<int>& sendcounts, std::ve
   }
 }
 
-std::vector<int> MergeBlocks(const std::vector<std::vector<int>>& blocks) {
+std::vector<int> TestTaskMPI::MergeBlocks(const std::vector<std::vector<int>>& blocks) {
   std::vector<int> merged;
   for (const auto& block : blocks) {
     if (!block.empty()) {
@@ -50,8 +53,8 @@ std::vector<int> MergeBlocks(const std::vector<std::vector<int>>& blocks) {
   return merged;
 }
 
-std::vector<std::vector<int>> SplitGatheredToBlocks(const std::vector<int>& gathered,
-                                                    const std::vector<int>& sendcounts) {
+std::vector<std::vector<int>> TestTaskMPI::SplitGatheredToBlocks(const std::vector<int>& gathered,
+                                                                 const std::vector<int>& sendcounts) {
   std::vector<std::vector<int>> blocks(sendcounts.size());
   int pos = 0;
   for (size_t i = 0; i < sendcounts.size(); ++i) {
@@ -67,18 +70,20 @@ std::vector<std::vector<int>> SplitGatheredToBlocks(const std::vector<int>& gath
   return blocks;
 }
 
-void BroadcastOutput(boost::mpi::communicator& world, int rank, int size, std::vector<int>& output_) {
+void TestTaskMPI::BroadcastOutput(boost::mpi::communicator& world, int rank, int size, std::vector<int>& output) {
   if (rank == 0) {
     for (int dest = 1; dest < size; ++dest) {
-      world.send(dest, 0, output_);
+      world.send(dest, 0, output);
     }
   } else {
-    world.recv(0, 0, output_);
+    world.recv(0, 0, output);
   }
 }
 
-void LocalSort(std::vector<int>& local_data, int rank) {
-  if (local_data.empty()) return;
+void TestTaskMPI::LocalSort(std::vector<int>& local_data, int rank) {
+  if (local_data.empty()) {
+    return;
+  }
   TestTaskMPI::ShellSort(local_data);
   std::cout << "rank " << rank << " local_data (first 10): ";
   for (int i = 0; i < std::min(10, static_cast<int>(local_data.size())); ++i) {
@@ -87,14 +92,13 @@ void LocalSort(std::vector<int>& local_data, int rank) {
   std::cout << '\n';
 }
 
-void PrintFirstN(const std::string& label, const std::vector<int>& data, int n = 10) {
+void TestTaskMPI::PrintFirstN(const std::string& label, const std::vector<int>& data, int n) {
   std::cout << label;
   for (int i = 0; i < std::min(n, static_cast<int>(data.size())); ++i) {
     std::cout << data[i] << " ";
   }
   std::cout << '\n';
 }
-}  // namespace
 
 bool TestTaskMPI::PreProcessingImpl() {
   unsigned int input_size = 0;
@@ -155,7 +159,7 @@ bool TestTaskMPI::RunImpl() {
   if (n > 0) {
     std::vector<int> sendcounts;
     std::vector<int> displs;
-    PrepareScatterGather(n, size, sendcounts, displs);
+    TestTaskMPI::PrepareScatterGather(n, size, sendcounts, displs);
 
     local_size = sendcounts[rank];
     local_data.resize(local_size);

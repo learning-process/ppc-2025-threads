@@ -18,6 +18,13 @@ class TestTaskMPI : public ppc::core::Task {
  private:
   static void ShellSort(std::vector<int>& arr);
   static void BatcherMerge(std::vector<int>& left, std::vector<int>& right, std::vector<int>& result);
+  static void PrepareScatterGather(int n, int size, std::vector<int>& sendcounts, std::vector<int>& displs);
+  static std::vector<std::vector<int>> SplitGatheredToBlocks(const std::vector<int>& gathered,
+                                                             const std::vector<int>& sendcounts);
+  static std::vector<int> MergeBlocks(const std::vector<std::vector<int>>& blocks);
+  static void BroadcastOutput(boost::mpi::communicator& world, int rank, int size, std::vector<int>& output);
+  static void LocalSort(std::vector<int>& local_data, int rank);
+  static void PrintFirstN(const std::string& label, const std::vector<int>& data, int n = 10);
   std::vector<int> input_;
   std::vector<int> output_;
   std::vector<int> local_input_;
