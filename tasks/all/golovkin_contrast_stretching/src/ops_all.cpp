@@ -4,6 +4,7 @@
 #include <mpi.h>
 
 #include <algorithm>
+#include <cmath>
 #include <cstdint>
 #include <cstring>
 #include <vector>
@@ -23,6 +24,16 @@ bool golovkin_contrast_stretching::ContrastStretchingMPI_OMP<PixelType>::PreProc
 
   image_size_ = task_data->inputs_count[0] / sizeof(PixelType);
 
+  // Determine MPI datatype based on PixelType
+  MPI_Datatype mpi_pixel_type;
+  if constexpr (std::is_same_v<PixelType, uint8_t>) {
+    mpi_pixel_type = MPI_UNSIGNED_CHAR;
+  } else if constexpr (std::is_same_v<PixelType, uint16_t>) {
+    mpi_pixel_type = MPI_UNSIGNED_SHORT;
+  } else if constexpr (std::is_same_v<PixelType, float>) {
+    mpi_pixel_type = MPI_FLOAT;
+  }
+
   if (image_size_ == 0) {
     return true;
   }
@@ -37,15 +48,15 @@ bool golovkin_contrast_stretching::ContrastStretchingMPI_OMP<PixelType>::PreProc
   input_image_.resize(image_size_);
   output_image_.resize(image_size_);
 
-  MPI_Bcast(input_image_.data(), image_size_, MPI_BYTE, 0, MPI_COMM_WORLD);
+  MPI_Bcast(input_image_.data(), image_size_, mpi_pixel_type, 0, MPI_COMM_WORLD);
 
   PixelType local_min, local_max;
   auto [min_it, max_it] = std::minmax_element(input_image_.begin(), input_image_.end());
   local_min = *min_it;
   local_max = *max_it;
 
-  MPI_Allreduce(&local_min, &min_val_, 1, MPI_BYTE, MPI_MIN, MPI_COMM_WORLD);
-  MPI_Allreduce(&local_max, &max_val_, 1, MPI_BYTE, MPI_MAX, MPI_COMM_WORLD);
+  MPI_Allreduce(&local_min, &min_val_, 1, mpi_pixel_type, MPI_MIN, MPI_COMM_WORLD);
+  MPI_Allreduce(&local_max, &max_val_, 1, mpi_pixel_type, MPI_MAX, MPI_COMM_WORLD);
 
   return true;
 }
@@ -60,6 +71,16 @@ bool golovkin_contrast_stretching::ContrastStretchingMPI_OMP<PixelType>::RunImpl
     return true;
   }
 
+  // Determine MPI datatype based on PixelType
+  MPI_Datatype mpi_pixel_type;
+  if constexpr (std::is_same_v<PixelType, uint8_t>) {
+    mpi_pixel_type = MPI_UNSIGNED_CHAR;
+  } else if constexpr (std::is_same_v<PixelType, uint16_t>) {
+    mpi_pixel_type = MPI_UNSIGNED_SHORT;
+  } else if constexpr (std::is_same_v<PixelType, float>) {
+    mpi_pixel_type = MPI_FLOAT;
+  }
+
   const double scale = 255.0 / (max_val_ - min_val_);
 
   size_t chunk_size = image_size_ / num_procs_;
@@ -68,17 +89,14 @@ bool golovkin_contrast_stretching::ContrastStretchingMPI_OMP<PixelType>::RunImpl
   size_t start = static_cast<size_t>(rank_) * chunk_size + std::min(static_cast<size_t>(rank_), remainder);
   size_t end = start + chunk_size + (static_cast<size_t>(rank_) < remainder ? 1 : 0);
 
-  const int signed_start = static_cast<int>(start);
-  const int signed_end = static_cast<int>(end);
-
 #pragma omp parallel for
-  for (int i = signed_start; i < signed_end; ++i) {
-    double stretched = (input_image_[i] - min_val_) * scale;
+  for (size_t i = start; i < end; ++i) {
+    double stretched = (static_cast<double>(input_image_[i]) - min_val_) * scale;
 
     if constexpr (std::is_same_v<PixelType, uint8_t>) {
-      output_image_[i] = static_cast<uint8_t>(std::clamp(static_cast<int>(stretched + 1e-9), 0, 255));
+      output_image_[i] = static_cast<uint8_t>(std::round(stretched));
     } else if constexpr (std::is_same_v<PixelType, uint16_t>) {
-      output_image_[i] = static_cast<uint16_t>(std::clamp(static_cast<int>(stretched + 1e-9), 0, 255));
+      output_image_[i] = static_cast<uint16_t>(std::round(stretched));
     } else {
       output_image_[i] = static_cast<PixelType>(stretched);
     }
@@ -88,14 +106,14 @@ bool golovkin_contrast_stretching::ContrastStretchingMPI_OMP<PixelType>::RunImpl
     for (int proc = 1; proc < num_procs_; ++proc) {
       size_t proc_start = static_cast<size_t>(proc) * chunk_size + std::min(static_cast<size_t>(proc), remainder);
       size_t proc_end = proc_start + chunk_size + (static_cast<size_t>(proc) < remainder ? 1 : 0);
-      MPI_Recv(output_image_.data() + proc_start, proc_end - proc_start, MPI_BYTE, proc, 0, MPI_COMM_WORLD,
+      MPI_Recv(output_image_.data() + proc_start, proc_end - proc_start, mpi_pixel_type, proc, 0, MPI_COMM_WORLD,
                MPI_STATUS_IGNORE);
     }
   } else {
-    MPI_Send(output_image_.data() + start, end - start, MPI_BYTE, 0, 0, MPI_COMM_WORLD);
+    MPI_Send(output_image_.data() + start, end - start, mpi_pixel_type, 0, 0, MPI_COMM_WORLD);
   }
 
-  MPI_Bcast(output_image_.data(), image_size_, MPI_BYTE, 0, MPI_COMM_WORLD);
+  MPI_Bcast(output_image_.data(), image_size_, mpi_pixel_type, 0, MPI_COMM_WORLD);
 
   return true;
 }
@@ -110,7 +128,7 @@ bool golovkin_contrast_stretching::ContrastStretchingMPI_OMP<PixelType>::PostPro
 
   if (rank_ == 0) {
     auto* output_ptr = reinterpret_cast<PixelType*>(task_data->outputs[0]);
-    std::memcpy(output_ptr, output_image_.data(), output_image_.size() * sizeof(PixelType));
+    std::copy(output_image_.begin(), output_image_.end(), output_ptr);
   }
 
   return true;
