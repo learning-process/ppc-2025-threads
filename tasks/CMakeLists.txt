@@ -105,7 +105,6 @@ foreach(TASK_TYPE ${LIST_OF_TASKS})
               set_target_properties(${EXEC_FUNC} PROPERTIES LINK_FLAGS "${MPI_LINK_FLAGS}")
           endif( MPI_LINK_FLAGS )
           target_link_libraries(${EXEC_FUNC} PUBLIC ${MPI_LIBRARIES})
-
           add_dependencies(${EXEC_FUNC} ppc_boost)
           target_link_directories(${EXEC_FUNC} PUBLIC ${CMAKE_BINARY_DIR}/ppc_boost/install/lib)
           if (NOT MSVC)
@@ -141,28 +140,6 @@ foreach(TASK_TYPE ${LIST_OF_TASKS})
               target_link_libraries(${EXEC_FUNC} PUBLIC tbb)
           endif()
       endif ()
-
-      add_dependencies(${EXEC_FUNC} ppc_opencv)
-      if(WIN32)
-          target_include_directories(${EXEC_FUNC} PUBLIC "${CMAKE_BINARY_DIR}/ppc_opencv/install/include")
-      else()
-          target_include_directories(${EXEC_FUNC} PUBLIC "${CMAKE_BINARY_DIR}/ppc_opencv/install/include/opencv4")
-      endif()
-
-
-      if(WIN32)
-          target_link_directories(${EXEC_FUNC} PUBLIC "${CMAKE_BINARY_DIR}/ppc_opencv/build/lib")
-          set(OCV_VERSION "4110")
-      else()
-          target_link_directories(${EXEC_FUNC} PUBLIC "${CMAKE_BINARY_DIR}/ppc_opencv/install/lib")
-      endif()
-
-      target_link_libraries(${EXEC_FUNC} PUBLIC
-              opencv_core${OCV_VERSION}
-              opencv_highgui${OCV_VERSION}
-              opencv_imgcodecs${OCV_VERSION}
-              opencv_imgproc${OCV_VERSION}
-              opencv_videoio${OCV_VERSION})
 
       add_dependencies(${EXEC_FUNC} ppc_googletest)
       target_link_directories(${EXEC_FUNC} PUBLIC "${CMAKE_BINARY_DIR}/ppc_googletest/install/lib")
