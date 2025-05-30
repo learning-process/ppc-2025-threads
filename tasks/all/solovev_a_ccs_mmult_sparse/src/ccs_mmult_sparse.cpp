@@ -42,7 +42,6 @@ bool solovev_a_matrix_all::SeqMatMultCcs::ValidationImpl() {
   return true;
 }
 
-// NOLINTNEXTLINE(readability-function-cognitive-complexity)
 bool solovev_a_matrix_all::SeqMatMultCcs::RunImpl() {
   int rank = world_.rank();
   int size = world_.size();
