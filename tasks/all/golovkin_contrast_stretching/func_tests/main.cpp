@@ -250,7 +250,7 @@ TEST_F(golovkin_contrast_stretching_mpi, test_random_mid_range_values) {
   ASSERT_TRUE(task.PreProcessing());
   ASSERT_TRUE(task.Run());
   ASSERT_TRUE(task.PostProcessing());
-  
+
   if (rank == 0) {
     ASSERT_EQ(out.size(), expected.size());
     for (size_t i = 0; i < out.size(); ++i) {
