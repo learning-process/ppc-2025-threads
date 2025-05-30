@@ -1,6 +1,7 @@
 #include <gtest/gtest.h>
 
 #include <algorithm>
+#include <boost/serialization/vector.hpp>
 #include <cstddef>
 #include <cstdint>
 #include <memory>
