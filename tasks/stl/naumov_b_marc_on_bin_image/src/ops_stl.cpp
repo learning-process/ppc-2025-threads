@@ -193,8 +193,8 @@ void naumov_b_marc_on_bin_image_stl::TestTaskSTL::CreateAndJoinThreads() {
 void naumov_b_marc_on_bin_image_stl::TestTaskSTL::ProcessRange(size_t start_idx, size_t end_idx) {
   for (size_t idx = start_idx; idx < end_idx; ++idx) {
     if (input_image_[idx] == 1) {
-      const int root_label = FindRoot(output_image_[idx]);
-      output_image_[idx] = root_label;
+      int& current_label = output_image_[idx];
+      current_label = FindRoot(current_label);
     }
   }
 }

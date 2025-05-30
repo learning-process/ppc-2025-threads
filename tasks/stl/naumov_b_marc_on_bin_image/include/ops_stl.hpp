@@ -24,17 +24,14 @@ class TestTaskSTL : public ppc::core::Task {
   void ProcessRange(size_t start_idx, size_t end_idx);
   void CreateAndJoinThreads();
 
-  void ProcessBlock(int start_row, int start_col, int block_rows, int block_cols);
   void ProcessPixel(int row, int col);
   void AssignNewLabel(int row, int col);
   void AssignMinLabel(int row, int col, const std::vector<int> &neighbors);
-  void MergeLabels();
 
   std::vector<int> FindAdjacentLabels(int row, int col);
   void AssignLabel(int row, int col, int &current_label);
   int FindRoot(int label);
   void UnionLabels(int label1, int label2);
-  void CalculateBlockSize();
 
   int rows_{};
   int cols_{};
