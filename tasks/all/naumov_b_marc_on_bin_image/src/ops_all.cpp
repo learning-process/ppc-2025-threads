@@ -185,14 +185,31 @@ void naumov_b_marc_on_bin_image_all::TestTaskALL::LocalLabeling() {
     }
   }
 
-  for (int i = 0; i < local_rows_; ++i) {
-    for (int j = 0; j < cols_; ++j) {
-      if (local_output_[i * cols_ + j] != 0) {
-        int label = local_output_[i * cols_ + j];
-        int root = FindRoot(label - base_label_);
-        local_output_[i * cols_ + j] = root + base_label_;
-      }
+  const int num_threads = std::thread::hardware_concurrency();
+  std::vector<std::thread> threads;
+  int rows_per_thread = (local_rows_ + num_threads - 1) / num_threads;
+
+  for (int t = 0; t < num_threads; ++t) {
+    int start_row = t * rows_per_thread;
+    int end_row = std::min(start_row + rows_per_thread, local_rows_);
+    
+    if (start_row < local_rows_) {
+      threads.emplace_back([&, start_row, end_row]() {
+        for (int i = start_row; i < end_row; ++i) {
+          for (int j = 0; j < cols_; ++j) {
+            if (local_output_[i * cols_ + j] != 0) {
+              int label = local_output_[i * cols_ + j];
+              int root = FindRoot(label - base_label_);
+              local_output_[i * cols_ + j] = root + base_label_;
+            }
+          }
+        }
+      });
     }
+  }
+
+  for (auto& thread : threads) {
+    thread.join();
   }
 }
 
