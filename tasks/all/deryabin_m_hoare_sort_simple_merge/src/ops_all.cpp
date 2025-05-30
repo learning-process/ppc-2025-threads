@@ -221,22 +221,22 @@ bool deryabin_m_hoare_sort_simple_merge_mpi::HoareSortTaskMPI::RunImpl() {
         if (world_rank >= step) {
           world.send(world_rank - step, 0, input_array_A_.data() + start_idx, block_size);
         } else {
-          world.send(0, 0, input_array_A_.data(), block_size);
+          world.send(0, 0, input_array_A_.data() + start_idx, block_size);
         }
       } else {
         size_t start_idx = (world_size - (world_rank + 2 * step)) * chunk_size;
-        if (world_rank + step != world_size - 1) {
+        const auto recv_rank = (world_size & 1) && world_rank == 0 ? world_rank + step - 1 : world_rank + step;
+        if (recv_rank != world_size - 1) {
           start_idx += rest_;
         } else {
           block_size += rest_;
         }
+        world.recv(recv_rank, 0, input_array_A_.data() + start_idx, block_size);
         if ((world_size & 1) && world_rank == 0) {
-          world.recv(world_rank + step - 1, 0, input_array_A_.data(), block_size);
           const size_t merge_point = static_cast<size_t>((2.0 - 1.0 / step) * block_size);
-          MergeUnequalTwoParts(input_array_A_.begin(), input_array_A_.end() - block_size,
-                               input_array_A_.begin() + merge_point);
+          MergeUnequalTwoParts(input_array_A_.begin() + start_idx, input_array_A_.begin() + start_idx + block_size,
+                               input_array_A_.begin() + start_idx + merge_point);
         } else {
-          world.recv(world_rank + step, 0, input_array_A_.data() + start_idx, block_size);
           MergeTwoParts(input_array_A_.begin() + start_idx, input_array_A_.begin() + start_idx + block_size * 2);
         }
       }
