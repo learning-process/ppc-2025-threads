@@ -79,9 +79,7 @@ void deryabin_m_hoare_sort_simple_merge_mpi::MergeTwoParts(std::vector<double>::
     const auto mid = first + ((last - first) >> 1);
     const auto left_end = std::upper_bound(first, mid, *mid);
     const auto right_start = std::lower_bound(mid, last, *(mid - 1));
-    const size_t left_len = std::distance(left_end, mid);
-    const size_t right_len = std::distance(mid, right_start);
-    const size_t overlap_len = std::min(left_len, right_len);
+    const size_t overlap_len = std::min(std::distance(left_end, mid), std::distance(mid, right_start));
     oneapi::tbb::parallel_for(oneapi::tbb::blocked_range<size_t>(0, overlap_len),
                               [&left_end, &mid](const oneapi::tbb::blocked_range<size_t>& r) {
                                 for (size_t i = r.begin(); i < r.end(); ++i) {
@@ -104,9 +102,7 @@ void deryabin_m_hoare_sort_simple_merge_mpi::MergeUnequalTwoParts(std::vector<do
   if (last - first >= 2000) {
     const auto left_end = std::upper_bound(first, mid, *mid);
     const auto right_start = std::lower_bound(mid, last, *(mid - 1));
-    const size_t left_len = std::distance(left_end, mid);
-    const size_t right_len = std::distance(mid, right_start);
-    const size_t overlap_len = std::min(left_len, right_len);
+    const size_t overlap_len = std::min(std::distance(left_end, mid), std::distance(mid, right_start));
     oneapi::tbb::parallel_for(oneapi::tbb::blocked_range<size_t>(0, overlap_len),
                               [&left_end, &mid](const oneapi::tbb::blocked_range<size_t>& r) {
                                 for (size_t i = r.begin(); i < r.end(); ++i) {
