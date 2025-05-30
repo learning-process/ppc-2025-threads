@@ -16,58 +16,101 @@ void deryabin_m_hoare_sort_simple_merge_mpi::SeqHoaraSort(std::vector<double>::i
                                                           std::vector<double>::iterator last) {
   if (first >= last) {
     return;
-  }
-  const double pivot_value = *(first + ((last - first) >> 1));
-  auto left = first;
-  auto right = last;
-  do {
-    while (left < last && *left < pivot_value) {
-      left++;
-    }
-    while (right > first && *right > pivot_value) {
-      right--;
-    }
-    if (*left == *right && left != right) {
-      if (*left < *(left + 1)) {
+  } else if (last - first >= 199) {
+    const auto mid = first + ((last - first) >> 1);
+    const double pivot_value = *first < *mid ? *mid < *last ? *mid : std::max(*first, *last) : *first < *last ? *first : std::max(*mid, *last);
+    auto left = first;
+    auto right = last;
+    do {
+      while (left < last && *left < pivot_value) {
         left++;
-      } else {
+      }
+      while (right > first && *right > pivot_value) {
         right--;
       }
-    }
-    std::iter_swap(left, right);
-  } while (left != right);
-  HoaraSort(first, right);
-  HoaraSort(left + 1, last);
+      if (*left == *right && left != right) {
+        if (*left < *(left + 1)) {
+          left++;
+        } else {
+          right--;
+        }
+      }
+      std::iter_swap(left, right);
+    } while (left != right);
+    HoaraSort(first, right);
+    HoaraSort(left + 1, last);
+  } else {
+    const double pivot_value = *(first + ((last - first) >> 1));
+    auto left = first;
+    auto right = last;
+    do {
+      while (left < last && *left < pivot_value) {
+        left++;
+      }
+      while (right > first && *right > pivot_value) {
+        right--;
+      }
+      if (*left == *right && left != right) {
+        if (*left < *(left + 1)) {
+          left++;
+        } else {
+          right--;
+        }
+      }
+      std::iter_swap(left, right);
+    } while (left != right);
+    HoaraSort(first, right);
+    HoaraSort(left + 1, last);    
+  }
 }
 
 void deryabin_m_hoare_sort_simple_merge_mpi::HoaraSort(std::vector<double>::iterator first,
                                                        std::vector<double>::iterator last) {
   if (first >= last) {
     return;
-  }
-  const double pivot_value = *(first + ((last - first) >> 1));
-  auto left = first;
-  auto right = last;
-  do {
-    while (left < last && *left < pivot_value) {
-      left++;
-    }
-    while (right > first && *right > pivot_value) {
-      right--;
-    }
-    if (*left == *right && left != right) {
-      if (*left < *(left + 1)) {
+  } else if (last - first >= 199) {
+    const auto mid = first + ((last - first) >> 1);
+    const double pivot_value = *first < *mid ? *mid < *last ? *mid : std::max(*first, *last) : *first < *last ? *first : std::max(*mid, *last);
+    auto left = first;
+    auto right = last;
+    do {
+      while (left < last && *left < pivot_value) {
         left++;
-      } else {
+      }
+      while (right > first && *right > pivot_value) {
         right--;
       }
-    }
-    std::iter_swap(left, right);
-  } while (left != right);
-  if (last - first >= 199) {
-    oneapi::tbb::parallel_invoke([&first, &right]() { HoaraSort(first, right); },
-                                 [&left, &last]() { HoaraSort(left + 1, last); });
+      if (*left == *right && left != right) {
+        if (*left < *(left + 1)) {
+          left++;
+        } else {
+          right--;
+        }
+      }
+      std::iter_swap(left, right);
+    } while (left != right);
+      oneapi::tbb::parallel_invoke([&first, &right]() { HoaraSort(first, right); },
+                                   [&left, &last]() { HoaraSort(left + 1, last); });
   } else {
+    const double pivot_value = *(first + ((last - first) >> 1));
+    auto left = first;
+    auto right = last;
+    do {
+      while (left < last && *left < pivot_value) {
+        left++;
+      }
+      while (right > first && *right > pivot_value) {
+        right--;
+      }
+      if (*left == *right && left != right) {
+        if (*left < *(left + 1)) {
+          left++;
+        } else {
+          right--;
+        }
+      }
+      std::iter_swap(left, right);
+    } while (left != right);
     HoaraSort(first, right);
     HoaraSort(left + 1, last);
   }
