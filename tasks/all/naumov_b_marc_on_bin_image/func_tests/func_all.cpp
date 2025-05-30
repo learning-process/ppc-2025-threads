@@ -11,20 +11,6 @@
 #include "core/task/include/task.hpp"
 #include "core/util/include/util.hpp"
 
-namespace {
-void CheckTopNeighbor(const std::vector<int> &in, const std::vector<int> &out, int i, int j, int n) {
-  if (i > 0 && in[((i - 1) * n) + j] == 1) {
-    EXPECT_EQ(out[(i * n) + j], out[((i - 1) * n) + j]);
-  }
-}
-
-void CheckLeftNeighbor(const std::vector<int> &in, const std::vector<int> &out, int i, int j, int n) {
-  if (j > 0 && in[(i * n) + (j - 1)] == 1) {
-    EXPECT_EQ(out[(i * n) + j], out[(i * n) + (j - 1)]);
-  }
-}
-}  // namespace
-
 TEST(naumov_b_marc_on_bin_image_all, Validation_1) {
   int m = 3;
   int n = 3;
