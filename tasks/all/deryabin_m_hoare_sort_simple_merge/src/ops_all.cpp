@@ -77,9 +77,9 @@ void deryabin_m_hoare_sort_simple_merge_mpi::MergeTwoParts(std::vector<double>::
                                                            std::vector<double>::iterator last) {
   if (last - first >= 2000) {
     const auto mid = first + ((last - first) >> 1);
-    const auto left_end = std::upper_bound(first, mid, *mid);
-    const auto right_start = std::lower_bound(mid, last, *(mid - 1));
-    const size_t overlap_len = std::min(std::distance(left_end, mid), std::distance(mid, right_start));
+    const auto left_end = std::upper_bound(first, mid - 1, *mid);
+    const auto right_start = std::upper_bound(mid, last, *(mid - 1));
+    const size_t overlap_len = std::min(std::distance(left_end, mid), std::distance(mid - 1, right_start));
     oneapi::tbb::parallel_for(oneapi::tbb::blocked_range<size_t>(0, overlap_len),
                               [&left_end, &mid](const oneapi::tbb::blocked_range<size_t>& r) {
                                 for (size_t i = r.begin(); i < r.end(); ++i) {
@@ -100,9 +100,9 @@ void deryabin_m_hoare_sort_simple_merge_mpi::MergeUnequalTwoParts(std::vector<do
                                                                   std::vector<double>::iterator mid,
                                                                   std::vector<double>::iterator last) {
   if (last - first >= 2000) {
-    const auto left_end = std::upper_bound(first, mid, *mid);
-    const auto right_start = std::lower_bound(mid, last, *(mid - 1));
-    const size_t overlap_len = std::min(std::distance(left_end, mid), std::distance(mid, right_start));
+    const auto left_end = std::upper_bound(first, mid - 1, *mid);
+    const auto right_start = std::upper_bound(mid, last, *(mid - 1));
+    const size_t overlap_len = std::min(std::distance(left_end, mid), std::distance(mid - 1, right_start));
     oneapi::tbb::parallel_for(oneapi::tbb::blocked_range<size_t>(0, overlap_len),
                               [&left_end, &mid](const oneapi::tbb::blocked_range<size_t>& r) {
                                 for (size_t i = r.begin(); i < r.end(); ++i) {
