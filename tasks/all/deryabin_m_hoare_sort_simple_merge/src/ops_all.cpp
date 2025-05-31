@@ -264,18 +264,19 @@ bool deryabin_m_hoare_sort_simple_merge_mpi::HoareSortTaskMPI::RunImpl() {
         }
       } else {
         const bool special_odd_case = (chunk_count_ & 1) != 0 && world_rank == 0;
-        } else {
-          start_idx += rest_;
-        }
-        world_.recv(static_cast<int>(recv_rank), 0, input_array_A_.data() + start_idx, static_cast<int>(block_size));
-        const auto final_iter =
-            special_odd_case ? input_array_A_.end()
-                             : input_array_A_.begin() + static_cast<std::ptrdiff_t>(start_idx + block_size * 2 - rest_);
-}
+      }
+      else {
+        start_idx += rest_;
+      }
+      world_.recv(static_cast<int>(recv_rank), 0, input_array_A_.data() + start_idx, static_cast<int>(block_size));
+      const auto final_iter =
+          special_odd_case ? input_array_A_.end()
+                           : input_array_A_.begin() + static_cast<std::ptrdiff_t>(start_idx + block_size * 2 - rest_);
+    }
 
-bool deryabin_m_hoare_sort_simple_merge_mpi::HoareSortTaskMPI::PostProcessingImpl() {
-  if (world_.rank() == 0) {
-    reinterpret_cast<std::vector<double>*>(task_data->outputs[0])[0] = input_array_A_;
-  }
-  return true;
-}
+    bool deryabin_m_hoare_sort_simple_merge_mpi::HoareSortTaskMPI::PostProcessingImpl() {
+      if (world_.rank() == 0) {
+        reinterpret_cast<std::vector<double>*>(task_data->outputs[0])[0] = input_array_A_;
+      }
+      return true;
+    }
