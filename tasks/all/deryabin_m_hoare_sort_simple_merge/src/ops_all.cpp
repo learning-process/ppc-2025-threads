@@ -7,8 +7,8 @@
 #include <bit>
 #include <boost/mpi/collectives/broadcast.hpp>
 #include <cmath>
-+#include <cstddef>
-+#include <iterator>
+#include <cstddef>
+#include <iterator>
 #include <vector>
 
 void deryabin_m_hoare_sort_simple_merge_mpi::SeqHoaraSort(std::vector<double>::iterator first,
