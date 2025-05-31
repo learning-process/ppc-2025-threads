@@ -24,7 +24,7 @@ class TestTaskALL : public ppc::core::Task {
  private:
   static std::map<int, int> BuildParentMap(const std::vector<int>& global_output, const std::vector<int>& all_equivalences);
   static int FindRoot(std::map<int, int>& parent, int x);
-  void ProcessEquivalences(std::map<int, int>& parent, const std::vector<int>& all_equivalences);
+  static void ProcessEquivalences(std::map<int, int>& parent, const std::vector<int>& all_equivalences);
   static void RenumberLabels(std::vector<int>& global_output);
   void ProcessPixel(int row, int col);
   void AssignNewLabel(int row, int col);
