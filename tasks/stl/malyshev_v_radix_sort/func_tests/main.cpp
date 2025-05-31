@@ -134,3 +134,20 @@ TEST(malyshev_v_radix_sort_all, reverse_order_test) {
   std::ranges::sort(sorted_global_vector);
   ASSERT_EQ(result, sorted_global_vector);
 }
+
+TEST(malyshev_v_radix_sort_all, validation_test) {
+  constexpr size_t input_size = 10;
+  constexpr size_t output_size = 5;
+
+  std::vector<double> input(input_size);
+  std::vector<double> output(output_size);
+
+  std::shared_ptr<ppc::core::TaskData> task_data = std::make_shared<ppc::core::TaskData>();
+  task_data->inputs.emplace_back(reinterpret_cast<uint8_t*>(input.data()));
+  task_data->inputs_count.emplace_back(input.size());
+  task_data->outputs.emplace_back(reinterpret_cast<uint8_t*>(output.data()));
+  task_data->outputs_count.emplace_back(output.size());
+
+  malyshev_v_radix_sort_stl::TestTaskSTL task_stl(task_data);
+  ASSERT_FALSE(task_stl.ValidationImpl());
+}
