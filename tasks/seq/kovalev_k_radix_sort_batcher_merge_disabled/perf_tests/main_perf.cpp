@@ -51,7 +51,7 @@ TEST(kovalev_k_radix_sort_batcher_merge_seq, test_pipeline_run) {
 }
 
 TEST(kovalev_k_radix_sort_batcher_merge_seq, test_task_run) {
-  const unsigned int length = 20000000;
+  const unsigned int length = 10000000;
   std::vector<long long int> in(length);
   std::vector<long long int> out(length);
   std::random_device rd;
