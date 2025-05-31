@@ -307,7 +307,8 @@ bool deryabin_m_hoare_sort_simple_merge_mpi::HoareSortTaskMPI::RunImpl() {
           MergeUnequalTwoParts(input_array_A_.begin() + start_idx, input_array_A_.begin() + start_idx + block_size,
                                input_array_A_.begin() + start_idx + merge_point);
         } else {
-          MergeTwoParts(input_array_A_.begin() + start_idx, input_array_A_.begin() + start_idx + block_size * 2 - rest_);
+          MergeTwoParts(input_array_A_.begin() + start_idx,
+                        input_array_A_.begin() + start_idx + block_size * 2 - rest_);
         }
       }
     }
