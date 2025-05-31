@@ -34,7 +34,7 @@ class TestTaskALL : public ppc::core::Task {
   void UnionLabels(int label1, int label2);
   void LocalLabeling();
   void MergeLabelsBetweenProcesses();
-  void UpdateGlobalLabels();
+  void UpdateGlobalLabels(); 
 
   int rows_{}, cols_{};
   int rank_{}, num_procs_{};
