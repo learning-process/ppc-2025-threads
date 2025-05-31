@@ -11,7 +11,6 @@
 #include "core/perf/include/perf.hpp"
 #include "core/task/include/task.hpp"
 #include "seq/vershinina_a_hoare_sort/include/ops_seq.hpp"
-
 namespace {
 std::vector<int> GetRandomVector(int len) {
   std::random_device dev;
