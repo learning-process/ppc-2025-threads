@@ -1,0 +1,303 @@
+// Golovkin Maksims
+#include <gtest/gtest.h>
+#include <mpi.h>
+
+#include <cstddef>
+#include <cstdint>
+#include <memory>
+#include <vector>
+
+#include "all/golovkin_contrast_stretching/include/ops_all.hpp"
+#include "core/task/include/task.hpp"
+
+class golovkin_contrast_stretching_mpi : public ::testing::Test {
+ protected:
+  void SetUp() override {
+    MPI_Comm_rank(MPI_COMM_WORLD, &rank);
+    MPI_Comm_size(MPI_COMM_WORLD, &num_procs);
+  }
+
+  int rank;
+  int num_procs;
+};
+
+TEST_F(golovkin_contrast_stretching_mpi, test_contrast_basic) {
+  constexpr size_t kSize = 8;
+  std::vector<uint8_t> in = {30, 60, 90, 120, 150, 180, 210, 240};
+  std::vector<uint8_t> out(kSize, 0);
+  std::vector<uint8_t> expected = {0, 36, 73, 109, 146, 182, 219, 255};
+
+  auto task_data = std::make_shared<ppc::core::TaskData>();
+  task_data->inputs.emplace_back(reinterpret_cast<uint8_t*>(in.data()));
+  task_data->inputs_count.emplace_back(in.size());
+  task_data->outputs.emplace_back(reinterpret_cast<uint8_t*>(out.data()));
+  task_data->outputs_count.emplace_back(out.size());
+
+  golovkin_contrast_stretching::ContrastStretchingMPI_OMP<uint8_t> task(task_data);
+  ASSERT_TRUE(task.Validation());
+  ASSERT_TRUE(task.PreProcessing());
+  ASSERT_TRUE(task.Run());
+  ASSERT_TRUE(task.PostProcessing());
+
+  if (rank == 0) {
+    EXPECT_EQ(out, expected);
+  }
+}
+
+TEST_F(golovkin_contrast_stretching_mpi, test_contrast_flat_image) {
+  constexpr size_t kSize = 10;
+  std::vector<uint8_t> in(kSize, 100);
+  std::vector<uint8_t> out(kSize, 0);
+  std::vector<uint8_t> expected(kSize, 0);
+
+  auto task_data = std::make_shared<ppc::core::TaskData>();
+  task_data->inputs.emplace_back(reinterpret_cast<uint8_t*>(in.data()));
+  task_data->inputs_count.emplace_back(in.size());
+  task_data->outputs.emplace_back(reinterpret_cast<uint8_t*>(out.data()));
+  task_data->outputs_count.emplace_back(out.size());
+
+  golovkin_contrast_stretching::ContrastStretchingMPI_OMP<uint8_t> task(task_data);
+  ASSERT_TRUE(task.Validation());
+  ASSERT_TRUE(task.PreProcessing());
+  ASSERT_TRUE(task.Run());
+  ASSERT_TRUE(task.PostProcessing());
+
+  if (rank == 0) {
+    EXPECT_EQ(out, expected);
+  }
+}
+
+TEST_F(golovkin_contrast_stretching_mpi, test_all_maximum) {
+  constexpr size_t kSize = 16;
+  std::vector<uint8_t> in(kSize, 255);
+  std::vector<uint8_t> out(kSize, 0);
+  std::vector<uint8_t> expected(kSize, 0);
+
+  auto task_data = std::make_shared<ppc::core::TaskData>();
+  task_data->inputs.emplace_back(reinterpret_cast<uint8_t*>(in.data()));
+  task_data->inputs_count.emplace_back(in.size());
+  task_data->outputs.emplace_back(reinterpret_cast<uint8_t*>(out.data()));
+  task_data->outputs_count.emplace_back(out.size());
+
+  golovkin_contrast_stretching::ContrastStretchingMPI_OMP<uint8_t> task(task_data);
+  ASSERT_TRUE(task.Validation());
+  ASSERT_TRUE(task.PreProcessing());
+  ASSERT_TRUE(task.Run());
+  ASSERT_TRUE(task.PostProcessing());
+
+  if (rank == 0) {
+    EXPECT_EQ(out, expected);
+  }
+}
+
+TEST_F(golovkin_contrast_stretching_mpi, test_gradient_image) {
+  constexpr size_t kSize = 256;
+  std::vector<uint8_t> in(kSize);
+  std::vector<uint8_t> out(kSize, 0);
+
+  if (rank == 0) {
+    for (size_t i = 0; i < kSize; ++i) {
+      in[i] = static_cast<uint8_t>(i);
+    }
+  }
+
+  auto task_data = std::make_shared<ppc::core::TaskData>();
+  task_data->inputs.emplace_back(reinterpret_cast<uint8_t*>(in.data()));
+  task_data->inputs_count.emplace_back(in.size());
+  task_data->outputs.emplace_back(reinterpret_cast<uint8_t*>(out.data()));
+  task_data->outputs_count.emplace_back(out.size());
+
+  golovkin_contrast_stretching::ContrastStretchingMPI_OMP<uint8_t> task(task_data);
+  ASSERT_TRUE(task.Validation());
+  ASSERT_TRUE(task.PreProcessing());
+  ASSERT_TRUE(task.Run());
+  ASSERT_TRUE(task.PostProcessing());
+
+  if (rank == 0) {
+    EXPECT_EQ(out, in);
+  }
+}
+
+TEST_F(golovkin_contrast_stretching_mpi, test_small_range) {
+  std::vector<uint8_t> in = {100, 101, 102, 103, 104, 105};
+  std::vector<uint8_t> out(in.size(), 0);
+  std::vector<uint8_t> expected = {0, 51, 102, 153, 204, 255};
+
+  auto task_data = std::make_shared<ppc::core::TaskData>();
+  task_data->inputs.emplace_back(reinterpret_cast<uint8_t*>(in.data()));
+  task_data->inputs_count.emplace_back(in.size());
+  task_data->outputs.emplace_back(reinterpret_cast<uint8_t*>(out.data()));
+  task_data->outputs_count.emplace_back(out.size());
+
+  golovkin_contrast_stretching::ContrastStretchingMPI_OMP<uint8_t> task(task_data);
+  ASSERT_TRUE(task.Validation());
+  ASSERT_TRUE(task.PreProcessing());
+  ASSERT_TRUE(task.Run());
+  ASSERT_TRUE(task.PostProcessing());
+
+  if (rank == 0) {
+    EXPECT_EQ(out, expected);
+  }
+}
+
+TEST_F(golovkin_contrast_stretching_mpi, test_extreme_values_only) {
+  std::vector<uint8_t> in = {0, 255, 0, 255, 0, 255};
+  std::vector<uint8_t> out(in.size(), 0);
+  std::vector<uint8_t> expected = {0, 255, 0, 255, 0, 255};
+
+  auto task_data = std::make_shared<ppc::core::TaskData>();
+  task_data->inputs.emplace_back(reinterpret_cast<uint8_t*>(in.data()));
+  task_data->inputs_count.emplace_back(in.size());
+  task_data->outputs.emplace_back(reinterpret_cast<uint8_t*>(out.data()));
+  task_data->outputs_count.emplace_back(out.size());
+
+  golovkin_contrast_stretching::ContrastStretchingMPI_OMP<uint8_t> task(task_data);
+  ASSERT_TRUE(task.Validation());
+  ASSERT_TRUE(task.PreProcessing());
+  ASSERT_TRUE(task.Run());
+  ASSERT_TRUE(task.PostProcessing());
+
+  if (rank == 0) {
+    EXPECT_EQ(out, expected);
+  }
+}
+
+TEST_F(golovkin_contrast_stretching_mpi, test_min_max_near_extremes) {
+  std::vector<uint8_t> in = {1, 254, 1, 254};
+  std::vector<uint8_t> out(in.size(), 0);
+  std::vector<uint8_t> expected = {0, 255, 0, 255};
+
+  auto task_data = std::make_shared<ppc::core::TaskData>();
+  task_data->inputs.emplace_back(reinterpret_cast<uint8_t*>(in.data()));
+  task_data->inputs_count.emplace_back(in.size());
+  task_data->outputs.emplace_back(reinterpret_cast<uint8_t*>(out.data()));
+  task_data->outputs_count.emplace_back(out.size());
+
+  golovkin_contrast_stretching::ContrastStretchingMPI_OMP<uint8_t> task(task_data);
+  ASSERT_TRUE(task.Validation());
+  ASSERT_TRUE(task.PreProcessing());
+  ASSERT_TRUE(task.Run());
+  ASSERT_TRUE(task.PostProcessing());
+
+  if (rank == 0) {
+    EXPECT_EQ(out, expected);
+  }
+}
+
+TEST_F(golovkin_contrast_stretching_mpi, test_alternating_values) {
+  std::vector<uint8_t> in = {10, 20, 10, 20, 10, 20};
+  std::vector<uint8_t> out(in.size(), 0);
+  std::vector<uint8_t> expected = {0, 255, 0, 255, 0, 255};
+
+  auto task_data = std::make_shared<ppc::core::TaskData>();
+  task_data->inputs.emplace_back(reinterpret_cast<uint8_t*>(in.data()));
+  task_data->inputs_count.emplace_back(in.size());
+  task_data->outputs.emplace_back(reinterpret_cast<uint8_t*>(out.data()));
+  task_data->outputs_count.emplace_back(out.size());
+
+  golovkin_contrast_stretching::ContrastStretchingMPI_OMP<uint8_t> task(task_data);
+  ASSERT_TRUE(task.Validation());
+  ASSERT_TRUE(task.PreProcessing());
+  ASSERT_TRUE(task.Run());
+  ASSERT_TRUE(task.PostProcessing());
+
+  if (rank == 0) {
+    EXPECT_EQ(out, expected);
+  }
+}
+
+TEST_F(golovkin_contrast_stretching_mpi, test_all_zeros) {
+  constexpr size_t kSize = 32;
+  std::vector<uint8_t> in(kSize, 0);
+  std::vector<uint8_t> out(kSize, 123);
+  std::vector<uint8_t> expected(kSize, 0);
+
+  auto task_data = std::make_shared<ppc::core::TaskData>();
+  task_data->inputs.emplace_back(reinterpret_cast<uint8_t*>(in.data()));
+  task_data->inputs_count.emplace_back(in.size());
+  task_data->outputs.emplace_back(reinterpret_cast<uint8_t*>(out.data()));
+  task_data->outputs_count.emplace_back(out.size());
+
+  golovkin_contrast_stretching::ContrastStretchingMPI_OMP<uint8_t> task(task_data);
+  ASSERT_TRUE(task.Validation());
+  ASSERT_TRUE(task.PreProcessing());
+  ASSERT_TRUE(task.Run());
+  ASSERT_TRUE(task.PostProcessing());
+
+  if (rank == 0) {
+    EXPECT_EQ(out, expected);
+  }
+}
+
+TEST_F(golovkin_contrast_stretching_mpi, test_random_mid_range_values) {
+  std::vector<uint8_t> in = {50, 60, 70, 80, 90, 100, 110, 120, 130, 140, 150};
+  std::vector<uint8_t> out(in.size(), 0);
+
+  std::vector<uint8_t> expected;
+  expected.reserve(in.size());
+  for (auto val : in) {
+    expected.push_back(static_cast<uint8_t>(((val - 50) * 255 + 50) / 100));
+  }
+
+  auto task_data = std::make_shared<ppc::core::TaskData>();
+  task_data->inputs.emplace_back(reinterpret_cast<uint8_t*>(in.data()));
+  task_data->inputs_count.emplace_back(in.size());
+  task_data->outputs.emplace_back(reinterpret_cast<uint8_t*>(out.data()));
+  task_data->outputs_count.emplace_back(out.size());
+
+  golovkin_contrast_stretching::ContrastStretchingMPI_OMP<uint8_t> task(task_data);
+  ASSERT_TRUE(task.Validation());
+  ASSERT_TRUE(task.PreProcessing());
+  ASSERT_TRUE(task.Run());
+  ASSERT_TRUE(task.PostProcessing());
+
+  if (rank == 0) {
+    ASSERT_EQ(out.size(), expected.size());
+    for (size_t i = 0; i < out.size(); ++i) {
+      EXPECT_NEAR(out[i], expected[i], 1) << "Mismatch at index " << i;
+    }
+  }
+}
+
+TEST_F(golovkin_contrast_stretching_mpi, test_empty_input) {
+  std::vector<uint8_t> in;
+  std::vector<uint8_t> out;
+
+  auto task_data = std::make_shared<ppc::core::TaskData>();
+  task_data->inputs.emplace_back(reinterpret_cast<uint8_t*>(in.data()));
+  task_data->inputs_count.emplace_back(in.size());
+  task_data->outputs.emplace_back(reinterpret_cast<uint8_t*>(out.data()));
+  task_data->outputs_count.emplace_back(out.size());
+
+  golovkin_contrast_stretching::ContrastStretchingMPI_OMP<uint8_t> task(task_data);
+  ASSERT_TRUE(task.Validation());
+  ASSERT_TRUE(task.PreProcessing());
+  ASSERT_TRUE(task.Run());
+  ASSERT_TRUE(task.PostProcessing());
+
+  if (rank == 0) {
+    EXPECT_TRUE(out.empty());
+  }
+}
+
+TEST_F(golovkin_contrast_stretching_mpi, test_uint16_pixels) {
+  std::vector<uint16_t> in = {1000, 2000, 3000, 4000, 5000};
+  std::vector<uint16_t> out(in.size(), 0);
+  std::vector<uint16_t> expected = {0, 64, 128, 191, 255};
+
+  auto task_data = std::make_shared<ppc::core::TaskData>();
+  task_data->inputs.emplace_back(reinterpret_cast<uint8_t*>(in.data()));
+  task_data->inputs_count.emplace_back(in.size() * sizeof(uint16_t));
+  task_data->outputs.emplace_back(reinterpret_cast<uint8_t*>(out.data()));
+  task_data->outputs_count.emplace_back(out.size() * sizeof(uint16_t));
+
+  golovkin_contrast_stretching::ContrastStretchingMPI_OMP<uint16_t> task(task_data);
+  ASSERT_TRUE(task.Validation());
+  ASSERT_TRUE(task.PreProcessing());
+  ASSERT_TRUE(task.Run());
+  ASSERT_TRUE(task.PostProcessing());
+
+  if (rank == 0) {
+    EXPECT_EQ(out, expected);
+  }
+}
