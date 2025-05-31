@@ -127,7 +127,7 @@ bool TestTaskMPI::RunImpl() {  // NOLINT
       }
     }
   } else {
-    boost::mpi::gatherv(world_, local_data.data(), sendcounts[rank], nullptr, sendcounts, displs, 0);
+    boost::mpi::gatherv(world_, local_data.data(), sendcounts[rank], 0);
     world_.recv(0, 0, output_);
   }
 
