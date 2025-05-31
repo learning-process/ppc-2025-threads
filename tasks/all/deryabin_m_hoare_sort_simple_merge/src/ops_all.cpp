@@ -9,7 +9,6 @@
 #include <boost/serialization/vector.hpp>
 #include <cmath>
 #include <core/util/include/util.hpp>
-#include <cstddef>
 #include <vector>
 
 void deryabin_m_hoare_sort_simple_merge_mpi::SeqHoaraSort(std::vector<double>::iterator first,
@@ -262,10 +261,10 @@ bool deryabin_m_hoare_sort_simple_merge_mpi::HoareSortTaskMPI::RunImpl() {
           start_idx += rest_;
         }
         world.recv(recv_rank, 0, input_array_A_.data() + start_idx, block_size);
-        const auto end_iter_ =
+        const auto end_iter =
             special_odd_case ? input_array_A_.end() : input_array_A_.begin() + start_idx + block_size * 2 - rest_;
         MergeUnequalTwoParts(input_array_A_.begin() + start_idx, input_array_A_.begin() + start_idx + block_size,
-                             end_iter_);
+                             end_iter);
       }
     }
   }
