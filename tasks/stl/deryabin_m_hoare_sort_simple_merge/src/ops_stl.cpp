@@ -111,7 +111,7 @@ bool deryabin_m_hoare_sort_simple_merge_stl::HoareSortTaskSTL::RunImpl() {
     for (auto& worker : workers) {
       worker.join();
     }
-    workers.clear();
+    workers.resize(0);
   };
   parallel_for(0, chunk_count_, [this](size_t count) {
     HoareSort(input_array_A_, count * min_chunk_size_, ((count + 1) * min_chunk_size_) - 1);
