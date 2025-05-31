@@ -11,7 +11,6 @@
 #include "core/perf/include/perf.hpp"
 #include "core/task/include/task.hpp"
 
-
 namespace {
 
 void VerifySolution(const std::vector<double>& input, const double* solution, int size) {
