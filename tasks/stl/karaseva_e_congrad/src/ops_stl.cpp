@@ -189,7 +189,8 @@ bool TestTaskSTL::RunImpl() {
   double rs_old = ParallelDotProduct(r, r, size_);
 
   const double tolerance = 1e-10;
-  const size_t max_iterations = size_;
+  // Increased max iterations to allow convergence in floating point arithmetic
+  const size_t max_iterations = size_ * 10;
 
   // 3. Main CG loop
   for (size_t k = 0; k < max_iterations; ++k) {
