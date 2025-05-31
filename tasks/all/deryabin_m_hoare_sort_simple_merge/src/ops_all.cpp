@@ -12,8 +12,7 @@
 #include <vector>
 
 void deryabin_m_hoare_sort_simple_merge_mpi::ProcessPartition(std::vector<double>::iterator left,
-                                                              std::vector<double>::iterator right,
-                                                              double pivot_value) {
+                                                              std::vector<double>::iterator right, double pivot_value) {
   do {
     while (*left < pivot_value) ++left;
     while (*right > pivot_value) --right;
