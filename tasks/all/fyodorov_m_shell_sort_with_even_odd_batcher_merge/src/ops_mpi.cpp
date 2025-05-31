@@ -56,7 +56,7 @@ bool TestTaskMPI::ValidationImpl() {
   return true;
 }
 
-bool TestTaskMPI::RunImpl() {  // NOLINT:
+bool TestTaskMPI::RunImpl() {  // NOLINT
   int rank = world_.rank();
   int size = world_.size();
 
@@ -140,49 +140,56 @@ bool TestTaskMPI::RunImpl() {  // NOLINT:
 }
 
 void TestTaskMPI::MergeSortedBlocks(const std::vector<int>& gathered, const std::vector<int>& sendcounts,
-                                    const std::vector<int>& displs, int size, boost::mpi::communicator& world) {
-  if (gathered.empty()) {
+                                    const std::vector<int>& displs, int size,
+                                    boost::mpi::communicator& world) {  // NOLINT
+  if (sendcounts.size() != static_cast<size_t>(size) || displs.size() != static_cast<size_t>(size)) {
+    std::cerr << "Error: Invalid sendcounts or displs size in MergeSortedBlocks\n";
     output_.clear();
-    for (int dest = 1; dest < size; ++dest) {
-      world.send(dest, 0, output_);
-    }
+    return;
+  }
+
+  if (gathered.empty() || size <= 0) {
+    output_.clear();
     return;
   }
 
   std::vector<std::vector<int>> blocks(size);
-  for (int i = 0, pos = 0; i < size; ++i) {
-    if (sendcounts[i] > 0) {
-      if (pos + sendcounts[i] > static_cast<int>(gathered.size())) {
-        std::cerr << "Error: invalid range for blocks[" << i << "]: pos=" << pos << ", sendcounts[" << i
-                  << "]=" << sendcounts[i] << ", gathered.size()=" << gathered.size() << std::endl;
-        output_.clear();
-        return;
-      }
+  int pos = 0;
+  bool valid = true;
+  for (int i = 0; i < size && valid; ++i) {
+    if (sendcounts[i] > 0 && pos + sendcounts[i] <= static_cast<int>(gathered.size())) {
       blocks[i] = std::vector<int>(gathered.begin() + pos, gathered.begin() + pos + sendcounts[i]);
+      pos += sendcounts[i];
+    } else if (sendcounts[i] < 0 || pos + sendcounts[i] > static_cast<int>(gathered.size())) {
+      std::cerr << "Error: invalid range for blocks[" << i << "]: pos=" << pos << ", sendcounts[" << i
+                << "]=" << sendcounts[i] << ", gathered.size()=" << gathered.size() << "\n";
+      valid = false;
     } else {
       blocks[i] = std::vector<int>();
+      pos += sendcounts[i];
     }
-    pos += sendcounts[i];
   }
 
-  if (blocks[0].empty()) {
+  if (!valid) {
     output_.clear();
-  } else {
-    std::vector<int> merged = blocks[0];
-    for (int i = 1; i < size; ++i) {
-      if (!blocks[i].empty()) {
-        if (merged.empty()) {
-          merged = blocks[i];
-        } else {
-          std::vector<int> temp(merged.size() + blocks[i].size());
-          BatcherMerge(merged, blocks[i], temp);
-          merged = temp;
-        }
+    return;
+  }
+
+  std::vector<int> merged;
+  for (int i = 0; i < size; ++i) {
+    if (!blocks[i].empty()) {
+      if (merged.empty()) {
+        merged = blocks[i];
+      } else {
+        std::vector<int> temp(merged.size() + blocks[i].size());
+        BatcherMerge(merged, blocks[i], temp);
+        merged = std::move(temp);
       }
     }
-    output_ = merged;
   }
+  output_ = std::move(merged);
 
+  // Рассылка результата
   for (int dest = 1; dest < size; ++dest) {
     world.send(dest, 0, output_);
   }
