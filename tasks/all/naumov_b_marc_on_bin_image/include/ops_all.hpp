@@ -22,7 +22,8 @@ class TestTaskALL : public ppc::core::Task {
   bool PostProcessingImpl() override;
 
  private:
-  static std::map<int, int> BuildParentMap(const std::vector<int>& global_output, const std::vector<int>& all_equivalences);
+  static std::map<int, int> BuildParentMap(const std::vector<int>& global_output,
+                                           const std::vector<int>& all_equivalences);
   static int FindRoot(std::map<int, int>& parent, int x);
   static void ProcessEquivalences(std::map<int, int>& parent, const std::vector<int>& all_equivalences);
   static void RenumberLabels(std::vector<int>& global_output);
@@ -34,7 +35,7 @@ class TestTaskALL : public ppc::core::Task {
   void UnionLabels(int label1, int label2);
   void LocalLabeling();
   void MergeLabelsBetweenProcesses();
-  void UpdateGlobalLabels(); 
+  void UpdateGlobalLabels();
 
   int rows_{}, cols_{};
   int rank_{}, num_procs_{};
