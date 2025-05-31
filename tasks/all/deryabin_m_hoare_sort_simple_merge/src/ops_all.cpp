@@ -122,49 +122,42 @@ void deryabin_m_hoare_sort_simple_merge_mpi::HoaraSort(std::vector<double>::iter
 
 void deryabin_m_hoare_sort_simple_merge_mpi::MergeTwoParts(std::vector<double>::iterator first,
                                                            std::vector<double>::iterator last) {
-        if (last - first >= 200) {
-            const auto mid = first + ((last - first) >> 1);
-            const auto left_end = std::upper_bound(first, mid, *mid);
-            const auto right_start = std::upper_bound(mid, last, *(mid - 1));
-            const size_t overlap_len = std::min(std::distance(left_end, mid), std::distance(mid, right_start));
-
-            // Параллельный обмен в зоне перекрытия
-            oneapi::tbb::parallel_for(oneapi::tbb::blocked_range<size_t>(0, overlap_len),
+  if (last - first >= 200) {
+    const auto mid = first + ((last - first) >> 1);
+    const auto left_end = std::upper_bound(first, mid, *mid);
+    const auto right_start = std::upper_bound(mid, last, *(mid - 1));
+    const size_t overlap_len = std::min(std::distance(left_end, mid), std::distance(mid, right_start));
+    oneapi::tbb::parallel_for(oneapi::tbb::blocked_range<size_t>(0, overlap_len),
                               [&left_end, &mid](const oneapi::tbb::blocked_range<size_t>& r) {
-                                  for (size_t i = r.begin(); i < r.end(); ++i) {
-                                      auto left = left_end + i;
-                                      auto right = mid + i;
-                                      if (*left > *right) {
-                                          std::iter_swap(left, right);
-                                      }
+                                for (size_t i = r.begin(); i < r.end(); ++i) {
+                                  auto left = left_end + i;
+                                  auto right = mid + i;
+                                  if (*left > *right) {
+                                    std::iter_swap(left, right);
                                   }
+                                }
                               });
-
-            // Дополнительные обмены по аналогии с первой функцией
-            size_t right_len = right_start - (mid - 1);
-            size_t left_len = mid - left_end;
-            if (right_len > left_len + 1) {
-                size_t delta = right_len - left_len;
-                auto base = &*(right_start - delta);
-
-                oneapi::tbb::parallel_for(oneapi::tbb::blocked_range<size_t>(0, left_len),
-                                  [&base, delta](const oneapi::tbb::blocked_range<size_t>& r) {
-                                      for (size_t j = r.begin(); j < r.end(); ++j) {
-                                          double* current = base - j;
-                                          for (size_t i = 0; i < delta - 1; ++i) {
-                                              if (current[i] > current[i + 1]) {
-                                                  std::swap(current[i], current[i + 1]);
-                                              }
-                                          }
+    size_t right_len = right_start - (mid - 1);
+    size_t left_len = mid - left_end;
+    if (right_len > left_len + 1) {
+      size_t delta = right_len - left_len;
+      auto base = &*(right_start - delta);
+      oneapi::tbb::parallel_for(oneapi::tbb::blocked_range<size_t>(0, left_len),
+                                [&base, delta](const oneapi::tbb::blocked_range<size_t>& r) {
+                                  for (size_t j = r.begin(); j < r.end(); ++j) {
+                                    double* current = base - j;
+                                    for (size_t i = 0; i < delta - 1; ++i) {
+                                      if (current[i] > current[i + 1]) {
+                                        std::swap(current[i], current[i + 1]);
                                       }
-                                  });
-            }
-
-            std::inplace_merge(left_end, mid, right_start);
-        } else {
-            // Последовательное слияние, когда количество элементов меньше 200
-            std::inplace_merge(first, first + ((last - first) >> 1), last);
-        }
+                                    }
+                                  }
+                                });
+    }
+    std::inplace_merge(left_end, mid, right_start);
+  } else {
+    std::inplace_merge(first, first + ((last - first) >> 1), last);
+  }
 }
 
 void deryabin_m_hoare_sort_simple_merge_mpi::MergeUnequalTwoParts(std::vector<double>::iterator first,
