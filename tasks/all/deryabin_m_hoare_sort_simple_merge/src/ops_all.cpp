@@ -262,8 +262,8 @@ bool deryabin_m_hoare_sort_simple_merge_mpi::HoareSortTaskMPI::RunImpl() {
           start_idx += rest_;
         }
         world.recv(recv_rank, 0, input_array_A_.data() + start_idx, block_size);
-        const auto end_iter = special_odd_case ? input_array_A_.end()
-                                               : input_array_A_.begin() + start_idx + block_size * 2 - rest_;
+        const auto end_iter =
+            special_odd_case ? input_array_A_.end() : input_array_A_.begin() + start_idx + block_size * 2 - rest_;
         MergeUnequalTwoParts(input_array_A_.begin() + start_idx, input_array_A_.begin() + start_idx + block_size,
                              end_iter);
       }
