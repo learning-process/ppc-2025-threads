@@ -273,12 +273,12 @@ bool deryabin_m_hoare_sort_simple_merge_mpi::HoareSortTaskMPI::RunImpl() {
   const size_t iterations = std::bit_width(chunk_count_ - 1);
   for (size_t i = 0; i < iterations; ++i) {
     const size_t step = 1ULL << i;
-    size_t block_size = min_chunk_size_ * step;
     if ((chunk_count_ - world_rank) % step == 0 || world_rank == 0) {
       const bool is_even = chunk_count_ & 1 ? ((chunk_count_ - world_rank + step - 1) / step & 1) != 0
                                             : ((chunk_count_ - world_rank - 1) / step & 1) == 0;
       if (is_even) {
         if (world_rank == 0) continue;
+        size_t block_size = min_chunk_size_ * step;
         size_t start_idx = (chunk_count_ - (world_rank + step)) * min_chunk_size_;
         if (world_rank == chunk_count_ - step) {
           block_size += rest_;
@@ -292,6 +292,7 @@ bool deryabin_m_hoare_sort_simple_merge_mpi::HoareSortTaskMPI::RunImpl() {
         }
       } else {
         const bool special_odd_case = (chunk_count_ & 1) && world_rank == 0;
+        size_t block_size = min_chunk_size_ * step;
         size_t start_idx = special_odd_case ? (chunk_count_ - (2 * step - 1)) * min_chunk_size_
                                             : (chunk_count_ - (world_rank + 2 * step)) * min_chunk_size_;
         const size_t recv_rank = special_odd_case ? step - 1 : world_rank + step;
@@ -302,11 +303,11 @@ bool deryabin_m_hoare_sort_simple_merge_mpi::HoareSortTaskMPI::RunImpl() {
         }
         world.recv(recv_rank, 0, input_array_A_.data() + start_idx, block_size);
         if (special_odd_case) {
-          const size_t merge_point = static_cast<size_t>((2.0 - 1.0 / step) * block_size);
+          const size_t merge_point = static_cast<size_t>((2.0 - 1.0 / step) * min_chunk_size_ * step) + rest_;
           MergeUnequalTwoParts(input_array_A_.begin() + start_idx, input_array_A_.begin() + start_idx + block_size,
                                input_array_A_.begin() + start_idx + merge_point);
         } else {
-          MergeTwoParts(input_array_A_.begin() + start_idx, input_array_A_.begin() + start_idx + block_size * 2);
+          MergeTwoParts(input_array_A_.begin() + start_idx, input_array_A_.begin() + start_idx + block_size * 2 - rest_);
         }
       }
     }
