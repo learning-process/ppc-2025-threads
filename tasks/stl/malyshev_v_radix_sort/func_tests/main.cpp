@@ -136,11 +136,11 @@ TEST(malyshev_v_radix_sort_all, reverse_order_test) {
 }
 
 TEST(malyshev_v_radix_sort_all, validation_test) {
-  constexpr size_t input_size = 10;
-  constexpr size_t output_size = 5;
+  constexpr size_t kInputSize = 10;
+  constexpr size_t kOutputSize = 5;
 
-  std::vector<double> input(input_size);
-  std::vector<double> output(output_size);
+  std::vector<double> input(kInputSize);
+  std::vector<double> output(kOutputSize);
 
   std::shared_ptr<ppc::core::TaskData> task_data = std::make_shared<ppc::core::TaskData>();
   task_data->inputs.emplace_back(reinterpret_cast<uint8_t*>(input.data()));
