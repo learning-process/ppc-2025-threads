@@ -91,17 +91,13 @@ std::vector<Point> TestTaskOMP::SortPoints(const Point& pivot) const {
 std::vector<Point> TestTaskOMP::BuildHull(const std::vector<Point>& sorted_points) const {
   std::vector<Point> hull;
   if (sorted_points.size() < 2) {
-    if (!sorted_points.empty() || (sorted_points.empty() && !input_points_.empty())) {
-      hull.push_back(FindPivot());
-    }
-    hull.insert(hull.end(), sorted_points.begin(), sorted_points.end());
-    return hull;
+    return sorted_points;
   }
 
   hull.reserve(sorted_points.size() + 1);
   hull.push_back(FindPivot());
   hull.push_back(sorted_points[0]);
-  constexpr double kEpsilon = 1e-9;
+  constexpr double kEpsilon = 1e-16;
   for (size_t i = 1; i < sorted_points.size(); ++i) {
     while (hull.size() >= 2 && Cross(hull[hull.size() - 2], hull.back(), sorted_points[i]) <= kEpsilon) {
       hull.pop_back();
