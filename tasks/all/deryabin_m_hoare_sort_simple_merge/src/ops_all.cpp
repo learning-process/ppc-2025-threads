@@ -6,41 +6,16 @@
 #include <algorithm>
 #include <bit>
 #include <boost/mpi/collectives/broadcast.hpp>
-#include <boost/serialization/vector.hpp>
 #include <cmath>
-#include <core/util/include/util.hpp>
+#include <iterator>
 #include <vector>
 
 void deryabin_m_hoare_sort_simple_merge_mpi::SeqHoaraSort(std::vector<double>::iterator first,
                                                           std::vector<double>::iterator last) {
   if (first >= last) {
     return;
-  } else if (last - first >= 199) {
-    const auto mid = first + ((last - first) >> 1);
-    const double pivot_value = *first < *mid    ? *mid < *last ? *mid : std::max(*first, *last)
-                                  : *first < *last ? *first
-                                                : std::max(*mid, *last);
-    auto left = first;
-    auto right = last;
-    do {
-      while (left < last && *left < pivot_value) {
-        left++;
-      }
-      while (right > first && *right > pivot_value) {
-        right--;
-      }
-      if (*left == *right && left != right) {
-        if (*left < *(left + 1)) {
-          left++;
-        } else {
-          right--;
-        }
-      }
-      std::iter_swap(left, right);
-    } while (left != right);
-    HoaraSort(first, right);
-    HoaraSort(left + 1, last);
-  } else {
+  }
+  if (last - first < 199) {
     const double pivot_value = *(first + ((last - first) >> 1));
     auto left = first;
     auto right = last;
@@ -62,18 +37,74 @@ void deryabin_m_hoare_sort_simple_merge_mpi::SeqHoaraSort(std::vector<double>::i
     } while (left != right);
     HoaraSort(first, right);
     HoaraSort(left + 1, last);
-  }
+  } else {
+    const auto mid = first + ((last - first) >> 1);
+    const bool first_lt_mid = (*first < *mid);
+    const bool mid_lt_last = (*mid < *last);
+    const bool first_lt_last = (*first < *last);
+    const double pivot_value = 
+        first_lt_mid 
+            ? (mid_lt_last ? *mid : std::max(*first, *last))
+            : (first_lt_last ? *first : std::max(*mid, *last));
+    auto left = first;
+    auto right = last;
+    do {
+      while (left < last && *left < pivot_value) {
+        left++;
+      }
+      while (right > first && *right > pivot_value) {
+        right--;
+      }
+      if (*left == *right && left != right) {
+        if (*left < *(left + 1)) {
+          left++;
+        } else {
+          right--;
+        }
+      }
+      std::iter_swap(left, right);
+    } while (left != right);
+    HoaraSort(first, right);
+    HoaraSort(left + 1, last);
+  } 
 }
 
 void deryabin_m_hoare_sort_simple_merge_mpi::HoaraSort(std::vector<double>::iterator first,
                                                        std::vector<double>::iterator last) {
   if (first >= last) {
     return;
-  } else if (last - first >= 199) {
+  }
+  if (last - first < 199) {
+    const double pivot_value = *(first + ((last - first) >> 1));
+    auto left = first;
+    auto right = last;
+    do {
+      while (left < last && *left < pivot_value) {
+        left++;
+      }
+      while (right > first && *right > pivot_value) {
+        right--;
+      }
+      if (*left == *right && left != right) {
+        if (*left < *(left + 1)) {
+          left++;
+        } else {
+          right--;
+        }
+      }
+      std::iter_swap(left, right);
+    } while (left != right);
+    HoaraSort(first, right);
+    HoaraSort(left + 1, last);
+  } else {
     const auto mid = first + ((last - first) >> 1);
-    const double pivot_value = *first < *mid    ? *mid < *last ? *mid : std::max(*first, *last)
-                                  : *first < *last ? *first
-                                                : std::max(*mid, *last);
+    const bool first_lt_mid = (*first < *mid);
+    const bool mid_lt_last = (*mid < *last);
+    const bool first_lt_last = (*first < *last);
+    const double pivot_value = 
+        first_lt_mid 
+            ? (mid_lt_last ? *mid : std::max(*first, *last))
+            : (first_lt_last ? *first : std::max(*mid, *last));
     auto left = first;
     auto right = last;
     do {
@@ -94,29 +125,7 @@ void deryabin_m_hoare_sort_simple_merge_mpi::HoaraSort(std::vector<double>::iter
     } while (left != right);
     oneapi::tbb::parallel_invoke([&first, &right]() { HoaraSort(first, right); },
                                  [&left, &last]() { HoaraSort(left + 1, last); });
-  } else {
-    const double pivot_value = *(first + ((last - first) >> 1));
-    auto left = first;
-    auto right = last;
-    do {
-      while (left < last && *left < pivot_value) {
-        left++;
-      }
-      while (right > first && *right > pivot_value) {
-        right--;
-      }
-      if (*left == *right && left != right) {
-        if (*left < *(left + 1)) {
-          left++;
-        } else {
-          right--;
-        }
-      }
-      std::iter_swap(left, right);
-    } while (left != right);
-    HoaraSort(first, right);
-    HoaraSort(left + 1, last);
-  }
+  } 
 }
 
 void deryabin_m_hoare_sort_simple_merge_mpi::MergeUnequalTwoParts(std::vector<double>::iterator first,
@@ -129,8 +138,8 @@ void deryabin_m_hoare_sort_simple_merge_mpi::MergeUnequalTwoParts(std::vector<do
     oneapi::tbb::parallel_for(oneapi::tbb::blocked_range<size_t>(0, overlap_len),
                               [&left_end, &mid](const oneapi::tbb::blocked_range<size_t>& r) {
                                 for (size_t i = r.begin(); i < r.end(); ++i) {
-                                  auto left = left_end + i;
-                                  auto right = mid + i;
+                                  auto left = left_end + static_cast<long>(i);
+                                  auto right = mid + static_cast<long>(i);
                                   if (*left > *right) {
                                     std::iter_swap(left, right);
                                   }
@@ -140,7 +149,7 @@ void deryabin_m_hoare_sort_simple_merge_mpi::MergeUnequalTwoParts(std::vector<do
     size_t left_len = mid - left_end;
     if (right_len > left_len + 1) {
       size_t delta = right_len - left_len;
-      auto base = &*(right_start - delta);
+      auto * base = &*(right_start - static_cast<long>(delta));
       oneapi::tbb::parallel_for(oneapi::tbb::blocked_range<size_t>(0, left_len),
                                 [&base, delta](const oneapi::tbb::blocked_range<size_t>& r) {
                                   for (size_t j = r.begin(); j < r.end(); ++j) {
@@ -233,8 +242,8 @@ bool deryabin_m_hoare_sort_simple_merge_mpi::HoareSortTaskMPI::RunImpl() {
   for (size_t i = 0; i < iterations; ++i) {
     const size_t step = 1ULL << i;
     if ((chunk_count_ - world_rank) % step == 0 || world_rank == 0) {
-      const bool is_even = chunk_count_ & 1 ? ((chunk_count_ - world_rank + step - 1) / step & 1) != 0
-                                            : ((chunk_count_ - world_rank - 1) / step & 1) == 0;
+      const bool is_even = ((chunk_count_ & 1) ? ((chunk_count_ - world_rank + step - 1) / step & 1) != 0
+                                            : ((chunk_count_ - world_rank - 1) / step & 1) == 0);
       if (is_even) {
         if (world_rank == 0) continue;
         size_t block_size = min_chunk_size_ * step;
