@@ -3,12 +3,15 @@
 #include <algorithm>
 #include <boost/mpi/collectives/broadcast.hpp>
 #include <boost/mpi/communicator.hpp>
-#include <boost/serialization/vector.hpp>
+#include <boost/serialization/vector.hpp>  // NOLINT: Требуется для сериализации std::vector в Boost.MPI
 #include <chrono>
 #include <cstddef>  // Для size_t
 #include <cstdint>
 #include <iostream>
+#include <memory>
 #include <random>
+#include <vector>
+
 // #include <vector>
 
 #include "all/fyodorov_m_shell_sort_with_even_odd_batcher_merge/include/ops_mpi.hpp"
@@ -79,15 +82,15 @@ TEST(fyodorov_m_shell_sort_with_even_odd_batcher_merge_mpi, test_pipeline_run) {
   for (int r = 0; r < world_local.size(); ++r) {
     if (world_local.rank() == r) {
       std::cout << "rank " << r << " input ptr: " << static_cast<void*>(input.data()) << ", size: " << input.size()
-                << std::endl;
+                << '\n';
       std::cout << "rank " << r << " output ptr: " << static_cast<void*>(output.data()) << ", size: " << output.size()
-                << std::endl;
+                << '\n';
     }
     world_local.barrier();
   }
 }
 
-TEST(fyodorov_m_shell_sort_with_even_odd_batcher_merge_mpi_perf, test_task_run) {
+TEST(fyodorov_m_shell_sort_with_even_odd_batcher_merge_mpi, test_task_run) {
   constexpr int kCount = 520000;
 
   auto get_random_vector = [](int sz, int a, int b) -> std::vector<int> {
@@ -147,7 +150,7 @@ TEST(fyodorov_m_shell_sort_with_even_odd_batcher_merge_mpi_perf, test_task_run) 
 
   for (int r = 0; r < world.size(); ++r) {
     if (world.rank() == r) {
-      std::cout << "rank " << r << " input size: " << input.size() << ", output size: " << output.size() << std::endl;
+      std::cout << "rank " << r << " input size: " << input.size() << ", output size: " << output.size() << '\n';
     }
     world.barrier();
   }

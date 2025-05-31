@@ -1,9 +1,11 @@
 #include <gtest/gtest.h>
 
-#include <boost/serialization/vector.hpp>
+#include <algorithm>  // для std::ranges::sort
 #include <cstddef>
 #include <cstdint>
+#include <memory>
 #include <random>
+#include <vector>
 
 #include "all/fyodorov_m_shell_sort_with_even_odd_batcher_merge/include/ops_mpi.hpp"
 #include "core/task/include/task.hpp"
