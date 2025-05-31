@@ -7,6 +7,7 @@
 #include <boost/serialization/vector.hpp>  // NOLINT: Требуется для сериализации std::vector в Boost.MPI
 #include <cstddef>
 #include <iostream>
+#include <utility>
 #include <vector>
 
 #include "boost/mpi/collectives/gatherv.hpp"
