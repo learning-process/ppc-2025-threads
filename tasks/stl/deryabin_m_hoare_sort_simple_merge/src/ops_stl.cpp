@@ -85,7 +85,7 @@ bool deryabin_m_hoare_sort_simple_merge_stl::HoareSortTaskSTL::ValidationImpl() 
 }
 
 bool deryabin_m_hoare_sort_simple_merge_stl::HoareSortTaskSTL::RunImpl() {
-  const size_t num_threads = ppc::util::GetPPCNumThreads();
+  const size_t num_threads = std::min(ppc::util::GetPPCNumThreads(), 8);
   std::vector<std::thread> workers;
   workers.reserve(num_threads);
   if (chunk_count_ < num_threads) {
@@ -111,7 +111,7 @@ bool deryabin_m_hoare_sort_simple_merge_stl::HoareSortTaskSTL::RunImpl() {
     for (auto& worker : workers) {
       worker.join();
     }
-    workers.clear();
+    workers.resize(0);
   };
   parallel_for(0, chunk_count_, [this](size_t count) {
     HoareSort(input_array_A_, count * min_chunk_size_, ((count + 1) * min_chunk_size_) - 1);
