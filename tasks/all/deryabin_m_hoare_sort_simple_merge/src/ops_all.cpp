@@ -301,7 +301,7 @@ bool deryabin_m_hoare_sort_simple_merge_mpi::HoareSortTaskMPI::RunImpl() {
           start_idx += rest_;
         }
         world.recv(recv_rank, 0, input_array_A_.data() + start_idx, block_size);
-        if ((chunk_count_ & 1) && world_rank == 0) {
+        if (special_odd_case) {
           const size_t merge_point = static_cast<size_t>((2.0 - 1.0 / step) * block_size);
           MergeUnequalTwoParts(input_array_A_.begin() + start_idx, input_array_A_.begin() + start_idx + block_size,
                                input_array_A_.begin() + start_idx + merge_point);
