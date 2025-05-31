@@ -5,7 +5,7 @@
 
 #include "core/task/include/task.hpp"
 
-namespace shuravina_o_hoare_simple_merger_stl {
+namespace shuravina_o_hoare_simple_merger {
 
 class TestTaskSTL : public ppc::core::Task {
  public:
