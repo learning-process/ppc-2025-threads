@@ -93,15 +93,16 @@ bool sozonov_i_image_filtering_block_partitioning_all::TestTaskALL::RunImpl() {
 
   std::vector<double> local_image(extended_rows * width_);
 
-  scatterv(world_, image_.data(), block_sizes, displs, local_image.data() + halo_top * width_, local_rows * width_, 0);
+  scatterv(world_, image_.data(), block_sizes, displs, local_image.data() + (halo_top * width_), local_rows * width_,
+           0);
 
   if (halo_top != 0) {
-    world_.send(rank - 1, 0, local_image.data() + halo_top * width_, width_);
+    world_.send(rank - 1, 0, local_image.data() + (halo_top * width_), width_);
     world_.recv(rank - 1, 1, local_image.data(), width_);
   }
   if (halo_bottom != 0) {
-    world_.send(rank + 1, 1, local_image.data() + (halo_top + local_rows - 1) * width_, width_);
-    world_.recv(rank + 1, 0, local_image.data() + (halo_top + local_rows) * width_, width_);
+    world_.send(rank + 1, 1, local_image.data() + ((halo_top + local_rows - 1) * width_), width_);
+    world_.recv(rank + 1, 0, local_image.data() + ((halo_top + local_rows) * width_), width_);
   }
 
   std::vector<double> kernel = {0.0625, 0.125, 0.0625, 0.125, 0.25, 0.125, 0.0625, 0.125, 0.0625};
