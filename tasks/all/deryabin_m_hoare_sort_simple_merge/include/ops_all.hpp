@@ -11,7 +11,8 @@
 namespace deryabin_m_hoare_sort_simple_merge_mpi {
 
 void ProcessPartition(std::vector<double>::iterator left, std::vector<double>::iterator right, double pivot_value);
-double SelectPivot(std::vector<double>::iterator first, std::vector<double>::iterator mid, std::vector<double>::iterator last);
+double SelectPivot(std::vector<double>::iterator first, std::vector<double>::iterator mid,
+                   std::vector<double>::iterator last);
 void SeqHoaraSort(std::vector<double>::iterator first, std::vector<double>::iterator last);
 void HoaraSort(std::vector<double>::iterator first, std::vector<double>::iterator last);
 void MergeTwoParts(std::vector<double>::iterator first, std::vector<double>::iterator last);
