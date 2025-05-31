@@ -14,7 +14,7 @@ namespace {
 
 void VerifySolution(const std::vector<double>& input, const double* solution, int size) {
   // Извлекаем матрицу A и вектор b из входных данных
-  std::vector<double> A(input.begin(), input.begin() + size * size);
+  std::vector<double> a(input.begin(), input.begin() + size * size);
   std::vector<double> b_vec(input.begin() + size * size, input.end());
 
   // Вычисляем невязку: r = b - A*x
@@ -22,7 +22,7 @@ void VerifySolution(const std::vector<double>& input, const double* solution, in
   for (int i = 0; i < size; ++i) {
     double sum = 0.0;
     for (int j = 0; j < size; ++j) {
-      sum += A[i * size + j] * solution[j];
+      sum += a[(i * size) + j] * solution[j];
     }
     residual[i] = b_vec[i] - sum;
   }
