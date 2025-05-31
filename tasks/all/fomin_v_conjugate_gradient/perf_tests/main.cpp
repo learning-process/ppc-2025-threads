@@ -1,6 +1,7 @@
 #include <gtest/gtest.h>
 
 #include <chrono>
+#include <cmath>
 #include <cstdint>
 #include <memory>
 #include <vector>
@@ -9,6 +10,9 @@
 #include "boost/mpi/communicator.hpp"
 #include "core/perf/include/perf.hpp"
 #include "core/task/include/task.hpp"
+
+
+namespace {
 
 void VerifySolution(const std::vector<double>& input, const double* solution, int size) {
   // Извлекаем матрицу A и вектор b из входных данных
@@ -29,10 +33,12 @@ void VerifySolution(const std::vector<double>& input, const double* solution, in
   for (double r : residual) {
     residual_norm += r * r;
   }
-  residual_norm = std::sqrt(residual_norm);
+  residual_norm = sqrt(residual_norm);
 
   EXPECT_LT(residual_norm, 1e-5);
 }
+
+}  // namespace
 
 TEST(fomin_v_conjugate_gradient_all, test_pipeline_run) {
   boost::mpi::communicator world;
