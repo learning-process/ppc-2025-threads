@@ -85,7 +85,7 @@ bool deryabin_m_hoare_sort_simple_merge_stl::HoareSortTaskSTL::ValidationImpl() 
 }
 
 bool deryabin_m_hoare_sort_simple_merge_stl::HoareSortTaskSTL::RunImpl() {
-  const size_t num_threads = std::min(ppc::util::GetPPCNumThreads(), static_cast<size_t>(8));
+  const size_t num_threads = std::min(ppc::util::GetPPCNumThreads(), 8);
   std::vector<std::thread> workers;
   workers.reserve(num_threads);
   if (chunk_count_ < num_threads) {
