@@ -46,6 +46,6 @@ class HoareSortTaskMPI : public ppc::core::Task {
   size_t min_chunk_size_;
   size_t rest_;
   size_t chunk_count_;
-  boost::mpi::communicator world;
+  boost::mpi::communicator world_;
 };
 }  // namespace deryabin_m_hoare_sort_simple_merge_mpi
