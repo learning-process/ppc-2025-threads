@@ -129,8 +129,8 @@ void deryabin_m_hoare_sort_simple_merge_mpi::MergeTwoParts(std::vector<double>::
             const size_t overlap_len = std::min(std::distance(left_end, mid), std::distance(mid, right_start));
 
             // Параллельный обмен в зоне перекрытия
-            tbb::parallel_for(tbb::blocked_range<size_t>(0, overlap_len),
-                              [&left_end, &mid](const tbb::blocked_range<size_t>& r) {
+            oneapi::tbb::parallel_for(oneapi::tbb::blocked_range<size_t>(0, overlap_len),
+                              [&left_end, &mid](const oneapi::tbb::blocked_range<size_t>& r) {
                                   for (size_t i = r.begin(); i < r.end(); ++i) {
                                       auto left = left_end + i;
                                       auto right = mid + i;
@@ -147,8 +147,8 @@ void deryabin_m_hoare_sort_simple_merge_mpi::MergeTwoParts(std::vector<double>::
                 size_t delta = right_len - left_len;
                 auto base = &*(right_start - delta);
 
-                tbb::parallel_for(tbb::blocked_range<size_t>(0, left_len),
-                                  [&base, delta](const tbb::blocked_range<size_t>& r) {
+                oneapi::tbb::parallel_for(oneapi::tbb::blocked_range<size_t>(0, left_len),
+                                  [&base, delta](const oneapi::tbb::blocked_range<size_t>& r) {
                                       for (size_t j = r.begin(); j < r.end(); ++j) {
                                           double* current = base - j;
                                           for (size_t i = 0; i < delta - 1; ++i) {
