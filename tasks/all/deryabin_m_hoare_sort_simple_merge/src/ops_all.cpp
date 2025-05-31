@@ -205,33 +205,33 @@ bool deryabin_m_hoare_sort_simple_merge_mpi::HoareSortTaskSequential::PostProces
 }
 
 bool deryabin_m_hoare_sort_simple_merge_mpi::HoareSortTaskMPI::PreProcessingImpl() {
-  if (world_.rank() == 0) {
+  if (world.rank() == 0) {
     input_array_A_ = reinterpret_cast<std::vector<double>*>(task_data->inputs[0])[0];
     dimension_ = task_data->inputs_count[0];
     chunk_count_ = world_.size();
     min_chunk_size_ = dimension_ / chunk_count_;
     rest_ = dimension_ % chunk_count_;
   }
-  boost::mpi::broadcast(world_, dimension_, 0);
-  if (world_.rank() != 0) {
+  boost::mpi::broadcast(world, dimension_, 0);
+  if (world.rank() != 0) {
     input_array_A_.resize(dimension_);
   }
-  boost::mpi::broadcast(world_, input_array_A_.data(), static_cast<int>(dimension_), 0);
-  boost::mpi::broadcast(world_, chunk_count_, 0);
-  boost::mpi::broadcast(world_, min_chunk_size_, 0);
-  boost::mpi::broadcast(world_, rest_, 0);
+  boost::mpi::broadcast(world, input_array_A_.data(), static_cast<int>(dimension_), 0);
+  boost::mpi::broadcast(world, chunk_count_, 0);
+  boost::mpi::broadcast(world, min_chunk_size_, 0);
+  boost::mpi::broadcast(world, rest_, 0);
   return true;
 }
 
 bool deryabin_m_hoare_sort_simple_merge_mpi::HoareSortTaskMPI::ValidationImpl() {
-  if (world_.rank() == 0) {
+  if (world.rank() == 0) {
     return task_data->inputs_count[0] > 2 && task_data->inputs_count[0] == task_data->outputs_count[0];
   }
   return true;
 }
 
 bool deryabin_m_hoare_sort_simple_merge_mpi::HoareSortTaskMPI::RunImpl() {
-  const size_t world_rank = world_.rank();
+  const size_t world_rank = world.rank();
   const size_t rank_from_end = chunk_count_ - world_rank;
   const auto start_iter =
       input_array_A_.begin() +
@@ -257,10 +257,10 @@ bool deryabin_m_hoare_sort_simple_merge_mpi::HoareSortTaskMPI::RunImpl() {
           start_idx += rest_;
         }
         if (world_rank >= step) {
-          world_.send(static_cast<int>(world_rank - step), 0, input_array_A_.data() + start_idx,
+          world.send(static_cast<int>(world_rank - step), 0, input_array_A_.data() + start_idx,
                       static_cast<int>(block_size));
         } else {
-          world_.send(0, 0, input_array_A_.data() + start_idx, static_cast<int>(block_size));
+          world.send(0, 0, input_array_A_.data() + start_idx, static_cast<int>(block_size));
         }
       } else {
         const bool special_odd_case = (chunk_count_ & 1) != 0 && world_rank == 0;
@@ -273,7 +273,7 @@ bool deryabin_m_hoare_sort_simple_merge_mpi::HoareSortTaskMPI::RunImpl() {
         } else {
           start_idx += rest_;
         }
-        world_.recv(static_cast<int>(recv_rank), 0, input_array_A_.data() + start_idx, static_cast<int>(block_size));
+        world.recv(static_cast<int>(recv_rank), 0, input_array_A_.data() + start_idx, static_cast<int>(block_size));
         const auto final_iter =
             special_odd_case ? input_array_A_.end()
                              : input_array_A_.begin() + static_cast<std::ptrdiff_t>(start_idx + block_size * 2 - rest_);
@@ -286,7 +286,7 @@ bool deryabin_m_hoare_sort_simple_merge_mpi::HoareSortTaskMPI::RunImpl() {
 }
 
 bool deryabin_m_hoare_sort_simple_merge_mpi::HoareSortTaskMPI::PostProcessingImpl() {
-  if (world_.rank() == 0) {
+  if (world.rank() == 0) {
     reinterpret_cast<std::vector<double>*>(task_data->outputs[0])[0] = input_array_A_;
   }
   return true;
