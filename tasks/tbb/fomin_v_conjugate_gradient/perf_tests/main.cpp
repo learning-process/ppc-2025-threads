@@ -14,7 +14,7 @@ namespace {
 
 void VerifySolution(const std::vector<double>& input, const double* solution, int size) {
   // Извлекаем матрицу A и вектор b из входных данных
-  std::vector<double> A(input.begin(), input.begin() + size * size);
+  std::vector<double> a(input.begin(), input.begin() + size * size);
   std::vector<double> b_vec(input.begin() + size * size, input.end());
 
   // Вычисляем невязку: r = b - A*x
@@ -22,7 +22,7 @@ void VerifySolution(const std::vector<double>& input, const double* solution, in
   for (int i = 0; i < size; ++i) {
     double sum = 0.0;
     for (int j = 0; j < size; ++j) {
-      sum += A[i * size + j] * solution[j];
+      sum += a[(i * size) + j] * solution[j];
     }
     residual[i] = b_vec[i] - sum;
   }
@@ -64,7 +64,7 @@ TEST(fomin_v_conjugate_gradient_stl, test_pipeline_run) {
   task_data_seq->outputs.emplace_back(reinterpret_cast<uint8_t*>(output_buffer.get()));
   task_data_seq->outputs_count.emplace_back(kCount);
 
-  auto test_task_sequential = std::make_shared<fomin_v_conjugate_gradient::FominVConjugateGradientStl>(task_data_seq);
+  auto test_task_sequential = std::make_shared<fomin_v_conjugate_gradient::FominVConjugateGradientTbb>(task_data_seq);
 
   auto perf_attr = std::make_shared<ppc::core::PerfAttr>();
   perf_attr->num_running = 50;
@@ -112,7 +112,7 @@ TEST(fomin_v_conjugate_gradient_stl, test_task_run) {
   task_data_seq->outputs_count.emplace_back(kCount);
 
   // Создаем задачу
-  auto test_task_sequential = std::make_shared<fomin_v_conjugate_gradient::FominVConjugateGradientStl>(task_data_seq);
+  auto test_task_sequential = std::make_shared<fomin_v_conjugate_gradient::FominVConjugateGradientTbb>(task_data_seq);
 
   // Создаем атрибуты для perf теста
   auto perf_attr = std::make_shared<ppc::core::PerfAttr>();
