@@ -265,9 +265,8 @@ bool deryabin_m_hoare_sort_simple_merge_mpi::HoareSortTaskMPI::ValidationImpl() 
 
 bool deryabin_m_hoare_sort_simple_merge_mpi::HoareSortTaskMPI::RunImpl() {
   const size_t world_rank = world.rank();
-  const bool is_last_rank = world_rank == chunk_count_ - 1;
   const size_t rank_from_end = chunk_count_ - world_rank;
-  const auto start_iter = input_array_A_.begin() + (rank_from_end - 1) * min_chunk_size_ + (!is_last_rank ? rest_ : 0);
+  const auto start_iter = input_array_A_.begin() + (rank_from_end - 1) * min_chunk_size_ + (world_rank == chunk_count_ - 1 ? 0 : rest_);
   const auto end_iter = input_array_A_.begin() + rank_from_end * min_chunk_size_ + rest_ - 1;
   HoaraSort(start_iter, end_iter);
   const size_t iterations = std::bit_width(chunk_count_ - 1);
@@ -280,10 +279,10 @@ bool deryabin_m_hoare_sort_simple_merge_mpi::HoareSortTaskMPI::RunImpl() {
       if (is_even) {
         if (world_rank == 0) continue;
         size_t start_idx = (chunk_count_ - (world_rank + step)) * min_chunk_size_;
-        if (!is_last_rank) {
-          start_idx += rest_;
-        } else {
+        if (world_rank == chunk_count_ - step) {
           block_size += rest_;
+        } else {
+          start_idx += rest_;
         }
         if (world_rank >= step) {
           world.send(world_rank - step, 0, input_array_A_.data() + start_idx, block_size);
@@ -291,14 +290,15 @@ bool deryabin_m_hoare_sort_simple_merge_mpi::HoareSortTaskMPI::RunImpl() {
           world.send(0, 0, input_array_A_.data() + start_idx, block_size);
         }
       } else {
-        size_t start_idx = (chunk_count_ & 1) && world_rank == 0
+        const bool special_odd_case = (chunk_count_ & 1) && world_rank == 0;
+        size_t start_idx = special_odd_case
                                ? (chunk_count_ - (2 * step - 1)) * min_chunk_size_
                                : (chunk_count_ - (world_rank + 2 * step)) * min_chunk_size_;
-        const size_t recv_rank = (chunk_count_ & 1) && world_rank == 0 ? step - 1 : world_rank + step;
-        if (recv_rank != chunk_count_ - 1) {
-          start_idx += rest_;
-        } else {
+        const size_t recv_rank = special_odd_case ? step - 1 : world_rank + step;
+        if (recv_rank == chunk_count_ - step) {
           block_size += rest_;
+        } else {
+          start_idx += rest_;
         }
         world.recv(recv_rank, 0, input_array_A_.data() + start_idx, block_size);
         if ((chunk_count_ & 1) && world_rank == 0) {
