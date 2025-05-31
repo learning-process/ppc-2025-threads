@@ -25,7 +25,8 @@ TEST(muradov_m_rect_int_seq, test_pipeline_run) {
   task_data_seq->outputs_count.emplace_back(1);
 
   auto test_task_sequential = std::make_shared<muradov_m_rect_int_seq::RectIntTaskSequential>(
-      task_data_seq, [](const auto &args) { return (args[0] * args[1]) + (args[1] * args[1]); });
+      task_data_seq, [](const auto &args) { return args[0] + args[1] + args[2]; });
+  ;
 
   auto perf_attr = std::make_shared<ppc::core::PerfAttr>();
   perf_attr->num_running = 10;
@@ -42,7 +43,7 @@ TEST(muradov_m_rect_int_seq, test_pipeline_run) {
   perf_analyzer->PipelineRun(perf_attr, perf_results);
   ppc::core::Perf::PrintPerfStatistic(perf_results);
 
-  EXPECT_NEAR(out, 648, 0.3);
+  EXPECT_NEAR(out, -4.09, 0.3);
 }
 
 TEST(muradov_m_rect_int_seq, test_task_run) {
@@ -59,7 +60,8 @@ TEST(muradov_m_rect_int_seq, test_task_run) {
   task_data_seq->outputs_count.emplace_back(1);
 
   auto test_task_sequential = std::make_shared<muradov_m_rect_int_seq::RectIntTaskSequential>(
-      task_data_seq, [](const auto &args) { return (args[0] * args[1]) + (args[1] * args[1]); });
+      task_data_seq, [](const auto &args) { return args[0] + args[1] + args[2]; });
+  ;
 
   auto perf_attr = std::make_shared<ppc::core::PerfAttr>();
   perf_attr->num_running = 10;
@@ -76,5 +78,5 @@ TEST(muradov_m_rect_int_seq, test_task_run) {
   perf_analyzer->TaskRun(perf_attr, perf_results);
   ppc::core::Perf::PrintPerfStatistic(perf_results);
 
-  EXPECT_NEAR(out, 648, 0.3);
+  EXPECT_NEAR(out, -4.09, 0.3);
 }

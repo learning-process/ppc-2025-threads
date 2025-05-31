@@ -1,6 +1,5 @@
 #pragma once
 
-#include <functional>
 #include <utility>
 #include <vector>
 
@@ -8,13 +7,12 @@
 
 namespace muradov_m_rect_int_tbb {
 
-using Matfun = std::function<double(const std::vector<double>&)>;
+using Matfun = double (*)(const std::vector<double>&);
 using FunArgs = std::vector<double>;
 
 class RectIntTaskTBBPar : public ppc::core::Task {
  public:
-  explicit RectIntTaskTBBPar(ppc::core::TaskDataPtr task_data, Matfun fun)
-      : Task(std::move(task_data)), fun_(std::move(fun)) {}
+  explicit RectIntTaskTBBPar(ppc::core::TaskDataPtr task_data, Matfun fun) : Task(std::move(task_data)), fun_(fun) {}
 
   bool ValidationImpl() override;
   bool PreProcessingImpl() override;

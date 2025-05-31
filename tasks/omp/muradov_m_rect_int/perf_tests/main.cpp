@@ -25,7 +25,7 @@ TEST(muradov_m_rect_int_omp, test_pipeline_run) {
   task_data_omp->outputs_count.emplace_back(1);
 
   auto test_task_ompuential = std::make_shared<muradov_m_rect_int_omp::RectIntTaskOmp>(
-      task_data_omp, [](const auto &args) { return (args[0] * args[1]) + (args[1] * args[1]); });
+      task_data_omp, [](const auto &args) { return args[0] + args[1] + args[2]; });
 
   auto perf_attr = std::make_shared<ppc::core::PerfAttr>();
   perf_attr->num_running = 10;
@@ -42,7 +42,7 @@ TEST(muradov_m_rect_int_omp, test_pipeline_run) {
   perf_analyzer->PipelineRun(perf_attr, perf_results);
   ppc::core::Perf::PrintPerfStatistic(perf_results);
 
-  EXPECT_NEAR(out, 648, 0.3);
+  EXPECT_NEAR(out, -4.09, 0.3);
 }
 
 TEST(muradov_m_rect_int_omp, test_task_run) {
@@ -60,7 +60,7 @@ TEST(muradov_m_rect_int_omp, test_task_run) {
 
   // Create Task
   auto test_task_ompuential = std::make_shared<muradov_m_rect_int_omp::RectIntTaskOmp>(
-      task_data_omp, [](const auto &args) { return (args[0] * args[1]) + (args[1] * args[1]); });
+      task_data_omp, [](const auto &args) { return args[0] + args[1] + args[2]; });
 
   // Create Perf attributes
   auto perf_attr = std::make_shared<ppc::core::PerfAttr>();
@@ -80,5 +80,5 @@ TEST(muradov_m_rect_int_omp, test_task_run) {
   perf_analyzer->TaskRun(perf_attr, perf_results);
   ppc::core::Perf::PrintPerfStatistic(perf_results);
 
-  EXPECT_NEAR(out, 648, 0.3);
+  EXPECT_NEAR(out, -4.09, 0.3);
 }

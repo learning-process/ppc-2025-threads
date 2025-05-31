@@ -33,8 +33,10 @@ bool muradov_m_rect_int_tbb::RectIntTaskTBBPar::RunImpl() {
   const auto dims = static_cast<std::size_t>(bounds_.size());
 
   double hh = 1.0;
+  std::vector<double> precomp(dims);
   for (std::size_t i = 0; i < dims; i++) {
     hh *= (bounds_[i].second - bounds_[i].first) / grains_;
+    precomp[i] = (bounds_[i].second - bounds_[i].first) / grains_;
   }
   int pts = static_cast<int>(std::pow(grains_, dims));
 
@@ -48,7 +50,7 @@ bool muradov_m_rect_int_tbb::RectIntTaskTBBPar::RunImpl() {
             auto j = i;
             for (size_t k = 0; k < dims; k++) {
               args[k] = bounds_[k].first;
-              args[k] += (j % grains_) * (bounds_[k].second - bounds_[k].first) / grains_;
+              args[k] += (j % grains_) * precomp[k];
               j /= grains_;
             }
             s += fun_(args);

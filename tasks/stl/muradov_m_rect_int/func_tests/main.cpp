@@ -35,27 +35,27 @@ void MuradovMRectIntTest(int iterations, std::vector<std::pair<double, double>> 
 }  // namespace
 
 TEST(muradov_m_rect_int_stl, onedim_zerobounds) {
-  MuradovMRectIntTest(100, {std::make_pair(0., 0.)}, 0, [](const auto &args) { return 200; });
+  MuradovMRectIntTest(100, {std::make_pair(0., 0.)}, 0, [](const auto &args) { return 200.; });
 }
 
 TEST(muradov_m_rect_int_stl, twodim_zerobounds) {
-  MuradovMRectIntTest(100, {{0., 0.}, {0., 0.}}, 0, [](const auto &args) { return 200; });
+  MuradovMRectIntTest(100, {{0., 0.}, {0., 0.}}, 0, [](const auto &args) { return 200.; });
 }
 
 TEST(muradov_m_rect_int_stl, threedim_zerobounds) {
-  MuradovMRectIntTest(100, {{0., 0.}, {0., 0.}, {0., 0.}}, 0, [](const auto &args) { return 200; });
+  MuradovMRectIntTest(100, {{0., 0.}, {0., 0.}, {0., 0.}}, 0, [](const auto &args) { return 200.; });
 }
 
 TEST(muradov_m_rect_int_stl, onedim_samebounds) {
-  MuradovMRectIntTest(100, {std::make_pair(5., 5.)}, 0, [](const auto &args) { return 200; });
+  MuradovMRectIntTest(100, {std::make_pair(5., 5.)}, 0, [](const auto &args) { return 200.; });
 }
 
 TEST(muradov_m_rect_int_stl, twodim_samebounds) {
-  MuradovMRectIntTest(100, {{5., 5.}, {10., 10.}}, 0, [](const auto &args) { return 200; });
+  MuradovMRectIntTest(100, {{5., 5.}, {10., 10.}}, 0, [](const auto &args) { return 200.; });
 }
 
 TEST(muradov_m_rect_int_stl, threedim_samebounds) {
-  MuradovMRectIntTest(100, {{5., 5.}, {10., 10.}, {20., 20.}}, 0, [](const auto &args) { return 200; });
+  MuradovMRectIntTest(100, {{5., 5.}, {10., 10.}, {20., 20.}}, 0, [](const auto &args) { return 200.; });
 }
 
 TEST(muradov_m_rect_int_stl, sin_mul_cos_1) {

@@ -26,7 +26,7 @@ TEST(muradov_m_rect_int_tbb, test_pipeline_run) {
 
   // Create Task
   auto test_task_tbbuential = std::make_shared<muradov_m_rect_int_tbb::RectIntTaskTBBPar>(
-      task_data_tbb, [](const auto &args) { return (args[0] * args[1]) + (args[1] * args[1]); });
+      task_data_tbb, [](const auto &args) { return args[0] + args[1] + args[2]; });
 
   // Create Perf attributes
   auto perf_attr = std::make_shared<ppc::core::PerfAttr>();
@@ -46,7 +46,7 @@ TEST(muradov_m_rect_int_tbb, test_pipeline_run) {
   perf_analyzer->PipelineRun(perf_attr, perf_results);
   ppc::core::Perf::PrintPerfStatistic(perf_results);
 
-  EXPECT_NEAR(out, 648, 0.3);
+  EXPECT_NEAR(out, -4.09, 0.3);
 }
 
 TEST(muradov_m_rect_int_tbb, test_task_run) {
@@ -64,7 +64,7 @@ TEST(muradov_m_rect_int_tbb, test_task_run) {
 
   // Create Task
   auto test_task_tbbuential = std::make_shared<muradov_m_rect_int_tbb::RectIntTaskTBBPar>(
-      task_data_tbb, [](const auto &args) { return (args[0] * args[1]) + (args[1] * args[1]); });
+      task_data_tbb, [](const auto &args) { return args[0] + args[1] + args[2]; });
 
   // Create Perf attributes
   auto perf_attr = std::make_shared<ppc::core::PerfAttr>();
@@ -84,5 +84,5 @@ TEST(muradov_m_rect_int_tbb, test_task_run) {
   perf_analyzer->TaskRun(perf_attr, perf_results);
   ppc::core::Perf::PrintPerfStatistic(perf_results);
 
-  EXPECT_NEAR(out, 648, 0.3);
+  EXPECT_NEAR(out, -4.09, 0.3);
 }
