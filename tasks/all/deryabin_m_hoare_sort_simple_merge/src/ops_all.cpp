@@ -7,7 +7,7 @@
 #include <bit>
 #include <boost/mpi/collectives/broadcast.hpp>
 #include <cmath>
-#include <cstddef>
+#include <cstddef>  // NOLINT(misc-unused-using-decls)
 #include <iterator>
 #include <vector>
 
