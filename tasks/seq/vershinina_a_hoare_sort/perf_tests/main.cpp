@@ -39,7 +39,7 @@ TEST(vershinina_a_hoare_sort_seq, test_pipeline_run) {
   auto test_task_sequential = std::make_shared<vershinina_a_hoare_sort_seq::TestTaskSequential>(task_data_seq);
 
   auto perf_attr = std::make_shared<ppc::core::PerfAttr>();
-  perf_attr->num_running = 10;
+  perf_attr->num_running = 20;
   const auto t0 = std::chrono::high_resolution_clock::now();
   perf_attr->current_timer = [&] {
     auto current_time_point = std::chrono::high_resolution_clock::now();
@@ -69,7 +69,7 @@ TEST(vershinina_a_hoare_sort_seq, test_task_run) {
   auto test_task_sequential = std::make_shared<vershinina_a_hoare_sort_seq::TestTaskSequential>(task_data_seq);
 
   auto perf_attr = std::make_shared<ppc::core::PerfAttr>();
-  perf_attr->num_running = 10;
+  perf_attr->num_running = 20;
   const auto t0 = std::chrono::high_resolution_clock::now();
   perf_attr->current_timer = [&] {
     auto current_time_point = std::chrono::high_resolution_clock::now();
