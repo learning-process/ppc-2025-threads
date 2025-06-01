@@ -16,31 +16,11 @@ void deryabin_m_hoare_sort_simple_merge_mpi::SeqHoaraSort(std::vector<double>::i
   if (first >= last) {
     return;
   }
+  const auto mid = first + ((last - first) >> 1);
+  double pivot_value = NAN;
   if (last - first < 199) {
-    const double pivot_value = *(first + ((last - first) >> 1));
-    auto left = first;
-    auto right = last;
-    do {
-      while (left < last && *left < pivot_value) {
-        left++;
-      }
-      while (right > first && *right > pivot_value) {
-        right--;
-      }
-      if (*left == *right && left != right) {
-        if (*left < *(left + 1)) {
-          left++;
-        } else {
-          right--;
-        }
-      }
-      std::iter_swap(left, right);
-    } while (left != right);
-    HoaraSort(first, right);
-    HoaraSort(left + 1, last);
+    pivot_value = *mid;
   } else {
-    const auto mid = first + ((last - first) >> 1);
-    double pivot_value = NAN;
     if (*first < *mid) {
       if (*mid < *last) {
         pivot_value = *mid;
@@ -53,28 +33,28 @@ void deryabin_m_hoare_sort_simple_merge_mpi::SeqHoaraSort(std::vector<double>::i
       } else {
         pivot_value = std::max(*mid, *last);
       }
+    }    
+  }
+  auto left = first;
+  auto right = last;
+  do {
+    while (left < last && *left < pivot_value) {
+      left++;
     }
-    auto left = first;
-    auto right = last;
-    do {
-      while (left < last && *left < pivot_value) {
+    while (right > first && *right > pivot_value) {
+      right--;
+    }
+    if (*left == *right && left != right) {
+      if (*left < *(left + 1)) {
         left++;
-      }
-      while (right > first && *right > pivot_value) {
+      } else {
         right--;
       }
-      if (*left == *right && left != right) {
-        if (*left < *(left + 1)) {
-          left++;
-        } else {
-          right--;
-        }
-      }
-      std::iter_swap(left, right);
-    } while (left != right);
-    HoaraSort(first, right);
-    HoaraSort(left + 1, last);
-  }
+    }
+    std::iter_swap(left, right);
+  } while (left != right);
+  SeqHoaraSort(first, right);
+  SeqHoaraSort(left + 1, last);
 }
 
 void deryabin_m_hoare_sort_simple_merge_mpi::HoaraSort(std::vector<double>::iterator first,
@@ -82,31 +62,11 @@ void deryabin_m_hoare_sort_simple_merge_mpi::HoaraSort(std::vector<double>::iter
   if (first >= last) {
     return;
   }
+  const auto mid = first + ((last - first) >> 1);
+  double pivot_value = NAN;
   if (last - first < 199) {
-    const double pivot_value = *(first + ((last - first) >> 1));
-    auto left = first;
-    auto right = last;
-    do {
-      while (left < last && *left < pivot_value) {
-        left++;
-      }
-      while (right > first && *right > pivot_value) {
-        right--;
-      }
-      if (*left == *right && left != right) {
-        if (*left < *(left + 1)) {
-          left++;
-        } else {
-          right--;
-        }
-      }
-      std::iter_swap(left, right);
-    } while (left != right);
-    HoaraSort(first, right);
-    HoaraSort(left + 1, last);
+    pivot_value = *mid;
   } else {
-    const auto mid = first + ((last - first) >> 1);
-    double pivot_value = NAN;
     if (*first < *mid) {
       if (*mid < *last) {
         pivot_value = *mid;
@@ -119,25 +79,30 @@ void deryabin_m_hoare_sort_simple_merge_mpi::HoaraSort(std::vector<double>::iter
       } else {
         pivot_value = std::max(*mid, *last);
       }
+    }    
+  }
+  auto left = first;
+  auto right = last;
+  do {
+    while (left < last && *left < pivot_value) {
+      left++;
     }
-    auto left = first;
-    auto right = last;
-    do {
-      while (left < last && *left < pivot_value) {
+    while (right > first && *right > pivot_value) {
+      right--;
+    }
+    if (*left == *right && left != right) {
+      if (*left < *(left + 1)) {
         left++;
-      }
-      while (right > first && *right > pivot_value) {
+      } else {
         right--;
       }
-      if (*left == *right && left != right) {
-        if (*left < *(left + 1)) {
-          left++;
-        } else {
-          right--;
-        }
-      }
-      std::iter_swap(left, right);
-    } while (left != right);
+    }
+    std::iter_swap(left, right);
+  } while (left != right);
+  if (last - first < 199) {
+    HoaraSort(first, right);
+    HoaraSort(left + 1, last);
+  } else {
     oneapi::tbb::parallel_invoke([&first, &right]() { HoaraSort(first, right); },
                                  [&left, &last]() { HoaraSort(left + 1, last); });
   }
@@ -146,41 +111,37 @@ void deryabin_m_hoare_sort_simple_merge_mpi::HoaraSort(std::vector<double>::iter
 void deryabin_m_hoare_sort_simple_merge_mpi::MergeUnequalTwoParts(std::vector<double>::iterator first,
                                                                   std::vector<double>::iterator mid,
                                                                   std::vector<double>::iterator last) {
-  if (last - first >= 200) {
-    const auto left_end = std::upper_bound(first, mid, *mid);
-    const auto right_start = std::upper_bound(mid, last, *(mid - 1));
-    const size_t overlap_len = std::min(std::distance(left_end, mid), std::distance(mid, right_start));
-    oneapi::tbb::parallel_for(oneapi::tbb::blocked_range<size_t>(0, overlap_len),
-                              [&left_end, &mid](const oneapi::tbb::blocked_range<size_t>& r) {
-                                for (size_t i = r.begin(); i < r.end(); ++i) {
-                                  auto left = left_end + static_cast<long>(i);
-                                  auto right = mid + static_cast<long>(i);
-                                  if (*left > *right) {
-                                    std::iter_swap(left, right);
+  const auto left_end = std::upper_bound(first, mid, *mid);
+  const auto right_start = std::upper_bound(mid, last, *(mid - 1));
+  const size_t overlap_len = std::min(std::distance(left_end, mid), std::distance(mid, right_start));
+  oneapi::tbb::parallel_for(oneapi::tbb::blocked_range<size_t>(0, overlap_len),
+                            [&left_end, &mid](const oneapi::tbb::blocked_range<size_t>& r) {
+                              for (size_t i = r.begin(); i < r.end(); ++i) {
+                                auto left = left_end + static_cast<long>(i);
+                                auto right = mid + static_cast<long>(i);
+                                if (*left > *right) {
+                                  std::iter_swap(left, right);
+                                }
+                              }
+                            });
+  size_t right_len = right_start - (mid - 1);
+  size_t left_len = mid - left_end;
+  if (right_len > left_len + 1) {
+    size_t delta = right_len - left_len;
+    auto* base = &*(right_start - static_cast<long>(delta));
+    oneapi::tbb::parallel_for(oneapi::tbb::blocked_range<size_t>(0, left_len),
+                              [&base, delta](const oneapi::tbb::blocked_range<size_t>& r) {
+                                for (size_t j = r.begin(); j < r.end(); ++j) {
+                                  double* current = base - j;
+                                  for (size_t i = 0; i < delta - 1; ++i) {
+                                    if (current[i] > current[i + 1]) {
+                                      std::swap(current[i], current[i + 1]);
+                                    }
                                   }
                                 }
                               });
-    size_t right_len = right_start - (mid - 1);
-    size_t left_len = mid - left_end;
-    if (right_len > left_len + 1) {
-      size_t delta = right_len - left_len;
-      auto* base = &*(right_start - static_cast<long>(delta));
-      oneapi::tbb::parallel_for(oneapi::tbb::blocked_range<size_t>(0, left_len),
-                                [&base, delta](const oneapi::tbb::blocked_range<size_t>& r) {
-                                  for (size_t j = r.begin(); j < r.end(); ++j) {
-                                    double* current = base - j;
-                                    for (size_t i = 0; i < delta - 1; ++i) {
-                                      if (current[i] > current[i + 1]) {
-                                        std::swap(current[i], current[i + 1]);
-                                      }
-                                    }
-                                  }
-                                });
-    }
-    std::inplace_merge(left_end, mid, right_start);
-  } else {
-    std::inplace_merge(first, mid, last);
   }
+  std::inplace_merge(left_end, mid, right_start);
 }
 
 bool deryabin_m_hoare_sort_simple_merge_mpi::HoareSortTaskSequential::PreProcessingImpl() {
@@ -288,11 +249,15 @@ bool deryabin_m_hoare_sort_simple_merge_mpi::HoareSortTaskMPI::RunImpl() {
           start_idx += rest_;
         }
         world_.recv(static_cast<int>(recv_rank), 0, input_array_A_.data() + start_idx, static_cast<int>(block_size));
-        const auto final_iter = special_odd_case
+        const auto end_idx = special_odd_case
                                     ? input_array_A_.end()
                                     : input_array_A_.begin() + static_cast<long>(start_idx + (block_size * 2) - rest_);
-        MergeUnequalTwoParts(input_array_A_.begin() + static_cast<long>(start_idx),
-                             input_array_A_.begin() + static_cast<long>(start_idx + block_size), final_iter);
+        if (end_idx - start_idx < 200) {
+            std::inplace_merge(input_array_A_.begin() + static_cast<long>(start_idx), input_array_A_.begin() + static_cast<long>(start_idx + block_size), end_idx);
+        } else {
+            MergeUnequalTwoParts(input_array_A_.begin() + static_cast<long>(start_idx),
+                        input_array_A_.begin() + static_cast<long>(start_idx + block_size), end_idx);
+        }
       }
     }
   }
