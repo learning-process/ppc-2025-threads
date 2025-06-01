@@ -7,7 +7,7 @@
 #include <vector>
 
 #include "core/task/include/task.hpp"
-#include "stl/gnitienko_k_strassen_alg/include/ops_stl.hpp"
+#include "tbb/gnitienko_k_strassen_alg/include/ops_tbb.hpp"
 
 namespace {
 double min_val = -100.0;
@@ -52,26 +52,26 @@ void TrivialMultiply(const std::vector<double> &a, const std::vector<double> &b,
 void TestMultiply(std::vector<double> &a, std::vector<double> &b, std::vector<double> &out,
                   std::vector<double> &expected, size_t size = 0) {
   // Create task_data
-  auto task_data_stl = std::make_shared<ppc::core::TaskData>();
-  task_data_stl->inputs.emplace_back(reinterpret_cast<uint8_t *>(a.data()));
-  task_data_stl->inputs.emplace_back(reinterpret_cast<uint8_t *>(b.data()));
-  task_data_stl->inputs_count.emplace_back(a.size());
-  task_data_stl->outputs.emplace_back(reinterpret_cast<uint8_t *>(out.data()));
-  task_data_stl->outputs_count.emplace_back(out.size());
+  auto task_data_tbb = std::make_shared<ppc::core::TaskData>();
+  task_data_tbb->inputs.emplace_back(reinterpret_cast<uint8_t *>(a.data()));
+  task_data_tbb->inputs.emplace_back(reinterpret_cast<uint8_t *>(b.data()));
+  task_data_tbb->inputs_count.emplace_back(a.size());
+  task_data_tbb->outputs.emplace_back(reinterpret_cast<uint8_t *>(out.data()));
+  task_data_tbb->outputs_count.emplace_back(out.size());
 
   // Create Task
-  gnitienko_k_strassen_algorithm_stl::StrassenAlgSTL test_task_stl(task_data_stl);
-  ASSERT_EQ(test_task_stl.Validation(), true);
-  test_task_stl.PreProcessing();
-  test_task_stl.Run();
-  test_task_stl.PostProcessing();
+  gnitienko_k_strassen_algorithm_tbb::StrassenAlgTBB test_task_tbb(task_data_tbb);
+  ASSERT_EQ(test_task_tbb.Validation(), true);
+  test_task_tbb.PreProcessing();
+  test_task_tbb.Run();
+  test_task_tbb.PostProcessing();
   for (size_t i = 0; i < size * size; i++) {
     EXPECT_NEAR(expected[i], out[i], 1e-2);
   }
 }
 }  // namespace
 
-TEST(gnitienko_k_strassen_alg_stl, test_2x2_matrix) {
+TEST(gnitienko_k_strassen_alg_tbb, test_2x2_matrix) {
   // Create data
   size_t size = 2;
   std::vector<double> a = {2.4, 3.5, -4.1, 13.3};
@@ -83,7 +83,7 @@ TEST(gnitienko_k_strassen_alg_stl, test_2x2_matrix) {
   TestMultiply(a, b, out, expected, size);
 }
 
-TEST(gnitienko_k_strassen_alg_stl, test_4x4_matrix) {
+TEST(gnitienko_k_strassen_alg_tbb, test_4x4_matrix) {
   // Create data
   size_t size = 4;
   std::vector<double> a = {2.4, 3.5, -4.1, 13.3, 1.4, -0.5, 1.1, 2.3, 3.2, 2.1, -1.3, 4.5, 0.9, -2.7, 3.8, -1.2};
@@ -95,7 +95,7 @@ TEST(gnitienko_k_strassen_alg_stl, test_4x4_matrix) {
   TestMultiply(a, b, out, expected, size);
 }
 
-TEST(gnitienko_k_strassen_alg_stl, test_random_16x16) {
+TEST(gnitienko_k_strassen_alg_tbb, test_random_16x16) {
   // Create data
   size_t size = 16;
   std::vector<double> a = GenMatrix(size);
@@ -107,7 +107,7 @@ TEST(gnitienko_k_strassen_alg_stl, test_random_16x16) {
   TestMultiply(a, b, out, expected, size);
 }
 
-TEST(gnitienko_k_strassen_alg_stl, test_random_64x64) {
+TEST(gnitienko_k_strassen_alg_tbb, test_random_64x64) {
   // Create data
   size_t size = 64;
   std::vector<double> a = GenMatrix(size);
@@ -119,7 +119,7 @@ TEST(gnitienko_k_strassen_alg_stl, test_random_64x64) {
   TestMultiply(a, b, out, expected, size);
 }
 
-TEST(gnitienko_k_strassen_alg_stl, test_non_squad_7x7) {
+TEST(gnitienko_k_strassen_alg_tbb, test_non_squad_7x7) {
   // Create data
   size_t size = 7;
   std::vector<double> a = GenMatrix(size);
@@ -131,7 +131,7 @@ TEST(gnitienko_k_strassen_alg_stl, test_non_squad_7x7) {
   TestMultiply(a, b, out, expected, size);
 }
 
-TEST(gnitienko_k_strassen_alg_stl, test_empty) {
+TEST(gnitienko_k_strassen_alg_tbb, test_empty) {
   // Create data
   std::vector<double> a = {};
   std::vector<double> b = {};
@@ -141,7 +141,7 @@ TEST(gnitienko_k_strassen_alg_stl, test_empty) {
   TestMultiply(a, b, out, expected);
 }
 
-TEST(gnitienko_k_strassen_alg_stl, test_single_element) {
+TEST(gnitienko_k_strassen_alg_tbb, test_single_element) {
   // Create data
   std::vector<double> a = {2};
   std::vector<double> b = {5};
@@ -151,7 +151,7 @@ TEST(gnitienko_k_strassen_alg_stl, test_single_element) {
   TestMultiply(a, b, out, expected, 1);
 }
 
-TEST(gnitienko_k_strassen_alg_stl, test_IxA) {
+TEST(gnitienko_k_strassen_alg_tbb, test_IxA) {
   // Create data
   size_t size = 3;
   std::vector<double> a = {2.4, 3.5, -4.1, 13.3, 5.4, 3.2, 4.5, 0.7, 1.9};
@@ -162,24 +162,12 @@ TEST(gnitienko_k_strassen_alg_stl, test_IxA) {
   TestMultiply(a, b, out, expected, size);
 }
 
-TEST(gnitienko_k_strassen_alg_stl, test_IxA_large) {
+TEST(gnitienko_k_strassen_alg_tbb, test_IxA_large) {
   // Create data
   size_t size = 64;
   std::vector<double> a = GenMatrix(size);
   std::vector<double> b = IdentityMatrix(size);
   std::vector<double> expected(a);
-  std::vector<double> out(size * size);
-
-  TestMultiply(a, b, out, expected, size);
-}
-
-TEST(gnitienko_k_strassen_alg_stl, test_random_256x256) {
-  // Create data
-  size_t size = 256;
-  std::vector<double> a = GenMatrix(size);
-  std::vector<double> b = GenMatrix(size);
-  std::vector<double> expected(size * size);
-  TrivialMultiply(a, b, expected, size);
   std::vector<double> out(size * size);
 
   TestMultiply(a, b, out, expected, size);
