@@ -30,7 +30,8 @@ double deryabin_m_hoare_sort_simple_merge_mpi::pivot_calculation(std::vector<dou
         return std::max(*mid, *last);
       }
     }
-  }  
+  }
+}
 
 void deryabin_m_hoare_sort_simple_merge_mpi::forwarding_and_merging(size_t world_rank, size_t step, bool is_even) {
   if (is_even) {
