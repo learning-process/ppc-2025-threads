@@ -1,8 +1,8 @@
 #pragma once
 
-#include <tbb/blocked_range.h>
-#include <tbb/parallel_for.h>
-#include <tbb/spin_mutex.h>
+#include <oneapi/tbb/blocked_range.h>
+#include <oneapi/tbb/parallel_for.h>
+#include <oneapi/tbb/spin_mutex.h>
 
 #include <utility>
 #include <vector>
