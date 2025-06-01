@@ -109,7 +109,7 @@ bool deryabin_m_hoare_sort_simple_merge_stl::HoareSortTaskSTL::RunImpl() {
       const size_t chunk_start = start + ((num_threads - 1) * num_chunk_per_thread);
       for (size_t j = chunk_start; j < end; ++j) {
         func(j);
-        }
+      }
     });
     for (auto& worker : workers) {
       worker.join();
