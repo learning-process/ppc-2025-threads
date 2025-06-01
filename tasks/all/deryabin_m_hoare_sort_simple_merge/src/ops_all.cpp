@@ -250,13 +250,14 @@ bool deryabin_m_hoare_sort_simple_merge_mpi::HoareSortTaskMPI::RunImpl() {
         }
         world_.recv(static_cast<int>(recv_rank), 0, input_array_A_.data() + start_idx, static_cast<int>(block_size));
         const auto end_idx = special_odd_case
-                                    ? input_array_A_.end()
-                                    : input_array_A_.begin() + static_cast<long>(start_idx + (block_size * 2) - rest_);
+                                 ? input_array_A_.end()
+                                 : input_array_A_.begin() + static_cast<long>(start_idx + (block_size * 2) - rest_);
         if (end_idx - start_idx < 200) {
-            std::inplace_merge(input_array_A_.begin() + static_cast<long>(start_idx), input_array_A_.begin() + static_cast<long>(start_idx + block_size), end_idx);
+          std::inplace_merge(input_array_A_.begin() + static_cast<long>(start_idx),
+                             input_array_A_.begin() + static_cast<long>(start_idx + block_size), end_idx);
         } else {
-            MergeUnequalTwoParts(input_array_A_.begin() + static_cast<long>(start_idx),
-                        input_array_A_.begin() + static_cast<long>(start_idx + block_size), end_idx);
+          MergeUnequalTwoParts(input_array_A_.begin() + static_cast<long>(start_idx),
+                               input_array_A_.begin() + static_cast<long>(start_idx + block_size), end_idx);
         }
       }
     }
