@@ -33,23 +33,22 @@ double deryabin_m_hoare_sort_simple_merge_mpi::pivot_calculation(std::vector<dou
   }
 }
 
-void deryabin_m_hoare_sort_simple_merge_mpi::forwarding_and_merging(size_t world_rank, size_t step, bool is_even) {
+void deryabin_m_hoare_sort_simple_merge_mpi::forwarding_and_merging(size_t world_rank, size_t step, bool is_even, size_t min_chunk_size_, size_t chunk_count_, size_t rest_, boost::mpi::communicator world_, std::vector<double> input_array_A_) {
   if (is_even) {
-    if (world_rank == 0) {
-      continue;
-    }
-    size_t block_size = min_chunk_size_ * step;
-    size_t start_idx = (chunk_count_ - (world_rank + step)) * min_chunk_size_;
-    if (world_rank == chunk_count_ - step) {
-      block_size += rest_;
-    } else {
-      start_idx += rest_;
-    }
-    if (world_rank >= step) {
-      world_.send(static_cast<int>(world_rank - step), 0, input_array_A_.data() + start_idx,
-                  static_cast<int>(block_size));
-    } else {
-      world_.send(0, 0, input_array_A_.data() + start_idx, static_cast<int>(block_size));
+    if (world_rank != 0) {
+      size_t block_size = min_chunk_size_ * step;
+      size_t start_idx = (chunk_count_ - (world_rank + step)) * min_chunk_size_;
+      if (world_rank == chunk_count_ - step) {
+        block_size += rest_;
+      } else {
+        start_idx += rest_;
+      }
+      if (world_rank >= step) {
+        world_.send(static_cast<int>(world_rank - step), 0, input_array_A_.data() + start_idx,
+                    static_cast<int>(block_size));
+      } else {
+        world_.send(0, 0, input_array_A_.data() + start_idx, static_cast<int>(block_size));
+      }
     }
   } else {
     const bool special_odd_case = (chunk_count_ & 1) != 0U && world_rank == 0;
@@ -250,7 +249,7 @@ bool deryabin_m_hoare_sort_simple_merge_mpi::HoareSortTaskMPI::RunImpl() {
     if (((chunk_count_ - world_rank) & (step - 1)) == 0U || world_rank == 0) {
       const bool is_even = (((chunk_count_ & 1) != 0U) ? (((chunk_count_ - world_rank + step - 1) / step) & 1) != 0U
                                                        : (((chunk_count_ - world_rank - 1) / step) & 1) == 0U) != 0U;
-      forwarding_and_merging(world_rank, step, is_even);
+      forwarding_and_merging( world_rank,  step,  is_even,  min_chunk_size_,  chunk_count_,  rest_, world_, input_array_A_);
     }
   }
   return true;
