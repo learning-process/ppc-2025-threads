@@ -42,10 +42,8 @@ void deryabin_m_hoare_sort_simple_merge_mpi::SeqHoaraSort(std::vector<double>::i
     const bool first_lt_mid = (*first < *mid);
     const bool mid_lt_last = (*mid < *last);
     const bool first_lt_last = (*first < *last);
-    const double pivot_value = 
-        first_lt_mid 
-            ? (mid_lt_last ? *mid : std::max(*first, *last))
-            : (first_lt_last ? *first : std::max(*mid, *last));
+    const double pivot_value = first_lt_mid ? (mid_lt_last ? *mid : std::max(*first, *last))
+                                            : (first_lt_last ? *first : std::max(*mid, *last));
     auto left = first;
     auto right = last;
     do {
@@ -101,10 +99,8 @@ void deryabin_m_hoare_sort_simple_merge_mpi::HoaraSort(std::vector<double>::iter
     const bool first_lt_mid = (*first < *mid);
     const bool mid_lt_last = (*mid < *last);
     const bool first_lt_last = (*first < *last);
-    const double pivot_value = 
-        first_lt_mid 
-            ? (mid_lt_last ? *mid : std::max(*first, *last))
-            : (first_lt_last ? *first : std::max(*mid, *last));
+    const double pivot_value = first_lt_mid ? (mid_lt_last ? *mid : std::max(*first, *last))
+                                            : (first_lt_last ? *first : std::max(*mid, *last));
     auto left = first;
     auto right = last;
     do {
@@ -149,7 +145,7 @@ void deryabin_m_hoare_sort_simple_merge_mpi::MergeUnequalTwoParts(std::vector<do
     size_t left_len = mid - left_end;
     if (right_len > left_len + 1) {
       size_t delta = right_len - left_len;
-      auto * base = &*(right_start - static_cast<long>(delta));
+      auto* base = &*(right_start - static_cast<long>(delta));
       oneapi::tbb::parallel_for(oneapi::tbb::blocked_range<size_t>(0, left_len),
                                 [&base, delta](const oneapi::tbb::blocked_range<size_t>& r) {
                                   for (size_t j = r.begin(); j < r.end(); ++j) {
@@ -243,7 +239,7 @@ bool deryabin_m_hoare_sort_simple_merge_mpi::HoareSortTaskMPI::RunImpl() {
     const size_t step = 1ULL << i;
     if ((chunk_count_ - world_rank) % step == 0 || world_rank == 0) {
       const bool is_even = ((chunk_count_ & 1) ? ((chunk_count_ - world_rank + step - 1) / step & 1) != 0
-                                            : ((chunk_count_ - world_rank - 1) / step & 1) == 0);
+                                               : ((chunk_count_ - world_rank - 1) / step & 1) == 0);
       if (is_even) {
         if (world_rank == 0) continue;
         size_t block_size = min_chunk_size_ * step;
