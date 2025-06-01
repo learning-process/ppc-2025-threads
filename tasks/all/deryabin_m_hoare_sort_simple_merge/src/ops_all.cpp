@@ -11,30 +11,76 @@
 #include <iterator>
 #include <vector>
 
+double deryabin_m_hoare_sort_simple_merge_mpi::pivot_calculation(std::vector<double>::iterator first,
+                                                                 std::vector<double>::iterator last) {
+  const auto mid = first + ((last - first) >> 1);
+  if (last - first < 199) {
+    return *mid;
+  } else {
+    if (*first < *mid) {
+      if (*mid < *last) {
+        return *mid;
+      } else {
+        return std::max(*first, *last);
+      }
+    } else {
+      if (*first < *last) {
+        return *first;
+      } else {
+        return std::max(*mid, *last);
+      }
+    }
+  }  
+
+void deryabin_m_hoare_sort_simple_merge_mpi::forwarding_and_merging(size_t world_rank, size_t step, bool is_even) {
+  if (is_even) {
+    if (world_rank == 0) {
+      continue;
+    }
+    size_t block_size = min_chunk_size_ * step;
+    size_t start_idx = (chunk_count_ - (world_rank + step)) * min_chunk_size_;
+    if (world_rank == chunk_count_ - step) {
+      block_size += rest_;
+    } else {
+      start_idx += rest_;
+    }
+    if (world_rank >= step) {
+      world_.send(static_cast<int>(world_rank - step), 0, input_array_A_.data() + start_idx,
+                  static_cast<int>(block_size));
+    } else {
+      world_.send(0, 0, input_array_A_.data() + start_idx, static_cast<int>(block_size));
+    }
+  } else {
+    const bool special_odd_case = (chunk_count_ & 1) != 0U && world_rank == 0;
+    size_t block_size = min_chunk_size_ * step;
+    size_t start_idx = special_odd_case ? (chunk_count_ - (2 * step - 1)) * min_chunk_size_
+                                        : (chunk_count_ - (world_rank + 2 * step)) * min_chunk_size_;
+    const size_t recv_rank = special_odd_case ? step - 1 : world_rank + step;
+    if (recv_rank == chunk_count_ - step) {
+      block_size += rest_;
+    } else {
+      start_idx += rest_;
+    }
+    world_.recv(static_cast<int>(recv_rank), 0, input_array_A_.data() + start_idx, static_cast<int>(block_size));
+    const auto end_idx = special_odd_case
+                              ? input_array_A_.end()
+                              : input_array_A_.begin() + static_cast<long>(start_idx + (block_size * 2) - rest_);
+    if (end_idx - (input_array_A_.begin() + static_cast<long>(start_idx)) < 200) {
+      std::inplace_merge(input_array_A_.begin() + static_cast<long>(start_idx),
+                         input_array_A_.begin() + static_cast<long>(start_idx + block_size), end_idx);
+    } else {
+      MergeUnequalTwoParts(input_array_A_.begin() + static_cast<long>(start_idx),
+                           input_array_A_.begin() + static_cast<long>(start_idx + block_size), end_idx);
+    }
+  }  
+}
+  
 void deryabin_m_hoare_sort_simple_merge_mpi::SeqHoaraSort(std::vector<double>::iterator first,
                                                           std::vector<double>::iterator last) {
   if (first >= last) {
     return;
   }
-  const auto mid = first + ((last - first) >> 1);
-  double pivot_value = NAN;
-  if (last - first < 199) {
-    pivot_value = *mid;
-  } else {
-    if (*first < *mid) {
-      if (*mid < *last) {
-        pivot_value = *mid;
-      } else {
-        pivot_value = std::max(*first, *last);
-      }
-    } else {
-      if (*first < *last) {
-        pivot_value = *first;
-      } else {
-        pivot_value = std::max(*mid, *last);
-      }
-    }
-  }
+  const double pivot_value = pivot_calculation(first, last);
   auto left = first;
   auto right = last;
   do {
@@ -62,25 +108,7 @@ void deryabin_m_hoare_sort_simple_merge_mpi::HoaraSort(std::vector<double>::iter
   if (first >= last) {
     return;
   }
-  const auto mid = first + ((last - first) >> 1);
-  double pivot_value = NAN;
-  if (last - first < 199) {
-    pivot_value = *mid;
-  } else {
-    if (*first < *mid) {
-      if (*mid < *last) {
-        pivot_value = *mid;
-      } else {
-        pivot_value = std::max(*first, *last);
-      }
-    } else {
-      if (*first < *last) {
-        pivot_value = *first;
-      } else {
-        pivot_value = std::max(*mid, *last);
-      }
-    }
-  }
+  const double pivot_value = pivot_calculation(first, last);
   auto left = first;
   auto right = last;
   do {
@@ -209,10 +237,9 @@ bool deryabin_m_hoare_sort_simple_merge_mpi::HoareSortTaskMPI::ValidationImpl() 
 
 bool deryabin_m_hoare_sort_simple_merge_mpi::HoareSortTaskMPI::RunImpl() {
   const size_t world_rank = world_.rank();
-  const size_t rank_from_end = chunk_count_ - world_rank;
-  const auto start_iter = input_array_A_.begin() + static_cast<long>(((rank_from_end - 1) * min_chunk_size_) +
+  const auto start_iter = input_array_A_.begin() + static_cast<long>(((chunk_count_ - world_rank - 1) * min_chunk_size_) +
                                                                      (world_rank == chunk_count_ - 1 ? 0 : rest_));
-  const auto end_iter = input_array_A_.begin() + static_cast<long>((rank_from_end * min_chunk_size_) + rest_) - 1;
+  const auto end_iter = input_array_A_.begin() + static_cast<long>(((chunk_count_ - world_rank) * min_chunk_size_) + rest_) - 1;
   HoaraSort(start_iter, end_iter);
   const size_t iterations = std::bit_width(chunk_count_ - 1);
   for (size_t i = 0; i < iterations; ++i) {
@@ -220,46 +247,7 @@ bool deryabin_m_hoare_sort_simple_merge_mpi::HoareSortTaskMPI::RunImpl() {
     if (((chunk_count_ - world_rank) & (step - 1)) == 0U || world_rank == 0) {
       const bool is_even = (((chunk_count_ & 1) != 0U) ? (((chunk_count_ - world_rank + step - 1) / step) & 1) != 0U
                                                        : (((chunk_count_ - world_rank - 1) / step) & 1) == 0U) != 0U;
-      if (is_even) {
-        if (world_rank == 0) {
-          continue;
-        }
-        size_t block_size = min_chunk_size_ * step;
-        size_t start_idx = (chunk_count_ - (world_rank + step)) * min_chunk_size_;
-        if (world_rank == chunk_count_ - step) {
-          block_size += rest_;
-        } else {
-          start_idx += rest_;
-        }
-        if (world_rank >= step) {
-          world_.send(static_cast<int>(world_rank - step), 0, input_array_A_.data() + start_idx,
-                      static_cast<int>(block_size));
-        } else {
-          world_.send(0, 0, input_array_A_.data() + start_idx, static_cast<int>(block_size));
-        }
-      } else {
-        const bool special_odd_case = (chunk_count_ & 1) != 0U && world_rank == 0;
-        size_t block_size = min_chunk_size_ * step;
-        size_t start_idx = special_odd_case ? (chunk_count_ - (2 * step - 1)) * min_chunk_size_
-                                            : (chunk_count_ - (world_rank + 2 * step)) * min_chunk_size_;
-        const size_t recv_rank = special_odd_case ? step - 1 : world_rank + step;
-        if (recv_rank == chunk_count_ - step) {
-          block_size += rest_;
-        } else {
-          start_idx += rest_;
-        }
-        world_.recv(static_cast<int>(recv_rank), 0, input_array_A_.data() + start_idx, static_cast<int>(block_size));
-        const auto end_idx = special_odd_case
-                                 ? input_array_A_.end()
-                                 : input_array_A_.begin() + static_cast<long>(start_idx + (block_size * 2) - rest_);
-        if (end_idx - (input_array_A_.begin() + static_cast<long>(start_idx)) < 200) {
-          std::inplace_merge(input_array_A_.begin() + static_cast<long>(start_idx),
-                             input_array_A_.begin() + static_cast<long>(start_idx + block_size), end_idx);
-        } else {
-          MergeUnequalTwoParts(input_array_A_.begin() + static_cast<long>(start_idx),
-                               input_array_A_.begin() + static_cast<long>(start_idx + block_size), end_idx);
-        }
-      }
+      forwarding_and_merging(world_rank, step, is_even);
     }
   }
   return true;
