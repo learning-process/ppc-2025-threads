@@ -81,54 +81,42 @@ inline std::vector<double> ConjugateGradientMethod(std::vector<double>& a, std::
   return solution;
 }
 
-inline double CalculateDeterminant(const double* a, int size) {
-  double d = 0;
-  if (size == 1) {
-    d = a[0];
-  } else if (size == 2) {
-    d = (a[0] * a[3]) - (a[1] * a[2]);
-  } else {
-    double determinant = 0;
-    for (int i = 0; i < size; ++i) {
-      double cofactor = std::pow(-1, i) * CalculateDeterminant(a + (size * 1), size - 1);
-      determinant += a[i] * cofactor;
-    }
-    d = determinant;
-  }
-  return d;
-}
-
-inline bool MatrixSimmPositive(const double* a, int size) {
-  std::vector<double> a0(size * size);
-  for (int i = 0; i < size * size; i++) {
-    a0[i] = a[i];
+inline bool Cholesky(const std::vector<double>& matrix, int w, int h, double tolerance = 1e-5) {
+  if (w != h) {
+    return false;
   }
 
-  for (int i = 0; i < size; i++) {
-    for (int j = i + 1; j < size; j++) {
-      if (a0[(i * size) + j] != a0[(j * size) + i]) {
+  int n = w;
+
+  for (int i = 0; i < n; i++) {
+    for (int j = i + 1; j < n; j++) {
+      if (std::abs(matrix[(i * n) + j] - matrix[(j * n) + i]) > tolerance) {
         return false;
       }
     }
   }
 
-  std::vector<double> minors(size);
-  for (int i = 1; i <= size; i++) {
-    auto* submatrix = new double[i * i];
-    for (int j = 0; j < i; j++) {
-      for (int k = 0; k < i; k++) {
-        submatrix[(j * i) + k] = a[(j * size) + k];
+  std::vector<double> lower_triangular(n * n, 0.0);
+
+  for (int i = 0; i < n; i++) {
+    for (int j = 0; j <= i; j++) {
+      double sum = 0.0;
+      for (int k = 0; k < j; k++) {
+        sum += lower_triangular[(i * n) + k] * lower_triangular[(j * n) + k];
+      }
+
+      if (i == j) {
+        double diag_val = matrix[(i * n) + i] - sum;
+        if (diag_val <= tolerance) {
+          return false;
+        }
+        lower_triangular[(i * n) + i] = std::sqrt(diag_val);
+      } else {
+        lower_triangular[(i * n) + j] = (1.0 / lower_triangular[(j * n) + j]) * (matrix[(i * n) + j] - sum);
       }
     }
+  }
 
-    minors[i - 1] = CalculateDeterminant(submatrix, i);
-    delete[] submatrix;
-  }
-  for (unsigned long i = 0; i < minors.size(); ++i) {
-    if (minors[i] <= 0) {
-      return false;
-    }
-  }
   return true;
 }
 

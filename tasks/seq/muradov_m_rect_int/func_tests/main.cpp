@@ -15,7 +15,7 @@
 constexpr double kAbsErr = 0.1;
 
 namespace {
-void MuradovMRectIntTest(std::size_t iterations, std::vector<std::pair<double, double>> bounds, double ref,
+void MuradovMRectIntTest(int iterations, std::vector<std::pair<double, double>> bounds, double ref,
                          const muradov_m_rect_int_seq::Matfun &fun) {
   double out = 0.0;
   auto task_data = std::make_shared<ppc::core::TaskData>();
@@ -84,7 +84,7 @@ TEST(muradov_m_rect_int_seq, sin_plus_cos_2) {
 }
 
 TEST(muradov_m_rect_int_seq, sin_plus_cos_3) {
-  MuradovMRectIntTest(60, {{0, std::numbers::pi}, {0, std::numbers::pi}, {0, std::numbers::pi}}, 4 * std::numbers::pi,
+  MuradovMRectIntTest(50, {{0, std::numbers::pi}, {0, std::numbers::pi}, {0, std::numbers::pi}}, 4 * std::numbers::pi,
                       [](const auto &args) {
                         return (std::sin(args[0]) + std::cos(args[1])) * (std::sin(args[1]) + std::cos(args[2]));
                       });

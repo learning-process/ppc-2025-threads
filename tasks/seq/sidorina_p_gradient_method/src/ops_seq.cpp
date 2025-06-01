@@ -13,7 +13,7 @@ bool sidorina_p_gradient_method_seq::GradientMethod::PreProcessingImpl() {
   unsigned int solution_size = task_data->inputs_count[4];
   solution_.assign(solution_ptr, solution_ptr + solution_size);
   result_.resize(size_);
-  return true;
+  return Cholesky(a_, size_, size_);
 }
 
 bool sidorina_p_gradient_method_seq::GradientMethod::ValidationImpl() {
@@ -42,9 +42,7 @@ bool sidorina_p_gradient_method_seq::GradientMethod::ValidationImpl() {
     return false;
   }
 
-  const auto* matrix = reinterpret_cast<const double*>(task_data->inputs[2]);
-
-  return MatrixSimmPositive(matrix, *reinterpret_cast<int*>(task_data->inputs[0]));
+  return true;
 }
 
 bool sidorina_p_gradient_method_seq::GradientMethod::RunImpl() {
