@@ -17,7 +17,7 @@ void deryabin_m_hoare_sort_simple_merge_mpi::SeqHoaraSort(std::vector<double>::i
     return;
   }
   if (last - first < 199) {
-    const double pivot_value = *(first + last >> 1);
+    const double pivot_value = *(first + (last - first) >> 1);
     auto left = first;
     auto right = last;
     do {
@@ -39,7 +39,7 @@ void deryabin_m_hoare_sort_simple_merge_mpi::SeqHoaraSort(std::vector<double>::i
     HoaraSort(first, right);
     HoaraSort(left + 1, last);
   } else {
-    const auto mid = first + last >> 1;
+    const auto mid = first + (last - first) >> 1;
     double pivot_value;
     if (*first < *mid) {
       if (*mid < *last) {
@@ -83,7 +83,7 @@ void deryabin_m_hoare_sort_simple_merge_mpi::HoaraSort(std::vector<double>::iter
     return;
   }
   if (last - first < 199) {
-    const double pivot_value = *(first + last >> 1);
+    const double pivot_value = *(first + (last - first) >> 1);
     auto left = first;
     auto right = last;
     do {
@@ -105,7 +105,7 @@ void deryabin_m_hoare_sort_simple_merge_mpi::HoaraSort(std::vector<double>::iter
     HoaraSort(first, right);
     HoaraSort(left + 1, last);
   } else {
-    const auto mid = first + last >> 1;
+    const auto mid = first + (last - first) >> 1;
     double pivot_value;
     if (*first < *mid) {
       if (*mid < *last) {
