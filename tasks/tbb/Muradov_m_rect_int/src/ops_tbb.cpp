@@ -1,4 +1,4 @@
-#include "tbb/muradov_m_rect_int/include/ops_tbb.hpp"
+#include "tbb/Muradov_m_rect_int/include/ops_tbb.hpp"
 
 #include <oneapi/tbb/task_arena.h>
 #include <tbb/tbb.h>

@@ -8,7 +8,7 @@
 #include <utility>
 #include <vector>
 
-#include "all/muradov_m_rect_int/include/ops_all.hpp"
+#include "all/Muradov_m_rect_int/include/ops_all.hpp"
 #include "boost/mpi/communicator.hpp"
 #include "core/task/include/task.hpp"
 

@@ -1,4 +1,4 @@
-#include "omp/muradov_m_rect_int/include/ops_omp.hpp"
+#include "omp/Muradov_m_rect_int/include/ops_omp.hpp"
 
 #include <omp.h>
 
