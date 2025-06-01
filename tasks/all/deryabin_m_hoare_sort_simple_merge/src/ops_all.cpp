@@ -33,7 +33,10 @@ double deryabin_m_hoare_sort_simple_merge_mpi::pivot_calculation(std::vector<dou
   }
 }
 
-void deryabin_m_hoare_sort_simple_merge_mpi::forwarding_and_merging(size_t world_rank, size_t step, bool is_even, size_t min_chunk_size_, size_t chunk_count_, size_t rest_, boost::mpi::communicator world_, std::vector<double> input_array_A_) {
+void deryabin_m_hoare_sort_simple_merge_mpi::forwarding_and_merging(size_t world_rank, size_t step, bool is_even,
+                                                                    size_t min_chunk_size_, size_t chunk_count_,
+                                                                    size_t rest_, boost::mpi::communicator world_,
+                                                                    std::vector<double> input_array_A_) {
   if (is_even) {
     if (world_rank != 0) {
       size_t block_size = min_chunk_size_ * step;
@@ -249,7 +252,7 @@ bool deryabin_m_hoare_sort_simple_merge_mpi::HoareSortTaskMPI::RunImpl() {
     if (((chunk_count_ - world_rank) & (step - 1)) == 0U || world_rank == 0) {
       const bool is_even = (((chunk_count_ & 1) != 0U) ? (((chunk_count_ - world_rank + step - 1) / step) & 1) != 0U
                                                        : (((chunk_count_ - world_rank - 1) / step) & 1) == 0U) != 0U;
-      forwarding_and_merging( world_rank,  step,  is_even,  min_chunk_size_,  chunk_count_,  rest_, world_, input_array_A_);
+      forwarding_and_merging(world_rank, step, is_even, min_chunk_size_, chunk_count_, rest_, world_, input_array_A_);
     }
   }
   return true;
