@@ -10,7 +10,7 @@
 #include <vector>
 
 #include "core/task/include/task.hpp"
-#include "omp/muradov_m_rect_int/include/ops_omp.hpp"
+#include "omp/Muradov_m_rect_int/include/ops_omp.hpp"
 
 constexpr double kAbsErr = 0.1;
 
@@ -34,63 +34,63 @@ void MuradovMRectIntTest(int iterations, std::vector<std::pair<double, double>> 
 }
 }  // namespace
 
-TEST(muradov_m_rect_int_omp, onedim_zerobounds) {
+TEST(Muradov_m_rect_int_omp, onedim_zerobounds) {
   MuradovMRectIntTest(100, {std::make_pair(0., 0.)}, 0, [](const auto &args) { return 200.; });
 }
 
-TEST(muradov_m_rect_int_omp, twodim_zerobounds) {
+TEST(Muradov_m_rect_int_omp, twodim_zerobounds) {
   MuradovMRectIntTest(100, {{0., 0.}, {0., 0.}}, 0, [](const auto &args) { return 200.; });
 }
 
-TEST(muradov_m_rect_int_omp, threedim_zerobounds) {
+TEST(Muradov_m_rect_int_omp, threedim_zerobounds) {
   MuradovMRectIntTest(100, {{0., 0.}, {0., 0.}, {0., 0.}}, 0, [](const auto &args) { return 200.; });
 }
 
-TEST(muradov_m_rect_int_omp, onedim_samebounds) {
+TEST(Muradov_m_rect_int_omp, onedim_samebounds) {
   MuradovMRectIntTest(100, {std::make_pair(5., 5.)}, 0, [](const auto &args) { return 200.; });
 }
 
-TEST(muradov_m_rect_int_omp, twodim_samebounds) {
+TEST(Muradov_m_rect_int_omp, twodim_samebounds) {
   MuradovMRectIntTest(100, {{5., 5.}, {10., 10.}}, 0, [](const auto &args) { return 200.; });
 }
 
-TEST(muradov_m_rect_int_omp, threedim_samebounds) {
+TEST(Muradov_m_rect_int_omp, threedim_samebounds) {
   MuradovMRectIntTest(100, {{5., 5.}, {10., 10.}, {20., 20.}}, 0, [](const auto &args) { return 200.; });
 }
 
-TEST(muradov_m_rect_int_omp, sin_mul_cos_1) {
+TEST(Muradov_m_rect_int_omp, sin_mul_cos_1) {
   MuradovMRectIntTest(100, {std::make_pair(0, std::numbers::pi)}, 0,
                       [](const auto &args) { return std::sin(args[0]) * std::cos(args[0]); });
 }
 
-TEST(muradov_m_rect_int_omp, sin_plus_cos_1) {
+TEST(Muradov_m_rect_int_omp, sin_plus_cos_1) {
   MuradovMRectIntTest(100, {std::make_pair(0, std::numbers::pi)}, 2,
                       [](const auto &args) { return std::sin(args[0]) + std::cos(args[0]); });
 }
 
-TEST(muradov_m_rect_int_omp, sin_mul_cos_2) {
+TEST(Muradov_m_rect_int_omp, sin_mul_cos_2) {
   MuradovMRectIntTest(100, {{0, std::numbers::pi}, {0, std::numbers::pi}}, 0,
                       [](const auto &args) { return std::sin(args[0]) * std::cos(args[1]); });
 }
 
-TEST(muradov_m_rect_int_omp, sin_plus_cos_2) {
+TEST(Muradov_m_rect_int_omp, sin_plus_cos_2) {
   MuradovMRectIntTest(100, {{0, std::numbers::pi}, {0, std::numbers::pi}}, 2 * std::numbers::pi,
                       [](const auto &args) { return std::sin(args[0]) + std::cos(args[1]); });
 }
 
-TEST(muradov_m_rect_int_omp, sin_plus_cos_3) {
+TEST(Muradov_m_rect_int_omp, sin_plus_cos_3) {
   MuradovMRectIntTest(100, {{0, std::numbers::pi}, {0, std::numbers::pi}, {0, std::numbers::pi}}, 4 * std::numbers::pi,
                       [](const auto &args) {
                         return (std::sin(args[0]) + std::cos(args[1])) * (std::sin(args[1]) + std::cos(args[2]));
                       });
 }
 
-TEST(muradov_m_rect_int_omp, polynomial_sum_1) {
+TEST(Muradov_m_rect_int_omp, polynomial_sum_1) {
   MuradovMRectIntTest(100, {{0, 3}, {0, 3}}, 189. / 4.,
                       [](const auto &args) { return (args[0] * args[1]) + std::pow(args[1], 2); });
 }
 
-TEST(muradov_m_rect_int_omp, polynomial_sum_2) {
+TEST(Muradov_m_rect_int_omp, polynomial_sum_2) {
   MuradovMRectIntTest(100, {{0, 2}, {0, 3}}, 27,
                       [](const auto &args) { return (args[0] * args[1]) + std::pow(args[1], 2); });
 }

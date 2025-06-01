@@ -9,9 +9,9 @@
 
 #include "core/perf/include/perf.hpp"
 #include "core/task/include/task.hpp"
-#include "stl/muradov_m_rect_int/include/ops_stl.hpp"
+#include "stl/Muradov_m_rect_int/include/ops_stl.hpp"
 
-TEST(muradov_m_rect_int_stl, test_pipeline_run) {
+TEST(Muradov_m_rect_int_stl, test_pipeline_run) {
   int iterations = 475;
   std::vector<std::pair<double, double>> bounds(3, {-3.0, 3.0});
   double out = 0.0;
@@ -45,7 +45,7 @@ TEST(muradov_m_rect_int_stl, test_pipeline_run) {
   EXPECT_NEAR(out, -4.09, 0.3);
 }
 
-TEST(muradov_m_rect_int_stl, test_task_run) {
+TEST(Muradov_m_rect_int_stl, test_task_run) {
   int iterations = 475;
   std::vector<std::pair<double, double>> bounds(3, {-3.0, 3.0});
   double out = 0.0;

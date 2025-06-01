@@ -6,12 +6,12 @@
 #include <utility>
 #include <vector>
 
-#include "all/muradov_m_rect_int/include/ops_all.hpp"
+#include "all/Muradov_m_rect_int/include/ops_all.hpp"
 #include "boost/mpi/communicator.hpp"
 #include "core/perf/include/perf.hpp"
 #include "core/task/include/task.hpp"
 
-TEST(muradov_m_rect_int_all, test_pipeline_run) {
+TEST(Muradov_m_rect_int_all, test_pipeline_run) {
   boost::mpi::communicator world{};
 
   int iterations = 475;
@@ -51,7 +51,7 @@ TEST(muradov_m_rect_int_all, test_pipeline_run) {
   }
 }
 
-TEST(muradov_m_rect_int_all, test_task_run) {
+TEST(Muradov_m_rect_int_all, test_task_run) {
   boost::mpi::communicator world{};
 
   int iterations = 475;
