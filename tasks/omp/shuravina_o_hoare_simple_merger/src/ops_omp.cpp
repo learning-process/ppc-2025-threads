@@ -1,4 +1,4 @@
-#include "omp/shuravina_o_hoare_simple_merger_omp1/include/ops_omp.hpp"
+#include "omp/shuravina_o_hoare_simple_merger/include/ops_omp.hpp"
 
 #include <omp.h>
 

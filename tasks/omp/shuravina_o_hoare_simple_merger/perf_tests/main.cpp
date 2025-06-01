@@ -7,7 +7,7 @@
 
 #include "core/perf/include/perf.hpp"
 #include "core/task/include/task.hpp"
-#include "omp/shuravina_o_hoare_simple_merger_omp1/include/ops_omp.hpp"
+#include "omp/shuravina_o_hoare_simple_merger/include/ops_omp.hpp"
 
 TEST(shuravina_o_hoare_simple_merger_omp, test_pipeline_run) {
   constexpr int kCount = 50000;
