@@ -11,7 +11,7 @@
 
 #include "core/perf/include/perf.hpp"
 #include "core/task/include/task.hpp"
-#include "tbb/shuravina_o_hoare_simple_merger_tbb/include/ops_tbb.hpp"
+#include "tbb/shuravina_o_hoare_simple_merger/include/ops_tbb.hpp"
 
 namespace {
 constexpr std::size_t kLargeSize = 1000000;

@@ -7,7 +7,7 @@
 #include <vector>
 
 #include "core/task/include/task.hpp"
-#include "tbb/shuravina_o_hoare_simple_merger_tbb/include/ops_tbb.hpp"
+#include "tbb/shuravina_o_hoare_simple_merger/include/ops_tbb.hpp"
 
 namespace {
 
