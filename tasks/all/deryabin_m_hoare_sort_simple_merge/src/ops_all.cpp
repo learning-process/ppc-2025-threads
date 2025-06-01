@@ -33,7 +33,7 @@ void deryabin_m_hoare_sort_simple_merge_mpi::SeqHoaraSort(std::vector<double>::i
       } else {
         pivot_value = std::max(*mid, *last);
       }
-    }  
+                                                    }  
   }
   auto left = first;
   auto right = last;
@@ -79,7 +79,7 @@ void deryabin_m_hoare_sort_simple_merge_mpi::HoaraSort(std::vector<double>::iter
       } else {
         pivot_value = std::max(*mid, *last);
       }
-    }  
+                                                         }  
   }
   auto left = first;
   auto right = last;
