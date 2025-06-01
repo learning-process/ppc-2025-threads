@@ -349,7 +349,7 @@ TEST(naumov_b_marc_on_bin_image_all, RandomLargeMatrix) {
   const int m = 100;
   const int n = 100;
 
-  auto in = naumov_b_marc_on_bin_image_all::GenerateSparseBinaryMatrix(m, n);
+  auto in = naumov_b_marc_on_bin_image_all::GenerateRandomBinaryMatrix(m, n, 0.1);
   std::vector<int> out(m * n, 0);
 
   auto task_data_all = std::make_shared<ppc::core::TaskData>();
@@ -382,7 +382,7 @@ TEST(naumov_b_marc_on_bin_image_all, RandomSparseMatrix) {
   const int m = 50;
   const int n = 50;
 
-  auto in = naumov_b_marc_on_bin_image_all::GenerateSparseBinaryMatrix(m, n);
+  auto in = naumov_b_marc_on_bin_image_all::GenerateRandomBinaryMatrix(m, n, 0.1);
   std::vector<int> out(m * n, 0);
 
   auto task_data_all = std::make_shared<ppc::core::TaskData>();
@@ -415,7 +415,7 @@ TEST(naumov_b_marc_on_bin_image_all, RandomDenseMatrix) {
   const int m = 20;
   const int n = 20;
 
-  auto in = naumov_b_marc_on_bin_image_all::GenerateDenseBinaryMatrix(m, n);
+  auto in = naumov_b_marc_on_bin_image_all::GenerateRandomBinaryMatrix(m, n, 0.9);
   std::vector<int> out(m * n, 0);
 
   auto task_data_all = std::make_shared<ppc::core::TaskData>();
@@ -447,7 +447,7 @@ TEST(naumov_b_marc_on_bin_image_all, RandomDenseMatrix2) {
   const int m = 17;
   const int n = 23;
 
-  auto in = naumov_b_marc_on_bin_image_all::GenerateDenseBinaryMatrix(m, n);
+  auto in = naumov_b_marc_on_bin_image_all::GenerateRandomBinaryMatrix(m, n, 0.9);
   std::vector<int> out(m * n, 0);
 
   auto task_data_all = std::make_shared<ppc::core::TaskData>();

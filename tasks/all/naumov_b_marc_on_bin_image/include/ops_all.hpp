@@ -9,9 +9,7 @@
 
 namespace naumov_b_marc_on_bin_image_all {
 
-std::vector<int> GenerateRandomBinaryMatrix(int rows, int cols, double probability = 0.5);
-std::vector<int> GenerateSparseBinaryMatrix(int rows, int cols, double probability = 0.1);
-std::vector<int> GenerateDenseBinaryMatrix(int rows, int cols, double probability = 0.9);
+std::vector<int> GenerateRandomBinaryMatrix(int rows, int cols, double probability);
 
 class TestTaskALL : public ppc::core::Task {
  public:

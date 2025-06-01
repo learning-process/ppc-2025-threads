@@ -30,14 +30,6 @@ std::vector<int> naumov_b_marc_on_bin_image_all::GenerateRandomBinaryMatrix(int 
   return matrix;
 }
 
-std::vector<int> naumov_b_marc_on_bin_image_all::GenerateSparseBinaryMatrix(int rows, int cols, double probability) {
-  return GenerateRandomBinaryMatrix(rows, cols, probability);
-}
-
-std::vector<int> naumov_b_marc_on_bin_image_all::GenerateDenseBinaryMatrix(int rows, int cols, double probability) {
-  return GenerateRandomBinaryMatrix(rows, cols, probability);
-}
-
 bool naumov_b_marc_on_bin_image_all::TestTaskALL::PreProcessingImpl() {
   MPI_Comm_rank(MPI_COMM_WORLD, &rank_);
   MPI_Comm_size(MPI_COMM_WORLD, &num_procs_);
