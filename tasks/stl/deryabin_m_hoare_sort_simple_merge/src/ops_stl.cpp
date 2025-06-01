@@ -111,7 +111,7 @@ bool deryabin_m_hoare_sort_simple_merge_stl::HoareSortTaskSTL::RunImpl() {
     if (synchronization) {
       for (auto& worker : workers) {
         worker.join();
-      }  
+                              }  
     }
     workers.resize(0);
   };
