@@ -75,7 +75,7 @@ void deryabin_m_hoare_sort_simple_merge_mpi::forwarding_and_merging(size_t world
     }
   }
 }
-  
+
 void deryabin_m_hoare_sort_simple_merge_mpi::SeqHoaraSort(std::vector<double>::iterator first,
                                                           std::vector<double>::iterator last) {
   if (first >= last) {
@@ -238,9 +238,11 @@ bool deryabin_m_hoare_sort_simple_merge_mpi::HoareSortTaskMPI::ValidationImpl() 
 
 bool deryabin_m_hoare_sort_simple_merge_mpi::HoareSortTaskMPI::RunImpl() {
   const size_t world_rank = world_.rank();
-  const auto start_iter = input_array_A_.begin() + static_cast<long>(((chunk_count_ - world_rank - 1) * min_chunk_size_) +
-                                                                     (world_rank == chunk_count_ - 1 ? 0 : rest_));
-  const auto end_iter = input_array_A_.begin() + static_cast<long>(((chunk_count_ - world_rank) * min_chunk_size_) + rest_) - 1;
+  const auto start_iter =
+      input_array_A_.begin() + static_cast<long>(((chunk_count_ - world_rank - 1) * min_chunk_size_) +
+                                                 (world_rank == chunk_count_ - 1 ? 0 : rest_));
+  const auto end_iter =
+      input_array_A_.begin() + static_cast<long>(((chunk_count_ - world_rank) * min_chunk_size_) + rest_) - 1;
   HoaraSort(start_iter, end_iter);
   const size_t iterations = std::bit_width(chunk_count_ - 1);
   for (size_t i = 0; i < iterations; ++i) {
