@@ -94,7 +94,7 @@ bool deryabin_m_hoare_sort_simple_merge_stl::HoareSortTaskSTL::RunImpl() {
     chunk_count_ = 1ULL << std::bit_width(num_threads - 1);
     min_chunk_size_ = dimension_ / chunk_count_;
   }
-  auto parallel_for = [&](size_t start, size_t end, auto&& func) {
+  auto parallel_for = [&](size_t start, size_t end, bool synchronization, auto&& func) {
     const size_t num_chunk_per_thread = (end - start) / num_threads;
     for (size_t i = 0; i < num_threads - 1; ++i) {
       workers.emplace_back([=, &func] {
@@ -108,12 +108,14 @@ bool deryabin_m_hoare_sort_simple_merge_stl::HoareSortTaskSTL::RunImpl() {
         func(j);
       }
     });
-    for (auto& worker : workers) {
-      worker.join();
+    if (synchronization) {
+      for (auto& worker : workers) {
+        worker.join();
+      }      
     }
     workers.resize(0);
   };
-  parallel_for(0, chunk_count_, [this](size_t count) {
+  parallel_for(0, chunk_count_, false, [this](size_t count) {
     HoareSort(input_array_A_, count * min_chunk_size_, ((count + 1) * min_chunk_size_) - 1);
   });
   for (size_t i = 0; i < static_cast<size_t>(std::bit_width(chunk_count_) -
@@ -121,7 +123,7 @@ bool deryabin_m_hoare_sort_simple_merge_stl::HoareSortTaskSTL::RunImpl() {
                                                   // основанию 2 от числа частей chunk_count_
        ++i) {  // На каждом уровне сливаются пары соседних блоков размером min_chunk_size_ × 2^i
     parallel_for(
-        0, chunk_count_ >> (i + 1), [this, i](size_t j) {  // Распределение слияний между потоками на каждом уровне
+        0, chunk_count_ >> (i + 1), true, [this, i](size_t j) {  // Распределение слияний между потоками на каждом уровне
           std::inplace_merge(
               input_array_A_.begin() +
                   static_cast<long>(j * min_chunk_size_ << (i + 1)),  // Вызов std::inplace_merge для слияния двух
