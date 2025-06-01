@@ -53,7 +53,7 @@ void deryabin_m_hoare_sort_simple_merge_mpi::forwarding_and_merging(size_t world
                   static_cast<int>(block_size));
     } else {
       world_.send(0, 0, input_array_A_.data() + start_idx, static_cast<int>(block_size));
-    }   
+    } 
   } else {
     const bool special_odd_case = (chunk_count_ & 1) != 0U && world_rank == 0;
     size_t block_size = min_chunk_size_ * step;
