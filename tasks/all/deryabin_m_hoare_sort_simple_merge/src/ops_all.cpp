@@ -249,17 +249,16 @@ bool deryabin_m_hoare_sort_simple_merge_mpi::HoareSortTaskMPI::ValidationImpl() 
 bool deryabin_m_hoare_sort_simple_merge_mpi::HoareSortTaskMPI::RunImpl() {
   const size_t world_rank = world_.rank();
   const size_t rank_from_end = chunk_count_ - world_rank;
-  const auto start_iter =
-      input_array_A_.begin() + static_cast<long>((rank_from_end - 1) * min_chunk_size_ + (world_rank == chunk_count_ - 1 ? 0 : rest_));
+  const auto start_iter = input_array_A_.begin() + static_cast<long>((rank_from_end - 1) * min_chunk_size_ +
+                                                                     (world_rank == chunk_count_ - 1 ? 0 : rest_));
   const auto end_iter = input_array_A_.begin() + static_cast<long>(rank_from_end * min_chunk_size_ + rest_) - 1;
   HoaraSort(start_iter, end_iter);
   const size_t iterations = std::bit_width(chunk_count_ - 1);
   for (size_t i = 0; i < iterations; ++i) {
     const size_t step = 1ULL << i;
     if ((chunk_count_ - world_rank) % step == 0 || world_rank == 0) {
-    const bool is_even = (chunk_count_ & 1) 
-        ? (chunk_count_ - world_rank + step - 1) / step & 1
-        : !((chunk_count_ - world_rank - 1) / step & 1);
+      const bool is_even = (chunk_count_ & 1) ? (chunk_count_ - world_rank + step - 1) / step & 1
+                                              : !((chunk_count_ - world_rank - 1) / step & 1);
       if (is_even) {
         if (world_rank == 0) {
           continue;
@@ -272,7 +271,8 @@ bool deryabin_m_hoare_sort_simple_merge_mpi::HoareSortTaskMPI::RunImpl() {
           start_idx += rest_;
         }
         if (world_rank >= step) {
-          world_.send(static_cast<int>(world_rank - step), 0, input_array_A_.data() + start_idx, static_cast<int>(block_size));
+          world_.send(static_cast<int>(world_rank - step), 0, input_array_A_.data() + start_idx,
+                      static_cast<int>(block_size));
         } else {
           world_.send(0, 0, input_array_A_.data() + start_idx, static_cast<int>(block_size));
         }
@@ -288,10 +288,11 @@ bool deryabin_m_hoare_sort_simple_merge_mpi::HoareSortTaskMPI::RunImpl() {
           start_idx += rest_;
         }
         world_.recv(static_cast<int>(recv_rank), 0, input_array_A_.data() + start_idx, static_cast<int>(block_size));
-        const auto final_iter =
-            special_odd_case ? input_array_A_.end() : input_array_A_.begin() + static_cast<long>(start_idx + block_size * 2 - rest_);
-        MergeUnequalTwoParts(input_array_A_.begin() + static_cast<long>(start_idx), input_array_A_.begin() + static_cast<long>(start_idx + block_size),
-                             final_iter);
+        const auto final_iter = special_odd_case
+                                    ? input_array_A_.end()
+                                    : input_array_A_.begin() + static_cast<long>(start_idx + block_size * 2 - rest_);
+        MergeUnequalTwoParts(input_array_A_.begin() + static_cast<long>(start_idx),
+                             input_array_A_.begin() + static_cast<long>(start_idx + block_size), final_iter);
       }
     }
   }
