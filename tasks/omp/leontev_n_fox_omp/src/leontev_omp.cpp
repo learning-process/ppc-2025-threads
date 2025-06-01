@@ -78,12 +78,12 @@ bool FoxOMP::RunImpl() {
     k = n_ / q + 1;
   }
   for (size_t l = 0; l < q; l++) {
-#pragma omp parallel for collapse(2)
-    for (size_t i = 0; i < q; i++) {
-      for (size_t j = 0; j < q; j++) {
-        div1 = ((i + l) % q) * k;
-        MatMulBlocks(div1, i * k, j * k, div1, j * k, i * k, k);
-      }
+#pragma omp parallel for
+    for (int z = 0; z < q * q; z++) {
+      size_t i = static_cast<size_t>(z) / q;
+      size_t j = static_cast<size_t>(z) % q;
+      div1 = ((i + l) % q) * k;
+      MatMulBlocks(div1, i * k, j * k, div1, j * k, i * k, k);
     }
   }
   return true;
