@@ -97,26 +97,20 @@ bool deryabin_m_hoare_sort_simple_merge_stl::HoareSortTaskSTL::RunImpl() {
   auto parallel_for = [&workers, &num_threads](size_t start, size_t end, auto&& func) {
     const size_t num_chunk_per_thread = (end - start) / num_threads;
     for (size_t i = 0; i < num_threads - 1; ++i) {
-      workers.emplace_back(
-        [&func, &start, &i, &num_chunk_per_thread, &num_threads]
-        {
-          const size_t chunk_start = start + (i * num_chunk_per_thread);
+      workers.emplace_back([&func, &start, &i, &num_chunk_per_thread, &num_threads] {
+        const size_t chunk_start = start + (i * num_chunk_per_thread);
           const size_t chunk_end = start + (i + 1) * num_chunk_per_thread);
           for (size_t j = chunk_start; j < chunk_end; ++j) {
             func(j);
           }
-        }
-      );
+      });
     }
-    workers.emplace_back(
-      [&func, &start, &num_threads, &num_chunk_per_thread, &end]
-      {
-        const size_t chunk_start = start + ((num_threads - 1) * num_chunk_per_thread);
-        for (size_t j = chunk_start; j < end; ++j) {
-          func(j);
+    workers.emplace_back([&func, &start, &num_threads, &num_chunk_per_thread, &end] {
+      const size_t chunk_start = start + ((num_threads - 1) * num_chunk_per_thread);
+      for (size_t j = chunk_start; j < end; ++j) {
+        func(j);
         }
-      }
-    );
+    });
     for (auto& worker : workers) {
       worker.join();
     }
@@ -130,8 +124,7 @@ bool deryabin_m_hoare_sort_simple_merge_stl::HoareSortTaskSTL::RunImpl() {
                                                   // основанию 2 от числа частей chunk_count_
        ++i) {  // На каждом уровне сливаются пары соседних блоков размером min_chunk_size_ × 2^i
     parallel_for(
-        0, chunk_count_ >> (i + 1),
-        [this, i](size_t j) {  // Распределение слияний между потоками на каждом уровне
+        0, chunk_count_ >> (i + 1), [this, i](size_t j) {  // Распределение слияний между потоками на каждом уровне
           std::inplace_merge(
               input_array_A_.begin() +
                   static_cast<long>(j * min_chunk_size_ << (i + 1)),  // Вызов std::inplace_merge для слияния двух
