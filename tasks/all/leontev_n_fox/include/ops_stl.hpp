@@ -6,13 +6,13 @@
 
 #include "core/task/include/task.hpp"
 
-namespace leontev_n_fox_omp {
+namespace leontev_n_fox_stl {
 
 std::vector<double> MatMul(std::vector<double>& a, std::vector<double>& b, size_t n);
 
-class FoxOMP : public ppc::core::Task {
+class FoxSTL : public ppc::core::Task {
  public:
-  explicit FoxOMP(ppc::core::TaskDataPtr task_data) : Task(std::move(task_data)) {}
+  explicit FoxSTL(ppc::core::TaskDataPtr task_data) : Task(std::move(task_data)) {}
   bool PreProcessingImpl() override;
   bool ValidationImpl() override;
   bool RunImpl() override;
@@ -29,4 +29,4 @@ class FoxOMP : public ppc::core::Task {
   size_t n_;
 };
 
-}  // namespace leontev_n_fox_omp
+}  // namespace leontev_n_fox_stl

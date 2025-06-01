@@ -9,7 +9,7 @@
 #include <vector>
 
 #include "core/task/include/task.hpp"
-#include "omp/leontev_n_fox_omp/include/leontev_omp.hpp"
+#include "stl/leontev_n_fox/include/ops_stl.hpp"
 
 namespace {
 std::vector<double> GenerateRandomMatrix(size_t size, int seed, double min_val = 0.0, double max_val = 1.0) {
@@ -23,7 +23,7 @@ std::vector<double> GenerateRandomMatrix(size_t size, int seed, double min_val =
 }
 }  // namespace
 
-TEST(leontev_n_fox_omp, 3x3_random) {
+TEST(leontev_n_fox_stl, 3x3_random) {
   size_t n = 3;
   std::vector<double> in_data = GenerateRandomMatrix(2 * n * n, 666);
   std::vector<double> out_data(n * n);
@@ -32,7 +32,7 @@ TEST(leontev_n_fox_omp, 3x3_random) {
   std::vector<double> b(n * n);
   std::copy(in_data.begin(), in_data.begin() + static_cast<int>(n * n), a.begin());
   std::copy(in_data.begin() + static_cast<int>(n * n), in_data.begin() + static_cast<int>(2 * n * n), b.begin());
-  ref_data = leontev_n_fox_omp::MatMul(a, b, n);
+  ref_data = leontev_n_fox_stl::MatMul(a, b, n);
   auto task_data = std::make_shared<ppc::core::TaskData>();
   task_data->inputs.push_back(reinterpret_cast<uint8_t*>(in_data.data()));
   task_data->inputs.push_back(reinterpret_cast<uint8_t*>(&n));
@@ -41,7 +41,7 @@ TEST(leontev_n_fox_omp, 3x3_random) {
   task_data->outputs.push_back(reinterpret_cast<uint8_t*>(out_data.data()));
   task_data->outputs_count.push_back(out_data.size());
 
-  leontev_n_fox_omp::FoxOMP task(task_data);
+  leontev_n_fox_stl::FoxSTL task(task_data);
 
   task.PreProcessingImpl();
   EXPECT_TRUE(task.ValidationImpl());
@@ -54,7 +54,7 @@ TEST(leontev_n_fox_omp, 3x3_random) {
   }
 }
 
-TEST(leontev_n_fox_omp, 111x111_random) {
+TEST(leontev_n_fox_stl, 111x111_random) {
   size_t n = 111;
   std::vector<double> in_data = GenerateRandomMatrix(2 * n * n, 666);
   std::vector<double> out_data(n * n);
@@ -63,7 +63,7 @@ TEST(leontev_n_fox_omp, 111x111_random) {
   std::vector<double> b(n * n);
   std::copy(in_data.begin(), in_data.begin() + static_cast<int>(n * n), a.begin());
   std::copy(in_data.begin() + static_cast<int>(n * n), in_data.begin() + static_cast<int>(2 * n * n), b.begin());
-  ref_data = leontev_n_fox_omp::MatMul(a, b, n);
+  ref_data = leontev_n_fox_stl::MatMul(a, b, n);
   auto task_data = std::make_shared<ppc::core::TaskData>();
   task_data->inputs.push_back(reinterpret_cast<uint8_t*>(in_data.data()));
   task_data->inputs.push_back(reinterpret_cast<uint8_t*>(&n));
@@ -72,7 +72,7 @@ TEST(leontev_n_fox_omp, 111x111_random) {
   task_data->outputs.push_back(reinterpret_cast<uint8_t*>(out_data.data()));
   task_data->outputs_count.push_back(out_data.size());
 
-  leontev_n_fox_omp::FoxOMP task(task_data);
+  leontev_n_fox_stl::FoxSTL task(task_data);
 
   task.PreProcessingImpl();
   EXPECT_TRUE(task.ValidationImpl());
@@ -85,7 +85,7 @@ TEST(leontev_n_fox_omp, 111x111_random) {
   }
 }
 
-TEST(leontev_n_fox_omp, 5x5) {
+TEST(leontev_n_fox_stl, 5x5) {
   size_t n = 5;
   std::vector<double> in_data = {1, 2, 3, 4, 5, 0, 1, 2, 3, 4, 5, 0, 1, 2, 3, 4, 5, 0, 1, 2, 3, 4, 5, 0, 1,
                                  0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0};
@@ -95,7 +95,7 @@ TEST(leontev_n_fox_omp, 5x5) {
   std::vector<double> b(n * n);
   std::copy(in_data.begin(), in_data.begin() + static_cast<int>(n * n), a.begin());
   std::copy(in_data.begin() + static_cast<int>(n * n), in_data.begin() + static_cast<int>(2 * n * n), b.begin());
-  ref_data = leontev_n_fox_omp::MatMul(a, b, n);
+  ref_data = leontev_n_fox_stl::MatMul(a, b, n);
   auto task_data = std::make_shared<ppc::core::TaskData>();
   task_data->inputs.push_back(reinterpret_cast<uint8_t*>(in_data.data()));
   task_data->inputs.push_back(reinterpret_cast<uint8_t*>(&n));
@@ -104,7 +104,7 @@ TEST(leontev_n_fox_omp, 5x5) {
   task_data->outputs.push_back(reinterpret_cast<uint8_t*>(out_data.data()));
   task_data->outputs_count.push_back(out_data.size());
 
-  leontev_n_fox_omp::FoxOMP task(task_data);
+  leontev_n_fox_stl::FoxSTL task(task_data);
 
   task.PreProcessingImpl();
   EXPECT_TRUE(task.ValidationImpl());

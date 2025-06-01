@@ -1,4 +1,4 @@
-#include "omp/leontev_n_fox_omp/include/leontev_omp.hpp"
+#include "stl/leontev_n_fox/include/ops_stl.hpp"
 
 #include <algorithm>
 #include <cmath>
@@ -8,16 +8,16 @@
 
 #include "core/util/include/util.hpp"
 
-namespace leontev_n_fox_omp {
+namespace leontev_n_fox_stl {
 
-double FoxOMP::AtA(size_t i, size_t j) const {
+double FoxSTL::AtA(size_t i, size_t j) const {
   if (i >= n_ || j >= n_) {
     return 0.0;
   }
   return input_a_[(i * n_) + j];
 }
 
-double FoxOMP::AtB(size_t i, size_t j) const {
+double FoxSTL::AtB(size_t i, size_t j) const {
   if (i >= n_ || j >= n_) {
     return 0.0;
   }
@@ -36,7 +36,7 @@ std::vector<double> MatMul(std::vector<double>& a, std::vector<double>& b, size_
   return res;
 }
 
-void FoxOMP::MatMulBlocks(size_t a_pos_x, size_t a_pos_y, size_t b_pos_x, size_t b_pos_y, size_t c_pos_x,
+void FoxSTL::MatMulBlocks(size_t a_pos_x, size_t a_pos_y, size_t b_pos_x, size_t b_pos_y, size_t c_pos_x,
                           size_t c_pos_y, size_t size) {
   size_t row_max = (n_ >= c_pos_y) ? (n_ - c_pos_y) : 0;
   size_t col_max = (n_ >= c_pos_x) ? (n_ - c_pos_x) : 0;
@@ -49,7 +49,7 @@ void FoxOMP::MatMulBlocks(size_t a_pos_x, size_t a_pos_y, size_t b_pos_x, size_t
   }
 }
 
-bool FoxOMP::PreProcessingImpl() {
+bool FoxSTL::PreProcessingImpl() {
   size_t input_count = task_data->inputs_count[0];
   auto* double_ptr = reinterpret_cast<double*>(task_data->inputs[0]);
   n_ = reinterpret_cast<size_t*>(task_data->inputs[1])[0];
@@ -62,9 +62,9 @@ bool FoxOMP::PreProcessingImpl() {
   return true;
 }
 
-bool FoxOMP::ValidationImpl() { return (input_a_.size() == n_ * n_ && output_.size() == n_ * n_); }
+bool FoxSTL::ValidationImpl() { return (input_a_.size() == n_ * n_ && output_.size() == n_ * n_); }
 
-bool FoxOMP::RunImpl() {
+bool FoxSTL::RunImpl() {
   size_t div1 = 0;
   const int num_threads = ppc::util::GetPPCNumThreads();
   size_t q = std::min(n_, static_cast<size_t>(std::sqrt(num_threads)));
@@ -78,18 +78,22 @@ bool FoxOMP::RunImpl() {
     k = n_ / q + 1;
   }
   for (size_t l = 0; l < q; l++) {
-#pragma omp parallel for
-    for (int z = 0; z < q * q; z++) {
-      size_t i = static_cast<size_t>(z) / q;
-      size_t j = static_cast<size_t>(z) % q;
-      div1 = ((i + l) % q) * k;
-      MatMulBlocks(div1, i * k, j * k, div1, j * k, i * k, k);
+    std::vector<std::thread> threads;
+    threads.reserve(q * q);
+    for (size_t i = 0; i < q; i++) {
+      for (size_t j = 0; j < q; j++) {
+        div1 = ((i + l) % q) * k;
+        threads.emplace_back(&FoxSTL::MatMulBlocks, this, div1, i * k, j * k, div1, j * k, i * k, k);
+      }
+    }
+    for (size_t i = 0; i < q * q; i++) {
+      threads[i].join();
     }
   }
   return true;
 }
 
-bool FoxOMP::PostProcessingImpl() {
+bool FoxSTL::PostProcessingImpl() {
   auto* out_ptr = reinterpret_cast<double*>(task_data->outputs[0]);
   for (size_t i = 0; i < output_.size(); ++i) {
     out_ptr[i] = output_[i];
@@ -97,4 +101,4 @@ bool FoxOMP::PostProcessingImpl() {
   return true;
 }
 
-}  // namespace leontev_n_fox_omp
+}  // namespace leontev_n_fox_stl

@@ -9,7 +9,7 @@
 
 #include "core/perf/include/perf.hpp"
 #include "core/task/include/task.hpp"
-#include "omp/leontev_n_fox_omp/include/leontev_omp.hpp"
+#include "stl/leontev_n_fox/include/ops_stl.hpp"
 
 namespace {
 std::vector<double> GenerateRandomMatrix(size_t size, int seed, double min_val = 0.0, double max_val = 1.0) {
@@ -23,7 +23,7 @@ std::vector<double> GenerateRandomMatrix(size_t size, int seed, double min_val =
 }
 }  // namespace
 
-TEST(leontev_n_fox_perf_omp, test_pipeline_run) {
+TEST(leontev_n_fox_perf_stl, test_pipeline_run) {
   size_t n = 233;
   std::vector<double> in_data = GenerateRandomMatrix(2 * n * n, 666);
   std::vector<double> out_data(n * n);
@@ -35,7 +35,7 @@ TEST(leontev_n_fox_perf_omp, test_pipeline_run) {
   task_data_stl->outputs.push_back(reinterpret_cast<uint8_t*>(out_data.data()));
   task_data_stl->outputs_count.push_back(out_data.size());
 
-  auto test_task_sequential = std::make_shared<leontev_n_fox_omp::FoxOMP>(task_data_stl);
+  auto test_task_sequential = std::make_shared<leontev_n_fox_stl::FoxSTL>(task_data_stl);
 
   auto perf_attr = std::make_shared<ppc::core::PerfAttr>();
   perf_attr->num_running = 10;
@@ -53,7 +53,7 @@ TEST(leontev_n_fox_perf_omp, test_pipeline_run) {
   ppc::core::Perf::PrintPerfStatistic(perf_results);
 }
 
-TEST(leontev_n_fox_perf_omp, test_task_run) {
+TEST(leontev_n_fox_perf_stl, test_task_run) {
   size_t n = 233;
   std::vector<double> in_data = GenerateRandomMatrix(2 * n * n, 666);
   std::vector<double> out_data(n * n);
@@ -65,7 +65,7 @@ TEST(leontev_n_fox_perf_omp, test_task_run) {
   task_data_stl->outputs.push_back(reinterpret_cast<uint8_t*>(out_data.data()));
   task_data_stl->outputs_count.push_back(out_data.size());
 
-  auto test_task_sequential = std::make_shared<leontev_n_fox_omp::FoxOMP>(task_data_stl);
+  auto test_task_sequential = std::make_shared<leontev_n_fox_stl::FoxSTL>(task_data_stl);
 
   auto perf_attr = std::make_shared<ppc::core::PerfAttr>();
   perf_attr->num_running = 10;
