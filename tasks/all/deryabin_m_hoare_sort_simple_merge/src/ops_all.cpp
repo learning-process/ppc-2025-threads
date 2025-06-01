@@ -252,7 +252,7 @@ bool deryabin_m_hoare_sort_simple_merge_mpi::HoareSortTaskMPI::RunImpl() {
         const auto end_idx = special_odd_case
                                  ? input_array_A_.end()
                                  : input_array_A_.begin() + static_cast<long>(start_idx + (block_size * 2) - rest_);
-        if (end_idx - start_idx < 200) {
+        if (end_idx - (input_array_A_.begin() + static_cast<long>(start_idx)) < 200) {
           std::inplace_merge(input_array_A_.begin() + static_cast<long>(start_idx),
                              input_array_A_.begin() + static_cast<long>(start_idx + block_size), end_idx);
         } else {
