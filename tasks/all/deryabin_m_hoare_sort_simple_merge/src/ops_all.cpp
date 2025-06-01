@@ -277,7 +277,7 @@ bool deryabin_m_hoare_sort_simple_merge_mpi::HoareSortTaskMPI::RunImpl() {
           world_.send(0, 0, input_array_A_.data() + start_idx, static_cast<int>(block_size));
         }
       } else {
-        const bool special_odd_case = (chunk_count_ & 1) != 0U && world_rank == 0;
+        const bool special_odd_case = ((chunk_count_ & 1) != 0U && world_rank) == 0;
         size_t block_size = min_chunk_size_ * step;
         size_t start_idx = special_odd_case ? (chunk_count_ - (2 * step - 1)) * min_chunk_size_
                                             : (chunk_count_ - (world_rank + 2 * step)) * min_chunk_size_;
