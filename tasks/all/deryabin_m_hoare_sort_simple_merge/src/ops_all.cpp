@@ -38,21 +38,22 @@ void deryabin_m_hoare_sort_simple_merge_mpi::forwarding_and_merging(size_t world
                                                                     size_t rest_, boost::mpi::communicator world_,
                                                                     std::vector<double> input_array_A_) {
   if (is_even) {
-    if (world_rank != 0) {
-      size_t block_size = min_chunk_size_ * step;
-      size_t start_idx = (chunk_count_ - (world_rank + step)) * min_chunk_size_;
-      if (world_rank == chunk_count_ - step) {
-        block_size += rest_;
-      } else {
-        start_idx += rest_;
-      }
-      if (world_rank >= step) {
-        world_.send(static_cast<int>(world_rank - step), 0, input_array_A_.data() + start_idx,
-                    static_cast<int>(block_size));
-      } else {
-        world_.send(0, 0, input_array_A_.data() + start_idx, static_cast<int>(block_size));
-      }
+    if (world_rank == 0) {
+      return;
     }
+    size_t block_size = min_chunk_size_ * step;
+    size_t start_idx = (chunk_count_ - (world_rank + step)) * min_chunk_size_;
+    if (world_rank == chunk_count_ - step) {
+      block_size += rest_;
+    } else {
+      start_idx += rest_;
+    }
+    if (world_rank >= step) {
+      world_.send(static_cast<int>(world_rank - step), 0, input_array_A_.data() + start_idx,
+                  static_cast<int>(block_size));
+    } else {
+      world_.send(0, 0, input_array_A_.data() + start_idx, static_cast<int>(block_size));
+    }    
   } else {
     const bool special_odd_case = (chunk_count_ & 1) != 0U && world_rank == 0;
     size_t block_size = min_chunk_size_ * step;
