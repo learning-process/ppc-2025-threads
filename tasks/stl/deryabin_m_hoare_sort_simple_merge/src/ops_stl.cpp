@@ -94,20 +94,29 @@ bool deryabin_m_hoare_sort_simple_merge_stl::HoareSortTaskSTL::RunImpl() {
     chunk_count_ = 1ULL << std::bit_width(num_threads - 1);
     min_chunk_size_ = dimension_ / chunk_count_;
   }
-  auto parallel_for = [&](size_t start, size_t end, auto&& func) {
+  auto parallel_for = [&workers, &num_threads](size_t start, size_t end, auto&& func) {
     const size_t num_chunk_per_thread = (end - start) / num_threads;
     for (size_t i = 0; i < num_threads - 1; ++i) {
-      workers.emplace_back([=, &func] {
-        for (size_t j = start + (i * num_chunk_per_thread); j < start + (i + 1) * num_chunk_per_thread; ++j) {
+      workers.emplace_back(
+        [&func, &start, &i, &num_chunk_per_thread, &num_threads]
+        {
+          const size_t chunk_start = start + (i * num_chunk_per_thread);
+          const size_t chunk_end = start + (i + 1) * num_chunk_per_thread);
+          for (size_t j = chunk_start; j < chunk_end; ++j) {
+            func(j);
+          }
+        }
+      );
+    }
+    workers.emplace_back(
+      [&func, &start, &num_threads, &num_chunk_per_thread, &end]
+      {
+        const size_t chunk_start = start + ((num_threads - 1) * num_chunk_per_thread);
+        for (size_t j = chunk_start; j < end; ++j) {
           func(j);
         }
-      });
-    }
-    workers.emplace_back([=, &func] {
-      for (size_t j = start + ((num_threads - 1) * num_chunk_per_thread); j < end; ++j) {
-        func(j);
       }
-    });
+    );
     for (auto& worker : workers) {
       worker.join();
     }
