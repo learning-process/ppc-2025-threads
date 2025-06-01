@@ -217,7 +217,7 @@ bool deryabin_m_hoare_sort_simple_merge_mpi::HoareSortTaskMPI::RunImpl() {
   const size_t iterations = std::bit_width(chunk_count_ - 1);
   for (size_t i = 0; i < iterations; ++i) {
     const size_t step = 1ULL << i;
-    if (((chunk_count_ - world_rank) & step) != 0U || world_rank == 0) {
+    if (((chunk_count_ - world_rank) % step) == 0U || world_rank == 0) {
       const bool is_even = (((chunk_count_ & 1) != 0U) ? (((chunk_count_ - world_rank + step - 1) / step) & 1) != 0U
                                                        : (((chunk_count_ - world_rank - 1) / step) & 1) == 0U) != 0U;
       if (is_even) {
