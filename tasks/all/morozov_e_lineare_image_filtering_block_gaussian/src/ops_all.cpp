@@ -77,10 +77,9 @@ bool morozov_e_lineare_image_filtering_block_gaussian_all::TestTaskALL::RunImpl(
   }
   if (world_.rank() == 0) {
     for (int p = 1; p < world_.size(); ++p) {
-      int start_p = 0;
-      int end_p = 0;
-      world_.recv(p, 0, &start_p, 1);
-      world_.recv(p, 0, &end_p, 1);
+      auto start_end_pair_p = GetStartEndIndices(world_.size(), p, n_);
+      int start_p = start_end_pair_p.first;
+      int end_p = start_end_pair_p.second;
       std::vector<double> temp((end_p - start_p) * m_);
       world_.recv(p, 0, temp.data(), (end_p - start_p) * m_);
       for (int i = start_p; i < end_p; ++i) {
@@ -90,8 +89,6 @@ bool morozov_e_lineare_image_filtering_block_gaussian_all::TestTaskALL::RunImpl(
       }
     }
   } else {
-    world_.send(0, 0, &start, 1);
-    world_.send(0, 0, &end, 1);
     std::vector<double> temp((end - start) * m_);
     for (int i = start; i < end; ++i) {
       for (int j = 0; j < m_; ++j) {
