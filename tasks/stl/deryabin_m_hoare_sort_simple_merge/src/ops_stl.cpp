@@ -93,31 +93,30 @@ bool deryabin_m_hoare_sort_simple_merge_stl::HoareSortTaskSTL::RunImpl() {
     chunk_count_ = 1ULL << std::bit_width(num_threads - 1);
     min_chunk_size_ = dimension_ / chunk_count_;
   }
-  std::barrier sync_point(num_threads);
-  auto parallel_for = [&num_threads, &sync_point](size_t start, size_t end, auto&& func) {
+  auto parallel_for = [&num_threads](size_t start, size_t end, auto&& func) {
     std::vector<std::thread> workers;
     workers.reserve(num_threads);
+    std::barrier sync_point(num_threads);
     const size_t num_chunk_per_thread = (end - start) / num_threads;
     for (size_t i = 0; i < num_threads - 1; ++i) {
-      workers.emplace_back([&func, &start, &i, &num_chunk_per_thread, &sync_point] {
+      workers.emplace_back([&func, &start, &i, &num_chunk_per_thread] {
         const size_t chunk_start = start + (i * num_chunk_per_thread);
         const size_t chunk_end = start + (i + 1) * num_chunk_per_thread;
         for (size_t j = chunk_start; j < chunk_end; ++j) {
           func(j);
         }
-        sync_point.arrive_and_wait();
       });
     }
-    workers.emplace_back([&func, &start, &num_chunk_per_thread, &end, &num_threads, &sync_point] {
+    workers.emplace_back([&func, &start, &num_chunk_per_thread, &end, &num_threads] {
       const size_t chunk_start = start + ((num_threads - 1) * num_chunk_per_thread);
       for (size_t j = chunk_start; j < end; ++j) {
         func(j);
       }
-      sync_point.arrive_and_wait();
     });
     for (auto& worker : workers) {
       worker.join();
     }
+    sync_point.arrive_and_wait();
   };
   parallel_for(0, chunk_count_, [this](size_t count) {
     HoareSort(input_array_A_, count * min_chunk_size_, ((count + 1) * min_chunk_size_) - 1);
