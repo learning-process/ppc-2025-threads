@@ -3,16 +3,16 @@
 #include <algorithm>
 #include <cstddef>
 #include <cstdint>
-#include <random>
 #include <memory>
+#include <random>
 #include <set>
 #include <vector>
 
 #include "all/naumov_b_marc_on_bin_image/include/ops_all.hpp"
 #include "core/task/include/task.hpp"
 
-namespace{
-  std::vector<int> GenerateRandomBinaryMatrix(int rows, int cols, double probability) {
+namespace {
+std::vector<int> GenerateRandomBinaryMatrix(int rows, int cols, double probability) {
   const int total_elements = rows * cols;
   const int target_ones = static_cast<int>(total_elements * probability);
 
@@ -30,7 +30,7 @@ namespace{
 
   return matrix;
 }
-}
+}  // namespace
 
 TEST(naumov_b_marc_on_bin_image_all, Validation_1) {
   int m = 3;
