@@ -7,8 +7,6 @@
 #include <thread>
 #include <vector>
 
-#include "core/util/include/util.hpp"
-
 void deryabin_m_hoare_sort_simple_merge_stl::HoareSort(std::vector<double>& a, size_t first, size_t last) {
   if (first >= last) {
     return;
@@ -85,7 +83,7 @@ bool deryabin_m_hoare_sort_simple_merge_stl::HoareSortTaskSTL::ValidationImpl() 
 }
 
 bool deryabin_m_hoare_sort_simple_merge_stl::HoareSortTaskSTL::RunImpl() {
-  const size_t num_threads = ppc::util::GetPPCNumThreads();
+  const size_t num_threads = std::thread::hardware_concurrency();
   if (chunk_count_ < num_threads) {
     // Увеличиваем число кусочков до ближайшей степени двойки >= num_threads,
     // чтобы эффективно загрузить все доступные потоки
