@@ -97,7 +97,7 @@ bool deryabin_m_hoare_sort_simple_merge_stl::HoareSortTaskSTL::RunImpl() {
   const size_t chunks_per_thread = chunk_count_ / num_threads;
   for (size_t i = 0; i < num_threads; ++i) {
     workers.emplace_back(
-        [&sync_point, &input_array_A_, &chunks_per_thread, &chunk_count_, &min_chunk_size_, &dimension_, i] {
+        [&sync_point, &chunks_per_thread, i] {
           const size_t start = i * chunks_per_thread;
           const size_t end = std::min((i + 1) * chunks_per_thread, chunk_count_);
           for (size_t j = start; j < end; ++j) {
@@ -116,7 +116,7 @@ bool deryabin_m_hoare_sort_simple_merge_stl::HoareSortTaskSTL::RunImpl() {
     const size_t merge_pairs = chunk_count_ >> (i + 1);
     const size_t pairs_per_thread = (merge_pairs + num_threads - 1) / num_threads;
     for (size_t t = 0; t < num_threads; ++t) {
-      workers.emplace_back([&sync_point, &input_array_A_, &merge_pairs, &pairs_per_thread, &min_chunk_size_, i, t] {
+      workers.emplace_back([&sync_point, &merge_pairs, &pairs_per_thread, i, t] {
         const size_t start = t * pairs_per_thread;
         const size_t end = std::min((t + 1) * pairs_per_thread, merge_pairs);
         for (size_t j = start; j < end; ++j) {
