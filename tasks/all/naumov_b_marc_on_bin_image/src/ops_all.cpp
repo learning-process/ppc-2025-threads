@@ -6,29 +6,10 @@
 #include <cmath>
 #include <cstddef>
 #include <map>
-#include <random>
 #include <thread>
-#include <utility>
 #include <vector>
 
-std::vector<int> naumov_b_marc_on_bin_image_all::GenerateRandomBinaryMatrix(int rows, int cols, double probability) {
-  const int total_elements = rows * cols;
-  const int target_ones = static_cast<int>(total_elements * probability);
-
-  std::vector<int> matrix(total_elements, 1);
-
-  const int zeros_needed = total_elements - target_ones;
-
-  for (int i = 0; i < zeros_needed; ++i) {
-    matrix[i] = 0;
-  }
-
-  std::random_device rd;
-  std::mt19937 g(rd());
-  std::shuffle(matrix.begin(), matrix.end(), g);
-
-  return matrix;
-}
+#include "core/util/include/util.hpp"
 
 bool naumov_b_marc_on_bin_image_all::TestTaskALL::PreProcessingImpl() {
   MPI_Comm_rank(MPI_COMM_WORLD, &rank_);
@@ -172,7 +153,7 @@ void naumov_b_marc_on_bin_image_all::TestTaskALL::LocalLabeling() {
     }
   }
 
-  const int num_threads = std::max(1, static_cast<int>(std::thread::hardware_concurrency()));
+  const int num_threads = ppc::util::GetPPCNumThreads();
   std::vector<std::thread> threads;
   int rows_per_thread = (local_rows_ + num_threads - 1) / num_threads;
 

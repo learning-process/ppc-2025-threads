@@ -3,12 +3,34 @@
 #include <algorithm>
 #include <cstddef>
 #include <cstdint>
+#include <random>
 #include <memory>
 #include <set>
 #include <vector>
 
 #include "all/naumov_b_marc_on_bin_image/include/ops_all.hpp"
 #include "core/task/include/task.hpp"
+
+namespace{
+  std::vector<int> GenerateRandomBinaryMatrix(int rows, int cols, double probability) {
+  const int total_elements = rows * cols;
+  const int target_ones = static_cast<int>(total_elements * probability);
+
+  std::vector<int> matrix(total_elements, 1);
+
+  const int zeros_needed = total_elements - target_ones;
+
+  for (int i = 0; i < zeros_needed; ++i) {
+    matrix[i] = 0;
+  }
+
+  std::random_device rd;
+  std::mt19937 g(rd());
+  std::shuffle(matrix.begin(), matrix.end(), g);
+
+  return matrix;
+}
+}
 
 TEST(naumov_b_marc_on_bin_image_all, Validation_1) {
   int m = 3;
@@ -349,7 +371,7 @@ TEST(naumov_b_marc_on_bin_image_all, RandomLargeMatrix) {
   const int m = 100;
   const int n = 100;
 
-  auto in = naumov_b_marc_on_bin_image_all::GenerateRandomBinaryMatrix(m, n, 0.1);
+  auto in = GenerateRandomBinaryMatrix(m, n, 0.1);
   std::vector<int> out(m * n, 0);
 
   auto task_data_all = std::make_shared<ppc::core::TaskData>();
@@ -382,7 +404,7 @@ TEST(naumov_b_marc_on_bin_image_all, RandomSparseMatrix) {
   const int m = 50;
   const int n = 50;
 
-  auto in = naumov_b_marc_on_bin_image_all::GenerateRandomBinaryMatrix(m, n, 0.1);
+  auto in = GenerateRandomBinaryMatrix(m, n, 0.1);
   std::vector<int> out(m * n, 0);
 
   auto task_data_all = std::make_shared<ppc::core::TaskData>();
@@ -415,7 +437,7 @@ TEST(naumov_b_marc_on_bin_image_all, RandomDenseMatrix) {
   const int m = 20;
   const int n = 20;
 
-  auto in = naumov_b_marc_on_bin_image_all::GenerateRandomBinaryMatrix(m, n, 0.9);
+  auto in = GenerateRandomBinaryMatrix(m, n, 0.9);
   std::vector<int> out(m * n, 0);
 
   auto task_data_all = std::make_shared<ppc::core::TaskData>();
@@ -447,7 +469,7 @@ TEST(naumov_b_marc_on_bin_image_all, RandomDenseMatrix2) {
   const int m = 17;
   const int n = 23;
 
-  auto in = naumov_b_marc_on_bin_image_all::GenerateRandomBinaryMatrix(m, n, 0.9);
+  auto in = GenerateRandomBinaryMatrix(m, n, 0.9);
   std::vector<int> out(m * n, 0);
 
   auto task_data_all = std::make_shared<ppc::core::TaskData>();

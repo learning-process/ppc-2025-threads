@@ -9,8 +9,6 @@
 
 namespace naumov_b_marc_on_bin_image_all {
 
-std::vector<int> GenerateRandomBinaryMatrix(int rows, int cols, double probability);
-
 class TestTaskALL : public ppc::core::Task {
  public:
   explicit TestTaskALL(ppc::core::TaskDataPtr task_data) : Task(std::move(task_data)) {}
