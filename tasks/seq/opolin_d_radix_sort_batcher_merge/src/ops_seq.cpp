@@ -1,4 +1,4 @@
-#include "seq/opolin_d_radix_sort_betcher_merge/include/ops_seq.hpp"
+#include "seq/opolin_d_radix_sort_batcher_merge/include/ops_seq.hpp"
 
 #include <algorithm>
 #include <cmath>
