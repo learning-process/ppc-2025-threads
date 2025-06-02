@@ -7,7 +7,7 @@
 #include <bit>
 #include <boost/mpi/collectives/broadcast.hpp>
 #include <cmath>
-                              #include <cstddef> 
+#include <cstddef>
 #include <iterator>
 #include <vector>
 
