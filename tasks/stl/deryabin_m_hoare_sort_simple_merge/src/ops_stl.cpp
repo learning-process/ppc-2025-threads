@@ -92,9 +92,9 @@ bool deryabin_m_hoare_sort_simple_merge_stl::HoareSortTaskSTL::RunImpl() {
     chunk_count_ = 1ULL << std::bit_width(num_threads - 1);
     min_chunk_size_ = dimension_ / chunk_count_;
   }
+  std::vector<std::thread> workers;
+  workers.reserve(num_threads);
   auto parallel_for = [&num_threads](size_t start, size_t end, auto&& func) {
-    std::vector<std::thread> workers;
-    workers.reserve(num_threads);
     const size_t num_chunk_per_thread = (end - start) / num_threads;
     for (size_t i = 0; i < num_threads - 1; ++i) {
       workers.emplace_back([&func, &start, &i, &num_chunk_per_thread] {
