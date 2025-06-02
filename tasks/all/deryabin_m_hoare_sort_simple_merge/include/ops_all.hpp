@@ -9,7 +9,7 @@
 #include "core/task/include/task.hpp"
 
 namespace deryabin_m_hoare_sort_simple_merge_mpi {
-double pivot_calculation(std::vector<double>::iterator first, std::vector<double>::iterator last);
+double PivotCalculation(std::vector<double>::iterator first, std::vector<double>::iterator last);
 void SeqHoaraSort(std::vector<double>::iterator first, std::vector<double>::iterator last);
 void HoaraSort(std::vector<double>::iterator first, std::vector<double>::iterator last);
 void MergeUnequalTwoParts(std::vector<double>::iterator first, std::vector<double>::iterator mid,
