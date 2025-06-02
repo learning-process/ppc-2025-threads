@@ -85,16 +85,16 @@ bool deryabin_m_hoare_sort_simple_merge_stl::HoareSortTaskSTL::ValidationImpl() 
 }
 
 bool deryabin_m_hoare_sort_simple_merge_stl::HoareSortTaskSTL::RunImpl() {
-  const size_t num_threads = std::min(ppc::util::GetPPCNumThreads(), 8);
-  std::vector<std::thread> workers;
-  workers.reserve(num_threads);
+  const size_t num_threads = ppc::util::GetPPCNumThreads();
   if (chunk_count_ < num_threads) {
     // Увеличиваем число кусочков до ближайшей степени двойки >= num_threads,
     // чтобы эффективно загрузить все доступные потоки
     chunk_count_ = 1ULL << std::bit_width(num_threads - 1);
     min_chunk_size_ = dimension_ / chunk_count_;
   }
-  auto parallel_for = [&workers, &num_threads](size_t start, size_t end, auto&& func) {
+  auto parallel_for = [&num_threads](size_t start, size_t end, auto&& func) {
+    std::vector<std::thread> workers;
+    workers.reserve(num_threads);
     const size_t num_chunk_per_thread = (end - start) / num_threads;
     for (size_t i = 0; i < num_threads - 1; ++i) {
       workers.emplace_back([&func, &start, &i, &num_chunk_per_thread, &num_threads] {
@@ -114,7 +114,6 @@ bool deryabin_m_hoare_sort_simple_merge_stl::HoareSortTaskSTL::RunImpl() {
     for (auto& worker : workers) {
       worker.join();
     }
-    workers.resize(0);
   };
   parallel_for(0, chunk_count_, [this](size_t count) {
     HoareSort(input_array_A_, count * min_chunk_size_, ((count + 1) * min_chunk_size_) - 1);
