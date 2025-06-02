@@ -96,14 +96,15 @@ bool deryabin_m_hoare_sort_simple_merge_stl::HoareSortTaskSTL::RunImpl() {
   workers.reserve(num_threads);
   const size_t chunks_per_thread = chunk_count_ / num_threads;
   for (size_t i = 0; i < num_threads; ++i) {
-    workers.emplace_back([&sync_point, &input_array_A_, &chunks_per_thread, &chunk_count_, &min_chunk_size_, &dimension_, i] {
-      const size_t start = i * chunks_per_thread;
-      const size_t end = std::min((i + 1) * chunks_per_thread, chunk_count_);
-      for (size_t j = start; j < end; ++j) {
-        HoareSort(input_array_A_, j * min_chunk_size_, std::min((j + 1) * min_chunk_size_ - 1, dimension_ - 1));
-      }
-      sync_point.arrive_and_wait();
-    });
+    workers.emplace_back(
+        [&sync_point, &input_array_A_, &chunks_per_thread, &chunk_count_, &min_chunk_size_, &dimension_, i] {
+          const size_t start = i * chunks_per_thread;
+          const size_t end = std::min((i + 1) * chunks_per_thread, chunk_count_);
+          for (size_t j = start; j < end; ++j) {
+            HoareSort(input_array_A_, j * min_chunk_size_, std::min((j + 1) * min_chunk_size_ - 1, dimension_ - 1));
+          }
+          sync_point.arrive_and_wait();
+        });
   }
   for (auto& worker : workers) {
     worker.join();
@@ -119,10 +120,9 @@ bool deryabin_m_hoare_sort_simple_merge_stl::HoareSortTaskSTL::RunImpl() {
         const size_t start = t * pairs_per_thread;
         const size_t end = std::min((t + 1) * pairs_per_thread, merge_pairs);
         for (size_t j = start; j < end; ++j) {
-          std::inplace_merge(
-            input_array_A_.begin() + static_cast<long>(j * min_chunk_size_ << (i + 1)),
-            input_array_A_.begin() + static_cast<long>(((j << 1 | 1) * (min_chunk_size_ << i))),
-            input_array_A_.begin() + static_cast<long>((j + 1) * min_chunk_size_ << (i + 1)));
+          std::inplace_merge(input_array_A_.begin() + static_cast<long>(j * min_chunk_size_ << (i + 1)),
+                             input_array_A_.begin() + static_cast<long>(((j << 1 | 1) * (min_chunk_size_ << i))),
+                             input_array_A_.begin() + static_cast<long>((j + 1) * min_chunk_size_ << (i + 1)));
         }
         sync_point.arrive_and_wait();
       });
