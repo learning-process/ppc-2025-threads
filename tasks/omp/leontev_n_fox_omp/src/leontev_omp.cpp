@@ -78,7 +78,7 @@ bool FoxOMP::RunImpl() {
   }
   for (size_t l = 0; l < q; l++) {
 #pragma omp parallel for
-    for (int z = 0; z < static_cast<int>(q) * static_cast<size_t>(q); z++) {
+    for (int z = 0; z < static_cast<int>(q) * static_cast<int>(q); z++) {
       size_t i = static_cast<size_t>(z) / q;
       size_t j = static_cast<size_t>(z) % q;
       div1 = ((i + l) % q) * k;
