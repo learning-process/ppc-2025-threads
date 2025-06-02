@@ -1,4 +1,4 @@
-#include "all/leontev_n_fox/include/ops_all.hpp"
+#include <mpi.h>
 
 #include <algorithm>
 #include <cmath>
@@ -6,7 +6,7 @@
 #include <thread>
 #include <vector>
 
-#include <mpi.h>
+#include "all/leontev_n_fox/include/ops_all.hpp"
 #include "core/util/include/util.hpp"
 
 namespace leontev_n_fox_all {
@@ -51,16 +51,16 @@ void FoxALL::MatMulBlocks(size_t a_pos_x, size_t a_pos_y, size_t b_pos_x, size_t
 }
 
 bool FoxALL::PreProcessingImpl() {
-  int flag;
+  int flag = 0;
   MPI_Initialized(&flag);
-  if (!flag) {
-    MPI_Init(NULL, NULL);
+  if (flag == 0) {
+    MPI_Init(nullptr, nullptr);
   }
   MPI_Comm_rank(MPI_COMM_WORLD, &rank_);
   MPI_Comm_size(MPI_COMM_WORLD, &size_);
   // fix that
   grid_size_mpi_ = static_cast<size_t>(std::sqrt(size_));
-  if (grid_size_mpi_ * grid_size_mpi_ != size_) {
+  if (grid_size_mpi_ * grid_size_mpi_ != static_cast<size_t>(size_)) {
     return false;
   }
   if (rank_ == 0) {
@@ -85,24 +85,24 @@ bool FoxALL::PreProcessingImpl() {
       for (size_t j = 0; j < grid_size_mpi_; j++) {
         for (size_t bi = 0; bi < block_size_mpi_; bi++) {
           for (size_t bj = 0; bj < block_size_mpi_; bj++) {
-            send_buf[bi * block_size_mpi_ + bj] =
-                input_a_[(i * block_size_mpi_ + bi) * n_ + (j * block_size_mpi_ + bj)];
+            send_buf[(bi * block_size_mpi_) + bj] =
+                input_a_[(((i * block_size_mpi_) + bi) * n_) + ((j * block_size_mpi_) + bj)];
           }
         }
-        int dest = i * grid_size_mpi_ + j;
+        int dest = static_cast<int>((i * grid_size_mpi_) + j);
         if (dest != 0) {
-          MPI_Send(send_buf.data(), send_buf.size(), MPI_DOUBLE, dest, 0, MPI_COMM_WORLD);
+          MPI_Send(send_buf.data(), static_cast<int>(send_buf.size()), MPI_DOUBLE, dest, 0, MPI_COMM_WORLD);
         } else {
           local_a_ = send_buf;
         }
         for (size_t bi = 0; bi < block_size_mpi_; bi++) {
           for (size_t bj = 0; bj < block_size_mpi_; bj++) {
-            send_buf[bi * block_size_mpi_ + bj] =
-                input_b_[(i * block_size_mpi_ + bi) * n_ + (j * block_size_mpi_ + bj)];
+            send_buf[(bi * block_size_mpi_) + bj] =
+                input_b_[(((i * block_size_mpi_) + bi) * n_) + ((j * block_size_mpi_) + bj)];
           }
         }
         if (dest != 0) {
-          MPI_Send(send_buf.data(), send_buf.size(), MPI_DOUBLE, dest, 1, MPI_COMM_WORLD);
+          MPI_Send(send_buf.data(), static_cast<int>(send_buf.size()), MPI_DOUBLE, dest, 1, MPI_COMM_WORLD);
         } else {
           local_b_ = send_buf;
         }
@@ -110,8 +110,8 @@ bool FoxALL::PreProcessingImpl() {
     }
   } else {
     MPI_Status status;
-    MPI_Recv(local_a_.data(), local_a_.size(), MPI_DOUBLE, 0, 0, MPI_COMM_WORLD, &status);
-    MPI_Recv(local_b_.data(), local_b_.size(), MPI_DOUBLE, 0, 1, MPI_COMM_WORLD, &status);
+    MPI_Recv(local_a_.data(), static_cast<int>(local_a_.size()), MPI_DOUBLE, 0, 0, MPI_COMM_WORLD, &status);
+    MPI_Recv(local_b_.data(), static_cast<int>(local_b_.size()), MPI_DOUBLE, 0, 1, MPI_COMM_WORLD, &status);
   }
   return true;
 }
@@ -121,18 +121,23 @@ bool FoxALL::ValidationImpl() { return (input_a_.size() == n_ * n_ && output_.si
 bool FoxALL::RunImpl() {
   size_t row = rank_ / grid_size_mpi_;
   size_t col = rank_ % grid_size_mpi_;
-  MPI_Comm row_comm, col_comm;
-  MPI_Comm_split(MPI_COMM_WORLD, row, col, &row_comm);
-  MPI_Comm_split(MPI_COMM_WORLD, col, row, &col_comm);
+  MPI_Comm row_comm = 0;
+  MPI_Comm col_comm = 0;
+  MPI_Comm_split(MPI_COMM_WORLD, static_cast<int>(row), static_cast<int>(col), &row_comm);
+  MPI_Comm_split(MPI_COMM_WORLD, static_cast<int>(col), static_cast<int>(row), &col_comm);
 
   for (size_t step = 0; step < grid_size_mpi_; step++) {
     size_t root_col = (col + step) % grid_size_mpi_;
     std::vector<double> temp_a(block_size_mpi_ * block_size_mpi_);
-    if (col == root_col) temp_a = local_a_;
-    MPI_Bcast(temp_a.data(), temp_a.size(), MPI_DOUBLE, root_col, row_comm);
+    if (col == root_col) {
+      temp_a = local_a_;
+    }
+    MPI_Bcast(temp_a.data(), static_cast<int>(temp_a.size()), MPI_DOUBLE, static_cast<int>(root_col), row_comm);
     size_t num_threads = ppc::util::GetPPCNumThreads();
     size_t q_thread = std::min(block_size_mpi_, static_cast<size_t>(std::sqrt(num_threads)));
-    if (q_thread == 0) return false;
+    if (q_thread == 0) {
+      return false;
+    }
     size_t k_thread = (block_size_mpi_ + q_thread - 1) / q_thread;
 
     std::vector<std::thread> threads;
@@ -147,40 +152,43 @@ bool FoxALL::RunImpl() {
             for (size_t j = start_j; j < end_j; j++) {
               double sum = 0.0;
               for (size_t l = 0; l < block_size_mpi_; l++) {
-                sum += temp_a[i * block_size_mpi_ + l] * local_b_[l * block_size_mpi_ + j];
+                sum += temp_a[(i * block_size_mpi_) + l] * local_b_[(l * block_size_mpi_) + j];
               }
-              local_c_[i * block_size_mpi_ + j] += sum;
+              local_c_[(i * block_size_mpi_) + j] += sum;
             }
           }
         });
       }
     }
-    for (auto& t : threads) t.join();
-    MPI_Sendrecv_replace(local_b_.data(), local_b_.size(), MPI_DOUBLE, (row + grid_size_mpi_ - 1) % grid_size_mpi_, 0,
-                         (row + 1) % grid_size_mpi_, 0, col_comm, MPI_STATUS_IGNORE);
+    for (auto& t : threads) {
+      t.join();
+    }
+    MPI_Sendrecv_replace(local_b_.data(), static_cast<int>(local_b_.size()), MPI_DOUBLE,
+                         static_cast<int>((row + grid_size_mpi_ - 1) % grid_size_mpi_), 0,
+                         static_cast<int>((row + 1) % grid_size_mpi_), 0, col_comm, MPI_STATUS_IGNORE);
   }
-
 
   if (rank_ == 0) {
     for (size_t i = 0; i < block_size_mpi_; i++) {
       for (size_t j = 0; j < block_size_mpi_; j++) {
-        output_[(row * block_size_mpi_ + i) * n_ + (col * block_size_mpi_ + j)] = local_c_[i * block_size_mpi_ + j];
+        output_[(((row * block_size_mpi_) + i) * n_) + ((col * block_size_mpi_) + j)] =
+            local_c_[(i * block_size_mpi_) + j];
       }
     }
     for (int r = 1; r < size_; r++) {
       std::vector<double> recv_buf(block_size_mpi_ * block_size_mpi_);
-      MPI_Recv(recv_buf.data(), recv_buf.size(), MPI_DOUBLE, r, 2, MPI_COMM_WORLD, MPI_STATUS_IGNORE);
+      MPI_Recv(recv_buf.data(), static_cast<int>(recv_buf.size()), MPI_DOUBLE, r, 2, MPI_COMM_WORLD, MPI_STATUS_IGNORE);
       size_t r_row = r / grid_size_mpi_;
       size_t r_col = r % grid_size_mpi_;
       for (size_t i = 0; i < block_size_mpi_; i++) {
         for (size_t j = 0; j < block_size_mpi_; j++) {
-          output_[(r_row * block_size_mpi_ + i) * n_ + (r_col * block_size_mpi_ + j)] =
-              recv_buf[i * block_size_mpi_ + j];
+          output_[(((r_row * block_size_mpi_) + i) * n_) + ((r_col * block_size_mpi_) + j)] =
+              recv_buf[(i * block_size_mpi_) + j];
         }
       }
     }
   } else {
-    MPI_Send(local_c_.data(), local_c_.size(), MPI_DOUBLE, 0, 2, MPI_COMM_WORLD);
+    MPI_Send(local_c_.data(), static_cast<int>(local_c_.size()), MPI_DOUBLE, 0, 2, MPI_COMM_WORLD);
   }
 
   MPI_Comm_free(&row_comm);

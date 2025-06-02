@@ -8,8 +8,8 @@
 #include <random>
 #include <vector>
 
-#include "core/task/include/task.hpp"
 #include "all/leontev_n_fox/include/ops_all.hpp"
+#include "core/task/include/task.hpp"
 
 namespace {
 std::vector<double> GenerateRandomMatrix(size_t size, int seed, double min_val = 0.0, double max_val = 1.0) {
