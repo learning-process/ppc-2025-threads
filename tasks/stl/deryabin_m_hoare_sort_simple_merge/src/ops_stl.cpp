@@ -1,6 +1,7 @@
 #include "stl/deryabin_m_hoare_sort_simple_merge/include/ops_stl.hpp"
 
 #include <algorithm>
+#include <barrier>
 #include <bit>
 #include <cmath>
 #include <cstddef>
@@ -92,6 +93,7 @@ bool deryabin_m_hoare_sort_simple_merge_stl::HoareSortTaskSTL::RunImpl() {
     chunk_count_ = 1ULL << std::bit_width(num_threads - 1);
     min_chunk_size_ = dimension_ / chunk_count_;
   }
+  std::barrier sync_point(num_threads);
   auto parallel_for = [&num_threads](size_t start, size_t end, auto&& func) {
     std::vector<std::thread> workers;
     workers.reserve(num_threads);
@@ -103,6 +105,7 @@ bool deryabin_m_hoare_sort_simple_merge_stl::HoareSortTaskSTL::RunImpl() {
         for (size_t j = chunk_start; j < chunk_end; ++j) {
           func(j);
         }
+        sync_point.arrive_and_wait();
       });
     }
     workers.emplace_back([&func, &start, &num_chunk_per_thread, &end, &num_threads] {
@@ -110,6 +113,7 @@ bool deryabin_m_hoare_sort_simple_merge_stl::HoareSortTaskSTL::RunImpl() {
       for (size_t j = chunk_start; j < end; ++j) {
         func(j);
       }
+      sync_point.arrive_and_wait();
     });
     for (auto& worker : workers) {
       worker.join();
