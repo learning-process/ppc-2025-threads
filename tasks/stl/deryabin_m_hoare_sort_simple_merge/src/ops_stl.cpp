@@ -88,47 +88,53 @@ bool deryabin_m_hoare_sort_simple_merge_stl::HoareSortTaskSTL::ValidationImpl() 
 bool deryabin_m_hoare_sort_simple_merge_stl::HoareSortTaskSTL::RunImpl() {
   const size_t num_threads = ppc::util::GetPPCNumThreads();
   if (chunk_count_ < num_threads) {
+    // Увеличиваем число кусочков до ближайшей степени двойки >= num_threads,
+    // чтобы эффективно загрузить все доступные потоки
     chunk_count_ = 1ULL << std::bit_width(num_threads - 1);
     min_chunk_size_ = dimension_ / chunk_count_;
   }
-  std::barrier sync_point(num_threads);
-  std::vector<std::thread> workers;
-  workers.reserve(num_threads);
-  const size_t chunks_per_thread = chunk_count_ / num_threads;
-  for (size_t i = 0; i < num_threads; ++i) {
-    workers.emplace_back([&sync_point, &chunks_per_thread, i] {
-      const size_t start = i * chunks_per_thread;
-      const size_t end = std::min((i + 1) * chunks_per_thread, chunk_count_);
-      for (size_t j = start; j < end; ++j) {
-        HoareSort(input_array_A_, j * min_chunk_size_, std::min((j + 1) * min_chunk_size_ - 1, dimension_ - 1));
-      }
-      sync_point.arrive_and_wait();
-    });
-  }
-  for (auto& worker : workers) {
-    worker.join();
-  }
-  for (size_t i = 0; i < static_cast<size_t>(std::bit_width(chunk_count_) - 1); ++i) {
-    std::barrier sync_point(num_threads);
-    workers.resize(0);
+  auto parallel_for = [&num_threads](size_t start, size_t end, auto&& func) {
+    std::vector<std::thread> workers;
     workers.reserve(num_threads);
-    const size_t merge_pairs = chunk_count_ >> (i + 1);
-    const size_t pairs_per_thread = (merge_pairs + num_threads - 1) / num_threads;
-    for (size_t t = 0; t < num_threads; ++t) {
-      workers.emplace_back([&sync_point, &merge_pairs, &pairs_per_thread, i, t] {
-        const size_t start = t * pairs_per_thread;
-        const size_t end = std::min((t + 1) * pairs_per_thread, merge_pairs);
-        for (size_t j = start; j < end; ++j) {
-          std::inplace_merge(input_array_A_.begin() + static_cast<long>(j * min_chunk_size_ << (i + 1)),
-                             input_array_A_.begin() + static_cast<long>(((j << 1 | 1) * (min_chunk_size_ << i))),
-                             input_array_A_.begin() + static_cast<long>((j + 1) * min_chunk_size_ << (i + 1)));
+    const size_t num_chunk_per_thread = (end - start) / num_threads;
+    for (size_t i = 0; i < num_threads - 1; ++i) {
+      workers.emplace_back([&func, &start, &i, &num_chunk_per_thread] {
+        const size_t chunk_start = start + (i * num_chunk_per_thread);
+        const size_t chunk_end = start + (i + 1) * num_chunk_per_thread;
+        for (size_t j = chunk_start; j < chunk_end; ++j) {
+          func(j);
         }
-        sync_point.arrive_and_wait();
       });
     }
+    workers.emplace_back([&func, &start, &num_chunk_per_thread, &end, &num_threads] {
+      const size_t chunk_start = start + ((num_threads - 1) * num_chunk_per_thread);
+      for (size_t j = chunk_start; j < end; ++j) {
+        func(j);
+      }
+    });
     for (auto& worker : workers) {
       worker.join();
     }
+    workers.resize(0);
+  };
+  parallel_for(0, chunk_count_, [this](size_t count) {
+    HoareSort(input_array_A_, count * min_chunk_size_, ((count + 1) * min_chunk_size_) - 1);
+  });
+  std::barrier sync_point(num_threads);
+  for (size_t i = 0; i < static_cast<size_t>(std::bit_width(chunk_count_) -
+                                             1);  // Вычисялем сколько уровней слияния потребуется как логарифм по
+                                                  // основанию 2 от числа частей chunk_count_
+       ++i) {  // На каждом уровне сливаются пары соседних блоков размером min_chunk_size_ × 2^i
+    parallel_for(
+        0, chunk_count_ >> (i + 1), [this, i](size_t j) {  // Распределение слияний между потоками на каждом уровне
+          std::inplace_merge(
+              input_array_A_.begin() +
+                  static_cast<long>(j * min_chunk_size_ << (i + 1)),  // Вызов std::inplace_merge для слияния двух
+                                                                      // подмассивов, отсортированных функцией HoareSort
+              input_array_A_.begin() + static_cast<long>(((j << 1 | 1) * (min_chunk_size_ << i))),
+              input_array_A_.begin() + static_cast<long>((j + 1) * min_chunk_size_ << (i + 1)));
+          std::barrier sync_point(num_threads);
+        });
   }
   return true;
 }
