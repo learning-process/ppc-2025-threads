@@ -12,7 +12,7 @@
 #include <vector>
 
 double deryabin_m_hoare_sort_simple_merge_mpi::PivotCalculation(std::vector<double>::iterator first,
-                                                                 std::vector<double>::iterator last) {
+                                                                std::vector<double>::iterator last) {
   const auto mid = first + ((last - first) >> 1);
   double pivot_value = NAN;
   if (last - first < 199) {
@@ -208,9 +208,8 @@ bool deryabin_m_hoare_sort_simple_merge_mpi::HoareSortTaskMPI::RunImpl() {
   for (size_t i = 0; i < iterations; ++i) {
     const size_t step = 1ULL << i;
     if (((chunk_count_ - world_rank) & (step - 1)) == 0U || world_rank == 0) {
-    const bool is_even = ((chunk_count_ & 1) != 0U) 
-        ? (((chunk_count_ - world_rank + step - 1) / step) & 1) != 0U
-        : (((chunk_count_ - world_rank - 1) / step) & 1) == 0U;
+      const bool is_even = ((chunk_count_ & 1) != 0U) ? (((chunk_count_ - world_rank + step - 1) / step) & 1) != 0U
+                                                      : (((chunk_count_ - world_rank - 1) / step) & 1) == 0U;
       if (is_even) {
         if (world_rank == 0) {
           continue;
