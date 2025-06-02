@@ -99,7 +99,7 @@ bool deryabin_m_hoare_sort_simple_merge_stl::HoareSortTaskSTL::RunImpl() {
     workers.reserve(num_threads);
     const size_t num_chunk_per_thread = (end - start) / num_threads;
     for (size_t i = 0; i < num_threads - 1; ++i) {
-      workers.emplace_back([&func, &start, &i, &num_chunk_per_thread] {
+      workers.emplace_back([&func, &start, &i, &num_chunk_per_thread, &sync_point] {
         const size_t chunk_start = start + (i * num_chunk_per_thread);
         const size_t chunk_end = start + (i + 1) * num_chunk_per_thread;
         for (size_t j = chunk_start; j < chunk_end; ++j) {
@@ -108,7 +108,7 @@ bool deryabin_m_hoare_sort_simple_merge_stl::HoareSortTaskSTL::RunImpl() {
         sync_point.arrive_and_wait();
       });
     }
-    workers.emplace_back([&func, &start, &num_chunk_per_thread, &end, &num_threads] {
+    workers.emplace_back([&func, &start, &num_chunk_per_thread, &end, &num_threads, &sync_point] {
       const size_t chunk_start = start + ((num_threads - 1) * num_chunk_per_thread);
       for (size_t j = chunk_start; j < end; ++j) {
         func(j);
