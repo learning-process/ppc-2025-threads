@@ -64,7 +64,6 @@ bool FoxOMP::PreProcessingImpl() {
 bool FoxOMP::ValidationImpl() { return (input_a_.size() == n_ * n_ && output_.size() == n_ * n_); }
 
 bool FoxOMP::RunImpl() {
-  size_t div1 = 0;
   const int num_threads = ppc::util::GetPPCNumThreads();
   size_t q = std::min(n_, static_cast<size_t>(std::sqrt(num_threads)));
   if (q == 0) {
@@ -81,7 +80,7 @@ bool FoxOMP::RunImpl() {
     for (int z = 0; z < static_cast<int>(q) * static_cast<int>(q); z++) {
       size_t i = static_cast<size_t>(z) / q;
       size_t j = static_cast<size_t>(z) % q;
-      div1 = ((i + l) % q) * k;
+      size_t div1 = ((i + l) % q) * k;
       MatMulBlocks(div1, i * k, j * k, div1, j * k, i * k, k);
     }
   }
