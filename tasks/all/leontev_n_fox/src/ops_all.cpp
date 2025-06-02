@@ -1,3 +1,4 @@
+#include "all/leontev_n_fox/include/ops_all.hpp"
 #include <mpi.h>
 
 #include <algorithm>
@@ -6,7 +7,6 @@
 #include <thread>
 #include <vector>
 
-#include "all/leontev_n_fox/include/ops_all.hpp"
 #include "core/util/include/util.hpp"
 
 namespace leontev_n_fox_all {
