@@ -11,7 +11,7 @@
 
 #include "core/perf/include/perf.hpp"
 #include "core/task/include/task.hpp"
-#include "omp/opolin_d_radix_sort_betcher_merge/include/ops_omp.hpp"
+#include "omp/opolin_d_radix_sort_batcher_merge/include/ops_omp.hpp"
 
 namespace opolin_d_radix_batcher_sort_omp {
 namespace {
