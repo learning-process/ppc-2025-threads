@@ -2,12 +2,10 @@
 
 #include <oneapi/tbb/blocked_range2d.h>
 #include <oneapi/tbb/parallel_for.h>
-#include <oneapi/tbb/parallel_reduce.h>
 
 #include <algorithm>
 #include <cmath>
 #include <cstddef>
-#include <thread>
 #include <vector>
 
 #include "core/util/include/util.hpp"
@@ -69,7 +67,6 @@ bool FoxTBB::PreProcessingImpl() {
 bool FoxTBB::ValidationImpl() { return (input_a_.size() == n_ * n_ && output_.size() == n_ * n_); }
 
 bool FoxTBB::RunImpl() {
-  size_t div1 = 0;
   const int num_threads = ppc::util::GetPPCNumThreads();
   size_t q = std::min(n_, static_cast<size_t>(std::sqrt(num_threads)));
   if (q == 0) {
@@ -86,7 +83,7 @@ bool FoxTBB::RunImpl() {
                               [&](const tbb::blocked_range2d<size_t>& r) {
                                 for (size_t i = r.rows().begin(); i < r.rows().end(); i++) {
                                   for (size_t j = r.cols().begin(); j < r.cols().end(); j++) {
-                                    div1 = ((i + l) % q) * k;
+                                    size_t div1 = ((i + l) % q) * k;
                                     FoxTBB::MatMulBlocks(div1, i * k, j * k, div1, j * k, i * k, k);
                                   }
                                 }
