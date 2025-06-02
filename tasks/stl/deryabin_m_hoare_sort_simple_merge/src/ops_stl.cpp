@@ -119,7 +119,6 @@ bool deryabin_m_hoare_sort_simple_merge_stl::HoareSortTaskSTL::RunImpl() {
   parallel_for(0, chunk_count_, [this](size_t count) {
     HoareSort(input_array_A_, count * min_chunk_size_, ((count + 1) * min_chunk_size_) - 1);
   });
-  std::barrier sync_point(num_threads);
   for (size_t i = 0; i < static_cast<size_t>(std::bit_width(chunk_count_) -
                                              1);  // Вычисялем сколько уровней слияния потребуется как логарифм по
                                                   // основанию 2 от числа частей chunk_count_
@@ -133,7 +132,6 @@ bool deryabin_m_hoare_sort_simple_merge_stl::HoareSortTaskSTL::RunImpl() {
               input_array_A_.begin() + static_cast<long>(((j << 1 | 1) * (min_chunk_size_ << i))),
               input_array_A_.begin() + static_cast<long>((j + 1) * min_chunk_size_ << (i + 1)));
         });
-    std::barrier sync_point(num_threads);
   }
   return true;
 }
