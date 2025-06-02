@@ -7,30 +7,32 @@
 #include <bit>
 #include <boost/mpi/collectives/broadcast.hpp>
 #include <cmath>
-#include <cstddef>  // NOLINT(misc-unused-using-decls)
+#include <cstddef> 
 #include <iterator>
 #include <vector>
 
-double deryabin_m_hoare_sort_simple_merge_mpi::pivot_calculation(std::vector<double>::iterator first,
+double deryabin_m_hoare_sort_simple_merge_mpi::PivotCalculation(std::vector<double>::iterator first,
                                                                  std::vector<double>::iterator last) {
   const auto mid = first + ((last - first) >> 1);
+  double pivot_value = NAN;
   if (last - first < 199) {
-    return *mid;
+    pivot_value = *mid;
   } else {
     if (*first < *mid) {
       if (*mid < *last) {
-        return *mid;
+        pivot_value = *mid;
       } else {
-        return std::max(*first, *last);
+        pivot_value = std::max(*first, *last);
       }
     } else {
       if (*first < *last) {
-        return *first;
+        pivot_value = *first;
       } else {
-        return std::max(*mid, *last);
+        pivot_value = std::max(*mid, *last);
       }
     }
   }
+  return pivot_value;
 }
 
 void deryabin_m_hoare_sort_simple_merge_mpi::SeqHoaraSort(std::vector<double>::iterator first,
@@ -38,7 +40,7 @@ void deryabin_m_hoare_sort_simple_merge_mpi::SeqHoaraSort(std::vector<double>::i
   if (first >= last) {
     return;
   }
-  const double pivot_value = pivot_calculation(first, last);
+  const double pivot_value = PivotCalculation(first, last);
   auto left = first;
   auto right = last;
   do {
@@ -66,7 +68,7 @@ void deryabin_m_hoare_sort_simple_merge_mpi::HoaraSort(std::vector<double>::iter
   if (first >= last) {
     return;
   }
-  const double pivot_value = pivot_calculation(first, last);
+  const double pivot_value = PivotCalculation(first, last);
   auto left = first;
   auto right = last;
   do {
@@ -206,8 +208,9 @@ bool deryabin_m_hoare_sort_simple_merge_mpi::HoareSortTaskMPI::RunImpl() {
   for (size_t i = 0; i < iterations; ++i) {
     const size_t step = 1ULL << i;
     if (((chunk_count_ - world_rank) & (step - 1)) == 0U || world_rank == 0) {
-      const bool is_even = (((chunk_count_ & 1) != 0U) ? (((chunk_count_ - world_rank + step - 1) / step) & 1) != 0U
-                                                       : (((chunk_count_ - world_rank - 1) / step) & 1) == 0U) != 0U;
+    const bool is_even = ((chunk_count_ & 1) != 0U) 
+        ? (((chunk_count_ - world_rank + step - 1) / step) & 1) != 0U
+        : (((chunk_count_ - world_rank - 1) / step) & 1) == 0U;
       if (is_even) {
         if (world_rank == 0) {
           continue;
