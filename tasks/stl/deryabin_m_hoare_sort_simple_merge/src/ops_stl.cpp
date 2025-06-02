@@ -133,8 +133,8 @@ bool deryabin_m_hoare_sort_simple_merge_stl::HoareSortTaskSTL::RunImpl() {
                                                                       // подмассивов, отсортированных функцией HoareSort
               input_array_A_.begin() + static_cast<long>(((j << 1 | 1) * (min_chunk_size_ << i))),
               input_array_A_.begin() + static_cast<long>((j + 1) * min_chunk_size_ << (i + 1)));
-          std::barrier sync_point(num_threads);
         });
+    std::barrier sync_point(num_threads);
   }
   return true;
 }
