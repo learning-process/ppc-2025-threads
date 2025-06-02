@@ -94,7 +94,7 @@ bool deryabin_m_hoare_sort_simple_merge_stl::HoareSortTaskSTL::RunImpl() {
     min_chunk_size_ = dimension_ / chunk_count_;
   }
   std::barrier sync_point(num_threads);
-  auto parallel_for = [&num_threads](size_t start, size_t end, auto&& func) {
+  auto parallel_for = [&num_threads, &sync_point](size_t start, size_t end, auto&& func) {
     std::vector<std::thread> workers;
     workers.reserve(num_threads);
     const size_t num_chunk_per_thread = (end - start) / num_threads;
