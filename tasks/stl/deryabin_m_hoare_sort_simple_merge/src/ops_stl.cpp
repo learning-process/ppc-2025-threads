@@ -1,7 +1,6 @@
 #include "stl/deryabin_m_hoare_sort_simple_merge/include/ops_stl.hpp"
 
 #include <algorithm>
-#include <barrier>
 #include <bit>
 #include <cmath>
 #include <cstddef>
