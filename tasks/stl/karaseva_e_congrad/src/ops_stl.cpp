@@ -187,6 +187,7 @@ bool TestTaskSTL::RunImpl() {
 
   // 2. Compute initial residual norm
   double rs_old = ParallelDotProduct(r, r, size_);
+  const double initial_rs = rs_old;  // Save initial residual norm squared
 
   const double tolerance = 1e-10;
   // Increased max iterations to allow convergence in floating point arithmetic
@@ -207,9 +208,11 @@ bool TestTaskSTL::RunImpl() {
     const double alpha = rs_old / p_ap;
     ParallelVectorUpdate(x_, r, p, ap, alpha, size_);
 
-    // 3.4 Check convergence
+    // 3.4 Check convergence using relative residual norm
     const double rs_new = ParallelDotProduct(r, r, size_);
-    if (rs_new < tolerance * tolerance) {
+    const double threshold = tolerance * tolerance * initial_rs;
+    // Additional safeguard for very small initial residuals
+    if (rs_new < threshold || rs_new < tolerance * tolerance) {
       break;
     }
 
