@@ -1,4 +1,4 @@
-#include "omp/opolin_d_radix_sort_betcher_merge/include/ops_omp.hpp"
+#include "omp/opolin_d_radix_sort_batcher_merge/include/ops_omp.hpp"
 
 #include <omp.h>
 

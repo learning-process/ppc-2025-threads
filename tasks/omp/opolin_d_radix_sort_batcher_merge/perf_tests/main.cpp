@@ -11,9 +11,9 @@
 
 #include "core/perf/include/perf.hpp"
 #include "core/task/include/task.hpp"
-#include "seq/opolin_d_radix_sort_betcher_merge/include/ops_seq.hpp"
+#include "omp/opolin_d_radix_sort_batcher_merge/include/ops_omp.hpp"
 
-namespace opolin_d_radix_betcher_sort_seq {
+namespace opolin_d_radix_batcher_sort_omp {
 namespace {
 void GenDataRadixSort(size_t size, std::vector<int> &vec, std::vector<int> &expected) {
   std::random_device rd;
@@ -29,28 +29,26 @@ void GenDataRadixSort(size_t size, std::vector<int> &vec, std::vector<int> &expe
   std::ranges::sort(expected);
 }
 }  // namespace
-}  // namespace opolin_d_radix_betcher_sort_seq
+}  // namespace opolin_d_radix_batcher_sort_omp
 
-TEST(opolin_d_radix_betcher_sort_seq, test_pipeline_run) {
+TEST(opolin_d_radix_batcher_sort_omp, test_pipeline_run) {
   int size = 500000;
   std::vector<int> input;
   std::vector<int> expected;
-  opolin_d_radix_betcher_sort_seq::GenDataRadixSort(size, input, expected);
+  opolin_d_radix_batcher_sort_omp::GenDataRadixSort(size, input, expected);
   std::vector<int> out(size, 0);
   // Create TaskData
-  auto task_data_seq = std::make_shared<ppc::core::TaskData>();
-  task_data_seq->inputs.emplace_back(reinterpret_cast<uint8_t *>(input.data()));
-  task_data_seq->inputs_count.emplace_back(out.size());
-  task_data_seq->outputs.emplace_back(reinterpret_cast<uint8_t *>(out.data()));
-  task_data_seq->outputs_count.emplace_back(out.size());
-
+  auto task_data_omp = std::make_shared<ppc::core::TaskData>();
+  task_data_omp->inputs.emplace_back(reinterpret_cast<uint8_t *>(input.data()));
+  task_data_omp->inputs_count.emplace_back(out.size());
+  task_data_omp->outputs.emplace_back(reinterpret_cast<uint8_t *>(out.data()));
+  task_data_omp->outputs_count.emplace_back(out.size());
   // Create Task
-  auto test_task_sequential =
-      std::make_shared<opolin_d_radix_betcher_sort_seq::RadixBetcherSortTaskSequential>(task_data_seq);
-  ASSERT_EQ(test_task_sequential->Validation(), true);
-  test_task_sequential->PreProcessing();
-  test_task_sequential->Run();
-  test_task_sequential->PostProcessing();
+  auto test_task_omp = std::make_shared<opolin_d_radix_batcher_sort_omp::RadixBatcherSortTaskOpenMP>(task_data_omp);
+  ASSERT_EQ(test_task_omp->Validation(), true);
+  test_task_omp->PreProcessing();
+  test_task_omp->Run();
+  test_task_omp->PostProcessing();
   // Create Perf attributes
   auto perf_attr = std::make_shared<ppc::core::PerfAttr>();
   perf_attr->num_running = 10;
@@ -65,31 +63,30 @@ TEST(opolin_d_radix_betcher_sort_seq, test_pipeline_run) {
   auto perf_results = std::make_shared<ppc::core::PerfResults>();
 
   // Create Perf analyzer
-  auto perf_analyzer = std::make_shared<ppc::core::Perf>(test_task_sequential);
+  auto perf_analyzer = std::make_shared<ppc::core::Perf>(test_task_omp);
   perf_analyzer->PipelineRun(perf_attr, perf_results);
   ppc::core::Perf::PrintPerfStatistic(perf_results);
+  ASSERT_EQ(expected, out);
 }
 
-TEST(opolin_d_radix_betcher_sort_seq, test_task_run) {
+TEST(opolin_d_radix_batcher_sort_omp, test_task_run) {
   int size = 500000;
   std::vector<int> input;
   std::vector<int> expected;
-  opolin_d_radix_betcher_sort_seq::GenDataRadixSort(size, input, expected);
+  opolin_d_radix_batcher_sort_omp::GenDataRadixSort(size, input, expected);
   std::vector<int> out(size, 0);
   // Create TaskData
-  auto task_data_seq = std::make_shared<ppc::core::TaskData>();
-  task_data_seq->inputs.emplace_back(reinterpret_cast<uint8_t *>(input.data()));
-  task_data_seq->inputs_count.emplace_back(out.size());
-  task_data_seq->outputs.emplace_back(reinterpret_cast<uint8_t *>(out.data()));
-  task_data_seq->outputs_count.emplace_back(out.size());
-
+  auto task_data_omp = std::make_shared<ppc::core::TaskData>();
+  task_data_omp->inputs.emplace_back(reinterpret_cast<uint8_t *>(input.data()));
+  task_data_omp->inputs_count.emplace_back(out.size());
+  task_data_omp->outputs.emplace_back(reinterpret_cast<uint8_t *>(out.data()));
+  task_data_omp->outputs_count.emplace_back(out.size());
   // Create Task
-  auto test_task_sequential =
-      std::make_shared<opolin_d_radix_betcher_sort_seq::RadixBetcherSortTaskSequential>(task_data_seq);
-  ASSERT_EQ(test_task_sequential->Validation(), true);
-  test_task_sequential->PreProcessing();
-  test_task_sequential->Run();
-  test_task_sequential->PostProcessing();
+  auto test_task_omp = std::make_shared<opolin_d_radix_batcher_sort_omp::RadixBatcherSortTaskOpenMP>(task_data_omp);
+  ASSERT_EQ(test_task_omp->Validation(), true);
+  test_task_omp->PreProcessing();
+  test_task_omp->Run();
+  test_task_omp->PostProcessing();
   // Create Perf attributes
   auto perf_attr = std::make_shared<ppc::core::PerfAttr>();
   perf_attr->num_running = 10;
@@ -103,7 +100,8 @@ TEST(opolin_d_radix_betcher_sort_seq, test_task_run) {
   auto perf_results = std::make_shared<ppc::core::PerfResults>();
 
   // Create Perf analyzer
-  auto perf_analyzer = std::make_shared<ppc::core::Perf>(test_task_sequential);
+  auto perf_analyzer = std::make_shared<ppc::core::Perf>(test_task_omp);
   perf_analyzer->TaskRun(perf_attr, perf_results);
   ppc::core::Perf::PrintPerfStatistic(perf_results);
+  ASSERT_EQ(expected, out);
 }
