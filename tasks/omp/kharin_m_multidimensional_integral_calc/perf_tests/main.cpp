@@ -11,7 +11,7 @@
 #include "omp/kharin_m_multidimensional_integral_calc/include/ops_omp.hpp"
 
 TEST(kharin_m_multidimensional_integral_calc_omp, test_pipeline_run) {
-  constexpr size_t kDim = 5000;
+  constexpr size_t kDim = 10000;
 
   std::vector<double> in(kDim * kDim, 1.0);
   std::vector<size_t> grid_sizes = {kDim, kDim};
@@ -47,7 +47,7 @@ TEST(kharin_m_multidimensional_integral_calc_omp, test_pipeline_run) {
 }
 
 TEST(kharin_m_multidimensional_integral_calc_omp, test_task_run) {
-  constexpr size_t kDim = 5000;
+  constexpr size_t kDim = 10000;
 
   std::vector<double> in(kDim * kDim, 1.0);
   std::vector<size_t> grid_sizes = {kDim, kDim};
