@@ -7,7 +7,7 @@
 #include <random>
 #include <vector>
 
-#include "all/shuravina_o_hoare_simple_merger_all1/include/ops_all.hpp"
+#include "all/shuravina_o_hoare_simple_merger/include/ops_all.hpp"
 #include "core/task/include/task.hpp"
 
 namespace {
@@ -120,7 +120,7 @@ TEST(shuravina_o_hoare_simple_merger_all, test_empty_array_validation) {
 
   shuravina_o_hoare_simple_merger::TestTaskALL task(task_data);
 
-  int rank = 0;
+  int rank;
   MPI_Comm_rank(MPI_COMM_WORLD, &rank);
   if (rank == 0) {
     EXPECT_FALSE(task.Validation());
@@ -139,7 +139,7 @@ TEST(shuravina_o_hoare_simple_merger_all, test_different_sizes_validation) {
 
   shuravina_o_hoare_simple_merger::TestTaskALL task(task_data);
 
-  int rank = 0;
+  int rank;
   MPI_Comm_rank(MPI_COMM_WORLD, &rank);
   if (rank == 0) {
     EXPECT_FALSE(task.Validation());

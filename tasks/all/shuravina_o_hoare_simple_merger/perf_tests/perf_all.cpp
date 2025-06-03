@@ -7,7 +7,7 @@
 #include <random>
 #include <vector>
 
-#include "all/shuravina_o_hoare_simple_merger_all1/include/ops_all.hpp"
+#include "all/shuravina_o_hoare_simple_merger/include/ops_all.hpp"
 #include "core/perf/include/perf.hpp"
 #include "core/task/include/task.hpp"
 
