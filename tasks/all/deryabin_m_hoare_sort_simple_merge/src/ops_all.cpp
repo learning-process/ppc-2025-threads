@@ -195,7 +195,6 @@ bool deryabin_m_hoare_sort_simple_merge_mpi::HoareSortTaskMPI::ValidationImpl() 
   return true;
 }
 
-// NOLINTNEXTLINE(readability-function-cognitive-complexity)
 bool deryabin_m_hoare_sort_simple_merge_mpi::HoareSortTaskMPI::RunImpl() {
   const size_t world_rank = world_.rank();
   const auto start_iter =
