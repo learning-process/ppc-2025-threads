@@ -26,7 +26,7 @@ std::vector<double> GenerateRandomSPDMatrix(size_t matrix_size, unsigned int see
   for (size_t i = 0; i < matrix_size; ++i) {
     for (size_t j = 0; j < matrix_size; ++j) {
       for (size_t k = 0; k < matrix_size; ++k) {
-        a_matrix[(i * matrix_size) + j] += r_matrix[(k * matrix_size) + i] * r_matrix[(k * matrix_size) + j];
+        a_matrix[(k * matrix_size) + j] += r_matrix[(i * matrix_size) + k] * r_matrix[(i * matrix_size) + j];
       }
     }
     a_matrix[(i * matrix_size) + i] += matrix_size_d;
