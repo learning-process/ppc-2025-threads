@@ -195,7 +195,7 @@ bool deryabin_m_hoare_sort_simple_merge_mpi::HoareSortTaskMPI::ValidationImpl() 
   return true;
 }
 
-bool deryabin_m_hoare_sort_simple_merge_mpi::HoareSortTaskMPI::HandleEvenCase(size_t world_rank, size_t step) {
+bool deryabin_m_hoare_sort_simple_merge_mpi::HandleEvenCase(size_t world_rank, size_t step) {
   if (world_rank == 0) {
     return true;
   }
@@ -215,7 +215,7 @@ bool deryabin_m_hoare_sort_simple_merge_mpi::HoareSortTaskMPI::HandleEvenCase(si
   return true;
 }
 
-bool deryabin_m_hoare_sort_simple_merge_mpi::HoareSortTaskMPI::HandleOddCase(size_t world_rank, size_t step) {
+bool deryabin_m_hoare_sort_simple_merge_mpi::HandleOddCase(size_t world_rank, size_t step) {
   const bool special_odd_case = (chunk_count_ & 1) != 0U && world_rank == 0;
   size_t block_size = min_chunk_size_ * step;
   size_t start_idx = special_odd_case ? (chunk_count_ - (2 * step - 1)) * min_chunk_size_
