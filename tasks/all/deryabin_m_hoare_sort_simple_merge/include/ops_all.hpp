@@ -14,6 +14,8 @@ void SeqHoaraSort(std::vector<double>::iterator first, std::vector<double>::iter
 void HoaraSort(std::vector<double>::iterator first, std::vector<double>::iterator last);
 void MergeUnequalTwoParts(std::vector<double>::iterator first, std::vector<double>::iterator mid,
                           std::vector<double>::iterator last);
+bool HandleEvenCase(size_t world_rank, size_t step);
+bool HandleOddCase(size_t world_rank, size_t step);
 
 class HoareSortTaskSequential : public ppc::core::Task {
  public:
