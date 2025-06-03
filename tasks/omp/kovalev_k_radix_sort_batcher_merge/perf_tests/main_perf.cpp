@@ -41,7 +41,7 @@ TEST(kovalev_k_radix_sort_batcher_merge_omp, test_pipeline_run) {
   };
   auto perf_results = std::make_shared<ppc::core::PerfResults>();
   auto perf_analyzer = std::make_shared<ppc::core::Perf>(test_task_omp);
-  perf_analyzer->TaskRun(perf_attr, perf_results);
+  perf_analyzer->PipelineRun(perf_attr, perf_results);
   ppc::core::Perf::PrintPerfStatistic(perf_results);
   std::ranges::sort(etalon.begin(), etalon.end(), [](long long int a, long long int b) { return a < b; });
   auto *tmp = reinterpret_cast<long long int *>(out.data());
