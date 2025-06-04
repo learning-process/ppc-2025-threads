@@ -4,8 +4,9 @@
 
 #include <algorithm>
 #include <boost/mpi/collectives.hpp>
+#include <boost/mpi/collectives/broadcast.hpp>
 #include <boost/mpi/communicator.hpp>
-#include <boost/serialization/vector.hpp>
+#include <boost/serialization/vector.hpp>  // NOLINT(misc-include-cleaner) - needed for MPI serialization
 #include <cmath>
 #include <cstddef>
 #include <cstring>
