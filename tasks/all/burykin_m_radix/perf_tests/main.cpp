@@ -1,6 +1,8 @@
 #include <gtest/gtest.h>
 
 #include <algorithm>
+#include <boost/mpi/communicator.hpp>
+#include <boost/mpi/environment.hpp>
 #include <chrono>
 #include <cstddef>
 #include <cstdint>
@@ -28,24 +30,35 @@ std::vector<int> GenerateRandomVector(size_t size, int min_val = -10000, int max
 }  // namespace
 
 TEST(burykin_m_radix_all, test_pipeline_run) {
+  boost::mpi::communicator world;
+
   constexpr size_t kNumElements = 10000000;
 
-  std::vector<int> input = GenerateRandomVector(kNumElements);
-  std::vector<int> expected = input;
-  std::ranges::sort(expected);
+  std::vector<int> input;
+  std::vector<int> expected;
+  std::vector<int> output;
 
-  std::vector<int> output(kNumElements, 0);
+  if (world.rank() == 0) {
+    input = GenerateRandomVector(kNumElements);
+    expected = input;
+    std::ranges::sort(expected);
+    output.resize(kNumElements, 0);
+  }
 
   auto task_data = std::make_shared<ppc::core::TaskData>();
-  task_data->inputs.emplace_back(reinterpret_cast<uint8_t *>(input.data()));
-  task_data->inputs_count.emplace_back(static_cast<std::uint32_t>(input.size()));
-  task_data->outputs.emplace_back(reinterpret_cast<uint8_t *>(output.data()));
-  task_data->outputs_count.emplace_back(static_cast<std::uint32_t>(output.size()));
+
+  if (world.rank() == 0) {
+    task_data->inputs.emplace_back(reinterpret_cast<uint8_t *>(input.data()));
+    task_data->inputs_count.emplace_back(static_cast<std::uint32_t>(input.size()));
+    task_data->outputs.emplace_back(reinterpret_cast<uint8_t *>(output.data()));
+    task_data->outputs_count.emplace_back(static_cast<std::uint32_t>(output.size()));
+  }
 
   auto task = std::make_shared<burykin_m_radix_all::RadixALL>(task_data);
 
   auto perf_attr = std::make_shared<ppc::core::PerfAttr>();
   perf_attr->num_running = 10;
+  world.barrier();
   const auto t0 = std::chrono::high_resolution_clock::now();
   perf_attr->current_timer = [t0]() {
     auto current_time_point = std::chrono::high_resolution_clock::now();
@@ -54,33 +67,45 @@ TEST(burykin_m_radix_all, test_pipeline_run) {
   };
 
   auto perf_results = std::make_shared<ppc::core::PerfResults>();
-
   auto perf_analyzer = std::make_shared<ppc::core::Perf>(task);
   perf_analyzer->PipelineRun(perf_attr, perf_results);
-  ppc::core::Perf::PrintPerfStatistic(perf_results);
 
-  EXPECT_EQ(output, expected);
+  if (world.rank() == 0) {
+    ppc::core::Perf::PrintPerfStatistic(perf_results);
+    EXPECT_EQ(output, expected);
+  }
 }
 
 TEST(burykin_m_radix_all, test_task_run) {
+  boost::mpi::communicator world;
+
   constexpr size_t kNumElements = 100000000;
 
-  std::vector<int> input = GenerateRandomVector(kNumElements);
-  std::vector<int> expected = input;
-  std::ranges::sort(expected);
+  std::vector<int> input;
+  std::vector<int> expected;
+  std::vector<int> output;
 
-  std::vector<int> output(kNumElements, 0);
+  if (world.rank() == 0) {
+    input = GenerateRandomVector(kNumElements);
+    expected = input;
+    std::ranges::sort(expected);
+    output.resize(kNumElements, 0);
+  }
 
   auto task_data = std::make_shared<ppc::core::TaskData>();
-  task_data->inputs.emplace_back(reinterpret_cast<uint8_t *>(input.data()));
-  task_data->inputs_count.emplace_back(static_cast<std::uint32_t>(input.size()));
-  task_data->outputs.emplace_back(reinterpret_cast<uint8_t *>(output.data()));
-  task_data->outputs_count.emplace_back(static_cast<std::uint32_t>(output.size()));
+
+  if (world.rank() == 0) {
+    task_data->inputs.emplace_back(reinterpret_cast<uint8_t *>(input.data()));
+    task_data->inputs_count.emplace_back(static_cast<std::uint32_t>(input.size()));
+    task_data->outputs.emplace_back(reinterpret_cast<uint8_t *>(output.data()));
+    task_data->outputs_count.emplace_back(static_cast<std::uint32_t>(output.size()));
+  }
 
   auto task = std::make_shared<burykin_m_radix_all::RadixALL>(task_data);
 
   auto perf_attr = std::make_shared<ppc::core::PerfAttr>();
   perf_attr->num_running = 10;
+  world.barrier();
   const auto t0 = std::chrono::high_resolution_clock::now();
   perf_attr->current_timer = [t0]() {
     auto current_time_point = std::chrono::high_resolution_clock::now();
@@ -89,10 +114,11 @@ TEST(burykin_m_radix_all, test_task_run) {
   };
 
   auto perf_results = std::make_shared<ppc::core::PerfResults>();
-
   auto perf_analyzer = std::make_shared<ppc::core::Perf>(task);
   perf_analyzer->TaskRun(perf_attr, perf_results);
-  ppc::core::Perf::PrintPerfStatistic(perf_results);
 
-  EXPECT_EQ(output, expected);
+  if (world.rank() == 0) {
+    ppc::core::Perf::PrintPerfStatistic(perf_results);
+    EXPECT_EQ(output, expected);
+  }
 }
