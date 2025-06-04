@@ -1,6 +1,7 @@
 #include <gtest/gtest.h>
 
 #include <chrono>
+#include <cmath>
 #include <cstdint>
 #include <memory>
 #include <vector>
@@ -8,6 +9,34 @@
 #include "core/perf/include/perf.hpp"
 #include "core/task/include/task.hpp"
 #include "omp/fomin_v_conjugate_gradient/include/ops_omp.hpp"
+
+namespace {
+
+void VerifySolution(const std::vector<double>& input, const double* solution, int size) {
+  // Извлекаем матрицу A и вектор b из входных данных
+  std::vector<double> a(input.begin(), input.begin() + size * size);
+  std::vector<double> b_vec(input.begin() + size * size, input.end());
+
+  // Вычисляем невязку: r = b - A*x
+  std::vector<double> residual(size, 0.0);
+  for (int i = 0; i < size; ++i) {
+    double sum = 0.0;
+    for (int j = 0; j < size; ++j) {
+      sum += a[(i * size) + j] * solution[j];
+    }
+    residual[i] = b_vec[i] - sum;
+  }
+
+  double residual_norm = 0.0;
+  for (double r : residual) {
+    residual_norm += r * r;
+  }
+  residual_norm = sqrt(residual_norm);
+
+  EXPECT_LT(residual_norm, 1e-5);
+}
+
+}  // namespace
 
 TEST(fomin_v_conjugate_gradient_omp, test_pipeline_run) {
   constexpr int kCount = 990;
@@ -25,11 +54,14 @@ TEST(fomin_v_conjugate_gradient_omp, test_pipeline_run) {
     input[(kCount * kCount) + i] = 1.0;
   }
 
+  // Используем умный указатель для автоматического управления памятью
+  std::unique_ptr<double[]> output_buffer(new double[kCount]);
+
   // Создаем task_data
   auto task_data_seq = std::make_shared<ppc::core::TaskData>();
   task_data_seq->inputs.emplace_back(reinterpret_cast<uint8_t*>(input.data()));
   task_data_seq->inputs_count.emplace_back(input.size());
-  task_data_seq->outputs.emplace_back(reinterpret_cast<uint8_t*>(new double[kCount]));
+  task_data_seq->outputs.emplace_back(reinterpret_cast<uint8_t*>(output_buffer.get()));
   task_data_seq->outputs_count.emplace_back(kCount);
 
   auto test_task_sequential = std::make_shared<fomin_v_conjugate_gradient::FominVConjugateGradientOmp>(task_data_seq);
@@ -49,6 +81,8 @@ TEST(fomin_v_conjugate_gradient_omp, test_pipeline_run) {
   auto perf_analyzer = std::make_shared<ppc::core::Perf>(test_task_sequential);
   perf_analyzer->PipelineRun(perf_attr, perf_results);
   ppc::core::Perf::PrintPerfStatistic(perf_results);
+
+  VerifySolution(input, output_buffer.get(), kCount);
 }
 
 TEST(fomin_v_conjugate_gradient_omp, test_task_run) {
@@ -67,11 +101,14 @@ TEST(fomin_v_conjugate_gradient_omp, test_task_run) {
     input[(kCount * kCount) + i] = 1.0;
   }
 
+  // Используем умный указатель для автоматического управления памятью
+  std::unique_ptr<double[]> output_buffer(new double[kCount]);
+
   // Создаем task_data
   auto task_data_seq = std::make_shared<ppc::core::TaskData>();
   task_data_seq->inputs.emplace_back(reinterpret_cast<uint8_t*>(input.data()));
   task_data_seq->inputs_count.emplace_back(input.size());
-  task_data_seq->outputs.emplace_back(reinterpret_cast<uint8_t*>(new double[kCount]));
+  task_data_seq->outputs.emplace_back(reinterpret_cast<uint8_t*>(output_buffer.get()));
   task_data_seq->outputs_count.emplace_back(kCount);
 
   // Создаем задачу
@@ -94,4 +131,6 @@ TEST(fomin_v_conjugate_gradient_omp, test_task_run) {
   auto perf_analyzer = std::make_shared<ppc::core::Perf>(test_task_sequential);
   perf_analyzer->TaskRun(perf_attr, perf_results);
   ppc::core::Perf::PrintPerfStatistic(perf_results);
+
+  VerifySolution(input, output_buffer.get(), kCount);
 }
