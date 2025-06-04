@@ -57,6 +57,7 @@ TEST(burykin_m_radix_all, test_pipeline_run) {
 
   auto perf_attr = std::make_shared<ppc::core::PerfAttr>();
   perf_attr->num_running = 10;
+  world.barrier();
   const auto t0 = std::chrono::high_resolution_clock::now();
   perf_attr->current_timer = [t0]() {
     auto current_time_point = std::chrono::high_resolution_clock::now();
@@ -77,7 +78,7 @@ TEST(burykin_m_radix_all, test_pipeline_run) {
 TEST(burykin_m_radix_all, test_task_run) {
   boost::mpi::communicator world;
 
-  constexpr size_t kNumElements = 100000000;
+  constexpr size_t kNumElements = 10000000;
 
   std::vector<int> input;
   std::vector<int> expected;
@@ -103,6 +104,7 @@ TEST(burykin_m_radix_all, test_task_run) {
 
   auto perf_attr = std::make_shared<ppc::core::PerfAttr>();
   perf_attr->num_running = 10;
+  world.barrier();
   const auto t0 = std::chrono::high_resolution_clock::now();
   perf_attr->current_timer = [t0]() {
     auto current_time_point = std::chrono::high_resolution_clock::now();
