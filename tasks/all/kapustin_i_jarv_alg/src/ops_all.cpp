@@ -12,41 +12,50 @@
 std::pair<int, int> kapustin_i_jarv_alg_all::TestTaskAll::FindLocalBestOMP(size_t start, size_t end,
                                                                            size_t current_index,
                                                                            const std::pair<int, int>& init_best) {
-  std::pair<int, int> local_best = init_best;
+  std::pair<int, int> global_best = init_best;
 
 #pragma omp parallel
   {
-    std::pair<int, int> thread_best = local_best;
+    std::pair<int, int> thread_best = global_best;
 
-#pragma omp for nowait
+#pragma omp for
     for (int i = static_cast<int>(start); i < static_cast<int>(end); ++i) {
       if (static_cast<size_t>(i) == current_index) {
         continue;
       }
 
-      int orient = Orientation(input_[current_index], thread_best, input_[i]);
-      if (orient == 0) {
-        int dist_best = CalculateDistance(input_[current_index], thread_best);
-        int dist_i = CalculateDistance(input_[current_index], input_[i]);
-        if (dist_i > dist_best) {
+      const int orient = Orientation(input_[current_index], thread_best, input_[i]);
+
+      if (orient > 0) {
+        thread_best = input_[i];
+      } else if (orient == 0) {
+        const int current_dist = CalculateDistance(input_[current_index], thread_best);
+        const int candidate_dist = CalculateDistance(input_[current_index], input_[i]);
+
+        if (candidate_dist > current_dist) {
           thread_best = input_[i];
         }
-      } else if (orient > 0) {
-        thread_best = input_[i];
       }
     }
 
 #pragma omp critical
     {
-      int orient = Orientation(input_[current_index], local_best, thread_best);
-      if (orient > 0 || (orient == 0 && CalculateDistance(input_[current_index], thread_best) >
-                                            CalculateDistance(input_[current_index], local_best))) {
-        local_best = thread_best;
+      const int orient = Orientation(input_[current_index], global_best, thread_best);
+
+      if (orient > 0) {
+        global_best = thread_best;
+      } else if (orient == 0) {
+        const int global_dist = CalculateDistance(input_[current_index], global_best);
+        const int thread_dist = CalculateDistance(input_[current_index], thread_best);
+
+        if (thread_dist > global_dist) {
+          global_best = thread_best;
+        }
       }
     }
   }
 
-  return local_best;
+  return global_best;
 }
 
 int kapustin_i_jarv_alg_all::TestTaskAll::CalculateDistance(const std::pair<int, int>& p1,
