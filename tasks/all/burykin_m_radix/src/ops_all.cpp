@@ -5,14 +5,12 @@
 #include <algorithm>
 #include <boost/mpi/collectives.hpp>
 #include <boost/mpi/communicator.hpp>
-#include <boost/serialization/vector.hpp>
 #include <cmath>
 #include <cstddef>
+#include <cstring>
 #include <numeric>
 #include <utility>
 #include <vector>
-
-#include "core/util/include/util.hpp"
 
 bool burykin_m_radix_all::RadixALL::ValidationImpl() {
   if (world_.rank() == 0) {
@@ -239,7 +237,7 @@ std::vector<int> burykin_m_radix_all::RadixALL::DistributeData(const std::vector
         size_t end = start + current_chunk_size;
 
         if (current_chunk_size > 0 && end <= data.size()) {
-          chunks[i].assign(data.begin() + start, data.begin() + end);
+          chunks[i].assign(data.begin() + static_cast<ptrdiff_t>(start), data.begin() + static_cast<ptrdiff_t>(end));
         }
         start = end;
       }
@@ -289,11 +287,11 @@ std::vector<int> burykin_m_radix_all::RadixALL::GatherAndMerge(const std::vector
     }
 
     return result;
-  } else {
-    // ALL non-root processes send their data
-    world_.send(0, 0, local_sorted);
-    return std::vector<int>();  // Return empty vector for non-root
   }
+
+  // ALL non-root processes send their data
+  world_.send(0, 0, local_sorted);
+  return {};  // Return empty vector for non-root
 }
 
 std::vector<int> burykin_m_radix_all::RadixALL::MergeTwoSorted(const std::vector<int>& left,
