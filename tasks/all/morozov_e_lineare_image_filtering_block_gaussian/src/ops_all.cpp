@@ -56,8 +56,8 @@ inline double morozov_e_lineare_image_filtering_block_gaussian_all::TestTaskALL:
   const double* top = center - m_;
   const double* bottom = center + m_;
 
-  return top[-1] * k1 + top[0] * k2 + top[1] * k1 + center[-1] * k2 + center[0] * k4 + center[1] * k2 +
-         bottom[-1] * k1 + bottom[0] * k2 + bottom[1] * k1;
+  return (top[-1] * k1) + (top[0] * k2) + (top[1] * k1) + (center[-1] * k2) + (center[0] * k4) + (center[1] * k2) +
+         (bottom[-1] * k1) + (bottom[0] * k2) + (bottom[1] * k1);
 }
 bool morozov_e_lineare_image_filtering_block_gaussian_all::TestTaskALL::RunImpl() {
   auto start_end_pair = GetStartEndIndices(world_.size(), world_.rank(), n_);
@@ -78,10 +78,10 @@ bool morozov_e_lineare_image_filtering_block_gaussian_all::TestTaskALL::RunImpl(
       auto start_end_pair_p = GetStartEndIndices(world_.size(), p, n_);
       int start_p = start_end_pair_p.first;
       int end_p = start_end_pair_p.second;
-      world_.recv(p, 0, res_.data() + start_p * m_, (end_p - start_p) * m_);
+      world_.recv(p, 0, res_.data() + (start_p * m_), (end_p - start_p) * m_);
     }
   } else {
-    world_.send(0, 0, res_.data() + start * m_, (end - start) * m_);
+    world_.send(0, 0, res_.data() + (start * m_), (end - start) * m_);
   }
   return true;
 }
