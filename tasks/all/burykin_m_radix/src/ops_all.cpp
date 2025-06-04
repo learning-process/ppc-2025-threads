@@ -48,7 +48,8 @@ bool burykin_m_radix_all::RadixALL::RunImpl() {
   }
 
   // Split data on rank 0 and distribute directly
-  std::vector<int> negatives, positives;
+  std::vector<int> negatives;
+  std::vector<int> positives;
   if (rank == 0) {
     SplitBySign(input_, negatives, positives);
   }
@@ -58,7 +59,8 @@ bool burykin_m_radix_all::RadixALL::RunImpl() {
   std::vector<int> local_positives = DistributeData(positives, rank, size);
 
   // Sort local data
-  std::vector<int> sorted_local_negatives, sorted_local_positives;
+  std::vector<int> sorted_local_negatives;
+  std::vector<int> sorted_local_positives;
 
   if (!local_data_.empty()) {
     RadixSortPositive(local_data_);
@@ -71,7 +73,8 @@ bool burykin_m_radix_all::RadixALL::RunImpl() {
   }
 
   // Gather results
-  std::vector<int> sorted_negatives, sorted_positives;
+  std::vector<int> sorted_negatives;
+  std::vector<int> sorted_positives;
 
   if (rank == 0) {
     sorted_negatives = GatherAndMerge(sorted_local_negatives, rank, size);
@@ -195,14 +198,14 @@ std::vector<int> burykin_m_radix_all::RadixALL::DistributeData(const std::vector
       }
     }
 
-    // Send chunks to other processes
+    // Send chunks to other processes (even if empty)
     for (int i = 1; i < size; i++) {
       world_.send(i, 0, chunks[i]);
     }
 
     local_data = std::move(chunks[0]);
   } else {
-    // Non-root processes receive their chunk
+    // Non-root processes always receive their chunk (may be empty)
     world_.recv(0, 0, local_data);
   }
 
