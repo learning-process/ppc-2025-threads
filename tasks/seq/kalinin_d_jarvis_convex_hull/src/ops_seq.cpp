@@ -1,4 +1,4 @@
-// Copyright 2025 Kalinin Dmitry
+// Copyright 2025 Kalinin Dmitriy
 #include "seq/kalinin_d_jarvis_convex_hull/include/ops_seq.hpp"
 
 #include <algorithm>
