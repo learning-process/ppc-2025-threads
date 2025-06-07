@@ -19,7 +19,6 @@ namespace {
 // clang-format on
 inline void ThreadTask(const std::vector<double> &in_vec, int n, int m, std::vector<double> &res_vec, int begin_pos,
                        int end_pos) {
-  std::cout << "begin = " << begin_pos << ", end = " << end_pos << '\n';
   for (int i = begin_pos; i < end_pos; ++i) {
     for (int j = 0; j < m; ++j) {
       if (i == 0 || j == 0 || i == n - 1 || j == m - 1) {
