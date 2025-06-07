@@ -1,14 +1,14 @@
 // Copyright 2025 Kalinin Dmitry
 #include <gtest/gtest.h>
 
+#include <algorithm>
 #include <chrono>
+#include <cmath>
 #include <cstdint>
 #include <cstdlib>
 #include <memory>
 #include <set>
 #include <vector>
-#include <algorithm>
-#include <cmath>
 
 #include "core/perf/include/perf.hpp"
 #include "core/task/include/task.hpp"
