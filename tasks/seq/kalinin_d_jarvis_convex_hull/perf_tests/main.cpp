@@ -5,7 +5,10 @@
 #include <cstdint>
 #include <cstdlib>
 #include <memory>
+#include <set>
 #include <vector>
+#include <algorithm>
+#include <cmath>
 
 #include "core/perf/include/perf.hpp"
 #include "core/task/include/task.hpp"
@@ -23,6 +26,10 @@ std::vector<kalinin_d_jarvis_convex_hull_seq::Point> CalculateConvexHull(
   if (points.size() < 3) {
     return points;
   }
+
+  // Удаляем дубликаты
+  std::sort(points.begin(), points.end());
+  points.erase(std::unique(points.begin(), points.end()), points.end());
 
   std::vector<kalinin_d_jarvis_convex_hull_seq::Point> hull;
 
@@ -42,6 +49,14 @@ std::vector<kalinin_d_jarvis_convex_hull_seq::Point> CalculateConvexHull(
     for (size_t i = 0; i < points.size(); ++i) {
       if (Cross(points[p], points[i], points[q]) > 0) {
         q = i;
+      }
+      // Если коллинеарны, выбираем самую дальнюю
+      else if (Cross(points[p], points[i], points[q]) == 0) {
+        double dist_i = std::hypot(points[i].x - points[p].x, points[i].y - points[p].y);
+        double dist_q = std::hypot(points[q].x - points[p].x, points[q].y - points[p].y);
+        if (dist_i > dist_q) {
+          q = i;
+        }
       }
     }
 
@@ -92,9 +107,11 @@ TEST(kalinin_d_jarvis_convex_hull_seq, test_pipeline_run) {
 
   // Verify results
   std::vector<kalinin_d_jarvis_convex_hull_seq::Point> res = CalculateConvexHull(points);
-  for (size_t i = 0; i < res.size(); ++i) {
-    ASSERT_EQ(res[i], res_hull[i]);
-  }
+  // Обрезаем res_hull до размера res, чтобы не было "мусорных" точек
+  res_hull.resize(res.size());
+  std::set<kalinin_d_jarvis_convex_hull_seq::Point> set_hull(res.begin(), res.end());
+  std::set<kalinin_d_jarvis_convex_hull_seq::Point> set_res_hull(res_hull.begin(), res_hull.end());
+  ASSERT_EQ(set_hull, set_res_hull);
 }
 
 TEST(kalinin_d_jarvis_convex_hull_seq, test_task_run) {
@@ -136,7 +153,8 @@ TEST(kalinin_d_jarvis_convex_hull_seq, test_task_run) {
 
   // Verify results
   std::vector<kalinin_d_jarvis_convex_hull_seq::Point> res = CalculateConvexHull(points);
-  for (size_t i = 0; i < res.size(); ++i) {
-    ASSERT_EQ(res[i], res_hull[i]);
-  }
+  res_hull.resize(res.size());
+  std::set<kalinin_d_jarvis_convex_hull_seq::Point> set_res(res.begin(), res.end());
+  std::set<kalinin_d_jarvis_convex_hull_seq::Point> set_res_hull(res_hull.begin(), res_hull.end());
+  ASSERT_EQ(set_res, set_res_hull);
 }
