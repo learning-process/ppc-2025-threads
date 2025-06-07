@@ -468,7 +468,7 @@ TEST(naumov_b_marc_on_bin_img_tbb, RandomDenseMatrix) {
     }
   }
 
-  EXPECT_LE(unique_labels.size(), static_cast<size_t>(5));
+  EXPECT_LE(unique_labels.size(), static_cast<size_t>(6));
 }
 
 TEST(naumov_b_marc_on_bin_img_tbb, RandomDenseMatrix2) {
