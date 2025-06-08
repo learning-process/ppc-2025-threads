@@ -40,7 +40,7 @@ class RadixALL : public ppc::core::Task {
   static std::vector<int> MergeTwoSorted(const std::vector<int>& left, const std::vector<int>& right);
 
   static void CalculateDistribution(const std::vector<int>& data, int size, std::vector<int>& send_counts,
-                             std::vector<int>& displs);
+                                    std::vector<int>& displs);
   void ScatterDataFromRoot(const std::vector<int>& data, const std::vector<int>& send_counts,
                            const std::vector<int>& displs, int size, std::vector<int>& local_data);
 };
