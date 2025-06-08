@@ -228,7 +228,7 @@ void burykin_m_radix_all::RadixALL::ScatterDataFromRoot(const std::vector<int>& 
     if (i == 0) {
       // Process 0 keeps its own portion
       if (send_counts[0] > 0) {
-        std::copy_n(data.begin(), data.begin() + send_counts[0], local_data.begin());
+        std::copy(data.begin(), data.begin() + send_counts[0], local_data.begin());
       }
     } else {
       // Send to other processes
