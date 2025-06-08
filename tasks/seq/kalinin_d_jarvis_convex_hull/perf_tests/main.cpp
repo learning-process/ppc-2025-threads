@@ -27,8 +27,9 @@ std::vector<kalinin_d_jarvis_convex_hull_seq::Point> CalculateConvexHull(
     return points;
   }
 
-  std::ranges::sort(points);
-  points.erase(std::ranges::unique(points).begin(), points.end());
+  std::sort(points.begin(), points.end());
+  auto it = std::unique(points.begin(), points.end());
+  points.erase(it, points.end());
 
   std::vector<kalinin_d_jarvis_convex_hull_seq::Point> hull;
 
