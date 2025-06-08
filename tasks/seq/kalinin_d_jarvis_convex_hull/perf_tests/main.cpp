@@ -6,6 +6,7 @@
 #include <cmath>
 #include <cstdint>
 #include <cstdlib>
+#include <functional>
 #include <memory>
 #include <set>
 #include <vector>
@@ -27,7 +28,7 @@ std::vector<kalinin_d_jarvis_convex_hull_seq::Point> CalculateConvexHull(
     return points;
   }
 
-  std::ranges::sort(points, std::less<kalinin_d_jarvis_convex_hull_seq::Point>());
+  std::ranges::sort(points, std::less<>());
   points.erase(std::ranges::unique(points).begin(), points.end());
 
   std::vector<kalinin_d_jarvis_convex_hull_seq::Point> hull;
