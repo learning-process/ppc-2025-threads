@@ -56,12 +56,11 @@ bool burykin_m_radix_all::RadixALL::RunImpl() {
     RadixSortLocal(local_data_);
   }
 
+  // Synchronize before gathering to ensure all processes have completed sorting
+  world_.barrier();
+
   // Gather and merge results using tree-based approach
-  if (rank == 0) {
-    output_ = GatherAndMerge(local_data_, rank, size);
-  } else {
-    GatherAndMerge(local_data_, rank, size);
-  }
+  output_ = GatherAndMerge(local_data_, rank, size);
 
   return true;
 }
@@ -113,7 +112,7 @@ void burykin_m_radix_all::RadixALL::RadixSortLocal(std::vector<int>& arr) {
       if (!negatives.empty()) {
         RadixSortPositive(negatives);
         // Reverse and negate for correct order
-        std::reverse(negatives.begin(), negatives.end());
+        std::ranges::reverse(negatives);
 #pragma omp parallel for
         for (int i = 0; i < static_cast<int>(negatives.size()); ++i) {
           negatives[i] = -negatives[i];
@@ -203,59 +202,68 @@ void burykin_m_radix_all::RadixALL::CountingSortByDigit(std::vector<int>& arr, i
   arr = std::move(output);
 }
 
+void burykin_m_radix_all::RadixALL::CalculateDistribution(const std::vector<int>& data, int size,
+                                                          std::vector<int>& send_counts, std::vector<int>& displs) {
+  if (data.empty()) {
+    return;  // send_counts already initialized to 0
+  }
+
+  const size_t total_size = data.size();
+  const size_t base_chunk = total_size / size;
+  const size_t remainder = total_size % size;
+
+  size_t offset = 0;
+  for (int i = 0; i < size; ++i) {
+    send_counts[i] = static_cast<int>(base_chunk + (i < static_cast<int>(remainder) ? 1 : 0));
+    displs[i] = static_cast<int>(offset);
+    offset += send_counts[i];
+  }
+}
+
+void burykin_m_radix_all::RadixALL::ScatterDataFromRoot(const std::vector<int>& data,
+                                                        const std::vector<int>& send_counts,
+                                                        const std::vector<int>& displs, int size,
+                                                        std::vector<int>& local_data) {
+  for (int i = 0; i < size; ++i) {
+    if (i == 0) {
+      // Process 0 keeps its own portion
+      if (send_counts[0] > 0) {
+        std::copy_n(data.begin(), data.begin() + send_counts[0], local_data.begin());
+      }
+    } else {
+      // Send to other processes
+      if (send_counts[i] > 0) {
+        std::vector<int> chunk(data.begin() + displs[i], data.begin() + displs[i] + send_counts[i]);
+        world_.send(i, 0, chunk);
+      } else {
+        // Send empty chunk
+        std::vector<int> empty_chunk;
+        world_.send(i, 0, empty_chunk);
+      }
+    }
+  }
+}
+
 std::vector<int> burykin_m_radix_all::RadixALL::DistributeData(const std::vector<int>& data, int rank, int size) {
   std::vector<int> local_data;
   std::vector<int> send_counts(size, 0);
   std::vector<int> displs(size, 0);
 
   if (rank == 0) {
-    // Handle empty data case
-    if (data.empty()) {
-      // Broadcast empty send_counts
-      boost::mpi::broadcast(world_, send_counts, 0);
-      return local_data;  // Return empty vector
-    }
-
-    // Calculate optimal distribution
-    const size_t total_size = data.size();
-    const size_t base_chunk = total_size / size;
-    const size_t remainder = total_size % size;
-
-    size_t offset = 0;
-    for (int i = 0; i < size; ++i) {
-      send_counts[i] = static_cast<int>(base_chunk + (i < static_cast<int>(remainder) ? 1 : 0));
-      displs[i] = static_cast<int>(offset);
-      offset += send_counts[i];
-    }
+    CalculateDistribution(data, size, send_counts, displs);
   }
 
-  // Broadcast distribution info
+  // Broadcast distribution info to all processes
   boost::mpi::broadcast(world_, send_counts, 0);
 
-  // Handle case when this process gets no data
-  if (send_counts[rank] == 0) {
-    return local_data;  // Return empty vector
-  }
-
-  // Resize local buffer
+  // Resize local buffer based on what this process should receive
   local_data.resize(send_counts[rank]);
 
-  // Scatter data efficiently
+  // Distribute data
   if (rank == 0) {
-    for (int i = 0; i < size; ++i) {
-      if (send_counts[i] > 0) {  // Only send if there's data to send
-        if (i == 0) {
-          std::copy(data.begin(), data.begin() + send_counts[0], local_data.begin());
-        } else {
-          std::vector<int> chunk(data.begin() + displs[i], data.begin() + displs[i] + send_counts[i]);
-          world_.send(i, 0, chunk);
-        }
-      }
-    }
+    ScatterDataFromRoot(data, send_counts, displs, size, local_data);
   } else {
-    if (send_counts[rank] > 0) {  // Only receive if expecting data
-      world_.recv(0, 0, local_data);
-    }
+    world_.recv(0, 0, local_data);
   }
 
   return local_data;
@@ -272,11 +280,12 @@ std::vector<int> burykin_m_radix_all::RadixALL::GatherAndMerge(const std::vector
       int sender = rank + step;
       if (sender < size) {
         std::vector<int> received_data;
+        // Always receive - sender will always send (even empty data)
         world_.recv(sender, 0, received_data);
         current_data = MergeTwoSorted(current_data, received_data);
       }
     } else if (rank % step == 0) {
-      // Sender
+      // Sender - always send current data (even if empty)
       int receiver = rank - step;
       world_.send(receiver, 0, current_data);
       break;
