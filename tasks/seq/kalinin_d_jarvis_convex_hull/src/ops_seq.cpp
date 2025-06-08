@@ -25,7 +25,9 @@ std::vector<kalinin_d_jarvis_convex_hull_seq::Point> kalinin_d_jarvis_convex_hul
     kalinin_d_jarvis_convex_hull_seq::Point next_point = prev_point;  // Инициализация
     bool found = false;
     for (const auto& point : points) {
-      if (point == prev_point) continue;
+      if (point == prev_point) {
+        continue;
+      }
       if (!found) {
         next_point = point;
         found = true;
@@ -41,7 +43,9 @@ std::vector<kalinin_d_jarvis_convex_hull_seq::Point> kalinin_d_jarvis_convex_hul
         next_point = point;
       }
     }
-    if (!found || next_point == p0) break;
+    if (!found || next_point == p0) {
+      break;
+    }
     convex_hull.push_back(next_point);
     prev_point = next_point;
   }
