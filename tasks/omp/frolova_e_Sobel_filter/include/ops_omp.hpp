@@ -29,6 +29,7 @@ class SobelFilterOmp : public ppc::core::Task {
   size_t width_{};
   size_t height_{};
   std::vector<int> res_image_;
+  std::vector<int> grayscale_image_;
 };
 
 }  // namespace frolova_e_sobel_filter_omp

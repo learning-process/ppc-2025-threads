@@ -12,8 +12,8 @@
 #include "core/task/include/task.hpp"
 
 TEST(morozov_e_lineare_image_filtering_block_gaussian_all, test_pipeline_run) {
-  int n = 1000;
-  int m = 1000;
+  int n = 4000;
+  int m = 4000;
   std::vector<double> image(n * m, 1.0);
   std::vector<double> image_res(n * m, 1.0);
   std::vector real_res(n * m, 1.0);
@@ -60,8 +60,8 @@ TEST(morozov_e_lineare_image_filtering_block_gaussian_all, test_pipeline_run) {
 }
 
 TEST(morozov_e_lineare_image_filtering_block_gaussian_all, test_task_run) {
-  int n = 1000;
-  int m = 1000;
+  int n = 4000;
+  int m = 4000;
   std::vector<double> image(n * m, 1.0);
   std::vector<double> image_res(n * m, 1.0);
   std::vector real_res(n * m, 1.0);
