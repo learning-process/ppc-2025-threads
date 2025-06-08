@@ -1,151 +1,157 @@
 #include "tbb/zaitsev_a_bw_labeling/include/ops_tbb.hpp"
 
-#include <oneapi/tbb/mutex.h>
-#include <oneapi/tbb/parallel_for.h>
+#include <oneapi/tbb/task_group.h>
 
 #include <algorithm>
 #include <cmath>
 #include <cstdint>
+#include <functional>
 #include <map>
+#include <numeric>
 #include <set>
+#include <utility>
 #include <vector>
 
 #include "core/util/include/util.hpp"
-#include "oneapi/tbb/detail/_range_common.h"
-#include "oneapi/tbb/task_arena.h"
 
 using zaitsev_a_labeling_tbb::Labeler;
 
 namespace {
 
-// NOLINTBEGIN(readability-identifier-naming) - required here to make HardRange class compatible with tbb::parallel_for
-class HardRange {
-  Length start_;
-  Length end_;
-  Length chunk_;
+void FirstScan(Labels& labels, Equivalency& eq, Ordinal& ordinal, Length width) {
+  for (Length i = 0; i < labels.size(); i++) {
+    if (labels[i] == 0) {
+      continue;
+    }
 
- public:
-  HardRange(Length end, Length chunk) : start_(0), end_(end), chunk_(chunk) {}
-  HardRange(const HardRange& r) = default;
-  HardRange(HardRange& r, tbb::detail::split) : start_(r.start_ + r.chunk_), end_(r.end_), chunk_(r.chunk_) {
-    r.end_ = std::min(r.start_ + r.chunk_, r.end_);
+    Labels neighbours;
+    neighbours.reserve(4);
+
+    for (int shift = 0; shift < 4; shift++) {
+      long x = ((long)i % width) + (shift % 3 - 1);
+      long y = ((long)i / width) + (shift / 3 - 1);
+      long neighbour_index = x + (y * width);
+      Ordinal value = 0;
+      if (x >= 0 && x < static_cast<long>(width) && y >= 0) {
+        value = labels[neighbour_index];
+      }
+      if (value > 0) {
+        neighbours.push_back(value);
+      }
+    }
+
+    if (neighbours.empty()) {
+      labels[i] = ++ordinal;
+      eq[ordinal].insert(ordinal);
+    } else {
+      labels[i] = *std::ranges::min_element(neighbours);
+      for (auto& first : neighbours) {
+        for (auto& second : neighbours) {
+          eq[first].insert(second);
+        }
+      }
+    }
   }
-
-  [[nodiscard]] bool empty() const { return start_ >= end_; }
-  [[nodiscard]] bool is_divisible() const { return end_ > start_ + chunk_; };
-  [[nodiscard]] Length begin() const { return start_; }
-  [[nodiscard]] Length end() const { return end_; }
-};
-// NOLINTEND(readability-identifier-naming)
-
-Length GetChunk(Length width, Length height, int n_threads) {
-  return static_cast<Length>(std::ceil(static_cast<double>(height) / n_threads)) * width;
 }
-
-class FirstScan {
-  Image& image_;
-  Labels& labels_;
-  Ordinals& ordinals_;
-  unsigned int width_;
-  unsigned int height_;
-
-  [[nodiscard]] bool IsPointValid(long x, long y, const HardRange& r) const {
-    return 0L <= x && x < static_cast<long>(width_) && y >= 0L &&
-           (y * (long)width_) + x >= static_cast<long>(r.begin()) &&
-           (y * (long)width_) + x < static_cast<long>(r.end());
-  }
-
-  void GetNeighbours(Ordinals& neighbours, Length pos, const HardRange& r) const {
-    std::vector<std::pair<long, long>> shifts = {{-1, -1}, {0, -1}, {1, -1}, {-1, 0}};
-    for (const auto& shift : shifts) {
-      long x = (pos % width_) + shift.first;
-      long y = (pos / width_) + shift.second;
-      if (IsPointValid(x, y, r) && labels_[(y * width_) + x] != 0) {
-        neighbours.push_back(labels_[(y * width_) + x]);
-      }
-    }
-  }
-
- public:
-  FirstScan(Image& image, Labels& labels, Ordinals& ordinals, Length width, Length height)
-      : image_(image), labels_(labels), ordinals_(ordinals), width_(width), height_(height) {}
-
-  void operator()(const HardRange& r) const {
-    int n_threads = oneapi::tbb::this_task_arena::max_concurrency();
-    long chunk = GetChunk(width_, height_, n_threads);
-    Ordinal& ordinal = ordinals_[r.begin() / chunk];
-    DisjointSet dsj(chunk);
-    for (Length i = r.begin(); i < r.end(); i++) {
-      if (image_[i] == 0) {
-        continue;
-      }
-
-      std::vector<Ordinal> neighbours;
-      GetNeighbours(neighbours, i, r);
-
-      if (neighbours.empty()) {
-        labels_[i] = ++ordinal;
-      } else {
-        labels_[i] = std::ranges::min(neighbours);
-        std::ranges::for_each(neighbours, [&](Ordinal& x) { dsj.UnionRank(labels_[i], x); });
-      }
-    }
-
-    for (Length i = r.begin(); i < r.end(); i++) {
-      labels_[i] = dsj.FindParent(labels_[i]);
-    }
-
-    std::set<Ordinal> unique_labels(labels_.begin() + r.begin(), labels_.begin() + r.end());
-    std::map<Ordinal, Ordinal> replacements;
-    ordinal = 0;
-    for (const auto& it : unique_labels) {
-      replacements[it] = ordinal++;
-    }
-
-    for (Length i = r.begin(); i < r.end(); i++) {
-      labels_[i] = replacements[labels_[i]];
-    }
-  }
-};
 
 }  // namespace
 
-void Labeler::LabelingRasterScan(Ordinals& ordinals) {
-  oneapi::tbb::task_arena arena(ppc::util::GetPPCNumThreads());
-  arena.execute([&] {
-    oneapi::tbb::parallel_for(HardRange(size_, chunk_), FirstScan(image_, labels_, ordinals, width_, height_));
-  });
+bool Labeler::PreProcessingImpl() {
+  width_ = task_data->inputs_count[0];
+  height_ = task_data->inputs_count[1];
+  size_ = height_ * width_;
+  image_.resize(size_, 0);
+  std::copy(task_data->inputs[0], task_data->inputs[0] + size_, image_.begin());
+  return true;
 }
 
-void Labeler::UniteChunks() {
-  DisjointSet dsj(width_);
+bool Labeler::ValidationImpl() {
+  return task_data->inputs_count.size() == 2 && (!task_data->inputs.empty()) &&
+         (task_data->outputs_count[0] == task_data->inputs_count[0] * task_data->inputs_count[1]);
+}
+
+void Labeler::LabelingRasterScan(Equivalencies& eqs, Ordinals& ordinals) {
+  LabelsList lbls(ppc::util::GetPPCNumThreads(), Labels(chunk_, 0));
+  for (Length i = 0; i < size_; i++) {
+    lbls[i / chunk_][i % chunk_] = image_[i];
+  }
+
+  oneapi::tbb::task_group tg;
+  for (int i = 0; i < ppc::util::GetPPCNumThreads(); i++) {
+    tg.run([i, &lbls, &eqs, &ordinals, this] {
+      FirstScan(std::ref(lbls[i]), std::ref(eqs[i]), std::ref(ordinals[i]), width_);
+    });
+  }
+
+  tg.wait();
+
+  for (Length i = 0; i < size_; i++) {
+    labels_[i] = lbls[i / chunk_][i % chunk_];
+  }
+}
+
+void Labeler::UniteChunks(DisjointSet& dsj, Ordinals& ordinals) {
   long start_pos = 0;
   long end_pos = width_;
-
-  for (long i = 0; i < (long)std::ceil(((double)height_ * width_) / (chunk_)) - 1; i++) {
+  for (long i = 1; i < ppc::util::GetPPCNumThreads(); i++) {
     start_pos += chunk_;
     end_pos += chunk_;
     for (long pos = start_pos; pos < end_pos; pos++) {
-      if (labels_[pos] == 0) {
+      if (pos >= static_cast<long>(size_) || pos < 0 || labels_[pos] == 0) {
         continue;
       }
-      Ordinal lower = labels_[pos];
+      Length lower = labels_[pos];
       for (long shift = -1; shift < 2; shift++) {
-        if ((pos == start_pos && shift == -1) || (pos == end_pos - 1 && shift == 1)) {
-          continue;
-        }
         long neighbour_pos = std::clamp(pos + shift, start_pos, end_pos - 1) - width_;
         if (neighbour_pos < 0 || neighbour_pos >= static_cast<long>(size_) || labels_[neighbour_pos] == 0) {
           continue;
         }
-        Ordinal upper = labels_[neighbour_pos];
-        dsj.UnionRank(lower, upper);
+        Length upper = labels_[neighbour_pos];
+        dsj.UnionRank(upper, lower);
       }
     }
   }
+}
 
+void Labeler::CalculateReplacements(Replacements& replacements, Equivalencies& eqs, Ordinals& ordinals) {
+  Ordinal labels_amount = std::reduce(ordinals.begin(), ordinals.end(), 0);
+  Length shift = 0;
+
+  DisjointSet disjoint_labels(labels_amount + 1);
+
+  for (int i = 0; i < ppc::util::GetPPCNumThreads(); i++) {
+    for (auto& eq : eqs[i]) {
+      for (const auto& equal : eq.second) {
+        disjoint_labels.UnionRank(eq.first + shift, equal + shift);
+      }
+    }
+    shift += ordinals[i];
+  }
+
+  UniteChunks(disjoint_labels, ordinals);
+
+  replacements.resize(labels_amount + 1);
+  std::set<std::uint16_t> unique_labels;
+
+  for (Ordinal tmp_label = 1; tmp_label < labels_amount + 1; tmp_label++) {
+    replacements[tmp_label] = disjoint_labels.FindParent(tmp_label);
+    unique_labels.insert(replacements[tmp_label]);
+  }
+
+  Ordinal true_label = 0;
+  std::map<std::uint16_t, std::uint16_t> reps;
+  for (const auto& it : unique_labels) {
+    reps[it] = ++true_label;
+  }
+
+  for (Length i = 0; i < replacements.size(); i++) {
+    replacements[i] = reps[replacements[i]];
+  }
+}
+
+void Labeler::PerformReplacements(Replacements& replacements) {
   for (Length i = 0; i < size_; i++) {
-    labels_[i] = dsj.FindParent(labels_[i]);
+    labels_[i] = replacements[labels_[i]];
   }
 }
 
@@ -161,29 +167,20 @@ void Labeler::GlobalizeLabels(Ordinals& ordinals) {
   }
 }
 
-bool Labeler::ValidationImpl() {
-  return task_data->inputs_count.size() == 2 && (!task_data->inputs.empty()) &&
-         (task_data->outputs_count[0] == task_data->inputs_count[0] * task_data->inputs_count[1]);
-}
-
-bool Labeler::PreProcessingImpl() {
-  width_ = task_data->inputs_count[0];
-  height_ = task_data->inputs_count[1];
-  size_ = height_ * width_;
-  image_.resize(size_, 0);
-  std::copy(task_data->inputs[0], task_data->inputs[0] + size_, image_.begin());
-  return true;
-}
-
 bool Labeler::RunImpl() {
-  chunk_ = GetChunk(width_, height_, ppc::util::GetPPCNumThreads());
   labels_.clear();
   labels_.resize(size_, 0);
+  Equivalencies eqs(ppc::util::GetPPCNumThreads());
   Ordinals ordinals(ppc::util::GetPPCNumThreads(), 0);
+  Replacements replacements;
 
-  LabelingRasterScan(ordinals);
+  chunk_ = static_cast<long>(std::ceil(static_cast<double>(height_) / ppc::util::GetPPCNumThreads())) * width_;
+
+  LabelingRasterScan(eqs, ordinals);
   GlobalizeLabels(ordinals);
-  UniteChunks();
+
+  CalculateReplacements(replacements, eqs, ordinals);
+  PerformReplacements(replacements);
   return true;
 }
 

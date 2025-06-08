@@ -94,12 +94,12 @@ std::vector<Point> TestTaskOMP::BuildHull(const std::vector<Point>& sorted_point
     return sorted_points;
   }
 
-  hull.reserve(sorted_points.size());
+  hull.reserve(sorted_points.size() + 1);
   hull.push_back(FindPivot());
   hull.push_back(sorted_points[0]);
-
+  constexpr double kEpsilon = 1e-16;
   for (size_t i = 1; i < sorted_points.size(); ++i) {
-    while (hull.size() >= 2 && Cross(hull[hull.size() - 2], hull.back(), sorted_points[i]) <= 0) {
+    while (hull.size() >= 2 && Cross(hull[hull.size() - 2], hull.back(), sorted_points[i]) <= kEpsilon) {
       hull.pop_back();
     }
     hull.push_back(sorted_points[i]);
@@ -108,6 +108,16 @@ std::vector<Point> TestTaskOMP::BuildHull(const std::vector<Point>& sorted_point
 }
 
 bool TestTaskOMP::RunImpl() {
+  if (input_points_.size() < 3) {
+    if (input_points_.size() == 1 || input_points_.size() == 2) {
+      convex_hull_ = input_points_;
+      std::sort(convex_hull_.begin(), convex_hull_.end());
+    } else {
+      convex_hull_.clear();
+    }
+    return true;
+  }
+
   const Point pivot = FindPivot();
   const auto sorted_points = SortPoints(pivot);
   convex_hull_ = BuildHull(sorted_points);
