@@ -42,13 +42,16 @@ bool burykin_m_radix_all::RadixALL::RunImpl() {
   boost::mpi::broadcast(world_, array_size, 0);
 
   if (array_size == 0) {
+    if (rank == 0) {
+      output_.clear();
+    }
     return true;
   }
 
   // Distribute data using scatter approach
   local_data_ = DistributeData(input_, rank, size);
 
-  // Sort local data
+  // Sort local data - check if data is not empty before sorting
   if (!local_data_.empty()) {
     RadixSortLocal(local_data_);
   }
@@ -65,7 +68,9 @@ bool burykin_m_radix_all::RadixALL::RunImpl() {
 
 bool burykin_m_radix_all::RadixALL::PostProcessingImpl() {
   if (world_.rank() == 0) {
-    std::memcpy(task_data->outputs[0], output_.data(), output_.size() * sizeof(int));
+    if (!output_.empty()) {
+      std::memcpy(task_data->outputs[0], output_.data(), output_.size() * sizeof(int));
+    }
   }
   return true;
 }
@@ -157,6 +162,10 @@ void burykin_m_radix_all::RadixALL::RadixSortPositive(std::vector<int>& arr) {
 
 void burykin_m_radix_all::RadixALL::CountingSortByDigit(std::vector<int>& arr, int exp) {
   const int n = static_cast<int>(arr.size());
+  if (n == 0) {
+    return;
+  }
+
   std::vector<int> output(n);
   std::vector<int> count(10, 0);
 
@@ -196,10 +205,17 @@ void burykin_m_radix_all::RadixALL::CountingSortByDigit(std::vector<int>& arr, i
 
 std::vector<int> burykin_m_radix_all::RadixALL::DistributeData(const std::vector<int>& data, int rank, int size) {
   std::vector<int> local_data;
-  std::vector<int> send_counts(size);
-  std::vector<int> displs(size);
+  std::vector<int> send_counts(size, 0);
+  std::vector<int> displs(size, 0);
 
   if (rank == 0) {
+    // Handle empty data case
+    if (data.empty()) {
+      // Broadcast empty send_counts
+      boost::mpi::broadcast(world_, send_counts, 0);
+      return local_data;  // Return empty vector
+    }
+
     // Calculate optimal distribution
     const size_t total_size = data.size();
     const size_t base_chunk = total_size / size;
@@ -216,21 +232,30 @@ std::vector<int> burykin_m_radix_all::RadixALL::DistributeData(const std::vector
   // Broadcast distribution info
   boost::mpi::broadcast(world_, send_counts, 0);
 
+  // Handle case when this process gets no data
+  if (send_counts[rank] == 0) {
+    return local_data;  // Return empty vector
+  }
+
   // Resize local buffer
   local_data.resize(send_counts[rank]);
 
   // Scatter data efficiently
   if (rank == 0) {
     for (int i = 0; i < size; ++i) {
-      if (i == 0) {
-        std::copy(data.begin(), data.begin() + send_counts[0], local_data.begin());
-      } else {
-        std::vector<int> chunk(data.begin() + displs[i], data.begin() + displs[i] + send_counts[i]);
-        world_.send(i, 0, chunk);
+      if (send_counts[i] > 0) {  // Only send if there's data to send
+        if (i == 0) {
+          std::copy(data.begin(), data.begin() + send_counts[0], local_data.begin());
+        } else {
+          std::vector<int> chunk(data.begin() + displs[i], data.begin() + displs[i] + send_counts[i]);
+          world_.send(i, 0, chunk);
+        }
       }
     }
   } else {
-    world_.recv(0, 0, local_data);
+    if (send_counts[rank] > 0) {  // Only receive if expecting data
+      world_.recv(0, 0, local_data);
+    }
   }
 
   return local_data;

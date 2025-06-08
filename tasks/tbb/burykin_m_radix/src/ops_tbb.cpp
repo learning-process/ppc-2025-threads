@@ -167,7 +167,7 @@ bool burykin_m_radix_tbb::RadixTBB::PostProcessingImpl() {
         },
         tbb::auto_partitioner());
   } else {
-    std::copy(output_.begin(), output_.end(), output_ptr);
+    std::ranges::copy(output_, output_ptr);
   }
 
   return true;
