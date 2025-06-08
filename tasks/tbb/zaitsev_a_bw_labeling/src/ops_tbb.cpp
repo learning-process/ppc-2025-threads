@@ -75,11 +75,11 @@ void Labeler::LabelingRasterScan(Equivalencies& eqs, Ordinals& ordinals) {
   for (Length i = 0; i < size_; i++) {
     lbls[i / chunk_][i % chunk_] = image_[i];
   }
-
   oneapi::tbb::task_group tg;
+  Length www = width_;
   for (int i = 0; i < ppc::util::GetPPCNumThreads(); i++) {
-    tg.run([i, &lbls, &eqs, &ordinals, this] {
-      FirstScan(std::ref(lbls[i]), std::ref(eqs[i]), std::ref(ordinals[i]), width_);
+    tg.run([i, &lbls, &eqs, &ordinals, www] {
+      FirstScan(std::ref(lbls[i]), std::ref(eqs[i]), std::ref(ordinals[i]), www);
     });
   }
 
