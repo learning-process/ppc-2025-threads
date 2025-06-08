@@ -27,9 +27,8 @@ std::vector<kalinin_d_jarvis_convex_hull_seq::Point> CalculateConvexHull(
     return points;
   }
 
-  std::ranges::sort(points.begin(), points.end());
-  auto it = std::ranges::unique(points.begin(), points.end());
-  points.erase(it, points.end());
+  std::ranges::sort(points);
+  points.erase(std::ranges::unique(points);
 
   std::vector<kalinin_d_jarvis_convex_hull_seq::Point> hull;
 
@@ -49,9 +48,7 @@ std::vector<kalinin_d_jarvis_convex_hull_seq::Point> CalculateConvexHull(
     for (size_t i = 0; i < points.size(); ++i) {
       if (Cross(points[p], points[i], points[q]) > 0) {
         q = i;
-      }
-
-      else if (Cross(points[p], points[i], points[q]) == 0) {
+      } else if (Cross(points[p], points[i], points[q]) == 0) {
         double dist_i = std::hypot(points[i].x - points[p].x, points[i].y - points[p].y);
         double dist_q = std::hypot(points[q].x - points[p].x, points[q].y - points[p].y);
         if (dist_i > dist_q) {
