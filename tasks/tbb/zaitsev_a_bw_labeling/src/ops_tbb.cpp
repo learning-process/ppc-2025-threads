@@ -75,9 +75,7 @@ void Labeler::LabelingRasterScan(Equivalencies& eqs, Ordinals& ordinals) {
   for (Length i = 0; i < size_; i++) {
     lbls[i / chunk_][i % chunk_] = image_[i];
   }
-
   oneapi::tbb::task_group tg;
-  
   Length www = width_;
   for (int i = 0; i < ppc::util::GetPPCNumThreads(); i++) {
     tg.run([i, &lbls, &eqs, &ordinals, www] {
@@ -158,15 +156,15 @@ void Labeler::PerformReplacements(Replacements& replacements) {
 }
 
 void Labeler::GlobalizeLabels(Ordinals& ordinals) {
-   Length shift = 0;
-   for (Length i = chunk_; i < size_; i++) {
-     if (i % chunk_ == 0) {
-       shift += ordinals[(i / chunk_) - 1];
-     }
-     if (labels_[i] != 0) {
-       labels_[i] += shift;
-     }
-   }
+  Length shift = 0;
+  for (Length i = chunk_; i < size_; i++) {
+    if (i % chunk_ == 0) {
+      shift += ordinals[(i / chunk_) - 1];
+    }
+    if (labels_[i] != 0) {
+      labels_[i] += shift;
+    }
+  }
 }
 
 bool Labeler::RunImpl() {
