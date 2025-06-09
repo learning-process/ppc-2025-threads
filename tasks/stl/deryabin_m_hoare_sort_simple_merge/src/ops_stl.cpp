@@ -7,6 +7,8 @@
 #include <thread>
 #include <vector>
 
+#include "core/util/include/util.hpp"
+
 void deryabin_m_hoare_sort_simple_merge_stl::HoareSort(std::vector<double>& a, size_t first, size_t last) {
   if (first >= last) {
     return;
