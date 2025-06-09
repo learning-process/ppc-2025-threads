@@ -246,7 +246,7 @@ TEST(mezhuev_m_bitwise_integer_sort_stl, test_sort_random) {
 }
 
 TEST(mezhuev_m_bitwise_integer_sort_stl, test_sort_reverse) {
-  constexpr size_t kCount = 20;
+  constexpr size_t kCount = 21;
 
   std::vector<int> in(kCount, 0);
   std::vector<int> out(kCount, 0);
