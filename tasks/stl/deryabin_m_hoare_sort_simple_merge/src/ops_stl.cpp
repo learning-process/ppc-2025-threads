@@ -83,7 +83,7 @@ bool deryabin_m_hoare_sort_simple_merge_stl::HoareSortTaskSTL::ValidationImpl() 
 }
 
 bool deryabin_m_hoare_sort_simple_merge_stl::HoareSortTaskSTL::RunImpl() {
-  const size_t num_threads = std::thread::hardware_concurrency();
+  const size_t num_threads = std::min(ppc::util::GetPPCNumThreads(), std::thread::hardware_concurrency);
   if (chunk_count_ < num_threads) {
     // Увеличиваем число кусочков до ближайшей степени двойки >= num_threads,
     // чтобы эффективно загрузить все доступные потоки
