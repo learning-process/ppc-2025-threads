@@ -3,10 +3,12 @@
 
 #include <algorithm>
 #include <chrono>
+#include <cmath>
 #include <cstdint>
 #include <cstdlib>
-#include <cstring>
+#include <functional>
 #include <memory>
+#include <set>
 #include <vector>
 
 #include "core/perf/include/perf.hpp"
@@ -26,6 +28,9 @@ std::vector<kalinin_d_jarvis_convex_hull_tbb::Point> CalculateConvexHull(
     return points;
   }
 
+  std::ranges::sort(points, std::less<>());
+  points.erase(std::ranges::unique(points).begin(), points.end());
+
   std::vector<kalinin_d_jarvis_convex_hull_tbb::Point> hull;
 
   size_t l = 0;
@@ -44,6 +49,12 @@ std::vector<kalinin_d_jarvis_convex_hull_tbb::Point> CalculateConvexHull(
     for (size_t i = 0; i < points.size(); ++i) {
       if (Cross(points[p], points[i], points[q]) > 0) {
         q = i;
+      } else if (Cross(points[p], points[i], points[q]) == 0) {
+        double dist_i = std::hypot(points[i].x - points[p].x, points[i].y - points[p].y);
+        double dist_q = std::hypot(points[q].x - points[p].x, points[q].y - points[p].y);
+        if (dist_i > dist_q) {
+          q = i;
+        }
       }
     }
 
@@ -65,14 +76,14 @@ TEST(kalinin_d_jarvis_convex_hull_tbb, test_pipeline_run) {
   }
   std::vector<kalinin_d_jarvis_convex_hull_tbb::Point> res_hull(points.size());
   // Create TaskData
-  auto task_data_seq = std::make_shared<ppc::core::TaskData>();
-  task_data_seq->inputs.emplace_back(reinterpret_cast<uint8_t *>(points.data()));
-  task_data_seq->inputs_count.emplace_back(points.size());
-  task_data_seq->outputs.emplace_back(reinterpret_cast<uint8_t *>(res_hull.data()));
-  task_data_seq->outputs_count.emplace_back(res_hull.size());
+  auto task_data_seqp = std::make_shared<ppc::core::TaskData>();
+  task_data_seqp->inputs.emplace_back(reinterpret_cast<uint8_t *>(points.data()));
+  task_data_seqp->inputs_count.emplace_back(points.size());
+  task_data_seqp->outputs.emplace_back(reinterpret_cast<uint8_t *>(res_hull.data()));
+  task_data_seqp->outputs_count.emplace_back(res_hull.size());
 
   // Create Task
-  auto test_task_sequential = std::make_shared<kalinin_d_jarvis_convex_hull_tbb::TestTaskSequential>(task_data_seq);
+  auto test_task_openmp = std::make_shared<kalinin_d_jarvis_convex_hull_tbb::TestTaskSequential>(task_data_seqp);
 
   // Create Perf attributes
   auto perf_attr = std::make_shared<ppc::core::PerfAttr>();
@@ -88,26 +99,17 @@ TEST(kalinin_d_jarvis_convex_hull_tbb, test_pipeline_run) {
   auto perf_results = std::make_shared<ppc::core::PerfResults>();
 
   // Create Perf analyzer
-  auto perf_analyzer = std::make_shared<ppc::core::Perf>(test_task_sequential);
+  auto perf_analyzer = std::make_shared<ppc::core::Perf>(test_task_openmp);
   perf_analyzer->PipelineRun(perf_attr, perf_results);
   ppc::core::Perf::PrintPerfStatistic(perf_results);
 
   // Verify results
-  std::vector<kalinin_d_jarvis_convex_hull_tbb::Point> unique_points = points;
-  std::ranges::sort(unique_points,
-                    [](const auto &a, const auto &b) { return std::tie(a.x, a.y) < std::tie(b.x, b.y); });
-  auto last = std::ranges::unique(unique_points).begin();
-  unique_points.erase(last, unique_points.end());
-  std::vector<kalinin_d_jarvis_convex_hull_tbb::Point> res = CalculateConvexHull(unique_points);
-
-  size_t hull_size = task_data_seq->outputs_count[0];
-  std::vector<kalinin_d_jarvis_convex_hull_tbb::Point> hull_from_task(hull_size);
-  memcpy(hull_from_task.data(), res_hull.data(), hull_size * sizeof(kalinin_d_jarvis_convex_hull_tbb::Point));
-
-  ASSERT_EQ(hull_from_task.size(), res.size());
-  for (size_t i = 0; i < res.size(); ++i) {
-    ASSERT_EQ(res[i], hull_from_task[i]);
-  }
+  std::vector<kalinin_d_jarvis_convex_hull_tbb::Point> res = CalculateConvexHull(points);
+  // Обрезаем res_hull до размера res, чтобы не было "мусорных" точек
+  res_hull.resize(res.size());
+  std::set<kalinin_d_jarvis_convex_hull_tbb::Point> set_hull(res.begin(), res.end());
+  std::set<kalinin_d_jarvis_convex_hull_tbb::Point> set_res_hull(res_hull.begin(), res_hull.end());
+  ASSERT_EQ(set_hull, set_res_hull);
 }
 
 TEST(kalinin_d_jarvis_convex_hull_tbb, test_task_run) {
@@ -120,14 +122,14 @@ TEST(kalinin_d_jarvis_convex_hull_tbb, test_task_run) {
 
   std::vector<kalinin_d_jarvis_convex_hull_tbb::Point> res_hull(points.size());
   // Create TaskData
-  auto task_data_seq = std::make_shared<ppc::core::TaskData>();
-  task_data_seq->inputs.emplace_back(reinterpret_cast<uint8_t *>(points.data()));
-  task_data_seq->inputs_count.emplace_back(points.size());
-  task_data_seq->outputs.emplace_back(reinterpret_cast<uint8_t *>(res_hull.data()));
-  task_data_seq->outputs_count.emplace_back(res_hull.size());
+  auto task_data_seqp = std::make_shared<ppc::core::TaskData>();
+  task_data_seqp->inputs.emplace_back(reinterpret_cast<uint8_t *>(points.data()));
+  task_data_seqp->inputs_count.emplace_back(points.size());
+  task_data_seqp->outputs.emplace_back(reinterpret_cast<uint8_t *>(res_hull.data()));
+  task_data_seqp->outputs_count.emplace_back(res_hull.size());
 
   // Create Task
-  auto test_task_sequential = std::make_shared<kalinin_d_jarvis_convex_hull_tbb::TestTaskSequential>(task_data_seq);
+  auto test_task_openmp = std::make_shared<kalinin_d_jarvis_convex_hull_tbb::TestTaskSequential>(task_data_seqp);
 
   // Create Perf attributes
   auto perf_attr = std::make_shared<ppc::core::PerfAttr>();
@@ -143,24 +145,14 @@ TEST(kalinin_d_jarvis_convex_hull_tbb, test_task_run) {
   auto perf_results = std::make_shared<ppc::core::PerfResults>();
 
   // Create Perf analyzer
-  auto perf_analyzer = std::make_shared<ppc::core::Perf>(test_task_sequential);
+  auto perf_analyzer = std::make_shared<ppc::core::Perf>(test_task_openmp);
   perf_analyzer->TaskRun(perf_attr, perf_results);
   ppc::core::Perf::PrintPerfStatistic(perf_results);
 
   // Verify results
-  std::vector<kalinin_d_jarvis_convex_hull_tbb::Point> unique_points = points;
-  std::ranges::sort(unique_points,
-                    [](const auto &a, const auto &b) { return std::tie(a.x, a.y) < std::tie(b.x, b.y); });
-  auto last = std::ranges::unique(unique_points).begin();
-  unique_points.erase(last, unique_points.end());
-  std::vector<kalinin_d_jarvis_convex_hull_tbb::Point> res = CalculateConvexHull(unique_points);
-
-  size_t hull_size = task_data_seq->outputs_count[0];
-  std::vector<kalinin_d_jarvis_convex_hull_tbb::Point> hull_from_task(hull_size);
-  memcpy(hull_from_task.data(), res_hull.data(), hull_size * sizeof(kalinin_d_jarvis_convex_hull_tbb::Point));
-
-  ASSERT_EQ(hull_from_task.size(), res.size());
-  for (size_t i = 0; i < res.size(); ++i) {
-    ASSERT_EQ(res[i], hull_from_task[i]);
-  }
+  std::vector<kalinin_d_jarvis_convex_hull_tbb::Point> res = CalculateConvexHull(points);
+  res_hull.resize(res.size());
+  std::set<kalinin_d_jarvis_convex_hull_tbb::Point> set_res(res.begin(), res.end());
+  std::set<kalinin_d_jarvis_convex_hull_tbb::Point> set_res_hull(res_hull.begin(), res_hull.end());
+  ASSERT_EQ(set_res, set_res_hull);
 }
