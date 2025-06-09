@@ -28,6 +28,14 @@ TEST(Muradov_m_rect_int_tbb, test_pipeline_run) {
   auto test_task_tbbuential = std::make_shared<muradov_m_rect_int_tbb::RectIntTaskTBBPar>(
       task_data_tbb, [](const auto &args) { return args[0] + args[1] + args[2]; });
 
+  // warm up to avoid super weird issues with slow "add" instruction for for loop counter increment
+  test_task_tbbuential->ValidationImpl();
+  test_task_tbbuential->PreProcessingImpl();
+  for (std::size_t i = 0; i < 3; i++) {
+    test_task_tbbuential->RunImpl();
+  }
+  test_task_tbbuential->PostProcessingImpl();
+
   // Create Perf attributes
   auto perf_attr = std::make_shared<ppc::core::PerfAttr>();
   perf_attr->num_running = 10;
@@ -65,6 +73,14 @@ TEST(Muradov_m_rect_int_tbb, test_task_run) {
   // Create Task
   auto test_task_tbbuential = std::make_shared<muradov_m_rect_int_tbb::RectIntTaskTBBPar>(
       task_data_tbb, [](const auto &args) { return args[0] + args[1] + args[2]; });
+
+  // warm up to avoid super weird issues with slow "add" instruction for for loop counter increment
+  test_task_tbbuential->ValidationImpl();
+  test_task_tbbuential->PreProcessingImpl();
+  for (std::size_t i = 0; i < 3; i++) {
+    test_task_tbbuential->RunImpl();
+  }
+  test_task_tbbuential->PostProcessingImpl();
 
   // Create Perf attributes
   auto perf_attr = std::make_shared<ppc::core::PerfAttr>();

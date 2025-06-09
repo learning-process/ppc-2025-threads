@@ -38,19 +38,19 @@ bool muradov_m_rect_int_tbb::RectIntTaskTBBPar::RunImpl() {
     hh *= (bounds_[i].second - bounds_[i].first) / grains_;
     precomp[i] = (bounds_[i].second - bounds_[i].first) / grains_;
   }
-  int pts = static_cast<int>(std::pow(grains_, dims));
+  const auto pts = static_cast<std::size_t>(std::pow(grains_, dims));
 
   oneapi::tbb::task_arena arena(ppc::util::GetPPCNumThreads());
   res_ = arena.execute([&] {
     return oneapi::tbb::parallel_reduce(
-        oneapi::tbb::blocked_range(0, pts, pts / arena.max_concurrency()), 0.0,
-        [&](const tbb::blocked_range<int>& rng, double s) {
+        oneapi::tbb::blocked_range<std::size_t>(0, pts, pts / arena.max_concurrency()), 0.0,
+        [&](const tbb::blocked_range<std::size_t>& rng, double s) {
           FunArgs args(dims);
-          for (int i = rng.begin(); i < rng.end(); i++) {
+
+          for (std::size_t i = rng.begin(); i < rng.end(); i++) {
             auto j = i;
             for (size_t k = 0; k < dims; k++) {
-              args[k] = bounds_[k].first;
-              args[k] += (j % grains_) * precomp[k];
+              args[k] = bounds_[k].first + (double(j % grains_) * precomp[k]);
               j /= grains_;
             }
             s += fun_(args);
