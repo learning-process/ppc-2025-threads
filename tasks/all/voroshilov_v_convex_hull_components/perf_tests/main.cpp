@@ -159,9 +159,9 @@ void CheckResultsWithOpencv(int height, int width, std::vector<int>& pixels, std
 }  // namespace
 
 TEST(voroshilov_v_convex_hull_components_all, chc_pipeline_run) {
-  int height = 10'000;
-  int width = 10'000;
-  std::vector<int> pixels = GenerateRectanglesComponents(width, height, 1000, 100, 500);
+  int height = 3'000;
+  int width = 3'000;
+  std::vector<int> pixels = GenerateRectanglesComponents(width, height, 1000, 25, 100);
 
   int* p_height = &height;
   int* p_width = &width;
@@ -182,7 +182,7 @@ TEST(voroshilov_v_convex_hull_components_all, chc_pipeline_run) {
   auto chc_task_all = std::make_shared<voroshilov_v_convex_hull_components_all::ChcTaskALL>(task_data_all);
 
   auto perf_attr = std::make_shared<ppc::core::PerfAttr>();
-  perf_attr->num_running = 1;
+  perf_attr->num_running = 10;
   const auto t0 = std::chrono::high_resolution_clock::now();
   perf_attr->current_timer = [&] {
     auto current_time_point = std::chrono::high_resolution_clock::now();
@@ -208,9 +208,9 @@ TEST(voroshilov_v_convex_hull_components_all, chc_pipeline_run) {
 }
 
 TEST(voroshilov_v_convex_hull_components_all, chc_task_run) {
-  int height = 10'000;
-  int width = 10'000;
-  std::vector<int> pixels = GenerateRectanglesComponents(width, height, 1000, 100, 500);
+  int height = 3'000;
+  int width = 3'000;
+  std::vector<int> pixels = GenerateRectanglesComponents(width, height, 1000, 25, 100);
 
   int* p_height = &height;
   int* p_width = &width;
@@ -231,7 +231,7 @@ TEST(voroshilov_v_convex_hull_components_all, chc_task_run) {
   auto chc_task_all = std::make_shared<voroshilov_v_convex_hull_components_all::ChcTaskALL>(task_data_all);
 
   auto perf_attr = std::make_shared<ppc::core::PerfAttr>();
-  perf_attr->num_running = 1;
+  perf_attr->num_running = 10;
   const auto t0 = std::chrono::high_resolution_clock::now();
   perf_attr->current_timer = [&] {
     auto current_time_point = std::chrono::high_resolution_clock::now();
