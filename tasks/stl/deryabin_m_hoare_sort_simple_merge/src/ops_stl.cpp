@@ -85,33 +85,37 @@ bool deryabin_m_hoare_sort_simple_merge_stl::HoareSortTaskSTL::ValidationImpl() 
 }
 
 bool deryabin_m_hoare_sort_simple_merge_stl::HoareSortTaskSTL::RunImpl() {
-  const size_t num_threads = ppc::util::GetPPCNumThreads();
-  std::vector<std::thread> workers;
-  workers.reserve(num_threads);
+  const size_t num_threads =
+      std::min(static_cast<unsigned int>(ppc::util::GetPPCNumThreads()), std::thread::hardware_concurrency());
   if (chunk_count_ < num_threads) {
     // Увеличиваем число кусочков до ближайшей степени двойки >= num_threads,
     // чтобы эффективно загрузить все доступные потоки
     chunk_count_ = 1ULL << std::bit_width(num_threads - 1);
     min_chunk_size_ = dimension_ / chunk_count_;
   }
-  auto parallel_for = [&](size_t start, size_t end, auto&& func) {
+  std::vector<std::thread> workers;
+  workers.reserve(num_threads);
+  auto parallel_for = [&num_threads, &workers](size_t start, size_t end, auto&& func) {
     const size_t num_chunk_per_thread = (end - start) / num_threads;
     for (size_t i = 0; i < num_threads - 1; ++i) {
-      workers.emplace_back([=, &func] {
-        for (size_t j = start + (i * num_chunk_per_thread); j < start + (i + 1) * num_chunk_per_thread; ++j) {
+      workers.emplace_back([&func, start, i, num_chunk_per_thread] {
+        const size_t chunk_start = start + (i * num_chunk_per_thread);
+        const size_t chunk_end = start + (i + 1) * num_chunk_per_thread;
+        for (size_t j = chunk_start; j < chunk_end; ++j) {
           func(j);
         }
       });
     }
-    workers.emplace_back([=, &func] {
-      for (size_t j = start + ((num_threads - 1) * num_chunk_per_thread); j < end; ++j) {
+    workers.emplace_back([&func, start, num_chunk_per_thread, end, num_threads] {
+      const size_t chunk_start = start + ((num_threads - 1) * num_chunk_per_thread);
+      for (size_t j = chunk_start; j < end; ++j) {
         func(j);
       }
     });
     for (auto& worker : workers) {
       worker.join();
     }
-    workers.clear();
+    workers.resize(0);
   };
   parallel_for(0, chunk_count_, [this](size_t count) {
     HoareSort(input_array_A_, count * min_chunk_size_, ((count + 1) * min_chunk_size_) - 1);
