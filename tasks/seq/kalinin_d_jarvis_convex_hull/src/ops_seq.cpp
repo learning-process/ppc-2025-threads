@@ -22,15 +22,19 @@ std::vector<kalinin_d_jarvis_convex_hull_seq::Point> kalinin_d_jarvis_convex_hul
   kalinin_d_jarvis_convex_hull_seq::Point prev_point = p0;
 
   while (true) {
-    kalinin_d_jarvis_convex_hull_seq::Point next_point = points[0];
+    kalinin_d_jarvis_convex_hull_seq::Point next_point = prev_point;  // Инициализация
+    bool found = false;
     for (const auto& point : points) {
       if (point == prev_point) {
         continue;
       }
-
+      if (!found) {
+        next_point = point;
+        found = true;
+        continue;
+      }
       double cross_product = ((point.y - prev_point.y) * (next_point.x - prev_point.x)) -
                              ((point.x - prev_point.x) * (next_point.y - prev_point.y));
-
       if (cross_product > 0 ||
           (cross_product == 0 &&
            ((point.x - prev_point.x) * (point.x - prev_point.x) + (point.y - prev_point.y) * (point.y - prev_point.y)) >
@@ -39,8 +43,7 @@ std::vector<kalinin_d_jarvis_convex_hull_seq::Point> kalinin_d_jarvis_convex_hul
         next_point = point;
       }
     }
-
-    if (next_point == p0) {
+    if (!found || next_point == p0) {
       break;
     }
     convex_hull.push_back(next_point);
