@@ -23,7 +23,7 @@ Pixel::Pixel(int y_param, int x_param, int value_param) : y(y_param), x(x_param)
 bool Pixel::operator==(const int value_param) const { return value == value_param; }
 bool Pixel::operator==(const Pixel& other) const { return (y == other.y) && (x == other.x); }
 
-Image::Image(int hght, int wdth, std::vector<int> pxls) {
+Image::Image(int hght, int wdth, std::vector<int>& pxls) {
   height = hght;
   width = wdth;
   pixels.resize(height * width);

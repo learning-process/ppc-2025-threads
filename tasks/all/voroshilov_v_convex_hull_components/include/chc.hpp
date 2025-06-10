@@ -44,7 +44,7 @@ struct Image {
   std::vector<Pixel> pixels;
 
   Image() = default;
-  Image(int hght, int wdth, std::vector<int> pxls);
+  Image(int hght, int wdth, std::vector<int>& pxls);
   Image(const Image& other) = default;
   Image& operator=(const Image& other) = default;
   Pixel& GetPixel(int y, int x);
