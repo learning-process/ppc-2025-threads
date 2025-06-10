@@ -273,3 +273,32 @@ TEST(mezhuev_m_bitwise_integer_sort_stl, test_sort_reverse) {
   std::ranges::sort(expected);
   EXPECT_EQ(expected, out);
 }
+
+TEST(mezhuev_m_bitwise_integer_sort_stl, test_sort_large) {
+  constexpr size_t kCount = 1000;
+
+  std::vector<int> in(kCount, 0);
+  std::vector<int> out(kCount, 0);
+
+  for (size_t i = 0; i < kCount; i++) {
+    in[i] = rand() % 1000;
+  }
+
+  auto task_data_stl = std::make_shared<ppc::core::TaskData>();
+  task_data_stl->inputs.emplace_back(reinterpret_cast<uint8_t*>(in.data()));
+  task_data_stl->inputs_count.emplace_back(in.size());
+  task_data_stl->outputs.emplace_back(reinterpret_cast<uint8_t*>(out.data()));
+  task_data_stl->outputs_count.emplace_back(out.size());
+
+  mezhuev_m_bitwise_integer_sort_stl::SortSTL test_task_stl(task_data_stl);
+
+  ASSERT_EQ(test_task_stl.Validation(), true);
+
+  test_task_stl.PreProcessing();
+  test_task_stl.Run();
+  test_task_stl.PostProcessing();
+
+  std::vector<int> expected = in;
+  std::ranges::sort(expected);
+  EXPECT_EQ(expected, out);
+}
