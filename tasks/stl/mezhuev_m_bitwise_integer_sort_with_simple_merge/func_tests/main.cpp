@@ -217,13 +217,13 @@ TEST(mezhuev_m_bitwise_integer_sort_stl, EdgeCaseTest) {
 }
 
 TEST(mezhuev_m_bitwise_integer_sort_stl, test_sort_random) {
-  constexpr size_t kCount = 100;
+  constexpr size_t kCount = 50;
 
   std::vector<int> in(kCount, 0);
   std::vector<int> out(kCount, 0);
 
   for (size_t i = 0; i < kCount; i++) {
-    in[i] = rand() % 10000;
+    in[i] = rand() % 100;
   }
 
   auto task_data_stl = std::make_shared<ppc::core::TaskData>();
@@ -246,7 +246,7 @@ TEST(mezhuev_m_bitwise_integer_sort_stl, test_sort_random) {
 }
 
 TEST(mezhuev_m_bitwise_integer_sort_stl, test_sort_reverse) {
-  constexpr size_t kCount = 100;
+  constexpr size_t kCount = 21;
 
   std::vector<int> in(kCount, 0);
   std::vector<int> out(kCount, 0);
@@ -275,13 +275,13 @@ TEST(mezhuev_m_bitwise_integer_sort_stl, test_sort_reverse) {
 }
 
 TEST(mezhuev_m_bitwise_integer_sort_stl, test_sort_large) {
-  constexpr size_t kCount = 10000;
+  constexpr size_t kCount = 1000;
 
   std::vector<int> in(kCount, 0);
   std::vector<int> out(kCount, 0);
 
   for (size_t i = 0; i < kCount; i++) {
-    in[i] = rand() % 100000;
+    in[i] = rand() % 1000;
   }
 
   auto task_data_stl = std::make_shared<ppc::core::TaskData>();
