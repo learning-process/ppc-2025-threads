@@ -33,15 +33,14 @@ LineSegment::LineSegment(Pixel& a_param, Pixel& b_param) : a(a_param), b(b_param
 
 bool Hull::operator==(const Hull& other) const { return pixels == other.pixels; }
 
-Component voroshilov_v_convex_hull_components_seq::DepthComponentSearch(Pixel& start_pixel, Image* tmp_image,
-                                                                        int index) {
+Component voroshilov_v_convex_hull_components_seq::DepthComponentSearch(Pixel& start_pixel, Image& image, int index) {
   const int step_y[8] = {1, 1, 1, 0, 0, -1, -1, -1};  // Offsets by Y (up, stand, down)
   const int step_x[8] = {-1, 0, 1, -1, 1, -1, 0, 1};  // Offsets by X (left, stand, right)
   std::stack<Pixel> stack;
   Component component;
   stack.push(start_pixel);
-  tmp_image->GetPixel(start_pixel.y, start_pixel.x).value = index;        // Mark start pixel as visited
-  component.AddPixel(tmp_image->GetPixel(start_pixel.y, start_pixel.x));  // Add start pixel to component
+  image.GetPixel(start_pixel.y, start_pixel.x).value = index;        // Mark start pixel as visited
+  component.AddPixel(image.GetPixel(start_pixel.y, start_pixel.x));  // Add start pixel to component
 
   while (!stack.empty()) {
     Pixel current_pixel = stack.top();
@@ -49,11 +48,11 @@ Component voroshilov_v_convex_hull_components_seq::DepthComponentSearch(Pixel& s
     for (int i = 0; i < 8; i++) {
       int next_y = current_pixel.y + step_y[i];
       int next_x = current_pixel.x + step_x[i];
-      if (next_y >= 0 && next_y < tmp_image->height && next_x >= 0 && next_x < tmp_image->width &&
-          tmp_image->GetPixel(next_y, next_x) == 1) {
-        stack.push(tmp_image->GetPixel(next_y, next_x));
-        tmp_image->GetPixel(next_y, next_x).value = index;        // Mark neighbour pixel as visited
-        component.AddPixel(tmp_image->GetPixel(next_y, next_x));  // Add neighbour pixel to component
+      if (next_y >= 0 && next_y < image.height && next_x >= 0 && next_x < image.width &&
+          image.GetPixel(next_y, next_x) == 1) {
+        stack.push(image.GetPixel(next_y, next_x));
+        image.GetPixel(next_y, next_x).value = index;        // Mark neighbour pixel as visited
+        component.AddPixel(image.GetPixel(next_y, next_x));  // Add neighbour pixel to component
       }
     }
   }
@@ -62,18 +61,18 @@ Component voroshilov_v_convex_hull_components_seq::DepthComponentSearch(Pixel& s
 }
 
 std::vector<Component> voroshilov_v_convex_hull_components_seq::FindComponents(Image& image) {
-  Image tmp_image(image);
   std::vector<Component> components;
   int count = 0;
-  for (int y = 0; y < tmp_image.height; y++) {
-    for (int x = 0; x < tmp_image.width; x++) {
-      if (tmp_image.GetPixel(y, x) == 1) {
-        Component component = DepthComponentSearch(tmp_image.GetPixel(y, x), &tmp_image, count + 2);
+  for (int y = 0; y < image.height; y++) {
+    for (int x = 0; x < image.width; x++) {
+      if (image.GetPixel(y, x) == 1) {
+        Component component = DepthComponentSearch(image.GetPixel(y, x), image, count + 2);
         components.push_back(component);
         count++;
       }
     }
   }
+
   if (components.empty()) {
     return {};
   }
