@@ -1,0 +1,158 @@
+// Copyright 2025 Kalinin Dmitry
+#include <gtest/gtest.h>
+
+#include <algorithm>
+#include <chrono>
+#include <cmath>
+#include <cstdint>
+#include <cstdlib>
+#include <functional>
+#include <memory>
+#include <set>
+#include <vector>
+
+#include "core/perf/include/perf.hpp"
+#include "core/task/include/task.hpp"
+#include "tbb/kalinin_d_jarvis_convex_hull/include/ops_tbb.hpp"
+
+namespace {
+
+double Cross(const kalinin_d_jarvis_convex_hull_tbb::Point &o, const kalinin_d_jarvis_convex_hull_tbb::Point &a,
+             const kalinin_d_jarvis_convex_hull_tbb::Point &b) {
+  return ((a.x - o.x) * (b.y - o.y)) - ((a.y - o.y) * (b.x - o.x));
+}
+
+std::vector<kalinin_d_jarvis_convex_hull_tbb::Point> CalculateConvexHull(
+    std::vector<kalinin_d_jarvis_convex_hull_tbb::Point> points) {
+  if (points.size() < 3) {
+    return points;
+  }
+
+  std::ranges::sort(points, std::less<>());
+  points.erase(std::ranges::unique(points).begin(), points.end());
+
+  std::vector<kalinin_d_jarvis_convex_hull_tbb::Point> hull;
+
+  size_t l = 0;
+  for (size_t i = 1; i < points.size(); ++i) {
+    if (points[i].x < points[l].x) {
+      l = i;
+    }
+  }
+
+  size_t p = l;
+  size_t q = 0;
+  do {
+    hull.push_back(points[p]);
+
+    q = (p + 1) % points.size();
+    for (size_t i = 0; i < points.size(); ++i) {
+      if (Cross(points[p], points[i], points[q]) > 0) {
+        q = i;
+      } else if (Cross(points[p], points[i], points[q]) == 0) {
+        double dist_i = std::hypot(points[i].x - points[p].x, points[i].y - points[p].y);
+        double dist_q = std::hypot(points[q].x - points[p].x, points[q].y - points[p].y);
+        if (dist_i > dist_q) {
+          q = i;
+        }
+      }
+    }
+
+    p = q;
+
+  } while (p != l);
+
+  return hull;
+}
+
+}  // namespace
+
+TEST(kalinin_d_jarvis_convex_hull_tbb, test_pipeline_run) {
+  std::vector<kalinin_d_jarvis_convex_hull_tbb::Point> points;
+  const int size = 10000000;
+  points.reserve(size);
+  for (int i = 0; i < size; i++) {
+    points.push_back({i % 100, i % 200});
+  }
+  std::vector<kalinin_d_jarvis_convex_hull_tbb::Point> res_hull(points.size());
+  // Create TaskData
+  auto task_data_seqp = std::make_shared<ppc::core::TaskData>();
+  task_data_seqp->inputs.emplace_back(reinterpret_cast<uint8_t *>(points.data()));
+  task_data_seqp->inputs_count.emplace_back(points.size());
+  task_data_seqp->outputs.emplace_back(reinterpret_cast<uint8_t *>(res_hull.data()));
+  task_data_seqp->outputs_count.emplace_back(res_hull.size());
+
+  // Create Task
+  auto test_task_openmp = std::make_shared<kalinin_d_jarvis_convex_hull_tbb::TestTaskSequential>(task_data_seqp);
+
+  // Create Perf attributes
+  auto perf_attr = std::make_shared<ppc::core::PerfAttr>();
+  perf_attr->num_running = 10;
+  const auto t0 = std::chrono::high_resolution_clock::now();
+  perf_attr->current_timer = [&] {
+    auto current_time_point = std::chrono::high_resolution_clock::now();
+    auto duration = std::chrono::duration_cast<std::chrono::nanoseconds>(current_time_point - t0).count();
+    return static_cast<double>(duration) * 1e-9;
+  };
+
+  // Create and init perf results
+  auto perf_results = std::make_shared<ppc::core::PerfResults>();
+
+  // Create Perf analyzer
+  auto perf_analyzer = std::make_shared<ppc::core::Perf>(test_task_openmp);
+  perf_analyzer->PipelineRun(perf_attr, perf_results);
+  ppc::core::Perf::PrintPerfStatistic(perf_results);
+
+  // Verify results
+  std::vector<kalinin_d_jarvis_convex_hull_tbb::Point> res = CalculateConvexHull(points);
+  // Обрезаем res_hull до размера res, чтобы не было "мусорных" точек
+  res_hull.resize(res.size());
+  std::set<kalinin_d_jarvis_convex_hull_tbb::Point> set_hull(res.begin(), res.end());
+  std::set<kalinin_d_jarvis_convex_hull_tbb::Point> set_res_hull(res_hull.begin(), res_hull.end());
+  ASSERT_EQ(set_hull, set_res_hull);
+}
+
+TEST(kalinin_d_jarvis_convex_hull_tbb, test_task_run) {
+  std::vector<kalinin_d_jarvis_convex_hull_tbb::Point> points;
+  const int size = 10000000;
+  points.reserve(size);
+  for (int i = 0; i < size; i++) {
+    points.push_back({rand() % 100, rand() % 200});
+  }
+
+  std::vector<kalinin_d_jarvis_convex_hull_tbb::Point> res_hull(points.size());
+  // Create TaskData
+  auto task_data_seqp = std::make_shared<ppc::core::TaskData>();
+  task_data_seqp->inputs.emplace_back(reinterpret_cast<uint8_t *>(points.data()));
+  task_data_seqp->inputs_count.emplace_back(points.size());
+  task_data_seqp->outputs.emplace_back(reinterpret_cast<uint8_t *>(res_hull.data()));
+  task_data_seqp->outputs_count.emplace_back(res_hull.size());
+
+  // Create Task
+  auto test_task_openmp = std::make_shared<kalinin_d_jarvis_convex_hull_tbb::TestTaskSequential>(task_data_seqp);
+
+  // Create Perf attributes
+  auto perf_attr = std::make_shared<ppc::core::PerfAttr>();
+  perf_attr->num_running = 10;
+  const auto t0 = std::chrono::high_resolution_clock::now();
+  perf_attr->current_timer = [&] {
+    auto current_time_point = std::chrono::high_resolution_clock::now();
+    auto duration = std::chrono::duration_cast<std::chrono::nanoseconds>(current_time_point - t0).count();
+    return static_cast<double>(duration) * 1e-9;
+  };
+
+  // Create and init perf results
+  auto perf_results = std::make_shared<ppc::core::PerfResults>();
+
+  // Create Perf analyzer
+  auto perf_analyzer = std::make_shared<ppc::core::Perf>(test_task_openmp);
+  perf_analyzer->TaskRun(perf_attr, perf_results);
+  ppc::core::Perf::PrintPerfStatistic(perf_results);
+
+  // Verify results
+  std::vector<kalinin_d_jarvis_convex_hull_tbb::Point> res = CalculateConvexHull(points);
+  res_hull.resize(res.size());
+  std::set<kalinin_d_jarvis_convex_hull_tbb::Point> set_res(res.begin(), res.end());
+  std::set<kalinin_d_jarvis_convex_hull_tbb::Point> set_res_hull(res_hull.begin(), res_hull.end());
+  ASSERT_EQ(set_res, set_res_hull);
+}
