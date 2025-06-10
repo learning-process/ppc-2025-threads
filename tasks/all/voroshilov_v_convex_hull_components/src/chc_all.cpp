@@ -36,18 +36,9 @@ bool voroshilov_v_convex_hull_components_all::ChcTaskALL::PreProcessingImpl() {
 }
 
 bool voroshilov_v_convex_hull_components_all::ChcTaskALL::RunImpl() {
-  std::vector<Component> components;
+  std::vector<Component> local_components = FindComponentsMPIOMP(height_in_, width_in_, pixels_in_);
 
-  if (world_.rank() == 0) {
-    Image image(height_in_, width_in_, pixels_in_);
-    components = FindComponentsOMP(image);
-  }
-
-  if (world_.size() <= 1) {
-    hulls_out_ = QuickHullAllOMP(components);
-  } else {
-    hulls_out_ = QuickHullAllMPIOMP(components, width_in_);
-  }
+  hulls_out_ = QuickHullAllMPIOMP(local_components);
 
   return true;
 }

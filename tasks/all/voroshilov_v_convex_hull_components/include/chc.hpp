@@ -1,6 +1,7 @@
 #pragma once
 
-#include <boost/serialization/access.hpp>
+#include <boost/mpi/communicator.hpp>
+#include <boost/serialization/access.hpp>  // NOLINT(misc-include-cleaner)
 #include <cstddef>
 #include <unordered_map>
 #include <vector>
@@ -43,7 +44,7 @@ struct Image {
   std::vector<Pixel> pixels;
 
   Image() = default;
-  Image(int hght, int wdth, std::vector<int> pxls);
+  Image(int hght, int wdth, std::vector<int>& pxls);
   Image(const Image& other) = default;
   Image& operator=(const Image& other) = default;
   Pixel& GetPixel(int y, int x);
@@ -58,24 +59,38 @@ struct LineSegment {
 
 class UnionFind {
  public:
-  std::unordered_map<int, int> roots;
-  std::unordered_map<int, int> ranks;
+  std::vector<int> roots;
+  std::vector<int> ranks;
 
   UnionFind() = default;
+  UnionFind(int n);
   int FindRoot(int x);
   void Union(int x, int y);
 };
 
-void CheckBoundaryPixels(UnionFind* union_find, Image& image, int y, int x);
+void CheckBoundaryPixels(UnionFind& union_find, Image& image, int y, int x);
 
 void MergeComponentsAcrossAreas(std::vector<Component>& components, Image& image, int area_height,
                                 std::vector<int>& end_y);
 
-Component DepthComponentSearchInArea(Pixel start_pixel, Image* tmp_image, int index, int start_y, int end_y);
+template <typename T>
+std::vector<T> MergeVectors(std::vector<std::vector<T>>& vectors);
 
-std::vector<Component> FindComponentsInArea(Image& tmp_image, int start_y, int end_y, int index_offset);
+Component DepthComponentSearchInArea(Pixel start_pixel, Image& image, int index, int start_y, int end_y);
+
+std::vector<Component> FindComponentsInArea(Image& image, int start_y, int end_y, int index_offset);
 
 std::vector<Component> FindComponentsOMP(Image& image);
+
+std::unordered_map<int, std::vector<Pixel>> UnionComponents(int start_y, int end_y,
+                                                            std::vector<Component>& local_components,
+                                                            std::vector<Component>& from_up,
+                                                            std::unordered_map<int, std::vector<int>>& boundary_map);
+
+std::vector<Component> SendExtraComponents(boost::mpi::communicator& world, int start_y, int end_y,
+                                           std::vector<Component>& local_components);
+
+std::vector<Component> FindComponentsMPIOMP(int height, int width, std::vector<int>& pixels_in);
 
 int CheckRotation(Pixel& first, Pixel& second, Pixel& third);
 
@@ -83,14 +98,9 @@ Pixel FindFarthestPixel(std::vector<Pixel>& pixels, LineSegment& line_segment);
 
 std::vector<Pixel> QuickHull(Component& component);
 
-void ComputePartition(int vec_size, int world_size, std::vector<int>& parts, std::vector<int>& offsets);
-
-std::vector<std::vector<int>> PackIdxs(std::vector<Component>& components, int image_width, std::vector<int>& parts,
-                                       std::vector<int>& offsets, std::vector<int>& comp_sizes);
-
 std::vector<Hull> QuickHullAllOMP(std::vector<Component>& components);
 
-std::vector<Hull> QuickHullAllMPIOMP(std::vector<Component>& components, int image_width);
+std::vector<Hull> QuickHullAllMPIOMP(std::vector<Component>& components);
 
 void PackHulls(std::vector<Hull>& hulls, int width, int height, int* hulls_indxs, int* pixels_indxs);
 
